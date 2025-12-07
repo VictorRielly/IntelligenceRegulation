@@ -1,0 +1,17 @@
+name: intelligence-regulation
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pytorch
+  - pytorch-cuda=11.8  # or 12.1 depending on your CUDA version
+  - cudatoolkit
+  - pip
+  - pip:
+    - transformers>=4.30.0
+    - accelerate>=0.20.0
+    - huggingface-hub
+
