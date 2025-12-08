@@ -20,24 +20,63 @@ class ModelWithActivations:
     Wrapper class for a language model that allows extraction of intermediate activations.
     """
     
-    def __init__(self, model_name: str = "EleutherAI/gpt-neo-1.3B", device: Optional[str] = None):
+    def __init__(self, model_name: str = "EleutherAI/gpt-neo-1.3B", device: Optional[str] = None, 
+                 use_gpu: bool = True, load_in_8bit: bool = False, load_in_4bit: bool = False):
         """
-        Initialize the model and tokenizer.
+        Initialize the model and tokenizer with GPU support.
         
         Args:
-            model_name: Hugging Face model identifier (default: EleutherAI/gpt-neo-1.3B ~1.3B params)
+            model_name: Hugging Face model identifier
             device: Device to load model on ('cuda', 'cpu', or None for auto-detection)
+            use_gpu: Whether to prefer GPU (default: True)
+            load_in_8bit: Load model in 8-bit mode for memory efficiency (requires bitsandbytes)
+            load_in_4bit: Load model in 4-bit mode for memory efficiency (requires bitsandbytes)
         """
         self.model_name = model_name
-        self.device = device if device else ('cuda' if torch.cuda.is_available() else 'cpu')
+        
+        # Determine device
+        if device:
+            self.device = device
+        elif use_gpu and torch.cuda.is_available():
+            self.device = 'cuda'
+            print(f"GPU available: {torch.cuda.get_device_name(0)}")
+            print(f"GPU memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
+        else:
+            self.device = 'cpu'
+            if use_gpu:
+                print("Warning: GPU requested but not available. Using CPU.")
         
         print(f"Loading model: {model_name}")
         print(f"Using device: {self.device}")
         
-        # Load tokenizer and model
+        # Load tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForCausalLM.from_pretrained(model_name)
-        self.model.to(self.device)
+        
+        # Load model with optional quantization
+        if load_in_8bit or load_in_4bit:
+            try:
+                from transformers import BitsAndBytesConfig
+                quantization_config = BitsAndBytesConfig(
+                    load_in_8bit=load_in_8bit,
+                    load_in_4bit=load_in_4bit,
+                )
+                print(f"Loading model in {'8-bit' if load_in_8bit else '4-bit'} mode for memory efficiency...")
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    model_name,
+                    quantization_config=quantization_config,
+                    device_map="auto" if self.device == 'cuda' else None,
+                )
+            except ImportError:
+                print("Warning: bitsandbytes not available. Loading model normally.")
+                print("Install with: pip install bitsandbytes")
+                self.model = AutoModelForCausalLM.from_pretrained(model_name)
+                if self.device == 'cuda':
+                    self.model = self.model.to(self.device)
+        else:
+            self.model = AutoModelForCausalLM.from_pretrained(model_name)
+            if self.device == 'cuda':
+                self.model = self.model.to(self.device)
+        
         self.model.eval()
         
         # Ensure tokenizer has padding token
@@ -48,7 +87,14 @@ class ModelWithActivations:
         self.activations: Dict[int, torch.Tensor] = {}
         self.hooks: List = []
         
-        print(f"Model loaded successfully. Total parameters: {sum(p.numel() for p in self.model.parameters()):,}")
+        param_count = sum(p.numel() for p in self.model.parameters())
+        print(f"Model loaded successfully. Total parameters: {param_count:,}")
+        
+        if self.device == 'cuda':
+            memory_allocated = torch.cuda.memory_allocated(0) / 1e9
+            memory_reserved = torch.cuda.memory_reserved(0) / 1e9
+            print(f"GPU memory allocated: {memory_allocated:.2f} GB")
+            print(f"GPU memory reserved: {memory_reserved:.2f} GB")
     
     def _register_hooks(self, layer_indices: Optional[List[int]] = None):
         """
@@ -317,7 +363,7 @@ if __name__ == "__main__":
     
     # Compute sequential hash
     input_text = "The future of artificial intelligence"
-    input_text2 = "The future of artificial intelligence "
+    input_text2 = "The future of artificial intelligence"
     seed = 43
     final_hash, generated_text = model_wrapper.compute_sequential_hash(input_text, seed=seed, max_length=30)
     
