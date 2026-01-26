@@ -139,7 +139,7 @@ class ModelWithActivations:
             if 0 <= layer_idx < num_layers:
                 hook = layers[layer_idx].register_forward_hook(make_hook(layer_idx))
                 self.hooks.append(hook)
-                print(f"Registered hook for layer {layer_idx}")
+                #print(f"Registered hook for layer {layer_idx}")
             else:
                 print(f"Warning: Layer index {layer_idx} is out of range (0-{num_layers-1})")
     

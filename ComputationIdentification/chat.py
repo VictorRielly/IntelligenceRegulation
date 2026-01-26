@@ -246,8 +246,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run chat interface with GPU support")
     parser.add_argument("model_key", nargs="?", help="Model key to use (optional)")
     parser.add_argument("--cpu", action="store_true", help="Force CPU usage (disable GPU)")
-    parser.add_argument("--8bit", action="store_true", help="Load model in 8-bit mode (memory efficient)")
-    parser.add_argument("--4bit", action="store_true", help="Load model in 4-bit mode (most memory efficient)")
+    parser.add_argument("--8bit", action="store_true", dest="bit8", help="Load model in 8-bit mode (memory efficient)")
+    parser.add_argument("--4bit", action="store_true", dest="bit4", help="Load model in 4-bit mode (most memory efficient)")
     
     args = parser.parse_args()
     
@@ -263,8 +263,8 @@ if __name__ == "__main__":
         exit(1)
     
     use_gpu = not args.cpu
-    load_in_8bit = args.8bit
-    load_in_4bit = args.4bit
+    load_in_8bit = args.bit8
+    load_in_4bit = args.bit4
     
     if load_in_4bit and load_in_8bit:
         print("Error: Cannot use both 4-bit and 8-bit quantization. Choose one.")
