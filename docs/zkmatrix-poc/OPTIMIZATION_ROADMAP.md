@@ -23,21 +23,25 @@ The current Algorithm 6-shaped ZK batch prover has been measured for
 `n=1024` and `t in {1, 2, 4, 8, 16}`:
 
 ```text
-prove_time(t) ~= 37.55s + 1.16s * t
-projected t=1024: 1229s total, 1.20s per proof
+prove_time(t) ~= 36.65s + 0.253s * t
+projected t=1024: 296s total, 0.289s per proof
 ```
 
 Raw results:
 
 ```text
-docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_alg6_n1024_2026-06-10.csv
-docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_alg6_n1024_scaling_2026-06-10.txt
+docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_product_srs_series_n1024_2026-06-10.csv
+docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_product_srs_series_n1024_scaling_2026-06-10.txt
 ```
 
-This confirms that batching is amortizing the fixed projection-proof cost, but
-the current backend is still about `2.4x` slower than the paper's batched
-prover estimate. It also has no crossing point against local float SGEMM,
-because the marginal proof cost remains much larger than the marginal matrix
+This includes the product-SRS layout fix: `AY` and `BY` were moved to the
+front of the structured SRS, and KZG witness generation now trims trailing zero
+polynomial coefficients. Product proofs therefore open a degree-`O(n)`
+polynomial instead of accidentally paying for a degree-`O(n^2)` matrix SRS.
+
+The current projected prover time is better than the paper's `512.48s` Table 3
+estimate, but it still has no crossing point against local float SGEMM because
+the marginal proof cost remains much larger than the marginal matrix
 multiplication cost.
 
 ## Current Memory Mismatch
@@ -84,13 +88,22 @@ cannot validate Table 3's memory claim.
    materializing projected bases when a streaming polynomial/MSM formula is
    available.
 
-5. GPU MSM backend
+5. Benchmark fixture reuse
+
+   The benchmark now has `bench-batch-series`, which reuses one SRS and one
+   generated witness set across all requested batch sizes in a sweep. If
+   repeated local experiments remain slow, add an optional on-disk fixture cache
+   for deterministic witness seeds, statements, and products. Do not cache all
+   dense witnesses for large `t`, because that recreates the wrong Table 3
+   memory model.
+
+6. GPU MSM backend
 
    Integrate a real cryptographic GPU MSM backend, such as ICICLE CUDA or a
    Metal-compatible equivalent for Apple Silicon. This is separate from float
    matrix multiplication acceleration.
 
-6. Compact SRS representation
+7. Compact SRS representation
 
    The local benchmark constructs and stores SRS powers directly. A Table
    3-style benchmark needs compact setup/loading and careful accounting so SRS

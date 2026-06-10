@@ -488,22 +488,26 @@ Current local results for the implemented Algorithm 6-shaped ZK batch prover
 are stored in:
 
 ```text
-docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_alg6_n1024_2026-06-10.csv
-docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_alg6_n1024_scaling_2026-06-10.txt
+docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_product_srs_series_n1024_2026-06-10.csv
+docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_product_srs_series_n1024_scaling_2026-06-10.txt
 ```
 
 The measured rows for `n=1024` and `t in {1,2,4,8,16}` fit the model:
 
 ```text
-prove_time(t) ~= 37.55s + 1.16s * t
+prove_time(t) ~= 36.65s + 0.253s * t
 ```
 
-That projects to about `1229s` total, or `1.20s` per proof, for `t=1024`.
-This confirms that batching is amortizing the large fixed cost, but the current
-backend is still about `2.4x` slower than Table 3's `512.48s` total estimate
-for batched proving. It also has no crossing point against local float SGEMM:
-the fitted marginal proof cost is still much larger than a single Accelerate
-SGEMM at this matrix size.
+That projects to about `296s` total, or `0.289s` per proof, for `t=1024`. This
+is better than Table 3's `512.48s` total prover estimate, but it still has no
+crossing point against local float SGEMM: the fitted marginal proof cost remains
+much larger than a single Accelerate SGEMM at this matrix size.
+
+The benchmark wrapper now uses `structured_matrix bench-batch-series`, which
+reuses one SRS and one generated witness set across all requested batch sizes in
+a sweep. This removes repeated setup/product-generation wall-clock overhead for
+local experiments, without treating dense witness caching as the final Table 3
+memory model.
 
 ## Main Risks
 

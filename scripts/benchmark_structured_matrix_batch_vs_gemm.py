@@ -69,6 +69,25 @@ def run_batch(mode: str, size: int, batch: int) -> dict[str, str]:
     return rows[0]
 
 
+def run_batch_series(mode: str, size: int, batches: list[int]) -> list[dict[str, str]]:
+    result = subprocess.run(
+        [
+            str(BINARY),
+            "bench-batch-series",
+            mode,
+            str(size),
+            *[str(batch) for batch in batches],
+        ],
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+    )
+    rows = list(csv.DictReader(result.stdout.splitlines()))
+    if len(rows) != len(batches):
+        raise RuntimeError(f"expected {len(batches)} batch rows, got {len(rows)}")
+    return rows
+
+
 def main() -> None:
     args = parse_args()
     if not args.no_build:
@@ -116,13 +135,13 @@ def main() -> None:
         output_handle.flush()
 
     try:
-        for batch in args.batches:
-            print(
-                f"[structured-batch-vs-gemm] running {args.mode} n={args.size} batch={batch}",
-                file=sys.stderr,
-                flush=True,
-            )
-            row = run_batch(args.mode, args.size, batch)
+        print(
+            f"[structured-batch-vs-gemm] running {args.mode} n={args.size} batches={args.batches}",
+            file=sys.stderr,
+            flush=True,
+        )
+        for row in run_batch_series(args.mode, args.size, args.batches):
+            batch = int(row["batch"])
             batch_prove_s = float(row["batch_prove_s"])
             prove_per_claim_s = float(row["prove_per_claim_s"])
             float_batch_matmul_s = matmul_s * batch

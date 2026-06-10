@@ -289,20 +289,20 @@ optimize that prototype into the production backend.
    This shows the intended Algorithm 6 amortization in the curve-proof work,
    although it remains far slower than optimized floating-point GEMM.
 
-   At `n=1024`, the current implementation has been measured for
-   `t in {1,2,4,8,16}`. The raw CSV and fitted projection are:
+   At `n=1024`, the current product-SRS implementation has been measured for
+   `t in {1,2,4,8,16}` using the shared-setup batch-series benchmark. The raw
+   CSV and fitted projection are:
 
    ```text
-   docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_alg6_n1024_2026-06-10.csv
-   docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_alg6_n1024_scaling_2026-06-10.txt
+   docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_product_srs_series_n1024_2026-06-10.csv
+   docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_product_srs_series_n1024_scaling_2026-06-10.txt
    ```
 
-   The fitted model is approximately `37.55s + 1.16s * t`, projecting to
-   `1229s` total and `1.20s` amortized per proof at `t=1024`. This is a real
-   batching benefit, but it is still slower than the paper Table 3 target of
-   `512.48s` total and `0.50s` amortized per proof. The current benchmark also
-   stores all dense witnesses and therefore cannot validate Table 3's `304 MB`
-   RAM claim.
+   The fitted model is approximately `36.65s + 0.253s * t`, projecting to
+   `296s` total and `0.289s` amortized per proof at `t=1024`. This is better
+   than the paper Table 3 prover-time estimate of `512.48s` total and `0.50s`
+   amortized per proof. The current benchmark still stores all dense witnesses
+   and therefore cannot validate Table 3's `304 MB` RAM claim.
 
 4. Add fixed-base and streaming MSM for prover commitments/openings.
 
@@ -313,8 +313,9 @@ optimize that prototype into the production backend.
 
    Status: partially implemented. Contiguous SRS-window commitments now avoid
    basis materialization, no-`h` IPA proofs skip dummy curve-base folding, large
-   dot products/folds run through Rayon, and witness field matmul is row
-   parallel. A true reusable fixed-base MSM table is still missing.
+   dot products/folds run through Rayon, witness field matmul is row parallel,
+   and product proofs open low-degree `AY/BY` polynomials instead of the full
+   matrix SRS. A true reusable fixed-base MSM table is still missing.
 
 5. Add batched product-proof dot products.
 

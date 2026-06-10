@@ -239,12 +239,12 @@ fn hash_to_basis(label: &[u8], index: usize) -> G1Projective {
 fn layout(n: usize) -> Layout {
     assert!(n.is_power_of_two());
     let nn = n * n;
-    let off_a = 0;
+    let off_ay = 0;
+    let off_by = off_ay + n;
+    let off_a = off_by + n;
     let off_b = off_a + nn;
     let off_c = off_b + nn;
-    let off_ay = off_c + nn;
-    let off_by = off_ay + n;
-    let srs_len = off_by + n;
+    let srs_len = off_c + nn;
     Layout {
         n,
         nn,
@@ -702,6 +702,14 @@ fn quotient_coefficients(coeffs: &[Scalar], zeta: Scalar) -> Vec<Scalar> {
     quotient
 }
 
+fn active_polynomial_len(coeffs: &[Scalar]) -> usize {
+    coeffs
+        .iter()
+        .rposition(|coeff| !bool::from(coeff.is_zero()))
+        .map(|idx| (idx + 1).max(2))
+        .unwrap_or(2)
+}
+
 fn verify_kzg(
     commitment: G1Projective,
     value: Scalar,
@@ -946,7 +954,8 @@ fn prove_ip_structured(
         add_terms_to_poly(&mut poly, specs, &h_fold, proof.b_final);
     }
     let zeta = kzg_challenge(commitment, &proof, domain ^ 0x5EC7_0001);
-    let quotient = quotient_coefficients(&poly, zeta);
+    let active_len = active_polynomial_len(&poly);
+    let quotient = quotient_coefficients(&poly[..active_len], zeta);
     proof.kzg_witness = msm(&srs.powers[..quotient.len()], &quotient);
     proof
 }
@@ -2580,11 +2589,76 @@ fn bench_batch(mode: &str, n: usize, batch: usize) {
     );
 }
 
+fn bench_batch_with_data(
+    mode: &str,
+    layout: &Layout,
+    srs: &StructuredSrs,
+    witnesses: &mut [Witness],
+    batch: usize,
+    setup_s: f64,
+) {
+    let mut zk_rng = proof_rng();
+    let start = Instant::now();
+    let statements: Vec<_> = if mode == "zk" {
+        witnesses[..batch]
+            .iter_mut()
+            .map(|w| zk_statement(layout, srs, w, &mut zk_rng))
+            .collect()
+    } else {
+        witnesses[..batch]
+            .iter()
+            .map(|w| statement(layout, srs, w))
+            .collect()
+    };
+    let commit_s = start.elapsed().as_secs_f64();
+    let start = Instant::now();
+    let (batch_prove_s, batch_verify_s, verified) = if mode == "zk" {
+        let proof = prove_zk_batch(layout, srs, &statements, &witnesses[..batch], &mut zk_rng);
+        let prove_s = start.elapsed().as_secs_f64();
+        let start = Instant::now();
+        let verified = verify_zk_batch(layout, srs, &statements, &proof);
+        (prove_s, start.elapsed().as_secs_f64(), verified)
+    } else {
+        let proof = prove_batch(layout, srs, &statements, &witnesses[..batch]);
+        let prove_s = start.elapsed().as_secs_f64();
+        let start = Instant::now();
+        let verified = verify_batch(layout, srs, &statements, &proof);
+        (prove_s, start.elapsed().as_secs_f64(), verified)
+    };
+    println!(
+        "{mode},{},{batch},{setup_s:.9},{commit_s:.9},{batch_prove_s:.9},{:.9},{batch_verify_s:.9},{:.9},{verified}",
+        layout.n,
+        batch_prove_s / batch as f64,
+        batch_verify_s / batch as f64,
+    );
+}
+
+fn bench_batch_series(mode: &str, n: usize, batches: &[usize]) {
+    assert!(!batches.is_empty());
+    for &batch in batches {
+        assert!(batch.is_power_of_two());
+    }
+    let max_batch = *batches.iter().max().unwrap();
+    let layout = layout(n);
+    let mut rng = 0x5775_3000 + n as u64 + max_batch as u64;
+    let tau = scalar_from_rng(&mut rng);
+    let start = Instant::now();
+    let srs = make_srs(&layout, tau);
+    let setup_s = start.elapsed().as_secs_f64();
+    let mut witnesses: Vec<_> = (0..max_batch)
+        .map(|i| make_witness(n, 0xCAFE + n as u64 + 17 * i as u64))
+        .collect();
+    for &batch in batches {
+        bench_batch_with_data(mode, &layout, &srs, &mut witnesses, batch, setup_s);
+    }
+}
+
 fn usage() {
     eprintln!("usage:");
     eprintln!("  structured_matrix self-test");
     eprintln!("  structured_matrix bench <core|zk|both> <n> [n...]");
     eprintln!("  structured_matrix bench-batch <core|zk> <n> <batch_power_of_two>");
+    eprintln!("  structured_matrix bench-batch-series <core|zk> <n> <batch_power_of_two>...");
 }
 
 fn main() {
@@ -2635,6 +2709,23 @@ fn main() {
                 "mode,n,batch,setup_s,commit_s,batch_prove_s,prove_per_claim_s,batch_verify_s,verify_per_claim_s,verified"
             );
             bench_batch(mode, n, batch);
+        }
+        "bench-batch-series" => {
+            if args.len() < 5 {
+                usage();
+                std::process::exit(1);
+            }
+            let mode = args[2].as_str();
+            if mode != "core" && mode != "zk" {
+                usage();
+                std::process::exit(1);
+            }
+            let n: usize = args[3].parse().unwrap();
+            let batches: Vec<usize> = args[4..].iter().map(|arg| arg.parse().unwrap()).collect();
+            println!(
+                "mode,n,batch,setup_s,commit_s,batch_prove_s,prove_per_claim_s,batch_verify_s,verify_per_claim_s,verified"
+            );
+            bench_batch_series(mode, n, &batches);
         }
         _ => {
             usage();

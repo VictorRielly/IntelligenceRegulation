@@ -1,0 +1,14 @@
+source_csv,docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_product_srs_n1024_2026-06-10.csv
+rows,5
+float_matmul_s,0.000516070000
+prove_fixed_s,36.569895377
+prove_marginal_s_per_claim,0.238343937
+verify_fixed_s,0.010187774
+verify_marginal_s_per_claim,0.002665694
+project_batch,1024
+projected_prove_s,280.634086363
+projected_prove_per_claim_s,0.274056725
+projected_verify_s,2.739858099
+projected_float_batch_s,0.528455680
+projected_prove_over_float_batch,531.046
+crossover_batch,none_with_positive_marginal_gap

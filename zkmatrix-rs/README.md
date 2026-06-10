@@ -184,7 +184,8 @@ python3 scripts/benchmark_structured_matrix.py --mode both --sizes 32 64 128 256
 python3 scripts/benchmark_structured_matrix.py --mode core --sizes 16 --batch 4
 python3 scripts/benchmark_structured_matrix_vs_fast_gemm.py --mode zk --sizes 32 64 128 256
 python3 scripts/benchmark_structured_matrix_batch_vs_gemm.py --mode zk --size 256 --batches 1 2 4 8 16 --matmul-backends accelerate
-python3 scripts/analyze_structured_batch_scaling.py docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_alg6_n256_2026-06-10.csv
+python3 scripts/benchmark_structured_matrix_batch_vs_gemm.py --no-build --mode zk --size 1024 --batches 1 2 4 8 16 --matmul-backends accelerate
+python3 scripts/analyze_structured_batch_scaling.py docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_product_srs_series_n1024_2026-06-10.csv
 ```
 
 Observed local results:
@@ -215,11 +216,11 @@ zk,256,8,3.942427,0.492803,0.028457,0.003557
 zk,256,16,5.203369,0.325211,0.047696,0.002981
 
 mode,n,batch,batch_prove_s,prove_per_claim_s,batch_verify_s,verify_per_claim_s
-zk,1024,1,38.650630,38.650630,0.012773,0.012773
-zk,1024,2,39.896901,19.948450,0.015545,0.007773
-zk,1024,4,42.111365,10.527841,0.020815,0.005204
-zk,1024,8,47.056612,5.882076,0.031530,0.003941
-zk,1024,16,56.089089,3.505568,0.054287,0.003393
+zk,1024,1,36.869140,36.869140,0.012747,0.012747
+zk,1024,2,37.209025,18.604513,0.015609,0.007805
+zk,1024,4,37.730036,9.432509,0.020978,0.005245
+zk,1024,8,38.563824,4.820478,0.031507,0.003938
+zk,1024,16,40.742897,2.546431,0.053011,0.003313
 ```
 
 The ZK batch path now follows the paper's Algorithm 6 shape: derive `y`, publish
@@ -238,11 +239,12 @@ while SGEMM is using highly optimized dense floating-point kernels.
 For `n=1024`, fitting the rows above gives approximately:
 
 ```text
-prove_time(t) ~= 37.55s + 1.16s * t
-projected t=1024: 1229s total, 1.20s per proof
+prove_time(t) ~= 36.65s + 0.253s * t
+projected t=1024: 296s total, 0.289s per proof
 ```
 
 The paper's Table 3 target for `t=1024` is `512.48s` total and `0.50s` per
-proof. The current backend therefore has the right batching shape but still
-misses the Table 3 marginal-cost target, mainly because product proofs are not
-fused across the batch and the MSM/KZG backend is still CPU-only.
+proof. The current backend is now faster than that prover-time estimate after
+moving `AY/BY` to low-degree SRS windows and trimming KZG openings to active
+polynomial degree. It still does not cross local SGEMM, and it still does not
+validate Table 3's RAM estimate until the streaming benchmark exists.
