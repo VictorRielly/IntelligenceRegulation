@@ -14,6 +14,8 @@ prototype over the same toy prime-order additive field backend:
 - A BLS12-381 IPA benchmark with independent hash-to-curve Pedersen bases,
   which is the production-style commitment primitive but still has the ordinary
   linear verifier.
+- A BLS12-381 structured matrix proof prototype with Section 3 KZG verification
+  for the four matrix IPAs and a same-shape batch mode.
 - Fused/specialized inner-product prover paths for the large projection proofs:
   no-`h` proofs skip zero-vector work, each round computes its dot products in
   one pass, and large folds run in parallel.
@@ -30,6 +32,7 @@ cargo build --release
 ./target/release/zkmatrix-rs self-test
 ./target/release/section3_kzg self-test
 ./target/release/curve_ipa self-test
+./target/release/structured_matrix self-test
 python3 -m unittest tests/test_zkmatrix_native_backends.py
 ```
 
@@ -132,3 +135,27 @@ the primitive itself.
    projected bases.
 5. Add a GPU MSM backend such as ICICLE CUDA/Metal and benchmark against local
    float SGEMM.
+
+Structured matrix prototype:
+
+```bash
+python3 scripts/benchmark_structured_matrix.py --sizes 8 16 32
+python3 scripts/benchmark_structured_matrix.py --sizes 16 --batch 4
+```
+
+Observed local results:
+
+```text
+n,setup_s,commit_s,prove_s,verify_s
+8,0.012979,0.022501,0.103406,0.005629
+16,0.046096,0.042474,0.271334,0.006409
+32,0.163782,0.162764,0.730886,0.007272
+
+n,batch,batch_prove_s,prove_per_claim_s,batch_verify_s,verify_per_claim_s
+8,4,0.291753,0.072938,0.006460,0.001615
+16,4,0.759240,0.189810,0.007278,0.001820
+```
+
+This is a correctness-first core proof prototype. It demonstrates the full
+matrix structured-SRS formulas and same-shape batching, but it is not yet the
+optimized ZK matrix backend used for large toy benchmarks.

@@ -416,6 +416,18 @@ while the structured KZG verifier takes about 3 ms. The remaining work is to
 lift those structured basis formulas through the full matrix proof's projected
 `A`, `B`, and `C` bases.
 
+That lift now exists as a small BLS12-381 structured matrix prototype:
+
+```bash
+python3 scripts/benchmark_structured_matrix.py --sizes 8 16 32
+python3 scripts/benchmark_structured_matrix.py --sizes 16 --batch 4
+```
+
+It assigns structured SRS ranges for `A`, `B`, `C`, `AY`, and `BY`, verifies the
+four matrix IPAs with Section 3 KZG openings, and supports same-shape batching
+with common `y` and `rho` powers. It is a core-proof prototype, not yet the
+large-scale optimized ZK backend.
+
 ## Main Risks
 
 - No usable public zkMatrix implementation exists.

@@ -54,6 +54,8 @@ scripts/benchmark_zkmatrix.py      Python proof benchmark
 scripts/benchmark_zkmatrix_rust.py Rust proof benchmark wrapper
 scripts/benchmark_section3_kzg.py  Section 3 KZG verifier benchmark wrapper
 scripts/benchmark_curve_ipa.py     BLS12-381 hash-to-curve IPA benchmark wrapper
+scripts/benchmark_structured_matrix.py
+                                   BLS12-381 structured matrix proof benchmark
 scripts/benchmark_zkmatrix_vs_fast_gemm.py
                                    Compares proof timing to local GEMM backends
 tests/test_zkmatrix_protocol.py    Python protocol correctness tests
@@ -107,6 +109,7 @@ cargo build --release
 ./target/release/zkmatrix-rs self-test
 ./target/release/section3_kzg self-test
 ./target/release/curve_ipa self-test
+./target/release/structured_matrix self-test
 ```
 
 ## Benchmarks
@@ -217,6 +220,10 @@ This is still a proof-of-concept, not production cryptography.
 
 ## Next Engineering Steps
 
+The first three roadmap steps now exist as a correctness-first prototype in
+`zkmatrix-rs/src/bin/structured_matrix.rs`. The remaining work is to harden and
+optimize that prototype into the production backend.
+
 1. Derive full matrix structured-SRS formulas.
 
    The current full matrix proof materializes projected bases:
@@ -233,8 +240,9 @@ This is still a proof-of-concept, not production cryptography.
    `AY`, `BY`, scalar, and blind bases, then derive verifier-side polynomial
    evaluation formulas for the `C`, `A`, and `B` projection proofs.
 
-   Deliverable: a small structured matrix verifier for `n <= 64` that matches
-   the toy verifier and uses the KZG verifier path for all four IPAs.
+   Status: implemented for the core matrix proof. The structured prototype
+   assigns exponent ranges for `A`, `B`, `C`, `AY`, and `BY`, and verifies all
+   four matrix IPAs through Section 3 KZG openings.
 
 2. Replace the toy matrix commitment layer with BLS12-381 structured bases.
 
@@ -243,9 +251,8 @@ This is still a proof-of-concept, not production cryptography.
    wire the full `prove_zk` and `verify_zk` matrix flow to structured
    BLS12-381 commitments.
 
-   Deliverable: correctness tests for small committed matrix multiplication
-   over the real curve backend, with the old toy backend retained for fast
-   regression and large-shape experiments.
+   Status: implemented as a separate BLS12-381 structured matrix binary. The
+   old toy backend is retained for fast regression and large-shape experiments.
 
 3. Add Algorithm 6 same-shape batching.
 
@@ -254,9 +261,10 @@ This is still a proof-of-concept, not production cryptography.
    repeated MLP, Q/K/V/O, and attention score/value multiplications whenever
    shapes align.
 
-   Deliverable: `bench-batch <mode> <n> <batch_count>` that reports total
-   proof time, marginal proof time, proof size, and verifier time per matrix
-   multiplication.
+   Status: implemented for the core structured matrix proof with
+   `structured_matrix bench-batch <n> <batch_count>`. The batch mode uses a
+   common `y`, randomized `rho` powers, concatenated projection IPAs, and one
+   batched product IPA.
 
 4. Add fixed-base and streaming MSM for prover commitments/openings.
 

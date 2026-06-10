@@ -21,6 +21,7 @@ RUST_CRATE = ROOT / "zkmatrix-rs"
 RUST_BINARY = RUST_CRATE / "target" / "release" / "zkmatrix-rs"
 SECTION3_BINARY = RUST_CRATE / "target" / "release" / "section3_kzg"
 CURVE_IPA_BINARY = RUST_CRATE / "target" / "release" / "curve_ipa"
+STRUCTURED_MATRIX_BINARY = RUST_CRATE / "target" / "release" / "structured_matrix"
 
 
 def python_case(mode: str, n: int, seed: int, valid: bool) -> bool:
@@ -81,6 +82,9 @@ class NativeBackendTests(unittest.TestCase):
 
     def test_curve_ipa_self_test(self):
         subprocess.run([str(CURVE_IPA_BINARY), "self-test"], check=True)
+
+    def test_structured_matrix_self_test(self):
+        subprocess.run([str(STRUCTURED_MATRIX_BINARY), "self-test"], check=True)
 
 
 if __name__ == "__main__":
