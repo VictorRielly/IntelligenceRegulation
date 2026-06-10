@@ -3,6 +3,8 @@ use std::env;
 use std::time::Instant;
 
 const Q: u64 = 2_305_843_009_213_688_669;
+const PAR_DOT_THRESHOLD: usize = 1 << 18;
+const PAR_FOLD_THRESHOLD: usize = 1 << 18;
 
 #[inline]
 fn addm(a: u64, b: u64) -> u64 {
@@ -200,7 +202,7 @@ fn reduce_sum(values: impl ParallelIterator<Item = u64>) -> u64 {
 }
 
 fn dot(a: &[u64], b: &[u64]) -> u64 {
-    if a.len() < (1 << 24) {
+    if a.len() < PAR_DOT_THRESHOLD {
         let mut acc = 0;
         for i in 0..a.len() {
             acc = addm(acc, mulm(a[i], b[i]));
@@ -208,6 +210,205 @@ fn dot(a: &[u64], b: &[u64]) -> u64 {
         acc
     } else {
         reduce_sum(a.par_iter().zip(b.par_iter()).map(|(&x, &y)| mulm(x, y)))
+    }
+}
+
+fn add_pair(left: (u64, u64), right: (u64, u64)) -> (u64, u64) {
+    (addm(left.0, right.0), addm(left.1, right.1))
+}
+
+fn add_quad(left: (u64, u64, u64, u64), right: (u64, u64, u64, u64)) -> (u64, u64, u64, u64) {
+    (
+        addm(left.0, right.0),
+        addm(left.1, right.1),
+        addm(left.2, right.2),
+        addm(left.3, right.3),
+    )
+}
+
+fn add_six(left: (u64, u64, u64, u64, u64, u64), right: (u64, u64, u64, u64, u64, u64)) -> (u64, u64, u64, u64, u64, u64) {
+    (
+        addm(left.0, right.0),
+        addm(left.1, right.1),
+        addm(left.2, right.2),
+        addm(left.3, right.3),
+        addm(left.4, right.4),
+        addm(left.5, right.5),
+    )
+}
+
+fn round_sums_linear(a: &[u64], g: &[u64], half: usize) -> (u64, u64) {
+    if half < PAR_DOT_THRESHOLD {
+        let mut left_g = 0;
+        let mut right_g = 0;
+        for i in 0..half {
+            left_g = addm(left_g, mulm(a[i], g[half + i]));
+            right_g = addm(right_g, mulm(a[half + i], g[i]));
+        }
+        (left_g, right_g)
+    } else {
+        (0..half)
+            .into_par_iter()
+            .map(|i| (mulm(a[i], g[half + i]), mulm(a[half + i], g[i])))
+            .reduce(|| (0, 0), add_pair)
+    }
+}
+
+fn round_sums_no_h(a: &[u64], b: &[u64], g: &[u64], half: usize, scalar_base: u64) -> (u64, u64) {
+    let (left_g, right_g, left_cross, right_cross) = if half < PAR_DOT_THRESHOLD {
+        let mut left_g = 0;
+        let mut right_g = 0;
+        let mut left_cross = 0;
+        let mut right_cross = 0;
+        for i in 0..half {
+            let al = a[i];
+            let ar = a[half + i];
+            let bl = b[i];
+            let br = b[half + i];
+            left_g = addm(left_g, mulm(al, g[half + i]));
+            right_g = addm(right_g, mulm(ar, g[i]));
+            left_cross = addm(left_cross, mulm(al, br));
+            right_cross = addm(right_cross, mulm(ar, bl));
+        }
+        (left_g, right_g, left_cross, right_cross)
+    } else {
+        (0..half)
+            .into_par_iter()
+            .map(|i| {
+                let al = a[i];
+                let ar = a[half + i];
+                let bl = b[i];
+                let br = b[half + i];
+                (
+                    mulm(al, g[half + i]),
+                    mulm(ar, g[i]),
+                    mulm(al, br),
+                    mulm(ar, bl),
+                )
+            })
+            .reduce(|| (0, 0, 0, 0), add_quad)
+    };
+    (
+        addm(left_g, mulm(scalar_base, left_cross)),
+        addm(right_g, mulm(scalar_base, right_cross)),
+    )
+}
+
+fn round_sums_full(a: &[u64], b: &[u64], g: &[u64], h: &[u64], half: usize, scalar_base: u64) -> (u64, u64) {
+    let (left_g, right_g, left_h, right_h, left_cross, right_cross) = if half < PAR_DOT_THRESHOLD {
+        let mut left_g = 0;
+        let mut right_g = 0;
+        let mut left_h = 0;
+        let mut right_h = 0;
+        let mut left_cross = 0;
+        let mut right_cross = 0;
+        for i in 0..half {
+            let al = a[i];
+            let ar = a[half + i];
+            let bl = b[i];
+            let br = b[half + i];
+            left_g = addm(left_g, mulm(al, g[half + i]));
+            right_g = addm(right_g, mulm(ar, g[i]));
+            left_h = addm(left_h, mulm(br, h[i]));
+            right_h = addm(right_h, mulm(bl, h[half + i]));
+            left_cross = addm(left_cross, mulm(al, br));
+            right_cross = addm(right_cross, mulm(ar, bl));
+        }
+        (left_g, right_g, left_h, right_h, left_cross, right_cross)
+    } else {
+        (0..half)
+            .into_par_iter()
+            .map(|i| {
+                let al = a[i];
+                let ar = a[half + i];
+                let bl = b[i];
+                let br = b[half + i];
+                (
+                    mulm(al, g[half + i]),
+                    mulm(ar, g[i]),
+                    mulm(br, h[i]),
+                    mulm(bl, h[half + i]),
+                    mulm(al, br),
+                    mulm(ar, bl),
+                )
+            })
+            .reduce(|| (0, 0, 0, 0, 0, 0), add_six)
+    };
+    (
+        addm(addm(left_g, left_h), mulm(scalar_base, left_cross)),
+        addm(addm(right_g, right_h), mulm(scalar_base, right_cross)),
+    )
+}
+
+fn fold_linear(a: &mut [u64], g: &mut [u64], len: usize, x: u64, xi: u64) {
+    let half = len / 2;
+    let (al, ar) = a[..len].split_at_mut(half);
+    let (gl, gr) = g[..len].split_at_mut(half);
+    if half < PAR_FOLD_THRESHOLD {
+        for i in 0..half {
+            al[i] = addm(al[i], mulm(xi, ar[i]));
+            gl[i] = addm(gl[i], mulm(x, gr[i]));
+        }
+    } else {
+        al.par_iter_mut()
+            .zip(ar.par_iter())
+            .zip(gl.par_iter_mut().zip(gr.par_iter()))
+            .for_each(|((al_i, &ar_i), (gl_i, &gr_i))| {
+                *al_i = addm(*al_i, mulm(xi, ar_i));
+                *gl_i = addm(*gl_i, mulm(x, gr_i));
+            });
+    }
+}
+
+fn fold_no_h(a: &mut [u64], b: &mut [u64], g: &mut [u64], len: usize, x: u64, xi: u64) {
+    let half = len / 2;
+    let (al, ar) = a[..len].split_at_mut(half);
+    let (bl, br) = b[..len].split_at_mut(half);
+    let (gl, gr) = g[..len].split_at_mut(half);
+    if half < PAR_FOLD_THRESHOLD {
+        for i in 0..half {
+            al[i] = addm(al[i], mulm(xi, ar[i]));
+            bl[i] = addm(bl[i], mulm(x, br[i]));
+            gl[i] = addm(gl[i], mulm(x, gr[i]));
+        }
+    } else {
+        al.par_iter_mut()
+            .zip(ar.par_iter())
+            .zip(bl.par_iter_mut().zip(br.par_iter()))
+            .zip(gl.par_iter_mut().zip(gr.par_iter()))
+            .for_each(|(((al_i, &ar_i), (bl_i, &br_i)), (gl_i, &gr_i))| {
+                *al_i = addm(*al_i, mulm(xi, ar_i));
+                *bl_i = addm(*bl_i, mulm(x, br_i));
+                *gl_i = addm(*gl_i, mulm(x, gr_i));
+            });
+    }
+}
+
+fn fold_full(a: &mut [u64], b: &mut [u64], g: &mut [u64], h: &mut [u64], len: usize, x: u64, xi: u64) {
+    let half = len / 2;
+    let (al, ar) = a[..len].split_at_mut(half);
+    let (bl, br) = b[..len].split_at_mut(half);
+    let (gl, gr) = g[..len].split_at_mut(half);
+    let (hl, hr) = h[..len].split_at_mut(half);
+    if half < PAR_FOLD_THRESHOLD {
+        for i in 0..half {
+            al[i] = addm(al[i], mulm(xi, ar[i]));
+            bl[i] = addm(bl[i], mulm(x, br[i]));
+            gl[i] = addm(gl[i], mulm(x, gr[i]));
+            hl[i] = addm(hl[i], mulm(xi, hr[i]));
+        }
+    } else {
+        al.par_iter_mut()
+            .zip(ar.par_iter())
+            .zip(bl.par_iter_mut().zip(br.par_iter()))
+            .zip(gl.par_iter_mut().zip(gr.par_iter()))
+            .zip(hl.par_iter_mut().zip(hr.par_iter()))
+            .for_each(|((((al_i, &ar_i), (bl_i, &br_i)), (gl_i, &gr_i)), (hl_i, &hr_i))| {
+                *al_i = addm(*al_i, mulm(xi, ar_i));
+                *bl_i = addm(*bl_i, mulm(x, br_i));
+                *gl_i = addm(*gl_i, mulm(x, gr_i));
+                *hl_i = addm(*hl_i, mulm(xi, hr_i));
+            });
     }
 }
 
@@ -308,6 +509,9 @@ fn b_projection_bases(bases: &Bases, yr: &[u64]) -> Vec<u64> {
 }
 
 fn prove_ip(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64], h_in: Option<&[u64]>, a_in: Option<&[u64]>, b_in: Option<&[u64]>, domain: u64) -> IpProof {
+    if h_in.is_none() {
+        return prove_ip_no_h(input_n, commitment, scalar_base, g_in, a_in, b_in, domain);
+    }
     let proof_n = next_pow2(input_n);
     let rounds = log2_pow2(proof_n);
     let mut g = vec![0; proof_n];
@@ -324,18 +528,10 @@ fn prove_ip(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64], h_i
     let mut len = proof_n;
     for round in 0..rounds {
         let half = len / 2;
-        let left_cross = dot(&a[..half], &b[half..len]);
-        let right_cross = dot(&a[half..len], &b[..half]);
-        let left = addm(addm(dot(&a[..half], &g[half..len]), dot(&b[half..len], &h[..half])), mulm(scalar_base, left_cross));
-        let right = addm(addm(dot(&a[half..len], &g[..half]), dot(&b[..half], &h[half..len])), mulm(scalar_base, right_cross));
+        let (left, right) = round_sums_full(&a, &b, &g, &h, half, scalar_base);
         let x = challenge6(domain, round, current, scalar_base, left, right);
         let xi = invm(x);
-        for i in 0..half {
-            a[i] = addm(a[i], mulm(xi, a[half + i]));
-            b[i] = addm(b[i], mulm(x, b[half + i]));
-            g[i] = addm(g[i], mulm(x, g[half + i]));
-            h[i] = addm(h[i], mulm(xi, h[half + i]));
-        }
+        fold_full(&mut a, &mut b, &mut g, &mut h, len, x, xi);
         current = addm(addm(mulm(x, left), current), mulm(xi, right));
         left_messages.push(left);
         right_messages.push(right);
@@ -344,9 +540,54 @@ fn prove_ip(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64], h_i
     IpProof { n: proof_n, left: left_messages, right: right_messages, a_final: a[0], b_final: b[0] }
 }
 
+fn prove_ip_no_h(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64], a_in: Option<&[u64]>, b_in: Option<&[u64]>, domain: u64) -> IpProof {
+    let proof_n = next_pow2(input_n);
+    let rounds = log2_pow2(proof_n);
+    let mut g = vec![0; proof_n];
+    let mut a = vec![0; proof_n];
+    g[..input_n].copy_from_slice(g_in);
+    if let Some(av) = a_in { a[..input_n].copy_from_slice(av); }
+    let mut current = commitment;
+    let mut left_messages = Vec::with_capacity(rounds);
+    let mut right_messages = Vec::with_capacity(rounds);
+    let mut len = proof_n;
+    if let Some(bv) = b_in {
+        let mut b = vec![0; proof_n];
+        b[..input_n].copy_from_slice(bv);
+        for round in 0..rounds {
+            let half = len / 2;
+            let (left, right) = round_sums_no_h(&a, &b, &g, half, scalar_base);
+            let x = challenge6(domain, round, current, scalar_base, left, right);
+            let xi = invm(x);
+            fold_no_h(&mut a, &mut b, &mut g, len, x, xi);
+            current = addm(addm(mulm(x, left), current), mulm(xi, right));
+            left_messages.push(left);
+            right_messages.push(right);
+            len = half;
+        }
+        IpProof { n: proof_n, left: left_messages, right: right_messages, a_final: a[0], b_final: b[0] }
+    } else {
+        for round in 0..rounds {
+            let half = len / 2;
+            let (left, right) = round_sums_linear(&a, &g, half);
+            let x = challenge6(domain, round, current, scalar_base, left, right);
+            let xi = invm(x);
+            fold_linear(&mut a, &mut g, len, x, xi);
+            current = addm(addm(mulm(x, left), current), mulm(xi, right));
+            left_messages.push(left);
+            right_messages.push(right);
+            len = half;
+        }
+        IpProof { n: proof_n, left: left_messages, right: right_messages, a_final: a[0], b_final: 0 }
+    }
+}
+
 fn verify_ip(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64], h_in: Option<&[u64]>, proof: &IpProof, domain: u64) -> bool {
     if proof.n != next_pow2(input_n) || proof.left.len() != log2_pow2(proof.n) {
         return false;
+    }
+    if h_in.is_none() {
+        return verify_ip_no_h(input_n, commitment, scalar_base, g_in, proof, domain);
     }
     let mut g = vec![0; proof.n];
     let mut h = vec![0; proof.n];
@@ -360,14 +601,63 @@ fn verify_ip(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64], h_
         let right = proof.right[round];
         let x = challenge6(domain, round, current, scalar_base, left, right);
         let xi = invm(x);
-        for i in 0..half {
-            g[i] = addm(g[i], mulm(x, g[half + i]));
-            h[i] = addm(h[i], mulm(xi, h[half + i]));
-        }
+        fold_verify_full(&mut g, &mut h, len, x, xi);
         current = addm(addm(mulm(x, left), current), mulm(xi, right));
         len = half;
     }
     let expected = addm(addm(mulm(scalar_base, mulm(proof.a_final, proof.b_final)), mulm(g[0], proof.a_final)), mulm(h[0], proof.b_final));
+    current == expected
+}
+
+fn fold_verify_no_h(g: &mut [u64], len: usize, x: u64) {
+    let half = len / 2;
+    let (gl, gr) = g[..len].split_at_mut(half);
+    if half < PAR_FOLD_THRESHOLD {
+        for i in 0..half {
+            gl[i] = addm(gl[i], mulm(x, gr[i]));
+        }
+    } else {
+        gl.par_iter_mut().zip(gr.par_iter()).for_each(|(gl_i, &gr_i)| {
+            *gl_i = addm(*gl_i, mulm(x, gr_i));
+        });
+    }
+}
+
+fn fold_verify_full(g: &mut [u64], h: &mut [u64], len: usize, x: u64, xi: u64) {
+    let half = len / 2;
+    let (gl, gr) = g[..len].split_at_mut(half);
+    let (hl, hr) = h[..len].split_at_mut(half);
+    if half < PAR_FOLD_THRESHOLD {
+        for i in 0..half {
+            gl[i] = addm(gl[i], mulm(x, gr[i]));
+            hl[i] = addm(hl[i], mulm(xi, hr[i]));
+        }
+    } else {
+        gl.par_iter_mut()
+            .zip(gr.par_iter())
+            .zip(hl.par_iter_mut().zip(hr.par_iter()))
+            .for_each(|((gl_i, &gr_i), (hl_i, &hr_i))| {
+                *gl_i = addm(*gl_i, mulm(x, gr_i));
+                *hl_i = addm(*hl_i, mulm(xi, hr_i));
+            });
+    }
+}
+
+fn verify_ip_no_h(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64], proof: &IpProof, domain: u64) -> bool {
+    let mut g = vec![0; proof.n];
+    g[..input_n].copy_from_slice(g_in);
+    let mut current = commitment;
+    let mut len = proof.n;
+    for round in 0..proof.left.len() {
+        let left = proof.left[round];
+        let right = proof.right[round];
+        let x = challenge6(domain, round, current, scalar_base, left, right);
+        let xi = invm(x);
+        fold_verify_no_h(&mut g, len, x);
+        current = addm(addm(mulm(x, left), current), mulm(xi, right));
+        len /= 2;
+    }
+    let expected = addm(mulm(scalar_base, mulm(proof.a_final, proof.b_final)), mulm(g[0], proof.a_final));
     current == expected
 }
 

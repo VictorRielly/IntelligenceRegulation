@@ -219,8 +219,10 @@ hashing, and transcript operations.
 
 The POC should assume GPU acceleration is possible but not automatic.
 Cryptographic GPU libraries such as ICICLE support CUDA and Metal backends for
-many relevant primitives. However, a zkMatrix implementation will need to
-actually call those primitives or provide equivalent GPU kernels.
+MSM, NTT, and curve operations, but those backends are licensed runtime
+components. A zkMatrix implementation must explicitly call those primitives or
+provide equivalent GPU kernels; PyTorch, JAX, or Apple Accelerate GEMM will not
+accelerate cryptographic MSM by themselves.
 
 Benchmarks must distinguish:
 
@@ -364,23 +366,63 @@ python3 scripts/benchmark_zkmatrix_rust.py --mode both --sizes 2048 3072 4096
 Observed local results:
 
 ```text
-core 2048: proof/exact-matmul = 1.085
-core 3072: proof/exact-matmul = 0.932
-core 4096: proof/exact-matmul = 0.526
+core 2048: prove = 0.187 s, proof/exact-matmul = 0.372
+core 4096: prove = 0.496 s, proof/exact-matmul = 0.125
+core 6144: prove = 1.043 s, proof/exact-matmul = 0.078
+core 8192: prove = 1.640 s, proof/exact-matmul = 0.052
 
-zk   2048: proof/exact-matmul = 1.474
-zk   3072: proof/exact-matmul = 1.186
-zk   4096: proof/exact-matmul = 0.616
+zk   2048: prove = 0.244 s, proof/exact-matmul = 0.487
+zk   4096: prove = 0.631 s, proof/exact-matmul = 0.159
+zk   6144: prove = 1.294 s, proof/exact-matmul = 0.096
+zk   8192: prove = 2.082 s, proof/exact-matmul = 0.066
 ```
 
 This is still not a production cryptographic implementation. It proves that the
 protocol structure can cross dense exact field multiplication once Python object
-overhead is removed. The next implementation milestone is a real curve/MSM
-backend and the Section 3 accelerated pairing verifier.
+overhead and avoidable generic inner-product work are removed.
+
+The Rust crate also contains a standalone Section 3 KZG verifier primitive over
+BLS12-381:
+
+```bash
+python3 scripts/benchmark_section3_kzg.py --degrees 1024 4096 16384 65536 262144
+```
+
+This uses `blstrs`/`blst` Pippenger MSM for the prover-side commitment/opening
+work and one combined multi-Miller-loop pairing check for verification. On the
+local CPU, the accelerated verifier stays around 0.7 ms from 1k to 1M
+coefficients, while the direct verifier MSM grows from about 1 ms to about
+300 ms. The primitive still needs to be wired
+into the complete matrix proof verifier.
+
+It also contains a production-curve IPA primitive with independent
+hash-to-curve BLS12-381 bases:
+
+```bash
+python3 scripts/benchmark_curve_ipa.py --lengths 1024 4096 16384 65536 262144
+python3 scripts/benchmark_curve_ipa.py --structured --lengths 1024 4096 16384 65536 262144
+```
+
+This benchmark intentionally uses the ordinary IPA verifier. It confirms why
+the current full matrix verifier is slow: without the Section 3 structured
+SRS/KZG verifier, verification folds every committed basis and is linear in the
+committed vector length. At 262,144 scalars, the production-curve IPA verifier
+takes about 27.4 seconds on the local CPU, while the Section 3 KZG verifier
+primitive stays around 0.7 ms for a similar coefficient-vector size.
+
+With structured SRS bases, the Section 3 verifier is now integrated at the IPA
+layer. At 262,144 scalars, direct IPA verification takes about 28.1 seconds,
+while the structured KZG verifier takes about 3 ms. The remaining work is to
+lift those structured basis formulas through the full matrix proof's projected
+`A`, `B`, and `C` bases.
 
 ## Main Risks
 
 - No usable public zkMatrix implementation exists.
+- Full matrix Section 3 integration may require careful SRS exponent layout for
+  projected `A`, `B`, and `C` bases.
+- Prover-side MSM may remain too slow without fixed-base precomputation and GPU
+  support.
 - Cryptographic GPU kernels are not integrated with the chosen proof system.
 - Fixed-point quantization changes model behavior too much.
 - Softmax proof overhead dominates the matrix proof savings.

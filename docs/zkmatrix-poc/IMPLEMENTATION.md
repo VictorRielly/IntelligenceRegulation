@@ -36,6 +36,12 @@ instead of applying the naive whole-matrix masking wrapper, it inserts masks
 inside the four Algorithm 4 subprotocols. This avoids the naive wrapper's
 extra `O(n^3)` mask-product cost.
 
+The native Rust prover also specializes the large inner-product projection
+proofs. When a proof has no `h` vector, it skips the zero-vector work, fuses the
+per-round dot products into one pass, and parallelizes large vector folds. This
+keeps the protocol algebra unchanged but removes a large constant factor from
+the three `O(n^2)` projection proofs.
+
 ## Repository Layout
 
 ```text
@@ -46,6 +52,8 @@ zkmatrix-rs/README.md              Rust backend usage and benchmark notes
 zk_matrix_fast/                    C reference backend used during optimization
 scripts/benchmark_zkmatrix.py      Python proof benchmark
 scripts/benchmark_zkmatrix_rust.py Rust proof benchmark wrapper
+scripts/benchmark_section3_kzg.py  Section 3 KZG verifier benchmark wrapper
+scripts/benchmark_curve_ipa.py     BLS12-381 hash-to-curve IPA benchmark wrapper
 scripts/benchmark_zkmatrix_vs_fast_gemm.py
                                    Compares proof timing to local GEMM backends
 tests/test_zkmatrix_protocol.py    Python protocol correctness tests
@@ -97,6 +105,8 @@ Build and self-test the Rust backend directly:
 cd zkmatrix-rs
 cargo build --release
 ./target/release/zkmatrix-rs self-test
+./target/release/section3_kzg self-test
+./target/release/curve_ipa self-test
 ```
 
 ## Benchmarks
@@ -114,40 +124,168 @@ python3 scripts/benchmark_zkmatrix_rust.py --mode both --sizes 2048 3072 4096
 ```
 
 The Rust benchmark compares proof generation with dense exact finite-field
-matrix multiplication over the same toy field. Recent local results:
+matrix multiplication over the same toy field. Recent local results after the
+fused projection-proof optimization:
 
 ```text
-core 2048: proof/exact-matmul ~= 1.07
-core 3072: proof/exact-matmul ~= 0.93
-core 4096: proof/exact-matmul ~= 0.53
+core 2048: prove = 0.187 s, proof/exact-matmul ~= 0.37
+core 4096: prove = 0.496 s, proof/exact-matmul ~= 0.13
+core 6144: prove = 1.043 s, proof/exact-matmul ~= 0.08
+core 8192: prove = 1.640 s, proof/exact-matmul ~= 0.05
 
-zk   2048: proof/exact-matmul ~= 1.46
-zk   3072: proof/exact-matmul ~= 1.19
-zk   4096: proof/exact-matmul ~= 0.62
+zk   2048: prove = 0.244 s, proof/exact-matmul ~= 0.49
+zk   4096: prove = 0.631 s, proof/exact-matmul ~= 0.16
+zk   6144: prove = 1.294 s, proof/exact-matmul ~= 0.10
+zk   8192: prove = 2.082 s, proof/exact-matmul ~= 0.07
 ```
 
-So the optimized Rust proof crosses dense exact finite-field multiplication by
-`4096 x 4096` on the local Apple Silicon machine.
+So the optimized Rust proof now crosses dense exact finite-field multiplication
+by `2048 x 2048` on the local Apple Silicon machine.
+
+Section 3 accelerated verifier primitive:
+
+```bash
+python3 scripts/benchmark_section3_kzg.py --degrees 1024 4096 16384 65536 262144
+```
+
+This benchmark implements the paper's KZG-style opening check over BLS12-381
+with `blstrs`/`blst` Pippenger MSM. It compares the direct verifier MSM that
+Section 3 removes with the pairing verification cost that replaces it. Recent
+local CPU results:
+
+```text
+degree 1024:    direct MSM 0.000955 s, accelerated verify 0.000758 s
+degree 4096:    direct MSM 0.001526 s, accelerated verify 0.000689 s
+degree 16384:   direct MSM 0.005013 s, accelerated verify 0.000686 s
+degree 65536:   direct MSM 0.019446 s, accelerated verify 0.000704 s
+degree 262144:  direct MSM 0.075567 s, accelerated verify 0.000708 s
+degree 1048576: direct MSM 0.301262 s, accelerated verify 0.000704 s
+```
+
+Production-curve IPA primitive:
+
+```bash
+python3 scripts/benchmark_curve_ipa.py --lengths 1024 4096 16384 65536 262144
+python3 scripts/benchmark_curve_ipa.py --structured --lengths 1024 4096 16384 65536 262144
+```
+
+This benchmark uses independent BLS12-381 hash-to-curve bases for a Pedersen
+inner-product commitment. It is the production-style commitment primitive, but
+it intentionally uses the ordinary IPA verifier:
+
+```text
+len 1024:   setup 0.102363 s, prove 0.140858 s, verify 0.108560 s
+len 4096:   setup 0.295177 s, prove 0.470504 s, verify 0.430533 s
+len 16384:  setup 1.180944 s, prove 1.779581 s, verify 1.715264 s
+len 65536:  setup 4.722018 s, prove 6.992621 s, verify 6.849216 s
+len 262144: setup 18.879730 s, prove 27.926828 s, verify 27.432946 s
+```
+
+The linear verifier here explains the current full matrix verifier behavior.
+Logarithmic verification requires the Section 3 structured SRS/KZG path, not
+independent hash-to-curve bases.
+
+Structured Section 3 verifier results:
+
+```text
+len 1024:   prove+open 0.151441 s, direct verify 0.111863 s, fast verify 0.002034 s
+len 4096:   prove+open 0.500831 s, direct verify 0.430192 s, fast verify 0.002197 s
+len 16384:  prove+open 1.906602 s, direct verify 1.811845 s, fast verify 0.002785 s
+len 65536:  prove+open 7.228505 s, direct verify 6.848037 s, fast verify 0.002676 s
+len 262144: prove+open 28.756263 s, direct verify 28.142888 s, fast verify 0.003009 s
+```
+
+The Section 3 KZG check is now integrated at the IPA layer. The remaining
+matrix-proof integration work is to express the `C`, `A`, and `B` projected
+bases as structured-SRS polynomials instead of materialized arbitrary bases.
 
 ## Important Limits
 
 This is still a proof-of-concept, not production cryptography.
 
 - The Rust backend uses the toy additive field backend for speed experiments.
-- The Section 3 accelerated pairing verifier from the paper is not implemented.
-- The backend does not yet use a real elliptic curve, GPU MSM, or fixed-base
+- The Section 3 accelerated pairing primitive is implemented as a standalone
+  KZG benchmark, but it is not yet integrated into the full matrix proof
+  verifier.
+- Production BLS12-381 hash-to-curve commitments are implemented for the IPA
+  primitive, but the full matrix proof backend still uses the toy additive field
+  for large-scale experiments.
+- The full matrix proof backend does not yet use GPU MSM or fixed-base
   precomputation.
 - The benchmark crossover is against exact finite-field multiplication, not
   float32 tensor-core or Apple Accelerate GEMM.
 
 ## Next Engineering Steps
 
-1. Replace the toy additive backend with a real curve backend such as
-   `blstrs`, `ark-bls12-381`, or another pairing-friendly curve library.
-2. Implement fixed-base MSM and parallel MSM paths.
-3. Add the paper's Section 3 accelerated verifier using structured bases and
-   pairings.
-4. Add Algorithm 6 batching so many model-layer matrix multiplications share
-   transcript challenges and proof work.
-5. Add GPU support through an MSM library such as ICICLE or a Metal/CUDA backend.
-6. Integrate the proof backend into a finite-field Transformer trace.
+1. Derive full matrix structured-SRS formulas.
+
+   The current full matrix proof materializes projected bases:
+
+   ```text
+   C bases:           C_ij
+   A projected bases: A_ij + yL_i * AY_j
+   B projected bases: B_ij + yR_j * BY_i
+   ```
+
+   Section 3 verification requires those bases to be represented as known
+   polynomials over a structured SRS instead of arbitrary vectors. The next
+   proof-system task is to assign SRS exponent ranges for `A`, `B`, `C`,
+   `AY`, `BY`, scalar, and blind bases, then derive verifier-side polynomial
+   evaluation formulas for the `C`, `A`, and `B` projection proofs.
+
+   Deliverable: a small structured matrix verifier for `n <= 64` that matches
+   the toy verifier and uses the KZG verifier path for all four IPAs.
+
+2. Replace the toy matrix commitment layer with BLS12-381 structured bases.
+
+   The `curve_ipa` binary proves the production-curve IPA primitive works, but
+   the full matrix proof still uses `u64` additive commitments. After Step 1,
+   wire the full `prove_zk` and `verify_zk` matrix flow to structured
+   BLS12-381 commitments.
+
+   Deliverable: correctness tests for small committed matrix multiplication
+   over the real curve backend, with the old toy backend retained for fast
+   regression and large-shape experiments.
+
+3. Add Algorithm 6 same-shape batching.
+
+   Same-shape batching should combine many layer/head matrix multiplication
+   claims that share dimensions. For a transformer workload, this should batch
+   repeated MLP, Q/K/V/O, and attention score/value multiplications whenever
+   shapes align.
+
+   Deliverable: `bench-batch <mode> <n> <batch_count>` that reports total
+   proof time, marginal proof time, proof size, and verifier time per matrix
+   multiplication.
+
+4. Add fixed-base and streaming MSM for prover commitments/openings.
+
+   The prover bottleneck after Section 3 is MSM, not verification. Use cached
+   fixed-base precomputation for reusable SRS bases, avoid materializing
+   projected bases when a streaming polynomial/MSM formula is available, and
+   benchmark memory bandwidth separately from scalar multiplication.
+
+   Deliverable: CPU benchmarks comparing `blst` Pippenger, fixed-base
+   precomputation, and streaming structured-basis MSM for IPA lengths from
+   `2^20` through `2^28`.
+
+5. Add GPU MSM support.
+
+   Integrate a GPU cryptography backend such as ICICLE CUDA/Metal for MSM and,
+   later, any NTT/polynomial operations needed by batching. This must be called
+   directly from the proof backend; PyTorch, JAX, and Accelerate GEMM do not
+   accelerate cryptographic MSM.
+
+   Deliverable: backend selector `--msm-backend <cpu-blst|gpu-icicle>` and a
+   benchmark that reports prover time versus float SGEMM for the same matrix
+   shape.
+
+6. Build a finite-field Transformer trace.
+
+   Once the matrix proof backend is real and batched, connect it to a small
+   quantized Transformer feed-forward trace, including lookup/range proofs for
+   ReLU or other nonlinearities.
+
+   Deliverable: end-to-end proof for a small transformer block with timing
+   broken down by matrix proofs, nonlinear proofs, commitment time, proof
+   generation, and verification.

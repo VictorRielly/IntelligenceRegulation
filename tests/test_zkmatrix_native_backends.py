@@ -19,6 +19,8 @@ from zk_matrix import (
 ROOT = Path(__file__).resolve().parents[1]
 RUST_CRATE = ROOT / "zkmatrix-rs"
 RUST_BINARY = RUST_CRATE / "target" / "release" / "zkmatrix-rs"
+SECTION3_BINARY = RUST_CRATE / "target" / "release" / "section3_kzg"
+CURVE_IPA_BINARY = RUST_CRATE / "target" / "release" / "curve_ipa"
 
 
 def python_case(mode: str, n: int, seed: int, valid: bool) -> bool:
@@ -73,6 +75,12 @@ class NativeBackendTests(unittest.TestCase):
                 with self.subTest(mode=mode, n=n, valid=False):
                     self.assertFalse(python_case(mode, n, 2000 + n, False))
                     self.assertFalse(self.rust_case(mode, n, 2000 + n, False))
+
+    def test_section3_kzg_self_test(self):
+        subprocess.run([str(SECTION3_BINARY), "self-test"], check=True)
+
+    def test_curve_ipa_self_test(self):
+        subprocess.run([str(CURVE_IPA_BINARY), "self-test"], check=True)
 
 
 if __name__ == "__main__":
