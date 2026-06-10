@@ -24,6 +24,10 @@ Please reach out if you have further ideas on how we can make this work. victorr
 # Add usage examples here
 ```
 
+## Project Plans
+
+- [zkMatrix proof-of-concept plan](docs/zkmatrix-poc/README.md): roadmap for proving a small Transformer-like feed-forward with committed matrix multiplication proofs and explicit nonlinear constraints.
+
 ## Requirements
 
 - [List any dependencies or requirements]
@@ -39,4 +43,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Contact
 
 [Add contact information if desired]
-
