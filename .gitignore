@@ -14,6 +14,7 @@ env/
 ## Packaging
 build/
 dist/
+target/
 *.egg-info/
 
 ## Tooling caches
@@ -26,4 +27,3 @@ htmlcov/
 ## OS / editor
 .DS_Store
 Thumbs.db
-

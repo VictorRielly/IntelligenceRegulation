@@ -27,6 +27,7 @@ Please reach out if you have further ideas on how we can make this work. victorr
 ## Project Plans
 
 - [zkMatrix proof-of-concept plan](docs/zkmatrix-poc/README.md): roadmap for proving a small Transformer-like feed-forward with committed matrix multiplication proofs and explicit nonlinear constraints.
+- [zkMatrix implementation guide](docs/zkmatrix-poc/IMPLEMENTATION.md): how to build, test, and benchmark the Python and Rust zkMatrix proof prototypes.
 
 ## Requirements
 

@@ -310,14 +310,73 @@ Deliverable: proof bundle for private content moderation on a toy model.
 
 ## Initial Repository Work Items
 
-1. Add a finite-field arithmetic module.
-2. Add a rectangular matrix benchmark.
+1. Add a finite-field arithmetic module. Status: initial implementation in
+   `zk_matrix/`.
+2. Add a rectangular matrix benchmark. Status: square benchmark in
+   `scripts/benchmark_zkmatrix.py`; rectangular shapes are supported by the
+   protocol code and should be added to the benchmark.
 3. Add a toy Transformer trace generator.
 4. Add a trace verifier using exact checks.
-5. Research or obtain zkMatrix implementation code.
-6. Decide the initial commitment scheme and field.
+5. Research or obtain zkMatrix implementation code. Status: no public author
+   implementation has been integrated; the local prototype follows the paper.
+6. Decide the initial commitment scheme and field. Status: prototype uses
+   Pedersen-style commitments over dependency-free cyclic group backends.
 7. Add benchmark scripts that report inference, trace generation, proof
-   generation, and verification separately.
+   generation, and verification separately. Status: matrix multiplication,
+   commitment, proof, and verification are reported separately.
+
+## Current Prototype
+
+The repository now contains `zk_matrix/`, a dependency-free implementation of
+the zkMatrix proof structure from the paper:
+
+- `prove_core_matmul` implements Algorithm 4's committed matrix multiplication
+  reduction.
+- `prove_zk_matmul` implements the optimized zero-knowledge placement described
+  after Algorithm 5 by adding masks inside the four Algorithm 4 subprotocols.
+- `prove_naive_zk_matmul` keeps the direct Algorithm 5 whole-matrix masking
+  wrapper for comparison; this path materializes the mask cross-products and
+  therefore has the paper's noted `O(n^3)` overhead.
+
+Run:
+
+```bash
+python3 -m unittest tests/test_zkmatrix_protocol.py
+python3 scripts/benchmark_zkmatrix.py --backend toy --sizes 2 4 8 16 32 64 128 256
+python3 scripts/benchmark_zkmatrix.py --backend small-subgroup --sizes 2 4 8
+```
+
+The pure-Python implementation does not reproduce the paper's accelerated
+pairing verifier or Rust/BLS12-381 performance estimates. It reproduces the
+protocol algebra and scaling structure, then leaves the group backend boundary
+available for a Rust/arkworks or GPU MSM backend.
+
+## Native Backend
+
+The repository also contains `zkmatrix-rs/`, an optimized Rust implementation
+of the same toy-field protocol. It is the first backend fast enough to show the
+expected crossover against dense exact finite-field multiplication:
+
+```bash
+python3 scripts/benchmark_zkmatrix_rust.py --mode both --sizes 2048 3072 4096
+```
+
+Observed local results:
+
+```text
+core 2048: proof/exact-matmul = 1.085
+core 3072: proof/exact-matmul = 0.932
+core 4096: proof/exact-matmul = 0.526
+
+zk   2048: proof/exact-matmul = 1.474
+zk   3072: proof/exact-matmul = 1.186
+zk   4096: proof/exact-matmul = 0.616
+```
+
+This is still not a production cryptographic implementation. It proves that the
+protocol structure can cross dense exact field multiplication once Python object
+overhead is removed. The next implementation milestone is a real curve/MSM
+backend and the Section 3 accelerated pairing verifier.
 
 ## Main Risks
 

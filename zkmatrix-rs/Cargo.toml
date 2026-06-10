@@ -1,0 +1,12 @@
+[package]
+name = "zkmatrix-rs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rayon = "1.11"
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+panic = "abort"
