@@ -56,6 +56,10 @@ scripts/benchmark_section3_kzg.py  Section 3 KZG verifier benchmark wrapper
 scripts/benchmark_curve_ipa.py     BLS12-381 hash-to-curve IPA benchmark wrapper
 scripts/benchmark_structured_matrix.py
                                    BLS12-381 structured matrix proof benchmark
+scripts/benchmark_structured_matrix_batch_vs_gemm.py
+                                   Batched structured proof versus local GEMM
+scripts/analyze_structured_batch_scaling.py
+                                   Fits fixed and marginal batch proof costs
 scripts/benchmark_zkmatrix_vs_fast_gemm.py
                                    Compares proof timing to local GEMM backends
 tests/test_zkmatrix_protocol.py    Python protocol correctness tests
@@ -198,25 +202,29 @@ len 65536:  prove+open 7.228505 s, direct verify 6.848037 s, fast verify 0.00267
 len 262144: prove+open 28.756263 s, direct verify 28.142888 s, fast verify 0.003009 s
 ```
 
-The Section 3 KZG check is now integrated at the IPA layer. The remaining
-matrix-proof integration work is to express the `C`, `A`, and `B` projected
-bases as structured-SRS polynomials instead of materialized arbitrary bases.
+The Section 3 KZG check is now integrated into the BLS12-381 structured matrix
+proof. The single-matrix path also has Pedersen-hiding commitments, OS-backed
+random proof masks, and masked ZK subprotocols for the `C`, `A`, `B`, and
+product proofs.
 
 ## Important Limits
 
-This is still a proof-of-concept, not production cryptography.
+This is still a proof-of-concept, not a production prover.
 
-- The Rust backend uses the toy additive field backend for speed experiments.
-- The Section 3 accelerated pairing primitive is implemented as a standalone
-  KZG benchmark, but it is not yet integrated into the full matrix proof
-  verifier.
-- Production BLS12-381 hash-to-curve commitments are implemented for the IPA
-  primitive, but the full matrix proof backend still uses the toy additive field
-  for large-scale experiments.
-- The full matrix proof backend does not yet use GPU MSM or fixed-base
-  precomputation.
-- The benchmark crossover is against exact finite-field multiplication, not
-  float32 tensor-core or Apple Accelerate GEMM.
+- The BLS12-381 structured single-matrix proof is cryptographically meaningful,
+  but it has not had an external audit.
+- The structured SRS must come from a trusted or MPC setup where the toxic waste
+  `tau` is not known to the prover, and the Pedersen blind base must have
+  unknown discrete-log relation to the SRS powers.
+- Fiat-Shamir challenges are modeled as random-oracle challenges over the
+  transcript. The benchmark code is not a final serialization format.
+- The structured batch proof now has an Algorithm 6-style masked ZK path:
+  the three length-`n^2` projection subproofs are run once on `rho`-aggregated
+  inputs, while the length-`n` product subproof remains per multiplication.
+- The full matrix proof backend does not yet use GPU MSM or a true fixed-base
+  MSM precomputation table.
+- The prover remains much slower than float32 tensor-core or Apple Accelerate
+  GEMM at matrix sizes through `256 x 256`.
 
 ## Next Engineering Steps
 
@@ -261,10 +269,40 @@ optimize that prototype into the production backend.
    repeated MLP, Q/K/V/O, and attention score/value multiplications whenever
    shapes align.
 
-   Status: implemented for the core structured matrix proof with
-   `structured_matrix bench-batch <n> <batch_count>`. The batch mode uses a
-   common `y`, randomized `rho` powers, concatenated projection IPAs, and one
-   batched product IPA.
+   Status: implemented for the structured ZK matrix proof with
+   `structured_matrix bench-batch zk <n> <batch_count>`. The batch mode follows
+   Algorithm 6's transcript order: derive `y`, commit each `d_i`, `ay_i`, and
+   `by_i`, derive `rho`, aggregate `A`, `B`, and `C` commitments and witnesses,
+   run one length-`n^2` ZK projection proof for each of `C`, `A`, and `B`, and
+   run one length-`n` ZK product proof per matrix multiplication.
+
+   Recent local results against Apple Accelerate SGEMM are stored in:
+
+   ```text
+   docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_alg6_n64_2026-06-10.csv
+   docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_alg6_n128_2026-06-10.csv
+   docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_alg6_n256_2026-06-10.csv
+   ```
+
+   At `n=256`, proof generation was `2.82s` for one claim and `5.20s` for
+   sixteen claims, reducing per-claim prover time from `2.82s` to `0.325s`.
+   This shows the intended Algorithm 6 amortization in the curve-proof work,
+   although it remains far slower than optimized floating-point GEMM.
+
+   At `n=1024`, the current implementation has been measured for
+   `t in {1,2,4,8,16}`. The raw CSV and fitted projection are:
+
+   ```text
+   docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_alg6_n1024_2026-06-10.csv
+   docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_alg6_n1024_scaling_2026-06-10.txt
+   ```
+
+   The fitted model is approximately `37.55s + 1.16s * t`, projecting to
+   `1229s` total and `1.20s` amortized per proof at `t=1024`. This is a real
+   batching benefit, but it is still slower than the paper Table 3 target of
+   `512.48s` total and `0.50s` amortized per proof. The current benchmark also
+   stores all dense witnesses and therefore cannot validate Table 3's `304 MB`
+   RAM claim.
 
 4. Add fixed-base and streaming MSM for prover commitments/openings.
 
@@ -273,11 +311,30 @@ optimize that prototype into the production backend.
    projected bases when a streaming polynomial/MSM formula is available, and
    benchmark memory bandwidth separately from scalar multiplication.
 
-   Deliverable: CPU benchmarks comparing `blst` Pippenger, fixed-base
-   precomputation, and streaming structured-basis MSM for IPA lengths from
-   `2^20` through `2^28`.
+   Status: partially implemented. Contiguous SRS-window commitments now avoid
+   basis materialization, no-`h` IPA proofs skip dummy curve-base folding, large
+   dot products/folds run through Rayon, and witness field matmul is row
+   parallel. A true reusable fixed-base MSM table is still missing.
 
-5. Add GPU MSM support.
+5. Add batched product-proof dot products.
+
+   The Algorithm 6 ZK batch path currently amortizes the three length-`n^2`
+   projection proofs, but it still runs the `t` length-`n` product proofs as
+   independent IPAs. Each product IPA computes repeated scalar-field dot
+   products and vector folds. For a large batch, those operations should be
+   scheduled together as batched row-wise finite-field kernels, similar to the
+   memory shape of a matrix operation but over the BLS12-381 scalar field.
+
+   Deliverable: `prove_zk_products_batched` should preserve the per-instance
+   product-proof transcript while sharing round scheduling, fusing all product
+   dot products and folds across the batch, and preparing for GPU/fixed-base
+   KZG witness generation.
+
+   Status: not implemented. The current code only parallelizes individual dot
+   products with Rayon; it does not yet turn the product-proof batch into a
+   batched finite-field matrix-style kernel.
+
+6. Add GPU MSM support.
 
    Integrate a GPU cryptography backend such as ICICLE CUDA/Metal for MSM and,
    later, any NTT/polynomial operations needed by batching. This must be called
@@ -288,7 +345,11 @@ optimize that prototype into the production backend.
    benchmark that reports prover time versus float SGEMM for the same matrix
    shape.
 
-6. Build a finite-field Transformer trace.
+   Status: not implemented. The new
+   `scripts/benchmark_structured_matrix_vs_fast_gemm.py` benchmark shows the
+   size of the remaining gap against local SGEMM.
+
+7. Build a finite-field Transformer trace.
 
    Once the matrix proof backend is real and batched, connect it to a small
    quantized Transformer feed-forward trace, including lookup/range proofs for

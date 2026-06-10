@@ -48,11 +48,22 @@ fn splitmix64(state: &mut u64) -> u64 {
 }
 
 fn mix_value(seed: u64, value: u64) -> u64 {
-    let mut s = seed ^ value.wrapping_add(0x9e3779b97f4a7c15).wrapping_add(seed << 6).wrapping_add(seed >> 2);
+    let mut s = seed
+        ^ value
+            .wrapping_add(0x9e3779b97f4a7c15)
+            .wrapping_add(seed << 6)
+            .wrapping_add(seed >> 2);
     splitmix64(&mut s)
 }
 
-fn challenge6(domain: u64, round: usize, current: u64, scalar_base: u64, left: u64, right: u64) -> u64 {
+fn challenge6(
+    domain: u64,
+    round: usize,
+    current: u64,
+    scalar_base: u64,
+    left: u64,
+    right: u64,
+) -> u64 {
     let mut s = 0xd6e8_feb8_6659_fd93u64 ^ domain;
     for value in [round as u64, current, scalar_base, left, right] {
         s = mix_value(s, value);
@@ -72,7 +83,12 @@ fn challenge_statement(domain: u64, n: usize, ca: u64, cb: u64, cc: u64) -> u64 
 
 fn challenge_commitments(domain: u64, n: usize, statement: &Statement, items: &[u64]) -> u64 {
     let mut s = 0xe703_7ed1_a0b4_28dbu64 ^ domain;
-    for value in [n as u64, statement.a_commit, statement.b_commit, statement.c_commit] {
+    for value in [
+        n as u64,
+        statement.a_commit,
+        statement.b_commit,
+        statement.c_commit,
+    ] {
         s = mix_value(s, value);
     }
     for &item in items {
@@ -187,11 +203,26 @@ fn make_bases(n: usize) -> Bases {
     Bases {
         n,
         nn,
-        a: (0..nn).into_par_iter().map(|i| basis_elem(0xA111, i)).collect(),
-        b: (0..nn).into_par_iter().map(|i| basis_elem(0xB222, i)).collect(),
-        c: (0..nn).into_par_iter().map(|i| basis_elem(0xC333, i)).collect(),
-        ay: (0..n).into_par_iter().map(|i| basis_elem(0xA444, i)).collect(),
-        by: (0..n).into_par_iter().map(|i| basis_elem(0xB555, i)).collect(),
+        a: (0..nn)
+            .into_par_iter()
+            .map(|i| basis_elem(0xA111, i))
+            .collect(),
+        b: (0..nn)
+            .into_par_iter()
+            .map(|i| basis_elem(0xB222, i))
+            .collect(),
+        c: (0..nn)
+            .into_par_iter()
+            .map(|i| basis_elem(0xC333, i))
+            .collect(),
+        ay: (0..n)
+            .into_par_iter()
+            .map(|i| basis_elem(0xA444, i))
+            .collect(),
+        by: (0..n)
+            .into_par_iter()
+            .map(|i| basis_elem(0xB555, i))
+            .collect(),
         scalar: basis_elem(0xD666, 0),
         blind: basis_elem(0xE777, 0),
     }
@@ -226,7 +257,10 @@ fn add_quad(left: (u64, u64, u64, u64), right: (u64, u64, u64, u64)) -> (u64, u6
     )
 }
 
-fn add_six(left: (u64, u64, u64, u64, u64, u64), right: (u64, u64, u64, u64, u64, u64)) -> (u64, u64, u64, u64, u64, u64) {
+fn add_six(
+    left: (u64, u64, u64, u64, u64, u64),
+    right: (u64, u64, u64, u64, u64, u64),
+) -> (u64, u64, u64, u64, u64, u64) {
     (
         addm(left.0, right.0),
         addm(left.1, right.1),
@@ -294,7 +328,14 @@ fn round_sums_no_h(a: &[u64], b: &[u64], g: &[u64], half: usize, scalar_base: u6
     )
 }
 
-fn round_sums_full(a: &[u64], b: &[u64], g: &[u64], h: &[u64], half: usize, scalar_base: u64) -> (u64, u64) {
+fn round_sums_full(
+    a: &[u64],
+    b: &[u64],
+    g: &[u64],
+    h: &[u64],
+    half: usize,
+    scalar_base: u64,
+) -> (u64, u64) {
     let (left_g, right_g, left_h, right_h, left_cross, right_cross) = if half < PAR_DOT_THRESHOLD {
         let mut left_g = 0;
         let mut right_g = 0;
@@ -384,7 +425,15 @@ fn fold_no_h(a: &mut [u64], b: &mut [u64], g: &mut [u64], len: usize, x: u64, xi
     }
 }
 
-fn fold_full(a: &mut [u64], b: &mut [u64], g: &mut [u64], h: &mut [u64], len: usize, x: u64, xi: u64) {
+fn fold_full(
+    a: &mut [u64],
+    b: &mut [u64],
+    g: &mut [u64],
+    h: &mut [u64],
+    len: usize,
+    x: u64,
+    xi: u64,
+) {
     let half = len / 2;
     let (al, ar) = a[..len].split_at_mut(half);
     let (bl, br) = b[..len].split_at_mut(half);
@@ -403,12 +452,14 @@ fn fold_full(a: &mut [u64], b: &mut [u64], g: &mut [u64], h: &mut [u64], len: us
             .zip(bl.par_iter_mut().zip(br.par_iter()))
             .zip(gl.par_iter_mut().zip(gr.par_iter()))
             .zip(hl.par_iter_mut().zip(hr.par_iter()))
-            .for_each(|((((al_i, &ar_i), (bl_i, &br_i)), (gl_i, &gr_i)), (hl_i, &hr_i))| {
-                *al_i = addm(*al_i, mulm(xi, ar_i));
-                *bl_i = addm(*bl_i, mulm(x, br_i));
-                *gl_i = addm(*gl_i, mulm(x, gr_i));
-                *hl_i = addm(*hl_i, mulm(xi, hr_i));
-            });
+            .for_each(
+                |((((al_i, &ar_i), (bl_i, &br_i)), (gl_i, &gr_i)), (hl_i, &hr_i))| {
+                    *al_i = addm(*al_i, mulm(xi, ar_i));
+                    *bl_i = addm(*bl_i, mulm(x, br_i));
+                    *gl_i = addm(*gl_i, mulm(x, gr_i));
+                    *hl_i = addm(*hl_i, mulm(xi, hr_i));
+                },
+            );
     }
 }
 
@@ -446,10 +497,22 @@ fn generate_witness(n: usize, seed: u64, max_entry: u64, valid: bool) -> Witness
     if !valid {
         c[0] = addm(c[0], 1);
     }
-    Witness { a, b, c, a_blind: 0, b_blind: 0, c_blind: 0 }
+    Witness {
+        a,
+        b,
+        c,
+        a_blind: 0,
+        b_blind: 0,
+        c_blind: 0,
+    }
 }
 
-fn commit_statement(bases: &Bases, witness: &mut Witness, blinded: bool, rng: &mut u64) -> Statement {
+fn commit_statement(
+    bases: &Bases,
+    witness: &mut Witness,
+    blinded: bool,
+    rng: &mut u64,
+) -> Statement {
     if blinded {
         witness.a_blind = rng_field(rng);
         witness.b_blind = rng_field(rng);
@@ -472,19 +535,32 @@ fn powers(base: u64, len: usize) -> Vec<u64> {
     out
 }
 
-fn projections(bases: &Bases, statement: &Statement, witness: &Witness) -> (Vec<u64>, Vec<u64>, Vec<u64>, Vec<u64>, Vec<u64>, u64) {
+fn projections(
+    bases: &Bases,
+    statement: &Statement,
+    witness: &Witness,
+) -> (Vec<u64>, Vec<u64>, Vec<u64>, Vec<u64>, Vec<u64>, u64) {
     let n = bases.n;
-    let y = challenge_statement(0x1001, n, statement.a_commit, statement.b_commit, statement.c_commit);
+    let y = challenge_statement(
+        0x1001,
+        n,
+        statement.a_commit,
+        statement.b_commit,
+        statement.c_commit,
+    );
     let yvec = powers(y, bases.nn);
     let yr = powers(y, n);
     let yl: Vec<u64> = (0..n).map(|i| yvec[i * n]).collect();
-    let ay: Vec<u64> = (0..n).into_par_iter().map(|j| {
-        let mut acc = 0;
-        for i in 0..n {
-            acc = addm(acc, mulm(yl[i], witness.a[i * n + j]));
-        }
-        acc
-    }).collect();
+    let ay: Vec<u64> = (0..n)
+        .into_par_iter()
+        .map(|j| {
+            let mut acc = 0;
+            for i in 0..n {
+                acc = addm(acc, mulm(yl[i], witness.a[i * n + j]));
+            }
+            acc
+        })
+        .collect();
     let by: Vec<u64> = witness.b.par_chunks(n).map(|row| dot(row, &yr)).collect();
     let d = dot(&witness.c, &yvec);
     (yvec, yl, yr, ay, by, d)
@@ -492,23 +568,38 @@ fn projections(bases: &Bases, statement: &Statement, witness: &Witness) -> (Vec<
 
 fn a_projection_bases(bases: &Bases, yl: &[u64]) -> Vec<u64> {
     let n = bases.n;
-    (0..bases.nn).into_par_iter().map(|idx| {
-        let i = idx / n;
-        let j = idx % n;
-        addm(bases.a[idx], mulm(yl[i], bases.ay[j]))
-    }).collect()
+    (0..bases.nn)
+        .into_par_iter()
+        .map(|idx| {
+            let i = idx / n;
+            let j = idx % n;
+            addm(bases.a[idx], mulm(yl[i], bases.ay[j]))
+        })
+        .collect()
 }
 
 fn b_projection_bases(bases: &Bases, yr: &[u64]) -> Vec<u64> {
     let n = bases.n;
-    (0..bases.nn).into_par_iter().map(|idx| {
-        let i = idx / n;
-        let j = idx % n;
-        addm(bases.b[idx], mulm(yr[j], bases.by[i]))
-    }).collect()
+    (0..bases.nn)
+        .into_par_iter()
+        .map(|idx| {
+            let i = idx / n;
+            let j = idx % n;
+            addm(bases.b[idx], mulm(yr[j], bases.by[i]))
+        })
+        .collect()
 }
 
-fn prove_ip(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64], h_in: Option<&[u64]>, a_in: Option<&[u64]>, b_in: Option<&[u64]>, domain: u64) -> IpProof {
+fn prove_ip(
+    input_n: usize,
+    commitment: u64,
+    scalar_base: u64,
+    g_in: &[u64],
+    h_in: Option<&[u64]>,
+    a_in: Option<&[u64]>,
+    b_in: Option<&[u64]>,
+    domain: u64,
+) -> IpProof {
     if h_in.is_none() {
         return prove_ip_no_h(input_n, commitment, scalar_base, g_in, a_in, b_in, domain);
     }
@@ -519,9 +610,15 @@ fn prove_ip(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64], h_i
     let mut a = vec![0; proof_n];
     let mut b = vec![0; proof_n];
     g[..input_n].copy_from_slice(g_in);
-    if let Some(hv) = h_in { h[..input_n].copy_from_slice(hv); }
-    if let Some(av) = a_in { a[..input_n].copy_from_slice(av); }
-    if let Some(bv) = b_in { b[..input_n].copy_from_slice(bv); }
+    if let Some(hv) = h_in {
+        h[..input_n].copy_from_slice(hv);
+    }
+    if let Some(av) = a_in {
+        a[..input_n].copy_from_slice(av);
+    }
+    if let Some(bv) = b_in {
+        b[..input_n].copy_from_slice(bv);
+    }
     let mut current = commitment;
     let mut left_messages = Vec::with_capacity(rounds);
     let mut right_messages = Vec::with_capacity(rounds);
@@ -537,16 +634,32 @@ fn prove_ip(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64], h_i
         right_messages.push(right);
         len = half;
     }
-    IpProof { n: proof_n, left: left_messages, right: right_messages, a_final: a[0], b_final: b[0] }
+    IpProof {
+        n: proof_n,
+        left: left_messages,
+        right: right_messages,
+        a_final: a[0],
+        b_final: b[0],
+    }
 }
 
-fn prove_ip_no_h(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64], a_in: Option<&[u64]>, b_in: Option<&[u64]>, domain: u64) -> IpProof {
+fn prove_ip_no_h(
+    input_n: usize,
+    commitment: u64,
+    scalar_base: u64,
+    g_in: &[u64],
+    a_in: Option<&[u64]>,
+    b_in: Option<&[u64]>,
+    domain: u64,
+) -> IpProof {
     let proof_n = next_pow2(input_n);
     let rounds = log2_pow2(proof_n);
     let mut g = vec![0; proof_n];
     let mut a = vec![0; proof_n];
     g[..input_n].copy_from_slice(g_in);
-    if let Some(av) = a_in { a[..input_n].copy_from_slice(av); }
+    if let Some(av) = a_in {
+        a[..input_n].copy_from_slice(av);
+    }
     let mut current = commitment;
     let mut left_messages = Vec::with_capacity(rounds);
     let mut right_messages = Vec::with_capacity(rounds);
@@ -565,7 +678,13 @@ fn prove_ip_no_h(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64]
             right_messages.push(right);
             len = half;
         }
-        IpProof { n: proof_n, left: left_messages, right: right_messages, a_final: a[0], b_final: b[0] }
+        IpProof {
+            n: proof_n,
+            left: left_messages,
+            right: right_messages,
+            a_final: a[0],
+            b_final: b[0],
+        }
     } else {
         for round in 0..rounds {
             let half = len / 2;
@@ -578,11 +697,25 @@ fn prove_ip_no_h(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64]
             right_messages.push(right);
             len = half;
         }
-        IpProof { n: proof_n, left: left_messages, right: right_messages, a_final: a[0], b_final: 0 }
+        IpProof {
+            n: proof_n,
+            left: left_messages,
+            right: right_messages,
+            a_final: a[0],
+            b_final: 0,
+        }
     }
 }
 
-fn verify_ip(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64], h_in: Option<&[u64]>, proof: &IpProof, domain: u64) -> bool {
+fn verify_ip(
+    input_n: usize,
+    commitment: u64,
+    scalar_base: u64,
+    g_in: &[u64],
+    h_in: Option<&[u64]>,
+    proof: &IpProof,
+    domain: u64,
+) -> bool {
     if proof.n != next_pow2(input_n) || proof.left.len() != log2_pow2(proof.n) {
         return false;
     }
@@ -592,7 +725,9 @@ fn verify_ip(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64], h_
     let mut g = vec![0; proof.n];
     let mut h = vec![0; proof.n];
     g[..input_n].copy_from_slice(g_in);
-    if let Some(hv) = h_in { h[..input_n].copy_from_slice(hv); }
+    if let Some(hv) = h_in {
+        h[..input_n].copy_from_slice(hv);
+    }
     let mut current = commitment;
     let mut len = proof.n;
     for round in 0..proof.left.len() {
@@ -605,7 +740,13 @@ fn verify_ip(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64], h_
         current = addm(addm(mulm(x, left), current), mulm(xi, right));
         len = half;
     }
-    let expected = addm(addm(mulm(scalar_base, mulm(proof.a_final, proof.b_final)), mulm(g[0], proof.a_final)), mulm(h[0], proof.b_final));
+    let expected = addm(
+        addm(
+            mulm(scalar_base, mulm(proof.a_final, proof.b_final)),
+            mulm(g[0], proof.a_final),
+        ),
+        mulm(h[0], proof.b_final),
+    );
     current == expected
 }
 
@@ -617,9 +758,11 @@ fn fold_verify_no_h(g: &mut [u64], len: usize, x: u64) {
             gl[i] = addm(gl[i], mulm(x, gr[i]));
         }
     } else {
-        gl.par_iter_mut().zip(gr.par_iter()).for_each(|(gl_i, &gr_i)| {
-            *gl_i = addm(*gl_i, mulm(x, gr_i));
-        });
+        gl.par_iter_mut()
+            .zip(gr.par_iter())
+            .for_each(|(gl_i, &gr_i)| {
+                *gl_i = addm(*gl_i, mulm(x, gr_i));
+            });
     }
 }
 
@@ -643,7 +786,14 @@ fn fold_verify_full(g: &mut [u64], h: &mut [u64], len: usize, x: u64, xi: u64) {
     }
 }
 
-fn verify_ip_no_h(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64], proof: &IpProof, domain: u64) -> bool {
+fn verify_ip_no_h(
+    input_n: usize,
+    commitment: u64,
+    scalar_base: u64,
+    g_in: &[u64],
+    proof: &IpProof,
+    domain: u64,
+) -> bool {
     let mut g = vec![0; proof.n];
     g[..input_n].copy_from_slice(g_in);
     let mut current = commitment;
@@ -657,7 +807,10 @@ fn verify_ip_no_h(input_n: usize, commitment: u64, scalar_base: u64, g_in: &[u64
         current = addm(addm(mulm(x, left), current), mulm(xi, right));
         len /= 2;
     }
-    let expected = addm(mulm(scalar_base, mulm(proof.a_final, proof.b_final)), mulm(g[0], proof.a_final));
+    let expected = addm(
+        mulm(scalar_base, mulm(proof.a_final, proof.b_final)),
+        mulm(g[0], proof.a_final),
+    );
     current == expected
 }
 
@@ -666,87 +819,362 @@ fn prove_core(bases: &Bases, statement: &Statement, witness: &Witness) -> CorePr
     let d_commit = mulm(bases.scalar, d);
     let ay_commit = commit_vec(&ay, &bases.ay, 0, 0);
     let by_commit = commit_vec(&by, &bases.by, 0, 0);
-    let c_proj = prove_ip(bases.nn, addm(d_commit, statement.c_commit), bases.scalar, &bases.c, None, Some(&witness.c), Some(&yvec), 0xC001);
+    let c_proj = prove_ip(
+        bases.nn,
+        addm(d_commit, statement.c_commit),
+        bases.scalar,
+        &bases.c,
+        None,
+        Some(&witness.c),
+        Some(&yvec),
+        0xC001,
+    );
     let apb = a_projection_bases(bases, &yl);
-    let a_proj = prove_ip(bases.nn, addm(statement.a_commit, ay_commit), 0, &apb, None, Some(&witness.a), None, 0xA002);
+    let a_proj = prove_ip(
+        bases.nn,
+        addm(statement.a_commit, ay_commit),
+        0,
+        &apb,
+        None,
+        Some(&witness.a),
+        None,
+        0xA002,
+    );
     let bpb = b_projection_bases(bases, &yr);
-    let b_proj = prove_ip(bases.nn, addm(statement.b_commit, by_commit), 0, &bpb, None, Some(&witness.b), None, 0xB003);
-    let product = prove_ip(bases.n, addm(addm(d_commit, ay_commit), by_commit), bases.scalar, &bases.ay, Some(&bases.by), Some(&ay), Some(&by), 0xD004);
-    CoreProof { d_commit, ay_commit, by_commit, c_proj, a_proj, b_proj, product }
+    let b_proj = prove_ip(
+        bases.nn,
+        addm(statement.b_commit, by_commit),
+        0,
+        &bpb,
+        None,
+        Some(&witness.b),
+        None,
+        0xB003,
+    );
+    let product = prove_ip(
+        bases.n,
+        addm(addm(d_commit, ay_commit), by_commit),
+        bases.scalar,
+        &bases.ay,
+        Some(&bases.by),
+        Some(&ay),
+        Some(&by),
+        0xD004,
+    );
+    CoreProof {
+        d_commit,
+        ay_commit,
+        by_commit,
+        c_proj,
+        a_proj,
+        b_proj,
+        product,
+    }
 }
 
 fn verify_core(bases: &Bases, statement: &Statement, proof: &CoreProof) -> bool {
-    let y = challenge_statement(0x1001, bases.n, statement.a_commit, statement.b_commit, statement.c_commit);
+    let y = challenge_statement(
+        0x1001,
+        bases.n,
+        statement.a_commit,
+        statement.b_commit,
+        statement.c_commit,
+    );
     let yvec = powers(y, bases.nn);
     let yr = powers(y, bases.n);
     let yl: Vec<u64> = (0..bases.n).map(|i| yvec[i * bases.n]).collect();
-    if !verify_ip(bases.nn, addm(proof.d_commit, statement.c_commit), bases.scalar, &bases.c, None, &proof.c_proj, 0xC001) { return false; }
+    if !verify_ip(
+        bases.nn,
+        addm(proof.d_commit, statement.c_commit),
+        bases.scalar,
+        &bases.c,
+        None,
+        &proof.c_proj,
+        0xC001,
+    ) {
+        return false;
+    }
     let apb = a_projection_bases(bases, &yl);
-    if !verify_ip(bases.nn, addm(statement.a_commit, proof.ay_commit), 0, &apb, None, &proof.a_proj, 0xA002) { return false; }
+    if !verify_ip(
+        bases.nn,
+        addm(statement.a_commit, proof.ay_commit),
+        0,
+        &apb,
+        None,
+        &proof.a_proj,
+        0xA002,
+    ) {
+        return false;
+    }
     let bpb = b_projection_bases(bases, &yr);
-    if !verify_ip(bases.nn, addm(statement.b_commit, proof.by_commit), 0, &bpb, None, &proof.b_proj, 0xB003) { return false; }
-    verify_ip(bases.n, addm(addm(proof.d_commit, proof.ay_commit), proof.by_commit), bases.scalar, &bases.ay, Some(&bases.by), &proof.product, 0xD004)
+    if !verify_ip(
+        bases.nn,
+        addm(statement.b_commit, proof.by_commit),
+        0,
+        &bpb,
+        None,
+        &proof.b_proj,
+        0xB003,
+    ) {
+        return false;
+    }
+    verify_ip(
+        bases.n,
+        addm(addm(proof.d_commit, proof.ay_commit), proof.by_commit),
+        bases.scalar,
+        &bases.ay,
+        Some(&bases.by),
+        &proof.product,
+        0xD004,
+    )
 }
 
-fn prove_zk_public_ip(bases: &Bases, statement: &Statement, input_commit: u64, output_commit: u64, input_values: &[u64], public_values: &[u64], input_bases: &[u64], output_base: u64, input_blind: u64, output_blind: u64, domain: u64, rng: &mut u64) -> ZkProjectionProof {
+fn prove_zk_public_ip(
+    bases: &Bases,
+    statement: &Statement,
+    input_commit: u64,
+    output_commit: u64,
+    input_values: &[u64],
+    public_values: &[u64],
+    input_bases: &[u64],
+    output_base: u64,
+    input_blind: u64,
+    output_blind: u64,
+    domain: u64,
+    rng: &mut u64,
+) -> ZkProjectionProof {
     let len = input_values.len();
     let mut alpha: Vec<u64> = (0..len).map(|_| rng_field(rng)).collect();
     let projected_alpha = dot(&alpha, public_values);
     let alpha_blind = rng_field(rng);
     let projected_alpha_blind = rng_field(rng);
     let mask_commit = commit_vec(&alpha, input_bases, bases.blind, alpha_blind);
-    let projected_mask_commit = addm(mulm(output_base, projected_alpha), mulm(bases.blind, projected_alpha_blind));
-    let x = challenge_commitments(domain, bases.n, statement, &[input_commit, output_commit, mask_commit, projected_mask_commit]);
+    let projected_mask_commit = addm(
+        mulm(output_base, projected_alpha),
+        mulm(bases.blind, projected_alpha_blind),
+    );
+    let x = challenge_commitments(
+        domain,
+        bases.n,
+        statement,
+        &[
+            input_commit,
+            output_commit,
+            mask_commit,
+            projected_mask_commit,
+        ],
+    );
     let response_blind = addm(input_blind, mulm(x, alpha_blind));
     let projected_response_blind = addm(output_blind, mulm(x, projected_alpha_blind));
-    alpha.par_iter_mut().zip(input_values.par_iter()).for_each(|(a, &v)| *a = addm(v, mulm(x, *a)));
-    let masked_input = subm(addm(input_commit, mulm(x, mask_commit)), mulm(bases.blind, response_blind));
-    let masked_output = subm(addm(output_commit, mulm(x, projected_mask_commit)), mulm(bases.blind, projected_response_blind));
-    let proof = prove_ip(len, addm(masked_output, masked_input), output_base, input_bases, None, Some(&alpha), Some(public_values), domain ^ 0x9999);
-    ZkProjectionProof { mask_commit, projected_mask_commit, response_blind, projected_response_blind, proof }
+    alpha
+        .par_iter_mut()
+        .zip(input_values.par_iter())
+        .for_each(|(a, &v)| *a = addm(v, mulm(x, *a)));
+    let masked_input = subm(
+        addm(input_commit, mulm(x, mask_commit)),
+        mulm(bases.blind, response_blind),
+    );
+    let masked_output = subm(
+        addm(output_commit, mulm(x, projected_mask_commit)),
+        mulm(bases.blind, projected_response_blind),
+    );
+    let proof = prove_ip(
+        len,
+        addm(masked_output, masked_input),
+        output_base,
+        input_bases,
+        None,
+        Some(&alpha),
+        Some(public_values),
+        domain ^ 0x9999,
+    );
+    ZkProjectionProof {
+        mask_commit,
+        projected_mask_commit,
+        response_blind,
+        projected_response_blind,
+        proof,
+    }
 }
 
-fn verify_zk_public_ip(bases: &Bases, statement: &Statement, input_commit: u64, output_commit: u64, public_values: &[u64], input_bases: &[u64], output_base: u64, proof: &ZkProjectionProof, domain: u64) -> bool {
-    let x = challenge_commitments(domain, bases.n, statement, &[input_commit, output_commit, proof.mask_commit, proof.projected_mask_commit]);
-    let masked_input = subm(addm(input_commit, mulm(x, proof.mask_commit)), mulm(bases.blind, proof.response_blind));
-    let masked_output = subm(addm(output_commit, mulm(x, proof.projected_mask_commit)), mulm(bases.blind, proof.projected_response_blind));
-    verify_ip(public_values.len(), addm(masked_output, masked_input), output_base, input_bases, None, &proof.proof, domain ^ 0x9999)
+fn verify_zk_public_ip(
+    bases: &Bases,
+    statement: &Statement,
+    input_commit: u64,
+    output_commit: u64,
+    public_values: &[u64],
+    input_bases: &[u64],
+    output_base: u64,
+    proof: &ZkProjectionProof,
+    domain: u64,
+) -> bool {
+    let x = challenge_commitments(
+        domain,
+        bases.n,
+        statement,
+        &[
+            input_commit,
+            output_commit,
+            proof.mask_commit,
+            proof.projected_mask_commit,
+        ],
+    );
+    let masked_input = subm(
+        addm(input_commit, mulm(x, proof.mask_commit)),
+        mulm(bases.blind, proof.response_blind),
+    );
+    let masked_output = subm(
+        addm(output_commit, mulm(x, proof.projected_mask_commit)),
+        mulm(bases.blind, proof.projected_response_blind),
+    );
+    verify_ip(
+        public_values.len(),
+        addm(masked_output, masked_input),
+        output_base,
+        input_bases,
+        None,
+        &proof.proof,
+        domain ^ 0x9999,
+    )
 }
 
-fn prove_zk_projection(bases: &Bases, statement: &Statement, input_commit: u64, output_commit: u64, input_values: &[u64], coeffs: &[u64], input_bases: &[u64], output_bases: &[u64], projected_bases: &[u64], input_blind: u64, output_blind: u64, axis_rows: bool, domain: u64, rng: &mut u64) -> ZkProjectionProof {
+fn prove_zk_projection(
+    bases: &Bases,
+    statement: &Statement,
+    input_commit: u64,
+    output_commit: u64,
+    input_values: &[u64],
+    coeffs: &[u64],
+    input_bases: &[u64],
+    output_bases: &[u64],
+    projected_bases: &[u64],
+    input_blind: u64,
+    output_blind: u64,
+    axis_rows: bool,
+    domain: u64,
+    rng: &mut u64,
+) -> ZkProjectionProof {
     let n = bases.n;
     let mut alpha: Vec<u64> = (0..bases.nn).map(|_| rng_field(rng)).collect();
     let projected_alpha: Vec<u64> = if axis_rows {
-        (0..n).into_par_iter().map(|col| {
-            let mut acc = 0;
-            for row in 0..n { acc = addm(acc, mulm(coeffs[row], alpha[row * n + col])); }
-            acc
-        }).collect()
+        (0..n)
+            .into_par_iter()
+            .map(|col| {
+                let mut acc = 0;
+                for row in 0..n {
+                    acc = addm(acc, mulm(coeffs[row], alpha[row * n + col]));
+                }
+                acc
+            })
+            .collect()
     } else {
         alpha.par_chunks(n).map(|row| dot(row, coeffs)).collect()
     };
     let alpha_blind = rng_field(rng);
     let projected_alpha_blind = rng_field(rng);
     let mask_commit = commit_vec(&alpha, input_bases, bases.blind, alpha_blind);
-    let projected_mask_commit = commit_vec(&projected_alpha, output_bases, bases.blind, projected_alpha_blind);
-    let x = challenge_commitments(domain, n, statement, &[input_commit, output_commit, mask_commit, projected_mask_commit]);
+    let projected_mask_commit = commit_vec(
+        &projected_alpha,
+        output_bases,
+        bases.blind,
+        projected_alpha_blind,
+    );
+    let x = challenge_commitments(
+        domain,
+        n,
+        statement,
+        &[
+            input_commit,
+            output_commit,
+            mask_commit,
+            projected_mask_commit,
+        ],
+    );
     let response_blind = addm(input_blind, mulm(x, alpha_blind));
     let projected_response_blind = addm(output_blind, mulm(x, projected_alpha_blind));
-    alpha.par_iter_mut().zip(input_values.par_iter()).for_each(|(a, &v)| *a = addm(v, mulm(x, *a)));
-    let masked_input = subm(addm(input_commit, mulm(x, mask_commit)), mulm(bases.blind, response_blind));
-    let masked_output = subm(addm(output_commit, mulm(x, projected_mask_commit)), mulm(bases.blind, projected_response_blind));
-    let proof = prove_ip(bases.nn, addm(masked_input, masked_output), 0, projected_bases, None, Some(&alpha), None, domain ^ 0x8888);
-    ZkProjectionProof { mask_commit, projected_mask_commit, response_blind, projected_response_blind, proof }
+    alpha
+        .par_iter_mut()
+        .zip(input_values.par_iter())
+        .for_each(|(a, &v)| *a = addm(v, mulm(x, *a)));
+    let masked_input = subm(
+        addm(input_commit, mulm(x, mask_commit)),
+        mulm(bases.blind, response_blind),
+    );
+    let masked_output = subm(
+        addm(output_commit, mulm(x, projected_mask_commit)),
+        mulm(bases.blind, projected_response_blind),
+    );
+    let proof = prove_ip(
+        bases.nn,
+        addm(masked_input, masked_output),
+        0,
+        projected_bases,
+        None,
+        Some(&alpha),
+        None,
+        domain ^ 0x8888,
+    );
+    ZkProjectionProof {
+        mask_commit,
+        projected_mask_commit,
+        response_blind,
+        projected_response_blind,
+        proof,
+    }
 }
 
-fn verify_zk_projection(bases: &Bases, statement: &Statement, input_commit: u64, output_commit: u64, projected_bases: &[u64], proof: &ZkProjectionProof, domain: u64) -> bool {
-    let x = challenge_commitments(domain, bases.n, statement, &[input_commit, output_commit, proof.mask_commit, proof.projected_mask_commit]);
-    let masked_input = subm(addm(input_commit, mulm(x, proof.mask_commit)), mulm(bases.blind, proof.response_blind));
-    let masked_output = subm(addm(output_commit, mulm(x, proof.projected_mask_commit)), mulm(bases.blind, proof.projected_response_blind));
-    verify_ip(bases.nn, addm(masked_input, masked_output), 0, projected_bases, None, &proof.proof, domain ^ 0x8888)
+fn verify_zk_projection(
+    bases: &Bases,
+    statement: &Statement,
+    input_commit: u64,
+    output_commit: u64,
+    projected_bases: &[u64],
+    proof: &ZkProjectionProof,
+    domain: u64,
+) -> bool {
+    let x = challenge_commitments(
+        domain,
+        bases.n,
+        statement,
+        &[
+            input_commit,
+            output_commit,
+            proof.mask_commit,
+            proof.projected_mask_commit,
+        ],
+    );
+    let masked_input = subm(
+        addm(input_commit, mulm(x, proof.mask_commit)),
+        mulm(bases.blind, proof.response_blind),
+    );
+    let masked_output = subm(
+        addm(output_commit, mulm(x, proof.projected_mask_commit)),
+        mulm(bases.blind, proof.projected_response_blind),
+    );
+    verify_ip(
+        bases.nn,
+        addm(masked_input, masked_output),
+        0,
+        projected_bases,
+        None,
+        &proof.proof,
+        domain ^ 0x8888,
+    )
 }
 
-fn prove_zk_product(bases: &Bases, statement: &Statement, output_commit: u64, left_commit: u64, right_commit: u64, left_values: &[u64], right_values: &[u64], output_blind: u64, left_blind: u64, right_blind: u64, rng: &mut u64) -> ZkProductProof {
+fn prove_zk_product(
+    bases: &Bases,
+    statement: &Statement,
+    output_commit: u64,
+    left_commit: u64,
+    right_commit: u64,
+    left_values: &[u64],
+    right_values: &[u64],
+    output_blind: u64,
+    left_blind: u64,
+    right_blind: u64,
+    rng: &mut u64,
+) -> ZkProductProof {
     let n = bases.n;
     let mut alpha: Vec<u64> = (0..n).map(|_| rng_field(rng)).collect();
     let mut beta: Vec<u64> = (0..n).map(|_| rng_field(rng)).collect();
@@ -759,28 +1187,122 @@ fn prove_zk_product(bases: &Bases, statement: &Statement, output_commit: u64, le
     let alpha_commit = commit_vec(&alpha, &bases.ay, bases.blind, alpha_blind);
     let beta_commit = commit_vec(&beta, &bases.by, bases.blind, beta_blind);
     let cross_commit = addm(mulm(bases.scalar, cross), mulm(bases.blind, cross_blind));
-    let alpha_beta_commit = addm(mulm(bases.scalar, alpha_beta), mulm(bases.blind, alpha_beta_blind));
-    let x = challenge_commitments(0xD0D0, n, statement, &[output_commit, left_commit, right_commit, alpha_commit, beta_commit, cross_commit, alpha_beta_commit]);
+    let alpha_beta_commit = addm(
+        mulm(bases.scalar, alpha_beta),
+        mulm(bases.blind, alpha_beta_blind),
+    );
+    let x = challenge_commitments(
+        0xD0D0,
+        n,
+        statement,
+        &[
+            output_commit,
+            left_commit,
+            right_commit,
+            alpha_commit,
+            beta_commit,
+            cross_commit,
+            alpha_beta_commit,
+        ],
+    );
     let x2 = mulm(x, x);
     let left_response_blind = addm(left_blind, mulm(x, alpha_blind));
     let right_response_blind = addm(right_blind, mulm(x, beta_blind));
-    let output_response_blind = addm(addm(output_blind, mulm(x, cross_blind)), mulm(x2, alpha_beta_blind));
-    alpha.par_iter_mut().zip(left_values.par_iter()).for_each(|(a, &v)| *a = addm(v, mulm(x, *a)));
-    beta.par_iter_mut().zip(right_values.par_iter()).for_each(|(b, &v)| *b = addm(v, mulm(x, *b)));
-    let masked_left = subm(addm(left_commit, mulm(x, alpha_commit)), mulm(bases.blind, left_response_blind));
-    let masked_right = subm(addm(right_commit, mulm(x, beta_commit)), mulm(bases.blind, right_response_blind));
-    let masked_output = subm(addm(addm(output_commit, mulm(x, cross_commit)), mulm(x2, alpha_beta_commit)), mulm(bases.blind, output_response_blind));
-    let proof = prove_ip(n, addm(addm(masked_output, masked_left), masked_right), bases.scalar, &bases.ay, Some(&bases.by), Some(&alpha), Some(&beta), 0xD0D1);
-    ZkProductProof { alpha_commit, beta_commit, cross_commit, alpha_beta_commit, left_response_blind, right_response_blind, output_response_blind, proof }
+    let output_response_blind = addm(
+        addm(output_blind, mulm(x, cross_blind)),
+        mulm(x2, alpha_beta_blind),
+    );
+    alpha
+        .par_iter_mut()
+        .zip(left_values.par_iter())
+        .for_each(|(a, &v)| *a = addm(v, mulm(x, *a)));
+    beta.par_iter_mut()
+        .zip(right_values.par_iter())
+        .for_each(|(b, &v)| *b = addm(v, mulm(x, *b)));
+    let masked_left = subm(
+        addm(left_commit, mulm(x, alpha_commit)),
+        mulm(bases.blind, left_response_blind),
+    );
+    let masked_right = subm(
+        addm(right_commit, mulm(x, beta_commit)),
+        mulm(bases.blind, right_response_blind),
+    );
+    let masked_output = subm(
+        addm(
+            addm(output_commit, mulm(x, cross_commit)),
+            mulm(x2, alpha_beta_commit),
+        ),
+        mulm(bases.blind, output_response_blind),
+    );
+    let proof = prove_ip(
+        n,
+        addm(addm(masked_output, masked_left), masked_right),
+        bases.scalar,
+        &bases.ay,
+        Some(&bases.by),
+        Some(&alpha),
+        Some(&beta),
+        0xD0D1,
+    );
+    ZkProductProof {
+        alpha_commit,
+        beta_commit,
+        cross_commit,
+        alpha_beta_commit,
+        left_response_blind,
+        right_response_blind,
+        output_response_blind,
+        proof,
+    }
 }
 
-fn verify_zk_product(bases: &Bases, statement: &Statement, output_commit: u64, left_commit: u64, right_commit: u64, proof: &ZkProductProof) -> bool {
-    let x = challenge_commitments(0xD0D0, bases.n, statement, &[output_commit, left_commit, right_commit, proof.alpha_commit, proof.beta_commit, proof.cross_commit, proof.alpha_beta_commit]);
+fn verify_zk_product(
+    bases: &Bases,
+    statement: &Statement,
+    output_commit: u64,
+    left_commit: u64,
+    right_commit: u64,
+    proof: &ZkProductProof,
+) -> bool {
+    let x = challenge_commitments(
+        0xD0D0,
+        bases.n,
+        statement,
+        &[
+            output_commit,
+            left_commit,
+            right_commit,
+            proof.alpha_commit,
+            proof.beta_commit,
+            proof.cross_commit,
+            proof.alpha_beta_commit,
+        ],
+    );
     let x2 = mulm(x, x);
-    let masked_left = subm(addm(left_commit, mulm(x, proof.alpha_commit)), mulm(bases.blind, proof.left_response_blind));
-    let masked_right = subm(addm(right_commit, mulm(x, proof.beta_commit)), mulm(bases.blind, proof.right_response_blind));
-    let masked_output = subm(addm(addm(output_commit, mulm(x, proof.cross_commit)), mulm(x2, proof.alpha_beta_commit)), mulm(bases.blind, proof.output_response_blind));
-    verify_ip(bases.n, addm(addm(masked_output, masked_left), masked_right), bases.scalar, &bases.ay, Some(&bases.by), &proof.proof, 0xD0D1)
+    let masked_left = subm(
+        addm(left_commit, mulm(x, proof.alpha_commit)),
+        mulm(bases.blind, proof.left_response_blind),
+    );
+    let masked_right = subm(
+        addm(right_commit, mulm(x, proof.beta_commit)),
+        mulm(bases.blind, proof.right_response_blind),
+    );
+    let masked_output = subm(
+        addm(
+            addm(output_commit, mulm(x, proof.cross_commit)),
+            mulm(x2, proof.alpha_beta_commit),
+        ),
+        mulm(bases.blind, proof.output_response_blind),
+    );
+    verify_ip(
+        bases.n,
+        addm(addm(masked_output, masked_left), masked_right),
+        bases.scalar,
+        &bases.ay,
+        Some(&bases.by),
+        &proof.proof,
+        0xD0D1,
+    )
 }
 
 fn prove_zk(bases: &Bases, statement: &Statement, witness: &Witness, rng: &mut u64) -> ZkProof {
@@ -791,26 +1313,125 @@ fn prove_zk(bases: &Bases, statement: &Statement, witness: &Witness, rng: &mut u
     let d_commit = addm(mulm(bases.scalar, d), mulm(bases.blind, d_blind));
     let ay_commit = commit_vec(&ay, &bases.ay, bases.blind, ay_blind);
     let by_commit = commit_vec(&by, &bases.by, bases.blind, by_blind);
-    let c_proj = prove_zk_public_ip(bases, statement, statement.c_commit, d_commit, &witness.c, &yvec, &bases.c, bases.scalar, witness.c_blind, d_blind, 0xC101, rng);
+    let c_proj = prove_zk_public_ip(
+        bases,
+        statement,
+        statement.c_commit,
+        d_commit,
+        &witness.c,
+        &yvec,
+        &bases.c,
+        bases.scalar,
+        witness.c_blind,
+        d_blind,
+        0xC101,
+        rng,
+    );
     let apb = a_projection_bases(bases, &yl);
-    let a_proj = prove_zk_projection(bases, statement, statement.a_commit, ay_commit, &witness.a, &yl, &bases.a, &bases.ay, &apb, witness.a_blind, ay_blind, true, 0xA102, rng);
+    let a_proj = prove_zk_projection(
+        bases,
+        statement,
+        statement.a_commit,
+        ay_commit,
+        &witness.a,
+        &yl,
+        &bases.a,
+        &bases.ay,
+        &apb,
+        witness.a_blind,
+        ay_blind,
+        true,
+        0xA102,
+        rng,
+    );
     let bpb = b_projection_bases(bases, &yr);
-    let b_proj = prove_zk_projection(bases, statement, statement.b_commit, by_commit, &witness.b, &yr, &bases.b, &bases.by, &bpb, witness.b_blind, by_blind, false, 0xB103, rng);
-    let product = prove_zk_product(bases, statement, d_commit, ay_commit, by_commit, &ay, &by, d_blind, ay_blind, by_blind, rng);
-    ZkProof { d_commit, ay_commit, by_commit, c_proj, a_proj, b_proj, product }
+    let b_proj = prove_zk_projection(
+        bases,
+        statement,
+        statement.b_commit,
+        by_commit,
+        &witness.b,
+        &yr,
+        &bases.b,
+        &bases.by,
+        &bpb,
+        witness.b_blind,
+        by_blind,
+        false,
+        0xB103,
+        rng,
+    );
+    let product = prove_zk_product(
+        bases, statement, d_commit, ay_commit, by_commit, &ay, &by, d_blind, ay_blind, by_blind,
+        rng,
+    );
+    ZkProof {
+        d_commit,
+        ay_commit,
+        by_commit,
+        c_proj,
+        a_proj,
+        b_proj,
+        product,
+    }
 }
 
 fn verify_zk(bases: &Bases, statement: &Statement, proof: &ZkProof) -> bool {
-    let y = challenge_statement(0x1001, bases.n, statement.a_commit, statement.b_commit, statement.c_commit);
+    let y = challenge_statement(
+        0x1001,
+        bases.n,
+        statement.a_commit,
+        statement.b_commit,
+        statement.c_commit,
+    );
     let yvec = powers(y, bases.nn);
     let yr = powers(y, bases.n);
     let yl: Vec<u64> = (0..bases.n).map(|i| yvec[i * bases.n]).collect();
-    if !verify_zk_public_ip(bases, statement, statement.c_commit, proof.d_commit, &yvec, &bases.c, bases.scalar, &proof.c_proj, 0xC101) { return false; }
+    if !verify_zk_public_ip(
+        bases,
+        statement,
+        statement.c_commit,
+        proof.d_commit,
+        &yvec,
+        &bases.c,
+        bases.scalar,
+        &proof.c_proj,
+        0xC101,
+    ) {
+        return false;
+    }
     let apb = a_projection_bases(bases, &yl);
-    if !verify_zk_projection(bases, statement, statement.a_commit, proof.ay_commit, &apb, &proof.a_proj, 0xA102) { return false; }
+    if !verify_zk_projection(
+        bases,
+        statement,
+        statement.a_commit,
+        proof.ay_commit,
+        &apb,
+        &proof.a_proj,
+        0xA102,
+    ) {
+        return false;
+    }
     let bpb = b_projection_bases(bases, &yr);
-    if !verify_zk_projection(bases, statement, statement.b_commit, proof.by_commit, &bpb, &proof.b_proj, 0xB103) { return false; }
-    verify_zk_product(bases, statement, proof.d_commit, proof.ay_commit, proof.by_commit, &proof.product)
+    if !verify_zk_projection(
+        bases,
+        statement,
+        statement.b_commit,
+        proof.by_commit,
+        &bpb,
+        &proof.b_proj,
+        0xB103,
+    ) {
+        return false;
+    }
+    verify_zk_product(
+        bases,
+        statement,
+        proof.d_commit,
+        proof.ay_commit,
+        proof.by_commit,
+        &proof.product,
+    )
 }
 
 fn run_case(mode: &str, n: usize, seed: u64, valid: bool) -> bool {
@@ -853,7 +1474,14 @@ fn bench_one(mode: &str, n: usize, seed: u64) {
     let start = Instant::now();
     matmul_mod(&a, &b, &mut c, n);
     let matmul_s = start.elapsed().as_secs_f64();
-    let mut witness = Witness { a, b, c, a_blind: 0, b_blind: 0, c_blind: 0 };
+    let mut witness = Witness {
+        a,
+        b,
+        c,
+        a_blind: 0,
+        b_blind: 0,
+        c_blind: 0,
+    };
     let mut rng = seed ^ 0x5151_5151_5151_5151;
     let is_zk = mode == "zk";
     let statement = commit_statement(&bases, &mut witness, is_zk, &mut rng);
@@ -864,7 +1492,10 @@ fn bench_one(mode: &str, n: usize, seed: u64) {
         let start = Instant::now();
         let verified = verify_zk(&bases, &statement, &proof);
         let verify_s = start.elapsed().as_secs_f64();
-        println!("{mode},{n},{matmul_s:.9},{prove_s:.9},{verify_s:.9},{:.3},{verified}", prove_s / matmul_s);
+        println!(
+            "{mode},{n},{matmul_s:.9},{prove_s:.9},{verify_s:.9},{:.3},{verified}",
+            prove_s / matmul_s
+        );
     } else {
         let start = Instant::now();
         let proof = prove_core(&bases, &statement, &witness);
@@ -872,7 +1503,10 @@ fn bench_one(mode: &str, n: usize, seed: u64) {
         let start = Instant::now();
         let verified = verify_core(&bases, &statement, &proof);
         let verify_s = start.elapsed().as_secs_f64();
-        println!("{mode},{n},{matmul_s:.9},{prove_s:.9},{verify_s:.9},{:.3},{verified}", prove_s / matmul_s);
+        println!(
+            "{mode},{n},{matmul_s:.9},{prove_s:.9},{verify_s:.9},{:.3},{verified}",
+            prove_s / matmul_s
+        );
     }
 }
 

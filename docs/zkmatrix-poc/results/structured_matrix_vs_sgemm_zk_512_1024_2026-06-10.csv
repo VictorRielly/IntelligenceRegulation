@@ -1,0 +1,3 @@
+mode,n,fastest_float_backend,float_matmul_s,float_gflops,setup_s,commit_s,prove_s,verify_s,proof_over_float_matmul,verified
+zk,512,accelerate-c,0.000093192733,2880.433,44.613061917,0.286259250,12.077224625,0.041070375,129594.060,true
+zk,1024,accelerate-c,0.000486593220,4413.304,169.779743542,0.813321500,38.780312792,0.110847167,79697.602,true

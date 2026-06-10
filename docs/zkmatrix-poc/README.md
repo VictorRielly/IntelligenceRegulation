@@ -428,6 +428,83 @@ four matrix IPAs with Section 3 KZG openings, and supports same-shape batching
 with common `y` and `rho` powers. It is a core-proof prototype, not yet the
 large-scale optimized ZK backend.
 
+## Table 3 Benchmark Target
+
+See also `docs/zkmatrix-poc/OPTIMIZATION_ROADMAP.md` for the implementation
+roadmap that tracks the remaining streaming, batched-dot, fixed-base MSM, and
+GPU MSM work.
+
+Table 3 of the zkMatrix paper estimates BLS12-381 proving costs for
+`1,024 x 1,024` matrix multiplication:
+
+```text
+single zkMatrix proof:      197.04s prover, 176 MB RAM
+batched zkMatrix, t=1024:   512.48s prover total, 304 MB RAM total
+amortized per proof:          0.50s prover, 304 KB transcript/RAM share
+```
+
+This is the benchmark target for the matrix proof backend. The key claim is
+not only that the single proof is around minutes, but that batching `1,024`
+same-shape matrix multiplications reduces amortized prover time from roughly
+`200s` to roughly `0.5s`.
+
+The current Rust `structured_matrix bench-batch` command does **not** yet match
+Table 3's memory model. It constructs and stores every dense `A`, `B`, and `C`
+witness matrix for every batch item:
+
+```text
+3 * t * n^2 field elements
+```
+
+For `n=1024` and `t=1024`, that is roughly `96 GB` of scalar witness storage
+before proof buffers and the SRS. Table 3 instead assumes a streaming or
+aggregating prover whose live state is closer to:
+
+```text
+O(n^2) projection state + O(tn) product-proof state + compact commitments
+```
+
+The implementation plan for a faithful Table 3 benchmark is:
+
+1. Add a streaming batch benchmark that stores deterministic witness seeds and
+   public commitments, not all dense witnesses.
+2. Generate commitments in one pass, derive `y`, then compute per-instance
+   `d_i`, `ay_i`, and `by_i` commitments in a second pass.
+3. Derive `rho`, then aggregate `A`, `B`, and `C` into one length-`n^2`
+   witness buffer for the three projection proofs.
+4. Retain only the `O(tn)` product-proof inputs `ay_i`, `by_i`, `d_i`, and
+   blinds for the per-instance product proofs.
+5. Replace the independent product-proof loop with a batched product prover
+   that fuses same-round dot products and folds across all `t` proofs.
+6. Use compact SRS storage, streaming KZG witness generation, and fixed-base
+   or GPU MSMs; otherwise the implementation's RAM and runtime will not match
+   the paper's model.
+
+The current benchmark can still estimate timing trends for small `t`, but it
+cannot validate the `304 MB` RAM claim or run `t=1024` at `n=1024` without this
+streaming prover work.
+
+Current local results for the implemented Algorithm 6-shaped ZK batch prover
+are stored in:
+
+```text
+docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_alg6_n1024_2026-06-10.csv
+docs/zkmatrix-poc/results/structured_matrix_batch_vs_sgemm_zk_alg6_n1024_scaling_2026-06-10.txt
+```
+
+The measured rows for `n=1024` and `t in {1,2,4,8,16}` fit the model:
+
+```text
+prove_time(t) ~= 37.55s + 1.16s * t
+```
+
+That projects to about `1229s` total, or `1.20s` per proof, for `t=1024`.
+This confirms that batching is amortizing the large fixed cost, but the current
+backend is still about `2.4x` slower than Table 3's `512.48s` total estimate
+for batched proving. It also has no crossing point against local float SGEMM:
+the fitted marginal proof cost is still much larger than a single Accelerate
+SGEMM at this matrix size.
+
 ## Main Risks
 
 - No usable public zkMatrix implementation exists.

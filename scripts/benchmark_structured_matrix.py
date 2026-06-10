@@ -16,6 +16,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--sizes", type=int, nargs="+", default=[8, 16, 32])
     parser.add_argument(
+        "--mode",
+        choices=["core", "zk", "both"],
+        default="zk",
+        help="proof mode to benchmark",
+    )
+    parser.add_argument(
         "--batch",
         type=int,
         default=None,
@@ -40,14 +46,14 @@ def main() -> None:
         build()
     if args.batch is None:
         subprocess.run(
-            [str(BINARY), "bench", *[str(size) for size in args.sizes]],
+            [str(BINARY), "bench", args.mode, *[str(size) for size in args.sizes]],
             check=True,
         )
         return
     if len(args.sizes) != 1:
         raise SystemExit("--batch expects exactly one --sizes value")
     subprocess.run(
-        [str(BINARY), "bench-batch", str(args.sizes[0]), str(args.batch)],
+        [str(BINARY), "bench-batch", args.mode, str(args.sizes[0]), str(args.batch)],
         check=True,
     )
 
