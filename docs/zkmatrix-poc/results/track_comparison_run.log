@@ -1,0 +1,73 @@
+# building release binaries ...
+# build done
+# metadata -> /home/victor/IntelligenceRegulation/docs/zkmatrix-poc/results/track_comparison/metadata.txt
+## [toy-zk] /home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/zkmatrix-rs bench zk 64 128 256 512 1024 2048 4096
+[toy-zk] mode,n,exact_matmul_s,prove_s,verify_s,proof_over_exact_matmul,verified
+[toy-zk] zk,64,0.001083840,0.016794545,0.004475346,15.495,true
+[toy-zk] zk,128,0.002210576,0.019922250,0.005227216,9.012,true
+[toy-zk] zk,256,0.008732270,0.027725735,0.006905644,3.175,true
+[toy-zk] zk,512,0.059678292,0.063529068,0.011430934,1.065,true
+[toy-zk] zk,1024,0.285626655,0.135349640,0.040278521,0.474,true
+[toy-zk] zk,2048,2.345127443,0.372662488,0.130062378,0.159,true
+[toy-zk] zk,4096,18.972723507,1.333374058,0.403115650,0.070,true
+## [lattice-pi1] /home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/lattice_matmul bench pi1 64 128 256 512 1024 2048
+[lattice-pi1] proto,n,b,r,k,N,crs_s,matmul_s,commit_s,prove_s,verify_s,proof_bytes,verified
+[lattice-pi1] pi1,64,8,37,1247,5376,0.017167,0.001440,0.132395,0.920846,0.383325,1858029,true
+[lattice-pi1] pi1,128,8,37,1312,5504,0.013297,0.003183,0.247701,1.131168,0.398570,1970805,true
+[lattice-pi1] pi1,256,8,37,1380,5696,0.015772,0.005559,0.498769,1.435589,0.391796,2127093,true
+[lattice-pi1] pi1,512,8,37,1451,6016,0.016885,0.030592,1.131014,1.389504,0.489411,2370405,true
+[lattice-pi1] pi1,1024,8,37,1528,6592,0.026345,0.229288,3.308496,2.031728,0.761633,2788949,true
+[lattice-pi1] pi1,2048,8,37,1612,7680,0.036955,1.842537,11.998671,3.587310,1.658075,3561509,true
+## [lattice-pi2] /home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/lattice_matmul bench pi2 64 128 256 512 1024 2048
+[lattice-pi2] proto,n,b,r,k,N,crs_s,matmul_s,commit_s,prove_s,verify_s,proof_bytes,verified
+[lattice-pi2] pi2,64,6,64,1832,5952,0.017937,0.000829,0.244906,3.199683,0.862167,6385240,true
+[lattice-pi2] pi2,128,6,64,1909,6080,0.017303,0.001573,0.454437,2.991201,0.935072,6747936,true
+[lattice-pi2] pi2,256,6,64,1991,6272,0.019086,0.004892,1.053699,2.766503,1.054433,7243120,true
+[lattice-pi2] pi2,512,6,64,2075,6592,0.023692,0.029361,2.502950,3.317883,1.475724,7999376,true
+[lattice-pi2] pi2,1024,6,64,2167,7232,0.030355,0.241775,7.110360,4.852427,2.478342,9520880,true
+[lattice-pi2] pi2,2048,6,64,2266,8320,0.045089,1.854256,22.229679,8.445125,5.761087,11891112,true
+## [lattice-pi2-batch-n256] /home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/lattice_matmul bench-batch pi2 256 1 2 4 8 16 32
+[lattice-pi2-batch-n256] proto,n,batch,crs_s,commit_s,batch_prove_s,prove_per_claim_s,batch_verify_s,verify_per_claim_s,verified
+[lattice-pi2-batch-n256] pi2,256,1,0.020284,1.039786,3.142854,3.142854,1.077169,1.077169,true
+[lattice-pi2-batch-n256] pi2,256,2,0.020284,2.102973,6.783042,3.391521,2.163222,1.081611,true
+[lattice-pi2-batch-n256] pi2,256,4,0.020284,4.302463,11.753845,2.938461,4.339494,1.084873,true
+[lattice-pi2-batch-n256] pi2,256,8,0.020284,8.580786,26.459090,3.307386,8.700962,1.087620,true
+[lattice-pi2-batch-n256] pi2,256,16,0.020284,16.982232,52.368235,3.273015,17.578545,1.098659,true
+[lattice-pi2-batch-n256] pi2,256,32,0.020284,33.843765,80.472607,2.514769,34.754285,1.086071,true
+## [lattice-pi2-batch-n1024] /home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/lattice_matmul bench-batch pi2 1024 1 2 4 8
+[lattice-pi2-batch-n1024] proto,n,batch,crs_s,commit_s,batch_prove_s,prove_per_claim_s,batch_verify_s,verify_per_claim_s,verified
+[lattice-pi2-batch-n1024] pi2,1024,1,0.032358,7.803039,4.626633,4.626633,2.684106,2.684106,true
+[lattice-pi2-batch-n1024] pi2,1024,2,0.032358,14.885485,8.786551,4.393275,5.052105,2.526052,true
+[lattice-pi2-batch-n1024] pi2,1024,4,0.032358,29.577212,20.587202,5.146801,10.157117,2.539279,true
+[lattice-pi2-batch-n1024] pi2,1024,8,0.032358,59.246430,36.663587,4.582948,20.200559,2.525070,true
+## [structured] /home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/structured_matrix bench both 64 128 256 512 1024
+[structured] mode,n,setup_s,commit_s,prove_s,verify_s,verified
+[structured] core,64,0.811552089,0.007490069,0.792882557,0.011681149,true
+[structured] zk,64,0.916975248,0.006820118,0.832622449,0.011901637,true
+[structured] core,128,3.364655520,0.025616796,1.816292365,0.010904900,true
+[structured] zk,128,3.441133939,0.022887551,1.970511541,0.013298244,true
+[structured] core,256,13.508704666,0.085171826,5.825666139,0.012175976,true
+[structured] zk,256,13.614024939,0.083172048,6.193878268,0.016962132,true
+[structured] core,512,54.134945477,0.313100792,21.224173527,0.013070619,true
+[structured] zk,512,53.963168852,0.317687198,22.729090006,0.030023718,true
+[structured] core,1024,213.965555724,1.200084903,83.639963638,0.014375061,true
+[structured] zk,1024,213.684290879,1.159550541,89.816340321,0.065857482,true
+## [structured-zk-batch-n256] /home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/structured_matrix bench-batch-series zk 256 1 2 4 8 16 32
+[structured-zk-batch-n256] mode,n,batch,setup_s,commit_s,batch_prove_s,prove_per_claim_s,batch_verify_s,verify_per_claim_s,verified
+[structured-zk-batch-n256] zk,256,1,13.714008316,0.078078475,6.246189782,6.246189782,0.013943791,0.013943791,true
+[structured-zk-batch-n256] zk,256,2,13.714008316,0.157177093,6.404749020,3.202374510,0.017127117,0.008563559,true
+[structured-zk-batch-n256] zk,256,4,13.714008316,0.311503424,6.715955680,1.678988920,0.023074025,0.005768506,true
+[structured-zk-batch-n256] zk,256,8,13.714008316,0.641098398,7.216508204,0.902063526,0.039472638,0.004934080,true
+[structured-zk-batch-n256] zk,256,16,13.714008316,1.278775265,8.481136996,0.530071062,0.059442610,0.003715163,true
+[structured-zk-batch-n256] zk,256,32,13.714008316,2.530531046,10.570124577,0.330316393,0.145061328,0.004533166,true
+## [structured-zk-batch-n1024] /home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/structured_matrix bench-batch-series zk 1024 1 2 4 8
+[structured-zk-batch-n1024] mode,n,batch,setup_s,commit_s,batch_prove_s,prove_per_claim_s,batch_verify_s,verify_per_claim_s,verified
+[structured-zk-batch-n1024] zk,1024,1,213.369916133,1.238995344,90.581530872,90.581530872,0.016260140,0.016260140,true
+[structured-zk-batch-n1024] zk,1024,2,213.369916133,2.478941356,91.628537178,45.814268589,0.019800839,0.009900420,true
+[structured-zk-batch-n1024] zk,1024,4,213.369916133,5.133143978,92.593941418,23.148485354,0.027930336,0.006982584,true
+[structured-zk-batch-n1024] zk,1024,8,213.369916133,10.043634012,93.302062457,11.662757807,0.045194541,0.005649318,true
+## [structured-n2048] /home/victor/IntelligenceRegulation/zkmatrix-rs/target/release/structured_matrix bench both 2048
+[structured-n2048] mode,n,setup_s,commit_s,prove_s,verify_s,verified
+[structured-n2048] core,2048,856.187353704,5.564128542,337.484407910,0.018074329,true
+[structured-n2048] zk,2048,841.059108075,5.072646619,360.255227322,0.226952857,true
+# all runs complete

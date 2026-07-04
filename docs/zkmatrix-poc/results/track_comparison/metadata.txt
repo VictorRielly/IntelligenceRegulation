@@ -1,0 +1,6 @@
+date: 2026-07-03T23:39:58.869864
+cpu: Intel(R) Core(TM) Ultra 9 185H
+threads: 22
+platform: Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+git commit: fff8ecb
+execution: sequential, one benchmark process at a time
