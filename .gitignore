@@ -27,3 +27,6 @@ htmlcov/
 ## OS / editor
 .DS_Store
 Thumbs.db
+zk_matrix_fast/zk_matrix_fast
+__pycache__/
+*.pyc

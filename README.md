@@ -27,7 +27,9 @@ Please reach out if you have further ideas on how we can make this work. victorr
 ## Project Plans
 
 - [zkMatrix proof-of-concept plan](docs/zkmatrix-poc/README.md): roadmap for proving a small Transformer-like feed-forward with committed matrix multiplication proofs and explicit nonlinear constraints.
-- [zkMatrix implementation guide](docs/zkmatrix-poc/IMPLEMENTATION.md): how to build, test, and benchmark the Python and Rust zkMatrix proof prototypes.
+- [zkMatrix implementation guide](docs/zkmatrix-poc/IMPLEMENTATION.md): how to build, test, and benchmark the Python and Rust zkMatrix proof prototypes, including the "Deviations From The Paper" record.
+- [Review notes and roadmap](ZKMATRIX_REVIEW_NOTES.md): independent code-and-paper review; the P0 decoupling-challenge fix and P1 transcript-binding fix are now implemented across all backends.
+- `zk_lattice/`: lattice-based (post-quantum) zero-knowledge proofs of matrix multiplication — the Route-Z reference implementation of `zk-matrix-multiplication-lattice.pdf` (protocols Pi1 and Pi2, SIS/knapsack-LWE assumptions, transparent setup).
 
 ## Requirements
 

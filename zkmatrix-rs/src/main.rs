@@ -132,6 +132,37 @@ struct Bases {
     by: Vec<u64>,
     scalar: u64,
     blind: u64,
+    digest: u64,
+}
+
+/// Protocol version, bumped whenever the transcript layout changes.
+const PROTOCOL_VERSION: u64 = 2;
+
+/// Digest of the setup: protocol version, parameters and the generating
+/// label set for all base families. Mixed into every Fiat-Shamir domain.
+/// Must stay in lockstep with `setup_digest` in zk_matrix_fast.c.
+fn setup_digest(n: usize) -> u64 {
+    let mut s = 0x5e70_d16e_57a0_b001u64;
+    for value in [
+        PROTOCOL_VERSION,
+        n as u64,
+        Q,
+        0xA111,
+        0xB222,
+        0xC333,
+        0xA444,
+        0xB555,
+        0xD666,
+        0xE777,
+    ] {
+        s = mix_value(s, value);
+    }
+    s
+}
+
+/// Bind the setup digest into a challenge domain constant.
+fn dom(bases: &Bases, domain: u64) -> u64 {
+    mix_value(bases.digest, domain)
 }
 
 #[derive(Clone, Copy)]
@@ -225,6 +256,7 @@ fn make_bases(n: usize) -> Bases {
             .collect(),
         scalar: basis_elem(0xD666, 0),
         blind: basis_elem(0xE777, 0),
+        digest: setup_digest(n),
     }
 }
 
@@ -464,11 +496,9 @@ fn fold_full(
 }
 
 fn commit_vec(values: &[u64], bases: &[u64], blind_base: u64, blind: u64) -> u64 {
-    let mut out = dot(values, bases);
-    if blind != 0 {
-        out = addm(out, mulm(blind_base, blind));
-    }
-    out
+    // Unconditional blinding: a zero blind contributes the identity, so the
+    // commitment value is unchanged but no data-dependent branch is taken.
+    addm(dot(values, bases), mulm(blind_base, blind))
 }
 
 fn matmul_mod(a: &[u64], b: &[u64], c: &mut [u64], n: usize) {
@@ -542,7 +572,7 @@ fn projections(
 ) -> (Vec<u64>, Vec<u64>, Vec<u64>, Vec<u64>, Vec<u64>, u64) {
     let n = bases.n;
     let y = challenge_statement(
-        0x1001,
+        dom(bases, 0x1001),
         n,
         statement.a_commit,
         statement.b_commit,
@@ -566,26 +596,54 @@ fn projections(
     (yvec, yl, yr, ay, by, d)
 }
 
-fn a_projection_bases(bases: &Bases, yl: &[u64]) -> Vec<u64> {
+/// Combined projection bases with the output family scaled by the fresh
+/// decoupling challenge (paper Algorithms 2-3: `x * C_out (+) C_in`).
+fn a_projection_bases(bases: &Bases, yl: &[u64], scale: u64) -> Vec<u64> {
     let n = bases.n;
     (0..bases.nn)
         .into_par_iter()
         .map(|idx| {
             let i = idx / n;
             let j = idx % n;
-            addm(bases.a[idx], mulm(yl[i], bases.ay[j]))
+            addm(bases.a[idx], mulm(mulm(scale, yl[i]), bases.ay[j]))
         })
         .collect()
 }
 
-fn b_projection_bases(bases: &Bases, yr: &[u64]) -> Vec<u64> {
+fn b_projection_bases(bases: &Bases, yr: &[u64], scale: u64) -> Vec<u64> {
     let n = bases.n;
     (0..bases.nn)
         .into_par_iter()
         .map(|idx| {
             let i = idx / n;
             let j = idx % n;
-            addm(bases.b[idx], mulm(yr[j], bases.by[i]))
+            addm(bases.b[idx], mulm(mulm(scale, yr[j]), bases.by[i]))
+        })
+        .collect()
+}
+
+/// Combined bases for the masked projection relation with the output family
+/// scaled by the decoupling challenge.
+fn weighted_projection_bases(
+    bases: &Bases,
+    input_bases: &[u64],
+    output_bases: &[u64],
+    coeffs: &[u64],
+    axis_rows: bool,
+    scale: u64,
+) -> Vec<u64> {
+    let n = bases.n;
+    (0..bases.nn)
+        .into_par_iter()
+        .map(|idx| {
+            let i = idx / n;
+            let j = idx % n;
+            let (coeff, output_base) = if axis_rows {
+                (mulm(scale, coeffs[i]), output_bases[j])
+            } else {
+                (mulm(scale, coeffs[j]), output_bases[i])
+            };
+            addm(input_bases[idx], mulm(coeff, output_base))
         })
         .collect()
 }
@@ -819,47 +877,53 @@ fn prove_core(bases: &Bases, statement: &Statement, witness: &Witness) -> CorePr
     let d_commit = mulm(bases.scalar, d);
     let ay_commit = commit_vec(&ay, &bases.ay, 0, 0);
     let by_commit = commit_vec(&by, &bases.by, 0, 0);
+    // Fresh decoupling challenges, sampled after the d/ay/by commitments.
+    let dec_items = [d_commit, ay_commit, by_commit];
+    let xc = challenge_commitments(dom(bases, 0x5EC1), bases.n, statement, &dec_items);
+    let xa = challenge_commitments(dom(bases, 0x5EC2), bases.n, statement, &dec_items);
+    let xb = challenge_commitments(dom(bases, 0x5EC3), bases.n, statement, &dec_items);
+    let xp = challenge_commitments(dom(bases, 0x5EC4), bases.n, statement, &dec_items);
     let c_proj = prove_ip(
         bases.nn,
-        addm(d_commit, statement.c_commit),
-        bases.scalar,
+        addm(mulm(xc, d_commit), statement.c_commit),
+        mulm(xc, bases.scalar),
         &bases.c,
         None,
         Some(&witness.c),
         Some(&yvec),
-        0xC001,
+        dom(bases, 0xC001),
     );
-    let apb = a_projection_bases(bases, &yl);
+    let apb = a_projection_bases(bases, &yl, xa);
     let a_proj = prove_ip(
         bases.nn,
-        addm(statement.a_commit, ay_commit),
+        addm(statement.a_commit, mulm(xa, ay_commit)),
         0,
         &apb,
         None,
         Some(&witness.a),
         None,
-        0xA002,
+        dom(bases, 0xA002),
     );
-    let bpb = b_projection_bases(bases, &yr);
+    let bpb = b_projection_bases(bases, &yr, xb);
     let b_proj = prove_ip(
         bases.nn,
-        addm(statement.b_commit, by_commit),
+        addm(statement.b_commit, mulm(xb, by_commit)),
         0,
         &bpb,
         None,
         Some(&witness.b),
         None,
-        0xB003,
+        dom(bases, 0xB003),
     );
     let product = prove_ip(
         bases.n,
-        addm(addm(d_commit, ay_commit), by_commit),
-        bases.scalar,
+        addm(mulm(xp, d_commit), addm(ay_commit, by_commit)),
+        mulm(xp, bases.scalar),
         &bases.ay,
         Some(&bases.by),
         Some(&ay),
         Some(&by),
-        0xD004,
+        dom(bases, 0xD004),
     );
     CoreProof {
         d_commit,
@@ -874,7 +938,7 @@ fn prove_core(bases: &Bases, statement: &Statement, witness: &Witness) -> CorePr
 
 fn verify_core(bases: &Bases, statement: &Statement, proof: &CoreProof) -> bool {
     let y = challenge_statement(
-        0x1001,
+        dom(bases, 0x1001),
         bases.n,
         statement.a_commit,
         statement.b_commit,
@@ -883,49 +947,54 @@ fn verify_core(bases: &Bases, statement: &Statement, proof: &CoreProof) -> bool 
     let yvec = powers(y, bases.nn);
     let yr = powers(y, bases.n);
     let yl: Vec<u64> = (0..bases.n).map(|i| yvec[i * bases.n]).collect();
+    let dec_items = [proof.d_commit, proof.ay_commit, proof.by_commit];
+    let xc = challenge_commitments(dom(bases, 0x5EC1), bases.n, statement, &dec_items);
+    let xa = challenge_commitments(dom(bases, 0x5EC2), bases.n, statement, &dec_items);
+    let xb = challenge_commitments(dom(bases, 0x5EC3), bases.n, statement, &dec_items);
+    let xp = challenge_commitments(dom(bases, 0x5EC4), bases.n, statement, &dec_items);
     if !verify_ip(
         bases.nn,
-        addm(proof.d_commit, statement.c_commit),
-        bases.scalar,
+        addm(mulm(xc, proof.d_commit), statement.c_commit),
+        mulm(xc, bases.scalar),
         &bases.c,
         None,
         &proof.c_proj,
-        0xC001,
+        dom(bases, 0xC001),
     ) {
         return false;
     }
-    let apb = a_projection_bases(bases, &yl);
+    let apb = a_projection_bases(bases, &yl, xa);
     if !verify_ip(
         bases.nn,
-        addm(statement.a_commit, proof.ay_commit),
+        addm(statement.a_commit, mulm(xa, proof.ay_commit)),
         0,
         &apb,
         None,
         &proof.a_proj,
-        0xA002,
+        dom(bases, 0xA002),
     ) {
         return false;
     }
-    let bpb = b_projection_bases(bases, &yr);
+    let bpb = b_projection_bases(bases, &yr, xb);
     if !verify_ip(
         bases.nn,
-        addm(statement.b_commit, proof.by_commit),
+        addm(statement.b_commit, mulm(xb, proof.by_commit)),
         0,
         &bpb,
         None,
         &proof.b_proj,
-        0xB003,
+        dom(bases, 0xB003),
     ) {
         return false;
     }
     verify_ip(
         bases.n,
-        addm(addm(proof.d_commit, proof.ay_commit), proof.by_commit),
-        bases.scalar,
+        addm(mulm(xp, proof.d_commit), addm(proof.ay_commit, proof.by_commit)),
+        mulm(xp, bases.scalar),
         &bases.ay,
         Some(&bases.by),
         &proof.product,
-        0xD004,
+        dom(bases, 0xD004),
     )
 }
 
@@ -978,10 +1047,23 @@ fn prove_zk_public_ip(
         addm(output_commit, mulm(x, projected_mask_commit)),
         mulm(bases.blind, projected_response_blind),
     );
+    let xs = challenge_commitments(
+        domain ^ 0x5EC0,
+        bases.n,
+        statement,
+        &[
+            input_commit,
+            output_commit,
+            mask_commit,
+            projected_mask_commit,
+            response_blind,
+            projected_response_blind,
+        ],
+    );
     let proof = prove_ip(
         len,
-        addm(masked_output, masked_input),
-        output_base,
+        addm(mulm(xs, masked_output), masked_input),
+        mulm(xs, output_base),
         input_bases,
         None,
         Some(&alpha),
@@ -1027,10 +1109,23 @@ fn verify_zk_public_ip(
         addm(output_commit, mulm(x, proof.projected_mask_commit)),
         mulm(bases.blind, proof.projected_response_blind),
     );
+    let xs = challenge_commitments(
+        domain ^ 0x5EC0,
+        bases.n,
+        statement,
+        &[
+            input_commit,
+            output_commit,
+            proof.mask_commit,
+            proof.projected_mask_commit,
+            proof.response_blind,
+            proof.projected_response_blind,
+        ],
+    );
     verify_ip(
         public_values.len(),
-        addm(masked_output, masked_input),
-        output_base,
+        addm(mulm(xs, masked_output), masked_input),
+        mulm(xs, output_base),
         input_bases,
         None,
         &proof.proof,
@@ -1047,7 +1142,6 @@ fn prove_zk_projection(
     coeffs: &[u64],
     input_bases: &[u64],
     output_bases: &[u64],
-    projected_bases: &[u64],
     input_blind: u64,
     output_blind: u64,
     axis_rows: bool,
@@ -1104,11 +1198,26 @@ fn prove_zk_projection(
         addm(output_commit, mulm(x, projected_mask_commit)),
         mulm(bases.blind, projected_response_blind),
     );
+    let xs = challenge_commitments(
+        domain ^ 0x5EC0,
+        bases.n,
+        statement,
+        &[
+            input_commit,
+            output_commit,
+            mask_commit,
+            projected_mask_commit,
+            response_blind,
+            projected_response_blind,
+        ],
+    );
+    let projected_bases =
+        weighted_projection_bases(bases, input_bases, output_bases, coeffs, axis_rows, xs);
     let proof = prove_ip(
         bases.nn,
-        addm(masked_input, masked_output),
+        addm(masked_input, mulm(xs, masked_output)),
         0,
-        projected_bases,
+        &projected_bases,
         None,
         Some(&alpha),
         None,
@@ -1128,7 +1237,10 @@ fn verify_zk_projection(
     statement: &Statement,
     input_commit: u64,
     output_commit: u64,
-    projected_bases: &[u64],
+    input_bases: &[u64],
+    output_bases: &[u64],
+    coeffs: &[u64],
+    axis_rows: bool,
     proof: &ZkProjectionProof,
     domain: u64,
 ) -> bool {
@@ -1151,11 +1263,26 @@ fn verify_zk_projection(
         addm(output_commit, mulm(x, proof.projected_mask_commit)),
         mulm(bases.blind, proof.projected_response_blind),
     );
+    let xs = challenge_commitments(
+        domain ^ 0x5EC0,
+        bases.n,
+        statement,
+        &[
+            input_commit,
+            output_commit,
+            proof.mask_commit,
+            proof.projected_mask_commit,
+            proof.response_blind,
+            proof.projected_response_blind,
+        ],
+    );
+    let projected_bases =
+        weighted_projection_bases(bases, input_bases, output_bases, coeffs, axis_rows, xs);
     verify_ip(
         bases.nn,
-        addm(masked_input, masked_output),
+        addm(masked_input, mulm(xs, masked_output)),
         0,
-        projected_bases,
+        &projected_bases,
         None,
         &proof.proof,
         domain ^ 0x8888,
@@ -1192,7 +1319,7 @@ fn prove_zk_product(
         mulm(bases.blind, alpha_beta_blind),
     );
     let x = challenge_commitments(
-        0xD0D0,
+        dom(bases, 0xD0D0),
         n,
         statement,
         &[
@@ -1234,15 +1361,32 @@ fn prove_zk_product(
         ),
         mulm(bases.blind, output_response_blind),
     );
+    let xs = challenge_commitments(
+        dom(bases, 0xD0D0) ^ 0x5EC0,
+        n,
+        statement,
+        &[
+            output_commit,
+            left_commit,
+            right_commit,
+            alpha_commit,
+            beta_commit,
+            cross_commit,
+            alpha_beta_commit,
+            left_response_blind,
+            right_response_blind,
+            output_response_blind,
+        ],
+    );
     let proof = prove_ip(
         n,
-        addm(addm(masked_output, masked_left), masked_right),
-        bases.scalar,
+        addm(mulm(xs, masked_output), addm(masked_left, masked_right)),
+        mulm(xs, bases.scalar),
         &bases.ay,
         Some(&bases.by),
         Some(&alpha),
         Some(&beta),
-        0xD0D1,
+        dom(bases, 0xD0D1),
     );
     ZkProductProof {
         alpha_commit,
@@ -1265,7 +1409,7 @@ fn verify_zk_product(
     proof: &ZkProductProof,
 ) -> bool {
     let x = challenge_commitments(
-        0xD0D0,
+        dom(bases, 0xD0D0),
         bases.n,
         statement,
         &[
@@ -1294,14 +1438,31 @@ fn verify_zk_product(
         ),
         mulm(bases.blind, proof.output_response_blind),
     );
+    let xs = challenge_commitments(
+        dom(bases, 0xD0D0) ^ 0x5EC0,
+        bases.n,
+        statement,
+        &[
+            output_commit,
+            left_commit,
+            right_commit,
+            proof.alpha_commit,
+            proof.beta_commit,
+            proof.cross_commit,
+            proof.alpha_beta_commit,
+            proof.left_response_blind,
+            proof.right_response_blind,
+            proof.output_response_blind,
+        ],
+    );
     verify_ip(
         bases.n,
-        addm(addm(masked_output, masked_left), masked_right),
-        bases.scalar,
+        addm(mulm(xs, masked_output), addm(masked_left, masked_right)),
+        mulm(xs, bases.scalar),
         &bases.ay,
         Some(&bases.by),
         &proof.proof,
-        0xD0D1,
+        dom(bases, 0xD0D1),
     )
 }
 
@@ -1324,10 +1485,9 @@ fn prove_zk(bases: &Bases, statement: &Statement, witness: &Witness, rng: &mut u
         bases.scalar,
         witness.c_blind,
         d_blind,
-        0xC101,
+        dom(bases, 0xC101),
         rng,
     );
-    let apb = a_projection_bases(bases, &yl);
     let a_proj = prove_zk_projection(
         bases,
         statement,
@@ -1337,14 +1497,12 @@ fn prove_zk(bases: &Bases, statement: &Statement, witness: &Witness, rng: &mut u
         &yl,
         &bases.a,
         &bases.ay,
-        &apb,
         witness.a_blind,
         ay_blind,
         true,
-        0xA102,
+        dom(bases, 0xA102),
         rng,
     );
-    let bpb = b_projection_bases(bases, &yr);
     let b_proj = prove_zk_projection(
         bases,
         statement,
@@ -1354,11 +1512,10 @@ fn prove_zk(bases: &Bases, statement: &Statement, witness: &Witness, rng: &mut u
         &yr,
         &bases.b,
         &bases.by,
-        &bpb,
         witness.b_blind,
         by_blind,
         false,
-        0xB103,
+        dom(bases, 0xB103),
         rng,
     );
     let product = prove_zk_product(
@@ -1378,7 +1535,7 @@ fn prove_zk(bases: &Bases, statement: &Statement, witness: &Witness, rng: &mut u
 
 fn verify_zk(bases: &Bases, statement: &Statement, proof: &ZkProof) -> bool {
     let y = challenge_statement(
-        0x1001,
+        dom(bases, 0x1001),
         bases.n,
         statement.a_commit,
         statement.b_commit,
@@ -1396,31 +1553,35 @@ fn verify_zk(bases: &Bases, statement: &Statement, proof: &ZkProof) -> bool {
         &bases.c,
         bases.scalar,
         &proof.c_proj,
-        0xC101,
+        dom(bases, 0xC101),
     ) {
         return false;
     }
-    let apb = a_projection_bases(bases, &yl);
     if !verify_zk_projection(
         bases,
         statement,
         statement.a_commit,
         proof.ay_commit,
-        &apb,
+        &bases.a,
+        &bases.ay,
+        &yl,
+        true,
         &proof.a_proj,
-        0xA102,
+        dom(bases, 0xA102),
     ) {
         return false;
     }
-    let bpb = b_projection_bases(bases, &yr);
     if !verify_zk_projection(
         bases,
         statement,
         statement.b_commit,
         proof.by_commit,
-        &bpb,
+        &bases.b,
+        &bases.by,
+        &yr,
+        false,
         &proof.b_proj,
-        0xB103,
+        dom(bases, 0xB103),
     ) {
         return false;
     }

@@ -9,6 +9,13 @@ Reference paper:
 
 - `docs/zkmatrix-poc/references/zkMatrix-eprint-2024-161.pdf`
 - https://eprint.iacr.org/2024/161.pdf
+- Reviewed against the ePrint revision of 2025-02-05 (Cong-Yuen-Yiu,
+  AsiaCCS 2024). Re-check claims against the AsiaCCS camera-ready before
+  publishing comparisons.
+
+Companion lattice track (post-quantum): `zk_lattice/` implements the two
+protocols of `zk-matrix-multiplication-lattice.pdf` (Route Z reference); see
+"Lattice Track" below.
 
 ## What The Code Implements
 
@@ -42,6 +49,79 @@ per-round dot products into one pass, and parallelizes large vector folds. This
 keeps the protocol algebra unchanged but removes a large constant factor from
 the three `O(n^2)` projection proofs.
 
+## Deviations From The Paper
+
+The implementations are a reproduction plus a small number of deliberate
+deviations. Each is recorded here so reviewers do not have to rediscover them.
+
+1. Fresh decoupling challenge `x` (paper-faithful, previously missing).
+
+   The paper's Algorithms 2-3 combine each sub-proof's input and output
+   commitments as `x * C_out (+) C_in` with a fresh public-coin challenge
+   `x`; the knowledge-soundness proofs (Theorems 2-3) rewind over two values
+   of `x` to separate the two commitments' contributions. Earlier revisions
+   of this code fixed that coefficient to 1. All implementations (Python,
+   C, Rust toy backend, Rust BLS12-381 structured backend, including the
+   Algorithm 6 batch paths) now derive one extra Fiat-Shamir scalar per
+   sub-proof, sampled after every commitment and response blind entering
+   the combined commitment, and scale the output commitment and the output
+   base family by it. The Python test suite locks the transcript with a
+   known-answer test (`test_transcript_kat_locks_decoupling_challenges`).
+
+2. Section 3 verifier: KZG opening at a fresh point `zeta` instead of the
+   paper's dual `nu`-shifted SRS.
+
+   The paper realizes its accelerated verifier with a second, `nu`-shifted
+   SRS and proves it under q-PDH/q-PKE/q-BSDH-type assumptions. The Rust
+   structured backend instead runs a standard KZG opening: after the IPA
+   transcript is fixed, a fresh Fiat-Shamir point `zeta` is drawn, the
+   prover opens the folded basis polynomial at `zeta`, and the verifier
+   evaluates the public folded polynomial in closed form (`formula_value`,
+   the Eq.-15-style product formulas, including the batched variants) and
+   checks
+
+   ```text
+   e(C - v * G, H) = e(W, tau * H - zeta * H)
+   ```
+
+   This is a redesign, not a transcription: it rests on KZG evaluation
+   binding (AGM / q-SDH-type assumptions), which is more standard than the
+   paper's assumption set. Soundness of the closed-form evaluation relies
+   on `zeta` being sampled after the IPA transcript (Schwartz-Zippel over
+   the committed polynomial identity).
+
+3. Setup digest bound into every Fiat-Shamir challenge.
+
+   All bases/SRS elements are deterministic hash-to-group outputs or SRS
+   powers, so binding was previously implicit. Every implementation now
+   absorbs an explicit setup digest plus the protocol version and the
+   parameter tuple into its challenge derivations: Python hashes the
+   generating label set and parameters into `MatmulBases.digest`; the C and
+   Rust toy backends mix `setup_digest(n)` into every challenge domain; the
+   structured backend hashes `(n, srs_len, tau*G, tau*H, u, blind)` into
+   `StructuredSrs.digest` and absorbs it in every challenge, including the
+   per-round IPA and KZG challenges.
+
+4. Unconditional Pedersen blinding.
+
+   `commit_*` previously skipped the blinding term when the blind was zero.
+   Blinding is now applied unconditionally (a zero blind contributes the
+   identity), removing a data-dependent branch without changing any
+   commitment value.
+
+## Trusted Setup
+
+The benchmarks generate `tau` locally and discard it, which is correct for
+benchmarking only. Any deployment claim requires:
+
+- an MPC ceremony or imported powers-of-tau for the structured SRS, with
+  explicit subgroup and point-validation checks on every imported element,
+  and a pairing consistency check `e(powers[i+1], H) = e(powers[i], tau*H)`;
+- the Pedersen blind base and `u` base with unknown discrete-log relation
+  to the SRS powers (hash-to-curve, as implemented);
+- awareness that the SRS is `O(n^2)`-sized (about 150 MB at `n = 1024`) and
+  shape-specific under the current layout.
+
 ## Repository Layout
 
 ```text
@@ -50,6 +130,8 @@ zk_matrix/README.md                Python reference usage and caveats
 zkmatrix-rs/                       Optimized Rust implementation
 zkmatrix-rs/README.md              Rust backend usage and benchmark notes
 zk_matrix_fast/                    C reference backend used during optimization
+zk_lattice/                        Lattice-based (post-quantum) proofs, Route Z
+scripts/benchmark_zk_lattice.py    Lattice proof benchmark
 scripts/benchmark_zkmatrix.py      Python proof benchmark
 scripts/benchmark_zkmatrix_rust.py Rust proof benchmark wrapper
 scripts/benchmark_section3_kzg.py  Section 3 KZG verifier benchmark wrapper
@@ -65,7 +147,39 @@ scripts/benchmark_zkmatrix_vs_fast_gemm.py
 tests/test_zkmatrix_protocol.py    Python protocol correctness tests
 tests/test_zkmatrix_native_backends.py
                                    Rust accept/reject checks against Python behavior
+tests/test_zk_lattice.py           Lattice protocol correctness tests
 ```
+
+## Lattice Track
+
+`zk_lattice/` is a pure-Python reference implementation (Route Z of the
+companion report `zk-matrix-multiplication-lattice.pdf`) of two protocols:
+
+- `Pi1`: `C = A B` with `A` public and `B`, `C` hidden behind per-column
+  Ajtai/BDLOP commitments (`com(x; rho) = (G1 rho, G2 rho + x)`, ternary
+  randomness). Binding reduces to SIS in the relaxed slack-scaled sense;
+  hiding is statistical (leftover hash lemma) or computational
+  (knapsack-LWE) depending on the parameter regime.
+- `Pi2`: all three matrices hidden. Double Freivalds compression reduces
+  the claim to one scalar inner product; a quadratic garbage-term product
+  Sigma-protocol (commitments `t0`, `t1`) handles the single product gate.
+
+Both are non-interactive via Fiat-Shamir with SHAKE-256 and Schnorr-style
+transcript compression; masked responses use uniform-mod-q masking in the
+message slot and Gaussian rejection sampling (alpha = 12, M ~= 2.76) in the
+randomness slot, with the accept decision evaluated in >= 128-bit fixed
+point. `zk_lattice/params.py` encodes the report's constraint system
+(C0-C4); `toy_params` is for tests, and the `reference_params_pi1/pi2`
+sets mirror the report's worked `n = m = 1024` columns. Before any
+deployment, validate concrete parameters with the Albrecht-Player-Scott
+lattice estimator; C3/C4 are design models, not a security review.
+
+Setup is transparent (the CRS is expanded from a public seed), there is no
+pairing or curve arithmetic anywhere, and the protocols are conjectured
+post-quantum (SIS / knapsack-LWE). Proof sizes are linear in `r * N`
+(megabytes at reference parameters); the report's Route R (cyclotomic ring)
+and LaBRADOR/Greyhound folding are the documented paths to 50-150 KB and
+sublinear proofs respectively.
 
 ## Requirements
 

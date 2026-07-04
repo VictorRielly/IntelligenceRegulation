@@ -15,6 +15,7 @@ zero-knowledge work is quadratic in the matrix dimensions.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from hashlib import sha256
 import random
 import secrets
 from typing import List, Optional, Sequence, Tuple
@@ -31,6 +32,10 @@ from .transcript import challenge_scalar, transcript_bytes
 
 Matrix = List[List[int]]
 
+# Bumped whenever the transcript layout changes; absorbed into every
+# Fiat-Shamir challenge chain together with the setup digest.
+PROTOCOL_VERSION = "zkmatrix-py-v2"
+
 
 @dataclass(frozen=True)
 class MatmulBases:
@@ -44,6 +49,10 @@ class MatmulBases:
     by_bases: List[int]
     scalar_base: int
     blind_base: int
+    # Digest of the generating label set and parameters. The bases are
+    # deterministic hash-to-group outputs, so binding the labels and the
+    # parameter tuple binds the whole setup.
+    digest: bytes = b""
 
 
 @dataclass(frozen=True)
@@ -256,6 +265,18 @@ def make_bases(
     by_bases = [basis("BY", j) for j in range(inner)]
     scalar_base = basis("D", 0)
     blind_base = basis("BLIND", 0)
+    digest = sha256(
+        transcript_bytes(
+            "zkmatrix-setup-digest",
+            PROTOCOL_VERSION,
+            group.name,
+            group.q,
+            label,
+            rows,
+            inner,
+            cols,
+        )
+    ).digest()
     return MatmulBases(
         rows=rows,
         inner=inner,
@@ -267,6 +288,7 @@ def make_bases(
         by_bases=by_bases,
         scalar_base=scalar_base,
         blind_base=blind_base,
+        digest=digest,
     )
 
 
@@ -282,7 +304,9 @@ def commit_matrix(
     if _shape(matrix) != _shape(bases):
         raise ValueError("matrix and base shapes do not match")
     commitment = vector_commitment(group, _flatten(matrix), _flatten(bases))
-    if blind_base is not None and blind:
+    if blind_base is not None:
+        # Unconditional blinding: a zero blind adds the identity, which keeps
+        # the commitment value identical while avoiding a data-dependent skip.
         commitment = group.add(commitment, group.scale(blind_base, blind))
     return commitment
 
@@ -295,7 +319,7 @@ def commit_vector(
     blind: int = 0,
 ) -> int:
     commitment = vector_commitment(group, [value % group.q for value in values], bases)
-    if blind_base is not None and blind:
+    if blind_base is not None:
         commitment = group.add(commitment, group.scale(blind_base, blind))
     return commitment
 
@@ -365,7 +389,10 @@ def _core_challenge(
         group.q,
         "zkmatrix-core-y",
         transcript_seed,
+        PROTOCOL_VERSION,
+        bases.digest,
         group.name,
+        group.q,
         bases.rows,
         bases.inner,
         bases.cols,
@@ -387,7 +414,10 @@ def _zk_challenge(
         group.q,
         "zkmatrix-zk-x",
         transcript_seed,
+        PROTOCOL_VERSION,
+        bases.digest,
         group.name,
+        group.q,
         bases.rows,
         bases.inner,
         bases.cols,
@@ -413,6 +443,33 @@ def _subproof_challenge(
         group.name,
         statement,
         list(commitments),
+    )
+
+
+def _decoupling_challenge(
+    group: CyclicGroup,
+    domain: str,
+    transcript_seed: bytes,
+    statement: MatmulStatement,
+    items: Sequence[int],
+) -> int:
+    """Fresh public-coin scalar separating combined commitments.
+
+    The paper's Algorithms 2-3 combine the sub-proof commitments as
+    ``x * C_out (+) C_in`` with a fresh challenge ``x`` so the knowledge
+    extractor can rewind over two values of ``x`` and separate the two
+    commitments' contributions (Theorems 2-3). This challenge is sampled
+    after every commitment (and, in the ZK paths, every response blind)
+    that enters the combined commitment is fixed in the transcript.
+    """
+
+    return challenge_scalar(
+        group.q,
+        f"{domain}-decouple",
+        transcript_seed,
+        group.name,
+        statement,
+        list(items),
     )
 
 
@@ -442,22 +499,35 @@ def _projection_values(
 
 
 def _a_projection_bases(
-    group: CyclicGroup, bases: MatmulBases, y_left: Sequence[int]
+    group: CyclicGroup,
+    bases: MatmulBases,
+    y_left: Sequence[int],
+    weight: int = 1,
 ) -> List[int]:
+    """Combined bases for the A projection, with the output family scaled.
+
+    ``weight`` is the decoupling challenge: the sub-proof shows that
+    ``C_A (+) weight * C_ay`` opens over ``a_bases[i][j] (+)
+    weight * y_left[i] * ay_bases[j]``.
+    """
+
     projected = []
     for i in range(bases.rows):
         for j in range(bases.inner):
             projected.append(
                 group.add(
                     bases.a_bases[i][j],
-                    group.scale(bases.ay_bases[j], y_left[i]),
+                    group.scale(bases.ay_bases[j], (weight * y_left[i]) % group.q),
                 )
             )
     return projected
 
 
 def _b_projection_bases(
-    group: CyclicGroup, bases: MatmulBases, y_right: Sequence[int]
+    group: CyclicGroup,
+    bases: MatmulBases,
+    y_right: Sequence[int],
+    weight: int = 1,
 ) -> List[int]:
     projected = []
     for i in range(bases.inner):
@@ -465,7 +535,7 @@ def _b_projection_bases(
             projected.append(
                 group.add(
                     bases.b_bases[i][j],
-                    group.scale(bases.by_bases[i], y_right[j]),
+                    group.scale(bases.by_bases[i], (weight * y_right[j]) % group.q),
                 )
             )
     return projected
@@ -474,6 +544,7 @@ def _b_projection_bases(
 def _core_transcript_seed(
     label: bytes,
     group: CyclicGroup,
+    bases: MatmulBases,
     statement: MatmulStatement,
     d_commitment: int,
     ay_commitment: int,
@@ -481,7 +552,13 @@ def _core_transcript_seed(
 ) -> bytes:
     return transcript_bytes(
         label,
+        PROTOCOL_VERSION,
+        bases.digest,
         group.name,
+        group.q,
+        bases.rows,
+        bases.inner,
+        bases.cols,
         statement,
         d_commitment,
         ay_commitment,
@@ -497,7 +574,7 @@ def _commit_scalar(
     blind: int = 0,
 ) -> int:
     commitment = group.scale(base, value)
-    if blind_base is not None and blind:
+    if blind_base is not None:
         commitment = group.add(commitment, group.scale(blind_base, blind))
     return commitment
 
@@ -582,10 +659,26 @@ def _prove_zk_public_inner_product(
         group.add(output_commitment, group.scale(projected_mask_commitment, x)),
         group.scale(blind_base, -projected_response_blind),
     )
+    x_sep = _decoupling_challenge(
+        group,
+        domain.decode("ascii"),
+        challenge_seed,
+        statement,
+        [
+            input_commitment,
+            output_commitment,
+            mask_commitment,
+            projected_mask_commitment,
+            response_blind,
+            projected_response_blind,
+        ],
+    )
     proof = prove_inner_product(
         group,
-        group.add(masked_output_commitment, masked_input_commitment),
-        output_base,
+        group.add(
+            group.scale(masked_output_commitment, x_sep), masked_input_commitment
+        ),
+        group.scale(output_base, x_sep),
         input_bases,
         [group.identity] * len(input_bases),
         masked_values,
@@ -645,15 +738,72 @@ def _verify_zk_public_inner_product(
         group.add(output_commitment, group.scale(proof.projected_mask_commitment, x)),
         group.scale(blind_base, -proof.projected_response_blind),
     )
+    x_sep = _decoupling_challenge(
+        group,
+        domain.decode("ascii"),
+        challenge_seed,
+        statement,
+        [
+            input_commitment,
+            output_commitment,
+            proof.mask_commitment,
+            proof.projected_mask_commitment,
+            proof.response_blind,
+            proof.projected_response_blind,
+        ],
+    )
     return verify_inner_product(
         group,
-        group.add(masked_output_commitment, masked_input_commitment),
-        output_base,
+        group.add(
+            group.scale(masked_output_commitment, x_sep), masked_input_commitment
+        ),
+        group.scale(output_base, x_sep),
         input_bases,
         [group.identity] * len(input_bases),
         proof.proof,
         challenge_seed + b":inner-product",
     )
+
+
+def _weighted_projection_bases(
+    group: CyclicGroup,
+    input_bases: Matrix,
+    output_bases: Sequence[int],
+    projection_values: Sequence[int],
+    projection_axis: str,
+    weight: int,
+) -> List[int]:
+    """Combine input and output bases with the output family scaled.
+
+    The returned bases realize the combined commitment
+    ``C_in (+) weight * C_out`` for the projection relation, where ``weight``
+    is the fresh decoupling challenge.
+    """
+
+    rows, cols = _shape(input_bases)
+    projected = []
+    if projection_axis == "rows":
+        for i in range(rows):
+            coeff = (weight * projection_values[i]) % group.q
+            for j in range(cols):
+                projected.append(
+                    group.add(input_bases[i][j], group.scale(output_bases[j], coeff))
+                )
+    elif projection_axis == "cols":
+        for i in range(rows):
+            for j in range(cols):
+                projected.append(
+                    group.add(
+                        input_bases[i][j],
+                        group.scale(
+                            output_bases[i],
+                            (weight * projection_values[j]) % group.q,
+                        ),
+                    )
+                )
+    else:
+        raise ValueError("projection_axis must be 'rows' or 'cols'")
+    return projected
 
 
 def _prove_zk_commitment_projection(
@@ -666,7 +816,6 @@ def _prove_zk_commitment_projection(
     projection_values: Sequence[int],
     input_bases: Matrix,
     output_bases: Sequence[int],
-    projected_bases: Sequence[int],
     projection_axis: str,
     blind_base: int,
     input_blind: int,
@@ -675,9 +824,6 @@ def _prove_zk_commitment_projection(
     rng: random.Random,
 ) -> ZkProjectionProof:
     """Mask a high-dimensional linear projection relation."""
-
-    if len(_flatten(input_values)) != len(projected_bases):
-        raise ValueError("projection masking input length mismatch")
 
     rows, cols = _shape(input_values)
     alpha = random_matrix(rows, cols, group.q, rng=rng)
@@ -739,9 +885,29 @@ def _prove_zk_commitment_projection(
         group.add(output_commitment, group.scale(projected_mask_commitment, x)),
         group.scale(blind_base, -projected_response_blind),
     )
+    x_sep = _decoupling_challenge(
+        group,
+        domain.decode("ascii"),
+        challenge_seed,
+        statement,
+        [
+            input_commitment,
+            output_commitment,
+            mask_commitment,
+            projected_mask_commitment,
+            response_blind,
+            projected_response_blind,
+        ],
+    )
+    projected_bases = _weighted_projection_bases(
+        group, input_bases, output_bases, projection_values, projection_axis, x_sep
+    )
     proof = prove_inner_product(
         group,
-        group.add(masked_input_commitment, masked_output_commitment),
+        group.add(
+            masked_input_commitment,
+            group.scale(masked_output_commitment, x_sep),
+        ),
         group.identity,
         projected_bases,
         [group.identity] * len(projected_bases),
@@ -764,7 +930,10 @@ def _verify_zk_commitment_projection(
     statement: MatmulStatement,
     input_commitment: int,
     output_commitment: int,
-    projected_bases: Sequence[int],
+    input_bases: Matrix,
+    output_bases: Sequence[int],
+    projection_values: Sequence[int],
+    projection_axis: str,
     blind_base: int,
     proof: ZkProjectionProof,
     transcript_seed: bytes,
@@ -798,9 +967,29 @@ def _verify_zk_commitment_projection(
         group.add(output_commitment, group.scale(proof.projected_mask_commitment, x)),
         group.scale(blind_base, -proof.projected_response_blind),
     )
+    x_sep = _decoupling_challenge(
+        group,
+        domain.decode("ascii"),
+        challenge_seed,
+        statement,
+        [
+            input_commitment,
+            output_commitment,
+            proof.mask_commitment,
+            proof.projected_mask_commitment,
+            proof.response_blind,
+            proof.projected_response_blind,
+        ],
+    )
+    projected_bases = _weighted_projection_bases(
+        group, input_bases, output_bases, projection_values, projection_axis, x_sep
+    )
     return verify_inner_product(
         group,
-        group.add(masked_input_commitment, masked_output_commitment),
+        group.add(
+            masked_input_commitment,
+            group.scale(masked_output_commitment, x_sep),
+        ),
         group.identity,
         projected_bases,
         [group.identity] * len(projected_bases),
@@ -933,13 +1122,34 @@ def _prove_zk_product_projection(
         ),
         group.scale(blind_base, -output_response_blind),
     )
+    x_sep = _decoupling_challenge(
+        group,
+        "zk-product",
+        challenge_seed,
+        statement,
+        [
+            output_commitment,
+            left_commitment,
+            right_commitment,
+            alpha_commitment,
+            beta_commitment,
+            cross_commitment,
+            alpha_beta_commitment,
+            left_response_blind,
+            right_response_blind,
+            output_response_blind,
+        ],
+    )
     proof = prove_inner_product(
         group,
         group.add(
-            group.add(masked_output_commitment, masked_left_commitment),
+            group.add(
+                group.scale(masked_output_commitment, x_sep),
+                masked_left_commitment,
+            ),
             masked_right_commitment,
         ),
-        output_base,
+        group.scale(output_base, x_sep),
         left_bases,
         right_bases,
         masked_left,
@@ -1013,13 +1223,34 @@ def _verify_zk_product_projection(
         ),
         group.scale(blind_base, -proof.output_response_blind),
     )
+    x_sep = _decoupling_challenge(
+        group,
+        "zk-product",
+        challenge_seed,
+        statement,
+        [
+            output_commitment,
+            left_commitment,
+            right_commitment,
+            proof.alpha_commitment,
+            proof.beta_commitment,
+            proof.cross_commitment,
+            proof.alpha_beta_commitment,
+            proof.left_response_blind,
+            proof.right_response_blind,
+            proof.output_response_blind,
+        ],
+    )
     return verify_inner_product(
         group,
         group.add(
-            group.add(masked_output_commitment, masked_left_commitment),
+            group.add(
+                group.scale(masked_output_commitment, x_sep),
+                masked_left_commitment,
+            ),
             masked_right_commitment,
         ),
-        output_base,
+        group.scale(output_base, x_sep),
         left_bases,
         right_bases,
         proof.proof,
@@ -1050,14 +1281,27 @@ def prove_core_matmul(
     ay_commitment = commit_vector(group, ay, bases.ay_bases)
     by_commitment = commit_vector(group, by, bases.by_bases)
     proof_seed = _core_transcript_seed(
-        transcript_seed, group, statement, d_commitment, ay_commitment, by_commitment
+        transcript_seed,
+        group,
+        bases,
+        statement,
+        d_commitment,
+        ay_commitment,
+        by_commitment,
     )
+    decouple = [d_commitment, ay_commitment, by_commitment]
+    x_c = _decoupling_challenge(group, "core-c-projection", proof_seed, statement, decouple)
+    x_a = _decoupling_challenge(group, "core-a-projection", proof_seed, statement, decouple)
+    x_b = _decoupling_challenge(group, "core-b-projection", proof_seed, statement, decouple)
+    x_p = _decoupling_challenge(group, "core-product", proof_seed, statement, decouple)
 
-    c_projection_commitment = group.add(d_commitment, statement.c_commitment)
+    c_projection_commitment = group.add(
+        group.scale(d_commitment, x_c), statement.c_commitment
+    )
     c_projection_proof = prove_inner_product(
         group,
         c_projection_commitment,
-        bases.scalar_base,
+        group.scale(bases.scalar_base, x_c),
         _flatten(bases.c_bases),
         [group.identity] * (bases.rows * bases.cols),
         _flatten(witness.c),
@@ -1065,12 +1309,14 @@ def prove_core_matmul(
         proof_seed + b":c-projection",
     )
 
-    a_projection_commitment = group.add(statement.a_commitment, ay_commitment)
+    a_projection_commitment = group.add(
+        statement.a_commitment, group.scale(ay_commitment, x_a)
+    )
     a_projection_proof = prove_inner_product(
         group,
         a_projection_commitment,
         group.identity,
-        _a_projection_bases(group, bases, y_left),
+        _a_projection_bases(group, bases, y_left, x_a),
         [group.identity] * (bases.rows * bases.inner),
         _flatten(witness.a),
         [0] * (bases.rows * bases.inner),
@@ -1078,12 +1324,14 @@ def prove_core_matmul(
     )
 
     y_right = _powers(y, bases.cols, group.q)
-    b_projection_commitment = group.add(statement.b_commitment, by_commitment)
+    b_projection_commitment = group.add(
+        statement.b_commitment, group.scale(by_commitment, x_b)
+    )
     b_projection_proof = prove_inner_product(
         group,
         b_projection_commitment,
         group.identity,
-        _b_projection_bases(group, bases, y_right),
+        _b_projection_bases(group, bases, y_right, x_b),
         [group.identity] * (bases.inner * bases.cols),
         _flatten_b_by_rows(witness.b),
         [0] * (bases.inner * bases.cols),
@@ -1091,12 +1339,12 @@ def prove_core_matmul(
     )
 
     product_projection_commitment = group.add(
-        group.add(d_commitment, ay_commitment), by_commitment
+        group.add(group.scale(d_commitment, x_p), ay_commitment), by_commitment
     )
     product_projection_proof = prove_inner_product(
         group,
         product_projection_commitment,
-        bases.scalar_base,
+        group.scale(bases.scalar_base, x_p),
         bases.ay_bases,
         bases.by_bases,
         ay,
@@ -1139,16 +1387,22 @@ def verify_core_matmul(
     proof_seed = _core_transcript_seed(
         transcript_seed,
         group,
+        bases,
         statement,
         proof.d_commitment,
         proof.ay_commitment,
         proof.by_commitment,
     )
+    decouple = [proof.d_commitment, proof.ay_commitment, proof.by_commitment]
+    x_c = _decoupling_challenge(group, "core-c-projection", proof_seed, statement, decouple)
+    x_a = _decoupling_challenge(group, "core-a-projection", proof_seed, statement, decouple)
+    x_b = _decoupling_challenge(group, "core-b-projection", proof_seed, statement, decouple)
+    x_p = _decoupling_challenge(group, "core-product", proof_seed, statement, decouple)
 
     c_ok = verify_inner_product(
         group,
-        group.add(proof.d_commitment, statement.c_commitment),
-        bases.scalar_base,
+        group.add(group.scale(proof.d_commitment, x_c), statement.c_commitment),
+        group.scale(bases.scalar_base, x_c),
         _flatten(bases.c_bases),
         [group.identity] * (bases.rows * bases.cols),
         proof.c_projection_proof,
@@ -1159,9 +1413,9 @@ def verify_core_matmul(
 
     a_ok = verify_inner_product(
         group,
-        group.add(statement.a_commitment, proof.ay_commitment),
+        group.add(statement.a_commitment, group.scale(proof.ay_commitment, x_a)),
         group.identity,
-        _a_projection_bases(group, bases, y_left),
+        _a_projection_bases(group, bases, y_left, x_a),
         [group.identity] * (bases.rows * bases.inner),
         proof.a_projection_proof,
         proof_seed + b":a-projection",
@@ -1171,9 +1425,9 @@ def verify_core_matmul(
 
     b_ok = verify_inner_product(
         group,
-        group.add(statement.b_commitment, proof.by_commitment),
+        group.add(statement.b_commitment, group.scale(proof.by_commitment, x_b)),
         group.identity,
-        _b_projection_bases(group, bases, y_right),
+        _b_projection_bases(group, bases, y_right, x_b),
         [group.identity] * (bases.inner * bases.cols),
         proof.b_projection_proof,
         proof_seed + b":b-projection",
@@ -1183,8 +1437,11 @@ def verify_core_matmul(
 
     return verify_inner_product(
         group,
-        group.add(group.add(proof.d_commitment, proof.ay_commitment), proof.by_commitment),
-        bases.scalar_base,
+        group.add(
+            group.add(group.scale(proof.d_commitment, x_p), proof.ay_commitment),
+            proof.by_commitment,
+        ),
+        group.scale(bases.scalar_base, x_p),
         bases.ay_bases,
         bases.by_bases,
         proof.product_projection_proof,
@@ -1407,7 +1664,13 @@ def prove_zk_matmul(
         group, by, bases.by_bases, bases.blind_base, by_blind
     )
     proof_seed = _core_transcript_seed(
-        transcript_seed, group, statement, d_commitment, ay_commitment, by_commitment
+        transcript_seed,
+        group,
+        bases,
+        statement,
+        d_commitment,
+        ay_commitment,
+        by_commitment,
     )
 
     c_projection_proof = _prove_zk_public_inner_product(
@@ -1436,7 +1699,6 @@ def prove_zk_matmul(
         y_left,
         bases.a_bases,
         bases.ay_bases,
-        _a_projection_bases(group, bases, y_left),
         "rows",
         bases.blind_base,
         witness.a_blind,
@@ -1454,7 +1716,6 @@ def prove_zk_matmul(
         y_right,
         bases.b_bases,
         bases.by_bases,
-        _b_projection_bases(group, bases, y_right),
         "cols",
         bases.blind_base,
         witness.b_blind,
@@ -1515,6 +1776,7 @@ def verify_zk_matmul(
     proof_seed = _core_transcript_seed(
         transcript_seed,
         group,
+        bases,
         statement,
         proof.d_commitment,
         proof.ay_commitment,
@@ -1543,7 +1805,10 @@ def verify_zk_matmul(
         statement,
         statement.a_commitment,
         proof.ay_commitment,
-        _a_projection_bases(group, bases, y_left),
+        bases.a_bases,
+        bases.ay_bases,
+        y_left,
+        "rows",
         bases.blind_base,
         proof.a_projection_proof,
         proof_seed,
@@ -1557,7 +1822,10 @@ def verify_zk_matmul(
         statement,
         statement.b_commitment,
         proof.by_commitment,
-        _b_projection_bases(group, bases, y_right),
+        bases.b_bases,
+        bases.by_bases,
+        y_right,
+        "cols",
         bases.blind_base,
         proof.b_projection_proof,
         proof_seed,
