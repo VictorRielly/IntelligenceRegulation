@@ -328,8 +328,18 @@ def plot_all() -> None:
     plt.close(fig)
 
     # --- Plot 3: per-claim prover time vs batch size.
-    fig, axes = plt.subplots(1, 2, figsize=(9.6, 4.2), dpi=150, sharey=False)
-    for ax, size in zip(axes, (256, 1024)):
+    batch_sizes = [
+        size
+        for size in (256, 1024, 2048)
+        if (OUT / f"structured_batch_n{size}.csv").exists()
+        or (OUT / f"lattice_batch_n{size}.csv").exists()
+    ]
+    fig, axes = plt.subplots(
+        1, len(batch_sizes), figsize=(4.8 * len(batch_sizes), 4.2), dpi=150
+    )
+    if len(batch_sizes) == 1:
+        axes = [axes]
+    for ax, size in zip(axes, batch_sizes):
         s_rows = read_csv(OUT / f"structured_batch_n{size}.csv")
         l_rows = read_csv(OUT / f"lattice_batch_n{size}.csv")
         xs, ys = series(s_rows, "prove_per_claim_s", xkey="batch")

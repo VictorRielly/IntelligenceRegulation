@@ -1,0 +1,3 @@
+proto,n,batch,crs_s,commit_s,batch_prove_s,prove_per_claim_s,batch_verify_s,verify_per_claim_s,verified
+pi2,2048,1,0.080947,22.629430,8.099168,8.099168,5.559719,5.559719,true
+pi2,2048,2,0.080947,45.213337,15.732929,7.866464,14.848195,7.424097,true

@@ -1,0 +1,9 @@
+=== lattice pi2 n=2048 batch ===
+proto,n,batch,crs_s,commit_s,batch_prove_s,prove_per_claim_s,batch_verify_s,verify_per_claim_s,verified
+pi2,2048,1,0.080947,22.629430,8.099168,8.099168,5.559719,5.559719,true
+pi2,2048,2,0.080947,45.213337,15.732929,7.866464,14.848195,7.424097,true
+=== structured zk n=2048 batch series (setup ~14 min) ===
+mode,n,batch,setup_s,commit_s,batch_prove_s,prove_per_claim_s,batch_verify_s,verify_per_claim_s,verified
+zk,2048,1,865.765920951,5.735549140,367.805474343,367.805474343,0.016854048,0.016854048,true
+zk,2048,8,865.765920951,43.368430553,367.956707516,45.994588439,0.042416927,0.005302116,true
+=== n2048 batch runs done ===

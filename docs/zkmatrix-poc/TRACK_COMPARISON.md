@@ -152,6 +152,32 @@ lattice line:
 - Verification: batched structured verification is 4-16 ms per claim —
   200-500x faster than the lattice verifier at every batch size.
 
+n = 2048, per-claim seconds (measured; structured series at t = 1, 8):
+
+| t | structured-zk prove | lattice-pi2 prove | structured-zk verify | lattice-pi2 verify |
+|---|---|---|---|---|
+| 1 | 367.8 | 8.10 | 0.0169 | 5.56 |
+| 2 | — | 7.87 | — | 7.42 |
+| 8 | 46.0 | — | 0.0053 | — |
+
+The structured batch totals at t = 1 and t = 8 are within 0.2 s of each
+other (367.8 vs 368.0), i.e. the measured marginal cost per additional
+claim is below run-to-run noise (< ~1 s; the model value scaled from
+n = 1024 is ~0.8 s). The batch prover is purely the fixed `~n^2` cost,
+divided by t. Crossovers against the flat lattice line (~8.0 s/claim):
+
+- Prove only: `368/t < 8.0` gives `t ~ 46-50`; with the implementation's
+  power-of-two batches, **t = 64** is the first batch size where the
+  structured per-claim prover beats the lattice prover at n = 2048
+  (projected ~6.2 s/claim vs 8.0 s).
+- Including per-claim commitments (fresh matrices each claim: structured
+  5.4 s vs lattice 22.6 s per claim), the all-in crossover drops to
+  **t ~ 15-16**.
+- Including one-time setup amortization as well (866 s per shape), the
+  crossover moves back out to `t ~ 50`.
+- Verification stays a structured landslide at every t (5-17 ms vs
+  5.6-7.4 s per claim, ~1000x).
+
 ## 3. Proof sizes
 
 ![Proof size vs n](results/track_comparison/proof_size_vs_n.png)
