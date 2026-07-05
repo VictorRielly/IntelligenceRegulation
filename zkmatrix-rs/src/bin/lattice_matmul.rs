@@ -361,46 +361,88 @@ fn expand_crs(params: &Params, seed: u64) -> Crs {
     Crs { g1, g2, crs_hash }
 }
 
-/// G * v for signed v, rows of width N, output mod q.
-fn matvec_signed(g: &[u64], rows: usize, width: usize, v: &[i64]) -> Vec<u64> {
-    (0..rows)
-        .into_par_iter()
-        .map(|row| {
-            let base = row * width;
-            let mut acc: i128 = 0;
-            for j in 0..width {
-                acc += g[base + j] as i128 * v[j] as i128;
-            }
-            reduce_i128(acc)
-        })
-        .collect()
+/// Blocked multi-vector version of `matvec_signed`: G times a set of
+/// signed vectors, streaming G from memory once per MATMAT_BLOCK vectors
+/// instead of once per vector. The kernels are memory-bandwidth bound, so
+/// reusing each row of G against an L2-resident block of vectors is the
+/// main throughput lever (report Section 13's GEMM shape).
+const MATMAT_BLOCK: usize = 8;
+
+fn matmat_signed(g: &[u64], rows: usize, width: usize, vs: &[Vec<i64>]) -> Vec<Vec<u64>> {
+    let mut out: Vec<Vec<u64>> = vec![Vec::new(); vs.len()];
+    for (block_index, block) in vs.chunks(MATMAT_BLOCK).enumerate() {
+        let per_row: Vec<Vec<u64>> = (0..rows)
+            .into_par_iter()
+            .map(|row| {
+                let grow = &g[row * width..(row + 1) * width];
+                block
+                    .iter()
+                    .map(|v| {
+                        let mut acc: i128 = 0;
+                        for t in 0..width {
+                            acc += grow[t] as i128 * v[t] as i128;
+                        }
+                        reduce_i128(acc)
+                    })
+                    .collect()
+            })
+            .collect();
+        for (j, slot) in out[block_index * MATMAT_BLOCK..]
+            .iter_mut()
+            .take(block.len())
+            .enumerate()
+        {
+            *slot = (0..rows).map(|row| per_row[row][j]).collect();
+        }
+    }
+    out
 }
 
-fn matvec_mod(g: &[u64], rows: usize, width: usize, v: &[u64]) -> Vec<u64> {
+/// Commit every column of a matrix in blocked multi-vector passes.
+fn commit_columns_fast(
+    params: &Params,
+    crs: &Crs,
+    messages: &[Vec<u64>],
+    rhos: &[Vec<i8>],
+) -> Vec<Vec<u64>> {
+    const WIDEN_CHUNK: usize = 64;
+    let mut out = Vec::with_capacity(messages.len());
+    for (msg_chunk, rho_chunk) in messages
+        .chunks(WIDEN_CHUNK)
+        .zip(rhos.chunks(WIDEN_CHUNK))
+    {
+        let widened: Vec<Vec<i64>> = rho_chunk
+            .iter()
+            .map(|rho| rho.iter().map(|&x| x as i64).collect())
+            .collect();
+        let t1s = matmat_signed(&crs.g1, params.k, params.big_n, &widened);
+        let t2s = matmat_signed(&crs.g2, params.n, params.big_n, &widened);
+        for ((msg, mut t1), t2) in msg_chunk.iter().zip(t1s).zip(t2s) {
+            t1.extend(t2.iter().zip(msg.iter()).map(|(&g, &x)| addm(g, x)));
+            out.push(t1);
+        }
+    }
+    out
+}
+
+/// Serial mod-q matvec, for use inside repetition-parallel contexts.
+fn matvec_mod_serial(a: &[u64], rows: usize, width: usize, v: &[u64]) -> Vec<u64> {
     (0..rows)
-        .into_par_iter()
         .map(|row| {
             let base = row * width;
             let mut acc: u128 = 0;
-            for j in 0..width {
-                acc += mulm(g[base + j], v[j]) as u128;
+            for t in 0..width {
+                acc += mulm(a[base + t], v[t]) as u128;
             }
             (acc % Q as u128) as u64
         })
         .collect()
 }
 
-/// com(x; rho) = (G1 rho, G2 rho + x); rho as widened signed entries.
-fn commit(params: &Params, crs: &Crs, message: &[u64], randomness: &[i64]) -> Vec<u64> {
-    let mut t1 = matvec_signed(&crs.g1, params.k, params.big_n, randomness);
-    let t2 = matvec_signed(&crs.g2, params.n, params.big_n, randomness);
-    t1.extend(t2.iter().zip(message.iter()).map(|(&g, &x)| addm(g, x)));
-    t1 // length k + n: first slot then second slot
-}
-
-fn commit_ternary(params: &Params, crs: &Crs, message: &[u64], rho: &[i8]) -> Vec<u64> {
-    let widened: Vec<i64> = rho.iter().map(|&x| x as i64).collect();
-    commit(params, crs, message, &widened)
+/// Deterministic per-repetition rng stream so waves can sample in parallel.
+fn mix_seed(seed: u64, ell: u64) -> u64 {
+    let mut s = seed ^ 0x9e37_79b9_7f4a_7c15u64.wrapping_mul(ell + 1);
+    splitmix64(&mut s)
 }
 
 // ---------------------------------------------------------------------------
@@ -529,27 +571,82 @@ fn prove_pi1(
     rng: &mut u64,
 ) -> Vec<Pi1Rep> {
     let n = params.n;
+    let big_n = params.big_n;
     let h0 = statement_hash(crs, "stmt-pi1", &[tb, tc]);
-    let mut reps = Vec::with_capacity(params.r);
-    for ell in 0..params.r {
-        let mut reader = XofReader::new(
-            "v",
-            &[&h0, &(ell as u64).to_le_bytes()],
-        );
-        let v: Vec<u64> = (0..params.m).map(|_| reader.next_sb(params.b)).collect();
-        let b_vec = combine_columns(b_cols, &v);
-        let rho_v = combine_ternary(rho_b, &v);
-        let tau_v = combine_ternary(tau_c, &v);
-        let t_b = combine_commit(tb, &v);
-        let t_c = combine_commit(tc, &v);
-        loop {
-            let eps: Vec<u64> = (0..n).map(|_| rng_field(rng)).collect();
-            let noise = gaussian_vec(rng, 2 * params.big_n, params.sigma);
-            let (eta, mu) = noise.split_at(params.big_n);
-            let w = commit(params, crs, &eps, eta);
-            let a_eps = matvec_mod(a, n, n, &eps);
-            let u = commit(params, crs, &a_eps, mu);
-            let gamma_reader = XofReader::new(
+    let base_rng = splitmix64(rng);
+    // Per-repetition state, built in parallel; each repetition owns a
+    // deterministic rng stream so wave sampling can also run in parallel.
+    struct RepState {
+        b_vec: Vec<u64>,
+        rho_v: Vec<i64>,
+        tau_v: Vec<i64>,
+        rng: u64,
+    }
+    let mut states: Vec<RepState> = (0..params.r)
+        .into_par_iter()
+        .map(|ell| {
+            let mut reader = XofReader::new("v", &[&h0, &(ell as u64).to_le_bytes()]);
+            let v: Vec<u64> = (0..params.m).map(|_| reader.next_sb(params.b)).collect();
+            RepState {
+                b_vec: combine_columns(b_cols, &v),
+                rho_v: combine_ternary(rho_b, &v),
+                tau_v: combine_ternary(tau_c, &v),
+                rng: mix_seed(base_rng, ell as u64),
+            }
+        })
+        .collect();
+    let mut done: Vec<Option<Pi1Rep>> = (0..params.r).map(|_| None).collect();
+    let mut pending: Vec<usize> = (0..params.r).collect();
+    // Wave scheduling: every pending repetition's mask commitments are
+    // computed in one blocked pass over G1/G2 per wave; rejected
+    // repetitions carry into the next wave with entirely fresh masks.
+    while !pending.is_empty() {
+        let sampled: Vec<(Vec<u64>, Vec<i64>, Vec<i64>, u64)> = pending
+            .par_iter()
+            .map(|&i| {
+                let mut r = states[i].rng;
+                let eps: Vec<u64> = (0..n).map(|_| rng_field(&mut r)).collect();
+                let noise = gaussian_vec(&mut r, 2 * big_n, params.sigma);
+                let eta = noise[..big_n].to_vec();
+                let mu = noise[big_n..].to_vec();
+                (eps, eta, mu, r)
+            })
+            .collect();
+        let mut eps_all = Vec::with_capacity(pending.len());
+        let mut noise_all = Vec::with_capacity(2 * pending.len());
+        for (idx, (eps, eta, mu, new_rng)) in sampled.into_iter().enumerate() {
+            states[pending[idx]].rng = new_rng;
+            eps_all.push(eps);
+            noise_all.push(eta);
+            noise_all.push(mu);
+        }
+        let g1_res = matmat_signed(&crs.g1, params.k, big_n, &noise_all);
+        let g2_res = matmat_signed(&crs.g2, n, big_n, &noise_all);
+        let a_eps_all: Vec<Vec<u64>> = eps_all
+            .par_iter()
+            .map(|eps| matvec_mod_serial(a, n, n, eps))
+            .collect();
+        let mut next_pending = Vec::new();
+        for (idx, &i) in pending.iter().enumerate() {
+            let ell = i;
+            let eta = &noise_all[2 * idx];
+            let mu = &noise_all[2 * idx + 1];
+            let eps = &eps_all[idx];
+            let mut w = g1_res[2 * idx].clone();
+            w.extend(
+                g2_res[2 * idx]
+                    .iter()
+                    .zip(eps.iter())
+                    .map(|(&g, &x)| addm(g, x)),
+            );
+            let mut u = g1_res[2 * idx + 1].clone();
+            u.extend(
+                g2_res[2 * idx + 1]
+                    .iter()
+                    .zip(a_eps_all[idx].iter())
+                    .map(|(&g, &x)| addm(g, x)),
+            );
+            let mut gr = XofReader::new(
                 "gamma",
                 &[
                     &h0,
@@ -558,30 +655,27 @@ fn prove_pi1(
                     &words_bytes(&u),
                 ],
             );
-            let gamma = {
-                let mut gr = gamma_reader;
-                gr.next_sb(params.b)
-            };
-            let z: Vec<u64> = (0..n)
-                .map(|i| addm(eps[i], mulm(gamma, b_vec[i])))
-                .collect();
+            let gamma = gr.next_sb(params.b);
+            let st = &mut states[i];
             let g = gamma as i64;
-            let zeta: Vec<i64> =
-                (0..params.big_n).map(|i| eta[i] + g * rho_v[i]).collect();
-            let xi: Vec<i64> =
-                (0..params.big_n).map(|i| mu[i] + g * tau_v[i]).collect();
+            let z: Vec<u64> = (0..n)
+                .map(|j| addm(eps[j], mulm(gamma, st.b_vec[j])))
+                .collect();
+            let zeta: Vec<i64> = (0..big_n).map(|j| eta[j] + g * st.rho_v[j]).collect();
+            let xi: Vec<i64> = (0..big_n).map(|j| mu[j] + g * st.tau_v[j]).collect();
             let mut response = zeta.clone();
             response.extend_from_slice(&xi);
-            let mut center: Vec<i64> = rho_v.iter().map(|&x| g * x).collect();
-            center.extend(tau_v.iter().map(|&x| g * x));
-            if rejection_accept(rng, &response, &center, params.sigma) {
-                reps.push(Pi1Rep { gamma, z, zeta, xi });
-                break;
+            let mut center: Vec<i64> = st.rho_v.iter().map(|&x| g * x).collect();
+            center.extend(st.tau_v.iter().map(|&x| g * x));
+            if rejection_accept(&mut st.rng, &response, &center, params.sigma) {
+                done[i] = Some(Pi1Rep { gamma, z, zeta, xi });
+            } else {
+                next_pending.push(i);
             }
         }
-        let _ = (&t_b, &t_c);
+        pending = next_pending;
     }
-    reps
+    done.into_iter().map(Option::unwrap).collect()
 }
 
 fn verify_pi1(
@@ -596,38 +690,55 @@ fn verify_pi1(
         return false;
     }
     let n = params.n;
+    let big_n = params.big_n;
     let h0 = statement_hash(crs, "stmt-pi1", &[tb, tc]);
-    for (ell, rep) in proof.iter().enumerate() {
+    for rep in proof {
         if rep.gamma >= (1 << params.b) {
             return false;
         }
         if rep.z.len() != n || rep.z.iter().any(|&z| z >= Q) {
             return false;
         }
-        let mut response = rep.zeta.clone();
-        response.extend_from_slice(&rep.xi);
-        if norm_sq(&response) > params.bound_sq {
+        if rep.zeta.len() != big_n || rep.xi.len() != big_n {
             return false;
         }
-        let mut reader = XofReader::new(
-            "v",
-            &[&h0, &(ell as u64).to_le_bytes()],
-        );
+        // Sum of squares separates across the concatenation.
+        if norm_sq(&rep.zeta) + norm_sq(&rep.xi) > params.bound_sq {
+            return false;
+        }
+    }
+    // All repetitions' response matvecs in one blocked pass per G matrix.
+    let vecs: Vec<Vec<i64>> = proof
+        .iter()
+        .flat_map(|rep| [rep.zeta.clone(), rep.xi.clone()])
+        .collect();
+    let g1_res = matmat_signed(&crs.g1, params.k, big_n, &vecs);
+    let g2_res = matmat_signed(&crs.g2, n, big_n, &vecs);
+    proof.par_iter().enumerate().all(|(ell, rep)| {
+        let mut reader = XofReader::new("v", &[&h0, &(ell as u64).to_le_bytes()]);
         let v: Vec<u64> = (0..params.m).map(|_| reader.next_sb(params.b)).collect();
         let t_b = combine_commit(tb, &v);
         let t_c = combine_commit(tc, &v);
         // w = (G1 zeta, G2 zeta + z) - gamma T_b
-        let mut w = matvec_signed(&crs.g1, params.k, params.big_n, &rep.zeta);
-        let w2 = matvec_signed(&crs.g2, n, params.big_n, &rep.zeta);
-        w.extend(w2.iter().zip(rep.z.iter()).map(|(&g, &z)| addm(g, z)));
+        let mut w = g1_res[2 * ell].clone();
+        w.extend(
+            g2_res[2 * ell]
+                .iter()
+                .zip(rep.z.iter())
+                .map(|(&g, &z)| addm(g, z)),
+        );
         for i in 0..w.len() {
             w[i] = subm(w[i], mulm(rep.gamma, t_b[i]));
         }
         // u = (G1 xi, G2 xi + A z) - gamma T_c
-        let mut u = matvec_signed(&crs.g1, params.k, params.big_n, &rep.xi);
-        let az = matvec_mod(a, n, n, &rep.z);
-        let u2 = matvec_signed(&crs.g2, n, params.big_n, &rep.xi);
-        u.extend(u2.iter().zip(az.iter()).map(|(&g, &z)| addm(g, z)));
+        let az = matvec_mod_serial(a, n, n, &rep.z);
+        let mut u = g1_res[2 * ell + 1].clone();
+        u.extend(
+            g2_res[2 * ell + 1]
+                .iter()
+                .zip(az.iter())
+                .map(|(&g, &z)| addm(g, z)),
+        );
         for i in 0..u.len() {
             u[i] = subm(u[i], mulm(rep.gamma, t_c[i]));
         }
@@ -640,11 +751,8 @@ fn verify_pi1(
                 &words_bytes(&u),
             ],
         );
-        if rep.gamma != gr.next_sb(params.b) {
-            return false;
-        }
-    }
-    true
+        rep.gamma == gr.next_sb(params.b)
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -661,17 +769,17 @@ struct Pi2Rep {
 }
 
 fn scalar_key(params: &Params, crs: &Crs, s: &[u64]) -> Vec<u64> {
-    // g_s^T = s^T G2 (length N).
-    (0..params.big_n)
-        .into_par_iter()
-        .map(|j| {
-            let mut acc: u128 = 0;
-            for i in 0..params.n {
-                acc += mulm(s[i], crs.g2[i * params.big_n + j]) as u128;
-            }
-            (acc % Q as u128) as u64
-        })
-        .collect()
+    // g_s^T = s^T G2 (length N). Serial: callers run it inside
+    // repetition-parallel maps.
+    let mut out = vec![0u128; params.big_n];
+    for i in 0..params.n {
+        let si = s[i];
+        let row = &crs.g2[i * params.big_n..(i + 1) * params.big_n];
+        for (o, &g) in out.iter_mut().zip(row.iter()) {
+            *o += mulm(si, g) as u128;
+        }
+    }
+    out.into_iter().map(|acc| (acc % Q as u128) as u64).collect()
 }
 
 fn dot_mod(a: &[u64], b: &[u64]) -> u64 {
@@ -705,43 +813,107 @@ fn prove_pi2(
     rng: &mut u64,
 ) -> Vec<Pi2Rep> {
     let n = params.n;
+    let big_n = params.big_n;
     let h0 = statement_hash(crs, "stmt-pi2", &[ta, tb, tc]);
-    let mut reps = Vec::with_capacity(params.r);
-    for ell in 0..params.r {
-        let mut reader = XofReader::new(
-            "sv",
-            &[&h0, &(ell as u64).to_le_bytes()],
-        );
-        let s: Vec<u64> = (0..n).map(|_| reader.next_sb(params.b)).collect();
-        let v: Vec<u64> = (0..params.m).map(|_| reader.next_sb(params.b)).collect();
-        // a = A^T s = sum_i s_i row_i; b = B v.
-        let mut a_vec = vec![0u64; n];
-        for (row, &coeff) in a_rows.iter().zip(s.iter()) {
-            axpy_mod(&mut a_vec, row, coeff);
+    let base_rng = splitmix64(rng);
+    struct RepState {
+        a_vec: Vec<u64>,
+        b_vec: Vec<u64>,
+        rho_s: Vec<i64>,
+        rho_v: Vec<i64>,
+        tau_v: Vec<i64>,
+        g_s: Vec<u64>,
+        rng: u64,
+    }
+    let mut states: Vec<RepState> = (0..params.r)
+        .into_par_iter()
+        .map(|ell| {
+            let mut reader = XofReader::new("sv", &[&h0, &(ell as u64).to_le_bytes()]);
+            let s: Vec<u64> = (0..n).map(|_| reader.next_sb(params.b)).collect();
+            let v: Vec<u64> = (0..params.m).map(|_| reader.next_sb(params.b)).collect();
+            let mut a_vec = vec![0u64; n];
+            for (row, &coeff) in a_rows.iter().zip(s.iter()) {
+                axpy_mod(&mut a_vec, row, coeff);
+            }
+            let g_s = scalar_key(params, crs, &s);
+            RepState {
+                a_vec,
+                b_vec: combine_columns(b_cols, &v),
+                rho_s: combine_ternary(rho_a, &s),
+                rho_v: combine_ternary(rho_b, &v),
+                tau_v: combine_ternary(tau_c, &v),
+                g_s,
+                rng: mix_seed(base_rng, ell as u64),
+            }
+        })
+        .collect();
+    let mut done: Vec<Option<Pi2Rep>> = (0..params.r).map(|_| None).collect();
+    let mut pending: Vec<usize> = (0..params.r).collect();
+    while !pending.is_empty() {
+        // Per attempt: G1 acts on [eta_a, eta_b, eta_0, eta_1] and G2 on
+        // [eta_a, eta_b]; all pending repetitions share one blocked pass.
+        let sampled: Vec<(Vec<u64>, Vec<u64>, Vec<i64>, Vec<i64>, Vec<i64>, Vec<i64>, u64)> =
+            pending
+                .par_iter()
+                .map(|&i| {
+                    let mut r = states[i].rng;
+                    let eps_a: Vec<u64> = (0..n).map(|_| rng_field(&mut r)).collect();
+                    let eps_b: Vec<u64> = (0..n).map(|_| rng_field(&mut r)).collect();
+                    let eta1: Vec<i64> =
+                        rng_ternary(&mut r, big_n).iter().map(|&x| x as i64).collect();
+                    let noise = gaussian_vec(&mut r, 3 * big_n, params.sigma);
+                    let eta_a = noise[..big_n].to_vec();
+                    let eta_b = noise[big_n..2 * big_n].to_vec();
+                    let eta0 = noise[2 * big_n..].to_vec();
+                    (eps_a, eps_b, eta_a, eta_b, eta0, eta1, r)
+                })
+                .collect();
+        let mut eps_all = Vec::with_capacity(pending.len());
+        let mut g1_vecs = Vec::with_capacity(4 * pending.len());
+        let mut g2_vecs = Vec::with_capacity(2 * pending.len());
+        for (idx, (eps_a, eps_b, eta_a, eta_b, eta0, eta1, new_rng)) in
+            sampled.into_iter().enumerate()
+        {
+            states[pending[idx]].rng = new_rng;
+            g2_vecs.push(eta_a.clone());
+            g2_vecs.push(eta_b.clone());
+            g1_vecs.push(eta_a);
+            g1_vecs.push(eta_b);
+            g1_vecs.push(eta0);
+            g1_vecs.push(eta1);
+            eps_all.push((eps_a, eps_b));
         }
-        let b_vec = combine_columns(b_cols, &v);
-        let rho_s = combine_ternary(rho_a, &s);
-        let rho_v = combine_ternary(rho_b, &v);
-        let tau_v = combine_ternary(tau_c, &v);
-        let g_s = scalar_key(params, crs, &s);
-        loop {
-            let eps_a: Vec<u64> = (0..n).map(|_| rng_field(rng)).collect();
-            let eps_b: Vec<u64> = (0..n).map(|_| rng_field(rng)).collect();
-            let eta1 = rng_ternary(rng, params.big_n);
-            let noise = gaussian_vec(rng, 3 * params.big_n, params.sigma);
-            let eta_a = &noise[..params.big_n];
-            let eta_b = &noise[params.big_n..2 * params.big_n];
-            let eta0 = &noise[2 * params.big_n..];
-            let g0 = dot_mod(&eps_a, &eps_b);
-            let g1 = addm(dot_mod(&eps_a, &b_vec), dot_mod(&a_vec, &eps_b));
-            let w_a = commit(params, crs, &eps_a, eta_a);
-            let w_b = commit(params, crs, &eps_b, eta_b);
-            // t0 = com_s(g0; eta0), t1 = com_s(g1; eta1): (G1 rho, <g_s, rho> + x)
-            let mut t0 = matvec_signed(&crs.g1, params.k, params.big_n, eta0);
-            t0.push(addm(dot_signed(&g_s, eta0), g0));
-            let eta1_wide: Vec<i64> = eta1.iter().map(|&x| x as i64).collect();
-            let mut t1 = matvec_signed(&crs.g1, params.k, params.big_n, &eta1_wide);
-            t1.push(addm(dot_signed(&g_s, &eta1_wide), g1));
+        let g1_res = matmat_signed(&crs.g1, params.k, big_n, &g1_vecs);
+        let g2_res = matmat_signed(&crs.g2, n, big_n, &g2_vecs);
+        let mut next_pending = Vec::new();
+        for (idx, &i) in pending.iter().enumerate() {
+            let ell = i;
+            let (eps_a, eps_b) = &eps_all[idx];
+            let eta_a = &g1_vecs[4 * idx];
+            let eta_b = &g1_vecs[4 * idx + 1];
+            let eta0 = &g1_vecs[4 * idx + 2];
+            let eta1 = &g1_vecs[4 * idx + 3];
+            let st_ro = &states[i];
+            let g0 = dot_mod(eps_a, eps_b);
+            let g1_scalar = addm(dot_mod(eps_a, &st_ro.b_vec), dot_mod(&st_ro.a_vec, eps_b));
+            let mut w_a = g1_res[4 * idx].clone();
+            w_a.extend(
+                g2_res[2 * idx]
+                    .iter()
+                    .zip(eps_a.iter())
+                    .map(|(&g, &x)| addm(g, x)),
+            );
+            let mut w_b = g1_res[4 * idx + 1].clone();
+            w_b.extend(
+                g2_res[2 * idx + 1]
+                    .iter()
+                    .zip(eps_b.iter())
+                    .map(|(&g, &x)| addm(g, x)),
+            );
+            let mut t0 = g1_res[4 * idx + 2].clone();
+            t0.push(addm(dot_signed(&st_ro.g_s, eta0), g0));
+            let mut t1 = g1_res[4 * idx + 3].clone();
+            t1.push(addm(dot_signed(&st_ro.g_s, eta1), g1_scalar));
             let mut gr = XofReader::new(
                 "gamma2",
                 &[
@@ -756,29 +928,26 @@ fn prove_pi2(
             let gamma = gr.next_sb(params.b);
             let g = gamma as i64;
             let g_sq = g * g;
+            let st = &mut states[i];
             let z_a: Vec<u64> = (0..n)
-                .map(|i| addm(eps_a[i], mulm(gamma, a_vec[i])))
+                .map(|j| addm(eps_a[j], mulm(gamma, st.a_vec[j])))
                 .collect();
             let z_b: Vec<u64> = (0..n)
-                .map(|i| addm(eps_b[i], mulm(gamma, b_vec[i])))
+                .map(|j| addm(eps_b[j], mulm(gamma, st.b_vec[j])))
                 .collect();
-            let zeta_a: Vec<i64> =
-                (0..params.big_n).map(|i| eta_a[i] + g * rho_s[i]).collect();
-            let zeta_b: Vec<i64> =
-                (0..params.big_n).map(|i| eta_b[i] + g * rho_v[i]).collect();
-            let zeta_q: Vec<i64> = (0..params.big_n)
-                .map(|i| eta0[i] + g * eta1[i] as i64 + g_sq * tau_v[i])
+            let zeta_a: Vec<i64> = (0..big_n).map(|j| eta_a[j] + g * st.rho_s[j]).collect();
+            let zeta_b: Vec<i64> = (0..big_n).map(|j| eta_b[j] + g * st.rho_v[j]).collect();
+            let zeta_q: Vec<i64> = (0..big_n)
+                .map(|j| eta0[j] + g * eta1[j] + g_sq * st.tau_v[j])
                 .collect();
             let mut response = zeta_a.clone();
             response.extend_from_slice(&zeta_b);
             response.extend_from_slice(&zeta_q);
-            let mut center: Vec<i64> = rho_s.iter().map(|&x| g * x).collect();
-            center.extend(rho_v.iter().map(|&x| g * x));
-            center.extend(
-                (0..params.big_n).map(|i| g * eta1[i] as i64 + g_sq * tau_v[i]),
-            );
-            if rejection_accept(rng, &response, &center, params.sigma) {
-                reps.push(Pi2Rep {
+            let mut center: Vec<i64> = st.rho_s.iter().map(|&x| g * x).collect();
+            center.extend(st.rho_v.iter().map(|&x| g * x));
+            center.extend((0..big_n).map(|j| g * eta1[j] + g_sq * st.tau_v[j]));
+            if rejection_accept(&mut st.rng, &response, &center, params.sigma) {
+                done[i] = Some(Pi2Rep {
                     gamma,
                     t1,
                     z_a,
@@ -787,11 +956,13 @@ fn prove_pi2(
                     zeta_b,
                     zeta_q,
                 });
-                break;
+            } else {
+                next_pending.push(i);
             }
         }
+        pending = next_pending;
     }
-    reps
+    done.into_iter().map(Option::unwrap).collect()
 }
 
 fn verify_pi2(
@@ -806,8 +977,9 @@ fn verify_pi2(
         return false;
     }
     let n = params.n;
+    let big_n = params.big_n;
     let h0 = statement_hash(crs, "stmt-pi2", &[ta, tb, tc]);
-    for (ell, rep) in proof.iter().enumerate() {
+    for rep in proof {
         if rep.gamma >= (1 << params.b) {
             return false;
         }
@@ -819,16 +991,28 @@ fn verify_pi2(
                 return false;
             }
         }
-        let mut response = rep.zeta_a.clone();
-        response.extend_from_slice(&rep.zeta_b);
-        response.extend_from_slice(&rep.zeta_q);
-        if norm_sq(&response) > params.bound_sq {
+        if rep.zeta_a.len() != big_n || rep.zeta_b.len() != big_n || rep.zeta_q.len() != big_n {
             return false;
         }
-        let mut reader = XofReader::new(
-            "sv",
-            &[&h0, &(ell as u64).to_le_bytes()],
-        );
+        if norm_sq(&rep.zeta_a) + norm_sq(&rep.zeta_b) + norm_sq(&rep.zeta_q) > params.bound_sq
+        {
+            return false;
+        }
+    }
+    // All repetitions' response matvecs in one blocked pass per G matrix:
+    // G1 acts on [zeta_a, zeta_b, zeta_q] and G2 on [zeta_a, zeta_b].
+    let g1_vecs: Vec<Vec<i64>> = proof
+        .iter()
+        .flat_map(|rep| [rep.zeta_a.clone(), rep.zeta_b.clone(), rep.zeta_q.clone()])
+        .collect();
+    let g2_vecs: Vec<Vec<i64>> = proof
+        .iter()
+        .flat_map(|rep| [rep.zeta_a.clone(), rep.zeta_b.clone()])
+        .collect();
+    let g1_res = matmat_signed(&crs.g1, params.k, big_n, &g1_vecs);
+    let g2_res = matmat_signed(&crs.g2, n, big_n, &g2_vecs);
+    proof.par_iter().enumerate().all(|(ell, rep)| {
+        let mut reader = XofReader::new("sv", &[&h0, &(ell as u64).to_le_bytes()]);
         let s: Vec<u64> = (0..n).map(|_| reader.next_sb(params.b)).collect();
         let v: Vec<u64> = (0..params.m).map(|_| reader.next_sb(params.b)).collect();
         let t_a = combine_commit(ta, &s);
@@ -839,25 +1023,20 @@ fn verify_pi2(
         let t_t_scalar = dot_mod(&s, &t_c[params.k..]);
         let gamma = rep.gamma;
         let gamma_sq = mulm(gamma, gamma);
-        // w_a = (G1 zeta_a, G2 zeta_a + z_a) - gamma T_a; same for w_b.
-        let recompute_w = |zeta: &[i64], z: &[u64], t: &[u64]| -> Vec<u64> {
-            let mut w = matvec_signed(&crs.g1, params.k, params.big_n, zeta);
-            let w2 = matvec_signed(&crs.g2, n, params.big_n, zeta);
-            w.extend(w2.iter().zip(z.iter()).map(|(&g, &x)| addm(g, x)));
+        let assemble_w = |g1_part: &[u64], g2_part: &[u64], z: &[u64], t: &[u64]| -> Vec<u64> {
+            let mut w = g1_part.to_vec();
+            w.extend(g2_part.iter().zip(z.iter()).map(|(&g, &x)| addm(g, x)));
             for i in 0..w.len() {
                 w[i] = subm(w[i], mulm(gamma, t[i]));
             }
             w
         };
-        let w_a = recompute_w(&rep.zeta_a, &rep.z_a, &t_a);
-        let w_b = recompute_w(&rep.zeta_b, &rep.z_b, &t_b);
+        let w_a = assemble_w(&g1_res[3 * ell], &g2_res[2 * ell], &rep.z_a, &t_a);
+        let w_b = assemble_w(&g1_res[3 * ell + 1], &g2_res[2 * ell + 1], &rep.z_b, &t_b);
         // t0 = (G1 zeta_q, <g_s, zeta_q> + <z_a, z_b>) - gamma t1 - gamma^2 T_t
-        let mut t0 = matvec_signed(&crs.g1, params.k, params.big_n, &rep.zeta_q);
+        let mut t0 = g1_res[3 * ell + 2].clone();
         for i in 0..params.k {
-            t0[i] = subm(
-                subm(t0[i], mulm(gamma, rep.t1[i])),
-                mulm(gamma_sq, t_c[i]),
-            );
+            t0[i] = subm(subm(t0[i], mulm(gamma, rep.t1[i])), mulm(gamma_sq, t_c[i]));
         }
         let scalar_slot = subm(
             subm(
@@ -878,11 +1057,8 @@ fn verify_pi2(
                 &words_bytes(&rep.t1),
             ],
         );
-        if gamma != gr.next_sb(params.b) {
-            return false;
-        }
-    }
-    true
+        gamma == gr.next_sb(params.b)
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -910,7 +1086,6 @@ struct Instance {
     a_flat: Vec<u64>,        // n x n row-major
     a_rows: Vec<Vec<u64>>,   // for Pi2 row commitments
     b_cols: Vec<Vec<u64>>,
-    c_cols: Vec<Vec<u64>>,
     rho_a: Vec<Vec<i8>>,
     rho_b: Vec<Vec<i8>>,
     tau_c: Vec<Vec<i8>>,
@@ -946,30 +1121,17 @@ fn make_instance(params: &Params, crs: &Crs, seed: u64, valid: bool, with_a_comm
         .collect();
     let start = Instant::now();
     let ta: Vec<Vec<u64>> = if with_a_commit {
-        a_rows
-            .par_iter()
-            .zip(rho_a.par_iter())
-            .map(|(row, rho)| commit_ternary(params, crs, row, rho))
-            .collect()
+        commit_columns_fast(params, crs, &a_rows, &rho_a)
     } else {
         Vec::new()
     };
-    let tb: Vec<Vec<u64>> = b_cols
-        .par_iter()
-        .zip(rho_b.par_iter())
-        .map(|(col, rho)| commit_ternary(params, crs, col, rho))
-        .collect();
-    let tc: Vec<Vec<u64>> = c_cols
-        .par_iter()
-        .zip(tau_c.par_iter())
-        .map(|(col, rho)| commit_ternary(params, crs, col, rho))
-        .collect();
+    let tb = commit_columns_fast(params, crs, &b_cols, &rho_b);
+    let tc = commit_columns_fast(params, crs, &c_cols, &tau_c);
     let commit_s = start.elapsed().as_secs_f64();
     Instance {
         a_flat,
         a_rows,
         b_cols,
-        c_cols,
         rho_a,
         rho_b,
         tau_c,

@@ -3,6 +3,17 @@
 Head-to-head runtime measurements of the two proof tracks, run sequentially
 on one machine so the numbers are directly comparable.
 
+> **Update:** the tier-0 optimization tranche
+> (`PROVER_OPTIMIZATIONS.md`) landed after this comparison was recorded
+> and supersedes several numbers below: structured setup is ~8x faster
+> (n = 1024: 214 -> 27 s), lattice proving is 2.8-4.4x faster and lattice
+> verification 3.6-4.5x faster (Pi2 n = 2048: prove 8.45 -> 2.41 s,
+> verify 5.76 -> 1.29 s). The scaling *shapes* and every qualitative
+> conclusion are unchanged, but the n = 2048 prover crossover moves from
+> t ~ 46-50 to t ~ 150-190 (prove-only) and t ~ 15-16 to t ~ 22 (with
+> commitments). The tables below are kept as the pre-optimization
+> baseline record.
+
 - **Pairing track**: `structured_matrix` (Rust, BLS12-381 via blstrs/blst,
   KZG fast verifier, Algorithm-6 batching), plus the `zkmatrix-rs` toy
   backend (u64 mock group) as a protocol-algebra scaling reference.

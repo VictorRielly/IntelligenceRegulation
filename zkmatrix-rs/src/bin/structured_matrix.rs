@@ -56,6 +56,11 @@ struct StructuredSrs {
     /// elements (`tau*G`, `tau*H`, `u`, `blind`). Absorbed into every
     /// Fiat-Shamir challenge so proofs are bound to one specific setup.
     digest: [u8; 32],
+    /// Prepared pairing inputs, computed once per SRS: `H` and `tau*H`.
+    /// Every KZG check uses the same two G2 points once rewritten to the
+    /// fixed-G2 form (see `KzgBatch`), so preparation is hoisted here.
+    h_prepared: G2Prepared,
+    tau_g2_prepared: G2Prepared,
 }
 
 #[derive(Clone)]
@@ -266,12 +271,21 @@ fn layout(n: usize) -> Layout {
 
 fn make_srs(layout: &Layout, tau: Scalar) -> StructuredSrs {
     let generator = G1Projective::generator();
-    let mut powers = Vec::with_capacity(layout.srs_len);
-    let mut cur = Scalar::ONE;
-    for _ in 0..layout.srs_len {
-        powers.push(generator * cur);
-        cur *= tau;
-    }
+    // Powers of tau in parallel chunks: each chunk seeds itself with
+    // tau^start and walks sequentially inside. Output is identical to the
+    // serial loop; only the schedule changes.
+    const SRS_CHUNK: usize = 4096;
+    let mut powers = vec![G1Projective::identity(); layout.srs_len];
+    powers
+        .par_chunks_mut(SRS_CHUNK)
+        .enumerate()
+        .for_each(|(chunk_index, chunk)| {
+            let mut cur = scalar_pow_usize(tau, chunk_index * SRS_CHUNK);
+            for slot in chunk.iter_mut() {
+                *slot = generator * cur;
+                cur *= tau;
+            }
+        });
     let tau_g2 = G2Projective::generator() * tau;
     let u = hash_to_basis(b"matrix-u", 0);
     let blind = hash_to_basis(b"matrix-blind", 0);
@@ -284,12 +298,73 @@ fn make_srs(layout: &Layout, tau: Scalar) -> StructuredSrs {
     hasher.update(u.to_affine().to_compressed());
     hasher.update(blind.to_affine().to_compressed());
     let digest: [u8; 32] = hasher.finalize().into();
+    let h_prepared = G2Prepared::from(G2Projective::generator().to_affine());
+    let tau_g2_prepared = G2Prepared::from(tau_g2.to_affine());
     StructuredSrs {
         powers,
         tau_g2,
         u,
         blind,
         digest,
+        h_prepared,
+        tau_g2_prepared,
+    }
+}
+
+/// Deferred batch verification of KZG openings.
+///
+/// Each opening check `e(C - v*G, H) = e(W, tau*H - zeta*H)` is equivalent
+/// to the fixed-G2 form `e(C - v*G + zeta*W, H) = e(W, tau*H)`. Checks are
+/// accumulated with fresh verifier-local random weights r_i:
+///
+///   e(sum r_i (C_i - v_i G + zeta_i W_i), H) = e(sum r_i W_i, tau*H)
+///
+/// which is one 2-Miller-loop pairing check for the whole proof (or batch),
+/// sound up to the negligible probability that a random combination of
+/// nonzero errors cancels.
+struct KzgBatch {
+    acc_lhs: G1Projective,
+    acc_witness: G1Projective,
+    rng: ProofRng,
+    any: bool,
+}
+
+impl KzgBatch {
+    fn new() -> Self {
+        KzgBatch {
+            acc_lhs: G1Projective::identity(),
+            acc_witness: G1Projective::identity(),
+            rng: proof_rng(),
+            any: false,
+        }
+    }
+
+    fn push(
+        &mut self,
+        commitment: G1Projective,
+        value: Scalar,
+        witness: G1Projective,
+        zeta: Scalar,
+    ) {
+        let weight = scalar_from_proof_rng(&mut self.rng);
+        let lhs = commitment - G1Projective::generator() * value + witness * zeta;
+        self.acc_lhs += lhs * weight;
+        self.acc_witness += witness * weight;
+        self.any = true;
+    }
+
+    fn finish(&self, srs: &StructuredSrs) -> bool {
+        if !self.any {
+            return false;
+        }
+        let lhs_affine = self.acc_lhs.to_affine();
+        let neg_witness_affine = (-self.acc_witness).to_affine();
+        Bls12::multi_miller_loop(&[
+            (&lhs_affine, &srs.h_prepared),
+            (&neg_witness_affine, &srs.tau_g2_prepared),
+        ])
+        .final_exponentiation()
+            == Gt::identity()
     }
 }
 
@@ -814,29 +889,6 @@ fn active_polynomial_len(coeffs: &[Scalar]) -> usize {
         .unwrap_or(2)
 }
 
-fn verify_kzg(
-    commitment: G1Projective,
-    value: Scalar,
-    witness: G1Projective,
-    tau_g2: G2Projective,
-    zeta: Scalar,
-) -> bool {
-    let value_g1 = G1Projective::generator() * value;
-    let lhs_g1 = commitment - value_g1;
-    let rhs_g2 = tau_g2 - G2Projective::generator() * zeta;
-    let g2 = G2Projective::generator().to_affine();
-    let lhs_g1_affine = lhs_g1.to_affine();
-    let neg_witness_affine = (-witness).to_affine();
-    let g2_prepared = G2Prepared::from(g2);
-    let rhs_g2_prepared = G2Prepared::from(rhs_g2.to_affine());
-    Bls12::multi_miller_loop(&[
-        (&lhs_g1_affine, &g2_prepared),
-        (&neg_witness_affine, &rhs_g2_prepared),
-    ])
-    .final_exponentiation()
-        == Gt::identity()
-}
-
 fn formula_value(
     layout: &Layout,
     kind: FormulaKind,
@@ -1076,6 +1128,7 @@ fn verify_ip_fast(
     proof: &IpProof,
     domain: u64,
     formula: FormulaKind,
+    kzg: &mut KzgBatch,
 ) -> bool {
     if proof.n != expected_proof_len(layout, formula) || !proof.n.is_power_of_two() {
         return false;
@@ -1094,13 +1147,10 @@ fn verify_ip_fast(
     let folded_commitment = current - scalar_base * (proof.a_final * proof.b_final);
     let zeta = kzg_challenge(&srs.digest, commitment, proof, domain ^ 0x5EC7_0001);
     let value = formula_value(layout, formula, proof, &challenges, zeta);
-    verify_kzg(
-        folded_commitment,
-        value,
-        proof.kzg_witness,
-        srs.tau_g2,
-        zeta,
-    )
+    // The pairing check is deferred: all openings of one verification call
+    // aggregate into a single 2-Miller-loop check (KzgBatch::finish).
+    kzg.push(folded_commitment, value, proof.kzg_witness, zeta);
+    true
 }
 
 fn projections(
@@ -1271,7 +1321,8 @@ fn verify_matrix(
         proof.ay_commit,
         proof.by_commit,
     );
-    verify_ip_fast(
+    let mut kzg = KzgBatch::new();
+    let ok = verify_ip_fast(
         srs,
         layout,
         statement.c_commit + srs.u * (xc * proof.d),
@@ -1279,6 +1330,7 @@ fn verify_matrix(
         &proof.c_proj,
         0xC001,
         FormulaKind::CProjection { y },
+        &mut kzg,
     ) && verify_ip_fast(
         srs,
         layout,
@@ -1287,6 +1339,7 @@ fn verify_matrix(
         &proof.a_proj,
         0xA002,
         FormulaKind::AProjection { y, sep: xa },
+        &mut kzg,
     ) && verify_ip_fast(
         srs,
         layout,
@@ -1295,6 +1348,7 @@ fn verify_matrix(
         &proof.b_proj,
         0xB003,
         FormulaKind::BProjection { y, sep: xb },
+        &mut kzg,
     ) && verify_ip_fast(
         srs,
         layout,
@@ -1303,7 +1357,9 @@ fn verify_matrix(
         &proof.product,
         0xD004,
         FormulaKind::Product,
-    )
+        &mut kzg,
+    );
+    ok && kzg.finish(srs)
 }
 
 fn random_scalars(len: usize, rng: &mut ProofRng) -> Vec<Scalar> {
@@ -1402,6 +1458,7 @@ fn verify_zk_public_ip(
     output_base: G1Projective,
     proof: &ZkProjectionProof,
     domain: u64,
+    kzg: &mut KzgBatch,
 ) -> bool {
     let x = challenge_commitments(
         &srs.digest,
@@ -1439,6 +1496,7 @@ fn verify_zk_public_ip(
         &proof.proof,
         domain ^ 0x9999,
         FormulaKind::CProjection { y: public_y },
+        kzg,
     ) && proof.proof.n == public_values.len()
         && proof.proof.n == input_specs.len()
 }
@@ -1549,6 +1607,7 @@ fn verify_zk_projection(
     axis_rows: bool,
     proof: &ZkProjectionProof,
     domain: u64,
+    kzg: &mut KzgBatch,
 ) -> bool {
     let x = challenge_commitments(
         &srs.digest,
@@ -1591,6 +1650,7 @@ fn verify_zk_projection(
         &proof.proof,
         domain ^ 0x8888,
         formula,
+        kzg,
     ) && proof.proof.n == layout.nn
 }
 
@@ -1698,6 +1758,7 @@ fn verify_zk_product(
     left_commit: G1Projective,
     right_commit: G1Projective,
     proof: &ZkProductProof,
+    kzg: &mut KzgBatch,
 ) -> bool {
     let x = challenge_commitments(
         &srs.digest,
@@ -1748,6 +1809,7 @@ fn verify_zk_product(
         &proof.proof,
         0xD0D1,
         FormulaKind::Product,
+        kzg,
     )
 }
 
@@ -1833,6 +1895,7 @@ fn verify_zk_public_ip_batch(
     proof: &ZkProjectionProof,
     domain: u64,
     formula: FormulaKind,
+    kzg: &mut KzgBatch,
 ) -> bool {
     let x = challenge_batch_commitments(
         &srs.digest,
@@ -1870,6 +1933,7 @@ fn verify_zk_public_ip_batch(
         &proof.proof,
         domain ^ 0x9999,
         formula,
+        kzg,
     )
 }
 
@@ -1962,6 +2026,7 @@ fn verify_zk_projection_batch(
     axis_rows: bool,
     proof: &ZkProjectionProof,
     domain: u64,
+    kzg: &mut KzgBatch,
 ) -> bool {
     let x = challenge_batch_commitments(
         &srs.digest,
@@ -2004,6 +2069,7 @@ fn verify_zk_projection_batch(
         &proof.proof,
         domain ^ 0x8888,
         formula,
+        kzg,
     )
 }
 
@@ -2097,7 +2163,8 @@ fn verify_zk_matrix(
     let y = challenge_statement(&srs.digest, layout.n, statement);
     let yvec = powers(y, layout.nn);
     let c_specs: Vec<_> = (0..layout.nn).map(|idx| c_spec(layout, idx)).collect();
-    verify_zk_public_ip(
+    let mut kzg = KzgBatch::new();
+    let ok = verify_zk_public_ip(
         layout,
         srs,
         statement,
@@ -2109,6 +2176,7 @@ fn verify_zk_matrix(
         srs.u,
         &proof.c_proj,
         0xC101,
+        &mut kzg,
     ) && verify_zk_projection(
         layout,
         srs,
@@ -2119,6 +2187,7 @@ fn verify_zk_matrix(
         true,
         &proof.a_proj,
         0xA102,
+        &mut kzg,
     ) && verify_zk_projection(
         layout,
         srs,
@@ -2129,6 +2198,7 @@ fn verify_zk_matrix(
         false,
         &proof.b_proj,
         0xB103,
+        &mut kzg,
     ) && verify_zk_product(
         layout,
         srs,
@@ -2137,7 +2207,9 @@ fn verify_zk_matrix(
         proof.ay_commit,
         proof.by_commit,
         &proof.product,
-    )
+        &mut kzg,
+    );
+    ok && kzg.finish(srs)
 }
 
 fn self_test() {
@@ -2801,7 +2873,8 @@ fn verify_batch(
     let a_lhs = a_input_commit + proof.ay_commit * xa;
     let b_lhs = b_input_commit + proof.by_commit * xb;
     let product_lhs = srs.u * (xp * proof.d) + proof.ay_commit + proof.by_commit;
-    verify_ip_fast(
+    let mut kzg = KzgBatch::new();
+    let ok = verify_ip_fast(
         srs,
         layout,
         c_lhs,
@@ -2813,6 +2886,7 @@ fn verify_batch(
             rho: proof.rho,
             batch,
         },
+        &mut kzg,
     ) && verify_ip_fast(
         srs,
         layout,
@@ -2826,6 +2900,7 @@ fn verify_batch(
             batch,
             sep: xa,
         },
+        &mut kzg,
     ) && verify_ip_fast(
         srs,
         layout,
@@ -2839,6 +2914,7 @@ fn verify_batch(
             batch,
             sep: xb,
         },
+        &mut kzg,
     ) && verify_ip_fast(
         srs,
         layout,
@@ -2850,7 +2926,9 @@ fn verify_batch(
             rho: proof.rho,
             batch,
         },
-    )
+        &mut kzg,
+    );
+    ok && kzg.finish(srs)
 }
 
 fn verify_zk_batch(
@@ -2888,7 +2966,8 @@ fn verify_zk_batch(
     let d_commit = weighted_commitments(&proof.d_commits, &rho_powers);
     let ay_commit = weighted_commitments(&proof.ay_commits, &rho_powers);
     let by_commit = weighted_commitments(&proof.by_commits, &rho_powers);
-    verify_zk_public_ip_batch(
+    let mut kzg = KzgBatch::new();
+    let ok = verify_zk_public_ip_batch(
         layout,
         srs,
         statements,
@@ -2898,6 +2977,7 @@ fn verify_zk_batch(
         &proof.c_proj,
         0xC201,
         FormulaKind::CProjection { y },
+        &mut kzg,
     ) && verify_zk_projection_batch(
         layout,
         srs,
@@ -2908,6 +2988,7 @@ fn verify_zk_batch(
         true,
         &proof.a_proj,
         0xA202,
+        &mut kzg,
     ) && verify_zk_projection_batch(
         layout,
         srs,
@@ -2918,6 +2999,7 @@ fn verify_zk_batch(
         false,
         &proof.b_proj,
         0xB203,
+        &mut kzg,
     ) && (0..batch).all(|idx| {
         verify_zk_product(
             layout,
@@ -2927,8 +3009,10 @@ fn verify_zk_batch(
             proof.ay_commits[idx],
             proof.by_commits[idx],
             &proof.products[idx],
+            &mut kzg,
         )
-    })
+    });
+    ok && kzg.finish(srs)
 }
 
 fn bench_batch(mode: &str, n: usize, batch: usize) {
