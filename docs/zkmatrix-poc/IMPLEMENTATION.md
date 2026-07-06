@@ -17,6 +17,15 @@ Companion lattice track (post-quantum): `zk_lattice/` implements the two
 protocols of `zk-matrix-multiplication-lattice.pdf` (Route Z reference); see
 "Lattice Track" below.
 
+Both backends support rectangular claims `C = A B` with `A: r x k`,
+`B: k x m`, `C: r x m` (transformer plan milestone M0) and layer chaining
+of two matmul claims through a shared activation commitment (milestone
+M1: commitment-equality gadget on the pairing track, dual-orientation
+commitments plus a transpose-consistency gadget on the lattice track).
+The backend-agnostic statement format for multi-claim DAGs is specified
+in `CLAIM_MANIFEST.md`; design details, soundness arguments, test
+evidence and benchmarks are in `M0_M1_REPORT.md`.
+
 ## What The Code Implements
 
 The implementation proves committed matrix multiplication statements:
@@ -228,6 +237,22 @@ cargo build --release
 ./target/release/section3_kzg self-test
 ./target/release/curve_ipa self-test
 ./target/release/structured_matrix self-test
+./target/release/lattice_matmul self-test
+```
+
+Chained-inference demos (M1: `Z = (X W1) W2` with the activation
+commitment shared between the claims, including negative link cases):
+
+```bash
+./target/release/structured_matrix chain-demo   # 16x32, 32x64, 64x8
+./target/release/lattice_matmul chain-demo
+```
+
+Rectangular single-claim benchmarks:
+
+```bash
+./target/release/structured_matrix bench-rect zk 256 512 128
+./target/release/lattice_matmul bench-rect pi2 256 512 128
 ```
 
 ## Benchmarks
