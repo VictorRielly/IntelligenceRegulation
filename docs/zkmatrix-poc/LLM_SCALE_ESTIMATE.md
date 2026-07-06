@@ -65,13 +65,55 @@ Reality checks on the endpoint:
   prover's kernels are the *same arithmetic class* as quantized
   inference (integer GEMMs), just over ~61-bit words with a ~(k+N)/cols
   commitment blow-up that Route R and packing mostly absorb.
-- **The ~10^2 gap vs A100 float inference is a hardware-arithmetic
-  floor** for this cryptography family: 61+-bit modular arithmetic has
-  no tensor cores. Going meaningfully below it means changing
-  cryptography — small-field hash-based systems (sumcheck/FRI/Binius
-  lineage; zkLLM's GPU sumcheck is the published waypoint at ~15 min for
-  13B, no PQ hiding) — worth tracking as a third track, not a reason to
-  change course now.
+- **The gap vs A100 float inference is an engineering question, not a
+  hard floor.** The naive argument ("61-bit modular arithmetic has no
+  tensor cores") caps this family at ~10^2 vs A100; but Route R drops q
+  to one 32-bit-class limb, and RNS/limb decomposition can map modular
+  GEMMs onto int8 tensor cores (~16 int8 GEMMs per 30-bit modular GEMM,
+  as in tensor-core NTT work). Under that mapping the ops accounting of
+  Section 3b applies on-GPU and low-single-digit factors become
+  conceivable even against tensor-core inference. Unproven anywhere at
+  this scale; tracked as research-engineering, not assumed in the table.
+  Small-field hash-based systems (sumcheck/FRI/Binius lineage; zkLLM at
+  ~15 min for 13B) remain the alternative frontier, without PQ hiding.
+
+## 3b. The 2x-overhead decomposition (refined target)
+
+The project target is prover <= 2x the feedforward it certifies, on
+comparable hardware. Decompose prover overhead as
+(extra ops) x (arithmetic throughput ratio):
+
+- **Proof ops are side-linear, not area-linear** — measured: a Pi2 claim
+  at n = 2048 proves in ~1.3x the mod-q matmul, and the *proof* portion
+  shrinks relative to area as matrices grow; after Route R (r: 64 -> 1)
+  it is a few percent of inference ops. The "proving each component is
+  cheaper than computing it" intuition is correct for this portion.
+- **Commitment ops per element** are the crux: ~16,000 MACs/element at
+  Route Z (commit-dominance today) but **~320 MACs/element after Route R
+  ring packing — i.e. 3-8% of the 4096-11008 MACs/element the
+  feedforward itself spends at LLM widths.** At LLM dimensions the
+  commitment bill is intrinsically a small fraction of compute; this is
+  what makes the 2x target principled rather than hopeful.
+- **Throughput ratio**: witness computation can run in native int8 (the
+  prover runs ordinary quantized inference and encodes mod q only inside
+  crypto kernels); commit/proof kernels at 32-bit-class modular
+  arithmetic run at ~1/2-1/4 of int8 SIMD throughput. Net commit cost:
+  ~16-31% of inference time.
+- **The condition that decides it: range-proof machinery.** With naive
+  per-bit decomposition (w = 12 on ~40% of tensors) the commit bill
+  grows ~5.8x and the total lands at ~3-4x inference. With packed bits
+  or LNP22-style range proofs (no full decomposition), the 1.5-2.5x
+  target holds. Range-proof design is therefore a first-class
+  performance requirement, not a detail.
+- **Parallelism and pipelining**: proving parallelizes as well as
+  inference (GEMM-shaped throughout), so it changes wall-clock, not the
+  overhead factor — with one exception in our favor: with per-layer
+  transcript segmentation (each claim's challenges bind the commitments
+  it references and everything earlier, instead of the current
+  all-commitments-first rule), layer-l proving pipelines behind
+  layer-(l+1) inference. With ~2x hardware, added *latency* approaches
+  zero even while total work is ~2x. This segmentation is sound if the
+  binding order is enforced per claim; adopt it in M5's DAG design.
 - **Memory is the other wall**: ~5 GB of activations plus w-times that
   in bit tensors per pass. Streaming/wave-scheduled commitment (the M5
   item; the machinery exists since tier-0) is mandatory, not optional.
