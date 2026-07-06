@@ -9,6 +9,10 @@ use std::fs::File;
 use std::io::Read;
 use std::time::Instant;
 
+#[path = "../manifest.rs"]
+mod manifest;
+use manifest::{ClaimManifest, Operation, Orientation};
+
 const DST: &[u8] = b"BLS12381G1_XMD:SHA-256_SSWU_RO_ZKMATRIX_MATRIX";
 
 struct ProofRng {
@@ -35,10 +39,20 @@ struct Term {
 
 type BasisSpec = Vec<Term>;
 
+/// SRS window layout for one matmul claim `C = A B` with `A: rows x inner`,
+/// `B: inner x cols`, `C: rows x cols` (all dimensions powers of two).
+/// `off_*` are absolute SRS exponent offsets; a chain of claims stacks
+/// layouts at disjoint offsets via `layout_at` so no two base families in a
+/// claim DAG share an SRS window (required by the equality-gadget soundness
+/// argument, see docs/zkmatrix-poc/CLAIM_MANIFEST.md).
 #[derive(Clone)]
 struct Layout {
-    n: usize,
-    nn: usize,
+    rows: usize,
+    inner: usize,
+    cols: usize,
+    a_len: usize,
+    b_len: usize,
+    c_len: usize,
     off_a: usize,
     off_b: usize,
     off_c: usize,
@@ -187,6 +201,14 @@ enum FormulaKind {
         rho: Scalar,
         batch: usize,
     },
+    /// Commitment-equality gadget: knowledge of an opening of
+    /// `C_left - C_right` over the difference family
+    /// `{P(off_left + i) - P(off_right + i)}`.
+    Equality {
+        off_left: usize,
+        off_right: usize,
+        len: usize,
+    },
 }
 
 fn splitmix64(state: &mut u64) -> u64 {
@@ -248,18 +270,26 @@ fn hash_to_basis(label: &[u8], index: usize) -> G1Projective {
     G1Projective::hash_to_curve(&msg, DST, &[])
 }
 
-fn layout(n: usize) -> Layout {
-    assert!(n.is_power_of_two());
-    let nn = n * n;
-    let off_ay = 0;
-    let off_by = off_ay + n;
-    let off_a = off_by + n;
-    let off_b = off_a + nn;
-    let off_c = off_b + nn;
-    let srs_len = off_c + nn;
+fn layout_at(base: usize, rows: usize, inner: usize, cols: usize) -> Layout {
+    assert!(rows.is_power_of_two());
+    assert!(inner.is_power_of_two());
+    assert!(cols.is_power_of_two());
+    let a_len = rows * inner;
+    let b_len = inner * cols;
+    let c_len = rows * cols;
+    let off_ay = base;
+    let off_by = off_ay + inner;
+    let off_a = off_by + inner;
+    let off_b = off_a + a_len;
+    let off_c = off_b + b_len;
+    let srs_len = off_c + c_len;
     Layout {
-        n,
-        nn,
+        rows,
+        inner,
+        cols,
+        a_len,
+        b_len,
+        c_len,
         off_a,
         off_b,
         off_c,
@@ -269,13 +299,17 @@ fn layout(n: usize) -> Layout {
     }
 }
 
-fn make_srs(layout: &Layout, tau: Scalar) -> StructuredSrs {
+fn layout(n: usize) -> Layout {
+    layout_at(0, n, n, n)
+}
+
+fn make_srs(srs_len: usize, tau: Scalar) -> StructuredSrs {
     let generator = G1Projective::generator();
     // Powers of tau in parallel chunks: each chunk seeds itself with
     // tau^start and walks sequentially inside. Output is identical to the
     // serial loop; only the schedule changes.
     const SRS_CHUNK: usize = 4096;
-    let mut powers = vec![G1Projective::identity(); layout.srs_len];
+    let mut powers = vec![G1Projective::identity(); srs_len];
     powers
         .par_chunks_mut(SRS_CHUNK)
         .enumerate()
@@ -290,9 +324,8 @@ fn make_srs(layout: &Layout, tau: Scalar) -> StructuredSrs {
     let u = hash_to_basis(b"matrix-u", 0);
     let blind = hash_to_basis(b"matrix-blind", 0);
     let mut hasher = Sha256::new();
-    hasher.update(b"zkmatrix-structured-srs-digest-v2");
-    hasher.update((layout.n as u64).to_le_bytes());
-    hasher.update((layout.srs_len as u64).to_le_bytes());
+    hasher.update(b"zkmatrix-structured-srs-digest-v3");
+    hasher.update((srs_len as u64).to_le_bytes());
     hasher.update(powers[1].to_affine().to_compressed());
     hasher.update(tau_g2.to_affine().to_compressed());
     hasher.update(u.to_affine().to_compressed());
@@ -412,8 +445,9 @@ fn a_projection_spec(
     scale: Scalar,
     sep: Scalar,
 ) -> BasisSpec {
-    let i = idx / layout.n;
-    let j = idx % layout.n;
+    // A is rows x inner: idx = i * inner + j.
+    let i = idx / layout.inner;
+    let j = idx % layout.inner;
     vec![
         Term {
             offset: layout.off_a + idx,
@@ -433,8 +467,9 @@ fn b_projection_spec(
     scale: Scalar,
     sep: Scalar,
 ) -> BasisSpec {
-    let i = idx / layout.n;
-    let j = idx % layout.n;
+    // B is inner x cols: idx = i * cols + j.
+    let i = idx / layout.cols;
+    let j = idx % layout.cols;
     vec![
         Term {
             offset: layout.off_b + idx,
@@ -445,6 +480,26 @@ fn b_projection_spec(
             coeff: scale * sep * yr[j],
         },
     ]
+}
+
+/// Combined difference specs for the commitment-equality gadget: entry `i`
+/// is `P(off_left + i) - P(off_right + i)`. A vector `X` opens the
+/// difference of two commitments to `X` under the two (disjoint) windows.
+fn equality_spec(off_left: usize, off_right: usize, len: usize) -> Vec<BasisSpec> {
+    (0..len)
+        .map(|i| {
+            vec![
+                Term {
+                    offset: off_left + i,
+                    coeff: Scalar::ONE,
+                },
+                Term {
+                    offset: off_right + i,
+                    coeff: -Scalar::ONE,
+                },
+            ]
+        })
+        .collect()
 }
 
 fn basis_point(srs: &StructuredSrs, spec: &[Term]) -> G1Projective {
@@ -549,30 +604,31 @@ fn powers(base: Scalar, len: usize) -> Vec<Scalar> {
     out
 }
 
-fn matmul(a: &[Scalar], b: &[Scalar], n: usize) -> Vec<Scalar> {
-    let mut c = vec![Scalar::ZERO; n * n];
-    c.par_chunks_mut(n).enumerate().for_each(|(i, row)| {
-        for k in 0..n {
-            let aik = a[i * n + k];
-            for j in 0..n {
-                row[j] += aik * b[k * n + j];
+/// C = A B with A rows x inner, B inner x cols, both row-major flat.
+fn matmul(a: &[Scalar], b: &[Scalar], rows: usize, inner: usize, cols: usize) -> Vec<Scalar> {
+    let mut c = vec![Scalar::ZERO; rows * cols];
+    c.par_chunks_mut(cols).enumerate().for_each(|(i, row)| {
+        for k in 0..inner {
+            let aik = a[i * inner + k];
+            for j in 0..cols {
+                row[j] += aik * b[k * cols + j];
             }
         }
     });
     c
 }
 
-fn random_matrix(n: usize, rng: &mut u64) -> Vec<Scalar> {
-    (0..n * n)
+fn random_values(len: usize, rng: &mut u64) -> Vec<Scalar> {
+    (0..len)
         .map(|_| Scalar::from(splitmix64(rng) % 64))
         .collect()
 }
 
-fn make_witness(n: usize, seed: u64) -> Witness {
+fn make_witness(layout: &Layout, seed: u64) -> Witness {
     let mut rng = seed;
-    let a = random_matrix(n, &mut rng);
-    let b = random_matrix(n, &mut rng);
-    let c = matmul(&a, &b, n);
+    let a = random_values(layout.a_len, &mut rng);
+    let b = random_values(layout.b_len, &mut rng);
+    let c = matmul(&a, &b, layout.rows, layout.inner, layout.cols);
     Witness {
         a,
         b,
@@ -603,25 +659,33 @@ fn zk_statement(
     statement(layout, srs, witness)
 }
 
-fn challenge_statement(digest: &[u8; 32], n: usize, statement: &Statement) -> Scalar {
-    let n_bytes = (n as u64).to_le_bytes();
+fn shape_bytes(layout: &Layout) -> [u8; 24] {
+    let mut out = [0u8; 24];
+    out[..8].copy_from_slice(&(layout.rows as u64).to_le_bytes());
+    out[8..16].copy_from_slice(&(layout.inner as u64).to_le_bytes());
+    out[16..].copy_from_slice(&(layout.cols as u64).to_le_bytes());
+    out
+}
+
+fn challenge_statement(digest: &[u8; 32], layout: &Layout, statement: &Statement) -> Scalar {
+    let dims = shape_bytes(layout);
     let a = statement.a_commit.to_affine().to_compressed();
     let b = statement.b_commit.to_affine().to_compressed();
     let c = statement.c_commit.to_affine().to_compressed();
-    hash_to_scalar(&[digest, &n_bytes, &a, &b, &c])
+    hash_to_scalar(&[digest, &dims, &a, &b, &c])
 }
 
 fn challenge_commitments(
     digest: &[u8; 32],
     domain: u64,
-    n: usize,
+    layout: &Layout,
     statement: &Statement,
     commitments: &[G1Projective],
 ) -> Scalar {
     let mut owned = Vec::with_capacity(6 + commitments.len());
     owned.push(digest.to_vec());
     owned.push(domain.to_le_bytes().to_vec());
-    owned.push((n as u64).to_le_bytes().to_vec());
+    owned.push(shape_bytes(layout).to_vec());
     owned.push(statement.a_commit.to_affine().to_compressed().to_vec());
     owned.push(statement.b_commit.to_affine().to_compressed().to_vec());
     owned.push(statement.c_commit.to_affine().to_compressed().to_vec());
@@ -638,7 +702,7 @@ fn challenge_commitments(
 fn challenge_decouple(
     digest: &[u8; 32],
     domain: u64,
-    n: usize,
+    layout: &Layout,
     statement: &Statement,
     commitments: &[G1Projective],
     scalars: &[Scalar],
@@ -646,7 +710,7 @@ fn challenge_decouple(
     let mut owned = Vec::with_capacity(6 + commitments.len() + scalars.len());
     owned.push(digest.to_vec());
     owned.push(domain.to_le_bytes().to_vec());
-    owned.push((n as u64).to_le_bytes().to_vec());
+    owned.push(shape_bytes(layout).to_vec());
     owned.push(statement.a_commit.to_affine().to_compressed().to_vec());
     owned.push(statement.b_commit.to_affine().to_compressed().to_vec());
     owned.push(statement.c_commit.to_affine().to_compressed().to_vec());
@@ -663,14 +727,14 @@ fn challenge_decouple(
 fn challenge_batch_commitments(
     digest: &[u8; 32],
     domain: u64,
-    n: usize,
+    layout: &Layout,
     statements: &[Statement],
     commitments: &[G1Projective],
 ) -> Scalar {
     let mut owned = Vec::with_capacity(4 + 3 * statements.len() + commitments.len());
     owned.push(digest.to_vec());
     owned.push(domain.to_le_bytes().to_vec());
-    owned.push((n as u64).to_le_bytes().to_vec());
+    owned.push(shape_bytes(layout).to_vec());
     owned.push((statements.len() as u64).to_le_bytes().to_vec());
     for statement in statements {
         owned.push(statement.a_commit.to_affine().to_compressed().to_vec());
@@ -687,7 +751,7 @@ fn challenge_batch_commitments(
 fn challenge_batch_decouple(
     digest: &[u8; 32],
     domain: u64,
-    n: usize,
+    layout: &Layout,
     statements: &[Statement],
     commitments: &[G1Projective],
     scalars: &[Scalar],
@@ -696,7 +760,7 @@ fn challenge_batch_decouple(
         Vec::with_capacity(4 + 3 * statements.len() + commitments.len() + scalars.len());
     owned.push(digest.to_vec());
     owned.push(domain.to_le_bytes().to_vec());
-    owned.push((n as u64).to_le_bytes().to_vec());
+    owned.push(shape_bytes(layout).to_vec());
     owned.push((statements.len() as u64).to_le_bytes().to_vec());
     for statement in statements {
         owned.push(statement.a_commit.to_affine().to_compressed().to_vec());
@@ -803,32 +867,38 @@ fn fold_eval(challenges: &[Scalar], zeta: Scalar, len: usize, inverse: bool) -> 
     acc
 }
 
+/// Closed-form evaluation of the folded coefficient polynomial for a
+/// row-major matrix window of shape `2^row_bits x 2^col_bits`: for index
+/// `idx = i * 2^col_bits + j`, the first `row_bits` IPA rounds select the
+/// bits of `i` (contribution `row_base^i`) and the remaining `col_bits`
+/// rounds select the bits of `j` (contribution `col_base^j`).
 fn split_matrix_eval(
     challenges: &[Scalar],
-    n: usize,
+    row_bits: usize,
+    col_bits: usize,
     row_base: Scalar,
     col_base: Scalar,
     inverse: bool,
 ) -> Scalar {
-    let bits = n.trailing_zeros() as usize;
+    debug_assert_eq!(challenges.len(), row_bits + col_bits);
     let mut acc = Scalar::ONE;
-    for r in 0..bits {
+    for r in 0..row_bits {
         let x = if inverse {
             challenges[r].invert().unwrap()
         } else {
             challenges[r]
         };
-        let stride = 1usize << (bits - 1 - r);
+        let stride = 1usize << (row_bits - 1 - r);
         acc *= Scalar::ONE + x * scalar_pow_usize(row_base, stride);
     }
-    for r in 0..bits {
-        let idx = bits + r;
+    for r in 0..col_bits {
+        let idx = row_bits + r;
         let x = if inverse {
             challenges[idx].invert().unwrap()
         } else {
             challenges[idx]
         };
-        let stride = 1usize << (bits - 1 - r);
+        let stride = 1usize << (col_bits - 1 - r);
         acc *= Scalar::ONE + x * scalar_pow_usize(col_base, stride);
     }
     acc
@@ -896,54 +966,71 @@ fn formula_value(
     challenges: &[Scalar],
     zeta: Scalar,
 ) -> Scalar {
-    let n = layout.n;
-    let nn = layout.nn;
+    // A is rows x inner (yl entries are (y^cols)^i), B is inner x cols
+    // (yr entries are y^j); the ay/by windows have length inner.
+    let row_bits = layout.rows.trailing_zeros() as usize;
+    let inner_bits = layout.inner.trailing_zeros() as usize;
+    let col_bits = layout.cols.trailing_zeros() as usize;
     match kind {
         FormulaKind::CProjection { .. } => {
             proof.a_final
                 * scalar_pow_usize(zeta, layout.off_c)
-                * fold_eval(challenges, zeta, nn, false)
+                * fold_eval(challenges, zeta, layout.c_len, false)
         }
         FormulaKind::AProjection { y, sep } => {
-            let base =
-                scalar_pow_usize(zeta, layout.off_a) * fold_eval(challenges, zeta, nn, false);
+            let base = scalar_pow_usize(zeta, layout.off_a)
+                * fold_eval(challenges, zeta, layout.a_len, false);
             let projected = sep
                 * scalar_pow_usize(zeta, layout.off_ay)
-                * split_matrix_eval(challenges, n, scalar_pow_usize(y, n), zeta, false);
+                * split_matrix_eval(
+                    challenges,
+                    row_bits,
+                    inner_bits,
+                    scalar_pow_usize(y, layout.cols),
+                    zeta,
+                    false,
+                );
             proof.a_final * (base + projected)
         }
         FormulaKind::BProjection { y, sep } => {
-            let base =
-                scalar_pow_usize(zeta, layout.off_b) * fold_eval(challenges, zeta, nn, false);
+            let base = scalar_pow_usize(zeta, layout.off_b)
+                * fold_eval(challenges, zeta, layout.b_len, false);
             let projected = sep
                 * scalar_pow_usize(zeta, layout.off_by)
-                * split_matrix_eval(challenges, n, zeta, y, false);
+                * split_matrix_eval(challenges, inner_bits, col_bits, zeta, y, false);
             proof.a_final * (base + projected)
         }
         FormulaKind::Product => {
             proof.a_final
                 * scalar_pow_usize(zeta, layout.off_ay)
-                * fold_eval(challenges, zeta, n, false)
+                * fold_eval(challenges, zeta, layout.inner, false)
                 + proof.b_final
                     * scalar_pow_usize(zeta, layout.off_by)
-                    * fold_eval(challenges, zeta, n, true)
+                    * fold_eval(challenges, zeta, layout.inner, true)
         }
         FormulaKind::BatchCProjection { rho, batch, .. } => {
             let batch_bits = batch.trailing_zeros() as usize;
             proof.a_final
                 * scalar_pow_usize(zeta, layout.off_c)
                 * batch_eval(&challenges[..batch_bits], batch, rho, false)
-                * fold_eval(&challenges[batch_bits..], zeta, nn, false)
+                * fold_eval(&challenges[batch_bits..], zeta, layout.c_len, false)
         }
         FormulaKind::BatchAProjection { y, rho, batch, sep } => {
             let batch_bits = batch.trailing_zeros() as usize;
             let batch_part = batch_eval(&challenges[..batch_bits], batch, rho, false);
             let matrix_challenges = &challenges[batch_bits..];
             let base = scalar_pow_usize(zeta, layout.off_a)
-                * fold_eval(matrix_challenges, zeta, nn, false);
+                * fold_eval(matrix_challenges, zeta, layout.a_len, false);
             let projected = sep
                 * scalar_pow_usize(zeta, layout.off_ay)
-                * split_matrix_eval(matrix_challenges, n, scalar_pow_usize(y, n), zeta, false);
+                * split_matrix_eval(
+                    matrix_challenges,
+                    row_bits,
+                    inner_bits,
+                    scalar_pow_usize(y, layout.cols),
+                    zeta,
+                    false,
+                );
             proof.a_final * batch_part * (base + projected)
         }
         FormulaKind::BatchBProjection { y, rho, batch, sep } => {
@@ -951,10 +1038,10 @@ fn formula_value(
             let batch_part = batch_eval(&challenges[..batch_bits], batch, rho, false);
             let matrix_challenges = &challenges[batch_bits..];
             let base = scalar_pow_usize(zeta, layout.off_b)
-                * fold_eval(matrix_challenges, zeta, nn, false);
+                * fold_eval(matrix_challenges, zeta, layout.b_len, false);
             let projected = sep
                 * scalar_pow_usize(zeta, layout.off_by)
-                * split_matrix_eval(matrix_challenges, n, zeta, y, false);
+                * split_matrix_eval(matrix_challenges, inner_bits, col_bits, zeta, y, false);
             proof.a_final * batch_part * (base + projected)
         }
         FormulaKind::BatchProduct { rho, batch } => {
@@ -963,11 +1050,20 @@ fn formula_value(
             proof.a_final
                 * scalar_pow_usize(zeta, layout.off_ay)
                 * batch_eval(&challenges[..batch_bits], batch, rho, false)
-                * fold_eval(vector_challenges, zeta, n, false)
+                * fold_eval(vector_challenges, zeta, layout.inner, false)
                 + proof.b_final
                     * scalar_pow_usize(zeta, layout.off_by)
                     * batch_eval(&challenges[..batch_bits], batch, Scalar::ONE, true)
-                    * fold_eval(vector_challenges, zeta, n, true)
+                    * fold_eval(vector_challenges, zeta, layout.inner, true)
+        }
+        FormulaKind::Equality {
+            off_left,
+            off_right,
+            len,
+        } => {
+            proof.a_final
+                * (scalar_pow_usize(zeta, off_left) - scalar_pow_usize(zeta, off_right))
+                * fold_eval(challenges, zeta, len, false)
         }
     }
 }
@@ -978,12 +1074,12 @@ fn expected_public_b_final(
     challenges: &[Scalar],
 ) -> Option<Scalar> {
     match kind {
-        FormulaKind::CProjection { y } => Some(fold_eval(challenges, y, layout.nn, false)),
+        FormulaKind::CProjection { y } => Some(fold_eval(challenges, y, layout.c_len, false)),
         FormulaKind::BatchCProjection { y, rho, batch } => {
             let batch_bits = batch.trailing_zeros() as usize;
             Some(
                 batch_eval(&challenges[..batch_bits], batch, rho, false)
-                    * fold_eval(&challenges[batch_bits..], y, layout.nn, false),
+                    * fold_eval(&challenges[batch_bits..], y, layout.c_len, false),
             )
         }
         _ => None,
@@ -992,20 +1088,21 @@ fn expected_public_b_final(
 
 fn expected_proof_len(layout: &Layout, kind: FormulaKind) -> usize {
     match kind {
-        FormulaKind::CProjection { .. }
-        | FormulaKind::AProjection { .. }
-        | FormulaKind::BProjection { .. } => layout.nn,
-        FormulaKind::Product => layout.n,
-        FormulaKind::BatchCProjection { batch, .. }
-        | FormulaKind::BatchAProjection { batch, .. }
-        | FormulaKind::BatchBProjection { batch, .. } => batch * layout.nn,
-        FormulaKind::BatchProduct { batch, .. } => batch * layout.n,
+        FormulaKind::CProjection { .. } => layout.c_len,
+        FormulaKind::AProjection { .. } => layout.a_len,
+        FormulaKind::BProjection { .. } => layout.b_len,
+        FormulaKind::Product => layout.inner,
+        FormulaKind::BatchCProjection { batch, .. } => batch * layout.c_len,
+        FormulaKind::BatchAProjection { batch, .. } => batch * layout.a_len,
+        FormulaKind::BatchBProjection { batch, .. } => batch * layout.b_len,
+        FormulaKind::BatchProduct { batch, .. } => batch * layout.inner,
+        FormulaKind::Equality { len, .. } => len,
     }
 }
 
 fn prove_ip_structured(
     srs: &StructuredSrs,
-    layout: &Layout,
+    digest: &[u8; 32],
     commitment: G1Projective,
     scalar_base: G1Projective,
     g_specs: &[BasisSpec],
@@ -1038,7 +1135,7 @@ fn prove_ip_structured(
             left += msm(&h_points[..half], &b[half..len]);
             right += msm(&h_points[half..len], &b[..half]);
         }
-        let x = challenge_ip(&srs.digest, domain, round, current, scalar_base, left, right);
+        let x = challenge_ip(digest, domain, round, current, scalar_base, left, right);
         let xi = x.invert().unwrap();
         let (a_left, a_right) = a[..len].split_at_mut(half);
         let (b_left, b_right) = b[..len].split_at_mut(half);
@@ -1105,15 +1202,15 @@ fn prove_ip_structured(
         b_final: b[0],
         kzg_witness: G1Projective::identity(),
     };
-    let (challenges, _) = ipa_challenges(&srs.digest, commitment, scalar_base, &proof, domain);
-    let mut poly = vec![Scalar::ZERO; layout.srs_len];
+    let (challenges, _) = ipa_challenges(digest, commitment, scalar_base, &proof, domain);
+    let mut poly = vec![Scalar::ZERO; srs.powers.len()];
     let g_fold = fold_coefficients(&challenges, proof_n, false);
     add_terms_to_poly(&mut poly, g_specs, &g_fold, proof.a_final);
     if let Some(specs) = h_specs {
         let h_fold = fold_coefficients(&challenges, proof_n, true);
         add_terms_to_poly(&mut poly, specs, &h_fold, proof.b_final);
     }
-    let zeta = kzg_challenge(&srs.digest, commitment, &proof, domain ^ 0x5EC7_0001);
+    let zeta = kzg_challenge(digest, commitment, &proof, domain ^ 0x5EC7_0001);
     let active_len = active_polynomial_len(&poly);
     let quotient = quotient_coefficients(&poly[..active_len], zeta);
     proof.kzg_witness = msm(&srs.powers[..quotient.len()], &quotient);
@@ -1121,7 +1218,8 @@ fn prove_ip_structured(
 }
 
 fn verify_ip_fast(
-    srs: &StructuredSrs,
+    _srs: &StructuredSrs,
+    digest: &[u8; 32],
     layout: &Layout,
     commitment: G1Projective,
     scalar_base: G1Projective,
@@ -1138,14 +1236,14 @@ fn verify_ip_fast(
     {
         return false;
     }
-    let (challenges, current) = ipa_challenges(&srs.digest, commitment, scalar_base, proof, domain);
+    let (challenges, current) = ipa_challenges(digest, commitment, scalar_base, proof, domain);
     if let Some(expected_b_final) = expected_public_b_final(layout, formula, &challenges) {
         if proof.b_final != expected_b_final {
             return false;
         }
     }
     let folded_commitment = current - scalar_base * (proof.a_final * proof.b_final);
-    let zeta = kzg_challenge(&srs.digest, commitment, proof, domain ^ 0x5EC7_0001);
+    let zeta = kzg_challenge(digest, commitment, proof, domain ^ 0x5EC7_0001);
     let value = formula_value(layout, formula, proof, &challenges, zeta);
     // The pairing check is deferred: all openings of one verification call
     // aggregate into a single 2-Miller-loop check (KzgBatch::finish).
@@ -1155,7 +1253,7 @@ fn verify_ip_fast(
 
 fn projections(
     layout: &Layout,
-    srs: &StructuredSrs,
+    digest: &[u8; 32],
     statement: &Statement,
     witness: &Witness,
 ) -> (
@@ -1167,7 +1265,7 @@ fn projections(
     Vec<Scalar>,
     Scalar,
 ) {
-    let y = challenge_statement(&srs.digest, layout.n, statement);
+    let y = challenge_statement(digest, layout, statement);
     let (yvec, yl, yr, ay, by, d) = projections_with_y(layout, witness, y);
     (y, yvec, yl, yr, ay, by, d)
 }
@@ -1184,38 +1282,40 @@ fn projections_with_y(
     Vec<Scalar>,
     Scalar,
 ) {
-    let yvec = powers(y, layout.nn);
-    let yr = powers(y, layout.n);
-    let yl: Vec<_> = (0..layout.n).map(|i| yvec[i * layout.n]).collect();
+    let yvec = powers(y, layout.c_len);
+    let yr = powers(y, layout.cols);
+    let yl: Vec<_> = (0..layout.rows).map(|i| yvec[i * layout.cols]).collect();
     let ay = project_a(layout, &witness.a, &yl);
     let by = project_b(layout, &witness.b, &yr);
     let d = dot(&witness.c, &yvec);
     (yvec, yl, yr, ay, by, d)
 }
 
+/// ay = y_L^T A: A is rows x inner, output length inner.
 fn project_a(layout: &Layout, values: &[Scalar], yl: &[Scalar]) -> Vec<Scalar> {
-    (0..layout.n)
+    (0..layout.inner)
         .into_par_iter()
         .map(|j| {
             let mut acc = Scalar::ZERO;
-            for i in 0..layout.n {
-                acc += yl[i] * values[i * layout.n + j];
+            for i in 0..layout.rows {
+                acc += yl[i] * values[i * layout.inner + j];
             }
             acc
         })
         .collect()
 }
 
+/// by = B y_R: B is inner x cols, output length inner.
 fn project_b(layout: &Layout, values: &[Scalar], yr: &[Scalar]) -> Vec<Scalar> {
     values
-        .par_chunks(layout.n)
+        .par_chunks(layout.cols)
         .map(|row| dot(row, yr))
         .collect()
 }
 
 fn core_decoupling_challenges(
     layout: &Layout,
-    srs: &StructuredSrs,
+    digest: &[u8; 32],
     statement: &Statement,
     d: Scalar,
     ay_commit: G1Projective,
@@ -1223,37 +1323,38 @@ fn core_decoupling_challenges(
 ) -> (Scalar, Scalar, Scalar, Scalar) {
     let commits = [ay_commit, by_commit];
     let scalars = [d];
-    let xc = challenge_decouple(&srs.digest, 0x5EC1, layout.n, statement, &commits, &scalars);
-    let xa = challenge_decouple(&srs.digest, 0x5EC2, layout.n, statement, &commits, &scalars);
-    let xb = challenge_decouple(&srs.digest, 0x5EC3, layout.n, statement, &commits, &scalars);
-    let xp = challenge_decouple(&srs.digest, 0x5EC4, layout.n, statement, &commits, &scalars);
+    let xc = challenge_decouple(digest, 0x5EC1, layout, statement, &commits, &scalars);
+    let xa = challenge_decouple(digest, 0x5EC2, layout, statement, &commits, &scalars);
+    let xb = challenge_decouple(digest, 0x5EC3, layout, statement, &commits, &scalars);
+    let xp = challenge_decouple(digest, 0x5EC4, layout, statement, &commits, &scalars);
     (xc, xa, xb, xp)
 }
 
 fn prove_matrix(
     layout: &Layout,
     srs: &StructuredSrs,
+    digest: &[u8; 32],
     statement: &Statement,
     witness: &Witness,
 ) -> MatrixProof {
-    let (_y, yvec, yl, yr, ay, by, d) = projections(layout, srs, statement, witness);
-    let ay_specs: Vec<_> = (0..layout.n).map(|j| ay_spec(layout, j)).collect();
-    let by_specs: Vec<_> = (0..layout.n).map(|i| by_spec(layout, i)).collect();
+    let (_y, yvec, yl, yr, ay, by, d) = projections(layout, digest, statement, witness);
+    let ay_specs: Vec<_> = (0..layout.inner).map(|j| ay_spec(layout, j)).collect();
+    let by_specs: Vec<_> = (0..layout.inner).map(|i| by_spec(layout, i)).collect();
     let ay_commit = commit_specs(srs, &ay_specs, &ay);
     let by_commit = commit_specs(srs, &by_specs, &by);
     // Fresh decoupling challenges, sampled after d/ay/by are determined.
     let (xc, xa, xb, xp) =
-        core_decoupling_challenges(layout, srs, statement, d, ay_commit, by_commit);
-    let c_specs: Vec<_> = (0..layout.nn).map(|idx| c_spec(layout, idx)).collect();
-    let a_proj_specs: Vec<_> = (0..layout.nn)
+        core_decoupling_challenges(layout, digest, statement, d, ay_commit, by_commit);
+    let c_specs: Vec<_> = (0..layout.c_len).map(|idx| c_spec(layout, idx)).collect();
+    let a_proj_specs: Vec<_> = (0..layout.a_len)
         .map(|idx| a_projection_spec(layout, idx, &yl, Scalar::ONE, xa))
         .collect();
-    let b_proj_specs: Vec<_> = (0..layout.nn)
+    let b_proj_specs: Vec<_> = (0..layout.b_len)
         .map(|idx| b_projection_spec(layout, idx, &yr, Scalar::ONE, xb))
         .collect();
     let c_proj = prove_ip_structured(
         srs,
-        layout,
+        digest,
         statement.c_commit + srs.u * (xc * d),
         srs.u * xc,
         &c_specs,
@@ -1264,7 +1365,7 @@ fn prove_matrix(
     );
     let a_proj = prove_ip_structured(
         srs,
-        layout,
+        digest,
         statement.a_commit + ay_commit * xa,
         G1Projective::identity(),
         &a_proj_specs,
@@ -1275,7 +1376,7 @@ fn prove_matrix(
     );
     let b_proj = prove_ip_structured(
         srs,
-        layout,
+        digest,
         statement.b_commit + by_commit * xb,
         G1Projective::identity(),
         &b_proj_specs,
@@ -1286,7 +1387,7 @@ fn prove_matrix(
     );
     let product = prove_ip_structured(
         srs,
-        layout,
+        digest,
         srs.u * (xp * d) + ay_commit + by_commit,
         srs.u * xp,
         &ay_specs,
@@ -1309,13 +1410,14 @@ fn prove_matrix(
 fn verify_matrix(
     layout: &Layout,
     srs: &StructuredSrs,
+    digest: &[u8; 32],
     statement: &Statement,
     proof: &MatrixProof,
 ) -> bool {
-    let y = challenge_statement(&srs.digest, layout.n, statement);
+    let y = challenge_statement(digest, layout, statement);
     let (xc, xa, xb, xp) = core_decoupling_challenges(
         layout,
-        srs,
+        digest,
         statement,
         proof.d,
         proof.ay_commit,
@@ -1324,6 +1426,7 @@ fn verify_matrix(
     let mut kzg = KzgBatch::new();
     let ok = verify_ip_fast(
         srs,
+        digest,
         layout,
         statement.c_commit + srs.u * (xc * proof.d),
         srs.u * xc,
@@ -1333,6 +1436,7 @@ fn verify_matrix(
         &mut kzg,
     ) && verify_ip_fast(
         srs,
+        digest,
         layout,
         statement.a_commit + proof.ay_commit * xa,
         G1Projective::identity(),
@@ -1342,6 +1446,7 @@ fn verify_matrix(
         &mut kzg,
     ) && verify_ip_fast(
         srs,
+        digest,
         layout,
         statement.b_commit + proof.by_commit * xb,
         G1Projective::identity(),
@@ -1351,6 +1456,7 @@ fn verify_matrix(
         &mut kzg,
     ) && verify_ip_fast(
         srs,
+        digest,
         layout,
         srs.u * (xp * proof.d) + proof.ay_commit + proof.by_commit,
         srs.u * xp,
@@ -1377,6 +1483,7 @@ fn mask_values(values: &[Scalar], mask: &mut [Scalar], challenge: Scalar) {
 fn prove_zk_public_ip(
     layout: &Layout,
     srs: &StructuredSrs,
+    digest: &[u8; 32],
     statement: &Statement,
     input_commit: G1Projective,
     output_commit: G1Projective,
@@ -1396,9 +1503,9 @@ fn prove_zk_public_ip(
     let mask_commit = commit_specs_blinded(srs, input_specs, &alpha, alpha_blind);
     let projected_mask_commit = output_base * projected_alpha + srs.blind * projected_alpha_blind;
     let x = challenge_commitments(
-        &srs.digest,
+        digest,
         domain,
-        layout.n,
+        layout,
         statement,
         &[
             input_commit,
@@ -1414,9 +1521,9 @@ fn prove_zk_public_ip(
     let masked_output =
         output_commit + projected_mask_commit * x - srs.blind * projected_response_blind;
     let xs = challenge_decouple(
-        &srs.digest,
+        digest,
         domain ^ 0x5EC0,
-        layout.n,
+        layout,
         statement,
         &[
             input_commit,
@@ -1428,7 +1535,7 @@ fn prove_zk_public_ip(
     );
     let proof = prove_ip_structured(
         srs,
-        layout,
+        digest,
         masked_input + masked_output * xs,
         output_base * xs,
         input_specs,
@@ -1449,6 +1556,7 @@ fn prove_zk_public_ip(
 fn verify_zk_public_ip(
     layout: &Layout,
     srs: &StructuredSrs,
+    digest: &[u8; 32],
     statement: &Statement,
     input_commit: G1Projective,
     output_commit: G1Projective,
@@ -1461,9 +1569,9 @@ fn verify_zk_public_ip(
     kzg: &mut KzgBatch,
 ) -> bool {
     let x = challenge_commitments(
-        &srs.digest,
+        digest,
         domain,
-        layout.n,
+        layout,
         statement,
         &[
             input_commit,
@@ -1476,9 +1584,9 @@ fn verify_zk_public_ip(
     let masked_output = output_commit + proof.projected_mask_commit * x
         - srs.blind * proof.projected_response_blind;
     let xs = challenge_decouple(
-        &srs.digest,
+        digest,
         domain ^ 0x5EC0,
-        layout.n,
+        layout,
         statement,
         &[
             input_commit,
@@ -1490,6 +1598,7 @@ fn verify_zk_public_ip(
     );
     verify_ip_fast(
         srs,
+        digest,
         layout,
         masked_input + masked_output * xs,
         output_base * xs,
@@ -1507,7 +1616,8 @@ fn projection_specs_with_sep(
     axis_rows: bool,
     sep: Scalar,
 ) -> Vec<BasisSpec> {
-    (0..layout.nn)
+    let len = if axis_rows { layout.a_len } else { layout.b_len };
+    (0..len)
         .map(|idx| {
             if axis_rows {
                 a_projection_spec(layout, idx, coeffs, Scalar::ONE, sep)
@@ -1521,6 +1631,7 @@ fn projection_specs_with_sep(
 fn prove_zk_projection(
     layout: &Layout,
     srs: &StructuredSrs,
+    digest: &[u8; 32],
     statement: &Statement,
     input_commit: G1Projective,
     output_commit: G1Projective,
@@ -1546,9 +1657,9 @@ fn prove_zk_projection(
     let projected_mask_commit =
         commit_specs_blinded(srs, output_specs, &projected_alpha, projected_alpha_blind);
     let x = challenge_commitments(
-        &srs.digest,
+        digest,
         domain,
-        layout.n,
+        layout,
         statement,
         &[
             input_commit,
@@ -1564,9 +1675,9 @@ fn prove_zk_projection(
     let masked_output =
         output_commit + projected_mask_commit * x - srs.blind * projected_response_blind;
     let xs = challenge_decouple(
-        &srs.digest,
+        digest,
         domain ^ 0x5EC0,
-        layout.n,
+        layout,
         statement,
         &[
             input_commit,
@@ -1579,7 +1690,7 @@ fn prove_zk_projection(
     let projected_specs = projection_specs_with_sep(layout, coeffs, axis_rows, xs);
     let proof = prove_ip_structured(
         srs,
-        layout,
+        digest,
         masked_input + masked_output * xs,
         G1Projective::identity(),
         &projected_specs,
@@ -1600,6 +1711,7 @@ fn prove_zk_projection(
 fn verify_zk_projection(
     layout: &Layout,
     srs: &StructuredSrs,
+    digest: &[u8; 32],
     statement: &Statement,
     input_commit: G1Projective,
     output_commit: G1Projective,
@@ -1610,9 +1722,9 @@ fn verify_zk_projection(
     kzg: &mut KzgBatch,
 ) -> bool {
     let x = challenge_commitments(
-        &srs.digest,
+        digest,
         domain,
-        layout.n,
+        layout,
         statement,
         &[
             input_commit,
@@ -1625,9 +1737,9 @@ fn verify_zk_projection(
     let masked_output = output_commit + proof.projected_mask_commit * x
         - srs.blind * proof.projected_response_blind;
     let xs = challenge_decouple(
-        &srs.digest,
+        digest,
         domain ^ 0x5EC0,
-        layout.n,
+        layout,
         statement,
         &[
             input_commit,
@@ -1644,6 +1756,7 @@ fn verify_zk_projection(
     };
     verify_ip_fast(
         srs,
+        digest,
         layout,
         masked_input + masked_output * xs,
         G1Projective::identity(),
@@ -1651,12 +1764,13 @@ fn verify_zk_projection(
         domain ^ 0x8888,
         formula,
         kzg,
-    ) && proof.proof.n == layout.nn
+    ) && proof.proof.n == if axis_rows { layout.a_len } else { layout.b_len }
 }
 
 fn prove_zk_product(
     layout: &Layout,
     srs: &StructuredSrs,
+    digest: &[u8; 32],
     statement: &Statement,
     output_commit: G1Projective,
     left_commit: G1Projective,
@@ -1670,8 +1784,8 @@ fn prove_zk_product(
     right_specs: &[BasisSpec],
     rng: &mut ProofRng,
 ) -> ZkProductProof {
-    let mut alpha = random_scalars(layout.n, rng);
-    let mut beta = random_scalars(layout.n, rng);
+    let mut alpha = random_scalars(layout.inner, rng);
+    let mut beta = random_scalars(layout.inner, rng);
     let alpha_beta = dot(&alpha, &beta);
     let cross = dot(&alpha, right_values) + dot(left_values, &beta);
     let alpha_blind = scalar_from_proof_rng(rng);
@@ -1683,9 +1797,9 @@ fn prove_zk_product(
     let cross_commit = srs.u * cross + srs.blind * cross_blind;
     let alpha_beta_commit = srs.u * alpha_beta + srs.blind * alpha_beta_blind;
     let x = challenge_commitments(
-        &srs.digest,
+        digest,
         0xD0D0,
-        layout.n,
+        layout,
         statement,
         &[
             output_commit,
@@ -1708,9 +1822,9 @@ fn prove_zk_product(
     let masked_output = output_commit + cross_commit * x + alpha_beta_commit * x2
         - srs.blind * output_response_blind;
     let xs = challenge_decouple(
-        &srs.digest,
+        digest,
         0xD0D0 ^ 0x5EC0,
-        layout.n,
+        layout,
         statement,
         &[
             output_commit,
@@ -1729,7 +1843,7 @@ fn prove_zk_product(
     );
     let proof = prove_ip_structured(
         srs,
-        layout,
+        digest,
         masked_output * xs + masked_left + masked_right,
         srs.u * xs,
         left_specs,
@@ -1753,6 +1867,7 @@ fn prove_zk_product(
 fn verify_zk_product(
     layout: &Layout,
     srs: &StructuredSrs,
+    digest: &[u8; 32],
     statement: &Statement,
     output_commit: G1Projective,
     left_commit: G1Projective,
@@ -1761,9 +1876,9 @@ fn verify_zk_product(
     kzg: &mut KzgBatch,
 ) -> bool {
     let x = challenge_commitments(
-        &srs.digest,
+        digest,
         0xD0D0,
-        layout.n,
+        layout,
         statement,
         &[
             output_commit,
@@ -1782,9 +1897,9 @@ fn verify_zk_product(
     let masked_output = output_commit + proof.cross_commit * x + proof.alpha_beta_commit * x2
         - srs.blind * proof.output_response_blind;
     let xs = challenge_decouple(
-        &srs.digest,
+        digest,
         0xD0D0 ^ 0x5EC0,
-        layout.n,
+        layout,
         statement,
         &[
             output_commit,
@@ -1803,6 +1918,7 @@ fn verify_zk_product(
     );
     verify_ip_fast(
         srs,
+        digest,
         layout,
         masked_output * xs + masked_left + masked_right,
         srs.u * xs,
@@ -1816,6 +1932,7 @@ fn verify_zk_product(
 fn prove_zk_public_ip_batch(
     layout: &Layout,
     srs: &StructuredSrs,
+    digest: &[u8; 32],
     statements: &[Statement],
     input_commit: G1Projective,
     output_commit: G1Projective,
@@ -1835,9 +1952,9 @@ fn prove_zk_public_ip_batch(
     let mask_commit = commit_specs_blinded(srs, input_specs, &alpha, alpha_blind);
     let projected_mask_commit = output_base * projected_alpha + srs.blind * projected_alpha_blind;
     let x = challenge_batch_commitments(
-        &srs.digest,
+        digest,
         domain,
-        layout.n,
+        layout,
         statements,
         &[
             input_commit,
@@ -1853,9 +1970,9 @@ fn prove_zk_public_ip_batch(
     let masked_output =
         output_commit + projected_mask_commit * x - srs.blind * projected_response_blind;
     let xs = challenge_batch_decouple(
-        &srs.digest,
+        digest,
         domain ^ 0x5EC0,
-        layout.n,
+        layout,
         statements,
         &[
             input_commit,
@@ -1867,7 +1984,7 @@ fn prove_zk_public_ip_batch(
     );
     let proof = prove_ip_structured(
         srs,
-        layout,
+        digest,
         masked_input + masked_output * xs,
         output_base * xs,
         input_specs,
@@ -1888,6 +2005,7 @@ fn prove_zk_public_ip_batch(
 fn verify_zk_public_ip_batch(
     layout: &Layout,
     srs: &StructuredSrs,
+    digest: &[u8; 32],
     statements: &[Statement],
     input_commit: G1Projective,
     output_commit: G1Projective,
@@ -1898,9 +2016,9 @@ fn verify_zk_public_ip_batch(
     kzg: &mut KzgBatch,
 ) -> bool {
     let x = challenge_batch_commitments(
-        &srs.digest,
+        digest,
         domain,
-        layout.n,
+        layout,
         statements,
         &[
             input_commit,
@@ -1913,9 +2031,9 @@ fn verify_zk_public_ip_batch(
     let masked_output = output_commit + proof.projected_mask_commit * x
         - srs.blind * proof.projected_response_blind;
     let xs = challenge_batch_decouple(
-        &srs.digest,
+        digest,
         domain ^ 0x5EC0,
-        layout.n,
+        layout,
         statements,
         &[
             input_commit,
@@ -1927,6 +2045,7 @@ fn verify_zk_public_ip_batch(
     );
     verify_ip_fast(
         srs,
+        digest,
         layout,
         masked_input + masked_output * xs,
         output_base * xs,
@@ -1940,6 +2059,7 @@ fn verify_zk_public_ip_batch(
 fn prove_zk_projection_batch(
     layout: &Layout,
     srs: &StructuredSrs,
+    digest: &[u8; 32],
     statements: &[Statement],
     input_commit: G1Projective,
     output_commit: G1Projective,
@@ -1965,9 +2085,9 @@ fn prove_zk_projection_batch(
     let projected_mask_commit =
         commit_specs_blinded(srs, output_specs, &projected_alpha, projected_alpha_blind);
     let x = challenge_batch_commitments(
-        &srs.digest,
+        digest,
         domain,
-        layout.n,
+        layout,
         statements,
         &[
             input_commit,
@@ -1983,9 +2103,9 @@ fn prove_zk_projection_batch(
     let masked_output =
         output_commit + projected_mask_commit * x - srs.blind * projected_response_blind;
     let xs = challenge_batch_decouple(
-        &srs.digest,
+        digest,
         domain ^ 0x5EC0,
-        layout.n,
+        layout,
         statements,
         &[
             input_commit,
@@ -1998,7 +2118,7 @@ fn prove_zk_projection_batch(
     let projected_specs = projection_specs_with_sep(layout, coeffs, axis_rows, xs);
     let proof = prove_ip_structured(
         srs,
-        layout,
+        digest,
         masked_input + masked_output * xs,
         G1Projective::identity(),
         &projected_specs,
@@ -2019,6 +2139,7 @@ fn prove_zk_projection_batch(
 fn verify_zk_projection_batch(
     layout: &Layout,
     srs: &StructuredSrs,
+    digest: &[u8; 32],
     statements: &[Statement],
     input_commit: G1Projective,
     output_commit: G1Projective,
@@ -2029,9 +2150,9 @@ fn verify_zk_projection_batch(
     kzg: &mut KzgBatch,
 ) -> bool {
     let x = challenge_batch_commitments(
-        &srs.digest,
+        digest,
         domain,
-        layout.n,
+        layout,
         statements,
         &[
             input_commit,
@@ -2044,9 +2165,9 @@ fn verify_zk_projection_batch(
     let masked_output = output_commit + proof.projected_mask_commit * x
         - srs.blind * proof.projected_response_blind;
     let xs = challenge_batch_decouple(
-        &srs.digest,
+        digest,
         domain ^ 0x5EC0,
-        layout.n,
+        layout,
         statements,
         &[
             input_commit,
@@ -2063,6 +2184,7 @@ fn verify_zk_projection_batch(
     };
     verify_ip_fast(
         srs,
+        digest,
         layout,
         masked_input + masked_output * xs,
         G1Projective::identity(),
@@ -2076,16 +2198,17 @@ fn verify_zk_projection_batch(
 fn prove_zk_matrix(
     layout: &Layout,
     srs: &StructuredSrs,
+    digest: &[u8; 32],
     statement: &Statement,
     witness: &Witness,
     rng: &mut ProofRng,
 ) -> ZkMatrixProof {
-    let (_y, yvec, yl, yr, ay, by, d) = projections(layout, srs, statement, witness);
-    let c_specs: Vec<_> = (0..layout.nn).map(|idx| c_spec(layout, idx)).collect();
-    let a_specs: Vec<_> = (0..layout.nn).map(|idx| a_spec(layout, idx)).collect();
-    let b_specs: Vec<_> = (0..layout.nn).map(|idx| b_spec(layout, idx)).collect();
-    let ay_specs: Vec<_> = (0..layout.n).map(|j| ay_spec(layout, j)).collect();
-    let by_specs: Vec<_> = (0..layout.n).map(|i| by_spec(layout, i)).collect();
+    let (_y, yvec, yl, yr, ay, by, d) = projections(layout, digest, statement, witness);
+    let c_specs: Vec<_> = (0..layout.c_len).map(|idx| c_spec(layout, idx)).collect();
+    let a_specs: Vec<_> = (0..layout.a_len).map(|idx| a_spec(layout, idx)).collect();
+    let b_specs: Vec<_> = (0..layout.b_len).map(|idx| b_spec(layout, idx)).collect();
+    let ay_specs: Vec<_> = (0..layout.inner).map(|j| ay_spec(layout, j)).collect();
+    let by_specs: Vec<_> = (0..layout.inner).map(|i| by_spec(layout, i)).collect();
     let d_blind = scalar_from_proof_rng(rng);
     let ay_blind = scalar_from_proof_rng(rng);
     let by_blind = scalar_from_proof_rng(rng);
@@ -2095,6 +2218,7 @@ fn prove_zk_matrix(
     let c_proj = prove_zk_public_ip(
         layout,
         srs,
+        digest,
         statement,
         statement.c_commit,
         d_commit,
@@ -2110,6 +2234,7 @@ fn prove_zk_matrix(
     let a_proj = prove_zk_projection(
         layout,
         srs,
+        digest,
         statement,
         statement.a_commit,
         ay_commit,
@@ -2126,6 +2251,7 @@ fn prove_zk_matrix(
     let b_proj = prove_zk_projection(
         layout,
         srs,
+        digest,
         statement,
         statement.b_commit,
         by_commit,
@@ -2140,8 +2266,8 @@ fn prove_zk_matrix(
         rng,
     );
     let product = prove_zk_product(
-        layout, srs, statement, d_commit, ay_commit, by_commit, &ay, &by, d_blind, ay_blind,
-        by_blind, &ay_specs, &by_specs, rng,
+        layout, srs, digest, statement, d_commit, ay_commit, by_commit, &ay, &by, d_blind,
+        ay_blind, by_blind, &ay_specs, &by_specs, rng,
     );
     ZkMatrixProof {
         d_commit,
@@ -2157,16 +2283,18 @@ fn prove_zk_matrix(
 fn verify_zk_matrix(
     layout: &Layout,
     srs: &StructuredSrs,
+    digest: &[u8; 32],
     statement: &Statement,
     proof: &ZkMatrixProof,
 ) -> bool {
-    let y = challenge_statement(&srs.digest, layout.n, statement);
-    let yvec = powers(y, layout.nn);
-    let c_specs: Vec<_> = (0..layout.nn).map(|idx| c_spec(layout, idx)).collect();
+    let y = challenge_statement(digest, layout, statement);
+    let yvec = powers(y, layout.c_len);
+    let c_specs: Vec<_> = (0..layout.c_len).map(|idx| c_spec(layout, idx)).collect();
     let mut kzg = KzgBatch::new();
     let ok = verify_zk_public_ip(
         layout,
         srs,
+        digest,
         statement,
         statement.c_commit,
         proof.d_commit,
@@ -2180,6 +2308,7 @@ fn verify_zk_matrix(
     ) && verify_zk_projection(
         layout,
         srs,
+        digest,
         statement,
         statement.a_commit,
         proof.ay_commit,
@@ -2191,6 +2320,7 @@ fn verify_zk_matrix(
     ) && verify_zk_projection(
         layout,
         srs,
+        digest,
         statement,
         statement.b_commit,
         proof.by_commit,
@@ -2202,6 +2332,7 @@ fn verify_zk_matrix(
     ) && verify_zk_product(
         layout,
         srs,
+        digest,
         statement,
         proof.d_commit,
         proof.ay_commit,
@@ -2213,38 +2344,49 @@ fn verify_zk_matrix(
 }
 
 fn self_test() {
-    for n in [2usize, 4, 8] {
-        let layout = layout(n);
+    // Square regression shapes plus rectangular (rows, inner, cols) shapes.
+    let shapes = [(2usize, 2usize, 2usize), (4, 4, 4), (8, 8, 8), (16, 32, 8), (8, 16, 64)];
+    for (rows, inner, cols) in shapes {
+        let n = rows + 3 * inner + 7 * cols; // seed diversifier
+        let layout = layout_at(0, rows, inner, cols);
         let mut rng = 0x5775_1000 + n as u64;
         let tau = scalar_from_rng(&mut rng);
-        let srs = make_srs(&layout, tau);
-        let witness = make_witness(n, 0xA11CE + n as u64);
+        let srs = make_srs(layout.srs_len, tau);
+        let witness = make_witness(&layout, 0xA11CE + n as u64);
         let core_statement = statement(&layout, &srs, &witness);
-        let mut proof = prove_matrix(&layout, &srs, &core_statement, &witness);
-        assert!(verify_matrix(&layout, &srs, &core_statement, &proof));
+        let mut proof = prove_matrix(&layout, &srs, &srs.digest, &core_statement, &witness);
+        assert!(verify_matrix(&layout, &srs, &srs.digest, &core_statement, &proof));
         proof.c_proj.b_final += Scalar::ONE;
-        assert!(!verify_matrix(&layout, &srs, &core_statement, &proof));
+        assert!(!verify_matrix(&layout, &srs, &srs.digest, &core_statement, &proof));
 
-        let mut bad_witness = make_witness(n, 0xBAD0 + n as u64);
+        let mut bad_witness = make_witness(&layout, 0xBAD0 + n as u64);
         bad_witness.c[0] += Scalar::ONE;
         let bad_statement = statement(&layout, &srs, &bad_witness);
-        let bad_proof = prove_matrix(&layout, &srs, &bad_statement, &bad_witness);
-        assert!(!verify_matrix(&layout, &srs, &bad_statement, &bad_proof));
+        let bad_proof = prove_matrix(&layout, &srs, &srs.digest, &bad_statement, &bad_witness);
+        assert!(!verify_matrix(&layout, &srs, &srs.digest, &bad_statement, &bad_proof));
 
-        let mut zk_witness = make_witness(n, 0xC0FFEE + n as u64);
+        let mut zk_witness = make_witness(&layout, 0xC0FFEE + n as u64);
         let mut zk_rng = proof_rng();
         let zk_stmt = zk_statement(&layout, &srs, &mut zk_witness, &mut zk_rng);
-        let mut zk_proof = prove_zk_matrix(&layout, &srs, &zk_stmt, &zk_witness, &mut zk_rng);
-        assert!(verify_zk_matrix(&layout, &srs, &zk_stmt, &zk_proof));
+        let mut zk_proof = prove_zk_matrix(
+            &layout,
+            &srs,
+            &srs.digest,
+            &zk_stmt,
+            &zk_witness,
+            &mut zk_rng,
+        );
+        assert!(verify_zk_matrix(&layout, &srs, &srs.digest, &zk_stmt, &zk_proof));
         zk_proof.c_proj.proof.b_final += Scalar::ONE;
-        assert!(!verify_zk_matrix(&layout, &srs, &zk_stmt, &zk_proof));
+        assert!(!verify_zk_matrix(&layout, &srs, &srs.digest, &zk_stmt, &zk_proof));
 
-        let mut bad_zk_witness = make_witness(n, 0xDEAD + n as u64);
+        let mut bad_zk_witness = make_witness(&layout, 0xDEAD + n as u64);
         bad_zk_witness.c[0] += Scalar::ONE;
         let bad_zk_statement = zk_statement(&layout, &srs, &mut bad_zk_witness, &mut zk_rng);
         let bad_zk_proof = prove_zk_matrix(
             &layout,
             &srs,
+            &srs.digest,
             &bad_zk_statement,
             &bad_zk_witness,
             &mut zk_rng,
@@ -2252,12 +2394,13 @@ fn self_test() {
         assert!(!verify_zk_matrix(
             &layout,
             &srs,
+            &srs.digest,
             &bad_zk_statement,
             &bad_zk_proof
         ));
 
         let mut batch_witnesses: Vec<_> = (0..2)
-            .map(|i| make_witness(n, 0xB47C0 + n as u64 + i as u64))
+            .map(|i| make_witness(&layout, 0xB47C0 + n as u64 + i as u64))
             .collect();
         let batch_statements: Vec<_> = batch_witnesses
             .iter()
@@ -2287,7 +2430,7 @@ fn self_test() {
         ));
 
         let mut zk_batch_witnesses: Vec<_> = (0..2)
-            .map(|i| make_witness(n, 0xAB47C0 + n as u64 + i as u64))
+            .map(|i| make_witness(&layout, 0xAB47C0 + n as u64 + i as u64))
             .collect();
         let zk_batch_statements: Vec<_> = zk_batch_witnesses
             .iter_mut()
@@ -2318,7 +2461,7 @@ fn self_test() {
         // between instances i and j after rho was derived must fail, even if
         // the prover updates the claimed rho to match the swapped ordering.
         let mut swap_witnesses: Vec<_> = (0..2)
-            .map(|i| make_witness(n, 0x5A4B_C0 + n as u64 + i as u64))
+            .map(|i| make_witness(&layout, 0x5A4B_C0 + n as u64 + i as u64))
             .collect();
         let swap_statements: Vec<_> = swap_witnesses
             .iter_mut()
@@ -2342,7 +2485,7 @@ fn self_test() {
         swap_proof.rho = challenge_batch_rho(
             &srs.digest,
             &swap_statements,
-            layout.n,
+            &layout,
             &swap_proof.d_commits,
             &swap_proof.ay_commits,
             &swap_proof.by_commits,
@@ -2373,6 +2516,7 @@ fn self_test() {
             &bad_zk_batch_proof
         ));
     }
+    equality_self_test();
     println!("structured-matrix self-test ok");
 }
 
@@ -2381,9 +2525,9 @@ fn bench(mode: &str, n: usize) {
     let mut rng = 0x5775_2000 + n as u64;
     let tau = scalar_from_rng(&mut rng);
     let start = Instant::now();
-    let srs = make_srs(&layout, tau);
+    let srs = make_srs(layout.srs_len, tau);
     let setup_s = start.elapsed().as_secs_f64();
-    let mut witness = make_witness(n, 0xBEEF + n as u64);
+    let mut witness = make_witness(&layout, 0xBEEF + n as u64);
     let start = Instant::now();
     let mut zk_rng = proof_rng();
     let statement = if mode == "zk" {
@@ -2394,23 +2538,23 @@ fn bench(mode: &str, n: usize) {
     let commit_s = start.elapsed().as_secs_f64();
     let start = Instant::now();
     let (prove_s, verify_s, verified) = if mode == "zk" {
-        let proof = prove_zk_matrix(&layout, &srs, &statement, &witness, &mut zk_rng);
+        let proof = prove_zk_matrix(&layout, &srs, &srs.digest, &statement, &witness, &mut zk_rng);
         let prove_s = start.elapsed().as_secs_f64();
         let start = Instant::now();
-        let verified = verify_zk_matrix(&layout, &srs, &statement, &proof);
+        let verified = verify_zk_matrix(&layout, &srs, &srs.digest, &statement, &proof);
         (prove_s, start.elapsed().as_secs_f64(), verified)
     } else {
-        let proof = prove_matrix(&layout, &srs, &statement, &witness);
+        let proof = prove_matrix(&layout, &srs, &srs.digest, &statement, &witness);
         let prove_s = start.elapsed().as_secs_f64();
         let start = Instant::now();
-        let verified = verify_matrix(&layout, &srs, &statement, &proof);
+        let verified = verify_matrix(&layout, &srs, &srs.digest, &statement, &proof);
         (prove_s, start.elapsed().as_secs_f64(), verified)
     };
     println!("{mode},{n},{setup_s:.9},{commit_s:.9},{prove_s:.9},{verify_s:.9},{verified}");
 }
 
-fn batch_challenges(digest: &[u8; 32], statements: &[Statement], n: usize) -> (Scalar, Scalar) {
-    let n_bytes = (n as u64).to_le_bytes();
+fn batch_challenges(digest: &[u8; 32], statements: &[Statement], layout: &Layout) -> (Scalar, Scalar) {
+    let n_bytes = shape_bytes(layout);
     let mut owned = vec![
         digest.to_vec(),
         n_bytes.to_vec(),
@@ -2430,8 +2574,8 @@ fn batch_challenges(digest: &[u8; 32], statements: &[Statement], n: usize) -> (S
     (hash_to_scalar(&y_refs), hash_to_scalar(&rho_refs))
 }
 
-fn challenge_batch_y(digest: &[u8; 32], statements: &[Statement], n: usize) -> Scalar {
-    let n_bytes = (n as u64).to_le_bytes();
+fn challenge_batch_y(digest: &[u8; 32], statements: &[Statement], layout: &Layout) -> Scalar {
+    let n_bytes = shape_bytes(layout);
     let mut owned = vec![
         b"batch-y-alg6".to_vec(),
         digest.to_vec(),
@@ -2450,7 +2594,7 @@ fn challenge_batch_y(digest: &[u8; 32], statements: &[Statement], n: usize) -> S
 fn challenge_batch_rho(
     digest: &[u8; 32],
     statements: &[Statement],
-    n: usize,
+    layout: &Layout,
     d_commits: &[G1Projective],
     ay_commits: &[G1Projective],
     by_commits: &[G1Projective],
@@ -2458,7 +2602,7 @@ fn challenge_batch_rho(
     assert_eq!(statements.len(), d_commits.len());
     assert_eq!(statements.len(), ay_commits.len());
     assert_eq!(statements.len(), by_commits.len());
-    let n_bytes = (n as u64).to_le_bytes();
+    let n_bytes = shape_bytes(layout);
     let mut owned = Vec::with_capacity(4 + 6 * statements.len());
     owned.push(b"batch-rho-alg6".to_vec());
     owned.push(digest.to_vec());
@@ -2526,7 +2670,7 @@ fn weighted_scalars(values: &[Scalar], rho_powers: &[Scalar]) -> Scalar {
 
 fn batch_decoupling_challenges(
     layout: &Layout,
-    srs: &StructuredSrs,
+    digest: &[u8; 32],
     statements: &[Statement],
     d: Scalar,
     ay_commit: G1Projective,
@@ -2534,14 +2678,10 @@ fn batch_decoupling_challenges(
 ) -> (Scalar, Scalar, Scalar, Scalar) {
     let commits = [ay_commit, by_commit];
     let scalars = [d];
-    let xc =
-        challenge_batch_decouple(&srs.digest, 0x5EC1, layout.n, statements, &commits, &scalars);
-    let xa =
-        challenge_batch_decouple(&srs.digest, 0x5EC2, layout.n, statements, &commits, &scalars);
-    let xb =
-        challenge_batch_decouple(&srs.digest, 0x5EC3, layout.n, statements, &commits, &scalars);
-    let xp =
-        challenge_batch_decouple(&srs.digest, 0x5EC4, layout.n, statements, &commits, &scalars);
+    let xc = challenge_batch_decouple(digest, 0x5EC1, layout, statements, &commits, &scalars);
+    let xa = challenge_batch_decouple(digest, 0x5EC2, layout, statements, &commits, &scalars);
+    let xb = challenge_batch_decouple(digest, 0x5EC3, layout, statements, &commits, &scalars);
+    let xp = challenge_batch_decouple(digest, 0x5EC4, layout, statements, &commits, &scalars);
     (xc, xa, xb, xp)
 }
 
@@ -2554,11 +2694,11 @@ fn prove_batch(
     assert_eq!(statements.len(), witnesses.len());
     assert!(statements.len().is_power_of_two());
     let batch = statements.len();
-    let (y, rho) = batch_challenges(&srs.digest, statements, layout.n);
+    let (y, rho) = batch_challenges(&srs.digest, statements, layout);
     let rho_powers = powers(rho, batch);
     let (yvec, yl, yr, _, _, _) = projections_with_y(layout, &witnesses[0], y);
-    let ay_specs: Vec<_> = (0..layout.n).map(|j| ay_spec(layout, j)).collect();
-    let by_specs: Vec<_> = (0..layout.n).map(|i| by_spec(layout, i)).collect();
+    let ay_specs: Vec<_> = (0..layout.inner).map(|j| ay_spec(layout, j)).collect();
+    let by_specs: Vec<_> = (0..layout.inner).map(|i| by_spec(layout, i)).collect();
 
     // Pass 1: per-instance projections and the rho-weighted aggregates that
     // the decoupling challenges must bind.
@@ -2579,7 +2719,7 @@ fn prove_batch(
     }
     let (xc, xa, xb, xp) = batch_decoupling_challenges(
         layout,
-        srs,
+        &srs.digest,
         statements,
         d_weighted,
         ay_commit_weighted,
@@ -2587,36 +2727,41 @@ fn prove_batch(
     );
 
     // Pass 2: concatenated batched vectors; the decoupling challenges are
-    // baked into the projection specs.
-    let mut c_values = Vec::with_capacity(batch * layout.nn);
-    let mut c_public = Vec::with_capacity(batch * layout.nn);
-    let mut c_specs = Vec::with_capacity(batch * layout.nn);
-    let mut a_values = Vec::with_capacity(batch * layout.nn);
-    let mut a_specs = Vec::with_capacity(batch * layout.nn);
-    let mut b_values = Vec::with_capacity(batch * layout.nn);
-    let mut b_specs = Vec::with_capacity(batch * layout.nn);
-    let mut product_a = Vec::with_capacity(batch * layout.n);
-    let mut product_b = Vec::with_capacity(batch * layout.n);
-    let mut product_g_specs = Vec::with_capacity(batch * layout.n);
-    let mut product_h_specs = Vec::with_capacity(batch * layout.n);
+    // baked into the projection specs. The three matrix windows have
+    // independent lengths for rectangular shapes.
+    let mut c_values = Vec::with_capacity(batch * layout.c_len);
+    let mut c_public = Vec::with_capacity(batch * layout.c_len);
+    let mut c_specs = Vec::with_capacity(batch * layout.c_len);
+    let mut a_values = Vec::with_capacity(batch * layout.a_len);
+    let mut a_specs = Vec::with_capacity(batch * layout.a_len);
+    let mut b_values = Vec::with_capacity(batch * layout.b_len);
+    let mut b_specs = Vec::with_capacity(batch * layout.b_len);
+    let mut product_a = Vec::with_capacity(batch * layout.inner);
+    let mut product_b = Vec::with_capacity(batch * layout.inner);
+    let mut product_g_specs = Vec::with_capacity(batch * layout.inner);
+    let mut product_h_specs = Vec::with_capacity(batch * layout.inner);
     for ((witness, &rho_i), (ay, by)) in witnesses
         .iter()
         .zip(rho_powers.iter())
         .zip(ay_all.iter().zip(by_all.iter()))
     {
-        for idx in 0..layout.nn {
+        for idx in 0..layout.c_len {
             c_values.push(witness.c[idx]);
             c_public.push(rho_i * yvec[idx]);
             c_specs.push(vec![Term {
                 offset: layout.off_c + idx,
                 coeff: rho_i,
             }]);
+        }
+        for idx in 0..layout.a_len {
             a_values.push(witness.a[idx]);
             a_specs.push(a_projection_spec(layout, idx, &yl, rho_i, xa));
+        }
+        for idx in 0..layout.b_len {
             b_values.push(witness.b[idx]);
             b_specs.push(b_projection_spec(layout, idx, &yr, rho_i, xb));
         }
-        for j in 0..layout.n {
+        for j in 0..layout.inner {
             product_a.push(ay[j]);
             product_b.push(rho_i * by[j]);
             product_g_specs.push(vec![Term {
@@ -2634,7 +2779,7 @@ fn prove_batch(
     let product_lhs = srs.u * (xp * d_weighted) + ay_commit_weighted + by_commit_weighted;
     let c_proj = prove_ip_structured(
         srs,
-        layout,
+        &srs.digest,
         c_lhs,
         srs.u * xc,
         &c_specs,
@@ -2645,7 +2790,7 @@ fn prove_batch(
     );
     let a_proj = prove_ip_structured(
         srs,
-        layout,
+        &srs.digest,
         a_lhs,
         G1Projective::identity(),
         &a_specs,
@@ -2656,7 +2801,7 @@ fn prove_batch(
     );
     let b_proj = prove_ip_structured(
         srs,
-        layout,
+        &srs.digest,
         b_lhs,
         G1Projective::identity(),
         &b_specs,
@@ -2667,7 +2812,7 @@ fn prove_batch(
     );
     let product = prove_ip_structured(
         srs,
-        layout,
+        &srs.digest,
         product_lhs,
         srs.u * xp,
         &product_g_specs,
@@ -2699,14 +2844,14 @@ fn prove_zk_batch(
     assert_eq!(statements.len(), witnesses.len());
     assert!(statements.len().is_power_of_two());
     let batch = statements.len();
-    let y = challenge_batch_y(&srs.digest, statements, layout.n);
+    let y = challenge_batch_y(&srs.digest, statements, layout);
     let (yvec, yl, yr, _, _, _) = projections_with_y(layout, &witnesses[0], y);
 
-    let c_specs: Vec<_> = (0..layout.nn).map(|idx| c_spec(layout, idx)).collect();
-    let a_specs: Vec<_> = (0..layout.nn).map(|idx| a_spec(layout, idx)).collect();
-    let b_specs: Vec<_> = (0..layout.nn).map(|idx| b_spec(layout, idx)).collect();
-    let ay_specs: Vec<_> = (0..layout.n).map(|j| ay_spec(layout, j)).collect();
-    let by_specs: Vec<_> = (0..layout.n).map(|i| by_spec(layout, i)).collect();
+    let c_specs: Vec<_> = (0..layout.c_len).map(|idx| c_spec(layout, idx)).collect();
+    let a_specs: Vec<_> = (0..layout.a_len).map(|idx| a_spec(layout, idx)).collect();
+    let b_specs: Vec<_> = (0..layout.b_len).map(|idx| b_spec(layout, idx)).collect();
+    let ay_specs: Vec<_> = (0..layout.inner).map(|j| ay_spec(layout, j)).collect();
+    let by_specs: Vec<_> = (0..layout.inner).map(|i| by_spec(layout, i)).collect();
 
     let mut d_values = Vec::with_capacity(batch);
     let mut d_blinds = Vec::with_capacity(batch);
@@ -2737,7 +2882,7 @@ fn prove_zk_batch(
     let rho = challenge_batch_rho(
         &srs.digest,
         statements,
-        layout.n,
+        layout,
         &d_commits,
         &ay_commits,
         &by_commits,
@@ -2753,13 +2898,17 @@ fn prove_zk_batch(
     let ay_blind = weighted_scalars(&ay_blinds, &rho_powers);
     let by_blind = weighted_scalars(&by_blinds, &rho_powers);
 
-    let mut a_values = vec![Scalar::ZERO; layout.nn];
-    let mut b_values = vec![Scalar::ZERO; layout.nn];
-    let mut c_values = vec![Scalar::ZERO; layout.nn];
+    let mut a_values = vec![Scalar::ZERO; layout.a_len];
+    let mut b_values = vec![Scalar::ZERO; layout.b_len];
+    let mut c_values = vec![Scalar::ZERO; layout.c_len];
     for (witness, &rho_i) in witnesses.iter().zip(rho_powers.iter()) {
-        for idx in 0..layout.nn {
+        for idx in 0..layout.a_len {
             a_values[idx] += rho_i * witness.a[idx];
+        }
+        for idx in 0..layout.b_len {
             b_values[idx] += rho_i * witness.b[idx];
+        }
+        for idx in 0..layout.c_len {
             c_values[idx] += rho_i * witness.c[idx];
         }
     }
@@ -2767,6 +2916,7 @@ fn prove_zk_batch(
     let c_proj = prove_zk_public_ip_batch(
         layout,
         srs,
+        &srs.digest,
         statements,
         c_input_commit,
         d_commit,
@@ -2782,6 +2932,7 @@ fn prove_zk_batch(
     let a_proj = prove_zk_projection_batch(
         layout,
         srs,
+        &srs.digest,
         statements,
         a_input_commit,
         ay_commit,
@@ -2798,6 +2949,7 @@ fn prove_zk_batch(
     let b_proj = prove_zk_projection_batch(
         layout,
         srs,
+        &srs.digest,
         statements,
         b_input_commit,
         by_commit,
@@ -2816,6 +2968,7 @@ fn prove_zk_batch(
             prove_zk_product(
                 layout,
                 srs,
+                &srs.digest,
                 &statements[idx],
                 d_commits[idx],
                 ay_commits[idx],
@@ -2854,7 +3007,7 @@ fn verify_batch(
         return false;
     }
     let batch = statements.len();
-    let (y, rho) = batch_challenges(&srs.digest, statements, layout.n);
+    let (y, rho) = batch_challenges(&srs.digest, statements, layout);
     if proof.y != y || proof.rho != rho {
         return false;
     }
@@ -2863,7 +3016,7 @@ fn verify_batch(
         batch_input_commitments(statements, &rho_powers);
     let (xc, xa, xb, xp) = batch_decoupling_challenges(
         layout,
-        srs,
+        &srs.digest,
         statements,
         proof.d,
         proof.ay_commit,
@@ -2876,6 +3029,7 @@ fn verify_batch(
     let mut kzg = KzgBatch::new();
     let ok = verify_ip_fast(
         srs,
+        &srs.digest,
         layout,
         c_lhs,
         srs.u * xc,
@@ -2889,6 +3043,7 @@ fn verify_batch(
         &mut kzg,
     ) && verify_ip_fast(
         srs,
+        &srs.digest,
         layout,
         a_lhs,
         G1Projective::identity(),
@@ -2903,6 +3058,7 @@ fn verify_batch(
         &mut kzg,
     ) && verify_ip_fast(
         srs,
+        &srs.digest,
         layout,
         b_lhs,
         G1Projective::identity(),
@@ -2917,6 +3073,7 @@ fn verify_batch(
         &mut kzg,
     ) && verify_ip_fast(
         srs,
+        &srs.digest,
         layout,
         product_lhs,
         srs.u * xp,
@@ -2948,11 +3105,11 @@ fn verify_zk_batch(
     {
         return false;
     }
-    let y = challenge_batch_y(&srs.digest, statements, layout.n);
+    let y = challenge_batch_y(&srs.digest, statements, layout);
     let rho = challenge_batch_rho(
         &srs.digest,
         statements,
-        layout.n,
+        layout,
         &proof.d_commits,
         &proof.ay_commits,
         &proof.by_commits,
@@ -2970,6 +3127,7 @@ fn verify_zk_batch(
     let ok = verify_zk_public_ip_batch(
         layout,
         srs,
+        &srs.digest,
         statements,
         c_input_commit,
         d_commit,
@@ -2981,6 +3139,7 @@ fn verify_zk_batch(
     ) && verify_zk_projection_batch(
         layout,
         srs,
+        &srs.digest,
         statements,
         a_input_commit,
         ay_commit,
@@ -2992,6 +3151,7 @@ fn verify_zk_batch(
     ) && verify_zk_projection_batch(
         layout,
         srs,
+        &srs.digest,
         statements,
         b_input_commit,
         by_commit,
@@ -3004,6 +3164,7 @@ fn verify_zk_batch(
         verify_zk_product(
             layout,
             srs,
+            &srs.digest,
             &statements[idx],
             proof.d_commits[idx],
             proof.ay_commits[idx],
@@ -3021,10 +3182,10 @@ fn bench_batch(mode: &str, n: usize, batch: usize) {
     let mut rng = 0x5775_3000 + n as u64 + batch as u64;
     let tau = scalar_from_rng(&mut rng);
     let start = Instant::now();
-    let srs = make_srs(&layout, tau);
+    let srs = make_srs(layout.srs_len, tau);
     let setup_s = start.elapsed().as_secs_f64();
     let mut witnesses: Vec<_> = (0..batch)
-        .map(|i| make_witness(n, 0xCAFE + n as u64 + 17 * i as u64))
+        .map(|i| make_witness(&layout, 0xCAFE + n as u64 + 17 * i as u64))
         .collect();
     let mut zk_rng = proof_rng();
     let start = Instant::now();
@@ -3099,7 +3260,7 @@ fn bench_batch_with_data(
     };
     println!(
         "{mode},{},{batch},{setup_s:.9},{commit_s:.9},{batch_prove_s:.9},{:.9},{batch_verify_s:.9},{:.9},{verified}",
-        layout.n,
+        layout.rows,
         batch_prove_s / batch as f64,
         batch_verify_s / batch as f64,
     );
@@ -3115,14 +3276,550 @@ fn bench_batch_series(mode: &str, n: usize, batches: &[usize]) {
     let mut rng = 0x5775_3000 + n as u64 + max_batch as u64;
     let tau = scalar_from_rng(&mut rng);
     let start = Instant::now();
-    let srs = make_srs(&layout, tau);
+    let srs = make_srs(layout.srs_len, tau);
     let setup_s = start.elapsed().as_secs_f64();
     let mut witnesses: Vec<_> = (0..max_batch)
-        .map(|i| make_witness(n, 0xCAFE + n as u64 + 17 * i as u64))
+        .map(|i| make_witness(&layout, 0xCAFE + n as u64 + 17 * i as u64))
         .collect();
     for &batch in batches {
         bench_batch_with_data(mode, &layout, &srs, &mut witnesses, batch, setup_s);
     }
+}
+
+// ---------------------------------------------------------------------------
+// Commitment-equality gadget (M1 layer chaining).
+//
+// Statement: `left_commit` (a blinded commitment to X over the SRS window
+// starting at `off_left`) and `right_commit` (a blinded commitment to X
+// over the disjoint window starting at `off_right`) open to the same
+// vector. The prover shows knowledge of an opening of the difference
+// `D = C_left - C_right` over the difference family
+// `{P(off_left + i) - P(off_right + i)}` plus the blind base, using the
+// same masked-IPA machinery as the projection sub-proofs: a random mask
+// vector alpha is committed, the challenge `x` (derived after both linked
+// commitments and the mask commitment are in the transcript) folds the
+// witness as `X + x * alpha`, the response blind strips the Pedersen
+// blinds, and the IPA plus Section 3 KZG opening prove the masked
+// commitment opens over the difference family. Soundness: extractors for
+// the neighbouring sub-proofs yield openings X_left (over window off_left)
+// and X_right (over window off_right); combined with the difference
+// opening X~, the exponent identity
+//   sum_i (X_left[i] - X~[i]) tau^{off_left+i}
+//     - sum_i (X_right[i] - X~[i]) tau^{off_right+i} + (b_l - b_r - b~) s
+// must vanish. With the two windows disjoint and the blind base
+// independent (hash-to-curve), a nonzero coefficient is a nontrivial
+// discrete-log relation over the SRS (AGM / q-SDH), so X_left = X~ =
+// X_right. There is no combination of two independently-opened
+// commitments here (D is a single derived commitment), so no additional
+// decoupling scalar beyond the mask challenge `x` is required.
+
+struct ZkEqualityProof {
+    mask_commit: G1Projective,
+    response_blind: Scalar,
+    proof: IpProof,
+}
+
+const EQUALITY_DOMAIN: u64 = 0xE901;
+
+fn challenge_equality(
+    digest: &[u8; 32],
+    domain: u64,
+    off_left: usize,
+    off_right: usize,
+    len: usize,
+    commitments: &[G1Projective],
+) -> Scalar {
+    let mut owned = Vec::with_capacity(6 + commitments.len());
+    owned.push(b"equality-gadget-v1".to_vec());
+    owned.push(digest.to_vec());
+    owned.push(domain.to_le_bytes().to_vec());
+    owned.push((off_left as u64).to_le_bytes().to_vec());
+    owned.push((off_right as u64).to_le_bytes().to_vec());
+    owned.push((len as u64).to_le_bytes().to_vec());
+    for commitment in commitments {
+        owned.push(commitment.to_affine().to_compressed().to_vec());
+    }
+    let refs: Vec<&[u8]> = owned.iter().map(Vec::as_slice).collect();
+    hash_to_scalar(&refs)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn prove_zk_equality(
+    srs: &StructuredSrs,
+    digest: &[u8; 32],
+    left_commit: G1Projective,
+    right_commit: G1Projective,
+    values: &[Scalar],
+    left_blind: Scalar,
+    right_blind: Scalar,
+    off_left: usize,
+    off_right: usize,
+    rng: &mut ProofRng,
+) -> ZkEqualityProof {
+    let len = values.len();
+    assert!(len.is_power_of_two());
+    let specs = equality_spec(off_left, off_right, len);
+    let mut alpha = random_scalars(len, rng);
+    let alpha_blind = scalar_from_proof_rng(rng);
+    let mask_commit = commit_specs_blinded(srs, &specs, &alpha, alpha_blind);
+    // The mask challenge binds the setup digest (through `digest`), the
+    // window offsets and both linked commitments before it is drawn.
+    let x = challenge_equality(
+        digest,
+        EQUALITY_DOMAIN,
+        off_left,
+        off_right,
+        len,
+        &[left_commit, right_commit, mask_commit],
+    );
+    let response_blind = left_blind - right_blind + x * alpha_blind;
+    mask_values(values, &mut alpha, x);
+    let masked = left_commit - right_commit + mask_commit * x - srs.blind * response_blind;
+    let proof = prove_ip_structured(
+        srs,
+        digest,
+        masked,
+        G1Projective::identity(),
+        &specs,
+        None,
+        &alpha,
+        None,
+        EQUALITY_DOMAIN ^ 0x7777,
+    );
+    ZkEqualityProof {
+        mask_commit,
+        response_blind,
+        proof,
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn verify_zk_equality(
+    srs: &StructuredSrs,
+    digest: &[u8; 32],
+    layout: &Layout,
+    left_commit: G1Projective,
+    right_commit: G1Projective,
+    off_left: usize,
+    off_right: usize,
+    len: usize,
+    proof: &ZkEqualityProof,
+    kzg: &mut KzgBatch,
+) -> bool {
+    if !len.is_power_of_two() {
+        return false;
+    }
+    let x = challenge_equality(
+        digest,
+        EQUALITY_DOMAIN,
+        off_left,
+        off_right,
+        len,
+        &[left_commit, right_commit, proof.mask_commit],
+    );
+    let masked =
+        left_commit - right_commit + proof.mask_commit * x - srs.blind * proof.response_blind;
+    verify_ip_fast(
+        srs,
+        digest,
+        layout,
+        masked,
+        G1Projective::identity(),
+        &proof.proof,
+        EQUALITY_DOMAIN ^ 0x7777,
+        FormulaKind::Equality {
+            off_left,
+            off_right,
+            len,
+        },
+        kzg,
+    )
+}
+
+/// Stand-alone equality gadget checks: valid case, mismatched vector,
+/// tampered scalar/blind, swapped commitment.
+fn equality_self_test() {
+    let rows = 4usize;
+    let inner = 8usize;
+    let cols = 16usize;
+    let layout1 = layout_at(0, rows, inner, cols);
+    let layout2 = layout_at(layout1.srs_len, rows, cols, 2);
+    let mut rng = 0xE0_1000u64;
+    let tau = scalar_from_rng(&mut rng);
+    let srs = make_srs(layout2.srs_len, tau);
+    let mut zk_rng = proof_rng();
+    let y = random_values(rows * cols, &mut rng);
+    let left_blind = scalar_from_proof_rng(&mut zk_rng);
+    let right_blind = scalar_from_proof_rng(&mut zk_rng);
+    let left = commit_window(&srs, layout1.off_c, &y, left_blind);
+    let right = commit_window(&srs, layout2.off_a, &y, right_blind);
+    let proof = prove_zk_equality(
+        &srs,
+        &srs.digest,
+        left,
+        right,
+        &y,
+        left_blind,
+        right_blind,
+        layout1.off_c,
+        layout2.off_a,
+        &mut zk_rng,
+    );
+    let run = |proof: &ZkEqualityProof, left: G1Projective, right: G1Projective| -> bool {
+        let mut kzg = KzgBatch::new();
+        verify_zk_equality(
+            &srs,
+            &srs.digest,
+            &layout1,
+            left,
+            right,
+            layout1.off_c,
+            layout2.off_a,
+            y.len(),
+            proof,
+            &mut kzg,
+        ) && kzg.finish(&srs)
+    };
+    assert!(run(&proof, left, right), "equality valid");
+    // A different committed vector on the right must fail.
+    let mut y2 = y.clone();
+    y2[0] += Scalar::ONE;
+    let right_bad = commit_window(&srs, layout2.off_a, &y2, right_blind);
+    let bad_proof = prove_zk_equality(
+        &srs,
+        &srs.digest,
+        left,
+        right_bad,
+        &y,
+        left_blind,
+        right_blind,
+        layout1.off_c,
+        layout2.off_a,
+        &mut zk_rng,
+    );
+    assert!(!run(&bad_proof, left, right_bad), "equality mismatch fails");
+    // Tampered final scalar.
+    let tampered = ZkEqualityProof {
+        mask_commit: proof.mask_commit,
+        response_blind: proof.response_blind,
+        proof: IpProof {
+            a_final: proof.proof.a_final + Scalar::ONE,
+            ..proof.proof.clone()
+        },
+    };
+    assert!(!run(&tampered, left, right), "equality tampered a_final fails");
+    // Tampered response blind.
+    let tampered_blind = ZkEqualityProof {
+        mask_commit: proof.mask_commit,
+        response_blind: proof.response_blind + Scalar::ONE,
+        proof: proof.proof.clone(),
+    };
+    assert!(!run(&tampered_blind, left, right), "equality tampered blind fails");
+    // Swapped/wrong commitment.
+    assert!(!run(&proof, right, left), "equality swapped commitments fail");
+}
+
+fn bench_rect(mode: &str, rows: usize, inner: usize, cols: usize) {
+    let layout = layout_at(0, rows, inner, cols);
+    let mut rng = 0x5775_4000 + (rows + 3 * inner + 7 * cols) as u64;
+    let tau = scalar_from_rng(&mut rng);
+    let start = Instant::now();
+    let srs = make_srs(layout.srs_len, tau);
+    let setup_s = start.elapsed().as_secs_f64();
+    let mut witness = make_witness(&layout, 0xBEEF);
+    let start = Instant::now();
+    let mut zk_rng = proof_rng();
+    let statement = if mode == "zk" {
+        zk_statement(&layout, &srs, &mut witness, &mut zk_rng)
+    } else {
+        statement(&layout, &srs, &witness)
+    };
+    let commit_s = start.elapsed().as_secs_f64();
+    let start = Instant::now();
+    let (prove_s, verify_s, verified) = if mode == "zk" {
+        let proof = prove_zk_matrix(&layout, &srs, &srs.digest, &statement, &witness, &mut zk_rng);
+        let prove_s = start.elapsed().as_secs_f64();
+        let start = Instant::now();
+        let verified = verify_zk_matrix(&layout, &srs, &srs.digest, &statement, &proof);
+        (prove_s, start.elapsed().as_secs_f64(), verified)
+    } else {
+        let proof = prove_matrix(&layout, &srs, &srs.digest, &statement, &witness);
+        let prove_s = start.elapsed().as_secs_f64();
+        let start = Instant::now();
+        let verified = verify_matrix(&layout, &srs, &srs.digest, &statement, &proof);
+        (prove_s, start.elapsed().as_secs_f64(), verified)
+    };
+    println!(
+        "{mode},{rows}x{inner}x{cols},{setup_s:.9},{commit_s:.9},{prove_s:.9},{verify_s:.9},{verified}"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Chained-inference demo (M1): Z = (X W1) W2 over one shared SRS with two
+// disjoint claim layouts. Y = X W1 is committed once under claim 1's C
+// window and once under claim 2's A window; the commitment-equality gadget
+// links the two. All Fiat-Shamir challenges bind the claim-manifest digest,
+// which covers every commitment in the DAG (the transcript-ordering rule of
+// docs/zkmatrix-poc/CLAIM_MANIFEST.md).
+
+fn chain_demo(rows: usize, k: usize, m1: usize, m2: usize) {
+    println!(
+        "structured chain-demo: X {rows}x{k}, W1 {k}x{m1}, W2 {m1}x{m2} (BLS12-381 zk track)"
+    );
+    let layout1 = layout_at(0, rows, k, m1);
+    let layout2 = layout_at(layout1.srs_len, rows, m1, m2);
+    let mut rng = 0x5775_5000u64;
+    let tau = scalar_from_rng(&mut rng);
+    let start = Instant::now();
+    let srs = make_srs(layout2.srs_len, tau);
+    println!(
+        "  srs: {} powers, {:.3}s",
+        layout2.srs_len,
+        start.elapsed().as_secs_f64()
+    );
+
+    // Witnesses: Z = (X W1) W2.
+    let x = random_values(layout1.a_len, &mut rng);
+    let w1 = random_values(layout1.b_len, &mut rng);
+    let y = matmul(&x, &w1, rows, k, m1);
+    let w2 = random_values(layout2.b_len, &mut rng);
+    let z = matmul(&y, &w2, rows, m1, m2);
+
+    // Commitments; Y is committed under both windows with independent
+    // blinds.
+    let mut zk_rng = proof_rng();
+    let start = Instant::now();
+    let x_blind = scalar_from_proof_rng(&mut zk_rng);
+    let w1_blind = scalar_from_proof_rng(&mut zk_rng);
+    let y_c_blind = scalar_from_proof_rng(&mut zk_rng);
+    let y_a_blind = scalar_from_proof_rng(&mut zk_rng);
+    let w2_blind = scalar_from_proof_rng(&mut zk_rng);
+    let z_blind = scalar_from_proof_rng(&mut zk_rng);
+    let x_commit = commit_window(&srs, layout1.off_a, &x, x_blind);
+    let w1_commit = commit_window(&srs, layout1.off_b, &w1, w1_blind);
+    let y_commit_c = commit_window(&srs, layout1.off_c, &y, y_c_blind);
+    let y_commit_a = commit_window(&srs, layout2.off_a, &y, y_a_blind);
+    let w2_commit = commit_window(&srs, layout2.off_b, &w2, w2_blind);
+    let z_commit = commit_window(&srs, layout2.off_c, &z, z_blind);
+    println!("  commit: {:.3}s", start.elapsed().as_secs_f64());
+
+    // Claim manifest: every commitment enters the statement hash before
+    // any challenge is derived; the digest seeds every transcript.
+    let build_manifest = |y_a: G1Projective, z_c: G1Projective| -> ClaimManifest {
+        let mut m = ClaimManifest::new("structured-bls12381", &srs.digest);
+        let entries = [
+            ("X", rows, k, layout1.off_a, x_commit),
+            ("W1", k, m1, layout1.off_b, w1_commit),
+            ("Y", rows, m1, layout1.off_c, y_commit_c),
+            ("Y", rows, m1, layout2.off_a, y_a),
+            ("W2", m1, m2, layout2.off_b, w2_commit),
+            ("Z", rows, m2, layout2.off_c, z_c),
+        ];
+        let mut ids = Vec::new();
+        for (label, r, c, offset, commitment) in entries {
+            ids.push(m.add_commitment(
+                label,
+                r,
+                c,
+                Orientation::RowMajor,
+                (offset as u64).to_le_bytes().to_vec(),
+                commitment.to_affine().to_compressed().to_vec(),
+            ));
+        }
+        m.add_operation(Operation::Matmul {
+            a: ids[0],
+            b: ids[1],
+            c: ids[2],
+        });
+        m.add_operation(Operation::LinkEqual {
+            left: ids[2],
+            right: ids[3],
+        });
+        m.add_operation(Operation::Matmul {
+            a: ids[3],
+            b: ids[4],
+            c: ids[5],
+        });
+        m
+    };
+    let manifest = build_manifest(y_commit_a, z_commit);
+    let ctx = manifest.digest();
+
+    let stmt1 = Statement {
+        a_commit: x_commit,
+        b_commit: w1_commit,
+        c_commit: y_commit_c,
+    };
+    let wit1 = Witness {
+        a: x.clone(),
+        b: w1.clone(),
+        c: y.clone(),
+        a_blind: x_blind,
+        b_blind: w1_blind,
+        c_blind: y_c_blind,
+    };
+    let stmt2 = Statement {
+        a_commit: y_commit_a,
+        b_commit: w2_commit,
+        c_commit: z_commit,
+    };
+    let wit2 = Witness {
+        a: y.clone(),
+        b: w2.clone(),
+        c: z.clone(),
+        a_blind: y_a_blind,
+        b_blind: w2_blind,
+        c_blind: z_blind,
+    };
+
+    let start = Instant::now();
+    let proof1 = prove_zk_matrix(&layout1, &srs, &ctx, &stmt1, &wit1, &mut zk_rng);
+    let proof2 = prove_zk_matrix(&layout2, &srs, &ctx, &stmt2, &wit2, &mut zk_rng);
+    let link = prove_zk_equality(
+        &srs,
+        &ctx,
+        y_commit_c,
+        y_commit_a,
+        &y,
+        y_c_blind,
+        y_a_blind,
+        layout1.off_c,
+        layout2.off_a,
+        &mut zk_rng,
+    );
+    println!(
+        "  prove (2 claims + link): {:.3}s",
+        start.elapsed().as_secs_f64()
+    );
+
+    // Verify: the verifier only handles commitments; Y's commitment is
+    // shared between the claims and never re-committed.
+    let verify_link = |ctx: &[u8; 32],
+                       left: G1Projective,
+                       right: G1Projective,
+                       proof: &ZkEqualityProof|
+     -> bool {
+        let mut kzg = KzgBatch::new();
+        verify_zk_equality(
+            &srs,
+            ctx,
+            &layout1,
+            left,
+            right,
+            layout1.off_c,
+            layout2.off_a,
+            y.len(),
+            proof,
+            &mut kzg,
+        ) && kzg.finish(&srs)
+    };
+    let start = Instant::now();
+    let ok1 = verify_zk_matrix(&layout1, &srs, &ctx, &stmt1, &proof1);
+    let ok2 = verify_zk_matrix(&layout2, &srs, &ctx, &stmt2, &proof2);
+    let okl = verify_link(&ctx, y_commit_c, y_commit_a, &link);
+    println!(
+        "  verify: {:.3}s (claim1={ok1} claim2={ok2} link={okl})",
+        start.elapsed().as_secs_f64()
+    );
+    assert!(ok1 && ok2 && okl, "honest chain must verify");
+
+    // Negative case 1: substitute a different Y in the second claim. Both
+    // matmul claims verify against their own statements; the equality link
+    // must reject the chain.
+    let mut y2 = y.clone();
+    y2[0] += Scalar::ONE;
+    let z2 = matmul(&y2, &w2, rows, m1, m2);
+    let y2_commit_a = commit_window(&srs, layout2.off_a, &y2, y_a_blind);
+    let z2_commit = commit_window(&srs, layout2.off_c, &z2, z_blind);
+    let manifest2 = build_manifest(y2_commit_a, z2_commit);
+    let ctx2 = manifest2.digest();
+    let stmt2b = Statement {
+        a_commit: y2_commit_a,
+        b_commit: w2_commit,
+        c_commit: z2_commit,
+    };
+    let wit2b = Witness {
+        a: y2.clone(),
+        b: w2.clone(),
+        c: z2,
+        a_blind: y_a_blind,
+        b_blind: w2_blind,
+        c_blind: z_blind,
+    };
+    let proof1b = prove_zk_matrix(&layout1, &srs, &ctx2, &stmt1, &wit1, &mut zk_rng);
+    let proof2b = prove_zk_matrix(&layout2, &srs, &ctx2, &stmt2b, &wit2b, &mut zk_rng);
+    // The cheating prover does not know an opening of the difference; it
+    // proves with the honest Y anyway.
+    let link_bad = prove_zk_equality(
+        &srs,
+        &ctx2,
+        y_commit_c,
+        y2_commit_a,
+        &y,
+        y_c_blind,
+        y_a_blind,
+        layout1.off_c,
+        layout2.off_a,
+        &mut zk_rng,
+    );
+    assert!(
+        verify_zk_matrix(&layout1, &srs, &ctx2, &stmt1, &proof1b),
+        "substituted-Y chain: claim 1 verifies standalone"
+    );
+    assert!(
+        verify_zk_matrix(&layout2, &srs, &ctx2, &stmt2b, &proof2b),
+        "substituted-Y chain: claim 2 verifies standalone"
+    );
+    assert!(
+        !verify_link(&ctx2, y_commit_c, y2_commit_a, &link_bad),
+        "substituted-Y chain: equality link must fail"
+    );
+    println!("  negative wrong-Y: claims pass standalone, link fails as required");
+
+    // Negative case 2: tampered link responses.
+    let tampered = ZkEqualityProof {
+        mask_commit: link.mask_commit,
+        response_blind: link.response_blind,
+        proof: IpProof {
+            a_final: link.proof.a_final + Scalar::ONE,
+            ..link.proof.clone()
+        },
+    };
+    assert!(
+        !verify_link(&ctx, y_commit_c, y_commit_a, &tampered),
+        "tampered link a_final must fail"
+    );
+    let tampered_blind = ZkEqualityProof {
+        mask_commit: link.mask_commit,
+        response_blind: link.response_blind + Scalar::ONE,
+        proof: link.proof.clone(),
+    };
+    assert!(
+        !verify_link(&ctx, y_commit_c, y_commit_a, &tampered_blind),
+        "tampered link blind must fail"
+    );
+
+    // Negative case 3: swapped commitments handed to the link verifier.
+    assert!(
+        !verify_link(&ctx, w1_commit, y_commit_a, &link),
+        "wrong left commitment in link must fail"
+    );
+
+    // Negative case 4: manifest reordering. Same commitments, different
+    // order => different context digest => every proof fails against it.
+    let mut reordered = manifest.clone();
+    reordered.commitments.swap(0, 1);
+    let ctx_reordered = reordered.digest();
+    assert_ne!(ctx, ctx_reordered, "reordered manifest digest must differ");
+    assert!(
+        !verify_zk_matrix(&layout1, &srs, &ctx_reordered, &stmt1, &proof1),
+        "claim proof must not verify under a reordered manifest"
+    );
+    assert!(
+        !verify_link(&ctx_reordered, y_commit_c, y_commit_a, &link),
+        "link proof must not verify under a reordered manifest"
+    );
+    println!("structured chain-demo ok");
 }
 
 fn usage() {
@@ -3131,6 +3828,8 @@ fn usage() {
     eprintln!("  structured_matrix bench <core|zk|both> <n> [n...]");
     eprintln!("  structured_matrix bench-batch <core|zk> <n> <batch_power_of_two>");
     eprintln!("  structured_matrix bench-batch-series <core|zk> <n> <batch_power_of_two>...");
+    eprintln!("  structured_matrix bench-rect <core|zk> <rows> <inner> <cols>");
+    eprintln!("  structured_matrix chain-demo [rows k m1 m2]   (default 16 32 64 8)");
 }
 
 fn main() {
@@ -3141,6 +3840,33 @@ fn main() {
     }
     match args[1].as_str() {
         "self-test" => self_test(),
+        "chain-demo" => {
+            let dims: Vec<usize> = args[2..].iter().map(|a| a.parse().unwrap()).collect();
+            match dims.len() {
+                0 => chain_demo(16, 32, 64, 8),
+                4 => chain_demo(dims[0], dims[1], dims[2], dims[3]),
+                _ => {
+                    usage();
+                    std::process::exit(1);
+                }
+            }
+        }
+        "bench-rect" => {
+            if args.len() != 6 {
+                usage();
+                std::process::exit(1);
+            }
+            let mode = args[2].as_str();
+            if mode != "core" && mode != "zk" {
+                usage();
+                std::process::exit(1);
+            }
+            let rows: usize = args[3].parse().unwrap();
+            let inner: usize = args[4].parse().unwrap();
+            let cols: usize = args[5].parse().unwrap();
+            println!("mode,shape,setup_s,commit_s,prove_s,verify_s,verified");
+            bench_rect(mode, rows, inner, cols);
+        }
         "bench" => {
             if args.len() < 4 {
                 usage();
