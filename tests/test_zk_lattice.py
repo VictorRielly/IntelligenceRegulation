@@ -18,6 +18,7 @@ from zk_lattice import (
     reference_params_pi1,
     reference_params_pi2,
     toy_params,
+    toy_params_rect,
     verify_opening,
     verify_pi1,
     verify_pi2,
@@ -33,8 +34,11 @@ def random_columns(count, length, q):
 
 def make_pi1_instance(params, key, valid=True):
     q = params.q
-    a_rows = [[secrets.randbelow(q) for _ in range(params.n)] for _ in range(params.n)]
-    b_columns = random_columns(params.m, params.n, q)
+    a_rows = [
+        [secrets.randbelow(q) for _ in range(params.inner)]
+        for _ in range(params.rows)
+    ]
+    b_columns = random_columns(params.m, params.inner, q)
     c_columns = matmul_mod(a_rows, b_columns, q)
     if not valid:
         c_columns[0][0] = (c_columns[0][0] + 1) % q
@@ -47,12 +51,15 @@ def make_pi1_instance(params, key, valid=True):
 
 def make_pi2_instance(params, key, valid=True):
     q = params.q
-    a_rows = [[secrets.randbelow(q) for _ in range(params.n)] for _ in range(params.n)]
-    b_columns = random_columns(params.m, params.n, q)
+    a_rows = [
+        [secrets.randbelow(q) for _ in range(params.inner)]
+        for _ in range(params.rows)
+    ]
+    b_columns = random_columns(params.m, params.inner, q)
     c_columns = matmul_mod(a_rows, b_columns, q)
     if not valid:
         c_columns[0][0] = (c_columns[0][0] + 1) % q
-    rho_a = [ternary_vector(params.big_n) for _ in range(params.n)]
+    rho_a = [ternary_vector(params.big_n) for _ in range(params.rows)]
     rho_b = [ternary_vector(params.big_n) for _ in range(params.m)]
     tau_c = [ternary_vector(params.big_n) for _ in range(params.m)]
     ta = commit_columns(key, a_rows, rho_a)  # A committed by rows
@@ -292,6 +299,99 @@ class Pi2Tests(unittest.TestCase):
             self.key, c_columns[0], ternary_vector(self.params.big_n)
         )
         self.assertFalse(verify_pi2(self.key, ta, tb, fresh_tc, proof))
+
+
+class RectangularTests(unittest.TestCase):
+    """Rectangular claims A: rows x inner, B: inner x cols, C: rows x cols.
+
+    The commitment message space covers the longest committed column or
+    row; shorter vectors are zero-padded. These tests keep zk_lattice a
+    valid differential oracle for the native rectangular backend.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.params = toy_params_rect(4, 8, 6, r=2)
+        cls.key = expand_crs(cls.params)
+
+    def test_pi1_rectangular_roundtrip(self):
+        a_rows, b_columns, rho_b, c_columns, tau_c, tb, tc = make_pi1_instance(
+            self.params, self.key, valid=True
+        )
+        self.assertEqual(len(a_rows), 4)
+        self.assertEqual(len(a_rows[0]), 8)
+        self.assertEqual(len(c_columns), 6)
+        self.assertEqual(len(c_columns[0]), 4)
+        proof = prove_pi1(self.key, a_rows, b_columns, rho_b, c_columns, tau_c, tb, tc)
+        self.assertTrue(verify_pi1(self.key, a_rows, tb, tc, proof))
+
+    def test_pi1_rectangular_rejects_wrong_product(self):
+        a_rows, b_columns, rho_b, c_columns, tau_c, tb, tc = make_pi1_instance(
+            self.params, self.key, valid=False
+        )
+        proof = prove_pi1(self.key, a_rows, b_columns, rho_b, c_columns, tau_c, tb, tc)
+        self.assertFalse(verify_pi1(self.key, a_rows, tb, tc, proof))
+
+    def test_pi2_rectangular_roundtrip(self):
+        (
+            a_rows,
+            rho_a,
+            b_columns,
+            rho_b,
+            c_columns,
+            tau_c,
+            ta,
+            tb,
+            tc,
+        ) = make_pi2_instance(self.params, self.key, valid=True)
+        proof = prove_pi2(
+            self.key, a_rows, rho_a, b_columns, rho_b, c_columns, tau_c, ta, tb, tc
+        )
+        self.assertTrue(verify_pi2(self.key, ta, tb, tc, proof))
+
+    def test_pi2_rectangular_rejects_wrong_product(self):
+        (
+            a_rows,
+            rho_a,
+            b_columns,
+            rho_b,
+            c_columns,
+            tau_c,
+            ta,
+            tb,
+            tc,
+        ) = make_pi2_instance(self.params, self.key, valid=False)
+        proof = prove_pi2(
+            self.key, a_rows, rho_a, b_columns, rho_b, c_columns, tau_c, ta, tb, tc
+        )
+        self.assertFalse(verify_pi2(self.key, ta, tb, tc, proof))
+
+    def test_pi2_rectangular_rejects_padding_tamper(self):
+        # A commitment carrying junk in the padding region of a C column is
+        # a commitment to a different padded vector; the derived scalar
+        # projections read only the declared row range, so an honestly
+        # generated proof no longer matches the tampered commitment group.
+        (
+            a_rows,
+            rho_a,
+            b_columns,
+            rho_b,
+            c_columns,
+            tau_c,
+            ta,
+            tb,
+            tc,
+        ) = make_pi2_instance(self.params, self.key, valid=True)
+        proof = prove_pi2(
+            self.key, a_rows, rho_a, b_columns, rho_b, c_columns, tau_c, ta, tb, tc
+        )
+        self.assertTrue(verify_pi2(self.key, ta, tb, tc, proof))
+        padded_column = list(c_columns[0]) + [1]  # junk beyond rows range
+        from zk_lattice.commitment import commit
+
+        tampered_tc = list(tc)
+        tampered_tc[0] = commit(self.key, padded_column, tau_c[0])
+        self.assertFalse(verify_pi2(self.key, ta, tb, tampered_tc, proof))
 
 
 if __name__ == "__main__":

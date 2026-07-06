@@ -84,6 +84,8 @@ def expand_crs(params: LatticeParams) -> CommitmentKey:
         params.big_n,
         params.b,
         params.r,
+        params.rows,
+        params.inner,
     )
     return CommitmentKey(params=params, g1=g1, g2=g2, crs_hash=crs_hash)
 
@@ -105,15 +107,20 @@ def vec_scale_mod(values: Sequence[int], scalar: int, q: int) -> Vector:
 
 
 def commit(key: CommitmentKey, message: Sequence[int], randomness: Sequence[int]) -> Commitment:
-    """com(x; rho) = (G1 rho, G2 rho + x)."""
+    """com(x; rho) = (G1 rho, G2 rho + pad(x)).
+
+    Messages shorter than the shared message dimension are zero-padded:
+    the result is an ordinary commitment to the padded vector.
+    """
 
     q = key.params.q
-    if len(message) != key.params.n:
-        raise ValueError("message length must equal n")
+    if len(message) > key.params.n:
+        raise ValueError("message length must not exceed n")
     if len(randomness) != key.params.big_n:
         raise ValueError("randomness length must equal N")
+    padded = [v % q for v in message] + [0] * (key.params.n - len(message))
     t1 = matvec_mod(key.g1, randomness, q)
-    t2 = vec_add_mod(matvec_mod(key.g2, randomness, q), [v % q for v in message], q)
+    t2 = vec_add_mod(matvec_mod(key.g2, randomness, q), padded, q)
     return (t1, t2)
 
 

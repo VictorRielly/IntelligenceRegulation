@@ -25,6 +25,7 @@ from .params import (
     reference_params_pi1,
     reference_params_pi2,
     toy_params,
+    toy_params_rect,
 )
 from .commitment import (
     CommitmentKey,
@@ -58,6 +59,7 @@ __all__ = [
     "reference_params_pi1",
     "reference_params_pi2",
     "toy_params",
+    "toy_params_rect",
     "verify_opening",
     "verify_pi1",
     "verify_pi2",

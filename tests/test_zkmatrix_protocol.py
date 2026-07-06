@@ -75,6 +75,36 @@ class ZkMatrixProtocolTests(unittest.TestCase):
 
         self.assertFalse(verify_zk_matmul(group, bases, statement, proof))
 
+    def test_zk_wrapper_accepts_valid_rectangular_product(self):
+        # Rectangular claim: A 2x4, B 4x8, C 2x8. The reference bases carry
+        # (rows, inner, cols) natively; this locks the rectangular path so
+        # it stays a valid differential oracle for the native backends.
+        group = make_group("small-subgroup")
+        rng = random.Random(47)
+        bases = make_bases(group, 2, 4, 8, b"test-zk-rect-valid")
+        a = random_matrix(2, 4, group.q, rng=rng, max_entry=20)
+        b = random_matrix(4, 8, group.q, rng=rng, max_entry=20)
+        c = matrix_multiply(a, b, group.q)
+        statement, witness = commit_matmul(group, bases, a, b, c, blinded=True, rng=rng)
+
+        proof = prove_zk_matmul(group, bases, statement, witness, rng=rng)
+
+        self.assertTrue(verify_zk_matmul(group, bases, statement, proof))
+
+    def test_zk_wrapper_rejects_wrong_rectangular_product(self):
+        group = make_group("small-subgroup")
+        rng = random.Random(59)
+        bases = make_bases(group, 2, 4, 8, b"test-zk-rect-invalid")
+        a = random_matrix(2, 4, group.q, rng=rng, max_entry=20)
+        b = random_matrix(4, 8, group.q, rng=rng, max_entry=20)
+        c = matrix_multiply(a, b, group.q)
+        c[1][3] = (c[1][3] + 5) % group.q
+        statement, witness = commit_matmul(group, bases, a, b, c, blinded=True, rng=rng)
+
+        proof = prove_zk_matmul(group, bases, statement, witness, rng=rng)
+
+        self.assertFalse(verify_zk_matmul(group, bases, statement, proof))
+
     def test_naive_algorithm_5_wrapper_accepts_valid_product(self):
         group = make_group("small-subgroup")
         rng = random.Random(53)

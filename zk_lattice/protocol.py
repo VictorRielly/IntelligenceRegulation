@@ -87,13 +87,29 @@ class Pi2Proof:
 
 
 def matmul_mod(a_rows: Matrix, b_columns: Matrix, q: int) -> Matrix:
-    """C = A B, returned as columns to match the commitment orientation."""
+    """C = A B, returned as columns to match the commitment orientation.
 
-    n = len(a_rows)
+    A is rows x inner (list of rows), B is inner x cols (list of columns);
+    C's columns have length rows.
+    """
+
+    rows = len(a_rows)
+    inner = len(a_rows[0])
     return [
-        [sum(a_rows[i][t] * column[t] for t in range(n)) % q for i in range(n)]
+        [
+            sum(a_rows[i][t] * column[t] for t in range(inner)) % q
+            for i in range(rows)
+        ]
         for column in b_columns
     ]
+
+
+def _pad(values: Sequence[int], length: int) -> Vector:
+    """Zero-pad into the shared message space."""
+
+    if len(values) > length:
+        raise ValueError("vector longer than the message dimension")
+    return list(values) + [0] * (length - len(values))
 
 
 def _column_combination(columns: Matrix, coefficients: Sequence[int], q: int) -> Vector:
@@ -152,9 +168,10 @@ def prove_pi1(
     q = params.q
     h0 = _statement_hash_pi1(key, a_rows, tb, tc)
     repetitions = []
+    inner = params.inner
     for ell in range(params.r):
         v = challenge_coefficients("v", params.m, params.b, h0, ell)
-        b_vec = _column_combination(b_columns, v, q)
+        b_vec = _pad(_column_combination(b_columns, v, q), params.n)
         rho_v = combine_randomness(rho_b, v)
         tau_v = combine_randomness(tau_c, v)
         while True:
@@ -162,7 +179,8 @@ def prove_pi1(
             noise = discrete_gaussian_vector(2 * params.big_n, params.sigma1)
             eta, mu = noise[: params.big_n], noise[params.big_n :]
             w = commit(key, epsilon, eta)
-            u = commit(key, matvec_mod(a_rows, epsilon, q), mu)
+            # A reads only the declared inner range of epsilon.
+            u = commit(key, matvec_mod(a_rows, epsilon[:inner], q), mu)
             gamma = challenge_scalar("gamma", params.b, h0, ell, w, u)
             z = vec_add_mod(epsilon, vec_scale_mod(b_vec, gamma, q), q)
             zeta = [eta[i] + gamma * rho_v[i] for i in range(params.big_n)]
@@ -215,7 +233,7 @@ def verify_pi1(
                 q,
             ),
         )
-        # u = (G1 xi, G2 xi + A z) - gamma T_c
+        # u = (G1 xi, G2 xi + pad(A z[:inner])) - gamma T_c
         u = (
             vec_sub_mod(
                 matvec_mod(key.g1, rep.xi, q),
@@ -225,7 +243,7 @@ def verify_pi1(
             vec_sub_mod(
                 vec_add_mod(
                     matvec_mod(key.g2, rep.xi, q),
-                    matvec_mod(a_rows, rep.z, q),
+                    _pad(matvec_mod(a_rows, rep.z[: params.inner], q), params.n),
                     q,
                 ),
                 vec_scale_mod(t_c[1], rep.gamma, q),
@@ -255,11 +273,14 @@ def prove_pi2(
     q = params.q
     h0 = _statement_hash_pi2(key, ta, tb, tc)
     repetitions = []
+    inner = params.inner
     for ell in range(params.r):
-        sv = challenge_coefficients("sv", params.n + params.m, params.b, h0, ell)
-        s, v = sv[: params.n], sv[params.n :]
-        a_vec = _row_combination(a_rows, s, q)
-        b_vec = _column_combination(b_columns, v, q)
+        sv = challenge_coefficients(
+            "sv", params.rows + params.m, params.b, h0, ell
+        )
+        s, v = sv[: params.rows], sv[params.rows :]
+        a_vec = _pad(_row_combination(a_rows, s, q), params.n)
+        b_vec = _pad(_column_combination(b_columns, v, q), params.n)
         rho_s = combine_randomness(rho_a, s)
         rho_v = combine_randomness(rho_b, v)
         tau_v = combine_randomness(tau_c, v)
@@ -272,10 +293,12 @@ def prove_pi2(
             eta_a = noise[: params.big_n]
             eta_b = noise[params.big_n : 2 * params.big_n]
             eta0 = noise[2 * params.big_n :]
-            g0 = sum(x * y for x, y in zip(eps_a, eps_b)) % q
+            # Inner products truncate to the declared inner dimension so
+            # the padding region never enters the scalar claim.
+            g0 = sum(x * y for x, y in zip(eps_a[:inner], eps_b[:inner])) % q
             g1 = (
-                sum(x * y for x, y in zip(eps_a, b_vec))
-                + sum(x * y for x, y in zip(a_vec, eps_b))
+                sum(x * y for x, y in zip(eps_a[:inner], b_vec[:inner]))
+                + sum(x * y for x, y in zip(a_vec[:inner], eps_b[:inner]))
             ) % q
             w_a = commit(key, eps_a, eta_a)
             w_b = commit(key, eps_b, eta_b)
@@ -343,14 +366,16 @@ def verify_pi2(
             > params.bound2_sq
         ):
             return False
-        sv = challenge_coefficients("sv", params.n + params.m, params.b, h0, ell)
-        s, v = sv[: params.n], sv[params.n :]
+        sv = challenge_coefficients(
+            "sv", params.rows + params.m, params.b, h0, ell
+        )
+        s, v = sv[: params.rows], sv[params.rows :]
         t_a = combine_commitments(ta, s, q)
         t_b = combine_commitments(tb, v, q)
         t_c = combine_commitments(tc, v, q)
         g_s = scalar_key(key, s)
-        # T_t = (T_c1, s^T T_c2): scalar commitment under the derived key.
-        t_t = (t_c[0], sum(s[i] * t_c[1][i] for i in range(params.n)) % q)
+        # T_t = (T_c1, s^T T_c2) restricted to the declared row range.
+        t_t = (t_c[0], sum(s[i] * t_c[1][i] for i in range(params.rows)) % q)
         gamma = rep.gamma
         gamma_sq = gamma * gamma
         w_a = (
@@ -377,7 +402,13 @@ def verify_pi2(
                 q,
             ),
         )
-        inner_z = sum(x * y for x, y in zip(rep.z_a, rep.z_b)) % q
+        inner_z = (
+            sum(
+                x * y
+                for x, y in zip(rep.z_a[: params.inner], rep.z_b[: params.inner])
+            )
+            % q
+        )
         t1_first, t1_second = rep.t1
         if len(t1_first) != params.k or not 0 <= t1_second < q:
             return False

@@ -22,6 +22,7 @@ RUST_BINARY = RUST_CRATE / "target" / "release" / "zkmatrix-rs"
 SECTION3_BINARY = RUST_CRATE / "target" / "release" / "section3_kzg"
 CURVE_IPA_BINARY = RUST_CRATE / "target" / "release" / "curve_ipa"
 STRUCTURED_MATRIX_BINARY = RUST_CRATE / "target" / "release" / "structured_matrix"
+LATTICE_MATMUL_BINARY = RUST_CRATE / "target" / "release" / "lattice_matmul"
 
 
 def python_case(mode: str, n: int, seed: int, valid: bool) -> bool:
@@ -85,6 +86,32 @@ class NativeBackendTests(unittest.TestCase):
 
     def test_structured_matrix_self_test(self):
         subprocess.run([str(STRUCTURED_MATRIX_BINARY), "self-test"], check=True)
+
+    def test_lattice_matmul_self_test(self):
+        subprocess.run([str(LATTICE_MATMUL_BINARY), "self-test"], check=True)
+
+    def test_structured_chain_demo(self):
+        # M1 exit criterion (pairing track): Z = (X W1) W2 with Y's
+        # commitment shared between the two claims through the
+        # commitment-equality gadget, plus the negative link cases.
+        result = subprocess.run(
+            [str(STRUCTURED_MATRIX_BINARY), "chain-demo", "4", "8", "16", "4"],
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+        )
+        self.assertIn("structured chain-demo ok", result.stdout)
+
+    def test_lattice_chain_demo(self):
+        # M1 exit criterion (lattice track): dual-orientation commitments
+        # linked by the transpose-consistency gadget, plus negative cases.
+        result = subprocess.run(
+            [str(LATTICE_MATMUL_BINARY), "chain-demo", "8", "16", "16", "8"],
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+        )
+        self.assertIn("lattice chain-demo ok", result.stdout)
 
 
 if __name__ == "__main__":

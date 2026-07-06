@@ -72,8 +72,8 @@ def _isqrt_ceil(value: int) -> int:
 class LatticeParams:
     """One full parameter set for Pi1 and Pi2 at a fixed matrix shape."""
 
-    n: int  # rows of A / B-message dimension
-    m: int  # columns of B and C
+    n: int  # message dimension (rows of G2); covers the longest column/row
+    m: int  # columns of B and C (v-combination count)
     q: int  # word-sized odd prime modulus
     b: int  # coefficient/challenge width: S_b = {0, ..., 2^b - 1}
     r: int  # parallel repetitions
@@ -83,6 +83,12 @@ class LatticeParams:
     # True when the set is a scaled-down toy for tests; check_constraints
     # then only enforces the completeness-relevant constraints.
     toy: bool = False
+    # Rectangular claim shape: A is rows x inner, B is inner x m,
+    # C is rows x m. Zero defaults mean the square case rows = inner = n.
+    # Committed columns/rows shorter than n are zero-padded into the
+    # shared message space (an ordinary commitment to the padded vector).
+    rows: int = 0
+    inner: int = 0
 
     # Derived integer norm data, filled in __post_init__.
     sigma_open: int = field(init=False)
@@ -97,14 +103,24 @@ class LatticeParams:
     def __post_init__(self) -> None:
         if self.n <= 0 or self.m <= 0:
             raise ValueError("matrix dimensions must be positive")
+        if self.rows == 0:
+            object.__setattr__(self, "rows", self.n)
+        if self.inner == 0:
+            object.__setattr__(self, "inner", self.n)
+        if self.rows <= 0 or self.inner <= 0:
+            raise ValueError("matrix dimensions must be positive")
+        if max(self.rows, self.inner) > self.n:
+            raise ValueError("message dimension must cover rows and inner")
         if self.b < 3 or self.b > 40:
             raise ValueError("challenge width b out of supported range")
         if self.big_n <= self.k + self.n:
             raise ValueError("randomness dimension must exceed k + n (kLWE)")
         two_b = 1 << self.b
         sqrt_n_ceil = _isqrt_ceil(self.big_n)
+        # Combination counts: v combines m columns, s combines `rows` row
+        # commitments (equal to n in the square case).
         b_rho = self.m * two_b * sqrt_n_ceil
-        b_rho_s = self.n * two_b * sqrt_n_ceil
+        b_rho_s = self.rows * two_b * sqrt_n_ceil
         b_rho_v = b_rho
 
         # Opening proof (well-formedness): center gamma * rho, |gamma| < 2^b.
@@ -184,6 +200,34 @@ class LatticeParams:
         failed = [name for name in required if not checks[name]]
         if failed:
             raise ValueError(f"parameter set violates {failed}")
+
+
+def toy_params_rect(
+    rows: int,
+    inner: int,
+    cols: int,
+    *,
+    r: int = 4,
+) -> LatticeParams:
+    """Toy parameter set for a rectangular claim A: rows x inner,
+    B: inner x cols, C: rows x cols. Message dimension is the longest
+    committed column/row; see ``toy_params`` for the security caveats."""
+
+    n = max(rows, inner)
+    params = LatticeParams(
+        n=n,
+        m=cols,
+        q=(1 << 61) - 1,
+        b=8,
+        r=r,
+        big_n=max(64, ((16 + n + 63) // 64) * 64),
+        k=16,
+        toy=True,
+        rows=rows,
+        inner=inner,
+    )
+    params.require_completeness()
+    return params
 
 
 def toy_params(n: int = 8, m: int = 8, *, r: int = 4) -> LatticeParams:
