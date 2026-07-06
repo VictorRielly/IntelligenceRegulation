@@ -30,6 +30,8 @@ Please reach out if you have further ideas on how we can make this work. victorr
 - [zkMatrix implementation guide](docs/zkmatrix-poc/IMPLEMENTATION.md): how to build, test, and benchmark the Python and Rust zkMatrix proof prototypes, including the "Deviations From The Paper" record.
 - [Review notes and roadmap](ZKMATRIX_REVIEW_NOTES.md): independent code-and-paper review; the P0 decoupling-challenge fix and P1 transcript-binding fix are now implemented across all backends.
 - `zk_lattice/`: lattice-based (post-quantum) zero-knowledge proofs of matrix multiplication — the Route-Z reference implementation of `zk-matrix-multiplication-lattice.pdf` (protocols Pi1 and Pi2, SIS/knapsack-LWE assumptions, transparent setup).
+- [Transformer proof plan](docs/zkmatrix-poc/TRANSFORMER_PROOF_PLAN.md): the formalized plan for proving a full transformer feed-forward pass (claim DAG, operation taxonomy, gadget assignments, milestones M0-M5, ranked risks).
+- [Prover optimization plan](docs/zkmatrix-poc/PROVER_OPTIMIZATIONS.md): tiered optimization plan for both provers with measured tier-0 results.
 
 ## Requirements
 
