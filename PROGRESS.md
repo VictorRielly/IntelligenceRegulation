@@ -55,9 +55,15 @@ forces U' <= 0. Both give A = ReLU(U'). Encodings disjoint since
 - [x] Merge 96dad77 into worktree branch.
 - [x] Required reading done (plan S2-4, M2 report, M0/M1 report, manifest
       spec, lattice_matmul.rs full read).
-- [ ] Baseline build + suite green check.
-- [ ] Unit 1: manifest op + gadget param generalizations (rho bounds) +
-      bias link gadget + self-test coverage for bias link/signed rec.
-- [ ] Unit 2: ffn_demo + CLI + tiny-shape run green.
-- [ ] Unit 3: Python test wiring; full suite green.
-- [ ] Unit 4: headline measurement run at 16/32/64 + M3_REPORT.md.
+- [x] Baseline build + suite green check (36/36, 43 s).
+- [x] Unit 1 (commit 850303f): manifest BiasBroadcast op; rho_bound on
+      recomposition, x_rho_bound on rescale link (both in statement hash);
+      prove/verify_bias_link; enc_i/add_groups/sub_groups/add_rhos/sub_rhos
+      helpers; self-test extended (bias link valid/tampered/ctx-swap,
+      signed recomposition valid/out-of-range). Self-test: 27 s wall, ok.
+- [x] Unit 2 (commit 41c16e3): ffn_demo + CLI. Tiny shape (4 8 8 4 7):
+      prove 35.3 s / verify 9.1 s, all honest ok, negatives N1-N7 all fail
+      as required. Per-column gadget cost ~0.65-0.7 s prove (matches M2).
+- [ ] Unit 3: Python test wiring (ffn-demo 4 8 8 4 7); full suite green.
+- [ ] Unit 4: headline measurement run at default 16 32 64 6 8
+      (expect ~5.5-6.5 min wall) + M3_REPORT.md.

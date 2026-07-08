@@ -113,6 +113,21 @@ class NativeBackendTests(unittest.TestCase):
         )
         self.assertIn("lattice chain-demo ok", result.stdout)
 
+    def test_lattice_ffn_demo(self):
+        # M3 (lattice track): one quantized FFN block -- matmul, bias link,
+        # rescale + ranges, sign-bit/Hadamard/range ReLU, transpose-linked
+        # second matmul, Class-0 residual -- proven end-to-end under one
+        # claim manifest, plus the seven-case negative battery. Tiny shape
+        # to keep the suite fast; the headline shape is measured in
+        # docs/zkmatrix-poc/M3_REPORT.md.
+        result = subprocess.run(
+            [str(LATTICE_MATMUL_BINARY), "ffn-demo", "4", "8", "8", "4", "7"],
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+        )
+        self.assertIn("lattice ffn-demo ok", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()
