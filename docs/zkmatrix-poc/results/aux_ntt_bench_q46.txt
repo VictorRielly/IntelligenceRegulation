@@ -1,0 +1,83 @@
+aux_ntt: A1 auxiliary-modulus NTT prototype
+  protocol ring Z_q[X]/(X^128 + 1), q46 = 70368744177029 (mod 8 = 5), q31 = 2147483629 (mod 8 = 5)
+  helper prime p = 18446744069414584321 = 2^64 - 2^32 + 1 (no protocol role)
+[U1] Goldilocks arithmetic + negacyclic NTT
+  ok   p - 1 factors as 2^32 * 3 * 5 * 17 * 257 * 65537
+  ok   7 generates Z_p^* (order checked at every prime factor)
+  ok   reduce128 matches slow reduction (12 edges + 10^6 random u128)
+  ok   psi^128 = -1, psi^256 = 1
+  ok   NTT roundtrip (inv o fwd = id; 200 inputs incl. 0 and p-1)
+  ok   NTT negacyclic product = schoolbook mod p (100 inputs incl. worst-case)
+  ok   X^127 * X = -1 (negacyclic wraparound)
+[U2] lifts, single-prime short-operand path, limb-split fallback
+  ok   single-prime key x ternary = schoolbook mod q (46-bit q, 50 inputs)
+  ok   worst-case magnitude (c_0 = d*(q-1)/2, 52 bits) exact (46-bit q)
+  ok   single-prime quinary x mod-q = schoolbook (46-bit q, 50 inputs)
+  ok   limb sub-product contract holds (L = 23, 46-bit q)
+  ok   limb-split general x general = schoolbook mod q (46-bit q, 50 inputs incl. worst case)
+  ok   single-prime key x ternary = schoolbook mod q (31-bit q, 50 inputs)
+  ok   worst-case magnitude (c_0 = d*(q-1)/2, 37 bits) exact (31-bit q)
+  ok   single-prime quinary x mod-q = schoolbook (31-bit q, 50 inputs)
+  ok   limb sub-product contract holds (L = 15, 31-bit q)
+  ok   limb-split general x general = schoolbook mod q (31-bit q, 50 inputs incl. worst case)
+[U3] GEMM-shaped commit kernel (A1 cached-transform vs baselines)
+  ok   A1 = ternary-schoolbook = k2 = schoolbook, small 4x6, 46-bit q
+  ok   A1 = ternary-schoolbook = k2 = schoolbook, demo 14x36, 46-bit q
+  ok   worst-case accumulator (exact c_0 = N_r*d*(q-1)/2, 59 bits < 63) exact, N_r=72, 46-bit q
+  ok   A1 = ternary-schoolbook = k2 = schoolbook, small 4x6, 31-bit q
+  ok   A1 = ternary-schoolbook = k2 = schoolbook, demo 14x36, 31-bit q
+  ok   worst-case accumulator (exact c_0 = N_r*d*(q-1)/2, 42 bits < 63) exact, N_r=26, 31-bit q
+  ok   limb-split GEMM kernel = schoolbook on 12*2^30-bounded mask columns (N_r=72, q46, incl. max-magnitude)
+[U2] capacity regimes (single Goldilocks prime: bound <= (p-1)/2, i.e. 63 bits)
+  operands (balanced magnitudes)                 log2 A   log2 B  n_acc bound bits   fits  prime config
+  (a) key x ternary, q46, FFN N_r=72                 44        0     72         59    YES  single-prime NTT
+  (a) key x ternary, q46, n2048 N_r=54               44        0     54         58    YES  single-prime NTT
+  (a) key x ternary, q31, proto N_r=26               29        0     26         42    YES  single-prime NTT
+      golden case headroom: ternary columns at q46 accumulate up to n_acc = 2047 in-domain
+  (b) key x mask 12s, q31 proto s=177186             29       21     26         63    YES  single-prime NTT
+  (b) key x mask 12s, q46 n2048 s~2^28.6             44       32     54         91     no  limb-split x3 Karatsuba
+  (b) key x mask 12s, q46 FFN s~2^30                 44       33     72         92     no  limb-split x3 Karatsuba
+      single-prime capacity at q46 ends at B <= 2047 (12*sigma), i.e. sigma <~ 170 — all protocol sigmas exceed it
+  (b') quinary chal x mod-q, q46, 1023 terms          1       44   1023         63    YES  single-prime NTT
+      combination sums c*t / sum s_i a_i stay single-prime up to n_acc = 1023 terms at q46 (chunk or partial-reduce beyond)
+  (c) general x general, q46                         44       44      1         97     no  limb-split x3 Karatsuba
+  (c) general x general, q31                         29       29      1         67     no  limb-split x3 Karatsuba
+  (c) limb sub-products (lo+hi), q46                 23       23      1         54    YES  single-prime NTT
+  (c) limb sub-products (lo+hi), q31                 15       15      1         38    YES  single-prime NTT
+      limb-split sub-products keep >= 10 bits of headroom: even general GEMMs may accumulate n_acc <= 1023 at q46
+[U4a] single ring-mult, d = 128 (median of 9 reps x 1000 mults, 1 thread)
+  method (operand regime)                         us/mult   ring-mults/s   eff MMAC/s
+  schoolbook (general x general), q46              11.513          86858       1423.1
+  schoolbook ternary-spec (key x ternary), q46      7.033         142196       2329.7
+  k2 split (general x general), q46                 5.398         185251       3035.2
+  A1 single-prime (key x ternary), q46              3.790         263875       4323.3
+  A1 limb-split (general x general), q46           10.972          91138       1493.2
+  schoolbook (general x general), q31              11.640          85914       1407.6
+  schoolbook ternary-spec (key x ternary), q31      7.088         141076       2311.4
+  k2 split (general x general), q31                 5.360         186552       3056.5
+  A1 single-prime (key x ternary), q31              3.689         271108       4441.8
+  A1 limb-split (general x general), q31           11.965          83579       1369.4
+  primitive: ntt_fwd 1061 ns, ntt_inv 1044 ns (448 butterflies each)
+[U4b] commit kernel C = G x R, q46 (median of 9 reps, 1 thread)
+  shape (rows x N_r)         method (column regime)            ms/column   ring-mults/s   eff MMAC/s  vs schb    vs k2
+  demo 14 x 36               schoolbook (any)                      5.852          86132       1411.2      1.0      0.5
+  demo 14 x 36               ternary-schoolbook (ternary)          3.736         134901       2210.2      1.6      0.8
+  demo 14 x 36               k2 split cached (any)                 2.928         172104       2819.7      2.0      1.0
+  demo 14 x 36               A1 single-prime (ternary)             0.116        4346462      71212.4     50.5     25.3
+  demo 14 x 36               A1 limb-split (mask 12s~2^33.6)        0.343        1467391      24041.7     17.0      8.5
+                             (schoolbook on mask columns: 5.869 ms/col — operand-independent as expected)
+  n2048 Pi2 31 x 54          schoolbook (any)                     20.522          81571       1336.5      1.0      0.6
+  n2048 Pi2 31 x 54          ternary-schoolbook (ternary)         13.105         127742       2092.9      1.6      1.0
+  n2048 Pi2 31 x 54          k2 split cached (any)                12.885         129920       2128.6      1.6      1.0
+  n2048 Pi2 31 x 54          A1 single-prime (ternary)             0.390        4291665      70314.6     52.6     33.0
+  n2048 Pi2 31 x 54          A1 limb-split (mask 12s~2^33.6)        1.195        1401108      22955.8     17.2     10.8
+                             (schoolbook on mask columns: 20.011 ms/col — operand-independent as expected)
+  FFN 47 x 72                schoolbook (any)                     41.152          82231       1347.3      1.0      0.5
+  FFN 47 x 72                ternary-schoolbook (ternary)         27.365         123660       2026.1      1.5      0.7
+  FFN 47 x 72                k2 split cached (any)                19.570         172922       2833.2      2.1      1.0
+  FFN 47 x 72                A1 single-prime (ternary)             0.514        6581119     107825.1     80.0     38.1
+  FFN 47 x 72                A1 limb-split (mask 12s~2^33.6)        1.645        2056862      33699.6     25.0     11.9
+                             (schoolbook on mask columns: 44.712 ms/col — operand-independent as expected)
+  scaled FFN 47 x 72 x 256 cols, A1: 0.153 s total, 5656013 ring-mults/s, 92668.1 eff MMAC/s (median of 3)
+  caveat: shared machine (sibling agent benchmarks run concurrently); medians over pinned reps.
+aux_ntt self-test ok
