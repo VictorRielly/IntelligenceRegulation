@@ -51,9 +51,18 @@ Suite: PATH=... python3 -m unittest discover -s tests  (must stay 37/37; ring_la
 
 ## Next
 - [ ] U3: DROPPED (see scope change above; A1 handled by parallel agent).
-- [ ] U4: Karatsuba on deg-64 halves (recursive, cutoff 16) folded into
-      ring-mult + commit-kernel benchmarks (methods: naive / k2 / k2+Kara
-      / k8 / k8+Kara; amortized-split GEMM commit kernels for k2/k8).
+- [x] U4/A2: generic recursive Karatsuba (correctness ref) + fixed-buffer
+      Karatsuba (kara64 depth-2 / kara16 depth-1, i128 lazy, single final
+      reduction) + amortized-split GEMM commit kernels (rows pre-split per
+      CRS, columns split per commit, one merge per output row). Section 13
+      benchmarks (min-of-batches timing, 3 consistent runs):
+      ring mult us: naive 12.2-12.8 / k2 5.7-6.2 (2.1x) / k2+Kara 4.3-4.6
+      (2.8x) / k8 3.9-4.1 (3.1x) / k8+Kara 4.2-4.4 (2.9-3.0x).
+      commit kernel us/ring-MAC (8x26): naive-ternary 9.0-9.4 / k2 6.2-6.5
+      (1.45x) / k2+Kara 2.5-2.6 (3.6x) / k8 1.9-2.0 (4.7x) / k8+Kara
+      1.10-1.17 (8.1x, ~9e5 ring-MACs/s). Karatsuba pays in GEMM (lazy
+      i128 across columns), not in single mults; A1 rows marked pending.
+      ALL GREEN.
 - [ ] U5: results into RING_MULT_BOTTLENECK.md; reconcile
       LLM_SCALE_ESTIMATE.md + ROUTE_R_DESIGN.md (mark superseded); state
       15s-gate verdict; A1 rows marked "pending -- see A1 agent".

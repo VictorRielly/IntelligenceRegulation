@@ -1357,8 +1357,368 @@ fn verify_opening_digits(
     true
 }
 
+// ===========================================================================
+// A2 (U4): Karatsuba on the split halves, and the amortized-split GEMM
+// commit kernels the measurement gate benchmarks. The split transforms
+// amortize in GEMM-shaped work exactly like NTT transforms would: A1 rows
+// are split once per CRS, each randomness column once per commit, all MACs
+// run in the split domain, one merge per output row.
+
+/// Plain (non-cyclic) polynomial product of two length-n slices, length
+/// 2n - 1, Karatsuba above `cutoff` (schoolbook with lazy u128 below).
+fn kara_polymul(zq: &Zq, a: &[u64], b: &[u64], cutoff: usize) -> Vec<u64> {
+    let n = a.len();
+    if n <= cutoff || n % 2 == 1 {
+        let mut wide = vec![0u128; 2 * n - 1];
+        for i in 0..n {
+            if a[i] == 0 {
+                continue;
+            }
+            let ai = a[i] as u128;
+            for j in 0..n {
+                wide[i + j] += ai * b[j] as u128;
+            }
+        }
+        return wide.iter().map(|&x| (x % zq.q as u128) as u64).collect();
+    }
+    let h = n / 2;
+    let (a0, a1) = a.split_at(h);
+    let (b0, b1) = b.split_at(h);
+    let p0 = kara_polymul(zq, a0, b0, cutoff);
+    let p2 = kara_polymul(zq, a1, b1, cutoff);
+    let sa: Vec<u64> = (0..h).map(|i| zq.add(a0[i], a1[i])).collect();
+    let sb: Vec<u64> = (0..h).map(|i| zq.add(b0[i], b1[i])).collect();
+    let p1 = kara_polymul(zq, &sa, &sb, cutoff);
+    let mut out = vec![0u64; 2 * n - 1];
+    for i in 0..2 * h - 1 {
+        out[i] = zq.add(out[i], p0[i]);
+        out[i + 2 * h] = zq.add(out[i + 2 * h], p2[i]);
+        let mid = zq.sub(zq.sub(p1[i], p0[i]), p2[i]);
+        out[i + h] = zq.add(out[i + h], mid);
+    }
+    out
+}
+
+/// Karatsuba slot multiplication in F_q[X]/(X^m - s).
+fn slot_mul_kara(zq: &Zq, a: &[u64], b: &[u64], s: u64, m: usize, cutoff: usize) -> Vec<u64> {
+    let wide = kara_polymul(zq, a, b, cutoff);
+    (0..m)
+        .map(|t| {
+            let hi = if t + m < 2 * m - 1 { wide[t + m] } else { 0 };
+            zq.add(wide[t], zq.mul(s, hi))
+        })
+        .collect()
+}
+
+/// k-way split multiplication with Karatsuba slot kernels.
+fn ring_mul_split_kara(ctx: &RingCtx, a: &[u64], b: &[u64], cutoff: usize) -> Poly {
+    let sa = crt_split(ctx, a);
+    let sb = crt_split(ctx, b);
+    let mut out = vec![0u64; D];
+    let m = ctx.slot_deg;
+    for i in 0..ctx.k {
+        let prod = slot_mul_kara(
+            &ctx.zq,
+            &sa[i * m..(i + 1) * m],
+            &sb[i * m..(i + 1) * m],
+            ctx.slot_roots[i],
+            m,
+            cutoff,
+        );
+        out[i * m..(i + 1) * m].copy_from_slice(&prod);
+    }
+    crt_merge(ctx, &mut out);
+    out
+}
+
+/// Amortized-split GEMM commit kernel: `a_split` holds the pre-split rows
+/// of the commitment matrix (split once per CRS -- outside the per-commit
+/// cost), `rho_mod` the mod-q randomness columns. Each column is split
+/// once, all row x column MACs run schoolbook per slot on u128 lazy
+/// accumulators, and each output row pays one fold + merge.
+fn commit_kernel_split(ctx: &RingCtx, a_split: &[Vec<u64>], rows: usize, cols: usize, rho_mod: &[Poly]) -> Vec<Poly> {
+    let zq = &ctx.zq;
+    let m = ctx.slot_deg;
+    let rho_split: Vec<Vec<u64>> = rho_mod.iter().map(|r| crt_split(ctx, r)).collect();
+    (0..rows)
+        .map(|r| {
+            // Per slot, a 2m-wide accumulator: cols * m products of < q^2
+            // each stay far below u128.
+            let mut wide = vec![0u128; 2 * D];
+            for c in 0..cols {
+                let a = &a_split[r * cols + c];
+                let x = &rho_split[c];
+                for slot in 0..ctx.k {
+                    let base = slot * m;
+                    for i in 0..m {
+                        let ai = a[base + i] as u128;
+                        if ai == 0 {
+                            continue;
+                        }
+                        for j in 0..m {
+                            wide[2 * base + i + j] += ai * x[base + j] as u128;
+                        }
+                    }
+                }
+            }
+            let mut out = vec![0u64; D];
+            for slot in 0..ctx.k {
+                let s = ctx.slot_roots[slot];
+                let base = slot * m;
+                for t in 0..m {
+                    let lo = (wide[2 * base + t] % zq.q as u128) as u64;
+                    let hi = (wide[2 * base + t + m] % zq.q as u128) as u64;
+                    out[base + t] = zq.add(lo, zq.mul(s, hi));
+                }
+            }
+            crt_merge(ctx, &mut out);
+            out
+        })
+        .collect()
+}
+
+/// Same kernel with Karatsuba slot products (per row x column x slot, with
+/// modular accumulation of the reduced products).
+fn commit_kernel_split_kara(
+    ctx: &RingCtx,
+    a_split: &[Vec<u64>],
+    rows: usize,
+    cols: usize,
+    rho_mod: &[Poly],
+    cutoff: usize,
+) -> Vec<Poly> {
+    let zq = &ctx.zq;
+    let m = ctx.slot_deg;
+    let rho_split: Vec<Vec<u64>> = rho_mod.iter().map(|r| crt_split(ctx, r)).collect();
+    (0..rows)
+        .map(|r| {
+            let mut acc = vec![0u128; 2 * D]; // reduced products (< q) accumulate lazily
+            for c in 0..cols {
+                let a = &a_split[r * cols + c];
+                let x = &rho_split[c];
+                for slot in 0..ctx.k {
+                    let base = slot * m;
+                    let prod = kara_polymul(zq, &a[base..base + m], &x[base..base + m], cutoff);
+                    for (t, &p) in prod.iter().enumerate() {
+                        acc[2 * base + t] += p as u128;
+                    }
+                }
+            }
+            let mut out = vec![0u64; D];
+            for slot in 0..ctx.k {
+                let s = ctx.slot_roots[slot];
+                let base = slot * m;
+                for t in 0..m {
+                    let lo = (acc[2 * base + t] % zq.q as u128) as u64;
+                    let hi = if t < m - 1 { (acc[2 * base + t + m] % zq.q as u128) as u64 } else { 0 };
+                    out[base + t] = zq.add(lo, zq.mul(s, hi));
+                }
+            }
+            crt_merge(ctx, &mut out);
+            out
+        })
+        .collect()
+}
+
+// ---------------------------------------------------------------------------
+// Fixed-buffer Karatsuba (the fair A2 measurement): the naive recursive
+// version above heap-allocates at every node and loses its op-count
+// advantage at these degrees; these variants run on stack arrays with i128
+// lazy combination and a single final reduction. Depth 2 for the k = 2
+// degree-64 slots (3 x 3 x 16-schoolbook), depth 1 for the k = 8 degree-16
+// slots (3 x 8-schoolbook). Bounds: operands < q < 2^60, level sums < 4q,
+// base products accumulate <= 16 terms -> < 2^8 q^2 < 2^128.
+
+#[inline]
+fn school_acc<const N: usize, const W: usize>(a: &[u64], b: &[u64], out: &mut [u128; W]) {
+    for i in 0..N {
+        if a[i] == 0 {
+            continue;
+        }
+        let ai = a[i] as u128;
+        for j in 0..N {
+            out[i + j] += ai * b[j] as u128;
+        }
+    }
+}
+
+/// 32 x 32 Karatsuba into a 63-length i128 accumulator (+=).
+fn kara32_acc(a: &[u64], b: &[u64], out: &mut [i128]) {
+    let mut p0 = [0u128; 31];
+    let mut p2 = [0u128; 31];
+    let mut p1 = [0u128; 31];
+    let mut sa = [0u64; 16];
+    let mut sb = [0u64; 16];
+    for i in 0..16 {
+        sa[i] = a[i] + a[i + 16];
+        sb[i] = b[i] + b[i + 16];
+    }
+    school_acc::<16, 31>(&a[0..16], &b[0..16], &mut p0);
+    school_acc::<16, 31>(&a[16..32], &b[16..32], &mut p2);
+    school_acc::<16, 31>(&sa, &sb, &mut p1);
+    for i in 0..31 {
+        out[i] += p0[i] as i128;
+        out[i + 32] += p2[i] as i128;
+        out[i + 16] += p1[i] as i128 - p0[i] as i128 - p2[i] as i128;
+    }
+}
+
+/// 64 x 64 Karatsuba (depth 2) into a 127-length i128 accumulator (+=).
+fn kara64_acc(a: &[u64], b: &[u64], out: &mut [i128]) {
+    let mut p0 = [0i128; 63];
+    let mut p2 = [0i128; 63];
+    let mut p1 = [0i128; 63];
+    let mut sa = [0u64; 32];
+    let mut sb = [0u64; 32];
+    for i in 0..32 {
+        sa[i] = a[i] + a[i + 32];
+        sb[i] = b[i] + b[i + 32];
+    }
+    kara32_acc(&a[0..32], &b[0..32], &mut p0);
+    kara32_acc(&a[32..64], &b[32..64], &mut p2);
+    kara32_acc(&sa, &sb, &mut p1);
+    for i in 0..63 {
+        out[i] += p0[i];
+        out[i + 64] += p2[i];
+        out[i + 32] += p1[i] - p0[i] - p2[i];
+    }
+}
+
+/// 16 x 16 Karatsuba (depth 1) into a 31-length i128 accumulator (+=).
+fn kara16_acc(a: &[u64], b: &[u64], out: &mut [i128]) {
+    let mut p0 = [0u128; 15];
+    let mut p2 = [0u128; 15];
+    let mut p1 = [0u128; 15];
+    let mut sa = [0u64; 8];
+    let mut sb = [0u64; 8];
+    for i in 0..8 {
+        sa[i] = a[i] + a[i + 8];
+        sb[i] = b[i] + b[i + 8];
+    }
+    school_acc::<8, 15>(&a[0..8], &b[0..8], &mut p0);
+    school_acc::<8, 15>(&a[8..16], &b[8..16], &mut p2);
+    school_acc::<8, 15>(&sa, &sb, &mut p1);
+    for i in 0..15 {
+        out[i] += p0[i] as i128;
+        out[i + 16] += p2[i] as i128;
+        out[i + 8] += p1[i] as i128 - p0[i] as i128 - p2[i] as i128;
+    }
+}
+
+/// Karatsuba plain product for slot degrees 16/32/64 (+= into `out`, which
+/// must hold 2m - 1 entries; entries may go negative transiently).
+fn kara_acc(a: &[u64], b: &[u64], m: usize, out: &mut [i128]) {
+    match m {
+        64 => kara64_acc(a, b, out),
+        32 => kara32_acc(a, b, out),
+        16 => kara16_acc(a, b, out),
+        _ => panic!("unsupported slot degree {m}"),
+    }
+}
+
+fn reduce_i128(zq: &Zq, x: i128) -> u64 {
+    let r = (x % zq.q as i128) as i64;
+    zq.to_mod(r)
+}
+
+/// Slot product via fixed-buffer Karatsuba: F_q[X]/(X^m - s).
+fn slot_mul_kara_fast(zq: &Zq, a: &[u64], b: &[u64], s: u64, m: usize) -> Vec<u64> {
+    let mut wide = vec![0i128; 2 * m - 1];
+    kara_acc(a, b, m, &mut wide);
+    (0..m)
+        .map(|t| {
+            let lo = reduce_i128(zq, wide[t]);
+            let hi = if t + m < 2 * m - 1 { reduce_i128(zq, wide[t + m]) } else { 0 };
+            zq.add(lo, zq.mul(s, hi))
+        })
+        .collect()
+}
+
+/// k-way split multiplication with fixed-buffer Karatsuba slot kernels.
+fn ring_mul_split_kara_fast(ctx: &RingCtx, a: &[u64], b: &[u64]) -> Poly {
+    let sa = crt_split(ctx, a);
+    let sb = crt_split(ctx, b);
+    let mut out = vec![0u64; D];
+    let m = ctx.slot_deg;
+    for i in 0..ctx.k {
+        let prod = slot_mul_kara_fast(
+            &ctx.zq,
+            &sa[i * m..(i + 1) * m],
+            &sb[i * m..(i + 1) * m],
+            ctx.slot_roots[i],
+            m,
+        );
+        out[i * m..(i + 1) * m].copy_from_slice(&prod);
+    }
+    crt_merge(ctx, &mut out);
+    out
+}
+
+/// Amortized-split GEMM commit kernel with fixed-buffer Karatsuba MACs:
+/// the i128 slot accumulators absorb whole columns before the single
+/// reduction (cols * 2^8 q^2 must stay below 2^127 -- fine to ~2^40 cols
+/// at q31).
+fn commit_kernel_split_kara_fast(
+    ctx: &RingCtx,
+    a_split: &[Vec<u64>],
+    rows: usize,
+    cols: usize,
+    rho_mod: &[Poly],
+) -> Vec<Poly> {
+    let zq = &ctx.zq;
+    let m = ctx.slot_deg;
+    let rho_split: Vec<Vec<u64>> = rho_mod.iter().map(|r| crt_split(ctx, r)).collect();
+    (0..rows)
+        .map(|r| {
+            let mut wide = vec![0i128; 2 * D];
+            for c in 0..cols {
+                let a = &a_split[r * cols + c];
+                let x = &rho_split[c];
+                for slot in 0..ctx.k {
+                    let base = slot * m;
+                    kara_acc(
+                        &a[base..base + m],
+                        &x[base..base + m],
+                        m,
+                        &mut wide[2 * base..2 * base + 2 * m - 1],
+                    );
+                }
+            }
+            let mut out = vec![0u64; D];
+            for slot in 0..ctx.k {
+                let s = ctx.slot_roots[slot];
+                let base = slot * m;
+                for t in 0..m {
+                    let lo = reduce_i128(zq, wide[2 * base + t]);
+                    let hi = if t < m - 1 { reduce_i128(zq, wide[2 * base + t + m]) } else { 0 };
+                    out[base + t] = zq.add(lo, zq.mul(s, hi));
+                }
+            }
+            crt_merge(ctx, &mut out);
+            out
+        })
+        .collect()
+}
+
 // ---------------------------------------------------------------------------
 // Self-test.
+
+/// Min-of-batches timing: robust against transient load from the other
+/// agents sharing this machine (the per-batch minimum approximates the
+/// unloaded rate).
+fn time_us<F: FnMut()>(reps: usize, mut f: F) -> f64 {
+    let batches = 5;
+    let per = (reps / batches).max(1);
+    let mut best = f64::INFINITY;
+    for _ in 0..batches {
+        let t = Instant::now();
+        for _ in 0..per {
+            f();
+        }
+        best = best.min(t.elapsed().as_secs_f64() * 1e6 / per as f64);
+    }
+    best
+}
 
 fn assert_true(label: &str, cond: bool) {
     if cond {
@@ -1896,6 +2256,137 @@ fn main() {
     println!(
         "  digit prove {dprove_ms:.1} ms, verify {dverify_ms:.1} ms, proof ~{dig_kb:.1} KB (L = {DIGIT_L} digit statements + responses)"
     );
+
+    // =====================================================================
+    // --- 13. U4/A2: ring-mult and commit-kernel benchmarks by method -----
+    println!("\nU4/A2: multiplication and commit-kernel benchmarks (single-thread, this machine)");
+
+    // Correctness of the Karatsuba kernels first.
+    let kara2 = ring_mul_split_kara(&ctx2, &a, &b, 16);
+    assert_true("k = 2 split + Karatsuba matches legacy negacyclic mul", kara2 == ab);
+    let bx8: Poly = (0..D).map(|_| rng_field_g(&mut rnd8, Q8)).collect();
+    let by8: Poly = (0..D).map(|_| rng_field_g(&mut rnd8, Q8)).collect();
+    assert_true(
+        "k = 8 split + Karatsuba matches schoolbook at q8",
+        ring_mul_split_kara(&ctx8, &bx8, &by8, 8) == poly_mul_g(&zq8, &bx8, &by8),
+    );
+    assert_true(
+        "fixed-buffer Karatsuba matches (k = 2 and k = 8)",
+        ring_mul_split_kara_fast(&ctx2, &a, &b) == ab
+            && ring_mul_split_kara_fast(&ctx8, &bx8, &by8) == poly_mul_g(&zq8, &bx8, &by8),
+    );
+    // Commit kernels against the naive matvec baseline (same rho).
+    let rho_mod: Vec<Poly> = rho.iter().map(|r| poly_from_small(r)).collect();
+    let a1_split2: Vec<Vec<u64>> = crs.a1.iter().map(|p| crt_split(&ctx2, p)).collect();
+    let t1_naive = ring_matvec_small(&crs.a1, KAPPA, &rho);
+    assert_true(
+        "k = 2 amortized-split commit kernel matches naive matvec",
+        commit_kernel_split(&ctx2, &a1_split2, KAPPA, N_R, &rho_mod) == t1_naive,
+    );
+    assert_true(
+        "k = 2 amortized-split Karatsuba commit kernel matches",
+        commit_kernel_split_kara(&ctx2, &a1_split2, KAPPA, N_R, &rho_mod, 16) == t1_naive,
+    );
+    let rho8_mod: Vec<Poly> = rho8.iter().map(|r| poly_from_small_g(&zq8, r)).collect();
+    let a1_split8: Vec<Vec<u64>> = crs8.a1.iter().map(|p| crt_split(&ctx8, p)).collect();
+    assert_true(
+        "k = 8 amortized-split commit kernel matches naive matvec at q8",
+        commit_kernel_split(&ctx8, &a1_split8, KAPPA, N_R, &rho8_mod) == t1_8,
+    );
+    assert_true(
+        "k = 8 amortized-split Karatsuba commit kernel matches at q8",
+        commit_kernel_split_kara(&ctx8, &a1_split8, KAPPA, N_R, &rho8_mod, 8) == t1_8,
+    );
+    assert_true(
+        "fixed-buffer Karatsuba commit kernels match (k = 2 and k = 8)",
+        commit_kernel_split_kara_fast(&ctx2, &a1_split2, KAPPA, N_R, &rho_mod) == t1_naive
+            && commit_kernel_split_kara_fast(&ctx8, &a1_split8, KAPPA, N_R, &rho8_mod) == t1_8,
+    );
+
+    // Single ring multiplication, end to end (split + slot muls + merge).
+    let mut sink = 0u64;
+    let naive_us = time_us(2000, || {
+        let p = poly_mul(&a, &b);
+        sink ^= p[0];
+    });
+    let naive8_us = time_us(2000, || {
+        let p = poly_mul_g(&zq8, &bx8, &by8);
+        sink ^= p[0];
+    });
+    let k2_us = time_us(2000, || {
+        let p = ring_mul_split(&ctx2, &a, &b);
+        sink ^= p[0];
+    });
+    let k2k_us = time_us(2000, || {
+        let p = ring_mul_split_kara_fast(&ctx2, &a, &b);
+        sink ^= p[0];
+    });
+    let k8_us = time_us(5000, || {
+        let p = ring_mul_split(&ctx8, &bx8, &by8);
+        sink ^= p[0];
+    });
+    let k8k_us = time_us(5000, || {
+        let p = ring_mul_split_kara_fast(&ctx8, &bx8, &by8);
+        sink ^= p[0];
+    });
+    std::hint::black_box(sink);
+    println!("  ring multiplication (d = 128, one product, transforms included):");
+    println!("    | method | us/mul | vs naive |");
+    for (name, us) in [
+        ("naive schoolbook @q31      ", naive_us),
+        ("naive schoolbook @q8       ", naive8_us),
+        ("k = 2 split @q31           ", k2_us),
+        ("k = 2 split + Kara @q31    ", k2k_us),
+        ("k = 8 split @q8            ", k8_us),
+        ("k = 8 split + Kara @q8     ", k8k_us),
+    ] {
+        println!("    | {name} | {us:6.2} | {:5.2}x |", naive_us / us);
+    }
+    println!("    | aux-NTT (A1)               |  pending -- see A1 agent |");
+
+    // Commit kernel, GEMM shape kappa x N_R = {KAPPA} x {N_R}: key rows
+    // pre-split once per CRS (amortized), columns split once per commit.
+    let macs = (KAPPA * N_R) as f64;
+    let com_naive_us = time_us(30, || {
+        let t = ring_matvec_small(&crs.a1, KAPPA, &rho);
+        sink ^= t[0][0];
+    });
+    let com_k2_us = time_us(60, || {
+        let t = commit_kernel_split(&ctx2, &a1_split2, KAPPA, N_R, &rho_mod);
+        sink ^= t[0][0];
+    });
+    let com_k2k_us = time_us(60, || {
+        let t = commit_kernel_split_kara_fast(&ctx2, &a1_split2, KAPPA, N_R, &rho_mod);
+        sink ^= t[0][0];
+    });
+    let com_k8_us = time_us(200, || {
+        let t = commit_kernel_split(&ctx8, &a1_split8, KAPPA, N_R, &rho8_mod);
+        sink ^= t[0][0];
+    });
+    let com_k8k_us = time_us(200, || {
+        let t = commit_kernel_split_kara_fast(&ctx8, &a1_split8, KAPPA, N_R, &rho8_mod);
+        sink ^= t[0][0];
+    });
+    std::hint::black_box(sink);
+    println!(
+        "  commit kernel t1 = A1 rho ({KAPPA} x {N_R} ring MACs; naive exploits ternary sparsity, split kernels are dense):"
+    );
+    println!("    | method | us/commit | us/ring-MAC | ring-MACs/s | vs naive |");
+    for (name, us) in [
+        ("naive i128 matvec (ternary) ", com_naive_us),
+        ("k = 2 amortized split       ", com_k2_us),
+        ("k = 2 split + Karatsuba     ", com_k2k_us),
+        ("k = 8 amortized split @q8   ", com_k8_us),
+        ("k = 8 split + Karatsuba @q8 ", com_k8k_us),
+    ] {
+        println!(
+            "    | {name} | {us:8.1} | {:6.3} | {:.2e} | {:5.2}x |",
+            us / macs,
+            macs / us * 1e6,
+            com_naive_us / us
+        );
+    }
+    println!("    | aux-NTT GEMM (A1)          |  pending -- see A1 agent |");
 
     println!("ring_lattice self-test ok");
 }
