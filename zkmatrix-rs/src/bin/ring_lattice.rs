@@ -24,6 +24,20 @@
 use sha2::{Digest, Sha256};
 use std::time::Instant;
 
+// A1 auxiliary-modulus NTT kernels (shared module, promoted from the
+// aux_ntt.rs prototype by the integration tranche; see
+// docs/zkmatrix-poc/A1_AUX_NTT_REPORT.md Section 5). Everything imported
+// here is an EVALUATION strategy over the Goldilocks helper prime
+// p = 2^64 - 2^32 + 1: outputs are bit-identical mod q to the schoolbook and
+// split kernels (differential battery in the self-test), and p plays no
+// protocol role.
+#[path = "../aux_ntt_core.rs"]
+mod aux_ntt_core;
+use aux_ntt_core::{
+    a1_combination_sum, a1_regime_path, build_tables, max_n_acc, ring_mul_q_limbsplit,
+    ring_mul_q_single, sqrt_m1, A1CommitKernel, A1GemmKernel, NttTables,
+};
+
 // ---------------------------------------------------------------------------
 // Modulus and ring constants.
 
@@ -472,6 +486,98 @@ fn expand_crs(seed: u64) -> Crs {
     Crs { a1, a2, crs_hash: hasher.finalize().into() }
 }
 
+// ---------------------------------------------------------------------------
+// A1 integration: per-CRS cached NTT-domain key rows + regime-dispatched
+// kernels (the aux-NTT tranche; kernels in src/aux_ntt_core.rs). The cache
+// is built once at CRS-expansion time; its memory delta is reported in the
+// self-test. Every A1 path is bit-identical mod q to the schoolbook/split
+// kernels it replaces.
+
+struct A1Paths {
+    nt: NttTables,
+    /// Stacked [A1; A2] rows, ternary-randomness contract b = 1 (regime a,
+    /// the golden case): the commit kernel. One column transform serves both
+    /// t1 and t2.
+    commit: A1CommitKernel,
+    /// A1 rows, Gaussian-operand contract b = 12 * sigma_max (regime b; the
+    /// bound also covers digit witnesses, |u_j| <= 2^(e-1) << 12 sigma).
+    /// Single-prime at the q31-class moduli, limb-split at q46-class —
+    /// chosen AUTOMATICALLY by the capacity check.
+    mask: A1GemmKernel,
+    /// A1 rows, verifier-response contract b = max ceil(sqrt(bound_sq)):
+    /// the verifier norm-checks BEFORE this matvec, so the contract bound is
+    /// sound for adversarial responses too. Falls back to limb-split at the
+    /// prototype moduli (the response bound exceeds single-prime capacity).
+    verify: A1GemmKernel,
+}
+
+impl A1Paths {
+    fn cached_bytes(&self) -> usize {
+        self.commit.cached_bytes() + self.mask.cached_bytes() + self.verify.cached_bytes()
+    }
+}
+
+fn build_a1_paths(crs: &Crs, q: u64, sigma_max: u64, resp_inf_max: u128) -> A1Paths {
+    let nt = build_tables();
+    let mut stacked = crs.a1.clone();
+    stacked.extend(crs.a2.iter().cloned());
+    let commit = A1CommitKernel::new(&stacked, KAPPA + MSG_R, N_R, q, 1, &nt);
+    let mask = A1GemmKernel::new(&crs.a1, KAPPA, N_R, q, 12 * sigma_max as u128, &nt);
+    let verify = A1GemmKernel::new(&crs.a1, KAPPA, N_R, q, resp_inf_max, &nt);
+    A1Paths { nt, commit, mask, verify }
+}
+
+/// Kernel selector: the pre-A1 schoolbook/split kernels (kept as the
+/// differential oracle) or the integrated A1 NTT paths. Proofs and
+/// commitments are bit-identical either way — asserted by the same-seed
+/// battery in the self-test.
+enum KernelPath<'a> {
+    School,
+    A1(&'a A1Paths),
+}
+
+/// floor(sqrt(x)): the per-coordinate contract bound implied by an l2^2
+/// response bound (|z_i| <= sqrt(sum z_i^2) <= sqrt(bound_sq)).
+fn isqrt_u128(x: u128) -> u128 {
+    let mut r = (x as f64).sqrt() as u128;
+    while r > 0 && r * r > x {
+        r -= 1;
+    }
+    while (r + 1) * (r + 1) <= x {
+        r += 1;
+    }
+    r
+}
+
+/// Derive-time A1 kernel-regime policy for one parameter point: check every
+/// kernel regime's product-coefficient bound against the helper-prime
+/// capacity and print the chosen path (single-prime vs limb-split). A
+/// parameter set whose regimes fit NOTHING fails loudly HERE — at derive
+/// time, never silently at prove time. Mirrors a1_capacity_report in
+/// scripts/route_r_params.py.
+fn print_a1_regime_table(label: &str, q: u64, sigma: u64, resp_inf: u128) {
+    println!("  A1 kernel regimes at {label} (n_acc = N_R = {N_R}; policy = derive-time, kernels re-assert at construction):");
+    let regimes: [(String, usize, u128); 4] = [
+        ("commit: key x ternary rho (b = 1)".to_string(), N_R, 1),
+        (format!("mask:   key x Gaussian y (b = 12 sigma = {})", 12 * sigma as u128), N_R, 12 * sigma as u128),
+        (format!("verify: key x response z (b = |z|_inf <= {resp_inf})"), N_R, resp_inf),
+        (format!("gate:   general x general (b = (q-1)/2 = {})", (q - 1) / 2), 1, ((q - 1) / 2) as u128),
+    ];
+    for (name, n_acc, b) in regimes {
+        match a1_regime_path(n_acc, q, b) {
+            Some(path) => println!("    {name:<58} -> {path}"),
+            None => panic!(
+                "A1 regime '{name}' fits neither single-prime nor limb-split at q = {q} — parameter set rejected at derive time"
+            ),
+        }
+    }
+    println!(
+        "    comb-sum: quinary c x mod-q (b = 2){:<24} -> single-prime, chunked at {} terms",
+        "",
+        max_n_acc(((q - 1) / 2) as u128, 2)
+    );
+}
+
 /// rows x N_R ring matrix times a small-integer ring vector (entries |.| <=
 /// bound_small so i128 lazy accumulation is exact).
 fn ring_matvec_small(m: &[Poly], rows: usize, v: &[Vec<i64>]) -> Vec<Poly> {
@@ -507,9 +613,20 @@ fn ring_matvec_small(m: &[Poly], rows: usize, v: &[Vec<i64>]) -> Vec<Poly> {
         .collect()
 }
 
-fn commit(crs: &Crs, x: &[Poly], rho: &[Vec<i64>]) -> (Vec<Poly>, Vec<Poly>) {
-    let t1 = ring_matvec_small(&crs.a1, KAPPA, rho);
-    let mut t2 = ring_matvec_small(&crs.a2, MSG_R, rho);
+fn commit(path: &KernelPath, crs: &Crs, x: &[Poly], rho: &[Vec<i64>]) -> (Vec<Poly>, Vec<Poly>) {
+    let (t1, mut t2) = match path {
+        KernelPath::School => (
+            ring_matvec_small(&crs.a1, KAPPA, rho),
+            ring_matvec_small(&crs.a2, MSG_R, rho),
+        ),
+        KernelPath::A1(p) => {
+            // Stacked [A1; A2] kernel: the column transforms are shared by
+            // both output blocks (regime a, single-prime).
+            let mut out = p.commit.commit_column(rho, &p.nt);
+            let t2 = out.split_off(KAPPA);
+            (out, t2)
+        }
+    };
     for (t, xi) in t2.iter_mut().zip(x.iter()) {
         *t = poly_add(t, xi);
     }
@@ -588,6 +705,7 @@ fn challenge_from(h0: &[u8; 32], w: &[Poly]) -> Vec<i64> {
 }
 
 fn prove_opening(
+    path: &KernelPath,
     sp: &SigmaParams,
     crs: &Crs,
     t1: &[Poly],
@@ -601,7 +719,11 @@ fn prove_opening(
         attempts += 1;
         let y: Vec<Vec<i64>> =
             (0..N_R).map(|_| gaussian_ivec(rng, D, sp.sigma)).collect();
-        let w = ring_matvec_small(&crs.a1, KAPPA, &y);
+        // Mask commitment (regime b): |y| <= 12 sigma by the sampler window.
+        let w = match path {
+            KernelPath::School => ring_matvec_small(&crs.a1, KAPPA, &y),
+            KernelPath::A1(p) => p.mask.commit_column(&y, &p.nt),
+        };
         let c = challenge_from(&h0, &w);
         // center v = c * rho, response z = y + v, both exact over Z.
         let v: Vec<Vec<i64>> = rho.iter().map(|r| poly_mul_small(&c, r)).collect();
@@ -619,6 +741,7 @@ fn prove_opening(
 }
 
 fn verify_opening(
+    path: &KernelPath,
     sp: &SigmaParams,
     crs: &Crs,
     t1: &[Poly],
@@ -629,17 +752,27 @@ fn verify_opening(
         return false;
     }
     // Norm check first: exact integers (the +q overflow test below shows the
-    // mod-q checks alone cannot catch a shifted response).
+    // mod-q checks alone cannot catch a shifted response). It also
+    // establishes |z|_inf <= sqrt(bound_sq) BEFORE the A1 verify kernel runs,
+    // so that kernel's contract bound holds for adversarial responses too.
     let flat: Vec<i64> = proof.z.iter().flatten().copied().collect();
     if vec_norm_sq_i64(&flat) > sp.bound_sq {
         return false;
     }
     let h0 = statement_hash(crs, t1, ctx);
     let c = challenge_from(&h0, &proof.w);
-    let lhs = ring_matvec_small(&crs.a1, KAPPA, &proof.z);
+    let lhs = match path {
+        KernelPath::School => ring_matvec_small(&crs.a1, KAPPA, &proof.z),
+        KernelPath::A1(p) => p.verify.commit_column(&proof.z, &p.nt),
+    };
     let c_mod = poly_from_small(&c);
     for i in 0..KAPPA {
-        let rhs = poly_add(&proof.w[i], &poly_mul(&c_mod, &t1[i]));
+        // c * t1: quinary x mod-q (regime b'), single-prime on the A1 path.
+        let ct = match path {
+            KernelPath::School => poly_mul(&c_mod, &t1[i]),
+            KernelPath::A1(p) => ring_mul_q_single(&t1[i], &c, Q, &p.nt),
+        };
+        let rhs = poly_add(&proof.w[i], &ct);
         if lhs[i] != rhs {
             return false;
         }
@@ -967,6 +1100,19 @@ fn rng_field_g(rng: &mut u64, q: u64) -> u64 {
     }
 }
 
+/// Uniform draw below an arbitrary bound (rejection on the top bits;
+/// rng_field_g above is hardwired to 31-bit moduli — the q46 regression
+/// battery needs 46-bit candidates).
+fn rng_below_g(rng: &mut u64, bound: u64) -> u64 {
+    let shift = bound.leading_zeros();
+    loop {
+        let v = splitmix64(rng) >> shift;
+        if v < bound {
+            return v;
+        }
+    }
+}
+
 fn expand_crs_g(seed: u64, q: u64) -> Crs {
     let mut reader = XofReader::new("A1A2-g", &[&seed.to_le_bytes(), &q.to_le_bytes()]);
     let next_field = |reader: &mut XofReader| loop {
@@ -1061,6 +1207,7 @@ fn statement_hash_g(q: u64, crs: &Crs, t1: &[Poly], ctx: &[u8]) -> [u8; 32] {
 }
 
 fn prove_opening_g(
+    path: &KernelPath,
     ctx_ring: &RingCtx,
     sp: &SigmaParams,
     crs: &Crs,
@@ -1074,7 +1221,11 @@ fn prove_opening_g(
     loop {
         attempts += 1;
         let y: Vec<Vec<i64>> = (0..N_R).map(|_| gaussian_ivec(rng, D, sp.sigma)).collect();
-        let w = ring_matvec_small_g(&ctx_ring.zq, &crs.a1, KAPPA, N_R, &y);
+        // Mask commitment (regime b): |y| <= 12 sigma by the sampler window.
+        let w = match path {
+            KernelPath::School => ring_matvec_small_g(&ctx_ring.zq, &crs.a1, KAPPA, N_R, &y),
+            KernelPath::A1(p) => p.mask.commit_column(&y, &p.nt),
+        };
         let c = challenge_from(&h0, &w);
         let v: Vec<Vec<i64>> = rho.iter().map(|r| poly_mul_small(&c, r)).collect();
         let z: Vec<Vec<i64>> = y
@@ -1091,6 +1242,7 @@ fn prove_opening_g(
 }
 
 fn verify_opening_g(
+    path: &KernelPath,
     ctx_ring: &RingCtx,
     sp: &SigmaParams,
     crs: &Crs,
@@ -1101,17 +1253,27 @@ fn verify_opening_g(
     if proof.w.len() != KAPPA || proof.z.len() != N_R {
         return false;
     }
+    // Norm check BEFORE the response matvec: it establishes the A1 verify
+    // kernel's contract bound |z|_inf <= sqrt(bound_sq) for adversarial z.
     let flat: Vec<i64> = proof.z.iter().flatten().copied().collect();
     if vec_norm_sq_i64(&flat) > sp.bound_sq {
         return false;
     }
     let h0 = statement_hash_g(ctx_ring.zq.q, crs, t1, ctx);
     let c = challenge_from(&h0, &proof.w);
-    let lhs = ring_matvec_small_g(&ctx_ring.zq, &crs.a1, KAPPA, N_R, &proof.z);
+    let lhs = match path {
+        KernelPath::School => ring_matvec_small_g(&ctx_ring.zq, &crs.a1, KAPPA, N_R, &proof.z),
+        KernelPath::A1(p) => p.verify.commit_column(&proof.z, &p.nt),
+    };
     let c_mod = poly_from_small_g(&ctx_ring.zq, &c);
     for i in 0..KAPPA {
-        // The verifier's ring multiplication runs on the k-way split kernel.
-        let rhs = poly_add_g(&ctx_ring.zq, &proof.w[i], &ring_mul_split(ctx_ring, &c_mod, &t1[i]));
+        // The verifier's ring multiplication: k-way split kernel on the
+        // oracle path, quinary x mod-q single-prime (regime b') on A1.
+        let ct = match path {
+            KernelPath::School => ring_mul_split(ctx_ring, &c_mod, &t1[i]),
+            KernelPath::A1(p) => ring_mul_q_single(&t1[i], &c, ctx_ring.zq.q, &p.nt),
+        };
+        let rhs = poly_add_g(&ctx_ring.zq, &proof.w[i], &ct);
         if lhs[i] != rhs {
             return false;
         }
@@ -1253,6 +1415,7 @@ fn digit_challenge(h0: &[u8; 32], w: &[Vec<Poly>]) -> Vec<i64> {
 /// mismatched ones; the verifier's recombination check is what catches it).
 /// Returns (proof, rejection attempts, concentration restarts).
 fn prove_opening_digits(
+    path: &KernelPath,
     ctx_ring: &RingCtx,
     dp: &DigitParams,
     crs: &Crs,
@@ -1263,8 +1426,15 @@ fn prove_opening_digits(
 ) -> (DigitOpeningProof, usize, usize) {
     let zq = &ctx_ring.zq;
     let u_dig = digit_split_witness(u, DIGIT_E, DIGIT_L);
-    let t_digits: Vec<Vec<Poly>> =
-        u_dig.iter().map(|uj| ring_matvec_small_g(zq, &crs.a1, KAPPA, N_R, uj)).collect();
+    // Digit-witness commitments: |u_j| <= 2^(e-1) << 12 sigma, so the mask
+    // kernel's contract covers them.
+    let t_digits: Vec<Vec<Poly>> = u_dig
+        .iter()
+        .map(|uj| match path {
+            KernelPath::School => ring_matvec_small_g(zq, &crs.a1, KAPPA, N_R, uj),
+            KernelPath::A1(p) => p.mask.commit_column(uj, &p.nt),
+        })
+        .collect();
     let h0 = digit_statement_hash(zq.q, crs, t, &t_digits, ctx);
     let mut attempts = 0usize;
     let mut restarts = 0usize;
@@ -1273,8 +1443,13 @@ fn prove_opening_digits(
         let y: Vec<Vec<Vec<i64>>> = (0..DIGIT_L)
             .map(|_| (0..N_R).map(|_| gaussian_ivec(rng, D, dp.sigma)).collect())
             .collect();
-        let w: Vec<Vec<Poly>> =
-            y.iter().map(|yj| ring_matvec_small_g(zq, &crs.a1, KAPPA, N_R, yj)).collect();
+        let w: Vec<Vec<Poly>> = y
+            .iter()
+            .map(|yj| match path {
+                KernelPath::School => ring_matvec_small_g(zq, &crs.a1, KAPPA, N_R, yj),
+                KernelPath::A1(p) => p.mask.commit_column(yj, &p.nt),
+            })
+            .collect();
         let c = digit_challenge(&h0, &w);
         let v: Vec<Vec<Vec<i64>>> = u_dig
             .iter()
@@ -1305,6 +1480,7 @@ fn prove_opening_digits(
 }
 
 fn verify_opening_digits(
+    path: &KernelPath,
     ctx_ring: &RingCtx,
     dp: &DigitParams,
     crs: &Crs,
@@ -1341,14 +1517,24 @@ fn verify_opening_digits(
     if vec_norm_sq_i64(&flat) > dp.bound_sq {
         return false;
     }
-    // 3. Per-digit Sigma equations, ring mults on the split kernel.
+    // 3. Per-digit Sigma equations. Ring mults: split kernel on the oracle
+    //    path, quinary x mod-q single-prime on A1. The bundle norm check in
+    //    step 2 runs BEFORE this, establishing the A1 verify kernel's
+    //    per-coordinate contract bound for adversarial responses.
     let h0 = digit_statement_hash(zq.q, crs, t, &proof.t_digits, ctx);
     let c = digit_challenge(&h0, &proof.w);
     let c_mod = poly_from_small_g(zq, &c);
     for j in 0..DIGIT_L {
-        let lhs = ring_matvec_small_g(zq, &crs.a1, KAPPA, N_R, &proof.z[j]);
+        let lhs = match path {
+            KernelPath::School => ring_matvec_small_g(zq, &crs.a1, KAPPA, N_R, &proof.z[j]),
+            KernelPath::A1(p) => p.verify.commit_column(&proof.z[j], &p.nt),
+        };
         for r in 0..KAPPA {
-            let rhs = poly_add_g(zq, &proof.w[j][r], &ring_mul_split(ctx_ring, &c_mod, &proof.t_digits[j][r]));
+            let ct = match path {
+                KernelPath::School => ring_mul_split(ctx_ring, &c_mod, &proof.t_digits[j][r]),
+                KernelPath::A1(p) => ring_mul_q_single(&proof.t_digits[j][r], &c, zq.q, &p.nt),
+            };
+            let rhs = poly_add_g(zq, &proof.w[j][r], &ct);
             if lhs[r] != rhs {
                 return false;
             }
@@ -1829,6 +2015,11 @@ fn main() {
         (sp.bound_sq as f64).log2(),
         (sp.beta as f64).log2()
     );
+    // A1 capacity policy joins the C0-C4 chain at derive time (P0 line):
+    // every kernel regime at this (k, q, sigma) must fit a helper-prime
+    // path, or the parameter set fails loudly here.
+    assert_eq!(D, aux_ntt_core::D, "shared A1 module ring degree mismatch");
+    print_a1_regime_table("(k = 2, q = 2^31 - 19)", Q, sp.sigma, isqrt_u128(sp.bound_sq));
     println!(
         "  soundness: |C| = 5^{D} = 2^{:.1}; knowledge error <= 2/|C| + 2*5^-{D} = 2^{:.1}; FS budget (Q+1)^2 * eps = 2^{:.1} <= 2^-128",
         128.0 * 5f64.log2(),
@@ -1837,45 +2028,65 @@ fn main() {
     );
 
     // --- 6. commitment + one full Sigma round ---------------------------
+    // The commit path, the mask commitments, the verifier matvec and the
+    // c * t1 products all run on the INTEGRATED A1 kernels here; the
+    // schoolbook path stays available as KernelPath::School and the
+    // differential battery (section 13) asserts bit-identity.
     let t_crs = Instant::now();
     let crs = expand_crs(42);
+    let a1p = build_a1_paths(&crs, Q, sp.sigma, isqrt_u128(sp.bound_sq));
     let crs_ms = t_crs.elapsed().as_secs_f64() * 1e3;
+    let a1_path = KernelPath::A1(&a1p);
+    println!(
+        "  A1 cached NTT-domain CRS (k=2 point): {:.1} KB total = commit [A1;A2] {:.1} KB + mask[{}] {:.1} KB + verify[{}] {:.1} KB (report Sec. 5: ~3.2 MB for the commit cache alone at FFN 47x72)",
+        a1p.cached_bytes() as f64 / 1024.0,
+        a1p.commit.cached_bytes() as f64 / 1024.0,
+        a1p.mask.path(),
+        a1p.mask.cached_bytes() as f64 / 1024.0,
+        a1p.verify.path(),
+        a1p.verify.cached_bytes() as f64 / 1024.0,
+    );
     let x: Vec<Poly> = (0..MSG_R).map(|_| (0..D).map(|_| rng_field(&mut rng)).collect()).collect();
     let rho: Vec<Vec<i64>> = (0..N_R).map(|_| rng_ternary_poly(&mut rng)).collect();
     let t_com = Instant::now();
-    let (t1, _t2) = commit(&crs, &x, &rho);
+    let (t1, t2) = commit(&a1_path, &crs, &x, &rho);
     let com_ms = t_com.elapsed().as_secs_f64() * 1e3;
+    let (t1_school, t2_school) = commit(&KernelPath::School, &crs, &x, &rho);
+    assert_true(
+        "commit: A1 stacked kernel = schoolbook matvec, t1 AND t2 bit-identical (k=2, q31)",
+        t1 == t1_school && t2 == t2_school,
+    );
 
     let ctx = b"route-r-prototype-manifest-digest";
     let t_prove = Instant::now();
-    let (proof, attempts) = prove_opening(&sp, &crs, &t1, &rho, ctx, &mut rng);
+    let (proof, attempts) = prove_opening(&a1_path, &sp, &crs, &t1, &rho, ctx, &mut rng);
     let prove_ms = t_prove.elapsed().as_secs_f64() * 1e3;
     let t_verify = Instant::now();
-    let ok = verify_opening(&sp, &crs, &t1, ctx, &proof);
+    let ok = verify_opening(&a1_path, &sp, &crs, &t1, ctx, &proof);
     let verify_ms = t_verify.elapsed().as_secs_f64() * 1e3;
     assert_true(&format!("valid opening proof verifies (attempts = {attempts})"), ok);
 
-    // --- 7. negative battery --------------------------------------------
+    // --- 7. negative battery (runs on the integrated A1 verifier) --------
     let mut bad = OpeningProof { w: proof.w.clone(), z: proof.z.clone() };
     bad.z[0][0] += 1;
-    assert_true("tampered response coordinate fails", !verify_opening(&sp, &crs, &t1, ctx, &bad));
+    assert_true("tampered response coordinate fails", !verify_opening(&a1_path, &sp, &crs, &t1, ctx, &bad));
     let mut bad_w = OpeningProof { w: proof.w.clone(), z: proof.z.clone() };
     bad_w.w[0][0] = addm(bad_w.w[0][0], 1);
-    assert_true("tampered first message fails", !verify_opening(&sp, &crs, &t1, ctx, &bad_w));
+    assert_true("tampered first message fails", !verify_opening(&a1_path, &sp, &crs, &t1, ctx, &bad_w));
     assert_true(
         "wrong context (manifest digest) fails",
-        !verify_opening(&sp, &crs, &t1, b"other-ctx", &proof),
+        !verify_opening(&a1_path, &sp, &crs, &t1, b"other-ctx", &proof),
     );
     let mut t1_bad = t1.clone();
     t1_bad[0][0] = addm(t1_bad[0][0], 1);
-    assert_true("wrong statement fails", !verify_opening(&sp, &crs, &t1_bad, ctx, &proof));
+    assert_true("wrong statement fails", !verify_opening(&a1_path, &sp, &crs, &t1_bad, ctx, &proof));
     // Norm overflow: add q to one integer coordinate. Every mod-q check is
     // unchanged; only the exact-integer norm check can catch it.
     let mut overflow = OpeningProof { w: proof.w.clone(), z: proof.z.clone() };
     overflow.z[0][0] += Q as i64;
     assert_true(
         "+q norm-overflow response fails (norm check only)",
-        !verify_opening(&sp, &crs, &t1, ctx, &overflow),
+        !verify_opening(&a1_path, &sp, &crs, &t1, ctx, &overflow),
     );
 
     // --- 8. extraction: 2 transcripts -> relaxed opening via LS18 -------
@@ -2069,53 +2280,88 @@ fn main() {
         (sp_8.beta as f64).log2(),
         (Q8 as f64).log2() - (8.0 * sp_8.beta as f64).log2(),
     );
+    // The q8 A1 cache serves BOTH the plain k = 8 round and the digit round
+    // (section 12), so its mask/verify contract bounds take the max over the
+    // two rounds' sigma and response bounds. The digit params therefore
+    // derive here (they also feed the regime table).
+    let dp = derive_digit_params(Q8);
     let crs8 = expand_crs_g(43, Q8);
+    let a1p8 = build_a1_paths(
+        &crs8,
+        Q8,
+        sp_8.sigma.max(dp.sigma),
+        isqrt_u128(sp_8.bound_sq.max(dp.bound_sq)),
+    );
+    let a1_path8 = KernelPath::A1(&a1p8);
+    println!(
+        "  A1 cached NTT-domain CRS (k=8 point): {:.1} KB total = commit [A1;A2] {:.1} KB + mask[{}] {:.1} KB + verify[{}] {:.1} KB",
+        a1p8.cached_bytes() as f64 / 1024.0,
+        a1p8.commit.cached_bytes() as f64 / 1024.0,
+        a1p8.mask.path(),
+        a1p8.mask.cached_bytes() as f64 / 1024.0,
+        a1p8.verify.path(),
+        a1p8.verify.cached_bytes() as f64 / 1024.0,
+    );
+    print_a1_regime_table(
+        "(k = 8, q8 = 2^31 - 399)",
+        Q8,
+        sp_8.sigma.max(dp.sigma),
+        isqrt_u128(sp_8.bound_sq.max(dp.bound_sq)),
+    );
     let rho8: Vec<Vec<i64>> = (0..N_R).map(|_| rng_ternary_poly(&mut rng)).collect();
-    let t1_8 = ring_matvec_small_g(&zq8, &crs8.a1, KAPPA, N_R, &rho8);
+    let t1_8 = {
+        let mut out = a1p8.commit.commit_column(&rho8, &a1p8.nt);
+        out.truncate(KAPPA);
+        out
+    };
+    assert_true(
+        "k = 8 statement commit: A1 stacked kernel = schoolbook matvec (bit-identical)",
+        t1_8 == ring_matvec_small_g(&zq8, &crs8.a1, KAPPA, N_R, &rho8),
+    );
     let ctx_bytes8 = b"route-r-k8-manifest-digest";
     let t_prove8 = Instant::now();
-    let (proof8, attempts8) = prove_opening_g(&ctx8, &sp_8, &crs8, &t1_8, &rho8, ctx_bytes8, &mut rng);
+    let (proof8, attempts8) = prove_opening_g(&a1_path8, &ctx8, &sp_8, &crs8, &t1_8, &rho8, ctx_bytes8, &mut rng);
     let prove8_ms = t_prove8.elapsed().as_secs_f64() * 1e3;
     let t_verify8 = Instant::now();
-    let ok8 = verify_opening_g(&ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &proof8);
+    let ok8 = verify_opening_g(&a1_path8, &ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &proof8);
     let verify8_ms = t_verify8.elapsed().as_secs_f64() * 1e3;
     assert_true(&format!("k = 8 valid opening proof verifies (attempts = {attempts8})"), ok8);
     let mut bad8 = OpeningProof { w: proof8.w.clone(), z: proof8.z.clone() };
     bad8.z[0][0] += 1;
     assert_true(
         "k = 8 tampered response coordinate fails",
-        !verify_opening_g(&ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &bad8),
+        !verify_opening_g(&a1_path8, &ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &bad8),
     );
     let mut bad8w = OpeningProof { w: proof8.w.clone(), z: proof8.z.clone() };
     bad8w.w[0][0] = zq8.add(bad8w.w[0][0], 1);
     assert_true(
         "k = 8 tampered first message fails",
-        !verify_opening_g(&ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &bad8w),
+        !verify_opening_g(&a1_path8, &ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &bad8w),
     );
     assert_true(
         "k = 8 wrong context fails",
-        !verify_opening_g(&ctx8, &sp_8, &crs8, &t1_8, b"other-ctx", &proof8),
+        !verify_opening_g(&a1_path8, &ctx8, &sp_8, &crs8, &t1_8, b"other-ctx", &proof8),
     );
     let mut t1_8bad = t1_8.clone();
     t1_8bad[0][0] = zq8.add(t1_8bad[0][0], 1);
     assert_true(
         "k = 8 wrong statement fails",
-        !verify_opening_g(&ctx8, &sp_8, &crs8, &t1_8bad, ctx_bytes8, &proof8),
+        !verify_opening_g(&a1_path8, &ctx8, &sp_8, &crs8, &t1_8bad, ctx_bytes8, &proof8),
     );
     let mut overflow8 = OpeningProof { w: proof8.w.clone(), z: proof8.z.clone() };
     overflow8.z[0][0] += Q8 as i64;
     assert_true(
         "k = 8 +q norm-overflow response fails (norm check only)",
-        !verify_opening_g(&ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &overflow8),
+        !verify_opening_g(&a1_path8, &ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &overflow8),
     );
-    println!("  k = 8 prove {prove8_ms:.1} ms, verify {verify8_ms:.1} ms");
+    println!("  k = 8 prove {prove8_ms:.1} ms, verify {verify8_ms:.1} ms (A1 kernels)");
 
     // =====================================================================
     // --- 12. Q2: digit-decomposed opening round at (k = 8, q8) -----------
     println!(
         "\nQ2: digit-decomposed opening round at (k = 8, q8), e = {DIGIT_E}, L = {DIGIT_L}, ||u||_inf <= {WIT_W}"
     );
-    let dp = derive_digit_params(Q8);
+    // dp derived in section 11 (it sizes the shared q8 A1 cache).
     println!(
         "  digit chain: sigma=2^{:.1} beta=2^{:.1}; C2 8*beta=2^{:.1} < q8=2^31.0 (headroom {:.1} bits)",
         (dp.sigma as f64).log2(),
@@ -2143,18 +2389,24 @@ fn main() {
     }
     assert_true("balanced digit decompose/recombine round-trip on [-W, W]", digit_ok);
 
-    // Combination-magnitude witness and its statement.
+    // Combination-magnitude witness and its statement. The statement commit
+    // runs on the A1 mask-path kernel (|u| <= 2^10 << 12 sigma is inside its
+    // contract), with a bit-identity check against the schoolbook matvec.
     let u_wide: Vec<Vec<i64>> = (0..N_R)
         .map(|_| (0..D).map(|_| (splitmix64(&mut rng) % (2 * WIT_W as u64 + 1)) as i64 - WIT_W).collect())
         .collect();
-    let t_wide = ring_matvec_small_g(&zq8, &crs8.a1, KAPPA, N_R, &u_wide);
+    let t_wide = a1p8.mask.commit_column(&u_wide, &a1p8.nt);
+    assert_true(
+        "combination-witness statement: A1 mask-path kernel = schoolbook matvec (|u| <= 2^10)",
+        t_wide == ring_matvec_small_g(&zq8, &crs8.a1, KAPPA, N_R, &u_wide),
+    );
     let ctx_bytes_d = b"route-r-q2-digit-manifest";
     let t_dprove = Instant::now();
     let (dproof, dattempts, drestarts) =
-        prove_opening_digits(&ctx8, &dp, &crs8, &t_wide, &u_wide, ctx_bytes_d, &mut rng);
+        prove_opening_digits(&a1_path8, &ctx8, &dp, &crs8, &t_wide, &u_wide, ctx_bytes_d, &mut rng);
     let dprove_ms = t_dprove.elapsed().as_secs_f64() * 1e3;
     let t_dverify = Instant::now();
-    let dok = verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &dproof);
+    let dok = verify_opening_digits(&a1_path8, &ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &dproof);
     let dverify_ms = t_dverify.elapsed().as_secs_f64() * 1e3;
     assert_true(
         &format!("digit opening proof verifies (attempts = {dattempts}, restarts = {drestarts})"),
@@ -2171,7 +2423,7 @@ fn main() {
     bad_d.z[1][0][0] += 1;
     assert_true(
         "wrong digit (tampered digit response) fails",
-        !verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &bad_d),
+        !verify_opening_digits(&a1_path8, &ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &bad_d),
     );
     // (b) digit out of range: a malicious decomposition that still
     // recombines to u (digit 0 shifted by 2^17, digit 1 compensating by
@@ -2217,7 +2469,7 @@ fn main() {
         let cheat = DigitOpeningProof { t_digits, w, z };
         assert_true(
             "digit out of range (recombining but oversized digits) fails",
-            !verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &cheat),
+            !verify_opening_digits(&a1_path8, &ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &cheat),
         );
     }
     // (c) recombination mismatch: honest digit rounds on a DIFFERENT
@@ -2230,16 +2482,16 @@ fn main() {
             })
             .collect();
         let (cheat, _, _) =
-            prove_opening_digits(&ctx8, &dp, &crs8, &t_wide, &u_other, ctx_bytes_d, &mut rng);
+            prove_opening_digits(&a1_path8, &ctx8, &dp, &crs8, &t_wide, &u_other, ctx_bytes_d, &mut rng);
         assert_true(
             "recombination mismatch (digits of a different witness) fails",
-            !verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &cheat),
+            !verify_opening_digits(&a1_path8, &ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &cheat),
         );
     }
     // (d) context binding and (e) +q overflow, as in the other rounds.
     assert_true(
         "digit round wrong context fails",
-        !verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, b"other-ctx", &dproof),
+        !verify_opening_digits(&a1_path8, &ctx8, &dp, &crs8, &t_wide, b"other-ctx", &dproof),
     );
     let mut over_d = DigitOpeningProof {
         t_digits: dproof.t_digits.clone(),
@@ -2249,7 +2501,7 @@ fn main() {
     over_d.z[0][0][0] += Q8 as i64;
     assert_true(
         "digit round +q norm-overflow fails (norm check only)",
-        !verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &over_d),
+        !verify_opening_digits(&a1_path8, &ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &over_d),
     );
     let dig_kb = (DIGIT_L * KAPPA * D * 2 * 31) as f64 / 8.0 / 1024.0
         + (DIGIT_L * N_Z) as f64 * ((dp.sigma as f64).log2() + 4.0) / 8.0 / 1024.0;
@@ -2258,7 +2510,224 @@ fn main() {
     );
 
     // =====================================================================
-    // --- 13. U4/A2: ring-mult and commit-kernel benchmarks by method -----
+    // --- 13. A1 integration: differential + capacity-boundary battery ----
+    // The A1 kernels are an evaluation strategy: every path must be
+    // BIT-IDENTICAL mod q to the schoolbook/split kernels, on random inputs
+    // AND on adversarially-large-magnitude inputs sitting at the exact
+    // capacity boundary. Same-seed proving demonstrates transcript-level
+    // identity (any single differing bit in w would change the Fiat-Shamir
+    // challenge and every downstream byte).
+    println!("\nA1 integration: differential + capacity-boundary battery (kernels: src/aux_ntt_core.rs)");
+    let nt = &a1p8.nt;
+
+    // (a) same-seed transcript identity, k = 2 legacy round at q31.
+    {
+        let mut r_a = 0xd1ff_0001u64;
+        let mut r_b = r_a;
+        let (pf_s, at_s) = prove_opening(&KernelPath::School, &sp, &crs, &t1, &rho, ctx, &mut r_a);
+        let (pf_a, at_a) = prove_opening(&a1_path, &sp, &crs, &t1, &rho, ctx, &mut r_b);
+        assert_true(
+            "same-seed prove (k=2, q31): schoolbook and A1 paths emit BIT-IDENTICAL proofs",
+            at_s == at_a && pf_s.w == pf_a.w && pf_s.z == pf_a.z,
+        );
+        assert_true(
+            "cross-path verification (k=2): A1 proof passes schoolbook verifier and vice versa",
+            verify_opening(&KernelPath::School, &sp, &crs, &t1, ctx, &pf_a)
+                && verify_opening(&a1_path, &sp, &crs, &t1, ctx, &pf_s),
+        );
+    }
+    // (b) same-seed transcript identity, k = 8 round at q8.
+    {
+        let mut r_a = 0xd1ff_0002u64;
+        let mut r_b = r_a;
+        let (pf_s, at_s) =
+            prove_opening_g(&KernelPath::School, &ctx8, &sp_8, &crs8, &t1_8, &rho8, ctx_bytes8, &mut r_a);
+        let (pf_a, at_a) =
+            prove_opening_g(&a1_path8, &ctx8, &sp_8, &crs8, &t1_8, &rho8, ctx_bytes8, &mut r_b);
+        assert_true(
+            "same-seed prove (k=8, q8): schoolbook and A1 paths emit BIT-IDENTICAL proofs",
+            at_s == at_a && pf_s.w == pf_a.w && pf_s.z == pf_a.z,
+        );
+        assert_true(
+            "cross-path verification (k=8): A1 proof passes split-kernel verifier and vice versa",
+            verify_opening_g(&KernelPath::School, &ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &pf_a)
+                && verify_opening_g(&a1_path8, &ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &pf_s),
+        );
+    }
+    // (c) same-seed transcript identity, digit round at q8.
+    {
+        let mut r_a = 0xd1ff_0003u64;
+        let mut r_b = r_a;
+        let (pf_s, at_s, rs_s) = prove_opening_digits(
+            &KernelPath::School, &ctx8, &dp, &crs8, &t_wide, &u_wide, ctx_bytes_d, &mut r_a,
+        );
+        let (pf_a, at_a, rs_a) =
+            prove_opening_digits(&a1_path8, &ctx8, &dp, &crs8, &t_wide, &u_wide, ctx_bytes_d, &mut r_b);
+        assert_true(
+            "same-seed digit prove (k=8, q8): BIT-IDENTICAL proofs (t_digits, w, z)",
+            at_s == at_a && rs_s == rs_a && pf_s.t_digits == pf_a.t_digits
+                && pf_s.w == pf_a.w && pf_s.z == pf_a.z,
+        );
+        assert_true(
+            "cross-path digit verification (A1 proof under split verifier and vice versa)",
+            verify_opening_digits(&KernelPath::School, &ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &pf_a)
+                && verify_opening_digits(&a1_path8, &ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &pf_s),
+        );
+    }
+
+    // (d) capacity-boundary commits at BOTH prototype moduli: key rows in
+    // the +-M pattern (M = (q-1)/2), all-ones ternary columns, full N_R
+    // accumulation — the exact integer output coefficient c_0 = N_R * d * M
+    // sits exactly at the regime-(a) bound; checked against the closed form
+    // and the schoolbook matvec.
+    for &(q, label) in &[(Q, "q31 (k=2 class)"), (Q8, "q8 (k=8 class)")] {
+        let zq = Zq::new(q);
+        let m = (q - 1) / 2;
+        let mut pattern = vec![q - m; D];
+        pattern[0] = m;
+        let rows = 2usize;
+        let g: Vec<Poly> = (0..rows * N_R).map(|_| pattern.clone()).collect();
+        let kern = A1CommitKernel::new(&g, rows, N_R, q, 1, nt);
+        let cols: Vec<Vec<i64>> = (0..N_R).map(|_| vec![1i64; D]).collect();
+        let got = kern.commit_column(&cols, nt);
+        let want = ring_matvec_small_g(&zq, &g, rows, N_R, &cols);
+        let exact = N_R as u128 * D as u128 * m as u128;
+        assert_true(
+            &format!(
+                "capacity-boundary commit exact at {label}: c_0 = N_R*d*(q-1)/2 ({} bits)",
+                128 - exact.leading_zeros()
+            ),
+            got == want && got[0][0] == (exact % q as u128) as u64,
+        );
+    }
+
+    // (e) the k = 2 / q46 regression point (ROUTE_R_DESIGN's recommended
+    // production modulus; the deepest single-prime commit regime — 59-bit
+    // exact bound at FFN N_r = 72): differential vs the generic schoolbook
+    // matvec AND the k = 2 amortized-split kernel, random + boundary +
+    // mask-regime automatic fallback.
+    {
+        const Q46C: u64 = 70_368_744_177_029; // 2^46 - 635, prime, 5 mod 8
+        let zq46 = Zq::new(Q46C);
+        let ctx46 = ring_ctx(Q46C, sqrt_m1(Q46C), 2);
+        let mut r46 = 0x46_0001u64;
+        let (rows46, inner46) = (4usize, 72usize); // FFN module dimension
+        let g46: Vec<Poly> = (0..rows46 * inner46)
+            .map(|_| (0..D).map(|_| rng_below_g(&mut r46, Q46C)).collect())
+            .collect();
+        let a1_46 = A1CommitKernel::new(&g46, rows46, inner46, Q46C, 1, nt);
+        let g46_split: Vec<Vec<u64>> = g46.iter().map(|p| crt_split(&ctx46, p)).collect();
+        let mut ok46 = true;
+        for _ in 0..3 {
+            let col: Vec<Vec<i64>> = (0..inner46).map(|_| rng_ternary_poly(&mut r46)).collect();
+            let col_mod: Vec<Poly> = col.iter().map(|p| poly_from_small_g(&zq46, p)).collect();
+            let want = ring_matvec_small_g(&zq46, &g46, rows46, inner46, &col);
+            if a1_46.commit_column(&col, nt) != want
+                || commit_kernel_split(&ctx46, &g46_split, rows46, inner46, &col_mod) != want
+            {
+                ok46 = false;
+            }
+        }
+        assert_true(
+            "q46 regression: A1 = schoolbook = k2 amortized split (FFN N_r=72, ternary, 3 trials)",
+            ok46,
+        );
+        // Boundary at q46: the 59-bit exact bound, the deepest single-prime case.
+        let m = (Q46C - 1) / 2;
+        let mut pattern = vec![Q46C - m; D];
+        pattern[0] = m;
+        let gb: Vec<Poly> = (0..2 * inner46).map(|_| pattern.clone()).collect();
+        let kb = A1CommitKernel::new(&gb, 2, inner46, Q46C, 1, nt);
+        let cols1: Vec<Vec<i64>> = (0..inner46).map(|_| vec![1i64; D]).collect();
+        let gotb = kb.commit_column(&cols1, nt);
+        let exact = inner46 as u128 * D as u128 * m as u128;
+        assert_true(
+            &format!(
+                "q46 capacity-boundary commit exact (c_0 = 72*128*(q-1)/2, {} bits < 63)",
+                128 - exact.leading_zeros()
+            ),
+            gotb == ring_matvec_small_g(&zq46, &gb, 2, inner46, &cols1)
+                && gotb[0][0] == (exact % Q46C as u128) as u64,
+        );
+        // Mask regime at q46 exceeds one prime: the dispatcher must FALL
+        // BACK to limb-split automatically (same statement, bit-identical),
+        // while the q31-class mask regime stays single-prime and the q8
+        // verify regime (response bound ~2^24.5) falls back too.
+        let b_mask: i64 = 12 << 30;
+        let mask46 = A1GemmKernel::new(&g46, rows46, inner46, Q46C, b_mask as u128, nt);
+        assert_true(
+            "regime fallback: mask kernel auto-selects limb-split at q46, single-prime at q8; q8 verify kernel auto-selects limb-split",
+            mask46.path() == "limb-split x3"
+                && a1p8.mask.path() == "single-prime"
+                && a1p8.verify.path() == "limb-split x3",
+        );
+        let mut okm = true;
+        for trial in 0..2 {
+            let col: Vec<Vec<i64>> = (0..inner46)
+                .map(|_| {
+                    (0..D)
+                        .map(|_| {
+                            if trial == 0 {
+                                b_mask // adversarially large: every coefficient at the contract bound
+                            } else {
+                                (splitmix64(&mut r46) % (2 * b_mask as u64 + 1)) as i64 - b_mask
+                            }
+                        })
+                        .collect()
+                })
+                .collect();
+            if mask46.commit_column(&col, nt) != ring_matvec_small_g(&zq46, &g46, rows46, inner46, &col) {
+                okm = false;
+            }
+        }
+        assert_true(
+            "q46 mask-regime fallback kernel = schoolbook (12*2^30 columns, incl. max-magnitude)",
+            okm,
+        );
+    }
+
+    // (f) combination sums and the verifier product at q8.
+    {
+        let mut rc = 0xc0b1_0001u64;
+        let terms = 300usize;
+        let a_terms: Vec<Poly> = (0..terms)
+            .map(|_| (0..D).map(|_| rng_field_g(&mut rc, Q8)).collect())
+            .collect();
+        let s_terms: Vec<Vec<i64>> = (0..terms)
+            .map(|_| {
+                let mut xr = XofReader::new("comb", &[&splitmix64(&mut rc).to_le_bytes()]);
+                xr.next_challenge()
+            })
+            .collect();
+        let got = a1_combination_sum(&a_terms, &s_terms, 2, Q8, nt);
+        let mut want = poly_zero();
+        for i in 0..terms {
+            let prod = ring_mul_split(&ctx8, &poly_from_small_g(&zq8, &s_terms[i]), &a_terms[i]);
+            want = poly_add_g(&zq8, &want, &prod);
+        }
+        assert_true(
+            "combination sum: A1 chunked single-prime kernel = k8 split accumulation (300 quinary terms, q8)",
+            got == want,
+        );
+        // c * t1, the verifier's product, explicitly:
+        let mut xr = XofReader::new("ct1", &[b"x"]);
+        let c = xr.next_challenge();
+        let c_mod = poly_from_small_g(&zq8, &c);
+        assert_true(
+            "c * t1: A1 single-prime = k8 split kernel (bit-identical)",
+            ring_mul_q_single(&t1_8[0], &c, Q8, nt) == ring_mul_split(&ctx8, &c_mod, &t1_8[0]),
+        );
+        // Gate-term regime (general x general) on the limb path at q8.
+        let gx: Poly = (0..D).map(|_| rng_field_g(&mut rc, Q8)).collect();
+        let gy: Poly = (0..D).map(|_| rng_field_g(&mut rc, Q8)).collect();
+        assert_true(
+            "general x general limb-split = schoolbook at q8 (gate-term regime)",
+            ring_mul_q_limbsplit(&gx, &gy, Q8, nt) == poly_mul_g(&zq8, &gx, &gy),
+        );
+    }
+
+    // =====================================================================
+    // --- 14. U4/A2: ring-mult and commit-kernel benchmarks by method -----
     println!("\nU4/A2: multiplication and commit-kernel benchmarks (single-thread, this machine)");
 
     // Correctness of the Karatsuba kernels first.
@@ -2329,6 +2798,15 @@ fn main() {
         let p = ring_mul_split_kara_fast(&ctx8, &bx8, &by8);
         sink ^= p[0];
     });
+    let ter8: Vec<i64> = rng_ternary_poly(&mut rng);
+    let a1_single_us = time_us(5000, || {
+        let p = ring_mul_q_single(&bx8, &ter8, Q8, nt);
+        sink ^= p[0];
+    });
+    let a1_limb_us = time_us(2000, || {
+        let p = ring_mul_q_limbsplit(&bx8, &by8, Q8, nt);
+        sink ^= p[0];
+    });
     std::hint::black_box(sink);
     println!("  ring multiplication (d = 128, one product, transforms included):");
     println!("    | method | us/mul | vs naive |");
@@ -2339,10 +2817,11 @@ fn main() {
         ("k = 2 split + Kara @q31    ", k2k_us),
         ("k = 8 split @q8            ", k8_us),
         ("k = 8 split + Kara @q8     ", k8k_us),
+        ("A1 single (key x ter) @q8  ", a1_single_us),
+        ("A1 limb (gen x gen) @q8    ", a1_limb_us),
     ] {
         println!("    | {name} | {us:6.2} | {:5.2}x |", naive_us / us);
     }
-    println!("    | aux-NTT (A1)               |  pending -- see A1 agent |");
 
     // Commit kernel, GEMM shape kappa x N_R = {KAPPA} x {N_R}: key rows
     // pre-split once per CRS (amortized), columns split once per commit.
@@ -2367,6 +2846,23 @@ fn main() {
         let t = commit_kernel_split_kara_fast(&ctx8, &a1_split8, KAPPA, N_R, &rho8_mod);
         sink ^= t[0][0];
     });
+    // A1 commit kernel over the SAME CRS/randomness (bit-identity asserted
+    // against the naive matvec result before timing).
+    let a1_commit8 = A1CommitKernel::new(&crs8.a1, KAPPA, N_R, Q8, 1, nt);
+    assert_true(
+        "bench operands: A1 commit kernel = naive matvec at q8",
+        a1_commit8.commit_column(&rho8, nt) == t1_8,
+    );
+    let com_a1_us = time_us(400, || {
+        let t = a1_commit8.commit_column(&rho8, nt);
+        sink ^= t[0][0];
+    });
+    // Mask-path throughput (Gaussian columns, single-prime at q8).
+    let y_mask: Vec<Vec<i64>> = (0..N_R).map(|_| gaussian_ivec(&mut rng, D, sp_8.sigma)).collect();
+    let com_a1_mask_us = time_us(400, || {
+        let t = a1p8.mask.commit_column(&y_mask, nt);
+        sink ^= t[0][0];
+    });
     std::hint::black_box(sink);
     println!(
         "  commit kernel t1 = A1 rho ({KAPPA} x {N_R} ring MACs; naive exploits ternary sparsity, split kernels are dense):"
@@ -2378,6 +2874,7 @@ fn main() {
         ("k = 2 split + Karatsuba     ", com_k2k_us),
         ("k = 8 amortized split @q8   ", com_k8_us),
         ("k = 8 split + Karatsuba @q8 ", com_k8k_us),
+        ("A1 aux-NTT GEMM @q8 (integ.)", com_a1_us),
     ] {
         println!(
             "    | {name} | {us:8.1} | {:6.3} | {:.2e} | {:5.2}x |",
@@ -2386,7 +2883,146 @@ fn main() {
             com_naive_us / us
         );
     }
-    println!("    | aux-NTT GEMM (A1)          |  pending -- see A1 agent |");
+    println!(
+        "    A1 vs k8+Karatsuba (the integrated commit-kernel speedup): {:.1}x ({:.3} -> {:.3} us/ring-MAC)",
+        com_k8k_us / com_a1_us,
+        com_k8k_us / macs,
+        com_a1_us / macs
+    );
+    println!(
+        "    mask-path commit (A1 {}, Gaussian 12s columns): {:.1} us/commit, {:.3} us/ring-MAC ({:.2}x the ternary A1 path)",
+        a1p8.mask.path(),
+        com_a1_mask_us,
+        com_a1_mask_us / macs,
+        com_a1_mask_us / com_a1_us
+    );
+
+    // Opening Sigma rounds, prove/verify, WITH and WITHOUT the A1 kernels.
+    // Medians of pinned repetitions; the same seed per path gives identical
+    // rejection/attempt sequences, so the comparison is exact.
+    const ROUND_REPS: usize = 9;
+    let median_ms = |mut v: Vec<f64>| {
+        v.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        v[v.len() / 2] * 1e3
+    };
+
+    // FFN-shaped commit kernel at q8 (47 x 72 = kappa + msg_r x N_r at the
+    // LLM-relevant shape — the same shape as the report's q46 prototype
+    // measurements): integrated A1 vs k8+Karatsuba, medians of pinned reps
+    // over a fixed column set, bit-identity asserted first.
+    {
+        let mut rf = 0x0f47_0001u64;
+        let (rows_f, inner_f) = (47usize, 72usize);
+        let g_f: Vec<Poly> = (0..rows_f * inner_f)
+            .map(|_| (0..D).map(|_| rng_field_g(&mut rf, Q8)).collect())
+            .collect();
+        let a1_f = A1CommitKernel::new(&g_f, rows_f, inner_f, Q8, 1, nt);
+        let g_f_split: Vec<Vec<u64>> = g_f.iter().map(|p| crt_split(&ctx8, p)).collect();
+        let cols_f: Vec<Vec<Vec<i64>>> = (0..8)
+            .map(|_| (0..inner_f).map(|_| rng_ternary_poly(&mut rf)).collect())
+            .collect();
+        let cols_f_mod: Vec<Vec<Poly>> = cols_f
+            .iter()
+            .map(|c| c.iter().map(|p| poly_from_small_g(&zq8, p)).collect())
+            .collect();
+        assert_true(
+            "FFN-shape bench operands: A1 = k8+Kara split kernel (bit-identical)",
+            a1_f.commit_column(&cols_f[0], nt)
+                == commit_kernel_split_kara_fast(&ctx8, &g_f_split, rows_f, inner_f, &cols_f_mod[0]),
+        );
+        let macs_f = (rows_f * inner_f) as f64;
+        let mut t_a1 = Vec::new();
+        let mut t_k8 = Vec::new();
+        for _ in 0..ROUND_REPS {
+            let t0 = Instant::now();
+            for c in &cols_f {
+                std::hint::black_box(a1_f.commit_column(c, nt));
+            }
+            t_a1.push(t0.elapsed().as_secs_f64() / cols_f.len() as f64);
+            let t0 = Instant::now();
+            for c in &cols_f_mod {
+                std::hint::black_box(commit_kernel_split_kara_fast(&ctx8, &g_f_split, rows_f, inner_f, c));
+            }
+            t_k8.push(t0.elapsed().as_secs_f64() / cols_f_mod.len() as f64);
+        }
+        let a1_ms = median_ms(t_a1);
+        let k8_ms = median_ms(t_k8);
+        println!(
+            "  FFN-shape commit kernel 47 x 72 @q8 (median of {ROUND_REPS} reps x 8 cols): k8+Kara {:.3} ms/col ({:.3} us/ring-MAC), A1 {:.3} ms/col ({:.3} us/ring-MAC) -> {:.1}x; A1 eff {:.0} MMAC/s",
+            k8_ms,
+            k8_ms * 1e3 / macs_f,
+            a1_ms,
+            a1_ms * 1e3 / macs_f,
+            k8_ms / a1_ms,
+            macs_f * (D * D) as f64 / (a1_ms / 1e3) / 1e6
+        );
+    }
+
+    println!("  opening Sigma rounds (median of {ROUND_REPS} reps, same seeds across paths):");
+    for (label, path) in [("school", KernelPath::School), ("A1    ", KernelPath::A1(&a1p))] {
+        let mut pv = Vec::new();
+        let mut vv = Vec::new();
+        let mut atts = 0usize;
+        let mut rr = 0xbe9c_0001u64;
+        for _ in 0..ROUND_REPS {
+            let t0 = Instant::now();
+            let (pf, at) = prove_opening(&path, &sp, &crs, &t1, &rho, ctx, &mut rr);
+            pv.push(t0.elapsed().as_secs_f64());
+            atts += at;
+            let t0 = Instant::now();
+            let okv = verify_opening(&path, &sp, &crs, &t1, ctx, &pf);
+            vv.push(t0.elapsed().as_secs_f64());
+            assert!(okv);
+        }
+        println!(
+            "    k=2 q31 [{label}]: prove {:>7.2} ms median ({atts} attempts/{ROUND_REPS} reps), verify {:>6.2} ms median",
+            median_ms(pv),
+            median_ms(vv)
+        );
+    }
+    for (label, path) in [("school", KernelPath::School), ("A1    ", KernelPath::A1(&a1p8))] {
+        let mut pv = Vec::new();
+        let mut vv = Vec::new();
+        let mut atts = 0usize;
+        let mut rr = 0xbe9c_0002u64;
+        for _ in 0..ROUND_REPS {
+            let t0 = Instant::now();
+            let (pf, at) = prove_opening_g(&path, &ctx8, &sp_8, &crs8, &t1_8, &rho8, ctx_bytes8, &mut rr);
+            pv.push(t0.elapsed().as_secs_f64());
+            atts += at;
+            let t0 = Instant::now();
+            let okv = verify_opening_g(&path, &ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &pf);
+            vv.push(t0.elapsed().as_secs_f64());
+            assert!(okv);
+        }
+        println!(
+            "    k=8 q8  [{label}]: prove {:>7.2} ms median ({atts} attempts/{ROUND_REPS} reps), verify {:>6.2} ms median",
+            median_ms(pv),
+            median_ms(vv)
+        );
+    }
+    for (label, path) in [("school", KernelPath::School), ("A1    ", KernelPath::A1(&a1p8))] {
+        let mut pv = Vec::new();
+        let mut vv = Vec::new();
+        let mut atts = 0usize;
+        let mut rr = 0xbe9c_0003u64;
+        for _ in 0..ROUND_REPS {
+            let t0 = Instant::now();
+            let (pf, at, _rs) =
+                prove_opening_digits(&path, &ctx8, &dp, &crs8, &t_wide, &u_wide, ctx_bytes_d, &mut rr);
+            pv.push(t0.elapsed().as_secs_f64());
+            atts += at;
+            let t0 = Instant::now();
+            let okv = verify_opening_digits(&path, &ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &pf);
+            vv.push(t0.elapsed().as_secs_f64());
+            assert!(okv);
+        }
+        println!(
+            "    digit q8 [{label}]: prove {:>7.2} ms median ({atts} attempts/{ROUND_REPS} reps), verify {:>6.2} ms median",
+            median_ms(pv),
+            median_ms(vv)
+        );
+    }
 
     println!("ring_lattice self-test ok");
 }

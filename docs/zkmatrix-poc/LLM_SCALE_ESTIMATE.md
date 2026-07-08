@@ -58,7 +58,7 @@ measured lattice cost model at 7B/512-token scale:
 | + Route R ring lift at k=2 (r: 64 -> 1 on proofs; ~2-3x on commit ops -- corrected from ~15x by ROUTE_R_DESIGN.md: q = 5 mod 8 caps CRT splitting at one level, no full NTT; proofs to ~50-175 KB) | ~2-4 min | ~20-35x | -- |
 | + Route R Q2/Q3 (response decomposition to a 32-bit q; deeper k-split with real NTT) + GPU integer GEMM *(superseded by the measured row below)* | **~15 s** | **~2x** | ~300x |
 | **MEASURED (Q2/Q3/A2 tranche, RING_MULT_BOTTLENECK.md Section 6): k = 8 split + Karatsuba at q31 -- commit kernel 8.1x, commit bill ~34x vs Route Z (~6.6 min CPU-22T, ~20 s with the GPU 20x row); total pass ~25-45 s with GPU** | ~25-45 s | ~4-6x | -- |
-| + A1 aux-modulus NTT (pending -- parallel agent; op-count projection 2-4x on the commit kernel) | **~15 s** | **~2x** | ~300x |
+| **+ A1 aux-modulus NTT (INTEGRATED-MEASURED: 6.2-6.4x over k8+Kara head-to-head at FFN shape inside ring_lattice, ~99-111 ns/committed element; commit bill ~1.6-2.0 min CPU-22T -> ~5-6 s GPU; proofs bit-identical)** | **~15-30 s** | **~2-4x** | ~300x |
 | + bit-packing / lookup-based ranges (2-4x on gadget commitments) | ~5-10 s | ~1-1.5x | ~100-200x |
 
 Reality checks on the endpoint:
@@ -101,10 +101,24 @@ commit-kernel 8.1x over the naive baseline (1.11 us/ring-MAC
 single-thread, k = 8 + Karatsuba amortized-split GEMM), commit bill
 ~34x below Route Z (~6.6 min at 22T, ~20 s with the GPU 20x row).
 Q2's price: +45% proof bytes at e = 4 (117 -> 170 KB at Pi2 n = 2048)
-for a 46% smaller commitment stream (22.3 -> 12.1 KB/column). The
+for a 46% smaller commitment stream (22.3 -> 12.1 KB/column). ~~The
 ~15 s / ~2x endpoint now rests on A1 (auxiliary-modulus NTT, parallel
 tranche, results pending): without it the measured stack lands at
-~25-45 s (~4-6x CPU-int8).
+~25-45 s (~4-6x CPU-int8).~~
+
+**A1 integration update (measured; RING_MULT_BOTTLENECK.md Section 6.5,
+A1_AUX_NTT_REPORT.md Section 5 actuals):** the auxiliary-modulus NTT
+kernels are integrated into the Route R prototype (commit path, mask
+commitments, all three Sigma rounds, verifier; proofs bit-identical to
+the split-kernel paths, capacity policy wired into the parameter chain
+as the P0 line). Integrated commit kernel at the FFN shape:
+0.161-0.195 us/ring-MAC (84-102 eff GMAC/s single-thread), 6.2-6.4x
+over k8+Karatsuba head-to-head; at q31 the whole commit bill (bit AND
+value tensors) rides the single-prime golden regime. Commit bill:
+~1.6-2.0 min at 22T CPU, ~5-6 s under the assumed 20x GPU row; pass
+total **~15-30 s (~2-4x CPU-int8) with GPU — the arithmetic layer of
+this ladder rung is now measurement, not projection.** Remaining
+assumptions: the 20x GPU factor and the ~15x multithread scaling.
 
 ## 3b. The 2x-overhead decomposition (refined target)
 
@@ -124,9 +138,13 @@ comparable hardware. Decompose prover overhead as
   commitment bill is intrinsically a small fraction of compute; this is
   what makes the 2x target principled rather than hopeful.
   *(Measured update, Q2/Q3 tranche: k = 8 + Karatsuba at q31 lands at
-  ~950-1,070 mults/element (0.63 us/element single-thread) — the
-  ~300-class figure requires A1's amortized aux-NTT on top, pending;
-  RING_MULT_BOTTLENECK.md Section 6.4.)*
+  ~950-1,070 mults/element (0.63 us/element single-thread);
+  RING_MULT_BOTTLENECK.md Section 6.4.)* *(A1 integration update: the
+  amortized aux-NTT commit kernel, now integrated into the Route R
+  rounds, measures ~99-111 ns/element = ~119 helper-prime
+  multiplications per committed element at the FFN parameter point —
+  the few-hundred-MACs/element condition is MET, measured in-protocol;
+  RING_MULT_BOTTLENECK.md Section 6.5.)*
 - **Throughput ratio**: witness computation can run in native int8 (the
   prover runs ordinary quantized inference and encodes mod q only inside
   crypto kernels); commit/proof kernels at 32-bit-class modular
