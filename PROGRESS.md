@@ -27,8 +27,11 @@ Full Route R protocol build, U1-U8 of `docs/zkmatrix-poc/ROUTE_R_DESIGN.md`
 
 ## Unit status
 
-- [ ] U1 ring arithmetic module (`ring/mod.rs`) + differential tests
-- [ ] U2 params port (`ring/params.rs`) + commit/opening (`ring/commit.rs`, `ring/sigma.rs`)
+- [x] U1 ring arithmetic module (`ring/mod.rs`) + differential tests (commit 7b58d96)
+- [x] U2 params port (`ring/params.rs`) + commit/opening (`ring/commit.rs`, `ring/sigma.rs`)
+      — port pinned to the script tables (kappa/N_r/L/headroom/proof-KB parity);
+      opening + digit rounds with full prototype tamper batteries; same-seed
+      School/A1 transcript identity; extraction test
 - [ ] U3 ct-engine (`ring/ct_engine.rs`) + ARP
 - [ ] U4 ring-Pi1 (option b A-map) + negative battery
 - [ ] U6 gadget family (binary/range/rescale ct-claims; k=8 slot Hadamard)
@@ -38,10 +41,13 @@ Full Route R protocol build, U1-U8 of `docs/zkmatrix-poc/ROUTE_R_DESIGN.md`
 
 ## Decisions
 
-- (none yet)
+- ring/ modules shared via `#[path]` (repo convention, per design §6);
+  `bin/ring_matmul.rs` grows one self-test section per unit.
+- ct_engine.rs declared as stub from U2 so the module tree is stable.
+- Digit-round range checks: bundle-norm stand-in until U6 wires exact
+  ct-range claims (same staging as the prototype, documented in sigma.rs).
 
 ## Next
 
-- U1: port arithmetic from `bin/ring_lattice.rs` (base + k=8 generic +
-  Karatsuba fast kernels + A1 dispatch) into `src/ring/mod.rs` with
-  bit-identity differential self-tests across all kernel paths.
+- U3: ct-engine (theta batching, g/h masks with ct(g) = 0, ARP), on top of
+  sigma.rs opening rounds. Then U4 (Pi1 option-b A-map).

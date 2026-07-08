@@ -28,6 +28,11 @@ use sha2::{Digest, Sha256};
 #[path = "../aux_ntt_core.rs"]
 pub mod aux;
 
+pub mod commit;
+pub mod ct_engine;
+pub mod params;
+pub mod sigma;
+
 pub use aux::D;
 pub const LOG2_DELTA0: f64 = 0.005326; // log2(1.0037), same C3 model as Route Z
 
