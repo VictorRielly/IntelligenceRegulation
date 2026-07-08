@@ -43,6 +43,13 @@ pub const Q8: u64 = 2_147_483_249; // 2^31 - 399
 /// Primitive 16th root of unity mod Q8 (eta^8 = -1; asserted by ring_ctx).
 pub const ETA8: u64 = 2_056_890_868;
 
+/// The 46-bit sibling (k = 8 class), the design's conservative/fallback
+/// modulus: q8_46 = 2^46 - 1103 (RING_MULT_BOTTLENECK.md Section 6.1).
+/// Carried for regimes whose side-condition budgets do not close at q31
+/// (see ct_engine.rs ARP notes).
+pub const Q8_46: u64 = 70_368_744_176_561;
+pub const ETA8_46: u64 = 49_533_544_627_797;
+
 /// Ring elements: dense coefficient vectors, length D, values in [0, q).
 pub type Poly = Vec<u64>;
 

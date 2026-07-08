@@ -69,11 +69,19 @@ pub struct A1Paths {
     pub commit: A1CommitKernel,
     pub mask: A1GemmKernel,
     pub verify: A1GemmKernel,
+    /// A2-row kernels (the ct-engine's message-side combinations need
+    /// A2 y and A2 z matvecs with the same contracts).
+    pub mask2: A1GemmKernel,
+    pub verify2: A1GemmKernel,
 }
 
 impl A1Paths {
     pub fn cached_bytes(&self) -> usize {
-        self.commit.cached_bytes() + self.mask.cached_bytes() + self.verify.cached_bytes()
+        self.commit.cached_bytes()
+            + self.mask.cached_bytes()
+            + self.verify.cached_bytes()
+            + self.mask2.cached_bytes()
+            + self.verify2.cached_bytes()
     }
 }
 
@@ -85,7 +93,9 @@ pub fn build_a1_paths(crs: &RingCrs, sigma_max: u64, resp_inf_max: u128) -> A1Pa
     let commit = A1CommitKernel::new(&stacked, kappa + msg_r, n_r, crs.q, 1, &nt);
     let mask = A1GemmKernel::new(&crs.a1, kappa, n_r, crs.q, 12 * sigma_max as u128, &nt);
     let verify = A1GemmKernel::new(&crs.a1, kappa, n_r, crs.q, resp_inf_max, &nt);
-    A1Paths { nt, commit, mask, verify }
+    let mask2 = A1GemmKernel::new(&crs.a2, msg_r, n_r, crs.q, 12 * sigma_max as u128, &nt);
+    let verify2 = A1GemmKernel::new(&crs.a2, msg_r, n_r, crs.q, resp_inf_max, &nt);
+    A1Paths { nt, commit, mask, verify, mask2, verify2 }
 }
 
 /// Kernel selector: schoolbook oracle (differential path) or the cached A1
@@ -132,6 +142,19 @@ pub fn a1_matvec(path: &KernelPath, crs: &RingCrs, which: MatvecKind, v: &[Vec<i
         KernelPath::A1(p) => match which {
             MatvecKind::Mask => p.mask.commit_column(v, &p.nt),
             MatvecKind::Verify => p.verify.commit_column(v, &p.nt),
+        },
+    }
+}
+
+/// A2-row matvec (message-side images A2 y / A2 z for the ct-engine).
+pub fn a2_matvec(path: &KernelPath, crs: &RingCrs, which: MatvecKind, v: &[Vec<i64>]) -> Vec<Poly> {
+    let CommitShape { n_r, msg_r, .. } = crs.shape;
+    let zq = super::Zq::new(crs.q);
+    match path {
+        KernelPath::School => ring_matvec_small_g(&zq, &crs.a2, msg_r, n_r, v),
+        KernelPath::A1(p) => match which {
+            MatvecKind::Mask => p.mask2.commit_column(v, &p.nt),
+            MatvecKind::Verify => p.verify2.commit_column(v, &p.nt),
         },
     }
 }

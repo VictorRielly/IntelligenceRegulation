@@ -32,7 +32,15 @@ Full Route R protocol build, U1-U8 of `docs/zkmatrix-poc/ROUTE_R_DESIGN.md`
       — port pinned to the script tables (kappa/N_r/L/headroom/proof-KB parity);
       opening + digit rounds with full prototype tamper batteries; same-seed
       School/A1 transcript identity; extraction test
-- [ ] U3 ct-engine (`ring/ct_engine.rs`) + ARP
+- [x] U3 ct-engine (`ring/ct_engine.rs`) + ARP — linear ct-claims (g-before-
+      theta ordering, h reveals, combined mask images W_l, joint Sigma round,
+      per-slot extraction), Ajtai-slot (ABDLOP) commitments for norm-grounded
+      witnesses, JL-projection ARP with parameterized Q4 constants.
+      NEW FINDING (asserted in the self-test): the binary-gadget ARP
+      side-condition budget does NOT close at q31 with conservative
+      constants (extract 2^22.1, needs < 2^15-class); it closes at q46.
+      Gadget-layer consequence handled in U6 (exact/chunked strategies or a
+      q46 gadget budget); Q4 lemma write-up flagged in ct_engine.rs header.
 - [ ] U4 ring-Pi1 (option b A-map) + negative battery
 - [ ] U6 gadget family (binary/range/rescale ct-claims; k=8 slot Hadamard)
 - [ ] U5 ring-Pi2 gate (ct-engine product layer; r_g fallback behind flag)
@@ -49,5 +57,7 @@ Full Route R protocol build, U1-U8 of `docs/zkmatrix-poc/ROUTE_R_DESIGN.md`
 
 ## Next
 
-- U3: ct-engine (theta batching, g/h masks with ct(g) = 0, ARP), on top of
-  sigma.rs opening rounds. Then U4 (Pi1 option-b A-map).
+- U4: ring-Pi1 (option b A-map) on top of the ct-engine: column compression
+  with ring challenges, theta output-compression, ct-form via sigma_{-1};
+  study lattice_matmul.rs prove_pi1/verify_pi1 for the statement shape and
+  transfer the negative battery.
