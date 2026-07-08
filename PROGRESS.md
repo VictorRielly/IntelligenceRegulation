@@ -27,7 +27,17 @@ Suite: python3 -m unittest discover -s tests (must stay 37/37).
   rounds (same-seed, median of 9): k=2 prove 6.04->0.98 ms, k=8 9.11->1.49,
   digit 27.1->3.31; verify 2.6->0.25 / 7.9->0.78. Memory delta: 1092 KB per
   CRS point (260 commit + 208 mask + 624 verify-limb). Suite 37/37 OK.
-- [ ] U4 capacity assertions in route_r_params.py + Rust derivation; regime->path table emitted
+- [x] U4 capacity assertions: Rust side landed with U2/U3 (print_a1_regime_table
+  at both parameter points + construction asserts in kernels). Python side:
+  P0 block in route_r_params.py (a1_path/a1_paths_for/a1_require/
+  a1_capacity_table mirroring aux_ntt_core), out["a1"] recorded in derive()
+  and derive_q2(), P0 summary lines under every show() table (worst-case
+  2^61 row correctly marked REJECTED), a1_capacity_section() emits enforced
+  exact-prime tables at (k8,q8_31) e in {2,3,4}, FFN e=4, (k2,q46) baseline,
+  plus a loud-failure self-check (2^61 point raises ValueError). FINDING:
+  q31 mask regime sits at the 63-bit edge — single-prime at e=2 and the
+  N_r=26 prototype, limb-split at e in {3,4}/FFN shapes (63.8-64.6 bits);
+  commit regime single-prime everywhere incl. q46.
 - [ ] U5 measure (idle machine, medians of pinned reps) + reconcile RING_MULT_BOTTLENECK.md S6, A1_AUX_NTT_REPORT.md, LLM_SCALE_ESTIMATE.md
 
 ## Decisions

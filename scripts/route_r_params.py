@@ -37,6 +37,112 @@ LOG2_DELTA0 = 0.005326
 E_C2 = 2.0  # E[c_i^2] for quinary coefficients {-2..2}
 TAIL = 1.3
 
+# ===========================================================================
+# A1 (auxiliary-modulus NTT) capacity policy — the P0 line of the C0-C4
+# chain. The A1 kernels (zkmatrix-rs/src/aux_ntt_core.rs, integrated into
+# ring_lattice.rs; A1_AUX_NTT_REPORT.md) evaluate ring products over the
+# Goldilocks helper prime p = 2^64 - 2^32 + 1. A kernel regime with balanced
+# operand bounds (A, B) and in-domain accumulation depth n_acc fits the
+# single-prime path iff  n_acc * d * A * B <= (p-1)/2,  and the limb-split
+# x3 fallback iff the PM = (a0+a1)(b0+b1) sub-product bound fits instead
+# (one COMMON limb base L = ceil(bits((q-1)/2)/2) for both operands). p has
+# NO protocol role: this line chooses EVALUATION paths only. A parameter set
+# whose regimes fit neither path is rejected LOUDLY at derive time — marked
+# REJECTED in every emitted table, and a1_require raises for operating
+# points — never silently at prove time (the Rust kernels re-assert the same
+# contract at construction). Mirrors a1_regime_path in aux_ntt_core.rs.
+# ===========================================================================
+
+P_GOLDILOCKS = 2**64 - 2**32 + 1
+A1_CAP = (P_GOLDILOCKS - 1) // 2
+
+
+def a1_limb_bits(q: int) -> int:
+    return (((q - 1) // 2).bit_length() + 1) // 2
+
+
+def a1_path(n_acc: int, q: int, b_max: int):
+    """Kernel path for one regime: 'single-prime' | 'limb-split x3' | None
+    (fits nothing — the derive chain must reject the parameter set)."""
+    a_max = (q - 1) // 2
+    if n_acc * D * a_max * b_max <= A1_CAP:
+        return "single-prime"
+    lb = a1_limb_bits(q)
+    a_pm = 2 ** (lb - 1) + ((a_max + 2 ** (lb - 1)) >> lb) + 1
+    b_pm = 2 ** (lb - 1) + ((b_max + 2 ** (lb - 1)) >> lb) + 1
+    if n_acc * D * a_pm * b_pm <= A1_CAP:
+        return "limb-split x3"
+    return None
+
+
+def a1_regimes(q: int, n_r: int, sigma: float, resp_inf: float):
+    """Kernel regimes of one parameter point -> [(name, n_acc, B)].
+    commit: key x ternary randomness (the golden case; bit tensors too);
+    mask: key x rejection-window Gaussian (|y| <= 12 sigma);
+    verify: key x response (|z|_inf <= the l2 bound, established by the
+    verifier's norm check BEFORE the matvec);
+    gate: general mod-q x mod-q (response x response garbage terms)."""
+    return [
+        ("commit: key x ternary", n_r, 1),
+        ("mask: key x Gaussian 12s", n_r, 12 * math.ceil(sigma)),
+        ("verify: key x response", n_r, math.ceil(resp_inf)),
+        ("gate: general x general", 1, (q - 1) // 2),
+    ]
+
+
+def a1_paths_for(q: int, n_r: int, sigma: float, resp_inf: float):
+    return {name: a1_path(n_acc, q, b)
+            for name, n_acc, b in a1_regimes(q, n_r, sigma, resp_inf)}
+
+
+def a1_require(q, n_r, sigma, resp_inf, label):
+    """P0 enforcement for a chosen operating point: raises ValueError when
+    any regime fits neither helper-prime path."""
+    paths = a1_paths_for(q, n_r, sigma, resp_inf)
+    dead = [n for n, p in paths.items() if p is None]
+    if dead:
+        raise ValueError(
+            f"A1 capacity (P0): parameter set {label} rejected at derive "
+            f"time — regime(s) fit neither single-prime nor limb-split: "
+            f"{dead}")
+    return paths
+
+
+def a1_chunk_limit(q: int) -> int:
+    """Combination-sum (quinary x mod-q) in-domain accumulation limit."""
+    return A1_CAP // (D * 2 * ((q - 1) // 2))
+
+
+def a1_summary(q, n_r, sigma, resp_inf):
+    """One-line regime -> path summary for the parameter tables."""
+    paths = a1_paths_for(q, n_r, sigma, resp_inf)
+    if any(p is None for p in paths.values()):
+        dead = [n.split(":")[0] for n, p in paths.items() if p is None]
+        return f"REJECTED (P0) — {', '.join(dead)} fit(s) neither path"
+    ab = {"single-prime": "single", "limb-split x3": "limb x3"}
+    return ("commit=" + ab[paths["commit: key x ternary"]]
+            + " mask=" + ab[paths["mask: key x Gaussian 12s"]]
+            + " verify=" + ab[paths["verify: key x response"]]
+            + " gate=" + ab[paths["gate: general x general"]]
+            + f" comb-chunk={a1_chunk_limit(q)}")
+
+
+def a1_capacity_table(label, q, n_r, sigma, resp_inf, enforce=True):
+    """Emit the full regime -> path table for one operating point (exact
+    integer q); with enforce=True, a point that fits nothing raises."""
+    print(f"\n  A1 kernel regimes at {label} (q = {q}, N_r = {n_r}):")
+    print("  | regime | n_acc | log2 B | log2 bound | path |")
+    print("  |---|---|---|---|---|")
+    for name, n_acc, b in a1_regimes(q, n_r, sigma, resp_inf):
+        bound = n_acc * D * ((q - 1) // 2) * b
+        path = a1_path(n_acc, q, b)
+        print(f"  | {name} | {n_acc} | {math.log2(max(b, 1)):.1f} | "
+              f"{math.log2(bound):.1f} | {path or 'NONE — REJECTED'} |")
+    print(f"  | comb-sum: quinary x mod-q | chunked | 1.0 | <= 63 | "
+          f"single-prime, {a1_chunk_limit(q)} terms/chunk |")
+    if enforce:
+        a1_require(q, n_r, sigma, resp_inf, label)
+
 
 def op_norm(conc: bool) -> float:
     return TAIL * math.sqrt(E_C2 * D) if conc else 2.0 * D
@@ -87,6 +193,11 @@ def derive(proto: str, rows: int, inner: int, cols: int, msg_min: int,
     if 2.0 ** log2_q <= 16.0 * out["beta"]:
         return None
     out["log2_q"] = log2_q
+    # P0: A1 kernel-path record for this point (bits-scale q representative;
+    # exact-prime tables in the P0 section). None entries mark regimes that
+    # fit neither helper-prime path — emitted as REJECTED by the tables.
+    out["a1"] = a1_paths_for(int(round(2.0 ** log2_q)), out["n_r"],
+                             out["sigma"], out["bound"])
     return out
 
 
@@ -117,6 +228,7 @@ def show(label, proto, rows, inner, cols, msg_min=0):
     print("| norm model | min log2 q | kappa | N_r (N_Z) | msg_r | "
           "log2 sigma | log2 beta | commit/col KB | proof KB (r=1) |")
     print("|---|---|---|---|---|---|---|---|---|")
+    p0_notes = []
     for conc, name in [(False, "worst-case l1"), (True, "concentration")]:
         r = minimal_q(proto, rows, inner, cols, msg_min, conc)
         if r is None:
@@ -127,6 +239,10 @@ def show(label, proto, rows, inner, cols, msg_min=0):
               f"{r['n_r']} ({r['n_z']}) | {r['msg_r']} | "
               f"{math.log2(r['sigma']):.1f} | {math.log2(r['beta']):.1f} | "
               f"{commit_col_kb(r, lq):.1f} | {proof_kb(proto, r, lq):.1f} |")
+        p0_notes.append(
+            f"  P0 A1 [{name} @ 2^{lq:.1f}]: "
+            + a1_summary(int(round(2.0 ** lq)), r["n_r"], r["sigma"],
+                         r["bound"]))
         # also at fixed q = 2^31-19 if feasible (prototype modulus)
         r31 = derive(proto, rows, inner, cols, msg_min, 31.0, conc)
         if r31 is not None:
@@ -136,6 +252,12 @@ def show(label, proto, rows, inner, cols, msg_min=0):
                   f"{math.log2(r31['beta']):.1f} | "
                   f"{commit_col_kb(r31, 31.0):.1f} | "
                   f"{proof_kb(proto, r31, 31.0):.1f} |")
+            p0_notes.append(
+                "  P0 A1 [" + name + " @ q=2^31-19]: "
+                + a1_summary(2147483629, r31["n_r"], r31["sigma"],
+                             r31["bound"]))
+    for note in p0_notes:
+        print(note)
 
 
 # ===========================================================================
@@ -413,6 +535,8 @@ def derive_q2(proto: str, rows: int, inner: int, cols: int, msg_min: int,
     if 2.0 ** log2_q <= 16.0 * out["beta"]:
         return None
     out["log2_q"] = log2_q
+    out["a1"] = a1_paths_for(int(round(2.0 ** log2_q)), out["n_r"],
+                             out["sigma"], out["bound"])
     return out
 
 
@@ -499,6 +623,47 @@ def q2_frontier():
           " are jointly feasible at a 31-bit single-limb modulus.")
 
 
+def a1_capacity_section():
+    """P0: full regime -> path tables at the operating points, with EXACT
+    primes, enforced (a point that fits nothing raises here). The digit
+    rounds share one challenge, so the digit-round mask/verify regimes use
+    the bundle sigma/bound from derive_q2."""
+    print("\n### P0: A1 helper-prime capacity at the operating points "
+          "(regime -> kernel path; exact primes; enforced)")
+    q8_31 = 2147483249  # 2^31 - 399, the recommended (k = 8)-class prime
+    for e in (2, 3, 4):
+        r31 = derive_q2("pi2", 2048, 2048, 2048, 0, 31.0, True, e)
+        a1_capacity_table(f"(k=8, q8_31, Pi2 n2048, e={e})", q8_31,
+                          r31["n_r"], r31["sigma"], r31["bound"])
+    ffn31 = derive_q2("pi2", 512, 4096, 11008, 0, 31.0, True, 4)
+    a1_capacity_table("(k=8, q8_31, FFN 512x4096x11008, e=4)", q8_31,
+                      ffn31["n_r"], ffn31["sigma"], ffn31["bound"])
+    q46 = 70368744177029  # 2^46 - 635, the (k = 2)-class production prime
+    base46 = derive("pi2", 2048, 2048, 2048, 0, 46.0, True)
+    a1_capacity_table("(k=2, q46, Pi2 n2048, undecomposed)", q46,
+                      base46["n_r"], base46["sigma"], base46["bound"])
+    print("\n  Readings: the commit regime (the LLM-scale bill) is "
+          "single-prime EVERYWHERE, q46 included; the q31 mask regimes sit "
+          "AT the 63-bit edge — single-prime at e = 2 (62.3 bits) and at "
+          "the N_r = 26 prototype point, limb-split at e in {3, 4} and the "
+          "FFN shape (63.8-64.6 bits) — with the path chosen automatically "
+          "either way; verify and gate regimes ride the limb path by "
+          "design. Nothing here constrains q, kappa, N_r or sigma — P0 "
+          "only selects evaluation paths and rejects points that fit "
+          "nothing.")
+
+    # Loud-failure self-check: a 61-bit modulus class overflows even the
+    # limb sub-products (the demo-chain worst-case-l1 row) and MUST raise.
+    assert a1_path(1, (1 << 61) - 1, ((1 << 61) - 2) // 2) is None
+    try:
+        a1_require((1 << 61) - 1, 52, 2.0 ** 39.9, 2.0 ** 56.9,
+                   "demo worst-case l1 @ 2^61")
+    except ValueError as err:
+        print(f"\n  P0 loud-failure self-check OK: {err}")
+    else:
+        raise AssertionError("P0 rejection failed to raise at 2^61")
+
+
 def soundness_accounting():
     print("### Challenge-set soundness accounting (replaces C1)")
     for base, name in [(3, "ternary {-1,0,1}"), (5, "quinary {-2..2}")]:
@@ -519,6 +684,7 @@ if __name__ == "__main__":
     soundness_accounting()
     k_split_study()
     q2_frontier()
+    a1_capacity_section()
     # Demo chain shapes (M0/M1 report): X 16x32, W1 32x64, W2 64x8.
     show("demo chain worst shape", "pi2", 32, 32, 64, msg_min=64)
     # Square n = 2048, both protocols (the LLM-scale reference claim).
