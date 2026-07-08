@@ -13,7 +13,11 @@ Suite: PATH=... python3 -m unittest discover -s tests  (37/37 must stay green)
 ## State
 
 - [x] U0: worktree contains c731832 (merged perf/zk-batch-optimizations, fast-forward).
-- [ ] U1: Goldilocks arithmetic + negacyclic NTT (d=128, psi-twisted, no padding), self-tests.
+- [x] U1: Goldilocks arithmetic + negacyclic NTT (d=128, psi-twisted, no padding), self-tests.
+      All green first run: reduce128 vs slow path (12 edges + 1e6 random u128), generator
+      order check, roundtrip incl. all-(p-1) input, NTT product == schoolbook mod p incl.
+      worst-case-magnitude and X^127*X wraparound cases. Longa-Naehrig merged-twist
+      convention (CT-DIT fwd bit-reversed output / GS-DIF inv) worked as written.
 - [ ] U2: capacity analysis + regime table (exact u128 checks; printed by the bin).
 - [ ] U3: GEMM-shaped commit kernel (cached key transforms, u128 lazy accumulation), exactness cross-checks.
 - [ ] U4: benchmarks (schoolbook / ternary-schoolbook / k2-split / A1-single / A1-limb-split), medians over pinned reps, single-threaded.
@@ -45,4 +49,7 @@ Suite: PATH=... python3 -m unittest discover -s tests  (37/37 must stay green)
 
 ## Next
 
-Implement U1 in zkmatrix-rs/src/bin/aux_ntt.rs.
+U2: capacity analysis in aux_ntt.rs — exact u128 regime checks (a/b/c), printed
+regime table; balanced-lift helpers Zq -> Zp and centered recovery Zp -> Z -> Zq;
+limb-split general product (3 Karatsuba sub-products) with exactness test vs
+schoolbook mod q.
