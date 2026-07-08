@@ -99,7 +99,12 @@ comparable hardware. Decompose prover overhead as
   crypto kernels); commit/proof kernels at 32-bit-class modular
   arithmetic run at ~1/2-1/4 of int8 SIMD throughput. Net commit cost:
   ~16-31% of inference time.
-- **The condition that decides it: range-proof machinery.** With naive
+- **The condition that decides it: range-proof machinery.**
+  *(M2 measurement update: on Route Z the binding constraint is the
+  gadget proofs themselves, not the commitment bill — measured ~108
+  ms per range-proved element, see M2_REPORT.md Section 4. The 2x
+  budget for elementwise work is reachable only after Route R; the
+  packed/LNP22 commitment argument below then applies on top.)** With naive
   per-bit decomposition (w = 12 on ~40% of tensors) the commit bill
   grows ~5.8x and the total lands at ~3-4x inference. With packed bits
   or LNP22-style range proofs (no full decomposition), the 1.5-2.5x
