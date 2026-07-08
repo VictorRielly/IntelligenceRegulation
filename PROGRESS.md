@@ -37,11 +37,33 @@ UNCOMMITTED (clone commands recorded in the note instead).
       C4's 11.7-line is ~60 bits conservative (MLWE never binds).
       Integral-kappa n_sec at Pi2 e=4 (1920 < model d_lwe 2035) still
       gives 177.8 bits — bookkeeping gap, harmless.
-- [ ] U3 — docs/zkmatrix-poc/ESTIMATOR_NOTE.md: methodology (what ran vs
-      modeled), tables, per-shape verdicts, model-vs-estimator movement,
-      downstream costs of any recommended movement, freeze-check rows
-      affected.
-- [ ] U4 — final: script re-run clean, python suite green, PROGRESS final.
+- [x] U3 — docs/zkmatrix-poc/ESTIMATOR_NOTE.md committed: methodology
+      with per-figure source tags, frozen-point tables (q31 + q46),
+      margin structure, the C3=130-bit-line / C4=~190-bit-line model
+      comparison (movement 0%), the two caveat findings costed (quantum
+      kappa+1: commit +2.4-4.2%, proof +1.4-2.1%; integral-C4 N_r 41 at
+      Pi2 e=4: proof +1.9%), freeze-check impact NONE, native-Sage
+      reproduction block (values verified against the shim run
+      value-for-value).
+- [x] U4 — final: full script run clean end-to-end ([lattice-estimator]
+      VALIDATED), python suite green (41 tests OK, 124 s), PROGRESS
+      final. tools/lattice-estimator remains uncommitted by design;
+      clone commands are in the note Section 8.
+
+## Final verdicts (q8_31, frozen)
+
+| shape | classical (min side = MSIS) | quantum | 128-cl |
+|---|---|---|---|
+| Pi2 2048^3 e=2 (8,40)  | 143.1 core-SVP / 168.9 MATZOV | 125.9 | PASS |
+| Pi2 2048^3 e=3 (8,40)  | 136.7 / 162.8 | 120.3 | PASS |
+| Pi2 2048^3 e=4 (9,40)  | 151.3 / 176.8 | 133.1 | PASS |
+| FFN e=4 (9,57)         | 143.4 / 169.3 | 126.2 | PASS |
+| prototype (8,26)       | 153.0 / 178.1 | 134.7 | PASS |
+
+Frozen point HOLDS; movement 0%; q46 fallback candidates also PASS.
+Sign-off grade: estimator-validated (shimmed CPython run of the real
+lattice-estimator, doctest-anchor validated); native-Sage rerun is the
+optional last-residue confirmation.
 
 ## Decisions
 
