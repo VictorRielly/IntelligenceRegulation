@@ -56,7 +56,9 @@ measured lattice cost model at 7B/512-token scale:
 | Today: Route Z CPU + M0-M2 gadgets | ~3.6 h | ~1,900x | ~3x10^5 |
 | + Tier-1 kernels (ternary add/sub commits, IFMA, deeper blocking; ~3x) | ~1.2 h | ~630x | ~10^5 |
 | + Route R ring lift at k=2 (r: 64 -> 1 on proofs; ~2-3x on commit ops -- corrected from ~15x by ROUTE_R_DESIGN.md: q = 5 mod 8 caps CRT splitting at one level, no full NTT; proofs to ~50-175 KB) | ~2-4 min | ~20-35x | -- |
-| + Route R Q2/Q3 (response decomposition to a 32-bit q; deeper k-split with real NTT) + GPU integer GEMM | **~15 s** | **~2x** | ~300x |
+| + Route R Q2/Q3 (response decomposition to a 32-bit q; deeper k-split with real NTT) + GPU integer GEMM *(superseded by the measured row below)* | **~15 s** | **~2x** | ~300x |
+| **MEASURED (Q2/Q3/A2 tranche, RING_MULT_BOTTLENECK.md Section 6): k = 8 split + Karatsuba at q31 -- commit kernel 8.1x, commit bill ~34x vs Route Z (~6.6 min CPU-22T, ~20 s with the GPU 20x row); total pass ~25-45 s with GPU** | ~25-45 s | ~4-6x | -- |
+| + A1 aux-modulus NTT (pending -- parallel agent; op-count projection 2-4x on the commit kernel) | **~15 s** | **~2x** | ~300x |
 | + bit-packing / lookup-based ranges (2-4x on gadget commitments) | ~5-10 s | ~1-1.5x | ~100-200x |
 
 Reality checks on the endpoint:
@@ -89,6 +91,21 @@ inference; the 2x endpoint is now gated on the spike's Q2 (response
 decomposition -> 32-bit modulus) and Q3 (deeper CRT split -> real NTT),
 both scoped in the design doc.
 
+**Q2/Q3 tranche update (measured; RING_MULT_BOTTLENECK.md Section 6):**
+Q2 and Q3 are implemented and verified jointly feasible at a 31-bit
+single-limb modulus: (k = 8, q = 2^31 - 399, digit base 2^e, e in
+{2, 3, 4}), with the k = 8 LS18 margin at 1.30x over quinary challenge
+differences and the C2 floor (2^29.5) above the k = 8 LS18 minimum
+(2^28.07) -- the coupling risk is retired. Measured on this machine:
+commit-kernel 8.1x over the naive baseline (1.11 us/ring-MAC
+single-thread, k = 8 + Karatsuba amortized-split GEMM), commit bill
+~34x below Route Z (~6.6 min at 22T, ~20 s with the GPU 20x row).
+Q2's price: +45% proof bytes at e = 4 (117 -> 170 KB at Pi2 n = 2048)
+for a 46% smaller commitment stream (22.3 -> 12.1 KB/column). The
+~15 s / ~2x endpoint now rests on A1 (auxiliary-modulus NTT, parallel
+tranche, results pending): without it the measured stack lands at
+~25-45 s (~4-6x CPU-int8).
+
 ## 3b. The 2x-overhead decomposition (refined target)
 
 The project target is prover <= 2x the feedforward it certifies, on
@@ -106,6 +123,10 @@ comparable hardware. Decompose prover overhead as
   feedforward itself spends at LLM widths.** At LLM dimensions the
   commitment bill is intrinsically a small fraction of compute; this is
   what makes the 2x target principled rather than hopeful.
+  *(Measured update, Q2/Q3 tranche: k = 8 + Karatsuba at q31 lands at
+  ~950-1,070 mults/element (0.63 us/element single-thread) — the
+  ~300-class figure requires A1's amortized aux-NTT on top, pending;
+  RING_MULT_BOTTLENECK.md Section 6.4.)*
 - **Throughput ratio**: witness computation can run in native int8 (the
   prover runs ordinary quantized inference and encodes mod q only inside
   crypto kernels); commit/proof kernels at 32-bit-class modular

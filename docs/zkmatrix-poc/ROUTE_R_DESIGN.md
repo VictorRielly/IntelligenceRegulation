@@ -92,6 +92,11 @@ as the single protocol modulus. Consequences, stated honestly:
   decomposition (drop low bits of z, carry a hint), which cuts B and hence
   beta by ~2^8-2^12. It touches the ZK argument (Lemma 6.3 rework) and is
   scoped as open question Q2, not assumed.
+  *(Q2/Q3 tranche update: resolved — the digit-decomposition design
+  (balanced base-2^e digit statements + per-digit Sigma rounds + exact
+  ct-range claims) brings the Pi2 n = 2048 chain to q31 with 1.9-2.9
+  bits of C2 headroom at e in {2,3,4}; prototype-verified with tamper
+  battery. See RING_MULT_BOTTLENECK.md Section 6.2.)*
 
 **Why q = 5 mod 8 costs kernel speed (finding 3).** `v2(q-1) = 2` exactly,
 so the only root of unity available is the 4th root r: one CRT level
@@ -103,7 +108,11 @@ There is **no d log d NTT at k = 2**; any claim built on one implicitly
 assumes a fully-splitting modulus (q = 1 mod 2d) and the ALS20-style
 soundness rework that comes with it. This trade (invertibility margin and
 simple soundness vs kernel speed and slot count) is the k-split trade
-study, open question Q2/Q3.
+study, open question Q2/Q3. *(Resolved by the Q2/Q3 tranche: k = 8 at
+q = 17 mod 32 is the deepest single-limb split for quinary challenges
+(k = 16 needs q > 2^64); measured commit-kernel 8.1x at
+(k = 8, q = 2^31 - 399) with Karatsuba slots. RING_MULT_BOTTLENECK.md
+Section 6.)*
 
 ## 2. Challenge set and the soundness accounting that replaces r(b-2) >= 256
 
@@ -503,6 +512,10 @@ Route R at q46 (kappa=15, N_r=54, msg_r=16), ops accounting:
   estimate** (finding 3: k = 2 has no d log d transform). Projected
   n = 2048 commit ~7-9 s vs 19.4 s measured. Ternary add/sub and GPU
   levers apply to both routes roughly equally on top.
+  *(Superseded at the recommended Q2/Q3 point: k = 8 + Karatsuba at q31
+  measures ~950-1,070 mults/element, 0.63 us/element single-thread —
+  commit-kernel 8.1x, commit bill ~34x below Route Z.
+  RING_MULT_BOTTLENECK.md Sections 6.3-6.4.)*
 
 **LLM-scale consequence (correcting `LLM_SCALE_ESTIMATE.md` Section 3).**
 The "+ Route R" table row assumed ~15x commit-op reduction; recomputed at
@@ -517,6 +530,11 @@ real d log d kernels) or response decomposition shrinking q and dims (Q2).
 The 2x target is therefore **gated on Q2/Q3, not on Route R as mandated
 (k = 2)**. Verification stays milliseconds-to-subsecond and proof sizes
 drop to KB across the board regardless.
+*(Q2/Q3 tranche update: both levers are now measured — k = 8 + digit
+decomposition at q31 delivers ~950-1,070 mults/element and a ~34x
+commit-bill cut; the few-hundred class, and with it the ~15 s / ~2x
+endpoint, now rests on A1 (auxiliary-modulus NTT, parallel tranche,
+pending). RING_MULT_BOTTLENECK.md Section 6.5.)*
 
 ## 8. Prototype evidence (Deliverable 2)
 
@@ -556,6 +574,11 @@ changes to existing files; `cargo run --release --bin ring_lattice`):
    response decomposition (Dilithium-style) would shrink q, kappa, N and
    with them the commit bill; it reworks Lemma 6.3. This decides whether
    the LLM-scale endpoint is ~20-35x or approaches the promised ~2x.
+   *(RESOLVED at prototype level by the Q2/Q3 tranche: digit-decomposed
+   openings bring Pi2 n = 2048 to q31 (kappa 15 -> 8-9, N_r 54 -> 40,
+   +45% proof bytes at e = 4); the Lemma 6.3 rework for the joint
+   rejection bundle remains a Q4-class writing task.
+   RING_MULT_BOTTLENECK.md Section 6.2.)*
 3. **Q3 — the k-split trade study.** k = 2 (mandate) has the invertibility
    margin and the simplest soundness story but no fast transforms and only
    2 slots; k = 8 (q = 17 mod 32) keeps quinary LS18 invertibility
@@ -563,6 +586,11 @@ changes to existing files; `cargo run --release --bin ring_lattice`):
    slots and one more CRT level; full splitting gives d log d kernels and
    dense slot-Hadamard but needs the ALS20 automorphism soundness rework.
    Decides finding 3's commit-kernel penalty and H3.
+   *(RESOLVED at prototype level: k = 8 implemented and measured — 8.1x
+   commit kernel at q8_31 = 2^31 - 399, LS18 margin 1.30x verified in
+   practice (100 inversions + zero-divisor control + full Sigma round);
+   k = 16 infeasible at single-limb q. RING_MULT_BOTTLENECK.md
+   Section 6.1/6.3.)*
 4. **Q4 — concentration-bound formalization.** Restart-on-oversize
    discipline and the 2^-64 soundness surcharge need a written lemma
    (extension of Lemma 6.3); worst-case fallback costs two-limb q for Pi2.

@@ -50,7 +50,22 @@ Suite: PATH=... python3 -m unittest discover -s tests  (must stay 37/37; ring_la
       chain fits with 2.5 bits headroom. ALL GREEN. 37/37 suite green.
 
 ## Next
-- [ ] U3: DROPPED (see scope change above; A1 handled by parallel agent).
+- [x] U5: RING_MULT_BOTTLENECK.md gained "Section 6. Results -- the
+      measurement gate" (6.1 Q3 verified/measured incl. LS18 frontier +
+      corrected the wrong '~10-13 at 2^31' estimate; 6.2 Q2 design +
+      (k,q,e) frontier; 6.3 measured mult + commit-kernel tables; 6.4
+      revised commit bill (~34x vs Route Z on CPU, ~20 s with GPU 20x)
+      and 15s ladder; 6.5 gate verdict: Q2+Q3+A2 alone = ~25-45 s, gate
+      does NOT close without A1; closes at ~15 s if A1 meets its
+      op-count projection; A3 stays parked). Old Section 6 renumbered 7.
+      LLM_SCALE_ESTIMATE.md: measured row added to the Section 3 lever
+      table (old Q2/Q3 row marked superseded), tranche-update paragraph,
+      Section 3b ops/element measured note. ROUTE_R_DESIGN.md: update
+      notes at the q-size lever, finding-3 trade, Section 7 commit
+      bullet + 2x gating, Section 9 Q2/Q3 marked RESOLVED. A1 rows
+      everywhere marked "pending -- see A1 agent".
+- [-] U3: DROPPED (scope change; A1 handled by parallel agent in
+      aux_ntt.rs -- parent session reconciles at merge).
 - [x] U4/A2: generic recursive Karatsuba (correctness ref) + fixed-buffer
       Karatsuba (kara64 depth-2 / kara16 depth-1, i128 lazy, single final
       reduction) + amortized-split GEMM commit kernels (rows pre-split per
@@ -63,9 +78,7 @@ Suite: PATH=... python3 -m unittest discover -s tests  (must stay 37/37; ring_la
       1.10-1.17 (8.1x, ~9e5 ring-MACs/s). Karatsuba pays in GEMM (lazy
       i128 across columns), not in single mults; A1 rows marked pending.
       ALL GREEN.
-- [ ] U5: results into RING_MULT_BOTTLENECK.md; reconcile
-      LLM_SCALE_ESTIMATE.md + ROUTE_R_DESIGN.md (mark superseded); state
-      15s-gate verdict; A1 rows marked "pending -- see A1 agent".
+(all units complete; final suite verification + commit pending)
 
 ## Key decisions
 - k=8 residue class: q = 2k+1 mod 4k = 17 mod 32 (v2(q-1) = 4, primitive
