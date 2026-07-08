@@ -18,7 +18,16 @@ Suite: PATH=... python3 -m unittest discover -s tests  (37/37 must stay green)
       order check, roundtrip incl. all-(p-1) input, NTT product == schoolbook mod p incl.
       worst-case-magnitude and X^127*X wraparound cases. Longa-Naehrig merged-twist
       convention (CT-DIT fwd bit-reversed output / GS-DIF inv) worked as written.
-- [ ] U2: capacity analysis + regime table (exact u128 checks; printed by the bin).
+- [x] U2: capacity analysis + regime table (exact u128 checks; printed by the bin).
+      Regimes measured exactly (u128, no floats): (a) key x ternary FITS single prime
+      with FULL module-dim accumulation (q46 FFN N_r=72: 59-bit bound vs 63-bit capacity;
+      headroom to n_acc = 2047) — the golden case. (b) key x 12sigma masks: q31 prototype
+      JUST fits (63-bit bound); all q46 shapes exceed by ~28 bits -> limb-split fallback.
+      (b') quinary x mod-q combination sums fit single prime up to 1023 accumulated terms
+      at q46. (c) general x general: 97 bits at q46 -> limb-split (L=23 balanced halves,
+      3 Karatsuba sub-products, mid transform via NTT linearity = 2 fwd per operand,
+      3 inv + exact i128 recompose + mod q). All paths exactness-tested vs schoolbook
+      mod q at q46 and q31, incl. worst-case-magnitude inputs hitting d*(q-1)/2 exactly.
 - [ ] U3: GEMM-shaped commit kernel (cached key transforms, u128 lazy accumulation), exactness cross-checks.
 - [ ] U4: benchmarks (schoolbook / ternary-schoolbook / k2-split / A1-single / A1-limb-split), medians over pinned reps, single-threaded.
 - [ ] U5: report A1_AUX_NTT_REPORT.md + revised commit-bill projection.
@@ -49,7 +58,9 @@ Suite: PATH=... python3 -m unittest discover -s tests  (37/37 must stay green)
 
 ## Next
 
-U2: capacity analysis in aux_ntt.rs — exact u128 regime checks (a/b/c), printed
-regime table; balanced-lift helpers Zq -> Zp and centered recovery Zp -> Z -> Zq;
-limb-split general product (3 Karatsuba sub-products) with exactness test vs
-schoolbook mod q.
+U3: GEMM-shaped commit kernel C = G * R in aux_ntt.rs — cache NTT(G) once,
+one fwd NTT per R-column element, pointwise MAC in NTT domain (reduce each
+product to u64, accumulate u64s in u128 — safe to 2^64 terms), one inv NTT
+per output element, centered recovery + mod q. Cross-check vs schoolbook
+commit at small sizes AND vs the worst-case accumulator input (all rows
+identical +-M pattern, ternary all-ones columns -> exact N_r*d*(q-1)/2).

@@ -239,6 +239,333 @@ fn negacyclic_schoolbook_p(a: &[u64; D], b: &[u64; D]) -> [u64; D] {
 }
 
 // ---------------------------------------------------------------------------
+// Lifts between the protocol domain (balanced representatives mod q) and the
+// helper domain Z_p, plus exact recovery.
+//
+// The exact-integer contract: if every coefficient of the true integer
+// product/accumulation satisfies |c| <= (p-1)/2, then its value mod p
+// determines it uniquely, and `center_from_p` recovers it. Whether the
+// contract holds is a static property of the operand-norm regime — the
+// capacity analysis below — never of the data.
+
+/// Balanced representative of v mod q, |result| <= (q-1)/2.
+#[inline(always)]
+fn balanced_mod_q(v: u64, q: u64) -> i64 {
+    if v > q / 2 { v as i64 - q as i64 } else { v as i64 }
+}
+
+/// Lift a balanced integer (|v| < p/2) into Z_p.
+#[inline(always)]
+fn lift_to_p(v: i64) -> u64 {
+    if v >= 0 { v as u64 } else { P.wrapping_sub(v.unsigned_abs()) }
+}
+
+/// Centered representative of u in Z_p, in (-(p-1)/2, (p-1)/2].
+#[inline(always)]
+fn center_from_p(u: u64) -> i128 {
+    if u > P / 2 { u as i128 - P as i128 } else { u as i128 }
+}
+
+/// Reduce an exact integer to [0, q).
+#[inline(always)]
+fn mod_q_i128(x: i128, q: u64) -> u64 {
+    let r = x % q as i128;
+    if r < 0 { (r + q as i128) as u64 } else { r as u64 }
+}
+
+// ---------------------------------------------------------------------------
+// U2: capacity analysis. Exact u128 checks of the single-prime contract
+//     n_acc * d * A * B <= (p-1)/2
+// where A, B are the operand magnitude bounds (balanced representatives) and
+// n_acc is how many ring products are accumulated before leaving the NTT
+// domain (the module dimension N_r for the commit kernel).
+
+/// Returns (fits_single_prime, bit_length_of_bound). Exact integer math.
+fn capacity(n_acc: u128, a_max: u128, b_max: u128) -> (bool, u32) {
+    // Largest case used: 2^11 * 2^7 * 2^45 * 2^45 = 2^108 — no u128 overflow.
+    let bound = n_acc
+        .checked_mul(D as u128)
+        .and_then(|x| x.checked_mul(a_max))
+        .and_then(|x| x.checked_mul(b_max))
+        .expect("capacity bound overflows u128 — regime out of scope");
+    (bound <= (P as u128 - 1) / 2, 128 - bound.leading_zeros())
+}
+
+/// Largest n_acc that keeps the single-prime contract for (A, B).
+fn max_n_acc(a_max: u128, b_max: u128) -> u128 {
+    (P as u128 - 1) / 2 / (D as u128) / a_max / b_max
+}
+
+fn print_capacity_table() {
+    println!("[U2] capacity regimes (single Goldilocks prime: bound <= (p-1)/2, i.e. 63 bits)");
+    println!(
+        "  {:<44} {:>8} {:>8} {:>6} {:>10} {:>6}  {}",
+        "operands (balanced magnitudes)", "log2 A", "log2 B", "n_acc", "bound bits", "fits", "prime config"
+    );
+    let bits = |x: u128| 128 - x.leading_zeros();
+    let mut row = |label: &str, a: u128, b: u128, n_acc: u128| {
+        let (fits, bnd_bits) = capacity(n_acc, a, b);
+        let config = if fits { "single-prime NTT" } else { "limb-split x3 Karatsuba" };
+        println!(
+            "  {:<44} {:>8} {:>8} {:>6} {:>10} {:>6}  {}",
+            label,
+            bits(a).saturating_sub(1),
+            bits(b).saturating_sub(1),
+            n_acc,
+            bnd_bits,
+            if fits { "YES" } else { "no" },
+            config
+        );
+    };
+    let half = |q: u64| ((q - 1) / 2) as u128;
+
+    // (a) THE GOLDEN CASE: key (mod q) x ternary randomness — the commit
+    // kernel, the dominant LLM-scale cost. Fits ONE prime even at q46 with
+    // the full module-dimension accumulated in the NTT domain.
+    row("(a) key x ternary, q46, FFN N_r=72", half(Q46), 1, 72);
+    row("(a) key x ternary, q46, n2048 N_r=54", half(Q46), 1, 54);
+    row("(a) key x ternary, q31, proto N_r=26", half(Q31), 1, 26);
+    println!(
+        "      golden case headroom: ternary columns at q46 accumulate up to n_acc = {} in-domain",
+        max_n_acc(half(Q46), 1)
+    );
+
+    // (b) key x small-Gaussian masks (12*sigma tail cut, alpha = 12 window
+    // rejection as in the prototypes). sigma values: ROUTE_R_DESIGN Section 3
+    // (log2 sigma = 28.6 / 30.0 rounded up to the next power of two — the
+    // verdict is bits-scale either way); prototype sigma exact (ring_lattice
+    // derive_sigma_params: 177,186).
+    row("(b) key x mask 12s, q31 proto s=177186", half(Q31), 12 * 177_186, 26);
+    row("(b) key x mask 12s, q46 n2048 s~2^28.6", half(Q46), 12 * (1u128 << 29), 54);
+    row("(b) key x mask 12s, q46 FFN s~2^30", half(Q46), 12 * (1u128 << 30), 72);
+    println!(
+        "      single-prime capacity at q46 ends at B <= {} (12*sigma), i.e. sigma <~ {} — all protocol sigmas exceed it",
+        max_n_acc(half(Q46), 1),
+        max_n_acc(half(Q46), 1) / 12
+    );
+
+    // (b') quinary challenge x general mod-q: protocol combination sums.
+    row("(b') quinary chal x mod-q, q46, 1023 terms", 2, half(Q46), 1023);
+    println!(
+        "      combination sums c*t / sum s_i a_i stay single-prime up to n_acc = {} terms at q46 (chunk or partial-reduce beyond)",
+        max_n_acc(2, half(Q46))
+    );
+
+    // (c) general mod-q x mod-q (response x response, gate garbage terms).
+    row("(c) general x general, q46", half(Q46), half(Q46), 1);
+    row("(c) general x general, q31", half(Q31), half(Q31), 1);
+    // Limb-split sub-product capacity (the fallback's own contract).
+    let l46 = limb_bits(Q46);
+    let l31 = limb_bits(Q31);
+    row("(c) limb sub-products (lo+hi), q46", 1u128 << l46, 1u128 << l46, 1);
+    row("(c) limb sub-products (lo+hi), q31", 1u128 << l31, 1u128 << l31, 1);
+    println!(
+        "      limb-split sub-products keep >= 10 bits of headroom: even general GEMMs may accumulate n_acc <= {} at q46",
+        max_n_acc(1u128 << l46, 1u128 << l46)
+    );
+}
+
+// ---------------------------------------------------------------------------
+// The general-regime fallback: balanced limb-splitting with 3 Karatsuba
+// sub-products over the SAME Goldilocks prime (chosen over two-prime CRT:
+// op counts are a wash — 3 Goldilocks pointwise muls vs 1 Goldilocks + 1
+// Montgomery mul + Garner reconstruction — and limb-split reuses the one
+// NTT/reduction path; estimate documented in A1_AUX_NTT_REPORT.md).
+//
+// a = a1*2^L + a0 with |a0| <= 2^(L-1), |a1| <= q/2^(L+1) + 1; likewise b.
+//   a*b = P0 + 2^L*(PM - P0 - P2) + 2^2L*P2,  P0 = a0 b0, P2 = a1 b1,
+//   PM = (a0+a1)(b0+b1).
+// The mid transform comes from NTT linearity (NTT(a0)+NTT(a1)) — only 2
+// forward transforms per operand. Recombination MUST happen on exact
+// integers (3 inverse transforms, centered recovery), then mod q: scaling
+// by 2^L / 2^2L inside Z_p would overflow the capacity contract.
+
+/// Limb size: half the bit length of (q-1)/2, rounded up.
+fn limb_bits(q: u64) -> u32 {
+    let bits = 64 - ((q - 1) / 2).leading_zeros();
+    bits.div_ceil(2)
+}
+
+/// Split a balanced value into balanced limbs (v = hi*2^L + lo).
+#[inline(always)]
+fn split_limbs(v: i64, l: u32) -> (i64, i64) {
+    let half = 1i64 << (l - 1);
+    let full = 1i64 << l;
+    let lo = (v % full + full + half) % full - half; // balanced remainder
+    let hi = (v - lo) >> l;
+    (lo, hi)
+}
+
+/// General mod-q x mod-q negacyclic ring product via the limb-split path.
+/// Inputs/outputs in [0, q). Exact for any q with limb sub-products inside
+/// the capacity contract (checked once by the caller/self-test).
+fn ring_mul_q_limbsplit(a: &[u64], b: &[u64], q: u64, t: &NttTables) -> Vec<u64> {
+    let l = limb_bits(q);
+    let mut a0 = [0u64; D];
+    let mut a1 = [0u64; D];
+    let mut b0 = [0u64; D];
+    let mut b1 = [0u64; D];
+    for i in 0..D {
+        let (lo, hi) = split_limbs(balanced_mod_q(a[i], q), l);
+        a0[i] = lift_to_p(lo);
+        a1[i] = lift_to_p(hi);
+        let (lo, hi) = split_limbs(balanced_mod_q(b[i], q), l);
+        b0[i] = lift_to_p(lo);
+        b1[i] = lift_to_p(hi);
+    }
+    ntt_fwd(&mut a0, t);
+    ntt_fwd(&mut a1, t);
+    ntt_fwd(&mut b0, t);
+    ntt_fwd(&mut b1, t);
+    let mut p0 = [0u64; D];
+    let mut p2 = [0u64; D];
+    let mut pm = [0u64; D];
+    for i in 0..D {
+        p0[i] = mul_p(a0[i], b0[i]);
+        p2[i] = mul_p(a1[i], b1[i]);
+        pm[i] = mul_p(add_p(a0[i], a1[i]), add_p(b0[i], b1[i]));
+    }
+    ntt_inv(&mut p0, t);
+    ntt_inv(&mut p2, t);
+    ntt_inv(&mut pm, t);
+    let mut out = vec![0u64; D];
+    for k in 0..D {
+        let v0 = center_from_p(p0[k]);
+        let v2 = center_from_p(p2[k]);
+        let vm = center_from_p(pm[k]);
+        // exact: |v| <= d * 2^(2L) <= 2^53 at q46; scaled by 2^2L fits i128.
+        let c = v0 + ((vm - v0 - v2) << l) + (v2 << (2 * l));
+        out[k] = mod_q_i128(c, q);
+    }
+    out
+}
+
+/// Short-operand (regime a/b') single-prime ring product: a general mod q,
+/// b balanced small (|b| <= b_max with d*q/2*b_max within capacity).
+fn ring_mul_q_single(a: &[u64], b_small: &[i64], q: u64, t: &NttTables) -> Vec<u64> {
+    let mut fa = [0u64; D];
+    let mut fb = [0u64; D];
+    for i in 0..D {
+        fa[i] = lift_to_p(balanced_mod_q(a[i], q));
+        fb[i] = lift_to_p(b_small[i]);
+    }
+    ntt_fwd(&mut fa, t);
+    ntt_fwd(&mut fb, t);
+    let mut fc = [0u64; D];
+    for i in 0..D {
+        fc[i] = mul_p(fa[i], fb[i]);
+    }
+    ntt_inv(&mut fc, t);
+    fc.iter().map(|&u| mod_q_i128(center_from_p(u), q)).collect()
+}
+
+/// Reference: negacyclic schoolbook mod q, inputs in [0, q). u128 lazy
+/// accumulation is exact: 128 * (q46-1)^2 < 2^99.
+fn ring_mul_q_schoolbook(a: &[u64], b: &[u64], q: u64) -> Vec<u64> {
+    let mut pos = [0u128; D];
+    let mut neg = [0u128; D];
+    for i in 0..D {
+        if a[i] == 0 {
+            continue;
+        }
+        for j in 0..D {
+            let prod = a[i] as u128 * b[j] as u128;
+            let k = i + j;
+            if k < D {
+                pos[k] += prod;
+            } else {
+                neg[k - D] += prod;
+            }
+        }
+    }
+    (0..D)
+        .map(|k| {
+            let p = (pos[k] % q as u128) as u64;
+            let n = (neg[k] % q as u128) as u64;
+            if p >= n { p - n } else { p + q - n }
+        })
+        .collect()
+}
+
+fn selftest_capacity_and_fallback() {
+    println!("[U2] lifts, single-prime short-operand path, limb-split fallback");
+    let t = build_tables();
+    let mut rng = 0xa1a1_0002u64;
+
+    for &q in &[Q46, Q31] {
+        let qb = 64 - q.leading_zeros();
+        // regime (a): key x ternary, random.
+        let mut ok = true;
+        for _ in 0..50 {
+            let a: Vec<u64> = (0..D).map(|_| rng_below(&mut rng, q)).collect();
+            let b_small: Vec<i64> =
+                (0..D).map(|_| (rng_below(&mut rng, 3) as i64) - 1).collect();
+            let b_mod: Vec<u64> = b_small.iter().map(|&v| mod_q_i128(v as i128, q)).collect();
+            if ring_mul_q_single(&a, &b_small, q, &t) != ring_mul_q_schoolbook(&a, &b_mod, q) {
+                ok = false;
+                break;
+            }
+        }
+        assert_true(&format!("single-prime key x ternary = schoolbook mod q ({qb}-bit q, 50 inputs)"), ok);
+
+        // regime (a) worst case: hits the bound n=1, d * (q-1)/2 exactly.
+        // a_0 = +M, a_i = -M (i >= 1), b = all ones: c_0 = d * M.
+        let m = (q - 1) / 2;
+        let mut a = vec![q - m; D]; // -M mod q
+        a[0] = m;
+        let b_small = vec![1i64; D];
+        let b_mod = vec![1u64; D];
+        let got = ring_mul_q_single(&a, &b_small, q, &t);
+        let want = ring_mul_q_schoolbook(&a, &b_mod, q);
+        let exact_c0 = (D as u128) * (m as u128);
+        assert_true(
+            &format!(
+                "worst-case magnitude (c_0 = d*(q-1)/2, {} bits) exact ({qb}-bit q)",
+                128 - exact_c0.leading_zeros()
+            ),
+            got == want && got[0] == (exact_c0 % q as u128) as u64,
+        );
+
+        // regime (b') quinary x general.
+        let mut ok = true;
+        for _ in 0..50 {
+            let a: Vec<u64> = (0..D).map(|_| rng_below(&mut rng, q)).collect();
+            let c_small: Vec<i64> =
+                (0..D).map(|_| (rng_below(&mut rng, 5) as i64) - 2).collect();
+            let c_mod: Vec<u64> = c_small.iter().map(|&v| mod_q_i128(v as i128, q)).collect();
+            if ring_mul_q_single(&a, &c_small, q, &t) != ring_mul_q_schoolbook(&a, &c_mod, q) {
+                ok = false;
+                break;
+            }
+        }
+        assert_true(&format!("single-prime quinary x mod-q = schoolbook ({qb}-bit q, 50 inputs)"), ok);
+
+        // regime (c): general x general via limb split, random + worst case.
+        let l = limb_bits(q);
+        let (fits, _) = capacity(1, 1u128 << l, 1u128 << l);
+        assert_true(&format!("limb sub-product contract holds (L = {l}, {qb}-bit q)"), fits);
+        let mut ok = true;
+        for trial in 0..50 {
+            let mut a: Vec<u64> = (0..D).map(|_| rng_below(&mut rng, q)).collect();
+            let mut b: Vec<u64> = (0..D).map(|_| rng_below(&mut rng, q)).collect();
+            if trial == 0 {
+                // worst case: max-magnitude balanced values everywhere.
+                a = vec![(q - 1) / 2; D];
+                b = vec![q - (q - 1) / 2; D];
+            }
+            if ring_mul_q_limbsplit(&a, &b, q, &t) != ring_mul_q_schoolbook(&a, &b, q) {
+                ok = false;
+                break;
+            }
+        }
+        assert_true(
+            &format!("limb-split general x general = schoolbook mod q ({qb}-bit q, 50 inputs incl. worst case)"),
+            ok,
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
 // RNG (splitmix64, same discipline as the sibling prototypes).
 
 fn splitmix64(state: &mut u64) -> u64 {
@@ -404,6 +731,8 @@ fn main() {
     println!("  helper prime p = {P} = 2^64 - 2^32 + 1 (no protocol role)");
 
     selftest_goldilocks();
+    selftest_capacity_and_fallback();
+    print_capacity_table();
 
     if mode == "bench" {
         println!("[bench] not yet implemented");
