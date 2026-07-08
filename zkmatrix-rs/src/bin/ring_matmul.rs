@@ -508,7 +508,7 @@ fn ct_prove_verify_case(
     run_negatives: bool,
 ) {
     use ring::ct_engine::{
-        CtClaim, StdOpening, ct_h0, derive_ct_round_params, derive_theta, g_slot_of,
+        CtClaim, StdOpening, ct_h0, derive_ct_round_params, derive_theta,
         pack_functional, prove_ct_round, sample_ct_masks, theta_rows, verify_ct_round,
     };
     let ring_ctx = ring::ring_ctx(q, zeta, 8);
@@ -584,17 +584,17 @@ fn ct_prove_verify_case(
     let mut rng_a = rng_seed ^ 0x1111;
     let mut rng_b = rng_seed ^ 0x1111;
     let (proof, attempts) =
-        prove_ct_round(&a1_path, &ring_ctx, &rp, &crs, &h0, &claims, &openings, &[], n_wit, &mut rng_a);
+        prove_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &openings, &[], &[], n_wit, &mut rng_a);
     assert_true(
         &format!("[{label}] ct-round verifies, {l} theta claims (attempts = {attempts})"),
-        verify_ct_round(&a1_path, &ring_ctx, &rp, &crs, &h0, &claims, &t1s, &t2s, &[], n_wit, &proof),
+        verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &t1s, &t2s, &[], &[], &[], n_wit, &proof),
     );
     assert_true(
         &format!("[{label}] ct-round verifies on the schoolbook path"),
-        verify_ct_round(&school, &ring_ctx, &rp, &crs, &h0, &claims, &t1s, &t2s, &[], n_wit, &proof),
+        verify_ct_round(&school, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &t1s, &t2s, &[], &[], &[], n_wit, &proof),
     );
     let (proof_s, attempts_s) =
-        prove_ct_round(&school, &ring_ctx, &rp, &crs, &h0, &claims, &openings, &[], n_wit, &mut rng_b);
+        prove_ct_round(&school, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &openings, &[], &[], n_wit, &mut rng_b);
     assert_true(
         &format!("[{label}] same-seed ct proofs bit-identical across paths"),
         attempts == attempts_s
@@ -608,16 +608,20 @@ fn ct_prove_verify_case(
         return;
     }
     let reverify = |p: &ring::ct_engine::CtRoundProof, claims: &[CtClaim]| -> bool {
-        verify_ct_round(&a1_path, &ring_ctx, &rp, &crs, &h0, claims, &t1s, &t2s, &[], n_wit, p)
+        verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, claims, &[], &t1s, &t2s, &[], &[], &[], n_wit, p)
     };
     let clone_proof = |p: &ring::ct_engine::CtRoundProof| ring::ct_engine::CtRoundProof {
         h: p.h.clone(),
         w1: p.w1.clone(),
         w1_ajtai: p.w1_ajtai.clone(),
         w_claim: p.w_claim.clone(),
+        w_ring: p.w_ring.clone(),
         z: p.z.clone(),
         z_rho_ajtai: p.z_rho_ajtai.clone(),
         z_s_ajtai: p.z_s_ajtai.clone(),
+        t1_digits: p.t1_digits.clone(),
+        w1_digits: p.w1_digits.clone(),
+        z_digits: p.z_digits.clone(),
     };
     // Wrong scalar.
     let bad_claims: Vec<CtClaim> = claims
@@ -655,7 +659,7 @@ fn ct_prove_verify_case(
     let h0_bad = ct_h0(&crs, b"other-ctx", &t1s, &t2s, &[]);
     assert_true(
         &format!("[{label}] wrong context fails"),
-        !verify_ct_round(&a1_path, &ring_ctx, &rp, &crs, &h0_bad, &claims, &t1s, &t2s, &[], n_wit, &proof),
+        !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0_bad, &claims, &[], &t1s, &t2s, &[], &[], &[], n_wit, &proof),
     );
 }
 
@@ -766,11 +770,11 @@ fn self_test_ct_engine() {
         .collect();
     let ajtai_open = AjtaiOpening { com: &acom, s: &m_packed, rho: &rho_m };
     let (proof, attempts) = prove_ct_round(
-        &a1_path, &ring_ctx, &rp, &crs, &h0, &claims, &openings, &[ajtai_open], n_wit, &mut rng,
+        &a1_path, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &openings, &[], &[ajtai_open], n_wit, &mut rng,
     );
     assert_true(
         &format!("ARP: 256 JL ct-claims verify (attempts = {attempts})"),
-        verify_ct_round(&a1_path, &ring_ctx, &rp, &crs, &h0, &claims, &t1s, &t2s, &[&acom], n_wit, &proof),
+        verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &t1s, &t2s, &[], &[], &[&acom], n_wit, &proof),
     );
     // Tampered reveal: claims built with a shifted y must fail.
     let mut y_bad = y.clone();
@@ -778,12 +782,478 @@ fn self_test_ct_engine() {
     let bad_claims = arp_claims(&zq, &ap, &jl, &msg_slots, 0, &y_bad);
     assert_true(
         "ARP tampered reveal y fails (ct check)",
-        !verify_ct_round(&a1_path, &ring_ctx, &rp, &crs, &h0, &bad_claims, &t1s, &t2s, &[&acom], n_wit, &proof),
+        !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &bad_claims, &[], &t1s, &t2s, &[], &[], &[&acom], n_wit, &proof),
     );
     // Oversized reveal rejected by the range gate.
     let mut y_big = y.clone();
     y_big[0] = ring::isqrt_u128(ap.y_bound_sq) as i64 + 1;
     assert_true("ARP oversized reveal fails the range gate", !arp_check_reveal(&ap, &y_big));
+}
+
+// ===========================================================================
+// U4: ring-Pi1. Statement: PUBLIC R-linear map A (design Section 4 option
+// (a): block-negacyclic in the coefficient basis, i.e. A given as ring
+// elements A_ring in R^(rows_r x inner_r) — shift/gadget matrices,
+// convolutions, block-selection maps), column commitments to hidden B and
+// C; claim: C = A B, i.e. per column j and output slot i:
+//     sum_k A_ring[i][k] * bpack_{j,k} = cpack_{j,i}.
+//
+// Protocol (r = 1):
+//   1. Column compression by transcription: ONE quinary ring-challenge
+//      vector v (from h0) combines both sides: T_b = sum_j v_j com(b_j),
+//      T_c = sum_j v_j com(c_j); x_b = sum_j v_j bpack_j etc. Per-slot
+//      soundness 2^-296. Because A's coefficients are RING elements,
+//      A commutes with the v-combination — the compressed claim
+//      sum_k A_ring[i][k] x_{b,k} = x_{c,i} holds identically for honest
+//      parties. The combined randomness has combination magnitude, so the
+//      T_b/T_c openings are digit-decomposed (Q2).
+//   2. rows_r ring-valued linear claims through the ct-engine (no theta,
+//      no g-masks, no reveals — nothing leaks; W_rl is simulatable).
+//
+// Q1 FINDING (this build; recorded for the report): option (b) as written
+// in ROUTE_R_DESIGN.md Section 4 — general A with theta output-compression
+// over v-combined commitments — does NOT type-check: ring-challenge column
+// compression and a general A do not commute (A M(v_j) != M(v_j) A for the
+// negacyclic matrix M(v_j) of v_j), so <A^T theta, unpack(x_b)> =
+// <theta, unpack(x_c)> fails even for honest parties. Sound alternatives
+// all lose a leg of the triangle {r = 1 proof size, l-matvec verifier,
+// general A}: per-column openings (proof linear in cols), scalar-challenge
+// mini-repetition of the compression layer (r_v ~ 111 digit bundles,
+// ~MB-class), or the ALS20 automorphism basis (d ring products per block).
+// The critical path (Pi2 hidden-weight matmuls; gadget-internal structured
+// maps) needs only option (a), implemented here. General-A Pi1 is parked
+// as a design-iteration item with the costed alternatives.
+//
+// Digit-coverage aborts: the combined randomness is concentration-sized;
+// on the rare draw where a coefficient exceeds the digit range the prover
+// bumps a public salt in h0 and redraws v (FS-with-aborts; abort
+// transcripts are simulatable exactly like rejection aborts).
+
+struct RingPi1Proof {
+    salt: u64,
+    ct: ring::ct_engine::CtRoundProof,
+}
+
+struct Pi1Shape {
+    rows_r: usize,  // output slots per column (ceil(rows / D))
+    inner_r: usize, // input slots per column (ceil(inner / D))
+    cols: usize,
+}
+
+fn pi1_h0(
+    crs: &ring::commit::RingCrs,
+    shape: &Pi1Shape,
+    ctx: &[u8],
+    salt: u64,
+    a_ring: &[Poly],
+    tb: &[(Vec<Poly>, Vec<Poly>)],
+    tc: &[(Vec<Poly>, Vec<Poly>)],
+) -> [u8; 32] {
+    use sha2::{Digest, Sha256};
+    let mut hasher = Sha256::new();
+    hasher.update(b"route-r-pi1-stmt-v1");
+    hasher.update(crs.q.to_le_bytes());
+    hasher.update(crs.crs_hash);
+    hasher.update((shape.rows_r as u64).to_le_bytes());
+    hasher.update((shape.inner_r as u64).to_le_bytes());
+    hasher.update((shape.cols as u64).to_le_bytes());
+    hasher.update((ctx.len() as u64).to_le_bytes());
+    hasher.update(ctx);
+    hasher.update(salt.to_le_bytes());
+    hasher.update(polys_bytes(a_ring));
+    for (t1, t2) in tb.iter().chain(tc.iter()) {
+        hasher.update(polys_bytes(t1));
+        hasher.update(polys_bytes(t2));
+    }
+    hasher.finalize().into()
+}
+
+fn pi1_column_challenges(h0: &[u8; 32], cols: usize) -> Vec<Vec<i64>> {
+    let mut reader = XofReader::new("pi1-v", &[h0]);
+    (0..cols).map(|_| reader.next_challenge()).collect()
+}
+
+/// Does x fit L balanced base-2^e digits? (digit_decompose panics; the
+/// prover salt-aborts instead.)
+fn digit_fits(x: i64, e: u32, l: usize) -> bool {
+    let base = 1i64 << e;
+    let half = base >> 1;
+    let mut rem = x;
+    for _ in 0..l {
+        let mut d = rem % base;
+        if d >= half {
+            d -= base;
+        }
+        if d < -half {
+            d += base;
+        }
+        rem = (rem - d) / base;
+    }
+    rem == 0
+}
+
+/// The ring-valued claims: for each output slot i,
+///   sum_k A_ring[i][k] * x_{Tb, k}  -  x_{Tc, i}  =  0.
+/// Commitment index space: T_b at digit index 0, T_c at digit index 1
+/// (the round has no plain commitments).
+fn pi1_ring_claims(zq: &ring::Zq, shape: &Pi1Shape, a_ring: &[Poly]) -> Vec<ring::ct_engine::RingClaim> {
+    let minus_one = {
+        let mut p = poly_zero();
+        p[0] = zq.neg(1);
+        p
+    };
+    (0..shape.rows_r)
+        .map(|i| {
+            let mut msg_coeffs: Vec<(usize, usize, Poly)> = (0..shape.inner_r)
+                .map(|k| (0usize, k, a_ring[i * shape.inner_r + k].clone()))
+                .collect();
+            msg_coeffs.push((1, i, minus_one.clone()));
+            ring::ct_engine::RingClaim { msg_coeffs }
+        })
+        .collect()
+}
+
+#[allow(clippy::too_many_arguments)]
+fn prove_ring_pi1(
+    path: &KernelPath,
+    ring_ctx: &RingCtx,
+    crs: &ring::commit::RingCrs,
+    rp: &ring::ct_engine::CtRoundParams,
+    dp: &ring::sigma::DigitParams,
+    shape: &Pi1Shape,
+    ctx: &[u8],
+    a_ring: &[Poly],
+    b_cols: &[Vec<Poly>],
+    rho_b: &[Vec<Vec<i64>>],
+    c_cols: &[Vec<Poly>],
+    rho_c: &[Vec<Vec<i64>>],
+    tb: &[(Vec<Poly>, Vec<Poly>)],
+    tc: &[(Vec<Poly>, Vec<Poly>)],
+    rng: &mut u64,
+) -> (RingPi1Proof, usize) {
+    use ring::ct_engine::{DigitOpening, prove_ct_round};
+    let msg_r = crs.shape.msg_r;
+
+    // Salted column compression: redraw v when the combined randomness
+    // exceeds the digit range (concentration tail).
+    let mut salt = 0u64;
+    let (h0, x_b, rho_vb, x_c, rho_vc, tb1, tb2, tc1, tc2) = loop {
+        let h0 = pi1_h0(crs, shape, ctx, salt, a_ring, tb, tc);
+        let v = pi1_column_challenges(&h0, shape.cols);
+        let combine_msgs = |cols: &[Vec<Poly>]| -> Vec<Poly> {
+            (0..msg_r)
+                .map(|u| {
+                    let group: Vec<Poly> = cols.iter().map(|col| col[u].clone()).collect();
+                    ring::commit::combine_polys(path, ring_ctx, &group, &v, 2)
+                })
+                .collect()
+        };
+        let combine_t = |t: &[(Vec<Poly>, Vec<Poly>)], part: usize| -> Vec<Poly> {
+            let groups: Vec<Vec<Poly>> =
+                t.iter().map(|(t1, t2)| if part == 0 { t1.clone() } else { t2.clone() }).collect();
+            ring::commit::combine_groups(path, ring_ctx, &groups, &v, 2)
+        };
+        let rho_vb = ring::commit::combine_small(rho_b, &v);
+        let rho_vc = ring::commit::combine_small(rho_c, &v);
+        let fits = rho_vb
+            .iter()
+            .chain(rho_vc.iter())
+            .all(|col| col.iter().all(|&x| digit_fits(x, dp.e, dp.l)));
+        if !fits {
+            salt += 1;
+            continue;
+        }
+        break (
+            h0,
+            combine_msgs(b_cols),
+            rho_vb,
+            combine_msgs(c_cols),
+            rho_vc,
+            combine_t(tb, 0),
+            combine_t(tb, 1),
+            combine_t(tc, 0),
+            combine_t(tc, 1),
+        );
+    };
+
+    let claims = pi1_ring_claims(&ring_ctx.zq, shape, a_ring);
+    let digits = [
+        DigitOpening { t1: &tb1, t2: &tb2, x: &x_b, rho_wide: &rho_vb },
+        DigitOpening { t1: &tc1, t2: &tc2, x: &x_c, rho_wide: &rho_vc },
+    ];
+    let (ct, attempts) = prove_ct_round(
+        path, ring_ctx, rp, Some(dp), crs, &h0, &[], &claims, &[], &digits, &[], 0, rng,
+    );
+    (RingPi1Proof { salt, ct }, attempts)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn verify_ring_pi1(
+    path: &KernelPath,
+    ring_ctx: &RingCtx,
+    crs: &ring::commit::RingCrs,
+    rp: &ring::ct_engine::CtRoundParams,
+    dp: &ring::sigma::DigitParams,
+    shape: &Pi1Shape,
+    ctx: &[u8],
+    a_ring: &[Poly],
+    tb: &[(Vec<Poly>, Vec<Poly>)],
+    tc: &[(Vec<Poly>, Vec<Poly>)],
+    proof: &RingPi1Proof,
+) -> bool {
+    use ring::ct_engine::verify_ct_round;
+    if tb.len() != shape.cols || tc.len() != shape.cols {
+        return false;
+    }
+    if a_ring.len() != shape.rows_r * shape.inner_r {
+        return false;
+    }
+    // Cap the salt: the honest abort probability per draw is tiny, so a
+    // large salt is grinding, not completeness.
+    if proof.salt > 64 {
+        return false;
+    }
+    let h0 = pi1_h0(crs, shape, ctx, proof.salt, a_ring, tb, tc);
+    let v = pi1_column_challenges(&h0, shape.cols);
+    let combine_t = |t: &[(Vec<Poly>, Vec<Poly>)], part: usize| -> Vec<Poly> {
+        let groups: Vec<Vec<Poly>> =
+            t.iter().map(|(t1, t2)| if part == 0 { t1.clone() } else { t2.clone() }).collect();
+        ring::commit::combine_groups(path, ring_ctx, &groups, &v, 2)
+    };
+    let tb1 = combine_t(tb, 0);
+    let tb2 = combine_t(tb, 1);
+    let tc1 = combine_t(tc, 0);
+    let tc2 = combine_t(tc, 1);
+    let claims = pi1_ring_claims(&ring_ctx.zq, shape, a_ring);
+    verify_ct_round(
+        path,
+        ring_ctx,
+        rp,
+        Some(dp),
+        crs,
+        &h0,
+        &[],
+        &claims,
+        &[],
+        &[],
+        &[tb1, tc1],
+        &[tb2, tc2],
+        &[],
+        0,
+        &proof.ct,
+    )
+}
+
+/// Pack a length-n Z_q column into msg_r ring elements (zero-padded).
+fn pack_column(n: usize, msg_r: usize, col: &[u64]) -> Vec<Poly> {
+    (0..msg_r)
+        .map(|u| (0..D).map(|i| if u * D + i < n { col[u * D + i] } else { 0 }).collect())
+        .collect()
+}
+
+fn clone_ct_proof(p: &ring::ct_engine::CtRoundProof) -> ring::ct_engine::CtRoundProof {
+    ring::ct_engine::CtRoundProof {
+        h: p.h.clone(),
+        w1: p.w1.clone(),
+        w1_ajtai: p.w1_ajtai.clone(),
+        w_claim: p.w_claim.clone(),
+        w_ring: p.w_ring.clone(),
+        z: p.z.clone(),
+        z_rho_ajtai: p.z_rho_ajtai.clone(),
+        z_s_ajtai: p.z_s_ajtai.clone(),
+        t1_digits: p.t1_digits.clone(),
+        w1_digits: p.w1_digits.clone(),
+        z_digits: p.z_digits.clone(),
+    }
+}
+
+fn self_test_pi1() {
+    use ring::ct_engine::derive_ct_round_params;
+    println!("\n[U4] ring-Pi1 (option a, R-linear A) at 256->128 x 64 columns, q8_31");
+    let q = Q8;
+    let ring_ctx = ring_ctx_q8();
+    let zq = ring_ctx.zq;
+    // A: rows_r = 1 output slot (rows = 128), inner_r = 2 input slots
+    // (inner = 256), acting on 64 columns.
+    let shape = Pi1Shape { rows_r: 1, inner_r: 2, cols: 64 };
+    let (rows, inner) = (shape.rows_r * D, shape.inner_r * D);
+    let e = 4u32;
+    let p = derive_digits(Proto::Pi1, rows, inner, shape.cols, 0, q, true, e)
+        .expect("Pi1 demo point must fit q31");
+    let cshape = CommitShape { kappa: p.kappa, n_r: p.n_r, msg_r: p.msg_r };
+    println!(
+        "  params: kappa={} N_r={} msg_r={} e={} L={} (C2 headroom {:.1} bits)",
+        p.kappa, p.n_r, p.msg_r, p.e, p.l_dig, p.c2_headroom_bits()
+    );
+    let crs = expand_crs(cshape, q, 1234);
+    let w_inf = p.w_u.ceil() as i64;
+    let dp = derive_digit_params(q, cshape.kappa, cshape.n_r, e, p.l_dig, w_inf);
+    let rp = derive_ct_round_params(q, cshape, 1, 0, 0, true);
+    let a1p = build_a1_paths(
+        &crs,
+        rp.sigma.max(dp.sigma),
+        isqrt_u128(rp.bound_sq.max(dp.bound_sq)),
+    );
+    let a1_path = KernelPath::A1(&a1p);
+    let school = KernelPath::School;
+    let mut rng = 0x5eed_0006u64;
+
+    // Instance: A_ring random (a dense R-linear map), B random, C = A B
+    // computed in the ring per column.
+    let a_ring: Vec<Poly> =
+        (0..shape.rows_r * shape.inner_r).map(|_| rng_poly_mod(&mut rng, q)).collect();
+    let b_cols_mat: Vec<Vec<Poly>> = (0..shape.cols)
+        .map(|_| (0..shape.inner_r).map(|_| rng_poly_mod(&mut rng, q)).collect())
+        .collect();
+    let apply_a = |bp: &[Poly]| -> Vec<Poly> {
+        (0..shape.rows_r)
+            .map(|i| {
+                let mut acc = poly_zero();
+                for k in 0..shape.inner_r {
+                    let prod = ring_mul_split_kara_fast(&ring_ctx, &a_ring[i * shape.inner_r + k], &bp[k]);
+                    acc = poly_add(&zq, &acc, &prod);
+                }
+                acc
+            })
+            .collect()
+    };
+    let pad = |x: Vec<Poly>| -> Vec<Poly> {
+        let mut x = x;
+        while x.len() < cshape.msg_r {
+            x.push(poly_zero());
+        }
+        x
+    };
+    let mut b_cols = Vec::new();
+    let mut rho_b = Vec::new();
+    let mut tb = Vec::new();
+    let mut c_cols = Vec::new();
+    let mut rho_c = Vec::new();
+    let mut tc = Vec::new();
+    for bp in &b_cols_mat {
+        let cx = pad(apply_a(bp));
+        let bx = pad(bp.clone());
+        let rb: Vec<Vec<i64>> = (0..cshape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+        let rc: Vec<Vec<i64>> = (0..cshape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+        let (t1b, t2b) = commit(&a1_path, &crs, &bx, &rb);
+        let (t1c, t2c) = commit(&a1_path, &crs, &cx, &rc);
+        b_cols.push(bx);
+        rho_b.push(rb);
+        tb.push((t1b, t2b));
+        c_cols.push(cx);
+        rho_c.push(rc);
+        tc.push((t1c, t2c));
+    }
+
+    let ctxb = b"route-r-pi1-demo";
+    let t0 = Instant::now();
+    let mut rng_a = 0xabcd_0002u64;
+    let (proof, attempts) = prove_ring_pi1(
+        &a1_path, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, &a_ring, &b_cols, &rho_b, &c_cols,
+        &rho_c, &tb, &tc, &mut rng_a,
+    );
+    let prove_ms = t0.elapsed().as_secs_f64() * 1e3;
+    let t1 = Instant::now();
+    let ok =
+        verify_ring_pi1(&a1_path, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, &a_ring, &tb, &tc, &proof);
+    let verify_ms = t1.elapsed().as_secs_f64() * 1e3;
+    assert_true(
+        &format!(
+            "pi1 verifies (attempts = {attempts}, salt = {}, prove {prove_ms:.0} ms, verify {verify_ms:.0} ms)",
+            proof.salt
+        ),
+        ok,
+    );
+    assert_true(
+        "pi1 verifies on the schoolbook path",
+        verify_ring_pi1(&school, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, &a_ring, &tb, &tc, &proof),
+    );
+    // Same-seed transcript identity across kernel paths.
+    let mut rng_b = 0xabcd_0002u64;
+    let (proof_s, attempts_s) = prove_ring_pi1(
+        &school, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, &a_ring, &b_cols, &rho_b, &c_cols,
+        &rho_c, &tb, &tc, &mut rng_b,
+    );
+    assert_true(
+        "pi1 same-seed proofs bit-identical across paths",
+        attempts == attempts_s
+            && proof.salt == proof_s.salt
+            && proof.ct.w_ring == proof_s.ct.w_ring
+            && proof.ct.z_digits == proof_s.ct.z_digits
+            && proof.ct.t1_digits == proof_s.ct.t1_digits,
+    );
+
+    // Negative battery (transferred from Route Z pi1 test-for-test).
+    // (a) C != A B: honest prover machinery on a wrong instance fails the
+    // ring-claim message-side check deterministically.
+    {
+        let mut c_cols_bad = c_cols.clone();
+        c_cols_bad[0][0][0] = zq.add(c_cols_bad[0][0][0], 1);
+        let rc_bad: Vec<Vec<i64>> = (0..cshape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+        let (t1cb, t2cb) = commit(&a1_path, &crs, &c_cols_bad[0], &rc_bad);
+        let mut tc_bad = tc.clone();
+        tc_bad[0] = (t1cb, t2cb);
+        let mut rho_c_bad = rho_c.clone();
+        rho_c_bad[0] = rc_bad;
+        let (bad_proof, _) = prove_ring_pi1(
+            &a1_path, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, &a_ring, &b_cols, &rho_b,
+            &c_cols_bad, &rho_c_bad, &tb, &tc_bad, &mut rng,
+        );
+        assert_true(
+            "pi1 semantic soundness: C != A B fails",
+            !verify_ring_pi1(&a1_path, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, &a_ring, &tb, &tc_bad, &bad_proof),
+        );
+    }
+    // (b) tampered digit response.
+    {
+        let mut bad = RingPi1Proof { salt: proof.salt, ct: clone_ct_proof(&proof.ct) };
+        bad.ct.z_digits[0][0][0][0] += 1;
+        assert_true(
+            "pi1 tampered digit response fails",
+            !verify_ring_pi1(&a1_path, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, &a_ring, &tb, &tc, &bad),
+        );
+    }
+    // (c) wrong public A.
+    {
+        let mut a_bad = a_ring.clone();
+        a_bad[0][0] = zq.add(a_bad[0][0], 1);
+        assert_true(
+            "pi1 wrong public A fails",
+            !verify_ring_pi1(&a1_path, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, &a_bad, &tb, &tc, &proof),
+        );
+    }
+    // (d) wrong context.
+    assert_true(
+        "pi1 wrong context fails",
+        !verify_ring_pi1(&a1_path, &ring_ctx, &crs, &rp, &dp, &shape, b"other", &a_ring, &tb, &tc, &proof),
+    );
+    // (e) tampered commitment.
+    {
+        let mut tb_bad = tb.clone();
+        tb_bad[0].0[0][0] = zq.add(tb_bad[0].0[0][0], 1);
+        assert_true(
+            "pi1 tampered column commitment fails",
+            !verify_ring_pi1(&a1_path, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, &a_ring, &tb_bad, &tc, &proof),
+        );
+    }
+    // (f) +q norm overflow.
+    {
+        let mut bad = RingPi1Proof { salt: proof.salt, ct: clone_ct_proof(&proof.ct) };
+        bad.ct.z_digits[0][0][0][0] += q as i64;
+        assert_true(
+            "pi1 +q norm-overflow response fails",
+            !verify_ring_pi1(&a1_path, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, &a_ring, &tb, &tc, &bad),
+        );
+    }
+    // Proof-size accounting: digit statements/masks + responses + W.
+    let ring_elems = proof.ct.t1_digits.iter().flatten().map(|t| t.len()).sum::<usize>()
+        + proof.ct.w1_digits.iter().flatten().map(|t| t.len()).sum::<usize>()
+        + proof.ct.w_ring.len();
+    let z_coeffs = proof.ct.z_digits.iter().flatten().flatten().map(|v| v.len()).sum::<usize>();
+    let sigma_bits = (dp.sigma as f64).log2() + 4.0;
+    let kb = (ring_elems * D) as f64 * 31.0 / 8.0 / 1024.0
+        + z_coeffs as f64 * sigma_bits / 8.0 / 1024.0;
+    println!("  pi1 proof ~{kb:.0} KB (r = 1; {ring_elems} ring elements + {z_coeffs} response coeffs)");
 }
 
 fn usage() {
@@ -800,6 +1270,7 @@ fn main() {
             self_test_params();
             self_test_openings();
             self_test_ct_engine();
+            self_test_pi1();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         _ => usage(),

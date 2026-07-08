@@ -95,12 +95,40 @@ pub struct CtClaim {
     pub scalar: i64,
 }
 
+/// One RING-VALUED linear claim: sum_(i,j) a_(i,j) x_(i,j) = 0 over R_q
+/// (all D coefficients — no ct projection, no g-mask, no reveal; W_rl is
+/// simulatable from the verification equation, so nothing leaks). This is
+/// the natural claim form for R-linear public maps (design Section 4
+/// option (a): negacyclic-block A, shift/gadget matrices, convolutions,
+/// block-selection). Per-slot soundness 2^-296 via the same two-transcript
+/// extraction as the ct-claims.
+pub struct RingClaim {
+    pub msg_coeffs: Vec<(usize, usize, Poly)>,
+}
+
 /// Prover-side view of one standard commitment in the batch.
 pub struct StdOpening<'a> {
     pub t1: &'a [Poly],
     pub t2: &'a [Poly],
     pub x: &'a [Poly],
     pub rho: &'a [Vec<i64>],
+}
+
+/// A COMBINED commitment (a challenge combination of column commitments —
+/// Pi1/Pi2's transcription lift): its randomness rho_wide = sum_j v_j
+/// rho_j has combination magnitude, so its opening inside the ct-round is
+/// digit-decomposed (Q2): published digit statements T1_j with the public
+/// recombination sum_j 2^(ej) T1_j = T1, per-digit Sigma equations sharing
+/// the round's challenge, and 2^(ej)-weighted response sums on the
+/// message side:
+///   c x = c T2 - sum_j 2^(ej) (A2 z_j) + sum_j 2^(ej) (A2 y_j).
+/// The verifier computes T1/T2 itself (combination sums of the public
+/// column groups), so the digit statements bind to the statement.
+pub struct DigitOpening<'a> {
+    pub t1: &'a [Poly],
+    pub t2: &'a [Poly],
+    pub x: &'a [Poly],
+    pub rho_wide: &'a [Vec<i64>],
 }
 
 /// Ajtai commitment t = A1 rho + B s (B: kappa x s_r, expanded from the
@@ -251,30 +279,58 @@ pub fn pack_functional(zq: &super::Zq, w: &[u64], slots: usize) -> Vec<Poly> {
 
 pub struct CtRoundProof {
     pub h: Vec<Poly>,             // one reveal per claim
-    pub w1: Vec<Vec<Poly>>,       // per std commitment: A1-side mask image
+    pub w1: Vec<Vec<Poly>>,       // per plain commitment: A1-side mask image
     pub w1_ajtai: Vec<Vec<Poly>>, // per Ajtai commitment: A1 rho-mask + B s-mask image
-    pub w_claim: Vec<Poly>,       // per claim: combined message-side mask image
-    pub z: Vec<Vec<Vec<i64>>>,    // per std commitment: response
+    pub w_claim: Vec<Poly>,       // per ct-claim: combined message-side mask image
+    pub w_ring: Vec<Poly>,        // per ring-claim: combined message-side mask image
+    pub z: Vec<Vec<Vec<i64>>>,    // per plain commitment: response
     pub z_rho_ajtai: Vec<Vec<Vec<i64>>>, // per Ajtai commitment: rho response
     pub z_s_ajtai: Vec<Vec<Vec<i64>>>,   // per Ajtai commitment: s response
+    // Digit-opened combined commitments (empty when the round has none).
+    pub t1_digits: Vec<Vec<Vec<Poly>>>,   // per digit commitment: [L][kappa]
+    pub w1_digits: Vec<Vec<Vec<Poly>>>,   // per digit commitment: [L][kappa]
+    pub z_digits: Vec<Vec<Vec<Vec<i64>>>>, // per digit commitment: [L][n_r]
 }
 
-/// Challenge hash: h0 (binds crs/ctx/commitments) + reveals + all first
-/// messages. The reveals h_l are theta-dependent, so they enter here, not
-/// h0.
+/// Challenge hash: h0 (binds crs/ctx/commitments) + reveals + digit
+/// statements + all first messages. The reveals h_l are theta-dependent,
+/// so they enter here, not h0.
 fn ct_challenge(h0: &[u8; 32], proof_head: &CtRoundProof) -> Vec<i64> {
     let mut hasher = Sha256::new();
     hasher.update(h0);
     hasher.update(polys_bytes(&proof_head.h));
+    for td in &proof_head.t1_digits {
+        for t in td {
+            hasher.update(polys_bytes(t));
+        }
+    }
     for w in &proof_head.w1 {
         hasher.update(polys_bytes(w));
     }
     for w in &proof_head.w1_ajtai {
         hasher.update(polys_bytes(w));
     }
+    for wd in &proof_head.w1_digits {
+        for w in wd {
+            hasher.update(polys_bytes(w));
+        }
+    }
     hasher.update(polys_bytes(&proof_head.w_claim));
+    hasher.update(polys_bytes(&proof_head.w_ring));
     let digest: [u8; 32] = hasher.finalize().into();
     XofReader::new("chal-ct", &[&digest]).next_challenge()
+}
+
+/// Message-side combination WITHOUT the g-slot term (ring claims have no
+/// mask element).
+fn ring_claim_combo(ring: &RingCtx, claim: &RingClaim, groups: &[Vec<Poly>]) -> Poly {
+    let zq = &ring.zq;
+    let mut acc = poly_zero();
+    for (i, j, coeff) in &claim.msg_coeffs {
+        let prod = ring_mul_split_kara_fast(ring, coeff, &groups[*i][*j]);
+        acc = poly_add(zq, &acc, &prod);
+    }
+    acc
 }
 
 /// The claim's message-side combination over any per-commitment group
@@ -333,21 +389,25 @@ pub fn g_slot_of(l: usize, msg_r: usize, g_base: usize) -> (usize, usize) {
     (g_base + l / msg_r, l % msg_r)
 }
 
-/// Prove a batch of linear ct-claims. `openings` lists ALL standard
-/// commitments of the round INCLUDING the g-commitments (appended last, in
-/// sample_ct_masks order); `g_base` is the index of the first
-/// g-commitment. h0 must bind crs, ctx and every commitment (std + Ajtai
-/// + g) — the claims' coefficients (theta-derived by the caller) must be
-/// derived from that same h0.
+/// Prove a batch of linear ct-claims. Commitment index space for claims:
+/// plain commitments first (0..plain.len(), g-commitments appended last
+/// inside that range, `g_base` = index of the first), then digit-opened
+/// combined commitments (plain.len()..). h0 must bind crs, ctx and every
+/// commitment — the claims' coefficients (theta-derived by the caller)
+/// must be derived from that same h0. `dp` is required when digits is
+/// non-empty (one shared digit chain for all combined commitments).
 #[allow(clippy::too_many_arguments)]
 pub fn prove_ct_round(
     path: &KernelPath,
     ring: &RingCtx,
     rp: &CtRoundParams,
+    dp: Option<&super::sigma::DigitParams>,
     crs: &RingCrs,
     h0: &[u8; 32],
     claims: &[CtClaim],
-    openings: &[StdOpening],
+    ring_claims: &[RingClaim],
+    plain: &[StdOpening],
+    digits: &[DigitOpening],
     ajtai: &[AjtaiOpening],
     g_base: usize,
     rng: &mut u64,
@@ -355,15 +415,19 @@ pub fn prove_ct_round(
     let zq = &ring.zq;
     let shape = crs.shape;
     let msg_r = shape.msg_r;
+    assert!(digits.is_empty() || dp.is_some(), "digit openings need DigitParams");
+    // All messages in index order (plain then digits) for reveals/W.
+    let all_x: Vec<&[Poly]> =
+        plain.iter().map(|o| o.x).chain(digits.iter().map(|o| o.x)).collect();
     // Reveals: h_l = g_l + f_l(witness).
     let h: Vec<Poly> = claims
         .iter()
         .enumerate()
         .map(|(l, claim)| {
             let (gi, gs) = g_slot_of(l, msg_r, g_base);
-            let mut acc = openings[gi].x[gs].clone();
+            let mut acc = all_x[gi][gs].clone();
             for (i, j, coeff) in &claim.msg_coeffs {
-                let prod = ring_mul_split_kara_fast(ring, coeff, &openings[*i].x[*j]);
+                let prod = ring_mul_split_kara_fast(ring, coeff, &all_x[*i][*j]);
                 acc = poly_add(zq, &acc, &prod);
             }
             let s_vecs: Vec<&[Vec<i64>]> = ajtai.iter().map(|a| a.s).collect();
@@ -372,11 +436,23 @@ pub fn prove_ct_round(
         })
         .collect();
 
+    // Digit decomposition of the wide randomness + digit statements
+    // (witness data — computed once, outside the rejection loop).
+    let (dig_e, dig_l) = dp.map(|d| (d.e, d.l)).unwrap_or((1, 0));
+    let u_digs: Vec<Vec<Vec<Vec<i64>>>> = digits
+        .iter()
+        .map(|o| super::digit_split_witness(o.rho_wide, dig_e, dig_l))
+        .collect();
+    let t1_digits: Vec<Vec<Vec<Poly>>> = u_digs
+        .iter()
+        .map(|ud| ud.iter().map(|uj| a1_matvec(path, crs, MatvecKind::Mask, uj)).collect())
+        .collect();
+
     let mut attempts = 0usize;
     loop {
         attempts += 1;
         // Masks.
-        let ys: Vec<Vec<Vec<i64>>> = (0..openings.len())
+        let ys: Vec<Vec<Vec<i64>>> = (0..plain.len())
             .map(|_| (0..shape.n_r).map(|_| gaussian_ivec(rng, D, rp.sigma)).collect())
             .collect();
         let y_rho_a: Vec<Vec<Vec<i64>>> = (0..ajtai.len())
@@ -385,6 +461,18 @@ pub fn prove_ct_round(
         let y_s_a: Vec<Vec<Vec<i64>>> = ajtai
             .iter()
             .map(|a| (0..a.s.len()).map(|_| gaussian_ivec(rng, D, rp.sigma_s)).collect())
+            .collect();
+        let y_digs: Vec<Vec<Vec<Vec<i64>>>> = digits
+            .iter()
+            .map(|_| {
+                (0..dig_l)
+                    .map(|_| {
+                        (0..shape.n_r)
+                            .map(|_| gaussian_ivec(rng, D, dp.unwrap().sigma))
+                            .collect()
+                    })
+                    .collect()
+            })
             .collect();
         // First messages: A1-side images.
         let w1: Vec<Vec<Poly>> = ys.iter().map(|y| a1_matvec(path, crs, MatvecKind::Mask, y)).collect();
@@ -397,9 +485,23 @@ pub fn prove_ct_round(
                 base.iter().zip(bs.iter()).map(|(x, y)| poly_add(zq, x, y)).collect()
             })
             .collect();
-        // Message-side mask images per commitment (A2 y), then per-claim
-        // combination W_l = YA_l - YS_l.
-        let a2y: Vec<Vec<Poly>> = ys.iter().map(|y| a2_matvec(path, crs, MatvecKind::Mask, y)).collect();
+        let w1_digits: Vec<Vec<Vec<Poly>>> = y_digs
+            .iter()
+            .map(|yd| yd.iter().map(|yj| a1_matvec(path, crs, MatvecKind::Mask, yj)).collect())
+            .collect();
+        // Message-side mask images: per plain commitment A2 y; per digit
+        // commitment the 2^(ej)-weighted digit-mask sum.
+        let a2y_plain: Vec<Vec<Poly>> =
+            ys.iter().map(|y| a2_matvec(path, crs, MatvecKind::Mask, y)).collect();
+        let a2y_dig: Vec<Vec<Poly>> = y_digs
+            .iter()
+            .map(|yd| {
+                let per_dig: Vec<Vec<Poly>> =
+                    yd.iter().map(|yj| a2_matvec(path, crs, MatvecKind::Mask, yj)).collect();
+                weighted_digit_sum(zq, &per_dig, dig_e)
+            })
+            .collect();
+        let a2y: Vec<Vec<Poly>> = a2y_plain.into_iter().chain(a2y_dig).collect();
         let w_claim: Vec<Poly> = claims
             .iter()
             .enumerate()
@@ -411,21 +513,35 @@ pub fn prove_ct_round(
                 poly_sub(zq, &ya, &ysum)
             })
             .collect();
+        let w_ring: Vec<Poly> =
+            ring_claims.iter().map(|rc| ring_claim_combo(ring, rc, &a2y)).collect();
 
         let head = CtRoundProof {
             h: h.clone(),
             w1,
             w1_ajtai,
             w_claim,
+            w_ring,
             z: Vec::new(),
             z_rho_ajtai: Vec::new(),
             z_s_ajtai: Vec::new(),
+            t1_digits: t1_digits.clone(),
+            w1_digits,
+            z_digits: Vec::new(),
         };
         let c = ct_challenge(h0, &head);
 
-        // Responses + joint rejection (std bundle and s bundle separately;
-        // total repetition rate is the product of the two M's).
-        let centers_std: Vec<Vec<Vec<i64>>> = openings
+        // Responses + rejection: three bundles (plain rho + Ajtai rho;
+        // Ajtai s; digit) accepted independently — the repetition rate is
+        // the product of the M's (the joint-scaling rework is the Q4
+        // lemma's scope).
+        let add = |y: &[Vec<i64>], v: &[Vec<i64>]| -> Vec<Vec<i64>> {
+            y.iter()
+                .zip(v.iter())
+                .map(|(yn, vn)| yn.iter().zip(vn.iter()).map(|(&a, &b)| a + b).collect())
+                .collect()
+        };
+        let centers_std: Vec<Vec<Vec<i64>>> = plain
             .iter()
             .map(|o| o.rho.iter().map(|r| poly_mul_small(&c, r)).collect())
             .collect();
@@ -437,29 +553,42 @@ pub fn prove_ct_round(
             .iter()
             .map(|a| a.s.iter().map(|sv| poly_mul_small(&c, sv)).collect())
             .collect();
-        let add = |y: &[Vec<i64>], v: &[Vec<i64>]| -> Vec<Vec<i64>> {
-            y.iter()
-                .zip(v.iter())
-                .map(|(yn, vn)| yn.iter().zip(vn.iter()).map(|(&a, &b)| a + b).collect())
-                .collect()
-        };
+        let centers_dig: Vec<Vec<Vec<Vec<i64>>>> = u_digs
+            .iter()
+            .map(|ud| {
+                ud.iter()
+                    .map(|uj| uj.iter().map(|un| poly_mul_small(&c, un)).collect())
+                    .collect()
+            })
+            .collect();
         let z: Vec<Vec<Vec<i64>>> =
             ys.iter().zip(centers_std.iter()).map(|(y, v)| add(y, v)).collect();
         let z_rho_ajtai: Vec<Vec<Vec<i64>>> =
             y_rho_a.iter().zip(centers_rho_a.iter()).map(|(y, v)| add(y, v)).collect();
         let z_s_ajtai: Vec<Vec<Vec<i64>>> =
             y_s_a.iter().zip(centers_s_a.iter()).map(|(y, v)| add(y, v)).collect();
+        let z_digits: Vec<Vec<Vec<Vec<i64>>>> = y_digs
+            .iter()
+            .zip(centers_dig.iter())
+            .map(|(yd, vd)| yd.iter().zip(vd.iter()).map(|(yj, vj)| add(yj, vj)).collect())
+            .collect();
 
-        let flat = |vs: &[Vec<Vec<i64>>], extra: &[Vec<Vec<i64>>]| -> Vec<i64> {
+        let flat2 = |vs: &[Vec<Vec<i64>>], extra: &[Vec<Vec<i64>>]| -> Vec<i64> {
             vs.iter().chain(extra.iter()).flatten().flatten().copied().collect()
         };
-        let flat_z = flat(&z, &z_rho_ajtai);
-        let flat_v = flat(&centers_std, &centers_rho_a);
+        let flat_z = flat2(&z, &z_rho_ajtai);
+        let flat_v = flat2(&centers_std, &centers_rho_a);
         // Concentration restart rule (when the params were conc-sized).
         if rp.center_sq > 0 && vec_norm_sq_i64(&flat_v) > rp.center_sq {
             continue;
         }
-        let ok_std = rejection_accept(rng, &flat_z, &flat_v, rp.sigma);
+        if let Some(d) = dp {
+            let fv: Vec<i64> = centers_dig.iter().flatten().flatten().flatten().copied().collect();
+            if !centers_dig.is_empty() && vec_norm_sq_i64(&fv) > d.center_sq * digits.len() as u128 {
+                continue;
+            }
+        }
+        let ok_std = flat_z.is_empty() || rejection_accept(rng, &flat_z, &flat_v, rp.sigma);
         let ok_s = if rp.sigma_s == 0 {
             true
         } else {
@@ -467,16 +596,27 @@ pub fn prove_ct_round(
             let fv: Vec<i64> = centers_s_a.iter().flatten().flatten().copied().collect();
             rejection_accept(rng, &fz, &fv, rp.sigma_s)
         };
-        if ok_std && ok_s {
+        let ok_dig = if digits.is_empty() {
+            true
+        } else {
+            let fz: Vec<i64> = z_digits.iter().flatten().flatten().flatten().copied().collect();
+            let fv: Vec<i64> = centers_dig.iter().flatten().flatten().flatten().copied().collect();
+            rejection_accept(rng, &fz, &fv, dp.unwrap().sigma)
+        };
+        if ok_std && ok_s && ok_dig {
             return (
                 CtRoundProof {
                     h: head.h,
                     w1: head.w1,
                     w1_ajtai: head.w1_ajtai,
                     w_claim: head.w_claim,
+                    w_ring: head.w_ring,
                     z,
                     z_rho_ajtai,
                     z_s_ajtai,
+                    t1_digits: head.t1_digits,
+                    w1_digits: head.w1_digits,
+                    z_digits,
                 },
                 attempts,
             );
@@ -484,34 +624,66 @@ pub fn prove_ct_round(
     }
 }
 
+/// sum_j 2^(ej) group_j, element-wise over msg_r-length groups.
+fn weighted_digit_sum(zq: &super::Zq, per_dig: &[Vec<Poly>], e: u32) -> Vec<Poly> {
+    let msg_r = per_dig[0].len();
+    (0..msg_r)
+        .map(|slot| {
+            let mut acc = poly_zero();
+            for (j, grp) in per_dig.iter().enumerate() {
+                let scale = zq.to_mod(1i64 << (e as usize * j));
+                for k in 0..D {
+                    acc[k] = zq.add(acc[k], zq.mul(scale, grp[slot][k]));
+                }
+            }
+            acc
+        })
+        .collect()
+}
+
 /// Verify a ct-round: shapes, exact-integer norms (FIRST — the A1 verify
-/// kernel contract), ct(h_l) = scalar_l, per-commitment A1-side opening
-/// checks, per-claim message-side checks against W_l.
+/// kernel contract), ct(h_l) = scalar_l, digit recombinations against the
+/// verifier-computed combined T1s, per-commitment A1-side opening checks,
+/// per-claim message-side checks against W_l. t1s/t2s: plain commitments
+/// (incl. g-commitments); t1s_dig/t2s_dig: the COMBINED commitments,
+/// computed by the verifier from the public column groups.
 #[allow(clippy::too_many_arguments)]
 pub fn verify_ct_round(
     path: &KernelPath,
     ring: &RingCtx,
     rp: &CtRoundParams,
+    dp: Option<&super::sigma::DigitParams>,
     crs: &RingCrs,
     h0: &[u8; 32],
     claims: &[CtClaim],
-    t1s: &[Vec<Poly>], // per std commitment (incl. g-commitments)
+    ring_claims: &[RingClaim],
+    t1s: &[Vec<Poly>],
     t2s: &[Vec<Poly>],
+    t1s_dig: &[Vec<Poly>],
+    t2s_dig: &[Vec<Poly>],
     ajtai_coms: &[&AjtaiCommit],
     g_base: usize,
     proof: &CtRoundProof,
 ) -> bool {
     let zq = &ring.zq;
     let shape = crs.shape;
-    let n_std = t1s.len();
+    let n_plain = t1s.len();
+    let n_dig = t1s_dig.len();
     if proof.h.len() != claims.len()
-        || proof.w1.len() != n_std
-        || proof.z.len() != n_std
+        || proof.w1.len() != n_plain
+        || proof.z.len() != n_plain
         || proof.w1_ajtai.len() != ajtai_coms.len()
         || proof.z_rho_ajtai.len() != ajtai_coms.len()
         || proof.z_s_ajtai.len() != ajtai_coms.len()
         || proof.w_claim.len() != claims.len()
+        || proof.w_ring.len() != ring_claims.len()
+        || proof.t1_digits.len() != n_dig
+        || proof.w1_digits.len() != n_dig
+        || proof.z_digits.len() != n_dig
     {
+        return false;
+    }
+    if n_dig > 0 && dp.is_none() {
         return false;
     }
     for zi in proof.z.iter().chain(proof.z_rho_ajtai.iter()) {
@@ -519,7 +691,25 @@ pub fn verify_ct_round(
             return false;
         }
     }
-    // Norm checks first (std bundle incl. Ajtai rho parts, then s bundle).
+    let (dig_e, dig_l) = dp.map(|d| (d.e, d.l)).unwrap_or((1, 0));
+    for i in 0..n_dig {
+        if proof.t1_digits[i].len() != dig_l
+            || proof.w1_digits[i].len() != dig_l
+            || proof.z_digits[i].len() != dig_l
+        {
+            return false;
+        }
+        for j in 0..dig_l {
+            if proof.t1_digits[i][j].len() != shape.kappa
+                || proof.w1_digits[i][j].len() != shape.kappa
+                || proof.z_digits[i][j].len() != shape.n_r
+            {
+                return false;
+            }
+        }
+    }
+    // Norm checks first (std bundle incl. Ajtai rho parts, s bundle, digit
+    // bundles per commitment).
     let flat_std: Vec<i64> = proof
         .z
         .iter()
@@ -537,23 +727,48 @@ pub fn verify_ct_round(
             return false;
         }
     }
+    if let Some(d) = dp {
+        for zd in &proof.z_digits {
+            let flat: Vec<i64> = zd.iter().flatten().flatten().copied().collect();
+            if vec_norm_sq_i64(&flat) > d.bound_sq {
+                return false;
+            }
+        }
+    }
     // Deterministic scalar checks.
     for (claim, h) in claims.iter().zip(proof.h.iter()) {
         if ct_coeff(zq, h) != claim.scalar {
             return false;
         }
     }
+    // Digit recombination against the verifier-computed combined T1s.
+    for i in 0..n_dig {
+        for r in 0..shape.kappa {
+            let mut acc = poly_zero();
+            for j in 0..dig_l {
+                let scale = zq.to_mod(1i64 << (dig_e as usize * j));
+                for k in 0..D {
+                    acc[k] = zq.add(acc[k], zq.mul(scale, proof.t1_digits[i][j][r][k]));
+                }
+            }
+            if acc != t1s_dig[i][r] {
+                return false;
+            }
+        }
+    }
     let c = ct_challenge(h0, proof);
     let c_mod = poly_from_small(zq, &c);
+    let mul_ct1 = |t: &Poly| -> Poly {
+        match path {
+            KernelPath::School => ring_mul_split_kara_fast(ring, &c_mod, t),
+            KernelPath::A1(p) => ring_mul_q_single(t, &c, zq.q, &p.nt),
+        }
+    };
     // Per-commitment A1-side opening checks.
-    for i in 0..n_std {
+    for i in 0..n_plain {
         let lhs = a1_matvec(path, crs, MatvecKind::Verify, &proof.z[i]);
         for r in 0..shape.kappa {
-            let ct1 = match path {
-                KernelPath::School => ring_mul_split_kara_fast(ring, &c_mod, &t1s[i][r]),
-                KernelPath::A1(p) => ring_mul_q_single(&t1s[i][r], &c, zq.q, &p.nt),
-            };
-            if lhs[r] != poly_add(zq, &proof.w1[i][r], &ct1) {
+            if lhs[r] != poly_add(zq, &proof.w1[i][r], &mul_ct1(&t1s[i][r])) {
                 return false;
             }
         }
@@ -567,21 +782,39 @@ pub fn verify_ct_round(
         let bs = ring_matvec_small_g(zq, &com.b_mat, shape.kappa, s_r, &proof.z_s_ajtai[a]);
         for r in 0..shape.kappa {
             let lhs = poly_add(zq, &base[r], &bs[r]);
-            let ct1 = match path {
-                KernelPath::School => ring_mul_split_kara_fast(ring, &c_mod, &com.t[r]),
-                KernelPath::A1(p) => ring_mul_q_single(&com.t[r], &c, zq.q, &p.nt),
-            };
-            if lhs != poly_add(zq, &proof.w1_ajtai[a][r], &ct1) {
+            if lhs != poly_add(zq, &proof.w1_ajtai[a][r], &mul_ct1(&com.t[r])) {
                 return false;
             }
         }
     }
+    // Per-digit Sigma equations (shared challenge).
+    for i in 0..n_dig {
+        for j in 0..dig_l {
+            let lhs = a1_matvec(path, crs, MatvecKind::Verify, &proof.z_digits[i][j]);
+            for r in 0..shape.kappa {
+                if lhs[r] != poly_add(zq, &proof.w1_digits[i][j][r], &mul_ct1(&proof.t1_digits[i][j][r])) {
+                    return false;
+                }
+            }
+        }
+    }
     // Per-claim message-side checks: c h_l - c C_l + ZA_l - ZS_l = W_l.
-    let a2z: Vec<Vec<Poly>> =
-        (0..n_std).map(|i| a2_matvec(path, crs, MatvecKind::Verify, &proof.z[i])).collect();
+    // Digit commitments contribute 2^(ej)-weighted response sums.
+    let a2z_plain: Vec<Vec<Poly>> =
+        (0..n_plain).map(|i| a2_matvec(path, crs, MatvecKind::Verify, &proof.z[i])).collect();
+    let a2z_dig: Vec<Vec<Poly>> = (0..n_dig)
+        .map(|i| {
+            let per_dig: Vec<Vec<Poly>> = (0..dig_l)
+                .map(|j| a2_matvec(path, crs, MatvecKind::Verify, &proof.z_digits[i][j]))
+                .collect();
+            weighted_digit_sum(zq, &per_dig, dig_e)
+        })
+        .collect();
+    let a2z: Vec<Vec<Poly>> = a2z_plain.into_iter().chain(a2z_dig).collect();
+    let t2_all: Vec<Vec<Poly>> = t2s.iter().cloned().chain(t2s_dig.iter().cloned()).collect();
     for (l, claim) in claims.iter().enumerate() {
         let g_slot = g_slot_of(l, shape.msg_r, g_base);
-        let c_l = claim_combo(ring, claim, g_slot, t2s);
+        let c_l = claim_combo(ring, claim, g_slot, &t2_all);
         let za_l = claim_combo(ring, claim, g_slot, &a2z);
         let zs_vecs: Vec<&[Vec<i64>]> = proof.z_s_ajtai.iter().map(|v| v.as_slice()).collect();
         let zs_l = ajtai_combo(ring, claim, &zs_vecs);
@@ -589,6 +822,17 @@ pub fn verify_ct_round(
         let cc = ring_mul_split_kara_fast(ring, &c_mod, &c_l);
         let lhs = poly_sub(zq, &poly_add(zq, &poly_sub(zq, &ch, &cc), &za_l), &zs_l);
         if lhs != proof.w_claim[l] {
+            return false;
+        }
+    }
+    // Ring-valued claims: W_rl = ZA_rl - c C_rl (the claim value is the
+    // zero ring element; extraction divides by the invertible challenge
+    // difference and pins sum coeff * x = 0 exactly).
+    for (l, rc) in ring_claims.iter().enumerate() {
+        let c_rl = ring_claim_combo(ring, rc, &t2_all);
+        let za_rl = ring_claim_combo(ring, rc, &a2z);
+        let cc = ring_mul_split_kara_fast(ring, &c_mod, &c_rl);
+        if poly_sub(zq, &za_rl, &cc) != proof.w_ring[l] {
             return false;
         }
     }

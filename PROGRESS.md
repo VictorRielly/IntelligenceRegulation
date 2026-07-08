@@ -41,7 +41,17 @@ Full Route R protocol build, U1-U8 of `docs/zkmatrix-poc/ROUTE_R_DESIGN.md`
       constants (extract 2^22.1, needs < 2^15-class); it closes at q46.
       Gadget-layer consequence handled in U6 (exact/chunked strategies or a
       q46 gadget budget); Q4 lemma write-up flagged in ct_engine.rs header.
-- [ ] U4 ring-Pi1 (option b A-map) + negative battery
+- [x] U4 ring-Pi1 + negative battery — implemented as option (a) (R-linear
+      A: ring-coefficient maps), r = 1: quinary-v column compression with
+      digit-decomposed openings of the combined commitments (generalized
+      ct-round now supports digit openings + ring-valued claims), rows_r
+      ring-valued claims, ~100 KB proofs, prove 38 ms / verify 6 ms at the
+      256->128 x 64 demo.
+      Q1 FINDING (recorded in bin/ring_matmul.rs header comment): option (b)
+      as designed — general A with theta compression over v-combined
+      commitments — does not type-check (ring challenges don't commute with
+      general A); costed alternatives documented; critical path unaffected
+      (Pi2 + structured gadget maps). Full write-up due in U8 docs.
 - [ ] U6 gadget family (binary/range/rescale ct-claims; k=8 slot Hadamard)
 - [ ] U5 ring-Pi2 gate (ct-engine product layer; r_g fallback behind flag)
 - [ ] U7 manifest/chain integration + wave batching + Z-oracle chain demos
