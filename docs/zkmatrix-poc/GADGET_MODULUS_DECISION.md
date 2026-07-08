@@ -164,15 +164,24 @@ the weight width per linked unit of n value coordinates:
 
 | granularity | n values | w_max | rows l | worst \|y\| | honest \|y\| (1.3-tail) | < q31/2? |
 |---|---|---|---|---|---|---|
-| column (msg_r = 32) | 4096 | 22 | 12 | 2^45.0 | 2^36.8 | NO (gate at q46/2 only) |
-| token-block 512x4096 slice | 2097152 | 13 | 20 | 2^45.0 | 2^32.3 | NO (gate at q46/2 only) |
-| full FFN tensor 512x11008 | 5636096 | 11 | 24 | 2^44.4 | 2^31.0 | NO (gate at q46/2 only) |
+| column (msg_r = 32) | 4096 | 22 | 12 | 2^45.0 | 2^37.8 | NO (gate at q46/2 only) |
+| token-block 512x4096 slice | 2097152 | 13 | 20 | 2^45.0 | 2^33.3 | NO (gate at q46/2 only) |
+| full FFN tensor 512x11008 | 5636096 | 11 | 24 | 2^44.4 | 2^32.0 | NO (gate at q46/2 only) |
+
+(Honest-|y| model spike-corrected: xi is centered but the values are
+NOT, so Var(xi*v) = E[xi^2] E[v^2] with E[v^2] = 2^(2W)/3 — the /12
+variant underestimates by ~1 bit; `gadget_link_spike` section [2]
+observes 2^38.1 at column granularity, consistent.)
 
 Range-gate note, stated exactly: only `|y_l| < q46/2` is load-bearing
 (it pins the integer y from its residue on the side that carries the
 integer grounding). The brief's symmetric `|y| < q31/2` check is sound
-but not necessary here; at tensor granularity it would even hurt
-completeness (honest |y| ~ 2^31 at the 1.3-tail). The reusable link
+but NOT satisfiable by the honest prover at w_max at ANY of these
+granularities (honest |y| ~ 2^32-2^38 > 2^30) — it would be a
+completeness break, not a hardening; drop it, or, if a symmetric-gate
+implementation is preferred for uniformity, shrink w until the honest
+tail fits under q31/2 (w = 9, l = 29 rows at full-tensor granularity —
+a 5-row cost for no soundness gain). The reusable link
 interface (Section 3.5) states the rule generically: **range-gate y
 against the GROUNDING side's q/2.** Recommended operating point: full-
 tensor granularity, w = 11, l = 24 rows (fewest rows, coarsest unit).

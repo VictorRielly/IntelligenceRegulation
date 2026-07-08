@@ -26,12 +26,28 @@ aux_ntt_core.rs, or existing docs (annotations go in the decision doc's
       ~7 MB/pass, 2^-264); option (b) verified 2^28.45 per chunk but
       154 GB/pass + 3-9x the claim layer -> rejected; option (c) needs
       SLACK_OP <= 3.79.
-- [ ] Unit 2: docs/zkmatrix-poc/GADGET_MODULUS_DECISION.md — commit.
-- [ ] Unit 3: docs/zkmatrix-poc/Q4_LEMMAS.md (Q4.1–Q4.6) — commit.
-- [ ] Unit 4 (optional): zkmatrix-rs/src/bin/gadget_link_spike.rs
-      (standalone, no test hooks) — commit.
-- [ ] Unit 5: suite green check (only needed if Rust touched), final
-      PROGRESS, report back.
+- [x] Unit 2: docs/zkmatrix-poc/GADGET_MODULUS_DECISION.md — DONE
+      (recommendation: option (a); integration notes + freeze-check
+      gate text included for the merger).
+- [x] Unit 3: docs/zkmatrix-poc/Q4_LEMMAS.md (Q4.1–Q4.6) — DONE.
+      Statuses: Q4.1a PROVEN / Q4.1b SKETCH / Q4.1c PROVEN(i)+SKETCH(ii);
+      Q4.2a PROVEN; Q4.2b PROVEN (joint scaling 21.1 -> 5.7 attempts,
+      engine change is a build item); Q4.3a SKETCH; Q4.3b PROVEN(h)+
+      SKETCH(W); Q4.3c OBLIGATION (FINDING: unmasked Ga/Gb leak
+      bit-plane degeneracy — recommend additive mask slots R1);
+      Q4.4a CITED; Q4.4b OBLIGATION (FINDING: SLACK_OP composition is a
+      budget gate, not a proven bound — q46 closure included);
+      Q4.4' UNPROVEN target (slack <= 3.79 threshold); Q4.5a PROVEN
+      conditional; Q4.5b PROVEN; Q4.6 OBLIGATION (O1-O4 exit criteria
+      for the trace-gate build).
+- [x] Unit 4 (optional): zkmatrix-rs/src/bin/gadget_link_spike.rs —
+      DONE, standalone, NO test hooks, all checks pass (exit 0). The
+      spike CAUGHT a ~1-bit underestimate in the study's honest-|y|
+      model (E[v^2] = 2^2W/3 for uncentered values, not /12) —
+      script + doc corrected; conclusions unchanged ("gate on the
+      grounding side's q/2 only" now spike-verified).
+- [x] Unit 5: full suite green after adding the Rust bin — 41 tests OK
+      (118 s). Script runs clean: python3 scripts/gadget_modulus_study.py.
 
 ## Decisions / findings so far (from the read + hand checks, to be
    script-verified)

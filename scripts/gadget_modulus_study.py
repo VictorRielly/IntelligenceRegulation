@@ -243,9 +243,11 @@ def section_b2():
         rows = link_rows(w_max)
         worst_y = n_val * 2 ** (w_max - 1) * (2 ** W_BITS - 1)
         # honest scale: y = sum of n_val terms xi*v, xi ~ U signed w-bit
-        # (var ~ 2^(2w)/12), v in [0, 2^W) (var <= 2^(2W)/12 worst).
+        # (var 2^(2w)/12, centered), v in [0, 2^W) UNCENTERED: since xi is
+        # centered, Var(xi*v) = E[xi^2] E[v^2] with E[v^2] <= 2^(2W)/3
+        # (spike-verified: the /12 variant underestimates by ~1 bit).
         sd = math.sqrt(n_val * (2 ** (2 * w_max) / 12.0)
-                       * (2 ** (2 * W_BITS) / 12.0))
+                       * (2 ** (2 * W_BITS) / 3.0))
         honest_y = TAIL * sd
         ok31 = "yes" if honest_y < Q31 / 2 else "NO (gate at q46/2 only)"
         print(f"  | {name} | {n_val} | {w_max} | {rows} | 2^{log2(worst_y):.1f}"
