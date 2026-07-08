@@ -80,6 +80,18 @@ pub enum Operation {
     Add { inputs: Vec<u32>, output: u32 },
     /// Class-0 public scalar scaling, recorded proof-free.
     Scale { input: u32, output: u32, scalar_le: Vec<u8> },
+    /// Elementwise product claim Z = X o Y over entry ids (Class 3).
+    Hadamard { x: u32, y: u32, z: u32 },
+    /// Binary constraint B o B = B on a (packed) bit entry.
+    Binary { bits: u32 },
+    /// Range recomposition: `value` equals the width-bit recomposition of
+    /// the per-column packed `bits` entry (signed uses the 2^{width-1}
+    /// offset convention).
+    Range { value: u32, bits: u32, width: u32, signed: bool },
+    /// Rescale-with-rounding link: x = 2^shift * y + r, proven by a
+    /// zero-opening on the combined difference; the ranges on r and y are
+    /// separate Range operations.
+    Rescale { x: u32, y: u32, r: u32, shift: u32 },
 }
 
 #[derive(Clone, Debug, Default)]
@@ -186,6 +198,35 @@ impl ClaimManifest {
                     hasher.update(input.to_le_bytes());
                     hasher.update(output.to_le_bytes());
                     absorb_bytes(&mut hasher, scalar_le);
+                }
+                Operation::Hadamard { x, y, z } => {
+                    hasher.update([6u8]);
+                    hasher.update(x.to_le_bytes());
+                    hasher.update(y.to_le_bytes());
+                    hasher.update(z.to_le_bytes());
+                }
+                Operation::Binary { bits } => {
+                    hasher.update([7u8]);
+                    hasher.update(bits.to_le_bytes());
+                }
+                Operation::Range {
+                    value,
+                    bits,
+                    width,
+                    signed,
+                } => {
+                    hasher.update([8u8]);
+                    hasher.update(value.to_le_bytes());
+                    hasher.update(bits.to_le_bytes());
+                    hasher.update(width.to_le_bytes());
+                    hasher.update([*signed as u8]);
+                }
+                Operation::Rescale { x, y, r, shift } => {
+                    hasher.update([9u8]);
+                    hasher.update(x.to_le_bytes());
+                    hasher.update(y.to_le_bytes());
+                    hasher.update(r.to_le_bytes());
+                    hasher.update(shift.to_le_bytes());
                 }
             }
         }

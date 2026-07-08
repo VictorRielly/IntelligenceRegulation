@@ -249,7 +249,14 @@ struct Params {
     /// when the parameter set was derived without a link).
     sigma_t: u64,
     bound_t_sq: u128,
+    /// Elementwise (Hadamard/binary) gadget Gaussian parameters (M2):
+    /// per-triple centers over single ternary vectors, dimension 3N.
+    sigma_h: u64,
+    bound_h_sq: u128,
 }
+
+/// Largest rescale shift the conservatively folded gadget beta covers.
+const GADGET_MAX_SHIFT: u32 = 12;
 
 fn isqrt_ceil(v: u128) -> u128 {
     if v == 0 {
@@ -276,6 +283,18 @@ fn derive_params_multi(
     shapes: &[Shape],
     link: Option<(usize, usize)>,
 ) -> Params {
+    derive_params_gadget(proto, shapes, link, 0)
+}
+
+/// Full derivation: `min_msg` raises the message dimension for packed
+/// gadget columns (range-proof bit packing needs width * column-length
+/// message slots).
+fn derive_params_gadget(
+    proto: Protocol,
+    shapes: &[Shape],
+    link: Option<(usize, usize)>,
+    min_msg: usize,
+) -> Params {
     assert!(!shapes.is_empty());
     let (b, r) = match proto {
         Protocol::Pi1 => (8u32, 37usize), // r (b-1) = 259 >= 256
@@ -294,6 +313,7 @@ fn derive_params_multi(
     if let Some((link_rows, link_cols)) = link {
         msg = msg.max(link_rows).max(link_cols);
     }
+    msg = msg.max(min_msg);
     // Worst-case combination counts: s combines `rows` commitments, v
     // combines `cols` commitments.
     let max_rows = shapes.iter().map(|s| s.rows).max().unwrap();
@@ -305,6 +325,8 @@ fn derive_params_multi(
     let mut beta = 0u128;
     let mut sigma_t = 0u64;
     let mut bound_t_sq = 0u128;
+    let mut sigma_h = 0u64;
+    let mut bound_h_sq = 0u128;
     for _ in 0..4 {
         let b0 = isqrt_ceil(big_n as u128);
         let (t_sq, dim) = match proto {
@@ -361,6 +383,41 @@ fn derive_params_multi(
                 2 * bound_t + two_b * std::cmp::max(b_rho_s_t, b_rho_v_t);
             beta = std::cmp::max(beta, beta_t);
         }
+        // M2 elementwise gadget (always derived): per-triple rejection
+        // centers (gamma rho_x, gamma rho_y, gamma eta1 + gamma^2 rho_z)
+        // over single ternary vectors -- no m-fold combination -- with
+        // dimension 3N. The extracted SIS norms (2-transcript pair and the
+        // 3-transcript Vandermonde-cleared T_t opening) fold into beta.
+        {
+            let last_h = two_b * b0 + two_b * two_b * b0;
+            let t_sq_h = 2 * (two_b * b0) * (two_b * b0) + last_h * last_h;
+            sigma_h = (12 * isqrt_ceil(t_sq_h)) as u64;
+            bound_h_sq = 36
+                * (sigma_h as u128)
+                * (sigma_h as u128)
+                * (3 * big_n) as u128
+                / 25;
+            let bound_h = isqrt_ceil(bound_h_sq);
+            let beta_h = std::cmp::max(
+                2 * bound_h + two_b * b0,
+                3 * two_b * bound_h + two_b * two_b * two_b * b0,
+            );
+            beta = std::cmp::max(beta, beta_h);
+            // Conservative folding for the rescale/recomposition opening
+            // gadgets at the largest supported composition (max_cols
+            // columns combined with b-bit weights, shift <=
+            // GADGET_MAX_SHIFT): center norm of the masked opening.
+            let center_link = two_b
+                * two_b
+                * max_cols as u128
+                * (2 + (1u128 << GADGET_MAX_SHIFT))
+                * b0;
+            let sigma_link = 12 * isqrt_ceil(center_link * center_link);
+            let bound_link_sq =
+                36 * sigma_link * sigma_link * big_n as u128 / 25;
+            let beta_link = 2 * isqrt_ceil(bound_link_sq) + center_link;
+            beta = std::cmp::max(beta, beta_link);
+        }
         // C3: 2 sqrt(k log2 q log2 delta0) >= log2 beta.
         let log2_beta = (beta as f64).log2();
         k = ((log2_beta / 2.0) * (log2_beta / 2.0) / (LOG2_Q * LOG2_DELTA0))
@@ -383,6 +440,8 @@ fn derive_params_multi(
         beta,
         sigma_t,
         bound_t_sq,
+        sigma_h,
+        bound_h_sq,
     }
 }
 
@@ -1443,6 +1502,710 @@ fn verify_transpose(
 }
 
 // ---------------------------------------------------------------------------
+// M2 elementwise gadget family (Class 3 of the transformer proof plan).
+//
+// Hadamard gadget: prove z = x o y per committed column with the derived-key
+// garbage-term Sigma-protocol. Per repetition draw s from S_b^L; the claim
+// <s o x, y> = s^T z is one inner product where (a) s o x's commitment
+// derives from T_x by scaling the message rows of the second slot by s (key
+// (G1, D_s G2): the first slot is unchanged, so Lemma 5.5 binding applies
+// verbatim, exactly as with Pi2's scalar key), (b) y sits under the standard
+// key, and (c) the scalar s^T z sits under the scalar key g_s = s^T G2 as
+// Pi2's T_t does. 3-special soundness mirrors Theorem 8.3 per triple; a
+// defect d = x o y - z != 0 survives <s, d> = 0 with probability <= 2^-b
+// per repetition. Binary constraints are the special case x = y = z = b.
+//
+// Range proofs pack the W bit-vectors of one column into a single committed
+// "packed" column (slot i*L + t holds bit i of element t), so the binary
+// family runs once per column instead of once per bit vector. The
+// recomposition <s, value_j> = <w, packed_j> with w[i*L + t] = 2^i s_t is
+// linear and batches across all columns with fresh weights u_j into one
+// two-sided scalar-link Sigma-proof per repetition (the transpose-gadget
+// shape, with keys g_s and g_w). Rescale-with-rounding x = 2^shift y + r is
+// a zero-opening proof on the u-combined difference commitment plus range
+// proofs on r (width = shift) and y (declared width); the ranges make the
+// mod-q linear relation an integer relation (no wraparound), which is what
+// turns "x = 2^shift y + r mod q" into floor division.
+
+struct HadamardStatement<'a> {
+    len: usize,
+    tx: &'a [u64],
+    ty: &'a [u64],
+    tz: &'a [u64],
+}
+
+struct HadamardWitness<'a> {
+    x: &'a [u64],
+    y: &'a [u64],
+    rho_x: &'a [i8],
+    rho_y: &'a [i8],
+    rho_z: &'a [i8],
+}
+
+struct HadamardRep {
+    gamma: u64,
+    t1: Vec<u64>,
+    z_a: Vec<u64>,
+    z_b: Vec<u64>,
+    zeta_a: Vec<i64>,
+    zeta_b: Vec<i64>,
+    zeta_q: Vec<i64>,
+}
+
+fn hadamard_statement_hash(
+    crs: &Crs,
+    ctx: &[u8],
+    stmts: &[HadamardStatement],
+) -> [u8; 32] {
+    let mut hasher = Sha256::new();
+    hasher.update(b"lattice-matmul-v2");
+    hasher.update(b"stmt-hadamard");
+    hasher.update(crs.crs_hash);
+    hasher.update((ctx.len() as u64).to_le_bytes());
+    hasher.update(ctx);
+    hasher.update((stmts.len() as u64).to_le_bytes());
+    for st in stmts {
+        hasher.update((st.len as u64).to_le_bytes());
+        hasher.update(words_bytes(st.tx));
+        hasher.update(words_bytes(st.ty));
+        hasher.update(words_bytes(st.tz));
+    }
+    hasher.finalize().into()
+}
+
+/// Scalar key over an s of arbitrary length <= msg: g_s^T = s^T G2[..len].
+fn scalar_key_prefix(params: &Params, crs: &Crs, s: &[u64]) -> Vec<u64> {
+    let mut out = vec![0u128; params.big_n];
+    for (i, &si) in s.iter().enumerate() {
+        let row = &crs.g2[i * params.big_n..(i + 1) * params.big_n];
+        for (o, &g) in out.iter_mut().zip(row.iter()) {
+            *o += mulm(si, g) as u128;
+        }
+    }
+    out.into_iter().map(|acc| (acc % Q as u128) as u64).collect()
+}
+
+fn prove_hadamard(
+    params: &Params,
+    crs: &Crs,
+    ctx: &[u8],
+    stmts: &[HadamardStatement],
+    wits: &[HadamardWitness],
+    rng: &mut u64,
+) -> Vec<Vec<HadamardRep>> {
+    assert_eq!(stmts.len(), wits.len());
+    assert!(params.sigma_h > 0);
+    let big_n = params.big_n;
+    let h0 = hadamard_statement_hash(crs, ctx, stmts);
+    let base = splitmix64(rng);
+    let grid: Vec<(usize, usize)> = (0..stmts.len())
+        .flat_map(|ti| (0..params.r).map(move |ell| (ti, ell)))
+        .collect();
+    let flat: Vec<HadamardRep> = grid
+        .par_iter()
+        .map(|&(ti, ell)| {
+            let st = &stmts[ti];
+            let wit = &wits[ti];
+            let l = st.len;
+            // s is shared per repetition across triples (prefix per length).
+            let mut reader =
+                XofReader::new("s-h", &[&h0, &(ell as u64).to_le_bytes()]);
+            let s: Vec<u64> = (0..l).map(|_| reader.next_sb(params.b)).collect();
+            let g_s = scalar_key_prefix(params, crs, &s);
+            let a: Vec<u64> = (0..l).map(|i| mulm(s[i], wit.x[i])).collect();
+            let mut r = mix_seed(base, (ti * params.r + ell) as u64);
+            loop {
+                let eps_a: Vec<u64> = (0..l).map(|_| rng_field(&mut r)).collect();
+                let eps_b: Vec<u64> = (0..l).map(|_| rng_field(&mut r)).collect();
+                let eta1 = rng_ternary(&mut r, big_n);
+                let noise = gaussian_vec(&mut r, 3 * big_n, params.sigma_h);
+                let eta_a = &noise[..big_n];
+                let eta_b = &noise[big_n..2 * big_n];
+                let eta0 = &noise[2 * big_n..];
+                let g0 = dot_mod(&eps_a, &eps_b);
+                let g1v = addm(dot_mod(&eps_a, &wit.y[..l]), dot_mod(&a, &eps_b));
+                // w_a = (G1 eta_a, s o (G2[..l] eta_a) + eps_a)
+                let mut w_a = matvec_signed_serial(&crs.g1, params.k, big_n, eta_a);
+                let g2ea = matvec_signed_serial(&crs.g2, l, big_n, eta_a);
+                w_a.extend((0..l).map(|i| addm(mulm(s[i], g2ea[i]), eps_a[i])));
+                // w_b = (G1 eta_b, G2[..l] eta_b + eps_b)
+                let mut w_b = matvec_signed_serial(&crs.g1, params.k, big_n, eta_b);
+                let g2eb = matvec_signed_serial(&crs.g2, l, big_n, eta_b);
+                w_b.extend((0..l).map(|i| addm(g2eb[i], eps_b[i])));
+                let mut t0 = matvec_signed_serial(&crs.g1, params.k, big_n, eta0);
+                t0.push(addm(dot_signed(&g_s, eta0), g0));
+                let eta1w: Vec<i64> = eta1.iter().map(|&x| x as i64).collect();
+                let mut t1 = matvec_signed_serial(&crs.g1, params.k, big_n, &eta1w);
+                t1.push(addm(dot_signed(&g_s, &eta1w), g1v));
+                let mut gr = XofReader::new(
+                    "gamma-h",
+                    &[
+                        &h0,
+                        &(ti as u64).to_le_bytes(),
+                        &(ell as u64).to_le_bytes(),
+                        &words_bytes(&w_a),
+                        &words_bytes(&w_b),
+                        &words_bytes(&t0),
+                        &words_bytes(&t1),
+                    ],
+                );
+                let gamma = gr.next_sb(params.b);
+                let g = gamma as i64;
+                let g_sq = g * g;
+                let z_a: Vec<u64> =
+                    (0..l).map(|i| addm(eps_a[i], mulm(gamma, a[i]))).collect();
+                let z_b: Vec<u64> = (0..l)
+                    .map(|i| addm(eps_b[i], mulm(gamma, wit.y[i])))
+                    .collect();
+                let zeta_a: Vec<i64> = (0..big_n)
+                    .map(|j| eta_a[j] + g * wit.rho_x[j] as i64)
+                    .collect();
+                let zeta_b: Vec<i64> = (0..big_n)
+                    .map(|j| eta_b[j] + g * wit.rho_y[j] as i64)
+                    .collect();
+                let zeta_q: Vec<i64> = (0..big_n)
+                    .map(|j| eta0[j] + g * eta1[j] as i64 + g_sq * wit.rho_z[j] as i64)
+                    .collect();
+                let mut response = zeta_a.clone();
+                response.extend_from_slice(&zeta_b);
+                response.extend_from_slice(&zeta_q);
+                let mut center: Vec<i64> =
+                    wit.rho_x.iter().map(|&x| g * x as i64).collect();
+                center.extend(wit.rho_y.iter().map(|&x| g * x as i64));
+                center.extend(
+                    (0..big_n).map(|j| g * eta1[j] as i64 + g_sq * wit.rho_z[j] as i64),
+                );
+                if rejection_accept(&mut r, &response, &center, params.sigma_h) {
+                    return HadamardRep {
+                        gamma,
+                        t1,
+                        z_a,
+                        z_b,
+                        zeta_a,
+                        zeta_b,
+                        zeta_q,
+                    };
+                }
+            }
+        })
+        .collect();
+    flat.chunks(params.r).map(|c| c.iter().map(clone_hrep).collect()).collect()
+}
+
+fn clone_hrep(rep: &HadamardRep) -> HadamardRep {
+    HadamardRep {
+        gamma: rep.gamma,
+        t1: rep.t1.clone(),
+        z_a: rep.z_a.clone(),
+        z_b: rep.z_b.clone(),
+        zeta_a: rep.zeta_a.clone(),
+        zeta_b: rep.zeta_b.clone(),
+        zeta_q: rep.zeta_q.clone(),
+    }
+}
+
+fn verify_hadamard(
+    params: &Params,
+    crs: &Crs,
+    ctx: &[u8],
+    stmts: &[HadamardStatement],
+    proof: &[Vec<HadamardRep>],
+) -> bool {
+    if params.sigma_h == 0 || proof.len() != stmts.len() {
+        return false;
+    }
+    let big_n = params.big_n;
+    for (st, reps) in stmts.iter().zip(proof.iter()) {
+        if st.len > params.msg || reps.len() != params.r {
+            return false;
+        }
+        for rep in reps {
+            if rep.gamma >= (1 << params.b)
+                || rep.t1.len() != params.k + 1
+                || rep.t1.iter().any(|&x| x >= Q)
+                || rep.z_a.len() != st.len
+                || rep.z_b.len() != st.len
+                || rep.z_a.iter().chain(rep.z_b.iter()).any(|&x| x >= Q)
+                || rep.zeta_a.len() != big_n
+                || rep.zeta_b.len() != big_n
+                || rep.zeta_q.len() != big_n
+            {
+                return false;
+            }
+            if norm_sq(&rep.zeta_a) + norm_sq(&rep.zeta_b) + norm_sq(&rep.zeta_q)
+                > params.bound_h_sq
+            {
+                return false;
+            }
+        }
+    }
+    let h0 = hadamard_statement_hash(crs, ctx, stmts);
+    let grid: Vec<(usize, usize)> = (0..stmts.len())
+        .flat_map(|ti| (0..params.r).map(move |ell| (ti, ell)))
+        .collect();
+    grid.par_iter().all(|&(ti, ell)| {
+        let st = &stmts[ti];
+        let rep = &proof[ti][ell];
+        let l = st.len;
+        let mut reader = XofReader::new("s-h", &[&h0, &(ell as u64).to_le_bytes()]);
+        let s: Vec<u64> = (0..l).map(|_| reader.next_sb(params.b)).collect();
+        let g_s = scalar_key_prefix(params, crs, &s);
+        let gamma = rep.gamma;
+        let gamma_sq = mulm(gamma, gamma);
+        // (i): w_a = (G1 zeta_a - gamma tx1, s o (G2 zeta_a) + z_a - gamma s o tx2)
+        let mut w_a = matvec_signed_serial(&crs.g1, params.k, big_n, &rep.zeta_a);
+        for i in 0..params.k {
+            w_a[i] = subm(w_a[i], mulm(gamma, st.tx[i]));
+        }
+        let g2za = matvec_signed_serial(&crs.g2, l, big_n, &rep.zeta_a);
+        w_a.extend((0..l).map(|i| {
+            subm(
+                addm(mulm(s[i], g2za[i]), rep.z_a[i]),
+                mulm(gamma, mulm(s[i], st.tx[params.k + i])),
+            )
+        }));
+        // (ii): w_b = (G1 zeta_b - gamma ty1, G2 zeta_b + z_b - gamma ty2)
+        let mut w_b = matvec_signed_serial(&crs.g1, params.k, big_n, &rep.zeta_b);
+        for i in 0..params.k {
+            w_b[i] = subm(w_b[i], mulm(gamma, st.ty[i]));
+        }
+        let g2zb = matvec_signed_serial(&crs.g2, l, big_n, &rep.zeta_b);
+        w_b.extend((0..l).map(|i| {
+            subm(
+                addm(g2zb[i], rep.z_b[i]),
+                mulm(gamma, st.ty[params.k + i]),
+            )
+        }));
+        // (iii): t0 = (G1 zeta_q - gamma t1[..k] - gamma^2 tz1,
+        //              <g_s, zeta_q> + <z_a, z_b> - gamma t1[k] - gamma^2 s^T tz2)
+        let mut t0 = matvec_signed_serial(&crs.g1, params.k, big_n, &rep.zeta_q);
+        for i in 0..params.k {
+            t0[i] = subm(
+                subm(t0[i], mulm(gamma, rep.t1[i])),
+                mulm(gamma_sq, st.tz[i]),
+            );
+        }
+        let t_scalar = dot_mod(&s, &st.tz[params.k..params.k + l]);
+        t0.push(subm(
+            subm(
+                addm(dot_signed(&g_s, &rep.zeta_q), dot_mod(&rep.z_a, &rep.z_b)),
+                mulm(gamma, rep.t1[params.k]),
+            ),
+            mulm(gamma_sq, t_scalar),
+        ));
+        let mut gr = XofReader::new(
+            "gamma-h",
+            &[
+                &h0,
+                &(ti as u64).to_le_bytes(),
+                &(ell as u64).to_le_bytes(),
+                &words_bytes(&w_a),
+                &words_bytes(&w_b),
+                &words_bytes(&t0),
+                &words_bytes(&rep.t1),
+            ],
+        );
+        gamma == gr.next_sb(params.b)
+    })
+}
+
+// --------------------------- range / rescale plumbing ----------------------
+
+/// Pack the width-W bit decomposition of a column (values in [0, 2^W)) into
+/// one packed column: slot i*len + t holds bit i of element t.
+fn pack_bits(column: &[u64], width: u32) -> Vec<u64> {
+    let l = column.len();
+    let mut packed = vec![0u64; width as usize * l];
+    for (t, &v) in column.iter().enumerate() {
+        debug_assert!(v < 1u64 << width);
+        for i in 0..width as usize {
+            packed[i * l + t] = (v >> i) & 1;
+        }
+    }
+    packed
+}
+
+struct ScalarLinkRep {
+    gamma: u64,
+    zeta_l: Vec<i64>,
+    zeta_r: Vec<i64>,
+}
+
+/// Gaussian parameters for a masked-opening gadget with the given squared
+/// center-norm bound and dimension multiple of N.
+fn opening_gadget_params(params: &Params, center_sq: u128, dim_mult: usize) -> (u64, u128) {
+    let sigma = (12 * isqrt_ceil(center_sq)) as u64;
+    let bound_sq = 36
+        * (sigma as u128)
+        * (sigma as u128)
+        * (dim_mult * params.big_n) as u128
+        / 25;
+    (sigma, bound_sq)
+}
+
+fn recomposition_statement_hash(
+    crs: &Crs,
+    ctx: &[u8],
+    len: usize,
+    width: u32,
+    signed: bool,
+    value_commits: &[Vec<u64>],
+    packed_commits: &[Vec<u64>],
+) -> [u8; 32] {
+    let mut hasher = Sha256::new();
+    hasher.update(b"lattice-matmul-v2");
+    hasher.update(b"stmt-recomposition");
+    hasher.update(crs.crs_hash);
+    hasher.update((ctx.len() as u64).to_le_bytes());
+    hasher.update(ctx);
+    hasher.update((len as u64).to_le_bytes());
+    hasher.update(width.to_le_bytes());
+    hasher.update([signed as u8]);
+    for group in [value_commits, packed_commits] {
+        hasher.update((group.len() as u64).to_le_bytes());
+        for c in group.iter() {
+            hasher.update(words_bytes(c));
+        }
+    }
+    hasher.finalize().into()
+}
+
+/// Recomposition link: for every column j, <s, value_j> = <w, packed_j>
+/// (- the signed offset), batched over columns with fresh weights u_j into
+/// one two-key Sigma-proof per repetition. Center norms: gamma * (sum_j u_j
+/// rho_j) on both sides.
+#[allow(clippy::too_many_arguments)]
+fn prove_recomposition(
+    params: &Params,
+    crs: &Crs,
+    ctx: &[u8],
+    len: usize,
+    width: u32,
+    signed: bool,
+    value_commits: &[Vec<u64>],
+    packed_commits: &[Vec<u64>],
+    rho_values: &[Vec<i8>],
+    rho_packed: &[Vec<i8>],
+    rng: &mut u64,
+) -> Vec<ScalarLinkRep> {
+    let big_n = params.big_n;
+    let m = value_commits.len();
+    // Center norm per side: gamma * sum_j u_j rho_j with ternary rho and
+    // b-bit u, gamma: per-coordinate <= m 2^{2b}. The 2^i recomposition
+    // coefficients live in the public key g_w, not in the randomness.
+    let center = (1u128 << (2 * params.b)) * m as u128 * isqrt_ceil(big_n as u128);
+    let (sigma_o, _bound_sq_o) =
+        opening_gadget_params(params, 2 * center * center, 2);
+    let h0 = recomposition_statement_hash(
+        crs, ctx, len, width, signed, value_commits, packed_commits,
+    );
+    let base = splitmix64(rng);
+    (0..params.r)
+        .into_par_iter()
+        .map(|ell| {
+            let mut reader =
+                XofReader::new("su-rec", &[&h0, &(ell as u64).to_le_bytes()]);
+            let s: Vec<u64> = (0..len).map(|_| reader.next_sb(params.b)).collect();
+            let u: Vec<u64> = (0..m).map(|_| reader.next_sb(params.b)).collect();
+            let g_s = scalar_key_prefix(params, crs, &s);
+            let wv: Vec<u64> = (0..width as usize * len)
+                .map(|idx| mulm(1u64 << (idx / len), s[idx % len]))
+                .collect();
+            let g_w = scalar_key_prefix(params, crs, &wv);
+            let rho_l = combine_ternary(rho_values, &u);
+            let rho_r = combine_ternary(rho_packed, &u);
+            let mut r = mix_seed(base, ell as u64);
+            loop {
+                let noise = gaussian_vec(&mut r, 2 * big_n, sigma_o);
+                let eta_l = &noise[..big_n];
+                let eta_r = &noise[big_n..];
+                let w1 = matvec_signed_serial(&crs.g1, params.k, big_n, eta_l);
+                let w2 = matvec_signed_serial(&crs.g1, params.k, big_n, eta_r);
+                let w3 = subm(dot_signed(&g_s, eta_l), dot_signed(&g_w, eta_r));
+                let mut gr = XofReader::new(
+                    "gamma-rec",
+                    &[
+                        &h0,
+                        &(ell as u64).to_le_bytes(),
+                        &words_bytes(&w1),
+                        &words_bytes(&w2),
+                        &w3.to_le_bytes(),
+                    ],
+                );
+                let gamma = gr.next_sb(params.b);
+                let g = gamma as i64;
+                let zeta_l: Vec<i64> =
+                    (0..big_n).map(|j| eta_l[j] + g * rho_l[j]).collect();
+                let zeta_r: Vec<i64> =
+                    (0..big_n).map(|j| eta_r[j] + g * rho_r[j]).collect();
+                let mut response = zeta_l.clone();
+                response.extend_from_slice(&zeta_r);
+                let mut center_v: Vec<i64> = rho_l.iter().map(|&x| g * x).collect();
+                center_v.extend(rho_r.iter().map(|&x| g * x));
+                if rejection_accept(&mut r, &response, &center_v, sigma_o) {
+                    return ScalarLinkRep {
+                        gamma,
+                        zeta_l,
+                        zeta_r,
+                    };
+                }
+            }
+        })
+        .collect()
+}
+
+#[allow(clippy::too_many_arguments)]
+fn verify_recomposition(
+    params: &Params,
+    crs: &Crs,
+    ctx: &[u8],
+    len: usize,
+    width: u32,
+    signed: bool,
+    value_commits: &[Vec<u64>],
+    packed_commits: &[Vec<u64>],
+    proof: &[ScalarLinkRep],
+) -> bool {
+    let big_n = params.big_n;
+    let m = value_commits.len();
+    if proof.len() != params.r
+        || packed_commits.len() != m
+        || width as usize * len > params.msg
+        || width == 0
+        || width > 48
+    {
+        return false;
+    }
+    let center = (1u128 << (2 * params.b)) * m as u128 * isqrt_ceil(big_n as u128);
+    let (_sigma_o, bound_sq_o) = opening_gadget_params(params, 2 * center * center, 2);
+    for rep in proof {
+        if rep.gamma >= (1 << params.b)
+            || rep.zeta_l.len() != big_n
+            || rep.zeta_r.len() != big_n
+        {
+            return false;
+        }
+        if norm_sq(&rep.zeta_l) + norm_sq(&rep.zeta_r) > bound_sq_o {
+            return false;
+        }
+    }
+    let h0 = recomposition_statement_hash(
+        crs, ctx, len, width, signed, value_commits, packed_commits,
+    );
+    proof.par_iter().enumerate().all(|(ell, rep)| {
+        let mut reader = XofReader::new("su-rec", &[&h0, &(ell as u64).to_le_bytes()]);
+        let s: Vec<u64> = (0..len).map(|_| reader.next_sb(params.b)).collect();
+        let u: Vec<u64> = (0..m).map(|_| reader.next_sb(params.b)).collect();
+        let g_s = scalar_key_prefix(params, crs, &s);
+        let wv: Vec<u64> = (0..width as usize * len)
+            .map(|idx| mulm(1u64 << (idx / len), s[idx % len]))
+            .collect();
+        let g_w = scalar_key_prefix(params, crs, &wv);
+        let t_l = combine_commit(value_commits, &u);
+        let t_r = combine_commit(packed_commits, &u);
+        let c_l = dot_mod(&s, &t_l[params.k..params.k + len]);
+        let mut c_r = dot_mod(&wv, &t_r[params.k..params.k + width as usize * len]);
+        if signed {
+            // value = sum 2^i b_i - 2^{width-1}: subtract the public offset
+            // 2^{width-1} (sum_t s_t)(sum_j u_j) from the packed side.
+            let s_sum = s.iter().fold(0u64, |acc, &x| addm(acc, x));
+            let u_sum = u.iter().fold(0u64, |acc, &x| addm(acc, x));
+            let offset = mulm(1u64 << (width - 1), mulm(s_sum, u_sum));
+            c_r = subm(c_r, offset);
+        }
+        let gamma = rep.gamma;
+        let mut w1 = matvec_signed_serial(&crs.g1, params.k, big_n, &rep.zeta_l);
+        let mut w2 = matvec_signed_serial(&crs.g1, params.k, big_n, &rep.zeta_r);
+        for i in 0..params.k {
+            w1[i] = subm(w1[i], mulm(gamma, t_l[i]));
+            w2[i] = subm(w2[i], mulm(gamma, t_r[i]));
+        }
+        let w3 = subm(
+            subm(
+                dot_signed(&g_s, &rep.zeta_l),
+                dot_signed(&g_w, &rep.zeta_r),
+            ),
+            mulm(gamma, subm(c_l, c_r)),
+        );
+        let mut gr = XofReader::new(
+            "gamma-rec",
+            &[
+                &h0,
+                &(ell as u64).to_le_bytes(),
+                &words_bytes(&w1),
+                &words_bytes(&w2),
+                &w3.to_le_bytes(),
+            ],
+        );
+        gamma == gr.next_sb(params.b)
+    })
+}
+
+struct ZeroOpenRep {
+    gamma: u64,
+    zeta: Vec<i64>,
+}
+
+fn zero_open_statement_hash(
+    crs: &Crs,
+    ctx: &[u8],
+    len: usize,
+    shift: u32,
+    tx: &[Vec<u64>],
+    ty: &[Vec<u64>],
+    tr: &[Vec<u64>],
+) -> [u8; 32] {
+    let mut hasher = Sha256::new();
+    hasher.update(b"lattice-matmul-v2");
+    hasher.update(b"stmt-rescale-link");
+    hasher.update(crs.crs_hash);
+    hasher.update((ctx.len() as u64).to_le_bytes());
+    hasher.update(ctx);
+    hasher.update((len as u64).to_le_bytes());
+    hasher.update(shift.to_le_bytes());
+    for group in [tx, ty, tr] {
+        hasher.update((group.len() as u64).to_le_bytes());
+        for c in group.iter() {
+            hasher.update(words_bytes(c));
+        }
+    }
+    hasher.finalize().into()
+}
+
+/// Rescale link: prove the u-combined difference sum_j u_j (T_xj - 2^shift
+/// T_yj - T_rj) opens to the zero message with short combined randomness,
+/// per repetition with fresh u. With the ranges on r and y this makes
+/// x = 2^shift y + r hold over the integers (floor division).
+#[allow(clippy::too_many_arguments)]
+fn prove_rescale_link(
+    params: &Params,
+    crs: &Crs,
+    ctx: &[u8],
+    len: usize,
+    shift: u32,
+    tx: &[Vec<u64>],
+    ty: &[Vec<u64>],
+    tr: &[Vec<u64>],
+    rho_x: &[Vec<i8>],
+    rho_y: &[Vec<i8>],
+    rho_r: &[Vec<i8>],
+    rng: &mut u64,
+) -> Vec<ZeroOpenRep> {
+    assert!(shift <= GADGET_MAX_SHIFT);
+    let big_n = params.big_n;
+    let m = tx.len();
+    let center = (1u128 << (2 * params.b))
+        * m as u128
+        * (2 + (1u128 << shift))
+        * isqrt_ceil(big_n as u128);
+    let (sigma_o, _bound) = opening_gadget_params(params, center * center, 1);
+    let h0 = zero_open_statement_hash(crs, ctx, len, shift, tx, ty, tr);
+    let base = splitmix64(rng);
+    (0..params.r)
+        .into_par_iter()
+        .map(|ell| {
+            let mut reader =
+                XofReader::new("u-link", &[&h0, &(ell as u64).to_le_bytes()]);
+            let u: Vec<u64> = (0..m).map(|_| reader.next_sb(params.b)).collect();
+            // rho_D = sum_j u_j (rho_xj - 2^shift rho_yj - rho_rj) over Z.
+            let mut rho_d = vec![0i64; big_n];
+            for j in 0..m {
+                let uj = u[j] as i64;
+                for t in 0..big_n {
+                    rho_d[t] += uj
+                        * (rho_x[j][t] as i64
+                            - (1i64 << shift) * rho_y[j][t] as i64
+                            - rho_r[j][t] as i64);
+                }
+            }
+            let mut r = mix_seed(base, ell as u64);
+            loop {
+                let eta = gaussian_vec(&mut r, big_n, sigma_o);
+                let mut w = matvec_signed_serial(&crs.g1, params.k, big_n, &eta);
+                let g2eta = matvec_signed_serial(&crs.g2, len, big_n, &eta);
+                w.extend_from_slice(&g2eta);
+                let mut gr = XofReader::new(
+                    "gamma-link",
+                    &[&h0, &(ell as u64).to_le_bytes(), &words_bytes(&w)],
+                );
+                let gamma = gr.next_sb(params.b);
+                let g = gamma as i64;
+                let zeta: Vec<i64> = (0..big_n).map(|j| eta[j] + g * rho_d[j]).collect();
+                let center_v: Vec<i64> = rho_d.iter().map(|&x| g * x).collect();
+                if rejection_accept(&mut r, &zeta, &center_v, sigma_o) {
+                    return ZeroOpenRep { gamma, zeta };
+                }
+            }
+        })
+        .collect()
+}
+
+#[allow(clippy::too_many_arguments)]
+fn verify_rescale_link(
+    params: &Params,
+    crs: &Crs,
+    ctx: &[u8],
+    len: usize,
+    shift: u32,
+    tx: &[Vec<u64>],
+    ty: &[Vec<u64>],
+    tr: &[Vec<u64>],
+    proof: &[ZeroOpenRep],
+) -> bool {
+    let big_n = params.big_n;
+    let m = tx.len();
+    if proof.len() != params.r
+        || ty.len() != m
+        || tr.len() != m
+        || shift > GADGET_MAX_SHIFT
+        || len > params.msg
+    {
+        return false;
+    }
+    let center = (1u128 << (2 * params.b))
+        * m as u128
+        * (2 + (1u128 << shift))
+        * isqrt_ceil(big_n as u128);
+    let (_sigma_o, bound_sq_o) = opening_gadget_params(params, center * center, 1);
+    for rep in proof {
+        if rep.gamma >= (1 << params.b) || rep.zeta.len() != big_n {
+            return false;
+        }
+        if norm_sq(&rep.zeta) > bound_sq_o {
+            return false;
+        }
+    }
+    let h0 = zero_open_statement_hash(crs, ctx, len, shift, tx, ty, tr);
+    proof.par_iter().enumerate().all(|(ell, rep)| {
+        let mut reader = XofReader::new("u-link", &[&h0, &(ell as u64).to_le_bytes()]);
+        let u: Vec<u64> = (0..m).map(|_| reader.next_sb(params.b)).collect();
+        // D = sum_j u_j (T_xj - 2^shift T_yj - T_rj), rows [0, k + len).
+        let rows = params.k + len;
+        let mut d = vec![0u64; rows];
+        let two_s = 1u64 << shift;
+        for j in 0..m {
+            let uj = u[j];
+            for t in 0..rows {
+                let term = subm(subm(tx[j][t], mulm(two_s, ty[j][t])), tr[j][t]);
+                d[t] = addm(d[t], mulm(uj, term));
+            }
+        }
+        let gamma = rep.gamma;
+        let mut w = matvec_signed_serial(&crs.g1, params.k, big_n, &rep.zeta);
+        let g2z = matvec_signed_serial(&crs.g2, len, big_n, &rep.zeta);
+        w.extend_from_slice(&g2z);
+        for t in 0..rows {
+            w[t] = subm(w[t], mulm(gamma, d[t]));
+        }
+        let mut gr = XofReader::new(
+            "gamma-link",
+            &[&h0, &(ell as u64).to_le_bytes(), &words_bytes(&w)],
+        );
+        gamma == gr.next_sb(params.b)
+    })
+}
+
+// ---------------------------------------------------------------------------
 // Instance generation, self-test, benchmarks.
 
 /// C = A B for A rows x inner (flat row-major) and B given as columns of
@@ -1596,7 +2359,272 @@ fn self_test() {
         }
     }
     transpose_self_test();
+    gadget_self_test();
     println!("lattice-matmul self-test ok");
+}
+
+/// M2 gadget checks: Hadamard/binary valid + tampered, packed range
+/// recomposition valid + non-binary bit + out-of-range remainder, rescale
+/// link valid + wrong shift + wrong quotient, norm overflows, swapped
+/// commitments (adversarial reordering after the statement is fixed).
+fn gadget_self_test() {
+    let l = 8usize; // column length
+    let m = 4usize; // columns
+    let width = 4u32;
+    let shift = 4u32;
+    let shape = Shape { rows: l, inner: l, cols: m };
+    let params = derive_params_gadget(
+        Protocol::Pi2,
+        &[shape],
+        None,
+        (width.max(shift) as usize) * l,
+    );
+    assert!(width as usize * l <= params.msg, "packed columns must fit msg");
+    let crs = expand_crs(&params, 0xC0FFEE);
+    let mut rng = 0x6AD6E7_u64;
+    let mut commit_cols = |cols: &[Vec<u64>], rng: &mut u64| {
+        let rhos: Vec<Vec<i8>> = (0..cols.len())
+            .map(|_| rng_ternary(rng, params.big_n))
+            .collect();
+        let commits = commit_columns_fast(&params, &crs, cols, &rhos);
+        (commits, rhos)
+    };
+
+    // --- Hadamard: z = x o y over m columns.
+    let x_cols: Vec<Vec<u64>> = (0..m)
+        .map(|_| (0..l).map(|_| rng_small(&mut rng, 1 << 8)).collect())
+        .collect();
+    let y_cols: Vec<Vec<u64>> = (0..m)
+        .map(|_| (0..l).map(|_| rng_small(&mut rng, 1 << 8)).collect())
+        .collect();
+    let z_cols: Vec<Vec<u64>> = (0..m)
+        .map(|j| (0..l).map(|t| mulm(x_cols[j][t], y_cols[j][t])).collect())
+        .collect();
+    let (tx, rho_x) = commit_cols(&x_cols, &mut rng);
+    let (ty, rho_y) = commit_cols(&y_cols, &mut rng);
+    let (tz, rho_z) = commit_cols(&z_cols, &mut rng);
+    let stmts: Vec<HadamardStatement> = (0..m)
+        .map(|j| HadamardStatement {
+            len: l,
+            tx: &tx[j],
+            ty: &ty[j],
+            tz: &tz[j],
+        })
+        .collect();
+    let wits: Vec<HadamardWitness> = (0..m)
+        .map(|j| HadamardWitness {
+            x: &x_cols[j],
+            y: &y_cols[j],
+            rho_x: &rho_x[j],
+            rho_y: &rho_y[j],
+            rho_z: &rho_z[j],
+        })
+        .collect();
+    let mut prng = 0x4AD_u64;
+    let proof = prove_hadamard(&params, &crs, b"st", &stmts, &wits, &mut prng);
+    assert!(
+        verify_hadamard(&params, &crs, b"st", &stmts, &proof),
+        "hadamard valid"
+    );
+    // Wrong product at one position: honest prover, false statement.
+    let mut z_bad = z_cols.clone();
+    z_bad[1][2] = addm(z_bad[1][2], 1);
+    let (tz_bad, rho_z_bad) = commit_cols(&z_bad, &mut rng);
+    let stmts_bad: Vec<HadamardStatement> = (0..m)
+        .map(|j| HadamardStatement {
+            len: l,
+            tx: &tx[j],
+            ty: &ty[j],
+            tz: &tz_bad[j],
+        })
+        .collect();
+    let wits_bad: Vec<HadamardWitness> = (0..m)
+        .map(|j| HadamardWitness {
+            x: &x_cols[j],
+            y: &y_cols[j],
+            rho_x: &rho_x[j],
+            rho_y: &rho_y[j],
+            rho_z: &rho_z_bad[j],
+        })
+        .collect();
+    let mut prng2 = 0xBAD1_u64;
+    let bad_proof = prove_hadamard(&params, &crs, b"st", &stmts_bad, &wits_bad, &mut prng2);
+    assert!(
+        !verify_hadamard(&params, &crs, b"st", &stmts_bad, &bad_proof),
+        "hadamard wrong product must fail"
+    );
+    // Tampered response and +q norm overflow.
+    let mut tampered: Vec<Vec<HadamardRep>> = proof
+        .iter()
+        .map(|reps| reps.iter().map(clone_hrep).collect())
+        .collect();
+    tampered[0][0].zeta_q[0] += 1;
+    assert!(
+        !verify_hadamard(&params, &crs, b"st", &stmts, &tampered),
+        "hadamard tampered zeta must fail"
+    );
+    let mut oversized: Vec<Vec<HadamardRep>> = proof
+        .iter()
+        .map(|reps| reps.iter().map(clone_hrep).collect())
+        .collect();
+    oversized[0][0].zeta_a[0] += Q as i64;
+    assert!(
+        !verify_hadamard(&params, &crs, b"st", &stmts, &oversized),
+        "hadamard norm overflow must fail"
+    );
+    // Context separation: same proof under a different manifest digest.
+    assert!(
+        !verify_hadamard(&params, &crs, b"other", &stmts, &proof),
+        "hadamard context swap must fail"
+    );
+
+    // --- Rescale + range family: x = 2^shift y + r, both r and y ranged.
+    let xr_cols: Vec<Vec<u64>> = (0..m)
+        .map(|_| (0..l).map(|_| rng_small(&mut rng, 1 << (width + shift))).collect())
+        .collect();
+    let yq_cols: Vec<Vec<u64>> = xr_cols
+        .iter()
+        .map(|col| col.iter().map(|&v| v >> shift).collect())
+        .collect();
+    let rr_cols: Vec<Vec<u64>> = xr_cols
+        .iter()
+        .map(|col| col.iter().map(|&v| v & ((1 << shift) - 1)).collect())
+        .collect();
+    let p_r: Vec<Vec<u64>> = rr_cols.iter().map(|c| pack_bits(c, shift)).collect();
+    let p_y: Vec<Vec<u64>> = yq_cols.iter().map(|c| pack_bits(c, width)).collect();
+    let (txr, rho_xr) = commit_cols(&xr_cols, &mut rng);
+    let (tyq, rho_yq) = commit_cols(&yq_cols, &mut rng);
+    let (trr, rho_rr) = commit_cols(&rr_cols, &mut rng);
+    let (tpr, rho_pr) = commit_cols(&p_r, &mut rng);
+    let (tpy, rho_py) = commit_cols(&p_y, &mut rng);
+    // Binary constraints on both packed matrices (x = y = z = packed).
+    let bin_stmts: Vec<HadamardStatement> = tpr
+        .iter()
+        .map(|t| HadamardStatement {
+            len: shift as usize * l,
+            tx: t,
+            ty: t,
+            tz: t,
+        })
+        .chain(tpy.iter().map(|t| HadamardStatement {
+            len: width as usize * l,
+            tx: t,
+            ty: t,
+            tz: t,
+        }))
+        .collect();
+    let bin_wits: Vec<HadamardWitness> = (0..m)
+        .map(|j| HadamardWitness {
+            x: &p_r[j],
+            y: &p_r[j],
+            rho_x: &rho_pr[j],
+            rho_y: &rho_pr[j],
+            rho_z: &rho_pr[j],
+        })
+        .chain((0..m).map(|j| HadamardWitness {
+            x: &p_y[j],
+            y: &p_y[j],
+            rho_x: &rho_py[j],
+            rho_y: &rho_py[j],
+            rho_z: &rho_py[j],
+        }))
+        .collect();
+    let mut prng3 = 0xB19A_u64;
+    let bin_proof = prove_hadamard(&params, &crs, b"bin", &bin_stmts, &bin_wits, &mut prng3);
+    assert!(
+        verify_hadamard(&params, &crs, b"bin", &bin_stmts, &bin_proof),
+        "binary valid"
+    );
+    // Non-binary bit: a 2 in one packed slot (recommit honestly).
+    let mut p_bad = p_r.clone();
+    p_bad[0][0] = 2;
+    let (tp_bad, rho_p_bad) = commit_cols(&p_bad, &mut rng);
+    let bad_stmt = [HadamardStatement {
+        len: shift as usize * l,
+        tx: &tp_bad[0],
+        ty: &tp_bad[0],
+        tz: &tp_bad[0],
+    }];
+    let bad_wit = [HadamardWitness {
+        x: &p_bad[0],
+        y: &p_bad[0],
+        rho_x: &rho_p_bad[0],
+        rho_y: &rho_p_bad[0],
+        rho_z: &rho_p_bad[0],
+    }];
+    let mut prng4 = 0xB19B_u64;
+    let nb = prove_hadamard(&params, &crs, b"bin", &bad_stmt, &bad_wit, &mut prng4);
+    assert!(
+        !verify_hadamard(&params, &crs, b"bin", &bad_stmt, &nb),
+        "non-binary bit must fail"
+    );
+    // Recomposition links, r side then y side.
+    let mut prng5 = 0x2EC0_u64;
+    let rec_r = prove_recomposition(
+        &params, &crs, b"rec-r", l, shift, false, &trr, &tpr, &rho_rr, &rho_pr,
+        &mut prng5,
+    );
+    assert!(
+        verify_recomposition(&params, &crs, b"rec-r", l, shift, false, &trr, &tpr, &rec_r),
+        "recomposition r valid"
+    );
+    let rec_y = prove_recomposition(
+        &params, &crs, b"rec-y", l, width, false, &tyq, &tpy, &rho_yq, &rho_py,
+        &mut prng5,
+    );
+    assert!(
+        verify_recomposition(&params, &crs, b"rec-y", l, width, false, &tyq, &tpy, &rec_y),
+        "recomposition y valid"
+    );
+    // Out-of-range remainder: r' = r + 2^shift at one slot, y' = y - 1
+    // keeps the linear relation but r' cannot recompose from shift bits.
+    let mut r_oob = rr_cols.clone();
+    r_oob[0][0] += 1 << shift;
+    let (tr_oob, rho_r_oob) = commit_cols(&r_oob, &mut rng);
+    let mut prng6 = 0x2EC1_u64;
+    let rec_oob = prove_recomposition(
+        &params, &crs, b"rec-r", l, shift, false, &tr_oob, &tpr, &rho_r_oob, &rho_pr,
+        &mut prng6,
+    );
+    assert!(
+        !verify_recomposition(
+            &params, &crs, b"rec-r", l, shift, false, &tr_oob, &tpr, &rec_oob
+        ),
+        "out-of-range remainder must fail recomposition"
+    );
+    // Rescale link: valid, then wrong shift, then wrong quotient.
+    let mut prng7 = 0x11FF_u64;
+    let link = prove_rescale_link(
+        &params, &crs, b"lnk", l, shift, &txr, &tyq, &trr, &rho_xr, &rho_yq, &rho_rr,
+        &mut prng7,
+    );
+    assert!(
+        verify_rescale_link(&params, &crs, b"lnk", l, shift, &txr, &tyq, &trr, &link),
+        "rescale link valid"
+    );
+    assert!(
+        !verify_rescale_link(&params, &crs, b"lnk", l, shift - 1, &txr, &tyq, &trr, &link),
+        "wrong shift must fail"
+    );
+    let mut y_bad = yq_cols.clone();
+    y_bad[0][0] = addm(y_bad[0][0], 1);
+    let (ty_bad, rho_y_bad) = commit_cols(&y_bad, &mut rng);
+    let mut prng8 = 0x11FE_u64;
+    let bad_link = prove_rescale_link(
+        &params, &crs, b"lnk", l, shift, &txr, &ty_bad, &trr, &rho_xr, &rho_y_bad,
+        &rho_rr, &mut prng8,
+    );
+    assert!(
+        !verify_rescale_link(&params, &crs, b"lnk", l, shift, &txr, &ty_bad, &trr, &bad_link),
+        "wrong quotient must fail rescale link"
+    );
+    // Swapped commitments after the statement was fixed.
+    let mut swapped = trr.clone();
+    swapped.swap(0, 1);
+    assert!(
+        !verify_recomposition(&params, &crs, b"rec-r", l, shift, false, &swapped, &tpr, &rec_r),
+        "swapped commitments must fail"
+    );
 }
 
 /// Stand-alone transpose gadget check: valid case, mismatched matrix,
