@@ -11,8 +11,22 @@ Suite: python3 -m unittest discover -s tests (must stay 37/37).
 
 - [x] Setup: merged perf/zk-batch-optimizations (0e64ca4 present). Required reading done.
 - [x] U1 shared kernel module (src/aux_ntt_core.rs, #[path] from aux_ntt.rs; aux_ntt self-test green incl. NEW tests: A1GemmKernel auto-path, a1_regime_path, chunked combination sum with 2048 terms at q46 crossing the 1023 chunk limit). New shared API: A1CommitKernel::new(.., b_max, ..), A1LimbCommitKernel (b_max stored), A1GemmKernel enum (auto single/limb), a1_regime_path, a1_combination_sum, cached_bytes().
-- [ ] U2 commit-path integration (cached NTT CRS + A1 commit at k=2/q46-regression and k=8/q31; differential + boundary tests)
-- [ ] U3 mask + combination-sum paths (auto single-prime/limb fallback; differential tests)
+- [x] U2+U3 (committed jointly — same file, intertwined round signatures):
+  ring_lattice.rs integrated. A1Paths per-CRS cache (commit stacked [A1;A2]
+  b=1 / mask b=12*sigma_max / verify b=isqrt(bound_sq)_max), KernelPath
+  {School oracle, A1} threaded through commit + plain/k8/digit Sigma rounds
+  (mask commits, digit-witness commits, verifier matvec, c*t1 single-prime).
+  Differential battery (section 13): same-seed BIT-IDENTICAL proofs on all 3
+  rounds + cross-path verification; capacity-boundary commits exact at q31,
+  q8, q46 (59-bit case); q46 regression vs schoolbook AND k2 split kernel;
+  mask-regime fallback auto (limb at q46, single at q8; q8 verify kernel
+  falls back to limb); combination sum vs k8 split accumulation; gate-term
+  limb product. Bench section 14: A1 rows in both tables; FFN-shape 47x72
+  @q8 A1 0.168 us/ring-MAC vs k8+Kara 1.039 -> 6.2x (97.4 eff GMAC/s);
+  prototype-shape 8x26: 0.300 us -> 3.6x vs k8+Kara, 28.7x vs naive; Sigma
+  rounds (same-seed, median of 9): k=2 prove 6.04->0.98 ms, k=8 9.11->1.49,
+  digit 27.1->3.31; verify 2.6->0.25 / 7.9->0.78. Memory delta: 1092 KB per
+  CRS point (260 commit + 208 mask + 624 verify-limb). Suite 37/37 OK.
 - [ ] U4 capacity assertions in route_r_params.py + Rust derivation; regime->path table emitted
 - [ ] U5 measure (idle machine, medians of pinned reps) + reconcile RING_MULT_BOTTLENECK.md S6, A1_AUX_NTT_REPORT.md, LLM_SCALE_ESTIMATE.md
 
