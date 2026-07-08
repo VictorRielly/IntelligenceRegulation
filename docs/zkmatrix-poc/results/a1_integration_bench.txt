@@ -1,0 +1,181 @@
+# A1 integration benchmark session (2026-07-08, idle 22-thread workstation)
+# Binary: zkmatrix-rs/target/release/ring_lattice (integration tranche).
+# Three consecutive full runs; key lines from all three, then the full output of run 1.
+
+## FFN-shape commit kernel across runs:
+  FFN-shape commit kernel 47 x 72 @q8 (median of 9 reps x 8 cols): k8+Kara 3.473 ms/col (1.026 us/ring-MAC), A1 0.544 ms/col (0.161 us/ring-MAC) -> 6.4x; A1 eff 101974 MMAC/s
+  FFN-shape commit kernel 47 x 72 @q8 (median of 9 reps x 8 cols): k8+Kara 4.107 ms/col (1.214 us/ring-MAC), A1 0.661 ms/col (0.195 us/ring-MAC) -> 6.2x; A1 eff 83842 MMAC/s
+  FFN-shape commit kernel 47 x 72 @q8 (median of 9 reps x 8 cols): k8+Kara 3.714 ms/col (1.097 us/ring-MAC), A1 0.585 ms/col (0.173 us/ring-MAC) -> 6.4x; A1 eff 94840 MMAC/s
+
+## Prototype-shape (8 x 26) commit kernel A1 rows across runs:
+    | A1 aux-NTT GEMM @q8 (integ.) |     62.6 |  0.301 | 3.32e6 | 29.34x |
+    | A1 aux-NTT GEMM @q8 (integ.) |     78.8 |  0.379 | 2.64e6 | 28.64x |
+    | A1 aux-NTT GEMM @q8 (integ.) |     69.9 |  0.336 | 2.97e6 | 28.40x |
+    mask-path commit (A1 single-prime, Gaussian 12s columns): 62.6 us/commit, 0.301 us/ring-MAC (1.00x the ternary A1 path)
+    mask-path commit (A1 single-prime, Gaussian 12s columns): 69.7 us/commit, 0.335 us/ring-MAC (1.00x the ternary A1 path)
+    mask-path commit (A1 single-prime, Gaussian 12s columns): 79.2 us/commit, 0.381 us/ring-MAC (1.00x the ternary A1 path)
+
+## Sigma rounds across runs:
+    k=2 q31 [school]: prove    6.19 ms median (22 attempts/9 reps), verify   2.69 ms median
+    k=2 q31 [A1    ]: prove    1.00 ms median (22 attempts/9 reps), verify   0.26 ms median
+    k=8 q8  [school]: prove    9.26 ms median (32 attempts/9 reps), verify   2.71 ms median
+    k=8 q8  [A1    ]: prove    1.64 ms median (32 attempts/9 reps), verify   0.27 ms median
+    digit q8 [school]: prove   28.02 ms median (21 attempts/9 reps), verify   7.97 ms median
+    digit q8 [A1    ]: prove    3.29 ms median (21 attempts/9 reps), verify   0.77 ms median
+    k=2 q31 [school]: prove    6.80 ms median (22 attempts/9 reps), verify   3.07 ms median
+    k=2 q31 [A1    ]: prove    1.09 ms median (22 attempts/9 reps), verify   0.29 ms median
+    k=8 q8  [school]: prove   10.08 ms median (32 attempts/9 reps), verify   2.72 ms median
+    k=8 q8  [A1    ]: prove    1.49 ms median (32 attempts/9 reps), verify   0.27 ms median
+    digit q8 [school]: prove   26.38 ms median (21 attempts/9 reps), verify   7.87 ms median
+    digit q8 [A1    ]: prove    3.64 ms median (21 attempts/9 reps), verify   0.77 ms median
+    k=2 q31 [school]: prove    6.31 ms median (22 attempts/9 reps), verify   2.73 ms median
+    k=2 q31 [A1    ]: prove    0.96 ms median (22 attempts/9 reps), verify   0.26 ms median
+    k=8 q8  [school]: prove    9.07 ms median (32 attempts/9 reps), verify   2.67 ms median
+    k=8 q8  [A1    ]: prove    1.53 ms median (32 attempts/9 reps), verify   0.26 ms median
+    digit q8 [school]: prove   26.03 ms median (21 attempts/9 reps), verify   8.10 ms median
+    digit q8 [A1    ]: prove    3.43 ms median (21 attempts/9 reps), verify   0.77 ms median
+
+===================== full output, run 1 =====================
+ring_lattice: Route R arithmetic-core prototype
+  R_q = Z_q[X]/(X^128 + 1), q = 2147483629 = 2^31 - 19 (q mod 8 = 5), r = 629208553
+  ok   q = 5 mod 8
+  ok   r^2 = -1 mod q
+  LS18 invertibility bound: ||y||_inf < 32768.0 (challenge diffs <= 4)
+  ok   LS18 bound covers quinary differences
+  ok   negacyclic mul matches CRT-split mul
+  ok   CRT roundtrip
+  ok   mul commutes
+  ok   mul distributes over add
+  ok   mul distributes over sub
+  ok   200 challenge differences invertible (worst ||diff||_inf = 4)
+  ok   zero-in-one-slot element is NOT invertible
+  ok     ... and its l_inf is above the LS18 bound
+  ok   slot-packed constants multiply slot-wise
+  params: kappa=8 N_R=26 (N_Z=3328) msg_r=2 sigma=2^17.4 B^2=2^47.1 beta=2^24.6
+  A1 kernel regimes at (k = 2, q = 2^31 - 19) (n_acc = N_R = 26; policy = derive-time, kernels re-assert at construction):
+    commit: key x ternary rho (b = 1)                          -> single-prime
+    mask:   key x Gaussian y (b = 12 sigma = 2126652)          -> single-prime
+    verify: key x response z (b = |z|_inf <= 12268404)         -> limb-split x3
+    gate:   general x general (b = (q-1)/2 = 1073741814)       -> limb-split x3
+    comb-sum: quinary c x mod-q (b = 2)                         -> single-prime, chunked at 33554432 terms
+  soundness: |C| = 5^128 = 2^297.2; knowledge error <= 2/|C| + 2*5^-128 = 2^-296.2; FS budget (Q+1)^2 * eps = 2^-168.2 <= 2^-128
+  A1 cached NTT-domain CRS (k=2 point): 1092.0 KB total = commit [A1;A2] 260.0 KB + mask[single-prime] 208.0 KB + verify[limb-split x3] 624.0 KB (report Sec. 5: ~3.2 MB for the commit cache alone at FFN 47x72)
+  ok   commit: A1 stacked kernel = schoolbook matvec, t1 AND t2 bit-identical (k=2, q31)
+  ok   valid opening proof verifies (attempts = 4)
+  ok   tampered response coordinate fails
+  ok   tampered first message fails
+  ok   wrong context (manifest digest) fails
+  ok   wrong statement fails
+  ok   +q norm-overflow response fails (norm check only)
+  ok   extracted opening satisfies A1 rho* = t1
+  ok   honest-case extraction recovers rho exactly
+  note: adversarial extraction yields only the relaxed opening (slack dc); binding runs through the SIS bound beta = 2^24.6
+  timings (approx, single-thread, naive kernels):
+    ring mul (negacyclic 128, schoolbook)      11.6 us
+    slot mul (degree 64, schoolbook)          2.2 us  (x2 per ring mul via CRT)
+    expand CRS (8+2)x26 ring elems           3.8 ms
+    commit (x: 2 ring elems = 256 slots)       0.1 ms
+    prove opening (r = 1, 4 attempt(s))      2.1 ms
+    verify opening                             0.3 ms
+
+Q3: k = 8 split, q8 = 2147483249 = 2^31 - 399 (q8 mod 32 = 17)
+  ok   q8 = 17 mod 32 (v2(q8-1) = 4)
+  ok   eta^8 = -1 mod q8 (primitive 16th root)
+  ok   8 slot roots are the odd powers of eta (X^128 + 1 = prod X^16 - eta^odd)
+  LS18 bound at k = 8: q^(1/8)/sqrt(8) = 5.19; quinary-diff margin 1.30x
+  ok   LS18 bound covers quinary differences at k = 8
+  ok   generic k = 2 split (at q31) matches legacy negacyclic mul
+  ok   8-way CRT split/merge round-trip (25 random elements)
+  ok   k = 8 split mul matches negacyclic schoolbook (25 random pairs)
+  ok   100 challenge differences invertible at k = 8 (worst ||diff||_inf = 4)
+  ok   zero-in-one-of-8-slots element is NOT invertible
+  ok     ... and its l_inf is above the k = 8 LS18 bound
+  ok   slot-packed constants multiply slot-wise across 8 slots
+  k = 8 Sigma round at q8: kappa=8 N_R=26 msg_r=2 sigma=2^17.4 beta=2^24.6 (C2 headroom 3.4 bits)
+  A1 cached NTT-domain CRS (k=8 point): 1092.0 KB total = commit [A1;A2] 260.0 KB + mask[single-prime] 208.0 KB + verify[limb-split x3] 624.0 KB
+  A1 kernel regimes at (k = 8, q8 = 2^31 - 399) (n_acc = N_R = 26; policy = derive-time, kernels re-assert at construction):
+    commit: key x ternary rho (b = 1)                          -> single-prime
+    mask:   key x Gaussian y (b = 12 sigma = 2394252)          -> single-prime
+    verify: key x response z (b = |z|_inf <= 23923358)         -> limb-split x3
+    gate:   general x general (b = (q-1)/2 = 1073741624)       -> limb-split x3
+    comb-sum: quinary c x mod-q (b = 2)                         -> single-prime, chunked at 33554438 terms
+  ok   k = 8 statement commit: A1 stacked kernel = schoolbook matvec (bit-identical)
+  ok   k = 8 valid opening proof verifies (attempts = 1)
+  ok   k = 8 tampered response coordinate fails
+  ok   k = 8 tampered first message fails
+  ok   k = 8 wrong context fails
+  ok   k = 8 wrong statement fails
+  ok   k = 8 +q norm-overflow response fails (norm check only)
+  k = 8 prove 0.6 ms, verify 0.3 ms (A1 kernels)
+
+Q2: digit-decomposed opening round at (k = 8, q8), e = 4, L = 3, ||u||_inf <= 1024
+  digit chain: sigma=2^17.6 beta=2^25.5; C2 8*beta=2^28.5 < q8=2^31.0 (headroom 2.5 bits)
+  undecomposed chain for the same witness: beta=2^30.9, needs q > 2^33.9 -- does NOT fit q31
+  ok   undecomposed combination witness violates C2 at q8 (the Q2 premise)
+  ok   balanced digit decompose/recombine round-trip on [-W, W]
+  ok   combination-witness statement: A1 mask-path kernel = schoolbook matvec (|u| <= 2^10)
+  ok   digit opening proof verifies (attempts = 2, restarts = 0)
+  ok   wrong digit (tampered digit response) fails
+  ok   digit out of range (recombining but oversized digits) fails
+  ok   recombination mismatch (digits of a different witness) fails
+  ok   digit round wrong context fails
+  ok   digit round +q norm-overflow fails (norm check only)
+  digit prove 4.1 ms, verify 0.8 ms, proof ~49.6 KB (L = 3 digit statements + responses)
+
+A1 integration: differential + capacity-boundary battery (kernels: src/aux_ntt_core.rs)
+  ok   same-seed prove (k=2, q31): schoolbook and A1 paths emit BIT-IDENTICAL proofs
+  ok   cross-path verification (k=2): A1 proof passes schoolbook verifier and vice versa
+  ok   same-seed prove (k=8, q8): schoolbook and A1 paths emit BIT-IDENTICAL proofs
+  ok   cross-path verification (k=8): A1 proof passes split-kernel verifier and vice versa
+  ok   same-seed digit prove (k=8, q8): BIT-IDENTICAL proofs (t_digits, w, z)
+  ok   cross-path digit verification (A1 proof under split verifier and vice versa)
+  ok   capacity-boundary commit exact at q31 (k=2 class): c_0 = N_R*d*(q-1)/2 (42 bits)
+  ok   capacity-boundary commit exact at q8 (k=8 class): c_0 = N_R*d*(q-1)/2 (42 bits)
+  ok   q46 regression: A1 = schoolbook = k2 amortized split (FFN N_r=72, ternary, 3 trials)
+  ok   q46 capacity-boundary commit exact (c_0 = 72*128*(q-1)/2, 59 bits < 63)
+  ok   regime fallback: mask kernel auto-selects limb-split at q46, single-prime at q8; q8 verify kernel auto-selects limb-split
+  ok   q46 mask-regime fallback kernel = schoolbook (12*2^30 columns, incl. max-magnitude)
+  ok   combination sum: A1 chunked single-prime kernel = k8 split accumulation (300 quinary terms, q8)
+  ok   c * t1: A1 single-prime = k8 split kernel (bit-identical)
+  ok   general x general limb-split = schoolbook at q8 (gate-term regime)
+
+U4/A2: multiplication and commit-kernel benchmarks (single-thread, this machine)
+  ok   k = 2 split + Karatsuba matches legacy negacyclic mul
+  ok   k = 8 split + Karatsuba matches schoolbook at q8
+  ok   fixed-buffer Karatsuba matches (k = 2 and k = 8)
+  ok   k = 2 amortized-split commit kernel matches naive matvec
+  ok   k = 2 amortized-split Karatsuba commit kernel matches
+  ok   k = 8 amortized-split commit kernel matches naive matvec at q8
+  ok   k = 8 amortized-split Karatsuba commit kernel matches at q8
+  ok   fixed-buffer Karatsuba commit kernels match (k = 2 and k = 8)
+  ring multiplication (d = 128, one product, transforms included):
+    | method | us/mul | vs naive |
+    | naive schoolbook @q31       |  11.49 |  1.00x |
+    | naive schoolbook @q8        |  11.47 |  1.00x |
+    | k = 2 split @q31            |   5.14 |  2.23x |
+    | k = 2 split + Kara @q31     |   4.13 |  2.78x |
+    | k = 8 split @q8             |   3.77 |  3.05x |
+    | k = 8 split + Kara @q8      |   4.10 |  2.80x |
+    | A1 single (key x ter) @q8   |   3.70 |  3.11x |
+    | A1 limb (gen x gen) @q8     |   9.22 |  1.25x |
+  ok   bench operands: A1 commit kernel = naive matvec at q8
+  commit kernel t1 = A1 rho (8 x 26 ring MACs; naive exploits ternary sparsity, split kernels are dense):
+    | method | us/commit | us/ring-MAC | ring-MACs/s | vs naive |
+    | naive i128 matvec (ternary)  |   1838.0 |  8.836 | 1.13e5 |  1.00x |
+    | k = 2 amortized split        |   1248.3 |  6.001 | 1.67e5 |  1.47x |
+    | k = 2 split + Karatsuba      |    498.3 |  2.396 | 4.17e5 |  3.69x |
+    | k = 8 amortized split @q8    |    393.7 |  1.893 | 5.28e5 |  4.67x |
+    | k = 8 split + Karatsuba @q8  |    224.2 |  1.078 | 9.28e5 |  8.20x |
+    | A1 aux-NTT GEMM @q8 (integ.) |     62.6 |  0.301 | 3.32e6 | 29.34x |
+    A1 vs k8+Karatsuba (the integrated commit-kernel speedup): 3.6x (1.078 -> 0.301 us/ring-MAC)
+    mask-path commit (A1 single-prime, Gaussian 12s columns): 62.6 us/commit, 0.301 us/ring-MAC (1.00x the ternary A1 path)
+  ok   FFN-shape bench operands: A1 = k8+Kara split kernel (bit-identical)
+  FFN-shape commit kernel 47 x 72 @q8 (median of 9 reps x 8 cols): k8+Kara 3.473 ms/col (1.026 us/ring-MAC), A1 0.544 ms/col (0.161 us/ring-MAC) -> 6.4x; A1 eff 101974 MMAC/s
+  opening Sigma rounds (median of 9 reps, same seeds across paths):
+    k=2 q31 [school]: prove    6.19 ms median (22 attempts/9 reps), verify   2.69 ms median
+    k=2 q31 [A1    ]: prove    1.00 ms median (22 attempts/9 reps), verify   0.26 ms median
+    k=8 q8  [school]: prove    9.26 ms median (32 attempts/9 reps), verify   2.71 ms median
+    k=8 q8  [A1    ]: prove    1.64 ms median (32 attempts/9 reps), verify   0.27 ms median
+    digit q8 [school]: prove   28.02 ms median (21 attempts/9 reps), verify   7.97 ms median
+    digit q8 [A1    ]: prove    3.29 ms median (21 attempts/9 reps), verify   0.77 ms median
+ring_lattice self-test ok

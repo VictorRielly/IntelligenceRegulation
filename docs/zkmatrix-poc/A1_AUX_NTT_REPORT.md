@@ -1,12 +1,20 @@
 # A1 Prototype Report: Auxiliary-Modulus NTT Evaluation of Route R Ring Products
 
-Status: prototyped and measured. Workstream A1 of
-`RING_MULT_BOTTLENECK.md` Section 4, feeding the Section 5 measurement
-gate. Artifact: `zkmatrix-rs/src/bin/aux_ntt.rs` (standalone bin, no
-changes to any existing file; `cargo run --release --bin aux_ntt` runs 24
-exactness self-tests and prints the capacity table; `... aux_ntt bench`
-adds the benchmark suite). Raw benchmark session:
-`docs/zkmatrix-poc/results/aux_ntt_bench_q46.txt`.
+Status: prototyped, measured, and **INTEGRATED** (Section 5 is DONE — see
+its actuals block). Workstream A1 of `RING_MULT_BOTTLENECK.md` Section 4,
+feeding the Section 5 measurement gate. Artifacts: the shared kernel
+module `zkmatrix-rs/src/aux_ntt_core.rs` (Goldilocks arithmetic,
+negacyclic NTT, capacity contract, limb-split fallback, GEMM kernels,
+regime dispatcher, chunked combination sums — `#[path]`-included by both
+bins), `zkmatrix-rs/src/bin/aux_ntt.rs` (the original prototype bin, now
+the module's self-test/bench CLI plus in-file baselines;
+`cargo run --release --bin aux_ntt` runs the exactness self-tests and
+prints the capacity table, `... bench` adds the benchmark suite), and the
+integrated paths inside `zkmatrix-rs/src/bin/ring_lattice.rs` (commit,
+all three Sigma rounds, verifier; differential battery in its self-test).
+Raw benchmark sessions: `docs/zkmatrix-poc/results/aux_ntt_bench_q46.txt`
+(prototype), `docs/zkmatrix-poc/results/a1_integration_bench.txt`
+(integrated, idle machine).
 
 **Headline: the GEMM-shaped commitment kernel — the dominant LLM-scale
 cost — runs 80x faster than naive schoolbook and 38x faster than the
@@ -229,9 +237,10 @@ elements) = **125 ns/element single-thread, ~119 Goldilocks muls/element**
 (vs ~3,900 ops/element for k2-Karatsuba in ROUTE_R_DESIGN Section 7, vs
 ~8-16k MACs/element on Route Z).
 
-## 5. Integration plan (described, not implemented — sibling-agent files untouched)
+## 5. Integration plan — DONE (actuals at the end of this section)
 
-Where it goes, in the ROUTE_R_DESIGN Section 6 module layout:
+Where it goes, in the ROUTE_R_DESIGN Section 6 module layout (plan as
+written before integration; per-point outcomes in the actuals block):
 
 1. **`ring/aux_ntt.rs` (new)**: everything in this bin's U1/U2 —
    Goldilocks primitives, tables, fwd/inv transforms, lifts, capacity
@@ -269,6 +278,67 @@ path ~1 day; combination-sum chunking ~1 day; no protocol or proof-shape
 work anywhere). GPU A1 kernels (batched Goldilocks NTT — the
 plonky2/Miden-class primitive) slot into the existing "GPU kernels"
 workstream unchanged in scope.
+
+### Integration actuals (vs the 8 points and the 3-5 day estimate)
+
+Completed in **one working session** (the estimate's structure held; its
+duration was conservative — no protocol or proof-shape work was needed,
+exactly as predicted). Point by point:
+
+1. Shared module: landed as `src/aux_ntt_core.rs` (flat `#[path]`
+   layout, the `manifest.rs` precedent, rather than a `ring/` submodule
+   — the crate has no library target). ~700 lines including the two new
+   integration pieces: `A1GemmKernel` (automatic single-prime vs
+   limb-split regime dispatch; construction panics only when a regime
+   fits nothing) and `a1_combination_sum` (chunked at the
+   capacity-derived term limit, partial mod-q reduction between chunks).
+2. Commit path: `A1Paths` per-CRS cache built at expansion, with a
+   STACKED [A1; A2] kernel so one column transform serves t1 and t2.
+   Measured memory delta: **1.07 MB per parameter point** at the
+   prototype shape (260 KB commit + 208 KB single-prime mask + 624 KB
+   limb-split verify caches); the FFN-shape commit cache alone is
+   ~3.3 MB as projected. Outputs bit-identical (same-seed proofs match
+   byte for byte across paths on all three rounds).
+3. Mask commits: routed through the dispatcher. At the prototype point
+   (q31-class, N_r = 26) single-prime as predicted, at the SAME cost as
+   ternary columns (1.00x measured). New finding from the P0 tables:
+   at production shapes the q31 mask regime sits at the 63-bit edge —
+   single-prime at e = 2, limb-split at e in {3, 4} and the FFN shape
+   (63.8-64.6 bits). Chosen automatically either way.
+4. Combination sums: `a1_combination_sum` with differential tests
+   crossing the q46 chunk boundary (2048 terms vs the 1023-term limit);
+   the verifier's c * t1 runs single-prime in all three rounds.
+5. Gate/response products: the limb-split product is integrated and
+   differentially tested at q8/q46; the VERIFIER's response matvec runs
+   on the limb-split GEMM kernel automatically (the response bound
+   ~2^24.5 exceeds single-prime capacity at q31 — the fallback fires in
+   the production path, not just in tests).
+6. Parameter derivation: the P0 capacity line joined both chains —
+   `print_a1_regime_table` in the Rust derivation and
+   `a1_path`/`a1_require`/`a1_capacity_table` + per-row summaries in
+   `route_r_params.py`. Parameter sets that fit nothing fail loudly at
+   derive time (the demo-chain worst-case-l1 row at 2^61 is rejected;
+   a self-check asserts the raise).
+7. Verifier: migrated (it was convenient after all): response matvec on
+   the limb GEMM path + c * t1 single-prime, ~10x measured on all three
+   rounds (2.7-8.1 ms -> 0.26-0.77 ms).
+8. Testing: schoolbook/split kernels retained as `KernelPath::School`
+   oracles; differential battery covers random + adversarially-large
+   capacity-boundary inputs (exact closed-form checks at q31/q8/q46,
+   the 59-bit FFN case included), cross-path verification, and the
+   existing tamper batteries run unchanged on the A1 verifier.
+
+Integrated measurements (idle machine, medians of pinned reps, 3
+sessions; `results/a1_integration_bench.txt`): FFN-shape (47 x 72)
+commit kernel at q8: **0.161-0.195 us/ring-MAC, 84-102 eff GMAC/s,
+6.2-6.4x over k8+Karatsuba measured head-to-head** — the Section 4
+prototype rates reproduced within ~10%, now in-protocol (the prototype's
+~7x used an op-count-credited k2-Karatsuba; the integrated ratio is
+against the real k8+Karatsuba kernel in the same binary). Prototype CRS
+shape (8 x 26): 0.30-0.38 us/ring-MAC (3.5-3.6x over k8+Kara, ~29x over
+the naive ternary matvec) — amortization is shape-dependent, as the cost
+model predicts. Sigma rounds (same seeds per path): prove 6-8x, verify
+~10x.
 
 Composition with Q2/Q3: A1 is orthogonal to both. Q2 (q -> 2^31-class)
 enlarges the golden regime (even mask commits fit single-prime at q31)
@@ -323,14 +393,42 @@ machine is up to ~2x on baselines (ratios within a session are the
 reliable statistic); and the GPU factor remains the estimate's assumed
 20x, not a measurement.
 
+**Integration update (confirms this section at measured, in-protocol
+rates).** With the kernels integrated at the recommended
+(k = 8, q8_31) point the projection simplifies and firms up: at q31
+even the w-bit value-tensor regime (B ~ 2^11) fits single-prime, so the
+ENTIRE commit bill — bit tensors and value tensors — rides the golden
+kernel; the regime-weighting above (which mixed in the q46 limb path)
+becomes unnecessary. At the integrated 84-102 eff GMAC/s single-thread:
+1.5e14 MAC-equivalents = 1,470-1,790 s 1T -> **~1.6-2.0 min at 22T**
+(the ~15x scaling extrapolation) -> **~5-6 s with the assumed 20x GPU
+row**. Per committed element: 0.571 ring-MACs/element x 0.161-0.195
+us/ring-MAC = **~99-111 ns (~119 helper-prime muls)** — the Section 3b
+"few-hundred class" condition met with margin, measured inside the
+protocol rounds. Combined with claim proofs (~10-25 s wall at 22T) and
+noise-level gadgets, the **~15-30 s / ~2-4x-of-quantized-CPU gate
+reconciliation of RING_MULT_BOTTLENECK.md Section 6.5 is CONFIRMED at
+integrated rates**; the unmeasured factors that remain are the 20x GPU
+row and the multithreaded-scaling extrapolation, not the arithmetic.
+
 ## 7. Descoped / follow-ups
 
-- Two-prime CRT variant: estimated (Section 2), not implemented.
-- k2-Karatsuba baseline: op-count-credited in the ratios, not coded.
-- AVX-512/GPU A1 kernels; multithreaded (rayon) commit benchmark.
-- q31 commit-kernel benchmark table (single-mult rates measured; the
-  q31 story is strictly better — even masks fit single-prime).
-- Integration into ring_lattice/route-r kernels (sibling agent owns
-  those files; plan in Section 5).
+- Two-prime CRT variant: estimated (Section 2), not implemented. (The
+  q31 P0 tables sharpen the trade: several mask regimes miss
+  single-prime by < 2 bits, so a chunked-accumulation single-prime
+  variant — 2 chunks, one extra inverse transform per output — may beat
+  the limb path there before CRT-2 is ever worth it.)
+- ~~k2-Karatsuba baseline: op-count-credited in the ratios, not
+  coded.~~ Superseded: the integrated ratios are measured head-to-head
+  against the real k8+Karatsuba kernel (6.2-6.4x at FFN shape).
+- AVX-512/GPU A1 kernels; multithreaded (rayon) commit benchmark — the
+  22T and GPU rows of the bill projection remain extrapolations.
+- ~~q31 commit-kernel benchmark table~~ DONE at integration (q8 rows in
+  RING_MULT_BOTTLENECK.md Section 6.3).
+- ~~Integration into ring_lattice/route-r kernels~~ **DONE** — Section 5
+  actuals block.
 - Negacyclic transforms of length 256/512 for a future d = 256 fallback
   (v2(p-1) = 32 leaves abundant room; not needed at d = 128).
+- Chunked-accumulation GEMM for the just-over-capacity mask regimes
+  (see the CRT-2 note above); the dispatcher currently takes the
+  correct-but-3.2x limb path there.

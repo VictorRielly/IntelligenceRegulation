@@ -38,7 +38,18 @@ Suite: python3 -m unittest discover -s tests (must stay 37/37).
   q31 mask regime sits at the 63-bit edge — single-prime at e=2 and the
   N_r=26 prototype, limb-split at e in {3,4}/FFN shapes (63.8-64.6 bits);
   commit regime single-prime everywhere incl. q46.
-- [ ] U5 measure (idle machine, medians of pinned reps) + reconcile RING_MULT_BOTTLENECK.md S6, A1_AUX_NTT_REPORT.md, LLM_SCALE_ESTIMATE.md
+- [x] U5 measured (idle machine, 3 full runs, medians of pinned reps; session
+  saved to docs/zkmatrix-poc/results/a1_integration_bench.txt) + docs
+  reconciled. Integrated numbers: FFN 47x72 @q8 commit kernel 0.161-0.195
+  us/ring-MAC (84-102 eff GMAC/s 1T) = 6.2-6.4x over k8+Kara head-to-head;
+  8x26 shape 0.30-0.38 (3.5-3.6x k8+Kara, ~29x naive); mask path 1.00x of
+  ternary; Sigma prove 6-8x, verify ~10x, proofs bit-identical; ~99-111 ns
+  (~119 muls)/committed element. Commit-bill 7B/512: ~1.6-2.0 min 22T CPU,
+  ~5-6 s GPU(assumed 20x); GATE ~15-30 s CONFIRMED at integrated rates
+  (remaining assumptions: GPU 20x, MT ~15x). RING_MULT S6 rows upgraded
+  (prototype rows marked superseded, not deleted); A1 report Section 5
+  actuals block (one session vs 3-5 day estimate; verifier migrated too);
+  LLM_SCALE ladder row updated to INTEGRATED-MEASURED. Suite 37/37.
 
 ## Decisions
 

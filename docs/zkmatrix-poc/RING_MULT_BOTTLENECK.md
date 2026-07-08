@@ -141,8 +141,11 @@ sensible after Q2; pairs naturally with A1 since both are RNS-flavored.
    **DONE — Section 6.1/6.2; coupling retired.**
 2. **A1 prototype in the same tranche** (cheap to test at the
    ring_lattice level; commitment-GEMM benchmark vs k = 2 baseline,
-   k = 8, and Karatsuba). **Split to a parallel agent (aux_ntt.rs);
-   results pending reconciliation.**
+   k = 8, and Karatsuba). **DONE — prototyped by the parallel agent
+   (aux_ntt.rs), then INTEGRATED into ring_lattice.rs (shared module
+   `zkmatrix-rs/src/aux_ntt_core.rs`; integrated-measured rows in
+   Section 6.3, session log
+   `results/a1_integration_bench.txt`).**
 3. **A2** opportunistically inside the same kernels. **DONE — Section
    6.3.**
 4. Gate: updated commit-bill projection and the revised 15 s ladder,
@@ -160,9 +163,14 @@ benchmark battery; all green, tamper batteries included) and
 `scripts/route_r_params.py` (`k_split_study`, `derive_q2`,
 `q2_frontier`). Machine: the repo's 22-thread workstation; kernel
 timings single-thread, min-of-batches (load-robust), reproduced across
-3 runs. **A1 rows: pending — see the A1 agent's parallel tranche
-(`aux_ntt.rs`); the tables below carry placeholders, and the ladder
-verdict is stated both without and with the A1 projection.**
+3 runs. **A1 rows: INTEGRATED-MEASURED** — the A1 kernels now run inside
+ring_lattice's commit path, Sigma rounds and verifier (shared module
+`aux_ntt_core.rs`; medians of pinned reps on the then-idle machine,
+3 consecutive sessions, `results/a1_integration_bench.txt`), with
+same-seed bit-identity against the schoolbook/split paths asserted in
+the self-test. The A1 agent's earlier standalone-prototype numbers
+(q46, `aux_ntt.rs` bench) are retained below marked *(prototype,
+superseded)*.
 
 ### 6.1 Q3: the k = 8 split — verified and measured
 
@@ -244,7 +252,9 @@ Ring multiplication, d = 128, one product, transforms included
 | k = 2 split + Karatsuba | ~4,928 | 4.3-4.6 | **2.8x** |
 | k = 8 split @q8 | ~2,752 | 3.9-4.1 | **3.1x** |
 | k = 8 split + Karatsuba | ~2,240 | 4.2-4.4 | 2.9-3.0x |
-| aux-NTT (A1) | ~2 x 1,472 + transforms | 3.8 (q46, measured) | 3.2x standalone — transforms dominate; the GEMM shape below is the payoff |
+| aux-NTT (A1) single-prime, key x ternary @q8 (**integrated**) | 3 transforms + 128 muls | 3.7-4.8 | 2.8-3.2x standalone — transforms dominate; the GEMM shape below is the payoff |
+| aux-NTT (A1) limb-split, general x general @q8 (**integrated**) | 7 transforms + 384 muls | 9.2-11.9 | ~1.2x — a wash standalone, as designed |
+| *(prototype, superseded)* aux-NTT (A1) @q46 standalone bin | ~2 x 1,472 + transforms | 3.8 | 3.2x |
 
 Commit kernel `t1 = A1 rho` (GEMM shape, key rows split once per CRS,
 columns once per commit — the transforms amortize; naive baseline
@@ -257,7 +267,19 @@ exploits ternary sparsity):
 | k = 2 split + Karatsuba | 2.5-2.6 | 4.0e5 | 3.6x |
 | k = 8 amortized split @q8 | 1.9-2.0 | 5.2e5 | 4.7x |
 | k = 8 split + Karatsuba @q8 | **1.10-1.17** | **~9.0e5** | **8.1x** |
-| aux-NTT GEMM (A1, measured at q46, 47x72 shape) | **~0.15** (0.514 ms/column) | **~6.6e6** | **~60x vs naive, ~7x vs k=8+Kara** (single Goldilocks prime suffices in the ternary regime; A1_AUX_NTT_REPORT.md) |
+| **aux-NTT GEMM (A1), INTEGRATED, q8, FFN shape 47x72** | **0.161-0.195** (0.54-0.66 ms/column) | **5.1-6.2e6** | **~55-65x vs naive; 6.2-6.4x vs k=8+Kara measured head-to-head, same sessions** (84-102 eff GMAC/s 1T; single Goldilocks prime — the commit regime is single-prime at every modulus incl. q46, `route_r_params.py` P0 tables) |
+| aux-NTT GEMM (A1), INTEGRATED, q8, prototype CRS shape 8x26 | 0.30-0.38 | 2.6-3.3e6 | ~29x vs naive ternary matvec, 3.5-3.6x vs k8+Kara — amortization is shape-dependent (26 column transforms serve only 8 rows); Gaussian mask columns cost the SAME (1.00x, operand-independent single-prime kernel) |
+| *(prototype, superseded)* aux-NTT GEMM at q46 in the standalone bin, 47x72 | ~0.15 (0.514 ms/column) | ~6.6e6 | ~60x vs naive, ~7x vs op-count-credited k=8+Kara — reproduced by the integrated row above within ~10% |
+
+Integrated Sigma-round effect (medians of 9 pinned reps, same seeds per
+path so the attempt sequences are identical; proofs bit-identical):
+prove 6.2-6.8 -> 0.96-1.09 ms (k = 2, q31), 9.1-10.1 -> 1.5-1.6 ms
+(k = 8, q8), 26.0-28.0 -> 3.3-3.6 ms (digit round, q8) — **6-8x**;
+verify 2.7-3.1 -> 0.26-0.29 ms and 7.9-8.1 -> 0.77 ms — **~10x**.
+Cached NTT-domain CRS memory: **1.07 MB per parameter point** (260 KB
+stacked commit cache + 208 KB mask cache + 624 KB limb-split verify
+cache at kappa = 8, N_r = 26; the FFN-shape commit cache alone is
+~3.3 MB).
 
 Findings: (i) the k = 8 split delivers its ~8x in the GEMM-shaped
 commit kernel (where the transforms amortize), not in isolated
@@ -280,7 +302,7 @@ ring-MACs/element = (1 + kappa/msg_r) * N_r / 128.
 | Route Z scalar (anchor) | — | — | ~11,300-16,000 |
 | Route R k = 2 q46 (kappa 15, N_r 72) | 0.826 | 2.1 (Kara) | ~3,900 |
 | **Q2+Q3: k = 8 + Kara, q31 (kappa 9, N_r 57)** | **0.571** | **0.63** | **~950-1,070** |
-| + A1 aux-NTT (**measured**) | 0.571 | ~0.09-0.15 | **~119** (q46 ternary regime — below the ~200-300 close threshold) |
+| + A1 aux-NTT (**INTEGRATED-measured, q8 FFN shape**) | 0.571 | **~0.09-0.11** | **~119** (below the ~200-300 close threshold; and at q31 even the w-bit value-tensor regime is single-prime — the WHOLE commit bill rides the golden kernel, P0 tables) |
 
 **(a) The commit bill, 7B/512-token pass** (same ~9.4e9 committed
 element-equivalents as LLM_SCALE_ESTIMATE.md, incl. bit tensors;
@@ -292,7 +314,7 @@ element-equivalents as LLM_SCALE_ESTIMATE.md, incl. bit tensors;
 | Route R k = 2 + Kara, q46 | ~19,400 s 1T -> **~22 min** 22T |
 | **Q2+Q3+A2 (this tranche, measured)** | ~5,960 s 1T -> **~6.6 min** 22T (**~34x vs Route Z**) |
 | + GPU integer GEMM (the estimate's 20x row; int32 density at q31 is what makes 20x credible without the q46 2.4x int8-GEMM penalty) | **~20 s** |
-| + A1 (measured kernel ~7x over k8+Kara; regime-weighted 2-4x at bill level) | **~1-2 min 22T CPU -> ~3-6 s GPU** |
+| + A1 (**INTEGRATED**: 6.2-6.4x over k8+Kara head-to-head at FFN shape, 84-102 eff GMAC/s 1T; the whole bill is golden-regime at q31) | **~1.6-2.0 min 22T CPU -> ~5-6 s GPU** |
 
 **(b) The 15 s ladder.** Claim proofs (r = 1, side-linear, ~2,200
 claims) at q31/k8 kernels: ~0.05-0.15 s each 1T -> ~10-25 s wall on 22
@@ -324,10 +346,30 @@ lands at its op-count projection.**
   7B/512 pass: commit bill ~3-6 s (GPU) + claim proofs ~10-25 s wall
   (22T) + gadgets at noise level = **~15-30 s, i.e. ~2-4x the
   quantized-CPU inference baseline — the 15 s rung is within the
-  projection's error bars.** The remaining conversion from projection
+  projection's error bars.** ~~The remaining conversion from projection
   to measurement is the A1 integration tranche (~3-5 days, plan in
-  A1_AUX_NTT_REPORT.md Section 5) plus GPU kernels. **A3 is parked
-  indefinitely** unless integration falsifies these rates.
+  A1_AUX_NTT_REPORT.md Section 5) plus GPU kernels.~~ *(superseded —
+  integration done, next bullet)* **A3 is parked indefinitely** unless
+  integration falsifies these rates.
+- **Integration update (A1 tranche, this repo state): CONVERTED from
+  projection to measurement at the arithmetic layer.** The A1 kernels
+  run inside ring_lattice's commit path, all three Sigma rounds and the
+  verifier (shared module `aux_ntt_core.rs`), with same-seed
+  BIT-IDENTICAL proofs against the schoolbook/split paths, exact
+  capacity-boundary tests at q31/q8/q46, and automatic single-prime vs
+  limb-split regime dispatch wired into the parameter chain (P0 line,
+  `route_r_params.py` + the Rust derivation). Integrated rates
+  (idle machine, medians of pinned reps, 3 sessions): FFN-shape commit
+  kernel 0.161-0.195 us/ring-MAC = **~99-111 ns (~119 helper-prime
+  muls) per committed element** at the (k = 8, q8_31, e = 4) FFN
+  parameters — the prototype's rates reproduced within ~10%, now
+  in-protocol. Integrated commit-bill projection, 7B/512 pass:
+  **~1.6-2.0 min at 22T on CPU; ~5-6 s with the assumed 20x GPU row**;
+  with claim proofs (~10-25 s wall, 22T) and noise-level gadgets the
+  **~15-30 s (~2-4x quantized-CPU-inference) gate reconciliation is
+  CONFIRMED at integrated rates.** What remains assumed rather than
+  measured: the 20x GPU factor and the ~15x 22-thread scaling
+  extrapolation; the arithmetic layer itself is no longer a projection.
 
 ## 7. The wider honesty note
 
