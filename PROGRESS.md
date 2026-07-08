@@ -18,14 +18,21 @@ Suite: PATH=... python3 -m unittest discover -s tests  (must stay 37/37; ring_la
 - [x] Merged perf/zk-batch-optimizations (fast-forward to c731832).
 - [x] Read RING_MULT_BOTTLENECK.md, ROUTE_R_DESIGN.md, ring_lattice.rs,
       route_r_params.py, LLM_SCALE_ESTIMATE.md. Baseline self-test green.
+- [x] U1a (commit 41ecc6a): route_r_params.py k_split_study(): residue
+      classes (k=8 <=> q = 17 mod 32), q8_31 = 2^31 - 399 = 2147483249
+      (eta = 2056890868), q8_46 = 2^46 - 1103 = 70368744176561
+      (eta = 49533544627797), irreducibility verified, LS18 frontier:
+      k=8 margin 1.30x @2^31, 4.76x @2^46; min q for k=8 is 2^28.0;
+      k=16 needs q > 2^64 (out). Slot-root leaf order eta^[1,9,5,13,3,11,7,15].
+- [x] U1b: ring_lattice.rs: Zq + RingCtx generic layer (butterfly k-way
+      split/merge from primitive 2k-th root), ring_mul_split, poly_mul_g,
+      slot_inv_g/poly_inv_g, generic Sigma round (prove/verify_opening_g,
+      verifier ring-mult via split kernel). Self-test sections 10-11:
+      k=2-generic == legacy kernel, 25x split-mul vs schoolbook @q8, 100
+      challenge-diff inversions @k=8, zero-divisor control, 8-slot
+      Hadamard, full tamper battery at k=8. ALL GREEN.
 
 ## Next
-- [ ] U1a: route_r_params.py: q8 search (q = 17 mod 32 <=> LS18 k=8 class),
-      irreducibility verification (Lidl-Niederreiter for X^16 - s), LS18
-      (k, q) frontier table. Pick q8 ~ 2^31 and 46-bit variant.
-- [ ] U1b: ring_lattice.rs: generic-modulus ring ctx, 8-way butterfly
-      split/merge + slot mul, cross-check vs schoolbook at q8, LS18 margin
-      print, generic Sigma opening round at q8/k=8 + tamper battery.
 - [ ] U2: digit-decomposed opening round (witness digits, per-digit sigma
       w/ shared challenge, recombination check; tamper: wrong digit, digit
       out of range, recombination mismatch) + params script (k, e) frontier.
