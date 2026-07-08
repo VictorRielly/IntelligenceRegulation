@@ -64,6 +64,11 @@ forces U' <= 0. Both give A = ReLU(U'). Encodings disjoint since
 - [x] Unit 2 (commit 41c16e3): ffn_demo + CLI. Tiny shape (4 8 8 4 7):
       prove 35.3 s / verify 9.1 s, all honest ok, negatives N1-N7 all fail
       as required. Per-column gadget cost ~0.65-0.7 s prove (matches M2).
-- [ ] Unit 3: Python test wiring (ffn-demo 4 8 8 4 7); full suite green.
-- [ ] Unit 4: headline measurement run at default 16 32 64 6 8
-      (expect ~5.5-6.5 min wall) + M3_REPORT.md.
+- [x] Unit 3 (committed): Python test test_lattice_ffn_demo
+      (ffn-demo 4 8 8 4 7); full suite 37/37 green in 92.6 s.
+- [x] Unit 4 (final): headline run complete (prove 316.3 s / verify
+      83.7 s; gadgets 187.7x the matmul claims; 307 ms/element; all
+      negatives N1-N7 fail as required). M3_REPORT.md filled from
+      /tmp/ffn_headline.log and committed. M3 complete.
+      Headline params observed: msg=128 k=1832 N=6016; commit 1.1 s;
+      matmuls prove 1.685 s verify 0.484 s; bias link 0.455/0.147 s.
