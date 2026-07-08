@@ -9,11 +9,18 @@ Branch: worktree branch merged with perf/zk-batch-optimizations (HEAD contains
    lattice_matmul.rs (Params/derive_params_gadget, Pi2 prover structure, wave
    scheduler, statement hashing, manifest).
 2. [done] PROGRESS.md + plan commit.
-3. [next] Deliverable 2: zkmatrix-rs/src/bin/ring_lattice.rs prototype
-   (d=128, q=2^31-19, quinary challenges, naive negacyclic mul + 2-way CRT,
-   toy module commitment, one full opening-proof Sigma round, self-test
-   battery incl. tampered/norm-overflow/extraction-with-inversion). Build +
-   run + measure.
+3. [done] Deliverable 2: zkmatrix-rs/src/bin/ring_lattice.rs (883 lines,
+   auto-discovered bin, no Cargo.toml change needed). ALL self-tests pass:
+   ring arithmetic vs CRT cross-check, 200 challenge-difference inversions
+   (worst linf 4), zero-divisor negative control, 2-slot Hadamard, full
+   opening-proof round valid + tampered response/first-message/context/
+   statement + (+q) norm-overflow (caught only by the exact-integer norm
+   check), honest-case extraction recovers rho exactly via LS18 inversion.
+   Derived params asserted in-code: kappa=8, N_R=26, msg_r=2, sigma=2^17.4,
+   beta=2^24.6, q > 8 beta (3.4 bits headroom), C3 k_Z=912<=1024, C4 ok.
+   Approx timings (shared machine, single-thread, naive kernels): ring mul
+   18-31 us; commit (256 slots) 5-15 ms; prove 55-105 ms (4 attempts,
+   M=2.76 geometric); verify 11 ms. Proof ~15 KB at r=1.
 4. [todo] Parameter re-derivation script (scripts/route_r_params.py): ring
    analogues of C0-C4, worked table at demo shapes + n=2048, worst-case vs
    concentration norm columns. Output feeds the design doc Section 3.
