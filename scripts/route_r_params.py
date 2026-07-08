@@ -138,6 +138,206 @@ def show(label, proto, rows, inner, cols, msg_min=0):
                   f"{proof_kb(proto, r31, 31.0):.1f} |")
 
 
+# ===========================================================================
+# Q3 (k = 8 split): residue classes, q8 selection, LS18 (k, q) frontier.
+#
+# LS18 (Lyubashevsky-Seiler, EUROCRYPT 2018), general form as quoted in
+# ROUTE_R_DESIGN.md Section 1: for prime q = 2k+1 (mod 4k), X^d + 1 splits
+# into k irreducible factors X^(d/k) - r_i mod q, and every nonzero y in R_q
+# with ||y||_inf < q^(1/k) / sqrt(k) is invertible. Quinary challenge
+# differences have ||c - c'||_inf <= 4, so the coverage condition is
+# q^(1/k) / sqrt(k) > 4, i.e. q > (4 sqrt(k))^k.
+#
+# k = 8 residue condition: q = 17 (mod 32). Equivalently v2(q-1) = 4:
+# primitive 16th roots of unity eta exist (eta^8 = -1), no 32nd roots, so
+# X^128 + 1 = prod_{t=0..7} (X^16 - eta^(2t+1)) with each binomial
+# irreducible (Lidl-Niederreiter Thm 3.75: X^n - s irreducible over F_q iff
+# every prime p | n divides ord(s) and not (q-1)/ord(s), and 4 | n implies
+# q = 1 mod 4; here n = 16, ord(s) = 16, (q-1)/16 odd, q = 1 mod 16).
+# ===========================================================================
+
+CHALLENGE_DIFF_INF = 4  # quinary challenge differences: ||c - c'||_inf <= 4
+
+_MR_BASES = (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37)
+
+
+def is_prime(n: int) -> bool:
+    """Deterministic Miller-Rabin for n < 3.3e24 (fixed base set)."""
+    if n < 2:
+        return False
+    for p in _MR_BASES:
+        if n % p == 0:
+            return n == p
+    d, s = n - 1, 0
+    while d % 2 == 0:
+        d //= 2
+        s += 1
+    for a in _MR_BASES:
+        x = pow(a, d, n)
+        if x in (1, n - 1):
+            continue
+        for _ in range(s - 1):
+            x = x * x % n
+            if x == n - 1:
+                break
+        else:
+            return False
+    return True
+
+
+def v2(n: int) -> int:
+    s = 0
+    while n % 2 == 0:
+        n //= 2
+        s += 1
+    return s
+
+
+def ls18_bound(q: float, k: int) -> float:
+    return q ** (1.0 / k) / math.sqrt(k)
+
+
+def ls18_min_q(k: int) -> float:
+    """Smallest q with LS18 coverage of quinary differences at split k."""
+    return float((CHALLENGE_DIFF_INF * math.sqrt(k)) ** k)
+
+
+def primitive_16th_root(q: int) -> int:
+    """eta with eta^8 = -1 mod q (primitive 16th root); needs 16 | q-1."""
+    assert (q - 1) % 16 == 0
+    for x in range(2, 1000):
+        eta = pow(x, (q - 1) // 16, q)
+        if pow(eta, 8, q) == q - 1:
+            return eta
+    raise ValueError(f"no primitive 16th root found for q = {q}")
+
+
+def _polymul_mod_binomial(a, b, s, q, n=16):
+    """a * b mod (X^n - s) mod q; a, b are length-n coefficient lists."""
+    wide = [0] * (2 * n)
+    for i, ai in enumerate(a):
+        if ai == 0:
+            continue
+        for j, bj in enumerate(b):
+            wide[i + j] = (wide[i + j] + ai * bj) % q
+    return [(wide[i] + s * wide[i + n]) % q for i in range(n)]
+
+
+def binomial_irreducible_frobenius(q: int, s: int, n: int = 16) -> bool:
+    """Direct Frobenius check that f = X^n - s is irreducible over F_q:
+    X^(q^(n/2)) != X and X^(q^n) = X in F_q[X]/(f). Sufficient here since
+    all irreducible factors of a binomial dividing X^d + 1 in this setting
+    have equal 2-power degree, so a proper factor forces degree <= n/2."""
+    x_poly = [0] * n
+    x_poly[1] = 1
+    # xq = X^q mod f by square-and-multiply on the exponent q.
+    xq = [0] * n
+    xq[0] = 1  # start with 1, multiply by X per bit
+    base = list(x_poly)
+    e = q
+    while e > 0:
+        if e & 1:
+            xq = _polymul_mod_binomial(xq, base, s, q, n)
+        base = _polymul_mod_binomial(base, base, s, q, n)
+        e >>= 1
+    # Frobenius iterates by composition: X^(q^(j+1)) = (X^(q^j)) o (X^q).
+    def compose(g, h):
+        out = [0] * n
+        for coeff in reversed(g):
+            out = _polymul_mod_binomial(out, h, s, q, n)
+            out[0] = (out[0] + coeff) % q
+        return out
+
+    frob = list(xq)  # X^(q^1)
+    for _ in range(n // 2 - 1):
+        frob = compose(frob, xq)  # X^(q^(n/2))
+    if frob == x_poly:
+        return False
+    for _ in range(n // 2):
+        frob = compose(frob, xq)  # X^(q^n)
+    return frob == x_poly
+
+
+def find_q8(bits: int):
+    """Largest prime q < 2^bits with q = 17 mod 32, plus split data."""
+    q = None
+    c = 15  # 2^bits = 0 mod 32 for bits >= 5, so q = 2^bits - c needs c = 15 mod 32
+    while True:
+        cand = (1 << bits) - c
+        if cand % 32 == 17 and is_prime(cand):
+            q = cand
+            break
+        c += 32
+    eta = primitive_16th_root(q)
+    # slot roots in the butterfly leaf order used by ring_lattice.rs
+    exps = [1, 9, 5, 13, 3, 11, 7, 15]
+    roots = [pow(eta, e, q) for e in exps]
+    # verify: product of the 8 binomials is X^128 + 1 mod q
+    prod = [1]
+    for r in roots:
+        nxt = [0] * (len(prod) + 16)
+        for i, c0 in enumerate(prod):
+            nxt[i + 16] = (nxt[i + 16] + c0) % q
+            nxt[i] = (nxt[i] - r * c0) % q
+        prod = nxt
+    expect = [0] * 129
+    expect[0] = 1
+    expect[128] = 1
+    assert prod == expect, "product of slot binomials != X^128 + 1"
+    # verify irreducibility of every slot binomial (criterion + Frobenius)
+    assert v2(q - 1) == 4
+    for r in roots:
+        # ord(r) = 16: r = eta^odd and eta has order 16
+        assert pow(r, 8, q) == q - 1 and pow(r, 16, q) == 1
+        assert binomial_irreducible_frobenius(q, r)
+    return dict(q=q, c=c, eta=eta, exps=exps, roots=roots)
+
+
+def k_split_study():
+    print("\n### Q3: k-split residue classes and LS18 coverage "
+          "(quinary diffs, ||.||_inf <= 4)")
+    print("| k | residue class | min q for LS18 coverage | single-limb? |")
+    print("|---|---|---|---|")
+    for k in (2, 4, 8, 16):
+        mq = ls18_min_q(k)
+        feas = "yes" if mq < 2 ** 63 else "NO (> 2^63)"
+        print(f"| {k} | q = {2 * k + 1} mod {4 * k} | "
+              f"q > (4 sqrt({k}))^{k} = 2^{math.log2(mq):.1f} | {feas} |")
+    print("  => k = 8 is the deepest split reachable with quinary "
+          "challenges at single-limb q; k = 16 needs q > 2^64.")
+
+    print("\n### Q3: LS18 bound q^(1/k)/sqrt(k) and margin over 4, "
+          "by (k, q)")
+    qs = [("2^28", 2.0 ** 28), ("q31-class (2^31)", 2.0 ** 31),
+          ("2^37", 2.0 ** 37), ("q46-class (2^46)", 2.0 ** 46)]
+    print("| k | " + " | ".join(name for name, _ in qs) + " |")
+    print("|---|" + "---|" * len(qs))
+    for k in (2, 4, 8, 16):
+        cells = []
+        for _, qv in qs:
+            b = ls18_bound(qv, k)
+            verdict = f"{b:.1f} ({b / 4:.2f}x)" if b > 4 else f"{b:.1f} FAIL"
+            cells.append(verdict)
+        print(f"| {k} | " + " | ".join(cells) + " |")
+
+    for bits in (31, 46):
+        r = find_q8(bits)
+        q = r["q"]
+        b = ls18_bound(q, 8)
+        print(f"\n  q8 at {bits} bits: q = 2^{bits} - {r['c']} = {q} "
+              f"(prime, q mod 32 = {q % 32})")
+        print(f"    eta (primitive 16th root) = {r['eta']}; slot roots "
+              f"eta^{r['exps']}")
+        print(f"    all 8 binomials X^16 - eta^odd verified irreducible "
+              f"(criterion + Frobenius); product = X^128 + 1 ok")
+        print(f"    LS18 bound q^(1/8)/sqrt(8) = {b:.2f}; quinary-diff "
+              f"margin {b / 4:.2f}x")
+    print("  NOTE: RING_MULT_BOTTLENECK.md Section 3's '~10-13 at q ~ 2^31'"
+          " was an estimate; the exact bound at 2^31 is "
+          f"{ls18_bound(2.0**31, 8):.2f} (margin "
+          f"{ls18_bound(2.0**31, 8) / 4:.2f}x). Corrected in the results.")
+
+
 def soundness_accounting():
     print("### Challenge-set soundness accounting (replaces C1)")
     for base, name in [(3, "ternary {-1,0,1}"), (5, "quinary {-2..2}")]:
@@ -156,6 +356,7 @@ def soundness_accounting():
 if __name__ == "__main__":
     print("Route R parameter tables (d = 128, quinary challenges, r = 1)")
     soundness_accounting()
+    k_split_study()
     # Demo chain shapes (M0/M1 report): X 16x32, W1 32x64, W2 64x8.
     show("demo chain worst shape", "pi2", 32, 32, 64, msg_min=64)
     # Square n = 2048, both protocols (the LLM-scale reference claim).
