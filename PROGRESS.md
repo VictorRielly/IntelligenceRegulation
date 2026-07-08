@@ -53,7 +53,26 @@ Suite: PATH=... python3 -m unittest discover -s tests  (37/37 must stay green)
       NTT primitives: fwd 1061ns / inv 1044ns. Cross-session variance noted (shared
       machine, sibling agent benchmarking concurrently): A1 FFN col 0.51-0.66ms,
       k2 n2048 12.9-24.9ms across three sessions; ratios within a session consistent.
-- [ ] U5: report A1_AUX_NTT_REPORT.md + revised commit-bill projection.
+- [x] U5: report A1_AUX_NTT_REPORT.md + revised commit-bill projection.
+      docs/zkmatrix-poc/A1_AUX_NTT_REPORT.md: design + zero-soundness argument,
+      capacity regime table, limb-vs-CRT estimate table (limb chosen), accumulator
+      correctness notes, measured tables (from the saved session), integration plan
+      (8 points, ~3-5 days effort, sibling files untouched), projection: commit bill
+      25-35 min (k2 CPU) -> ~1.3-1.8 min CPU with A1 (19x conservative weighted vs
+      k2-Karatsuba; ~28x vs today's k2), cross-checked bottom-up (1.33e10 elements x
+      ~170 ns weighted = 1.7 min at 22 threads); with the estimate's 20x GPU factor
+      commit bill ~5-10 s, at/below the 15 s ladder line; Section 3b few-hundred-
+      MACs/element ops condition met at k=2 (measured ~119 Goldilocks muls/element).
+      Final suite run: 37/37 OK. Sibling-owned files verified untouched vs c731832.
+
+## Done — summary for resume
+
+All units complete. Bin: zkmatrix-rs/src/bin/aux_ntt.rs (self-test | bench).
+Report: docs/zkmatrix-poc/A1_AUX_NTT_REPORT.md. Raw bench session:
+docs/zkmatrix-poc/results/aux_ntt_bench_q46.txt. Headline: commit kernel at
+FFN shape 80x vs schoolbook / 38x vs cached k2 (22x crediting k2 Karatsuba),
+mask regime 25x/12x; single-prime golden case verified to hit its exact
+capacity bound. Possible follow-ups listed in report Section 7.
 
 ## Decisions
 
@@ -81,13 +100,7 @@ Suite: PATH=... python3 -m unittest discover -s tests  (37/37 must stay green)
 
 ## Next
 
-U5: write docs/zkmatrix-poc/A1_AUX_NTT_REPORT.md — design, capacity regime
-table, measured speedups (from bench run 1), accumulator-correctness notes,
-integration plan (described only; ring_lattice.rs untouched), revised
-commit-bill projection for the 7B/512 pass with explicit arithmetic.
-Anchors for projection: LLM_SCALE_ESTIMATE Section 2 (~1.5e14 commit MACs
-incl. bit tensors, ~2.5e13 bare), Section 3 table (~2-4 min at k=2 after
-r->1 + GPU), ROUTE_R Section 7 (~3900 ops/element k=2 Karatsuba commit,
-2x target needs few-hundred class). A1 measured: ~120-150 Goldilocks muls
-per committed coefficient at FFN shape (0.514 ms / (32*128 coeffs) = 125 ns
-per coeff, i.e. ~x00 MAC-equivalents/element) — in the few-hundred class.
+Nothing pending. If resumed: read A1_AUX_NTT_REPORT.md Section 7 for
+descoped follow-ups (two-prime CRT variant, k2-Karatsuba baseline,
+GPU/AVX-512 kernels, rayon benchmark, q31 commit table, integration —
+integration is gated on sibling-agent file ownership ending).
