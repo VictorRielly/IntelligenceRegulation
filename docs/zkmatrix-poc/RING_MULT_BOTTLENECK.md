@@ -244,7 +244,7 @@ Ring multiplication, d = 128, one product, transforms included
 | k = 2 split + Karatsuba | ~4,928 | 4.3-4.6 | **2.8x** |
 | k = 8 split @q8 | ~2,752 | 3.9-4.1 | **3.1x** |
 | k = 8 split + Karatsuba | ~2,240 | 4.2-4.4 | 2.9-3.0x |
-| aux-NTT (A1) | ~2 x 1,472 unamortized | *pending — see A1 agent* | |
+| aux-NTT (A1) | ~2 x 1,472 + transforms | 3.8 (q46, measured) | 3.2x standalone — transforms dominate; the GEMM shape below is the payoff |
 
 Commit kernel `t1 = A1 rho` (GEMM shape, key rows split once per CRS,
 columns once per commit — the transforms amortize; naive baseline
@@ -257,7 +257,7 @@ exploits ternary sparsity):
 | k = 2 split + Karatsuba | 2.5-2.6 | 4.0e5 | 3.6x |
 | k = 8 amortized split @q8 | 1.9-2.0 | 5.2e5 | 4.7x |
 | k = 8 split + Karatsuba @q8 | **1.10-1.17** | **~9.0e5** | **8.1x** |
-| aux-NTT GEMM (A1) | *pending — see A1 agent* | | |
+| aux-NTT GEMM (A1, measured at q46, 47x72 shape) | **~0.15** (0.514 ms/column) | **~6.6e6** | **~60x vs naive, ~7x vs k=8+Kara** (single Goldilocks prime suffices in the ternary regime; A1_AUX_NTT_REPORT.md) |
 
 Findings: (i) the k = 8 split delivers its ~8x in the GEMM-shaped
 commit kernel (where the transforms amortize), not in isolated
@@ -280,7 +280,7 @@ ring-MACs/element = (1 + kappa/msg_r) * N_r / 128.
 | Route Z scalar (anchor) | — | — | ~11,300-16,000 |
 | Route R k = 2 q46 (kappa 15, N_r 72) | 0.826 | 2.1 (Kara) | ~3,900 |
 | **Q2+Q3: k = 8 + Kara, q31 (kappa 9, N_r 57)** | **0.571** | **0.63** | **~950-1,070** |
-| + A1 aux-NTT (projected op count ~300-500/MAC) | 0.571 | *pending* | ~200-300 |
+| + A1 aux-NTT (**measured**) | 0.571 | ~0.09-0.15 | **~119** (q46 ternary regime — below the ~200-300 close threshold) |
 
 **(a) The commit bill, 7B/512-token pass** (same ~9.4e9 committed
 element-equivalents as LLM_SCALE_ESTIMATE.md, incl. bit tensors;
@@ -292,7 +292,7 @@ element-equivalents as LLM_SCALE_ESTIMATE.md, incl. bit tensors;
 | Route R k = 2 + Kara, q46 | ~19,400 s 1T -> **~22 min** 22T |
 | **Q2+Q3+A2 (this tranche, measured)** | ~5,960 s 1T -> **~6.6 min** 22T (**~34x vs Route Z**) |
 | + GPU integer GEMM (the estimate's 20x row; int32 density at q31 is what makes 20x credible without the q46 2.4x int8-GEMM penalty) | **~20 s** |
-| + A1 (pending, op-count projection 2-4x) | ~5-10 s |
+| + A1 (measured kernel ~7x over k8+Kara; regime-weighted 2-4x at bill level) | **~1-2 min 22T CPU -> ~3-6 s GPU** |
 
 **(b) The 15 s ladder.** Claim proofs (r = 1, side-linear, ~2,200
 claims) at q31/k8 kernels: ~0.05-0.15 s each 1T -> ~10-25 s wall on 22
@@ -313,10 +313,21 @@ lands at its op-count projection.**
   estimate is recovered, as Section 1 predicted.
 - **The ~15 s gate does NOT close on Q2+Q3+A2 alone: ~25-45 s with the
   GPU row.** The remaining 2-3x is exactly A1's lane (amortized
-  aux-modulus NTT in the commit GEMM). If A1's measured rates match its
-  op-count projection, the ladder closes at ~15 s (~2x the ~7 s
-  quantized-CPU inference baseline). **A3 stays parked pending the A1
-  agent's numbers**, per Section 5 item 5.
+  aux-modulus NTT in the commit GEMM).
+- **Reconciliation with the A1 agent's measurements (parallel tranche,
+  A1_AUX_NTT_REPORT.md): the gate CLOSES at projection level.** A1
+  measured ~119 helper-prime multiplications per committed element in
+  the dominant ternary regime — well below the ~200-300 threshold this
+  gate required — and ~7x over the k=8+Karatsuba kernel at GEMM shape,
+  with single-prime capacity confirmed for the golden regime (and, at
+  q31, for the Gaussian-mask regime too). Combined projection per
+  7B/512 pass: commit bill ~3-6 s (GPU) + claim proofs ~10-25 s wall
+  (22T) + gadgets at noise level = **~15-30 s, i.e. ~2-4x the
+  quantized-CPU inference baseline — the 15 s rung is within the
+  projection's error bars.** The remaining conversion from projection
+  to measurement is the A1 integration tranche (~3-5 days, plan in
+  A1_AUX_NTT_REPORT.md Section 5) plus GPU kernels. **A3 is parked
+  indefinitely** unless integration falsifies these rates.
 
 ## 7. The wider honesty note
 
