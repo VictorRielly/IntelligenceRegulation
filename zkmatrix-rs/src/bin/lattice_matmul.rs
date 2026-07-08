@@ -3592,6 +3592,660 @@ fn gadget_demo(rows: usize, inner: usize, cols: usize, shift: u32, width: u32) {
     println!("lattice gadget-demo ok");
 }
 
+// ---------------------------------------------------------------------------
+// M3: one quantized FFN block proven end-to-end under a single claim
+// manifest (lattice Route Z track).
+//
+// Statement (fixed-point semantics declared in the header prints; all
+// entries are signed integers encoded mod q as q - |v| for v < 0):
+//
+//   U   = X W1                       Pi2 matmul claim (X by rows)
+//   U_b = U + broadcast(b1)          Class-0 add after the bias-broadcast
+//                                    link (b1 committed once as a column
+//                                    and once as f broadcast columns)
+//   U'  = floor(U_b / 2^shift)       rescale link + range(R, shift) +
+//                                    signed range(U', width)
+//   A   = relu(U')                   sign-bit column b (binary), Hadamard
+//                                    A = b o U', unsigned ranges on A and
+//                                    on D = A - U' (com(D) derived
+//                                    homomorphically)
+//   Y   = A W2                       Pi2 matmul claim; A enters by rows,
+//                                    linked to its by-columns commitments
+//                                    with the transpose gadget
+//   out = Y + X                      Class-0 add (X's by-columns entry is
+//                                    transpose-linked to its by-rows entry)
+//
+// ReLU completeness/soundness argument (the "small argument" the plan asks
+// to document): per element, with b in {0,1} (binary claim), A = b o U'
+// (Hadamard, mod q), A in [0, 2^w) and D = A - U' in [0, 2^w) (unsigned
+// ranges) and U' in [-2^{w-1}, 2^{w-1}) (signed range from the rescale):
+//   b = 1: A = U' as field elements; A's unsigned range intersected with
+//          U''s signed encoding forces U' >= 0, so A = U' = relu(U').
+//   b = 0: A = 0; D = -U' mod q in [0, 2^w) intersected with the signed
+//          encoding forces U' <= 0, so A = 0 = relu(U').
+// The encodings are disjoint because 2^w + 2^{w-1} << q. At U' = 0 both
+// branches are consistent and both give A = 0. Honest completeness:
+// A = max(U', 0) < 2^{w-1} and D = max(-U', 0) <= 2^{w-1}, both < 2^w.
+
+#[allow(clippy::too_many_arguments)]
+fn ffn_demo(t: usize, d: usize, f: usize, shift: u32, w: u32) {
+    // Quantized spec constants (part of the declared statement).
+    const WX: u32 = 4; // X, W1, W2 entries: signed 4-bit, [-8, 8)
+    const WB: u32 = 6; // b1 entries: signed 6-bit, [-32, 32)
+    assert!(shift <= GADGET_MAX_SHIFT && w >= 2 && w <= 16);
+    // Accumulator headroom check for the declared widths: |U_b| <=
+    // d 2^{2(WX-1)} + 2^{WB-1}, and the quotient must fit the signed range.
+    let max_ub = d as i64 * (1 << (2 * (WX - 1))) + (1 << (WB - 1));
+    assert!(
+        (max_ub >> shift) + 1 < (1 << (w - 1)),
+        "declared quotient width too small for the accumulator bound"
+    );
+    println!("lattice ffn-demo: X {t}x{d}, W1 {d}x{f}, W2 {f}x{d} (Pi2 track)");
+    println!(
+        "  quantized spec: X/W1/W2 {WX}-bit signed, b1 {WB}-bit signed, \
+         U' = floor((X W1 + b1)/2^{shift}) width-{w} signed, \
+         A = relu(U') / D = A - U' width-{w} unsigned, out = A W2 + X"
+    );
+    let s1 = Shape { rows: t, inner: d, cols: f };
+    let s2 = Shape { rows: t, inner: f, cols: d };
+    let start = Instant::now();
+    let min_msg = (w.max(shift) as usize) * t;
+    let params = derive_params_gadget(
+        Protocol::Pi2,
+        &[s1, s2],
+        Some((t, f.max(d))),
+        min_msg,
+    );
+    let crs = expand_crs(&params, 0xC0FFEE);
+    println!(
+        "  params: msg={} k={} N={} sigma_t=2^{:.1} sigma_h=2^{:.1}, crs {:.3}s",
+        params.msg,
+        params.k,
+        params.big_n,
+        (params.sigma_t as f64).log2(),
+        (params.sigma_h as f64).log2(),
+        start.elapsed().as_secs_f64()
+    );
+
+    // ---- Witness: the fixed-point forward pass over the integers. ----
+    let mut rng = 0xFF17_u64;
+    let signed_entry = |rng: &mut u64, width: u32| -> i64 {
+        rng_small(rng, 1 << width) as i64 - (1 << (width - 1))
+    };
+    let x_int: Vec<Vec<i64>> = (0..t)
+        .map(|_| (0..d).map(|_| signed_entry(&mut rng, WX)).collect())
+        .collect(); // by rows
+    let w1_int: Vec<Vec<i64>> = (0..f)
+        .map(|_| (0..d).map(|_| signed_entry(&mut rng, WX)).collect())
+        .collect(); // by columns (each length d)
+    let w2_int: Vec<Vec<i64>> = (0..d)
+        .map(|_| (0..f).map(|_| signed_entry(&mut rng, WX)).collect())
+        .collect(); // by columns (each length f)
+    let b1_int: Vec<i64> = (0..f).map(|_| signed_entry(&mut rng, WB)).collect();
+    let u_int: Vec<Vec<i64>> = (0..f)
+        .map(|j| {
+            (0..t)
+                .map(|i| (0..d).map(|k| x_int[i][k] * w1_int[j][k]).sum())
+                .collect()
+        })
+        .collect(); // by columns
+    let ub_int: Vec<Vec<i64>> = (0..f)
+        .map(|j| u_int[j].iter().map(|&v| v + b1_int[j]).collect())
+        .collect();
+    let two_s = 1i64 << shift;
+    let uq_int: Vec<Vec<i64>> = ub_int
+        .iter()
+        .map(|c| c.iter().map(|&v| v.div_euclid(two_s)).collect())
+        .collect();
+    let r_int: Vec<Vec<i64>> = ub_int
+        .iter()
+        .map(|c| c.iter().map(|&v| v.rem_euclid(two_s)).collect())
+        .collect();
+    let b_int: Vec<Vec<i64>> = uq_int
+        .iter()
+        .map(|c| c.iter().map(|&v| i64::from(v > 0)).collect())
+        .collect();
+    let a_int: Vec<Vec<i64>> = uq_int
+        .iter()
+        .map(|c| c.iter().map(|&v| v.max(0)).collect())
+        .collect();
+    let dd_int: Vec<Vec<i64>> = (0..f)
+        .map(|j| (0..t).map(|i| a_int[j][i] - uq_int[j][i]).collect())
+        .collect();
+    for j in 0..f {
+        for i in 0..t {
+            assert!(uq_int[j][i] >= -(1 << (w - 1)) && uq_int[j][i] < (1 << (w - 1)));
+            assert!(a_int[j][i] >= 0 && a_int[j][i] < (1 << w));
+            assert!(dd_int[j][i] >= 0 && dd_int[j][i] < (1 << w));
+        }
+    }
+    let a_rows_int: Vec<Vec<i64>> = (0..t)
+        .map(|i| (0..f).map(|j| a_int[j][i]).collect())
+        .collect();
+    let y_int: Vec<Vec<i64>> = (0..d)
+        .map(|j| {
+            (0..t)
+                .map(|i| (0..f).map(|k| a_rows_int[i][k] * w2_int[j][k]).sum())
+                .collect()
+        })
+        .collect(); // by columns
+    let out_int: Vec<Vec<i64>> = (0..d)
+        .map(|j| (0..t).map(|i| y_int[j][i] + x_int[i][j]).collect())
+        .collect();
+    let _ = &out_int; // out enters only through its derived commitment
+
+    // ---- Encodings mod q. ----
+    let enc_cols = |cols: &[Vec<i64>]| -> Vec<Vec<u64>> {
+        cols.iter()
+            .map(|c| c.iter().map(|&v| enc_i(v)).collect())
+            .collect()
+    };
+    let x_rows_enc = enc_cols(&x_int);
+    let x_cols_int: Vec<Vec<i64>> = (0..d)
+        .map(|j| (0..t).map(|i| x_int[i][j]).collect())
+        .collect();
+    let x_cols_enc = enc_cols(&x_cols_int);
+    let w1_enc = enc_cols(&w1_int);
+    let w2_enc = enc_cols(&w2_int);
+    let b1_enc: Vec<u64> = b1_int.iter().map(|&v| enc_i(v)).collect();
+    let bb_enc: Vec<Vec<u64>> = b1_int.iter().map(|&v| vec![enc_i(v); t]).collect();
+    let u_enc = enc_cols(&u_int);
+    let uq_enc = enc_cols(&uq_int);
+    let r_enc = enc_cols(&r_int);
+    let b_enc = enc_cols(&b_int);
+    let a_enc = enc_cols(&a_int);
+    let a_rows_enc = enc_cols(&a_rows_int);
+    let y_enc = enc_cols(&y_int);
+    let pr_cols: Vec<Vec<u64>> = r_enc.iter().map(|c| pack_bits(c, shift)).collect();
+    let pq_cols: Vec<Vec<u64>> = uq_int
+        .iter()
+        .map(|c| {
+            let offset: Vec<u64> = c
+                .iter()
+                .map(|&v| (v + (1i64 << (w - 1))) as u64)
+                .collect();
+            pack_bits(&offset, w)
+        })
+        .collect();
+    let pa_cols: Vec<Vec<u64>> = a_enc.iter().map(|c| pack_bits(c, w)).collect();
+    let pd_cols: Vec<Vec<u64>> = dd_int
+        .iter()
+        .map(|c| {
+            let vals: Vec<u64> = c.iter().map(|&v| v as u64).collect();
+            pack_bits(&vals, w)
+        })
+        .collect();
+
+    // ---- Commitments (everything committed before any challenge). ----
+    let start = Instant::now();
+    let commit_group = |cols: &[Vec<u64>], rng: &mut u64| {
+        let rhos: Vec<Vec<i8>> = (0..cols.len())
+            .map(|_| rng_ternary(rng, params.big_n))
+            .collect();
+        let commits = commit_columns_fast(&params, &crs, cols, &rhos);
+        (commits, rhos)
+    };
+    let (tx_rows, rho_xr) = commit_group(&x_rows_enc, &mut rng);
+    let (tx_cols, rho_xc) = commit_group(&x_cols_enc, &mut rng);
+    let (tw1, rho_w1) = commit_group(&w1_enc, &mut rng);
+    let (tb1, rho_b1) = commit_group(std::slice::from_ref(&b1_enc), &mut rng);
+    let (tbb, rho_bb) = commit_group(&bb_enc, &mut rng);
+    let (tu, tau_u) = commit_group(&u_enc, &mut rng);
+    let (tuq, rho_uq) = commit_group(&uq_enc, &mut rng);
+    let (trr, rho_r) = commit_group(&r_enc, &mut rng);
+    let (tpr, rho_pr) = commit_group(&pr_cols, &mut rng);
+    let (tpq, rho_pq) = commit_group(&pq_cols, &mut rng);
+    let (tsb, rho_sb) = commit_group(&b_enc, &mut rng);
+    let (ta, rho_a) = commit_group(&a_enc, &mut rng);
+    let (tpa, rho_pa) = commit_group(&pa_cols, &mut rng);
+    let (tpd, rho_pd) = commit_group(&pd_cols, &mut rng);
+    let (tar, rho_ar) = commit_group(&a_rows_enc, &mut rng);
+    let (tw2, rho_w2) = commit_group(&w2_enc, &mut rng);
+    let (ty, tau_y) = commit_group(&y_enc, &mut rng);
+    // Class-0 derived commitments (no fresh randomness, no commit pass):
+    let tub = add_groups(&tu, &tbb); // com(U + b1-broadcast)
+    let rho_ub = add_rhos(&tau_u, &rho_bb);
+    let tdd = sub_groups(&ta, &tuq); // com(A - U')
+    let rho_dd = sub_rhos(&rho_a, &rho_uq);
+    let tout = add_groups(&ty, &tx_cols); // com(Y + X)
+    let commit_s = start.elapsed().as_secs_f64();
+    println!("  commit ({} column commitments + 3 derived groups): {commit_s:.3}s",
+        2 * t + 11 * f + 3 * d + 1);
+
+    // ---- Claim manifest: the statement of the whole DAG. ----
+    let build_manifest = |tar_g: &[Vec<u64>], ty_g: &[Vec<u64>], tout_g: &[Vec<u64>]| {
+        let mut mf = ClaimManifest::new("lattice-route-z-pi2", &crs.crs_hash);
+        let ki = (params.msg as u64).to_le_bytes().to_vec();
+        let mut add = |label: &str, rows: usize, cols: usize, or: Orientation, group: &[Vec<u64>]| {
+            mf.add_commitment(label, rows, cols, or, ki.clone(), commitment_group_digest(group))
+        };
+        let id_xr = add("X", t, d, Orientation::ByRows, &tx_rows);
+        let id_xc = add("X", t, d, Orientation::ByColumns, &tx_cols);
+        let id_w1 = add("W1", d, f, Orientation::ByColumns, &tw1);
+        let id_b1 = add("b1", f, 1, Orientation::ByColumns, &tb1);
+        let id_bb = add("b1-bcast", t, f, Orientation::ByColumns, &tbb);
+        let id_u = add("U", t, f, Orientation::ByColumns, &tu);
+        let id_ub = add("U+b1", t, f, Orientation::ByColumns, &tub);
+        let id_uq = add("U'", t, f, Orientation::ByColumns, &tuq);
+        let id_r = add("R", t, f, Orientation::ByColumns, &trr);
+        let id_pr = add("R-bits", shift as usize * t, f, Orientation::ByColumns, &tpr);
+        let id_pq = add("U'-bits", w as usize * t, f, Orientation::ByColumns, &tpq);
+        let id_b = add("b-sign", t, f, Orientation::ByColumns, &tsb);
+        let id_a = add("A", t, f, Orientation::ByColumns, &ta);
+        let id_pa = add("A-bits", w as usize * t, f, Orientation::ByColumns, &tpa);
+        let id_dd = add("D", t, f, Orientation::ByColumns, &tdd);
+        let id_pd = add("D-bits", w as usize * t, f, Orientation::ByColumns, &tpd);
+        let id_ar = add("A", t, f, Orientation::ByRows, tar_g);
+        let id_w2 = add("W2", f, d, Orientation::ByColumns, &tw2);
+        let id_y = add("Y", t, d, Orientation::ByColumns, ty_g);
+        let id_out = add("Out", t, d, Orientation::ByColumns, tout_g);
+        mf.add_operation(Operation::Matmul { a: id_xr, b: id_w1, c: id_u });
+        mf.add_operation(Operation::BiasBroadcast { bias: id_b1, broadcast: id_bb });
+        mf.add_operation(Operation::Add { inputs: vec![id_u, id_bb], output: id_ub });
+        mf.add_operation(Operation::Rescale { x: id_ub, y: id_uq, r: id_r, shift });
+        mf.add_operation(Operation::Range { value: id_r, bits: id_pr, width: shift, signed: false });
+        mf.add_operation(Operation::Range { value: id_uq, bits: id_pq, width: w, signed: true });
+        mf.add_operation(Operation::Binary { bits: id_pr });
+        mf.add_operation(Operation::Binary { bits: id_pq });
+        mf.add_operation(Operation::Binary { bits: id_b });
+        mf.add_operation(Operation::Hadamard { x: id_b, y: id_uq, z: id_a });
+        mf.add_operation(Operation::Range { value: id_a, bits: id_pa, width: w, signed: false });
+        mf.add_operation(Operation::Binary { bits: id_pa });
+        // D is defined by the Class-0 identity A = D + U'.
+        mf.add_operation(Operation::Add { inputs: vec![id_dd, id_uq], output: id_a });
+        mf.add_operation(Operation::Range { value: id_dd, bits: id_pd, width: w, signed: false });
+        mf.add_operation(Operation::Binary { bits: id_pd });
+        mf.add_operation(Operation::LinkTranspose { by_rows: id_ar, by_cols: id_a });
+        mf.add_operation(Operation::Matmul { a: id_ar, b: id_w2, c: id_y });
+        mf.add_operation(Operation::LinkTranspose { by_rows: id_xr, by_cols: id_xc });
+        mf.add_operation(Operation::Add { inputs: vec![id_y, id_xc], output: id_out });
+        (mf, [id_ub, id_dd, id_out])
+    };
+    let (manifest, [id_ub, id_dd, id_out]) = build_manifest(&tar, &ty, &tout);
+    let ctx = manifest.digest();
+
+    // ---- Prove and verify, per component (verify-after-prove per family
+    // keeps peak proof memory to one family). ----
+    let mut prng = 0xFF18_u64;
+    let time = Instant::now;
+
+    // Matmul claims.
+    let s_p = time();
+    let mm1 = prove_pi2(
+        &params, &crs, &s1, &ctx, &x_rows_enc, &rho_xr, &w1_enc, &rho_w1, &tau_u,
+        &tx_rows, &tw1, &tu, &mut prng,
+    );
+    let mm1_p = s_p.elapsed().as_secs_f64();
+    let s_v = time();
+    let mm1_ok = verify_pi2(&params, &crs, &s1, &ctx, &tx_rows, &tw1, &tu, &mm1);
+    let mm1_v = s_v.elapsed().as_secs_f64();
+    drop(mm1);
+    let s_p = time();
+    let mm2 = prove_pi2(
+        &params, &crs, &s2, &ctx, &a_rows_enc, &rho_ar, &w2_enc, &rho_w2, &tau_y,
+        &tar, &tw2, &ty, &mut prng,
+    );
+    let mm2_p = s_p.elapsed().as_secs_f64();
+    let s_v = time();
+    let mm2_ok = verify_pi2(&params, &crs, &s2, &ctx, &tar, &tw2, &ty, &mm2);
+    let mm2_v = s_v.elapsed().as_secs_f64();
+    drop(mm2);
+    let matmul_p = mm1_p + mm2_p;
+    let matmul_v = mm1_v + mm2_v;
+    println!(
+        "  matmul claims: prove {matmul_p:.3}s verify {matmul_v:.3}s (ok={})",
+        mm1_ok && mm2_ok
+    );
+
+    // Bias-broadcast link.
+    let s_p = time();
+    let bias_proof = prove_bias_link(
+        &params, &crs, &ctx, t, f, &tb1[0], &tbb, &rho_b1[0], &rho_bb, &mut prng,
+    );
+    let bias_p = s_p.elapsed().as_secs_f64();
+    let s_v = time();
+    let bias_ok = verify_bias_link(&params, &crs, &ctx, t, f, &tb1[0], &tbb, &bias_proof);
+    let bias_v = s_v.elapsed().as_secs_f64();
+    println!("  bias link: prove {bias_p:.3}s verify {bias_v:.3}s (ok={bias_ok})");
+
+    // Rescale + range family (rescale link, two recompositions, binary
+    // constraints on both packed-bit groups).
+    let mut resc_p = 0.0;
+    let mut resc_v = 0.0;
+    let s_p = time();
+    let resc_link = prove_rescale_link(
+        &params, &crs, &ctx, t, shift, 2, &tub, &tuq, &trr, &rho_ub, &rho_uq,
+        &rho_r, &mut prng,
+    );
+    let rec_r = prove_recomposition(
+        &params, &crs, &ctx, t, shift, false, 1, &trr, &tpr, &rho_r, &rho_pr,
+        &mut prng,
+    );
+    let rec_uq = prove_recomposition(
+        &params, &crs, &ctx, t, w, true, 1, &tuq, &tpq, &rho_uq, &rho_pq, &mut prng,
+    );
+    resc_p += s_p.elapsed().as_secs_f64();
+    let s_v = time();
+    let resc_link_ok =
+        verify_rescale_link(&params, &crs, &ctx, t, shift, 2, &tub, &tuq, &trr, &resc_link);
+    let rec_r_ok =
+        verify_recomposition(&params, &crs, &ctx, t, shift, false, 1, &trr, &tpr, &rec_r);
+    let rec_uq_ok =
+        verify_recomposition(&params, &crs, &ctx, t, w, true, 1, &tuq, &tpq, &rec_uq);
+    resc_v += s_v.elapsed().as_secs_f64();
+    drop((resc_link, rec_r, rec_uq));
+    let binary_group = |commits: &[Vec<u64>],
+                        cols: &[Vec<u64>],
+                        rhos: &[Vec<i8>],
+                        len: usize,
+                        prng: &mut u64|
+     -> (f64, f64, bool) {
+        let stmts: Vec<HadamardStatement> = commits
+            .iter()
+            .map(|c| HadamardStatement { len, tx: c, ty: c, tz: c })
+            .collect();
+        let wits: Vec<HadamardWitness> = (0..cols.len())
+            .map(|j| HadamardWitness {
+                x: &cols[j],
+                y: &cols[j],
+                rho_x: &rhos[j],
+                rho_y: &rhos[j],
+                rho_z: &rhos[j],
+            })
+            .collect();
+        let s_p = Instant::now();
+        let proof = prove_hadamard(&params, &crs, &ctx, &stmts, &wits, prng);
+        let p = s_p.elapsed().as_secs_f64();
+        let s_v = Instant::now();
+        let ok = verify_hadamard(&params, &crs, &ctx, &stmts, &proof);
+        (p, s_v.elapsed().as_secs_f64(), ok)
+    };
+    let (p, v, bin_r_ok) =
+        binary_group(&tpr, &pr_cols, &rho_pr, shift as usize * t, &mut prng);
+    resc_p += p;
+    resc_v += v;
+    let (p, v, bin_q_ok) =
+        binary_group(&tpq, &pq_cols, &rho_pq, w as usize * t, &mut prng);
+    resc_p += p;
+    resc_v += v;
+    let resc_ok = resc_link_ok && rec_r_ok && rec_uq_ok && bin_r_ok && bin_q_ok;
+    println!(
+        "  rescale+range family: prove {resc_p:.3}s verify {resc_v:.3}s (ok={resc_ok})"
+    );
+
+    // ReLU family: binary sign bits, Hadamard A = b o U', ranges on A and D.
+    let mut relu_p = 0.0;
+    let mut relu_v = 0.0;
+    let (p, v, bin_b_ok) = binary_group(&tsb, &b_enc, &rho_sb, t, &mut prng);
+    relu_p += p;
+    relu_v += v;
+    let had_stmts: Vec<HadamardStatement> = (0..f)
+        .map(|j| HadamardStatement { len: t, tx: &tsb[j], ty: &tuq[j], tz: &ta[j] })
+        .collect();
+    let had_wits: Vec<HadamardWitness> = (0..f)
+        .map(|j| HadamardWitness {
+            x: &b_enc[j],
+            y: &uq_enc[j],
+            rho_x: &rho_sb[j],
+            rho_y: &rho_uq[j],
+            rho_z: &rho_a[j],
+        })
+        .collect();
+    let s_p = time();
+    let had_proof = prove_hadamard(&params, &crs, &ctx, &had_stmts, &had_wits, &mut prng);
+    relu_p += s_p.elapsed().as_secs_f64();
+    let s_v = time();
+    let had_ok = verify_hadamard(&params, &crs, &ctx, &had_stmts, &had_proof);
+    relu_v += s_v.elapsed().as_secs_f64();
+    drop(had_proof);
+    let s_p = time();
+    let rec_a = prove_recomposition(
+        &params, &crs, &ctx, t, w, false, 1, &ta, &tpa, &rho_a, &rho_pa, &mut prng,
+    );
+    // D's commitments and randomness are derived (A - U'), so rho_bound = 2.
+    let rec_d = prove_recomposition(
+        &params, &crs, &ctx, t, w, false, 2, &tdd, &tpd, &rho_dd, &rho_pd, &mut prng,
+    );
+    relu_p += s_p.elapsed().as_secs_f64();
+    let s_v = time();
+    let rec_a_ok =
+        verify_recomposition(&params, &crs, &ctx, t, w, false, 1, &ta, &tpa, &rec_a);
+    let rec_d_ok =
+        verify_recomposition(&params, &crs, &ctx, t, w, false, 2, &tdd, &tpd, &rec_d);
+    relu_v += s_v.elapsed().as_secs_f64();
+    drop((rec_a, rec_d));
+    let (p, v, bin_a_ok) = binary_group(&tpa, &pa_cols, &rho_pa, w as usize * t, &mut prng);
+    relu_p += p;
+    relu_v += v;
+    let (p, v, bin_d_ok) = binary_group(&tpd, &pd_cols, &rho_pd, w as usize * t, &mut prng);
+    relu_p += p;
+    relu_v += v;
+    let relu_ok = bin_b_ok && had_ok && rec_a_ok && rec_d_ok && bin_a_ok && bin_d_ok;
+    println!(
+        "  relu family: prove {relu_p:.3}s verify {relu_v:.3}s (ok={relu_ok})"
+    );
+
+    // Transpose links (A between orientations, X between orientations).
+    let s_p = time();
+    let link_a = prove_transpose(
+        &params, &crs, t, f, &ctx, &tar, &ta, &rho_ar, &rho_a, &mut prng,
+    );
+    let link_x = prove_transpose(
+        &params, &crs, t, d, &ctx, &tx_rows, &tx_cols, &rho_xr, &rho_xc, &mut prng,
+    );
+    let links_p = s_p.elapsed().as_secs_f64();
+    let s_v = time();
+    let link_a_ok = verify_transpose(&params, &crs, t, f, &ctx, &tar, &ta, &link_a);
+    let link_x_ok =
+        verify_transpose(&params, &crs, t, d, &ctx, &tx_rows, &tx_cols, &link_x);
+    let links_v = s_v.elapsed().as_secs_f64();
+    println!(
+        "  transpose links: prove {links_p:.3}s verify {links_v:.3}s (ok={})",
+        link_a_ok && link_x_ok
+    );
+
+    // Class-0 recomputation: the verifier recomputes every derived
+    // commitment group from the manifest's Add operations and rejects on a
+    // digest mismatch. No proof objects are involved.
+    let s_v = time();
+    let class0_check = |derived: &[Vec<u64>], entry: u32| -> bool {
+        commitment_group_digest(derived)
+            == manifest.commitments[entry as usize].commitment_bytes
+    };
+    let class0_ok = class0_check(&add_groups(&tu, &tbb), id_ub)
+        && class0_check(&sub_groups(&ta, &tuq), id_dd)
+        && class0_check(&add_groups(&ty, &tx_cols), id_out);
+    let class0_v = s_v.elapsed().as_secs_f64();
+    println!("  class-0 recompute (U+b1, D, Out): {class0_v:.3}s (ok={class0_ok})");
+
+    // ---- Totals and the M3 headline ratio. ----
+    let total_p = matmul_p + bias_p + resc_p + relu_p + links_p;
+    let total_v = matmul_v + bias_v + resc_v + relu_v + links_v + class0_v;
+    let elements = (t * f) as f64;
+    println!("  total prove: {total_p:.3}s  total verify: {total_v:.3}s");
+    println!(
+        "  vs the two matmul claims alone: prove {:.1}x (gadgets {:.3}s / matmuls {matmul_p:.3}s), \
+         {:.1} ms per rescaled+relu'd element",
+        total_p / matmul_p,
+        total_p - matmul_p,
+        1000.0 * (total_p - matmul_p) / elements,
+    );
+    assert!(
+        mm1_ok && mm2_ok && bias_ok && resc_ok && relu_ok && link_a_ok && link_x_ok && class0_ok,
+        "honest FFN block must verify"
+    );
+
+    // ---- Negative battery (each must fail). Family-level negatives run at
+    // single-column scale where possible (the M2 pattern); the manifest
+    // negatives run at full scale. ----
+
+    // N1: wrong ReLU output at one element (in-range wrong value): the
+    // Hadamard claim A = b o U' must reject.
+    let j0 = 0usize;
+    let mut a_bad = a_enc[j0].clone();
+    a_bad[0] = addm(a_bad[0], 1);
+    let (ta_bad, rho_a_bad) = commit_group(std::slice::from_ref(&a_bad), &mut rng);
+    let n1_stmt = [HadamardStatement { len: t, tx: &tsb[j0], ty: &tuq[j0], tz: &ta_bad[0] }];
+    let n1_wit = [HadamardWitness {
+        x: &b_enc[j0],
+        y: &uq_enc[j0],
+        rho_x: &rho_sb[j0],
+        rho_y: &rho_uq[j0],
+        rho_z: &rho_a_bad[0],
+    }];
+    let n1 = prove_hadamard(&params, &crs, &ctx, &n1_stmt, &n1_wit, &mut prng);
+    assert!(
+        !verify_hadamard(&params, &crs, &ctx, &n1_stmt, &n1),
+        "N1 wrong relu output must fail the Hadamard claim"
+    );
+    println!("  negative N1 (wrong relu output): hadamard fails as required");
+
+    // N2: sign bit flipped at an element with U' != 0. The flipped bit is
+    // still binary and the recomputed A' = b' o U' passes the Hadamard --
+    // it is the range on D' = A' - U' that must catch the flip.
+    let (j1, i1) = (0..f)
+        .flat_map(|j| (0..t).map(move |i| (j, i)))
+        .find(|&(j, i)| uq_int[j][i] > 0)
+        .expect("demo instance has a positive quotient");
+    let mut b_bad = b_enc[j1].clone();
+    b_bad[i1] = 0; // was 1 since U' > 0
+    let mut a2 = a_enc[j1].clone();
+    a2[i1] = 0; // honest Hadamard output for the flipped bit
+    let (tb_bad, rho_b_bad) = commit_group(std::slice::from_ref(&b_bad), &mut rng);
+    let (ta2, rho_a2) = commit_group(std::slice::from_ref(&a2), &mut rng);
+    let n2_stmt = [HadamardStatement { len: t, tx: &tb_bad[0], ty: &tuq[j1], tz: &ta2[0] }];
+    let n2_wit = [HadamardWitness {
+        x: &b_bad,
+        y: &uq_enc[j1],
+        rho_x: &rho_b_bad[0],
+        rho_y: &rho_uq[j1],
+        rho_z: &rho_a2[0],
+    }];
+    let n2 = prove_hadamard(&params, &crs, &ctx, &n2_stmt, &n2_wit, &mut prng);
+    assert!(
+        verify_hadamard(&params, &crs, &ctx, &n2_stmt, &n2),
+        "N2: flipped sign bit still passes the Hadamard (by design)"
+    );
+    // D' = A' - U' has the negative entry -U'[i1]; its w-bit packing
+    // (masked) cannot recompose it, so the range recomposition fails.
+    let tdd_bad = sub_groups(&ta2, std::slice::from_ref(&tuq[j1]));
+    let rho_dd_bad = sub_rhos(&rho_a2, std::slice::from_ref(&rho_uq[j1]));
+    let mask = (1u64 << w) - 1;
+    let dd_bad_masked: Vec<u64> = (0..t)
+        .map(|i| subm(a2[i], uq_enc[j1][i]) & mask)
+        .collect();
+    let pd_bad = pack_bits(&dd_bad_masked, w);
+    let (tpd_bad, rho_pd_bad) = commit_group(std::slice::from_ref(&pd_bad), &mut rng);
+    let n2r = prove_recomposition(
+        &params, &crs, &ctx, t, w, false, 2, &tdd_bad, &tpd_bad, &rho_dd_bad,
+        &rho_pd_bad, &mut prng,
+    );
+    assert!(
+        !verify_recomposition(&params, &crs, &ctx, t, w, false, 2, &tdd_bad, &tpd_bad, &n2r),
+        "N2 flipped sign bit must fail the D range"
+    );
+    println!(
+        "  negative N2 (sign bit flipped at U'!=0): hadamard passes, D range fails as required"
+    );
+
+    // N3: tampered bias broadcast (one broadcast entry off by one).
+    let mut bb_bad = bb_enc.clone();
+    bb_bad[1][0] = addm(bb_bad[1][0], 1);
+    let (tbb_bad, rho_bb_bad) = commit_group(&bb_bad, &mut rng);
+    let n3 = prove_bias_link(
+        &params, &crs, &ctx, t, f, &tb1[0], &tbb_bad, &rho_b1[0], &rho_bb_bad,
+        &mut prng,
+    );
+    assert!(
+        !verify_bias_link(&params, &crs, &ctx, t, f, &tb1[0], &tbb_bad, &n3),
+        "N3 tampered bias broadcast must fail the bias link"
+    );
+    println!("  negative N3 (tampered bias broadcast): bias link fails as required");
+
+    // N4: wrong rescale quotient at one element.
+    let mut uq_bad = uq_enc.clone();
+    uq_bad[0][0] = addm(uq_bad[0][0], 1);
+    let (tuq_bad0, rho_uq_bad0) = commit_group(std::slice::from_ref(&uq_bad[0]), &mut rng);
+    let mut tuq_bad = tuq.clone();
+    tuq_bad[0] = tuq_bad0[0].clone();
+    let mut rho_uq_bad = rho_uq.clone();
+    rho_uq_bad[0] = rho_uq_bad0[0].clone();
+    let n4 = prove_rescale_link(
+        &params, &crs, &ctx, t, shift, 2, &tub, &tuq_bad, &trr, &rho_ub,
+        &rho_uq_bad, &rho_r, &mut prng,
+    );
+    assert!(
+        !verify_rescale_link(&params, &crs, &ctx, t, shift, 2, &tub, &tuq_bad, &trr, &n4),
+        "N4 wrong rescale quotient must fail the rescale link"
+    );
+    println!("  negative N4 (wrong rescale quotient): rescale link fails as required");
+
+    // N5: substituted A between orientations. A' (by rows) feeds the second
+    // matmul, which verifies standalone against its own commitments; only
+    // the transpose link to the by-columns A of the ReLU family catches it.
+    let mut a2_rows = a_rows_enc.clone();
+    a2_rows[0][0] = addm(a2_rows[0][0], 1);
+    let y2_int: Vec<Vec<u64>> = (0..d)
+        .map(|j| {
+            (0..t)
+                .map(|i| {
+                    let mut acc: u128 = 0;
+                    for k in 0..f {
+                        acc += mulm(a2_rows[i][k], enc_i(w2_int[j][k])) as u128;
+                    }
+                    (acc % Q as u128) as u64
+                })
+                .collect()
+        })
+        .collect();
+    let tar2 = commit_columns_fast(&params, &crs, &a2_rows, &rho_ar);
+    let ty2 = commit_columns_fast(&params, &crs, &y2_int, &tau_y);
+    let tout2 = add_groups(&ty2, &tx_cols);
+    let (manifest2, _) = build_manifest(&tar2, &ty2, &tout2);
+    let ctx2 = manifest2.digest();
+    let n5_claim = prove_pi2(
+        &params, &crs, &s2, &ctx2, &a2_rows, &rho_ar, &w2_enc, &rho_w2, &tau_y,
+        &tar2, &tw2, &ty2, &mut prng,
+    );
+    let n5_link = prove_transpose(
+        &params, &crs, t, f, &ctx2, &tar2, &ta, &rho_ar, &rho_a, &mut prng,
+    );
+    assert!(
+        verify_pi2(&params, &crs, &s2, &ctx2, &tar2, &tw2, &ty2, &n5_claim),
+        "N5: substituted-A matmul verifies standalone"
+    );
+    assert!(
+        !verify_transpose(&params, &crs, t, f, &ctx2, &tar2, &ta, &n5_link),
+        "N5 substituted A must fail the transpose link"
+    );
+    println!(
+        "  negative N5 (substituted A between orientations): claim passes standalone, transpose link fails as required"
+    );
+
+    // N6: tampered residual output commitment. Class-0: the verifier
+    // recomputes com(Y) + com(X) and rejects the mismatching entry digest.
+    let mut tout_bad = tout.clone();
+    tout_bad[0][0] = addm(tout_bad[0][0], 1);
+    assert!(
+        !class0_check(&tout_bad, id_out),
+        "N6 tampered residual commitment must fail the class-0 recompute"
+    );
+    println!("  negative N6 (tampered residual commitment): class-0 recompute fails as required");
+
+    // N7: manifest reordering. Same commitments, different order: every
+    // proof made for the honest ordering must fail against the new digest.
+    let mut reordered = manifest.clone();
+    reordered.commitments.swap(0, 1);
+    let ctx_r = reordered.digest();
+    assert_ne!(ctx, ctx_r, "reordered manifest digest must differ");
+    assert!(
+        !verify_bias_link(&params, &crs, &ctx_r, t, f, &tb1[0], &tbb, &bias_proof),
+        "N7 manifest reordering must fail"
+    );
+    println!("  negative N7 (manifest reordering): proofs fail as required");
+    println!("lattice ffn-demo ok");
+}
+
 fn usage() {
     eprintln!("usage:");
     eprintln!("  lattice_matmul self-test");
@@ -3601,6 +4255,7 @@ fn usage() {
     eprintln!("  lattice_matmul params <pi1|pi2> <n> [n...]");
     eprintln!("  lattice_matmul chain-demo [n0 n1 n2 n3]   (default 16 32 64 8)");
     eprintln!("  lattice_matmul gadget-demo [rows inner cols shift width]   (default 16 32 64 6 12)");
+    eprintln!("  lattice_matmul ffn-demo [T d f shift width]   (default 16 32 64 6 8)");
 }
 
 fn parse_proto(arg: &str) -> Option<(Protocol, &str)> {
@@ -3635,6 +4290,17 @@ fn main() {
             match dims.len() {
                 0 => chain_demo(16, 32, 64, 8),
                 4 => chain_demo(dims[0], dims[1], dims[2], dims[3]),
+                _ => {
+                    usage();
+                    std::process::exit(1);
+                }
+            }
+        }
+        "ffn-demo" => {
+            let dims: Vec<usize> = args[2..].iter().map(|a| a.parse().unwrap()).collect();
+            match dims.len() {
+                0 => ffn_demo(16, 32, 64, 6, 8),
+                5 => ffn_demo(dims[0], dims[1], dims[2], dims[3] as u32, dims[4] as u32),
                 _ => {
                     usage();
                     std::process::exit(1);
