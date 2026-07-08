@@ -43,29 +43,36 @@ const P: u64 = 0xFFFF_FFFF_0000_0001;
 const EPS: u64 = 0xFFFF_FFFF; // 2^32 - 1 = 2^64 mod p
 const GEN: u64 = 7;
 
+/// Branchless canonicalization to [0, p): subtract p if possible. Compiles
+/// to a cmov — data-dependent branches cost ~3x NTT throughput here.
+#[inline(always)]
+fn canon_p(r: u64) -> u64 {
+    let (d, borrow) = r.overflowing_sub(P);
+    if borrow { r } else { d }
+}
+
 #[inline(always)]
 fn add_p(a: u64, b: u64) -> u64 {
-    // a, b < p. a + b < 2p < 2^65: on carry, a+b-2^64 + (2^32-1) = a+b-p.
+    // a, b < p. a + b < 2p < 2^65: on carry, a+b-2^64 + (2^32-1) = a+b-p,
+    // and the EPS adjustment cannot re-carry (a+b-2^64 < 2^64 - 2^33 + 2).
     let (s, carry) = a.overflowing_add(b);
-    let mut r = if carry { s.wrapping_add(EPS) } else { s };
-    if r >= P {
-        r -= P;
-    }
-    r
+    canon_p(s.wrapping_add((carry as u64) * EPS))
 }
 
 #[inline(always)]
 fn sub_p(a: u64, b: u64) -> u64 {
-    // a, b < p. On borrow: a-b+2^64 - (2^32-1) = a-b+p.
+    // a, b < p. On borrow: a-b+2^64 - (2^32-1) = a-b+p (no re-borrow:
+    // a-b+2^64 >= 2^64-p+1 = 2^32 > EPS).
     let (d, borrow) = a.overflowing_sub(b);
-    if borrow { d.wrapping_sub(EPS) } else { d }
+    d.wrapping_sub((borrow as u64) * EPS)
 }
 
-/// Reduce a full u128 mod p. With x = lo + 2^64*hi_lo + 2^96*hi_hi and
-/// 2^64 = 2^32 - 1, 2^96 = -1 (mod p): x = lo + (2^32-1)*hi_lo - hi_hi.
-/// Branch analysis (all cases stay canonical, < p, with ONE final
-/// conditional subtraction): see A1_AUX_NTT_REPORT.md; cross-checked against
-/// the slow `% p` path over random and structured edge values in self-test.
+/// Reduce a full u128 mod p, branchless. With x = lo + 2^64*hi_lo +
+/// 2^96*hi_hi and 2^64 = 2^32 - 1, 2^96 = -1 (mod p):
+/// x = lo + (2^32-1)*hi_lo - hi_hi. Neither adjustment can double-wrap
+/// (borrow case: t >= 2^64 - 2^32 + 1 > EPS; carry case:
+/// t + t1 - 2^64 <= 2^64 - 2^33, + EPS < 2^64). Cross-checked against the
+/// slow `% p` path over random and structured edge values in self-test.
 #[inline(always)]
 fn reduce128(x: u128) -> u64 {
     let lo = x as u64;
@@ -73,14 +80,10 @@ fn reduce128(x: u128) -> u64 {
     let hi_lo = hi & EPS;
     let hi_hi = hi >> 32;
     let (t, borrow) = lo.overflowing_sub(hi_hi);
-    let t = if borrow { t.wrapping_sub(EPS) } else { t };
+    let t = t.wrapping_sub((borrow as u64) * EPS);
     let t1 = (hi_lo << 32).wrapping_sub(hi_lo); // hi_lo * (2^32 - 1), exact
     let (r, carry) = t.overflowing_add(t1);
-    let mut r = if carry { r.wrapping_add(EPS) } else { r };
-    if r >= P {
-        r -= P;
-    }
-    r
+    canon_p(r.wrapping_add((carry as u64) * EPS))
 }
 
 #[inline(always)]
@@ -273,6 +276,16 @@ fn mod_q_i128(x: i128, q: u64) -> u64 {
     if r < 0 { (r + q as i128) as u64 } else { r as u64 }
 }
 
+/// Reduce a centered value |x| < 2^63 to [0, q) with a single u64 division
+/// (the i128 remainder is a slow libcall; every recovered Z_p value is
+/// centered below 2^63 by the capacity contract).
+#[inline(always)]
+fn mod_q_centered(x: i128, q: u64) -> u64 {
+    debug_assert!(x.unsigned_abs() < 1 << 63);
+    let r = (x.unsigned_abs() as u64) % q;
+    if x < 0 && r != 0 { q - r } else { r }
+}
+
 // ---------------------------------------------------------------------------
 // U2: capacity analysis. Exact u128 checks of the single-prime contract
 //     n_acc * d * A * B <= (p-1)/2
@@ -428,14 +441,18 @@ fn ring_mul_q_limbsplit(a: &[u64], b: &[u64], q: u64, t: &NttTables) -> Vec<u64>
     ntt_inv(&mut p0, t);
     ntt_inv(&mut p2, t);
     ntt_inv(&mut pm, t);
+    // Recompose mod q: each recovered sub-product is exact (|v| <= d*2^2L
+    // <= 2^53 at q46), so reduce each mod q and combine with 2^L, 2^2L mod q.
+    let two_l = (1u64 << l) % q;
+    let two_2l = mul_q(two_l, two_l, q);
     let mut out = vec![0u64; D];
     for k in 0..D {
-        let v0 = center_from_p(p0[k]);
-        let v2 = center_from_p(p2[k]);
-        let vm = center_from_p(pm[k]);
-        // exact: |v| <= d * 2^(2L) <= 2^53 at q46; scaled by 2^2L fits i128.
-        let c = v0 + ((vm - v0 - v2) << l) + (v2 << (2 * l));
-        out[k] = mod_q_i128(c, q);
+        let v0 = mod_q_centered(center_from_p(p0[k]), q);
+        let v2 = mod_q_centered(center_from_p(p2[k]), q);
+        let vm = mod_q_centered(center_from_p(pm[k]), q);
+        // mid = vm - v0 - v2 (mod q); all sums stay far below 2^63.
+        let mid = (vm + 2 * q - v0 - v2) % q;
+        out[k] = (v0 + mul_q(two_l, mid, q) + mul_q(two_2l, v2, q)) % q;
     }
     out
 }
@@ -456,7 +473,39 @@ fn ring_mul_q_single(a: &[u64], b_small: &[i64], q: u64, t: &NttTables) -> Vec<u
         fc[i] = mul_p(fa[i], fb[i]);
     }
     ntt_inv(&mut fc, t);
-    fc.iter().map(|&u| mod_q_i128(center_from_p(u), q)).collect()
+    fc.iter().map(|&u| mod_q_centered(center_from_p(u), q)).collect()
+}
+
+/// Ternary-specialized schoolbook single ring mult (regime (a) operands,
+/// the Tier-1 add/sub lever): skip zeros, add/sub key coefficients in i128.
+fn ring_mul_q_ternary_schoolbook(a: &[u64], b: &[i64], q: u64) -> Vec<u64> {
+    let mut acc = [0i128; D];
+    for i in 0..D {
+        let xi = b[i];
+        if xi == 0 {
+            continue;
+        }
+        if xi == 1 {
+            for j in 0..D {
+                let k = i + j;
+                if k < D {
+                    acc[k] += a[j] as i128;
+                } else {
+                    acc[k - D] -= a[j] as i128;
+                }
+            }
+        } else {
+            for j in 0..D {
+                let k = i + j;
+                if k < D {
+                    acc[k] -= a[j] as i128;
+                } else {
+                    acc[k - D] += a[j] as i128;
+                }
+            }
+        }
+    }
+    acc.iter().map(|&v| mod_q_centered(v, q)).collect()
 }
 
 /// Reference: negacyclic schoolbook mod q, inputs in [0, q). u128 lazy
@@ -599,13 +648,16 @@ fn rng_below(rng: &mut u64, bound: u64) -> u64 {
 // multiply-accumulate POINTWISE in the NTT domain, one inverse transform per
 // output element, centered recovery, reduce mod q.
 //
-// Accumulator discipline: NTT-domain values are < 2^64; a u128 cannot hold
-// even two raw 64x64 products, so each pointwise product is REDUCED to u64
-// (reduce128, < p) and the reduced values are accumulated in u128 — exact
-// for up to 2^64 terms, and N_r <= 72 here. One reduce128 at the end of the
-// accumulation returns to Z_p. The EXACT-INTEGER contract (coefficients of
-// the true integer result < p/2) is asserted from the regime bound at
-// construction, never assumed from data.
+// Accumulator discipline: NTT-domain values are < 2^64, so a raw pointwise
+// product fills a u128 and two of them cannot be added there. Split-halves
+// lazy accumulation: accumulate the LOW and HIGH 64-bit halves of each raw
+// product in separate u128s (no per-product reduction — one widening mul and
+// two adds per term). Since 2^64 = EPS (mod p), the sum is recovered as
+// reduce128(acc_lo + EPS * acc_hi), exact while acc_hi < 2^96 — i.e. for up
+// to ~2^31 accumulated terms, and N_r <= 72 here. The EXACT-INTEGER contract
+// (coefficients of the true integer result < p/2) is asserted from the
+// regime bound at construction, never assumed from data; the worst-case
+// self-test drives the accumulator to the exact bound.
 
 struct A1CommitKernel {
     rows: usize,
@@ -651,20 +703,138 @@ impl A1CommitKernel {
             .collect();
         (0..self.rows)
             .map(|row| {
-                let mut acc = [0u128; D];
+                let mut acc_lo = [0u128; D];
+                let mut acc_hi = [0u128; D];
                 for c in 0..self.inner {
                     let gh = &self.g_hat[row * self.inner + c];
                     let rh = &r_hat[c];
                     for k in 0..D {
-                        acc[k] += mul_p(gh[k], rh[k]) as u128;
+                        let prod = gh[k] as u128 * rh[k] as u128;
+                        acc_lo[k] += prod as u64 as u128;
+                        acc_hi[k] += (prod >> 64) as u128;
                     }
                 }
                 let mut v = [0u64; D];
                 for k in 0..D {
-                    v[k] = reduce128(acc[k]);
+                    // sum = acc_lo + 2^64*acc_hi = acc_lo + EPS*acc_hi (mod p);
+                    // < 2^71 + 2^103 at N_r = 72 — fits u128 with margin.
+                    v[k] = reduce128(acc_lo[k] + EPS as u128 * acc_hi[k]);
                 }
                 ntt_inv(&mut v, t);
-                v.iter().map(|&u| mod_q_i128(center_from_p(u), self.q)).collect()
+                v.iter().map(|&u| mod_q_centered(center_from_p(u), self.q)).collect()
+            })
+            .collect()
+    }
+}
+
+/// A1 commit kernel for the GENERAL/bounded regime (regime (b)/(c) columns —
+/// e.g. Gaussian mask commitments at q46, where key x mask exceeds one
+/// prime): both operands limb-split, 3 Karatsuba sub-products, all three
+/// accumulated in the NTT domain (the sub-product bounds leave ~10+ bits of
+/// headroom, so the full module dimension accumulates in-domain), 3 inverse
+/// transforms per output element, exact recompose mod q.
+///
+/// Cached per key element: 3 transforms (lo, hi, lo+hi). Per column element:
+/// 2 forward transforms + one NTT-domain add (linearity gives the mid
+/// transform). Pointwise: 3 muls per coefficient per term.
+struct A1LimbCommitKernel {
+    rows: usize,
+    inner: usize,
+    q: u64,
+    l: u32,                    // COMMON limb base (Karatsuba needs one base)
+    g_hat: Vec<[[u64; D]; 3]>, // per key element: [lo, hi, lo+hi] transforms
+}
+
+impl A1LimbCommitKernel {
+    fn new(g: &[Vec<u64>], rows: usize, inner: usize, q: u64, b_max: u128, t: &NttTables) -> Self {
+        // One base for BOTH operands: with a = a1*2^l + a0, b = b1*2^l + b0,
+        // PM - P0 - P2 = a0 b1 + a1 b0 carries the single scale 2^l only if
+        // both splits use the same l. l halves the key (the wider operand).
+        let l = limb_bits(q);
+        // PM dominates capacity: operand bounds are sums of the limb bounds.
+        let a_pm = (1u128 << (l - 1)) + (((q as u128 - 1) / 2 + (1u128 << (l - 1))) >> l) + 1;
+        let b_pm = (1u128 << (l - 1)) + ((b_max + (1u128 << (l - 1))) >> l) + 1;
+        let (fits, bits) = capacity(inner as u128, a_pm, b_pm);
+        assert!(fits, "limb commit kernel outside capacity ({bits} bits)");
+        let g_hat = g
+            .iter()
+            .map(|poly| {
+                let mut lo = [0u64; D];
+                let mut hi = [0u64; D];
+                let mut mid = [0u64; D];
+                for i in 0..D {
+                    let (lv, hv) = split_limbs(balanced_mod_q(poly[i], q), l);
+                    lo[i] = lift_to_p(lv);
+                    hi[i] = lift_to_p(hv);
+                }
+                ntt_fwd(&mut lo, t);
+                ntt_fwd(&mut hi, t);
+                for i in 0..D {
+                    mid[i] = add_p(lo[i], hi[i]);
+                }
+                [lo, hi, mid]
+            })
+            .collect();
+        A1LimbCommitKernel { rows, inner, q, l, g_hat }
+    }
+
+    /// One column of bounded integer ring elements (|v| <= b_max).
+    fn commit_column(&self, col: &[Vec<i64>], t: &NttTables) -> Vec<Vec<u64>> {
+        debug_assert_eq!(col.len(), self.inner);
+        let col_hat: Vec<[[u64; D]; 3]> = col
+            .iter()
+            .map(|poly| {
+                let mut lo = [0u64; D];
+                let mut hi = [0u64; D];
+                let mut mid = [0u64; D];
+                for i in 0..D {
+                    let (lv, hv) = split_limbs(poly[i], self.l);
+                    lo[i] = lift_to_p(lv);
+                    hi[i] = lift_to_p(hv);
+                }
+                ntt_fwd(&mut lo, t);
+                ntt_fwd(&mut hi, t);
+                for i in 0..D {
+                    mid[i] = add_p(lo[i], hi[i]);
+                }
+                [lo, hi, mid]
+            })
+            .collect();
+        let q = self.q;
+        let two_l = (1u64 << self.l) % q;
+        let two_2l = mul_q(two_l, two_l, q);
+        (0..self.rows)
+            .map(|row| {
+                let mut acc = [[[0u128; D]; 2]; 3]; // [P0|P2|PM][lo|hi][k]
+                for c in 0..self.inner {
+                    let gh = &self.g_hat[row * self.inner + c];
+                    let rh = &col_hat[c];
+                    for s in 0..3 {
+                        for k in 0..D {
+                            let prod = gh[s][k] as u128 * rh[s][k] as u128;
+                            acc[s][0][k] += prod as u64 as u128;
+                            acc[s][1][k] += (prod >> 64) as u128;
+                        }
+                    }
+                }
+                let mut parts = [[0u64; D]; 3];
+                for s in 0..3 {
+                    let mut v = [0u64; D];
+                    for k in 0..D {
+                        v[k] = reduce128(acc[s][0][k] + EPS as u128 * acc[s][1][k]);
+                    }
+                    ntt_inv(&mut v, t);
+                    parts[s] = v;
+                }
+                (0..D)
+                    .map(|k| {
+                        let v0 = mod_q_centered(center_from_p(parts[0][k]), q);
+                        let v2 = mod_q_centered(center_from_p(parts[1][k]), q);
+                        let vm = mod_q_centered(center_from_p(parts[2][k]), q);
+                        let mid = (vm + 2 * q - v0 - v2) % q;
+                        (v0 + mul_q(two_l, mid, q) + mul_q(two_2l, v2, q)) % q
+                    })
+                    .collect()
             })
             .collect()
     }
@@ -961,6 +1131,350 @@ fn selftest_commit_kernel() {
             got == want && got[0][0] == (exact % q as u128) as u64,
         );
     }
+
+    // Limb-split GEMM kernel (regime (b) mask columns at q46): random and
+    // max-magnitude columns at full FFN accumulation depth.
+    let q = Q46;
+    let (rows, inner) = (3usize, 72usize);
+    let b_mask: i64 = 12 << 30; // 12 * 2^30 ~ FFN-scale 12*sigma
+    let g: Vec<Vec<u64>> = (0..rows * inner)
+        .map(|_| (0..D).map(|_| rng_below(&mut rng, q)).collect())
+        .collect();
+    let limb = A1LimbCommitKernel::new(&g, rows, inner, q, b_mask as u128, &t);
+    let mut ok = true;
+    for trial in 0..6 {
+        let col: Vec<Vec<i64>> = (0..inner)
+            .map(|_| {
+                (0..D)
+                    .map(|_| {
+                        if trial == 0 {
+                            b_mask // max magnitude everywhere
+                        } else {
+                            rng_below(&mut rng, 2 * b_mask as u64 + 1) as i64 - b_mask
+                        }
+                    })
+                    .collect()
+            })
+            .collect();
+        let col_mod: Vec<Vec<u64>> = col
+            .iter()
+            .map(|p| p.iter().map(|&v| mod_q_i128(v as i128, q)).collect())
+            .collect();
+        if limb.commit_column(&col, &t) != commit_column_schoolbook(&g, rows, inner, &col_mod, q) {
+            ok = false;
+            break;
+        }
+    }
+    assert_true(
+        "limb-split GEMM kernel = schoolbook on 12*2^30-bounded mask columns (N_r=72, q46, incl. max-magnitude)",
+        ok,
+    );
+}
+
+// ---------------------------------------------------------------------------
+// U4: benchmarks. Single-threaded on purpose (the machine is shared with a
+// sibling agent's benchmarks; medians over pinned repetition counts are the
+// defensible statistic). Effective MACs/s = ring-mults/s x d^2 (the
+// schoolbook-equivalent MAC count of one ring multiplication) — the unit the
+// LLM-scale commit-bill estimates are written in.
+
+use std::time::Instant;
+
+const BENCH_REPS: usize = 9; // pinned; median reported
+const MULT_ITERS: usize = 1000; // ring-mults per timed repetition
+
+fn median(mut v: Vec<f64>) -> f64 {
+    v.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    v[v.len() / 2]
+}
+
+/// Standalone k = 2 ring mult (split both operands, two 64x64 slot
+/// schoolbooks, recombine) — the per-mult form of the K2CommitKernel path.
+fn ring_mul_q_k2(a: &[u64], b: &[u64], q: u64, r_pos: u64, inv2: u64, inv2r: u64) -> Vec<u64> {
+    let r_neg = q - r_pos;
+    let mut out = vec![0u64; D];
+    for (idx, s) in [r_pos, r_neg].iter().enumerate() {
+        let sa = to_slot_q(a, *s, q);
+        let sb = to_slot_q(b, *s, q);
+        let mut wide = vec![0u128; 2 * HALF];
+        for i in 0..HALF {
+            let ai = sa[i] as u128;
+            if ai == 0 {
+                continue;
+            }
+            for j in 0..HALF {
+                wide[i + j] += ai * sb[j] as u128;
+            }
+        }
+        for k in 0..HALF {
+            let lo = (wide[k] % q as u128) as u64;
+            let hi = (wide[k + HALF] % q as u128) as u64;
+            let t = mul_q(*s, hi, q);
+            let v = lo + t;
+            out[idx * HALF + k] = if v >= q { v - q } else { v };
+        }
+    }
+    let mut res = vec![0u64; D];
+    for i in 0..HALF {
+        let p = out[i];
+        let m = out[i + HALF];
+        let sum = if p + m >= q { p + m - q } else { p + m };
+        let dif = if p >= m { p - m } else { p + q - m };
+        res[i] = mul_q(inv2, sum, q);
+        res[i + HALF] = mul_q(inv2r, dif, q);
+    }
+    res
+}
+
+fn bench_single_mults(t: &NttTables) {
+    println!("[U4a] single ring-mult, d = 128 (median of {BENCH_REPS} reps x {MULT_ITERS} mults, 1 thread)");
+    println!(
+        "  {:<44} {:>10} {:>14} {:>12}",
+        "method (operand regime)", "us/mult", "ring-mults/s", "eff MMAC/s"
+    );
+    let mut rng = 0xa1a1_0004u64;
+    const POOL: usize = 32;
+    for &q in &[Q46, Q31] {
+        let qb = 64 - q.leading_zeros();
+        let r_pos = sqrt_m1(q);
+        let inv2 = pow_q(2, q - 2, q);
+        let inv2r = mul_q(inv2, pow_q(r_pos, q - 2, q), q);
+        let gen_pool: Vec<Vec<u64>> = (0..POOL)
+            .map(|_| (0..D).map(|_| rng_below(&mut rng, q)).collect())
+            .collect();
+        let gen_pool2: Vec<Vec<u64>> = (0..POOL)
+            .map(|_| (0..D).map(|_| rng_below(&mut rng, q)).collect())
+            .collect();
+        let ter_pool: Vec<Vec<i64>> = (0..POOL)
+            .map(|_| (0..D).map(|_| (rng_below(&mut rng, 3) as i64) - 1).collect())
+            .collect();
+
+        let mut run = |label: &str, f: &mut dyn FnMut(usize) -> u64| {
+            let mut times = Vec::with_capacity(BENCH_REPS);
+            let mut sink = 0u64;
+            for _ in 0..BENCH_REPS {
+                let start = Instant::now();
+                for i in 0..MULT_ITERS {
+                    sink ^= f(i % POOL);
+                }
+                times.push(start.elapsed().as_secs_f64());
+            }
+            std::hint::black_box(sink);
+            let per = median(times) / MULT_ITERS as f64;
+            println!(
+                "  {:<44} {:>10.3} {:>14.0} {:>12.1}",
+                format!("{label}, q{qb}"),
+                per * 1e6,
+                1.0 / per,
+                (D * D) as f64 / per / 1e6
+            );
+        };
+
+        run("schoolbook (general x general)", &mut |i| {
+            ring_mul_q_schoolbook(&gen_pool[i], &gen_pool2[i], q)[0]
+        });
+        run("schoolbook ternary-spec (key x ternary)", &mut |i| {
+            ring_mul_q_ternary_schoolbook(&gen_pool[i], &ter_pool[i], q)[0]
+        });
+        run("k2 split (general x general)", &mut |i| {
+            ring_mul_q_k2(&gen_pool[i], &gen_pool2[i], q, r_pos, inv2, inv2r)[0]
+        });
+        run("A1 single-prime (key x ternary)", &mut |i| {
+            ring_mul_q_single(&gen_pool[i], &ter_pool[i], q, t)[0]
+        });
+        run("A1 limb-split (general x general)", &mut |i| {
+            ring_mul_q_limbsplit(&gen_pool[i], &gen_pool2[i], q, t)[0]
+        });
+    }
+
+    // Transform primitives (feeds the report's cost model).
+    let mut a = [0u64; D];
+    for x in a.iter_mut() {
+        *x = rng_below(&mut rng, P);
+    }
+    let mut times_f = Vec::new();
+    let mut times_i = Vec::new();
+    for _ in 0..BENCH_REPS {
+        let start = Instant::now();
+        for _ in 0..MULT_ITERS {
+            ntt_fwd(&mut a, t);
+        }
+        times_f.push(start.elapsed().as_secs_f64());
+        let start = Instant::now();
+        for _ in 0..MULT_ITERS {
+            ntt_inv(&mut a, t);
+        }
+        times_i.push(start.elapsed().as_secs_f64());
+    }
+    std::hint::black_box(&a);
+    println!(
+        "  primitive: ntt_fwd {:.0} ns, ntt_inv {:.0} ns (448 butterflies each)",
+        median(times_f) / MULT_ITERS as f64 * 1e9,
+        median(times_i) / MULT_ITERS as f64 * 1e9
+    );
+}
+
+/// Median per-column seconds over BENCH_REPS pinned repetitions of `f`
+/// applied to each of `cols` inputs.
+fn time_per_col<T>(cols: &[T], f: &mut dyn FnMut(&T)) -> f64 {
+    let mut times = Vec::with_capacity(BENCH_REPS);
+    for _ in 0..BENCH_REPS {
+        let start = Instant::now();
+        for col in cols {
+            f(col);
+        }
+        times.push(start.elapsed().as_secs_f64() / cols.len() as f64);
+    }
+    median(times)
+}
+
+fn bench_commit_kernel(t: &NttTables) {
+    let q = Q46;
+    let mut rng = 0xa1a1_0005u64;
+    // (label, rows = kappa + msg_r, inner = N_r) — ROUTE_R_DESIGN Section 3.
+    let shapes: [(&str, usize, usize); 3] =
+        [("demo 14 x 36", 14, 36), ("n2048 Pi2 31 x 54", 31, 54), ("FFN 47 x 72", 47, 72)];
+    // Pinned column counts per timed rep (slow methods get fewer).
+    let cols_fast = 16;
+    let cols_slow = 2;
+    let b_mask: i64 = 12 << 30; // FFN-scale mask magnitude, 12 * sigma at sigma = 2^30
+
+    println!("[U4b] commit kernel C = G x R, q46 (median of {BENCH_REPS} reps, 1 thread)");
+    println!(
+        "  {:<26} {:<30} {:>12} {:>14} {:>12} {:>8} {:>8}",
+        "shape (rows x N_r)", "method (column regime)", "ms/column", "ring-mults/s", "eff MMAC/s", "vs schb", "vs k2"
+    );
+    for (label, rows, inner) in shapes {
+        let g: Vec<Vec<u64>> = (0..rows * inner)
+            .map(|_| (0..D).map(|_| rng_below(&mut rng, q)).collect())
+            .collect();
+        let a1 = A1CommitKernel::new(&g, rows, inner, q, t);
+        let a1_limb = A1LimbCommitKernel::new(&g, rows, inner, q, b_mask as u128, t);
+        let k2 = K2CommitKernel::new(&g, rows, inner, q);
+        // Fixed column sets, generated outside all timing.
+        let ter_cols: Vec<Vec<Vec<i64>>> = (0..cols_fast)
+            .map(|_| {
+                (0..inner)
+                    .map(|_| (0..D).map(|_| (rng_below(&mut rng, 3) as i64) - 1).collect())
+                    .collect()
+            })
+            .collect();
+        let ter_mod: Vec<Vec<Vec<u64>>> = ter_cols
+            .iter()
+            .map(|col| {
+                col.iter()
+                    .map(|p| p.iter().map(|&v| mod_q_i128(v as i128, q)).collect())
+                    .collect()
+            })
+            .collect();
+        let mask_cols: Vec<Vec<Vec<i64>>> = (0..cols_fast)
+            .map(|_| {
+                (0..inner)
+                    .map(|_| {
+                        (0..D)
+                            .map(|_| rng_below(&mut rng, 2 * b_mask as u64 + 1) as i64 - b_mask)
+                            .collect()
+                    })
+                    .collect()
+            })
+            .collect();
+        let mask_mod: Vec<Vec<Vec<u64>>> = mask_cols
+            .iter()
+            .map(|col| {
+                col.iter()
+                    .map(|p| p.iter().map(|&v| mod_q_i128(v as i128, q)).collect())
+                    .collect()
+            })
+            .collect();
+        let ring_mults = (rows * inner) as f64;
+
+        let mut results: Vec<(&str, f64)> = Vec::new();
+        results.push((
+            "schoolbook (any)",
+            time_per_col(&ter_mod[..cols_slow], &mut |col| {
+                std::hint::black_box(commit_column_schoolbook(&g, rows, inner, col, q));
+            }),
+        ));
+        results.push((
+            "ternary-schoolbook (ternary)",
+            time_per_col(&ter_cols, &mut |col| {
+                std::hint::black_box(commit_column_ternary_schoolbook(&g, rows, inner, col, q));
+            }),
+        ));
+        results.push((
+            "k2 split cached (any)",
+            time_per_col(&ter_mod[..cols_slow], &mut |col| {
+                std::hint::black_box(k2.commit_column(col));
+            }),
+        ));
+        results.push((
+            "A1 single-prime (ternary)",
+            time_per_col(&ter_cols, &mut |col| {
+                std::hint::black_box(a1.commit_column(col, t));
+            }),
+        ));
+        results.push((
+            "A1 limb-split (mask 12s~2^33.6)",
+            time_per_col(&mask_cols, &mut |col| {
+                std::hint::black_box(a1_limb.commit_column(col, t));
+            }),
+        ));
+        // Baseline check: schoolbook cost is operand-independent (same u64
+        // MACs); measure once on mask columns to confirm, folded into notes.
+        let schb_mask = time_per_col(&mask_mod[..cols_slow], &mut |col| {
+            std::hint::black_box(commit_column_schoolbook(&g, rows, inner, col, q));
+        });
+        let schb = results[0].1;
+        let k2_t = results[2].1;
+        for (name, per_col) in &results {
+            println!(
+                "  {:<26} {:<30} {:>12.3} {:>14.0} {:>12.1} {:>8.1} {:>8.1}",
+                label,
+                name,
+                per_col * 1e3,
+                ring_mults / per_col,
+                ring_mults * (D * D) as f64 / per_col / 1e6,
+                schb / per_col,
+                k2_t / per_col
+            );
+        }
+        println!(
+            "  {:<26} (schoolbook on mask columns: {:.3} ms/col — operand-independent as expected)",
+            "", schb_mask * 1e3
+        );
+    }
+
+    // Scaled-up FFN-representative run: many columns through the cached A1
+    // kernel (amortization stability + a wall-clock anchor).
+    let (rows, inner, cols) = (47usize, 72usize, 256usize);
+    let g: Vec<Vec<u64>> = (0..rows * inner)
+        .map(|_| (0..D).map(|_| rng_below(&mut rng, q)).collect())
+        .collect();
+    let a1 = A1CommitKernel::new(&g, rows, inner, q, t);
+    let columns: Vec<Vec<Vec<i64>>> = (0..cols)
+        .map(|_| {
+            (0..inner)
+                .map(|_| (0..D).map(|_| (rng_below(&mut rng, 3) as i64) - 1).collect())
+                .collect()
+        })
+        .collect();
+    let mut times = Vec::new();
+    for _ in 0..3 {
+        let start = Instant::now();
+        for col in &columns {
+            std::hint::black_box(a1.commit_column(col, t));
+        }
+        times.push(start.elapsed().as_secs_f64());
+    }
+    let total = median(times);
+    let ring_mults = (rows * inner * cols) as f64;
+    println!(
+        "  scaled FFN 47 x 72 x {cols} cols, A1: {:.3} s total, {:.0} ring-mults/s, {:.1} eff MMAC/s (median of 3)",
+        total,
+        ring_mults / total,
+        ring_mults * (D * D) as f64 / total / 1e6
+    );
+    println!("  caveat: shared machine (sibling agent benchmarks run concurrently); medians over pinned reps.");
 }
 
 // ---------------------------------------------------------------------------
@@ -1110,7 +1624,9 @@ fn main() {
     print_capacity_table();
 
     if mode == "bench" {
-        println!("[bench] not yet implemented");
+        let t = build_tables();
+        bench_single_mults(&t);
+        bench_commit_kernel(&t);
     }
     println!("aux_ntt self-test ok");
 }

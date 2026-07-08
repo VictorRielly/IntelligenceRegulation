@@ -36,7 +36,23 @@ Suite: PATH=... python3 -m unittest discover -s tests  (37/37 must stay green)
       N_r*d*(q-1)/2 exactly (59 bits at q46 N_r=72) and matches the closed form.
       k2 baseline built with runtime sqrt(-1) = 2^((q-1)/4) (asserted r^2 = -1),
       cached key slots, 8192-MAC slot schoolbook, recombination per output.
-- [ ] U4: benchmarks (schoolbook / ternary-schoolbook / k2-split / A1-single / A1-limb-split), medians over pinned reps, single-threaded.
+- [x] U4: benchmarks (schoolbook / ternary-schoolbook / k2-split / A1-single / A1-limb-split), medians over pinned reps, single-threaded.
+      Perf work folded in: branchless (cmov) add_p/sub_p/reduce128 (data-dependent
+      branches were costing ~3x: NTT 3.3us -> 1.05us), split lo/hi u128 accumulators in
+      the pointwise MAC loops (no per-product reduction; sum = reduce128(acc_lo +
+      EPS*acc_hi), exact to ~2^31 terms), u64-division mod-q recovery, limb recompose
+      via per-part reduction + 2^L/2^2L mod q. Also added A1LimbCommitKernel (regime-b
+      mask GEMM; COMMON limb base both operands — Karatsuba needs one base; caught
+      asymmetric-base bug before it shipped) + exactness test vs schoolbook at N_r=72
+      incl. max-magnitude columns. 24 self-tests green.
+      Headline session (bench run 1, saved /tmp/aux_ntt_bench_run1.txt, q46 FFN 47x72):
+      schoolbook 41.2 ms/col, ternary-schoolbook 27.4, k2 cached 19.6, A1 ternary 0.514
+      (80x/38x/53x vs schb/k2/ternary-schb; 108 GMAC/s eff), A1 limb mask 1.65 (25x/12x).
+      Single mult q46: schb 11.5us, ternary-schb 7.0, k2 5.4, A1 3.8, A1-limb 11.0
+      (standalone general NTT does not pay; amortized GEMM is where A1 wins).
+      NTT primitives: fwd 1061ns / inv 1044ns. Cross-session variance noted (shared
+      machine, sibling agent benchmarking concurrently): A1 FFN col 0.51-0.66ms,
+      k2 n2048 12.9-24.9ms across three sessions; ratios within a session consistent.
 - [ ] U5: report A1_AUX_NTT_REPORT.md + revised commit-bill projection.
 
 ## Decisions
@@ -65,10 +81,13 @@ Suite: PATH=... python3 -m unittest discover -s tests  (37/37 must stay green)
 
 ## Next
 
-U4: benchmarks in aux_ntt.rs under `bench` arg. Single ring-mult (schoolbook,
-k2 standalone, A1-single standalone, A1-limb standalone) and commit-kernel
-throughput (schoolbook, ternary-schoolbook, k2 cached, A1 cached; shapes
-demo 14x36, n2048 31x54, FFN 47x72, scaled FFN 47x72 x 512 cols) at q46
-(q31 secondary for single mults). Single-threaded, medians over pinned reps,
-concurrency caveat printed. Report ring-mults/s and effective MACs/s
-(= ring-mults * 16384 / s).
+U5: write docs/zkmatrix-poc/A1_AUX_NTT_REPORT.md — design, capacity regime
+table, measured speedups (from bench run 1), accumulator-correctness notes,
+integration plan (described only; ring_lattice.rs untouched), revised
+commit-bill projection for the 7B/512 pass with explicit arithmetic.
+Anchors for projection: LLM_SCALE_ESTIMATE Section 2 (~1.5e14 commit MACs
+incl. bit tensors, ~2.5e13 bare), Section 3 table (~2-4 min at k=2 after
+r->1 + GPU), ROUTE_R Section 7 (~3900 ops/element k=2 Karatsuba commit,
+2x target needs few-hundred class). A1 measured: ~120-150 Goldilocks muls
+per committed coefficient at FFN shape (0.514 ms / (32*128 coeffs) = 125 ns
+per coeff, i.e. ~x00 MAC-equivalents/element) — in the few-hundred class.
