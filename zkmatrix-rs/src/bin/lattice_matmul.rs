@@ -1849,6 +1849,7 @@ fn recomposition_statement_hash(
     len: usize,
     width: u32,
     signed: bool,
+    rho_bound: u64,
     value_commits: &[Vec<u64>],
     packed_commits: &[Vec<u64>],
 ) -> [u8; 32] {
@@ -1861,6 +1862,7 @@ fn recomposition_statement_hash(
     hasher.update((len as u64).to_le_bytes());
     hasher.update(width.to_le_bytes());
     hasher.update([signed as u8]);
+    hasher.update(rho_bound.to_le_bytes());
     for group in [value_commits, packed_commits] {
         hasher.update((group.len() as u64).to_le_bytes());
         for c in group.iter() {
@@ -1873,7 +1875,11 @@ fn recomposition_statement_hash(
 /// Recomposition link: for every column j, <s, value_j> = <w, packed_j>
 /// (- the signed offset), batched over columns with fresh weights u_j into
 /// one two-key Sigma-proof per repetition. Center norms: gamma * (sum_j u_j
-/// rho_j) on both sides.
+/// rho_j) on both sides. `rho_bound` is the max absolute entry of the
+/// value-side randomness: 1 for freshly committed columns (ternary), 2 for
+/// commitments derived homomorphically as the sum/difference of two ternary
+/// blinds (e.g. D = A - U' in the ReLU family); the packed side is always
+/// freshly committed (ternary).
 #[allow(clippy::too_many_arguments)]
 fn prove_recomposition(
     params: &Params,
@@ -1882,6 +1888,7 @@ fn prove_recomposition(
     len: usize,
     width: u32,
     signed: bool,
+    rho_bound: u64,
     value_commits: &[Vec<u64>],
     packed_commits: &[Vec<u64>],
     rho_values: &[Vec<i8>],
@@ -1890,14 +1897,16 @@ fn prove_recomposition(
 ) -> Vec<ScalarLinkRep> {
     let big_n = params.big_n;
     let m = value_commits.len();
-    // Center norm per side: gamma * sum_j u_j rho_j with ternary rho and
-    // b-bit u, gamma: per-coordinate <= m 2^{2b}. The 2^i recomposition
+    // Center norm per side: gamma * sum_j u_j rho_j with |rho| <= rho_bound
+    // (value side) / ternary (packed side) and b-bit u, gamma:
+    // per-coordinate <= rho_bound m 2^{2b}. The 2^i recomposition
     // coefficients live in the public key g_w, not in the randomness.
     let center = (1u128 << (2 * params.b)) * m as u128 * isqrt_ceil(big_n as u128);
+    let center_l = rho_bound as u128 * center;
     let (sigma_o, _bound_sq_o) =
-        opening_gadget_params(params, 2 * center * center, 2);
+        opening_gadget_params(params, center_l * center_l + center * center, 2);
     let h0 = recomposition_statement_hash(
-        crs, ctx, len, width, signed, value_commits, packed_commits,
+        crs, ctx, len, width, signed, rho_bound, value_commits, packed_commits,
     );
     let base = splitmix64(rng);
     (0..params.r)
@@ -1962,6 +1971,7 @@ fn verify_recomposition(
     len: usize,
     width: u32,
     signed: bool,
+    rho_bound: u64,
     value_commits: &[Vec<u64>],
     packed_commits: &[Vec<u64>],
     proof: &[ScalarLinkRep],
@@ -1973,11 +1983,15 @@ fn verify_recomposition(
         || width as usize * len > params.msg
         || width == 0
         || width > 48
+        || rho_bound == 0
+        || rho_bound > 2
     {
         return false;
     }
     let center = (1u128 << (2 * params.b)) * m as u128 * isqrt_ceil(big_n as u128);
-    let (_sigma_o, bound_sq_o) = opening_gadget_params(params, 2 * center * center, 2);
+    let center_l = rho_bound as u128 * center;
+    let (_sigma_o, bound_sq_o) =
+        opening_gadget_params(params, center_l * center_l + center * center, 2);
     for rep in proof {
         if rep.gamma >= (1 << params.b)
             || rep.zeta_l.len() != big_n
@@ -1990,7 +2004,7 @@ fn verify_recomposition(
         }
     }
     let h0 = recomposition_statement_hash(
-        crs, ctx, len, width, signed, value_commits, packed_commits,
+        crs, ctx, len, width, signed, rho_bound, value_commits, packed_commits,
     );
     proof.par_iter().enumerate().all(|(ell, rep)| {
         let mut reader = XofReader::new("su-rec", &[&h0, &(ell as u64).to_le_bytes()]);
@@ -2051,6 +2065,7 @@ fn zero_open_statement_hash(
     ctx: &[u8],
     len: usize,
     shift: u32,
+    x_rho_bound: u64,
     tx: &[Vec<u64>],
     ty: &[Vec<u64>],
     tr: &[Vec<u64>],
@@ -2063,6 +2078,7 @@ fn zero_open_statement_hash(
     hasher.update(ctx);
     hasher.update((len as u64).to_le_bytes());
     hasher.update(shift.to_le_bytes());
+    hasher.update(x_rho_bound.to_le_bytes());
     for group in [tx, ty, tr] {
         hasher.update((group.len() as u64).to_le_bytes());
         for c in group.iter() {
@@ -2076,6 +2092,9 @@ fn zero_open_statement_hash(
 /// T_yj - T_rj) opens to the zero message with short combined randomness,
 /// per repetition with fresh u. With the ranges on r and y this makes
 /// x = 2^shift y + r hold over the integers (floor division).
+/// `x_rho_bound` is the max absolute entry of the x-side randomness: 1 for
+/// fresh ternary commitments, 2 when T_x is derived homomorphically as the
+/// sum of two ternary-blinded commitments (e.g. the bias-added U_b = U + B).
 #[allow(clippy::too_many_arguments)]
 fn prove_rescale_link(
     params: &Params,
@@ -2083,6 +2102,7 @@ fn prove_rescale_link(
     ctx: &[u8],
     len: usize,
     shift: u32,
+    x_rho_bound: u64,
     tx: &[Vec<u64>],
     ty: &[Vec<u64>],
     tr: &[Vec<u64>],
@@ -2092,14 +2112,15 @@ fn prove_rescale_link(
     rng: &mut u64,
 ) -> Vec<ZeroOpenRep> {
     assert!(shift <= GADGET_MAX_SHIFT);
+    assert!(x_rho_bound >= 1 && x_rho_bound <= 2);
     let big_n = params.big_n;
     let m = tx.len();
     let center = (1u128 << (2 * params.b))
         * m as u128
-        * (2 + (1u128 << shift))
+        * (1 + x_rho_bound as u128 + (1u128 << shift))
         * isqrt_ceil(big_n as u128);
     let (sigma_o, _bound) = opening_gadget_params(params, center * center, 1);
-    let h0 = zero_open_statement_hash(crs, ctx, len, shift, tx, ty, tr);
+    let h0 = zero_open_statement_hash(crs, ctx, len, shift, x_rho_bound, tx, ty, tr);
     let base = splitmix64(rng);
     (0..params.r)
         .into_par_iter()
@@ -2147,6 +2168,7 @@ fn verify_rescale_link(
     ctx: &[u8],
     len: usize,
     shift: u32,
+    x_rho_bound: u64,
     tx: &[Vec<u64>],
     ty: &[Vec<u64>],
     tr: &[Vec<u64>],
@@ -2159,12 +2181,14 @@ fn verify_rescale_link(
         || tr.len() != m
         || shift > GADGET_MAX_SHIFT
         || len > params.msg
+        || x_rho_bound == 0
+        || x_rho_bound > 2
     {
         return false;
     }
     let center = (1u128 << (2 * params.b))
         * m as u128
-        * (2 + (1u128 << shift))
+        * (1 + x_rho_bound as u128 + (1u128 << shift))
         * isqrt_ceil(big_n as u128);
     let (_sigma_o, bound_sq_o) = opening_gadget_params(params, center * center, 1);
     for rep in proof {
@@ -2175,7 +2199,7 @@ fn verify_rescale_link(
             return false;
         }
     }
-    let h0 = zero_open_statement_hash(crs, ctx, len, shift, tx, ty, tr);
+    let h0 = zero_open_statement_hash(crs, ctx, len, shift, x_rho_bound, tx, ty, tr);
     proof.par_iter().enumerate().all(|(ell, rep)| {
         let mut reader = XofReader::new("u-link", &[&h0, &(ell as u64).to_le_bytes()]);
         let u: Vec<u64> = (0..m).map(|_| reader.next_sb(params.b)).collect();
@@ -2203,6 +2227,245 @@ fn verify_rescale_link(
         );
         gamma == gr.next_sb(params.b)
     })
+}
+
+// ---------------------------------------------------------------------------
+// Bias-broadcast consistency link (M3).
+//
+// Statement: the f broadcast columns B_j (each length T, committed by
+// columns as `broadcast_commits`) satisfy B_j = b1_j * ones_T for the single
+// committed column b1 (length f, `bias_commit`). Per repetition draw
+// s in S_b^T and u in S_b^f; the batched claim
+//
+//   sum_j u_j <s, B_j>  =  sum(s) * <u, b1>
+//
+// is linear on both sides: the left scalar comes from the u-combined
+// broadcast commitment under the derived key g_s = s^T G2[..T], the right
+// from the bias commitment under g_w = wv^T G2[..f] with wv_j = sum(s) u_j
+// (the same two-key scalar-link shape as the range recomposition). The
+// prover shows knowledge of short (rho_l = sum_j u_j rho_Bj, rho_r = rho_b1)
+// opening both first slots and satisfying
+// <g_s, rho_l> - <g_w, rho_r> = c_l - c_r.
+//
+// Mismatch detection: a defect d_j = B_j - b1_j * ones != 0 survives the
+// u-combination with probability <= 2^-b (Schwartz-Zippel per coordinate)
+// and the s-projection with probability <= 2^-b, so <= 2^{1-b} per
+// repetition -- the same per-repetition budget as the recomposition and
+// transpose links. Once the link holds, the bias add itself is Class 0:
+// com(U_b,j) = com(U_j) + com(B_j).
+
+fn bias_statement_hash(
+    crs: &Crs,
+    ctx: &[u8],
+    t_len: usize,
+    f_len: usize,
+    bias_commit: &[u64],
+    broadcast_commits: &[Vec<u64>],
+) -> [u8; 32] {
+    let mut hasher = Sha256::new();
+    hasher.update(b"lattice-matmul-v2");
+    hasher.update(b"stmt-bias-broadcast");
+    hasher.update(crs.crs_hash);
+    hasher.update((ctx.len() as u64).to_le_bytes());
+    hasher.update(ctx);
+    hasher.update((t_len as u64).to_le_bytes());
+    hasher.update((f_len as u64).to_le_bytes());
+    hasher.update(words_bytes(bias_commit));
+    hasher.update((broadcast_commits.len() as u64).to_le_bytes());
+    for c in broadcast_commits {
+        hasher.update(words_bytes(c));
+    }
+    hasher.finalize().into()
+}
+
+fn bias_link_bound(params: &Params, f_len: usize) -> (u64, u128) {
+    // Center norms: gamma * sum_j u_j rho_Bj (per-coordinate <= f 2^{2b})
+    // on the broadcast side, gamma * rho_b1 (per-coordinate <= 2^b) on the
+    // bias side; dimension 2N.
+    let b0 = isqrt_ceil(params.big_n as u128);
+    let center_l = (1u128 << (2 * params.b)) * f_len as u128 * b0;
+    let center_r = (1u128 << params.b) * b0;
+    opening_gadget_params(params, center_l * center_l + center_r * center_r, 2)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn prove_bias_link(
+    params: &Params,
+    crs: &Crs,
+    ctx: &[u8],
+    t_len: usize,
+    f_len: usize,
+    bias_commit: &[u64],
+    broadcast_commits: &[Vec<u64>],
+    rho_bias: &[i8],
+    rho_broadcast: &[Vec<i8>],
+    rng: &mut u64,
+) -> Vec<ScalarLinkRep> {
+    let big_n = params.big_n;
+    let (sigma_o, _bound) = bias_link_bound(params, f_len);
+    let h0 = bias_statement_hash(crs, ctx, t_len, f_len, bias_commit, broadcast_commits);
+    let base = splitmix64(rng);
+    let rho_r: Vec<i64> = rho_bias.iter().map(|&x| x as i64).collect();
+    (0..params.r)
+        .into_par_iter()
+        .map(|ell| {
+            let mut reader =
+                XofReader::new("su-bias", &[&h0, &(ell as u64).to_le_bytes()]);
+            let s: Vec<u64> = (0..t_len).map(|_| reader.next_sb(params.b)).collect();
+            let u: Vec<u64> = (0..f_len).map(|_| reader.next_sb(params.b)).collect();
+            let g_s = scalar_key_prefix(params, crs, &s);
+            let sum_s = s.iter().fold(0u64, |acc, &x| addm(acc, x));
+            let wv: Vec<u64> = u.iter().map(|&uj| mulm(sum_s, uj)).collect();
+            let g_w = scalar_key_prefix(params, crs, &wv);
+            let rho_l = combine_ternary(rho_broadcast, &u);
+            let mut r = mix_seed(base, ell as u64);
+            loop {
+                let noise = gaussian_vec(&mut r, 2 * big_n, sigma_o);
+                let eta_l = &noise[..big_n];
+                let eta_r = &noise[big_n..];
+                let w1 = matvec_signed_serial(&crs.g1, params.k, big_n, eta_l);
+                let w2 = matvec_signed_serial(&crs.g1, params.k, big_n, eta_r);
+                let w3 = subm(dot_signed(&g_s, eta_l), dot_signed(&g_w, eta_r));
+                let mut gr = XofReader::new(
+                    "gamma-bias",
+                    &[
+                        &h0,
+                        &(ell as u64).to_le_bytes(),
+                        &words_bytes(&w1),
+                        &words_bytes(&w2),
+                        &w3.to_le_bytes(),
+                    ],
+                );
+                let gamma = gr.next_sb(params.b);
+                let g = gamma as i64;
+                let zeta_l: Vec<i64> =
+                    (0..big_n).map(|j| eta_l[j] + g * rho_l[j]).collect();
+                let zeta_r: Vec<i64> =
+                    (0..big_n).map(|j| eta_r[j] + g * rho_r[j]).collect();
+                let mut response = zeta_l.clone();
+                response.extend_from_slice(&zeta_r);
+                let mut center_v: Vec<i64> = rho_l.iter().map(|&x| g * x).collect();
+                center_v.extend(rho_r.iter().map(|&x| g * x));
+                if rejection_accept(&mut r, &response, &center_v, sigma_o) {
+                    return ScalarLinkRep {
+                        gamma,
+                        zeta_l,
+                        zeta_r,
+                    };
+                }
+            }
+        })
+        .collect()
+}
+
+#[allow(clippy::too_many_arguments)]
+fn verify_bias_link(
+    params: &Params,
+    crs: &Crs,
+    ctx: &[u8],
+    t_len: usize,
+    f_len: usize,
+    bias_commit: &[u64],
+    broadcast_commits: &[Vec<u64>],
+    proof: &[ScalarLinkRep],
+) -> bool {
+    let big_n = params.big_n;
+    if proof.len() != params.r
+        || broadcast_commits.len() != f_len
+        || t_len > params.msg
+        || f_len > params.msg
+        || bias_commit.len() != params.k + params.msg
+    {
+        return false;
+    }
+    let (_sigma_o, bound_sq_o) = bias_link_bound(params, f_len);
+    for rep in proof {
+        if rep.gamma >= (1 << params.b)
+            || rep.zeta_l.len() != big_n
+            || rep.zeta_r.len() != big_n
+        {
+            return false;
+        }
+        if norm_sq(&rep.zeta_l) + norm_sq(&rep.zeta_r) > bound_sq_o {
+            return false;
+        }
+    }
+    let h0 = bias_statement_hash(crs, ctx, t_len, f_len, bias_commit, broadcast_commits);
+    proof.par_iter().enumerate().all(|(ell, rep)| {
+        let mut reader = XofReader::new("su-bias", &[&h0, &(ell as u64).to_le_bytes()]);
+        let s: Vec<u64> = (0..t_len).map(|_| reader.next_sb(params.b)).collect();
+        let u: Vec<u64> = (0..f_len).map(|_| reader.next_sb(params.b)).collect();
+        let g_s = scalar_key_prefix(params, crs, &s);
+        let sum_s = s.iter().fold(0u64, |acc, &x| addm(acc, x));
+        let wv: Vec<u64> = u.iter().map(|&uj| mulm(sum_s, uj)).collect();
+        let g_w = scalar_key_prefix(params, crs, &wv);
+        let t_l = combine_commit(broadcast_commits, &u);
+        let c_l = dot_mod(&s, &t_l[params.k..params.k + t_len]);
+        let c_r = dot_mod(&wv, &bias_commit[params.k..params.k + f_len]);
+        let gamma = rep.gamma;
+        let mut w1 = matvec_signed_serial(&crs.g1, params.k, big_n, &rep.zeta_l);
+        let mut w2 = matvec_signed_serial(&crs.g1, params.k, big_n, &rep.zeta_r);
+        for i in 0..params.k {
+            w1[i] = subm(w1[i], mulm(gamma, t_l[i]));
+            w2[i] = subm(w2[i], mulm(gamma, bias_commit[i]));
+        }
+        let w3 = subm(
+            subm(
+                dot_signed(&g_s, &rep.zeta_l),
+                dot_signed(&g_w, &rep.zeta_r),
+            ),
+            mulm(gamma, subm(c_l, c_r)),
+        );
+        let mut gr = XofReader::new(
+            "gamma-bias",
+            &[
+                &h0,
+                &(ell as u64).to_le_bytes(),
+                &words_bytes(&w1),
+                &words_bytes(&w2),
+                &w3.to_le_bytes(),
+            ],
+        );
+        gamma == gr.next_sb(params.b)
+    })
+}
+
+// --------------------------- Class-0 helpers -------------------------------
+
+/// Signed integer -> mod-q encoding (negative v encoded as q - |v|).
+fn enc_i(v: i64) -> u64 {
+    reduce_i128(v as i128)
+}
+
+/// Class-0 homomorphic sum of two commitment groups: com(X + Y) per column.
+fn add_groups(a: &[Vec<u64>], b: &[Vec<u64>]) -> Vec<Vec<u64>> {
+    a.iter()
+        .zip(b.iter())
+        .map(|(x, y)| x.iter().zip(y.iter()).map(|(&p, &q)| addm(p, q)).collect())
+        .collect()
+}
+
+/// Class-0 homomorphic difference of two commitment groups: com(X - Y).
+fn sub_groups(a: &[Vec<u64>], b: &[Vec<u64>]) -> Vec<Vec<u64>> {
+    a.iter()
+        .zip(b.iter())
+        .map(|(x, y)| x.iter().zip(y.iter()).map(|(&p, &q)| subm(p, q)).collect())
+        .collect()
+}
+
+/// Combined randomness of a derived commitment group (entries in [-2, 2]).
+fn add_rhos(a: &[Vec<i8>], b: &[Vec<i8>]) -> Vec<Vec<i8>> {
+    a.iter()
+        .zip(b.iter())
+        .map(|(x, y)| x.iter().zip(y.iter()).map(|(&p, &q)| p + q).collect())
+        .collect()
+}
+
+fn sub_rhos(a: &[Vec<i8>], b: &[Vec<i8>]) -> Vec<Vec<i8>> {
+    a.iter()
+        .zip(b.iter())
+        .map(|(x, y)| x.iter().zip(y.iter()).map(|(&p, &q)| p - q).collect())
+        .collect()
 }
 
 // ---------------------------------------------------------------------------
@@ -2561,19 +2824,19 @@ fn gadget_self_test() {
     // Recomposition links, r side then y side.
     let mut prng5 = 0x2EC0_u64;
     let rec_r = prove_recomposition(
-        &params, &crs, b"rec-r", l, shift, false, &trr, &tpr, &rho_rr, &rho_pr,
+        &params, &crs, b"rec-r", l, shift, false, 1, &trr, &tpr, &rho_rr, &rho_pr,
         &mut prng5,
     );
     assert!(
-        verify_recomposition(&params, &crs, b"rec-r", l, shift, false, &trr, &tpr, &rec_r),
+        verify_recomposition(&params, &crs, b"rec-r", l, shift, false, 1, &trr, &tpr, &rec_r),
         "recomposition r valid"
     );
     let rec_y = prove_recomposition(
-        &params, &crs, b"rec-y", l, width, false, &tyq, &tpy, &rho_yq, &rho_py,
+        &params, &crs, b"rec-y", l, width, false, 1, &tyq, &tpy, &rho_yq, &rho_py,
         &mut prng5,
     );
     assert!(
-        verify_recomposition(&params, &crs, b"rec-y", l, width, false, &tyq, &tpy, &rec_y),
+        verify_recomposition(&params, &crs, b"rec-y", l, width, false, 1, &tyq, &tpy, &rec_y),
         "recomposition y valid"
     );
     // Out-of-range remainder: r' = r + 2^shift at one slot, y' = y - 1
@@ -2583,27 +2846,27 @@ fn gadget_self_test() {
     let (tr_oob, rho_r_oob) = commit_cols(&r_oob, &mut rng);
     let mut prng6 = 0x2EC1_u64;
     let rec_oob = prove_recomposition(
-        &params, &crs, b"rec-r", l, shift, false, &tr_oob, &tpr, &rho_r_oob, &rho_pr,
+        &params, &crs, b"rec-r", l, shift, false, 1, &tr_oob, &tpr, &rho_r_oob, &rho_pr,
         &mut prng6,
     );
     assert!(
         !verify_recomposition(
-            &params, &crs, b"rec-r", l, shift, false, &tr_oob, &tpr, &rec_oob
+            &params, &crs, b"rec-r", l, shift, false, 1, &tr_oob, &tpr, &rec_oob
         ),
         "out-of-range remainder must fail recomposition"
     );
     // Rescale link: valid, then wrong shift, then wrong quotient.
     let mut prng7 = 0x11FF_u64;
     let link = prove_rescale_link(
-        &params, &crs, b"lnk", l, shift, &txr, &tyq, &trr, &rho_xr, &rho_yq, &rho_rr,
+        &params, &crs, b"lnk", l, shift, 1, &txr, &tyq, &trr, &rho_xr, &rho_yq, &rho_rr,
         &mut prng7,
     );
     assert!(
-        verify_rescale_link(&params, &crs, b"lnk", l, shift, &txr, &tyq, &trr, &link),
+        verify_rescale_link(&params, &crs, b"lnk", l, shift, 1, &txr, &tyq, &trr, &link),
         "rescale link valid"
     );
     assert!(
-        !verify_rescale_link(&params, &crs, b"lnk", l, shift - 1, &txr, &tyq, &trr, &link),
+        !verify_rescale_link(&params, &crs, b"lnk", l, shift - 1, 1, &txr, &tyq, &trr, &link),
         "wrong shift must fail"
     );
     let mut y_bad = yq_cols.clone();
@@ -2611,19 +2874,108 @@ fn gadget_self_test() {
     let (ty_bad, rho_y_bad) = commit_cols(&y_bad, &mut rng);
     let mut prng8 = 0x11FE_u64;
     let bad_link = prove_rescale_link(
-        &params, &crs, b"lnk", l, shift, &txr, &ty_bad, &trr, &rho_xr, &rho_y_bad,
+        &params, &crs, b"lnk", l, shift, 1, &txr, &ty_bad, &trr, &rho_xr, &rho_y_bad,
         &rho_rr, &mut prng8,
     );
     assert!(
-        !verify_rescale_link(&params, &crs, b"lnk", l, shift, &txr, &ty_bad, &trr, &bad_link),
+        !verify_rescale_link(&params, &crs, b"lnk", l, shift, 1, &txr, &ty_bad, &trr, &bad_link),
         "wrong quotient must fail rescale link"
     );
     // Swapped commitments after the statement was fixed.
     let mut swapped = trr.clone();
     swapped.swap(0, 1);
     assert!(
-        !verify_recomposition(&params, &crs, b"rec-r", l, shift, false, &swapped, &tpr, &rec_r),
+        !verify_recomposition(&params, &crs, b"rec-r", l, shift, false, 1, &swapped, &tpr, &rec_r),
         "swapped commitments must fail"
+    );
+
+    // --- Signed recomposition: values in [-2^{w-1}, 2^{w-1}) encoded mod q,
+    // packed bits of (value + 2^{w-1}), signed=true subtracts the public
+    // offset. Used by the M3 FFN demo for the rescale quotient U'.
+    let sw = 4u32;
+    let sv_cols: Vec<Vec<i64>> = (0..m)
+        .map(|_| {
+            (0..l)
+                .map(|_| rng_small(&mut rng, 1 << sw) as i64 - (1 << (sw - 1)))
+                .collect()
+        })
+        .collect();
+    let sv_enc: Vec<Vec<u64>> = sv_cols
+        .iter()
+        .map(|c| c.iter().map(|&v| enc_i(v)).collect())
+        .collect();
+    let sp_cols: Vec<Vec<u64>> = sv_cols
+        .iter()
+        .map(|c| {
+            let offset: Vec<u64> = c
+                .iter()
+                .map(|&v| (v + (1i64 << (sw - 1))) as u64)
+                .collect();
+            pack_bits(&offset, sw)
+        })
+        .collect();
+    let (tsv, rho_sv) = commit_cols(&sv_enc, &mut rng);
+    let (tsp, rho_sp) = commit_cols(&sp_cols, &mut rng);
+    let mut prng9 = 0x51ED_u64;
+    let rec_s = prove_recomposition(
+        &params, &crs, b"rec-s", l, sw, true, 1, &tsv, &tsp, &rho_sv, &rho_sp,
+        &mut prng9,
+    );
+    assert!(
+        verify_recomposition(&params, &crs, b"rec-s", l, sw, true, 1, &tsv, &tsp, &rec_s),
+        "signed recomposition valid"
+    );
+    // Out-of-range signed value: 2^{w-1} is not representable; the packed
+    // side (masked to w bits) cannot recompose it.
+    let mut sv_oob = sv_enc.clone();
+    sv_oob[0][0] = enc_i(1i64 << (sw - 1));
+    let (tsv_oob, rho_sv_oob) = commit_cols(&sv_oob, &mut rng);
+    let mut prng10 = 0x51EE_u64;
+    let rec_s_oob = prove_recomposition(
+        &params, &crs, b"rec-s", l, sw, true, 1, &tsv_oob, &tsp, &rho_sv_oob,
+        &rho_sp, &mut prng10,
+    );
+    assert!(
+        !verify_recomposition(
+            &params, &crs, b"rec-s", l, sw, true, 1, &tsv_oob, &tsp, &rec_s_oob
+        ),
+        "out-of-range signed value must fail recomposition"
+    );
+
+    // --- Bias-broadcast link: B_j = b1_j * ones (t_len = l, f_len = m).
+    let b1: Vec<i64> = (0..m)
+        .map(|_| rng_small(&mut rng, 1 << 6) as i64 - 32)
+        .collect();
+    let b1_enc: Vec<u64> = b1.iter().map(|&v| enc_i(v)).collect();
+    let bb_cols: Vec<Vec<u64>> = b1.iter().map(|&v| vec![enc_i(v); l]).collect();
+    let (tb1_group, rho_b1_group) = commit_cols(&[b1_enc.clone()], &mut rng);
+    let (tbb, rho_bb) = commit_cols(&bb_cols, &mut rng);
+    let mut prng11 = 0xB1A5_u64;
+    let bias_proof = prove_bias_link(
+        &params, &crs, b"bias", l, m, &tb1_group[0], &tbb, &rho_b1_group[0],
+        &rho_bb, &mut prng11,
+    );
+    assert!(
+        verify_bias_link(&params, &crs, b"bias", l, m, &tb1_group[0], &tbb, &bias_proof),
+        "bias link valid"
+    );
+    // Tampered broadcast: one entry of one broadcast column off by one.
+    let mut bb_bad = bb_cols.clone();
+    bb_bad[1][2] = addm(bb_bad[1][2], 1);
+    let (tbb_bad, rho_bb_bad) = commit_cols(&bb_bad, &mut rng);
+    let mut prng12 = 0xB1A6_u64;
+    let bias_bad = prove_bias_link(
+        &params, &crs, b"bias", l, m, &tb1_group[0], &tbb_bad, &rho_b1_group[0],
+        &rho_bb_bad, &mut prng12,
+    );
+    assert!(
+        !verify_bias_link(&params, &crs, b"bias", l, m, &tb1_group[0], &tbb_bad, &bias_bad),
+        "tampered broadcast must fail bias link"
+    );
+    // Context separation for the bias link.
+    assert!(
+        !verify_bias_link(&params, &crs, b"other", l, m, &tb1_group[0], &tbb, &bias_proof),
+        "bias link context swap must fail"
     );
 }
 
@@ -3194,13 +3546,13 @@ fn gadget_demo(rows: usize, inner: usize, cols: usize, shift: u32, width: u32) {
         .collect();
     let bin_proof = prove_hadamard(&params, &crs, &ctx, &bin_stmts, &bin_wits, &mut prng);
     let rec_r = prove_recomposition(
-        &params, &crs, &ctx, rows, shift, false, &trr, &tpr, &rho_rr, &rho_pr, &mut prng,
+        &params, &crs, &ctx, rows, shift, false, 1, &trr, &tpr, &rho_rr, &rho_pr, &mut prng,
     );
     let rec_y = prove_recomposition(
-        &params, &crs, &ctx, rows, width, false, &tyq, &tpy, &rho_yq, &rho_py, &mut prng,
+        &params, &crs, &ctx, rows, width, false, 1, &tyq, &tpy, &rho_yq, &rho_py, &mut prng,
     );
     let link = prove_rescale_link(
-        &params, &crs, &ctx, rows, shift, &inst.tc, &tyq, &trr, &inst.tau_c, &rho_yq,
+        &params, &crs, &ctx, rows, shift, 1, &inst.tc, &tyq, &trr, &inst.tau_c, &rho_yq,
         &rho_rr, &mut prng,
     );
     let family_prove_s = start.elapsed().as_secs_f64();
@@ -3208,9 +3560,9 @@ fn gadget_demo(rows: usize, inner: usize, cols: usize, shift: u32, width: u32) {
     let start = Instant::now();
     let mm_ok = verify_pi2(&params, &crs, &shape, &ctx, &inst.ta, &inst.tb, &inst.tc, &mm_proof);
     let bin_ok = verify_hadamard(&params, &crs, &ctx, &bin_stmts, &bin_proof);
-    let rr_ok = verify_recomposition(&params, &crs, &ctx, rows, shift, false, &trr, &tpr, &rec_r);
-    let ry_ok = verify_recomposition(&params, &crs, &ctx, rows, width, false, &tyq, &tpy, &rec_y);
-    let lk_ok = verify_rescale_link(&params, &crs, &ctx, rows, shift, &inst.tc, &tyq, &trr, &link);
+    let rr_ok = verify_recomposition(&params, &crs, &ctx, rows, shift, false, 1, &trr, &tpr, &rec_r);
+    let ry_ok = verify_recomposition(&params, &crs, &ctx, rows, width, false, 1, &tyq, &tpy, &rec_y);
+    let lk_ok = verify_rescale_link(&params, &crs, &ctx, rows, shift, 1, &inst.tc, &tyq, &trr, &link);
     let verify_s = start.elapsed().as_secs_f64();
     let elements = rows * cols;
     println!("  gadget commits (Yq, R, bits): {gadget_commit_s:.3}s");
@@ -3231,10 +3583,10 @@ fn gadget_demo(rows: usize, inner: usize, cols: usize, shift: u32, width: u32) {
     let ty_bad = commit_columns_fast(&params, &crs, &y_bad, &rho_bad);
     let mut prng_bad = 0xDE113_u64;
     let bad_link = prove_rescale_link(
-        &params, &crs, &ctx, rows, shift, &inst.tc, &ty_bad, &trr, &inst.tau_c,
+        &params, &crs, &ctx, rows, shift, 1, &inst.tc, &ty_bad, &trr, &inst.tau_c,
         &rho_bad, &rho_rr, &mut prng_bad,
     );
-    let bad_ok = verify_rescale_link(&params, &crs, &ctx, rows, shift, &inst.tc, &ty_bad, &trr, &bad_link);
+    let bad_ok = verify_rescale_link(&params, &crs, &ctx, rows, shift, 1, &inst.tc, &ty_bad, &trr, &bad_link);
     println!("  negative wrong-quotient link: {}", if bad_ok { "ACCEPTED (BUG)" } else { "fails as required" });
     assert!(!bad_ok);
     println!("lattice gadget-demo ok");

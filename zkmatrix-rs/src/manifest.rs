@@ -92,6 +92,11 @@ pub enum Operation {
     /// zero-opening on the combined difference; the ranges on r and y are
     /// separate Range operations.
     Rescale { x: u32, y: u32, r: u32, shift: u32 },
+    /// Bias-broadcast consistency link: the `broadcast` entry's column j is
+    /// `bias_j * ones` for the single-column `bias` entry. Proven by one
+    /// batched scalar-link per repetition (M3); the subsequent bias add is a
+    /// Class-0 `Add` over the broadcast entry.
+    BiasBroadcast { bias: u32, broadcast: u32 },
 }
 
 #[derive(Clone, Debug, Default)]
@@ -227,6 +232,11 @@ impl ClaimManifest {
                     hasher.update(y.to_le_bytes());
                     hasher.update(r.to_le_bytes());
                     hasher.update(shift.to_le_bytes());
+                }
+                Operation::BiasBroadcast { bias, broadcast } => {
+                    hasher.update([10u8]);
+                    hasher.update(bias.to_le_bytes());
+                    hasher.update(broadcast.to_le_bytes());
                 }
             }
         }
