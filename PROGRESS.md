@@ -36,9 +36,11 @@ Branch: worktree branch merged with perf/zk-batch-optimizations (HEAD contains
    effort units (6-9 weeks); revised projections incl. the corrected
    commit-lever (2-3x not 15x => LLM endpoint ~20-35x, 2x gated on Q2/Q3);
    prototype evidence; open questions Q1-Q6 ranked.
-6. [todo] Full python test suite green (36/36), final commit + final message
-   (Deliverable 3: open questions ranked, implementation order, projected
-   numbers for M2 gadget/element and n=2048 Pi2).
+6. [done] Full python test suite green (36/36 in 53.6 s). Prototype re-run
+   on the unloaded machine: ring mul 12.4 us, prove 11.9 ms, verify 2.6 ms;
+   doc Section 8 updated with the loaded/unloaded ranges. Deliverable 3
+   content lives in ROUTE_R_DESIGN.md Sections 7 and 9 and the final
+   message.
 
 ## Key design decisions (made during unit 1, carried through)
 - d = 128, q ≡ 5 mod 8 (two-way split) as mandated; q single-limb.
@@ -75,11 +77,12 @@ Branch: worktree branch merged with perf/zk-batch-optimizations (HEAD contains
   (zlib streams + Tj/TJ regex); Sections 7.5, 10, 11, 17 read.
 
 ## Status
-Units 1-3 done (prototype committed, 82838e0, all self-tests pass). Unit 4 in
-flight: scripts/route_r_params.py written, needs run + table check + commit.
-Then unit 5 (design doc; all analysis content already worked out — see "Key
-design decisions" above plus the r=1 scalar-gate finding below), unit 6
-(suite + final message).
+ALL UNITS COMPLETE. Suite 36/36 green; prototype self-tests all pass.
+Deliverables:
+- docs/zkmatrix-poc/ROUTE_R_DESIGN.md (Sections 1-9; Deliverable 3 = 7+9)
+- zkmatrix-rs/src/bin/ring_lattice.rs (new bin only; no existing files
+  modified)
+- scripts/route_r_params.py (parameter tables, feeds doc Section 3)
 
 ## Additional finding for the doc (worked out during unit 4 prep)
 r=1 per-slot soundness (2^-296) holds for every RING-VALUED claim

@@ -525,8 +525,9 @@ changes to existing files; `cargo run --release --bin ring_lattice`):
 
 - Ring arithmetic at (d=128, q31): add/sub/mul, naive negacyclic kernel
   cross-checked against the two-way CRT split; coefficient norms; ternary/
-  quinary/Gaussian sampling. Timings (approximate): ring mul 18-31 us
-  naive, slot mul 2.6-9.1 us.
+  quinary/Gaussian sampling. Timings (approximate; range over loaded and
+  unloaded runs of the shared machine): ring mul 12-31 us naive, slot mul
+  2.4-9.1 us (the CRT split alone is a ~2.5x kernel win).
 - LS18 in practice: 200 challenge differences inverted explicitly (CRT
   ext-gcd, `inv * diff = 1` verified); zero-divisor negative control.
 - 2-slot Hadamard demonstrated (slot-packed constants multiply slot-wise).
@@ -540,8 +541,8 @@ changes to existing files; `cargo run --release --bin ring_lattice`):
   message / wrong context / wrong statement all fail; **+q norm-overflow
   response caught only by the exact-norm check** (the Route Z battery's
   sharpest case, reproduced at ring level); honest-case 2-transcript
-  extraction recovers rho exactly via LS18 inversion; prove ~55-105 ms,
-  verify ~11 ms, proof ~15 KB.
+  extraction recovers rho exactly via LS18 inversion; prove 12-105 ms
+  (unloaded-loaded), verify 2.6-11 ms, proof ~13-15 KB.
 
 ## 9. Open questions, ranked by risk (Deliverable 3 summary)
 
