@@ -338,6 +338,167 @@ def k_split_study():
           f"{ls18_bound(2.0**31, 8) / 4:.2f}x). Corrected in the results.")
 
 
+# ===========================================================================
+# Q2 (response digit decomposition): the modulus is forced to ~2^46 by the
+# norm chain of the *combined* witnesses (C2: q > 8 beta with beta carrying
+# the combination count t and the Gaussian-mask blowup 14.4 op sqrt(N_Z dim)).
+# Design (prototype-implemented in ring_lattice.rs section 12):
+#
+#   Every combination witness u (per-coefficient magnitude W_u, from t
+#   combined ternary vectors) is replaced by its balanced base-2^e digit
+#   vectors u = sum_j 2^(ej) u_j, ||u_j||_inf <= 2^(e-1), with
+#   (i)   published digit statements t_j = A1 u_j,
+#   (ii)  exact range claims on each digit (M2 binary-decomposition
+#         ct-claims -- deterministic coefficient checks, no Sigma slack;
+#         prototype stand-in: the per-digit response norm check),
+#   (iii) the public mod-q recombination sum_j 2^(ej) t_j = t, and
+#   (iv)  per-digit Sigma openings sharing one challenge, jointly
+#         rejection-sampled; centers scale with 2^(e-1), NOT with W_u.
+#
+#   Extraction recovers digits that are genuinely range-bounded (ct-claims
+#   are exact over Z_q), so the recombined witness has honest magnitude
+#   W_u and every C2/C3-relevant norm collapses to the digit scale:
+#   beta = beta(e), independent of t. Cost: L = ceil((log2 W_u + 1)/e)
+#   digit rounds instead of one (proof size), plus L digit commitments per
+#   combination (per-claim commit ops, side-linear).
+#
+#   COUPLING (the Q2/Q3 risk): the smaller q must still cover the k = 8
+#   LS18 bound (q > 2^28.07); the frontier table below reports both
+#   constraints jointly.
+# ===========================================================================
+
+E_RHO2 = 2.0 / 3.0  # E[rho_i^2] for ternary randomness
+
+
+def witness_coeff_bound(t: int, conc: bool) -> float:
+    """Per-coefficient magnitude of a t-fold challenge combination of
+    ternary vectors: worst t * ||c||_1 = t * 2D; concentration
+    1.3 sqrt(t * D * E[c^2] * E[rho^2])."""
+    if conc:
+        return TAIL * math.sqrt(t * D * E_C2 * E_RHO2)
+    return t * 2.0 * D
+
+
+def derive_q2(proto: str, rows: int, inner: int, cols: int, msg_min: int,
+              log2_q: float, conc: bool, e: int):
+    """C0-C4 iteration for the digit-decomposed opening layer."""
+    t = max(rows, cols)
+    w_u = witness_coeff_bound(t, conc)
+    l_dig = math.ceil((math.log2(w_u) + 1.0) / e)
+    msg_r = max(1, math.ceil(max(rows, inner, msg_min) / D))
+    msg_z = msg_r * D
+    d_lwe = math.ceil(768.0 * log2_q / 11.7)
+    k_z = 8 * D
+    out = {}
+    for _ in range(6):
+        n_r = math.ceil((k_z + msg_z + d_lwe) / D)
+        n_z = n_r * D
+        op = op_norm(conc)
+        half = 2.0 ** (e - 1)
+        # Joint (bundled) rejection over the L digit responses.
+        t_bundle = op * half * math.sqrt(l_dig * n_z)
+        sigma = 12.0 * t_bundle
+        bound = 1.2 * sigma * math.sqrt(l_dig * n_z)
+        beta_dig = 2.0 * bound + op * half * math.sqrt(n_z)
+        # Recombined range-proved witness after one challenge clearing --
+        # honest magnitude W_u, not the Gaussian-response magnitude.
+        beta_rec = op * w_u * math.sqrt(n_z)
+        beta = max(beta_dig, beta_rec)
+        k_z = math.ceil((math.log2(beta) / 2.0) ** 2
+                        / (log2_q * LOG2_DELTA0))
+        out = dict(msg_r=msg_r, msg_z=msg_z, n_r=n_r, n_z=n_z,
+                   kappa=math.ceil(k_z / D), k_z=k_z, sigma=sigma,
+                   bound=bound, beta=beta, l_dig=l_dig, w_u=w_u, e=e,
+                   d_lwe=d_lwe)
+    if 2.0 ** log2_q <= 16.0 * out["beta"]:
+        return None
+    out["log2_q"] = log2_q
+    return out
+
+
+def minimal_q_q2(proto, rows, inner, cols, msg_min, conc, e):
+    for lq in [x / 2.0 for x in range(52, 125)]:  # 26.0 .. 62.0
+        r = derive_q2(proto, rows, inner, cols, msg_min, lq, conc, e)
+        if r is not None:
+            return r
+    return None
+
+
+def proof_kb_q2(proto, r, lq):
+    """Pi2-shaped proof size with digit decomposition: responses go per
+    digit (L smaller vectors each), and the digit statements (kappa ring
+    rows per digit, both combination sides) are carried in the proof.
+    Model, same conventions as proof_kb."""
+    sigma_bits = math.log2(r["sigma"]) + 4
+    l_dig = r["l_dig"]
+    resp = 3 * l_dig * r["n_z"] * sigma_bits
+    stmts = 2 * l_dig * r["kappa"] * D * lq
+    bits = 2 * r["msg_z"] * lq + resp + (r["kappa"] * D + D) * lq + stmts
+    return bits / 8.0 / 1024.0
+
+
+def q2_frontier():
+    q31 = 2147483249.0  # q8_31 = 2^31 - 399 (k = 8 class)
+    print("\n### Q2: digit-decomposition frontier, Pi2 n = 2048 "
+          "(concentration; baseline q46 = 117.0 KB, beta = 2^42.0)")
+    print("| e | L | log2 W_u | log2 sigma | log2 beta | min log2 q (C2) |"
+          " C2 headroom @q31 (bits) | kappa | N_r | proof KB | delta vs "
+          "q46 |")
+    print("|---|---|---|---|---|---|---|---|---|---|---|")
+    base = minimal_q(("pi2"), 2048, 2048, 2048, 0, True)
+    base_kb = proof_kb("pi2", base, base["log2_q"])
+    for e in (2, 3, 4, 6, 8):
+        rmin = minimal_q_q2("pi2", 2048, 2048, 2048, 0, True, e)
+        r31 = derive_q2("pi2", 2048, 2048, 2048, 0, 31.0, True, e)
+        if rmin is None:
+            print(f"| {e} | - | - | - | - | (none) | | | | | |")
+            continue
+        if r31 is None:
+            print(f"| {e} | {rmin['l_dig']} | "
+                  f"{math.log2(rmin['w_u']):.1f} | "
+                  f"{math.log2(rmin['sigma']):.1f} | "
+                  f"{math.log2(rmin['beta']):.1f} | {rmin['log2_q']:.1f} | "
+                  f"exceeds q31 | {rmin['kappa']} | {rmin['n_r']} | "
+                  f"{proof_kb_q2('pi2', rmin, rmin['log2_q']):.1f} | - |")
+            continue
+        hr = 31.0 - math.log2(8.0 * r31["beta"])
+        kb = proof_kb_q2("pi2", r31, 31.0)
+        print(f"| {e} | {rmin['l_dig']} | {math.log2(rmin['w_u']):.1f} | "
+              f"{math.log2(r31['sigma']):.1f} | "
+              f"{math.log2(r31['beta']):.1f} | {rmin['log2_q']:.1f} | "
+              f"{hr:.1f} | {r31['kappa']} | {r31['n_r']} | {kb:.1f} | "
+              f"{kb - base_kb:+.1f} |")
+    print(f"  (baseline undecomposed: min log2 q = {base['log2_q']:.1f}, "
+          f"kappa = {base['kappa']}, N_r = {base['n_r']}, "
+          f"proof {base_kb:.1f} KB)")
+
+    print("\n### Q2 x Q3 coupling: the (k, q, e) frontier "
+          "(LS18 margin = q^(1/k)/sqrt(k) / 4)")
+    print("| k | LS18 min q | e = 2 C2 min q | joint min q | LS18 margin "
+          "@ joint min q | LS18 margin @ q31 | verdict |")
+    print("|---|---|---|---|---|---|---|")
+    e2 = minimal_q_q2("pi2", 2048, 2048, 2048, 0, True, 2)
+    c2_min = e2["log2_q"]
+    for k in (2, 4, 8, 16):
+        ls_min = math.log2(ls18_min_q(k))
+        joint = max(ls_min, c2_min)
+        if joint > 63:
+            print(f"| {k} | 2^{ls_min:.1f} | 2^{c2_min:.1f} | > 2^63 | - |"
+                  f" - | infeasible (single limb) |")
+            continue
+        mj = ls18_bound(2.0 ** joint, k) / 4.0
+        m31 = ls18_bound(q31, k) / 4.0
+        verdict = ("RECOMMENDED (max split)" if k == 8
+                   else "feasible, slower kernels")
+        print(f"| {k} | 2^{ls_min:.1f} | 2^{c2_min:.1f} | 2^{joint:.1f} | "
+              f"{mj:.2f}x | {m31:.2f}x | {verdict} |")
+    print("  => recommended operating point: k = 8, q = q8_31 = 2^31 - 399,"
+          f" e in {{2, 3, 4}}. The C2 floor (2^{c2_min:.1f} at e = 2)"
+          " sits ABOVE the k = 8 LS18 minimum (2^28.1), so no achievable"
+          " q forces k below 8; digit decomposition and the k = 8 split"
+          " are jointly feasible at a 31-bit single-limb modulus.")
+
+
 def soundness_accounting():
     print("### Challenge-set soundness accounting (replaces C1)")
     for base, name in [(3, "ternary {-1,0,1}"), (5, "quinary {-2..2}")]:
@@ -357,6 +518,7 @@ if __name__ == "__main__":
     print("Route R parameter tables (d = 128, quinary challenges, r = 1)")
     soundness_accounting()
     k_split_study()
+    q2_frontier()
     # Demo chain shapes (M0/M1 report): X 16x32, W1 32x64, W2 64x8.
     show("demo chain worst shape", "pi2", 32, 32, 64, msg_min=64)
     # Square n = 2048, both protocols (the LLM-scale reference claim).

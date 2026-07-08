@@ -32,10 +32,24 @@ Suite: PATH=... python3 -m unittest discover -s tests  (must stay 37/37; ring_la
       challenge-diff inversions @k=8, zero-divisor control, 8-slot
       Hadamard, full tamper battery at k=8. ALL GREEN.
 
+- [x] U2a: route_r_params.py derive_q2/q2_frontier: digit-decomposition
+      model (design rationale in module comment), Pi2-2048 frontier:
+      e=2: minq 2^29.5 L=6; e=3: 2^30.0 L=4; e=4: 2^30.5 L=3 (proof
+      169.8 KB, +52.8 vs q46 baseline 117.0); e=6/8 exceed q31. Coupling
+      table: C2 floor 2^29.5 > k=8 LS18 min 2^28.07 => (k=8, q8_31,
+      e in {2,3,4}) jointly feasible; k=16 infeasible. kappa 15->8-9,
+      N_r 54->40 at q31 (feeds commit-bill revision).
+- [x] U2b: ring_lattice.rs section 12: DigitParams (conc discipline +
+      restart rule), balanced digit decompose, per-digit statements +
+      shared-challenge Sigma bundle + joint rejection; verifier checks
+      recombination, bundle norm (stand-in for ct-range claims, flagged),
+      per-digit equations on split kernel. Battery: wrong digit / out-of-
+      range-but-recombining digits / recombination mismatch (honest rounds
+      on wrong witness) / wrong ctx / +q overflow. Demonstrated: same
+      witness UNdecomposed needs q > 2^33.9 (violates C2 at q8), digit
+      chain fits with 2.5 bits headroom. ALL GREEN. 37/37 suite green.
+
 ## Next
-- [ ] U2: digit-decomposed opening round (witness digits, per-digit sigma
-      w/ shared challenge, recombination check; tamper: wrong digit, digit
-      out of range, recombination mismatch) + params script (k, e) frontier.
 - [ ] U3: DROPPED (see scope change above; A1 handled by parallel agent).
 - [ ] U4: Karatsuba on deg-64 halves (recursive, cutoff 16) folded into
       ring-mult + commit-kernel benchmarks (methods: naive / k2 / k2+Kara

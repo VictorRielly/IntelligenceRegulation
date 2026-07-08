@@ -969,7 +969,7 @@ fn rng_field_g(rng: &mut u64, q: u64) -> u64 {
 
 fn expand_crs_g(seed: u64, q: u64) -> Crs {
     let mut reader = XofReader::new("A1A2-g", &[&seed.to_le_bytes(), &q.to_le_bytes()]);
-    let mut next_field = |reader: &mut XofReader| loop {
+    let next_field = |reader: &mut XofReader| loop {
         let v = reader.next_u64() >> 33;
         if v < q {
             return v;
@@ -1121,6 +1121,240 @@ fn verify_opening_g(
 
 fn poly_add_g(zq: &Zq, a: &[u64], b: &[u64]) -> Poly {
     (0..D).map(|i| zq.add(a[i], b[i])).collect()
+}
+
+// ===========================================================================
+// Q2: the digit-decomposed opening round (see route_r_params.py, derive_q2,
+// for the design rationale). A combination-magnitude witness u
+// (||u||_inf <= WIT_W, standing in for sum_i s_i rho_i at t ~ 2048 combined
+// commitments) cannot run the plain opening round at a 31-bit q: its norm
+// chain needs q > 8 beta ~ 2^34. Decomposed into balanced base-2^e digit
+// vectors with per-digit statements t_j = A1 u_j, the public recombination
+// sum_j 2^(ej) t_j = t, and per-digit Sigma rounds sharing one challenge
+// (jointly rejection-sampled), the chain shrinks to the digit scale and
+// fits q8 with headroom. In the full protocol the digit ranges are exact
+// ct-claims from the M2 gadget family; the prototype stand-in is the
+// bundle norm check (flagged in the doc).
+
+const DIGIT_E: u32 = 4; // digit base 2^e
+const DIGIT_L: usize = 3; // digits: covers |coeff| <= W with L*e >= log2(W)+1
+const WIT_W: i64 = 1 << 10; // combination-magnitude witness, ||u||_inf <= 2^10
+
+struct DigitParams {
+    sigma: u64,
+    bound_sq: u128,  // bundle l2^2 response bound (over all L digits)
+    center_sq: u128, // concentration restart rule on the center bundle
+    beta: u128,
+    beta_undecomposed: u128, // what the plain round would have needed
+}
+
+fn derive_digit_params(q: u64) -> DigitParams {
+    let n_z = N_Z as f64;
+    let log2_q = (q as f64).log2();
+    let op_c = 1.3 * (2.0 * D as f64).sqrt(); // concentration operator norm
+    let half = (1u64 << (DIGIT_E - 1)) as f64; // ||digit||_inf <= 2^(e-1)
+    let bundle_dim = (DIGIT_L as f64) * n_z;
+    let t_bundle = op_c * half * bundle_dim.sqrt();
+    let sigma = (12.0 * t_bundle).ceil() as u64;
+    let bound = 1.2 * sigma as f64 * bundle_dim.sqrt();
+    let bound_sq = (bound * bound).ceil() as u128;
+    let center_sq = (t_bundle * t_bundle).ceil() as u128;
+    let beta_dig = 2.0 * bound + op_c * half * n_z.sqrt();
+    // Recombined range-proved witness after one challenge clearing: honest
+    // magnitude W, not the Gaussian-response magnitude.
+    let beta_rec = op_c * WIT_W as f64 * n_z.sqrt();
+    let beta = beta_dig.max(beta_rec).ceil() as u128;
+    assert!((q as u128) > 8 * beta, "C2 (digit chain): q too small");
+    let log2_beta = (beta as f64).log2();
+    let k_z = ((log2_beta / 2.0) * (log2_beta / 2.0) / (log2_q * LOG2_DELTA0)).ceil() as usize;
+    assert!(KAPPA * D >= k_z, "C3 (digit chain): KAPPA too small");
+    // The undecomposed chain for the same witness, for the payoff print:
+    let t_u = op_c * WIT_W as f64 * n_z.sqrt();
+    let b_u = 1.2 * 12.0 * t_u * n_z.sqrt();
+    let beta_u = (2.0 * b_u + op_c * WIT_W as f64 * n_z.sqrt()).ceil() as u128;
+    DigitParams { sigma, bound_sq, center_sq, beta, beta_undecomposed: beta_u }
+}
+
+/// Balanced base-2^e digits: x = sum_j 2^(ej) d_j with d_j in
+/// [-2^(e-1), 2^(e-1) - 1] (so ||d||_inf <= 2^(e-1)). Panics if L digits
+/// cannot carry x.
+fn digit_decompose(x: i64, e: u32, l: usize) -> Vec<i64> {
+    let base = 1i64 << e;
+    let half = base >> 1;
+    let mut digs = Vec::with_capacity(l);
+    let mut rem = x;
+    for _ in 0..l {
+        let mut d = rem % base;
+        if d >= half {
+            d -= base;
+        }
+        if d < -half {
+            d += base;
+        }
+        digs.push(d);
+        rem = (rem - d) / base;
+    }
+    assert!(rem == 0, "digit range exhausted for {x}");
+    digs
+}
+
+fn digit_split_witness(u: &[Vec<i64>], e: u32, l: usize) -> Vec<Vec<Vec<i64>>> {
+    let mut out = vec![vec![vec![0i64; D]; u.len()]; l];
+    for (n, col) in u.iter().enumerate() {
+        for (i, &x) in col.iter().enumerate() {
+            for (j, d) in digit_decompose(x, e, l).into_iter().enumerate() {
+                out[j][n][i] = d;
+            }
+        }
+    }
+    out
+}
+
+struct DigitOpeningProof {
+    t_digits: Vec<Vec<Poly>>, // [L][KAPPA] digit statements
+    w: Vec<Vec<Poly>>,        // [L][KAPPA] first messages
+    z: Vec<Vec<Vec<i64>>>,    // [L][N_R] integer responses
+}
+
+fn digit_statement_hash(q: u64, crs: &Crs, t: &[Poly], t_digits: &[Vec<Poly>], ctx: &[u8]) -> [u8; 32] {
+    let mut hasher = Sha256::new();
+    hasher.update(b"ring-open-digit-stmt-v1");
+    hasher.update(q.to_le_bytes());
+    hasher.update(crs.crs_hash);
+    hasher.update((DIGIT_E as u64).to_le_bytes());
+    hasher.update((DIGIT_L as u64).to_le_bytes());
+    hasher.update((ctx.len() as u64).to_le_bytes());
+    hasher.update(ctx);
+    for p in t {
+        for &c in p.iter() {
+            hasher.update(c.to_le_bytes());
+        }
+    }
+    for td in t_digits {
+        for p in td {
+            for &c in p.iter() {
+                hasher.update(c.to_le_bytes());
+            }
+        }
+    }
+    hasher.finalize().into()
+}
+
+fn digit_challenge(h0: &[u8; 32], w: &[Vec<Poly>]) -> Vec<i64> {
+    let mut bytes = Vec::new();
+    for wj in w {
+        bytes.extend_from_slice(&commits_bytes(wj));
+    }
+    XofReader::new("chal-dig", &[h0, &bytes]).next_challenge()
+}
+
+/// Prover for the digit-decomposed opening round. Note: takes the *claimed*
+/// statement t and the witness u independently (a malicious caller may pass
+/// mismatched ones; the verifier's recombination check is what catches it).
+/// Returns (proof, rejection attempts, concentration restarts).
+fn prove_opening_digits(
+    ctx_ring: &RingCtx,
+    dp: &DigitParams,
+    crs: &Crs,
+    t: &[Poly],
+    u: &[Vec<i64>],
+    ctx: &[u8],
+    rng: &mut u64,
+) -> (DigitOpeningProof, usize, usize) {
+    let zq = &ctx_ring.zq;
+    let u_dig = digit_split_witness(u, DIGIT_E, DIGIT_L);
+    let t_digits: Vec<Vec<Poly>> =
+        u_dig.iter().map(|uj| ring_matvec_small_g(zq, &crs.a1, KAPPA, N_R, uj)).collect();
+    let h0 = digit_statement_hash(zq.q, crs, t, &t_digits, ctx);
+    let mut attempts = 0usize;
+    let mut restarts = 0usize;
+    loop {
+        attempts += 1;
+        let y: Vec<Vec<Vec<i64>>> = (0..DIGIT_L)
+            .map(|_| (0..N_R).map(|_| gaussian_ivec(rng, D, dp.sigma)).collect())
+            .collect();
+        let w: Vec<Vec<Poly>> =
+            y.iter().map(|yj| ring_matvec_small_g(zq, &crs.a1, KAPPA, N_R, yj)).collect();
+        let c = digit_challenge(&h0, &w);
+        let v: Vec<Vec<Vec<i64>>> = u_dig
+            .iter()
+            .map(|uj| uj.iter().map(|un| poly_mul_small(&c, un)).collect())
+            .collect();
+        let flat_v: Vec<i64> = v.iter().flatten().flatten().copied().collect();
+        // Concentration restart rule: the center bundle must sit inside the
+        // concentration bound the parameters were sized with.
+        if vec_norm_sq_i64(&flat_v) > dp.center_sq {
+            restarts += 1;
+            continue;
+        }
+        let z: Vec<Vec<Vec<i64>>> = y
+            .iter()
+            .zip(v.iter())
+            .map(|(yj, vj)| {
+                yj.iter()
+                    .zip(vj.iter())
+                    .map(|(yn, vn)| yn.iter().zip(vn.iter()).map(|(&a, &b)| a + b).collect())
+                    .collect()
+            })
+            .collect();
+        let flat_z: Vec<i64> = z.iter().flatten().flatten().copied().collect();
+        if rejection_accept(rng, &flat_z, &flat_v, dp.sigma) {
+            return (DigitOpeningProof { t_digits, w, z }, attempts, restarts);
+        }
+    }
+}
+
+fn verify_opening_digits(
+    ctx_ring: &RingCtx,
+    dp: &DigitParams,
+    crs: &Crs,
+    t: &[Poly],
+    ctx: &[u8],
+    proof: &DigitOpeningProof,
+) -> bool {
+    let zq = &ctx_ring.zq;
+    if proof.t_digits.len() != DIGIT_L || proof.w.len() != DIGIT_L || proof.z.len() != DIGIT_L {
+        return false;
+    }
+    for j in 0..DIGIT_L {
+        if proof.t_digits[j].len() != KAPPA || proof.w[j].len() != KAPPA || proof.z[j].len() != N_R
+        {
+            return false;
+        }
+    }
+    // 1. Recombination: sum_j 2^(ej) t_j = t mod q (public, exact).
+    for r in 0..KAPPA {
+        let mut acc = poly_zero();
+        for j in 0..DIGIT_L {
+            let scale = zq.to_mod(1i64 << (DIGIT_E as usize * j));
+            for i in 0..D {
+                acc[i] = zq.add(acc[i], zq.mul(scale, proof.t_digits[j][r][i]));
+            }
+        }
+        if acc != t[r] {
+            return false;
+        }
+    }
+    // 2. Bundle norm (exact integers; the prototype stand-in for the exact
+    //    per-digit ct-range claims of the full protocol).
+    let flat: Vec<i64> = proof.z.iter().flatten().flatten().copied().collect();
+    if vec_norm_sq_i64(&flat) > dp.bound_sq {
+        return false;
+    }
+    // 3. Per-digit Sigma equations, ring mults on the split kernel.
+    let h0 = digit_statement_hash(zq.q, crs, t, &proof.t_digits, ctx);
+    let c = digit_challenge(&h0, &proof.w);
+    let c_mod = poly_from_small_g(zq, &c);
+    for j in 0..DIGIT_L {
+        let lhs = ring_matvec_small_g(zq, &crs.a1, KAPPA, N_R, &proof.z[j]);
+        for r in 0..KAPPA {
+            let rhs = poly_add_g(zq, &proof.w[j][r], &ring_mul_split(ctx_ring, &c_mod, &proof.t_digits[j][r]));
+            if lhs[r] != rhs {
+                return false;
+            }
+        }
+    }
+    true
 }
 
 // ---------------------------------------------------------------------------
@@ -1515,6 +1749,153 @@ fn main() {
         !verify_opening_g(&ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &overflow8),
     );
     println!("  k = 8 prove {prove8_ms:.1} ms, verify {verify8_ms:.1} ms");
+
+    // =====================================================================
+    // --- 12. Q2: digit-decomposed opening round at (k = 8, q8) -----------
+    println!(
+        "\nQ2: digit-decomposed opening round at (k = 8, q8), e = {DIGIT_E}, L = {DIGIT_L}, ||u||_inf <= {WIT_W}"
+    );
+    let dp = derive_digit_params(Q8);
+    println!(
+        "  digit chain: sigma=2^{:.1} beta=2^{:.1}; C2 8*beta=2^{:.1} < q8=2^31.0 (headroom {:.1} bits)",
+        (dp.sigma as f64).log2(),
+        (dp.beta as f64).log2(),
+        (8.0 * dp.beta as f64).log2(),
+        31.0 - (8.0 * dp.beta as f64).log2(),
+    );
+    println!(
+        "  undecomposed chain for the same witness: beta=2^{:.1}, needs q > 2^{:.1} -- does NOT fit q31",
+        (dp.beta_undecomposed as f64).log2(),
+        (8.0 * dp.beta_undecomposed as f64).log2(),
+    );
+    assert_true(
+        "undecomposed combination witness violates C2 at q8 (the Q2 premise)",
+        (Q8 as u128) <= 8 * dp.beta_undecomposed,
+    );
+    // Digit split/recombine sanity across the full witness range.
+    let mut digit_ok = true;
+    for x in (-WIT_W..=WIT_W).step_by(7) {
+        let digs = digit_decompose(x, DIGIT_E, DIGIT_L);
+        let rec: i64 = digs.iter().enumerate().map(|(j, &d)| d << (DIGIT_E as usize * j)).sum();
+        if rec != x || digs.iter().any(|&d| d.abs() > 1 << (DIGIT_E - 1)) {
+            digit_ok = false;
+        }
+    }
+    assert_true("balanced digit decompose/recombine round-trip on [-W, W]", digit_ok);
+
+    // Combination-magnitude witness and its statement.
+    let u_wide: Vec<Vec<i64>> = (0..N_R)
+        .map(|_| (0..D).map(|_| (splitmix64(&mut rng) % (2 * WIT_W as u64 + 1)) as i64 - WIT_W).collect())
+        .collect();
+    let t_wide = ring_matvec_small_g(&zq8, &crs8.a1, KAPPA, N_R, &u_wide);
+    let ctx_bytes_d = b"route-r-q2-digit-manifest";
+    let t_dprove = Instant::now();
+    let (dproof, dattempts, drestarts) =
+        prove_opening_digits(&ctx8, &dp, &crs8, &t_wide, &u_wide, ctx_bytes_d, &mut rng);
+    let dprove_ms = t_dprove.elapsed().as_secs_f64() * 1e3;
+    let t_dverify = Instant::now();
+    let dok = verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &dproof);
+    let dverify_ms = t_dverify.elapsed().as_secs_f64() * 1e3;
+    assert_true(
+        &format!("digit opening proof verifies (attempts = {dattempts}, restarts = {drestarts})"),
+        dok,
+    );
+
+    // Tamper battery.
+    // (a) wrong digit: one coordinate of one digit response.
+    let mut bad_d = DigitOpeningProof {
+        t_digits: dproof.t_digits.clone(),
+        w: dproof.w.clone(),
+        z: dproof.z.clone(),
+    };
+    bad_d.z[1][0][0] += 1;
+    assert_true(
+        "wrong digit (tampered digit response) fails",
+        !verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &bad_d),
+    );
+    // (b) digit out of range: a malicious decomposition that still
+    // recombines to u (digit 0 shifted by 2^17, digit 1 compensating by
+    // -2^13) but whose digits violate ||.||_inf <= 2^(e-1). Sigma equations
+    // and recombination both hold; only the norm/range layer can catch it.
+    // (Deterministic for this seed; the full protocol replaces the norm
+    // stand-in with exact ct-range claims.)
+    {
+        let shift = 1i64 << 17;
+        let mut u_dig = digit_split_witness(&u_wide, DIGIT_E, DIGIT_L);
+        for n in 0..N_R {
+            for i in 0..D {
+                u_dig[0][n][i] += shift;
+                u_dig[1][n][i] -= shift >> DIGIT_E;
+            }
+        }
+        let t_digits: Vec<Vec<Poly>> = u_dig
+            .iter()
+            .map(|uj| ring_matvec_small_g(&zq8, &crs8.a1, KAPPA, N_R, uj))
+            .collect();
+        let h0 = digit_statement_hash(Q8, &crs8, &t_wide, &t_digits, ctx_bytes_d);
+        let y: Vec<Vec<Vec<i64>>> = (0..DIGIT_L)
+            .map(|_| (0..N_R).map(|_| gaussian_ivec(&mut rng, D, dp.sigma)).collect())
+            .collect();
+        let w: Vec<Vec<Poly>> = y
+            .iter()
+            .map(|yj| ring_matvec_small_g(&zq8, &crs8.a1, KAPPA, N_R, yj))
+            .collect();
+        let c = digit_challenge(&h0, &w);
+        let z: Vec<Vec<Vec<i64>>> = y
+            .iter()
+            .zip(u_dig.iter())
+            .map(|(yj, uj)| {
+                yj.iter()
+                    .zip(uj.iter())
+                    .map(|(yn, un)| {
+                        let v = poly_mul_small(&c, un);
+                        yn.iter().zip(v.iter()).map(|(&a, &b)| a + b).collect()
+                    })
+                    .collect()
+            })
+            .collect();
+        let cheat = DigitOpeningProof { t_digits, w, z };
+        assert_true(
+            "digit out of range (recombining but oversized digits) fails",
+            !verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &cheat),
+        );
+    }
+    // (c) recombination mismatch: honest digit rounds on a DIFFERENT
+    // witness, claimed against t_wide. Every Sigma equation and the norm
+    // check pass; only the recombination check catches it.
+    {
+        let u_other: Vec<Vec<i64>> = (0..N_R)
+            .map(|_| {
+                (0..D).map(|_| (splitmix64(&mut rng) % (2 * WIT_W as u64 + 1)) as i64 - WIT_W).collect()
+            })
+            .collect();
+        let (cheat, _, _) =
+            prove_opening_digits(&ctx8, &dp, &crs8, &t_wide, &u_other, ctx_bytes_d, &mut rng);
+        assert_true(
+            "recombination mismatch (digits of a different witness) fails",
+            !verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &cheat),
+        );
+    }
+    // (d) context binding and (e) +q overflow, as in the other rounds.
+    assert_true(
+        "digit round wrong context fails",
+        !verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, b"other-ctx", &dproof),
+    );
+    let mut over_d = DigitOpeningProof {
+        t_digits: dproof.t_digits.clone(),
+        w: dproof.w.clone(),
+        z: dproof.z.clone(),
+    };
+    over_d.z[0][0][0] += Q8 as i64;
+    assert_true(
+        "digit round +q norm-overflow fails (norm check only)",
+        !verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &over_d),
+    );
+    let dig_kb = (DIGIT_L * KAPPA * D * 2 * 31) as f64 / 8.0 / 1024.0
+        + (DIGIT_L * N_Z) as f64 * ((dp.sigma as f64).log2() + 4.0) / 8.0 / 1024.0;
+    println!(
+        "  digit prove {dprove_ms:.1} ms, verify {dverify_ms:.1} ms, proof ~{dig_kb:.1} KB (L = {DIGIT_L} digit statements + responses)"
+    );
 
     println!("ring_lattice self-test ok");
 }
