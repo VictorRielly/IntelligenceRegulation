@@ -647,8 +647,1078 @@ fn verify_opening(
     true
 }
 
+// ===========================================================================
+// Q3: generic-modulus layer and the k-way CRT split (k = 8 lives in a
+// different residue class, q = 17 mod 32, than the k = 2 mandate's
+// q = 5 mod 8 -- necessarily a different prime, so everything below is
+// parametric in q). See scripts/route_r_params.py (k_split_study) for the
+// residue-condition derivation, prime selection and verification.
+
+/// q8 at 31 bits: largest prime < 2^31 with q = 17 mod 32 (v2(q-1) = 4), so
+/// X^128 + 1 splits into exactly 8 irreducible degree-16 factors
+/// X^16 - eta^(2t+1), eta a primitive 16th root of unity. LS18 at k = 8:
+/// nonzero y with ||y||_inf < q^(1/8)/sqrt(8) = 5.19 invertible -- covers
+/// quinary challenge differences (<= 4) with margin 1.30x.
+const Q8: u64 = 2_147_483_249; // 2^31 - 399
+const ETA8: u64 = 2_056_890_868; // primitive 16th root of unity mod Q8
+
+#[derive(Clone, Copy)]
+struct Zq {
+    q: u64,
+}
+
+impl Zq {
+    fn new(q: u64) -> Self {
+        assert!(q % 2 == 1 && q < (1u64 << 60), "odd q below 2^60 expected");
+        Zq { q }
+    }
+    fn add(&self, a: u64, b: u64) -> u64 {
+        let s = a + b;
+        if s >= self.q { s - self.q } else { s }
+    }
+    fn sub(&self, a: u64, b: u64) -> u64 {
+        if a >= b { a - b } else { a + self.q - b }
+    }
+    fn mul(&self, a: u64, b: u64) -> u64 {
+        ((a as u128 * b as u128) % self.q as u128) as u64
+    }
+    fn neg(&self, a: u64) -> u64 {
+        if a == 0 { 0 } else { self.q - a }
+    }
+    fn center(&self, a: u64) -> i64 {
+        if a > self.q / 2 { a as i64 - self.q as i64 } else { a as i64 }
+    }
+    fn to_mod(&self, a: i64) -> u64 {
+        let r = a % self.q as i64;
+        if r < 0 { (r + self.q as i64) as u64 } else { r as u64 }
+    }
+    fn pow(&self, mut b: u64, mut e: u64) -> u64 {
+        let mut acc = 1u64;
+        while e > 0 {
+            if e & 1 == 1 {
+                acc = self.mul(acc, b);
+            }
+            b = self.mul(b, b);
+            e >>= 1;
+        }
+        acc
+    }
+    fn inv(&self, a: u64) -> u64 {
+        self.pow(a, self.q - 2)
+    }
+}
+
+/// k-way CRT context: X^D + 1 = prod_i (X^(D/k) - slot_roots[i]) mod q,
+/// realized as log2(k) levels of split butterflies. Built from zeta, a
+/// primitive 2k-th root of unity (zeta^k = -1): node with modulus
+/// X^(2m) - zeta^e splits into X^m -+ zeta^(e/2); exponents stay even until
+/// the leaves, whose roots are the odd powers of zeta.
+struct RingCtx {
+    zq: Zq,
+    k: usize,
+    slot_deg: usize,
+    levels: usize,
+    split_roots: Vec<Vec<u64>>, // [level][node]: the s of that butterfly
+    merge_inv2: u64,
+    merge_inv2s: Vec<Vec<u64>>, // [level][node]: (2 s)^-1
+    slot_roots: Vec<u64>,       // leaf roots, length k
+}
+
+fn ring_ctx(q: u64, zeta: u64, k: usize) -> RingCtx {
+    assert!(k.is_power_of_two() && k >= 2 && D % k == 0);
+    let zq = Zq::new(q);
+    assert!(zq.pow(zeta, k as u64) == q - 1, "zeta^k != -1 mod q");
+    let levels = k.trailing_zeros() as usize;
+    let mut exps: Vec<usize> = vec![k]; // root of X^D + 1 is zeta^k = -1
+    let mut split_roots = Vec::with_capacity(levels);
+    for _ in 0..levels {
+        let mut next = Vec::with_capacity(2 * exps.len());
+        let mut srs = Vec::with_capacity(exps.len());
+        for &e in &exps {
+            assert!(e % 2 == 0);
+            let h = e / 2;
+            srs.push(zq.pow(zeta, h as u64));
+            next.push(h);
+            next.push(h + k);
+        }
+        split_roots.push(srs);
+        exps = next;
+    }
+    let slot_roots: Vec<u64> = exps.iter().map(|&e| zq.pow(zeta, e as u64)).collect();
+    let merge_inv2 = zq.inv(2);
+    let merge_inv2s: Vec<Vec<u64>> = split_roots
+        .iter()
+        .map(|lvl| lvl.iter().map(|&s| zq.inv(zq.mul(2, s))).collect())
+        .collect();
+    RingCtx { zq, k, slot_deg: D / k, levels, split_roots, merge_inv2, merge_inv2s, slot_roots }
+}
+
+/// Forward split: coefficient vector -> k slot images (leaf order),
+/// contiguous in one length-D buffer. log2(k) butterfly levels, D/2 mults
+/// per level.
+fn crt_split(ctx: &RingCtx, a: &[u64]) -> Vec<u64> {
+    let zq = &ctx.zq;
+    let mut buf = a.to_vec();
+    let mut m = D / 2;
+    for level in 0..ctx.levels {
+        let node_len = D >> level;
+        for node in 0..(1usize << level) {
+            let s = ctx.split_roots[level][node];
+            let base = node * node_len;
+            for i in 0..m {
+                let lo = buf[base + i];
+                let t = zq.mul(s, buf[base + i + m]);
+                buf[base + i] = zq.add(lo, t);
+                buf[base + i + m] = zq.sub(lo, t);
+            }
+        }
+        m /= 2;
+    }
+    buf
+}
+
+/// Inverse of crt_split (in place).
+fn crt_merge(ctx: &RingCtx, buf: &mut [u64]) {
+    let zq = &ctx.zq;
+    let mut m = ctx.slot_deg;
+    for level in (0..ctx.levels).rev() {
+        let node_len = D >> level;
+        for node in 0..(1usize << level) {
+            let inv2s = ctx.merge_inv2s[level][node];
+            let base = node * node_len;
+            for i in 0..m {
+                let p = buf[base + i];
+                let mi = buf[base + i + m];
+                buf[base + i] = zq.mul(ctx.merge_inv2, zq.add(p, mi));
+                buf[base + i + m] = zq.mul(inv2s, zq.sub(p, mi));
+            }
+        }
+        m *= 2;
+    }
+}
+
+/// Schoolbook multiplication in F_q[X]/(X^m - s): m^2 MACs + m fold mults.
+fn slot_mul_g(zq: &Zq, a: &[u64], b: &[u64], s: u64, m: usize) -> Vec<u64> {
+    let mut wide = vec![0u128; 2 * m];
+    for i in 0..m {
+        if a[i] == 0 {
+            continue;
+        }
+        let ai = a[i] as u128;
+        for j in 0..m {
+            wide[i + j] += ai * b[j] as u128;
+        }
+    }
+    (0..m)
+        .map(|t| {
+            let lo = (wide[t] % zq.q as u128) as u64;
+            let hi = (wide[t + m] % zq.q as u128) as u64;
+            zq.add(lo, zq.mul(s, hi))
+        })
+        .collect()
+}
+
+/// Full k-way split multiplication: split both operands, slot-multiply,
+/// merge. (In GEMM-shaped kernels the splits amortize; see the benchmark
+/// section.)
+fn ring_mul_split(ctx: &RingCtx, a: &[u64], b: &[u64]) -> Poly {
+    let sa = crt_split(ctx, a);
+    let sb = crt_split(ctx, b);
+    let mut out = vec![0u64; D];
+    let m = ctx.slot_deg;
+    for i in 0..ctx.k {
+        let prod = slot_mul_g(&ctx.zq, &sa[i * m..(i + 1) * m], &sb[i * m..(i + 1) * m], ctx.slot_roots[i], m);
+        out[i * m..(i + 1) * m].copy_from_slice(&prod);
+    }
+    crt_merge(ctx, &mut out);
+    out
+}
+
+/// Generic negacyclic schoolbook (ground truth at any q < 2^60): the
+/// pos/neg u128 accumulators hold D products < q^2 <= 2^120 -- exact.
+fn poly_mul_g(zq: &Zq, a: &[u64], b: &[u64]) -> Poly {
+    let mut pos = [0u128; D];
+    let mut neg = [0u128; D];
+    for i in 0..D {
+        if a[i] == 0 {
+            continue;
+        }
+        let ai = a[i] as u128;
+        for j in 0..D {
+            let p = ai * b[j] as u128;
+            let k = i + j;
+            if k < D {
+                pos[k] += p;
+            } else {
+                neg[k - D] += p;
+            }
+        }
+    }
+    (0..D)
+        .map(|k| zq.sub((pos[k] % zq.q as u128) as u64, (neg[k] % zq.q as u128) as u64))
+        .collect()
+}
+
+/// Extended Euclid in F_q[X] mod (X^m - s) (irreducible): generic port of
+/// slot_inv. Returns None for a = 0.
+fn slot_inv_g(zq: &Zq, a: &[u64], s: u64, m: usize) -> Option<Vec<u64>> {
+    let trim = |v: &mut Vec<u64>| {
+        while v.len() > 1 && *v.last().unwrap() == 0 {
+            v.pop();
+        }
+    };
+    let is_zero = |v: &[u64]| v.iter().all(|&x| x == 0);
+    if is_zero(a) {
+        return None;
+    }
+    let mut r0: Vec<u64> = {
+        let mut md = vec![0u64; m + 1];
+        md[m] = 1;
+        md[0] = zq.neg(s);
+        md
+    };
+    let mut r1: Vec<u64> = a.to_vec();
+    trim(&mut r1);
+    let mut t0: Vec<u64> = vec![0];
+    let mut t1: Vec<u64> = vec![1];
+    while !is_zero(&r1) {
+        let mut rem = r0.clone();
+        let mut qt = vec![0u64; rem.len().saturating_sub(r1.len()) + 1];
+        let lead_inv = zq.inv(*r1.last().unwrap());
+        while rem.len() >= r1.len() && !is_zero(&rem) {
+            let shift = rem.len() - r1.len();
+            let coef = zq.mul(*rem.last().unwrap(), lead_inv);
+            qt[shift] = zq.add(qt[shift], coef);
+            for i in 0..r1.len() {
+                rem[shift + i] = zq.sub(rem[shift + i], zq.mul(coef, r1[i]));
+            }
+            trim(&mut rem);
+            if rem.len() == 1 && rem[0] == 0 {
+                break;
+            }
+        }
+        let mut prod = vec![0u64; qt.len() + t1.len() - 1];
+        for i in 0..qt.len() {
+            if qt[i] == 0 {
+                continue;
+            }
+            for j in 0..t1.len() {
+                prod[i + j] = zq.add(prod[i + j], zq.mul(qt[i], t1[j]));
+            }
+        }
+        let mut t2 = vec![0u64; t0.len().max(prod.len())];
+        for (i, t2i) in t2.iter_mut().enumerate() {
+            let a0 = if i < t0.len() { t0[i] } else { 0 };
+            let b0 = if i < prod.len() { prod[i] } else { 0 };
+            *t2i = zq.sub(a0, b0);
+        }
+        trim(&mut t2);
+        r0 = r1;
+        r1 = rem;
+        trim(&mut r1);
+        if r1.len() == 1 && r1[0] == 0 {
+            r1 = vec![0];
+        }
+        t0 = t1;
+        t1 = t2;
+    }
+    let g_inv = zq.inv(r0[0]);
+    let mut out = vec![0u64; m];
+    for (i, &c) in t0.iter().enumerate() {
+        if i < m {
+            out[i] = zq.mul(c, g_inv);
+        }
+    }
+    Some(out)
+}
+
+/// Ring inverse via the k-way CRT (exists iff every slot image is nonzero).
+fn poly_inv_g(ctx: &RingCtx, a: &[u64]) -> Option<Poly> {
+    let buf = crt_split(ctx, a);
+    let m = ctx.slot_deg;
+    let mut out = vec![0u64; D];
+    for i in 0..ctx.k {
+        let inv = slot_inv_g(&ctx.zq, &buf[i * m..(i + 1) * m], ctx.slot_roots[i], m)?;
+        out[i * m..(i + 1) * m].copy_from_slice(&inv);
+    }
+    crt_merge(ctx, &mut out);
+    Some(out)
+}
+
+fn poly_linf_g(zq: &Zq, a: &[u64]) -> u64 {
+    a.iter().map(|&x| zq.center(x).unsigned_abs()).max().unwrap()
+}
+
+fn poly_from_small_g(zq: &Zq, v: &[i64]) -> Poly {
+    v.iter().map(|&x| zq.to_mod(x)).collect()
+}
+
+// ---------------------------------------------------------------------------
+// Q3: the Sigma opening round at generic q (run at q8, k = 8 in the
+// self-test). Same shapes and norm chain as the k = 2 path; the verifier's
+// ring multiplication c * t1 goes through the k-way split kernel.
+
+fn rng_field_g(rng: &mut u64, q: u64) -> u64 {
+    loop {
+        let v = splitmix64(rng) >> 33; // 31-bit candidate; q8 < 2^31
+        if v < q {
+            return v;
+        }
+    }
+}
+
+fn expand_crs_g(seed: u64, q: u64) -> Crs {
+    let mut reader = XofReader::new("A1A2-g", &[&seed.to_le_bytes(), &q.to_le_bytes()]);
+    let next_field = |reader: &mut XofReader| loop {
+        let v = reader.next_u64() >> 33;
+        if v < q {
+            return v;
+        }
+    };
+    let mut a1 = Vec::with_capacity(KAPPA * N_R);
+    for _ in 0..KAPPA * N_R {
+        a1.push((0..D).map(|_| next_field(&mut reader)).collect::<Poly>());
+    }
+    let mut a2 = Vec::with_capacity(MSG_R * N_R);
+    for _ in 0..MSG_R * N_R {
+        a2.push((0..D).map(|_| next_field(&mut reader)).collect::<Poly>());
+    }
+    let mut hasher = Sha256::new();
+    hasher.update(b"ring-crs-g");
+    hasher.update(seed.to_le_bytes());
+    hasher.update((KAPPA as u64).to_le_bytes());
+    hasher.update((N_R as u64).to_le_bytes());
+    hasher.update((MSG_R as u64).to_le_bytes());
+    hasher.update(q.to_le_bytes());
+    Crs { a1, a2, crs_hash: hasher.finalize().into() }
+}
+
+/// rows x cols ring matrix (row-major) times small-integer ring vector,
+/// mod q: exact i128 lazy accumulation as in ring_matvec_small.
+fn ring_matvec_small_g(zq: &Zq, m: &[Poly], rows: usize, cols: usize, v: &[Vec<i64>]) -> Vec<Poly> {
+    (0..rows)
+        .map(|r| {
+            let mut accp = [0i128; D];
+            for c in 0..cols {
+                let a = &m[r * cols + c];
+                let x = &v[c];
+                for i in 0..D {
+                    let xi = x[i];
+                    if xi == 0 {
+                        continue;
+                    }
+                    for j in 0..D {
+                        let k = i + j;
+                        let p = a[j] as i128 * xi as i128;
+                        if k < D {
+                            accp[k] += p;
+                        } else {
+                            accp[k - D] -= p;
+                        }
+                    }
+                }
+            }
+            accp.iter()
+                .map(|&x| {
+                    let r = (x % zq.q as i128) as i64;
+                    zq.to_mod(r)
+                })
+                .collect::<Poly>()
+        })
+        .collect()
+}
+
+fn derive_sigma_params_g(q: u64) -> SigmaParams {
+    let log2_q = (q as f64).log2();
+    let b0 = (N_Z as f64).sqrt();
+    let t1 = 2.0 * D as f64 * b0;
+    let sigma = (12.0 * t1).ceil() as u64;
+    let bound = 1.2 * sigma as f64 * (N_Z as f64).sqrt();
+    let bound_sq = (bound * bound).ceil() as u128;
+    let beta = (2.0 * bound + 4.0 * D as f64 * b0).ceil() as u128;
+    assert!((q as u128) > 8 * beta, "C2: q too small for beta");
+    let log2_beta = (beta as f64).log2();
+    let k_z = ((log2_beta / 2.0) * (log2_beta / 2.0) / (log2_q * LOG2_DELTA0)).ceil() as usize;
+    assert!(KAPPA * D >= k_z, "C3: KAPPA too small: need k_Z >= {k_z}");
+    let d_lwe = (768.0 * log2_q / 11.7).ceil() as usize;
+    assert!(N_Z >= (KAPPA + MSG_R) * D + d_lwe, "C4: N too small");
+    SigmaParams { sigma, bound_sq, beta }
+}
+
+fn statement_hash_g(q: u64, crs: &Crs, t1: &[Poly], ctx: &[u8]) -> [u8; 32] {
+    let mut hasher = Sha256::new();
+    hasher.update(b"ring-open-stmt-g-v1");
+    hasher.update(q.to_le_bytes());
+    hasher.update(crs.crs_hash);
+    hasher.update((ctx.len() as u64).to_le_bytes());
+    hasher.update(ctx);
+    for p in t1 {
+        for &c in p.iter() {
+            hasher.update(c.to_le_bytes());
+        }
+    }
+    hasher.finalize().into()
+}
+
+fn prove_opening_g(
+    ctx_ring: &RingCtx,
+    sp: &SigmaParams,
+    crs: &Crs,
+    t1: &[Poly],
+    rho: &[Vec<i64>],
+    ctx: &[u8],
+    rng: &mut u64,
+) -> (OpeningProof, usize) {
+    let h0 = statement_hash_g(ctx_ring.zq.q, crs, t1, ctx);
+    let mut attempts = 0usize;
+    loop {
+        attempts += 1;
+        let y: Vec<Vec<i64>> = (0..N_R).map(|_| gaussian_ivec(rng, D, sp.sigma)).collect();
+        let w = ring_matvec_small_g(&ctx_ring.zq, &crs.a1, KAPPA, N_R, &y);
+        let c = challenge_from(&h0, &w);
+        let v: Vec<Vec<i64>> = rho.iter().map(|r| poly_mul_small(&c, r)).collect();
+        let z: Vec<Vec<i64>> = y
+            .iter()
+            .zip(v.iter())
+            .map(|(yi, vi)| yi.iter().zip(vi.iter()).map(|(&a, &b)| a + b).collect())
+            .collect();
+        let flat_z: Vec<i64> = z.iter().flatten().copied().collect();
+        let flat_v: Vec<i64> = v.iter().flatten().copied().collect();
+        if rejection_accept(rng, &flat_z, &flat_v, sp.sigma) {
+            return (OpeningProof { w, z }, attempts);
+        }
+    }
+}
+
+fn verify_opening_g(
+    ctx_ring: &RingCtx,
+    sp: &SigmaParams,
+    crs: &Crs,
+    t1: &[Poly],
+    ctx: &[u8],
+    proof: &OpeningProof,
+) -> bool {
+    if proof.w.len() != KAPPA || proof.z.len() != N_R {
+        return false;
+    }
+    let flat: Vec<i64> = proof.z.iter().flatten().copied().collect();
+    if vec_norm_sq_i64(&flat) > sp.bound_sq {
+        return false;
+    }
+    let h0 = statement_hash_g(ctx_ring.zq.q, crs, t1, ctx);
+    let c = challenge_from(&h0, &proof.w);
+    let lhs = ring_matvec_small_g(&ctx_ring.zq, &crs.a1, KAPPA, N_R, &proof.z);
+    let c_mod = poly_from_small_g(&ctx_ring.zq, &c);
+    for i in 0..KAPPA {
+        // The verifier's ring multiplication runs on the k-way split kernel.
+        let rhs = poly_add_g(&ctx_ring.zq, &proof.w[i], &ring_mul_split(ctx_ring, &c_mod, &t1[i]));
+        if lhs[i] != rhs {
+            return false;
+        }
+    }
+    true
+}
+
+fn poly_add_g(zq: &Zq, a: &[u64], b: &[u64]) -> Poly {
+    (0..D).map(|i| zq.add(a[i], b[i])).collect()
+}
+
+// ===========================================================================
+// Q2: the digit-decomposed opening round (see route_r_params.py, derive_q2,
+// for the design rationale). A combination-magnitude witness u
+// (||u||_inf <= WIT_W, standing in for sum_i s_i rho_i at t ~ 2048 combined
+// commitments) cannot run the plain opening round at a 31-bit q: its norm
+// chain needs q > 8 beta ~ 2^34. Decomposed into balanced base-2^e digit
+// vectors with per-digit statements t_j = A1 u_j, the public recombination
+// sum_j 2^(ej) t_j = t, and per-digit Sigma rounds sharing one challenge
+// (jointly rejection-sampled), the chain shrinks to the digit scale and
+// fits q8 with headroom. In the full protocol the digit ranges are exact
+// ct-claims from the M2 gadget family; the prototype stand-in is the
+// bundle norm check (flagged in the doc).
+
+const DIGIT_E: u32 = 4; // digit base 2^e
+const DIGIT_L: usize = 3; // digits: covers |coeff| <= W with L*e >= log2(W)+1
+const WIT_W: i64 = 1 << 10; // combination-magnitude witness, ||u||_inf <= 2^10
+
+struct DigitParams {
+    sigma: u64,
+    bound_sq: u128,  // bundle l2^2 response bound (over all L digits)
+    center_sq: u128, // concentration restart rule on the center bundle
+    beta: u128,
+    beta_undecomposed: u128, // what the plain round would have needed
+}
+
+fn derive_digit_params(q: u64) -> DigitParams {
+    let n_z = N_Z as f64;
+    let log2_q = (q as f64).log2();
+    let op_c = 1.3 * (2.0 * D as f64).sqrt(); // concentration operator norm
+    let half = (1u64 << (DIGIT_E - 1)) as f64; // ||digit||_inf <= 2^(e-1)
+    let bundle_dim = (DIGIT_L as f64) * n_z;
+    let t_bundle = op_c * half * bundle_dim.sqrt();
+    let sigma = (12.0 * t_bundle).ceil() as u64;
+    let bound = 1.2 * sigma as f64 * bundle_dim.sqrt();
+    let bound_sq = (bound * bound).ceil() as u128;
+    let center_sq = (t_bundle * t_bundle).ceil() as u128;
+    let beta_dig = 2.0 * bound + op_c * half * n_z.sqrt();
+    // Recombined range-proved witness after one challenge clearing: honest
+    // magnitude W, not the Gaussian-response magnitude.
+    let beta_rec = op_c * WIT_W as f64 * n_z.sqrt();
+    let beta = beta_dig.max(beta_rec).ceil() as u128;
+    assert!((q as u128) > 8 * beta, "C2 (digit chain): q too small");
+    let log2_beta = (beta as f64).log2();
+    let k_z = ((log2_beta / 2.0) * (log2_beta / 2.0) / (log2_q * LOG2_DELTA0)).ceil() as usize;
+    assert!(KAPPA * D >= k_z, "C3 (digit chain): KAPPA too small");
+    // The undecomposed chain for the same witness, for the payoff print:
+    let t_u = op_c * WIT_W as f64 * n_z.sqrt();
+    let b_u = 1.2 * 12.0 * t_u * n_z.sqrt();
+    let beta_u = (2.0 * b_u + op_c * WIT_W as f64 * n_z.sqrt()).ceil() as u128;
+    DigitParams { sigma, bound_sq, center_sq, beta, beta_undecomposed: beta_u }
+}
+
+/// Balanced base-2^e digits: x = sum_j 2^(ej) d_j with d_j in
+/// [-2^(e-1), 2^(e-1) - 1] (so ||d||_inf <= 2^(e-1)). Panics if L digits
+/// cannot carry x.
+fn digit_decompose(x: i64, e: u32, l: usize) -> Vec<i64> {
+    let base = 1i64 << e;
+    let half = base >> 1;
+    let mut digs = Vec::with_capacity(l);
+    let mut rem = x;
+    for _ in 0..l {
+        let mut d = rem % base;
+        if d >= half {
+            d -= base;
+        }
+        if d < -half {
+            d += base;
+        }
+        digs.push(d);
+        rem = (rem - d) / base;
+    }
+    assert!(rem == 0, "digit range exhausted for {x}");
+    digs
+}
+
+fn digit_split_witness(u: &[Vec<i64>], e: u32, l: usize) -> Vec<Vec<Vec<i64>>> {
+    let mut out = vec![vec![vec![0i64; D]; u.len()]; l];
+    for (n, col) in u.iter().enumerate() {
+        for (i, &x) in col.iter().enumerate() {
+            for (j, d) in digit_decompose(x, e, l).into_iter().enumerate() {
+                out[j][n][i] = d;
+            }
+        }
+    }
+    out
+}
+
+struct DigitOpeningProof {
+    t_digits: Vec<Vec<Poly>>, // [L][KAPPA] digit statements
+    w: Vec<Vec<Poly>>,        // [L][KAPPA] first messages
+    z: Vec<Vec<Vec<i64>>>,    // [L][N_R] integer responses
+}
+
+fn digit_statement_hash(q: u64, crs: &Crs, t: &[Poly], t_digits: &[Vec<Poly>], ctx: &[u8]) -> [u8; 32] {
+    let mut hasher = Sha256::new();
+    hasher.update(b"ring-open-digit-stmt-v1");
+    hasher.update(q.to_le_bytes());
+    hasher.update(crs.crs_hash);
+    hasher.update((DIGIT_E as u64).to_le_bytes());
+    hasher.update((DIGIT_L as u64).to_le_bytes());
+    hasher.update((ctx.len() as u64).to_le_bytes());
+    hasher.update(ctx);
+    for p in t {
+        for &c in p.iter() {
+            hasher.update(c.to_le_bytes());
+        }
+    }
+    for td in t_digits {
+        for p in td {
+            for &c in p.iter() {
+                hasher.update(c.to_le_bytes());
+            }
+        }
+    }
+    hasher.finalize().into()
+}
+
+fn digit_challenge(h0: &[u8; 32], w: &[Vec<Poly>]) -> Vec<i64> {
+    let mut bytes = Vec::new();
+    for wj in w {
+        bytes.extend_from_slice(&commits_bytes(wj));
+    }
+    XofReader::new("chal-dig", &[h0, &bytes]).next_challenge()
+}
+
+/// Prover for the digit-decomposed opening round. Note: takes the *claimed*
+/// statement t and the witness u independently (a malicious caller may pass
+/// mismatched ones; the verifier's recombination check is what catches it).
+/// Returns (proof, rejection attempts, concentration restarts).
+fn prove_opening_digits(
+    ctx_ring: &RingCtx,
+    dp: &DigitParams,
+    crs: &Crs,
+    t: &[Poly],
+    u: &[Vec<i64>],
+    ctx: &[u8],
+    rng: &mut u64,
+) -> (DigitOpeningProof, usize, usize) {
+    let zq = &ctx_ring.zq;
+    let u_dig = digit_split_witness(u, DIGIT_E, DIGIT_L);
+    let t_digits: Vec<Vec<Poly>> =
+        u_dig.iter().map(|uj| ring_matvec_small_g(zq, &crs.a1, KAPPA, N_R, uj)).collect();
+    let h0 = digit_statement_hash(zq.q, crs, t, &t_digits, ctx);
+    let mut attempts = 0usize;
+    let mut restarts = 0usize;
+    loop {
+        attempts += 1;
+        let y: Vec<Vec<Vec<i64>>> = (0..DIGIT_L)
+            .map(|_| (0..N_R).map(|_| gaussian_ivec(rng, D, dp.sigma)).collect())
+            .collect();
+        let w: Vec<Vec<Poly>> =
+            y.iter().map(|yj| ring_matvec_small_g(zq, &crs.a1, KAPPA, N_R, yj)).collect();
+        let c = digit_challenge(&h0, &w);
+        let v: Vec<Vec<Vec<i64>>> = u_dig
+            .iter()
+            .map(|uj| uj.iter().map(|un| poly_mul_small(&c, un)).collect())
+            .collect();
+        let flat_v: Vec<i64> = v.iter().flatten().flatten().copied().collect();
+        // Concentration restart rule: the center bundle must sit inside the
+        // concentration bound the parameters were sized with.
+        if vec_norm_sq_i64(&flat_v) > dp.center_sq {
+            restarts += 1;
+            continue;
+        }
+        let z: Vec<Vec<Vec<i64>>> = y
+            .iter()
+            .zip(v.iter())
+            .map(|(yj, vj)| {
+                yj.iter()
+                    .zip(vj.iter())
+                    .map(|(yn, vn)| yn.iter().zip(vn.iter()).map(|(&a, &b)| a + b).collect())
+                    .collect()
+            })
+            .collect();
+        let flat_z: Vec<i64> = z.iter().flatten().flatten().copied().collect();
+        if rejection_accept(rng, &flat_z, &flat_v, dp.sigma) {
+            return (DigitOpeningProof { t_digits, w, z }, attempts, restarts);
+        }
+    }
+}
+
+fn verify_opening_digits(
+    ctx_ring: &RingCtx,
+    dp: &DigitParams,
+    crs: &Crs,
+    t: &[Poly],
+    ctx: &[u8],
+    proof: &DigitOpeningProof,
+) -> bool {
+    let zq = &ctx_ring.zq;
+    if proof.t_digits.len() != DIGIT_L || proof.w.len() != DIGIT_L || proof.z.len() != DIGIT_L {
+        return false;
+    }
+    for j in 0..DIGIT_L {
+        if proof.t_digits[j].len() != KAPPA || proof.w[j].len() != KAPPA || proof.z[j].len() != N_R
+        {
+            return false;
+        }
+    }
+    // 1. Recombination: sum_j 2^(ej) t_j = t mod q (public, exact).
+    for r in 0..KAPPA {
+        let mut acc = poly_zero();
+        for j in 0..DIGIT_L {
+            let scale = zq.to_mod(1i64 << (DIGIT_E as usize * j));
+            for i in 0..D {
+                acc[i] = zq.add(acc[i], zq.mul(scale, proof.t_digits[j][r][i]));
+            }
+        }
+        if acc != t[r] {
+            return false;
+        }
+    }
+    // 2. Bundle norm (exact integers; the prototype stand-in for the exact
+    //    per-digit ct-range claims of the full protocol).
+    let flat: Vec<i64> = proof.z.iter().flatten().flatten().copied().collect();
+    if vec_norm_sq_i64(&flat) > dp.bound_sq {
+        return false;
+    }
+    // 3. Per-digit Sigma equations, ring mults on the split kernel.
+    let h0 = digit_statement_hash(zq.q, crs, t, &proof.t_digits, ctx);
+    let c = digit_challenge(&h0, &proof.w);
+    let c_mod = poly_from_small_g(zq, &c);
+    for j in 0..DIGIT_L {
+        let lhs = ring_matvec_small_g(zq, &crs.a1, KAPPA, N_R, &proof.z[j]);
+        for r in 0..KAPPA {
+            let rhs = poly_add_g(zq, &proof.w[j][r], &ring_mul_split(ctx_ring, &c_mod, &proof.t_digits[j][r]));
+            if lhs[r] != rhs {
+                return false;
+            }
+        }
+    }
+    true
+}
+
+// ===========================================================================
+// A2 (U4): Karatsuba on the split halves, and the amortized-split GEMM
+// commit kernels the measurement gate benchmarks. The split transforms
+// amortize in GEMM-shaped work exactly like NTT transforms would: A1 rows
+// are split once per CRS, each randomness column once per commit, all MACs
+// run in the split domain, one merge per output row.
+
+/// Plain (non-cyclic) polynomial product of two length-n slices, length
+/// 2n - 1, Karatsuba above `cutoff` (schoolbook with lazy u128 below).
+fn kara_polymul(zq: &Zq, a: &[u64], b: &[u64], cutoff: usize) -> Vec<u64> {
+    let n = a.len();
+    if n <= cutoff || n % 2 == 1 {
+        let mut wide = vec![0u128; 2 * n - 1];
+        for i in 0..n {
+            if a[i] == 0 {
+                continue;
+            }
+            let ai = a[i] as u128;
+            for j in 0..n {
+                wide[i + j] += ai * b[j] as u128;
+            }
+        }
+        return wide.iter().map(|&x| (x % zq.q as u128) as u64).collect();
+    }
+    let h = n / 2;
+    let (a0, a1) = a.split_at(h);
+    let (b0, b1) = b.split_at(h);
+    let p0 = kara_polymul(zq, a0, b0, cutoff);
+    let p2 = kara_polymul(zq, a1, b1, cutoff);
+    let sa: Vec<u64> = (0..h).map(|i| zq.add(a0[i], a1[i])).collect();
+    let sb: Vec<u64> = (0..h).map(|i| zq.add(b0[i], b1[i])).collect();
+    let p1 = kara_polymul(zq, &sa, &sb, cutoff);
+    let mut out = vec![0u64; 2 * n - 1];
+    for i in 0..2 * h - 1 {
+        out[i] = zq.add(out[i], p0[i]);
+        out[i + 2 * h] = zq.add(out[i + 2 * h], p2[i]);
+        let mid = zq.sub(zq.sub(p1[i], p0[i]), p2[i]);
+        out[i + h] = zq.add(out[i + h], mid);
+    }
+    out
+}
+
+/// Karatsuba slot multiplication in F_q[X]/(X^m - s).
+fn slot_mul_kara(zq: &Zq, a: &[u64], b: &[u64], s: u64, m: usize, cutoff: usize) -> Vec<u64> {
+    let wide = kara_polymul(zq, a, b, cutoff);
+    (0..m)
+        .map(|t| {
+            let hi = if t + m < 2 * m - 1 { wide[t + m] } else { 0 };
+            zq.add(wide[t], zq.mul(s, hi))
+        })
+        .collect()
+}
+
+/// k-way split multiplication with Karatsuba slot kernels.
+fn ring_mul_split_kara(ctx: &RingCtx, a: &[u64], b: &[u64], cutoff: usize) -> Poly {
+    let sa = crt_split(ctx, a);
+    let sb = crt_split(ctx, b);
+    let mut out = vec![0u64; D];
+    let m = ctx.slot_deg;
+    for i in 0..ctx.k {
+        let prod = slot_mul_kara(
+            &ctx.zq,
+            &sa[i * m..(i + 1) * m],
+            &sb[i * m..(i + 1) * m],
+            ctx.slot_roots[i],
+            m,
+            cutoff,
+        );
+        out[i * m..(i + 1) * m].copy_from_slice(&prod);
+    }
+    crt_merge(ctx, &mut out);
+    out
+}
+
+/// Amortized-split GEMM commit kernel: `a_split` holds the pre-split rows
+/// of the commitment matrix (split once per CRS -- outside the per-commit
+/// cost), `rho_mod` the mod-q randomness columns. Each column is split
+/// once, all row x column MACs run schoolbook per slot on u128 lazy
+/// accumulators, and each output row pays one fold + merge.
+fn commit_kernel_split(ctx: &RingCtx, a_split: &[Vec<u64>], rows: usize, cols: usize, rho_mod: &[Poly]) -> Vec<Poly> {
+    let zq = &ctx.zq;
+    let m = ctx.slot_deg;
+    let rho_split: Vec<Vec<u64>> = rho_mod.iter().map(|r| crt_split(ctx, r)).collect();
+    (0..rows)
+        .map(|r| {
+            // Per slot, a 2m-wide accumulator: cols * m products of < q^2
+            // each stay far below u128.
+            let mut wide = vec![0u128; 2 * D];
+            for c in 0..cols {
+                let a = &a_split[r * cols + c];
+                let x = &rho_split[c];
+                for slot in 0..ctx.k {
+                    let base = slot * m;
+                    for i in 0..m {
+                        let ai = a[base + i] as u128;
+                        if ai == 0 {
+                            continue;
+                        }
+                        for j in 0..m {
+                            wide[2 * base + i + j] += ai * x[base + j] as u128;
+                        }
+                    }
+                }
+            }
+            let mut out = vec![0u64; D];
+            for slot in 0..ctx.k {
+                let s = ctx.slot_roots[slot];
+                let base = slot * m;
+                for t in 0..m {
+                    let lo = (wide[2 * base + t] % zq.q as u128) as u64;
+                    let hi = (wide[2 * base + t + m] % zq.q as u128) as u64;
+                    out[base + t] = zq.add(lo, zq.mul(s, hi));
+                }
+            }
+            crt_merge(ctx, &mut out);
+            out
+        })
+        .collect()
+}
+
+/// Same kernel with Karatsuba slot products (per row x column x slot, with
+/// modular accumulation of the reduced products).
+fn commit_kernel_split_kara(
+    ctx: &RingCtx,
+    a_split: &[Vec<u64>],
+    rows: usize,
+    cols: usize,
+    rho_mod: &[Poly],
+    cutoff: usize,
+) -> Vec<Poly> {
+    let zq = &ctx.zq;
+    let m = ctx.slot_deg;
+    let rho_split: Vec<Vec<u64>> = rho_mod.iter().map(|r| crt_split(ctx, r)).collect();
+    (0..rows)
+        .map(|r| {
+            let mut acc = vec![0u128; 2 * D]; // reduced products (< q) accumulate lazily
+            for c in 0..cols {
+                let a = &a_split[r * cols + c];
+                let x = &rho_split[c];
+                for slot in 0..ctx.k {
+                    let base = slot * m;
+                    let prod = kara_polymul(zq, &a[base..base + m], &x[base..base + m], cutoff);
+                    for (t, &p) in prod.iter().enumerate() {
+                        acc[2 * base + t] += p as u128;
+                    }
+                }
+            }
+            let mut out = vec![0u64; D];
+            for slot in 0..ctx.k {
+                let s = ctx.slot_roots[slot];
+                let base = slot * m;
+                for t in 0..m {
+                    let lo = (acc[2 * base + t] % zq.q as u128) as u64;
+                    let hi = if t < m - 1 { (acc[2 * base + t + m] % zq.q as u128) as u64 } else { 0 };
+                    out[base + t] = zq.add(lo, zq.mul(s, hi));
+                }
+            }
+            crt_merge(ctx, &mut out);
+            out
+        })
+        .collect()
+}
+
+// ---------------------------------------------------------------------------
+// Fixed-buffer Karatsuba (the fair A2 measurement): the naive recursive
+// version above heap-allocates at every node and loses its op-count
+// advantage at these degrees; these variants run on stack arrays with i128
+// lazy combination and a single final reduction. Depth 2 for the k = 2
+// degree-64 slots (3 x 3 x 16-schoolbook), depth 1 for the k = 8 degree-16
+// slots (3 x 8-schoolbook). Bounds: operands < q < 2^60, level sums < 4q,
+// base products accumulate <= 16 terms -> < 2^8 q^2 < 2^128.
+
+#[inline]
+fn school_acc<const N: usize, const W: usize>(a: &[u64], b: &[u64], out: &mut [u128; W]) {
+    for i in 0..N {
+        if a[i] == 0 {
+            continue;
+        }
+        let ai = a[i] as u128;
+        for j in 0..N {
+            out[i + j] += ai * b[j] as u128;
+        }
+    }
+}
+
+/// 32 x 32 Karatsuba into a 63-length i128 accumulator (+=).
+fn kara32_acc(a: &[u64], b: &[u64], out: &mut [i128]) {
+    let mut p0 = [0u128; 31];
+    let mut p2 = [0u128; 31];
+    let mut p1 = [0u128; 31];
+    let mut sa = [0u64; 16];
+    let mut sb = [0u64; 16];
+    for i in 0..16 {
+        sa[i] = a[i] + a[i + 16];
+        sb[i] = b[i] + b[i + 16];
+    }
+    school_acc::<16, 31>(&a[0..16], &b[0..16], &mut p0);
+    school_acc::<16, 31>(&a[16..32], &b[16..32], &mut p2);
+    school_acc::<16, 31>(&sa, &sb, &mut p1);
+    for i in 0..31 {
+        out[i] += p0[i] as i128;
+        out[i + 32] += p2[i] as i128;
+        out[i + 16] += p1[i] as i128 - p0[i] as i128 - p2[i] as i128;
+    }
+}
+
+/// 64 x 64 Karatsuba (depth 2) into a 127-length i128 accumulator (+=).
+fn kara64_acc(a: &[u64], b: &[u64], out: &mut [i128]) {
+    let mut p0 = [0i128; 63];
+    let mut p2 = [0i128; 63];
+    let mut p1 = [0i128; 63];
+    let mut sa = [0u64; 32];
+    let mut sb = [0u64; 32];
+    for i in 0..32 {
+        sa[i] = a[i] + a[i + 32];
+        sb[i] = b[i] + b[i + 32];
+    }
+    kara32_acc(&a[0..32], &b[0..32], &mut p0);
+    kara32_acc(&a[32..64], &b[32..64], &mut p2);
+    kara32_acc(&sa, &sb, &mut p1);
+    for i in 0..63 {
+        out[i] += p0[i];
+        out[i + 64] += p2[i];
+        out[i + 32] += p1[i] - p0[i] - p2[i];
+    }
+}
+
+/// 16 x 16 Karatsuba (depth 1) into a 31-length i128 accumulator (+=).
+fn kara16_acc(a: &[u64], b: &[u64], out: &mut [i128]) {
+    let mut p0 = [0u128; 15];
+    let mut p2 = [0u128; 15];
+    let mut p1 = [0u128; 15];
+    let mut sa = [0u64; 8];
+    let mut sb = [0u64; 8];
+    for i in 0..8 {
+        sa[i] = a[i] + a[i + 8];
+        sb[i] = b[i] + b[i + 8];
+    }
+    school_acc::<8, 15>(&a[0..8], &b[0..8], &mut p0);
+    school_acc::<8, 15>(&a[8..16], &b[8..16], &mut p2);
+    school_acc::<8, 15>(&sa, &sb, &mut p1);
+    for i in 0..15 {
+        out[i] += p0[i] as i128;
+        out[i + 16] += p2[i] as i128;
+        out[i + 8] += p1[i] as i128 - p0[i] as i128 - p2[i] as i128;
+    }
+}
+
+/// Karatsuba plain product for slot degrees 16/32/64 (+= into `out`, which
+/// must hold 2m - 1 entries; entries may go negative transiently).
+fn kara_acc(a: &[u64], b: &[u64], m: usize, out: &mut [i128]) {
+    match m {
+        64 => kara64_acc(a, b, out),
+        32 => kara32_acc(a, b, out),
+        16 => kara16_acc(a, b, out),
+        _ => panic!("unsupported slot degree {m}"),
+    }
+}
+
+fn reduce_i128(zq: &Zq, x: i128) -> u64 {
+    let r = (x % zq.q as i128) as i64;
+    zq.to_mod(r)
+}
+
+/// Slot product via fixed-buffer Karatsuba: F_q[X]/(X^m - s).
+fn slot_mul_kara_fast(zq: &Zq, a: &[u64], b: &[u64], s: u64, m: usize) -> Vec<u64> {
+    let mut wide = vec![0i128; 2 * m - 1];
+    kara_acc(a, b, m, &mut wide);
+    (0..m)
+        .map(|t| {
+            let lo = reduce_i128(zq, wide[t]);
+            let hi = if t + m < 2 * m - 1 { reduce_i128(zq, wide[t + m]) } else { 0 };
+            zq.add(lo, zq.mul(s, hi))
+        })
+        .collect()
+}
+
+/// k-way split multiplication with fixed-buffer Karatsuba slot kernels.
+fn ring_mul_split_kara_fast(ctx: &RingCtx, a: &[u64], b: &[u64]) -> Poly {
+    let sa = crt_split(ctx, a);
+    let sb = crt_split(ctx, b);
+    let mut out = vec![0u64; D];
+    let m = ctx.slot_deg;
+    for i in 0..ctx.k {
+        let prod = slot_mul_kara_fast(
+            &ctx.zq,
+            &sa[i * m..(i + 1) * m],
+            &sb[i * m..(i + 1) * m],
+            ctx.slot_roots[i],
+            m,
+        );
+        out[i * m..(i + 1) * m].copy_from_slice(&prod);
+    }
+    crt_merge(ctx, &mut out);
+    out
+}
+
+/// Amortized-split GEMM commit kernel with fixed-buffer Karatsuba MACs:
+/// the i128 slot accumulators absorb whole columns before the single
+/// reduction (cols * 2^8 q^2 must stay below 2^127 -- fine to ~2^40 cols
+/// at q31).
+fn commit_kernel_split_kara_fast(
+    ctx: &RingCtx,
+    a_split: &[Vec<u64>],
+    rows: usize,
+    cols: usize,
+    rho_mod: &[Poly],
+) -> Vec<Poly> {
+    let zq = &ctx.zq;
+    let m = ctx.slot_deg;
+    let rho_split: Vec<Vec<u64>> = rho_mod.iter().map(|r| crt_split(ctx, r)).collect();
+    (0..rows)
+        .map(|r| {
+            let mut wide = vec![0i128; 2 * D];
+            for c in 0..cols {
+                let a = &a_split[r * cols + c];
+                let x = &rho_split[c];
+                for slot in 0..ctx.k {
+                    let base = slot * m;
+                    kara_acc(
+                        &a[base..base + m],
+                        &x[base..base + m],
+                        m,
+                        &mut wide[2 * base..2 * base + 2 * m - 1],
+                    );
+                }
+            }
+            let mut out = vec![0u64; D];
+            for slot in 0..ctx.k {
+                let s = ctx.slot_roots[slot];
+                let base = slot * m;
+                for t in 0..m {
+                    let lo = reduce_i128(zq, wide[2 * base + t]);
+                    let hi = if t < m - 1 { reduce_i128(zq, wide[2 * base + t + m]) } else { 0 };
+                    out[base + t] = zq.add(lo, zq.mul(s, hi));
+                }
+            }
+            crt_merge(ctx, &mut out);
+            out
+        })
+        .collect()
+}
+
 // ---------------------------------------------------------------------------
 // Self-test.
+
+/// Min-of-batches timing: robust against transient load from the other
+/// agents sharing this machine (the per-batch minimum approximates the
+/// unloaded rate).
+fn time_us<F: FnMut()>(reps: usize, mut f: F) -> f64 {
+    let batches = 5;
+    let per = (reps / batches).max(1);
+    let mut best = f64::INFINITY;
+    for _ in 0..batches {
+        let t = Instant::now();
+        for _ in 0..per {
+            f();
+        }
+        best = best.min(t.elapsed().as_secs_f64() * 1e6 / per as f64);
+    }
+    best
+}
 
 fn assert_true(label: &str, cond: bool) {
     if cond {
@@ -879,5 +1949,444 @@ fn main() {
     println!("    commit (x: {MSG_R} ring elems = {} slots)  {com_ms:8.1} ms", MSG_R * D);
     println!("    prove opening (r = 1, {attempts} attempt(s)) {prove_ms:8.1} ms");
     println!("    verify opening                        {verify_ms:8.1} ms");
+
+    // =====================================================================
+    // --- 10. Q3: the k = 8 split at q8 = 17 mod 32 -----------------------
+    println!("\nQ3: k = 8 split, q8 = {Q8} = 2^31 - 399 (q8 mod 32 = {})", Q8 % 32);
+    let zq8 = Zq::new(Q8);
+    assert_true("q8 = 17 mod 32 (v2(q8-1) = 4)", Q8 % 32 == 17);
+    assert_true("eta^8 = -1 mod q8 (primitive 16th root)", zq8.pow(ETA8, 8) == Q8 - 1);
+    let ctx8 = ring_ctx(Q8, ETA8, 8);
+    assert_true(
+        "8 slot roots are the odd powers of eta (X^128 + 1 = prod X^16 - eta^odd)",
+        ctx8.slot_roots.len() == 8
+            && ctx8.slot_roots.iter().all(|&s| zq8.pow(s, 8) == Q8 - 1),
+    );
+    let ls18_8 = (Q8 as f64).powf(1.0 / 8.0) / 8f64.sqrt();
+    println!(
+        "  LS18 bound at k = 8: q^(1/8)/sqrt(8) = {ls18_8:.2}; quinary-diff margin {:.2}x",
+        ls18_8 / 4.0
+    );
+    assert_true("LS18 bound covers quinary differences at k = 8", 4.0 < ls18_8);
+
+    // k = 2 generic ctx at the legacy modulus reproduces the legacy kernel.
+    let ctx2 = ring_ctx(Q, SQRT_M1, 2);
+    let g_ab = ring_mul_split(&ctx2, &a, &b);
+    assert_true("generic k = 2 split (at q31) matches legacy negacyclic mul", g_ab == ab);
+
+    // Split/merge round-trip and split-mul vs schoolbook at q8.
+    let mut rnd8 = 0x8888_0001u64;
+    let mut all_ok = true;
+    let mut roundtrip_ok = true;
+    for _ in 0..25 {
+        let x8: Poly = (0..D).map(|_| rng_field_g(&mut rnd8, Q8)).collect();
+        let y8: Poly = (0..D).map(|_| rng_field_g(&mut rnd8, Q8)).collect();
+        let mut rt = crt_split(&ctx8, &x8);
+        crt_merge(&ctx8, &mut rt);
+        if rt != x8 {
+            roundtrip_ok = false;
+        }
+        if ring_mul_split(&ctx8, &x8, &y8) != poly_mul_g(&zq8, &x8, &y8) {
+            all_ok = false;
+        }
+    }
+    assert_true("8-way CRT split/merge round-trip (25 random elements)", roundtrip_ok);
+    assert_true("k = 8 split mul matches negacyclic schoolbook (25 random pairs)", all_ok);
+
+    // LS18 in practice at k = 8: challenge differences inverted through all
+    // 8 degree-16 slots (ext-gcd per slot), inv * diff = 1 in R_q8.
+    let mut all_inv8 = true;
+    let mut worst_linf8 = 0u64;
+    for trial in 0..100u64 {
+        let mut xr = XofReader::new("trial8", &[&trial.to_le_bytes()]);
+        let c1 = xr.next_challenge();
+        let c2 = xr.next_challenge();
+        if c1 == c2 {
+            continue;
+        }
+        let diff: Vec<i64> = c1.iter().zip(c2.iter()).map(|(&x, &y)| x - y).collect();
+        let diff_mod = poly_from_small_g(&zq8, &diff);
+        worst_linf8 = worst_linf8.max(poly_linf_g(&zq8, &diff_mod));
+        match poly_inv_g(&ctx8, &diff_mod) {
+            Some(inv) => {
+                let one = ring_mul_split(&ctx8, &inv, &diff_mod);
+                let mut expected = poly_zero();
+                expected[0] = 1;
+                if one != expected {
+                    all_inv8 = false;
+                }
+            }
+            None => all_inv8 = false,
+        }
+    }
+    assert_true(
+        &format!("100 challenge differences invertible at k = 8 (worst ||diff||_inf = {worst_linf8})"),
+        all_inv8 && (worst_linf8 as f64) < ls18_8,
+    );
+    // Negative control: zero in one of the 8 slots -> genuine zero divisor.
+    let x8: Poly = (0..D).map(|_| rng_field_g(&mut rnd8, Q8)).collect();
+    let mut buf8 = crt_split(&ctx8, &x8);
+    for v in buf8[0..ctx8.slot_deg].iter_mut() {
+        *v = 0;
+    }
+    let mut zero_slot8 = buf8.clone();
+    crt_merge(&ctx8, &mut zero_slot8);
+    assert_true(
+        "zero-in-one-of-8-slots element is NOT invertible",
+        poly_inv_g(&ctx8, &zero_slot8).is_none(),
+    );
+    assert_true(
+        "  ... and its l_inf is above the k = 8 LS18 bound",
+        poly_linf_g(&zq8, &zero_slot8) as f64 >= ls18_8,
+    );
+    // 8-slot elementwise products (the H3 Hadamard density point).
+    let mk8 = |vals: [u64; 8]| -> Poly {
+        let mut buf = vec![0u64; D];
+        for (i, &v) in vals.iter().enumerate() {
+            buf[i * ctx8.slot_deg] = v;
+        }
+        crt_merge(&ctx8, &mut buf);
+        buf
+    };
+    let xs = mk8([3, 1, 4, 1, 5, 9, 2, 6]);
+    let ys = mk8([2, 7, 1, 8, 2, 8, 1, 8]);
+    let prod8 = ring_mul_split(&ctx8, &xs, &ys);
+    let sp8 = crt_split(&ctx8, &prod8);
+    let expect8: [u64; 8] = [6, 7, 4, 8, 10, 72, 2, 48];
+    assert_true(
+        "slot-packed constants multiply slot-wise across 8 slots",
+        (0..8).all(|i| {
+            sp8[i * ctx8.slot_deg] == expect8[i]
+                && sp8[i * ctx8.slot_deg + 1..(i + 1) * ctx8.slot_deg].iter().all(|&v| v == 0)
+        }),
+    );
+
+    // --- 11. Q3: opening-proof Sigma round end-to-end at k = 8 -----------
+    let sp_8 = derive_sigma_params_g(Q8);
+    println!(
+        "  k = 8 Sigma round at q8: kappa={KAPPA} N_R={N_R} msg_r={MSG_R} sigma=2^{:.1} beta=2^{:.1} (C2 headroom {:.1} bits)",
+        (sp_8.sigma as f64).log2(),
+        (sp_8.beta as f64).log2(),
+        (Q8 as f64).log2() - (8.0 * sp_8.beta as f64).log2(),
+    );
+    let crs8 = expand_crs_g(43, Q8);
+    let rho8: Vec<Vec<i64>> = (0..N_R).map(|_| rng_ternary_poly(&mut rng)).collect();
+    let t1_8 = ring_matvec_small_g(&zq8, &crs8.a1, KAPPA, N_R, &rho8);
+    let ctx_bytes8 = b"route-r-k8-manifest-digest";
+    let t_prove8 = Instant::now();
+    let (proof8, attempts8) = prove_opening_g(&ctx8, &sp_8, &crs8, &t1_8, &rho8, ctx_bytes8, &mut rng);
+    let prove8_ms = t_prove8.elapsed().as_secs_f64() * 1e3;
+    let t_verify8 = Instant::now();
+    let ok8 = verify_opening_g(&ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &proof8);
+    let verify8_ms = t_verify8.elapsed().as_secs_f64() * 1e3;
+    assert_true(&format!("k = 8 valid opening proof verifies (attempts = {attempts8})"), ok8);
+    let mut bad8 = OpeningProof { w: proof8.w.clone(), z: proof8.z.clone() };
+    bad8.z[0][0] += 1;
+    assert_true(
+        "k = 8 tampered response coordinate fails",
+        !verify_opening_g(&ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &bad8),
+    );
+    let mut bad8w = OpeningProof { w: proof8.w.clone(), z: proof8.z.clone() };
+    bad8w.w[0][0] = zq8.add(bad8w.w[0][0], 1);
+    assert_true(
+        "k = 8 tampered first message fails",
+        !verify_opening_g(&ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &bad8w),
+    );
+    assert_true(
+        "k = 8 wrong context fails",
+        !verify_opening_g(&ctx8, &sp_8, &crs8, &t1_8, b"other-ctx", &proof8),
+    );
+    let mut t1_8bad = t1_8.clone();
+    t1_8bad[0][0] = zq8.add(t1_8bad[0][0], 1);
+    assert_true(
+        "k = 8 wrong statement fails",
+        !verify_opening_g(&ctx8, &sp_8, &crs8, &t1_8bad, ctx_bytes8, &proof8),
+    );
+    let mut overflow8 = OpeningProof { w: proof8.w.clone(), z: proof8.z.clone() };
+    overflow8.z[0][0] += Q8 as i64;
+    assert_true(
+        "k = 8 +q norm-overflow response fails (norm check only)",
+        !verify_opening_g(&ctx8, &sp_8, &crs8, &t1_8, ctx_bytes8, &overflow8),
+    );
+    println!("  k = 8 prove {prove8_ms:.1} ms, verify {verify8_ms:.1} ms");
+
+    // =====================================================================
+    // --- 12. Q2: digit-decomposed opening round at (k = 8, q8) -----------
+    println!(
+        "\nQ2: digit-decomposed opening round at (k = 8, q8), e = {DIGIT_E}, L = {DIGIT_L}, ||u||_inf <= {WIT_W}"
+    );
+    let dp = derive_digit_params(Q8);
+    println!(
+        "  digit chain: sigma=2^{:.1} beta=2^{:.1}; C2 8*beta=2^{:.1} < q8=2^31.0 (headroom {:.1} bits)",
+        (dp.sigma as f64).log2(),
+        (dp.beta as f64).log2(),
+        (8.0 * dp.beta as f64).log2(),
+        31.0 - (8.0 * dp.beta as f64).log2(),
+    );
+    println!(
+        "  undecomposed chain for the same witness: beta=2^{:.1}, needs q > 2^{:.1} -- does NOT fit q31",
+        (dp.beta_undecomposed as f64).log2(),
+        (8.0 * dp.beta_undecomposed as f64).log2(),
+    );
+    assert_true(
+        "undecomposed combination witness violates C2 at q8 (the Q2 premise)",
+        (Q8 as u128) <= 8 * dp.beta_undecomposed,
+    );
+    // Digit split/recombine sanity across the full witness range.
+    let mut digit_ok = true;
+    for x in (-WIT_W..=WIT_W).step_by(7) {
+        let digs = digit_decompose(x, DIGIT_E, DIGIT_L);
+        let rec: i64 = digs.iter().enumerate().map(|(j, &d)| d << (DIGIT_E as usize * j)).sum();
+        if rec != x || digs.iter().any(|&d| d.abs() > 1 << (DIGIT_E - 1)) {
+            digit_ok = false;
+        }
+    }
+    assert_true("balanced digit decompose/recombine round-trip on [-W, W]", digit_ok);
+
+    // Combination-magnitude witness and its statement.
+    let u_wide: Vec<Vec<i64>> = (0..N_R)
+        .map(|_| (0..D).map(|_| (splitmix64(&mut rng) % (2 * WIT_W as u64 + 1)) as i64 - WIT_W).collect())
+        .collect();
+    let t_wide = ring_matvec_small_g(&zq8, &crs8.a1, KAPPA, N_R, &u_wide);
+    let ctx_bytes_d = b"route-r-q2-digit-manifest";
+    let t_dprove = Instant::now();
+    let (dproof, dattempts, drestarts) =
+        prove_opening_digits(&ctx8, &dp, &crs8, &t_wide, &u_wide, ctx_bytes_d, &mut rng);
+    let dprove_ms = t_dprove.elapsed().as_secs_f64() * 1e3;
+    let t_dverify = Instant::now();
+    let dok = verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &dproof);
+    let dverify_ms = t_dverify.elapsed().as_secs_f64() * 1e3;
+    assert_true(
+        &format!("digit opening proof verifies (attempts = {dattempts}, restarts = {drestarts})"),
+        dok,
+    );
+
+    // Tamper battery.
+    // (a) wrong digit: one coordinate of one digit response.
+    let mut bad_d = DigitOpeningProof {
+        t_digits: dproof.t_digits.clone(),
+        w: dproof.w.clone(),
+        z: dproof.z.clone(),
+    };
+    bad_d.z[1][0][0] += 1;
+    assert_true(
+        "wrong digit (tampered digit response) fails",
+        !verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &bad_d),
+    );
+    // (b) digit out of range: a malicious decomposition that still
+    // recombines to u (digit 0 shifted by 2^17, digit 1 compensating by
+    // -2^13) but whose digits violate ||.||_inf <= 2^(e-1). Sigma equations
+    // and recombination both hold; only the norm/range layer can catch it.
+    // (Deterministic for this seed; the full protocol replaces the norm
+    // stand-in with exact ct-range claims.)
+    {
+        let shift = 1i64 << 17;
+        let mut u_dig = digit_split_witness(&u_wide, DIGIT_E, DIGIT_L);
+        for n in 0..N_R {
+            for i in 0..D {
+                u_dig[0][n][i] += shift;
+                u_dig[1][n][i] -= shift >> DIGIT_E;
+            }
+        }
+        let t_digits: Vec<Vec<Poly>> = u_dig
+            .iter()
+            .map(|uj| ring_matvec_small_g(&zq8, &crs8.a1, KAPPA, N_R, uj))
+            .collect();
+        let h0 = digit_statement_hash(Q8, &crs8, &t_wide, &t_digits, ctx_bytes_d);
+        let y: Vec<Vec<Vec<i64>>> = (0..DIGIT_L)
+            .map(|_| (0..N_R).map(|_| gaussian_ivec(&mut rng, D, dp.sigma)).collect())
+            .collect();
+        let w: Vec<Vec<Poly>> = y
+            .iter()
+            .map(|yj| ring_matvec_small_g(&zq8, &crs8.a1, KAPPA, N_R, yj))
+            .collect();
+        let c = digit_challenge(&h0, &w);
+        let z: Vec<Vec<Vec<i64>>> = y
+            .iter()
+            .zip(u_dig.iter())
+            .map(|(yj, uj)| {
+                yj.iter()
+                    .zip(uj.iter())
+                    .map(|(yn, un)| {
+                        let v = poly_mul_small(&c, un);
+                        yn.iter().zip(v.iter()).map(|(&a, &b)| a + b).collect()
+                    })
+                    .collect()
+            })
+            .collect();
+        let cheat = DigitOpeningProof { t_digits, w, z };
+        assert_true(
+            "digit out of range (recombining but oversized digits) fails",
+            !verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &cheat),
+        );
+    }
+    // (c) recombination mismatch: honest digit rounds on a DIFFERENT
+    // witness, claimed against t_wide. Every Sigma equation and the norm
+    // check pass; only the recombination check catches it.
+    {
+        let u_other: Vec<Vec<i64>> = (0..N_R)
+            .map(|_| {
+                (0..D).map(|_| (splitmix64(&mut rng) % (2 * WIT_W as u64 + 1)) as i64 - WIT_W).collect()
+            })
+            .collect();
+        let (cheat, _, _) =
+            prove_opening_digits(&ctx8, &dp, &crs8, &t_wide, &u_other, ctx_bytes_d, &mut rng);
+        assert_true(
+            "recombination mismatch (digits of a different witness) fails",
+            !verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &cheat),
+        );
+    }
+    // (d) context binding and (e) +q overflow, as in the other rounds.
+    assert_true(
+        "digit round wrong context fails",
+        !verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, b"other-ctx", &dproof),
+    );
+    let mut over_d = DigitOpeningProof {
+        t_digits: dproof.t_digits.clone(),
+        w: dproof.w.clone(),
+        z: dproof.z.clone(),
+    };
+    over_d.z[0][0][0] += Q8 as i64;
+    assert_true(
+        "digit round +q norm-overflow fails (norm check only)",
+        !verify_opening_digits(&ctx8, &dp, &crs8, &t_wide, ctx_bytes_d, &over_d),
+    );
+    let dig_kb = (DIGIT_L * KAPPA * D * 2 * 31) as f64 / 8.0 / 1024.0
+        + (DIGIT_L * N_Z) as f64 * ((dp.sigma as f64).log2() + 4.0) / 8.0 / 1024.0;
+    println!(
+        "  digit prove {dprove_ms:.1} ms, verify {dverify_ms:.1} ms, proof ~{dig_kb:.1} KB (L = {DIGIT_L} digit statements + responses)"
+    );
+
+    // =====================================================================
+    // --- 13. U4/A2: ring-mult and commit-kernel benchmarks by method -----
+    println!("\nU4/A2: multiplication and commit-kernel benchmarks (single-thread, this machine)");
+
+    // Correctness of the Karatsuba kernels first.
+    let kara2 = ring_mul_split_kara(&ctx2, &a, &b, 16);
+    assert_true("k = 2 split + Karatsuba matches legacy negacyclic mul", kara2 == ab);
+    let bx8: Poly = (0..D).map(|_| rng_field_g(&mut rnd8, Q8)).collect();
+    let by8: Poly = (0..D).map(|_| rng_field_g(&mut rnd8, Q8)).collect();
+    assert_true(
+        "k = 8 split + Karatsuba matches schoolbook at q8",
+        ring_mul_split_kara(&ctx8, &bx8, &by8, 8) == poly_mul_g(&zq8, &bx8, &by8),
+    );
+    assert_true(
+        "fixed-buffer Karatsuba matches (k = 2 and k = 8)",
+        ring_mul_split_kara_fast(&ctx2, &a, &b) == ab
+            && ring_mul_split_kara_fast(&ctx8, &bx8, &by8) == poly_mul_g(&zq8, &bx8, &by8),
+    );
+    // Commit kernels against the naive matvec baseline (same rho).
+    let rho_mod: Vec<Poly> = rho.iter().map(|r| poly_from_small(r)).collect();
+    let a1_split2: Vec<Vec<u64>> = crs.a1.iter().map(|p| crt_split(&ctx2, p)).collect();
+    let t1_naive = ring_matvec_small(&crs.a1, KAPPA, &rho);
+    assert_true(
+        "k = 2 amortized-split commit kernel matches naive matvec",
+        commit_kernel_split(&ctx2, &a1_split2, KAPPA, N_R, &rho_mod) == t1_naive,
+    );
+    assert_true(
+        "k = 2 amortized-split Karatsuba commit kernel matches",
+        commit_kernel_split_kara(&ctx2, &a1_split2, KAPPA, N_R, &rho_mod, 16) == t1_naive,
+    );
+    let rho8_mod: Vec<Poly> = rho8.iter().map(|r| poly_from_small_g(&zq8, r)).collect();
+    let a1_split8: Vec<Vec<u64>> = crs8.a1.iter().map(|p| crt_split(&ctx8, p)).collect();
+    assert_true(
+        "k = 8 amortized-split commit kernel matches naive matvec at q8",
+        commit_kernel_split(&ctx8, &a1_split8, KAPPA, N_R, &rho8_mod) == t1_8,
+    );
+    assert_true(
+        "k = 8 amortized-split Karatsuba commit kernel matches at q8",
+        commit_kernel_split_kara(&ctx8, &a1_split8, KAPPA, N_R, &rho8_mod, 8) == t1_8,
+    );
+    assert_true(
+        "fixed-buffer Karatsuba commit kernels match (k = 2 and k = 8)",
+        commit_kernel_split_kara_fast(&ctx2, &a1_split2, KAPPA, N_R, &rho_mod) == t1_naive
+            && commit_kernel_split_kara_fast(&ctx8, &a1_split8, KAPPA, N_R, &rho8_mod) == t1_8,
+    );
+
+    // Single ring multiplication, end to end (split + slot muls + merge).
+    let mut sink = 0u64;
+    let naive_us = time_us(2000, || {
+        let p = poly_mul(&a, &b);
+        sink ^= p[0];
+    });
+    let naive8_us = time_us(2000, || {
+        let p = poly_mul_g(&zq8, &bx8, &by8);
+        sink ^= p[0];
+    });
+    let k2_us = time_us(2000, || {
+        let p = ring_mul_split(&ctx2, &a, &b);
+        sink ^= p[0];
+    });
+    let k2k_us = time_us(2000, || {
+        let p = ring_mul_split_kara_fast(&ctx2, &a, &b);
+        sink ^= p[0];
+    });
+    let k8_us = time_us(5000, || {
+        let p = ring_mul_split(&ctx8, &bx8, &by8);
+        sink ^= p[0];
+    });
+    let k8k_us = time_us(5000, || {
+        let p = ring_mul_split_kara_fast(&ctx8, &bx8, &by8);
+        sink ^= p[0];
+    });
+    std::hint::black_box(sink);
+    println!("  ring multiplication (d = 128, one product, transforms included):");
+    println!("    | method | us/mul | vs naive |");
+    for (name, us) in [
+        ("naive schoolbook @q31      ", naive_us),
+        ("naive schoolbook @q8       ", naive8_us),
+        ("k = 2 split @q31           ", k2_us),
+        ("k = 2 split + Kara @q31    ", k2k_us),
+        ("k = 8 split @q8            ", k8_us),
+        ("k = 8 split + Kara @q8     ", k8k_us),
+    ] {
+        println!("    | {name} | {us:6.2} | {:5.2}x |", naive_us / us);
+    }
+    println!("    | aux-NTT (A1)               |  pending -- see A1 agent |");
+
+    // Commit kernel, GEMM shape kappa x N_R = {KAPPA} x {N_R}: key rows
+    // pre-split once per CRS (amortized), columns split once per commit.
+    let macs = (KAPPA * N_R) as f64;
+    let com_naive_us = time_us(30, || {
+        let t = ring_matvec_small(&crs.a1, KAPPA, &rho);
+        sink ^= t[0][0];
+    });
+    let com_k2_us = time_us(60, || {
+        let t = commit_kernel_split(&ctx2, &a1_split2, KAPPA, N_R, &rho_mod);
+        sink ^= t[0][0];
+    });
+    let com_k2k_us = time_us(60, || {
+        let t = commit_kernel_split_kara_fast(&ctx2, &a1_split2, KAPPA, N_R, &rho_mod);
+        sink ^= t[0][0];
+    });
+    let com_k8_us = time_us(200, || {
+        let t = commit_kernel_split(&ctx8, &a1_split8, KAPPA, N_R, &rho8_mod);
+        sink ^= t[0][0];
+    });
+    let com_k8k_us = time_us(200, || {
+        let t = commit_kernel_split_kara_fast(&ctx8, &a1_split8, KAPPA, N_R, &rho8_mod);
+        sink ^= t[0][0];
+    });
+    std::hint::black_box(sink);
+    println!(
+        "  commit kernel t1 = A1 rho ({KAPPA} x {N_R} ring MACs; naive exploits ternary sparsity, split kernels are dense):"
+    );
+    println!("    | method | us/commit | us/ring-MAC | ring-MACs/s | vs naive |");
+    for (name, us) in [
+        ("naive i128 matvec (ternary) ", com_naive_us),
+        ("k = 2 amortized split       ", com_k2_us),
+        ("k = 2 split + Karatsuba     ", com_k2k_us),
+        ("k = 8 amortized split @q8   ", com_k8_us),
+        ("k = 8 split + Karatsuba @q8 ", com_k8k_us),
+    ] {
+        println!(
+            "    | {name} | {us:8.1} | {:6.3} | {:.2e} | {:5.2}x |",
+            us / macs,
+            macs / us * 1e6,
+            com_naive_us / us
+        );
+    }
+    println!("    | aux-NTT GEMM (A1)          |  pending -- see A1 agent |");
+
     println!("ring_lattice self-test ok");
 }
