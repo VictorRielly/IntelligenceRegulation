@@ -26,6 +26,14 @@ The backend-agnostic statement format for multi-claim DAGs is specified
 in `CLAIM_MANIFEST.md`; design details, soundness arguments, test
 evidence and benchmarks are in `M0_M1_REPORT.md`.
 
+The lattice track additionally implements the M2 elementwise gadget
+family (Hadamard/binary claims, packed range proofs, rescale-with-
+rounding; `M2_REPORT.md`, including the exit-criterion cost finding) and
+the M3 end-to-end quantized FFN block demo (`lattice_matmul ffn-demo`:
+two chained matmul claims, bias-broadcast link, rescale + ranges,
+sign-bit/Hadamard/range ReLU, transpose links, Class-0 residual, all
+under one claim manifest; `M3_REPORT.md`).
+
 ## What The Code Implements
 
 The implementation proves committed matrix multiplication statements:
