@@ -55,8 +55,8 @@ measured lattice cost model at 7B/512-token scale:
 |---|---|---|---|
 | Today: Route Z CPU + M0-M2 gadgets | ~3.6 h | ~1,900x | ~3x10^5 |
 | + Tier-1 kernels (ternary add/sub commits, IFMA, deeper blocking; ~3x) | ~1.2 h | ~630x | ~10^5 |
-| + Route R ring lift (~15x fewer commit ops via ring packing; r: 64 -> 1 on proofs; proofs to ~50-150 KB) | ~5 min | ~40x | ~6,000x |
-| + GPU integer GEMM for commit/prove kernels (~20x) | **~15 s** | **~2x** | ~300x |
+| + Route R ring lift at k=2 (r: 64 -> 1 on proofs; ~2-3x on commit ops -- corrected from ~15x by ROUTE_R_DESIGN.md: q = 5 mod 8 caps CRT splitting at one level, no full NTT; proofs to ~50-175 KB) | ~2-4 min | ~20-35x | -- |
+| + Route R Q2/Q3 (response decomposition to a 32-bit q; deeper k-split with real NTT) + GPU integer GEMM | **~15 s** | **~2x** | ~300x |
 | + bit-packing / lookup-based ranges (2-4x on gadget commitments) | ~5-10 s | ~1-1.5x | ~100-200x |
 
 Reality checks on the endpoint:
@@ -76,6 +76,18 @@ Reality checks on the endpoint:
   this scale; tracked as research-engineering, not assumed in the table.
   Small-field hash-based systems (sumcheck/FRI/Binius lineage; zkLLM at
   ~15 min for 13B) remain the alternative frontier, without PQ hiding.
+
+**Route R spike update (ROUTE_R_DESIGN.md):** the spike verified the
+ring lift end-to-end (working r=1 prototype, quinary challenge set
+after finding ternary-at-d=128 misses the FS budget by ~54 bits, a
+ct-engine design for the scalar-claim soundness gap) and corrected two
+assumptions: commit-op savings at the recommended k=2 split are ~2-3x,
+not ~15x, and the elementwise gadget family lands at ~17 us/element
+(meeting the M2 criterion by design, ~6000x below Route Z's measured
+108 ms). Consequence: Route R at k=2 reaches ~20-35x CPU-int8
+inference; the 2x endpoint is now gated on the spike's Q2 (response
+decomposition -> 32-bit modulus) and Q3 (deeper CRT split -> real NTT),
+both scoped in the design doc.
 
 ## 3b. The 2x-overhead decomposition (refined target)
 
