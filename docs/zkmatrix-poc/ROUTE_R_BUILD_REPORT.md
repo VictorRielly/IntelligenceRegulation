@@ -179,14 +179,25 @@ roadmap's flagged extrapolations.
 
 ## 5. Recommended next steps (in order)
 
-1. **The automorphism gate design round** (the new critical-path item):
-   adapt ALS20's trace/automorphism product machinery to the packed
-   matmul statement, with the target of restoring r = 1 for Pi2's gate;
-   entry criterion: equations reviewed against ALS20 Fig. 2-3 before
-   code (the discipline that caught F1/F2 this time).
+1. **The automorphism gate design round** — DONE, same session:
+   `AUTOMORPHISM_GATE_DESIGN.md` + the `gate-spike` prototype. The
+   trace-gate identity is machine-verified at (k = 8, q8_31) including
+   the dense full-group point: junk-free, per-slot 2^-296, r = 1
+   restored ALGEBRAICALLY, zero commit-bill penalty. The measured
+   frontier law (executions x 1/density = 128) picks the operating
+   point; the remaining build risk is the amortized-opening composition
+   (Q-A1: digit-decomposed amortized responses decide ~100-200 KB vs
+   ~0.7 MB per claim). Next tranche: the protocol composition
+   (U-A1..U-A4 in the design doc).
 2. The gadget-layer modulus decision (F3): price q46-budget binary
-   claims vs the modulus-pair link on the FFN bit-tensor fraction.
+   claims vs the modulus-pair link on the FFN bit-tensor fraction —
+   note the link machinery is shared with the gate's option 2 (Q-A4).
 3. Q5 estimator run at the frozen point; Q4 lemma write-up (now also
-   covering garbage-term simulation and the ARP slack).
+   covering garbage-term simulation, the ARP slack, and Q-A2's
+   twisted-execution ZK aggregate).
 4. GPU kernels (unchanged from the roadmap) — the commit bill is
    arithmetic-layer-complete and unaffected by F1/F2.
+
+A `freeze-check` subcommand (and suite test) now runs EVERY derive-time
+budget of the frozen point in one gate — the permanent guard against
+F3-class cross-tranche parameter drift.

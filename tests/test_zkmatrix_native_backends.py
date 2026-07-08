@@ -110,6 +110,30 @@ class NativeBackendTests(unittest.TestCase):
         # gadget family, ring-Pi2 — with the transferred negative batteries.
         subprocess.run([str(RING_MATMUL_BINARY), "self-test"], check=True)
 
+    def test_ring_freeze_check(self):
+        # Every derive-time budget of the frozen Route R operating point in
+        # one gate (the F3 guard): any parameter move must keep this green.
+        result = subprocess.run(
+            [str(RING_MATMUL_BINARY), "freeze-check"],
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+        )
+        self.assertIn("freeze-check passed", result.stdout)
+
+    def test_ring_gate_spike(self):
+        # The automorphism (trace) gate algebra — the F2 resolution
+        # candidate: subgroup frontier, junk-free gate identities at three
+        # subgroup points AND the dense full-group point, tampered-C
+        # negatives (AUTOMORPHISM_GATE_DESIGN.md).
+        result = subprocess.run(
+            [str(RING_MATMUL_BINARY), "gate-spike"],
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+        )
+        self.assertIn("gate-spike passed", result.stdout)
+
     def test_ring_chain_demo(self):
         # Route R chain integration: one claim manifest binding a Pi2
         # matmul layer, a rescale + range/binary gadget wave and a

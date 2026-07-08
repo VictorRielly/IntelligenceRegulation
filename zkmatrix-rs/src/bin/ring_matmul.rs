@@ -2609,8 +2609,501 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
     println!("chain-demo passed");
 }
 
+// ===========================================================================
+// freeze-check: EVERY derive-time gate of the frozen operating point in one
+// place, run as a single subcommand. Finding F3 happened because a modulus
+// decision in one tranche silently invalidated a budget derived in another;
+// this is the permanent guard: any parameter move must keep this green, and
+// a red freeze-check blocks the move until every budget is re-derived.
+// Exit code 0 = every gate holds; 1 = at least one budget broke.
+
+fn freeze_check() {
+    use ring::ct_engine::{arp_budget_ok, derive_arp_params};
+    use ring::params::{a1_enforce, witness_coeff_bound};
+    println!("freeze-check: every derive-time gate at the frozen point (k = 8, q8_31, e in {{2,3,4}})");
+    let mut all_ok = true;
+    let mut gate = |label: &str, ok: bool| {
+        println!("  {} {label}", if ok { "ok  " } else { "FAIL" });
+        all_ok &= ok;
+    };
+
+    // C0' — LS18 invertibility margins.
+    gate("C0' LS18 quinary margin at (k=8, q8_31) > 1 (measured 1.30x)", ls18_margin(Q8, 8) > 1.0);
+    gate("C0' LS18 quinary margin at (k=8, q8_46) > 1 (fallback modulus)", ls18_margin(ring::Q8_46, 8) > 1.0);
+    // C1' — challenge-set budget (static: 5^128 = 2^297.2 >= 2^257).
+    gate("C1' quinary d=128 challenge budget (2^297.2 >= 2^257)", 128.0 * 5.0f64.log2() >= 257.0);
+
+    // C2-C4 — the digit chains at the frozen shapes (headroom >= 1 bit).
+    for (label, rows, inner, cols, e, kappa, n_r) in [
+        ("Pi2 2048^3 e=2", 2048, 2048, 2048, 2u32, 8usize, 40usize),
+        ("Pi2 2048^3 e=3", 2048, 2048, 2048, 3, 8, 40),
+        ("Pi2 2048^3 e=4", 2048, 2048, 2048, 4, 9, 40),
+        ("FFN 512x4096x11008 e=4", 512, 4096, 11008, 4, 9, 57),
+    ] {
+        match derive_digits(Proto::Pi2, rows, inner, cols, 0, Q8, true, e) {
+            Some(p) => gate(
+                &format!("C2-C4 {label}: kappa={} N_r={} headroom {:.1} bits", p.kappa, p.n_r, p.c2_headroom_bits()),
+                p.kappa == kappa && p.n_r == n_r && p.c2_headroom_bits() >= 1.0,
+            ),
+            None => gate(&format!("C2-C4 {label}: point fits q31"), false),
+        }
+    }
+
+    // P0 — A1 kernel regimes at the FFN point (fits SOME helper path).
+    {
+        let p = derive_digits(Proto::Pi2, 512, 4096, 11008, 0, Q8, true, 4).unwrap();
+        let lines = a1_enforce(Q8, p.n_r, p.sigma, isqrt_u128(p.bound_sq));
+        for line in &lines {
+            println!("       P0 {:<58} -> {}", line.name, line.path);
+        }
+        gate("P0 A1 regimes all dispatch at the FFN point", !lines.is_empty());
+    }
+
+    // Gadget-layer side-condition budgets (the F3 gate, both directions).
+    let ap = derive_arp_params(512, 256, 1, 3.0);
+    gate("ARP binary side-condition budget closes at q8_46", arp_budget_ok(&ap, (ring::Q8_46 / 2) as f64));
+    gate(
+        "ARP binary side-condition budget at q8_31 is KNOWN-OPEN (must stay excluded, not assumed)",
+        !arp_budget_ok(&ap, (Q8 / 2) as f64),
+    );
+
+    // Pi2 gate accounting (F2): the scalar gate's full-grade repetition
+    // count at the frozen b — a change here means the gate design moved.
+    let b_bits = 6u32;
+    let r_full = (256.0 / (b_bits as f64 - 2.0)).ceil() as usize;
+    gate(&format!("Pi2 scalar-gate full grade r_g = {r_full} at b = {b_bits} (r=1 pending the trace-gate round)"), r_full == 64);
+    // Gate digit chain at the demo shape must keep fitting.
+    {
+        let e_s2 = (1u64 << (2 * b_bits)) as f64 / 3.0;
+        let w_u = 1.3 * (128.0 * D as f64 * e_s2 * (2.0 / 3.0)).sqrt();
+        let l_dig = ((w_u.log2() + 1.0) / 4.0).ceil() as usize;
+        let p = derive_digits(Proto::Pi2, 128, 256, 64, 0, Q8, true, 4).unwrap();
+        let dp = derive_digit_params(Q8, p.kappa, p.n_r, 4, l_dig, w_u.ceil() as i64);
+        gate(
+            &format!("Pi2 gate digit chain (e=4, L={l_dig}) fits q31 at the demo shape (sigma 2^{:.1})", (dp.sigma as f64).log2()),
+            (dp.sigma as f64).log2() < 31.0 - 8.0,
+        );
+    }
+
+    if all_ok {
+        println!("freeze-check passed");
+    } else {
+        println!("freeze-check FAILED — a frozen budget broke; re-derive before moving parameters");
+        std::process::exit(1);
+    }
+}
+
+// ===========================================================================
+// gate-spike: the algebra of the automorphism (trace) gate — the F2
+// resolution candidate — validated numerically BEFORE any protocol code
+// (the equations-first discipline). Full design: AUTOMORPHISM_GATE_DESIGN.md.
+//
+// Construction. Gal(R_q) = { sigma_t : X -> X^t, t odd mod 2D }, order D.
+// For a subgroup H of order h, the partial trace T(y) := sum_{sigma in H}
+// sigma(y) kills a monomial X^e iff its H-orbit picks up a sign flip
+// (t e = e + D mod 2D for some sigma_t in H) — sign-cancellation, not
+// projection. Let K(H) := { e != 0 : T(X^e) = 0 } be the killed set.
+//
+// Pack rows/columns on a support S subset [0, D) whose pairwise
+// differences (mod D) all lie in K(H). Then for the pair products
+// P_ij := conj(apack_i) bpack_j (whose junk lives exactly on the
+// difference set of S):
+//
+//     T(P_ij) = h * ct(P_ij) * 1 = h * C[i][j] * 1   (a CONSTANT).
+//
+// With twisted-challenge combinations xa^sigma := sum_i sigma(s_i) apack_i
+// (challenges twisted, packings NOT — sigma(s) is still quinary, a valid
+// small combination):
+//
+//   G_A := sum_{sigma in H} sigma^{-1}( conj(xa^sigma) * xb^sigma )
+//        = sum_ij conj(s_i) v_j * T(P_ij)          (weights OUTSIDE T)
+//        = h * sum_ij conj(s_i) v_j * C[i][j],
+//
+// and the C-side object built the same way from the C commitments,
+//   G_C := sum_sigma sigma^{-1}( conj(shat^sigma) * xc^sigma ),
+//   shat^sigma := sum_i sigma(s_i) X^{pos_i},
+// equals the same expression. G_A = G_C as RING elements iff the
+// (ring-challenge-weighted) defect matrix vanishes — per-slot
+// Schwartz-Zippel, 2^-296-class, r = 1. The junk never reaches the
+// comparison: this is what the naive ring gate (finding F2) lacked.
+//
+// Cost shape: h twisted execution triples (openings amortizable a la
+// ALS20) x 1/density(S) commit-density loss. The spike tabulates the
+// (h, density) frontier and checks the amortized-opening norm growth
+// against the q31/q46 C2 headroom.
+
+fn apply_auto(zq: &ring::Zq, a: &[u64], t: usize) -> Poly {
+    let mut out = poly_zero();
+    for k in 0..D {
+        if a[k] == 0 {
+            continue;
+        }
+        let e = (t * k) % (2 * D);
+        if e < D {
+            out[e] = zq.add(out[e], a[k]);
+        } else {
+            out[e - D] = zq.sub(out[e - D], a[k]);
+        }
+    }
+    out
+}
+
+/// Elements of the cyclic subgroup <g> of (Z/2D)*, optionally with the
+/// conjugation coset adjoined.
+fn subgroup_elems(g: usize, with_conj: bool) -> Vec<usize> {
+    let m = 2 * D;
+    let mut elems = vec![1usize];
+    let mut cur = g % m;
+    while cur != 1 {
+        elems.push(cur);
+        cur = (cur * g) % m;
+    }
+    if with_conj {
+        let base = elems.clone();
+        for t in base {
+            elems.push((t * (m - 1)) % m);
+        }
+    }
+    elems
+}
+
+fn trace_h(zq: &ring::Zq, a: &[u64], subgroup: &[usize]) -> Poly {
+    let mut acc = poly_zero();
+    for &t in subgroup {
+        let s = apply_auto(zq, a, t);
+        for k in 0..D {
+            acc[k] = zq.add(acc[k], s[k]);
+        }
+    }
+    acc
+}
+
+/// K(H): killed exponents (T(X^e) = 0) for e in 1..D.
+fn killed_set(zq: &ring::Zq, subgroup: &[usize]) -> Vec<bool> {
+    let mut killed = vec![false; D];
+    for e in 1..D {
+        let mut x = poly_zero();
+        x[e] = 1;
+        killed[e] = trace_h(zq, &x, subgroup).iter().all(|&c| c == 0);
+    }
+    killed
+}
+
+/// Greedy max-density support with all pairwise differences (mod D, both
+/// signs) inside the killed set.
+fn greedy_support(killed: &[bool]) -> Vec<usize> {
+    let mut s: Vec<usize> = Vec::new();
+    for p in 0..D {
+        let ok = s.iter().all(|&p0| {
+            let d1 = (p + D - p0) % D;
+            let d2 = (p0 + D - p) % D;
+            (d1 == 0 || killed[d1]) && (d2 == 0 || killed[d2])
+        });
+        if ok {
+            s.push(p);
+        }
+    }
+    s
+}
+
+fn gate_spike() {
+    println!("gate-spike: the trace-gate algebra at (k = 8, q8_31) — see AUTOMORPHISM_GATE_DESIGN.md");
+    let ring_ctx = ring_ctx_q8();
+    let zq = ring_ctx.zq;
+    let mut rng = 0x5eed_000au64;
+
+    // Sanity: sigma_t are ring automorphisms (multiplicativity, 20 random).
+    let mut ok_auto = true;
+    for &t in &[3usize, 5, 129, 255, 251] {
+        for _ in 0..4 {
+            let a = rng_poly_mod(&mut rng, Q8);
+            let b = rng_poly_mod(&mut rng, Q8);
+            let lhs = apply_auto(&zq, &poly_mul_g(&zq, &a, &b), t);
+            let rhs = poly_mul_g(&zq, &apply_auto(&zq, &a, t), &apply_auto(&zq, &b, t));
+            ok_auto &= lhs == rhs;
+        }
+    }
+    assert_true("sigma_t multiplicative (ring automorphisms)", ok_auto);
+    // Full-group trace extracts d * ct (the classical identity).
+    {
+        let full = subgroup_elems(5, true); // <5> x <-1> = the full group, order 128
+        assert_true("full automorphism group has order 128", full.len() == 128);
+        let a = rng_poly_mod(&mut rng, Q8);
+        let tr = trace_h(&zq, &a, &full);
+        let want_ct = zq.mul(zq.to_mod(D as i64), a[0]);
+        assert_true(
+            "full trace = d * ct (junk fully killed)",
+            tr[0] == want_ct && tr[1..].iter().all(|&c| c == 0),
+        );
+    }
+
+    // The (h, density) frontier: subgroups <5^(64/h)> with/without conj.
+    println!("\n  subgroup frontier (killed exponents -> max support density):");
+    println!("  | H | order h | killed |K| | greedy |S| | density | execs x 1/density |");
+    let mut frontier: Vec<(String, Vec<usize>, Vec<usize>)> = Vec::new();
+    for log_h in 1..=6u32 {
+        let h = 1usize << log_h;
+        let g = ring::aux::pow_q(5, (64 / h) as u64, 256) as usize;
+        for with_conj in [false, true] {
+            let sub = subgroup_elems(g, with_conj);
+            let killed = killed_set(&zq, &sub);
+            let n_killed = killed.iter().filter(|&&k| k).count();
+            let s = greedy_support(&killed);
+            let label = if with_conj { format!("<5^{}, conj>", 64 / h) } else { format!("<5^{}>", 64 / h) };
+            println!(
+                "  | {label:<14} | {:>3} | {n_killed:>3} | {:>3} | {:.3} | {:.1} |",
+                sub.len(),
+                s.len(),
+                s.len() as f64 / D as f64,
+                sub.len() as f64 * D as f64 / s.len() as f64,
+            );
+            frontier.push((label, sub, s));
+        }
+    }
+
+    // End-to-end gate identity at the best frontier points: pick the
+    // largest-density entries with h <= 64 and verify G_A = G_C.
+    let mut tested = 0;
+    for (label, sub, s) in &frontier {
+        if s.len() < 8 || sub.len() > 128 {
+            continue;
+        }
+        let (rows, cols) = (5usize, 4usize);
+        let inner = s.len();
+        // Rows/columns packed on the support S.
+        let pack_s = |vals: &[u64]| -> Poly {
+            let mut p = poly_zero();
+            for (idx, &pos) in s.iter().enumerate() {
+                p[pos] = vals[idx];
+            }
+            p
+        };
+        let a_rows: Vec<Vec<u64>> =
+            (0..rows).map(|_| (0..inner).map(|_| rng_below(&mut rng, Q8)).collect()).collect();
+        let b_cols: Vec<Vec<u64>> =
+            (0..cols).map(|_| (0..inner).map(|_| rng_below(&mut rng, Q8)).collect()).collect();
+        let c_mat: Vec<Vec<u64>> = (0..rows)
+            .map(|i| {
+                (0..cols)
+                    .map(|j| {
+                        let mut acc = 0u64;
+                        for k in 0..inner {
+                            acc = zq.add(acc, zq.mul(a_rows[i][k], b_cols[j][k]));
+                        }
+                        acc
+                    })
+                    .collect()
+            })
+            .collect();
+        let apack: Vec<Poly> = a_rows.iter().map(|r| pack_s(r)).collect();
+        let bpack: Vec<Poly> = b_cols.iter().map(|c| pack_s(c)).collect();
+        // C columns packed at the ROW positions pos_i (rows <= |S|).
+        let cpack: Vec<Poly> = (0..cols)
+            .map(|j| {
+                let mut p = poly_zero();
+                for i in 0..rows {
+                    p[s[i]] = c_mat[i][j];
+                }
+                p
+            })
+            .collect();
+        let sch: Vec<Vec<i64>> = (0..rows).map(|_| rng_quinary_poly(&mut rng)).collect();
+        let vch: Vec<Vec<i64>> = (0..cols).map(|_| rng_quinary_poly(&mut rng)).collect();
+
+        let combine = |polys: &[Poly], ch: &[Vec<i64>], t: usize| -> Poly {
+            let mut acc = poly_zero();
+            for (p, c) in polys.iter().zip(ch.iter()) {
+                let c_mod = poly_from_small(&zq, c);
+                let tc = apply_auto(&zq, &c_mod, t);
+                let prod = poly_mul_g(&zq, &tc, p);
+                acc = poly_add(&zq, &acc, &prod);
+            }
+            acc
+        };
+        let m = 2 * D;
+        let inv_t = |t: usize| -> usize {
+            (1..m).step_by(2).find(|&u| (t * u) % m == 1).unwrap()
+        };
+        let mut g_a = poly_zero();
+        let mut g_c = poly_zero();
+        for &t in sub {
+            // A-side: F^sigma = conj(xa^sigma) * xb^sigma.
+            let xa = combine(&apack, &sch, t);
+            let xb = combine(&bpack, &vch, t);
+            let f = poly_mul_g(&zq, &poly_conj(&zq, &xa), &xb);
+            g_a = poly_add(&zq, &g_a, &apply_auto(&zq, &f, inv_t(t)));
+            // C-side: conj(shat^sigma) * xc^sigma with
+            // shat^sigma = sum_i sigma(s_i) X^{pos_i}.
+            let mut shat = poly_zero();
+            for i in 0..rows {
+                let c_mod = poly_from_small(&zq, &sch[i]);
+                let tc = apply_auto(&zq, &c_mod, t);
+                let mut xi = poly_zero();
+                xi[s[i]] = 1;
+                let term = poly_mul_g(&zq, &tc, &xi);
+                shat = poly_add(&zq, &shat, &term);
+            }
+            let xc = combine(&cpack, &vch, t);
+            let e = poly_mul_g(&zq, &poly_conj(&zq, &shat), &xc);
+            g_c = poly_add(&zq, &g_c, &apply_auto(&zq, &e, inv_t(t)));
+        }
+        assert_true(
+            &format!("gate identity G_A = G_C at H = {label} (h = {}, density {:.2}, junk-free by construction)", sub.len(), s.len() as f64 / D as f64),
+            g_a == g_c,
+        );
+        // Reference value: h * sum_ij conj(s_i) v_j C[i][j].
+        let mut want = poly_zero();
+        for i in 0..rows {
+            for j in 0..cols {
+                let si = poly_conj(&zq, &poly_from_small(&zq, &sch[i]));
+                let vj = poly_from_small(&zq, &vch[j]);
+                let w = poly_mul_g(&zq, &si, &vj);
+                let scaled = ring::poly_scale(&zq, c_mat[i][j], &w);
+                want = poly_add(&zq, &want, &scaled);
+            }
+        }
+        let want = ring::poly_scale(&zq, zq.to_mod(sub.len() as i64), &want);
+        assert_true(
+            &format!("G_A = h * sum conj(s_i) v_j C[i][j] exactly at H = {label}"),
+            g_a == want,
+        );
+        // Negative: C wrong in one entry -> the identity must fail.
+        let mut cpack_bad = cpack.clone();
+        cpack_bad[0][s[0]] = zq.add(cpack_bad[0][s[0]], 1);
+        let mut g_c_bad = poly_zero();
+        for &t in sub {
+            let mut shat = poly_zero();
+            for i in 0..rows {
+                let c_mod = poly_from_small(&zq, &sch[i]);
+                let tc = apply_auto(&zq, &c_mod, t);
+                let mut xi = poly_zero();
+                xi[s[i]] = 1;
+                shat = poly_add(&zq, &shat, &poly_mul_g(&zq, &tc, &xi));
+            }
+            let xc = combine(&cpack_bad, &vch, t);
+            let e = poly_mul_g(&zq, &poly_conj(&zq, &shat), &xc);
+            g_c_bad = poly_add(&zq, &g_c_bad, &apply_auto(&zq, &e, inv_t(t)));
+        }
+        assert_true(
+            &format!("gate identity fails on tampered C at H = {label}"),
+            g_a != g_c_bad,
+        );
+        tested += 1;
+        if tested >= 3 {
+            break;
+        }
+    }
+    assert_true("at least 3 frontier points verified end-to-end", tested >= 3);
+    // The RECOMMENDED point: the full group (h = 128, density 1.0 — dense
+    // packing, no support claims, no commit-bill penalty; all cost in the
+    // amortizable twisted executions). Same identity, dense random rows.
+    {
+        let (label, sub, s) = frontier.last().unwrap().clone();
+        assert_true(
+            &format!("full-group point is dense (h = {}, |S| = {})", sub.len(), s.len()),
+            sub.len() == 128 && s.len() == D,
+        );
+        let _ = label;
+        // Re-run the identity test body on the dense support: reuse by
+        // scoping a second pass over just this entry.
+        let (rows, cols) = (4usize, 3usize);
+        let inner = D;
+        let a_rows: Vec<Vec<u64>> =
+            (0..rows).map(|_| (0..inner).map(|_| rng_below(&mut rng, Q8)).collect()).collect();
+        let b_cols: Vec<Vec<u64>> =
+            (0..cols).map(|_| (0..inner).map(|_| rng_below(&mut rng, Q8)).collect()).collect();
+        let c_mat: Vec<Vec<u64>> = (0..rows)
+            .map(|i| {
+                (0..cols)
+                    .map(|j| {
+                        let mut acc = 0u64;
+                        for k in 0..inner {
+                            acc = zq.add(acc, zq.mul(a_rows[i][k], b_cols[j][k]));
+                        }
+                        acc
+                    })
+                    .collect()
+            })
+            .collect();
+        let apack: Vec<Poly> = a_rows.iter().map(|r| r.clone()).collect();
+        let bpack: Vec<Poly> = b_cols.iter().map(|c| c.clone()).collect();
+        let cpack: Vec<Poly> = (0..cols)
+            .map(|j| {
+                let mut p = poly_zero();
+                for i in 0..rows {
+                    p[i] = c_mat[i][j];
+                }
+                p
+            })
+            .collect();
+        let sch: Vec<Vec<i64>> = (0..rows).map(|_| rng_quinary_poly(&mut rng)).collect();
+        let vch: Vec<Vec<i64>> = (0..cols).map(|_| rng_quinary_poly(&mut rng)).collect();
+        let m = 2 * D;
+        let inv_t = |t: usize| -> usize { (1..m).step_by(2).find(|&u| (t * u) % m == 1).unwrap() };
+        let combine = |polys: &[Poly], ch: &[Vec<i64>], t: usize| -> Poly {
+            let mut acc = poly_zero();
+            for (p, c) in polys.iter().zip(ch.iter()) {
+                let tc = apply_auto(&zq, &poly_from_small(&zq, c), t);
+                acc = poly_add(&zq, &acc, &poly_mul_g(&zq, &tc, p));
+            }
+            acc
+        };
+        let mut g_a = poly_zero();
+        let mut g_c = poly_zero();
+        for &t in &sub {
+            let xa = combine(&apack, &sch, t);
+            let xb = combine(&bpack, &vch, t);
+            let f = poly_mul_g(&zq, &poly_conj(&zq, &xa), &xb);
+            g_a = poly_add(&zq, &g_a, &apply_auto(&zq, &f, inv_t(t)));
+            let mut shat = poly_zero();
+            for i in 0..rows {
+                let tc = apply_auto(&zq, &poly_from_small(&zq, &sch[i]), t);
+                let mut xi = poly_zero();
+                xi[i] = 1;
+                shat = poly_add(&zq, &shat, &poly_mul_g(&zq, &tc, &xi));
+            }
+            let xc = combine(&cpack, &vch, t);
+            let e = poly_mul_g(&zq, &poly_conj(&zq, &shat), &xc);
+            g_c = poly_add(&zq, &g_c, &apply_auto(&zq, &e, inv_t(t)));
+        }
+        assert_true(
+            "RECOMMENDED POINT: full-trace gate identity, DENSE packing (h = 128, density 1.0, no support claims)",
+            g_a == g_c,
+        );
+        let mut cpack_bad = cpack.clone();
+        cpack_bad[0][0] = zq.add(cpack_bad[0][0], 1);
+        let mut g_c_bad = poly_zero();
+        for &t in &sub {
+            let mut shat = poly_zero();
+            for i in 0..rows {
+                let tc = apply_auto(&zq, &poly_from_small(&zq, &sch[i]), t);
+                let mut xi = poly_zero();
+                xi[i] = 1;
+                shat = poly_add(&zq, &shat, &poly_mul_g(&zq, &tc, &xi));
+            }
+            let xc = combine(&cpack_bad, &vch, t);
+            let e = poly_mul_g(&zq, &poly_conj(&zq, &shat), &xc);
+            g_c_bad = poly_add(&zq, &g_c_bad, &apply_auto(&zq, &e, inv_t(t)));
+        }
+        assert_true("full-trace gate identity fails on tampered C", g_a != g_c_bad);
+    }
+
+    // Amortized-opening headroom lines (the parameter tension for the doc):
+    // ALS20-amortized openings of the 3h twisted combos grow the response
+    // norm ~ sqrt(3h) -> beta gains 0.5 log2(3h) bits.
+    println!("\n  amortized-opening norm growth vs C2 headroom:");
+    for h in [16usize, 32, 64, 128] {
+        let extra_bits = 0.5 * (3.0 * h as f64).log2();
+        println!(
+            "  | h = {h:>3} | +{extra_bits:.1} bits on beta | q31 e=2 headroom 2.9 bits: {} | q46 headroom ~17 bits: ok |",
+            if extra_bits < 2.9 { "fits" } else { "DOES NOT FIT (batch or q46 gate layer)" },
+        );
+    }
+    println!("\ngate-spike passed");
+}
+
 fn usage() {
-    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3>");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike");
     std::process::exit(2);
 }
 
@@ -2632,6 +3125,8 @@ fn main() {
             let dims: Vec<usize> = args[1..5].iter().map(|s| s.parse().expect("dim")).collect();
             chain_demo(dims[0], dims[1], dims[2], dims[3]);
         }
+        Some("freeze-check") => freeze_check(),
+        Some("gate-spike") => gate_spike(),
         _ => usage(),
     }
 }
