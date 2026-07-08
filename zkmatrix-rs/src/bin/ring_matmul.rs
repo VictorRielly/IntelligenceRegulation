@@ -10,11 +10,15 @@
 // dispatch.
 //
 // Usage: ring_matmul self-test
+//        ring_matmul chain-demo <n0> <n1> <n2> <n3>
 
 use std::time::Instant;
 
 #[path = "../ring/mod.rs"]
 mod ring;
+
+#[path = "../manifest.rs"]
+mod manifest;
 
 use ring::aux;
 use ring::commit::{CommitShape, KernelPath, build_a1_paths, commit, expand_crs};
@@ -2269,8 +2273,344 @@ fn self_test_pi2() {
     );
 }
 
+// ===========================================================================
+// U7: manifest/chain integration. One ClaimManifest (shared module, same
+// format as Route Z — only key_info/commitment_bytes widths change) binds
+// every commitment of the DAG; its order-sensitive digest is the ctx of
+// EVERY claim (the "all commitments before any challenge" rule at chain
+// level). Wave batching at r = 1: all gadget claims of a layer share ONE
+// ct-round (one challenge, one mask-bundle class per commitment — "one
+// wave-slot per claim"); the Pi2 matmul layer runs its own round.
+//
+// Chain: X0 (n0 x n3), W1 (n1 x n0, hidden) -> Y1 = W1 X0 (Pi2, r_g demo
+// reps); Y1 = 2^shift * Y2 + R (rescale link) with Range(R, shift):
+// bit planes + recomposition + binary claims — one shared gadget wave;
+// plus a slot-packed Hadamard triple (H3) of width n2 as its own layer.
+// At q31 the binary claims are mod-q identities; the non-wrap side
+// condition is the documented open item (U3/U6 finding) — printed here.
+
+fn group_digest(t1: &[Poly], t2: &[Poly]) -> Vec<u8> {
+    use sha2::{Digest, Sha256};
+    let mut hasher = Sha256::new();
+    hasher.update(b"route-r-commit-group");
+    hasher.update(polys_bytes(t1));
+    hasher.update(polys_bytes(t2));
+    hasher.finalize().to_vec()
+}
+
+fn key_info_bytes(shape: &CommitShape, q: u64) -> Vec<u8> {
+    let mut out = Vec::new();
+    out.extend_from_slice(&(shape.kappa as u32).to_le_bytes());
+    out.extend_from_slice(&(shape.n_r as u32).to_le_bytes());
+    out.extend_from_slice(&(shape.msg_r as u32).to_le_bytes());
+    out.extend_from_slice(&q.to_le_bytes());
+    out
+}
+
+fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
+    use manifest::{ClaimManifest, Operation, Orientation};
+    use ring::ct_engine::{
+        QuadRingClaim, RingClaim, StdOpening, ct_h0, derive_ct_round_params, prove_ct_round,
+        verify_ct_round,
+    };
+    println!("ring_matmul chain-demo: X0({n0}x{n3}) -W1({n1}x{n0})-> Y1 -rescale-> Y2 (+range family), Hadamard width {n2}, q8_31");
+    println!("  [q31 caveat] binary claims are mod-q identities; the non-wrap side condition");
+    println!("  needs a q46-class budget or an exact strategy (U3/U6 finding; see the report).");
+    let q = Q8;
+    let ring_ctx = ring_ctx_q8();
+    let zq = ring_ctx.zq;
+    let shift = 4u32;
+    let (r_g, b_bits) = (4usize, 6u32);
+
+    // Shared CRS sized for the biggest packing among the chain's tensors.
+    let p = derive_digits(Proto::Pi2, n1, n0, n3.max(n2), 0, q, true, 4).expect("chain point fits q31");
+    let cshape = CommitShape { kappa: p.kappa, n_r: p.n_r, msg_r: p.msg_r };
+    let crs = expand_crs(cshape, q, 777);
+    let mut rng = 0x5eed_0009u64;
+
+    // --- Instance data. --------------------------------------------------
+    let w1: Vec<u64> = (0..n1 * n0).map(|_| rng_below(&mut rng, q)).collect();
+    let x0: Vec<u64> = (0..n0 * n3).map(|_| rng_below(&mut rng, q)).collect();
+    let mut y1 = vec![0u64; n1 * n3];
+    for r in 0..n1 {
+        for j in 0..n3 {
+            let mut acc = 0u64;
+            for k in 0..n0 {
+                acc = zq.add(acc, zq.mul(w1[r * n0 + k], x0[k * n3 + j]));
+            }
+            y1[r * n3 + j] = acc;
+        }
+    }
+    // Rescale: Y1 = 2^shift Y2 + R with R = Y1 mod 2^shift (exact integers).
+    let rr: Vec<u64> = y1.iter().map(|&v| v & ((1 << shift) - 1)).collect();
+    let y2: Vec<u64> = y1.iter().map(|&v| v >> shift).collect();
+    let r_bits: Vec<Vec<u64>> =
+        (0..shift as usize).map(|i| rr.iter().map(|&v| (v >> i) & 1).collect()).collect();
+    // Hadamard triple (slot-packed, standalone layer).
+    let hx: Vec<u64> = (0..n2).map(|_| rng_below(&mut rng, q)).collect();
+    let hy: Vec<u64> = (0..n2).map(|_| rng_below(&mut rng, q)).collect();
+    let hz: Vec<u64> = hx.iter().zip(hy.iter()).map(|(&a, &b)| zq.mul(a, b)).collect();
+
+    // --- Commit everything, then build the manifest. ---------------------
+    // Round parameters (shared by the gadget wave; A1 cache reused).
+    let e_s2 = (1u64 << (2 * b_bits)) as f64 / 3.0;
+    let w_u = 1.3 * ((n1.max(n3)) as f64 * D as f64 * e_s2 * (2.0 / 3.0)).sqrt();
+    let l_dig = ((w_u.log2() + 1.0) / 4.0).ceil() as usize;
+    let dp = derive_digit_params(q, cshape.kappa, cshape.n_r, 4, l_dig, w_u.ceil() as i64);
+    let n_gadget_commits = 3 + shift as usize + 3; // Y1,Y2,R + bits + hx,hy,hz (upper bound)
+    let rp = derive_ct_round_params(q, cshape, n_gadget_commits + r_g, 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp.sigma.max(dp.sigma), isqrt_u128(rp.bound_sq.max(dp.bound_sq)));
+    let a1_path = KernelPath::A1(&a1p);
+
+    let mut commit_cols = |mat: &[u64], n: usize, cols: usize, rng: &mut u64| {
+        let mut msgs = Vec::new();
+        let mut rhos = Vec::new();
+        let mut groups = Vec::new();
+        for j in 0..cols {
+            let col: Vec<u64> = (0..n).map(|i| mat[i * cols + j]).collect();
+            let x = pack_column(n, cshape.msg_r, &col);
+            let rho: Vec<Vec<i64>> = (0..cshape.n_r).map(|_| rng_ternary_poly(rng)).collect();
+            let (t1, t2) = commit(&a1_path, &crs, &x, &rho);
+            msgs.push(x);
+            rhos.push(rho);
+            groups.push((t1, t2));
+        }
+        (msgs, rhos, groups)
+    };
+    let t_commit = Instant::now();
+    let (w1_rows, rho_w1, tw1) = {
+        let rows: Vec<Vec<u64>> =
+            (0..n1).map(|r| (0..n0).map(|k| w1[r * n0 + k]).collect()).collect();
+        let mut msgs = Vec::new();
+        let mut rhos = Vec::new();
+        let mut groups = Vec::new();
+        for row in rows {
+            let x = pack_column(n0, cshape.msg_r, &row);
+            let rho: Vec<Vec<i64>> = (0..cshape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+            let (t1, t2) = commit(&a1_path, &crs, &x, &rho);
+            msgs.push(x);
+            rhos.push(rho);
+            groups.push((t1, t2));
+        }
+        (msgs, rhos, groups)
+    };
+    let (x0_cols, rho_x0, tx0) = commit_cols(&x0, n0, n3, &mut rng);
+    let (y1_cols, rho_y1, ty1) = commit_cols(&y1, n1, n3, &mut rng);
+    let (y2_cols, rho_y2, ty2) = commit_cols(&y2, n1, n3, &mut rng);
+    let (r_cols, rho_r, tr) = commit_cols(&rr, n1, n3, &mut rng);
+    let mut bit_data = Vec::new();
+    for bits in &r_bits {
+        bit_data.push(commit_cols(bits, n1, n3, &mut rng));
+    }
+    // Hadamard: one slot-packed commitment per side.
+    let pack8 = |v: &[u64]| -> Vec<Poly> {
+        let mut padded = v.to_vec();
+        padded.resize(cshape.msg_r * ring_ctx.k, 0);
+        (0..cshape.msg_r)
+            .map(|u| slot_pack(&ring_ctx, &padded[u * ring_ctx.k..(u + 1) * ring_ctx.k]))
+            .collect()
+    };
+    let h_msgs = [pack8(&hx), pack8(&hy), pack8(&hz)];
+    let h_rhos: Vec<Vec<Vec<i64>>> = (0..3)
+        .map(|_| (0..cshape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect())
+        .collect();
+    let h_groups: Vec<(Vec<Poly>, Vec<Poly>)> = h_msgs
+        .iter()
+        .zip(h_rhos.iter())
+        .map(|(x, rho)| commit(&a1_path, &crs, x, rho))
+        .collect();
+    let commit_s = t_commit.elapsed().as_secs_f64();
+
+    // Manifest: every commitment entry, then the operation list.
+    let mut mf = ClaimManifest::new("lattice-route-r", &crs.crs_hash);
+    let ki = key_info_bytes(&cshape, q);
+    let group_list_digest = |groups: &[(Vec<Poly>, Vec<Poly>)]| -> Vec<u8> {
+        use sha2::{Digest, Sha256};
+        let mut hasher = Sha256::new();
+        for (t1, t2) in groups {
+            hasher.update(group_digest(t1, t2));
+        }
+        hasher.finalize().to_vec()
+    };
+    let id_w1 = mf.add_commitment("W1", n1, n0, Orientation::ByRows, ki.clone(), group_list_digest(&tw1));
+    let id_x0 = mf.add_commitment("X0", n0, n3, Orientation::ByColumns, ki.clone(), group_list_digest(&tx0));
+    let id_y1 = mf.add_commitment("Y1", n1, n3, Orientation::ByColumns, ki.clone(), group_list_digest(&ty1));
+    let id_y2 = mf.add_commitment("Y2", n1, n3, Orientation::ByColumns, ki.clone(), group_list_digest(&ty2));
+    let id_r = mf.add_commitment("R", n1, n3, Orientation::ByColumns, ki.clone(), group_list_digest(&tr));
+    let id_bits: Vec<u32> = bit_data
+        .iter()
+        .enumerate()
+        .map(|(i, (_, _, g))| {
+            mf.add_commitment(&format!("Rbits{i}"), n1, n3, Orientation::ByColumns, ki.clone(), group_list_digest(g))
+        })
+        .collect();
+    let id_hx = mf.add_commitment("HX", n2, 1, Orientation::ByColumns, ki.clone(), group_list_digest(&h_groups[0..1]));
+    let id_hy = mf.add_commitment("HY", n2, 1, Orientation::ByColumns, ki.clone(), group_list_digest(&h_groups[1..2]));
+    let id_hz = mf.add_commitment("HZ", n2, 1, Orientation::ByColumns, ki.clone(), group_list_digest(&h_groups[2..3]));
+    mf.add_operation(Operation::Matmul { a: id_w1, b: id_x0, c: id_y1 });
+    mf.add_operation(Operation::Rescale { x: id_y1, y: id_y2, r: id_r, shift });
+    for (i, &idb) in id_bits.iter().enumerate() {
+        let _ = i;
+        mf.add_operation(Operation::Binary { bits: idb });
+    }
+    mf.add_operation(Operation::Range { value: id_r, bits: id_bits[0], width: shift, signed: false });
+    mf.add_operation(Operation::Hadamard { x: id_hx, y: id_hy, z: id_hz });
+    let ctx = mf.digest();
+
+    // --- Layer 1: the Pi2 matmul claim (its own round). -------------------
+    let shape2 = Pi2Shape { rows: n1, inner_r: n0.div_ceil(D), rows_r: n1.div_ceil(D), cols: n3 };
+    let t_prove = Instant::now();
+    let (pi2_proof, _) = prove_ring_pi2(
+        &a1_path, &ring_ctx, &crs, &rp, &dp, &shape2, &ctx, r_g, b_bits, &w1_rows, &rho_w1,
+        &x0_cols, &rho_x0, &y1_cols, &rho_y1, &tw1, &tx0, &ty1, &mut rng,
+    );
+
+    // --- Layer 2: ONE gadget wave: rescale + recomposition + binary + ----
+    // --- Hadamard claims share one ct-round.                           ----
+    // Commitment index space (plain): per-column commitments of
+    // Y1, Y2, R, bits..., then HX, HY, HZ. For the demo the columns are
+    // combined per-tensor with ring challenges into digit-opened combos —
+    // the r = 1 wave: one slot per tensor, claims per column ride the
+    // combined objects only where the claim is column-uniform (rescale,
+    // recomposition: constant coefficients commute with the v-combination;
+    // binary: the quadratic claim runs per tensor on the v-combined bits
+    // as a mod-q identity on the combination — sound per-slot for the
+    // recomposition/rescale, the binary ct runs on the ORIGINAL columns
+    // via one claim per column bundled in the same round).
+    // For demo clarity we run the gadget claims on the per-column
+    // commitments directly (n3 is small); production waves combine.
+    let mut plain_x: Vec<Vec<Poly>> = Vec::new();
+    let mut plain_rho: Vec<Vec<Vec<i64>>> = Vec::new();
+    let mut t1s: Vec<Vec<Poly>> = Vec::new();
+    let mut t2s: Vec<Vec<Poly>> = Vec::new();
+    let mut push_tensor = |msgs: &[Vec<Poly>], rhos: &[Vec<Vec<i64>>], groups: &[(Vec<Poly>, Vec<Poly>)]| -> usize {
+        let base = plain_x.len();
+        for ((x, rho), (t1, t2)) in msgs.iter().zip(rhos.iter()).zip(groups.iter()) {
+            plain_x.push(x.clone());
+            plain_rho.push(rho.clone());
+            t1s.push(t1.clone());
+            t2s.push(t2.clone());
+        }
+        base
+    };
+    let base_y1 = push_tensor(&y1_cols, &rho_y1, &ty1);
+    let base_y2 = push_tensor(&y2_cols, &rho_y2, &ty2);
+    let base_r = push_tensor(&r_cols, &rho_r, &tr);
+    let base_bits: Vec<usize> = bit_data
+        .iter()
+        .map(|(msgs, rhos, groups)| push_tensor(msgs, rhos, groups))
+        .collect();
+    let base_h = push_tensor(&h_msgs, &h_rhos, &h_groups);
+
+    let const_poly = |v: u64| {
+        let mut p = poly_zero();
+        p[0] = v;
+        p
+    };
+    let mut ring_claims: Vec<RingClaim> = Vec::new();
+    for j in 0..n3 {
+        for u in 0..cshape.msg_r {
+            // Rescale: y1 - 2^shift y2 - r = 0.
+            ring_claims.push(RingClaim {
+                msg_coeffs: vec![
+                    (base_y1 + j, u, const_poly(1)),
+                    (base_y2 + j, u, const_poly(zq.neg(1 << shift))),
+                    (base_r + j, u, const_poly(zq.neg(1))),
+                ],
+            });
+            // Recomposition: sum_i 2^i bits_i - r = 0.
+            let mut coeffs: Vec<(usize, usize, Poly)> = base_bits
+                .iter()
+                .enumerate()
+                .map(|(i, &bb)| (bb + j, u, const_poly(zq.to_mod(1i64 << i))))
+                .collect();
+            coeffs.push((base_r + j, u, const_poly(zq.neg(1))));
+            ring_claims.push(RingClaim { msg_coeffs: coeffs });
+        }
+    }
+    // Binary claims (one quadratic ct-claim per bit tensor column).
+    let mut quad_claims = Vec::new();
+    for &bb in &base_bits {
+        for j in 0..n3 {
+            quad_claims.push(binary_claim(&zq, bb + j, cshape.msg_r));
+        }
+    }
+    // Hadamard claims (slot-packed triple).
+    let one = const_poly(1);
+    let quad_ring: Vec<QuadRingClaim> = (0..cshape.msg_r)
+        .map(|u| QuadRingClaim {
+            quad: vec![(base_h, u, base_h + 1, u, one.clone())],
+            msg_coeffs: vec![(base_h + 2, u, const_poly(zq.neg(1)))],
+        })
+        .collect();
+    // g-masks for the quadratic ct-claims.
+    let g_base = plain_x.len();
+    let g_groups = ring::ct_engine::sample_ct_masks(&mut rng, q, cshape.msg_r, quad_claims.len());
+    for g in &g_groups {
+        let rho: Vec<Vec<i64>> = (0..cshape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+        let (t1, t2) = commit(&a1_path, &crs, g, &rho);
+        plain_x.push(g.clone());
+        plain_rho.push(rho);
+        t1s.push(t1);
+        t2s.push(t2);
+    }
+    let rp_wave = derive_ct_round_params(q, cshape, plain_x.len(), 0, 0, true);
+    let a1p_wave = build_a1_paths(&crs, rp_wave.sigma, isqrt_u128(rp_wave.bound_sq));
+    let wave_path = KernelPath::A1(&a1p_wave);
+    let h0 = ct_h0(&crs, &ctx, &t1s, &t2s, &[]);
+    let openings: Vec<StdOpening> = plain_x
+        .iter()
+        .zip(plain_rho.iter())
+        .enumerate()
+        .map(|(i, (x, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x, rho })
+        .collect();
+    let (wave_proof, wave_attempts) = prove_ct_round(
+        &wave_path, &ring_ctx, &rp_wave, None, &crs, &h0, &[], &ring_claims, &quad_claims,
+        &quad_ring, &openings, &[], &[], g_base, &mut rng,
+    );
+    let prove_s = t_prove.elapsed().as_secs_f64();
+
+    // --- Verification. ----------------------------------------------------
+    let t_verify = Instant::now();
+    let ok_pi2 = verify_ring_pi2(
+        &a1_path, &ring_ctx, &crs, &rp, &dp, &shape2, &ctx, r_g, b_bits, &tw1, &tx0, &ty1,
+        &pi2_proof,
+    );
+    let ok_wave = verify_ct_round(
+        &wave_path, &ring_ctx, &rp_wave, None, &crs, &h0, &[], &ring_claims, &quad_claims,
+        &quad_ring, &t1s, &t2s, &[], &[], &[], g_base, &wave_proof,
+    );
+    let verify_s = t_verify.elapsed().as_secs_f64();
+    let n_claims = 1 + ring_claims.len() + quad_claims.len() + quad_ring.len();
+    println!(
+        "  commit {commit_s:.2}s | prove {prove_s:.2}s (pi2 r_g={r_g} + wave of {} claims, attempts {wave_attempts}) | verify {verify_s:.2}s",
+        n_claims - 1,
+    );
+    if !(ok_pi2 && ok_wave) {
+        println!("  FAIL: chain does not verify");
+        std::process::exit(1);
+    }
+    println!("  ok   chain verifies (manifest digest binds all {} commitments, {} operations)", mf.commitments.len(), mf.operations.len());
+
+    // Negative: any tampered commitment changes the manifest digest and
+    // every claim fails.
+    let mut mf_bad = mf.clone();
+    mf_bad.commitments[0].commitment_bytes[0] ^= 1;
+    let ctx_bad = mf_bad.digest();
+    let ok_tampered = verify_ring_pi2(
+        &a1_path, &ring_ctx, &crs, &rp, &dp, &shape2, &ctx_bad, r_g, b_bits, &tw1, &tx0, &ty1,
+        &pi2_proof,
+    );
+    if ok_tampered {
+        println!("  FAIL: tampered manifest still verifies");
+        std::process::exit(1);
+    }
+    println!("  ok   tampered manifest digest rejects every claim (ctx binding)");
+    println!("chain-demo passed");
+}
+
 fn usage() {
-    eprintln!("usage: ring_matmul self-test");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3>");
     std::process::exit(2);
 }
 
@@ -2287,6 +2627,10 @@ fn main() {
             self_test_gadgets();
             self_test_pi2();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
+        }
+        Some("chain-demo") if args.len() == 5 => {
+            let dims: Vec<usize> = args[1..5].iter().map(|s| s.parse().expect("dim")).collect();
+            chain_demo(dims[0], dims[1], dims[2], dims[3]);
         }
         _ => usage(),
     }

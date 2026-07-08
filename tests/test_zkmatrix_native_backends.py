@@ -23,6 +23,7 @@ SECTION3_BINARY = RUST_CRATE / "target" / "release" / "section3_kzg"
 CURVE_IPA_BINARY = RUST_CRATE / "target" / "release" / "curve_ipa"
 STRUCTURED_MATRIX_BINARY = RUST_CRATE / "target" / "release" / "structured_matrix"
 LATTICE_MATMUL_BINARY = RUST_CRATE / "target" / "release" / "lattice_matmul"
+RING_MATMUL_BINARY = RUST_CRATE / "target" / "release" / "ring_matmul"
 
 
 def python_case(mode: str, n: int, seed: int, valid: bool) -> bool:
@@ -101,6 +102,25 @@ class NativeBackendTests(unittest.TestCase):
             stdout=subprocess.PIPE,
         )
         self.assertIn("structured chain-demo ok", result.stdout)
+
+    def test_ring_matmul_self_test(self):
+        # Route R protocol build (U1-U8): arithmetic differential battery,
+        # parameter-chain parity with scripts/route_r_params.py, opening +
+        # digit rounds, ct-engine (linear/quadratic claims, ARP), ring-Pi1,
+        # gadget family, ring-Pi2 — with the transferred negative batteries.
+        subprocess.run([str(RING_MATMUL_BINARY), "self-test"], check=True)
+
+    def test_ring_chain_demo(self):
+        # Route R chain integration: one claim manifest binding a Pi2
+        # matmul layer, a rescale + range/binary gadget wave and a
+        # slot-packed Hadamard, with the tampered-manifest negative.
+        result = subprocess.run(
+            [str(RING_MATMUL_BINARY), "chain-demo", "128", "128", "16", "4"],
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+        )
+        self.assertIn("chain-demo passed", result.stdout)
 
     def test_lattice_chain_demo(self):
         # M1 exit criterion (lattice track): dual-orientation commitments

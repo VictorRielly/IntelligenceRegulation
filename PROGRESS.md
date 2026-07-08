@@ -52,9 +52,25 @@ Full Route R protocol build, U1-U8 of `docs/zkmatrix-poc/ROUTE_R_DESIGN.md`
       commitments — does not type-check (ring challenges don't commute with
       general A); costed alternatives documented; critical path unaffected
       (Pi2 + structured gadget maps). Full write-up due in U8 docs.
-- [ ] U6 gadget family (binary/range/rescale ct-claims; k=8 slot Hadamard)
-- [ ] U5 ring-Pi2 gate (ct-engine product layer; r_g fallback behind flag)
-- [ ] U7 manifest/chain integration + wave batching + Z-oracle chain demos
+- [x] U6 gadget family — quadratic claim layer (sigma-twisted ct +
+      untwisted ring) added to the engine; binary (1 quad ct-claim/tensor,
+      ARP side condition at q46; q31 rejection asserted), range-W
+      recomposition (constant-coefficient ring claims), rescale link,
+      H3 slot Hadamard. Negative batteries throughout.
+- [x] U5 ring-Pi2 — scalar gate behind the r_g flag (equations worked on
+      paper first). CENTRAL FINDING: the ring-challenge gate does NOT
+      close (junk cross-correlations of P_ij pollute the ct through ring
+      weights); full-grade soundness needs r_g = ceil(256/(b-2)) scalar
+      reps (64 at b = 6) — the r = 1 lever does not survive Pi2's gate at
+      this design state (~202 KB/rep, ~12.6 MB full-grade vs the design's
+      ~117 KB projection). Resolution path: ALS20 automorphism/trace
+      machinery (its own design round). Vector/opening layers DO stay r=1.
+- [x] U7 manifest/chain integration — shared manifest.rs reused verbatim
+      (route-r key_info/commitment digests), chain-demo subcommand: one
+      manifest digest as ctx for every claim; Pi2 layer + ONE gadget wave
+      (rescale + recomposition + binary + Hadamard, 49 claims, one round);
+      tampered-manifest negative. Python suite gains ring_matmul self-test
+      + chain-demo tests (39 tests green).
 - [ ] U8 parameter freeze + estimator note + perf pass + docs
 
 ## Decisions
