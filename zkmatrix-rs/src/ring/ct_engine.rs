@@ -106,6 +106,51 @@ pub struct RingClaim {
     pub msg_coeffs: Vec<(usize, usize, Poly)>,
 }
 
+// ---------------------------------------------------------------------------
+// Quadratic claims (the ALS20/LNP22 product layer, U5/U6). Virtual
+// openings V_i = c x_i split into the verifier-computable part
+// P_i = c t2_i - (A2 z_i) = c x_i - Y_i and the prover's mask image
+// Y_i = A2 y_i. Expanding products of P's isolates the claim at the top
+// challenge monomial with prover-sent PRE-CHALLENGE garbage terms:
+//
+//   sigma-twisted (ct-quadratic, e.g. the binary gadget's
+//   sum conj(x_u) x_u):
+//     E := sum gamma sigma(P_a) P_b  (verifier)
+//        = sigma(c) c Q - sigma(c) Ga - c Gb + G0,
+//     Ga = sum gamma sigma(x_a) Y_b, Gb = sum gamma x_b sigma(Y_a),
+//     G0 = sum gamma sigma(Y_a) Y_b;
+//   check: sigma(c) c h = E + sigma(c) Ga + c Gb - G0
+//                       + sigma(c) (c C_L - ZA_L + W_L)
+//   with h = Q + L + g revealed, ct(h) = scalar checked directly.
+//
+//   untwisted (ring-valued quadratic, e.g. slot-packed Hadamard
+//   x*y - z = 0):
+//     E2 := sum gamma P_a P_b = c^2 Q - c G1 + G0;
+//   check: E2 + c G1 - G0 + c (c C_L - ZA_L + W_L) = 0.
+//
+// Extraction is 3-special-sound (distinct challenges; Vandermonde-type
+// clearing by products of LS18-invertible differences — the design's
+// soundness item 1). ZK NOTE (Q4-class): the garbage terms are sent in
+// clear and simulated as near-uniform (they are masked by the Gaussian
+// mask images Y; the formal leftover-entropy lemma is part of the Q4
+// write-up, same status as the concentration-bound lemma).
+
+/// ct-projected quadratic claim with the sigma_{-1} twist on the left
+/// factor: ct( sum_p gamma_p sigma(x_(ap)) x_(bp) + sum a x + g ) = scalar.
+pub struct QuadCtClaim {
+    /// (commit_a, slot_a, commit_b, slot_b, gamma).
+    pub quad: Vec<(usize, usize, usize, usize, Poly)>,
+    pub msg_coeffs: Vec<(usize, usize, Poly)>,
+    pub scalar: i64,
+}
+
+/// Ring-valued quadratic claim (untwisted):
+/// sum_p gamma_p x_(ap) x_(bp) + sum a x = 0 over R_q.
+pub struct QuadRingClaim {
+    pub quad: Vec<(usize, usize, usize, usize, Poly)>,
+    pub msg_coeffs: Vec<(usize, usize, Poly)>,
+}
+
 /// Prover-side view of one standard commitment in the batch.
 pub struct StdOpening<'a> {
     pub t1: &'a [Poly],
@@ -283,6 +328,12 @@ pub struct CtRoundProof {
     pub w1_ajtai: Vec<Vec<Poly>>, // per Ajtai commitment: A1 rho-mask + B s-mask image
     pub w_claim: Vec<Poly>,       // per ct-claim: combined message-side mask image
     pub w_ring: Vec<Poly>,        // per ring-claim: combined message-side mask image
+    // Quadratic layer (empty when the round has no quadratic claims).
+    pub h_quad: Vec<Poly>,        // per quad ct-claim: reveal (ct checked)
+    pub gq: Vec<[Poly; 3]>,       // per quad ct-claim: (Ga, Gb, G0)
+    pub w_quad: Vec<Poly>,        // per quad ct-claim: linear-part mask image
+    pub gr: Vec<[Poly; 2]>,       // per quad ring-claim: (G1, G0)
+    pub w_qring: Vec<Poly>,       // per quad ring-claim: linear-part mask image
     pub z: Vec<Vec<Vec<i64>>>,    // per plain commitment: response
     pub z_rho_ajtai: Vec<Vec<Vec<i64>>>, // per Ajtai commitment: rho response
     pub z_s_ajtai: Vec<Vec<Vec<i64>>>,   // per Ajtai commitment: s response
@@ -317,8 +368,49 @@ fn ct_challenge(h0: &[u8; 32], proof_head: &CtRoundProof) -> Vec<i64> {
     }
     hasher.update(polys_bytes(&proof_head.w_claim));
     hasher.update(polys_bytes(&proof_head.w_ring));
+    hasher.update(polys_bytes(&proof_head.h_quad));
+    for g in &proof_head.gq {
+        hasher.update(polys_bytes(g.as_slice()));
+    }
+    hasher.update(polys_bytes(&proof_head.w_quad));
+    for g in &proof_head.gr {
+        hasher.update(polys_bytes(g.as_slice()));
+    }
+    hasher.update(polys_bytes(&proof_head.w_qring));
     let digest: [u8; 32] = hasher.finalize().into();
     XofReader::new("chal-ct", &[&digest]).next_challenge()
+}
+
+/// Generic combo over (index, slot, coeff) lists against any per-commitment
+/// group table.
+fn coeff_combo(ring: &RingCtx, coeffs: &[(usize, usize, Poly)], groups: &[Vec<Poly>]) -> Poly {
+    let zq = &ring.zq;
+    let mut acc = poly_zero();
+    for (i, j, coeff) in coeffs {
+        let prod = ring_mul_split_kara_fast(ring, coeff, &groups[*i][*j]);
+        acc = poly_add(zq, &acc, &prod);
+    }
+    acc
+}
+
+/// sum gamma * f(left_a) * right_b over the quad monomial list, where left
+/// is drawn from table `ta` (optionally conjugated) and right from `tb`.
+fn quad_combo(
+    ring: &RingCtx,
+    quad: &[(usize, usize, usize, usize, Poly)],
+    ta: &[Vec<Poly>],
+    conj_left: bool,
+    tb: &[Vec<Poly>],
+) -> Poly {
+    let zq = &ring.zq;
+    let mut acc = poly_zero();
+    for (ia, ja, ib, jb, gamma) in quad {
+        let left = if conj_left { poly_conj(zq, &ta[*ia][*ja]) } else { ta[*ia][*ja].clone() };
+        let prod = ring_mul_split_kara_fast(ring, &left, &tb[*ib][*jb]);
+        let term = ring_mul_split_kara_fast(ring, gamma, &prod);
+        acc = poly_add(zq, &acc, &term);
+    }
+    acc
 }
 
 /// Message-side combination WITHOUT the g-slot term (ring claims have no
@@ -406,6 +498,8 @@ pub fn prove_ct_round(
     h0: &[u8; 32],
     claims: &[CtClaim],
     ring_claims: &[RingClaim],
+    quad_claims: &[QuadCtClaim],
+    quad_ring: &[QuadRingClaim],
     plain: &[StdOpening],
     digits: &[DigitOpening],
     ajtai: &[AjtaiOpening],
@@ -417,8 +511,8 @@ pub fn prove_ct_round(
     let msg_r = shape.msg_r;
     assert!(digits.is_empty() || dp.is_some(), "digit openings need DigitParams");
     // All messages in index order (plain then digits) for reveals/W.
-    let all_x: Vec<&[Poly]> =
-        plain.iter().map(|o| o.x).chain(digits.iter().map(|o| o.x)).collect();
+    let all_x: Vec<Vec<Poly>> =
+        plain.iter().map(|o| o.x.to_vec()).chain(digits.iter().map(|o| o.x.to_vec())).collect();
     // Reveals: h_l = g_l + f_l(witness).
     let h: Vec<Poly> = claims
         .iter()
@@ -433,6 +527,18 @@ pub fn prove_ct_round(
             let s_vecs: Vec<&[Vec<i64>]> = ajtai.iter().map(|a| a.s).collect();
             let sc = ajtai_combo(ring, claim, &s_vecs);
             poly_add(zq, &acc, &sc)
+        })
+        .collect();
+    // Quadratic ct-claim reveals: h_q = Q(x) + L(x) + g (g slots start
+    // after the linear ct-claims').
+    let h_quad: Vec<Poly> = quad_claims
+        .iter()
+        .enumerate()
+        .map(|(l, qc)| {
+            let (gi, gs) = g_slot_of(claims.len() + l, msg_r, g_base);
+            let q = quad_combo(ring, &qc.quad, &all_x, true, &all_x);
+            let lin = coeff_combo(ring, &qc.msg_coeffs, &all_x);
+            poly_add(zq, &poly_add(zq, &q, &lin), &all_x[gi][gs])
         })
         .collect();
 
@@ -515,6 +621,36 @@ pub fn prove_ct_round(
             .collect();
         let w_ring: Vec<Poly> =
             ring_claims.iter().map(|rc| ring_claim_combo(ring, rc, &a2y)).collect();
+        // Quadratic garbage terms (pre-challenge; masks fresh per attempt).
+        let gq: Vec<[Poly; 3]> = quad_claims
+            .iter()
+            .map(|qc| {
+                let ga = quad_combo(ring, &qc.quad, &all_x, true, &a2y);
+                let gb = quad_combo(ring, &qc.quad, &a2y, true, &all_x);
+                let g0 = quad_combo(ring, &qc.quad, &a2y, true, &a2y);
+                [ga, gb, g0]
+            })
+            .collect();
+        let w_quad: Vec<Poly> = quad_claims
+            .iter()
+            .enumerate()
+            .map(|(l, qc)| {
+                let (gi, gs) = g_slot_of(claims.len() + l, msg_r, g_base);
+                poly_add(zq, &coeff_combo(ring, &qc.msg_coeffs, &a2y), &a2y[gi][gs])
+            })
+            .collect();
+        let gr: Vec<[Poly; 2]> = quad_ring
+            .iter()
+            .map(|qr| {
+                let g1a = quad_combo(ring, &qr.quad, &all_x, false, &a2y);
+                let g1b = quad_combo(ring, &qr.quad, &a2y, false, &all_x);
+                let g1 = poly_add(zq, &g1a, &g1b);
+                let g0 = quad_combo(ring, &qr.quad, &a2y, false, &a2y);
+                [g1, g0]
+            })
+            .collect();
+        let w_qring: Vec<Poly> =
+            quad_ring.iter().map(|qr| coeff_combo(ring, &qr.msg_coeffs, &a2y)).collect();
 
         let head = CtRoundProof {
             h: h.clone(),
@@ -522,6 +658,11 @@ pub fn prove_ct_round(
             w1_ajtai,
             w_claim,
             w_ring,
+            h_quad: h_quad.clone(),
+            gq,
+            w_quad,
+            gr,
+            w_qring,
             z: Vec::new(),
             z_rho_ajtai: Vec::new(),
             z_s_ajtai: Vec::new(),
@@ -611,6 +752,11 @@ pub fn prove_ct_round(
                     w1_ajtai: head.w1_ajtai,
                     w_claim: head.w_claim,
                     w_ring: head.w_ring,
+                    h_quad: head.h_quad,
+                    gq: head.gq,
+                    w_quad: head.w_quad,
+                    gr: head.gr,
+                    w_qring: head.w_qring,
                     z,
                     z_rho_ajtai,
                     z_s_ajtai,
@@ -657,6 +803,8 @@ pub fn verify_ct_round(
     h0: &[u8; 32],
     claims: &[CtClaim],
     ring_claims: &[RingClaim],
+    quad_claims: &[QuadCtClaim],
+    quad_ring: &[QuadRingClaim],
     t1s: &[Vec<Poly>],
     t2s: &[Vec<Poly>],
     t1s_dig: &[Vec<Poly>],
@@ -677,6 +825,11 @@ pub fn verify_ct_round(
         || proof.z_s_ajtai.len() != ajtai_coms.len()
         || proof.w_claim.len() != claims.len()
         || proof.w_ring.len() != ring_claims.len()
+        || proof.h_quad.len() != quad_claims.len()
+        || proof.gq.len() != quad_claims.len()
+        || proof.w_quad.len() != quad_claims.len()
+        || proof.gr.len() != quad_ring.len()
+        || proof.w_qring.len() != quad_ring.len()
         || proof.t1_digits.len() != n_dig
         || proof.w1_digits.len() != n_dig
         || proof.z_digits.len() != n_dig
@@ -738,6 +891,11 @@ pub fn verify_ct_round(
     // Deterministic scalar checks.
     for (claim, h) in claims.iter().zip(proof.h.iter()) {
         if ct_coeff(zq, h) != claim.scalar {
+            return false;
+        }
+    }
+    for (qc, h) in quad_claims.iter().zip(proof.h_quad.iter()) {
+        if ct_coeff(zq, h) != qc.scalar {
             return false;
         }
     }
@@ -834,6 +992,64 @@ pub fn verify_ct_round(
         let cc = ring_mul_split_kara_fast(ring, &c_mod, &c_rl);
         if poly_sub(zq, &za_rl, &cc) != proof.w_ring[l] {
             return false;
+        }
+    }
+    // Quadratic layer. P table: P_i = c t2_i - (A2 z_i) = c x_i - Y_i.
+    if !quad_claims.is_empty() || !quad_ring.is_empty() {
+        let p_table: Vec<Vec<Poly>> = t2_all
+            .iter()
+            .zip(a2z.iter())
+            .map(|(t2, az)| {
+                t2.iter()
+                    .zip(az.iter())
+                    .map(|(t, a)| {
+                        let ct2 = ring_mul_split_kara_fast(ring, &c_mod, t);
+                        poly_sub(zq, &ct2, a)
+                    })
+                    .collect()
+            })
+            .collect();
+        let sig_c = poly_conj(zq, &c_mod);
+        let sc_c = ring_mul_split_kara_fast(ring, &sig_c, &c_mod);
+        // sigma-twisted ct-quadratics:
+        //   sigma(c) c h = E + sigma(c) Ga + c Gb - G0
+        //               + sigma(c) (c C_L - ZA_L + W_L).
+        for (l, qc) in quad_claims.iter().enumerate() {
+            let g_slot = g_slot_of(claims.len() + l, shape.msg_r, g_base);
+            let e = quad_combo(ring, &qc.quad, &p_table, true, &p_table);
+            let c_l = poly_add(zq, &coeff_combo(ring, &qc.msg_coeffs, &t2_all), &t2_all[g_slot.0][g_slot.1]);
+            let za_l = poly_add(zq, &coeff_combo(ring, &qc.msg_coeffs, &a2z), &a2z[g_slot.0][g_slot.1]);
+            let lin = {
+                let ccl = ring_mul_split_kara_fast(ring, &c_mod, &c_l);
+                let inner = poly_add(zq, &poly_sub(zq, &ccl, &za_l), &proof.w_quad[l]);
+                ring_mul_split_kara_fast(ring, &sig_c, &inner)
+            };
+            let lhs = ring_mul_split_kara_fast(ring, &sc_c, &proof.h_quad[l]);
+            let mut rhs = poly_add(zq, &e, &ring_mul_split_kara_fast(ring, &sig_c, &proof.gq[l][0]));
+            rhs = poly_add(zq, &rhs, &ring_mul_split_kara_fast(ring, &c_mod, &proof.gq[l][1]));
+            rhs = poly_sub(zq, &rhs, &proof.gq[l][2]);
+            rhs = poly_add(zq, &rhs, &lin);
+            if lhs != rhs {
+                return false;
+            }
+        }
+        // Untwisted ring-valued quadratics:
+        //   E2 + c G1 - G0 + c (c C_L - ZA_L + W_L) = 0.
+        for (l, qr) in quad_ring.iter().enumerate() {
+            let e2 = quad_combo(ring, &qr.quad, &p_table, false, &p_table);
+            let c_l = coeff_combo(ring, &qr.msg_coeffs, &t2_all);
+            let za_l = coeff_combo(ring, &qr.msg_coeffs, &a2z);
+            let lin = {
+                let ccl = ring_mul_split_kara_fast(ring, &c_mod, &c_l);
+                let inner = poly_add(zq, &poly_sub(zq, &ccl, &za_l), &proof.w_qring[l]);
+                ring_mul_split_kara_fast(ring, &c_mod, &inner)
+            };
+            let mut lhs = poly_add(zq, &e2, &ring_mul_split_kara_fast(ring, &c_mod, &proof.gr[l][0]));
+            lhs = poly_sub(zq, &lhs, &proof.gr[l][1]);
+            lhs = poly_add(zq, &lhs, &lin);
+            if lhs.iter().any(|&x| x != 0) {
+                return false;
+            }
         }
     }
     true

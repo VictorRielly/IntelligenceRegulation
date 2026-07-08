@@ -584,17 +584,17 @@ fn ct_prove_verify_case(
     let mut rng_a = rng_seed ^ 0x1111;
     let mut rng_b = rng_seed ^ 0x1111;
     let (proof, attempts) =
-        prove_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &openings, &[], &[], n_wit, &mut rng_a);
+        prove_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &[], &[], &openings, &[], &[], n_wit, &mut rng_a);
     assert_true(
         &format!("[{label}] ct-round verifies, {l} theta claims (attempts = {attempts})"),
-        verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &t1s, &t2s, &[], &[], &[], n_wit, &proof),
+        verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &[], &[], &t1s, &t2s, &[], &[], &[], n_wit, &proof),
     );
     assert_true(
         &format!("[{label}] ct-round verifies on the schoolbook path"),
-        verify_ct_round(&school, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &t1s, &t2s, &[], &[], &[], n_wit, &proof),
+        verify_ct_round(&school, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &[], &[], &t1s, &t2s, &[], &[], &[], n_wit, &proof),
     );
     let (proof_s, attempts_s) =
-        prove_ct_round(&school, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &openings, &[], &[], n_wit, &mut rng_b);
+        prove_ct_round(&school, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &[], &[], &openings, &[], &[], n_wit, &mut rng_b);
     assert_true(
         &format!("[{label}] same-seed ct proofs bit-identical across paths"),
         attempts == attempts_s
@@ -608,7 +608,7 @@ fn ct_prove_verify_case(
         return;
     }
     let reverify = |p: &ring::ct_engine::CtRoundProof, claims: &[CtClaim]| -> bool {
-        verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, claims, &[], &t1s, &t2s, &[], &[], &[], n_wit, p)
+        verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, claims, &[], &[], &[], &t1s, &t2s, &[], &[], &[], n_wit, p)
     };
     let clone_proof = |p: &ring::ct_engine::CtRoundProof| ring::ct_engine::CtRoundProof {
         h: p.h.clone(),
@@ -616,6 +616,11 @@ fn ct_prove_verify_case(
         w1_ajtai: p.w1_ajtai.clone(),
         w_claim: p.w_claim.clone(),
         w_ring: p.w_ring.clone(),
+        h_quad: p.h_quad.clone(),
+        gq: p.gq.clone(),
+        w_quad: p.w_quad.clone(),
+        gr: p.gr.clone(),
+        w_qring: p.w_qring.clone(),
         z: p.z.clone(),
         z_rho_ajtai: p.z_rho_ajtai.clone(),
         z_s_ajtai: p.z_s_ajtai.clone(),
@@ -659,7 +664,7 @@ fn ct_prove_verify_case(
     let h0_bad = ct_h0(&crs, b"other-ctx", &t1s, &t2s, &[]);
     assert_true(
         &format!("[{label}] wrong context fails"),
-        !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0_bad, &claims, &[], &t1s, &t2s, &[], &[], &[], n_wit, &proof),
+        !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0_bad, &claims, &[], &[], &[], &t1s, &t2s, &[], &[], &[], n_wit, &proof),
     );
 }
 
@@ -770,11 +775,11 @@ fn self_test_ct_engine() {
         .collect();
     let ajtai_open = AjtaiOpening { com: &acom, s: &m_packed, rho: &rho_m };
     let (proof, attempts) = prove_ct_round(
-        &a1_path, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &openings, &[], &[ajtai_open], n_wit, &mut rng,
+        &a1_path, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &[], &[], &openings, &[], &[ajtai_open], n_wit, &mut rng,
     );
     assert_true(
         &format!("ARP: 256 JL ct-claims verify (attempts = {attempts})"),
-        verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &t1s, &t2s, &[], &[], &[&acom], n_wit, &proof),
+        verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &claims, &[], &[], &[], &t1s, &t2s, &[], &[], &[&acom], n_wit, &proof),
     );
     // Tampered reveal: claims built with a shifted y must fail.
     let mut y_bad = y.clone();
@@ -782,7 +787,7 @@ fn self_test_ct_engine() {
     let bad_claims = arp_claims(&zq, &ap, &jl, &msg_slots, 0, &y_bad);
     assert_true(
         "ARP tampered reveal y fails (ct check)",
-        !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &bad_claims, &[], &t1s, &t2s, &[], &[], &[&acom], n_wit, &proof),
+        !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &bad_claims, &[], &[], &[], &t1s, &t2s, &[], &[], &[&acom], n_wit, &proof),
     );
     // Oversized reveal rejected by the range gate.
     let mut y_big = y.clone();
@@ -982,7 +987,7 @@ fn prove_ring_pi1(
         DigitOpening { t1: &tc1, t2: &tc2, x: &x_c, rho_wide: &rho_vc },
     ];
     let (ct, attempts) = prove_ct_round(
-        path, ring_ctx, rp, Some(dp), crs, &h0, &[], &claims, &[], &digits, &[], 0, rng,
+        path, ring_ctx, rp, Some(dp), crs, &h0, &[], &claims, &[], &[], &[], &digits, &[], 0, rng,
     );
     (RingPi1Proof { salt, ct }, attempts)
 }
@@ -1036,6 +1041,8 @@ fn verify_ring_pi1(
         &claims,
         &[],
         &[],
+        &[],
+        &[],
         &[tb1, tc1],
         &[tb2, tc2],
         &[],
@@ -1058,6 +1065,11 @@ fn clone_ct_proof(p: &ring::ct_engine::CtRoundProof) -> ring::ct_engine::CtRound
         w1_ajtai: p.w1_ajtai.clone(),
         w_claim: p.w_claim.clone(),
         w_ring: p.w_ring.clone(),
+        h_quad: p.h_quad.clone(),
+        gq: p.gq.clone(),
+        w_quad: p.w_quad.clone(),
+        gr: p.gr.clone(),
+        w_qring: p.w_qring.clone(),
         z: p.z.clone(),
         z_rho_ajtai: p.z_rho_ajtai.clone(),
         z_s_ajtai: p.z_s_ajtai.clone(),
@@ -1256,6 +1268,466 @@ fn self_test_pi1() {
     println!("  pi1 proof ~{kb:.0} KB (r = 1; {ring_elems} ring elements + {z_coeffs} response coeffs)");
 }
 
+// ===========================================================================
+// U6: the M2 gadget family over the ring (design Section 5). All gadgets
+// are CLAIMS through the ct-engine round — no per-element or per-column
+// Sigma protocols anywhere (the ~6000x Route Z Sigma-floor removal):
+//
+//   binary     — ONE sigma-twisted quadratic ct-claim per tensor:
+//                ct( sum_u conj(x_u) x_u - conj(1~) x_u ) = 0, i.e.
+//                sum_t b_t (b_t - 1) = 0, which forces b_t in {0,1} over Z
+//                GIVEN the non-wrap side condition |defect| < q/2. Side
+//                condition strategy: ARP (JL) — budget closes at q46-class
+//                moduli, NOT at q31 (U3 finding, asserted below); at q31
+//                the swappable range-strategy hook applies (exact per-
+//                chunk strategies / a gadget-layer modulus — U8 docs).
+//   range W    — W dense-packed bit tensors, one binary claim each, plus
+//                the recomposition value = sum_i 2^i bit_i: ring-valued
+//                linear claims with CONSTANT coefficients (they commute
+//                with everything — option (a) territory).
+//   rescale    — x = 2^shift y + r: one ring-valued linear claim + the
+//                range claims on y (and r width shift).
+//   Hadamard   — H3 slot packing at k = 8 (8 values per ring element,
+//                16x density): slot-wise products are ring products of
+//                slot-constant elements, so x o y = z is ONE untwisted
+//                quadratic ring claim per packed element.
+
+/// Pack up to k values into the CRT slots of one ring element (each value
+/// the constant term of its slot field; H3 packing).
+fn slot_pack(ctx: &RingCtx, vals: &[u64]) -> Poly {
+    assert!(vals.len() <= ctx.k);
+    let mut buf = vec![0u64; D];
+    for (i, &v) in vals.iter().enumerate() {
+        buf[i * ctx.slot_deg] = v;
+    }
+    crt_merge(ctx, &mut buf);
+    buf
+}
+
+/// The binary quadratic ct-claim for a committed dense-packed bit tensor
+/// spanning `slots` message slots of commitment `idx`.
+fn binary_claim(zq: &ring::Zq, idx: usize, slots: usize) -> ring::ct_engine::QuadCtClaim {
+    let one = {
+        let mut p = poly_zero();
+        p[0] = 1;
+        p
+    };
+    let minus_conj_ones = {
+        let ones = vec![1u64; D];
+        ring::poly_neg(zq, &poly_conj(zq, &ones))
+    };
+    ring::ct_engine::QuadCtClaim {
+        quad: (0..slots).map(|u| (idx, u, idx, u, one.clone())).collect(),
+        msg_coeffs: (0..slots).map(|u| (idx, u, minus_conj_ones.clone())).collect(),
+        scalar: 0,
+    }
+}
+
+/// Recomposition claims: per slot u, sum_i 2^i bit_(i,u) - val_u = 0.
+/// bits_idx[i] indexes the bit-i tensor commitment; val_idx the values.
+fn recomposition_claims(
+    zq: &ring::Zq,
+    val_idx: usize,
+    bits_idx: &[usize],
+    slots: usize,
+) -> Vec<ring::ct_engine::RingClaim> {
+    let const_poly = |v: u64| {
+        let mut p = poly_zero();
+        p[0] = v;
+        p
+    };
+    (0..slots)
+        .map(|u| {
+            let mut msg_coeffs: Vec<(usize, usize, Poly)> = bits_idx
+                .iter()
+                .enumerate()
+                .map(|(i, &bi)| (bi, u, const_poly(zq.to_mod(1i64 << i))))
+                .collect();
+            msg_coeffs.push((val_idx, u, const_poly(zq.neg(1))));
+            ring::ct_engine::RingClaim { msg_coeffs }
+        })
+        .collect()
+}
+
+fn self_test_gadgets() {
+    use ring::ct_engine::{
+        QuadRingClaim, RingClaim, StdOpening, ct_h0, derive_ct_round_params, prove_ct_round,
+        verify_ct_round,
+    };
+    println!("\n[U6a] gadget family at q31: recomposition, rescale link, H3 slot Hadamard");
+    let q = Q8;
+    let ring_ctx = ring_ctx_q8();
+    let zq = ring_ctx.zq;
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 2 };
+    let crs = expand_crs(shape, q, 4321);
+    let mut rng = 0x5eed_0007u64;
+
+    // --- A1: range recomposition, W = 4 bits over 256 values. -----------
+    {
+        let w_bits = 4usize;
+        let n_vals = shape.msg_r * D;
+        let vals: Vec<u64> = (0..n_vals).map(|_| rng_below(&mut rng, 1 << w_bits)).collect();
+        let bit_planes: Vec<Vec<u64>> = (0..w_bits)
+            .map(|i| vals.iter().map(|&v| (v >> i) & 1).collect())
+            .collect();
+        // Commit values + bit planes (dense packing).
+        let pack = |v: &[u64]| -> Vec<Poly> {
+            (0..shape.msg_r).map(|u| (0..D).map(|t| v[u * D + t]).collect()).collect()
+        };
+        let mut all_x: Vec<Vec<Poly>> = vec![pack(&vals)];
+        all_x.extend(bit_planes.iter().map(|b| pack(b)));
+        let all_rho: Vec<Vec<Vec<i64>>> = (0..all_x.len())
+            .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect())
+            .collect();
+        let rp = derive_ct_round_params(q, shape, all_x.len(), 0, 0, false);
+        let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+        let a1_path = KernelPath::A1(&a1p);
+        let mut t1s = Vec::new();
+        let mut t2s = Vec::new();
+        for (x, rho) in all_x.iter().zip(all_rho.iter()) {
+            let (t1, t2) = commit(&a1_path, &crs, x, rho);
+            t1s.push(t1);
+            t2s.push(t2);
+        }
+        let h0 = ct_h0(&crs, b"u6-recomp", &t1s, &t2s, &[]);
+        let claims = recomposition_claims(&zq, 0, &[1, 2, 3, 4], shape.msg_r);
+        let openings: Vec<StdOpening> = all_x
+            .iter()
+            .zip(all_rho.iter())
+            .enumerate()
+            .map(|(i, (x, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x, rho })
+            .collect();
+        let t0 = Instant::now();
+        let (proof, attempts) = prove_ct_round(
+            &a1_path, &ring_ctx, &rp, None, &crs, &h0, &[], &claims, &[], &[], &openings, &[], &[],
+            all_x.len(), &mut rng,
+        );
+        let ms = t0.elapsed().as_secs_f64() * 1e3;
+        assert_true(
+            &format!("recomposition (W=4, 256 values) verifies (attempts = {attempts}, prove {ms:.0} ms)"),
+            verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &[], &claims, &[], &[], &t1s, &t2s, &[], &[], &[], all_x.len(), &proof),
+        );
+        println!("  range family cost at this shape: ~{:.1} us/element (claims amortize; Route Z measured ~108 ms/element)", ms * 1000.0 / n_vals as f64);
+        // Negative: a bit plane inconsistent with the values.
+        {
+            let mut bits_bad = bit_planes.clone();
+            bits_bad[0][0] ^= 1;
+            let mut all_x_bad = all_x.clone();
+            all_x_bad[1] = pack(&bits_bad[0]);
+            let rho_bad: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+            let (t1b, t2b) = commit(&a1_path, &crs, &all_x_bad[1], &rho_bad);
+            let mut t1s_bad = t1s.clone();
+            let mut t2s_bad = t2s.clone();
+            t1s_bad[1] = t1b;
+            t2s_bad[1] = t2b;
+            let mut all_rho_bad = all_rho.clone();
+            all_rho_bad[1] = rho_bad;
+            let h0b = ct_h0(&crs, b"u6-recomp", &t1s_bad, &t2s_bad, &[]);
+            let openings_bad: Vec<StdOpening> = all_x_bad
+                .iter()
+                .zip(all_rho_bad.iter())
+                .enumerate()
+                .map(|(i, (x, rho))| StdOpening { t1: &t1s_bad[i], t2: &t2s_bad[i], x, rho })
+                .collect();
+            let (bad, _) = prove_ct_round(
+                &a1_path, &ring_ctx, &rp, None, &crs, &h0b, &[], &claims, &[], &[], &openings_bad,
+                &[], &[], all_x_bad.len(), &mut rng,
+            );
+            assert_true(
+                "recomposition mismatch (flipped bit) fails",
+                !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0b, &[], &claims, &[], &[], &t1s_bad, &t2s_bad, &[], &[], &[], all_x_bad.len(), &bad),
+            );
+        }
+    }
+
+    // --- A2: rescale link x = 2^shift y + r. ----------------------------
+    {
+        let shift = 4u32;
+        let n_vals = shape.msg_r * D;
+        let ys: Vec<u64> = (0..n_vals).map(|_| rng_below(&mut rng, 1 << 20)).collect();
+        let rs: Vec<u64> = (0..n_vals).map(|_| rng_below(&mut rng, 1 << shift)).collect();
+        let xs: Vec<u64> = ys.iter().zip(rs.iter()).map(|(&y, &r)| zq.add(zq.mul(1 << shift, y), r)).collect();
+        let pack = |v: &[u64]| -> Vec<Poly> {
+            (0..shape.msg_r).map(|u| (0..D).map(|t| v[u * D + t]).collect()).collect()
+        };
+        let all_x = [pack(&xs), pack(&ys), pack(&rs)];
+        let all_rho: Vec<Vec<Vec<i64>>> = (0..3)
+            .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect())
+            .collect();
+        let rp = derive_ct_round_params(q, shape, 3, 0, 0, false);
+        let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+        let a1_path = KernelPath::A1(&a1p);
+        let mut t1s = Vec::new();
+        let mut t2s = Vec::new();
+        for (x, rho) in all_x.iter().zip(all_rho.iter()) {
+            let (t1, t2) = commit(&a1_path, &crs, x, rho);
+            t1s.push(t1);
+            t2s.push(t2);
+        }
+        let h0 = ct_h0(&crs, b"u6-rescale", &t1s, &t2s, &[]);
+        // Claims: x_u - 2^shift y_u - r_u = 0 per slot.
+        let const_poly = |v: u64| {
+            let mut p = poly_zero();
+            p[0] = v;
+            p
+        };
+        let claims: Vec<RingClaim> = (0..shape.msg_r)
+            .map(|u| RingClaim {
+                msg_coeffs: vec![
+                    (0, u, const_poly(1)),
+                    (1, u, const_poly(zq.neg(1 << shift))),
+                    (2, u, const_poly(zq.neg(1))),
+                ],
+            })
+            .collect();
+        let openings: Vec<StdOpening> = all_x
+            .iter()
+            .zip(all_rho.iter())
+            .enumerate()
+            .map(|(i, (x, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x, rho })
+            .collect();
+        let (proof, _) = prove_ct_round(
+            &a1_path, &ring_ctx, &rp, None, &crs, &h0, &[], &claims, &[], &[], &openings, &[], &[], 3,
+            &mut rng,
+        );
+        assert_true(
+            "rescale link x = 2^4 y + r verifies (ring-valued claim)",
+            verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &[], &claims, &[], &[], &t1s, &t2s, &[], &[], &[], 3, &proof),
+        );
+        let mut bad = clone_ct_proof(&proof);
+        bad.w_ring[0][0] = zq.add(bad.w_ring[0][0], 1);
+        assert_true(
+            "rescale tampered W fails",
+            !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &[], &claims, &[], &[], &t1s, &t2s, &[], &[], &[], 3, &bad),
+        );
+    }
+
+    // --- A3: Hadamard via H3 slot packing (8 values / element). ---------
+    {
+        let n_vals = shape.msg_r * ring_ctx.k; // 16 values
+        let xv: Vec<u64> = (0..n_vals).map(|_| rng_below(&mut rng, q)).collect();
+        let yv: Vec<u64> = (0..n_vals).map(|_| rng_below(&mut rng, q)).collect();
+        let zv: Vec<u64> = xv.iter().zip(yv.iter()).map(|(&a, &b)| zq.mul(a, b)).collect();
+        let pack8 = |v: &[u64]| -> Vec<Poly> {
+            (0..shape.msg_r).map(|u| slot_pack(&ring_ctx, &v[u * ring_ctx.k..(u + 1) * ring_ctx.k])).collect()
+        };
+        let all_x = [pack8(&xv), pack8(&yv), pack8(&zv)];
+        let all_rho: Vec<Vec<Vec<i64>>> = (0..3)
+            .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect())
+            .collect();
+        let rp = derive_ct_round_params(q, shape, 3, 0, 0, false);
+        let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+        let a1_path = KernelPath::A1(&a1p);
+        let mut t1s = Vec::new();
+        let mut t2s = Vec::new();
+        for (x, rho) in all_x.iter().zip(all_rho.iter()) {
+            let (t1, t2) = commit(&a1_path, &crs, x, rho);
+            t1s.push(t1);
+            t2s.push(t2);
+        }
+        let h0 = ct_h0(&crs, b"u6-hadamard", &t1s, &t2s, &[]);
+        let one = {
+            let mut p = poly_zero();
+            p[0] = 1;
+            p
+        };
+        let minus_one = {
+            let mut p = poly_zero();
+            p[0] = zq.neg(1);
+            p
+        };
+        let claims: Vec<QuadRingClaim> = (0..shape.msg_r)
+            .map(|u| QuadRingClaim {
+                quad: vec![(0, u, 1, u, one.clone())],
+                msg_coeffs: vec![(2, u, minus_one.clone())],
+            })
+            .collect();
+        let openings: Vec<StdOpening> = all_x
+            .iter()
+            .zip(all_rho.iter())
+            .enumerate()
+            .map(|(i, (x, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x, rho })
+            .collect();
+        let (proof, attempts) = prove_ct_round(
+            &a1_path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &claims, &openings, &[], &[], 3,
+            &mut rng,
+        );
+        assert_true(
+            &format!("Hadamard x o y = z verifies (H3, {n_vals} slot values, attempts = {attempts})"),
+            verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &claims, &t1s, &t2s, &[], &[], &[], 3, &proof),
+        );
+        // Negative: wrong product.
+        {
+            let mut zv_bad = zv.clone();
+            zv_bad[0] = zq.add(zv_bad[0], 1);
+            let mut all_x_bad = all_x.clone();
+            all_x_bad[2] = pack8(&zv_bad);
+            let rho_bad: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+            let (t1b, t2b) = commit(&a1_path, &crs, &all_x_bad[2], &rho_bad);
+            let mut t1s_bad = t1s.clone();
+            let mut t2s_bad = t2s.clone();
+            t1s_bad[2] = t1b;
+            t2s_bad[2] = t2b;
+            let mut all_rho_bad = all_rho.clone();
+            all_rho_bad[2] = rho_bad;
+            let h0b = ct_h0(&crs, b"u6-hadamard", &t1s_bad, &t2s_bad, &[]);
+            let openings_bad: Vec<StdOpening> = all_x_bad
+                .iter()
+                .zip(all_rho_bad.iter())
+                .enumerate()
+                .map(|(i, (x, rho))| StdOpening { t1: &t1s_bad[i], t2: &t2s_bad[i], x, rho })
+                .collect();
+            let (bad, _) = prove_ct_round(
+                &a1_path, &ring_ctx, &rp, None, &crs, &h0b, &[], &[], &[], &claims, &openings_bad,
+                &[], &[], 3, &mut rng,
+            );
+            assert_true(
+                "Hadamard wrong product fails",
+                !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0b, &[], &[], &[], &claims, &t1s_bad, &t2s_bad, &[], &[], &[], 3, &bad),
+            );
+        }
+    }
+
+    // --- B: the binary gadget at q46 (where the ARP budget closes). -----
+    println!("\n[U6b] binary gadget (quadratic ct-claim + ARP side condition) at q8_46");
+    {
+        use ring::ct_engine::{
+            AjtaiOpening, ajtai_commit, arp_attempt, arp_budget_ok, arp_claims, derive_arp_params,
+            derive_jl_rows, expand_b_mat, pack_arp_mask, sample_arp_mask, sample_ct_masks,
+        };
+        let q = ring::Q8_46;
+        let ring_ctx = ring::ring_ctx(q, ring::ETA8_46, 8);
+        let zq = ring_ctx.zq;
+        let crs = expand_crs(shape, q, 4322);
+        let n_bits = shape.msg_r * D;
+        let bits: Vec<i64> = (0..n_bits).map(|_| (splitmix64(&mut rng) & 1) as i64).collect();
+        let x_bits: Vec<Poly> = (0..shape.msg_r)
+            .map(|u| (0..D).map(|t| zq.to_mod(bits[u * D + t])).collect())
+            .collect();
+        let rho_bits: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+
+        let ap = derive_arp_params(n_bits, 256, 1, 3.0);
+        assert_true(
+            "binary side-condition budget closes at q46",
+            arp_budget_ok(&ap, (q / 2) as f64),
+        );
+        let s_r = ap.rows.div_ceil(D);
+        let b_mat = expand_b_mat(&crs, "u6-arp", s_r);
+        // g's: 256 ARP ct-claims + 1 quadratic binary claim.
+        let n_claims_g = ap.rows + 1;
+        let g_groups = sample_ct_masks(&mut rng, q, shape.msg_r, n_claims_g);
+        let n_commits = 1 + g_groups.len() + 1;
+        let rp = derive_ct_round_params(q, shape, n_commits, ap.rows, 12 * ap.sigma_arp, false);
+        let a1p = build_a1_paths(&crs, rp.sigma.max(rp.sigma_s), isqrt_u128(rp.bound_sq.max(rp.bound_s_sq)));
+        let a1_path = KernelPath::A1(&a1p);
+
+        let mut t1s = Vec::new();
+        let mut t2s = Vec::new();
+        let mut all_x: Vec<Vec<Poly>> = vec![x_bits.clone()];
+        let mut all_rho: Vec<Vec<Vec<i64>>> = vec![rho_bits.clone()];
+        for g in &g_groups {
+            all_x.push(g.clone());
+            all_rho.push((0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect());
+        }
+        for (x, rho) in all_x.iter().zip(all_rho.iter()) {
+            let (t1, t2) = commit(&a1_path, &crs, x, rho);
+            t1s.push(t1);
+            t2s.push(t2);
+        }
+        let mut arp_rounds = 0usize;
+        let (m_packed, rho_m, acom, h0, jl, y) = loop {
+            arp_rounds += 1;
+            let m_flat = sample_arp_mask(&ap, &mut rng);
+            let m_packed = pack_arp_mask(&ap, &m_flat);
+            let rho_m: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+            let acom = ajtai_commit(&crs, &b_mat, &m_packed, &rho_m);
+            let h0 = ct_h0(&crs, b"u6-binary", &t1s, &t2s, &[&acom]);
+            let jl = derive_jl_rows(&h0, ap.rows, ap.n);
+            if let Some(y) = arp_attempt(&ap, &jl, &bits, &m_flat, &mut rng) {
+                break (m_packed, rho_m, acom, h0, jl, y);
+            }
+        };
+        let msg_slots: Vec<(usize, usize)> = (0..shape.msg_r).map(|u| (0usize, u)).collect();
+        let ct_claims = arp_claims(&zq, &ap, &jl, &msg_slots, 0, &y);
+        let quad_claims = [binary_claim(&zq, 0, shape.msg_r)];
+        let openings: Vec<StdOpening> = all_x
+            .iter()
+            .zip(all_rho.iter())
+            .enumerate()
+            .map(|(i, (x, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x, rho })
+            .collect();
+        let ajtai_open = AjtaiOpening { com: &acom, s: &m_packed, rho: &rho_m };
+        let t0 = Instant::now();
+        let (proof, attempts) = prove_ct_round(
+            &a1_path, &ring_ctx, &rp, None, &crs, &h0, &ct_claims, &[], &quad_claims, &[],
+            &openings, &[], &[ajtai_open], 1, &mut rng,
+        );
+        let ms = t0.elapsed().as_secs_f64() * 1e3;
+        assert_true(
+            &format!("binary gadget verifies: 1 quadratic ct-claim + 256 ARP claims over {n_bits} bits (attempts = {attempts}, ARP rounds = {arp_rounds}, prove {ms:.0} ms)"),
+            verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &ct_claims, &[], &quad_claims, &[], &t1s, &t2s, &[], &[], &[&acom], 1, &proof),
+        );
+        // Negative: a non-binary coefficient — the quadratic ct check
+        // catches it deterministically on honest machinery.
+        {
+            let mut bits_bad = bits.clone();
+            bits_bad[0] = 2;
+            let x_bad: Vec<Poly> = (0..shape.msg_r)
+                .map(|u| (0..D).map(|t| zq.to_mod(bits_bad[u * D + t])).collect())
+                .collect();
+            let rho_bad: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+            let mut all_x_bad = all_x.clone();
+            all_x_bad[0] = x_bad;
+            let mut all_rho_bad = all_rho.clone();
+            all_rho_bad[0] = rho_bad;
+            let (t1b, t2b) = commit(&a1_path, &crs, &all_x_bad[0], &all_rho_bad[0]);
+            let mut t1s_bad = t1s.clone();
+            let mut t2s_bad = t2s.clone();
+            t1s_bad[0] = t1b;
+            t2s_bad[0] = t2b;
+            let mut arp_rounds_b = 0usize;
+            let (m_packed_b, rho_m_b, acom_b, h0b, jl_b, y_b) = loop {
+                arp_rounds_b += 1;
+                assert!(arp_rounds_b < 200);
+                let m_flat = sample_arp_mask(&ap, &mut rng);
+                let m_packed = pack_arp_mask(&ap, &m_flat);
+                let rho_m: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+                let acom = ajtai_commit(&crs, &b_mat, &m_packed, &rho_m);
+                let h0 = ct_h0(&crs, b"u6-binary", &t1s_bad, &t2s_bad, &[&acom]);
+                let jl = derive_jl_rows(&h0, ap.rows, ap.n);
+                if let Some(y) = arp_attempt(&ap, &jl, &bits_bad, &m_flat, &mut rng) {
+                    break (m_packed, rho_m, acom, h0, jl, y);
+                }
+            };
+            let ct_claims_b = arp_claims(&zq, &ap, &jl_b, &msg_slots, 0, &y_b);
+            let openings_bad: Vec<StdOpening> = all_x_bad
+                .iter()
+                .zip(all_rho_bad.iter())
+                .enumerate()
+                .map(|(i, (x, rho))| StdOpening { t1: &t1s_bad[i], t2: &t2s_bad[i], x, rho })
+                .collect();
+            let ajtai_open_b = AjtaiOpening { com: &acom_b, s: &m_packed_b, rho: &rho_m_b };
+            let (bad, _) = prove_ct_round(
+                &a1_path, &ring_ctx, &rp, None, &crs, &h0b, &ct_claims_b, &[], &quad_claims, &[],
+                &openings_bad, &[], &[ajtai_open_b], 1, &mut rng,
+            );
+            assert_true(
+                "binary gadget: non-binary coefficient fails (quadratic ct check)",
+                !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0b, &ct_claims_b, &[], &quad_claims, &[], &t1s_bad, &t2s_bad, &[], &[], &[&acom_b], 1, &bad),
+            );
+        }
+        // Negative: tampered garbage term.
+        {
+            let mut bad = clone_ct_proof(&proof);
+            bad.gq[0][0][0] = zq.add(bad.gq[0][0][0], 1);
+            assert_true(
+                "binary gadget: tampered garbage term fails",
+                !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &ct_claims, &[], &quad_claims, &[], &t1s, &t2s, &[], &[], &[&acom], 1, &bad),
+            );
+        }
+    }
+}
+
 fn usage() {
     eprintln!("usage: ring_matmul self-test");
     std::process::exit(2);
@@ -1271,6 +1743,7 @@ fn main() {
             self_test_openings();
             self_test_ct_engine();
             self_test_pi1();
+            self_test_gadgets();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         _ => usage(),
