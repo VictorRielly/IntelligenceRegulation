@@ -67,4 +67,21 @@ Branch: worktree branch merged with perf/zk-batch-optimizations (HEAD contains
   (zlib streams + Tj/TJ regex); Sections 7.5, 10, 11, 17 read.
 
 ## Status
-Units 1-2 done. Starting unit 3 (prototype).
+Units 1-3 done (prototype committed, 82838e0, all self-tests pass). Unit 4 in
+flight: scripts/route_r_params.py written, needs run + table check + commit.
+Then unit 5 (design doc; all analysis content already worked out — see "Key
+design decisions" above plus the r=1 scalar-gate finding below), unit 6
+(suite + final message).
+
+## Additional finding for the doc (worked out during unit 4 prep)
+r=1 per-slot soundness (2^-296) holds for every RING-VALUED claim
+(compressions, links, openings). It does NOT transfer to Z_q-SCALAR claims:
+small-coefficient challenge weights give only a few bits per scalar claim,
+and uniform theta weights cannot multiply randomness-bearing commitments
+(norms explode). Consequences written into the doc: (i) Pi2's product gate
+must keep claims ring-valued or use LNP22-style ct-masks (commit g before
+the challenge, reveal h = g + f(w); coefficient checks are then
+deterministic and the only SZ left is on the ring-valued well-formedness
+claim for h — per-slot sound); (ii) engineering fallback: repeat ONLY the
+cheap scalar-gate layer r_g times (side-linear cost), keeping commitments
+and all linear layers at r = 1.
