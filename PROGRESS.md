@@ -28,7 +28,14 @@ Suite: PATH=... python3 -m unittest discover -s tests  (37/37 must stay green)
       3 Karatsuba sub-products, mid transform via NTT linearity = 2 fwd per operand,
       3 inv + exact i128 recompose + mod q). All paths exactness-tested vs schoolbook
       mod q at q46 and q31, incl. worst-case-magnitude inputs hitting d*(q-1)/2 exactly.
-- [ ] U3: GEMM-shaped commit kernel (cached key transforms, u128 lazy accumulation), exactness cross-checks.
+- [x] U3: GEMM-shaped commit kernel (cached key transforms, u128 lazy accumulation), exactness cross-checks.
+      A1CommitKernel (cached NTT(G); reduce-each-product-to-u64 then u128-accumulate;
+      1 inv NTT/output; capacity contract asserted at construction) == schoolbook ==
+      ternary-specialized schoolbook == k2 CRT-split kernel, at q46 and q31, shapes
+      4x6 and 14x36, 8 random columns each; worst-case accumulator input hits
+      N_r*d*(q-1)/2 exactly (59 bits at q46 N_r=72) and matches the closed form.
+      k2 baseline built with runtime sqrt(-1) = 2^((q-1)/4) (asserted r^2 = -1),
+      cached key slots, 8192-MAC slot schoolbook, recombination per output.
 - [ ] U4: benchmarks (schoolbook / ternary-schoolbook / k2-split / A1-single / A1-limb-split), medians over pinned reps, single-threaded.
 - [ ] U5: report A1_AUX_NTT_REPORT.md + revised commit-bill projection.
 
@@ -58,9 +65,10 @@ Suite: PATH=... python3 -m unittest discover -s tests  (37/37 must stay green)
 
 ## Next
 
-U3: GEMM-shaped commit kernel C = G * R in aux_ntt.rs — cache NTT(G) once,
-one fwd NTT per R-column element, pointwise MAC in NTT domain (reduce each
-product to u64, accumulate u64s in u128 — safe to 2^64 terms), one inv NTT
-per output element, centered recovery + mod q. Cross-check vs schoolbook
-commit at small sizes AND vs the worst-case accumulator input (all rows
-identical +-M pattern, ternary all-ones columns -> exact N_r*d*(q-1)/2).
+U4: benchmarks in aux_ntt.rs under `bench` arg. Single ring-mult (schoolbook,
+k2 standalone, A1-single standalone, A1-limb standalone) and commit-kernel
+throughput (schoolbook, ternary-schoolbook, k2 cached, A1 cached; shapes
+demo 14x36, n2048 31x54, FFN 47x72, scaled FFN 47x72 x 512 cols) at q46
+(q31 secondary for single mults). Single-threaded, medians over pinned reps,
+concurrency caveat printed. Report ring-mults/s and effective MACs/s
+(= ring-mults * 16384 / s).

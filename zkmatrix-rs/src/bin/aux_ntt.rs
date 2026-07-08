@@ -590,6 +590,380 @@ fn rng_below(rng: &mut u64, bound: u64) -> u64 {
 }
 
 // ---------------------------------------------------------------------------
+// U3: the GEMM-shaped commitment kernel. C = G * R over R_q, where
+// G ((kappa + msg_r) x N_r) is the FIXED commitment key and R packs many
+// ternary randomness columns (N_r ring elements each) — regime (a), the
+// dominant LLM-scale cost.
+//
+// A1 evaluation: transform G once (cached), transform each column of R once,
+// multiply-accumulate POINTWISE in the NTT domain, one inverse transform per
+// output element, centered recovery, reduce mod q.
+//
+// Accumulator discipline: NTT-domain values are < 2^64; a u128 cannot hold
+// even two raw 64x64 products, so each pointwise product is REDUCED to u64
+// (reduce128, < p) and the reduced values are accumulated in u128 — exact
+// for up to 2^64 terms, and N_r <= 72 here. One reduce128 at the end of the
+// accumulation returns to Z_p. The EXACT-INTEGER contract (coefficients of
+// the true integer result < p/2) is asserted from the regime bound at
+// construction, never assumed from data.
+
+struct A1CommitKernel {
+    rows: usize,
+    inner: usize,
+    q: u64,
+    g_hat: Vec<[u64; D]>, // rows * inner cached forward transforms
+}
+
+impl A1CommitKernel {
+    /// g: rows*inner ring elements (row-major, coefficients in [0, q)).
+    fn new(g: &[Vec<u64>], rows: usize, inner: usize, q: u64, t: &NttTables) -> Self {
+        // Regime (a) contract: n_acc = inner, A = (q-1)/2, B = 1 (ternary).
+        let (fits, bits) = capacity(inner as u128, ((q - 1) / 2) as u128, 1);
+        assert!(fits, "A1 commit kernel outside single-prime capacity ({bits} bits)");
+        let g_hat = g
+            .iter()
+            .map(|poly| {
+                let mut f = [0u64; D];
+                for i in 0..D {
+                    f[i] = lift_to_p(balanced_mod_q(poly[i], q));
+                }
+                ntt_fwd(&mut f, t);
+                f
+            })
+            .collect();
+        A1CommitKernel { rows, inner, q, g_hat }
+    }
+
+    /// One column of R (inner ternary ring elements) -> rows output elements.
+    fn commit_column(&self, r_col: &[Vec<i64>], t: &NttTables) -> Vec<Vec<u64>> {
+        debug_assert_eq!(r_col.len(), self.inner);
+        // Forward transforms of the column (once per column, shared by rows).
+        let r_hat: Vec<[u64; D]> = r_col
+            .iter()
+            .map(|poly| {
+                let mut f = [0u64; D];
+                for i in 0..D {
+                    f[i] = lift_to_p(poly[i]);
+                }
+                ntt_fwd(&mut f, t);
+                f
+            })
+            .collect();
+        (0..self.rows)
+            .map(|row| {
+                let mut acc = [0u128; D];
+                for c in 0..self.inner {
+                    let gh = &self.g_hat[row * self.inner + c];
+                    let rh = &r_hat[c];
+                    for k in 0..D {
+                        acc[k] += mul_p(gh[k], rh[k]) as u128;
+                    }
+                }
+                let mut v = [0u64; D];
+                for k in 0..D {
+                    v[k] = reduce128(acc[k]);
+                }
+                ntt_inv(&mut v, t);
+                v.iter().map(|&u| mod_q_i128(center_from_p(u), self.q)).collect()
+            })
+            .collect()
+    }
+}
+
+// --- in-file baselines (same statement, no NTT) ----------------------------
+
+/// Naive negacyclic schoolbook commit: per output element, 16384 u64 MACs
+/// per ring-mult, u128 pos/neg lazy accumulation across the whole inner
+/// dimension (exact: < 2^105 at q46), one reduction per output coefficient.
+fn commit_column_schoolbook(
+    g: &[Vec<u64>],
+    rows: usize,
+    inner: usize,
+    r_col_mod: &[Vec<u64>],
+    q: u64,
+) -> Vec<Vec<u64>> {
+    (0..rows)
+        .map(|row| {
+            let mut pos = [0u128; D];
+            let mut neg = [0u128; D];
+            for c in 0..inner {
+                let a = &g[row * inner + c];
+                let b = &r_col_mod[c];
+                for i in 0..D {
+                    let ai = a[i] as u128;
+                    if ai == 0 {
+                        continue;
+                    }
+                    for j in 0..D {
+                        let prod = ai * b[j] as u128;
+                        let k = i + j;
+                        if k < D {
+                            pos[k] += prod;
+                        } else {
+                            neg[k - D] += prod;
+                        }
+                    }
+                }
+            }
+            (0..D)
+                .map(|k| {
+                    let p = (pos[k] % q as u128) as u64;
+                    let n = (neg[k] % q as u128) as u64;
+                    if p >= n { p - n } else { p + q - n }
+                })
+                .collect()
+        })
+        .collect()
+}
+
+/// Ternary-specialized schoolbook commit (the Tier-1 add/sub lever, same
+/// shape as ring_lattice's ring_matvec_small): skips zero coefficients,
+/// adds/subtracts key coefficients in i128.
+fn commit_column_ternary_schoolbook(
+    g: &[Vec<u64>],
+    rows: usize,
+    inner: usize,
+    r_col: &[Vec<i64>],
+    q: u64,
+) -> Vec<Vec<u64>> {
+    (0..rows)
+        .map(|row| {
+            let mut acc = [0i128; D];
+            for c in 0..inner {
+                let a = &g[row * inner + c];
+                let x = &r_col[c];
+                for i in 0..D {
+                    let xi = x[i];
+                    if xi == 0 {
+                        continue;
+                    }
+                    if xi == 1 {
+                        for j in 0..D {
+                            let k = i + j;
+                            if k < D {
+                                acc[k] += a[j] as i128;
+                            } else {
+                                acc[k - D] -= a[j] as i128;
+                            }
+                        }
+                    } else {
+                        for j in 0..D {
+                            let k = i + j;
+                            if k < D {
+                                acc[k] -= a[j] as i128;
+                            } else {
+                                acc[k - D] += a[j] as i128;
+                            }
+                        }
+                    }
+                }
+            }
+            acc.iter().map(|&v| mod_q_i128(v, q)).collect()
+        })
+        .collect()
+}
+
+// --- k = 2 CRT-split baseline (the current Route R design point) -----------
+//
+// X^128 + 1 = (X^64 - r)(X^64 + r) mod q with r^2 = -1 (q = 5 mod 8). The
+// split AMORTIZES like A1 does: key slots cached, column slots computed once,
+// slot-wise 64x64 schoolbook MAC accumulation (8192 MACs per ring-mult),
+// recombination once per output element.
+
+fn mul_q(a: u64, b: u64, q: u64) -> u64 {
+    ((a as u128 * b as u128) % q as u128) as u64
+}
+
+fn pow_q(mut base: u64, mut e: u64, q: u64) -> u64 {
+    let mut acc = 1u64;
+    while e > 0 {
+        if e & 1 == 1 {
+            acc = mul_q(acc, base, q);
+        }
+        base = mul_q(base, base, q);
+        e >>= 1;
+    }
+    acc
+}
+
+/// sqrt(-1) mod q for q = 5 mod 8: 2^((q-1)/4) works because 2 is a
+/// quadratic nonresidue there; verified by the caller.
+fn sqrt_m1(q: u64) -> u64 {
+    let r = pow_q(2, (q - 1) / 4, q);
+    assert_eq!(mul_q(r, r, q), q - 1, "sqrt(-1) construction failed");
+    r
+}
+
+const HALF: usize = D / 2;
+
+/// a(X) mod (X^64 - s): coefficient i picks up s * coefficient (i + 64).
+fn to_slot_q(a: &[u64], s: u64, q: u64) -> Vec<u64> {
+    (0..HALF)
+        .map(|i| {
+            let t = mul_q(s, a[i + HALF], q);
+            let v = a[i] + t;
+            if v >= q { v - q } else { v }
+        })
+        .collect()
+}
+
+struct K2CommitKernel {
+    rows: usize,
+    inner: usize,
+    q: u64,
+    r_pos: u64, // sqrt(-1)
+    inv2: u64,
+    inv2r: u64,
+    g_pos: Vec<Vec<u64>>, // cached key slots, rows * inner each
+    g_neg: Vec<Vec<u64>>,
+}
+
+impl K2CommitKernel {
+    fn new(g: &[Vec<u64>], rows: usize, inner: usize, q: u64) -> Self {
+        let r_pos = sqrt_m1(q);
+        let r_neg = q - r_pos;
+        let inv2 = pow_q(2, q - 2, q);
+        let inv2r = mul_q(inv2, pow_q(r_pos, q - 2, q), q);
+        let g_pos = g.iter().map(|p| to_slot_q(p, r_pos, q)).collect();
+        let g_neg = g.iter().map(|p| to_slot_q(p, r_neg, q)).collect();
+        K2CommitKernel { rows, inner, q, r_pos, inv2, inv2r, g_pos, g_neg }
+    }
+
+    fn commit_column(&self, r_col_mod: &[Vec<u64>]) -> Vec<Vec<u64>> {
+        let q = self.q;
+        let r_neg = q - self.r_pos;
+        let c_pos: Vec<Vec<u64>> =
+            r_col_mod.iter().map(|p| to_slot_q(p, self.r_pos, q)).collect();
+        let c_neg: Vec<Vec<u64>> =
+            r_col_mod.iter().map(|p| to_slot_q(p, r_neg, q)).collect();
+        (0..self.rows)
+            .map(|row| {
+                // Slot-wise negacyclic-64 schoolbook (X^64 = s in the slot),
+                // u128 lazy accumulation across inner (exact: < 2^105).
+                let mut out = vec![0u64; D];
+                for (slot_idx, (gs, cs, s)) in [
+                    (&self.g_pos, &c_pos, self.r_pos),
+                    (&self.g_neg, &c_neg, r_neg),
+                ]
+                .iter()
+                .enumerate()
+                {
+                    let mut wide = vec![0u128; 2 * HALF];
+                    for c in 0..self.inner {
+                        let a = &gs[row * self.inner + c];
+                        let b = &cs[c];
+                        for i in 0..HALF {
+                            let ai = a[i] as u128;
+                            if ai == 0 {
+                                continue;
+                            }
+                            for j in 0..HALF {
+                                wide[i + j] += ai * b[j] as u128;
+                            }
+                        }
+                    }
+                    let slot: Vec<u64> = (0..HALF)
+                        .map(|k| {
+                            let lo = (wide[k] % q as u128) as u64;
+                            let hi = (wide[k + HALF] % q as u128) as u64;
+                            let t = mul_q(*s, hi, q);
+                            let v = lo + t;
+                            if v >= q { v - q } else { v }
+                        })
+                        .collect();
+                    // stash: reuse `out` halves before recombination
+                    if slot_idx == 0 {
+                        out[..HALF].copy_from_slice(&slot);
+                    } else {
+                        out[HALF..].copy_from_slice(&slot);
+                    }
+                }
+                // Recombine: lo = (p + m)/2, hi = (p - m)/(2r).
+                let mut res = vec![0u64; D];
+                for i in 0..HALF {
+                    let p = out[i];
+                    let m = out[i + HALF];
+                    let sum = if p + m >= q { p + m - q } else { p + m };
+                    let dif = if p >= m { p - m } else { p + q - m };
+                    res[i] = mul_q(self.inv2, sum, q);
+                    res[i + HALF] = mul_q(self.inv2r, dif, q);
+                }
+                res
+            })
+            .collect()
+    }
+}
+
+// --- U3 self-test -----------------------------------------------------------
+
+fn selftest_commit_kernel() {
+    println!("[U3] GEMM-shaped commit kernel (A1 cached-transform vs baselines)");
+    let t = build_tables();
+    let mut rng = 0xa1a1_0003u64;
+
+    for &q in &[Q46, Q31] {
+        let qb = 64 - q.leading_zeros();
+        // Small shape + one realistic shape.
+        for &(rows, inner, label) in
+            &[(4usize, 6usize, "small 4x6"), (14, 36, "demo 14x36")]
+        {
+            let g: Vec<Vec<u64>> = (0..rows * inner)
+                .map(|_| (0..D).map(|_| rng_below(&mut rng, q)).collect())
+                .collect();
+            let a1 = A1CommitKernel::new(&g, rows, inner, q, &t);
+            let k2 = K2CommitKernel::new(&g, rows, inner, q);
+            let mut all_ok = true;
+            for _ in 0..8 {
+                let r_col: Vec<Vec<i64>> = (0..inner)
+                    .map(|_| (0..D).map(|_| (rng_below(&mut rng, 3) as i64) - 1).collect())
+                    .collect();
+                let r_mod: Vec<Vec<u64>> = r_col
+                    .iter()
+                    .map(|p| p.iter().map(|&v| mod_q_i128(v as i128, q)).collect())
+                    .collect();
+                let want = commit_column_schoolbook(&g, rows, inner, &r_mod, q);
+                if a1.commit_column(&r_col, &t) != want
+                    || commit_column_ternary_schoolbook(&g, rows, inner, &r_col, q) != want
+                    || k2.commit_column(&r_mod) != want
+                {
+                    all_ok = false;
+                    break;
+                }
+            }
+            assert_true(
+                &format!("A1 = ternary-schoolbook = k2 = schoolbook, {label}, {qb}-bit q"),
+                all_ok,
+            );
+        }
+
+        // Worst-case accumulator test: every key element the +-M pattern
+        // (a_0 = +M, a_i = -M), every column element all-ones ternary. The
+        // exact integer coefficient 0 of each output = inner * d * M — the
+        // regime-(a) bound hit EXACTLY; checked against the closed form.
+        let rows = 2;
+        let inner = if q == Q46 { 72 } else { 26 }; // largest table shapes
+        let m = (q - 1) / 2;
+        let mut pattern = vec![q - m; D];
+        pattern[0] = m;
+        let g: Vec<Vec<u64>> = (0..rows * inner).map(|_| pattern.clone()).collect();
+        let r_col: Vec<Vec<i64>> = (0..inner).map(|_| vec![1i64; D]).collect();
+        let r_mod: Vec<Vec<u64>> = (0..inner).map(|_| vec![1u64; D]).collect();
+        let a1 = A1CommitKernel::new(&g, rows, inner, q, &t);
+        let got = a1.commit_column(&r_col, &t);
+        let want = commit_column_schoolbook(&g, rows, inner, &r_mod, q);
+        let exact = inner as u128 * D as u128 * m as u128;
+        let (fits, bits) = capacity(inner as u128, m as u128, 1);
+        assert!(fits);
+        assert_true(
+            &format!(
+                "worst-case accumulator (exact c_0 = N_r*d*(q-1)/2, {bits} bits < 63) exact, N_r={inner}, {qb}-bit q"
+            ),
+            got == want && got[0][0] == (exact % q as u128) as u64,
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Self-test helpers.
 
 fn assert_true(label: &str, cond: bool) {
@@ -732,6 +1106,7 @@ fn main() {
 
     selftest_goldilocks();
     selftest_capacity_and_fallback();
+    selftest_commit_kernel();
     print_capacity_table();
 
     if mode == "bench" {
