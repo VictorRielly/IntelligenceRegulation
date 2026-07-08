@@ -1728,6 +1728,547 @@ fn self_test_gadgets() {
     }
 }
 
+// ===========================================================================
+// U5: ring-Pi2 — all three matrices hidden (A committed by rows, B and C
+// by columns); claim C = A B.
+//
+// GATE EQUATIONS (worked on paper first, per the design's U5 mitigation):
+// with SCALAR gate challenges (s, v) the composition closes exactly:
+//   x_a = sum_i s_i apack_i, x_b = sum_j v_j bpack_j, x_c = sum_j v_j
+//   cpack_j (scalar weights commute with packing), and
+//     ct( sum_u conj(xa_u) xb_u )  = <coeffs(x_a), coeffs(x_b)>
+//                                  = s^T (A B) v,
+//     ct( sum_u conj(spack_u) xc_u ) = s^T C v,
+//   so ONE sigma-twisted quadratic ct-claim per repetition:
+//     ct( sum_u conj(xa_u) xb_u - sum_u conj(spack_u) xc_u ) = 0.
+//   The scalar-combined commitments are digit-opened (Q2; scalar
+//   combination magnitude is SMALL — cheaper digit chains than the ring
+//   combos), and every repetition shares one ct-round (one challenge, one
+//   mask bundle class).
+//
+// Q1 FINDING, gate half (this build's central result): with RING
+// challenges the gate does NOT close — F := sum_u conj(xa_u) xb_u =
+// sum_ij conj(s_i) v_j P_ij with P_ij := sum_u conj(apack_iu) bpack_ju,
+// and ct(w P) != w-weighted ct(P): the ring weights mix the JUNK
+// (shift-correlation) coefficients of P_ij into the ct. The committed-
+// correction escapes fail (the correction's own consistency reintroduces
+// per-pair objects), and the C-side cannot be twisted to match (same
+// non-commutation as Pi1 option (b)). Sound resolutions are the ALS20
+// automorphism/trace machinery (a design round of its own) or this
+// SCALAR-repetition gate: per-rep soundness (b - 2) bits at b-bit signed
+// nonzero scalars (Route Z's own discipline), so r_g = ceil(256/(b-2))
+// for full grade — r_g = 64 at b = 6, i.e. THE r -> 1 LEVER DOES NOT
+// SURVIVE FOR PI2'S GATE at this design state; the vector/opening layers
+// DO stay at r = 1, so the per-rep cost is ~3 digit bundles, far below a
+// Route Z repetition. Full accounting in the U8 docs; r_g is a
+// constructor parameter (the design's "fallback behind a flag").
+
+struct RingPi2Proof {
+    salt: u64,
+    g_t1: Vec<Vec<Poly>>,
+    g_t2: Vec<Vec<Poly>>,
+    ct: ring::ct_engine::CtRoundProof,
+}
+
+struct Pi2Shape {
+    rows: usize,
+    inner_r: usize, // slots per A-row / B-column
+    rows_r: usize,  // slots per C-column (ceil(rows / D))
+    cols: usize,
+}
+
+/// b-bit signed nonzero gate scalar: value in +-[1, 2^b].
+fn next_gate_scalar(reader: &mut XofReader, b: u32) -> i64 {
+    let v = 1 + (reader.next_u64() % (1u64 << b)) as i64;
+    if reader.next_bytes(1)[0] & 1 == 0 { v } else { -v }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn pi2_h0(
+    crs: &ring::commit::RingCrs,
+    shape: &Pi2Shape,
+    ctx: &[u8],
+    salt: u64,
+    r_g: usize,
+    b_bits: u32,
+    ta: &[(Vec<Poly>, Vec<Poly>)],
+    tb: &[(Vec<Poly>, Vec<Poly>)],
+    tc: &[(Vec<Poly>, Vec<Poly>)],
+    g_t1: &[Vec<Poly>],
+    g_t2: &[Vec<Poly>],
+) -> [u8; 32] {
+    use sha2::{Digest, Sha256};
+    let mut hasher = Sha256::new();
+    hasher.update(b"route-r-pi2-stmt-v1");
+    hasher.update(crs.q.to_le_bytes());
+    hasher.update(crs.crs_hash);
+    hasher.update((shape.rows as u64).to_le_bytes());
+    hasher.update((shape.inner_r as u64).to_le_bytes());
+    hasher.update((shape.cols as u64).to_le_bytes());
+    hasher.update((r_g as u64).to_le_bytes());
+    hasher.update((b_bits as u64).to_le_bytes());
+    hasher.update((ctx.len() as u64).to_le_bytes());
+    hasher.update(ctx);
+    hasher.update(salt.to_le_bytes());
+    for (t1, t2) in ta.iter().chain(tb.iter()).chain(tc.iter()) {
+        hasher.update(polys_bytes(t1));
+        hasher.update(polys_bytes(t2));
+    }
+    for (t1, t2) in g_t1.iter().zip(g_t2.iter()) {
+        hasher.update(polys_bytes(t1));
+        hasher.update(polys_bytes(t2));
+    }
+    hasher.finalize().into()
+}
+
+/// Scalar combination of commitment groups / packed messages / ternary
+/// randomness (exact over Z for the randomness).
+fn scalar_combine_groups(
+    zq: &ring::Zq,
+    groups: &[(Vec<Poly>, Vec<Poly>)],
+    s: &[i64],
+    part: usize,
+) -> Vec<Poly> {
+    let len = if part == 0 { groups[0].0.len() } else { groups[0].1.len() };
+    (0..len)
+        .map(|r| {
+            let mut acc = poly_zero();
+            for (g, &si) in groups.iter().zip(s.iter()) {
+                let t = if part == 0 { &g.0[r] } else { &g.1[r] };
+                let w = zq.to_mod(si);
+                for k in 0..D {
+                    acc[k] = zq.add(acc[k], zq.mul(w, t[k]));
+                }
+            }
+            acc
+        })
+        .collect()
+}
+
+fn scalar_combine_msgs(zq: &ring::Zq, msgs: &[Vec<Poly>], s: &[i64]) -> Vec<Poly> {
+    let slots = msgs[0].len();
+    (0..slots)
+        .map(|u| {
+            let mut acc = poly_zero();
+            for (m, &si) in msgs.iter().zip(s.iter()) {
+                let w = zq.to_mod(si);
+                for k in 0..D {
+                    acc[k] = zq.add(acc[k], zq.mul(w, m[u][k]));
+                }
+            }
+            acc
+        })
+        .collect()
+}
+
+fn scalar_combine_rho(rhos: &[Vec<Vec<i64>>], s: &[i64]) -> Vec<Vec<i64>> {
+    let n_r = rhos[0].len();
+    let mut acc = vec![vec![0i64; D]; n_r];
+    for (rho, &si) in rhos.iter().zip(s.iter()) {
+        for (a, r) in acc.iter_mut().zip(rho.iter()) {
+            for (x, &v) in a.iter_mut().zip(r.iter()) {
+                *x += si * v;
+            }
+        }
+    }
+    acc
+}
+
+/// The gate claim for repetition m: index space has the g-groups plain at
+/// 0..G, then digit combos in rep-major order [xa_0, xb_0, xc_0, xa_1,...].
+fn pi2_gate_claim(
+    zq: &ring::Zq,
+    shape: &Pi2Shape,
+    g_count: usize,
+    m: usize,
+    s: &[i64],
+) -> ring::ct_engine::QuadCtClaim {
+    let one = {
+        let mut p = poly_zero();
+        p[0] = 1;
+        p
+    };
+    let idx_a = g_count + 3 * m;
+    let idx_b = g_count + 3 * m + 1;
+    let idx_c = g_count + 3 * m + 2;
+    // spack: the scalar vector s packed into rows_r chunks, conjugated.
+    let s_mod: Vec<u64> = s.iter().map(|&x| zq.to_mod(x)).collect();
+    let spack = ring::ct_engine::pack_functional(zq, &s_mod, shape.rows_r);
+    let mut msg_coeffs: Vec<(usize, usize, Poly)> = Vec::new();
+    for (u, sp) in spack.into_iter().enumerate() {
+        msg_coeffs.push((idx_c, u, ring::poly_neg(zq, &sp)));
+    }
+    ring::ct_engine::QuadCtClaim {
+        quad: (0..shape.inner_r).map(|u| (idx_a, u, idx_b, u, one.clone())).collect(),
+        msg_coeffs,
+        scalar: 0,
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn prove_ring_pi2(
+    path: &KernelPath,
+    ring_ctx: &RingCtx,
+    crs: &ring::commit::RingCrs,
+    rp: &ring::ct_engine::CtRoundParams,
+    dp: &ring::sigma::DigitParams,
+    shape: &Pi2Shape,
+    ctx: &[u8],
+    r_g: usize,
+    b_bits: u32,
+    a_rows: &[Vec<Poly>],
+    rho_a: &[Vec<Vec<i64>>],
+    b_cols: &[Vec<Poly>],
+    rho_b: &[Vec<Vec<i64>>],
+    c_cols: &[Vec<Poly>],
+    rho_c: &[Vec<Vec<i64>>],
+    ta: &[(Vec<Poly>, Vec<Poly>)],
+    tb: &[(Vec<Poly>, Vec<Poly>)],
+    tc: &[(Vec<Poly>, Vec<Poly>)],
+    rng: &mut u64,
+) -> (RingPi2Proof, usize) {
+    use ring::ct_engine::{DigitOpening, prove_ct_round, sample_ct_masks};
+    let zq = &ring_ctx.zq;
+    let msg_r = crs.shape.msg_r;
+
+    // g-masks (one per gate repetition), committed before challenges.
+    let g_groups = sample_ct_masks(rng, crs.q, msg_r, r_g);
+    let mut g_t1 = Vec::new();
+    let mut g_t2 = Vec::new();
+    let mut g_rho = Vec::new();
+    for g in &g_groups {
+        let rho: Vec<Vec<i64>> = (0..crs.shape.n_r).map(|_| rng_ternary_poly(rng)).collect();
+        let (t1, t2) = commit(path, crs, g, &rho);
+        g_t1.push(t1);
+        g_t2.push(t2);
+        g_rho.push(rho);
+    }
+
+    // Salted gate challenges; combos must fit the digit range.
+    let mut salt = 0u64;
+    let (h0, reps) = loop {
+        let h0 = pi2_h0(crs, shape, ctx, salt, r_g, b_bits, ta, tb, tc, &g_t1, &g_t2);
+        let mut reps = Vec::with_capacity(r_g);
+        let mut ok = true;
+        for m in 0..r_g {
+            let mut reader = XofReader::new("pi2-gate", &[&h0, &(m as u64).to_le_bytes()]);
+            let s: Vec<i64> = (0..shape.rows).map(|_| next_gate_scalar(&mut reader, b_bits)).collect();
+            let v: Vec<i64> = (0..shape.cols).map(|_| next_gate_scalar(&mut reader, b_bits)).collect();
+            let rho_sa = scalar_combine_rho(rho_a, &s);
+            let rho_vb = scalar_combine_rho(rho_b, &v);
+            let rho_vc = scalar_combine_rho(rho_c, &v);
+            let fits = rho_sa
+                .iter()
+                .chain(rho_vb.iter())
+                .chain(rho_vc.iter())
+                .all(|col| col.iter().all(|&x| digit_fits(x, dp.e, dp.l)));
+            if !fits {
+                ok = false;
+                break;
+            }
+            reps.push((s, v, rho_sa, rho_vb, rho_vc));
+        }
+        if ok {
+            break (h0, reps);
+        }
+        salt += 1;
+    };
+
+    // Combined objects per repetition.
+    struct Combo {
+        t1: Vec<Poly>,
+        t2: Vec<Poly>,
+        x: Vec<Poly>,
+        rho: Vec<Vec<i64>>,
+    }
+    let mut combos: Vec<Combo> = Vec::with_capacity(3 * r_g);
+    let mut claims = Vec::with_capacity(r_g);
+    for (m, (s, v, rho_sa, rho_vb, rho_vc)) in reps.into_iter().enumerate() {
+        let xa = scalar_combine_msgs(zq, a_rows, &s);
+        let xb = scalar_combine_msgs(zq, b_cols, &v);
+        let xc = scalar_combine_msgs(zq, c_cols, &v);
+        combos.push(Combo {
+            t1: scalar_combine_groups(zq, ta, &s, 0),
+            t2: scalar_combine_groups(zq, ta, &s, 1),
+            x: xa,
+            rho: rho_sa,
+        });
+        combos.push(Combo {
+            t1: scalar_combine_groups(zq, tb, &v, 0),
+            t2: scalar_combine_groups(zq, tb, &v, 1),
+            x: xb,
+            rho: rho_vb,
+        });
+        combos.push(Combo {
+            t1: scalar_combine_groups(zq, tc, &v, 0),
+            t2: scalar_combine_groups(zq, tc, &v, 1),
+            x: xc,
+            rho: rho_vc,
+        });
+        claims.push(pi2_gate_claim(zq, shape, g_groups.len(), m, &s));
+    }
+
+    let plain: Vec<ring::ct_engine::StdOpening> = g_groups
+        .iter()
+        .enumerate()
+        .map(|(i, g)| ring::ct_engine::StdOpening { t1: &g_t1[i], t2: &g_t2[i], x: g, rho: &g_rho[i] })
+        .collect();
+    let digits: Vec<DigitOpening> = combos
+        .iter()
+        .map(|c| DigitOpening { t1: &c.t1, t2: &c.t2, x: &c.x, rho_wide: &c.rho })
+        .collect();
+    let (ct, attempts) = prove_ct_round(
+        path, ring_ctx, rp, Some(dp), crs, &h0, &[], &[], &claims, &[], &plain, &digits, &[], 0, rng,
+    );
+    (RingPi2Proof { salt, g_t1, g_t2, ct }, attempts)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn verify_ring_pi2(
+    path: &KernelPath,
+    ring_ctx: &RingCtx,
+    crs: &ring::commit::RingCrs,
+    rp: &ring::ct_engine::CtRoundParams,
+    dp: &ring::sigma::DigitParams,
+    shape: &Pi2Shape,
+    ctx: &[u8],
+    r_g: usize,
+    b_bits: u32,
+    ta: &[(Vec<Poly>, Vec<Poly>)],
+    tb: &[(Vec<Poly>, Vec<Poly>)],
+    tc: &[(Vec<Poly>, Vec<Poly>)],
+    proof: &RingPi2Proof,
+) -> bool {
+    use ring::ct_engine::verify_ct_round;
+    let zq = &ring_ctx.zq;
+    if ta.len() != shape.rows || tb.len() != shape.cols || tc.len() != shape.cols {
+        return false;
+    }
+    if proof.g_t1.len() != r_g.div_ceil(crs.shape.msg_r) || proof.salt > 64 {
+        return false;
+    }
+    let h0 = pi2_h0(crs, shape, ctx, proof.salt, r_g, b_bits, ta, tb, tc, &proof.g_t1, &proof.g_t2);
+    let mut t1s_dig = Vec::with_capacity(3 * r_g);
+    let mut t2s_dig = Vec::with_capacity(3 * r_g);
+    let mut claims = Vec::with_capacity(r_g);
+    for m in 0..r_g {
+        let mut reader = XofReader::new("pi2-gate", &[&h0, &(m as u64).to_le_bytes()]);
+        let s: Vec<i64> = (0..shape.rows).map(|_| next_gate_scalar(&mut reader, b_bits)).collect();
+        let v: Vec<i64> = (0..shape.cols).map(|_| next_gate_scalar(&mut reader, b_bits)).collect();
+        t1s_dig.push(scalar_combine_groups(zq, ta, &s, 0));
+        t2s_dig.push(scalar_combine_groups(zq, ta, &s, 1));
+        t1s_dig.push(scalar_combine_groups(zq, tb, &v, 0));
+        t2s_dig.push(scalar_combine_groups(zq, tb, &v, 1));
+        t1s_dig.push(scalar_combine_groups(zq, tc, &v, 0));
+        t2s_dig.push(scalar_combine_groups(zq, tc, &v, 1));
+        claims.push(pi2_gate_claim(zq, shape, proof.g_t1.len(), m, &s));
+    }
+    verify_ct_round(
+        path,
+        ring_ctx,
+        rp,
+        Some(dp),
+        crs,
+        &h0,
+        &[],
+        &[],
+        &claims,
+        &[],
+        &proof.g_t1,
+        &proof.g_t2,
+        &t1s_dig,
+        &t2s_dig,
+        &[],
+        0,
+        &proof.ct,
+    )
+}
+
+fn self_test_pi2() {
+    use ring::ct_engine::derive_ct_round_params;
+    println!("\n[U5] ring-Pi2 (scalar gate behind the r_g flag) at 128 x 256 x 64, q8_31");
+    let q = Q8;
+    let ring_ctx = ring_ctx_q8();
+    let zq = ring_ctx.zq;
+    let shape = Pi2Shape { rows: 128, inner_r: 2, rows_r: 1, cols: 64 };
+    let inner = shape.inner_r * D;
+    let (r_g, b_bits) = (8usize, 6u32);
+    let r_full = (256.0 / (b_bits as f64 - 2.0)).ceil() as usize;
+    println!(
+        "  gate: b = {b_bits}-bit signed nonzero scalars, (b-2) = {} bits/rep -> r_g = {r_full} for 2^-256; DEMO runs r_g = {r_g} (~{} gate bits)",
+        b_bits - 2,
+        r_g * (b_bits as usize - 2),
+    );
+
+    // Digit chain for the scalar combos: w_inf from the concentration
+    // combination bound at E[s^2] ~ 4^b / 3.
+    let e_s2 = (1u64 << (2 * b_bits)) as f64 / 3.0;
+    let t_max = shape.rows.max(shape.cols);
+    let w_u = 1.3 * (t_max as f64 * D as f64 * e_s2 * (2.0 / 3.0)).sqrt();
+    let e_dig = 4u32; // smaller digit half-width: the gate chain must fit C3 at kappa = 8
+    let l_dig = ((w_u.log2() + 1.0) / e_dig as f64).ceil() as usize;
+    // Shape parameters from the Pi2 chain at the statement shape.
+    let p = derive_digits(Proto::Pi2, shape.rows, inner, shape.cols, 0, q, true, 4)
+        .expect("Pi2 demo point must fit q31");
+    let cshape = CommitShape { kappa: p.kappa, n_r: p.n_r, msg_r: p.msg_r };
+    let crs = expand_crs(cshape, q, 20_000);
+    let dp = derive_digit_params(q, cshape.kappa, cshape.n_r, e_dig, l_dig, w_u.ceil() as i64);
+    println!(
+        "  params: kappa={} N_r={} msg_r={} gate digits (e={}, L={}), digit sigma=2^{:.1}",
+        cshape.kappa, cshape.n_r, cshape.msg_r, e_dig, l_dig, (dp.sigma as f64).log2()
+    );
+    let g_count = r_g.div_ceil(cshape.msg_r);
+    let rp = derive_ct_round_params(q, cshape, g_count, 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp.sigma.max(dp.sigma), isqrt_u128(rp.bound_sq.max(dp.bound_sq)));
+    let a1_path = KernelPath::A1(&a1p);
+    let mut rng = 0x5eed_0008u64;
+
+    // Instance: random A (rows x inner), B (inner x cols), C = A B mod q.
+    let a_mat: Vec<u64> = (0..shape.rows * inner).map(|_| rng_below(&mut rng, q)).collect();
+    let b_mat: Vec<u64> = (0..inner * shape.cols).map(|_| rng_below(&mut rng, q)).collect();
+    let mut c_mat = vec![0u64; shape.rows * shape.cols];
+    for r in 0..shape.rows {
+        for j in 0..shape.cols {
+            let mut acc = 0u64;
+            for k in 0..inner {
+                acc = zq.add(acc, zq.mul(a_mat[r * inner + k], b_mat[k * shape.cols + j]));
+            }
+            c_mat[r * shape.cols + j] = acc;
+        }
+    }
+    let commit_many = |vecs: Vec<Vec<u64>>, n: usize, rng: &mut u64| {
+        let mut msgs = Vec::new();
+        let mut rhos = Vec::new();
+        let mut groups = Vec::new();
+        for v in vecs {
+            let x = pack_column(n, cshape.msg_r, &v);
+            let rho: Vec<Vec<i64>> = (0..cshape.n_r).map(|_| rng_ternary_poly(rng)).collect();
+            let (t1, t2) = commit(&a1_path, &crs, &x, &rho);
+            msgs.push(x);
+            rhos.push(rho);
+            groups.push((t1, t2));
+        }
+        (msgs, rhos, groups)
+    };
+    let a_rows_raw: Vec<Vec<u64>> =
+        (0..shape.rows).map(|r| (0..inner).map(|k| a_mat[r * inner + k]).collect()).collect();
+    let b_cols_raw: Vec<Vec<u64>> =
+        (0..shape.cols).map(|j| (0..inner).map(|k| b_mat[k * shape.cols + j]).collect()).collect();
+    let c_cols_raw: Vec<Vec<u64>> =
+        (0..shape.cols).map(|j| (0..shape.rows).map(|r| c_mat[r * shape.cols + j]).collect()).collect();
+    let (a_rows, rho_a, ta) = commit_many(a_rows_raw, inner, &mut rng);
+    let (b_cols, rho_b, tb) = commit_many(b_cols_raw, inner, &mut rng);
+    let (c_cols, rho_c, tc) = commit_many(c_cols_raw, shape.rows, &mut rng);
+
+    let ctxb = b"route-r-pi2-demo";
+    let t0 = Instant::now();
+    let mut rng_a = 0xabcd_0003u64;
+    let (proof, attempts) = prove_ring_pi2(
+        &a1_path, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, r_g, b_bits, &a_rows, &rho_a, &b_cols,
+        &rho_b, &c_cols, &rho_c, &ta, &tb, &tc, &mut rng_a,
+    );
+    let prove_ms = t0.elapsed().as_secs_f64() * 1e3;
+    let t1 = Instant::now();
+    let ok = verify_ring_pi2(
+        &a1_path, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, r_g, b_bits, &ta, &tb, &tc, &proof,
+    );
+    let verify_ms = t1.elapsed().as_secs_f64() * 1e3;
+    assert_true(
+        &format!(
+            "pi2 verifies (attempts = {attempts}, salt = {}, prove {prove_ms:.0} ms, verify {verify_ms:.0} ms)",
+            proof.salt
+        ),
+        ok,
+    );
+    // Same-seed transcript identity.
+    let mut rng_b = 0xabcd_0003u64;
+    let (proof_s, attempts_s) = prove_ring_pi2(
+        &KernelPath::School, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, r_g, b_bits, &a_rows, &rho_a,
+        &b_cols, &rho_b, &c_cols, &rho_c, &ta, &tb, &tc, &mut rng_b,
+    );
+    assert_true(
+        "pi2 same-seed proofs bit-identical across paths",
+        attempts == attempts_s
+            && proof.ct.h_quad == proof_s.ct.h_quad
+            && proof.ct.gq == proof_s.ct.gq
+            && proof.ct.z_digits == proof_s.ct.z_digits,
+    );
+
+    // Negative battery.
+    // (a) C != A B (honest machinery on the wrong instance): the gate's
+    // quadratic ct-claims catch it.
+    {
+        let mut c_bad = c_mat.clone();
+        c_bad[0] = zq.add(c_bad[0], 1);
+        let c_cols_bad_raw: Vec<Vec<u64>> = (0..shape.cols)
+            .map(|j| (0..shape.rows).map(|r| c_bad[r * shape.cols + j]).collect())
+            .collect();
+        let (c_cols_bad, rho_c_bad, tc_bad) = commit_many(c_cols_bad_raw, shape.rows, &mut rng);
+        let (bad, _) = prove_ring_pi2(
+            &a1_path, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, r_g, b_bits, &a_rows, &rho_a,
+            &b_cols, &rho_b, &c_cols_bad, &rho_c_bad, &ta, &tb, &tc_bad, &mut rng,
+        );
+        assert_true(
+            "pi2 semantic soundness: C != A B fails (gate ct checks)",
+            !verify_ring_pi2(&a1_path, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, r_g, b_bits, &ta, &tb, &tc_bad, &bad),
+        );
+    }
+    // (b) tampered gate reveal.
+    {
+        let mut bad = RingPi2Proof {
+            salt: proof.salt,
+            g_t1: proof.g_t1.clone(),
+            g_t2: proof.g_t2.clone(),
+            ct: clone_ct_proof(&proof.ct),
+        };
+        bad.ct.h_quad[0][0] = zq.add(bad.ct.h_quad[0][0], 1);
+        assert_true(
+            "pi2 tampered gate reveal fails",
+            !verify_ring_pi2(&a1_path, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, r_g, b_bits, &ta, &tb, &tc, &bad),
+        );
+    }
+    // (c) tampered digit response / (d) wrong context / (e) tampered
+    // commitment.
+    {
+        let mut bad = RingPi2Proof {
+            salt: proof.salt,
+            g_t1: proof.g_t1.clone(),
+            g_t2: proof.g_t2.clone(),
+            ct: clone_ct_proof(&proof.ct),
+        };
+        bad.ct.z_digits[0][0][0][0] += 1;
+        assert_true(
+            "pi2 tampered digit response fails",
+            !verify_ring_pi2(&a1_path, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, r_g, b_bits, &ta, &tb, &tc, &bad),
+        );
+    }
+    assert_true(
+        "pi2 wrong context fails",
+        !verify_ring_pi2(&a1_path, &ring_ctx, &crs, &rp, &dp, &shape, b"other", r_g, b_bits, &ta, &tb, &tc, &proof),
+    );
+    {
+        let mut ta_bad = ta.clone();
+        ta_bad[0].0[0][0] = zq.add(ta_bad[0].0[0][0], 1);
+        assert_true(
+            "pi2 tampered row commitment fails",
+            !verify_ring_pi2(&a1_path, &ring_ctx, &crs, &rp, &dp, &shape, ctxb, r_g, b_bits, &ta_bad, &tb, &tc, &proof),
+        );
+    }
+    // Cost accounting: per-rep marginal size and the full-grade total.
+    let dig_elems_per_combo = 2 * dp.l * cshape.kappa; // t1_digits + w1_digits
+    let z_coeffs_per_combo = dp.l * cshape.n_r * D;
+    let sigma_bits = (dp.sigma as f64).log2() + 4.0;
+    let per_rep_kb = 3.0
+        * (dig_elems_per_combo as f64 * D as f64 * 31.0 / 8.0 / 1024.0
+            + z_coeffs_per_combo as f64 * sigma_bits / 8.0 / 1024.0)
+        + 5.0 * D as f64 * 31.0 / 8.0 / 1024.0; // h_quad + 3 garbage + W
+    println!(
+        "  pi2 gate cost: ~{per_rep_kb:.0} KB/rep -> demo (r_g = {r_g}) ~{:.0} KB; FULL GRADE (r_g = {r_full}) ~{:.1} MB — the r = 1 lever does not survive the gate at this design state (see U8 docs)",
+        per_rep_kb * r_g as f64,
+        per_rep_kb * r_full as f64 / 1024.0,
+    );
+}
+
 fn usage() {
     eprintln!("usage: ring_matmul self-test");
     std::process::exit(2);
@@ -1744,6 +2285,7 @@ fn main() {
             self_test_ct_engine();
             self_test_pi1();
             self_test_gadgets();
+            self_test_pi2();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         _ => usage(),
