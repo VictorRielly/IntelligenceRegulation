@@ -328,6 +328,15 @@ one real risk — the ct-mask bookkeeping — is exactly the machinery ALS20
 and LNP22 publish and test at these dimensions (report Section 17: "it is
 also exactly the machinery those papers supply").
 
+*(Protocol-build tranche update — FALSIFIED for general A: step 2's
+identity `<t_l, unpack(x_b)> = <theta_l, unpack(x_c)>` fails even for
+honest parties, because ring-challenge column compression does not
+commute with a general A (`A M(v_j) != M(v_j) A` for the negacyclic
+matrix of v_j). Option (a) is implemented at full grade (r = 1,
+ring-valued claims, ~100 KB proofs) and covers the structured maps this
+section already assigned to it; general-A Pi1 is parked with costed
+alternatives. ROUTE_R_BUILD_REPORT.md finding F1.)*
+
 **Pi2's gate is the same design point.** The product gate compresses to a
 scalar; by finding 2 that scalar cannot carry r = 1 soundness naively.
 The lift: compressions `x_a = sum_i s_i apack_i`, `x_b`, and the derived
@@ -343,6 +352,19 @@ k = 2 is this design's highest-risk item (Q1): the objects are all in
 ALS20/LNP22 but their composition for the packed-matrix statement needs to
 be written out and differentially tested against the Z oracle. Fallback:
 mini-repeat the gate layer (r_g <= 8, side-linear, percent-level cost).
+
+*(Protocol-build tranche update — the risk materialized: written out,
+the ring-challenge gate does NOT close. The junk coefficients of the
+pair products P_ij enter the ct through the ring weights
+(`ct(w P) != w ct(P)`), the C side cannot be twisted to match, and
+committed-correction escapes reintroduce per-pair objects. The r_g
+fallback is implemented (scalar gate challenges, one quadratic ct-claim
+per repetition over digit-opened scalar combos), but its honest
+accounting is (b - 2) bits per repetition, i.e. r_g = 64 at b = 6 for
+2^-256 — not the "r_g <= 8 percent-level" hoped for above. The r = 1
+lever does not survive the gate at this design state; restoring it is
+the automorphism-gate design round. ROUTE_R_BUILD_REPORT.md finding
+F2.)*
 
 ## 5. CRT-slot elementwise operations (the M2 mandate)
 
@@ -361,6 +383,11 @@ all.** In dense coefficient packing:
   wrap mod q: needs ||b||^2 < q/2-class, i.e. an approximate range bound
   from the same LNP22 toolbox — JL-projection ARP, 256 extra ct-claims per
   tensor, side-linear).
+  *(Protocol-build tranche update: the ARP side-condition budget closes
+  at q46-class moduli but NOT at q31 (conservative extraction 2^22.1 vs
+  the 2^15-class q31 budget) — this section was written for q46 and the
+  Q2/Q3 move to q31 did not re-check it. Gadget-layer options in
+  ROUTE_R_BUILD_REPORT.md finding F3.)*
 - *Range width W:* commit W bit-tensors dense-packed (d bits per ring
   element), one binary ct-claim each, plus the recomposition
   `value = sum_i 2^i bit_i` — a public Z-linear map, theta-batched into l
@@ -507,6 +534,12 @@ Route R at q46 (kappa=15, N_r=54, msg_r=16), ops accounting:
   **~0.1-0.2 s (~15-25x faster; ~5-10% of the 1.88 s raw mod-q matmul)**.
 - verify: one blocked pass over the same objects: **~0.1 s (~10x)**.
 - proof size: **~117 KB (vs multi-MB, ~25-50x)**.
+  *(Protocol-build tranche update: these three lines assumed the r = 1
+  ring-challenge gate, which finding F2 falsified. At the implemented
+  scalar gate's full grade (r_g = 64) the per-claim figures become
+  ~13-15 MB and +0.3-0.6 s (1T) of gate work; the r = 1 numbers are
+  recoverable only via the automorphism-gate design round.
+  ROUTE_R_BUILD_REPORT.md Section 3.)*
 - commit: ring ~3,900 ops/element (Karatsuba) vs Route Z ~11,300
   MACs/element at this shape: **~2-3x fewer ops — NOT the 15x of the
   estimate** (finding 3: k = 2 has no d log d transform). Projected
@@ -570,6 +603,13 @@ changes to existing files; `cargo run --release --bin ring_lattice`):
    a cheap sound fallback (r_g mini-repetition of the gate layer only).
    Risk: schedule, not feasibility. Mitigation: U5 starts with equations
    on paper reviewed against ALS20 Fig. 2-3; Z-oracle differential tests.
+   *(RESOLVED NEGATIVELY at build level by the protocol-build tranche:
+   both the general-A linear map (option b) and the ring-challenge gate
+   fail on the same non-commutation/junk obstruction; the fallback is
+   implemented but costs r_g = 64 at b = 6 (not <= 8), and the r = 1
+   Pi2 proof-size projections of Sections 3 and 7 do not hold until the
+   automorphism-gate design round. ROUTE_R_BUILD_REPORT.md findings
+   F1/F2.)*
 2. **Q2 — modulus class and the 2x endpoint.** q46 vs 32-bit-class:
    response decomposition (Dilithium-style) would shrink q, kappa, N and
    with them the commit bill; it reworks Lemma 6.3. This decides whether

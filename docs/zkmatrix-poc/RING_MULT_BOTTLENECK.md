@@ -371,6 +371,20 @@ lands at its op-count projection.**
   measured: the 20x GPU factor and the ~15x 22-thread scaling
   extrapolation; the arithmetic layer itself is no longer a projection.
 
+### 6.6 Protocol-build tranche update (reads on the gate verdict)
+
+The full Route R protocol build (ROUTE_R_BUILD_REPORT.md) leaves the
+COMMIT-BILL side of the Section 6.5 verdict intact — the A1 kernels
+carry every matvec of the built protocol with same-seed bit-identity,
+so the ~119 muls/element and the ~1.6-2.0 min 22T / ~5-6 s GPU commit
+projections stand. The CLAIM-PROOF side changes: the r = 1 Pi2 gate was
+falsified (finding F2 — junk cross-correlations under ring challenges),
+and the implemented scalar-gate fallback costs r_g = 64 repetitions at
+full grade (~13-15 MB, +0.3-0.6 s 1T per matmul claim). **The
+~15-30 s / ~2-4x reconciliation is therefore gated on the
+automorphism-gate design round**, not on kernels; every other layer
+(openings, ct-engine, gadgets, chains) is built and measured at r = 1.
+
 ## 7. The wider honesty note
 
 Even at the 15 s / ~2x-of-CPU-int8 endpoint, proving remains ~100-300x
