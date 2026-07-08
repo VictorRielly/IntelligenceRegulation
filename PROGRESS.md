@@ -17,12 +17,26 @@ UNCOMMITTED (clone commands recorded in the note instead).
       512x4096x11008 e=4 (9, 57, msg_r 32), prototype opening (kappa 8,
       N_r 26, msg_r 2, plain worst-case chain, ring_lattice.rs). Moduli:
       q8_31 = 2147483249, fallback q8_46 = 70368744176561.
-- [ ] U1 — lattice-estimator attempt (clone into tools/, try plain
-      python3; record outcome either way).
-- [ ] U2 — scripts/estimator_run.py: core-SVP model (Chen delta(b),
+- [x] U1 — lattice-estimator RUNS here: cloned to tools/lattice-estimator
+      (commit 3e48ef4, NOT committed), imports under the pure-Python
+      sage.all float shim inside estimator_run.py + one disclosed
+      log1p monkey-patch of prob.amplify (double-precision underflow;
+      disk code untouched). Shim VALIDATED against the estimator's own
+      doctest anchors (Kyber512 usvp beta 406 rop 2^143.8; SIS l2 toy
+      beta 61 2^47.0; Dilithium2 MSIS linf beta 427 2^152.2 — all exact).
+- [x] U2 — scripts/estimator_run.py: [core-SVP] model (Chen delta(b),
       0.292b/0.257b), MSIS l2 at k_Z = kappa*128 x N_Z, MLWE primal uSVP
       at knapsack dim N_Z - (kappa+msg_r)*128 ternary; frozen points +
-      kappa +-2 / N_r +-8 sweep; q31 + q46; results/estimator_*.txt.
+      kappa +-2 / N_r +-8 sweep; q31 + q46; plus the [lattice-estimator]
+      leg (MATZOV + ADPS16, usvp + bdd) on all 10 anchor points.
+      Results: all frozen q31 points PASS 128-bit classical (min side is
+      MSIS: 136.7-153.0 core-SVP; 162.8-178.1 MATZOV); quantum 0.257b
+      dips below 128 at e=2/e=3/FFN (125.9/120.3/126.2). ADPS16
+      estimator numbers match core-SVP within 1 block everywhere.
+      C3's delta0=1.0037 = Chen b=445 = a ~130-bit classical line.
+      C4's 11.7-line is ~60 bits conservative (MLWE never binds).
+      Integral-kappa n_sec at Pi2 e=4 (1920 < model d_lwe 2035) still
+      gives 177.8 bits — bookkeeping gap, harmless.
 - [ ] U3 — docs/zkmatrix-poc/ESTIMATOR_NOTE.md: methodology (what ran vs
       modeled), tables, per-shape verdicts, model-vs-estimator movement,
       downstream costs of any recommended movement, freeze-check rows
