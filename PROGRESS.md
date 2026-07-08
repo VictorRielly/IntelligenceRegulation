@@ -24,10 +24,18 @@ Branch: worktree branch merged with perf/zk-batch-optimizations (HEAD contains
 4. [todo] Parameter re-derivation script (scripts/route_r_params.py): ring
    analogues of C0-C4, worked table at demo shapes + n=2048, worst-case vs
    concentration norm columns. Output feeds the design doc Section 3.
-5. [todo] Deliverable 1: docs/zkmatrix-poc/ROUTE_R_DESIGN.md (ring/modulus,
-   challenge set + soundness accounting replacing r(b-2)>=256, parameter
-   tables, Pi1 A-map decision, CRT-slot elementwise mapping, migration plan,
-   open questions ranked + projected numbers).
+5. [done] Deliverable 1: docs/zkmatrix-poc/ROUTE_R_DESIGN.md, Sections 1-9:
+   ring/modulus (d=128 justified vs 64/256; q46 = 2^46-635 recommended, q31
+   for the opening layer/prototype; LS18 stated precisely and verified);
+   challenge set (quinary, ternary-FAILS-FS-budget finding) + full r=1
+   accounting incl. the ring-valued-vs-scalar-claim caveat and the ct-engine
+   resolution; C0'-C4 tables (script output); Pi1 A-map: option (b)
+   recommended with the argument + exactly-which-check-changes; CRT-slot
+   elementwise: binary/range/rescale need no slots (~17 us/element vs 108
+   ms), Hadamard H1/H2/H3 costed; migration plan with module layout + U1-U8
+   effort units (6-9 weeks); revised projections incl. the corrected
+   commit-lever (2-3x not 15x => LLM endpoint ~20-35x, 2x gated on Q2/Q3);
+   prototype evidence; open questions Q1-Q6 ranked.
 6. [todo] Full python test suite green (36/36), final commit + final message
    (Deliverable 3: open questions ranked, implementation order, projected
    numbers for M2 gadget/element and n=2048 Pi2).
