@@ -3088,6 +3088,158 @@ fn bench_batch(proto: Protocol, name: &str, n: usize, batches: &[usize]) {
     }
 }
 
+/// M2 exit-criterion demo: prove Y = X W (Pi2), then rescale Y by 2^shift
+/// with remainder and range-prove both r (width = shift) and y' (declared
+/// width), measuring the rescale+range family's prover cost against the
+/// matmul claim it post-processes.
+fn gadget_demo(rows: usize, inner: usize, cols: usize, shift: u32, width: u32) {
+    println!(
+        "lattice gadget-demo: X {rows}x{inner}, W {inner}x{cols}, rescale shift={shift}, quotient width={width}"
+    );
+    let shape = Shape { rows, inner, cols };
+    let min_msg = (width.max(shift) as usize) * rows;
+    let params = derive_params_gadget(Protocol::Pi2, &[shape], None, min_msg);
+    let start = Instant::now();
+    let crs = expand_crs(&params, 0xC0FFEE);
+    println!(
+        "  params: msg={} k={} N={} sigma_h=2^{:.1}, crs {:.3}s",
+        params.msg,
+        params.k,
+        params.big_n,
+        (params.sigma_h as f64).log2(),
+        start.elapsed().as_secs_f64()
+    );
+    let inst = make_instance(&params, &crs, &shape, 0xDE110, true, true);
+    // Manifest over every commitment before any challenge.
+    let mut mf = manifest::ClaimManifest::new("lattice-route-z", &crs.crs_hash);
+    let digest_of = |group: &[Vec<u64>]| -> Vec<u8> {
+        let mut hasher = Sha256::new();
+        for c in group {
+            hasher.update(words_bytes(c));
+        }
+        hasher.finalize().to_vec()
+    };
+    // Y = X W columns, then the rescale witnesses.
+    let y_cols = matmul_mod_gemm(&inst.a_flat, &inst.b_cols, rows, inner);
+    let yq_cols: Vec<Vec<u64>> = y_cols
+        .iter()
+        .map(|c| c.iter().map(|&v| v >> shift).collect())
+        .collect();
+    let rr_cols: Vec<Vec<u64>> = y_cols
+        .iter()
+        .map(|c| c.iter().map(|&v| v & ((1u64 << shift) - 1)).collect())
+        .collect();
+    // Demo guard: quotients must fit the declared width (they do for the
+    // 6-bit inputs of make_instance as long as width is large enough).
+    assert!(yq_cols.iter().flatten().all(|&v| v < 1u64 << width));
+    let p_r: Vec<Vec<u64>> = rr_cols.iter().map(|c| pack_bits(c, shift)).collect();
+    let p_y: Vec<Vec<u64>> = yq_cols.iter().map(|c| pack_bits(c, width)).collect();
+    let mut rng = 0xDE111_u64;
+    let start = Instant::now();
+    let mut commit_group = |cols: &[Vec<u64>], rng: &mut u64| {
+        let rhos: Vec<Vec<i8>> = (0..cols.len())
+            .map(|_| rng_ternary(rng, params.big_n))
+            .collect();
+        let commits = commit_columns_fast(&params, &crs, cols, &rhos);
+        (commits, rhos)
+    };
+    let (tyq, rho_yq) = commit_group(&yq_cols, &mut rng);
+    let (trr, rho_rr) = commit_group(&rr_cols, &mut rng);
+    let (tpr, rho_pr) = commit_group(&p_r, &mut rng);
+    let (tpy, rho_py) = commit_group(&p_y, &mut rng);
+    let gadget_commit_s = start.elapsed().as_secs_f64();
+    let ida = mf.add_commitment("X", rows, inner, manifest::Orientation::ByRows, vec![], digest_of(&inst.ta));
+    let idb = mf.add_commitment("W", inner, cols, manifest::Orientation::ByColumns, vec![], digest_of(&inst.tb));
+    let idy = mf.add_commitment("Y", rows, cols, manifest::Orientation::ByColumns, vec![], digest_of(&inst.tc));
+    let idyq = mf.add_commitment("Yq", rows, cols, manifest::Orientation::ByColumns, vec![], digest_of(&tyq));
+    let idr = mf.add_commitment("R", rows, cols, manifest::Orientation::ByColumns, vec![], digest_of(&trr));
+    let idpr = mf.add_commitment("R-bits", shift as usize * rows, cols, manifest::Orientation::ByColumns, vec![], digest_of(&tpr));
+    let idpy = mf.add_commitment("Yq-bits", width as usize * rows, cols, manifest::Orientation::ByColumns, vec![], digest_of(&tpy));
+    mf.add_operation(manifest::Operation::Matmul { a: ida, b: idb, c: idy });
+    mf.add_operation(manifest::Operation::Rescale { x: idy, y: idyq, r: idr, shift });
+    mf.add_operation(manifest::Operation::Range { value: idr, bits: idpr, width: shift, signed: false });
+    mf.add_operation(manifest::Operation::Range { value: idyq, bits: idpy, width, signed: false });
+    mf.add_operation(manifest::Operation::Binary { bits: idpr });
+    mf.add_operation(manifest::Operation::Binary { bits: idpy });
+    let ctx = mf.digest();
+
+    // Matmul claim (the baseline for the exit criterion).
+    let mut prng = 0xDE112_u64;
+    let start = Instant::now();
+    let mm_proof = prove_pi2(
+        &params, &crs, &shape, &ctx, &inst.a_rows, &inst.rho_a, &inst.b_cols,
+        &inst.rho_b, &inst.tau_c, &inst.ta, &inst.tb, &inst.tc, &mut prng,
+    );
+    let matmul_prove_s = start.elapsed().as_secs_f64();
+
+    // Rescale + range family.
+    let start = Instant::now();
+    let bin_stmts: Vec<HadamardStatement> = tpr
+        .iter()
+        .map(|t| HadamardStatement { len: shift as usize * rows, tx: t, ty: t, tz: t })
+        .chain(tpy.iter().map(|t| HadamardStatement {
+            len: width as usize * rows,
+            tx: t,
+            ty: t,
+            tz: t,
+        }))
+        .collect();
+    let bin_wits: Vec<HadamardWitness> = (0..cols)
+        .map(|j| HadamardWitness {
+            x: &p_r[j], y: &p_r[j], rho_x: &rho_pr[j], rho_y: &rho_pr[j], rho_z: &rho_pr[j],
+        })
+        .chain((0..cols).map(|j| HadamardWitness {
+            x: &p_y[j], y: &p_y[j], rho_x: &rho_py[j], rho_y: &rho_py[j], rho_z: &rho_py[j],
+        }))
+        .collect();
+    let bin_proof = prove_hadamard(&params, &crs, &ctx, &bin_stmts, &bin_wits, &mut prng);
+    let rec_r = prove_recomposition(
+        &params, &crs, &ctx, rows, shift, false, &trr, &tpr, &rho_rr, &rho_pr, &mut prng,
+    );
+    let rec_y = prove_recomposition(
+        &params, &crs, &ctx, rows, width, false, &tyq, &tpy, &rho_yq, &rho_py, &mut prng,
+    );
+    let link = prove_rescale_link(
+        &params, &crs, &ctx, rows, shift, &inst.tc, &tyq, &trr, &inst.tau_c, &rho_yq,
+        &rho_rr, &mut prng,
+    );
+    let family_prove_s = start.elapsed().as_secs_f64();
+
+    let start = Instant::now();
+    let mm_ok = verify_pi2(&params, &crs, &shape, &ctx, &inst.ta, &inst.tb, &inst.tc, &mm_proof);
+    let bin_ok = verify_hadamard(&params, &crs, &ctx, &bin_stmts, &bin_proof);
+    let rr_ok = verify_recomposition(&params, &crs, &ctx, rows, shift, false, &trr, &tpr, &rec_r);
+    let ry_ok = verify_recomposition(&params, &crs, &ctx, rows, width, false, &tyq, &tpy, &rec_y);
+    let lk_ok = verify_rescale_link(&params, &crs, &ctx, rows, shift, &inst.tc, &tyq, &trr, &link);
+    let verify_s = start.elapsed().as_secs_f64();
+    let elements = rows * cols;
+    println!("  gadget commits (Yq, R, bits): {gadget_commit_s:.3}s");
+    println!("  matmul claim prove: {matmul_prove_s:.3}s");
+    println!(
+        "  rescale+range family prove: {family_prove_s:.3}s  ({:.1}% of matmul claim; {:.1} ms/element)",
+        100.0 * family_prove_s / matmul_prove_s,
+        1000.0 * family_prove_s / elements as f64,
+    );
+    println!(
+        "  verify all: {verify_s:.3}s (matmul={mm_ok} binary={bin_ok} rec_r={rr_ok} rec_y={ry_ok} link={lk_ok})"
+    );
+    assert!(mm_ok && bin_ok && rr_ok && ry_ok && lk_ok);
+    // Negative: wrong quotient at one element must break the link.
+    let mut y_bad = yq_cols.clone();
+    y_bad[0][0] = addm(y_bad[0][0], 1);
+    let rho_bad: Vec<Vec<i8>> = (0..cols).map(|_| rng_ternary(&mut rng, params.big_n)).collect();
+    let ty_bad = commit_columns_fast(&params, &crs, &y_bad, &rho_bad);
+    let mut prng_bad = 0xDE113_u64;
+    let bad_link = prove_rescale_link(
+        &params, &crs, &ctx, rows, shift, &inst.tc, &ty_bad, &trr, &inst.tau_c,
+        &rho_bad, &rho_rr, &mut prng_bad,
+    );
+    let bad_ok = verify_rescale_link(&params, &crs, &ctx, rows, shift, &inst.tc, &ty_bad, &trr, &bad_link);
+    println!("  negative wrong-quotient link: {}", if bad_ok { "ACCEPTED (BUG)" } else { "fails as required" });
+    assert!(!bad_ok);
+    println!("lattice gadget-demo ok");
+}
+
 fn usage() {
     eprintln!("usage:");
     eprintln!("  lattice_matmul self-test");
@@ -3096,6 +3248,7 @@ fn usage() {
     eprintln!("  lattice_matmul bench-batch <pi1|pi2> <n> <t...>");
     eprintln!("  lattice_matmul params <pi1|pi2> <n> [n...]");
     eprintln!("  lattice_matmul chain-demo [n0 n1 n2 n3]   (default 16 32 64 8)");
+    eprintln!("  lattice_matmul gadget-demo [rows inner cols shift width]   (default 16 32 64 6 12)");
 }
 
 fn parse_proto(arg: &str) -> Option<(Protocol, &str)> {
@@ -3114,6 +3267,17 @@ fn main() {
     }
     match args[1].as_str() {
         "self-test" => self_test(),
+        "gadget-demo" => {
+            let dims: Vec<usize> = args[2..].iter().map(|a| a.parse().unwrap()).collect();
+            match dims.len() {
+                0 => gadget_demo(16, 32, 64, 6, 12),
+                5 => gadget_demo(dims[0], dims[1], dims[2], dims[3] as u32, dims[4] as u32),
+                _ => {
+                    usage();
+                    std::process::exit(1);
+                }
+            }
+        }
         "chain-demo" => {
             let dims: Vec<usize> = args[2..].iter().map(|a| a.parse().unwrap()).collect();
             match dims.len() {
