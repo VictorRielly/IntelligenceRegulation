@@ -2888,6 +2888,46 @@ fn freeze_check() {
         );
     }
 
+    // U-B4 — the committed-executions gate's frozen artifacts: the C4
+    // shape of the h-slot execution-vector commitments and the tie-combo
+    // (W-combination) digit-chain envelope (AUTOMORPHISM_GATE_DESIGN.md
+    // Appendix B). A change here means the gate's cost chain moved.
+    {
+        let d_lwe = (768.0_f64 * 31.0 / 11.7).ceil() as usize;
+        let n_r_h = (8 * D + 128 * D + d_lwe).div_ceil(D);
+        gate(
+            &format!("CE gate execution-vector shape (C4): kappa=8 n_r={n_r_h} msg_r=128"),
+            n_r_h == 152,
+        );
+        // Fixed-seed mirror of the gate-spike's empirical W-combo bound
+        // (quinary s/tau x ternary rho, sqrt-extrapolated to n = 2048).
+        let rows_emp = 64usize;
+        let mut rng = 0x5eed_000cu64;
+        let rhos: Vec<Vec<i64>> = (0..rows_emp).map(|_| rng_ternary_poly(&mut rng)).collect();
+        let s_emp: Vec<Vec<i64>> = (0..rows_emp).map(|_| rng_quinary_poly(&mut rng)).collect();
+        let tau: Vec<Vec<i64>> = (0..128).map(|_| rng_quinary_poly(&mut rng)).collect();
+        let mut acc_w = vec![0i64; D];
+        for (i, rho) in rhos.iter().enumerate() {
+            for ti in tau.iter() {
+                let st = poly_mul_small(&s_emp[i], ti);
+                let term = poly_mul_small(&st, rho);
+                for (a, &x) in acc_w.iter_mut().zip(term.iter()) {
+                    *a += x;
+                }
+            }
+        }
+        let max_coeff = acc_w.iter().map(|x| x.abs()).max().unwrap();
+        let w_est_2048 = (max_coeff as f64) * (2048.0f64 / rows_emp as f64).sqrt();
+        let l_est = ((w_est_2048.log2() + 1.0) / 4.0).ceil() as usize;
+        gate(
+            &format!(
+                "CE tie-combo digit chain: |W| ~ 2^{:.1} at n = 2048 -> e = 4, L = {l_est} (fits q31)",
+                w_est_2048.log2()
+            ),
+            w_est_2048.log2() < 19.0 && l_est <= 5,
+        );
+    }
+
     if all_ok {
         println!("freeze-check passed");
     } else {
@@ -3488,10 +3528,12 @@ fn gate_spike() {
 // resolution, fully tested with tampered-C negatives. The tie is verified
 // here at witness level with a fresh ring challenge tau (per-slot 2^-296
 // sound: a wrong YA slot survives the tau-combination with prob 2^-296);
-// folding the tie into the masked round as a first-class claim needs the
-// twisted-message-side extension (verifier does h twisted A2 matvecs per
-// claim — a verifier cost, proof unchanged), designed in Appendix B.1 and
-// scoped as the U-B-next engine item.
+// folding the tie into the masked round as a first-class claim is an OPEN
+// engine-design item — the naive routes hit real obstructions (mixed-twist
+// claims put heterogeneous challenge monomials sigma_t(c) into the round
+// check) — see Appendix B.1 of AUTOMORPHISM_GATE_DESIGN.md for the
+// problem statement, the obstructions, and the candidate route. It is the
+// U-B-next item, to be derived on paper first (U-A0 discipline).
 
 fn self_test_pi2_ce() {
     use ring::ct_engine::{
@@ -3718,6 +3760,15 @@ fn self_test_pi2_ce() {
     let kb = (gate_ring_elems + 6 * h) as f64 * D as f64 * 31.0 / 8.0 / 1024.0
         + z_coeffs as f64 * sigma_bits / 8.0 / 1024.0;
     println!("  CE gate proof ~{kb:.0} KB (r = 1; 6 commitments incl. 3 execution vectors + 1 twisted quad claim)");
+    // The gate's MARGINAL cost (what Appendix B prices): the 3 Y objects
+    // + the claim images; A/B/C commitments and openings exist anyway.
+    let y_com_kb = 3.0 * (cshape.kappa + cshape.msg_r) as f64 * D as f64 * 31.0 / 8.0 / 1024.0;
+    let y_z_kb = 3.0 * cshape.n_r as f64 * D as f64 * sigma_bits / 8.0 / 1024.0;
+    let img_kb = 4.0 * D as f64 * 31.0 / 8.0 / 1024.0;
+    println!(
+        "  CE gate marginal ~{:.0} KB (3 Y commitments {y_com_kb:.0} + 3 Y openings {y_z_kb:.0} + claim images {img_kb:.0})",
+        y_com_kb + y_z_kb + img_kb
+    );
     println!("  vs the scalar gate at this shape: ~202 KB/rep x r_g (43-64) = ~8.7-12.9 MB — the r = 1 lever restored for the gate");
 
     // Negative: a wrong C (hence wrong YC) must fail the gate claim.

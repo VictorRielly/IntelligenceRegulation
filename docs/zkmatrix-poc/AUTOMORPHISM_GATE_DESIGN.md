@@ -290,14 +290,21 @@ randomness, so the opening bundles scale with the INNER dimension):
 3 plain bundles at the (h * inner/D)-slot shape + 3 digit-opened tie
 combinations + 1 quadratic claim. Estimates: ~350 KB at the demo shape,
 ~1.7 MB at n = 2048, ~3.3 MB at FFN shapes — **~5-8x below the scalar
-gate at full r = 1 per-slot soundness** (build measures below). The
-consequence split: prove TIME returns to the r = 1 class (bundles are
-fast to produce — the time goal is served); proof SIZE at MB-class per
-claim means the small-proof deployment target eventually needs the
+gate at full r = 1 per-slot soundness**. MEASURED (U-B2/U-B3,
+`self-test` pi2-ce section, demo shape inner = 128): gate MARGINAL cost
+345 KB (3 Y commitments 198 KB + 3 Y opening bundles 145 KB + claim
+images 2 KB) — the ~350 KB estimate confirmed; whole demo round
+(including the pre-existing A/B/C commitments and openings) 688 KB;
+prove ~260 ms (A1 kernels) / verify ~75 ms at r = 1, vs
+~8.7-12.9 MB for the scalar gate at the same shape. The consequence
+split: prove TIME returns to the r = 1 class (bundles are fast to
+produce — the time goal is served); proof SIZE at MB-class per claim at
+scale means the small-proof deployment target eventually needs the
 aggregation/succinctness follow-up (GATE_ALTERNATIVES.md options 2/3).
 The W-combination randomness magnitude measures ~2^18.1
 (sqrt-extrapolated to n = 2048), i.e. digit chains at L ~ 5 —
-comfortably inside q31 (lemma-grade bound is a build-tranche item).
+comfortably inside q31 (lemma-grade bound is a build-tranche item; the
+empirical envelope is now a freeze-check row).
 
 Build tranche (U-B1..U-B4): (B1) engine: public-constant terms in
 ring-valued claims + the conj-twisted ring-valued quadratic claim
@@ -309,6 +316,60 @@ shape, the tie-combo digit chain), docs, and the ZK write-up addendum
 (Q-A2 becomes: all execution data stays committed; the standard
 simulation argument applies — to be written with Q4.3's machinery).
 
+Tranche STATUS (2026-07-09): B1 shipped as the twisted quadratic claim
+(`TwistedQuadRingClaim`, `prove/verify_ct_round_tq`) — the
+public-constant half of B1 is NOT yet built (it belongs to the tie
+integration, B.1 below). B2 shipped as the end-to-end gate demo
+(`self_test_pi2_ce`): the gate claim runs through the production
+engine at r = 1 with the tie demonstrated at witness level; the pi2
+DEFAULT SWITCH is gated on the tie integration (B.1) and stays behind
+the scalar gate's flag until then. B3 shipped (tamper batteries on
+every prover image, same-seed kernel-path identity, committed-tamper
+negatives). B4 shipped (freeze rows + this update). The ZK addendum
+(Q-A2/Q4.3) remains an obligation.
+
 Alternatives to this plan, including out-of-family options (hash-based
 sumcheck gate, the curve-hybrid idea, full-splitting redesign), are
 surveyed in GATE_ALTERNATIVES.md.
+
+### Appendix B.1 — the tie integration: an OPEN design item
+
+What exists: the tie is enforced in the demo at witness level (the
+verifier-side identity `sum_s tau_s YA_s = sum_i s_i sum_t tau_t
+sigma_t^{-1}(apack_i)`, checked on openings, tau drawn AFTER the Y
+commitments). What is missing: the tie as a first-class claim inside
+the masked ct-round, referencing only commitments. An earlier draft of
+this appendix asserted this was "designed" with the verifier doing "h
+twisted A2 matvecs, proof unchanged" — that was an overclaim, retracted
+here; the derivation below records what is actually known.
+
+The obstruction (found in review, 2026-07-09). The round's virtual
+opening P_i = c x_i - Y_i carries the round challenge c. Any tie
+formulation puts a Galois twist on at least one COMMITTED object
+(YA-side or original-side — the twist is conserved across the
+equation), and the twisted virtual opening sigma_t(P) = sigma_t(c)
+sigma_t(x) - sigma_t(Y) carries the twisted challenge monomial
+sigma_t(c). A claim mixing twist classes therefore mixes challenge
+monomials {c, sigma_t(c)}, and a single check equation with
+pre-challenge prover images pins witness combinations PER MONOMIAL —
+but the tie is one equation across monomials, so it cannot be checked
+as a plain multi-twist linear claim. Two specific dead ends, recorded:
+(a) per-twist reveal pivots u_t = sigma_t(YA_t) + m_t with the mask
+committed on one side need the mask consistency m_t = sigma_t(mu_t),
+which is itself a mixed-twist claim — circular; (b) unmasked reveals
+of sigma_t(YA_t) reopen the executions (the ZK regression this design
+exists to avoid).
+
+The candidate route (to be derived on paper first, U-A0 discipline):
+masked per-twist reveals E_t = U_t + m_t with ONE untwisted mask
+commitment M = (m_t), where U_t := tau_t sum_i s_i sigma_t^{-1}(x_a,i).
+Substituting the m_t virtual openings into the check turns the tie into
+a claim with challenge monomials sigma_t^{-1}(c) * c — the same
+monomial family the twisted QUADRATIC layer (B1) already handles with
+pre-challenge garbage images. Expected cost: ~h ring elements of
+reveals + one h-slot mask commitment per tie (~64-70 KB per side at the
+demo shape — the proof does NOT stay unchanged), verifier does h cheap
+entrywise twists of already-computed matvec results. Soundness and ZK
+of this composition are exactly what the paper derivation must
+establish before any engine code (the U-A0 lesson: derive first, build
+second).

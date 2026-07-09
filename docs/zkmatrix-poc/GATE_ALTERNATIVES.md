@@ -41,15 +41,17 @@ including the tampered-C negative and the norm-chain feasibility prints.
   which was a single-slot spike artifact): the execution-vector
   commitments scale with the matrix inner dimension, giving ~350 KB at
   demo shapes, ~1.7 MB at n = 2048, ~3.3 MB at FFN — **~5-8x below the
-  scalar gate, at full r = 1**. Prove TIME returns to the one-shot
-  class; per-claim SIZE stays MB-class, so small-proof deployments
+  scalar gate, at full r = 1**. MEASURED at the demo shape (U-B2/U-B3):
+  marginal 345 KB, prove ~260 ms / verify ~75 ms at r = 1 — the
+  estimate confirmed. Prove TIME returns to the one-shot class;
+  per-claim SIZE stays MB-class at scale, so small-proof deployments
   eventually need option 2 or 3 as an aggregation layer on top.
-- Remaining work: engine support for (i) a public-constant term in
-  ring-valued claims, (ii) the twisted-conjugate quadratic claim variant
-  without a ct-reveal, (iii) the pi2 gate rewrite + batteries + the ZK
-  write-up (much tamer than the open-execution variant: everything stays
-  committed). No twisted-CRS kernels needed — the twists act only on
-  verifier-computed public combinations.
+- Built (U-B1..U-B4): the twisted quadratic claim in the engine, the
+  end-to-end gate demo with full tamper batteries, freeze rows. Still
+  open: the tie as a first-class in-round claim (the real remaining
+  design item — AUTOMORPHISM_GATE_DESIGN.md Appendix B.1 records the
+  obstruction and candidate route; the earlier "proof unchanged" note
+  was an overclaim), then the pi2 default switch, then the ZK write-up.
 
 ## 2. Hash-based sumcheck gate (out-of-family, post-quantum)
 
