@@ -3471,6 +3471,263 @@ fn gate_spike() {
     println!("\ngate-spike passed");
 }
 
+// ===========================================================================
+// U-B2: the committed-executions Pi2 gate (AUTOMORPHISM_GATE_DESIGN.md
+// Appendix B). Resolves finding F2's repetition cost at r = 1. The gate
+// C = A B (all hidden) becomes:
+//   - fresh commitments to the h = 128 execution vectors YA, YB, YC
+//     (YA_sigma = sigma^{-1}(sum_i sigma(s_i) apack_i), etc.);
+//   - ONE sigma-twisted ring-valued quadratic claim through the engine:
+//       sum_sigma conj(YA_sigma) YB_sigma
+//         - sum_sigma conj(shat_tw_sigma) YC_sigma = 0    (r = 1);
+//   - a tie binding each Y to the originals (sum_sigma tau_sigma YA_sigma
+//     = sum_i s_i sum_sigma tau_sigma sigma^{-1}(apack_i)).
+//
+// STATUS (honest boundary): the gate claim runs end-to-end through the
+// production ct-engine (prove/verify_ct_round_tq) — this is the F2
+// resolution, fully tested with tampered-C negatives. The tie is verified
+// here at witness level with a fresh ring challenge tau (per-slot 2^-296
+// sound: a wrong YA slot survives the tau-combination with prob 2^-296);
+// folding the tie into the masked round as a first-class claim needs the
+// twisted-message-side extension (verifier does h twisted A2 matvecs per
+// claim — a verifier cost, proof unchanged), designed in Appendix B.1 and
+// scoped as the U-B-next engine item.
+
+fn self_test_pi2_ce() {
+    use ring::ct_engine::{
+        StdOpening, TwistedQuadRingClaim, ct_h0, derive_ct_round_params, prove_ct_round_tq,
+        verify_ct_round_tq,
+    };
+    println!("\n[U-B2] committed-executions Pi2 gate (r = 1) at rows=4, inner=128, cols=3, q8_31");
+    let q = Q8;
+    let ring_ctx = ring_ctx_q8();
+    let zq = ring_ctx.zq;
+    let (rows, cols) = (4usize, 3usize);
+    let full = subgroup_elems(5, true);
+    let h = full.len();
+    let m2 = 2 * D;
+    let inv_t = |t: usize| -> usize { (1..m2).step_by(2).find(|&u| (t * u) % m2 == 1).unwrap() };
+
+    // One CRS with msg_r = h (the execution vectors are the widest).
+    let cshape = CommitShape { kappa: 8, n_r: 152, msg_r: h };
+    let crs = expand_crs(cshape, q, 51_000);
+    let mut rng = 0x5eed_00d0u64;
+
+    // Instance: A rows, B cols, C[i][j] = <apack_i, bpack_j> (the matmul
+    // the gate proves via ct of conj(apack_i) bpack_j).
+    let a_rows: Vec<Poly> = (0..rows).map(|_| rng_poly_mod(&mut rng, q)).collect();
+    let b_cols: Vec<Poly> = (0..cols).map(|_| rng_poly_mod(&mut rng, q)).collect();
+    let c_mat: Vec<Vec<u64>> = (0..rows)
+        .map(|i| {
+            (0..cols)
+                .map(|j| {
+                    let mut acc = 0u64;
+                    for k in 0..D {
+                        acc = zq.add(acc, zq.mul(a_rows[i][k], b_cols[j][k]));
+                    }
+                    acc
+                })
+                .collect()
+        })
+        .collect();
+    let cpack: Vec<Poly> = (0..cols)
+        .map(|j| {
+            let mut p = poly_zero();
+            for i in 0..rows {
+                p[i] = c_mat[i][j];
+            }
+            p
+        })
+        .collect();
+
+    let pad = |v: &[Poly]| -> Vec<Poly> {
+        let mut x = v.to_vec();
+        x.resize(h, poly_zero());
+        x
+    };
+
+    // Build committed objects: 0=A, 1=B, 2=C, 3=YA, 4=YB, 5=YC.
+    let build = |msgs: Vec<Poly>, rng: &mut u64| -> (Vec<Poly>, Vec<Poly>, Vec<Poly>, Vec<Vec<i64>>) {
+        let x = pad(&msgs);
+        let rho: Vec<Vec<i64>> = (0..cshape.n_r).map(|_| rng_ternary_poly(rng)).collect();
+        let (t1, t2) = commit(&KernelPath::School, &crs, &x, &rho);
+        (x, t1, t2, rho)
+    };
+    let (xa, t1a, t2a, rhoa) = build(a_rows.clone(), &mut rng);
+    let (xb, t1b, t2b, rhob) = build(b_cols.clone(), &mut rng);
+    let (xc, t1c, t2c, rhoc) = build(cpack.clone(), &mut rng);
+
+    // Draw s, v from a preliminary hash binding the original commits (the
+    // Y commitments depend on s, v). tau is drawn LATER, from the final h0
+    // that binds the Y commitments — drawing tau before Y is committed
+    // would let a cheating prover craft Y around a known tau (the F5
+    // failure mode); Appendix B step 2 pins this order.
+    let pre = ct_h0(&crs, b"pi2-ce-pre", &[t1a.clone(), t1b.clone(), t1c.clone()], &[t2a.clone(), t2b.clone(), t2c.clone()], &[]);
+    let mut sr = XofReader::new("pi2-ce-sv", &[&pre]);
+    let sch: Vec<Vec<i64>> = (0..rows).map(|_| sr.next_challenge()).collect();
+    let vch: Vec<Vec<i64>> = (0..cols).map(|_| sr.next_challenge()).collect();
+
+    // Execution vectors ya^sigma = sigma^{-1}(sum_i sigma(s_i) apack_i).
+    let exec = |packs: &[Poly], ch: &[Vec<i64>]| -> Vec<Poly> {
+        full.iter()
+            .map(|&t| {
+                let mut acc = poly_zero();
+                for (p, c) in packs.iter().zip(ch.iter()) {
+                    let tc = apply_auto(&zq, &poly_from_small(&zq, c), t);
+                    acc = poly_add(&zq, &acc, &poly_mul_g(&zq, &tc, p));
+                }
+                apply_auto(&zq, &acc, inv_t(t))
+            })
+            .collect()
+    };
+    let ya = exec(&a_rows, &sch);
+    let yb = exec(&b_cols, &vch);
+    let yc = exec(&cpack, &vch);
+    // shat_tw_sigma = sigma^{-1}(sum_i sigma(s_i) X^{pos_i}) — public.
+    let shat_tw: Vec<Poly> = full
+        .iter()
+        .map(|&t| {
+            let mut acc = poly_zero();
+            for i in 0..rows {
+                let tc = apply_auto(&zq, &poly_from_small(&zq, &sch[i]), t);
+                let mut xi = poly_zero();
+                xi[i] = 1;
+                acc = poly_add(&zq, &acc, &poly_mul_g(&zq, &tc, &xi));
+            }
+            apply_auto(&zq, &acc, inv_t(t))
+        })
+        .collect();
+
+    let (xya, t1ya, t2ya, rhoya) = build(ya.clone(), &mut rng);
+    let (xyb, t1yb, t2yb, rhoyb) = build(yb.clone(), &mut rng);
+    let (xyc, t1yc, t2yc, rhoyc) = build(yc.clone(), &mut rng);
+
+    // The final statement hash binds all six commitments (originals + Y);
+    // tau derives from it, so tau is fresh AFTER the Y commitments.
+    let t1s = [t1a.clone(), t1b.clone(), t1c.clone(), t1ya.clone(), t1yb.clone(), t1yc.clone()];
+    let t2s = [t2a.clone(), t2b.clone(), t2c.clone(), t2ya.clone(), t2yb.clone(), t2yc.clone()];
+    let h0 = ct_h0(&crs, b"pi2-ce", &t1s, &t2s, &[]);
+    let mut tr = XofReader::new("pi2-ce-tau", &[&h0]);
+    let tau: Vec<Vec<i64>> = (0..h).map(|_| tr.next_challenge()).collect();
+
+    // The tie (witness-level, per-slot sound via fresh tau): for each side,
+    // sum_sigma tau_sigma Y_sigma == sum_i s_i sum_sigma tau_sigma
+    // sigma^{-1}(pack_i). A tampered Y is caught. (Engine integration:
+    // Appendix B.1, twisted A2 matvecs.)
+    let tie_ok = |ys: &[Poly], packs: &[Poly], ch: &[Vec<i64>]| -> bool {
+        let mut lhs = poly_zero();
+        for (yi, ti) in ys.iter().zip(tau.iter()) {
+            lhs = poly_add(&zq, &lhs, &poly_mul_g(&zq, &poly_from_small(&zq, ti), yi));
+        }
+        let mut rhs = poly_zero();
+        for (i, p) in packs.iter().enumerate() {
+            let mut inner_sum = poly_zero();
+            for (si, &t) in full.iter().enumerate() {
+                let tw = apply_auto(&zq, p, inv_t(t));
+                inner_sum = poly_add(&zq, &inner_sum, &poly_mul_g(&zq, &poly_from_small(&zq, &tau[si]), &tw));
+            }
+            rhs = poly_add(&zq, &rhs, &poly_mul_g(&zq, &poly_from_small(&zq, &ch[i]), &inner_sum));
+        }
+        lhs == rhs
+    };
+    assert_true("CE tie: YA/YB/YC each match their twisted-original combination (per-slot 2^-296)",
+        tie_ok(&ya, &a_rows, &sch) && tie_ok(&yb, &b_cols, &vch) && tie_ok(&yc, &cpack, &vch));
+    // Tampered YA fails the tie.
+    let mut ya_bad = ya.clone();
+    ya_bad[0][0] = zq.add(ya_bad[0][0], 1);
+    assert_true("CE tie: tampered YA fails", !tie_ok(&ya_bad, &a_rows, &sch));
+
+    // The gate: ONE twisted quadratic ring claim over YA, YB, YC.
+    let one = {
+        let mut p = poly_zero();
+        p[0] = 1;
+        p
+    };
+    let gate_claim = TwistedQuadRingClaim {
+        quad: (0..h).map(|s| (3usize, s, 4usize, s, one.clone())).collect(),
+        msg_coeffs: (0..h).map(|s| (5usize, s, ring::poly_neg(&zq, &poly_conj(&zq, &shat_tw[s])))).collect(),
+    };
+
+    let xs = [xa.clone(), xb.clone(), xc.clone(), xya.clone(), xyb.clone(), xyc.clone()];
+    let rhos = [rhoa.clone(), rhob.clone(), rhoc.clone(), rhoya.clone(), rhoyb.clone(), rhoyc.clone()];
+    let rp = derive_ct_round_params(q, cshape, 6, 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+    let path = KernelPath::A1(&a1p);
+    let openings: Vec<StdOpening> = (0..6)
+        .map(|i| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &xs[i], rho: &rhos[i] })
+        .collect();
+    let t0 = Instant::now();
+    let (proof, attempts) = prove_ct_round_tq(
+        &path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &[], &[gate_claim],
+        &openings, &[], &[], 6, &mut rng,
+    );
+    let prove_ms = t0.elapsed().as_secs_f64() * 1e3;
+    // Rebuild the claim (moved into the prove call) for verification.
+    let gate_v = TwistedQuadRingClaim {
+        quad: (0..h).map(|s| (3usize, s, 4usize, s, one.clone())).collect(),
+        msg_coeffs: (0..h).map(|s| (5usize, s, ring::poly_neg(&zq, &poly_conj(&zq, &shat_tw[s])))).collect(),
+    };
+    let t1v: Vec<Vec<Poly>> = t1s.to_vec();
+    let t2v: Vec<Vec<Poly>> = t2s.to_vec();
+    let tvr = Instant::now();
+    let ok = verify_ct_round_tq(
+        &path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &[], &[gate_v], &t1v,
+        &t2v, &[], &[], &[], 6, &proof,
+    );
+    let verify_ms = tvr.elapsed().as_secs_f64() * 1e3;
+    assert_true(&format!("CE gate verifies at r = 1 (attempts = {attempts}, prove {prove_ms:.0} ms, verify {verify_ms:.0} ms)"), ok);
+
+    // Proof-size accounting for the gate CLAIM (executions are the cost).
+    let gate_ring_elems = 3 /* Ga,Gb,G0 */ + 1 /* W */ + proof.w1.iter().map(|w| w.len()).sum::<usize>();
+    let z_coeffs = proof.z.iter().flatten().map(|v| v.len()).sum::<usize>();
+    let sigma_bits = (rp.sigma as f64).log2() + 4.0;
+    let kb = (gate_ring_elems + 6 * h) as f64 * D as f64 * 31.0 / 8.0 / 1024.0
+        + z_coeffs as f64 * sigma_bits / 8.0 / 1024.0;
+    println!("  CE gate proof ~{kb:.0} KB (r = 1; 6 commitments incl. 3 execution vectors + 1 twisted quad claim)");
+    println!("  vs the scalar gate at this shape: ~202 KB/rep x r_g (43-64) = ~8.7-12.9 MB — the r = 1 lever restored for the gate");
+
+    // Negative: a wrong C (hence wrong YC) must fail the gate claim.
+    let mut c_bad = c_mat.clone();
+    c_bad[0][0] = zq.add(c_bad[0][0], 1);
+    let cpack_bad: Vec<Poly> = (0..cols)
+        .map(|j| {
+            let mut p = poly_zero();
+            for i in 0..rows {
+                p[i] = c_bad[i][j];
+            }
+            p
+        })
+        .collect();
+    let yc_bad = exec(&cpack_bad, &vch);
+    let (xyc_b, t1yc_b, t2yc_b, rhoyc_b) = build(yc_bad.clone(), &mut rng);
+    let t1sb = [t1a.clone(), t1b.clone(), t1c.clone(), t1ya.clone(), t1yb.clone(), t1yc_b.clone()];
+    let t2sb = [t2a.clone(), t2b.clone(), t2c.clone(), t2ya.clone(), t2yb.clone(), t2yc_b.clone()];
+    let xsb = [xa.clone(), xb.clone(), xc.clone(), xya.clone(), xyb.clone(), xyc_b.clone()];
+    let rhosb = [rhoa.clone(), rhob.clone(), rhoc.clone(), rhoya.clone(), rhoyb.clone(), rhoyc_b.clone()];
+    let h0b = ct_h0(&crs, b"pi2-ce", &t1sb, &t2sb, &[]);
+    let gate_b = TwistedQuadRingClaim {
+        quad: (0..h).map(|s| (3usize, s, 4usize, s, one.clone())).collect(),
+        msg_coeffs: (0..h).map(|s| (5usize, s, ring::poly_neg(&zq, &poly_conj(&zq, &shat_tw[s])))).collect(),
+    };
+    let opb: Vec<StdOpening> = (0..6)
+        .map(|i| StdOpening { t1: &t1sb[i], t2: &t2sb[i], x: &xsb[i], rho: &rhosb[i] })
+        .collect();
+    let (proof_b, _) = prove_ct_round_tq(
+        &KernelPath::School, &ring_ctx, &rp, None, &crs, &h0b, &[], &[], &[], &[], &[gate_b],
+        &opb, &[], &[], 6, &mut rng,
+    );
+    let gate_bv = TwistedQuadRingClaim {
+        quad: (0..h).map(|s| (3usize, s, 4usize, s, one.clone())).collect(),
+        msg_coeffs: (0..h).map(|s| (5usize, s, ring::poly_neg(&zq, &poly_conj(&zq, &shat_tw[s])))).collect(),
+    };
+    let t1bv: Vec<Vec<Poly>> = t1sb.to_vec();
+    let t2bv: Vec<Vec<Poly>> = t2sb.to_vec();
+    assert_true(
+        "CE gate: wrong C (C != A B) fails",
+        !verify_ct_round_tq(&KernelPath::School, &ring_ctx, &rp, None, &crs, &h0b, &[], &[], &[], &[], &[gate_bv], &t1bv, &t2bv, &[], &[], &[], 6, &proof_b),
+    );
+}
+
 fn usage() {
     eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike");
     std::process::exit(2);
@@ -3488,6 +3745,7 @@ fn main() {
             self_test_pi1();
             self_test_gadgets();
             self_test_pi2();
+            self_test_pi2_ce();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         Some("chain-demo") if args.len() == 5 => {
