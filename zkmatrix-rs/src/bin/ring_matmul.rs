@@ -3468,7 +3468,7 @@ fn gate_spike() {
 }
 
 fn usage() {
-    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo");
     std::process::exit(2);
 }
 
@@ -3484,6 +3484,7 @@ fn main() {
             self_test_pi1();
             self_test_gadgets();
             self_test_pi2();
+            self_test_link();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         Some("chain-demo") if args.len() == 5 => {
@@ -3492,6 +3493,323 @@ fn main() {
         }
         Some("freeze-check") => freeze_check(),
         Some("gate-spike") => gate_spike(),
+        Some("link-demo") => {
+            let t = Instant::now();
+            self_test_link();
+            println!("\nlink-demo passed in {:.2}s", t.elapsed().as_secs_f64());
+        }
         _ => usage(),
+    }
+}
+
+// ===========================================================================
+// U-L: the F3 modulus link (GADGET_MODULUS_DECISION.md option (a), module
+// ring/link.rs) — value tensors committed at q8_31, their bit planes at the
+// dedicated q8_46 gadget layer, tied by l = 24 FS-derived structured-weight
+// rows with revealed integers y_l and ONE linear ct-claim family per side
+// riding that side's ordinary ct-round. Demo shape: the exact F3-pinned ARP
+// unit — n = 128 values in [0, 2^4), W = 4 planes (512 bit coefficients;
+// the q46 ARP binary-unit granularity cap is ~896, see freeze_check_link).
+
+fn self_test_link() {
+    use ring::ct_engine::{
+        StdOpening, ct_h0, derive_ct_round_params, prove_ct_round, sample_ct_masks,
+        verify_ct_round,
+    };
+    use ring::link::{
+        derive_gadget_layer, derive_link_params, derive_link_xi, link_claims_gnd,
+        link_claims_tgt, link_gate_ok, link_h0, link_honest_y, link_reveal_y, link_w_max,
+    };
+    println!("\n[U-L] modulus link (F3): q8_31 values <-> q8_46 bit planes, w = 11, l = 24");
+
+    // The two frozen CRS points, asserted against the study table.
+    let gl_t = derive_gadget_layer(Q8, 32, 16).expect("q31 value layer must derive");
+    let gl_g = derive_gadget_layer(ring::Q8_46, 32, 16).expect("q46 gadget layer must derive");
+    assert_true(
+        &format!(
+            "q31 value CRS frozen point: kappa={} N_r={} (want 9/56)",
+            gl_t.shape.kappa, gl_t.shape.n_r
+        ),
+        gl_t.shape.kappa == 9 && gl_t.shape.n_r == 56,
+    );
+    assert_true(
+        &format!(
+            "q46 bit CRS frozen point: kappa={} N_r={} (want 6/62)",
+            gl_g.shape.kappa, gl_g.shape.n_r
+        ),
+        gl_g.shape.kappa == 6 && gl_g.shape.n_r == 62,
+    );
+
+    // Frozen link operating point at the demo shape.
+    let lp = derive_link_params(D, 4, ring::Q8_46, Q8, 11);
+    assert_true(
+        &format!(
+            "frozen link point w=11 l={} (2^-264); w_max(demo) = {}",
+            lp.l,
+            link_w_max(D, 4, ring::Q8_46)
+        ),
+        lp.l == 24 && 11 <= link_w_max(D, 4, ring::Q8_46),
+    );
+
+    let ring_t = ring::ring_ctx_q8();
+    let ring_g = ring::ring_ctx(ring::Q8_46, ring::ETA8_46, 8);
+    let (zq_t, zq_g) = (ring_t.zq, ring_g.zq);
+    let crs_t = expand_crs(gl_t.shape, Q8, 0xF331);
+    let crs_g = expand_crs(gl_g.shape, ring::Q8_46, 0xF346);
+    let mut rng = 0x5eed_00f3u64;
+
+    // Witness: n = 128 values in [0, 16); plane i, coefficient t = bit i
+    // of value t (each plane is exactly one ring element at n = D).
+    let values: Vec<u64> = (0..lp.n).map(|_| rng_below(&mut rng, 1 << lp.w_bits)).collect();
+    let bit_planes = |vals: &[u64]| -> Vec<Poly> {
+        (0..lp.w_bits as usize)
+            .map(|i| {
+                let mut p = poly_zero();
+                for (t, &v) in vals.iter().enumerate() {
+                    p[t] = (v >> i) & 1;
+                }
+                p
+            })
+            .collect()
+    };
+    let value_poly = |vals: &[u64]| -> Poly {
+        let mut p = poly_zero();
+        for (t, &v) in vals.iter().enumerate() {
+            p[t] = v;
+        }
+        p
+    };
+    let pad = |mut slots: Vec<Poly>, msg_r: usize| -> Vec<Poly> {
+        while slots.len() < msg_r {
+            slots.push(poly_zero());
+        }
+        slots
+    };
+    // One side = its witness commitment + its g-mask commitment (l = 24
+    // claims fit one msg_r = 32 group), so g_base = 1 on both sides.
+    fn commit_side(
+        path: &KernelPath,
+        crs: &ring::commit::RingCrs,
+        wit: Vec<Poly>,
+        g: Vec<Poly>,
+        rng: &mut u64,
+    ) -> (Vec<Vec<Poly>>, Vec<Vec<Poly>>, Vec<Vec<Poly>>, Vec<Vec<Vec<i64>>>) {
+        let all_x = vec![wit, g];
+        let all_rho: Vec<Vec<Vec<i64>>> = (0..all_x.len())
+            .map(|_| (0..crs.shape.n_r).map(|_| rng_ternary_poly(rng)).collect())
+            .collect();
+        let (mut t1s, mut t2s) = (Vec::new(), Vec::new());
+        for (x, rho) in all_x.iter().zip(all_rho.iter()) {
+            let (t1, t2) = commit(path, crs, x, rho);
+            t1s.push(t1);
+            t2s.push(t2);
+        }
+        (t1s, t2s, all_x, all_rho)
+    }
+
+    let rp_t = derive_ct_round_params(Q8, gl_t.shape, 2, 0, 0, false);
+    let rp_g = derive_ct_round_params(ring::Q8_46, gl_g.shape, 2, 0, 0, false);
+    let a1p_t = build_a1_paths(&crs_t, rp_t.sigma, isqrt_u128(rp_t.bound_sq));
+    let a1p_g = build_a1_paths(&crs_g, rp_g.sigma, isqrt_u128(rp_g.bound_sq));
+    let path_t = KernelPath::A1(&a1p_t);
+    let path_g = KernelPath::A1(&a1p_g);
+
+    // Honest transcript. Hash ordering (the F5 rule across moduli):
+    // commit EVERYTHING on both sides (witnesses AND g groups), then
+    // h0_link binds both CRS hashes + both commitment lists, xi rows and
+    // each side's round hash derive from it.
+    let g_t = sample_ct_masks(&mut rng, Q8, gl_t.shape.msg_r, lp.l).remove(0);
+    let g_g = sample_ct_masks(&mut rng, ring::Q8_46, gl_g.shape.msg_r, lp.l).remove(0);
+    let (t1s_g, t2s_g, x_g, rho_g) =
+        commit_side(&path_g, &crs_g, pad(bit_planes(&values), gl_g.shape.msg_r), g_g, &mut rng);
+    let (t1s_t, t2s_t, x_t, rho_t) =
+        commit_side(&path_t, &crs_t, pad(vec![value_poly(&values)], gl_t.shape.msg_r), g_t, &mut rng);
+    let h0_link = link_h0(b"u-l-demo", &crs_g, &crs_t, &t1s_g, &t2s_g, &t1s_t, &t2s_t);
+    let h0_g = ct_h0(&crs_g, &h0_link, &t1s_g, &t2s_g, &[]);
+    let h0_t = ct_h0(&crs_t, &h0_link, &t1s_t, &t2s_t, &[]);
+    let xi = derive_link_xi(&h0_link, &lp);
+    let y = link_reveal_y(&lp, &xi, &values);
+    let y_max = y.iter().map(|v| v.unsigned_abs()).max().unwrap();
+    assert_true(
+        &format!(
+            "honest reveal passes the grounding gate: max|y| = 2^{:.1} < q46/2 = 2^45 (1.3-tail model 2^{:.1})",
+            (y_max as f64).log2(),
+            link_honest_y(&lp).log2()
+        ),
+        link_gate_ok(&lp, &y),
+    );
+
+    // Claim families: plane i lives in slot i of q46 commitment 0; the
+    // values in slot 0 of q31 commitment 0.
+    let plane_slots: Vec<Vec<(usize, usize)>> =
+        (0..lp.w_bits as usize).map(|i| vec![(0usize, i)]).collect();
+    let value_slots = vec![(0usize, 0usize)];
+    let claims_g = link_claims_gnd(&zq_g, &lp, &xi, &y, &plane_slots);
+    let claims_t = link_claims_tgt(&zq_t, &lp, &xi, &y, &value_slots);
+    let openings_g: Vec<StdOpening> = x_g
+        .iter()
+        .zip(rho_g.iter())
+        .enumerate()
+        .map(|(i, (x, rho))| StdOpening { t1: &t1s_g[i], t2: &t2s_g[i], x, rho })
+        .collect();
+    let openings_t: Vec<StdOpening> = x_t
+        .iter()
+        .zip(rho_t.iter())
+        .enumerate()
+        .map(|(i, (x, rho))| StdOpening { t1: &t1s_t[i], t2: &t2s_t[i], x, rho })
+        .collect();
+
+    let t_prove = Instant::now();
+    let (proof_g, att_g) = prove_ct_round(
+        &path_g, &ring_g, &rp_g, None, &crs_g, &h0_g, &claims_g, &[], &[], &[], &openings_g,
+        &[], &[], 1, &mut rng,
+    );
+    let (proof_t, att_t) = prove_ct_round(
+        &path_t, &ring_t, &rp_t, None, &crs_t, &h0_t, &claims_t, &[], &[], &[], &openings_t,
+        &[], &[], 1, &mut rng,
+    );
+    let prove_ms = t_prove.elapsed().as_secs_f64() * 1e3;
+
+    // Verifier: recompute h0_link from the public statement, gate the
+    // revealed y, rebuild BOTH claim families from (h0_link, y), verify
+    // both rounds.
+    let t_verify = Instant::now();
+    let h0_link_v = link_h0(b"u-l-demo", &crs_g, &crs_t, &t1s_g, &t2s_g, &t1s_t, &t2s_t);
+    let xi_v = derive_link_xi(&h0_link_v, &lp);
+    let gate_ok = link_gate_ok(&lp, &y);
+    let claims_gv = link_claims_gnd(&zq_g, &lp, &xi_v, &y, &plane_slots);
+    let claims_tv = link_claims_tgt(&zq_t, &lp, &xi_v, &y, &value_slots);
+    let ok_g = verify_ct_round(
+        &path_g, &ring_g, &rp_g, None, &crs_g,
+        &ct_h0(&crs_g, &h0_link_v, &t1s_g, &t2s_g, &[]),
+        &claims_gv, &[], &[], &[], &t1s_g, &t2s_g, &[], &[], &[], 1, &proof_g,
+    );
+    let ok_t = verify_ct_round(
+        &path_t, &ring_t, &rp_t, None, &crs_t,
+        &ct_h0(&crs_t, &h0_link_v, &t1s_t, &t2s_t, &[]),
+        &claims_tv, &[], &[], &[], &t1s_t, &t2s_t, &[], &[], &[], 1, &proof_t,
+    );
+    let verify_ms = t_verify.elapsed().as_secs_f64() * 1e3;
+    assert_true(
+        &format!(
+            "honest link verifies: prove {prove_ms:.0} ms, verify {verify_ms:.0} ms (attempts {att_g}/{att_t})"
+        ),
+        gate_ok && ok_g && ok_t,
+    );
+
+    // Link overhead (the artifacts the link ADDS to rounds each side runs
+    // anyway): per side l reveals h + l mask images W, the g-mask
+    // commitment column, its A1 mask image and its response bundle; plus
+    // the revealed integers y.
+    let side_kb = |q: u64, shape: &CommitShape, sigma: u64| -> f64 {
+        let (lq, dd) = ((q as f64).log2(), D as f64);
+        let sig_bits = (sigma as f64).log2() + 4.0;
+        (2.0 * lp.l as f64 * dd * lq
+            + (shape.kappa + shape.msg_r) as f64 * dd * lq
+            + shape.kappa as f64 * dd * lq
+            + shape.n_r as f64 * dd * sig_bits)
+            / 8.0
+            / 1024.0
+    };
+    let link_kb = side_kb(ring::Q8_46, &gl_g.shape, rp_g.sigma)
+        + side_kb(Q8, &gl_t.shape, rp_t.sigma)
+        + lp.l as f64 * 8.0 / 1024.0;
+    println!(
+        "    link overhead ~{link_kb:.0} KB ({} claims/side: reveals + W images + g column + g response, + {} revealed y)",
+        lp.l, lp.l
+    );
+
+    // (b) Recomposition mismatch: ONE flipped bit-plane coefficient. The
+    // prover reveals y from the value side; the q46 round's ct check
+    // catches the bits recomposing to something else (miss <= 2^-264).
+    {
+        let mut bits_bad = bit_planes(&values);
+        bits_bad[0][0] ^= 1;
+        let g_g2 = sample_ct_masks(&mut rng, ring::Q8_46, gl_g.shape.msg_r, lp.l).remove(0);
+        let (t1s_g2, t2s_g2, x_g2, rho_g2) =
+            commit_side(&path_g, &crs_g, pad(bits_bad, gl_g.shape.msg_r), g_g2, &mut rng);
+        let h0_link2 = link_h0(b"u-l-demo", &crs_g, &crs_t, &t1s_g2, &t2s_g2, &t1s_t, &t2s_t);
+        let h0_g2 = ct_h0(&crs_g, &h0_link2, &t1s_g2, &t2s_g2, &[]);
+        let xi2 = derive_link_xi(&h0_link2, &lp);
+        let y2 = link_reveal_y(&lp, &xi2, &values);
+        let claims_g2 = link_claims_gnd(&zq_g, &lp, &xi2, &y2, &plane_slots);
+        let openings_g2: Vec<StdOpening> = x_g2
+            .iter()
+            .zip(rho_g2.iter())
+            .enumerate()
+            .map(|(i, (x, rho))| StdOpening { t1: &t1s_g2[i], t2: &t2s_g2[i], x, rho })
+            .collect();
+        let (proof_g2, _) = prove_ct_round(
+            &path_g, &ring_g, &rp_g, None, &crs_g, &h0_g2, &claims_g2, &[], &[], &[],
+            &openings_g2, &[], &[], 1, &mut rng,
+        );
+        assert_true(
+            "tampered bit (recomposition mismatch) fails the q46 ct check",
+            !verify_ct_round(
+                &path_g, &ring_g, &rp_g, None, &crs_g, &h0_g2, &claims_g2, &[], &[], &[],
+                &t1s_g2, &t2s_g2, &[], &[], &[], 1, &proof_g2,
+            ),
+        );
+    }
+
+    // (c) Tampered value: the committed q31 value drifts from what the
+    // honest bit planes recompose to; y comes from the bit side.
+    {
+        let mut values_bad = values.clone();
+        values_bad[0] = (values_bad[0] + 1) % (1 << lp.w_bits);
+        let g_t3 = sample_ct_masks(&mut rng, Q8, gl_t.shape.msg_r, lp.l).remove(0);
+        let (t1s_t3, t2s_t3, x_t3, rho_t3) = commit_side(
+            &path_t, &crs_t, pad(vec![value_poly(&values_bad)], gl_t.shape.msg_r), g_t3, &mut rng,
+        );
+        let h0_link3 = link_h0(b"u-l-demo", &crs_g, &crs_t, &t1s_g, &t2s_g, &t1s_t3, &t2s_t3);
+        let h0_t3 = ct_h0(&crs_t, &h0_link3, &t1s_t3, &t2s_t3, &[]);
+        let xi3 = derive_link_xi(&h0_link3, &lp);
+        let y3 = link_reveal_y(&lp, &xi3, &values); // the honest bits' recomposition
+        let claims_t3 = link_claims_tgt(&zq_t, &lp, &xi3, &y3, &value_slots);
+        let openings_t3: Vec<StdOpening> = x_t3
+            .iter()
+            .zip(rho_t3.iter())
+            .enumerate()
+            .map(|(i, (x, rho))| StdOpening { t1: &t1s_t3[i], t2: &t2s_t3[i], x, rho })
+            .collect();
+        let (proof_t3, _) = prove_ct_round(
+            &path_t, &ring_t, &rp_t, None, &crs_t, &h0_t3, &claims_t3, &[], &[], &[],
+            &openings_t3, &[], &[], 1, &mut rng,
+        );
+        assert_true(
+            "tampered value fails the q31 ct check",
+            !verify_ct_round(
+                &path_t, &ring_t, &rp_t, None, &crs_t, &h0_t3, &claims_t3, &[], &[], &[],
+                &t1s_t3, &t2s_t3, &[], &[], &[], 1, &proof_t3,
+            ),
+        );
+    }
+
+    // (d) The load-bearing range gate: an oversized revealed y is refused
+    // outright (no residue trickery — the integer bound IS the statement).
+    let mut y_big = y.clone();
+    y_big[0] = (ring::Q8_46 / 2) as i64;
+    assert_true("y outside the grounding gate fails", !link_gate_ok(&lp, &y_big));
+
+    // (e) The F5 failure mode across moduli: xi from a STALE h0_link that
+    // misses the g commitments. The verifier's xi (true h0_link) rebuilds
+    // different claims, and the stale-xi proof fails against them.
+    {
+        let h0_stale =
+            link_h0(b"u-l-demo", &crs_g, &crs_t, &t1s_g[..1], &t2s_g[..1], &t1s_t[..1], &t2s_t[..1]);
+        let xi_s = derive_link_xi(&h0_stale, &lp);
+        let y_s = link_reveal_y(&lp, &xi_s, &values);
+        let claims_s = link_claims_gnd(&zq_g, &lp, &xi_s, &y_s, &plane_slots);
+        let (proof_s, _) = prove_ct_round(
+            &path_g, &ring_g, &rp_g, None, &crs_g, &h0_g, &claims_s, &[], &[], &[], &openings_g,
+            &[], &[], 1, &mut rng,
+        );
+        assert_true(
+            "wrong xi (stale h0_link, pre-g derivation) fails against the verifier's claims",
+            !verify_ct_round(
+                &path_g, &ring_g, &rp_g, None, &crs_g, &h0_g, &claims_gv, &[], &[], &[], &t1s_g,
+                &t2s_g, &[], &[], &[], 1, &proof_s,
+            ),
+        );
     }
 }

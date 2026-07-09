@@ -32,8 +32,12 @@ commit.rs, params.rs (beyond mod.rs line), pi2/U5/gate-spike/chain-demo.
 
 ## Next
 - [x] U-L1a: link.rs skeleton + derive_gadget_layer + mod.rs line; build.
-- [ ] U-L1b: LinkParams, xi/y/gate/claims.
-- [ ] U-L2: self_test_link + link-demo arm + self-test call; run.
+- [x] U-L1b: LinkParams, xi/y/gate/claims (folded into the U-L1 commit).
+- [x] U-L2: self_test_link + link-demo arm + self-test call; run.
+      MEASURED (link-demo): prove 13 ms, verify 9 ms, link overhead
+      ~155 KB (24 claims/side + g columns + 24 revealed y); honest
+      max|y| = 2^16.7 vs model 2^16.3, gate 2^45; w_max(demo) = 35;
+      all 5 batteries green (honest, bit, value, gate, stale-xi).
 - [ ] U-L3: freeze_check_link + call; run freeze-check.
 - [ ] Python test append; full suite.
 - [ ] U-L4: doc status header + measured numbers; PROGRESS final.
