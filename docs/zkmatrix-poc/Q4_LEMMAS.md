@@ -332,6 +332,134 @@ Status of Q4.3 overall: the leak is **PROVEN**; the fix (R1) is an
 
 ---
 
+## R1 — the committed garbage-mask hardening spec (implementable)
+
+This is the exact spec a later engine tranche implements to discharge
+Q4.3d/e. It sharpens the post-merge R1 note (Q4.3c') into prover
+messages, hash edges, a soundness argument for the masked variant, and
+cost deltas. Completeness of every check equation below is
+machine-checked in `scripts/zk_lemma_check.py` (OK-3a twisted, OK-3b
+untwisted); the twisted algebra also covers the ct-projected variant
+(same monomial structure, plus the untouched reveal h).
+
+### R1.1 New prover messages (per quadratic claim)
+
+Draw fresh UNIFORM ring pads (no ct constraint — they are one-time
+pads, not reveals) and commit them in g-group message slots that h0
+already binds:
+
+- **Twisted families** (`QuadCtClaim`, `TwistedQuadRingClaim`; the
+  gate is one of these). Three pads (ma, mb, mw). Because the check
+  multiplies the Ga and W terms by sigma(c) and the Gb term by c, the
+  two sigma(c)-side pads are committed PRE-CONJUGATED so that a
+  STANDARD virtual opening supplies the twisted monomial:
+
+      slot holds conj(ma);  P_MA := c*conj(ma) - Y_MA;
+                            conj(P_MA) = sigma(c)*ma - conj(Y_MA)
+      slot holds mb;        P_MB := c*mb - Y_MB
+      slot holds conj(mw);  P_MW := c*conj(mw) - Y_MW;
+                            conj(P_MW) = sigma(c)*mw - conj(Y_MW)
+
+  The prover sends the MASKED head images (same element count as
+  today, values shifted):
+
+      Ga~ = Ga + ma,   Gb~ = Gb + mb,   W~ = W + mw,
+      G0~ = G0 + conj(Y_MA) + Y_MB + conj(Y_MW).
+
+  Masked check (verifier subtracts the three pad openings):
+
+      sigma(c) c h = E + sigma(c) Ga~ + c Gb~ - G0~
+                     + sigma(c)(c C_L - ZA_L + W~)
+                     - conj(P_MA) - P_MB - conj(P_MW).
+
+  For `TwistedQuadRingClaim` (the gate) drop h (RHS top monomial is 0);
+  everything else is identical.
+
+- **Untwisted family** (`QuadRingClaim`). The check multiplies G1 and
+  W by c only (no twist), so two PLAIN pads (m1, mw):
+
+      slot holds m1;  P_M1 := c*m1 - Y_M1
+      slot holds mw;  P_MW := c*mw - Y_MW
+      G1~ = G1 + m1,  W~ = W + mw,  G0~ = G0 + Y_M1 + Y_MW,
+      check:  E2 + c G1~ - G0~ + c(c C_L - ZA_L + W~)
+              - P_M1 - P_MW = 0.
+
+The pads ride the round's existing g-commitment (they share its
+randomness rho and its response z), so R1 adds NO new response bundle
+and NO new rejection test — only message slots and their A2 rows.
+
+### R1.2 Hash-ordering requirement (draft Section 7 rows)
+
+R1 introduces no new challenge. Its one ordering requirement is that
+the pads be committed BEFORE the round challenge c — which is already
+enforced, because the pads live in g-commitments and c = XOF(h0,head)
+with h0 binding every commitment. The requirement is nonetheless
+load-bearing and deserves its own audit row and regression, in the
+SOUNDNESS_REFERENCE.md Section 7 format (these rows are DRAFTS, to be
+merged into Section 7 when the engine tranche lands):
+
+| challenge | drawn from | must follow | attack if violated | pinned by |
+|---|---|---|---|---|
+| c (round challenge) — R1 addendum | XOF(h0, head) | the R1 pad commitments (ma/mb/mw or m1/mw), in h0 | choose pad = -Ga after c: Ga~ un-masked, Q4.3d leak returns | (new) `R1: pad-after-challenge ACCEPTS the un-mask; pad-in-h0 REJECTS` |
+
+The attack is the exact analogue of the F5 g-shift (Section 4.3 of
+SOUNDNESS_REFERENCE): a pad chosen with knowledge of c can cancel the
+witness image it is meant to hide, so the leak reappears — hence the
+new regression must demonstrate BOTH directions, like the F5 pair.
+
+### R1.3 Soundness and ZK of the masked variant
+
+**Soundness UNCHANGED [PROVEN].** The masked check is the old check
+plus terms that vanish under three-transcript extraction: each pad
+term sigma(c) ma - conj(P_MA) (resp. c mb - P_MB, etc.) is, by the
+pad's own message-side identity, a pre-challenge image times a
+challenge monomial — exactly the shape the Vandermonde clearing of
+SOUNDNESS_REFERENCE Section 3.3 already annihilates. The top monomial
+(sigma(c) c for twisted, c^2 for untwisted) still carries Q + L only;
+the pads contribute to strictly lower monomials. So extraction pins
+Q + L = 0 as before; per-slot knowledge error 2^-296 is untouched. (In
+particular the pads cannot help a cheating prover: they are committed
+before c and enter only lower monomials.)
+
+**ZK now PROVEN under MLWE only [PROVEN, machine-checked completeness].**
+The simulator: sample z (rejection Gaussian, witness-independent —
+standard Lyubashevsky), compute w1/P/E and the pad openings P_M* from
+z; sample h uniform on ct(.) = scalar (Q4.3b-i); sample Ga~, Gb~, W~
+(resp. G1~, W~) UNIFORM; solve the check for the unique G0~; program
+the RO at (h0, head) = c. Indistinguishability: Ga~ = Ga + ma is a
+perfect one-time pad because ma is uniform and, apart from Ga~, appears
+only inside the hiding pad commitment and inside P_MA (where Y_MA masks
+it) — so (Ga~, Gb~, W~) are jointly uniform and independent of the
+witness, EXACTLY (information-theoretic), and the pad commitments are
+hiding under the round's MLWE assumption. G0~ is then the forced
+check-solution in both worlds, so it matches automatically. No
+knapsack-MLWE-on-images (old Q4.3a), no smudging, no regularity
+hypothesis is needed — the masked variant's HVZK reduces to the
+commitment hiding already assumed plus the rejection lemma (Q4.2a).
+This is the discharge; the residual OBLIGATION is purely the engine
+build, not the argument.
+
+### R1.4 Cost deltas
+
+Per quadratic claim: +3 (twisted) or +2 (untwisted) message slots in
+the g-commitment, i.e. +3 (or +2) ring elements of t2 and the matching
+A2 rows in the CRS shape; the head element COUNT is unchanged (Ga~,
+Gb~, G0~, W~ replace Ga, Gb, G0, W). No new response, no new rejection
+bundle, so prover TIME grows only by 3 (or 2) extra A2-matvec rows and
+a handful of ring mults per claim — sub-percent at every measured
+shape. Proof SIZE grows by +3 (or +2) ring elements per claim:
+~3 * D * ceil(log2 q) bits = 3 * 128 * 31 bits ≈ 1.5 KB per twisted
+claim at q31. For the committed-executions gate (ONE twisted claim per
+matmul) the marginal is ~1.5 KB against the gate's measured
+~1.23 MB/claim (SOUNDNESS_REFERENCE 5.7) — a ~0.1% size increase to
+close the ZK leak. The binary gadget (U6) carries one quad claim per
+partitioned unit; the delta scales with the unit count and is likewise
+sub-percent of the gadget's opening volume. Freeze-check should gain
+one row pinning "quad-claim g-slot count includes the R1 pads" so a
+future refactor cannot silently drop them.
+
+---
+
 ## Q4.4 — ARP extraction: JL lower bound composed with relaxed-opening
 slack
 
