@@ -507,7 +507,12 @@ extraction bound, at q31 OR q46. Finding F3's q46 closure (0.84-bit
 margin, GADGET_MODULUS_DECISION.md Section 1) rests on this
 composition; the gap is about the derivation's validity, not about
 constants that could still grow (||c-bar||_1 <= 4D is the worst case
-of the factor it stands for). **OBLIGATION.**
+of the factor it stands for). **OBLIGATION — but SUPERSEDED as the
+proven bound by Q4.4c (U-P4):** the coded `SLACK_OP = 4D` line stays
+as the derive-time gate the engine runs, but the ACTUAL proven
+extraction bound is now Q4.4c (2.35 bits tighter, no lift, no c-bar).
+Q4.4b's two gaps remain unclosed only for the specific SLACK_OP
+composition, which nothing needs to rest on any more.
 
 **Lemma Q4.4' (the candidate direct-witness lemma — target statement;
 what SLACK_OP would need to be, and under which lemma).** *Statement
@@ -538,6 +543,62 @@ budget closes iff the composed slack is <= 3.79 at alpha = 3 (<= 11.4
 at alpha = 1); if Q4.4' lands at S_eff = 2 the q31 margin is 0.9 bits
 (alpha = 3) — the decision study therefore treats Q4.4' as a deletion
 path, not a decision (option (c) verdict).
+
+**Lemma Q4.4c (self-contained coordinate-wise direct-witness bound —
+DISCHARGED, U-P4).** A weaker-than-Q4.4' but fully PROVEN bound that
+already beats the coded SLACK_OP gate, with none of Q4.4b's gaps.
+
+*Statement.* Suppose the round binds (b*, m*) before R = XOF(h0) is
+drawn, the ARP linear ct-claims pin y_i ≡ <R_i, b*> + m*_i (mod q) for
+every row i (message-side, EXACT mod q — no c-bar), and the verifier
+accepts only if each revealed integer y_i lies in the window
+[-y_bound, y_bound] (with 2 y_bound < q). Then
+
+    ||b*||_inf <= 2 y_bound   except with probability <= 2^-rows,
+    hence  ||b*||_2 <= 2 y_bound * sqrt(n).
+
+*Proof.* Suppose some coordinate has |b*_j| > 2 y_bound (centered
+representative). Fix any row i; condition on m*_i and on all entries of
+R_i except R_ij (all fixed before R_ij by independence of the JL
+entries), so v := <R_i, b*>_{k != j} + m*_i is fixed mod q and
+y_i ∈ {v, v + b*_j, v - b*_j} (mod q) as R_ij ∈ {0, +1, -1} with
+probabilities (1/2, 1/4, 1/4). The window has width 2 y_bound < |b*_j|,
+so no two of {v, v ± b*_j} that differ by |b*_j| can both be window
+integers; hence at most one of v and v+b*_j is in the window, and at
+most one of v and v-b*_j. The window-hit probability is therefore
+1/2·1[v in W] + 1/4·1[v+b in W] + 1/4·1[v-b in W]: if 1[v in W] = 1 the
+other two indicators are 0 (sum 1/2); if 1[v in W] = 0 the sum is at
+most 1/4·(1+1) = 1/2. So Pr[row i's range gate passes] <= 1/2, for
+EVERY b*_j including the near-q/2 wrap regime (the wrap only makes
+v+b and v-b close to each other, never to v, and R_ij = ±1 carries
+total mass 1/2). The rows use disjoint entries of R, so the events are
+independent given (b*, m*): Pr[all rows pass] <= 2^-rows. Since R is
+drawn strictly after (b*, m*) are binding-fixed, the whole argument
+uses R's randomness ALONE. **PROVEN** (machine-checked: the per-row
+1/2 bound is tight at 0.490 in `zk_lemma_check.py` OK-5b; the l2 value
+2 y_bound sqrt(n) is OK-5a).
+
+*Why this discharges Q4.4b's gaps.* GAP 1 (integer lift through c-bar)
+never arises — the argument reads the revealed integer y_i directly
+against the mod-q ct-claim, no lift. GAP 2 (challenge dependence) never
+arises — b* and m* are fixed before R, and c-bar (the round challenge)
+does not enter at all. So the two named gaps are RESOLVED for THIS
+bound. The price is that the l_inf -> l_2 conversion costs a full
+sqrt(n) rather than JL's sqrt(rows/JL_C); Q4.4c is thus LOOSER than the
+Q4.4' target (S_eff ~ 2 via JL) but TIGHTER than the coded gate.
+
+*Numeric standing (machine-checked, `zk_lemma_check.py` OK-5a).* At
+the frozen ARP point (n = 512, rows = 256, alpha = 3): y_bound =
+2^14.23; coded extract_bound (SLACK_OP = 4D, JL) = 2^22.08; Q4.4c
+extract = 2 y_bound sqrt(n) = 2^19.73 — **2.35 bits tighter** than the
+coded gate. So every budget that closes under the coded gate closes by
+>= 2.35 more bits under Q4.4c, and Q4.4c requires no unproven lemma.
+Whether the extra margin moves q31 from KNOWN-OPEN to closing is a
+numeric call for `gadget_modulus_study.py` (the coded gate's ~2.9-bit
+q31 shortfall vs the study's threshold), OUT OF THIS DOC'S LANE —
+flagged as a follow-up, NOT claimed. Q4.4c stands on its own as a
+proven direct-witness bound; Q4.4' remains the tighter target for when
+the JL constant is transcribed.
 
 ---
 
@@ -631,19 +692,23 @@ lemma fixes as the build's acceptance criteria:
   restart rate follows Q4.2 (the joint-scaling variant applies to the
   batch bundles and is worth taking here, where bundle counts are
   largest).
-- **(O3)** The garbage aggregate carries an additive mask slot: the
-  sigma-sum of bilinear terms inherits Q4.3c's degeneracy (summing
-  over H does not restore full support when the underlying
-  multipliers are structured), so Q4.3's R1 applies to the aggregate
-  exactly as to a single claim's Ga.
-- **(O4)** Mask-image entropy: C4 at the gate layer's shape must
-  cover the aggregate count plus the W-images consumed per claim
-  (Q4.3a with the gate's msg_r and batch counts substituted).
+- **(O3)** The garbage aggregate carries additive mask slots: by the
+  CORRECTED Q4.3d (not the retracted degeneracy story), the
+  sigma-sum of bilinear terms leaks its aggregate quadratic/linear
+  witness-image for EVERY witness (not only structured ones), so
+  Q4.3's R1 applies to the aggregate exactly as to a single claim's
+  (Ga, Gb, W) — and, per the U-P2 spec, W must be masked too.
+- **(O4)** Mask-image entropy is NOT the operative condition (Q4.3d
+  supersedes the leftover-entropy framing): the aggregate's ZK rests
+  on the R1 pads being uniform and their commitments hiding, i.e. on
+  MLWE at the gate layer's C4 shape (which the round already assumes),
+  not on A2 y looking uniform.
 
 Under (O1)-(O4) the simulator is the composition of Q4.2a (responses),
-Q4.3a/b (images and reveals), and the identity-solving step for the
-last aggregate — no new simulation technique is required; what is
-required is that the build not violate (O1)/(O3) structurally.
+Q4.3b (linear images and reveals) + R1 (masked quadratic images), and
+the identity-solving step for the last aggregate — no new simulation
+technique is required; what is required is that the build not violate
+(O1)/(O3) structurally.
 **OBLIGATION** — assigned to the trace-gate build tranche
 (U-A1/U-A2); this statement is its exit criterion, per the
 discipline that caught F1/F2 (equations on paper first).
@@ -659,20 +724,33 @@ discipline that caught F1/F2 (equations on paper first).
 | Q4.1c | restart-rule soundness accounting | PROVEN (i, as implemented) / SKETCH (ii, no-restart variant inventory) |
 | Q4.2a | M-product law for multi-bundle rejection | PROVEN |
 | Q4.2b | joint-scaling variant (21.1 -> 5.7 attempts) | PROVEN (engine change is a build item) |
-| Q4.3a | mask-image uniformity; C4 = leftover-entropy line on N_r | SKETCH (standard reduction, hybrid unchecked) |
-| Q4.3b | masked reveals/W's simulate | PROVEN (h) / SKETCH (W's, inherits Q4.3a) |
-| Q4.3c | bilinear garbage terms unmasked — degenerate-tensor leak | OBLIGATION (engine fix R1 recommended) |
+| Q4.3a | mask-image uniformity (marginal of A2 y) | SKETCH — and beside the point for the ZK leak (Q4.3d) |
+| Q4.3b | which head pieces genuinely simulate | PROVEN (h; linear-claim + tie W's forced) / CORRECTED (quad W's do NOT — retraction) |
+| Q4.3d | transcript-determinism; exact W+aP=cL and ch-...=cQ leaks | PROVEN LEAK (machine-checked, OK-1/2a) |
+| Q4.3e | corollary: the committed-executions GATE leaks C | PROVEN LEAK (rank 12/12 recovery, OK-4) |
+| Q4.3c' | superseded degeneracy story, corrected | RETRACTED/REWRITTEN |
+| R1 | committed garbage-mask hardening spec (pads Ga/Gb/G1 + W) | PROVEN (masked variant HVZK under MLWE, complete OK-3a/b) / OBLIGATION (engine build) |
 | Q4.4a | JL lower bound | CITED |
-| Q4.4b | the coded SLACK_OP composition | OBLIGATION (two named gaps; budget gate, not proven bound — at q46 too) |
-| Q4.4' | direct-witness ARP extraction, S_eff ~ 2 | UNPROVEN target statement (deletion path for F3's q46 layer) |
+| Q4.4b | the coded SLACK_OP composition | OBLIGATION (two gaps) — SUPERSEDED as the proven bound by Q4.4c |
+| Q4.4c | self-contained coordinate-wise direct-witness bound | PROVEN (2.35 bits tighter than the coded gate; no lift, no c-bar) |
+| Q4.4' | direct-witness ARP extraction, S_eff ~ 2 (JL constant) | UNPROVEN target (tighter than Q4.4c; needs LNP22 transcription) |
 | Q4.5a | salt-abort transcripts simulatable | PROVEN conditional (uniform tail bound; freeze-check gate suggested) |
 | Q4.5b | salt grinding: x65, cap load-bearing | PROVEN |
-| Q4.6 | twisted-execution aggregate simulation (O1-O4) | OBLIGATION (trace-gate build exit criterion) |
+| Q4.6 | twisted-execution aggregate simulation (O1-O4) | OBLIGATION (trace-gate build exit criterion; O3/O4 corrected per Q4.3d) |
 
-The honest reading across the set: the two places where write-up
-turned into FINDINGS rather than bookkeeping are Q4.3c (the current
-quadratic layer's garbage terms can leak bit-plane degeneracy — an
-engine change is recommended before U6 gadgets carry real data) and
-Q4.4b (the ARP's extraction constant is a budget gate at both moduli,
-which reframes F3's q46 closure as "best-grounded available" rather
-than "proven" — priced accordingly in GADGET_MODULUS_DECISION.md).
+The honest reading across the set, after U-P:
+
+- **Q4.3 became a hard FINDING, sharper than before.** The old Q4.3c
+  ("leaks only for degenerate tensors") was an OVERCLAIM and is
+  RETRACTED. The corrected result (Q4.3d/e) is that the quadratic
+  layer leaks a fixed witness-image for EVERY witness, and the gate
+  leaks the product matrix C. This is not zero-knowledge. The fix
+  (R1) is now fully specified and its masked variant is PROVEN HVZK
+  under MLWE alone; the residual is the engine build.
+- **Q4.4 was partially DISCHARGED.** Q4.4c gives a self-contained,
+  machine-checked, direct-witness l_inf/l_2 extraction bound with
+  none of Q4.4b's two gaps, 2.35 bits tighter than the coded
+  SLACK_OP gate at the frozen point. Q4.4b's gaps now block only the
+  (now-unused) SLACK_OP composition; Q4.4' remains the tighter JL
+  target for a later transcription pass.
+- Everything else (Q4.1/Q4.2/Q4.5) is unchanged from its prior grade.
