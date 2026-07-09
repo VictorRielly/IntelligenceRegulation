@@ -1,0 +1,91 @@
+M4 SiLU piecewise fixed-point harness (scripts/silu_piecewise.py)
+moduli: q31 = 2^31-399, q46 = 2^46-1103; slot penalty x16
+
+[sweep] int8 spec: x Q3.4 in [-8,8) -> y Q3.4; out half-ulp 0.03125
+  rule: approx_max <= out half-ulp / 2 = 0.015625 AND ulp_max <= 1
+    K deg  Pe | approx_max approx_mean  tot_max ulp_max mismatch | dce/el rule
+    4   1   6 |   0.214843    0.029691  0.21973       4    96/256|     80   --
+    4   1   8 |   0.220703    0.029684  0.25000       4    97/256|     82   --
+    4   1  10 |   0.224609    0.029401  0.25000       4    92/256|     84   --
+    4   2   6 |   0.214843    0.029691  0.21973       4    96/256|    112   --
+    4   2   8 |   0.101242    0.019407  0.08241       1    64/256|    114   --
+    4   2  10 |   0.105408    0.017211  0.12500       2    54/256|    116   --
+    8   1   6 |   0.109375    0.012346  0.12500       2    38/256|     83   --
+    8   1   8 |   0.109131    0.011465  0.12500       2    41/256|     85   --
+    8   1  10 |   0.108093    0.011348  0.12500       2    41/256|     87   --
+    8   2   6 |   0.076296    0.009195  0.06686       1    43/256|    115   --
+    8   2   8 |   0.033447    0.003850  0.06250       1    19/256|    117   --
+    8   2  10 |   0.018066    0.002229  0.03886       1    15/256|    119   --
+   16   1   6 |   0.031250    0.003425  0.04868       1    17/256|     90   --
+   16   1   8 |   0.031982    0.002767  0.06250       1    12/256|     92   --
+   16   1  10 |   0.031067    0.002747  0.04868       1    12/256|     94   --
+   16   2   6 |   0.015202    0.001960  0.04356       1    12/256|    122 PASS
+   16   2   8 |   0.006005    0.000778  0.03346       1     3/256|    124 PASS
+   16   2  10 |   0.002055    0.000341  0.03184       1     2/256|    126 PASS
+   32   1   6 |   0.006836    0.000997  0.03346       1     5/256|    105 PASS
+   32   1   8 |   0.007080    0.000726  0.03223       1     3/256|    107 PASS
+   32   1  10 |   0.006697    0.000685  0.03223       1     1/256|    109 PASS
+   32   2   6 |   0.003520    0.000663  0.03346       1     3/256|    137 PASS
+   32   2   8 |   0.000933    0.000201  0.03160       1     1/256|    139 PASS
+   32   2  10 |   0.000287    0.000075  0.03090       0     0/256|    141 PASS
+
+[recommended] K=32 deg=1 Pe=6 (wseg=3, h=8 grid units = 0.50 real)
+  spec digest (sha256 of canonical table JSON): 49eb999930fda5060a7d3d94d9f9097ec5309b627e7ebad051404fb96b25d67f
+  segment table (A,B,C at scale 2^-(F_in+Pe) per u, u in grid units):
+    seg  0 x in [ -8.00, -7.50):      -3       0
+    seg  1 x in [ -7.50, -7.00):      -5       0
+    seg  2 x in [ -7.00, -6.50):      -8       0
+    seg  3 x in [ -6.50, -6.00):      -9      -1
+    seg  4 x in [ -6.00, -5.50):     -15      -1
+    seg  5 x in [ -5.50, -5.00):     -24      -1
+    seg  6 x in [ -5.00, -4.50):     -34      -2
+    seg  7 x in [ -4.50, -4.00):     -50      -3
+    seg  8 x in [ -4.00, -3.50):     -73      -4
+    seg  9 x in [ -3.50, -3.00):    -105      -5
+    seg 10 x in [ -3.00, -2.50):    -145      -6
+    seg 11 x in [ -2.50, -2.00):    -195      -6
+    seg 12 x in [ -2.00, -1.50):    -244      -5
+    seg 13 x in [ -1.50, -1.00):    -283       0
+    seg 14 x in [ -1.00, -0.50):    -279       9
+    seg 15 x in [ -0.50,  0.00):    -199      23
+    seg 16 x in [  0.00,  0.50):      -7      39
+    seg 17 x in [  0.50,  1.00):     313      53
+    seg 18 x in [  1.00,  1.50):     745      63
+    seg 19 x in [  1.50,  2.00):    1256      68
+    seg 20 x in [  2.00,  2.50):    1804      70
+    seg 21 x in [  2.50,  3.00):    2367      70
+    seg 22 x in [  3.00,  3.50):    2927      69
+    seg 23 x in [  3.50,  4.00):    3479      68
+    seg 24 x in [  4.00,  4.50):    4023      67
+    seg 25 x in [  4.50,  5.00):    4558      66
+    seg 26 x in [  5.00,  5.50):    5088      65
+    seg 27 x in [  5.50,  6.00):    5609      65
+    seg 28 x in [  6.00,  6.50):    6128      65
+    seg 29 x in [  6.50,  7.00):    6648      64
+    seg 30 x in [  7.00,  7.50):    7163      64
+    seg 31 x in [  7.50,  8.00):    7676      64
+  gadget trace: all 256 inputs satisfy every claim relation (placement, binary, links, Horner, rescale) exactly
+  link w_max at full-tensor granularity (n = 5636096):
+    L_A   (e planes -> A_sel)    w =  9, rows = 29
+    L_B   (e planes -> B_sel)    w = 16, rows = 16
+    L_out (y/r planes -> y_raw)  w =  8, rows = 32
+    L_u   (u planes -> u_s)      w = 19, rows = 14
+  sampled pipeline error vs float SiLU (declared | ideal-int8 baseline):
+    uniform[-8,8)  max 0.06544 mean 0.017810 | baseline max 0.06402 mean 0.017758
+    gauss(s=0.5)   max 0.05970 mean 0.017787 | baseline max 0.05970 mean 0.017630
+    gauss(s=1)     max 0.06329 mean 0.018766 | baseline max 0.06329 mean 0.018670
+    gauss(s=2)     max 0.37248 mean 0.018989 | baseline max 0.37248 mean 0.018933
+    gauss(s=4)     max 9.88131 mean 0.052737 | baseline max 9.88131 mean 0.052695
+
+[12-bit spec] x Q3.8 -> y Q3.8 (higher-fidelity mode):
+  K= 16 deg=2 Pe=10 | approx_max 0.015271 tot_max 0.016215 ulp_max 4 mismatch 1039/4096 | dce/el 130
+  K= 32 deg=2 Pe=10 | approx_max 0.004876 tot_max 0.004496 ulp_max 1 mismatch 313/4096 | dce/el 145
+  K= 64 deg=2 Pe=10 | approx_max 0.001188 tot_max 0.002875 ulp_max 1 mismatch 83/4096 | dce/el 176
+
+[cost] 7B/512 pass: 180M SiLU'd elements (32 gate tensors of 512x11008); pass baseline 9.4e+09 element-equivalents
+  variant                      dce/el slotT planes  +pass %  commit 22T s       GPU s stream GB ARP 1T s
+  A: piecewise K=32 deg=1 (rec)    105     4     41    +201%   193-242    15.0-18.0        108      412
+  A2: piecewise K=16 deg=2 Pe=8    124     6     28    +238%   228-285    15.3-18.3        121      281
+  B: exact one-hot table (2^8)    256     0    256    +491%   472-589    55.5-66.6        315     2570
+  reference: matmul-claim layer 110-330 s 1T; Class-3 criterion is <20% of it.
+  variant A marginal commit alone = 193-242 s 22T on top of 96-120 s — the piecewise route costs 201% of today's whole commit bill.
