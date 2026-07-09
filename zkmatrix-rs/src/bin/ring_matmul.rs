@@ -4049,6 +4049,53 @@ fn self_test_pi2_ce() {
         "CE order regression: psi drawn after the masks REJECTS the same crafting",
         !tie_ii_holds(&psi_post, &mu_atk, &nu_atk, &f_atk2),
     );
+
+    // ---- ORDER regression, attack B (tau before the reveals): the tie
+    // batches impose only l = 2 constraints on h = 128 free reveal
+    // elements, so a prover who knows taui when choosing F can pass the
+    // batch with per-t violations. Craft errors on two twists,
+    // r_{t0} = taui_{t1} w, r_{t1} = -taui_{t0} w — their taui-batch
+    // contribution cancels identically. The shipped hash chain
+    // (tau = XOF(h0, F)) collapses the slack: recomputing tau from the
+    // crafted reveals moves the batch away from the cancellation.
+    let taui_a: Vec<Poly> = tau_pairs[0].0.iter().map(|c| poly_from_small(&zq, c)).collect();
+    let batch_i_holds = |ti: &[Poly], f_at: &[Poly]| -> bool {
+        let mut lhs = poly_zero();
+        let mut rhs = poly_zero();
+        for t in 0..h {
+            let claim_t = poly_add(&zq, &poly_mul_g(&zq, &psi[0][t], &ya[t]), &mua[t]);
+            lhs = poly_add(&zq, &lhs, &poly_mul_g(&zq, &ti[t], &claim_t));
+            rhs = poly_add(&zq, &rhs, &poly_mul_g(&zq, &ti[t], &f_at[t]));
+        }
+        lhs == rhs
+    };
+    let w_slack = rng_poly_mod(&mut rng, q);
+    let (t0, t1) = (0usize, 1usize);
+    let mut f_slack = fa.clone();
+    f_slack[t0] = poly_add(&zq, &f_slack[t0], &poly_mul_g(&zq, &taui_a[t1], &w_slack));
+    f_slack[t1] = ring::poly_sub(&zq, &f_slack[t1], &poly_mul_g(&zq, &taui_a[t0], &w_slack));
+    assert_true(
+        "CE order regression B: stale tau ACCEPTS per-twist reveal errors in the batch (the attack, demonstrated)",
+        f_slack != fa && batch_i_holds(&taui_a, &f_slack),
+    );
+    // Shipped order: tau derives from the reveals actually sent.
+    let mut fb_slack: Vec<u8> = Vec::new();
+    for f in [&f_slack, &fb, &fc] {
+        fb_slack.extend_from_slice(&ring::polys_bytes(f));
+    }
+    let fr_slack: [&[u8]; 2] = [&h0, &fb_slack];
+    let mut hfr2 = XofReader::new("pi2-ce-h0f", &fr_slack);
+    let mut h0f_slack = [0u8; 32];
+    for chunk in h0f_slack.chunks_mut(8) {
+        chunk.copy_from_slice(&hfr2.next_u64().to_le_bytes());
+    }
+    let mut tr2 = XofReader::new("pi2-ce-tau", &[&h0f_slack]);
+    let taui_re: Vec<Poly> =
+        (0..h).map(|_| poly_from_small(&zq, &tr2.next_challenge())).collect();
+    assert_true(
+        "CE order regression B: tau recomputed from the crafted reveals REJECTS them",
+        !batch_i_holds(&taui_re, &f_slack),
+    );
 }
 
 fn usage() {
