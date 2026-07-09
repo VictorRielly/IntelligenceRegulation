@@ -148,7 +148,8 @@ Three candidate resolutions for the single-bundle point, ranked:
    opening volume for comparable soundness grade); the rung-1 path is
    the RECURSIVE gate (Q-A5). The immediate build items are the
    claim-layer aggregation, joint-scaling rejection (Q4.2b, proven) and
-   the b = 10 scalar-gate point (r_g 64 -> 32).)*
+   the derived gate-scalar width (demo b = 8 -> r_g = 43, cost
+   r_g x L minimized; FFN stays b = 6 -> r_g = 64).)*
 2. **Q-A2 — ZK simulation of the twisted-execution aggregate.**
 3. **Q-A3 — Fiat-Shamir/grinding accounting** for the deterministic
    twist schedule (expected unchanged: one challenge event per claim).
@@ -239,11 +240,15 @@ against the LaBRADOR/ALS20 amortization literature). Target: the
    acceptance over the jointly-scaled bundles cuts expected round
    attempts 21.1 -> 5.7 at identical sigmas — a ~3.7x prover-time win
    on every multi-bundle round in the protocol.
-2. **The b = 10 scalar-gate point**: 8 bits/rep -> r_g = 32 for 2^-256
-   (vs 64 at b = 6). The C2 chain closes at q31: the scalar-combination
-   witness bound grows to w_u ~ 2^18.3 -> beta_rec ~ 2^28.5,
-   8 beta = 2^31.5-epsilon... verified at derive time by the
-   freeze-check row added with this change (the exact chain is the
-   code; b = 12 does NOT fit — 8 beta exceeds q31). Gate cost halves.
+2. **The derived gate-scalar width** (`derive_gate_b`): the largest b
+   whose combination digit chain fits the modulus with C2 headroom AND
+   C3 binding rows at the shape's kappa, scanning digit widths
+   e in {4, 3, 2} per b and minimizing the HONEST cost metric
+   r_g x L (response bundles per gate), not max b. The chain (not the
+   hand estimate) decides: demo shape **b = 8, e = 4 -> r_g = 43,
+   cost 172 vs 256 at b = 6 (a 33% cut)**; FFN shape **b = 6, e = 3 ->
+   r_g = 64** — the b-lever is a demo-scale win only, which is honest
+   input to the recursive-gate round's priority. Freeze-check rows pin
+   both derived points.
 3. **Q4.3c fix R1** (garbage-term masking): additive one-time mask
    slots for Ga/Gb, closing the structured-tensor leak obligation.

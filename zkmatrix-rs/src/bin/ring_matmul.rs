@@ -1308,23 +1308,60 @@ fn slot_pack(ctx: &RingCtx, vals: &[u64]) -> Poly {
     buf
 }
 
-/// The binary quadratic ct-claim for a committed dense-packed bit tensor
+/// The binary quadratic ct-claims for a committed dense-packed bit tensor
 /// spanning `slots` message slots of commitment `idx`.
-fn binary_claim(zq: &ring::Zq, idx: usize, slots: usize) -> ring::ct_engine::QuadCtClaim {
-    let one = {
-        let mut p = poly_zero();
-        p[0] = 1;
-        p
-    };
+///
+/// SOUNDNESS (finding F5, this build's own review): a FIXED-coefficient
+/// ct-claim cannot use the g-mask soundly — g's soundness argument is the
+/// commit-BEFORE-theta ordering, and with protocol-fixed coefficients a
+/// cheating prover simply commits g with ct(g) = -defect. The claim
+/// coefficients must therefore be RANDOMIZED post-commitment: each copy l
+/// scales the whole functional by a uniform ring element omega_l drawn
+/// from h0 (which binds every commitment incl. the g-groups). For a
+/// nonzero defect delta, the required ct(g_l) = -theta_l * delta is a
+/// uniform scalar over the post-commitment draw of theta_l, so a
+/// pre-theta g is caught with probability 1 - 1/q per copy;
+/// l = ceil(256 / log2 q) = 9 copies give 2^-279-class. The randomizer
+/// MUST be a uniform SCALAR (constant polynomial): a full ring element
+/// would mix F's junk coefficients into the ct and break completeness —
+/// the same junk-mixing phenomenon as finding F2. (The ARP and Pi2-gate
+/// ct-claims were never affected: their coefficients are FS-derived
+/// after the commitments.)
+/// `members` lists the tensor's (commitment index, slot count) pairs —
+/// one claim family per TENSOR (the design's granularity), spanning all
+/// its column commitments.
+fn binary_claims(
+    zq: &ring::Zq,
+    h0: &[u8; 32],
+    tag: u64,
+    members: &[(usize, usize)],
+) -> Vec<ring::ct_engine::QuadCtClaim> {
+    let l = ring::ct_engine::theta_rows(zq.q);
     let minus_conj_ones = {
         let ones = vec![1u64; D];
         ring::poly_neg(zq, &poly_conj(zq, &ones))
     };
-    ring::ct_engine::QuadCtClaim {
-        quad: (0..slots).map(|u| (idx, u, idx, u, one.clone())).collect(),
-        msg_coeffs: (0..slots).map(|u| (idx, u, minus_conj_ones.clone())).collect(),
-        scalar: 0,
-    }
+    (0..l)
+        .map(|li| {
+            let mut reader = XofReader::new(
+                "bin-theta",
+                &[h0, &tag.to_le_bytes(), &(li as u64).to_le_bytes()],
+            );
+            let theta = reader.next_field(zq.q);
+            let mut gamma = poly_zero();
+            gamma[0] = theta;
+            let lin = ring::poly_scale(zq, theta, &minus_conj_ones);
+            let mut quad = Vec::new();
+            let mut msg_coeffs = Vec::new();
+            for &(idx, slots) in members {
+                for u in 0..slots {
+                    quad.push((idx, u, idx, u, gamma.clone()));
+                    msg_coeffs.push((idx, u, lin.clone()));
+                }
+            }
+            ring::ct_engine::QuadCtClaim { quad, msg_coeffs, scalar: 0 }
+        })
+        .collect()
 }
 
 /// Recomposition claims: per slot u, sum_i 2^i bit_(i,u) - val_u = 0.
@@ -1618,7 +1655,7 @@ fn self_test_gadgets() {
         let s_r = ap.rows.div_ceil(D);
         let b_mat = expand_b_mat(&crs, "u6-arp", s_r);
         // g's: 256 ARP ct-claims + 1 quadratic binary claim.
-        let n_claims_g = ap.rows + 1;
+        let n_claims_g = ap.rows + ring::ct_engine::theta_rows(q);
         let g_groups = sample_ct_masks(&mut rng, q, shape.msg_r, n_claims_g);
         let n_commits = 1 + g_groups.len() + 1;
         let rp = derive_ct_round_params(q, shape, n_commits, ap.rows, 12 * ap.sigma_arp, false);
@@ -1653,7 +1690,7 @@ fn self_test_gadgets() {
         };
         let msg_slots: Vec<(usize, usize)> = (0..shape.msg_r).map(|u| (0usize, u)).collect();
         let ct_claims = arp_claims(&zq, &ap, &jl, &msg_slots, 0, &y);
-        let quad_claims = [binary_claim(&zq, 0, shape.msg_r)];
+        let quad_claims = binary_claims(&zq, &h0, 0, &[(0, shape.msg_r)]);
         let openings: Vec<StdOpening> = all_x
             .iter()
             .zip(all_rho.iter())
@@ -1704,6 +1741,7 @@ fn self_test_gadgets() {
                 }
             };
             let ct_claims_b = arp_claims(&zq, &ap, &jl_b, &msg_slots, 0, &y_b);
+            let quad_claims_b = binary_claims(&zq, &h0b, 0, &[(0, shape.msg_r)]);
             let openings_bad: Vec<StdOpening> = all_x_bad
                 .iter()
                 .zip(all_rho_bad.iter())
@@ -1712,12 +1750,12 @@ fn self_test_gadgets() {
                 .collect();
             let ajtai_open_b = AjtaiOpening { com: &acom_b, s: &m_packed_b, rho: &rho_m_b };
             let (bad, _) = prove_ct_round(
-                &a1_path, &ring_ctx, &rp, None, &crs, &h0b, &ct_claims_b, &[], &quad_claims, &[],
+                &a1_path, &ring_ctx, &rp, None, &crs, &h0b, &ct_claims_b, &[], &quad_claims_b, &[],
                 &openings_bad, &[], &[ajtai_open_b], 1, &mut rng,
             );
             assert_true(
                 "binary gadget: non-binary coefficient fails (quadratic ct check)",
-                !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0b, &ct_claims_b, &[], &quad_claims, &[], &t1s_bad, &t2s_bad, &[], &[], &[&acom_b], 1, &bad),
+                !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0b, &ct_claims_b, &[], &quad_claims_b, &[], &t1s_bad, &t2s_bad, &[], &[], &[&acom_b], 1, &bad),
             );
         }
         // Negative: tampered garbage term.
@@ -1727,6 +1765,128 @@ fn self_test_gadgets() {
             assert_true(
                 "binary gadget: tampered garbage term fails",
                 !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &ct_claims, &[], &quad_claims, &[], &t1s, &t2s, &[], &[], &[&acom], 1, &bad),
+            );
+        }
+    }
+
+    // --- F5 regression: the fixed-coefficient g-shift attack. -----------
+    // A FIXED-coefficient binary ct-claim is UNSOUND: committing g with
+    // ct(g) = -defect passes a non-binary tensor (the old binary_claim
+    // shape had exactly this hole). The theta-randomized claims reject
+    // the same crafting. Both directions asserted, at q31, minimal round.
+    println!("\n[F5] regression: fixed-coefficient binary claim is unsound; theta-randomization fixes it");
+    {
+        use ring::ct_engine::{
+            QuadCtClaim, StdOpening, ct_h0, derive_ct_round_params, prove_ct_round,
+            sample_ct_masks, theta_rows, verify_ct_round,
+        };
+        let q = Q8;
+        let ring_ctx = ring_ctx_q8();
+        let zq = ring_ctx.zq;
+        let crs = expand_crs(shape, q, 4323);
+        let mut rng = 0x5eed_000bu64;
+        // Non-binary tensor: one coefficient = 2, defect = 2*(2-1) = 2.
+        let n_bits = shape.msg_r * D;
+        let mut bits_bad: Vec<i64> = (0..n_bits).map(|_| (splitmix64(&mut rng) & 1) as i64).collect();
+        bits_bad[0] = 2;
+        let x_bad: Vec<Poly> = (0..shape.msg_r)
+            .map(|u| (0..D).map(|t| zq.to_mod(bits_bad[u * D + t])).collect())
+            .collect();
+        let rho_bad: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+
+        // Attack round A: OLD claim shape (fixed coefficients), g crafted
+        // with ct(g) = -2 — one claim, one g group.
+        {
+            let mut g_groups = sample_ct_masks(&mut rng, q, shape.msg_r, 1);
+            g_groups[0][0][0] = zq.to_mod(-2); // ct(g_0) := -defect
+            let mut t1s = Vec::new();
+            let mut t2s = Vec::new();
+            let mut all_x = vec![x_bad.clone()];
+            let mut all_rho = vec![rho_bad.clone()];
+            for g in &g_groups {
+                all_x.push(g.clone());
+                all_rho.push((0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect());
+            }
+            let rp = derive_ct_round_params(q, shape, all_x.len(), 0, 0, false);
+            let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            let path = KernelPath::A1(&a1p);
+            for (x, rho) in all_x.iter().zip(all_rho.iter()) {
+                let (t1, t2) = commit(&path, &crs, x, rho);
+                t1s.push(t1);
+                t2s.push(t2);
+            }
+            let h0 = ct_h0(&crs, b"f5-old", &t1s, &t2s, &[]);
+            let one = {
+                let mut p = poly_zero();
+                p[0] = 1;
+                p
+            };
+            let minus_conj_ones = {
+                let ones = vec![1u64; D];
+                ring::poly_neg(&zq, &poly_conj(&zq, &ones))
+            };
+            let old_claim = QuadCtClaim {
+                quad: (0..shape.msg_r).map(|u| (0, u, 0, u, one.clone())).collect(),
+                msg_coeffs: (0..shape.msg_r).map(|u| (0, u, minus_conj_ones.clone())).collect(),
+                scalar: 0,
+            };
+            let openings: Vec<StdOpening> = all_x
+                .iter()
+                .zip(all_rho.iter())
+                .enumerate()
+                .map(|(i, (x, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x, rho })
+                .collect();
+            let claims = [old_claim];
+            let (atk, _) = prove_ct_round(
+                &path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &claims, &[], &openings, &[], &[],
+                1, &mut rng,
+            );
+            assert_true(
+                "F5: the OLD fixed-coefficient claim ACCEPTS the g-shift attack (the bug, demonstrated)",
+                verify_ct_round(&path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &claims, &[], &t1s, &t2s, &[], &[], &[], 1, &atk),
+            );
+        }
+        // Attack round B: the SAME crafting against the theta-randomized
+        // claims — rejected.
+        {
+            let l = theta_rows(q);
+            let mut g_groups = sample_ct_masks(&mut rng, q, shape.msg_r, l);
+            for gi in 0..g_groups.len() {
+                for s in 0..shape.msg_r {
+                    g_groups[gi][s][0] = zq.to_mod(-2); // craft every g's ct
+                }
+            }
+            let mut t1s = Vec::new();
+            let mut t2s = Vec::new();
+            let mut all_x = vec![x_bad.clone()];
+            let mut all_rho = vec![rho_bad.clone()];
+            for g in &g_groups {
+                all_x.push(g.clone());
+                all_rho.push((0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect());
+            }
+            let rp = derive_ct_round_params(q, shape, all_x.len(), 0, 0, false);
+            let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            let path = KernelPath::A1(&a1p);
+            for (x, rho) in all_x.iter().zip(all_rho.iter()) {
+                let (t1, t2) = commit(&path, &crs, x, rho);
+                t1s.push(t1);
+                t2s.push(t2);
+            }
+            let h0 = ct_h0(&crs, b"f5-new", &t1s, &t2s, &[]);
+            let claims = binary_claims(&zq, &h0, 0, &[(0, shape.msg_r)]);
+            let openings: Vec<StdOpening> = all_x
+                .iter()
+                .zip(all_rho.iter())
+                .enumerate()
+                .map(|(i, (x, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x, rho })
+                .collect();
+            let (atk, _) = prove_ct_round(
+                &path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &claims, &[], &openings, &[], &[],
+                1, &mut rng,
+            );
+            assert_true(
+                "F5: the theta-randomized claims REJECT the same crafting (the fix)",
+                !verify_ct_round(&path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &claims, &[], &t1s, &t2s, &[], &[], &[], 1, &atk),
             );
         }
     }
@@ -1785,6 +1945,47 @@ struct Pi2Shape {
 fn next_gate_scalar(reader: &mut XofReader, b: u32) -> i64 {
     let v = 1 + (reader.next_u64() % (1u64 << b)) as i64;
     if reader.next_bytes(1)[0] & 1 == 0 { v } else { -v }
+}
+
+/// The largest gate-scalar width b whose combination digit chain fits the
+/// modulus with >= 1 bit of C2 headroom (and C3 at the given kappa):
+/// bigger b = more bits per repetition = fewer repetitions
+/// (r_g = ceil(256 / (b - 2)), Route Z's discipline). Appendix A.4 of
+/// AUTOMORPHISM_GATE_DESIGN.md: the win is shape-dependent — b = 10
+/// (r_g = 32) at demo scale, smaller at FFN combination counts.
+/// Returns (b, l_dig, w_u).
+fn derive_gate_b(q: u64, t_max: usize, kappa: usize, n_r: usize) -> (u32, u32, usize, f64) {
+    let n_z = (n_r * D) as f64;
+    let op_c = 1.3 * (2.0 * D as f64).sqrt();
+    let mut best: Option<(usize, u32, u32, usize, f64)> = None; // (r_g*L, b, e, L, w_u)
+    for b in (4..=12u32).rev() {
+        for e_dig in [4u32, 3, 2] {
+            let half = (1u64 << (e_dig - 1)) as f64;
+            let e_s2 = (1u64 << (2 * b)) as f64 / 3.0;
+            let w_u = 1.3 * (t_max as f64 * D as f64 * e_s2 * (2.0 / 3.0)).sqrt();
+            let l = ((w_u.log2() + 1.0) / e_dig as f64).ceil() as usize;
+            let bundle = l as f64 * n_z;
+            let t_bundle = op_c * half * bundle.sqrt();
+            let sigma = 12.0 * t_bundle;
+            let bound = 1.2 * sigma * bundle.sqrt();
+            let beta_dig = 2.0 * bound + op_c * half * n_z.sqrt();
+            let beta_rec = op_c * w_u * n_z.sqrt();
+            let beta = beta_dig.max(beta_rec);
+            let log2_q = (q as f64).log2();
+            let k_z = ((beta.log2() / 2.0) * (beta.log2() / 2.0) / (log2_q * ring::LOG2_DELTA0)).ceil() as usize;
+            if (q as f64) > 16.0 * beta && kappa * D >= k_z {
+                // The honest cost metric is repetitions x digit bundles
+                // (response data per gate), not max b.
+                let r_g = (256.0 / (b as f64 - 2.0)).ceil() as usize;
+                let cost = r_g * l;
+                if best.is_none() || cost < best.as_ref().unwrap().0 {
+                    best = Some((cost, b, e_dig, l, w_u));
+                }
+            }
+        }
+    }
+    let (_, b, e, l, w_u) = best.expect("no gate-scalar width fits the modulus at this shape");
+    (b, e, l, w_u)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -2096,24 +2297,19 @@ fn self_test_pi2() {
     let zq = ring_ctx.zq;
     let shape = Pi2Shape { rows: 128, inner_r: 2, rows_r: 1, cols: 64 };
     let inner = shape.inner_r * D;
-    let (r_g, b_bits) = (8usize, 6u32);
-    let r_full = (256.0 / (b_bits as f64 - 2.0)).ceil() as usize;
-    println!(
-        "  gate: b = {b_bits}-bit signed nonzero scalars, (b-2) = {} bits/rep -> r_g = {r_full} for 2^-256; DEMO runs r_g = {r_g} (~{} gate bits)",
-        b_bits - 2,
-        r_g * (b_bits as usize - 2),
-    );
-
-    // Digit chain for the scalar combos: w_inf from the concentration
-    // combination bound at E[s^2] ~ 4^b / 3.
-    let e_s2 = (1u64 << (2 * b_bits)) as f64 / 3.0;
-    let t_max = shape.rows.max(shape.cols);
-    let w_u = 1.3 * (t_max as f64 * D as f64 * e_s2 * (2.0 / 3.0)).sqrt();
-    let e_dig = 4u32; // smaller digit half-width: the gate chain must fit C3 at kappa = 8
-    let l_dig = ((w_u.log2() + 1.0) / e_dig as f64).ceil() as usize;
     // Shape parameters from the Pi2 chain at the statement shape.
     let p = derive_digits(Proto::Pi2, shape.rows, inner, shape.cols, 0, q, true, 4)
         .expect("Pi2 demo point must fit q31");
+    // Gate-scalar width DERIVED (Appendix A.4): the largest b whose
+    // combination digit chain fits q31 at this shape.
+    let t_max = shape.rows.max(shape.cols);
+    let (b_bits, e_dig, l_dig, w_u) = derive_gate_b(q, t_max, p.kappa, p.n_r);
+    let r_g = 8usize;
+    let r_full = (256.0 / (b_bits as f64 - 2.0)).ceil() as usize;
+    println!(
+        "  gate: DERIVED b = {b_bits}-bit signed nonzero scalars, (b-2) = {} bits/rep -> r_g = {r_full} for 2^-256 (was 64 at b = 6); DEMO runs r_g = {r_g}",
+        b_bits - 2,
+    );
     let cshape = CommitShape { kappa: p.kappa, n_r: p.n_r, msg_r: p.msg_r };
     let crs = expand_crs(cshape, q, 20_000);
     let dp = derive_digit_params(q, cshape.kappa, cshape.n_r, e_dig, l_dig, w_u.ceil() as i64);
@@ -2528,13 +2724,6 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
             ring_claims.push(RingClaim { msg_coeffs: coeffs });
         }
     }
-    // Binary claims (one quadratic ct-claim per bit tensor column).
-    let mut quad_claims = Vec::new();
-    for &bb in &base_bits {
-        for j in 0..n3 {
-            quad_claims.push(binary_claim(&zq, bb + j, cshape.msg_r));
-        }
-    }
     // Hadamard claims (slot-packed triple).
     let one = const_poly(1);
     let quad_ring: Vec<QuadRingClaim> = (0..cshape.msg_r)
@@ -2543,9 +2732,13 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
             msg_coeffs: vec![(base_h + 2, u, const_poly(zq.neg(1)))],
         })
         .collect();
-    // g-masks for the quadratic ct-claims.
+    // g-masks for the quadratic ct-claims: one theta-randomized claim
+    // family (l copies) per bit TENSOR — finding F5's fix requires the
+    // g's committed BEFORE h0, and the claims derived from h0.
+    let l_bin = ring::ct_engine::theta_rows(q);
+    let n_quad = base_bits.len() * l_bin;
     let g_base = plain_x.len();
-    let g_groups = ring::ct_engine::sample_ct_masks(&mut rng, q, cshape.msg_r, quad_claims.len());
+    let g_groups = ring::ct_engine::sample_ct_masks(&mut rng, q, cshape.msg_r, n_quad);
     for g in &g_groups {
         let rho: Vec<Vec<i64>> = (0..cshape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
         let (t1, t2) = commit(&a1_path, &crs, g, &rho);
@@ -2558,6 +2751,11 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
     let a1p_wave = build_a1_paths(&crs, rp_wave.sigma, isqrt_u128(rp_wave.bound_sq));
     let wave_path = KernelPath::A1(&a1p_wave);
     let h0 = ct_h0(&crs, &ctx, &t1s, &t2s, &[]);
+    let mut quad_claims = Vec::new();
+    for (ti, &bb) in base_bits.iter().enumerate() {
+        let members: Vec<(usize, usize)> = (0..n3).map(|j| (bb + j, cshape.msg_r)).collect();
+        quad_claims.extend(binary_claims(&zq, &h0, ti as u64, &members));
+    }
     let openings: Vec<StdOpening> = plain_x
         .iter()
         .zip(plain_rho.iter())
@@ -2667,21 +2865,22 @@ fn freeze_check() {
         !arp_budget_ok(&ap, (Q8 / 2) as f64),
     );
 
-    // Pi2 gate accounting (F2): the scalar gate's full-grade repetition
-    // count at the frozen b — a change here means the gate design moved.
-    let b_bits = 6u32;
-    let r_full = (256.0 / (b_bits as f64 - 2.0)).ceil() as usize;
-    gate(&format!("Pi2 scalar-gate full grade r_g = {r_full} at b = {b_bits} (r=1 pending the trace-gate round)"), r_full == 64);
-    // Gate digit chain at the demo shape must keep fitting.
+    // Pi2 gate accounting (F2 + Appendix A.4): the DERIVED gate-scalar
+    // width per shape — a change here means the gate chain moved.
     {
-        let e_s2 = (1u64 << (2 * b_bits)) as f64 / 3.0;
-        let w_u = 1.3 * (128.0 * D as f64 * e_s2 * (2.0 / 3.0)).sqrt();
-        let l_dig = ((w_u.log2() + 1.0) / 4.0).ceil() as usize;
         let p = derive_digits(Proto::Pi2, 128, 256, 64, 0, Q8, true, 4).unwrap();
-        let dp = derive_digit_params(Q8, p.kappa, p.n_r, 4, l_dig, w_u.ceil() as i64);
+        let (b, e, l, _) = derive_gate_b(Q8, 128, p.kappa, p.n_r);
+        let r = (256.0 / (b as f64 - 2.0)).ceil() as usize;
         gate(
-            &format!("Pi2 gate digit chain (e=4, L={l_dig}) fits q31 at the demo shape (sigma 2^{:.1})", (dp.sigma as f64).log2()),
-            (dp.sigma as f64).log2() < 31.0 - 8.0,
+            &format!("Pi2 gate derived b = {b} (e = {e}, L = {l}) at the demo shape -> full grade r_g = {r} (r=1 pending the recursive-gate round)"),
+            b == 8 && r == 43,
+        );
+        let pf = derive_digits(Proto::Pi2, 512, 4096, 11008, 0, Q8, true, 4).unwrap();
+        let (bf, ef, lf, _) = derive_gate_b(Q8, 11008, pf.kappa, pf.n_r);
+        let rf = (256.0 / (bf as f64 - 2.0)).ceil() as usize;
+        gate(
+            &format!("Pi2 gate derived b = {bf} (e = {ef}, L = {lf}) at the FFN shape -> full grade r_g = {rf}"),
+            bf >= 6 && rf <= 64,
         );
     }
 

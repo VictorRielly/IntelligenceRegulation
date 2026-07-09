@@ -849,6 +849,38 @@ pub fn rejection_accept(rng: &mut u64, response: &[i64], center_v: &[i64], sigma
     u < threshold
 }
 
+/// Joint-scaled rejection over k bundles with DIFFERENT sigmas
+/// (Q4_LEMMAS.md Lemma Q4.2b, PROVEN): one test on the summed exponent
+/// S = sum_i (||v_i||^2 - 2 <z_i, v_i>) / (2 sigma_i^2), accepted iff
+/// u < exp(S - log M_joint) with M_joint = exp(t sqrt(k)/alpha +
+/// k/(2 alpha^2)) at t = alpha = 12. Neither the sigmas nor the accepted
+/// output distribution change vs the per-bundle product scheme — only
+/// the restart rate improves (21.1 -> 5.7 expected attempts at k = 3).
+/// k = 1 reduces exactly to `rejection_accept`.
+pub fn joint_rejection_accept(rng: &mut u64, parts: &[(&[i64], &[i64], u64)]) -> bool {
+    let k = parts.len();
+    if k == 0 {
+        return true;
+    }
+    let mut s_exp = 0.0f64;
+    for (z, v, sigma) in parts {
+        let mut norm_c: i128 = 0;
+        let mut dot: i128 = 0;
+        for (&zi, &vi) in z.iter().zip(v.iter()) {
+            norm_c += vi as i128 * vi as i128;
+            dot += zi as i128 * vi as i128;
+        }
+        s_exp += (norm_c - 2 * dot) as f64 / (2.0 * *sigma as f64 * *sigma as f64);
+    }
+    let log_m = (k as f64).sqrt() + k as f64 / 288.0;
+    let threshold = (s_exp - log_m).exp();
+    if threshold >= 1.0 {
+        return true;
+    }
+    let u = (splitmix64(rng) >> 11) as f64 / (1u64 << 53) as f64;
+    u < threshold
+}
+
 // ---------------------------------------------------------------------------
 // Serialization helper shared by statement hashing everywhere.
 

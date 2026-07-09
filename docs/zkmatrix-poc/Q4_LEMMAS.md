@@ -238,7 +238,13 @@ regularity hypothesis on x — unacceptable here (degenerate bit
 tensors are the norm). Status of Q4.3 overall: **SKETCH with a named
 OBLIGATION** — the simulator's structure and entropy accounting are
 written; R1 must land in the engine (or R2 be argued per claim class)
-before the quadratic layer's ZK claim is discharged. This is a real
+before the quadratic layer's ZK claim is discharged. *(R1
+implementation design, worked post-merge: commit the mask as
+MA := conj(ma), so conj of MA's STANDARD virtual opening gives
+conj(c) * ma — no per-object challenge twists; masks live in g-group
+slots; one extra challenge-free element per claim carries their mask
+images. Scheduled for the next engine tranche alongside the recursive
+gate.)* This is a real
 finding of the write-up, not a formality: the current U6 binary
 gadget's garbage terms can leak bit-plane degeneracy.
 

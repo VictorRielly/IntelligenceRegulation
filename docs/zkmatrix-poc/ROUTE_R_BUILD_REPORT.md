@@ -210,3 +210,27 @@ roadmap's flagged extrapolations.
 A `freeze-check` subcommand (and suite test) now runs EVERY derive-time
 budget of the frozen point in one gate — the permanent guard against
 F3-class cross-tranche parameter drift.
+
+### F5 — the fixed-coefficient binary claim was unsound (found and fixed
+in this session's follow-up tranche)
+
+Working the Q4.3c mask algebra surfaced a soundness hole in U6's binary
+gadget AS FIRST IMPLEMENTED: a fixed-coefficient ct-claim cannot use the
+g-mask soundly (g's argument is the commit-before-theta ordering; with
+protocol-fixed coefficients a prover commits g with ct(g) = -defect and
+passes a non-binary tensor). FIX: theta-randomized claim copies — each
+scaled by a uniform SCALAR drawn from h0 (a full ring element would mix
+junk into the ct and break completeness — the F2 phenomenon again);
+l = ceil(256/log2 q) copies give 2^-279-class. The self-test now carries
+the F5 regression BOTH ways: the old shape demonstrably accepts the
+crafted attack; the new shape rejects it. The ARP and Pi2-gate claims
+were never affected (FS-derived coefficients). Claims are now per-TENSOR
+(the design's granularity).
+
+Also shipped in the follow-up tranche: joint-scaled rejection
+(Q4_LEMMAS.md Q4.2b, proven — one summed test replaces the per-bundle
+product; ~3.7x fewer restarts at three active bundles, visible in the
+demo timings), and the derived gate-scalar width (`derive_gate_b`,
+freeze-check-pinned: demo b = 8/e = 4 -> r_g = 43, response cost -33%;
+FFN honestly stays b = 6/e = 3 -> r_g = 64 — prioritizing the
+recursive-gate round, AUTOMORPHISM_GATE_DESIGN.md Appendix A).

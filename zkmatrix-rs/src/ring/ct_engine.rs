@@ -729,22 +729,25 @@ pub fn prove_ct_round(
                 continue;
             }
         }
-        let ok_std = flat_z.is_empty() || rejection_accept(rng, &flat_z, &flat_v, rp.sigma);
-        let ok_s = if rp.sigma_s == 0 {
-            true
-        } else {
-            let fz: Vec<i64> = z_s_ajtai.iter().flatten().flatten().copied().collect();
-            let fv: Vec<i64> = centers_s_a.iter().flatten().flatten().copied().collect();
-            rejection_accept(rng, &fz, &fv, rp.sigma_s)
-        };
-        let ok_dig = if digits.is_empty() {
-            true
-        } else {
-            let fz: Vec<i64> = z_digits.iter().flatten().flatten().flatten().copied().collect();
-            let fv: Vec<i64> = centers_dig.iter().flatten().flatten().flatten().copied().collect();
-            rejection_accept(rng, &fz, &fv, dp.unwrap().sigma)
-        };
-        if ok_std && ok_s && ok_dig {
+        // Joint-scaled rejection across the active bundles (Q4.2b, proven):
+        // ONE test on the summed exponent replaces the per-bundle product —
+        // same sigmas, same accepted distribution, ~3.7x fewer restarts at
+        // three active bundles.
+        let fz_s: Vec<i64> = z_s_ajtai.iter().flatten().flatten().copied().collect();
+        let fv_s: Vec<i64> = centers_s_a.iter().flatten().flatten().copied().collect();
+        let fz_d: Vec<i64> = z_digits.iter().flatten().flatten().flatten().copied().collect();
+        let fv_d: Vec<i64> = centers_dig.iter().flatten().flatten().flatten().copied().collect();
+        let mut parts: Vec<(&[i64], &[i64], u64)> = Vec::new();
+        if !flat_z.is_empty() {
+            parts.push((&flat_z, &flat_v, rp.sigma));
+        }
+        if rp.sigma_s > 0 && !fz_s.is_empty() {
+            parts.push((&fz_s, &fv_s, rp.sigma_s));
+        }
+        if !digits.is_empty() {
+            parts.push((&fz_d, &fv_d, dp.unwrap().sigma));
+        }
+        if super::joint_rejection_accept(rng, &parts) {
             return (
                 CtRoundProof {
                     h: head.h,
