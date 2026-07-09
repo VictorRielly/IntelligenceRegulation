@@ -31,16 +31,16 @@ witness — beats the coded SLACK_OP budget ~5x at the frozen q46 point.
 ## Plan / status
 
 - [x] Read all four sources; derived identities.
-- [ ] scripts/zk_lemma_check.py: toy-ring checks of every identity
-      (leak triple, masked-variant completeness, untwisted + ct-quad
-      variants), C-recovery rank/solve at D=128 q31, ARP numbers.
-- [ ] U-P1: Q4.3 rewrite in Q4_LEMMAS.md (Q4.3d leak lemma, Q4.3e gate
-      corollary, Q4.3a/b regrades).
-- [ ] U-P2: R1 hardening spec (new section in Q4_LEMMAS.md).
-- [ ] U-P3: Appendix B.2 in AUTOMORPHISM_GATE_DESIGN.md (gate+tie ZK).
-- [ ] U-P4: Q4.4c lemma + full Q4 status audit + summary table.
-- [ ] U-P5: SOUNDNESS_REFERENCE.md grade/pointer updates (3.2, 4.5,
-      4.7, Section 8) + suite run.
+- [x] U-P0: scripts/zk_lemma_check.py (all checks pass). COMMITTED.
+- [x] U-P1: Q4.3 rewrite (Q4.3d leak, Q4.3e gate-leaks-C, regrades,
+      Q4.3c' retraction). COMMITTED.
+- [x] U-P2: R1 hardening spec (Section R1 in Q4_LEMMAS.md). COMMITTED.
+- [x] U-P3: Appendix B.2 in AUTOMORPHISM_GATE_DESIGN.md. COMMITTED.
+- [x] U-P4: Q4.4c discharged + Q4 audit + summary table. COMMITTED.
+- [x] U-P5: SOUNDNESS_REFERENCE.md updates (3.2, 4.5, 4.7, 8, changelog);
+      42-test suite green (140s). COMMITTED.
+
+ALL DELIVERABLES DONE.
 
 ## Decisions
 

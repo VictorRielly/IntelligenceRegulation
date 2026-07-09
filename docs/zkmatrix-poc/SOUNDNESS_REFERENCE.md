@@ -227,16 +227,28 @@ check then closes by the algebra given with that family. Rejection
 sampling only affects the number of attempts, not acceptance of the
 final transcript.
 
-**(3.2) Zero-knowledge surface [PROVEN for responses, OBLIGATION for
-garbage images].** The rejection-sampled z_i are distributed
-independently of rho_i (standard Lyubashevsky rejection argument; the
-alpha = 12, M = 2.76 discipline). w1_i and the linear-claim images are
-simulatable from the verification equations. The *quadratic* families'
-garbage images (Ga, Gb, G0, G1) are functions of the witnesses masked
-by Gaussian images; their formal leftover-entropy lemma is the
-R1/Q4.3 obligation (Section 8) — the DESIGN treats them as
-near-uniform, and the planned masking fix commits them with fresh
-randomness. This is the single ZK gap tracked for the whole round.
+**(3.2) Zero-knowledge surface [PROVEN for responses + linear images;
+PROVEN LEAK for quadratic garbage images — R1 fix specified].** The
+rejection-sampled z_i are distributed independently of rho_i (standard
+Lyubashevsky rejection argument; the alpha = 12, M = 2.76 discipline).
+w1_i and the LINEAR-claim images (RingClaim/CtClaim, including the
+tie's W_ring) are FORCED by their verification equations, hence
+simulatable (Q4_LEMMAS.md Q4.3b-ii). The *quadratic* families' images
+(Ga, Gb, G0, G1 AND the linear mask images W_quad/W_qring/W_tq) were
+previously logged as an owed "leftover-entropy" lemma; the U-P proof
+tranche found that framing was an OVERCLAIM and RE-GRADED it to a
+PROVEN LEAK: the images are pinned by the revealed z (Y_i = c x_i -
+P_i), so the exact identities W + sum a P = c L and c h - (...) = c Q
+expose fixed witness-images in the clear FOR EVERY witness, not only
+degenerate ones (Q4_LEMMAS.md Q4.3d). For the multiplication gate this
+image is the product matrix C itself (Q4.3e; C recovered exactly at
+demo params). The quadratic layer is therefore NOT zero-knowledge as
+built. The fix is R1 — additive one-time-pad slots on Ga/Gb/G1 AND W —
+now a full implementable spec whose masked variant is PROVEN HVZK
+under MLWE alone (Q4_LEMMAS.md Section R1; gate + tie assembled in
+AUTOMORPHISM_GATE_DESIGN.md Appendix B.2). This remains the single ZK
+gap for the round; its status is sharper (a known leak, not an owed
+lemma) and its fix is fully specified. See Section 8 item 1.
 
 ### 3.3 Extraction (special soundness) [PROVEN]
 
@@ -374,7 +386,10 @@ the check is a polynomial identity in the monomials
 {1, c, conj(c), conj(c)c} with pre-challenge coefficients; the
 Vandermonde clearing of Section 3.3 pins the conj(c)c coefficient,
 which is Q + L computed on the extracted witnesses. So Q + L = 0
-exactly. **ZK surface:** (Ga, Gb, G0, W) — the Section 3.2 obligation.
+exactly. **ZK surface:** (Ga, Gb, G0, W) — the Section 3.2 leak; for
+this exact claim form (the gate) the leaked image is the product
+matrix C (Q4_LEMMAS.md Q4.3e), closed by the R1 pads (Q4_LEMMAS.md
+Section R1 / Appendix B.2 of AUTOMORPHISM_GATE_DESIGN.md).
 *Code:* U-B1 additions to `ct_engine.rs`. *Pinned by:* `CE gate:
 tampered {Ga,Gb,G0} garbage image fails`, `tampered linear mask image
 W fails`, and the full-round negatives of Section 5.
@@ -395,11 +410,18 @@ To ground "this committed vector is short" (the binary gadget's
 non-wrap side condition), the round reveals y = R b + m for an
 FS-derived sparse ±1 projection R (drawn from the round hash) and a
 committed Gaussian mask m, range-checks y, and ties y to (b, m) with
-linear ct-claims. **[MODEL + OBLIGATION]:** the extraction constant
-composing the Johnson–Lindenstrauss lower bound with relaxed-opening
-slack is carried as the conservative parameter SLACK_OP (worst case
-|c|_1 = 4D); `arp_budget_ok` evaluates the resulting budget at derive
-time and REJECTS shapes that do not close. Two facts are permanently
+linear ct-claims. **[MODEL + OBLIGATION; a PROVEN direct-witness bound
+now available]:** the extraction constant composing the
+Johnson–Lindenstrauss lower bound with relaxed-opening slack is carried
+as the conservative parameter SLACK_OP (worst case |c|_1 = 4D);
+`arp_budget_ok` evaluates the resulting budget at derive time and
+REJECTS shapes that do not close. The U-P tranche added a
+self-contained, machine-checked coordinate-wise bound (Q4_LEMMAS.md
+Q4.4c) that removes both gaps of the SLACK_OP composition (no integer
+lift, no post-R challenge) and lands 2.35 bits tighter at the frozen
+point; it does not by itself change the frozen verdicts below (that is
+a `gadget_modulus_study.py` numeric call, flagged there), but it makes
+the extraction a PROVEN bound rather than only a budget gate. Two facts are permanently
 pinned by freeze rows: the budget CLOSES at q46 for binary units up to
 n = 512 coefficients and FAILS at n = 1536 (the granularity cap —
 binary claims stay partitioned), and it is KNOWN-OPEN at q31 (the row
@@ -670,12 +692,21 @@ any new challenge added to the protocol must be added here.
 
 ## 8. Honest limitations and open obligations
 
-1. **Garbage-image ZK (R1 / Q4.3)** [OBLIGATION]: the quadratic
-   families' images (Ga, Gb, G0, G1) are sent in the clear and argued
-   near-uniform; the formal leftover-entropy lemma and the committed-
-   mask hardening are designed (Q4_LEMMAS.md) but not implemented.
-   This is the only known gap between the shipped rounds and full
-   HVZK, and it is shared by every quadratic claim (gate included).
+1. **Garbage-image ZK (R1 / Q4.3)** [PROVEN LEAK; R1 fix specified,
+   OBLIGATION to build]: the quadratic families' images (Ga, Gb, G0,
+   G1, and the W mask images) are sent in the clear. The U-P tranche
+   re-derived the ZK surface and RETRACTED the prior "argued
+   near-uniform" framing as an overclaim: the images are pinned by the
+   revealed responses, so they leak fixed witness-images for EVERY
+   witness (Q4_LEMMAS.md Q4.3d), and for the multiplication gate the
+   leaked image is the product matrix C (Q4.3e). The quadratic layer
+   is therefore NOT zero-knowledge as built — this is a hard finding,
+   not a missing lemma. The fix (R1: additive one-time-pad slots on
+   Ga/Gb/G1 AND W) is now a full implementable spec whose masked
+   variant is PROVEN HVZK under MLWE alone (Q4_LEMMAS.md Section R1;
+   the gate + tie simulation is assembled in AUTOMORPHISM_GATE_DESIGN.md
+   Appendix B.2). It remains the only known ZK gap and the residual
+   work is the engine build (~1.5 KB/claim, no new response bundle).
 2. **The pi2 default switch** [OBLIGATION, mechanical]: the matmul
    prover still runs the scalar gate by default; the committed-
    executions gate + tie run in `self_test_pi2_ce` at protocol grade.
@@ -685,7 +716,10 @@ any new challenge added to the protocol must be added here.
    concentration constant), delta0 = 1.0037 (root-Hermite), the
    d_lwe = 768·log2(q)/11.7 rule, and the ARP's SLACK_OP worst-case
    constant. All are conservative-by-construction and pinned by freeze
-   rows; Q4.1/Q4.5 carry the write-up obligations.
+   rows; Q4.1/Q4.5 carry the write-up obligations. The ARP extraction
+   specifically now has a PROVEN self-contained bound (Q4_LEMMAS.md
+   Q4.4c) 2.35 bits tighter than the SLACK_OP gate; SLACK_OP stays as
+   the derive-time gate but is no longer the best proven bound.
 4. **Quantum margins** [MODEL]: three frozen shapes dip below 128-bit
    under core-SVP quantum costing; kappa+1 fixes it if that target is
    adopted (ESTIMATOR_NOTE.md).
@@ -730,6 +764,15 @@ All run in `ring_matmul self-test` unless noted.
 
 *Changelog: 2026-07-09 — first edition, written at U-B5 + U-L4 after
 the tie-integration round and the full-suite soundness review.*
+*2026-07-09 (U-P proof-debt tranche) — Section 3.2 / 4.5 / 4.7 / 8
+grade+pointer updates: the quadratic garbage-image ZK obligation was
+re-graded to a PROVEN LEAK (the gate leaks C; Q4_LEMMAS.md Q4.3d/e),
+the R1 fix specified with a PROVEN-under-MLWE masked variant
+(Q4_LEMMAS.md Section R1; AUTOMORPHISM_GATE_DESIGN.md Appendix B.2),
+and the ARP extraction given a PROVEN self-contained bound
+(Q4_LEMMAS.md Q4.4c). No claim was upgraded to PROVEN with a labeled
+gap; the gate ZK moved from "owed lemma" to "known leak + specified
+fix", an honesty correction, not an upgrade.*
 
 
 
