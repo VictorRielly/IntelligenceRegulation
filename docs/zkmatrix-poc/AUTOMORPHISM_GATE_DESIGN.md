@@ -316,60 +316,106 @@ shape, the tie-combo digit chain), docs, and the ZK write-up addendum
 (Q-A2 becomes: all execution data stays committed; the standard
 simulation argument applies — to be written with Q4.3's machinery).
 
-Tranche STATUS (2026-07-09): B1 shipped as the twisted quadratic claim
-(`TwistedQuadRingClaim`, `prove/verify_ct_round_tq`) — the
-public-constant half of B1 is NOT yet built (it belongs to the tie
-integration, B.1 below). B2 shipped as the end-to-end gate demo
-(`self_test_pi2_ce`): the gate claim runs through the production
-engine at r = 1 with the tie demonstrated at witness level; the pi2
-DEFAULT SWITCH is gated on the tie integration (B.1) and stays behind
-the scalar gate's flag until then. B3 shipped (tamper batteries on
-every prover image, same-seed kernel-path identity, committed-tamper
-negatives). B4 shipped (freeze rows + this update). The ZK addendum
-(Q-A2/Q4.3) remains an obligation.
+Tranche STATUS (2026-07-09, updated after U-B5): B1 fully shipped —
+the twisted quadratic claim (`TwistedQuadRingClaim`,
+`prove/verify_ct_round_tq`) AND the public-constant term in
+ring-valued claims (`RingClaim.constant`). B2/B5 shipped: gate AND
+first-class tie run end-to-end through the production engine in one
+r = 1 round (`self_test_pi2_ce`; Appendix B.1 below is the tie's
+derivation — RESOLVED). B3 shipped (tamper batteries on every prover
+image incl. w_ring, same-seed kernel-path identity, full-protocol
+committed-tamper negatives, the psi-order attack regression). B4
+shipped (freeze rows + docs; the superseded tie-combo digit-chain row
+removed with U-B5). Remaining before the pi2 DEFAULT SWITCH: the pi2
+prover/verifier rewrite onto this gate (mechanical — all claim
+machinery now exists) and the ZK addendum (Q-A2/Q4.3 obligation).
 
 Alternatives to this plan, including out-of-family options (hash-based
 sumcheck gate, the curve-hybrid idea, full-splitting redesign), are
 surveyed in GATE_ALTERNATIVES.md.
 
-### Appendix B.1 — the tie integration: an OPEN design item
+### Appendix B.1 — the tie integration: RESOLVED (U-B5, masked reveals)
 
-What exists: the tie is enforced in the demo at witness level (the
-verifier-side identity `sum_s tau_s YA_s = sum_i s_i sum_t tau_t
-sigma_t^{-1}(apack_i)`, checked on openings, tau drawn AFTER the Y
-commitments). What is missing: the tie as a first-class claim inside
-the masked ct-round, referencing only commitments. An earlier draft of
-this appendix asserted this was "designed" with the verifier doing "h
-twisted A2 matvecs, proof unchanged" — that was an overclaim, retracted
-here; the derivation below records what is actually known.
+History, kept for honesty: an early draft asserted the tie was
+"designed" with the verifier doing "h twisted A2 matvecs, proof
+unchanged" — an overclaim (no such design existed), retracted in
+review. The review then recorded the real obstruction, and the
+construction below resolves it. Machine-verified end-to-end in
+`self_test_pi2_ce` (U-B5), including the order-attack regression.
 
-The obstruction (found in review, 2026-07-09). The round's virtual
-opening P_i = c x_i - Y_i carries the round challenge c. Any tie
-formulation puts a Galois twist on at least one COMMITTED object
-(YA-side or original-side — the twist is conserved across the
-equation), and the twisted virtual opening sigma_t(P) = sigma_t(c)
-sigma_t(x) - sigma_t(Y) carries the twisted challenge monomial
-sigma_t(c). A claim mixing twist classes therefore mixes challenge
-monomials {c, sigma_t(c)}, and a single check equation with
-pre-challenge prover images pins witness combinations PER MONOMIAL —
-but the tie is one equation across monomials, so it cannot be checked
-as a plain multi-twist linear claim. Two specific dead ends, recorded:
-(a) per-twist reveal pivots u_t = sigma_t(YA_t) + m_t with the mask
-committed on one side need the mask consistency m_t = sigma_t(mu_t),
-which is itself a mixed-twist claim — circular; (b) unmasked reveals
-of sigma_t(YA_t) reopen the executions (the ZK regression this design
-exists to avoid).
+**The obstruction.** The round's virtual opening P_i = c x_i - Y_i
+carries the round challenge c. Any direct tie formulation puts a Galois
+twist on at least one COMMITTED object (the twist is conserved across
+the equation), and the twisted virtual opening sigma_t(P) =
+sigma_t(c) sigma_t(x) - sigma_t(Y) carries the twisted challenge
+monomial sigma_t(c). A claim mixing twist classes mixes monomials
+{c, sigma_t(c)}, and a single check equation with pre-challenge prover
+images pins witness combinations PER MONOMIAL — but the tie is one
+equation ACROSS monomials. Dead ends recorded: (a) reveal pivots whose
+mask appears twisted in one of the two claims need a mask-consistency
+claim that is itself mixed-twist — circular; (b) unmasked reveals of
+sigma_t(YA_t) reopen the executions (the ZK regression this design
+avoids).
 
-The candidate route (to be derived on paper first, U-A0 discipline):
-masked per-twist reveals E_t = U_t + m_t with ONE untwisted mask
-commitment M = (m_t), where U_t := tau_t sum_i s_i sigma_t^{-1}(x_a,i).
-Substituting the m_t virtual openings into the check turns the tie into
-a claim with challenge monomials sigma_t^{-1}(c) * c — the same
-monomial family the twisted QUADRATIC layer (B1) already handles with
-pre-challenge garbage images. Expected cost: ~h ring elements of
-reveals + one h-slot mask commitment per tie (~64-70 KB per side at the
-demo shape — the proof does NOT stay unchanged), verifier does h cheap
-entrywise twists of already-computed matvec results. Soundness and ZK
-of this composition are exactly what the paper derivation must
-establish before any engine code (the U-A0 lesson: derive first, build
-second).
+**The resolution: two-sided masked reveals.** Per side (A shown; B and
+C identical with challenge vector v), with Y_t the committed execution
+vector and v'_t := sum_i sigma_t(s_i) apack_i (so honesty means
+sigma_t(Y_t) = v'_t):
+
+1. BEFORE any tie challenge: the prover commits uniform masks
+   M = (mu_t) and their pre-twisted images N = (nu_t), nu_t :=
+   sigma_t(mu_t). The verifier NEVER checks this relation.
+2. Full-entropy ring challenges psi_t derive from the statement hash
+   h0 that binds ALL commitments (originals, Y, M, N).
+3. The prover reveals F_t := psi_t Y_t + mu_t — uniform, since mu_t
+   one-time-pads it; nothing about Y leaks.
+4. Quinary batch challenges taui, tauii derive from H(h0, F) —
+   strictly after the reveals.
+5. Two UNTWISTED linear ring claims with public constants (the only
+   engine extension: a public constant K in `RingClaim`, checked as
+   W = ZA - c C + c K):
+       (i)  sum_t taui_t (psi_t Y_t + mu_t)  = sum_t taui_t F_t
+       (ii) sum_t tauii_t (psi'_t v'_t + nu_t) = sum_t tauii_t sigma_t(F_t)
+   with psi'_t := sigma_t(psi_t) public. In (ii) the coefficient on
+   original slot i is alpha_i := sum_t tauii_t psi'_t sigma_t(s_i) —
+   verifier-computable. Every committed slot enters UNTWISTED; the
+   Galois twists act only on public data (psi, s, F). No twisted keys,
+   no twisted matvecs, no digit-opened combinations.
+
+**Soundness.** Engine claim extraction pins (i) and (ii) over the
+extracted messages. tau is drawn after F, so (i) forces the per-t
+relations F_t = psi_t Y_t + mu_t (a nonzero residual survives the
+taui-combination with per-slot probability 2^-296); similarly (ii)
+forces psi'_t v'_t + nu_t = sigma_t(F_t). Substituting the first into
+the second and untwisting:
+       psi_t (Y_t - sigma_t^{-1}(v'_t)) = sigma_t^{-1}(nu_t) - mu_t.
+The right side is FIXED when the masks are committed; psi_t is drawn
+after. A nonzero defect Y_t - sigma_t^{-1}(v'_t) therefore requires the
+prover to have predicted psi_t: per-CRT-slot probability q^-16 =
+2^-496-class (psi full-entropy, k = 8 split). The ORDER is
+load-bearing twice — psi after the masks, tau after the reveals; the
+demo's order-regression battery demonstrates the crafted-mask attack
+that succeeds when psi is known first (nu_t := sigma_t(mu_t) -
+psi'_t sigma_t(defect_t) cancels any chosen defect), and its rejection
+under the shipped order. The wrong-tau-order attack (choose the
+reveals F after seeing tau: two linear constraints on h free reveal
+errors — solvable for h >= 2) is closed by step 4's hash chain.
+
+**ZK.** The reveals are uniform (one-time-padded); the simulator draws
+F uniform and the claims' W-images from the verification equations.
+The mask commitments are MLWE-hiding (correlated contents mu, nu are
+still hidden). The garbage-image surface is the round's standard one
+(Q4.3/R1 obligation, unchanged).
+
+**Measured (U-B5, demo shape, inner = 128).** Gate + tie in one round
+at r = 1: prove ~220 ms / verify ~170 ms, attempts 1. Whole 12-
+commitment round ~1.6 MB; gate + tie MARGINAL ~1.23 MB (9 commitments
+593 KB + 9 openings 446 KB + F reveals 186 KB + claim images 5 KB) vs
+~8.7-12.9 MB scalar gate — the r = 1 lever stands with the tie
+included. The earlier 345 KB figure was the gate WITHOUT the tie; the
+superseded digit-opened W-combination estimate (and its freeze row)
+was removed with U-B5 — the masked-reveal tie has no digit chains.
+Scaling note: masks and reveals scale with h * inner / D exactly like
+the execution vectors, so the ~5-8x advantage over the scalar gate is
+shape-stable; the aggregation follow-up (GATE_ALTERNATIVES options
+2/3) remains the small-proof path.

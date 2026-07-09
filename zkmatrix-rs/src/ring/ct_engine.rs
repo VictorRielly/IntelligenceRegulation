@@ -95,15 +95,23 @@ pub struct CtClaim {
     pub scalar: i64,
 }
 
-/// One RING-VALUED linear claim: sum_(i,j) a_(i,j) x_(i,j) = 0 over R_q
-/// (all D coefficients — no ct projection, no g-mask, no reveal; W_rl is
-/// simulatable from the verification equation, so nothing leaks). This is
-/// the natural claim form for R-linear public maps (design Section 4
-/// option (a): negacyclic-block A, shift/gadget matrices, convolutions,
-/// block-selection). Per-slot soundness 2^-296 via the same two-transcript
-/// extraction as the ct-claims.
+/// One RING-VALUED linear claim: sum_(i,j) a_(i,j) x_(i,j) = constant
+/// over R_q (all D coefficients — no ct projection, no g-mask, no
+/// reveal; W_rl is simulatable from the verification equation, so
+/// nothing leaks). This is the natural claim form for R-linear public
+/// maps (design Section 4 option (a): negacyclic-block A, shift/gadget
+/// matrices, convolutions, block-selection) and, with a nonzero public
+/// constant, for the committed-executions tie claims (Appendix B.1:
+/// masked-reveal pivots F with the claim value being a public
+/// tau-combination of the reveals). Per-slot soundness 2^-296 via the
+/// same two-transcript extraction as the ct-claims: subtracting two
+/// accepting transcripts clears the constant and pins
+/// sum a x - constant = 0 exactly. The constant is STATEMENT data — the
+/// caller must bind it (or the reveals it derives from) into h0.
 pub struct RingClaim {
     pub msg_coeffs: Vec<(usize, usize, Poly)>,
+    /// Public claim value K: sum a x = K. Zero for homogeneous claims.
+    pub constant: Poly,
 }
 
 // ---------------------------------------------------------------------------
@@ -1081,14 +1089,15 @@ pub fn verify_ct_round_tq(
             return false;
         }
     }
-    // Ring-valued claims: W_rl = ZA_rl - c C_rl (the claim value is the
-    // zero ring element; extraction divides by the invertible challenge
-    // difference and pins sum coeff * x = 0 exactly).
+    // Ring-valued claims: W_rl = ZA_rl - c C_rl + c K (claim value K,
+    // zero for homogeneous claims; extraction divides by the invertible
+    // challenge difference and pins sum coeff * x = K exactly).
     for (l, rc) in ring_claims.iter().enumerate() {
         let c_rl = ring_claim_combo(ring, rc, &t2_all);
         let za_rl = ring_claim_combo(ring, rc, &a2z);
         let cc = ring_mul_split_kara_fast(ring, &c_mod, &c_rl);
-        if poly_sub(zq, &za_rl, &cc) != proof.w_ring[l] {
+        let ck = ring_mul_split_kara_fast(ring, &c_mod, &rc.constant);
+        if poly_add(zq, &poly_sub(zq, &za_rl, &cc), &ck) != proof.w_ring[l] {
             return false;
         }
     }

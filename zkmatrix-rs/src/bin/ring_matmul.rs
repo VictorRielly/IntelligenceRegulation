@@ -919,7 +919,7 @@ fn pi1_ring_claims(zq: &ring::Zq, shape: &Pi1Shape, a_ring: &[Poly]) -> Vec<ring
                 .map(|k| (0usize, k, a_ring[i * shape.inner_r + k].clone()))
                 .collect();
             msg_coeffs.push((1, i, minus_one.clone()));
-            ring::ct_engine::RingClaim { msg_coeffs }
+            ring::ct_engine::RingClaim { msg_coeffs, constant: poly_zero() }
         })
         .collect()
 }
@@ -1389,7 +1389,7 @@ fn recomposition_claims(
                 .map(|(i, &bi)| (bi, u, const_poly(zq.to_mod(1i64 << i))))
                 .collect();
             msg_coeffs.push((val_idx, u, const_poly(zq.neg(1))));
-            ring::ct_engine::RingClaim { msg_coeffs }
+            ring::ct_engine::RingClaim { msg_coeffs, constant: poly_zero() }
         })
         .collect()
 }
@@ -1523,6 +1523,7 @@ fn self_test_gadgets() {
                     (1, u, const_poly(zq.neg(1 << shift))),
                     (2, u, const_poly(zq.neg(1))),
                 ],
+                constant: poly_zero(),
             })
             .collect();
         let openings: Vec<StdOpening> = all_x
@@ -2717,6 +2718,7 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
                     (base_y2 + j, u, const_poly(zq.neg(1 << shift))),
                     (base_r + j, u, const_poly(zq.neg(1))),
                 ],
+                constant: poly_zero(),
             });
             // Recomposition: sum_i 2^i bits_i - r = 0.
             let mut coeffs: Vec<(usize, usize, Poly)> = base_bits
@@ -2725,7 +2727,7 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
                 .map(|(i, &bb)| (bb + j, u, const_poly(zq.to_mod(1i64 << i))))
                 .collect();
             coeffs.push((base_r + j, u, const_poly(zq.neg(1))));
-            ring_claims.push(RingClaim { msg_coeffs: coeffs });
+            ring_claims.push(RingClaim { msg_coeffs: coeffs, constant: poly_zero() });
         }
     }
     // Hadamard claims (slot-packed triple).
@@ -2896,36 +2898,14 @@ fn freeze_check() {
         let d_lwe = (768.0_f64 * 31.0 / 11.7).ceil() as usize;
         let n_r_h = (8 * D + 128 * D + d_lwe).div_ceil(D);
         gate(
-            &format!("CE gate execution-vector shape (C4): kappa=8 n_r={n_r_h} msg_r=128"),
+            &format!("CE gate execution/mask commitment shape (C4): kappa=8 n_r={n_r_h} msg_r=128"),
             n_r_h == 152,
         );
-        // Fixed-seed mirror of the gate-spike's empirical W-combo bound
-        // (quinary s/tau x ternary rho, sqrt-extrapolated to n = 2048).
-        let rows_emp = 64usize;
-        let mut rng = 0x5eed_000cu64;
-        let rhos: Vec<Vec<i64>> = (0..rows_emp).map(|_| rng_ternary_poly(&mut rng)).collect();
-        let s_emp: Vec<Vec<i64>> = (0..rows_emp).map(|_| rng_quinary_poly(&mut rng)).collect();
-        let tau: Vec<Vec<i64>> = (0..128).map(|_| rng_quinary_poly(&mut rng)).collect();
-        let mut acc_w = vec![0i64; D];
-        for (i, rho) in rhos.iter().enumerate() {
-            for ti in tau.iter() {
-                let st = poly_mul_small(&s_emp[i], ti);
-                let term = poly_mul_small(&st, rho);
-                for (a, &x) in acc_w.iter_mut().zip(term.iter()) {
-                    *a += x;
-                }
-            }
-        }
-        let max_coeff = acc_w.iter().map(|x| x.abs()).max().unwrap();
-        let w_est_2048 = (max_coeff as f64) * (2048.0f64 / rows_emp as f64).sqrt();
-        let l_est = ((w_est_2048.log2() + 1.0) / 4.0).ceil() as usize;
-        gate(
-            &format!(
-                "CE tie-combo digit chain: |W| ~ 2^{:.1} at n = 2048 -> e = 4, L = {l_est} (fits q31)",
-                w_est_2048.log2()
-            ),
-            w_est_2048.log2() < 19.0 && l_est <= 5,
-        );
+        // NOTE: the former "tie-combo digit chain" row (|W| ~ 2^18.1,
+        // e = 4, L = 5) was removed with U-B5: the masked-reveal tie
+        // (Appendix B.1) has no digit-opened W-combination — its only
+        // derive-time artifacts are the shape row above (shared by the
+        // mask commitments) and the C1' challenge budget.
     }
 
     // U-L — the F3 modulus-link freeze rows.
@@ -3526,24 +3506,29 @@ fn gate_spike() {
 //   - a tie binding each Y to the originals (sum_sigma tau_sigma YA_sigma
 //     = sum_i s_i sum_sigma tau_sigma sigma^{-1}(apack_i)).
 //
-// STATUS (honest boundary): the gate claim runs end-to-end through the
-// production ct-engine (prove/verify_ct_round_tq) — this is the F2
-// resolution, fully tested with tampered-C negatives. The tie is verified
-// here at witness level with a fresh ring challenge tau (per-slot 2^-296
-// sound: a wrong YA slot survives the tau-combination with prob 2^-296);
-// folding the tie into the masked round as a first-class claim is an OPEN
-// engine-design item — the naive routes hit real obstructions (mixed-twist
-// claims put heterogeneous challenge monomials sigma_t(c) into the round
-// check) — see Appendix B.1 of AUTOMORPHISM_GATE_DESIGN.md for the
-// problem statement, the obstructions, and the candidate route. It is the
-// U-B-next item, to be derived on paper first (U-A0 discipline).
+// STATUS: gate AND tie both run as first-class claims through the
+// production ct-engine (U-B5, Appendix B.1 RESOLVED). The tie uses the
+// masked-reveal construction: per side, uniform masks mu_t and their
+// pre-twisted images nu_t = sigma_t(mu_t) are committed BEFORE the
+// full-entropy challenges psi are drawn; the prover reveals
+// F_t = psi_t Y_t + mu_t (uniform — leaks nothing), and two UNTWISTED
+// linear ring claims with public constants close the tie:
+//   (i)  batches  psi_t Y_t + mu_t = F_t          over t (challenge taui)
+//   (ii) batches  psi'_t v'_t + nu_t = sigma_t(F_t) over t (challenge tauii)
+// where v'_t = sum_i sigma_t(ch_i) orig_i and psi'_t = sigma_t(psi_t).
+// Galois twists act ONLY on public data. Soundness: (i) and (ii) pin the
+// per-t relations (tau drawn after F); combining them forces
+// psi_t (Y_t - v_t) = sigma_t^{-1}(nu_t) - mu_t, whose right side is
+// fixed before psi — a nonzero defect survives with per-slot probability
+// 2^-496-class (psi full-entropy). The order-regression battery below
+// demonstrates the attack that succeeds when psi precedes the masks.
 
 fn self_test_pi2_ce() {
     use ring::ct_engine::{
-        StdOpening, TwistedQuadRingClaim, ct_h0, derive_ct_round_params, prove_ct_round_tq,
-        verify_ct_round_tq,
+        RingClaim, StdOpening, TwistedQuadRingClaim, ct_h0, derive_ct_round_params,
+        prove_ct_round_tq, verify_ct_round_tq,
     };
-    println!("\n[U-B2] committed-executions Pi2 gate (r = 1) at rows=4, inner=128, cols=3, q8_31");
+    println!("\n[U-B2/B5] committed-executions Pi2 gate + first-class tie (r = 1) at rows=4, inner=128, cols=3, q8_31");
     let q = Q8;
     let ring_ctx = ring_ctx_q8();
     let zq = ring_ctx.zq;
@@ -3647,40 +3632,138 @@ fn self_test_pi2_ce() {
     let (xyb, t1yb, t2yb, rhoyb) = build(yb.clone(), &mut rng);
     let (xyc, t1yc, t2yc, rhoyc) = build(yc.clone(), &mut rng);
 
-    // The final statement hash binds all six commitments (originals + Y);
-    // tau derives from it, so tau is fresh AFTER the Y commitments.
-    let t1s = [t1a.clone(), t1b.clone(), t1c.clone(), t1ya.clone(), t1yb.clone(), t1yc.clone()];
-    let t2s = [t2a.clone(), t2b.clone(), t2c.clone(), t2ya.clone(), t2yb.clone(), t2yc.clone()];
-    let h0 = ct_h0(&crs, b"pi2-ce", &t1s, &t2s, &[]);
-    let mut tr = XofReader::new("pi2-ce-tau", &[&h0]);
-    let tau: Vec<Vec<i64>> = (0..h).map(|_| tr.next_challenge()).collect();
-
-    // The tie (witness-level, per-slot sound via fresh tau): for each side,
-    // sum_sigma tau_sigma Y_sigma == sum_i s_i sum_sigma tau_sigma
-    // sigma^{-1}(pack_i). A tampered Y is caught. (Engine integration:
-    // Appendix B.1, twisted A2 matvecs.)
-    let tie_ok = |ys: &[Poly], packs: &[Poly], ch: &[Vec<i64>]| -> bool {
-        let mut lhs = poly_zero();
-        for (yi, ti) in ys.iter().zip(tau.iter()) {
-            lhs = poly_add(&zq, &lhs, &poly_mul_g(&zq, &poly_from_small(&zq, ti), yi));
-        }
-        let mut rhs = poly_zero();
-        for (i, p) in packs.iter().enumerate() {
-            let mut inner_sum = poly_zero();
-            for (si, &t) in full.iter().enumerate() {
-                let tw = apply_auto(&zq, p, inv_t(t));
-                inner_sum = poly_add(&zq, &inner_sum, &poly_mul_g(&zq, &poly_from_small(&zq, &tau[si]), &tw));
-            }
-            rhs = poly_add(&zq, &rhs, &poly_mul_g(&zq, &poly_from_small(&zq, &ch[i]), &inner_sum));
-        }
-        lhs == rhs
+    // ---- The tie masks (Appendix B.1). Per side: one commitment M of
+    // uniform masks mu_t and one commitment N of their pre-twisted images
+    // nu_t := sigma_t(mu_t). The verifier NEVER checks the mu/nu relation
+    // directly — soundness rests on psi being drawn strictly after these
+    // commitments (the order-regression battery below demonstrates the
+    // attack when it is not).
+    let mask_pair = |rng: &mut u64| -> (Vec<Poly>, Vec<Poly>) {
+        let mu: Vec<Poly> = (0..h).map(|_| rng_poly_mod(rng, q)).collect();
+        let nu: Vec<Poly> =
+            full.iter().zip(mu.iter()).map(|(&t, m)| apply_auto(&zq, m, t)).collect();
+        (mu, nu)
     };
-    assert_true("CE tie: YA/YB/YC each match their twisted-original combination (per-slot 2^-296)",
-        tie_ok(&ya, &a_rows, &sch) && tie_ok(&yb, &b_cols, &vch) && tie_ok(&yc, &cpack, &vch));
-    // Tampered YA fails the tie.
-    let mut ya_bad = ya.clone();
-    ya_bad[0][0] = zq.add(ya_bad[0][0], 1);
-    assert_true("CE tie: tampered YA fails", !tie_ok(&ya_bad, &a_rows, &sch));
+    let (mua, nua) = mask_pair(&mut rng);
+    let (mub, nub) = mask_pair(&mut rng);
+    let (muc, nuc) = mask_pair(&mut rng);
+    let (xma, t1ma, t2ma, rhoma) = build(mua.clone(), &mut rng);
+    let (xna, t1na, t2na, rhona) = build(nua.clone(), &mut rng);
+    let (xmb, t1mb, t2mb, rhomb) = build(mub.clone(), &mut rng);
+    let (xnb, t1nb, t2nb, rhonb) = build(nub.clone(), &mut rng);
+    let (xmc, t1mc, t2mc, rhomc) = build(muc.clone(), &mut rng);
+    let (xnc, t1nc, t2nc, rhonc) = build(nuc.clone(), &mut rng);
+
+    // Statement hash binds ALL 12 commitments (0=A 1=B 2=C 3=YA 4=YB
+    // 5=YC 6=MA 7=NA 8=MB 9=NB 10=MC 11=NC); the full-entropy psi
+    // challenges derive from it — strictly after the masks.
+    let t1s = [
+        t1a.clone(), t1b.clone(), t1c.clone(), t1ya.clone(), t1yb.clone(), t1yc.clone(),
+        t1ma.clone(), t1na.clone(), t1mb.clone(), t1nb.clone(), t1mc.clone(), t1nc.clone(),
+    ];
+    let t2s = [
+        t2a.clone(), t2b.clone(), t2c.clone(), t2ya.clone(), t2yb.clone(), t2yc.clone(),
+        t2ma.clone(), t2na.clone(), t2mb.clone(), t2nb.clone(), t2mc.clone(), t2nc.clone(),
+    ];
+    let h0 = ct_h0(&crs, b"pi2-ce", &t1s, &t2s, &[]);
+    let full_poly = |xr: &mut XofReader| -> Poly {
+        // Uniform mod q via 128-bit reduction (bias 2^-97).
+        let mut p = poly_zero();
+        for k in 0..D {
+            let wide = ((xr.next_u64() as u128) << 64) | (xr.next_u64() as u128);
+            p[k] = (wide % (q as u128)) as u64;
+        }
+        p
+    };
+    let mut psir = XofReader::new("pi2-ce-psi", &[&h0]);
+    let psi: Vec<Vec<Poly>> =
+        (0..3).map(|_| (0..h).map(|_| full_poly(&mut psir)).collect()).collect();
+
+    // Reveals F_t := psi_t Y_t + mu_t — uniform (one-time-padded by mu),
+    // so nothing about the execution vectors leaks.
+    let reveal = |ys: &[Poly], mus: &[Poly], ps: &[Poly]| -> Vec<Poly> {
+        (0..h).map(|t| poly_add(&zq, &poly_mul_g(&zq, &ps[t], &ys[t]), &mus[t])).collect()
+    };
+    let fa = reveal(&ya, &mua, &psi[0]);
+    let fb = reveal(&yb, &mub, &psi[1]);
+    let fc = reveal(&yc, &muc, &psi[2]);
+
+    // The ROUND statement hash binds h0 + the reveals; the quinary batch
+    // challenges tau derive from it — strictly after the reveals are
+    // fixed (wrong order = the e-slack attack; see the order battery).
+    let mut fbytes: Vec<u8> = Vec::new();
+    for f in [&fa, &fb, &fc] {
+        fbytes.extend_from_slice(&ring::polys_bytes(f));
+    }
+    let frefs: [&[u8]; 2] = [&h0, &fbytes];
+    let mut hfr = XofReader::new("pi2-ce-h0f", &frefs);
+    let mut h0f = [0u8; 32];
+    for chunk in h0f.chunks_mut(8) {
+        chunk.copy_from_slice(&hfr.next_u64().to_le_bytes());
+    }
+    let mut tr = XofReader::new("pi2-ce-tau", &[&h0f]);
+    let mut draw_tau = || -> Vec<Vec<i64>> { (0..h).map(|_| tr.next_challenge()).collect() };
+    let tau_pairs: Vec<(Vec<Vec<i64>>, Vec<Vec<i64>>)> =
+        (0..3).map(|_| (draw_tau(), draw_tau())).collect();
+
+    // ---- The tie claims (Appendix B.1), two UNTWISTED linear ring
+    // claims with public constants per side (o = original commitment,
+    // ch = its challenge vector, Y/M/N as above, psi'_t := sigma_t(psi_t)):
+    //   (i)  sum_t taui_t (psi_t Y_t + mu_t)        = sum_t taui_t F_t
+    //   (ii) sum_t tauii_t (psi'_t sum_i sigma_t(ch_i) o_i + nu_t)
+    //                                               = sum_t tauii_t sigma_t(F_t)
+    // (ii) is (i)'s per-twist image under sigma_t: honest Y_t equals the
+    // twisted combination, so both constants agree slotwise. sigma acts
+    // ONLY on public data (psi, ch, F); every committed slot is untwisted.
+    let tie_pair = |o_idx: usize,
+                    y_idx: usize,
+                    m_idx: usize,
+                    n_idx: usize,
+                    ch: &[Vec<i64>],
+                    f: &[Poly],
+                    ps: &[Poly],
+                    ti: &[Vec<i64>],
+                    tii: &[Vec<i64>]|
+     -> [RingClaim; 2] {
+        let mut mc_i: Vec<(usize, usize, Poly)> = Vec::new();
+        let mut k_i = poly_zero();
+        for t in 0..h {
+            let tp = poly_from_small(&zq, &ti[t]);
+            mc_i.push((y_idx, t, poly_mul_g(&zq, &tp, &ps[t])));
+            mc_i.push((m_idx, t, tp.clone()));
+            k_i = poly_add(&zq, &k_i, &poly_mul_g(&zq, &tp, &f[t]));
+        }
+        let mut mc_ii: Vec<(usize, usize, Poly)> = Vec::new();
+        let mut k_ii = poly_zero();
+        for (i, chi) in ch.iter().enumerate() {
+            let mut alpha = poly_zero();
+            for (si, &t) in full.iter().enumerate() {
+                let tp = poly_from_small(&zq, &tii[si]);
+                let pp = apply_auto(&zq, &ps[si], t);
+                let cc = apply_auto(&zq, &poly_from_small(&zq, chi), t);
+                let term = poly_mul_g(&zq, &poly_mul_g(&zq, &tp, &pp), &cc);
+                alpha = poly_add(&zq, &alpha, &term);
+            }
+            mc_ii.push((o_idx, i, alpha));
+        }
+        for (si, &t) in full.iter().enumerate() {
+            let tp = poly_from_small(&zq, &tii[si]);
+            mc_ii.push((n_idx, si, tp.clone()));
+            k_ii = poly_add(&zq, &k_ii, &poly_mul_g(&zq, &tp, &apply_auto(&zq, &f[si], t)));
+        }
+        [
+            RingClaim { msg_coeffs: mc_i, constant: k_i },
+            RingClaim { msg_coeffs: mc_ii, constant: k_ii },
+        ]
+    };
+    let tie_claims: Vec<RingClaim> = [
+        tie_pair(0, 3, 6, 7, &sch, &fa, &psi[0], &tau_pairs[0].0, &tau_pairs[0].1),
+        tie_pair(1, 4, 8, 9, &vch, &fb, &psi[1], &tau_pairs[1].0, &tau_pairs[1].1),
+        tie_pair(2, 5, 10, 11, &vch, &fc, &psi[2], &tau_pairs[2].0, &tau_pairs[2].1),
+    ]
+    .into_iter()
+    .flatten()
+    .collect();
 
     // The gate: ONE twisted quadratic ring claim over YA, YB, YC.
     let one = {
@@ -3694,55 +3777,66 @@ fn self_test_pi2_ce() {
     };
     let gate_claims = [mk_gate()];
 
-    let xs = [xa.clone(), xb.clone(), xc.clone(), xya.clone(), xyb.clone(), xyc.clone()];
-    let rhos = [rhoa.clone(), rhob.clone(), rhoc.clone(), rhoya.clone(), rhoyb.clone(), rhoyc.clone()];
-    let rp = derive_ct_round_params(q, cshape, 6, 0, 0, true);
+    let xs = [
+        xa.clone(), xb.clone(), xc.clone(), xya.clone(), xyb.clone(), xyc.clone(),
+        xma.clone(), xna.clone(), xmb.clone(), xnb.clone(), xmc.clone(), xnc.clone(),
+    ];
+    let rhos = [
+        rhoa.clone(), rhob.clone(), rhoc.clone(), rhoya.clone(), rhoyb.clone(), rhoyc.clone(),
+        rhoma.clone(), rhona.clone(), rhomb.clone(), rhonb.clone(), rhomc.clone(), rhonc.clone(),
+    ];
+    let n_com = 12usize;
+    let rp = derive_ct_round_params(q, cshape, n_com, 0, 0, true);
     let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
     let path = KernelPath::A1(&a1p);
-    let openings: Vec<StdOpening> = (0..6)
+    let openings: Vec<StdOpening> = (0..n_com)
         .map(|i| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &xs[i], rho: &rhos[i] })
         .collect();
     let mut rng_school = rng;
     let t0 = Instant::now();
     let (mut proof, attempts) = prove_ct_round_tq(
-        &path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &[], &gate_claims,
-        &openings, &[], &[], 6, &mut rng,
+        &path, &ring_ctx, &rp, None, &crs, &h0f, &[], &tie_claims, &[], &[], &gate_claims,
+        &openings, &[], &[], n_com, &mut rng,
     );
     let prove_ms = t0.elapsed().as_secs_f64() * 1e3;
     let t1v: Vec<Vec<Poly>> = t1s.to_vec();
     let t2v: Vec<Vec<Poly>> = t2s.to_vec();
     let tvr = Instant::now();
     let ok = verify_ct_round_tq(
-        &path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &[], &gate_claims, &t1v,
-        &t2v, &[], &[], &[], 6, &proof,
+        &path, &ring_ctx, &rp, None, &crs, &h0f, &[], &tie_claims, &[], &[], &gate_claims, &t1v,
+        &t2v, &[], &[], &[], n_com, &proof,
     );
     let verify_ms = tvr.elapsed().as_secs_f64() * 1e3;
-    assert_true(&format!("CE gate verifies at r = 1 (attempts = {attempts}, prove {prove_ms:.0} ms, verify {verify_ms:.0} ms)"), ok);
+    assert_true(
+        &format!("CE gate + first-class tie verify at r = 1 (attempts = {attempts}, prove {prove_ms:.0} ms, verify {verify_ms:.0} ms)"),
+        ok,
+    );
 
     // U-B3: same-seed cross-path identity — the tq round is deterministic
-    // given (h0, seed), so School and A1 must produce bit-identical proofs.
+    // given (h0f, seed), so School and A1 must produce bit-identical proofs.
     let (proof_s, attempts_s) = prove_ct_round_tq(
-        &KernelPath::School, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &[], &gate_claims,
-        &openings, &[], &[], 6, &mut rng_school,
+        &KernelPath::School, &ring_ctx, &rp, None, &crs, &h0f, &[], &tie_claims, &[], &[],
+        &gate_claims, &openings, &[], &[], n_com, &mut rng_school,
     );
     assert_true(
         "CE gate: same-seed proofs bit-identical across kernel paths",
         attempts == attempts_s
             && proof.h == proof_s.h
             && proof.w1 == proof_s.w1
+            && proof.w_ring == proof_s.w_ring
             && proof.gtq == proof_s.gtq
             && proof.w_tq == proof_s.w_tq
             && proof.z == proof_s.z,
     );
     assert_true(
         "CE gate: the A1 proof verifies on the schoolbook path",
-        verify_ct_round_tq(&KernelPath::School, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &[], &gate_claims, &t1v, &t2v, &[], &[], &[], 6, &proof),
+        verify_ct_round_tq(&KernelPath::School, &ring_ctx, &rp, None, &crs, &h0f, &[], &tie_claims, &[], &[], &gate_claims, &t1v, &t2v, &[], &[], &[], n_com, &proof),
     );
 
-    // U-B3 junk-injection: every garbage/mask image of the twisted claim is
-    // load-bearing — tampering any of (Ga, Gb, G0, W) must be rejected.
+    // U-B3 junk-injection: every prover-supplied image is load-bearing —
+    // tampering any of (Ga, Gb, G0, W_tq, W_ring) must be rejected.
     let reverify = |p: &ring::ct_engine::CtRoundProof| -> bool {
-        verify_ct_round_tq(&path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &[], &gate_claims, &t1v, &t2v, &[], &[], &[], 6, p)
+        verify_ct_round_tq(&path, &ring_ctx, &rp, None, &crs, &h0f, &[], &tie_claims, &[], &[], &gate_claims, &t1v, &t2v, &[], &[], &[], n_com, p)
     };
     for (idx, name) in [(0usize, "Ga"), (1, "Gb"), (2, "G0")] {
         let orig = proof.gtq[0][idx].clone();
@@ -3754,27 +3848,132 @@ fn self_test_pi2_ce() {
     proof.w_tq[0][0] = zq.add(proof.w_tq[0][0], 1);
     assert_true("CE gate: tampered linear mask image W fails", !reverify(&proof));
     proof.w_tq[0] = orig_w;
+    let orig_wr = proof.w_ring[0].clone();
+    proof.w_ring[0][0] = zq.add(proof.w_ring[0][0], 1);
+    assert_true("CE tie: tampered ring-claim mask image fails", !reverify(&proof));
+    proof.w_ring[0] = orig_wr;
     assert_true("CE gate: restored proof verifies again (tamper harness sane)", reverify(&proof));
 
-    // Proof-size accounting for the gate CLAIM (executions are the cost).
-    let gate_ring_elems = 3 /* Ga,Gb,G0 */ + 1 /* W */ + proof.w1.iter().map(|w| w.len()).sum::<usize>();
+    // Proof-size accounting (executions + tie are the cost).
+    let gate_ring_elems = 3 /* Ga,Gb,G0 */ + 1 /* W_tq */
+        + proof.w_ring.len()
+        + proof.w1.iter().map(|w| w.len()).sum::<usize>();
     let z_coeffs = proof.z.iter().flatten().map(|v| v.len()).sum::<usize>();
     let sigma_bits = (rp.sigma as f64).log2() + 4.0;
-    let kb = (gate_ring_elems + 6 * h) as f64 * D as f64 * 31.0 / 8.0 / 1024.0
+    let kb = (gate_ring_elems + n_com * h + 3 * h /* F reveals */) as f64 * D as f64 * 31.0
+        / 8.0
+        / 1024.0
         + z_coeffs as f64 * sigma_bits / 8.0 / 1024.0;
-    println!("  CE gate proof ~{kb:.0} KB (r = 1; 6 commitments incl. 3 execution vectors + 1 twisted quad claim)");
-    // The gate's MARGINAL cost (what Appendix B prices): the 3 Y objects
-    // + the claim images; A/B/C commitments and openings exist anyway.
-    let y_com_kb = 3.0 * (cshape.kappa + cshape.msg_r) as f64 * D as f64 * 31.0 / 8.0 / 1024.0;
-    let y_z_kb = 3.0 * cshape.n_r as f64 * D as f64 * sigma_bits / 8.0 / 1024.0;
-    let img_kb = 4.0 * D as f64 * 31.0 / 8.0 / 1024.0;
+    println!("  CE gate + tie round ~{kb:.0} KB (r = 1; 12 commitments incl. 3 executions + 6 tie masks, 3 F reveals, 6 tie claims + 1 twisted quad claim)");
+    // The MARGINAL cost of gate + tie (what Appendix B prices): the 3 Y
+    // and 6 mask objects, the F reveals, and the claim images; A/B/C
+    // commitments and openings exist anyway.
+    let obj_com_kb = 9.0 * (cshape.kappa + cshape.msg_r) as f64 * D as f64 * 31.0 / 8.0 / 1024.0;
+    let obj_z_kb = 9.0 * cshape.n_r as f64 * D as f64 * sigma_bits / 8.0 / 1024.0;
+    let f_kb = 3.0 * h as f64 * D as f64 * 31.0 / 8.0 / 1024.0;
+    let img_kb = (4 + 6) as f64 * D as f64 * 31.0 / 8.0 / 1024.0;
     println!(
-        "  CE gate marginal ~{:.0} KB (3 Y commitments {y_com_kb:.0} + 3 Y openings {y_z_kb:.0} + claim images {img_kb:.0})",
-        y_com_kb + y_z_kb + img_kb
+        "  CE gate + tie marginal ~{:.0} KB (9 commitments {obj_com_kb:.0} + 9 openings {obj_z_kb:.0} + F reveals {f_kb:.0} + claim images {img_kb:.0})",
+        obj_com_kb + obj_z_kb + f_kb + img_kb
     );
-    println!("  vs the scalar gate at this shape: ~202 KB/rep x r_g (43-64) = ~8.7-12.9 MB — the r = 1 lever restored for the gate");
+    println!("  vs the scalar gate at this shape: ~202 KB/rep x r_g (43-64) = ~8.7-12.9 MB — the r = 1 lever restored, tie included");
 
-    // Negative: a wrong C (hence wrong YC) must fail the gate claim.
+    // ---- Full-protocol negatives: run the COMPLETE honest prover
+    // algorithm (commit, masks, psi, F, tau, all claims, round) on bad
+    // data and require rejection. `ya_tamper` perturbs the execution
+    // vector after the honest exec — the tie claims must catch it.
+    let ce_negative = |cpack_in: &[Poly], ya_tamper: bool, seed: u64| -> bool {
+        let mut rng = seed;
+        let (x0, t10, t20, rho0) = build(a_rows.clone(), &mut rng);
+        let (x1, t11, t21, rho1) = build(b_cols.clone(), &mut rng);
+        let (x2, t12, t22, rho2) = build(cpack_in.to_vec(), &mut rng);
+        let pre = ct_h0(&crs, b"pi2-ce-pre", &[t10.clone(), t11.clone(), t12.clone()], &[t20.clone(), t21.clone(), t22.clone()], &[]);
+        let mut sr = XofReader::new("pi2-ce-sv", &[&pre]);
+        let s2: Vec<Vec<i64>> = (0..rows).map(|_| sr.next_challenge()).collect();
+        let v2: Vec<Vec<i64>> = (0..cols).map(|_| sr.next_challenge()).collect();
+        let mut ya2 = exec(&a_rows, &s2);
+        if ya_tamper {
+            ya2[0][0] = zq.add(ya2[0][0], 1);
+        }
+        let yb2 = exec(&b_cols, &v2);
+        let yc2 = exec(cpack_in, &v2);
+        let shat2: Vec<Poly> = full
+            .iter()
+            .map(|&t| {
+                let mut acc = poly_zero();
+                for i in 0..rows {
+                    let tc = apply_auto(&zq, &poly_from_small(&zq, &s2[i]), t);
+                    let mut xi = poly_zero();
+                    xi[i] = 1;
+                    acc = poly_add(&zq, &acc, &poly_mul_g(&zq, &tc, &xi));
+                }
+                apply_auto(&zq, &acc, inv_t(t))
+            })
+            .collect();
+        let (x3, t13, t23, rho3) = build(ya2.clone(), &mut rng);
+        let (x4, t14, t24, rho4) = build(yb2.clone(), &mut rng);
+        let (x5, t15, t25, rho5) = build(yc2.clone(), &mut rng);
+        let (mu0, nu0) = mask_pair(&mut rng);
+        let (mu1, nu1) = mask_pair(&mut rng);
+        let (mu2, nu2) = mask_pair(&mut rng);
+        let (x6, t16, t26, rho6) = build(mu0.clone(), &mut rng);
+        let (x7, t17, t27, rho7) = build(nu0.clone(), &mut rng);
+        let (x8, t18, t28, rho8) = build(mu1.clone(), &mut rng);
+        let (x9, t19, t29, rho9) = build(nu1.clone(), &mut rng);
+        let (x10, t110, t210, rho10) = build(mu2.clone(), &mut rng);
+        let (x11, t111, t211, rho11) = build(nu2.clone(), &mut rng);
+        let t1n = [t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t110, t111];
+        let t2n = [t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t210, t211];
+        let h0n = ct_h0(&crs, b"pi2-ce", &t1n, &t2n, &[]);
+        let mut psir = XofReader::new("pi2-ce-psi", &[&h0n]);
+        let psin: Vec<Vec<Poly>> =
+            (0..3).map(|_| (0..h).map(|_| full_poly(&mut psir)).collect()).collect();
+        let f0 = reveal(&ya2, &mu0, &psin[0]);
+        let f1 = reveal(&yb2, &mu1, &psin[1]);
+        let f2 = reveal(&yc2, &mu2, &psin[2]);
+        let mut fb2: Vec<u8> = Vec::new();
+        for f in [&f0, &f1, &f2] {
+            fb2.extend_from_slice(&ring::polys_bytes(f));
+        }
+        let fr: [&[u8]; 2] = [&h0n, &fb2];
+        let mut hfr = XofReader::new("pi2-ce-h0f", &fr);
+        let mut h0fn = [0u8; 32];
+        for chunk in h0fn.chunks_mut(8) {
+            chunk.copy_from_slice(&hfr.next_u64().to_le_bytes());
+        }
+        let mut tr = XofReader::new("pi2-ce-tau", &[&h0fn]);
+        let mut dt = || -> Vec<Vec<i64>> { (0..h).map(|_| tr.next_challenge()).collect() };
+        let taun: Vec<(Vec<Vec<i64>>, Vec<Vec<i64>>)> = (0..3).map(|_| (dt(), dt())).collect();
+        let ties: Vec<RingClaim> = [
+            tie_pair(0, 3, 6, 7, &s2, &f0, &psin[0], &taun[0].0, &taun[0].1),
+            tie_pair(1, 4, 8, 9, &v2, &f1, &psin[1], &taun[1].0, &taun[1].1),
+            tie_pair(2, 5, 10, 11, &v2, &f2, &psin[2], &taun[2].0, &taun[2].1),
+        ]
+        .into_iter()
+        .flatten()
+        .collect();
+        let gates = [TwistedQuadRingClaim {
+            quad: (0..h).map(|s| (3usize, s, 4usize, s, one.clone())).collect(),
+            msg_coeffs: (0..h)
+                .map(|s| (5usize, s, ring::poly_neg(&zq, &poly_conj(&zq, &shat2[s]))))
+                .collect(),
+        }];
+        let xn = [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11];
+        let rhon = [rho0, rho1, rho2, rho3, rho4, rho5, rho6, rho7, rho8, rho9, rho10, rho11];
+        let opn: Vec<StdOpening> = (0..n_com)
+            .map(|i| StdOpening { t1: &t1n[i], t2: &t2n[i], x: &xn[i], rho: &rhon[i] })
+            .collect();
+        let (proof_n, _) = prove_ct_round_tq(
+            &path, &ring_ctx, &rp, None, &crs, &h0fn, &[], &ties, &[], &[], &gates, &opn, &[],
+            &[], n_com, &mut rng,
+        );
+        let t1nv: Vec<Vec<Poly>> = t1n.to_vec();
+        let t2nv: Vec<Vec<Poly>> = t2n.to_vec();
+        verify_ct_round_tq(
+            &path, &ring_ctx, &rp, None, &crs, &h0fn, &[], &ties, &[], &[], &gates, &t1nv,
+            &t2nv, &[], &[], &[], n_com, &proof_n,
+        )
+    };
     let mut c_bad = c_mat.clone();
     c_bad[0][0] = zq.add(c_bad[0][0], 1);
     let cpack_bad: Vec<Poly> = (0..cols)
@@ -3786,50 +3985,69 @@ fn self_test_pi2_ce() {
             p
         })
         .collect();
-    let yc_bad = exec(&cpack_bad, &vch);
-    let (xyc_b, t1yc_b, t2yc_b, rhoyc_b) = build(yc_bad.clone(), &mut rng);
-    let t1sb = [t1a.clone(), t1b.clone(), t1c.clone(), t1ya.clone(), t1yb.clone(), t1yc_b.clone()];
-    let t2sb = [t2a.clone(), t2b.clone(), t2c.clone(), t2ya.clone(), t2yb.clone(), t2yc_b.clone()];
-    let xsb = [xa.clone(), xb.clone(), xc.clone(), xya.clone(), xyb.clone(), xyc_b.clone()];
-    let rhosb = [rhoa.clone(), rhob.clone(), rhoc.clone(), rhoya.clone(), rhoyb.clone(), rhoyc_b.clone()];
-    let h0b = ct_h0(&crs, b"pi2-ce", &t1sb, &t2sb, &[]);
-    let opb: Vec<StdOpening> = (0..6)
-        .map(|i| StdOpening { t1: &t1sb[i], t2: &t2sb[i], x: &xsb[i], rho: &rhosb[i] })
-        .collect();
-    let (proof_b, _) = prove_ct_round_tq(
-        &KernelPath::School, &ring_ctx, &rp, None, &crs, &h0b, &[], &[], &[], &[], &gate_claims,
-        &opb, &[], &[], 6, &mut rng,
-    );
-    let t1bv: Vec<Vec<Poly>> = t1sb.to_vec();
-    let t2bv: Vec<Vec<Poly>> = t2sb.to_vec();
     assert_true(
-        "CE gate: wrong C (C != A B) fails",
-        !verify_ct_round_tq(&KernelPath::School, &ring_ctx, &rp, None, &crs, &h0b, &[], &[], &[], &[], &gate_claims, &t1bv, &t2bv, &[], &[], &[], 6, &proof_b),
+        "CE full round: wrong C (C != A B) fails (the gate claim catches it; ties pass)",
+        !ce_negative(&cpack_bad, false, 0x5eed_1111),
+    );
+    assert_true(
+        "CE full round: tampered YA fails (the tie claims catch it in-round)",
+        !ce_negative(&cpack, true, 0x5eed_2222),
     );
 
-    // U-B3 negative: a consistently-committed but tampered YA (honest
-    // commitment, honest opening, wrong execution vector) must fail the
-    // gate claim on its own — independent of the tie layer.
-    let mut ya_t = ya.clone();
-    ya_t[0] = poly_add(&zq, &ya_t[0], &one);
-    let (xya_t, t1ya_t, t2ya_t, rhoya_t) = build(ya_t.clone(), &mut rng);
-    let t1st = [t1a.clone(), t1b.clone(), t1c.clone(), t1ya_t.clone(), t1yb.clone(), t1yc.clone()];
-    let t2st = [t2a.clone(), t2b.clone(), t2c.clone(), t2ya_t.clone(), t2yb.clone(), t2yc.clone()];
-    let xst = [xa.clone(), xb.clone(), xc.clone(), xya_t.clone(), xyb.clone(), xyc.clone()];
-    let rhost = [rhoa.clone(), rhob.clone(), rhoc.clone(), rhoya_t.clone(), rhoyb.clone(), rhoyc.clone()];
-    let h0t = ct_h0(&crs, b"pi2-ce", &t1st, &t2st, &[]);
-    let opt: Vec<StdOpening> = (0..6)
-        .map(|i| StdOpening { t1: &t1st[i], t2: &t2st[i], x: &xst[i], rho: &rhost[i] })
+    // ---- The ORDER regression (F5-class, witness-level): if psi were
+    // known before the masks are committed, a cheating prover cancels an
+    // arbitrary YA defect by crafting nu_t := sigma_t(mu_t) -
+    // psi'_t sigma_t(d_t); the tie claims then HOLD for the tampered YA.
+    // With psi drawn after the masks (the shipped order), the same
+    // crafting fails against fresh psi. This pins WHY the hash ordering
+    // is load-bearing, the same way the F5 regression pins the binary
+    // gadget's theta randomization.
+    let mut ya_bad = ya.clone();
+    ya_bad[0][0] = zq.add(ya_bad[0][0], 1);
+    let d: Vec<Poly> = (0..h).map(|t| ring::poly_sub(&zq, &ya[t], &ya_bad[t])).collect();
+    let vtw: Vec<Poly> = full
+        .iter()
+        .map(|&t| {
+            let mut acc = poly_zero();
+            for (p, c) in a_rows.iter().zip(sch.iter()) {
+                let tc = apply_auto(&zq, &poly_from_small(&zq, c), t);
+                acc = poly_add(&zq, &acc, &poly_mul_g(&zq, &tc, p));
+            }
+            acc
+        })
         .collect();
-    let (proof_t, _) = prove_ct_round_tq(
-        &path, &ring_ctx, &rp, None, &crs, &h0t, &[], &[], &[], &[], &gate_claims,
-        &opt, &[], &[], 6, &mut rng,
-    );
-    let t1tv: Vec<Vec<Poly>> = t1st.to_vec();
-    let t2tv: Vec<Vec<Poly>> = t2st.to_vec();
+    let tie_ii_holds = |psic: &[Poly], mu_at: &[Poly], nu_at: &[Poly], f_at: &[Poly]| -> bool {
+        let _ = mu_at;
+        full.iter().enumerate().all(|(si, &t)| {
+            let psit = apply_auto(&zq, &psic[si], t);
+            let lhs = poly_add(&zq, &poly_mul_g(&zq, &psit, &vtw[si]), &nu_at[si]);
+            lhs == apply_auto(&zq, &f_at[si], t)
+        })
+    };
+    // Wrong-order world: the attacker knows psi when choosing the masks.
+    let (mu_atk, _) = mask_pair(&mut rng);
+    let nu_atk: Vec<Poly> = full
+        .iter()
+        .enumerate()
+        .map(|(si, &t)| {
+            let honest_nu = apply_auto(&zq, &mu_atk[si], t);
+            let psit = apply_auto(&zq, &psi[0][si], t);
+            let corr = poly_mul_g(&zq, &psit, &apply_auto(&zq, &d[si], t));
+            ring::poly_sub(&zq, &honest_nu, &corr)
+        })
+        .collect();
+    let f_atk = reveal(&ya_bad, &mu_atk, &psi[0]);
     assert_true(
-        "CE gate: tampered-but-committed YA fails the gate claim (junk injection)",
-        !verify_ct_round_tq(&path, &ring_ctx, &rp, None, &crs, &h0t, &[], &[], &[], &[], &gate_claims, &t1tv, &t2tv, &[], &[], &[], 6, &proof_t),
+        "CE order regression: psi-before-masks ACCEPTS the crafted-mask defect (the attack, demonstrated)",
+        tie_ii_holds(&psi[0], &mu_atk, &nu_atk, &f_atk),
+    );
+    // Correct order: fresh psi drawn AFTER those masks are fixed.
+    let mut psir2 = XofReader::new("pi2-ce-psi-post", &[&h0]);
+    let psi_post: Vec<Poly> = (0..h).map(|_| full_poly(&mut psir2)).collect();
+    let f_atk2 = reveal(&ya_bad, &mu_atk, &psi_post);
+    assert_true(
+        "CE order regression: psi drawn after the masks REJECTS the same crafting",
+        !tie_ii_holds(&psi_post, &mu_atk, &nu_atk, &f_atk2),
     );
 }
 

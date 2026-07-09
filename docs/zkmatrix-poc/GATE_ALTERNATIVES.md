@@ -37,21 +37,19 @@ in `ring_matmul gate-spike` ("committed-executions gate" section),
 including the tampered-C negative and the norm-chain feasibility prints.
 
 - Soundness: r = 1, per-slot 2^-296-class at every layer. Post-quantum.
-- Cost per matmul claim (CORRECTED from the first ~300 KB estimate,
-  which was a single-slot spike artifact): the execution-vector
-  commitments scale with the matrix inner dimension, giving ~350 KB at
-  demo shapes, ~1.7 MB at n = 2048, ~3.3 MB at FFN — **~5-8x below the
-  scalar gate, at full r = 1**. MEASURED at the demo shape (U-B2/U-B3):
-  marginal 345 KB, prove ~260 ms / verify ~75 ms at r = 1 — the
-  estimate confirmed. Prove TIME returns to the one-shot class;
-  per-claim SIZE stays MB-class at scale, so small-proof deployments
-  eventually need option 2 or 3 as an aggregation layer on top.
-- Built (U-B1..U-B4): the twisted quadratic claim in the engine, the
-  end-to-end gate demo with full tamper batteries, freeze rows. Still
-  open: the tie as a first-class in-round claim (the real remaining
-  design item — AUTOMORPHISM_GATE_DESIGN.md Appendix B.1 records the
-  obstruction and candidate route; the earlier "proof unchanged" note
-  was an overclaim), then the pi2 default switch, then the ZK write-up.
+- Cost per matmul claim: the execution-vector, mask and reveal data
+  all scale with the matrix inner dimension. MEASURED at the demo
+  shape (U-B5, gate + first-class tie in ONE r = 1 round): marginal
+  ~1.23 MB, prove ~220 ms / verify ~170 ms — **~7-10x below the scalar
+  gate at full r = 1, tie included**. Prove TIME is one-shot; per-claim
+  SIZE stays MB-class at scale, so small-proof deployments eventually
+  need option 2 or 3 as an aggregation layer on top.
+- Built (U-B1..U-B5): the twisted quadratic claim + public-constant
+  ring claims in the engine, the gate AND the tie as first-class
+  claims (masked-reveal construction, AUTOMORPHISM_GATE_DESIGN.md
+  Appendix B.1 — RESOLVED), full tamper batteries incl. the psi-order
+  attack regression, freeze rows. Still open: the pi2 default switch
+  (mechanical rewrite) and the ZK write-up addendum.
 
 ## 2. Hash-based sumcheck gate (out-of-family, post-quantum)
 
@@ -125,7 +123,7 @@ documented far alternative.
 
 | option | soundness/rep count | proof size/claim | PQ | new machinery | status |
 |---|---|---|---|---|---|
-| 1. committed-executions gate | r = 1, 2^-296 | ~1.7-3.3 MB at scale (corrected) | yes | small engine additions | MAIN PLAN (spike-verified) |
+| 1. committed-executions gate | r = 1, 2^-296 | ~1.2 MB demo, MB-class at scale (measured) | yes | small engine additions (shipped) | MAIN PLAN (built, U-B1..B5) |
 | 2. hash sumcheck + link | r = 1 | ~100-200 KB + links | yes | second proof system | strong fallback |
 | 3. curve hybrid + link | r = 1 | smallest | **no** | reuse pairing track | only if PQ descoped |
 | 4. full-split + ALS20 | r = 1 | unknown | yes | whole-protocol redesign | far alternative |
