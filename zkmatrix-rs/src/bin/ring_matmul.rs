@@ -3298,6 +3298,172 @@ fn gate_spike() {
             if extra_bits < 2.9 { "fits" } else { "DOES NOT FIT (batch or q46 gate layer)" },
         );
     }
+
+    // =====================================================================
+    // Q-A5 resolution candidate: the COMMITTED-EXECUTIONS gate (depth-1
+    // "recursion"). Instead of opening the 3h twisted combos, the prover
+    // COMMITS the execution vectors YA := (sigma^{-1}(xa^sigma))_sigma
+    // (h ring elements = h message slots, ONE commitment per side), ties
+    // each committed vector to the originals with ONE tau-batched
+    // combination claim (per-slot sound), and the whole gate becomes ONE
+    // sigma-twisted ring-valued quadratic claim over (YA, YB, YC):
+    //     sum_sigma conj(YA_sigma) YB_sigma
+    //       - sum_sigma conj(sigma^{-1}(shat^sigma)) YC_sigma  =  0.
+    // The h = 128 vector is small enough that re-commitment is cheap —
+    // the "recursion" terminates at depth one. Identities verified here;
+    // protocol composition is the build tranche.
+    println!("\n  committed-executions gate (depth-1; Q-A5 candidate):");
+    {
+        let full = subgroup_elems(5, true);
+        let h = full.len();
+        let (rows, cols) = (4usize, 3usize);
+        let inner = D;
+        let m2 = 2 * D;
+        let inv_t = |t: usize| -> usize { (1..m2).step_by(2).find(|&u| (t * u) % m2 == 1).unwrap() };
+        let a_rows: Vec<Poly> =
+            (0..rows).map(|_| (0..inner).map(|_| rng_below(&mut rng, Q8)).collect()).collect();
+        let b_cols: Vec<Poly> =
+            (0..cols).map(|_| (0..inner).map(|_| rng_below(&mut rng, Q8)).collect()).collect();
+        let c_mat: Vec<Vec<u64>> = (0..rows)
+            .map(|i| {
+                (0..cols)
+                    .map(|j| {
+                        let mut acc = 0u64;
+                        for k in 0..inner {
+                            acc = zq.add(acc, zq.mul(a_rows[i][k], b_cols[j][k]));
+                        }
+                        acc
+                    })
+                    .collect()
+            })
+            .collect();
+        let cpack: Vec<Poly> = (0..cols)
+            .map(|j| {
+                let mut p = poly_zero();
+                for i in 0..rows {
+                    p[i] = c_mat[i][j];
+                }
+                p
+            })
+            .collect();
+        let sch: Vec<Vec<i64>> = (0..rows).map(|_| rng_quinary_poly(&mut rng)).collect();
+        let vch: Vec<Vec<i64>> = (0..cols).map(|_| rng_quinary_poly(&mut rng)).collect();
+        let combine = |polys: &[Poly], ch: &[Vec<i64>], t: usize| -> Poly {
+            let mut acc = poly_zero();
+            for (p, c) in polys.iter().zip(ch.iter()) {
+                let tc = apply_auto(&zq, &poly_from_small(&zq, c), t);
+                acc = poly_add(&zq, &acc, &poly_mul_g(&zq, &tc, p));
+            }
+            acc
+        };
+        // The execution vectors: YA_sigma = sigma^{-1}(xa^sigma) etc.
+        let mut ya: Vec<Poly> = Vec::with_capacity(h);
+        let mut yb: Vec<Poly> = Vec::with_capacity(h);
+        let mut yc: Vec<Poly> = Vec::with_capacity(h);
+        let mut shat_tw: Vec<Poly> = Vec::with_capacity(h); // sigma^{-1}(shat^sigma)
+        for &t in &full {
+            let ti = inv_t(t);
+            ya.push(apply_auto(&zq, &combine(&a_rows, &sch, t), ti));
+            yb.push(apply_auto(&zq, &combine(&b_cols, &vch, t), ti));
+            yc.push(apply_auto(&zq, &combine(&cpack, &vch, t), ti));
+            let mut shat = poly_zero();
+            for i in 0..rows {
+                let tc = apply_auto(&zq, &poly_from_small(&zq, &sch[i]), t);
+                let mut xi = poly_zero();
+                xi[i] = 1;
+                shat = poly_add(&zq, &shat, &poly_mul_g(&zq, &tc, &xi));
+            }
+            shat_tw.push(apply_auto(&zq, &shat, ti));
+        }
+        // (1) The tau-tie identity: sum_sigma tau_sigma YA_sigma equals the
+        // ONE digit-openable double combination
+        // W_A = sum_i s_i [sum_sigma tau_sigma sigma^{-1}(apack_i)]
+        // (verifier-computable from twisted original commitments).
+        let tau: Vec<Vec<i64>> = (0..h).map(|_| rng_quinary_poly(&mut rng)).collect();
+        let mut lhs = poly_zero();
+        for (yai, ti) in ya.iter().zip(tau.iter()) {
+            let prod = poly_mul_g(&zq, &poly_from_small(&zq, ti), yai);
+            lhs = poly_add(&zq, &lhs, &prod);
+        }
+        let mut rhs = poly_zero();
+        for (i, ap) in a_rows.iter().enumerate() {
+            let mut inner_sum = poly_zero();
+            for (si, &t) in full.iter().enumerate() {
+                let tw = apply_auto(&zq, ap, inv_t(t));
+                let prod = poly_mul_g(&zq, &poly_from_small(&zq, &tau[si]), &tw);
+                inner_sum = poly_add(&zq, &inner_sum, &prod);
+            }
+            rhs = poly_add(&zq, &rhs, &poly_mul_g(&zq, &poly_from_small(&zq, &sch[i]), &inner_sum));
+        }
+        assert_true("tau-tie: sum tau_s YA_s == the double combination W_A (one opening ties the vector)", lhs == rhs);
+        // (2) The single-claim gate identity over the committed vectors:
+        // sum conj(YA_s) YB_s - sum conj(shat_s) YC_s = 0, full ring.
+        let mut gate = poly_zero();
+        for s in 0..h {
+            let qterm = poly_mul_g(&zq, &poly_conj(&zq, &ya[s]), &yb[s]);
+            let lterm = poly_mul_g(&zq, &poly_conj(&zq, &shat_tw[s]), &yc[s]);
+            gate = poly_add(&zq, &gate, &ring::poly_sub(&zq, &qterm, &lterm));
+        }
+        assert_true(
+            "single-claim gate: sum conj(YA)YB - sum conj(shat)YC == 0 (dense, h = 128, r = 1)",
+            gate.iter().all(|&x| x == 0),
+        );
+        // Tampered C fails.
+        let mut yc_bad = yc.clone();
+        {
+            let mut cpack_bad = cpack.clone();
+            cpack_bad[0][0] = zq.add(cpack_bad[0][0], 1);
+            for (si, &t) in full.iter().enumerate() {
+                yc_bad[si] = apply_auto(&zq, &combine(&cpack_bad, &vch, t), inv_t(t));
+            }
+        }
+        let mut gate_bad = poly_zero();
+        for s in 0..h {
+            let qterm = poly_mul_g(&zq, &poly_conj(&zq, &ya[s]), &yb[s]);
+            let lterm = poly_mul_g(&zq, &poly_conj(&zq, &shat_tw[s]), &yc_bad[s]);
+            gate_bad = poly_add(&zq, &gate_bad, &ring::poly_sub(&zq, &qterm, &lterm));
+        }
+        assert_true("single-claim gate fails on tampered C", gate_bad.iter().any(|&x| x != 0));
+        // (3) Feasibility prints: the h-slot commitment shape and the
+        // W-combo digit chain (empirical randomness magnitude at reduced
+        // rows, sqrt-extrapolated to n = 2048 — lemma-grade bound is the
+        // build tranche's job).
+        let msg_r_h = h;
+        let d_lwe = (768.0_f64 * 31.0 / 11.7).ceil() as usize;
+        let n_r_h = (8 * D + msg_r_h * D + d_lwe).div_ceil(D);
+        println!(
+            "    YA/YB/YC commitment shape: msg_r = {msg_r_h}, n_r ~ {n_r_h} (C4), plain ternary openings"
+        );
+        let rows_emp = 64usize;
+        let mut max_coeff = 0i64;
+        let mut rng2 = 0x5eed_000cu64;
+        let rhos: Vec<Vec<i64>> = (0..rows_emp).map(|_| rng_ternary_poly(&mut rng2)).collect();
+        let s_emp: Vec<Vec<i64>> = (0..rows_emp).map(|_| rng_quinary_poly(&mut rng2)).collect();
+        let mut acc_w = vec![0i64; D];
+        for (i, rho) in rhos.iter().enumerate() {
+            for ti in tau.iter().take(h) {
+                let st = poly_mul_small(&s_emp[i], ti);
+                // sigma^{-1}(rho) is a signed coefficient permutation: the
+                // magnitude statistics match rho itself.
+                let term = poly_mul_small(&st, rho);
+                for (a, &x) in acc_w.iter_mut().zip(term.iter()) {
+                    *a += x;
+                }
+            }
+        }
+        for &x in &acc_w {
+            max_coeff = max_coeff.max(x.abs());
+        }
+        let w_est_2048 = (max_coeff as f64) * (2048.0f64 / rows_emp as f64).sqrt();
+        println!(
+            "    W-combo randomness: empirical max |coeff| = {max_coeff} at rows = {rows_emp}, sqrt-extrapolated ~ 2^{:.1} at rows = 2048",
+            w_est_2048.log2()
+        );
+        let l_est = ((w_est_2048.log2() + 1.0) / 4.0).ceil() as usize;
+        println!(
+            "    -> digit chain e = 4, L ~ {l_est}; per-gate cost ~ 3 plain bundles (n_r ~ {n_r_h}) + 3 digit combos + 1 claim (target class)"
+        );
+    }
     println!("\ngate-spike passed");
 }
 

@@ -252,3 +252,55 @@ against the LaBRADOR/ALS20 amortization literature). Target: the
    both derived points.
 3. **Q4.3c fix R1** (garbage-term masking): additive one-time mask
    slots for Ga/Gb, closing the structured-tensor leak obligation.
+
+## Appendix B — Q-A5 resolved: the committed-executions gate (depth-1)
+
+The recursion terminates after ONE level. The insight: the reason the
+trace gate cost 3h openings was that the twisted execution objects were
+DERIVED (challenge combinations), and every object referenced by a
+quadratic claim must carry its own opening. But the execution vector has
+only h = 128 entries — small enough to RE-COMMIT wholesale:
+
+1. After (s, v) are drawn, the prover commits the execution vectors
+       YA := (sigma^{-1}(xa^sigma))_{sigma in Gal},  YB, YC
+   as fresh commitments with h = 128 message slots each (plain ternary
+   randomness — ordinary openings, no digits).
+2. ONE tau-batched tie claim per vector binds it to the originals: with
+   fresh small ring challenges tau (drawn after the YA commitment),
+       sum_sigma tau_sigma YA_sigma  =  W_A
+       := sum_i s_i [ sum_sigma tau_sigma sigma^{-1}(apack_i) ],
+   where W_A is a verifier-computable combination of TWISTED ORIGINAL
+   commitments with small product coefficients (s_i tau_sigma) — one
+   digit-openable object. Any wrong YA entry is caught per-slot
+   (2^-296). Spike-verified ("tau-tie" assertion).
+3. The gate is then ONE sigma-twisted ring-valued quadratic claim over
+   the fresh commitments:
+       sum_sigma conj(YA_sigma) YB_sigma
+         - sum_sigma conj(sigma^{-1}(shat^sigma)) YC_sigma = 0,
+   full ring, no reveal, r = 1. Spike-verified dense at h = 128 with the
+   tampered-C negative.
+
+No twisted-CRS kernel machinery is needed anywhere: the Galois twists
+act only on public data (the W combinations and the shat coefficients).
+
+Cost estimate per matmul claim (to be measured in the build tranche):
+3 plain bundles at the 128-slot shape (n_r ~ 152 by C4) + 3 digit-opened
+tie combinations at the original shape + 1 quadratic claim ~ **roughly
+300 KB** vs ~13-15 MB at the scalar gate — the design-target class, at
+full per-slot soundness. The W-combination randomness magnitude measures
+~2^18.1 (sqrt-extrapolated to n = 2048), i.e. digit chains at L ~ 5 —
+comfortably inside q31 (lemma-grade bound is a build-tranche item).
+
+Build tranche (U-B1..U-B4): (B1) engine: public-constant terms in
+ring-valued claims + the conj-twisted ring-valued quadratic claim
+variant (no ct-reveal); (B2) the pi2 committed-executions gate replacing
+the scalar gate as default (scalar gate stays behind its flag); (B3)
+batteries: honest/tampered-C/tie-tamper/junk-injection + same-seed
+kernel-path identity + suite; (B4) freeze-check rows (the 128-slot C4
+shape, the tie-combo digit chain), docs, and the ZK write-up addendum
+(Q-A2 becomes: all execution data stays committed; the standard
+simulation argument applies — to be written with Q4.3's machinery).
+
+Alternatives to this plan, including out-of-family options (hash-based
+sumcheck gate, the curve-hybrid idea, full-splitting redesign), are
+surveyed in GATE_ALTERNATIVES.md.
