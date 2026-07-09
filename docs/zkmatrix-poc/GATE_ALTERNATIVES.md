@@ -44,12 +44,17 @@ including the tampered-C negative and the norm-chain feasibility prints.
   gate at full r = 1, tie included**. Prove TIME is one-shot; per-claim
   SIZE stays MB-class at scale, so small-proof deployments eventually
   need option 2 or 3 as an aggregation layer on top.
-- Built (U-B1..U-B5): the twisted quadratic claim + public-constant
+- Built (U-B1..U-B6): the twisted quadratic claim + public-constant
   ring claims in the engine, the gate AND the tie as first-class
   claims (masked-reveal construction, AUTOMORPHISM_GATE_DESIGN.md
-  Appendix B.1 — RESOLVED), full tamper batteries incl. the psi-order
-  attack regression, freeze rows. Still open: the pi2 default switch
-  (mechanical rewrite) and the ZK write-up addendum.
+  Appendix B.1 — RESOLVED), full tamper batteries incl. both order-
+  attack regressions, freeze rows, and THE PI2 DEFAULT SWITCH
+  (U-B6): pi2 runs this gate by default at the real statement shape
+  (two chained rounds + the K2 pivot; mask-side-psi variant), measured
+  2.3 s prove / 1.0 s verify / ~2.5 MB at 128 x 256 x 64 vs ~9.1 MB
+  scalar full grade. The scalar gate stays behind its r_g flag. Still
+  open: the ZK write-up addendum and verifier-side claim-building
+  optimization.
 
 ## 2. Hash-based sumcheck gate (out-of-family, post-quantum)
 

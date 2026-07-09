@@ -2294,6 +2294,675 @@ fn verify_ring_pi2(
     )
 }
 
+// ===========================================================================
+// U-B6: pi2 on the committed-executions gate (the DEFAULT construction;
+// the scalar-repetition gate above stays behind its r_g flag). Two
+// chained ct-rounds:
+//
+//   Round W (wide CRS, msg_r = h * inner_r): fresh commitments to the
+//   execution vectors Y^A, Y^B, Y^C and the tie masks (mu, nu) per
+//   side; ONE conj-twisted ring quadratic gate claim; tie claims (i)
+//   and (ii-W) as RingClaims with public constants.
+//
+//   Round O (the statement's narrow CRS): one digit-opened combination
+//   T_alpha per side (weights alpha_i = sum_t tauii_t sigma_t(psi_t)
+//   sigma_t(ch_i), quinary factors so the combined randomness stays
+//   digit-openable) and the (ii-O) claims: slot u of T_alpha = K2_u.
+//
+// The revealed pivot K2_u := sum_t tauii_t (sigma_t(F_{t,u}) - nu_{t,u})
+// splits tie claim (ii) across the rounds: (ii-W) pins K2 against the
+// committed masks, (ii-O) pins the same K2 against the original
+// commitments — no claim crosses a CRS. K2 is uniform (one-time-padded
+// by the tauii-combination of nu), so nothing leaks. psi is QUINARY
+// per twist (not per slot, not full-entropy): per-slot 2^-297
+// crafted-mask soundness, and alpha stays inside the digit budget.
+// Order chain: h0_pre -> s,v -> Y/mask commits -> h0_stmt(salt) ->
+// psi -> F -> taui/tauii -> K2 -> round hashes (bind F, K2) -> c_W, c_O.
+
+struct RingPi2CeProof {
+    salt: u64,
+    /// [YA, YB, YC, MA, NA, MB, NB, MC, NC] wide commitments.
+    wide: Vec<(Vec<Poly>, Vec<Poly>)>,
+    /// Reveals F per side (used slots only, twist-major chunk-minor).
+    f: [Vec<Poly>; 3],
+    /// Pivots K2 per side (chunks polys each).
+    k2: [Vec<Poly>; 3],
+    ct_w: ring::ct_engine::CtRoundProof,
+    ct_o: ring::ct_engine::CtRoundProof,
+}
+
+/// Poly-weighted homomorphic combination of commitment groups (the
+/// ring-weight sibling of scalar_combine_groups).
+fn ring_combine_groups(
+    ring_ctx: &RingCtx,
+    groups: &[(Vec<Poly>, Vec<Poly>)],
+    w: &[Poly],
+    part: usize,
+) -> Vec<Poly> {
+    let zq = &ring_ctx.zq;
+    let len = if part == 0 { groups[0].0.len() } else { groups[0].1.len() };
+    (0..len)
+        .map(|r| {
+            let mut acc = poly_zero();
+            for (g, wi) in groups.iter().zip(w.iter()) {
+                let t = if part == 0 { &g.0[r] } else { &g.1[r] };
+                acc = poly_add(zq, &acc, &poly_mul_g(zq, wi, t));
+            }
+            acc
+        })
+        .collect()
+}
+
+fn ring_combine_msgs(ring_ctx: &RingCtx, msgs: &[Vec<Poly>], w: &[Poly]) -> Vec<Poly> {
+    let zq = &ring_ctx.zq;
+    let slots = msgs[0].len();
+    (0..slots)
+        .map(|u| {
+            let mut acc = poly_zero();
+            for (m, wi) in msgs.iter().zip(w.iter()) {
+                acc = poly_add(zq, &acc, &poly_mul_g(zq, wi, &m[u]));
+            }
+            acc
+        })
+        .collect()
+}
+
+/// Exact-over-Z poly-weighted combination of ternary randomness.
+fn ring_combine_rho(zq: &ring::Zq, rhos: &[Vec<Vec<i64>>], w: &[Poly]) -> Vec<Vec<i64>> {
+    let n_r = rhos[0].len();
+    let mut acc = vec![vec![0i64; D]; n_r];
+    for (rho, wi) in rhos.iter().zip(w.iter()) {
+        // centered weight coefficients
+        let wc: Vec<i64> = wi.iter().map(|&x| zq.center(x)).collect();
+        for (a, r) in acc.iter_mut().zip(rho.iter()) {
+            // negacyclic small x small convolution over Z
+            for (i, &ri) in r.iter().enumerate() {
+                if ri == 0 {
+                    continue;
+                }
+                for (k, &wk) in wc.iter().enumerate() {
+                    if wk == 0 {
+                        continue;
+                    }
+                    let e = i + k;
+                    if e < D {
+                        a[e] += ri * wk;
+                    } else {
+                        a[e - D] -= ri * wk;
+                    }
+                }
+            }
+        }
+    }
+    acc
+}
+
+/// The wide (execution/mask) CRS shape at msg_r slots — the C4-chain
+/// row pinned in freeze-check.
+fn pi2_ce_wide_shape(msg_r: usize) -> CommitShape {
+    let d_lwe = (768.0_f64 * 31.0 / 11.7).ceil() as usize;
+    CommitShape { kappa: 8, n_r: (8 * D + msg_r * D + d_lwe).div_ceil(D), msg_r }
+}
+
+fn inv_odd(t: usize) -> usize {
+    let m2 = 2 * D;
+    (1..m2).step_by(2).find(|&u| (t * u) % m2 == 1).unwrap()
+}
+
+/// Statement hash for pi2-CE: both CRS hashes, the shape, the context,
+/// and every original commitment.
+fn pi2_ce_h0pre(
+    crs_o: &ring::commit::RingCrs,
+    crs_w: &ring::commit::RingCrs,
+    shape: &Pi2Shape,
+    ctx: &[u8],
+    ta: &[(Vec<Poly>, Vec<Poly>)],
+    tb: &[(Vec<Poly>, Vec<Poly>)],
+    tc: &[(Vec<Poly>, Vec<Poly>)],
+) -> [u8; 32] {
+    use sha2::{Digest, Sha256};
+    let mut hasher = Sha256::new();
+    hasher.update(b"route-r-pi2-ce-stmt-v1");
+    hasher.update(crs_o.q.to_le_bytes());
+    hasher.update(crs_o.crs_hash);
+    hasher.update(crs_w.crs_hash);
+    for d in [shape.rows, shape.inner_r, shape.rows_r, shape.cols] {
+        hasher.update((d as u64).to_le_bytes());
+    }
+    hasher.update((ctx.len() as u64).to_le_bytes());
+    hasher.update(ctx);
+    for (t1, t2) in ta.iter().chain(tb.iter()).chain(tc.iter()) {
+        hasher.update(polys_bytes(t1));
+        hasher.update(polys_bytes(t2));
+    }
+    hasher.finalize().into()
+}
+
+/// 32 bytes out of an XOF over labeled byte parts.
+fn xof32(label: &'static str, parts: &[&[u8]]) -> [u8; 32] {
+    let mut r = XofReader::new(label, parts);
+    let mut out = [0u8; 32];
+    for chunk in out.chunks_mut(8) {
+        chunk.copy_from_slice(&r.next_u64().to_le_bytes());
+    }
+    out
+}
+
+/// Per-side tie data derived from public values — shared VERBATIM by
+/// prover and verifier. Returns (claims (i) + (ii-W) for round W,
+/// alpha weights for round O's combo, K2 constants recomputed from F
+/// and the tie claims' structure are NOT included here — K2 is a
+/// proof reveal; this builds the claims GIVEN K2).
+#[allow(clippy::too_many_arguments)]
+fn pi2_ce_tie_claims_w(
+    zq: &ring::Zq,
+    full: &[usize],
+    chunks: usize,
+    y_idx: usize,
+    m_idx: usize,
+    n_idx: usize,
+    psi: &[Poly],
+    taui: &[Poly],
+    tauii: &[Poly],
+    f: &[Poly],
+    k2: &[Poly],
+) -> Vec<ring::ct_engine::RingClaim> {
+    let h = full.len();
+    let mut out = Vec::with_capacity(2 * chunks);
+    for u in 0..chunks {
+        // (i): sum_si taui (Y + psi mu) = sum_si taui F
+        let mut mc = Vec::with_capacity(2 * h);
+        let mut k = poly_zero();
+        for si in 0..h {
+            let slot = si * chunks + u;
+            mc.push((y_idx, slot, taui[si].clone()));
+            mc.push((m_idx, slot, poly_mul_g(zq, &taui[si], &psi[si])));
+            k = poly_add(zq, &k, &poly_mul_g(zq, &taui[si], &f[slot]));
+        }
+        out.push(ring::ct_engine::RingClaim { msg_coeffs: mc, constant: k });
+    }
+    for u in 0..chunks {
+        // (ii-W): sum_si tauii psi' nu = sum_si tauii sigma_t(F) - K2_u
+        let mut mc = Vec::with_capacity(h);
+        let mut k = poly_zero();
+        for (si, &t) in full.iter().enumerate() {
+            let slot = si * chunks + u;
+            let psit = apply_auto(zq, &psi[si], t);
+            mc.push((n_idx, slot, poly_mul_g(zq, &tauii[si], &psit)));
+            k = poly_add(zq, &k, &poly_mul_g(zq, &tauii[si], &apply_auto(zq, &f[slot], t)));
+        }
+        k = ring::poly_sub(zq, &k, &k2[u]);
+        out.push(ring::ct_engine::RingClaim { msg_coeffs: mc, constant: k });
+    }
+    out
+}
+
+/// alpha_i = sum_si tauii_si sigma_t(ch_i) — the round-O combination
+/// weights. DOUBLE-quinary only: psi rides the norm-free claim
+/// coefficients instead (the mask-side-psi variant, F = Y + psi mu),
+/// keeping the combined randomness inside the q31 digit budget.
+fn pi2_ce_alpha(zq: &ring::Zq, full: &[usize], ch: &[Poly], tauii: &[Poly]) -> Vec<Poly> {
+    ch.iter()
+        .map(|chi| {
+            let mut acc = poly_zero();
+            for (si, &t) in full.iter().enumerate() {
+                let cc = apply_auto(zq, chi, t);
+                acc = poly_add(zq, &acc, &poly_mul_g(zq, &tauii[si], &cc));
+            }
+            acc
+        })
+        .collect()
+}
+
+/// The gate claim over the wide round's Y objects (indices 0, 1, 2).
+fn pi2_ce_gate_claim(
+    zq: &ring::Zq,
+    full: &[usize],
+    inner_r: usize,
+    rows_r: usize,
+    shat_tw: &[Poly], // twist-major, rows_r chunks each
+) -> ring::ct_engine::TwistedQuadRingClaim {
+    let one = {
+        let mut p = poly_zero();
+        p[0] = 1;
+        p
+    };
+    let h = full.len();
+    let mut quad = Vec::with_capacity(h * inner_r);
+    for si in 0..h {
+        for u in 0..inner_r {
+            quad.push((0usize, si * inner_r + u, 1usize, si * inner_r + u, one.clone()));
+        }
+    }
+    let mut msg_coeffs = Vec::with_capacity(h * rows_r);
+    for si in 0..h {
+        for u in 0..rows_r {
+            msg_coeffs.push((
+                2usize,
+                si * rows_r + u,
+                ring::poly_neg(zq, &poly_conj(zq, &shat_tw[si * rows_r + u])),
+            ));
+        }
+    }
+    ring::ct_engine::TwistedQuadRingClaim { quad, msg_coeffs }
+}
+
+/// pi2-CE tie/gate digit parameters for round O (T_alpha combos):
+/// quinary^3 weights over ternary randomness — e = 4, L = 6 with a
+/// 2^21 honest-magnitude envelope (asserted per proof by digit_fits).
+const PI2_CE_DIGIT_E: u32 = 4;
+const PI2_CE_DIGIT_L: usize = 5;
+const PI2_CE_W_INF: i64 = 1 << 17;
+
+#[allow(clippy::too_many_arguments)]
+fn prove_ring_pi2_ce(
+    path_w: &KernelPath,
+    path_o: &KernelPath,
+    ring_ctx: &RingCtx,
+    crs_o: &ring::commit::RingCrs,
+    crs_w: &ring::commit::RingCrs,
+    shape: &Pi2Shape,
+    ctx: &[u8],
+    a_rows: &[Vec<Poly>],
+    rho_a: &[Vec<Vec<i64>>],
+    b_cols: &[Vec<Poly>],
+    rho_b: &[Vec<Vec<i64>>],
+    c_cols: &[Vec<Poly>],
+    rho_c: &[Vec<Vec<i64>>],
+    ta: &[(Vec<Poly>, Vec<Poly>)],
+    tb: &[(Vec<Poly>, Vec<Poly>)],
+    tc: &[(Vec<Poly>, Vec<Poly>)],
+    rng: &mut u64,
+) -> (RingPi2CeProof, usize, usize) {
+    use ring::ct_engine::{DigitOpening, StdOpening, prove_ct_round, prove_ct_round_tq};
+    let zq = &ring_ctx.zq;
+    let full = subgroup_elems(5, true);
+    let h = full.len();
+    let chunks = [shape.inner_r, shape.inner_r, shape.rows_r];
+
+    // s, v (quinary ring challenges) from the statement pre-hash.
+    let h0_pre = pi2_ce_h0pre(crs_o, crs_w, shape, ctx, ta, tb, tc);
+    let mut sr = XofReader::new("pi2-ce-sv", &[&h0_pre]);
+    let s_ch: Vec<Poly> =
+        (0..shape.rows).map(|_| poly_from_small(zq, &sr.next_challenge())).collect();
+    let v_ch: Vec<Poly> =
+        (0..shape.cols).map(|_| poly_from_small(zq, &sr.next_challenge())).collect();
+
+    // Execution vectors per side (twist-major, chunk-minor used slots).
+    let exec = |msgs: &[Vec<Poly>], ch: &[Poly], nchunks: usize| -> Vec<Poly> {
+        let mut out = Vec::with_capacity(h * nchunks);
+        for &t in &full {
+            let ti = inv_odd(t);
+            for u in 0..nchunks {
+                let mut acc = poly_zero();
+                for (m, c) in msgs.iter().zip(ch.iter()) {
+                    let tc = apply_auto(zq, c, t);
+                    acc = poly_add(zq, &acc, &poly_mul_g(zq, &tc, &m[u]));
+                }
+                out.push(apply_auto(zq, &acc, ti));
+            }
+        }
+        out
+    };
+    let ys = [
+        exec(a_rows, &s_ch, shape.inner_r),
+        exec(b_cols, &v_ch, shape.inner_r),
+        exec(c_cols, &v_ch, shape.rows_r),
+    ];
+    // shat_tw (public): row i sits at chunk i/D, coefficient i%D.
+    let shat_tw: Vec<Poly> = full
+        .iter()
+        .flat_map(|&t| {
+            let ti = inv_odd(t);
+            (0..shape.rows_r)
+                .map(|u| {
+                    let mut acc = poly_zero();
+                    for (i, sc) in s_ch.iter().enumerate() {
+                        if i / D != u {
+                            continue;
+                        }
+                        let tcs = apply_auto(zq, sc, t);
+                        let mut xi = poly_zero();
+                        xi[i % D] = 1;
+                        acc = poly_add(zq, &acc, &poly_mul_g(zq, &tcs, &xi));
+                    }
+                    apply_auto(zq, &acc, ti)
+                })
+                .collect::<Vec<_>>()
+        })
+        .collect();
+
+    // Masks and the nine wide commitments: [YA YB YC MA NA MB NB MC NC].
+    let mut mus: Vec<Vec<Poly>> = Vec::with_capacity(3);
+    let mut nus: Vec<Vec<Poly>> = Vec::with_capacity(3);
+    for side in 0..3 {
+        let used = h * chunks[side];
+        let mu: Vec<Poly> = (0..used).map(|_| rng_poly_mod(rng, crs_o.q)).collect();
+        let nu: Vec<Poly> = (0..used)
+            .map(|slot| apply_auto(zq, &mu[slot], full[slot / chunks[side]]))
+            .collect();
+        mus.push(mu);
+        nus.push(nu);
+    }
+    let pad_w = |v: &[Poly]| -> Vec<Poly> {
+        let mut x = v.to_vec();
+        x.resize(crs_w.shape.msg_r, poly_zero());
+        x
+    };
+    let wide_msgs: Vec<Vec<Poly>> = vec![
+        pad_w(&ys[0]), pad_w(&ys[1]), pad_w(&ys[2]),
+        pad_w(&mus[0]), pad_w(&nus[0]), pad_w(&mus[1]), pad_w(&nus[1]),
+        pad_w(&mus[2]), pad_w(&nus[2]),
+    ];
+    let mut wide = Vec::with_capacity(9);
+    let mut wide_rho = Vec::with_capacity(9);
+    for x in &wide_msgs {
+        let rho: Vec<Vec<i64>> = (0..crs_w.shape.n_r).map(|_| rng_ternary_poly(rng)).collect();
+        let (t1, t2) = commit(path_w, crs_w, x, &rho);
+        wide.push((t1, t2));
+        wide_rho.push(rho);
+    }
+    let mut wide_bytes: Vec<u8> = Vec::new();
+    for (t1, t2) in &wide {
+        wide_bytes.extend_from_slice(&polys_bytes(t1));
+        wide_bytes.extend_from_slice(&polys_bytes(t2));
+    }
+
+    // Salted derivation chain: psi -> F -> tau -> K2 -> alpha, retried
+    // until every combined randomness fits the digit envelope.
+    let mut salt = 0u64;
+    let (h0_stmt, psi, fs, taus, k2s, alphas, rho_alphas) = loop {
+        let h0_stmt = xof32("pi2-ce-stmt", &[&h0_pre, &salt.to_le_bytes(), &wide_bytes]);
+        let mut psir = XofReader::new("pi2-ce-psi", &[&h0_stmt]);
+        let psi: Vec<Vec<Poly>> = (0..3)
+            .map(|_| (0..h).map(|_| poly_from_small(zq, &psir.next_challenge())).collect())
+            .collect();
+        let fs: Vec<Vec<Poly>> = (0..3)
+            .map(|side| {
+                (0..h * chunks[side])
+                    .map(|slot| {
+                        let p = &psi[side][slot / chunks[side]];
+                        poly_add(zq, &ys[side][slot], &poly_mul_g(zq, p, &mus[side][slot]))
+                    })
+                    .collect()
+            })
+            .collect();
+        let mut fbytes: Vec<u8> = Vec::new();
+        for f in &fs {
+            fbytes.extend_from_slice(&polys_bytes(f));
+        }
+        let mut taur = XofReader::new("pi2-ce-tau", &[&h0_stmt, &fbytes]);
+        let taus: Vec<(Vec<Poly>, Vec<Poly>)> = (0..3)
+            .map(|_| {
+                let a: Vec<Poly> =
+                    (0..h).map(|_| poly_from_small(zq, &taur.next_challenge())).collect();
+                let b: Vec<Poly> =
+                    (0..h).map(|_| poly_from_small(zq, &taur.next_challenge())).collect();
+                (a, b)
+            })
+            .collect();
+        let k2s: Vec<Vec<Poly>> = (0..3)
+            .map(|side| {
+                (0..chunks[side])
+                    .map(|u| {
+                        let mut k = poly_zero();
+                        for (si, &t) in full.iter().enumerate() {
+                            let slot = si * chunks[side] + u;
+                            let psit = apply_auto(zq, &psi[side][si], t);
+                            let term = ring::poly_sub(
+                                zq,
+                                &apply_auto(zq, &fs[side][slot], t),
+                                &poly_mul_g(zq, &psit, &nus[side][slot]),
+                            );
+                            k = poly_add(zq, &k, &poly_mul_g(zq, &taus[side].1[si], &term));
+                        }
+                        k
+                    })
+                    .collect()
+            })
+            .collect();
+        let alphas: Vec<Vec<Poly>> = vec![
+            pi2_ce_alpha(zq, &full, &s_ch, &taus[0].1),
+            pi2_ce_alpha(zq, &full, &v_ch, &taus[1].1),
+            pi2_ce_alpha(zq, &full, &v_ch, &taus[2].1),
+        ];
+        let rho_alphas: Vec<Vec<Vec<i64>>> = vec![
+            ring_combine_rho(zq, rho_a, &alphas[0]),
+            ring_combine_rho(zq, rho_b, &alphas[1]),
+            ring_combine_rho(zq, rho_c, &alphas[2]),
+        ];
+        let fits = rho_alphas.iter().all(|ra| {
+            ra.iter().all(|col| col.iter().all(|&x| digit_fits(x, PI2_CE_DIGIT_E, PI2_CE_DIGIT_L)))
+        });
+        if fits {
+            break (h0_stmt, psi, fs, taus, k2s, alphas, rho_alphas);
+        }
+        salt += 1;
+    };
+    let mut fbytes: Vec<u8> = Vec::new();
+    for f in &fs {
+        fbytes.extend_from_slice(&polys_bytes(f));
+    }
+    let mut k2bytes: Vec<u8> = Vec::new();
+    for k in &k2s {
+        k2bytes.extend_from_slice(&polys_bytes(k));
+    }
+
+    // Round W: the gate + tie claims over the nine wide commitments.
+    let h0_w = xof32("pi2-ce-w", &[&h0_stmt, &fbytes, &k2bytes]);
+    let mut claims_w: Vec<ring::ct_engine::RingClaim> = Vec::new();
+    for side in 0..3 {
+        claims_w.extend(pi2_ce_tie_claims_w(
+            zq, &full, chunks[side], side, 3 + 2 * side, 4 + 2 * side,
+            &psi[side], &taus[side].0, &taus[side].1, &fs[side], &k2s[side],
+        ));
+    }
+    let gate = [pi2_ce_gate_claim(zq, &full, shape.inner_r, shape.rows_r, &shat_tw)];
+    let rp_w = ring::ct_engine::derive_ct_round_params(crs_o.q, crs_w.shape, 9, 0, 0, true);
+    let plain_w: Vec<StdOpening> = (0..9)
+        .map(|i| StdOpening { t1: &wide[i].0, t2: &wide[i].1, x: &wide_msgs[i], rho: &wide_rho[i] })
+        .collect();
+    let (ct_w, at_w) = prove_ct_round_tq(
+        path_w, ring_ctx, &rp_w, None, crs_w, &h0_w, &[], &claims_w, &[], &[], &gate, &plain_w,
+        &[], &[], 9, rng,
+    );
+
+    // Round O: the T_alpha combos + (ii-O) claims at the statement CRS.
+    let h0_o = xof32("pi2-ce-o", &[&h0_stmt, &fbytes, &k2bytes]);
+    let dp = derive_digit_params(
+        crs_o.q, crs_o.shape.kappa, crs_o.shape.n_r, PI2_CE_DIGIT_E, PI2_CE_DIGIT_L, PI2_CE_W_INF,
+    );
+    let one = {
+        let mut p = poly_zero();
+        p[0] = 1;
+        p
+    };
+    let mut claims_o: Vec<ring::ct_engine::RingClaim> = Vec::new();
+    for side in 0..3 {
+        for u in 0..chunks[side] {
+            claims_o.push(ring::ct_engine::RingClaim {
+                msg_coeffs: vec![(side, u, one.clone())],
+                constant: k2s[side][u].clone(),
+            });
+        }
+    }
+    struct ComboData {
+        t1: Vec<Poly>,
+        t2: Vec<Poly>,
+        x: Vec<Poly>,
+    }
+    let groups = [ta, tb, tc];
+    let msgs = [a_rows, b_cols, c_cols];
+    let combos: Vec<ComboData> = (0..3)
+        .map(|side| ComboData {
+            t1: ring_combine_groups(ring_ctx, groups[side], &alphas[side], 0),
+            t2: ring_combine_groups(ring_ctx, groups[side], &alphas[side], 1),
+            x: ring_combine_msgs(ring_ctx, msgs[side], &alphas[side]),
+        })
+        .collect();
+    let digits: Vec<DigitOpening> = combos
+        .iter()
+        .zip(rho_alphas.iter())
+        .map(|(c, ra)| DigitOpening { t1: &c.t1, t2: &c.t2, x: &c.x, rho_wide: ra })
+        .collect();
+    let rp_o = ring::ct_engine::derive_ct_round_params(crs_o.q, crs_o.shape, 1, 0, 0, true);
+    let (ct_o, at_o) = prove_ct_round(
+        path_o, ring_ctx, &rp_o, Some(&dp), crs_o, &h0_o, &[], &claims_o, &[], &[], &[], &digits,
+        &[], 0, rng,
+    );
+
+    (
+        RingPi2CeProof {
+            salt,
+            wide,
+            f: [fs[0].clone(), fs[1].clone(), fs[2].clone()],
+            k2: [k2s[0].clone(), k2s[1].clone(), k2s[2].clone()],
+            ct_w,
+            ct_o,
+        },
+        at_w,
+        at_o,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn verify_ring_pi2_ce(
+    path_w: &KernelPath,
+    path_o: &KernelPath,
+    ring_ctx: &RingCtx,
+    crs_o: &ring::commit::RingCrs,
+    crs_w: &ring::commit::RingCrs,
+    shape: &Pi2Shape,
+    ctx: &[u8],
+    ta: &[(Vec<Poly>, Vec<Poly>)],
+    tb: &[(Vec<Poly>, Vec<Poly>)],
+    tc: &[(Vec<Poly>, Vec<Poly>)],
+    proof: &RingPi2CeProof,
+) -> bool {
+    use ring::ct_engine::{verify_ct_round, verify_ct_round_tq};
+    let zq = &ring_ctx.zq;
+    let full = subgroup_elems(5, true);
+    let h = full.len();
+    let chunks = [shape.inner_r, shape.inner_r, shape.rows_r];
+    if ta.len() != shape.rows
+        || tb.len() != shape.cols
+        || tc.len() != shape.cols
+        || proof.wide.len() != 9
+        || proof.salt > 64
+        || (0..3).any(|s| proof.f[s].len() != h * chunks[s] || proof.k2[s].len() != chunks[s])
+    {
+        return false;
+    }
+    let h0_pre = pi2_ce_h0pre(crs_o, crs_w, shape, ctx, ta, tb, tc);
+    let mut sr = XofReader::new("pi2-ce-sv", &[&h0_pre]);
+    let s_ch: Vec<Poly> =
+        (0..shape.rows).map(|_| poly_from_small(zq, &sr.next_challenge())).collect();
+    let v_ch: Vec<Poly> =
+        (0..shape.cols).map(|_| poly_from_small(zq, &sr.next_challenge())).collect();
+    let shat_tw: Vec<Poly> = full
+        .iter()
+        .flat_map(|&t| {
+            let ti = inv_odd(t);
+            (0..shape.rows_r)
+                .map(|u| {
+                    let mut acc = poly_zero();
+                    for (i, sc) in s_ch.iter().enumerate() {
+                        if i / D != u {
+                            continue;
+                        }
+                        let tcs = apply_auto(zq, sc, t);
+                        let mut xi = poly_zero();
+                        xi[i % D] = 1;
+                        acc = poly_add(zq, &acc, &poly_mul_g(zq, &tcs, &xi));
+                    }
+                    apply_auto(zq, &acc, ti)
+                })
+                .collect::<Vec<_>>()
+        })
+        .collect();
+    let mut wide_bytes: Vec<u8> = Vec::new();
+    for (t1, t2) in &proof.wide {
+        wide_bytes.extend_from_slice(&polys_bytes(t1));
+        wide_bytes.extend_from_slice(&polys_bytes(t2));
+    }
+    let h0_stmt = xof32("pi2-ce-stmt", &[&h0_pre, &proof.salt.to_le_bytes(), &wide_bytes]);
+    let mut psir = XofReader::new("pi2-ce-psi", &[&h0_stmt]);
+    let psi: Vec<Vec<Poly>> = (0..3)
+        .map(|_| (0..h).map(|_| poly_from_small(zq, &psir.next_challenge())).collect())
+        .collect();
+    let mut fbytes: Vec<u8> = Vec::new();
+    for f in &proof.f {
+        fbytes.extend_from_slice(&polys_bytes(f));
+    }
+    let mut taur = XofReader::new("pi2-ce-tau", &[&h0_stmt, &fbytes]);
+    let taus: Vec<(Vec<Poly>, Vec<Poly>)> = (0..3)
+        .map(|_| {
+            let a: Vec<Poly> =
+                (0..h).map(|_| poly_from_small(zq, &taur.next_challenge())).collect();
+            let b: Vec<Poly> =
+                (0..h).map(|_| poly_from_small(zq, &taur.next_challenge())).collect();
+            (a, b)
+        })
+        .collect();
+    let mut k2bytes: Vec<u8> = Vec::new();
+    for k in &proof.k2 {
+        k2bytes.extend_from_slice(&polys_bytes(k));
+    }
+    let h0_w = xof32("pi2-ce-w", &[&h0_stmt, &fbytes, &k2bytes]);
+    let mut claims_w: Vec<ring::ct_engine::RingClaim> = Vec::new();
+    for side in 0..3 {
+        claims_w.extend(pi2_ce_tie_claims_w(
+            zq, &full, chunks[side], side, 3 + 2 * side, 4 + 2 * side,
+            &psi[side], &taus[side].0, &taus[side].1, &proof.f[side], &proof.k2[side],
+        ));
+    }
+    let gate = [pi2_ce_gate_claim(zq, &full, shape.inner_r, shape.rows_r, &shat_tw)];
+    let rp_w = ring::ct_engine::derive_ct_round_params(crs_o.q, crs_w.shape, 9, 0, 0, true);
+    let t1s_w: Vec<Vec<Poly>> = proof.wide.iter().map(|g| g.0.clone()).collect();
+    let t2s_w: Vec<Vec<Poly>> = proof.wide.iter().map(|g| g.1.clone()).collect();
+    if !verify_ct_round_tq(
+        path_w, ring_ctx, &rp_w, None, crs_w, &h0_w, &[], &claims_w, &[], &[], &gate, &t1s_w,
+        &t2s_w, &[], &[], &[], 9, &proof.ct_w,
+    ) {
+        return false;
+    }
+    let h0_o = xof32("pi2-ce-o", &[&h0_stmt, &fbytes, &k2bytes]);
+    let dp = derive_digit_params(
+        crs_o.q, crs_o.shape.kappa, crs_o.shape.n_r, PI2_CE_DIGIT_E, PI2_CE_DIGIT_L, PI2_CE_W_INF,
+    );
+    let alphas: Vec<Vec<Poly>> = vec![
+        pi2_ce_alpha(zq, &full, &s_ch, &taus[0].1),
+        pi2_ce_alpha(zq, &full, &v_ch, &taus[1].1),
+        pi2_ce_alpha(zq, &full, &v_ch, &taus[2].1),
+    ];
+    let one = {
+        let mut p = poly_zero();
+        p[0] = 1;
+        p
+    };
+    let mut claims_o: Vec<ring::ct_engine::RingClaim> = Vec::new();
+    for side in 0..3 {
+        for u in 0..chunks[side] {
+            claims_o.push(ring::ct_engine::RingClaim {
+                msg_coeffs: vec![(side, u, one.clone())],
+                constant: proof.k2[side][u].clone(),
+            });
+        }
+    }
+    let groups = [ta, tb, tc];
+    let mut t1s_dig = Vec::with_capacity(3);
+    let mut t2s_dig = Vec::with_capacity(3);
+    for side in 0..3 {
+        t1s_dig.push(ring_combine_groups(ring_ctx, groups[side], &alphas[side], 0));
+        t2s_dig.push(ring_combine_groups(ring_ctx, groups[side], &alphas[side], 1));
+    }
+    let rp_o = ring::ct_engine::derive_ct_round_params(crs_o.q, crs_o.shape, 1, 0, 0, true);
+    verify_ct_round(
+        path_o, ring_ctx, &rp_o, Some(&dp), crs_o, &h0_o, &[], &claims_o, &[], &[], &[], &[],
+        &t1s_dig, &t2s_dig, &[], 0, &proof.ct_o,
+    )
+}
+
 fn self_test_pi2() {
     use ring::ct_engine::derive_ct_round_params;
     println!("\n[U5] ring-Pi2 (scalar gate behind the r_g flag) at 128 x 256 x 64, q8_31");
@@ -2315,7 +2984,13 @@ fn self_test_pi2() {
         "  gate: DERIVED b = {b_bits}-bit signed nonzero scalars, (b-2) = {} bits/rep -> r_g = {r_full} for 2^-256 (was 64 at b = 6); DEMO runs r_g = {r_g}",
         b_bits - 2,
     );
-    let cshape = CommitShape { kappa: p.kappa, n_r: p.n_r, msg_r: p.msg_r };
+    // pi2-CE's tie digit chain (w ~ 2^17, L = 5) needs the kappa-9 C3
+    // grade. The frozen production shapes already derive kappa = 9 at
+    // e = 4 (freeze rows); only this toy demo shape derives kappa = 8,
+    // so bump it here (n_r carries the extra row).
+    let bump = 9usize.saturating_sub(p.kappa);
+    let cshape =
+        CommitShape { kappa: p.kappa + bump, n_r: p.n_r + bump, msg_r: p.msg_r };
     let crs = expand_crs(cshape, q, 20_000);
     let dp = derive_digit_params(q, cshape.kappa, cshape.n_r, e_dig, l_dig, w_u.ceil() as i64);
     println!(
@@ -2471,6 +3146,97 @@ fn self_test_pi2() {
         "  pi2 gate cost: ~{per_rep_kb:.0} KB/rep -> demo (r_g = {r_g}) ~{:.0} KB; FULL GRADE (r_g = {r_full}) ~{:.1} MB — the r = 1 lever does not survive the gate at this design state (see U8 docs)",
         per_rep_kb * r_g as f64,
         per_rep_kb * r_full as f64 / 1024.0,
+    );
+
+    // ---- U-B6: the committed-executions construction as the DEFAULT
+    // pi2, same instance, full grade at r = 1 (the scalar gate above is
+    // the flagged fallback).
+    println!("  [U-B6] pi2-CE (committed-executions gate + tie, r = 1) — the DEFAULT construction");
+    let wshape = pi2_ce_wide_shape(128 * shape.inner_r);
+    let crs_w = expand_crs(wshape, q, 21_000);
+    let dp_ce = derive_digit_params(
+        q, cshape.kappa, cshape.n_r, PI2_CE_DIGIT_E, PI2_CE_DIGIT_L, PI2_CE_W_INF,
+    );
+    let rp_w = derive_ct_round_params(q, wshape, 9, 0, 0, true);
+    let rp_o = derive_ct_round_params(q, cshape, 1, 0, 0, true);
+    let a1w = build_a1_paths(&crs_w, rp_w.sigma, isqrt_u128(rp_w.bound_sq));
+    let a1o =
+        build_a1_paths(&crs, rp_o.sigma.max(dp_ce.sigma), isqrt_u128(rp_o.bound_sq.max(dp_ce.bound_sq)));
+    let path_w = KernelPath::A1(&a1w);
+    let path_o = KernelPath::A1(&a1o);
+    let mut rng_ce = 0xabcd_0b60u64;
+    let t0 = Instant::now();
+    let (proof_ce, at_w, at_o) = prove_ring_pi2_ce(
+        &path_w, &path_o, &ring_ctx, &crs, &crs_w, &shape, ctxb, &a_rows, &rho_a, &b_cols,
+        &rho_b, &c_cols, &rho_c, &ta, &tb, &tc, &mut rng_ce,
+    );
+    let prove_ms = t0.elapsed().as_secs_f64() * 1e3;
+    let tv = Instant::now();
+    let ok = verify_ring_pi2_ce(
+        &path_w, &path_o, &ring_ctx, &crs, &crs_w, &shape, ctxb, &ta, &tb, &tc, &proof_ce,
+    );
+    let verify_ms = tv.elapsed().as_secs_f64() * 1e3;
+    assert_true(
+        &format!(
+            "pi2-CE verifies at r = 1 (salt = {}, attempts W/O = {at_w}/{at_o}, prove {prove_ms:.0} ms, verify {verify_ms:.0} ms)",
+            proof_ce.salt
+        ),
+        ok,
+    );
+    // Size accounting: wide objects + reveals + both rounds.
+    let wide_kb = 9.0 * (wshape.kappa + wshape.msg_r) as f64 * D as f64 * 31.0 / 8.0 / 1024.0;
+    let zw_kb = 9.0
+        * wshape.n_r as f64
+        * D as f64
+        * ((rp_w.sigma as f64).log2() + 4.0)
+        / 8.0
+        / 1024.0;
+    let f_kb = proof_ce.f.iter().map(|f| f.len()).sum::<usize>() as f64 * D as f64 * 31.0 / 8.0 / 1024.0;
+    let k2_kb = proof_ce.k2.iter().map(|k| k.len()).sum::<usize>() as f64 * D as f64 * 31.0 / 8.0 / 1024.0;
+    let dig_kb = 3.0
+        * (PI2_CE_DIGIT_L as f64 * (cshape.kappa + cshape.msg_r) as f64 * D as f64 * 31.0
+            + PI2_CE_DIGIT_L as f64 * cshape.n_r as f64 * D as f64 * ((dp_ce.sigma as f64).log2() + 4.0))
+        / 8.0
+        / 1024.0;
+    println!(
+        "  pi2-CE size ~{:.0} KB (wide objects {wide_kb:.0} + wide openings {zw_kb:.0} + F {f_kb:.0} + K2 {k2_kb:.0} + round-O digits ~{dig_kb:.0}) vs scalar FULL GRADE ~{:.1} MB",
+        wide_kb + zw_kb + f_kb + k2_kb + dig_kb,
+        per_rep_kb * r_full as f64 / 1024.0,
+    );
+    // Semantic negative: full honest prove over a wrong C must fail.
+    let mut c_bad_mat = c_mat.clone();
+    c_bad_mat[0] = zq.add(c_bad_mat[0], 1);
+    let c_bad_raw: Vec<Vec<u64>> = (0..shape.cols)
+        .map(|j| (0..shape.rows).map(|r| c_bad_mat[r * shape.cols + j]).collect())
+        .collect();
+    let (c_cols_b, rho_c_b, tc_b) = commit_many(c_bad_raw, shape.rows, &mut rng_ce);
+    let (proof_bad, _, _) = prove_ring_pi2_ce(
+        &path_w, &path_o, &ring_ctx, &crs, &crs_w, &shape, ctxb, &a_rows, &rho_a, &b_cols,
+        &rho_b, &c_cols_b, &rho_c_b, &ta, &tb, &tc_b, &mut rng_ce,
+    );
+    assert_true(
+        "pi2-CE semantic soundness: C != A B fails (the gate claim catches it)",
+        !verify_ring_pi2_ce(&path_w, &path_o, &ring_ctx, &crs, &crs_w, &shape, ctxb, &ta, &tb, &tc_b, &proof_bad),
+    );
+    // Reveal/pivot tampers: F and K2 are bound into both round hashes.
+    let mut proof_t = RingPi2CeProof {
+        salt: proof_ce.salt,
+        wide: proof_ce.wide.clone(),
+        f: proof_ce.f.clone(),
+        k2: proof_ce.k2.clone(),
+        ct_w: proof_ce.ct_w,
+        ct_o: proof_ce.ct_o,
+    };
+    proof_t.f[0][0][0] = zq.add(proof_t.f[0][0][0], 1);
+    assert_true(
+        "pi2-CE tampered F reveal fails",
+        !verify_ring_pi2_ce(&path_w, &path_o, &ring_ctx, &crs, &crs_w, &shape, ctxb, &ta, &tb, &tc, &proof_t),
+    );
+    proof_t.f[0][0][0] = zq.sub(proof_t.f[0][0][0], 1);
+    proof_t.k2[0][0][0] = zq.add(proof_t.k2[0][0][0], 1);
+    assert_true(
+        "pi2-CE tampered K2 pivot fails",
+        !verify_ring_pi2_ce(&path_w, &path_o, &ring_ctx, &crs, &crs_w, &shape, ctxb, &ta, &tb, &tc, &proof_t),
     );
 }
 
@@ -2906,6 +3672,24 @@ fn freeze_check() {
         // (Appendix B.1) has no digit-opened W-combination — its only
         // derive-time artifacts are the shape row above (shared by the
         // mask commitments) and the C1' challenge budget.
+
+        // U-B6 — pi2-CE frozen artifacts: the wide shape at the pi2
+        // demo width, and the round-O tie digit chain (double-quinary
+        // alpha under the mask-side-psi variant) at the kappa-9
+        // statement grade the production shapes already carry.
+        let ws = pi2_ce_wide_shape(256);
+        gate(
+            &format!("CE pi2 wide shape (C4): kappa={} n_r={} msg_r={}", ws.kappa, ws.n_r, ws.msg_r),
+            ws.kappa == 8 && ws.n_r == 280 && ws.msg_r == 256,
+        );
+        let dp_ce = derive_digit_params(Q8, 9, 27, PI2_CE_DIGIT_E, PI2_CE_DIGIT_L, PI2_CE_W_INF);
+        gate(
+            &format!(
+                "CE tie digit chain (e=4, L=5, w=2^17) closes at the kappa-9 grade: sigma=2^{:.1}",
+                (dp_ce.sigma as f64).log2()
+            ),
+            dp_ce.sigma > 0,
+        );
     }
 
     // U-L — the F3 modulus-link freeze rows.

@@ -326,9 +326,31 @@ derivation — RESOLVED). B3 shipped (tamper batteries on every prover
 image incl. w_ring, same-seed kernel-path identity, full-protocol
 committed-tamper negatives, the psi-order attack regression). B4
 shipped (freeze rows + docs; the superseded tie-combo digit-chain row
-removed with U-B5). Remaining before the pi2 DEFAULT SWITCH: the pi2
-prover/verifier rewrite onto this gate (mechanical — all claim
-machinery now exists) and the ZK addendum (Q-A2/Q4.3 obligation).
+removed with U-B5).
+
+U-B6 (2026-07-09, later): THE PI2 DEFAULT SWITCH SHIPPED —
+`prove/verify_ring_pi2_ce` runs the committed-executions gate + tie as
+the default pi2 construction at the real statement shape (originals in
+narrow per-row/column commitments), with the scalar gate kept behind
+its r_g flag. Composition: two chained ct-rounds — round W (wide CRS,
+msg_r = h * inner_r) carries Y/mask commitments, the gate claim, tie
+(i) and tie (ii-W); round O (the statement CRS) carries one
+digit-opened combination T_alpha per side and tie (ii-O); a revealed
+pivot K2 (uniform — one-time-padded by the tauii-combination of the
+masks) splits tie (ii) across the rounds so no claim crosses a CRS.
+TWO build findings, resolved before landing: (a) triple-quinary
+combination weights (tauii * sigma(psi) * sigma(s)) bust the q31 digit
+budget — resolved by the MASK-SIDE-PSI variant (F_t := Y_t + psi_t
+mu_t; same defect equation psi_t (mu_t - sigma_t^{-1}(nu_t)) =
+defect_t, same 2^-297/slot soundness; alpha drops to double-quinary
+~2^16.5); (b) the tie digit chain needs the kappa-9 C3 grade, which
+the frozen production shapes already carry (2048^3/FFN derive kappa 9
+at e = 4) — only the toy demo shape was bumped. MEASURED at
+128 x 256 x 64: prove 2.3 s / verify 1.0 s at r = 1, ~2.5 MB total vs
+~9.1 MB scalar full grade; semantic negative + F/K2 tamper negatives
+green; freeze rows pin the wide shape (8/280/256) and the tie chain.
+Remaining: the ZK addendum (Q-A2/Q4.3 obligation) and verifier-side
+optimization (claim building dominates the 1.0 s verify).
 
 Alternatives to this plan, including out-of-family options (hash-based
 sumcheck gate, the curve-hybrid idea, full-splitting redesign), are
