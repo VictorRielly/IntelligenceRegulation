@@ -3643,10 +3643,11 @@ fn self_test_pi2_ce() {
         p[0] = 1;
         p
     };
-    let gate_claim = TwistedQuadRingClaim {
+    let mk_gate = || TwistedQuadRingClaim {
         quad: (0..h).map(|s| (3usize, s, 4usize, s, one.clone())).collect(),
         msg_coeffs: (0..h).map(|s| (5usize, s, ring::poly_neg(&zq, &poly_conj(&zq, &shat_tw[s])))).collect(),
     };
+    let gate_claims = [mk_gate()];
 
     let xs = [xa.clone(), xb.clone(), xc.clone(), xya.clone(), xyb.clone(), xyc.clone()];
     let rhos = [rhoa.clone(), rhob.clone(), rhoc.clone(), rhoya.clone(), rhoyb.clone(), rhoyc.clone()];
@@ -3656,26 +3657,59 @@ fn self_test_pi2_ce() {
     let openings: Vec<StdOpening> = (0..6)
         .map(|i| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &xs[i], rho: &rhos[i] })
         .collect();
+    let mut rng_school = rng;
     let t0 = Instant::now();
-    let (proof, attempts) = prove_ct_round_tq(
-        &path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &[], &[gate_claim],
+    let (mut proof, attempts) = prove_ct_round_tq(
+        &path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &[], &gate_claims,
         &openings, &[], &[], 6, &mut rng,
     );
     let prove_ms = t0.elapsed().as_secs_f64() * 1e3;
-    // Rebuild the claim (moved into the prove call) for verification.
-    let gate_v = TwistedQuadRingClaim {
-        quad: (0..h).map(|s| (3usize, s, 4usize, s, one.clone())).collect(),
-        msg_coeffs: (0..h).map(|s| (5usize, s, ring::poly_neg(&zq, &poly_conj(&zq, &shat_tw[s])))).collect(),
-    };
     let t1v: Vec<Vec<Poly>> = t1s.to_vec();
     let t2v: Vec<Vec<Poly>> = t2s.to_vec();
     let tvr = Instant::now();
     let ok = verify_ct_round_tq(
-        &path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &[], &[gate_v], &t1v,
+        &path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &[], &gate_claims, &t1v,
         &t2v, &[], &[], &[], 6, &proof,
     );
     let verify_ms = tvr.elapsed().as_secs_f64() * 1e3;
     assert_true(&format!("CE gate verifies at r = 1 (attempts = {attempts}, prove {prove_ms:.0} ms, verify {verify_ms:.0} ms)"), ok);
+
+    // U-B3: same-seed cross-path identity — the tq round is deterministic
+    // given (h0, seed), so School and A1 must produce bit-identical proofs.
+    let (proof_s, attempts_s) = prove_ct_round_tq(
+        &KernelPath::School, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &[], &gate_claims,
+        &openings, &[], &[], 6, &mut rng_school,
+    );
+    assert_true(
+        "CE gate: same-seed proofs bit-identical across kernel paths",
+        attempts == attempts_s
+            && proof.h == proof_s.h
+            && proof.w1 == proof_s.w1
+            && proof.gtq == proof_s.gtq
+            && proof.w_tq == proof_s.w_tq
+            && proof.z == proof_s.z,
+    );
+    assert_true(
+        "CE gate: the A1 proof verifies on the schoolbook path",
+        verify_ct_round_tq(&KernelPath::School, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &[], &gate_claims, &t1v, &t2v, &[], &[], &[], 6, &proof),
+    );
+
+    // U-B3 junk-injection: every garbage/mask image of the twisted claim is
+    // load-bearing — tampering any of (Ga, Gb, G0, W) must be rejected.
+    let reverify = |p: &ring::ct_engine::CtRoundProof| -> bool {
+        verify_ct_round_tq(&path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &[], &gate_claims, &t1v, &t2v, &[], &[], &[], 6, p)
+    };
+    for (idx, name) in [(0usize, "Ga"), (1, "Gb"), (2, "G0")] {
+        let orig = proof.gtq[0][idx].clone();
+        proof.gtq[0][idx][0] = zq.add(proof.gtq[0][idx][0], 1);
+        assert_true(&format!("CE gate: tampered {name} garbage image fails"), !reverify(&proof));
+        proof.gtq[0][idx] = orig;
+    }
+    let orig_w = proof.w_tq[0].clone();
+    proof.w_tq[0][0] = zq.add(proof.w_tq[0][0], 1);
+    assert_true("CE gate: tampered linear mask image W fails", !reverify(&proof));
+    proof.w_tq[0] = orig_w;
+    assert_true("CE gate: restored proof verifies again (tamper harness sane)", reverify(&proof));
 
     // Proof-size accounting for the gate CLAIM (executions are the cost).
     let gate_ring_elems = 3 /* Ga,Gb,G0 */ + 1 /* W */ + proof.w1.iter().map(|w| w.len()).sum::<usize>();
@@ -3705,26 +3739,43 @@ fn self_test_pi2_ce() {
     let xsb = [xa.clone(), xb.clone(), xc.clone(), xya.clone(), xyb.clone(), xyc_b.clone()];
     let rhosb = [rhoa.clone(), rhob.clone(), rhoc.clone(), rhoya.clone(), rhoyb.clone(), rhoyc_b.clone()];
     let h0b = ct_h0(&crs, b"pi2-ce", &t1sb, &t2sb, &[]);
-    let gate_b = TwistedQuadRingClaim {
-        quad: (0..h).map(|s| (3usize, s, 4usize, s, one.clone())).collect(),
-        msg_coeffs: (0..h).map(|s| (5usize, s, ring::poly_neg(&zq, &poly_conj(&zq, &shat_tw[s])))).collect(),
-    };
     let opb: Vec<StdOpening> = (0..6)
         .map(|i| StdOpening { t1: &t1sb[i], t2: &t2sb[i], x: &xsb[i], rho: &rhosb[i] })
         .collect();
     let (proof_b, _) = prove_ct_round_tq(
-        &KernelPath::School, &ring_ctx, &rp, None, &crs, &h0b, &[], &[], &[], &[], &[gate_b],
+        &KernelPath::School, &ring_ctx, &rp, None, &crs, &h0b, &[], &[], &[], &[], &gate_claims,
         &opb, &[], &[], 6, &mut rng,
     );
-    let gate_bv = TwistedQuadRingClaim {
-        quad: (0..h).map(|s| (3usize, s, 4usize, s, one.clone())).collect(),
-        msg_coeffs: (0..h).map(|s| (5usize, s, ring::poly_neg(&zq, &poly_conj(&zq, &shat_tw[s])))).collect(),
-    };
     let t1bv: Vec<Vec<Poly>> = t1sb.to_vec();
     let t2bv: Vec<Vec<Poly>> = t2sb.to_vec();
     assert_true(
         "CE gate: wrong C (C != A B) fails",
-        !verify_ct_round_tq(&KernelPath::School, &ring_ctx, &rp, None, &crs, &h0b, &[], &[], &[], &[], &[gate_bv], &t1bv, &t2bv, &[], &[], &[], 6, &proof_b),
+        !verify_ct_round_tq(&KernelPath::School, &ring_ctx, &rp, None, &crs, &h0b, &[], &[], &[], &[], &gate_claims, &t1bv, &t2bv, &[], &[], &[], 6, &proof_b),
+    );
+
+    // U-B3 negative: a consistently-committed but tampered YA (honest
+    // commitment, honest opening, wrong execution vector) must fail the
+    // gate claim on its own — independent of the tie layer.
+    let mut ya_t = ya.clone();
+    ya_t[0] = poly_add(&zq, &ya_t[0], &one);
+    let (xya_t, t1ya_t, t2ya_t, rhoya_t) = build(ya_t.clone(), &mut rng);
+    let t1st = [t1a.clone(), t1b.clone(), t1c.clone(), t1ya_t.clone(), t1yb.clone(), t1yc.clone()];
+    let t2st = [t2a.clone(), t2b.clone(), t2c.clone(), t2ya_t.clone(), t2yb.clone(), t2yc.clone()];
+    let xst = [xa.clone(), xb.clone(), xc.clone(), xya_t.clone(), xyb.clone(), xyc.clone()];
+    let rhost = [rhoa.clone(), rhob.clone(), rhoc.clone(), rhoya_t.clone(), rhoyb.clone(), rhoyc.clone()];
+    let h0t = ct_h0(&crs, b"pi2-ce", &t1st, &t2st, &[]);
+    let opt: Vec<StdOpening> = (0..6)
+        .map(|i| StdOpening { t1: &t1st[i], t2: &t2st[i], x: &xst[i], rho: &rhost[i] })
+        .collect();
+    let (proof_t, _) = prove_ct_round_tq(
+        &path, &ring_ctx, &rp, None, &crs, &h0t, &[], &[], &[], &[], &gate_claims,
+        &opt, &[], &[], 6, &mut rng,
+    );
+    let t1tv: Vec<Vec<Poly>> = t1st.to_vec();
+    let t2tv: Vec<Vec<Poly>> = t2st.to_vec();
+    assert_true(
+        "CE gate: tampered-but-committed YA fails the gate claim (junk injection)",
+        !verify_ct_round_tq(&path, &ring_ctx, &rp, None, &crs, &h0t, &[], &[], &[], &[], &gate_claims, &t1tv, &t2tv, &[], &[], &[], 6, &proof_t),
     );
 }
 
