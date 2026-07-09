@@ -17,11 +17,11 @@ of its own, so the merge stays trivially clean (adds only).
   (composition gap — must design + flag).
 
 ## Next
-- [x] scripts/silu_piecewise.py (generator + exact evaluator + gadget
-      trace + error harness + cost model)
-- [x] results/m4_silu_error.txt (captured at recommended point)
-- [x] docs/zkmatrix-poc/M4_ACTIVATION_DESIGN.md
-- [x] final PROGRESS + report
+- [x] scripts/silu_piecewise.py (commit e9bb2b5, "M4 U-M1")
+- [x] results/m4_silu_error.txt (commit 0d24323, "M4 U-M2")
+- [x] docs/zkmatrix-poc/M4_ACTIVATION_DESIGN.md ("M4 U-M3")
+- ALL DELIVERABLES COMPLETE. Nothing pending. Harness re-run verified
+  byte-identical to the captured results (deterministic).
 
 ## Decisions
 - Domain trick: signed-direct segments on tau = x + 2^(W_in-1); NO
