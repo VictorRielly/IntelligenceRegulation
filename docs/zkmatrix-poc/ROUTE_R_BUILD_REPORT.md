@@ -63,12 +63,21 @@ NOT frozen, with reasons:
   budget does not close at q31 under the conservative Q4 constants
   (extraction 2^22.1 vs the 2^15-class budget); it closes at q46 even
   conservatively. Options for the gadget layer: run gadget claims at a
-  q46-class budget (2.4x int8-GEMM cost on the SMALL bit-tensor
-  fraction), a modulus-pair linking argument, or exact per-chunk
-  strategies; decision deferred to the M4-adjacent gadget freeze.
-- Q5 (estimator sign-off) remains open as in the design: C3/C4 are
-  design models; MSIS/MLWE at (kappa, N_r, q8_31, beta) still need a
-  lattice-estimator run (expect tens-of-percent movement in kappa/N_r).
+  q46-class budget, a modulus-pair linking argument, or exact per-chunk
+  strategies. *(Decision study done: GADGET_MODULUS_DECISION.md —
+  recommended option (a), q46 gadget layer + modulus link (x1.02 CPU /
+  x2.04 GPU commit end-to-end, ~7 MB/pass of link rows); per-chunk
+  REJECTED at scale; tightened-slack is the deletion path
+  (Q4_LEMMAS.md Q4.4'). CORRECTION: the bit-tensor fraction is ~83% of
+  committed element-equivalents at the current quantized-spec
+  assumptions, not "small"; the honestly re-derived q46 gadget layer
+  costs x1.03 CPU and x2.26 GPU-int8 on that fraction.)*
+- Q5 (estimator sign-off): *(DONE — ESTIMATOR_NOTE.md: the frozen point
+  HOLDS with zero (kappa, N_r) movement; real lattice-estimator run
+  under a doctest-validated shim + an independent core-SVP leg; MSIS
+  binds at 136.7-153.0 bits classical across the frozen shapes; MLWE
+  never binds. Residue: native-Sage value confirmation; quantum-target
+  note (kappa+1 if ever adopted).)*
 - Q4 (concentration lemma + garbage-term ZK simulation + ARP slack
   constant): the write-up debt is unchanged and now also covers the
   quadratic layer's garbage terms and the ARP's relaxed-opening slack

@@ -146,7 +146,10 @@ Three candidate resolutions for the single-bundle point, ranked:
 3. **Q-A3 — Fiat-Shamir/grinding accounting** for the deterministic
    twist schedule (expected unchanged: one challenge event per claim).
 4. **Q-A4 — dual-modulus link** (only if option 2 is taken; shared with
-   F3).
+   F3). *(Link interface designed and priced in
+   GADGET_MODULUS_DECISION.md Section 3.5: per-row miss 2^-w,
+   l = ceil(256/w) rows, range gate on the grounding side's q/2;
+   mechanics prototyped in gadget_link_spike.rs.)*
 
 ## 7. Build plan
 
