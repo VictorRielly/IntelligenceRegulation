@@ -37,10 +37,13 @@ in `ring_matmul gate-spike` ("committed-executions gate" section),
 including the tampered-C negative and the norm-chain feasibility prints.
 
 - Soundness: r = 1, per-slot 2^-296-class at every layer. Post-quantum.
-- Cost estimate per matmul claim: 3 plain opening bundles (n_r ~ 152 at
-  the 128-slot shape) + 3 digit-opened tie combinations + 1 quadratic
-  claim ~ **roughly 300 KB and milliseconds** — the design-target class,
-  vs ~13-15 MB / 64 repetitions today. To be measured in the build.
+- Cost per matmul claim (CORRECTED from the first ~300 KB estimate,
+  which was a single-slot spike artifact): the execution-vector
+  commitments scale with the matrix inner dimension, giving ~350 KB at
+  demo shapes, ~1.7 MB at n = 2048, ~3.3 MB at FFN — **~5-8x below the
+  scalar gate, at full r = 1**. Prove TIME returns to the one-shot
+  class; per-claim SIZE stays MB-class, so small-proof deployments
+  eventually need option 2 or 3 as an aggregation layer on top.
 - Remaining work: engine support for (i) a public-constant term in
   ring-valued claims, (ii) the twisted-conjugate quadratic claim variant
   without a ct-reveal, (iii) the pi2 gate rewrite + batteries + the ZK
@@ -120,7 +123,7 @@ documented far alternative.
 
 | option | soundness/rep count | proof size/claim | PQ | new machinery | status |
 |---|---|---|---|---|---|
-| 1. committed-executions gate | r = 1, 2^-296 | ~300 KB (est.) | yes | small engine additions | MAIN PLAN (spike-verified) |
+| 1. committed-executions gate | r = 1, 2^-296 | ~1.7-3.3 MB at scale (corrected) | yes | small engine additions | MAIN PLAN (spike-verified) |
 | 2. hash sumcheck + link | r = 1 | ~100-200 KB + links | yes | second proof system | strong fallback |
 | 3. curve hybrid + link | r = 1 | smallest | **no** | reuse pairing track | only if PQ descoped |
 | 4. full-split + ALS20 | r = 1 | unknown | yes | whole-protocol redesign | far alternative |

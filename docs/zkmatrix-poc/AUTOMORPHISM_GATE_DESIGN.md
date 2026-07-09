@@ -283,12 +283,20 @@ only h = 128 entries — small enough to RE-COMMIT wholesale:
 No twisted-CRS kernel machinery is needed anywhere: the Galois twists
 act only on public data (the W combinations and the shat coefficients).
 
-Cost estimate per matmul claim (to be measured in the build tranche):
-3 plain bundles at the 128-slot shape (n_r ~ 152 by C4) + 3 digit-opened
-tie combinations at the original shape + 1 quadratic claim ~ **roughly
-300 KB** vs ~13-15 MB at the scalar gate — the design-target class, at
-full per-slot soundness. The W-combination randomness magnitude measures
-~2^18.1 (sqrt-extrapolated to n = 2048), i.e. digit chains at L ~ 5 —
+Cost, CORRECTED at build time (the spike's ~300 KB line was a
+msg_r = 1 artifact — with multi-slot rows the execution vectors carry
+h * (inner/D) message slots, and BDLOP hiding forces message-sized
+randomness, so the opening bundles scale with the INNER dimension):
+3 plain bundles at the (h * inner/D)-slot shape + 3 digit-opened tie
+combinations + 1 quadratic claim. Estimates: ~350 KB at the demo shape,
+~1.7 MB at n = 2048, ~3.3 MB at FFN shapes — **~5-8x below the scalar
+gate at full r = 1 per-slot soundness** (build measures below). The
+consequence split: prove TIME returns to the r = 1 class (bundles are
+fast to produce — the time goal is served); proof SIZE at MB-class per
+claim means the small-proof deployment target eventually needs the
+aggregation/succinctness follow-up (GATE_ALTERNATIVES.md options 2/3).
+The W-combination randomness magnitude measures ~2^18.1
+(sqrt-extrapolated to n = 2048), i.e. digit chains at L ~ 5 —
 comfortably inside q31 (lemma-grade bound is a build-tranche item).
 
 Build tranche (U-B1..U-B4): (B1) engine: public-constant terms in
