@@ -177,17 +177,38 @@ attempts. Folding it in would break the commit-before-R ordering.
 
 ## Q4.3 — Garbage-term ZK simulation (the U6 quadratic layer)
 
-Covers: `ring/ct_engine.rs::prove_ct_round` (the `gq = [Ga, Gb, G0]`
-and `gr = [G1, G0]` constructions and `w_quad`/`w_qring`),
-`verify_ct_round` (the sigma(c) c h = E + ... check), the module
+Covers: `ring/ct_engine.rs::prove_ct_round` /
+`prove_ct_round_tq` (the `gq = [Ga, Gb, G0]`, `gr = [G1, G0]` and
+`gtq = [Ga, Gb, G0]` constructions and `w_quad`/`w_qring`/`w_tq`),
+`verify_ct_round_tq` (the sigma(c) c h = E + ... check), the module
 header's "ZK NOTE (Q4-class)", and `ring/commit.rs` (A2 rows).
+
+**REVISION NOTE (U-P1, 2026-07-09).** This lemma was re-derived from
+scratch during the proof-debt tranche and a PRIOR OVERCLAIM WAS FOUND
+AND RETRACTED. The old Q4.3c argued the garbage terms simulate "for
+generic x" and fail only for degenerate (all-zero) bit planes. That
+mechanism is WRONG: it treats the mask images Y as a fresh entropy
+source that hides the witness, but Y is pinned by the revealed
+response z, so the exposed combinations are witness-images regardless
+of Y's marginal distribution or the witness's genericity. The correct
+statement (Q4.3d/e below) is that EVERY quadratic claim — twisted,
+untwisted, ct-projected, the gate included — leaks a fixed public
+linear/quadratic image of its witness in the clear, and for the
+committed-executions gate that image is the product matrix C itself.
+The old sub-lemmas Q4.3a/b are kept (they are true as far as they go)
+but re-graded; Q4.3c is rewritten as Q4.3c'. The R1 fix (now a full
+spec, Section R1 below) is upgraded to mask W as well as Ga/Gb/G1.
+Every identity below is machine-checked in `scripts/zk_lemma_check.py`.
 
 **Setting.** Per sigma-twisted quadratic claim the prover sends, in
 the clear and before the challenge, Ga = sum_p gamma_p sigma(x_ap)
 Y_bp, Gb = sum_p gamma_p x_bp sigma(Y_ap), G0 = sum_p gamma_p
 sigma(Y_ap) Y_bp, plus W_quad; Y_i := A2 y_i are the message-side
 mask images of the Gaussian masks. The reveals h carry a g-mask with
-ct(g) = 0 and uniform other coefficients.
+ct(g) = 0 and uniform other coefficients. Write P_i := c t2_i - A2 z_i
+for the verifier-computable virtual openings; the honest algebra gives
+P_i = c x_i - Y_i (Section 3.1 of SOUNDNESS_REFERENCE), so
+**Y_i = c x_i - P_i** — the identity that drives Q4.3d.
 
 **Lemma Q4.3a (mask-image uniformity — the leftover-entropy
 requirement on N_r, stated precisely).** Under the knapsack-MLWE
@@ -202,51 +223,112 @@ commitment-hiding condition but the garbage-simulation entropy budget.
 (A statistical alternative — regularity/smoothing [GPV08-class] —
 would need sigma at q^{msg_Z/N_Z}-scale, far above the rejection
 sigmas; the computational route is the one the parameters support.)
-**SKETCH** (reduction shape standard; the precise hybrid over the
-round's several mask bundles sharing one A2 is written but not
-mechanically checked).
+**SKETCH, and BESIDE THE POINT for the leak.** (reduction shape
+standard; the precise hybrid over the round's several mask bundles
+sharing one A2 is written but not mechanically checked.) Q4.3d shows
+that Y's marginal uniformity does NOT rescue ZK: the leak is an
+algebraic identity that holds pointwise for every Y, so however
+uniform A2 y looks in isolation, the exposed combinations W + aP = cL
+etc. are the same fixed witness-images. Q4.3a remains a true statement
+about the marginal (and is what commitment hiding rests on), but it is
+not the lever for the quadratic-layer ZK question.
 
-**Lemma Q4.3b (the masked pieces simulate).** (i) Each reveal
-h = Q + L + g with ct(g) = 0, other coefficients uniform and
+**Lemma Q4.3b (which head pieces genuinely simulate).** (i) Each
+reveal h = Q + L + g with ct(g) = 0, other coefficients uniform and
 independent: h is uniform on the hyperplane ct(.) = scalar — a
 one-time pad on the D-1 non-ct coefficients. **PROVEN** (exact,
-information-theoretic). (ii) Each W_claim/W_quad/W_qring carries the
-additive term (A2 y_G)_{sl(l)} of its OWN g-slot; under Q4.3a that
-term is indistinguishable-from-uniform and independent of the other
-consumed images, so the W's simulate as fresh uniforms consistent
-with the verification equation. **SKETCH** (inherits Q4.3a).
+information-theoretic) — BUT note (Q4.3d) that h taken TOGETHER with
+W_quad still leaks c Q, because the same g-slot mask image appears in
+both and cancels. (ii) The LINEAR-claim images: W_claim (of a linear
+`CtClaim`) and W_ring (of a linear `RingClaim`) are FORCED by their
+verification equations — the verifier recomputes W_ring = ZA - c C
++ c K and W_claim = c h - c C + ZA - ZS from public/response data, so
+the prover must send exactly that value and it carries zero
+information; the simulator recomputes it. **PROVEN** (this is what
+"linear-claim images simulate" means, and it is correct only for the
+linear families). The tie's W_ring images (Appendix B.1) are of this
+kind. (iii) The QUADRATIC-claim images W_quad/W_qring/W_tq are NOT
+forced individually — they enter the quad check as one free term among
+{Ga, Gb, G0, W} — and they DO leak (Q4.3d); the old claim that they
+"simulate as fresh uniforms" is retracted. **CORRECTED.**
 
-**Q4.3c (the gap — bilinear garbage terms are unmasked).** Ga, Gb
-(and G1) carry NO additive mask slot: they are bilinear images
-sum_p gamma_p sigma(x_ap) Y_bp whose conditional distribution, over
-uniform Y, is uniform on the R_q-submodule generated by the
-secret-dependent multipliers {gamma_p sigma(x_ap)}. For generic x
-that submodule is all of R_q (a uniform element of R_q at k = 8 is
-non-invertible w.p. ~ 8 q^-16 = 2^-493-class, LS18), and simulation
-by "sample Ga, Gb uniform, solve G0 from the check equation" goes
-through. But gadget witnesses are structured: an all-zero bit plane
-(legal and common — high bits of small values) zeroes the multipliers
-of every quad term referencing it, collapsing the support of Ga to a
-proper submodule — distinguishable from uniform in one sample; the
-simulator as stated FAILS for exactly the tensors the binary gadget
-exists to handle. Discharge routes: **(R1)** add an additive mask
-slot to each of Ga/Gb/G1 (one more g-slot per quad claim and +3 ring
-elements per claim ~ +3 * D * log2 q bits) — then the simulator
-samples them uniform, solves G0, and indistinguishability reduces to
-Q4.3a + Q4.2a; recommended, engine change. **(R2)** a per-claim
-regularity hypothesis on x — unacceptable here (degenerate bit
-tensors are the norm). Status of Q4.3 overall: **SKETCH with a named
-OBLIGATION** — the simulator's structure and entropy accounting are
-written; R1 must land in the engine (or R2 be argued per claim class)
-before the quadratic layer's ZK claim is discharged. *(R1
-implementation design, worked post-merge: commit the mask as
-MA := conj(ma), so conj of MA's STANDARD virtual opening gives
-conj(c) * ma — no per-object challenge twists; masks live in g-group
-slots; one extra challenge-free element per claim carries their mask
-images. Scheduled for the next engine tranche alongside the recursive
-gate.)* This is a real
-finding of the write-up, not a formality: the current U6 binary
-gadget's garbage terms can leak bit-plane degeneracy.
+**Lemma Q4.3d (transcript-determinism and the exact leak).** Fix an
+accepting transcript (com, head, z) with challenge c. Substituting
+Y_i = c x_i - P_i (the Setting's identity, with P verifier-computable)
+into the head definitions makes every head image a deterministic
+affine function of the witness x and verifier-computable data. Two of
+these functions collapse to VERIFIER-COMPUTABLE witness-images:
+
+  (L1, the linear leak) For any quadratic claim with linear part
+  L := sum a x, the linear mask image satisfies the algebraic identity
+
+        W + sum_l a_l P_l  =  c L                                (Q4.3d-1)
+
+  because a_l P_l = a_l(c x_l - Y_l) sums to c L - W. The left side is
+  the head element W plus a verifier combination of the P table, so
+  **c L is public**; c is quinary and invertible except with
+  probability ~ 8 q^-16 = 2^-493-class (LS18), so the witness-image
+  **L is public**.
+
+  (Q1, the ct-quadratic leak) For a `QuadCtClaim` with reveal
+  h = Q + L + g (g in message slot sl):
+
+        c h  -  ( W_quad + sum_l a_l P_l + P_sl )  =  c Q       (Q4.3d-2)
+
+  where P_sl = c t2_sl - A2 z_sl is verifier-computable. The g-slot
+  mask image (A2 y)_sl sits in BOTH W_quad and P_sl and CANCELS, so the
+  g-mask that hides the non-ct coefficients of h does NOT hide Q: **c Q
+  is public**, hence the full ring element **Q is public** (c
+  invertible). The g-mask still does its job — it hides h's non-ct
+  coefficients individually — but the pairing with W_quad defeats it
+  for Q.
+
+Both identities are exact ring identities (no distribution assumed);
+both are machine-checked (`zk_lemma_check.py`, OK-1/OK-2a). The
+consequence: the quadratic layer as built reveals, in the clear, the
+witness's quadratic-form value Q and its linear image L. **PROVEN
+LEAK** — this is a hard negative, not a missing sketch.
+
+**Lemma Q4.3e (corollary — the committed-executions GATE leaks C).**
+The gate is one `TwistedQuadRingClaim` (Section 4.5 /
+AUTOMORPHISM_GATE_DESIGN.md Appendix B) with quadratic part
+Q = sum_s conj(YA_s) YB_s and linear part
+L = -sum_s conj(shat_tw_s) YC_s = -G_C, where by the trace theorem
+(Section 5.2) G_C = D * sum_ij conj(s_i) v_j C[i][j]. By Q4.3d-1 the
+transcript makes c L public, hence L = -G_C public, hence
+
+        G_C = D * sum_ij conj(s_i) v_j C[i][j]
+
+is a public ring element. With s, v public and D a unit, this is 128
+linear equations (the coefficients of G_C) in the rows*cols entries of
+C; for any nondegenerate (s, v) the system has full column rank and
+**C is recovered exactly**. Verified at the demo parameters (D = 128,
+q = 2^31 - 399, rows = 4, cols = 3): rank 12/12, exact recovery
+(`zk_lemma_check.py`, OK-4). Since C = A B is hidden by its commitment
+(MLWE), no simulator lacking C can produce this transcript.
+**Therefore the committed-executions gate, with W_tq sent in the
+clear, is NOT zero-knowledge: it leaks the product matrix.**
+This is the same failure for every quadratic claim (binary gadget
+included: Q4.3d-2 leaks its bit-tensor autocorrelation Q); the gate is
+the loudest instance because its leaked image is the very quantity the
+protocol exists to hide. The fix is R1 (below), now mandatory rather
+than recommended.
+
+**Q4.3c' (superseded — the old degeneracy story, corrected).** The
+retracted argument observed that Ga = sum gamma sigma(x_a) Y_b, viewed
+as a function of a *free* Y, has support the submodule generated by
+{gamma sigma(x_a)}, and worried only about that support collapsing for
+all-zero bit planes. Q4.3d shows the premise (Y free) is false: Y is
+pinned by z, so the leak is present for GENERIC x too, and the
+degenerate-tensor case is merely one visible symptom of a leak that is
+always there. The discharge route is unchanged in spirit but its scope
+is larger: **(R1)** additive one-time-pad slots on Ga, Gb, G1 AND on
+W (the old spec missed W — see Q4.3d-1); **(R2)** a per-claim
+regularity hypothesis is not merely "unacceptable for degenerate
+tensors" but INSUFFICIENT in principle (it cannot mask the exact
+identities Q4.3d-1/2, which hold for every x). Only R1 closes it.
+Status of Q4.3 overall: the leak is **PROVEN**; the fix (R1) is an
+**OBLIGATION** on the next engine tranche, fully specified below.
 
 ---
 
