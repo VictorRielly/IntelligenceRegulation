@@ -151,6 +151,23 @@ pub struct QuadRingClaim {
     pub msg_coeffs: Vec<(usize, usize, Poly)>,
 }
 
+/// Sigma-twisted RING-VALUED quadratic claim (no ct projection, no
+/// reveal, no g-mask — the committed-executions gate's claim form,
+/// AUTOMORPHISM_GATE_DESIGN.md Appendix B):
+///     sum_p gamma_p sigma(x_ap) x_bp + sum a x = 0   over the FULL ring.
+/// Check (the QuadCtClaim equation with h = 0 and no g slot):
+///     E + sigma(c) Ga + c Gb - G0
+///       + sigma(c) (c C_L - ZA_L + W_L)  =  0,
+/// with E = sum gamma sigma(P_a) P_b over the virtual-opening table and
+/// (Ga, Gb, G0, W_L) the prover's pre-challenge garbage/mask images.
+/// Extraction over three transcripts pins the identity exactly
+/// (sigma(dc) dc invertible by LS18); nothing is revealed, so the only
+/// ZK surface is the garbage terms (Q4.3's R1 masking applies here too).
+pub struct TwistedQuadRingClaim {
+    pub quad: Vec<(usize, usize, usize, usize, Poly)>,
+    pub msg_coeffs: Vec<(usize, usize, Poly)>,
+}
+
 /// Prover-side view of one standard commitment in the batch.
 pub struct StdOpening<'a> {
     pub t1: &'a [Poly],
@@ -334,6 +351,8 @@ pub struct CtRoundProof {
     pub w_quad: Vec<Poly>,        // per quad ct-claim: linear-part mask image
     pub gr: Vec<[Poly; 2]>,       // per quad ring-claim: (G1, G0)
     pub w_qring: Vec<Poly>,       // per quad ring-claim: linear-part mask image
+    pub gtq: Vec<[Poly; 3]>,      // per twisted quad ring-claim: (Ga, Gb, G0)
+    pub w_tq: Vec<Poly>,          // per twisted quad ring-claim: linear mask image
     pub z: Vec<Vec<Vec<i64>>>,    // per plain commitment: response
     pub z_rho_ajtai: Vec<Vec<Vec<i64>>>, // per Ajtai commitment: rho response
     pub z_s_ajtai: Vec<Vec<Vec<i64>>>,   // per Ajtai commitment: s response
@@ -377,6 +396,10 @@ fn ct_challenge(h0: &[u8; 32], proof_head: &CtRoundProof) -> Vec<i64> {
         hasher.update(polys_bytes(g.as_slice()));
     }
     hasher.update(polys_bytes(&proof_head.w_qring));
+    for g in &proof_head.gtq {
+        hasher.update(polys_bytes(g.as_slice()));
+    }
+    hasher.update(polys_bytes(&proof_head.w_tq));
     let digest: [u8; 32] = hasher.finalize().into();
     XofReader::new("chal-ct", &[&digest]).next_challenge()
 }
@@ -500,6 +523,33 @@ pub fn prove_ct_round(
     ring_claims: &[RingClaim],
     quad_claims: &[QuadCtClaim],
     quad_ring: &[QuadRingClaim],
+    plain: &[StdOpening],
+    digits: &[DigitOpening],
+    ajtai: &[AjtaiOpening],
+    g_base: usize,
+    rng: &mut u64,
+) -> (CtRoundProof, usize) {
+    prove_ct_round_tq(
+        path, ring, rp, dp, crs, h0, claims, ring_claims, quad_claims, quad_ring, &[], plain,
+        digits, ajtai, g_base, rng,
+    )
+}
+
+/// prove_ct_round with sigma-twisted ring-valued quadratic claims (the
+/// committed-executions gate). The plain wrapper above delegates here.
+#[allow(clippy::too_many_arguments)]
+pub fn prove_ct_round_tq(
+    path: &KernelPath,
+    ring: &RingCtx,
+    rp: &CtRoundParams,
+    dp: Option<&super::sigma::DigitParams>,
+    crs: &RingCrs,
+    h0: &[u8; 32],
+    claims: &[CtClaim],
+    ring_claims: &[RingClaim],
+    quad_claims: &[QuadCtClaim],
+    quad_ring: &[QuadRingClaim],
+    tq_claims: &[TwistedQuadRingClaim],
     plain: &[StdOpening],
     digits: &[DigitOpening],
     ajtai: &[AjtaiOpening],
@@ -651,6 +701,17 @@ pub fn prove_ct_round(
             .collect();
         let w_qring: Vec<Poly> =
             quad_ring.iter().map(|qr| coeff_combo(ring, &qr.msg_coeffs, &a2y)).collect();
+        let gtq: Vec<[Poly; 3]> = tq_claims
+            .iter()
+            .map(|qc| {
+                let ga = quad_combo(ring, &qc.quad, &all_x, true, &a2y);
+                let gb = quad_combo(ring, &qc.quad, &a2y, true, &all_x);
+                let g0 = quad_combo(ring, &qc.quad, &a2y, true, &a2y);
+                [ga, gb, g0]
+            })
+            .collect();
+        let w_tq: Vec<Poly> =
+            tq_claims.iter().map(|qc| coeff_combo(ring, &qc.msg_coeffs, &a2y)).collect();
 
         let head = CtRoundProof {
             h: h.clone(),
@@ -663,6 +724,8 @@ pub fn prove_ct_round(
             w_quad,
             gr,
             w_qring,
+            gtq,
+            w_tq,
             z: Vec::new(),
             z_rho_ajtai: Vec::new(),
             z_s_ajtai: Vec::new(),
@@ -760,6 +823,8 @@ pub fn prove_ct_round(
                     w_quad: head.w_quad,
                     gr: head.gr,
                     w_qring: head.w_qring,
+                    gtq: head.gtq,
+                    w_tq: head.w_tq,
                     z,
                     z_rho_ajtai,
                     z_s_ajtai,
@@ -816,6 +881,34 @@ pub fn verify_ct_round(
     g_base: usize,
     proof: &CtRoundProof,
 ) -> bool {
+    verify_ct_round_tq(
+        path, ring, rp, dp, crs, h0, claims, ring_claims, quad_claims, quad_ring, &[], t1s, t2s,
+        t1s_dig, t2s_dig, ajtai_coms, g_base, proof,
+    )
+}
+
+/// verify_ct_round with sigma-twisted ring-valued quadratic claims.
+#[allow(clippy::too_many_arguments)]
+pub fn verify_ct_round_tq(
+    path: &KernelPath,
+    ring: &RingCtx,
+    rp: &CtRoundParams,
+    dp: Option<&super::sigma::DigitParams>,
+    crs: &RingCrs,
+    h0: &[u8; 32],
+    claims: &[CtClaim],
+    ring_claims: &[RingClaim],
+    quad_claims: &[QuadCtClaim],
+    quad_ring: &[QuadRingClaim],
+    tq_claims: &[TwistedQuadRingClaim],
+    t1s: &[Vec<Poly>],
+    t2s: &[Vec<Poly>],
+    t1s_dig: &[Vec<Poly>],
+    t2s_dig: &[Vec<Poly>],
+    ajtai_coms: &[&AjtaiCommit],
+    g_base: usize,
+    proof: &CtRoundProof,
+) -> bool {
     let zq = &ring.zq;
     let shape = crs.shape;
     let n_plain = t1s.len();
@@ -833,6 +926,8 @@ pub fn verify_ct_round(
         || proof.w_quad.len() != quad_claims.len()
         || proof.gr.len() != quad_ring.len()
         || proof.w_qring.len() != quad_ring.len()
+        || proof.gtq.len() != tq_claims.len()
+        || proof.w_tq.len() != tq_claims.len()
         || proof.t1_digits.len() != n_dig
         || proof.w1_digits.len() != n_dig
         || proof.z_digits.len() != n_dig
@@ -998,7 +1093,7 @@ pub fn verify_ct_round(
         }
     }
     // Quadratic layer. P table: P_i = c t2_i - (A2 z_i) = c x_i - Y_i.
-    if !quad_claims.is_empty() || !quad_ring.is_empty() {
+    if !quad_claims.is_empty() || !quad_ring.is_empty() || !tq_claims.is_empty() {
         let p_table: Vec<Vec<Poly>> = t2_all
             .iter()
             .zip(a2z.iter())
@@ -1049,6 +1144,25 @@ pub fn verify_ct_round(
             };
             let mut lhs = poly_add(zq, &e2, &ring_mul_split_kara_fast(ring, &c_mod, &proof.gr[l][0]));
             lhs = poly_sub(zq, &lhs, &proof.gr[l][1]);
+            lhs = poly_add(zq, &lhs, &lin);
+            if lhs.iter().any(|&x| x != 0) {
+                return false;
+            }
+        }
+        // Sigma-twisted ring-valued quadratics (no reveal):
+        //   E + sigma(c) Ga + c Gb - G0 + sigma(c)(c C_L - ZA_L + W_L) = 0.
+        for (l, qc) in tq_claims.iter().enumerate() {
+            let e = quad_combo(ring, &qc.quad, &p_table, true, &p_table);
+            let c_l = coeff_combo(ring, &qc.msg_coeffs, &t2_all);
+            let za_l = coeff_combo(ring, &qc.msg_coeffs, &a2z);
+            let lin = {
+                let ccl = ring_mul_split_kara_fast(ring, &c_mod, &c_l);
+                let inner = poly_add(zq, &poly_sub(zq, &ccl, &za_l), &proof.w_tq[l]);
+                ring_mul_split_kara_fast(ring, &sig_c, &inner)
+            };
+            let mut lhs = poly_add(zq, &e, &ring_mul_split_kara_fast(ring, &sig_c, &proof.gtq[l][0]));
+            lhs = poly_add(zq, &lhs, &ring_mul_split_kara_fast(ring, &c_mod, &proof.gtq[l][1]));
+            lhs = poly_sub(zq, &lhs, &proof.gtq[l][2]);
             lhs = poly_add(zq, &lhs, &lin);
             if lhs.iter().any(|&x| x != 0) {
                 return false;
