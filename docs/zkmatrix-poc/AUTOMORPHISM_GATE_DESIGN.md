@@ -419,3 +419,109 @@ Scaling note: masks and reveals scale with h * inner / D exactly like
 the execution vectors, so the ~5-8x advantage over the scalar gate is
 shape-stable; the aggregation follow-up (GATE_ALTERNATIVES options
 2/3) remains the small-proof path.
+
+### Appendix B.2 — zero-knowledge of the gate + tie round (Q-A2)
+
+This resolves the Q-A2 obligation (Section 6, item 2) with the Q4.3
+machinery (Q4_LEMMAS.md, tranche U-P) now available. It sharpens the
+one-line ZK note of Appendix B.1 ("the round's standard garbage-image
+surface, Q4.3/R1, unchanged") into a component-by-component simulation
+argument. The honest headline first: **the tie is zero-knowledge
+today; the GATE claim is not — it leaks the product matrix C (Q4.3e) —
+and the round becomes HVZK exactly when the R1 pads (Q4_LEMMAS.md
+Section R1) mask that one claim.** Q-A2 is therefore discharged
+CONDITIONAL on R1, with the single blocker precisely located.
+
+**The transcript.** One r = 1 ct-round (`self_test_pi2_ce`) carries:
+(1) 12 commitments — A, B, C, the executions YA, YB, YC, and the tie
+masks MA, NA, MB, NB, MC, NC; (2) the derived challenges s, v (pre-hash
+of A, B, C), psi (full-entropy, from h0), tau_i/tau_ii (quinary, from
+H(h0, F)); (3) the reveals F = (FA, FB, FC); (4) the ct-round proof:
+per-commitment A1 mask images w1, the 6 tie claims' ring mask images
+w_ring, the gate claim's garbage triple (Ga, Gb, G0) and linear mask
+image w_tq, and the rejection-sampled responses z.
+
+**The simulator** (Fiat–Shamir, programming the RO). Sample the
+responses z as center-independent rejection Gaussians (Q4.2a); derive
+the verifier-side P table, E, and all w1 images from the verification
+equations. Then, component by component:
+
+1. **Commitments (statement / hiding) [PROVEN under MLWE].** All 12 are
+   simulated as fresh commitments to arbitrary (e.g. zero) messages;
+   each is MLWE-hiding (SOUNDNESS_REFERENCE 2.1). The tie masks are the
+   only subtlety: MA commits mu and NA commits nu = sigma(mu) — CONTENTS
+   are correlated by a public automorphism. Hiding is per-commitment
+   randomness and independent of message contents (2.1's second
+   sentence), so the pair (MA, NA) is jointly hiding despite the
+   correlation; the simulator commits any two values and the view is
+   indistinguishable. The verifier never checks nu = sigma(mu), so no
+   equation constrains the simulated contents.
+
+2. **s, v, psi, tau (derived public data) [PROVEN].** Every challenge
+   is a deterministic hash output; the simulator recomputes them from
+   the (programmed) statement/round hashes. psi is full-entropy but
+   PUBLIC — it multiplies committed slots inside claims, never a
+   response, so its size is irrelevant and it leaks nothing about the
+   witness. sigma_t(psi), sigma_t(F), the alpha_i coefficients — all
+   are public functions of public data.
+
+3. **The reveals F_t = psi_t YA_t + mu_t (uniform) [PROVEN, exact].**
+   mu_t is a uniform ring element (committed in MA before psi is drawn,
+   Appendix B.1 order), so F_t is a one-time pad of psi_t YA_t: exactly
+   uniform on R_q, independent of the executions. The simulator samples
+   F uniform. sigma_t(F_t) used in tie claim (ii) is then derived public
+   data (an automorphism of a simulated-uniform element). Nothing about
+   YA/YB/YC leaks through F. (This is Appendix B.1's ZK line, now
+   itemized.)
+
+4. **The tie claims' images w_ring (simulatable) [PROVEN].** The six
+   tie claims are LINEAR `RingClaim`s with public constants K
+   (tau-combinations of F). Their mask images are FORCED by the
+   verification equation W_ring = ZA_rl - c C_rl + c K, which the
+   verifier recomputes from public/response data (Q4.3b-ii); the
+   simulator recomputes the identical value. So w_ring carries zero
+   information — the tie adds no ZK surface beyond the uniform F. Every
+   Galois twist in the tie acts on public data only (psi, s/v, F), so
+   no committed slot is ever exposed across a twist.
+
+5. **The gate claim's garbage/linear images (Ga, Gb, G0, w_tq) — THE
+   LEAK [PROVEN negative today; PROVEN simulatable after R1].** The gate
+   is one `TwistedQuadRingClaim`. By Q4.3d-1 the transcript makes
+   c * L public via w_tq + sum a P, and by Q4.3e that image is
+   L = -G_C = -D sum_ij conj(s_i) v_j C[i][j] — so any observer recovers
+   G_C, hence C, by solving 128 equations in rows*cols unknowns (rank
+   12/12 at the demo shape, `zk_lemma_check.py` OK-4). No simulator
+   lacking C can produce w_tq. This is the whole and only ZK gap in the
+   gate + tie round, and it is INSIDE the gate claim, not the tie.
+   **The fix (mandatory, not optional):** apply R1 to this single
+   claim — three uniform pads (ma, mb, mw), the sigma(c)-side ones
+   committed pre-conjugated, masking (Ga, Gb, w_tq) to jointly uniform
+   and folding their images into G0~ (Q4_LEMMAS.md Section R1;
+   completeness machine-checked, OK-3a). After R1 the simulator samples
+   (Ga~, Gb~, w_tq~) uniform and solves G0~; indistinguishability is a
+   one-time pad plus the pad commitments' MLWE hiding — no new
+   assumption. R1 costs ~1.5 KB on the gate's ~1.23 MB (~0.1%).
+
+6. **The responses z [PROVEN].** Rejection-sampled, center-independent
+   (Q4.2a / Lemma 6.3); the joint-scaling variant (Q4.2b) applies to the
+   bundle. Simulated as the target Gaussians directly.
+
+**Conclusion (Q-A2).** Components 1–4 and 6 are simulatable
+unconditionally (MLWE hiding + rejection sampling + one-time pads);
+component 5 is the sole obstruction and is closed EXACTLY by R1. So:
+
+- **Without R1:** the gate + tie round is NOT zero-knowledge — it
+  leaks C (a hard finding; the earlier "standard surface, unchanged"
+  phrasing understated it). The tie itself leaks nothing.
+- **With R1:** the round is HVZK, reducing to MLWE (commitment hiding,
+  already assumed) + the rejection lemma + Fiat–Shamir (ROM). No
+  leftover-hash, smudging, or knapsack-MLWE-on-images is required.
+
+Q-A2 status: **OBLIGATION discharged to a conditional PROVEN** — the
+simulation argument is complete and the residual work is the R1 engine
+build (Q4_LEMMAS.md Section R1), the same item Section 8.1 of
+SOUNDNESS_REFERENCE tracks. The differential/per-sigma-exposure canary
+of Q4.6-(O1) still applies to any future traced-sum variant; this
+committed-executions gate exposes only aggregates and F, so it does not
+trip it — the leak here is the quadratic garbage surface, closed by R1,
+not a per-sigma exposure.
