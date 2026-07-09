@@ -43,7 +43,8 @@ commit.rs, params.rs (beyond mod.rs line), pi2/U5/gate-spike/chain-demo.
       w_max(128,4,q46) == 35, w=11 -> l=24 (264 bits), ARP unit 512
       closes / 1536 does NOT (both directions pinned), honest |y|
       model 2^16.3 < 2^45.
-- [ ] Python test append; full suite.
+- [x] Python test: tests/test_zkmatrix_link.py (link-demo, exit 0 +
+      key lines). Full suite: 42 tests OK in ~99 s.
 - [ ] U-L4: doc status header + measured numbers; PROGRESS final.
 
 ## Build/test commands
