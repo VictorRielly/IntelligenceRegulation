@@ -2884,6 +2884,9 @@ fn freeze_check() {
         );
     }
 
+    // U-L — the F3 modulus-link freeze rows.
+    all_ok &= freeze_check_link();
+
     if all_ok {
         println!("freeze-check passed");
     } else {
@@ -3812,4 +3815,70 @@ fn self_test_link() {
             ),
         );
     }
+}
+
+// U-L freeze rows: the F3 modulus-link derive-time gates. Called at the end
+// of freeze_check(); returns its own conjunction so a broken link budget
+// fails the whole gate.
+fn freeze_check_link() -> bool {
+    use ring::link::{
+        arp_binary_unit_ok, derive_gadget_layer, derive_link_params, link_honest_y, link_rows,
+        link_w_max,
+    };
+    let mut all_ok = true;
+    let mut gate = |label: &str, ok: bool| {
+        println!("  {} {label}", if ok { "ok  " } else { "FAIL" });
+        all_ok &= ok;
+    };
+
+    // The two frozen CRS points of the link (study-table parity).
+    match derive_gadget_layer(Q8, 32, 16) {
+        Some(gl) => gate(
+            &format!(
+                "F3 q31 value CRS (msg_r=32, wave 16): kappa={} N_r={} headroom {:.1} bits, col {:.1} KB",
+                gl.shape.kappa, gl.shape.n_r, gl.c2_headroom_bits, gl.col_kb
+            ),
+            gl.shape.kappa == 9 && gl.shape.n_r == 56 && gl.c2_headroom_bits >= 1.0,
+        ),
+        None => gate("F3 q31 value CRS derives", false),
+    }
+    match derive_gadget_layer(ring::Q8_46, 32, 16) {
+        Some(gl) => gate(
+            &format!(
+                "F3 q46 bit CRS (msg_r=32, wave 16): kappa={} N_r={} headroom {:.1} bits, {:.1} ring-MACs/el",
+                gl.shape.kappa, gl.shape.n_r, gl.c2_headroom_bits, gl.macs_el
+            ),
+            gl.shape.kappa == 6 && gl.shape.n_r == 62 && gl.c2_headroom_bits >= 1.0,
+        ),
+        None => gate("F3 q46 bit CRS derives", false),
+    }
+
+    // The frozen link operating point at the demo shape (n=128, W=4).
+    let wm = link_w_max(128, 4, ring::Q8_46);
+    gate(&format!("F3 link w_max(128, 4, q46) = {wm} (frozen w = 11 <= w_max)"), wm == 35);
+    gate(
+        "F3 frozen point w = 11 -> l = 24 rows, w*l = 264 (2^-264 <= 2^-256)",
+        link_rows(11) == 24 && 11 * link_rows(11) == 264,
+    );
+
+    // The ARP binary-unit granularity finding, PINNED IN BOTH DIRECTIONS:
+    // the F3 unit (512 bit coefficients) closes at q46; a full-tensor
+    // 128 x W=12 unit (1536) does NOT — binary claims + their ARPs stay
+    // partitioned at F3-shape units until Q4.4' lands.
+    gate("F3 ARP binary unit n=512 closes at q46", arp_binary_unit_ok(512, ring::Q8_46));
+    gate(
+        "F3 ARP binary unit n=1536 does NOT close at q46 (granularity cap stays pinned)",
+        !arp_binary_unit_ok(1536, ring::Q8_46),
+    );
+
+    // Completeness: the honest 1.3-tail |y| model fits the grounding gate.
+    let lp = derive_link_params(128, 4, ring::Q8_46, Q8, 11);
+    gate(
+        &format!(
+            "F3 honest |y| model 2^{:.1} < q46/2 = 2^45 (grounding gate, margin ~2^28)",
+            link_honest_y(&lp).log2()
+        ),
+        link_honest_y(&lp) < (ring::Q8_46 / 2) as f64,
+    );
+    all_ok
 }

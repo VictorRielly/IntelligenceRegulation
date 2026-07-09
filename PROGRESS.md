@@ -38,7 +38,11 @@ commit.rs, params.rs (beyond mod.rs line), pi2/U5/gate-spike/chain-demo.
       ~155 KB (24 claims/side + g columns + 24 revealed y); honest
       max|y| = 2^16.7 vs model 2^16.3, gate 2^45; w_max(demo) = 35;
       all 5 batteries green (honest, bit, value, gate, stale-xi).
-- [ ] U-L3: freeze_check_link + call; run freeze-check.
+- [x] U-L3: freeze_check_link + call; freeze-check green. 7 F3 rows:
+      q31 CRS 9/56 (headroom 2.0 bits), q46 CRS 6/62 (16.8 bits),
+      w_max(128,4,q46) == 35, w=11 -> l=24 (264 bits), ARP unit 512
+      closes / 1536 does NOT (both directions pinned), honest |y|
+      model 2^16.3 < 2^45.
 - [ ] Python test append; full suite.
 - [ ] U-L4: doc status header + measured numbers; PROGRESS final.
 
