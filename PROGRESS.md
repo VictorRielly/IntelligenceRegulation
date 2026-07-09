@@ -45,7 +45,11 @@ commit.rs, params.rs (beyond mod.rs line), pi2/U5/gate-spike/chain-demo.
       model 2^16.3 < 2^45.
 - [x] Python test: tests/test_zkmatrix_link.py (link-demo, exit 0 +
       key lines). Full suite: 42 tests OK in ~99 s.
-- [ ] U-L4: doc status header + measured numbers; PROGRESS final.
+- [x] U-L4: GADGET_MODULUS_DECISION.md STATUS header (13 lines,
+      measured numbers). U-L TRANCHE COMPLETE — commits: U-L1 0001710,
+      U-L2 23d96e2, U-L3 d58b69d, tests affbfcd, U-L4 (this one).
+      No deviation from the frozen decisions. Parent merges this
+      branch; do not rebase onto the advanced parent.
 
 ## Build/test commands
 - PATH="$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin:$PATH" cargo build --release   (from zkmatrix-rs/)
