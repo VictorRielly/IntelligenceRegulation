@@ -1,5 +1,19 @@
 # The Gadget-Layer Modulus Decision (Finding F3)
 
+STATUS (U-L1..U-L3 IMPLEMENTED, 2026-07-09): option (a) is built —
+`ring/link.rs` (gadget-layer chain, w_max/rows/gate, xi/y, both claim
+families), `ring_matmul link-demo` + `self_test_link` (in self-test),
+`freeze_check_link` rows in freeze-check, suite test. Measured at the
+frozen point (n = 128 values in [0, 2^4), W = 4 planes; w = 11, l = 24,
+2^-264): prove 13 ms, verify 9 ms, link overhead ~155 KB; honest
+max|y| = 2^16.7 (model 2^16.3) vs the 2^45 grounding gate; CRS points
+q31 (kappa 9, N_r 56, headroom 2.0 bits), q46 (kappa 6, N_r 62, 16.8
+bits); w_max(128, 4, q46) = 35. Granularity finding pinned BOTH ways:
+the ARP binary unit closes at q46 for 512 coefficients, NOT for 1536 —
+binary claims + ARPs stay partitioned at F3-shape units (Section 3.5
+note; Q4.4' dependency). Negative battery: tampered bit / tampered
+value / oversized y / stale-xi (F5 mode) all fail as required.
+
 Status: decision study COMPLETE — recommendation: **option (a), the
 q46-class gadget budget with a modulus link** (Section 6). Every number
 in this document is computed by `scripts/gadget_modulus_study.py`

@@ -30,6 +30,7 @@ pub mod aux;
 
 pub mod commit;
 pub mod ct_engine;
+pub mod link;
 pub mod params;
 pub mod sigma;
 
