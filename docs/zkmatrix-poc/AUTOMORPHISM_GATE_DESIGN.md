@@ -142,6 +142,13 @@ Three candidate resolutions for the single-bundle point, ranked:
 1. **Q-A1 — amortized-response digit decomposition** (Section 4 option
    1): the one-page composition derivation, then implementation. This
    decides whether the gate lands at ~100-200 KB or ~0.7 MB per claim.
+   *(RESOLVED by the U-A0 derivation, Appendix A below — negatively at
+   the amortization level, positively at the claim level. The net: the
+   h = 128 trace gate does NOT beat the scalar gate today (~2x its
+   opening volume for comparable soundness grade); the rung-1 path is
+   the RECURSIVE gate (Q-A5). The immediate build items are the
+   claim-layer aggregation, joint-scaling rejection (Q4.2b, proven) and
+   the b = 10 scalar-gate point (r_g 64 -> 32).)*
 2. **Q-A2 — ZK simulation of the twisted-execution aggregate.**
 3. **Q-A3 — Fiat-Shamir/grinding accounting** for the deterministic
    twist schedule (expected unchanged: one challenge event per claim).
@@ -162,3 +169,81 @@ negatives; (A4) freeze-check rows for the gate point + report
 reconciliation. Entry criterion, per the discipline that caught F1/F2:
 the Q-A1 derivation on paper FIRST; the spike's identities are already
 machine-checked.
+
+## Appendix A — the U-A0 derivation (Q-A1 resolved; the tranche's outcome)
+
+### A.1 The ya-reformulation: the claim layer collapses to O(1)
+
+Since sigma^{-1} is a ring automorphism and commutes with conj:
+
+    G_A = sum_sigma conj(ya^sigma) * yb^sigma,   ya^sigma := sigma^{-1}(xa^sigma)
+        = sum_i s_i * sigma^{-1}(apack_i),
+
+i.e. UNtwisted challenge weights over sigma-twisted commitment images.
+sigma^{-1}(com(x)) is a valid commitment to sigma^{-1}(x) under the
+twisted CRS sigma^{-1}(A1, A2) with randomness sigma^{-1}(rho) (still
+ternary; automorphisms are coefficient permutations up to sign, so all
+norms and challenge bounds are preserved). The verifier computes the
+twisted commitments and CRSs for free. G_A is then ONE quadratic claim
+with h monomials — the existing engine's multi-monomial expansion
+already yields a SINGLE garbage triple (Ga, Gb, G0) and ONE W element
+for the whole aggregate, and the C side is LINEAR (public coefficients
+conj(sigma^{-1}(shat^sigma))). Claim-layer data: O(1) ring elements
+per matmul claim. This part is a clean win.
+
+### A.2 The response-volume floor: amortization cannot cross the P-table
+
+The quadratic expansion consumes per-object verifier-computable parts
+P^sigma = c * T2^sigma - A2^sigma z^sigma. An ALS20-amortized opening
+(one masked response for a batch) makes the individual A2^sigma z^sigma
+unavailable, and every attempted repair fails structurally:
+
+- summing per-sigma verification identities twisted by sigma^{-1}
+  leaves per-sigma A2^sigma z^sigma terms that do not aggregate into
+  one matvec (A2 sits inside sigma^{-1} per term);
+- sharing one Gaussian mask across the h responses breaks the
+  rejection-sampling ZK argument (mask reuse leaks challenge-weighted
+  witness differences);
+- revealing the combined messages or the pair products leaks the
+  witness or reintroduces per-pair objects (the F2 lesson).
+
+So every object referenced by a quadratic monomial must carry its own
+response vector. At h = 128: 3h = 384 response bundles per claim —
+about 2x the scalar gate's 3 r_g = 192 at r_g = 64, for a comparable
+soundness grade (2^-296 per-slot vs 2^-256). The subgroup frontier
+cannot rescue this: scanning further subgroups (e.g. <3>, which kills
+125 of 127 exponents at order 64) reproduces h x (1/density) = d
+exactly — the law appears structural (a character-sum identity), so
+trading executions against density never changes the product.
+
+**Verdict: the h = 128 trace gate is NOT the right default today.** It
+is retained as the substrate for A.3 and for its soundness margin, but
+the scalar gate remains the shipping gate this tranche.
+
+### A.3 Q-A5 — the recursive gate: the real rung-1 path
+
+The diagonal-extraction obstacle is itself a bilinear gate: with
+FS-drawn aggregation weights omega, the cross-term matrix
+<ya^sigma, yb^sigma'> is an h x h analogue of the original rows x cols
+problem — and the SAME trace construction applies to it. Recursing
+rows x cols -> h x h -> ... with geometric shrinkage gives a
+polylog-depth, LaBRADOR-shaped argument whose terminal level opens O(1)
+objects. Norm growth per level, ZK per level, and the FS schedule are
+open; this is a full design round (entry criterion: equations first,
+against the LaBRADOR/ALS20 amortization literature). Target: the
+~100-200 KB rung the design Section 4 hoped for.
+
+### A.4 What this tranche ships instead (proven wins)
+
+1. **Joint-scaling rejection** (Q4_LEMMAS.md Q4.2b, PROVEN): one
+   acceptance over the jointly-scaled bundles cuts expected round
+   attempts 21.1 -> 5.7 at identical sigmas — a ~3.7x prover-time win
+   on every multi-bundle round in the protocol.
+2. **The b = 10 scalar-gate point**: 8 bits/rep -> r_g = 32 for 2^-256
+   (vs 64 at b = 6). The C2 chain closes at q31: the scalar-combination
+   witness bound grows to w_u ~ 2^18.3 -> beta_rec ~ 2^28.5,
+   8 beta = 2^31.5-epsilon... verified at derive time by the
+   freeze-check row added with this change (the exact chain is the
+   code; b = 12 does NOT fit — 8 beta exceeds q31). Gate cost halves.
+3. **Q4.3c fix R1** (garbage-term masking): additive one-time mask
+   slots for Ga/Gb, closing the structured-tensor leak obligation.
