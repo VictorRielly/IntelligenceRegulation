@@ -6028,6 +6028,334 @@ fn self_test_lookup() {
             sumcheck_verify(&kf, n_vars, 3, &false_claim, &atk, &prod3, &mut tr_s).is_none(),
         );
     }
+
+    // ---- [U-K3] the fractional GKR: descent, cross-check, edges. ----
+    use ring::gkr::{
+        FracTree, absorb_roots, build_tree, gkr_prove, gkr_verify, root_cross_check,
+    };
+    println!("\n[U-K3] fractional GKR: L=2 instances, N=64, T=8 — descent + E3-N1/N3/N5 edges");
+    // A toy 8-row pair table fused with the FIXED generator Y (kappa :=
+    // Y; U-K4 wires the real int8 table — the mechanics are identical).
+    let t_rows: Vec<(u64, u64)> = (0..8u64).map(|v| (v, (v * v + 3) % 17)).collect();
+    let y_gen = kf.gen_y();
+    let fuse =
+        |x: u64, yv: u64| -> KElem { kf.add(&kf.embed(x), &kf.mul(&y_gen, &kf.embed(yv))) };
+    let t_fused: Vec<KElem> = t_rows.iter().map(|&(v, s)| fuse(v, s)).collect();
+    let (l_inst, n_leaf, depth_w, depth_t) = (2usize, 64usize, 6usize, 3usize);
+    let mut xr3 = XofReader::new("uk3-battery", &[b"seed-3"]);
+    let xs: Vec<Vec<u64>> =
+        (0..l_inst).map(|_| (0..n_leaf).map(|_| xr3.next_field(8)).collect()).collect();
+    let ys: Vec<Vec<u64>> =
+        xs.iter().map(|col| col.iter().map(|&x| t_rows[x as usize].1).collect()).collect();
+    let m_k: Vec<Vec<KElem>> = xs
+        .iter()
+        .map(|col| {
+            let mut m = vec![0u64; 8];
+            for &x in col {
+                m[x as usize] += 1;
+            }
+            m.iter().map(|&c| kf.embed(c)).collect()
+        })
+        .collect();
+    // The battery's stand-in for the commitment binding: h0 hashes the
+    // x/y columns and the multiplicity columns (their commitments, in
+    // the real protocol) — alpha's E3-N1 edge.
+    let h0_of = |xs: &[Vec<u64>], ys: &[Vec<u64>], ms: &[Vec<KElem>]| -> [u8; 32] {
+        let mut bytes = Vec::new();
+        for col in xs.iter().chain(ys.iter()) {
+            for &v in col {
+                bytes.extend_from_slice(&v.to_le_bytes());
+            }
+        }
+        for m in ms {
+            for e in m {
+                bytes.extend_from_slice(&kf.bytes(e));
+            }
+        }
+        let mut r = XofReader::new("uk3-h0", &[&bytes]);
+        let mut h = [0u8; 32];
+        for c in h.chunks_mut(8) {
+            c.copy_from_slice(&r.next_u64().to_le_bytes());
+        }
+        h
+    };
+    // The full battery-scale lookup pipeline: alpha from h0, projective
+    // trees, per-instance cross-checks, two descents, leaf grounding by
+    // direct MLE of the concatenated columns (E4's job in the engine).
+    let run = |h0: &[u8; 32], xs: &[Vec<u64>], ys: &[Vec<u64>], ms: &[Vec<KElem>]| -> bool {
+        let mut tr = LkpTranscript::new("uk3-lkp", h0);
+        let alpha = tr.challenge_k(&kf);
+        let wtrees: Vec<FracTree> = (0..l_inst)
+            .map(|e| {
+                let lp = vec![kf.one(); n_leaf];
+                let lq: Vec<KElem> =
+                    (0..n_leaf).map(|i| kf.sub(&alpha, &fuse(xs[e][i], ys[e][i]))).collect();
+                build_tree(&kf, lp, lq)
+            })
+            .collect();
+        let ttrees: Vec<FracTree> = (0..l_inst)
+            .map(|e| {
+                let lq: Vec<KElem> = t_fused.iter().map(|t| kf.sub(&alpha, t)).collect();
+                build_tree(&kf, ms[e].clone(), lq)
+            })
+            .collect();
+        let w_roots: Vec<[KElem; 2]> = wtrees.iter().map(|t| t.root()).collect();
+        let t_roots: Vec<[KElem; 2]> = ttrees.iter().map(|t| t.root()).collect();
+        absorb_roots(&kf, &w_roots, &mut tr);
+        let (pw_proof, _, _, _) = gkr_prove(&kf, &wtrees, &mut tr);
+        absorb_roots(&kf, &t_roots, &mut tr);
+        let (pt_proof, _, _, _) = gkr_prove(&kf, &ttrees, &mut tr);
+        // Verifier: fresh transcript, exposed roots, both descents,
+        // grounding.
+        let mut tv = LkpTranscript::new("uk3-lkp", h0);
+        let alpha_v = tv.challenge_k(&kf);
+        if alpha_v != alpha {
+            return false;
+        }
+        if !(0..l_inst).all(|e| root_cross_check(&kf, &w_roots[e], &t_roots[e])) {
+            return false;
+        }
+        absorb_roots(&kf, &w_roots, &mut tv);
+        let Some((zw, pw, qw)) = gkr_verify(&kf, &w_roots, depth_w, &pw_proof, &mut tv) else {
+            return false;
+        };
+        absorb_roots(&kf, &t_roots, &mut tv);
+        let Some((zt, pm, qt)) = gkr_verify(&kf, &t_roots, depth_t, &pt_proof, &mut tv) else {
+            return false;
+        };
+        let w_concat: Vec<KElem> = (0..l_inst * n_leaf)
+            .map(|idx| {
+                let (e, i) = (idx >> depth_w, idx & (n_leaf - 1));
+                fuse(xs[e][i], ys[e][i])
+            })
+            .collect();
+        let m_concat: Vec<KElem> =
+            (0..l_inst * 8).map(|idx| ms[idx >> depth_t][idx & 7].clone()).collect();
+        let t_concat: Vec<KElem> = (0..l_inst * 8).map(|idx| t_fused[idx & 7].clone()).collect();
+        pw == kf.one()
+            && qw == kf.sub(&alpha, &mle_eval(&kf, &w_concat, &zw))
+            && pm == mle_eval(&kf, &m_concat, &zt)
+            && qt == kf.sub(&alpha, &mle_eval(&kf, &t_concat, &zt))
+    };
+    let h0 = h0_of(&xs, &ys, &m_k);
+    assert_true(
+        "U-K3 GKR: honest 2-instance lookup verifies end-to-end (cross-checks + descents + leaf grounding)",
+        run(&h0, &xs, &ys, &m_k),
+    );
+    {
+        let mut ys_bad = ys.clone();
+        ys_bad[0][0] += 1; // out-of-table pair
+        assert_true(
+            "U-K3 GKR: a wrong y at one leaf REJECTS (the root cross-check catches the identity break)",
+            !run(&h0_of(&xs, &ys_bad, &m_k), &xs, &ys_bad, &m_k),
+        );
+        let mut m_bad = m_k.clone();
+        m_bad[0][0] = kf.add(&m_bad[0][0], &kf.one());
+        assert_true(
+            "U-K3 GKR: a wrong multiplicity REJECTS",
+            !run(&h0_of(&xs, &ys, &m_bad), &xs, &ys, &m_bad),
+        );
+    }
+    {
+        // Tampered interior layer (spike OK-3c at engine scale).
+        let mut tr = LkpTranscript::new("uk3-tamper", &h0);
+        let alpha = tr.challenge_k(&kf);
+        let wtrees: Vec<FracTree> = (0..l_inst)
+            .map(|e| {
+                let lq: Vec<KElem> =
+                    (0..n_leaf).map(|i| kf.sub(&alpha, &fuse(xs[e][i], ys[e][i]))).collect();
+                build_tree(&kf, vec![kf.one(); n_leaf], lq)
+            })
+            .collect();
+        let w_roots: Vec<[KElem; 2]> = wtrees.iter().map(|t| t.root()).collect();
+        absorb_roots(&kf, &w_roots, &mut tr);
+        let (mut proof, _, _, _) = gkr_prove(&kf, &wtrees, &mut tr);
+        proof.layers[2].rounds[1][2] = kf.add(&proof.layers[2].rounds[1][2], &kf.one());
+        let mut tv = LkpTranscript::new("uk3-tamper", &h0);
+        let _a = tv.challenge_k(&kf);
+        absorb_roots(&kf, &w_roots, &mut tv);
+        assert_true(
+            "U-K3 GKR: a tampered interior layer polynomial REJECTS",
+            gkr_verify(&kf, &w_roots, depth_w, &proof, &mut tv).is_none(),
+        );
+    }
+    // E3-N1 (the alpha edge), F5 pair: with alpha drawn from an h0 that
+    // does NOT bind the multiplicity columns, a corrupted witness is
+    // accepted by interpolating m_0 after alpha (a K-element, not a
+    // count — nothing in the identity checks it); the shipped h0 moves
+    // alpha and the same crafting dies at the cross-check.
+    {
+        let mut ys_bad = ys.clone();
+        ys_bad[0][0] += 1;
+        let h0_xy = h0_of(&xs, &ys_bad, &[]); // m NOT bound (the bug)
+        let mut trb = LkpTranscript::new("uk3-lkp", &h0_xy);
+        let alpha_b = trb.challenge_k(&kf);
+        let mut m_atk = m_k.clone();
+        let sw = (0..n_leaf).fold(kf.zero(), |a, i| {
+            kf.add(&a, &kf.inv(&kf.sub(&alpha_b, &fuse(xs[0][i], ys_bad[0][i]))))
+        });
+        let mut rest = kf.zero();
+        for j in 1..8 {
+            rest = kf.add(&rest, &kf.mul(&m_atk[0][j], &kf.inv(&kf.sub(&alpha_b, &t_fused[j]))));
+        }
+        m_atk[0][0] = kf.mul(&kf.sub(&sw, &rest), &kf.sub(&alpha_b, &t_fused[0]));
+        assert_true(
+            "U-K3 order (E3-N1): alpha without the m binding ACCEPTS a corrupted witness (m interpolated post-alpha — the attack, demonstrated)",
+            run(&h0_xy, &xs, &ys_bad, &m_atk),
+        );
+        assert_true(
+            "U-K3 order (E3-N1): the shipped h0 (m bound before alpha) REJECTS the same crafting",
+            !run(&h0_of(&xs, &ys_bad, &m_atk), &xs, &ys_bad, &m_atk),
+        );
+    }
+    // E3-N3 (the instance-coordinate edge), F5 pair: with z_e drawn
+    // before the roots are bound, the exposed root SET is malleable —
+    // any shift along the eq(z_e, .)-kernel presents a second root set
+    // the same descent answers for (per-instance anchoring lost);
+    // binding the roots first makes any root change move z_e.
+    {
+        let mut tr = LkpTranscript::new("uk3-n3", &h0);
+        let alpha = tr.challenge_k(&kf);
+        let wtrees: Vec<FracTree> = (0..l_inst)
+            .map(|e| {
+                let lq: Vec<KElem> =
+                    (0..n_leaf).map(|i| kf.sub(&alpha, &fuse(xs[e][i], ys[e][i]))).collect();
+                build_tree(&kf, vec![kf.one(); n_leaf], lq)
+            })
+            .collect();
+        let w_roots: Vec<[KElem; 2]> = wtrees.iter().map(|t| t.root()).collect();
+        // BUGGY world: nobody absorbs the roots; prove + verify share
+        // challenges regardless of the exposed set.
+        let (proof_b, _, _, _) = {
+            let mut tp = LkpTranscript::new("uk3-n3", &h0);
+            let _a = tp.challenge_k(&kf);
+            gkr_prove(&kf, &wtrees, &mut tp)
+        };
+        let z_e_known = {
+            let mut t2 = LkpTranscript::new("uk3-n3", &h0);
+            let _a = t2.challenge_k(&kf);
+            t2.challenge_k(&kf)
+        };
+        let d = kf.embed(0x1234);
+        let ratio = kf.mul(
+            &kf.sub(&kf.one(), &z_e_known),
+            &kf.inv(&z_e_known),
+        );
+        let mut roots_atk = w_roots.clone();
+        roots_atk[0][0] = kf.add(&roots_atk[0][0], &d);
+        roots_atk[1][0] = kf.sub(&roots_atk[1][0], &kf.mul(&d, &ratio));
+        let buggy_verify = |roots: &Vec<[KElem; 2]>| -> bool {
+            let mut tv = LkpTranscript::new("uk3-n3", &h0);
+            let _a = tv.challenge_k(&kf);
+            gkr_verify(&kf, roots, depth_w, &proof_b, &mut tv).is_some()
+        };
+        assert_true(
+            "U-K3 order (E3-N3): unbound roots ACCEPT a second, shifted root set for the same descent (per-instance anchoring lost — the attack, demonstrated)",
+            roots_atk != w_roots && buggy_verify(&w_roots) && buggy_verify(&roots_atk),
+        );
+        // Shipped: roots bound before z_e — the shifted set moves every
+        // challenge and the honest-order proof rejects against it.
+        let (proof_s, _, _, _) = {
+            let mut tp = LkpTranscript::new("uk3-n3", &h0);
+            let _a = tp.challenge_k(&kf);
+            absorb_roots(&kf, &w_roots, &mut tp);
+            gkr_prove(&kf, &wtrees, &mut tp)
+        };
+        let mut tv = LkpTranscript::new("uk3-n3", &h0);
+        let _a = tv.challenge_k(&kf);
+        absorb_roots(&kf, &roots_atk, &mut tv);
+        assert_true(
+            "U-K3 order (E3-N3): with roots bound before z_e the shifted set REJECTS (the fix)",
+            gkr_verify(&kf, &roots_atk, depth_w, &proof_s, &mut tv).is_none(),
+        );
+    }
+    // E3-N5 (the mu edge), F5 pair at the minimal shape (one depth-1
+    // tree): with mu known before the boundary is absorbed, the
+    // 4-value boundary is malleable — 3 constraints (combine == C, p
+    // fold, q fold) on 4 unknowns leave one degree of freedom, so a
+    // second boundary passes every check including leaf grounding;
+    // absorbing the boundary first moves mu and kills the crafting.
+    {
+        let mut xr5 = XofReader::new("uk3-n5", &[b"seed-5"]);
+        let lp = vec![kf.uniform(&mut xr5), kf.uniform(&mut xr5)];
+        let lq = vec![kf.uniform(&mut xr5), kf.uniform(&mut xr5)];
+        let tree = build_tree(&kf, lp.clone(), lq.clone());
+        let root = tree.root();
+        let mut tp = LkpTranscript::new("uk3-n5", &h0);
+        absorb_roots(&kf, &[root.clone()], &mut tp);
+        let (proof, _, _, _) = gkr_prove(&kf, &[tree], &mut tp);
+        let honest_fe = proof.layers[0].final_evals.clone();
+        // Replay the shipped schedule up to the boundary to learn
+        // lambda, and the BUGGY mu (drawn without the boundary absorb).
+        let (lambda, mu_b) = {
+            let mut t2 = LkpTranscript::new("uk3-n5", &h0);
+            absorb_roots(&kf, &[root.clone()], &mut t2);
+            let l = t2.challenge_k(&kf);
+            (l, t2.challenge_k(&kf))
+        };
+        let (p0, p1, q0, q1) = (&honest_fe[1], &honest_fe[2], &honest_fe[3], &honest_fe[4]);
+        let cc = kf.mul(&kf.sub(&kf.one(), &mu_b), &kf.inv(&mu_b)); // (1-mu)/mu
+        let t = kf.one();
+        let q0a = kf.add(q0, &t);
+        let q1a = kf.sub(q1, &kf.mul(&t, &cc));
+        // combine target (eq = 1 at the empty point):
+        let target = kf.add(
+            &kf.add(&kf.mul(p0, q1), &kf.mul(p1, q0)),
+            &kf.mul(&lambda, &kf.mul(q0, q1)),
+        );
+        let partial = kf.add(
+            &kf.add(&kf.mul(p0, &q1a), &kf.mul(p1, &q0a)),
+            &kf.mul(&lambda, &kf.mul(&q0a, &q1a)),
+        );
+        let s = kf.mul(
+            &kf.sub(&target, &partial),
+            &kf.inv(&kf.sub(&q1a, &kf.mul(&cc, &q0a))),
+        );
+        let p0a = kf.add(p0, &s);
+        let p1a = kf.sub(p1, &kf.mul(&s, &cc));
+        let fe_atk = vec![kf.one(), p0a.clone(), p1a, q0a, q1a];
+        // BUGGY verify: C-check + fold with the pre-boundary mu +
+        // grounding against the TRUE leaves.
+        let buggy_accepts = |fe: &Vec<KElem>| -> bool {
+            let c_claim = kf.add(&root[0], &kf.mul(&lambda, &root[1]));
+            let comb = kf.add(
+                &kf.add(&kf.mul(&fe[1], &fe[4]), &kf.mul(&fe[2], &fe[3])),
+                &kf.mul(&lambda, &kf.mul(&fe[3], &fe[4])),
+            );
+            if comb != c_claim {
+                return false;
+            }
+            let pc = kf.add(&fe[1], &kf.mul(&mu_b, &kf.sub(&fe[2], &fe[1])));
+            let qc = kf.add(&fe[3], &kf.mul(&mu_b, &kf.sub(&fe[4], &fe[3])));
+            pc == mle_eval(&kf, &lp, &[mu_b.clone()]) && qc == mle_eval(&kf, &lq, &[mu_b.clone()])
+        };
+        assert_true(
+            "U-K3 order (E3-N5): mu before the boundary absorb ACCEPTS a second boundary (one free dof after 3 constraints — the attack, demonstrated)",
+            fe_atk != honest_fe && buggy_accepts(&honest_fe) && buggy_accepts(&fe_atk),
+        );
+        // Shipped: the boundary is absorbed before mu — the crafted
+        // boundary moves mu and dies at leaf grounding.
+        let atk_proof = ring::gkr::GkrDescentProof {
+            layers: vec![ring::sumcheck::SumcheckProof {
+                rounds: proof.layers[0].rounds.clone(),
+                final_evals: fe_atk,
+            }],
+        };
+        let rejected = {
+            let mut tv = LkpTranscript::new("uk3-n5", &h0);
+            absorb_roots(&kf, &[root.clone()], &mut tv);
+            match gkr_verify(&kf, &[root.clone()], 1, &atk_proof, &mut tv) {
+                None => true,
+                Some((z, pc, qc)) => {
+                    !(pc == mle_eval(&kf, &lp, &z) && qc == mle_eval(&kf, &lq, &z))
+                }
+            }
+        };
+        assert_true(
+            "U-K3 order (E3-N5): the shipped order (boundary absorbed before mu) REJECTS the same crafting at grounding",
+            rejected,
+        );
+    }
 }
 
 // U-L freeze rows: the F3 modulus-link derive-time gates. Called at the end
@@ -6108,6 +6436,29 @@ fn freeze_check_link() -> bool {
                 && ctx.slot_roots[0] == 2_056_890_868
                 && ctx.k == 8
                 && ctx.slot_deg == 16,
+        );
+    }
+
+    // LKP-2/LKP-3 — the lookup's ceiling gate and transcript shape at
+    // the frozen 7B/512 point (M4_LOOKUP_DESIGN Sections 4/7): per-
+    // layer instances padded to 2^23 leaves, 32 instances (e_bits = 5),
+    // table depth 8; the LogUp ceiling wants a >= 64x margin below
+    // char(K) = q per table instance.
+    {
+        use ring::gkr::{ceiling_gate_ok, transcript_shape};
+        gate(
+            "LKP-2 characteristic ceiling: 2^23-leaf instances (and T=2048 per-layer) clear the 64x margin; 2^26 does NOT",
+            ceiling_gate_ok(1 << 23, Q8)
+                && ceiling_gate_ok(2048 * 11008, Q8)
+                && !ceiling_gate_ok(1 << 26, Q8),
+        );
+        let (rw, kw, bw) = transcript_shape(23, 5);
+        let (rt, kt, bt) = transcript_shape(8, 5);
+        gate(
+            &format!(
+                "LKP-3 transcript shape at the FFN point: witness {rw} rounds ({kw}+{bw} K-elems), table {rt} rounds ({kt}+{bt}), degree 3"
+            ),
+            rw == 368 && kw == 1472 && bw == 92 && rt == 68 && kt == 272 && bt == 32,
         );
     }
 

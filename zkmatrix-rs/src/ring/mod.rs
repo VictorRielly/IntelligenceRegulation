@@ -30,6 +30,7 @@ pub mod aux;
 
 pub mod commit;
 pub mod ct_engine;
+pub mod gkr;
 pub mod kfield;
 pub mod link;
 pub mod sumcheck;

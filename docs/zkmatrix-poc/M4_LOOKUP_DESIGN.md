@@ -464,6 +464,26 @@ the single table tree with leaf multiplicities sum_ell rho_ell m^ell_j
 and the E4 m-claim reads the rho-weighted combination of all 32
 committed columns; 256 public weights per column, trivial).
 
+**BUILD NOTE (U-K3, `ring/gkr.rs`) — batching mechanism as built.**
+Shape (3) is implemented with the instance index as e = log2(32) = 5
+EXTRA sumcheck variables rather than an explicit rho vector: layer k's
+descent runs one degree-3 sumcheck over (k + 5) variables, the
+instance coordinates z_e are drawn once from the transcript
+immediately after every instance's roots are bound (`absorb_roots` —
+this placement IS the E3-N3 edge, pinned by the U-K3 malleability
+pair), and the eq-weights of the bound instance coordinates play
+exactly rho's role. Same soundness class, same single 4-value
+boundary per layer, same E4 landing (the final claims are MLEs of the
+CONCATENATED columns — the "rho-weighted" reading with eq(z_e*, ell)
+as the weights). Deltas against this section's narrative: the witness
+descent runs 368 rounds instead of 253 (the b-variables count above
+ignored the 5 instance variables per layer), i.e. round-poly volume
+~92 KB instead of ~63 KB per pass — recorded in the LKP-3 freeze row
+(368/1472+92 witness, 68/272+32 table, degree 3); per-instance root
+cross-checks are unchanged; prover memory unchanged (one instance's
+layer tables streamed per descent step remains available since the
+per-instance tables enter the round computation additively).
+
 ## 6. Soundness accounting
 
 Every row graded; error terms at the recommended point (GF(q^16),
