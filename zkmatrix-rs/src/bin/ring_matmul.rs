@@ -1557,11 +1557,20 @@ fn self_test_gadgets() {
         let pack8 = |v: &[u64]| -> Vec<Poly> {
             (0..shape.msg_r).map(|u| slot_pack(&ring_ctx, &v[u * ring_ctx.k..(u + 1) * ring_ctx.k])).collect()
         };
-        let all_x = [pack8(&xv), pack8(&yv), pack8(&zv)];
-        let all_rho: Vec<Vec<Vec<i64>>> = (0..3)
+        let mut all_x = vec![pack8(&xv), pack8(&yv), pack8(&zv)];
+        // R1 pads: 2 committed one-time pads per untwisted quad claim.
+        let g_base = all_x.len();
+        all_x.extend(ring::ct_engine::sample_g_masks(
+            &mut rng,
+            q,
+            shape.msg_r,
+            0,
+            ring::ct_engine::r1_pad_count(0, shape.msg_r, 0),
+        ));
+        let all_rho: Vec<Vec<Vec<i64>>> = (0..all_x.len())
             .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect())
             .collect();
-        let rp = derive_ct_round_params(q, shape, 3, 0, 0, false);
+        let rp = derive_ct_round_params(q, shape, all_x.len(), 0, 0, false);
         let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
         let a1_path = KernelPath::A1(&a1p);
         let mut t1s = Vec::new();
@@ -1595,12 +1604,12 @@ fn self_test_gadgets() {
             .map(|(i, (x, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x, rho })
             .collect();
         let (proof, attempts) = prove_ct_round(
-            &a1_path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &claims, &openings, &[], &[], 3,
-            &mut rng,
+            &a1_path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &claims, &openings, &[], &[],
+            g_base, &mut rng,
         );
         assert_true(
             &format!("Hadamard x o y = z verifies (H3, {n_vals} slot values, attempts = {attempts})"),
-            verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &claims, &t1s, &t2s, &[], &[], &[], 3, &proof),
+            verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &claims, &t1s, &t2s, &[], &[], &[], g_base, &proof),
         );
         // Negative: wrong product.
         {
@@ -1625,11 +1634,11 @@ fn self_test_gadgets() {
                 .collect();
             let (bad, _) = prove_ct_round(
                 &a1_path, &ring_ctx, &rp, None, &crs, &h0b, &[], &[], &[], &claims, &openings_bad,
-                &[], &[], 3, &mut rng,
+                &[], &[], g_base, &mut rng,
             );
             assert_true(
                 "Hadamard wrong product fails",
-                !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0b, &[], &[], &[], &claims, &t1s_bad, &t2s_bad, &[], &[], &[], 3, &bad),
+                !verify_ct_round(&a1_path, &ring_ctx, &rp, None, &crs, &h0b, &[], &[], &[], &claims, &t1s_bad, &t2s_bad, &[], &[], &[], g_base, &bad),
             );
         }
     }
@@ -1639,7 +1648,7 @@ fn self_test_gadgets() {
     {
         use ring::ct_engine::{
             AjtaiOpening, ajtai_commit, arp_attempt, arp_budget_ok, arp_claims, derive_arp_params,
-            derive_jl_rows, expand_b_mat, pack_arp_mask, sample_arp_mask, sample_ct_masks,
+            derive_jl_rows, expand_b_mat, pack_arp_mask, sample_arp_mask,
         };
         let q = ring::Q8_46;
         let ring_ctx = ring::ring_ctx(q, ring::ETA8_46, 8);
@@ -1659,9 +1668,17 @@ fn self_test_gadgets() {
         );
         let s_r = ap.rows.div_ceil(D);
         let b_mat = expand_b_mat(&crs, "u6-arp", s_r);
-        // g's: 256 ARP ct-claims + 1 quadratic binary claim.
-        let n_claims_g = ap.rows + ring::ct_engine::theta_rows(q);
-        let g_groups = sample_ct_masks(&mut rng, q, shape.msg_r, n_claims_g);
+        // g's: 256 ARP ct-claims + l quadratic binary claims, then the R1
+        // pads (3 per quadratic ct-claim).
+        let l_bin = ring::ct_engine::theta_rows(q);
+        let n_claims_g = ap.rows + l_bin;
+        let g_groups = ring::ct_engine::sample_g_masks(
+            &mut rng,
+            q,
+            shape.msg_r,
+            n_claims_g,
+            ring::ct_engine::r1_pad_count(l_bin, 0, 0),
+        );
         let n_commits = 1 + g_groups.len() + 1;
         let rp = derive_ct_round_params(q, shape, n_commits, ap.rows, 12 * ap.sigma_arp, false);
         let a1p = build_a1_paths(&crs, rp.sigma.max(rp.sigma_s), isqrt_u128(rp.bound_sq.max(rp.bound_s_sq)));
@@ -1782,8 +1799,8 @@ fn self_test_gadgets() {
     println!("\n[F5] regression: fixed-coefficient binary claim is unsound; theta-randomization fixes it");
     {
         use ring::ct_engine::{
-            QuadCtClaim, StdOpening, ct_h0, derive_ct_round_params, prove_ct_round,
-            sample_ct_masks, theta_rows, verify_ct_round,
+            QuadCtClaim, StdOpening, ct_h0, derive_ct_round_params, prove_ct_round, theta_rows,
+            verify_ct_round,
         };
         let q = Q8;
         let ring_ctx = ring_ctx_q8();
@@ -1802,7 +1819,8 @@ fn self_test_gadgets() {
         // Attack round A: OLD claim shape (fixed coefficients), g crafted
         // with ct(g) = -2 — one claim, one g group.
         {
-            let mut g_groups = sample_ct_masks(&mut rng, q, shape.msg_r, 1);
+            // 1 reveal g + 3 R1 pads for the single quadratic claim.
+            let mut g_groups = ring::ct_engine::sample_g_masks(&mut rng, q, shape.msg_r, 1, 3);
             g_groups[0][0][0] = zq.to_mod(-2); // ct(g_0) := -defect
             let mut t1s = Vec::new();
             let mut t2s = Vec::new();
@@ -1855,11 +1873,10 @@ fn self_test_gadgets() {
         // claims — rejected.
         {
             let l = theta_rows(q);
-            let mut g_groups = sample_ct_masks(&mut rng, q, shape.msg_r, l);
-            for gi in 0..g_groups.len() {
-                for s in 0..shape.msg_r {
-                    g_groups[gi][s][0] = zq.to_mod(-2); // craft every g's ct
-                }
+            let mut g_groups = ring::ct_engine::sample_g_masks(&mut rng, q, shape.msg_r, l, 3 * l);
+            for li in 0..l {
+                // craft every reveal g's ct (the R1 pad slots stay honest)
+                g_groups[li / shape.msg_r][li % shape.msg_r][0] = zq.to_mod(-2);
             }
             let mut t1s = Vec::new();
             let mut t2s = Vec::new();
@@ -1869,7 +1886,9 @@ fn self_test_gadgets() {
                 all_x.push(g.clone());
                 all_rho.push((0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect());
             }
-            let rp = derive_ct_round_params(q, shape, all_x.len(), 0, 0, false);
+            // conc sizing: the R1 pad groups push the batch past the ~10
+            // commitment worst-case-chain limit at q31.
+            let rp = derive_ct_round_params(q, shape, all_x.len(), 0, 0, true);
             let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
             let path = KernelPath::A1(&a1p);
             for (x, rho) in all_x.iter().zip(all_rho.iter()) {
@@ -1894,6 +1913,169 @@ fn self_test_gadgets() {
                 !verify_ct_round(&path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &claims, &[], &t1s, &t2s, &[], &[], &[], 1, &atk),
             );
         }
+    }
+}
+
+// ===========================================================================
+// R1 regression battery (Q4_LEMMAS.md Section R1 — the Q4.3d/e fix).
+// Two pairs, both F5-style (attack demonstrated, fix pinned):
+//
+//   LEAK pair (Q4.3d-1 at engine level, the executable analogue of
+//   zk_lemma_check.py OK-1/OK-4): the verifier-computable combination
+//   W~ + sum_l a_l P_l equals c L + mw. With the pads ZEROED (= the
+//   pre-R1 engine) it exposes the linear witness-image L exactly — for
+//   the committed-executions gate that image recovers the product
+//   matrix C (Q4.3e). With honest uniform pads the combination is
+//   one-time-padded and reveals nothing.
+//
+//   ORDER pair (the R1.2 hash-edge row): the pads are load-bearing only
+//   while their commitment is bound by h0 BEFORE the round challenge.
+//   If a refactor dropped the pad commitment from h0, c would be
+//   independent of the pad slot's t2 — so a prover could re-choose the
+//   pad opening AFTER seeing c: shifting the mw pad slot's t2 by
+//   c*Delta adds c^2*Delta to the opening P_MW, which the check
+//   subtracts — a FALSE claim's defect vanishes and the transcript
+//   ACCEPTS (soundness lost; equivalently, a pad chosen post-c can
+//   cancel its own mask and the Q4.3d leak returns). The shipped chain
+//   (pad commitment in h0) re-derives a different challenge from the
+//   crafted commitment and REJECTS the same transcript.
+
+fn self_test_r1() {
+    use ring::commit::{MatvecKind, a2_matvec};
+    use ring::ct_engine::{
+        CtRoundProof, QuadRingClaim, StdOpening, ct_h0, ct_round_challenge,
+        derive_ct_round_params, prove_ct_round, r1_pad_count, sample_g_masks, verify_ct_round,
+    };
+    println!("\n[R1] quadratic-claim pad battery: leak pair + hash-order pair, q8_31");
+    let q = Q8;
+    let ring_ctx = ring_ctx_q8();
+    let zq = ring_ctx.zq;
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 2 };
+    let crs = expand_crs(shape, q, 4324);
+    let mut rng = 0x5eed_0011u64;
+
+    // ONE untwisted quad ring claim over plain ring elements:
+    // x*y - z = 0 (slot 0; slot 1 zero). Commitments: 0=x 1=y 2=z 3=pads
+    // (m1 at slot 0, mw at slot 1 — the r1 layout with no other claims).
+    let one = {
+        let mut p = poly_zero();
+        p[0] = 1;
+        p
+    };
+    let minus_one = {
+        let mut p = poly_zero();
+        p[0] = zq.neg(1);
+        p
+    };
+    let x0 = rng_poly_mod(&mut rng, q);
+    let y0 = rng_poly_mod(&mut rng, q);
+    let z0 = poly_mul_g(&zq, &x0, &y0);
+    let claims = [QuadRingClaim {
+        quad: vec![(0, 0, 1, 0, one.clone())],
+        msg_coeffs: vec![(2, 0, minus_one.clone())],
+    }];
+    let pack1 = |p: &Poly| -> Vec<Poly> { vec![p.clone(), poly_zero()] };
+    let rp = derive_ct_round_params(q, shape, 4, 0, 0, false);
+    let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+    let path = KernelPath::A1(&a1p);
+    let run = |z_val: &Poly, g_group: Vec<Poly>, ctx: &'static [u8], bind_pads: bool, rng: &mut u64|
+     -> (Vec<Vec<Poly>>, Vec<Vec<Poly>>, [u8; 32], CtRoundProof) {
+        let all_x = vec![pack1(&x0), pack1(&y0), pack1(z_val), g_group];
+        let all_rho: Vec<Vec<Vec<i64>>> = (0..all_x.len())
+            .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(rng)).collect())
+            .collect();
+        let mut t1s = Vec::new();
+        let mut t2s = Vec::new();
+        for (x, rho) in all_x.iter().zip(all_rho.iter()) {
+            let (t1, t2) = commit(&path, &crs, x, rho);
+            t1s.push(t1);
+            t2s.push(t2);
+        }
+        // bind_pads = false simulates the R1.2 ordering BUG: the pad
+        // commitment (index 3) is left out of the statement hash.
+        let h0 = if bind_pads {
+            ct_h0(&crs, ctx, &t1s, &t2s, &[])
+        } else {
+            ct_h0(&crs, ctx, &t1s[0..3], &t2s[0..3], &[])
+        };
+        let openings: Vec<StdOpening> = all_x
+            .iter()
+            .zip(all_rho.iter())
+            .enumerate()
+            .map(|(i, (x, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x, rho })
+            .collect();
+        let (proof, _) = prove_ct_round(
+            &path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &claims, &openings, &[], &[],
+            3, rng,
+        );
+        (t1s, t2s, h0, proof)
+    };
+    // Distinguisher side of Q4.3d-1: W~ + sum_l a_l P_l from public
+    // transcript data (here a = -1 on the z slot).
+    let recover = |h0: &[u8; 32], proof: &CtRoundProof, t2s: &[Vec<Poly>]| -> Poly {
+        let c = poly_from_small(&zq, &ct_round_challenge(h0, proof));
+        let a2z = a2_matvec(&path, &crs, MatvecKind::Verify, &proof.z[2]);
+        let p_z = ring::poly_sub(&zq, &poly_mul_g(&zq, &c, &t2s[2][0]), &a2z[0]);
+        ring::poly_sub(&zq, &proof.w_qring[0], &p_z)
+    };
+
+    // ---- LEAK pair. -----------------------------------------------------
+    {
+        let zero_pads = vec![poly_zero(), poly_zero()];
+        let (t1s, t2s, h0, proof) = run(&z0, zero_pads, b"r1-leak", true, &mut rng);
+        assert_true(
+            "R1 leak rig: the zero-pad round verifies (honest claim; ZK is what zero pads lose)",
+            verify_ct_round(&path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &claims, &t1s, &t2s, &[], &[], &[], 3, &proof),
+        );
+        let c = poly_from_small(&zq, &ct_round_challenge(&h0, &proof));
+        let c_l = poly_mul_g(&zq, &c, &ring::poly_neg(&zq, &z0));
+        assert_true(
+            "R1 leak: ZEROED pads expose c*L exactly (Q4.3d-1 — the pre-R1 leak, demonstrated)",
+            recover(&h0, &proof, &t2s) == c_l,
+        );
+        let pads = sample_g_masks(&mut rng, q, shape.msg_r, 0, r1_pad_count(0, 1, 0)).remove(0);
+        let (t1s, t2s, h0, proof) = run(&z0, pads, b"r1-leak", true, &mut rng);
+        assert_true(
+            "R1 leak rig: the masked round verifies",
+            verify_ct_round(&path, &ring_ctx, &rp, None, &crs, &h0, &[], &[], &[], &claims, &t1s, &t2s, &[], &[], &[], 3, &proof),
+        );
+        let c = poly_from_small(&zq, &ct_round_challenge(&h0, &proof));
+        let c_l = poly_mul_g(&zq, &c, &ring::poly_neg(&zq, &z0));
+        assert_true(
+            "R1 leak: honest pads one-time-pad the combination (c*L not recoverable — the fix)",
+            recover(&h0, &proof, &t2s) != c_l,
+        );
+    }
+
+    // ---- ORDER pair. -----------------------------------------------------
+    {
+        // FALSE claim: z' = x*y + d, claim value Delta = x*y - z' = -d.
+        let mut d = poly_zero();
+        d[0] = 1;
+        let z_bad = poly_add(&zq, &z0, &d);
+        let delta = ring::poly_neg(&zq, &d);
+        let pads = sample_g_masks(&mut rng, q, shape.msg_r, 0, r1_pad_count(0, 1, 0)).remove(0);
+        let (t1s, t2s, h0_buggy, proof) = run(&z_bad, pads, b"r1-order", false, &mut rng);
+        assert_true(
+            "R1 order rig: the false claim REJECTS before the pad shift (defect carried at c^2)",
+            !verify_ct_round(&path, &ring_ctx, &rp, None, &crs, &h0_buggy, &[], &[], &[], &claims, &t1s, &t2s, &[], &[], &[], 3, &proof),
+        );
+        // Pad re-chosen AFTER c (possible only because h0_buggy does not
+        // bind commitment 3): t2 of the mw slot shifted by c*Delta.
+        let c = poly_from_small(&zq, &ct_round_challenge(&h0_buggy, &proof));
+        let mut t2s_atk = t2s.clone();
+        t2s_atk[3][1] = poly_add(&zq, &t2s_atk[3][1], &poly_mul_g(&zq, &c, &delta));
+        assert_true(
+            "R1 order: pad-after-challenge ACCEPTS the un-mask (pad commitment outside h0 — the attack, demonstrated)",
+            verify_ct_round(&path, &ring_ctx, &rp, None, &crs, &h0_buggy, &[], &[], &[], &claims, &t1s, &t2s_atk, &[], &[], &[], 3, &proof),
+        );
+        // The shipped chain: the pad commitment is inside h0, so the
+        // crafted t2 re-derives a different challenge — REJECTED.
+        let h0_fixed = ct_h0(&crs, b"r1-order", &t1s, &t2s_atk, &[]);
+        assert_true(
+            "R1 order: pad-in-h0 REJECTS the same crafting (the fix)",
+            !verify_ct_round(&path, &ring_ctx, &rp, None, &crs, &h0_fixed, &[], &[], &[], &claims, &t1s, &t2s_atk, &[], &[], &[], 3, &proof),
+        );
     }
 }
 
@@ -2137,12 +2319,13 @@ fn prove_ring_pi2(
     tc: &[(Vec<Poly>, Vec<Poly>)],
     rng: &mut u64,
 ) -> (RingPi2Proof, usize) {
-    use ring::ct_engine::{DigitOpening, prove_ct_round, sample_ct_masks};
+    use ring::ct_engine::{DigitOpening, prove_ct_round, r1_pad_count, sample_g_masks};
     let zq = &ring_ctx.zq;
     let msg_r = crs.shape.msg_r;
 
-    // g-masks (one per gate repetition), committed before challenges.
-    let g_groups = sample_ct_masks(rng, crs.q, msg_r, r_g);
+    // g-masks (one per gate repetition) + the R1 pads (3 per repetition),
+    // committed before challenges.
+    let g_groups = sample_g_masks(rng, crs.q, msg_r, r_g, r1_pad_count(r_g, 0, 0));
     let mut g_t1 = Vec::new();
     let mut g_t2 = Vec::new();
     let mut g_rho = Vec::new();
@@ -2254,7 +2437,8 @@ fn verify_ring_pi2(
     if ta.len() != shape.rows || tb.len() != shape.cols || tc.len() != shape.cols {
         return false;
     }
-    if proof.g_t1.len() != r_g.div_ceil(crs.shape.msg_r) || proof.salt > 64 {
+    let n_gslots = r_g + ring::ct_engine::r1_pad_count(r_g, 0, 0);
+    if proof.g_t1.len() != n_gslots.div_ceil(crs.shape.msg_r) || proof.salt > 64 {
         return false;
     }
     let h0 = pi2_h0(crs, shape, ctx, proof.salt, r_g, b_bits, ta, tb, tc, &proof.g_t1, &proof.g_t2);
@@ -2632,7 +2816,8 @@ fn prove_ring_pi2_ce(
         })
         .collect();
 
-    // Masks and the nine wide commitments: [YA YB YC MA NA MB NB MC NC].
+    // Masks and the ten wide commitments:
+    // [YA YB YC MA NA MB NB MC NC R1-pads].
     let mut mus: Vec<Vec<Poly>> = Vec::with_capacity(3);
     let mut nus: Vec<Vec<Poly>> = Vec::with_capacity(3);
     for side in 0..3 {
@@ -2653,9 +2838,12 @@ fn prove_ring_pi2_ce(
         pad_w(&ys[0]), pad_w(&ys[1]), pad_w(&ys[2]),
         pad_w(&mus[0]), pad_w(&nus[0]), pad_w(&mus[1]), pad_w(&nus[1]),
         pad_w(&mus[2]), pad_w(&nus[2]),
+        // R1: the gate's committed one-time pads (3 uniform slots riding
+        // one wide g-commitment; h0_stmt binds it before every challenge).
+        ring::ct_engine::sample_g_masks(rng, crs_o.q, crs_w.shape.msg_r, 0, 3).remove(0),
     ];
-    let mut wide = Vec::with_capacity(9);
-    let mut wide_rho = Vec::with_capacity(9);
+    let mut wide = Vec::with_capacity(10);
+    let mut wide_rho = Vec::with_capacity(10);
     for x in &wide_msgs {
         let rho: Vec<Vec<i64>> = (0..crs_w.shape.n_r).map(|_| rng_ternary_poly(rng)).collect();
         let (t1, t2) = commit(path_w, crs_w, x, &rho);
@@ -2758,8 +2946,8 @@ fn prove_ring_pi2_ce(
         ));
     }
     let gate = [pi2_ce_gate_claim(zq, &full, shape.inner_r, shape.rows_r, &shat_tw)];
-    let rp_w = ring::ct_engine::derive_ct_round_params(crs_o.q, crs_w.shape, 9, 0, 0, true);
-    let plain_w: Vec<StdOpening> = (0..9)
+    let rp_w = ring::ct_engine::derive_ct_round_params(crs_o.q, crs_w.shape, 10, 0, 0, true);
+    let plain_w: Vec<StdOpening> = (0..10)
         .map(|i| StdOpening { t1: &wide[i].0, t2: &wide[i].1, x: &wide_msgs[i], rho: &wide_rho[i] })
         .collect();
     let (ct_w, at_w) = prove_ct_round_tq(
@@ -2847,7 +3035,7 @@ fn verify_ring_pi2_ce(
     if ta.len() != shape.rows
         || tb.len() != shape.cols
         || tc.len() != shape.cols
-        || proof.wide.len() != 9
+        || proof.wide.len() != 10
         || proof.salt > 64
         || (0..3).any(|s| proof.f[s].len() != h * chunks[s] || proof.k2[s].len() != chunks[s])
     {
@@ -2917,7 +3105,7 @@ fn verify_ring_pi2_ce(
         ));
     }
     let gate = [pi2_ce_gate_claim(zq, &full, shape.inner_r, shape.rows_r, &shat_tw)];
-    let rp_w = ring::ct_engine::derive_ct_round_params(crs_o.q, crs_w.shape, 9, 0, 0, true);
+    let rp_w = ring::ct_engine::derive_ct_round_params(crs_o.q, crs_w.shape, 10, 0, 0, true);
     let t1s_w: Vec<Vec<Poly>> = proof.wide.iter().map(|g| g.0.clone()).collect();
     let t2s_w: Vec<Vec<Poly>> = proof.wide.iter().map(|g| g.1.clone()).collect();
     if !verify_ct_round_tq(
@@ -2997,7 +3185,7 @@ fn self_test_pi2() {
         "  params: kappa={} N_r={} msg_r={} gate digits (e={}, L={}), digit sigma=2^{:.1}",
         cshape.kappa, cshape.n_r, cshape.msg_r, e_dig, l_dig, (dp.sigma as f64).log2()
     );
-    let g_count = r_g.div_ceil(cshape.msg_r);
+    let g_count = (r_g + ring::ct_engine::r1_pad_count(r_g, 0, 0)).div_ceil(cshape.msg_r);
     let rp = derive_ct_round_params(q, cshape, g_count, 0, 0, true);
     let a1p = build_a1_paths(&crs, rp.sigma.max(dp.sigma), isqrt_u128(rp.bound_sq.max(dp.bound_sq)));
     let a1_path = KernelPath::A1(&a1p);
@@ -3157,7 +3345,7 @@ fn self_test_pi2() {
     let dp_ce = derive_digit_params(
         q, cshape.kappa, cshape.n_r, PI2_CE_DIGIT_E, PI2_CE_DIGIT_L, PI2_CE_W_INF,
     );
-    let rp_w = derive_ct_round_params(q, wshape, 9, 0, 0, true);
+    let rp_w = derive_ct_round_params(q, wshape, 10, 0, 0, true);
     let rp_o = derive_ct_round_params(q, cshape, 1, 0, 0, true);
     let a1w = build_a1_paths(&crs_w, rp_w.sigma, isqrt_u128(rp_w.bound_sq));
     let a1o =
@@ -3183,9 +3371,10 @@ fn self_test_pi2() {
         ),
         ok,
     );
-    // Size accounting: wide objects + reveals + both rounds.
-    let wide_kb = 9.0 * (wshape.kappa + wshape.msg_r) as f64 * D as f64 * 31.0 / 8.0 / 1024.0;
-    let zw_kb = 9.0
+    // Size accounting: wide objects (incl. the R1 pad group) + reveals +
+    // both rounds.
+    let wide_kb = 10.0 * (wshape.kappa + wshape.msg_r) as f64 * D as f64 * 31.0 / 8.0 / 1024.0;
+    let zw_kb = 10.0
         * wshape.n_r as f64
         * D as f64
         * ((rp_w.sigma as f64).log2() + 4.0)
@@ -3291,7 +3480,15 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
 
     // Shared CRS sized for the biggest packing among the chain's tensors.
     let p = derive_digits(Proto::Pi2, n1, n0, n3.max(n2), 0, q, true, 4).expect("chain point fits q31");
-    let cshape = CommitShape { kappa: p.kappa, n_r: p.n_r, msg_r: p.msg_r };
+    // R1: msg_r >= 2 so the wave's quad-claim pads pack two per
+    // g-commitment. At msg_r = 1 each pad costs a FULL commitment (3 per
+    // binary quad claim) and the wave's C2 std-bundle budget breaks at
+    // q31 (measured at this shape: 177 commitments, 8 beta = 1.26x q).
+    // The +1 msg_r rides one extra N_r row — the C4 bump pattern the pi2
+    // demo already uses for its kappa grade.
+    let msg_bump = 2usize.saturating_sub(p.msg_r);
+    let cshape =
+        CommitShape { kappa: p.kappa, n_r: p.n_r + msg_bump, msg_r: p.msg_r + msg_bump };
     let crs = expand_crs(cshape, q, 777);
     let mut rng = 0x5eed_0009u64;
 
@@ -3325,7 +3522,8 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
     let l_dig = ((w_u.log2() + 1.0) / 4.0).ceil() as usize;
     let dp = derive_digit_params(q, cshape.kappa, cshape.n_r, 4, l_dig, w_u.ceil() as i64);
     let n_gadget_commits = 3 + shift as usize + 3; // Y1,Y2,R + bits + hx,hy,hz (upper bound)
-    let rp = derive_ct_round_params(q, cshape, n_gadget_commits + r_g, 0, 0, true);
+    // 4 * r_g upper-bounds the pi2 g-groups (r_g reveal g's + 3 r_g R1 pads).
+    let rp = derive_ct_round_params(q, cshape, n_gadget_commits + 4 * r_g, 0, 0, true);
     let a1p = build_a1_paths(&crs, rp.sigma.max(dp.sigma), isqrt_u128(rp.bound_sq.max(dp.bound_sq)));
     let a1_path = KernelPath::A1(&a1p);
 
@@ -3510,7 +3708,15 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
     let l_bin = ring::ct_engine::theta_rows(q);
     let n_quad = base_bits.len() * l_bin;
     let g_base = plain_x.len();
-    let g_groups = ring::ct_engine::sample_ct_masks(&mut rng, q, cshape.msg_r, n_quad);
+    // n_quad reveal g's + the R1 pads (3 per binary quad ct-claim, 2 per
+    // Hadamard quad ring-claim).
+    let g_groups = ring::ct_engine::sample_g_masks(
+        &mut rng,
+        q,
+        cshape.msg_r,
+        n_quad,
+        ring::ct_engine::r1_pad_count(n_quad, cshape.msg_r, 0),
+    );
     for g in &g_groups {
         let rho: Vec<Vec<i64>> = (0..cshape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
         let (t1, t2) = commit(&a1_path, &crs, g, &rho);
@@ -3691,6 +3897,19 @@ fn freeze_check() {
             dp_ce.sigma > 0,
         );
     }
+
+    // R1 — the quadratic-claim pad slots (the Q4.3d/e ZK fix). A
+    // refactor that drops the pads or moves the slot layout would
+    // reopen the garbage-image leak; pin the per-family counts the
+    // engine's g-slot space must include (the layout itself is enforced
+    // at prove/verify time, and the R1 battery pins the leak and the
+    // hash-order edge).
+    gate(
+        "R1 quad-claim g-slots include the pads: 3/quad-ct, 2/quad-ring, 3/twisted-quad",
+        ring::ct_engine::r1_pad_count(1, 0, 0) == 3
+            && ring::ct_engine::r1_pad_count(0, 1, 0) == 2
+            && ring::ct_engine::r1_pad_count(0, 0, 1) == 3,
+    );
 
     // U-L — the F3 modulus-link freeze rows.
     all_ok &= freeze_check_link();
@@ -4437,17 +4656,23 @@ fn self_test_pi2_ce() {
     let (xnb, t1nb, t2nb, rhonb) = build(nub.clone(), &mut rng);
     let (xmc, t1mc, t2mc, rhomc) = build(muc.clone(), &mut rng);
     let (xnc, t1nc, t2nc, rhonc) = build(nuc.clone(), &mut rng);
+    // R1: the gate's committed one-time pads (3 uniform slots riding one
+    // g-commitment) — bound by h0 strictly before every challenge.
+    let g_pads = ring::ct_engine::sample_g_masks(&mut rng, q, cshape.msg_r, 0, 3).remove(0);
+    let (xg, t1g, t2g, rhog) = build(g_pads, &mut rng);
 
-    // Statement hash binds ALL 12 commitments (0=A 1=B 2=C 3=YA 4=YB
-    // 5=YC 6=MA 7=NA 8=MB 9=NB 10=MC 11=NC); the full-entropy psi
-    // challenges derive from it — strictly after the masks.
+    // Statement hash binds ALL 13 commitments (0=A 1=B 2=C 3=YA 4=YB
+    // 5=YC 6=MA 7=NA 8=MB 9=NB 10=MC 11=NC 12=R1 pads); the full-entropy
+    // psi challenges derive from it — strictly after the masks.
     let t1s = [
         t1a.clone(), t1b.clone(), t1c.clone(), t1ya.clone(), t1yb.clone(), t1yc.clone(),
         t1ma.clone(), t1na.clone(), t1mb.clone(), t1nb.clone(), t1mc.clone(), t1nc.clone(),
+        t1g.clone(),
     ];
     let t2s = [
         t2a.clone(), t2b.clone(), t2c.clone(), t2ya.clone(), t2yb.clone(), t2yc.clone(),
         t2ma.clone(), t2na.clone(), t2mb.clone(), t2nb.clone(), t2mc.clone(), t2nc.clone(),
+        t2g.clone(),
     ];
     let h0 = ct_h0(&crs, b"pi2-ce", &t1s, &t2s, &[]);
     let full_poly = |xr: &mut XofReader| -> Poly {
@@ -4564,12 +4789,15 @@ fn self_test_pi2_ce() {
     let xs = [
         xa.clone(), xb.clone(), xc.clone(), xya.clone(), xyb.clone(), xyc.clone(),
         xma.clone(), xna.clone(), xmb.clone(), xnb.clone(), xmc.clone(), xnc.clone(),
+        xg.clone(),
     ];
     let rhos = [
         rhoa.clone(), rhob.clone(), rhoc.clone(), rhoya.clone(), rhoyb.clone(), rhoyc.clone(),
         rhoma.clone(), rhona.clone(), rhomb.clone(), rhonb.clone(), rhomc.clone(), rhonc.clone(),
+        rhog.clone(),
     ];
-    let n_com = 12usize;
+    let n_com = 13usize; // 12 objects + the R1 pad group
+    let g_base = 12usize;
     let rp = derive_ct_round_params(q, cshape, n_com, 0, 0, true);
     let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
     let path = KernelPath::A1(&a1p);
@@ -4580,7 +4808,7 @@ fn self_test_pi2_ce() {
     let t0 = Instant::now();
     let (mut proof, attempts) = prove_ct_round_tq(
         &path, &ring_ctx, &rp, None, &crs, &h0f, &[], &tie_claims, &[], &[], &gate_claims,
-        &openings, &[], &[], n_com, &mut rng,
+        &openings, &[], &[], g_base, &mut rng,
     );
     let prove_ms = t0.elapsed().as_secs_f64() * 1e3;
     let t1v: Vec<Vec<Poly>> = t1s.to_vec();
@@ -4588,7 +4816,7 @@ fn self_test_pi2_ce() {
     let tvr = Instant::now();
     let ok = verify_ct_round_tq(
         &path, &ring_ctx, &rp, None, &crs, &h0f, &[], &tie_claims, &[], &[], &gate_claims, &t1v,
-        &t2v, &[], &[], &[], n_com, &proof,
+        &t2v, &[], &[], &[], g_base, &proof,
     );
     let verify_ms = tvr.elapsed().as_secs_f64() * 1e3;
     assert_true(
@@ -4600,7 +4828,7 @@ fn self_test_pi2_ce() {
     // given (h0f, seed), so School and A1 must produce bit-identical proofs.
     let (proof_s, attempts_s) = prove_ct_round_tq(
         &KernelPath::School, &ring_ctx, &rp, None, &crs, &h0f, &[], &tie_claims, &[], &[],
-        &gate_claims, &openings, &[], &[], n_com, &mut rng_school,
+        &gate_claims, &openings, &[], &[], g_base, &mut rng_school,
     );
     assert_true(
         "CE gate: same-seed proofs bit-identical across kernel paths",
@@ -4614,13 +4842,13 @@ fn self_test_pi2_ce() {
     );
     assert_true(
         "CE gate: the A1 proof verifies on the schoolbook path",
-        verify_ct_round_tq(&KernelPath::School, &ring_ctx, &rp, None, &crs, &h0f, &[], &tie_claims, &[], &[], &gate_claims, &t1v, &t2v, &[], &[], &[], n_com, &proof),
+        verify_ct_round_tq(&KernelPath::School, &ring_ctx, &rp, None, &crs, &h0f, &[], &tie_claims, &[], &[], &gate_claims, &t1v, &t2v, &[], &[], &[], g_base, &proof),
     );
 
     // U-B3 junk-injection: every prover-supplied image is load-bearing —
     // tampering any of (Ga, Gb, G0, W_tq, W_ring) must be rejected.
     let reverify = |p: &ring::ct_engine::CtRoundProof| -> bool {
-        verify_ct_round_tq(&path, &ring_ctx, &rp, None, &crs, &h0f, &[], &tie_claims, &[], &[], &gate_claims, &t1v, &t2v, &[], &[], &[], n_com, p)
+        verify_ct_round_tq(&path, &ring_ctx, &rp, None, &crs, &h0f, &[], &tie_claims, &[], &[], &gate_claims, &t1v, &t2v, &[], &[], &[], g_base, p)
     };
     for (idx, name) in [(0usize, "Ga"), (1, "Gb"), (2, "G0")] {
         let orig = proof.gtq[0][idx].clone();
@@ -4648,16 +4876,19 @@ fn self_test_pi2_ce() {
         / 8.0
         / 1024.0
         + z_coeffs as f64 * sigma_bits / 8.0 / 1024.0;
-    println!("  CE gate + tie round ~{kb:.0} KB (r = 1; 12 commitments incl. 3 executions + 6 tie masks, 3 F reveals, 6 tie claims + 1 twisted quad claim)");
+    println!("  CE gate + tie round ~{kb:.0} KB (r = 1; 13 commitments incl. 3 executions + 6 tie masks + R1 pad group, 3 F reveals, 6 tie claims + 1 twisted quad claim)");
     // The MARGINAL cost of gate + tie (what Appendix B prices): the 3 Y
-    // and 6 mask objects, the F reveals, and the claim images; A/B/C
-    // commitments and openings exist anyway.
-    let obj_com_kb = 9.0 * (cshape.kappa + cshape.msg_r) as f64 * D as f64 * 31.0 / 8.0 / 1024.0;
-    let obj_z_kb = 9.0 * cshape.n_r as f64 * D as f64 * sigma_bits / 8.0 / 1024.0;
+    // and 6 mask objects, the R1 pad group, the F reveals, and the claim
+    // images; A/B/C commitments and openings exist anyway. NOTE (R1.4
+    // correction): the gate round has no pre-existing g-commitment for
+    // the pads to ride, so R1 costs one fresh commitment + opening here
+    // (~the per-object line below), not the ~1.5 KB of +3 t2 rows.
+    let obj_com_kb = 10.0 * (cshape.kappa + cshape.msg_r) as f64 * D as f64 * 31.0 / 8.0 / 1024.0;
+    let obj_z_kb = 10.0 * cshape.n_r as f64 * D as f64 * sigma_bits / 8.0 / 1024.0;
     let f_kb = 3.0 * h as f64 * D as f64 * 31.0 / 8.0 / 1024.0;
     let img_kb = (4 + 6) as f64 * D as f64 * 31.0 / 8.0 / 1024.0;
     println!(
-        "  CE gate + tie marginal ~{:.0} KB (9 commitments {obj_com_kb:.0} + 9 openings {obj_z_kb:.0} + F reveals {f_kb:.0} + claim images {img_kb:.0})",
+        "  CE gate + tie marginal ~{:.0} KB (10 commitments incl. R1 pads {obj_com_kb:.0} + 10 openings {obj_z_kb:.0} + F reveals {f_kb:.0} + claim images {img_kb:.0})",
         obj_com_kb + obj_z_kb + f_kb + img_kb
     );
     println!("  vs the scalar gate at this shape: ~202 KB/rep x r_g (43-64) = ~8.7-12.9 MB — the r = 1 lever restored, tie included");
@@ -4706,8 +4937,10 @@ fn self_test_pi2_ce() {
         let (x9, t19, t29, rho9) = build(nu1.clone(), &mut rng);
         let (x10, t110, t210, rho10) = build(mu2.clone(), &mut rng);
         let (x11, t111, t211, rho11) = build(nu2.clone(), &mut rng);
-        let t1n = [t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t110, t111];
-        let t2n = [t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t210, t211];
+        let pads = ring::ct_engine::sample_g_masks(&mut rng, q, cshape.msg_r, 0, 3).remove(0);
+        let (x12, t112, t212, rho12) = build(pads, &mut rng);
+        let t1n = [t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t110, t111, t112];
+        let t2n = [t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t210, t211, t212];
         let h0n = ct_h0(&crs, b"pi2-ce", &t1n, &t2n, &[]);
         let mut psir = XofReader::new("pi2-ce-psi", &[&h0n]);
         let psin: Vec<Vec<Poly>> =
@@ -4742,20 +4975,21 @@ fn self_test_pi2_ce() {
                 .map(|s| (5usize, s, ring::poly_neg(&zq, &poly_conj(&zq, &shat2[s]))))
                 .collect(),
         }];
-        let xn = [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11];
-        let rhon = [rho0, rho1, rho2, rho3, rho4, rho5, rho6, rho7, rho8, rho9, rho10, rho11];
+        let xn = [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12];
+        let rhon =
+            [rho0, rho1, rho2, rho3, rho4, rho5, rho6, rho7, rho8, rho9, rho10, rho11, rho12];
         let opn: Vec<StdOpening> = (0..n_com)
             .map(|i| StdOpening { t1: &t1n[i], t2: &t2n[i], x: &xn[i], rho: &rhon[i] })
             .collect();
         let (proof_n, _) = prove_ct_round_tq(
             &path, &ring_ctx, &rp, None, &crs, &h0fn, &[], &ties, &[], &[], &gates, &opn, &[],
-            &[], n_com, &mut rng,
+            &[], g_base, &mut rng,
         );
         let t1nv: Vec<Vec<Poly>> = t1n.to_vec();
         let t2nv: Vec<Vec<Poly>> = t2n.to_vec();
         verify_ct_round_tq(
             &path, &ring_ctx, &rp, None, &crs, &h0fn, &[], &ties, &[], &[], &gates, &t1nv,
-            &t2nv, &[], &[], &[], n_com, &proof_n,
+            &t2nv, &[], &[], &[], g_base, &proof_n,
         )
     };
     let mut c_bad = c_mat.clone();
@@ -4898,6 +5132,7 @@ fn main() {
             self_test_ct_engine();
             self_test_pi1();
             self_test_gadgets();
+            self_test_r1();
             self_test_pi2();
             self_test_pi2_ce();
             self_test_link();

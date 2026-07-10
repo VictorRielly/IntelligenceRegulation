@@ -138,10 +138,38 @@ pub struct RingClaim {
 //
 // Extraction is 3-special-sound (distinct challenges; Vandermonde-type
 // clearing by products of LS18-invertible differences — the design's
-// soundness item 1). ZK NOTE (Q4-class): the garbage terms are sent in
-// clear and simulated as near-uniform (they are masked by the Gaussian
-// mask images Y; the formal leftover-entropy lemma is part of the Q4
-// write-up, same status as the concentration-bound lemma).
+// soundness item 1).
+//
+// R1 MASKING (Q4_LEMMAS.md Section R1 — the Q4.3d/e fix). The garbage
+// terms sent in the clear are NOT hidden by the Gaussian mask images Y
+// (Y is pinned by the revealed response z: Y_i = c x_i - P_i with P
+// verifier-computable), so the unmasked layer leaks the witness-images
+// Q and L exactly (Q4.3d-1/2; for the committed-executions gate the
+// leaked L recovers the product matrix C — Q4.3e). Every quadratic
+// claim therefore carries committed one-time pads riding the round's
+// g-slot space, AFTER the ct-masked reveal slots:
+//
+//   quad ct-claim l    -> 3 pads at pb + 3l                  (conj(ma), mb, conj(mw))
+//   quad ring-claim l  -> 2 pads at pb + 3 n_qct + 2l                    (m1, mw)
+//   twisted quad l     -> 3 pads at pb + 3 n_qct + 2 n_qr + 3l (conj(ma), mb, conj(mw))
+//
+// with pb = n_lin + n_qct (the ct-masked slots). Pads are UNIFORM ring
+// elements (no ct constraint); the sigma(c)-side pads (ma, mw of the
+// twisted families) are committed PRE-CONJUGATED so a standard virtual
+// opening supplies the twisted monomial: conj(P_slot) = sigma(c) m -
+// conj(Y_slot). The prover sends the MASKED images (same element count):
+//   Ga~ = Ga + ma, Gb~ = Gb + mb, W~ = W + mw,
+//   G0~ = G0 + conj(Y_MA) + Y_MB + conj(Y_MW)   (twisted; untwisted:
+//   G1~ = G1 + m1, W~ = W + mw, G0~ = G0 + Y_M1 + Y_MW)
+// and the verifier subtracts the pad openings from the check. Pads ride
+// the g-commitments (shared rho/z, no new response bundle or rejection
+// test) and are bound by h0 BEFORE the round challenge — the R1.2
+// ordering rule; the R1 order-regression battery pins both directions.
+// Soundness is unchanged (pads are pre-challenge images entering only
+// lower challenge monomials — the Vandermonde clearing annihilates
+// them); the masked variant is HVZK under the round's MLWE assumption
+// alone (machine-checked completeness: scripts/zk_lemma_check.py
+// OK-3a/3b; the leak identities OK-1/2a and the C recovery OK-4).
 
 /// ct-projected quadratic claim with the sigma_{-1} twist on the left
 /// factor: ct( sum_p gamma_p sigma(x_(ap)) x_(bp) + sum a x + g ) = scalar.
@@ -412,6 +440,15 @@ fn ct_challenge(h0: &[u8; 32], proof_head: &CtRoundProof) -> Vec<i64> {
     XofReader::new("chal-ct", &[&digest]).next_challenge()
 }
 
+/// Recompute a transcript's round challenge from public data. Exposed for
+/// the R1 regression battery (which crafts a pad commitment AFTER the
+/// challenge and shows the h0-bound chain rejects it) and for
+/// leak-arithmetic checks that evaluate verifier-computable combinations
+/// of a transcript (Q4.3d).
+pub fn ct_round_challenge(h0: &[u8; 32], proof: &CtRoundProof) -> Vec<i64> {
+    ct_challenge(h0, proof)
+}
+
 /// Generic combo over (index, slot, coeff) lists against any per-commitment
 /// group table.
 fn coeff_combo(ring: &RingCtx, coeffs: &[(usize, usize, Poly)], groups: &[Vec<Poly>]) -> Poly {
@@ -486,19 +523,43 @@ fn ajtai_combo(ring: &RingCtx, claim: &CtClaim, vs: &[&[Vec<i64>]]) -> Poly {
     acc
 }
 
-/// Sample the masking elements g_l (ct = 0, uniform elsewhere) for a batch
-/// of n_claims claims; returns them packed into ceil(n_claims / msg_r)
-/// message groups ready for commit(). Slot of claim l: group l / msg_r,
-/// slot l % msg_r.
-pub fn sample_ct_masks(rng: &mut u64, q: u64, msg_r: usize, n_claims: usize) -> Vec<Vec<Poly>> {
-    let n_groups = n_claims.div_ceil(msg_r);
+/// R1 pad-slot count for a round's quadratic claims (Q4_LEMMAS.md R1.4):
+/// 3 per quad ct-claim, 2 per untwisted quad ring-claim, 3 per twisted
+/// quad ring-claim. Callers size the g-groups with sample_g_masks
+/// (n_pads = this) and commit them BEFORE h0 — the R1.2 ordering rule.
+pub fn r1_pad_count(n_qct: usize, n_qr: usize, n_tq: usize) -> usize {
+    3 * n_qct + 2 * n_qr + 3 * n_tq
+}
+
+/// Flat g-slot index of the first R1 pad of each quadratic family, given
+/// the round's claim counts (layout in the quadratic-layer header).
+fn r1_pad_base(n_lin: usize, n_qct: usize, n_qr: usize) -> (usize, usize, usize) {
+    let qct = n_lin + n_qct;
+    let qr = qct + 3 * n_qct;
+    let tq = qr + 2 * n_qr;
+    (qct, qr, tq)
+}
+
+/// Sample the round's g-groups: n_ct ct-masked reveal masks (ct(g_l) = 0,
+/// uniform elsewhere — the theta-batch discipline) followed by n_pads R1
+/// one-time pads (FULLY uniform, no ct constraint — R1.1). Returns
+/// ceil((n_ct + n_pads) / msg_r) message groups ready for commit().
+/// Flat slot l: group l / msg_r, slot l % msg_r (g_slot_of).
+pub fn sample_g_masks(
+    rng: &mut u64,
+    q: u64,
+    msg_r: usize,
+    n_ct: usize,
+    n_pads: usize,
+) -> Vec<Vec<Poly>> {
+    let n_groups = (n_ct + n_pads).div_ceil(msg_r);
     (0..n_groups)
         .map(|g| {
             (0..msg_r)
                 .map(|s| {
                     let l = g * msg_r + s;
                     let mut p: Poly = (0..D).map(|_| super::rng_below(rng, q)).collect();
-                    if l < n_claims {
+                    if l < n_ct {
                         p[0] = 0; // ct(g_l) = 0 (completeness)
                     }
                     p
@@ -506,6 +567,13 @@ pub fn sample_ct_masks(rng: &mut u64, q: u64, msg_r: usize, n_claims: usize) -> 
                 .collect()
         })
         .collect()
+}
+
+/// Sample the masking elements g_l (ct = 0, uniform elsewhere) for a batch
+/// of n_claims LINEAR ct-claims (rounds with quadratic claims must use
+/// sample_g_masks with the r1_pad_count pad tail).
+pub fn sample_ct_masks(rng: &mut u64, q: u64, msg_r: usize, n_claims: usize) -> Vec<Vec<Poly>> {
+    sample_g_masks(rng, q, msg_r, n_claims, 0)
 }
 
 pub fn g_slot_of(l: usize, msg_r: usize, g_base: usize) -> (usize, usize) {
@@ -571,6 +639,14 @@ pub fn prove_ct_round_tq(
     // All messages in index order (plain then digits) for reveals/W.
     let all_x: Vec<Vec<Poly>> =
         plain.iter().map(|o| o.x.to_vec()).chain(digits.iter().map(|o| o.x.to_vec())).collect();
+    // R1 pad layout: the g-slot space must cover the quad-claim pads
+    // (callers size the g-groups with sample_g_masks + r1_pad_count).
+    let (pb_qct, pb_qr, pb_tq) = r1_pad_base(claims.len(), quad_claims.len(), quad_ring.len());
+    let n_gslots = pb_tq + 3 * tq_claims.len();
+    if n_gslots > 0 {
+        let (gi, _) = g_slot_of(n_gslots - 1, msg_r, g_base);
+        assert!(gi < all_x.len(), "g-groups must cover the R1 pad slots (sample_g_masks)");
+    }
     // Reveals: h_l = g_l + f_l(witness).
     let h: Vec<Poly> = claims
         .iter()
@@ -679,47 +755,71 @@ pub fn prove_ct_round_tq(
             .collect();
         let w_ring: Vec<Poly> =
             ring_claims.iter().map(|rc| ring_claim_combo(ring, rc, &a2y)).collect();
-        // Quadratic garbage terms (pre-challenge; masks fresh per attempt).
-        let gq: Vec<[Poly; 3]> = quad_claims
-            .iter()
-            .map(|qc| {
-                let ga = quad_combo(ring, &qc.quad, &all_x, true, &a2y);
-                let gb = quad_combo(ring, &qc.quad, &a2y, true, &all_x);
-                let g0 = quad_combo(ring, &qc.quad, &a2y, true, &a2y);
-                [ga, gb, g0]
-            })
-            .collect();
-        let w_quad: Vec<Poly> = quad_claims
-            .iter()
-            .enumerate()
-            .map(|(l, qc)| {
-                let (gi, gs) = g_slot_of(claims.len() + l, msg_r, g_base);
-                poly_add(zq, &coeff_combo(ring, &qc.msg_coeffs, &a2y), &a2y[gi][gs])
-            })
-            .collect();
-        let gr: Vec<[Poly; 2]> = quad_ring
-            .iter()
-            .map(|qr| {
-                let g1a = quad_combo(ring, &qr.quad, &all_x, false, &a2y);
-                let g1b = quad_combo(ring, &qr.quad, &a2y, false, &all_x);
-                let g1 = poly_add(zq, &g1a, &g1b);
-                let g0 = quad_combo(ring, &qr.quad, &a2y, false, &a2y);
-                [g1, g0]
-            })
-            .collect();
-        let w_qring: Vec<Poly> =
-            quad_ring.iter().map(|qr| coeff_combo(ring, &qr.msg_coeffs, &a2y)).collect();
-        let gtq: Vec<[Poly; 3]> = tq_claims
-            .iter()
-            .map(|qc| {
-                let ga = quad_combo(ring, &qc.quad, &all_x, true, &a2y);
-                let gb = quad_combo(ring, &qc.quad, &a2y, true, &all_x);
-                let g0 = quad_combo(ring, &qc.quad, &a2y, true, &a2y);
-                [ga, gb, g0]
-            })
-            .collect();
-        let w_tq: Vec<Poly> =
-            tq_claims.iter().map(|qc| coeff_combo(ring, &qc.msg_coeffs, &a2y)).collect();
+        // Quadratic garbage terms (pre-challenge; masks fresh per attempt),
+        // R1-MASKED: heads carry Ga~/Gb~/G1~/W~/G0~ (the committed pads
+        // added; twisted-side pads read pre-conjugated from their slots).
+        let pad_slot = |k: usize| g_slot_of(k, msg_r, g_base);
+        let mut gq = Vec::with_capacity(quad_claims.len());
+        let mut w_quad = Vec::with_capacity(quad_claims.len());
+        for (l, qc) in quad_claims.iter().enumerate() {
+            let ga = quad_combo(ring, &qc.quad, &all_x, true, &a2y);
+            let gb = quad_combo(ring, &qc.quad, &a2y, true, &all_x);
+            let g0 = quad_combo(ring, &qc.quad, &a2y, true, &a2y);
+            let (gi, gs) = g_slot_of(claims.len() + l, msg_r, g_base);
+            let w = poly_add(zq, &coeff_combo(ring, &qc.msg_coeffs, &a2y), &a2y[gi][gs]);
+            let (ai, av) = pad_slot(pb_qct + 3 * l);
+            let (bi, bv) = pad_slot(pb_qct + 3 * l + 1);
+            let (wi, wv) = pad_slot(pb_qct + 3 * l + 2);
+            let g0m = poly_add(
+                zq,
+                &poly_add(zq, &g0, &poly_conj(zq, &a2y[ai][av])),
+                &poly_add(zq, &a2y[bi][bv], &poly_conj(zq, &a2y[wi][wv])),
+            );
+            gq.push([
+                poly_add(zq, &ga, &poly_conj(zq, &all_x[ai][av])),
+                poly_add(zq, &gb, &all_x[bi][bv]),
+                g0m,
+            ]);
+            w_quad.push(poly_add(zq, &w, &poly_conj(zq, &all_x[wi][wv])));
+        }
+        let mut gr = Vec::with_capacity(quad_ring.len());
+        let mut w_qring = Vec::with_capacity(quad_ring.len());
+        for (l, qr) in quad_ring.iter().enumerate() {
+            let g1a = quad_combo(ring, &qr.quad, &all_x, false, &a2y);
+            let g1b = quad_combo(ring, &qr.quad, &a2y, false, &all_x);
+            let g1 = poly_add(zq, &g1a, &g1b);
+            let g0 = quad_combo(ring, &qr.quad, &a2y, false, &a2y);
+            let (i1, v1) = pad_slot(pb_qr + 2 * l);
+            let (iw, vw) = pad_slot(pb_qr + 2 * l + 1);
+            let g0m = poly_add(zq, &g0, &poly_add(zq, &a2y[i1][v1], &a2y[iw][vw]));
+            gr.push([poly_add(zq, &g1, &all_x[i1][v1]), g0m]);
+            w_qring.push(poly_add(zq, &coeff_combo(ring, &qr.msg_coeffs, &a2y), &all_x[iw][vw]));
+        }
+        let mut gtq = Vec::with_capacity(tq_claims.len());
+        let mut w_tq = Vec::with_capacity(tq_claims.len());
+        for (l, qc) in tq_claims.iter().enumerate() {
+            let ga = quad_combo(ring, &qc.quad, &all_x, true, &a2y);
+            let gb = quad_combo(ring, &qc.quad, &a2y, true, &all_x);
+            let g0 = quad_combo(ring, &qc.quad, &a2y, true, &a2y);
+            let (ai, av) = pad_slot(pb_tq + 3 * l);
+            let (bi, bv) = pad_slot(pb_tq + 3 * l + 1);
+            let (wi, wv) = pad_slot(pb_tq + 3 * l + 2);
+            let g0m = poly_add(
+                zq,
+                &poly_add(zq, &g0, &poly_conj(zq, &a2y[ai][av])),
+                &poly_add(zq, &a2y[bi][bv], &poly_conj(zq, &a2y[wi][wv])),
+            );
+            gtq.push([
+                poly_add(zq, &ga, &poly_conj(zq, &all_x[ai][av])),
+                poly_add(zq, &gb, &all_x[bi][bv]),
+                g0m,
+            ]);
+            w_tq.push(poly_add(
+                zq,
+                &coeff_combo(ring, &qc.msg_coeffs, &a2y),
+                &poly_conj(zq, &all_x[wi][wv]),
+            ));
+        }
 
         let head = CtRoundProof {
             h: h.clone(),
@@ -1102,7 +1202,19 @@ pub fn verify_ct_round_tq(
         }
     }
     // Quadratic layer. P table: P_i = c t2_i - (A2 z_i) = c x_i - Y_i.
+    // R1: each quad check subtracts its committed-pad openings; the pads
+    // MUST be covered by the g-slot space bound in h0 (R1.2).
     if !quad_claims.is_empty() || !quad_ring.is_empty() || !tq_claims.is_empty() {
+        let (pb_qct, pb_qr, pb_tq) =
+            r1_pad_base(claims.len(), quad_claims.len(), quad_ring.len());
+        let n_gslots = pb_tq + 3 * tq_claims.len();
+        {
+            let (gi, _) = g_slot_of(n_gslots - 1, shape.msg_r, g_base);
+            if gi >= t2s.len() {
+                return false;
+            }
+        }
+        let pad_slot = |k: usize| g_slot_of(k, shape.msg_r, g_base);
         let p_table: Vec<Vec<Poly>> = t2_all
             .iter()
             .zip(a2z.iter())
@@ -1118,9 +1230,11 @@ pub fn verify_ct_round_tq(
             .collect();
         let sig_c = poly_conj(zq, &c_mod);
         let sc_c = ring_mul_split_kara_fast(ring, &sig_c, &c_mod);
-        // sigma-twisted ct-quadratics:
-        //   sigma(c) c h = E + sigma(c) Ga + c Gb - G0
-        //               + sigma(c) (c C_L - ZA_L + W_L).
+        // sigma-twisted ct-quadratics (R1-masked heads; the pad openings
+        // conj(P_MA), P_MB, conj(P_MW) subtracted — zk_lemma_check OK-3a):
+        //   sigma(c) c h = E + sigma(c) Ga~ + c Gb~ - G0~
+        //               + sigma(c) (c C_L - ZA_L + W~)
+        //               - conj(P_MA) - P_MB - conj(P_MW).
         for (l, qc) in quad_claims.iter().enumerate() {
             let g_slot = g_slot_of(claims.len() + l, shape.msg_r, g_base);
             let e = quad_combo(ring, &qc.quad, &p_table, true, &p_table);
@@ -1136,12 +1250,19 @@ pub fn verify_ct_round_tq(
             rhs = poly_add(zq, &rhs, &ring_mul_split_kara_fast(ring, &c_mod, &proof.gq[l][1]));
             rhs = poly_sub(zq, &rhs, &proof.gq[l][2]);
             rhs = poly_add(zq, &rhs, &lin);
+            let (ai, av) = pad_slot(pb_qct + 3 * l);
+            let (bi, bv) = pad_slot(pb_qct + 3 * l + 1);
+            let (wi, wv) = pad_slot(pb_qct + 3 * l + 2);
+            rhs = poly_sub(zq, &rhs, &poly_conj(zq, &p_table[ai][av]));
+            rhs = poly_sub(zq, &rhs, &p_table[bi][bv]);
+            rhs = poly_sub(zq, &rhs, &poly_conj(zq, &p_table[wi][wv]));
             if lhs != rhs {
                 return false;
             }
         }
-        // Untwisted ring-valued quadratics:
-        //   E2 + c G1 - G0 + c (c C_L - ZA_L + W_L) = 0.
+        // Untwisted ring-valued quadratics (R1-masked; pads plain —
+        // zk_lemma_check OK-3b):
+        //   E2 + c G1~ - G0~ + c (c C_L - ZA_L + W~) - P_M1 - P_MW = 0.
         for (l, qr) in quad_ring.iter().enumerate() {
             let e2 = quad_combo(ring, &qr.quad, &p_table, false, &p_table);
             let c_l = coeff_combo(ring, &qr.msg_coeffs, &t2_all);
@@ -1154,12 +1275,17 @@ pub fn verify_ct_round_tq(
             let mut lhs = poly_add(zq, &e2, &ring_mul_split_kara_fast(ring, &c_mod, &proof.gr[l][0]));
             lhs = poly_sub(zq, &lhs, &proof.gr[l][1]);
             lhs = poly_add(zq, &lhs, &lin);
+            let (i1, v1) = pad_slot(pb_qr + 2 * l);
+            let (iw, vw) = pad_slot(pb_qr + 2 * l + 1);
+            lhs = poly_sub(zq, &lhs, &p_table[i1][v1]);
+            lhs = poly_sub(zq, &lhs, &p_table[iw][vw]);
             if lhs.iter().any(|&x| x != 0) {
                 return false;
             }
         }
-        // Sigma-twisted ring-valued quadratics (no reveal):
-        //   E + sigma(c) Ga + c Gb - G0 + sigma(c)(c C_L - ZA_L + W_L) = 0.
+        // Sigma-twisted ring-valued quadratics (no reveal; R1-masked):
+        //   E + sigma(c) Ga~ + c Gb~ - G0~ + sigma(c)(c C_L - ZA_L + W~)
+        //     - conj(P_MA) - P_MB - conj(P_MW) = 0.
         for (l, qc) in tq_claims.iter().enumerate() {
             let e = quad_combo(ring, &qc.quad, &p_table, true, &p_table);
             let c_l = coeff_combo(ring, &qc.msg_coeffs, &t2_all);
@@ -1173,6 +1299,12 @@ pub fn verify_ct_round_tq(
             lhs = poly_add(zq, &lhs, &ring_mul_split_kara_fast(ring, &c_mod, &proof.gtq[l][1]));
             lhs = poly_sub(zq, &lhs, &proof.gtq[l][2]);
             lhs = poly_add(zq, &lhs, &lin);
+            let (ai, av) = pad_slot(pb_tq + 3 * l);
+            let (bi, bv) = pad_slot(pb_tq + 3 * l + 1);
+            let (wi, wv) = pad_slot(pb_tq + 3 * l + 2);
+            lhs = poly_sub(zq, &lhs, &poly_conj(zq, &p_table[ai][av]));
+            lhs = poly_sub(zq, &lhs, &p_table[bi][bv]);
+            lhs = poly_sub(zq, &lhs, &poly_conj(zq, &p_table[wi][wv]));
             if lhs.iter().any(|&x| x != 0) {
                 return false;
             }

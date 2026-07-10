@@ -228,7 +228,7 @@ sampling only affects the number of attempts, not acceptance of the
 final transcript.
 
 **(3.2) Zero-knowledge surface [PROVEN for responses + linear images;
-PROVEN LEAK for quadratic garbage images — R1 fix specified].** The
+quadratic images R1-MASKED (built) — HVZK under MLWE].** The
 rejection-sampled z_i are distributed independently of rho_i (standard
 Lyubashevsky rejection argument; the alpha = 12, M = 2.76 discipline).
 w1_i and the LINEAR-claim images (RingClaim/CtClaim, including the
@@ -242,13 +242,17 @@ P_i), so the exact identities W + sum a P = c L and c h - (...) = c Q
 expose fixed witness-images in the clear FOR EVERY witness, not only
 degenerate ones (Q4_LEMMAS.md Q4.3d). For the multiplication gate this
 image is the product matrix C itself (Q4.3e; C recovered exactly at
-demo params). The quadratic layer is therefore NOT zero-knowledge as
-built. The fix is R1 — additive one-time-pad slots on Ga/Gb/G1 AND W —
-now a full implementable spec whose masked variant is PROVEN HVZK
-under MLWE alone (Q4_LEMMAS.md Section R1; gate + tie assembled in
-AUTOMORPHISM_GATE_DESIGN.md Appendix B.2). This remains the single ZK
-gap for the round; its status is sharper (a known leak, not an owed
-lemma) and its fix is fully specified. See Section 8 item 1.
+demo params). The unmasked quadratic layer is therefore NOT
+zero-knowledge. The fix — R1: additive one-time-pad slots on Ga/Gb/G1
+AND W, committed in the round's g-slot space before the challenge —
+is BUILT (R1 engine tranche, `ct_engine.rs`): the engine sends only
+the masked images Ga~/Gb~/G1~/W~/G0~ and the verifier subtracts the
+pad openings; the masked variant is PROVEN HVZK under MLWE alone
+(Q4_LEMMAS.md Section R1; gate + tie simulation assembled in
+AUTOMORPHISM_GATE_DESIGN.md Appendix B.2; check completeness
+machine-checked, `zk_lemma_check.py` OK-3a/3b). The leak identity and
+the pad hash-edge are pinned by the live `[R1]` battery (leak pair +
+order pair) and a freeze row. See Section 8 item 1.
 
 ### 3.3 Extraction (special soundness) [PROVEN]
 
@@ -386,13 +390,18 @@ the check is a polynomial identity in the monomials
 {1, c, conj(c), conj(c)c} with pre-challenge coefficients; the
 Vandermonde clearing of Section 3.3 pins the conj(c)c coefficient,
 which is Q + L computed on the extracted witnesses. So Q + L = 0
-exactly. **ZK surface:** (Ga, Gb, G0, W) — the Section 3.2 leak; for
-this exact claim form (the gate) the leaked image is the product
-matrix C (Q4_LEMMAS.md Q4.3e), closed by the R1 pads (Q4_LEMMAS.md
-Section R1 / Appendix B.2 of AUTOMORPHISM_GATE_DESIGN.md).
-*Code:* U-B1 additions to `ct_engine.rs`. *Pinned by:* `CE gate:
+exactly. The pad terms (R1) enter only the lower monomials
+{1, c, conj(c)} as pre-challenge images, so the Vandermonde clearing
+annihilates them and extraction is unchanged. **ZK surface:**
+(Ga, Gb, G0, W) — the Section 3.2 leak; for this exact claim form
+(the gate) the leaked image is the product matrix C (Q4_LEMMAS.md
+Q4.3e), closed by the R1 pads, now BUILT (the engine sends
+Ga~/Gb~/G0~/W~ only; Q4_LEMMAS.md Section R1 / Appendix B.2 of
+AUTOMORPHISM_GATE_DESIGN.md).
+*Code:* U-B1 + R1 additions to `ct_engine.rs`. *Pinned by:* `CE gate:
 tampered {Ga,Gb,G0} garbage image fails`, `tampered linear mask image
-W fails`, and the full-round negatives of Section 5.
+W fails`, the `[R1]` leak/order battery, and the full-round negatives
+of Section 5.
 
 ### 4.6 Digit-decomposed openings (`sigma.rs`)
 
@@ -685,6 +694,7 @@ any new challenge added to the protocol must be added here.
 | psi (tie, full-entropy) | h0 | ALL 12 commitments incl. masks M, N | crafted-mask cancellation of any tie defect (5.6-A) | `CE order regression` pair |
 | taui, tauii (tie batches) | XOF(h0, F) | the reveals F | reveal-slack attack (5.6-B): 2 constraints, h unknowns | shipped hash chain; 5.6-A regression pins the chain discipline |
 | c (round challenge) | XOF(h0f, head) | every commitment, reveal, and prover image in the round | forge any single claim | every tamper battery in the suite |
+| c (round challenge) — R1 addendum | XOF(h0, head) | the R1 pad commitments (ma/mb/mw or m1/mw), in h0 | pad re-chosen after c: a t2 shift by c·Delta absorbs a false claim's defect into the pad opening (and a pad choosing −Ga un-masks the head — Q4.3d leak returns) | `R1 order: pad-after-challenge ACCEPTS the un-mask; pad-in-h0 REJECTS` |
 | theta (binary-claim randomizers) | post-mask hash | the g-mask commitment | F5 g-shift attack | `F5:` regression pair |
 | JL rows R (ARP) | round hash | the ARP mask commitment | steer the projection around a long vector | ARP negatives (U6b) |
 | xi (link rows) | h0_link | BOTH sides' commitments incl. g's | pick values after xi: per-row 2^-w becomes 1 | `wrong xi (stale h0_link)` negative |
@@ -692,33 +702,45 @@ any new challenge added to the protocol must be added here.
 
 ## 8. Honest limitations and open obligations
 
-1. **Garbage-image ZK (R1 / Q4.3)** [PROVEN LEAK; R1 fix specified,
-   OBLIGATION to build]: the quadratic families' images (Ga, Gb, G0,
-   G1, and the W mask images) are sent in the clear. The U-P tranche
-   re-derived the ZK surface and RETRACTED the prior "argued
-   near-uniform" framing as an overclaim: the images are pinned by the
-   revealed responses, so they leak fixed witness-images for EVERY
-   witness (Q4_LEMMAS.md Q4.3d), and for the multiplication gate the
-   leaked image is the product matrix C (Q4.3e). The quadratic layer
-   is therefore NOT zero-knowledge as built — this is a hard finding,
-   not a missing lemma. The fix (R1: additive one-time-pad slots on
-   Ga/Gb/G1 AND W) is now a full implementable spec whose masked
-   variant is PROVEN HVZK under MLWE alone (Q4_LEMMAS.md Section R1;
-   the gate + tie simulation is assembled in AUTOMORPHISM_GATE_DESIGN.md
-   Appendix B.2). It remains the only known ZK gap and the residual
-   work is the engine build (~1.5 KB/claim, no new response bundle).
-2. **The pi2 default switch — DONE (U-B6), but ZK-GATED on R1**: pi2
-   now runs the committed-executions gate + tie by default
+1. **Garbage-image ZK (R1 / Q4.3)** [PROVEN LEAK — R1 fix BUILT;
+   masked variant PROVEN HVZK under MLWE]: the quadratic families'
+   images (Ga, Gb, G0, G1, and the W mask images), sent unmasked,
+   leak fixed witness-images for EVERY witness (Q4_LEMMAS.md Q4.3d) —
+   for the multiplication gate the leaked image is the product matrix
+   C (Q4.3e). The U-P tranche re-derived this as a hard finding (the
+   prior "argued near-uniform" framing was retracted as an overclaim).
+   The R1 fix — additive one-time-pad slots on Ga/Gb/G1 AND W,
+   committed in the round's g-slot space before the challenge — is
+   now BUILT in `ct_engine.rs`: every quadratic claim carries pads
+   (3 twisted / 2 untwisted), the engine sends only the masked images,
+   the verifier subtracts the pad openings, and callers size the
+   g-groups with `sample_g_masks` + `r1_pad_count` (a freeze row pins
+   the counts). The masked variant is PROVEN HVZK under MLWE alone
+   (Q4_LEMMAS.md Section R1); the leak identity and the pad hash-edge
+   are pinned by the `[R1]` battery (leak pair + order pair, F5
+   style). MEASURED deltas: rounds with an existing g-commitment pay
+   slots only (sub-percent, per R1.4); gate-only rounds pay ONE fresh
+   g-commitment + opening where none existed (~116 KB at the CE demo
+   shape, ~1.35 MB marginal vs 1.23 MB; pi2-CE demo 2.74 MB vs 2.5 MB)
+   — an R1.4 costing correction, see Q4_LEMMAS.md R1.4'. At msg_r = 1
+   shapes each pad costs a FULL commitment and can break the C2
+   std-bundle budget at wave scale (measured: the chain-demo wave,
+   177 commitments, 8·beta = 1.26x q31) — wave rounds must use
+   msg_r >= 2 (the chain demo now bumps msg_r 1 -> 2, +1 N_r row).
+2. **The pi2 default switch — DONE (U-B6), ZK gate CLOSED by R1**: pi2
+   runs the committed-executions gate + tie by default
    (`prove/verify_ring_pi2_ce`, two chained rounds + the K2 pivot,
    mask-side-psi variant; the scalar gate stays behind its r_g flag).
-   SOUNDNESS is complete; ZERO-KNOWLEDGE is not — by item 1 the
-   quadratic images leak the claim's linear witness-image, which for
-   this gate is a (s,v)-combination of C (Q4.3e; machine-checked
-   recovery). The SAME leak family affects the scalar-gate fallback's
-   quadratic reveals. Consequence: proofs from EITHER pi2 path must
-   not be treated as zero-knowledge or published until the R1 masking
-   (item 1, spec complete) is implemented. Performance and soundness
-   milestones are unaffected.
+   SOUNDNESS is complete, and with the R1 pads built into both pi2
+   paths (the CE gate's wide pad commitment and the scalar gate's
+   per-repetition pads) the previously-standing instruction "do not
+   treat pi2 proofs as zero-knowledge" is LIFTED at the protocol
+   level: the round's HVZK reduces to commitment hiding (MLWE) + the
+   rejection lemma (Q4.2a). Residual honesty note: HVZK here is
+   proof-of-protocol, not a formal statement about the surrounding
+   chain (manifest/reveal plumbing carries its own analysis, Sections
+   5-6), and E2 (H3 slot-constancy) remains a separate SOUNDNESS
+   obligation for composed H3 uses.
 3. **Norm/concentration models** [MODEL]: TAIL = 1.3 (empirical
    concentration constant), delta0 = 1.0037 (root-Hermite), the
    d_lwe = 768·log2(q)/11.7 rule, and the ARP's SLACK_OP worst-case
@@ -780,6 +802,14 @@ and the ARP extraction given a PROVEN self-contained bound
 (Q4_LEMMAS.md Q4.4c). No claim was upgraded to PROVEN with a labeled
 gap; the gate ZK moved from "owed lemma" to "known leak + specified
 fix", an honesty correction, not an upgrade.*
+*2026-07-09 (R1 engine tranche) — the R1 masking is BUILT: every
+quadratic claim family in `ct_engine.rs` now sends R1-masked images
+with committed pads in the round's g-slot space; Sections 3.2 / 4.5 /
+8 re-graded, the R1 pad hash-edge row merged into Section 7, the
+`[R1]` leak/order battery and the pad-count freeze row added. Measured
+costs and the R1.4 costing correction (gate-only rounds pay one fresh
+g-commitment; msg_r = 1 wave shapes break C2) are recorded in Section
+8 item 1 and Q4_LEMMAS.md R1.4'.*
 
 
 

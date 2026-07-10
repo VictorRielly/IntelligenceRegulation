@@ -327,14 +327,26 @@ W (the old spec missed W — see Q4.3d-1); **(R2)** a per-claim
 regularity hypothesis is not merely "unacceptable for degenerate
 tensors" but INSUFFICIENT in principle (it cannot mask the exact
 identities Q4.3d-1/2, which hold for every x). Only R1 closes it.
-Status of Q4.3 overall: the leak is **PROVEN**; the fix (R1) is an
-**OBLIGATION** on the next engine tranche, fully specified below.
+Status of Q4.3 overall: the leak is **PROVEN**; the fix (R1) is
+specified below and **BUILT** (the R1 engine tranche — see the
+Section R1 status line and R1.4').
 
 ---
 
-## R1 — the committed garbage-mask hardening spec (implementable)
+## R1 — the committed garbage-mask hardening spec (BUILT)
 
-This is the exact spec a later engine tranche implements to discharge
+**STATUS (R1 engine tranche, 2026-07-09): BUILT.** The spec below is
+implemented in `ct_engine.rs`: every quadratic claim family
+(QuadCtClaim, QuadRingClaim, TwistedQuadRingClaim) carries committed
+pads in the round's g-slot space (layout in the engine's
+quadratic-layer header; callers size the groups with `sample_g_masks`
++ `r1_pad_count`), the prover sends only the masked images, and the
+verifier subtracts the pad openings. The R1.2 hash-edge row is merged
+into SOUNDNESS_REFERENCE.md Section 7 and pinned by the live `[R1]`
+battery (leak pair + order pair); freeze-check pins the pad counts.
+Measured deltas and one costing correction: R1.4' below.
+
+This is the exact spec the engine tranche implemented to discharge
 Q4.3d/e. It sharpens the post-merge R1 note (Q4.3c') into prover
 messages, hash edges, a soundness argument for the masked variant, and
 cost deltas. Completeness of every check equation below is
@@ -388,24 +400,27 @@ The pads ride the round's existing g-commitment (they share its
 randomness rho and its response z), so R1 adds NO new response bundle
 and NO new rejection test — only message slots and their A2 rows.
 
-### R1.2 Hash-ordering requirement (draft Section 7 rows)
+### R1.2 Hash-ordering requirement (Section 7 rows — MERGED)
 
 R1 introduces no new challenge. Its one ordering requirement is that
 the pads be committed BEFORE the round challenge c — which is already
 enforced, because the pads live in g-commitments and c = XOF(h0,head)
 with h0 binding every commitment. The requirement is nonetheless
-load-bearing and deserves its own audit row and regression, in the
-SOUNDNESS_REFERENCE.md Section 7 format (these rows are DRAFTS, to be
-merged into Section 7 when the engine tranche lands):
+load-bearing; its audit row is MERGED into SOUNDNESS_REFERENCE.md
+Section 7 (the engine tranche landed) and pinned by the live `[R1]`
+order pair:
 
 | challenge | drawn from | must follow | attack if violated | pinned by |
 |---|---|---|---|---|
-| c (round challenge) — R1 addendum | XOF(h0, head) | the R1 pad commitments (ma/mb/mw or m1/mw), in h0 | choose pad = -Ga after c: Ga~ un-masked, Q4.3d leak returns | (new) `R1: pad-after-challenge ACCEPTS the un-mask; pad-in-h0 REJECTS` |
+| c (round challenge) — R1 addendum | XOF(h0, head) | the R1 pad commitments (ma/mb/mw or m1/mw), in h0 | pad re-chosen after c: t2 shift by c·Delta absorbs a false claim's defect; pad = -Ga un-masks the head, Q4.3d leak returns | `R1 order: pad-after-challenge ACCEPTS the un-mask; pad-in-h0 REJECTS` |
 
 The attack is the exact analogue of the F5 g-shift (Section 4.3 of
 SOUNDNESS_REFERENCE): a pad chosen with knowledge of c can cancel the
-witness image it is meant to hide, so the leak reappears — hence the
-new regression must demonstrate BOTH directions, like the F5 pair.
+witness image it is meant to hide (and, sharper — as the built
+regression demonstrates — a pad OPENING re-chosen after c absorbs a
+false claim's defect at the top monomial, so the unbound-pad world
+loses soundness too). The regression demonstrates BOTH directions,
+like the F5 pair.
 
 ### R1.3 Soundness and ZK of the masked variant
 
@@ -436,8 +451,8 @@ check-solution in both worlds, so it matches automatically. No
 knapsack-MLWE-on-images (old Q4.3a), no smudging, no regularity
 hypothesis is needed — the masked variant's HVZK reduces to the
 commitment hiding already assumed plus the rejection lemma (Q4.2a).
-This is the discharge; the residual OBLIGATION is purely the engine
-build, not the argument.
+This is the discharge; the residual engine-build OBLIGATION it named
+has since been met (the R1 tranche — R1.4' for the measured deltas).
 
 ### R1.4 Cost deltas
 
@@ -457,6 +472,34 @@ partitioned unit; the delta scales with the unit count and is likewise
 sub-percent of the gadget's opening volume. Freeze-check should gain
 one row pinning "quad-claim g-slot count includes the R1 pads" so a
 future refactor cannot silently drop them.
+
+### R1.4' — measured costs and a costing correction (engine tranche)
+
+The R1.4 estimate above holds for rounds that ALREADY carry a
+g-commitment (quad ct-claim rounds: the pads ride its tail slots and
+share its rho/z — slots only, sub-percent, as promised). It missed two
+cases, both measured when the engine tranche landed:
+
+- **Gate-only rounds have no g-commitment to ride.** The
+  TwistedQuadRingClaim rounds (the CE gate + tie demo and pi2-CE's
+  round W) previously had NO g-commitment, so R1's pads cost one
+  FRESH commitment + opening at the round's (wide) shape, not +3 t2
+  rows. Measured: CE gate + tie marginal ~1.35 MB vs ~1.23 MB
+  (~+116 KB, ~9%) at rows=4/inner=128/cols=3 msg_r=128; pi2-CE
+  ~2.74 MB vs ~2.5 MB at 128x256x64 msg_r=256. Still far below the
+  8.7-12.9 MB scalar gate; folding the 3 pad slots into an existing
+  wide commitment's msg_r is the recorded follow-up optimization.
+- **msg_r = 1 shapes break at wave scale.** With one message slot per
+  commitment, EVERY pad costs a full commitment (3 per quad ct-claim),
+  and the wave round's C2 std-bundle budget can fail at q31: the
+  chain-demo wave hit 177 commitments, 8*beta = 1.26x q. Rule: rounds
+  carrying quadratic claims use msg_r >= 2 (the chain demo bumps
+  msg_r 1 -> 2 riding one extra N_r row, the standard C4 pattern).
+  The scalar-gate pi2 pays +3 pad slots/repetition (measured
+  ~218 KB/rep vs ~202 — the pads share the per-rep g-group).
+
+Prover/verifier TIME at the measured shapes is unchanged within noise
+(CE gate + tie 202/180 ms; pi2-CE 2.0 s/1.0 s; suite total ~32 s).
 
 ---
 
@@ -729,7 +772,7 @@ discipline that caught F1/F2 (equations on paper first).
 | Q4.3d | transcript-determinism; exact W+aP=cL and ch-...=cQ leaks | PROVEN LEAK (machine-checked, OK-1/2a) |
 | Q4.3e | corollary: the committed-executions GATE leaks C | PROVEN LEAK (rank 12/12 recovery, OK-4) |
 | Q4.3c' | superseded degeneracy story, corrected | RETRACTED/REWRITTEN |
-| R1 | committed garbage-mask hardening spec (pads Ga/Gb/G1 + W) | PROVEN (masked variant HVZK under MLWE, complete OK-3a/b) / OBLIGATION (engine build) |
+| R1 | committed garbage-mask hardening spec (pads Ga/Gb/G1 + W) | PROVEN (masked variant HVZK under MLWE, complete OK-3a/b) / BUILT (engine tranche; `[R1]` battery + freeze row; costs R1.4') |
 | Q4.4a | JL lower bound | CITED |
 | Q4.4b | the coded SLACK_OP composition | OBLIGATION (two gaps) — SUPERSEDED as the proven bound by Q4.4c |
 | Q4.4c | self-contained coordinate-wise direct-witness bound | PROVEN (2.35 bits tighter than the coded gate; no lift, no c-bar) |
@@ -745,8 +788,10 @@ The honest reading across the set, after U-P:
   RETRACTED. The corrected result (Q4.3d/e) is that the quadratic
   layer leaks a fixed witness-image for EVERY witness, and the gate
   leaks the product matrix C. This is not zero-knowledge. The fix
-  (R1) is now fully specified and its masked variant is PROVEN HVZK
-  under MLWE alone; the residual is the engine build.
+  (R1) is fully specified, its masked variant is PROVEN HVZK under
+  MLWE alone, and the engine build has LANDED (R1.4' for measured
+  costs; the `[R1]` battery pins the leak identity and the pad
+  hash-edge in the live suite).
 - **Q4.4 was partially DISCHARGED.** Q4.4c gives a self-contained,
   machine-checked, direct-witness l_inf/l_2 extraction bound with
   none of Q4.4b's two gaps, 2.35 bits tighter than the coded

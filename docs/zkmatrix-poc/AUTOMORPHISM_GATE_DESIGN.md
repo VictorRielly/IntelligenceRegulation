@@ -350,13 +350,16 @@ at e = 4) — only the toy demo shape was bumped. MEASURED at
 ~9.1 MB scalar full grade; semantic negative + F/K2 tamper negatives
 green; freeze rows pin the wide shape (8/280/256) and the tie chain.
 Remaining: verifier-side
-optimization (claim building dominates the 1.0 s verify) and — found
-by the U-P proof-debt review AFTER this switch landed — the R1
-masking: the quadratic images leak the gate's linear witness-image,
-a (s,v)-combination of C (Q4.3d/e, Appendix B.2). Soundness is
-unaffected; ZERO-KNOWLEDGE of BOTH pi2 paths (this gate and the
-scalar fallback) is gated on implementing the R1 spec (Q4_LEMMAS.md
-R1', ~1.5 KB/claim). Do not treat pi2 proofs as ZK until R1 lands.
+optimization (claim building dominates the 1.0 s verify). The R1
+masking found by the U-P proof-debt review AFTER this switch landed —
+the quadratic images leaked the gate's linear witness-image, a
+(s,v)-combination of C (Q4.3d/e, Appendix B.2) — is now BUILT: both
+pi2 paths carry committed pads (the CE gate's wide pad commitment;
+per-repetition pads on the scalar fallback) and the engine sends only
+the masked images, so the former "do not treat pi2 proofs as ZK"
+instruction is lifted (HVZK under MLWE, Q4_LEMMAS.md Section R1;
+measured deltas in R1.4' — the CE demo pays one fresh wide
+g-commitment, ~2.74 MB vs ~2.5 MB total at 128x256x64).
 
 Alternatives to this plan, including out-of-family options (hash-based
 sumcheck gate, the curve-hybrid idea, full-splitting redesign), are
@@ -454,11 +457,11 @@ This resolves the Q-A2 obligation (Section 6, item 2) with the Q4.3
 machinery (Q4_LEMMAS.md, tranche U-P) now available. It sharpens the
 one-line ZK note of Appendix B.1 ("the round's standard garbage-image
 surface, Q4.3/R1, unchanged") into a component-by-component simulation
-argument. The honest headline first: **the tie is zero-knowledge
-today; the GATE claim is not — it leaks the product matrix C (Q4.3e) —
+argument. The honest headline first: **the tie is zero-knowledge; the
+GATE claim unmasked was not — it leaked the product matrix C (Q4.3e) —
 and the round becomes HVZK exactly when the R1 pads (Q4_LEMMAS.md
-Section R1) mask that one claim.** Q-A2 is therefore discharged
-CONDITIONAL on R1, with the single blocker precisely located.
+Section R1) mask that one claim. The R1 pads are now BUILT into the
+engine, so the condition is met and Q-A2 is discharged.**
 
 **The transcript.** One r = 1 ct-round (`self_test_pi2_ce`) carries:
 (1) 12 commitments — A, B, C, the executions YA, YB, YC, and the tie
@@ -528,7 +531,12 @@ equations. Then, component by component:
    completeness machine-checked, OK-3a). After R1 the simulator samples
    (Ga~, Gb~, w_tq~) uniform and solves G0~; indistinguishability is a
    one-time pad plus the pad commitments' MLWE hiding — no new
-   assumption. R1 costs ~1.5 KB on the gate's ~1.23 MB (~0.1%).
+   assumption. BUILT (R1 engine tranche). Measured cost at the demo
+   shape: ~116 KB on the gate + tie round's ~1.23 MB marginal (~9%) —
+   one fresh wide g-commitment + opening, since this round had no
+   g-commitment for the pads to ride (the R1.4' costing correction;
+   rounds with an existing g-commitment pay only the ~1.5 KB of
+   3 extra slots).
 
 6. **The responses z [PROVEN].** Rejection-sampled, center-independent
    (Q4.2a / Lemma 6.3); the joint-scaling variant (Q4.2b) applies to the
@@ -545,10 +553,15 @@ component 5 is the sole obstruction and is closed EXACTLY by R1. So:
   already assumed) + the rejection lemma + Fiat–Shamir (ROM). No
   leftover-hash, smudging, or knapsack-MLWE-on-images is required.
 
-Q-A2 status: **OBLIGATION discharged to a conditional PROVEN** — the
-simulation argument is complete and the residual work is the R1 engine
-build (Q4_LEMMAS.md Section R1), the same item Section 8.1 of
-SOUNDNESS_REFERENCE tracks. The differential/per-sigma-exposure canary
+Q-A2 status: **discharged — PROVEN (HVZK under MLWE), condition met**:
+the simulation argument is complete and the R1 engine build it was
+conditional on has landed (Q4_LEMMAS.md Section R1 / R1.4'; the `[R1]`
+battery pins the leak identity and the pad hash-edge, and a freeze row
+pins the pad counts — the same item Section 8.1 of
+SOUNDNESS_REFERENCE tracks). Cost note: this round had no
+pre-existing g-commitment, so the pads ride ONE fresh wide commitment
+(~116 KB at the demo shape), not the ~1.5 KB of R1.4's +3-slots
+figure. The differential/per-sigma-exposure canary
 of Q4.6-(O1) still applies to any future traced-sum variant; this
 committed-executions gate exposes only aggregates and F, so it does not
 trip it — the leak here is the quadratic garbage surface, closed by R1,
