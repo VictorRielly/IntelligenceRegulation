@@ -6644,6 +6644,244 @@ fn self_test_lookup() {
             !pipeline6(x_bad, None),
         );
     }
+
+    // ---- [U-K7] the E4 hash edges. ----
+    // E4-N1 (psi before the claimed coordinates): only the 9
+    // psi-combinations are pinned, so a coordinate defect Delta in the
+    // intersection of (a) the v_w-preserving kernel (Delta vx = -Y
+    // Delta vy keeps the descent reconciliation happy) and (b) the psi
+    // null space (9 constraints on 16 free dims — solutions always
+    // exist) forges per-coordinate values v' != v that every check
+    // accepts. The shipped order (psi drawn AFTER v is absorbed) makes
+    // psi depend on v' and the forged scalars die in the ct-round.
+    println!("\n[U-K7] E4 hash edges: psi-before-v pair, round-restart regression");
+    {
+        // Shared prefix: honest commitments + lookup transcript up to
+        // the descent end (identical in both worlds).
+        let mut r7 = 0x5eed_0701u64;
+        let mut all_x = vec![x_msg.clone(), y_msg.clone(), m_msg.clone()];
+        all_x.extend(g6.clone());
+        let all_rho: Vec<Vec<Vec<i64>>> = (0..all_x.len())
+            .map(|_| (0..shape6.n_r).map(|_| rng_ternary_poly(&mut r7)).collect())
+            .collect();
+        let (mut t1s, mut t2s) = (Vec::new(), Vec::new());
+        for (xm, rho) in all_x.iter().zip(all_rho.iter()) {
+            let (t1, t2) = commit(&path6, &crs6, xm, rho);
+            t1s.push(t1);
+            t2s.push(t2);
+        }
+        let h0_lkp = ct_h0(&crs6, &spec_dg, &t1s, &t2s, &[]);
+        let mut tr = LkpTranscript::new("uk7-lkp", &h0_lkp);
+        let alpha = tr.challenge_k(&kf);
+        let wtree = build_tree(
+            &kf,
+            vec![kf.one(); n6],
+            w6.iter().map(|wi| kf.sub(&alpha, wi)).collect(),
+        );
+        let ttree =
+            build_tree(&kf, m6k.clone(), tab_fused.iter().map(|t| kf.sub(&alpha, t)).collect());
+        let (wr, trr) = (wtree.root(), ttree.root());
+        absorb_roots(&kf, &[wr.clone()], &mut tr);
+        let (pw_proof, zw, _, _) = gkr_prove(&kf, &[wtree], &mut tr);
+        absorb_roots(&kf, &[trr.clone()], &mut tr);
+        let (pt_proof, zt, _, _) = gkr_prove(&kf, &[ttree], &mut tr);
+        let lw = eq_table(&kf, &zw);
+        let lt = eq_table(&kf, &zt);
+        let vsum = |weights: &[KElem], vals: &[i64]| -> KElem {
+            vals.iter()
+                .zip(weights.iter())
+                .fold(kf.zero(), |a, (&v, l)| kf.add(&a, &kf.scale(zq.to_mod(v), l)))
+        };
+        let (vx, vy, vm) = (vsum(&lw, &xs6), vsum(&lw, &ys6), vsum(&lt, &m_vals));
+        let v_true: Vec<u64> = vx.iter().chain(vy.iter()).chain(vm.iter()).copied().collect();
+        let state_pre_v = tr.state();
+        // BUGGY world: psi from the pre-v state.
+        let psi_b = derive_e4_psi(&state_pre_v, 9, q);
+        // Delta basis j: Delta vy = e_j, Delta vx = -Y e_j; solve the
+        // 9 psi constraints by Gaussian elimination over Z_q (16
+        // unknowns, kernel dim >= 7).
+        let mut a_mat: Vec<Vec<u64>> = (0..9)
+            .map(|r| {
+                (0..16)
+                    .map(|j| {
+                        let mut ej = kf.zero();
+                        ej[j] = 1;
+                        let dvx = kf.neg(&mul_y(&kf, &ej));
+                        let mut acc = 0u64;
+                        for c in 0..16 {
+                            acc = zq.add(acc, zq.mul(psi_b[r][c], dvx[c]));
+                            acc = zq.add(acc, zq.mul(psi_b[r][16 + c], ej[c]));
+                        }
+                        acc
+                    })
+                    .collect()
+            })
+            .collect();
+        // Eliminate to find a nonzero kernel vector u (free column set
+        // to 1, back-substitute the pivots).
+        let mut piv: Vec<(usize, usize)> = Vec::new();
+        let mut row = 0usize;
+        for col in 0..16 {
+            if row >= 9 {
+                break;
+            }
+            if let Some(pr) = (row..9).find(|&rr| a_mat[rr][col] != 0) {
+                a_mat.swap(row, pr);
+                let inv = zq.inv(a_mat[row][col]);
+                for c in col..16 {
+                    a_mat[row][c] = zq.mul(a_mat[row][c], inv);
+                }
+                for rr in 0..9 {
+                    if rr != row && a_mat[rr][col] != 0 {
+                        let f = a_mat[rr][col];
+                        for c in col..16 {
+                            a_mat[rr][c] = zq.sub(a_mat[rr][c], zq.mul(f, a_mat[row][c]));
+                        }
+                    }
+                }
+                piv.push((row, col));
+                row += 1;
+            }
+        }
+        let free_col = (0..16).find(|c| !piv.iter().any(|&(_, pc)| pc == *c)).unwrap();
+        let mut u = vec![0u64; 16];
+        u[free_col] = 1;
+        for &(pr, pc) in piv.iter().rev() {
+            u[pc] = zq.neg(a_mat[pr][free_col]);
+        }
+        let dvy: KElem = u.clone();
+        let dvx = kf.neg(&mul_y(&kf, &dvy));
+        let mut v_atk = v_true.clone();
+        for c in 0..16 {
+            v_atk[c] = zq.add(v_atk[c], dvx[c]);
+            v_atk[16 + c] = zq.add(v_atk[16 + c], dvy[c]);
+        }
+        // Endgame runner: claims + ct-round + reconciliation, with psi
+        // from either the buggy (pre-v) or shipped (post-v) state.
+        let endgame = |v_claimed: &[u64], buggy_psi: bool| -> bool {
+            let mut trp = LkpTranscript::new("uk7-endgame", &state_pre_v);
+            let vbytes: Vec<u8> = v_claimed.iter().flat_map(|c| c.to_le_bytes()).collect();
+            trp.absorb("e4-v", &vbytes);
+            let psi = if buggy_psi {
+                derive_e4_psi(&state_pre_v, 9, q)
+            } else {
+                derive_e4_psi(&trp.state(), 9, q)
+            };
+            let claims = e4_claims(
+                &kf, &lw, &lt, &value_slots6[0], &value_slots6[1], &value_slots6[2], v_claimed,
+                &psi,
+            );
+            let h0_round = ct_h0(&crs6, &trp.state(), &t1s, &t2s, &[]);
+            let openings: Vec<StdOpening> = all_x
+                .iter()
+                .zip(all_rho.iter())
+                .enumerate()
+                .map(|(i, (xm, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x: xm, rho })
+                .collect();
+            let mut rr = 0x5eed_0777u64;
+            let (proof, _) = prove_ct_round(
+                &path6, &ctx, &rp6, None, &crs6, &h0_round, &claims, &[], &[], &[], &openings,
+                &[], &[], 3, &mut rr,
+            );
+            let okr = verify_ct_round(
+                &path6, &ctx, &rp6, None, &crs6, &h0_round, &claims, &[], &[], &[], &t1s, &t2s,
+                &[], &[], &[], 3, &proof,
+            );
+            let vxk: KElem = v_claimed[0..16].to_vec();
+            let vyk: KElem = v_claimed[16..32].to_vec();
+            let recon = {
+                let mut tv = LkpTranscript::new("uk7-lkp", &h0_lkp);
+                let av = tv.challenge_k(&kf);
+                absorb_roots(&kf, &[wr.clone()], &mut tv);
+                let dw = gkr_verify(&kf, &[wr.clone()], depth_w6, &pw_proof, &mut tv);
+                absorb_roots(&kf, &[trr.clone()], &mut tv);
+                let dt = gkr_verify(&kf, &[trr.clone()], depth_t6, &pt_proof, &mut tv);
+                match (dw, dt) {
+                    (Some((_, pwv, qwv)), Some((_, pmv, _))) => {
+                        pwv == kf.one()
+                            && qwv == kf.sub(&av, &kf.add(&vxk, &mul_y(&kf, &vyk)))
+                            && pmv == v_claimed[32..48].to_vec()
+                    }
+                    _ => false,
+                }
+            };
+            okr && recon
+        };
+        assert_true(
+            "U-K7 order (E4-N1): psi before the v absorb ACCEPTS forged per-coordinate values (defect in the psi null space x v_w kernel — the attack, demonstrated)",
+            v_atk != v_true && endgame(&v_atk, true),
+        );
+        assert_true(
+            "U-K7 order (E4-N1): the shipped order (psi after v) REJECTS the same forgery",
+            !endgame(&v_atk, false),
+        );
+        // E4-N2 (restart confinement): round restarts re-randomize ONLY
+        // the ct-round (c, masks) — the lookup transcript and psi are
+        // fixed upstream. Two provers with different round randomness
+        // both verify against the SAME claims and h0_round; a prover
+        // that instead re-derives psi from its restarted round state
+        // produces claims the shipped verifier rejects.
+        let claims_fixed = {
+            let mut trp = LkpTranscript::new("uk7-endgame", &state_pre_v);
+            let vbytes: Vec<u8> = v_true.iter().flat_map(|c| c.to_le_bytes()).collect();
+            trp.absorb("e4-v", &vbytes);
+            let psi = derive_e4_psi(&trp.state(), 9, q);
+            (
+                e4_claims(
+                    &kf, &lw, &lt, &value_slots6[0], &value_slots6[1], &value_slots6[2],
+                    &v_true, &psi,
+                ),
+                ct_h0(&crs6, &trp.state(), &t1s, &t2s, &[]),
+                trp.state(),
+            )
+        };
+        let openings: Vec<StdOpening> = all_x
+            .iter()
+            .zip(all_rho.iter())
+            .enumerate()
+            .map(|(i, (xm, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x: xm, rho })
+            .collect();
+        let mut ra = 0x5eed_0aaau64;
+        let (proof_a, _) = prove_ct_round(
+            &path6, &ctx, &rp6, None, &crs6, &claims_fixed.1, &claims_fixed.0, &[], &[], &[],
+            &openings, &[], &[], 3, &mut ra,
+        );
+        let mut rb = 0x5eed_0bbbu64;
+        let (proof_b, _) = prove_ct_round(
+            &path6, &ctx, &rp6, None, &crs6, &claims_fixed.1, &claims_fixed.0, &[], &[], &[],
+            &openings, &[], &[], 3, &mut rb,
+        );
+        let vfy = |p: &ring::ct_engine::CtRoundProof, claims: &[ring::ct_engine::CtClaim]| {
+            verify_ct_round(
+                &path6, &ctx, &rp6, None, &crs6, &claims_fixed.1, claims, &[], &[], &[], &t1s,
+                &t2s, &[], &[], &[], 3, p,
+            )
+        };
+        let psi_ground = {
+            let mut st = claims_fixed.2;
+            st[0] ^= 1; // a "restarted" state that leaked into psi
+            derive_e4_psi(&st, 9, q)
+        };
+        let claims_ground = e4_claims(
+            &kf, &lw, &lt, &value_slots6[0], &value_slots6[1], &value_slots6[2], &v_true,
+            &psi_ground,
+        );
+        let mut rc = 0x5eed_0cccu64;
+        let (proof_c, _) = prove_ct_round(
+            &path6, &ctx, &rp6, None, &crs6, &claims_fixed.1, &claims_ground, &[], &[], &[],
+            &openings, &[], &[], 3, &mut rc,
+        );
+        assert_true(
+            "U-K7 restarts (E4-N2): two round attempts (different masks/c) both verify against the SAME claims — restarts never touch the lookup transcript",
+            proof_a.z != proof_b.z
+                && vfy(&proof_a, &claims_fixed.0)
+                && vfy(&proof_b, &claims_fixed.0),
+        );
+        assert_true(
+            "U-K7 restarts (E4-N2): a prover that re-derives psi from restarted state is REJECTED by the shipped verifier's psi",
+            !vfy(&proof_c, &claims_fixed.0),
+        );
+    }
 }
 
 // U-L freeze rows: the F3 modulus-link derive-time gates. Called at the end
@@ -6763,6 +7001,16 @@ fn freeze_check_link() -> bool {
             rw == 368 && kw == 1472 && bw == 92 && rt == 68 && kt == 272 && bt == 32,
         );
     }
+
+    // LKP-4 — the E4 randomizer budget (M4_LOOKUP_DESIGN Section 3.4):
+    // 9 psi copies (the theta_rows convention, 9 x 31 = 279 >= 257
+    // bits) batch the 3 * K_DEG = 48 coordinate rows into ordinary
+    // linear CtClaims — no new claim family; psi drawn strictly after
+    // the claimed coordinates (the E4-N1 pair pins it).
+    gate(
+        "LKP-4 E4 psi budget: 9 copies x 31 bits >= 257 over 48 coordinate rows",
+        ring::ct_engine::theta_rows(Q8) == 9 && 3 * ring::kfield::K_DEG == 48,
+    );
 
     // E2 — slot-target junk accounting: EVERY non-constant CRT
     // coordinate of a slot-packed link target carries a zeta weight
