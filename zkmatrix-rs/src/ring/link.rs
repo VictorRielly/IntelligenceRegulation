@@ -44,7 +44,7 @@ use sha2::{Digest, Sha256};
 
 use super::commit::{CommitShape, RingCrs};
 use super::ct_engine::{CtClaim, pack_functional};
-use super::{D, LOG2_DELTA0, Poly, XofReader, Zq, polys_bytes};
+use super::{D, LOG2_DELTA0, Poly, RingCtx, XofReader, Zq, crt_split, polys_bytes};
 use super::params::{E_C2, TAIL};
 
 // ---------------------------------------------------------------------------
@@ -282,6 +282,126 @@ pub fn link_claims_gnd(
                 }
             }
             CtClaim { msg_coeffs, ajtai_coeffs: vec![], scalar: y[row] }
+        })
+        .collect()
+}
+
+// ---------------------------------------------------------------------------
+// E1/E2 (M4_ACTIVATION_DESIGN.md Section 6): target-side claims for
+// SLOT-PACKED (H3) tensors. H3 packing puts value t at the CONSTANT
+// coordinate of CRT slot t % k of element t / k; nothing else in the
+// engine forces the remaining slot-field coordinates to zero, and
+// GF(q^slot_deg) multiplication mixes coordinates — so junk
+// coordinates with correct constants can shift a composed Hadamard's
+// (gate o up's) product constants. The fix, at ZERO extra rows: each
+// link row reads value t through the slot-constant CRT projection
+// functional (E1) and pins EVERY other coordinate of the linked
+// elements with fresh signed w-bit XOF weights zeta (E2). Honest junk
+// coordinates are zero, so zeta contributes nothing to the revealed y
+// and the q46 grounding side is untouched; a nonzero (value-delta,
+// junk) pair survives a row w.p. <= 2^-w by the same single-coordinate
+// point-mass argument as the xi rows (Section 3.2), 2^-(w l) over the
+// l rows. Slot-constancy of downstream products then follows from
+// claim exactness: GF(q) constants are closed under the slot
+// operations.
+
+/// The full CRT coordinate matrix: row c is the PUBLIC linear
+/// functional "coordinate c of crt_split(x)" over x's coefficients
+/// (M[c][i] = crt_split(e_i)[c]). Slot j's constant coordinate is row
+/// j * slot_deg; the slot's other slot_deg - 1 rows are its junk
+/// coordinates (E2's targets). Built by D splits — demo-scale cost;
+/// production precomputes this once per CRS.
+pub fn crt_coord_rows(ctx: &RingCtx) -> Vec<Vec<u64>> {
+    let mut rows = vec![vec![0u64; D]; D];
+    for i in 0..D {
+        let mut e = vec![0u64; D];
+        e[i] = 1;
+        let col = crt_split(ctx, &e);
+        for (c, row) in rows.iter_mut().enumerate() {
+            row[i] = col[c];
+        }
+    }
+    rows
+}
+
+/// E2 junk weights: one signed uniform w-bit weight per NON-CONSTANT
+/// CRT coordinate of the slot-packed target — chunks * D - n of them
+/// with chunks = ceil(n / k): every coordinate of every linked element
+/// that is not a used value's slot constant, unused slots' constants
+/// included. Fresh per row, derived from the SAME h0_link as xi — the
+/// commit-before-weights ordering rule is shared (deriving either
+/// weight family before the commitments is the F5 failure mode).
+pub fn derive_link_zeta(h0: &[u8; 32], lp: &LinkParams, k: usize) -> Vec<Vec<i64>> {
+    let n_junk = lp.n.div_ceil(k) * D - lp.n;
+    let half = 1i64 << (lp.w - 1);
+    (0..lp.l)
+        .map(|row| {
+            let mut reader = XofReader::new("link-zeta", &[h0, &(row as u64).to_le_bytes()]);
+            (0..n_junk)
+                .map(|_| (reader.next_u64() & ((1u64 << lp.w) - 1)) as i64 - half)
+                .collect()
+        })
+        .collect()
+}
+
+/// E1+E2 target-side claims for slot-packed targets: row l's functional
+/// is sum_t xi_(l,t) * (slot-constant projection of value t) plus
+/// sum_c zeta_(l,c) * (projection of junk coordinate c), packed through
+/// the ordinary ct-claim machinery. `value_slots` lists the
+/// ceil(n / k) (commitment, slot) pairs in element order. Scalars are
+/// the same centered y residues as the dense claims — zeta reads zeros
+/// on honest witnesses.
+pub fn link_claims_tgt_slot(
+    ring: &RingCtx,
+    lp: &LinkParams,
+    xi: &[Vec<i64>],
+    zeta: &[Vec<i64>],
+    y: &[i64],
+    value_slots: &[(usize, usize)],
+) -> Vec<CtClaim> {
+    let zq = &ring.zq;
+    assert_eq!(zq.q, lp.q_tgt);
+    let (k, sd) = (ring.k, ring.slot_deg);
+    let chunks = lp.n.div_ceil(k);
+    assert_eq!(value_slots.len(), chunks);
+    let m = crt_coord_rows(ring);
+    (0..lp.l)
+        .map(|row| {
+            assert_eq!(zeta[row].len(), chunks * D - lp.n, "E2 zeta count must cover ALL junk coordinates");
+            let mut jz = 0usize;
+            let mut w_flat = vec![0u64; chunks * D];
+            for u in 0..chunks {
+                for c in 0..D {
+                    let (slot, coord) = (c / sd, c % sd);
+                    let t = u * k + slot;
+                    let wt = if coord == 0 && t < lp.n {
+                        xi[row][t]
+                    } else {
+                        jz += 1;
+                        zeta[row][jz - 1]
+                    };
+                    if wt == 0 {
+                        continue;
+                    }
+                    let wm = zq.to_mod(wt);
+                    for i in 0..D {
+                        if m[c][i] != 0 {
+                            w_flat[u * D + i] =
+                                zq.add(w_flat[u * D + i], zq.mul(wm, m[c][i]));
+                        }
+                    }
+                }
+            }
+            let packed = pack_functional(zq, &w_flat, chunks);
+            let msg_coeffs: Vec<(usize, usize, Poly)> = packed
+                .into_iter()
+                .enumerate()
+                .map(|(u, coeff)| {
+                    let (ci, sj) = value_slots[u];
+                    (ci, sj, coeff)
+                })
+                .collect();
+            CtClaim { msg_coeffs, ajtai_coeffs: vec![], scalar: zq.center(zq.to_mod(y[row])) }
         })
         .collect()
 }

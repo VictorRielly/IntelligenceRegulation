@@ -701,6 +701,7 @@ any new challenge added to the protocol must be added here.
 | theta (binary-claim randomizers) | post-mask hash | the g-mask commitment | F5 g-shift attack | `F5:` regression pair |
 | JL rows R (ARP) | round hash | the ARP mask commitment | steer the projection around a long vector | ARP negatives (U6b) |
 | xi (link rows) | h0_link | BOTH sides' commitments incl. g's | pick values after xi: per-row 2^-w becomes 1 | `wrong xi (stale h0_link)` negative |
+| zeta (E2 slot-link junk rows) | h0_link | same as xi — both sides' commitments incl. g's | commit junk after zeta (or drop zeta): constant-reading rows miss the junk coordinates and the composed-Hadamard shift returns | `E2 gap: constant-only rows ACCEPT` / `E2: zeta rows REJECT` pair (U-E2) |
 | tau (freeze-era witness tie) | — | — | superseded by U-B5 (first-class tie) | removed with its freeze row |
 
 ## 8. Honest limitations and open obligations
@@ -742,9 +743,33 @@ any new challenge added to the protocol must be added here.
    rejection lemma (Q4.2a). Residual honesty note: HVZK here is
    proof-of-protocol, not a formal statement about the surrounding
    chain (manifest/reveal plumbing carries its own analysis, Sections
-   5-6), and E2 (H3 slot-constancy) remains a separate SOUNDNESS
-   obligation for composed H3 uses.
-3. **Norm/concentration models** [MODEL]: TAIL = 1.3 (empirical
+   5-6); E2 (item 3) was the composed-H3 soundness gap and is now
+   closed.
+3. **H3 slot-constancy (E2) — BUILT (U-E2)**: H3 packing puts each
+   value at the constant coordinate of its CRT slot, and nothing in
+   the pre-E2 engine forced the other slot-field coordinates to zero;
+   GF(q^16) multiplication mixes coordinates, so junk with CORRECT
+   constants could shift a composed Hadamard's (gate o up's) product
+   constants — a chain-wide soundness gap of composed H3 uses (found
+   by the M4 review; the audit's C-01). The fix rides the modulus-link
+   rows at ZERO extra rows (`ring/link.rs::link_claims_tgt_slot`): the
+   q31-side functional reads value t through the slot-constant CRT
+   projection row (E1) and pins EVERY other coordinate of the linked
+   elements with fresh signed w-bit XOF weights zeta (E2,
+   `derive_link_zeta`, drawn from the same h0_link as xi — the shared
+   ordering edge, Section 7). A nonzero (value-delta, junk) pair
+   survives a row w.p. <= 2^-w (the Section 6.2 point-mass argument),
+   2^-264 at the frozen w = 11, l = 24; honest junk coordinates are
+   zero so the revealed y and the q46 grounding side are untouched.
+   Slot-constancy of downstream products then follows from claim
+   exactness (GF(q) closure). Pinned by the U-E2 battery: the
+   composed-product shift demonstrated arithmetically, the
+   constant-only-rows ACCEPT / zeta-rows REJECT pair on committed
+   tensors, and a freeze row on the junk-weight count. Residual scope
+   note: this discharges the generic slot-target link; the M4
+   compilation's specific tensor wiring (u_s/A_sel/B_sel map weights)
+   ships with whichever M4 variant lands.
+4. **Norm/concentration models** [MODEL]: TAIL = 1.3 (empirical
    concentration constant), delta0 = 1.0037 (root-Hermite), the
    d_lwe = 768·log2(q)/11.7 rule, and the ARP's SLACK_OP worst-case
    constant. All are conservative-by-construction and pinned by freeze
@@ -752,18 +777,18 @@ any new challenge added to the protocol must be added here.
    specifically now has a PROVEN self-contained bound (Q4_LEMMAS.md
    Q4.4c) 2.35 bits tighter than the SLACK_OP gate; SLACK_OP stays as
    the derive-time gate but is no longer the best proven bound.
-4. **Quantum margins** [MODEL]: three frozen shapes dip below 128-bit
+5. **Quantum margins** [MODEL]: three frozen shapes dip below 128-bit
    under core-SVP quantum costing; kappa+1 fixes it if that target is
    adopted (ESTIMATOR_NOTE.md).
-5. **Fiat–Shamir** [MODEL]: random-oracle model, standard forking
+6. **Fiat–Shamir** [MODEL]: random-oracle model, standard forking
    loss; SHA-256/XOF instantiation.
-6. **Gaussian sampling uses f64 exp** [OBLIGATION]: a prototype
+7. **Gaussian sampling uses f64 exp** [OBLIGATION]: a prototype
    shortcut noted in `ring/mod.rs`; production requires fixed-point
    (constant-time) sampling.
-7. **Proof size at scale** [DESIGN NOTE]: MB-class per matmul claim at
+8. **Proof size at scale** [DESIGN NOTE]: MB-class per matmul claim at
    r = 1; small-proof deployments need the aggregation follow-up
    (GATE_ALTERNATIVES.md options 2/3). Prover TIME is not affected.
-8. **exp/softmax (M4) and full-scale measurement (M5)** remain ahead
+9. **exp/softmax (M4) and full-scale measurement (M5)** remain ahead
    of this document's scope, as does the planned adversarial-testing
    phase — this reference is that phase's starting inventory.
 
@@ -790,6 +815,8 @@ All run in `ring_matmul self-test` unless noted.
 | link: wrong values | `tampered value fails the q31 ct check` |
 | link: oversized reveal | `y outside the grounding gate fails` |
 | link: stale challenge rows | `wrong xi (stale h0_link, pre-g derivation) fails` |
+| H3 junk coordinates (composed Hadamard, E2) | `composed H3 break:` arithmetic demonstration + `E2 gap: constant-only rows ACCEPT` / `E2: zeta rows REJECT` pair (U-E2) |
+| R1 pad hash-edge / leak arithmetic | `[R1]` battery: leak pairs (all three quad families) + order pairs |
 | parameter drift (all frozen budgets) | `ring_matmul freeze-check` (every row) |
 
 ---
@@ -813,6 +840,12 @@ with committed pads in the round's g-slot space; Sections 3.2 / 4.5 /
 costs and the R1.4 costing correction (gate-only rounds pay one fresh
 g-commitment; msg_r = 1 wave shapes break C2) are recorded in Section
 8 item 1 and Q4_LEMMAS.md R1.4'.*
+*2026-07-09 (U-E2 tranche) — H3 slot-constancy (E2) BUILT: the
+slot-target link (`link_claims_tgt_slot`: E1 slot-constant projection
+rows + E2 zeta junk pinning at zero extra rows) closes the
+composed-Hadamard soundness gap; Section 8 item 3 added (subsequent
+items renumbered), the zeta ordering row added to Section 7, the U-E2
+battery and junk-count freeze row added to the suite.*
 
 
 

@@ -5321,6 +5321,7 @@ fn main() {
             self_test_pi2();
             self_test_pi2_ce();
             self_test_link();
+            self_test_e2();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         Some("chain-demo") if args.len() == 5 => {
@@ -5332,6 +5333,7 @@ fn main() {
         Some("link-demo") => {
             let t = Instant::now();
             self_test_link();
+            self_test_e2();
             println!("\nlink-demo passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         _ => usage(),
@@ -5650,6 +5652,228 @@ fn self_test_link() {
     }
 }
 
+// ===========================================================================
+// U-E2: slot-constancy enforcement for slot-packed (H3) link targets —
+// the E1+E2 extension (M4_ACTIVATION_DESIGN.md Section 6 items 1-2; the
+// chain-wide gap the M4 review flagged, audit finding C-01). H3 packing
+// puts each value at the CONSTANT coordinate of its CRT slot; nothing
+// in the engine forces the other slot_deg - 1 coordinates to zero, and
+// GF(q^16) multiplication mixes coordinates — junk coordinates with
+// CORRECT constants shift a composed Hadamard's (gate o up's) product
+// constants while every constant-reading claim passes. The fix rides
+// the link rows at zero extra rows: the q31-side functional reads
+// value t through the slot-constant CRT projection (E1) and pins every
+// other coordinate with fresh XOF weights zeta (E2); per-row miss
+// <= 2^-w, the same accounting as the xi rows. Products of pinned
+// tensors inherit slot-constancy (GF(q) closure).
+
+fn self_test_e2() {
+    use ring::ct_engine::{
+        StdOpening, ct_h0, derive_ct_round_params, prove_ct_round, sample_ct_masks,
+        verify_ct_round,
+    };
+    use ring::link::{
+        derive_gadget_layer, derive_link_params, derive_link_xi, derive_link_zeta,
+        link_claims_gnd, link_claims_tgt_slot, link_gate_ok, link_h0, link_reveal_y,
+    };
+    println!("\n[U-E2] slot-constancy link (E1+E2): H3 targets, junk pinning, composed-Hadamard regression");
+    let gl_t = derive_gadget_layer(Q8, 32, 16).expect("q31 value layer must derive");
+    let gl_g = derive_gadget_layer(ring::Q8_46, 32, 16).expect("q46 gadget layer must derive");
+    let ring_t = ring::ring_ctx_q8();
+    let ring_g = ring::ring_ctx(ring::Q8_46, ring::ETA8_46, 8);
+    let (zq_t, zq_g) = (ring_t.zq, ring_g.zq);
+    let crs_t = expand_crs(gl_t.shape, Q8, 0xE201);
+    let crs_g = expand_crs(gl_g.shape, ring::Q8_46, 0xE246);
+    let mut rng = 0x5eed_00e2u64;
+    let (k, sd) = (ring_t.k, ring_t.slot_deg);
+
+    // n = 16 values in [0, 16): TWO slot-packed elements at q31 (8
+    // values/element), four dense bit planes at q46.
+    let lp = derive_link_params(16, 4, ring::Q8_46, Q8, 11);
+    let values: Vec<u64> = (0..lp.n).map(|_| rng_below(&mut rng, 1 << lp.w_bits)).collect();
+    let n_junk = lp.n.div_ceil(k) * D - lp.n;
+    let slot_msgs = |vals: &[u64]| -> Vec<Poly> {
+        (0..vals.len().div_ceil(k)).map(|u| slot_pack(&ring_t, &vals[u * k..(u + 1) * k])).collect()
+    };
+    let bit_planes = |vals: &[u64]| -> Vec<Poly> {
+        (0..lp.w_bits as usize)
+            .map(|i| {
+                let mut p = poly_zero();
+                for (t, &v) in vals.iter().enumerate() {
+                    p[t] = (v >> i) & 1;
+                }
+                p
+            })
+            .collect()
+    };
+    let pad = |mut slots: Vec<Poly>, msg_r: usize| -> Vec<Poly> {
+        slots.resize(msg_r, poly_zero());
+        slots
+    };
+    let commit_side = |path: &KernelPath,
+                       crs: &ring::commit::RingCrs,
+                       wit: Vec<Poly>,
+                       g: Vec<Poly>,
+                       rng: &mut u64|
+     -> (Vec<Vec<Poly>>, Vec<Vec<Poly>>, Vec<Vec<Poly>>, Vec<Vec<Vec<i64>>>) {
+        let all_x = vec![wit, g];
+        let all_rho: Vec<Vec<Vec<i64>>> = (0..all_x.len())
+            .map(|_| (0..crs.shape.n_r).map(|_| rng_ternary_poly(rng)).collect())
+            .collect();
+        let (mut t1s, mut t2s) = (Vec::new(), Vec::new());
+        for (x, rho) in all_x.iter().zip(all_rho.iter()) {
+            let (t1, t2) = commit(path, crs, x, rho);
+            t1s.push(t1);
+            t2s.push(t2);
+        }
+        (t1s, t2s, all_x, all_rho)
+    };
+    let rp_t = derive_ct_round_params(Q8, gl_t.shape, 2, 0, 0, false);
+    let rp_g = derive_ct_round_params(ring::Q8_46, gl_g.shape, 2, 0, 0, false);
+    let a1p_t = build_a1_paths(&crs_t, rp_t.sigma, isqrt_u128(rp_t.bound_sq));
+    let a1p_g = build_a1_paths(&crs_g, rp_g.sigma, isqrt_u128(rp_g.bound_sq));
+    let path_t = KernelPath::A1(&a1p_t);
+    let path_g = KernelPath::A1(&a1p_g);
+    let plane_slots: Vec<Vec<(usize, usize)>> =
+        (0..lp.w_bits as usize).map(|i| vec![(0usize, i)]).collect();
+    let value_slots = vec![(0usize, 0usize), (0usize, 1usize)];
+
+    // ---- Honest E1+E2 link: slot elements at q31 <-> bit planes at q46.
+    let g_t = sample_ct_masks(&mut rng, Q8, gl_t.shape.msg_r, lp.l).remove(0);
+    let g_g = sample_ct_masks(&mut rng, ring::Q8_46, gl_g.shape.msg_r, lp.l).remove(0);
+    let (t1s_g, t2s_g, x_g, rho_g) =
+        commit_side(&path_g, &crs_g, pad(bit_planes(&values), gl_g.shape.msg_r), g_g, &mut rng);
+    let (t1s_t, t2s_t, x_t, rho_t) =
+        commit_side(&path_t, &crs_t, pad(slot_msgs(&values), gl_t.shape.msg_r), g_t, &mut rng);
+    let h0_link = link_h0(b"u-e2-demo", &crs_g, &crs_t, &t1s_g, &t2s_g, &t1s_t, &t2s_t);
+    let h0_g = ct_h0(&crs_g, &h0_link, &t1s_g, &t2s_g, &[]);
+    let h0_t = ct_h0(&crs_t, &h0_link, &t1s_t, &t2s_t, &[]);
+    let xi = derive_link_xi(&h0_link, &lp);
+    let zeta = derive_link_zeta(&h0_link, &lp, k);
+    let y = link_reveal_y(&lp, &xi, &values);
+    let claims_g = link_claims_gnd(&zq_g, &lp, &xi, &y, &plane_slots);
+    let claims_t = link_claims_tgt_slot(&ring_t, &lp, &xi, &zeta, &y, &value_slots);
+    let openings_g: Vec<StdOpening> = x_g
+        .iter()
+        .zip(rho_g.iter())
+        .enumerate()
+        .map(|(i, (x, rho))| StdOpening { t1: &t1s_g[i], t2: &t2s_g[i], x, rho })
+        .collect();
+    let openings_t: Vec<StdOpening> = x_t
+        .iter()
+        .zip(rho_t.iter())
+        .enumerate()
+        .map(|(i, (x, rho))| StdOpening { t1: &t1s_t[i], t2: &t2s_t[i], x, rho })
+        .collect();
+    let (proof_g, _) = prove_ct_round(
+        &path_g, &ring_g, &rp_g, None, &crs_g, &h0_g, &claims_g, &[], &[], &[], &openings_g,
+        &[], &[], 1, &mut rng,
+    );
+    let (proof_t, _) = prove_ct_round(
+        &path_t, &ring_t, &rp_t, None, &crs_t, &h0_t, &claims_t, &[], &[], &[], &openings_t,
+        &[], &[], 1, &mut rng,
+    );
+    let ok_g = verify_ct_round(
+        &path_g, &ring_g, &rp_g, None, &crs_g, &h0_g, &claims_g, &[], &[], &[], &t1s_g, &t2s_g,
+        &[], &[], &[], 1, &proof_g,
+    );
+    let ok_t = verify_ct_round(
+        &path_t, &ring_t, &rp_t, None, &crs_t, &h0_t, &claims_t, &[], &[], &[], &t1s_t, &t2s_t,
+        &[], &[], &[], 1, &proof_t,
+    );
+    assert_true(
+        &format!(
+            "honest slot-target link verifies (E1 constant rows + {n_junk} E2 junk weights/row, zero extra rows)"
+        ),
+        link_gate_ok(&lp, &y) && ok_g && ok_t,
+    );
+
+    // ---- The composed-Hadamard break, arithmetically (why E2 exists):
+    // junk at slot coordinate 1 of one operand and slot_deg - 1 of the
+    // other folds through Y^slot_deg = s_j INTO the product's constant.
+    let j_atk = 3usize;
+    let xv: Vec<u64> = (0..k).map(|_| rng_below(&mut rng, 1 << lp.w_bits)).collect();
+    let uv: Vec<u64> = (0..k).map(|_| rng_below(&mut rng, 1 << lp.w_bits)).collect();
+    let mk_junk = |vals: &[u64], coord: usize, amp: u64| -> Poly {
+        let mut buf = vec![0u64; D];
+        for (jj, &v) in vals.iter().enumerate() {
+            buf[jj * sd] = v;
+        }
+        buf[j_atk * sd + coord] = amp;
+        crt_merge(&ring_t, &mut buf);
+        buf
+    };
+    let x_junk = mk_junk(&xv, 1, 0x1234);
+    let u_junk = mk_junk(&uv, sd - 1, 0x5678);
+    let xs = crt_split(&ring_t, &x_junk);
+    let us = crt_split(&ring_t, &u_junk);
+    let zs = crt_split(&ring_t, &poly_mul_g(&zq_t, &x_junk, &u_junk));
+    assert_true(
+        "composed H3 break: junk operands with CORRECT slot constants shift the product's constant (the gap, demonstrated)",
+        (0..k).all(|j| xs[j * sd] == xv[j] && us[j * sd] == uv[j])
+            && zs[j_atk * sd] != zq_t.mul(xv[j_atk], uv[j_atk]),
+    );
+    let zh = crt_split(&ring_t, &poly_mul_g(&zq_t, &slot_pack(&ring_t, &xv), &slot_pack(&ring_t, &uv)));
+    assert_true(
+        "slot-constancy inheritance: the HONEST H3 product is slot-constant with the product constants (GF(q) closure)",
+        (0..k).all(|j| zh[j * sd] == zq_t.mul(xv[j], uv[j]))
+            && (0..D).all(|c| c % sd == 0 || zh[c] == 0),
+    );
+
+    // ---- The link-level pair (F5 pattern): a committed slot tensor
+    // with correct constants but one junk coordinate. Constant-only
+    // rows (zeta = 0 — the pre-E2 world) ACCEPT it; the E2 rows REJECT.
+    {
+        let mut buf = vec![0u64; D];
+        for (jj, &v) in values[0..k].iter().enumerate() {
+            buf[jj * sd] = v;
+        }
+        buf[j_atk * sd + 1] = 0x4242; // junk; constants untouched
+        crt_merge(&ring_t, &mut buf);
+        let mut msgs_bad = slot_msgs(&values);
+        msgs_bad[0] = buf;
+        let g_t2 = sample_ct_masks(&mut rng, Q8, gl_t.shape.msg_r, lp.l).remove(0);
+        let (t1s_t2, t2s_t2, x_t2, rho_t2) =
+            commit_side(&path_t, &crs_t, pad(msgs_bad, gl_t.shape.msg_r), g_t2, &mut rng);
+        let h0_link2 = link_h0(b"u-e2-demo", &crs_g, &crs_t, &t1s_g, &t2s_g, &t1s_t2, &t2s_t2);
+        let h0_t2 = ct_h0(&crs_t, &h0_link2, &t1s_t2, &t2s_t2, &[]);
+        let xi2 = derive_link_xi(&h0_link2, &lp);
+        let zeta2 = derive_link_zeta(&h0_link2, &lp, k);
+        let y2 = link_reveal_y(&lp, &xi2, &values); // grounded by the honest bit side
+        let openings_t2: Vec<StdOpening> = x_t2
+            .iter()
+            .zip(rho_t2.iter())
+            .enumerate()
+            .map(|(i, (x, rho))| StdOpening { t1: &t1s_t2[i], t2: &t2s_t2[i], x, rho })
+            .collect();
+        let zeta_zero = vec![vec![0i64; n_junk]; lp.l];
+        let claims_e1 = link_claims_tgt_slot(&ring_t, &lp, &xi2, &zeta_zero, &y2, &value_slots);
+        let (proof_e1, _) = prove_ct_round(
+            &path_t, &ring_t, &rp_t, None, &crs_t, &h0_t2, &claims_e1, &[], &[], &[],
+            &openings_t2, &[], &[], 1, &mut rng,
+        );
+        assert_true(
+            "E2 gap: constant-only rows ACCEPT the junk tensor (the pre-E2 break, demonstrated)",
+            verify_ct_round(
+                &path_t, &ring_t, &rp_t, None, &crs_t, &h0_t2, &claims_e1, &[], &[], &[],
+                &t1s_t2, &t2s_t2, &[], &[], &[], 1, &proof_e1,
+            ),
+        );
+        let claims_e2 = link_claims_tgt_slot(&ring_t, &lp, &xi2, &zeta2, &y2, &value_slots);
+        let (proof_e2, _) = prove_ct_round(
+            &path_t, &ring_t, &rp_t, None, &crs_t, &h0_t2, &claims_e2, &[], &[], &[],
+            &openings_t2, &[], &[], 1, &mut rng,
+        );
+        assert_true(
+            "E2: the zeta junk rows REJECT the same tensor (the fix; miss <= 2^-264)",
+            !verify_ct_round(
+                &path_t, &ring_t, &rp_t, None, &crs_t, &h0_t2, &claims_e2, &[], &[], &[],
+                &t1s_t2, &t2s_t2, &[], &[], &[], 1, &proof_e2,
+            ),
+        );
+    }
+}
+
 // U-L freeze rows: the F3 modulus-link derive-time gates. Called at the end
 // of freeze_check(); returns its own conjunction so a broken link budget
 // fails the whole gate.
@@ -5713,5 +5937,19 @@ fn freeze_check_link() -> bool {
         ),
         link_honest_y(&lp) < (ring::Q8_46 / 2) as f64,
     );
+
+    // E2 — slot-target junk accounting: EVERY non-constant CRT
+    // coordinate of a slot-packed link target carries a zeta weight
+    // (chunks * D - n of them at k = 8 values/element), same w/l budget
+    // as the xi rows. A refactor that stops covering all junk
+    // coordinates reopens the composed-Hadamard gap (U-E2 battery).
+    {
+        let lp_s = derive_link_params(16, 4, ring::Q8_46, Q8, 11);
+        let n_junk = lp_s.n.div_ceil(8) * 128 - lp_s.n;
+        gate(
+            &format!("E2 slot-link junk weights cover ALL non-constant coordinates: {n_junk} at (n=16, k=8), w=11 l={}", lp_s.l),
+            n_junk == 240 && lp_s.l == 24,
+        );
+    }
     all_ok
 }

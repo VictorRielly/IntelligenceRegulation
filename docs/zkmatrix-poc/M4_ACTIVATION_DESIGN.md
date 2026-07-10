@@ -384,7 +384,11 @@ Readings, each one honest:
 
 ## 6. Where the existing gadget set is insufficient (flagged loudly)
 
-1. **E1 — slot-packed link targets [OBLIGATION, bounded].** The
+1. **E1 — slot-packed link targets [BUILT at the machinery level
+   (U-E2): `ring/link.rs::link_claims_tgt_slot` reads slot targets
+   through the CRT projection rows (`crt_coord_rows`); the
+   M4-specific map-weight wiring (u_s/A_sel/B_sel tables) ships with
+   whichever M4 variant lands].** The
    shipped link (`ring/link.rs`) targets dense q31 tensors: its
    q31-side row claim uses weights xi_t on coefficient t. Here the
    targets (`u_s`, `A_sel`, `B_sel`, `y_raw`) are slot-packed, so the
@@ -397,8 +401,11 @@ Readings, each one honest:
    owed; protocol shape identical to U-L1..L4. Signed map weights
    (the coefficient tables) are a second mechanical delta — the w_max
    rule and the detection argument are magnitude-based already.
-2. **E2 — slot-constancy enforcement [OBLIGATION, and a chain-wide
-   soundness gap TODAY].** H3 packing puts each value at the constant
+2. **E2 — slot-constancy enforcement [BUILT (U-E2): zeta junk rows in
+   `link_claims_tgt_slot` + `derive_link_zeta`, pinned by the U-E2
+   battery (composed-product shift demonstrated; constant-only-rows
+   ACCEPT / zeta-rows REJECT pair) and a freeze row — the chain-wide
+   gap below is CLOSED].** H3 packing puts each value at the constant
    coordinate of its CRT slot; nothing in the shipped engine forces a
    committed slot tensor's other 15 slot-field coordinates to zero.
    Slot-field multiplication (GF(q^16)) mixes coordinates, so an
@@ -428,8 +435,8 @@ Readings, each one honest:
 |---|---|---|
 | plane binariness | quadratic ct-claims + ARP at q46, n <= 512 units | [MODEL] — the ARP SLACK_OP composition (soundness ref 4.7); freeze rows pin the budget |
 | one-hot + placement | P-one/P-place RingClaims, integer-exact (no wrap) | [PROVEN] given binariness (Sec 4.3 argument) |
-| coefficient/u/rounding links | per-row 2^-w, l rows to 2^-256; integer exactness via w_max + range gate | [PROVEN] for the dense-target protocol (soundness ref 6.1/6.2); [OBLIGATION] E1/E2 wiring + negatives |
-| slot-constancy of link targets | junk-coordinate pinning inside link rows | [OBLIGATION] (E2; design + accounting above) |
+| coefficient/u/rounding links | per-row 2^-w, l rows to 2^-256; integer exactness via w_max + range gate | [PROVEN] for the dense-target protocol (soundness ref 6.1/6.2); slot-target machinery + negatives [BUILT] (U-E2); the M4 map-weight wiring rides the chosen variant |
+| slot-constancy of link targets | junk-coordinate pinning inside link rows | [BUILT] (E2, U-E2 battery + freeze row) |
 | evaluation claim | QuadRingClaim extraction, three-transcript | [PROVEN] (soundness ref 4.4); non-wrap bounds script-asserted |
 | rounding identity | L_out functional = declared rounding | [PROVEN] arithmetic identity; ranges from planes |
 | completeness | every claim relation satisfied by honest witnesses | [PROVEN by enumeration] — `gadget_trace` asserts every relation for all 256 inputs |
