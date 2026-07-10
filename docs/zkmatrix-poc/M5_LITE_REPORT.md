@@ -117,7 +117,7 @@ unchanged.
 
 Scale of the measured object: 52.8M used tensor elements (92.3M paid
 slots — the 1.75x padding waste is dominated by C columns paying
-msg_r = 32 for 4 used slots; see Section 6), 5.265e7 ring-MACs,
+msg_r = 32 for 4 used slots; see Section 5 item 5), 5.265e7 ring-MACs,
 i.e. one full FFN gate/up-projection triple of a 7B model at 512
 tokens. **This shape fits with room to spare: peak RSS 94-95 MB**
 against the 12 GB budget — streaming removes the memory question

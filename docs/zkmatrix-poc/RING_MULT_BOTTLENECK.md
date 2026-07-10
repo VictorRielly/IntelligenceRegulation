@@ -370,6 +370,10 @@ lands at its op-count projection.**
   CONFIRMED at integrated rates.** What remains assumed rather than
   measured: the 20x GPU factor and the ~15x 22-thread scaling
   extrapolation; the arithmetic layer itself is no longer a projection.
+  *(M5-lite update: the ~15x scaling extrapolation is now MEASURED and
+  falsified on this box — 8.7-9.1x at 22T, full 512x4096x11008 triple
+  streamed end-to-end; the commit bill row corrects to 2.1-3.0 min 22T
+  and the 1T arithmetic anchor reproduces. M5_LITE_REPORT.md.)*
 
 ### 6.6 Protocol-build tranche update (reads on the gate verdict)
 
