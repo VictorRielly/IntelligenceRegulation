@@ -5322,6 +5322,7 @@ fn main() {
             self_test_pi2_ce();
             self_test_link();
             self_test_e2();
+            self_test_lookup();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         Some("chain-demo") if args.len() == 5 => {
@@ -5874,6 +5875,66 @@ fn self_test_e2() {
     }
 }
 
+// ===========================================================================
+// U-K: the E3 lookup engine (M4_LOOKUP_DESIGN.md Section 8) — built
+// tranche by tranche, each with its battery. [U-K1] the slot-field
+// scalar layer: GF(q^16) arithmetic every LogUp/GKR challenge, round
+// polynomial and MLE value lives in, plus the 8-lane view of a ring
+// element that anchors the design's throughput model (one ring mult =
+// 8 independent slot-field mults, each lane in its OWN binomial — the
+// kfield.rs lane note).
+
+fn self_test_lookup() {
+    use ring::kfield::{K_DEG, KField, lane_merge, lane_split, slot_field_digest};
+    println!("\n[U-K1] slot-field scalars: GF(q^16) arithmetic, lanes, LKP-5 digest");
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let zq = ctx.zq;
+    let q = zq.q;
+    let mut rng = 0x5eed_0511u64;
+    let mut xr = XofReader::new("uk1-battery", &[b"seed-1"]);
+    let a = kf.uniform(&mut xr);
+    let b = kf.uniform(&mut xr);
+    let c = kf.uniform(&mut xr);
+    assert_true(
+        "K axioms: associativity, commutativity, distributivity on random elements",
+        kf.add(&kf.add(&a, &b), &c) == kf.add(&a, &kf.add(&b, &c))
+            && kf.mul(&a, &b) == kf.mul(&b, &a)
+            && kf.mul(&kf.mul(&a, &b), &c) == kf.mul(&a, &kf.mul(&b, &c))
+            && kf.mul(&a, &kf.add(&b, &c)) == kf.add(&kf.mul(&a, &b), &kf.mul(&a, &c))
+            && kf.mul(&a, &kf.one()) == a
+            && kf.add(&a, &kf.zero()) == a,
+    );
+    assert_true(
+        "K inverse: a * a^-1 = 1 (random a); embed(x)^-1 = embed(x^-1) (subfield consistency)",
+        kf.mul(&a, &kf.inv(&a)) == kf.one()
+            && kf.inv(&kf.embed(12345)) == kf.embed(zq.inv(12345)),
+    );
+    assert_true(
+        "K binomial: Y^16 = s0 (the slot root; kappa := Y is this generator)",
+        kf.pow(&kf.gen_y(), K_DEG as u64) == kf.embed(kf.s),
+    );
+    assert_true(
+        "K Frobenius: (a+b)^q = a^q + b^q (characteristic q, a field not a ring)",
+        kf.pow(&kf.add(&a, &b), q) == kf.add(&kf.pow(&a, q), &kf.pow(&b, q)),
+    );
+    // The 8-lane cost-model anchor: a ring multiplication IS 8
+    // independent slot-field multiplications, lane j in Y^16 - s_j.
+    let pa = rng_poly_mod(&mut rng, q);
+    let pb = rng_poly_mod(&mut rng, q);
+    let lp = lane_split(&ctx, &poly_mul_g(&zq, &pa, &pb));
+    let (la, lb) = (lane_split(&ctx, &pa), lane_split(&ctx, &pb));
+    assert_true(
+        "K lanes: one ring mult = 8 independent slot-field mults (each lane in its own binomial)",
+        (0..ctx.k)
+            .all(|j| ring::slot_mul_g(&zq, &la[j], &lb[j], ctx.slot_roots[j], K_DEG) == lp[j]),
+    );
+    assert_true("K lanes: split/merge roundtrip", lane_merge(&ctx, &la) == pa);
+    let dg = slot_field_digest(&ctx);
+    let hexd: String = dg.iter().take(8).map(|b| format!("{b:02x}")).collect();
+    println!("  LKP-5 slot-field digest[0..8] = {hexd}, s0 = {}", ctx.slot_roots[0]);
+}
+
 // U-L freeze rows: the F3 modulus-link derive-time gates. Called at the end
 // of freeze_check(); returns its own conjunction so a broken link budget
 // fails the whole gate.
@@ -5937,6 +5998,23 @@ fn freeze_check_link() -> bool {
         ),
         link_honest_y(&lp) < (ring::Q8_46 / 2) as f64,
     );
+
+    // LKP-5 — the lookup's slot-field constants (M4_LOOKUP_DESIGN
+    // Section 8): the field every lookup challenge/round value lives
+    // in. A parameter move that changes q, the split or any slot root
+    // changes the transcript's field and must trip this row.
+    {
+        let ctx = ring_ctx_q8();
+        let dg = ring::kfield::slot_field_digest(&ctx);
+        let hexd: String = dg.iter().take(8).map(|b| format!("{b:02x}")).collect();
+        gate(
+            &format!("LKP-5 slot-field digest {hexd} (k=8, deg 16, s0 = {})", ctx.slot_roots[0]),
+            hexd == "0bcd6c1ee344e149"
+                && ctx.slot_roots[0] == 2_056_890_868
+                && ctx.k == 8
+                && ctx.slot_deg == 16,
+        );
+    }
 
     // E2 — slot-target junk accounting: EVERY non-constant CRT
     // coordinate of a slot-packed link target carries a zeta weight
