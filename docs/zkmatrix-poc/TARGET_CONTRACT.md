@@ -32,7 +32,8 @@ where a budget is not yet met (or not yet measurable) it says so.
 - Weights and activations: 8-bit signed integers (int8), symmetric,
   power-of-two scales. Matmul accumulators: 27-bit signed (inner
   dimension 4096) / 29-bit signed (inner 11008) — worst-case exact at
-  the q31 working modulus (no wraparound possible).
+  q31 (the 31-bit prime modulus all value tensors are committed under;
+  q46 below is the 46-bit modulus of the range-proof gadget layer).
 - Requantization: power-of-two rescale x = 2^shift * y + r with the
   remainder r **proven** in [0, 2^shift) — dense bit planes committed at
   the q46 gadget modulus, tied to the q31 values by the U-L modulus
@@ -65,8 +66,9 @@ where a budget is not yet met (or not yet measurable) it says so.
   exist. It INCLUDES witness inference (the quantized forward pass),
   all per-proof commitments (activations, remainders, bit planes), all
   claim/lookup/link proofs, hashing, and proof serialization. It
-  EXCLUDES one-time setup: CRS expansion, A1 kernel caches, weight
-  commitment, table freezing.
+  EXCLUDES one-time setup: expanding the common reference string (the
+  public commitment key), building the A1 number-theoretic-transform
+  kernel caches, committing the weights, freezing the table.
 
 ## 4. Hardware, statistics, and budgets
 
@@ -79,9 +81,10 @@ where a budget is not yet met (or not yet measurable) it says so.
   exists in this repo**; every GPU row in the cost documents is an
   assumption, and this contract makes the headline claim CONDITIONAL on
   that rung being built and measured (audit H-02/H-03 sequencing).
-- **Statistic:** the claim uses **p95** wall-clock over at least 20
-  warm runs on an otherwise idle machine, with p50 reported alongside;
-  cold-start (first run after setup) reported separately.
+- **Statistic:** the claim uses **p95** (95th-percentile) wall-clock
+  over at least 20 warm runs on an otherwise idle machine, with p50
+  (the median) reported alongside; cold-start (first run after setup)
+  reported separately.
 - **Proof size budget:** <= 256 KB serialized. Current ~120-170 KB
   figures are modeled from field-element counts, not a wire format
   (audit M-05) — the budget binds once a canonical encoding exists.
