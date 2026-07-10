@@ -87,3 +87,105 @@ pub fn multiplicities(kf: &KField, witness: &[KElem], table: &[KElem]) -> Vec<KE
         .map(|t| kf.embed(witness.iter().filter(|w| *w == t).count() as u64))
         .collect()
 }
+
+// ---------------------------------------------------------------------------
+// E4 (U-K6): the MLE-evaluation landing. The descents end in claims
+// v = MLE(column)(z*) — one K-element per column. Coordinate c of v is
+// a BASE-FIELD public-weight linear functional of the committed
+// coefficients (weights = coordinate c of the tensor weight vector
+// L_z*), so the 3 x 16 coordinate rows land as ORDINARY linear
+// ct-claims (pack_functional — the link-row machinery), batched by 9
+// base-field psi randomizer copies (the theta convention, 2^-279).
+// psi MUST be drawn from the transcript state AFTER the claimed
+// coordinates are absorbed — the E4-N1 edge.
+
+use super::D;
+use super::ct_engine::{CtClaim, pack_functional};
+use super::kfield::K_DEG;
+
+/// One block of the MLE tensor weight vector L_z (L[i] =
+/// prod_t (z_t if bit_t(i) else 1 - z_t)), streamed: block `block` of
+/// length 2^lb costs O(2^lb + |z|) — the full table (11.5 GB at FFN
+/// scale) is never materialized.
+pub fn mle_weights_block(kf: &KField, z: &[KElem], block: usize, lb: usize) -> Vec<KElem> {
+    assert!(lb <= z.len());
+    let (low, high) = z.split_at(lb);
+    let inner = super::gkr::eq_table(kf, low);
+    let mut pre = kf.one();
+    for (t, zt) in high.iter().enumerate() {
+        let f = if (block >> t) & 1 == 1 { zt.clone() } else { kf.sub(&kf.one(), zt) };
+        pre = kf.mul(&pre, &f);
+    }
+    inner.into_iter().map(|e| kf.mul(&e, &pre)).collect()
+}
+
+/// The 9 psi-batched E4 claims. weights_w / weights_t are the tensor
+/// weight vectors at the witness / table descent endpoints;
+/// x/y/m_slots map value chunks (D values each, dense-packed) to
+/// (commitment, slot) pairs; v_coords are the 3 * K_DEG claimed
+/// coordinate values (v^X, then v^Y, then v^M) as mod-q residues —
+/// ABSORBED into the transcript before psi was drawn; psi is the
+/// copies x 48 randomizer table.
+pub fn e4_claims(
+    kf: &KField,
+    weights_w: &[KElem],
+    weights_t: &[KElem],
+    x_slots: &[(usize, usize)],
+    y_slots: &[(usize, usize)],
+    m_slots: &[(usize, usize)],
+    v_coords: &[u64],
+    psi: &[Vec<u64>],
+) -> Vec<CtClaim> {
+    let zq = &kf.zq;
+    assert_eq!(v_coords.len(), 3 * K_DEG);
+    psi.iter()
+        .map(|p| {
+            assert_eq!(p.len(), 3 * K_DEG);
+            let build = |weights: &[KElem], off: usize| -> Vec<u64> {
+                (0..weights.len())
+                    .map(|i| {
+                        let mut acc = 0u64;
+                        for c in 0..K_DEG {
+                            acc = zq.add(acc, zq.mul(p[off + c], weights[i][c]));
+                        }
+                        acc
+                    })
+                    .collect()
+            };
+            let mut msg_coeffs: Vec<(usize, usize, super::Poly)> = Vec::new();
+            for (wf, slots) in [
+                (build(weights_w, 0), x_slots),
+                (build(weights_w, K_DEG), y_slots),
+                (build(weights_t, 2 * K_DEG), m_slots),
+            ] {
+                assert!(wf.len() <= slots.len() * D);
+                let packed = pack_functional(zq, &wf, slots.len());
+                for (u, coeff) in packed.into_iter().enumerate() {
+                    let (ci, sj) = slots[u];
+                    msg_coeffs.push((ci, sj, coeff));
+                }
+            }
+            let scalar_mod = (0..3 * K_DEG)
+                .fold(0u64, |a, r| zq.add(a, zq.mul(p[r], v_coords[r])));
+            CtClaim { msg_coeffs, ajtai_coeffs: vec![], scalar: zq.center(scalar_mod) }
+        })
+        .collect()
+}
+
+/// psi: the E4 randomizer copies (9 at the frozen point — LKP-4),
+/// drawn from the transcript state that already binds the claimed
+/// coordinates (the E4-N1 edge).
+pub fn derive_e4_psi(state: &[u8; 32], copies: usize, q: u64) -> Vec<Vec<u64>> {
+    let mut reader = super::XofReader::new("e4-psi", &[state]);
+    (0..copies).map(|_| (0..3 * K_DEG).map(|_| reader.next_field(q)).collect()).collect()
+}
+
+/// Multiply by the generator Y in coordinates (for reconstructing
+/// v_w = v^X + Y v^Y from claimed coordinates): shift up with the
+/// binomial wrap Y^K_DEG = s.
+pub fn mul_y(kf: &KField, a: &KElem) -> KElem {
+    let mut out = kf.zero();
+    out[0] = kf.zq.mul(kf.s, a[K_DEG - 1]);
+    out[1..K_DEG].copy_from_slice(&a[0..K_DEG - 1]);
+    out
+}

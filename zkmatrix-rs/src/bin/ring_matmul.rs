@@ -6465,6 +6465,185 @@ fn self_test_lookup() {
             !run1(&tab_fused, &w_y, &m_y),
         );
     }
+
+    // ---- [U-K6] E4: the descent claims land as 9 psi-batched linear
+    // ct-claims over the COMMITTED tensors — no new claim family. ----
+    use ring::commit::CommitShape as CS6;
+    use ring::ct_engine::{
+        StdOpening, ct_h0, derive_ct_round_params, prove_ct_round, sample_ct_masks,
+        verify_ct_round,
+    };
+    use ring::gkr::eq_table;
+    use ring::lookup::{derive_e4_psi, e4_claims, mle_weights_block, mul_y};
+    println!("\n[U-K6] E4 landing: lookup transcript -> 9 ct-claims over committed X/Y/m");
+    {
+        let mut xr6 = XofReader::new("uk6-weights", &[b"w"]);
+        let z: Vec<KElem> = (0..6).map(|_| kf.uniform(&mut xr6)).collect();
+        let full = eq_table(&kf, &z);
+        let mut blocks = Vec::new();
+        for b in 0..4 {
+            blocks.extend(mle_weights_block(&kf, &z, b, 4));
+        }
+        assert_true(
+            "U-K6 weights: block-streamed L_z equals the full eq table (the never-materialize primitive)",
+            blocks == full,
+        );
+    }
+    let shape6 = CS6 { kappa: 8, n_r: 26, msg_r: 2 };
+    let crs6 = expand_crs(shape6, q, 0xE401);
+    let n6 = 256usize;
+    let (depth_w6, depth_t6) = (8usize, 8usize);
+    let mut rng6 = 0x5eed_0601u64;
+    let xs6: Vec<i64> = (0..n6).map(|_| rng_below(&mut rng6, 256) as i64 - 128).collect();
+    let ys6: Vec<i64> = xs6.iter().map(|&x| rows[(x + 128) as usize].1).collect();
+    let w6: Vec<KElem> = xs6
+        .iter()
+        .zip(ys6.iter())
+        .map(|(&x, &y)| fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y)))
+        .collect();
+    let m6k = multiplicities(&kf, &w6, &tab_fused);
+    let m_vals: Vec<i64> = m6k.iter().map(|e| e[0] as i64).collect();
+    let packv = |vals: &[i64]| -> Vec<Poly> {
+        (0..n6.div_ceil(D))
+            .map(|u| (0..D).map(|t| zq.to_mod(vals[u * D + t])).collect())
+            .collect()
+    };
+    let (x_msg, y_msg, m_msg) = (packv(&xs6), packv(&ys6), packv(&m_vals));
+    let g6 = sample_ct_masks(&mut rng6, q, shape6.msg_r, 9);
+    let value_slots6: [Vec<(usize, usize)>; 3] =
+        [vec![(0, 0), (0, 1)], vec![(1, 0), (1, 1)], vec![(2, 0), (2, 1)]];
+    let rp6 = derive_ct_round_params(q, shape6, 3 + g6.len(), 0, 0, false);
+    let a1p6 = build_a1_paths(&crs6, rp6.sigma, isqrt_u128(rp6.bound_sq));
+    let path6 = KernelPath::A1(&a1p6);
+    // The whole pipeline: commit, lookup transcript, claimed coords,
+    // psi, claims, ct-round, verify + reconciliation. x_committed may
+    // differ from the honest xs6 (the wrong-tensor negative); v_tamper
+    // corrupts one claimed coordinate (the wrong-v negative).
+    let pipeline6 = |x_committed: Vec<Poly>, v_tamper: Option<usize>| -> bool {
+        let mut r6 = 0x5eed_0666u64;
+        let mut all_x = vec![x_committed, y_msg.clone(), m_msg.clone()];
+        all_x.extend(g6.clone());
+        let all_rho: Vec<Vec<Vec<i64>>> = (0..all_x.len())
+            .map(|_| (0..shape6.n_r).map(|_| rng_ternary_poly(&mut r6)).collect())
+            .collect();
+        let (mut t1s, mut t2s) = (Vec::new(), Vec::new());
+        for (xm, rho) in all_x.iter().zip(all_rho.iter()) {
+            let (t1, t2) = commit(&path6, &crs6, xm, rho);
+            t1s.push(t1);
+            t2s.push(t2);
+        }
+        // h0_lkp: the table spec digest (LKP-1 ctx) + every commitment.
+        let h0_lkp = ct_h0(&crs6, &spec_dg, &t1s, &t2s, &[]);
+        let mut tr = LkpTranscript::new("uk6-lkp", &h0_lkp);
+        let alpha = tr.challenge_k(&kf);
+        let wtree = build_tree(
+            &kf,
+            vec![kf.one(); n6],
+            w6.iter().map(|wi| kf.sub(&alpha, wi)).collect(),
+        );
+        let ttree =
+            build_tree(&kf, m6k.clone(), tab_fused.iter().map(|t| kf.sub(&alpha, t)).collect());
+        let (wr, trr) = (wtree.root(), ttree.root());
+        absorb_roots(&kf, &[wr.clone()], &mut tr);
+        let (pw_proof, zw, _, _) = gkr_prove(&kf, &[wtree], &mut tr);
+        absorb_roots(&kf, &[trr.clone()], &mut tr);
+        let (pt_proof, zt, _, _) = gkr_prove(&kf, &[ttree], &mut tr);
+        // Claimed coordinates (from the honest columns; the ct-round is
+        // what pins them to the COMMITTED tensors).
+        let lw = eq_table(&kf, &zw);
+        let lt = eq_table(&kf, &zt);
+        let vsum = |weights: &[KElem], vals: &[i64]| -> KElem {
+            vals.iter()
+                .zip(weights.iter())
+                .fold(kf.zero(), |a, (&v, l)| kf.add(&a, &kf.scale(zq.to_mod(v), l)))
+        };
+        let (vx, vy, vm) = (vsum(&lw, &xs6), vsum(&lw, &ys6), vsum(&lt, &m_vals));
+        let mut v_coords: Vec<u64> =
+            vx.iter().chain(vy.iter()).chain(vm.iter()).copied().collect();
+        if let Some(i) = v_tamper {
+            v_coords[i] = zq.add(v_coords[i], 1);
+        }
+        let vbytes: Vec<u8> = v_coords.iter().flat_map(|c| c.to_le_bytes()).collect();
+        tr.absorb("e4-v", &vbytes);
+        let psi = derive_e4_psi(&tr.state(), 9, q);
+        let claims = e4_claims(
+            &kf, &lw, &lt, &value_slots6[0], &value_slots6[1], &value_slots6[2], &v_coords, &psi,
+        );
+        let h0_round = ct_h0(&crs6, &tr.state(), &t1s, &t2s, &[]);
+        let openings: Vec<StdOpening> = all_x
+            .iter()
+            .zip(all_rho.iter())
+            .enumerate()
+            .map(|(i, (xm, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x: xm, rho })
+            .collect();
+        let (proof, _) = prove_ct_round(
+            &path6, &ctx, &rp6, None, &crs6, &h0_round, &claims, &[], &[], &[], &openings, &[],
+            &[], 3, &mut r6,
+        );
+        // ---- Verifier. ----
+        let mut tv = LkpTranscript::new("uk6-lkp", &h0_lkp);
+        if tv.challenge_k(&kf) != alpha || !root_cross_check(&kf, &wr, &trr) {
+            return false;
+        }
+        absorb_roots(&kf, &[wr.clone()], &mut tv);
+        let Some((zwv, pwv, qwv)) = gkr_verify(&kf, &[wr], depth_w6, &pw_proof, &mut tv) else {
+            return false;
+        };
+        absorb_roots(&kf, &[trr.clone()], &mut tv);
+        let Some((ztv, pmv, qtv)) = gkr_verify(&kf, &[trr], depth_t6, &pt_proof, &mut tv) else {
+            return false;
+        };
+        tv.absorb("e4-v", &vbytes);
+        let psi_v = derive_e4_psi(&tv.state(), 9, q);
+        let claims_v = e4_claims(
+            &kf,
+            &eq_table(&kf, &zwv),
+            &eq_table(&kf, &ztv),
+            &value_slots6[0],
+            &value_slots6[1],
+            &value_slots6[2],
+            &v_coords,
+            &psi_v,
+        );
+        let h0r_v = ct_h0(&crs6, &tv.state(), &t1s, &t2s, &[]);
+        if !verify_ct_round(
+            &path6, &ctx, &rp6, None, &crs6, &h0r_v, &claims_v, &[], &[], &[], &t1s, &t2s, &[],
+            &[], &[], 3, &proof,
+        ) {
+            return false;
+        }
+        // Reconciliation: the descent claims equal the ct-pinned
+        // coordinate values (v_w = v^X + Y v^Y; the table MLE is
+        // verifier-computable).
+        let vxk: KElem = v_coords[0..16].to_vec();
+        let vyk: KElem = v_coords[16..32].to_vec();
+        let vmk: KElem = v_coords[32..48].to_vec();
+        pwv == kf.one()
+            && qwv == kf.sub(&alpha, &kf.add(&vxk, &mul_y(&kf, &vyk)))
+            && pmv == vmk
+            && qtv == kf.sub(&alpha, &mle_eval(&kf, &tab_fused, &ztv))
+    };
+    let t6 = Instant::now();
+    let ok6 = pipeline6(x_msg.clone(), None);
+    let ms6 = t6.elapsed().as_secs_f64() * 1e3;
+    assert_true(
+        &format!(
+            "U-K6 E4: honest end-to-end (commit -> lookup transcript -> 9 ct-claims -> reconciliation) verifies ({ms6:.0} ms prove+verify, N=256)"
+        ),
+        ok6,
+    );
+    assert_true(
+        "U-K6 E4: a tampered claimed coordinate REJECTS (the ct-round pins every v-coordinate)",
+        !pipeline6(x_msg.clone(), Some(0)),
+    );
+    {
+        let mut x_bad = x_msg.clone();
+        x_bad[0][0] = zq.add(x_bad[0][0], 1);
+        assert_true(
+            "U-K6 E4: a different committed tensor REJECTS (the claims bind the commitments, not the prover's story)",
+            !pipeline6(x_bad, None),
+        );
+    }
 }
 
 // U-L freeze rows: the F3 modulus-link derive-time gates. Called at the end

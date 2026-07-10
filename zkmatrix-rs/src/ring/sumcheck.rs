@@ -77,6 +77,14 @@ impl LkpTranscript {
         self.absorb("chal", &kf.bytes(&e));
         e
     }
+
+    /// The current state — the downstream binding handle: E4 seeds its
+    /// psi randomizers and the ct-round's h0 from this, so the round
+    /// binds the ENTIRE lookup transcript (the design's Section 3.3
+    /// rule: round restarts re-derive c but never any lookup challenge).
+    pub fn state(&self) -> [u8; 32] {
+        self.state
+    }
 }
 
 // ---------------------------------------------------------------------------
