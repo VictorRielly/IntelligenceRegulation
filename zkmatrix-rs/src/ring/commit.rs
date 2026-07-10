@@ -235,3 +235,97 @@ pub fn combine_small(rhos: &[Vec<Vec<i64>>], c: &[Vec<i64>]) -> Vec<Vec<i64>> {
 pub fn split_rows(ctx: &RingCtx, rows: &[Poly]) -> Vec<Vec<u64>> {
     rows.iter().map(|p| crt_split(ctx, p)).collect()
 }
+
+// ---------------------------------------------------------------------------
+// Wide-object chunking (M5-lite). A logical object wider than one
+// commitment's msg_r message slots — e.g. the pi2-CE execution/mask vectors,
+// which at the FFN shape need h * inner_r = 128 * 32 = 4096 ring-element
+// slots (up to 11008 for the wider orientation) — is committed as a sequence
+// of column CHUNKS under ONE bounded-size CRS at the frozen msg_r = 32
+// class. The alternative, a monolithic wide CRS at msg_r = 4096..11008,
+// costs (kappa + msg_r) * N_r ring elements ~ 17-121 GB before the A1
+// kernel caches multiply it — the M5 memory blocker.
+//
+// Chunking is a LAYOUT convention only. Logical slot u of the wide object
+// lives at (chunk u / msg_r, slot u % msg_r) — the same flat-index
+// convention the ct-engine already uses for g-groups (g_slot_of) — and
+// every protocol equation (claims, openings, reveals, combinations)
+// addresses (commitment, slot) pairs exactly as before. No verification
+// equation, challenge derivation, or norm budget changes; each chunk is an
+// ordinary commitment with its own independent ternary randomness, opened
+// by the ordinary opening machinery. The manifest/digest treats the chunk
+// list as ONE logical tensor: a single CommitmentEntry carrying
+// wide_digest() over the ordered chunk commitments (chunk count and shape
+// in key_info), never one entry per chunk.
+
+/// Number of msg_r-slot chunks covering a wide object of `len` slots.
+pub fn wide_chunk_count(len: usize, msg_r: usize) -> usize {
+    len.div_ceil(msg_r).max(1)
+}
+
+/// Logical wide slot u -> (chunk index, slot inside the chunk).
+pub fn wide_slot(u: usize, msg_r: usize) -> (usize, usize) {
+    (u / msg_r, u % msg_r)
+}
+
+/// Split a wide object into chunk messages of msg_r ring elements each,
+/// zero-padding the tail chunk (zero padding commits like any message
+/// value; the commit cost is a function of the CRS shape, not of x).
+pub fn wide_chunks(x_wide: &[Poly], msg_r: usize) -> Vec<Vec<Poly>> {
+    (0..wide_chunk_count(x_wide.len(), msg_r))
+        .map(|c| {
+            (0..msg_r)
+                .map(|s| {
+                    x_wide.get(c * msg_r + s).cloned().unwrap_or_else(super::poly_zero)
+                })
+                .collect()
+        })
+        .collect()
+}
+
+/// Commit a wide object as its chunk sequence under the (bounded) CRS.
+/// Returns per-chunk (message, randomness, commitment group) — the message
+/// list is exactly wide_chunks(x_wide, msg_r).
+pub fn commit_wide(
+    path: &KernelPath,
+    crs: &RingCrs,
+    x_wide: &[Poly],
+    rng: &mut u64,
+) -> (Vec<Vec<Poly>>, Vec<Vec<Vec<i64>>>, Vec<(Vec<Poly>, Vec<Poly>)>) {
+    let msgs = wide_chunks(x_wide, crs.shape.msg_r);
+    let mut rhos = Vec::with_capacity(msgs.len());
+    let mut groups = Vec::with_capacity(msgs.len());
+    for x in &msgs {
+        let rho: Vec<Vec<i64>> =
+            (0..crs.shape.n_r).map(|_| super::rng_ternary_poly(rng)).collect();
+        groups.push(commit(path, crs, x, &rho));
+        rhos.push(rho);
+    }
+    (msgs, rhos, groups)
+}
+
+/// ONE digest for the whole ordered chunk list — the wide object's identity
+/// in the manifest and in every statement hash. Binds the chunk count and
+/// each chunk's full (t1, t2) in order, so chunk reordering, truncation,
+/// extension, or any single-element tamper changes the digest.
+pub fn wide_digest(groups: &[(Vec<Poly>, Vec<Poly>)]) -> [u8; 32] {
+    use sha2::Digest;
+    let mut hasher = sha2::Sha256::new();
+    hasher.update(b"route-r-wide-chunks-v1");
+    hasher.update((groups.len() as u64).to_le_bytes());
+    for (t1, t2) in groups {
+        hasher.update(super::polys_bytes(t1));
+        hasher.update(super::polys_bytes(t2));
+    }
+    hasher.finalize().into()
+}
+
+/// The monolithic-CRS cost that chunking avoids, in bytes: a wide CRS at
+/// message dimension `msg_r_wide` stores (kappa + msg_r) * N_r ring
+/// elements of D u64 coefficients (A1 kernel caches come on top). Kept as
+/// a pure formula so benches/reports can print the avoided footprint.
+pub fn monolithic_wide_crs_bytes(msg_r_wide: usize, kappa: usize, q: u64) -> u128 {
+    let d_lwe = (768.0 * (q as f64).log2() / 11.7).ceil() as usize;
+    let n_r = (kappa * super::D + msg_r_wide * super::D + d_lwe).div_ceil(super::D);
+    (kappa as u128 + msg_r_wide as u128) * n_r as u128 * (super::D as u128) * 8
+}

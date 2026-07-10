@@ -5302,7 +5302,7 @@ fn self_test_pi2_ce() {
 }
 
 fn usage() {
-    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]]");
     std::process::exit(2);
 }
 
@@ -5323,11 +5323,23 @@ fn main() {
             self_test_link();
             self_test_e2();
             self_test_lookup();
+            self_test_m5_chunking();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         Some("chain-demo") if args.len() == 5 => {
             let dims: Vec<usize> = args[1..5].iter().map(|s| s.parse().expect("dim")).collect();
             chain_demo(dims[0], dims[1], dims[2], dims[3]);
+        }
+        Some("m5-bench") => {
+            // m5-bench [rows inner cols [reps]] — defaults to the frozen FFN
+            // shape 512 x 4096 x 11008 with 3 repetitions per thread count.
+            let dims: Vec<usize> = args[1..].iter().map(|s| s.parse().expect("dim")).collect();
+            match dims.len() {
+                0 => m5_bench(512, 4096, 11008, 3),
+                3 => m5_bench(dims[0], dims[1], dims[2], 3),
+                4 => m5_bench(dims[0], dims[1], dims[2], dims[3]),
+                _ => usage(),
+            }
         }
         Some("freeze-check") => freeze_check(),
         Some("gate-spike") => gate_spike(),
@@ -7026,4 +7038,483 @@ fn freeze_check_link() -> bool {
         );
     }
     all_ok
+}
+
+// ===========================================================================
+// M5-lite: wide-object chunking + the FFN-shape commit-bill measurement.
+//
+// The blocker this section removes: several protocol objects are WIDER than
+// one commitment's msg_r message slots — the pi2-CE execution/mask vectors
+// need h * inner_r ring-element slots, which at the FFN shape
+// (512 x 4096 x 11008, h = 128, inner_r = 32) is msg_r = 4096, and up to
+// 11008 for the wider orientation. A monolithic CRS at that message
+// dimension stores (kappa + msg_r) * N_r ring elements ~ 17-121 GB (before
+// the A1 kernel caches multiply it) — unusable on a 15 GB box. The fix is a
+// LAYOUT convention, not a protocol change: commit the wide object as a
+// sequence of column chunks under the ONE frozen msg_r = 32-class CRS
+// (~2.3 MB), address logical slot u at (chunk u / msg_r, slot u % msg_r) —
+// the ct-engine's existing g_slot_of convention — and let the manifest
+// treat the ordered chunk list as ONE logical tensor via wide_digest().
+// Implementation: ring/commit.rs (wide_chunk_count, wide_slot, wide_chunks,
+// commit_wide, wide_digest, monolithic_wide_crs_bytes); the self-test below
+// pins bit-identity across kernel paths, digest binding, and a ct-round
+// whose claims span chunk boundaries — no verification equation moved.
+
+fn self_test_m5_chunking() {
+    use manifest::{ClaimManifest, Orientation};
+    use ring::commit::{
+        commit_wide, monolithic_wide_crs_bytes, wide_chunk_count, wide_digest, wide_slot,
+    };
+    use ring::ct_engine::{
+        RingClaim, StdOpening, ct_h0, derive_ct_round_params, prove_ct_round, verify_ct_round,
+    };
+    println!("\n[M5] wide-object chunking: layout-only commitment of wide tensors");
+    let q = Q8;
+    let ring_ctx = ring_ctx_q8();
+    let zq = ring_ctx.zq;
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 2 };
+    let crs = expand_crs(shape, q, 0x4d35);
+    let rp = derive_ct_round_params(q, shape, 4, 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+    let a1_path = KernelPath::A1(&a1p);
+    let mut rng = 0x5eed_4d35u64;
+
+    // A wide object of 7 ring elements at msg_r = 2: 4 chunks, 1 padded slot.
+    let wide_len = 7usize;
+    let x_wide: Vec<Poly> = (0..wide_len).map(|_| rng_poly_mod(&mut rng, q)).collect();
+    assert_true(
+        "chunk count covers the wide object (7 slots -> 4 chunks at msg_r = 2)",
+        wide_chunk_count(wide_len, shape.msg_r) == 4,
+    );
+
+    // Kernel-path bit-identity: the layout does not touch the commit math.
+    let rho_seed = 0x5eed_4d36u64;
+    let (mut ra, mut rs) = (rho_seed, rho_seed);
+    let (msgs, rhos, groups) = commit_wide(&a1_path, &crs, &x_wide, &mut ra);
+    let (_, _, groups_school) = commit_wide(&KernelPath::School, &crs, &x_wide, &mut rs);
+    assert_true(
+        "chunked commitments bit-identical across kernel paths (same rho stream)",
+        groups.iter().zip(groups_school.iter()).all(|(a, b)| a.0 == b.0 && a.1 == b.1),
+    );
+    assert_true("tail chunk zero-padded", msgs[3][1] == poly_zero());
+
+    // ONE digest for the ordered chunk list.
+    let dg = wide_digest(&groups);
+    let mut swapped = groups.clone();
+    swapped.swap(0, 1);
+    let mut tampered = groups.clone();
+    tampered[2].1[0][0] ^= 1;
+    assert_true(
+        "wide digest binds order, every element and the chunk count",
+        wide_digest(&swapped) != dg
+            && wide_digest(&tampered) != dg
+            && wide_digest(&groups[..3]) != dg
+            && wide_digest(&groups) == dg,
+    );
+
+    // Manifest: ONE entry for the logical tensor (never one per chunk).
+    let mut ki = key_info_bytes(&shape, q);
+    ki.extend_from_slice(&(wide_chunk_count(wide_len, shape.msg_r) as u32).to_le_bytes());
+    ki.extend_from_slice(&(wide_len as u32).to_le_bytes());
+    let mut mf = ClaimManifest::new("lattice-route-r", &crs.crs_hash);
+    let _id = mf.add_commitment("WIDE", 1, wide_len, Orientation::ByColumns, ki, dg.to_vec());
+    let ctx = mf.digest();
+
+    // Protocol equations unchanged: RingClaims address (chunk, slot) pairs
+    // through wide_slot — per-slot claims plus one claim SPANNING chunks.
+    let t1s: Vec<Vec<Poly>> = groups.iter().map(|g| g.0.clone()).collect();
+    let t2s: Vec<Vec<Poly>> = groups.iter().map(|g| g.1.clone()).collect();
+    let one = {
+        let mut p = poly_zero();
+        p[0] = 1;
+        p
+    };
+    let mut claims: Vec<RingClaim> = (0..wide_len)
+        .map(|u| {
+            let (c, s) = wide_slot(u, shape.msg_r);
+            RingClaim { msg_coeffs: vec![(c, s, one.clone())], constant: x_wide[u].clone() }
+        })
+        .collect();
+    let mut mc = Vec::new();
+    let mut k = poly_zero();
+    for (u, xu) in x_wide.iter().enumerate() {
+        let w = poly_from_small(&zq, &rng_quinary_poly(&mut rng));
+        let (c, s) = wide_slot(u, shape.msg_r);
+        k = poly_add(&zq, &k, &ring_mul_split_kara_fast(&ring_ctx, &w, xu));
+        mc.push((c, s, w));
+    }
+    claims.push(RingClaim { msg_coeffs: mc, constant: k });
+    let h0 = ct_h0(&crs, &ctx, &t1s, &t2s, &[]);
+    let openings: Vec<StdOpening> = msgs
+        .iter()
+        .zip(rhos.iter())
+        .enumerate()
+        .map(|(i, (x, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x, rho })
+        .collect();
+    let (proof, _attempts) = prove_ct_round(
+        &a1_path, &ring_ctx, &rp, None, &crs, &h0, &[], &claims, &[], &[], &openings, &[], &[],
+        openings.len(), &mut rng,
+    );
+    assert_true(
+        "ct-round proves/verifies claims addressed across chunk boundaries",
+        verify_ct_round(
+            &a1_path, &ring_ctx, &rp, None, &crs, &h0, &[], &claims, &[], &[], &t1s, &t2s, &[],
+            &[], &[], openings.len(), &proof,
+        ),
+    );
+    let mut claims_bad: Vec<RingClaim> = claims
+        .iter()
+        .map(|c| RingClaim { msg_coeffs: c.msg_coeffs.clone(), constant: c.constant.clone() })
+        .collect();
+    let bumped = zq.add(claims_bad.last().unwrap().constant[0], 1);
+    claims_bad.last_mut().unwrap().constant[0] = bumped;
+    assert_true(
+        "tampered spanning-claim constant fails",
+        !verify_ct_round(
+            &a1_path, &ring_ctx, &rp, None, &crs, &h0, &[], &claims_bad, &[], &[], &t1s, &t2s,
+            &[], &[], &[], openings.len(), &proof,
+        ),
+    );
+    let mut t2s_bad = t2s.clone();
+    t2s_bad[1][0][0] = zq.add(t2s_bad[1][0][0], 1);
+    assert_true(
+        "tampered chunk commitment fails",
+        !verify_ct_round(
+            &a1_path, &ring_ctx, &rp, None, &crs, &h0, &[], &claims, &[], &[], &t1s, &t2s_bad,
+            &[], &[], &[], openings.len(), &proof,
+        ),
+    );
+
+    // The blocker the layout removes, as a pinned magnitude.
+    let gb_4096 = monolithic_wide_crs_bytes(4096, 9, q) as f64 / 1e9;
+    let gb_11008 = monolithic_wide_crs_bytes(11008, 9, q) as f64 / 1e9;
+    println!(
+        "  monolithic wide CRS at FFN inner dims: msg_r=4096 -> {gb_4096:.1} GB, msg_r=11008 -> {gb_11008:.1} GB (A1 caches excluded); the chunked layout needs only the msg_r=32-class CRS"
+    );
+    assert_true(
+        "monolithic wide CRS is the 17-121 GB class the chunking avoids",
+        gb_4096 > 15.0 && gb_11008 > 100.0,
+    );
+}
+
+// ---------------------------------------------------------------------------
+// m5-bench: the real end-to-end CPU commit-bill measurement at FFN matmul
+// dims (LLM_SCALE_ESTIMATE.md M5 / audit H-02 recost). Streams the triple —
+// nothing dense is materialized: every column is generated, packed,
+// committed and digested, then dropped; only 32-byte digests are retained.
+
+fn proc_status_mb(key: &str) -> f64 {
+    std::fs::read_to_string("/proc/self/status")
+        .ok()
+        .and_then(|s| {
+            s.lines()
+                .find(|l| l.starts_with(key))
+                .and_then(|l| l.split_whitespace().nth(1).and_then(|v| v.parse::<f64>().ok()))
+        })
+        .map(|kb| kb / 1024.0)
+        .unwrap_or(f64::NAN)
+}
+
+/// One streamed column commit: generate `height` values mod q from `seed`,
+/// pack to msg_r slots, sample ternary rho, commit, digest. With
+/// kernel = false everything except the commit + commitment digest runs
+/// (the non-kernel share: datagen + packing + rho sampling).
+fn m5_column_digest(
+    path: &KernelPath,
+    crs: &ring::commit::RingCrs,
+    height: usize,
+    seed: u64,
+    kernel: bool,
+) -> [u8; 32] {
+    use sha2::{Digest, Sha256};
+    let mut rng = seed;
+    let col: Vec<u64> = (0..height).map(|_| rng_below(&mut rng, crs.q)).collect();
+    let x = pack_column(height, crs.shape.msg_r, &col);
+    let rho: Vec<Vec<i64>> = (0..crs.shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+    let mut h = Sha256::new();
+    if kernel {
+        let (t1, t2) = commit(path, crs, &x, &rho);
+        h.update(polys_bytes(&t1));
+        h.update(polys_bytes(&t2));
+    } else {
+        let mut acc = 0u64;
+        for p in &x {
+            for &v in p {
+                acc = acc.wrapping_add(v);
+            }
+        }
+        for r in &rho {
+            for &v in r {
+                acc = acc.wrapping_add(v as u64);
+            }
+        }
+        h.update(seed.to_le_bytes());
+        h.update(acc.to_le_bytes());
+    }
+    h.finalize().into()
+}
+
+fn m5_fold(digests: &[[u8; 32]]) -> [u8; 32] {
+    use sha2::{Digest, Sha256};
+    let mut h = Sha256::new();
+    for d in digests {
+        h.update(d);
+    }
+    h.finalize().into()
+}
+
+#[allow(clippy::too_many_arguments)]
+fn m5_bench(rows: usize, inner: usize, cols: usize, reps: usize) {
+    use rayon::prelude::*;
+    use ring::commit::{monolithic_wide_crs_bytes, wide_chunk_count, wide_chunks, wide_digest};
+    let q = Q8;
+    println!(
+        "m5-bench: FFN matmul triple commit bill at {rows}x{inner}x{cols}, (k = 8, q8_31, e = 4), chunked msg_r-class CRS, reps = {reps}"
+    );
+    assert_ls18(q, 8);
+    let p = derive_digits(Proto::Pi2, rows, inner, cols, 0, q, true, 4)
+        .expect("frozen C2-C4 point fits q31");
+    let cshape = CommitShape { kappa: p.kappa, n_r: p.n_r, msg_r: p.msg_r };
+    println!(
+        "  frozen point: kappa = {}, N_r = {}, msg_r = {} (C2 headroom {:.1} bits); P0 regimes:",
+        cshape.kappa, cshape.n_r, cshape.msg_r, p.c2_headroom_bits()
+    );
+    for line in a1_enforce(q, p.n_r, p.sigma, isqrt_u128(p.bound_sq)) {
+        println!("    {:<58} -> {}", line.name, line.path);
+    }
+
+    let t_setup = Instant::now();
+    let crs = expand_crs(cshape, q, 0x4d35_0000);
+    let a1p = build_a1_paths(&crs, p.sigma, isqrt_u128(p.bound_sq));
+    let crs_mb = ((cshape.kappa + cshape.msg_r) * cshape.n_r * D * 8) as f64 / 1e6;
+    println!(
+        "  chunked CRS expanded in {:.2}s: {:.2} MB CRS + {:.2} MB A1 caches (bounded, shape-independent of tensor width)",
+        t_setup.elapsed().as_secs_f64(),
+        crs_mb,
+        a1p.cached_bytes() as f64 / 1e6
+    );
+
+    // The monolithic wide CRS this layout replaces (pi2-CE wide objects).
+    let full = subgroup_elems(5, true);
+    let h_sub = full.len();
+    let inner_r = inner.div_ceil(D);
+    let rows_r = rows.div_ceil(D);
+    let wide_a = h_sub * inner_r;
+    println!(
+        "  monolithic wide CRS avoided: msg_r = {} (h = {h_sub} x inner_r = {inner_r}) -> {:.1} GB; msg_r = {} -> {:.1} GB; chunked: {:.2} MB",
+        wide_a,
+        monolithic_wide_crs_bytes(wide_a, cshape.kappa, q) as f64 / 1e9,
+        cols,
+        monolithic_wide_crs_bytes(cols, cshape.kappa, q) as f64 / 1e9,
+        crs_mb
+    );
+
+    // --- The triple's work list (streamed; per-column seeds). -------------
+    // A (rows x inner) by rows, B (inner x cols) by columns, C (rows x cols)
+    // by columns — the chain_demo orientation discipline at one shared CRS.
+    const GOLD: u64 = 0x9e37_79b9_7f4a_7c15;
+    let base_seed = 0x4d35_1001u64;
+    let mut work: Vec<(usize, u64)> = Vec::with_capacity(rows + 2 * cols);
+    for i in 0..rows {
+        work.push((inner, base_seed.wrapping_add((i as u64).wrapping_mul(GOLD))));
+    }
+    for j in 0..cols {
+        work.push((inner, base_seed.wrapping_add(((rows + j) as u64).wrapping_mul(GOLD))));
+    }
+    for j in 0..cols {
+        work.push((rows, base_seed.wrapping_add(((rows + cols + j) as u64).wrapping_mul(GOLD))));
+    }
+    let n_commits = work.len();
+    let used_el = (rows * inner + inner * cols + rows * cols) as f64;
+    let paid_el = (n_commits * cshape.msg_r * D) as f64;
+    let ring_macs = (n_commits * (cshape.kappa + cshape.msg_r) * cshape.n_r) as f64;
+    println!(
+        "  work: {n_commits} column commitments ({} A rows + {} B cols + {} C cols); used elements {:.3e}, paid slots {:.3e} (padding waste {:.2}x, C columns pay msg_r = {} for {} used), ring-MACs {:.3e}",
+        rows, cols, cols, used_el, paid_el, paid_el / used_el, cshape.msg_r, rows.div_ceil(D), ring_macs
+    );
+
+    // --- Thread-scaling measurement. ---------------------------------------
+    let threads = [1usize, 2, 4, 8, 16, 22];
+    println!("\n  commit bill, full triple per repetition (min/median of {reps}):");
+    println!("M5CSV,threads,secs_min,secs_med,ns_per_used_el,ns_per_paid_el,ring_macs_per_s,eff_gmacs,speedup_vs_1t");
+    let mut t1_min = f64::NAN;
+    let mut fold0: Option<[u8; 32]> = None;
+    let mut speed22 = f64::NAN;
+    for &t in &threads {
+        let pool = rayon::ThreadPoolBuilder::new().num_threads(t).build().expect("pool");
+        let mut times: Vec<f64> = Vec::with_capacity(reps);
+        for _ in 0..reps {
+            let tt = Instant::now();
+            let digests: Vec<[u8; 32]> = pool.install(|| {
+                work.par_iter()
+                    .map(|&(height, seed)| {
+                        let path = KernelPath::A1(&a1p);
+                        m5_column_digest(&path, &crs, height, seed, true)
+                    })
+                    .collect()
+            });
+            times.push(tt.elapsed().as_secs_f64());
+            let fold = m5_fold(&digests);
+            match fold0 {
+                None => fold0 = Some(fold),
+                Some(d) => assert!(
+                    d == fold,
+                    "digest mismatch across thread counts — parallel layout must be order-identical"
+                ),
+            }
+        }
+        times.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        let mn = times[0];
+        let md = times[times.len() / 2];
+        if t == 1 {
+            t1_min = mn;
+        }
+        let speedup = t1_min / mn;
+        if t == 22 {
+            speed22 = speedup;
+        }
+        println!(
+            "M5CSV,{t},{mn:.3},{md:.3},{:.1},{:.1},{:.3e},{:.1},{speedup:.2}",
+            mn * 1e9 / used_el,
+            mn * 1e9 / paid_el,
+            ring_macs / mn,
+            ring_macs / mn * (D * D) as f64 / 1e9,
+        );
+    }
+
+    // Non-kernel share (datagen + packing + rho sampling, no commit/digest).
+    for t in [1usize, 22] {
+        let pool = rayon::ThreadPoolBuilder::new().num_threads(t).build().expect("pool");
+        let tt = Instant::now();
+        let digests: Vec<[u8; 32]> = pool.install(|| {
+            work.par_iter()
+                .map(|&(height, seed)| {
+                    let path = KernelPath::A1(&a1p);
+                    m5_column_digest(&path, &crs, height, seed, false)
+                })
+                .collect()
+        });
+        std::hint::black_box(m5_fold(&digests));
+        println!(
+            "M5CSV,baseline_no_kernel_t{t},{:.3}",
+            tt.elapsed().as_secs_f64()
+        );
+    }
+
+    // --- Claim-layer volume at this shape (pi2-CE wide objects, chunked, ---
+    // --- R1 pads per Q4_LEMMAS.md R1.4'). ----------------------------------
+    // 9 wide objects: 3 per side, sides A/B at h * inner_r slots, side C at
+    // h * rows_r; round W is gate-only (1 TwistedQuadRingClaim) so R1 costs
+    // ONE fresh pad commitment (3 uniform slots) — under chunking that is
+    // one msg_r-class chunk, not a wide-shape commitment.
+    let wide_slots = 6 * h_sub * inner_r + 3 * h_sub * rows_r;
+    let pad_slots = ring::ct_engine::r1_pad_count(0, 0, 1);
+    let wide_chunks_n = 6 * wide_chunk_count(h_sub * inner_r, cshape.msg_r)
+        + 3 * wide_chunk_count(h_sub * rows_r, cshape.msg_r);
+    let pad_chunks = wide_chunk_count(pad_slots, cshape.msg_r);
+    let mut rngw = 0x4d35_2001u64;
+    let mut wide_msgs: Vec<Vec<Poly>> = Vec::with_capacity(wide_chunks_n + pad_chunks);
+    for len in [
+        h_sub * inner_r, h_sub * inner_r, h_sub * inner_r,
+        h_sub * inner_r, h_sub * inner_r, h_sub * inner_r,
+        h_sub * rows_r, h_sub * rows_r, h_sub * rows_r,
+    ] {
+        let x_wide: Vec<Poly> = (0..len).map(|_| rng_poly_mod(&mut rngw, q)).collect();
+        wide_msgs.extend(wide_chunks(&x_wide, cshape.msg_r));
+    }
+    let pad_wide: Vec<Poly> = (0..pad_slots).map(|_| rng_poly_mod(&mut rngw, q)).collect();
+    wide_msgs.extend(wide_chunks(&pad_wide, cshape.msg_r));
+    let wide_seed_base = 0x4d35_3001u64;
+    let mut wide_times_1t: Vec<f64> = Vec::with_capacity(reps);
+    let mut wide_digest_val = [0u8; 32];
+    for _ in 0..reps {
+        let tt = Instant::now();
+        let groups: Vec<(Vec<Poly>, Vec<Poly>)> = wide_msgs
+            .iter()
+            .enumerate()
+            .map(|(i, x)| {
+                let mut r = wide_seed_base.wrapping_add((i as u64).wrapping_mul(GOLD));
+                let rho: Vec<Vec<i64>> =
+                    (0..cshape.n_r).map(|_| rng_ternary_poly(&mut r)).collect();
+                commit(&KernelPath::A1(&a1p), &crs, x, &rho)
+            })
+            .collect();
+        wide_times_1t.push(tt.elapsed().as_secs_f64());
+        wide_digest_val = wide_digest(&groups);
+    }
+    wide_times_1t.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    let wide_1t = wide_times_1t[0];
+    let n_claim_chunks = wide_msgs.len();
+    println!(
+        "\n  claim layer per matmul claim at this shape (pi2-CE, chunked): {} wide slots + {} R1 pad slots -> {} chunk commitments ({} wide + {} pad), commit {:.3}s 1T ({:.3}ms/chunk); one-logical-tensor digest {}",
+        wide_slots,
+        pad_slots,
+        n_claim_chunks,
+        wide_chunks_n,
+        pad_chunks,
+        wide_1t,
+        wide_1t * 1e3 / n_claim_chunks as f64,
+        hex_prefix(&wide_digest_val)
+    );
+    // Reveal/pivot transcript volume (F + K2, proof-encoded at 31 bits).
+    let f_polys = h_sub * (2 * inner_r + rows_r);
+    let k2_polys = 2 * inner_r + rows_r;
+    println!(
+        "  reveals per claim: F = {} polys ({:.2} MB at 31 bits/coeff) + K2 = {} polys ({:.1} KB) — transcript bytes, not commitments",
+        f_polys,
+        f_polys as f64 * D as f64 * 31.0 / 8.0 / 1e6,
+        k2_polys,
+        k2_polys as f64 * D as f64 * 31.0 / 8.0 / 1e3
+    );
+    println!(
+        "M5CSV,claim_layer,{wide_slots},{pad_slots},{n_claim_chunks},{wide_1t:.3}"
+    );
+
+    // --- The recost block (audit H-02): the corrected ladder row. ----------
+    let el_low = 9.4e9f64; // committed element-equivalents, RING_MULT_BOTTLENECK 6.4a [MODEL]
+    let el_high = 1.33e10f64; // A1_AUX_NTT_REPORT s6 accounting [MODEL]
+    let macs_per_el = (1.0 + cshape.kappa as f64 / cshape.msg_r as f64) * cshape.n_r as f64 / D as f64;
+    let rate_1t = ring_macs / t1_min; // measured ring-MACs/s end-to-end 1T
+    let bill_1t = (el_low * macs_per_el / rate_1t, el_high * macs_per_el / rate_1t);
+    let bill_22t = (bill_1t.0 / speed22, bill_1t.1 / speed22);
+    println!("\n  recost, 7B/512-token pass (audit H-02):");
+    println!(
+        "    element-equivalents/pass: {:.1e}..{:.2e} [MODEL — the two docs' accountings], x {:.3} ring-MACs/el at this point",
+        el_low, el_high, macs_per_el
+    );
+    println!(
+        "    commit bill 1T  [MEASURED-AT-RATE]: {:.0}-{:.0} s ({:.1}-{:.1} min) at the measured end-to-end rate {:.2e} ring-MACs/s",
+        bill_1t.0, bill_1t.1, bill_1t.0 / 60.0, bill_1t.1 / 60.0, rate_1t
+    );
+    println!(
+        "    commit bill 22T [MEASURED-AT-RATE]: {:.0}-{:.0} s ({:.1}-{:.1} min) at the MEASURED {:.1}x 22-thread scaling (ladder assumed ~15x)",
+        bill_22t.0, bill_22t.1, bill_22t.0 / 60.0, bill_22t.1 / 60.0, speed22
+    );
+    println!(
+        "    commit bill GPU [ASSUMED 20x]: {:.1}-{:.1} s — no GPU kernel exists in this repo (audit H-03); this row is an assumption, not a measurement",
+        bill_22t.0 / 20.0, bill_22t.1 / 20.0
+    );
+    println!(
+        "    claim layer/pass [MODEL anchored]: ~288 matmul-class claims x {:.3}s 1T chunked commit volume = {:.0}s 1T -> ~{:.0}s at {:.1}x; + round proofs ~10-25s wall 22T [MODEL, RING_MULT_BOTTLENECK 6.4b]; R1 pads add {} slots/gate round (one chunk, measured above) — sub-percent [R1.4']",
+        wide_1t, 288.0 * wide_1t, 288.0 * wide_1t / speed22, speed22, pad_slots
+    );
+    println!(
+        "    E4/lookup landing [MODEL, M4_LOOKUP_DESIGN]: 9 CtClaims + ~120 KB/pass transcript + ~2.3e7 ring-mult-equivalents (~{:.0}s 1T at the measured rate) — activations stay noise-class",
+        2.3e7 / rate_1t
+    );
+    println!(
+        "M5CSV,recost,bill_1t_s,{:.0},{:.0},bill_22t_s,{:.0},{:.0},mt_factor,{speed22:.2},gpu20x_s,{:.1},{:.1}",
+        bill_1t.0, bill_1t.1, bill_22t.0, bill_22t.1, bill_22t.0 / 20.0, bill_22t.1 / 20.0
+    );
+
+    println!(
+        "\n  memory: peak RSS (VmHWM) {:.0} MB, current (VmRSS) {:.0} MB — streaming holds the {rows}x{inner}x{cols} triple far below the 12 GB budget",
+        proc_status_mb("VmHWM:"),
+        proc_status_mb("VmRSS:")
+    );
+    println!("m5-bench done");
+}
+
+fn hex_prefix(d: &[u8; 32]) -> String {
+    d[..8].iter().map(|b| format!("{b:02x}")).collect()
 }

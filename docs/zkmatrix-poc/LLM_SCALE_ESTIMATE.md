@@ -58,7 +58,8 @@ measured lattice cost model at 7B/512-token scale:
 | + Route R ring lift at k=2 (r: 64 -> 1 on proofs; ~2-3x on commit ops -- corrected from ~15x by ROUTE_R_DESIGN.md: q = 5 mod 8 caps CRT splitting at one level, no full NTT; proofs to ~50-175 KB) | ~2-4 min | ~20-35x | -- |
 | + Route R Q2/Q3 (response decomposition to a 32-bit q; deeper k-split with real NTT) + GPU integer GEMM *(superseded by the measured row below)* | **~15 s** | **~2x** | ~300x |
 | **MEASURED (Q2/Q3/A2 tranche, RING_MULT_BOTTLENECK.md Section 6): k = 8 split + Karatsuba at q31 -- commit kernel 8.1x, commit bill ~34x vs Route Z (~6.6 min CPU-22T, ~20 s with the GPU 20x row); total pass ~25-45 s with GPU** | ~25-45 s | ~4-6x | -- |
-| **+ A1 aux-modulus NTT (INTEGRATED-MEASURED: 6.2-6.4x over k8+Kara head-to-head at FFN shape inside ring_lattice, ~99-111 ns/committed element; commit bill ~1.6-2.0 min CPU-22T -> ~5-6 s GPU; proofs bit-identical)** | **~15-30 s** | **~2-4x** | ~300x |
+| **+ A1 aux-modulus NTT (INTEGRATED-MEASURED: 6.2-6.4x over k8+Kara head-to-head at FFN shape inside ring_lattice, ~99-111 ns/committed element; commit bill ~~~1.6-2.0 min CPU-22T~~ -> ~5-6 s GPU; proofs bit-identical)** | **~15-30 s** | **~2-4x** | ~300x |
+| **M5-lite CORRECTION (MEASURED end-to-end, full 512x4096x11008 triple streamed under the chunked CRS, M5_LITE_REPORT.md): 117 ns/paid element 1T; 22T scaling 8.7-9.1x MEASURED (was ~15x assumed) -> commit bill 2.1-3.0 min 22T; pass ~2.5-3.6 min CPU; the ~15-30 s row survives ONLY via the [ASSUMED] 20x GPU factor** | ~2.5-3.6 min CPU / ~15-40 s [GPU ASSUMED] | ~20-30x CPU | -- |
 | + bit-packing / lookup-based ranges (2-4x on gadget commitments) | ~5-10 s | ~1-1.5x | ~100-200x |
 
 Reality checks on the endpoint:
@@ -115,10 +116,32 @@ as the P0 line). Integrated commit kernel at the FFN shape:
 0.161-0.195 us/ring-MAC (84-102 eff GMAC/s single-thread), 6.2-6.4x
 over k8+Karatsuba head-to-head; at q31 the whole commit bill (bit AND
 value tensors) rides the single-prime golden regime. Commit bill:
-~1.6-2.0 min at 22T CPU, ~5-6 s under the assumed 20x GPU row; pass
-total **~15-30 s (~2-4x CPU-int8) with GPU — the arithmetic layer of
-this ladder rung is now measurement, not projection.** Remaining
-assumptions: the 20x GPU factor and the ~15x multithread scaling.
+~~~1.6-2.0 min at 22T CPU~~ *(superseded by the M5-lite measurement
+below)*, ~5-6 s under the assumed 20x GPU row; pass total
+~~**~15-30 s (~2-4x CPU-int8) with GPU** — the arithmetic layer of
+this ladder rung is now measurement, not projection.~~ Remaining
+assumptions at that point: the 20x GPU factor and the ~15x multithread
+scaling — the second of which the M5-lite measurement has now
+FALSIFIED for this box.
+
+**M5-lite update (MEASURED end-to-end at FFN matmul dims;
+M5_LITE_REPORT.md, results/m5_bench_ffn_s{1,2,3}.txt):** wide-object
+chunking (a layout-only change — the 17-124 GB monolithic wide CRS
+becomes one 2.4 MB msg_r = 32-class CRS) made the first REAL
+full-shape run possible on this machine: a complete 512x4096x11008
+triple (22,528 column commitments, 5.27e7 ring-MACs) streamed at
+**117 ns/paid element end-to-end single-thread** (the 99-111 ns
+kernel anchor + streaming overhead, peak RSS 94 MB) and — the
+correction — **8.7-9.1x measured 22-thread scaling, not the ~15x this
+section assumed.** Corrected commit bill: **1104-1563 s 1T,
+126-179 s = 2.1-3.0 min at 22T [MEASURED-AT-RATE]; ~6.3-8.9 s only
+under the still-[ASSUMED] 20x GPU row.** Pass total on CPU:
+**~2.5-3.6 min at 22T** (commit + claim layer with R1 pads counted;
+activations per the M4 lookup design stay noise-class [MODEL]). The
+"~1.6-2.0 min at 22T" row above therefore did NOT hold on this
+hardware — its single-thread arithmetic was right, its parallelism
+assumption was ~1.7x optimistic. The ~15-30 s pass rung now rests
+entirely on the unimplemented GPU row (audit H-03).
 
 ## 3b. The 2x-overhead decomposition (refined target)
 

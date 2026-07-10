@@ -410,6 +410,10 @@ noise-level gadgets, the **~15-30 s / ~2-4x-of-quantized-CPU gate
 reconciliation of RING_MULT_BOTTLENECK.md Section 6.5 is CONFIRMED at
 integrated rates**; the unmeasured factors that remain are the 20x GPU
 row and the multithreaded-scaling extrapolation, not the arithmetic.
+*(M5-lite update: the multithread extrapolation is now measured — and
+was optimistic: 8.7-9.1x at 22T on this box, not ~15x; the per-element
+rate above reproduces end-to-end (117 ns/element streamed) but the 22T
+commit bill corrects to 2.1-3.0 min. See M5_LITE_REPORT.md.)*
 
 ## 7. Descoped / follow-ups
 
