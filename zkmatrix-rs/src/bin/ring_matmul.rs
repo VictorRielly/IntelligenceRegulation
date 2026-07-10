@@ -3627,11 +3627,21 @@ fn self_test_pi2() {
 // runs its own round.
 //
 // Chain: X0 (n0 x n3), W1 (n1 x n0, hidden) -> Y1 = W1 X0 (Pi2, r_g demo
-// reps); Y1 = 2^shift * Y2 + R (rescale link) with Range(R, shift):
-// bit planes + recomposition + binary claims — one shared gadget wave;
-// plus a slot-packed Hadamard triple (H3) of width n2 as its own layer.
-// At q31 the binary claims are mod-q identities; the non-wrap side
-// condition is the documented open item (U3/U6 finding) — printed here.
+// reps); Y1 = 2^shift * Y2 + R (rescale link) with Range(R, shift); plus
+// a slot-packed Hadamard triple (H3) of width n2 as its own layer.
+//
+// The range family runs through the U-L MODULUS LINK (ring/link.rs,
+// audit C-02): R's bit planes are committed at the q8_46 gadget layer —
+// the modulus where the binary claim's ARP side condition closes, so
+// "each coefficient is a genuine 0/1 INTEGER and the recomposition is
+// exact over Z" is proven, not asserted — and l = 24 FS-derived link
+// rows tie the recomposed integers to R's q31 residues. Since the proven
+// integers are < 2^shift << q31, the q31 residues ARE the integers: the
+// non-wrap side condition the old demo only printed a caveat about is
+// now part of the proof. The [U7w] battery below demonstrates the attack
+// the link stops: a witness satisfying every q31 identity while wrapping
+// over the integers ACCEPTS under the old q31-only family and REJECTS
+// under the shipped q46 grounding.
 
 fn group_digest(t1: &[Poly], t2: &[Poly]) -> Vec<u8> {
     use sha2::{Digest, Sha256};
@@ -3658,8 +3668,9 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         verify_ct_round,
     };
     println!("ring_matmul chain-demo: X0({n0}x{n3}) -W1({n1}x{n0})-> Y1 -rescale-> Y2 (+range family), Hadamard width {n2}, q8_31");
-    println!("  [q31 caveat] binary claims are mod-q identities; the non-wrap side condition");
-    println!("  needs a q46-class budget or an exact strategy (U3/U6 finding; see the report).");
+    println!("  [non-wrap] R's bit planes live at q8_46 (where the ARP budget closes) and the");
+    println!("  U-L modulus link pins R's q31 residues to the recomposed integers — the range");
+    println!("  fact is integer-exact, proven (was: printed caveat; audit C-02).");
     let q = Q8;
     let ring_ctx = ring_ctx_q8();
     let zq = ring_ctx.zq;
@@ -3679,6 +3690,51 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         CommitShape { kappa: p.kappa, n_r: p.n_r + msg_bump, msg_r: p.msg_r + msg_bump };
     let crs = expand_crs(cshape, q, 777);
     let mut rng = 0x5eed_0009u64;
+
+    // --- The q46 grounding layer for the range family (U-L link). ---------
+    // Frozen gadget-layer point (link demo / freeze_check_link discipline);
+    // per-COLUMN binary units keep the ARP granularity cap (~896 coeffs).
+    let q_g = ring::Q8_46;
+    let ring_g = ring::ring_ctx(q_g, ring::ETA8_46, 8);
+    let zq_g = ring_g.zq;
+    let gl_g = ring::link::derive_gadget_layer(q_g, 32, 16).expect("q46 gadget layer derives");
+    let crs_g = expand_crs(gl_g.shape, q_g, 778);
+    let msg_r_g = gl_g.shape.msg_r;
+    let chunks = n1.div_ceil(D);
+    assert!(
+        shift as usize * chunks <= msg_r_g,
+        "bit-plane stack must fit one q46 commitment per column"
+    );
+    let n_unit_bits = shift as usize * chunks * D;
+    assert!(
+        ring::link::arp_binary_unit_ok(n_unit_bits, q_g),
+        "per-column binary unit must close the q46 ARP budget"
+    );
+    // Frozen link operating point: w = 11, l = 24 rows (2^-264), per-column
+    // instances of n1 values in [0, 2^shift).
+    let lp = ring::link::derive_link_params(n1, shift, q_g, q, 11);
+    let ap = ring::ct_engine::derive_arp_params(n_unit_bits, 256, 1, 3.0);
+    let l_bin_g = ring::ct_engine::theta_rows(q_g);
+    // q46 round sizing: per column ap.rows ARP claims + lp.l grounding link
+    // claims (linear) and l_bin_g binary quad claims; R1 pads for the quads.
+    let n_lin_g = n3 * (ap.rows + lp.l);
+    let n_quad_g = n3 * l_bin_g;
+    let n_g_groups_g = (n_lin_g + n_quad_g + ring::ct_engine::r1_pad_count(n_quad_g, 0, 0))
+        .div_ceil(msg_r_g);
+    let rp_g = derive_ct_round_params(
+        q_g,
+        gl_g.shape,
+        n3 + n_g_groups_g + n3,
+        n3 * ap.rows,
+        12 * ap.sigma_arp,
+        false,
+    );
+    let a1p_g = build_a1_paths(
+        &crs_g,
+        rp_g.sigma.max(rp_g.sigma_s),
+        isqrt_u128(rp_g.bound_sq.max(rp_g.bound_s_sq)),
+    );
+    let path_g = KernelPath::A1(&a1p_g);
 
     // --- Instance data. --------------------------------------------------
     // Small-integer witnesses under the DECLARED quantization (statement
@@ -3762,9 +3818,26 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
     let (y1_cols, rho_y1, ty1) = commit_cols(&y1, n1, n3, &mut rng);
     let (y2_cols, rho_y2, ty2) = commit_cols(&y2, n1, n3, &mut rng);
     let (r_cols, rho_r, tr) = commit_cols(&rr, n1, n3, &mut rng);
-    let mut bit_data = Vec::new();
-    for bits in &r_bits {
-        bit_data.push(commit_cols(bits, n1, n3, &mut rng));
+    // R's bit planes: committed at the q46 GADGET layer, one commitment
+    // per column holding the whole plane stack (plane i's chunk u at slot
+    // i * chunks + u; the zero padding is binary, so claims may cover
+    // whole slots).
+    let mut bits_x: Vec<Vec<Poly>> = Vec::new();
+    let mut bits_rho: Vec<Vec<Vec<i64>>> = Vec::new();
+    let mut bits_groups: Vec<(Vec<Poly>, Vec<Poly>)> = Vec::new();
+    for j in 0..n3 {
+        let mut x = vec![poly_zero(); msg_r_g];
+        for (i, plane) in r_bits.iter().enumerate() {
+            for t in 0..n1 {
+                x[i * chunks + t / D][t % D] = plane[t * n3 + j];
+            }
+        }
+        let rho: Vec<Vec<i64>> =
+            (0..gl_g.shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+        let (t1, t2) = commit(&path_g, &crs_g, &x, &rho);
+        bits_x.push(x);
+        bits_rho.push(rho);
+        bits_groups.push((t1, t2));
     }
     // Hadamard: one slot-packed commitment per side.
     let pack8 = |v: &[u64]| -> Vec<Poly> {
@@ -3802,16 +3875,17 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
     let id_y2 = mf.add_commitment("Y2", n1, n3, Orientation::ByColumns, ki.clone(), group_list_digest(&ty2));
     let id_r = mf.add_commitment("R", n1, n3, Orientation::ByColumns, ki.clone(), group_list_digest(&tr));
     // ONE stacked plane entry for R's bit decomposition (the lattice
-    // ffn-demo layout the validator pins): `shift` planes stacked row-wise,
-    // digest over every plane's commitment groups in plane order.
-    let bits_groups: Vec<(Vec<Poly>, Vec<Poly>)> =
-        bit_data.iter().flat_map(|(_, _, g)| g.iter().cloned()).collect();
+    // ffn-demo layout the validator pins): `shift` planes stacked
+    // row-wise. The entry's key_info names the q46 GADGET layer — the
+    // statement records that this tensor's range fact is grounded at the
+    // modulus whose ARP budget closes — and its digest covers the
+    // per-column q46 stack commitments in column order.
     let id_bits = mf.add_commitment(
         "R-bits",
         n1 * shift as usize,
         n3,
         Orientation::ByColumns,
-        ki.clone(),
+        key_info_bytes(&gl_g.shape, q_g),
         group_list_digest(&bits_groups),
     );
     let id_hx = mf.add_commitment("HX", n2, 1, Orientation::ByColumns, ki.clone(), group_list_digest(&h_groups[0..1]));
@@ -3935,20 +4009,22 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         &x0_cols, &rho_x0, &y1_cols, &rho_y1, &tw1, &tx0, &ty1, &mut rng,
     );
 
-    // --- Layer 2: ONE gadget wave: rescale + recomposition + binary + ----
-    // --- Hadamard claims share one ct-round.                           ----
-    // Commitment index space (plain): per-column commitments of
-    // Y1, Y2, R, bits..., then HX, HY, HZ. For the demo the columns are
-    // combined per-tensor with ring challenges into digit-opened combos —
-    // the r = 1 wave: one slot per tensor, claims per column ride the
-    // combined objects only where the claim is column-uniform (rescale,
-    // recomposition: constant coefficients commute with the v-combination;
-    // binary: the quadratic claim runs per tensor on the v-combined bits
-    // as a mod-q identity on the combination — sound per-slot for the
-    // recomposition/rescale, the binary ct runs on the ORIGINAL columns
-    // via one claim per column bundled in the same round).
-    // For demo clarity we run the gadget claims on the per-column
-    // commitments directly (n3 is small); production waves combine.
+    // --- Layer 2: the q31 gadget wave (rescale + Hadamard + the link's ----
+    // --- q31 TARGET claims) and the q46 grounding round (binary + ARP  ----
+    // --- + the link's grounding claims).                                ----
+    // Commitment index space (plain, q31): per-column commitments of
+    // Y1, Y2, R, then HX, HY, HZ, then the g-mask groups. The bit planes
+    // are NOT here — they live in the q46 round's index space. For demo
+    // clarity claims run on the per-column commitments directly (n3 is
+    // small); production waves combine columns with ring challenges.
+    use ring::ct_engine::{
+        AjtaiCommit, AjtaiOpening, ajtai_commit, arp_attempt, arp_check_reveal, arp_claims,
+        derive_jl_rows, expand_b_mat, pack_arp_mask, r1_pad_count, sample_arp_mask,
+        sample_g_masks,
+    };
+    use ring::link::{
+        derive_link_xi, link_claims_gnd, link_claims_tgt, link_gate_ok, link_h0, link_reveal_y,
+    };
     let mut plain_x: Vec<Vec<Poly>> = Vec::new();
     let mut plain_rho: Vec<Vec<Vec<i64>>> = Vec::new();
     let mut t1s: Vec<Vec<Poly>> = Vec::new();
@@ -3966,10 +4042,6 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
     let base_y1 = push_tensor(&y1_cols, &rho_y1, &ty1);
     let base_y2 = push_tensor(&y2_cols, &rho_y2, &ty2);
     let base_r = push_tensor(&r_cols, &rho_r, &tr);
-    let base_bits: Vec<usize> = bit_data
-        .iter()
-        .map(|(msgs, rhos, groups)| push_tensor(msgs, rhos, groups))
-        .collect();
     let base_h = push_tensor(&h_msgs, &h_rhos, &h_groups);
 
     let const_poly = |v: u64| {
@@ -3980,7 +4052,9 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
     let mut ring_claims: Vec<RingClaim> = Vec::new();
     for j in 0..n3 {
         for u in 0..cshape.msg_r {
-            // Rescale: y1 - 2^shift y2 - r = 0.
+            // Rescale: y1 - 2^shift y2 - r = 0. (The recomposition claim
+            // moved to the q46 side: the link's structured 2^i weights ARE
+            // the recomposition — no recomposition identity runs at q31.)
             ring_claims.push(RingClaim {
                 msg_coeffs: vec![
                     (base_y1 + j, u, const_poly(1)),
@@ -3989,14 +4063,6 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
                 ],
                 constant: poly_zero(),
             });
-            // Recomposition: sum_i 2^i bits_i - r = 0.
-            let mut coeffs: Vec<(usize, usize, Poly)> = base_bits
-                .iter()
-                .enumerate()
-                .map(|(i, &bb)| (bb + j, u, const_poly(zq.to_mod(1i64 << i))))
-                .collect();
-            coeffs.push((base_r + j, u, const_poly(zq.neg(1))));
-            ring_claims.push(RingClaim { msg_coeffs: coeffs, constant: poly_zero() });
         }
     }
     // Hadamard claims (slot-packed triple).
@@ -4007,20 +4073,17 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
             msg_coeffs: vec![(base_h + 2, u, const_poly(zq.neg(1)))],
         })
         .collect();
-    // g-masks for the quadratic ct-claims: one theta-randomized claim
-    // family (l copies) per bit TENSOR — finding F5's fix requires the
-    // g's committed BEFORE h0, and the claims derived from h0.
-    let l_bin = ring::ct_engine::theta_rows(q);
-    let n_quad = base_bits.len() * l_bin;
+    // g-masks: reveal masks for the n3 * l link TARGET claims (linear) +
+    // R1 pads for the Hadamard quad ring-claims. Committed BEFORE h0_link
+    // (the F5 ordering rule, applied across moduli).
+    let n_lin_t = n3 * lp.l;
     let g_base = plain_x.len();
-    // n_quad reveal g's + the R1 pads (3 per binary quad ct-claim, 2 per
-    // Hadamard quad ring-claim).
-    let g_groups = ring::ct_engine::sample_g_masks(
+    let g_groups = sample_g_masks(
         &mut rng,
         q,
         cshape.msg_r,
-        n_quad,
-        ring::ct_engine::r1_pad_count(n_quad, cshape.msg_r, 0),
+        n_lin_t,
+        r1_pad_count(0, quad_ring.len(), 0),
     );
     for g in &g_groups {
         let rho: Vec<Vec<i64>> = (0..cshape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
@@ -4033,12 +4096,58 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
     let rp_wave = derive_ct_round_params(q, cshape, plain_x.len(), 0, 0, true);
     let a1p_wave = build_a1_paths(&crs, rp_wave.sigma, isqrt_u128(rp_wave.bound_sq));
     let wave_path = KernelPath::A1(&a1p_wave);
-    let h0 = ct_h0(&crs, &ctx, &t1s, &t2s, &[]);
-    let mut quad_claims = Vec::new();
-    for (ti, &bb) in base_bits.iter().enumerate() {
-        let members: Vec<(usize, usize)> = (0..n3).map(|j| (bb + j, cshape.msg_r)).collect();
-        quad_claims.extend(binary_claims(&zq, &h0, ti as u64, &members));
+
+    // q46 g-masks: reveals for the ARP + grounding link claims, R1 pads
+    // for the binary quads. Also committed before h0_link.
+    let mut x_g_all: Vec<Vec<Poly>> = bits_x.clone();
+    let mut rho_g_all: Vec<Vec<Vec<i64>>> = bits_rho.clone();
+    let mut t1s_g: Vec<Vec<Poly>> = Vec::new();
+    let mut t2s_g: Vec<Vec<Poly>> = Vec::new();
+    for (t1, t2) in &bits_groups {
+        t1s_g.push(t1.clone());
+        t2s_g.push(t2.clone());
     }
+    let g_base_g = x_g_all.len();
+    let g_groups_g = sample_g_masks(
+        &mut rng,
+        q_g,
+        msg_r_g,
+        n_lin_g + n_quad_g,
+        r1_pad_count(n_quad_g, 0, 0),
+    );
+    assert_eq!(g_groups_g.len(), n_g_groups_g);
+    for g in &g_groups_g {
+        let rho: Vec<Vec<i64>> =
+            (0..gl_g.shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+        let (t1, t2) = commit(&path_g, &crs_g, g, &rho);
+        x_g_all.push(g.clone());
+        rho_g_all.push(rho);
+        t1s_g.push(t1);
+        t2s_g.push(t2);
+    }
+
+    // The cross-modulus statement hash: h0_link binds the statement digest
+    // (which binds every commitment entry), both CRS hashes, and BOTH
+    // sides' full commitment lists (witnesses AND g-groups). The xi link
+    // rows and both round hashes derive from it — nothing weight-like
+    // exists before every commitment is fixed.
+    let h0_link = link_h0(&ctx, &crs_g, &crs, &t1s_g, &t2s_g, &t1s, &t2s);
+    let xi = derive_link_xi(&h0_link, &lp);
+    // Revealed link integers y, per column, gated on the GROUNDING side.
+    let r_col = |j: usize| -> Vec<u64> { (0..n1).map(|t| rr[t * n3 + j]).collect() };
+    let y_link: Vec<Vec<i64>> = (0..n3).map(|j| link_reveal_y(&lp, &xi, &r_col(j))).collect();
+    for y in &y_link {
+        assert!(link_gate_ok(&lp, y), "honest link reveal must pass the grounding gate");
+    }
+
+    // --- Layer 2a: the q31 wave. -------------------------------------------
+    let h0 = ct_h0(&crs, &h0_link, &t1s, &t2s, &[]);
+    let ct_claims_t: Vec<ring::ct_engine::CtClaim> = (0..n3)
+        .flat_map(|j| {
+            let value_slots: Vec<(usize, usize)> = (0..chunks).map(|u| (base_r + j, u)).collect();
+            link_claims_tgt(&zq, &lp, &xi, &y_link[j], &value_slots)
+        })
+        .collect();
     let openings: Vec<StdOpening> = plain_x
         .iter()
         .zip(plain_rho.iter())
@@ -4046,32 +4155,139 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         .map(|(i, (x, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x, rho })
         .collect();
     let (wave_proof, wave_attempts) = prove_ct_round(
-        &wave_path, &ring_ctx, &rp_wave, None, &crs, &h0, &[], &ring_claims, &quad_claims,
+        &wave_path, &ring_ctx, &rp_wave, None, &crs, &h0, &ct_claims_t, &ring_claims, &[],
         &quad_ring, &openings, &[], &[], g_base, &mut rng,
+    );
+
+    // --- Layer 2b: the q46 grounding round. ---------------------------------
+    // FS-with-aborts around the ARP masks: sample + Ajtai-commit ALL n3
+    // column masks, derive the round hash (which binds h0_link and the
+    // mask commitments), derive the JL rows, attempt every column; any
+    // rejection restarts the whole round with fresh masks.
+    let s_r = ap.rows.div_ceil(D);
+    let b_mat = expand_b_mat(&crs_g, "chain-arp", s_r);
+    let mut arp_rounds = 0usize;
+    let (m_packed, rho_m, acoms, h0_g, jl, y_arp) = loop {
+        arp_rounds += 1;
+        assert!(arp_rounds < 400, "ARP restart budget exhausted");
+        let masks: Vec<Vec<i64>> = (0..n3).map(|_| sample_arp_mask(&ap, &mut rng)).collect();
+        let packed: Vec<Vec<Vec<i64>>> = masks.iter().map(|m| pack_arp_mask(&ap, m)).collect();
+        let rhos: Vec<Vec<Vec<i64>>> = (0..n3)
+            .map(|_| (0..gl_g.shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect())
+            .collect();
+        let acoms: Vec<AjtaiCommit> = (0..n3)
+            .map(|j| ajtai_commit(&crs_g, &b_mat, &packed[j], &rhos[j]))
+            .collect();
+        let acom_refs: Vec<&AjtaiCommit> = acoms.iter().collect();
+        let h0_g = ct_h0(&crs_g, &h0_link, &t1s_g, &t2s_g, &acom_refs);
+        let jl = derive_jl_rows(&h0_g, ap.rows, ap.n);
+        let mut ys: Vec<Vec<i64>> = Vec::new();
+        for j in 0..n3 {
+            let flat: Vec<i64> = bits_x[j][..shift as usize * chunks]
+                .iter()
+                .flat_map(|p| p.iter().map(|&v| v as i64))
+                .collect();
+            match arp_attempt(&ap, &jl, &flat, &masks[j], &mut rng) {
+                Some(y) => ys.push(y),
+                None => break,
+            }
+        }
+        if ys.len() == n3 {
+            break (packed, rhos, acoms, h0_g, jl, ys);
+        }
+    };
+    let plane_slots = |j: usize| -> Vec<Vec<(usize, usize)>> {
+        (0..shift as usize)
+            .map(|i| (0..chunks).map(|u| (j, i * chunks + u)).collect())
+            .collect()
+    };
+    let msg_slots = |j: usize| -> Vec<(usize, usize)> {
+        (0..shift as usize * chunks).map(|s| (j, s)).collect()
+    };
+    let mut lin_claims_g: Vec<ring::ct_engine::CtClaim> = Vec::new();
+    for j in 0..n3 {
+        lin_claims_g.extend(arp_claims(&zq_g, &ap, &jl, &msg_slots(j), j, &y_arp[j]));
+    }
+    for j in 0..n3 {
+        lin_claims_g.extend(link_claims_gnd(&zq_g, &lp, &xi, &y_link[j], &plane_slots(j)));
+    }
+    let mut quad_claims_g = Vec::new();
+    for j in 0..n3 {
+        quad_claims_g.extend(binary_claims(&zq_g, &h0_g, j as u64, &[(j, shift as usize * chunks)]));
+    }
+    let openings_g: Vec<StdOpening> = x_g_all
+        .iter()
+        .zip(rho_g_all.iter())
+        .enumerate()
+        .map(|(i, (x, rho))| StdOpening { t1: &t1s_g[i], t2: &t2s_g[i], x, rho })
+        .collect();
+    let ajtai_opens: Vec<AjtaiOpening> = (0..n3)
+        .map(|j| AjtaiOpening { com: &acoms[j], s: &m_packed[j], rho: &rho_m[j] })
+        .collect();
+    let (proof_g, attempts_g) = prove_ct_round(
+        &path_g, &ring_g, &rp_g, None, &crs_g, &h0_g, &lin_claims_g, &[], &quad_claims_g, &[],
+        &openings_g, &[], &ajtai_opens, g_base_g, &mut rng,
     );
     let prove_s = t_prove.elapsed().as_secs_f64();
 
     // --- Verification. ----------------------------------------------------
+    // The verifier rebuilds EVERYTHING weight-like from public data: the
+    // statement digest, h0_link from both commitment lists, the xi rows,
+    // and both claim families from (xi, revealed y). It gates the revealed
+    // link integers on the GROUNDING side (|y| < q46/2 — the integer bound)
+    // and the ARP reveals on their range gate before any ct check runs.
     let t_verify = Instant::now();
+    let h0_link_v = link_h0(&ctx, &crs_g, &crs, &t1s_g, &t2s_g, &t1s, &t2s);
+    let xi_v = derive_link_xi(&h0_link_v, &lp);
+    let gates_ok = (0..n3).all(|j| link_gate_ok(&lp, &y_link[j]))
+        && (0..n3).all(|j| arp_check_reveal(&ap, &y_arp[j]));
+    let ct_claims_t_v: Vec<ring::ct_engine::CtClaim> = (0..n3)
+        .flat_map(|j| {
+            let value_slots: Vec<(usize, usize)> = (0..chunks).map(|u| (base_r + j, u)).collect();
+            link_claims_tgt(&zq, &lp, &xi_v, &y_link[j], &value_slots)
+        })
+        .collect();
+    let mut lin_claims_g_v: Vec<ring::ct_engine::CtClaim> = Vec::new();
+    let acom_refs: Vec<&AjtaiCommit> = acoms.iter().collect();
+    let h0_g_v = ct_h0(&crs_g, &h0_link_v, &t1s_g, &t2s_g, &acom_refs);
+    let jl_v = derive_jl_rows(&h0_g_v, ap.rows, ap.n);
+    for j in 0..n3 {
+        lin_claims_g_v.extend(arp_claims(&zq_g, &ap, &jl_v, &msg_slots(j), j, &y_arp[j]));
+    }
+    for j in 0..n3 {
+        lin_claims_g_v.extend(link_claims_gnd(&zq_g, &lp, &xi_v, &y_link[j], &plane_slots(j)));
+    }
+    let mut quad_claims_g_v = Vec::new();
+    for j in 0..n3 {
+        quad_claims_g_v
+            .extend(binary_claims(&zq_g, &h0_g_v, j as u64, &[(j, shift as usize * chunks)]));
+    }
     let ok_pi2 = verify_ring_pi2(
         &a1_path, &ring_ctx, &crs, &rp, &dp, &shape2, &ctx, r_g, b_bits, &tw1, &tx0, &ty1,
         &pi2_proof,
     );
     let ok_wave = verify_ct_round(
-        &wave_path, &ring_ctx, &rp_wave, None, &crs, &h0, &[], &ring_claims, &quad_claims,
-        &quad_ring, &t1s, &t2s, &[], &[], &[], g_base, &wave_proof,
+        &wave_path, &ring_ctx, &rp_wave, None, &crs, &ct_h0(&crs, &h0_link_v, &t1s, &t2s, &[]),
+        &ct_claims_t_v, &ring_claims, &[], &quad_ring, &t1s, &t2s, &[], &[], &[], g_base,
+        &wave_proof,
+    );
+    let ok_gnd = verify_ct_round(
+        &path_g, &ring_g, &rp_g, None, &crs_g, &h0_g_v, &lin_claims_g_v, &[], &quad_claims_g_v,
+        &[], &t1s_g, &t2s_g, &[], &[], &acom_refs, g_base_g, &proof_g,
     );
     let verify_s = t_verify.elapsed().as_secs_f64();
-    let n_claims = 1 + ring_claims.len() + quad_claims.len() + quad_ring.len();
+    let n_claims = 1 + ring_claims.len() + ct_claims_t.len() + quad_ring.len();
     println!(
-        "  commit {commit_s:.2}s | prove {prove_s:.2}s (pi2 r_g={r_g} + wave of {} claims, attempts {wave_attempts}) | verify {verify_s:.2}s",
+        "  commit {commit_s:.2}s | prove {prove_s:.2}s (pi2 r_g={r_g} + q31 wave of {} claims [attempts {wave_attempts}] + q46 grounding of {} claims [attempts {attempts_g}, ARP rounds {arp_rounds}]) | verify {verify_s:.2}s",
         n_claims - 1,
+        lin_claims_g.len() + quad_claims_g.len(),
     );
-    if !(ok_pi2 && ok_wave) {
-        println!("  FAIL: chain does not verify");
+    if !(ok_pi2 && ok_wave && ok_gnd && gates_ok) {
+        println!("  FAIL: chain does not verify (pi2 {ok_pi2}, wave {ok_wave}, q46 grounding {ok_gnd}, gates {gates_ok})");
         std::process::exit(1);
     }
     println!("  ok   chain verifies (statement digest binds header + quant + all {} commitments, {} operations)", mf.commitments.len(), mf.operations.len());
+    println!("  ok   range family is integer-exact: q46 binary+ARP grounds the bits, {} link rows/column pin R's q31 residues", lp.l);
 
     // Negative: any tampered commitment changes the statement digest and
     // every claim fails.
@@ -4087,6 +4303,186 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         std::process::exit(1);
     }
     println!("  ok   tampered statement digest rejects every claim (ctx binding)");
+
+    // --- [U7w] the malicious WRAPAROUND witness (audit C-02). --------------
+    // Craft a "bit" plane whose binary defect sum_t b_t (b_t - 1) equals
+    // 2 * q31 EXACTLY over the integers: greedy pronic decomposition
+    // (b(b-1) terms; every remainder stays even, so it terminates in a
+    // handful of coefficients). Every q31 identity of the OLD range
+    // family then holds — the theta-randomized binary quadratic claim
+    // (defect = 0 mod q31) and the 2^i recomposition (r' defined from the
+    // crafted plane) — yet the recomposed r' WRAPS as an integer:
+    // coefficients ~2^16.5, far above 2^shift. The shipped q46 grounding
+    // rejects the same integers twice over: the defect is 2*q31 != 0 mod
+    // q46 (binary ct check), and the coefficients cannot survive the ARP
+    // range gate at all. (A third rejection layer, a wrapped q31 value
+    // against honest q46 bits, is the link's value-drift case — battery
+    // (c) of self_test_link.)
+    {
+        let crafted: Vec<u64> = {
+            let mut vals = vec![0u64; D];
+            let mut t: u128 = 2 * q as u128;
+            let mut idx = 0usize;
+            while t > 0 {
+                let mut m = (t as f64).sqrt() as u128 + 2;
+                while m * (m - 1) > t {
+                    m -= 1;
+                }
+                vals[idx] = m as u64;
+                idx += 1;
+                t -= m * (m - 1);
+            }
+            assert!(idx <= D, "pronic decomposition fits one plane");
+            vals
+        };
+        let defect: i128 = crafted.iter().map(|&b| (b as i128) * (b as i128 - 1)).sum();
+        assert_eq!(defect, 2 * q as i128, "crafted defect is exactly 2 * q31 over Z");
+        let r_wrap_max = crafted.iter().max().copied().unwrap();
+        assert!(r_wrap_max >= 1 << shift, "the recomposed value wraps past 2^shift");
+
+        // (a) ACCEPT under the OLD behavior: a pure-q31 round carrying the
+        // old wave's exact claim shapes — 2^i recomposition ring-claims
+        // plus theta-randomized binary quadratic claims per plane — on
+        // crafted plane 0, zero planes 1.., and r' = the recomposition.
+        let l_bin31 = ring::ct_engine::theta_rows(q);
+        let n_quad_b = shift as usize * l_bin31;
+        let mut xs_b: Vec<Vec<Poly>> = (0..shift as usize)
+            .map(|i| {
+                if i == 0 {
+                    pack_column(D, cshape.msg_r, &crafted)
+                } else {
+                    vec![poly_zero(); cshape.msg_r]
+                }
+            })
+            .collect();
+        xs_b.push(pack_column(D, cshape.msg_r, &crafted)); // r' = 2^0 * plane0
+        let g_groups_b = sample_g_masks(
+            &mut rng,
+            q,
+            cshape.msg_r,
+            n_quad_b,
+            r1_pad_count(n_quad_b, 0, 0),
+        );
+        let g_base_b = xs_b.len();
+        xs_b.extend(g_groups_b.iter().cloned());
+        let rp_b = derive_ct_round_params(q, cshape, xs_b.len(), 0, 0, true);
+        let a1p_b = build_a1_paths(&crs, rp_b.sigma, isqrt_u128(rp_b.bound_sq));
+        let path_b = KernelPath::A1(&a1p_b);
+        let mut rhos_b: Vec<Vec<Vec<i64>>> = Vec::new();
+        let mut t1s_b: Vec<Vec<Poly>> = Vec::new();
+        let mut t2s_b: Vec<Vec<Poly>> = Vec::new();
+        for x in &xs_b {
+            let rho: Vec<Vec<i64>> = (0..cshape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+            let (t1, t2) = commit(&path_b, &crs, x, &rho);
+            rhos_b.push(rho);
+            t1s_b.push(t1);
+            t2s_b.push(t2);
+        }
+        let h0_b = ct_h0(&crs, b"u7w-broken", &t1s_b, &t2s_b, &[]);
+        let mut rc_b: Vec<RingClaim> = Vec::new();
+        for u in 0..cshape.msg_r {
+            let mut coeffs: Vec<(usize, usize, Poly)> = (0..shift as usize)
+                .map(|i| (i, u, const_poly(zq.to_mod(1i64 << i))))
+                .collect();
+            coeffs.push((shift as usize, u, const_poly(zq.neg(1))));
+            rc_b.push(RingClaim { msg_coeffs: coeffs, constant: poly_zero() });
+        }
+        let mut quad_b = Vec::new();
+        for i in 0..shift as usize {
+            quad_b.extend(binary_claims(&zq, &h0_b, i as u64, &[(i, cshape.msg_r)]));
+        }
+        let openings_b: Vec<StdOpening> = xs_b
+            .iter()
+            .zip(rhos_b.iter())
+            .enumerate()
+            .map(|(i, (x, rho))| StdOpening { t1: &t1s_b[i], t2: &t2s_b[i], x, rho })
+            .collect();
+        let (proof_b, _) = prove_ct_round(
+            &path_b, &ring_ctx, &rp_b, None, &crs, &h0_b, &[], &rc_b, &quad_b, &[], &openings_b,
+            &[], &[], g_base_b, &mut rng,
+        );
+        let broken_accepts = verify_ct_round(
+            &path_b, &ring_ctx, &rp_b, None, &crs, &h0_b, &[], &rc_b, &quad_b, &[], &t1s_b,
+            &t2s_b, &[], &[], &[], g_base_b, &proof_b,
+        );
+        assert_true(
+            &format!(
+                "[U7w] OLD q31-only range family ACCEPTS the wraparound witness (defect 2*q31, max coeff {r_wrap_max} >= 2^{shift}) — the audited hole"
+            ),
+            broken_accepts,
+        );
+
+        // (b) REJECT under the shipped grounding: the same integers
+        // committed at q46 fail the binary quadratic ct check — the defect
+        // 2*q31 does not vanish mod q46.
+        let mut xs_c: Vec<Vec<Poly>> = vec![{
+            let mut x = vec![poly_zero(); msg_r_g];
+            for (t, &v) in crafted.iter().enumerate() {
+                x[0][t] = v; // same u64 integers, residues mod q46
+            }
+            x
+        }];
+        let g_groups_c = sample_g_masks(
+            &mut rng,
+            q_g,
+            msg_r_g,
+            l_bin_g,
+            r1_pad_count(l_bin_g, 0, 0),
+        );
+        xs_c.extend(g_groups_c.iter().cloned());
+        let rp_c = derive_ct_round_params(q_g, gl_g.shape, xs_c.len(), 0, 0, false);
+        let a1p_c = build_a1_paths(&crs_g, rp_c.sigma, isqrt_u128(rp_c.bound_sq));
+        let path_c = KernelPath::A1(&a1p_c);
+        let mut rhos_c: Vec<Vec<Vec<i64>>> = Vec::new();
+        let mut t1s_c: Vec<Vec<Poly>> = Vec::new();
+        let mut t2s_c: Vec<Vec<Poly>> = Vec::new();
+        for x in &xs_c {
+            let rho: Vec<Vec<i64>> =
+                (0..gl_g.shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+            let (t1, t2) = commit(&path_c, &crs_g, x, &rho);
+            rhos_c.push(rho);
+            t1s_c.push(t1);
+            t2s_c.push(t2);
+        }
+        let h0_c = ct_h0(&crs_g, b"u7w-shipped", &t1s_c, &t2s_c, &[]);
+        let quad_c = binary_claims(&zq_g, &h0_c, 0, &[(0, 1)]);
+        let openings_c: Vec<StdOpening> = xs_c
+            .iter()
+            .zip(rhos_c.iter())
+            .enumerate()
+            .map(|(i, (x, rho))| StdOpening { t1: &t1s_c[i], t2: &t2s_c[i], x, rho })
+            .collect();
+        let (proof_c, _) = prove_ct_round(
+            &path_c, &ring_g, &rp_c, None, &crs_g, &h0_c, &[], &[], &quad_c, &[], &openings_c,
+            &[], &[], 1, &mut rng,
+        );
+        assert_true(
+            "[U7w] shipped q46 grounding REJECTS the wraparound witness (binary ct check: defect 2*q31 != 0 mod q46)",
+            !verify_ct_round(
+                &path_c, &ring_g, &rp_c, None, &crs_g, &h0_c, &[], &[], &quad_c, &[], &t1s_c,
+                &t2s_c, &[], &[], &[], 1, &proof_c,
+            ),
+        );
+
+        // (c) The ARP side condition refuses independently: the crafted
+        // coefficients (~2^16.5 against a w_inf = 1 gate) cannot produce a
+        // single passing reveal — the non-wrap side condition is enforced,
+        // not assumed.
+        let ap_c = ring::ct_engine::derive_arp_params(D, 256, 1, 3.0);
+        let jl_c = derive_jl_rows(&h0_c, ap_c.rows, ap_c.n);
+        let flat_c: Vec<i64> = crafted.iter().map(|&v| v as i64).collect();
+        let mut refusals = 0usize;
+        for _ in 0..64 {
+            let m = sample_arp_mask(&ap_c, &mut rng);
+            if arp_attempt(&ap_c, &jl_c, &flat_c, &m, &mut rng).is_none() {
+                refusals += 1;
+            }
+        }
+        assert_true(
+            &format!("[U7w] ARP range gate refuses the wraparound witness ({refusals}/64 mask attempts abort)"),
+            refusals == 64,
+        );
+    }
     println!("chain-demo passed");
 }
 
