@@ -6899,6 +6899,158 @@ fn self_test_lookup() {
             !vfy(&proof_c, &claims_fixed.0),
         );
     }
+
+    // ---- [U-K5ab] the MASKED descent (E3-Z): honest pass + liveness. ----
+    use ring::gkr_masked::{
+        blinder_positions, draw_masks, mask_coeff_counts, masked_gkr_prove, masked_gkr_verify,
+        zero_masks,
+    };
+    println!("\n[U-K5ab] masked fractional GKR: g/R masks, w-variable, correction summands");
+    {
+        let n5 = 64usize;
+        let (dw, dt) = (6usize, 8usize);
+        let mut xr5 = XofReader::new("uk5-battery", &[b"seed-uk5"]);
+        let xs5: Vec<i64> = (0..n5).map(|_| xr5.next_field(256) as i64 - 128).collect();
+        let ys5: Vec<i64> = xs5.iter().map(|&x| rows[(x + 128) as usize].1).collect();
+        let w5: Vec<KElem> = xs5
+            .iter()
+            .zip(ys5.iter())
+            .map(|(&x, &y)| fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y)))
+            .collect();
+        let m5 = multiplicities(&kf, &w5, &tab_fused);
+        // Masks: drawn from a statement-wave transcript branch (the
+        // stand-in for their commitments; h0_lkp binds them upstream of
+        // alpha in the full wiring — U-K5c/d exercise those edges).
+        let h05 = *b"uk5-battery-h0-fixed-32-bytes!!!";
+        let mut trm = LkpTranscript::new("uk5-masks", &h05);
+        let masks_w = draw_masks(&kf, &mut trm, dw, 0);
+        let masks_t = draw_masks(&kf, &mut trm, dt, 0);
+        let mut tr5 = LkpTranscript::new("uk5-lkp", &h05);
+        let alpha5 = tr5.challenge_k(&kf);
+        let wtree = build_tree(
+            &kf,
+            vec![kf.one(); n5],
+            w5.iter().map(|wi| kf.sub(&alpha5, wi)).collect(),
+        );
+        let ttree =
+            build_tree(&kf, m5.clone(), tab_fused.iter().map(|t| kf.sub(&alpha5, t)).collect());
+        let t0 = Instant::now();
+        let (pw_proof, zw, pw, qw) = masked_gkr_prove(&kf, &[wtree], &masks_w, &mut tr5);
+        let (pt_proof, zt, pm, qt) = masked_gkr_prove(&kf, &[ttree], &masks_t, &mut tr5);
+        let prove_ms = t0.elapsed().as_secs_f64() * 1e3;
+        // Verify (fresh transcript), root cross-check on the DERIVED
+        // roots, leaf grounding by direct MLE (aggregate pins: U-K5c).
+        let ok5 = {
+            let mut tv = LkpTranscript::new("uk5-lkp", &h05);
+            let av = tv.challenge_k(&kf);
+            if av != alpha5 {
+                false
+            } else {
+                let rw = masked_gkr_verify(&kf, 1, dw, &masks_w, &pw_proof, &mut tv, true);
+                let rt = masked_gkr_verify(&kf, 1, dt, &masks_t, &pt_proof, &mut tv, true);
+                match (rw, rt) {
+                    (Some((roots_w, zwv, pwv, qwv)), Some((roots_t, ztv, pmv, qtv))) => {
+                        let w_concat = w5.clone();
+                        !kf.is_zero(&roots_w[0][1])
+                            && !kf.is_zero(&roots_t[0][1])
+                            && kf.mul(&roots_w[0][0], &roots_t[0][1])
+                                == kf.mul(&roots_t[0][0], &roots_w[0][1])
+                            && zwv == zw
+                            && ztv == zt
+                            && pwv == pw
+                            && qwv == qw
+                            && pmv == pm
+                            && qtv == qt
+                            && pwv == kf.one()
+                            && qwv == kf.sub(&av, &mle_eval(&kf, &w_concat, &zwv))
+                            && pmv == mle_eval(&kf, &m5, &ztv)
+                            && qtv == kf.sub(&av, &mle_eval(&kf, &tab_fused, &ztv))
+                    }
+                    _ => false,
+                }
+            }
+        };
+        assert_true(
+            &format!(
+                "U-K5ab masked GKR: honest masked pass verifies with pinned masks (cross-check on DERIVED roots, {prove_ms:.0} ms prove)"
+            ),
+            ok5,
+        );
+        // Mask liveness: the same trees under ZERO masks produce
+        // different boundary values — the masks actually pad the wire.
+        {
+            let z_w = zero_masks(&kf, dw, 0);
+            let wtree2 = build_tree(
+                &kf,
+                vec![kf.one(); n5],
+                w5.iter().map(|wi| kf.sub(&alpha5, wi)).collect(),
+            );
+            let mut tr0 = LkpTranscript::new("uk5-lkp", &h05);
+            let _a = tr0.challenge_k(&kf);
+            let (p0_proof, _, _, _) = masked_gkr_prove(&kf, &[wtree2], &z_w, &mut tr0);
+            assert_true(
+                "U-K5ab mask liveness: masked boundary values differ from the zero-mask (unmasked-equivalent) transcript",
+                pw_proof.layers[2].boundary != p0_proof.layers[2].boundary,
+            );
+        }
+        // Round-shape sanity: degree pattern 5/3..3/2 on masked-children
+        // layers, 3/3..3/2 on the last.
+        assert_true(
+            "U-K5ab round shape: 6/4..4/3 evaluations per masked layer (5/3/2 degrees), 4-eval first round on the last layer",
+            pw_proof.layers[1].rounds[0].len() == 6
+                && pw_proof.layers[1].rounds.last().unwrap().len() == 3
+                && pw_proof.layers[dw - 2].rounds[0].len() == 4,
+        );
+        // Tamper: a bumped round polynomial REJECTS.
+        {
+            let mut bad = MaskedTamper::clone_proof(&kf, &pw_proof);
+            bad.layers[1].rounds[1][2] = kf.add(&bad.layers[1].rounds[1][2], &kf.one());
+            let mut tv = LkpTranscript::new("uk5-lkp", &h05);
+            let _a = tv.challenge_k(&kf);
+            assert_true(
+                "U-K5ab masked GKR: a tampered round polynomial REJECTS",
+                masked_gkr_verify(&kf, 1, dw, &masks_w, &bad, &mut tv, true).is_none(),
+            );
+        }
+        // LKP-6 arithmetic (freeze row pins the FFN point; sanity here).
+        let (gw, rw_) = mask_coeff_counts(dw, 0);
+        assert_true(
+            &format!(
+                "U-K5ab LKP-6 sanity: mask coefficient counts at (depth 6, e=0) = g {gw} + R {rw_}; blinder positions at N=64 = {:?}",
+                blinder_positions(64)
+            ),
+            gw == (1..6)
+                .map(|j| 1 + ring::gkr_masked::sc_degrees(j, j <= 4).iter().sum::<usize>())
+                .sum::<usize>()
+                && rw_ == 48
+                && blinder_positions(64) == [28, 60, 30, 61],
+        );
+    }
+}
+
+/// Battery helper: deep-clone a masked descent proof (KElem vectors).
+struct MaskedTamper;
+impl MaskedTamper {
+    fn clone_proof(
+        kf: &ring::kfield::KField,
+        p: &ring::gkr_masked::MaskedDescentProof,
+    ) -> ring::gkr_masked::MaskedDescentProof {
+        let _ = kf;
+        ring::gkr_masked::MaskedDescentProof {
+            layer1: p.layer1.clone(),
+            layers: p
+                .layers
+                .iter()
+                .map(|l| ring::gkr_masked::MaskedLayerProof {
+                    g_sum: l.g_sum.clone(),
+                    rounds: l.rounds.clone(),
+                    boundary: l.boundary.clone(),
+                    open_g: l.open_g.clone(),
+                    open_r: l.open_r.clone(),
+                })
+                .collect(),
+        }
+    }
 }
 
 // ===========================================================================
@@ -7123,6 +7275,27 @@ fn freeze_check_link() -> bool {
                 "LKP-3 transcript shape at the FFN point: witness {rw} rounds ({kw}+{bw} K-elems), table {rt} rounds ({kt}+{bt}), degree 3"
             ),
             rw == 368 && kw == 1472 && bw == 92 && rt == 68 && kt == 272 && bt == 32,
+        );
+    }
+
+    // LKP-6 — the E3-Z mask/blinder accounting at the frozen FFN point
+    // (witness depth 23, table depth 9 with blinders, e_bits = 5;
+    // M4_LOOKUP_ZK_DESIGN Section 3.1): mask coefficient counts by the
+    // 3k+20-class formulas (last layer unmasked-children, -2), blinder
+    // positions fixed by blinder_positions, masks ONE-TIME per pass
+    // (reuse reproduces the leak — E3Z-N3).
+    {
+        use ring::gkr_masked::mask_coeff_counts;
+        let (gw, rw) = mask_coeff_counts(23, 5);
+        let (gt, rt) = mask_coeff_counts(9, 5);
+        let blinders = 8 * 2 * 32;
+        gate(
+            &format!(
+                "LKP-6 E3-Z mask material: witness g {gw}+R {rw}, table g {gt}+R {rt}, blinders {blinders} -> {} K-elems/pass",
+                gw + rw + gt + rt + blinders
+            ),
+            gw == 1197 && rw == 252 && gt == 266 && rt == 84
+                && gw + rw + gt + rt + blinders == 2311,
         );
     }
 
