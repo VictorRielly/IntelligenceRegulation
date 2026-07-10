@@ -565,6 +565,36 @@ ceiling holds only with per-layer instances (~100x margin, Section 4).
 Nothing in this design blocks it; the SiLU lookup is deliberately its
 1/50th-volume pilot. NOT a commitment — a priced option.
 
+### 7' — U-K8 measured addendum (lookup-bench, 2026-07-10)
+
+The engine is built (U-K1..K4, U-K6/K7) and `ring_matmul lookup-bench`
+measures the real pipeline at N = 2^18 and 2^20 (rates agree to 1%,
+so the extrapolation is linear):
+
+- **The committed-cost claim HELD exactly as designed**: one 256-row
+  multiplicity column per instance, ~0 dce/el — the axis the Class-3
+  criterion prices, and the axis on which the M4 decision was made.
+- **The prover-time constant did NOT hold as-built**: measured
+  10.8-10.9 us/element single-thread (fuse+trees+descents; verify
+  +0.38 us/el; E4 weight stream +0.9 us/el) versus the ~0.5-1 us/el
+  the Section 7 [MODEL] row implied. The gap is implementation class,
+  not operation count: the model priced kernel-grade K-mults (8-lane
+  slot packing riding the A1 kernels, lazy reduction); the as-built
+  arithmetic is scalar schoolbook `slot_mul_g` with a per-mult
+  reduction, and the 4-node round evaluation pays full K-mults.
+  Pass impact at 1.8e8 elements: ~1.95 ks 1T -> **~222-224 s at the
+  MEASURED 22T factor (8.74x, M5_LITE_REPORT)** -> ~98 s under the
+  [ASSUMED] GPU 20x row.
+- **The M4 verdict is unchanged, with honest numbers**: even as-built,
+  222 s/pass at 22T beats the piecewise incumbent's +201% of the
+  (M5-corrected) commit bill (~250-360 s at 22T) AND removes its
+  +201% commit-stream cost entirely. Reaching the design's
+  "sub-dominant activation rung" (~10-25 s at 22T) requires the
+  kernel-grade K-mult tranche — named **U-K9**: lane-packed bulk slot
+  arithmetic through the A1 kernel class + lazy reduction inside
+  `round_poly`/`build_tree` (plausible 5-10x from reduction discipline
+  plus the 8x lane occupancy; measured, not assumed, when it lands).
+
 ## 8. Build plan: the E3/E4 tranches
 
 Discipline as in AUTOMORPHISM_GATE_DESIGN Section 7: paper-first items

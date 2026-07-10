@@ -5330,6 +5330,11 @@ fn main() {
             let dims: Vec<usize> = args[1..5].iter().map(|s| s.parse().expect("dim")).collect();
             chain_demo(dims[0], dims[1], dims[2], dims[3]);
         }
+        Some("lookup-bench") => {
+            let n_log2 = args.get(1).map(|s| s.parse().expect("log2 N")).unwrap_or(18);
+            assert!((8..=22).contains(&n_log2), "lookup-bench log2 N in 8..=22");
+            lookup_bench(n_log2);
+        }
         Some("m5-bench") => {
             // m5-bench [rows inner cols [reps]] — defaults to the frozen FFN
             // shape 512 x 4096 x 11008 with 3 repetitions per thread count.
@@ -6894,6 +6899,106 @@ fn self_test_lookup() {
             !vfy(&proof_c, &claims_fixed.0),
         );
     }
+}
+
+// ===========================================================================
+// U-K8 (M4_LOOKUP_DESIGN Section 8): lookup-bench — the measured
+// replacement for the design's [MODEL] prover constants. One instance
+// of N = 2^n int8 SiLU lookups through the REAL pipeline pieces:
+// fused leaves, both projective trees, both descents, verification
+// with leaf grounding, and the E4 weight stream. Single-thread
+// timings; the pass extrapolation uses the M5-lite MEASURED 22T
+// factor (8.74x, M5_LITE_REPORT.md) and labels the GPU row [ASSUMED].
+
+fn lookup_bench(n_log2: usize) {
+    use ring::gkr::{absorb_roots, build_tree, gkr_prove, gkr_verify, root_cross_check};
+    use ring::kfield::{KElem, KField};
+    use ring::lookup::{
+        fuse_pair, fused_silu_table, mle_weights_block, silu_int8_table, table_spec_digest,
+    };
+    use ring::sumcheck::{LkpTranscript, mle_eval};
+    let n = 1usize << n_log2;
+    println!("m4 lookup-bench: N = 2^{n_log2} = {n} int8 SiLU lookups, one instance, 1T");
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let zq = ctx.zq;
+    let rows = silu_int8_table();
+    let spec_dg = table_spec_digest(&rows);
+    let tab_fused = fused_silu_table(&kf, &rows);
+    let mut rng = 0x5eed_0808u64;
+    let xs: Vec<i64> = (0..n).map(|_| rng_below(&mut rng, 256) as i64 - 128).collect();
+    let t0 = Instant::now();
+    let w: Vec<KElem> = xs
+        .iter()
+        .map(|&x| {
+            let y = rows[(x + 128) as usize].1;
+            fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y))
+        })
+        .collect();
+    let mut m_counts = vec![0u64; 256];
+    for &x in &xs {
+        m_counts[(x + 128) as usize] += 1;
+    }
+    let m_k: Vec<KElem> = m_counts.iter().map(|&c| kf.embed(c)).collect();
+    let fuse_s = t0.elapsed().as_secs_f64();
+    let mut tr = LkpTranscript::new("uk8-bench", &spec_dg);
+    let alpha = tr.challenge_k(&kf);
+    let t1 = Instant::now();
+    let wtree = build_tree(
+        &kf,
+        vec![kf.one(); n],
+        w.iter().map(|wi| kf.sub(&alpha, wi)).collect(),
+    );
+    let ttree =
+        build_tree(&kf, m_k, tab_fused.iter().map(|t| kf.sub(&alpha, t)).collect());
+    let tree_s = t1.elapsed().as_secs_f64();
+    let (wr, trr) = (wtree.root(), ttree.root());
+    assert!(root_cross_check(&kf, &wr, &trr), "bench witness must be honest");
+    let t2 = Instant::now();
+    absorb_roots(&kf, &[wr.clone()], &mut tr);
+    let (pw_proof, _, _, _) = gkr_prove(&kf, &[wtree], &mut tr);
+    absorb_roots(&kf, &[trr.clone()], &mut tr);
+    let (pt_proof, _, _, _) = gkr_prove(&kf, &[ttree], &mut tr);
+    let prove_s = t2.elapsed().as_secs_f64();
+    let t3 = Instant::now();
+    let mut tv = LkpTranscript::new("uk8-bench", &spec_dg);
+    let av = tv.challenge_k(&kf);
+    assert_eq!(av, alpha);
+    absorb_roots(&kf, &[wr.clone()], &mut tv);
+    let (zw, pw, qw) = gkr_verify(&kf, &[wr], n_log2, &pw_proof, &mut tv).expect("w descent");
+    absorb_roots(&kf, &[trr.clone()], &mut tv);
+    let (zt, _pm, qt) = gkr_verify(&kf, &[trr], 8, &pt_proof, &mut tv).expect("t descent");
+    let ground_w = kf.sub(&alpha, &mle_eval(&kf, &w, &zw));
+    assert!(pw == kf.one() && qw == ground_w, "leaf grounding");
+    assert_eq!(qt, kf.sub(&alpha, &mle_eval(&kf, &tab_fused, &zt)));
+    let verify_s = t3.elapsed().as_secs_f64();
+    // E4 weight stream: one pass of L_{z_w*} in 2^16-blocks (the
+    // never-materialize primitive) + one coordinate projection row.
+    let t4 = Instant::now();
+    let lb = 16.min(n_log2);
+    let mut row0 = vec![0u64; n];
+    for b in 0..(n >> lb) {
+        let blk = mle_weights_block(&kf, &zw, b, lb);
+        for (j, e) in blk.iter().enumerate() {
+            row0[(b << lb) + j] = e[0];
+        }
+    }
+    let weights_s = t4.elapsed().as_secs_f64();
+    std::hint::black_box(&row0);
+    let total = fuse_s + tree_s + prove_s + verify_s;
+    let per_el_ns = total / n as f64 * 1e9;
+    println!("  fuse+histogram {fuse_s:.2}s | trees {tree_s:.2}s | descents {prove_s:.2}s | verify {verify_s:.2}s | E4 weight stream {weights_s:.2}s");
+    println!("  prover lookup total (fuse+trees+descents) = {:.2}s 1T = {:.0} ns/element", fuse_s + tree_s + prove_s, (fuse_s + tree_s + prove_s) / n as f64 * 1e9);
+    println!("  per-element total incl. verify: {per_el_ns:.0} ns/el 1T");
+    let pass_1t = (fuse_s + tree_s + prove_s) / n as f64 * 1.8e8;
+    println!(
+        "  7B/512 pass extrapolation (1.8e8 elements, linear): {:.0}s 1T; {:.0}s at the MEASURED 22T factor 8.74x (M5_LITE_REPORT); {:.1}s under the [ASSUMED] GPU 20x row",
+        pass_1t,
+        pass_1t / 8.74,
+        pass_1t / 20.0,
+    );
+    println!("lookup-bench done (N = {n}, table digest {})",
+        spec_dg.iter().take(4).map(|b| format!("{b:02x}")).collect::<String>());
 }
 
 // U-L freeze rows: the F3 modulus-link derive-time gates. Called at the end

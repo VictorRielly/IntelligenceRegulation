@@ -60,7 +60,8 @@ measured lattice cost model at 7B/512-token scale:
 | **MEASURED (Q2/Q3/A2 tranche, RING_MULT_BOTTLENECK.md Section 6): k = 8 split + Karatsuba at q31 -- commit kernel 8.1x, commit bill ~34x vs Route Z (~6.6 min CPU-22T, ~20 s with the GPU 20x row); total pass ~25-45 s with GPU** | ~25-45 s | ~4-6x | -- |
 | **+ A1 aux-modulus NTT (INTEGRATED-MEASURED: 6.2-6.4x over k8+Kara head-to-head at FFN shape inside ring_lattice, ~99-111 ns/committed element; commit bill ~~~1.6-2.0 min CPU-22T~~ -> ~5-6 s GPU; proofs bit-identical)** | **~15-30 s** | **~2-4x** | ~300x |
 | **M5-lite CORRECTION (MEASURED end-to-end, full 512x4096x11008 triple streamed under the chunked CRS, M5_LITE_REPORT.md): 117 ns/paid element 1T; 22T scaling 8.7-9.1x MEASURED (was ~15x assumed) -> commit bill 2.1-3.0 min 22T; pass ~2.5-3.6 min CPU; the ~15-30 s row survives ONLY via the [ASSUMED] 20x GPU factor** | ~2.5-3.6 min CPU / ~15-40 s [GPU ASSUMED] | ~20-30x CPU | -- |
-| + bit-packing / lookup-based ranges (2-4x on gadget commitments) | ~5-10 s | ~1-1.5x | ~100-200x |
+| **+ M4 activations via LogUp-GKR (U-K1..K8 BUILT + MEASURED, M4_LOOKUP_DESIGN 7'): commit +~0 dce/el (the M4 verdict's axis — held exactly); prover as-built 10.8-10.9 us/el 1T = ~222 s/pass at the measured 22T factor (the [MODEL] ~0.5-1 us/el needs the U-K9 kernel-grade K-mult tranche: lane packing + lazy reduction). Beats piecewise (+250-360 s AND +201% commit) already; sub-dominant after U-K9** | activations: +222 s CPU 22T as-built -> ~10-25 s after U-K9 [MODEL] | -- | -- |
+| + bit-packing / lookup-based ranges (2-4x on gadget commitments; the SAME U-K engine — priced in M4_LOOKUP_LITERATURE Section 3) | ~5-10 s | ~1-1.5x | ~100-200x |
 
 Reality checks on the endpoint:
 
