@@ -5302,7 +5302,7 @@ fn self_test_pi2_ce() {
 }
 
 fn usage() {
-    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]]");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n]");
     std::process::exit(2);
 }
 
@@ -6990,14 +6990,21 @@ fn lookup_bench(n_log2: usize) {
     println!("  fuse+histogram {fuse_s:.2}s | trees {tree_s:.2}s | descents {prove_s:.2}s | verify {verify_s:.2}s | E4 weight stream {weights_s:.2}s");
     println!("  prover lookup total (fuse+trees+descents) = {:.2}s 1T = {:.0} ns/element", fuse_s + tree_s + prove_s, (fuse_s + tree_s + prove_s) / n as f64 * 1e9);
     println!("  per-element total incl. verify: {per_el_ns:.0} ns/el 1T");
+    // SCOPE (audit 2026-07-10 H-01/H-02): this is an UNMASKED,
+    // UNCOMMITTED single-thread lookup-core microbenchmark — no E4
+    // ct-round, no U-K5 masking, no upstream range proof, no downstream
+    // Hadamard. This code path has no parallel implementation, so the
+    // multi-thread row below is an ASSUMPTION (a factor imported from
+    // the M5 COMMIT-kernel measurement, a different workload); the GPU
+    // row uses the repo-wide convention (20x over the 22T row, as in
+    // m5-bench) and is [ASSUMED] — no GPU backend exists.
     let pass_1t = (fuse_s + tree_s + prove_s) / n as f64 * 1.8e8;
+    let pass_22t_assumed = pass_1t / 8.74;
     println!(
-        "  7B/512 pass extrapolation (1.8e8 elements, linear): {:.0}s 1T; {:.0}s at the MEASURED 22T factor 8.74x (M5_LITE_REPORT); {:.1}s under the [ASSUMED] GPU 20x row",
-        pass_1t,
-        pass_1t / 8.74,
-        pass_1t / 20.0,
+        "  7B/512 pass extrapolation (1.8e8 elements, linear): {pass_1t:.0}s 1T [MEASURED-AT-RATE]; {pass_22t_assumed:.0}s 22T [ASSUMED factor 8.74x from the M5 commit kernel — lookup code is single-threaded]; {:.1}s GPU [ASSUMED 20x over the assumed 22T row]",
+        pass_22t_assumed / 20.0,
     );
-    println!("lookup-bench done (N = {n}, table digest {})",
+    println!("lookup-bench done (N = {n}, unmasked lookup-core microbenchmark, table digest {})",
         spec_dg.iter().take(4).map(|b| format!("{b:02x}")).collect::<String>());
 }
 

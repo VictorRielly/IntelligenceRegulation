@@ -781,7 +781,15 @@ any new challenge added to the protocol must be added here.
    under core-SVP quantum costing; kappa+1 fixes it if that target is
    adopted (ESTIMATOR_NOTE.md).
 6. **Fiat–Shamir** [MODEL]: random-oracle model, standard forking
-   loss; SHA-256/XOF instantiation.
+   loss; SHA-256/XOF instantiation. CLAIM-DISCIPLINE NOTE (2026-07-10
+   audit H-07): every quoted algebraic error term in this document and
+   the lookup documents (2^-264, 2^-279, 2^-296, 2^-486-class) is the
+   FIELD-STATISTICAL term only; the concrete security of any composed
+   statement is min(algebraic error, FS/hash security incl. grinding
+   and multi-theorem use, commitment-assumption bound, parameter
+   bound) — with SHA-256 transcripts the deployable classical target
+   remains 128-bit-class, and quantum preimage search halves hash
+   margins. Quantitative claims must be published in this min() form.
 7. **Gaussian sampling uses f64 exp** [OBLIGATION]: a prototype
    shortcut noted in `ring/mod.rs`; production requires fixed-point
    (constant-time) sampling.

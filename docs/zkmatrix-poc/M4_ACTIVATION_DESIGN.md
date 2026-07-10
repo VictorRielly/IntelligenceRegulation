@@ -440,7 +440,7 @@ Readings, each one honest:
 | evaluation claim | QuadRingClaim extraction, three-transcript | [PROVEN] (soundness ref 4.4); non-wrap bounds script-asserted |
 | rounding identity | L_out functional = declared rounding | [PROVEN] arithmetic identity; ranges from planes |
 | completeness | every claim relation satisfied by honest witnesses | [PROVEN by enumeration] — `gadget_trace` asserts every relation for all 256 inputs |
-| zero-knowledge | garbage-image ZK of quadratic claims | [OBLIGATION] — inherited repo-wide gap (soundness ref 8.1), nothing new added here |
+| zero-knowledge | garbage-image ZK of quadratic claims | [BUILT] — the R1 engine tranche closed the repo-wide gap (soundness ref 8.1); this variant adds nothing new on top |
 | cost anchors | commit/GPU/stream/ARP projections | [MODEL] — measured anchors, linear scaling |
 
 The composed extraction argument, in one paragraph: extract all

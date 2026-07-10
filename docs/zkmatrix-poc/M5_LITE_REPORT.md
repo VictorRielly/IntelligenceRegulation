@@ -14,9 +14,15 @@ measurement impossible on this machine (a monolithic "wide" CRS at FFN
 inner dimensions costs 17-124 GB; the box has 15 GB), and (2) it turns
 the 7B-feedforward commit-bill projection of `LLM_SCALE_ESTIMATE.md`
 ("~1.6-2.0 min at 22T", which carried a ~15x multithread EXTRAPOLATION)
-into a real end-to-end CPU measurement at the FFN matmul shape
-512 x 4096 x 11008, plus the post-R1/E2 recost that the outside audit's
-H-02 finding demanded (`codex-audit-2026-07-09/FINDINGS.md`).
+into a real CPU measurement of the COMMITMENT STREAM at the FFN matmul
+shape 512 x 4096 x 11008, plus the post-R1/E2 recost that the outside
+audit's H-02 finding demanded (`codex-audit-2026-07-09/FINDINGS.md`).
+SCOPE NOTE (2026-07-10 audit H-04): "end-to-end" here means the full
+column-commitment pipeline (CRS expansion, packing, commit GEMM,
+digest hashing) — NOT proof generation: the bench commits
+independently random A/B/C (no C = A B witness), and full CE rounds
+at this shape remain unmeasured (Section "what remains extrapolated");
+the largest measured full-proof shape is still 128x256x64.
 
 Plain-language labels used throughout:
 
@@ -245,10 +251,12 @@ overstated parallel throughput by the ratio 15/8.7 ~ 1.7x.
    (2.0 s prove); this tranche measured the claim layer's COMMIT
    volume at FFN shape (817 chunks, 0.36 s 1T) but not the full
    round. The ~10-25 s wall/pass figure remains the docs' model.
-4. **Activations** [MODEL] — the M4 LogUp-GKR design's ~120 KB +
-   9 CtClaims + ~2.3e7 ring-mults per pass is a design-round costing,
-   not an implementation measurement (E3/E4 build tranches pending);
-   its ZK variant (E3-Z) is a design-blocking obligation.
+4. **Activations** — UPDATED post-merge: the unmasked lookup CORE is
+   built (U-K1..K7) and measured at 10.8-10.9 us/el 1T
+   (M4_LOOKUP_DESIGN 7' — an uncommitted single-thread
+   microbenchmark; its 22T/GPU rows are [ASSUMED]); the U-K8
+   integration exit and the ZK variant (E3-Z / U-K5a..e,
+   design-blocking) remain OPEN.
 5. **Padding waste** — C-columns pay 8x their used slots under the
    shared-CRS discipline (1.75x aggregate on this triple). A
    per-tensor msg_r class (or slot-packing C) is a straightforward

@@ -1,7 +1,16 @@
 # M4 Lookup Design: LogUp-GKR as the Fused-Pair int8 SiLU Certificate
 
-Status: design round COMPLETE (equations + machine-checked spike, no
-engine code — the AUTOMORPHISM_GATE_DESIGN discipline: paper first).
+Status: design round COMPLETE (equations + machine-checked spike);
+ENGINE STATUS (2026-07-10): the UNMASKED core is built — E3 = U-K1..K4
+(`ring/kfield.rs`, `ring/sumcheck.rs`, `ring/gkr.rs`, `ring/lookup.rs`)
+and the E4 landing U-K6/K7, every designed hash edge pinned F5-style;
+U-K5 (ZK masking) is DESIGNED (M4_LOOKUP_ZK_DESIGN.md) but NOT
+implemented — lookup-bearing proofs are NOT ZK; the U-K8 integration
+exit (FFN-shape committed tensor, slot-packed E4 variant, upstream
+range, downstream gate o up) is OPEN — see Section 7' and the
+2026-07-10 audit H-01. Four statuses, tracked separately: core algebra
+BUILT+MEASURED-1T; E4 landing BUILT (N=256 committed rig); masked
+lookup DESIGNED; FFN integration OPEN.
 Every algebraic claim below is exercised by `scripts/logup_gkr_spike.py`
 (pure stdlib, exact arithmetic; 16 OK assertion lines; output recorded in
 Section 10). Companions: M4_LOOKUP_LITERATURE.md (the decided verdict
@@ -565,11 +574,15 @@ ceiling holds only with per-layer instances (~100x margin, Section 4).
 Nothing in this design blocks it; the SiLU lookup is deliberately its
 1/50th-volume pilot. NOT a commitment — a priced option.
 
-### 7' — U-K8 measured addendum (lookup-bench, 2026-07-10)
+### 7' — lookup-core measurement addendum (lookup-bench, 2026-07-10;
+### relabeled per the 2026-07-10 audit H-01/H-02 — U-K8 remains OPEN)
 
-The engine is built (U-K1..K4, U-K6/K7) and `ring_matmul lookup-bench`
-measures the real pipeline at N = 2^18 and 2^20 (rates agree to 1%,
-so the extrapolation is linear):
+`ring_matmul lookup-bench` is an UNMASKED, UNCOMMITTED, single-thread
+lookup-CORE microbenchmark (fused leaves, trees, descents, verify with
+direct MLE grounding, E4 weight stream — it does NOT run the E4
+ct-round, the U-K5 masking, an upstream range proof, or a downstream
+Hadamard, and it is not FFN-shaped). Measured at N = 2^18 and 2^20
+(rates agree to 1%, so the extrapolation is linear):
 
 - **The committed-cost claim HELD exactly as designed**: one 256-row
   multiplicity column per instance, ~0 dce/el — the axis the Class-3
@@ -582,13 +595,18 @@ so the extrapolation is linear):
   slot packing riding the A1 kernels, lazy reduction); the as-built
   arithmetic is scalar schoolbook `slot_mul_g` with a per-mult
   reduction, and the 4-node round evaluation pays full K-mults.
-  Pass impact at 1.8e8 elements: ~1.95 ks 1T -> **~222-224 s at the
-  MEASURED 22T factor (8.74x, M5_LITE_REPORT)** -> ~98 s under the
-  [ASSUMED] GPU 20x row.
+  Pass impact at 1.8e8 elements: ~1.95 ks 1T [MEASURED-AT-RATE]. The
+  22T row (~222-224 s) is **[ASSUMED]**: the lookup code has no
+  parallel implementation, and the 8.74x factor is imported from the
+  M5 COMMIT-kernel measurement — a different workload (audit
+  2026-07-10 H-02). The GPU row uses the repo convention (20x over
+  the 22T row, matching m5-bench) and is [ASSUMED] — ~11 s class IF
+  both factors held; unknown until a backend exists.
 - **The M4 verdict is unchanged, with honest numbers**: even as-built,
-  222 s/pass at 22T beats the piecewise incumbent's +201% of the
-  (M5-corrected) commit bill (~250-360 s at 22T) AND removes its
-  +201% commit-stream cost entirely. Reaching the design's
+  ~1.95 ks 1T (~222 s 22T [ASSUMED]) beats the piecewise incumbent's
+  +201% of the (M5-corrected) commit bill (~250-360 s at 22T on the
+  same assumption class) AND removes its +201% commit-stream cost
+  entirely. Reaching the design's
   "sub-dominant activation rung" (~10-25 s at 22T) requires the
   kernel-grade K-mult tranche — named **U-K9**: lane-packed bulk slot
   arithmetic through the A1 kernel class + lazy reduction inside
