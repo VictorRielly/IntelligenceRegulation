@@ -202,50 +202,74 @@ delta becomes structurally sub-percent at scale.
 
 ## 4. The corrected ladder row (audit H-02 recost)
 
-Accounting basis: committed element-equivalents per 7B/512-token
-pass, INCLUDING w = 12 bit tensors, as carried by the two docs —
-9.4e9 (`RING_MULT_BOTTLENECK.md` 6.4a) to 1.33e10
-(`A1_AUX_NTT_REPORT.md` Section 6) [MODEL]; at the frozen point each
-element costs 0.571 ring-MACs. Both ends of that band are quoted —
-the band itself is a documented inconsistency the next pass-level
-tranche should collapse.
+Accounting basis *(updated 2026-07-10, statement-integrity tranche)*:
+the committed-element count per pass is now GENERATED from the
+validated statement DAG instead of modeled — `ring_matmul
+statement-inventory` builds the 32-layer FFN-surrogate statement of
+TARGET_CONTRACT.md through the validated Statement format (manifest.rs
+v2) and counts the entries it walks: **1.351e10 used / 1.389e10 paid
+committed elements per pass [GENERATED]**, weights 4.33e9 (one-time,
+amortized). The 9.4e9-1.33e10 band this section previously carried
+(`RING_MULT_BOTTLENECK.md` 6.4a vs `A1_AUX_NTT_REPORT.md` Section 6)
+is retired — Section 5 item 2 records what was wrong with each end.
+At the frozen point each element costs 0.571 ring-MACs (q31 values;
+the q46 plane layer is 0.575, within 1%).
 
 | ladder row | value | status |
 |---|---|---|
 | commit rate, 1T, end-to-end at FFN shape | 4.86e6 ring-MACs/s (117 ns/paid el) | **[MEASURED]** (was: kernel-only anchor) |
-| commit bill, 1T | 1104-1563 s (18.4-26.1 min) | [MEASURED-AT-RATE: measured rate x modeled element count] |
+| commit bill, 1T | 1631 s (27.2 min) | [MEASURED-AT-RATE: measured rate x the GENERATED 1.389e10 paid elements; was 1104-1563 s from the retired two-model band] |
 | 22-thread factor | **8.7x** (min-over-sessions; 9.1x best in-session, 6.9x under load) | **[MEASURED]** (was: ~15x ASSUMED) |
-| commit bill, 22T | **126-179 s (2.1-3.0 min)** | [MEASURED-AT-RATE, at the measured 22T rate 4.25e7 ring-MACs/s] |
-| commit bill, GPU | 6.3-8.9 s | **[ASSUMED 20x]** — no GPU kernel exists in this repo (audit H-03); this row is an assumption, not a measurement |
+| commit bill, 22T | **187 s (3.1 min)** | [MEASURED-AT-RATE, at the measured 22T rate; was 126-179 s from the retired band] |
+| commit bill, GPU | ~9.3 s | **[ASSUMED 20x]** — no GPU kernel exists in this repo (audit H-03); this row is an assumption, not a measurement |
 | claim layer per pass | ~288 matmul-class claims [MODEL: 9 matmuls/layer x 32 layers] x 0.346 s 1T chunked commit volume = ~100 s 1T -> ~11 s at 8.7x, + round proofs ~10-25 s wall 22T [MODEL, RING_MULT_BOTTLENECK 6.4b — gated on the CE-gate rounds at scale, not measured here] | [MODEL anchored to measured chunk rate] |
 | R1 pads | +3 slots per quad claim in existing g-groups; +1 chunk commitment + opening per gate-only round (0.42 ms each) | [MEASURED at shape; sub-percent] |
 | E2 zeta rows | weight computation inside existing rows, no commitment volume | [by construction] |
 | E4 / lookup landing (activations) | 9 CtClaims + ~120 KB/pass + ~2.3e7 ring-mult-equivalents (~5 s 1T, <1 s 22T at the measured rate) | [MODEL, M4_LOOKUP_DESIGN] |
-| **pass total, CPU 22T** | **commit 2.1-3.0 min + claim layer ~0.4-0.6 min => ~2.5-3.6 min** | [MEASURED-AT-RATE + MODEL claim layer] |
-| pass total, with GPU 20x | ~15-30 s class only if the 20x row materializes | [ASSUMED] |
+| **pass total, CPU 22T** | **commit 3.1 min + claim layer ~0.4-0.6 min => ~3.5-3.7 min** | [MEASURED-AT-RATE + MODEL claim layer] |
+| pass total, with GPU 20x | ~20-35 s class only if the 20x row materializes | [ASSUMED] |
 
 **Verdict on the "1.6-2.0 min at 22T" claim: it did NOT hold on this
 box.** The single-thread arithmetic HELD — the ladder's own 1T bill
 (1470-1790 s from 84-102 eff GMAC/s) overlaps the measured-at-rate
-1104-1563 s band (the spread between the two is mostly the two
-documented element accountings, not the kernel) — but the assumed
+band computed at the time (the spread between the two was mostly the
+two documented element accountings, not the kernel) — but the assumed
 ~15x multithread factor is not available on this 22-thread part:
-8.7-9.1x measured. The honest CPU commit-bill row is **~2.1-3.0 min
-at 22T**, roughly 1.3-1.5x the claimed band. The 15 s pass-total
-rung now depends even more squarely on the [ASSUMED] GPU row,
-exactly as audit H-03 warned. If ~15x thread scaling were available
-(e.g. a homogeneous many-P-core part), the 1.6-2.0 min row would
-return — but on the machine the ladder was written for, it
-overstated parallel throughput by the ratio 15/8.7 ~ 1.7x.
+8.7-9.1x measured. The 15 s pass-total rung now depends even more
+squarely on the [ASSUMED] GPU row, exactly as audit H-03 warned. If
+~15x thread scaling were available (e.g. a homogeneous many-P-core
+part), the 1.6-2.0 min row would return — but on the machine the
+ladder was written for, it overstated parallel throughput by the
+ratio 15/8.7 ~ 1.7x. *(Inventory update, 2026-07-10: with the
+DAG-generated element count replacing the retired band, the honest
+CPU commit-bill row reads **1631 s 1T / 187 s = 3.1 min at 22T** —
+1.6-1.9x the original 1.6-2.0 min claim once both corrections, thread
+scaling and element count, are applied.)*
 
 ## 5. What remains extrapolated / modeled (honest list)
 
 1. **The GPU 20x factor** [ASSUMED] — no GPU kernel exists in this
    repo; every "~5-10 s" or "~15-30 s" pass row inherits it.
-2. **Pass-level element count** [MODEL] — 9.4e9..1.33e10 committed
-   element-equivalents per pass (two documented accountings that
-   disagree by 1.4x; this tranche measured one FFN triple's worth,
-   52.8M used / 92.3M paid, at rate).
+2. **Pass-level element count — RESOLVED (2026-07-10, statement-
+   integrity tranche).** The two prior counts (9.4e9 and 1.33e10,
+   disagreeing by 1.4x) were BOTH computed by dividing one modeled MAC
+   total (1.5e14 Route Z MACs) by two different MACs-per-element
+   anchors (~16k in RING_MULT_BOTTLENECK 6.4a, ~11.3k in
+   A1_AUX_NTT_REPORT Section 6) — a round-trip through the quantity
+   being estimated, not an inventory. The single replacement number is
+   GENERATED from the validated statement DAG (`ring_matmul
+   statement-inventory`, TARGET_CONTRACT.md spec): **1.351e10 used /
+   1.389e10 paid committed elements per pass** (q31 values 2.0e9,
+   q46 bit planes 1.15e10; weights 4.33e9 one-time). What was wrong
+   with each end: **9.4e9 understated the real range-proof volume**
+   (its model assumed w = 12 planes on ~40% of tensors; the statement
+   actually proven needs width-19/21 remainder planes plus int8
+   narrowing facts on the wide tensors under the implemented
+   dense-bit-plane strategy); **1.33e10 landed near the right value by
+   coincidence but by an invalid route** (its divisor was inconsistent
+   with how the 1.5e14 total was constructed). Lookup-based ranges
+   (the U-K engine) remain the priced 2-4x reduction lever on the
+   plane family, unimplemented for ranges today.
 3. **Claim-proof rounds at scale** [MODEL] — the pi2-CE ROUNDS (exec
    combination, round W/O proofs) are measured only at 128x256x64
    (2.0 s prove); this tranche measured the claim layer's COMMIT

@@ -9,6 +9,13 @@ Do NOT touch: ring/gkr_masked.rs, ring/lookup.rs, [U-K5*] sections of ring_matmu
 
 ## Deliverable state
 
+- [x] D1 DONE (commits a8eb1e6 U-S1, + U-S1b Lookup/narrowing amendment)
+- [x] D2 DONE (U-S2: q46 link wiring, caveat removed, [U7w] wraparound battery green)
+- [x] D3 DONE (U-S3: docs/zkmatrix-poc/TARGET_CONTRACT.md)
+- [x] D4 DONE (U-S4: statement-inventory subcommand -> 1.351e10 used / 1.389e10 paid
+      per pass; M5_LITE_REPORT.md + LLM_SCALE_ESTIMATE.md updated)
+- [ ] FINAL: full 42-test python suite green + worktree clean
+
 - [ ] D1 Statement format + validator (src/manifest.rs) + [U7] positive/malicious tests
       Design: Statement { header{version, model_digest, table_digest}, manifest, quant: Vec<QuantMeta>,
       outputs } ; validate() -> Result<(), StatementError>; digest() validates first.
