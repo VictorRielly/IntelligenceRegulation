@@ -2077,6 +2077,191 @@ fn self_test_r1() {
             !verify_ct_round(&path, &ring_ctx, &rp, None, &crs, &h0_fixed, &[], &[], &[], &claims, &t1s, &t2s_atk, &[], &[], &[], 3, &proof),
         );
     }
+
+    // ---- Twisted-ring family (the GATE claim form — the family whose
+    // leak was the product matrix C, Q4.3e). Same two pairs at the
+    // sigma-twisted monomial shape: claim conj(x)*y - z = 0, pads
+    // (conj(ma), mb, conj(mw)) at flat slots 0..2 -> two msg_r=2 groups.
+    {
+        use ring::ct_engine::{TwistedQuadRingClaim, prove_ct_round_tq, verify_ct_round_tq};
+        let z0t = poly_mul_g(&zq, &poly_conj(&zq, &x0), &y0);
+        let claims_t = [TwistedQuadRingClaim {
+            quad: vec![(0, 0, 1, 0, one.clone())],
+            msg_coeffs: vec![(2, 0, minus_one.clone())],
+        }];
+        let rp5 = derive_ct_round_params(q, shape, 5, 0, 0, false);
+        let a1p5 = build_a1_paths(&crs, rp5.sigma, isqrt_u128(rp5.bound_sq));
+        let path5 = KernelPath::A1(&a1p5);
+        let run_t = |z_val: &Poly,
+                     g_groups: Vec<Vec<Poly>>,
+                     ctx: &'static [u8],
+                     bind_pads: bool,
+                     rng: &mut u64|
+         -> (Vec<Vec<Poly>>, Vec<Vec<Poly>>, [u8; 32], CtRoundProof) {
+            let mut all_x = vec![pack1(&x0), pack1(&y0), pack1(z_val)];
+            all_x.extend(g_groups);
+            let all_rho: Vec<Vec<Vec<i64>>> = (0..all_x.len())
+                .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(rng)).collect())
+                .collect();
+            let mut t1s = Vec::new();
+            let mut t2s = Vec::new();
+            for (x, rho) in all_x.iter().zip(all_rho.iter()) {
+                let (t1, t2) = commit(&path5, &crs, x, rho);
+                t1s.push(t1);
+                t2s.push(t2);
+            }
+            let h0 = if bind_pads {
+                ct_h0(&crs, ctx, &t1s, &t2s, &[])
+            } else {
+                ct_h0(&crs, ctx, &t1s[0..3], &t2s[0..3], &[])
+            };
+            let openings: Vec<StdOpening> = all_x
+                .iter()
+                .zip(all_rho.iter())
+                .enumerate()
+                .map(|(i, (x, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x, rho })
+                .collect();
+            let (proof, _) = prove_ct_round_tq(
+                &path5, &ring_ctx, &rp5, None, &crs, &h0, &[], &[], &[], &[], &claims_t,
+                &openings, &[], &[], 3, rng,
+            );
+            (t1s, t2s, h0, proof)
+        };
+        let verify_t = |h0: &[u8; 32], t1s: &[Vec<Poly>], t2s: &[Vec<Poly>], p: &CtRoundProof| {
+            verify_ct_round_tq(
+                &path5, &ring_ctx, &rp5, None, &crs, h0, &[], &[], &[], &[], &claims_t, t1s,
+                t2s, &[], &[], &[], 3, p,
+            )
+        };
+        // Q4.3d-1 distinguisher, identical form (the P-table identity
+        // carries no twist): W~ + sum a_l P_l = c L + mw.
+        let recover_t = |h0: &[u8; 32], proof: &CtRoundProof, t2s: &[Vec<Poly>]| -> Poly {
+            let c = poly_from_small(&zq, &ct_round_challenge(h0, proof));
+            let a2z = a2_matvec(&path5, &crs, MatvecKind::Verify, &proof.z[2]);
+            let p_z = ring::poly_sub(&zq, &poly_mul_g(&zq, &c, &t2s[2][0]), &a2z[0]);
+            ring::poly_sub(&zq, &proof.w_tq[0], &p_z)
+        };
+        // Leak pair.
+        let zero_pads = vec![vec![poly_zero(), poly_zero()], vec![poly_zero(), poly_zero()]];
+        let (t1s, t2s, h0, proof) = run_t(&z0t, zero_pads, b"r1t-leak", true, &mut rng);
+        let c = poly_from_small(&zq, &ct_round_challenge(&h0, &proof));
+        let c_l = poly_mul_g(&zq, &c, &ring::poly_neg(&zq, &z0t));
+        assert_true(
+            "R1 twisted-ring (gate form) leak: ZEROED pads expose c*L exactly (the C-recovery image, Q4.3e)",
+            verify_t(&h0, &t1s, &t2s, &proof) && recover_t(&h0, &proof, &t2s) == c_l,
+        );
+        let pads: Vec<Vec<Poly>> = sample_g_masks(&mut rng, q, shape.msg_r, 0, r1_pad_count(0, 0, 1));
+        let (t1s, t2s, h0, proof) = run_t(&z0t, pads, b"r1t-leak", true, &mut rng);
+        let c = poly_from_small(&zq, &ct_round_challenge(&h0, &proof));
+        let c_l = poly_mul_g(&zq, &c, &ring::poly_neg(&zq, &z0t));
+        assert_true(
+            "R1 twisted-ring leak: honest pads one-time-pad the combination (the fix)",
+            verify_t(&h0, &t1s, &t2s, &proof) && recover_t(&h0, &proof, &t2s) != c_l,
+        );
+        // Order pair. FALSE claim z' = conj(x)y + d; the twisted check's
+        // defect sits at sigma(c)*c, and the mw slot holds conj(mw), so
+        // the post-c shift is conj(c*Delta): conj(P_MW) gains
+        // sigma(c)*c*Delta, which the check subtracts.
+        let mut d = poly_zero();
+        d[0] = 1;
+        let z_bad = poly_add(&zq, &z0t, &d);
+        let delta = ring::poly_neg(&zq, &d);
+        let pads: Vec<Vec<Poly>> = sample_g_masks(&mut rng, q, shape.msg_r, 0, r1_pad_count(0, 0, 1));
+        let (t1s, t2s, h0_buggy, proof) = run_t(&z_bad, pads, b"r1t-order", false, &mut rng);
+        assert_true(
+            "R1 twisted-ring order rig: the false claim REJECTS before the pad shift",
+            !verify_t(&h0_buggy, &t1s, &t2s, &proof),
+        );
+        let c = poly_from_small(&zq, &ct_round_challenge(&h0_buggy, &proof));
+        let mut t2s_atk = t2s.clone();
+        // mw = flat pad slot 2 -> group 4, slot 0 at msg_r = 2.
+        t2s_atk[4][0] =
+            poly_add(&zq, &t2s_atk[4][0], &poly_conj(&zq, &poly_mul_g(&zq, &c, &delta)));
+        assert_true(
+            "R1 twisted-ring order: pad-after-challenge ACCEPTS (pad commitment outside h0 — the attack)",
+            verify_t(&h0_buggy, &t1s, &t2s_atk, &proof),
+        );
+        let h0_fixed = ct_h0(&crs, b"r1t-order", &t1s, &t2s_atk, &[]);
+        assert_true(
+            "R1 twisted-ring order: pad-in-h0 REJECTS the same crafting (the fix)",
+            !verify_t(&h0_fixed, &t1s, &t2s_atk, &proof),
+        );
+    }
+
+    // ---- Quad ct-claim family: the Q-leak (Q4.3d-2). The reveal pair
+    // (h, W_quad) exposed c*Q despite the g-mask (the g-slot images
+    // cancel); with R1, W~ = W + mw one-time-pads it. Claim:
+    // ct(conj(x) x + g) = scalar; g at flat slot 0, pads at 1..3.
+    {
+        use ring::ct_engine::QuadCtClaim;
+        let qq = poly_mul_g(&zq, &poly_conj(&zq, &x0), &x0);
+        let claims_q = [QuadCtClaim {
+            quad: vec![(0, 0, 0, 0, one.clone())],
+            msg_coeffs: vec![],
+            scalar: ct_coeff(&zq, &qq),
+        }];
+        let rp3 = derive_ct_round_params(q, shape, 3, 0, 0, false);
+        let a1p3 = build_a1_paths(&crs, rp3.sigma, isqrt_u128(rp3.bound_sq));
+        let path3 = KernelPath::A1(&a1p3);
+        let run_q = |g_groups: Vec<Vec<Poly>>, rng: &mut u64|
+         -> (Vec<Vec<Poly>>, [u8; 32], CtRoundProof) {
+            let mut all_x = vec![pack1(&x0)];
+            all_x.extend(g_groups);
+            let all_rho: Vec<Vec<Vec<i64>>> = (0..all_x.len())
+                .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(rng)).collect())
+                .collect();
+            let mut t1s = Vec::new();
+            let mut t2s = Vec::new();
+            for (x, rho) in all_x.iter().zip(all_rho.iter()) {
+                let (t1, t2) = commit(&path3, &crs, x, rho);
+                t1s.push(t1);
+                t2s.push(t2);
+            }
+            let h0 = ct_h0(&crs, b"r1q-leak", &t1s, &t2s, &[]);
+            let openings: Vec<StdOpening> = all_x
+                .iter()
+                .zip(all_rho.iter())
+                .enumerate()
+                .map(|(i, (x, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x, rho })
+                .collect();
+            let (proof, _) = prove_ct_round(
+                &path3, &ring_ctx, &rp3, None, &crs, &h0, &[], &[], &claims_q, &[], &openings,
+                &[], &[], 1, rng,
+            );
+            let ok = verify_ct_round(&path3, &ring_ctx, &rp3, None, &crs, &h0, &[], &[], &claims_q, &[], &t1s, &t2s, &[], &[], &[], 1, &proof);
+            assert!(ok, "R1 quad-ct rig must verify");
+            (t2s, h0, proof)
+        };
+        // Q4.3d-2 distinguisher: c*h - (W~ + sum a P + P_g) = c*Q - mw
+        // (no linear part here; P_g = the reveal g slot's opening).
+        let recover_q = |h0: &[u8; 32], proof: &CtRoundProof, t2s: &[Vec<Poly>]| -> Poly {
+            let c = poly_from_small(&zq, &ct_round_challenge(h0, proof));
+            let a2z = a2_matvec(&path3, &crs, MatvecKind::Verify, &proof.z[1]);
+            let p_g = ring::poly_sub(&zq, &poly_mul_g(&zq, &c, &t2s[1][0]), &a2z[0]);
+            let ch = poly_mul_g(&zq, &c, &proof.h_quad[0]);
+            ring::poly_sub(&zq, &ch, &poly_add(&zq, &proof.w_quad[0], &p_g))
+        };
+        // Zero pads (reveal g stays honest: flat 0 keeps ct = 0).
+        let mut g_zero = sample_g_masks(&mut rng, q, shape.msg_r, 1, 3);
+        g_zero[0][1] = poly_zero();
+        g_zero[1][0] = poly_zero();
+        g_zero[1][1] = poly_zero();
+        let (t2s, h0, proof) = run_q(g_zero, &mut rng);
+        let c = poly_from_small(&zq, &ct_round_challenge(&h0, &proof));
+        let c_q = poly_mul_g(&zq, &c, &qq);
+        assert_true(
+            "R1 quad-ct leak: ZEROED pads expose c*Q despite the g-mask (Q4.3d-2 — demonstrated)",
+            recover_q(&h0, &proof, &t2s) == c_q,
+        );
+        let g_honest = sample_g_masks(&mut rng, q, shape.msg_r, 1, 3);
+        let (t2s, h0, proof) = run_q(g_honest, &mut rng);
+        let c = poly_from_small(&zq, &ct_round_challenge(&h0, &proof));
+        let c_q = poly_mul_g(&zq, &c, &qq);
+        assert_true(
+            "R1 quad-ct leak: honest pads one-time-pad the (h, W~) pair (the fix)",
+            recover_q(&h0, &proof, &t2s) != c_q,
+        );
+    }
 }
 
 // ===========================================================================

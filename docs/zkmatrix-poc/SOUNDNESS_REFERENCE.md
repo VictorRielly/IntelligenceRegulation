@@ -250,9 +250,12 @@ the masked images Ga~/Gb~/G1~/W~/G0~ and the verifier subtracts the
 pad openings; the masked variant is PROVEN HVZK under MLWE alone
 (Q4_LEMMAS.md Section R1; gate + tie simulation assembled in
 AUTOMORPHISM_GATE_DESIGN.md Appendix B.2; check completeness
-machine-checked, `zk_lemma_check.py` OK-3a/3b). The leak identity and
-the pad hash-edge are pinned by the live `[R1]` battery (leak pair +
-order pair) and a freeze row. See Section 8 item 1.
+machine-checked, `zk_lemma_check.py` OK-3a/3b). The leak identities
+and the pad hash-edge are pinned by the live `[R1]` battery — leak
+non-recovery pairs for ALL THREE quadratic families (untwisted,
+twisted-ring/gate form incl. the Q4.3e C-image, and the quad-ct
+Q-leak of Q4.3d-2) plus both-direction order pairs at both monomial
+shapes — and a freeze row. See Section 8 item 1.
 
 ### 3.3 Extraction (special soundness) [PROVEN]
 

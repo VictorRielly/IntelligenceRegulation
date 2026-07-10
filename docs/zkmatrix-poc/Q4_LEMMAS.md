@@ -343,8 +343,11 @@ quadratic-layer header; callers size the groups with `sample_g_masks`
 + `r1_pad_count`), the prover sends only the masked images, and the
 verifier subtracts the pad openings. The R1.2 hash-edge row is merged
 into SOUNDNESS_REFERENCE.md Section 7 and pinned by the live `[R1]`
-battery (leak pair + order pair); freeze-check pins the pad counts.
-Measured deltas and one costing correction: R1.4' below.
+battery: leak non-recovery pairs for all three quadratic families
+(Q4.3d-1 untwisted, the gate-form C-image of Q4.3e, and the Q4.3d-2
+Q-leak) and both-direction order pairs at both monomial shapes;
+freeze-check pins the pad counts. Measured deltas and one costing
+correction: R1.4' below.
 
 This is the exact spec the engine tranche implemented to discharge
 Q4.3d/e. It sharpens the post-merge R1 note (Q4.3c') into prover
