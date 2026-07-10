@@ -1,0 +1,36 @@
+m5-bench: FFN matmul triple commit bill at 512x4096x11008, (k = 8, q8_31, e = 4), chunked msg_r-class CRS, reps = 3
+  frozen point: kappa = 9, N_r = 57, msg_r = 32 (C2 headroom 1.4 bits); P0 regimes:
+    commit: key x ternary rho (b = 1)                          -> single-prime
+    mask:   key x Gaussian y (b = 12 sigma = 3545028)          -> limb-split x3
+    verify: key x response z (b = |z|_inf <= 52447150)         -> limb-split x3
+    gate:   general x general (b = (q-1)/2 = 1073741624)       -> limb-split x3
+  chunked CRS expanded in 0.04s: 2.39 MB CRS + 16.75 MB A1 caches (bounded, shape-independent of tensor width)
+  monolithic wide CRS avoided: msg_r = 4096 (h = 128 x inner_r = 32) -> 17.3 GB; msg_r = 11008 -> 124.5 GB; chunked: 2.39 MB
+  work: 22528 column commitments (512 A rows + 11008 B cols + 11008 C cols); used elements 5.282e7, paid slots 9.227e7 (padding waste 1.75x, C columns pay msg_r = 32 for 4 used), ring-MACs 5.265e7
+
+  commit bill, full triple per repetition (min/median of 3):
+M5CSV,threads,secs_min,secs_med,ns_per_used_el,ns_per_paid_el,ring_macs_per_s,eff_gmacs,speedup_vs_1t
+M5CSV,1,11.029,11.700,208.8,119.5,4.774e6,78.2,1.00
+M5CSV,2,12.196,14.832,230.9,132.2,4.317e6,70.7,0.90
+M5CSV,4,5.064,5.162,95.9,54.9,1.040e7,170.3,2.18
+M5CSV,8,4.166,4.348,78.9,45.1,1.264e7,207.0,2.65
+M5CSV,16,2.051,2.121,38.8,22.2,2.567e7,420.6,5.38
+M5CSV,22,1.601,1.817,30.3,17.4,3.288e7,538.6,6.89
+M5CSV,baseline_no_kernel_t1,0.699
+M5CSV,baseline_no_kernel_t22,0.053
+
+  claim layer per matmul claim at this shape (pi2-CE, chunked): 26112 wide slots + 3 R1 pad slots -> 817 chunk commitments (816 wide + 1 pad), commit 0.362s 1T (0.443ms/chunk); one-logical-tensor digest ab02629dc68d77d8
+  reveals per claim: F = 8704 polys (4.32 MB at 31 bits/coeff) + K2 = 68 polys (33.7 KB) — transcript bytes, not commitments
+M5CSV,claim_layer,26112,3,817,0.362
+
+  recost, 7B/512-token pass (audit H-02):
+    element-equivalents/pass: 9.4e9..1.33e10 [MODEL — the two docs' accountings], x 0.571 ring-MACs/el at this point
+    commit bill 1T  [MEASURED-AT-RATE]: 1123-1590 s (18.7-26.5 min) at the measured end-to-end rate 4.77e6 ring-MACs/s
+    commit bill 22T [MEASURED-AT-RATE]: 163-231 s (2.7-3.8 min) at the MEASURED 6.9x 22-thread scaling (ladder assumed ~15x)
+    commit bill GPU [ASSUMED 20x]: 8.2-11.5 s — no GPU kernel exists in this repo (audit H-03); this row is an assumption, not a measurement
+    claim layer/pass [MODEL anchored]: ~288 matmul-class claims x 0.362s 1T chunked commit volume = 104s 1T -> ~15s at 6.9x; + round proofs ~10-25s wall 22T [MODEL, RING_MULT_BOTTLENECK 6.4b]; R1 pads add 3 slots/gate round (one chunk, measured above) — sub-percent [R1.4']
+    E4/lookup landing [MODEL, M4_LOOKUP_DESIGN]: 9 CtClaims + ~120 KB/pass transcript + ~2.3e7 ring-mult-equivalents (~5s 1T at the measured rate) — activations stay noise-class
+M5CSV,recost,bill_1t_s,1123,1590,bill_22t_s,163,231,mt_factor,6.89,gpu20x_s,8.2,11.5
+
+  memory: peak RSS (VmHWM) 95 MB, current (VmRSS) 95 MB — streaming holds the 512x4096x11008 triple far below the 12 GB budget
+m5-bench done

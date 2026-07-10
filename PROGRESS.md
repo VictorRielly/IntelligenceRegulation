@@ -10,10 +10,11 @@ NOTE: worktree was initially cut from a stale ref (7a3e7a0); reset --hard to 9fe
 - [x] Read docs (LLM_SCALE_ESTIMATE, A1_AUX_NTT_REPORT, RING_MULT_BOTTLENECK s6, Q4_LEMMAS R1/R1.4',
       SOUNDNESS_REFERENCE s8, audit H-02, M4_LOOKUP_DESIGN E4 rows, manifest.rs, commit.rs,
       ct_engine r1_pad_count/sample_g_masks, ring_matmul chain_demo/pi2-CE/freeze_check)
-- [ ] Chunking design written (see Key facts below — design settled, needs prose in report)
-- [ ] Chunking implementation (layout-only, commit.rs + self-test section)
-- [ ] m5-bench subcommand in ring_matmul.rs (registered in main)
-- [ ] Bench runs: 1/2/4/8/16/22 threads, 3x repeats, FFN 512x4096x11008 streaming <=12 GB
+- [x] Chunking design settled (prose goes in report)
+- [x] Chunking implementation (commit.rs wide_* fns + [M5] self-test battery, commit 0928b41)
+- [x] m5-bench subcommand in ring_matmul.rs (registered in main; smoke-tested at 128x256x64)
+- [~] Bench runs: session 1 at FFN 512x4096x11008 running in background
+      (-> docs/zkmatrix-poc/results/m5_bench_ffn_s1.txt); plan 2-3 sessions per repo discipline
 - [ ] Post-R1/E2 recost table (R1 pads per R1.4'; E4-class = 9 CtClaims + ~120KB/pass [MODEL])
 - [ ] docs/zkmatrix-poc/M5_LITE_REPORT.md
 - [ ] 42-test suite green (python3 -m unittest discover -s tests)
