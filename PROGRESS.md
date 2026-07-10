@@ -14,7 +14,13 @@ Do NOT touch: ring/gkr_masked.rs, ring/lookup.rs, [U-K5*] sections of ring_matmu
 - [x] D3 DONE (U-S3: docs/zkmatrix-poc/TARGET_CONTRACT.md)
 - [x] D4 DONE (U-S4: statement-inventory subcommand -> 1.351e10 used / 1.389e10 paid
       per pass; M5_LITE_REPORT.md + LLM_SCALE_ESTIMATE.md updated)
-- [ ] FINAL: full 42-test python suite green + worktree clean
+- [x] FINAL: full 42-test python suite green (42/42 OK, 132.6 s) + worktree clean.
+      Note: one run showed a PRE-EXISTING flake in tests/test_zk_lattice.py
+      Pi1Tests::test_rejects_tampered_responses (tamper=1) — that module uses
+      secrets.randbelow (unseeded true randomness); a +1 tamper on one Gaussian
+      response coordinate occasionally survives the approximate check. Pure-Python
+      module untouched by this tranche; passes 3/3 in isolation and the full rerun
+      is green. Worth a seed or a wider tamper in a future hygiene pass.
 
 - [ ] D1 Statement format + validator (src/manifest.rs) + [U7] positive/malicious tests
       Design: Statement { header{version, model_digest, table_digest}, manifest, quant: Vec<QuantMeta>,
@@ -61,3 +67,13 @@ Do NOT touch: ring/gkr_masked.rs, ring/lookup.rs, [U-K5*] sections of ring_matmu
 ## Log
 
 - 2026-07-10: worktree synced to 08051af; audit + code recon complete; plan committed.
+- 2026-07-10: tranche COMPLETE. Commits U-S1..U-S4b. Headlines:
+  * Statement v2 validator (manifest.rs) + [U7v] battery (11 rejection cases).
+  * chain-demo range family grounded at q46 via the U-L link; caveat print gone;
+    [U7w] wraparound battery: broken-q31 ACCEPT shown, shipped q46 REJECT shown
+    twice (binary ct + ARP gate).
+  * TARGET_CONTRACT.md freezes the benchmark boundary (H-05).
+  * statement-inventory: 1.351e10 used / 1.389e10 paid committed elements per
+    pass (FFN surrogate, generated from the validated DAG); both docs updated.
+  * ring_matmul.rs diff confined to chain/U7 sections + usage/main; lookup.rs,
+    gkr_masked.rs, [U-K5*] untouched.
