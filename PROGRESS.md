@@ -23,8 +23,16 @@ NOTE: worktree was initially cut from a stale ref (7a3e7a0); reset --hard to 9fe
       VERDICT: the 1.6-2.0 min 22T ladder claim did NOT hold (15x MT assumption -> 8.7-9.1x).
 - [x] docs/zkmatrix-poc/M5_LITE_REPORT.md written; LLM_SCALE_ESTIMATE.md ladder corrected
       (M5-lite row + update block)
-- [ ] 42-test suite green (python3 -m unittest discover -s tests)
-- [ ] All work committed, worktree clean
+- [x] 42-test suite green: "Ran 42 tests in 137.881s / OK" (with the [M5] battery inside
+      ring_matmul self-test, 35.5s)
+- [x] All work committed, worktree clean (U1 0928b41, U2 8d6d683, U3 097475d, U4 d07ef3e)
+
+## TRANCHE COMPLETE — final numbers
+- Largest shape measured: full 512x4096x11008 triple, streamed, peak RSS 94-95 MB.
+- 1T: 10.84 s best (117 ns/paid el end-to-end; kernel anchor 99-111 ns reproduces net of overhead).
+- 22T scaling: 8.74x min-over-sessions, 9.12x best within-session (ladder assumed ~15x).
+- Corrected commit bill: 1104-1563 s 1T; 126-179 s = 2.1-3.0 min 22T; GPU 20x row [ASSUMED] 6.3-8.9 s.
+- Verdict: the 1.6-2.0 min 22T ladder claim did NOT hold (1T arithmetic held; MT factor didn't).
 
 ## Build command
 PATH="$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin:$PATH" cargo build --release (in zkmatrix-rs/)
