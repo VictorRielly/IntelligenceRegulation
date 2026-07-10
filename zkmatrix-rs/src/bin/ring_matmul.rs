@@ -6356,6 +6356,115 @@ fn self_test_lookup() {
             rejected,
         );
     }
+
+    // ---- [U-K4] the fusion + the real table: kappa := Y, silu-int8-
+    // table-v1, the E3-N2 pair, LKP-1 ctx binding. ----
+    use ring::lookup::{fuse_pair, fused_silu_table, multiplicities, silu_int8_table, table_spec_digest};
+    println!("\n[U-K4] fusion + table: kappa := Y over silu-int8-table-v1, E3-N2 pair");
+    let rows = silu_int8_table();
+    let spec_dg = table_spec_digest(&rows);
+    let tab_fused = fused_silu_table(&kf, &rows);
+    let dg_hex: String = spec_dg.iter().take(8).map(|b| format!("{b:02x}")).collect();
+    println!("  LKP-1 table spec digest[0..8] = {dg_hex}");
+    assert_true(
+        "U-K4 table: 256 rows; S(0) = 0, S(127) = 127, S(-128) = 0 (the fixed-point SiLU endpoints)",
+        rows.len() == 256 && rows[128] == (0, 0) && rows[255] == (127, 127) && rows[0] == (-128, 0),
+    );
+    let (n4, depth_w4, depth_t4) = (64usize, 6usize, 8usize);
+    let mut xr4 = XofReader::new("uk4-battery", &[b"seed-4"]);
+    let xs4: Vec<i64> = (0..n4).map(|_| xr4.next_field(256) as i64 - 128).collect();
+    let ys4: Vec<i64> = xs4.iter().map(|&x| rows[(x + 128) as usize].1).collect();
+    let w_fused: Vec<KElem> = xs4
+        .iter()
+        .zip(ys4.iter())
+        .map(|(&x, &y)| fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y)))
+        .collect();
+    // Single-instance pipeline over PRE-FUSED leaves (shared by the
+    // shipped world and the E3-N2 mis-build): h0 must bind the table
+    // spec digest (LKP-1) + the columns + m before alpha.
+    let h0_of4 = |tab: &[KElem], w: &[KElem], m: &[KElem]| -> [u8; 32] {
+        let mut bytes = spec_dg.to_vec();
+        for e in tab.iter().chain(w.iter()).chain(m.iter()) {
+            bytes.extend_from_slice(&kf.bytes(e));
+        }
+        let mut r = XofReader::new("uk4-h0", &[&bytes]);
+        let mut h = [0u8; 32];
+        for c in h.chunks_mut(8) {
+            c.copy_from_slice(&r.next_u64().to_le_bytes());
+        }
+        h
+    };
+    let run1 = |tab: &[KElem], w: &[KElem], m: &[KElem]| -> bool {
+        let h0 = h0_of4(tab, w, m);
+        let mut tr = LkpTranscript::new("uk4-lkp", &h0);
+        let alpha = tr.challenge_k(&kf);
+        let wq: Vec<KElem> = w.iter().map(|wi| kf.sub(&alpha, wi)).collect();
+        let tq: Vec<KElem> = tab.iter().map(|t| kf.sub(&alpha, t)).collect();
+        let wtree = build_tree(&kf, vec![kf.one(); w.len()], wq);
+        let ttree = build_tree(&kf, m.to_vec(), tq);
+        let (wr, trt) = (wtree.root(), ttree.root());
+        if !root_cross_check(&kf, &wr, &trt) {
+            return false;
+        }
+        absorb_roots(&kf, &[wr.clone()], &mut tr);
+        let (pw_proof, _, _, _) = gkr_prove(&kf, &[wtree], &mut tr);
+        absorb_roots(&kf, &[trt.clone()], &mut tr);
+        let (pt_proof, _, _, _) = gkr_prove(&kf, &[ttree], &mut tr);
+        let mut tv = LkpTranscript::new("uk4-lkp", &h0);
+        if tv.challenge_k(&kf) != alpha {
+            return false;
+        }
+        absorb_roots(&kf, &[wr.clone()], &mut tv);
+        let Some((zw, pw, qw)) = gkr_verify(&kf, &[wr], depth_w4, &pw_proof, &mut tv) else {
+            return false;
+        };
+        absorb_roots(&kf, &[trt.clone()], &mut tv);
+        let Some((zt, pm, qt)) = gkr_verify(&kf, &[trt], depth_t4, &pt_proof, &mut tv) else {
+            return false;
+        };
+        pw == kf.one()
+            && qw == kf.sub(&alpha, &mle_eval(&kf, w, &zw))
+            && pm == mle_eval(&kf, m, &zt)
+            && qt == kf.sub(&alpha, &mle_eval(&kf, tab, &zt))
+    };
+    let m_honest = multiplicities(&kf, &w_fused, &tab_fused);
+    assert_true(
+        "U-K4 fusion: an honest int8 SiLU column verifies through the full single-instance lookup",
+        run1(&tab_fused, &w_fused, &m_honest),
+    );
+    // E3-N2, both directions. The mis-build: a BASE-FIELD fusion scalar
+    // known before y is fixed admits the exact collision
+    // y' = S[v'] + (v' - x) kappa^{-1} — (x, y') is NOT a table pair
+    // but fuses INTO row v'. kappa := Y makes the collision impossible
+    // ({1, Y} Z_q-linearly independent), no ordering needed.
+    {
+        let kappa_b = XofReader::new("uk4-bad-kappa", &[&spec_dg]).next_field(q);
+        let tgt = (((xs4[0] + 128 + 7) % 256) as usize).max(1); // a row != x0's own
+        let (vp, sp) = (zq.to_mod(rows[tgt].0), zq.to_mod(rows[tgt].1));
+        let x0 = zq.to_mod(xs4[0]);
+        let y_crafted = zq.add(sp, zq.mul(zq.sub(vp, x0), zq.inv(kappa_b)));
+        let fuse_b = |x: u64, y: u64| -> KElem { kf.embed(zq.add(x, zq.mul(kappa_b, y))) };
+        let tab_b: Vec<KElem> =
+            rows.iter().map(|&(v, s)| fuse_b(zq.to_mod(v), zq.to_mod(s))).collect();
+        let mut w_b: Vec<KElem> = xs4
+            .iter()
+            .zip(ys4.iter())
+            .map(|(&x, &y)| fuse_b(zq.to_mod(x), zq.to_mod(y)))
+            .collect();
+        w_b[0] = fuse_b(x0, y_crafted);
+        let m_b = multiplicities(&kf, &w_b, &tab_b);
+        assert_true(
+            "U-K4 fusion (E3-N2): the base-field-kappa mis-build ACCEPTS a non-table pair (the fused collision — the attack, demonstrated)",
+            y_crafted != zq.to_mod(ys4[0]) && w_b[0] == tab_b[tgt] && run1(&tab_b, &w_b, &m_b),
+        );
+        let mut w_y = w_fused.clone();
+        w_y[0] = fuse_pair(&kf, x0, y_crafted);
+        let m_y = multiplicities(&kf, &w_y, &tab_fused);
+        assert_true(
+            "U-K4 fusion (E3-N2): kappa := Y REJECTS the same crafted pair (exact pair binding — the fix)",
+            !run1(&tab_fused, &w_y, &m_y),
+        );
+    }
 }
 
 // U-L freeze rows: the F3 modulus-link derive-time gates. Called at the end
@@ -6436,6 +6545,20 @@ fn freeze_check_link() -> bool {
                 && ctx.slot_roots[0] == 2_056_890_868
                 && ctx.k == 8
                 && ctx.slot_deg == 16,
+        );
+    }
+
+    // LKP-1 — the lookup's table statement: the canonical spec digest
+    // of silu-int8-table-v1 (M4_LOOKUP_DESIGN Section 1.1). The digest
+    // enters every lookup h0 before alpha; a drift here (f64 platform
+    // difference, spec edit, row change) must be loud.
+    {
+        let rows = ring::lookup::silu_int8_table();
+        let dg = ring::lookup::table_spec_digest(&rows);
+        let hexd: String = dg.iter().take(8).map(|b| format!("{b:02x}")).collect();
+        gate(
+            &format!("LKP-1 silu-int8-table-v1 spec digest {hexd} (256 rows)"),
+            hexd == "768b83d7c01d9bee" && rows.len() == 256 && rows[128] == (0, 0),
         );
     }
 
