@@ -3615,13 +3615,16 @@ fn self_test_pi2() {
 }
 
 // ===========================================================================
-// U7: manifest/chain integration. One ClaimManifest (shared module, same
-// format as Route Z — only key_info/commitment_bytes widths change) binds
-// every commitment of the DAG; its order-sensitive digest is the ctx of
-// EVERY claim (the "all commitments before any challenge" rule at chain
-// level). Wave batching at r = 1: all gadget claims of a layer share ONE
-// ct-round (one challenge, one mask-bundle class per commitment — "one
-// wave-slot per claim"); the Pi2 matmul layer runs its own round.
+// U7: statement/chain integration. One VALIDATED Statement (manifest.rs
+// format v2 — versioned header with model + activation-table digests,
+// per-tensor quantization metadata, declared outputs, and the structural
+// validator of audit finding C-02) binds every commitment of the DAG; its
+// order-sensitive digest is the ctx of EVERY claim (the "all commitments
+// before any challenge" rule at chain level), and the digest cannot be
+// formed until validation passes. Wave batching at r = 1: all gadget
+// claims of a layer share ONE ct-round (one challenge, one mask-bundle
+// class per commitment — "one wave-slot per claim"); the Pi2 matmul layer
+// runs its own round.
 //
 // Chain: X0 (n0 x n3), W1 (n1 x n0, hidden) -> Y1 = W1 X0 (Pi2, r_g demo
 // reps); Y1 = 2^shift * Y2 + R (rescale link) with Range(R, shift):
@@ -3678,8 +3681,16 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
     let mut rng = 0x5eed_0009u64;
 
     // --- Instance data. --------------------------------------------------
-    let w1: Vec<u64> = (0..n1 * n0).map(|_| rng_below(&mut rng, q)).collect();
-    let x0: Vec<u64> = (0..n0 * n3).map(|_| rng_below(&mut rng, q)).collect();
+    // Small-integer witnesses under the DECLARED quantization (statement
+    // format v2): W1 and X0 are unsigned 6-bit values, so Y1 = W1 X0 is an
+    // EXACT integer matmul (max n0 * 63^2 < 2^(12 + ceil log2 n0) << q/2 —
+    // no wraparound in the matmul itself), the rescale is exact integer
+    // arithmetic, and the quantization metadata below is honest. (The old
+    // demo drew full mod-q values, which made every "integer" claim
+    // modular-only from the start.)
+    let w_in_bits = 6u32;
+    let w1: Vec<u64> = (0..n1 * n0).map(|_| rng_below(&mut rng, 1 << w_in_bits)).collect();
+    let x0: Vec<u64> = (0..n0 * n3).map(|_| rng_below(&mut rng, 1 << w_in_bits)).collect();
     let mut y1 = vec![0u64; n1 * n3];
     for r in 0..n1 {
         for j in 0..n3 {
@@ -3690,14 +3701,17 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
             y1[r * n3 + j] = acc;
         }
     }
+    let acc_bits = 2 * w_in_bits + (usize::BITS - (n0 - 1).leading_zeros());
+    assert!((1u128 << acc_bits) < (q as u128) / 2, "declared accumulator width must fit q31");
     // Rescale: Y1 = 2^shift Y2 + R with R = Y1 mod 2^shift (exact integers).
     let rr: Vec<u64> = y1.iter().map(|&v| v & ((1 << shift) - 1)).collect();
     let y2: Vec<u64> = y1.iter().map(|&v| v >> shift).collect();
     let r_bits: Vec<Vec<u64>> =
         (0..shift as usize).map(|i| rr.iter().map(|&v| (v >> i) & 1).collect()).collect();
-    // Hadamard triple (slot-packed, standalone layer).
-    let hx: Vec<u64> = (0..n2).map(|_| rng_below(&mut rng, q)).collect();
-    let hy: Vec<u64> = (0..n2).map(|_| rng_below(&mut rng, q)).collect();
+    // Hadamard triple (slot-packed, standalone layer): unsigned 8-bit
+    // operands, exact 16-bit products.
+    let hx: Vec<u64> = (0..n2).map(|_| rng_below(&mut rng, 1 << 8)).collect();
+    let hy: Vec<u64> = (0..n2).map(|_| rng_below(&mut rng, 1 << 8)).collect();
     let hz: Vec<u64> = hx.iter().zip(hy.iter()).map(|(&a, &b)| zq.mul(a, b)).collect();
 
     // --- Commit everything, then build the manifest. ---------------------
@@ -3787,25 +3801,131 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
     let id_y1 = mf.add_commitment("Y1", n1, n3, Orientation::ByColumns, ki.clone(), group_list_digest(&ty1));
     let id_y2 = mf.add_commitment("Y2", n1, n3, Orientation::ByColumns, ki.clone(), group_list_digest(&ty2));
     let id_r = mf.add_commitment("R", n1, n3, Orientation::ByColumns, ki.clone(), group_list_digest(&tr));
-    let id_bits: Vec<u32> = bit_data
-        .iter()
-        .enumerate()
-        .map(|(i, (_, _, g))| {
-            mf.add_commitment(&format!("Rbits{i}"), n1, n3, Orientation::ByColumns, ki.clone(), group_list_digest(g))
-        })
-        .collect();
+    // ONE stacked plane entry for R's bit decomposition (the lattice
+    // ffn-demo layout the validator pins): `shift` planes stacked row-wise,
+    // digest over every plane's commitment groups in plane order.
+    let bits_groups: Vec<(Vec<Poly>, Vec<Poly>)> =
+        bit_data.iter().flat_map(|(_, _, g)| g.iter().cloned()).collect();
+    let id_bits = mf.add_commitment(
+        "R-bits",
+        n1 * shift as usize,
+        n3,
+        Orientation::ByColumns,
+        ki.clone(),
+        group_list_digest(&bits_groups),
+    );
     let id_hx = mf.add_commitment("HX", n2, 1, Orientation::ByColumns, ki.clone(), group_list_digest(&h_groups[0..1]));
     let id_hy = mf.add_commitment("HY", n2, 1, Orientation::ByColumns, ki.clone(), group_list_digest(&h_groups[1..2]));
     let id_hz = mf.add_commitment("HZ", n2, 1, Orientation::ByColumns, ki.clone(), group_list_digest(&h_groups[2..3]));
     mf.add_operation(Operation::Matmul { a: id_w1, b: id_x0, c: id_y1 });
     mf.add_operation(Operation::Rescale { x: id_y1, y: id_y2, r: id_r, shift });
-    for (i, &idb) in id_bits.iter().enumerate() {
-        let _ = i;
-        mf.add_operation(Operation::Binary { bits: idb });
-    }
-    mf.add_operation(Operation::Range { value: id_r, bits: id_bits[0], width: shift, signed: false });
+    mf.add_operation(Operation::Binary { bits: id_bits });
+    mf.add_operation(Operation::Range { value: id_r, bits: id_bits, width: shift, signed: false });
     mf.add_operation(Operation::Hadamard { x: id_hx, y: id_hy, z: id_hz });
-    let ctx = mf.digest();
+
+    // --- The validated statement (format v2, audit C-02). ------------------
+    // Header: model identity digest (architecture + dims + the weight
+    // commitment digest) and the frozen activation-table digest (the SiLU
+    // int8 spec of ring/lookup.rs — declared model semantics; the demo
+    // chain does not yet PROVE a lookup op, see TARGET_CONTRACT.md).
+    let model_digest: [u8; 32] = {
+        use sha2::{Digest, Sha256};
+        let mut hasher = Sha256::new();
+        hasher.update(b"chain-demo-model-v1");
+        for dim in [n0, n1, n2, n3] {
+            hasher.update((dim as u64).to_le_bytes());
+        }
+        hasher.update(group_list_digest(&tw1));
+        hasher.finalize().into()
+    };
+    let table_digest =
+        ring::lookup::table_spec_digest(&ring::lookup::silu_int8_table());
+    let quant = |bits: u32, frac_bits: u32| manifest::QuantMeta { bits, frac_bits, signed: false };
+    let mut statement = manifest::Statement::new(model_digest, table_digest, mf.clone());
+    statement.quant = vec![
+        quant(w_in_bits, 2),        // W1
+        quant(w_in_bits, 2),        // X0
+        quant(acc_bits, 4),         // Y1 (exact accumulator)
+        quant(acc_bits - shift, 0), // Y2
+        quant(shift, 4),            // R
+        quant(1, 0),                // R-bits planes
+        quant(8, 0),                // HX
+        quant(8, 0),                // HY
+        quant(16, 0),               // HZ
+    ];
+    statement.outputs = vec![id_y2, id_hz];
+    let ctx = match statement.digest() {
+        Ok(digest) => digest,
+        Err(err) => {
+            println!("  FAIL: honest statement does not validate: {err}");
+            std::process::exit(1);
+        }
+    };
+    println!("  ok   statement v2 validates (9 entries, {} operations, 2 outputs)", mf.operations.len());
+
+    // --- [U7v] malicious-statement battery: every entry in the audit's ----
+    // --- C-02 list is REJECTED with a structured error, pre-crypto.    ----
+    {
+        use manifest::StatementError as SE;
+        let expect = |label: &str, tampered: &manifest::Statement, want: fn(&SE) -> bool| {
+            match tampered.validate() {
+                Ok(()) => {
+                    println!("  FAIL: malicious statement accepted ({label})");
+                    std::process::exit(1);
+                }
+                Err(err) => {
+                    if !want(&err) {
+                        println!("  FAIL: wrong rejection for {label}: {err}");
+                        std::process::exit(1);
+                    }
+                    println!("  ok   statement rejects {label}: {err}");
+                }
+            }
+        };
+        // (1) Dangling id: an operation names a commitment that was never
+        // made — the "caller-created manifest inconsistency" case.
+        let mut bad = statement.clone();
+        bad.manifest.add_operation(Operation::Matmul { a: 99, b: id_x0, c: id_y1 });
+        expect("dangling id", &bad, |e| matches!(e, SE::DanglingId { id: 99, .. }));
+        // (2) Shape mismatch: X0's declared inner dimension is off by one —
+        // the matmul no longer chains rows/inner/cols.
+        let mut bad = statement.clone();
+        bad.manifest.commitments[id_x0 as usize].rows = (n0 + 1) as u32;
+        expect("matmul shape mismatch", &bad, |e| matches!(e, SE::MatmulShape { .. }));
+        // (3) Orientation flip: W1 declared by-columns — a transposed
+        // operand would hash fine but proves a different product.
+        let mut bad = statement.clone();
+        bad.manifest.commitments[id_w1 as usize].orientation = Orientation::ByColumns;
+        expect("orientation flip", &bad, |e| matches!(e, SE::MatmulOrientation { .. }));
+        // (4) Missing range fact: the rescale remainder loses its Range —
+        // exactly the wraparound-enabling omission.
+        let mut bad = statement.clone();
+        bad.manifest.operations.retain(|op| !matches!(op, Operation::Range { .. }));
+        expect("missing range fact", &bad, |e| matches!(e, SE::MissingRangeFact { .. }));
+        // (5) Duplicate output declaration.
+        let mut bad = statement.clone();
+        bad.outputs.push(id_y2);
+        expect("duplicate output", &bad, |e| matches!(e, SE::DuplicateOutput { .. }));
+        // (6) Dropped output: HZ silently leaves the statement.
+        let mut bad = statement.clone();
+        bad.outputs.retain(|&id| id != id_hz);
+        expect("unconsumed tensor", &bad, |e| matches!(e, SE::UnconsumedEntry { .. }));
+        // (7) Unknown format version.
+        let mut bad = statement.clone();
+        bad.header.version = 3;
+        expect("unknown statement version", &bad, |e| matches!(e, SE::UnknownVersion { got: 3 }));
+        // (8) Missing quantization metadata.
+        let mut bad = statement.clone();
+        bad.quant.pop();
+        expect("missing quantization metadata", &bad, |e| matches!(e, SE::QuantCount { .. }));
+        // (9) Understated accumulator width: Y1 declared narrower than the
+        // worst-case matmul growth — the statement-level non-wrap budget.
+        let mut bad = statement.clone();
+        bad.quant[id_y1 as usize].bits = acc_bits - 2;
+        expect("understated accumulator width", &bad, |e| {
+            matches!(e, SE::QuantMismatch { field: "matmul accumulator width", .. })
+        });
+    }
 
     // --- Layer 1: the Pi2 matmul claim (its own round). -------------------
     let shape2 = Pi2Shape { rows: n1, inner_r: n0.div_ceil(D), rows_r: n1.div_ceil(D), cols: n3 };
@@ -3951,22 +4071,22 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         println!("  FAIL: chain does not verify");
         std::process::exit(1);
     }
-    println!("  ok   chain verifies (manifest digest binds all {} commitments, {} operations)", mf.commitments.len(), mf.operations.len());
+    println!("  ok   chain verifies (statement digest binds header + quant + all {} commitments, {} operations)", mf.commitments.len(), mf.operations.len());
 
-    // Negative: any tampered commitment changes the manifest digest and
+    // Negative: any tampered commitment changes the statement digest and
     // every claim fails.
-    let mut mf_bad = mf.clone();
-    mf_bad.commitments[0].commitment_bytes[0] ^= 1;
-    let ctx_bad = mf_bad.digest();
+    let mut st_bad = statement.clone();
+    st_bad.manifest.commitments[0].commitment_bytes[0] ^= 1;
+    let ctx_bad = st_bad.digest().expect("tampered bytes still validate structurally");
     let ok_tampered = verify_ring_pi2(
         &a1_path, &ring_ctx, &crs, &rp, &dp, &shape2, &ctx_bad, r_g, b_bits, &tw1, &tx0, &ty1,
         &pi2_proof,
     );
     if ok_tampered {
-        println!("  FAIL: tampered manifest still verifies");
+        println!("  FAIL: tampered statement still verifies");
         std::process::exit(1);
     }
-    println!("  ok   tampered manifest digest rejects every claim (ctx binding)");
+    println!("  ok   tampered statement digest rejects every claim (ctx binding)");
     println!("chain-demo passed");
 }
 
