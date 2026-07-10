@@ -13,10 +13,16 @@ NOTE: worktree was initially cut from a stale ref (7a3e7a0); reset --hard to 9fe
 - [x] Chunking design settled (prose goes in report)
 - [x] Chunking implementation (commit.rs wide_* fns + [M5] self-test battery, commit 0928b41)
 - [x] m5-bench subcommand in ring_matmul.rs (registered in main; smoke-tested at 128x256x64)
-- [~] Bench runs: session 1 at FFN 512x4096x11008 running in background
-      (-> docs/zkmatrix-poc/results/m5_bench_ffn_s1.txt); plan 2-3 sessions per repo discipline
-- [ ] Post-R1/E2 recost table (R1 pads per R1.4'; E4-class = 9 CtClaims + ~120KB/pass [MODEL])
-- [ ] docs/zkmatrix-poc/M5_LITE_REPORT.md
+- [x] Bench runs: 3 sessions at FFN 512x4096x11008 (results/m5_bench_ffn_s{1,2,3}.txt);
+      min-over-sessions = s3 row-wise: 1T 10.84s (117 ns/paid el), 22T 1.24s, scaling 8.74x
+      (9.12x best within-session s2; s1 loaded 6.9x). Peak RSS 94-95 MB. Digest identical
+      across all thread counts and sessions.
+- [x] Post-R1/E2 recost (printed by m5-bench + report Section 4): commit bill 1104-1563s 1T,
+      126-179s = 2.1-3.0 min 22T MEASURED-AT-RATE; GPU 20x row labeled [ASSUMED]; claim layer
+      817 chunks/claim = 0.346s 1T measured, R1 pad = 1 chunk/gate round; E4 [MODEL].
+      VERDICT: the 1.6-2.0 min 22T ladder claim did NOT hold (15x MT assumption -> 8.7-9.1x).
+- [x] docs/zkmatrix-poc/M5_LITE_REPORT.md written; LLM_SCALE_ESTIMATE.md ladder corrected
+      (M5-lite row + update block)
 - [ ] 42-test suite green (python3 -m unittest discover -s tests)
 - [ ] All work committed, worktree clean
 
