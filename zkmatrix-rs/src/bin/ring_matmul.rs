@@ -5933,6 +5933,101 @@ fn self_test_lookup() {
     let dg = slot_field_digest(&ctx);
     let hexd: String = dg.iter().take(8).map(|b| format!("{b:02x}")).collect();
     println!("  LKP-5 slot-field digest[0..8] = {hexd}, s0 = {}", ctx.slot_roots[0]);
+
+    // ---- [U-K2] the sumcheck core: honest / tamper / order battery. ----
+    use ring::kfield::KElem;
+    use ring::sumcheck::{
+        LkpTranscript, SumcheckProof, fold, lagrange_eval, mle_eval, round_poly, sumcheck_prove,
+        sumcheck_verify,
+    };
+    println!("\n[U-K2] sumcheck core over GF(q^16): deg-3 rounds, Lagrange fold, E3-N4 edges");
+    let n_vars = 7usize;
+    let size = 1usize << n_vars;
+    let mut xr2 = XofReader::new("uk2-battery", &[b"seed-2"]);
+    let ta: Vec<KElem> = (0..size).map(|_| kf.uniform(&mut xr2)).collect();
+    let tb: Vec<KElem> = (0..size).map(|_| kf.uniform(&mut xr2)).collect();
+    let tc: Vec<KElem> = (0..size).map(|_| kf.uniform(&mut xr2)).collect();
+    let prod3 =
+        |k: &ring::kfield::KField, v: &[KElem]| -> KElem { k.mul(&k.mul(&v[0], &v[1]), &v[2]) };
+    let claimed = (0..size).fold(kf.zero(), |acc, i| {
+        kf.add(&acc, &kf.mul(&kf.mul(&ta[i], &tb[i]), &tc[i]))
+    });
+    let h0 = *b"uk2-battery-h0-fixed-32-bytes!!!";
+    let mut tr_p = LkpTranscript::new("uk2", &h0);
+    let (proof, point) =
+        sumcheck_prove(&kf, vec![ta.clone(), tb.clone(), tc.clone()], 3, &prod3, &mut tr_p);
+    let mut tr_v = LkpTranscript::new("uk2", &h0);
+    let ok = sumcheck_verify(&kf, n_vars, 3, &claimed, &proof, &prod3, &mut tr_v);
+    assert_true(
+        "U-K2 sumcheck: honest deg-3 triple product verifies; final evals = the table MLEs at the final point",
+        match ok {
+            Some((pt, _)) => {
+                pt == point
+                    && proof.final_evals[0] == mle_eval(&kf, &ta, &pt)
+                    && proof.final_evals[1] == mle_eval(&kf, &tb, &pt)
+                    && proof.final_evals[2] == mle_eval(&kf, &tc, &pt)
+            }
+            None => false,
+        },
+    );
+    {
+        let mut bad =
+            SumcheckProof { rounds: proof.rounds.clone(), final_evals: proof.final_evals.clone() };
+        bad.rounds[3][2] = kf.add(&bad.rounds[3][2], &kf.one());
+        let mut tr_b = LkpTranscript::new("uk2", &h0);
+        assert_true(
+            "U-K2 sumcheck: a tampered round polynomial REJECTS (challenge chain breaks)",
+            sumcheck_verify(&kf, n_vars, 3, &claimed, &bad, &prod3, &mut tr_b).is_none(),
+        );
+    }
+    // The E3-N4 hash edge, F5 pair: with round challenges known BEFORE
+    // the round polynomials (the violated order), a cheating prover
+    // interpolates a false claim's defect into the polynomial nodes the
+    // verifier never checks: e cubic with e(0) = delta, e(1) = 0 (the
+    // sum check passes on the false claim) and e(r_0) = 0 (the folded
+    // chain continues on the HONEST values).
+    {
+        let mut xr_r = XofReader::new("uk2-buggy-rs", &[&h0]);
+        let rs: Vec<KElem> = (0..n_vars).map(|_| kf.uniform(&mut xr_r)).collect();
+        let false_claim = kf.add(&claimed, &kf.one());
+        let mut tabs = vec![ta.clone(), tb.clone(), tc.clone()];
+        let mut rounds: Vec<Vec<KElem>> = Vec::new();
+        for r in &rs {
+            rounds.push(round_poly(&kf, &tabs, 3, &prod3));
+            tabs = tabs.iter().map(|t| fold(&kf, t, r)).collect();
+        }
+        let final_evals: Vec<KElem> = tabs.iter().map(|t| t[0].clone()).collect();
+        // e through (0, 1), (1, 0), (2, 0), (r_0, 0), sent as node evals:
+        // e(3) = (r_0 - 3) / r_0.
+        let r0 = &rs[0];
+        let e3 = kf.mul(&kf.sub(r0, &kf.embed(3)), &kf.inv(r0));
+        let e = [kf.one(), kf.zero(), kf.zero(), e3];
+        for (x, ev) in e.iter().enumerate() {
+            rounds[0][x] = kf.add(&rounds[0][x], ev);
+        }
+        let atk = SumcheckProof { rounds, final_evals };
+        let buggy_ok = {
+            let mut c = false_claim.clone();
+            let mut okb = true;
+            for (g, r) in atk.rounds.iter().zip(rs.iter()) {
+                if kf.add(&g[0], &g[1]) != c {
+                    okb = false;
+                    break;
+                }
+                c = lagrange_eval(&kf, g, r);
+            }
+            okb && prod3(&kf, &atk.final_evals) == c
+        };
+        assert_true(
+            "U-K2 order (E3-N4): pre-derived round challenges ACCEPT a false sum (the defect hides in an unchecked node — the attack, demonstrated)",
+            buggy_ok,
+        );
+        let mut tr_s = LkpTranscript::new("uk2", &h0);
+        assert_true(
+            "U-K2 order (E3-N4): the shipped transcript (r drawn AFTER the round poly) REJECTS the same crafting",
+            sumcheck_verify(&kf, n_vars, 3, &false_claim, &atk, &prod3, &mut tr_s).is_none(),
+        );
+    }
 }
 
 // U-L freeze rows: the F3 modulus-link derive-time gates. Called at the end

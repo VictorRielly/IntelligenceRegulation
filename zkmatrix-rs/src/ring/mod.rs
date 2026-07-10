@@ -32,6 +32,7 @@ pub mod commit;
 pub mod ct_engine;
 pub mod kfield;
 pub mod link;
+pub mod sumcheck;
 pub mod params;
 pub mod sigma;
 
