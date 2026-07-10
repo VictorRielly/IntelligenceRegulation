@@ -4501,6 +4501,206 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
 }
 
 // ===========================================================================
+// U-S4: statement-inventory — the pass-element inventory GENERATED from the
+// validated statement DAG (audit H-02, third item). The two committed-
+// element counts the cost documents carried (9.4e9 and 1.33e10 per
+// 7B/512-token pass) were BOTH derived by dividing one modeled MAC total
+// (1.5e14 Route Z MACs) by two different MACs-per-element anchors (16k in
+// RING_MULT_BOTTLENECK 6.4a, 11.3k in A1_AUX_NTT_REPORT Section 6) — a
+// round-trip through the very quantity being estimated, not an inventory.
+// This generator replaces both: it BUILDS the 32-layer FFN-surrogate
+// statement of TARGET_CONTRACT.md through the validated Statement format
+// (every shape, quantization width, range/narrowing fact and consumption
+// rule machine-checked), then counts committed elements by walking the
+// entries. "Used" elements are tensor values; "paid" adds the frozen
+// msg_r = 32 column-packing padding (ceil to 4096-slot commitments).
+// Weights are counted separately (committed once per model, amortized
+// across proofs — the docs' convention).
+
+fn statement_inventory() {
+    use manifest::{ClaimManifest, Operation, Orientation, QuantMeta, Statement};
+    let (layers, dm, fh, tk) = (32usize, 4096usize, 11008usize, 512usize);
+    println!("statement-inventory: {layers}-layer FFN surrogate (d = {dm}, f = {fh}, T = {tk} tokens) per TARGET_CONTRACT.md");
+    println!("  quantization: int8 activations/weights; 27/29-bit accumulators; rescale shifts 19/7/21;");
+    println!("  dense bit-plane range facts (remainders + int8 narrowings; SiLU input narrowed by the lookup itself)");
+
+    fn add(
+        mf: &mut ClaimManifest,
+        quant: &mut Vec<QuantMeta>,
+        label: &str,
+        rows: usize,
+        cols: usize,
+        orientation: Orientation,
+        qm: QuantMeta,
+    ) -> u32 {
+        let id = mf.add_commitment(label, rows, cols, orientation, vec![], vec![]);
+        quant.push(qm);
+        id
+    }
+    let q8 = QuantMeta { bits: 8, frac_bits: 4, signed: true };
+    let plane = QuantMeta { bits: 1, frac_bits: 0, signed: false };
+    let qm = |bits: u32, frac_bits: u32, signed: bool| QuantMeta { bits, frac_bits, signed };
+
+    let mut mf = ClaimManifest::new("lattice-route-r", b"statement-inventory");
+    let mut quant: Vec<QuantMeta> = Vec::new();
+    let mut weight_ids: Vec<u32> = Vec::new();
+    let by_cols = Orientation::ByColumns;
+    let mut x_in = add(&mut mf, &mut quant, "X0", dm, tk, by_cols, q8);
+    for l in 0..layers {
+        let lb = |s: &str| format!("{s}{l}");
+        // Gate projection: W (f x d) by rows, X (d x T) by columns.
+        let wg = add(&mut mf, &mut quant, &lb("Wg"), fh, dm, Orientation::ByRows, q8);
+        weight_ids.push(wg);
+        let g_acc = add(&mut mf, &mut quant, &lb("Gacc"), fh, tk, by_cols, qm(27, 8, true));
+        let g8 = add(&mut mf, &mut quant, &lb("g8"), fh, tk, by_cols, q8);
+        let rg = add(&mut mf, &mut quant, &lb("Rg"), fh, tk, by_cols, qm(19, 8, false));
+        let rg_bits = add(&mut mf, &mut quant, &lb("Rg-bits"), 19 * fh, tk, by_cols, plane);
+        let a8 = add(&mut mf, &mut quant, &lb("a8"), fh, tk, by_cols, q8);
+        mf.add_operation(Operation::Matmul { a: wg, b: x_in, c: g_acc });
+        mf.add_operation(Operation::Rescale { x: g_acc, y: g8, r: rg, shift: 19 });
+        mf.add_operation(Operation::Range { value: rg, bits: rg_bits, width: 19, signed: false });
+        mf.add_operation(Operation::Binary { bits: rg_bits });
+        // SiLU through the frozen table: domain membership narrows g8.
+        mf.add_operation(Operation::Lookup { x: g8, y: a8 });
+        // Up projection (+ proven int8 narrowing — u8 feeds the Hadamard).
+        let wu = add(&mut mf, &mut quant, &lb("Wu"), fh, dm, Orientation::ByRows, q8);
+        weight_ids.push(wu);
+        let u_acc = add(&mut mf, &mut quant, &lb("Uacc"), fh, tk, by_cols, qm(27, 8, true));
+        let u8v = add(&mut mf, &mut quant, &lb("u8"), fh, tk, by_cols, q8);
+        let ru = add(&mut mf, &mut quant, &lb("Ru"), fh, tk, by_cols, qm(19, 8, false));
+        let ru_bits = add(&mut mf, &mut quant, &lb("Ru-bits"), 19 * fh, tk, by_cols, plane);
+        let u8_bits = add(&mut mf, &mut quant, &lb("u8-bits"), 8 * fh, tk, by_cols, plane);
+        mf.add_operation(Operation::Matmul { a: wu, b: x_in, c: u_acc });
+        mf.add_operation(Operation::Rescale { x: u_acc, y: u8v, r: ru, shift: 19 });
+        mf.add_operation(Operation::Range { value: ru, bits: ru_bits, width: 19, signed: false });
+        mf.add_operation(Operation::Binary { bits: ru_bits });
+        mf.add_operation(Operation::Range { value: u8v, bits: u8_bits, width: 8, signed: true });
+        mf.add_operation(Operation::Binary { bits: u8_bits });
+        // gate o up, rescaled back to int8 (worst-case exact: 15-bit
+        // product >> 7 fits int8 with no narrowing fact needed).
+        let hh = add(&mut mf, &mut quant, &lb("H"), fh, tk, by_cols, qm(15, 8, true));
+        let h8 = add(&mut mf, &mut quant, &lb("h8"), fh, tk, by_cols, qm(8, 1, true));
+        let rh = add(&mut mf, &mut quant, &lb("Rh"), fh, tk, by_cols, qm(7, 8, false));
+        let rh_bits = add(&mut mf, &mut quant, &lb("Rh-bits"), 7 * fh, tk, by_cols, plane);
+        mf.add_operation(Operation::Hadamard { x: a8, y: u8v, z: hh });
+        mf.add_operation(Operation::Rescale { x: hh, y: h8, r: rh, shift: 7 });
+        mf.add_operation(Operation::Range { value: rh, bits: rh_bits, width: 7, signed: false });
+        mf.add_operation(Operation::Binary { bits: rh_bits });
+        // Down projection (+ proven int8 narrowing — the layer output is
+        // the next layer's input).
+        let wd = add(&mut mf, &mut quant, &lb("Wd"), dm, fh, Orientation::ByRows, q8);
+        weight_ids.push(wd);
+        let d_acc = add(&mut mf, &mut quant, &lb("Dacc"), dm, tk, by_cols, qm(29, 5, true));
+        let x_out = add(&mut mf, &mut quant, &lb("Xout"), dm, tk, by_cols, q8);
+        let rd = add(&mut mf, &mut quant, &lb("Rd"), dm, tk, by_cols, qm(21, 5, false));
+        let rd_bits = add(&mut mf, &mut quant, &lb("Rd-bits"), 21 * dm, tk, by_cols, plane);
+        let x_out_bits = add(&mut mf, &mut quant, &lb("Xout-bits"), 8 * dm, tk, by_cols, plane);
+        mf.add_operation(Operation::Matmul { a: wd, b: h8, c: d_acc });
+        mf.add_operation(Operation::Rescale { x: d_acc, y: x_out, r: rd, shift: 21 });
+        mf.add_operation(Operation::Range { value: rd, bits: rd_bits, width: 21, signed: false });
+        mf.add_operation(Operation::Binary { bits: rd_bits });
+        mf.add_operation(Operation::Range { value: x_out, bits: x_out_bits, width: 8, signed: true });
+        mf.add_operation(Operation::Binary { bits: x_out_bits });
+        x_in = x_out;
+    }
+
+    let model_digest: [u8; 32] = {
+        use sha2::{Digest, Sha256};
+        let mut hasher = Sha256::new();
+        hasher.update(b"ffn-surrogate-7b-v1");
+        for v in [layers, dm, fh, tk] {
+            hasher.update((v as u64).to_le_bytes());
+        }
+        hasher.finalize().into()
+    };
+    let table_digest = ring::lookup::table_spec_digest(&ring::lookup::silu_int8_table());
+    let mut st = Statement::new(model_digest, table_digest, mf);
+    st.quant = quant;
+    st.outputs = vec![x_in];
+    let (n_entries, n_ops) = (st.manifest.commitments.len(), st.manifest.operations.len());
+    match st.validate() {
+        Ok(()) => println!("  ok   statement validates: {n_entries} entries, {n_ops} operations, 1 declared output"),
+        Err(err) => {
+            println!("  FAIL: surrogate statement does not validate: {err}");
+            std::process::exit(1);
+        }
+    }
+
+    // --- Walk the validated DAG and count committed elements. --------------
+    // Both frozen commitment layers pack msg_r = 32 ring elements of
+    // degree 128 per commitment: 4096 paid slots (q31 value point kappa 9
+    // / N_r 57; q46 gadget point kappa 6 / N_r 62 — ring-MACs/element
+    // 0.571 vs 0.575, within ~1%).
+    let slots = 32u128 * D as u128;
+    let mut used = [0u128; 3]; // [q31 values, q46 bit planes, weights]
+    let mut paid = [0u128; 3];
+    for (entry, qmeta) in st.manifest.commitments.iter().zip(st.quant.iter()) {
+        let family = if weight_ids.contains(&entry.id) {
+            2
+        } else if qmeta.bits == 1 {
+            1
+        } else {
+            0
+        };
+        let (vectors, length) = match entry.orientation {
+            Orientation::ByColumns => (entry.cols as u128, entry.rows as u128),
+            Orientation::ByRows => (entry.rows as u128, entry.cols as u128),
+            Orientation::RowMajor => (1u128, entry.rows as u128 * entry.cols as u128),
+        };
+        used[family] += vectors * length;
+        paid[family] += vectors * length.div_ceil(slots) * slots;
+    }
+    let mut op_counts = [0usize; 7]; // matmul, rescale, range, binary, lookup, hadamard, other
+    for op in &st.manifest.operations {
+        match op {
+            Operation::Matmul { .. } => op_counts[0] += 1,
+            Operation::Rescale { .. } => op_counts[1] += 1,
+            Operation::Range { .. } => op_counts[2] += 1,
+            Operation::Binary { .. } => op_counts[3] += 1,
+            Operation::Lookup { .. } => op_counts[4] += 1,
+            Operation::Hadamard { .. } => op_counts[5] += 1,
+            _ => op_counts[6] += 1,
+        }
+    }
+    println!(
+        "  operations: {} matmul, {} rescale, {} range, {} binary, {} lookup, {} hadamard",
+        op_counts[0], op_counts[1], op_counts[2], op_counts[3], op_counts[4], op_counts[5]
+    );
+    println!("  committed elements per pass (weights excluded — one-time, amortized):");
+    println!("    q31 value tensors:      used {:.4e}  paid {:.4e}", used[0] as f64, paid[0] as f64);
+    println!("    q46 bit-plane tensors:  used {:.4e}  paid {:.4e}", used[1] as f64, paid[1] as f64);
+    let (used_pass, paid_pass) = (used[0] + used[1], paid[0] + paid[1]);
+    println!(
+        "    PASS TOTAL:             used {:.4e}  paid {:.4e}  (padding factor {:.3})",
+        used_pass as f64,
+        paid_pass as f64,
+        paid_pass as f64 / used_pass as f64
+    );
+    println!(
+        "    weights (one-time):     used {:.4e}  paid {:.4e}",
+        used[2] as f64, paid[2] as f64
+    );
+    // Commit-bill at the M5-lite MEASURED rates (117.4 ns/paid element 1T
+    // end-to-end, 8.74x at 22T — q31 A1 kernel at the FFN shape; the q46
+    // plane family is priced at the same rate: the frozen shapes differ
+    // by ~1% in ring-MACs/element, but the q46 kernel rate itself is
+    // UNMEASURED, so this row is measured-at-rate, not measured).
+    let bill_1t = paid_pass as f64 * 117.4e-9;
+    println!(
+        "  commit bill [MEASURED-AT-RATE]: {:.0} s 1T, {:.0} s at 22T (measured 8.74x)",
+        bill_1t,
+        bill_1t / 8.74
+    );
+    println!(
+        "  provenance: replaces BOTH prior counts — 9.4e9 (1.5e14 MACs / 16k MACs/el) and"
+    );
+    println!(
+        "  1.33e10 (same MAC total / 11.3k MACs/el): divisor round-trips, not inventories."
+    );
+    println!("statement-inventory done");
+}
+
+// ===========================================================================
 // freeze-check: EVERY derive-time gate of the frozen operating point in one
 // place, run as a single subcommand. Finding F3 happened because a modulus
 // decision in one tranche silently invalidated a budget derived in another;
@@ -5832,7 +6032,7 @@ fn self_test_pi2_ce() {
 }
 
 fn usage() {
-    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n]");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | statement-inventory");
     std::process::exit(2);
 }
 
@@ -5877,6 +6077,7 @@ fn main() {
             }
         }
         Some("freeze-check") => freeze_check(),
+        Some("statement-inventory") => statement_inventory(),
         Some("gate-spike") => gate_spike(),
         Some("link-demo") => {
             let t = Instant::now();

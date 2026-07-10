@@ -372,8 +372,8 @@ pub enum StatementError {
     EmptyShape { id: u32 },
     /// quant.len() != number of commitment entries.
     QuantCount { entries: usize, quants: usize },
-    /// Nonsensical quantization metadata (bits outside 1..=64, or
-    /// frac_bits > bits).
+    /// Nonsensical quantization metadata (bits outside 1..=64 or
+    /// frac_bits above 64).
     BadQuant { id: u32 },
     /// An operation references a commitment id that does not exist.
     DanglingId { op: usize, id: u32 },
@@ -511,7 +511,9 @@ impl Statement {
             return Err(E::QuantCount { entries: entries.len(), quants: self.quant.len() });
         }
         for (index, q) in self.quant.iter().enumerate() {
-            if q.bits == 0 || q.bits > 64 || q.frac_bits > q.bits {
+            // frac_bits may exceed bits (a fixed-point value below 1, e.g.
+            // a rescale remainder narrower than its fraction).
+            if q.bits == 0 || q.bits > 64 || q.frac_bits > 64 {
                 return Err(E::BadQuant { id: index as u32 });
             }
         }
