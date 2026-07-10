@@ -3999,6 +3999,20 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         expect("understated accumulator width", &bad, |e| {
             matches!(e, SE::QuantMismatch { field: "matmul accumulator width", .. })
         });
+        // (10) Unproven narrowing: Y2 declared narrower than the worst-case
+        // rescale output with NO Range/Lookup fact backing the claim.
+        let mut bad = statement.clone();
+        bad.quant[id_y2 as usize].bits = acc_bits - shift - 3;
+        expect("unproven rescale narrowing", &bad, |e| {
+            matches!(e, SE::QuantMismatch { field: "rescale width", .. })
+        });
+        // (11) Lookup on a tensor that does not match the frozen int8
+        // activation-table domain.
+        let mut bad = statement.clone();
+        bad.manifest.add_operation(Operation::Lookup { x: id_hx, y: id_hy });
+        expect("lookup domain quantization mismatch", &bad, |e| {
+            matches!(e, SE::QuantMismatch { field: "lookup domain quant", .. })
+        });
     }
 
     // --- Layer 1: the Pi2 matmul claim (its own round). -------------------

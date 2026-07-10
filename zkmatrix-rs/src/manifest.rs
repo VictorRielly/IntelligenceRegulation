@@ -97,6 +97,12 @@ pub enum Operation {
     /// batched scalar-link per repetition (M3); the subsequent bias add is a
     /// Class-0 `Add` over the broadcast entry.
     BiasBroadcast { bias: u32, broadcast: u32 },
+    /// Elementwise activation through the statement's frozen lookup table
+    /// (the header's `table_digest` — ring/lookup.rs `table_spec_digest`):
+    /// y_t = table[x_t] for every element. Membership of x in the table
+    /// DOMAIN is part of the lookup claim, so a Lookup also serves as the
+    /// range fact for its input (LogUp-GKR engine, M4).
+    Lookup { x: u32, y: u32 },
 }
 
 #[derive(Clone, Debug, Default)]
@@ -238,6 +244,11 @@ impl ClaimManifest {
                     hasher.update(bias.to_le_bytes());
                     hasher.update(broadcast.to_le_bytes());
                 }
+                Operation::Lookup { x, y } => {
+                    hasher.update([11u8]);
+                    hasher.update(x.to_le_bytes());
+                    hasher.update(y.to_le_bytes());
+                }
             }
         }
         hasher.finalize().into()
@@ -281,6 +292,11 @@ impl ClaimManifest {
 //   fraction bits add over products and drop by `shift` over rescales,
 //   and signedness propagates. Magnitude bound of a tensor: 2^bits - 1
 //   unsigned, 2^(bits-1) signed (the offset convention's worst case).
+// - Calibrated requantization: a Rescale output declared narrower than
+//   the worst case is accepted only when the narrowing is itself proven —
+//   a Range fact of the declared width on the output, or a Lookup
+//   consuming it (table-domain membership). Lookup operands must match
+//   the frozen int8 activation-table quantization.
 // - Every committed tensor must be READ by at least one operation or be
 //   declared an output; a tensor only ever WRITTEN (produced) must be a
 //   declared output. Outputs must exist, be produced, and not repeat.
@@ -591,11 +607,28 @@ impl Statement {
                     if qy.signed != qx.signed {
                         return Err(E::QuantMismatch { op, id: *y, field: "rescale signedness" });
                     }
-                    if qx.max_abs() >> shift > qy.max_abs() {
-                        return Err(E::QuantMismatch { op, id: *y, field: "rescale width" });
-                    }
-                    if qx.frac_bits < *shift || qy.frac_bits != qx.frac_bits - shift {
-                        return Err(E::QuantMismatch { op, id: *y, field: "rescale fraction bits" });
+                    // Calibrated requantization: a rescale output declared
+                    // NARROWER than the worst-case x >> shift is legal only
+                    // when the statement PROVES the narrowing — a Range
+                    // fact of exactly the declared width/sign on y, or a
+                    // Lookup consuming y (table-domain membership bounds
+                    // it). An uncalibrated witness then simply cannot
+                    // produce the fact — completeness loss, never a
+                    // soundness hole. Without such a fact the declared
+                    // width must cover the worst case and the fixed-point
+                    // fraction bookkeeping must be exact.
+                    let narrowed = self.manifest.operations.iter().any(|other| {
+                        matches!(other, Operation::Range { value, width, signed, .. }
+                            if value == y && *width == qy.bits && *signed == qy.signed)
+                            || matches!(other, Operation::Lookup { x: lx, .. } if lx == y)
+                    });
+                    if !narrowed {
+                        if qx.max_abs() >> shift > qy.max_abs() {
+                            return Err(E::QuantMismatch { op, id: *y, field: "rescale width" });
+                        }
+                        if qx.frac_bits < *shift || qy.frac_bits != qx.frac_bits - shift {
+                            return Err(E::QuantMismatch { op, id: *y, field: "rescale fraction bits" });
+                        }
                     }
                     if qr.signed || qr.bits != *shift || qr.frac_bits != qx.frac_bits {
                         return Err(E::QuantMismatch { op, id: *r, field: "rescale remainder quant" });
@@ -734,6 +767,22 @@ impl Statement {
                     }
                     read[*bias as usize] = true;
                     written[*broadcast as usize] = true;
+                }
+                Operation::Lookup { x, y } => {
+                    let (ex, ey) = (entry(op, *x)?, entry(op, *y)?);
+                    same_shape(op, ex, ey)?;
+                    same_orient(op, ex, ey)?;
+                    let (qx, qy) = (quant(*x), quant(*y));
+                    // The frozen activation table (header table_digest) is
+                    // the int8 -> int8 SiLU spec: both sides 8-bit signed.
+                    if qx.bits != 8 || !qx.signed {
+                        return Err(E::QuantMismatch { op, id: *x, field: "lookup domain quant" });
+                    }
+                    if qy.bits != 8 || !qy.signed {
+                        return Err(E::QuantMismatch { op, id: *y, field: "lookup image quant" });
+                    }
+                    read[*x as usize] = true;
+                    written[*y as usize] = true;
                 }
             }
         }
