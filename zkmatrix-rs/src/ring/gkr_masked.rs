@@ -191,6 +191,30 @@ impl MaskSet {
         self.used.set(false);
     }
 
+    /// Whether this mask set has already proven a pass. masked_gkr_prove
+    /// refuses a set for which this is true (the E3Z-N3 freshness rule);
+    /// the battery observes it directly (release builds abort on the
+    /// prove-side assert, so the marker is the testable surface).
+    pub fn is_used(&self) -> bool {
+        self.used.get()
+    }
+
+    /// HARNESS ONLY: deep-copy the mask coefficients (the used marker is
+    /// reset). The rank-canary probes (E3Z-N4) perturb one coefficient
+    /// of a base set and re-run the descent; freshness is irrelevant to
+    /// the exposure algebra.
+    pub fn harness_clone(&self) -> MaskSet {
+        MaskSet {
+            g: self
+                .g
+                .iter()
+                .map(|g| GMask { a0: g.a0.clone(), uni: g.uni.clone() })
+                .collect(),
+            r: self.r.clone(),
+            used: std::cell::Cell::new(false),
+        }
+    }
+
     /// The committed flattening (the layout every pin row uses, pinned
     /// by LKP-6): g_1.coeffs(), .., g_{K-1}.coeffs(), then per interior
     /// layer j = 2..K-1: Rp_j then Rq_j, each row-major

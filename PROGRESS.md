@@ -30,7 +30,7 @@ Known flake: tests/test_zk_lattice.py Pi1Tests::test_rejects_tampered_responses
       m-recovery harness at engine scale (recovers m from the zero-mask transcript,
       FAILS against the masked one); freeze row LKP-7 (masked transcript shape: round
       counts, evaluation pattern, byte count at the frozen FFN point).
-- [ ] D2 U-K5d NEGATIVE BATTERY:
+- [x] D2 U-K5d NEGATIVE BATTERY:
       E3Z-N1 (F5 pair, spike Z4): G unpinned/crafted after nu ACCEPTS a false lookup;
         shipped order REJECTS the same crafting.
       E3Z-N2 (F5 pair, spike Z6): blinder mass solved at KNOWN alpha ACCEPTS;

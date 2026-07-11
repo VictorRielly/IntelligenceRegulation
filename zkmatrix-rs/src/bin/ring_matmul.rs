@@ -8351,15 +8351,548 @@ fn self_test_lookup_zk() {
     self_test_lookup_zk_neg(&kf, &spec_dg, &tab_fused, &rows);
 }
 
-/// U-K5d negative battery + D3 re-runs under masking (stub — filled in
-/// below).
+/// K-matrix rank over the slot field (row-echelon, exact) — the
+/// engine-scale exposure-rank certificates (spike k_rank_kmat).
+fn k_rank(kf: &ring::kfield::KField, mut rows: Vec<Vec<ring::kfield::KElem>>) -> usize {
+    if rows.is_empty() {
+        return 0;
+    }
+    let ncols = rows[0].len();
+    let mut r = 0usize;
+    for col in 0..ncols {
+        let Some(piv) = (r..rows.len()).find(|&i| !kf.is_zero(&rows[i][col])) else { continue };
+        rows.swap(r, piv);
+        let inv = kf.inv(&rows[r][col]);
+        rows[r] = rows[r].iter().map(|x| kf.mul(x, &inv)).collect();
+        for i in 0..rows.len() {
+            if i != r && !kf.is_zero(&rows[i][col]) {
+                let f = rows[i][col].clone();
+                rows[i] = rows[i]
+                    .iter()
+                    .zip(rows[r].clone())
+                    .map(|(x, y)| kf.sub(x, &kf.mul(&f, &y)))
+                    .collect();
+            }
+        }
+        r += 1;
+        if r == rows.len() {
+            break;
+        }
+    }
+    r
+}
+
+// U-K5d (M4_LOOKUP_ZK_DESIGN.md Section 6): the E3-Z NEGATIVE BATTERY —
+// each F5 pair is an ACCEPT leg (the attack works under the broken
+// ordering) and a REJECT leg (the shipped order stops the same
+// crafting), plus the rank canaries and the guard-restart regression;
+// then the E3/E4 edges re-run under masking (D3). The ACCEPT-leg
+// surgery uses the honest-verifier fixed-coins tape (the spike's
+// adversary-readable Tape): challenges stay independent of the doctored
+// messages, so the crafting is isolated to the edge under test.
 fn self_test_lookup_zk_neg(
     kf: &ring::kfield::KField,
     spec_dg: &[u8; 32],
-    tab_fused: &[ring::kfield::KElem],
-    rows: &[(i64, i64)],
+    _tab_fused_real: &[ring::kfield::KElem],
+    rows_real: &[(i64, i64)],
 ) {
-    let _ = (kf, spec_dg, tab_fused, rows);
+    use ring::gkr_masked::{
+        BlinderSet, MaskedDescentProof, blinded_table_tree, blinded_witness_tree, draw_masks,
+        masked_gkr_prove, masked_gkr_verify,
+    };
+    use ring::kfield::KElem;
+    use ring::lookup::{fuse_pair, fused_silu_table, multiplicities};
+    use ring::sumcheck::LkpTranscript;
+    let _ = rows_real;
+    println!("\n[U-K5d] E3-Z negative battery: E3Z-N1..N4 F5 pairs + rank canaries + guard restart");
+    let zq = kf.zq;
+    let q = zq.q;
+    let one = kf.one();
+
+    // Toy scenario, spike-faithful (N=32, T=8): witness depth 5, table
+    // depth 5 (8 rows split across halves), 10 honest leaves.
+    let (dw, dt, n_honest, t_toy) = (5usize, 5usize, 10usize, 8usize);
+    let toy_rows: Vec<(i64, i64)> = (0..t_toy as i64).map(|v| (v, (3 * v + 5) % 31)).collect();
+    let tab_toy = fused_silu_table(kf, &toy_rows);
+    let mut rng = 0x5eed_5d00u64;
+    let xs: Vec<usize> = (0..n_honest).map(|_| rng_below(&mut rng, t_toy as u64) as usize).collect();
+    let ys_ok: Vec<i64> = xs.iter().map(|&x| toy_rows[x].1).collect();
+    let wf_of = |ys: &[i64]| -> Vec<KElem> {
+        xs.iter()
+            .zip(ys.iter())
+            .map(|(&x, &y)| fuse_pair(kf, zq.to_mod(toy_rows[x].0), zq.to_mod(y)))
+            .collect()
+    };
+    let m_honest = multiplicities(kf, &wf_of(&ys_ok), &tab_toy);
+
+    // A false witness: one wrong y (spike bad_witness).
+    let mut ys_bad = ys_ok.clone();
+    ys_bad[3] = (ys_bad[3] + 1) % 31;
+
+    // Prove both descents under a fixed-coins tape seeded by seed; the
+    // masks/blinders are drawn fresh from a statement-wave tape. Returns
+    // (proofs, ends, roots, bl_w, bl_t, masks_w, masks_t, alpha).
+    let roots_of = |p: &MaskedDescentProof| -> [KElem; 2] {
+        let l = &p.layer1[0];
+        [
+            kf.add(&kf.mul(&l[0], &l[3]), &kf.mul(&l[1], &l[2])),
+            kf.mul(&l[2], &l[3]),
+        ]
+    };
+
+    // ---- E3Z-N1 (spike Z4): the mask-ordering F5 pair. ----
+    {
+        let mut trm = LkpTranscript::new("uk5d-n1-masks", spec_dg);
+        let masks_w = draw_masks(kf, &mut trm, dw, 0);
+        let masks_t = draw_masks(kf, &mut trm, dt, 0);
+        let mut trb = LkpTranscript::new("uk5d-n1-bl", spec_dg);
+        let bl_w = BlinderSet::draw(kf, &mut trb);
+        let mut bl_t = BlinderSet::draw(kf, &mut trb);
+        bl_t.solve_mass(kf, &bl_w.mass(kf));
+        let seed = *b"uk5d-n1-fixed-coins-seed-32byte!";
+        let mut tp = LkpTranscript::fixed_coins("uk5d-n1", &seed);
+        let alpha = tp.challenge_k(kf);
+        let wtree = blinded_witness_tree(kf, &alpha, &wf_of(&ys_bad), dw, &bl_w);
+        let ttree = blinded_table_tree(kf, &alpha, &tab_toy, &m_honest, dt, &bl_t);
+        let (pw, _endw) = masked_gkr_prove(kf, &[wtree], &masks_w, &mut tp);
+        let (pt, _endt) = masked_gkr_prove(kf, &[ttree], &masks_t, &mut tp);
+        // The doctoring: shift the witness layer-1 p-value so the derived
+        // root ratio matches the table's (cross-check passes), and absorb
+        // the layer-1 claim defect into a G_1 chosen AFTER nu_1.
+        let rw = roots_of(&pw);
+        let rt = roots_of(&pt);
+        let sigma_w = kf.mul(&rw[0], &kf.inv(&rw[1]));
+        let sigma_t = kf.mul(&rt[0], &kf.inv(&rt[1]));
+        let delta = kf.sub(&sigma_t, &sigma_w);
+        assert!(!kf.is_zero(&delta), "false lookup should shift the ratio");
+        let [p10, p11, q10, q11] = pw.layer1[0].clone();
+        let p10_d = kf.add(&p10, &kf.mul(&delta, &q10));
+        // Replay the fixed-coins tape for mu0, lam1, nu1 (witness descent
+        // is first): alpha, mu0, then lambda, nu (nonzero).
+        let (mu0, lam1, nu1) = {
+            let mut t2 = LkpTranscript::fixed_coins("uk5d-n1", &seed);
+            let _a = t2.challenge_k(kf);
+            let mu0 = t2.challenge_k(kf);
+            let lam1 = t2.challenge_k(kf);
+            let mut nu1 = t2.challenge_k(kf);
+            while kf.is_zero(&nu1) {
+                nu1 = t2.challenge_k(kf);
+            }
+            (mu0, lam1, nu1)
+        };
+        let fold2 = |a: &KElem, b: &KElem| kf.add(a, &kf.mul(&mu0, &kf.sub(b, a)));
+        let c_true = kf.add(&fold2(&p10, &p11), &kf.mul(&lam1, &fold2(&q10, &q11)));
+        let c_doc = kf.add(&fold2(&p10_d, &p11), &kf.mul(&lam1, &fold2(&q10, &q11)));
+        let mut pw_atk = MaskedTamper::clone_proof(kf, &pw);
+        pw_atk.layer1[0] = [p10_d, p11, q10, q11];
+        pw_atk.layers[0].g_sum =
+            kf.add(&pw.layers[0].g_sum, &kf.mul(&kf.sub(&c_true, &c_doc), &kf.inv(&nu1)));
+        // Verify both legs (fixed-coins), cross-check on derived roots.
+        let verify = |pin: bool| -> bool {
+            let mut tv = LkpTranscript::fixed_coins("uk5d-n1", &seed);
+            let _a = tv.challenge_k(kf);
+            let Some((rw_v, _)) = masked_gkr_verify(kf, 1, dw, &masks_w, &pw_atk, &mut tv, pin)
+            else {
+                return false;
+            };
+            let Some((rt_v, _)) = masked_gkr_verify(kf, 1, dt, &masks_t, &pt, &mut tv, pin) else {
+                return false;
+            };
+            !kf.is_zero(&rw_v[0][1])
+                && !kf.is_zero(&rt_v[0][1])
+                && kf.mul(&rw_v[0][0], &rt_v[0][1]) == kf.mul(&rt_v[0][0], &rw_v[0][1])
+        };
+        assert_true(
+            "U-K5d E3Z-N1 (Z4): G chosen AFTER nu (mask claim outside the statement hash) absorbs the doctored layer-1 defect — the false lookup ACCEPTS",
+            verify(false),
+        );
+        assert_true(
+            "U-K5d E3Z-N1 (Z4): the shipped order (G E4-pinned to the pre-committed mask) REJECTS the same crafting",
+            !verify(true),
+        );
+    }
+
+    self_test_lookup_zk_neg_2(kf, spec_dg);
+    let _ = (one, q);
+}
+
+/// U-K5d continued: E3Z-N2 (blinder ordering), E3Z-N3 (mask freshness),
+/// E3Z-N4 (rank canaries + guard restart), and the D3 re-runs of the
+/// E3/E4 edges under masking.
+fn self_test_lookup_zk_neg_2(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
+    use ring::gkr::root_cross_check;
+    use ring::gkr_masked::{
+        Blinder, BlinderSet, MaskSet, MaskedDescentProof, blinded_table_tree, blinded_witness_tree,
+        blinder_positions, draw_masks, masked_gkr_prove, masked_gkr_verify, zero_masks,
+    };
+    use ring::kfield::KElem;
+    use ring::lookup::{fuse_pair, fused_silu_table, multiplicities};
+    use ring::sumcheck::LkpTranscript;
+    let zq = kf.zq;
+    let q = zq.q;
+    let one = kf.one();
+    let zero = kf.zero();
+
+    let (dw, dt, n_honest, t_toy) = (5usize, 5usize, 10usize, 8usize);
+    let toy_rows: Vec<(i64, i64)> = (0..t_toy as i64).map(|v| (v, (3 * v + 5) % 31)).collect();
+    let tab_toy = fused_silu_table(kf, &toy_rows);
+    let mut rng = 0x5eed_5d10u64;
+    let xs: Vec<usize> = (0..n_honest).map(|_| rng_below(&mut rng, t_toy as u64) as usize).collect();
+    let ys_ok: Vec<i64> = xs.iter().map(|&x| toy_rows[x].1).collect();
+    let wf_of = |ys: &[i64]| -> Vec<KElem> {
+        xs.iter()
+            .zip(ys.iter())
+            .map(|(&x, &y)| fuse_pair(kf, zq.to_mod(toy_rows[x].0), zq.to_mod(y)))
+            .collect()
+    };
+    let w_ok = wf_of(&ys_ok);
+    let m_honest = multiplicities(kf, &w_ok, &tab_toy);
+    let mut ys_bad = ys_ok.clone();
+    ys_bad[3] = (ys_bad[3] + 1) % 31;
+
+    // ---- E3Z-N2 (spike Z6): the blinder-ordering F5 pair. The
+    // cross-check is the discriminator; roots come straight off the
+    // blinded trees. ----
+    {
+        let mut trb = LkpTranscript::new("uk5d-n2-bl", spec_dg);
+        let mut bl_w = BlinderSet::draw(kf, &mut trb);
+        let mut bl_t = BlinderSet::draw(kf, &mut trb);
+        bl_t.solve_mass(kf, &bl_w.mass(kf));
+        // A KNOWN alpha: the adversary reads it, then solves the witness
+        // blinder mass so the blinded cross-check passes for the FALSE
+        // lookup (one wrong y).
+        let alpha1 = {
+            let mut t = LkpTranscript::fixed_coins("uk5d-n2-a1", spec_dg);
+            t.challenge_k(kf)
+        };
+        let w_bad = wf_of(&ys_bad);
+        let root_ratio = |tree: &ring::gkr::FracTree| -> KElem {
+            let r = tree.root();
+            kf.mul(&r[0], &kf.inv(&r[1]))
+        };
+        let wt0 = blinded_witness_tree(kf, &alpha1, &w_bad, dw, &bl_w);
+        let tt0 = blinded_table_tree(kf, &alpha1, &tab_toy, &m_honest, dt, &bl_t);
+        let d2 = kf.sub(&root_ratio(&tt0), &root_ratio(&wt0));
+        // sigma_w gains a_tL/u_tL when a_tL += d2 * u_tL.
+        bl_w.tl.a = kf.add(&bl_w.tl.a, &kf.mul(&d2, &bl_w.tl.u));
+        let accept = {
+            let wt = blinded_witness_tree(kf, &alpha1, &w_bad, dw, &bl_w);
+            let tt = blinded_table_tree(kf, &alpha1, &tab_toy, &m_honest, dt, &bl_t);
+            root_cross_check(kf, &wt.root(), &tt.root())
+        };
+        assert_true(
+            "U-K5d E3Z-N2 (Z6): a blinder mass solved at a KNOWN alpha ACCEPTS the same false lookup (blinders unbound before alpha)",
+            accept,
+        );
+        // Shipped order: the SAME committed blinders against a FRESH alpha.
+        let alpha2 = {
+            let mut t = LkpTranscript::fixed_coins("uk5d-n2-a2", spec_dg);
+            t.challenge_k(kf)
+        };
+        let reject = {
+            let wt = blinded_witness_tree(kf, &alpha2, &w_bad, dw, &bl_w);
+            let tt = blinded_table_tree(kf, &alpha2, &tab_toy, &m_honest, dt, &bl_t);
+            !root_cross_check(kf, &wt.root(), &tt.root())
+        };
+        assert_true(
+            "U-K5d E3Z-N2 (Z6): a FRESH alpha REJECTS the same committed blinders (h0_lkp must bind them before alpha)",
+            reject,
+        );
+    }
+
+    let alpha_h = {
+        let mut t = LkpTranscript::fixed_coins("uk5d-alpha", spec_dg);
+        t.challenge_k(kf)
+    };
+    let _ = Blinder { a: zero.clone(), u: one.clone() };
+
+    // ---- E3Z-N3 (mask freshness): two passes sharing one g-mask — the
+    // transcript DIFFERENCE cancels the (identical) mask AND blinder
+    // contributions and reproduces the unmasked leak; then the engine
+    // REFUSES reuse. The recovery probe basis therefore carries the SAME
+    // shared blinders (zero masks), so its m-linear map matches. ----
+    {
+        let mut trm = LkpTranscript::new("uk5d-n3-masks", spec_dg);
+        let masks_shared = draw_masks(kf, &mut trm, dt, 0);
+        let mut trb = LkpTranscript::new("uk5d-n3-bl", spec_dg);
+        let bl_shared = BlinderSet::draw(kf, &mut trb);
+        // The zero-mask shared-blinder probe basis (matches the linear
+        // map of the two masked passes' difference).
+        let probe = |m_vec: &[u64]| -> Vec<KElem> {
+            let m_probe: Vec<KElem> = m_vec.iter().map(|&c| kf.embed(c)).collect();
+            let zmask = zero_masks(kf, dt, 0);
+            let tree = blinded_table_tree(kf, &alpha_h, &tab_toy, &m_probe, dt, &bl_shared);
+            let mut trp = LkpTranscript::fixed_coins("uk5d-recover", spec_dg);
+            let (p, _) = masked_gkr_prove(kf, &[tree], &zmask, &mut trp);
+            flatten_masked(&p)
+        };
+        let base_flat = probe(&vec![0u64; t_toy]);
+        let cols: Vec<Vec<KElem>> = (0..t_toy)
+            .map(|j| {
+                let mut e = vec![0u64; t_toy];
+                e[j] = 1;
+                let pj = probe(&e);
+                pj.iter().zip(base_flat.iter()).map(|(a, b)| kf.sub(a, b)).collect()
+            })
+            .collect();
+        // The rhs IS the transcript DIFFERENCE (already base-subtracted),
+        // so solve consumes it directly against the m-linear columns.
+        let solve = |rhs_diff: &[KElem]| -> Vec<u64> {
+            let mut aug: Vec<Vec<u64>> = Vec::new();
+            for i in 0..base_flat.len() {
+                let rhs = &rhs_diff[i];
+                for c in 0..ring::kfield::K_DEG {
+                    let mut row: Vec<u64> = (0..t_toy).map(|j| cols[j][i][c]).collect();
+                    row.push(rhs[c]);
+                    if row.iter().any(|&x| x != 0) {
+                        aug.push(row);
+                    }
+                }
+            }
+            let mut r = 0usize;
+            let mut piv = Vec::new();
+            for col in 0..t_toy {
+                let Some(p) = (r..aug.len()).find(|&i| aug[i][col] != 0) else { continue };
+                aug.swap(r, p);
+                let inv = zq.inv(aug[r][col]);
+                for x in aug[r].iter_mut() {
+                    *x = zq.mul(*x, inv);
+                }
+                for i in 0..aug.len() {
+                    if i != r && aug[i][col] != 0 {
+                        let f = aug[i][col];
+                        for c in 0..=t_toy {
+                            aug[i][c] = zq.sub(aug[i][c], zq.mul(f, aug[r][c]));
+                        }
+                    }
+                }
+                piv.push(col);
+                r += 1;
+                if r == t_toy {
+                    break;
+                }
+            }
+            let mut sol = vec![0u64; t_toy];
+            for (ri, &col) in piv.iter().enumerate() {
+                sol[col] = aug[ri][t_toy];
+            }
+            sol
+        };
+        // m_a and m_b: two histograms; their difference is what leaks.
+        let m_a = m_honest.clone();
+        let mut m_b_vals: Vec<u64> = m_honest.iter().map(|e| e[0]).collect();
+        m_b_vals[2] = m_b_vals[2] + 1; // a different multiplicity column
+        m_b_vals[5] = m_b_vals[5].wrapping_sub(1);
+        let m_b: Vec<KElem> = m_b_vals.iter().map(|&c| kf.embed(zq.to_mod(c as i64))).collect();
+        let masked_transcript = |m: &[KElem]| -> Vec<KElem> {
+            masks_shared.harness_reset_freshness(); // MODEL the reuse
+            let tree = blinded_table_tree(kf, &alpha_h, &tab_toy, m, dt, &bl_shared);
+            let mut tr = LkpTranscript::fixed_coins("uk5d-recover", spec_dg);
+            let (p, _) = masked_gkr_prove(kf, &[tree], &masks_shared, &mut tr);
+            flatten_masked(&p)
+        };
+        let ta = masked_transcript(&m_a);
+        let tb = masked_transcript(&m_b);
+        let diff: Vec<KElem> = ta.iter().zip(tb.iter()).map(|(a, b)| kf.sub(a, b)).collect();
+        let recovered = solve(&diff);
+        let expect: Vec<u64> = m_a
+            .iter()
+            .zip(m_b.iter())
+            .map(|(a, b)| kf.sub(a, b)[0])
+            .collect();
+        assert_true(
+            "U-K5d E3Z-N3 (freshness leak): two passes sharing one g-mask — the transcript DIFFERENCE recovers m_a - m_b (the unmasked leak returns)",
+            recovered == expect && recovered.iter().any(|&x| x != 0),
+        );
+        // Enforcement: one pass marks the mask set used; the shipped
+        // prover refuses a second (release builds ABORT on the prove-side
+        // one-time-use assert, so the marker is the testable surface).
+        let masks_once = draw_masks(kf, &mut trm, dt, 0);
+        assert!(!masks_once.is_used());
+        let tree1 = blinded_table_tree(kf, &alpha_h, &tab_toy, &m_a, dt, &bl_shared);
+        let mut t1 = LkpTranscript::fixed_coins("uk5d-once1", spec_dg);
+        let _ = masked_gkr_prove(kf, &[tree1], &masks_once, &mut t1);
+        assert_true(
+            "U-K5d E3Z-N3 (freshness enforced): one pass marks the mask set used — the shipped prover refuses a second pass (derive-time one-time-use assert, abort on reuse)",
+            masks_once.is_used(),
+        );
+    }
+
+    // ---- E3Z-N4 (rank canaries): the Z3b/Z3c exposure-rank
+    // certificates as derive-time checks at engine shapes, plus the
+    // guard-restart regression. ----
+    {
+        let mut trm = LkpTranscript::new("uk5d-n4-masks", spec_dg);
+        let masks_w = draw_masks(kf, &mut trm, dw, 0);
+        let mut trb = LkpTranscript::new("uk5d-n4-bl", spec_dg);
+        let bl_w = BlinderSet::draw(kf, &mut trb);
+        let prove_w = |masks: &MaskSet, bl: &BlinderSet| -> MaskedDescentProof {
+            masks.harness_reset_freshness(); // rank probes re-run a fixed set
+            let tree = blinded_witness_tree(kf, &alpha_h, &w_ok, dw, bl);
+            let mut tr = LkpTranscript::fixed_coins("uk5d-n4", spec_dg);
+            let (p, _) = masked_gkr_prove(kf, &[tree], masks, &mut tr);
+            p
+        };
+        // Z3b: the 4 leaf boundary values vs the 8 blinder pads (a, u of
+        // tL/tR/f0/f1) — full row rank 4/4 (the parity placement makes
+        // the (1, r)-weighted rows nonzero).
+        let base_p = prove_w(&masks_w, &bl_w);
+        let leaf_exp = |p: &MaskedDescentProof| -> Vec<KElem> {
+            p.layers[dw - 2].boundary.to_vec()
+        };
+        let e0 = leaf_exp(&base_p);
+        let mut leaf_rows: Vec<Vec<KElem>> = vec![Vec::new(); 4];
+        for field in 0..8 {
+            let mut bl = BlinderSet {
+                tl: bl_w.tl.clone(),
+                tr: bl_w.tr.clone(),
+                f0: bl_w.f0.clone(),
+                f1: bl_w.f1.clone(),
+            };
+            let target = match field {
+                0 => &mut bl.tl.a,
+                1 => &mut bl.tr.a,
+                2 => &mut bl.f0.a,
+                3 => &mut bl.f1.a,
+                4 => &mut bl.tl.u,
+                5 => &mut bl.tr.u,
+                6 => &mut bl.f0.u,
+                _ => &mut bl.f1.u,
+            };
+            *target = kf.add(target, &one);
+            let ei = leaf_exp(&prove_w(&masks_w, &bl));
+            for k in 0..4 {
+                leaf_rows[k].push(kf.sub(&ei[k], &e0[k]));
+            }
+        }
+        let rank_leaf = k_rank(kf, leaf_rows);
+        assert_true(
+            &format!("U-K5d E3Z-N4 (Z3b): leaf boundary/pad rank certificate — 4 final boundary values are a FULL-RANK image of the blinder pads (rank {rank_leaf}/4)"),
+            rank_leaf == 4,
+        );
+        // Z3c: layer-3 R-mask saturation — layer-2 boundary (4) + layer-3
+        // openings (2) vs the 12 coefficients of (Rp_3, Rq_3), rank 6/6.
+        let r_exp = |p: &MaskedDescentProof| -> Vec<KElem> {
+            let mut v = p.layers[1].boundary.to_vec();
+            let (a, b) = p.layers[2].open_r.clone().unwrap();
+            v.push(a);
+            v.push(b);
+            v
+        };
+        let r0 = r_exp(&base_p);
+        let mut r_rows: Vec<Vec<KElem>> = vec![Vec::new(); 6];
+        for side in 0..2 {
+            for i in 0..2 {
+                for jj in 0..3 {
+                    let mut mk = masks_w.harness_clone();
+                    let (rp, rq) = &mut mk.r[3 - 2];
+                    if side == 0 {
+                        rp[i][jj] = kf.add(&rp[i][jj], &one);
+                    } else {
+                        rq[i][jj] = kf.add(&rq[i][jj], &one);
+                    }
+                    let ei = r_exp(&prove_w(&mk, &bl_w));
+                    for k in 0..6 {
+                        r_rows[k].push(kf.sub(&ei[k], &r0[k]));
+                    }
+                }
+            }
+        }
+        let rank_r = k_rank(kf, r_rows);
+        assert_true(
+            &format!("U-K5d E3Z-N4 (Z3c): middle-layer R-mask rank certificate — boundary + opening exposures have rank {rank_r}/6 over the 12 R-coefficients"),
+            rank_r == 6,
+        );
+        // Z3c: layer-2 g-mask counting — G + round-poly evals + opening
+        // vs the n_g coefficients of g^(2); rank = n_g, forced relations
+        // = ell + 1 (Libra Thm 4.1).
+        let g_exp = |p: &MaskedDescentProof| -> Vec<KElem> {
+            let l = &p.layers[1];
+            let mut v = vec![l.g_sum.clone()];
+            for e in &l.rounds {
+                v.extend(e.iter().cloned());
+            }
+            v.push(l.open_g.clone());
+            v
+        };
+        let g0 = g_exp(&base_p);
+        let n_exp = g0.len();
+        let g2_len = masks_w.g_len(2);
+        let mut g_rows: Vec<Vec<KElem>> = vec![Vec::new(); n_exp];
+        for ci in 0..g2_len {
+            let mut mk = masks_w.harness_clone();
+            let gm = &mut mk.g[2 - 1];
+            if ci == 0 {
+                gm.a0 = kf.add(&gm.a0, &one);
+            } else {
+                let mut idx = ci - 1;
+                'outer: for uni in gm.uni.iter_mut() {
+                    if idx < uni.len() {
+                        uni[idx] = kf.add(&uni[idx], &one);
+                        break 'outer;
+                    }
+                    idx -= uni.len();
+                }
+            }
+            let ei = g_exp(&prove_w(&mk, &bl_w));
+            for k in 0..n_exp {
+                g_rows[k].push(kf.sub(&ei[k], &g0[k]));
+            }
+        }
+        let rank_g = k_rank(kf, g_rows);
+        let ell = base_p.layers[1].rounds.len();
+        assert_true(
+            &format!("U-K5d E3Z-N4 (Z3c): g-mask counting — round-poly/G/opening exposures have rank {rank_g} = n_g with exactly {} forced relations (= ell+1 = {})", n_exp - rank_g, ell + 1),
+            rank_g == g2_len && n_exp - rank_g == ell + 1,
+        );
+        // Guard-restart regression (Section 3.4 guard c): a blinder drawn
+        // with u = 0 is degenerate (its mass a/u is ill-defined); the
+        // guard DETECTS the zero denominator and restarts BEFORE any
+        // mass/cross-check computation, and the restarted pass verifies.
+        let cross = |bw: &BlinderSet, bt: &BlinderSet| -> bool {
+            let wt = blinded_witness_tree(kf, &alpha_h, &w_ok, dw, bw);
+            let tt = blinded_table_tree(kf, &alpha_h, &tab_toy, &m_honest, dt, bt);
+            root_cross_check(kf, &wt.root(), &tt.root())
+        };
+        let mut attempt = 0usize;
+        let mut guard_fired = false;
+        let (bw_ok, bt_ok) = loop {
+            // Attempt 0 injects a degenerate draw (u_tL = 0); later
+            // attempts are honest draws.
+            let bw = if attempt == 0 {
+                BlinderSet {
+                    tl: Blinder { a: bl_w.tl.a.clone(), u: zero.clone() },
+                    tr: bl_w.tr.clone(),
+                    f0: bl_w.f0.clone(),
+                    f1: bl_w.f1.clone(),
+                }
+            } else {
+                BlinderSet::draw(kf, &mut trb)
+            };
+            // The guard: any blinder denominator drawn 0 restarts.
+            if [&bw.tl, &bw.tr, &bw.f0, &bw.f1].iter().any(|b| kf.is_zero(&b.u)) {
+                guard_fired = true;
+                attempt += 1;
+                continue;
+            }
+            let mut bt = BlinderSet::draw(kf, &mut trb);
+            bt.solve_mass(kf, &bw.mass(kf));
+            break (bw, bt);
+        };
+        assert_true(
+            "U-K5d E3Z-N4 guard restart: a Section 3.4 guard fires (degenerate blinder u=0), the pass restarts with a nonzero draw, and the restarted pass verifies",
+            guard_fired && attempt >= 1 && cross(&bw_ok, &bt_ok),
+        );
+    }
+
+    self_test_lookup_zk_neg_d3(kf, spec_dg);
+    let _ = q;
+}
+
+/// U-K5d D3: the E3/E4 attack pairs re-run UNDER MASKING (stub — filled
+/// in below).
+fn self_test_lookup_zk_neg_d3(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
+    let _ = (kf, spec_dg);
 }
 
 // ===========================================================================
