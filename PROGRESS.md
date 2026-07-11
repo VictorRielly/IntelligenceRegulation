@@ -44,9 +44,9 @@ Known flake: tests/test_zk_lattice.py Pi1Tests::test_rejects_tampered_responses
 - [x] D3 RE-RUNS UNDER MASKING: E3-N1..N5 and E4-N1/N2 attack pairs against the masked
       pipeline (h0_lkp binds strictly more data; psi follows the mask openings —
       E4-N1's scope grows, same attack shape).
-- [ ] D4 MEASURED NUMBERS for the U-K5e re-grade, recorded here: prover/verifier delta
+- [x] D4 MEASURED NUMBERS for the U-K5e re-grade, recorded here: prover/verifier delta
       masked vs unmasked at battery shape; mask material counts (LKP-6); transcript
-      bytes at the frozen FFN point (LKP-7).
+      bytes at the frozen FFN point (LKP-7).  --> see "## D4 measured numbers" below.
 - [ ] D5 (Agent B) Q4_LEMMAS.md: adapted Libra counting lemma (component 4), boundary-
       mask rank lemma (components 5-6), top-variety lemma (component 3), each graded
       [PROVEN at spike scale; engine-scale battery = U-K5d]. SOUNDNESS_REFERENCE.md
@@ -112,6 +112,47 @@ Known flake: tests/test_zk_lattice.py Pi1Tests::test_rejects_tampered_responses
   committed pin claims / real ratcheting transcript. E4-N1 masked: forge
   (orp + lambda t, orq - t) — end-check invariant direction — solve 9 psi
   constraints over t's 16 coords (U-K7 Gaussian-elimination shape).
+
+## D4 measured numbers (for the U-K5e / Section 3.5 re-grade)
+
+These are the measured replacements for the design doc's [MODEL] rows. All
+from the shipped engine (self_test_lookup_zk + freeze-check), q8_31, k=8.
+
+### Prover / verifier delta, masked vs unmasked (the descent core)
+At the battery shape (witness depth 8, table depth 9, ONE instance, 20
+reps, single thread):
+  - prove  (both descents): masked 13.9 ms vs unmasked 6.9 ms  -> x2.0
+  - verify (both descents): masked 0.79 ms vs unmasked 0.59 ms -> x1.4
+Plain reading: the MASKED DESCENT roughly doubles the sumcheck work (the
+one degree-5 first round per layer, the extra w-round, the correction
+summands and the g-mask evaluations). BUT the descent is O(N) and a small
+fraction of a real pass: at the FFN point the pass cost is dominated by the
+tensor weight-expansion (~2.3e7 ring-op-equivalents, M4_LOOKUP_DESIGN),
+against which even a doubled descent is noise. So the PASS-LEVEL prover/
+verifier delta stays sub-percent, consistent with Section 3.5's [MODEL]
+"< 1% of the 43 K-mult/el budget". The committed masked pass (both descents
++ 60 aggregate pins through a real 13-commitment ct-round) proves in ~13 ms
+at the battery shape.
+
+### Mask material (LKP-6 formulas evaluated) — committed per pass
+At the frozen FFN point (witness depth 23, table depth 9 with blinders,
+e_bits = 5):
+  - witness masks: g 1197 + R 252 K-elements
+  - table   masks: g  266 + R  84 K-elements
+  - blinders:      8 x 2 trees x 32 instances = 512 K-elements
+  - TOTAL: 2311 K-elements/pass = 36976 dce (16 base coeffs/K-el).
+(Battery-shape sanity, dw=8/dt=9, e=0: witness g117+R72, table g146+R84.)
+
+### Transcript bytes (LKP-7) at the frozen FFN point
+Masked transcript volume (round polys + layer-1 quadruples + per-layer
+G/boundary/openings), 64 B per K-element (16 base coeffs x 4 B, q<2^31):
+  - witness: 385 rounds, 1862 K-elements
+  - table:    84 rounds,  532 K-elements
+  - PASS TOTAL: 2394 K-elements = 153216 B = 150 KB/pass.
+(Design Section 3.5 estimated ~140 KB; measured 150 KB.)
+
+Both LKP-6 and LKP-7 are pinned as freeze rows in `ring_matmul freeze-check`
+(green); LKP-7 is the row added this tranche.
 
 ## Log
 

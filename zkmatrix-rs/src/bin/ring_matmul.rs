@@ -8348,6 +8348,63 @@ fn self_test_lookup_zk() {
         kw7 > 0 && kt7 > 0 && masked_pass_bytes(dw, dt, 0, 1) == 64 * (kw7 + kt7),
     );
 
+    // ---- D4: masked-vs-unmasked prover/verifier delta at the battery
+    // shape (both descents; the pin ct-round timing is reported by the
+    // ACCEPT line above). Informative — feeds the Section 3.5 re-grade. ----
+    {
+        use ring::gkr::{absorb_roots, gkr_prove, gkr_verify, root_cross_check};
+        let reps = 20;
+        let (mut mprove, mut mverify, mut uprove, mut uverify) = (0f64, 0f64, 0f64, 0f64);
+        for _ in 0..reps {
+            // Masked.
+            masks_w.harness_reset_freshness();
+            masks_t.harness_reset_freshness();
+            let wt = blinded_witness_tree(&kf, &alpha, &w_fused, dw, &bl_w);
+            let tt = blinded_table_tree(&kf, &alpha, &tab_fused, &m_k, dt, &bl_t);
+            let t = Instant::now();
+            let mut trp = LkpTranscript::new("uk5c-bench", &h0_lkp);
+            let (mw, _) = masked_gkr_prove(&kf, &[wt], &masks_w, &mut trp);
+            let (mt, _) = masked_gkr_prove(&kf, &[tt], &masks_t, &mut trp);
+            mprove += t.elapsed().as_secs_f64() * 1e3;
+            let t = Instant::now();
+            let mut trv = LkpTranscript::new("uk5c-bench", &h0_lkp);
+            let _ = masked_gkr_verify(&kf, 1, dw, &shell_w, &mw, &mut trv, false);
+            let _ = masked_gkr_verify(&kf, 1, dt, &shell_t, &mt, &mut trv, false);
+            mverify += t.elapsed().as_secs_f64() * 1e3;
+            // Unmasked (same blinded trees, plain descent).
+            let wtu = blinded_witness_tree(&kf, &alpha, &w_fused, dw, &bl_w);
+            let ttu = blinded_table_tree(&kf, &alpha, &tab_fused, &m_k, dt, &bl_t);
+            let rw = wtu.root();
+            let rt = ttu.root();
+            let t = Instant::now();
+            let mut trp = LkpTranscript::new("uk5c-bench-u", &h0_lkp);
+            absorb_roots(&kf, &[rw.clone()], &mut trp);
+            let (uw, _, _, _) = gkr_prove(&kf, &[wtu], &mut trp);
+            absorb_roots(&kf, &[rt.clone()], &mut trp);
+            let (ut, _, _, _) = gkr_prove(&kf, &[ttu], &mut trp);
+            uprove += t.elapsed().as_secs_f64() * 1e3;
+            let t = Instant::now();
+            let mut trv = LkpTranscript::new("uk5c-bench-u", &h0_lkp);
+            let _ = root_cross_check(&kf, &rw, &rt);
+            absorb_roots(&kf, &[rw.clone()], &mut trv);
+            let _ = gkr_verify(&kf, &[rw.clone()], dw, &uw, &mut trv);
+            absorb_roots(&kf, &[rt.clone()], &mut trv);
+            let _ = gkr_verify(&kf, &[rt.clone()], dt, &ut, &mut trv);
+            uverify += t.elapsed().as_secs_f64() * 1e3;
+        }
+        let (mprove, mverify, uprove, uverify) = (
+            mprove / reps as f64,
+            mverify / reps as f64,
+            uprove / reps as f64,
+            uverify / reps as f64,
+        );
+        println!(
+            "  U-K5c D4 delta (dw={dw}, dt={dt}, 1 inst, {reps} reps): prove masked {mprove:.2} ms vs unmasked {uprove:.2} ms (x{:.2}); verify masked {mverify:.2} ms vs unmasked {uverify:.2} ms (x{:.2})",
+            mprove / uprove,
+            mverify / uverify,
+        );
+    }
+
     self_test_lookup_zk_neg(&kf, &spec_dg, &tab_fused, &rows);
 }
 
@@ -8523,7 +8580,7 @@ fn self_test_lookup_zk_neg_2(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
     use ring::gkr::root_cross_check;
     use ring::gkr_masked::{
         Blinder, BlinderSet, MaskSet, MaskedDescentProof, blinded_table_tree, blinded_witness_tree,
-        blinder_positions, draw_masks, masked_gkr_prove, masked_gkr_verify, zero_masks,
+        draw_masks, masked_gkr_prove, zero_masks,
     };
     use ring::kfield::KElem;
     use ring::lookup::{fuse_pair, fused_silu_table, multiplicities};
