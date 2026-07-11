@@ -206,3 +206,110 @@ pub fn k_weight_coords(kf: &KField, kappa: &KElem) -> Vec<Vec<u64>> {
     // rows[c][j] = cols[j][c]
     (0..K_DEG).map(|c| (0..K_DEG).map(|j| cols[j][c]).collect()).collect()
 }
+
+// ---------------------------------------------------------------------------
+// U-K5c: the pin layer — every masked-descent claim (G_j hypersums,
+// mask openings, the aggregate-only leaf P/Q pins) is a PINNED VALUE:
+// a public-weight K-linear functional of committed data equal to a
+// transcript-derived K value. Its K_DEG coordinate rows are ordinary
+// base-field linear ct-claim rows; ONE psi batch over every row of
+// every pin lands them as the same 9 CtClaims as E4 (LKP-4 budget,
+// psi drawn AFTER all pinned values are bound — the E4-N1 edge, whose
+// scope now includes the mask openings).
+
+/// One linear term of a pinned value's functional.
+pub enum PinTerm {
+    /// Committed base-field SCALARS x_i at consecutive message
+    /// coefficients coeff0.. of commitment `commit`, with a K weight
+    /// per scalar: contributes sum_i weights[i] * x_i.
+    Scalar { commit: usize, coeff0: usize, weights: Vec<KElem> },
+    /// Committed K-ELEMENTS (K_DEG consecutive base coefficients each)
+    /// starting at coeff0, with a K weight per element: contributes
+    /// sum_e weights[e] * elem_e (coordinate rows via k_weight_coords).
+    Kelems { commit: usize, coeff0: usize, weights: Vec<KElem> },
+}
+
+/// A pinned value: functional(committed data) = value, both sides
+/// K-valued; K_DEG base-coordinate rows in the psi batch.
+pub struct PinnedValue {
+    pub terms: Vec<PinTerm>,
+    pub value: KElem,
+}
+
+/// psi for the pin batch: `copies` x (pins * K_DEG) randomizer rows,
+/// drawn from transcript state that already binds every pinned value.
+pub fn derive_pin_psi(state: &[u8; 32], copies: usize, rows: usize, q: u64) -> Vec<Vec<u64>> {
+    let mut reader = super::XofReader::new("e4-pin-psi", &[state]);
+    (0..copies).map(|_| (0..rows).map(|_| reader.next_field(q)).collect()).collect()
+}
+
+/// The psi-batched pin claims: one CtClaim per psi copy over all pins'
+/// coordinate rows (pin p, coordinate c = row p * K_DEG + c). The
+/// verifier rebuilds the same claims from public weights and the
+/// transcript's pinned values; the ct-round grounds them against the
+/// commitments.
+pub fn pin_claims(
+    kf: &KField,
+    pins: &[PinnedValue],
+    n_commits: usize,
+    msg_r: usize,
+    psi: &[Vec<u64>],
+) -> Vec<CtClaim> {
+    let zq = &kf.zq;
+    let rows_total = pins.len() * K_DEG;
+    psi.iter()
+        .map(|p| {
+            assert_eq!(p.len(), rows_total);
+            // Combined weight per committed message coefficient.
+            let mut acc: Vec<Vec<u64>> = vec![vec![0u64; msg_r * D]; n_commits];
+            let mut scalar_mod = 0u64;
+            for (pi, pin) in pins.iter().enumerate() {
+                let off = pi * K_DEG;
+                for c in 0..K_DEG {
+                    scalar_mod = zq.add(scalar_mod, zq.mul(p[off + c], pin.value[c]));
+                }
+                for term in &pin.terms {
+                    match term {
+                        PinTerm::Scalar { commit, coeff0, weights } => {
+                            for (i, w) in weights.iter().enumerate() {
+                                let mut s = 0u64;
+                                for c in 0..K_DEG {
+                                    s = zq.add(s, zq.mul(p[off + c], w[c]));
+                                }
+                                let a = &mut acc[*commit][coeff0 + i];
+                                *a = zq.add(*a, s);
+                            }
+                        }
+                        PinTerm::Kelems { commit, coeff0, weights } => {
+                            for (e, w) in weights.iter().enumerate() {
+                                let m = k_weight_coords(kf, w);
+                                for j in 0..K_DEG {
+                                    let mut s = 0u64;
+                                    for c in 0..K_DEG {
+                                        s = zq.add(s, zq.mul(p[off + c], m[c][j]));
+                                    }
+                                    let a = &mut acc[*commit][coeff0 + e * K_DEG + j];
+                                    *a = zq.add(*a, s);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            let mut msg_coeffs: Vec<(usize, usize, super::Poly)> = Vec::new();
+            for (ci, wf) in acc.iter().enumerate() {
+                if wf.iter().all(|&x| x == 0) {
+                    continue;
+                }
+                let packed = pack_functional(zq, wf, msg_r);
+                for (sj, coeff) in packed.into_iter().enumerate() {
+                    if coeff.iter().all(|&x| x == 0) {
+                        continue;
+                    }
+                    msg_coeffs.push((ci, sj, coeff));
+                }
+            }
+            CtClaim { msg_coeffs, ajtai_coeffs: vec![], scalar: zq.center(scalar_mod) }
+        })
+        .collect()
+}

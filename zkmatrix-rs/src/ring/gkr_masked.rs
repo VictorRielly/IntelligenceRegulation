@@ -56,6 +56,11 @@ pub type RMask = [[KElem; 3]; 2];
 pub struct MaskSet {
     pub g: Vec<GMask>,           // index j-1 for sumcheck j (1-based)
     pub r: Vec<(RMask, RMask)>,  // index j-2 for layer j (2-based)
+    /// One-time-use marker (the LKP-6 mask-freshness rule, battery
+    /// E3Z-N3): masks are FRESH PER PASS — two transcripts sharing one
+    /// g-mask subtract to the unmasked difference and the Z1-class
+    /// recovery returns. masked_gkr_prove refuses a used set.
+    used: std::cell::Cell<bool>,
 }
 
 /// Round degrees of the layer-j sumcheck (ell variables total).
@@ -161,7 +166,7 @@ pub fn draw_masks(kf: &KField, tr: &mut LkpTranscript, depth: usize, n_extra: us
         })
         .collect();
     let r = (2..depth).map(|_| (draw_rmask(kf, tr), draw_rmask(kf, tr))).collect();
-    MaskSet { g, r }
+    MaskSet { g, r, used: std::cell::Cell::new(false) }
 }
 
 /// The all-zero mask set (the pre-E3-Z engine, kept live for the
@@ -174,10 +179,18 @@ pub fn zero_masks(kf: &KField, depth: usize, n_extra: usize) -> MaskSet {
         })
         .collect();
     let r = (2..depth).map(|_| (zero_rmask(kf), zero_rmask(kf))).collect();
-    MaskSet { g, r }
+    MaskSet { g, r, used: std::cell::Cell::new(false) }
 }
 
 impl MaskSet {
+    /// HARNESS/ATTACK-MODELLING ONLY: clear the one-time-use marker so
+    /// a battery can deliberately reuse a mask set (the E3Z-N3 leak
+    /// demonstration and the F5 attack builders). Never a protocol
+    /// path — the shipped prover refuses reuse (masked_gkr_prove).
+    pub fn harness_reset_freshness(&self) {
+        self.used.set(false);
+    }
+
     /// The committed flattening (the layout every pin row uses, pinned
     /// by LKP-6): g_1.coeffs(), .., g_{K-1}.coeffs(), then per interior
     /// layer j = 2..K-1: Rp_j then Rq_j, each row-major
@@ -358,6 +371,13 @@ pub fn masked_gkr_prove(
     masks: &MaskSet,
     tr: &mut LkpTranscript,
 ) -> (MaskedDescentProof, DescentEnd) {
+    // Derive-time freshness (the LKP-6 mask-freshness rule, E3Z-N3):
+    // one mask set proves ONE pass; reuse subtracts out and the
+    // Z1-class m-recovery returns on the transcript difference.
+    assert!(
+        !masks.used.replace(true),
+        "mask reuse refused: masks are one-time per pass (E3Z-N3 freshness rule)"
+    );
     let l = trees.len();
     assert!(l.is_power_of_two());
     let e_bits = l.trailing_zeros() as usize;
@@ -848,7 +868,9 @@ pub fn install_blinders(kf: &KField, p: &mut [KElem], q: &mut [KElem], bl: &Blin
 
 /// Blinder-extended witness tree: n_used honest fused leaves at the
 /// front, dummies (0, 1) elsewhere, the blinder set at the fixed
-/// positions. depth >= log2(n_used) + headroom for the blinders.
+/// positions. The honest block must end BELOW the first blinder
+/// position (n/2 - 4): each leaf-layer half needs dummy space for its
+/// top blinder or the layer-1 values stay unblinded.
 pub fn blinded_witness_tree(
     kf: &KField,
     alpha: &KElem,
@@ -857,7 +879,10 @@ pub fn blinded_witness_tree(
     bl: &BlinderSet,
 ) -> FracTree {
     let n = 1usize << depth;
-    assert!(w_fused.len() + 4 <= n);
+    assert!(
+        w_fused.len() <= blinder_positions(n)[0],
+        "honest witness block would collide with a blinder position"
+    );
     let mut p = vec![kf.zero(); n];
     let mut q = vec![kf.one(); n];
     for (i, w) in w_fused.iter().enumerate() {
@@ -868,9 +893,22 @@ pub fn blinded_witness_tree(
     super::gkr::build_tree(kf, p, q)
 }
 
+/// The frozen table-row placement in a blinded 2^depth leaf layer:
+/// rows are SPLIT across the halves — row j at j for j < ceil(T/2),
+/// at n/2 + (j - ceil(T/2)) otherwise. A front-packed 2^k-row table
+/// would fill the whole left half of its depth-(k+1) blinded tree and
+/// leave no dummy space for the left top blinder (whose job is to
+/// randomize the left layer-1 value); the split gives both halves
+/// dummy space. Public statement layout — the T Q-pin's fused-row MLE
+/// and the T P-pin's multiplicity weights use exactly these positions.
+pub fn table_row_positions(t_rows: usize, n: usize) -> Vec<usize> {
+    let left = t_rows.div_ceil(2);
+    (0..t_rows).map(|j| if j < left { j } else { n / 2 + (j - left) }).collect()
+}
+
 /// Blinder-extended table tree: the fused rows with their multiplicity
-/// numerators at the front (the blinders push a full 2^k table one
-/// level deeper — depth 9 for the 256-row SiLU table).
+/// numerators at the split positions (the blinders push a full 2^k
+/// table one level deeper — depth 9 for the 256-row SiLU table).
 pub fn blinded_table_tree(
     kf: &KField,
     alpha: &KElem,
@@ -880,12 +918,17 @@ pub fn blinded_table_tree(
     bl: &BlinderSet,
 ) -> FracTree {
     let n = 1usize << depth;
-    assert!(tab_fused.len() + 4 <= n);
+    let pos = table_row_positions(tab_fused.len(), n);
+    let blp = blinder_positions(n);
+    assert!(
+        pos.iter().all(|p| *p < n && !blp.contains(p)),
+        "table rows would collide with a blinder position"
+    );
     let mut p = vec![kf.zero(); n];
     let mut q = vec![kf.one(); n];
     for (j, t) in tab_fused.iter().enumerate() {
-        p[j] = m[j].clone();
-        q[j] = kf.sub(alpha, t);
+        p[pos[j]] = m[j].clone();
+        q[pos[j]] = kf.sub(alpha, t);
     }
     install_blinders(kf, &mut p, &mut q, bl);
     super::gkr::build_tree(kf, p, q)
@@ -905,4 +948,26 @@ pub fn masked_transcript_shape(depth: usize, n_extra: usize) -> (usize, usize) {
         kelems += degs.iter().map(|d| d + 1).sum::<usize>();
     }
     (rounds, kelems)
+}
+
+/// LKP-7 arithmetic, whole descent: (rounds, total transcript
+/// K-elements) of one masked descent over n_inst instances — round
+/// polynomials (masked_transcript_shape) plus the per-instance layer-1
+/// quadruples, and per layer sumcheck: G_j, the boundary quadruple,
+/// the g opening, and (j >= 2) the two R openings. Wire bytes are 64
+/// per K-element (16 base coefficients x 4 bytes at q < 2^31).
+pub fn masked_transcript_totals(depth: usize, n_extra: usize, n_inst: usize) -> (usize, usize) {
+    let (rounds, mut kelems) = masked_transcript_shape(depth, n_extra);
+    kelems += 4 * n_inst; // layer-1 quadruples (roots are derived)
+    kelems += (depth - 1) * 6; // per layer: G_j + 4 boundary + open_g
+    kelems += 2 * (depth - 2); // open_rp/open_rq for j >= 2
+    (rounds, kelems)
+}
+
+/// Bytes-on-the-wire of one masked PASS at (witness depth, table
+/// depth, e_bits, instances): both descents at 64 B per K-element.
+pub fn masked_pass_bytes(dw: usize, dt: usize, e_bits: usize, n_inst: usize) -> usize {
+    let (_, kw) = masked_transcript_totals(dw, e_bits, n_inst);
+    let (_, kt) = masked_transcript_totals(dt, e_bits, n_inst);
+    64 * (kw + kt)
 }

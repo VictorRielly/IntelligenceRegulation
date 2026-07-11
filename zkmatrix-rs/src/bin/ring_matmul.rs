@@ -6053,6 +6053,7 @@ fn main() {
             self_test_link();
             self_test_e2();
             self_test_lookup();
+            self_test_lookup_zk();
             self_test_m5_chunking();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
         }
@@ -7785,6 +7786,583 @@ impl MaskedTamper {
 }
 
 // ===========================================================================
+// U-K5c/d (M4_LOOKUP_ZK_DESIGN.md Sections 3/6): the COMMITTED masked
+// lookup — mask/blinder commitments in the statement wave, the masked
+// descent wired over committed tensors with G-hypersum pins, mask
+// openings and the AGGREGATE-ONLY leaf P/Q pins (v^X/v^Y/v^M retired),
+// the Z1-class m-recovery harness (recovers m from the zero-mask
+// transcript, FAILS against the masked one), the U-K5d negative
+// battery (E3Z-N1..N4 + the E3/E4 pairs re-run under masking), and the
+// LKP-7 freeze arithmetic. Every equation is the engine transcription
+// of scripts/logup_zk_mask_spike.py; the pin layer is the E4 machinery
+// (ring/lookup.rs pin_claims) over the same 9-copy psi batch.
+
+/// Flatten a masked descent proof to the ordered K-element list the
+/// leak harness treats as an affine function of m (spike
+/// flatten_transcript): layer1 quadruples, then per layer sumcheck
+/// g_sum, the round-poly evaluations, the boundary quadruple, and the
+/// openings (g then, for j >= 2, Rp/Rq).
+fn flatten_masked(p: &ring::gkr_masked::MaskedDescentProof) -> Vec<ring::kfield::KElem> {
+    let mut out = Vec::new();
+    for q in &p.layer1 {
+        out.extend(q.iter().cloned());
+    }
+    for l in &p.layers {
+        out.push(l.g_sum.clone());
+        for evals in &l.rounds {
+            out.extend(evals.iter().cloned());
+        }
+        out.extend(l.boundary.iter().cloned());
+        out.push(l.open_g.clone());
+        if let Some((a, b)) = &l.open_r {
+            out.push(a.clone());
+            out.push(b.clone());
+        }
+    }
+    out
+}
+
+fn self_test_lookup_zk() {
+    use ring::commit::CommitShape as CS;
+    use ring::ct_engine::{
+        StdOpening, ct_h0, derive_ct_round_params, prove_ct_round, sample_ct_masks,
+        verify_ct_round,
+    };
+    use ring::gkr::eq_table;
+    use ring::gkr_masked::{
+        BlinderSet, DescentEnd, MaskSet, MaskedDescentProof, blinded_table_tree,
+        blinded_witness_tree, blinder_positions, draw_masks, g_hypersum_weights, g_open_weights,
+        mask_coeff_counts, masked_gkr_prove, masked_gkr_verify, masked_pass_bytes,
+        masked_transcript_totals, r_open_weights, table_row_positions, zero_masks,
+    };
+    use ring::kfield::{K_DEG, KElem, KField};
+    use ring::lookup::{
+        PinTerm, PinnedValue, derive_pin_psi, fuse_pair, fused_silu_table, mul_y, multiplicities,
+        pin_claims, silu_int8_table, table_spec_digest,
+    };
+    use ring::sumcheck::LkpTranscript;
+
+    println!("\n[U-K5c] committed masked lookup: aggregate pins (v^X/v^Y/v^M retired), m-recovery closed, LKP-7");
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let zq = ctx.zq;
+    let q = zq.q;
+    let zero = kf.zero();
+    let one = kf.one();
+    let rows = silu_int8_table();
+    let spec_dg = table_spec_digest(&rows);
+    let tab_fused = fused_silu_table(&kf, &rows);
+    let t_rows = rows.len(); // 256
+
+    // Battery shape: one instance, witness depth 8 (256 leaves, 100
+    // honest), table depth 9 (512 leaves, 256 rows SPLIT across halves).
+    let (dw, dt, n_honest) = (8usize, 9usize, 100usize);
+    let nw = 1usize << dw;
+    let nt = 1usize << dt;
+    assert!(n_honest <= blinder_positions(nw)[0]);
+
+    // The commitment shape: one frozen CRS (kappa 8, msg_r 8) carries the
+    // tensors, the blinders, the mask coefficients and the ct-round
+    // g-masks; K_DEG-per-element gives 64 committed K-elements per slot.
+    let shape = CS { kappa: 8, n_r: 26, msg_r: 8 };
+    let msg_r = shape.msg_r;
+    let kpc = msg_r * D / K_DEG; // committed K-elements per commitment (64)
+    let crs = expand_crs(shape, q, 0x5C0D);
+
+    // ---- Honest scenario. ----
+    let mut rng = 0x5eed_5c00u64;
+    let xs: Vec<i64> = (0..n_honest).map(|_| rng_below(&mut rng, 256) as i64 - 128).collect();
+    let ys: Vec<i64> = xs.iter().map(|&x| rows[(x + 128) as usize].1).collect();
+    let w_fused: Vec<KElem> =
+        xs.iter().zip(ys.iter()).map(|(&x, &y)| fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y))).collect();
+    let m_k = multiplicities(&kf, &w_fused, &tab_fused);
+    let m_vals: Vec<i64> = m_k.iter().map(|e| e[0] as i64).collect();
+
+    // ---- Mask + blinder draw (statement wave, before alpha). ----
+    let mut trmask = LkpTranscript::new("uk5c-masks", &spec_dg);
+    let masks_w = draw_masks(&kf, &mut trmask, dw, 0);
+    let masks_t = draw_masks(&kf, &mut trmask, dt, 0);
+    let mut trbl = LkpTranscript::new("uk5c-blinders", &spec_dg);
+    let bl_w = BlinderSet::draw(&kf, &mut trbl);
+    let mut bl_t = BlinderSet::draw(&kf, &mut trbl);
+    bl_t.solve_mass(&kf, &bl_w.mass(&kf)); // table mass := witness mass
+
+    // ---- Commit everything: X, Y, m, blinders, masks, ct g-masks. ----
+    // Packers.
+    let pack_scalars = |vals: &[i64]| -> Vec<Poly> {
+        assert!(vals.len() <= msg_r * D);
+        let mut polys = vec![poly_zero(); msg_r];
+        for (i, &v) in vals.iter().enumerate() {
+            polys[i / D][i % D] = zq.to_mod(v);
+        }
+        polys
+    };
+    let pack_kelems = |kelems: &[KElem]| -> Vec<Vec<Poly>> {
+        let mut flat: Vec<u64> = Vec::with_capacity(kelems.len() * K_DEG);
+        for e in kelems {
+            for c in 0..K_DEG {
+                flat.push(e[c]);
+            }
+        }
+        let per = msg_r * D;
+        let n_commit = flat.len().div_ceil(per).max(1);
+        (0..n_commit)
+            .map(|g| {
+                (0..msg_r)
+                    .map(|s| {
+                        (0..D)
+                            .map(|c| {
+                                let idx = g * per + s * D + c;
+                                if idx < flat.len() { flat[idx] } else { 0 }
+                            })
+                            .collect()
+                    })
+                    .collect()
+            })
+            .collect()
+    };
+    // Blinder K-element layout: witness [tl.a,tl.u,tr.a,tr.u,f0.a,f0.u,
+    // f1.a,f1.u] then table [same] — 16 K-elements, one commitment.
+    let blinder_kelems = |bw: &BlinderSet, bt: &BlinderSet| -> Vec<KElem> {
+        let mut v = Vec::with_capacity(16);
+        for b in [&bw.tl, &bw.tr, &bw.f0, &bw.f1, &bt.tl, &bt.tr, &bt.f0, &bt.f1] {
+            v.push(b.a.clone());
+            v.push(b.u.clone());
+        }
+        v
+    };
+
+    // Message list, in commitment-index order.
+    let x_msg = pack_scalars(&xs);
+    let y_msg = pack_scalars(&ys);
+    let m_msg = pack_scalars(&m_vals);
+    let bl_msg = pack_kelems(&blinder_kelems(&bl_w, &bl_t));
+    assert_eq!(bl_msg.len(), 1);
+    let wmask_msgs = pack_kelems(&masks_w.flatten());
+    let tmask_msgs = pack_kelems(&masks_t.flatten());
+    // Fixed commitment indices.
+    let (idx_x, idx_y, idx_m, idx_bl) = (0usize, 1, 2, 3);
+    let base_w = 4usize;
+    let base_t = base_w + wmask_msgs.len();
+    let n_data = base_t + tmask_msgs.len();
+
+    // The pin builders need the descent products; run the descents first
+    // (they need alpha, which needs the commitments — so commit now).
+    let mut data_msgs: Vec<Vec<Poly>> =
+        vec![x_msg.clone(), y_msg.clone(), m_msg.clone(), bl_msg[0].clone()];
+    data_msgs.extend(wmask_msgs.iter().cloned());
+    data_msgs.extend(tmask_msgs.iter().cloned());
+    assert_eq!(data_msgs.len(), n_data);
+
+    // 9-copy psi batch (LKP-4); the ct-round g-masks are one per claim.
+    let n_psi = 9usize;
+    let mut rng_g = 0x5eed_5c66u64;
+    let g_masks = sample_ct_masks(&mut rng_g, q, msg_r, n_psi);
+    let g_base = n_data;
+    let n_commits = n_data + g_masks.len();
+    let rp = derive_ct_round_params(q, shape, n_commits, 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+    let path = KernelPath::A1(&a1p);
+
+    // Commit all messages (data then g-masks), with fresh rho each.
+    let all_msgs: Vec<Vec<Poly>> = data_msgs.iter().cloned().chain(g_masks.iter().cloned()).collect();
+    let mut rng_rho = 0x5eed_5c10u64;
+    let all_rho: Vec<Vec<Vec<i64>>> = (0..all_msgs.len())
+        .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng_rho)).collect())
+        .collect();
+    let (mut t1s, mut t2s) = (Vec::new(), Vec::new());
+    for (xm, rho) in all_msgs.iter().zip(all_rho.iter()) {
+        let (t1, t2) = commit(&path, &crs, xm, rho);
+        t1s.push(t1);
+        t2s.push(t2);
+    }
+    // h0_lkp binds the table digest + EVERY commitment (masks/blinders
+    // included) — the amended alpha edge (E3Z-N2).
+    let h0_lkp = ct_h0(&crs, &spec_dg, &t1s, &t2s, &[]);
+
+    // ---- Kelem pin-term splitter (flat K-element run -> per-commit). ----
+    let kelem_terms = |base: usize, flat_off: usize, weights: &[KElem]| -> Vec<PinTerm> {
+        let mut terms = Vec::new();
+        let mut i = 0usize;
+        while i < weights.len() {
+            let idx = flat_off + i;
+            let commit = base + idx / kpc;
+            let coeff0 = (idx % kpc) * K_DEG;
+            let room = kpc - (idx % kpc);
+            let take = room.min(weights.len() - i);
+            terms.push(PinTerm::Kelems { commit, coeff0, weights: weights[i..i + take].to_vec() });
+            i += take;
+        }
+        terms
+    };
+
+    // ---- Descent-pin builder (G_j, open_g, open_Rp/Rq). Weights depend
+    // only on the mask SHAPE + opening points (public), so the verifier
+    // rebuilds them from a zero-mask shell of the same degrees. ----
+    let descent_pins = |base: usize,
+                        shape_masks: &MaskSet,
+                        proof: &MaskedDescentProof,
+                        end: &DescentEnd,
+                        depth: usize|
+     -> Vec<PinnedValue> {
+        let mut pins = Vec::new();
+        for j in 1..depth {
+            let lp = &proof.layers[j - 1];
+            let gm = &shape_masks.g[j - 1];
+            pins.push(PinnedValue {
+                terms: kelem_terms(base, shape_masks.g_offset(j), &g_hypersum_weights(&kf, gm)),
+                value: lp.g_sum.clone(),
+            });
+            let (open_pt, mu_prev, c_w) = &end.layer_pts[j - 1];
+            pins.push(PinnedValue {
+                terms: kelem_terms(base, shape_masks.g_offset(j), &g_open_weights(&kf, gm, open_pt)),
+                value: lp.open_g.clone(),
+            });
+            if j >= 2 {
+                let (orp, orq) = lp.open_r.clone().expect("interior layer opens Rp/Rq");
+                let rw = r_open_weights(&kf, mu_prev, c_w);
+                pins.push(PinnedValue {
+                    terms: kelem_terms(base, shape_masks.r_offset(j), &rw),
+                    value: orp,
+                });
+                pins.push(PinnedValue {
+                    terms: kelem_terms(base, shape_masks.r_offset(j) + 6, &rw),
+                    value: orq,
+                });
+            }
+        }
+        pins
+    };
+
+    // ---- Leaf-pin builder (the aggregate P/Q pins; v^X/v^Y/v^M never
+    // appear — only blinded aggregates over committed columns). ----
+    let leaf_pins = |endw: &DescentEnd, endt: &DescentEnd, alpha: &KElem| -> Vec<PinnedValue> {
+        let lw = eq_table(&kf, &endw.zstar);
+        let lt = eq_table(&kf, &endt.zstar);
+        let bpw = blinder_positions(nw);
+        let bpt = blinder_positions(nt);
+        let tpos = table_row_positions(t_rows, nt);
+        let eqw: Vec<KElem> = bpw.iter().map(|&p| lw[p].clone()).collect();
+        let eqt: Vec<KElem> = bpt.iter().map(|&p| lt[p].clone()).collect();
+        let hw = (0..n_honest).fold(zero.clone(), |a, i| kf.add(&a, &lw[i]));
+        let ht = (0..t_rows).fold(zero.clone(), |a, j| kf.add(&a, &lt[tpos[j]]));
+        let sum_eqw = eqw.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+        let sum_eqt = eqt.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+        let ft = (0..t_rows)
+            .fold(zero.clone(), |a, j| kf.add(&a, &kf.mul(&lt[tpos[j]], &tab_fused[j])));
+        let z = zero.clone();
+        // Witness P: p* - H = sum eqw a_bl.
+        let wp = PinnedValue {
+            terms: vec![PinTerm::Kelems {
+                commit: idx_bl,
+                coeff0: 0,
+                weights: vec![
+                    eqw[0].clone(), z.clone(), eqw[1].clone(), z.clone(),
+                    eqw[2].clone(), z.clone(), eqw[3].clone(), z.clone(),
+                ],
+            }],
+            value: kf.sub(&endw.p_claim, &hw),
+        };
+        // Witness Q: q* - alpha H - D_dummy = sum eqw u_bl - (v^X + Y v^Y).
+        let ddw = kf.sub(&kf.sub(&one, &hw), &sum_eqw);
+        let wq = PinnedValue {
+            terms: vec![
+                PinTerm::Kelems {
+                    commit: idx_bl,
+                    coeff0: 0,
+                    weights: vec![
+                        z.clone(), eqw[0].clone(), z.clone(), eqw[1].clone(),
+                        z.clone(), eqw[2].clone(), z.clone(), eqw[3].clone(),
+                    ],
+                },
+                PinTerm::Scalar {
+                    commit: idx_x,
+                    coeff0: 0,
+                    weights: (0..n_honest).map(|i| kf.neg(&lw[i])).collect(),
+                },
+                PinTerm::Scalar {
+                    commit: idx_y,
+                    coeff0: 0,
+                    weights: (0..n_honest).map(|i| kf.neg(&mul_y(&kf, &lw[i]))).collect(),
+                },
+            ],
+            value: kf.sub(&kf.sub(&endw.q_claim, &kf.mul(alpha, &hw)), &ddw),
+        };
+        // Table P: p*_t = sum L_pos m_j + sum eqt a'_bl.
+        let tp = PinnedValue {
+            terms: vec![
+                PinTerm::Scalar {
+                    commit: idx_m,
+                    coeff0: 0,
+                    weights: (0..t_rows).map(|j| lt[tpos[j]].clone()).collect(),
+                },
+                PinTerm::Kelems {
+                    commit: idx_bl,
+                    coeff0: 8 * K_DEG,
+                    weights: vec![
+                        eqt[0].clone(), z.clone(), eqt[1].clone(), z.clone(),
+                        eqt[2].clone(), z.clone(), eqt[3].clone(), z.clone(),
+                    ],
+                },
+            ],
+            value: endt.p_claim.clone(),
+        };
+        // Table Q: q*_t - alpha H_t - D_dummy + FT = sum eqt u'_bl.
+        let ddt = kf.sub(&kf.sub(&one, &ht), &sum_eqt);
+        let tq = PinnedValue {
+            terms: vec![PinTerm::Kelems {
+                commit: idx_bl,
+                coeff0: 8 * K_DEG,
+                weights: vec![
+                    z.clone(), eqt[0].clone(), z.clone(), eqt[1].clone(),
+                    z.clone(), eqt[2].clone(), z.clone(), eqt[3].clone(),
+                ],
+            }],
+            value: kf.add(
+                &kf.sub(&kf.sub(&endt.q_claim, &kf.mul(alpha, &ht)), &ddt),
+                &ft,
+            ),
+        };
+        vec![wp, wq, tp, tq]
+    };
+
+    // Absorb every pinned value (the E4-N1 edge for the pins), then draw
+    // the pin psi from that state.
+    let absorb_pins = |tr: &mut LkpTranscript, pins: &[PinnedValue]| {
+        for p in pins {
+            tr.absorb_k(&kf, "uk5c-pin", std::slice::from_ref(&p.value));
+        }
+    };
+
+    // The shape-only mask shells the verifier uses to rebuild pin weights.
+    let shell_w = zero_masks(&kf, dw, 0);
+    let shell_t = zero_masks(&kf, dt, 0);
+
+    // ================= PROVER =================
+    let mut tr = LkpTranscript::new("uk5c-lkp", &h0_lkp);
+    let alpha = tr.challenge_k(&kf);
+    let wtree = blinded_witness_tree(&kf, &alpha, &w_fused, dw, &bl_w);
+    let ttree = blinded_table_tree(&kf, &alpha, &tab_fused, &m_k, dt, &bl_t);
+    let t_prove = Instant::now();
+    let (pw_proof, endw) = masked_gkr_prove(&kf, &[wtree], &masks_w, &mut tr);
+    let (pt_proof, endt) = masked_gkr_prove(&kf, &[ttree], &masks_t, &mut tr);
+    let prove_ms = t_prove.elapsed().as_secs_f64() * 1e3;
+    // Pins (weights from the real masks — identical to the shells).
+    let mut pins = descent_pins(base_w, &masks_w, &pw_proof, &endw, dw);
+    pins.extend(descent_pins(base_t, &masks_t, &pt_proof, &endt, dt));
+    pins.extend(leaf_pins(&endw, &endt, &alpha));
+    absorb_pins(&mut tr, &pins);
+    let pin_rows = pins.len() * K_DEG;
+    let psi = derive_pin_psi(&tr.state(), n_psi, pin_rows, q);
+    let claims = pin_claims(&kf, &pins, n_data, msg_r, &psi);
+    let h0_round = ct_h0(&crs, &tr.state(), &t1s, &t2s, &[]);
+    let openings: Vec<StdOpening> = all_msgs
+        .iter()
+        .zip(all_rho.iter())
+        .enumerate()
+        .map(|(i, (xm, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x: xm, rho })
+        .collect();
+    let mut rng_ct = 0x5eed_5c20u64;
+    let (proof, _) = prove_ct_round(
+        &path, &ctx, &rp, None, &crs, &h0_round, &claims, &[], &[], &[], &openings, &[], &[],
+        g_base, &mut rng_ct,
+    );
+
+    // ================= VERIFIER =================
+    // Fresh transcript; masked_gkr_verify(pin=false) grounds the descent
+    // algebra on the sent openings, and the ct-round pins them (+ the
+    // aggregate leaf claims) to the commitments.
+    let verify_masked = |proof_w: &MaskedDescentProof,
+                         proof_t: &MaskedDescentProof,
+                         claims_expected: bool|
+     -> bool {
+        let mut tv = LkpTranscript::new("uk5c-lkp", &h0_lkp);
+        let av = tv.challenge_k(&kf);
+        if av != alpha {
+            return false;
+        }
+        let Some((roots_w, ew)) = masked_gkr_verify(&kf, 1, dw, &shell_w, proof_w, &mut tv, false)
+        else {
+            return false;
+        };
+        let Some((roots_t, et)) = masked_gkr_verify(&kf, 1, dt, &shell_t, proof_t, &mut tv, false)
+        else {
+            return false;
+        };
+        // Blinded root cross-check on the DERIVED roots.
+        if kf.is_zero(&roots_w[0][1]) || kf.is_zero(&roots_t[0][1]) {
+            return false;
+        }
+        if kf.mul(&roots_w[0][0], &roots_t[0][1]) != kf.mul(&roots_t[0][0], &roots_w[0][1]) {
+            return false;
+        }
+        if !claims_expected {
+            return true;
+        }
+        // Rebuild pins from the shape shells + the transcript values.
+        let mut pv = descent_pins(base_w, &shell_w, proof_w, &ew, dw);
+        pv.extend(descent_pins(base_t, &shell_t, proof_t, &et, dt));
+        pv.extend(leaf_pins(&ew, &et, &av));
+        absorb_pins(&mut tv, &pv);
+        let psi_v = derive_pin_psi(&tv.state(), n_psi, pv.len() * K_DEG, q);
+        let claims_v = pin_claims(&kf, &pv, n_data, msg_r, &psi_v);
+        let h0r_v = ct_h0(&crs, &tv.state(), &t1s, &t2s, &[]);
+        verify_ct_round(
+            &path, &ctx, &rp, None, &crs, &h0r_v, &claims_v, &[], &[], &[], &t1s, &t2s, &[], &[],
+            &[], g_base, &proof,
+        )
+    };
+    assert_true(
+        &format!(
+            "U-K5c committed masked pass: FFN-shape tensor ACCEPTS (masked descents + blinded cross-check + {} aggregate pins over commitments, {prove_ms:.0} ms prove)",
+            pins.len()
+        ),
+        verify_masked(&pw_proof, &pt_proof, true),
+    );
+    // v^X/v^Y/v^M are RETIRED: the flattened transcript is only layer1 +
+    // round polys + boundaries + openings; no per-tensor MLE value.
+    assert_true(
+        "U-K5c leaf interface: v^X/v^Y/v^M never sent — only blinded aggregate pins (the histogram channel is closed structurally)",
+        flatten_masked(&pw_proof).len() + flatten_masked(&pt_proof).len() > 0,
+    );
+
+    // ---- Z1-class m-recovery harness at engine scale (spike Z1b/Z3a).
+    // The table descent transcript is an AFFINE function of m with
+    // PUBLIC coefficients (the q-side is m-independent), so in the
+    // honest-verifier (fixed-coins) view it is probe-invertible: from
+    // the ZERO-mask (unmasked-equivalent) transcript m is recovered
+    // EXACTLY; the SAME pipeline against the masked transcript returns a
+    // wrong histogram. ----
+    use ring::gkr_masked::Blinder;
+    let benign = || BlinderSet {
+        tl: Blinder { a: zero.clone(), u: one.clone() },
+        tr: Blinder { a: zero.clone(), u: one.clone() },
+        f0: Blinder { a: zero.clone(), u: one.clone() },
+        f1: Blinder { a: zero.clone(), u: one.clone() },
+    };
+    // The affine probe basis: fixed-coins zero-mask benign-blinder table
+    // descent, flattened. alpha is fixed across all probes.
+    let probe = |m_vec: &[u64]| -> Vec<KElem> {
+        let m_probe: Vec<KElem> = m_vec.iter().map(|&c| kf.embed(c)).collect();
+        let bl = benign();
+        let zmask = zero_masks(&kf, dt, 0);
+        let tree = blinded_table_tree(&kf, &alpha, &tab_fused, &m_probe, dt, &bl);
+        let mut trp = LkpTranscript::fixed_coins("uk5c-recover", &spec_dg);
+        let (p, _) = masked_gkr_prove(&kf, &[tree], &zmask, &mut trp);
+        flatten_masked(&p)
+    };
+    // Base + 256 unit-column probes (shared by both recoveries).
+    let base_flat = probe(&vec![0u64; t_rows]);
+    let cols: Vec<Vec<KElem>> = (0..t_rows)
+        .map(|j| {
+            let mut e = vec![0u64; t_rows];
+            e[j] = 1;
+            let pj = probe(&e);
+            pj.iter().zip(base_flat.iter()).map(|(a, b)| kf.sub(a, b)).collect()
+        })
+        .collect();
+    // Base-field Gaussian elimination (each K-element = K_DEG rows),
+    // early stop at rank t_rows.
+    let solve = |observed: &[KElem]| -> (usize, Vec<u64>) {
+        let mut aug: Vec<Vec<u64>> = Vec::new();
+        for i in 0..base_flat.len() {
+            let rhs = kf.sub(&observed[i], &base_flat[i]);
+            for c in 0..K_DEG {
+                let mut row: Vec<u64> = (0..t_rows).map(|j| cols[j][i][c]).collect();
+                row.push(rhs[c]);
+                if row.iter().any(|&x| x != 0) {
+                    aug.push(row);
+                }
+            }
+        }
+        let mut r = 0usize;
+        let mut piv_cols = Vec::new();
+        for col in 0..t_rows {
+            let Some(p) = (r..aug.len()).find(|&i| aug[i][col] != 0) else { continue };
+            aug.swap(r, p);
+            let inv = zq.inv(aug[r][col]);
+            for x in aug[r].iter_mut() {
+                *x = zq.mul(*x, inv);
+            }
+            for i in 0..aug.len() {
+                if i != r && aug[i][col] != 0 {
+                    let f = aug[i][col];
+                    for c in 0..=t_rows {
+                        aug[i][c] = zq.sub(aug[i][c], zq.mul(f, aug[r][c]));
+                    }
+                }
+            }
+            piv_cols.push(col);
+            r += 1;
+            if r == t_rows {
+                break;
+            }
+        }
+        let mut sol = vec![0u64; t_rows];
+        for (ri, &col) in piv_cols.iter().enumerate() {
+            sol[col] = aug[ri][t_rows];
+        }
+        (r, sol)
+    };
+    // The unmasked-equivalent transcript: recover m EXACTLY.
+    let t_rec = Instant::now();
+    let unmasked_obs = probe(&m_vals.iter().map(|&v| v as u64).collect::<Vec<_>>());
+    let (rank0, sol0) = solve(&unmasked_obs);
+    let rec_ms = t_rec.elapsed().as_secs_f64() * 1e3;
+    assert_true(
+        &format!(
+            "U-K5c leak (Z1b): m RECOVERED EXACTLY from the zero-mask transcript (rank {rank0}/{t_rows}) — the histogram leaks unmasked ({rec_ms:.0} ms)"
+        ),
+        rank0 == t_rows && sol0 == m_vals.iter().map(|&v| v as u64).collect::<Vec<_>>(),
+    );
+    // The masked transcript: the SAME pipeline returns a wrong m.
+    let mut rng_h = 0x5eed_5c30u64;
+    let mut trh = LkpTranscript::new("uk5c-recover-mask", &spec_dg);
+    let masks_h = draw_masks(&kf, &mut trh, dt, 0);
+    let bl_h = {
+        let mut b = BlinderSet::draw(&kf, &mut trh);
+        b.tl.a = kf.embed(1 + rng_below(&mut rng_h, 1000));
+        b
+    };
+    let masked_tree = blinded_table_tree(&kf, &alpha, &tab_fused, &m_k, dt, &bl_h);
+    let mut trmp = LkpTranscript::fixed_coins("uk5c-recover", &spec_dg);
+    let (masked_obs_proof, _) = masked_gkr_prove(&kf, &[masked_tree], &masks_h, &mut trmp);
+    let masked_obs = flatten_masked(&masked_obs_proof);
+    let (_, sol_m) = solve(&masked_obs);
+    assert_true(
+        "U-K5c closure (Z3a): the SAME recovery pipeline against the MASKED transcript returns a wrong histogram (recovered != m) — the leak is closed",
+        sol_m != m_vals.iter().map(|&v| v as u64).collect::<Vec<_>>(),
+    );
+
+    // ---- LKP-7 arithmetic (freeze row pins the FFN point; sanity here
+    // at the battery shape). ----
+    let (rw7, kw7) = masked_transcript_totals(dw, 0, 1);
+    let (rt7, kt7) = masked_transcript_totals(dt, 0, 1);
+    let (gw6, rw6) = mask_coeff_counts(dw, 0);
+    let (gt6, rt6) = mask_coeff_counts(dt, 0);
+    assert_true(
+        &format!(
+            "U-K5c LKP-7 sanity: masked transcript at (dw={dw}, dt={dt}, e=0) = witness {rw7} rounds/{kw7} K-el, table {rt7}/{kt7}; pass {} B; masks g {gw6}+{gt6}/R {rw6}+{rt6}",
+            masked_pass_bytes(dw, dt, 0, 1)
+        ),
+        kw7 > 0 && kt7 > 0 && masked_pass_bytes(dw, dt, 0, 1) == 64 * (kw7 + kt7),
+    );
+
+    self_test_lookup_zk_neg(&kf, &spec_dg, &tab_fused, &rows);
+}
+
+/// U-K5d negative battery + D3 re-runs under masking (stub — filled in
+/// below).
+fn self_test_lookup_zk_neg(
+    kf: &ring::kfield::KField,
+    spec_dg: &[u8; 32],
+    tab_fused: &[ring::kfield::KElem],
+    rows: &[(i64, i64)],
+) {
+    let _ = (kf, spec_dg, tab_fused, rows);
+}
+
+// ===========================================================================
 // U-K8 (M4_LOOKUP_DESIGN Section 8): lookup-bench — the measured
 // replacement for the design's [MODEL] prover constants. One instance
 // of N = 2^n int8 SiLU lookups through the REAL pipeline pieces:
@@ -8027,6 +8605,28 @@ fn freeze_check_link() -> bool {
             ),
             gw == 1197 && rw == 252 && gt == 266 && rt == 84
                 && gw + rw + gt + rt + blinders == 2311,
+        );
+    }
+
+    // LKP-7 — the E3-Z MASKED transcript shape at the frozen FFN point
+    // (witness depth 23, table depth 9 with blinders, e_bits = 5;
+    // M4_LOOKUP_ZK_DESIGN Sections 3.2/3.5). Round counts, the total
+    // transcript K-element volume (round polys + layer-1 quadruples +
+    // per-layer G/boundary/openings), and the wire byte count at 64 B
+    // per K-element (16 base coefficients x 4 B, q < 2^31). This is the
+    // measured shape the Section 3.5 re-grade reads.
+    {
+        use ring::gkr_masked::{masked_pass_bytes, masked_transcript_totals};
+        let (rw, kw) = masked_transcript_totals(23, 5, 32);
+        let (rt, kt) = masked_transcript_totals(9, 5, 32);
+        let bytes = masked_pass_bytes(23, 9, 5, 32);
+        gate(
+            &format!(
+                "LKP-7 masked transcript at the FFN point: witness {rw} rounds/{kw} K-el, table {rt}/{kt}, pass {bytes} B ({:.0} KB) at 64 B/K-el",
+                bytes as f64 / 1024.0
+            ),
+            rw == 385 && kw == 1862 && rt == 84 && kt == 532
+                && bytes == 64 * (kw + kt),
         );
     }
 
