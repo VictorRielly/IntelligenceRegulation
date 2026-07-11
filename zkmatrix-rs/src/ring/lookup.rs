@@ -189,3 +189,20 @@ pub fn mul_y(kf: &KField, a: &KElem) -> KElem {
     out[1..K_DEG].copy_from_slice(&a[0..K_DEG - 1]);
     out
 }
+
+/// The multiplication-by-kappa matrix in coordinates: row c, column j
+/// = (kappa * Y^j)[c]. A pinned value sum_e kappa_e * x_e over
+/// COMMITTED K-elements x_e (16 base coefficients each) has coordinate
+/// rows coord_c = sum_e sum_j M(kappa_e)[c][j] * x_e[j] — the E4
+/// public-weight shape over the elements' base coefficients (U-K5c's
+/// mask-opening and blinder-column pins use exactly this).
+pub fn k_weight_coords(kf: &KField, kappa: &KElem) -> Vec<Vec<u64>> {
+    let mut cols = Vec::with_capacity(K_DEG);
+    let mut cur = kappa.clone();
+    for _ in 0..K_DEG {
+        cols.push(cur.clone());
+        cur = mul_y(kf, &cur);
+    }
+    // rows[c][j] = cols[j][c]
+    (0..K_DEG).map(|c| (0..K_DEG).map(|j| cols[j][c]).collect()).collect()
+}

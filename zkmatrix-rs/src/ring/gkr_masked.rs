@@ -177,6 +177,86 @@ pub fn zero_masks(kf: &KField, depth: usize, n_extra: usize) -> MaskSet {
     MaskSet { g, r }
 }
 
+impl MaskSet {
+    /// The committed flattening (the layout every pin row uses, pinned
+    /// by LKP-6): g_1.coeffs(), .., g_{K-1}.coeffs(), then per interior
+    /// layer j = 2..K-1: Rp_j then Rq_j, each row-major
+    /// (c[0][0..3], c[1][0..3] — the eval_r loop order).
+    pub fn flatten(&self) -> Vec<KElem> {
+        let mut out = Vec::new();
+        for g in &self.g {
+            out.extend(g.coeffs());
+        }
+        for (rp, rq) in &self.r {
+            for r in [rp, rq] {
+                for row in r.iter() {
+                    out.extend(row.iter().cloned());
+                }
+            }
+        }
+        out
+    }
+
+    /// Flat offset of g_j's coefficient block (j is 1-based).
+    pub fn g_offset(&self, j: usize) -> usize {
+        self.g[..j - 1].iter().map(|g| 1 + g.uni.iter().map(|c| c.len()).sum::<usize>()).sum()
+    }
+
+    pub fn g_len(&self, j: usize) -> usize {
+        1 + self.g[j - 1].uni.iter().map(|c| c.len()).sum::<usize>()
+    }
+
+    /// Flat offset of Rp_j (Rq_j = +6); j is 2-based.
+    pub fn r_offset(&self, j: usize) -> usize {
+        let g_total: usize =
+            self.g.iter().map(|g| 1 + g.uni.iter().map(|c| c.len()).sum::<usize>()).sum();
+        g_total + 12 * (j - 2)
+    }
+}
+
+/// The pin weights of one opened value over its coefficient block
+/// (kappa per committed K-element): G_j = integer weights (2^ell on
+/// a0, 2^(ell-1) on every univariate coefficient); open_g at pt =
+/// powers (1 on a0, pt_t^(i+1) on coefficient (t, i)); open_R at
+/// (z1, w) = z1^i w^j per coefficient, row-major.
+pub fn g_hypersum_weights(kf: &KField, gm: &GMask) -> Vec<KElem> {
+    let ell = gm.uni.len();
+    let mut w = vec![kf.embed(kf.zq.to_mod(1i64 << ell))];
+    let half = kf.embed(kf.zq.to_mod(1i64 << (ell - 1)));
+    for c in &gm.uni {
+        for _ in c {
+            w.push(half.clone());
+        }
+    }
+    w
+}
+
+pub fn g_open_weights(kf: &KField, gm: &GMask, pt: &[KElem]) -> Vec<KElem> {
+    let mut w = vec![kf.one()];
+    for (c, x) in gm.uni.iter().zip(pt.iter()) {
+        let mut xp = x.clone();
+        for _ in c {
+            w.push(xp.clone());
+            xp = kf.mul(&xp, x);
+        }
+    }
+    w
+}
+
+pub fn r_open_weights(kf: &KField, z1: &KElem, w: &KElem) -> Vec<KElem> {
+    let mut out = Vec::with_capacity(6);
+    let mut z1p = kf.one();
+    for _ in 0..2 {
+        let mut wp = kf.one();
+        for _ in 0..3 {
+            out.push(kf.mul(&z1p, &wp));
+            wp = kf.mul(&wp, w);
+        }
+        z1p = kf.mul(&z1p, z1);
+    }
+    out
+}
+
 /// LKP-6 arithmetic: committed mask K-element counts for one descent
 /// (g: 1 + sum degs per sumcheck; R: 6 per polynomial, two per
 /// interior layer).
@@ -211,6 +291,18 @@ pub struct MaskedDescentProof {
     /// sent; the M3 blinders randomize them).
     pub layer1: Vec<[KElem; 4]>,
     pub layers: Vec<MaskedLayerProof>,
+}
+
+/// The descent's public endpoint, shared by prover and verifier: the
+/// final point and claims (the aggregate leaf pins' subjects) plus the
+/// per-layer opening points the E4 pin rows are built at — for layer
+/// j: (the g opening point r_b ++ c_w, z1 = the incoming claim's first
+/// coordinate = mu_{j-1} for the R openings, and c_w itself).
+pub struct DescentEnd {
+    pub zstar: Vec<KElem>,
+    pub p_claim: KElem,
+    pub q_claim: KElem,
+    pub layer_pts: Vec<(Vec<KElem>, KElem, KElem)>,
 }
 
 /// One analytic g-mask round evaluation: the sum over the suffix
@@ -265,7 +357,7 @@ pub fn masked_gkr_prove(
     trees: &[FracTree],
     masks: &MaskSet,
     tr: &mut LkpTranscript,
-) -> (MaskedDescentProof, Vec<KElem>, KElem, KElem) {
+) -> (MaskedDescentProof, DescentEnd) {
     let l = trees.len();
     assert!(l.is_power_of_two());
     let e_bits = l.trailing_zeros() as usize;
@@ -304,6 +396,7 @@ pub fn masked_gkr_prove(
     let mut zeta = vec![mu0];
     zeta.extend(z_e.clone());
     let mut layers = Vec::with_capacity(depth - 1);
+    let mut layer_pts = Vec::with_capacity(depth - 1);
     for j in 1..depth {
         let lambda = tr.challenge_k(kf);
         let mut c_run = kf.add(&p_claim, &kf.mul(&lambda, &q_claim));
@@ -524,6 +617,7 @@ pub fn masked_gkr_prove(
             tr.absorb_k(kf, "mgkr-open-rp", std::slice::from_ref(a));
             tr.absorb_k(kf, "mgkr-open-rq", std::slice::from_ref(b));
         }
+        layer_pts.push((open_pt, zeta[0].clone(), c_w.clone()));
         let mu = tr.challenge_k(kf);
         p_claim = kf.add(&boundary[0], &kf.mul(&mu, &kf.sub(&boundary[1], &boundary[0])));
         q_claim = kf.add(&boundary[2], &kf.mul(&mu, &kf.sub(&boundary[3], &boundary[2])));
@@ -532,7 +626,10 @@ pub fn masked_gkr_prove(
         zeta = nz;
         layers.push(MaskedLayerProof { g_sum, rounds, boundary, open_g, open_r });
     }
-    (MaskedDescentProof { layer1, layers }, zeta, p_claim, q_claim)
+    (
+        MaskedDescentProof { layer1, layers },
+        DescentEnd { zstar: zeta, p_claim, q_claim, layer_pts },
+    )
 }
 
 /// Verify the masked descent. `masks` = the committed mask set (the
@@ -543,7 +640,6 @@ pub fn masked_gkr_prove(
 /// them through the psi batch). Returns (derived per-instance roots,
 /// z*, p-claim, q-claim); the caller runs the root cross-check and
 /// the aggregate leaf pins.
-#[allow(clippy::type_complexity)]
 pub fn masked_gkr_verify(
     kf: &KField,
     l: usize,
@@ -552,7 +648,7 @@ pub fn masked_gkr_verify(
     proof: &MaskedDescentProof,
     tr: &mut LkpTranscript,
     pin: bool,
-) -> Option<(Vec<[KElem; 2]>, Vec<KElem>, KElem, KElem)> {
+) -> Option<(Vec<[KElem; 2]>, DescentEnd)> {
     if !l.is_power_of_two() || proof.layer1.len() != l || proof.layers.len() != depth - 1 {
         return None;
     }
@@ -585,6 +681,7 @@ pub fn masked_gkr_verify(
     let mut q_claim = fold_layer1(1);
     let mut zeta = vec![mu0];
     zeta.extend(z_e);
+    let mut layer_pts = Vec::with_capacity(depth - 1);
     for j in 1..depth {
         let lp = &proof.layers[j - 1];
         let lambda = tr.challenge_k(kf);
@@ -666,6 +763,9 @@ pub fn masked_gkr_verify(
             tr.absorb_k(kf, "mgkr-open-rp", std::slice::from_ref(a));
             tr.absorb_k(kf, "mgkr-open-rq", std::slice::from_ref(b));
         }
+        let mut open_pt = r_b.clone();
+        open_pt.push(c_w.clone());
+        layer_pts.push((open_pt, zeta[0].clone(), c_w.clone()));
         let mu = tr.challenge_k(kf);
         p_claim = kf.add(&vp0, &kf.mul(&mu, &kf.sub(&vp1, &vp0)));
         q_claim = kf.add(&vq0, &kf.mul(&mu, &kf.sub(&vq1, &vq0)));
@@ -673,7 +773,7 @@ pub fn masked_gkr_verify(
         nz.extend(r_b);
         zeta = nz;
     }
-    Some((roots, zeta, p_claim, q_claim))
+    Some((roots, DescentEnd { zstar: zeta, p_claim, q_claim, layer_pts }))
 }
 
 // ---------------------------------------------------------------------------
@@ -744,4 +844,65 @@ pub fn install_blinders(kf: &KField, p: &mut [KElem], q: &mut [KElem], bl: &Blin
         p[pos[k]] = b.a.clone();
         q[pos[k]] = b.u.clone();
     }
+}
+
+/// Blinder-extended witness tree: n_used honest fused leaves at the
+/// front, dummies (0, 1) elsewhere, the blinder set at the fixed
+/// positions. depth >= log2(n_used) + headroom for the blinders.
+pub fn blinded_witness_tree(
+    kf: &KField,
+    alpha: &KElem,
+    w_fused: &[KElem],
+    depth: usize,
+    bl: &BlinderSet,
+) -> FracTree {
+    let n = 1usize << depth;
+    assert!(w_fused.len() + 4 <= n);
+    let mut p = vec![kf.zero(); n];
+    let mut q = vec![kf.one(); n];
+    for (i, w) in w_fused.iter().enumerate() {
+        p[i] = kf.one();
+        q[i] = kf.sub(alpha, w);
+    }
+    install_blinders(kf, &mut p, &mut q, bl);
+    super::gkr::build_tree(kf, p, q)
+}
+
+/// Blinder-extended table tree: the fused rows with their multiplicity
+/// numerators at the front (the blinders push a full 2^k table one
+/// level deeper — depth 9 for the 256-row SiLU table).
+pub fn blinded_table_tree(
+    kf: &KField,
+    alpha: &KElem,
+    tab_fused: &[KElem],
+    m: &[KElem],
+    depth: usize,
+    bl: &BlinderSet,
+) -> FracTree {
+    let n = 1usize << depth;
+    assert!(tab_fused.len() + 4 <= n);
+    let mut p = vec![kf.zero(); n];
+    let mut q = vec![kf.one(); n];
+    for (j, t) in tab_fused.iter().enumerate() {
+        p[j] = m[j].clone();
+        q[j] = kf.sub(alpha, t);
+    }
+    install_blinders(kf, &mut p, &mut q, bl);
+    super::gkr::build_tree(kf, p, q)
+}
+
+/// LKP-7 arithmetic: the masked transcript shape of one descent —
+/// (rounds, round-poly K-element count) with the 6/4/3 evaluation
+/// pattern (first b-round 6 evals on child-masked layers, 4 else;
+/// other b-rounds 4; w-round 3).
+pub fn masked_transcript_shape(depth: usize, n_extra: usize) -> (usize, usize) {
+    let mut rounds = 0usize;
+    let mut kelems = 0usize;
+    for j in 1..depth {
+        let n_bvars = j + n_extra;
+        let degs = sc_degrees(n_bvars, j <= depth - 2);
+        rounds += degs.len();
+        kelems += degs.iter().map(|d| d + 1).sum::<usize>();
+    }
+    (rounds, kelems)
 }

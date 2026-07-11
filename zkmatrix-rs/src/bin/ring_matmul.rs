@@ -6935,8 +6935,8 @@ fn self_test_lookup() {
         let ttree =
             build_tree(&kf, m5.clone(), tab_fused.iter().map(|t| kf.sub(&alpha5, t)).collect());
         let t0 = Instant::now();
-        let (pw_proof, zw, pw, qw) = masked_gkr_prove(&kf, &[wtree], &masks_w, &mut tr5);
-        let (pt_proof, zt, pm, qt) = masked_gkr_prove(&kf, &[ttree], &masks_t, &mut tr5);
+        let (pw_proof, endw) = masked_gkr_prove(&kf, &[wtree], &masks_w, &mut tr5);
+        let (pt_proof, endt) = masked_gkr_prove(&kf, &[ttree], &masks_t, &mut tr5);
         let prove_ms = t0.elapsed().as_secs_f64() * 1e3;
         // Verify (fresh transcript), root cross-check on the DERIVED
         // roots, leaf grounding by direct MLE (aggregate pins: U-K5c).
@@ -6949,22 +6949,22 @@ fn self_test_lookup() {
                 let rw = masked_gkr_verify(&kf, 1, dw, &masks_w, &pw_proof, &mut tv, true);
                 let rt = masked_gkr_verify(&kf, 1, dt, &masks_t, &pt_proof, &mut tv, true);
                 match (rw, rt) {
-                    (Some((roots_w, zwv, pwv, qwv)), Some((roots_t, ztv, pmv, qtv))) => {
+                    (Some((roots_w, ew)), Some((roots_t, et))) => {
                         let w_concat = w5.clone();
                         !kf.is_zero(&roots_w[0][1])
                             && !kf.is_zero(&roots_t[0][1])
                             && kf.mul(&roots_w[0][0], &roots_t[0][1])
                                 == kf.mul(&roots_t[0][0], &roots_w[0][1])
-                            && zwv == zw
-                            && ztv == zt
-                            && pwv == pw
-                            && qwv == qw
-                            && pmv == pm
-                            && qtv == qt
-                            && pwv == kf.one()
-                            && qwv == kf.sub(&av, &mle_eval(&kf, &w_concat, &zwv))
-                            && pmv == mle_eval(&kf, &m5, &ztv)
-                            && qtv == kf.sub(&av, &mle_eval(&kf, &tab_fused, &ztv))
+                            && ew.zstar == endw.zstar
+                            && et.zstar == endt.zstar
+                            && ew.p_claim == endw.p_claim
+                            && ew.q_claim == endw.q_claim
+                            && et.p_claim == endt.p_claim
+                            && et.q_claim == endt.q_claim
+                            && ew.p_claim == kf.one()
+                            && ew.q_claim == kf.sub(&av, &mle_eval(&kf, &w_concat, &ew.zstar))
+                            && et.p_claim == mle_eval(&kf, &m5, &et.zstar)
+                            && et.q_claim == kf.sub(&av, &mle_eval(&kf, &tab_fused, &et.zstar))
                     }
                     _ => false,
                 }
@@ -6987,7 +6987,7 @@ fn self_test_lookup() {
             );
             let mut tr0 = LkpTranscript::new("uk5-lkp", &h05);
             let _a = tr0.challenge_k(&kf);
-            let (p0_proof, _, _, _) = masked_gkr_prove(&kf, &[wtree2], &z_w, &mut tr0);
+            let (p0_proof, _) = masked_gkr_prove(&kf, &[wtree2], &z_w, &mut tr0);
             assert_true(
                 "U-K5ab mask liveness: masked boundary values differ from the zero-mask (unmasked-equivalent) transcript",
                 pw_proof.layers[2].boundary != p0_proof.layers[2].boundary,

@@ -39,6 +39,13 @@ use super::kfield::{KElem, KField};
 
 pub struct LkpTranscript {
     state: [u8; 32],
+    /// Honest-verifier coin mode: absorbs are NO-OPS and challenges
+    /// stream from the seed alone. This is NOT a protocol path — it is
+    /// the leak-harness tool that models the honest-verifier view
+    /// (challenges independent of the prover's messages), exactly the
+    /// spike's content-blind Tape; the U-K5c m-recovery harness needs
+    /// it so the transcript stays an affine function of the witness.
+    fixed_coins: bool,
 }
 
 impl LkpTranscript {
@@ -49,10 +56,21 @@ impl LkpTranscript {
         let mut hasher = Sha256::new();
         hasher.update(domain.as_bytes());
         hasher.update(h0);
-        LkpTranscript { state: hasher.finalize().into() }
+        LkpTranscript { state: hasher.finalize().into(), fixed_coins: false }
+    }
+
+    /// The HONEST-VERIFIER coin tape (see the field doc). Battery use
+    /// only.
+    pub fn fixed_coins(domain: &str, seed: &[u8]) -> LkpTranscript {
+        let mut t = LkpTranscript::new(domain, seed);
+        t.fixed_coins = true;
+        t
     }
 
     pub fn absorb(&mut self, label: &str, bytes: &[u8]) {
+        if self.fixed_coins {
+            return;
+        }
         let mut hasher = Sha256::new();
         hasher.update(self.state);
         hasher.update(label.as_bytes());
@@ -70,11 +88,20 @@ impl LkpTranscript {
     }
 
     /// Draw a uniform K challenge from the current state, then ratchet
-    /// the state with the drawn value.
+    /// the state with the drawn value (fixed-coins mode ratchets by a
+    /// content-independent tick instead, so successive draws differ
+    /// while staying independent of every absorbed message).
     pub fn challenge_k(&mut self, kf: &KField) -> KElem {
         let mut reader = XofReader::new("lkp-chal", &[&self.state]);
         let e = kf.uniform(&mut reader);
-        self.absorb("chal", &kf.bytes(&e));
+        if self.fixed_coins {
+            let mut hasher = Sha256::new();
+            hasher.update(self.state);
+            hasher.update(b"hv-tick");
+            self.state = hasher.finalize().into();
+        } else {
+            self.absorb("chal", &kf.bytes(&e));
+        }
         e
     }
 
