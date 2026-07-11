@@ -875,11 +875,12 @@ evaluations, g(r, c)) has rank 11 with exactly ell + 1 = 4 forced
 check relations — "the Libra Thm 4.1 counting, machine-checked"
 (output recorded verbatim in M4_LOOKUP_ZK_DESIGN.md Section 8).
 
-Status: **[PROVEN at spike scale — engine-scale rank canaries land
-as battery E3Z-N4 in U-K5d, pending]**. The grade upgrades to engine
-scale only when that battery is green (the exit criterion of
-M4_LOOKUP_ZK_DESIGN.md Section 6), and nothing in this transcription
-lifts the lookup's non-ZK deployment label.
+Status: **[PROVEN at engine scale — battery E3Z-N4 green (U-K5d,
+2026-07-10)]**: the coefficient-to-exposure map is rank-certified
+n_g with exactly ell + 1 forced relations as a derive-time canary at
+engine shapes (the `[U-K5d]` battery in the ring self-test), and the
+committed masked pass plus the engine-scale m-recovery harness
+(`[U-K5c]`) close the leak these masks exist for.
 
 ---
 
@@ -1018,9 +1019,10 @@ FULL-RANK affine image of the blinder pads (rank 4/4)" — the spike's
 own gloss records that the parity placement is what makes the
 (1, r)-weighted rows nonzero.
 
-Status (both parts): **[PROVEN at spike scale — engine-scale rank
-canaries land as battery E3Z-N4 in U-K5d, pending]**. Grades upgrade
-only on a green battery.
+Status (both parts): **[PROVEN at engine scale — battery E3Z-N4
+green (U-K5d, 2026-07-10)]**: the leaf 4/4 and R-mask 6/6 rank
+certificates run as derive-time canaries at engine shapes, covering
+the w-round-challenge condition flagged in Q4.8a's closing note.
 
 ---
 
@@ -1097,11 +1099,14 @@ transcripts the verifier ACCEPTS, root cross-check included; the
 design's component 3 records that the simulator's solved value and
 the real world's solved pad coincide on the same variety.
 
-Status: **[PROVEN at spike scale — engine-scale rank canaries land
-as battery E3Z-N4 in U-K5d, pending]**. Grades upgrade only on a
-green battery, and the lookup's non-ZK deployment label
-(M4_LOOKUP_DESIGN.md Sections 3.5/8) stands until the U-K5 build
-lands and its battery is green.
+Status: **[PROVEN at engine scale — battery green (U-K5c/d,
+2026-07-10)]**: the blinder-ordering pair E3Z-N2 (mass solved at a
+KNOWN alpha ACCEPTS / fresh alpha REJECTS the same committed
+blinders) and the rank canaries are live, and the U-K5 build landed —
+the lookup's non-ZK deployment label (M4_LOOKUP_DESIGN.md Sections
+3.5/8) is LIFTED at the subprotocol level (honest-verifier ZK,
+proof-of-protocol; measured numbers in that document's Section 3.5
+update).
 
 ---
 
@@ -1127,9 +1132,9 @@ lands and its battery is green.
 | Q4.5a | salt-abort transcripts simulatable | PROVEN conditional (uniform tail bound; freeze-check gate suggested) |
 | Q4.5b | salt grinding: x65, cap load-bearing | PROVEN |
 | Q4.6 | twisted-execution aggregate simulation (O1-O4) | OBLIGATION (trace-gate build exit criterion; O3/O4 corrected per Q4.3d) |
-| Q4.7 | E3-Z lookup round masks: adapted Libra counting, exposures uniform on the check variety | PROVEN at spike scale — engine-scale battery E3Z-N4 (U-K5d) pending |
-| Q4.8 | E3-Z boundary/blinder pads: interior rank 6/6 (a), leaf rank 4/4 + fresh-pad ledger (b) | PROVEN at spike scale — E3Z-N4 (U-K5d) pending |
-| Q4.9 | E3-Z top: layer-1 quadruples uniform on the cross-check variety | PROVEN at spike scale — E3Z-N4 (U-K5d) pending |
+| Q4.7 | E3-Z lookup round masks: adapted Libra counting, exposures uniform on the check variety | PROVEN at engine scale (E3Z-N4 rank canaries green, U-K5d 2026-07-10) |
+| Q4.8 | E3-Z boundary/blinder pads: interior rank 6/6 (a), leaf rank 4/4 + fresh-pad ledger (b) | PROVEN at engine scale (E3Z-N4 canaries green, U-K5d 2026-07-10) |
+| Q4.9 | E3-Z top: layer-1 quadruples uniform on the cross-check variety | PROVEN at engine scale (E3Z-N2 pair + canaries green, U-K5c/d 2026-07-10) |
 
 The honest reading across the set, after U-P and the U-K5e
 transcription:
@@ -1149,14 +1154,16 @@ transcription:
   SLACK_OP gate at the frozen point. Q4.4b's gaps now block only the
   (now-unused) SLACK_OP composition; Q4.4' remains the tighter JL
   target for a later transcription pass.
-- **Q4.7-Q4.9 are the E3-Z transcription (tranche U-K5e) and their
-  grades are spike-scale grades.** They transcribe
-  M4_LOOKUP_ZK_DESIGN.md Section 4 components 3-6; every rank and
-  uniformity claim is machine-checked at toy scale
-  (`logup_zk_mask_spike.py` certificates Z3b/Z3c/Z3d) but NOT yet at
-  engine shapes — that is battery E3Z-N4 of tranche U-K5d, in flight
-  at this writing. Until that battery is green, the lookup
-  subprotocol's non-ZK deployment label (M4_LOOKUP_DESIGN.md Section
-  3.5 and its Section 8 row) stands unchanged; nothing in this
-  transcription lifts or softens it.
+- **Q4.7-Q4.9 are the E3-Z transcription (tranche U-K5e), now graded
+  at engine scale.** They transcribe M4_LOOKUP_ZK_DESIGN.md Section 4
+  components 3-6; every rank and uniformity claim is machine-checked
+  at toy scale (`logup_zk_mask_spike.py` certificates Z3b/Z3c/Z3d)
+  AND at engine shapes — battery E3Z-N4 of tranche U-K5d runs the
+  rank certificates as derive-time canaries, and the `[U-K5c]`
+  committed masked pass + engine-scale m-recovery harness close the
+  histogram leak these lemmas' masks exist for. With that battery
+  green (2026-07-10), the lookup subprotocol's non-ZK deployment
+  label is LIFTED at the subprotocol level — honest-verifier ZK,
+  proof-of-protocol; the FFN integration (U-K8) and chain-wide
+  composition remain open obligations tracked in M4_LOOKUP_DESIGN.md.
 - Everything else (Q4.1/Q4.2/Q4.5) is unchanged from its prior grade.

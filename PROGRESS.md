@@ -47,12 +47,20 @@ Known flake: tests/test_zk_lattice.py Pi1Tests::test_rejects_tampered_responses
 - [x] D4 MEASURED NUMBERS for the U-K5e re-grade, recorded here: prover/verifier delta
       masked vs unmasked at battery shape; mask material counts (LKP-6); transcript
       bytes at the frozen FFN point (LKP-7).  --> see "## D4 measured numbers" below.
-- [ ] D5 (Agent B) Q4_LEMMAS.md: adapted Libra counting lemma (component 4), boundary-
+- [x] D5 DONE (5f17c70, 39e96e5; merged a724bb9) (Agent B) Q4_LEMMAS.md: adapted Libra counting lemma (component 4), boundary-
       mask rank lemma (components 5-6), top-variety lemma (component 3), each graded
       [PROVEN at spike scale; engine-scale battery = U-K5d]. SOUNDNESS_REFERENCE.md
       Section 7: merged Section 3.3 hash-edge rows with attack-pair pointers.
-- [ ] FINAL (orchestrator): battery green + suite green -> Section 3.5 re-grade with
-      D4 numbers, non-ZK label lifted, docs consistent, push.
+- [x] FINAL DONE (orchestrator): suite independently re-verified 42/42 green (138 s);
+      Agent B branch merged (a724bb9); Section 3.5 re-graded with D4 numbers;
+      non-ZK label LIFTED at subprotocol level across M4_LOOKUP_DESIGN (header,
+      3.5 update, row 12, Section 8 U-K5 item, Section 9 item 1),
+      M4_LOOKUP_ZK_DESIGN (status header, Section 4 table note), Q4.7-Q4.9 grades,
+      SOUNDNESS_REF Section 7 rows, TARGET_CONTRACT (ZK status, U-K5 row, and a
+      NEW proof-size TIGHTNESS FLAG: masked lookup transcript alone 150 KB vs the
+      256 KB budget), LLM_SCALE_ESTIMATE M4 row. Honest scope kept everywhere:
+      HVZK proof-of-protocol at the subprotocol level; U-K8 FFN integration and
+      chain-wide composition remain OPEN.
 
 ## Key facts (for resume)
 
@@ -214,3 +222,10 @@ Both LKP-6 and LKP-7 are pinned as freeze rows in `ring_matmul freeze-check`
   freshness Cell, split table_row_positions, masked_transcript_totals/
   masked_pass_bytes. ring/lookup.rs: PinTerm/PinnedValue/pin_claims/
   derive_pin_psi. Freeze-check passes.
+- 2026-07-10: TRANCHE COMPLETE. Agent B docs merged (a724bb9); orchestrator
+  re-grade + label lift committed; suite 42/42 green re-verified independently;
+  pushed. The U-K5 masking obligation (audit C-01 / design row 12) is closed at
+  the subprotocol level. Next per the audit-aligned order: true U-K8 exit
+  (masked lookup inside a committed FFN-shape pass with upstream range +
+  downstream gate-o-up), then U-K9 kernel-grade K-mults + the H-03 memory
+  refactor, then the GPU experiment.

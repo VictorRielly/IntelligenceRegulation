@@ -712,10 +712,10 @@ STRICTLY more data, every one of those existing edges is preserved
 (they must simply be re-run under masking). The "spike Z4"/"spike
 Z6" demonstrations cited below are the machine-checked toy-scale
 attack/defense pairs recorded verbatim in M4_LOOKUP_ZK_DESIGN.md
-Section 8; the E3-Z battery itself (E3Z-N1/N2 and companions) is
-tranche U-K5d, in flight at this writing, so its "pinned by" entries
-say pending — they flip to green test names only when that battery
-lands.
+Section 8; the E3-Z battery itself (E3Z-N1/N2 and companions) landed
+with tranche U-K5d (2026-07-10) — the "pinned by" entries below name
+the live batteries in the ring self-test (`self_test_lookup_zk`,
+sections `[U-K5c]` and `[U-K5d]`).
 
 | challenge | drawn from | must follow | attack if violated | pinned by |
 |---|---|---|---|---|
@@ -729,10 +729,10 @@ lands.
 | xi (link rows) | h0_link | BOTH sides' commitments incl. g's | pick values after xi: per-row 2^-w becomes 1 | `wrong xi (stale h0_link)` negative |
 | zeta (E2 slot-link junk rows) | h0_link | same as xi — both sides' commitments incl. g's | commit junk after zeta (or drop zeta): constant-reading rows miss the junk coordinates and the composed-Hadamard shift returns | `E2 gap: constant-only rows ACCEPT` / `E2: zeta rows REJECT` pair (U-E2) |
 | tau (freeze-era witness tie) | — | — | superseded by U-B5 (first-class tie) | removed with its freeze row |
-| alpha (lookup fusion) — E3-Z addendum | h0_lkp = H(ctx, CRS, all X/Y/m commitments AND the mask + blinder commitments) | the mask and blinder commitments | blinder mass solved at a KNOWN alpha passes the blinded root cross-check for a FALSE lookup — spike Z6 demonstrates the accept; a fresh alpha rejects the same committed blinders | E3Z-N2 F5 pair — pending (U-K5d in flight) |
-| nu_j (lookup mask combination, one per layer sumcheck) | XOF(prefix through the layer-j claim and the sent G_j) | the round-mask commitment (in h0_lkp) and G_j | G chosen after nu_j absorbs any claim defect: G := G_true + (C_true − C_false)/nu_j waves a false lookup through — spike Z4 demonstrates the accept; the shipped order (G E4-pinned to the pre-committed coefficients) rejects the same crafting | E3Z-N1 F5 pair — pending (U-K5d in flight) |
-| h0_lkp (lookup statement hash) — E3-Z scope note | — (a hash, not a challenge draw) | now binds the mask and blinder commitments alongside the X/Y/m commitments | none new: binding strictly more data preserves every existing edge; each E3-N pair must be RE-RUN under masking | E3-N1..N5 re-run under masking — pending (U-K5d in flight) |
-| psi (lookup E4 coordinate batch) — E3-Z addendum | XOF(prefix through ALL claimed values, now including every G_j and every mask opening) | the mask openings and the aggregate leaf pins | craft an opened value after psi: coordinate defects orthogonal to psi pass — E4-N1's attack shape on a grown claim set | E4-N1, scope extended — pending (U-K5d in flight) |
+| alpha (lookup fusion) — E3-Z addendum | h0_lkp = H(ctx, CRS, all X/Y/m commitments AND the mask + blinder commitments) | the mask and blinder commitments | blinder mass solved at a KNOWN alpha passes the blinded root cross-check for a FALSE lookup — spike Z6 demonstrates the accept; a fresh alpha rejects the same committed blinders | `[U-K5d] E3Z-N2` F5 pair (both directions live) |
+| nu_j (lookup mask combination, one per layer sumcheck) | XOF(prefix through the layer-j claim and the sent G_j) | the round-mask commitment (in h0_lkp) and G_j | G chosen after nu_j absorbs any claim defect: G := G_true + (C_true − C_false)/nu_j waves a false lookup through — spike Z4 demonstrates the accept; the shipped order (G E4-pinned to the pre-committed coefficients) rejects the same crafting | `[U-K5d] E3Z-N1` F5 pair (both directions live) |
+| h0_lkp (lookup statement hash) — E3-Z scope note | — (a hash, not a challenge draw) | now binds the mask and blinder commitments alongside the X/Y/m commitments | none new: binding strictly more data preserves every existing edge; each E3-N pair must be RE-RUN under masking | `[U-K5d]` D3 re-runs: E3-N1 (alpha binds masks+blinders) + masked tamper-rejects (E3-N4/N5 class) live; E3-N2/E4-N2 structurally unchanged by masking, inherited by the honest masked pass + committed ct-round (recorded in the tranche ledger) |
+| psi (lookup E4 coordinate batch) — E3-Z addendum | XOF(prefix through ALL claimed values, now including every G_j and every mask opening) | the mask openings and the aggregate leaf pins | craft an opened value after psi: coordinate defects orthogonal to psi pass — E4-N1's attack shape on a grown claim set | `[U-K5d]` E4-N1 masked variant (pin psi batches the mask openings) live |
 
 ## 8. Honest limitations and open obligations
 

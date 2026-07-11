@@ -4,13 +4,20 @@ Status: design round COMPLETE (equations + machine-checked spike);
 ENGINE STATUS (2026-07-10): the UNMASKED core is built — E3 = U-K1..K4
 (`ring/kfield.rs`, `ring/sumcheck.rs`, `ring/gkr.rs`, `ring/lookup.rs`)
 and the E4 landing U-K6/K7, every designed hash edge pinned F5-style;
-U-K5 (ZK masking) is DESIGNED (M4_LOOKUP_ZK_DESIGN.md) but NOT
-implemented — lookup-bearing proofs are NOT ZK; the U-K8 integration
-exit (FFN-shape committed tensor, slot-packed E4 variant, upstream
-range, downstream gate o up) is OPEN — see Section 7' and the
+U-K5 (ZK masking) is BUILT AND BATTERY-TESTED (tranche U-K5c/d/e,
+2026-07-10: committed masked pass with aggregate-only pins, the
+engine-scale m-recovery harness closed, E3Z-N1..N4 F5 pairs, freeze
+rows LKP-6/7; design: M4_LOOKUP_ZK_DESIGN.md; lemmas Q4.7-Q4.9) — the
+non-ZK label on lookup-bearing proofs is LIFTED at the subprotocol
+level (honest-verifier ZK, proof-of-protocol; chain-wide ZK is the
+composition's statement, per the R1.3-class honesty note); the U-K8
+integration exit (FFN-shape committed tensor, slot-packed E4 variant,
+upstream range, downstream gate o up) is OPEN — see Section 7' and the
 2026-07-10 audit H-01. Four statuses, tracked separately: core algebra
 BUILT+MEASURED-1T; E4 landing BUILT (N=256 committed rig); masked
-lookup DESIGNED; FFN integration OPEN.
+lookup BUILT+BATTERY-GREEN (battery shape; FFN-point mask material and
+transcript pinned by the LKP-6/7 formula freeze rows); FFN integration
+OPEN.
 Every algebraic claim below is exercised by `scripts/logup_gkr_spike.py`
 (pure stdlib, exact arithmetic; 16 OK assertion lines; output recorded in
 Section 10). Companions: M4_LOOKUP_LITERATURE.md (the decided verdict
@@ -408,6 +415,25 @@ pre-R1 pi2 proofs were — the deployment instruction the repo has used
 before, applied from day one this time rather than discovered in
 review.
 
+**Update (2026-07-10, tranche U-K5c/d/e): E3-Z LANDED — the label is
+LIFTED.** The masked engine (`ring/gkr_masked.rs`) plus the committed
+aggregate-pin layer (`ring/lookup.rs` pin claims) are built and
+battery-tested (the `[U-K5c]`/`[U-K5d]` batteries in the ring self
+test): the engine-scale m-recovery harness demonstrates rank-256 EXACT
+recovery of the multiplicity column from the zero-mask transcript and
+FAILS against the masked one; v^X/v^Y/v^M no longer appear in the
+transcript (aggregate-only pins); the mask- and blinder-ordering
+attack pairs (E3Z-N1/N2) and the rank canaries (E3Z-N4) are live. The
+leak table above is re-graded row by row in M4_LOOKUP_ZK_DESIGN.md
+Section 4, transcribed as lemmas Q4.7-Q4.9. Measured price: 2,311
+committed K-elements per pass of mask material (36,976 committed
+coefficients — noise class against the pass commit bill), masked
+transcript 150 KB/pass at the frozen FFN point (freeze row LKP-7),
+descent core x2.0 prove / x1.4 verify — sub-percent at pass level
+because the descent is O(N) against the tensor weight-expansion. The
+lift is subprotocol-level honest-verifier ZK (proof-of-protocol); the
+U-K8 FFN integration remains OPEN.
+
 ## 4. The characteristic ceiling, designed in from day one
 
 The log-derivative lemma pins COUNTS only mod char(K) = q ~ 2.1e9:
@@ -512,7 +538,7 @@ battery (Section 8), or the paper citation.
 | 9 | characteristic ceiling: N_inst < q enforced | [PROVEN] constraint; derive-time gate + freeze row | structural | spike OK-4a/4b; freeze LKP-2 |
 | 10 | FS ordering (every edge in 3.3) | [OBLIGATION] until the F5-pair batteries land | — | E3-N1..N5, E4-N1/N2 |
 | 11 | FS grinding/forking loss (ROM) | [MODEL] (Section 1.5 convention) | absorbed by 151-bit margin | — |
-| 12 | ZK of the lookup transcript | [OBLIGATION] — NOT ZK unmasked (leak inventory 3.5) | n/a (hiding, not soundness) | E3-Z design round |
+| 12 | ZK of the lookup transcript | [PROVEN at engine scale] — HVZK via the E3-Z masking (leak inventory 3.5 re-graded, M4_LOOKUP_ZK_DESIGN Section 4; lemmas Q4.7-Q4.9) | n/a (hiding, not soundness) | `[U-K5c]` committed masked pass + m-recovery harness; `[U-K5d]` E3Z-N1..N4; freeze LKP-6/7 |
 | 13 | prover/verifier cost claims | [MODEL] (measured ring-op anchors, linear scaling) | n/a | Section 7 arithmetic |
 
 The composed statement: extract all commitments by the round's [PROVEN]
@@ -654,7 +680,13 @@ twice.
   the Q4.3 machinery, THEN implementation. Exit: leak inventory of
   Section 3.5 re-graded row by row with a simulator or an explicit
   residual; the non-ZK deployment label lifts only when this lands.
-  [OBLIGATION — the one tranche that may spawn its own design round.]
+  [DONE 2026-07-10 — it did spawn its own design round
+  (M4_LOOKUP_ZK_DESIGN.md), and the build landed across U-K5a/b
+  (08051af, masked GKR core + LKP-6), U-K5c/d (committed masked pass,
+  m-recovery closed, E3Z-N1..N4, LKP-7), and U-K5e (lemmas Q4.7-Q4.9 +
+  the SOUNDNESS_REFERENCE Section 7 rows + this re-grade). The exit
+  criterion is met and the label is lifted — see the Section 3.5
+  update.]
 
 **E4 — U-K6..U-K8:**
 
@@ -694,7 +726,9 @@ row counts; **LKP-5** slot-field constants digest.
    argument fails to close, the fallback is masking at the STATEMENT
    level (commit X, Y under fresh randomizing linear maps per proof) —
    costly, so treat E3-Z as design-blocking for ZK deployments.
-   **Open flag, highest priority.**
+   **Open flag, highest priority.** **RESOLVED (2026-07-10): E3-Z
+   landed with its battery green (Section 3.5 update); the
+   statement-level fallback was never needed.**
 2. **Extension-field inversion in the prover.** RESOLVED by
    construction: the projective (p, q) accumulation never inverts —
    that is precisely Papini-Habock's contribution (spike OK-3a). The

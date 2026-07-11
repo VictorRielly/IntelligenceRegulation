@@ -1,7 +1,19 @@
 # M4 Lookup ZK Design (E3-Z): Masking the LogUp-GKR Transcript
 
 Status: design round COMPLETE (equations + machine-checked spike, no
-engine code — the AUTOMORPHISM_GATE_DESIGN discipline: paper first).
+engine code — the AUTOMORPHISM_GATE_DESIGN discipline: paper first);
+BUILD COMPLETE (2026-07-10): U-K5a/b landed at 08051af (masked GKR
+core, LKP-6), U-K5c/d in the same-day tranche (committed masked pass
+with aggregate-only pins, engine-scale m-recovery harness closed,
+E3Z-N1..N4 battery, freeze row LKP-7), U-K5e as lemmas Q4.7-Q4.9 +
+the SOUNDNESS_REFERENCE Section 7 rows + the parent doc's Section 3.5
+re-grade. Measured against Section 3.5's models: mask material 2,311
+K-elements/pass = 36,976 committed coefficients at the FFN point
+(model said ~37k — held); masked transcript 150 KB/pass (model ~+18 KB
+over ~120 KB unmasked ≈ 140 KB — measured 153,216 B at the frozen
+shape); descent core x2.0 prove / x1.4 verify, sub-percent at pass
+level (model "< 1%" — held). The non-ZK deployment label is lifted at
+the subprotocol level (HVZK, proof-of-protocol).
 This is tranche U-K5 (E3-Z) of M4_LOOKUP_DESIGN.md Section 8: the
 obligation opened by that document's Section 3.5 ("the lookup
 subprotocol as specified is NOT zero-knowledge"). Every masked check
@@ -454,7 +466,11 @@ samples plus forced values, no witness touched, verifier accepts.
    blinder-randomized).
 
 **The Section 3.5 table, re-graded** (the U-K5 exit criterion of the
-parent doc, met at design level):
+parent doc, met at design level; **build update 2026-07-10: every
+"[PROVEN at spike scale]" grade below is now certified at engine
+scale** — the Z3b/Z3c rank certificates run as derive-time canaries
+(battery E3Z-N4) and the committed masked pass, m-recovery harness,
+and ordering pairs are live in the `[U-K5c]`/`[U-K5d]` batteries):
 
 | prover-sent value | unmasked grade | masked grade |
 |---|---|---|
