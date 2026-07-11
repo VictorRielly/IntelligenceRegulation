@@ -113,6 +113,43 @@ Known flake: tests/test_zk_lattice.py Pi1Tests::test_rejects_tampered_responses
   (orp + lambda t, orq - t) — end-check invariant direction — solve 9 psi
   constraints over t's 16 coords (U-K7 Gaussian-elimination shape).
 
+## Decisions (spec-open, recorded here)
+
+Points the design/spec left open that Agent A resolved during the build:
+
+1. Commitment layout for the battery (D1): ONE frozen CRS, kappa 8 / n_r 26
+   / msg_r 8, carries X/Y/m (base-field scalars), the blinders + mask
+   coefficients (committed K-elements, 64/commitment) and the ct-round
+   g-masks — 13 commitments. conc=true ct-round params (40+ would overflow
+   q at conc=false). The spec pinned only "msg_r >= 2 statement-wave slots";
+   msg_r=8 was chosen to keep the commitment count small.
+2. Table-tree leaf layout (D1): the 256 SiLU rows are SPLIT across the two
+   halves of the depth-9 blinded tree (rows 0..127 at 0..127, 128..255 at
+   256..383) so each half has dummy space for its top blinder. Pinned by
+   the new table_row_positions; the spec said "depth 9" but not the split.
+3. Aggregate leaf-pin identities (D1): the exact P/Q pin equations
+   (p*-H = sum eqw a_bl; q*-alphaH-D = sum eqw u_bl - (v^X+Y v^Y); table
+   analogues with the fused-row MLE and multiplicity weights). Derived from
+   Section 3.2's prose; recorded in the "working notes" block above and in
+   ring_matmul.rs leaf_pins.
+4. Freshness enforcement surface (D2/N3): release builds set panic="abort",
+   so catch_unwind can't observe the one-time-use assert. Added
+   MaskSet::is_used() as the testable marker (the prove-side assert still
+   aborts on real reuse). Reset via harness_reset_freshness for the rank
+   probes / leak modelling.
+5. D3 scope (per "less code" latitude): demonstrated the edges whose scope
+   the design says GROWS under masking — E3-N1 (alpha now binds masks +
+   blinders) and E4-N1 (pin psi now batches the mask openings) — plus
+   masked tamper-rejects (E3-N4/N5 class). E3-N2 (kappa:=Y fusion) and
+   E4-N2 (ct-round restart confinement) are structurally unchanged by
+   masking and are inherited by the honest masked pass + D1's real ct-round;
+   recorded rather than duplicated.
+6. m-recovery / freshness harnesses use the fixed-coins (honest-verifier)
+   transcript so the transcript stays an affine function of m / of m_a-m_b;
+   the ordering-attack ACCEPT legs use it too (the spike's adversary-
+   readable tape). Shipped legs use real ratcheting transcripts / the pin
+   flag / committed pins.
+
 ## D4 measured numbers (for the U-K5e / Section 3.5 re-grade)
 
 These are the measured replacements for the design doc's [MODEL] rows. All
@@ -159,6 +196,14 @@ Both LKP-6 and LKP-7 are pinned as freeze rows in `ring_matmul freeze-check`
 - 2026-07-10: tranche opened at ace3f9b; ledger written; Agents A and B launched.
 - 2026-07-10: Agent A recon done (design doc + spike + engine read); D1 plan
   + pin identities + LKP-7 arithmetic recorded above; starting D1 build.
+- 2026-07-10: D1-D4 ALL GREEN (Agent A critical path complete). Commits on
+  perf/zk-batch-optimizations (local, not pushed): D1 U-K5c committed masked
+  pass + m-recovery + LKP-7; D2 U-K5d E3Z-N1..N4 F5 pairs + rank canaries;
+  D3 E3/E4 edges re-run under masking; D4 timing + measured numbers (this
+  file). Full suite 42/42 green; freeze-check green (LKP-7 row added);
+  ring self-test 202 checks pass in ~36s. Decisions the spec left open are
+  listed under "## Decisions (spec-open, recorded here)" below. Remaining:
+  D5 (Agent B, docs) and the orchestrator's Section 3.5 re-grade + label lift.
 - 2026-07-10: D1 GREEN. [U-K5c] battery in self_test_lookup_zk: committed
   masked pass (13 commits: X/Y/m/blinders/wmask x3/tmask x4 + 2 ct-g-mask,
   msg_r=8) ACCEPTS with 60 aggregate pins (G_j/open_g/open_Rp/Rq + 4 leaf
