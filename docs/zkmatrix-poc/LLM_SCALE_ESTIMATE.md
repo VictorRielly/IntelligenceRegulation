@@ -59,7 +59,7 @@ measured lattice cost model at 7B/512-token scale:
 | + Route R Q2/Q3 (response decomposition to a 32-bit q; deeper k-split with real NTT) + GPU integer GEMM *(superseded by the measured row below)* | **~15 s** | **~2x** | ~300x |
 | **MEASURED (Q2/Q3/A2 tranche, RING_MULT_BOTTLENECK.md Section 6): k = 8 split + Karatsuba at q31 -- commit kernel 8.1x, commit bill ~34x vs Route Z (~6.6 min CPU-22T, ~20 s with the GPU 20x row); total pass ~25-45 s with GPU** | ~25-45 s | ~4-6x | -- |
 | **+ A1 aux-modulus NTT (INTEGRATED-MEASURED: 6.2-6.4x over k8+Kara head-to-head at FFN shape inside ring_lattice, ~99-111 ns/committed element; commit bill ~~~1.6-2.0 min CPU-22T~~ -> ~5-6 s GPU; proofs bit-identical)** | **~15-30 s** | **~2-4x** | ~300x |
-| **M5-lite CORRECTION (MEASURED end-to-end, full 512x4096x11008 triple streamed under the chunked CRS, M5_LITE_REPORT.md): 117 ns/paid element 1T; 22T scaling 8.7-9.1x MEASURED (was ~15x assumed) -> commit bill 2.1-3.0 min 22T; pass ~2.5-3.6 min CPU; the ~15-30 s row survives ONLY via the [ASSUMED] 20x GPU factor** | ~2.5-3.6 min CPU / ~15-40 s [GPU ASSUMED] | ~20-30x CPU | -- |
+| **M5-lite CORRECTION (MEASURED end-to-end, full 512x4096x11008 triple streamed under the chunked CRS, M5_LITE_REPORT.md): 117 ns/paid element 1T; 22T scaling 8.7-9.1x MEASURED (was ~15x assumed); element count now GENERATED from the statement DAG (1.389e10 paid — statement-inventory update below) -> commit bill 3.1 min 22T; pass ~3.5-3.7 min CPU; the ~15-40 s row survives ONLY via the [ASSUMED] 20x GPU factor** | ~3.5-3.7 min CPU / ~20-40 s [GPU ASSUMED] | ~30x CPU | -- |
 | **+ M4 activations via LogUp-GKR (lookup CORE built, U-K1..K7 batteries green; the U-K8 integration exit is OPEN — audit 2026-07-10 H-01): commit +~0 dce/el (the M4 verdict's axis — held exactly in the U-K6 committed rig); prover core as-built 10.8-10.9 us/el 1T [MEASURED-AT-RATE, unmasked/uncommitted microbenchmark] = ~1.95 ks/pass 1T; the 22T (~222 s) and GPU rows are [ASSUMED] — the lookup code is single-threaded and the factor is imported from the M5 commit kernel. The [MODEL] ~0.5-1 us/el needs U-K9 (kernel-grade K-mults). Still dominates piecewise on both axes; NOT ZK until U-K5a..e lands** | activations: ~1.95 ks 1T [MEASURED-AT-RATE core] / ~222 s 22T [ASSUMED] -> ~10-25 s after U-K9 [MODEL] | -- | -- |
 | + bit-packing / lookup-based ranges (2-4x on gadget commitments; the SAME U-K engine — priced in M4_LOOKUP_LITERATURE Section 3) | ~5-10 s | ~1-1.5x | ~100-200x |
 
@@ -134,15 +134,33 @@ triple (22,528 column commitments, 5.27e7 ring-MACs) streamed at
 **117 ns/paid element end-to-end single-thread** (the 99-111 ns
 kernel anchor + streaming overhead, peak RSS 94 MB) and — the
 correction — **8.7-9.1x measured 22-thread scaling, not the ~15x this
-section assumed.** Corrected commit bill: **1104-1563 s 1T,
-126-179 s = 2.1-3.0 min at 22T [MEASURED-AT-RATE]; ~6.3-8.9 s only
-under the still-[ASSUMED] 20x GPU row.** Pass total on CPU:
-**~2.5-3.6 min at 22T** (commit + claim layer with R1 pads counted;
-activations per the M4 lookup design stay noise-class [MODEL]). The
-"~1.6-2.0 min at 22T" row above therefore did NOT hold on this
-hardware — its single-thread arithmetic was right, its parallelism
-assumption was ~1.7x optimistic. The ~15-30 s pass rung now rests
-entirely on the unimplemented GPU row (audit H-03).
+section assumed.** Pass total on CPU: commit + claim layer with R1
+pads counted; activations per the M4 lookup design stay noise-class
+[MODEL]. The "~1.6-2.0 min at 22T" row above therefore did NOT hold
+on this hardware — its single-thread arithmetic was right, its
+parallelism assumption was ~1.7x optimistic. The ~15-30 s pass rung
+now rests entirely on the unimplemented GPU row (audit H-03).
+
+**Statement-inventory update (GENERATED count, 2026-07-10,
+statement-integrity tranche):** the per-pass committed-element count
+that every commit-bill row above multiplies is no longer a two-model
+band. The old 9.4e9 vs 1.33e10 disagreement (1.4x) traced to both
+numbers being divisor round-trips of the SAME modeled 1.5e14-MAC
+total (divided by ~16k and ~11.3k MACs/element respectively — neither
+was an inventory). The single replacement number is generated from
+the validated statement DAG: `ring_matmul statement-inventory` builds
+the 32-layer FFN-surrogate statement frozen in TARGET_CONTRACT.md
+(validated Statement v2: shapes, quantization, range/narrowing facts,
+consumption all machine-checked) and counts **1.351e10 used /
+1.389e10 paid committed elements per pass** (q31 values 2.0e9, q46
+range bit planes 1.15e10; weights 4.33e9 one-time). At the measured
+M5 rates the commit bill reads **1631 s 1T / 187 s = 3.1 min at 22T
+[MEASURED-AT-RATE]**, ~9.3 s only under the still-[ASSUMED] 20x GPU
+row; pass total on CPU ~3.5-3.7 min at 22T. The plane family
+dominates the count — the lookup-based range row below (2-4x on
+gadget commitments) is the standing reduction lever, unimplemented
+for ranges today. Details and the wrong-number autopsy:
+M5_LITE_REPORT.md Sections 4-5.
 
 ## 3b. The 2x-overhead decomposition (refined target)
 
