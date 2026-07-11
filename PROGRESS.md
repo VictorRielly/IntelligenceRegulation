@@ -41,7 +41,7 @@ Known flake: tests/test_zk_lattice.py Pi1Tests::test_rejects_tampered_responses
         at engine shapes (leaf pads 4/4, R-mask 6/6, round-poly rank n_g with l+1
         forced relations) + guard-restart regression (Section 3.4 guard fires, restarted
         pass verifies).
-- [ ] D3 RE-RUNS UNDER MASKING: E3-N1..N5 and E4-N1/N2 attack pairs against the masked
+- [x] D3 RE-RUNS UNDER MASKING: E3-N1..N5 and E4-N1/N2 attack pairs against the masked
       pipeline (h0_lkp binds strictly more data; psi follows the mask openings —
       E4-N1's scope grows, same attack shape).
 - [ ] D4 MEASURED NUMBERS for the U-K5e re-grade, recorded here: prover/verifier delta

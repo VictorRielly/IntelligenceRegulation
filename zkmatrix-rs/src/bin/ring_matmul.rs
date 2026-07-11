@@ -8889,10 +8889,210 @@ fn self_test_lookup_zk_neg_2(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
     let _ = q;
 }
 
-/// U-K5d D3: the E3/E4 attack pairs re-run UNDER MASKING (stub — filled
-/// in below).
+/// U-K5d D3: the existing E3/E4 attack pairs re-run UNDER MASKING —
+/// h0_lkp now binds strictly more data (masks + blinders), so the alpha
+/// edge (E3-N1) and the psi edge (E4-N1) grow to cover them, and the
+/// descent-internal edges (E3-N4/N5) hold identically in the masked
+/// descent.
 fn self_test_lookup_zk_neg_d3(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
-    let _ = (kf, spec_dg);
+    use ring::gkr::root_cross_check;
+    use ring::gkr_masked::{
+        BlinderSet, MaskedDescentProof, blinded_table_tree, blinded_witness_tree, draw_masks,
+        masked_gkr_prove, masked_gkr_verify,
+    };
+    use ring::kfield::{K_DEG, KElem};
+    use ring::lookup::{derive_pin_psi, fuse_pair, fused_silu_table, multiplicities};
+    use ring::sumcheck::LkpTranscript;
+    println!("\n[U-K5d/D3] E3/E4 edges under masking: alpha binds masks/blinders, psi follows the pinned mask openings");
+    let zq = kf.zq;
+    let q = zq.q;
+
+    let (dw, dt, n_honest, t_toy) = (5usize, 5usize, 10usize, 8usize);
+    let toy_rows: Vec<(i64, i64)> = (0..t_toy as i64).map(|v| (v, (3 * v + 5) % 31)).collect();
+    let tab_toy = fused_silu_table(kf, &toy_rows);
+    let mut rng = 0x5eed_5d20u64;
+    let xs: Vec<usize> = (0..n_honest).map(|_| rng_below(&mut rng, t_toy as u64) as usize).collect();
+    let ys_ok: Vec<i64> = xs.iter().map(|&x| toy_rows[x].1).collect();
+    let wf_of = |ys: &[i64]| -> Vec<KElem> {
+        xs.iter()
+            .zip(ys.iter())
+            .map(|(&x, &y)| fuse_pair(kf, zq.to_mod(toy_rows[x].0), zq.to_mod(y)))
+            .collect()
+    };
+    let m_honest = multiplicities(kf, &wf_of(&ys_ok), &tab_toy);
+    let mut ys_bad = ys_ok.clone();
+    ys_bad[3] = (ys_bad[3] + 1) % 31;
+    let w_bad = wf_of(&ys_bad);
+    let root_ratio = |tree: &ring::gkr::FracTree| -> KElem {
+        let r = tree.root();
+        kf.mul(&r[0], &kf.inv(&r[1]))
+    };
+
+    // ---- E3-N1 under masking: alpha must bind m (and now the masks +
+    // blinders). With a BUG alpha that does not bind m, the missing
+    // multiplicity is interpolated post-alpha to pass the blinded
+    // cross-check; the shipped alpha (binding m) moves and it dies. ----
+    {
+        let mut trb = LkpTranscript::new("d3-n1-bl", spec_dg);
+        let bl_w = BlinderSet::draw(kf, &mut trb);
+        let mut bl_t = BlinderSet::draw(kf, &mut trb);
+        bl_t.solve_mass(kf, &bl_w.mass(kf));
+        let interp_m0 = |alpha: &KElem| -> KElem {
+            // sigma_w (bad witness) with the shared blinder mass; solve m_0
+            // so the table ratio matches.
+            let wt = blinded_witness_tree(kf, alpha, &w_bad, dw, &bl_w);
+            let sigma_w = root_ratio(&wt);
+            let beta_t = bl_t.mass(kf);
+            let mut rest = kf.zero();
+            for j in 1..t_toy {
+                rest = kf.add(
+                    &rest,
+                    &kf.mul(&m_honest[j], &kf.inv(&kf.sub(alpha, &tab_toy[j]))),
+                );
+            }
+            kf.mul(&kf.sub(&kf.sub(&sigma_w, &beta_t), &rest), &kf.sub(alpha, &tab_toy[0]))
+        };
+        // BUG world: alpha independent of m (content-blind tape).
+        let alpha_bug = {
+            let mut t = LkpTranscript::fixed_coins("d3-n1-bug", spec_dg);
+            t.challenge_k(kf)
+        };
+        let mut m_atk = m_honest.clone();
+        m_atk[0] = interp_m0(&alpha_bug);
+        let accept = {
+            let wt = blinded_witness_tree(kf, &alpha_bug, &w_bad, dw, &bl_w);
+            let tt = blinded_table_tree(kf, &alpha_bug, &tab_toy, &m_atk, dt, &bl_t);
+            root_cross_check(kf, &wt.root(), &tt.root())
+        };
+        assert_true(
+            "U-K5d/D3 E3-N1 (masked): alpha from an h0 that omits m ACCEPTS a corrupted witness (m interpolated post-alpha) even under masking",
+            accept,
+        );
+        // Shipped: alpha binds m (and the masks/blinders) — a different
+        // value at which the committed m_atk is wrong.
+        let alpha_ship = {
+            let mut t = LkpTranscript::fixed_coins("d3-n1-ship", spec_dg);
+            t.challenge_k(kf)
+        };
+        let reject = {
+            let wt = blinded_witness_tree(kf, &alpha_ship, &w_bad, dw, &bl_w);
+            let tt = blinded_table_tree(kf, &alpha_ship, &tab_toy, &m_atk, dt, &bl_t);
+            !root_cross_check(kf, &wt.root(), &tt.root())
+        };
+        assert_true(
+            "U-K5d/D3 E3-N1 (masked): the shipped h0 (binds m + masks + blinders before alpha) REJECTS the same crafting",
+            reject,
+        );
+    }
+
+    // ---- E3-N4/N5 under masking: a tampered round polynomial and a
+    // tampered boundary value in the MASKED descent both REJECT (the
+    // round-poly and boundary absorbs sit in masked_gkr_prove/verify with
+    // the same ordering as the unmasked descent). ----
+    {
+        let mut trm = LkpTranscript::new("d3-tamper-masks", spec_dg);
+        let masks_w = draw_masks(kf, &mut trm, dw, 0);
+        let mut trb = LkpTranscript::new("d3-tamper-bl", spec_dg);
+        let bl_w = BlinderSet::draw(kf, &mut trb);
+        let alpha = {
+            let mut t = LkpTranscript::fixed_coins("d3-tamper-a", spec_dg);
+            t.challenge_k(kf)
+        };
+        let tree = blinded_witness_tree(kf, &alpha, &wf_of(&ys_ok), dw, &bl_w);
+        let mut tp = LkpTranscript::fixed_coins("d3-tamper", spec_dg);
+        let (pw, _e) = masked_gkr_prove(kf, &[tree], &masks_w, &mut tp);
+        let verify = |p: &MaskedDescentProof| -> bool {
+            let mut tv = LkpTranscript::fixed_coins("d3-tamper", spec_dg);
+            masked_gkr_verify(kf, 1, dw, &masks_w, p, &mut tv, true).is_some()
+        };
+        assert!(verify(&pw), "honest masked pass must verify");
+        // E3-N4 class: bump a round-poly node.
+        let mut p_round = MaskedTamper::clone_proof(kf, &pw);
+        p_round.layers[2].rounds[1][2] = kf.add(&p_round.layers[2].rounds[1][2], &kf.one());
+        // E3-N5 class: bump a boundary value.
+        let mut p_bd = MaskedTamper::clone_proof(kf, &pw);
+        p_bd.layers[2].boundary[0] = kf.add(&p_bd.layers[2].boundary[0], &kf.one());
+        assert_true(
+            "U-K5d/D3 E3-N4/N5 (masked): a tampered round polynomial AND a tampered boundary value in the masked descent both REJECT",
+            !verify(&p_round) && !verify(&p_bd),
+        );
+    }
+
+    // ---- E4-N1 under masking: the pin psi now batches the mask
+    // openings, so a per-coordinate defect orthogonal to a psi drawn
+    // BEFORE the pinned value passes the 9-copy batch; the shipped order
+    // (psi AFTER the pinned values) makes psi depend on the forgery and
+    // the defect no longer lies in the null space. ----
+    {
+        // A pinned value's K_DEG coordinates (model a mask opening).
+        let state_pre = {
+            let mut t = LkpTranscript::new("d3-e4n1-pre", spec_dg);
+            t.challenge_k(kf); // advance
+            t.state()
+        };
+        let n_psi = 9usize;
+        let psi_before = derive_pin_psi(&state_pre, n_psi, K_DEG, q);
+        // Solve a nonzero Delta in null(psi_before): 9 constraints on
+        // K_DEG unknowns (kernel dim >= K_DEG - 9 = 7).
+        let mut a: Vec<Vec<u64>> = psi_before.clone();
+        let mut piv: Vec<(usize, usize)> = Vec::new();
+        let mut row = 0usize;
+        for col in 0..K_DEG {
+            if row >= n_psi {
+                break;
+            }
+            if let Some(pr) = (row..n_psi).find(|&r| a[r][col] != 0) {
+                a.swap(row, pr);
+                let inv = zq.inv(a[row][col]);
+                for c in col..K_DEG {
+                    a[row][c] = zq.mul(a[row][c], inv);
+                }
+                for r in 0..n_psi {
+                    if r != row && a[r][col] != 0 {
+                        let f = a[r][col];
+                        for c in col..K_DEG {
+                            a[r][c] = zq.sub(a[r][c], zq.mul(f, a[row][c]));
+                        }
+                    }
+                }
+                piv.push((row, col));
+                row += 1;
+            }
+        }
+        let free_col = (0..K_DEG).find(|c| !piv.iter().any(|&(_, pc)| pc == *c)).unwrap();
+        let mut delta = vec![0u64; K_DEG];
+        delta[free_col] = 1;
+        for &(pr, pc) in piv.iter().rev() {
+            delta[pc] = zq.neg(a[pr][free_col]);
+        }
+        // ACCEPT leg: every psi_before copy annihilates Delta.
+        let orthogonal_before = (0..n_psi).all(|l| {
+            (0..K_DEG).fold(0u64, |acc, c| zq.add(acc, zq.mul(psi_before[l][c], delta[c]))) == 0
+        });
+        // Shipped: psi drawn AFTER the forged value is absorbed.
+        let v_true: Vec<u64> = (0..K_DEG).map(|c| (7 * c as u64 + 1) % q).collect();
+        let v_forged: Vec<u64> =
+            (0..K_DEG).map(|c| zq.add(v_true[c], delta[c])).collect();
+        let state_post = {
+            let mut t = LkpTranscript::new("d3-e4n1-pre", spec_dg);
+            t.challenge_k(kf);
+            let vbytes: Vec<u8> = v_forged.iter().flat_map(|c| c.to_le_bytes()).collect();
+            t.absorb("d3-pin", &vbytes);
+            t.state()
+        };
+        let psi_after = derive_pin_psi(&state_post, n_psi, K_DEG, q);
+        let caught_after = (0..n_psi).any(|l| {
+            (0..K_DEG).fold(0u64, |acc, c| zq.add(acc, zq.mul(psi_after[l][c], delta[c]))) != 0
+        });
+        assert_true(
+            "U-K5d/D3 E4-N1 (masked): a pin defect orthogonal to a psi drawn BEFORE the pinned mask-opening value passes the 9-copy batch (the attack)",
+            orthogonal_before && delta.iter().any(|&x| x != 0),
+        );
+        assert_true(
+            "U-K5d/D3 E4-N1 (masked): the shipped order (psi AFTER the pinned values, mask openings in scope) REJECTS the same forgery",
+            caught_after,
+        );
+    }
 }
 
 // ===========================================================================
