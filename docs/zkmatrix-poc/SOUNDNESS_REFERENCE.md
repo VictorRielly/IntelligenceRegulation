@@ -691,6 +691,32 @@ the concrete attack when the edge is violated, and the regression that
 pins it. This table IS the soundness of the non-interactive layer;
 any new challenge added to the protocol must be added here.
 
+The last four rows are the E3-Z rows — the hash edges added or
+amended by the lookup subprotocol's zero-knowledge masking
+(M4_LOOKUP_ZK_DESIGN.md), merged from that document's Section 3.3 by
+tranche U-K5e. Their vocabulary, defined once here: h0_lkp is the
+lookup statement hash (it binds the context string, the CRS, and
+every X/Y/m tensor commitment; E3-Z adds the mask and blinder
+commitments — the round/boundary mask polynomials and the committed
+(a, u) blinder-leaf pairs that randomize the descent trees' roots
+and leaf claims). alpha is the lookup's log-derivative fusion
+challenge; nu_j is the new per-layer mask-combination challenge and
+G_j the claimed hypercube sum of the layer-j round mask, pinned to
+the pre-committed mask coefficients by a linear E4 CtClaim; the psi
+in the last row is the lookup's E4 coordinate-batch challenge (a
+different psi from the tie row above). The lookup's own baseline
+rows — alpha, rho, lambda_k, r_{k,t}, mu_k, psi, c, with batteries
+E3-N1..N5 and E4-N1/N2 — live in M4_LOOKUP_DESIGN.md Section 3.3 and
+are unchanged except as amended below; because h0_lkp now binds
+STRICTLY more data, every one of those existing edges is preserved
+(they must simply be re-run under masking). The "spike Z4"/"spike
+Z6" demonstrations cited below are the machine-checked toy-scale
+attack/defense pairs recorded verbatim in M4_LOOKUP_ZK_DESIGN.md
+Section 8; the E3-Z battery itself (E3Z-N1/N2 and companions) is
+tranche U-K5d, in flight at this writing, so its "pinned by" entries
+say pending — they flip to green test names only when that battery
+lands.
+
 | challenge | drawn from | must follow | attack if violated | pinned by |
 |---|---|---|---|---|
 | s, v (gate row/col challenges) | pre-hash | A, B, C commitments | choose C after s, v: defeat 5.2's SZ step | `CE full round: wrong C fails` (transcript-level) |
@@ -703,6 +729,10 @@ any new challenge added to the protocol must be added here.
 | xi (link rows) | h0_link | BOTH sides' commitments incl. g's | pick values after xi: per-row 2^-w becomes 1 | `wrong xi (stale h0_link)` negative |
 | zeta (E2 slot-link junk rows) | h0_link | same as xi — both sides' commitments incl. g's | commit junk after zeta (or drop zeta): constant-reading rows miss the junk coordinates and the composed-Hadamard shift returns | `E2 gap: constant-only rows ACCEPT` / `E2: zeta rows REJECT` pair (U-E2) |
 | tau (freeze-era witness tie) | — | — | superseded by U-B5 (first-class tie) | removed with its freeze row |
+| alpha (lookup fusion) — E3-Z addendum | h0_lkp = H(ctx, CRS, all X/Y/m commitments AND the mask + blinder commitments) | the mask and blinder commitments | blinder mass solved at a KNOWN alpha passes the blinded root cross-check for a FALSE lookup — spike Z6 demonstrates the accept; a fresh alpha rejects the same committed blinders | E3Z-N2 F5 pair — pending (U-K5d in flight) |
+| nu_j (lookup mask combination, one per layer sumcheck) | XOF(prefix through the layer-j claim and the sent G_j) | the round-mask commitment (in h0_lkp) and G_j | G chosen after nu_j absorbs any claim defect: G := G_true + (C_true − C_false)/nu_j waves a false lookup through — spike Z4 demonstrates the accept; the shipped order (G E4-pinned to the pre-committed coefficients) rejects the same crafting | E3Z-N1 F5 pair — pending (U-K5d in flight) |
+| h0_lkp (lookup statement hash) — E3-Z scope note | — (a hash, not a challenge draw) | now binds the mask and blinder commitments alongside the X/Y/m commitments | none new: binding strictly more data preserves every existing edge; each E3-N pair must be RE-RUN under masking | E3-N1..N5 re-run under masking — pending (U-K5d in flight) |
+| psi (lookup E4 coordinate batch) — E3-Z addendum | XOF(prefix through ALL claimed values, now including every G_j and every mask opening) | the mask openings and the aggregate leaf pins | craft an opened value after psi: coordinate defects orthogonal to psi pass — E4-N1's attack shape on a grown claim set | E4-N1, scope extended — pending (U-K5d in flight) |
 
 ## 8. Honest limitations and open obligations
 

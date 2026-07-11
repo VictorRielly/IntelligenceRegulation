@@ -7,7 +7,12 @@ Q4.1-Q4.6 at the lattice report's discipline: full proofs where
 elementary, honest SKETCH labels with literature anchors where not, and
 OBLIGATION labels where the statement fixes acceptance criteria for
 work that has not been done. Each lemma names the code it covers.
-Summary table in Section 8.
+Lemmas Q4.7-Q4.9, added by tranche U-K5e, transcribe the
+zero-knowledge masking lemmas of the lookup subprotocol's E3-Z design
+round (M4_LOOKUP_ZK_DESIGN.md Section 4) at the same discipline; they
+live over GF(q^16), not the lattice ring, so their setting is defined
+where they start (the notation paragraph below is the lattice
+layer's). Summary table in Section 8.
 
 Notation: R_q = Z_q[X]/(X^D + 1), D = 128; quinary challenge set C
 (coefficients in {-2..2}, E[c_i^2] = 2); c-bar = c - c' a challenge
@@ -21,7 +26,9 @@ Lyubashevsky-Seiler, EUROCRYPT 2018; [ALS20]
 Attema-Lyubashevsky-Seiler, CRYPTO 2020; [LNP22]
 Lyubashevsky-Nguyen-Plancon, CRYPTO 2022 = eprint 2022/284; [KLS18]
 Kiltz-Lyubashevsky-Schaffner, EUROCRYPT 2018; [RV13]
-Rudelson-Vershynin, Hanson-Wright inequality (ECP 2013).
+Rudelson-Vershynin, Hanson-Wright inequality (ECP 2013); [XZZPS19]
+Xie-Zhang-Zhang-Papamanthou-Song, Libra, CRYPTO 2019 = eprint
+2019/317 (the ZK sumcheck/GKR masks adapted in Q4.7-Q4.9).
 
 ---
 
@@ -761,6 +768,343 @@ discipline that caught F1/F2 (equations on paper first).
 
 ---
 
+## Q4.7 — Adapted Libra counting (lookup round masks are uniform on
+the check variety)
+
+Covers: M4_LOOKUP_ZK_DESIGN.md Section 3.2 (the M1 round masks) and
+Section 4 component 4; `scripts/logup_zk_mask_spike.py` (certificate
+Z3c); (forward) the U-K5b masked-sumcheck engine build and the U-K5d
+battery item E3Z-N4 (the same rank certificates as derive-time
+canaries at engine shapes).
+
+**Setting (shared by Q4.7-Q4.9 — the E3-Z lookup masking).** These
+three lemmas live in the SiLU-lookup subprotocol of
+M4_LOOKUP_DESIGN.md, not the lattice layer: all arithmetic is over
+the field K = GF(q^16) (q = 2^31 - 399, |K| ~ 2^496), and the
+protocol is the LogUp-GKR fractional descent — per instance, a
+witness tree and a table tree of fractional values, descended layer
+by layer (root = layer 0, leaves = layer J) by one sumcheck per layer
+(the "layer sumcheck"), each reducing a claim about layer j to the
+four boundary values of layer j+1. M4_LOOKUP_ZK_DESIGN.md (the E3-Z
+design round) adds three mask families, all committed under the
+lookup statement hash h0_lkp BEFORE the fusion challenge alpha and
+all fresh per pass: M1 round masks (this lemma), M2 boundary masks
+(Q4.8a), M3 blinder leaves (Q4.8b, Q4.9). Symbols, defined once here:
+
+- **ell** — the number of rounds of one layer sumcheck (tree
+  variables plus instance bits plus the ZK dummy variable w, one w
+  per layer sumcheck); **d_t** — the degree of round t's polynomial
+  (the E3-Z pattern: 5 for the first tree round when the children
+  are masked, 3 for the other tree rounds, 2 for the w-round).
+- **g^(j)** — the layer-j round mask, Libra Construction 1 shape
+  [XZZPS19]: g^(j)(x_1..x_ell) = a_0 + g_1(x_1) + ... + g_ell(x_ell)
+  with each g_t univariate of degree d_t; the constant terms of the
+  g_t are absorbed into a_0, so g^(j) has exactly
+  **n_g := 1 + sum_t d_t** free K-coefficients.
+- **G_j** — the hypercube sum of g^(j), sent by the prover and
+  E4-pinned. An "E4 pin" is a linear CtClaim with public weights over
+  committed data — the [PROVEN] family of SOUNDNESS_REFERENCE.md
+  Section 4.2; a pinned value carries no free choice for the prover.
+- **nu_j** — the mask-combination challenge (Libra's rho, renamed
+  because rho is taken by instance batching), drawn from the
+  transcript hash after the layer claim C_j and G_j are fixed; the
+  layer sumcheck then runs on F_j + nu_j·g^(j) with initial claim
+  C_j + nu_j·G_j, where F_j is the layer summand (boundary-masked
+  per Q4.8a).
+- **Exposure / pad** — an exposure is a transcript value visible to
+  the verifier; a pad is a committed uniform mask degree of freedom.
+  Every hiding claim below is a rank statement: exposures are affine
+  (or variety-constrained) images of pads with full row rank.
+
+**Hypotheses.** (H1) The n_g coefficients of g^(j) are drawn uniform
+in K, fresh for this pass (mask reuse across passes subtracts out and
+reopens the leak — battery item E3Z-N3), and committed under h0_lkp
+before alpha, hence before nu_j. (H2) nu_j != 0 (guard (b) of
+M4_LOOKUP_ZK_DESIGN.md Section 3.4; a zero nu_j erases the mask from
+the run, and the derive-time guard restarts the draw). (H3) The
+verifier's forced relations are the ell per-round checks
+gtilde_t(0) + gtilde_t(1) = C_t (gtilde_t the sent round polynomial,
+C_t the running claim, folded forward by Lagrange evaluation at the
+round challenge) plus the end check on the final claim — ell + 1
+relations in total.
+
+**Lemma Q4.7 (counting and uniformity).** Per layer sumcheck the
+mask-bearing exposures are: the d_t + 1 evaluations of each round
+polynomial, the sum G_j, and the end opening g^(j)(r, c) (r the
+tree-round challenges, c the w-round challenge). Their count net of
+the forced relations is
+
+    (sum_t (d_t + 1)) + |{G_j}| + |{g^(j)(r,c)}| - (ell + 1)
+        = (sum_t d_t + ell) + 1 + 1 - ell - 1
+        = 1 + sum_t d_t = n_g,
+
+exactly the free-coefficient count of g^(j). The affine map from the
+n_g mask coefficients to the full exposure vector (G_j, every round
+evaluation, the opening) has full rank n_g, with exactly ell + 1
+forced check relations among the exposures. Consequently, under
+(H1)-(H3), the exposures are uniform on the **check variety** — the
+affine subspace of exposure vectors satisfying the ell + 1
+verification relations for the given initial claim — independently
+of the witness. The simulator therefore needs no witness: per round
+it samples d_t evaluations free (the remaining one is forced by the
+running check) and it solves the g-opening from the end check.
+
+*Proof sketch (transcribed from M4_LOOKUP_ZK_DESIGN.md Section 4
+component 4; the counting is Libra Theorem 4.1's [XZZPS19], adapted
+to the E3-Z round-degree pattern).* Every exposure of the masked run
+is (a witness-and-challenge-determined value) plus nu_j times a fixed
+affine functional of the mask coefficients: the round evaluations
+evaluate F_j + nu_j·g^(j) at public points, and G_j and the opening
+are affine in the coefficients outright. The ell + 1 check relations
+hold identically on every honest run (completeness), so the exposure
+vector always lies on the check variety, whose dimension is the
+displayed count, n_g. Full rank of the coefficient-to-exposure map —
+the content beyond the counting — means the mask contribution alone
+sweeps the whole variety: the image of a uniform vector of K^{n_g}
+under a full-rank affine map onto an n_g-dimensional affine variety
+is uniform on it, and adding the witness-determined part is a
+translation inside the same variety (the check relations already
+account for it). Uniformity on the variety follows for every
+witness. The rank claim is where a degeneracy could hide, and the
+rank is exactly what the spike certifies. QED sketch.
+
+*Spike certificate.* `logup_zk_mask_spike.py` Z3c at the probed
+layer (ell = 3 rounds of degrees 5/3/2, so n_g = 11): the affine map
+from the 11 mask coefficients to (G, all round-polynomial
+evaluations, g(r, c)) has rank 11 with exactly ell + 1 = 4 forced
+check relations — "the Libra Thm 4.1 counting, machine-checked"
+(output recorded verbatim in M4_LOOKUP_ZK_DESIGN.md Section 8).
+
+Status: **[PROVEN at spike scale — engine-scale rank canaries land
+as battery E3Z-N4 in U-K5d, pending]**. The grade upgrades to engine
+scale only when that battery is green (the exit criterion of
+M4_LOOKUP_ZK_DESIGN.md Section 6), and nothing in this transcription
+lifts the lookup's non-ZK deployment label.
+
+---
+
+## Q4.8 — Boundary-mask and blinder-pad rank (one-time-padded
+boundary values)
+
+Covers: M4_LOOKUP_ZK_DESIGN.md Section 3.2 (the M2 boundary masks
+and the M3 final blinders) and Section 4 components 5-6;
+`scripts/logup_zk_mask_spike.py` (certificates Z3c interior, Z3b
+leaf); (forward) the U-K5c blinder build and the U-K5d E3Z-N4
+canaries.
+
+**Setting.** Notation of Q4.7's shared setting, plus the two mask
+objects this lemma is about:
+
+- **Rp_j, Rq_j** — the layer-j boundary masks (M2): committed
+  bivariate polynomials of degree (1, 2) in (z_1, w) — six
+  K-coefficients each — with the Boolean w-sums
+  **SP_j(z_1) := Rp_j(z_1, 0) + Rp_j(z_1, 1)** and SQ_j likewise
+  (z_1 is the fold coordinate of the layer's claim point z, w the ZK
+  dummy variable). The masked layer polynomial is
+  p^dot_j(z) := p_j(z) + Zhat_j(z)·SP_j(z_1) with
+  Zhat_j(z) := z_2(1 - z_2) (z_2 the first suffix coordinate of z;
+  Zhat vanishes on the hypercube, so every summed relation sees the
+  true tree), and q^dot_j likewise with SQ_j. Interior layers
+  2 <= j <= J-1 carry the mask; layer 1 and the leaf layer J do not
+  (they are actual hypercube values — obstruction O-2 of the design
+  — and are handled by blinders instead).
+- **Blinder leaves** (M3) — committed pairs (a, u) with u != 0 at
+  public dummy leaf positions; the leaf value there is (p, q) =
+  (a, u). Per tree: two TOP blinders, one in each half of the leaf
+  layer (their exposures are Q4.9's), and two FINAL blinders, one at
+  an even and one at an odd position — the last sumcheck's boundary
+  points (0, r) and (1, r) give nonzero eq-weight only to positions
+  of matching parity, so both parities must be padded. Freeze row
+  LKP-6 pins the placement.
+
+At the end of the layer-j sumcheck the prover sends the four masked
+boundary values vp0 := p^dot_{j+1}(0, r), vp1 := p^dot_{j+1}(1, r),
+vq0, vq1 (r that sumcheck's tree-round challenges), plus, for
+j >= 2, the openings Rp_j(mu, c), Rq_j(mu, c), where mu is the fold
+challenge that formed the layer's incoming claim point and c is the
+sumcheck's w-round challenge; every opening is E4-pinned.
+
+**Lemma Q4.8a (interior layers: rank 6/6).** Fix an interior layer
+j. The transcript exposes exactly three functionals of Rp_j's six
+coefficients: SP_j(0) and SP_j(1), which enter the boundary values
+sent at the end of the layer-(j-1) sumcheck (the values that claim
+layer j) as the pads E_r·SP_j(0) and E_r·SP_j(1), where
+E_r := r_1(1 - r_1) is the public Zhat-factor at the two boundary
+points and r_1 is that sumcheck's first tree-round challenge; and
+the opening Rp_j(mu, c). The same three functionals of Rq_j are
+exposed. Hypotheses: the twelve coefficients of the pair
+(Rp_j, Rq_j) uniform and fresh per pass, committed under h0_lkp
+before alpha; guard (a) of the design's Section 3.4 (r_1 not in
+{0, 1}, so E_r != 0); and the w-round challenge c outside {0, 1}
+(not one of the enumerated restart guards — see the sketch's closing
+note). Claim: the six exposures are a full-row-rank (rank 6) affine
+image of the twelve pad coefficients, so the four interior boundary
+values and the two openings of each interior layer are JOINTLY
+one-time-padded — uniform on K^6, independent of the witness — and
+the simulator samples them uniform (Z3d does exactly this).
+
+*Proof sketch (component 5 of the design's Section 4).* Write
+Rp_j(z_1, w) = sum_{a <= 1, b <= 2} r_ab z_1^a w^b. SP_j(0) reads
+the z_1-constant half (r_00, r_01, r_02) through the w-weight vector
+(2, 1, 1) — the sum of the w = 0 and w = 1 Vandermonde rows; and
+SP_j(1) - SP_j(0) reads the z_1-linear half (r_10, r_11, r_12)
+through the same vector — the two Boolean sums touch disjoint halves
+of the coefficient space. The opening Rp_j(mu, c) reads both halves
+through the w-Vandermonde row (1, c, c^2), which for c outside
+{0, 1} lies outside the span of the Boolean-sum rows — three
+independent rows per polynomial, six for the pair. The boundary
+values expose SP_j/SQ_j only through the common nonzero scalar E_r,
+which changes no rank. Closing note on thinness, flagged rather than
+papered over: the design doc carries this independence argument in
+one parenthetical, and c not in {0, 1} is not on its Section 3.4
+restart-guard list — it falls under the design's Section 7 item 1
+("rank degeneracies", each of probability ~2/|K| ~ 2^-495 per pass),
+which the E3Z-N4 derive-time canaries are specified to catch at
+engine shapes. The toy-scale rank is machine-checked. QED sketch.
+
+*Spike certificate.* Z3c: "middle-layer boundary + opening exposures
+have rank 6/6 over the R-mask coefficients".
+
+**Lemma Q4.8b (leaf layer: rank 4/4 and the fresh-pad ledger).** The
+last (leaf-layer) sumcheck's children are the TRUE leaf MLEs,
+blinder-extended and unmasked (obstruction O-2), so its four
+boundary values expose leaf data directly; the blinder pads are what
+hide them. Hypotheses: every blinder pair (a, u) uniform with u
+restarted if zero (guard (c)), fresh per pass, committed under
+h0_lkp before alpha; nonvanishing eq-weight of every blinder
+position at the boundary points and at the final evaluation point z*
+(guard (d)); the parity placement of freeze row LKP-6. Name the four
+leaf boundary exposures E1 := vp0 (the p-side value at (0, r)),
+E2 := vp1 (p-side at (1, r)), E3 := vq0 and E4 := vq1 (q-side,
+same two points). Claim: (E1, E2, E3, E4) is an affine image, with
+full row rank 4, of the tree's eight blinder pad coordinates —
+jointly one-time-padded. The fresh-pad ledger below records which
+uniform pad dimension pays for which exposure, with no dimension
+spent twice between this lemma and Q4.9. Writing a_f0/u_f0 for the
+(a, u) components of the final blinder at the even position,
+a_f1/u_f1 for the odd one's, and a_tL/u_tL, a_tR/u_tR for the two
+top blinders' (left and right half of the leaf layer):
+
+| exposure | fresh pad dimension | also present, already spent (at the top, Q4.9) |
+|---|---|---|
+| E1 = vp0 | a_f0 | a_tL, a_tR |
+| E2 = vp1 | a_f1 | a_tL, a_tR |
+| E3 = vq0 | u_f0 | u_tL, u_tR |
+| E4 = vq1 | u_f1 | u_tL, u_tR |
+
+In words: the top of the tree (Q4.9) spends the four dimensions
+(u_tL, u_tR, a_tL, a_tR); each leaf exposure needs only ONE fresh
+dimension and gets its own (the matching-parity final blinder's a on
+the p-side, u on the q-side); no dimension is double-counted, so the
+leaf boundary is one-time-padded JOINTLY with the top's uniformity
+rather than in isolation. The folded end values p(z*), q(z*) are
+derived from E1..E4 by the public mu-fold (no new exposure), and the
+two aggregate pins per tree — the P-pin and Q-pin of the design's
+Section 3.2 leaf interface — are check equations over committed
+data, not exposures.
+
+*Proof sketch (component 6).* The p-side leaf MLE contains each
+blinder's a-value weighted by its position's eq-weight, and the
+q-side contains the u-values likewise. The boundary point (0, r)
+gives nonzero eq-weight only to even positions and (1, r) only to
+odd ones, so the parity placement hands each of E1/E2 (respectively
+E3/E4) at least one nonzero entry in a fresh a-column (respectively
+u-column), and the 4x4 sub-block of the exposure map on the fresh
+dimensions (a_f0, a_f1, u_f0, u_f1) is diagonal with nonzero
+diagonal by guard (d) — full row rank 4. QED sketch.
+
+*Spike certificate.* Z3b: "the 4 final boundary values are a
+FULL-RANK affine image of the blinder pads (rank 4/4)" — the spike's
+own gloss records that the parity placement is what makes the
+(1, r)-weighted rows nonzero.
+
+Status (both parts): **[PROVEN at spike scale — engine-scale rank
+canaries land as battery E3Z-N4 in U-K5d, pending]**. Grades upgrade
+only on a green battery.
+
+---
+
+## Q4.9 — Top variety (layer-1 quadruples uniform on the cross-check
+variety)
+
+Covers: M4_LOOKUP_ZK_DESIGN.md Sections 3.1-3.2 (the M3 top blinders
+and the solved mass) and Section 4 component 3;
+`scripts/logup_zk_mask_spike.py` (certificate Z3d); (forward) U-K5c
+and the U-K5d E3Z-N4 canaries.
+
+**Setting.** Notation of Q4.7/Q4.8. Per instance the prover sends
+two layer-1 quadruples: (p_1(0), p_1(1), q_1(0), q_1(1)) for the
+witness tree and (p'_1(0), p'_1(1), q'_1(0), q'_1(1)) for the table
+tree (primes mark the table side). The verifier derives each tree's
+roots P = p_1(0)·q_1(1) + p_1(1)·q_1(0) and Q = q_1(0)·q_1(1),
+checks Q_w != 0 and Q_t != 0 (subscripts w/t = witness/table tree),
+and checks the root cross-check P_w·Q_t = P_t·Q_w. The top blinders
+(one per half of each tree's leaf layer, Q4.8's setting) enter the
+top as follows: each half's Q-product gains exactly one blinder
+factor u (u_tL or u_tR on the witness side; the twins u'_tL, u'_tR
+on the table side), and each half's fractional mass gains the
+additive blinder mass a/u. One table-side blinder value is not drawn
+but SOLVED: a'_tR := u'_tR·(beta_w - rest), where beta_w is the
+witness tree's total blinder mass and "rest" collects the table
+tree's other blinder masses — the solve makes the two trees' total
+blinder masses equal, which is the completeness condition of the
+blinded cross-check.
+
+**Hypotheses.** Every blinder u drawn uniform nonzero (guard (c));
+the free blinder a-values uniform; all blinders fresh per pass and
+committed under h0_lkp before alpha — the E3Z-N2 ordering edge: a
+blinder mass solved at a KNOWN alpha is exactly the spike-Z6 attack,
+and it passes the blinded cross-check for a false lookup; and the
+mass solve above.
+
+**Lemma Q4.9.** Define the **cross-check variety** as the set of
+8-tuples (the two quadruples) whose four q-values are nonzero and
+which satisfy the single relation P_w·Q_t = P_t·Q_w. In the real
+protocol the sent 8-tuple is uniform on this variety: seven of the
+eight values are uniform (the q-values uniform on K* := K \ {0}),
+and the eighth is the unique solution of the cross-check. The
+witness-free simulator that samples seven values uniform (q's
+nonzero) and solves the eighth from the cross-check therefore
+reproduces the real distribution exactly. Moreover the real world's
+solved PAD (a'_tR) and the simulator's solved EXPOSURE (the table
+tree's p'_1(1)) are determined by the same relation — the real and
+simulated varieties coincide, so no distinguisher exists at the top.
+
+*Proof sketch (component 3 of the design's Section 4).* Each of the
+four q-values is a public-after-challenge half-product times exactly
+one fresh uniform nonzero factor u: a fixed nonzero multiple of a
+uniform element of K* is uniform on K*, and the four u's are
+independent, so the four q-values are independent uniform on K*.
+Each p-value satisfies p_1(h) = (S_h + beta_h)·q_1(h) for its half
+h, with S_h the half's honest fractional mass and beta_h its blinder
+mass carrying one fresh additive a/u term (a uniform, u fixed
+nonzero, so a/u uniform): given the q-values, the three p-values
+whose a's are free draws are independent uniform. That spends seven
+fresh pad dimensions — u_tL, u_tR, u'_tL, u'_tR, a_tL, a_tR, a'_tL —
+on seven exposures. The eighth exposure p'_1(1) carries the solved
+pad a'_tR, and its defining equation (the blinder-mass equality)
+multiplied through by the derived Q-values is exactly the root
+cross-check — the one relation the verifier tests. So the real
+8-tuple is uniform on the cross-check variety, and the
+sample-seven-solve-one simulation is exact. The pad dimensions spent
+here and in Q4.8b are disjoint (the ledger there), so top and leaf
+uniformity hold jointly. QED sketch.
+
+*Spike certificate.* Z3d: a witness-free simulator (uniform samples
+plus forced values only — this lemma's sampling at the top, Q4.7's
+per-round sampling, Q4.8's uniform boundaries and openings) produces
+transcripts the verifier ACCEPTS, root cross-check included; the
+design's component 3 records that the simulator's solved value and
+the real world's solved pad coincide on the same variety.
+
+Status: **[PROVEN at spike scale — engine-scale rank canaries land
+as battery E3Z-N4 in U-K5d, pending]**. Grades upgrade only on a
+green battery, and the lookup's non-ZK deployment label
+(M4_LOOKUP_DESIGN.md Sections 3.5/8) stands until the U-K5 build
+lands and its battery is green.
+
+---
+
 ## 8. Status summary
 
 | lemma | subject | status |
@@ -783,8 +1127,12 @@ discipline that caught F1/F2 (equations on paper first).
 | Q4.5a | salt-abort transcripts simulatable | PROVEN conditional (uniform tail bound; freeze-check gate suggested) |
 | Q4.5b | salt grinding: x65, cap load-bearing | PROVEN |
 | Q4.6 | twisted-execution aggregate simulation (O1-O4) | OBLIGATION (trace-gate build exit criterion; O3/O4 corrected per Q4.3d) |
+| Q4.7 | E3-Z lookup round masks: adapted Libra counting, exposures uniform on the check variety | PROVEN at spike scale — engine-scale battery E3Z-N4 (U-K5d) pending |
+| Q4.8 | E3-Z boundary/blinder pads: interior rank 6/6 (a), leaf rank 4/4 + fresh-pad ledger (b) | PROVEN at spike scale — E3Z-N4 (U-K5d) pending |
+| Q4.9 | E3-Z top: layer-1 quadruples uniform on the cross-check variety | PROVEN at spike scale — E3Z-N4 (U-K5d) pending |
 
-The honest reading across the set, after U-P:
+The honest reading across the set, after U-P and the U-K5e
+transcription:
 
 - **Q4.3 became a hard FINDING, sharper than before.** The old Q4.3c
   ("leaks only for degenerate tensors") was an OVERCLAIM and is
@@ -801,4 +1149,14 @@ The honest reading across the set, after U-P:
   SLACK_OP gate at the frozen point. Q4.4b's gaps now block only the
   (now-unused) SLACK_OP composition; Q4.4' remains the tighter JL
   target for a later transcription pass.
+- **Q4.7-Q4.9 are the E3-Z transcription (tranche U-K5e) and their
+  grades are spike-scale grades.** They transcribe
+  M4_LOOKUP_ZK_DESIGN.md Section 4 components 3-6; every rank and
+  uniformity claim is machine-checked at toy scale
+  (`logup_zk_mask_spike.py` certificates Z3b/Z3c/Z3d) but NOT yet at
+  engine shapes — that is battery E3Z-N4 of tranche U-K5d, in flight
+  at this writing. Until that battery is green, the lookup
+  subprotocol's non-ZK deployment label (M4_LOOKUP_DESIGN.md Section
+  3.5 and its Section 8 row) stands unchanged; nothing in this
+  transcription lifts or softens it.
 - Everything else (Q4.1/Q4.2/Q4.5) is unchanged from its prior grade.
