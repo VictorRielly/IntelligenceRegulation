@@ -4828,6 +4828,7 @@ fn freeze_check() {
 
     // U-L — the F3 modulus-link freeze rows.
     all_ok &= freeze_check_link();
+    all_ok &= freeze_check_uk8();
 
     if all_ok {
         println!("freeze-check passed");
@@ -6032,7 +6033,7 @@ fn self_test_pi2_ce() {
 }
 
 fn usage() {
-    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | statement-inventory");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery] | statement-inventory");
     std::process::exit(2);
 }
 
@@ -6054,6 +6055,7 @@ fn main() {
             self_test_e2();
             self_test_lookup();
             self_test_lookup_zk();
+            self_test_ffn_chain();
             self_test_m5_chunking();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
         }
@@ -6065,6 +6067,20 @@ fn main() {
             let n_log2 = args.get(1).map(|s| s.parse().expect("log2 N")).unwrap_or(18);
             assert!((8..=22).contains(&n_log2), "lookup-bench log2 N in 8..=22");
             lookup_bench(n_log2);
+        }
+        Some("ffn-chain") => {
+            // U-K8: the committed FFN-gate chain — `ffn-chain battery`
+            // runs the tamper battery alone; `ffn-chain [n_blocks]` runs
+            // the A/B measurement at n_blocks x 1020 elements.
+            if args.get(1).map(String::as_str) == Some("battery") {
+                let t = Instant::now();
+                self_test_ffn_chain();
+                println!("\nffn-chain battery passed in {:.2}s", t.elapsed().as_secs_f64());
+            } else {
+                let n_blocks = args.get(1).map(|s| s.parse().expect("n_blocks")).unwrap_or(4);
+                assert!((1..=5600).contains(&n_blocks), "ffn-chain n_blocks in 1..=5600");
+                ffn_chain_bench(n_blocks);
+            }
         }
         Some("m5-bench") => {
             // m5-bench [rows inner cols [reps]] — defaults to the frozen FFN
@@ -9257,6 +9273,1460 @@ fn lookup_bench(n_log2: usize) {
     );
     println!("lookup-bench done (N = {n}, unmasked lookup-core microbenchmark, table digest {})",
         spec_dg.iter().take(4).map(|b| format!("{b:02x}")).collect::<String>());
+}
+
+// ===========================================================================
+// U-K8 (M4_LOOKUP_DESIGN Section 8, the 2026-07-10 audit H-01 exit): the
+// COMMITTED FFN-GATE CHAIN — one gate tensor end to end:
+//
+//   range-proved X in  ->  MASKED table-certified Y = SiLU(X) out
+//                      ->  downstream gate-o-up Hadamard Z = Y o UP.
+//
+// Chain anatomy (per element): X is committed DENSE at q31 as the offset
+// code x + 128 in [0, 256); its int8 domain fact is PROVEN by the U-L
+// modulus link (bit planes at q46 where binary + ARP close, l = 24 xi
+// rows tie the recomposed integers to X's q31 residues — the chain-demo
+// pattern). Y lives ONLY slot-packed (H3) so the downstream Hadamard can
+// consume it; the masked lookup ([U-K5c] machinery: committed m column,
+// blinders, Libra-class masks, aggregate-only pins) certifies
+// (X_i, Y_i) in silu-int8-table-v1, reading X through the pin's -128
+// offset fold and Y through E1-COMPOSED per-coefficient weights
+// (ring/lookup.rs slot_pin_weights — the design Section 3.4 slot-packed
+// E4 variant: same claim family, different public weight computation).
+// Slot-constancy of Y and UP is pinned by standalone zeta junk rows
+// (link_claims_tgt_slot with xi = 0 — the U-E2 machinery); Z inherits
+// it by GF(q) closure, and the block output claim is the untwisted
+// QuadRingClaim Y o UP - Z = 0 per packed element.
+//
+// TWO AS-BUILT CAPACITY WALLS THIS INTEGRATION SURFACED (docs updated):
+//
+//  1. The q31 ct-round C2 gate (q > 8 beta) caps ONE round at ~134
+//     commitments of the U-K5c CRS shape (kappa 8, n_r 26, msg_r 8) —
+//     ~4.4e5 committed coefficients. A single-descent committed lookup
+//     therefore caps NEAR 2^17 dense elements per round, BEFORE the
+//     audit H-03 memory wall binds. The chain is built as independent
+//     ROW-BLOCK SUB-INSTANCES of B = 1020 elements (the design Section 9
+//     item 5 sub-instancing; ceiling margin only improves): witness tree
+//     depth 11 (1020 = blinder_positions(2048)[0]), table depth 9, one
+//     q31 round per block (~113 commitments, C2-asserted).
+//  2. The q46 ARP budget caps binary units at ~896 coefficients AND caps
+//     the rejection-sampling alpha at ~4 for 512-bit units, while the
+//     FS-with-aborts loop restarts ALL units of a round together. Frozen
+//     chain point (LKP-8): sub-block = 128 values -> two 512-bit units
+//     (planes 0-3 / 4-7 at msg_r = 4), q46 rounds of 4 units (256
+//     values) at alpha = 3.5 (~6.5 expected restarts/round), one link
+//     instance per q46 round (w = 11, l = 24).
+//
+// Streaming binding (the D-4 ledger decision): every TENSOR commitment
+// (X, planes, Y, UP, Z, m, blinders, masks) precedes the validated
+// statement digest ctx (manifest v2: Binary + Range + Lookup + Hadamard,
+// output Z); per block, h0_link_b = link_h0(ctx || block, both sides'
+// block lists INCLUDING that block's g-masks) and every weight-like
+// value (xi, zeta, alpha, psi, theta, JL) derives from it — the
+// commit-before-challenge rule holds locally where the weights bind,
+// and globally through ctx.
+
+const UK8_B: usize = 1020; // elements per block = blinder_positions(2048)[0]
+const UK8_DW: usize = 11; // witness tree depth (2048 leaves)
+const UK8_DT: usize = 9; // table tree depth (256 rows split + blinders)
+const UK8_SUB: usize = 128; // values per q46 sub-block (one dense X slot)
+const UK8_RPB: usize = 4; // q46 rounds per block (2 sub-blocks each)
+const UK8_ALPHA: f64 = 3.5; // ARP rejection alpha at the 512-bit unit
+
+#[derive(Clone, Copy, PartialEq)]
+enum ChainTamper {
+    /// Honest witness.
+    None,
+    /// X wraps: committed residue x_u + 256 with honest-looking planes —
+    /// the q46-grounded link must reject (run with the lookup omitted to
+    /// isolate the range edge).
+    RangeX,
+    /// One Y off the table (still int8; Hadamard consumes it
+    /// consistently) — only the lookup's root cross-check can reject.
+    OffTableY,
+    /// One Z slot constant off the product — the quad ring claim rejects.
+    HadamardZ,
+    /// Junk CRT coordinates in Y and UP with CORRECT slot constants,
+    /// crafted in the null space of a STALE zeta (derived pre-commitment
+    /// — the violated ordering). stale = true runs the buggy build
+    /// (zeta from the stale source on both sides): the chain ACCEPTS a
+    /// witness whose gate-o-up output constants are WRONG. stale = false
+    /// runs the shipped order against the same junk: zeta REJECTS. The
+    /// masked lookup passes in BOTH worlds (its E1-composed pins read
+    /// constants only) — the F5 pair for the chain's new hash edge.
+    JunkY { stale: bool },
+}
+
+#[derive(Default)]
+struct ChainVerdict {
+    statement_ok: bool,
+    lookup_ok: bool,
+    wave_ok: bool,
+    q46_ok: bool,
+    gates_ok: bool,
+    /// JunkY worlds: the crafted junk shifts at least one gate-o-up
+    /// output constant (the demonstrated harm).
+    junk_harm: bool,
+}
+
+impl ChainVerdict {
+    fn all_ok(&self) -> bool {
+        self.statement_ok && self.lookup_ok && self.wave_ok && self.q46_ok && self.gates_ok
+    }
+}
+
+#[derive(Default)]
+struct ChainCost {
+    n_el: usize,
+    commit_s: f64,
+    prove_s: f64,
+    verify_s: f64,
+    /// Lookup-stage attribution inside prove/verify (trees + masked
+    /// descents + pin building; the shared ct-round is not split).
+    lkp_prove_s: f64,
+    lkp_verify_s: f64,
+    q46_prove_s: f64,
+    q46_verify_s: f64,
+    arp_restarts: usize,
+    /// Committed coefficient counts (slot-capacity accounting: msg_r * D
+    /// per q31 commitment, msg_r_g * D per q46 commitment).
+    q31_data_coeffs: usize,
+    q31_g_coeffs: usize,
+    q46_coeffs: usize,
+}
+
+fn uk8_sha(parts: &[&[u8]]) -> [u8; 32] {
+    use sha2::{Digest, Sha256};
+    let mut h = Sha256::new();
+    for p in parts {
+        h.update(p);
+    }
+    h.finalize().into()
+}
+
+/// VmHWM (peak RSS) in KiB from /proc/self/status, 0 if unavailable.
+fn vm_hwm_kb() -> usize {
+    std::fs::read_to_string("/proc/self/status")
+        .ok()
+        .and_then(|s| {
+            s.lines().find(|l| l.starts_with("VmHWM:")).and_then(|l| {
+                l.split_whitespace().nth(1).and_then(|v| v.parse().ok())
+            })
+        })
+        .unwrap_or(0)
+}
+
+/// A nonzero vector in the null space of `rows` (each of length n) over
+/// Z_q — the JunkY crafting solve (24 zeta constraints, 30 unknowns; the
+/// U-K7 elimination pattern).
+fn uk8_kernel_vec(zq: &ring::Zq, rows: &[Vec<u64>], n: usize) -> Vec<u64> {
+    let mut a: Vec<Vec<u64>> = rows.iter().map(|r| r[..n].to_vec()).collect();
+    let m = a.len();
+    let mut piv: Vec<(usize, usize)> = Vec::new();
+    let mut row = 0usize;
+    for col in 0..n {
+        if row >= m {
+            break;
+        }
+        if let Some(pr) = (row..m).find(|&rr| a[rr][col] != 0) {
+            a.swap(row, pr);
+            let inv = zq.inv(a[row][col]);
+            for c in col..n {
+                a[row][c] = zq.mul(a[row][c], inv);
+            }
+            for rr in 0..m {
+                if rr != row && a[rr][col] != 0 {
+                    let f = a[rr][col];
+                    for c in col..n {
+                        a[rr][c] = zq.sub(a[rr][c], zq.mul(f, a[row][c]));
+                    }
+                }
+            }
+            piv.push((row, col));
+            row += 1;
+        }
+    }
+    let free_col = (0..n).find(|c| !piv.iter().any(|&(_, pc)| pc == *c)).expect("kernel exists");
+    let mut u = vec![0u64; n];
+    u[free_col] = 1;
+    for &(pr, pc) in piv.iter().rev() {
+        u[pc] = zq.neg(a[pr][free_col]);
+    }
+    u
+}
+
+/// One committed FFN-gate chain run: commit -> validated statement ->
+/// per-block (masked lookup + q31 wave + q46 grounding rounds) ->
+/// verify. Returns the per-stage verdict and the honest cost breakdown.
+#[allow(clippy::too_many_lines)]
+fn ffn_chain_run(
+    n_el: usize,
+    with_lookup: bool,
+    tamper: ChainTamper,
+    seed: u64,
+    quiet: bool,
+) -> (ChainVerdict, ChainCost) {
+    use manifest::{ClaimManifest, Operation, Orientation, QuantMeta};
+    use ring::commit::CommitShape as CS;
+    use ring::ct_engine::{
+        AjtaiCommit, AjtaiOpening, StdOpening, ajtai_commit, arp_attempt, arp_check_reveal,
+        arp_claims, ct_h0, derive_arp_params, derive_ct_round_params, derive_jl_rows,
+        expand_b_mat, pack_arp_mask, r1_pad_count, sample_arp_mask, sample_g_masks,
+        verify_ct_round,
+    };
+    use ring::ct_engine::{QuadRingClaim, prove_ct_round};
+    use ring::gkr::{ceiling_gate_ok, eq_table};
+    use ring::gkr_masked::{
+        BlinderSet, DescentEnd, MaskSet, MaskedDescentProof, blinded_table_tree,
+        blinded_witness_tree, blinder_positions, draw_masks, g_hypersum_weights, g_open_weights,
+        masked_gkr_prove, masked_gkr_verify, r_open_weights, table_row_positions, zero_masks,
+    };
+    use ring::kfield::{K_DEG, KElem, KField};
+    use ring::link::{
+        crt_coord_rows, derive_gadget_layer, derive_link_params, derive_link_xi,
+        derive_link_zeta, link_claims_gnd, link_claims_tgt, link_claims_tgt_slot, link_gate_ok,
+        link_h0, link_reveal_y,
+    };
+    use ring::lookup::{
+        PinTerm, PinnedValue, derive_pin_psi, fuse_pair, fused_silu_table, mul_y,
+        multiplicities, pin_claims, silu_int8_table, slot_pin_weights, table_spec_digest,
+    };
+    use ring::sumcheck::LkpTranscript;
+
+    // ---- Shared setup. ----------------------------------------------------
+    let ctx_ring = ring_ctx_q8();
+    let kf = KField::new(&ctx_ring);
+    let zq = ctx_ring.zq;
+    let q = zq.q;
+    let (k_slots, sd) = (ctx_ring.k, ctx_ring.slot_deg);
+    let zero = kf.zero();
+    let one = kf.one();
+    let rows = silu_int8_table();
+    let spec_dg = table_spec_digest(&rows);
+    let tab_fused = fused_silu_table(&kf, &rows);
+    let t_rows = rows.len();
+    assert!(ceiling_gate_ok(1u64 << UK8_DW, q), "block sub-instance clears the LogUp ceiling");
+    let coord_m = crt_coord_rows(&ctx_ring);
+    let const_rows: Vec<Vec<u64>> = (0..k_slots).map(|j| coord_m[j * sd].clone()).collect();
+
+    // q31 CRS: the U-K5c shape (one wave carries tensors, masks, blinders
+    // and the g-groups of a block's round).
+    let shape = CS { kappa: 8, n_r: 26, msg_r: 8 };
+    let msg_r = shape.msg_r;
+    let kpc = msg_r * D / K_DEG; // committed K-elements per commitment
+    let crs = expand_crs(shape, q, 0x0_8C8);
+
+    // q46 grounding layer: msg_r = 4 puts one 512-bit ARP unit in one
+    // commitment (the LKP-8 unit).
+    let q_g = ring::Q8_46;
+    let ring_g = ring::ring_ctx(q_g, ring::ETA8_46, 8);
+    let zq_g = ring_g.zq;
+    let gl_g = derive_gadget_layer(q_g, 4, 16).expect("q46 gadget layer derives");
+    let msg_r_g = gl_g.shape.msg_r;
+    let crs_g = expand_crs(gl_g.shape, q_g, 0x0_8C9);
+    let ap = derive_arp_params(msg_r_g * D, 256, 1, UK8_ALPHA); // 512-bit unit
+    assert!(
+        ring::ct_engine::arp_budget_ok(&ap, (q_g / 2) as f64),
+        "LKP-8: the 512-bit unit at alpha = 3.5 must close the q46 ARP budget"
+    );
+    // Link operating points: one instance per q46 round (2 sub-blocks =
+    // 256 coefficient positions) and the zeta instance over a block's
+    // slot tensor (B values).
+    let lp_r = derive_link_params(2 * UK8_SUB, 8, q_g, q, 11);
+    let lp_h = derive_link_params(UK8_B, 8, q_g, q, 11);
+    let chunks = UK8_B.div_ceil(k_slots); // slot polys per tensor per block
+    debug_assert_eq!(chunks * D - UK8_B, 15364); // zeta junk coords per row
+    let slot_cms = chunks / msg_r; // slot commitments per tensor per block
+    let b_mat = expand_b_mat(&crs_g, "uk8-arp", ap.rows.div_ceil(D));
+
+    // ---- Instance data. ----------------------------------------------------
+    let n_blocks = n_el.div_ceil(UK8_B);
+    let mut rng = seed;
+    let xs_all: Vec<i64> = (0..n_el).map(|_| rng_below(&mut rng, 256) as i64 - 128).collect();
+    let mut ys_all: Vec<i64> = xs_all.iter().map(|&x| rows[(x + 128) as usize].1).collect();
+    let up_all: Vec<i64> = (0..n_el).map(|_| rng_below(&mut rng, 256) as i64 - 128).collect();
+    if tamper == ChainTamper::OffTableY {
+        // Still int8, consumed consistently downstream; off the table.
+        ys_all[5] = if ys_all[5] > 100 { ys_all[5] - 16 } else { ys_all[5] + 16 };
+    }
+
+    // JunkY crafting: junk deltas for Y and UP poly 0 of block 0, in the
+    // null space of the STALE zeta (derived from a pre-commitment source
+    // — the violated ordering an attacker exploits).
+    let stale_h0 = uk8_sha(&[b"uk8-stale-zeta", &crs.crs_hash]);
+    let junk = if matches!(tamper, ChainTamper::JunkY { .. }) {
+        let h0_y = uk8_sha(&[&stale_h0, b"zeta-y"]);
+        let h0_u = uk8_sha(&[&stale_h0, b"zeta-up"]);
+        let zy = derive_link_zeta(&h0_y, &lp_h, k_slots);
+        let zu = derive_link_zeta(&h0_u, &lp_h, k_slots);
+        // Poly 0's first 30 junk coordinates are CRT coords 1..16 and
+        // 17..32 (zeta indices 0..30 — the enumeration skips the 8 slot
+        // constants).
+        let coords: Vec<usize> = (1..16).chain(17..32).collect();
+        let solve = |zrows: &[Vec<i64>]| -> Vec<u64> {
+            let rows_m: Vec<Vec<u64>> = zrows
+                .iter()
+                .map(|r| (0..coords.len()).map(|j| zq.to_mod(r[j])).collect())
+                .collect();
+            uk8_kernel_vec(&zq, &rows_m, coords.len())
+        };
+        let (dy, du) = (solve(&zy), solve(&zu));
+        Some((coords, dy, du))
+    } else {
+        None
+    };
+    let apply_junk = |poly: &Poly, deltas: &[u64], coords: &[usize]| -> Poly {
+        let mut split = crt_split(&ctx_ring, poly);
+        for (j, &c) in coords.iter().enumerate() {
+            split[c] = zq.add(split[c], deltas[j]);
+        }
+        crt_merge(&ctx_ring, &mut split);
+        split
+    };
+
+    // ---- Block-local q31 commitment layout. --------------------------------
+    let (wm_len, tm_len) = {
+        use ring::gkr_masked::mask_coeff_counts;
+        let (gw, rw) = mask_coeff_counts(UK8_DW, 0);
+        let (gt, rt) = mask_coeff_counts(UK8_DT, 0);
+        (gw + rw, gt + rt)
+    };
+    let kel_cms = |n_kel: usize| (n_kel * K_DEG).div_ceil(msg_r * D).max(1);
+    let (wm_c, tm_c) = (kel_cms(wm_len), kel_cms(tm_len));
+    let (idx_x, idx_m, idx_bl, base_wm, base_tm, base_y): (usize, usize, usize, usize, usize, usize);
+    if with_lookup {
+        idx_x = 0;
+        idx_m = 1;
+        idx_bl = 2;
+        base_wm = 3;
+        base_tm = base_wm + wm_c;
+        base_y = base_tm + tm_c;
+    } else {
+        idx_x = 0;
+        // Unused in this arm (kept to satisfy the shared pin builders).
+        idx_m = usize::MAX;
+        idx_bl = usize::MAX;
+        base_wm = usize::MAX;
+        base_tm = usize::MAX;
+        base_y = 1;
+    }
+    let base_up = base_y + slot_cms;
+    let base_z = base_up + slot_cms;
+    let n_data = base_z + slot_cms;
+    // q31 round claim counts (uniform per block).
+    let n_pins = if with_lookup { 9 } else { 0 };
+    let n_lin = n_pins + UK8_RPB * lp_r.l + 2 * lp_h.l;
+    let n_quad_ring = chunks;
+    let n_gslots = n_lin + r1_pad_count(0, n_quad_ring, 0);
+    let g_groups = n_gslots.div_ceil(msg_r);
+    let n_commits = n_data + g_groups;
+    let rp = derive_ct_round_params(q, shape, n_commits, 0, 0, true);
+    // q46 round claim counts (uniform per round: 2 sub-blocks x lo/hi
+    // units + 1 link instance).
+    let units_per_round = 4usize;
+    let l_bin_g = ring::ct_engine::theta_rows(q_g);
+    let n_lin_g = units_per_round * ap.rows + lp_r.l;
+    let n_quad_g = units_per_round * l_bin_g;
+    let n_gslots_g = n_lin_g + n_quad_g + r1_pad_count(n_quad_g, 0, 0);
+    let g_groups_g = n_gslots_g.div_ceil(msg_r_g);
+    let rp_g = derive_ct_round_params(
+        q_g,
+        gl_g.shape,
+        units_per_round + g_groups_g + units_per_round,
+        units_per_round * ap.rows,
+        12 * ap.sigma_arp,
+        false,
+    );
+    let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+    let path = KernelPath::A1(&a1p);
+    let a1p_g = build_a1_paths(
+        &crs_g,
+        rp_g.sigma.max(rp_g.sigma_s),
+        isqrt_u128(rp_g.bound_sq.max(rp_g.bound_s_sq)),
+    );
+    let path_g = KernelPath::A1(&a1p_g);
+
+    let mut cost = ChainCost {
+        n_el,
+        q31_data_coeffs: n_blocks * n_data * msg_r * D,
+        q31_g_coeffs: n_blocks * g_groups * msg_r * D,
+        q46_coeffs: n_blocks * (4 * UK8_RPB + UK8_RPB * g_groups_g) * msg_r_g * D,
+        ..ChainCost::default()
+    };
+
+    // ---- Pass 1: commit every tensor of every block. ------------------------
+    struct BlockData {
+        n_b: usize,
+        xs: Vec<i64>,
+        ys: Vec<i64>,
+        xu_vals: Vec<u64>, // 1024 plane-consistent offset codes (pads 0)
+        msgs: Vec<Vec<Poly>>,
+        rhos: Vec<Vec<Vec<i64>>>,
+        t1s: Vec<Vec<Poly>>,
+        t2s: Vec<Vec<Poly>>,
+        masks_w: Option<ring::gkr_masked::MaskSet>,
+        masks_t: Option<ring::gkr_masked::MaskSet>,
+        bl_w: Option<ring::gkr_masked::BlinderSet>,
+        bl_t: Option<ring::gkr_masked::BlinderSet>,
+        m_k: Vec<ring::kfield::KElem>,
+        bits_msgs: Vec<Vec<Poly>>,
+        bits_rhos: Vec<Vec<Vec<i64>>>,
+        bits_t1s: Vec<Vec<Poly>>,
+        bits_t2s: Vec<Vec<Poly>>,
+    }
+    let pack_scalars = |vals: &[u64]| -> Vec<Poly> {
+        assert!(vals.len() <= msg_r * D);
+        let mut polys = vec![poly_zero(); msg_r];
+        for (i, &v) in vals.iter().enumerate() {
+            polys[i / D][i % D] = v;
+        }
+        polys
+    };
+    let pack_kelems = |kelems: &[KElem]| -> Vec<Vec<Poly>> {
+        let mut flat: Vec<u64> = Vec::with_capacity(kelems.len() * K_DEG);
+        for e in kelems {
+            for c in 0..K_DEG {
+                flat.push(e[c]);
+            }
+        }
+        let per = msg_r * D;
+        let n_commit = flat.len().div_ceil(per).max(1);
+        (0..n_commit)
+            .map(|g| {
+                (0..msg_r)
+                    .map(|s| {
+                        (0..D)
+                            .map(|c| {
+                                let idx = g * per + s * D + c;
+                                if idx < flat.len() { flat[idx] } else { 0 }
+                            })
+                            .collect()
+                    })
+                    .collect()
+            })
+            .collect()
+    };
+    let blinder_kelems = |bw: &BlinderSet, bt: &BlinderSet| -> Vec<KElem> {
+        let mut v = Vec::with_capacity(16);
+        for b in [&bw.tl, &bw.tr, &bw.f0, &bw.f1, &bt.tl, &bt.tr, &bt.f0, &bt.f1] {
+            v.push(b.a.clone());
+            v.push(b.u.clone());
+        }
+        v
+    };
+
+    let t_commit = Instant::now();
+    let mut blocks: Vec<BlockData> = Vec::with_capacity(n_blocks);
+    for b in 0..n_blocks {
+        let lo = b * UK8_B;
+        let n_b = (n_el - lo).min(UK8_B);
+        let xs: Vec<i64> = xs_all[lo..lo + n_b].to_vec();
+        let ys: Vec<i64> = ys_all[lo..lo + n_b].to_vec();
+        let ups: Vec<i64> = up_all[lo..lo + n_b].to_vec();
+        // Offset codes, padded to the full 1024-coefficient block; the
+        // range side always covers all 1024 positions (pads are honest
+        // zeros — proving them in [0, 256) is harmless).
+        let mut xu_vals = vec![0u64; msg_r * D];
+        for (i, &x) in xs.iter().enumerate() {
+            xu_vals[i] = (x + 128) as u64;
+        }
+        // The wraparound witness: committed residue jumps by 256 while
+        // the planes keep the honest low bits (audit C-02 class).
+        let mut xu_committed = xu_vals.clone();
+        if tamper == ChainTamper::RangeX && b == 0 {
+            xu_committed[0] = zq.add(xu_committed[0], 256);
+        }
+
+        // Slot tensors (constants = centered residues; pads zero).
+        let slot_polys = |vals: &[i64]| -> Vec<Poly> {
+            (0..chunks)
+                .map(|u| {
+                    let mut lane = vec![0u64; k_slots];
+                    for (s, l) in lane.iter_mut().enumerate() {
+                        let t = u * k_slots + s;
+                        if t < vals.len() {
+                            *l = zq.to_mod(vals[t]);
+                        }
+                    }
+                    slot_pack(&ctx_ring, &lane)
+                })
+                .collect()
+        };
+        let mut y_polys = slot_polys(&ys);
+        let mut up_polys = slot_polys(&ups);
+        if let (Some((coords, dy, du)), 0) = (&junk, b) {
+            y_polys[0] = apply_junk(&y_polys[0], dy, coords);
+            up_polys[0] = apply_junk(&up_polys[0], du, coords);
+        }
+        // Z := the ring product (slot-constant operands make it exactly
+        // the slot-packed elementwise product; junk operands make it the
+        // consistent junk product — the quad claim holds by construction
+        // in both worlds).
+        let mut z_polys: Vec<Poly> = y_polys
+            .iter()
+            .zip(up_polys.iter())
+            .map(|(a, c)| poly_mul_g(&zq, a, c))
+            .collect();
+        if tamper == ChainTamper::HadamardZ && b == 0 {
+            let mut split = crt_split(&ctx_ring, &z_polys[0]);
+            split[7 * sd] = zq.add(split[7 * sd], 1);
+            crt_merge(&ctx_ring, &mut split);
+            z_polys[0] = split;
+        }
+
+        // Lookup material (arm A).
+        let (masks_w, masks_t, bl_w, bl_t, m_k) = if with_lookup {
+            let mask_seed = uk8_sha(&[b"uk8-masks", &seed.to_le_bytes(), &(b as u64).to_le_bytes()]);
+            let mut trm = LkpTranscript::new("uk8-masks", &mask_seed);
+            let mw = draw_masks(&kf, &mut trm, UK8_DW, 0);
+            let mt = draw_masks(&kf, &mut trm, UK8_DT, 0);
+            let mut trb = LkpTranscript::new("uk8-blinders", &mask_seed);
+            let bw = BlinderSet::draw(&kf, &mut trb);
+            let mut bt = BlinderSet::draw(&kf, &mut trb);
+            bt.solve_mass(&kf, &bw.mass(&kf));
+            let w_fused: Vec<KElem> = xs
+                .iter()
+                .zip(ys.iter())
+                .map(|(&x, &y)| fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y)))
+                .collect();
+            let mk = multiplicities(&kf, &w_fused, &tab_fused);
+            (Some(mw), Some(mt), Some(bw), Some(bt), mk)
+        } else {
+            (None, None, None, None, Vec::new())
+        };
+
+        // Message list in block-local index order.
+        let mut msgs: Vec<Vec<Poly>> = Vec::with_capacity(n_data);
+        msgs.push(pack_scalars(&xu_committed));
+        if with_lookup {
+            let m_vals: Vec<u64> = m_k.iter().map(|e| e[0]).collect();
+            msgs.push(pack_scalars(&m_vals));
+            let bl_msg = pack_kelems(&blinder_kelems(
+                bl_w.as_ref().unwrap(),
+                bl_t.as_ref().unwrap(),
+            ));
+            assert_eq!(bl_msg.len(), 1);
+            msgs.push(bl_msg[0].clone());
+            let wm = pack_kelems(&masks_w.as_ref().unwrap().flatten());
+            assert_eq!(wm.len(), wm_c);
+            msgs.extend(wm);
+            let tm = pack_kelems(&masks_t.as_ref().unwrap().flatten());
+            assert_eq!(tm.len(), tm_c);
+            msgs.extend(tm);
+        }
+        for polys in [&y_polys, &up_polys, &z_polys] {
+            for cm in 0..slot_cms {
+                msgs.push(polys[cm * msg_r..(cm + 1) * msg_r].to_vec());
+            }
+        }
+        assert_eq!(msgs.len(), n_data);
+        let mut rhos = Vec::with_capacity(n_data);
+        let (mut t1s, mut t2s) = (Vec::new(), Vec::new());
+        for m in &msgs {
+            let rho: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+            let (t1, t2) = commit(&path, &crs, m, &rho);
+            rhos.push(rho);
+            t1s.push(t1);
+            t2s.push(t2);
+        }
+
+        // q46 bit planes: per 128-value sub-block, two 512-bit units
+        // (planes 0-3, then 4-7).
+        let mut bits_msgs = Vec::with_capacity(4 * UK8_RPB);
+        let mut bits_rhos = Vec::new();
+        let (mut bits_t1s, mut bits_t2s) = (Vec::new(), Vec::new());
+        for sub in 0..2 * UK8_RPB {
+            for half in 0..2 {
+                let mut m = vec![poly_zero(); msg_r_g];
+                for (p, poly) in m.iter_mut().enumerate() {
+                    let plane = half * msg_r_g + p;
+                    for t in 0..UK8_SUB {
+                        let v = xu_vals[sub * UK8_SUB + t];
+                        poly[t] = (v >> plane) & 1;
+                    }
+                }
+                let rho: Vec<Vec<i64>> =
+                    (0..gl_g.shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+                let (t1, t2) = commit(&path_g, &crs_g, &m, &rho);
+                bits_msgs.push(m);
+                bits_rhos.push(rho);
+                bits_t1s.push(t1);
+                bits_t2s.push(t2);
+            }
+        }
+        blocks.push(BlockData {
+            n_b,
+            xs,
+            ys,
+            xu_vals,
+            msgs,
+            rhos,
+            t1s,
+            t2s,
+            masks_w,
+            masks_t,
+            bl_w,
+            bl_t,
+            m_k,
+            bits_msgs,
+            bits_rhos,
+            bits_t1s,
+            bits_t2s,
+        });
+    }
+    cost.commit_s += t_commit.elapsed().as_secs_f64();
+
+    // ---- The validated statement (format v2) — ctx for everything. --------
+    let group_list_digest = |groups: &[(&Vec<Poly>, &Vec<Poly>)]| -> Vec<u8> {
+        use sha2::{Digest, Sha256};
+        let mut hasher = Sha256::new();
+        for (t1, t2) in groups {
+            hasher.update(group_digest(t1, t2));
+        }
+        hasher.finalize().to_vec()
+    };
+    let tensor_digest = |idx0: usize, count: usize| -> Vec<u8> {
+        let refs: Vec<(&Vec<Poly>, &Vec<Poly>)> = blocks
+            .iter()
+            .flat_map(|bd| (0..count).map(move |i| (&bd.t1s[idx0 + i], &bd.t2s[idx0 + i])))
+            .collect();
+        group_list_digest(&refs)
+    };
+    let bits_digest = {
+        let refs: Vec<(&Vec<Poly>, &Vec<Poly>)> = blocks
+            .iter()
+            .flat_map(|bd| bd.bits_t1s.iter().zip(bd.bits_t2s.iter()))
+            .collect();
+        group_list_digest(&refs)
+    };
+    let ki_t = key_info_bytes(&shape, q);
+    let ki_g = key_info_bytes(&gl_g.shape, q_g);
+    let model_digest: [u8; 32] =
+        uk8_sha(&[b"uk8-ffn-gate-chain-v1", &(n_el as u64).to_le_bytes(), &spec_dg]);
+    let mut mf = ClaimManifest::new("lattice-route-r", &crs.crs_hash);
+    let id_x = mf.add_commitment("X", n_el, 1, Orientation::ByColumns, ki_t.clone(), tensor_digest(idx_x, 1));
+    let id_bits = mf.add_commitment("X-bits", 8 * n_el, 1, Orientation::ByColumns, ki_g, bits_digest);
+    let id_y = mf.add_commitment("Y", n_el, 1, Orientation::ByColumns, ki_t.clone(), tensor_digest(base_y, slot_cms));
+    let id_up = mf.add_commitment("UP", n_el, 1, Orientation::ByColumns, ki_t.clone(), tensor_digest(base_up, slot_cms));
+    let id_z = mf.add_commitment("Z", n_el, 1, Orientation::ByColumns, ki_t, tensor_digest(base_z, slot_cms));
+    mf.add_operation(Operation::Binary { bits: id_bits });
+    mf.add_operation(Operation::Range { value: id_x, bits: id_bits, width: 8, signed: true });
+    if with_lookup {
+        mf.add_operation(Operation::Lookup { x: id_x, y: id_y });
+    }
+    mf.add_operation(Operation::Hadamard { x: id_y, y: id_up, z: id_z });
+    let mut statement = manifest::Statement::new(model_digest, spec_dg, mf);
+    statement.quant = vec![
+        QuantMeta { bits: 8, frac_bits: 4, signed: true },   // X
+        QuantMeta { bits: 1, frac_bits: 0, signed: false },  // X-bits
+        QuantMeta { bits: 8, frac_bits: 4, signed: true },   // Y
+        QuantMeta { bits: 8, frac_bits: 4, signed: true },   // UP
+        QuantMeta { bits: 16, frac_bits: 8, signed: true },  // Z
+    ];
+    statement.outputs = vec![id_z];
+    let mut verdict = ChainVerdict { statement_ok: true, lookup_ok: true, wave_ok: true, q46_ok: true, gates_ok: true, junk_harm: false };
+    let ctx_stmt: [u8; 32] = match statement.digest() {
+        Ok(d) => d,
+        Err(e) => {
+            println!("  FAIL statement v2 does not validate: {e}");
+            verdict.statement_ok = false;
+            return (verdict, cost);
+        }
+    };
+
+    // JunkY harm probe: the crafted junk operands shift at least one
+    // gate-o-up output constant away from y * up.
+    if matches!(tamper, ChainTamper::JunkY { .. }) {
+        let bd = &blocks[0];
+        let zp = poly_mul_g(&zq, &bd.msgs[base_y][0], &bd.msgs[base_up][0]);
+        let zs = crt_split(&ctx_ring, &zp);
+        verdict.junk_harm = (0..k_slots).any(|s| {
+            zs[s * sd] != zq.mul(zq.to_mod(bd.ys[s]), zq.to_mod(up_all[s]))
+        });
+    }
+
+    // ---- Pass 2: per block — g-masks, h0_link, lookup, wave, grounding. ----
+    let shell_w = zero_masks(&kf, UK8_DW, 0);
+    let shell_t = zero_masks(&kf, UK8_DT, 0);
+    let one_poly = {
+        let mut p = poly_zero();
+        p[0] = 1;
+        p
+    };
+    let neg_one_poly = {
+        let mut p = poly_zero();
+        p[0] = zq.neg(1);
+        p
+    };
+    let xi_zero: Vec<Vec<i64>> = vec![vec![0i64; lp_h.n]; lp_h.l];
+    let y_zero = vec![0i64; lp_h.l];
+    let y_value_slots: Vec<(usize, usize)> =
+        (0..chunks).map(|u| (base_y + u / msg_r, u % msg_r)).collect();
+    let up_value_slots: Vec<(usize, usize)> =
+        (0..chunks).map(|u| (base_up + u / msg_r, u % msg_r)).collect();
+    let stale = matches!(tamper, ChainTamper::JunkY { stale: true });
+
+    // Pin-term splitter over committed K-element runs (U-K5c).
+    let kelem_terms = |base: usize, flat_off: usize, weights: &[KElem]| -> Vec<PinTerm> {
+        let mut terms = Vec::new();
+        let mut i = 0usize;
+        while i < weights.len() {
+            let idx = flat_off + i;
+            let commit = base + idx / kpc;
+            let coeff0 = (idx % kpc) * K_DEG;
+            let take = (kpc - (idx % kpc)).min(weights.len() - i);
+            terms.push(PinTerm::Kelems { commit, coeff0, weights: weights[i..i + take].to_vec() });
+            i += take;
+        }
+        terms
+    };
+    // Descent pins: G hypersums, g openings, R openings (U-K5c; weights
+    // depend only on the mask SHAPE and public opening points).
+    let descent_pins = |base: usize,
+                        shape_masks: &MaskSet,
+                        proof: &MaskedDescentProof,
+                        end: &DescentEnd,
+                        depth: usize|
+     -> Vec<PinnedValue> {
+        let mut pins = Vec::new();
+        for j in 1..depth {
+            let lp = &proof.layers[j - 1];
+            let gm = &shape_masks.g[j - 1];
+            pins.push(PinnedValue {
+                terms: kelem_terms(base, shape_masks.g_offset(j), &g_hypersum_weights(&kf, gm)),
+                value: lp.g_sum.clone(),
+            });
+            let (open_pt, mu_prev, c_w) = &end.layer_pts[j - 1];
+            pins.push(PinnedValue {
+                terms: kelem_terms(base, shape_masks.g_offset(j), &g_open_weights(&kf, gm, open_pt)),
+                value: lp.open_g.clone(),
+            });
+            if j >= 2 {
+                let (orp, orq) = lp.open_r.clone().expect("interior layer opens Rp/Rq");
+                let rw = r_open_weights(&kf, mu_prev, c_w);
+                pins.push(PinnedValue {
+                    terms: kelem_terms(base, shape_masks.r_offset(j), &rw),
+                    value: orp,
+                });
+                pins.push(PinnedValue {
+                    terms: kelem_terms(base, shape_masks.r_offset(j) + 6, &rw),
+                    value: orq,
+                });
+            }
+        }
+        pins
+    };
+    // Aggregate leaf pins, chain edition: X read through the offset fold
+    // (committed x_u = x + 128, so the pin value carries -128 * hw), Y
+    // read through the E1-composed slot weights (slot_pin_weights — the
+    // slot-packed E4 variant), m and the blinders as in U-K5c.
+    let leaf_pins = |endw: &DescentEnd, endt: &DescentEnd, alpha: &KElem, n_b: usize| -> Vec<PinnedValue> {
+        let lw = eq_table(&kf, &endw.zstar);
+        let lt = eq_table(&kf, &endt.zstar);
+        let nw = 1usize << UK8_DW;
+        let nt = 1usize << UK8_DT;
+        let bpw = blinder_positions(nw);
+        let bpt = blinder_positions(nt);
+        let tpos = table_row_positions(t_rows, nt);
+        let eqw: Vec<KElem> = bpw.iter().map(|&p| lw[p].clone()).collect();
+        let eqt: Vec<KElem> = bpt.iter().map(|&p| lt[p].clone()).collect();
+        let hw = (0..n_b).fold(zero.clone(), |a, i| kf.add(&a, &lw[i]));
+        let ht = (0..t_rows).fold(zero.clone(), |a, j| kf.add(&a, &lt[tpos[j]]));
+        let sum_eqw = eqw.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+        let sum_eqt = eqt.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+        let ft = (0..t_rows)
+            .fold(zero.clone(), |a, j| kf.add(&a, &kf.mul(&lt[tpos[j]], &tab_fused[j])));
+        let z = zero.clone();
+        let wp = PinnedValue {
+            terms: vec![PinTerm::Kelems {
+                commit: idx_bl,
+                coeff0: 0,
+                weights: vec![
+                    eqw[0].clone(), z.clone(), eqw[1].clone(), z.clone(),
+                    eqw[2].clone(), z.clone(), eqw[3].clone(), z.clone(),
+                ],
+            }],
+            value: kf.sub(&endw.p_claim, &hw),
+        };
+        // Witness Q: q* - alpha H - D_dummy - 128 H = [blinder u's]
+        //   - sum lw x_u - sum Y lw y   (x = x_u - 128 folds into hw).
+        let ddw = kf.sub(&kf.sub(&one, &hw), &sum_eqw);
+        let wy: Vec<KElem> = (0..n_b).map(|i| kf.neg(&mul_y(&kf, &lw[i]))).collect();
+        let y_coeff_w = slot_pin_weights(&kf, &const_rows, &wy, chunks);
+        let mut wq_terms = vec![
+            PinTerm::Kelems {
+                commit: idx_bl,
+                coeff0: 0,
+                weights: vec![
+                    z.clone(), eqw[0].clone(), z.clone(), eqw[1].clone(),
+                    z.clone(), eqw[2].clone(), z.clone(), eqw[3].clone(),
+                ],
+            },
+            PinTerm::Scalar {
+                commit: idx_x,
+                coeff0: 0,
+                weights: (0..n_b).map(|i| kf.neg(&lw[i])).collect(),
+            },
+        ];
+        for cm in 0..slot_cms {
+            wq_terms.push(PinTerm::Scalar {
+                commit: base_y + cm,
+                coeff0: 0,
+                weights: y_coeff_w[cm * msg_r * D..(cm + 1) * msg_r * D].to_vec(),
+            });
+        }
+        let wq = PinnedValue {
+            terms: wq_terms,
+            value: kf.sub(
+                &kf.sub(&kf.sub(&endw.q_claim, &kf.mul(alpha, &hw)), &ddw),
+                &kf.scale(128, &hw),
+            ),
+        };
+        let tp = PinnedValue {
+            terms: vec![
+                PinTerm::Scalar {
+                    commit: idx_m,
+                    coeff0: 0,
+                    weights: (0..t_rows).map(|j| lt[tpos[j]].clone()).collect(),
+                },
+                PinTerm::Kelems {
+                    commit: idx_bl,
+                    coeff0: 8 * K_DEG,
+                    weights: vec![
+                        eqt[0].clone(), z.clone(), eqt[1].clone(), z.clone(),
+                        eqt[2].clone(), z.clone(), eqt[3].clone(), z.clone(),
+                    ],
+                },
+            ],
+            value: endt.p_claim.clone(),
+        };
+        let ddt = kf.sub(&kf.sub(&one, &ht), &sum_eqt);
+        let tq = PinnedValue {
+            terms: vec![PinTerm::Kelems {
+                commit: idx_bl,
+                coeff0: 8 * K_DEG,
+                weights: vec![
+                    z.clone(), eqt[0].clone(), z.clone(), eqt[1].clone(),
+                    z.clone(), eqt[2].clone(), z.clone(), eqt[3].clone(),
+                ],
+            }],
+            value: kf.add(
+                &kf.sub(&kf.sub(&endt.q_claim, &kf.mul(alpha, &ht)), &ddt),
+                &ft,
+            ),
+        };
+        vec![wp, wq, tp, tq]
+    };
+    let absorb_pins = |tr: &mut LkpTranscript, pins: &[PinnedValue]| {
+        for p in pins {
+            tr.absorb_k(&kf, "uk8-pin", std::slice::from_ref(&p.value));
+        }
+    };
+
+    // Round-r link weight sources (per block b): xi from h0_link_b, zeta
+    // from h0_link_b (shipped) or the stale pre-commitment source
+    // (JunkY's buggy world — the F5 ACCEPT leg).
+    let zeta_pair = |h0_link_b: &[u8; 32]| -> (Vec<Vec<i64>>, Vec<Vec<i64>>) {
+        let src = if stale { stale_h0 } else { *h0_link_b };
+        let zy = derive_link_zeta(&uk8_sha(&[&src, b"zeta-y"]), &lp_h, k_slots);
+        let zu = derive_link_zeta(&uk8_sha(&[&src, b"zeta-up"]), &lp_h, k_slots);
+        (zy, zu)
+    };
+
+    for (b, bd) in blocks.iter().enumerate() {
+        // -- q31 g-masks for this block's round. --
+        let t_g = Instant::now();
+        let g_msgs = sample_g_masks(&mut rng, q, msg_r, n_lin, n_gslots - n_lin);
+        assert_eq!(g_msgs.len(), g_groups);
+        let mut all_msgs: Vec<Vec<Poly>> = bd.msgs.clone();
+        let mut all_rhos: Vec<Vec<Vec<i64>>> = bd.rhos.clone();
+        let mut t1s = bd.t1s.clone();
+        let mut t2s = bd.t2s.clone();
+        for g in &g_msgs {
+            let rho: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+            let (t1, t2) = commit(&path, &crs, g, &rho);
+            all_msgs.push(g.clone());
+            all_rhos.push(rho);
+            t1s.push(t1);
+            t2s.push(t2);
+        }
+        // -- q46 g-masks, per grounding round. --
+        let mut g_msgs_g: Vec<Vec<Vec<Poly>>> = Vec::with_capacity(UK8_RPB);
+        let mut g_rhos_g: Vec<Vec<Vec<Vec<i64>>>> = Vec::with_capacity(UK8_RPB);
+        let mut gt1s_g: Vec<Vec<Vec<Poly>>> = Vec::with_capacity(UK8_RPB);
+        let mut gt2s_g: Vec<Vec<Vec<Poly>>> = Vec::with_capacity(UK8_RPB);
+        for _r in 0..UK8_RPB {
+            let gm = sample_g_masks(&mut rng, q_g, msg_r_g, n_lin_g + n_quad_g, n_gslots_g - n_lin_g - n_quad_g);
+            assert_eq!(gm.len(), g_groups_g);
+            let mut rhs = Vec::new();
+            let (mut t1r, mut t2r) = (Vec::new(), Vec::new());
+            for g in &gm {
+                let rho: Vec<Vec<i64>> =
+                    (0..gl_g.shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+                let (t1, t2) = commit(&path_g, &crs_g, g, &rho);
+                rhs.push(rho);
+                t1r.push(t1);
+                t2r.push(t2);
+            }
+            g_msgs_g.push(gm);
+            g_rhos_g.push(rhs);
+            gt1s_g.push(t1r);
+            gt2s_g.push(t2r);
+        }
+        cost.commit_s += t_g.elapsed().as_secs_f64();
+
+        // -- h0_link_b: ctx + block + BOTH sides' full block lists. --
+        let ctx_b: Vec<u8> = ctx_stmt
+            .iter()
+            .copied()
+            .chain((b as u64).to_le_bytes())
+            .collect();
+        let (q46_t1s, q46_t2s): (Vec<Vec<Poly>>, Vec<Vec<Poly>>) = {
+            let mut a = bd.bits_t1s.clone();
+            let mut c = bd.bits_t2s.clone();
+            for r in 0..UK8_RPB {
+                a.extend(gt1s_g[r].iter().cloned());
+                c.extend(gt2s_g[r].iter().cloned());
+            }
+            (a, c)
+        };
+        let h0_link_b = link_h0(&ctx_b, &crs_g, &crs, &q46_t1s, &q46_t2s, &t1s, &t2s);
+        let xi_r: Vec<Vec<Vec<i64>>> = (0..UK8_RPB)
+            .map(|r| derive_link_xi(&uk8_sha(&[&h0_link_b, b"uk8-xi", &(r as u64).to_le_bytes()]), &lp_r))
+            .collect();
+        let (zeta_y, zeta_up) = zeta_pair(&h0_link_b);
+        // Revealed link integers from the PLANE-consistent values (the
+        // grounding side is honest in every tamper world).
+        let y_link: Vec<Vec<i64>> = (0..UK8_RPB)
+            .map(|r| {
+                let vals = &bd.xu_vals[r * 2 * UK8_SUB..(r + 1) * 2 * UK8_SUB];
+                link_reveal_y(&lp_r, &xi_r[r], vals)
+            })
+            .collect();
+
+        // ================= PROVER =================
+        let t_prove = Instant::now();
+        // Lookup transcript (arm A): alpha binds ctx + the table digest +
+        // every block commitment (g-masks included) through h0_lkp.
+        let mut lkp: Option<(MaskedDescentProof, MaskedDescentProof, DescentEnd, DescentEnd, KElem, [u8; 32])> = None;
+        let mut pins: Vec<PinnedValue> = Vec::new();
+        let mut tr_state: Option<LkpTranscript> = None;
+        if with_lookup {
+            let t_lkp = Instant::now();
+            let ctx_lkp = uk8_sha(&[&spec_dg, &h0_link_b]);
+            let h0_lkp = ct_h0(&crs, &ctx_lkp, &t1s, &t2s, &[]);
+            let mut tr = LkpTranscript::new("uk8-lkp", &h0_lkp);
+            let alpha = tr.challenge_k(&kf);
+            let w_fused: Vec<KElem> = bd
+                .xs
+                .iter()
+                .zip(bd.ys.iter())
+                .map(|(&x, &y)| fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y)))
+                .collect();
+            let wtree = blinded_witness_tree(&kf, &alpha, &w_fused, UK8_DW, bd.bl_w.as_ref().unwrap());
+            let ttree = blinded_table_tree(&kf, &alpha, &tab_fused, &bd.m_k, UK8_DT, bd.bl_t.as_ref().unwrap());
+            let (pw, endw) = masked_gkr_prove(&kf, &[wtree], bd.masks_w.as_ref().unwrap(), &mut tr);
+            let (pt, endt) = masked_gkr_prove(&kf, &[ttree], bd.masks_t.as_ref().unwrap(), &mut tr);
+            pins = descent_pins(base_wm, bd.masks_w.as_ref().unwrap(), &pw, &endw, UK8_DW);
+            pins.extend(descent_pins(base_tm, bd.masks_t.as_ref().unwrap(), &pt, &endt, UK8_DT));
+            pins.extend(leaf_pins(&endw, &endt, &alpha, bd.n_b));
+            absorb_pins(&mut tr, &pins);
+            cost.lkp_prove_s += t_lkp.elapsed().as_secs_f64();
+            lkp = Some((pw, pt, endw, endt, alpha, h0_lkp));
+            tr_state = Some(tr);
+        }
+        // The q31 claim families, in the canonical order [pins | link
+        // targets | zeta Y | zeta UP] + the Hadamard quad ring claims.
+        let mut lin_claims: Vec<ring::ct_engine::CtClaim> = Vec::new();
+        if with_lookup {
+            let t_lkp = Instant::now();
+            let tr = tr_state.as_mut().unwrap();
+            let psi = derive_pin_psi(&tr.state(), 9, pins.len() * K_DEG, q);
+            lin_claims = pin_claims(&kf, &pins, n_data, msg_r, &psi);
+            cost.lkp_prove_s += t_lkp.elapsed().as_secs_f64();
+        }
+        for r in 0..UK8_RPB {
+            let slots = vec![(idx_x, 2 * r), (idx_x, 2 * r + 1)];
+            lin_claims.extend(link_claims_tgt(&zq, &lp_r, &xi_r[r], &y_link[r], &slots));
+        }
+        lin_claims.extend(link_claims_tgt_slot(&ctx_ring, &lp_h, &xi_zero, &zeta_y, &y_zero, &y_value_slots));
+        lin_claims.extend(link_claims_tgt_slot(&ctx_ring, &lp_h, &xi_zero, &zeta_up, &y_zero, &up_value_slots));
+        assert_eq!(lin_claims.len(), n_lin);
+        let quad_ring: Vec<QuadRingClaim> = (0..chunks)
+            .map(|u| QuadRingClaim {
+                quad: vec![(base_y + u / msg_r, u % msg_r, base_up + u / msg_r, u % msg_r, one_poly.clone())],
+                msg_coeffs: vec![(base_z + u / msg_r, u % msg_r, neg_one_poly.clone())],
+            })
+            .collect();
+        let h0_round = match &tr_state {
+            Some(tr) => ct_h0(&crs, &tr.state(), &t1s, &t2s, &[]),
+            None => ct_h0(&crs, &h0_link_b, &t1s, &t2s, &[]),
+        };
+        let openings: Vec<StdOpening> = all_msgs
+            .iter()
+            .zip(all_rhos.iter())
+            .enumerate()
+            .map(|(i, (xm, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x: xm, rho })
+            .collect();
+        let (wave_proof, _) = prove_ct_round(
+            &path, &ctx_ring, &rp, None, &crs, &h0_round, &lin_claims, &[], &[], &quad_ring,
+            &openings, &[], &[], n_data, &mut rng,
+        );
+
+        // -- q46 grounding rounds (FS-with-aborts per round). --
+        let t_q46 = Instant::now();
+        struct GndRound {
+            acoms: Vec<ring::ct_engine::AjtaiCommit>,
+            y_arp: Vec<Vec<i64>>,
+            h0_g: [u8; 32],
+            proof: ring::ct_engine::CtRoundProof,
+        }
+        let mut gnd_rounds: Vec<GndRound> = Vec::with_capacity(UK8_RPB);
+        for r in 0..UK8_RPB {
+            // Round-local commitment list: 4 units then the g-groups.
+            let unit_ids = [4 * r, 4 * r + 1, 4 * r + 2, 4 * r + 3];
+            let rt1s: Vec<Vec<Poly>> = unit_ids
+                .iter()
+                .map(|&u| bd.bits_t1s[u].clone())
+                .chain(gt1s_g[r].iter().cloned())
+                .collect();
+            let rt2s: Vec<Vec<Poly>> = unit_ids
+                .iter()
+                .map(|&u| bd.bits_t2s[u].clone())
+                .chain(gt2s_g[r].iter().cloned())
+                .collect();
+            let ctx_r: Vec<u8> = h0_link_b.iter().copied().chain((r as u64).to_le_bytes()).collect();
+            let mut arp_rounds = 0usize;
+            let (m_packed, rho_m, acoms, h0_g, jl, y_arp) = loop {
+                arp_rounds += 1;
+                assert!(arp_rounds < 400, "ARP restart budget exhausted");
+                let masks: Vec<Vec<i64>> = (0..4).map(|_| sample_arp_mask(&ap, &mut rng)).collect();
+                let packed: Vec<Vec<Vec<i64>>> = masks.iter().map(|m| pack_arp_mask(&ap, m)).collect();
+                let rhs: Vec<Vec<Vec<i64>>> = (0..4)
+                    .map(|_| (0..gl_g.shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect())
+                    .collect();
+                let acoms: Vec<AjtaiCommit> = (0..4)
+                    .map(|u| ajtai_commit(&crs_g, &b_mat, &packed[u], &rhs[u]))
+                    .collect();
+                let acom_refs: Vec<&AjtaiCommit> = acoms.iter().collect();
+                let h0_g = ct_h0(&crs_g, &ctx_r, &rt1s, &rt2s, &acom_refs);
+                let jl = derive_jl_rows(&h0_g, ap.rows, ap.n);
+                let mut ys: Vec<Vec<i64>> = Vec::new();
+                for (ui, &u) in unit_ids.iter().enumerate() {
+                    let flat: Vec<i64> = bd.bits_msgs[u]
+                        .iter()
+                        .flat_map(|p| p.iter().map(|&v| v as i64))
+                        .collect();
+                    match arp_attempt(&ap, &jl, &flat, &masks[ui], &mut rng) {
+                        Some(y) => ys.push(y),
+                        None => break,
+                    }
+                }
+                if ys.len() == 4 {
+                    break (packed, rhs, acoms, h0_g, jl, ys);
+                }
+            };
+            cost.arp_restarts += arp_rounds - 1;
+            let msg_slots = |u: usize| -> Vec<(usize, usize)> {
+                (0..msg_r_g).map(|s| (u, s)).collect()
+            };
+            let mut lin_g: Vec<ring::ct_engine::CtClaim> = Vec::new();
+            for u in 0..4usize {
+                lin_g.extend(arp_claims(&zq_g, &ap, &jl, &msg_slots(u), u, &y_arp[u]));
+            }
+            // Plane i of the round lives at slot i % 4 of the lo (i < 4)
+            // or hi unit of each sub-block; coordinate order is
+            // sub-block 0 (round-local units 0/1) then 1 (units 2/3).
+            let plane_slots: Vec<Vec<(usize, usize)>> = (0..8)
+                .map(|i| {
+                    let hi = usize::from(i >= 4);
+                    vec![(hi, i % 4), (2 + hi, i % 4)]
+                })
+                .collect();
+            lin_g.extend(link_claims_gnd(&zq_g, &lp_r, &xi_r[r], &y_link[r], &plane_slots));
+            assert_eq!(lin_g.len(), n_lin_g);
+            let mut quad_g = Vec::new();
+            for u in 0..4usize {
+                quad_g.extend(binary_claims(&zq_g, &h0_g, (b * UK8_RPB * 4 + r * 4 + u) as u64, &[(u, msg_r_g)]));
+            }
+            assert_eq!(quad_g.len(), n_quad_g);
+            let x_g_all: Vec<Vec<Poly>> = unit_ids
+                .iter()
+                .map(|&u| bd.bits_msgs[u].clone())
+                .chain(g_msgs_g[r].iter().cloned())
+                .collect();
+            let rho_g_all: Vec<Vec<Vec<i64>>> = unit_ids
+                .iter()
+                .map(|&u| bd.bits_rhos[u].clone())
+                .chain(g_rhos_g[r].iter().cloned())
+                .collect();
+            let openings_g: Vec<StdOpening> = x_g_all
+                .iter()
+                .zip(rho_g_all.iter())
+                .enumerate()
+                .map(|(i, (xm, rho))| StdOpening { t1: &rt1s[i], t2: &rt2s[i], x: xm, rho })
+                .collect();
+            let ajtai_opens: Vec<AjtaiOpening> = (0..4)
+                .map(|u| AjtaiOpening { com: &acoms[u], s: &m_packed[u], rho: &rho_m[u] })
+                .collect();
+            let (proof_g, _) = prove_ct_round(
+                &path_g, &ring_g, &rp_g, None, &crs_g, &h0_g, &lin_g, &[], &quad_g, &[],
+                &openings_g, &[], &ajtai_opens, 4, &mut rng,
+            );
+            gnd_rounds.push(GndRound { acoms, y_arp, h0_g, proof: proof_g });
+        }
+        let q46_prove = t_q46.elapsed().as_secs_f64();
+        cost.q46_prove_s += q46_prove;
+        cost.prove_s += t_prove.elapsed().as_secs_f64();
+
+        // ================= VERIFIER =================
+        let t_verify = Instant::now();
+        // Everything weight-like is re-derived from public data.
+        let h0_link_v = link_h0(&ctx_b, &crs_g, &crs, &q46_t1s, &q46_t2s, &t1s, &t2s);
+        let xi_v: Vec<Vec<Vec<i64>>> = (0..UK8_RPB)
+            .map(|r| derive_link_xi(&uk8_sha(&[&h0_link_v, b"uk8-xi", &(r as u64).to_le_bytes()]), &lp_r))
+            .collect();
+        let (zeta_y_v, zeta_up_v) = zeta_pair(&h0_link_v);
+        let gates_ok = (0..UK8_RPB).all(|r| link_gate_ok(&lp_r, &y_link[r]))
+            && gnd_rounds.iter().all(|g| g.y_arp.iter().all(|y| arp_check_reveal(&ap, y)));
+        verdict.gates_ok &= gates_ok;
+        // Lookup verify: fresh transcript, masked descents on the shape
+        // shells, blinded root cross-check, pins rebuilt and re-absorbed.
+        let mut lin_v: Vec<ring::ct_engine::CtClaim> = Vec::new();
+        let mut tr_v_state: Option<LkpTranscript> = None;
+        if with_lookup {
+            let t_lkp = Instant::now();
+            let (pw, pt, _endw, _endt, alpha_p, h0_lkp) = lkp.as_ref().unwrap();
+            let mut lookup_ok = true;
+            let mut tv = LkpTranscript::new("uk8-lkp", h0_lkp);
+            let av = tv.challenge_k(&kf);
+            lookup_ok &= av == *alpha_p;
+            let vw = masked_gkr_verify(&kf, 1, UK8_DW, &shell_w, pw, &mut tv, false);
+            let vt = masked_gkr_verify(&kf, 1, UK8_DT, &shell_t, pt, &mut tv, false);
+            match (vw, vt) {
+                (Some((roots_w, ew)), Some((roots_t, et))) => {
+                    // The blinded root cross-check = the LogUp identity;
+                    // a failure REJECTS the lookup but the pins are
+                    // still rebuilt so the other chain edges can be
+                    // verified independently (tamper isolation).
+                    lookup_ok &= !kf.is_zero(&roots_w[0][1]) && !kf.is_zero(&roots_t[0][1]);
+                    lookup_ok &= kf.mul(&roots_w[0][0], &roots_t[0][1])
+                        == kf.mul(&roots_t[0][0], &roots_w[0][1]);
+                    let mut pv = descent_pins(base_wm, &shell_w, pw, &ew, UK8_DW);
+                    pv.extend(descent_pins(base_tm, &shell_t, pt, &et, UK8_DT));
+                    pv.extend(leaf_pins(&ew, &et, &av, bd.n_b));
+                    absorb_pins(&mut tv, &pv);
+                    let psi_v = derive_pin_psi(&tv.state(), 9, pv.len() * K_DEG, q);
+                    lin_v = pin_claims(&kf, &pv, n_data, msg_r, &psi_v);
+                    tr_v_state = Some(tv);
+                }
+                _ => lookup_ok = false,
+            }
+            verdict.lookup_ok &= lookup_ok;
+            cost.lkp_verify_s += t_lkp.elapsed().as_secs_f64();
+            if tr_v_state.is_none() {
+                // A broken descent leaves nothing to ground the wave's
+                // pin claims — the whole block rejects here.
+                cost.verify_s += t_verify.elapsed().as_secs_f64();
+                continue;
+            }
+        }
+        for r in 0..UK8_RPB {
+            let slots = vec![(idx_x, 2 * r), (idx_x, 2 * r + 1)];
+            lin_v.extend(link_claims_tgt(&zq, &lp_r, &xi_v[r], &y_link[r], &slots));
+        }
+        lin_v.extend(link_claims_tgt_slot(&ctx_ring, &lp_h, &xi_zero, &zeta_y_v, &y_zero, &y_value_slots));
+        lin_v.extend(link_claims_tgt_slot(&ctx_ring, &lp_h, &xi_zero, &zeta_up_v, &y_zero, &up_value_slots));
+        let h0r_v = match &tr_v_state {
+            Some(tv) => ct_h0(&crs, &tv.state(), &t1s, &t2s, &[]),
+            None => ct_h0(&crs, &h0_link_v, &t1s, &t2s, &[]),
+        };
+        let wave_ok = verify_ct_round(
+            &path, &ctx_ring, &rp, None, &crs, &h0r_v, &lin_v, &[], &[], &quad_ring, &t1s, &t2s,
+            &[], &[], &[], n_data, &wave_proof,
+        );
+        verdict.wave_ok &= wave_ok;
+        let t_q46v = Instant::now();
+        for (r, gr) in gnd_rounds.iter().enumerate() {
+            let unit_ids = [4 * r, 4 * r + 1, 4 * r + 2, 4 * r + 3];
+            let rt1s: Vec<Vec<Poly>> = unit_ids
+                .iter()
+                .map(|&u| bd.bits_t1s[u].clone())
+                .chain(gt1s_g[r].iter().cloned())
+                .collect();
+            let rt2s: Vec<Vec<Poly>> = unit_ids
+                .iter()
+                .map(|&u| bd.bits_t2s[u].clone())
+                .chain(gt2s_g[r].iter().cloned())
+                .collect();
+            let ctx_r: Vec<u8> = h0_link_v.iter().copied().chain((r as u64).to_le_bytes()).collect();
+            let acom_refs: Vec<&AjtaiCommit> = gr.acoms.iter().collect();
+            let h0_g_v = ct_h0(&crs_g, &ctx_r, &rt1s, &rt2s, &acom_refs);
+            let mut round_ok = h0_g_v == gr.h0_g;
+            let jl_v = derive_jl_rows(&h0_g_v, ap.rows, ap.n);
+            let mut lin_gv: Vec<ring::ct_engine::CtClaim> = Vec::new();
+            for u in 0..4usize {
+                lin_gv.extend(arp_claims(&zq_g, &ap, &jl_v, &(0..msg_r_g).map(|s| (u, s)).collect::<Vec<_>>(), u, &gr.y_arp[u]));
+            }
+            let plane_slots: Vec<Vec<(usize, usize)>> = (0..8)
+                .map(|i| {
+                    let hi = usize::from(i >= 4);
+                    vec![(hi, i % 4), (2 + hi, i % 4)]
+                })
+                .collect();
+            lin_gv.extend(link_claims_gnd(&zq_g, &lp_r, &xi_v[r], &y_link[r], &plane_slots));
+            let mut quad_gv = Vec::new();
+            for u in 0..4usize {
+                quad_gv.extend(binary_claims(&zq_g, &h0_g_v, (b * UK8_RPB * 4 + r * 4 + u) as u64, &[(u, msg_r_g)]));
+            }
+            round_ok &= verify_ct_round(
+                &path_g, &ring_g, &rp_g, None, &crs_g, &h0_g_v, &lin_gv, &[], &quad_gv, &[],
+                &rt1s, &rt2s, &[], &[], &acom_refs, 4, &gr.proof,
+            );
+            verdict.q46_ok &= round_ok;
+        }
+        cost.q46_verify_s += t_q46v.elapsed().as_secs_f64();
+        cost.verify_s += t_verify.elapsed().as_secs_f64();
+        // The proof data (t1s/t2s/proofs/openings) drops here — blocks
+        // stream, RSS stays flat (the D-4 decision).
+        if !quiet && b == 0 {
+            // One-time shape line for the log.
+            println!(
+                "  block shape: {} el, {} q31 commitments ({} data + {} g), {} q46 commitments/round x {} rounds, q46 prove {:.2}s",
+                bd.n_b, n_commits, n_data, g_groups, 4 + g_groups_g, UK8_RPB, q46_prove
+            );
+        }
+    }
+    (verdict, cost)
+}
+
+/// [U-K8] battery: the committed FFN-gate chain at one block — honest
+/// ACCEPT through every stage, then a tamper REJECT at every chain edge
+/// and the F5 pair for the chain's new hash edge (zeta before the slot
+/// commitments).
+fn self_test_ffn_chain() {
+    println!("\n[U-K8] committed FFN-gate chain: range-proved X -> masked lookup -> gate-o-up");
+    let n = UK8_B;
+    let t0 = Instant::now();
+    let (v, c) = ffn_chain_run(n, true, ChainTamper::None, 0x5eed_0801, false);
+    assert_true(
+        &format!(
+            "U-K8 honest chain ACCEPTS end-to-end ({} el: statement v2 + q46 range family + MASKED committed lookup (E1-composed Y pins) + Hadamard block output; commit {:.2}s prove {:.2}s verify {:.2}s)",
+            c.n_el, c.commit_s, c.prove_s, c.verify_s
+        ),
+        v.all_ok(),
+    );
+    let (vb, cb) = ffn_chain_run(n, false, ChainTamper::None, 0x5eed_0801, true);
+    assert_true(
+        &format!(
+            "U-K8 baseline arm (lookup omitted) ACCEPTS — the A/B differential is measurable (lookup marginal at this shape, q46 restart noise excluded: prove +{:.2}s, verify +{:.2}s, commit +{} q31 coefficients)",
+            (c.prove_s - c.q46_prove_s) - (cb.prove_s - cb.q46_prove_s),
+            (c.verify_s - c.q46_verify_s) - (cb.verify_s - cb.q46_verify_s),
+            (c.q31_data_coeffs + c.q31_g_coeffs) as i64
+                - (cb.q31_data_coeffs + cb.q31_g_coeffs) as i64
+        ),
+        vb.all_ok(),
+    );
+    // Edge 1 — out-of-range X (wraparound witness; lookup omitted to
+    // isolate the range edge): planes/ARP/binary stay honest, the U-L
+    // link's q31 target rows catch the +256 residue jump.
+    let (vr, _) = ffn_chain_run(n, false, ChainTamper::RangeX, 0x5eed_0802, true);
+    assert_true(
+        "U-K8 edge (range): a wrapped X (+256 residue, honest-looking planes) REJECTS at the q31 wave (link target rows); q46 grounding and gates still pass",
+        !vr.wave_ok && vr.q46_ok && vr.gates_ok && vr.statement_ok,
+    );
+    // Edge 2 — off-table Y: consumed consistently downstream, so ONLY
+    // the lookup's blinded root cross-check can reject.
+    let (vy, _) = ffn_chain_run(n, true, ChainTamper::OffTableY, 0x5eed_0803, true);
+    assert_true(
+        "U-K8 edge (lookup): an off-table Y REJECTS at the masked lookup's root cross-check; wave, q46 and gates pass (the edge is isolated)",
+        !vy.lookup_ok && vy.wave_ok && vy.q46_ok && vy.gates_ok,
+    );
+    // Edge 3 — Hadamard mismatch: one Z slot constant off the product.
+    let (vz, _) = ffn_chain_run(n, true, ChainTamper::HadamardZ, 0x5eed_0804, true);
+    assert_true(
+        "U-K8 edge (gate-o-up): a tampered Z slot constant REJECTS at the quad ring claim; the lookup itself passes",
+        !vz.wave_ok && vz.lookup_ok && vz.q46_ok,
+    );
+    // Edge 4 — the F5 pair for the chain's NEW hash edge: zeta must
+    // follow the slot commitments. ACCEPT leg: a buggy build deriving
+    // zeta from a pre-commitment source accepts junk CRT coordinates
+    // (crafted in the stale zeta's null space) in Y and UP whose
+    // gate-o-up output constants are WRONG — while the masked lookup
+    // PASSES (its E1-composed pins read slot constants only).
+    let (va, _) = ffn_chain_run(n, true, ChainTamper::JunkY { stale: true }, 0x5eed_0805, true);
+    assert_true(
+        "U-K8 order (F5 ACCEPT leg): stale zeta (drawn before the slot commitments) ACCEPTS crafted junk-coordinate Y/UP — with WRONG block-output constants — and the lookup still passes (constants read exactly)",
+        va.all_ok() && va.junk_harm,
+    );
+    let (vs, _) = ffn_chain_run(n, true, ChainTamper::JunkY { stale: false }, 0x5eed_0805, true);
+    assert_true(
+        "U-K8 order (F5 REJECT leg): the shipped zeta (from h0_link_b, post-commitment) REJECTS the same junk at the q31 wave",
+        !vs.wave_ok && vs.lookup_ok && vs.q46_ok,
+    );
+    println!(
+        "  [U-K8] battery done in {:.1}s ({} ARP restarts across runs; timings [NOISY-SHARED])",
+        t0.elapsed().as_secs_f64(),
+        c.arp_restarts
+    );
+}
+
+/// `ffn-chain <n_blocks>` — the U-K8 A/B measurement: the lookup-
+/// integrated chain vs the same chain with the lookup omitted, at
+/// n_blocks x 1020 elements. Prints per-stage totals, the lookup
+/// marginals, committed-coefficient accounting and peak RSS. All wall
+/// times on a shared box are [NOISY-SHARED]; the quiesced re-measurement
+/// is the orchestrator's reconciliation pass.
+fn ffn_chain_bench(n_blocks: usize) {
+    use ring::gkr_masked::masked_pass_bytes;
+    let n_el = n_blocks * UK8_B;
+    println!(
+        "u-k8 ffn-chain bench: {n_el} elements ({n_blocks} blocks x {UK8_B}), committed FFN-gate chain, 1T"
+    );
+    let t_a = Instant::now();
+    let (va, ca) = ffn_chain_run(n_el, true, ChainTamper::None, 0x5eed_08b1, false);
+    let wall_a = t_a.elapsed().as_secs_f64();
+    assert!(va.all_ok(), "arm A (lookup-integrated) must verify");
+    let hwm_a = vm_hwm_kb();
+    let t_b = Instant::now();
+    let (vb, cb) = ffn_chain_run(n_el, false, ChainTamper::None, 0x5eed_08b1, true);
+    let wall_b = t_b.elapsed().as_secs_f64();
+    assert!(vb.all_ok(), "arm B (lookup omitted) must verify");
+    let hwm_b = vm_hwm_kb();
+    let el = n_el as f64;
+    let line = |label: &str, a: f64, b: f64| {
+        println!(
+            "  {label:<28} A {a:8.2}s  B {b:8.2}s  marginal {:+8.2}s = {:+7.1} us/el",
+            a - b,
+            (a - b) / el * 1e6
+        );
+    };
+    println!("  arm A = lookup-integrated chain; arm B = same chain, lookup omitted. [NOISY-SHARED]");
+    line("commit", ca.commit_s, cb.commit_s);
+    line("prove (all rounds)", ca.prove_s, cb.prove_s);
+    line("  of which q46 grounding", ca.q46_prove_s, cb.q46_prove_s);
+    // The q46 FS-with-aborts restart LUCK differs across arms (h0_link_b
+    // binds the arms' different commitment lists, so the JL draws
+    // differ); the q46 WORK per attempt is identical. The q46-excluded
+    // prove marginal is therefore the honest lookup edge.
+    line(
+        "prove excl. q46 (lookup edge)",
+        ca.prove_s - ca.q46_prove_s,
+        cb.prove_s - cb.q46_prove_s,
+    );
+    line("verify (all rounds)", ca.verify_s, cb.verify_s);
+    line("  of which q46 grounding", ca.q46_verify_s, cb.q46_verify_s);
+    line(
+        "verify excl. q46 (lookup edge)",
+        ca.verify_s - ca.q46_verify_s,
+        cb.verify_s - cb.q46_verify_s,
+    );
+    line("wall (incl. setup)", wall_a, wall_b);
+    println!(
+        "  lookup stage attribution (arm A only): prove {:.2}s ({:.1} us/el), verify {:.2}s ({:.1} us/el) — trees + masked descents + pin building",
+        ca.lkp_prove_s,
+        ca.lkp_prove_s / el * 1e6,
+        ca.lkp_verify_s,
+        ca.lkp_verify_s / el * 1e6
+    );
+    let dce_a = ca.q31_data_coeffs + ca.q31_g_coeffs;
+    let dce_b = cb.q31_data_coeffs + cb.q31_g_coeffs;
+    println!(
+        "  committed q31 coefficients: A {dce_a} (data {} + g {}), B {dce_b} -> lookup marginal {:.1} dce/el at B = {UK8_B} sub-instances (m + blinders + masks + pin g's; amortizes as 1/B — ~1e-4 dce/el at the design's 5.6e6-el instances [MODEL])",
+        ca.q31_data_coeffs, ca.q31_g_coeffs,
+        (dce_a - dce_b) as f64 / el
+    );
+    println!(
+        "  q46 grounding side (both arms, cancels in the marginal): {} committed coefficients = {:.0} dce/el chain-native range cost",
+        ca.q46_coeffs,
+        ca.q46_coeffs as f64 / el
+    );
+    println!(
+        "  masked lookup transcript: {} B/block x {n_blocks} blocks = {:.0} KB; ARP restarts A {} / B {}",
+        masked_pass_bytes(UK8_DW, UK8_DT, 0, 1),
+        (masked_pass_bytes(UK8_DW, UK8_DT, 0, 1) * n_blocks) as f64 / 1024.0,
+        ca.arp_restarts,
+        cb.arp_restarts
+    );
+    println!(
+        "  peak RSS: {:.2} GiB after arm A, {:.2} GiB after both (blocks stream; the H-03 wall does not bind at this block size)",
+        hwm_a as f64 / 1024.0 / 1024.0,
+        hwm_b as f64 / 1024.0 / 1024.0
+    );
+    println!(
+        "  true FFN gate instance = 512 x 11008 = 5,636,096 el = {} blocks: linear extrapolation only — see the U-K8 doc block for the two as-built capacity walls (C2 wave cap, q46 ARP granularity)",
+        5_636_096usize.div_ceil(UK8_B)
+    );
+    println!("ffn-chain bench done ({n_el} elements, all timings [NOISY-SHARED] 1T)");
+}
+
+/// LKP-8 — the U-K8 chain operating point (frozen constants + the two
+/// as-built capacity walls, pinned in both directions).
+fn freeze_check_uk8() -> bool {
+    use ring::ct_engine::{arp_budget_ok, derive_arp_params, derive_ct_round_params, theta_rows};
+    use ring::gkr::ceiling_gate_ok;
+    use ring::gkr_masked::blinder_positions;
+    use ring::link::derive_gadget_layer;
+    let mut all_ok = true;
+    let mut gate = |label: &str, ok: bool| {
+        println!("  {} {label}", if ok { "ok  " } else { "FAIL" });
+        all_ok &= ok;
+    };
+    // The block sub-instance: 1020 elements is exactly the first blinder
+    // position of the depth-11 witness tree; the ceiling clears trivially.
+    gate(
+        "LKP-8 U-K8 block = 1020 el (blinder_positions(2^11)[0]), dt = 9, ceiling ok",
+        UK8_B == blinder_positions(1 << UK8_DW)[0] && ceiling_gate_ok(1 << UK8_DW, Q8),
+    );
+    // Wall 1 (q31 C2 wave cap): the chain's ~113-commitment block round
+    // derives; a 200-commitment round does NOT — the reason the chain is
+    // blocked at B = 1020 rather than one descent per tensor. (The C2
+    // arithmetic is replicated inline because release builds abort on
+    // the derive-time assert; derive_ct_round_params at the chain's
+    // actual count runs live inside ffn_chain_run.)
+    {
+        let c2_fits = |n_commits: usize| -> bool {
+            let bundle = (n_commits * 26 * D) as f64;
+            let op = 1.3 * (2.0 * D as f64).sqrt();
+            let sigma = (12.0 * op * bundle.sqrt()).ceil();
+            let bound = 1.2 * sigma * bundle.sqrt();
+            let beta = (2.0 * bound + op * bundle.sqrt()).ceil() as u128;
+            (Q8 as u128) > 8 * beta
+        };
+        let _ = derive_ct_round_params(
+            Q8,
+            CommitShape { kappa: 8, n_r: 26, msg_r: 8 },
+            113,
+            0,
+            0,
+            true,
+        );
+        gate(
+            "LKP-8 wall 1: q31 C2 wave cap — 113 commitments derive, 200 do NOT (single-descent committed lookups cap near 2^17 el/round)",
+            c2_fits(113) && !c2_fits(200),
+        );
+    }
+    // Wall 2 (q46 ARP): the 512-bit unit at alpha = 3.5 closes the
+    // budget; alpha = 5 at the same unit does NOT (the restart-coupling
+    // cap that fixes 4 units per grounding round).
+    {
+        let ap_ok = derive_arp_params(512, 256, 1, UK8_ALPHA);
+        let ap_hot = derive_arp_params(512, 256, 1, 5.0);
+        gate(
+            "LKP-8 wall 2: q46 ARP unit 512 bits at alpha 3.5 closes; alpha 5.0 does NOT (4 restart-coupled units/round)",
+            arp_budget_ok(&ap_ok, (ring::Q8_46 / 2) as f64)
+                && !arp_budget_ok(&ap_hot, (ring::Q8_46 / 2) as f64),
+        );
+    }
+    // The q46 gadget layer at msg_r = 4 (one unit per commitment) and the
+    // link/zeta operating points ride the frozen F3 constants (w=11 l=24).
+    gate(
+        "LKP-8 q46 layer msg_r = 4 derives; binary theta rows = 6; link w = 11 -> l = 24",
+        derive_gadget_layer(ring::Q8_46, 4, 16).is_some()
+            && theta_rows(ring::Q8_46) == 6
+            && ring::link::link_rows(11) == 24,
+    );
+    all_ok
 }
 
 // U-L freeze rows: the F3 modulus-link derive-time gates. Called at the end

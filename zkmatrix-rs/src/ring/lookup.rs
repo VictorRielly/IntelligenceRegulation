@@ -236,6 +236,49 @@ pub struct PinnedValue {
     pub value: KElem,
 }
 
+/// U-K8 (the slot-packed E4 variant, M4_LOOKUP_DESIGN Section 3.4):
+/// E1-composed pin weights for a SLOT-PACKED (H3) tensor. The pin's
+/// functional wants sum_t w_t * value_t where value_t is the CONSTANT
+/// coordinate of CRT slot t%k of packed element t/k — itself a public
+/// base-field row over the element's D coefficients (crt_coord_rows
+/// row (t%k)*slot_deg). Folding the per-VALUE K weights through those
+/// rows gives per-COEFFICIENT K weights, i.e. the same PinTerm::Scalar
+/// claim family as a dense tensor with a different public weight
+/// computation — exactly the design's "no new claim family" promise.
+/// `const_rows[s]` is slot s's constant-coordinate projection row (D
+/// base scalars); `weights[t]` the K weight on value t; output length
+/// chunks * D (one K weight per committed coefficient, in element
+/// order). Cost: k * D KElem-scales per packed element.
+pub fn slot_pin_weights(
+    kf: &KField,
+    const_rows: &[Vec<u64>],
+    weights: &[KElem],
+    chunks: usize,
+) -> Vec<KElem> {
+    let k = const_rows.len();
+    let mut out = vec![kf.zero(); chunks * D];
+    for u in 0..chunks {
+        for (s, row) in const_rows.iter().enumerate() {
+            let t = u * k + s;
+            if t >= weights.len() {
+                break;
+            }
+            let w = &weights[t];
+            if kf.is_zero(w) {
+                continue;
+            }
+            assert_eq!(row.len(), D);
+            for (i, &m) in row.iter().enumerate() {
+                if m != 0 {
+                    let o = &mut out[u * D + i];
+                    *o = kf.add(o, &kf.scale(m, w));
+                }
+            }
+        }
+    }
+    out
+}
+
 /// psi for the pin batch: `copies` x (pins * K_DEG) randomizer rows,
 /// drawn from transcript state that already binds every pinned value.
 pub fn derive_pin_psi(state: &[u8; 32], copies: usize, rows: usize, q: u64) -> Vec<Vec<u64>> {

@@ -1,231 +1,142 @@
-# U-K5d/e tranche — progress ledger (masked lookup: battery + label lift)
+# U-K8 + U-K9 tranche — progress ledger (masked-lookup FFN integration + kernel-grade K-mults)
 
-Branch: perf/zk-batch-optimizations, base ace3f9b (statement-integrity merge).
-Spec: docs/zkmatrix-poc/M4_LOOKUP_ZK_DESIGN.md Section 6 (build plan U-K5a..e);
-reference semantics: scripts/logup_zk_mask_spike.py (11/11 OK, do not modify).
+Branch: perf/zk-batch-optimizations, base 7da16f2 (U-K5 label-lift push).
+Specs: U-K8 = M4_LOOKUP_DESIGN.md Section 8 item U-K8 + the audit-reopened TRUE exit
+(committed FFN-shape tensor + slot-packed E4 + upstream range + downstream gate-o-up);
+U-K9 = M4_LOOKUP_DESIGN.md Section 7' closing paragraph (lane-packed bulk slot
+arithmetic through the A1 kernel class + lazy reduction in round_poly/build_tree)
++ the audit H-03 memory refactor (KElem inline [u64;16]/SoA, streamed layers).
 Build: PATH="$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin:$PATH" cargo build --release
-Suite: PATH=... python3 -m unittest discover -s tests   (42 tests, must stay green; freeze-check too)
-Do NOT touch: codex-audit-*, src/manifest.rs, ring/link.rs, statement/[U7] sections of
-ring_matmul.rs, scripts/logup_zk_mask_spike.py. Docs are Agent B's + orchestrator's lane.
-Known flake: tests/test_zk_lattice.py Pi1Tests::test_rejects_tampered_responses
-(unseeded true randomness, pre-existing) — rerun in isolation, do not chase.
+Suite: PATH=... python3 -m unittest discover -s tests   (42 tests + freeze-check, must stay green)
+Do NOT touch: codex-audit-* (read-only), scripts/logup_*_spike.py, src/manifest.rs.
 
-## Lanes
+## Lanes and file ownership (three parallel agents)
 
-- Agent A (this checkout, critical path): D1-D3 below. Incremental commits, no push.
-- Agent B (worktree, parallel): U-K5e paper part — three lemmas into Q4_LEMMAS.md
-  + Section 3.3 hash-edge rows into SOUNDNESS_REFERENCE.md Section 7. NO label lift.
-- Orchestrator (after both): review, merge B, re-grade parent Section 3.5 with measured
-  numbers, lift the non-ZK label (M4_LOOKUP_DESIGN.md header + TARGET_CONTRACT.md +
-  LLM_SCALE_ESTIMATE.md row), push.
+- Agent A (U-K8, THIS checkout): ring_matmul.rs (chain/battery/bench sections),
+  ring/lookup.rs (additive), docs (M4_LOOKUP_DESIGN 7'/statuses, LLM_SCALE_ESTIMATE,
+  TRANSFORMER_PROOF_PLAN Section 2), this ledger. Must NOT restructure ring/kfield.rs,
+  ring/sumcheck.rs, ring/gkr.rs, ring/gkr_masked.rs (Agent B owns their internals;
+  A consumes their public API as-is).
+- Agent B (U-K9, worktree): ring/kfield.rs, ring/sumcheck.rs, ring/gkr.rs,
+  ring/gkr_masked.rs internals; MINIMAL localized ring_matmul.rs edits only (CLI cap,
+  bench flag). Public KElem/KField API stays source-compatible. Own ledger
+  PROGRESS_UK9.md + report U_K9_KERNEL_REPORT.md (new files). Does NOT edit shared docs.
+- Agent C (flake fix, worktree): tests/test_zk_lattice.py only.
+- Orchestrator (after all): merge C then B, resolve, suite green, QUIESCED-MACHINE
+  reconciliation re-measurement (lookup-bench + U-K8 chain bench), fold U-K9 numbers
+  into Section 7'/ladder, push.
+
+## Timing hygiene (shared box)
+
+Two agents bench on one 22-thread machine simultaneously: every interim timing is
+marked [NOISY-SHARED]; ladder-grade numbers come from the orchestrator's
+reconciliation pass on a quiet machine after merge.
 
 ## Deliverable state
 
-- [x] D1 U-K5c COMPLETION (exit criteria from Section 6 that 784bb78's plumbing did not meet):
-      masked descent wired over COMMITTED tensors — mask-coefficient commitments in
-      statement-wave slots, blinded witness/table trees (builders exist), G_j pins +
-      Rp/Rq opening pins + aggregate-only P/Q leaf pins as E4 CtClaims via the U-K5c
-      pin-weight builders + U-K6 e4 machinery; v^X/v^Y/v^M retired from the transcript;
-      end-to-end masked pass on a committed FFN-shape tensor ACCEPTS; Z1-class
-      m-recovery harness at engine scale (recovers m from the zero-mask transcript,
-      FAILS against the masked one); freeze row LKP-7 (masked transcript shape: round
-      counts, evaluation pattern, byte count at the frozen FFN point).
-- [x] D2 U-K5d NEGATIVE BATTERY:
-      E3Z-N1 (F5 pair, spike Z4): G unpinned/crafted after nu ACCEPTS a false lookup;
-        shipped order REJECTS the same crafting.
-      E3Z-N2 (F5 pair, spike Z6): blinder mass solved at KNOWN alpha ACCEPTS;
-        fresh alpha REJECTS the same committed blinders.
-      E3Z-N3 (mask freshness): two passes sharing one g-mask — transcript difference
-        reproduces the unmasked leak (demonstrated); engine REFUSES reuse (enforced).
-      E3Z-N4 (rank canaries): Z3b/Z3c exposure-rank certificates as derive-time checks
-        at engine shapes (leaf pads 4/4, R-mask 6/6, round-poly rank n_g with l+1
-        forced relations) + guard-restart regression (Section 3.4 guard fires, restarted
-        pass verifies).
-- [x] D3 RE-RUNS UNDER MASKING: E3-N1..N5 and E4-N1/N2 attack pairs against the masked
-      pipeline (h0_lkp binds strictly more data; psi follows the mask openings —
-      E4-N1's scope grows, same attack shape).
-- [x] D4 MEASURED NUMBERS for the U-K5e re-grade, recorded here: prover/verifier delta
-      masked vs unmasked at battery shape; mask material counts (LKP-6); transcript
-      bytes at the frozen FFN point (LKP-7).  --> see "## D4 measured numbers" below.
-- [x] D5 DONE (5f17c70, 39e96e5; merged a724bb9) (Agent B) Q4_LEMMAS.md: adapted Libra counting lemma (component 4), boundary-
-      mask rank lemma (components 5-6), top-variety lemma (component 3), each graded
-      [PROVEN at spike scale; engine-scale battery = U-K5d]. SOUNDNESS_REFERENCE.md
-      Section 7: merged Section 3.3 hash-edge rows with attack-pair pointers.
-- [x] FINAL DONE (orchestrator): suite independently re-verified 42/42 green (138 s);
-      Agent B branch merged (a724bb9); Section 3.5 re-graded with D4 numbers;
-      non-ZK label LIFTED at subprotocol level across M4_LOOKUP_DESIGN (header,
-      3.5 update, row 12, Section 8 U-K5 item, Section 9 item 1),
-      M4_LOOKUP_ZK_DESIGN (status header, Section 4 table note), Q4.7-Q4.9 grades,
-      SOUNDNESS_REF Section 7 rows, TARGET_CONTRACT (ZK status, U-K5 row, and a
-      NEW proof-size TIGHTNESS FLAG: masked lookup transcript alone 150 KB vs the
-      256 KB budget), LLM_SCALE_ESTIMATE M4 row. Honest scope kept everywhere:
-      HVZK proof-of-protocol at the subprotocol level; U-K8 FFN integration and
-      chain-wide composition remain OPEN.
+- [x] A-D1 Committed FFN-gate chain built: range-proved X in (q46 U-L link) ->
+      masked+committed lookup certifies Y = SiLU(X) ([U-K5c] machinery) ->
+      downstream gate-o-up Hadamard consumes Y (E1/E2 slot machinery); slot-packed
+      E4 variant wired if the U-K6 slot-packed weight path supports it. Honest
+      ACCEPT + tamper REJECT at every chain edge (out-of-range X, off-table Y,
+      Hadamard mismatch, stale-hash orderings).
+      DONE 2026-07-10: `ring_matmul ffn-chain [n_blocks | battery]` +
+      `self_test_ffn_chain` in self-test. Statement v2 (Binary/Range/Lookup/
+      Hadamard ops, output Z) is the chain ctx. The slot-packed E4 variant IS
+      wired: there was no pre-existing U-K6 slot-packed weight path, so it was
+      built additively as ring/lookup.rs::slot_pin_weights (E1-composed
+      per-coefficient pin weights; Y lives ONLY slot-packed) — it composes
+      with the masked pins cleanly (the Q-pin's Y term). Battery green (7/7):
+      honest ACCEPT, baseline-arm ACCEPT, RangeX REJECT (link rows), OffTableY
+      REJECT (root cross-check, isolated), HadamardZ REJECT (quad claim),
+      zeta F5 pair (stale-zeta ACCEPT leg with WRONG output constants while
+      the lookup passes / shipped-zeta REJECT leg). Freeze row LKP-8 (chain
+      operating point + both capacity walls pinned both directions).
+- [ ] A-D2 Measured at the largest per-instance shape that fits as-built memory
+      (H-03 gap documented honestly if full 512x11008 does not fit; full-shape
+      re-measure planned post-U-K9-merge). Marginal costs: lookup-integrated chain
+      vs bare matmul chain, and the differential vs piecewise variant-A.
+- [ ] A-D3 Docs: Section 7' U-K8 block (measured, not [MODEL]), the four-status
+      header flips FFN-integration status honestly, LLM_SCALE_ESTIMATE M4 row,
+      TRANSFORMER_PROOF_PLAN Section 2 reconciliation. Freeze row for any new
+      frozen constant (house discipline).
+- [ ] B-D1 Lane-packed bulk slot arithmetic (the U-K1 8-lane adapter) through the
+      A1 kernel class + lazy reduction in round_poly/build_tree/fuse/descent hot
+      loops. Differential battery: bulk path bit-identical to scalar path;
+      LKP-5/6/7 freeze digests MUST NOT move.
+- [ ] B-D2 H-03 memory refactor: KElem inline [u64;16]/SoA, streamed layer
+      construction; RSS measured at 2^20/2^22/2^23; CLI cap lifted to what fits.
+- [ ] B-D3 Measured kernel report (U_K9_KERNEL_REPORT.md): us/el before/after at
+      2^18/2^20 (lookup-bench unchanged as the yardstick), reduction-discipline
+      vs lane-occupancy attribution, honest [NOISY-SHARED] marks.
+- [ ] C-D1 tests/test_zk_lattice.py tamper flake fixed without weakening the
+      test's meaning; demonstrated stable over many repeats.
+- [ ] FINAL (orchestrator): merges, suite green, quiesced re-measurement,
+      Section 7'/ladder reconciliation with U-K9 numbers, push.
 
 ## Key facts (for resume)
 
-- U-K5a/b landed 08051af (masked GKR core, [U-K5ab] battery, LKP-6); U-K5c plumbing
-  landed 784bb78 (DescentEnd opening points, fixed-coins HV transcript mode for leak
-  harnesses ONLY, blinded tree builders, mask flatten/offset helpers, pin-weight
-  builders g_hypersum_weights/g_open_weights/r_open_weights, mul-by-kappa matrix).
-- Anchors in zkmatrix-rs/src/bin/ring_matmul.rs: [U-K5ab] battery ~7634-7760; LKP-6
-  freeze row ~8012; lookup-bench honesty label ~7878; U-K6 e4 machinery: e4_claims/
-  derive_e4_psi/mle_weights_block/mul_y.
-- Engine API: zkmatrix-rs/src/ring/gkr_masked.rs (masked_gkr_prove/verify, MaskSet,
-  BlinderSet, blinded_witness_tree/blinded_table_tree, masked_transcript_shape,
-  mask_coeff_counts).
-- Mask commitments need msg_r >= 2 statement-wave slots (U-K5a).
+- Lookup core as-built: 10.8-10.9 us/el 1T scalar schoolbook slot_mul_g, per-mult
+  reduction; model 0.5-1 us/el = kernel-grade (Section 7'). Pass = 1.8e8 elements.
+- Memory as-built: N=2^20 ~ 1.5 GiB RSS; 2^23 ~ 12 GiB does not fit 15 GB box;
+  CLI caps 2^22. FFN per-layer instance = 512x11008 = 5.6e6 el ~ 2^22.4.
+- [U-K5c] committed masked pass battery (self_test_lookup_zk) = the base for A-D1;
+  13-commitment CRS msg_r=8, 60 aggregate pins, pin layer in ring/lookup.rs.
+- Upstream range: chain-demo q46 U-L link pattern (ring_matmul.rs [U7w] sections);
+  downstream Hadamard: U-E2 slot-constancy machinery (link_claims_tgt_slot).
+- Piecewise variant-A differential baseline: M4_ACTIVATION_DESIGN.md numbers
+  (+201% commit bill class).
+- Known flake (Agent C's lane): Pi1Tests::test_rejects_tampered_responses —
+  secrets.randbelow unseeded; +1 tamper on one Gaussian response coordinate
+  occasionally survives the approximate check.
 
-## Agent A working notes (D1 recon, 2026-07-10)
+## A (U-K8) design decisions — recorded before coding (spec left these open)
 
-- D1 plan: new battery section [U-K5c] in ring_matmul.rs self-test (fn
-  self_test_lookup_zk, called from main after self_test_lookup). Committed
-  masked pipeline at battery shape: 1 instance, witness depth 8 (96 honest
-  leaves; honest block must stay below blinder position n/2-4), table depth 9
-  (256 SiLU rows SPLIT across halves — rows 0..127 at 0..127, 128..255 at
-  256..383 — because a front-packed 256-row table fills the whole left half
-  and the tL blinder needs left-half dummy space; blinded_table_tree gets the
-  split layout + collision asserts; nothing used it yet).
-- Commitment layout (shape kappa 8 / n_r 26 / msg_r 2, U-K6 CRS class):
-  idx 0 X, 1 Y, 2 m (scalars packed D=128/slot), 3 blinders (16 K-el = 256
-  coeffs: w.tl.a,u, w.tr.a,u, w.f0.., w.f1.., then table same), 4..30 mask
-  coefficients (witness MaskSet.flatten 189 K-el then table 230 K-el, 16
-  K-el per msg_r=2 commitment), + 9 ct-round masks = 40 commitments.
-  h0_lkp = ct_h0 over ALL of them (alpha follows masks/blinders: E3Z-N2 edge).
-- Pin machinery (ring/lookup.rs, additive): PinTerm::{Scalar,Kelems},
-  PinnedValue, pin_claims (psi-batched CtClaims via k_weight_coords +
-  pack_functional), derive_pin_psi(state, copies, rows, q). Pin list order:
-  witness layers (G_j, open_g, [j>=2] open_rp, open_rq), table same, then
-  W P-pin, W Q-pin, T P-pin, T Q-pin. Leaf pin identities:
-    W P: p* - H(z*) = sum eqw_bl a_bl
-    W Q: alpha H + D - q* = sum L_i x_i + sum (Y L_i) y_i - sum eqw_bl u_bl
-    T P: p* = sum L_pos(j) m_j + sum eqw_bl a'_bl
-    T Q: q* - alpha H_t - D_t + MLE(table)(z*) = sum eqw_bl u'_bl
-  v^X/v^Y/v^M never sent (retired; U-K6's e4-v absorb is the unmasked
-  baseline battery and stays).
-- m-recovery harness: fixed-coins mode, table descent only, probe basis =
-  zero masks + benign (0,1) blinders at the depth-9 split layout, 257 proves,
-  base-field Gaussian elimination (rank 256). Same probe matrix reused by
-  E3Z-N3 (transcript difference of two mask-sharing passes = affine in
-  mA - mB; needs shared alpha => fixed-coins modelling, documented).
-- LKP-7 numbers (computed, to pin): masked_transcript_totals at FFN point
-  (incl. layer1 quadruples, G_j, boundaries, openings): witness (23,5,32) =
-  385 rounds / 1862 K-el, table (9,5,32) = 84 / 532; pass total 2394 K-el =
-  153216 B at 64 B/K-el (16 coeffs x 4 B wire convention).
-- Mask freshness (E3Z-N3 enforcement): MaskSet gains used: Cell<bool>;
-  masked_gkr_prove refuses reuse (panic), harness_reset_freshness() for
-  leak harnesses/attack modelling only.
-- D2/D3 modelling: ordering attacks via fixed-coins transcripts (the spike's
-  adversary-readable tape) for ACCEPT legs; shipped legs = pin flag /
-  committed pin claims / real ratcheting transcript. E4-N1 masked: forge
-  (orp + lambda t, orq - t) — end-check invariant direction — solve 9 psi
-  constraints over t's 16 coords (U-K7 Gaussian-elimination shape).
+- D-1 BLOCKED CHAIN (row-block sub-instances). The q31 ct-round has a hard
+  C2 capacity: q > 8*beta caps one round at ~134 commitments of the U-K5c
+  CRS shape (kappa 8, n_r 26, msg_r 8) ~ 4.4e5 committed coefficients.
+  A single-descent committed lookup therefore caps at ~2^17 dense elements
+  per round as-built — BEFORE the H-03 memory wall binds. The chain is
+  built as independent row-block sub-instances of B = 1020 elements
+  (dw = 11 witness tree: 1020 = blinder_positions(2048)[0], dt = 9 table),
+  each with its own m column, masks, blinders, descents, pins and q31
+  round — the design's Section 9 item 5 sub-instancing. Ceiling margin
+  only improves; transcript volume grows (recorded honestly).
+- D-2 SLOT-PACKED Y (the E1-composed E4 variant). Y lives ONLY slot-packed
+  (H3) so the downstream gate-o-up Hadamard can consume it; the lookup's
+  Q-pin reads Y through per-coefficient weights composed from the
+  slot-constant CRT projection rows (new additive helper in
+  ring/lookup.rs: slot_pin_weights). X stays dense (offset code x+128 for
+  the U-L link; the -128 fold rides the pin value, coefficient 128*hw).
+  Slot-constancy of Y and UP pinned by standalone zeta rows
+  (link_claims_tgt_slot with xi = 0, y = 0); Z inherits by GF(q) closure.
+- D-3 q46 RANGE SIDE: per-round grouping with a scaled ARP alpha. The
+  ARP budget (arp_budget_ok at q46, SLACK_OP = 512, JL_C = 13) caps
+  units at ~896 bits AND caps alpha at ~4 for 512-bit units; whole-round
+  restarts couple all units of a round. Frozen chain point: sub-block =
+  128 values -> two 512-bit units (planes 0-3 / 4-7, msg_r_g = 4);
+  q46 rounds of U = 4 units (256 values) at alpha = 3.5 (per-unit accept
+  e^-0.47, ~6.5 expected restarts/round, budget 2.66e13 < q46/2); one
+  U-L link instance per q46 round (w = 11, l = 24). LKP-8 freeze row.
+- D-4 STREAMING BINDING. Tensor commitments (X, planes, Y, UP, Z, m,
+  blinders, masks) all precede the statement digest (ctx). Per-block
+  h0_link_b = link_h0(ctx+block, both sides' block lists INCLUDING that
+  block's g-masks); xi/zeta/alpha derive from it. Cross-block: every
+  witness commitment is bound through ctx; g-masks are bound block-locally
+  (they mask only their own round's reveals). This keeps RSS flat while
+  preserving commit-before-challenge for every weight-like value.
+- D-5 The A/B differential: arm A = chain with the masked lookup (m,
+  blinders, masks, pins); arm B = identical chain minus the lookup
+  material. Range + Hadamard costs cancel in the marginal.
 
-## Decisions (spec-open, recorded here)
+## Blocker
 
-Points the design/spec left open that Agent A resolved during the build:
-
-1. Commitment layout for the battery (D1): ONE frozen CRS, kappa 8 / n_r 26
-   / msg_r 8, carries X/Y/m (base-field scalars), the blinders + mask
-   coefficients (committed K-elements, 64/commitment) and the ct-round
-   g-masks — 13 commitments. conc=true ct-round params (40+ would overflow
-   q at conc=false). The spec pinned only "msg_r >= 2 statement-wave slots";
-   msg_r=8 was chosen to keep the commitment count small.
-2. Table-tree leaf layout (D1): the 256 SiLU rows are SPLIT across the two
-   halves of the depth-9 blinded tree (rows 0..127 at 0..127, 128..255 at
-   256..383) so each half has dummy space for its top blinder. Pinned by
-   the new table_row_positions; the spec said "depth 9" but not the split.
-3. Aggregate leaf-pin identities (D1): the exact P/Q pin equations
-   (p*-H = sum eqw a_bl; q*-alphaH-D = sum eqw u_bl - (v^X+Y v^Y); table
-   analogues with the fused-row MLE and multiplicity weights). Derived from
-   Section 3.2's prose; recorded in the "working notes" block above and in
-   ring_matmul.rs leaf_pins.
-4. Freshness enforcement surface (D2/N3): release builds set panic="abort",
-   so catch_unwind can't observe the one-time-use assert. Added
-   MaskSet::is_used() as the testable marker (the prove-side assert still
-   aborts on real reuse). Reset via harness_reset_freshness for the rank
-   probes / leak modelling.
-5. D3 scope (per "less code" latitude): demonstrated the edges whose scope
-   the design says GROWS under masking — E3-N1 (alpha now binds masks +
-   blinders) and E4-N1 (pin psi now batches the mask openings) — plus
-   masked tamper-rejects (E3-N4/N5 class). E3-N2 (kappa:=Y fusion) and
-   E4-N2 (ct-round restart confinement) are structurally unchanged by
-   masking and are inherited by the honest masked pass + D1's real ct-round;
-   recorded rather than duplicated.
-6. m-recovery / freshness harnesses use the fixed-coins (honest-verifier)
-   transcript so the transcript stays an affine function of m / of m_a-m_b;
-   the ordering-attack ACCEPT legs use it too (the spike's adversary-
-   readable tape). Shipped legs use real ratcheting transcripts / the pin
-   flag / committed pins.
-
-## D4 measured numbers (for the U-K5e / Section 3.5 re-grade)
-
-These are the measured replacements for the design doc's [MODEL] rows. All
-from the shipped engine (self_test_lookup_zk + freeze-check), q8_31, k=8.
-
-### Prover / verifier delta, masked vs unmasked (the descent core)
-At the battery shape (witness depth 8, table depth 9, ONE instance, 20
-reps, single thread):
-  - prove  (both descents): masked 13.9 ms vs unmasked 6.9 ms  -> x2.0
-  - verify (both descents): masked 0.79 ms vs unmasked 0.59 ms -> x1.4
-Plain reading: the MASKED DESCENT roughly doubles the sumcheck work (the
-one degree-5 first round per layer, the extra w-round, the correction
-summands and the g-mask evaluations). BUT the descent is O(N) and a small
-fraction of a real pass: at the FFN point the pass cost is dominated by the
-tensor weight-expansion (~2.3e7 ring-op-equivalents, M4_LOOKUP_DESIGN),
-against which even a doubled descent is noise. So the PASS-LEVEL prover/
-verifier delta stays sub-percent, consistent with Section 3.5's [MODEL]
-"< 1% of the 43 K-mult/el budget". The committed masked pass (both descents
-+ 60 aggregate pins through a real 13-commitment ct-round) proves in ~13 ms
-at the battery shape.
-
-### Mask material (LKP-6 formulas evaluated) — committed per pass
-At the frozen FFN point (witness depth 23, table depth 9 with blinders,
-e_bits = 5):
-  - witness masks: g 1197 + R 252 K-elements
-  - table   masks: g  266 + R  84 K-elements
-  - blinders:      8 x 2 trees x 32 instances = 512 K-elements
-  - TOTAL: 2311 K-elements/pass = 36976 dce (16 base coeffs/K-el).
-(Battery-shape sanity, dw=8/dt=9, e=0: witness g117+R72, table g146+R84.)
-
-### Transcript bytes (LKP-7) at the frozen FFN point
-Masked transcript volume (round polys + layer-1 quadruples + per-layer
-G/boundary/openings), 64 B per K-element (16 base coeffs x 4 B, q<2^31):
-  - witness: 385 rounds, 1862 K-elements
-  - table:    84 rounds,  532 K-elements
-  - PASS TOTAL: 2394 K-elements = 153216 B = 150 KB/pass.
-(Design Section 3.5 estimated ~140 KB; measured 150 KB.)
-
-Both LKP-6 and LKP-7 are pinned as freeze rows in `ring_matmul freeze-check`
-(green); LKP-7 is the row added this tranche.
+(none so far)
 
 ## Log
 
-- 2026-07-10: tranche opened at ace3f9b; ledger written; Agents A and B launched.
-- 2026-07-10: Agent A recon done (design doc + spike + engine read); D1 plan
-  + pin identities + LKP-7 arithmetic recorded above; starting D1 build.
-- 2026-07-10: D1-D4 ALL GREEN (Agent A critical path complete). Commits on
-  perf/zk-batch-optimizations (local, not pushed): D1 U-K5c committed masked
-  pass + m-recovery + LKP-7; D2 U-K5d E3Z-N1..N4 F5 pairs + rank canaries;
-  D3 E3/E4 edges re-run under masking; D4 timing + measured numbers (this
-  file). Full suite 42/42 green; freeze-check green (LKP-7 row added);
-  ring self-test 202 checks pass in ~36s. Decisions the spec left open are
-  listed under "## Decisions (spec-open, recorded here)" below. Remaining:
-  D5 (Agent B, docs) and the orchestrator's Section 3.5 re-grade + label lift.
-- 2026-07-10: D1 GREEN. [U-K5c] battery in self_test_lookup_zk: committed
-  masked pass (13 commits: X/Y/m/blinders/wmask x3/tmask x4 + 2 ct-g-mask,
-  msg_r=8) ACCEPTS with 60 aggregate pins (G_j/open_g/open_Rp/Rq + 4 leaf
-  P/Q pins) through pin_claims + a real ct-round; v^X/v^Y/v^M retired.
-  m-recovery: rank 256/256 exact from zero-mask transcript (407 ms), wrong m
-  from masked. LKP-7 freeze row wired: FFN point witness 385 rounds/1862 K-el,
-  table 84/532, pass 153216 B (150 KB at 64 B/K-el). ring/gkr_masked.rs:
-  freshness Cell, split table_row_positions, masked_transcript_totals/
-  masked_pass_bytes. ring/lookup.rs: PinTerm/PinnedValue/pin_claims/
-  derive_pin_psi. Freeze-check passes.
-- 2026-07-10: TRANCHE COMPLETE. Agent B docs merged (a724bb9); orchestrator
-  re-grade + label lift committed; suite 42/42 green re-verified independently;
-  pushed. The U-K5 masking obligation (audit C-01 / design row 12) is closed at
-  the subprotocol level. Next per the audit-aligned order: true U-K8 exit
-  (masked lookup inside a committed FFN-shape pass with upstream range +
-  downstream gate-o-up), then U-K9 kernel-grade K-mults + the H-03 memory
-  refactor, then the GPU experiment.
+- 2026-07-10: tranche opened at 7da16f2; ledger written; Agents A (U-K8),
+  B (U-K9), C (flake) launched.
+- 2026-07-10 A: read spec/audit/engine; recorded D-1..D-5 above. Key
+  discovered constraint: the C2 wave capacity (not H-03 memory) is the
+  binding wall for a committed single-descent lookup — goes in the docs.
