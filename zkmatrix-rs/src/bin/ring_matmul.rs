@@ -6056,6 +6056,7 @@ fn main() {
             self_test_lookup();
             self_test_lookup_zk();
             self_test_ffn_chain();
+            self_test_uk9();
             self_test_m5_chunking();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
         }
@@ -9169,6 +9170,175 @@ fn self_test_lookup_zk_neg_d3(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
 }
 
 // ===========================================================================
+// U-K9 (M4_LOOKUP_DESIGN Section 7'): the bulk-kernel differential
+// battery. The lane-packed, lazy-reduction kernel paths (kfield.rs
+// KTab/KKern; gkr.rs layer_sumcheck_bulk; gkr_masked.rs
+// masked_rounds_bulk) must be BIT-IDENTICAL to the scalar oracle
+// (KField::harness_scalar — the original code, kept shipped) on random
+// primitives, whole unmasked descents (single- and multi-instance) and
+// whole masked descents. The shipped [U-K1..K5] batteries themselves run
+// on the bulk path (KField::new), so this battery is the wire that pins
+// the two implementations together.
+fn self_test_uk9() {
+    use ring::gkr::{absorb_roots, build_tree, eq_table, gkr_prove, gkr_verify};
+    use ring::gkr_masked::{
+        BlinderSet, blinded_witness_tree, draw_masks, masked_gkr_prove, masked_gkr_verify,
+    };
+    use ring::kfield::{KElem, KField, bulk_mul_fixed_kelems};
+    use ring::lookup::{fuse_pair, silu_int8_table, table_spec_digest};
+    use ring::sumcheck::{LkpTranscript, fold, mle_eval};
+    println!(
+        "\n[U-K9] bulk kernels: lane-packed slot arithmetic + lazy reduction vs the scalar oracle"
+    );
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let kfo = KField::harness_scalar(&ctx);
+    let zq = ctx.zq;
+    let mut xr = XofReader::new("uk9-battery", &[b"seed-1"]);
+
+    // ---- primitive differentials (random data, bulk vs scalar) ----
+    let n = 1usize << 9;
+    let ta: Vec<KElem> = (0..n).map(|_| kf.uniform(&mut xr)).collect();
+    let tb: Vec<KElem> = (0..n).map(|_| kf.uniform(&mut xr)).collect();
+    let r = kf.uniform(&mut xr);
+    assert_true(
+        "U-K9 fold: bulk == scalar on a 2^9 random table",
+        fold(&kf, &ta, &r) == fold(&kfo, &ta, &r),
+    );
+    let pt: Vec<KElem> = (0..9).map(|_| kf.uniform(&mut xr)).collect();
+    assert_true(
+        "U-K9 mle_eval: bulk == scalar (2^9 table, random point)",
+        mle_eval(&kf, &ta, &pt) == mle_eval(&kfo, &ta, &pt),
+    );
+    assert_true(
+        "U-K9 eq_table: bulk == scalar (9 variables)",
+        eq_table(&kf, &pt) == eq_table(&kfo, &pt),
+    );
+    let odd = &tb[..37];
+    assert_true(
+        "U-K9 fixed-operand map: bulk == scalar incl. the sub-block tail (n = 37)",
+        bulk_mul_fixed_kelems(&kf, odd, &r)
+            == odd.iter().map(|e| kfo.mul(e, &r)).collect::<Vec<_>>(),
+    );
+
+    // ---- whole unmasked descents: trees, transcripts, proofs ----
+    let rows = silu_int8_table();
+    let spec_dg = table_spec_digest(&rows);
+    let flat_gkr = |p: &ring::gkr::GkrDescentProof| -> Vec<KElem> {
+        let mut out = Vec::new();
+        for sc in &p.layers {
+            for g in &sc.rounds {
+                out.extend(g.iter().cloned());
+            }
+            out.extend(sc.final_evals.iter().cloned());
+        }
+        out
+    };
+    let nn = 1usize << 10;
+    let mut rng = 0x5eed_0909u64;
+    let xs: Vec<i64> = (0..nn).map(|_| rng_below(&mut rng, 256) as i64 - 128).collect();
+    let run_unmasked = |field: &KField| -> (Vec<KElem>, Vec<KElem>, KElem, KElem, [KElem; 2]) {
+        let w: Vec<KElem> = xs
+            .iter()
+            .map(|&x| {
+                let y = rows[(x + 128) as usize].1;
+                fuse_pair(field, zq.to_mod(x), zq.to_mod(y))
+            })
+            .collect();
+        let mut tr = LkpTranscript::new("uk9-unmasked", &spec_dg);
+        let alpha = tr.challenge_k(field);
+        let tree = build_tree(
+            field,
+            vec![field.one(); nn],
+            w.iter().map(|wi| field.sub(&alpha, wi)).collect(),
+        );
+        let root = tree.root();
+        absorb_roots(field, &[root.clone()], &mut tr);
+        let (proof, z, p, q) = gkr_prove(field, &[tree], &mut tr);
+        (flat_gkr(&proof), z, p, q, root)
+    };
+    let (fa, za, pa, qa, ra) = run_unmasked(&kf);
+    let (fb, zb, pb, qb, rb) = run_unmasked(&kfo);
+    assert_true(
+        "U-K9 unmasked descent (N = 2^10, 1 instance): roots, every round poly, boundaries, final point and claims bit-identical",
+        fa == fb && za == zb && pa == pb && qa == qb && ra == rb,
+    );
+    // multi-instance (e_bits = 1) + cross-verification of the bulk proof
+    let run_pair = |field: &KField| -> (Vec<KElem>, Vec<KElem>, KElem, KElem, bool) {
+        let mk_tree = |field: &KField, alpha: &KElem, seed_off: i64| {
+            let leaves: Vec<KElem> = xs[..512]
+                .iter()
+                .map(|&x| {
+                    let y = rows[((x + seed_off).rem_euclid(256)) as usize].1;
+                    fuse_pair(field, zq.to_mod(x), zq.to_mod(y))
+                })
+                .collect();
+            build_tree(
+                field,
+                vec![field.one(); 512],
+                leaves.iter().map(|wi| field.sub(alpha, wi)).collect(),
+            )
+        };
+        let mut tr = LkpTranscript::new("uk9-pair", &spec_dg);
+        let alpha = tr.challenge_k(field);
+        let t1 = mk_tree(field, &alpha, 0);
+        let t2 = mk_tree(field, &alpha, 7);
+        let roots = [t1.root(), t2.root()];
+        absorb_roots(field, &roots, &mut tr);
+        let (proof, z, p, q) = gkr_prove(field, &[t1, t2], &mut tr);
+        // verify (scalar machinery) accepts the proof
+        let mut tv = LkpTranscript::new("uk9-pair", &spec_dg);
+        let _ = tv.challenge_k(field);
+        absorb_roots(field, &roots, &mut tv);
+        let ok = gkr_verify(field, &roots, 9, &proof, &mut tv)
+            .map(|(zv, pv, qv)| zv == z && pv == p && qv == q)
+            .unwrap_or(false);
+        (flat_gkr(&proof), z, p, q, ok)
+    };
+    let (fa2, za2, pa2, qa2, oka) = run_pair(&kf);
+    let (fb2, zb2, pb2, qb2, okb) = run_pair(&kfo);
+    assert_true(
+        "U-K9 unmasked descent (2 instances, e_bits = 1): bulk == scalar and both verify",
+        fa2 == fb2 && za2 == zb2 && pa2 == pb2 && qa2 == qb2 && oka && okb,
+    );
+
+    // ---- whole masked descent: bulk == scalar, and it verifies ----
+    let dw = 8usize;
+    let nw = 1usize << dw;
+    let run_masked = |field: &KField| -> (Vec<KElem>, Vec<KElem>, KElem, KElem, bool) {
+        let mut trm = LkpTranscript::fixed_coins("uk9-masks", &spec_dg);
+        let masks = draw_masks(field, &mut trm, dw, 0);
+        let bl = BlinderSet::draw(field, &mut trm);
+        let alpha = trm.challenge_k(field);
+        let w_fused: Vec<KElem> = xs[..100]
+            .iter()
+            .map(|&x| {
+                let y = rows[(x + 128) as usize].1;
+                fuse_pair(field, zq.to_mod(x), zq.to_mod(y))
+            })
+            .collect();
+        let tree = blinded_witness_tree(field, &alpha, &w_fused, dw, &bl);
+        let mut tr = LkpTranscript::new("uk9-masked", &spec_dg);
+        let (proof, end) = masked_gkr_prove(field, &[tree], &masks, &mut tr);
+        let mut tv = LkpTranscript::new("uk9-masked", &spec_dg);
+        let ok = masked_gkr_verify(field, 1, dw, &masks, &proof, &mut tv, true)
+            .map(|(_, ev)| ev.zstar == end.zstar && ev.p_claim == end.p_claim && ev.q_claim == end.q_claim)
+            .unwrap_or(false);
+        let flat: Vec<KElem> = flatten_masked(&proof);
+        (flat, end.zstar, end.p_claim, end.q_claim, ok)
+    };
+    let (ma, mza, mpa, mqa, moka) = run_masked(&kf);
+    let (mb, mzb, mpb, mqb, mokb) = run_masked(&kfo);
+    assert_true(
+        "U-K9 masked descent (depth 8, blinded, fresh masks): every transcript element bit-identical, both verify with pins",
+        ma == mb && mza == mzb && mpa == mpb && mqa == mqb && moka && mokb,
+    );
+    assert_true(
+        "U-K9 kernel gate: the frozen q31 point runs the bulk path; the oracle instance does not",
+        kf.kern.is_some() && kfo.kern.is_none(),
+    );
+}
+
 // U-K8 (M4_LOOKUP_DESIGN Section 8): lookup-bench — the measured
 // replacement for the design's [MODEL] prover constants. One instance
 // of N = 2^n int8 SiLU lookups through the REAL pipeline pieces:

@@ -116,7 +116,8 @@ pub fn mle_weights_block(kf: &KField, z: &[KElem], block: usize, lb: usize) -> V
         let f = if (block >> t) & 1 == 1 { zt.clone() } else { kf.sub(&kf.one(), zt) };
         pre = kf.mul(&pre, &f);
     }
-    inner.into_iter().map(|e| kf.mul(&e, &pre)).collect()
+    // U-K9: the block product rides the bulk kernel (bit-identical).
+    super::kfield::bulk_mul_fixed_kelems(kf, &inner, &pre)
 }
 
 /// The 9 psi-batched E4 claims. weights_w / weights_t are the tensor

@@ -120,8 +120,13 @@ impl LkpTranscript {
 
 /// Bind variable 0 of a little-endian multilinear table to r:
 /// T'[i] = T[2i] + r (T[2i+1] - T[2i]). Halves the table.
+/// (U-K9: runs on the packed bulk kernel when live; identical values.)
 pub fn fold(kf: &KField, table: &[KElem], r: &KElem) -> Vec<KElem> {
     assert!(table.len() >= 2 && table.len() % 2 == 0);
+    if kf.kern.is_some() && table.len() >= 32 {
+        let t = super::kfield::KTab::from_kelems(table);
+        return kf.kt_fold(&t, r).to_kelems();
+    }
     (0..table.len() / 2)
         .map(|i| {
             let d = kf.sub(&table[2 * i + 1], &table[2 * i]);
@@ -132,8 +137,14 @@ pub fn fold(kf: &KField, table: &[KElem], r: &KElem) -> Vec<KElem> {
 
 /// Evaluate the multilinear extension of a table at a point (variable
 /// 0 first — the fold order). The E4 claim value v = MLE(T)(r).
+/// (U-K9: one pack, then packed folds to the end — the verifier's direct
+/// MLE grounding rides this.)
 pub fn mle_eval(kf: &KField, table: &[KElem], point: &[KElem]) -> KElem {
     assert_eq!(table.len(), 1 << point.len());
+    if kf.kern.is_some() && table.len() >= 32 {
+        let t = super::kfield::KTab::from_kelems(table);
+        return kf.kt_mle_eval(t, point);
+    }
     let mut cur = table.to_vec();
     for r in point {
         cur = fold(kf, &cur, r);

@@ -34,8 +34,8 @@
 // multilinear machinery; the g-mask and the correction term are summed
 // in closed form per round (g_hypersum style).
 
-use super::gkr::{FracTree, eq_eval, eq_table};
-use super::kfield::{KElem, KField};
+use super::gkr::{FracTree, eq_eval, eq_table, extract_children};
+use super::kfield::{KElem, KField, KL, k9_addc_blocks, k9_round_g_blocks, kop};
 use super::sumcheck::{LkpTranscript, lagrange_eval};
 
 // ---------------------------------------------------------------------------
@@ -382,6 +382,402 @@ struct CorrCtx {
     cv0_plus_cv1: KElem, // cv(0) + cv(1)
 }
 
+/// U-K9: the per-layer inputs shared by the scalar and bulk rounds
+/// implementations (bit-identical transcripts).
+struct MaskedLayerCtx<'a> {
+    j: usize,
+    child_masked: bool,
+    lambda: &'a KElem,
+    spp: &'a [KElem; 2],
+    spq: &'a [KElem; 2],
+    corr: Option<&'a CorrCtx>,
+    masks: &'a MaskSet,
+    gm: &'a GMask,
+    nu: &'a KElem,
+}
+
+/// tail_ones[t] = sum_{s>t} g_s(1) — the analytic g-mask suffix table.
+fn g_tail_ones(kf: &KField, gm: &GMask) -> Vec<KElem> {
+    let ones: Vec<KElem> =
+        gm.uni.iter().map(|c| c.iter().fold(kf.zero(), |a, x| kf.add(&a, x))).collect();
+    let mut tail = vec![kf.zero(); ones.len()];
+    for t in (0..ones.len().saturating_sub(1)).rev() {
+        tail[t] = kf.add(&tail[t + 1], &ones[t + 1]);
+    }
+    if tail.is_empty() {
+        tail = vec![kf.zero()];
+    }
+    tail
+}
+
+/// One masked b-round's evaluations, scalar (the original loop body).
+#[allow(clippy::too_many_arguments)]
+fn masked_b_round_evals(
+    kf: &KField,
+    d: usize,
+    t: usize,
+    lay: &MaskedLayerCtx,
+    eq_cur: &[KElem],
+    p0c: &[KElem],
+    p1c: &[KElem],
+    q0c: &[KElem],
+    q1c: &[KElem],
+    corr_prefix: &KElem,
+    g_prefix: &KElem,
+    g_tail_t: &KElem,
+) -> Vec<KElem> {
+    let mut evals = vec![kf.zero(); d + 1];
+    let half = eq_cur.len() / 2;
+    for (x, ev) in evals.iter_mut().enumerate() {
+        let xk = kf.embed(x as u64);
+        let zz = if t == 0 && lay.child_masked {
+            // Z-hat(X) = X(1 - X) — the child-mask factor rides the
+            // FIRST b-variable.
+            kf.mul(&xk, &kf.sub(&kf.one(), &xk))
+        } else {
+            kf.zero()
+        };
+        let mut acc = kf.zero();
+        for i in 0..half.max(1) {
+            let ext = |tb: &[KElem]| -> KElem {
+                if half == 0 {
+                    return tb[0].clone();
+                }
+                let dlt = kf.sub(&tb[2 * i + 1], &tb[2 * i]);
+                kf.add(&tb[2 * i], &kf.mul(&xk, &dlt))
+            };
+            let eqv = ext(eq_cur);
+            let (mut vp0, mut vp1, mut vq0, mut vq1) =
+                (ext(p0c), ext(p1c), ext(q0c), ext(q1c));
+            if t == 0 && lay.child_masked {
+                vp0 = kf.add(&vp0, &kf.mul(&zz, &lay.spp[0]));
+                vp1 = kf.add(&vp1, &kf.mul(&zz, &lay.spp[1]));
+                vq0 = kf.add(&vq0, &kf.mul(&zz, &lay.spq[0]));
+                vq1 = kf.add(&vq1, &kf.mul(&zz, &lay.spq[1]));
+            }
+            let wire = kf.add(
+                &kf.add(&kf.mul(&vp0, &vq1), &kf.mul(&vp1, &vq0)),
+                &kf.mul(lay.lambda, &kf.mul(&vq0, &vq1)),
+            );
+            acc = kf.add(&acc, &kf.mul(&eqv, &wire));
+        }
+        // The (1 - w) suffix over w sums to 1 — wire term unchanged.
+        // Correction: prefix * (1 - X) * E * (cv(0) + cv(1)).
+        if let Some(cc) = lay.corr {
+            let fx = kf.mul(corr_prefix, &kf.sub(&kf.one(), &xk));
+            acc = kf.add(&acc, &kf.mul(&fx, &kf.mul(&cc.e, &cc.cv0_plus_cv1)));
+        }
+        // g-mask: analytic suffix sum.
+        let gv = g_round_eval(kf, lay.gm, g_prefix, t, &xk, g_tail_t);
+        acc = kf.add(&acc, &kf.mul(lay.nu, &gv));
+        *ev = acc;
+    }
+    evals
+}
+
+/// The masked w-round's evaluations (tables folded to constants).
+#[allow(clippy::too_many_arguments)]
+fn masked_w_round_evals(
+    kf: &KField,
+    d: usize,
+    t: usize,
+    lay: &MaskedLayerCtx,
+    bp0: &KElem,
+    bp1: &KElem,
+    bq0: &KElem,
+    bq1: &KElem,
+    eqv: &KElem,
+    corr_prefix: &KElem,
+    g_prefix: &KElem,
+) -> Vec<KElem> {
+    let mut evals = vec![kf.zero(); d + 1];
+    let wire = kf.add(
+        &kf.add(&kf.mul(bp0, bq1), &kf.mul(bp1, bq0)),
+        &kf.mul(lay.lambda, &kf.mul(bq0, bq1)),
+    );
+    for (x, ev) in evals.iter_mut().enumerate() {
+        let xk = kf.embed(x as u64);
+        let mut acc = kf.mul(&kf.sub(&kf.one(), &xk), &kf.mul(eqv, &wire));
+        if let Some(cc) = lay.corr {
+            let (rp_j, rq_j) = &lay.masks.r[lay.j - 2];
+            let cv = kf.add(
+                &eval_r(kf, rp_j, &cc.mu_prev, &xk),
+                &kf.mul(lay.lambda, &eval_r(kf, rq_j, &cc.mu_prev, &xk)),
+            );
+            acc = kf.add(&acc, &kf.mul(corr_prefix, &kf.mul(&cc.e, &cv)));
+        }
+        let gv = g_round_eval(kf, lay.gm, g_prefix, t, &xk, &kf.zero());
+        acc = kf.add(&acc, &kf.mul(lay.nu, &gv));
+        *ev = acc;
+    }
+    evals
+}
+
+/// The original scalar rounds loop of one masked layer (the U-K9
+/// differential-oracle path; also q46-class moduli and sub-block sizes).
+fn masked_rounds_scalar(
+    kf: &KField,
+    trees: &[FracTree],
+    e_bits: usize,
+    zeta: &[KElem],
+    lay: &MaskedLayerCtx,
+    mut c_run: KElem,
+    tr: &mut LkpTranscript,
+) -> (Vec<Vec<KElem>>, Vec<KElem>, [KElem; 4]) {
+    let j = lay.j;
+    let n_bvars = j + e_bits;
+    let size = trees.len() << j;
+    let eqt = eq_table(kf, zeta);
+    assert_eq!(eqt.len(), size);
+    let (mut p0, mut p1, mut q0, mut q1) = (
+        Vec::with_capacity(size),
+        Vec::with_capacity(size),
+        Vec::with_capacity(size),
+        Vec::with_capacity(size),
+    );
+    for i in 0..size {
+        let (e, b) = (i >> j, i & ((1 << j) - 1));
+        p0.push(trees[e].p_elem(j + 1, 2 * b));
+        p1.push(trees[e].p_elem(j + 1, 2 * b + 1));
+        q0.push(trees[e].q_elem(j + 1, 2 * b));
+        q1.push(trees[e].q_elem(j + 1, 2 * b + 1));
+    }
+    let degs = sc_degrees(n_bvars, lay.child_masked);
+    let mut rounds: Vec<Vec<KElem>> = Vec::with_capacity(n_bvars + 1);
+    let mut rs: Vec<KElem> = Vec::with_capacity(n_bvars + 1);
+    let mut g_prefix = lay.gm.a0.clone();
+    let g_tail = g_tail_ones(kf, lay.gm);
+    let mut corr_prefix = kf.one(); // prod over bound b vars of (1 - r)
+    let mut eq_cur = eqt;
+    let (mut p0c, mut p1c, mut q0c, mut q1c) = (p0, p1, q0, q1);
+    for t in 0..=n_bvars {
+        let d = degs[t];
+        let evals = if t < n_bvars {
+            masked_b_round_evals(
+                kf, d, t, lay, &eq_cur, &p0c, &p1c, &q0c, &q1c, &corr_prefix, &g_prefix,
+                &g_tail[t],
+            )
+        } else {
+            masked_w_round_evals(
+                kf, d, t, lay, &p0c[0], &p1c[0], &q0c[0], &q1c[0], &eq_cur[0], &corr_prefix,
+                &g_prefix,
+            )
+        };
+        debug_assert_eq!(kf.add(&evals[0], &evals[1]), c_run, "honest round broke");
+        tr.absorb_k(kf, "mgkr-round", &evals);
+        let r = tr.challenge_k(kf);
+        c_run = lagrange_eval(kf, &evals, &r);
+        if t < n_bvars {
+            let fold = |tb: &Vec<KElem>| -> Vec<KElem> { super::sumcheck::fold(kf, tb, &r) };
+            eq_cur = fold(&eq_cur);
+            p0c = fold(&p0c);
+            p1c = fold(&p1c);
+            q0c = fold(&q0c);
+            q1c = fold(&q1c);
+            if t == 0 && lay.child_masked {
+                // Fold the child-mask constant zz * SP(c) into the
+                // tables — downstream rounds see plain multilinears.
+                let zz = kf.mul(&r, &kf.sub(&kf.one(), &r));
+                for e in p0c.iter_mut() {
+                    *e = kf.add(e, &kf.mul(&zz, &lay.spp[0]));
+                }
+                for e in p1c.iter_mut() {
+                    *e = kf.add(e, &kf.mul(&zz, &lay.spp[1]));
+                }
+                for e in q0c.iter_mut() {
+                    *e = kf.add(e, &kf.mul(&zz, &lay.spq[0]));
+                }
+                for e in q1c.iter_mut() {
+                    *e = kf.add(e, &kf.mul(&zz, &lay.spq[1]));
+                }
+            }
+            // g prefix: absorb g_t(r).
+            let mut gt_r = kf.zero();
+            let mut xp = r.clone();
+            for a in &lay.gm.uni[t] {
+                gt_r = kf.add(&gt_r, &kf.mul(a, &xp));
+                xp = kf.mul(&xp, &r);
+            }
+            g_prefix = kf.add(&g_prefix, &gt_r);
+            corr_prefix = kf.mul(&corr_prefix, &kf.sub(&kf.one(), &r));
+        }
+        rounds.push(evals);
+        rs.push(r);
+    }
+    let boundary = [p0c[0].clone(), p1c[0].clone(), q0c[0].clone(), q1c[0].clone()];
+    (rounds, rs, boundary)
+}
+
+/// U-K9: the bulk-kernel rounds loop of one masked layer. The table part
+/// of every full-block b-round runs on the packed kernels (successive-add
+/// extrapolation, 3-product wire with the QL = lambda*q0 table, one
+/// deferred reduction per node); the analytic mask/correction terms are
+/// the same O(1) scalar arithmetic as the oracle path; g(1) is produced
+/// through the round identity g(0) + g(1) = C. Values are bit-identical
+/// to masked_rounds_scalar.
+fn masked_rounds_bulk(
+    kf: &KField,
+    trees: &[FracTree],
+    zeta: &[KElem],
+    lay: &MaskedLayerCtx,
+    mut c_run: KElem,
+    tr: &mut LkpTranscript,
+) -> (Vec<Vec<KElem>>, Vec<KElem>, [KElem; 4]) {
+    let kern = kf.kern.as_ref().expect("bulk masked layer requires the kernel");
+    let j = lay.j;
+    let n_bvars = zeta.len();
+    let mut eq_cur = kf.kt_eq_table(zeta);
+    let (mut p0c, mut p1c, mut q0c, mut q1c) = extract_children(trees, j);
+    debug_assert_eq!(eq_cur.n, p0c.n);
+    let mut ql = kf.kt_mul_fixed(&q0c, lay.lambda);
+    let degs = sc_degrees(n_bvars, lay.child_masked);
+    let mut rounds: Vec<Vec<KElem>> = Vec::with_capacity(n_bvars + 1);
+    let mut rs: Vec<KElem> = Vec::with_capacity(n_bvars + 1);
+    let mut g_prefix = lay.gm.a0.clone();
+    let g_tail = g_tail_ones(kf, lay.gm);
+    let mut corr_prefix = kf.one();
+    for t in 0..=n_bvars {
+        let d = degs[t];
+        let evals: Vec<KElem> = if t == n_bvars {
+            masked_w_round_evals(
+                kf,
+                d,
+                t,
+                lay,
+                &p0c.get(0),
+                &p1c.get(0),
+                &q0c.get(0),
+                &q1c.get(0),
+                &eq_cur.get(0),
+                &corr_prefix,
+                &g_prefix,
+            )
+        } else if eq_cur.n >= 2 * KL {
+            // Bulk b-round: nodes {0, 2, .., d}; node 1 via the identity.
+            let masked_now = t == 0 && lay.child_masked;
+            let nodes: Vec<u64> = (0..=d as u64).filter(|&x| x != 1).collect();
+            let consts: Option<Vec<[[u32; super::kfield::K_DEG]; 5]>> = if masked_now {
+                Some(
+                    nodes
+                        .iter()
+                        .map(|&x| {
+                            let xk = kf.embed(x);
+                            let zz = kf.mul(&xk, &kf.sub(&kf.one(), &xk));
+                            let cq0 = kf.mul(&zz, &lay.spq[0]);
+                            [
+                                kop(&kf.mul(&zz, &lay.spp[0])),
+                                kop(&kf.mul(&zz, &lay.spp[1])),
+                                kop(&cq0),
+                                kop(&kf.mul(&zz, &lay.spq[1])),
+                                kop(&kf.mul(lay.lambda, &cq0)),
+                            ]
+                        })
+                        .collect(),
+                )
+            } else {
+                None
+            };
+            let mut acc_lo = vec![0u64; nodes.len() * 31 * KL];
+            let mut acc_hi = vec![0u64; nodes.len() * 31 * KL];
+            k9_round_g_blocks(
+                kern,
+                &eq_cur.d,
+                &p0c.d,
+                &p1c.d,
+                &q0c.d,
+                &q1c.d,
+                &ql.d,
+                eq_cur.n / 2 / KL,
+                &nodes,
+                consts.as_deref(),
+                &mut acc_lo,
+                &mut acc_hi,
+            );
+            let mut evals = vec![kf.zero(); d + 1];
+            for (ni, &x) in nodes.iter().enumerate() {
+                let xk = kf.embed(x);
+                let mut acc = kf.kt_round_g_finalize(
+                    &acc_lo[ni * 31 * KL..(ni + 1) * 31 * KL],
+                    &acc_hi[ni * 31 * KL..(ni + 1) * 31 * KL],
+                );
+                if let Some(cc) = lay.corr {
+                    let fx = kf.mul(&corr_prefix, &kf.sub(&kf.one(), &xk));
+                    acc = kf.add(&acc, &kf.mul(&fx, &kf.mul(&cc.e, &cc.cv0_plus_cv1)));
+                }
+                let gv = g_round_eval(kf, lay.gm, &g_prefix, t, &xk, &g_tail[t]);
+                acc = kf.add(&acc, &kf.mul(lay.nu, &gv));
+                evals[x as usize] = acc;
+            }
+            evals[1] = kf.sub(&c_run, &evals[0]);
+            evals
+        } else {
+            // Sub-block tail rounds: scalar body on extracted tables.
+            masked_b_round_evals(
+                kf,
+                d,
+                t,
+                lay,
+                &eq_cur.to_kelems(),
+                &p0c.to_kelems(),
+                &p1c.to_kelems(),
+                &q0c.to_kelems(),
+                &q1c.to_kelems(),
+                &corr_prefix,
+                &g_prefix,
+                &g_tail[t],
+            )
+        };
+        debug_assert_eq!(kf.add(&evals[0], &evals[1]), c_run, "honest bulk round broke");
+        tr.absorb_k(kf, "mgkr-round", &evals);
+        let r = tr.challenge_k(kf);
+        c_run = lagrange_eval(kf, &evals, &r);
+        if t < n_bvars {
+            eq_cur = kf.kt_fold(&eq_cur, &r);
+            p0c = kf.kt_fold(&p0c, &r);
+            p1c = kf.kt_fold(&p1c, &r);
+            q0c = kf.kt_fold(&q0c, &r);
+            q1c = kf.kt_fold(&q1c, &r);
+            ql = kf.kt_fold(&ql, &r);
+            if t == 0 && lay.child_masked {
+                let zz = kf.mul(&r, &kf.sub(&kf.one(), &r));
+                let cq0 = kf.mul(&zz, &lay.spq[0]);
+                let adds = [
+                    (&mut p0c, kf.mul(&zz, &lay.spp[0])),
+                    (&mut p1c, kf.mul(&zz, &lay.spp[1])),
+                    (&mut q0c, cq0.clone()),
+                    (&mut q1c, kf.mul(&zz, &lay.spq[1])),
+                    (&mut ql, kf.mul(lay.lambda, &cq0)),
+                ];
+                for (tab, c) in adds {
+                    if tab.n >= KL {
+                        debug_assert_eq!(tab.n % KL, 0);
+                        let nblk = tab.n / KL;
+                        k9_addc_blocks(kern, &mut tab.d, &kop(&c), nblk);
+                    } else {
+                        for i in 0..tab.n {
+                            let v = kf.add(&tab.get(i), &c);
+                            tab.set(i, &v);
+                        }
+                    }
+                }
+            }
+            // g prefix: absorb g_t(r).
+            let mut gt_r = kf.zero();
+            let mut xp = r.clone();
+            for a in &lay.gm.uni[t] {
+                gt_r = kf.add(&gt_r, &kf.mul(a, &xp));
+                xp = kf.mul(&xp, &r);
+            }
+            g_prefix = kf.add(&g_prefix, &gt_r);
+            corr_prefix = kf.mul(&corr_prefix, &kf.sub(&kf.one(), &r));
+        }
+        rounds.push(evals);
+        rs.push(r);
+    }
+    let boundary = [p0c.get(0), p1c.get(0), q0c.get(0), q1c.get(0)];
+    (rounds, rs, boundary)
+}
+
 /// Prove the masked descent for L same-shape trees (blinder-extended
 /// leaves included by the caller). The transcript must already bind
 /// the mask commitments (before alpha, upstream) and everything the
@@ -412,10 +808,10 @@ pub fn masked_gkr_prove(
         .iter()
         .map(|t| {
             [
-                t.layers_p[1][0].clone(),
-                t.layers_p[1][1].clone(),
-                t.layers_q[1][0].clone(),
-                t.layers_q[1][1].clone(),
+                t.p_elem(1, 0),
+                t.p_elem(1, 1),
+                t.q_elem(1, 0),
+                t.q_elem(1, 1),
             ]
         })
         .collect();
@@ -441,24 +837,13 @@ pub fn masked_gkr_prove(
     zeta.extend(z_e.clone());
     let mut layers = Vec::with_capacity(depth - 1);
     let mut layer_pts = Vec::with_capacity(depth - 1);
+    let bulk_ok = kf.kern.is_some() && trees.iter().all(|t| t.is_packed());
     for j in 1..depth {
         let lambda = tr.challenge_k(kf);
         let mut c_run = kf.add(&p_claim, &kf.mul(&lambda, &q_claim));
         let n_bvars = j + e_bits;
         let child_masked = j <= depth - 2;
-        // Child tables over (e << j | b), c in {0, 1} split out.
         let size = l << j;
-        let eqt = eq_table(kf, &zeta);
-        assert_eq!(eqt.len(), size);
-        let (mut p0, mut p1, mut q0, mut q1) =
-            (Vec::with_capacity(size), Vec::with_capacity(size), Vec::with_capacity(size), Vec::with_capacity(size));
-        for i in 0..size {
-            let (e, b) = (i >> j, i & ((1 << j) - 1));
-            p0.push(trees[e].layers_p[j + 1][2 * b].clone());
-            p1.push(trees[e].layers_p[j + 1][2 * b + 1].clone());
-            q0.push(trees[e].layers_q[j + 1][2 * b].clone());
-            q1.push(trees[e].layers_q[j + 1][2 * b + 1].clone());
-        }
         // Child-mask constants: SP_{j+1}(c) for c in {0,1}, p and q.
         let (spp, spq) = if child_masked {
             let (rp, rq) = &masks.r[j + 1 - 2];
@@ -497,156 +882,27 @@ pub fn masked_gkr_prove(
             e
         };
         c_run = kf.add(&c_run, &kf.mul(&nu, &g_sum));
-        // The rounds. State: multilinear tables (folded per b-round),
-        // eq-prefix factor, corr-prefix factor, g partial sums.
-        let degs = sc_degrees(n_bvars, child_masked);
-        let mut rounds: Vec<Vec<KElem>> = Vec::with_capacity(n_bvars + 1);
-        let mut rs: Vec<KElem> = Vec::with_capacity(n_bvars + 1);
-        let mut g_prefix = gm.a0.clone();
-        let mut g_tail: Vec<KElem> = {
-            // tail_ones[t] = sum_{s>t} g_s(1)
-            let ones: Vec<KElem> = gm
-                .uni
-                .iter()
-                .map(|c| c.iter().fold(kf.zero(), |a, x| kf.add(&a, x)))
-                .collect();
-            let mut tail = vec![kf.zero(); ones.len()];
-            for t in (0..ones.len().saturating_sub(1)).rev() {
-                tail[t] = kf.add(&tail[t + 1], &ones[t + 1]);
-            }
-            tail
+        // The rounds (U-K9: bulk kernels when the packed layer is live and
+        // the tables have full lane blocks; the scalar path otherwise —
+        // identical transcript either way).
+        let lay = MaskedLayerCtx {
+            j,
+            child_masked,
+            lambda: &lambda,
+            spp: &spp,
+            spq: &spq,
+            corr: corr.as_ref(),
+            masks,
+            gm,
+            nu: &nu,
         };
-        if g_tail.is_empty() {
-            g_tail = vec![kf.zero()];
-        }
-        let mut corr_prefix = kf.one(); // prod over bound b vars of (1 - r)
-        let mut eq_cur = eqt;
-        let (mut p0c, mut p1c, mut q0c, mut q1c) = (p0, p1, q0, q1);
-        for t in 0..=n_bvars {
-            let d = degs[t];
-            let mut evals = vec![kf.zero(); d + 1];
-            if t < n_bvars {
-                // A b-round: fold-extrapolate the multilinear tables.
-                let half = eq_cur.len() / 2;
-                for (x, ev) in evals.iter_mut().enumerate() {
-                    let xk = kf.embed(x as u64);
-                    let zz = if t == 0 && child_masked {
-                        // Z-hat(X) = X(1 - X) — the child-mask factor
-                        // rides the FIRST b-variable.
-                        kf.mul(&xk, &kf.sub(&kf.one(), &xk))
-                    } else {
-                        kf.zero()
-                    };
-                    let mut acc = kf.zero();
-                    for i in 0..half.max(1) {
-                        let ext = |tb: &Vec<KElem>| -> KElem {
-                            if half == 0 {
-                                return tb[0].clone();
-                            }
-                            let dlt = kf.sub(&tb[2 * i + 1], &tb[2 * i]);
-                            kf.add(&tb[2 * i], &kf.mul(&xk, &dlt))
-                        };
-                        let eqv = ext(&eq_cur);
-                        let (mut vp0, mut vp1, mut vq0, mut vq1) =
-                            (ext(&p0c), ext(&p1c), ext(&q0c), ext(&q1c));
-                        if t == 0 && child_masked {
-                            vp0 = kf.add(&vp0, &kf.mul(&zz, &spp[0]));
-                            vp1 = kf.add(&vp1, &kf.mul(&zz, &spp[1]));
-                            vq0 = kf.add(&vq0, &kf.mul(&zz, &spq[0]));
-                            vq1 = kf.add(&vq1, &kf.mul(&zz, &spq[1]));
-                        }
-                        let wire = kf.add(
-                            &kf.add(&kf.mul(&vp0, &vq1), &kf.mul(&vp1, &vq0)),
-                            &kf.mul(&lambda, &kf.mul(&vq0, &vq1)),
-                        );
-                        acc = kf.add(&acc, &kf.mul(&eqv, &wire));
-                    }
-                    // The (1 - w) suffix over w sums to 1 — wire term
-                    // unchanged. Correction: prefix * (1 - X) * E *
-                    // (cv(0) + cv(1)).
-                    if let Some(cc) = &corr {
-                        let fx = kf.mul(&corr_prefix, &kf.sub(&kf.one(), &xk));
-                        acc = kf.add(&acc, &kf.mul(&fx, &kf.mul(&cc.e, &cc.cv0_plus_cv1)));
-                    }
-                    // g-mask: analytic suffix sum.
-                    let gv = g_round_eval(kf, gm, &g_prefix, t, &xk, &g_tail[t]);
-                    acc = kf.add(&acc, &kf.mul(&nu, &gv));
-                    *ev = acc;
-                }
-            } else {
-                // The w-round: tables are folded to constants.
-                let (bp0, bp1, bq0, bq1) =
-                    (p0c[0].clone(), p1c[0].clone(), q0c[0].clone(), q1c[0].clone());
-                // These constants ALREADY include the child-mask
-                // constant folded in after round 0.
-                let eqv = eq_cur[0].clone();
-                let wire = kf.add(
-                    &kf.add(&kf.mul(&bp0, &bq1), &kf.mul(&bp1, &bq0)),
-                    &kf.mul(&lambda, &kf.mul(&bq0, &bq1)),
-                );
-                for (x, ev) in evals.iter_mut().enumerate() {
-                    let xk = kf.embed(x as u64);
-                    let mut acc = kf.mul(&kf.sub(&kf.one(), &xk), &kf.mul(&eqv, &wire));
-                    if let Some(cc) = &corr {
-                        let (rp_j, rq_j) = &masks.r[j - 2];
-                        let cv = kf.add(
-                            &eval_r(kf, rp_j, &cc.mu_prev, &xk),
-                            &kf.mul(&lambda, &eval_r(kf, rq_j, &cc.mu_prev, &xk)),
-                        );
-                        acc = kf.add(&acc, &kf.mul(&corr_prefix, &kf.mul(&cc.e, &cv)));
-                    }
-                    let gv = g_round_eval(kf, gm, &g_prefix, t, &xk, &kf.zero());
-                    acc = kf.add(&acc, &kf.mul(&nu, &gv));
-                    *ev = acc;
-                }
-            }
-            debug_assert_eq!(kf.add(&evals[0], &evals[1]), c_run, "honest round broke");
-            tr.absorb_k(kf, "mgkr-round", &evals);
-            let r = tr.challenge_k(kf);
-            c_run = lagrange_eval(kf, &evals, &r);
-            if t < n_bvars {
-                let fold = |tb: &Vec<KElem>| -> Vec<KElem> { super::sumcheck::fold(kf, tb, &r) };
-                eq_cur = fold(&eq_cur);
-                p0c = fold(&p0c);
-                p1c = fold(&p1c);
-                q0c = fold(&q0c);
-                q1c = fold(&q1c);
-                if t == 0 && child_masked {
-                    // Fold the child-mask constant zz * SP(c) into the
-                    // tables — downstream rounds see plain multilinears.
-                    let zz = kf.mul(&r, &kf.sub(&kf.one(), &r));
-                    for e in p0c.iter_mut() {
-                        *e = kf.add(e, &kf.mul(&zz, &spp[0]));
-                    }
-                    for e in p1c.iter_mut() {
-                        *e = kf.add(e, &kf.mul(&zz, &spp[1]));
-                    }
-                    for e in q0c.iter_mut() {
-                        *e = kf.add(e, &kf.mul(&zz, &spq[0]));
-                    }
-                    for e in q1c.iter_mut() {
-                        *e = kf.add(e, &kf.mul(&zz, &spq[1]));
-                    }
-                }
-                // g prefix: absorb g_t(r).
-                let mut gt_r = kf.zero();
-                let mut xp = r.clone();
-                for a in &gm.uni[t] {
-                    gt_r = kf.add(&gt_r, &kf.mul(a, &xp));
-                    xp = kf.mul(&xp, &r);
-                }
-                g_prefix = kf.add(&g_prefix, &gt_r);
-                corr_prefix = kf.mul(&corr_prefix, &kf.sub(&kf.one(), &r));
-            }
-            rounds.push(evals);
-            rs.push(r);
-        }
+        let (rounds, rs, boundary) = if bulk_ok && size >= 2 * KL {
+            masked_rounds_bulk(kf, trees, &zeta, &lay, c_run, tr)
+        } else {
+            masked_rounds_scalar(kf, trees, e_bits, &zeta, &lay, c_run, tr)
+        };
         let c_w = rs[n_bvars].clone();
         let r_b: Vec<KElem> = rs[0..n_bvars].to_vec();
-        // Boundary values: masked child MLEs at (c, r_b) — the folded
-        // tables hold exactly these.
-        let boundary =
-            [p0c[0].clone(), p1c[0].clone(), q0c[0].clone(), q1c[0].clone()];
         tr.absorb_k(kf, "mgkr-boundary", &boundary);
         // Openings (E4-pinned by the caller).
         let mut open_pt = r_b.clone();

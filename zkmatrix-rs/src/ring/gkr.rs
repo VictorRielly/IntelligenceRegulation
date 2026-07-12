@@ -38,25 +38,79 @@
 // side p-claim = MLE(multiplicities) and q-claim is verifier-
 // computable from the public fused table.
 
-use super::kfield::{KElem, KField};
-use super::sumcheck::{LkpTranscript, SumcheckProof, mle_eval, sumcheck_prove, sumcheck_verify};
+use super::kfield::{KElem, KField, KL, KTab, k9_tree_step};
+use super::sumcheck::{
+    LkpTranscript, SumcheckProof, lagrange_eval, mle_eval, round_poly, sumcheck_prove,
+    sumcheck_verify,
+};
 
 // ---------------------------------------------------------------------------
 // Trees.
 
-/// One instance's projective tree: layers[k] has 2^k (p, q) pairs,
-/// layers[depth] = the leaves.
+/// One instance's projective tree: layer k holds 2^k (p, q) pairs, layer
+/// depth = the leaves.
+///
+/// U-K9 (H-03): the representation is internal. When the field's bulk
+/// kernel is live (KField::new at the frozen q31 point) layers are packed
+/// lane-blocked u32 tables — 64 B per element instead of a boxed Vec<u64>
+/// KElem (~170 B with allocator overhead) — and the builders/descents run
+/// the kernel-grade bulk paths. The scalar-oracle field
+/// (KField::harness_scalar) and non-qualifying moduli keep the original
+/// boxed layout and scalar arithmetic, bit-identically.
 pub struct FracTree {
-    pub layers_p: Vec<Vec<KElem>>,
-    pub layers_q: Vec<Vec<KElem>>,
+    repr: TreeRepr,
+}
+
+enum TreeRepr {
+    Packed { lp: Vec<KTab>, lq: Vec<KTab> },
+    Boxed { lp: Vec<Vec<KElem>>, lq: Vec<Vec<KElem>> },
 }
 
 impl FracTree {
     pub fn depth(&self) -> usize {
-        self.layers_p.len() - 1
+        match &self.repr {
+            TreeRepr::Packed { lp, .. } => lp.len() - 1,
+            TreeRepr::Boxed { lp, .. } => lp.len() - 1,
+        }
     }
+
     pub fn root(&self) -> [KElem; 2] {
-        [self.layers_p[0][0].clone(), self.layers_q[0][0].clone()]
+        [self.p_elem(0, 0), self.q_elem(0, 0)]
+    }
+
+    /// Scalar element access (any representation).
+    pub(crate) fn p_elem(&self, layer: usize, i: usize) -> KElem {
+        match &self.repr {
+            TreeRepr::Packed { lp, .. } => lp[layer].get(i),
+            TreeRepr::Boxed { lp, .. } => lp[layer][i].clone(),
+        }
+    }
+
+    pub(crate) fn q_elem(&self, layer: usize, i: usize) -> KElem {
+        match &self.repr {
+            TreeRepr::Packed { lq, .. } => lq[layer].get(i),
+            TreeRepr::Boxed { lq, .. } => lq[layer][i].clone(),
+        }
+    }
+
+    /// Packed layer views (bulk descent paths; panics on boxed trees —
+    /// the dispatchers never mix modes).
+    pub(crate) fn p_layer(&self, layer: usize) -> &KTab {
+        match &self.repr {
+            TreeRepr::Packed { lp, .. } => &lp[layer],
+            TreeRepr::Boxed { .. } => panic!("packed layer view on a boxed tree"),
+        }
+    }
+
+    pub(crate) fn q_layer(&self, layer: usize) -> &KTab {
+        match &self.repr {
+            TreeRepr::Packed { lq, .. } => &lq[layer],
+            TreeRepr::Boxed { .. } => panic!("packed layer view on a boxed tree"),
+        }
+    }
+
+    pub(crate) fn is_packed(&self) -> bool {
+        matches!(self.repr, TreeRepr::Packed { .. })
     }
 }
 
@@ -66,6 +120,43 @@ impl FracTree {
 pub fn build_tree(kf: &KField, leaf_p: Vec<KElem>, leaf_q: Vec<KElem>) -> FracTree {
     let n = leaf_p.len();
     assert!(n.is_power_of_two() && leaf_q.len() == n);
+    if kf.kern.is_none() {
+        return build_tree_boxed(kf, leaf_p, leaf_q);
+    }
+    let kern = kf.kern.as_ref().unwrap();
+    // Pack and DROP the boxed leaves one side at a time (H-03: the boxed
+    // form is ~2.7x the packed size; never hold both sides twice).
+    let leaf_p_t = KTab::from_kelems(&leaf_p);
+    drop(leaf_p);
+    let leaf_q_t = KTab::from_kelems(&leaf_q);
+    drop(leaf_q);
+    let mut lp = vec![leaf_p_t];
+    let mut lq = vec![leaf_q_t];
+    while lp.last().unwrap().n > 1 {
+        let (cp, cq) = (lp.last().unwrap(), lq.last().unwrap());
+        let half = cp.n / 2;
+        let mut np = KTab::zeroed(half);
+        let mut nq = KTab::zeroed(half);
+        if half >= KL {
+            k9_tree_step(kern, &cp.d, &cq.d, &mut np.d, &mut nq.d, half / KL);
+        } else {
+            for i in 0..half {
+                let (pl, pr) = (cp.get(2 * i), cp.get(2 * i + 1));
+                let (ql, qr) = (cq.get(2 * i), cq.get(2 * i + 1));
+                np.set(i, &kf.add(&kf.mul(&pl, &qr), &kf.mul(&pr, &ql)));
+                nq.set(i, &kf.mul(&ql, &qr));
+            }
+        }
+        lp.push(np);
+        lq.push(nq);
+    }
+    lp.reverse();
+    lq.reverse();
+    FracTree { repr: TreeRepr::Packed { lp, lq } }
+}
+
+/// The original boxed builder — the scalar oracle path, unchanged math.
+fn build_tree_boxed(kf: &KField, leaf_p: Vec<KElem>, leaf_q: Vec<KElem>) -> FracTree {
     let mut layers_p = vec![leaf_p];
     let mut layers_q = vec![leaf_q];
     while layers_p.last().unwrap().len() > 1 {
@@ -84,7 +175,7 @@ pub fn build_tree(kf: &KField, leaf_p: Vec<KElem>, leaf_q: Vec<KElem>) -> FracTr
     }
     layers_p.reverse();
     layers_q.reverse();
-    FracTree { layers_p, layers_q }
+    FracTree { repr: TreeRepr::Boxed { lp: layers_p, lq: layers_q } }
 }
 
 /// The neutral padding fraction (0, 1).
@@ -98,7 +189,15 @@ pub fn neutral_leaf(kf: &KField) -> (KElem, KElem) {
 /// The eq table over 2^n points for a point z, little-endian (variable
 /// v is bit v of the index): each new variable doubles the table with
 /// itself as the new HIGHEST bit, so variable 0 stays bit 0.
+/// (U-K9: bulk-built on the packed kernel when live; identical values.)
 pub fn eq_table(kf: &KField, z: &[KElem]) -> Vec<KElem> {
+    if kf.kern.is_some() && z.len() >= 4 {
+        return kf.kt_eq_table(z).to_kelems();
+    }
+    eq_table_scalar(kf, z)
+}
+
+fn eq_table_scalar(kf: &KField, z: &[KElem]) -> Vec<KElem> {
     let mut t = vec![kf.one()];
     for zv in z {
         let zbar = kf.sub(&kf.one(), zv);
@@ -175,32 +274,38 @@ pub fn gkr_prove(
     // Instance coordinates (the rho role); roots already bound by the
     // caller's absorb_roots.
     let z_e: Vec<KElem> = (0..e_bits).map(|_| tr.challenge_k(kf)).collect();
-    let root_p: Vec<KElem> = trees.iter().map(|t| t.layers_p[0][0].clone()).collect();
-    let root_q: Vec<KElem> = trees.iter().map(|t| t.layers_q[0][0].clone()).collect();
+    let root_p: Vec<KElem> = trees.iter().map(|t| t.p_elem(0, 0)).collect();
+    let root_q: Vec<KElem> = trees.iter().map(|t| t.q_elem(0, 0)).collect();
     let mut p_claim = mle_eval(kf, &root_p, &z_e);
     let mut q_claim = mle_eval(kf, &root_q, &z_e);
     let mut zeta = z_e; // b-part empty at the root
     let mut layers = Vec::with_capacity(depth);
+    let bulk_ok = kf.kern.is_some() && trees.iter().all(|t| t.is_packed());
     for k in 0..depth {
         let lambda = tr.challenge_k(kf);
         let size = l << k;
-        let eq = eq_table(kf, &zeta);
-        assert_eq!(eq.len(), size);
-        let mut p0 = Vec::with_capacity(size);
-        let mut p1 = Vec::with_capacity(size);
-        let mut q0 = Vec::with_capacity(size);
-        let mut q1 = Vec::with_capacity(size);
-        for i in 0..size {
-            let (e, b) = (i >> k, i & ((1 << k) - 1));
-            p0.push(trees[e].layers_p[k + 1][2 * b].clone());
-            p1.push(trees[e].layers_p[k + 1][2 * b + 1].clone());
-            q0.push(trees[e].layers_q[k + 1][2 * b].clone());
-            q1.push(trees[e].layers_q[k + 1][2 * b + 1].clone());
-        }
-        let lam = lambda.clone();
-        let combine =
-            move |kfi: &KField, v: &[KElem]| -> KElem { layer_combine(kfi, v, &lam) };
-        let (sc, r) = sumcheck_prove(kf, vec![eq, p0, p1, q0, q1], 3, &combine, tr);
+        let claimed = kf.add(&p_claim, &kf.mul(&lambda, &q_claim));
+        let (sc, r) = if bulk_ok && size >= 2 * KL {
+            layer_sumcheck_bulk(kf, trees, k, &zeta, &lambda, &claimed, tr)
+        } else {
+            let eq = eq_table(kf, &zeta);
+            assert_eq!(eq.len(), size);
+            let mut p0 = Vec::with_capacity(size);
+            let mut p1 = Vec::with_capacity(size);
+            let mut q0 = Vec::with_capacity(size);
+            let mut q1 = Vec::with_capacity(size);
+            for i in 0..size {
+                let (e, b) = (i >> k, i & ((1 << k) - 1));
+                p0.push(trees[e].p_elem(k + 1, 2 * b));
+                p1.push(trees[e].p_elem(k + 1, 2 * b + 1));
+                q0.push(trees[e].q_elem(k + 1, 2 * b));
+                q1.push(trees[e].q_elem(k + 1, 2 * b + 1));
+            }
+            let lam = lambda.clone();
+            let combine =
+                move |kfi: &KField, v: &[KElem]| -> KElem { layer_combine(kfi, v, &lam) };
+            sumcheck_prove(kf, vec![eq, p0, p1, q0, q1], 3, &combine, tr)
+        };
         // Boundary into the transcript BEFORE mu (the E3-N5 edge).
         tr.absorb_k(kf, "gkr-boundary", &sc.final_evals[1..5]);
         let mu = tr.challenge_k(kf);
@@ -214,6 +319,101 @@ pub fn gkr_prove(
         layers.push(sc);
     }
     (GkrDescentProof { layers }, zeta, p_claim, q_claim)
+}
+
+/// U-K9: extract the split child tables of layer k (over l trees, element
+/// idx = e << k | b) into packed work tables, without KElem churn.
+pub(crate) fn extract_children(trees: &[FracTree], k: usize) -> (KTab, KTab, KTab, KTab) {
+    let l = trees.len();
+    let size = l << k;
+    let mask = (1usize << k) - 1;
+    let mut p0 = KTab::zeroed(size);
+    let mut p1 = KTab::zeroed(size);
+    let mut q0 = KTab::zeroed(size);
+    let mut q1 = KTab::zeroed(size);
+    for idx in 0..size {
+        let (e, b) = (idx >> k, idx & mask);
+        let (sp, sq) = (trees[e].p_layer(k + 1), trees[e].q_layer(k + 1));
+        p0.copy_elem(idx, sp, 2 * b);
+        p1.copy_elem(idx, sp, 2 * b + 1);
+        q0.copy_elem(idx, sq, 2 * b);
+        q1.copy_elem(idx, sq, 2 * b + 1);
+    }
+    (p0, p1, q0, q1)
+}
+
+/// U-K9: one layer's sumcheck on the bulk kernels — bit-identical
+/// transcript to the sumcheck_prove path (same round-poly values, same
+/// absorb ordering; g(1) is produced through the round identity
+/// g(0) + g(1) = C, which the honest evaluation satisfies exactly).
+/// QL := lambda*q0 is carried as a sixth table so each node's wire is
+/// three products (see kfield.rs round_g_body).
+fn layer_sumcheck_bulk(
+    kf: &KField,
+    trees: &[FracTree],
+    k: usize,
+    zeta: &[KElem],
+    lambda: &KElem,
+    claimed: &KElem,
+    tr: &mut LkpTranscript,
+) -> (SumcheckProof, Vec<KElem>) {
+    let kern = kf.kern.as_ref().expect("bulk layer requires the kernel");
+    let n_rounds = zeta.len();
+    let mut eq = kf.kt_eq_table(zeta);
+    let (mut p0, mut p1, mut q0, mut q1) = extract_children(trees, k);
+    debug_assert_eq!(eq.n, p0.n);
+    let mut ql = kf.kt_mul_fixed(&q0, lambda);
+    let mut c_run = claimed.clone();
+    let mut rounds = Vec::with_capacity(n_rounds);
+    let mut point = Vec::with_capacity(n_rounds);
+    for _t in 0..n_rounds {
+        let n_cur = eq.n;
+        let g: Vec<KElem> = if n_cur >= 2 * KL {
+            let nodes = [0u64, 2, 3];
+            let mut acc_lo = vec![0u64; nodes.len() * 31 * KL];
+            let mut acc_hi = vec![0u64; nodes.len() * 31 * KL];
+            super::kfield::k9_round_g_blocks(
+                kern, &eq.d, &p0.d, &p1.d, &q0.d, &q1.d, &ql.d, n_cur / 2 / KL, &nodes, None,
+                &mut acc_lo, &mut acc_hi,
+            );
+            let gs: Vec<KElem> = (0..nodes.len())
+                .map(|ni| {
+                    kf.kt_round_g_finalize(
+                        &acc_lo[ni * 31 * KL..(ni + 1) * 31 * KL],
+                        &acc_hi[ni * 31 * KL..(ni + 1) * 31 * KL],
+                    )
+                })
+                .collect();
+            let g1 = kf.sub(&c_run, &gs[0]);
+            vec![gs[0].clone(), g1, gs[1].clone(), gs[2].clone()]
+        } else {
+            let tabs = vec![
+                eq.to_kelems(),
+                p0.to_kelems(),
+                p1.to_kelems(),
+                q0.to_kelems(),
+                q1.to_kelems(),
+            ];
+            let lam = lambda.clone();
+            round_poly(kf, &tabs, 3, &move |kfi: &KField, v: &[KElem]| {
+                layer_combine(kfi, v, &lam)
+            })
+        };
+        debug_assert_eq!(kf.add(&g[0], &g[1]), c_run, "bulk round identity broke");
+        tr.absorb_k(kf, "round-poly", &g);
+        let r = tr.challenge_k(kf);
+        c_run = lagrange_eval(kf, &g, &r);
+        eq = kf.kt_fold(&eq, &r);
+        p0 = kf.kt_fold(&p0, &r);
+        p1 = kf.kt_fold(&p1, &r);
+        q0 = kf.kt_fold(&q0, &r);
+        q1 = kf.kt_fold(&q1, &r);
+        ql = kf.kt_fold(&ql, &r);
+        rounds.push(g);
+        point.push(r);
+    }
+    let final_evals = vec![eq.get(0), p0.get(0), p1.get(0), q0.get(0), q1.get(0)];
+    (SumcheckProof { rounds, final_evals }, point)
 }
 
 /// Verify a descent against the exposed per-instance roots. The
