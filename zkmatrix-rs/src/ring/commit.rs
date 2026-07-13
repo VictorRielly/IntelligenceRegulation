@@ -290,7 +290,7 @@ pub fn commit_wide(
     path: &KernelPath,
     crs: &RingCrs,
     x_wide: &[Poly],
-    rng: &mut u64,
+    rng: &mut dyn super::RngSource,
 ) -> (Vec<Vec<Poly>>, Vec<Vec<Vec<i64>>>, Vec<(Vec<Poly>, Vec<Poly>)>) {
     let msgs = wide_chunks(x_wide, crs.shape.msg_r);
     let mut rhos = Vec::with_capacity(msgs.len());

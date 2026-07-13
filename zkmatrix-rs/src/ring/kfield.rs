@@ -277,6 +277,15 @@ pub fn lane_merge(ctx: &RingCtx, lanes: &[KElem]) -> Poly {
 pub(crate) const KL: usize = 8;
 /// u32 words per block: KL lanes x K_DEG coefficients.
 pub(crate) const KBLK: usize = KL * K_DEG;
+/// Audited CPU-reference ceiling for any one packed table. This bounds the
+/// persistent lazy accumulator and prevents unchecked allocation arithmetic.
+/// A GPU backend may raise it only with a new integer-bound proof and tests.
+pub const K9_MAX_LEAVES: usize = 1 << 25;
+const K9_MAX_PAIR_TERMS: usize = K9_MAX_LEAVES / 2;
+
+pub fn k9_capacity_ok(leaves: usize) -> bool {
+    leaves.is_power_of_two() && leaves <= K9_MAX_LEAVES
+}
 
 /// The bulk-kernel modulus context (see the gate above).
 #[derive(Clone, Copy)]
@@ -311,7 +320,12 @@ pub(crate) struct KTab {
 
 impl KTab {
     pub(crate) fn zeroed(n: usize) -> KTab {
-        KTab { n, d: vec![0u32; n.div_ceil(KL) * KBLK] }
+        assert!(n <= K9_MAX_LEAVES, "K9 packed-table cap exceeded");
+        let words = n
+            .div_ceil(KL)
+            .checked_mul(KBLK)
+            .expect("K9 packed-table allocation overflow");
+        KTab { n, d: vec![0u32; words] }
     }
 
     pub(crate) fn from_kelems(v: &[KElem]) -> KTab {
@@ -483,6 +497,10 @@ fn deint_pair(src: &[u32], m: usize, t0: &mut [u32; KBLK], t1: &mut [u32; KBLK])
 /// from child pairs; np = pL qR + pR qL (2 MACs, ONE reduction), nq = qL qR.
 #[inline(always)]
 fn tree_step_body(kern: &KKern, cp: &[u32], cq: &[u32], np: &mut [u32], nq: &mut [u32], nblk: usize) {
+    let src_words = nblk.checked_mul(2 * KBLK).expect("K9 tree input size overflow");
+    let dst_words = nblk.checked_mul(KBLK).expect("K9 tree output size overflow");
+    assert!(cp.len() >= src_words && cq.len() >= src_words, "K9 tree input layout");
+    assert!(np.len() >= dst_words && nq.len() >= dst_words, "K9 tree output layout");
     let mut pl = [0u32; KBLK];
     let mut pr = [0u32; KBLK];
     let mut ql = [0u32; KBLK];
@@ -508,6 +526,9 @@ fn tree_step_body(kern: &KKern, cp: &[u32], cq: &[u32], np: &mut [u32], nq: &mut
 /// Fold full blocks: out[i] = T[2i] + r (T[2i+1] - T[2i]).
 #[inline(always)]
 fn fold_body(kern: &KKern, src: &[u32], r: &[u32; K_DEG], dst: &mut [u32], nblk: usize) {
+    let src_words = nblk.checked_mul(2 * KBLK).expect("K9 fold input size overflow");
+    let dst_words = nblk.checked_mul(KBLK).expect("K9 fold output size overflow");
+    assert!(src.len() >= src_words && dst.len() >= dst_words, "K9 fold layout");
     let q32 = kern.q as u32;
     let mut t0 = [0u32; KBLK];
     let mut t1 = [0u32; KBLK];
@@ -532,6 +553,8 @@ fn fold_body(kern: &KKern, src: &[u32], r: &[u32; K_DEG], dst: &mut [u32], nblk:
 /// Elementwise fixed-operand product over full blocks: dst[i] = src[i] * r.
 #[inline(always)]
 fn mul_fixed_body(kern: &KKern, src: &[u32], r: &[u32; K_DEG], dst: &mut [u32], nblk: usize) {
+    let words = nblk.checked_mul(KBLK).expect("K9 fixed-mul size overflow");
+    assert!(src.len() >= words && dst.len() >= words, "K9 fixed-mul layout");
     let mut out = [0u32; KBLK];
     for m in 0..nblk {
         let a: &[u32; KBLK] = src[m * KBLK..(m + 1) * KBLK].try_into().unwrap();
@@ -546,6 +569,8 @@ fn mul_fixed_body(kern: &KKern, src: &[u32], r: &[u32; K_DEG], dst: &mut [u32], 
 /// Elementwise product of two tables over full blocks: dst[i] = a[i] * b[i].
 #[inline(always)]
 fn mul_elem_body(kern: &KKern, a: &[u32], b: &[u32], dst: &mut [u32], nblk: usize) {
+    let words = nblk.checked_mul(KBLK).expect("K9 element-mul size overflow");
+    assert!(a.len() >= words && b.len() >= words && dst.len() >= words, "K9 element-mul layout");
     let mut out = [0u32; KBLK];
     for m in 0..nblk {
         let ab: &[u32; KBLK] = a[m * KBLK..(m + 1) * KBLK].try_into().unwrap();
@@ -561,6 +586,8 @@ fn mul_elem_body(kern: &KKern, a: &[u32], b: &[u32], dst: &mut [u32], nblk: usiz
 /// Broadcast modular add over full blocks: t[i] += c.
 #[inline(always)]
 fn addc_body(kern: &KKern, t: &mut [u32], c: &[u32; K_DEG], nblk: usize) {
+    let words = nblk.checked_mul(KBLK).expect("K9 add size overflow");
+    assert!(t.len() >= words, "K9 add layout");
     let q32 = kern.q as u32;
     for m in 0..nblk {
         for j in 0..K_DEG {
@@ -603,6 +630,23 @@ fn round_g_body(
     acc_lo: &mut [u64],
     acc_hi: &mut [u64],
 ) {
+    let pair_terms = nblk_pairs.checked_mul(KL).expect("K9 round term-count overflow");
+    assert!(pair_terms <= K9_MAX_PAIR_TERMS, "K9 lazy-accumulator cap exceeded");
+    let src_words = nblk_pairs
+        .checked_mul(2 * KBLK)
+        .expect("K9 round input size overflow");
+    assert!(
+        [eq, p0, p1, q0, q1, ql].iter().all(|table| table.len() >= src_words),
+        "K9 round input layout"
+    );
+    let acc_words = nodes
+        .len()
+        .checked_mul(31 * KL)
+        .expect("K9 round accumulator size overflow");
+    assert!(acc_lo.len() >= acc_words && acc_hi.len() >= acc_words, "K9 round accumulator layout");
+    if let Some(cs) = consts {
+        assert_eq!(cs.len(), nodes.len(), "K9 round constant layout");
+    }
     let q32 = kern.q as u32;
     // per-table even/odd lane-blocks + running extrapolation state
     let mut e0 = [[0u32; KBLK]; 6];
@@ -753,6 +797,7 @@ impl KField {
     /// full blocks.
     pub(crate) fn kt_eq_table(&self, z: &[KElem]) -> KTab {
         let kern = self.kern.as_ref().expect("kt_eq_table requires the bulk kernel");
+        assert!(z.len() <= K9_MAX_LEAVES.trailing_zeros() as usize, "K9 eq table cap exceeded");
         let mut small: Vec<KElem> = vec![self.one()];
         let mut vi = 0;
         while vi < z.len() && small.len() < KL {
@@ -797,6 +842,8 @@ impl KField {
     /// coefficient sums (lanes added) -> canonical K-element with the
     /// Y^16 = s fold. Cold path: a few per round.
     pub(crate) fn kt_round_g_finalize(&self, acc_lo: &[u64], acc_hi: &[u64]) -> KElem {
+        assert_eq!(acc_lo.len(), 31 * KL, "K9 finalize lo layout");
+        assert_eq!(acc_hi.len(), 31 * KL, "K9 finalize hi layout");
         let q = self.zq.q as u128;
         let s = self.s as u128;
         let wide: Vec<u128> = (0..31)
@@ -827,6 +874,52 @@ pub fn bulk_mul_fixed_kelems(kf: &KField, v: &[KElem], r: &KElem) -> Vec<KElem> 
     } else {
         v.iter().map(|e| kf.mul(e, r)).collect()
     }
+}
+
+/// Battery-only forced-portable packed path. This exercises the exact SoA
+/// layout and reduction body without AVX2 dispatch, unlike the boxed scalar
+/// oracle which intentionally uses different code.
+pub fn harness_bulk_mul_fixed_portable(
+    kf: &KField,
+    v: &[KElem],
+    r: &KElem,
+) -> Vec<KElem> {
+    let kern = kf.kern.as_ref().expect("portable packed harness needs K9 kernel");
+    let t = KTab::from_kelems(v);
+    let mut out = KTab::zeroed(v.len());
+    let nblk = v.len() / KL;
+    if nblk > 0 {
+        mul_fixed_body(
+            kern,
+            &t.d[..nblk * KBLK],
+            &kop(r),
+            &mut out.d[..nblk * KBLK],
+            nblk,
+        );
+    }
+    for i in nblk * KL..v.len() {
+        out.set(i, &kf.mul(&t.get(i), r));
+    }
+    out.to_kelems()
+}
+
+/// Battery-only forced-portable packed fold, including its deinterleave
+/// boundary. Input length must be even, as in the protocol fold.
+pub fn harness_fold_portable(kf: &KField, v: &[KElem], r: &KElem) -> Vec<KElem> {
+    assert!(!v.is_empty() && v.len() % 2 == 0, "portable fold input");
+    let kern = kf.kern.as_ref().expect("portable packed harness needs K9 kernel");
+    let t = KTab::from_kelems(v);
+    let n_out = v.len() / 2;
+    let mut out = KTab::zeroed(n_out);
+    let nblk = n_out / KL;
+    if nblk > 0 {
+        fold_body(kern, &t.d, &kop(r), &mut out.d[..nblk * KBLK], nblk);
+    }
+    for i in nblk * KL..n_out {
+        let (a, b) = (t.get(2 * i), t.get(2 * i + 1));
+        out.set(i, &kf.add(&a, &kf.mul(r, &kf.sub(&b, &a))));
+    }
+    out.to_kelems()
 }
 
 /// LKP-5: the digest freezing the slot-field constants — q, k,

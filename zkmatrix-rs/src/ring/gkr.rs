@@ -120,6 +120,12 @@ impl FracTree {
 pub fn build_tree(kf: &KField, leaf_p: Vec<KElem>, leaf_q: Vec<KElem>) -> FracTree {
     let n = leaf_p.len();
     assert!(n.is_power_of_two() && leaf_q.len() == n);
+    if kf.kern.is_some() {
+        assert!(
+            super::kfield::k9_capacity_ok(n),
+            "K9 projective tree exceeds the audited packed-table cap"
+        );
+    }
     if kf.kern.is_none() {
         return build_tree_boxed(kf, leaf_p, leaf_q);
     }

@@ -546,7 +546,7 @@ fn r1_pad_base(n_lin: usize, n_qct: usize, n_qr: usize) -> (usize, usize, usize)
 /// ceil((n_ct + n_pads) / msg_r) message groups ready for commit().
 /// Flat slot l: group l / msg_r, slot l % msg_r (g_slot_of).
 pub fn sample_g_masks(
-    rng: &mut u64,
+    rng: &mut dyn super::RngSource,
     q: u64,
     msg_r: usize,
     n_ct: usize,
@@ -572,7 +572,12 @@ pub fn sample_g_masks(
 /// Sample the masking elements g_l (ct = 0, uniform elsewhere) for a batch
 /// of n_claims LINEAR ct-claims (rounds with quadratic claims must use
 /// sample_g_masks with the r1_pad_count pad tail).
-pub fn sample_ct_masks(rng: &mut u64, q: u64, msg_r: usize, n_claims: usize) -> Vec<Vec<Poly>> {
+pub fn sample_ct_masks(
+    rng: &mut dyn super::RngSource,
+    q: u64,
+    msg_r: usize,
+    n_claims: usize,
+) -> Vec<Vec<Poly>> {
     sample_g_masks(rng, q, msg_r, n_claims, 0)
 }
 
@@ -603,7 +608,7 @@ pub fn prove_ct_round(
     digits: &[DigitOpening],
     ajtai: &[AjtaiOpening],
     g_base: usize,
-    rng: &mut u64,
+    rng: &mut dyn super::RngSource,
 ) -> (CtRoundProof, usize) {
     prove_ct_round_tq(
         path, ring, rp, dp, crs, h0, claims, ring_claims, quad_claims, quad_ring, &[], plain,
@@ -630,7 +635,7 @@ pub fn prove_ct_round_tq(
     digits: &[DigitOpening],
     ajtai: &[AjtaiOpening],
     g_base: usize,
-    rng: &mut u64,
+    rng: &mut dyn super::RngSource,
 ) -> (CtRoundProof, usize) {
     let zq = &ring.zq;
     let shape = crs.shape;
@@ -1389,7 +1394,7 @@ pub fn derive_jl_rows(h0: &[u8; 32], rows: usize, n: usize) -> Vec<Vec<i64>> {
 /// FS-with-aborts loop therefore wraps the whole sequence: sample m ->
 /// commit m -> h0 -> derive R -> arp_attempt; on None, restart with a
 /// FRESH m (and hence a fresh h0 and fresh R).
-pub fn sample_arp_mask(ap: &ArpParams, rng: &mut u64) -> Vec<i64> {
+pub fn sample_arp_mask(ap: &ArpParams, rng: &mut dyn super::RngSource) -> Vec<i64> {
     gaussian_ivec(rng, ap.rows, ap.sigma_arp)
 }
 
@@ -1410,7 +1415,7 @@ pub fn arp_attempt(
     jl: &[Vec<i64>],
     b_coeffs: &[i64],
     m_flat: &[i64],
-    rng: &mut u64,
+    rng: &mut dyn super::RngSource,
 ) -> Option<Vec<i64>> {
     assert_eq!(jl.len(), ap.rows);
     let centers: Vec<i64> = jl

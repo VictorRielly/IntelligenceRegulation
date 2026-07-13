@@ -22,6 +22,7 @@
 // sets, norms, statements) live in params.rs / sigma.rs / ct_engine.rs.
 
 use sha2::{Digest, Sha256};
+use std::io::{BufReader, Read};
 
 // A1 auxiliary-modulus NTT kernels (shared with ring_lattice.rs and
 // aux_ntt.rs). Path is relative to src/ring/.
@@ -707,8 +708,69 @@ pub fn digit_split_witness(u: &[Vec<i64>], e: u32, l: usize) -> Vec<Vec<Vec<i64>
 }
 
 // ---------------------------------------------------------------------------
-// RNG (splitmix64, same discipline as lattice_matmul.rs) and the SHA-256
-// counter-mode XOF for CRS expansion and Fiat-Shamir challenges.
+// RNG and the SHA-256 counter-mode XOF for CRS expansion and Fiat-Shamir
+// challenges.
+
+/// Minimal randomness interface used by prover sampling. Production proof
+/// paths must use [`ProverRng`]. The `u64` implementation is retained only
+/// for deterministic legacy batteries and benchmark data generation.
+pub trait RngSource {
+    fn next_u64(&mut self) -> u64;
+}
+
+/// OS-seeded cryptographic prover RNG. This is deliberately a distinct type
+/// from Fiat-Shamir transcripts: prover masks, commitment randomness and
+/// rejection-sampling coins must never be derived from public statement data.
+enum ProverRngInner {
+    /// Linux GPU deployments use the kernel CSPRNG directly. A large buffer
+    /// keeps sampling hot paths from issuing one syscall per field limb.
+    Os(BufReader<std::fs::File>),
+    /// Deterministic SHA-256 counter stream for batteries only.
+    Test(XofReader),
+}
+
+pub struct ProverRng(ProverRngInner);
+
+impl ProverRng {
+    /// Seed a fresh prover session from the operating system CSPRNG.
+    pub fn from_os() -> std::io::Result<Self> {
+        let source = std::fs::File::open("/dev/urandom")?;
+        Ok(ProverRng(ProverRngInner::Os(BufReader::with_capacity(1 << 20, source))))
+    }
+
+    /// Deterministic CSPRNG for batteries only. The name and documentation
+    /// are intentionally explicit so production call sites cannot mistake a
+    /// public transcript hash for prover entropy.
+    pub fn from_test_seed(domain: &str, seed: &[u8]) -> Self {
+        let mut hasher = Sha256::new();
+        hasher.update(b"zkmatrix-test-prover-rng-v1");
+        hasher.update((domain.len() as u64).to_le_bytes());
+        hasher.update(domain.as_bytes());
+        hasher.update((seed.len() as u64).to_le_bytes());
+        hasher.update(seed);
+        let seed: [u8; 32] = hasher.finalize().into();
+        ProverRng(ProverRngInner::Test(XofReader::new(
+            "test-prover-rng",
+            &[&seed],
+        )))
+    }
+}
+
+impl RngSource for ProverRng {
+    #[inline(always)]
+    fn next_u64(&mut self) -> u64 {
+        match &mut self.0 {
+            ProverRngInner::Os(reader) => {
+                let mut bytes = [0u8; 8];
+                reader
+                    .read_exact(&mut bytes)
+                    .expect("operating-system CSPRNG failed during proof generation");
+                u64::from_le_bytes(bytes)
+            }
+            ProverRngInner::Test(reader) => reader.next_u64(),
+        }
+    }
+}
 
 pub fn splitmix64(state: &mut u64) -> u64 {
     *state = state.wrapping_add(0x9e37_79b9_7f4a_7c15);
@@ -718,21 +780,29 @@ pub fn splitmix64(state: &mut u64) -> u64 {
     z ^ (z >> 31)
 }
 
+impl RngSource for u64 {
+    #[inline(always)]
+    fn next_u64(&mut self) -> u64 {
+        splitmix64(self)
+    }
+}
+
 /// Uniform draw below an arbitrary bound (rejection on the top bits).
-pub fn rng_below(rng: &mut u64, bound: u64) -> u64 {
+pub fn rng_below(rng: &mut dyn RngSource, bound: u64) -> u64 {
+    assert!(bound > 0, "rng_below requires a nonzero bound");
     let shift = bound.leading_zeros();
     loop {
-        let v = splitmix64(rng) >> shift;
+        let v = rng.next_u64() >> shift;
         if v < bound {
             return v;
         }
     }
 }
 
-pub fn rng_ternary_poly(rng: &mut u64) -> Vec<i64> {
+pub fn rng_ternary_poly(rng: &mut dyn RngSource) -> Vec<i64> {
     let mut out = Vec::with_capacity(D);
     while out.len() < D {
-        let mut w = splitmix64(rng);
+        let mut w = rng.next_u64();
         // 12 unbiased base-3 digits per word via rejection on 5-bit chunks.
         for _ in 0..12 {
             let c = (w & 31) as i64;
@@ -822,15 +892,15 @@ impl XofReader {
 // as lattice_matmul.rs; f64 exp is a prototype-carryover shortcut — the
 // report requires fixed-point for production, noted in the design doc).
 
-pub fn gaussian_ivec(rng: &mut u64, len: usize, sigma: u64) -> Vec<i64> {
+pub fn gaussian_ivec(rng: &mut dyn RngSource, len: usize, sigma: u64) -> Vec<i64> {
     let window = 12i64 * sigma as i64;
     let span = (2 * window + 1) as u64;
     let two_sigma_sq = 2.0 * sigma as f64 * sigma as f64;
     let mut out = Vec::with_capacity(len);
     while out.len() < len {
-        let y = (splitmix64(rng) % span) as i64 - window;
+        let y = (rng.next_u64() % span) as i64 - window;
         let p = (-(y as f64) * (y as f64) / two_sigma_sq).exp();
-        let u = (splitmix64(rng) >> 11) as f64 / (1u64 << 53) as f64;
+        let u = (rng.next_u64() >> 11) as f64 / (1u64 << 53) as f64;
         if u < p {
             out.push(y);
         }
@@ -838,7 +908,12 @@ pub fn gaussian_ivec(rng: &mut u64, len: usize, sigma: u64) -> Vec<i64> {
     out
 }
 
-pub fn rejection_accept(rng: &mut u64, response: &[i64], center_v: &[i64], sigma: u64) -> bool {
+pub fn rejection_accept(
+    rng: &mut dyn RngSource,
+    response: &[i64],
+    center_v: &[i64],
+    sigma: u64,
+) -> bool {
     let mut norm_c: i128 = 0;
     let mut dot: i128 = 0;
     for (&z, &c) in response.iter().zip(center_v.iter()) {
@@ -851,7 +926,7 @@ pub fn rejection_accept(rng: &mut u64, response: &[i64], center_v: &[i64], sigma
     if threshold >= 1.0 {
         return true;
     }
-    let u = (splitmix64(rng) >> 11) as f64 / (1u64 << 53) as f64;
+    let u = (rng.next_u64() >> 11) as f64 / (1u64 << 53) as f64;
     u < threshold
 }
 
@@ -863,7 +938,10 @@ pub fn rejection_accept(rng: &mut u64, response: &[i64], center_v: &[i64], sigma
 /// output distribution change vs the per-bundle product scheme — only
 /// the restart rate improves (21.1 -> 5.7 expected attempts at k = 3).
 /// k = 1 reduces exactly to `rejection_accept`.
-pub fn joint_rejection_accept(rng: &mut u64, parts: &[(&[i64], &[i64], u64)]) -> bool {
+pub fn joint_rejection_accept(
+    rng: &mut dyn RngSource,
+    parts: &[(&[i64], &[i64], u64)],
+) -> bool {
     let k = parts.len();
     if k == 0 {
         return true;
@@ -883,7 +961,7 @@ pub fn joint_rejection_accept(rng: &mut u64, parts: &[(&[i64], &[i64], u64)]) ->
     if threshold >= 1.0 {
         return true;
     }
-    let u = (splitmix64(rng) >> 11) as f64 / (1u64 << 53) as f64;
+    let u = (rng.next_u64() >> 11) as f64 / (1u64 << 53) as f64;
     u < threshold
 }
 

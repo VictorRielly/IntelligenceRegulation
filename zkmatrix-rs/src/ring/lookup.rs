@@ -30,15 +30,41 @@ use super::kfield::{KElem, KField};
 /// ~-0.278 -> -4; max input 7.9375 -> 127). f64 evaluation is
 /// deterministic per platform; the LKP-1 digest freeze row makes any
 /// platform drift loud.
+/// Frozen integer outputs for `silu-int8-table-v1`, indexed by x + 128.
+/// Protocol semantics must not depend on a platform's libm implementation;
+/// these bytes, not a runtime floating-point evaluation, define the table.
+pub const SILU_INT8_OUTPUTS: [i8; 256] = [
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
+    -2, -2, -2, -3, -3, -3, -3, -3, -3, -3, -3, -3, -3, -4, -4, -4,
+    -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4,
+    -4, -4, -4, -4, -4, -4, -3, -3, -3, -3, -2, -2, -2, -1, -1,
+     0,  0,  1,  1,  2,  2,  3,  4,  4,  5,  6,  7,  7,  8,  9, 10,
+    11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+    27, 28, 29, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 44,
+    45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 58, 59, 60, 61,
+    62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77,
+    78, 79, 80, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94,
+    95, 96, 97, 98, 99,100,101,102,103,104,105,106,107,108,109,110,
+   111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,
+   127,
+];
+
+pub const SILU_INT8_TABLE_DIGEST: [u8; 32] = [
+    0x76, 0x8b, 0x83, 0xd7, 0xc0, 0x1d, 0x9b, 0xee,
+    0xcc, 0x64, 0x5d, 0x26, 0x46, 0xf1, 0x07, 0xdf,
+    0x7f, 0xc3, 0x70, 0xdc, 0x80, 0x2f, 0xee, 0x15,
+    0x4c, 0x03, 0x18, 0x68, 0x5c, 0x40, 0xd2, 0x97,
+];
+
 pub fn silu_int8_table() -> Vec<(i64, i64)> {
-    (-128i64..=127)
-        .map(|v| {
-            let x = v as f64 / 16.0;
-            let s = x / (1.0 + (-x).exp());
-            let y = (s * 16.0 + 0.5).floor() as i64;
-            debug_assert!((-128..=127).contains(&y));
-            (v, y)
-        })
+    SILU_INT8_OUTPUTS
+        .iter()
+        .enumerate()
+        .map(|(index, &y)| (index as i64 - 128, y as i64))
         .collect()
 }
 

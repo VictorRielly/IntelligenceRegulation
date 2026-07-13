@@ -124,7 +124,7 @@ pub fn prove_opening(
     t1: &[Poly],
     rho: &[Vec<i64>],
     ctx: &[u8],
-    rng: &mut u64,
+    rng: &mut dyn super::RngSource,
 ) -> (OpeningProof, usize) {
     let h0 = statement_hash(crs, t1, ctx);
     let n_r = crs.shape.n_r;
@@ -271,7 +271,7 @@ pub fn prove_opening_digits(
     t: &[Poly],
     u: &[Vec<i64>],
     ctx: &[u8],
-    rng: &mut u64,
+    rng: &mut dyn super::RngSource,
 ) -> (DigitOpeningProof, usize, usize) {
     let n_r = crs.shape.n_r;
     let u_dig = digit_split_witness(u, dp.e, dp.l);

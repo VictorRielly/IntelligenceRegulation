@@ -37,6 +37,7 @@
 use super::gkr::{FracTree, eq_eval, eq_table, extract_children};
 use super::kfield::{KElem, KField, KL, k9_addc_blocks, k9_round_g_blocks, kop};
 use super::sumcheck::{LkpTranscript, lagrange_eval};
+use super::{ProverRng, rng_below};
 
 // ---------------------------------------------------------------------------
 // Mask objects (M1/M2).
@@ -74,10 +75,10 @@ pub fn sc_degrees(n_bvars: usize, child_masked: bool) -> Vec<usize> {
 }
 
 impl GMask {
-    pub fn draw(kf: &KField, tr: &mut LkpTranscript, degs: &[usize]) -> GMask {
+    pub fn draw(kf: &KField, rng: &mut ProverRng, degs: &[usize]) -> GMask {
         GMask {
-            a0: tr.challenge_k(kf),
-            uni: degs.iter().map(|&d| (0..d).map(|_| tr.challenge_k(kf)).collect()).collect(),
+            a0: random_k(kf, rng),
+            uni: degs.iter().map(|&d| (0..d).map(|_| random_k(kf, rng)).collect()).collect(),
         }
     }
 
@@ -125,8 +126,12 @@ impl GMask {
     }
 }
 
-pub fn draw_rmask(kf: &KField, tr: &mut LkpTranscript) -> RMask {
-    std::array::from_fn(|_| std::array::from_fn(|_| tr.challenge_k(kf)))
+fn random_k(kf: &KField, rng: &mut ProverRng) -> KElem {
+    (0..super::kfield::K_DEG).map(|_| rng_below(rng, kf.zq.q)).collect()
+}
+
+pub fn draw_rmask(kf: &KField, rng: &mut ProverRng) -> RMask {
+    std::array::from_fn(|_| std::array::from_fn(|_| random_k(kf, rng)))
 }
 
 pub fn zero_rmask(kf: &KField) -> RMask {
@@ -155,17 +160,17 @@ pub fn eval_sp(kf: &KField, r: &RMask, z1: &KElem) -> KElem {
 
 /// Draw the full mask set for a depth-K descent with n_extra instance
 /// variables per layer (ell_j = j + n_extra + 1). MUST be called
-/// against transcript state that precedes alpha (the caller commits
-/// the coefficients and binds them into h0_lkp — mask freshness is
-/// per-pass, battery E3Z-N3).
-pub fn draw_masks(kf: &KField, tr: &mut LkpTranscript, depth: usize, n_extra: usize) -> MaskSet {
+/// from prover-private CSPRNG state. The caller commits the coefficients
+/// before alpha and binds those commitments into h0_lkp. Fiat-Shamir state
+/// is deliberately not accepted here: public statement data is not entropy.
+pub fn draw_masks(kf: &KField, rng: &mut ProverRng, depth: usize, n_extra: usize) -> MaskSet {
     let g = (1..depth)
         .map(|j| {
             let degs = sc_degrees(j + n_extra, j <= depth - 2);
-            GMask::draw(kf, tr, &degs)
+            GMask::draw(kf, rng, &degs)
         })
         .collect();
-    let r = (2..depth).map(|_| (draw_rmask(kf, tr), draw_rmask(kf, tr))).collect();
+    let r = (2..depth).map(|_| (draw_rmask(kf, rng), draw_rmask(kf, rng))).collect();
     MaskSet { g, r, used: std::cell::Cell::new(false) }
 }
 
@@ -1098,12 +1103,12 @@ pub struct BlinderSet {
 }
 
 impl BlinderSet {
-    pub fn draw(kf: &KField, t: &mut LkpTranscript) -> BlinderSet {
+    pub fn draw(kf: &KField, rng: &mut ProverRng) -> BlinderSet {
         let mut mk = || {
-            let a = t.challenge_k(kf);
-            let mut u = t.challenge_k(kf);
+            let a = random_k(kf, rng);
+            let mut u = random_k(kf, rng);
             while kf.is_zero(&u) {
-                u = t.challenge_k(kf);
+                u = random_k(kf, rng);
             }
             Blinder { a, u }
         };

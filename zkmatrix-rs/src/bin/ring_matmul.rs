@@ -4013,6 +4013,143 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         expect("lookup domain quantization mismatch", &bad, |e| {
             matches!(e, SE::QuantMismatch { field: "lookup domain quant", .. })
         });
+        // (12) A narrowing proof cannot waive fixed-point scale semantics.
+        // Add a structurally valid Range fact on Y2, then lie about its
+        // fraction bits: the Rescale itself must reject first.
+        let mut bad = statement.clone();
+        let y2_width = bad.quant[id_y2 as usize].bits;
+        let y2_bits = bad.manifest.add_commitment(
+            "Y2-bits-negative",
+            n1 * y2_width as usize,
+            n3,
+            Orientation::ByColumns,
+            vec![],
+            vec![],
+        );
+        bad.quant.push(manifest::QuantMeta { bits: 1, frac_bits: 0, signed: false });
+        bad.manifest.add_operation(Operation::Binary { bits: y2_bits });
+        bad.manifest.add_operation(Operation::Range {
+            value: id_y2,
+            bits: y2_bits,
+            width: y2_width,
+            signed: false,
+        });
+        bad.quant[id_y2 as usize].frac_bits = 63;
+        expect("range-backed rescale with impossible scale", &bad, |e| {
+            matches!(e, SE::QuantMismatch { field: "rescale fraction bits", .. })
+        });
+
+        // (13) Lookup quantization pins fraction bits, not just width/sign.
+        let mut bad = statement.clone();
+        let lx = bad.manifest.add_commitment(
+            "lookup-x-wrong-scale",
+            n2,
+            1,
+            Orientation::ByColumns,
+            vec![],
+            vec![],
+        );
+        let ly = bad.manifest.add_commitment(
+            "lookup-y-wrong-scale",
+            n2,
+            1,
+            Orientation::ByColumns,
+            vec![],
+            vec![],
+        );
+        bad.quant.extend([
+            manifest::QuantMeta { bits: 8, frac_bits: 3, signed: true },
+            manifest::QuantMeta { bits: 8, frac_bits: 3, signed: true },
+        ]);
+        bad.manifest.add_operation(Operation::Lookup { x: lx, y: ly });
+        bad.outputs.push(ly);
+        expect("lookup fraction-bit mismatch", &bad, |e| {
+            matches!(e, SE::QuantMismatch { field: "lookup domain quant", .. })
+        });
+
+        // (14) A nonzero but attacker-chosen lookup digest is not a table
+        // identity. Only the frozen integer SiLU digest is accepted.
+        let mut bad = statement.clone();
+        let lx = bad.manifest.add_commitment(
+            "lookup-x-wrong-table",
+            n2,
+            1,
+            Orientation::ByColumns,
+            vec![],
+            vec![],
+        );
+        let ly = bad.manifest.add_commitment(
+            "lookup-y-wrong-table",
+            n2,
+            1,
+            Orientation::ByColumns,
+            vec![],
+            vec![],
+        );
+        bad.quant.extend([
+            manifest::QuantMeta { bits: 8, frac_bits: 4, signed: true },
+            manifest::QuantMeta { bits: 8, frac_bits: 4, signed: true },
+        ]);
+        bad.manifest.add_operation(Operation::Lookup { x: lx, y: ly });
+        bad.outputs.push(ly);
+        bad.header.table_digest = [7u8; 32];
+        expect("attacker-chosen lookup table digest", &bad, |e| {
+            matches!(e, SE::TableDigestMismatch)
+        });
+
+        // (15) Signed capacity uses the positive endpoint. (-128)*(-128)
+        // is +16384 and does not fit signed 15-bit output.
+        let mut endpoint_mf = ClaimManifest::new("statement-negative", b"signed-endpoint");
+        let ea = endpoint_mf.add_commitment("A", 1, 1, Orientation::RowMajor, vec![], vec![]);
+        let eb = endpoint_mf.add_commitment("B", 1, 1, Orientation::RowMajor, vec![], vec![]);
+        let ec = endpoint_mf.add_commitment("C", 1, 1, Orientation::RowMajor, vec![], vec![]);
+        endpoint_mf.add_operation(Operation::Matmul { a: ea, b: eb, c: ec });
+        let mut endpoint = manifest::Statement::new([1u8; 32], table_digest, endpoint_mf);
+        endpoint.quant = vec![
+            manifest::QuantMeta { bits: 8, frac_bits: 4, signed: true },
+            manifest::QuantMeta { bits: 8, frac_bits: 4, signed: true },
+            manifest::QuantMeta { bits: 15, frac_bits: 8, signed: true },
+        ];
+        endpoint.outputs = vec![ec];
+        expect("signed positive endpoint overflow", &endpoint, |e| {
+            matches!(e, SE::QuantMismatch { field: "matmul accumulator width", .. })
+        });
+
+        // (16) Operation order does not make a cyclic producer graph a DAG.
+        let mut cycle_mf = ClaimManifest::new("statement-negative", b"cycle");
+        let ca = cycle_mf.add_commitment("A", 1, 1, Orientation::RowMajor, vec![], vec![]);
+        let cb = cycle_mf.add_commitment("B", 1, 1, Orientation::RowMajor, vec![], vec![]);
+        cycle_mf.add_operation(Operation::Scale { input: ca, output: cb, scalar_le: vec![1] });
+        cycle_mf.add_operation(Operation::Scale { input: cb, output: ca, scalar_le: vec![1] });
+        let mut cycle = manifest::Statement::new([2u8; 32], table_digest, cycle_mf);
+        cycle.quant = vec![
+            manifest::QuantMeta { bits: 8, frac_bits: 0, signed: false },
+            manifest::QuantMeta { bits: 8, frac_bits: 0, signed: false },
+        ];
+        expect("cyclic dataflow", &cycle, |e| matches!(e, SE::CyclicDataflow { .. }));
+
+        // (17) Empty Add and LinkEqual orientation mismatches were both
+        // previously accepted as well-formed statements.
+        let mut empty_mf = ClaimManifest::new("statement-negative", b"empty-add");
+        let eo = empty_mf.add_commitment("out", 1, 1, Orientation::RowMajor, vec![], vec![]);
+        empty_mf.add_operation(Operation::Add { inputs: vec![], output: eo });
+        let mut empty = manifest::Statement::new([3u8; 32], table_digest, empty_mf);
+        empty.quant = vec![manifest::QuantMeta { bits: 8, frac_bits: 0, signed: false }];
+        empty.outputs = vec![eo];
+        expect("empty Add", &empty, |e| matches!(e, SE::EmptyAdd { .. }));
+
+        let mut link_mf = ClaimManifest::new("statement-negative", b"link-orientation");
+        let la = link_mf.add_commitment("A", 1, 1, Orientation::ByRows, vec![], vec![]);
+        let lb = link_mf.add_commitment("B", 1, 1, Orientation::ByColumns, vec![], vec![]);
+        link_mf.add_operation(Operation::LinkEqual { left: la, right: lb });
+        let mut link = manifest::Statement::new([4u8; 32], table_digest, link_mf);
+        link.quant = vec![
+            manifest::QuantMeta { bits: 8, frac_bits: 0, signed: false },
+            manifest::QuantMeta { bits: 8, frac_bits: 0, signed: false },
+        ];
+        expect("LinkEqual orientation mismatch", &link, |e| {
+            matches!(e, SE::OrientationMismatch { .. })
+        });
     }
 
     // --- Layer 1: the Pi2 matmul claim (its own round). -------------------
@@ -4521,7 +4658,7 @@ fn statement_inventory() {
     use manifest::{ClaimManifest, Operation, Orientation, QuantMeta, Statement};
     let (layers, dm, fh, tk) = (32usize, 4096usize, 11008usize, 512usize);
     println!("statement-inventory: {layers}-layer FFN surrogate (d = {dm}, f = {fh}, T = {tk} tokens) per TARGET_CONTRACT.md");
-    println!("  quantization: int8 activations/weights; 27/29-bit accumulators; rescale shifts 19/7/21;");
+    println!("  quantization: int8 activations/weights; 28/16/29-bit accumulators; scale-consistent rescale shifts 4/7/1;");
     println!("  dense bit-plane range facts (remainders + int8 narrowings; SiLU input narrowed by the lookup itself)");
 
     fn add(
@@ -4551,53 +4688,56 @@ fn statement_inventory() {
         // Gate projection: W (f x d) by rows, X (d x T) by columns.
         let wg = add(&mut mf, &mut quant, &lb("Wg"), fh, dm, Orientation::ByRows, q8);
         weight_ids.push(wg);
-        let g_acc = add(&mut mf, &mut quant, &lb("Gacc"), fh, tk, by_cols, qm(27, 8, true));
+        let g_acc = add(&mut mf, &mut quant, &lb("Gacc"), fh, tk, by_cols, qm(28, 8, true));
         let g8 = add(&mut mf, &mut quant, &lb("g8"), fh, tk, by_cols, q8);
-        let rg = add(&mut mf, &mut quant, &lb("Rg"), fh, tk, by_cols, qm(19, 8, false));
-        let rg_bits = add(&mut mf, &mut quant, &lb("Rg-bits"), 19 * fh, tk, by_cols, plane);
+        let rg = add(&mut mf, &mut quant, &lb("Rg"), fh, tk, by_cols, qm(4, 8, false));
+        let rg_bits = add(&mut mf, &mut quant, &lb("Rg-bits"), 4 * fh, tk, by_cols, plane);
         let a8 = add(&mut mf, &mut quant, &lb("a8"), fh, tk, by_cols, q8);
         mf.add_operation(Operation::Matmul { a: wg, b: x_in, c: g_acc });
-        mf.add_operation(Operation::Rescale { x: g_acc, y: g8, r: rg, shift: 19 });
-        mf.add_operation(Operation::Range { value: rg, bits: rg_bits, width: 19, signed: false });
+        mf.add_operation(Operation::Rescale { x: g_acc, y: g8, r: rg, shift: 4 });
+        mf.add_operation(Operation::Range { value: rg, bits: rg_bits, width: 4, signed: false });
         mf.add_operation(Operation::Binary { bits: rg_bits });
         // SiLU through the frozen table: domain membership narrows g8.
         mf.add_operation(Operation::Lookup { x: g8, y: a8 });
         // Up projection (+ proven int8 narrowing — u8 feeds the Hadamard).
         let wu = add(&mut mf, &mut quant, &lb("Wu"), fh, dm, Orientation::ByRows, q8);
         weight_ids.push(wu);
-        let u_acc = add(&mut mf, &mut quant, &lb("Uacc"), fh, tk, by_cols, qm(27, 8, true));
+        let u_acc = add(&mut mf, &mut quant, &lb("Uacc"), fh, tk, by_cols, qm(28, 8, true));
         let u8v = add(&mut mf, &mut quant, &lb("u8"), fh, tk, by_cols, q8);
-        let ru = add(&mut mf, &mut quant, &lb("Ru"), fh, tk, by_cols, qm(19, 8, false));
-        let ru_bits = add(&mut mf, &mut quant, &lb("Ru-bits"), 19 * fh, tk, by_cols, plane);
+        let ru = add(&mut mf, &mut quant, &lb("Ru"), fh, tk, by_cols, qm(4, 8, false));
+        let ru_bits = add(&mut mf, &mut quant, &lb("Ru-bits"), 4 * fh, tk, by_cols, plane);
         let u8_bits = add(&mut mf, &mut quant, &lb("u8-bits"), 8 * fh, tk, by_cols, plane);
         mf.add_operation(Operation::Matmul { a: wu, b: x_in, c: u_acc });
-        mf.add_operation(Operation::Rescale { x: u_acc, y: u8v, r: ru, shift: 19 });
-        mf.add_operation(Operation::Range { value: ru, bits: ru_bits, width: 19, signed: false });
+        mf.add_operation(Operation::Rescale { x: u_acc, y: u8v, r: ru, shift: 4 });
+        mf.add_operation(Operation::Range { value: ru, bits: ru_bits, width: 4, signed: false });
         mf.add_operation(Operation::Binary { bits: ru_bits });
         mf.add_operation(Operation::Range { value: u8v, bits: u8_bits, width: 8, signed: true });
         mf.add_operation(Operation::Binary { bits: u8_bits });
-        // gate o up, rescaled back to int8 (worst-case exact: 15-bit
-        // product >> 7 fits int8 with no narrowing fact needed).
-        let hh = add(&mut mf, &mut quant, &lb("H"), fh, tk, by_cols, qm(15, 8, true));
+        // gate o up. A signed 16-bit product is required for the positive
+        // (-128)*(-128) endpoint; the int8 rescale carries its own Range.
+        let hh = add(&mut mf, &mut quant, &lb("H"), fh, tk, by_cols, qm(16, 8, true));
         let h8 = add(&mut mf, &mut quant, &lb("h8"), fh, tk, by_cols, qm(8, 1, true));
         let rh = add(&mut mf, &mut quant, &lb("Rh"), fh, tk, by_cols, qm(7, 8, false));
         let rh_bits = add(&mut mf, &mut quant, &lb("Rh-bits"), 7 * fh, tk, by_cols, plane);
+        let h8_bits = add(&mut mf, &mut quant, &lb("h8-bits"), 8 * fh, tk, by_cols, plane);
         mf.add_operation(Operation::Hadamard { x: a8, y: u8v, z: hh });
         mf.add_operation(Operation::Rescale { x: hh, y: h8, r: rh, shift: 7 });
         mf.add_operation(Operation::Range { value: rh, bits: rh_bits, width: 7, signed: false });
         mf.add_operation(Operation::Binary { bits: rh_bits });
+        mf.add_operation(Operation::Range { value: h8, bits: h8_bits, width: 8, signed: true });
+        mf.add_operation(Operation::Binary { bits: h8_bits });
         // Down projection (+ proven int8 narrowing — the layer output is
         // the next layer's input).
         let wd = add(&mut mf, &mut quant, &lb("Wd"), dm, fh, Orientation::ByRows, q8);
         weight_ids.push(wd);
         let d_acc = add(&mut mf, &mut quant, &lb("Dacc"), dm, tk, by_cols, qm(29, 5, true));
         let x_out = add(&mut mf, &mut quant, &lb("Xout"), dm, tk, by_cols, q8);
-        let rd = add(&mut mf, &mut quant, &lb("Rd"), dm, tk, by_cols, qm(21, 5, false));
-        let rd_bits = add(&mut mf, &mut quant, &lb("Rd-bits"), 21 * dm, tk, by_cols, plane);
+        let rd = add(&mut mf, &mut quant, &lb("Rd"), dm, tk, by_cols, qm(1, 5, false));
+        let rd_bits = add(&mut mf, &mut quant, &lb("Rd-bits"), dm, tk, by_cols, plane);
         let x_out_bits = add(&mut mf, &mut quant, &lb("Xout-bits"), 8 * dm, tk, by_cols, plane);
         mf.add_operation(Operation::Matmul { a: wd, b: h8, c: d_acc });
-        mf.add_operation(Operation::Rescale { x: d_acc, y: x_out, r: rd, shift: 21 });
-        mf.add_operation(Operation::Range { value: rd, bits: rd_bits, width: 21, signed: false });
+        mf.add_operation(Operation::Rescale { x: d_acc, y: x_out, r: rd, shift: 1 });
+        mf.add_operation(Operation::Range { value: rd, bits: rd_bits, width: 1, signed: false });
         mf.add_operation(Operation::Binary { bits: rd_bits });
         mf.add_operation(Operation::Range { value: x_out, bits: x_out_bits, width: 8, signed: true });
         mf.add_operation(Operation::Binary { bits: x_out_bits });
@@ -7667,11 +7807,11 @@ fn self_test_lookup() {
             .map(|(&x, &y)| fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y)))
             .collect();
         let m5 = multiplicities(&kf, &w5, &tab_fused);
-        // Masks: drawn from a statement-wave transcript branch (the
-        // stand-in for their commitments; h0_lkp binds them upstream of
-        // alpha in the full wiring — U-K5c/d exercise those edges).
+        // Harness-only deterministic prover entropy. The committed masks
+        // still bind upstream of alpha; they are never derived from alpha's
+        // public Fiat-Shamir transcript.
         let h05 = *b"uk5-battery-h0-fixed-32-bytes!!!";
-        let mut trm = LkpTranscript::new("uk5-masks", &h05);
+        let mut trm = ring::ProverRng::from_test_seed("uk5-masks", &h05);
         let masks_w = draw_masks(&kf, &mut trm, dw, 0);
         let masks_t = draw_masks(&kf, &mut trm, dt, 0);
         let mut tr5 = LkpTranscript::new("uk5-lkp", &h05);
@@ -7895,11 +8035,11 @@ fn self_test_lookup_zk() {
     let m_k = multiplicities(&kf, &w_fused, &tab_fused);
     let m_vals: Vec<i64> = m_k.iter().map(|e| e[0] as i64).collect();
 
-    // ---- Mask + blinder draw (statement wave, before alpha). ----
-    let mut trmask = LkpTranscript::new("uk5c-masks", &spec_dg);
+    // ---- Mask + blinder draw (prover-private, committed before alpha). ----
+    let mut trmask = ring::ProverRng::from_test_seed("uk5c-masks", &spec_dg);
     let masks_w = draw_masks(&kf, &mut trmask, dw, 0);
     let masks_t = draw_masks(&kf, &mut trmask, dt, 0);
-    let mut trbl = LkpTranscript::new("uk5c-blinders", &spec_dg);
+    let mut trbl = ring::ProverRng::from_test_seed("uk5c-blinders", &spec_dg);
     let bl_w = BlinderSet::draw(&kf, &mut trbl);
     let mut bl_t = BlinderSet::draw(&kf, &mut trbl);
     bl_t.solve_mass(&kf, &bl_w.mass(&kf)); // table mass := witness mass
@@ -8334,7 +8474,7 @@ fn self_test_lookup_zk() {
     );
     // The masked transcript: the SAME pipeline returns a wrong m.
     let mut rng_h = 0x5eed_5c30u64;
-    let mut trh = LkpTranscript::new("uk5c-recover-mask", &spec_dg);
+    let mut trh = ring::ProverRng::from_test_seed("uk5c-recover-mask", &spec_dg);
     let masks_h = draw_masks(&kf, &mut trh, dt, 0);
     let bl_h = {
         let mut b = BlinderSet::draw(&kf, &mut trh);
@@ -8516,10 +8656,10 @@ fn self_test_lookup_zk_neg(
 
     // ---- E3Z-N1 (spike Z4): the mask-ordering F5 pair. ----
     {
-        let mut trm = LkpTranscript::new("uk5d-n1-masks", spec_dg);
+        let mut trm = ring::ProverRng::from_test_seed("uk5d-n1-masks", spec_dg);
         let masks_w = draw_masks(kf, &mut trm, dw, 0);
         let masks_t = draw_masks(kf, &mut trm, dt, 0);
-        let mut trb = LkpTranscript::new("uk5d-n1-bl", spec_dg);
+        let mut trb = ring::ProverRng::from_test_seed("uk5d-n1-bl", spec_dg);
         let bl_w = BlinderSet::draw(kf, &mut trb);
         let mut bl_t = BlinderSet::draw(kf, &mut trb);
         bl_t.solve_mass(kf, &bl_w.mass(kf));
@@ -8628,7 +8768,7 @@ fn self_test_lookup_zk_neg_2(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
     // cross-check is the discriminator; roots come straight off the
     // blinded trees. ----
     {
-        let mut trb = LkpTranscript::new("uk5d-n2-bl", spec_dg);
+        let mut trb = ring::ProverRng::from_test_seed("uk5d-n2-bl", spec_dg);
         let mut bl_w = BlinderSet::draw(kf, &mut trb);
         let mut bl_t = BlinderSet::draw(kf, &mut trb);
         bl_t.solve_mass(kf, &bl_w.mass(kf));
@@ -8686,9 +8826,9 @@ fn self_test_lookup_zk_neg_2(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
     // REFUSES reuse. The recovery probe basis therefore carries the SAME
     // shared blinders (zero masks), so its m-linear map matches. ----
     {
-        let mut trm = LkpTranscript::new("uk5d-n3-masks", spec_dg);
+        let mut trm = ring::ProverRng::from_test_seed("uk5d-n3-masks", spec_dg);
         let masks_shared = draw_masks(kf, &mut trm, dt, 0);
-        let mut trb = LkpTranscript::new("uk5d-n3-bl", spec_dg);
+        let mut trb = ring::ProverRng::from_test_seed("uk5d-n3-bl", spec_dg);
         let bl_shared = BlinderSet::draw(kf, &mut trb);
         // The zero-mask shared-blinder probe basis (matches the linear
         // map of the two masked passes' difference).
@@ -8796,9 +8936,9 @@ fn self_test_lookup_zk_neg_2(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
     // certificates as derive-time checks at engine shapes, plus the
     // guard-restart regression. ----
     {
-        let mut trm = LkpTranscript::new("uk5d-n4-masks", spec_dg);
+        let mut trm = ring::ProverRng::from_test_seed("uk5d-n4-masks", spec_dg);
         let masks_w = draw_masks(kf, &mut trm, dw, 0);
-        let mut trb = LkpTranscript::new("uk5d-n4-bl", spec_dg);
+        let mut trb = ring::ProverRng::from_test_seed("uk5d-n4-bl", spec_dg);
         let bl_w = BlinderSet::draw(kf, &mut trb);
         let prove_w = |masks: &MaskSet, bl: &BlinderSet| -> MaskedDescentProof {
             masks.harness_reset_freshness(); // rank probes re-run a fixed set
@@ -9007,7 +9147,7 @@ fn self_test_lookup_zk_neg_d3(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
     // multiplicity is interpolated post-alpha to pass the blinded
     // cross-check; the shipped alpha (binding m) moves and it dies. ----
     {
-        let mut trb = LkpTranscript::new("d3-n1-bl", spec_dg);
+        let mut trb = ring::ProverRng::from_test_seed("d3-n1-bl", spec_dg);
         let bl_w = BlinderSet::draw(kf, &mut trb);
         let mut bl_t = BlinderSet::draw(kf, &mut trb);
         bl_t.solve_mass(kf, &bl_w.mass(kf));
@@ -9064,9 +9204,9 @@ fn self_test_lookup_zk_neg_d3(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
     // round-poly and boundary absorbs sit in masked_gkr_prove/verify with
     // the same ordering as the unmasked descent). ----
     {
-        let mut trm = LkpTranscript::new("d3-tamper-masks", spec_dg);
+        let mut trm = ring::ProverRng::from_test_seed("d3-tamper-masks", spec_dg);
         let masks_w = draw_masks(kf, &mut trm, dw, 0);
-        let mut trb = LkpTranscript::new("d3-tamper-bl", spec_dg);
+        let mut trb = ring::ProverRng::from_test_seed("d3-tamper-bl", spec_dg);
         let bl_w = BlinderSet::draw(kf, &mut trb);
         let alpha = {
             let mut t = LkpTranscript::fixed_coins("d3-tamper-a", spec_dg);
@@ -9184,7 +9324,10 @@ fn self_test_uk9() {
     use ring::gkr_masked::{
         BlinderSet, blinded_witness_tree, draw_masks, masked_gkr_prove, masked_gkr_verify,
     };
-    use ring::kfield::{KElem, KField, bulk_mul_fixed_kelems};
+    use ring::kfield::{
+        K9_MAX_LEAVES, KElem, KField, bulk_mul_fixed_kelems, harness_bulk_mul_fixed_portable,
+        harness_fold_portable, k9_capacity_ok,
+    };
     use ring::lookup::{fuse_pair, silu_int8_table, table_spec_digest};
     use ring::sumcheck::{LkpTranscript, fold, mle_eval};
     println!(
@@ -9219,6 +9362,36 @@ fn self_test_uk9() {
         "U-K9 fixed-operand map: bulk == scalar incl. the sub-block tail (n = 37)",
         bulk_mul_fixed_kelems(&kf, odd, &r)
             == odd.iter().map(|e| kfo.mul(e, &r)).collect::<Vec<_>>(),
+    );
+
+    // Boundary vectors pin the GPU ABI's canonical residue behavior. They
+    // cover zero, one, q-1, the special-form reduction constants and a
+    // partial final lane block; the packed portable body is exercised
+    // separately from both AVX dispatch and the boxed scalar oracle.
+    let edge_coeffs = [0, 1, zq.q - 1, zq.q - 2, zq.q / 2, 399, zq.q - 399, 798];
+    let edge: Vec<KElem> = (0..37)
+        .map(|i| (0..ring::kfield::K_DEG).map(|j| edge_coeffs[(i + j) % edge_coeffs.len()]).collect())
+        .collect();
+    let edge_r: KElem =
+        (0..ring::kfield::K_DEG).map(|j| edge_coeffs[(3 * j + 2) % edge_coeffs.len()]).collect();
+    let edge_auto = bulk_mul_fixed_kelems(&kf, &edge, &edge_r);
+    let edge_portable = harness_bulk_mul_fixed_portable(&kf, &edge, &edge_r);
+    let edge_scalar: Vec<KElem> = edge.iter().map(|e| kfo.mul(e, &edge_r)).collect();
+    assert_true(
+        "U-K9 residue boundaries + tail: AVX-dispatched packed == forced-portable packed == scalar oracle; every output canonical",
+        edge_auto == edge_portable
+            && edge_auto == edge_scalar
+            && edge_auto.iter().flatten().all(|&x| x < zq.q),
+    );
+    let edge_fold = &edge[..32];
+    assert_true(
+        "U-K9 deinterleave/fold boundaries: AVX-dispatched packed == forced-portable packed == scalar oracle",
+        fold(&kf, edge_fold, &edge_r) == harness_fold_portable(&kf, edge_fold, &edge_r)
+            && fold(&kf, edge_fold, &edge_r) == fold(&kfo, edge_fold, &edge_r),
+    );
+    assert_true(
+        "U-K9 capacity contract: 2^25 leaves is admitted and the next power of two is rejected before allocation/accumulation",
+        k9_capacity_ok(K9_MAX_LEAVES) && !k9_capacity_ok(K9_MAX_LEAVES * 2),
     );
 
     // ---- whole unmasked descents: trees, transcripts, proofs ----
@@ -9304,12 +9477,14 @@ fn self_test_uk9() {
 
     // ---- whole masked descent: bulk == scalar, and it verifies ----
     let dw = 8usize;
-    let nw = 1usize << dw;
     let run_masked = |field: &KField| -> (Vec<KElem>, Vec<KElem>, KElem, KElem, bool) {
-        let mut trm = LkpTranscript::fixed_coins("uk9-masks", &spec_dg);
+        let mut trm = ring::ProverRng::from_test_seed("uk9-masks", &spec_dg);
         let masks = draw_masks(field, &mut trm, dw, 0);
         let bl = BlinderSet::draw(field, &mut trm);
-        let alpha = trm.challenge_k(field);
+        let alpha = {
+            let mut ta = LkpTranscript::new("uk9-alpha", &spec_dg);
+            ta.challenge_k(field)
+        };
         let w_fused: Vec<KElem> = xs[..100]
             .iter()
             .map(|&x| {
@@ -9336,6 +9511,14 @@ fn self_test_uk9() {
     assert_true(
         "U-K9 kernel gate: the frozen q31 point runs the bulk path; the oracle instance does not",
         kf.kern.is_some() && kfo.kern.is_none(),
+    );
+    let mut os_a = ring::ProverRng::from_os().expect("OS CSPRNG for freshness battery");
+    let mut os_b = ring::ProverRng::from_os().expect("OS CSPRNG for freshness battery");
+    let fresh_a = draw_masks(&kf, &mut os_a, 4, 0).flatten();
+    let fresh_b = draw_masks(&kf, &mut os_b, 4, 0).flatten();
+    assert_true(
+        "U-K9 prover entropy: independently OS-seeded mask sessions differ (public Fiat-Shamir state is not a mask source)",
+        fresh_a != fresh_b,
     );
 }
 
@@ -9516,6 +9699,9 @@ enum ChainTamper {
     OffTableY,
     /// One Z slot constant off the product — the quad ring claim rejects.
     HadamardZ,
+    /// A prover-supplied lookup prehash differs from the value implied by
+    /// the statement and commitment list. The verifier must recompute it.
+    LookupH0,
     /// Junk CRT coordinates in Y and UP with CORRECT slot constants,
     /// crafted in the null space of a STALE zeta (derived pre-commitment
     /// — the violated ordering). stale = true runs the buggy build
@@ -9525,6 +9711,14 @@ enum ChainTamper {
     /// masked lookup passes in BOTH worlds (its E1-composed pins read
     /// constants only) — the F5 pair for the chain's new hash edge.
     JunkY { stale: bool },
+}
+
+#[derive(Clone, Copy)]
+enum ChainEntropy {
+    /// Normal CLI/benchmark path: every proof session gets fresh OS entropy.
+    Os,
+    /// Reproducible adversarial batteries only.
+    Test,
 }
 
 #[derive(Default)]
@@ -9634,6 +9828,7 @@ fn ffn_chain_run(
     with_lookup: bool,
     tamper: ChainTamper,
     seed: u64,
+    entropy: ChainEntropy,
     quiet: bool,
 ) -> (ChainVerdict, ChainCost) {
     use manifest::{ClaimManifest, Operation, Orientation, QuantMeta};
@@ -9711,10 +9906,20 @@ fn ffn_chain_run(
 
     // ---- Instance data. ----------------------------------------------------
     let n_blocks = n_el.div_ceil(UK8_B);
-    let mut rng = seed;
-    let xs_all: Vec<i64> = (0..n_el).map(|_| rng_below(&mut rng, 256) as i64 - 128).collect();
+    // Reproducible witness generation is a harness concern, not prover
+    // entropy. All secret proof coins below come from an independent CSPRNG.
+    let mut data_rng = seed;
+    let xs_all: Vec<i64> =
+        (0..n_el).map(|_| rng_below(&mut data_rng, 256) as i64 - 128).collect();
     let mut ys_all: Vec<i64> = xs_all.iter().map(|&x| rows[(x + 128) as usize].1).collect();
-    let up_all: Vec<i64> = (0..n_el).map(|_| rng_below(&mut rng, 256) as i64 - 128).collect();
+    let up_all: Vec<i64> =
+        (0..n_el).map(|_| rng_below(&mut data_rng, 256) as i64 - 128).collect();
+    let mut rng = match entropy {
+        ChainEntropy::Os => ring::ProverRng::from_os()
+            .expect("operating-system entropy is required for a proof session"),
+        ChainEntropy::Test =>
+            ring::ProverRng::from_test_seed("uk8-proof-session", &seed.to_le_bytes()),
+    };
     if tamper == ChainTamper::OffTableY {
         // Still int8, consumed consistently downstream; off the table.
         ys_all[5] = if ys_all[5] > 100 { ys_all[5] - 16 } else { ys_all[5] + 16 };
@@ -9946,13 +10151,13 @@ fn ffn_chain_run(
 
         // Lookup material (arm A).
         let (masks_w, masks_t, bl_w, bl_t, m_k) = if with_lookup {
-            let mask_seed = uk8_sha(&[b"uk8-masks", &seed.to_le_bytes(), &(b as u64).to_le_bytes()]);
-            let mut trm = LkpTranscript::new("uk8-masks", &mask_seed);
-            let mw = draw_masks(&kf, &mut trm, UK8_DW, 0);
-            let mt = draw_masks(&kf, &mut trm, UK8_DT, 0);
-            let mut trb = LkpTranscript::new("uk8-blinders", &mask_seed);
-            let bw = BlinderSet::draw(&kf, &mut trb);
-            let mut bt = BlinderSet::draw(&kf, &mut trb);
+            // Fresh prover-only coins. The resulting coefficients are
+            // committed below and only then enter h0_lkp; the public
+            // statement/transcript cannot reconstruct them.
+            let mw = draw_masks(&kf, &mut rng, UK8_DW, 0);
+            let mt = draw_masks(&kf, &mut rng, UK8_DT, 0);
+            let bw = BlinderSet::draw(&kf, &mut rng);
+            let mut bt = BlinderSet::draw(&kf, &mut rng);
             bt.solve_mass(&kf, &bw.mass(&kf));
             let w_fused: Vec<KElem> = xs
                 .iter()
@@ -10402,7 +10607,11 @@ fn ffn_chain_run(
             pins.extend(leaf_pins(&endw, &endt, &alpha, bd.n_b));
             absorb_pins(&mut tr, &pins);
             cost.lkp_prove_s += t_lkp.elapsed().as_secs_f64();
-            lkp = Some((pw, pt, endw, endt, alpha, h0_lkp));
+            let mut claimed_h0_lkp = h0_lkp;
+            if tamper == ChainTamper::LookupH0 && b == 0 {
+                claimed_h0_lkp[0] ^= 1;
+            }
+            lkp = Some((pw, pt, endw, endt, alpha, claimed_h0_lkp));
             tr_state = Some(tr);
         }
         // The q31 claim families, in the canonical order [pins | link
@@ -10566,9 +10775,14 @@ fn ffn_chain_run(
         let mut tr_v_state: Option<LkpTranscript> = None;
         if with_lookup {
             let t_lkp = Instant::now();
-            let (pw, pt, _endw, _endt, alpha_p, h0_lkp) = lkp.as_ref().unwrap();
-            let mut lookup_ok = true;
-            let mut tv = LkpTranscript::new("uk8-lkp", h0_lkp);
+            let (pw, pt, _endw, _endt, alpha_p, claimed_h0_lkp) = lkp.as_ref().unwrap();
+            // The lookup prehash is public, derived state—not a prover
+            // challenge. Recompute it from the verifier's statement/table
+            // context and complete commitment list before drawing alpha.
+            let ctx_lkp_v = uk8_sha(&[&spec_dg, &h0_link_v]);
+            let expected_h0_lkp = ct_h0(&crs, &ctx_lkp_v, &t1s, &t2s, &[]);
+            let mut lookup_ok = expected_h0_lkp == *claimed_h0_lkp;
+            let mut tv = LkpTranscript::new("uk8-lkp", &expected_h0_lkp);
             let av = tv.challenge_k(&kf);
             lookup_ok &= av == *alpha_p;
             let vw = masked_gkr_verify(&kf, 1, UK8_DW, &shell_w, pw, &mut tv, false);
@@ -10678,7 +10892,8 @@ fn self_test_ffn_chain() {
     println!("\n[U-K8] committed FFN-gate chain: range-proved X -> masked lookup -> gate-o-up");
     let n = UK8_B;
     let t0 = Instant::now();
-    let (v, c) = ffn_chain_run(n, true, ChainTamper::None, 0x5eed_0801, false);
+    let (v, c) =
+        ffn_chain_run(n, true, ChainTamper::None, 0x5eed_0801, ChainEntropy::Test, false);
     assert_true(
         &format!(
             "U-K8 honest chain ACCEPTS end-to-end ({} el: statement v2 + q46 range family + MASKED committed lookup (E1-composed Y pins) + Hadamard block output; commit {:.2}s prove {:.2}s verify {:.2}s)",
@@ -10686,7 +10901,8 @@ fn self_test_ffn_chain() {
         ),
         v.all_ok(),
     );
-    let (vb, cb) = ffn_chain_run(n, false, ChainTamper::None, 0x5eed_0801, true);
+    let (vb, cb) =
+        ffn_chain_run(n, false, ChainTamper::None, 0x5eed_0801, ChainEntropy::Test, true);
     assert_true(
         &format!(
             "U-K8 baseline arm (lookup omitted) ACCEPTS — the A/B differential is measurable (lookup marginal at this shape, q46 restart noise excluded: prove +{:.2}s, verify +{:.2}s, commit +{} q31 coefficients)",
@@ -10700,20 +10916,32 @@ fn self_test_ffn_chain() {
     // Edge 1 — out-of-range X (wraparound witness; lookup omitted to
     // isolate the range edge): planes/ARP/binary stay honest, the U-L
     // link's q31 target rows catch the +256 residue jump.
-    let (vr, _) = ffn_chain_run(n, false, ChainTamper::RangeX, 0x5eed_0802, true);
+    let (vr, _) =
+        ffn_chain_run(n, false, ChainTamper::RangeX, 0x5eed_0802, ChainEntropy::Test, true);
     assert_true(
         "U-K8 edge (range): a wrapped X (+256 residue, honest-looking planes) REJECTS at the q31 wave (link target rows); q46 grounding and gates still pass",
         !vr.wave_ok && vr.q46_ok && vr.gates_ok && vr.statement_ok,
     );
     // Edge 2 — off-table Y: consumed consistently downstream, so ONLY
     // the lookup's blinded root cross-check can reject.
-    let (vy, _) = ffn_chain_run(n, true, ChainTamper::OffTableY, 0x5eed_0803, true);
+    let (vy, _) =
+        ffn_chain_run(n, true, ChainTamper::OffTableY, 0x5eed_0803, ChainEntropy::Test, true);
     assert_true(
         "U-K8 edge (lookup): an off-table Y REJECTS at the masked lookup's root cross-check; wave, q46 and gates pass (the edge is isolated)",
         !vy.lookup_ok && vy.wave_ok && vy.q46_ok && vy.gates_ok,
     );
+    // The lookup h0 is derivable from the statement and commitments. A
+    // carried/prover-supplied value is checked but never trusted as the
+    // verifier's challenge source.
+    let (vh, _) =
+        ffn_chain_run(n, true, ChainTamper::LookupH0, 0x5eed_0806, ChainEntropy::Test, true);
+    assert_true(
+        "U-K8 transcript boundary: a prover-supplied lookup h0 bit flip REJECTS; alpha and the wave remain derived from the verifier-recomputed prehash",
+        !vh.lookup_ok && vh.wave_ok && vh.q46_ok && vh.gates_ok && vh.statement_ok,
+    );
     // Edge 3 — Hadamard mismatch: one Z slot constant off the product.
-    let (vz, _) = ffn_chain_run(n, true, ChainTamper::HadamardZ, 0x5eed_0804, true);
+    let (vz, _) =
+        ffn_chain_run(n, true, ChainTamper::HadamardZ, 0x5eed_0804, ChainEntropy::Test, true);
     assert_true(
         "U-K8 edge (gate-o-up): a tampered Z slot constant REJECTS at the quad ring claim; the lookup itself passes",
         !vz.wave_ok && vz.lookup_ok && vz.q46_ok,
@@ -10724,12 +10952,26 @@ fn self_test_ffn_chain() {
     // (crafted in the stale zeta's null space) in Y and UP whose
     // gate-o-up output constants are WRONG — while the masked lookup
     // PASSES (its E1-composed pins read slot constants only).
-    let (va, _) = ffn_chain_run(n, true, ChainTamper::JunkY { stale: true }, 0x5eed_0805, true);
+    let (va, _) = ffn_chain_run(
+        n,
+        true,
+        ChainTamper::JunkY { stale: true },
+        0x5eed_0805,
+        ChainEntropy::Test,
+        true,
+    );
     assert_true(
         "U-K8 order (F5 ACCEPT leg): stale zeta (drawn before the slot commitments) ACCEPTS crafted junk-coordinate Y/UP — with WRONG block-output constants — and the lookup still passes (constants read exactly)",
         va.all_ok() && va.junk_harm,
     );
-    let (vs, _) = ffn_chain_run(n, true, ChainTamper::JunkY { stale: false }, 0x5eed_0805, true);
+    let (vs, _) = ffn_chain_run(
+        n,
+        true,
+        ChainTamper::JunkY { stale: false },
+        0x5eed_0805,
+        ChainEntropy::Test,
+        true,
+    );
     assert_true(
         "U-K8 order (F5 REJECT leg): the shipped zeta (from h0_link_b, post-commitment) REJECTS the same junk at the q31 wave",
         !vs.wave_ok && vs.lookup_ok && vs.q46_ok,
@@ -10754,12 +10996,14 @@ fn ffn_chain_bench(n_blocks: usize) {
         "u-k8 ffn-chain bench: {n_el} elements ({n_blocks} blocks x {UK8_B}), committed FFN-gate chain, 1T"
     );
     let t_a = Instant::now();
-    let (va, ca) = ffn_chain_run(n_el, true, ChainTamper::None, 0x5eed_08b1, false);
+    let (va, ca) =
+        ffn_chain_run(n_el, true, ChainTamper::None, 0x5eed_08b1, ChainEntropy::Os, false);
     let wall_a = t_a.elapsed().as_secs_f64();
     assert!(va.all_ok(), "arm A (lookup-integrated) must verify");
     let hwm_a = vm_hwm_kb();
     let t_b = Instant::now();
-    let (vb, cb) = ffn_chain_run(n_el, false, ChainTamper::None, 0x5eed_08b1, true);
+    let (vb, cb) =
+        ffn_chain_run(n_el, false, ChainTamper::None, 0x5eed_08b1, ChainEntropy::Os, true);
     let wall_b = t_b.elapsed().as_secs_f64();
     assert!(vb.all_ok(), "arm B (lookup omitted) must verify");
     let hwm_b = vm_hwm_kb();
@@ -10982,15 +11226,19 @@ fn freeze_check_link() -> bool {
 
     // LKP-1 — the lookup's table statement: the canonical spec digest
     // of silu-int8-table-v1 (M4_LOOKUP_DESIGN Section 1.1). The digest
-    // enters every lookup h0 before alpha; a drift here (f64 platform
-    // difference, spec edit, row change) must be loud.
+    // enters every lookup h0 before alpha. Rows are static integers—no
+    // runtime libm—and both the lookup and statement validator pin this
+    // full digest.
     {
         let rows = ring::lookup::silu_int8_table();
         let dg = ring::lookup::table_spec_digest(&rows);
         let hexd: String = dg.iter().take(8).map(|b| format!("{b:02x}")).collect();
         gate(
             &format!("LKP-1 silu-int8-table-v1 spec digest {hexd} (256 rows)"),
-            hexd == "768b83d7c01d9bee" && rows.len() == 256 && rows[128] == (0, 0),
+            dg == ring::lookup::SILU_INT8_TABLE_DIGEST
+                && dg == manifest::SILU_INT8_TABLE_DIGEST
+                && rows.len() == 256
+                && rows[128] == (0, 0),
         );
     }
 

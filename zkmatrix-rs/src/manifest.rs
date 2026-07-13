@@ -333,7 +333,29 @@ impl QuantMeta {
             (1u128 << self.bits) - 1
         }
     }
+
+    /// Whether a symmetric magnitude bound is representable. Signed
+    /// two's-complement has one extra negative endpoint, so an absolute
+    /// bound of 2^(bits-1) is not safe for a value that may be positive.
+    fn fits_abs(&self, bound: u128) -> bool {
+        if self.signed {
+            bound < (1u128 << (self.bits - 1))
+        } else {
+            bound <= (1u128 << self.bits) - 1
+        }
+    }
 }
+
+/// Canonical digest of `silu-int8-table-v1`. A Lookup statement is not
+/// allowed to choose an arbitrary nonzero table digest: its semantics are
+/// this exact, integer-frozen table. `ring/lookup.rs` carries a regression
+/// that recomputes the same value from the static rows.
+pub const SILU_INT8_TABLE_DIGEST: [u8; 32] = [
+    0x76, 0x8b, 0x83, 0xd7, 0xc0, 0x1d, 0x9b, 0xee,
+    0xcc, 0x64, 0x5d, 0x26, 0x46, 0xf1, 0x07, 0xdf,
+    0x7f, 0xc3, 0x70, 0xdc, 0x80, 0x2f, 0xee, 0x15,
+    0x4c, 0x03, 0x18, 0x68, 0x5c, 0x40, 0xd2, 0x97,
+];
 
 /// The statement header: format version, the identity digest of the exact
 /// quantized model being claimed (weights + architecture + quantization
@@ -399,6 +421,12 @@ pub enum StatementError {
     MissingRangeFact { op: usize, r: u32 },
     /// Scale's public scalar is malformed (empty or wider than 16 bytes).
     BadScalar { op: usize },
+    /// Add has no inputs and therefore constrains its output to nothing.
+    EmptyAdd { op: usize },
+    /// Producer/consumer edges contain a directed cycle.
+    CyclicDataflow { id: u32 },
+    /// A Lookup selected a table other than the canonical frozen SiLU table.
+    TableDigestMismatch,
     /// A produced tensor that is neither read downstream nor declared an
     /// output — it silently drops out of the statement.
     UnconsumedEntry { id: u32 },
@@ -456,6 +484,13 @@ impl std::fmt::Display for StatementError {
                 write!(f, "operation {op}: rescale remainder {r} has no range fact")
             }
             StatementError::BadScalar { op } => write!(f, "operation {op}: malformed public scalar"),
+            StatementError::EmptyAdd { op } => write!(f, "operation {op}: Add has no inputs"),
+            StatementError::CyclicDataflow { id } => {
+                write!(f, "dataflow contains a cycle through entry {id}")
+            }
+            StatementError::TableDigestMismatch => {
+                write!(f, "lookup table digest is not the canonical silu-int8-table-v1 digest")
+            }
             StatementError::UnconsumedEntry { id } => {
                 write!(f, "entry {id} is produced but never consumed nor declared an output")
             }
@@ -469,6 +504,34 @@ impl std::fmt::Display for StatementError {
             }
         }
     }
+}
+
+fn first_dataflow_cycle(graph: &[Vec<usize>]) -> Option<u32> {
+    fn visit(node: usize, graph: &[Vec<usize>], state: &mut [u8]) -> Option<u32> {
+        match state[node] {
+            1 => return Some(node as u32),
+            2 => return None,
+            _ => {}
+        }
+        state[node] = 1;
+        for &next in &graph[node] {
+            if let Some(id) = visit(next, graph, state) {
+                return Some(id);
+            }
+        }
+        state[node] = 2;
+        None
+    }
+
+    let mut state = vec![0u8; graph.len()];
+    for node in 0..graph.len() {
+        if state[node] == 0 {
+            if let Some(id) = visit(node, graph, &mut state) {
+                return Some(id);
+            }
+        }
+    }
+    None
 }
 
 impl Statement {
@@ -536,6 +599,7 @@ impl Statement {
         // read = referenced as an operand or fact subject; written = produced.
         let mut read = vec![false; entries.len()];
         let mut written = vec![false; entries.len()];
+        let mut flow = vec![Vec::<usize>::new(); entries.len()];
         // --- Per-operation checks. -----------------------------------------
         for (op, operation) in self.manifest.operations.iter().enumerate() {
             match operation {
@@ -569,9 +633,11 @@ impl Statement {
                     let acc = (ea.cols as u128)
                         .saturating_mul(qa.max_abs())
                         .saturating_mul(qb.max_abs());
-                    if acc > qc.max_abs() {
+                    if !qc.fits_abs(acc) {
                         return Err(E::QuantMismatch { op, id: *c, field: "matmul accumulator width" });
                     }
+                    flow[*a as usize].push(*c as usize);
+                    flow[*b as usize].push(*c as usize);
                     read[*a as usize] = true;
                     read[*b as usize] = true;
                     written[*c as usize] = true;
@@ -589,9 +655,11 @@ impl Statement {
                     if qz.frac_bits != qx.frac_bits + qy.frac_bits {
                         return Err(E::QuantMismatch { op, id: *z, field: "hadamard fraction bits" });
                     }
-                    if qx.max_abs().saturating_mul(qy.max_abs()) > qz.max_abs() {
+                    if !qz.fits_abs(qx.max_abs().saturating_mul(qy.max_abs())) {
                         return Err(E::QuantMismatch { op, id: *z, field: "hadamard product width" });
                     }
+                    flow[*x as usize].push(*z as usize);
+                    flow[*y as usize].push(*z as usize);
                     read[*x as usize] = true;
                     read[*y as usize] = true;
                     written[*z as usize] = true;
@@ -609,6 +677,13 @@ impl Statement {
                     if qy.signed != qx.signed {
                         return Err(E::QuantMismatch { op, id: *y, field: "rescale signedness" });
                     }
+                    // Integer identity and fixed-point interpretation are
+                    // independent of whether a later Range/Lookup proves a
+                    // calibrated narrowing. Narrowing may justify width; it
+                    // cannot waive the scale equation.
+                    if qx.frac_bits < *shift || qy.frac_bits != qx.frac_bits - shift {
+                        return Err(E::QuantMismatch { op, id: *y, field: "rescale fraction bits" });
+                    }
                     // Calibrated requantization: a rescale output declared
                     // NARROWER than the worst-case x >> shift is legal only
                     // when the statement PROVES the narrowing — a Range
@@ -625,11 +700,8 @@ impl Statement {
                             || matches!(other, Operation::Lookup { x: lx, .. } if lx == y)
                     });
                     if !narrowed {
-                        if qx.max_abs() >> shift > qy.max_abs() {
+                        if !qy.fits_abs(qx.max_abs() >> shift) {
                             return Err(E::QuantMismatch { op, id: *y, field: "rescale width" });
-                        }
-                        if qx.frac_bits < *shift || qy.frac_bits != qx.frac_bits - shift {
-                            return Err(E::QuantMismatch { op, id: *y, field: "rescale fraction bits" });
                         }
                     }
                     if qr.signed || qr.bits != *shift || qr.frac_bits != qx.frac_bits {
@@ -649,6 +721,8 @@ impl Statement {
                     written[*y as usize] = true;
                     written[*r as usize] = true;
                     read[*r as usize] = true; // the Range fact below reads it
+                    flow[*x as usize].push(*y as usize);
+                    flow[*x as usize].push(*r as usize);
                 }
                 Operation::Range { value, bits, width, signed } => {
                     let (ev, eb) = (entry(op, *value)?, entry(op, *bits)?);
@@ -689,6 +763,9 @@ impl Statement {
                 Operation::Add { inputs, output } => {
                     let eo = entry(op, *output)?;
                     let qo = quant(*output);
+                    if inputs.is_empty() {
+                        return Err(E::EmptyAdd { op });
+                    }
                     let mut sum = 0u128;
                     let mut any_signed = false;
                     for input in inputs {
@@ -706,10 +783,13 @@ impl Statement {
                     if any_signed && !qo.signed {
                         return Err(E::QuantMismatch { op, id: *output, field: "add signedness" });
                     }
-                    if sum > qo.max_abs() {
+                    if !qo.fits_abs(sum) {
                         return Err(E::QuantMismatch { op, id: *output, field: "add width" });
                     }
                     written[*output as usize] = true;
+                    for input in inputs {
+                        flow[*input as usize].push(*output as usize);
+                    }
                 }
                 Operation::Scale { input, output, scalar_le } => {
                     let (ei, eo) = (entry(op, *input)?, entry(op, *output)?);
@@ -729,15 +809,17 @@ impl Statement {
                     if qo.frac_bits != qi.frac_bits {
                         return Err(E::QuantMismatch { op, id: *output, field: "scale fraction bits" });
                     }
-                    if qi.max_abs().saturating_mul(scalar) > qo.max_abs() {
+                    if !qo.fits_abs(qi.max_abs().saturating_mul(scalar)) {
                         return Err(E::QuantMismatch { op, id: *output, field: "scale width" });
                     }
                     read[*input as usize] = true;
                     written[*output as usize] = true;
+                    flow[*input as usize].push(*output as usize);
                 }
                 Operation::LinkEqual { left, right } => {
                     let (el, er) = (entry(op, *left)?, entry(op, *right)?);
                     same_shape(op, el, er)?;
+                    same_orient(op, el, er)?;
                     if quant(*left) != quant(*right) {
                         return Err(E::QuantMismatch { op, id: *right, field: "link quant" });
                     }
@@ -764,11 +846,21 @@ impl Statement {
                     if ebias.cols != 1 || ebias.rows != ebc.cols {
                         return Err(E::ShapeMismatch { op, left: *bias, right: *broadcast });
                     }
+                    if ebias.orientation != Orientation::ByColumns
+                        || ebc.orientation != Orientation::ByColumns
+                    {
+                        return Err(E::OrientationMismatch {
+                            op,
+                            left: *bias,
+                            right: *broadcast,
+                        });
+                    }
                     if quant(*bias) != quant(*broadcast) {
                         return Err(E::QuantMismatch { op, id: *broadcast, field: "broadcast quant" });
                     }
                     read[*bias as usize] = true;
                     written[*broadcast as usize] = true;
+                    flow[*bias as usize].push(*broadcast as usize);
                 }
                 Operation::Lookup { x, y } => {
                     let (ex, ey) = (entry(op, *x)?, entry(op, *y)?);
@@ -777,16 +869,25 @@ impl Statement {
                     let (qx, qy) = (quant(*x), quant(*y));
                     // The frozen activation table (header table_digest) is
                     // the int8 -> int8 SiLU spec: both sides 8-bit signed.
-                    if qx.bits != 8 || !qx.signed {
+                    if self.header.table_digest != SILU_INT8_TABLE_DIGEST {
+                        return Err(E::TableDigestMismatch);
+                    }
+                    if qx.bits != 8 || qx.frac_bits != 4 || !qx.signed {
                         return Err(E::QuantMismatch { op, id: *x, field: "lookup domain quant" });
                     }
-                    if qy.bits != 8 || !qy.signed {
+                    if qy.bits != 8 || qy.frac_bits != 4 || !qy.signed {
                         return Err(E::QuantMismatch { op, id: *y, field: "lookup image quant" });
                     }
                     read[*x as usize] = true;
                     written[*y as usize] = true;
+                    flow[*x as usize].push(*y as usize);
                 }
             }
+        }
+        // A manifest is a DAG, not merely a bag of individually shaped
+        // operations. Detect cycles after all ids and edges are validated.
+        if let Some(id) = first_dataflow_cycle(&flow) {
+            return Err(E::CyclicDataflow { id });
         }
         // --- DAG coverage: consumed-or-output, no orphans. ------------------
         let mut is_output = vec![false; entries.len()];
