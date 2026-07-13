@@ -11,13 +11,19 @@ rows LKP-6/7; design: M4_LOOKUP_ZK_DESIGN.md; lemmas Q4.7-Q4.9) — the
 non-ZK label on lookup-bearing proofs is LIFTED at the subprotocol
 level (honest-verifier ZK, proof-of-protocol; chain-wide ZK is the
 composition's statement, per the R1.3-class honesty note); the U-K8
-integration exit (FFN-shape committed tensor, slot-packed E4 variant,
-upstream range, downstream gate o up) is OPEN — see Section 7' and the
-2026-07-10 audit H-01. Four statuses, tracked separately: core algebra
-BUILT+MEASURED-1T; E4 landing BUILT (N=256 committed rig); masked
-lookup BUILT+BATTERY-GREEN (battery shape; FFN-point mask material and
+integration exit CLOSED 2026-07-10 at row-block granularity: the
+masked committed lookup runs INSIDE a chain (range-proved X in,
+slot-packed E1-composed Y out, downstream gate-o-up, validated v2
+statement) with measured marginals — Sections 7'' and 8. Four
+statuses, tracked separately: core algebra BUILT+MEASURED-1T; E4
+landing BUILT (N=256 committed rig); masked lookup
+BUILT+BATTERY-GREEN (battery shape; FFN-point mask material and
 transcript pinned by the LKP-6/7 formula freeze rows); FFN integration
-OPEN.
+BUILT+MEASURED-1T at 1020-element row-block sub-instances covering the
+tensor (`ffn-chain`, LKP-8) — NOT at the single-instance 512x11008
+shape, which the q31 ct-round's C2 wave capacity blocks near 2^17
+elements per committed descent (a wall this integration surfaced,
+ahead of the audit H-03 memory wall; Section 7'').
 Every algebraic claim below is exercised by `scripts/logup_gkr_spike.py`
 (pure stdlib, exact arithmetic; 16 OK assertion lines; output recorded in
 Section 10). Companions: M4_LOOKUP_LITERATURE.md (the decided verdict
@@ -601,7 +607,8 @@ Nothing in this design blocks it; the SiLU lookup is deliberately its
 1/50th-volume pilot. NOT a commitment — a priced option.
 
 ### 7' — lookup-core measurement addendum (lookup-bench, 2026-07-10;
-### relabeled per the 2026-07-10 audit H-01/H-02 — U-K8 remains OPEN)
+### relabeled per the 2026-07-10 audit H-01/H-02 — the U-K8 exit is
+### now CLOSED at row-block granularity, see Section 7'')
 
 `ring_matmul lookup-bench` is an UNMASKED, UNCOMMITTED, single-thread
 lookup-CORE microbenchmark (fused leaves, trees, descents, verify with
@@ -638,6 +645,98 @@ Hadamard, and it is not FFN-shaped). Measured at N = 2^18 and 2^20
   arithmetic through the A1 kernel class + lazy reduction inside
   `round_poly`/`build_tree` (plausible 5-10x from reduction discipline
   plus the 8x lane occupancy; measured, not assumed, when it lands).
+
+### 7'' — U-K8 committed-chain integration addendum (ffn-chain,
+### 2026-07-10 — the audit H-01 exit, closed at row-block granularity)
+
+`ring_matmul ffn-chain [n_blocks | battery]` is the first run of the
+MASKED, COMMITTED lookup INSIDE a chain: X range-proved upstream (q46
+bit planes + ARP + the U-L modulus link), Y = SiLU(X) table-certified
+by the [U-K5c] masked pass with aggregate-only pins, and Y consumed
+downstream by a gate-o-up Hadamard against a second committed tensor
+UP, producing the block output Z — all under one validated v2
+statement (Binary/Range/Lookup/Hadamard operations, output Z) whose
+digest is the ctx of every challenge. The slot-packed E4 variant is
+now REAL: Y lives only slot-packed (H3), and the lookup's Q-pin reads
+it through per-coefficient weights composed from the slot-constant CRT
+projection rows (`ring/lookup.rs::slot_pin_weights`) — the Section 3.4
+"same claim family, different public weight computation" promise,
+exercised against commitments. The battery (in self-test) holds the
+honest ACCEPT plus a REJECT at every chain edge: out-of-range X (the
+link's target rows), off-table Y (the blinded root cross-check, with
+wave/range/Hadamard still passing — the edge is isolated), a tampered
+Hadamard output (the quad ring claim), and the F5 ordering pair for
+the chain's one NEW hash edge — zeta (the E2 slot-constancy weights)
+drawn before the slot commitments ACCEPTS crafted junk coordinates
+whose gate-o-up output constants are WRONG while the lookup itself
+still passes; the shipped post-commitment zeta REJECTS the same junk.
+Freeze row LKP-8 pins the operating point.
+
+**The two as-built capacity walls this integration surfaced** (neither
+was visible from lookup-bench or the battery-shape U-K5c rig):
+
+1. **The q31 C2 wave cap binds BEFORE the audit H-03 memory wall.**
+   One ct-round at the working CRS shape (kappa 8, n_r 26, msg_r 8)
+   satisfies the C2 gate q > 8 beta only up to ~134 commitments
+   (~4.4e5 committed coefficients), so a SINGLE committed masked
+   descent caps near 2^17 dense elements — an order of magnitude below
+   the 5.6e6-element FFN gate instance the design's Section 5 batching
+   assumed. The chain therefore runs 1020-element ROW-BLOCK
+   sub-instances (Section 9 item 5 sub-instancing: own m column,
+   masks, blinders, descents, pins and round per block; ceiling margin
+   only improves). Lifting the per-instance cap needs wide/multi-round
+   commitment machinery (M5-chunking class) or a CRS-shape rework —
+   named follow-up work, not attempted here.
+2. **The q46 ARP granularity + restart coupling.** The range side's
+   binary units cap at ~896 bit-coefficients AND the rejection alpha
+   is budget-capped (~4 at 512-bit units), while FS-with-aborts
+   restarts all units of a round together — the frozen chain point is
+   512-bit units, alpha 3.5, 4 units per grounding round (measured
+   ~50 restarts/round mean, high variance). Range throughput, not the
+   lookup, is the chain's wall-clock wall.
+
+**Measured marginals** (ffn-chain 16 = 16,320 elements, single-thread;
+labels: [MEASURED-AT-RATE] = measured at this shape and linear in
+blocks by construction; every wall-clock is [NOISY-SHARED] — a second
+agent was benchmarking on the same 22-thread box, so these establish
+magnitude, and the quiesced re-measurement is the orchestrator's):
+
+| axis | lookup-integrated arm vs lookup-omitted arm |
+|---|---|
+| committed data | +14,336 q31 coefficients per 1020-el block = **14.1 dce/el** (m column + blinders + Libra masks + 9 pin g-masks; a FIXED per-instance cost — amortizes as 1/B: ~1e-4 dce/el at the design's 5.6e6-el instances [MODEL]) |
+| prove | **+206 us/el** (q46-restart noise excluded; lookup-stage attribution 100 us/el = trees + masked descents + pin building, the rest is the wave round growing by the pin claims) |
+| verify | **+50-130 us/el** (box-noise-wide; attribution 40 us/el) |
+| commit time | +64 us/el |
+| transcript | +38,272 B/block = 37.5 B/el |
+| peak RSS | unchanged, 0.29 GiB total — blocks stream; H-03's memory wall never binds at this granularity |
+
+Context for the prove marginal: the unmasked, uncommitted lookup CORE
+runs at 10.9 us/el (Section 7'); the committed + masked + pinned
+integration at 1020-element instances costs ~6-9x that in-stage plus
+the wave growth — mostly FIXED per-instance material (masks, blinders,
+pin claim building) that larger instances would amortize. Per 7B/512
+pass (1.8e8 activation elements) the as-built lookup marginal
+extrapolates to ~37 ks 1T [MEASURED-AT-RATE at block granularity] vs
+~1.95 ks 1T for the bare core — the gap IS the price of the C2 wall's
+tiny instances, which is why the wall is named above.
+
+**The differential against piecewise variant A** (the incumbent this
+design replaced, M4_ACTIVATION_DESIGN Section 7): even at the WORST
+amortization the chain can exhibit (B = 1020), the lookup's committed
+marginal is 14.1 dce/el vs variant A's 105 dce/el — 7.4x — and the
+variant-A +201% pass commit stream does not exist at all in the lookup
+chain. The M4 verdict survives its first committed integration on the
+axis it was decided on, with the honest caveat that the TIME axis at
+block granularity is dominated by per-instance fixed costs until the
+C2 cap lifts.
+
+The chain totals, for the ladder: ~10.7 ms/el 1T prove for the WHOLE
+chain, of which ~96% is the q46 range family (582 dce/el of q46
+commitments, ARP claim volume, restart loops) — both arms pay it, it
+cancels in the marginal, and it reconciles with the ladder's
+"bit planes are 82.8% of the pass" finding: the activation lookup is
+not the pass's problem; ranges are (the Section 7 range-lookup rung
+remains the priced option for that).
 
 ## 8. Build plan: the E3/E4 tranches
 
@@ -709,6 +808,22 @@ twice.
   piecewise variant-A numbers, cost-table reconciliation into
   LLM_SCALE_ESTIMATE and TRANSFORMER_PROOF_PLAN Section 2. Exit: the
   M4 decision memo updated with measured (not [MODEL]) marginal costs.
+  [DONE 2026-07-10 (audit H-01 reopen closed at block granularity):
+  `ring_matmul ffn-chain [n_blocks | battery]` + the `[U-K8]` battery
+  in self-test — the masked committed lookup runs INSIDE a chain with
+  a validated v2 statement (Binary/Range/Lookup/Hadamard, output Z),
+  q46-grounded upstream range on X, the slot-packed E1-composed E4
+  pin variant on Y (`ring/lookup.rs::slot_pin_weights`), downstream
+  gate-o-up quad claims with zeta slot-constancy rows, tamper REJECTs
+  at every chain edge and the zeta F5 ordering pair, freeze row LKP-8.
+  Measured marginal costs and the two as-built capacity walls the
+  integration surfaced (the q31 C2 wave cap and the q46 ARP
+  granularity/restart coupling) are in the Section 7'' addendum. The
+  full 512x11008 single-instance shape did NOT run — the C2 wave cap
+  binds a single committed descent near 2^17 elements (before the
+  audit H-03 memory wall), so the chain runs 1020-element row-block
+  sub-instances (design Section 9 item 5); lifting the per-instance
+  cap is wide-commitment/U-K9-class follow-up work.]
 
 Freeze-row drafts (names final, values pinned at U-K landing):
 **LKP-1** table spec digest (silu-int8-table-v1); **LKP-2** ceiling

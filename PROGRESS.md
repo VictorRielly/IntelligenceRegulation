@@ -52,10 +52,39 @@ reconciliation pass on a quiet machine after merge.
       zeta F5 pair (stale-zeta ACCEPT leg with WRONG output constants while
       the lookup passes / shipped-zeta REJECT leg). Freeze row LKP-8 (chain
       operating point + both capacity walls pinned both directions).
-- [ ] A-D2 Measured at the largest per-instance shape that fits as-built memory
+- [x] A-D2 Measured at the largest per-instance shape that fits as-built memory
       (H-03 gap documented honestly if full 512x11008 does not fit; full-shape
       re-measure planned post-U-K9-merge). Marginal costs: lookup-integrated chain
       vs bare matmul chain, and the differential vs piecewise variant-A.
+      DONE 2026-07-10, all numbers 1T [NOISY-SHARED] (another agent benching on
+      the same box; magnitudes only — the orchestrator re-measures quiesced):
+      * SHAPE HONESTY: the largest per-INSTANCE (per committed descent) count
+        as-built is 1020 el — capped by the q31 C2 wave capacity (~134
+        commitments/round), NOT by memory; H-03's memory wall never binds
+        (blocks stream, peak RSS 0.29 GiB at 16,320 el). The full 512x11008
+        instance did NOT run as one descent; the chain covers the tensor with
+        row-block sub-instances (5,526 blocks would cover a true FFN gate
+        tensor — linear extrapolation, per-block structure constant).
+      * ffn-chain 16 (16,320 el, arm A vs arm B): lookup marginal
+        [MEASURED-AT-RATE] prove +205.9 us/el, verify +130.0 us/el (1-block
+        quiet-ish run: +49 us/el — verify marginal is box-noise-wide), commit
+        +64 us/el time / +14.1 dce/el committed (m + blinders + masks + pin
+        g-masks at B = 1020; amortizes as 1/B; ~1e-4 dce/el at design-scale
+        5.6e6-el instances [MODEL]). Lookup-stage attribution 99.7 us/el prove
+        / 39.7 us/el verify (trees + masked descents + pins; vs 10.9 us/el for
+        the unmasked uncommitted core in lookup-bench — the committed+masked+
+        small-instance factor is ~6-9x at B = 1020). Masked transcript
+        38,272 B/block = 37.5 B/el.
+      * Chain totals (both arms pay it; cancels in the marginal): prove
+        ~10.7 ms/el 1T, q46 range side = 96% of it (582 dce/el of q46
+        commitments; ARP restarts ~52/round mean, high variance) — the range
+        family, not the lookup, dominates the as-built chain wall-clock,
+        consistent with the ladder's 82.8%-bit-plane finding.
+      * Differential vs piecewise variant-A (M4_ACTIVATION_DESIGN Section 7):
+        commit axis 14.1 vs 105 dce/el = 7.4x better at the WORST amortization
+        (1/B scaling closes the rest); variant A also pays its +201% commit
+        stream, which the lookup removes entirely. Verdict unchanged, now
+        measured inside a chain.
 - [ ] A-D3 Docs: Section 7' U-K8 block (measured, not [MODEL]), the four-status
       header flips FFN-integration status honestly, LLM_SCALE_ESTIMATE M4 row,
       TRANSFORMER_PROOF_PLAN Section 2 reconciliation. Freeze row for any new
