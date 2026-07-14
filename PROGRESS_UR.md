@@ -80,7 +80,19 @@ the masked descents/pins are untouched:
   the wave's own g-mask commitments; derive_ct_round_params remains the
   single source of truth (its assert is the gate, as today).
 - D-4 PER-WAVE g-MASKS bind wave-locally (mask only their wave's
-  reveals), exactly the per-block D-4 pattern lifted one level.
+  reveals), exactly the per-block D-4 pattern lifted one level. g-group
+  SIZES per wave derive from the wave's claim-share counts, which are
+  public and deterministic given the shape/plan — so every wave's g's
+  can be committed BEFORE h0_link, preserving commit-before-challenge.
+- D-5 THE LAYER RIG OMITS THE q46 PLANE/ARP SIDE (recorded 2026-07-14).
+  The q46 granularity is an ARP soundness cap, not C2 — a 2^20-el layer
+  would need 4096 q46 rounds (hours) under the CURRENT range
+  architecture, which S3 replaces anyway. `ffn-chain layer` therefore
+  measures the multi-wave committed masked lookup + Hadamard + zeta at
+  per-layer scale — the post-range-lookup architecture — and S3 adds
+  the range table INTO this rig. The full range→lookup→Hadamard
+  integrity story stays covered at the block rig (unchanged); the layer
+  rig's honest label: lookup-side lift only until S3 lands.
 
 ## Log
 
