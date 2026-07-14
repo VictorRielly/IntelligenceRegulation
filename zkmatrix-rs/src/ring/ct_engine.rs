@@ -1527,3 +1527,206 @@ pub fn arp_claims(
 pub fn arp_check_reveal(ap: &ArpParams, y: &[i64]) -> bool {
     y.len() == ap.rows && vec_norm_sq_i64(y) <= ap.y_bound_sq
 }
+
+// ---------------------------------------------------------------------------
+// U-R1 S0 (RANGE_AGGREGATION_DESIGN Section 2b): multi-wave partition of a
+// commitment list and claim splitting across C2-capped ct-round waves. The
+// binding requirement is upstream (every commitment enters the statement
+// hash before any wave's challenges derive — the D-4 pattern); these
+// helpers only partition and re-index.
+
+/// Reduce mod q and center into (-q/2, q/2].
+fn center_i128(zq: &super::Zq, v: i128) -> i64 {
+    let q = zq.q as i128;
+    let mut r = v.rem_euclid(q);
+    if r > q / 2 {
+        r -= q;
+    }
+    r as i64
+}
+
+/// Centered ct (constant term) of a * b in Z_q[X]/(X^D + 1):
+/// ct = a_0 b_0 - sum_{k>0} a_k b_{D-k}.
+pub fn ct_mul_centered(zq: &super::Zq, a: &Poly, b: &Poly) -> i64 {
+    let q = zq.q as i128;
+    let mut acc: i128 = (a[0] as i128 * b[0] as i128) % q;
+    for k in 1..D {
+        acc -= (a[k] as i128 * b[D - k] as i128) % q;
+    }
+    center_i128(zq, acc)
+}
+
+/// Deterministic wave partition (U-R1 D-2): co-location groups (e.g. a
+/// quadratic claim's operand + output commitments) are placed as whole
+/// units, first-fit in index order. A pure function of its arguments, so
+/// prover and verifier derive the same plan independently — nothing
+/// prover-chosen enters the partition.
+pub struct WavePlan {
+    /// wave -> global commitment indices, in wave-local order.
+    pub waves: Vec<Vec<usize>>,
+    /// global commitment index -> (wave, wave-local index).
+    pub slot_of: Vec<(usize, usize)>,
+}
+
+pub fn plan_waves(n_commits: usize, groups: &[Vec<usize>], cap: usize) -> WavePlan {
+    assert!(cap >= 1, "wave cap must be positive");
+    let mut group_of = vec![usize::MAX; n_commits];
+    for (g, members) in groups.iter().enumerate() {
+        assert!(members.len() <= cap, "co-location group exceeds the wave cap");
+        for &i in members {
+            assert!(group_of[i] == usize::MAX, "overlapping co-location groups");
+            group_of[i] = g;
+        }
+    }
+    let mut waves: Vec<Vec<usize>> = Vec::new();
+    let mut placed = vec![false; n_commits];
+    for i in 0..n_commits {
+        if placed[i] {
+            continue;
+        }
+        let unit: Vec<usize> =
+            if group_of[i] != usize::MAX { groups[group_of[i]].clone() } else { vec![i] };
+        let w = (0..waves.len())
+            .find(|&w| waves[w].len() + unit.len() <= cap)
+            .unwrap_or_else(|| {
+                waves.push(Vec::new());
+                waves.len() - 1
+            });
+        for &m in &unit {
+            waves[w].push(m);
+            placed[m] = true;
+        }
+    }
+    let mut slot_of = vec![(usize::MAX, usize::MAX); n_commits];
+    for (w, ws) in waves.iter().enumerate() {
+        for (l, &g) in ws.iter().enumerate() {
+            slot_of[g] = (w, l);
+        }
+    }
+    WavePlan { waves, slot_of }
+}
+
+/// The PUBLIC per-wave shares of a linear claim: msg_coeffs partitioned
+/// by the plan, commitment indices re-based wave-locally, scalars left 0
+/// for the caller to fill. Ajtai coefficients are per-round material and
+/// never split: a claim carrying them must land in exactly one wave
+/// (asserted; the chain's q31 claim families carry none).
+pub fn split_claim_shares(plan: &WavePlan, claim: &CtClaim) -> Vec<(usize, CtClaim)> {
+    let mut by_wave: std::collections::BTreeMap<usize, CtClaim> = std::collections::BTreeMap::new();
+    for (ci, s, p) in &claim.msg_coeffs {
+        let (w, l) = plan.slot_of[*ci];
+        by_wave
+            .entry(w)
+            .or_insert_with(|| CtClaim { msg_coeffs: vec![], ajtai_coeffs: vec![], scalar: 0 })
+            .msg_coeffs
+            .push((l, *s, p.clone()));
+    }
+    if !claim.ajtai_coeffs.is_empty() {
+        assert!(
+            by_wave.len() <= 1,
+            "a claim with Ajtai coefficients must not straddle waves (S0 scope)"
+        );
+        let w = by_wave.keys().next().copied().unwrap_or(0);
+        by_wave
+            .entry(w)
+            .or_insert_with(|| CtClaim { msg_coeffs: vec![], ajtai_coeffs: vec![], scalar: 0 })
+            .ajtai_coeffs = claim.ajtai_coeffs.clone();
+    }
+    by_wave.into_iter().collect()
+}
+
+/// Prover-side split (U-R1 D-1): per-wave claim lists plus, per original
+/// claim, the (wave, partial ct) reveals. Partial scalars are computed
+/// from the message openings (msgs[i] = commitment i's message polys);
+/// their sum equals the claim's total by construction — the verifier
+/// re-derives the shares from public weights and gates the sum.
+pub fn split_claims_prover(
+    zq: &super::Zq,
+    plan: &WavePlan,
+    claims: &[CtClaim],
+    msgs: &[&[Poly]],
+) -> (Vec<Vec<CtClaim>>, Vec<Vec<(usize, i64)>>) {
+    let mut per_wave: Vec<Vec<CtClaim>> = (0..plan.waves.len()).map(|_| Vec::new()).collect();
+    let mut reveals: Vec<Vec<(usize, i64)>> = Vec::with_capacity(claims.len());
+    for claim in claims {
+        let mut touched: Vec<(usize, i64)> = Vec::new();
+        for (w, mut share) in split_claim_shares(plan, claim) {
+            let mut acc: i128 = 0;
+            for (l, s, p) in &share.msg_coeffs {
+                let gi = plan.waves[w][*l];
+                acc += ct_mul_centered(zq, p, &msgs[gi][*s]) as i128;
+            }
+            share.scalar = center_i128(zq, acc);
+            touched.push((w, share.scalar));
+            per_wave[w].push(share);
+        }
+        reveals.push(touched);
+    }
+    (per_wave, reveals)
+}
+
+/// Verifier-side split: rebuilds the per-wave claims from the PUBLIC
+/// weights and the prover's partial reveals, gating (a) share structure,
+/// (b) centered representatives, and (c) sum(partials) == claim total
+/// mod q. None on any violation; per-wave ct-round verification then
+/// holds each partial to its wave's committed material.
+pub fn split_claims_verifier(
+    zq: &super::Zq,
+    plan: &WavePlan,
+    claims: &[CtClaim],
+    reveals: &[Vec<(usize, i64)>],
+) -> Option<Vec<Vec<CtClaim>>> {
+    if reveals.len() != claims.len() {
+        return None;
+    }
+    let mut per_wave: Vec<Vec<CtClaim>> = (0..plan.waves.len()).map(|_| Vec::new()).collect();
+    for (claim, rv) in claims.iter().zip(reveals.iter()) {
+        let shares = split_claim_shares(plan, claim);
+        if shares.len() != rv.len() {
+            return None;
+        }
+        let mut sum: i128 = 0;
+        for ((w, mut share), &(rw, part)) in shares.into_iter().zip(rv.iter()) {
+            if w != rw || part.unsigned_abs() > zq.q / 2 {
+                return None;
+            }
+            share.scalar = part;
+            sum += part as i128;
+            per_wave[w].push(share);
+        }
+        if center_i128(zq, sum) != claim.scalar {
+            return None;
+        }
+    }
+    Some(per_wave)
+}
+
+/// The single wave a quadratic ring claim lives in, or None if its
+/// operand/output commitments straddle waves — quads are never split
+/// (U-R1 D-1); the caller co-locates them via `plan_waves` groups.
+pub fn quad_ring_wave(plan: &WavePlan, qc: &QuadRingClaim) -> Option<usize> {
+    let mut idxs: Vec<usize> = Vec::new();
+    for (i, _, k, _, _) in &qc.quad {
+        idxs.push(*i);
+        idxs.push(*k);
+    }
+    for (i, _, _) in &qc.msg_coeffs {
+        idxs.push(*i);
+    }
+    assert!(!idxs.is_empty(), "empty quadratic claim");
+    let w0 = plan.slot_of[idxs[0]].0;
+    if idxs.iter().all(|&i| plan.slot_of[i].0 == w0) { Some(w0) } else { None }
+}
+
+/// Wave-local re-indexing of a co-located quadratic claim.
+pub fn quad_ring_localized(plan: &WavePlan, qc: &QuadRingClaim) -> (usize, QuadRingClaim) {
+    let w = quad_ring_wave(plan, qc).expect("quad claim straddles waves — co-locate via plan_waves groups");
+    let l = |ci: usize| plan.slot_of[ci].1;
+    (
+        w,
+        QuadRingClaim {
+            quad: qc.quad.iter().map(|(i, j, k, m, p)| (l(*i), *j, l(*k), *m, p.clone())).collect(),
+            msg_coeffs: qc.msg_coeffs.iter().map(|(i, s, p)| (l(*i), *s, p.clone())).collect(),
+        },
+    )
+}

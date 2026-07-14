@@ -6186,6 +6186,7 @@ fn main() {
             self_test_params();
             self_test_openings();
             self_test_ct_engine();
+            self_test_wave_split();
             self_test_pi1();
             self_test_gadgets();
             self_test_r1();
@@ -11819,4 +11820,185 @@ fn m5_bench(rows: usize, inner: usize, cols: usize, reps: usize) {
 
 fn hex_prefix(d: &[u8; 32]) -> String {
     d[..8].iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// [U-R1a] Multi-wave claim splitting (RANGE_AGGREGATION_DESIGN Section
+/// 2b, ledger PROGRESS_UR.md S0): the deterministic wave planner, the
+/// linear-claim split with prover-revealed partial ct scalars, the sum
+/// gate, per-wave ct-round round-trips, and quad co-location.
+fn self_test_wave_split() {
+    use ring::ct_engine::{
+        CtClaim, QuadRingClaim, StdOpening, ct_h0, ct_mul_centered, derive_ct_round_params,
+        plan_waves, prove_ct_round, quad_ring_localized, quad_ring_wave, split_claims_prover,
+        split_claims_verifier, verify_ct_round,
+    };
+    println!("\n[U-R1a] multi-wave claim splitting: planner, partial-scalar gate, per-wave rounds");
+    let q = Q8;
+    let ring_ctx = ring_ctx_q8();
+    let zq = ring_ctx.zq;
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 2 };
+    let crs = expand_crs(shape, q, 0x0ff1);
+    let mut rng = 0x5eed_01a0u64;
+
+    // 4 commitments; {1,2} must co-locate (a quad claim's operands).
+    let n_c = 4usize;
+    let msgs: Vec<Vec<Poly>> =
+        (0..n_c).map(|_| (0..shape.msg_r).map(|_| rng_poly_mod(&mut rng, q)).collect()).collect();
+    let rhos: Vec<Vec<Vec<i64>>> = (0..n_c)
+        .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect())
+        .collect();
+
+    let plan = plan_waves(n_c, &[vec![1, 2]], 2);
+    let plan2 = plan_waves(n_c, &[vec![1, 2]], 2);
+    assert_true(
+        "wave plan is deterministic, respects the cap and co-locates the group",
+        plan.waves == plan2.waves
+            && plan.waves.iter().all(|w| w.len() <= 2)
+            && plan.slot_of[1].0 == plan.slot_of[2].0,
+    );
+
+    // Three linear claims: spanning all four, single-commitment, and a
+    // two-wave straddler; totals computed designer-side.
+    let mk_claim = |rng: &mut u64, refs: &[(usize, usize)]| -> CtClaim {
+        let mut mc = Vec::new();
+        let mut total: i128 = 0;
+        for &(ci, s) in refs {
+            let w = poly_from_small(&zq, &rng_quinary_poly(rng));
+            total += ct_mul_centered(&zq, &w, &msgs[ci][s]) as i128;
+            mc.push((ci, s, w));
+        }
+        let scalar = {
+            let qq = q as i128;
+            let mut r = total.rem_euclid(qq);
+            if r > qq / 2 {
+                r -= qq;
+            }
+            r as i64
+        };
+        CtClaim { msg_coeffs: mc, ajtai_coeffs: vec![], scalar }
+    };
+    let claims = vec![
+        mk_claim(&mut rng, &[(0, 0), (1, 1), (2, 0), (3, 1)]),
+        mk_claim(&mut rng, &[(1, 0)]),
+        mk_claim(&mut rng, &[(0, 1), (2, 1)]),
+    ];
+
+    let msg_refs: Vec<&[Poly]> = msgs.iter().map(|m| m.as_slice()).collect();
+    let (pw_claims, reveals) = split_claims_prover(&zq, &plan, &claims, &msg_refs);
+    assert_true(
+        "verifier rebuild matches the prover's shares and passes the sum gate",
+        match split_claims_verifier(&zq, &plan, &claims, &reveals) {
+            Some(v) => (0..plan.waves.len()).all(|w| {
+                v[w].len() == pw_claims[w].len()
+                    && v[w].iter().zip(pw_claims[w].iter()).all(|(a, b)| {
+                        a.scalar == b.scalar && a.msg_coeffs == b.msg_coeffs
+                    })
+            }),
+            None => false,
+        },
+    );
+
+    // Per-wave ct-round round-trips against the split claims: data
+    // commitments in wave-local order, then the wave's g-groups
+    // (g_base = wave.len(), the chain's data/g layout).
+    let mut wave_proofs = Vec::new();
+    let mut wave_rps = Vec::new();
+    for (w, wave) in plan.waves.iter().enumerate() {
+        let mut all_x_w: Vec<Vec<Poly>> = wave.iter().map(|&g| msgs[g].clone()).collect();
+        all_x_w.extend(ring::ct_engine::sample_g_masks(
+            &mut rng,
+            q,
+            shape.msg_r,
+            pw_claims[w].len(),
+            0,
+        ));
+        let all_rho_w: Vec<Vec<Vec<i64>>> = (0..all_x_w.len())
+            .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect())
+            .collect();
+        let rp_w = derive_ct_round_params(q, shape, all_x_w.len(), 0, 0, true);
+        let a1p_w = build_a1_paths(&crs, rp_w.sigma, isqrt_u128(rp_w.bound_sq));
+        let path_w = KernelPath::A1(&a1p_w);
+        let mut t1s_w: Vec<Vec<Poly>> = Vec::new();
+        let mut t2s_w: Vec<Vec<Poly>> = Vec::new();
+        for (x, rho) in all_x_w.iter().zip(all_rho_w.iter()) {
+            let (t1, t2) = commit(&path_w, &crs, x, rho);
+            t1s_w.push(t1);
+            t2s_w.push(t2);
+        }
+        let mut ctx_w = b"u-r1a-wave".to_vec();
+        ctx_w.extend_from_slice(&(w as u64).to_le_bytes());
+        let h0_w = ct_h0(&crs, &ctx_w, &t1s_w, &t2s_w, &[]);
+        let openings_w: Vec<StdOpening> = all_x_w
+            .iter()
+            .zip(all_rho_w.iter())
+            .enumerate()
+            .map(|(i, (x, rho))| StdOpening { t1: &t1s_w[i], t2: &t2s_w[i], x, rho })
+            .collect();
+        let (proof_w, _) = prove_ct_round(
+            &path_w, &ring_ctx, &rp_w, None, &crs, &h0_w, &pw_claims[w], &[], &[], &[],
+            &openings_w, &[], &[], wave.len(), &mut rng,
+        );
+        assert_true(
+            &format!("wave {w} ct-round verifies its claim shares"),
+            verify_ct_round(
+                &path_w, &ring_ctx, &rp_w, None, &crs, &h0_w, &pw_claims[w], &[], &[], &[],
+                &t1s_w, &t2s_w, &[], &[], &[], wave.len(), &proof_w,
+            ),
+        );
+        wave_proofs.push((t1s_w, t2s_w, h0_w, proof_w));
+        wave_rps.push(rp_w);
+    }
+
+    // Tamper A: a lied partial breaks the sum gate.
+    let mut lied = reveals.clone();
+    lied[0][0].1 += 1;
+    assert_true(
+        "a lied partial scalar REJECTS at the sum gate",
+        split_claims_verifier(&zq, &plan, &claims, &lied).is_none(),
+    );
+
+    // Tamper B: a compensated lie passes the sum gate but the affected
+    // wave's ct-round REJECTS the false partial against its commitments.
+    let mut comp = reveals.clone();
+    comp[0][0].1 += 1;
+    comp[0][1].1 -= 1;
+    let v_comp = split_claims_verifier(&zq, &plan, &claims, &comp);
+    let comp_rejected = match v_comp {
+        None => false,
+        Some(vw) => {
+            let w0 = reveals[0][0].0;
+            let (t1s_w, t2s_w, h0_w, proof_w) = &wave_proofs[w0];
+            let a1p_b = build_a1_paths(&crs, wave_rps[w0].sigma, isqrt_u128(wave_rps[w0].bound_sq));
+            let path_b = KernelPath::A1(&a1p_b);
+            !verify_ct_round(
+                &path_b, &ring_ctx, &wave_rps[w0], None, &crs, h0_w, &vw[w0], &[],
+                &[], &[], t1s_w, t2s_w, &[], &[], &[], plan.waves[w0].len(), proof_w,
+            )
+        }
+    };
+    assert_true(
+        "a compensated partial lie passes the sum gate but its wave REJECTS",
+        comp_rejected,
+    );
+
+    // Quad co-location: {1,2} share a wave; a {0,1} quad straddles.
+    let one = {
+        let mut p = poly_zero();
+        p[0] = 1;
+        p
+    };
+    let qc = QuadRingClaim {
+        quad: vec![(1, 0, 2, 0, one.clone())],
+        msg_coeffs: vec![(1, 1, one.clone())],
+    };
+    let (qw, qloc) = quad_ring_localized(&plan, &qc);
+    let qc_bad =
+        QuadRingClaim { quad: vec![(0, 0, 1, 0, one.clone())], msg_coeffs: vec![] };
+    assert_true(
+        "quad claims: co-located group localizes; a straddler is detected",
+        qw == plan.slot_of[1].0
+            && qloc.quad[0].0 == plan.slot_of[1].1
+            && qloc.quad[0].2 == plan.slot_of[2].1
+            && quad_ring_wave(&plan, &qc_bad).is_none(),
+    );
 }

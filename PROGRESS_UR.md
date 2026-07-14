@@ -32,11 +32,22 @@ the masked descents/pins are untouched:
 
 ## Stages
 
-- [ ] S0 — ct_engine wave helpers: plan_waves (greedy, co-location
+- [x] S0 — ct_engine wave helpers: plan_waves (greedy, co-location
       groups, cap), split prover/verifier claim functions, partial-sum
       gate. Self-test [U-R1a]: 2-wave == 1-wave differential on a small
       committed claim set (both ACCEPT; lied partial REJECTS; cross-wave
       quad REJECTED by the planner).
+      DONE 2026-07-14: ct_engine gains WavePlan/plan_waves (deterministic
+      first-fit, co-location units), split_claim_shares +
+      split_claims_prover/verifier (per-wave partial ct reveals, sum
+      gate, centered-representative check; Ajtai-bearing claims must be
+      single-wave — S0 scope), quad_ring_wave/localized, ct_mul_centered.
+      [U-R1a] green: planner determinism/cap/co-location; verifier
+      rebuild == prover shares; per-wave ct-rounds (with per-wave
+      g-groups, g_base = data count) ACCEPT; lied partial REJECTS at the
+      sum gate; a COMPENSATED lie passes the gate but its wave's
+      ct-round REJECTS (the load-bearing soundness leg); straddling quad
+      detected. Full self-test 220s green; suite 42/42 green.
 - [ ] S1 — chain integration: `ffn-chain layer <log2_el>` — ONE
       instance, multi-wave q31 commit, one masked descent pair, pins/
       link/zeta/quad claims through the splitter; honest ACCEPT + the
@@ -76,3 +87,9 @@ the masked descents/pins are untouched:
 - 2026-07-14: tranche opened; scoping verified in code (see above);
   restart-rate fixes and the design study landed earlier today
   (92ca018, b6bb1e2 — see PROGRESS.md 2026-07-13 entries).
+- 2026-07-14 (2): S0 landed — wave planner + claim splitters in
+  ct_engine, [U-R1a] battery in self-test. One engine fact learned for
+  S1: every linear ct-claim consumes a g-slot in ITS wave, so per-wave
+  g-groups are sized by that wave's claim-share count (the S0 test's
+  sample_g_masks pattern) — the chain's g-group sizing in Pass 2 must
+  become per-wave in S1.
