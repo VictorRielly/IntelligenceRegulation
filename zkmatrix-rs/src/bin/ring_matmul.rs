@@ -6173,7 +6173,7 @@ fn self_test_pi2_ce() {
 }
 
 fn usage() {
-    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery] | statement-inventory");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> | layer battery] | statement-inventory");
     std::process::exit(2);
 }
 
@@ -6197,6 +6197,7 @@ fn main() {
             self_test_lookup();
             self_test_lookup_zk();
             self_test_ffn_chain();
+            self_test_ffn_layer_smoke();
             self_test_uk9();
             self_test_m5_chunking();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
@@ -6214,7 +6215,23 @@ fn main() {
             // U-K8: the committed FFN-gate chain — `ffn-chain battery`
             // runs the tamper battery alone; `ffn-chain [n_blocks]` runs
             // the A/B measurement at n_blocks x 1020 elements.
-            if args.get(1).map(String::as_str) == Some("battery") {
+            // U-R1: `ffn-chain layer <log2_el>` runs ONE per-layer
+            // instance (multi-wave q31, one descent pair, NO q46 side —
+            // ledger D-5); `ffn-chain layer battery` its tamper battery.
+            if args.get(1).map(String::as_str) == Some("layer") {
+                if args.get(2).map(String::as_str) == Some("battery") {
+                    let t = Instant::now();
+                    self_test_ffn_layer();
+                    println!("\nffn-chain layer battery passed in {:.2}s", t.elapsed().as_secs_f64());
+                } else {
+                    let lg: usize = args.get(2).map(|s| s.parse().expect("log2_el")).unwrap_or(16);
+                    assert!(
+                        (10..=UR1_MAX_LOG2).contains(&lg),
+                        "ffn-chain layer log2_el in 10..=20 (2^20 is the 10G-scope memory cap)"
+                    );
+                    ffn_layer_bench(lg);
+                }
+            } else if args.get(1).map(String::as_str) == Some("battery") {
                 let t = Instant::now();
                 self_test_ffn_chain();
                 println!("\nffn-chain battery passed in {:.2}s", t.elapsed().as_secs_f64());
@@ -12000,5 +12017,1440 @@ fn self_test_wave_split() {
             && qloc.quad[0].0 == plan.slot_of[1].1
             && qloc.quad[0].2 == plan.slot_of[2].1
             && quad_ring_wave(&plan, &qc_bad).is_none(),
+    );
+}
+
+// ===========================================================================
+// U-R1 S1 (RANGE_AGGREGATION_DESIGN Section 2b, ledger PROGRESS_UR.md):
+// `ffn-chain layer <log2_el>` — ONE per-layer FFN-gate instance (X dense
+// int8 offset codes, Y = SiLU(X) slot-packed, UP slot-packed, Z = Y o UP
+// slot-packed) with the q31 commitments split across multiple C2-capped
+// ct-round waves via the S0 helpers (plan_waves / split_claims_prover /
+// split_claims_verifier), ONE masked descent pair (witness + table trees)
+// serving the whole layer, and per-wave g-groups sized by the wave's
+// claim-share count (public/deterministic given shape + plan, D-4).
+//
+// Per ledger D-5 the layer rig OMITS the q46 plane/ARP range side
+// entirely: it measures the multi-wave committed masked lookup + Hadamard
+// + zeta slot-constancy at per-layer scale — the post-range-lookup
+// architecture (S3 adds the range table INTO this rig). The full
+// range -> lookup -> Hadamard integrity story stays covered at the block
+// rig, which is unchanged.
+//
+// Element count: n_el = 2^log2_el - 4 = blinder_positions(2^(log2_el+1))[0]
+// — the layer's witness tree needs its data block to end at the first
+// blinder position, exactly the UK8_B = 1020 pattern lifted to layer
+// scale (depth = log2_el + 1).
+//
+// Memory (the S1 wall, recorded honestly): the zeta slot-constancy rows
+// span every Y/UP chunk of the layer — materializing them as CtClaims is
+// 2 x l x chunks dense polys (~13 GB at 2^20, both sides), which busts
+// the 10G scope. The rig therefore builds the ZETA claim family's
+// per-wave shares STREAMING (ZetaStream below, one XOF cursor per row,
+// waves consumed in ascending chunk order — first-fit placement is
+// monotone), while the PIN claims flow through the audited S0
+// split_claims_prover / split_claims_verifier path unchanged. The
+// [U-R1b] battery pins the streaming builder bit-for-bit to
+// link_claims_tgt_slot + split_claims_prover at the battery shape, and
+// the zeta partial reveals get the same three gates the S0 verifier
+// applies (share structure by construction, centered-representative
+// bound, sum == public total).
+
+/// psi copies of the pin batch (the U-K5c/U-K8 batching: q31 soundness
+/// 2^-31 per copy, 9 copies ~ 2^-279).
+const UR1_PIN_COPIES: usize = 9;
+/// Frozen link weight width (LKP-8's w = 11 -> l = 24 rows), reused for
+/// the zeta slot-constancy family so the layer rig stays comparable to
+/// the block rig.
+const UR1_ZETA_W: u32 = 11;
+/// CLI cap: 2^20 is the largest shape whose commitment stores + split
+/// pin claims + streaming zeta fit the 10G MemoryMax scope on this box
+/// (measured; the ledger records the residual as B-D2 unblocking work).
+const UR1_MAX_LOG2: usize = 20;
+
+/// The C2 std-bundle capacity at (q, shape): the largest n_commits that
+/// derive_ct_round_params(conc = true) accepts. This REPLICATES the
+/// derive formula to SIZE the wave plan; derive_ct_round_params' own
+/// assert remains the enforcement gate at every wave (ledger D-3).
+fn ur1_c2_max_commits(q: u64, shape: CommitShape) -> usize {
+    let n_z = (shape.n_r * D) as f64;
+    let op = 1.3 * (2.0 * D as f64).sqrt();
+    let ok = |n: usize| -> bool {
+        let bundle = n as f64 * n_z;
+        let t_bundle = op * bundle.sqrt();
+        let sigma = (12.0 * t_bundle).ceil();
+        let bound = 1.2 * sigma * bundle.sqrt();
+        let beta = (2.0 * bound + op * bundle.sqrt()).ceil() as u128;
+        (q as u128) > 8 * beta
+    };
+    let mut n = 1usize;
+    while ok(n + 1) {
+        n += 1;
+        assert!(n < 65536, "C2 scan diverged");
+    }
+    n
+}
+
+/// The deterministic per-layer wave layout: commitment index space, the
+/// wave plan (co-location groups = the Hadamard (Y,UP,Z) commitment
+/// triples), and per-wave linear-share/g-group budgets. A pure function
+/// of (log2_el, arm, shape, q) — prover and verifier derive it
+/// independently; nothing prover-chosen enters (D-2).
+struct LayerShape {
+    n_el: usize,
+    chunks: usize,
+    slot_cms: usize,
+    nx: usize,
+    idx_m: usize,
+    idx_bl: usize,
+    base_wm: usize,
+    base_tm: usize,
+    wm_c: usize,
+    tm_c: usize,
+    base_y: usize,
+    base_up: usize,
+    base_z: usize,
+    n_data: usize,
+    dw: usize,
+    dt: usize,
+    c2_max: usize,
+    data_cap: usize,
+    lp: ring::link::LinkParams,
+    plan: ring::ct_engine::WavePlan,
+    /// Per wave: the CONTIGUOUS chunk range [c0, c1) its Y/UP/Z triples
+    /// carry (0,0 for waves without value chunks).
+    wave_chunks: Vec<(usize, usize)>,
+    /// Per wave: linear claim-share budget (== the wave's actual claim
+    /// count; asserted at run time) and derived g-group count.
+    wave_lin: Vec<usize>,
+    wave_g_groups: Vec<usize>,
+}
+
+fn ur1_layer_shape(log2_el: usize, with_lookup: bool, shape: CommitShape, q: u64) -> LayerShape {
+    use ring::ct_engine::{plan_waves, r1_pad_count};
+    use ring::gkr_masked::{blinder_positions, mask_coeff_counts};
+    use ring::kfield::K_DEG;
+    let msg_r = shape.msg_r;
+    let k_slots = 8usize; // ring_ctx_q8
+    let dw = log2_el + 1;
+    let dt = 9usize; // 256-row SiLU table + blinders (LKP-6)
+    let n_el = blinder_positions(1usize << dw)[0];
+    assert_eq!(n_el, (1usize << log2_el) - 4);
+    let chunks = n_el.div_ceil(k_slots);
+    assert_eq!(chunks % msg_r, 0, "layer shapes keep whole slot commitments (log2_el >= 6)");
+    let slot_cms = chunks / msg_r;
+    let nx = n_el.div_ceil(msg_r * D);
+    let (wm_len, tm_len) = {
+        let (gw, rw) = mask_coeff_counts(dw, 0);
+        let (gt, rt) = mask_coeff_counts(dt, 0);
+        (gw + rw, gt + rt)
+    };
+    let kel_cms = |n_kel: usize| (n_kel * K_DEG).div_ceil(msg_r * D).max(1);
+    let (wm_c, tm_c) = (kel_cms(wm_len), kel_cms(tm_len));
+    let (idx_m, idx_bl, base_wm, base_tm, base_y) = if with_lookup {
+        (nx, nx + 1, nx + 2, nx + 2 + wm_c, nx + 2 + wm_c + tm_c)
+    } else {
+        (usize::MAX, usize::MAX, usize::MAX, usize::MAX, nx)
+    };
+    let base_up = base_y + slot_cms;
+    let base_z = base_up + slot_cms;
+    let n_data = base_z + slot_cms;
+    let lp = ring::link::derive_link_params(n_el, 8, ring::Q8_46, q, UR1_ZETA_W);
+    let l = lp.l;
+    let c2_max = ur1_c2_max_commits(q, shape);
+
+    // Per-wave budget derivation from a candidate plan; None if any wave
+    // (data + its g-groups) exceeds the C2 capacity.
+    #[allow(clippy::type_complexity)]
+    let budget = |plan: &ring::ct_engine::WavePlan|
+     -> Option<(Vec<(usize, usize)>, Vec<usize>, Vec<usize>)> {
+        let mut chunk_rng = Vec::with_capacity(plan.waves.len());
+        let mut lin = Vec::with_capacity(plan.waves.len());
+        let mut gg = Vec::with_capacity(plan.waves.len());
+        for wave in &plan.waves {
+            let has_pin = with_lookup && wave.iter().any(|&i| i < base_up);
+            let (mut cm0, mut cm1, mut y_cms) = (usize::MAX, 0usize, 0usize);
+            for &i in wave {
+                if (base_y..base_up).contains(&i) {
+                    let cm = i - base_y;
+                    cm0 = cm0.min(cm);
+                    cm1 = cm1.max(cm + 1);
+                    y_cms += 1;
+                }
+            }
+            let (c0, c1) = if y_cms == 0 {
+                (0, 0)
+            } else {
+                assert_eq!(cm1 - cm0, y_cms, "wave Y commitments must be contiguous (first-fit)");
+                (cm0 * msg_r, cm1 * msg_r)
+            };
+            let lin_w = if has_pin { UR1_PIN_COPIES } else { 0 } + if c1 > c0 { 2 * l } else { 0 };
+            let gslots = lin_w + r1_pad_count(0, c1 - c0, 0);
+            let g_groups = gslots.div_ceil(msg_r);
+            if wave.len() + g_groups > c2_max {
+                return None;
+            }
+            chunk_rng.push((c0, c1));
+            lin.push(lin_w);
+            gg.push(g_groups);
+        }
+        Some((chunk_rng, lin, gg))
+    };
+
+    // Analytic starting cap: the worst wave is triple-pure (every triple
+    // brings 8 quads = 16 R1 pads); scan the cap down until that
+    // composition fits, then verify the REAL plan (and decrement further
+    // on the off chance a mixed wave is worse).
+    let fits_analytic = |cap: usize| -> bool {
+        let t = cap / 3;
+        let lin_w = if with_lookup { UR1_PIN_COPIES } else { 0 } + 2 * l;
+        let gslots = lin_w + r1_pad_count(0, t * msg_r, 0);
+        cap + gslots.div_ceil(msg_r) <= c2_max
+    };
+    let mut data_cap = c2_max;
+    while data_cap > 3 && !fits_analytic(data_cap) {
+        data_cap -= 1;
+    }
+    let groups: Vec<Vec<usize>> =
+        (0..slot_cms).map(|cm| vec![base_y + cm, base_up + cm, base_z + cm]).collect();
+    let (plan, wave_chunks, wave_lin, wave_g_groups) = loop {
+        let plan = plan_waves(n_data, &groups, data_cap);
+        if let Some((c, li, g)) = budget(&plan) {
+            break (plan, c, li, g);
+        }
+        data_cap -= 1;
+        assert!(data_cap > 3, "no viable wave data cap");
+    };
+    LayerShape {
+        n_el,
+        chunks,
+        slot_cms,
+        nx,
+        idx_m,
+        idx_bl,
+        base_wm,
+        base_tm,
+        wm_c,
+        tm_c,
+        base_y,
+        base_up,
+        base_z,
+        n_data,
+        dw,
+        dt,
+        c2_max,
+        data_cap,
+        lp,
+        plan,
+        wave_chunks,
+        wave_lin,
+        wave_g_groups,
+    }
+}
+
+/// Streaming per-wave builder for the E1+E2 zeta slot-constancy claim
+/// shares (xi = 0 rows: the family reads ONLY the junk CRT coordinates).
+/// Mirrors link_claims_tgt_slot's weight walk (same "link-zeta" XOF
+/// stream per row, same skip/consume discipline, same per-chunk
+/// pack_functional) and split_claim_shares' wave-local re-indexing,
+/// WITHOUT materializing layer-size claims. Waves must be consumed in
+/// ascending chunk order (asserted); the [U-R1b] differential leg pins
+/// this builder bit-for-bit to the materialized path.
+struct ZetaStream<'a> {
+    ring: &'a RingCtx,
+    lp: ring::link::LinkParams,
+    coord_m: &'a [Vec<u64>],
+    readers: Vec<XofReader>,
+    cursor: usize,
+}
+
+impl<'a> ZetaStream<'a> {
+    fn new(
+        ring: &'a RingCtx,
+        lp: ring::link::LinkParams,
+        coord_m: &'a [Vec<u64>],
+        h0: &[u8; 32],
+    ) -> Self {
+        let readers = (0..lp.l)
+            .map(|row| XofReader::new("link-zeta", &[h0, &(row as u64).to_le_bytes()]))
+            .collect();
+        ZetaStream { ring, lp, coord_m, readers, cursor: 0 }
+    }
+
+    /// Wave-local weight polys for chunks [c0, c1): out[row] holds one
+    /// (commit, slot, poly) per chunk with commit/slot mapped through
+    /// `local_slot` (the wave-local index of the chunk's Y/UP slot).
+    fn wave_shares(
+        &mut self,
+        c0: usize,
+        c1: usize,
+        local_slot: &dyn Fn(usize) -> (usize, usize),
+    ) -> Vec<Vec<(usize, usize, Poly)>> {
+        assert_eq!(self.cursor, c0, "zeta stream consumed out of chunk order");
+        let zq = &self.ring.zq;
+        let (k, sd) = (self.ring.k, self.ring.slot_deg);
+        let half = 1i64 << (self.lp.w - 1);
+        let mut out: Vec<Vec<(usize, usize, Poly)>> =
+            (0..self.lp.l).map(|_| Vec::with_capacity(c1 - c0)).collect();
+        for u in c0..c1 {
+            let (ci, sj) = local_slot(u);
+            for (row, reader) in self.readers.iter_mut().enumerate() {
+                let mut w_flat = vec![0u64; D];
+                for c in 0..D {
+                    let (slot, coord) = (c / sd, c % sd);
+                    let t = u * k + slot;
+                    // Value slot constants take the xi weight (zero in
+                    // this family — no draw); every OTHER coordinate is
+                    // junk and consumes the next zeta draw even when the
+                    // drawn weight is zero (stream discipline).
+                    if coord == 0 && t < self.lp.n {
+                        continue;
+                    }
+                    let wt = (reader.next_u64() & ((1u64 << self.lp.w) - 1)) as i64 - half;
+                    if wt == 0 {
+                        continue;
+                    }
+                    let wm = zq.to_mod(wt);
+                    for (i, &m) in self.coord_m[c].iter().enumerate() {
+                        if m != 0 {
+                            w_flat[i] = zq.add(w_flat[i], zq.mul(wm, m));
+                        }
+                    }
+                }
+                let poly = ring::ct_engine::pack_functional(zq, &w_flat, 1).pop().unwrap();
+                out[row].push((ci, sj, poly));
+            }
+        }
+        self.cursor = c1;
+        out
+    }
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum LayerTamper {
+    /// Honest witness.
+    None,
+    /// One Y off the table (consumed consistently downstream) — only the
+    /// masked lookup's blinded root cross-check can reject.
+    OffTableY,
+    /// One Z slot constant off the product — that wave's quad ring claim
+    /// rejects; the lookup passes.
+    HadamardZ,
+    /// A prover-supplied lookup prehash bit-flip — the verifier
+    /// recomputes it from the statement + full commitment list.
+    LookupH0,
+    /// A lied per-wave PIN partial scalar: split_claims_verifier's sum
+    /// gate rejects (the S0 path, exercised at layer scale).
+    PartialLiePin,
+    /// A COMPENSATED pin partial lie (+1 / -1 across two waves): the sum
+    /// gate passes but each affected wave's ct-round REJECTS the false
+    /// partial against its committed material (the load-bearing leg).
+    CompensatedPin,
+    /// A lied ZETA partial: the zeta reveal gate (sum over waves == 0)
+    /// rejects.
+    PartialLieZeta,
+    /// A compensated zeta lie: gate passes, the affected waves' ct-rounds
+    /// reject.
+    CompensatedZeta,
+}
+
+#[derive(Default)]
+struct LayerVerdict {
+    statement_ok: bool,
+    lookup_ok: bool,
+    /// split_claims_verifier accepted the pin reveals (structure +
+    /// centered bound + sum gate).
+    sum_gate_ok: bool,
+    /// The zeta reveal gates (centered bound per share, per-row sum == 0).
+    zeta_gate_ok: bool,
+    waves_ok: bool,
+    first_bad_wave: Option<usize>,
+    /// The [U-R1b] streaming-vs-materialized zeta differential ran and
+    /// matched (small shapes only).
+    differential_ok: bool,
+}
+
+impl LayerVerdict {
+    fn all_ok(&self) -> bool {
+        self.statement_ok && self.lookup_ok && self.sum_gate_ok && self.zeta_gate_ok && self.waves_ok
+    }
+}
+
+#[derive(Default)]
+struct LayerCost {
+    n_el: usize,
+    n_waves: usize,
+    n_data: usize,
+    n_g_groups: usize,
+    commit_s: f64,
+    prove_s: f64,
+    verify_s: f64,
+    /// Lookup-stage attribution inside prove/verify (trees + masked
+    /// descents + pin building + pin claims; the wave rounds are shared).
+    lkp_prove_s: f64,
+    lkp_verify_s: f64,
+    q31_data_coeffs: usize,
+    q31_g_coeffs: usize,
+    /// Masked descent transcript bytes (one witness+table pair per layer).
+    masked_bytes: usize,
+    /// Partial-scalar reveal count (pins + zeta), 12 B each on the wire.
+    reveal_shares: usize,
+}
+
+/// One committed per-layer run: commit -> validated statement -> ONE
+/// masked descent pair -> multi-wave q31 ct-rounds with split claims ->
+/// verify. Prove and verify interleave per wave (proofs drop after each
+/// wave; the H-03 discipline), with separately accumulated timers.
+#[allow(clippy::too_many_lines)]
+fn ffn_layer_run(
+    log2_el: usize,
+    with_lookup: bool,
+    tamper: LayerTamper,
+    seed: u64,
+    entropy: ChainEntropy,
+    quiet: bool,
+) -> (LayerVerdict, LayerCost) {
+    use manifest::{ClaimManifest, Operation, Orientation, QuantMeta};
+    use ring::commit::CommitShape as CS;
+    use ring::ct_engine::{
+        CtClaim, QuadRingClaim, StdOpening, ct_h0, ct_mul_centered, derive_ct_round_params,
+        prove_ct_round, quad_ring_localized, sample_g_masks, split_claims_prover,
+        split_claims_verifier, verify_ct_round,
+    };
+    use ring::gkr::{ceiling_gate_ok, eq_table};
+    use ring::gkr_masked::{
+        BlinderSet, DescentEnd, MaskSet, MaskedDescentProof, blinded_table_tree,
+        blinded_witness_tree, draw_masks, g_hypersum_weights, g_open_weights, masked_gkr_prove,
+        masked_gkr_verify, masked_pass_bytes, r_open_weights, table_row_positions, zero_masks,
+    };
+    use ring::kfield::{K_DEG, KElem, KField};
+    use ring::link::crt_coord_rows;
+    use ring::lookup::{
+        PinTerm, PinnedValue, derive_pin_psi, fuse_pair, fused_silu_table, mul_y,
+        multiplicities, pin_claims, silu_int8_table, slot_pin_weights, table_spec_digest,
+    };
+    use ring::sumcheck::LkpTranscript;
+
+    // ---- Shared setup. -----------------------------------------------------
+    let ctx_ring = ring_ctx_q8();
+    let kf = KField::new(&ctx_ring);
+    let zq = ctx_ring.zq;
+    let q = zq.q;
+    let (k_slots, sd) = (ctx_ring.k, ctx_ring.slot_deg);
+    let zero = kf.zero();
+    let one = kf.one();
+    let rows = silu_int8_table();
+    let spec_dg = table_spec_digest(&rows);
+    let tab_fused = fused_silu_table(&kf, &rows);
+    let t_rows = rows.len();
+    let shape = CS { kappa: 8, n_r: 26, msg_r: 8 };
+    let msg_r = shape.msg_r;
+    let kpc = msg_r * D / K_DEG;
+    let crs = expand_crs(shape, q, 0x0_8CA);
+    let ls = ur1_layer_shape(log2_el, with_lookup, shape, q);
+    let (n_el, chunks, slot_cms, nx, n_data) = (ls.n_el, ls.chunks, ls.slot_cms, ls.nx, ls.n_data);
+    let l_zeta = ls.lp.l;
+    let n_waves = ls.plan.waves.len();
+    assert!(ceiling_gate_ok(1u64 << ls.dw, q), "layer instance clears the LogUp ceiling");
+    let coord_m = crt_coord_rows(&ctx_ring);
+    let const_rows: Vec<Vec<u64>> = (0..k_slots).map(|j| coord_m[j * sd].clone()).collect();
+    let center128 = |v: i128| -> i64 {
+        let qq = q as i128;
+        let mut r = v.rem_euclid(qq);
+        if r > qq / 2 {
+            r -= qq;
+        }
+        r as i64
+    };
+
+    let mut cost = LayerCost {
+        n_el,
+        n_waves,
+        n_data,
+        n_g_groups: ls.wave_g_groups.iter().sum(),
+        q31_data_coeffs: n_data * msg_r * D,
+        q31_g_coeffs: ls.wave_g_groups.iter().sum::<usize>() * msg_r * D,
+        masked_bytes: if with_lookup { masked_pass_bytes(ls.dw, ls.dt, 0, 1) } else { 0 },
+        ..LayerCost::default()
+    };
+    let mut verdict = LayerVerdict {
+        statement_ok: true,
+        lookup_ok: true,
+        sum_gate_ok: true,
+        zeta_gate_ok: true,
+        waves_ok: true,
+        first_bad_wave: None,
+        differential_ok: true,
+    };
+
+    // ---- Instance data. ----------------------------------------------------
+    let mut data_rng = seed;
+    let xs_all: Vec<i64> = (0..n_el).map(|_| rng_below(&mut data_rng, 256) as i64 - 128).collect();
+    let mut ys_all: Vec<i64> = xs_all.iter().map(|&x| rows[(x + 128) as usize].1).collect();
+    let up_all: Vec<i64> = (0..n_el).map(|_| rng_below(&mut data_rng, 256) as i64 - 128).collect();
+    if tamper == LayerTamper::OffTableY {
+        ys_all[5] = if ys_all[5] > 100 { ys_all[5] - 16 } else { ys_all[5] + 16 };
+    }
+    let mut rng = match entropy {
+        ChainEntropy::Os => ring::ProverRng::from_os()
+            .expect("operating-system entropy is required for a proof session"),
+        ChainEntropy::Test =>
+            ring::ProverRng::from_test_seed("ur1-layer-session", &seed.to_le_bytes()),
+    };
+
+    // ---- Pass 1: data commitments (X | m bl wm tm | Y | UP | Z). -----------
+    // Rho columns are stored TERNARY-PACKED (i8) and expanded per wave —
+    // at 2^20 the full i64 form alone is ~2.3 GiB.
+    let t_commit = Instant::now();
+    let a1p_commit = {
+        let rp_probe = derive_ct_round_params(q, shape, ls.c2_max, 0, 0, true);
+        build_a1_paths(&crs, rp_probe.sigma, isqrt_u128(rp_probe.bound_sq))
+    };
+    let path_c = KernelPath::A1(&a1p_commit);
+    let mut msgs: Vec<Vec<Poly>> = Vec::with_capacity(n_data);
+    let mut rhos8: Vec<Vec<i8>> = Vec::with_capacity(n_data);
+    let mut t1s: Vec<Vec<Poly>> = Vec::with_capacity(n_data);
+    let mut t2s: Vec<Vec<Poly>> = Vec::with_capacity(n_data);
+    let push_commit = |m: Vec<Poly>,
+                           rng: &mut ring::ProverRng,
+                           msgs: &mut Vec<Vec<Poly>>,
+                           rhos8: &mut Vec<Vec<i8>>,
+                           t1s: &mut Vec<Vec<Poly>>,
+                           t2s: &mut Vec<Vec<Poly>>| {
+        let rho: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(rng)).collect();
+        let (t1, t2) = commit(&path_c, &crs, &m, &rho);
+        msgs.push(m);
+        rhos8.push(rho.iter().flat_map(|p| p.iter().map(|&x| x as i8)).collect());
+        t1s.push(t1);
+        t2s.push(t2);
+    };
+    let pack_scalars = |vals: &[u64]| -> Vec<Poly> {
+        assert!(vals.len() <= msg_r * D);
+        let mut polys = vec![poly_zero(); msg_r];
+        for (i, &v) in vals.iter().enumerate() {
+            polys[i / D][i % D] = v;
+        }
+        polys
+    };
+    let pack_kelems = |kelems: &[KElem]| -> Vec<Vec<Poly>> {
+        let mut flat: Vec<u64> = Vec::with_capacity(kelems.len() * K_DEG);
+        for e in kelems {
+            for c in 0..K_DEG {
+                flat.push(e[c]);
+            }
+        }
+        let per = msg_r * D;
+        let n_commit = flat.len().div_ceil(per).max(1);
+        (0..n_commit)
+            .map(|g| {
+                (0..msg_r)
+                    .map(|s| {
+                        (0..D)
+                            .map(|c| {
+                                let idx = g * per + s * D + c;
+                                if idx < flat.len() { flat[idx] } else { 0 }
+                            })
+                            .collect()
+                    })
+                    .collect()
+            })
+            .collect()
+    };
+    // X: offset codes x_u = x + 128, dense (pads zero).
+    for xc in 0..nx {
+        let lo = xc * msg_r * D;
+        let n_c = (n_el - lo).min(msg_r * D);
+        let vals: Vec<u64> = (0..n_c).map(|i| (xs_all[lo + i] + 128) as u64).collect();
+        push_commit(pack_scalars(&vals), &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+    }
+    // Lookup material (arm A): ONE m column + ONE blinder group + ONE
+    // mask pair for the whole layer — the S2 amortization subject.
+    let (masks_w, masks_t, bl_w, bl_t) = if with_lookup {
+        let mw = draw_masks(&kf, &mut rng, ls.dw, 0);
+        let mt = draw_masks(&kf, &mut rng, ls.dt, 0);
+        let bw = BlinderSet::draw(&kf, &mut rng);
+        let mut bt = BlinderSet::draw(&kf, &mut rng);
+        bt.solve_mass(&kf, &bw.mass(&kf));
+        let w_fused: Vec<KElem> = xs_all
+            .iter()
+            .zip(ys_all.iter())
+            .map(|(&x, &y)| fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y)))
+            .collect();
+        let m_k = multiplicities(&kf, &w_fused, &tab_fused);
+        let m_vals: Vec<u64> = m_k.iter().map(|e| e[0]).collect();
+        push_commit(pack_scalars(&m_vals), &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        let blinder_kelems = {
+            let mut v = Vec::with_capacity(16);
+            for b in [&bw.tl, &bw.tr, &bw.f0, &bw.f1, &bt.tl, &bt.tr, &bt.f0, &bt.f1] {
+                v.push(b.a.clone());
+                v.push(b.u.clone());
+            }
+            v
+        };
+        let bl_msg = pack_kelems(&blinder_kelems);
+        assert_eq!(bl_msg.len(), 1);
+        push_commit(bl_msg.into_iter().next().unwrap(), &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        let wm = pack_kelems(&mw.flatten());
+        assert_eq!(wm.len(), ls.wm_c);
+        for m in wm {
+            push_commit(m, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        }
+        let tm = pack_kelems(&mt.flatten());
+        assert_eq!(tm.len(), ls.tm_c);
+        for m in tm {
+            push_commit(m, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        }
+        (Some(mw), Some(mt), Some(bw), Some(bt))
+    } else {
+        (None, None, None, None)
+    };
+    // Y / UP / Z slot tensors, built per commitment (chunk constants =
+    // centered residues; pads zero). Z is the exact ring product.
+    let slot_chunk = |vals: &[i64], u: usize| -> Poly {
+        let mut lane = vec![0u64; k_slots];
+        for (s, lv) in lane.iter_mut().enumerate() {
+            let t = u * k_slots + s;
+            if t < vals.len() {
+                *lv = zq.to_mod(vals[t]);
+            }
+        }
+        slot_pack(&ctx_ring, &lane)
+    };
+    for tensor in 0..3usize {
+        for cm in 0..slot_cms {
+            let mut polys: Vec<Poly> = Vec::with_capacity(msg_r);
+            for s in 0..msg_r {
+                let u = cm * msg_r + s;
+                let p = match tensor {
+                    0 => slot_chunk(&ys_all, u),
+                    1 => slot_chunk(&up_all, u),
+                    _ => {
+                        let mut z =
+                            poly_mul_g(&zq, &slot_chunk(&ys_all, u), &slot_chunk(&up_all, u));
+                        if tamper == LayerTamper::HadamardZ && u == 0 {
+                            let mut split = crt_split(&ctx_ring, &z);
+                            split[7 * sd] = zq.add(split[7 * sd], 1);
+                            crt_merge(&ctx_ring, &mut split);
+                            z = split;
+                        }
+                        z
+                    }
+                };
+                polys.push(p);
+            }
+            push_commit(polys, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        }
+    }
+    assert_eq!(msgs.len(), n_data);
+
+    // ---- Pass 2: per-wave g-groups (sizes from the plan-deterministic
+    // budgets, D-4), still BEFORE any challenge derives. -------------------
+    let mut g_base_global: Vec<usize> = Vec::with_capacity(n_waves);
+    for w in 0..n_waves {
+        g_base_global.push(msgs.len());
+        let (c0, c1) = ls.wave_chunks[w];
+        let n_pads = 2 * (c1 - c0);
+        if ls.wave_lin[w] + n_pads == 0 {
+            continue;
+        }
+        let gm = sample_g_masks(&mut rng, q, msg_r, ls.wave_lin[w], n_pads);
+        assert_eq!(gm.len(), ls.wave_g_groups[w]);
+        for m in gm {
+            push_commit(m, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        }
+    }
+    cost.commit_s += t_commit.elapsed().as_secs_f64();
+
+    // ---- The validated statement (manifest v2) — ctx for everything. ------
+    let group_list_digest = |idx0: usize, count: usize| -> Vec<u8> {
+        use sha2::{Digest, Sha256};
+        let mut hasher = Sha256::new();
+        for i in idx0..idx0 + count {
+            hasher.update(group_digest(&t1s[i], &t2s[i]));
+        }
+        hasher.finalize().to_vec()
+    };
+    let ki_t = key_info_bytes(&shape, q);
+    let model_digest: [u8; 32] =
+        uk8_sha(&[b"ur1-ffn-layer-v1", &(n_el as u64).to_le_bytes(), &spec_dg]);
+    let mut mf = ClaimManifest::new("lattice-route-r", &crs.crs_hash);
+    let mut quant = Vec::new();
+    let (id_y, id_up, id_z);
+    if with_lookup {
+        let id_x = mf.add_commitment("X", n_el, 1, Orientation::ByColumns, ki_t.clone(), group_list_digest(0, nx));
+        id_y = mf.add_commitment("Y", n_el, 1, Orientation::ByColumns, ki_t.clone(), group_list_digest(ls.base_y, slot_cms));
+        id_up = mf.add_commitment("UP", n_el, 1, Orientation::ByColumns, ki_t.clone(), group_list_digest(ls.base_up, slot_cms));
+        id_z = mf.add_commitment("Z", n_el, 1, Orientation::ByColumns, ki_t, group_list_digest(ls.base_z, slot_cms));
+        mf.add_operation(Operation::Lookup { x: id_x, y: id_y });
+        quant.push(QuantMeta { bits: 8, frac_bits: 4, signed: true }); // X
+    } else {
+        // Arm B carries no claim about X; X stays committed (and bound in
+        // h0_link) for cost parity but out of the statement.
+        id_y = mf.add_commitment("Y", n_el, 1, Orientation::ByColumns, ki_t.clone(), group_list_digest(ls.base_y, slot_cms));
+        id_up = mf.add_commitment("UP", n_el, 1, Orientation::ByColumns, ki_t.clone(), group_list_digest(ls.base_up, slot_cms));
+        id_z = mf.add_commitment("Z", n_el, 1, Orientation::ByColumns, ki_t, group_list_digest(ls.base_z, slot_cms));
+    }
+    mf.add_operation(Operation::Hadamard { x: id_y, y: id_up, z: id_z });
+    quant.push(QuantMeta { bits: 8, frac_bits: 4, signed: true }); // Y
+    quant.push(QuantMeta { bits: 8, frac_bits: 4, signed: true }); // UP
+    quant.push(QuantMeta { bits: 16, frac_bits: 8, signed: true }); // Z
+    let mut statement = manifest::Statement::new(model_digest, spec_dg, mf);
+    statement.quant = quant;
+    statement.outputs = vec![id_z];
+    let ctx_stmt: [u8; 32] = match statement.digest() {
+        Ok(d) => d,
+        Err(e) => {
+            println!("  FAIL layer statement v2 does not validate: {e}");
+            verdict.statement_ok = false;
+            return (verdict, cost);
+        }
+    };
+
+    // h0_link binds EVERY commitment of the layer — data and every wave's
+    // g-groups — before any challenge (zeta, alpha, psi, wave h0s) derives.
+    let h0_link = ct_h0(&crs, &ctx_stmt, &t1s, &t2s, &[]);
+    let h0_zeta_y = uk8_sha(&[&h0_link, b"zeta-y"]);
+    let h0_zeta_up = uk8_sha(&[&h0_link, b"zeta-up"]);
+
+    if !quiet {
+        println!(
+            "  layer shape: {} el (2^{} - 4), {} data + {} g commitments across {} waves (data cap {}, C2 max {}), descent pair dw = {} / dt = {}; q46 plane/ARP side OMITTED (ledger D-5: lookup-side lift only until S3)",
+            n_el, log2_el, n_data, cost.n_g_groups, n_waves, ls.data_cap, ls.c2_max, ls.dw, ls.dt
+        );
+    }
+
+    // ---- PROVER: lookup transcript, ONE masked descent pair, pins. --------
+    let t_prove = Instant::now();
+    let shell_w = zero_masks(&kf, ls.dw, 0);
+    let shell_t = zero_masks(&kf, ls.dt, 0);
+    // Descent pins: G hypersums, g openings, R openings (U-K5c — weights
+    // depend only on the mask SHAPE and public opening points).
+    let descent_pins = |base: usize,
+                        shape_masks: &MaskSet,
+                        proof: &MaskedDescentProof,
+                        end: &DescentEnd,
+                        depth: usize|
+     -> Vec<PinnedValue> {
+        let kelem_terms = |base: usize, flat_off: usize, weights: &[KElem]| -> Vec<PinTerm> {
+            let mut terms = Vec::new();
+            let mut i = 0usize;
+            while i < weights.len() {
+                let idx = flat_off + i;
+                let commit = base + idx / kpc;
+                let coeff0 = (idx % kpc) * K_DEG;
+                let take = (kpc - (idx % kpc)).min(weights.len() - i);
+                terms.push(PinTerm::Kelems { commit, coeff0, weights: weights[i..i + take].to_vec() });
+                i += take;
+            }
+            terms
+        };
+        let mut pins = Vec::new();
+        for j in 1..depth {
+            let lp_j = &proof.layers[j - 1];
+            let gm = &shape_masks.g[j - 1];
+            pins.push(PinnedValue {
+                terms: kelem_terms(base, shape_masks.g_offset(j), &g_hypersum_weights(&kf, gm)),
+                value: lp_j.g_sum.clone(),
+            });
+            let (open_pt, mu_prev, c_w) = &end.layer_pts[j - 1];
+            pins.push(PinnedValue {
+                terms: kelem_terms(base, shape_masks.g_offset(j), &g_open_weights(&kf, gm, open_pt)),
+                value: lp_j.open_g.clone(),
+            });
+            if j >= 2 {
+                let (orp, orq) = lp_j.open_r.clone().expect("interior layer opens Rp/Rq");
+                let rw = r_open_weights(&kf, mu_prev, c_w);
+                pins.push(PinnedValue {
+                    terms: kelem_terms(base, shape_masks.r_offset(j), &rw),
+                    value: orp,
+                });
+                pins.push(PinnedValue {
+                    terms: kelem_terms(base, shape_masks.r_offset(j) + 6, &rw),
+                    value: orq,
+                });
+            }
+        }
+        pins
+    };
+    // Aggregate leaf pins, layer edition: X read through the offset fold
+    // across nx commitments, Y through the E1-composed slot weights built
+    // PER COMMITMENT (the layer-size weight vector lives once, inside the
+    // pin terms — the H-03 discipline), m and the blinders as in U-K5c.
+    let leaf_pins = |endw: &DescentEnd, endt: &DescentEnd, alpha: &KElem| -> Vec<PinnedValue> {
+        use ring::gkr_masked::blinder_positions;
+        let lw = eq_table(&kf, &endw.zstar);
+        let lt = eq_table(&kf, &endt.zstar);
+        let nw = 1usize << ls.dw;
+        let nt = 1usize << ls.dt;
+        let bpw = blinder_positions(nw);
+        let bpt = blinder_positions(nt);
+        let tpos = table_row_positions(t_rows, nt);
+        let eqw: Vec<KElem> = bpw.iter().map(|&p| lw[p].clone()).collect();
+        let eqt: Vec<KElem> = bpt.iter().map(|&p| lt[p].clone()).collect();
+        let hw = (0..n_el).fold(zero.clone(), |a, i| kf.add(&a, &lw[i]));
+        let ht = (0..t_rows).fold(zero.clone(), |a, j| kf.add(&a, &lt[tpos[j]]));
+        let sum_eqw = eqw.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+        let sum_eqt = eqt.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+        let ft = (0..t_rows)
+            .fold(zero.clone(), |a, j| kf.add(&a, &kf.mul(&lt[tpos[j]], &tab_fused[j])));
+        let z = zero.clone();
+        let wp = PinnedValue {
+            terms: vec![PinTerm::Kelems {
+                commit: ls.idx_bl,
+                coeff0: 0,
+                weights: vec![
+                    eqw[0].clone(), z.clone(), eqw[1].clone(), z.clone(),
+                    eqw[2].clone(), z.clone(), eqw[3].clone(), z.clone(),
+                ],
+            }],
+            value: kf.sub(&endw.p_claim, &hw),
+        };
+        // Witness Q: q* - alpha H - D_dummy - 128 H = [blinder u's]
+        //   - sum lw x_u - sum Y lw y   (x = x_u - 128 folds into hw).
+        let ddw = kf.sub(&kf.sub(&one, &hw), &sum_eqw);
+        let mut wq_terms = vec![PinTerm::Kelems {
+            commit: ls.idx_bl,
+            coeff0: 0,
+            weights: vec![
+                z.clone(), eqw[0].clone(), z.clone(), eqw[1].clone(),
+                z.clone(), eqw[2].clone(), z.clone(), eqw[3].clone(),
+            ],
+        }];
+        for xc in 0..nx {
+            let lo = xc * msg_r * D;
+            let n_c = (n_el - lo).min(msg_r * D);
+            wq_terms.push(PinTerm::Scalar {
+                commit: xc,
+                coeff0: 0,
+                weights: (0..n_c).map(|i| kf.neg(&lw[lo + i])).collect(),
+            });
+        }
+        let wy: Vec<KElem> = (0..n_el).map(|i| kf.neg(&mul_y(&kf, &lw[i]))).collect();
+        for cm in 0..slot_cms {
+            let t0 = cm * msg_r * k_slots;
+            let t1e = ((cm + 1) * msg_r * k_slots).min(n_el);
+            let w_cm = slot_pin_weights(&kf, &const_rows, &wy[t0..t1e], msg_r);
+            wq_terms.push(PinTerm::Scalar { commit: ls.base_y + cm, coeff0: 0, weights: w_cm });
+        }
+        let wq = PinnedValue {
+            terms: wq_terms,
+            value: kf.sub(
+                &kf.sub(&kf.sub(&endw.q_claim, &kf.mul(alpha, &hw)), &ddw),
+                &kf.scale(128, &hw),
+            ),
+        };
+        let tp = PinnedValue {
+            terms: vec![
+                PinTerm::Scalar {
+                    commit: ls.idx_m,
+                    coeff0: 0,
+                    weights: (0..t_rows).map(|j| lt[tpos[j]].clone()).collect(),
+                },
+                PinTerm::Kelems {
+                    commit: ls.idx_bl,
+                    coeff0: 8 * K_DEG,
+                    weights: vec![
+                        eqt[0].clone(), z.clone(), eqt[1].clone(), z.clone(),
+                        eqt[2].clone(), z.clone(), eqt[3].clone(), z.clone(),
+                    ],
+                },
+            ],
+            value: endt.p_claim.clone(),
+        };
+        let ddt = kf.sub(&kf.sub(&one, &ht), &sum_eqt);
+        let tq = PinnedValue {
+            terms: vec![PinTerm::Kelems {
+                commit: ls.idx_bl,
+                coeff0: 8 * K_DEG,
+                weights: vec![
+                    z.clone(), eqt[0].clone(), z.clone(), eqt[1].clone(),
+                    z.clone(), eqt[2].clone(), z.clone(), eqt[3].clone(),
+                ],
+            }],
+            value: kf.add(&kf.sub(&kf.sub(&endt.q_claim, &kf.mul(alpha, &ht)), &ddt), &ft),
+        };
+        vec![wp, wq, tp, tq]
+    };
+    let absorb_pins = |tr: &mut LkpTranscript, pins: &[PinnedValue]| {
+        for p in pins {
+            tr.absorb_k(&kf, "ur1-pin", std::slice::from_ref(&p.value));
+        }
+    };
+
+    let mut lkp: Option<(MaskedDescentProof, MaskedDescentProof, KElem, [u8; 32])> = None;
+    let mut tr_state: Option<LkpTranscript> = None;
+    let mut pin_claims_p: Vec<CtClaim> = Vec::new();
+    if with_lookup {
+        let t_lkp = Instant::now();
+        let ctx_lkp = uk8_sha(&[&spec_dg, &h0_link]);
+        let h0_lkp = ct_h0(&crs, &ctx_lkp, &t1s, &t2s, &[]);
+        let mut tr = LkpTranscript::new("ur1-lkp", &h0_lkp);
+        let alpha = tr.challenge_k(&kf);
+        let w_fused: Vec<KElem> = xs_all
+            .iter()
+            .zip(ys_all.iter())
+            .map(|(&x, &y)| fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y)))
+            .collect();
+        let m_k: Vec<KElem> = msgs[ls.idx_m][0..t_rows.div_ceil(D)]
+            .iter()
+            .flat_map(|p| p.iter().copied())
+            .take(t_rows)
+            .map(|c| {
+                let mut e = kf.zero();
+                e[0] = c;
+                e
+            })
+            .collect();
+        let wtree = blinded_witness_tree(&kf, &alpha, &w_fused, ls.dw, bl_w.as_ref().unwrap());
+        drop(w_fused);
+        let (pw, endw) = masked_gkr_prove(&kf, &[wtree], masks_w.as_ref().unwrap(), &mut tr);
+        let ttree = blinded_table_tree(&kf, &alpha, &tab_fused, &m_k, ls.dt, bl_t.as_ref().unwrap());
+        let (pt, endt) = masked_gkr_prove(&kf, &[ttree], masks_t.as_ref().unwrap(), &mut tr);
+        let mut pins = descent_pins(ls.base_wm, masks_w.as_ref().unwrap(), &pw, &endw, ls.dw);
+        pins.extend(descent_pins(ls.base_tm, masks_t.as_ref().unwrap(), &pt, &endt, ls.dt));
+        pins.extend(leaf_pins(&endw, &endt, &alpha));
+        absorb_pins(&mut tr, &pins);
+        let psi = derive_pin_psi(&tr.state(), UR1_PIN_COPIES, pins.len() * K_DEG, q);
+        pin_claims_p = pin_claims(&kf, &pins, n_data, msg_r, &psi);
+        drop(pins);
+        cost.lkp_prove_s += t_lkp.elapsed().as_secs_f64();
+        let mut claimed_h0_lkp = h0_lkp;
+        if tamper == LayerTamper::LookupH0 {
+            claimed_h0_lkp[0] ^= 1;
+        }
+        lkp = Some((pw, pt, alpha, claimed_h0_lkp));
+        tr_state = Some(tr);
+    }
+
+    // Split the pin claims across waves (the audited S0 path) and apply
+    // the reveal-wire tampers.
+    let msg_refs: Vec<&[Poly]> = msgs[..n_data].iter().map(|m| m.as_slice()).collect();
+    let (mut pw_pins, mut pin_reveals) = split_claims_prover(&zq, &ls.plan, &pin_claims_p, &msg_refs);
+    drop(pin_claims_p);
+    if pw_pins.is_empty() {
+        pw_pins = (0..n_waves).map(|_| Vec::new()).collect();
+    }
+    match tamper {
+        LayerTamper::PartialLiePin => {
+            assert!(pin_reveals[0].len() >= 2, "pin claim 0 must straddle waves");
+            pin_reveals[0][0].1 = center128(pin_reveals[0][0].1 as i128 + 1);
+        }
+        LayerTamper::CompensatedPin => {
+            assert!(pin_reveals[0].len() >= 2, "pin claim 0 must straddle waves");
+            pin_reveals[0][0].1 = center128(pin_reveals[0][0].1 as i128 + 1);
+            pin_reveals[0][1].1 = center128(pin_reveals[0][1].1 as i128 - 1);
+        }
+        _ => {}
+    }
+
+    cost.prove_s += t_prove.elapsed().as_secs_f64();
+
+    // [U-R1b] differential (battery shapes, UNTIMED — a rig self-check,
+    // not protocol work): the streaming zeta builder must reproduce
+    // link_claims_tgt_slot + split_claims_prover exactly.
+    if n_el <= (1 << 13) {
+        use ring::link::{derive_link_zeta, link_claims_tgt_slot};
+        let xi_zero: Vec<Vec<i64>> = vec![vec![0i64; ls.lp.n]; l_zeta];
+        let y_zero = vec![0i64; l_zeta];
+        for (h0z, base) in [(h0_zeta_y, ls.base_y), (h0_zeta_up, ls.base_up)] {
+            let zrows = derive_link_zeta(&h0z, &ls.lp, k_slots);
+            let value_slots: Vec<(usize, usize)> =
+                (0..chunks).map(|u| (base + u / msg_r, u % msg_r)).collect();
+            let full = link_claims_tgt_slot(&ctx_ring, &ls.lp, &xi_zero, &zrows, &y_zero, &value_slots);
+            let (pw_full, rv_full) = split_claims_prover(&zq, &ls.plan, &full, &msg_refs);
+            let mut zs = ZetaStream::new(&ctx_ring, ls.lp, &coord_m, &h0z);
+            for w in 0..n_waves {
+                let (c0, c1) = ls.wave_chunks[w];
+                if c1 == c0 {
+                    continue;
+                }
+                let shares = zs.wave_shares(c0, c1, &|u| {
+                    (ls.plan.slot_of[base + u / msg_r].1, u % msg_r)
+                });
+                for (row, coeffs) in shares.iter().enumerate() {
+                    let expect = &pw_full[w][row];
+                    let mut acc: i128 = 0;
+                    for (li, s, p) in coeffs {
+                        acc += ct_mul_centered(&zq, p, &msgs[ls.plan.waves[w][*li]][*s]) as i128;
+                    }
+                    let ok = expect.msg_coeffs == *coeffs
+                        && expect.scalar == center128(acc)
+                        && rv_full[row].iter().any(|&(rw, rp)| rw == w && rp == expect.scalar);
+                    if !ok {
+                        verdict.differential_ok = false;
+                    }
+                }
+            }
+        }
+    }
+
+    // ---- VERIFIER: lookup verify (fresh transcript, shell masks, root
+    // cross-check), pins rebuilt, split-verified with the sum gate. --------
+    let t_verify = Instant::now();
+    let h0_link_v = ct_h0(&crs, &ctx_stmt, &t1s, &t2s, &[]);
+    let mut pin_claims_v: Vec<CtClaim> = Vec::new();
+    let mut tr_v_state: Option<LkpTranscript> = None;
+    if with_lookup {
+        let t_lkp = Instant::now();
+        let (pw, pt, alpha_p, claimed_h0_lkp) = lkp.as_ref().unwrap();
+        let ctx_lkp_v = uk8_sha(&[&spec_dg, &h0_link_v]);
+        let expected_h0_lkp = ct_h0(&crs, &ctx_lkp_v, &t1s, &t2s, &[]);
+        let mut lookup_ok = expected_h0_lkp == *claimed_h0_lkp;
+        let mut tv = LkpTranscript::new("ur1-lkp", &expected_h0_lkp);
+        let av = tv.challenge_k(&kf);
+        lookup_ok &= av == *alpha_p;
+        let vw = masked_gkr_verify(&kf, 1, ls.dw, &shell_w, pw, &mut tv, false);
+        let vt = masked_gkr_verify(&kf, 1, ls.dt, &shell_t, pt, &mut tv, false);
+        match (vw, vt) {
+            (Some((roots_w, ew)), Some((roots_t, et))) => {
+                lookup_ok &= !kf.is_zero(&roots_w[0][1]) && !kf.is_zero(&roots_t[0][1]);
+                lookup_ok &= kf.mul(&roots_w[0][0], &roots_t[0][1])
+                    == kf.mul(&roots_t[0][0], &roots_w[0][1]);
+                let mut pv = descent_pins(ls.base_wm, &shell_w, pw, &ew, ls.dw);
+                pv.extend(descent_pins(ls.base_tm, &shell_t, pt, &et, ls.dt));
+                pv.extend(leaf_pins(&ew, &et, &av));
+                absorb_pins(&mut tv, &pv);
+                let psi_v = derive_pin_psi(&tv.state(), UR1_PIN_COPIES, pv.len() * K_DEG, q);
+                pin_claims_v = pin_claims(&kf, &pv, n_data, msg_r, &psi_v);
+                tr_v_state = Some(tv);
+            }
+            _ => lookup_ok = false,
+        }
+        verdict.lookup_ok &= lookup_ok;
+        cost.lkp_verify_s += t_lkp.elapsed().as_secs_f64();
+        if tr_v_state.is_none() {
+            // A broken descent leaves nothing to ground the wave pins —
+            // the layer rejects here.
+            verdict.sum_gate_ok = false;
+            verdict.waves_ok = false;
+            cost.verify_s += t_verify.elapsed().as_secs_f64();
+            return (verdict, cost);
+        }
+    }
+    let v_pins: Vec<Vec<CtClaim>> =
+        match split_claims_verifier(&zq, &ls.plan, &pin_claims_v, &pin_reveals) {
+            Some(v) => v,
+            None => {
+                verdict.sum_gate_ok = false;
+                verdict.waves_ok = false;
+                cost.verify_s += t_verify.elapsed().as_secs_f64();
+                return (verdict, cost);
+            }
+        };
+    drop(pin_claims_v);
+    let mut v_pins = v_pins;
+    if v_pins.is_empty() {
+        v_pins = (0..n_waves).map(|_| Vec::new()).collect();
+    }
+    cost.reveal_shares += pin_reveals.iter().map(|r| r.len()).sum::<usize>();
+    cost.verify_s += t_verify.elapsed().as_secs_f64();
+
+    // ---- The wave loop: per wave, prover round then verifier round
+    // (independent zeta streams; proofs drop per wave). --------------------
+    let lkp_state_p: [u8; 32] = match &tr_state {
+        Some(tr) => tr.state(),
+        None => h0_link,
+    };
+    let lkp_state_v: [u8; 32] = match &tr_v_state {
+        Some(tv) => tv.state(),
+        None => h0_link_v,
+    };
+    let one_poly = {
+        let mut p = poly_zero();
+        p[0] = 1;
+        p
+    };
+    let neg_one_poly = {
+        let mut p = poly_zero();
+        p[0] = zq.neg(1);
+        p
+    };
+    let unpack_rho = |packed: &[i8]| -> Vec<Vec<i64>> {
+        (0..shape.n_r).map(|r| packed[r * D..(r + 1) * D].iter().map(|&b| b as i64).collect()).collect()
+    };
+    let mut zs_y_p = ZetaStream::new(&ctx_ring, ls.lp, &coord_m, &h0_zeta_y);
+    let mut zs_up_p = ZetaStream::new(&ctx_ring, ls.lp, &coord_m, &h0_zeta_up);
+    let mut zs_y_v = ZetaStream::new(&ctx_ring, ls.lp, &coord_m, &h0_zeta_y);
+    let mut zs_up_v = ZetaStream::new(&ctx_ring, ls.lp, &coord_m, &h0_zeta_up);
+    // The zeta reveal wire: sent partial per (family row, share index) —
+    // tampers mutate the wire, never the prover's own claims.
+    let mut zeta_share_ctr = vec![0usize; 2 * l_zeta];
+    let zeta_tamper = |row_g: usize, share_idx: usize, v: i64| -> i64 {
+        match tamper {
+            LayerTamper::PartialLieZeta if row_g == 0 && share_idx == 0 => {
+                center128(v as i128 + 1)
+            }
+            LayerTamper::CompensatedZeta if row_g == 0 && share_idx == 0 => {
+                center128(v as i128 + 1)
+            }
+            LayerTamper::CompensatedZeta if row_g == 0 && share_idx == 1 => {
+                center128(v as i128 - 1)
+            }
+            _ => v,
+        }
+    };
+    let mut zeta_sums = vec![0i128; 2 * l_zeta];
+    let mut rp_cache: std::collections::BTreeMap<usize, (ring::ct_engine::CtRoundParams, ring::commit::A1Paths)> =
+        std::collections::BTreeMap::new();
+    for w in 0..n_waves {
+        let wave = &ls.plan.waves[w];
+        let (c0, c1) = ls.wave_chunks[w];
+        if ls.wave_lin[w] == 0 && c0 == c1 {
+            // Arm B waves holding only X commitments carry no claims —
+            // there is no round to run (the commitments stay bound in
+            // h0_link; nothing is asserted about them in this arm).
+            assert!(!with_lookup);
+            continue;
+        }
+        let g_off = g_base_global[w];
+        let g_cnt = ls.wave_g_groups[w];
+        let idxs: Vec<usize> = wave.iter().copied().chain(g_off..g_off + g_cnt).collect();
+        let n_cw = idxs.len();
+        assert!(n_cw <= ls.c2_max);
+        if !rp_cache.contains_key(&n_cw) {
+            let rp = derive_ct_round_params(q, shape, n_cw, 0, 0, true);
+            let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cw, (rp, a1p));
+        }
+        let wt1s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t1s[i].clone()).collect();
+        let wt2s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t2s[i].clone()).collect();
+        // Wave-local quad ring claims through the S0 co-location path.
+        let mut quads_loc: Vec<QuadRingClaim> = Vec::with_capacity(c1 - c0);
+        for u in c0..c1 {
+            let qc = QuadRingClaim {
+                quad: vec![(
+                    ls.base_y + u / msg_r,
+                    u % msg_r,
+                    ls.base_up + u / msg_r,
+                    u % msg_r,
+                    one_poly.clone(),
+                )],
+                msg_coeffs: vec![(ls.base_z + u / msg_r, u % msg_r, neg_one_poly.clone())],
+            };
+            let (qw, qloc) = quad_ring_localized(&ls.plan, &qc);
+            assert_eq!(qw, w, "planner co-location must keep the quad in its wave");
+            quads_loc.push(qloc);
+        }
+
+        // ================= PROVER =================
+        let t_p = Instant::now();
+        let mut claims_p: Vec<CtClaim> = std::mem::take(&mut pw_pins[w]);
+        let mut sent_zeta: Vec<i64> = Vec::with_capacity(2 * l_zeta);
+        for (fam, (zs, base)) in
+            [(&mut zs_y_p, ls.base_y), (&mut zs_up_p, ls.base_up)].into_iter().enumerate()
+        {
+            if c1 == c0 {
+                continue;
+            }
+            let shares = zs.wave_shares(c0, c1, &|u| {
+                (ls.plan.slot_of[base + u / msg_r].1, u % msg_r)
+            });
+            for (row, coeffs) in shares.into_iter().enumerate() {
+                let mut acc: i128 = 0;
+                for (li, s, p) in &coeffs {
+                    acc += ct_mul_centered(&zq, p, &msgs[wave[*li]][*s]) as i128;
+                }
+                let part = center128(acc);
+                let row_g = fam * l_zeta + row;
+                let sent = zeta_tamper(row_g, zeta_share_ctr[row_g], part);
+                zeta_share_ctr[row_g] += 1;
+                sent_zeta.push(sent);
+                cost.reveal_shares += 1;
+                claims_p.push(CtClaim { msg_coeffs: coeffs, ajtai_coeffs: vec![], scalar: part });
+            }
+        }
+        assert_eq!(
+            claims_p.len(),
+            ls.wave_lin[w],
+            "the wave's claim count must equal the plan-derived g budget (D-4)"
+        );
+        let wrhos: Vec<Vec<Vec<i64>>> = idxs.iter().map(|&i| unpack_rho(&rhos8[i])).collect();
+        let openings: Vec<StdOpening> = idxs
+            .iter()
+            .enumerate()
+            .map(|(j, &i)| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &msgs[i], rho: &wrhos[j] })
+            .collect();
+        let (rp_w, a1p_w) = rp_cache.get(&n_cw).unwrap();
+        let path_w = KernelPath::A1(a1p_w);
+        let mut state_p: Vec<u8> = lkp_state_p.to_vec();
+        state_p.extend((w as u64).to_le_bytes());
+        let h0_w = ct_h0(&crs, &state_p, &wt1s, &wt2s, &[]);
+        let (proof_w, _) = prove_ct_round(
+            &path_w, &ctx_ring, rp_w, None, &crs, &h0_w, &claims_p, &[], &[], &quads_loc,
+            &openings, &[], &[], wave.len(), &mut rng,
+        );
+        drop(claims_p);
+        cost.prove_s += t_p.elapsed().as_secs_f64();
+
+        // ================= VERIFIER =================
+        let t_v = Instant::now();
+        let mut claims_v: Vec<CtClaim> = std::mem::take(&mut v_pins[w]);
+        let mut sent_iter = sent_zeta.iter();
+        for (zs, base) in [(&mut zs_y_v, ls.base_y), (&mut zs_up_v, ls.base_up)] {
+            if c1 == c0 {
+                continue;
+            }
+            let shares = zs.wave_shares(c0, c1, &|u| {
+                (ls.plan.slot_of[base + u / msg_r].1, u % msg_r)
+            });
+            for coeffs in shares {
+                let sent = *sent_iter.next().expect("zeta reveal wire underrun");
+                // The S0 verifier gates lifted to the streaming path:
+                // centered representative bound now, per-row sum at the
+                // end (the total is the public y = 0).
+                if sent.unsigned_abs() > q / 2 {
+                    verdict.zeta_gate_ok = false;
+                }
+                claims_v.push(CtClaim { msg_coeffs: coeffs, ajtai_coeffs: vec![], scalar: sent });
+            }
+        }
+        // Track per-row sums (claims_v pushed Y rows then UP rows).
+        {
+            let mut it = sent_zeta.iter();
+            if c1 > c0 {
+                for row_g in 0..2 * l_zeta {
+                    zeta_sums[row_g] += *it.next().unwrap() as i128;
+                }
+            }
+        }
+        let mut state_v: Vec<u8> = lkp_state_v.to_vec();
+        state_v.extend((w as u64).to_le_bytes());
+        let h0_wv = ct_h0(&crs, &state_v, &wt1s, &wt2s, &[]);
+        let ok_w = verify_ct_round(
+            &path_w, &ctx_ring, rp_w, None, &crs, &h0_wv, &claims_v, &[], &[], &quads_loc,
+            &wt1s, &wt2s, &[], &[], &[], wave.len(), &proof_w,
+        );
+        if !ok_w {
+            verdict.waves_ok = false;
+            if verdict.first_bad_wave.is_none() {
+                verdict.first_bad_wave = Some(w);
+            }
+        }
+        cost.verify_s += t_v.elapsed().as_secs_f64();
+    }
+    // The zeta sum gate closes over the whole layer: every row's partials
+    // must sum to the public total (0 for the slot-constancy family).
+    let t_gate = Instant::now();
+    for &s in &zeta_sums {
+        if center128(s) != 0 {
+            verdict.zeta_gate_ok = false;
+        }
+    }
+    cost.verify_s += t_gate.elapsed().as_secs_f64();
+    (verdict, cost)
+}
+
+/// [U-R1b] battery (`ffn-chain layer battery`): the multi-wave per-layer
+/// rig at a fast shape — honest ACCEPT on both arms, the streaming-zeta
+/// differential, the wave-boundary tampers (lied and compensated partial
+/// scalars on both the pin and zeta families), the block-rig edges at
+/// the new shape (off-table Y, tampered Z, lookup-h0 bit flip), and the
+/// planner's straddling-quad detection.
+fn self_test_ffn_layer() {
+    use ring::ct_engine::{QuadRingClaim, plan_waves, quad_ring_wave};
+    println!("\n[U-R1b] per-layer multi-wave rig: split claims, one descent pair, wave-boundary tampers");
+    let lg = 12usize;
+    let t0 = Instant::now();
+    let (va, ca) = ffn_layer_run(lg, true, LayerTamper::None, 0x5eed_0111, ChainEntropy::Test, false);
+    assert_true(
+        &format!(
+            "U-R1b honest layer ACCEPTS end-to-end ({} el across {} waves: statement v2 + ONE masked descent pair + split pin/zeta claims + per-wave ct-rounds; commit {:.2}s prove {:.2}s verify {:.2}s)",
+            ca.n_el, ca.n_waves, ca.commit_s, ca.prove_s, ca.verify_s
+        ),
+        va.all_ok(),
+    );
+    assert_true(
+        "U-R1b differential: streaming zeta shares == link_claims_tgt_slot + split_claims_prover (bit-for-bit at the battery shape)",
+        va.differential_ok,
+    );
+    let (vb, cb) = ffn_layer_run(lg, false, LayerTamper::None, 0x5eed_0111, ChainEntropy::Test, true);
+    assert_true(
+        &format!(
+            "U-R1b baseline arm (lookup omitted) ACCEPTS — the A/B marginal is measurable (prove +{:.2}s, verify +{:.2}s, commit +{} q31 coefficients)",
+            ca.prove_s - cb.prove_s,
+            ca.verify_s - cb.verify_s,
+            (ca.q31_data_coeffs + ca.q31_g_coeffs) as i64
+                - (cb.q31_data_coeffs + cb.q31_g_coeffs) as i64
+        ),
+        vb.all_ok(),
+    );
+    // Wave boundary, pin family (the audited S0 path at layer scale).
+    let (vl, _) = ffn_layer_run(lg, true, LayerTamper::PartialLiePin, 0x5eed_0112, ChainEntropy::Test, true);
+    assert_true(
+        "U-R1b wave boundary: a lied pin partial scalar REJECTS at split_claims_verifier's sum gate (lookup itself passes)",
+        !vl.sum_gate_ok && vl.lookup_ok && vl.statement_ok,
+    );
+    let (vc, _) = ffn_layer_run(lg, true, LayerTamper::CompensatedPin, 0x5eed_0113, ChainEntropy::Test, true);
+    assert_true(
+        "U-R1b wave boundary: a COMPENSATED pin lie passes the sum gate but its wave's ct-round REJECTS the false partial (the load-bearing leg)",
+        vc.sum_gate_ok && !vc.waves_ok && vc.lookup_ok && vc.zeta_gate_ok,
+    );
+    // Wave boundary, zeta family (the streaming path's gates).
+    let (vz, _) = ffn_layer_run(lg, true, LayerTamper::PartialLieZeta, 0x5eed_0114, ChainEntropy::Test, true);
+    assert_true(
+        "U-R1b wave boundary: a lied zeta partial REJECTS at the per-row sum gate",
+        !vz.zeta_gate_ok && vz.lookup_ok && vz.sum_gate_ok,
+    );
+    let (vzc, _) = ffn_layer_run(lg, true, LayerTamper::CompensatedZeta, 0x5eed_0115, ChainEntropy::Test, true);
+    assert_true(
+        "U-R1b wave boundary: a compensated zeta lie passes the gate but the affected waves REJECT at their ct-rounds",
+        vzc.zeta_gate_ok && !vzc.waves_ok && vzc.lookup_ok && vzc.sum_gate_ok,
+    );
+    // The block-rig chain edges at the layer shape.
+    let (vy, _) = ffn_layer_run(lg, true, LayerTamper::OffTableY, 0x5eed_0116, ChainEntropy::Test, true);
+    assert_true(
+        "U-R1b edge (lookup): an off-table Y REJECTS at the masked lookup's root cross-check; every wave passes (the edge is isolated)",
+        !vy.lookup_ok && vy.waves_ok && vy.sum_gate_ok && vy.zeta_gate_ok,
+    );
+    let (vh, _) = ffn_layer_run(lg, true, LayerTamper::HadamardZ, 0x5eed_0117, ChainEntropy::Test, true);
+    let z_wave = {
+        let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+        let ls = ur1_layer_shape(lg, true, shape, Q8);
+        ls.plan.slot_of[ls.base_y].0
+    };
+    assert_true(
+        "U-R1b edge (gate-o-up): a tampered Z slot constant REJECTS at its wave's quad ring claim; the lookup passes",
+        !vh.waves_ok && vh.first_bad_wave == Some(z_wave) && vh.lookup_ok && vh.zeta_gate_ok,
+    );
+    let (vk, _) = ffn_layer_run(lg, true, LayerTamper::LookupH0, 0x5eed_0118, ChainEntropy::Test, true);
+    assert_true(
+        "U-R1b transcript boundary: a prover-supplied lookup h0 bit flip REJECTS; the waves stay grounded on the verifier-recomputed prehash",
+        !vk.lookup_ok && vk.waves_ok && vk.sum_gate_ok && vk.zeta_gate_ok,
+    );
+    // Planner: without the co-location groups, a Hadamard quad straddles
+    // waves and quad_ring_wave detects it.
+    {
+        let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+        let ls = ur1_layer_shape(lg, true, shape, Q8);
+        let naive = plan_waves(ls.n_data, &[], ls.data_cap);
+        let one_poly = {
+            let mut p = poly_zero();
+            p[0] = 1;
+            p
+        };
+        let straddler = (0..ls.chunks).any(|u| {
+            let qc = QuadRingClaim {
+                quad: vec![(
+                    ls.base_y + u / 8,
+                    u % 8,
+                    ls.base_up + u / 8,
+                    u % 8,
+                    one_poly.clone(),
+                )],
+                msg_coeffs: vec![(ls.base_z + u / 8, u % 8, one_poly.clone())],
+            };
+            quad_ring_wave(&naive, &qc).is_none()
+        });
+        assert_true(
+            "U-R1b planner: without co-location groups a straddling Hadamard quad is DETECTED (quad_ring_wave = None); the layer plan co-locates every triple",
+            straddler,
+        );
+    }
+    println!(
+        "  [U-R1b] battery done in {:.1}s (timings [NOISY-SHARED])",
+        t0.elapsed().as_secs_f64()
+    );
+}
+
+/// Self-test smoke leg: ONE honest layer shape through the full
+/// multi-wave path (the battery's tamper legs stay behind
+/// `ffn-chain layer battery` to keep self-test fast).
+fn self_test_ffn_layer_smoke() {
+    println!("\n[U-R1b] per-layer multi-wave smoke: one honest shape, both gates");
+    let (v, c) = ffn_layer_run(12, true, LayerTamper::None, 0x5eed_0110, ChainEntropy::Test, false);
+    assert_true(
+        &format!(
+            "U-R1b smoke: honest 2^12 layer ACCEPTS ({} el, {} waves, {} data + {} g commitments; sum gate + zeta gate + {} wave rounds green; streaming-zeta differential {})",
+            c.n_el,
+            c.n_waves,
+            c.n_data,
+            c.n_g_groups,
+            c.n_waves,
+            if v.differential_ok { "matched" } else { "MISMATCH" }
+        ),
+        v.all_ok() && v.differential_ok,
+    );
+}
+
+/// `ffn-chain layer <log2_el>` — the U-R1 S2 measurement: ONE per-layer
+/// instance, arm A (multi-wave committed masked lookup + Hadamard +
+/// zeta) vs arm B (identical minus lookup), per-stage totals, us/el,
+/// the lookup marginal, committed-coefficient and transcript accounting,
+/// peak RSS — against the block rig's B = 1020 marginals (PROGRESS.md
+/// A-D2) for the amortization curve. All wall times [NOISY-SHARED].
+fn ffn_layer_bench(log2_el: usize) {
+    let t_a = Instant::now();
+    println!(
+        "u-r1 ffn-chain layer bench: 2^{log2_el} - 4 elements, ONE per-layer instance, multi-wave q31, 1T"
+    );
+    let (va, ca) = ffn_layer_run(log2_el, true, LayerTamper::None, 0x5eed_01b1, ChainEntropy::Os, false);
+    let wall_a = t_a.elapsed().as_secs_f64();
+    assert!(va.all_ok(), "arm A (lookup-integrated layer) must verify");
+    let hwm_a = vm_hwm_kb();
+    let t_b = Instant::now();
+    let (vb, cb) = ffn_layer_run(log2_el, false, LayerTamper::None, 0x5eed_01b1, ChainEntropy::Os, true);
+    let wall_b = t_b.elapsed().as_secs_f64();
+    assert!(vb.all_ok(), "arm B (lookup omitted) must verify");
+    let hwm_b = vm_hwm_kb();
+    let el = ca.n_el as f64;
+    println!("  arm A = multi-wave committed masked lookup + Hadamard + zeta; arm B = identical minus lookup. [NOISY-SHARED]");
+    let line = |label: &str, a: f64, b: f64| {
+        println!(
+            "  {label:<24} A {a:9.2}s ({:7.1} us/el)  B {b:9.2}s  marginal {:+9.2}s = {:+7.1} us/el",
+            a / el * 1e6,
+            a - b,
+            (a - b) / el * 1e6
+        );
+    };
+    line("commit", ca.commit_s, cb.commit_s);
+    line("prove", ca.prove_s, cb.prove_s);
+    line("verify", ca.verify_s, cb.verify_s);
+    line("wall (incl. setup)", wall_a, wall_b);
+    println!(
+        "  lookup stage attribution (arm A): prove {:.2}s ({:.1} us/el), verify {:.2}s ({:.1} us/el) — trees + ONE masked descent pair + pins + pin claims",
+        ca.lkp_prove_s,
+        ca.lkp_prove_s / el * 1e6,
+        ca.lkp_verify_s,
+        ca.lkp_verify_s / el * 1e6
+    );
+    let dce_a = ca.q31_data_coeffs + ca.q31_g_coeffs;
+    let dce_b = cb.q31_data_coeffs + cb.q31_g_coeffs;
+    println!(
+        "  committed q31 coefficients: A {dce_a} (data {} + g {}), B {dce_b} -> lookup marginal {:.3} dce/el at ONE {}-el instance (m + blinders + masks + pin g's, amortized layer-wide)",
+        ca.q31_data_coeffs, ca.q31_g_coeffs, (dce_a - dce_b) as f64 / el, ca.n_el
+    );
+    println!(
+        "  masked transcript: {} B descent pair + {} partial reveals x 12 B = {:.1} KB total -> {:.3} B/el (arm A)",
+        ca.masked_bytes,
+        ca.reveal_shares,
+        (ca.masked_bytes + ca.reveal_shares * 12) as f64 / 1024.0,
+        (ca.masked_bytes + ca.reveal_shares * 12) as f64 / el
+    );
+    println!(
+        "  wave accounting: {} waves (data cap {} of C2 max {}), {} data + {} g commitments; g fraction {:.1}%",
+        ca.n_waves,
+        {
+            let ls = ur1_layer_shape(log2_el, true, CommitShape { kappa: 8, n_r: 26, msg_r: 8 }, Q8);
+            ls.data_cap
+        },
+        {
+            let ls = ur1_layer_shape(log2_el, true, CommitShape { kappa: 8, n_r: 26, msg_r: 8 }, Q8);
+            ls.c2_max
+        },
+        ca.n_data,
+        ca.n_g_groups,
+        ca.q31_g_coeffs as f64 / (ca.q31_data_coeffs + ca.q31_g_coeffs) as f64 * 100.0
+    );
+    println!(
+        "  vs block rig at B = 1020 (PROGRESS.md A-D2, [NOISY-SHARED]): prove +205.9 us/el, verify +130.0 us/el, 14.1 dce/el, 37.5 B/el masked transcript — this shape's marginals above are the amortization curve points"
+    );
+    println!(
+        "  peak RSS: {:.2} GiB after arm A, {:.2} GiB after both",
+        hwm_a as f64 / 1024.0 / 1024.0,
+        hwm_b as f64 / 1024.0 / 1024.0
+    );
+    println!(
+        "ffn-chain layer bench done ({} el, all timings [NOISY-SHARED] 1T)",
+        ca.n_el
     );
 }

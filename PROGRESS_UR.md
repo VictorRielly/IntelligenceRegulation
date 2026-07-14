@@ -48,11 +48,46 @@ the masked descents/pins are untouched:
       sum gate; a COMPENSATED lie passes the gate but its wave's
       ct-round REJECTS (the load-bearing soundness leg); straddling quad
       detected. Full self-test 220s green; suite 42/42 green.
-- [ ] S1 — chain integration: `ffn-chain layer <log2_el>` — ONE
+- [x] S1 — chain integration: `ffn-chain layer <log2_el>` — ONE
       instance, multi-wave q31 commit, one masked descent pair, pins/
       link/zeta/quad claims through the splitter; honest ACCEPT + the
       battery's tamper edges at the new shape + NEW wave-boundary
       tampers (partial-sum lie, wave g-mask cross-use).
+      DONE 2026-07-14: `ffn-chain layer <log2_el> [battery]` additive
+      CLI mode + [U-R1b] battery + one-shape self-test smoke leg.
+      n_el = 2^log2_el - 4 (blinder-packed witness tree, depth
+      log2_el + 1 — the UK8_B = 1020 pattern at layer scale); ONE
+      masked descent pair serves the layer; plan_waves co-locates each
+      Hadamard (Y,UP,Z) commitment triple; data cap derived from the
+      C2 scan (134 at the U-K5c shape -> 76 data/wave arm A at 2^12;
+      derive_ct_round_params' assert stays the per-wave gate, D-3);
+      per-wave g-groups sized by plan-deterministic claim-share
+      budgets and ALL committed before h0_link; per-wave h0 binds the
+      lookup transcript state (which binds h0_link) + wave index +
+      the wave's commitment list. PIN claims flow through the audited
+      split_claims_prover/verifier (sum gate). ZETA claims: the
+      materialized path is ~13 GB at 2^20 (2 x 24 rows x 2^17 chunk
+      polys, both sides) and busts the 10G scope, so the rig builds
+      zeta shares per wave with a streaming XOF cursor (ZetaStream),
+      DIFFERENTIAL-PINNED bit-for-bit to link_claims_tgt_slot +
+      split_claims_prover at the battery shape, with the same three
+      verifier gates (share structure by construction, centered-
+      representative bound, per-row sum == public total). Battery
+      green (2^12, 3 waves): honest ACCEPT both arms; lied pin
+      partial REJECTS at the sum gate; COMPENSATED pin lie passes the
+      gate but its wave's ct-round REJECTS (load-bearing); lied zeta
+      partial REJECTS at the per-row sum gate; compensated zeta lie
+      REJECTS at its waves; off-table Y REJECTS at the root
+      cross-check (isolated); tampered Z REJECTS at exactly its
+      wave's quad claim; lookup-h0 bit flip REJECTS; straddling quad
+      DETECTED by the planner without co-location groups. rho columns
+      stored ternary-packed (i8), proofs dropped per wave (H-03).
+      Suite 42/42 + freeze-check green (additive — no digest moved).
+      NOT DONE from the original sketch: a wave g-mask cross-use
+      tamper (per-wave g's are sampled/committed per wave and bound
+      by the wave's own h0; a cross-use forgery needs a hand-built
+      proof transcript — deferred to S3's battery alongside the range
+      table's new edges).
 - [ ] S2 — measure: A/B marginal at 2^18/2^20/2^22 vs the blocked
       chain (the committed+masked amortization curve — the design
       study's key unknown); RSS per shape; [NOISY-SHARED] marks; the
@@ -105,3 +140,13 @@ the masked descents/pins are untouched:
   g-groups are sized by that wave's claim-share count (the S0 test's
   sample_g_masks pattern) — the chain's g-group sizing in Pass 2 must
   become per-wave in S1.
+- 2026-07-14 (3): S1 landed — `ffn-chain layer` rig (see S1 note). Two
+  facts learned: (a) the zeta slot-constancy family is the layer-scale
+  memory wall, not the trees (U-K9 packed trees are ~0.5 GiB at 2^21
+  leaves; materialized zeta claims would be ~13 GiB at 2^20) — hence
+  the streaming per-wave builder, differential-pinned to the S0 path;
+  (b) first-fit placement is chunk-monotone (singles precede triples
+  in index order), which is what makes a sequential zeta XOF cursor
+  per row possible at all — recorded here because any future planner
+  change that breaks monotonicity breaks the streaming builder (it
+  asserts).
