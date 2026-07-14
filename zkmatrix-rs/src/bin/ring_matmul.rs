@@ -9667,8 +9667,10 @@ fn lookup_bench(n_log2: usize) {
 //     FS-with-aborts loop restarts ALL units of a round together. Frozen
 //     chain point (LKP-8): sub-block = 128 values -> two 512-bit units
 //     (planes 0-3 / 4-7 at msg_r = 4), q46 rounds of 4 units (256
-//     values) at alpha = 3.5 (~6.5 expected restarts/round), one link
-//     instance per q46 round (w = 11, l = 24).
+//     values) at alpha = 3.5, joint Q4.2b rejection across the round's
+//     4 units (~2.8 expected attempts/round; the per-unit product
+//     scheme's ~6.5 superseded 2026-07-13), one link instance per q46
+//     round (w = 11, l = 24).
 //
 // Streaming binding (the D-4 ledger decision): every TENSOR commitment
 // (X, planes, Y, UP, Z, m, blinders, masks) precedes the validated
@@ -9834,7 +9836,7 @@ fn ffn_chain_run(
     use manifest::{ClaimManifest, Operation, Orientation, QuantMeta};
     use ring::commit::CommitShape as CS;
     use ring::ct_engine::{
-        AjtaiCommit, AjtaiOpening, StdOpening, ajtai_commit, arp_attempt, arp_check_reveal,
+        AjtaiCommit, AjtaiOpening, StdOpening, ajtai_commit, arp_attempt_joint, arp_check_reveal,
         arp_claims, ct_h0, derive_arp_params, derive_ct_round_params, derive_jl_rows,
         expand_b_mat, pack_arp_mask, r1_pad_count, sample_arp_mask, sample_g_masks,
         verify_ct_round,
@@ -10690,18 +10692,24 @@ fn ffn_chain_run(
                 let acom_refs: Vec<&AjtaiCommit> = acoms.iter().collect();
                 let h0_g = ct_h0(&crs_g, &ctx_r, &rt1s, &rt2s, &acom_refs);
                 let jl = derive_jl_rows(&h0_g, ap.rows, ap.n);
-                let mut ys: Vec<Vec<i64>> = Vec::new();
-                for (ui, &u) in unit_ids.iter().enumerate() {
-                    let flat: Vec<i64> = bd.bits_msgs[u]
-                        .iter()
-                        .flat_map(|p| p.iter().map(|&v| v as i64))
-                        .collect();
-                    match arp_attempt(&ap, &jl, &flat, &masks[ui], &mut rng) {
-                        Some(y) => ys.push(y),
-                        None => break,
-                    }
-                }
-                if ys.len() == 4 {
+                // Joint Q4.2b test across the 4 restart-coupled units:
+                // one summed-exponent rejection instead of the per-unit
+                // product (~2.8 vs ~6.5 expected attempts/round).
+                let flats: Vec<Vec<i64>> = unit_ids
+                    .iter()
+                    .map(|&u| {
+                        bd.bits_msgs[u]
+                            .iter()
+                            .flat_map(|p| p.iter().map(|&v| v as i64))
+                            .collect()
+                    })
+                    .collect();
+                let units: Vec<(&[i64], &[i64])> = flats
+                    .iter()
+                    .zip(masks.iter())
+                    .map(|(f, m)| (f.as_slice(), m.as_slice()))
+                    .collect();
+                if let Some(ys) = arp_attempt_joint(&ap, &jl, &units, &mut rng) {
                     break (packed, rhs, acoms, h0_g, jl, ys);
                 }
             };

@@ -923,7 +923,7 @@ pub fn prove_ct_round_tq(
         if !digits.is_empty() {
             parts.push((&fz_d, &fv_d, dp.unwrap().sigma));
         }
-        if super::joint_rejection_accept(rng, &parts) {
+        if super::joint_rejection_accept(rng, &parts, super::joint_log_m_alpha12(parts.len())) {
             return (
                 CtRoundProof {
                     h: head.h,
@@ -1339,17 +1339,26 @@ pub struct ArpParams {
     /// Extracted (relaxed) l2 bound on the projected witness implied by an
     /// accepting ARP, with the conservative constants above.
     pub extract_bound: f64,
-    /// Rejection-test constant matched to sigma_arp = alpha * center:
-    /// log M = t/alpha + 1/(2 alpha^2) at t = ARP_REJ_T.
-    pub log_m: f64,
+    /// The masking ratio sigma_arp = alpha * center_bundle; the rejection
+    /// constants derive from it via `log_m_joint`.
+    pub alpha: f64,
 }
 
 /// Rejection-lemma tail parameter for the ARP masking regime. t trades
 /// restart rate against the capped-region mass Phi(-t) (which rides the
 /// ARP's approximate-extraction slack, not soundness); t = 1.5 is the
-/// LKP-8 frozen point's constant — per-unit accept e^-0.47 at alpha = 3.5,
-/// ~6.5 expected attempts per 4-unit-coupled grounding round.
+/// LKP-8 frozen point's constant — per-unit accept e^-0.47 at alpha = 3.5.
 const ARP_REJ_T: f64 = 1.5;
+
+impl ArpParams {
+    /// log M for a joint (Q4.2b) rejection test over k coupled units at
+    /// this regime's alpha: t sqrt(k)/alpha + k/(2 alpha^2), t = ARP_REJ_T.
+    /// k = 1 is the single-unit `rejection_accept` constant.
+    pub fn log_m_joint(&self, k: usize) -> f64 {
+        ARP_REJ_T * (k as f64).sqrt() / self.alpha
+            + k as f64 / (2.0 * self.alpha * self.alpha)
+    }
+}
 
 /// Size the ARP for an honest witness with per-coefficient bound w_inf
 /// over n coefficients. alpha follows the report's rejection discipline
@@ -1366,8 +1375,7 @@ pub fn derive_arp_params(n: usize, rows: usize, w_inf: u64, alpha: f64) -> ArpPa
     // ||c-bar (y - m')||_2 <= slack * 2 * y_bound-class; JL lower bound
     // with constant JL_C. Conservative composition (Q4 note).
     let extract_bound = SLACK_OP * 2.0 * y_bound / (rows as f64 / JL_C).sqrt();
-    let log_m = ARP_REJ_T / alpha + 1.0 / (2.0 * alpha * alpha);
-    ArpParams { rows, n, sigma_arp, y_bound_sq, extract_bound, log_m }
+    ArpParams { rows, n, sigma_arp, y_bound_sq, extract_bound, alpha }
 }
 
 /// Derive-time budget check for a non-wrap side condition |defect| <
@@ -1434,13 +1442,52 @@ pub fn arp_attempt(
         .map(|row| row.iter().zip(b_coeffs.iter()).map(|(&r, &b)| r * b).sum())
         .collect();
     let y: Vec<i64> = m_flat.iter().zip(centers.iter()).map(|(&m, &c)| m + c).collect();
-    if !rejection_accept(rng, &y, &centers, ap.sigma_arp, ap.log_m) {
+    if !rejection_accept(rng, &y, &centers, ap.sigma_arp, ap.log_m_joint(1)) {
         return None;
     }
     if vec_norm_sq_i64(&y) > ap.y_bound_sq {
         return None;
     }
     Some(y)
+}
+
+/// One joint reveal attempt over k restart-coupled units (Q4.2b): each
+/// unit's y_u = R b_u + m_u, then ONE summed-exponent rejection test
+/// replaces the per-unit product — same sigmas, same accepted output
+/// distribution, restart rate e^-(t sqrt(k)/alpha + k/(2 alpha^2))
+/// instead of the product's e^-k(t/alpha + 1/(2 alpha^2)). The per-unit
+/// range gate (`y_bound_sq`, what the verifier re-checks via
+/// `arp_check_reveal`) is unchanged. units = (b_coeffs, m_flat) pairs.
+pub fn arp_attempt_joint(
+    ap: &ArpParams,
+    jl: &[Vec<i64>],
+    units: &[(&[i64], &[i64])],
+    rng: &mut dyn super::RngSource,
+) -> Option<Vec<Vec<i64>>> {
+    assert_eq!(jl.len(), ap.rows);
+    let mut ys: Vec<Vec<i64>> = Vec::with_capacity(units.len());
+    let mut centers_all: Vec<Vec<i64>> = Vec::with_capacity(units.len());
+    for (b_coeffs, m_flat) in units {
+        let centers: Vec<i64> = jl
+            .iter()
+            .map(|row| row.iter().zip(b_coeffs.iter()).map(|(&r, &b)| r * b).sum())
+            .collect();
+        let y: Vec<i64> = m_flat.iter().zip(centers.iter()).map(|(&m, &c)| m + c).collect();
+        ys.push(y);
+        centers_all.push(centers);
+    }
+    let parts: Vec<(&[i64], &[i64], u64)> = ys
+        .iter()
+        .zip(centers_all.iter())
+        .map(|(y, c)| (y.as_slice(), c.as_slice(), ap.sigma_arp))
+        .collect();
+    if !super::joint_rejection_accept(rng, &parts, ap.log_m_joint(units.len())) {
+        return None;
+    }
+    if ys.iter().any(|y| vec_norm_sq_i64(y) > ap.y_bound_sq) {
+        return None;
+    }
+    Some(ys)
 }
 
 /// The ARP's ct-claims: for each row i, ct-claim

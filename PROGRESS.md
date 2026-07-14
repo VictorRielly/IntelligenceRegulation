@@ -185,3 +185,20 @@ reconciliation pass on a quiet machine after merge.
   Suite 42/42 + freeze-check green; LKP-8 freeze gates unmoved (they
   pin arp_budget_ok, which does not involve log M). M4 Section 7''s
   "~52/round mean" figure is superseded — flag for the next docs pass.
+- 2026-07-13 (2): ffn-chain ARP switched to the joint Q4.2b rejection
+  test across each round's 4 coupled units (arp_attempt_joint;
+  joint_rejection_accept log M now caller-supplied — its 12-sigma call
+  site keeps joint_log_m_alpha12). Accepted output distribution
+  unchanged per the PROVEN lemma; per-unit y-bound gate and
+  arp_check_reveal unchanged. Expected ~2.8 attempts/round vs the
+  product scheme's ~6.5; measured (ffn-chain 1, three runs): restarts
+  per arm 4/10, 5/5, 14/3 over 4 rounds — on the lemma's prediction.
+  Combined with the log M fix: restart work ~17x down vs 2026-07-10.
+  LKP-8 frozen-point comment updated in ring_matmul.rs; wall-clock
+  still awaits a quiesced ladder pass.
+- 2026-07-13 (3): RANGE_AGGREGATION_DESIGN.md written (paper-first,
+  audit Phase 5.2/5.3): the C2-cap lift via multi-wave single-descent
+  per layer (recommended; q46 bundles as fallback) and the full-bill
+  range-lookup rung pricing, with the U-R1..U-R3 tranche proposal.
+  All forward numbers [MODEL]; the pilot's key unknown is the
+  committed+masked factor at per-layer instances.

@@ -939,17 +939,27 @@ pub fn rejection_accept(
     u < threshold
 }
 
+/// Joint log M for k bundles in the 12-sigma regime (t = alpha = 12):
+/// log M_joint = t sqrt(k)/alpha + k/(2 alpha^2). k = 1 gives
+/// `REJ_LOG_M_ALPHA12`.
+pub fn joint_log_m_alpha12(k: usize) -> f64 {
+    (k as f64).sqrt() + k as f64 / 288.0
+}
+
 /// Joint-scaled rejection over k bundles with DIFFERENT sigmas
 /// (Q4_LEMMAS.md Lemma Q4.2b, PROVEN): one test on the summed exponent
 /// S = sum_i (||v_i||^2 - 2 <z_i, v_i>) / (2 sigma_i^2), accepted iff
 /// u < exp(S - log M_joint) with M_joint = exp(t sqrt(k)/alpha +
-/// k/(2 alpha^2)) at t = alpha = 12. Neither the sigmas nor the accepted
-/// output distribution change vs the per-bundle product scheme — only
-/// the restart rate improves (21.1 -> 5.7 expected attempts at k = 3).
-/// k = 1 reduces exactly to `rejection_accept`.
+/// k/(2 alpha^2)). Neither the sigmas nor the accepted output
+/// distribution change vs the per-bundle product scheme — only the
+/// restart rate improves (21.1 -> 5.7 expected attempts at k = 3 in the
+/// 12-sigma regime). k = 1 reduces exactly to `rejection_accept`.
+/// `log_m` MUST match the sigma = alpha ||center|| convention shared by
+/// the parts (see `rejection_accept`).
 pub fn joint_rejection_accept(
     rng: &mut dyn RngSource,
     parts: &[(&[i64], &[i64], u64)],
+    log_m: f64,
 ) -> bool {
     let k = parts.len();
     if k == 0 {
@@ -965,7 +975,6 @@ pub fn joint_rejection_accept(
         }
         s_exp += (norm_c - 2 * dot) as f64 / (2.0 * *sigma as f64 * *sigma as f64);
     }
-    let log_m = (k as f64).sqrt() + k as f64 / 288.0;
     let threshold = (s_exp - log_m).exp();
     if threshold >= 1.0 {
         return true;
