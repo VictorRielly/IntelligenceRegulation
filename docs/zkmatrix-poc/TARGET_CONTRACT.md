@@ -64,9 +64,14 @@ where a budget is not yet met (or not yet measurable) it says so.
   honest-verifier zero-knowledge at the proof-of-protocol level
   (lemmas Q4.7-Q4.9). Two caveats must accompany any ZK claim: the
   guarantee is per-subprotocol (chain-wide composition carries its
-  own analysis, the R1.3-class honesty note), and the FFN-integrated
-  lookup (U-K8) is still open — the masked lookup has not yet run
-  inside a full FFN-shape pass.
+  own analysis, the R1.3-class honesty note), and the FFN-integration
+  caveat (updated 2026-07-14, closing the 2026-07-12 audit M-02
+  status conflict): the masked lookup HAS now run inside a
+  range->lookup->Hadamard chain with measured marginals — the U-K8
+  exit CLOSED 2026-07-10 at 1020-element row-block granularity
+  (M4_LOOKUP_DESIGN.md Section 7''), but NOT as a single full-shape
+  512x11008 instance (the q31 C2 wave cap binds a committed descent
+  near 2^17 elements) and not as a multi-layer pass.
 - **The latency clock starts** with the committed model and the input
   tokens in memory, and **stops** when the serialized proof bytes
   exist. It INCLUDES witness inference (the quantized forward pass),
@@ -104,14 +109,14 @@ where a budget is not yet met (or not yet measurable) it says so.
   machine, statement validation included. Verifier time at full shape
   is unmeasured today (toy-shape chain verifies in ~0.2 s).
 
-## 5. Honest status of the pieces (2026-07-10)
+## 5. Honest status of the pieces (2026-07-10; SiLU lookup row updated 2026-07-14)
 
 | piece | status |
 |---|---|
 | FFN matmul commitments at full shape | measured (commitment stream only, M5-lite) |
 | matmul claim proofs at full shape | NOT measured (largest full proof: 128x256x64) |
 | range family, integer-exact (q46 link) | built + adversarially tested at toy shape (chain-demo) |
-| SiLU lookup core | built, unmasked, microbenchmarked single-thread; not FFN-integrated (U-K8 open) |
+| SiLU lookup core | built, unmasked, microbenchmarked single-thread; FFN-INTEGRATED (update 2026-07-14): the U-K8 exit closed 2026-07-10 at 1020-el row-block granularity — masked committed lookup inside the `ffn-chain` range->lookup->Hadamard rig, measured marginals in M4_LOOKUP_DESIGN Section 7''; the single-instance 512x11008 shape did NOT run (q31 C2 wave cap) and multi-layer chaining remains NOT implemented (row below) |
 | lookup zero-knowledge masking (U-K5) | built + battery green (2026-07-10): committed masked pass, engine-scale histogram-recovery closed, E3Z-N1..N4 ordering/rank pairs; HVZK at subprotocol level; masked transcript 150 KB/pass (LKP-7) |
 | multi-layer chaining (32 blocks under one statement) | NOT implemented (statement format exists; `statement-inventory` walks the 32-layer DAG) |
 | attention, softmax, RoPE, RMSNorm, residual, embedding | NOT implemented, NOT specified as integers |
