@@ -1339,7 +1339,17 @@ pub struct ArpParams {
     /// Extracted (relaxed) l2 bound on the projected witness implied by an
     /// accepting ARP, with the conservative constants above.
     pub extract_bound: f64,
+    /// Rejection-test constant matched to sigma_arp = alpha * center:
+    /// log M = t/alpha + 1/(2 alpha^2) at t = ARP_REJ_T.
+    pub log_m: f64,
 }
+
+/// Rejection-lemma tail parameter for the ARP masking regime. t trades
+/// restart rate against the capped-region mass Phi(-t) (which rides the
+/// ARP's approximate-extraction slack, not soundness); t = 1.5 is the
+/// LKP-8 frozen point's constant — per-unit accept e^-0.47 at alpha = 3.5,
+/// ~6.5 expected attempts per 4-unit-coupled grounding round.
+const ARP_REJ_T: f64 = 1.5;
 
 /// Size the ARP for an honest witness with per-coefficient bound w_inf
 /// over n coefficients. alpha follows the report's rejection discipline
@@ -1356,7 +1366,8 @@ pub fn derive_arp_params(n: usize, rows: usize, w_inf: u64, alpha: f64) -> ArpPa
     // ||c-bar (y - m')||_2 <= slack * 2 * y_bound-class; JL lower bound
     // with constant JL_C. Conservative composition (Q4 note).
     let extract_bound = SLACK_OP * 2.0 * y_bound / (rows as f64 / JL_C).sqrt();
-    ArpParams { rows, n, sigma_arp, y_bound_sq, extract_bound }
+    let log_m = ARP_REJ_T / alpha + 1.0 / (2.0 * alpha * alpha);
+    ArpParams { rows, n, sigma_arp, y_bound_sq, extract_bound, log_m }
 }
 
 /// Derive-time budget check for a non-wrap side condition |defect| <
@@ -1423,7 +1434,7 @@ pub fn arp_attempt(
         .map(|row| row.iter().zip(b_coeffs.iter()).map(|(&r, &b)| r * b).sum())
         .collect();
     let y: Vec<i64> = m_flat.iter().zip(centers.iter()).map(|(&m, &c)| m + c).collect();
-    if !rejection_accept(rng, &y, &centers, ap.sigma_arp) {
+    if !rejection_accept(rng, &y, &centers, ap.sigma_arp, ap.log_m) {
         return None;
     }
     if vec_norm_sq_i64(&y) > ap.y_bound_sq {

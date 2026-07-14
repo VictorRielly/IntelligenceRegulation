@@ -169,3 +169,19 @@ reconciliation pass on a quiet machine after merge.
 - 2026-07-10 A: read spec/audit/engine; recorded D-1..D-5 above. Key
   discovered constraint: the C2 wave capacity (not H-03 memory) is the
   binding wall for a committed single-descent lookup — goes in the docs.
+- 2026-07-13: ARP restart anomaly (A-D2's ~52/round vs D-3's designed
+  ~6.5) diagnosed and fixed. Root cause: `rejection_accept`
+  (ring/mod.rs) hard-coded log M = 1 + 1/288 (the t = alpha = 12 sigma
+  convention) while the ARP samples at UK8_ALPHA = 3.5 — per-unit accept
+  e^-1.0 instead of the designed e^-0.47; 0.367^4 per 4-unit round
+  predicts ~55 attempts/round, matching the measurement. Fix: log M is
+  now a `rejection_accept` parameter; ArpParams carries
+  log M = t/alpha + 1/(2 alpha^2) at t = 1.5 (ARP_REJ_T, the LKP-8
+  e^-0.47 point); sigma.rs's 12-sigma call sites keep REJ_LOG_M_ALPHA12.
+  ZK-safe in both directions (the old constant was conservative).
+  Measured (ffn-chain 1, two runs): restarts 240 -> 61/66 total over
+  8 rounds — the design rate. Wall-clock gain NOT quantified: box
+  [NOISY-SHARED] with run-to-run q46 variance ~2x; re-measure quiesced.
+  Suite 42/42 + freeze-check green; LKP-8 freeze gates unmoved (they
+  pin arp_budget_ok, which does not involve log M). M4 Section 7''s
+  "~52/round mean" figure is superseded — flag for the next docs pass.

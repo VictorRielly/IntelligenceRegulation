@@ -21,8 +21,8 @@ use sha2::{Digest, Sha256};
 use super::commit::{KernelPath, MatvecKind, RingCrs, a1_matvec};
 use super::{
     D, Poly, RingCtx, XofReader, digit_split_witness, gaussian_ivec, poly_add, poly_from_small,
-    poly_mul_small, poly_zero, polys_bytes, rejection_accept, ring_mul_split_kara_fast,
-    vec_norm_sq_i64,
+    poly_mul_small, poly_zero, polys_bytes, REJ_LOG_M_ALPHA12, rejection_accept,
+    ring_mul_split_kara_fast, vec_norm_sq_i64,
 };
 use super::aux::ring_mul_q_single;
 
@@ -144,7 +144,7 @@ pub fn prove_opening(
             .collect();
         let flat_z: Vec<i64> = z.iter().flatten().copied().collect();
         let flat_v: Vec<i64> = v.iter().flatten().copied().collect();
-        if rejection_accept(rng, &flat_z, &flat_v, sp.sigma) {
+        if rejection_accept(rng, &flat_z, &flat_v, sp.sigma, REJ_LOG_M_ALPHA12) {
             return (OpeningProof { w, z }, attempts);
         }
     }
@@ -311,7 +311,7 @@ pub fn prove_opening_digits(
             })
             .collect();
         let flat_z: Vec<i64> = z.iter().flatten().flatten().copied().collect();
-        if rejection_accept(rng, &flat_z, &flat_v, dp.sigma) {
+        if rejection_accept(rng, &flat_z, &flat_v, dp.sigma, REJ_LOG_M_ALPHA12) {
             return (DigitOpeningProof { t_digits, w, z }, attempts, restarts);
         }
     }

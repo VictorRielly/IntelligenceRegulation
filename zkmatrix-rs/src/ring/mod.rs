@@ -908,11 +908,21 @@ pub fn gaussian_ivec(rng: &mut dyn RngSource, len: usize, sigma: u64) -> Vec<i64
     out
 }
 
+/// log M for the classical sigma = 12 ||center|| masking regime
+/// (t = alpha = 12: log M = t/alpha + 1/(2 alpha^2) = 1 + 1/288).
+pub const REJ_LOG_M_ALPHA12: f64 = 1.0 + 1.0 / 288.0;
+
+/// `log_m` MUST match the caller's sigma = alpha ||center|| convention:
+/// log M = t/alpha + 1/(2 alpha^2). Passing a log M sized for a smaller
+/// alpha than the sigma actually used is sound and ZK-safe but collapses
+/// the acceptance rate (the U-K8 chain paid e^-1.0 per unit instead of
+/// its designed e^-0.47 while this constant was hard-coded at alpha = 12).
 pub fn rejection_accept(
     rng: &mut dyn RngSource,
     response: &[i64],
     center_v: &[i64],
     sigma: u64,
+    log_m: f64,
 ) -> bool {
     let mut norm_c: i128 = 0;
     let mut dot: i128 = 0;
@@ -921,7 +931,6 @@ pub fn rejection_accept(
         dot += z as i128 * c as i128;
     }
     let exponent = (norm_c - 2 * dot) as f64 / (2.0 * sigma as f64 * sigma as f64);
-    let log_m = 1.0 + 1.0 / 288.0; // alpha = 12
     let threshold = (exponent - log_m).exp();
     if threshold >= 1.0 {
         return true;
