@@ -174,6 +174,36 @@ nonlinearities should cost a fraction of the matmul proofs *if* the
 gadget constants are kept sane. The bit-width factor `w` (~8-16) on
 range-proved tensors is the main constant to watch.
 
+**Status reconciliation (2026-07-14; U-K8 tranche, PROGRESS.md A-D3;
+measurements in M4_LOOKUP_DESIGN.md Sections 7''/7''').** The lookup
+route for nonlinearities — option (a) above, built for SiLU as the
+activation pilot — is no longer paper: the MASKED COMMITTED lookup
+has run inside a chain (range-proved X in, table-certified
+Y = SiLU(X), downstream gate-o-up Hadamard, one validated Statement
+v2) with measured marginals: prove +205.9 us/el 1T [NOISY-SHARED],
+committed material +14.1 dce/el at the as-built instance size,
+amortizing as 1/B to ~1e-4 dce/el at per-layer 5.6e6-el instances
+[MODEL]. The integration is CLOSED at 1020-element row-block
+granularity, NOT at the single-instance 512x11008 shape, and it
+surfaced two as-built capacity walls: (i) the q31 ct-round's C2 wave
+cap (~134 commitments per wave) blocks a single committed descent
+near 2^17 elements — an instancing wall this section's taxonomy did
+not anticipate; and (ii) the q46 ARP granularity (~896-bit units,
+budget-capped rejection alpha, whole-round restart coupling). The
+asymptotics paragraph above survives measurement with its warning
+vindicated and inverted in emphasis: the elementwise LOOKUP is indeed
+sub-dominant, but the Class-3 bit-width constant is not — the q46
+range family is 96% of as-built chain prove time (582 dce/el of q46
+commitments). A restart-rate pathology in that family was fixed
+2026-07-13 (log M parameterized by alpha, e6727e4; joint Q4.2b
+rejection over the round's 4 coupled units, 92ca018 — restart work
+~17x down; post-fix wall-clock share awaits a quiesced pass, M4
+Section 7'''). Forward plan for both walls:
+RANGE_AGGREGATION_DESIGN.md (multi-wave C2-cap lift + the
+range-lookup rung, replacing bit planes with the same lookup
+machinery); its U-R tranche is open with S0 (multi-wave claim
+splitting) landed — ledger PROGRESS_UR.md.
+
 ## 3. Batching architecture: one simultaneous proof
 
 The whole forward pass becomes a claim DAG over one global commitment
