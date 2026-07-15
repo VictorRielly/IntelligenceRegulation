@@ -779,3 +779,101 @@ the implementation tranche must carry it via the S2/S3 attribution
 counters (the "clean signal" discipline), not via A−B totals. Memory:
 +6 commitment stores against the measured 8.23 GiB peak at 2^20 —
 noise; the 2^20 CLI cap and the 2^22 wall (S2/B-D2) are unmoved.
+
+## 7. What could kill this, and what this design does NOT close
+
+Each risk carries a mitigation or a priced fallback; each non-closure
+is stated as a wall, per the house rule that a surfaced wall beats a
+papered one.
+
+1. **The C-03 proof-size wall — NOT CLOSED, by scope.** This design
+   makes the multi-wave transcript private, not small. At 2^20 the
+   complete wire cost remains ~2.9 GiB + this design's +1.3%
+   (Section 6.3) against a 256 KiB budget. Any future aggregation
+   scheme (Phase 3) must PRESERVE the pad structure or re-derive the
+   privacy argument — recorded as a design constraint on that work:
+   an aggregator that re-exposes per-wave right-hand sides undoes Z1.
+2. **The multi-round shared-commitment pattern fails review.** The
+   3.4 composition argument is standard but untranscribed
+   [OBLIGATION]. Fallback, priced (Section 2.6 option 1): per-wave
+   pad commitments + a 2-level closing tree with second-level pads —
+   +0.65 dce/el at 2^20 (26x the chosen variant), ~+670 openings
+   either way. The fallback eliminates shared commitments at pure
+   commit-cost; it does not change the simulator's shape (the coset
+   lemma is construction-agnostic).
+3. **The C2 cap re-derivation surprises.** Section 6 assumes the +1
+   commitment per wave costs exactly one data slot (76 → 75). D-3
+   makes `derive_ct_round_params`' scan the gate; if the true cap
+   drops further at the +1 shape, each extra step is ~+1.3% waves —
+   linear, priced, no cliff.
+4. **HVZK scope.** Honest-verifier, proof-of-protocol — the standing
+   R1.3/B.2 residual note. Chain-wide composition (manifest, reveal
+   plumbing, cross-layer statements) is Phase 1-3/Statement-v3
+   territory, NOT closed here.
+5. **Out-of-scope reveal families — NOT CLOSED here, by design.** The
+   block chain's `link_reveal_y` class (the q46 legacy arm, Z2's
+   labeling scope) and the S3 scope notes (range-witness pad
+   coverage, multi-table statement typing) are unaffected. C-02 is
+   closed for the layer rig's wave shares specifically; the audit's
+   Phase 2.1 enumeration ("every value newly visible in the
+   multi-wave transcript") is answered by Section 1.3's table for
+   THIS rig only.
+6. **The zeta-deletion fragility** (Section 2.4): a future packer
+   change that leaves nonzero junk turns into loud completeness
+   failure, caught by the Z1-f canary — an accepted trade for
+   deleting a 32,160-value wire at 2^20.
+7. **Independent review is still owed.** REMEDIATION_PLAN Phase 2.5
+   asks for an independent cryptographer's review of Fiat-Shamir
+   composition and abort behavior across waves; this document is the
+   input to that review, not a substitute for it.
+
+## 8. Implementation-tranche sketch (gated on review of this document)
+
+Sub-tranches in the U-K5a..e mold; every hash edge lands with its F5
+pair, every frozen constant gets a freeze row. NOT to be started until
+the orchestrator's review of this design round.
+
+- **Z1-impl-a — splitter policy + pad plumbing.** The
+  {Padded, ForcedZero, Revealed} policy enum on
+  `split_claims_prover/verifier` (Result-typed per Z5's hardening —
+  coordinate with that lane's signatures); pad sampling (solved last
+  pad), wave-major layout, shared pad commitments into h0_link; the
+  per-wave round-list extension. Exit: [U-R1a]-style self-test with
+  pads live, honest ACCEPT at toy scale, Z1-i determinism legs.
+- **Z1-impl-b — the closing round + zeta deletion.** The nine exact
+  zero-sum claims; the zeta `ForcedZero` path with the wire removed
+  and the pack-time canary. Exit: honest layer ACCEPT at 2^12 battery
+  shape both arms; Z1-d and Z1-f legs green.
+- **Z1-impl-c — the battery.** Z1-a/b/c/e/g/h complete; the E3Z-N4-
+  style derive-time counting canaries; the S1/S3 tamper set re-run.
+  Exit: full battery green at the battery shape; the [Z1-a] baseline
+  leg archived as the permanent C-02 regression.
+- **Z1-impl-d — measure + freeze + re-grade.** One measured run per
+  S2 shape (serialized, MemoryMax per the shared-box rule) recording
+  the Section 6 projections against reality (dce/el, B/el both
+  ledgers, attribution deltas); freeze row **LKP-10**: pad layout
+  rule (9/wave, wave-major, 1024/commitment), pad freshness rule,
+  closing-round shape, the zeta wire deletion (share count 57 → 9
+  per wave), the re-derived data cap. Re-grade this document's
+  [PROVEN*] rows to [PROVEN at engine scale] or demote them, row by
+  row; transcribe 3.1/3.4/4.3 into Q4_LEMMAS; merge Section 2.5's
+  rows into SOUNDNESS_REFERENCE Section 7. Exit: C-02 closed at
+  engine scale or the failure surfaced.
+
+---
+
+*Changelog: 2026-07-15 — first edition (Z1 design round, tranche U-Z,
+audit 2026-07-14 C-02). Leak sharpened to the pin-share identity with
+counts at the measured shapes and the accumulation kill; zeta shares
+shown identically zero (leakless, wire deletable); construction:
+coset one-time pads in shared pre-challenge pad commitments + a
+zero-sum closing round + the zeta deletion, alternatives priced and
+rejected; complete multi-wave simulator with the exact pad-coset lemma
+[PROVEN*] and the multi-round-opening composition caveat surfaced as
+an OBLIGATION with priced fallback; soundness non-interference incl.
+the load-bearing zero-sum pair; battery spec [Z1-a..i]; costs priced
+from PROGRESS_UR.md S2/S3 and C-03: +0.025 dce/el on the 1.335 floor
+at 2^20 (+1.9%), 0.512 → ~0.14 B/el masked-descent ledger, +1.3%
+full-wire — succinctness explicitly NOT closed. No code, no spike:
+paper-first per the tranche brief; grades capped at [PROVEN*]
+accordingly.*
