@@ -712,6 +712,12 @@ magnitude, and the quiesced re-measurement is the orchestrator's):
 | transcript | +38,272 B/block = 37.5 B/el |
 | peak RSS | unchanged, 0.29 GiB total — blocks stream; H-03's memory wall never binds at this granularity |
 
+[Relabel 2026-07-15, audit 2026-07-14 C-03: the "transcript" row is
+masked-descent bytes only — it EXCLUDES the per-round ct-round proof
+objects (z/w1 opening arrays) a non-interactive verifier must
+receive, so it is not proof size. The adopted byte accounting lives
+in RANGE_AGGREGATION_DESIGN.md Section 3b "Proof bytes, honestly".]
+
 Context for the prove marginal: the unmasked, uncommitted lookup CORE
 runs at 10.9 us/el (Section 7'); the committed + masked + pinned
 integration at 1020-element instances costs ~6-9x that in-stage plus

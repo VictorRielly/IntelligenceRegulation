@@ -35,7 +35,11 @@ the per-block structure remain, so the architecture question stands:
   per 512x11008 layer, 176,832 per 32-layer pass (audit H-01). Fixed
   per-block costs never amortize: 14.1 dce/el of lookup material that
   would be ~1e-4 at per-layer instances, and 37.5 B/el of masked
-  transcript (~6.3 GiB/pass against a 256 KiB budget).
+  transcript (~6.3 GiB/pass against a 256 KiB budget). [Relabel
+  2026-07-15, audit 2026-07-14 C-03: "masked transcript" throughout
+  this document = masked-descent bytes + partial-scalar reveals ONLY,
+  EXCLUDING the ct-round proof objects a non-interactive verifier
+  must receive — see Section 3b "Proof bytes, honestly".]
 
 The two levers below are separable: Section 2 lifts the instance size
 (needed by EVERY strategy, including the as-built one), Section 3
@@ -69,7 +73,9 @@ derive the descent challenges. One descent then serves the whole layer
   ~260x. Lookup material amortizes to the designed ~1e-4 dce/el class;
   per-instance masked transcript (~38 KB/block today) becomes ~38 KB
   per WAVE plus one descent — MB-class per pass instead of 6.3 GiB
-  [MODEL, to be counted canonically per audit Phase 3].
+  [MODEL, to be counted canonically per audit Phase 3; the Section 3b
+  C-03 exclusion applies — these are descent bytes only, ct-round
+  openings not counted].
 
 **BUILT + MEASURED (2026-07-14, U-R1 S1/S2 — `ffn-chain layer`,
 PROGRESS_UR.md S1/S2 for the full record).** As designed: multi-wave
@@ -86,6 +92,12 @@ cap 76 of C2 max 134 at the U-K5c shape; LKP-9 freeze row):
     committed dce/el            1.609   1.387   1.335  | 14.1
     masked transcript B/el (A)  1.417   0.716   0.512  | 37.5
     lkp attribution p/v us/el 24.6/9.9 22.5/9.8 23.4/10.2 | 99.7/39.7
+
+[RELABEL 2026-07-15, audit 2026-07-14 C-03: the "masked transcript
+B/el" row counts masked-descent bytes + the 12 B per-wave
+partial-scalar reveals ONLY and EXCLUDES the per-wave CtRoundProofs
+(z/w1 opening arrays) a non-interactive verifier must receive — NOT
+proof size. Adopted accounting: Section 3b "Proof bytes, honestly".]
 
 Answer to this section's model, honestly: the per-INSTANCE fixed
 costs are fully amortized by 2^16 (attribution flat across the
@@ -181,6 +193,10 @@ psi pin batch (the per-wave pin surcharge does NOT double), N_inst <=
     committed dce/el         0.2656     0.0742     0.0146
     masked transcript B/el   0.977      0.285      0.082
 
+[RELABEL 2026-07-15, audit 2026-07-14 C-03: same exclusion as the
+Section 2b table — the "masked transcript B/el" row is masked-descent
++ reveal bytes only, per-wave CtRoundProofs excluded; Section 3b.]
+
 This section's claims, checked: the committed range bill collapses
 582 -> 0.0146 dce/el at 2^20 (39,731x — better than the "~1e-2 class"
 predicted above, because the pilot shares the layer's pin batch);
@@ -194,6 +210,51 @@ covers the layer's n_el data values (commitment pads uncovered — full
 coverage needs a 2x-deeper tree); multi-table statements are outside
 manifest v2 (the table binds via its spec digest in the lookup
 prehash context; statement typing is Phase 1-3 work).
+
+### 3b. Proof bytes, honestly (added 2026-07-15; audit 2026-07-14 C-03)
+
+Adopted accounting, per the audit. Every "masked transcript B/el"
+number in this document and in PROGRESS_UR.md S2/S3 counts the masked
+descent pair plus 12 B per revealed partial scalar ONLY. Each wave
+ALSO constructs a full CtRoundProof, which the monolithic harness
+verifies immediately and drops — a useful memory optimization, but an
+actual non-interactive verifier must RECEIVE those proof objects, and
+streaming them to disk or network does not remove their wire bytes.
+
+What the dropped objects weigh (audit 2026-07-14 C-03: a fixed-width
+encoding of just the two per-commitment arrays — z: n_r x D signed
+response coefficients and w1: kappa x D field coefficients, at the
+rig's n_r = 26, D = 128, kappa = 8):
+
+    shape             | plain openings              | z           | w1         | subtotal
+    battery, 4,092 el | 209 data + 152 g = 361      | 9.17 MiB    | 2.82 MiB   | 11.99 MiB
+    measured 2^20     | 50,197 data + 38,050 g      | 2,240.65    | 689.43     | 2,930.08 MiB
+                      |   = 88,247                  |   MiB       |   MiB      |
+
+The 2^20 subtotal is about 2.86 GiB — 11,720x the 256 KiB target —
+and halving every coefficient to four bytes still leaves ~1.43 GiB.
+The subtotal EXCLUDES h, claim masks, quadratic proof fields, public
+commitments, the masked descents, partials, framing, and the
+statement. Linear ACCOUNTING PROJECTIONS (audit C-03 — projections,
+not measurements, and not a claim that the current machine can run
+these shapes): ~15.4 GiB for one 512x11008 activation tensor's z/w1
+arrays alone; ~492 GiB for 32 such layers.
+
+Measured serialized anchor, whole files: the P3 single-wave committed
+lookup flagship (PROGRESS_US.md P3-EXIT — statement + proof canonical
+bytes, [NOISY-SHARED]) measured 1025 KiB @2^12, 1378 KiB @2^13,
+2036 KiB @2^14, 3307 KiB @2^15 — over the 256 KiB budget at every
+shape, dominated by the ct-round i64 response vectors.
+
+Consequences, adopted as this design's succinctness problem statement
+for the future aggregation tranche: the 0.512 B/el @2^20 "masked
+transcript" figure is NOT proof size and cannot support the audit's
+120-170 KiB model or the 256 KiB contract, and GPU acceleration does
+not change the number of transmitted responses. The opening layer
+must become sublinear/aggregated across commitments and waves, and a
+byte-level budget over the COMPLETE serialized proof is an exit
+criterion (fail-closed) before any full GPU backend — tracked in
+Section 0's security-exit list.
 
 ## 4. Proposed tranche (U-R), in order
 

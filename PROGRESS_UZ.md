@@ -64,7 +64,8 @@ codex-audit-* read-only.
       compute the Ajtai opening's scalar contribution or REJECT
       Ajtai-bearing claims in the splitter (pick reject — the layer's
       claims carry none; add the regression).
-- [ ] Z3 (ZB, audit C-03/M-02 + labeling backlog): (a) S2/S3 "transcript
+- [ ] Z3 (ZB, audit C-03/M-02 + labeling backlog): (a) [DONE 2026-07-15]
+      S2/S3 "transcript
       B/el" rows relabeled "masked-descent bytes only — EXCLUDES per-wave
       CtRoundProofs" in PROGRESS_UR.md + RANGE_AGGREGATION_DESIGN.md, and
       the audit's byte accounting (2.86 GiB @2^20 class, 15.4 GiB/layer,
@@ -84,3 +85,14 @@ codex-audit-* read-only.
 ## Log
 
 - 2026-07-15: tranche opened at 84347ac; ZA/ZB/ZC launched in parallel.
+- 2026-07-15 (ZB): Z3(a) DONE — C-03 relabels ("masked transcript B/el"
+  = masked-descent bytes + 12 B partial-scalar reveals ONLY, per-wave
+  CtRoundProofs EXCLUDED) in PROGRESS_UR.md S2/S3, M4_LOOKUP_DESIGN.md
+  quiesced-cost table, RANGE_AGGREGATION_DESIGN.md (Sections 1, 2b, 3,
+  3a table); new RANGE_AGGREGATION_DESIGN.md Section 3b "Proof bytes,
+  honestly" adopts the audit byte accounting (11.99 MiB battery /
+  2.86 GiB @2^20 / 11,720x gap / 15.4 GiB-per-layer + 492 GiB-per-pass
+  projections) plus the measured P3-EXIT whole-file anchors. All
+  numbers sourced: codex-audit-2026-07-14/FINDINGS.md C-03 +
+  PROGRESS_US.md P3-EXIT. Section 3b forward-references "Section 0's
+  security-exit list", which Z3(b) adds next.
