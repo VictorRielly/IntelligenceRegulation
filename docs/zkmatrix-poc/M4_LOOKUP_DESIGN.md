@@ -670,7 +670,13 @@ the chain's one NEW hash edge — zeta (the E2 slot-constancy weights)
 drawn before the slot commitments ACCEPTS crafted junk coordinates
 whose gate-o-up output constants are WRONG while the lookup itself
 still passes; the shipped post-commitment zeta REJECTS the same junk.
-Freeze row LKP-8 pins the operating point.
+Freeze row LKP-8 pins the operating point. [M-02 note 2026-07-15:
+LKP-8 — like every LKP row — is a REPRODUCIBILITY pin: it locks the
+restart formula, wave capacity, partition, and digests against
+accidental drift and certifies NO security property. In particular
+the pinned t = 1.5 rejection point is not a negligible-distance ZK
+claim (audit 2026-07-14 C-01/M-02). The fail-closed security-exit
+list lives in RANGE_AGGREGATION_DESIGN.md Section 0.]
 
 **The two as-built capacity walls this integration surfaced** (neither
 was visible from lookup-bench or the battery-shape U-K5c rig):
@@ -800,7 +806,9 @@ this wall's plane+ARP architecture is PILOT-MEASURED —
 RANGE_AGGREGATION_DESIGN.md Section 3's appended table (range
 certification at ~0.07-0.27 dce/el and ~+15-18 us/el prove
 attribution vs 582 dce/el / ~10.3 ms/el as-built); the rejection
-constants above are now pinned both directions by freeze row LKP-9.
+constants above are now pinned both directions by freeze row LKP-9
+(a REPRODUCIBILITY pin, not a ZK claim — the Section 7'' M-02 note
+and RANGE_AGGREGATION_DESIGN.md Section 0 apply to LKP-9 verbatim).
 
 Forward plan for the range wall itself: RANGE_AGGREGATION_DESIGN.md
 (paper-first study, commit b6bb1e2) prices the Phase-5 pair — the
@@ -812,7 +820,10 @@ U-R tranche is now OPEN with S0 (multi-wave claim splitting) landed
 
 Discipline as in AUTOMORPHISM_GATE_DESIGN Section 7: paper-first items
 named; every hash edge lands with its F5-pair negative battery; every
-frozen constant gets a freeze row. E3 = the sumcheck/GKR transcript
+frozen constant gets a freeze row (a REPRODUCIBILITY pin against
+drift, never a security certification — audit 2026-07-14 M-02;
+security exits are tracked fail-closed in
+RANGE_AGGREGATION_DESIGN.md Section 0). E3 = the sumcheck/GKR transcript
 layer over GF(q^16); E4 = the MLE-evaluation claims. Both are exactly
 the two obligations GATE_ALTERNATIVES option 2 needs — build once, use
 twice.

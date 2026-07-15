@@ -70,7 +70,8 @@ codex-audit-* read-only.
       CtRoundProofs" in PROGRESS_UR.md + RANGE_AGGREGATION_DESIGN.md, and
       the audit's byte accounting (2.86 GiB @2^20 class, 15.4 GiB/layer,
       the 11,720x gap) adopted into the design doc as the succinctness
-      problem statement; (b) M-02: freeze rows documented as
+      problem statement; (b) [DONE 2026-07-15] M-02: freeze rows
+      documented as
       REPRODUCIBILITY pins; a new "Security exits (fail-closed, OPEN)"
       section listing: negligible rejection distance, multi-wave share
       privacy (Z1), serialized byte budget, adversarial parser, complete
@@ -96,3 +97,13 @@ codex-audit-* read-only.
   numbers sourced: codex-audit-2026-07-14/FINDINGS.md C-03 +
   PROGRESS_US.md P3-EXIT. Section 3b forward-references "Section 0's
   security-exit list", which Z3(b) adds next.
+- 2026-07-15 (ZB): Z3(b) DONE — RANGE_AGGREGATION_DESIGN.md Section 0
+  "Security exits (fail-closed, OPEN)": freeze rows = REPRODUCIBILITY
+  pins (audit M-02 quote), five OPEN exits with sourced numbers
+  (C-01 t=1.5 tails + t~13.4/128-bit + Q4.2b 2^-102.9@t=12; C-02 670
+  waves x 9 pins ~ 6e3 measurements; C-03/Section 3b byte gap; C-04
+  parser exits pending Z4; H-03 complete-FFN statement). M-02 pin
+  notes at M4_LOOKUP_DESIGN.md LKP-8, LKP-9, and the Section 8
+  freeze-row discipline line. DISCREPANCY recorded in Section 0 item
+  3: TARGET_CONTRACT.md budget unit is "256 KB", audit computes vs
+  "256 KiB" — immaterial at 11,720x, contract line binding.
