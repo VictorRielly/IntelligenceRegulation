@@ -76,6 +76,41 @@ class StatementV3Tests(unittest.TestCase):
         out = self.run_mode(RING_MATMUL_BINARY, "statement-inventory")
         self.assertIn("ok   statement validates", out)
 
+    def test_ring_statement_codec(self):
+        # U-S Phase 3 (P3-D2): canonical PublicStatement codec — round-trip
+        # canonicality, digest preservation, and every malformed-input class
+        # (truncation/trailing/bad-magic/bad-version/oversized/invalid) plus
+        # a 4000-input bit-flip fuzz decode to structured errors, no panics.
+        out = self.run_mode(RING_MATMUL_BINARY, "statement-codec")
+        self.assertIn("statement-codec passed", out)
+        self.assertNotIn("FAIL", out)
+        for needle in [
+            "round-trip",
+            "trailing bytes rejected",
+            "oversized length prefix rejected",
+            "decoded-but-invalid statement rejected",
+            "zero panics",
+        ]:
+            self.assertIn(needle, out)
+
+    def test_ring_p3_proof_artifact(self):
+        # U-S Phase 3 (P3-D1..D5): the COMPLETE committed masked-lookup proof
+        # — statement+proof canonical bytes verified by a FRESH ring_matmul
+        # process (no prover-local state), model_digest/commitment/descent
+        # tampers reject, and a 4000-input malformed-proof fuzz never panics.
+        out = self.run_mode(RING_MATMUL_BINARY, "p3-battery")
+        self.assertNotIn("FAIL", out)
+        for needle in [
+            "P3 honest committed lookup ACCEPTS in-process",
+            "serialization round-trip verifies",
+            "P3 two-process: a SECOND process ACCEPTS",
+            "P3 model_digest tamper REJECTS",
+            "P3 commitment swap REJECTS",
+            "P3 descent tamper REJECTS",
+            "without a single panic",
+        ]:
+            self.assertIn(needle, out)
+
 
 if __name__ == "__main__":
     unittest.main()

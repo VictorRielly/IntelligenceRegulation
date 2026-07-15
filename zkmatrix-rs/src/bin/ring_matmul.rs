@@ -6265,6 +6265,7 @@ fn main() {
             self_test_us1_boundary();
             println!("\n[U-S Phase 3] statement codec (round-trip + malformed + fuzz)");
             assert_true("statement codec battery passes", manifest::statement_codec_battery());
+            self_test_p3();
             self_test_ffn_chain();
             self_test_ffn_layer_smoke();
             self_test_uk9();
@@ -6332,6 +6333,13 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        Some("p3-battery") => self_test_p3(),
+        Some("p3-bench") => {
+            let n: usize = args.get(1).map(|s| s.parse().expect("n_honest")).unwrap_or(4096);
+            assert!((16..=1_048_576).contains(&n), "p3-bench n_honest in 16..=2^20");
+            p3_bench(n);
+        }
+        Some("verify") if args.len() == 3 => p3_verify_main(&args[1], &args[2]),
         Some("us1-battery") => {
             let t = Instant::now();
             self_test_us1_boundary();
@@ -9956,6 +9964,1131 @@ fn self_test_us1_boundary() {
     for p in [&honest_path, &free_path, &stale_path] {
         let _ = std::fs::remove_file(p);
     }
+}
+
+// ===========================================================================
+// [U-S Phase 3] The proof artifact (audit Phase 3, H-05). The COMPLETE
+// committed masked-lookup proof — statement -> commitments -> masked
+// descents -> aggregate pins -> Ajtai ct-round — as canonical bytes, with
+// an independent verifier that runs in a FRESH process from statement
+// bytes + proof bytes + the (deterministic) CRS derivation ONLY. This is
+// the U-K5c committed-lookup path, purpose-built for serialization: no
+// prover-local value crosses the boundary; every transcript seed (h0_lkp,
+// alpha, psi, ct-round h0) is recomputed from the decoded statement and
+// commitments per the D3 discipline. The full FFN-layer CHAIN reuses these
+// exact primitives; its multi-wave orchestration is recorded PARTIAL.
+
+const P3_CRS_SEED: u64 = 0x5C0D; // deterministic public setup for the lookup CRS
+const P3_TABLE_ROWS: usize = 256; // silu-int8-table-v1 domain
+const P3_DT: usize = 9; // table tree depth (256 rows split + blinders)
+const P3_N_PSI: usize = 9; // E4 psi copies (LKP-4)
+
+/// The witness tree depth for `n_honest` honest leaves: the smallest depth
+/// whose blinder-free front (2^{dw-1} - 4) holds them.
+fn p3_dw(n_honest: usize) -> usize {
+    let mut dw = 4usize;
+    while (1usize << dw) / 2 < n_honest + 4 {
+        dw += 1;
+    }
+    dw
+}
+
+/// The deterministic commitment layout of a lookup proof of `n_honest`
+/// elements — shared BIT-FOR-BIT by prover and verifier. Commitment index
+/// order: X groups | Y groups | m | blinders | witness masks | table masks
+/// | g-masks. Everything is a pure function of `n_honest` + the fixed shape.
+#[derive(Clone)]
+struct P3Layout {
+    dw: usize,
+    dt: usize,
+    n_honest: usize,
+    msg_r: usize,
+    kpc: usize,
+    nx: usize,          // commitments spanning X (and, separately, Y)
+    idx_y: usize,       // first Y commitment (X occupies 0..nx)
+    idx_m: usize,
+    idx_bl: usize,
+    base_wm: usize,
+    base_tm: usize,
+    wm_c: usize,
+    tm_c: usize,
+    n_data: usize,
+    g_base: usize,
+    g_groups: usize,
+    n_commits: usize,
+}
+
+fn p3_layout(n_honest: usize, shape: CommitShape) -> P3Layout {
+    use ring::gkr_masked::mask_coeff_counts;
+    use ring::kfield::K_DEG;
+    let msg_r = shape.msg_r;
+    let kpc = msg_r * D / K_DEG;
+    let dw = p3_dw(n_honest);
+    let dt = P3_DT;
+    let nx = n_honest.div_ceil(msg_r * D).max(1);
+    let (gw, rw) = mask_coeff_counts(dw, 0);
+    let (gt, rt) = mask_coeff_counts(dt, 0);
+    let (wm_len, tm_len) = (gw + rw, gt + rt);
+    let kel_cms = |n_kel: usize| (n_kel * K_DEG).div_ceil(msg_r * D).max(1);
+    let (wm_c, tm_c) = (kel_cms(wm_len), kel_cms(tm_len));
+    let idx_y = nx;
+    let idx_m = 2 * nx;
+    let idx_bl = 2 * nx + 1;
+    let base_wm = 2 * nx + 2;
+    let base_tm = base_wm + wm_c;
+    let n_data = base_tm + tm_c;
+    let g_base = n_data;
+    // The ct-round's 9 psi-copy g-masks pack msg_r per commitment group.
+    let g_groups = P3_N_PSI.div_ceil(msg_r);
+    let n_commits = n_data + g_groups;
+    P3Layout {
+        dw, dt, n_honest, msg_r, kpc, nx, idx_y, idx_m, idx_bl, base_wm, base_tm, wm_c, tm_c,
+        n_data, g_base, g_groups, n_commits,
+    }
+}
+
+/// Split a flat K-element weight run into per-commitment pin terms.
+fn p3_kelem_terms(
+    base: usize,
+    flat_off: usize,
+    weights: &[ring::kfield::KElem],
+    kpc: usize,
+) -> Vec<ring::lookup::PinTerm> {
+    use ring::kfield::K_DEG;
+    use ring::lookup::PinTerm;
+    let mut terms = Vec::new();
+    let mut i = 0usize;
+    while i < weights.len() {
+        let idx = flat_off + i;
+        let commit = base + idx / kpc;
+        let coeff0 = (idx % kpc) * K_DEG;
+        let take = (kpc - (idx % kpc)).min(weights.len() - i);
+        terms.push(PinTerm::Kelems { commit, coeff0, weights: weights[i..i + take].to_vec() });
+        i += take;
+    }
+    terms
+}
+
+/// Descent pins (G hypersums, g openings, R openings). Weights depend only
+/// on the mask SHAPE + public opening points, so the shape shells suffice.
+fn p3_descent_pins(
+    kf: &ring::kfield::KField,
+    base: usize,
+    shape_masks: &ring::gkr_masked::MaskSet,
+    proof: &ring::gkr_masked::MaskedDescentProof,
+    end: &ring::gkr_masked::DescentEnd,
+    depth: usize,
+    kpc: usize,
+) -> Vec<ring::lookup::PinnedValue> {
+    use ring::gkr_masked::{g_hypersum_weights, g_open_weights, r_open_weights};
+    use ring::lookup::PinnedValue;
+    let mut pins = Vec::new();
+    for j in 1..depth {
+        let lp = &proof.layers[j - 1];
+        let gm = &shape_masks.g[j - 1];
+        pins.push(PinnedValue {
+            terms: p3_kelem_terms(base, shape_masks.g_offset(j), &g_hypersum_weights(kf, gm), kpc),
+            value: lp.g_sum.clone(),
+        });
+        let (open_pt, mu_prev, c_w) = &end.layer_pts[j - 1];
+        pins.push(PinnedValue {
+            terms: p3_kelem_terms(base, shape_masks.g_offset(j), &g_open_weights(kf, gm, open_pt), kpc),
+            value: lp.open_g.clone(),
+        });
+        if j >= 2 {
+            let (orp, orq) = lp.open_r.clone().expect("interior layer opens Rp/Rq");
+            let rw = r_open_weights(kf, mu_prev, c_w);
+            pins.push(PinnedValue {
+                terms: p3_kelem_terms(base, shape_masks.r_offset(j), &rw, kpc),
+                value: orp,
+            });
+            pins.push(PinnedValue {
+                terms: p3_kelem_terms(base, shape_masks.r_offset(j) + 6, &rw, kpc),
+                value: orq,
+            });
+        }
+    }
+    pins
+}
+
+/// The aggregate leaf pins (P/Q over committed X, Y, m, blinders) — the
+/// v^X/v^Y/v^M histogram channel stays closed; only blinded aggregates
+/// appear. X and Y are scalar commitments spanning `nx` groups.
+#[allow(clippy::too_many_arguments)]
+fn p3_leaf_pins(
+    kf: &ring::kfield::KField,
+    lay: &P3Layout,
+    tab_fused: &[ring::kfield::KElem],
+    endw: &ring::gkr_masked::DescentEnd,
+    endt: &ring::gkr_masked::DescentEnd,
+    alpha: &ring::kfield::KElem,
+) -> Vec<ring::lookup::PinnedValue> {
+    use ring::gkr::eq_table;
+    use ring::gkr_masked::{blinder_positions, table_row_positions};
+    use ring::kfield::{K_DEG, KElem};
+    use ring::lookup::{mul_y, PinTerm, PinnedValue};
+    let zero = kf.zero();
+    let one = kf.one();
+    let n_honest = lay.n_honest;
+    let t_rows = P3_TABLE_ROWS;
+    let msg_r = lay.msg_r;
+    let lw = eq_table(kf, &endw.zstar);
+    let lt = eq_table(kf, &endt.zstar);
+    let nw = 1usize << lay.dw;
+    let nt = 1usize << lay.dt;
+    let bpw = blinder_positions(nw);
+    let bpt = blinder_positions(nt);
+    let tpos = table_row_positions(t_rows, nt);
+    let eqw: Vec<KElem> = bpw.iter().map(|&p| lw[p].clone()).collect();
+    let eqt: Vec<KElem> = bpt.iter().map(|&p| lt[p].clone()).collect();
+    let hw = (0..n_honest).fold(zero.clone(), |a, i| kf.add(&a, &lw[i]));
+    let ht = (0..t_rows).fold(zero.clone(), |a, j| kf.add(&a, &lt[tpos[j]]));
+    let sum_eqw = eqw.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+    let sum_eqt = eqt.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+    let ft = (0..t_rows).fold(zero.clone(), |a, j| kf.add(&a, &kf.mul(&lt[tpos[j]], &tab_fused[j])));
+    let z = zero.clone();
+    let per = msg_r * D;
+    // Witness P: p* - H = sum eqw a_bl.
+    let wp = PinnedValue {
+        terms: vec![PinTerm::Kelems {
+            commit: lay.idx_bl,
+            coeff0: 0,
+            weights: vec![
+                eqw[0].clone(), z.clone(), eqw[1].clone(), z.clone(),
+                eqw[2].clone(), z.clone(), eqw[3].clone(), z.clone(),
+            ],
+        }],
+        value: kf.sub(&endw.p_claim, &hw),
+    };
+    // Witness Q: q* - alpha H - D_dummy = sum eqw u_bl - sum lw x - sum Y lw y.
+    let ddw = kf.sub(&kf.sub(&one, &hw), &sum_eqw);
+    let mut wq_terms = vec![PinTerm::Kelems {
+        commit: lay.idx_bl,
+        coeff0: 0,
+        weights: vec![
+            z.clone(), eqw[0].clone(), z.clone(), eqw[1].clone(),
+            z.clone(), eqw[2].clone(), z.clone(), eqw[3].clone(),
+        ],
+    }];
+    for xc in 0..lay.nx {
+        let lo = xc * per;
+        let n_c = (n_honest - lo).min(per);
+        wq_terms.push(PinTerm::Scalar {
+            commit: xc, // X occupies 0..nx
+            coeff0: 0,
+            weights: (0..n_c).map(|i| kf.neg(&lw[lo + i])).collect(),
+        });
+        wq_terms.push(PinTerm::Scalar {
+            commit: lay.idx_y + xc,
+            coeff0: 0,
+            weights: (0..n_c).map(|i| kf.neg(&mul_y(kf, &lw[lo + i]))).collect(),
+        });
+    }
+    let wq = PinnedValue {
+        terms: wq_terms,
+        value: kf.sub(&kf.sub(&endw.q_claim, &kf.mul(alpha, &hw)), &ddw),
+    };
+    // Table P: p*_t = sum L_pos m_j + sum eqt a'_bl.
+    let tp = PinnedValue {
+        terms: vec![
+            PinTerm::Scalar {
+                commit: lay.idx_m,
+                coeff0: 0,
+                weights: (0..t_rows).map(|j| lt[tpos[j]].clone()).collect(),
+            },
+            PinTerm::Kelems {
+                commit: lay.idx_bl,
+                coeff0: 8 * K_DEG,
+                weights: vec![
+                    eqt[0].clone(), z.clone(), eqt[1].clone(), z.clone(),
+                    eqt[2].clone(), z.clone(), eqt[3].clone(), z.clone(),
+                ],
+            },
+        ],
+        value: endt.p_claim.clone(),
+    };
+    // Table Q: q*_t - alpha H_t - D_dummy + FT = sum eqt u'_bl.
+    let ddt = kf.sub(&kf.sub(&one, &ht), &sum_eqt);
+    let tq = PinnedValue {
+        terms: vec![PinTerm::Kelems {
+            commit: lay.idx_bl,
+            coeff0: 8 * K_DEG,
+            weights: vec![
+                z.clone(), eqt[0].clone(), z.clone(), eqt[1].clone(),
+                z.clone(), eqt[2].clone(), z.clone(), eqt[3].clone(),
+            ],
+        }],
+        value: kf.add(&kf.sub(&kf.sub(&endt.q_claim, &kf.mul(alpha, &ht)), &ddt), &ft),
+    };
+    vec![wp, wq, tp, tq]
+}
+
+/// P3-D5 model_digest: architecture shape + quantization + table spec +
+/// EVERY committed-tensor commitment digest. Swapping any commitment moves
+/// this digest, hence the statement digest, hence the verifier's h0.
+fn p3_model_digest(n_honest: usize, commit_digests: &[Vec<u8>]) -> [u8; 32] {
+    let mut parts: Vec<u8> = b"us1-p3-lookup-model-v1".to_vec();
+    parts.extend((n_honest as u64).to_le_bytes());
+    // Quantization + table spec: int8/int8, 4 frac bits, silu-int8-table-v1.
+    parts.extend(manifest::SILU_INT8_TABLE_DIGEST);
+    parts.push(8); // input width
+    parts.push(4); // input frac
+    parts.extend((commit_digests.len() as u64).to_le_bytes());
+    for d in commit_digests {
+        parts.extend((d.len() as u64).to_le_bytes());
+        parts.extend(d);
+    }
+    uk8_sha(&[&parts])
+}
+
+/// Build the PublicStatement for a lookup of `n_honest` elements over the
+/// committed X -> Y with the frozen SiLU table. The X and Y entries carry
+/// the group-digest commitment bytes; the model_digest binds all of them.
+fn p3_build_statement(lay: &P3Layout, crs_hash: &[u8], commit_digests: &[Vec<u8>]) -> manifest::Statement {
+    use manifest::{ClaimManifest, Operation, Orientation, QuantMeta, Statement, SILU_INT8_TABLE_SPEC, PadSpec};
+    let q8 = QuantMeta { bits: 8, frac_bits: 4, signed: true };
+    let mut mf = ClaimManifest::new("lattice-route-r-lookup", crs_hash);
+    let ki = key_info_bytes(&CommitShape { kappa: 8, n_r: 26, msg_r: lay.msg_r }, Q8);
+    // X and Y each carry a single semantic commitment entry whose bytes are
+    // the digest over their nx commitment groups (the ct-round binds the
+    // groups individually via h0; the statement binds their identity).
+    let x_dg = group_list_digest(&commit_digests[0..lay.nx]);
+    let y_dg = group_list_digest(&commit_digests[lay.idx_y..lay.idx_y + lay.nx]);
+    let id_x = mf.add_commitment("X", lay.n_honest, 1, Orientation::ByColumns, ki.clone(), x_dg);
+    let id_y = mf.add_commitment("Y", lay.n_honest, 1, Orientation::ByColumns, ki, y_dg);
+    mf.add_operation(Operation::Lookup { x: id_x, y: id_y });
+    // model_digest binds every DATA commitment (X|Y|m|blinders|masks), not
+    // the per-proof ct-round g-masks; the verifier recomputes it the same way.
+    let model_digest = p3_model_digest(lay.n_honest, &commit_digests[0..lay.n_data]);
+    let mut st = Statement::new(model_digest, Some(SILU_INT8_TABLE_SPEC), 30, mf);
+    st.quant = vec![q8, q8];
+    st.pad = vec![
+        PadSpec::exact(lay.n_honest, 1),
+        PadSpec::exact(lay.n_honest, 1),
+    ];
+    st.outputs = vec![id_y];
+    st
+}
+
+fn group_list_digest(digs: &[Vec<u8>]) -> Vec<u8> {
+    use sha2::{Digest, Sha256};
+    let mut h = Sha256::new();
+    for d in digs {
+        h.update(d);
+    }
+    h.finalize().to_vec()
+}
+
+/// The complete committed lookup proof (P3-D1). ProverInput (openings,
+/// witness) stays prover-side and never enters this struct.
+struct P3Proof {
+    t1s: Vec<Vec<Poly>>,
+    t2s: Vec<Vec<Poly>>,
+    pw: ring::gkr_masked::MaskedDescentProof,
+    pt: ring::gkr_masked::MaskedDescentProof,
+    ct: ring::ct_engine::CtRoundProof,
+}
+
+/// Structured verification failure (P3-D1/D4): decode errors and every
+/// verify-time rejection, never a panic.
+#[derive(Debug)]
+enum P3Error {
+    Decode(manifest::DecodeError),
+    ProofDecode(&'static str),
+    StatementInvalid(manifest::StatementError),
+    ProofShape { what: &'static str, got: usize, want: usize },
+    LookupDescent,      // masked descent rejected (free/stale h0 or tamper)
+    RootCrossCheck,
+    CtRound,
+}
+
+impl std::fmt::Display for P3Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            P3Error::Decode(e) => write!(f, "statement decode: {e}"),
+            P3Error::ProofDecode(s) => write!(f, "proof decode: {s}"),
+            P3Error::StatementInvalid(e) => write!(f, "statement invalid: {e}"),
+            P3Error::ProofShape { what, got, want } => {
+                write!(f, "proof shape: {what} = {got}, statement implies {want}")
+            }
+            P3Error::LookupDescent => write!(f, "masked lookup descent rejected"),
+            P3Error::RootCrossCheck => write!(f, "blinded root cross-check failed"),
+            P3Error::CtRound => write!(f, "ct-round rejected the pins against the commitments"),
+        }
+    }
+}
+
+/// Prove the complete committed lookup of `n_honest` elements. Returns the
+/// PublicStatement and the Proof; the ProverInput (openings, witness, RNG)
+/// is consumed here and never leaves. Deterministic per `seed`.
+fn p3_lookup_prove(n_honest: usize, seed: u64) -> (manifest::Statement, P3Proof) {
+    use ring::commit::CommitShape as CS;
+    use ring::ct_engine::{
+        StdOpening, ct_h0, derive_ct_round_params, prove_ct_round, sample_ct_masks,
+    };
+    use ring::gkr_masked::{BlinderSet, blinded_table_tree, blinded_witness_tree, draw_masks};
+    use ring::kfield::{K_DEG, KElem, KField};
+    use ring::lookup::{
+        derive_pin_psi, fuse_pair, fused_silu_table, multiplicities, pin_claims, silu_int8_table,
+    };
+    use ring::sumcheck::LkpTranscript;
+
+    let ctx_ring = ring_ctx_q8();
+    let kf = KField::new(&ctx_ring);
+    let zq = ctx_ring.zq;
+    let q = zq.q;
+    let rows = silu_int8_table();
+    let tab_fused = fused_silu_table(&kf, &rows);
+    let shape = CS { kappa: 8, n_r: 26, msg_r: 8 };
+    let msg_r = shape.msg_r;
+    let lay = p3_layout(n_honest, shape);
+    let crs = expand_crs(shape, q, P3_CRS_SEED);
+    let per = msg_r * D;
+
+    // Statement/witness data (a harness concern; the proof coins below are
+    // independent OS-style entropy).
+    let mut dr = seed;
+    let xs: Vec<i64> = (0..n_honest).map(|_| rng_below(&mut dr, 256) as i64 - 128).collect();
+    let ys: Vec<i64> = xs.iter().map(|&x| rows[(x + 128) as usize].1).collect();
+    let w_fused: Vec<KElem> = xs
+        .iter()
+        .zip(ys.iter())
+        .map(|(&x, &y)| fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y)))
+        .collect();
+    let m_k = multiplicities(&kf, &w_fused, &tab_fused);
+    let m_vals: Vec<i64> = m_k.iter().map(|e| e[0] as i64).collect();
+
+    // Prover secrets from the explicit-nonce CSPRNG (deterministic seed so
+    // the artifact reproduces; from_os on a live prover).
+    let mut rng = ring::ProverRng::from_test_seed("p3-lookup-session", &seed.to_le_bytes());
+    let masks_w = draw_masks(&kf, &mut rng, lay.dw, 0);
+    let masks_t = draw_masks(&kf, &mut rng, lay.dt, 0);
+    let bl_w = BlinderSet::draw(&kf, &mut rng);
+    let mut bl_t = BlinderSet::draw(&kf, &mut rng);
+    bl_t.solve_mass(&kf, &bl_w.mass(&kf));
+
+    let pack_scalar_groups = |vals: &[i64]| -> Vec<Vec<Poly>> {
+        let ng = vals.len().div_ceil(per).max(1);
+        (0..ng)
+            .map(|g| {
+                let mut polys = vec![poly_zero(); msg_r];
+                for (s, poly) in polys.iter_mut().enumerate() {
+                    for (c, slot) in poly.iter_mut().enumerate() {
+                        let idx = g * per + s * D + c;
+                        if idx < vals.len() {
+                            *slot = zq.to_mod(vals[idx]);
+                        }
+                    }
+                }
+                polys
+            })
+            .collect()
+    };
+    let pack_kelems = |kelems: &[KElem]| -> Vec<Vec<Poly>> {
+        let mut flat: Vec<u64> = Vec::with_capacity(kelems.len() * K_DEG);
+        for e in kelems {
+            for c in 0..K_DEG {
+                flat.push(e[c]);
+            }
+        }
+        let ng = flat.len().div_ceil(per).max(1);
+        (0..ng)
+            .map(|g| {
+                (0..msg_r)
+                    .map(|s| {
+                        (0..D)
+                            .map(|c| {
+                                let idx = g * per + s * D + c;
+                                if idx < flat.len() { flat[idx] } else { 0 }
+                            })
+                            .collect()
+                    })
+                    .collect()
+            })
+            .collect()
+    };
+    let blinder_kelems = {
+        let mut v = Vec::with_capacity(16);
+        for b in [&bl_w.tl, &bl_w.tr, &bl_w.f0, &bl_w.f1, &bl_t.tl, &bl_t.tr, &bl_t.f0, &bl_t.f1] {
+            v.push(b.a.clone());
+            v.push(b.u.clone());
+        }
+        v
+    };
+
+    // Message list in the canonical layout order.
+    let mut all_msgs: Vec<Vec<Poly>> = Vec::with_capacity(lay.n_commits);
+    all_msgs.extend(pack_scalar_groups(&xs));
+    all_msgs.extend(pack_scalar_groups(&ys));
+    all_msgs.extend(pack_scalar_groups(&m_vals));
+    let bl_groups = pack_kelems(&blinder_kelems);
+    assert_eq!(bl_groups.len(), 1);
+    all_msgs.extend(bl_groups);
+    all_msgs.extend(pack_kelems(&masks_w.flatten()));
+    all_msgs.extend(pack_kelems(&masks_t.flatten()));
+    assert_eq!(all_msgs.len(), lay.n_data);
+    let g_masks = sample_ct_masks(&mut rng, q, msg_r, P3_N_PSI);
+    all_msgs.extend(g_masks);
+    assert_eq!(all_msgs.len(), lay.n_commits);
+
+    let rp = derive_ct_round_params(q, shape, lay.n_commits, 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+    let path = KernelPath::A1(&a1p);
+
+    // Commit every group with fresh rho.
+    let all_rho: Vec<Vec<Vec<i64>>> = (0..all_msgs.len())
+        .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect())
+        .collect();
+    let (mut t1s, mut t2s): (Vec<Vec<Poly>>, Vec<Vec<Poly>>) = (Vec::new(), Vec::new());
+    for (xm, rho) in all_msgs.iter().zip(all_rho.iter()) {
+        let (t1, t2) = commit(&path, &crs, xm, rho);
+        t1s.push(t1);
+        t2s.push(t2);
+    }
+    let commit_digests: Vec<Vec<u8>> =
+        (0..lay.n_commits).map(|i| group_digest(&t1s[i], &t2s[i])).collect();
+
+    // The PublicStatement — its v3 digest is the sole transcript context.
+    let statement = p3_build_statement(&lay, &crs.crs_hash, &commit_digests);
+    let ctx = statement.digest().expect("prover statement validates");
+    let h0_lkp = ct_h0(&crs, &ctx, &t1s, &t2s, &[]);
+
+    // Masked descents on the blinded trees.
+    let mut tr = LkpTranscript::new("p3-lookup", &h0_lkp);
+    let alpha = tr.challenge_k(&kf);
+    let wtree = blinded_witness_tree(&kf, &alpha, &w_fused, lay.dw, &bl_w);
+    let ttree = blinded_table_tree(&kf, &alpha, &tab_fused, &m_k, lay.dt, &bl_t);
+    // Shape shells for the pin weights (masks are consumed by prove).
+    let shell_w = ring::gkr_masked::zero_masks(&kf, lay.dw, 0);
+    let shell_t = ring::gkr_masked::zero_masks(&kf, lay.dt, 0);
+    let (pw, endw) = ring::gkr_masked::masked_gkr_prove(&kf, &[wtree], masks_w, &mut tr);
+    let (pt, endt) = ring::gkr_masked::masked_gkr_prove(&kf, &[ttree], masks_t, &mut tr);
+
+    let mut pins = p3_descent_pins(&kf, lay.base_wm, &shell_w, &pw, &endw, lay.dw, lay.kpc);
+    pins.extend(p3_descent_pins(&kf, lay.base_tm, &shell_t, &pt, &endt, lay.dt, lay.kpc));
+    pins.extend(p3_leaf_pins(&kf, &lay, &tab_fused, &endw, &endt, &alpha));
+    for p in &pins {
+        tr.absorb_k(&kf, "p3-pin", std::slice::from_ref(&p.value));
+    }
+    let psi = derive_pin_psi(&tr.state(), P3_N_PSI, pins.len() * K_DEG, q);
+    let claims = pin_claims(&kf, &pins, lay.n_data, msg_r, &psi);
+    let h0_round = ct_h0(&crs, &tr.state(), &t1s, &t2s, &[]);
+    let openings: Vec<StdOpening> = all_msgs
+        .iter()
+        .zip(all_rho.iter())
+        .enumerate()
+        .map(|(i, (xm, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x: xm, rho })
+        .collect();
+    let (ct, _) = prove_ct_round(
+        &path, &ctx_ring, &rp, None, &crs, &h0_round, &claims, &[], &[], &[], &openings, &[], &[],
+        lay.g_base, &mut rng,
+    );
+    (statement, P3Proof { t1s, t2s, pw, pt, ct })
+}
+
+/// The INDEPENDENT verifier (P3-D3): from the statement + proof + the
+/// deterministic CRS derivation ONLY. Recomputes every transcript seed
+/// from the decoded statement and commitments; returns a structured error
+/// on any rejection, never a panic. No prover-local value is consulted.
+fn p3_lookup_verify(statement: &manifest::Statement, proof: &P3Proof) -> Result<(), P3Error> {
+    use ring::commit::CommitShape as CS;
+    use ring::ct_engine::{ct_h0, derive_ct_round_params, verify_ct_round};
+    use ring::gkr_masked::{masked_gkr_verify, zero_masks};
+    use ring::kfield::{K_DEG, KField};
+    use ring::lookup::{derive_pin_psi, fused_silu_table, pin_claims, silu_int8_table};
+    use ring::sumcheck::LkpTranscript;
+
+    // The statement must be a valid v3 statement (also the transcript ctx).
+    let ctx = statement.digest().map_err(P3Error::StatementInvalid)?;
+
+    // Recover n_honest from the X entry and rebuild the deterministic layout.
+    let n_honest = statement
+        .manifest
+        .commitments
+        .first()
+        .map(|e| e.rows as usize)
+        .ok_or(P3Error::ProofShape { what: "commitments", got: 0, want: 1 })?;
+    let shape = CS { kappa: 8, n_r: 26, msg_r: 8 };
+    let lay = p3_layout(n_honest, shape);
+
+    // Resource limits: the proof's shape is fixed by the statement.
+    if proof.t1s.len() != lay.n_commits {
+        return Err(P3Error::ProofShape { what: "t1 groups", got: proof.t1s.len(), want: lay.n_commits });
+    }
+    if proof.t2s.len() != lay.n_commits {
+        return Err(P3Error::ProofShape { what: "t2 groups", got: proof.t2s.len(), want: lay.n_commits });
+    }
+    for g in &proof.t1s {
+        if g.len() != shape.kappa || g.iter().any(|p| p.len() != D) {
+            return Err(P3Error::ProofShape { what: "t1 group arity", got: g.len(), want: shape.kappa });
+        }
+    }
+    for g in &proof.t2s {
+        if g.len() != shape.msg_r || g.iter().any(|p| p.len() != D) {
+            return Err(P3Error::ProofShape { what: "t2 group arity", got: g.len(), want: shape.msg_r });
+        }
+    }
+    if proof.pw.layers.len() != lay.dw - 1 || proof.pt.layers.len() != lay.dt - 1 {
+        return Err(P3Error::ProofShape { what: "descent depth", got: proof.pw.layers.len(), want: lay.dw - 1 });
+    }
+
+    // Consistency: the statement's X and Y commitment digests must match the
+    // proof's actual commitment groups (P3-D5: a swapped tensor commitment
+    // is caught here, before any crypto).
+    let x_dg = group_list_digest(&(0..lay.nx).map(|i| group_digest(&proof.t1s[i], &proof.t2s[i])).collect::<Vec<_>>());
+    let y_dg = group_list_digest(&(0..lay.nx).map(|i| group_digest(&proof.t1s[lay.idx_y + i], &proof.t2s[lay.idx_y + i])).collect::<Vec<_>>());
+    if statement.manifest.commitments[0].commitment_bytes != x_dg
+        || statement.manifest.commitments[1].commitment_bytes != y_dg
+    {
+        return Err(P3Error::ProofShape { what: "commitment digest mismatch", got: 0, want: 1 });
+    }
+    // model_digest binds every data commitment: recompute and check.
+    let data_digs: Vec<Vec<u8>> =
+        (0..lay.n_data).map(|i| group_digest(&proof.t1s[i], &proof.t2s[i])).collect();
+    if statement.header.model_digest != p3_model_digest(n_honest, &data_digs) {
+        return Err(P3Error::ProofShape { what: "model digest mismatch", got: 0, want: 1 });
+    }
+
+    // Deterministic public setup.
+    let ctx_ring = ring_ctx_q8();
+    let kf = KField::new(&ctx_ring);
+    let q = ctx_ring.zq.q;
+    let rows = silu_int8_table();
+    let tab_fused = fused_silu_table(&kf, &rows);
+    let crs = expand_crs(shape, q, P3_CRS_SEED);
+    let rp = derive_ct_round_params(q, shape, lay.n_commits, 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+    let path = KernelPath::A1(&a1p);
+
+    // Recompute h0_lkp and alpha from statement + commitments (never read).
+    let h0_lkp = ct_h0(&crs, &ctx, &proof.t1s, &proof.t2s, &[]);
+    let mut tv = LkpTranscript::new("p3-lookup", &h0_lkp);
+    let av = tv.challenge_k(&kf);
+    let shell_w = zero_masks(&kf, lay.dw, 0);
+    let shell_t = zero_masks(&kf, lay.dt, 0);
+    let (roots_w, ew) = masked_gkr_verify(&kf, 1, lay.dw, &shell_w, &proof.pw, &mut tv, false)
+        .ok_or(P3Error::LookupDescent)?;
+    let (roots_t, et) = masked_gkr_verify(&kf, 1, lay.dt, &shell_t, &proof.pt, &mut tv, false)
+        .ok_or(P3Error::LookupDescent)?;
+    if kf.is_zero(&roots_w[0][1])
+        || kf.is_zero(&roots_t[0][1])
+        || kf.mul(&roots_w[0][0], &roots_t[0][1]) != kf.mul(&roots_t[0][0], &roots_w[0][1])
+    {
+        return Err(P3Error::RootCrossCheck);
+    }
+
+    // Rebuild the pins from the shape shells, re-absorb, ground the ct-round.
+    let mut pv = p3_descent_pins(&kf, lay.base_wm, &shell_w, &proof.pw, &ew, lay.dw, lay.kpc);
+    pv.extend(p3_descent_pins(&kf, lay.base_tm, &shell_t, &proof.pt, &et, lay.dt, lay.kpc));
+    pv.extend(p3_leaf_pins(&kf, &lay, &tab_fused, &ew, &et, &av));
+    for p in &pv {
+        tv.absorb_k(&kf, "p3-pin", std::slice::from_ref(&p.value));
+    }
+    let psi_v = derive_pin_psi(&tv.state(), P3_N_PSI, pv.len() * K_DEG, q);
+    let claims_v = pin_claims(&kf, &pv, lay.n_data, shape.msg_r, &psi_v);
+    let h0r_v = ct_h0(&crs, &tv.state(), &proof.t1s, &proof.t2s, &[]);
+    let ok = verify_ct_round(
+        &path, &ctx_ring, &rp, None, &crs, &h0r_v, &claims_v, &[], &[], &[], &proof.t1s, &proof.t2s,
+        &[], &[], &[], lay.g_base, &proof.ct,
+    );
+    if ok { Ok(()) } else { Err(P3Error::CtRound) }
+}
+
+// ---- P3Proof canonical serialization (P3-D2). Versioned, length-prefixed,
+// little-endian; every count is bounded by the bytes remaining at decode so
+// a hostile length cannot force a huge allocation. Poly coefficients ride as
+// u32 (values live below q < 2^31); i64 responses ride as i64. -------------
+
+const P3_PROOF_MAGIC: &[u8; 4] = b"ZKMP";
+const P3_PROOF_CODEC_VERSION: u32 = 1;
+const P3_MAX_POLY_LEN: usize = 1 << 16;
+
+struct P3W {
+    buf: Vec<u8>,
+}
+impl P3W {
+    fn new() -> Self {
+        P3W { buf: Vec::new() }
+    }
+    fn u32(&mut self, v: u32) {
+        self.buf.extend_from_slice(&v.to_le_bytes());
+    }
+    fn poly(&mut self, p: &Poly) {
+        self.u32(p.len() as u32);
+        for &c in p {
+            self.u32(c as u32);
+        }
+    }
+    fn polys(&mut self, ps: &[Poly]) {
+        self.u32(ps.len() as u32);
+        for p in ps {
+            self.poly(p);
+        }
+    }
+    fn polys2(&mut self, pss: &[Vec<Poly>]) {
+        self.u32(pss.len() as u32);
+        for ps in pss {
+            self.polys(ps);
+        }
+    }
+    fn polys3(&mut self, p: &[Vec<Vec<Poly>>]) {
+        self.u32(p.len() as u32);
+        for x in p {
+            self.polys2(x);
+        }
+    }
+    fn poly_arr3(&mut self, a: &[[Poly; 3]]) {
+        self.u32(a.len() as u32);
+        for t in a {
+            for p in t {
+                self.poly(p);
+            }
+        }
+    }
+    fn poly_arr2(&mut self, a: &[[Poly; 2]]) {
+        self.u32(a.len() as u32);
+        for t in a {
+            for p in t {
+                self.poly(p);
+            }
+        }
+    }
+    fn i64v(&mut self, v: &[i64]) {
+        self.u32(v.len() as u32);
+        for &x in v {
+            self.buf.extend_from_slice(&x.to_le_bytes());
+        }
+    }
+    fn i64v2(&mut self, v: &[Vec<i64>]) {
+        self.u32(v.len() as u32);
+        for x in v {
+            self.i64v(x);
+        }
+    }
+    fn i64v3(&mut self, v: &[Vec<Vec<i64>>]) {
+        self.u32(v.len() as u32);
+        for x in v {
+            self.i64v2(x);
+        }
+    }
+    fn i64v4(&mut self, v: &[Vec<Vec<Vec<i64>>>]) {
+        self.u32(v.len() as u32);
+        for x in v {
+            self.i64v3(x);
+        }
+    }
+}
+
+struct P3R<'a> {
+    b: &'a [u8],
+    p: usize,
+}
+impl<'a> P3R<'a> {
+    fn new(b: &'a [u8]) -> Self {
+        P3R { b, p: 0 }
+    }
+    fn remaining(&self) -> usize {
+        self.b.len() - self.p
+    }
+    fn take(&mut self, n: usize) -> Result<&'a [u8], P3Error> {
+        if n > self.remaining() {
+            return Err(P3Error::ProofDecode("truncated"));
+        }
+        let s = &self.b[self.p..self.p + n];
+        self.p += n;
+        Ok(s)
+    }
+    fn u32(&mut self) -> Result<u32, P3Error> {
+        Ok(u32::from_le_bytes(self.take(4)?.try_into().unwrap()))
+    }
+    fn i64(&mut self) -> Result<i64, P3Error> {
+        Ok(i64::from_le_bytes(self.take(8)?.try_into().unwrap()))
+    }
+    /// A count bounded by the bytes remaining (each element is >= 4 bytes).
+    fn count(&mut self) -> Result<usize, P3Error> {
+        let n = self.u32()? as usize;
+        if n > self.remaining() {
+            return Err(P3Error::ProofDecode("length exceeds remaining bytes"));
+        }
+        Ok(n)
+    }
+    fn poly(&mut self) -> Result<Poly, P3Error> {
+        let n = self.u32()? as usize;
+        if n > P3_MAX_POLY_LEN || n * 4 > self.remaining() {
+            return Err(P3Error::ProofDecode("poly too long"));
+        }
+        let mut out = Vec::with_capacity(n);
+        for _ in 0..n {
+            out.push(self.u32()? as u64);
+        }
+        Ok(out)
+    }
+    fn polys(&mut self) -> Result<Vec<Poly>, P3Error> {
+        let n = self.count()?;
+        (0..n).map(|_| self.poly()).collect()
+    }
+    fn polys2(&mut self) -> Result<Vec<Vec<Poly>>, P3Error> {
+        let n = self.count()?;
+        (0..n).map(|_| self.polys()).collect()
+    }
+    fn polys3(&mut self) -> Result<Vec<Vec<Vec<Poly>>>, P3Error> {
+        let n = self.count()?;
+        (0..n).map(|_| self.polys2()).collect()
+    }
+    fn poly_arr3(&mut self) -> Result<Vec<[Poly; 3]>, P3Error> {
+        let n = self.count()?;
+        (0..n).map(|_| Ok([self.poly()?, self.poly()?, self.poly()?])).collect()
+    }
+    fn poly_arr2(&mut self) -> Result<Vec<[Poly; 2]>, P3Error> {
+        let n = self.count()?;
+        (0..n).map(|_| Ok([self.poly()?, self.poly()?])).collect()
+    }
+    fn i64v(&mut self) -> Result<Vec<i64>, P3Error> {
+        let n = self.u32()? as usize;
+        if n * 8 > self.remaining() {
+            return Err(P3Error::ProofDecode("i64 vec too long"));
+        }
+        (0..n).map(|_| self.i64()).collect()
+    }
+    fn i64v2(&mut self) -> Result<Vec<Vec<i64>>, P3Error> {
+        let n = self.count()?;
+        (0..n).map(|_| self.i64v()).collect()
+    }
+    fn i64v3(&mut self) -> Result<Vec<Vec<Vec<i64>>>, P3Error> {
+        let n = self.count()?;
+        (0..n).map(|_| self.i64v2()).collect()
+    }
+    fn i64v4(&mut self) -> Result<Vec<Vec<Vec<Vec<i64>>>>, P3Error> {
+        let n = self.count()?;
+        (0..n).map(|_| self.i64v3()).collect()
+    }
+    fn finish(&mut self) -> Result<(), P3Error> {
+        if self.remaining() != 0 {
+            return Err(P3Error::ProofDecode("trailing bytes"));
+        }
+        Ok(())
+    }
+}
+
+fn p3_encode_proof(pf: &P3Proof) -> Vec<u8> {
+    let mut w = P3W::new();
+    w.buf.extend_from_slice(P3_PROOF_MAGIC);
+    w.u32(P3_PROOF_CODEC_VERSION);
+    w.polys2(&pf.t1s);
+    w.polys2(&pf.t2s);
+    us1_dump_proof(&mut w.buf, &pf.pw);
+    us1_dump_proof(&mut w.buf, &pf.pt);
+    let ct = &pf.ct;
+    w.polys(&ct.h);
+    w.polys2(&ct.w1);
+    w.polys2(&ct.w1_ajtai);
+    w.polys(&ct.w_claim);
+    w.polys(&ct.w_ring);
+    w.polys(&ct.h_quad);
+    w.poly_arr3(&ct.gq);
+    w.polys(&ct.w_quad);
+    w.poly_arr2(&ct.gr);
+    w.polys(&ct.w_qring);
+    w.poly_arr3(&ct.gtq);
+    w.polys(&ct.w_tq);
+    w.i64v3(&ct.z);
+    w.i64v3(&ct.z_rho_ajtai);
+    w.i64v3(&ct.z_s_ajtai);
+    w.polys3(&ct.t1_digits);
+    w.polys3(&ct.w1_digits);
+    w.i64v4(&ct.z_digits);
+    w.buf
+}
+
+/// Decode a proof from untrusted bytes, bounded by the statement-implied
+/// shape. NEVER panics; returns a structured error on any malformation.
+fn p3_decode_proof(bytes: &[u8]) -> Result<P3Proof, P3Error> {
+    let mut r = P3R::new(bytes);
+    if r.take(4)? != P3_PROOF_MAGIC {
+        return Err(P3Error::ProofDecode("bad magic"));
+    }
+    if r.u32()? != P3_PROOF_CODEC_VERSION {
+        return Err(P3Error::ProofDecode("unknown codec version"));
+    }
+    let t1s = r.polys2()?;
+    let t2s = r.polys2()?;
+    // The masked descents ride the [U-S1] dump/load (already bounds-checked).
+    let pw = {
+        let mut rd = Us1Rd { b: &r.b[r.p..], p: 0 };
+        let p = us1_load_proof(&mut rd).ok_or(P3Error::ProofDecode("witness descent"))?;
+        r.p += rd.p;
+        p
+    };
+    let pt = {
+        let mut rd = Us1Rd { b: &r.b[r.p..], p: 0 };
+        let p = us1_load_proof(&mut rd).ok_or(P3Error::ProofDecode("table descent"))?;
+        r.p += rd.p;
+        p
+    };
+    let ct = ring::ct_engine::CtRoundProof {
+        h: r.polys()?,
+        w1: r.polys2()?,
+        w1_ajtai: r.polys2()?,
+        w_claim: r.polys()?,
+        w_ring: r.polys()?,
+        h_quad: r.polys()?,
+        gq: r.poly_arr3()?,
+        w_quad: r.polys()?,
+        gr: r.poly_arr2()?,
+        w_qring: r.polys()?,
+        gtq: r.poly_arr3()?,
+        w_tq: r.polys()?,
+        z: r.i64v3()?,
+        z_rho_ajtai: r.i64v3()?,
+        z_s_ajtai: r.i64v3()?,
+        t1_digits: r.polys3()?,
+        w1_digits: r.polys3()?,
+        z_digits: r.i64v4()?,
+    };
+    r.finish()?;
+    Ok(P3Proof { t1s, t2s, pw, pt, ct })
+}
+
+/// `verify <statement.bin> <proof.bin>` — the INDEPENDENT verifier process
+/// (P3-D3). Reads ONLY the statement bytes, the proof bytes, and derives the
+/// public CRS itself; no prover-local state. Exit 0 = ACCEPT, 1 = REJECT,
+/// 2 = unreadable file. Prints the structured reason on rejection.
+fn p3_verify_main(stmt_path: &str, proof_path: &str) {
+    let sb = match std::fs::read(stmt_path) {
+        Ok(b) => b,
+        Err(e) => {
+            eprintln!("verify: cannot read {stmt_path}: {e}");
+            std::process::exit(2);
+        }
+    };
+    let pb = match std::fs::read(proof_path) {
+        Ok(b) => b,
+        Err(e) => {
+            eprintln!("verify: cannot read {proof_path}: {e}");
+            std::process::exit(2);
+        }
+    };
+    let statement = match manifest::Statement::decode(&sb) {
+        Ok(s) => s,
+        Err(e) => {
+            println!("verify: REJECT (statement decode: {e})");
+            std::process::exit(1);
+        }
+    };
+    let proof = match p3_decode_proof(&pb) {
+        Ok(p) => p,
+        Err(e) => {
+            println!("verify: REJECT (proof decode: {e})");
+            std::process::exit(1);
+        }
+    };
+    match p3_lookup_verify(&statement, &proof) {
+        Ok(()) => {
+            println!("verify: ACCEPT");
+            std::process::exit(0);
+        }
+        Err(e) => {
+            println!("verify: REJECT ({e})");
+            std::process::exit(1);
+        }
+    }
+}
+
+fn self_test_p3() {
+    println!("\n[U-S Phase 3] committed lookup proof: statement+proof bytes -> independent verify");
+    let (st, pf) = p3_lookup_prove(100, 0x5eed_9301);
+    match p3_lookup_verify(&st, &pf) {
+        Ok(()) => println!("  ok   P3 honest committed lookup ACCEPTS in-process (statement digest -> h0 -> descents -> pins -> ct-round)"),
+        Err(e) => {
+            println!("  FAIL P3 honest committed lookup rejected: {e}");
+            std::process::exit(1);
+        }
+    }
+
+    // Canonical serialization round-trip (P3-D2): decode(encode) verifies,
+    // and re-encodes byte-identically.
+    let sbytes = st.encode();
+    let pbytes = p3_encode_proof(&pf);
+    let st2 = manifest::Statement::decode(&sbytes).expect("statement round-trips");
+    let pf2 = p3_decode_proof(&pbytes).expect("proof round-trips");
+    assert_true(
+        &format!(
+            "P3 serialization round-trip verifies; canonical bytes: statement {} B + proof {} B = {} B",
+            sbytes.len(), pbytes.len(), sbytes.len() + pbytes.len()
+        ),
+        p3_lookup_verify(&st2, &pf2).is_ok() && p3_encode_proof(&pf2) == pbytes,
+    );
+
+    // Two-process independent verify (P3-D3): a FRESH ring_matmul process
+    // reads only statement.bin + proof.bin and the derived CRS.
+    let dir = std::env::temp_dir();
+    let sp = dir.join(format!("p3-st-{}.bin", std::process::id()));
+    let pp = dir.join(format!("p3-pf-{}.bin", std::process::id()));
+    std::fs::write(&sp, &sbytes).expect("write statement");
+    std::fs::write(&pp, &pbytes).expect("write proof");
+    let exe = std::env::current_exe().expect("current exe");
+    let run = |s: &std::path::Path, p: &std::path::Path| -> i32 {
+        std::process::Command::new(&exe)
+            .arg("verify")
+            .arg(s)
+            .arg(p)
+            .status()
+            .expect("spawn verify")
+            .code()
+            .unwrap_or(-1)
+    };
+    assert_true(
+        "P3 two-process: a SECOND process ACCEPTS the honest proof from bytes alone (no prover-local value crosses)",
+        run(&sp, &pp) == 0,
+    );
+
+    // model_digest tamper (P3-D5): a swapped tensor identity REJECTS.
+    {
+        let mut st_bad = st.clone();
+        st_bad.header.model_digest[0] ^= 1;
+        let spb = dir.join(format!("p3-st-bad-{}.bin", std::process::id()));
+        std::fs::write(&spb, st_bad.encode()).unwrap();
+        assert_true(
+            "P3 model_digest tamper REJECTS in-process AND in the second process (statement digest moves; verifier's h0 diverges)",
+            p3_lookup_verify(&st_bad, &pf).is_err() && run(&spb, &pp) == 1,
+        );
+        let _ = std::fs::remove_file(&spb);
+    }
+
+    // Commitment-swap (P3-D5): corrupt one committed group in the proof ->
+    // the statement's X digest no longer matches -> REJECT.
+    {
+        let mut pf_bad = P3Proof {
+            t1s: pf.t1s.clone(),
+            t2s: pf.t2s.clone(),
+            pw: MaskedTamper::clone_proof(&ring::kfield::KField::new(&ring_ctx_q8()), &pf.pw),
+            pt: MaskedTamper::clone_proof(&ring::kfield::KField::new(&ring_ctx_q8()), &pf.pt),
+            ct: p3_decode_proof(&pbytes).unwrap().ct,
+        };
+        pf_bad.t1s[0][0][0] ^= 1;
+        assert_true(
+            "P3 commitment swap REJECTS (proof X group corrupted -> statement digest mismatch, pre-crypto)",
+            matches!(p3_lookup_verify(&st, &pf_bad), Err(P3Error::ProofShape { .. })),
+        );
+    }
+
+    // Descent/ct-round tamper: bump a round polynomial -> the descents
+    // diverge -> REJECT (LookupDescent), never a false accept.
+    {
+        let kf = ring::kfield::KField::new(&ring_ctx_q8());
+        let mut pf_bad = P3Proof {
+            t1s: pf.t1s.clone(),
+            t2s: pf.t2s.clone(),
+            pw: MaskedTamper::clone_proof(&kf, &pf.pw),
+            pt: MaskedTamper::clone_proof(&kf, &pf.pt),
+            ct: p3_decode_proof(&pbytes).unwrap().ct,
+        };
+        pf_bad.pw.layers[1].rounds[1][2] = kf.add(&pf_bad.pw.layers[1].rounds[1][2], &kf.one());
+        assert_true(
+            "P3 descent tamper REJECTS (bumped round polynomial -> masked descent rejects)",
+            p3_lookup_verify(&st, &pf_bad).is_err(),
+        );
+    }
+
+    // Malformed-proof fuzz (P3-D4): bit-flip/truncate/extend the proof bytes;
+    // the decoder + verifier return structured errors and NEVER panic (a
+    // panic aborts under panic=abort and fails the battery).
+    {
+        let mut state = 0x5eed_9f3ec0deu64;
+        let mut next = || {
+            state ^= state << 13;
+            state ^= state >> 7;
+            state ^= state << 17;
+            state
+        };
+        for _ in 0..3000 {
+            let mut buf = pbytes.clone();
+            let flips = 1 + (next() % 8) as usize;
+            for _ in 0..flips {
+                let i = (next() as usize) % buf.len();
+                buf[i] ^= (next() & 0xff) as u8;
+            }
+            match next() % 3 {
+                0 => buf.truncate((next() as usize) % (buf.len() + 1)),
+                1 => buf.push((next() & 0xff) as u8),
+                _ => {}
+            }
+            match p3_decode_proof(&buf) {
+                Ok(p) => {
+                    // A decodable-but-corrupt proof must still verify-reject.
+                    let _ = p3_lookup_verify(&st, &p);
+                }
+                Err(_) => {} // structured decode error — fine
+            }
+        }
+        // Statement fuzz through the same path.
+        for _ in 0..1000 {
+            let mut buf = sbytes.clone();
+            let i = (next() as usize) % buf.len();
+            buf[i] ^= (next() & 0xff) as u8;
+            let _ = manifest::Statement::decode(&buf);
+        }
+        println!("  ok   P3 fuzz: 3000 proof + 1000 statement malformed inputs decode/verify without a single panic");
+    }
+
+    for f in [&sp, &pp] {
+        let _ = std::fs::remove_file(f);
+    }
+}
+
+/// `p3-bench <n_honest>` — the P3-EXIT measurement: canonical byte size and
+/// independent-verifier p50/p95 wall time at the given element count. All
+/// timings [NOISY-SHARED]. Prove once (deterministic); time the verifier
+/// over `reps` runs.
+fn p3_bench(n_honest: usize) {
+    let reps = 9usize;
+    let t_p = Instant::now();
+    let (st, pf) = p3_lookup_prove(n_honest, 0x5eed_9b00);
+    let prove_s = t_p.elapsed().as_secs_f64();
+    let sbytes = st.encode();
+    let pbytes = p3_encode_proof(&pf);
+    // Decode once so the timed verifier includes only the verify path (the
+    // fresh process decodes too; here we separate the two).
+    let dec_st = manifest::Statement::decode(&sbytes).expect("stmt decode");
+    let dec_pf = p3_decode_proof(&pbytes).expect("proof decode");
+    let lay = p3_layout(n_honest, ring::commit::CommitShape { kappa: 8, n_r: 26, msg_r: 8 });
+    let mut ts: Vec<f64> = Vec::with_capacity(reps);
+    let mut accept = true;
+    for _ in 0..reps {
+        let t = Instant::now();
+        accept &= p3_lookup_verify(&dec_st, &dec_pf).is_ok();
+        ts.push(t.elapsed().as_secs_f64());
+    }
+    ts.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    let p50 = ts[reps / 2];
+    let p95 = ts[(reps * 95 / 100).min(reps - 1)];
+    println!(
+        "u-s p3 lookup-proof bench: n={n_honest} (dw={} dt={}) accept={accept} [NOISY-SHARED]",
+        lay.dw, lay.dt
+    );
+    println!(
+        "  canonical bytes: statement {} B + proof {} B = {} B ({:.1} KiB); budget 256 KiB -> {}",
+        sbytes.len(),
+        pbytes.len(),
+        sbytes.len() + pbytes.len(),
+        (sbytes.len() + pbytes.len()) as f64 / 1024.0,
+        if sbytes.len() + pbytes.len() <= 256 * 1024 { "WITHIN" } else { "OVER (recorded honestly)" }
+    );
+    println!(
+        "  prove {:.3}s; independent verify p50 {:.3}s / p95 {:.3}s over {reps} reps",
+        prove_s, p50, p95
+    );
+    // Confirm the fresh-process path once.
+    let dir = std::env::temp_dir();
+    let sp = dir.join(format!("p3b-st-{}.bin", std::process::id()));
+    let pp = dir.join(format!("p3b-pf-{}.bin", std::process::id()));
+    std::fs::write(&sp, &sbytes).unwrap();
+    std::fs::write(&pp, &pbytes).unwrap();
+    let code = std::process::Command::new(std::env::current_exe().unwrap())
+        .arg("verify").arg(&sp).arg(&pp).status().unwrap().code().unwrap_or(-1);
+    println!("  fresh-process verify exit code: {code} (0 = ACCEPT)");
+    let _ = std::fs::remove_file(&sp);
+    let _ = std::fs::remove_file(&pp);
 }
 
 // ===========================================================================

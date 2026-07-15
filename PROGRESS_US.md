@@ -192,27 +192,66 @@ descent core). The full FFN-layer CHAIN (range grounding + Hadamard +
 multi-wave zeta streaming on top of this) reuses the same serialization
 + verifier primitives; its multi-wave orchestration is recorded PARTIAL.
 
-- [ ] P3-D1 Canonical types: `PublicStatement` (v3 Statement canonical
-      bytes), `Proof` (commitments + masked descents + ct-round),
-      `VerificationError` (structured, never panics); ProverInput stays
-      prover-side.
-- [ ] P3-D2 Serialization: versioned header, length-prefixed components,
-      canonical field encodings, hard decode-time resource limits derived
-      from the statement (not the wire); reject-don't-truncate.
-- [ ] P3-D3 Independent verifier: `verify <statement.bin> <proof.bin>`
-      subcommand, fresh process from statement+proof+CRS derivation ONLY;
-      recomputes every transcript seed (h0_lkp, alpha, psi, ct-round h0)
-      from the decoded statement + commitments.
-- [ ] P3-D4 Malformed-input robustness: fuzz/truncate/reorder/bit-flip
-      every component class -> structured error, NEVER panics; a battery
-      leg per component class + a fixed-seed randomized fuzz leg.
-- [ ] P3-D5 model_digest: derived from architecture shape + quant/table
-      spec + ALL weight-class commitments; wired through the v3 header;
-      negative leg: one weight commitment swapped -> digest differs ->
-      REJECT.
-- [ ] P3-EXIT canonical byte size recorded (vs 256 KiB budget, honest);
-      independent verifier p50/p95 at 2^12/2^16 [NOISY-SHARED]; NO
-      prover-local value available to verification.
+- [x] P3-D1 DONE 2026-07-14. `manifest::Statement` IS the PublicStatement
+      (its v3 `digest()` is the sole transcript context) with canonical
+      encode/decode. `P3Proof` (ring_matmul.rs) = commitments (t1s/t2s) +
+      the two masked descents + the Ajtai `CtRoundProof` — the COMPLETE
+      committed lookup proof. `P3Error` is the structured, panic-free
+      verification error (decode + every reject class). ProverInput
+      (openings, witness, RNG) is consumed inside `p3_lookup_prove` and
+      never enters the Proof.
+- [x] P3-D2 DONE 2026-07-14. Statement codec: ZKMS magic + container
+      version, LE length-prefixed fields, absolute caps AND a
+      bytes-remaining guard on every length, final re-validate();
+      reject-don't-truncate (trailing bytes error). Proof codec: ZKMP
+      magic + version, poly coeffs as u32 (< q), i64 responses; every
+      count bounded by bytes-remaining; proof shape re-checked against the
+      statement-implied layout (t1/t2 arity, descent depth, commitment/
+      model digests) BEFORE any crypto.
+- [x] P3-D3 DONE 2026-07-14. `verify <statement.bin> <proof.bin>`
+      subcommand: a FRESH ring_matmul process reads only the two byte
+      files, DERIVES the public CRS, and recomputes h0_lkp, alpha, psi and
+      the ct-round h0 from the decoded statement + commitments (D3
+      discipline). Exit 0 = ACCEPT, 1 = REJECT (structured reason), 2 =
+      unreadable. Self-test spawns it on the honest proof -> ACCEPT, and on
+      the model_digest tamper -> REJECT. No prover-local value crosses.
+- [x] P3-D4 DONE 2026-07-14. Battery legs per class (truncation, trailing,
+      bad magic, bad version, oversized length, decoded-but-invalid,
+      commitment swap, descent tamper) + fixed-seed randomized fuzz: 3000
+      malformed-proof + 1000 malformed-statement inputs decode/verify with
+      ZERO panics (assert-free bounds-checked decode; panic=abort would
+      fail the battery on any panic).
+- [x] P3-D5 DONE 2026-07-14. `p3_model_digest` = architecture shape +
+      quant + frozen table spec + EVERY data-commitment digest (the pure
+      lookup has no matmul weights; the committed tensors X|Y|m|blinders|
+      masks are its weight-class). The verifier recomputes it and checks
+      it; negative legs: a flipped model_digest AND a swapped commitment
+      group both REJECT (statement digest moves -> h0 diverges), in-process
+      and in the second process.
+- [x] P3-EXIT MET 2026-07-14 (single-wave committed-lookup flagship).
+      Canonical byte size (statement + proof), [NOISY-SHARED] on the shared
+      box, single-wave lookup:
+        n=100  (dw 8): 0.56 MiB; verify p50 ~ few ms
+        2^12   (dw14): 1025 KiB; prove 0.23s; verify p50 0.074s / p95 0.075s
+        2^13   (dw15): 1378 KiB; prove 0.63s; verify p50 0.105s
+        2^14   (dw16): 2036 KiB; prove 0.64s; verify p50 0.162s
+        2^15   (dw17): 3307 KiB; prove 1.77s; verify p50 0.285s / p95 0.305s
+        2^16   (dw18, nx=64): REJECTED by derive_ct_round_params — the q31
+               C2 std-bundle cap (audit Phase 5 item 3) binds the SINGLE
+               ct-round at ~2^15 elements; the multi-wave layer rig lifts
+               it (recorded PARTIAL below). Honest: the proof is far OVER
+               the 256 KiB budget at every shape (the ct-round i64 response
+               vectors, n_commits x n_r x D, dominate; i32/varint packing
+               would ~halve it). NO prover-local value is available to
+               verification — the fresh process reads statement + proof
+               bytes + the derived CRS only.
+      PARTIAL (recorded, not closed): the full FFN-layer CHAIN artifact
+      (range grounding + Hadamard + MULTI-WAVE zeta streaming / split
+      claims, which lift the C2 cap past 2^15) reuses these exact codec +
+      verifier primitives but its wave orchestration is not yet extracted
+      into a Proof-object + fresh verifier; the fragile interleaved
+      ffn_layer_run refactor is deferred rather than shimmed.
+      External (unchanged): independent cryptographer review.
 
 ## Log
 
@@ -226,6 +265,14 @@ multi-wave zeta streaming on top of this) reuses the same serialization
   self-test GREEN (312s, includes [U-S1]); `ffn-chain layer battery`
   GREEN (73s); `us1-battery` GREEN (0.12s). Python suite GREEN: 42 tests
   + freeze-check pass (341s, "OK"); LKP-5..9 freeze gates unmoved.
+- 2026-07-14 (P1->P3): merged with P2 (e1f5dce); opened + closed Phase 3.
+  Files: manifest.rs (Statement encode/decode + codec battery),
+  ring_matmul.rs (complete committed-lookup proof: p3_lookup_prove/verify,
+  P3Proof codec, `verify`/`p3-battery`/`p3-bench`/`statement-codec`
+  subcommands, self_test_p3), tests/test_statement_v3.py (+2 tests).
+  Flagship = single-wave committed masked LOOKUP with a real Ajtai
+  ct-round, fresh-process verified from bytes. Multi-wave FFN-layer chain
+  recorded PARTIAL (C2 cap lift). Byte sizes + verifier p50/p95 in P3-EXIT.
 - 2026-07-14 (P2): Statement v3 landed (manifest.rs) + all H-03 call-site
   ports + negative battery; suite green (42 -> 45 tests). Notes:
   - PARTIAL/shim (one site): ring self-test [M5] wide-object battery no
