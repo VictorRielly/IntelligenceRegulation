@@ -692,8 +692,10 @@ was visible from lookup-bench or the battery-shape U-K5c rig):
    is budget-capped (~4 at 512-bit units), while FS-with-aborts
    restarts all units of a round together — the frozen chain point is
    512-bit units, alpha 3.5, 4 units per grounding round (measured
-   ~50 restarts/round mean, high variance). Range throughput, not the
-   lookup, is the chain's wall-clock wall.
+   ~50 restarts/round mean, high variance — a rate SUPERSEDED by the
+   2026-07-13 fixes, Section 7'''; the granularity/coupling wall
+   itself stands). Range throughput, not the lookup, is the chain's
+   wall-clock wall.
 
 **Measured marginals** (ffn-chain 16 = 16,320 elements, single-thread;
 labels: [MEASURED-AT-RATE] = measured at this shape and linear in
@@ -737,6 +739,61 @@ cancels in the marginal, and it reconciles with the ladder's
 "bit planes are 82.8% of the pass" finding: the activation lookup is
 not the pass's problem; ranges are (the Section 7 range-lookup rung
 remains the priced option for that).
+
+### 7''' — supersession note: the ARP restart rate (2026-07-13 fixes,
+### recorded 2026-07-14)
+
+The restart figures recorded above and in the U-K8 ledger — capacity
+wall 2's "measured ~50 restarts/round mean, high variance", the A-D2
+ledger's ~52/round, and the D-3 design expectation of ~6.5 expected
+restarts/round they were measured against — are SUPERSEDED as
+operating-point rates by two 2026-07-13 fixes. The 2026-07-10
+paragraphs above stand unedited as the honest record of what was
+measured then; this note is additive.
+
+1. **log M parameterized by alpha (commit e6727e4).**
+   `rejection_accept` (ring/mod.rs) hard-coded
+   log M = 1 + 1/288 — the t = alpha = 12-sigma convention — while
+   the chain's ARP samples masks at UK8_ALPHA = 3.5: per-unit accept
+   e^-1.0 instead of the designed e^-0.47, predicting ~55
+   attempts/round for a 4-unit-coupled round, which matches the
+   ~52/round A-D2 measured. The rate was a mis-sized constant, not
+   the design. Fix: log M is now a `rejection_accept` parameter;
+   ArpParams carries log M = t/alpha + 1/(2 alpha^2) at t = 1.5
+   (ARP_REJ_T, the LKP-8 e^-0.47 point); sigma.rs's 12-sigma call
+   sites keep the old constant explicitly. ZK-safe in both directions
+   (the old constant was conservative). Measured (ffn-chain 1, two
+   runs): restarts 240 -> 61/66 total over 8 rounds — the design
+   rate. Suite 42/42 + freeze-check green; the LKP-8 freeze gates are
+   unmoved (they pin arp_budget_ok, which does not involve log M).
+2. **Joint Q4.2b rejection across the round's 4 coupled units
+   (commit 92ca018).** One summed-exponent test (`arp_attempt_joint`)
+   replaces the per-unit product test in the ffn-chain grounding
+   loop: expected ~2.8 attempts/round vs the product scheme's ~6.5,
+   accepted output distribution unchanged per the PROVEN lemma
+   (Q4.2b); the per-unit y-bound gate and `arp_check_reveal` are
+   untouched. `joint_rejection_accept`'s log M is caller-supplied;
+   its 12-sigma ct-round call site keeps `joint_log_m_alpha12`.
+   Measured (ffn-chain 1, three runs): restarts per arm 4/10, 5/5,
+   14/3 over 4 rounds — on the lemma's prediction; the whole
+   ffn-chain battery ran with 3 restarts total (8/8 green).
+
+Combined effect: restart work ~17x down vs the 2026-07-10 figures
+(~240 -> ~14 restarts per 1-block run). What is NOT superseded:
+capacity wall 2 itself (the ~896-bit unit cap, the budget-capped
+alpha, and the whole-round restart coupling are architecture, not
+rate); the Section 7'' measured marginals (the prove marginal already
+excluded q46-restart noise); and the chain-total split (the ~96% q46
+share was measured before the fixes). No new wall-clock number is
+claimed here: the box was [NOISY-SHARED] with ~2x run-to-run q46
+variance, and the post-fix wall-clock share awaits the orchestrator's
+quiesced ladder pass.
+
+Forward plan for the range wall itself: RANGE_AGGREGATION_DESIGN.md
+(paper-first study, commit b6bb1e2) prices the Phase-5 pair — the
+multi-wave C2-cap lift and the range-lookup rung — and its proposed
+U-R tranche is now OPEN with S0 (multi-wave claim splitting) landed
+(commit 7b2a57c; ledger PROGRESS_UR.md).
 
 ## 8. Build plan: the E3/E4 tranches
 

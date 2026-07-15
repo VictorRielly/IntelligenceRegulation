@@ -85,10 +85,55 @@ reconciliation pass on a quiet machine after merge.
         (1/B scaling closes the rest); variant A also pays its +201% commit
         stream, which the lookup removes entirely. Verdict unchanged, now
         measured inside a chain.
-- [ ] A-D3 Docs: Section 7' U-K8 block (measured, not [MODEL]), the four-status
+- [x] A-D3 Docs: Section 7' U-K8 block (measured, not [MODEL]), the four-status
       header flips FFN-integration status honestly, LLM_SCALE_ESTIMATE M4 row,
       TRANSFORMER_PROOF_PLAN Section 2 reconciliation. Freeze row for any new
       frozen constant (house discipline).
+      DONE 2026-07-14 (docs lane only — no code, no builds, no benches):
+      * M4_LOOKUP_DESIGN.md: NEW Section 7''' — dated supersession note:
+        the recorded ARP restart rates (Section 7'' wall 2's ~50/round,
+        A-D2's ~52/round, D-3's ~6.5 design expectation) are superseded
+        by e6727e4 (log M parameterized by alpha; restarts back to the
+        design rate) + 92ca018 (joint Q4.2b over the round's 4 coupled
+        units; ~2.8 expected attempts/round, whole battery 3 restarts
+        total) — ~17x less restart work; no new wall-clock claim
+        (quiesced ladder pass pending). Inline "superseded, see 7'''"
+        marker added on capacity wall 2; the 2026-07-10 measurement
+        records themselves left unedited. Forward pointer added to
+        RANGE_AGGREGATION_DESIGN.md (Phase-5 plan: multi-wave C2 lift +
+        range-lookup rung; U-R tranche open, S0 landed 7b2a57c). The
+        four-status header was verified ALREADY at row-block CLOSED
+        (a581d20) — no change needed; Section 8's U-K8 item already
+        carried its DONE block — no change needed.
+      * LLM_SCALE_ESTIMATE.md: new lever-stack row for the U-K8 measured
+        integration, using ONLY the A-D2 recorded numbers (prove +205.9 /
+        verify +130.0 us/el 1T [NOISY-SHARED] [MEASURED-AT-RATE]; commit
+        +14.1 dce/el at B = 1020 amortizing 1/B to ~1e-4 dce/el at
+        5.6e6-el instances [MODEL]; masked transcript 37.5 B/el; q46
+        range side 96% of chain prove / 582 dce/el; lookup marginal
+        ~37 ks/pass at block granularity per M4 7''); the prior M4 row's
+        "U-K8 exit OPEN" clause struck through per that file's
+        supersession convention.
+      * TRANSFORMER_PROOF_PLAN.md Section 2: dated reconciliation note
+        after the Class-3 asymptotics paragraph — row-block closure, the
+        two as-built capacity walls (q31 C2 wave cap, q46 ARP
+        granularity), the restart-fix supersession, and the
+        U-R/RANGE_AGGREGATION_DESIGN forward pointer.
+      * TARGET_CONTRACT.md (the audit 2026-07-12 M-02 status conflict —
+        contract said "U-K8 open / not FFN-integrated" against the live
+        M4 header): Section 3's ZK caveat and Section 5's SiLU-lookup
+        status row now carry the dated row-block-CLOSED status, with the
+        single-instance-did-NOT-run and multi-layer-NOT-implemented
+        caveats retained verbatim in substance.
+      * Freeze rows: NONE added — these are documentation changes; no
+        new constant was frozen here. OPEN item recorded, not resolved
+        (house discipline says do not invent rows in the docs lane):
+        the 2026-07-13 fixes made the rejection log M an operating
+        parameter of the LKP-8 chain point (ARP_REJ_T = 1.5 and the
+        joint Q4.2b test), while LKP-8's freeze gates pin arp_budget_ok,
+        which does not involve log M — whether the restart-rate
+        constants need their own freeze row is a code-lane/orchestrator
+        decision.
 - [ ] B-D1 Lane-packed bulk slot arithmetic (the U-K1 8-lane adapter) through the
       A1 kernel class + lazy reduction in round_poly/build_tree/fuse/descent hot
       loops. Differential battery: bulk path bit-identical to scalar path;
