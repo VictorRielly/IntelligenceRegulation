@@ -141,11 +141,55 @@ the masked descents/pins are untouched:
         scale with waves (12 B x ~56 shares/wave ~ 0.43 B/el
         asymptote at this wave shape) -> 0.512 B/el at 2^20 vs 37.5
         at B = 1020 (73x).
-- [ ] S3 — U-R2 pilot: replace X's planes+ARP with a 256-row [0,256)
+- [x] S3 — U-R2 pilot: replace X's planes+ARP with a 256-row [0,256)
       range lookup inside the layer instance (second table instance +
       m column; X read dense, no offset fold needed at w = 8); A/B
       the range marginal exactly as A-D2 did. Ceiling gate N_inst <=
       2^25 derive-time.
+      DONE 2026-07-14 (rig 0434a0e; measured below). Second 256-row
+      table instance inside the layer rig: own m column, blinders and
+      mask pair (same depths dw/dt), X read DENSE at w = 8 (the
+      committed offset code IS the looked-up value), same masked
+      machinery, ONE psi pin batch (per-wave pin g budget UNCHANGED at
+      9 copies — the S2 surcharge does not double). Ceiling gate
+      N_inst <= 2^25 asserted derive-time (Section 4 instancing rule).
+      Arms: LookupRange (measured arm R) and RangeOnly (battery
+      isolation arm — the S3 architecture where the range table is the
+      SOLE X certifier). [U-R2a] battery green: honest ACCEPT both
+      arms; x_u = 300 smuggled into the dense column REJECTS at the
+      range root cross-check, fully ISOLATED on RangeOnly (all other
+      gates pass) and doubly covered on the full arm (silu root also
+      rejects, labeled); PLUS the S1-deferred g-mask cross-use forgery
+      (donor wave's g's presented + opened self-consistently) REJECTS
+      at exactly the target wave. Honest scope notes: (a) the pilot
+      rides the LAYER rig — per D-5 it never had a plane/ARP side, so
+      the A/B is "with vs without the range table", not a
+      plane-removal differential inside the block chain; (b) the range
+      witness covers the n_el DATA values (pads uncovered — the block
+      rig's all-1024-positions coverage needs a 2x-deeper tree, S4+
+      work); (c) manifest v2 has no multi-table vocabulary — the range
+      table binds via its spec digest in the lookup prehash context,
+      statement-format lift deferred.
+
+      RANGE marginal (R - A), 1T [NOISY-SHARED], one shape at a time:
+
+      shape | commit  | prove   | verify  | attr p/v   | dce/el | B/el  | RSS R
+      2^16  | +1.5    | -17.8   | +1.9    | +18.0/+0.5 | 0.2656 | 0.977 | 0.54
+      2^18  | +3.7    | -3.5    | +4.0    | +14.4/+1.9 | 0.0742 | 0.285 | 2.11
+      2^20  | +4.5    | +8.8    | +2.3    | +15.3/+1.4 | 0.0146 | 0.082 | 8.40
+      (us/el except dce/B/GiB; attr = range descent-pair share of the
+      lookup-stage attribution — the clean signal; R - A totals are
+      box-noise-wide, exactly as in S2)
+
+      PUNCHLINE (the Section 3 prediction, measured): range
+      certification per element falls from the block rig's q46
+      plane+ARP 582 dce/el committed to 0.0146 dce/el at 2^20
+      (39,731x) and from ~10,300 us/el prove (96% of 10.7 ms/el
+      [NOISY-SHARED, pre-restart-fix]) to ~+15 us/el (range descent
+      attribution; ~670x) — and the range fact becomes EXACT (no
+      SLACK_OP, no wrap side condition, no ARP/alpha coupling).
+      Falls as 1/n (m column + fixed material only), vs the S2 pin
+      surcharge which does NOT (already priced in both arms here).
 - [ ] S4 — docs/freeze: RANGE_AGGREGATION_DESIGN status flips, freeze
       rows (wave cap + partition rule + partial-sum gate; range-table
       spec digest), Section 7''/ladder reconciliation, this ledger.
