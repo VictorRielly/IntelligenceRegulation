@@ -1,11 +1,16 @@
 # Range architecture + instance aggregation — paper-first design study
 
-Status: STUDY (nothing here is built). Addresses the 2026-07-12 audit's
-Phase 5 items 2 and 3 and the GPU_GO_NO_GO "Range architecture" gate.
-Measured numbers are marked with their provenance; everything forward-
-looking is [MODEL]. House rules apply: any constant this study freezes
-gets a freeze row when its tranche lands, and every capacity claim must
-be re-derived by the engine's derive-time gates before it is trusted.
+Status (updated 2026-07-14, U-R tranche): Section 2b BUILT + MEASURED
+(U-R1 S1/S2, commits fa634ae/1e055c0 — the `ffn-chain layer` rig,
+measured tables appended in place); Section 3 PILOT-MEASURED (U-R2 S3,
+commit 0434a0e — the range-table instance inside the layer rig, table
+appended in place); everything else remains STUDY. Frozen constants
+carry the LKP-9 freeze row (wave cap, partition rule, partial-sum
+gate, range-table spec digest, ARP rejection constants). Measured
+numbers are marked with their provenance; everything forward-looking
+is [MODEL]. House rules apply: any constant this study freezes gets a
+freeze row when its tranche lands, and every capacity claim must be
+re-derived by the engine's derive-time gates before it is trusted.
 
 ## 1. The problem, measured
 
@@ -65,6 +70,35 @@ derive the descent challenges. One descent then serves the whole layer
   per-instance masked transcript (~38 KB/block today) becomes ~38 KB
   per WAVE plus one descent — MB-class per pass instead of 6.3 GiB
   [MODEL, to be counted canonically per audit Phase 3].
+
+**BUILT + MEASURED (2026-07-14, U-R1 S1/S2 — `ffn-chain layer`,
+PROGRESS_UR.md S1/S2 for the full record).** As designed: multi-wave
+q31 (plan_waves first-fit with Hadamard-triple co-location, D-2), ONE
+masked descent pair per layer, split claims with per-wave partial ct
+reveals gated by sum == total (D-1), per-wave g-groups sized by
+plan-deterministic budgets committed before h0_link (D-4). Measured
+at 2^16/2^18/2^20 (1T, [NOISY-SHARED], one instance per shape; data
+cap 76 of C2 max 134 at the U-K5c shape; LKP-9 freeze row):
+
+    lookup marginal (A - B)     2^16    2^18    2^20   | B=1020 (A-D2)
+    prove  us/el                +41.8   -10.4   +27.3  | +205.9
+    verify us/el                +16.7   +19.4   +23.5  | +130.0
+    committed dce/el            1.609   1.387   1.335  | 14.1
+    masked transcript B/el (A)  1.417   0.716   0.512  | 37.5
+    lkp attribution p/v us/el 24.6/9.9 22.5/9.8 23.4/10.2 | 99.7/39.7
+
+Answer to this section's model, honestly: the per-INSTANCE fixed
+costs are fully amortized by 2^16 (attribution flat across the
+sweep); A - B prove marginals past 2^16 are box-noise-wide. The
+model's two misses, both directions: (i) the residual vs the unmasked
+core is ~2.1-2.3x, not the tree-free ~1-1.5x — the blinded witness
+tree is 2x payload leaves by the blinder-packing rule, a per-element
+constant, not amortization; (ii) the dce/el marginal floors at ~1.3,
+NOT ~1e-4: the pin claims add ~2 g-groups per wave (9 psi-copy shares
+per wave) — a per-WAVE surcharge this section's g-mask model did not
+price. The per-layer material proper (m + blinders + masks) does fall
+as 1/n (0.028 dce/el at 2^20). Memory: 8.23 GiB peak at 2^20 under
+the 10G scope; 2^22 does not fit as built (CLI capped at 2^20).
 
 ### Option (a), complement: q46 wave bundles
 
@@ -132,18 +166,58 @@ regardless of range strategy; and the Phase 1-3 security boundary work
 (secret masks, independent verifier, typed statements) remains the
 critical path in front of ANY integration tranche.
 
+**PILOT-MEASURED (2026-07-14, U-R2 S3 — `ffn-chain layer <log2> range`,
+PROGRESS_UR.md S3 for the full record).** A 256-row [0,256) table
+instance inside the multi-wave layer rig (own m column/blinders/masks,
+X read dense at w = 8 — no offset fold), same masked machinery, one
+psi pin batch (the per-wave pin surcharge does NOT double), N_inst <=
+2^25 gated derive-time; spec digest frozen in LKP-9. Range marginal
+(arm R = silu + range vs arm A = silu only), 1T [NOISY-SHARED]:
+
+    range marginal (R - A)   2^16       2^18       2^20
+    commit us/el             +1.5       +3.7       +4.5
+    prove us/el (noise-wide) -17.8      -3.5       +8.8
+    range attribution p/v    +18.0/+0.5 +14.4/+1.9 +15.3/+1.4
+    committed dce/el         0.2656     0.0742     0.0146
+    masked transcript B/el   0.977      0.285      0.082
+
+This section's claims, checked: the committed range bill collapses
+582 -> 0.0146 dce/el at 2^20 (39,731x — better than the "~1e-2 class"
+predicted above, because the pilot shares the layer's pin batch);
+prover time for the range side is ~+15 us/el (range descent
+attribution, flat across shapes — inside the predicted 15-50 us/el
+class); the range fact is EXACT as argued. Honest scope: the pilot
+rides the LAYER rig, which per the U-R ledger's D-5 never had a
+plane/ARP side — the A/B measures the range table's own cost, not a
+plane-removal differential inside the live block chain; the witness
+covers the layer's n_el data values (commitment pads uncovered — full
+coverage needs a 2x-deeper tree); multi-table statements are outside
+manifest v2 (the table binds via its spec digest in the lookup
+prehash context; statement typing is Phase 1-3 work).
+
 ## 4. Proposed tranche (U-R), in order
 
 1. U-R1 [ENGINE]: multi-wave single-descent per layer (Section 2b)
    behind the existing chain battery; differential vs the blocked
    chain; freeze row for the wave-count/binding order.
+   LANDED 2026-07-14 (S0 7b2a57c, S1 fa634ae, S2 1e055c0; Section 2b's
+   appended measurement block; freeze row LKP-9).
 2. U-R2 [PILOT]: one range-lookup width in the live chain — replace
    X's planes+ARP with a 256-row [0,256) lookup (w = 8, int8), keep
    the rest of the chain fixed; A/B the marginal exactly as A-D2 did;
    the committed+masked-at-scale factor is the number to capture.
+   LANDED 2026-07-14 (S3 0434a0e; Section 3's appended pilot block) —
+   with one honest scope shift recorded there: the pilot rides the
+   LAYER rig (per D-5 the layer rig never had a plane/ARP side), so
+   the A/B is "layer + range table vs layer without", not a
+   plane-removal differential inside the live BLOCK chain (which
+   keeps its q46 side unchanged).
 3. U-R3 [DOCS/LADDER]: Section 7'/7'' + LLM_SCALE_ESTIMATE
    reconciliation, freeze rows, quiesced ladder re-measure; re-run the
    GPU_GO_NO_GO range gate with measured numbers.
+   PARTIAL 2026-07-14: doc flips + LKP-9 freeze rows landed (U-R S4);
+   the quiesced ladder re-measure and the GPU_GO_NO_GO range-gate
+   re-run remain with the orchestrator.
 
 Decision inputs this study leaves open, honestly: the multi-wave
 engine refactor's size (U-R1 must be scoped against ring/gkr + descent

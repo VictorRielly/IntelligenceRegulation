@@ -134,6 +134,12 @@ reconciliation pass on a quiet machine after merge.
         which does not involve log M — whether the restart-rate
         constants need their own freeze row is a code-lane/orchestrator
         decision.
+        RESOLVED 2026-07-14 (U-R S4, code lane): freeze row LKP-9 pins
+        the rejection constants both directions — log M(1) and
+        log M_joint(4) at the LKP-8 point (t = 1.5, alpha = 3.5) as
+        exact-formula windows, plus the behavioral gates (joint Q4.2b
+        expects < 3 attempts per 4-unit round and beats the superseded
+        per-unit product). See PROGRESS_UR.md S4.
 - [ ] B-D1 Lane-packed bulk slot arithmetic (the U-K1 8-lane adapter) through the
       A1 kernel class + lazy reduction in round_poly/build_tree/fuse/descent hot
       loops. Differential battery: bulk path bit-identical to scalar path;

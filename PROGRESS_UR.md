@@ -190,9 +190,30 @@ the masked descents/pins are untouched:
       SLACK_OP, no wrap side condition, no ARP/alpha coupling).
       Falls as 1/n (m column + fixed material only), vs the S2 pin
       surcharge which does NOT (already priced in both arms here).
-- [ ] S4 — docs/freeze: RANGE_AGGREGATION_DESIGN status flips, freeze
+- [x] S4 — docs/freeze: RANGE_AGGREGATION_DESIGN status flips, freeze
       rows (wave cap + partition rule + partial-sum gate; range-table
       spec digest), Section 7''/ladder reconciliation, this ledger.
+      DONE 2026-07-14: RANGE_AGGREGATION_DESIGN.md header flipped
+      (Section 2b BUILT+MEASURED with the S2 table appended in place,
+      Section 3 PILOT-MEASURED with the S3 table; Section 4 tranche
+      items marked LANDED/PARTIAL with the honest scope shifts).
+      Freeze row LKP-9 (freeze_check_ur1, gates both directions like
+      LKP-8): q31 C2 wave capacity = 134 at the U-K5c shape (135
+      fails); the deterministic partition rule at the 2^12/silu point
+      (data cap 76, 3 waves, chunk-wave budget 57, plan re-derives
+      identically, 77-commit triple wave busts C2); the partial-sum
+      gate (honest reveals ACCEPT, lied partial REJECTS at a fixed toy
+      instance); the ur2-range-table-v1 spec digest pinned (full hex);
+      and — resolving PROGRESS.md A-D3's recorded open item — the ARP
+      rejection constants: log M(1)/log M_joint(4) at the LKP-8 point
+      (t = 1.5, alpha = 3.5) as exact-formula windows plus the
+      behavioral gates (joint < 3 attempts/round, joint < per-unit
+      product). M4 Section 7''' gains the one-line S3-result pointer;
+      PROGRESS.md A-D3 note carries the dated RESOLVED line. LKP-5..8
+      digests and gates unmoved (verified in the same freeze-check
+      run). NOT closed here (recorded in Section 4's U-R3 item): the
+      quiesced ladder re-measure and the GPU_GO_NO_GO range-gate
+      re-run stay with the orchestrator.
 
 ## Design decisions (recorded before coding)
 
@@ -252,3 +273,11 @@ the masked descents/pins are untouched:
   2^20 peaks at 8.23 GiB under the 10G scope; 2^22 does not fit as
   built (CLI capped at 2^20; U-K9 B-D2's cap lift + claim-mass
   streaming would be the unblocking work).
+- 2026-07-14 (5): S3 rig + battery landed (0434a0e), measured
+  (43b2851 — table under S3; punchline 582 -> 0.0146 dce/el at 2^20).
+  The S1-deferred g-mask cross-use forgery leg landed with it.
+- 2026-07-14 (6): S4 landed — doc flips, LKP-9 freeze row (incl. the
+  A-D3 rejection-constant resolution), this ledger. Tranche S0-S4
+  complete; open residuals live in RANGE_AGGREGATION_DESIGN Section 4
+  (U-R3 PARTIAL: quiesced ladder + GPU gate re-run) and the S3 scope
+  notes (pad coverage, multi-table statement typing).

@@ -4969,6 +4969,7 @@ fn freeze_check() {
     // U-L — the F3 modulus-link freeze rows.
     all_ok &= freeze_check_link();
     all_ok &= freeze_check_uk8();
+    all_ok &= freeze_check_ur1();
 
     if all_ok {
         println!("freeze-check passed");
@@ -13938,4 +13939,120 @@ fn ffn_layer_range_bench(log2_el: usize) {
         "ffn-chain layer range bench done ({} el, all timings [NOISY-SHARED] 1T)",
         cr.n_el
     );
+}
+
+/// LKP-9 — the U-R1/U-R2 multi-wave + range-pilot operating point,
+/// pinned both directions (house freeze-row discipline): the C2 wave
+/// cap, the deterministic partition rule and its capacity wall, the
+/// partial-sum gate on split claims, the frozen range-table spec
+/// digest, and (resolving the A-D3 open item) the ARP rejection
+/// constants — ARP_REJ_T = 1.5 through log_m_joint at the LKP-8 point.
+fn freeze_check_ur1() -> bool {
+    use ring::ct_engine::{
+        CtClaim, ct_mul_centered, derive_arp_params, plan_waves, r1_pad_count,
+        split_claims_prover, split_claims_verifier,
+    };
+    let mut all_ok = true;
+    let mut gate = |label: &str, ok: bool| {
+        println!("  {} {label}", if ok { "ok  " } else { "FAIL" });
+        all_ok &= ok;
+    };
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    // The q31 C2 wave capacity at the U-K5c shape: 134 commitments
+    // (ur1_c2_max_commits returns THE maximum, so the row pins both
+    // directions: 134 derives, 135 does not).
+    gate(
+        "LKP-9 q31 C2 wave capacity at the U-K5c shape = 134 commitments (135 FAILS)",
+        ur1_c2_max_commits(Q8, shape) == 134,
+    );
+    // The deterministic partition rule at the pinned battery point
+    // (2^12, silu arm): data cap 76, 3 waves, chunk-wave linear budget
+    // 9 pins + 48 zeta rows; the plan re-derives identically (D-2). The
+    // capacity wall the cap sits under: a 77-data-commit triple wave
+    // would need 135 total commitments.
+    {
+        let ls1 = ur1_layer_shape(12, LayerArm::Lookup, shape, Q8);
+        let ls2 = ur1_layer_shape(12, LayerArm::Lookup, shape, Q8);
+        let wall_77 = 77 + (UR1_PIN_COPIES + 2 * 24 + r1_pad_count(0, (77 / 3) * 8, 0)).div_ceil(8);
+        gate(
+            "LKP-9 partition rule at 2^12/silu: data cap 76, 3 waves, chunk-wave budget 57; plan deterministic; 77-commit triple wave busts C2",
+            ls1.data_cap == 76
+                && ls1.plan.waves.len() == 3
+                && ls1.wave_lin.iter().any(|&l| l == UR1_PIN_COPIES + 48)
+                && ls1.plan.waves == ls2.plan.waves
+                && wall_77 > 134,
+        );
+    }
+    // The partial-sum gate on split claims (U-R1 D-1), both directions
+    // at a fixed toy instance: honest partial reveals ACCEPT; a lied
+    // partial REJECTS at the sum gate.
+    {
+        let ring_ctx = ring_ctx_q8();
+        let zq = ring_ctx.zq;
+        let mut rng = 0x5eed_1c99u64;
+        let msgs: Vec<Vec<Poly>> =
+            (0..2).map(|_| (0..2).map(|_| rng_poly_mod(&mut rng, Q8)).collect()).collect();
+        let plan = plan_waves(2, &[], 1);
+        let w0 = poly_from_small(&zq, &rng_quinary_poly(&mut rng));
+        let w1 = poly_from_small(&zq, &rng_quinary_poly(&mut rng));
+        let total = {
+            let a = ct_mul_centered(&zq, &w0, &msgs[0][0]) as i128
+                + ct_mul_centered(&zq, &w1, &msgs[1][1]) as i128;
+            let qq = Q8 as i128;
+            let mut r = a.rem_euclid(qq);
+            if r > qq / 2 {
+                r -= qq;
+            }
+            r as i64
+        };
+        let claims = vec![CtClaim {
+            msg_coeffs: vec![(0, 0, w0), (1, 1, w1)],
+            ajtai_coeffs: vec![],
+            scalar: total,
+        }];
+        let msg_refs: Vec<&[Poly]> = msgs.iter().map(|m| m.as_slice()).collect();
+        let (_, reveals) = split_claims_prover(&zq, &plan, &claims, &msg_refs);
+        let honest = split_claims_verifier(&zq, &plan, &claims, &reveals).is_some();
+        let mut lied = reveals.clone();
+        lied[0][0].1 += 1;
+        let rejected = split_claims_verifier(&zq, &plan, &claims, &lied).is_none();
+        gate(
+            "LKP-9 partial-sum gate: honest per-wave partials ACCEPT; a lied partial REJECTS (split_claims_verifier)",
+            honest && rejected,
+        );
+    }
+    // The frozen U-R2 range-table spec digest (w = 8, 256 rows).
+    gate(
+        "LKP-9 range-table spec digest (ur2-range-table-v1, w=8, 256 rows) pinned",
+        hex_full(&ur2_range_table_digest())
+            == "d85b1de6c38041c8cff9f93816219628296ef0d1cb9bb08c741266f8e87e76c6",
+    );
+    // The ARP rejection constants (resolves the A-D3 open item):
+    // ARP_REJ_T = 1.5 through log_m_joint at the LKP-8 unit
+    // (512-bit, alpha = 3.5) — exact-formula windows plus the two
+    // behavioral gates: the joint Q4.2b test expects < 3 attempts per
+    // 4-unit round, and beats the superseded per-unit product
+    // (log M_joint(4) < 4 log M(1) — the sqrt(k) saving).
+    {
+        let ap = derive_arp_params(512, 256, 1, UK8_ALPHA);
+        let lm1 = ap.log_m_joint(1);
+        let lm4 = ap.log_m_joint(4);
+        let want1 = 1.5 / 3.5 + 1.0 / (2.0 * 3.5 * 3.5);
+        let want4 = 1.5 * 2.0 / 3.5 + 4.0 / (2.0 * 3.5 * 3.5);
+        gate(
+            &format!(
+                "LKP-9 ARP rejection constants at LKP-8 (t = 1.5, alpha = 3.5): log M(1) = {lm1:.6} (e^-0.47/unit), log M_joint(4) = {lm4:.6} (~2.8 attempts/round), joint < per-unit product"
+            ),
+            (lm1 - want1).abs() < 1e-12
+                && (lm4 - want4).abs() < 1e-12
+                && lm4.exp() < 3.0
+                && lm4 < 4.0 * lm1,
+        );
+    }
+    all_ok
+}
+
+/// Full 64-hex-char digest rendering (freeze-row pinning).
+fn hex_full(d: &[u8; 32]) -> String {
+    d.iter().map(|b| format!("{b:02x}")).collect()
 }

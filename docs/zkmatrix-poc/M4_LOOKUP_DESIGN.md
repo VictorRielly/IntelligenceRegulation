@@ -789,6 +789,13 @@ claimed here: the box was [NOISY-SHARED] with ~2x run-to-run q46
 variance, and the post-fix wall-clock share awaits the orchestrator's
 quiesced ladder pass.
 
+U-R2 S3 result pointer (2026-07-14): the range-lookup pilot replacing
+this wall's plane+ARP architecture is PILOT-MEASURED —
+RANGE_AGGREGATION_DESIGN.md Section 3's appended table (range
+certification at ~0.07-0.27 dce/el and ~+15-18 us/el prove
+attribution vs 582 dce/el / ~10.3 ms/el as-built); the rejection
+constants above are now pinned both directions by freeze row LKP-9.
+
 Forward plan for the range wall itself: RANGE_AGGREGATION_DESIGN.md
 (paper-first study, commit b6bb1e2) prices the Phase-5 pair — the
 multi-wave C2-cap lift and the range-lookup rung — and its proposed
