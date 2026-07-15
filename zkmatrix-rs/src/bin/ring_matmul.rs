@@ -3897,11 +3897,13 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
     mf.add_operation(Operation::Range { value: id_r, bits: id_bits, width: shift, signed: false });
     mf.add_operation(Operation::Hadamard { x: id_hx, y: id_hy, z: id_hz });
 
-    // --- The validated statement (format v2, audit C-02). ------------------
+    // --- The validated statement (format v3, audit 2026-07-12 Phase 2). ----
     // Header: model identity digest (architecture + dims + the weight
-    // commitment digest) and the frozen activation-table digest (the SiLU
+    // commitment digest), the TYPED frozen activation-table spec (the SiLU
     // int8 spec of ring/lookup.rs — declared model semantics; the demo
-    // chain does not yet PROVE a lookup op, see TARGET_CONTRACT.md).
+    // chain does not yet PROVE a lookup op, see TARGET_CONTRACT.md), and
+    // the modulus capacity of the smallest layer (q31; the bit planes live
+    // at q46, which is wider).
     let model_digest: [u8; 32] = {
         use sha2::{Digest, Sha256};
         let mut hasher = Sha256::new();
@@ -3914,8 +3916,18 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
     };
     let table_digest =
         ring::lookup::table_spec_digest(&ring::lookup::silu_int8_table());
+    assert_eq!(
+        table_digest, manifest::SILU_INT8_TABLE_DIGEST,
+        "frozen SiLU table digest parity (manifest constant vs ring/lookup.rs)"
+    );
+    let modulus_bits = (63 - q.leading_zeros()).min(63 - q_g.leading_zeros());
     let quant = |bits: u32, frac_bits: u32| manifest::QuantMeta { bits, frac_bits, signed: false };
-    let mut statement = manifest::Statement::new(model_digest, table_digest, mf.clone());
+    let mut statement = manifest::Statement::new(
+        model_digest,
+        Some(manifest::SILU_INT8_TABLE_SPEC),
+        modulus_bits,
+        mf.clone(),
+    );
     statement.quant = vec![
         quant(w_in_bits, 2),        // W1
         quant(w_in_bits, 2),        // X0
@@ -3927,6 +3939,23 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         quant(8, 0),                // HY
         quant(16, 0),               // HZ
     ];
+    // Canonical padding: per-column packing pads each vector to the full
+    // commitment capacity (q31 value layer: msg_r * D coefficients; q46
+    // plane stack: msg_r_g * D; slot-packed Hadamard: msg_r * k slots).
+    let cap = cshape.msg_r * D;
+    let cap_g = msg_r_g * D;
+    let cap_h = cshape.msg_r * ring_ctx.k;
+    statement.pad = vec![
+        manifest::PadSpec::units(n1, n0, 1, cap),                    // W1 (by rows)
+        manifest::PadSpec::units(n0, n3, cap, 1),                    // X0
+        manifest::PadSpec::units(n1, n3, cap, 1),                    // Y1
+        manifest::PadSpec::units(n1, n3, cap, 1),                    // Y2
+        manifest::PadSpec::units(n1, n3, cap, 1),                    // R
+        manifest::PadSpec::units(n1 * shift as usize, n3, cap_g, 1), // R-bits (q46)
+        manifest::PadSpec::units(n2, 1, cap_h, 1),                   // HX
+        manifest::PadSpec::units(n2, 1, cap_h, 1),                   // HY
+        manifest::PadSpec::units(n2, 1, cap_h, 1),                   // HZ
+    ];
     statement.outputs = vec![id_y2, id_hz];
     let ctx = match statement.digest() {
         Ok(digest) => digest,
@@ -3935,7 +3964,7 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
             std::process::exit(1);
         }
     };
-    println!("  ok   statement v2 validates (9 entries, {} operations, 2 outputs)", mf.operations.len());
+    println!("  ok   statement v3 validates (9 entries, {} operations, 2 outputs)", mf.operations.len());
 
     // --- [U7v] malicious-statement battery: every entry in the audit's ----
     // --- C-02 list is REJECTED with a structured error, pre-crypto.    ----
@@ -3984,10 +4013,10 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         let mut bad = statement.clone();
         bad.outputs.retain(|&id| id != id_hz);
         expect("unconsumed tensor", &bad, |e| matches!(e, SE::UnconsumedEntry { .. }));
-        // (7) Unknown format version.
+        // (7) Unknown format version (v2 is retired; only v3 validates).
         let mut bad = statement.clone();
-        bad.header.version = 3;
-        expect("unknown statement version", &bad, |e| matches!(e, SE::UnknownVersion { got: 3 }));
+        bad.header.version = 2;
+        expect("unknown statement version", &bad, |e| matches!(e, SE::UnknownVersion { got: 2 }));
         // (8) Missing quantization metadata.
         let mut bad = statement.clone();
         bad.quant.pop();
@@ -4092,10 +4121,21 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         ]);
         bad.manifest.add_operation(Operation::Lookup { x: lx, y: ly });
         bad.outputs.push(ly);
-        bad.header.table_digest = [7u8; 32];
+        bad.header.table =
+            Some(manifest::TableSpec { digest: [7u8; 32], ..manifest::SILU_INT8_TABLE_SPEC });
         expect("attacker-chosen lookup table digest", &bad, |e| {
             matches!(e, SE::TableDigestMismatch)
         });
+
+        // (14b) Right digest, lying table metadata: the typed spec is
+        // bound by exact equality, not by digest alone.
+        let mut bad = statement.clone();
+        bad.header.table = Some(manifest::TableSpec {
+            input: manifest::QuantMeta { bits: 8, frac_bits: 3, signed: true },
+            ..manifest::SILU_INT8_TABLE_SPEC
+        });
+        bad.manifest.add_operation(Operation::Lookup { x: id_hx, y: id_hy });
+        expect("table spec metadata lie", &bad, |e| matches!(e, SE::TableSpecMismatch));
 
         // (15) Signed capacity uses the positive endpoint. (-128)*(-128)
         // is +16384 and does not fit signed 15-bit output.
@@ -4104,7 +4144,7 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         let eb = endpoint_mf.add_commitment("B", 1, 1, Orientation::RowMajor, vec![], vec![]);
         let ec = endpoint_mf.add_commitment("C", 1, 1, Orientation::RowMajor, vec![], vec![]);
         endpoint_mf.add_operation(Operation::Matmul { a: ea, b: eb, c: ec });
-        let mut endpoint = manifest::Statement::new([1u8; 32], table_digest, endpoint_mf);
+        let mut endpoint = manifest::Statement::new([1u8; 32], None, modulus_bits, endpoint_mf);
         endpoint.quant = vec![
             manifest::QuantMeta { bits: 8, frac_bits: 4, signed: true },
             manifest::QuantMeta { bits: 8, frac_bits: 4, signed: true },
@@ -4121,7 +4161,7 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         let cb = cycle_mf.add_commitment("B", 1, 1, Orientation::RowMajor, vec![], vec![]);
         cycle_mf.add_operation(Operation::Scale { input: ca, output: cb, scalar_le: vec![1] });
         cycle_mf.add_operation(Operation::Scale { input: cb, output: ca, scalar_le: vec![1] });
-        let mut cycle = manifest::Statement::new([2u8; 32], table_digest, cycle_mf);
+        let mut cycle = manifest::Statement::new([2u8; 32], None, modulus_bits, cycle_mf);
         cycle.quant = vec![
             manifest::QuantMeta { bits: 8, frac_bits: 0, signed: false },
             manifest::QuantMeta { bits: 8, frac_bits: 0, signed: false },
@@ -4133,7 +4173,7 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         let mut empty_mf = ClaimManifest::new("statement-negative", b"empty-add");
         let eo = empty_mf.add_commitment("out", 1, 1, Orientation::RowMajor, vec![], vec![]);
         empty_mf.add_operation(Operation::Add { inputs: vec![], output: eo });
-        let mut empty = manifest::Statement::new([3u8; 32], table_digest, empty_mf);
+        let mut empty = manifest::Statement::new([3u8; 32], None, modulus_bits, empty_mf);
         empty.quant = vec![manifest::QuantMeta { bits: 8, frac_bits: 0, signed: false }];
         empty.outputs = vec![eo];
         expect("empty Add", &empty, |e| matches!(e, SE::EmptyAdd { .. }));
@@ -4142,7 +4182,7 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         let la = link_mf.add_commitment("A", 1, 1, Orientation::ByRows, vec![], vec![]);
         let lb = link_mf.add_commitment("B", 1, 1, Orientation::ByColumns, vec![], vec![]);
         link_mf.add_operation(Operation::LinkEqual { left: la, right: lb });
-        let mut link = manifest::Statement::new([4u8; 32], table_digest, link_mf);
+        let mut link = manifest::Statement::new([4u8; 32], None, modulus_bits, link_mf);
         link.quant = vec![
             manifest::QuantMeta { bits: 8, frac_bits: 0, signed: false },
             manifest::QuantMeta { bits: 8, frac_bits: 0, signed: false },
@@ -4754,8 +4794,33 @@ fn statement_inventory() {
         hasher.finalize().into()
     };
     let table_digest = ring::lookup::table_spec_digest(&ring::lookup::silu_int8_table());
-    let mut st = Statement::new(model_digest, table_digest, mf);
+    assert_eq!(
+        table_digest, manifest::SILU_INT8_TABLE_DIGEST,
+        "frozen SiLU table digest parity (manifest constant vs ring/lookup.rs)"
+    );
+    // q31 value layer bounds the modulus capacity (bit planes live at q46).
+    let modulus_bits = 63 - Q8.leading_zeros();
+    let mut st = Statement::new(
+        model_digest,
+        Some(manifest::SILU_INT8_TABLE_SPEC),
+        modulus_bits,
+        mf,
+    );
     st.quant = quant;
+    // Canonical padding: both frozen layers pack msg_r = 32 ring elements
+    // of degree D per commitment — vectors pad to 32 * D = 4096 slots
+    // (rows for by-columns entries, cols for the by-rows weights).
+    st.pad = st
+        .manifest
+        .commitments
+        .iter()
+        .map(|e| match e.orientation {
+            Orientation::ByRows => {
+                manifest::PadSpec::units(e.rows as usize, e.cols as usize, 1, 32 * D)
+            }
+            _ => manifest::PadSpec::units(e.rows as usize, e.cols as usize, 32 * D, 1),
+        })
+        .collect();
     st.outputs = vec![x_in];
     let (n_entries, n_ops) = (st.manifest.commitments.len(), st.manifest.operations.len());
     match st.validate() {
@@ -10869,7 +10934,18 @@ fn ffn_chain_run(
         mf.add_operation(Operation::Lookup { x: id_x, y: id_y });
     }
     mf.add_operation(Operation::Hadamard { x: id_y, y: id_up, z: id_z });
-    let mut statement = manifest::Statement::new(model_digest, spec_dg, mf);
+    assert_eq!(
+        spec_dg, manifest::SILU_INT8_TABLE_DIGEST,
+        "frozen SiLU table digest parity (manifest constant vs ring/lookup.rs)"
+    );
+    // Modulus capacity: the q31 value layer bounds it (planes live at q46).
+    let modulus_bits = (63 - q.leading_zeros()).min(63 - q_g.leading_zeros());
+    let mut statement = manifest::Statement::new(
+        model_digest,
+        Some(manifest::SILU_INT8_TABLE_SPEC),
+        modulus_bits,
+        mf,
+    );
     statement.quant = vec![
         QuantMeta { bits: 8, frac_bits: 4, signed: true },   // X
         QuantMeta { bits: 1, frac_bits: 0, signed: false },  // X-bits
@@ -10877,12 +10953,21 @@ fn ffn_chain_run(
         QuantMeta { bits: 8, frac_bits: 4, signed: true },   // UP
         QuantMeta { bits: 16, frac_bits: 8, signed: true },  // Z
     ];
+    // Canonical padding: the block grid (UK8_B logical elements per block;
+    // the plane stack rides 8 planes per element).
+    statement.pad = vec![
+        manifest::PadSpec::units(n_el, 1, UK8_B, 1),         // X
+        manifest::PadSpec::units(8 * n_el, 1, 8 * UK8_B, 1), // X-bits
+        manifest::PadSpec::units(n_el, 1, UK8_B, 1),         // Y
+        manifest::PadSpec::units(n_el, 1, UK8_B, 1),         // UP
+        manifest::PadSpec::units(n_el, 1, UK8_B, 1),         // Z
+    ];
     statement.outputs = vec![id_z];
     let mut verdict = ChainVerdict { statement_ok: true, lookup_ok: true, wave_ok: true, q46_ok: true, gates_ok: true, junk_harm: false };
     let ctx_stmt: [u8; 32] = match statement.digest() {
         Ok(d) => d,
         Err(e) => {
-            println!("  FAIL statement v2 does not validate: {e}");
+            println!("  FAIL statement v3 does not validate: {e}");
             verdict.statement_ok = false;
             return (verdict, cost);
         }
@@ -12015,7 +12100,12 @@ fn self_test_m5_chunking() {
     ki.extend_from_slice(&(wide_len as u32).to_le_bytes());
     let mut mf = ClaimManifest::new("lattice-route-r", &crs.crs_hash);
     let _id = mf.add_commitment("WIDE", 1, wide_len, Orientation::ByColumns, ki, dg.to_vec());
-    let ctx = mf.digest();
+    // The bare manifest digest is retired (statement v3, audit H-03); this
+    // LAYOUT battery seeds its transcript from the wide-object digest
+    // directly. Production chains bind wide entries through a validated
+    // statement (chain-demo / ffn-chain), whose random mod-q test vectors
+    // carry no integer-typed statement here.
+    let ctx = uk8_sha(&[b"m5-wide-chunk-ctx-v3", &crs.crs_hash, &dg]);
 
     // Protocol equations unchanged: RingClaims address (chunk, slot) pairs
     // through wide_slot — per-slot claims plus one claim SPANNING chunks.
@@ -13416,13 +13506,32 @@ fn ffn_layer_run(
     quant.push(QuantMeta { bits: 8, frac_bits: 4, signed: true }); // Y
     quant.push(QuantMeta { bits: 8, frac_bits: 4, signed: true }); // UP
     quant.push(QuantMeta { bits: 16, frac_bits: 8, signed: true }); // Z
-    let mut statement = manifest::Statement::new(model_digest, spec_dg, mf);
+    assert_eq!(
+        spec_dg, manifest::SILU_INT8_TABLE_DIGEST,
+        "frozen SiLU table digest parity (manifest constant vs ring/lookup.rs)"
+    );
+    // Canonical padding: X is dense-packed (msg_r * D coefficients per
+    // commitment); Y/UP/Z are slot-packed (msg_r * k slots).
+    let pad_x = manifest::PadSpec::units(n_el, 1, msg_r * D, 1);
+    let pad_slot = manifest::PadSpec::units(n_el, 1, msg_r * k_slots, 1);
+    let pads = if arm.has_silu() {
+        vec![pad_x, pad_slot, pad_slot, pad_slot]
+    } else {
+        vec![pad_slot, pad_slot, pad_slot]
+    };
+    let mut statement = manifest::Statement::new(
+        model_digest,
+        Some(manifest::SILU_INT8_TABLE_SPEC),
+        63 - q.leading_zeros(),
+        mf,
+    );
     statement.quant = quant;
+    statement.pad = pads;
     statement.outputs = vec![id_z];
     let ctx_stmt: [u8; 32] = match statement.digest() {
         Ok(d) => d,
         Err(e) => {
-            println!("  FAIL layer statement v2 does not validate: {e}");
+            println!("  FAIL layer statement v3 does not validate: {e}");
             verdict.statement_ok = false;
             return (verdict, cost);
         }

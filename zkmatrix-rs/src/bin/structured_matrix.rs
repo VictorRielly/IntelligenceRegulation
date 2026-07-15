@@ -3642,8 +3642,48 @@ fn chain_demo(rows: usize, k: usize, m1: usize, m2: usize) {
         });
         m
     };
+    // The VALIDATED statement (manifest v3, audit H-03): the pairing-track
+    // chain digest also comes only from a validated typed statement. The
+    // witnesses are 6-bit unsigned integers (random_values draws % 64), so
+    // the integer typing below is honest: Y and Z are exact integer
+    // accumulators far below the BLS12-381 scalar modulus.
+    let ubits = |hi: u128| -> u32 { 128 - hi.leading_zeros() };
+    let acc1_bits = ubits(k as u128 * 63 * 63);
+    let acc2_bits = ubits(m1 as u128 * ((1u128 << acc1_bits) - 1) * 63);
+    let model_digest: [u8; 32] = {
+        let mut hasher = Sha256::new();
+        hasher.update(b"structured-chain-demo-model-v1");
+        for dim in [rows, k, m1, m2] {
+            hasher.update((dim as u64).to_le_bytes());
+        }
+        hasher.update(&w1_commit.to_affine().to_compressed());
+        hasher.update(&w2_commit.to_affine().to_compressed());
+        hasher.finalize().into()
+    };
+    let build_statement = |mf: &ClaimManifest| -> manifest::Statement {
+        let q6 = manifest::QuantMeta { bits: 6, frac_bits: 0, signed: false };
+        // BLS12-381 scalar field: floor(log2 r) = 254; no lookup table.
+        let mut st = manifest::Statement::new(model_digest, None, 254, mf.clone());
+        st.quant = vec![
+            q6,                                                            // X
+            q6,                                                            // W1
+            manifest::QuantMeta { bits: acc1_bits, frac_bits: 0, signed: false }, // Y (claim 1)
+            manifest::QuantMeta { bits: acc1_bits, frac_bits: 0, signed: false }, // Y (claim 2)
+            q6,                                                            // W2
+            manifest::QuantMeta { bits: acc2_bits, frac_bits: 0, signed: false }, // Z
+        ];
+        // SRS windows hold the exact row-major flattening: no padding.
+        st.pad = mf
+            .commitments
+            .iter()
+            .map(|e| manifest::PadSpec::exact(e.rows as usize, e.cols as usize))
+            .collect();
+        st.outputs = vec![5];
+        st
+    };
     let manifest = build_manifest(y_commit_a, z_commit);
-    let ctx = manifest.digest();
+    let statement = build_statement(&manifest);
+    let ctx = statement.digest().expect("honest chain statement must validate");
 
     let stmt1 = Statement {
         a_commit: x_commit,
@@ -3732,7 +3772,9 @@ fn chain_demo(rows: usize, k: usize, m1: usize, m2: usize) {
     let y2_commit_a = commit_window(&srs, layout2.off_a, &y2, y_a_blind);
     let z2_commit = commit_window(&srs, layout2.off_c, &z2, z_blind);
     let manifest2 = build_manifest(y2_commit_a, z2_commit);
-    let ctx2 = manifest2.digest();
+    let ctx2 = build_statement(&manifest2)
+        .digest()
+        .expect("substituted-Y statement is well-formed (the LINK must catch it)");
     let stmt2b = Statement {
         a_commit: y2_commit_a,
         b_commit: w2_commit,
@@ -3805,11 +3847,24 @@ fn chain_demo(rows: usize, k: usize, m1: usize, m2: usize) {
         "wrong left commitment in link must fail"
     );
 
-    // Negative case 4: manifest reordering. Same commitments, different
-    // order => different context digest => every proof fails against it.
-    let mut reordered = manifest.clone();
-    reordered.commitments.swap(0, 1);
-    let ctx_reordered = reordered.digest();
+    // Negative case 4: manifest reordering. Bare reordering now fails
+    // validation outright (ids are no longer dense — statement v3 cannot
+    // even form a digest), and a well-formed statement that binds the SAME
+    // commitments in swapped roles (the two Y windows exchanged, ids kept
+    // dense) yields a different context digest, so every proof fails.
+    let mut broken = build_statement(&manifest);
+    broken.manifest.commitments.swap(0, 1);
+    assert!(
+        broken.digest().is_err(),
+        "reordered manifest must fail statement validation (non-dense ids)"
+    );
+    let mut reordered = build_statement(&manifest);
+    reordered.manifest.commitments.swap(2, 3);
+    reordered.manifest.commitments[2].id = 2;
+    reordered.manifest.commitments[3].id = 3;
+    let ctx_reordered = reordered
+        .digest()
+        .expect("role-swapped statement is well-formed but differs");
     assert_ne!(ctx, ctx_reordered, "reordered manifest digest must differ");
     assert!(
         !verify_zk_matrix(&layout1, &srs, &ctx_reordered, &stmt1, &proof1),

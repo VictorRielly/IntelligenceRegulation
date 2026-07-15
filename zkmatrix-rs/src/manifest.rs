@@ -156,9 +156,15 @@ impl ClaimManifest {
         self.operations.push(operation);
     }
 
-    /// Order-sensitive digest of the whole manifest. Absorbed into every
-    /// Fiat-Shamir challenge of every claim proven against this manifest.
-    pub fn digest(&self) -> [u8; 32] {
+    /// Order-sensitive digest of the whole manifest.
+    ///
+    /// PRIVATE since Statement v3 (audit 2026-07-12 finding H-03): a bare
+    /// manifest digest binds caller-supplied entries without validating
+    /// them, so it must never seed a transcript directly. The only path to
+    /// a transcript context is `Statement::digest()`, which refuses to
+    /// hash an invalid statement. Migration tests may use
+    /// `digest_v1_migration_only`.
+    fn digest(&self) -> [u8; 32] {
         let mut hasher = Sha256::new();
         absorb_bytes(&mut hasher, MANIFEST_VERSION.as_bytes());
         absorb_bytes(&mut hasher, self.backend.as_bytes());
@@ -253,6 +259,13 @@ impl ClaimManifest {
         }
         hasher.finalize().into()
     }
+
+    /// The retired v1 bare digest, reachable only from migration tests.
+    /// Production code paths must go through `Statement::digest()`.
+    #[cfg(test)]
+    pub fn digest_v1_migration_only(&self) -> [u8; 32] {
+        self.digest()
+    }
 }
 
 // ===========================================================================
@@ -304,14 +317,85 @@ impl ClaimManifest {
 //   is one more claim over the same commitment, which over-determines but
 //   never weakens the statement.)
 //
-// The validator is backend-agnostic: modulus-specific non-wrap budgets
-// (e.g. "the declared accumulator width fits under q31/2") are asserted by
-// the proving layer against the SAME declared widths this validator pins.
+// ===========================================================================
+// Statement v3 — TYPED INTEGER SEMANTICS (audit 2026-07-12, Phase 2).
+//
+// v3 replaces v2's symmetric magnitude model with the following frozen,
+// typed integer specification. Every rule below is machine-enforced by
+// `validate()`; the digest cannot form until all of them hold.
+//
+// RAW ENCODING. Every committed tensor element is one integer `raw` stored
+// in the backend's residue field: unsigned tensors store `raw` directly,
+// signed tensors store the centered two's-complement residue `raw mod q`
+// (negative values as `q - |raw|`). A `QuantMeta { bits, frac_bits,
+// signed }` declares the STORAGE TYPE of the raw integer:
+//
+//   unsigned:  raw in [0, 2^bits - 1]
+//   signed:    raw in [-2^(bits-1), 2^(bits-1) - 1]
+//
+// Signed bounds are ASYMMETRIC (audit C-03b): the positive endpoint
+// +2^(bits-1) is NOT representable, and the validator propagates lower and
+// upper bounds separately through every operation (interval arithmetic),
+// so a product like (-2^7) * (-2^7) = +2^14 needs 16 signed bits, not 15.
+//
+// SCALE EXPONENT. The represented real value is `raw * 2^-frac_bits`.
+// `frac_bits` is a pure scale-exponent annotation over the SAME raw
+// integer; it composes exactly and is NEVER waived (audit C-03a):
+//
+//   Matmul / Hadamard:  frac(out) = frac(a) + frac(b)
+//   Add / Scale / links: frac(out) = frac(in)   (all inputs equal)
+//   Rescale by 2^shift:  frac(y) = frac(x) - shift, frac(r) = frac(x)
+//
+// A Range or Lookup fact narrows MAGNITUDE; it does not change the scale
+// an integer represents, so the scale equations above hold whether or not
+// the output is narrowed.
+//
+// CALIBRATED NARROWING. A Rescale, Hadamard or Add output declared with a
+// range (or signedness) the worst-case interval does not cover is legal
+// only when the statement itself PROVES the narrowing: a Range fact of
+// exactly the declared width/signedness on the output, or a Lookup
+// consuming it (table-domain membership). An uncalibrated witness then
+// simply cannot produce the fact — completeness loss, never a soundness
+// hole. Matmul accumulators never narrow: a range fact on the SUM does
+// not bound the partial sums, so the declared accumulator type must cover
+// the full worst case. Even when narrowed, the PRE-narrowing worst-case
+// interval must fit the modulus window (below) — that containment is what
+// turns the mod-q identity plus the range fact into an integer identity.
+//
+// MODULUS CAPACITY. The header declares `modulus_bits` = floor(log2 q) of
+// the smallest backend modulus any entry lives at. Every declared entry
+// type must inject into Z_q (bits <= modulus_bits), and every operation's
+// worst-case interval must fit the centered window
+// [-2^(modulus_bits-1), 2^(modulus_bits-1) - 1] — the non-wrap condition
+// the integer-identity arguments need.
+//
+// TYPED TABLE BINDING (audit C-03c). A statement that uses `Lookup` binds
+// a full `TableSpec` — digest, input/output quantization, domain — and
+// the validator requires EXACT metadata equality with the canonical
+// frozen spec, not merely a nonzero digest.
+//
+// CANONICAL PADDING. Every entry declares its padded physical extent via
+// `PadSpec`: the padded dimension must be the exact next multiple of the
+// declared packing unit — no prover-chosen slack in which junk slots can
+// hide. Physical slot capacity beyond the canonical padded grid is the
+// proving layer's responsibility to keep constrained (junk-free).
+//
+// TOPOLOGY. The operation list must be topologically ordered: an operation
+// may read an entry only if it is a leaf (produced by no operation) or at
+// least one producer appears strictly earlier in the list. The entry-level
+// producer graph must be acyclic, the operation list nonempty, and at
+// least one output declared.
+//
+// The validator is backend-agnostic: residue-specific proof budgets
+// (sigma sizes, ARP budgets) are asserted by the proving layer against the
+// SAME declared types this validator pins.
 
-/// Statement format version. v2 = the first validated format; the bare
+/// Statement format version. v3 = typed integer semantics (asymmetric
+/// bounds, typed table spec, modulus capacity, canonical padding,
+/// topological ordering); v2 = the first validated format; the bare
 /// hash-only manifest above is retroactively "v1". Unknown versions reject.
-pub const STATEMENT_VERSION: u32 = 2;
-const STATEMENT_TAG: &str = "zkmatrix-statement-v2";
+pub const STATEMENT_VERSION: u32 = 3;
+const STATEMENT_TAG: &str = "zkmatrix-statement-v3";
 
 /// Per-tensor quantization metadata: integer bit width, fixed-point
 /// fraction bits, signedness. `bits` counts the full two's-complement
@@ -323,25 +407,135 @@ pub struct QuantMeta {
     pub signed: bool,
 }
 
-impl QuantMeta {
-    /// Worst-case magnitude of any element (unsigned: 2^bits - 1;
-    /// signed: 2^(bits-1), the offset convention's extreme).
-    fn max_abs(&self) -> u128 {
-        if self.signed {
-            1u128 << (self.bits - 1)
-        } else {
-            (1u128 << self.bits) - 1
+/// Inclusive lower/upper bounds of a raw integer — the asymmetric
+/// signed-bound representation of the v3 typed spec (audit C-03b).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct RawBounds {
+    pub lo: i128,
+    pub hi: i128,
+}
+
+impl RawBounds {
+    fn contains(&self, inner: RawBounds) -> bool {
+        self.lo <= inner.lo && inner.hi <= self.hi
+    }
+
+    /// Interval product (all four endpoint products; saturating i128 —
+    /// saturation only ever widens, which keeps rejection sound).
+    fn mul(self, other: RawBounds) -> RawBounds {
+        let c = [
+            self.lo.saturating_mul(other.lo),
+            self.lo.saturating_mul(other.hi),
+            self.hi.saturating_mul(other.lo),
+            self.hi.saturating_mul(other.hi),
+        ];
+        RawBounds { lo: *c.iter().min().unwrap(), hi: *c.iter().max().unwrap() }
+    }
+
+    fn add(self, other: RawBounds) -> RawBounds {
+        RawBounds {
+            lo: self.lo.saturating_add(other.lo),
+            hi: self.hi.saturating_add(other.hi),
         }
     }
 
-    /// Whether a symmetric magnitude bound is representable. Signed
-    /// two's-complement has one extra negative endpoint, so an absolute
-    /// bound of 2^(bits-1) is not safe for a value that may be positive.
-    fn fits_abs(&self, bound: u128) -> bool {
+    /// Scale by a nonnegative integer (matmul inner dimension, public
+    /// scalar).
+    fn scale(self, n: i128) -> RawBounds {
+        RawBounds { lo: self.lo.saturating_mul(n), hi: self.hi.saturating_mul(n) }
+    }
+
+    /// Floor division by 2^shift (arithmetic shift = the Euclidean
+    /// quotient convention of Rescale).
+    fn shr(self, shift: u32) -> RawBounds {
+        RawBounds { lo: self.lo >> shift, hi: self.hi >> shift }
+    }
+
+    /// The centered modulus window [-2^(mb-1), 2^(mb-1) - 1]. mb >= 128
+    /// always passes: any i128-representable interval fits.
+    fn fits_modulus(&self, modulus_bits: u32) -> bool {
+        if modulus_bits >= 128 {
+            return true;
+        }
+        let w = 1i128 << (modulus_bits - 1);
+        self.lo >= -w && self.hi < w
+    }
+}
+
+impl QuantMeta {
+    /// The declared storage type's raw-integer bounds (see the v3 typed
+    /// spec above): unsigned [0, 2^bits - 1], signed
+    /// [-2^(bits-1), 2^(bits-1) - 1] — asymmetric, the positive endpoint
+    /// excluded.
+    pub fn raw_bounds(&self) -> RawBounds {
         if self.signed {
-            bound < (1u128 << (self.bits - 1))
+            RawBounds { lo: -(1i128 << (self.bits - 1)), hi: (1i128 << (self.bits - 1)) - 1 }
         } else {
-            bound <= (1u128 << self.bits) - 1
+            RawBounds { lo: 0, hi: (1i128 << self.bits) - 1 }
+        }
+    }
+}
+
+/// Typed activation-table binding (audit C-03c): the digest alone does not
+/// pin the table's integer semantics, so the statement binds the exact
+/// input/output quantization and the raw input domain, and the validator
+/// requires exact metadata equality with the canonical frozen spec.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct TableSpec {
+    /// `ring/lookup.rs::table_spec_digest` of the frozen integer table.
+    pub digest: [u8; 32],
+    /// Quantization of the table's input codes (the lookup domain).
+    pub input: QuantMeta,
+    /// Quantization of the table's output codes (the lookup image).
+    pub output: QuantMeta,
+    /// Inclusive raw domain endpoints (must equal the input type's range —
+    /// the table is total on its domain).
+    pub domain_min: i64,
+    pub domain_max: i64,
+}
+
+/// The canonical frozen activation table: `silu-int8-table-v1`
+/// (int8 -> int8, 4 fraction bits both sides, total on [-128, 127]).
+pub const SILU_INT8_TABLE_SPEC: TableSpec = TableSpec {
+    digest: SILU_INT8_TABLE_DIGEST,
+    input: QuantMeta { bits: 8, frac_bits: 4, signed: true },
+    output: QuantMeta { bits: 8, frac_bits: 4, signed: true },
+    domain_min: -128,
+    domain_max: 127,
+};
+
+/// Canonical padded physical extent of one committed tensor. The padded
+/// dimensions must be the EXACT next multiples of the declared packing
+/// units — canonical padding admits no prover-chosen slack (audit Phase 2
+/// item 5).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct PadSpec {
+    pub padded_rows: u64,
+    pub padded_cols: u64,
+    /// Packing unit the padded row count must be the next multiple of
+    /// (e.g. the per-commitment slot capacity of a by-columns layout).
+    pub row_unit: u64,
+    pub col_unit: u64,
+}
+
+impl PadSpec {
+    fn canonical(dim: u64, unit: u64) -> u64 {
+        dim.div_ceil(unit) * unit
+    }
+
+    /// An unpadded tensor (physical extent == logical extent).
+    pub fn exact(rows: usize, cols: usize) -> Self {
+        PadSpec::units(rows, cols, 1, 1)
+    }
+
+    /// The canonical padding of `rows x cols` to the given packing units.
+    pub fn units(rows: usize, cols: usize, row_unit: usize, col_unit: usize) -> Self {
+        let (ru, cu) = (row_unit.max(1) as u64, col_unit.max(1) as u64);
+        PadSpec {
+            padded_rows: PadSpec::canonical(rows as u64, ru),
+            padded_cols: PadSpec::canonical(cols as u64, cu),
+            row_unit: ru,
+            col_unit: cu,
         }
     }
 }
@@ -359,22 +553,26 @@ pub const SILU_INT8_TABLE_DIGEST: [u8; 32] = [
 
 /// The statement header: format version, the identity digest of the exact
 /// quantized model being claimed (weights + architecture + quantization
-/// spec), and the activation-table digest (ring/lookup.rs
-/// `table_spec_digest` — the frozen integer activation semantics).
+/// spec), the typed activation-table binding (None when the statement
+/// proves no Lookup), and the backend modulus capacity in bits
+/// (floor(log2 q) of the smallest modulus any entry lives at).
 #[derive(Clone, Copy, Debug)]
 pub struct StatementHeader {
     pub version: u32,
     pub model_digest: [u8; 32],
-    pub table_digest: [u8; 32],
+    pub table: Option<TableSpec>,
+    pub modulus_bits: u32,
 }
 
 /// A validated proof statement: header + manifest + per-entry quantization
-/// metadata (`quant[i]` describes entry id i) + declared outputs.
+/// metadata (`quant[i]` describes entry id i) + per-entry canonical
+/// padding (`pad[i]`) + declared outputs.
 #[derive(Clone, Debug)]
 pub struct Statement {
     pub header: StatementHeader,
     pub manifest: ClaimManifest,
     pub quant: Vec<QuantMeta>,
+    pub pad: Vec<PadSpec>,
     pub outputs: Vec<u32>,
 }
 
@@ -386,8 +584,30 @@ pub enum StatementError {
     UnknownVersion { got: u32 },
     /// Model identity digest is unset (all zero).
     MissingModelDigest,
-    /// Activation-table digest is unset (all zero).
+    /// A Lookup operation exists but the header binds no table spec, or a
+    /// bound table spec carries an all-zero digest.
     MissingTableDigest,
+    /// Header modulus capacity is nonsensical (outside 2..=255).
+    BadModulus { bits: u32 },
+    /// A declared entry type does not inject into the backend modulus
+    /// (bits > modulus_bits), or an operation's worst-case interval
+    /// escapes the centered modulus window.
+    ModulusCapacity { id: u32 },
+    /// The operation list is empty: the statement claims nothing.
+    EmptyOperations,
+    /// Operation `op` reads entry `id` before any producer of that entry
+    /// appears in the list (the list is not topologically ordered).
+    NotTopologicallyOrdered { op: usize, id: u32 },
+    /// pad.len() != number of commitment entries.
+    PadCount { entries: usize, pads: usize },
+    /// A padded extent is not the exact next multiple of its declared
+    /// packing unit (or a unit is zero).
+    NoncanonicalPadding { id: u32 },
+    /// No outputs are declared: the statement has no visible result.
+    NoOutputs,
+    /// A bound table spec's metadata does not equal the canonical frozen
+    /// spec exactly (digest matches, but quantization/domain lie).
+    TableSpecMismatch,
     /// Entry k's id is not k (ids must be dense and ordered).
     NonDenseIds { index: usize, id: u32 },
     /// Zero rows or columns.
@@ -447,7 +667,29 @@ impl std::fmt::Display for StatementError {
                 write!(f, "unknown statement version {got} (want {STATEMENT_VERSION})")
             }
             StatementError::MissingModelDigest => write!(f, "model identity digest is unset"),
-            StatementError::MissingTableDigest => write!(f, "activation-table digest is unset"),
+            StatementError::MissingTableDigest => {
+                write!(f, "lookup requires a bound activation-table spec (unset or zero digest)")
+            }
+            StatementError::BadModulus { bits } => {
+                write!(f, "modulus capacity {bits} bits is nonsensical")
+            }
+            StatementError::ModulusCapacity { id } => {
+                write!(f, "entry {id} escapes the declared modulus capacity")
+            }
+            StatementError::EmptyOperations => write!(f, "operation list is empty"),
+            StatementError::NotTopologicallyOrdered { op, id } => {
+                write!(f, "operation {op} reads entry {id} before any producer of it")
+            }
+            StatementError::PadCount { entries, pads } => {
+                write!(f, "{entries} entries but {pads} padding records")
+            }
+            StatementError::NoncanonicalPadding { id } => {
+                write!(f, "entry {id} padding is not the canonical next unit multiple")
+            }
+            StatementError::NoOutputs => write!(f, "no outputs declared"),
+            StatementError::TableSpecMismatch => {
+                write!(f, "table spec metadata does not equal the canonical frozen spec")
+            }
             StatementError::NonDenseIds { index, id } => {
                 write!(f, "entry {index} carries id {id} (ids must be dense)")
             }
@@ -535,18 +777,41 @@ fn first_dataflow_cycle(graph: &[Vec<usize>]) -> Option<u32> {
 }
 
 impl Statement {
-    pub fn new(model_digest: [u8; 32], table_digest: [u8; 32], manifest: ClaimManifest) -> Self {
+    pub fn new(
+        model_digest: [u8; 32],
+        table: Option<TableSpec>,
+        modulus_bits: u32,
+        manifest: ClaimManifest,
+    ) -> Self {
         Statement {
-            header: StatementHeader { version: STATEMENT_VERSION, model_digest, table_digest },
+            header: StatementHeader {
+                version: STATEMENT_VERSION,
+                model_digest,
+                table,
+                modulus_bits,
+            },
             manifest,
             quant: Vec::new(),
+            pad: Vec::new(),
             outputs: Vec::new(),
         }
     }
 
+    /// The exact narrowing-fact rule of the typed spec: a Range fact of
+    /// exactly the declared width/signedness on `id`, or a Lookup
+    /// consuming `id` (table-domain membership bounds it).
+    fn narrowing_fact(&self, id: u32, q: &QuantMeta) -> bool {
+        self.manifest.operations.iter().any(|other| {
+            matches!(other, Operation::Range { value, width, signed, .. }
+                if *value == id && *width == q.bits && *signed == q.signed)
+                || matches!(other, Operation::Lookup { x: lx, .. } if *lx == id)
+        })
+    }
+
     /// Full structural validation. Fail-fast: returns the FIRST violation
-    /// in a deterministic order (header, entries, quant, operations,
-    /// DAG coverage, outputs).
+    /// in a deterministic order (header, entries, quant + modulus
+    /// injection, operations, cycles, topological order, padding,
+    /// outputs/coverage).
     pub fn validate(&self) -> Result<(), StatementError> {
         use StatementError as E;
         // --- Header. ------------------------------------------------------
@@ -556,8 +821,14 @@ impl Statement {
         if self.header.model_digest == [0u8; 32] {
             return Err(E::MissingModelDigest);
         }
-        if self.header.table_digest == [0u8; 32] {
-            return Err(E::MissingTableDigest);
+        if let Some(table) = &self.header.table {
+            if table.digest == [0u8; 32] {
+                return Err(E::MissingTableDigest);
+            }
+        }
+        let mb = self.header.modulus_bits;
+        if !(2..=255).contains(&mb) {
+            return Err(E::BadModulus { bits: mb });
         }
         // --- Entries: dense ids, non-empty shapes. -------------------------
         let entries = &self.manifest.commitments;
@@ -569,7 +840,8 @@ impl Statement {
                 return Err(E::EmptyShape { id: entry.id });
             }
         }
-        // --- Quantization metadata present and sane per entry. -------------
+        // --- Quantization metadata present and sane per entry; every
+        // --- declared type must inject into the backend modulus. -----------
         if self.quant.len() != entries.len() {
             return Err(E::QuantCount { entries: entries.len(), quants: self.quant.len() });
         }
@@ -579,6 +851,12 @@ impl Statement {
             if q.bits == 0 || q.bits > 64 || q.frac_bits > 64 {
                 return Err(E::BadQuant { id: index as u32 });
             }
+            if q.bits > mb {
+                return Err(E::ModulusCapacity { id: index as u32 });
+            }
+        }
+        if self.manifest.operations.is_empty() {
+            return Err(E::EmptyOperations);
         }
         let entry = |op: usize, id: u32| -> Result<&CommitmentEntry, StatementError> {
             entries.get(id as usize).ok_or(E::DanglingId { op, id })
@@ -600,8 +878,15 @@ impl Statement {
         let mut read = vec![false; entries.len()];
         let mut written = vec![false; entries.len()];
         let mut flow = vec![Vec::<usize>::new(); entries.len()];
+        // Topological-order bookkeeping: the first operation index that
+        // PRODUCES each entry, and every (op, id) operand-read event. A
+        // fact subject (Range/Binary/link operands) is a read.
+        let mut first_producer = vec![usize::MAX; entries.len()];
+        let mut read_events: Vec<(usize, u32)> = Vec::new();
         // --- Per-operation checks. -----------------------------------------
         for (op, operation) in self.manifest.operations.iter().enumerate() {
+            let mut reads: Vec<u32> = Vec::new();
+            let mut writes: Vec<u32> = Vec::new();
             match operation {
                 Operation::Matmul { a, b, c } => {
                     let (ea, eb, ec) = (entry(op, *a)?, entry(op, *b)?, entry(op, *c)?);
@@ -629,18 +914,24 @@ impl Statement {
                     if qc.frac_bits != qa.frac_bits + qb.frac_bits {
                         return Err(E::QuantMismatch { op, id: *c, field: "matmul fraction bits" });
                     }
-                    // Accumulator magnitude: inner * max_a * max_b must fit.
-                    let acc = (ea.cols as u128)
-                        .saturating_mul(qa.max_abs())
-                        .saturating_mul(qb.max_abs());
-                    if !qc.fits_abs(acc) {
+                    // Accumulator interval: inner * (a-bounds x b-bounds),
+                    // lower and upper endpoints tracked separately. A
+                    // matmul accumulator NEVER narrows: a range fact on
+                    // the sum does not bound the partial sums.
+                    let acc = qa.raw_bounds().mul(qb.raw_bounds()).scale(ea.cols as i128);
+                    if !qc.raw_bounds().contains(acc) {
                         return Err(E::QuantMismatch { op, id: *c, field: "matmul accumulator width" });
+                    }
+                    if !acc.fits_modulus(mb) {
+                        return Err(E::QuantMismatch { op, id: *c, field: "modulus capacity" });
                     }
                     flow[*a as usize].push(*c as usize);
                     flow[*b as usize].push(*c as usize);
                     read[*a as usize] = true;
                     read[*b as usize] = true;
                     written[*c as usize] = true;
+                    reads.extend([*a, *b]);
+                    writes.push(*c);
                 }
                 Operation::Hadamard { x, y, z } => {
                     let (ex, ey, ez) = (entry(op, *x)?, entry(op, *y)?, entry(op, *z)?);
@@ -649,20 +940,35 @@ impl Statement {
                     same_orient(op, ex, ey)?;
                     same_orient(op, ex, ez)?;
                     let (qx, qy, qz) = (quant(*x), quant(*y), quant(*z));
-                    if qz.signed != (qx.signed || qy.signed) {
-                        return Err(E::QuantMismatch { op, id: *z, field: "hadamard signedness" });
-                    }
+                    // Scale exponents compose unconditionally (C-03a).
                     if qz.frac_bits != qx.frac_bits + qy.frac_bits {
                         return Err(E::QuantMismatch { op, id: *z, field: "hadamard fraction bits" });
                     }
-                    if !qz.fits_abs(qx.max_abs().saturating_mul(qy.max_abs())) {
-                        return Err(E::QuantMismatch { op, id: *z, field: "hadamard product width" });
+                    let worst = qx.raw_bounds().mul(qy.raw_bounds());
+                    // Calibrated narrowing: a declared type the worst case
+                    // does not cover (width OR signedness) is legal only
+                    // with a Range/Lookup fact on z.
+                    if !self.narrowing_fact(*z, qz) {
+                        if qz.signed != (qx.signed || qy.signed) {
+                            return Err(E::QuantMismatch { op, id: *z, field: "hadamard signedness" });
+                        }
+                        if !qz.raw_bounds().contains(worst) {
+                            return Err(E::QuantMismatch { op, id: *z, field: "hadamard product width" });
+                        }
+                    }
+                    // Narrowed or not, the PRE-narrowing interval must fit
+                    // the modulus window — that is what lets the mod-q
+                    // identity plus the fact imply the integer identity.
+                    if !worst.fits_modulus(mb) {
+                        return Err(E::QuantMismatch { op, id: *z, field: "modulus capacity" });
                     }
                     flow[*x as usize].push(*z as usize);
                     flow[*y as usize].push(*z as usize);
                     read[*x as usize] = true;
                     read[*y as usize] = true;
                     written[*z as usize] = true;
+                    reads.extend([*x, *y]);
+                    writes.push(*z);
                 }
                 Operation::Rescale { x, y, r, shift } => {
                     let (ex, ey, er) = (entry(op, *x)?, entry(op, *y)?, entry(op, *r)?);
@@ -680,7 +986,7 @@ impl Statement {
                     // Integer identity and fixed-point interpretation are
                     // independent of whether a later Range/Lookup proves a
                     // calibrated narrowing. Narrowing may justify width; it
-                    // cannot waive the scale equation.
+                    // cannot waive the scale equation (C-03a).
                     if qx.frac_bits < *shift || qy.frac_bits != qx.frac_bits - shift {
                         return Err(E::QuantMismatch { op, id: *y, field: "rescale fraction bits" });
                     }
@@ -694,15 +1000,12 @@ impl Statement {
                     // soundness hole. Without such a fact the declared
                     // width must cover the worst case and the fixed-point
                     // fraction bookkeeping must be exact.
-                    let narrowed = self.manifest.operations.iter().any(|other| {
-                        matches!(other, Operation::Range { value, width, signed, .. }
-                            if value == y && *width == qy.bits && *signed == qy.signed)
-                            || matches!(other, Operation::Lookup { x: lx, .. } if lx == y)
-                    });
-                    if !narrowed {
-                        if !qy.fits_abs(qx.max_abs() >> shift) {
-                            return Err(E::QuantMismatch { op, id: *y, field: "rescale width" });
-                        }
+                    let worst = qx.raw_bounds().shr(*shift);
+                    if !self.narrowing_fact(*y, qy) && !qy.raw_bounds().contains(worst) {
+                        return Err(E::QuantMismatch { op, id: *y, field: "rescale width" });
+                    }
+                    if !worst.fits_modulus(mb) {
+                        return Err(E::QuantMismatch { op, id: *y, field: "modulus capacity" });
                     }
                     if qr.signed || qr.bits != *shift || qr.frac_bits != qx.frac_bits {
                         return Err(E::QuantMismatch { op, id: *r, field: "rescale remainder quant" });
@@ -723,6 +1026,8 @@ impl Statement {
                     read[*r as usize] = true; // the Range fact below reads it
                     flow[*x as usize].push(*y as usize);
                     flow[*x as usize].push(*r as usize);
+                    reads.push(*x);
+                    writes.extend([*y, *r]);
                 }
                 Operation::Range { value, bits, width, signed } => {
                     let (ev, eb) = (entry(op, *value)?, entry(op, *bits)?);
@@ -751,6 +1056,7 @@ impl Statement {
                     }
                     read[*value as usize] = true;
                     read[*bits as usize] = true;
+                    reads.extend([*value, *bits]);
                 }
                 Operation::Binary { bits } => {
                     entry(op, *bits)?;
@@ -759,6 +1065,7 @@ impl Statement {
                         return Err(E::QuantMismatch { op, id: *bits, field: "binary quant" });
                     }
                     read[*bits as usize] = true;
+                    reads.push(*bits);
                 }
                 Operation::Add { inputs, output } => {
                     let eo = entry(op, *output)?;
@@ -766,7 +1073,7 @@ impl Statement {
                     if inputs.is_empty() {
                         return Err(E::EmptyAdd { op });
                     }
-                    let mut sum = 0u128;
+                    let mut sum = RawBounds { lo: 0, hi: 0 };
                     let mut any_signed = false;
                     for input in inputs {
                         let ei = entry(op, *input)?;
@@ -777,19 +1084,29 @@ impl Statement {
                             return Err(E::QuantMismatch { op, id: *input, field: "add fraction bits" });
                         }
                         any_signed |= qi.signed;
-                        sum = sum.saturating_add(qi.max_abs());
+                        sum = sum.add(qi.raw_bounds());
                         read[*input as usize] = true;
+                        reads.push(*input);
                     }
-                    if any_signed && !qo.signed {
-                        return Err(E::QuantMismatch { op, id: *output, field: "add signedness" });
+                    // Calibrated narrowing (as for Hadamard): a declared
+                    // output type the worst-case sum does not cover needs
+                    // a Range/Lookup fact on the output.
+                    if !self.narrowing_fact(*output, qo) {
+                        if any_signed && !qo.signed {
+                            return Err(E::QuantMismatch { op, id: *output, field: "add signedness" });
+                        }
+                        if !qo.raw_bounds().contains(sum) {
+                            return Err(E::QuantMismatch { op, id: *output, field: "add width" });
+                        }
                     }
-                    if !qo.fits_abs(sum) {
-                        return Err(E::QuantMismatch { op, id: *output, field: "add width" });
+                    if !sum.fits_modulus(mb) {
+                        return Err(E::QuantMismatch { op, id: *output, field: "modulus capacity" });
                     }
                     written[*output as usize] = true;
                     for input in inputs {
                         flow[*input as usize].push(*output as usize);
                     }
+                    writes.push(*output);
                 }
                 Operation::Scale { input, output, scalar_le } => {
                     let (ei, eo) = (entry(op, *input)?, entry(op, *output)?);
@@ -809,12 +1126,18 @@ impl Statement {
                     if qo.frac_bits != qi.frac_bits {
                         return Err(E::QuantMismatch { op, id: *output, field: "scale fraction bits" });
                     }
-                    if !qo.fits_abs(qi.max_abs().saturating_mul(scalar)) {
+                    let worst = qi.raw_bounds().scale(scalar.min(i128::MAX as u128) as i128);
+                    if !qo.raw_bounds().contains(worst) {
                         return Err(E::QuantMismatch { op, id: *output, field: "scale width" });
+                    }
+                    if !worst.fits_modulus(mb) {
+                        return Err(E::QuantMismatch { op, id: *output, field: "modulus capacity" });
                     }
                     read[*input as usize] = true;
                     written[*output as usize] = true;
                     flow[*input as usize].push(*output as usize);
+                    reads.push(*input);
+                    writes.push(*output);
                 }
                 Operation::LinkEqual { left, right } => {
                     let (el, er) = (entry(op, *left)?, entry(op, *right)?);
@@ -825,6 +1148,7 @@ impl Statement {
                     }
                     read[*left as usize] = true;
                     read[*right as usize] = true;
+                    reads.extend([*left, *right]);
                 }
                 Operation::LinkTranspose { by_rows, by_cols } => {
                     let (er, ec) = (entry(op, *by_rows)?, entry(op, *by_cols)?);
@@ -840,6 +1164,7 @@ impl Statement {
                     }
                     read[*by_rows as usize] = true;
                     read[*by_cols as usize] = true;
+                    reads.extend([*by_rows, *by_cols]);
                 }
                 Operation::BiasBroadcast { bias, broadcast } => {
                     let (ebias, ebc) = (entry(op, *bias)?, entry(op, *broadcast)?);
@@ -861,27 +1186,48 @@ impl Statement {
                     read[*bias as usize] = true;
                     written[*broadcast as usize] = true;
                     flow[*bias as usize].push(*broadcast as usize);
+                    reads.push(*bias);
+                    writes.push(*broadcast);
                 }
                 Operation::Lookup { x, y } => {
                     let (ex, ey) = (entry(op, *x)?, entry(op, *y)?);
                     same_shape(op, ex, ey)?;
                     same_orient(op, ex, ey)?;
                     let (qx, qy) = (quant(*x), quant(*y));
-                    // The frozen activation table (header table_digest) is
-                    // the int8 -> int8 SiLU spec: both sides 8-bit signed.
-                    if self.header.table_digest != SILU_INT8_TABLE_DIGEST {
+                    // Typed table binding (C-03c): the statement must bind
+                    // the canonical frozen spec by EXACT metadata equality
+                    // — digest, input/output quantization, domain — and
+                    // the operand types must equal the spec's types.
+                    let Some(table) = &self.header.table else {
+                        return Err(E::MissingTableDigest);
+                    };
+                    if table.digest != SILU_INT8_TABLE_DIGEST {
                         return Err(E::TableDigestMismatch);
                     }
-                    if qx.bits != 8 || qx.frac_bits != 4 || !qx.signed {
+                    if *table != SILU_INT8_TABLE_SPEC {
+                        return Err(E::TableSpecMismatch);
+                    }
+                    if *qx != table.input {
                         return Err(E::QuantMismatch { op, id: *x, field: "lookup domain quant" });
                     }
-                    if qy.bits != 8 || qy.frac_bits != 4 || !qy.signed {
+                    if *qy != table.output {
                         return Err(E::QuantMismatch { op, id: *y, field: "lookup image quant" });
                     }
                     read[*x as usize] = true;
                     written[*y as usize] = true;
                     flow[*x as usize].push(*y as usize);
+                    reads.push(*x);
+                    writes.push(*y);
                 }
+            }
+            for id in writes {
+                let slot = &mut first_producer[id as usize];
+                if *slot == usize::MAX {
+                    *slot = op;
+                }
+            }
+            for id in reads {
+                read_events.push((op, id));
             }
         }
         // A manifest is a DAG, not merely a bag of individually shaped
@@ -889,7 +1235,33 @@ impl Statement {
         if let Some(id) = first_dataflow_cycle(&flow) {
             return Err(E::CyclicDataflow { id });
         }
+        // Topological order: an operation may read an entry only if it is
+        // a leaf (no producer at all) or at least one producer appears
+        // strictly earlier in the operation list.
+        for (op, id) in read_events {
+            let producer = first_producer[id as usize];
+            if producer != usize::MAX && producer >= op {
+                return Err(E::NotTopologicallyOrdered { op, id });
+            }
+        }
+        // --- Canonical padding: every entry declares its padded physical
+        // --- extent, and it must be the exact next unit multiple. ----------
+        if self.pad.len() != entries.len() {
+            return Err(E::PadCount { entries: entries.len(), pads: self.pad.len() });
+        }
+        for (entry, pad) in entries.iter().zip(self.pad.iter()) {
+            if pad.row_unit == 0
+                || pad.col_unit == 0
+                || pad.padded_rows != PadSpec::canonical(entry.rows as u64, pad.row_unit)
+                || pad.padded_cols != PadSpec::canonical(entry.cols as u64, pad.col_unit)
+            {
+                return Err(E::NoncanonicalPadding { id: entry.id });
+            }
+        }
         // --- DAG coverage: consumed-or-output, no orphans. ------------------
+        if self.outputs.is_empty() {
+            return Err(E::NoOutputs);
+        }
         let mut is_output = vec![false; entries.len()];
         for output in &self.outputs {
             let Some(slot) = is_output.get_mut(*output as usize) else {
@@ -914,22 +1286,45 @@ impl Statement {
         Ok(())
     }
 
-    /// Order-sensitive digest of the FULL statement: header, quantization
-    /// metadata, outputs, and the manifest content. Refuses to form a
-    /// digest for an invalid statement — this is the enforcement point for
-    /// "validate before anything is hashed into a challenge".
+    /// Order-sensitive digest of the FULL statement: header (version,
+    /// model digest, typed table spec, modulus capacity), quantization
+    /// metadata, canonical padding, outputs, and the manifest content.
+    /// Refuses to form a digest for an invalid statement — this is the
+    /// enforcement point for "validate before anything is hashed into a
+    /// challenge".
     pub fn digest(&self) -> Result<[u8; 32], StatementError> {
         self.validate()?;
         let mut hasher = Sha256::new();
         absorb_bytes(&mut hasher, STATEMENT_TAG.as_bytes());
         hasher.update(self.header.version.to_le_bytes());
         hasher.update(self.header.model_digest);
-        hasher.update(self.header.table_digest);
-        hasher.update((self.quant.len() as u64).to_le_bytes());
-        for q in &self.quant {
+        let absorb_quant = |hasher: &mut Sha256, q: &QuantMeta| {
             hasher.update(q.bits.to_le_bytes());
             hasher.update(q.frac_bits.to_le_bytes());
             hasher.update([q.signed as u8]);
+        };
+        match &self.header.table {
+            None => hasher.update([0u8]),
+            Some(table) => {
+                hasher.update([1u8]);
+                hasher.update(table.digest);
+                absorb_quant(&mut hasher, &table.input);
+                absorb_quant(&mut hasher, &table.output);
+                hasher.update(table.domain_min.to_le_bytes());
+                hasher.update(table.domain_max.to_le_bytes());
+            }
+        }
+        hasher.update(self.header.modulus_bits.to_le_bytes());
+        hasher.update((self.quant.len() as u64).to_le_bytes());
+        for q in &self.quant {
+            absorb_quant(&mut hasher, q);
+        }
+        hasher.update((self.pad.len() as u64).to_le_bytes());
+        for pad in &self.pad {
+            hasher.update(pad.padded_rows.to_le_bytes());
+            hasher.update(pad.padded_cols.to_le_bytes());
+            hasher.update(pad.row_unit.to_le_bytes());
+            hasher.update(pad.col_unit.to_le_bytes());
         }
         hasher.update((self.outputs.len() as u64).to_le_bytes());
         for output in &self.outputs {
@@ -938,4 +1333,295 @@ impl Statement {
         hasher.update(self.manifest.digest());
         Ok(hasher.finalize().into())
     }
+}
+
+// ===========================================================================
+// [U-S2] Statement v3 negative-vector battery (audit Phase 2 exit): every
+// vector of the exit list — inconsistent fraction bits, the +2^(w-1)
+// signed endpoint, cycles, empty add, wrong table digest/scale, dangling
+// roles, noncanonical padding — plus the v3-new gates (empty operations,
+// topological order, output visibility, modulus capacity) is REJECTED
+// with the exact structured error, pre-crypto. Self-contained: entries
+// carry dummy commitment bytes because validation is metadata-only.
+
+/// Runs the battery, printing one line per vector; returns overall pass.
+pub fn statement_negative_battery() -> bool {
+    let q8 = QuantMeta { bits: 8, frac_bits: 4, signed: true };
+    let plane = QuantMeta { bits: 1, frac_bits: 0, signed: false };
+
+    // The base statement: a mini gate chain W X -> ACC -> rescale -> SiLU
+    // lookup -> Hadamard, with the remainder's range fact. Valid under v3.
+    let base = || -> Statement {
+        let mut mf = ClaimManifest::new("statement-battery", b"battery-setup");
+        let mut add_entry = |label: &str, rows: usize, cols: usize| -> u32 {
+            mf.add_commitment(label, rows, cols, Orientation::RowMajor, vec![], vec![])
+        };
+        let w = add_entry("W", 4, 4);
+        let x = add_entry("X", 4, 4);
+        let acc = add_entry("ACC", 4, 4);
+        let g8 = add_entry("G8", 4, 4);
+        let r = add_entry("R", 4, 4);
+        let r_bits = add_entry("R-bits", 16, 4);
+        let a8 = add_entry("A8", 4, 4);
+        let u8v = add_entry("U8", 4, 4);
+        let h = add_entry("H", 4, 4);
+        mf.add_operation(Operation::Matmul { a: w, b: x, c: acc });
+        mf.add_operation(Operation::Rescale { x: acc, y: g8, r, shift: 4 });
+        mf.add_operation(Operation::Binary { bits: r_bits });
+        mf.add_operation(Operation::Range { value: r, bits: r_bits, width: 4, signed: false });
+        mf.add_operation(Operation::Lookup { x: g8, y: a8 });
+        mf.add_operation(Operation::Hadamard { x: a8, y: u8v, z: h });
+        let mut st = Statement::new([9u8; 32], Some(SILU_INT8_TABLE_SPEC), 30, mf);
+        st.quant = vec![
+            q8,                                                   // W
+            q8,                                                   // X
+            QuantMeta { bits: 18, frac_bits: 8, signed: true },   // ACC
+            q8,                                                   // G8 (lookup-narrowed)
+            QuantMeta { bits: 4, frac_bits: 8, signed: false },   // R
+            plane,                                                // R-bits
+            q8,                                                   // A8
+            q8,                                                   // U8
+            QuantMeta { bits: 16, frac_bits: 8, signed: true },   // H
+        ];
+        st.pad = st
+            .manifest
+            .commitments
+            .iter()
+            .map(|e| PadSpec::exact(e.rows as usize, e.cols as usize))
+            .collect();
+        st.outputs = vec![h];
+        st
+    };
+
+    let mut ok = true;
+    use StatementError as SE;
+
+    // Positive control: the honest base validates and digests
+    // deterministically; any bound byte (a role label) moves the digest.
+    let honest = base();
+    match (honest.digest(), honest.digest()) {
+        (Ok(d1), Ok(d2)) if d1 == d2 => {
+            let mut relabeled = honest.clone();
+            relabeled.manifest.commitments[0].label = "W'".to_string();
+            match relabeled.digest() {
+                Ok(d3) if d3 != d1 => {
+                    println!("  ok   honest base validates; digest deterministic, label-sensitive")
+                }
+                Ok(_) => {
+                    println!("  FAIL relabeled statement digest did not move");
+                    ok = false;
+                }
+                Err(err) => {
+                    println!("  FAIL relabeled statement does not validate: {err}");
+                    ok = false;
+                }
+            }
+        }
+        (Err(err), _) => {
+            println!("  FAIL honest base statement does not validate: {err}");
+            ok = false;
+        }
+        _ => {
+            println!("  FAIL statement digest is not deterministic");
+            ok = false;
+        }
+    }
+
+    let mut expect = |label: &str, st: &Statement, want: fn(&StatementError) -> bool| {
+        match st.validate() {
+            Ok(()) => {
+                println!("  FAIL malicious statement accepted ({label})");
+                ok = false;
+            }
+            Err(err) => {
+                if want(&err) {
+                    println!("  ok   statement rejects {label}: {err}");
+                } else {
+                    println!("  FAIL wrong rejection for {label}: {err}");
+                    ok = false;
+                }
+            }
+        }
+    };
+
+    // (1) Unknown format version.
+    let mut bad = base();
+    bad.header.version = 2;
+    expect("retired statement version 2", &bad, |e| matches!(e, SE::UnknownVersion { got: 2 }));
+
+    // (2) Empty operation list: a statement that claims nothing.
+    let mut bad = base();
+    bad.manifest.operations.clear();
+    expect("empty operation list", &bad, |e| matches!(e, SE::EmptyOperations));
+
+    // (3) Cyclic producer graph (operation order cannot repair it).
+    let mut mf = ClaimManifest::new("statement-battery", b"cycle");
+    let a = mf.add_commitment("A", 1, 1, Orientation::RowMajor, vec![], vec![]);
+    let b = mf.add_commitment("B", 1, 1, Orientation::RowMajor, vec![], vec![]);
+    mf.add_operation(Operation::Scale { input: a, output: b, scalar_le: vec![1] });
+    mf.add_operation(Operation::Scale { input: b, output: a, scalar_le: vec![1] });
+    let mut cycle = Statement::new([9u8; 32], None, 30, mf);
+    cycle.quant = vec![QuantMeta { bits: 8, frac_bits: 0, signed: false }; 2];
+    cycle.pad = vec![PadSpec::exact(1, 1); 2];
+    expect("cyclic dataflow", &cycle, |e| matches!(e, SE::CyclicDataflow { .. }));
+
+    // (4) Acyclic but misordered: the Hadamard consumes A8 before the
+    // Lookup that produces it appears.
+    let mut bad = base();
+    bad.manifest.operations.swap(4, 5);
+    expect("non-topological operation order", &bad, |e| {
+        matches!(e, SE::NotTopologicallyOrdered { id: 6, .. })
+    });
+
+    // (5) Empty Add constrains its output to nothing.
+    let mut bad = base();
+    bad.manifest.operations.push(Operation::Add { inputs: vec![], output: 8 });
+    expect("empty Add", &bad, |e| matches!(e, SE::EmptyAdd { .. }));
+
+    // (6) The +2^(w-1) signed endpoint: 4096 int8 x int8 products reach
+    // +2^26 ((-128)*(-128) pairs), which a signed 27-bit accumulator's
+    // positive side cannot hold. A symmetric magnitude model accepts this;
+    // asymmetric bounds reject it.
+    let mut mf = ClaimManifest::new("statement-battery", b"endpoint");
+    let a = mf.add_commitment("A", 1, 4096, Orientation::RowMajor, vec![], vec![]);
+    let b = mf.add_commitment("B", 4096, 1, Orientation::RowMajor, vec![], vec![]);
+    let c = mf.add_commitment("C", 1, 1, Orientation::RowMajor, vec![], vec![]);
+    mf.add_operation(Operation::Matmul { a, b, c });
+    let mut endpoint = Statement::new([9u8; 32], None, 30, mf);
+    endpoint.quant = vec![q8, q8, QuantMeta { bits: 27, frac_bits: 8, signed: true }];
+    endpoint.pad = vec![PadSpec::exact(1, 4096), PadSpec::exact(4096, 1), PadSpec::exact(1, 1)];
+    endpoint.outputs = vec![c];
+    expect("signed +2^(w-1) accumulator endpoint", &endpoint, |e| {
+        matches!(e, SE::QuantMismatch { field: "matmul accumulator width", .. })
+    });
+
+    // (7) Inconsistent fraction bits, rescale: the lookup-narrowing fact
+    // on G8 must NOT waive the scale equation (C-03a).
+    let mut bad = base();
+    bad.quant[3].frac_bits = 3;
+    expect("rescale fraction-bit lie under a narrowing fact", &bad, |e| {
+        matches!(e, SE::QuantMismatch { field: "rescale fraction bits", .. })
+    });
+
+    // (8) Inconsistent fraction bits, matmul.
+    let mut bad = base();
+    bad.quant[2].frac_bits = 7;
+    expect("matmul fraction-bit lie", &bad, |e| {
+        matches!(e, SE::QuantMismatch { field: "matmul fraction bits", .. })
+    });
+
+    // (9) Wrong table digest: nonzero but not the frozen SiLU table.
+    let mut bad = base();
+    bad.header.table = Some(TableSpec { digest: [7u8; 32], ..SILU_INT8_TABLE_SPEC });
+    expect("attacker-chosen table digest", &bad, |e| matches!(e, SE::TableDigestMismatch));
+
+    // (10) Wrong table scale: right digest, lying quantization metadata.
+    let mut bad = base();
+    bad.header.table = Some(TableSpec {
+        input: QuantMeta { bits: 8, frac_bits: 3, signed: true },
+        ..SILU_INT8_TABLE_SPEC
+    });
+    expect("table spec scale lie", &bad, |e| matches!(e, SE::TableSpecMismatch));
+
+    // (11) Lookup image scale off the frozen spec.
+    let mut bad = base();
+    bad.quant[6].frac_bits = 3;
+    expect("lookup image scale mismatch", &bad, |e| {
+        matches!(e, SE::QuantMismatch { field: "lookup image quant", .. })
+    });
+
+    // (12) Lookup with no bound table spec at all.
+    let mut bad = base();
+    bad.header.table = None;
+    expect("lookup without a table spec", &bad, |e| matches!(e, SE::MissingTableDigest));
+
+    // (13) Dangling role: an operation names a commitment nobody made.
+    let mut bad = base();
+    bad.manifest.operations.push(Operation::Binary { bits: 99 });
+    expect("dangling operand id", &bad, |e| matches!(e, SE::DanglingId { id: 99, .. }));
+
+    // (14) Dangling entry: committed but appearing in no operation.
+    let mut bad = base();
+    bad.manifest.add_commitment("orphan", 4, 4, Orientation::RowMajor, vec![], vec![]);
+    bad.quant.push(q8);
+    bad.pad.push(PadSpec::exact(4, 4));
+    expect("orphan entry", &bad, |e| matches!(e, SE::OrphanEntry { .. }));
+
+    // (15) Dangling output role: declared output nobody produces.
+    let mut bad = base();
+    bad.outputs = vec![1];
+    expect("output produced by no operation", &bad, |e| {
+        matches!(e, SE::OutputNotProduced { id: 1 })
+    });
+
+    // (16) A produced tensor that silently drops out of the statement.
+    let mut bad = base();
+    bad.outputs = vec![4];
+    expect("produced-but-unconsumed tensor", &bad, |e| {
+        matches!(e, SE::UnconsumedEntry { id: 8 })
+    });
+
+    // (17) No declared outputs: no visible result.
+    let mut bad = base();
+    bad.outputs.clear();
+    expect("no declared outputs", &bad, |e| matches!(e, SE::NoOutputs));
+
+    // (18) Noncanonical padding: slack rows beyond the next unit multiple.
+    let mut bad = base();
+    bad.pad[0].padded_rows = 8;
+    expect("noncanonical padding", &bad, |e| matches!(e, SE::NoncanonicalPadding { id: 0 }));
+
+    // (19) Missing padding declaration.
+    let mut bad = base();
+    bad.pad.pop();
+    expect("missing padding record", &bad, |e| matches!(e, SE::PadCount { .. }));
+
+    // (20) Modulus injection: a declared type wider than the modulus.
+    let mut bad = base();
+    bad.quant[2].bits = 40;
+    expect("entry wider than the modulus", &bad, |e| matches!(e, SE::ModulusCapacity { id: 2 }));
+
+    // (21) Modulus window: a range-narrowed Hadamard whose PRE-narrowing
+    // interval wraps an 8-bit modulus — the fact cannot ground the
+    // integer identity there.
+    let mut mf = ClaimManifest::new("statement-battery", b"window");
+    let x = mf.add_commitment("X", 1, 1, Orientation::RowMajor, vec![], vec![]);
+    let y = mf.add_commitment("Y", 1, 1, Orientation::RowMajor, vec![], vec![]);
+    let z = mf.add_commitment("Z", 1, 1, Orientation::RowMajor, vec![], vec![]);
+    let z_bits = mf.add_commitment("Z-bits", 8, 1, Orientation::RowMajor, vec![], vec![]);
+    mf.add_operation(Operation::Hadamard { x, y, z });
+    mf.add_operation(Operation::Binary { bits: z_bits });
+    mf.add_operation(Operation::Range { value: z, bits: z_bits, width: 8, signed: false });
+    let mut window = Statement::new([9u8; 32], None, 8, mf);
+    window.quant = vec![
+        QuantMeta { bits: 8, frac_bits: 0, signed: true },
+        QuantMeta { bits: 8, frac_bits: 0, signed: true },
+        QuantMeta { bits: 8, frac_bits: 0, signed: false },
+        plane,
+    ];
+    window.pad = vec![
+        PadSpec::exact(1, 1),
+        PadSpec::exact(1, 1),
+        PadSpec::exact(1, 1),
+        PadSpec::exact(8, 1),
+    ];
+    window.outputs = vec![z];
+    expect("narrowed product escaping the modulus window", &window, |e| {
+        matches!(e, SE::QuantMismatch { field: "modulus capacity", .. })
+    });
+
+    // (22) Unproven narrowing: a signed product declared unsigned with no
+    // fact backing the sign change.
+    let mut bad = base();
+    bad.quant[8].signed = false;
+    expect("unproven sign narrowing", &bad, |e| {
+        matches!(e, SE::QuantMismatch { field: "hadamard signedness", .. })
+    });
+
+    if ok {
+        println!("statement-negatives passed");
+    } else {
+        println!("statement-negatives FAILED");
+    }
+    ok
 }

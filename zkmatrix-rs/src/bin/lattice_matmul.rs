@@ -3063,10 +3063,44 @@ fn transpose_self_test() {
 }
 
 // ---------------------------------------------------------------------------
+// Statement v3 typing helpers (manifest.rs typed integer spec): the demos
+// below declare honest integer types for their witnesses, and every
+// transcript context comes from a VALIDATED statement digest (audit H-03).
+
+/// Smallest unsigned width holding values up to `hi` inclusive.
+fn quant_ubits(hi: u128) -> u32 {
+    (128 - hi.leading_zeros()).max(1)
+}
+
+/// Smallest signed two's-complement width containing [lo, hi].
+fn quant_sbits(lo: i128, hi: i128) -> u32 {
+    let mut bits = 2u32;
+    while lo < -(1i128 << (bits - 1)) || hi > (1i128 << (bits - 1)) - 1 {
+        bits += 1;
+    }
+    bits
+}
+
+/// floor(log2 Q) — the lattice track's modulus capacity in bits.
+fn modulus_capacity_bits() -> u32 {
+    63 - Q.leading_zeros()
+}
+
+/// Canonical padding of a lattice commitment group entry: every committed
+/// vector (a column for by-columns entries, a row for by-rows entries)
+/// pads to the CRS message capacity `msg`.
+fn lattice_pad(rows: usize, cols: usize, orientation: Orientation, msg: usize) -> manifest::PadSpec {
+    match orientation {
+        Orientation::ByRows => manifest::PadSpec::units(rows, cols, 1, msg),
+        _ => manifest::PadSpec::units(rows, cols, msg, 1),
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Chained-inference demo (M1): Z = (X W1) W2 with Y = X W1 shared between
 // the two claims through dual-orientation commitments plus the
-// transpose-consistency gadget. All Fiat-Shamir challenges bind the claim
-// manifest digest, which covers every commitment in the DAG.
+// transpose-consistency gadget. All Fiat-Shamir challenges bind the
+// VALIDATED statement digest, which covers every commitment in the DAG.
 
 #[allow(clippy::too_many_arguments)]
 fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
@@ -3208,8 +3242,45 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         });
         m
     };
+    // The VALIDATED statement (manifest v3, audit H-03). Witnesses are
+    // 6-bit unsigned integers (rng_small % 64), so Y and Z are exact
+    // integer accumulators far below Q — the typing is honest.
+    let acc1_bits = quant_ubits(n1 as u128 * 63 * 63);
+    let acc2_bits = quant_ubits(n2 as u128 * ((1u128 << acc1_bits) - 1) * 63);
+    let model_digest: [u8; 32] = {
+        let mut hasher = Sha256::new();
+        hasher.update(b"lattice-chain-demo-model-v1");
+        for dim in [n0, n1, n2, n3] {
+            hasher.update((dim as u64).to_le_bytes());
+        }
+        hasher.update(commitment_group_digest(&tw1));
+        hasher.update(commitment_group_digest(&tw2));
+        hasher.finalize().into()
+    };
+    let build_statement = |mf: &ClaimManifest| -> manifest::Statement {
+        let q6 = manifest::QuantMeta { bits: 6, frac_bits: 0, signed: false };
+        let acc1 = manifest::QuantMeta { bits: acc1_bits, frac_bits: 0, signed: false };
+        let mut st =
+            manifest::Statement::new(model_digest, None, modulus_capacity_bits(), mf.clone());
+        st.quant = vec![
+            q6,   // X
+            q6,   // W1
+            acc1, // Y by columns
+            acc1, // Y by rows (transpose link demands equal quant)
+            q6,   // W2
+            manifest::QuantMeta { bits: acc2_bits, frac_bits: 0, signed: false }, // Z
+        ];
+        st.pad = mf
+            .commitments
+            .iter()
+            .map(|e| lattice_pad(e.rows as usize, e.cols as usize, e.orientation, params.msg))
+            .collect();
+        st.outputs = vec![5];
+        st
+    };
     let manifest = build_manifest(&tyr, &tz);
-    let ctx = manifest.digest();
+    let statement = build_statement(&manifest);
+    let ctx = statement.digest().expect("honest chain statement must validate");
 
     // Prove the chain.
     let start = Instant::now();
@@ -3251,7 +3322,9 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
     let tyr2 = commit_columns_fast(&params, &crs, &y2_rows, &rho_yr);
     let tz2 = commit_columns_fast(&params, &crs, &z2_cols, &tau_z);
     let manifest2 = build_manifest(&tyr2, &tz2);
-    let ctx2 = manifest2.digest();
+    let ctx2 = build_statement(&manifest2)
+        .digest()
+        .expect("substituted-Y statement is well-formed (the LINK must catch it)");
     let proof1b = prove_pi2(
         &params, &crs, &s1, &ctx2, &x_rows, &rho_x, &w1_cols, &rho_w1, &tau_yc,
         &tx, &tw1, &tyc, &mut prng,
@@ -3307,13 +3380,23 @@ fn chain_demo(n0: usize, n1: usize, n2: usize, n3: usize) {
         "oversized link response must fail"
     );
 
-    // Negative case 5: manifest reordering. A manifest with the same
-    // commitments in a different order yields a different context digest,
-    // so proofs made for the honest ordering must fail against it.
-    let mut reordered = manifest.clone();
-    reordered.commitments.swap(0, 1);
-    let ctx_reordered = reordered.digest();
-    assert_ne!(ctx, ctx_reordered, "reordered manifest digest must differ");
+    // Negative case 5: manifest tampering. Bare commitment reordering now
+    // fails statement validation outright (non-dense ids — v3 cannot even
+    // form a digest), and ANY bound statement byte (here a role label)
+    // yields a different context digest, so proofs made for the honest
+    // statement must fail against it.
+    let mut broken = build_statement(&manifest);
+    broken.manifest.commitments.swap(0, 1);
+    assert!(
+        broken.digest().is_err(),
+        "reordered manifest must fail statement validation (non-dense ids)"
+    );
+    let mut reordered = build_statement(&manifest);
+    reordered.manifest.commitments[0].label = "X'".to_string();
+    let ctx_reordered = reordered
+        .digest()
+        .expect("relabeled statement is well-formed but differs");
+    assert_ne!(ctx, ctx_reordered, "tampered statement digest must differ");
     assert!(
         !verify_pi2(
             &params,
@@ -3513,7 +3596,40 @@ fn gadget_demo(rows: usize, inner: usize, cols: usize, shift: u32, width: u32) {
     mf.add_operation(manifest::Operation::Range { value: idyq, bits: idpy, width, signed: false });
     mf.add_operation(manifest::Operation::Binary { bits: idpr });
     mf.add_operation(manifest::Operation::Binary { bits: idpy });
-    let ctx = mf.digest();
+    // The VALIDATED statement (manifest v3): 6-bit unsigned inputs, the
+    // accumulator typed exactly, W carrying the declared `shift` fraction
+    // bits so the rescale's scale equation is the honest fixed-point
+    // requantization (frac: X 0 + W shift = Y shift -> Yq 0).
+    let acc_bits = quant_ubits(inner as u128 * 63 * 63);
+    let plane = manifest::QuantMeta { bits: 1, frac_bits: 0, signed: false };
+    let model_digest: [u8; 32] = {
+        let mut hasher = Sha256::new();
+        hasher.update(b"lattice-gadget-demo-model-v1");
+        for v in [rows as u64, inner as u64, cols as u64, shift as u64, width as u64] {
+            hasher.update(v.to_le_bytes());
+        }
+        hasher.update(&digest_of(&inst.tb));
+        hasher.finalize().into()
+    };
+    let mut statement =
+        manifest::Statement::new(model_digest, None, modulus_capacity_bits(), mf.clone());
+    statement.quant = vec![
+        manifest::QuantMeta { bits: 6, frac_bits: 0, signed: false },        // X
+        manifest::QuantMeta { bits: 6, frac_bits: shift, signed: false },    // W
+        manifest::QuantMeta { bits: acc_bits, frac_bits: shift, signed: false }, // Y
+        manifest::QuantMeta { bits: width, frac_bits: 0, signed: false },    // Yq (range-narrowed)
+        manifest::QuantMeta { bits: shift, frac_bits: shift, signed: false }, // R
+        plane,                                                               // R-bits
+        plane,                                                               // Yq-bits
+    ];
+    statement.pad = statement
+        .manifest
+        .commitments
+        .iter()
+        .map(|e| lattice_pad(e.rows as usize, e.cols as usize, e.orientation, params.msg))
+        .collect();
+    statement.outputs = vec![idyq];
+    let ctx = statement.digest().expect("honest gadget statement must validate");
 
     // Matmul claim (the baseline for the exit criterion).
     let mut prng = 0xDE112_u64;
@@ -3861,8 +3977,78 @@ fn ffn_demo(t: usize, d: usize, f: usize, shift: u32, w: u32) {
         mf.add_operation(Operation::Add { inputs: vec![id_y, id_xc], output: id_out });
         (mf, [id_ub, id_dd, id_out])
     };
+    // The VALIDATED statement (manifest v3, audit H-03): honest typed
+    // integer semantics for the whole quantized FFN block. Fixed-point
+    // frac plan: X carries 0 fraction bits and W1/b1 carry `shift`, so
+    // U/U+b1 sit at scale `shift` and the rescale returns U' to scale 0
+    // (the scale equation is exact, C-03a); W2 carries 0, so Y and the
+    // residual output share X's scale. The ReLU family (sign-bit Hadamard
+    // and the A = D + U' identity) narrows signed W-bit values to
+    // unsigned W-bit values through the PROVEN Range facts on A and D —
+    // the v3 asymmetric-bounds narrowing rule.
+    let bits_u = quant_sbits(-56 * d as i128, 64 * d as i128);
+    let bits_ub = quant_sbits(
+        -(1i128 << (bits_u - 1)) - (1 << (WB - 1)),
+        (1i128 << (bits_u - 1)) - 1 + (1 << (WB - 1)) - 1,
+    );
+    let wmax = (1i128 << w) - 1;
+    let bits_y = quant_sbits(-8 * f as i128 * wmax, 7 * f as i128 * wmax);
+    let bits_out = quant_sbits(
+        -(1i128 << (bits_y - 1)) - (1 << (WX - 1)),
+        (1i128 << (bits_y - 1)) - 1 + (1 << (WX - 1)) - 1,
+    );
+    let model_digest: [u8; 32] = {
+        let mut hasher = Sha256::new();
+        hasher.update(b"lattice-ffn-demo-model-v1");
+        for v in [t as u64, d as u64, f as u64, u64::from(shift), u64::from(w)] {
+            hasher.update(v.to_le_bytes());
+        }
+        hasher.update(commitment_group_digest(&tw1));
+        hasher.update(commitment_group_digest(&tb1));
+        hasher.update(commitment_group_digest(&tw2));
+        hasher.finalize().into()
+    };
     let (manifest, [id_ub, id_dd, id_out]) = build_manifest(&tar, &ty, &tout);
-    let ctx = manifest.digest();
+    let build_statement = |mf: &ClaimManifest| -> manifest::Statement {
+        let qx = manifest::QuantMeta { bits: WX, frac_bits: 0, signed: true };
+        let qb1 = manifest::QuantMeta { bits: WB, frac_bits: shift, signed: true };
+        let plane = manifest::QuantMeta { bits: 1, frac_bits: 0, signed: false };
+        let uq_s = manifest::QuantMeta { bits: w, frac_bits: 0, signed: true };
+        let a_u = manifest::QuantMeta { bits: w, frac_bits: 0, signed: false };
+        let mut st =
+            manifest::Statement::new(model_digest, None, modulus_capacity_bits(), mf.clone());
+        st.quant = vec![
+            qx,                                                                  // X by rows
+            qx,                                                                  // X by cols
+            manifest::QuantMeta { bits: WX, frac_bits: shift, signed: true },    // W1
+            qb1,                                                                 // b1
+            qb1,                                                                 // b1-bcast
+            manifest::QuantMeta { bits: bits_u, frac_bits: shift, signed: true }, // U
+            manifest::QuantMeta { bits: bits_ub, frac_bits: shift, signed: true }, // U+b1
+            uq_s,                                                                // U' (range-narrowed)
+            manifest::QuantMeta { bits: shift, frac_bits: shift, signed: false }, // R
+            plane,                                                               // R-bits
+            plane,                                                               // U'-bits
+            plane,                                                               // b-sign
+            a_u,                                                                 // A (range-narrowed)
+            plane,                                                               // A-bits
+            a_u,                                                                 // D (range fact)
+            plane,                                                               // D-bits
+            a_u,                                                                 // A by rows
+            manifest::QuantMeta { bits: WX, frac_bits: 0, signed: true },        // W2
+            manifest::QuantMeta { bits: bits_y, frac_bits: 0, signed: true },    // Y
+            manifest::QuantMeta { bits: bits_out, frac_bits: 0, signed: true },  // Out
+        ];
+        st.pad = mf
+            .commitments
+            .iter()
+            .map(|e| lattice_pad(e.rows as usize, e.cols as usize, e.orientation, params.msg))
+            .collect();
+        st.outputs = vec![id_out];
+        st
+    };
+    let statement = build_statement(&manifest);
+    let ctx = statement.digest().expect("honest ffn statement must validate");
 
     // ---- Prove and verify, per component (verify-after-prove per family
     // keeps peak proof memory to one family). ----
@@ -4202,7 +4388,9 @@ fn ffn_demo(t: usize, d: usize, f: usize, shift: u32, w: u32) {
     let ty2 = commit_columns_fast(&params, &crs, &y2_int, &tau_y);
     let tout2 = add_groups(&ty2, &tx_cols);
     let (manifest2, _) = build_manifest(&tar2, &ty2, &tout2);
-    let ctx2 = manifest2.digest();
+    let ctx2 = build_statement(&manifest2)
+        .digest()
+        .expect("substituted-A statement is well-formed (the LINK must catch it)");
     let n5_claim = prove_pi2(
         &params, &crs, &s2, &ctx2, &a2_rows, &rho_ar, &w2_enc, &rho_w2, &tau_y,
         &tar2, &tw2, &ty2, &mut prng,
@@ -4232,12 +4420,23 @@ fn ffn_demo(t: usize, d: usize, f: usize, shift: u32, w: u32) {
     );
     println!("  negative N6 (tampered residual commitment): class-0 recompute fails as required");
 
-    // N7: manifest reordering. Same commitments, different order: every
-    // proof made for the honest ordering must fail against the new digest.
-    let mut reordered = manifest.clone();
-    reordered.commitments.swap(0, 1);
-    let ctx_r = reordered.digest();
-    assert_ne!(ctx, ctx_r, "reordered manifest digest must differ");
+    // N7: manifest tampering. Bare reordering now fails statement
+    // validation outright (non-dense ids — v3 refuses the digest), and a
+    // well-formed statement differing in ANY bound byte (a role label)
+    // yields a different digest: every proof made for the honest
+    // statement must fail against it.
+    let mut broken = build_statement(&manifest);
+    broken.manifest.commitments.swap(0, 1);
+    assert!(
+        broken.digest().is_err(),
+        "reordered manifest must fail statement validation (non-dense ids)"
+    );
+    let mut reordered = build_statement(&manifest);
+    reordered.manifest.commitments[0].label = "X'".to_string();
+    let ctx_r = reordered
+        .digest()
+        .expect("relabeled statement is well-formed but differs");
+    assert_ne!(ctx, ctx_r, "tampered statement digest must differ");
     assert!(
         !verify_bias_link(&params, &crs, &ctx_r, t, f, &tb1[0], &tbb, &bias_proof),
         "N7 manifest reordering must fail"
@@ -4256,6 +4455,7 @@ fn usage() {
     eprintln!("  lattice_matmul chain-demo [n0 n1 n2 n3]   (default 16 32 64 8)");
     eprintln!("  lattice_matmul gadget-demo [rows inner cols shift width]   (default 16 32 64 6 12)");
     eprintln!("  lattice_matmul ffn-demo [T d f shift width]   (default 16 32 64 6 8)");
+    eprintln!("  lattice_matmul statement-negatives   (statement v3 negative-vector battery)");
 }
 
 fn parse_proto(arg: &str) -> Option<(Protocol, &str)> {
@@ -4274,6 +4474,15 @@ fn main() {
     }
     match args[1].as_str() {
         "self-test" => self_test(),
+        "statement-negatives" => {
+            // Statement v3 negative-vector battery (audit Phase 2 exit):
+            // metadata-only, backend-free, so it lives in manifest.rs and
+            // any including binary can host it.
+            println!("statement v3 negative-vector battery (manifest.rs)");
+            if !manifest::statement_negative_battery() {
+                std::process::exit(1);
+            }
+        }
         "gadget-demo" => {
             let dims: Vec<usize> = args[2..].iter().map(|a| a.parse().unwrap()).collect();
             match dims.len() {
