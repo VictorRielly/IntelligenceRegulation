@@ -181,6 +181,39 @@ proof bytes + verified setup ONLY; fuzz/truncate/reorder every component
 (errors, never panics); model digest from architecture + quantization/
 table spec + all weight commitments.
 
+## P3 deliverables (audit Phase 3; opened 2026-07-14 after merge e1f5dce)
+
+Flagship path decision: the COMPLETE committed masked-LOOKUP proof
+(statement -> commitments -> masked descents -> aggregate pins -> Ajtai
+ct-round), purpose-built for serialization rather than refactoring the
+fragile interleaved ffn_layer_run. This is the security-critical ZK core
+of the whole tranche and carries a REAL Ajtai ct-round (not just the
+descent core). The full FFN-layer CHAIN (range grounding + Hadamard +
+multi-wave zeta streaming on top of this) reuses the same serialization
++ verifier primitives; its multi-wave orchestration is recorded PARTIAL.
+
+- [ ] P3-D1 Canonical types: `PublicStatement` (v3 Statement canonical
+      bytes), `Proof` (commitments + masked descents + ct-round),
+      `VerificationError` (structured, never panics); ProverInput stays
+      prover-side.
+- [ ] P3-D2 Serialization: versioned header, length-prefixed components,
+      canonical field encodings, hard decode-time resource limits derived
+      from the statement (not the wire); reject-don't-truncate.
+- [ ] P3-D3 Independent verifier: `verify <statement.bin> <proof.bin>`
+      subcommand, fresh process from statement+proof+CRS derivation ONLY;
+      recomputes every transcript seed (h0_lkp, alpha, psi, ct-round h0)
+      from the decoded statement + commitments.
+- [ ] P3-D4 Malformed-input robustness: fuzz/truncate/reorder/bit-flip
+      every component class -> structured error, NEVER panics; a battery
+      leg per component class + a fixed-seed randomized fuzz leg.
+- [ ] P3-D5 model_digest: derived from architecture shape + quant/table
+      spec + ALL weight-class commitments; wired through the v3 header;
+      negative leg: one weight commitment swapped -> digest differs ->
+      REJECT.
+- [ ] P3-EXIT canonical byte size recorded (vs 256 KiB budget, honest);
+      independent verifier p50/p95 at 2^12/2^16 [NOISY-SHARED]; NO
+      prover-local value available to verification.
+
 ## Log
 
 - 2026-07-14: tranche opened; P1 + P2 agents launched in parallel.

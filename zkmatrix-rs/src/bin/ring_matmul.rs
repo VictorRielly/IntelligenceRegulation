@@ -6263,6 +6263,8 @@ fn main() {
             self_test_lookup();
             self_test_lookup_zk();
             self_test_us1_boundary();
+            println!("\n[U-S Phase 3] statement codec (round-trip + malformed + fuzz)");
+            assert_true("statement codec battery passes", manifest::statement_codec_battery());
             self_test_ffn_chain();
             self_test_ffn_layer_smoke();
             self_test_uk9();
@@ -6325,6 +6327,11 @@ fn main() {
             }
         }
         Some("us1-verify") if args.len() == 2 => us1_verify_main(&args[1]),
+        Some("statement-codec") => {
+            if !manifest::statement_codec_battery() {
+                std::process::exit(1);
+            }
+        }
         Some("us1-battery") => {
             let t = Instant::now();
             self_test_us1_boundary();

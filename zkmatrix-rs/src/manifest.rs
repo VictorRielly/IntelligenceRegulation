@@ -776,6 +776,291 @@ fn first_dataflow_cycle(graph: &[Vec<usize>]) -> Option<u32> {
     None
 }
 
+// ===========================================================================
+// U-S Phase 3 (P3-D1/D2/D4): canonical PublicStatement serialization. A
+// versioned, length-prefixed, little-endian byte codec with hard decode-
+// time resource limits and structured, panic-free errors. `Statement` IS
+// the PublicStatement (its v3 `digest()` is the sole transcript context);
+// these methods are its canonical wire form.
+
+const STATEMENT_CODEC_MAGIC: &[u8; 4] = b"ZKMS";
+const STATEMENT_CODEC_VERSION: u32 = 1;
+
+// Absolute decode caps (independent of the wire). A well-formed statement
+// for any admissible model is far below these; the caps bound allocation
+// against a hostile length prefix. Every length is ALSO checked against the
+// bytes remaining (a vec of >=1-byte items cannot exceed the buffer).
+const MAX_COMMITMENTS: usize = 1 << 24;
+const MAX_OPERATIONS: usize = 1 << 24;
+const MAX_ENTRIES: usize = 1 << 24;
+const MAX_LABEL_LEN: usize = 4096;
+const MAX_SETUP_LEN: usize = 1 << 16;
+const MAX_KEYINFO_LEN: usize = 1 << 16;
+const MAX_COMMIT_BYTES_LEN: usize = 1 << 20;
+const MAX_OP_VEC_LEN: usize = 1 << 24;
+const MAX_SCALAR_LEN: usize = 64;
+
+/// Structured decode failure (never a panic). Distinct from
+/// `StatementError` (semantic validation) which it wraps via `Invalid`.
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub enum DecodeError {
+    /// Fewer bytes remain than the field requires.
+    Truncated { needed: usize, have: usize },
+    /// Bytes remain after a complete decode (reject-don't-truncate).
+    TrailingBytes { extra: usize },
+    /// The leading magic is not `ZKMS`.
+    BadMagic,
+    /// Codec container version is not understood.
+    UnknownCodecVersion { got: u32 },
+    /// A length prefix exceeds its hard cap or the bytes remaining.
+    LengthTooLarge { ctx: &'static str, got: u64, cap: usize },
+    /// An enum tag byte is out of range.
+    BadTag { ctx: &'static str, tag: u8 },
+    /// A length-prefixed string is not valid UTF-8.
+    BadUtf8,
+    /// The decoded statement failed semantic validation.
+    Invalid(StatementError),
+}
+
+impl std::fmt::Display for DecodeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DecodeError::Truncated { needed, have } => {
+                write!(f, "truncated: needed {needed} bytes, {have} remain")
+            }
+            DecodeError::TrailingBytes { extra } => write!(f, "{extra} trailing bytes after decode"),
+            DecodeError::BadMagic => write!(f, "bad magic (not a ZKMS statement)"),
+            DecodeError::UnknownCodecVersion { got } => write!(f, "unknown codec version {got}"),
+            DecodeError::LengthTooLarge { ctx, got, cap } => {
+                write!(f, "length {got} for {ctx} exceeds cap {cap}")
+            }
+            DecodeError::BadTag { ctx, tag } => write!(f, "bad {ctx} tag {tag}"),
+            DecodeError::BadUtf8 => write!(f, "invalid utf-8 in a string field"),
+            DecodeError::Invalid(e) => write!(f, "decoded statement is invalid: {e}"),
+        }
+    }
+}
+
+/// A canonical little-endian writer (infallible).
+struct StatementWriter {
+    buf: Vec<u8>,
+}
+impl StatementWriter {
+    fn new() -> Self {
+        StatementWriter { buf: Vec::new() }
+    }
+    fn raw(&mut self, b: &[u8]) {
+        self.buf.extend_from_slice(b);
+    }
+    fn u8(&mut self, v: u8) {
+        self.buf.push(v);
+    }
+    fn u32(&mut self, v: u32) {
+        self.buf.extend_from_slice(&v.to_le_bytes());
+    }
+    fn u64(&mut self, v: u64) {
+        self.buf.extend_from_slice(&v.to_le_bytes());
+    }
+    fn i64(&mut self, v: i64) {
+        self.buf.extend_from_slice(&v.to_le_bytes());
+    }
+    fn bytes(&mut self, b: &[u8]) {
+        self.u32(b.len() as u32);
+        self.raw(b);
+    }
+    fn string(&mut self, s: &str) {
+        self.bytes(s.as_bytes());
+    }
+    fn quant(&mut self, q: &QuantMeta) {
+        self.u32(q.bits);
+        self.u32(q.frac_bits);
+        self.u8(q.signed as u8);
+    }
+    fn into_vec(self) -> Vec<u8> {
+        self.buf
+    }
+}
+
+/// A bounds-checked little-endian reader. Every accessor validates the
+/// remaining length before reading; nothing panics on hostile input.
+struct ByteReader<'a> {
+    buf: &'a [u8],
+    pos: usize,
+}
+impl<'a> ByteReader<'a> {
+    fn new(buf: &'a [u8]) -> Self {
+        ByteReader { buf, pos: 0 }
+    }
+    fn remaining(&self) -> usize {
+        self.buf.len() - self.pos
+    }
+    fn take(&mut self, n: usize) -> Result<&'a [u8], DecodeError> {
+        if n > self.remaining() {
+            return Err(DecodeError::Truncated { needed: n, have: self.remaining() });
+        }
+        let s = &self.buf[self.pos..self.pos + n];
+        self.pos += n;
+        Ok(s)
+    }
+    fn u8(&mut self) -> Result<u8, DecodeError> {
+        Ok(self.take(1)?[0])
+    }
+    fn u32(&mut self) -> Result<u32, DecodeError> {
+        Ok(u32::from_le_bytes(self.take(4)?.try_into().unwrap()))
+    }
+    fn u64(&mut self) -> Result<u64, DecodeError> {
+        Ok(u64::from_le_bytes(self.take(8)?.try_into().unwrap()))
+    }
+    fn i64(&mut self) -> Result<i64, DecodeError> {
+        Ok(i64::from_le_bytes(self.take(8)?.try_into().unwrap()))
+    }
+    fn bytes32(&mut self) -> Result<[u8; 32], DecodeError> {
+        Ok(self.take(32)?.try_into().unwrap())
+    }
+    /// Read a u32 length prefix and check it against a hard cap AND the
+    /// bytes remaining (a vec of >=1-byte items cannot exceed the buffer).
+    fn len(&mut self, cap: usize) -> Result<usize, DecodeError> {
+        self.len_ctx("length", cap)
+    }
+    fn len_ctx(&mut self, ctx: &'static str, cap: usize) -> Result<usize, DecodeError> {
+        let n = self.u32()? as usize;
+        if n > cap || n > self.remaining() {
+            return Err(DecodeError::LengthTooLarge { ctx, got: n as u64, cap: cap.min(self.remaining()) });
+        }
+        Ok(n)
+    }
+    fn bytes(&mut self, cap: usize) -> Result<Vec<u8>, DecodeError> {
+        let n = self.len_ctx("bytes", cap)?;
+        Ok(self.take(n)?.to_vec())
+    }
+    fn string(&mut self, cap: usize) -> Result<String, DecodeError> {
+        let b = self.bytes(cap)?;
+        String::from_utf8(b).map_err(|_| DecodeError::BadUtf8)
+    }
+    fn vec_u32(&mut self, cap: usize) -> Result<Vec<u32>, DecodeError> {
+        // Each element is 4 bytes: cap the count by remaining/4 implicitly
+        // via len (which checks n <= remaining, conservative) then read.
+        let n = self.len_ctx("u32-vec", cap)?;
+        let mut v = Vec::with_capacity(n);
+        for _ in 0..n {
+            v.push(self.u32()?);
+        }
+        Ok(v)
+    }
+    fn quant(&mut self) -> Result<QuantMeta, DecodeError> {
+        let bits = self.u32()?;
+        let frac_bits = self.u32()?;
+        let signed = match self.u8()? {
+            0 => false,
+            1 => true,
+            t => return Err(DecodeError::BadTag { ctx: "signed", tag: t }),
+        };
+        Ok(QuantMeta { bits, frac_bits, signed })
+    }
+    fn finish(&mut self) -> Result<(), DecodeError> {
+        if self.remaining() != 0 {
+            return Err(DecodeError::TrailingBytes { extra: self.remaining() });
+        }
+        Ok(())
+    }
+}
+
+fn encode_operation(w: &mut StatementWriter, op: &Operation) {
+    match op {
+        Operation::Matmul { a, b, c } => {
+            w.u8(0);
+            w.u32(*a);
+            w.u32(*b);
+            w.u32(*c);
+        }
+        Operation::LinkEqual { left, right } => {
+            w.u8(1);
+            w.u32(*left);
+            w.u32(*right);
+        }
+        Operation::LinkTranspose { by_rows, by_cols } => {
+            w.u8(2);
+            w.u32(*by_rows);
+            w.u32(*by_cols);
+        }
+        Operation::Add { inputs, output } => {
+            w.u8(3);
+            w.u32(inputs.len() as u32);
+            for i in inputs {
+                w.u32(*i);
+            }
+            w.u32(*output);
+        }
+        Operation::Scale { input, output, scalar_le } => {
+            w.u8(4);
+            w.u32(*input);
+            w.u32(*output);
+            w.bytes(scalar_le);
+        }
+        Operation::Hadamard { x, y, z } => {
+            w.u8(5);
+            w.u32(*x);
+            w.u32(*y);
+            w.u32(*z);
+        }
+        Operation::Binary { bits } => {
+            w.u8(6);
+            w.u32(*bits);
+        }
+        Operation::Range { value, bits, width, signed } => {
+            w.u8(7);
+            w.u32(*value);
+            w.u32(*bits);
+            w.u32(*width);
+            w.u8(*signed as u8);
+        }
+        Operation::Rescale { x, y, r, shift } => {
+            w.u8(8);
+            w.u32(*x);
+            w.u32(*y);
+            w.u32(*r);
+            w.u32(*shift);
+        }
+        Operation::BiasBroadcast { bias, broadcast } => {
+            w.u8(9);
+            w.u32(*bias);
+            w.u32(*broadcast);
+        }
+        Operation::Lookup { x, y } => {
+            w.u8(10);
+            w.u32(*x);
+            w.u32(*y);
+        }
+    }
+}
+
+fn decode_operation(r: &mut ByteReader) -> Result<Operation, DecodeError> {
+    let tag = r.u8()?;
+    Ok(match tag {
+        0 => Operation::Matmul { a: r.u32()?, b: r.u32()?, c: r.u32()? },
+        1 => Operation::LinkEqual { left: r.u32()?, right: r.u32()? },
+        2 => Operation::LinkTranspose { by_rows: r.u32()?, by_cols: r.u32()? },
+        3 => Operation::Add { inputs: r.vec_u32(MAX_OP_VEC_LEN)?, output: r.u32()? },
+        4 => Operation::Scale { input: r.u32()?, output: r.u32()?, scalar_le: r.bytes(MAX_SCALAR_LEN)? },
+        5 => Operation::Hadamard { x: r.u32()?, y: r.u32()?, z: r.u32()? },
+        6 => Operation::Binary { bits: r.u32()? },
+        7 => Operation::Range {
+            value: r.u32()?,
+            bits: r.u32()?,
+            width: r.u32()?,
+            signed: match r.u8()? {
+                0 => false,
+                1 => true,
+                t => return Err(DecodeError::BadTag { ctx: "range-signed", tag: t }),
+            },
+        },
+        8 => Operation::Rescale { x: r.u32()?, y: r.u32()?, r: r.u32()?, shift: r.u32()? },
+        9 => Operation::BiasBroadcast { bias: r.u32()?, broadcast: r.u32()? },
+        10 => Operation::Lookup { x: r.u32()?, y: r.u32()? },
+        t => return Err(DecodeError::BadTag { ctx: "operation", tag: t }),
+    })
+}
+
 impl Statement {
     pub fn new(
         model_digest: [u8; 32],
@@ -1292,6 +1577,166 @@ impl Statement {
     /// Refuses to form a digest for an invalid statement — this is the
     /// enforcement point for "validate before anything is hashed into a
     /// challenge".
+    /// Canonical byte encoding of the public statement (U-S Phase 3
+    /// P3-D1/D2). Versioned magic + length-prefixed, little-endian,
+    /// canonical field order — the exact bytes a fresh verifier process
+    /// decodes. Every field the digest binds is present (plus the wire-only
+    /// commitment/key bytes the digest already covers), so a decode ->
+    /// re-digest reproduces the transcript context with no prover state.
+    pub fn encode(&self) -> Vec<u8> {
+        let mut w = StatementWriter::new();
+        w.raw(STATEMENT_CODEC_MAGIC);
+        w.u32(STATEMENT_CODEC_VERSION);
+        // Header.
+        w.u32(self.header.version);
+        w.raw(&self.header.model_digest);
+        match &self.header.table {
+            None => w.u8(0),
+            Some(t) => {
+                w.u8(1);
+                w.raw(&t.digest);
+                w.quant(&t.input);
+                w.quant(&t.output);
+                w.i64(t.domain_min);
+                w.i64(t.domain_max);
+            }
+        }
+        w.u32(self.header.modulus_bits);
+        // Manifest backend + setup + commitments + operations.
+        w.string(&self.manifest.backend);
+        w.bytes(&self.manifest.setup_digest);
+        w.u32(self.manifest.commitments.len() as u32);
+        for c in &self.manifest.commitments {
+            w.u32(c.id);
+            w.string(&c.label);
+            w.u32(c.rows);
+            w.u32(c.cols);
+            w.u8(c.orientation.tag());
+            w.bytes(&c.key_info);
+            w.bytes(&c.commitment_bytes);
+        }
+        w.u32(self.manifest.operations.len() as u32);
+        for op in &self.manifest.operations {
+            encode_operation(&mut w, op);
+        }
+        // Per-entry quant + pad, outputs.
+        w.u32(self.quant.len() as u32);
+        for q in &self.quant {
+            w.quant(q);
+        }
+        w.u32(self.pad.len() as u32);
+        for p in &self.pad {
+            w.u64(p.padded_rows);
+            w.u64(p.padded_cols);
+            w.u64(p.row_unit);
+            w.u64(p.col_unit);
+        }
+        w.u32(self.outputs.len() as u32);
+        for o in &self.outputs {
+            w.u32(*o);
+        }
+        w.into_vec()
+    }
+
+    /// Decode a statement from untrusted bytes (U-S Phase 3 P3-D2/D4).
+    /// Bounds-checked at every field, hard resource limits, and a final
+    /// `validate()` pass — a decoded statement is always a VALID statement
+    /// or a structured error. NEVER panics on any input; trailing bytes
+    /// and oversized lengths are rejected (reject-don't-truncate).
+    pub fn decode(bytes: &[u8]) -> Result<Statement, DecodeError> {
+        let mut r = ByteReader::new(bytes);
+        if r.take(STATEMENT_CODEC_MAGIC.len())? != STATEMENT_CODEC_MAGIC {
+            return Err(DecodeError::BadMagic);
+        }
+        let cv = r.u32()?;
+        if cv != STATEMENT_CODEC_VERSION {
+            return Err(DecodeError::UnknownCodecVersion { got: cv });
+        }
+        let version = r.u32()?;
+        let model_digest = r.bytes32()?;
+        let table = match r.u8()? {
+            0 => None,
+            1 => Some(TableSpec {
+                digest: r.bytes32()?,
+                input: r.quant()?,
+                output: r.quant()?,
+                domain_min: r.i64()?,
+                domain_max: r.i64()?,
+            }),
+            t => return Err(DecodeError::BadTag { ctx: "table-present", tag: t }),
+        };
+        let modulus_bits = r.u32()?;
+        let backend = r.string(MAX_LABEL_LEN)?;
+        let setup_digest = r.bytes(MAX_SETUP_LEN)?;
+        let n_c = r.len(MAX_COMMITMENTS)?;
+        let mut commitments = Vec::with_capacity(n_c);
+        for _ in 0..n_c {
+            let id = r.u32()?;
+            let label = r.string(MAX_LABEL_LEN)?;
+            let rows = r.u32()?;
+            let cols = r.u32()?;
+            let orientation = match r.u8()? {
+                0 => Orientation::RowMajor,
+                1 => Orientation::ByRows,
+                2 => Orientation::ByColumns,
+                t => return Err(DecodeError::BadTag { ctx: "orientation", tag: t }),
+            };
+            let key_info = r.bytes(MAX_KEYINFO_LEN)?;
+            let commitment_bytes = r.bytes(MAX_COMMIT_BYTES_LEN)?;
+            commitments.push(CommitmentEntry {
+                id,
+                label,
+                rows,
+                cols,
+                orientation,
+                key_info,
+                commitment_bytes,
+            });
+        }
+        let n_op = r.len(MAX_OPERATIONS)?;
+        let mut operations = Vec::with_capacity(n_op);
+        for _ in 0..n_op {
+            operations.push(decode_operation(&mut r)?);
+        }
+        let n_q = r.len(MAX_ENTRIES)?;
+        let mut quant = Vec::with_capacity(n_q);
+        for _ in 0..n_q {
+            quant.push(r.quant()?);
+        }
+        let n_p = r.len(MAX_ENTRIES)?;
+        let mut pad = Vec::with_capacity(n_p);
+        for _ in 0..n_p {
+            pad.push(PadSpec {
+                padded_rows: r.u64()?,
+                padded_cols: r.u64()?,
+                row_unit: r.u64()?,
+                col_unit: r.u64()?,
+            });
+        }
+        let n_out = r.len(MAX_ENTRIES)?;
+        let mut outputs = Vec::with_capacity(n_out);
+        for _ in 0..n_out {
+            outputs.push(r.u32()?);
+        }
+        r.finish()?; // reject trailing bytes
+        let st = Statement {
+            header: StatementHeader { version, model_digest, table, modulus_bits },
+            manifest: ClaimManifest {
+                backend,
+                setup_digest,
+                commitments,
+                operations,
+            },
+            quant,
+            pad,
+            outputs,
+        };
+        // A decoded statement must be a VALID statement — the fresh verifier
+        // never trusts a wire statement's structure.
+        st.validate().map_err(DecodeError::Invalid)?;
+        Ok(st)
+    }
+
     pub fn digest(&self) -> Result<[u8; 32], StatementError> {
         self.validate()?;
         let mut hasher = Sha256::new();
@@ -1622,6 +2067,195 @@ pub fn statement_negative_battery() -> bool {
         println!("statement-negatives passed");
     } else {
         println!("statement-negatives FAILED");
+    }
+    ok
+}
+
+/// A small VALID lookup+Hadamard statement for the codec round-trip: SiLU
+/// lookup g8 -> a8, then a8 o u8 -> h. Self-contained, metadata-only.
+pub fn codec_sample_statement() -> Statement {
+    let q8 = QuantMeta { bits: 8, frac_bits: 4, signed: true };
+    let mut mf = ClaimManifest::new("statement-codec", b"codec-setup");
+    let g8 = mf.add_commitment("g8", 4, 4, Orientation::ByColumns, vec![1, 2, 3], vec![0xaa; 8]);
+    let a8 = mf.add_commitment("a8", 4, 4, Orientation::ByColumns, vec![], vec![0xbb; 8]);
+    let u8v = mf.add_commitment("u8", 4, 4, Orientation::ByColumns, vec![9], vec![0xcc; 8]);
+    let h = mf.add_commitment("h", 4, 4, Orientation::ByColumns, vec![], vec![0xdd; 8]);
+    mf.add_operation(Operation::Lookup { x: g8, y: a8 });
+    mf.add_operation(Operation::Hadamard { x: a8, y: u8v, z: h });
+    let mut st = Statement::new([7u8; 32], Some(SILU_INT8_TABLE_SPEC), 30, mf);
+    st.quant = vec![q8, q8, q8, QuantMeta { bits: 16, frac_bits: 8, signed: true }];
+    st.pad = st
+        .manifest
+        .commitments
+        .iter()
+        .map(|e| PadSpec::exact(e.rows as usize, e.cols as usize))
+        .collect();
+    st.outputs = vec![h];
+    st
+}
+
+/// U-S Phase 3 (P3-D2/D4): canonical statement codec battery. Round-trip
+/// determinism + canonicality (encode is a bijection on valid statements),
+/// and every malformed-input class decodes to a STRUCTURED error, never a
+/// panic. Returns overall pass.
+pub fn statement_codec_battery() -> bool {
+    fn note(label: &str, pass: bool, ok: &mut bool) {
+        if pass {
+            println!("  ok   {label}");
+        } else {
+            println!("  FAIL {label}");
+            *ok = false;
+        }
+    }
+    let mut ok = true;
+
+    let st = codec_sample_statement();
+    let bytes = st.encode();
+    let d0 = st.digest().expect("sample statement validates");
+
+    // Round-trip: decode succeeds, re-encodes to the SAME bytes (canonical),
+    // and re-digests to the same transcript context.
+    match Statement::decode(&bytes) {
+        Ok(back) => {
+            let re = back.encode();
+            let dr = back.digest().expect("round-tripped statement validates");
+            note("codec round-trip: decode(encode(st)) re-encodes byte-identically", re == bytes, &mut ok);
+            note("codec round-trip: transcript digest preserved across the wire", dr == d0, &mut ok);
+        }
+        Err(e) => {
+            note(&format!("codec round-trip decode succeeds (got {e})"), false, &mut ok);
+        }
+    }
+
+    // Determinism: encode is a pure function.
+    note("codec determinism: encode is stable", st.encode() == bytes, &mut ok);
+
+    // --- Malformed-input classes: each must be a structured DecodeError. ---
+    let expect_err = |label: &str, buf: Vec<u8>, pred: &dyn Fn(&DecodeError) -> bool, ok: &mut bool| {
+        match Statement::decode(&buf) {
+            Ok(_) => {
+                println!("  FAIL {label}: decoded a malformed input");
+                *ok = false;
+            }
+            Err(e) if pred(&e) => println!("  ok   {label} -> {e}"),
+            Err(e) => {
+                println!("  FAIL {label}: wrong error {e}");
+                *ok = false;
+            }
+        }
+    };
+
+    // Truncation at every prefix length must error, never panic.
+    let mut trunc_ok = true;
+    for cut in 0..bytes.len() {
+        if Statement::decode(&bytes[..cut]).is_ok() {
+            trunc_ok = false;
+            break;
+        }
+    }
+    note("codec truncation: every proper prefix rejects (no panic)", trunc_ok, &mut ok);
+
+    // Trailing bytes.
+    let mut extended = bytes.clone();
+    extended.push(0);
+    expect_err(
+        "codec trailing bytes rejected",
+        extended,
+        &|e| matches!(e, DecodeError::TrailingBytes { .. }),
+        &mut ok,
+    );
+
+    // Bad magic.
+    let mut bad_magic = bytes.clone();
+    bad_magic[0] ^= 0xff;
+    expect_err(
+        "codec bad magic rejected",
+        bad_magic,
+        &|e| matches!(e, DecodeError::BadMagic),
+        &mut ok,
+    );
+
+    // Unknown codec version (bytes 4..8 after the 4-byte magic).
+    let mut bad_cv = bytes.clone();
+    bad_cv[4] = 0xff;
+    expect_err(
+        "codec unknown container version rejected",
+        bad_cv,
+        &|e| matches!(e, DecodeError::UnknownCodecVersion { .. }),
+        &mut ok,
+    );
+
+    // Oversized length prefix: rewrite the commitment-count u32 to u32::MAX.
+    // Its offset: magic(4) + cv(4) + version(4) + model_digest(32) +
+    // table_present(1)+table(32+ (4+4+1)*2 + 8 + 8 = 82) + modulus_bits(4) +
+    // backend(len 4 + "statement-codec"=15) + setup(len 4 + "codec-setup"=11).
+    {
+        let mut oversize = bytes.clone();
+        // Corrupt the backend string's length prefix to a huge value; the
+        // reader must reject it as LengthTooLarge, not allocate. Offset:
+        // magic 4 + codec_ver 4 + version 4 + model_digest 32 + table_present
+        // 1 + table (digest 32 + input 9 + output 9 + dmin 8 + dmax 8 = 66) +
+        // modulus_bits 4 -> the backend length u32.
+        let off = 4 + 4 + 4 + 32 + 1 + 66 + 4;
+        oversize[off..off + 4].copy_from_slice(&u32::MAX.to_le_bytes());
+        expect_err(
+            "codec oversized length prefix rejected (no huge alloc)",
+            oversize,
+            &|e| matches!(e, DecodeError::LengthTooLarge { .. } | DecodeError::Truncated { .. }),
+            &mut ok,
+        );
+    }
+
+    // Semantic invalidity survives the wire: a decoded statement that fails
+    // validation is rejected via DecodeError::Invalid. Build an invalid
+    // statement (no outputs) and encode it directly (encode doesn't validate).
+    {
+        let mut invalid = codec_sample_statement();
+        invalid.outputs.clear();
+        let buf = invalid.encode();
+        expect_err(
+            "codec decoded-but-invalid statement rejected (re-validated)",
+            buf,
+            &|e| matches!(e, DecodeError::Invalid(_)),
+            &mut ok,
+        );
+    }
+
+    // Randomized bit-flip fuzz (fixed seed): no input, however corrupt,
+    // may panic; every decode is Ok or a structured Err.
+    {
+        let mut state = 0x5eed_c0dec0deu64;
+        let mut next = || {
+            state ^= state << 13;
+            state ^= state >> 7;
+            state ^= state << 17;
+            state
+        };
+        let mut fuzz_ok = true;
+        for _ in 0..4000 {
+            let mut buf = bytes.clone();
+            let flips = 1 + (next() % 6) as usize;
+            for _ in 0..flips {
+                let i = (next() as usize) % buf.len();
+                buf[i] ^= (next() & 0xff) as u8;
+            }
+            // Also sometimes truncate/extend.
+            match next() % 3 {
+                0 => buf.truncate((next() as usize) % (buf.len() + 1)),
+                1 => buf.push((next() & 0xff) as u8),
+                _ => {}
+            }
+            // The contract: decode returns without panicking. (Any panic
+            // aborts the process under panic=abort and fails the battery.)
+            let _ = Statement::decode(&buf);
+        }
+        note("codec fuzz: 4000 bit-flip/truncate/extend inputs, zero panics", fuzz_ok, &mut ok);
+    }
+
+    if ok {
+        println!("statement-codec passed");
+    } else {
+        println!("statement-codec FAILED");
     }
     ok
 }
