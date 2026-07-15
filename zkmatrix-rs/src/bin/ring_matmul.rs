@@ -6174,7 +6174,7 @@ fn self_test_pi2_ce() {
 }
 
 fn usage() {
-    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | statement-inventory");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory");
     std::process::exit(2);
 }
 
@@ -6197,6 +6197,7 @@ fn main() {
             self_test_e2();
             self_test_lookup();
             self_test_lookup_zk();
+            self_test_us1_boundary();
             self_test_ffn_chain();
             self_test_ffn_layer_smoke();
             self_test_uk9();
@@ -6257,6 +6258,12 @@ fn main() {
                 4 => m5_bench(dims[0], dims[1], dims[2], dims[3]),
                 _ => usage(),
             }
+        }
+        Some("us1-verify") if args.len() == 2 => us1_verify_main(&args[1]),
+        Some("us1-battery") => {
+            let t = Instant::now();
+            self_test_us1_boundary();
+            println!("\n[U-S1] battery passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         Some("freeze-check") => freeze_check(),
         Some("statement-inventory") => statement_inventory(),
@@ -7848,8 +7855,8 @@ fn self_test_lookup() {
         let ttree =
             build_tree(&kf, m5.clone(), tab_fused.iter().map(|t| kf.sub(&alpha5, t)).collect());
         let t0 = Instant::now();
-        let (pw_proof, endw) = masked_gkr_prove(&kf, &[wtree], &masks_w, &mut tr5);
-        let (pt_proof, endt) = masked_gkr_prove(&kf, &[ttree], &masks_t, &mut tr5);
+        let (pw_proof, endw) = masked_gkr_prove(&kf, &[wtree], masks_w.harness_clone(), &mut tr5);
+        let (pt_proof, endt) = masked_gkr_prove(&kf, &[ttree], masks_t.harness_clone(), &mut tr5);
         let prove_ms = t0.elapsed().as_secs_f64() * 1e3;
         // Verify (fresh transcript), root cross-check on the DERIVED
         // roots, leaf grounding by direct MLE (aggregate pins: U-K5c).
@@ -7900,7 +7907,7 @@ fn self_test_lookup() {
             );
             let mut tr0 = LkpTranscript::new("uk5-lkp", &h05);
             let _a = tr0.challenge_k(&kf);
-            let (p0_proof, _) = masked_gkr_prove(&kf, &[wtree2], &z_w, &mut tr0);
+            let (p0_proof, _) = masked_gkr_prove(&kf, &[wtree2], z_w, &mut tr0);
             assert_true(
                 "U-K5ab mask liveness: masked boundary values differ from the zero-mask (unmasked-equivalent) transcript",
                 pw_proof.layers[2].boundary != p0_proof.layers[2].boundary,
@@ -8325,8 +8332,8 @@ fn self_test_lookup_zk() {
     let wtree = blinded_witness_tree(&kf, &alpha, &w_fused, dw, &bl_w);
     let ttree = blinded_table_tree(&kf, &alpha, &tab_fused, &m_k, dt, &bl_t);
     let t_prove = Instant::now();
-    let (pw_proof, endw) = masked_gkr_prove(&kf, &[wtree], &masks_w, &mut tr);
-    let (pt_proof, endt) = masked_gkr_prove(&kf, &[ttree], &masks_t, &mut tr);
+    let (pw_proof, endw) = masked_gkr_prove(&kf, &[wtree], masks_w.harness_clone(), &mut tr);
+    let (pt_proof, endt) = masked_gkr_prove(&kf, &[ttree], masks_t.harness_clone(), &mut tr);
     let prove_ms = t_prove.elapsed().as_secs_f64() * 1e3;
     // Pins (weights from the real masks — identical to the shells).
     let mut pins = descent_pins(base_w, &masks_w, &pw_proof, &endw, dw);
@@ -8429,7 +8436,7 @@ fn self_test_lookup_zk() {
         let zmask = zero_masks(&kf, dt, 0);
         let tree = blinded_table_tree(&kf, &alpha, &tab_fused, &m_probe, dt, &bl);
         let mut trp = LkpTranscript::fixed_coins("uk5c-recover", &spec_dg);
-        let (p, _) = masked_gkr_prove(&kf, &[tree], &zmask, &mut trp);
+        let (p, _) = masked_gkr_prove(&kf, &[tree], zmask, &mut trp);
         flatten_masked(&p)
     };
     // Base + 256 unit-column probes (shared by both recoveries).
@@ -8507,7 +8514,7 @@ fn self_test_lookup_zk() {
     };
     let masked_tree = blinded_table_tree(&kf, &alpha, &tab_fused, &m_k, dt, &bl_h);
     let mut trmp = LkpTranscript::fixed_coins("uk5c-recover", &spec_dg);
-    let (masked_obs_proof, _) = masked_gkr_prove(&kf, &[masked_tree], &masks_h, &mut trmp);
+    let (masked_obs_proof, _) = masked_gkr_prove(&kf, &[masked_tree], masks_h, &mut trmp);
     let masked_obs = flatten_masked(&masked_obs_proof);
     let (_, sol_m) = solve(&masked_obs);
     assert_true(
@@ -8537,15 +8544,15 @@ fn self_test_lookup_zk() {
         let reps = 20;
         let (mut mprove, mut mverify, mut uprove, mut uverify) = (0f64, 0f64, 0f64, 0f64);
         for _ in 0..reps {
-            // Masked.
-            masks_w.harness_reset_freshness();
-            masks_t.harness_reset_freshness();
+            // Masked. Each timed pass consumes its own harness_clone of the
+            // fixed base sets — the shipped API has no reuse path (moves by
+            // value), so the bench models a fresh session per repetition.
             let wt = blinded_witness_tree(&kf, &alpha, &w_fused, dw, &bl_w);
             let tt = blinded_table_tree(&kf, &alpha, &tab_fused, &m_k, dt, &bl_t);
             let t = Instant::now();
             let mut trp = LkpTranscript::new("uk5c-bench", &h0_lkp);
-            let (mw, _) = masked_gkr_prove(&kf, &[wt], &masks_w, &mut trp);
-            let (mt, _) = masked_gkr_prove(&kf, &[tt], &masks_t, &mut trp);
+            let (mw, _) = masked_gkr_prove(&kf, &[wt], masks_w.harness_clone(), &mut trp);
+            let (mt, _) = masked_gkr_prove(&kf, &[tt], masks_t.harness_clone(), &mut trp);
             mprove += t.elapsed().as_secs_f64() * 1e3;
             let t = Instant::now();
             let mut trv = LkpTranscript::new("uk5c-bench", &h0_lkp);
@@ -8692,8 +8699,8 @@ fn self_test_lookup_zk_neg(
         let alpha = tp.challenge_k(kf);
         let wtree = blinded_witness_tree(kf, &alpha, &wf_of(&ys_bad), dw, &bl_w);
         let ttree = blinded_table_tree(kf, &alpha, &tab_toy, &m_honest, dt, &bl_t);
-        let (pw, _endw) = masked_gkr_prove(kf, &[wtree], &masks_w, &mut tp);
-        let (pt, _endt) = masked_gkr_prove(kf, &[ttree], &masks_t, &mut tp);
+        let (pw, _endw) = masked_gkr_prove(kf, &[wtree], masks_w.harness_clone(), &mut tp);
+        let (pt, _endt) = masked_gkr_prove(kf, &[ttree], masks_t.harness_clone(), &mut tp);
         // The doctoring: shift the witness layer-1 p-value so the derived
         // root ratio matches the table's (cross-check passes), and absorb
         // the layer-1 claim defect into a G_1 chosen AFTER nu_1.
@@ -8761,7 +8768,7 @@ fn self_test_lookup_zk_neg_2(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
     use ring::gkr::root_cross_check;
     use ring::gkr_masked::{
         Blinder, BlinderSet, MaskSet, MaskedDescentProof, blinded_table_tree, blinded_witness_tree,
-        draw_masks, masked_gkr_prove, zero_masks,
+        draw_masks, masked_gkr_prove, masked_gkr_verify, zero_masks,
     };
     use ring::kfield::KElem;
     use ring::lookup::{fuse_pair, fused_silu_table, multiplicities};
@@ -8861,7 +8868,7 @@ fn self_test_lookup_zk_neg_2(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
             let zmask = zero_masks(kf, dt, 0);
             let tree = blinded_table_tree(kf, &alpha_h, &tab_toy, &m_probe, dt, &bl_shared);
             let mut trp = LkpTranscript::fixed_coins("uk5d-recover", spec_dg);
-            let (p, _) = masked_gkr_prove(kf, &[tree], &zmask, &mut trp);
+            let (p, _) = masked_gkr_prove(kf, &[tree], zmask, &mut trp);
             flatten_masked(&p)
         };
         let base_flat = probe(&vec![0u64; t_toy]);
@@ -8923,10 +8930,13 @@ fn self_test_lookup_zk_neg_2(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
         m_b_vals[5] = m_b_vals[5].wrapping_sub(1);
         let m_b: Vec<KElem> = m_b_vals.iter().map(|&c| kf.embed(zq.to_mod(c as i64))).collect();
         let masked_transcript = |m: &[KElem]| -> Vec<KElem> {
-            masks_shared.harness_reset_freshness(); // MODEL the reuse
+            // MODEL the reuse: an attacker who kept the SAME coefficients
+            // (harness_clone — the only reuse path, and a named attack
+            // tool) runs a second pass. The shipped API cannot do this: it
+            // consumes the set by value.
             let tree = blinded_table_tree(kf, &alpha_h, &tab_toy, m, dt, &bl_shared);
             let mut tr = LkpTranscript::fixed_coins("uk5d-recover", spec_dg);
-            let (p, _) = masked_gkr_prove(kf, &[tree], &masks_shared, &mut tr);
+            let (p, _) = masked_gkr_prove(kf, &[tree], masks_shared.harness_clone(), &mut tr);
             flatten_masked(&p)
         };
         let ta = masked_transcript(&m_a);
@@ -8942,17 +8952,26 @@ fn self_test_lookup_zk_neg_2(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
             "U-K5d E3Z-N3 (freshness leak): two passes sharing one g-mask — the transcript DIFFERENCE recovers m_a - m_b (the unmasked leak returns)",
             recovered == expect && recovered.iter().any(|&x| x != 0),
         );
-        // Enforcement: one pass marks the mask set used; the shipped
-        // prover refuses a second (release builds ABORT on the prove-side
-        // one-time-use assert, so the marker is the testable surface).
+        // Enforcement is STRUCTURAL, not a flag: masked_gkr_prove consumes
+        // the MaskSet by value (moved), and MaskSet has no Clone. A second
+        // pass with the same object does not compile; the only reuse path
+        // is the explicitly-named harness_clone above. Here we prove ONCE
+        // (the set is moved and gone) and confirm the honest pass verifies
+        // — there is no post-pass handle left to reuse.
         let masks_once = draw_masks(kf, &mut trm, dt, 0);
-        assert!(!masks_once.is_used());
+        let masks_once_shell = masks_once.harness_clone(); // shape shell for the verifier
         let tree1 = blinded_table_tree(kf, &alpha_h, &tab_toy, &m_a, dt, &bl_shared);
         let mut t1 = LkpTranscript::fixed_coins("uk5d-once1", spec_dg);
-        let _ = masked_gkr_prove(kf, &[tree1], &masks_once, &mut t1);
+        let (p_once, _) = masked_gkr_prove(kf, &[tree1], masks_once, &mut t1);
+        // masks_once is MOVED here — referencing it again is a compile
+        // error, which IS the freshness enforcement.
+        let once_ok = {
+            let mut tv = LkpTranscript::fixed_coins("uk5d-once1", spec_dg);
+            masked_gkr_verify(kf, 1, dt, &masks_once_shell, &p_once, &mut tv, true).is_some()
+        };
         assert_true(
-            "U-K5d E3Z-N3 (freshness enforced): one pass marks the mask set used — the shipped prover refuses a second pass (derive-time one-time-use assert, abort on reuse)",
-            masks_once.is_used(),
+            "U-K5d E3Z-N3 (freshness enforced structurally): masked_gkr_prove CONSUMES the mask set by value (no Clone) — a second pass with the same object is a compile error, not a runtime flag; the single consumed pass verifies",
+            once_ok,
         );
     }
 
@@ -8965,10 +8984,11 @@ fn self_test_lookup_zk_neg_2(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
         let mut trb = ring::ProverRng::from_test_seed("uk5d-n4-bl", spec_dg);
         let bl_w = BlinderSet::draw(kf, &mut trb);
         let prove_w = |masks: &MaskSet, bl: &BlinderSet| -> MaskedDescentProof {
-            masks.harness_reset_freshness(); // rank probes re-run a fixed set
+            // Rank probes re-run a FIXED set: each pass consumes a fresh
+            // harness_clone (the only reuse path; the shipped API moves).
             let tree = blinded_witness_tree(kf, &alpha_h, &w_ok, dw, bl);
             let mut tr = LkpTranscript::fixed_coins("uk5d-n4", spec_dg);
-            let (p, _) = masked_gkr_prove(kf, &[tree], masks, &mut tr);
+            let (p, _) = masked_gkr_prove(kf, &[tree], masks.harness_clone(), &mut tr);
             p
         };
         // Z3b: the 4 leaf boundary values vs the 8 blinder pads (a, u of
@@ -9238,7 +9258,7 @@ fn self_test_lookup_zk_neg_d3(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
         };
         let tree = blinded_witness_tree(kf, &alpha, &wf_of(&ys_ok), dw, &bl_w);
         let mut tp = LkpTranscript::fixed_coins("d3-tamper", spec_dg);
-        let (pw, _e) = masked_gkr_prove(kf, &[tree], &masks_w, &mut tp);
+        let (pw, _e) = masked_gkr_prove(kf, &[tree], masks_w.harness_clone(), &mut tp);
         let verify = |p: &MaskedDescentProof| -> bool {
             let mut tv = LkpTranscript::fixed_coins("d3-tamper", spec_dg);
             masked_gkr_verify(kf, 1, dw, &masks_w, p, &mut tv, true).is_some()
@@ -9330,6 +9350,539 @@ fn self_test_lookup_zk_neg_d3(kf: &ring::kfield::KField, spec_dg: &[u8; 32]) {
             "U-K5d/D3 E4-N1 (masked): the shipped order (psi AFTER the pinned values, mask openings in scope) REJECTS the same forgery",
             caught_after,
         );
+    }
+}
+
+// ===========================================================================
+// [U-S1] The security-boundary battery (U-S tranche, audit Phase 1 exit).
+// A verifier PROCESS accepts an honest masked-lookup proof, and the
+// public-mask, same-seed, free-h0, stale-h0 and reuse attacks all reject
+// at the API boundary:
+//   * free-h0 / stale-h0 REJECT in a SECOND process (prove here, dump the
+//     current transcript encoding to bytes, load+verify in a fresh
+//     ring_matmul process) because that process RECOMPUTES h0 from the
+//     statement + commitment digest and never reads a prover h0.
+//   * public-mask / reuse: the histogram-recovery leak class — a broken
+//     harness that REUSES the same mask coefficients recovers m_a - m_b
+//     exactly; FRESH per-session masks (the shipped API, OS entropy) make
+//     the same recovery fail. The shipped prover has NO reuse path
+//     (masked_gkr_prove consumes the MaskSet by value; no Clone).
+//   * same-seed: two independent from_os sessions carry distinct session
+//     nonces and distinct masks; the deterministic from_test_seed is the
+//     only way to reproduce a mask set, and it is named test-only.
+//
+// The toy shape is self-contained (dw = dt = 6, T = 8, 10 honest leaves):
+// masked descents + blinded root cross-check are the lookup soundness
+// core; the commitment ct-round is out of scope for this minimal ZK-core
+// boundary (H-05's full proof artifact is Phase 3). The dump/load is the
+// minimal test plumbing the ledger permits, NOT the Phase 3 serializer.
+
+const US1_DW: usize = 6;
+const US1_DT: usize = 6;
+const US1_T: usize = 8;
+const US1_N: usize = 10;
+
+/// The toy table (v, S[v]) = (v, (3v+5) mod 31), spec-digested for h0.
+fn us1_toy_rows() -> Vec<(i64, i64)> {
+    (0..US1_T as i64).map(|v| (v, (3 * v + 5) % 31)).collect()
+}
+
+fn us1_spec_dg(rows: &[(i64, i64)]) -> [u8; 32] {
+    let mut parts: Vec<u8> = b"us1-toy-table-v1".to_vec();
+    for (v, s) in rows {
+        parts.extend((*v as i64).to_le_bytes());
+        parts.extend((*s as i64).to_le_bytes());
+    }
+    uk8_sha(&[&parts])
+}
+
+/// h0 DERIVED from the public statement (table spec) + the public
+/// commitment digest. The verifier process recomputes this; a stale h0
+/// omits `commits_dg` (pre-commitment), a free h0 is anything else.
+fn us1_derive_h0(spec_dg: &[u8; 32], commits_dg: &[u8; 32]) -> [u8; 32] {
+    uk8_sha(&[b"us1-lkp-h0", spec_dg, commits_dg])
+}
+
+/// A minimal, bounds-checked byte reader for the dump/load leg (an
+/// untrusted parser returns None, never panics — the H-05 discipline in
+/// miniature).
+struct Us1Rd<'a> {
+    b: &'a [u8],
+    p: usize,
+}
+impl<'a> Us1Rd<'a> {
+    fn u32(&mut self) -> Option<usize> {
+        if self.p + 4 > self.b.len() {
+            return None;
+        }
+        let v = u32::from_le_bytes(self.b[self.p..self.p + 4].try_into().unwrap());
+        self.p += 4;
+        Some(v as usize)
+    }
+    fn u8(&mut self) -> Option<u8> {
+        if self.p + 1 > self.b.len() {
+            return None;
+        }
+        let v = self.b[self.p];
+        self.p += 1;
+        Some(v)
+    }
+    fn dg(&mut self) -> Option<[u8; 32]> {
+        if self.p + 32 > self.b.len() {
+            return None;
+        }
+        let mut d = [0u8; 32];
+        d.copy_from_slice(&self.b[self.p..self.p + 32]);
+        self.p += 32;
+        Some(d)
+    }
+    fn kelem(&mut self) -> Option<ring::kfield::KElem> {
+        let mut e = Vec::with_capacity(ring::kfield::K_DEG);
+        for _ in 0..ring::kfield::K_DEG {
+            if self.p + 8 > self.b.len() {
+                return None;
+            }
+            e.push(u64::from_le_bytes(self.b[self.p..self.p + 8].try_into().unwrap()));
+            self.p += 8;
+        }
+        Some(e)
+    }
+}
+
+fn us1_put_kelem(out: &mut Vec<u8>, e: &ring::kfield::KElem) {
+    debug_assert_eq!(e.len(), ring::kfield::K_DEG);
+    for &c in e {
+        out.extend(c.to_le_bytes());
+    }
+}
+
+fn us1_dump_proof(out: &mut Vec<u8>, p: &ring::gkr_masked::MaskedDescentProof) {
+    out.extend((p.layer1.len() as u32).to_le_bytes());
+    for q in &p.layer1 {
+        for e in q {
+            us1_put_kelem(out, e);
+        }
+    }
+    out.extend((p.layers.len() as u32).to_le_bytes());
+    for l in &p.layers {
+        us1_put_kelem(out, &l.g_sum);
+        out.extend((l.rounds.len() as u32).to_le_bytes());
+        for r in &l.rounds {
+            out.extend((r.len() as u32).to_le_bytes());
+            for e in r {
+                us1_put_kelem(out, e);
+            }
+        }
+        for e in &l.boundary {
+            us1_put_kelem(out, e);
+        }
+        us1_put_kelem(out, &l.open_g);
+        match &l.open_r {
+            Some((a, b)) => {
+                out.push(1);
+                us1_put_kelem(out, a);
+                us1_put_kelem(out, b);
+            }
+            None => out.push(0),
+        }
+    }
+}
+
+fn us1_load_proof(rd: &mut Us1Rd) -> Option<ring::gkr_masked::MaskedDescentProof> {
+    use ring::gkr_masked::{MaskedDescentProof, MaskedLayerProof};
+    let n1 = rd.u32()?;
+    if n1 > 1 << 20 {
+        return None;
+    }
+    let mut layer1 = Vec::with_capacity(n1);
+    for _ in 0..n1 {
+        layer1.push([rd.kelem()?, rd.kelem()?, rd.kelem()?, rd.kelem()?]);
+    }
+    let nl = rd.u32()?;
+    if nl > 1 << 20 {
+        return None;
+    }
+    let mut layers = Vec::with_capacity(nl);
+    for _ in 0..nl {
+        let g_sum = rd.kelem()?;
+        let nr = rd.u32()?;
+        if nr > 1 << 20 {
+            return None;
+        }
+        let mut rounds = Vec::with_capacity(nr);
+        for _ in 0..nr {
+            let ne = rd.u32()?;
+            if ne > 1 << 10 {
+                return None;
+            }
+            let mut ev = Vec::with_capacity(ne);
+            for _ in 0..ne {
+                ev.push(rd.kelem()?);
+            }
+            rounds.push(ev);
+        }
+        let boundary = [rd.kelem()?, rd.kelem()?, rd.kelem()?, rd.kelem()?];
+        let open_g = rd.kelem()?;
+        let open_r = match rd.u8()? {
+            0 => None,
+            1 => Some((rd.kelem()?, rd.kelem()?)),
+            _ => return None,
+        };
+        layers.push(MaskedLayerProof { g_sum, rounds, boundary, open_g, open_r });
+    }
+    Some(MaskedDescentProof { layer1, layers })
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum Us1H0 {
+    Honest,
+    /// The prover builds its transcript on an arbitrary (bit-flipped) h0.
+    Free,
+    /// The prover builds on a pre-commitment prehash (omits commits_dg).
+    Stale,
+}
+
+/// Prove the toy masked lookup and DUMP the current transcript encoding:
+/// [spec_dg | commits_dg | witness proof | table proof]. `mask_seed`
+/// tags the deterministic mask session (reproducible batteries); the
+/// honest arm reproduces bit-for-bit, so a second process can verify it.
+fn us1_prove_bytes(mask_seed: &str, h0_mode: Us1H0) -> Vec<u8> {
+    use ring::gkr_masked::{
+        BlinderSet, blinded_table_tree, blinded_witness_tree, draw_masks, masked_gkr_prove,
+    };
+    use ring::kfield::{KElem, KField};
+    use ring::lookup::{fuse_pair, fused_silu_table, multiplicities};
+    use ring::sumcheck::LkpTranscript;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let zq = ctx.zq;
+    let rows = us1_toy_rows();
+    let spec_dg = us1_spec_dg(&rows);
+    let tab = fused_silu_table(&kf, &rows);
+    // Deterministic public witness (a harness concern — not prover entropy).
+    let mut dr = 0x5eed_5100u64;
+    let xs: Vec<usize> = (0..US1_N).map(|_| rng_below(&mut dr, US1_T as u64) as usize).collect();
+    let ys: Vec<i64> = xs.iter().map(|&x| rows[x].1).collect();
+    let w: Vec<KElem> = xs
+        .iter()
+        .zip(ys.iter())
+        .map(|(&x, &y)| fuse_pair(&kf, zq.to_mod(rows[x].0), zq.to_mod(y)))
+        .collect();
+    let m_k = multiplicities(&kf, &w, &tab);
+    // Prover secrets from the OS-entropy CSPRNG interface (deterministic
+    // test seed here for reproducibility; from_os on the shipped path).
+    let mut rng = ring::ProverRng::from_test_seed(mask_seed, &spec_dg);
+    let masks_w = draw_masks(&kf, &mut rng, US1_DW, 0);
+    let masks_t = draw_masks(&kf, &mut rng, US1_DT, 0);
+    let bl_w = BlinderSet::draw(&kf, &mut rng);
+    let mut bl_t = BlinderSet::draw(&kf, &mut rng);
+    bl_t.solve_mass(&kf, &bl_w.mass(&kf));
+    // Public commitment digest (stand-in for the Ajtai commitment list):
+    // binds m and the blinder publics. h0 DERIVES from spec_dg + this.
+    let commits_dg = {
+        let mut parts: Vec<u8> = b"us1-commit".to_vec();
+        for e in &m_k {
+            parts.extend((e[0]).to_le_bytes());
+        }
+        for b in [&bl_w.tl, &bl_w.tr, &bl_w.f0, &bl_w.f1, &bl_t.tl, &bl_t.tr, &bl_t.f0, &bl_t.f1] {
+            us1_put_kelem(&mut parts, &b.a);
+            us1_put_kelem(&mut parts, &b.u);
+        }
+        uk8_sha(&[&parts])
+    };
+    // The prover's prehash: honest DERIVES it; free flips a bit; stale
+    // omits the commitment digest (pre-commitment binding).
+    let h0_real = us1_derive_h0(&spec_dg, &commits_dg);
+    let h0_prover = match h0_mode {
+        Us1H0::Honest => h0_real,
+        Us1H0::Free => {
+            let mut h = h0_real;
+            h[0] ^= 1;
+            h
+        }
+        Us1H0::Stale => us1_derive_h0(&spec_dg, &[0u8; 32]),
+    };
+    let mut tr = LkpTranscript::new("us1-lkp", &h0_prover);
+    let alpha = tr.challenge_k(&kf);
+    let wtree = blinded_witness_tree(&kf, &alpha, &w, US1_DW, &bl_w);
+    let ttree = blinded_table_tree(&kf, &alpha, &tab, &m_k, US1_DT, &bl_t);
+    let (pw, _endw) = masked_gkr_prove(&kf, &[wtree], masks_w, &mut tr);
+    let (pt, _endt) = masked_gkr_prove(&kf, &[ttree], masks_t, &mut tr);
+    let mut out = Vec::new();
+    out.extend(spec_dg);
+    out.extend(commits_dg);
+    us1_dump_proof(&mut out, &pw);
+    us1_dump_proof(&mut out, &pt);
+    out
+}
+
+/// Load a dumped proof and VERIFY it — the routine the second process
+/// runs. It RECOMPUTES h0 from (spec_dg, commits_dg) and never reads a
+/// prover h0. Returns true iff the masked descents verify AND the blinded
+/// root cross-check holds under the derived alpha.
+fn us1_verify_bytes(bytes: &[u8]) -> bool {
+    use ring::gkr_masked::{masked_gkr_verify, zero_masks};
+    use ring::kfield::KField;
+    use ring::sumcheck::LkpTranscript;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let mut rd = Us1Rd { b: bytes, p: 0 };
+    let Some(spec_dg) = rd.dg() else { return false };
+    let Some(commits_dg) = rd.dg() else { return false };
+    let Some(pw) = us1_load_proof(&mut rd) else { return false };
+    let Some(pt) = us1_load_proof(&mut rd) else { return false };
+    // DERIVE h0 (and alpha) from the statement + commitment digest.
+    let h0 = us1_derive_h0(&spec_dg, &commits_dg);
+    let shell_w = zero_masks(&kf, US1_DW, 0);
+    let shell_t = zero_masks(&kf, US1_DT, 0);
+    let mut tv = LkpTranscript::new("us1-lkp", &h0);
+    let _alpha = tv.challenge_k(&kf);
+    let Some((roots_w, _ew)) = masked_gkr_verify(&kf, 1, US1_DW, &shell_w, &pw, &mut tv, false)
+    else {
+        return false;
+    };
+    let Some((roots_t, _et)) = masked_gkr_verify(&kf, 1, US1_DT, &shell_t, &pt, &mut tv, false)
+    else {
+        return false;
+    };
+    !kf.is_zero(&roots_w[0][1])
+        && !kf.is_zero(&roots_t[0][1])
+        && kf.mul(&roots_w[0][0], &roots_t[0][1]) == kf.mul(&roots_t[0][0], &roots_w[0][1])
+}
+
+/// `us1-verify <file>` — the SECOND-process verifier entry. Reads the
+/// dumped proof bytes and prints/exits with the verdict (exit 0 = ACCEPT,
+/// 1 = REJECT, 2 = unreadable). Used by the [U-S1] two-process leg.
+fn us1_verify_main(path: &str) {
+    let bytes = match std::fs::read(path) {
+        Ok(b) => b,
+        Err(e) => {
+            eprintln!("us1-verify: cannot read {path}: {e}");
+            std::process::exit(2);
+        }
+    };
+    if us1_verify_bytes(&bytes) {
+        println!("us1-verify: ACCEPT");
+        std::process::exit(0);
+    } else {
+        println!("us1-verify: REJECT");
+        std::process::exit(1);
+    }
+}
+
+/// The histogram-recovery leak (C-01), modelled at the toy shape. The
+/// masked table descent transcript is AFFINE in m: T(m) = L_M(m) + c_M,
+/// where the linear map L_M and constant c_M depend on the mask set M.
+/// An attacker recovers m by solving T(m_real) against a probe BASIS it
+/// builds by re-running the descent on unit m-vectors. If the masks are
+/// publicly RECONSTRUCTIBLE (`reconstructible = true`, the C-01 flaw), the
+/// attacker rebuilds the exact same M, its basis equals L_M, and the
+/// recovery reproduces the transcript EXACTLY and returns m_real (attack
+/// SUCCEEDS). With SECRET fresh masks the attacker's best basis is the
+/// zero-mask map L_0 != L_M; the recovery is inconsistent and wrong
+/// (attack FAILS). Returns true iff the recovery succeeds.
+fn us1_recover_leak(reconstructible: bool) -> bool {
+    use ring::gkr_masked::{
+        Blinder, BlinderSet, MaskSet, blinded_table_tree, draw_masks, masked_gkr_prove, zero_masks,
+    };
+    use ring::kfield::{K_DEG, KElem, KField};
+    use ring::lookup::{fuse_pair, fused_silu_table, multiplicities};
+    use ring::sumcheck::LkpTranscript;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let zq = ctx.zq;
+    let rows = us1_toy_rows();
+    let spec_dg = us1_spec_dg(&rows);
+    let tab = fused_silu_table(&kf, &rows);
+    let mut dr = 0x5eed_5200u64;
+    let xs: Vec<usize> = (0..US1_N).map(|_| rng_below(&mut dr, US1_T as u64) as usize).collect();
+    let ys: Vec<i64> = xs.iter().map(|&x| rows[x].1).collect();
+    let w: Vec<KElem> = xs
+        .iter()
+        .zip(ys.iter())
+        .map(|(&x, &y)| fuse_pair(&kf, zq.to_mod(rows[x].0), zq.to_mod(y)))
+        .collect();
+    let m_real = multiplicities(&kf, &w, &tab);
+    let m_real_vals: Vec<u64> = m_real.iter().map(|e| e[0]).collect();
+    let alpha = {
+        let mut t = LkpTranscript::fixed_coins("us1-recover", &spec_dg);
+        t.challenge_k(&kf)
+    };
+    let bl = {
+        let z = kf.zero();
+        let o = kf.one();
+        BlinderSet {
+            tl: Blinder { a: z.clone(), u: o.clone() },
+            tr: Blinder { a: z.clone(), u: o.clone() },
+            f0: Blinder { a: z.clone(), u: o.clone() },
+            f1: Blinder { a: z.clone(), u: o },
+        }
+    };
+    // The PROVER's secret masks (from an OS-style CSPRNG; a fixed test seed
+    // here so the harness is reproducible — the point is whether the
+    // ATTACKER can rebuild them, not how they were drawn).
+    let prover_masks = || {
+        let mut rng = ring::ProverRng::from_test_seed("us1-prover-secret-masks", &spec_dg);
+        draw_masks(&kf, &mut rng, US1_DT, 0)
+    };
+    let transcript = |m: &[KElem], masks: MaskSet| -> Vec<KElem> {
+        let tree = blinded_table_tree(&kf, &alpha, &tab, m, US1_DT, &bl);
+        let mut tr = LkpTranscript::fixed_coins("us1-recover", &spec_dg);
+        let (p, _) = masked_gkr_prove(&kf, &[tree], masks, &mut tr);
+        flatten_masked(&p)
+    };
+    // The observed transcript uses the prover's SECRET masks.
+    let observed = transcript(&m_real, prover_masks());
+    // The attacker's probe basis. reconstructible: it rebuilds the SAME
+    // masks (its basis equals L_M). Else it can only use zero masks (L_0).
+    let basis_masks = || -> MaskSet {
+        if reconstructible { prover_masks() } else { zero_masks(&kf, US1_DT, 0) }
+    };
+    let probe = |m_vec: &[u64]| -> Vec<KElem> {
+        let m_probe: Vec<KElem> = m_vec.iter().map(|&c| kf.embed(c)).collect();
+        transcript(&m_probe, basis_masks())
+    };
+    let base_flat = probe(&vec![0u64; US1_T]);
+    let cols: Vec<Vec<KElem>> = (0..US1_T)
+        .map(|j| {
+            let mut e = vec![0u64; US1_T];
+            e[j] = 1;
+            let pj = probe(&e);
+            pj.iter().zip(base_flat.iter()).map(|(a, b)| kf.sub(a, b)).collect()
+        })
+        .collect();
+    // rhs = observed - base_flat = L_M(m_real) when the basis masks == M.
+    let rhs: Vec<KElem> = observed.iter().zip(base_flat.iter()).map(|(a, b)| kf.sub(a, b)).collect();
+    let solve = || -> Vec<u64> {
+        let mut aug: Vec<Vec<u64>> = Vec::new();
+        for i in 0..base_flat.len() {
+            for c in 0..K_DEG {
+                let mut row: Vec<u64> = (0..US1_T).map(|j| cols[j][i][c]).collect();
+                row.push(rhs[i][c]);
+                if row.iter().any(|&x| x != 0) {
+                    aug.push(row);
+                }
+            }
+        }
+        let mut r = 0usize;
+        let mut piv = Vec::new();
+        for col in 0..US1_T {
+            let Some(p) = (r..aug.len()).find(|&i| aug[i][col] != 0) else { continue };
+            aug.swap(r, p);
+            let inv = zq.inv(aug[r][col]);
+            for x in aug[r].iter_mut() {
+                *x = zq.mul(*x, inv);
+            }
+            for i in 0..aug.len() {
+                if i != r && aug[i][col] != 0 {
+                    let f = aug[i][col];
+                    for c in 0..=US1_T {
+                        aug[i][c] = zq.sub(aug[i][c], zq.mul(f, aug[r][c]));
+                    }
+                }
+            }
+            piv.push(col);
+            r += 1;
+            if r == US1_T {
+                break;
+            }
+        }
+        let mut sol = vec![0u64; US1_T];
+        for (ri, &col) in piv.iter().enumerate() {
+            sol[col] = aug[ri][US1_T];
+        }
+        sol
+    };
+    let recovered = solve();
+    // The recovery counts only if it reproduces the WHOLE observed
+    // transcript (basis*recovered == rhs everywhere) AND equals m_real.
+    // Reconstructible masks: exact (basis == L_M). Secret masks: the
+    // zero-mask basis cannot fit the masked rows -> inconsistent -> fails.
+    let consistent = (0..base_flat.len()).all(|i| {
+        let mut acc = kf.zero();
+        for (j, rj) in recovered.iter().enumerate() {
+            if *rj != 0 {
+                acc = kf.add(&acc, &kf.scale(*rj, &cols[j][i]));
+            }
+        }
+        acc == rhs[i]
+    });
+    recovered == m_real_vals && consistent && m_real_vals.iter().any(|&x| x != 0)
+}
+
+fn self_test_us1_boundary() {
+    println!("\n[U-S1] security boundary: verifier PROCESS accept + public-mask/same-seed/free-h0/stale-h0/reuse reject");
+
+    // ---- Honest ACCEPT across a process boundary. ----
+    let dir = std::env::temp_dir();
+    let honest = us1_prove_bytes("us1-honest", Us1H0::Honest);
+    let honest_path = dir.join(format!("us1-honest-{}.bin", std::process::id()));
+    std::fs::write(&honest_path, &honest).expect("write honest proof");
+    // In-process sanity first (the same routine the child runs).
+    assert_true(
+        "U-S1 honest masked-lookup proof VERIFIES in-process (masked descents + blinded root cross-check under the DERIVED h0)",
+        us1_verify_bytes(&honest),
+    );
+    let exe = std::env::current_exe().expect("current exe");
+    let run = |path: &std::path::Path| -> i32 {
+        std::process::Command::new(&exe)
+            .arg("us1-verify")
+            .arg(path)
+            .status()
+            .expect("spawn us1-verify")
+            .code()
+            .unwrap_or(-1)
+    };
+    assert_true(
+        "U-S1 two-process: a SECOND ring_matmul process loads the dumped transcript bytes and ACCEPTS the honest proof (verifier recomputes h0 from statement+commitments; no prover-local value crosses)",
+        run(&honest_path) == 0,
+    );
+
+    // ---- free-h0 / stale-h0 REJECT in the second process. ----
+    let free = us1_prove_bytes("us1-honest", Us1H0::Free);
+    let free_path = dir.join(format!("us1-free-{}.bin", std::process::id()));
+    std::fs::write(&free_path, &free).expect("write free proof");
+    assert_true(
+        "U-S1 two-process (free-h0): a proof built on an arbitrary prover-chosen prehash REJECTS in the second process — it DERIVES h0 and the descents diverge (no prover h0 is read)",
+        run(&free_path) == 1,
+    );
+    let stale = us1_prove_bytes("us1-honest", Us1H0::Stale);
+    let stale_path = dir.join(format!("us1-stale-{}.bin", std::process::id()));
+    std::fs::write(&stale_path, &stale).expect("write stale proof");
+    assert_true(
+        "U-S1 two-process (stale-h0): a proof built on a PRE-COMMITMENT prehash (omits the commitment digest) REJECTS — the second process binds the full commitment list into its derived h0",
+        run(&stale_path) == 1,
+    );
+
+    // ---- public-mask / reuse: the histogram leak class (C-01). ----
+    assert_true(
+        "U-S1 public-mask leak (broken harness): when the masks are publicly RECONSTRUCTIBLE the attacker rebuilds the exact masked basis and RECOVERS the multiplicity histogram m exactly (consistent, == m) — the C-01 leak is real",
+        us1_recover_leak(true),
+    );
+    assert_true(
+        "U-S1 closure (secret masks): the SAME recovery against SECRET fresh masks FAILS — the attacker's zero-mask basis cannot fit the masked transcript (inconsistent, != m); OS-entropy sessions close the leak",
+        !us1_recover_leak(false),
+    );
+
+    // ---- same-seed / duplicate-session refusal. ----
+    let mut os_a = ring::ProverRng::from_os().expect("OS CSPRNG");
+    let mut os_b = ring::ProverRng::from_os().expect("OS CSPRNG");
+    assert_true(
+        "U-S1 same-seed: two independent from_os sessions carry DISTINCT explicit session nonces (the freshness handle) — the shipped API cannot emit two identical-mask sessions",
+        os_a.session_nonce() != os_b.session_nonce(),
+    );
+    let ctx = ring_ctx_q8();
+    let kf = ring::kfield::KField::new(&ctx);
+    let fresh_a = ring::gkr_masked::draw_masks(&kf, &mut os_a, US1_DT, 0).flatten();
+    let fresh_b = ring::gkr_masked::draw_masks(&kf, &mut os_b, US1_DT, 0).flatten();
+    assert_true(
+        "U-S1 duplicate-session refusal: from_os sessions draw DIFFERENT masks; masked_gkr_prove consumes the MaskSet by value (no Clone) so a second prove with the same object is a COMPILE error — reuse has no runtime path in the shipped API",
+        fresh_a != fresh_b,
+    );
+
+    // Housekeeping: drop the temp files.
+    for p in [&honest_path, &free_path, &stale_path] {
+        let _ = std::fs::remove_file(p);
     }
 }
 
@@ -9518,7 +10071,7 @@ fn self_test_uk9() {
             .collect();
         let tree = blinded_witness_tree(field, &alpha, &w_fused, dw, &bl);
         let mut tr = LkpTranscript::new("uk9-masked", &spec_dg);
-        let (proof, end) = masked_gkr_prove(field, &[tree], &masks, &mut tr);
+        let (proof, end) = masked_gkr_prove(field, &[tree], masks.harness_clone(), &mut tr);
         let mut tv = LkpTranscript::new("uk9-masked", &spec_dg);
         let ok = masked_gkr_verify(field, 1, dw, &masks, &proof, &mut tv, true)
             .map(|(_, ev)| ev.zstar == end.zstar && ev.p_claim == end.p_claim && ev.q_claim == end.q_claim)
@@ -10534,7 +11087,7 @@ fn ffn_chain_run(
         (zy, zu)
     };
 
-    for (b, bd) in blocks.iter().enumerate() {
+    for (b, bd) in blocks.iter_mut().enumerate() {
         // -- q31 g-masks for this block's round. --
         let t_g = Instant::now();
         let g_msgs = sample_g_masks(&mut rng, q, msg_r, n_lin, n_gslots - n_lin);
@@ -10609,14 +11162,26 @@ fn ffn_chain_run(
         let t_prove = Instant::now();
         // Lookup transcript (arm A): alpha binds ctx + the table digest +
         // every block commitment (g-masks included) through h0_lkp.
-        let mut lkp: Option<(MaskedDescentProof, MaskedDescentProof, DescentEnd, DescentEnd, KElem, [u8; 32])> = None;
+        let mut lkp: Option<(MaskedDescentProof, MaskedDescentProof)> = None;
         let mut pins: Vec<PinnedValue> = Vec::new();
         let mut tr_state: Option<LkpTranscript> = None;
         if with_lookup {
             let t_lkp = Instant::now();
             let ctx_lkp = uk8_sha(&[&spec_dg, &h0_link_b]);
             let h0_lkp = ct_h0(&crs, &ctx_lkp, &t1s, &t2s, &[]);
-            let mut tr = LkpTranscript::new("uk8-lkp", &h0_lkp);
+            // Free/stale-h0 attacker (C-02): the prover builds its ENTIRE
+            // lookup transcript on a prehash of its choosing. The verifier
+            // RECOMPUTES h0_lkp from the statement + full commitment list and
+            // never reads this value, so the crafted alpha/challenges diverge
+            // from the verifier's and the descents+pins reject on derivation.
+            let prover_h0_lkp = if tamper == ChainTamper::LookupH0 && b == 0 {
+                let mut h = h0_lkp;
+                h[0] ^= 1; // free-h0: an arbitrary prover-chosen prehash
+                h
+            } else {
+                h0_lkp
+            };
+            let mut tr = LkpTranscript::new("uk8-lkp", &prover_h0_lkp);
             let alpha = tr.challenge_k(&kf);
             let w_fused: Vec<KElem> = bd
                 .xs
@@ -10626,18 +11191,19 @@ fn ffn_chain_run(
                 .collect();
             let wtree = blinded_witness_tree(&kf, &alpha, &w_fused, UK8_DW, bd.bl_w.as_ref().unwrap());
             let ttree = blinded_table_tree(&kf, &alpha, &tab_fused, &bd.m_k, UK8_DT, bd.bl_t.as_ref().unwrap());
-            let (pw, endw) = masked_gkr_prove(&kf, &[wtree], bd.masks_w.as_ref().unwrap(), &mut tr);
-            let (pt, endt) = masked_gkr_prove(&kf, &[ttree], bd.masks_t.as_ref().unwrap(), &mut tr);
-            pins = descent_pins(base_wm, bd.masks_w.as_ref().unwrap(), &pw, &endw, UK8_DW);
-            pins.extend(descent_pins(base_tm, bd.masks_t.as_ref().unwrap(), &pt, &endt, UK8_DT));
+            // The mask sets are CONSUMED here (moved into prove). The pin
+            // weights depend only on the mask SHAPE, so descent_pins reads
+            // the zero-mask shells — exactly the shape the verifier rebuilds.
+            let (pw, endw) = masked_gkr_prove(&kf, &[wtree], bd.masks_w.take().unwrap(), &mut tr);
+            let (pt, endt) = masked_gkr_prove(&kf, &[ttree], bd.masks_t.take().unwrap(), &mut tr);
+            pins = descent_pins(base_wm, &shell_w, &pw, &endw, UK8_DW);
+            pins.extend(descent_pins(base_tm, &shell_t, &pt, &endt, UK8_DT));
             pins.extend(leaf_pins(&endw, &endt, &alpha, bd.n_b));
             absorb_pins(&mut tr, &pins);
             cost.lkp_prove_s += t_lkp.elapsed().as_secs_f64();
-            let mut claimed_h0_lkp = h0_lkp;
-            if tamper == ChainTamper::LookupH0 && b == 0 {
-                claimed_h0_lkp[0] ^= 1;
-            }
-            lkp = Some((pw, pt, endw, endt, alpha, claimed_h0_lkp));
+            // Only the descent proofs cross the boundary; alpha, the descent
+            // ends and the prehash are DERIVED by the verifier, never sent.
+            lkp = Some((pw, pt));
             tr_state = Some(tr);
         }
         // The q31 claim families, in the canonical order [pins | link
@@ -10807,16 +11373,19 @@ fn ffn_chain_run(
         let mut tr_v_state: Option<LkpTranscript> = None;
         if with_lookup {
             let t_lkp = Instant::now();
-            let (pw, pt, _endw, _endt, alpha_p, claimed_h0_lkp) = lkp.as_ref().unwrap();
-            // The lookup prehash is public, derived state—not a prover
-            // challenge. Recompute it from the verifier's statement/table
-            // context and complete commitment list before drawing alpha.
+            let (pw, pt) = lkp.as_ref().unwrap();
+            // The lookup prehash is DERIVED state, not a prover challenge and
+            // not part of the proof. Recompute it from the verifier's
+            // statement/table context and the COMPLETE commitment list, then
+            // seed the transcript and draw alpha from it. A prover that built
+            // on a different (free or stale) prehash produces descents whose
+            // challenges diverge from these — nothing is compared to a
+            // prover-supplied h0; the divergence itself is the rejection.
             let ctx_lkp_v = uk8_sha(&[&spec_dg, &h0_link_v]);
             let expected_h0_lkp = ct_h0(&crs, &ctx_lkp_v, &t1s, &t2s, &[]);
-            let mut lookup_ok = expected_h0_lkp == *claimed_h0_lkp;
+            let mut lookup_ok = true;
             let mut tv = LkpTranscript::new("uk8-lkp", &expected_h0_lkp);
             let av = tv.challenge_k(&kf);
-            lookup_ok &= av == *alpha_p;
             let vw = masked_gkr_verify(&kf, 1, UK8_DW, &shell_w, pw, &mut tv, false);
             let vt = masked_gkr_verify(&kf, 1, UK8_DT, &shell_t, pt, &mut tv, false);
             match (vw, vt) {
@@ -10962,13 +11531,15 @@ fn self_test_ffn_chain() {
         "U-K8 edge (lookup): an off-table Y REJECTS at the masked lookup's root cross-check; wave, q46 and gates pass (the edge is isolated)",
         !vy.lookup_ok && vy.wave_ok && vy.q46_ok && vy.gates_ok,
     );
-    // The lookup h0 is derivable from the statement and commitments. A
-    // carried/prover-supplied value is checked but never trusted as the
-    // verifier's challenge source.
+    // The lookup h0 is DERIVED by the verifier from the statement and the
+    // complete commitment list; it is never read from the proof. A prover
+    // that builds its whole lookup transcript on a free (arbitrary) prehash
+    // produces descents whose challenges diverge from the verifier's
+    // derivation, so the masked descent REJECTS — not a compared h0 field.
     let (vh, _) =
         ffn_chain_run(n, true, ChainTamper::LookupH0, 0x5eed_0806, ChainEntropy::Test, true);
     assert_true(
-        "U-K8 transcript boundary: a prover-supplied lookup h0 bit flip REJECTS; alpha and the wave remain derived from the verifier-recomputed prehash",
+        "U-K8 transcript boundary (C-02): a free prover-chosen lookup h0 REJECTS because the verifier DERIVES h0 (and alpha) from statement+commitments — the descents diverge; no prover h0 is read or compared; the wave never runs",
         !vh.lookup_ok && vh.wave_ok && vh.q46_ok && vh.gates_ok && vh.statement_ok,
     );
     // Edge 3 — Hadamard mismatch: one Z slot constant off the product.
@@ -12676,7 +13247,7 @@ fn ffn_layer_run(
     }
     // Lookup material (silu arms): ONE m column + ONE blinder group +
     // ONE mask pair for the whole layer — the S2 amortization subject.
-    let (masks_w, masks_t, bl_w, bl_t) = if arm.has_silu() {
+    let (mut masks_w, mut masks_t, bl_w, bl_t) = if arm.has_silu() {
         let mw = draw_masks(&kf, &mut rng, ls.dw, 0);
         let mt = draw_masks(&kf, &mut rng, ls.dt, 0);
         let bw = BlinderSet::draw(&kf, &mut rng);
@@ -12719,7 +13290,7 @@ fn ffn_layer_run(
     // over the dense committed offset codes — its own m column, blinder
     // group and mask pair; same tree depths, no offset fold at w = 8.
     let tab_range: Vec<KElem> = (0..1u64 << UR2_RANGE_W).map(|j| kf.embed(j)).collect();
-    let (masks_wr, masks_tr, bl_wr, bl_tr) = if arm.has_range() {
+    let (mut masks_wr, mut masks_tr, bl_wr, bl_tr) = if arm.has_range() {
         let mw = draw_masks(&kf, &mut rng, ls.dw, 0);
         let mt = draw_masks(&kf, &mut rng, ls.dt, 0);
         let bw = BlinderSet::draw(&kf, &mut rng);
@@ -13137,9 +13708,8 @@ fn ffn_layer_run(
             .collect()
     };
 
-    let mut lkp: Option<(MaskedDescentProof, MaskedDescentProof, KElem)> = None;
-    let mut lkp_r: Option<(MaskedDescentProof, MaskedDescentProof, KElem)> = None;
-    let mut claimed_h0_lkp: [u8; 32] = [0u8; 32];
+    let mut lkp: Option<(MaskedDescentProof, MaskedDescentProof)> = None;
+    let mut lkp_r: Option<(MaskedDescentProof, MaskedDescentProof)> = None;
     let mut tr_state: Option<LkpTranscript> = None;
     let mut pin_claims_p: Vec<CtClaim> = Vec::new();
     if arm.has_any() {
@@ -13155,7 +13725,17 @@ fn ffn_layer_run(
             (false, false) => unreachable!(),
         };
         let h0_lkp = ct_h0(&crs, &ctx_lkp, &t1s, &t2s, &[]);
-        let mut tr = LkpTranscript::new("ur1-lkp", &h0_lkp);
+        // Free-h0 attacker (C-02): build the whole lookup transcript on a
+        // prover-chosen prehash. The verifier recomputes h0_lkp from
+        // statement+commitments and never reads this, so the descents diverge.
+        let prover_h0_lkp = if tamper == LayerTamper::LookupH0 {
+            let mut h = h0_lkp;
+            h[0] ^= 1;
+            h
+        } else {
+            h0_lkp
+        };
+        let mut tr = LkpTranscript::new("ur1-lkp", &prover_h0_lkp);
         let mut pins: Vec<PinnedValue> = Vec::new();
         if arm.has_silu() {
             let alpha = tr.challenge_k(&kf);
@@ -13167,13 +13747,15 @@ fn ffn_layer_run(
             let m_k = m_column_k(ls.idx_m, t_rows);
             let wtree = blinded_witness_tree(&kf, &alpha, &w_fused, ls.dw, bl_w.as_ref().unwrap());
             drop(w_fused);
-            let (pw, endw) = masked_gkr_prove(&kf, &[wtree], masks_w.as_ref().unwrap(), &mut tr);
+            // Masks CONSUMED (moved into prove); descent_pins reads the
+            // shape-only shells, exactly as the verifier rebuilds them.
+            let (pw, endw) = masked_gkr_prove(&kf, &[wtree], masks_w.take().unwrap(), &mut tr);
             let ttree = blinded_table_tree(&kf, &alpha, &tab_fused, &m_k, ls.dt, bl_t.as_ref().unwrap());
-            let (pt, endt) = masked_gkr_prove(&kf, &[ttree], masks_t.as_ref().unwrap(), &mut tr);
-            pins = descent_pins(ls.base_wm, masks_w.as_ref().unwrap(), &pw, &endw, ls.dw);
-            pins.extend(descent_pins(ls.base_tm, masks_t.as_ref().unwrap(), &pt, &endt, ls.dt));
+            let (pt, endt) = masked_gkr_prove(&kf, &[ttree], masks_t.take().unwrap(), &mut tr);
+            pins = descent_pins(ls.base_wm, &shell_w, &pw, &endw, ls.dw);
+            pins.extend(descent_pins(ls.base_tm, &shell_t, &pt, &endt, ls.dt));
             pins.extend(leaf_pins(&endw, &endt, &alpha));
-            lkp = Some((pw, pt, alpha));
+            lkp = Some((pw, pt));
         }
         if arm.has_range() {
             let alpha_r = tr.challenge_k(&kf);
@@ -13182,23 +13764,19 @@ fn ffn_layer_run(
             let m_kr = m_column_k(ls.idx_mr, 1usize << UR2_RANGE_W);
             let wtree = blinded_witness_tree(&kf, &alpha_r, &w_range, ls.dw, bl_wr.as_ref().unwrap());
             drop(w_range);
-            let (pw, endw) = masked_gkr_prove(&kf, &[wtree], masks_wr.as_ref().unwrap(), &mut tr);
+            let (pw, endw) = masked_gkr_prove(&kf, &[wtree], masks_wr.take().unwrap(), &mut tr);
             let ttree = blinded_table_tree(&kf, &alpha_r, &tab_range, &m_kr, ls.dt, bl_tr.as_ref().unwrap());
-            let (pt, endt) = masked_gkr_prove(&kf, &[ttree], masks_tr.as_ref().unwrap(), &mut tr);
-            pins.extend(descent_pins(ls.base_wmr, masks_wr.as_ref().unwrap(), &pw, &endw, ls.dw));
-            pins.extend(descent_pins(ls.base_tmr, masks_tr.as_ref().unwrap(), &pt, &endt, ls.dt));
+            let (pt, endt) = masked_gkr_prove(&kf, &[ttree], masks_tr.take().unwrap(), &mut tr);
+            pins.extend(descent_pins(ls.base_wmr, &shell_w, &pw, &endw, ls.dw));
+            pins.extend(descent_pins(ls.base_tmr, &shell_t, &pt, &endt, ls.dt));
             pins.extend(leaf_pins_range(&endw, &endt, &alpha_r));
-            lkp_r = Some((pw, pt, alpha_r));
+            lkp_r = Some((pw, pt));
         }
         absorb_pins(&mut tr, &pins);
         let psi = derive_pin_psi(&tr.state(), UR1_PIN_COPIES, pins.len() * K_DEG, q);
         pin_claims_p = pin_claims(&kf, &pins, n_data, msg_r, &psi);
         drop(pins);
         cost.lkp_prove_s += t_lkp.elapsed().as_secs_f64();
-        claimed_h0_lkp = h0_lkp;
-        if tamper == LayerTamper::LookupH0 {
-            claimed_h0_lkp[0] ^= 1;
-        }
         tr_state = Some(tr);
     }
 
@@ -13279,18 +13857,17 @@ fn ffn_layer_run(
             (false, true) => uk8_sha(&[&range_dg, &h0_link_v]),
             (false, false) => unreachable!(),
         };
+        // h0_lkp is DERIVED from statement+commitments and seeds the
+        // transcript; it is never read from the proof or compared to a
+        // prover copy. A free/stale prover prehash makes the descents diverge.
         let expected_h0_lkp = ct_h0(&crs, &ctx_lkp_v, &t1s, &t2s, &[]);
-        let h0_ok = expected_h0_lkp == claimed_h0_lkp;
-        verdict.lookup_ok &= !arm.has_silu() || h0_ok;
-        verdict.range_ok &= !arm.has_range() || h0_ok;
         let mut tv = LkpTranscript::new("ur1-lkp", &expected_h0_lkp);
         let mut pv: Vec<PinnedValue> = Vec::new();
         let mut descents_ok = true;
         if arm.has_silu() {
-            let (pw, pt, alpha_p) = lkp.as_ref().unwrap();
+            let (pw, pt) = lkp.as_ref().unwrap();
             let mut lookup_ok = true;
             let av = tv.challenge_k(&kf);
-            lookup_ok &= av == *alpha_p;
             let vw = masked_gkr_verify(&kf, 1, ls.dw, &shell_w, pw, &mut tv, false);
             let vt = masked_gkr_verify(&kf, 1, ls.dt, &shell_t, pt, &mut tv, false);
             match (vw, vt) {
@@ -13310,10 +13887,9 @@ fn ffn_layer_run(
             verdict.lookup_ok &= lookup_ok;
         }
         if arm.has_range() {
-            let (pw, pt, alpha_p) = lkp_r.as_ref().unwrap();
+            let (pw, pt) = lkp_r.as_ref().unwrap();
             let mut range_ok = true;
             let av = tv.challenge_k(&kf);
-            range_ok &= av == *alpha_p;
             let vw = masked_gkr_verify(&kf, 1, ls.dw, &shell_w, pw, &mut tv, false);
             let vt = masked_gkr_verify(&kf, 1, ls.dt, &shell_t, pt, &mut tv, false);
             match (vw, vt) {
@@ -13679,8 +14255,8 @@ fn self_test_ffn_layer() {
     );
     let (vk, _) = ffn_layer_run(lg, LayerArm::Lookup, LayerTamper::LookupH0, 0x5eed_0118, ChainEntropy::Test, true);
     assert_true(
-        "U-R1b transcript boundary: a prover-supplied lookup h0 bit flip REJECTS; the waves stay grounded on the verifier-recomputed prehash",
-        !vk.lookup_ok && vk.waves_ok && vk.sum_gate_ok && vk.zeta_gate_ok,
+        "U-R1b transcript boundary (C-02): a free prover-chosen lookup h0 REJECTS because the verifier DERIVES h0 from statement+commitments — the masked descents diverge and cannot ground the wave pins; no prover h0 is read or compared, and the layer does not accept",
+        !vk.lookup_ok && !vk.all_ok(),
     );
     // Planner: without the co-location groups, a Hadamard quad straddles
     // waves and quad_ring_wave detects it.

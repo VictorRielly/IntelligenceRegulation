@@ -729,13 +729,32 @@ enum ProverRngInner {
     Test(XofReader),
 }
 
-pub struct ProverRng(ProverRngInner);
+pub struct ProverRng {
+    inner: ProverRngInner,
+    /// The EXPLICIT proof-session nonce (C-01 remediation, U-S P1-D1).
+    /// Drawn from OS entropy at the head of every `from_os` session, this
+    /// is the auditable freshness handle: every prover secret drawn from
+    /// this generator (masks, blinders, commitment randomness, ARP and
+    /// rejection coins) belongs to exactly one session tagged by this
+    /// nonce, so two proofs of the same statement never share secrets.
+    /// It is a PROVER-side freshness tag, not a Fiat-Shamir input — the
+    /// verifier recomputes every challenge from public data (D3) and never
+    /// reads this value.
+    session_nonce: [u8; 32],
+}
 
 impl ProverRng {
-    /// Seed a fresh prover session from the operating system CSPRNG.
+    /// Seed a fresh prover session from the operating system CSPRNG. The
+    /// leading 32 bytes of the session stream are consumed as the explicit
+    /// session nonce (see [`ProverRng::session_nonce`]) BEFORE any secret is
+    /// drawn, so the nonce is bound ahead of every commitment/challenge edge
+    /// that depends on the session's entropy.
     pub fn from_os() -> std::io::Result<Self> {
         let source = std::fs::File::open("/dev/urandom")?;
-        Ok(ProverRng(ProverRngInner::Os(BufReader::with_capacity(1 << 20, source))))
+        let mut reader = BufReader::with_capacity(1 << 20, source);
+        let mut session_nonce = [0u8; 32];
+        reader.read_exact(&mut session_nonce)?;
+        Ok(ProverRng { inner: ProverRngInner::Os(reader), session_nonce })
     }
 
     /// Deterministic CSPRNG for batteries only. The name and documentation
@@ -749,17 +768,30 @@ impl ProverRng {
         hasher.update((seed.len() as u64).to_le_bytes());
         hasher.update(seed);
         let seed: [u8; 32] = hasher.finalize().into();
-        ProverRng(ProverRngInner::Test(XofReader::new(
-            "test-prover-rng",
-            &[&seed],
-        )))
+        // Reproducible session nonce for the batteries (a stable tag; the
+        // adversarial "same-seed" arm relies on this being deterministic).
+        let mut nh = Sha256::new();
+        nh.update(b"zkmatrix-test-prover-rng-session-nonce-v1");
+        nh.update(seed);
+        let session_nonce: [u8; 32] = nh.finalize().into();
+        ProverRng {
+            inner: ProverRngInner::Test(XofReader::new("test-prover-rng", &[&seed])),
+            session_nonce,
+        }
+    }
+
+    /// The explicit proof-session nonce for this generator. Two independent
+    /// `from_os` sessions return distinct nonces with overwhelming
+    /// probability; every secret drawn afterward is bound to this session.
+    pub fn session_nonce(&self) -> [u8; 32] {
+        self.session_nonce
     }
 }
 
 impl RngSource for ProverRng {
     #[inline(always)]
     fn next_u64(&mut self) -> u64 {
-        match &mut self.0 {
+        match &mut self.inner {
             ProverRngInner::Os(reader) => {
                 let mut bytes = [0u8; 8];
                 reader

@@ -28,34 +28,92 @@ extended it). Superseded for this tranche.
 
 ## P1 deliverables (audit Phase 1; exits are the audit's, verbatim in spirit)
 
-- [ ] P1-D1 Prover secrets: audit what c377d0d ("GPU readiness: secure
-      entropy") already fixed vs the audit claim "SplitMix/fixed/public
-      seeds remain on every Rust proof path" (C-01); replace every
-      remaining transcript-derived/fixed-seed secret on proof paths with
-      the injected OS-entropy CryptoRng; proof-session nonce explicit and
-      bound before every commitment/challenge edge that depends on it.
-      Self-tests may keep pinned entropy ONLY through an explicit
-      harness-labeled constructor (the cf55852 pattern).
-- [ ] P1-D2 Masks/blinders CONSUMED (move semantics or equivalent), the
-      Cell<bool> freshness flag removed as a security claim; duplicate
-      session/reuse attempts refused at the API.
-- [ ] P1-D3 h0_lkp recomputed by the verifier from statement+commitments;
-      removed from prover-controlled proof data (C-02). The existing
-      [U-K8] "transcript boundary" battery leg upgraded: the free-h0 and
-      stale-h0 attacks must reject because the VERIFIER derives h0, not
-      because it compares the prover's copy.
-- [ ] P1-D4 The histogram-recovery battery ([U-S1]): fresh secret masks
-      -> recovery FAILS; reconstructed/reused masks in a broken-harness
-      arm -> attack SUCCEEDS (demonstrating the leak class is real);
-      duplicate-session via production API -> REFUSED; honest prove in
-      one process, verify in a SECOND process from serialized bytes of
-      the CURRENT (pre-Phase-3) transcript encoding — a minimal dump/load
-      is in scope here only as test plumbing, not the Phase 3 artifact.
-- [ ] P1-EXIT a verifier process accepts an honest proof and the exact
-      public-mask, same-seed, free-h0, stale-h0, and reuse attacks all
-      reject at the API boundary. External item (recorded, not closable
-      here): independent cryptographer review of Q4.7-Q4.9 + FS
-      composition (audit Phase 1 item 6).
+- [x] P1-D1 DONE 2026-07-14. Audit: c377d0d already routed EVERY prover
+      secret on the shipped Rust proof paths through `ProverRng`
+      (from_os / from_test_seed) — verified by inspection of the RNG sinks
+      in ct_engine.rs (sample_g_masks, sample_ct_masks, sample_arp_mask,
+      arp_attempt_joint, prove_ct_round mask draws), sigma.rs
+      (gaussian_ivec + rejection_accept), commit.rs (rho_ternary), and the
+      mask/blinder draws in gkr_masked.rs; the only remaining `splitmix64`
+      uses in ring_matmul.rs generate WITNESS/statement data (a harness
+      concern), never a proof coin. The audit's C-01 quote ("SplitMix/
+      fixed/public seeds on every proof path") was TRUE at audit time but
+      already closed by c377d0d before this tranche. What I ADDED: an
+      EXPLICIT proof-session nonce on `ProverRng` (mod.rs) — from_os reads
+      it from the OS CSPRNG at the head of the session (before any secret),
+      from_test_seed derives it deterministically; `session_nonce()`
+      exposes it; the [U-S1] same-seed arm asserts two from_os sessions
+      carry distinct nonces + distinct masks. Pinned entropy stays behind
+      the explicitly harness-labeled `from_test_seed` (cf55852 pattern).
+- [x] P1-D2 DONE 2026-07-14. The `Cell<bool> used` field is GONE from
+      MaskSet (gkr_masked.rs), along with `is_used` and
+      `harness_reset_freshness` (the flag-as-security-claim). `masked_gkr_
+      prove` now CONSUMES `masks: MaskSet` BY VALUE (move); MaskSet has no
+      `Clone`, so a second prove with the same object is a COMPILE error —
+      reuse has no runtime path in the shipped API. The only reuse path is
+      the explicitly-named `harness_clone` (attack-modelling tool); every
+      caller of it is a battery that MODELS reuse. Shipped call sites
+      (ffn_chain, ffn_layer) move the masks in and build the descent pins
+      from the zero-mask SHELLS (weights are shape-only — identical to what
+      the verifier already used), so the consumption is transparent. Note:
+      blinders are still consumed into trees by reference (their freshness
+      likewise rests on OS entropy + h0-binds-alpha-after-commitments,
+      which was already shipped); the Cell-flag security claim was on masks
+      only, and that is what the audit named — closed.
+- [x] P1-D3 DONE 2026-07-14. c377d0d already recomputed expected_h0_lkp in
+      the verifier AND seeded its transcript from it — but it ALSO carried
+      the prover's `claimed_h0_lkp` (+ `alpha_p`) in the proof tuple and
+      REJECTED by comparing `expected == claimed` / `av == alpha_p`. That
+      is exactly the "reject by comparison" the audit forbids. Closed:
+      `claimed_h0_lkp` and `alpha_p` are REMOVED from the proof tuples in
+      BOTH ffn_chain and ffn_layer (the lkp/lkp_r tuples are now just the
+      descent proofs). The verifier DERIVES h0_lkp from statement+full
+      commitment list, seeds the transcript, derives alpha, and USES them
+      — nothing prover-supplied is read or compared. The transcript-
+      boundary battery legs are upgraded from "flip the transmitted copy"
+      to "the prover builds its WHOLE lookup transcript on a free
+      (arbitrary) prehash": the verifier's independent derivation makes the
+      masked descents diverge and REJECT. [U-S1] adds a stale-h0 leg
+      (prehash omits the commitment digest) — also rejects by derivation.
+      Verified: U-K8 LookupH0 leg green in self-test; U-R1b LookupH0 leg
+      green in `ffn-chain layer battery` (73s); [U-S1] two-process free/
+      stale-h0 both REJECT in a second process.
+- [x] P1-D4 DONE 2026-07-14. New `self_test_us1_boundary()` +
+      `us1-battery` / `us1-verify` subcommands (ring_matmul.rs), run in
+      self-test. Toy committed masked-lookup shape (dw=dt=6, T=8, 10 honest
+      leaves): masked descents + blinded root cross-check = the lookup
+      soundness core. Arms, all GREEN:
+      * public-mask leak (broken harness): masks publicly RECONSTRUCTIBLE
+        -> the attacker rebuilds the exact masked basis and recovers the
+        multiplicity histogram m EXACTLY (consistent, == m) — C-01 is real.
+      * closure (secret masks): the SAME recovery against secret fresh
+        masks FAILS (the zero-mask basis cannot fit the masked transcript;
+        inconsistent, != m).
+      * duplicate-session refusal: from_os sessions draw DIFFERENT masks;
+        move-by-value + no-Clone makes a second prove a compile error.
+      * same-seed: two from_os sessions carry DISTINCT session nonces.
+      * two-process: prove here, DUMP the current transcript encoding to
+        bytes (minimal bounds-checked dump/load — NOT the Phase 3
+        artifact), and a SECOND ring_matmul process (`us1-verify <file>`)
+        loads + verifies. Honest -> ACCEPT (exit 0); free-h0 and stale-h0
+        -> REJECT (exit 1). The child RECOMPUTES h0 from statement +
+        commitment digest; no prover-local value crosses the boundary.
+- [x] P1-EXIT MET 2026-07-14 (at the ZK-core toy shape). The [U-S1]
+      two-process leg demonstrates the exact exit bar: a SECOND
+      ring_matmul process ACCEPTS an honest proof, and the public-mask
+      (recovery fails on secret masks), same-seed (distinct nonces/masks),
+      free-h0, stale-h0 (both REJECT in the child), and reuse (compile-
+      error / no-Clone) attacks all reject at the API boundary. Scope
+      honesty: the two-process verifier exercises the masked-descent +
+      root-cross-check soundness core with a MINIMAL dump/load, not the
+      full Ajtai-committed ct-round; the block/layer rigs (self-test +
+      `ffn-chain [layer] battery`) exercise the free/stale-h0 rejection on
+      the FULL committed path in-process. A single fresh-process verifier
+      over the COMPLETE committed proof is Phase 3 (H-05 proof artifact),
+      opened by the orchestrator after P1+P2 merge — recorded, not
+      closable in this tranche.
+      External item (recorded, NOT DONE here): independent cryptographer
+      review of Q4.7-Q4.9 + FS composition (audit Phase 1 item 6).
 
 ## P2 deliverables (audit Phase 2)
 
@@ -88,3 +146,12 @@ table spec + all weight commitments.
 ## Log
 
 - 2026-07-14: tranche opened; P1 + P2 agents launched in parallel.
+- 2026-07-14 (P1): closed P1-D1..D4 + P1-EXIT. Files: ring/mod.rs
+  (ProverRng struct + explicit session_nonce), ring/gkr_masked.rs
+  (MaskSet: Cell<bool>/is_used/harness_reset_freshness removed;
+  masked_gkr_prove consumes by value; no Clone), bin/ring_matmul.rs
+  (h0_lkp fully verifier-derived on block chain + layer rig; [U-S1]
+  battery + us1-verify/us1-battery subcommands). Gates: ring_matmul
+  self-test GREEN (312s, includes [U-S1]); `ffn-chain layer battery`
+  GREEN (73s); `us1-battery` GREEN (0.12s). Python suite GREEN: 42 tests
+  + freeze-check pass (341s, "OK"); LKP-5..9 freeze gates unmoved.

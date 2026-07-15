@@ -54,14 +54,21 @@ pub type RMask = [[KElem; 3]; 2];
 
 /// The per-descent mask set: g^(j) for sumchecks j = 1..K-1, (Rp, Rq)
 /// for interior layers j = 2..K-1.
+///
+/// FRESHNESS IS STRUCTURAL, NOT FLAGGED (C-01 remediation, U-S P1-D2).
+/// A mask set is CONSUMED BY VALUE by `masked_gkr_prove`: after a pass
+/// the object is moved and cannot be used again — a second prove with
+/// the same binding is a COMPILE error, not a runtime flag check. There
+/// is deliberately no `Clone`; the sole way to obtain a second identical
+/// set is [`MaskSet::harness_clone`], whose name marks it as an
+/// attack-modelling tool. Per-session freshness comes from OS entropy
+/// (`draw_masks` requires a `ProverRng`, seeded from the kernel CSPRNG
+/// on production paths); the leak returns only when an attacker reuses
+/// the SAME coefficients (the E3Z-N3 / [U-S1] demonstrations clone
+/// explicitly to model exactly that).
 pub struct MaskSet {
     pub g: Vec<GMask>,           // index j-1 for sumcheck j (1-based)
     pub r: Vec<(RMask, RMask)>,  // index j-2 for layer j (2-based)
-    /// One-time-use marker (the LKP-6 mask-freshness rule, battery
-    /// E3Z-N3): masks are FRESH PER PASS — two transcripts sharing one
-    /// g-mask subtract to the unmasked difference and the Z1-class
-    /// recovery returns. masked_gkr_prove refuses a used set.
-    used: std::cell::Cell<bool>,
 }
 
 /// Round degrees of the layer-j sumcheck (ell variables total).
@@ -171,7 +178,7 @@ pub fn draw_masks(kf: &KField, rng: &mut ProverRng, depth: usize, n_extra: usize
         })
         .collect();
     let r = (2..depth).map(|_| (draw_rmask(kf, rng), draw_rmask(kf, rng))).collect();
-    MaskSet { g, r, used: std::cell::Cell::new(false) }
+    MaskSet { g, r }
 }
 
 /// The all-zero mask set (the pre-E3-Z engine, kept live for the
@@ -184,30 +191,16 @@ pub fn zero_masks(kf: &KField, depth: usize, n_extra: usize) -> MaskSet {
         })
         .collect();
     let r = (2..depth).map(|_| (zero_rmask(kf), zero_rmask(kf))).collect();
-    MaskSet { g, r, used: std::cell::Cell::new(false) }
+    MaskSet { g, r }
 }
 
 impl MaskSet {
-    /// HARNESS/ATTACK-MODELLING ONLY: clear the one-time-use marker so
-    /// a battery can deliberately reuse a mask set (the E3Z-N3 leak
-    /// demonstration and the F5 attack builders). Never a protocol
-    /// path — the shipped prover refuses reuse (masked_gkr_prove).
-    pub fn harness_reset_freshness(&self) {
-        self.used.set(false);
-    }
-
-    /// Whether this mask set has already proven a pass. masked_gkr_prove
-    /// refuses a set for which this is true (the E3Z-N3 freshness rule);
-    /// the battery observes it directly (release builds abort on the
-    /// prove-side assert, so the marker is the testable surface).
-    pub fn is_used(&self) -> bool {
-        self.used.get()
-    }
-
-    /// HARNESS ONLY: deep-copy the mask coefficients (the used marker is
-    /// reset). The rank-canary probes (E3Z-N4) perturb one coefficient
-    /// of a base set and re-run the descent; freshness is irrelevant to
-    /// the exposure algebra.
+    /// HARNESS/ATTACK-MODELLING ONLY: deep-copy the mask coefficients.
+    /// The shipped prover has NO reuse path — it consumes a `MaskSet` by
+    /// value and there is no `Clone`; this named method is the only way
+    /// to obtain a second identical set, and every caller is a battery
+    /// that MODELS reuse (the E3Z-N3 / [U-S1] leak demonstrations and the
+    /// rank-canary probes that perturb one coefficient and re-run).
     pub fn harness_clone(&self) -> MaskSet {
         MaskSet {
             g: self
@@ -216,7 +209,6 @@ impl MaskSet {
                 .map(|g| GMask { a0: g.a0.clone(), uni: g.uni.clone() })
                 .collect(),
             r: self.r.clone(),
-            used: std::cell::Cell::new(false),
         }
     }
 
@@ -793,16 +785,16 @@ fn masked_rounds_bulk(
 pub fn masked_gkr_prove(
     kf: &KField,
     trees: &[FracTree],
-    masks: &MaskSet,
+    masks: MaskSet,
     tr: &mut LkpTranscript,
 ) -> (MaskedDescentProof, DescentEnd) {
-    // Derive-time freshness (the LKP-6 mask-freshness rule, E3Z-N3):
-    // one mask set proves ONE pass; reuse subtracts out and the
-    // Z1-class m-recovery returns on the transcript difference.
-    assert!(
-        !masks.used.replace(true),
-        "mask reuse refused: masks are one-time per pass (E3Z-N3 freshness rule)"
-    );
+    // Freshness is STRUCTURAL: the mask set is CONSUMED BY VALUE here
+    // (C-01 remediation, U-S P1-D2). The object is moved into this call
+    // and cannot be reused — a second prove with the same binding is a
+    // compile error, so there is no runtime flag to bypass by
+    // reconstruction. Per-session freshness rests on the OS-entropy
+    // `ProverRng` that drew the coefficients.
+    let masks = &masks;
     let l = trees.len();
     assert!(l.is_power_of_two());
     let e_bits = l.trailing_zeros() as usize;
