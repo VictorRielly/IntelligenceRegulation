@@ -184,7 +184,12 @@ v2) with measured marginals: prove +205.9 us/el 1T [NOISY-SHARED],
 committed material +14.1 dce/el at the as-built instance size,
 amortizing as 1/B to ~1e-4 dce/el at per-layer 5.6e6-el instances
 [MODEL]. The integration is CLOSED at 1020-element row-block
-granularity, NOT at the single-instance 512x11008 shape, and it
+granularity [H-03 rename 2026-07-15, audit 2026-07-14: "closed" = the
+committed activation-chain rig — range/lookup/Hadamard over
+benchmark-generated tensors; none of the FFN's three matmuls,
+requantization, or residual binding is proven; see
+RANGE_AGGREGATION_DESIGN.md Section 0 item 5], NOT at the
+single-instance 512x11008 shape, and it
 surfaced two as-built capacity walls: (i) the q31 ct-round's C2 wave
 cap (~134 commitments per wave) blocks a single committed descent
 near 2^17 elements — an instancing wall this section's taxonomy did

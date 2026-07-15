@@ -75,7 +75,8 @@ codex-audit-* read-only.
       REPRODUCIBILITY pins; a new "Security exits (fail-closed, OPEN)"
       section listing: negligible rejection distance, multi-wave share
       privacy (Z1), serialized byte budget, adversarial parser, complete
-      FFN statement; (c) H-03 rename: "FFN-INTEGRATED/CLOSED" labels
+      FFN statement; (c) [DONE 2026-07-15] H-03 rename:
+      "FFN-INTEGRATED/CLOSED" labels
       qualified to "committed activation-chain rig" where they overstate;
       (d) the 07-10 H-07 hash-ceiling note: soundness tables get a
       min(algebraic, hash/FS) cap note with grinding/multi-theorem/quantum
@@ -107,3 +108,13 @@ codex-audit-* read-only.
   freeze-row discipline line. DISCREPANCY recorded in Section 0 item
   3: TARGET_CONTRACT.md budget unit is "256 KB", audit computes vs
   "256 KiB" — immaterial at 11,720x, contract line binding.
+- 2026-07-15 (ZB): Z3(c) DONE — H-03 renames at six sites:
+  M4_LOOKUP_DESIGN.md status header + 7' header + new 7'' rename
+  note; TARGET_CONTRACT.md Section 5 SiLU row; LLM_SCALE_ESTIMATE.md
+  lever-stack row; TRANSFORMER_PROOF_PLAN.md Section 2
+  reconciliation; PROGRESS.md milestone rename note (additive,
+  historical entries unedited). All read "committed activation-chain
+  rig — no FFN matmul/requant/residual in the proven statement" and
+  point to RANGE_AGGREGATION_DESIGN.md Section 0 item 5. Conservative
+  "remains OPEN" mentions (M4_LOOKUP_DESIGN.md Section 3,
+  Q4_LEMMAS.md honesty note) left as-is — they do not overstate.

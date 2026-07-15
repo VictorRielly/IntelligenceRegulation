@@ -14,7 +14,14 @@ composition's statement, per the R1.3-class honesty note); the U-K8
 integration exit CLOSED 2026-07-10 at row-block granularity: the
 masked committed lookup runs INSIDE a chain (range-proved X in,
 slot-packed E1-composed Y out, downstream gate-o-up, validated v2
-statement) with measured marginals — Sections 7'' and 8. Four
+statement) with measured marginals — Sections 7'' and 8. [H-03 rename
+2026-07-15 (audit 2026-07-14): what CLOSED is the COMMITTED
+ACTIVATION-CHAIN RIG — range -> lookup -> Hadamard over
+benchmark-generated tensors; no FFN matmul, requantization edge,
+residual, or model artifact is in the proven statement, so "FFN
+integration" in the statuses below reads as "activation-chain
+integration"; one complete caller-supplied FFN layer is an OPEN
+security exit, RANGE_AGGREGATION_DESIGN.md Section 0 item 5.] Four
 statuses, tracked separately: core algebra BUILT+MEASURED-1T; E4
 landing BUILT (N=256 committed rig); masked lookup
 BUILT+BATTERY-GREEN (battery shape; FFN-point mask material and
@@ -608,7 +615,9 @@ Nothing in this design blocks it; the SiLU lookup is deliberately its
 
 ### 7' — lookup-core measurement addendum (lookup-bench, 2026-07-10;
 ### relabeled per the 2026-07-10 audit H-01/H-02 — the U-K8 exit is
-### now CLOSED at row-block granularity, see Section 7'')
+### now CLOSED at row-block granularity, see Section 7''; H-03 rename
+### 2026-07-15: "closed" = the committed activation-chain rig, not an
+### FFN-layer proof — Section 7'' note)
 
 `ring_matmul lookup-bench` is an UNMASKED, UNCOMMITTED, single-thread
 lookup-CORE microbenchmark (fused leaves, trees, descents, verify with
@@ -648,6 +657,16 @@ Hadamard, and it is not FFN-shaped). Measured at N = 2^18 and 2^20
 
 ### 7'' — U-K8 committed-chain integration addendum (ffn-chain,
 ### 2026-07-10 — the audit H-01 exit, closed at row-block granularity)
+
+[H-03 rename 2026-07-15 (audit 2026-07-14): this milestone is the
+COMMITTED ACTIVATION-CHAIN RIG. `ffn-chain` stays as the binary's
+subcommand name, but the chain certifies range -> SiLU-lookup ->
+gate-o-up Hadamard over benchmark-generated X/UP at prototype
+granularity: none of an FFN's three matmuls (gate/up/down), no
+requantization edge, no residual/output binding, and no model
+artifact is in the proven statement. One complete caller-supplied
+quantized FFN layer is an OPEN security exit —
+RANGE_AGGREGATION_DESIGN.md Section 0 item 5.]
 
 `ring_matmul ffn-chain [n_blocks | battery]` is the first run of the
 MASKED, COMMITTED lookup INSIDE a chain: X range-proved upstream (q46
