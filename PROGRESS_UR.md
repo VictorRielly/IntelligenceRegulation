@@ -88,10 +88,59 @@ the masked descents/pins are untouched:
       by the wave's own h0; a cross-use forgery needs a hand-built
       proof transcript — deferred to S3's battery alongside the range
       table's new edges).
-- [ ] S2 — measure: A/B marginal at 2^18/2^20/2^22 vs the blocked
+- [x] S2 — measure: A/B marginal at 2^18/2^20/2^22 vs the blocked
       chain (the committed+masked amortization curve — the design
       study's key unknown); RSS per shape; [NOISY-SHARED] marks; the
       1/B fixed-cost claim checked against measurement.
+      DONE 2026-07-14 at 2^16/2^18/2^20 (NOT 2^22: the layer rig's
+      commitment stores + split pin claims peak at 8.23 GiB at 2^20 —
+      the 10G scope caps the CLI at 2^20; 2^22 is ~4x that. The
+      original 2^18..2^22 sketch predated the S1 memory findings).
+      One shape at a time, MemoryMax=10G, 1T, ALL timings
+      [NOISY-SHARED] (a live trading job burns a core):
+
+      shape | el        | waves | commit  | prove    | verify   | RSS
+      2^16  | 65,532    |  43   | 13.3    | 544.8    | 185.7    | 0.52 GiB
+      2^18  | 262,140   | 168   | 14.7    | 529.4    | 186.9    | 2.06 GiB
+      2^20  | 1,048,572 | 670   | 16.0    | 578.7    | 187.4    | 8.23 GiB
+      (arm A absolute us/el; data cap 76/wave of C2 max 134 all rows)
+
+      lookup marginal (A - B)      2^16    2^18    2^20   | B=1020 (A-D2)
+      prove  us/el                 +41.8   -10.4   +27.3  | +205.9
+      verify us/el                 +16.7   +19.4   +23.5  | +130.0
+      commit us/el                 +2.2    +3.4    +4.1   | +64
+      committed dce/el             1.609   1.387   1.335  | 14.1
+      masked transcript B/el (A)   1.417   0.716   0.512  | 37.5
+      lkp attribution p/v us/el  24.6/9.9 22.5/9.8 23.4/10.2 | 99.7/39.7
+
+      Findings (the design study's key unknown, answered):
+      * The A-B prove marginal is NOISE-WIDE past 2^16 on this box
+        (-10..+42 us/el across shapes on 140-600 s totals) — the
+        clean signal is the lookup-stage attribution: prove falls
+        99.7 -> ~23 us/el (4.3x) and verify 39.7 -> ~10 us/el, and is
+        FLAT across 2^16..2^20 — the per-instance fixed costs are
+        fully amortized by 2^16 already.
+      * Fixed-cost factor vs the unmasked core (10.8-10.9 us/el 1T,
+        lookup-bench): ~2.1-2.3x at layer scale, down from 6-9x at
+        B = 1020. The modeled ~1-1.5x is NOT quite reached: the
+        residual is PER-ELEMENT masked-path work (the blinded witness
+        tree is 2x payload leaves by the blinder-packing pattern +
+        pins/claims), not per-instance fixed cost — i.e. the 1/B
+        claim holds for the fixed material, and the model's remaining
+        gap is the tree-overhead constant, not amortization.
+      * dce/el marginal does NOT fall as 1/n: floor ~1.3 dce/el = the
+        per-WAVE pin g surcharge (9 pin shares/wave -> ~2 extra
+        g-groups/wave vs arm B = 2048 dce per ~1565-el wave). The
+        per-LAYER lookup material itself (m + blinders + masks) is
+        ~29 commitments = 0.028 dce/el at 2^20 and falling as 1/n —
+        the design's "~1e-4 dce/el class" claim is on track for the
+        m-column proper, but Section 2b's model did NOT price the
+        multi-wave pin-share g term; S3/S4 must carry it (it also
+        prices the range-table m column's pin shares).
+      * Masked transcript: descent pair is per-layer fixed; reveals
+        scale with waves (12 B x ~56 shares/wave ~ 0.43 B/el
+        asymptote at this wave shape) -> 0.512 B/el at 2^20 vs 37.5
+        at B = 1020 (73x).
 - [ ] S3 — U-R2 pilot: replace X's planes+ARP with a 256-row [0,256)
       range lookup inside the layer instance (second table instance +
       m column; X read dense, no offset fold needed at w = 8); A/B
@@ -150,3 +199,12 @@ the masked descents/pins are untouched:
   per row possible at all — recorded here because any future planner
   change that breaks monotonicity breaks the streaming builder (it
   asserts).
+- 2026-07-14 (4): S2 measured (table under S2). Headline: per-instance
+  fixed costs are gone by 2^16 (attribution flat at ~23/10 us/el
+  prove/verify); the residual vs the unmasked core is ~2.1-2.3x
+  per-element masked-path work (blinded-tree 2x-leaf overhead), not
+  amortization; the NEW cost term the design model missed is the
+  per-wave pin-share g surcharge (~1.3 dce/el floor at data cap 76).
+  2^20 peaks at 8.23 GiB under the 10G scope; 2^22 does not fit as
+  built (CLI capped at 2^20; U-K9 B-D2's cap lift + claim-mass
+  streaming would be the unblocking work).
