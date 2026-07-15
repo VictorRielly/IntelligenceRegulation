@@ -676,9 +676,10 @@ fn ct_prove_verify_case(
 
 fn self_test_ct_engine() {
     use ring::ct_engine::{
-        AjtaiOpening, ajtai_commit, arp_attempt, arp_budget_ok, arp_check_reveal, arp_claims,
-        ct_h0, derive_arp_params, derive_ct_round_params, derive_jl_rows, expand_b_mat,
-        pack_arp_mask, prove_ct_round, sample_arp_mask, sample_ct_masks, verify_ct_round,
+        AjtaiOpening, ajtai_commit, arp_attempt, arp_attempt_joint, arp_budget_ok,
+        arp_check_reveal, arp_claims, ct_h0, derive_arp_params, derive_ct_round_params,
+        derive_jl_rows, expand_b_mat, pack_arp_mask, prove_ct_round, sample_arp_mask,
+        sample_ct_masks, verify_ct_round,
     };
     println!("\n[U3a] linear ct-claims (theta batching, g-masks, combined mask images)");
     ct_prove_verify_case("q31", Q8, ring::ETA8, 91, 0x5eed_0003, true);
@@ -769,6 +770,20 @@ fn self_test_ct_engine() {
         &format!("ARP reveal passes range gate (mask-commit rounds = {arp_rounds})"),
         arp_check_reveal(&ap, &y),
     );
+
+    // [Z2] Runtime center-norm gate (audit 2026-07-14 C-01): a witness
+    // violating the sigma-derivation assumption (|b|_inf >> the derived
+    // w_inf) is rejected BEFORE any rejection-sampling coin — the
+    // density-ratio precondition is executable, not assumed.
+    {
+        let b_hot: Vec<i64> = vec![50i64; n_coeffs];
+        let m_hot = sample_arp_mask(&ap, &mut rng);
+        assert_true(
+            "[Z2] ARP center-norm gate: a witness violating the sigma derivation (|b| >> w_inf) REJECTS at arp_attempt AND arp_attempt_joint",
+            arp_attempt(&ap, &jl, &b_hot, &m_hot, &mut rng).is_none()
+                && arp_attempt_joint(&ap, &jl, &[(&b_hot[..], &m_hot[..])], &mut rng).is_none(),
+        );
+    }
 
     let msg_slots: Vec<(usize, usize)> =
         (0..n_wit * shape.msg_r).map(|u| (u / shape.msg_r, u % shape.msg_r)).collect();
@@ -6240,6 +6255,11 @@ fn self_test_pi2_ce() {
 
 fn usage() {
     eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory");
+    eprintln!();
+    eprintln!("  ffn-chain [n_blocks | battery] is the LEGACY q46 block chain: its range");
+    eprintln!("  grounding uses the ARP legacy range arm (rejection clipping ~2^-4.75 at");
+    eprintln!("  t = 1.5, NOT statistical ZK — see audit 2026-07-14 C-01). The target path");
+    eprintln!("  is `ffn-chain layer ...` (per-layer rig, ARP-free, exact range lookup).");
     std::process::exit(2);
 }
 
@@ -11454,6 +11474,15 @@ fn lookup_bench(n_log2: usize) {
 //     scheme's ~6.5 superseded 2026-07-13), one link instance per q46
 //     round (w = 11, l = 24).
 //
+// *** LEGACY RANGE ARM — NOT ZK-GRADE (audit 2026-07-14 C-01). *** The
+// q46 grounding's ARP rejection clips ~2^-4.75 of the reveal mass at the
+// frozen t = 1.5, so this chain's range arm is NOT statistical ZK; the
+// LKP-8 constants are REPRODUCIBILITY pins only. The security-target
+// t ~ 13.4 blows the restart economics ~900x per round with no alpha
+// inside the extraction budget (the demotion argument at ARP_REJ_T).
+// The ZK-grade path is the ARP-free per-layer rig with the exact
+// [0,256) range lookup (ffn-chain layer, U-R ledger D-5 / U-R2).
+//
 // Streaming binding (the D-4 ledger decision): every TENSOR commitment
 // (X, planes, Y, UP, Z, m, blinders, masks) precedes the validated
 // statement digest ctx (manifest v2: Binary + Range + Lookup + Hadamard,
@@ -12716,6 +12745,9 @@ fn ffn_chain_run(
 /// commitments).
 fn self_test_ffn_chain() {
     println!("\n[U-K8] committed FFN-gate chain: range-proved X -> masked lookup -> gate-o-up");
+    println!(
+        "  legacy range arm: rejection clipping ~2^-4.75 at t=1.5, NOT statistical ZK — see audit 2026-07-14 C-01 (target path = the ARP-free layer rig)"
+    );
     let n = UK8_B;
     let t0 = Instant::now();
     let (v, c) =
@@ -12823,6 +12855,9 @@ fn ffn_chain_bench(n_blocks: usize) {
     println!(
         "u-k8 ffn-chain bench: {n_el} elements ({n_blocks} blocks x {UK8_B}), committed FFN-gate chain, 1T"
     );
+    println!(
+        "  legacy range arm: q46 grounding uses ARP rejection clipping ~2^-4.75 at t=1.5, NOT statistical ZK — see audit 2026-07-14 C-01; the ZK-grade target path is the ARP-free layer rig (ffn-chain layer, exact range lookup)"
+    );
     let t_a = Instant::now();
     let (va, ca) =
         ffn_chain_run(n_el, true, ChainTamper::None, 0x5eed_08b1, ChainEntropy::Os, false);
@@ -12879,7 +12914,7 @@ fn ffn_chain_bench(n_blocks: usize) {
         (dce_a - dce_b) as f64 / el
     );
     println!(
-        "  q46 grounding side (both arms, cancels in the marginal): {} committed coefficients = {:.0} dce/el chain-native range cost",
+        "  q46 grounding side (both arms, cancels in the marginal): {} committed coefficients = {:.0} dce/el chain-native range cost [legacy range arm: NOT statistical ZK at t=1.5 — audit 2026-07-14 C-01]",
         ca.q46_coeffs,
         ca.q46_coeffs as f64 / el
     );
@@ -12904,6 +12939,14 @@ fn ffn_chain_bench(n_blocks: usize) {
 
 /// LKP-8 — the U-K8 chain operating point (frozen constants + the two
 /// as-built capacity walls, pinned in both directions).
+///
+/// REPRODUCIBILITY PINS, NOT A ZK CLAIM (audit 2026-07-14 C-01): the
+/// ARP rows below freeze the LEGACY range arm's restart economics and
+/// budget walls so parameter drift is caught — they do NOT certify a
+/// negligible rejection distance. At the frozen t = 1.5 the ARP clips
+/// ~2^-4.75 per unit and the arm is not statistical ZK; the security
+/// exit for range facts is the exact range lookup (U-R2, LKP-9's table
+/// digest row), and the layer rig is ARP-free (D-5).
 fn freeze_check_uk8() -> bool {
     use ring::ct_engine::{arp_budget_ok, derive_arp_params, derive_ct_round_params, theta_rows};
     use ring::gkr::ceiling_gate_ok;
@@ -12955,7 +12998,7 @@ fn freeze_check_uk8() -> bool {
         let ap_ok = derive_arp_params(512, 256, 1, UK8_ALPHA);
         let ap_hot = derive_arp_params(512, 256, 1, 5.0);
         gate(
-            "LKP-8 wall 2: q46 ARP unit 512 bits at alpha 3.5 closes; alpha 5.0 does NOT (4 restart-coupled units/round)",
+            "LKP-8 wall 2: q46 ARP unit 512 bits at alpha 3.5 closes; alpha 5.0 does NOT (4 restart-coupled units/round) [REPRODUCIBILITY pin, legacy range arm — NOT a ZK claim; audit 2026-07-14 C-01]",
             arp_budget_ok(&ap_ok, (ring::Q8_46 / 2) as f64)
                 && !arp_budget_ok(&ap_hot, (ring::Q8_46 / 2) as f64),
         );
@@ -15891,6 +15934,14 @@ fn ffn_layer_range_bench(log2_el: usize) {
 /// partial-sum gate on split claims, the frozen range-table spec
 /// digest, and (resolving the A-D3 open item) the ARP rejection
 /// constants — ARP_REJ_T = 1.5 through log_m_joint at the LKP-8 point.
+///
+/// The ARP row is a REPRODUCIBILITY pin, NOT a ZK claim (audit
+/// 2026-07-14 C-01): t = 1.5 clips ~2^-4.75 per unit, so the legacy
+/// ARP arm is not statistical ZK; the security-target t ~ 13.4 blows
+/// the restart economics ~900x per q46 round and no alpha recovers it
+/// inside the extraction budget (the demotion argument, recorded at
+/// ARP_REJ_T's definition). The pin exists so the legacy arm's frozen
+/// behavior cannot drift silently while it remains in the tree.
 fn freeze_check_ur1() -> bool {
     use ring::ct_engine::{
         CtClaim, ct_mul_centered, derive_arp_params, plan_waves, r1_pad_count,
@@ -15978,6 +16029,8 @@ fn freeze_check_ur1() -> bool {
     // behavioral gates: the joint Q4.2b test expects < 3 attempts per
     // 4-unit round, and beats the superseded per-unit product
     // (log M_joint(4) < 4 log M(1) — the sqrt(k) saving).
+    // REPRODUCIBILITY pin only, NOT a ZK claim (audit 2026-07-14 C-01;
+    // see the freeze_check_ur1 doc and ARP_REJ_T's demotion argument).
     {
         let ap = derive_arp_params(512, 256, 1, UK8_ALPHA);
         let lm1 = ap.log_m_joint(1);
@@ -15986,7 +16039,7 @@ fn freeze_check_ur1() -> bool {
         let want4 = 1.5 * 2.0 / 3.5 + 4.0 / (2.0 * 3.5 * 3.5);
         gate(
             &format!(
-                "LKP-9 ARP rejection constants at LKP-8 (t = 1.5, alpha = 3.5): log M(1) = {lm1:.6} (e^-0.47/unit), log M_joint(4) = {lm4:.6} (~2.8 attempts/round), joint < per-unit product"
+                "LKP-9 ARP rejection constants at LKP-8 (t = 1.5, alpha = 3.5): log M(1) = {lm1:.6} (e^-0.47/unit), log M_joint(4) = {lm4:.6} (~2.8 attempts/round), joint < per-unit product [REPRODUCIBILITY pin, legacy range arm — NOT a ZK claim; audit 2026-07-14 C-01]"
             ),
             (lm1 - want1).abs() < 1e-12
                 && (lm4 - want4).abs() < 1e-12

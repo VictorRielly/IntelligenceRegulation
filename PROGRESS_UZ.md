@@ -33,18 +33,26 @@ codex-audit-* read-only.
       (pads are per-claim-per-wave — compare against the measured ~1.3
       dce/el pin floor). Design doc only; implementation is a follow-up
       tranche gated on review.
-- [ ] Z2 (ZA, audit C-01): ARP demoted off the target path. The layer rig
-      is already ARP-free (D-5); the block chain (ffn-chain) keeps ARP as
-      the LEGACY range arm — mark it non-ZK-grade at the frozen point in
-      code comments + usage() + bench output labels ("legacy range arm:
-      rejection clipping ~2^-4.75 at t=1.5, NOT statistical ZK — see
-      audit 2026-07-14 C-01"). Add the missing runtime center-norm gate
-      in arp_attempt/arp_attempt_joint (reject when actual ||R b|| exceeds
-      the sigma-derivation assumption) so the density-ratio precondition
-      is executable. LKP-8/9 freeze text updated to say the pinned
-      rejection constants are REPRODUCIBILITY pins, not a ZK claim.
-      Do NOT retune t (the security-target t ~ 13.4 kills ARP economics —
-      that IS the demotion argument; record it).
+- [x] Z2 (ZA, audit C-01): ARP demoted off the target path. Marked
+      non-ZK-grade at the frozen point in: the ct_engine module header,
+      the ARP_REJ_T doc (which now RECORDS the demotion argument: 128-bit
+      statistical target needs t >= 13.4 by 2e^{-t^2/2} <= 2^-128; at
+      alpha 3.5 that is log M_joint(4) ~ 7.82 => ~2.5e3 attempts per
+      4-unit q46 round vs ~2.8 today, ~900x; recovering restarts via
+      alpha is closed by the extraction budget — arp_budget_ok already
+      fails the 512-bit unit at alpha 5. t was NOT retuned), usage()
+      (ffn-chain flagged LEGACY), ffn_chain_bench + self_test_ffn_chain
+      output labels ("legacy range arm: rejection clipping ~2^-4.75 at
+      t=1.5, NOT statistical ZK — see audit 2026-07-14 C-01"), and the
+      U-K8 doc block. Runtime center-norm gate ADDED: ArpParams grows
+      center_bound_sq = (1.3 sqrt(n/2) w_inf sqrt(rows))^2 and
+      arp_attempt/arp_attempt_joint reject any attempt whose ACTUAL
+      ||R b|| bundle exceeds it (before any rejection coin; restart =
+      fresh mask commit -> fresh h0 -> fresh R) — the density-ratio
+      precondition is executable. [Z2] battery leg: an out-of-assumption
+      witness rejects at both entry points. LKP-8 wall-2 row, LKP-9 ARP
+      row and both freeze fn docs relabeled REPRODUCIBILITY pins, not a
+      ZK claim.
 - [ ] Z4 (ZA, audit C-04/H-01): verification pass on the P3 artifact
       against C-04's four complaints: (a) serialized verify runs masked
       descents WITH the mask-pin checks (pin = true) — if not, fix; (b)

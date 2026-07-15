@@ -70,6 +70,17 @@
 // these conservative constants and REJECTS shapes that do not close —
 // callers fall back to exact per-chunk range strategies (the swappable
 // range-strategy hook, design Section 5).
+//
+// *** ARP IS LEGACY, NOT ZK-GRADE (audit 2026-07-14 C-01). *** At the
+// frozen operating point (ARP_REJ_T = 1.5) the rejection test clips the
+// masked reveal at Phi(-1.5) ~ 2^-4.75 per unit — a non-negligible
+// statistical defect, so ARP-arm transcripts are NOT statistical zero
+// knowledge (see the ARP_REJ_T doc for the parameter economics that
+// close the demotion argument). ARP therefore stays only as the LEGACY
+// range arm of the q46 block chain (ffn-chain); the target path for
+// range facts is the exact [0,256) range-lookup table (U-R2), and the
+// per-layer rig is ARP-free (U-R ledger D-5). The LKP-8/9 freeze rows
+// pin these constants for REPRODUCIBILITY, not as a security claim.
 
 use sha2::{Digest, Sha256};
 
@@ -1342,12 +1353,40 @@ pub struct ArpParams {
     /// The masking ratio sigma_arp = alpha * center_bundle; the rejection
     /// constants derive from it via `log_m_joint`.
     pub alpha: f64,
+    /// Runtime center-norm gate (audit 2026-07-14 C-01, precondition gap):
+    /// sigma_arp is derived from the CONCENTRATION-scale center bound
+    /// (1.3 sqrt(n/2) w_inf per row), not from a checked bound on the
+    /// actual ||R b||. arp_attempt / arp_attempt_joint reject any attempt
+    /// whose actual projected-center bundle exceeds this l2^2 bound, so
+    /// the density-ratio lemma's sigma = alpha * ||center|| regime is
+    /// EXECUTABLE rather than assumed. A rejected attempt restarts with a
+    /// fresh mask commitment, hence a fresh h0 and fresh JL rows.
+    pub center_bound_sq: u128,
 }
 
-/// Rejection-lemma tail parameter for the ARP masking regime. t trades
-/// restart rate against the capped-region mass Phi(-t) (which rides the
-/// ARP's approximate-extraction slack, not soundness); t = 1.5 is the
-/// LKP-8 frozen point's constant — per-unit accept e^-0.47 at alpha = 3.5.
+/// Rejection-lemma tail parameter for the ARP masking regime.
+///
+/// *** LEGACY, NOT ZK-GRADE (audit 2026-07-14 C-01). *** The rejection
+/// test discards the region where the reveal's exponent exceeds the
+/// t-tail; at the frozen t = 1.5 that clips Phi(-1.5) ~ 6.68e-2 ~
+/// 2^-4.75 of the mass per unit (the repository's own Q4.2b lemma bounds
+/// the defect only by 2 exp(-t^2/2) ~ 0.649 — neither is negligible).
+/// The accepted distribution is therefore NOT within negligible
+/// statistical distance of the center-independent Gaussian, and ARP-arm
+/// transcripts are NOT statistical ZK. t = 1.5 is a REPRODUCIBILITY pin
+/// (LKP-8/9 freeze the restart economics), not a security claim.
+///
+/// The demotion argument (why we do NOT retune t): a 128-bit statistical
+/// target needs t >= 13.4 (2 exp(-t^2/2) <= 2^-128). At alpha = 3.5 that
+/// drives log M_joint(4) = t*2/alpha + 4/(2 alpha^2) ~ 7.82, i.e. ~2.5e3
+/// expected attempts per 4-unit q46 round versus ~2.8 today — a ~900x
+/// prover blowup on every grounding round. Recovering the restart rate
+/// by raising alpha instead is closed off by the extraction budget:
+/// arp_budget_ok already FAILS the 512-bit unit at alpha = 5 (LKP-8
+/// wall 2). No (t, alpha) point simultaneously gives negligible
+/// clipping, a closing extraction budget and viable economics at q46 —
+/// which is exactly why ARP is demoted to the legacy chain arm and the
+/// exact range lookup (U-R2) is the target path.
 const ARP_REJ_T: f64 = 1.5;
 
 impl ArpParams {
@@ -1375,7 +1414,11 @@ pub fn derive_arp_params(n: usize, rows: usize, w_inf: u64, alpha: f64) -> ArpPa
     // ||c-bar (y - m')||_2 <= slack * 2 * y_bound-class; JL lower bound
     // with constant JL_C. Conservative composition (Q4 note).
     let extract_bound = SLACK_OP * 2.0 * y_bound / (rows as f64 / JL_C).sqrt();
-    ArpParams { rows, n, sigma_arp, y_bound_sq, extract_bound, alpha }
+    // The executable form of the sigma-derivation assumption (C-01): the
+    // actual ||R b|| over the bundle must stay within the concentration
+    // bound sigma_arp was sized from.
+    let center_bound_sq = (center_bundle * center_bundle).ceil() as u128;
+    ArpParams { rows, n, sigma_arp, y_bound_sq, extract_bound, alpha, center_bound_sq }
 }
 
 /// Derive-time budget check for a non-wrap side condition |defect| <
@@ -1441,6 +1484,15 @@ pub fn arp_attempt(
         .iter()
         .map(|row| row.iter().zip(b_coeffs.iter()).map(|(&r, &b)| r * b).sum())
         .collect();
+    // Runtime center-norm gate (audit 2026-07-14 C-01): the density-ratio
+    // formula below is only justified for centers within the bound
+    // sigma_arp was derived from — enforce it on the ACTUAL ||R b||
+    // instead of assuming concentration. Restarting draws a fresh mask
+    // commitment -> fresh h0 -> fresh R, so honest witnesses pass with
+    // overwhelming probability.
+    if vec_norm_sq_i64(&centers) > ap.center_bound_sq {
+        return None;
+    }
     let y: Vec<i64> = m_flat.iter().zip(centers.iter()).map(|(&m, &c)| m + c).collect();
     if !rejection_accept(rng, &y, &centers, ap.sigma_arp, ap.log_m_joint(1)) {
         return None;
@@ -1472,6 +1524,12 @@ pub fn arp_attempt_joint(
             .iter()
             .map(|row| row.iter().zip(b_coeffs.iter()).map(|(&r, &b)| r * b).sum())
             .collect();
+        // Per-unit runtime center-norm gate (audit 2026-07-14 C-01) —
+        // same executable precondition as arp_attempt; the whole coupled
+        // round restarts (fresh mask commitments -> fresh R).
+        if vec_norm_sq_i64(&centers) > ap.center_bound_sq {
+            return None;
+        }
         let y: Vec<i64> = m_flat.iter().zip(centers.iter()).map(|(&m, &c)| m + c).collect();
         ys.push(y);
         centers_all.push(centers);
