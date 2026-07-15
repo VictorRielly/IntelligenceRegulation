@@ -84,3 +84,9 @@ codex-audit-* read-only.
 ## Log
 
 - 2026-07-15: tranche opened at 84347ac; ZA/ZB/ZC launched in parallel.
+- 2026-07-15: box shutdown killed all three agents mid-flight. State found
+  on resume: ZA nothing started (main checkout clean at 7ee79ca); ZB
+  partial Z3(a) uncommitted in worktree ab71648a (C-03 relabels in
+  PROGRESS_UR.md + M4_LOOKUP_DESIGN.md + RANGE_AGGREGATION_DESIGN.md
+  incl. new Section 3b); ZC nothing started (worktree a3b7416a clean).
+  All three relaunched from this state.
