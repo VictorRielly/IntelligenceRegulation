@@ -64,7 +64,8 @@ codex-audit-* read-only.
       compute the Ajtai opening's scalar contribution or REJECT
       Ajtai-bearing claims in the splitter (pick reject — the layer's
       claims carry none; add the regression).
-- [ ] Z3 (ZB, audit C-03/M-02 + labeling backlog): (a) [DONE 2026-07-15]
+- [x] Z3 (ZB, audit C-03/M-02 + labeling backlog) — CLOSED 2026-07-15,
+      four commits, one per item: (a) [DONE 2026-07-15]
       S2/S3 "transcript
       B/el" rows relabeled "masked-descent bytes only — EXCLUDES per-wave
       CtRoundProofs" in PROGRESS_UR.md + RANGE_AGGREGATION_DESIGN.md, and
@@ -78,7 +79,8 @@ codex-audit-* read-only.
       FFN statement; (c) [DONE 2026-07-15] H-03 rename:
       "FFN-INTEGRATED/CLOSED" labels
       qualified to "committed activation-chain rig" where they overstate;
-      (d) the 07-10 H-07 hash-ceiling note: soundness tables get a
+      (d) [DONE 2026-07-15] the 07-10 H-07 hash-ceiling note: soundness
+      tables get a
       min(algebraic, hash/FS) cap note with grinding/multi-theorem/quantum
       caveats. Numbers only from repo-recorded sources.
 - [ ] FINAL (orchestrator): merge ZB + ZC, suite green, push; review Z1
@@ -118,3 +120,14 @@ codex-audit-* read-only.
   point to RANGE_AGGREGATION_DESIGN.md Section 0 item 5. Conservative
   "remains OPEN" mentions (M4_LOOKUP_DESIGN.md Section 3,
   Q4_LEMMAS.md honesty note) left as-is — they do not overstate.
+- 2026-07-15 (ZB): Z3(d) DONE — hash-ceiling cap notes (min(algebraic,
+  hash/FS incl. grinding + multi-theorem, commitment assumptions,
+  parameters); quantum preimage halving) on the three soundness
+  tables: M4_LOOKUP_DESIGN.md Section 2.1 (the H-07-cited 2^-486-class
+  rows + psi-capped 2^-279 total) and Section 6 graded table, and
+  ROUTE_R_DESIGN.md's challenge-set table (its post-FS column prices
+  Q=2^64 grinding but is still algebraic). Each note cites the
+  governing convention already in SOUNDNESS_REFERENCE.md Section 8
+  (Fiat-Shamir claim-discipline note, landed post-07-10-audit).
+  Z3 CLOSED — box ticked; commits dd35e12 (a), 9be8b46 (b),
+  82f47b3 (c), + this one (d).

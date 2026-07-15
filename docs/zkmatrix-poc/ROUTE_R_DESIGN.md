@@ -138,6 +138,15 @@ not the grinding budget. Quinary costs one extra bit of `||c||_inf` (LS18
 still trivially covers it) and a factor 2 in the worst-case l1 expansion
 (2d vs d) — absorbed in the Section 3 tables.
 
+[Hash-ceiling cap (added 2026-07-15; 2026-07-10 audit H-07): the
+post-FS column above already prices Q = 2^64 grinding, but it is
+still an ALGEBRAIC bound. The concrete claim is min(these numbers,
+hash/FS security of the SHA-256 transcript including multi-theorem
+use, commitment-assumption bound, parameter bound), and quantum
+preimage search halves hash margins. Governing convention:
+SOUNDNESS_REFERENCE.md Section 8, the Fiat-Shamir claim-discipline
+note.]
+
 **Per-challenge knowledge error, assembled.** Three error sources, each of
 which must independently sit at or below 2^-256-class:
 

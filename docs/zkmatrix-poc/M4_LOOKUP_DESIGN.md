@@ -191,6 +191,18 @@ both options). FS grinding across the ~300-challenge transcript carries
 the standard random-oracle forking loss [MODEL], absorbed by either
 margin. Soundness therefore does NOT decide the field.
 
+[Hash-ceiling cap (added 2026-07-15; 2026-07-10 audit H-07): every
+entry in the table above is the FIELD-STATISTICAL term only. All
+Fiat-Shamir state and XOF keys are SHA-256 digests, so the concrete
+security of any composed statement is min(algebraic error above,
+hash/FS security including grinding and multi-theorem use,
+commitment-assumption bound, parameter bound) — the 2^-279 and
+2^-486-class rows do NOT survive that min. With SHA-256 transcripts
+the deployable claim stays 128-bit-class classical; under quantum
+search a 256-bit hash does not supply 256-bit preimage security.
+Governing convention: SOUNDNESS_REFERENCE.md Section 8, the
+Fiat-Shamir claim-discipline note.]
+
 ### 2.2 Prover multiplications per element, both ways
 
 Papini-Habock count the entire fractional GKR at ~43 K-multiplications
@@ -563,6 +575,17 @@ mod q; row 9 makes the counts exact over Z; the chain's upstream range
 fact turns residues into integers (Section 1). Every step is exact
 once its side conditions hold, and the failure probabilities sum to
 ~2^-279 per pass at the recommended point.
+
+[Hash-ceiling cap (added 2026-07-15; 2026-07-10 audit H-07): the
+~2^-279 total and every per-row error term in the table above are
+ALGEBRAIC terms only. The published concrete bound is min(algebraic
+error, hash/FS security including grinding and multi-theorem use,
+commitment-assumption bound, parameter bound); row 11's [MODEL]
+forking loss does not remove the SHA-256 ceiling, and quantum
+preimage search halves hash margins. Quantitative soundness claims
+derived from this table must be published in that min() form —
+SOUNDNESS_REFERENCE.md Section 8, the Fiat-Shamir claim-discipline
+note, is the governing convention.]
 
 ## 7. Cost, with the arithmetic shown
 
