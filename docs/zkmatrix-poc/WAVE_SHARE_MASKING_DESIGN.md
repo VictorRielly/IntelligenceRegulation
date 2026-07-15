@@ -416,3 +416,187 @@ commitments, each opened by ~113 wave rounds and one closing round —
 is the minimal instance of the unavoidable cross-round object: 6
 commitments carrying the entire cross-wave structure, at +0.008 dce/el
 and one extra round.
+
+## 3. The simulator for the complete multi-wave transcript
+
+The claim: the masked multi-wave layer transcript is HVZK — a
+simulator holding only the statement (commitments, table digests,
+shape, the public plan) produces transcripts indistinguishable from
+honest ones. The argument is component-by-component in the
+AUTOMORPHISM_GATE_DESIGN Appendix B.2 / M4_LOOKUP_ZK_DESIGN Section 4
+style, over the verifier's COMPLETE view — the remediation plan's
+explicit demand ("a simulator for the entire composed transcript, not
+one ct-round in isolation").
+
+**What the verifier sees, in transcript order:**
+
+1. The statement: all commitments (X, Y/UP/Z, lookup m/mask/blinder,
+   per-wave g's, PAD commitments), h0_link.
+2. The lookup transcripts: both masked descents (silu, and range at
+   arm R), including every pinned value (G_j hypersums, mask openings,
+   aggregate leaf pins).
+3. psi (derived), the 9 pin totals T_j (derived from 2).
+4. The masked share reveals σ̃_{j,w} — 9 per wave.
+5. Per wave w: h0_w (derived), then the wave's ct-round proof: masked
+   openings (z, w1) of the wave's data + pad + g commitments, g-masked
+   claim material for the 9 pin-share claims (3) and the zeta zero
+   claims, R1-padded quadratic (Hadamard) claims.
+6. Zeta reveals: NOTHING (the wire is deleted).
+7. The closing round: a ct-round proof over the pad commitments for
+   the nine public-zero claims (4).
+
+**The simulator**, S1..S6 matching the view:
+
+- S1 commit to garbage in every commitment (MLWE hiding), derive
+  h0_link.
+- S2 run the U-K5 lookup simulator for both descents (uniform samples
+  + forced values; witness-free).
+- S3 derive psi and the totals T_j from S2's pinned values (public
+  functions).
+- S4 sample the share vector σ̃_{j,·} UNIFORM ON THE COSET
+  {x ∈ Z_q^{k_j} : Σ x = T_j}: k_j − 1 coordinates uniform, the last
+  solved. (Identical in shape to the honest prover's solved pad —
+  the varieties coincide, the M4 component-3 pattern.)
+- S5 per wave, run the ct-round simulator (the engine's existing
+  [PROVEN] machinery) on the claims built from S4's scalars and the
+  public zeta-zero claims.
+- S6 run the ct-round simulator for the closing round (public zero
+  scalars, no reveals).
+
+### 3.1 The pad-coset lemma (the load-bearing new step)
+
+For each claim j: the honest reveal vector is σ̃ = σ + e where σ is
+FIXED (given the witness and challenges) with Σσ = T_j, and e is
+uniform on the subgroup H = {Σ e = 0} ≤ Z_q^{k_j}. The map
+e ↦ σ + e is a bijection from H to the coset σ + H = {Σ x = T_j}.
+Hence σ̃ is EXACTLY uniform on that coset, independent of σ — i.e. of
+the witness — and jointly independent across j (pads are drawn
+independently per claim). S4 samples from precisely this
+distribution: the real and simulated share vectors are EQUAL in
+distribution, not merely computationally close.
+
+Grade: **[PROVEN*]** — a finite one-time-pad statement (elementary
+group theory; the degenerate exact case of the Libra Thm 4.1 counting:
+free exposures per claim = k_j − 1 (the sum is forced), pad degrees of
+freedom = k_j − 1, and the exposure/pad map is a bijection, not just
+full-rank). Machine certificates owed: Z1-b (non-recovery + the
+counting canary), Z1-g (accumulation stall).
+
+Corollary (the C-02 closure statement): the masked multi-wave
+transcript's distribution is a function of exactly the same objects as
+the monolithic single-round transcript — commitments, descent
+transcripts, totals — so **splitting a layer into waves adds ZERO
+leakage** under this construction. What remains is what the monolith
+already leaked, which is what U-K5 already simulates.
+
+### 3.2 Component grades
+
+| # | component | claim | grade |
+|---|---|---|---|
+| 1 | commitments incl. pad commitments | hiding | [PROVEN] under MLWE (SOUNDNESS_REFERENCE 2.1; the solved last pad is contents-correlation, covered by the same 2.1 note as U-K5's solved blinder) |
+| 2 | descent transcripts + pinned values | simulatable | [PROVEN at engine scale] — imported, M4_LOOKUP_ZK_DESIGN Section 4 / batteries [U-K5c]/[U-K5d] |
+| 3 | psi, totals T_j | public derivations | [PROVEN] (hash outputs / public functions of 2) |
+| 4 | masked shares σ̃ | uniform on the sum coset, witness-independent | **[PROVEN*]** — Section 3.1; certificates Z1-b/Z1-g owed |
+| 5 | per-wave ct-rounds | simulatable given claims | [PROVEN] — imported (Q4.2a masks, R1 pads, MLWE; SOUNDNESS_REFERENCE 3.2), EXCEPT the multi-round shared-commitment caveat, graded separately in 3.4 |
+| 6 | zeta (deleted wire) | nothing sent; claims are public constants | [PROVEN*] via identity (2); canary Z1-f owed |
+| 7 | closing round | simulatable (public claims, no reveals) | [PROVEN] — same machinery as 5, same 3.4 caveat |
+| — | FS/ROM programming of the full challenge chain (~700 draws at 2^20) | hybrid | [MODEL] — the repo-wide forking/grinding convention (M4_LOOKUP_ZK_DESIGN Section 7 item 4) |
+| — | whole-transcript composition (hybrids H0..H4 below) | indistinguishability sums the component defects | [SKETCH] here; transcription to Q4_LEMMAS + engine-scale certification [OBLIGATION] |
+
+### 3.3 The hybrid chain
+
+H0 = real. H1: replace every pad/share pair by S4's coset sampling —
+distributionally IDENTICAL (3.1), defect 0. H2: replace the descents
+by the U-K5 simulator — defect bounded by the U-K5 argument (MLWE +
+its lemma stack). H3: replace the ct-rounds one at a time (W + 1
+rounds) — per-round defect from Q4.2a's rejection-sampling lemma plus
+MLWE for the g/R1 material; union over rounds, same accounting family
+the engine already carries for W = 670 rounds per proof. H4 = the
+simulator. Total distinguishing advantage: MLWE + Σ per-round defects
++ the [MODEL] ROM term. No step depends on the witness after H1 —
+which is the point: H1 is the only NEW step this design adds, and it
+is exact.
+
+### 3.4 The one honest caveat: multi-round openings of a shared commitment
+
+A pad commitment is opened (masked-opening z, image w1) in ~113 wave
+rounds and the closing round; every other commitment in the system is
+opened once. Each opening's mask y is fresh per round and each round's
+z is, after rejection sampling, distributed independently of its
+center (Q4.2a) — so the JOINT distribution of ~114 openings of one rho
+is the product of the per-round simulable distributions, and the
+statistical defect accumulates linearly (114 × the per-opening defect,
+negligible-class at the frozen ct-round parameters). Argument class:
+standard FS-with-aborts multi-proof composition. Grade: **[SKETCH]**
+here — the repo has no transcribed lemma for the joint case, and this
+design refuses to inherit one silently: transcription into Q4_LEMMAS
+(a Q4.2a' composition corollary) is a named [OBLIGATION], with the
+E3Z-N4-style derive-time canary counting openings per commitment. If
+review rejects the pattern, the priced fallback is Section 2.6 option
+1 (+0.65 dce/el, closing tree) — expensive but eliminates shared
+commitments entirely.
+
+### 3.5 What still leaks, honestly
+
+(i) Shape metadata: n_el, W, the plan, pad layout, claim counts — all
+public by design (D-2), not witness. (ii) The totals T_j and every
+pinned value — simulatable per U-K5; no residual channel known.
+(iii) HVZK is proof-of-protocol, not a chain-wide statement — the
+standing R1.3 note; the manifest/reveal plumbing above the layer rig
+carries its own analysis. (iv) Timing/memory side channels are out of
+scope repo-wide. (v) Nothing else identified: in particular the
+per-wave localization channel (WHICH wave holds which chunk) reveals
+only plan structure, which is a public function of the shape.
+
+## 4. Soundness non-interference (the R1.3 pattern)
+
+The masks must not help a cheating prover. Every argument is an
+identity or an exhibited attack/defense pair with its battery leg.
+
+1. **Pads cancel identically.** Summing the wave-forced relations (3)
+   over w and subtracting the closing-forced (4): Σ_w functional_w =
+   Σ_w σ̃_{j,w} − Σ_w e_{j,w} = T_j − 0. The pad contributes ZERO
+   soundness error — the cancellation is algebraic, not statistical
+   (stronger than Libra's G-opening route, same structural position
+   as U-K5's "G_j pinned to committed coefficients"). [PROVEN*]
+2. **The zero-sum leg is load-bearing.** Drop (4) and the forgery is
+   immediate: to pass a false total T' = T + δ, commit pads with
+   Σe = δ and reveal σ̃_w = functional_w + e_w honestly — every wave
+   round accepts (the claims are true over committed data), the sum
+   gate accepts (Σσ̃ = T + δ = T'). Exhibited attack; the closing
+   round rejects it (Σe = δ ≠ 0 is a false claim over committed
+   data). Battery Z1-d demonstrates BOTH directions — the F5-pair
+   discipline. [PROVEN* both directions]
+3. **Extraction.** The knowledge extractor runs the existing ct-round
+   extractor per round: binding (MSIS) fixes each commitment's
+   message across all rounds that open it; the wave rounds extract
+   (3), the closing round extracts (4); setting σ_w := σ̃_w − e_w
+   reproduces exactly the unmasked split-claim extraction
+   (PROGRESS_UR.md S0's load-bearing leg: a compensated lie rejects
+   at its wave). No new extraction machinery; the pad is one more
+   committed message coefficient. [SKETCH — transcription rides the
+   same Q4 obligation as 3.4]
+4. **The zeta strengthening is monotone.** Per-wave zero claims imply
+   the layer-wide sum-zero claim they replace; a cheating prover
+   faces the E2 point-mass bound (≤ 2^-w per row, w = 11, l = 24
+   rows per family) per WAVE instead of per layer. No completeness
+   loss by identity (2). [PROVEN*; fragility canary Z1-f]
+5. **No new challenge surface.** The pads introduce no new challenge
+   draws (nu-analogues are unnecessary — nothing needs combining), no
+   quadratic claims (the R1/Vandermonde structure of
+   SOUNDNESS_REFERENCE 3.3 is untouched), and no rejection-sampling
+   surface (pads are committed data, not per-round samples — the
+   M4_LOOKUP_ZK_DESIGN Section 5.5 argument ports verbatim: a
+   ct-round restart re-derives c only; restarts cannot grind pads).
+6. **Error budget.** +9 exact claims and +1 round: the psi-batch cap
+   (9 copies ≈ 2^-279) is unmoved; the closing round's claims are
+   exact (no compression, no new 2^-31 edge); per-round C2 capacity
+   is re-derived at the +1-commitment wave shape by the engine's own
+   scan (D-3) — the design does not hand-carry a constant here.
+7. **Ordering edges.** Section 2.5's table: the pad-commitment swap
+   (row 1) is THE new F5 edge; the σ̃-after-c_w edge (row 2) is the
+   existing reveal edge with a grown reveal set. Every pre-existing
+   edge binds strictly more data (h0_link gains the pad commitments)
+   and is therefore preserved — the U-K5e "strictly more data"
+   argument — but each S1 battery edge must be RE-RUN under masking
+   (Z1-e), exactly as U-K5d re-ran E3-N1..N5.
