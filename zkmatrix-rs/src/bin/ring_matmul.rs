@@ -13672,14 +13672,124 @@ fn self_test_wave_split() {
         .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect())
         .collect();
 
-    let plan = plan_waves(n_c, &[vec![1, 2]], 2);
-    let plan2 = plan_waves(n_c, &[vec![1, 2]], 2);
+    let plan = plan_waves(n_c, &[vec![1, 2]], 2).expect("honest plan derives");
+    let plan2 = plan_waves(n_c, &[vec![1, 2]], 2).expect("honest plan derives");
     assert_true(
         "wave plan is deterministic, respects the cap and co-locates the group",
         plan.waves == plan2.waves
             && plan.waves.iter().all(|w| w.len() <= 2)
             && plan.slot_of[1].0 == plan.slot_of[2].0,
     );
+
+    // [Z5] Verifier-safe helpers (audit 2026-07-14 M-01): malformed input
+    // returns a TYPED error, never a panic.
+    {
+        use ring::ct_engine::{WaveError, split_claim_shares};
+        let one_p = {
+            let mut p = poly_zero();
+            p[0] = 1;
+            p
+        };
+        assert_true(
+            "[Z5] plan_waves typed errors: zero cap, oversized group, overlapping groups, out-of-range member",
+            matches!(plan_waves(n_c, &[], 0), Err(WaveError::ZeroCap))
+                && matches!(
+                    plan_waves(n_c, &[vec![0, 1, 2]], 2),
+                    Err(WaveError::GroupExceedsCap { .. })
+                )
+                && matches!(
+                    plan_waves(n_c, &[vec![0, 1], vec![1, 2]], 2),
+                    Err(WaveError::OverlappingGroups { index: 1 })
+                )
+                && matches!(
+                    plan_waves(n_c, &[vec![0, 7]], 2),
+                    Err(WaveError::CommitIndexOutOfRange { index: 7, .. })
+                ),
+        );
+        // The explicit Ajtai rule (M-01): the splitter REJECTS a claim
+        // carrying Ajtai coefficients — the share scalar would silently
+        // drop that opening's contribution (regression: the old code
+        // defaulted an Ajtai-only claim to wave zero).
+        let ajtai_claim = ring::ct_engine::CtClaim {
+            msg_coeffs: vec![(0, 0, one_p.clone())],
+            ajtai_coeffs: vec![(0, 0, one_p.clone())],
+            scalar: 0,
+        };
+        let ajtai_only = ring::ct_engine::CtClaim {
+            msg_coeffs: vec![],
+            ajtai_coeffs: vec![(0, 0, one_p.clone())],
+            scalar: 0,
+        };
+        let msg_refs_z: Vec<&[Poly]> = msgs.iter().map(|m| m.as_slice()).collect();
+        assert_true(
+            "[Z5] Ajtai rule: split_claim_shares / split_claims_prover / split_claims_verifier all REJECT Ajtai-bearing claims (typed AjtaiClaimUnsupported)",
+            matches!(
+                split_claim_shares(&plan, &ajtai_claim),
+                Err(WaveError::AjtaiClaimUnsupported)
+            )
+                && matches!(
+                    split_claim_shares(&plan, &ajtai_only),
+                    Err(WaveError::AjtaiClaimUnsupported)
+                )
+                && matches!(
+                    split_claims_prover(&zq, &plan, std::slice::from_ref(&ajtai_claim), &msg_refs_z),
+                    Err(WaveError::AjtaiClaimUnsupported)
+                )
+                && matches!(
+                    split_claims_verifier(&zq, &plan, std::slice::from_ref(&ajtai_claim), &[vec![(0, 0)]]),
+                    Err(WaveError::AjtaiClaimUnsupported)
+                ),
+        );
+        // Out-of-range references in claims: typed errors, no panic.
+        let oob_claim = ring::ct_engine::CtClaim {
+            msg_coeffs: vec![(9, 0, one_p.clone())],
+            ajtai_coeffs: vec![],
+            scalar: 0,
+        };
+        let oob_slot = ring::ct_engine::CtClaim {
+            msg_coeffs: vec![(0, 5, one_p.clone())],
+            ajtai_coeffs: vec![],
+            scalar: 0,
+        };
+        let oob_quad = QuadRingClaim {
+            quad: vec![(0, 0, 9, 0, one_p.clone())],
+            msg_coeffs: vec![],
+        };
+        let empty_quad = QuadRingClaim { quad: vec![], msg_coeffs: vec![] };
+        assert_true(
+            "[Z5] out-of-range commitment/slot indices and empty quads return typed errors (no panic)",
+            matches!(
+                split_claim_shares(&plan, &oob_claim),
+                Err(WaveError::CommitIndexOutOfRange { index: 9, .. })
+            )
+                && matches!(
+                    split_claims_prover(&zq, &plan, std::slice::from_ref(&oob_slot), &msg_refs_z),
+                    Err(WaveError::SlotOutOfRange { commit: 0, slot: 5 })
+                )
+                && matches!(
+                    quad_ring_wave(&plan, &oob_quad),
+                    Err(WaveError::CommitIndexOutOfRange { index: 9, .. })
+                )
+                && quad_ring_wave(&plan, &empty_quad) == Err(WaveError::EmptyQuadClaim)
+                && matches!(
+                    quad_ring_localized(&plan, &oob_quad),
+                    Err(WaveError::CommitIndexOutOfRange { .. })
+                ),
+        );
+        // Reveal-structure mismatch is typed too.
+        let ok_claim = ring::ct_engine::CtClaim {
+            msg_coeffs: vec![(0, 0, one_p)],
+            ajtai_coeffs: vec![],
+            scalar: 0,
+        };
+        assert_true(
+            "[Z5] reveal-count mismatch REJECTS with a typed RevealShapeMismatch",
+            matches!(
+                split_claims_verifier(&zq, &plan, std::slice::from_ref(&ok_claim), &[]),
+                Err(WaveError::RevealShapeMismatch)
+            ),
+        );
+    }
 
     // Three linear claims: spanning all four, single-commitment, and a
     // two-wave straddler; totals computed designer-side.
@@ -13708,17 +13818,18 @@ fn self_test_wave_split() {
     ];
 
     let msg_refs: Vec<&[Poly]> = msgs.iter().map(|m| m.as_slice()).collect();
-    let (pw_claims, reveals) = split_claims_prover(&zq, &plan, &claims, &msg_refs);
+    let (pw_claims, reveals) =
+        split_claims_prover(&zq, &plan, &claims, &msg_refs).expect("honest split");
     assert_true(
         "verifier rebuild matches the prover's shares and passes the sum gate",
         match split_claims_verifier(&zq, &plan, &claims, &reveals) {
-            Some(v) => (0..plan.waves.len()).all(|w| {
+            Ok(v) => (0..plan.waves.len()).all(|w| {
                 v[w].len() == pw_claims[w].len()
                     && v[w].iter().zip(pw_claims[w].iter()).all(|(a, b)| {
                         a.scalar == b.scalar && a.msg_coeffs == b.msg_coeffs
                     })
             }),
-            None => false,
+            Err(_) => false,
         },
     );
 
@@ -13778,7 +13889,7 @@ fn self_test_wave_split() {
     lied[0][0].1 += 1;
     assert_true(
         "a lied partial scalar REJECTS at the sum gate",
-        split_claims_verifier(&zq, &plan, &claims, &lied).is_none(),
+        split_claims_verifier(&zq, &plan, &claims, &lied).is_err(),
     );
 
     // Tamper B: a compensated lie passes the sum gate but the affected
@@ -13788,8 +13899,8 @@ fn self_test_wave_split() {
     comp[0][1].1 -= 1;
     let v_comp = split_claims_verifier(&zq, &plan, &claims, &comp);
     let comp_rejected = match v_comp {
-        None => false,
-        Some(vw) => {
+        Err(_) => false,
+        Ok(vw) => {
             let w0 = reveals[0][0].0;
             let (t1s_w, t2s_w, h0_w, proof_w) = &wave_proofs[w0];
             let a1p_b = build_a1_paths(&crs, wave_rps[w0].sigma, isqrt_u128(wave_rps[w0].bound_sq));
@@ -13815,7 +13926,7 @@ fn self_test_wave_split() {
         quad: vec![(1, 0, 2, 0, one.clone())],
         msg_coeffs: vec![(1, 1, one.clone())],
     };
-    let (qw, qloc) = quad_ring_localized(&plan, &qc);
+    let (qw, qloc) = quad_ring_localized(&plan, &qc).expect("co-located quad localizes");
     let qc_bad =
         QuadRingClaim { quad: vec![(0, 0, 1, 0, one.clone())], msg_coeffs: vec![] };
     assert_true(
@@ -13823,7 +13934,8 @@ fn self_test_wave_split() {
         qw == plan.slot_of[1].0
             && qloc.quad[0].0 == plan.slot_of[1].1
             && qloc.quad[0].2 == plan.slot_of[2].1
-            && quad_ring_wave(&plan, &qc_bad).is_none(),
+            && quad_ring_wave(&plan, &qc_bad)
+                == Err(ring::ct_engine::WaveError::QuadStraddlesWaves),
     );
 }
 
@@ -14089,7 +14201,8 @@ fn ur1_layer_shape(log2_el: usize, arm: LayerArm, shape: CommitShape, q: u64) ->
     let groups: Vec<Vec<usize>> =
         (0..slot_cms).map(|cm| vec![base_y + cm, base_up + cm, base_z + cm]).collect();
     let (plan, wave_chunks, wave_lin, wave_g_groups) = loop {
-        let plan = plan_waves(n_data, &groups, data_cap);
+        let plan = plan_waves(n_data, &groups, data_cap)
+            .expect("layer wave plan derives (internal shape, not verifier input)");
         if let Some((c, li, g)) = budget(&plan) {
             break (plan, c, li, g);
         }
@@ -15032,7 +15145,8 @@ fn ffn_layer_run(
     // Split the pin claims across waves (the audited S0 path) and apply
     // the reveal-wire tampers.
     let msg_refs: Vec<&[Poly]> = msgs[..n_data].iter().map(|m| m.as_slice()).collect();
-    let (mut pw_pins, mut pin_reveals) = split_claims_prover(&zq, &ls.plan, &pin_claims_p, &msg_refs);
+    let (mut pw_pins, mut pin_reveals) = split_claims_prover(&zq, &ls.plan, &pin_claims_p, &msg_refs)
+        .expect("honest pin split (prover-side, layout-derived plan)");
     drop(pin_claims_p);
     if pw_pins.is_empty() {
         pw_pins = (0..n_waves).map(|_| Vec::new()).collect();
@@ -15064,7 +15178,8 @@ fn ffn_layer_run(
             let value_slots: Vec<(usize, usize)> =
                 (0..chunks).map(|u| (base + u / msg_r, u % msg_r)).collect();
             let full = link_claims_tgt_slot(&ctx_ring, &ls.lp, &xi_zero, &zrows, &y_zero, &value_slots);
-            let (pw_full, rv_full) = split_claims_prover(&zq, &ls.plan, &full, &msg_refs);
+            let (pw_full, rv_full) = split_claims_prover(&zq, &ls.plan, &full, &msg_refs)
+                .expect("honest zeta split (differential leg)");
             let mut zs = ZetaStream::new(&ctx_ring, ls.lp, &coord_m, &h0z);
             for w in 0..n_waves {
                 let (c0, c1) = ls.wave_chunks[w];
@@ -15178,8 +15293,10 @@ fn ffn_layer_run(
     }
     let v_pins: Vec<Vec<CtClaim>> =
         match split_claims_verifier(&zq, &ls.plan, &pin_claims_v, &pin_reveals) {
-            Some(v) => v,
-            None => {
+            Ok(v) => v,
+            Err(_) => {
+                // Typed WaveError (audit M-01): the layer verifier rejects
+                // fail-closed on any malformed/lied reveal structure.
                 verdict.sum_gate_ok = false;
                 verdict.waves_ok = false;
                 cost.verify_s += t_verify.elapsed().as_secs_f64();
@@ -15303,7 +15420,8 @@ fn ffn_layer_run(
                 )],
                 msg_coeffs: vec![(ls.base_z + u / msg_r, u % msg_r, neg_one_poly.clone())],
             };
-            let (qw, qloc) = quad_ring_localized(&ls.plan, &qc);
+            let (qw, qloc) = quad_ring_localized(&ls.plan, &qc)
+                .expect("planner co-location keeps the quad in one wave");
             assert_eq!(qw, w, "planner co-location must keep the quad in its wave");
             quads_loc.push(qloc);
         }
@@ -15512,7 +15630,7 @@ fn self_test_ffn_layer() {
     {
         let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
         let ls = ur1_layer_shape(lg, LayerArm::Lookup, shape, Q8);
-        let naive = plan_waves(ls.n_data, &[], ls.data_cap);
+        let naive = plan_waves(ls.n_data, &[], ls.data_cap).expect("naive plan derives");
         let one_poly = {
             let mut p = poly_zero();
             p[0] = 1;
@@ -15529,10 +15647,11 @@ fn self_test_ffn_layer() {
                 )],
                 msg_coeffs: vec![(ls.base_z + u / 8, u % 8, one_poly.clone())],
             };
-            quad_ring_wave(&naive, &qc).is_none()
+            quad_ring_wave(&naive, &qc)
+                == Err(ring::ct_engine::WaveError::QuadStraddlesWaves)
         });
         assert_true(
-            "U-R1b planner: without co-location groups a straddling Hadamard quad is DETECTED (quad_ring_wave = None); the layer plan co-locates every triple",
+            "U-R1b planner: without co-location groups a straddling Hadamard quad is DETECTED (quad_ring_wave = Err(QuadStraddlesWaves)); the layer plan co-locates every triple",
             straddler,
         );
     }
@@ -15817,7 +15936,7 @@ fn freeze_check_ur1() -> bool {
         let mut rng = 0x5eed_1c99u64;
         let msgs: Vec<Vec<Poly>> =
             (0..2).map(|_| (0..2).map(|_| rng_poly_mod(&mut rng, Q8)).collect()).collect();
-        let plan = plan_waves(2, &[], 1);
+        let plan = plan_waves(2, &[], 1).expect("freeze-row plan derives");
         let w0 = poly_from_small(&zq, &rng_quinary_poly(&mut rng));
         let w1 = poly_from_small(&zq, &rng_quinary_poly(&mut rng));
         let total = {
@@ -15836,11 +15955,12 @@ fn freeze_check_ur1() -> bool {
             scalar: total,
         }];
         let msg_refs: Vec<&[Poly]> = msgs.iter().map(|m| m.as_slice()).collect();
-        let (_, reveals) = split_claims_prover(&zq, &plan, &claims, &msg_refs);
-        let honest = split_claims_verifier(&zq, &plan, &claims, &reveals).is_some();
+        let (_, reveals) =
+            split_claims_prover(&zq, &plan, &claims, &msg_refs).expect("freeze-row split");
+        let honest = split_claims_verifier(&zq, &plan, &claims, &reveals).is_ok();
         let mut lied = reveals.clone();
         lied[0][0].1 += 1;
-        let rejected = split_claims_verifier(&zq, &plan, &claims, &lied).is_none();
+        let rejected = split_claims_verifier(&zq, &plan, &claims, &lied).is_err();
         gate(
             "LKP-9 partial-sum gate: honest per-wave partials ACCEPT; a lied partial REJECTS (split_claims_verifier)",
             honest && rejected,

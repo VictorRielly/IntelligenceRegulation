@@ -57,13 +57,22 @@ codex-audit-* read-only.
       the harness); make ProverRng fork-safe (no fork-duplicable userspace
       buffer: unbuffered read or reseed-on-fork); session_nonce claim
       downgraded to bookkeeping OR bound publicly — pick one, record why.
-- [ ] Z5 (ZA, audit M-01): wave helpers verifier-safe — plan_waves/
-      split_claim_shares/split_claims_verifier/quad_ring_* return Result
-      (typed errors) instead of panicking on malformed input; bounds-check
-      every commitment index/group; the Ajtai rule made explicit: either
-      compute the Ajtai opening's scalar contribution or REJECT
-      Ajtai-bearing claims in the splitter (pick reject — the layer's
-      claims carry none; add the regression).
+- [x] Z5 (ZA, audit M-01): wave helpers verifier-safe — plan_waves/
+      split_claim_shares/split_claims_prover/split_claims_verifier/
+      quad_ring_wave/quad_ring_localized now return Result<_, WaveError>
+      (typed errors: ZeroCap, GroupExceedsCap, CommitIndexOutOfRange,
+      OverlappingGroups, SlotOutOfRange, PlanInconsistent,
+      AjtaiClaimUnsupported, EmptyQuadClaim, QuadStraddlesWaves,
+      RevealShapeMismatch, PartialSumGate) instead of panicking; every
+      commitment index/slot/group bounds-checked, hand-built plans gated
+      by a slot-table consistency check. The Ajtai rule is REJECT:
+      split_claim_shares errors on any claim with ajtai_coeffs (the old
+      code defaulted an Ajtai-only claim to wave 0 and silently dropped
+      the opening's scalar contribution). [Z5] regression legs in
+      self_test_wave_split cover the Ajtai reject at all three splitter
+      entry points, out-of-range commit/slot indices, empty quads, plan
+      errors and reveal-shape mismatches. Layer verifier path maps
+      WaveError to fail-closed rejection (sum_gate_ok = false).
 - [ ] Z3 (ZB, audit C-03/M-02 + labeling backlog): (a) S2/S3 "transcript
       B/el" rows relabeled "masked-descent bytes only — EXCLUDES per-wave
       CtRoundProofs" in PROGRESS_UR.md + RANGE_AGGREGATION_DESIGN.md, and
@@ -84,6 +93,11 @@ codex-audit-* read-only.
 ## Log
 
 - 2026-07-15: tranche opened at 84347ac; ZA/ZB/ZC launched in parallel.
+- 2026-07-15 (ZA): Z5 landed — WaveError type + Result signatures across
+  the S0 wave helpers, Ajtai-bearing claims REJECTED by the splitter,
+  bounds checks on every plan/claim index, [Z5] regression battery legs;
+  all callers (S0 battery, layer rig, U-R1b battery, LKP-9 freeze rows)
+  ported; suite + freeze-check green.
 - 2026-07-15: box shutdown killed all three agents mid-flight. State found
   on resume: ZA nothing started (main checkout clean at 7ee79ca); ZB
   partial Z3(a) uncommitted in worktree ab71648a (C-03 relabels in

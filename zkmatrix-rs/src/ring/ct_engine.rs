@@ -1534,6 +1534,88 @@ pub fn arp_check_reveal(ap: &ArpParams, y: &[i64]) -> bool {
 // binding requirement is upstream (every commitment enters the statement
 // hash before any wave's challenges derive — the D-4 pattern); these
 // helpers only partition and re-index.
+//
+// VERIFIER-SAFE (audit 2026-07-14 M-01): every helper below returns a
+// typed `WaveError` on malformed input — out-of-range commitment
+// indices/slots, inconsistent plans, oversized or overlapping
+// co-location groups, straddling quads — instead of panicking. The
+// splitter REJECTS Ajtai-bearing claims outright: partial scalars are
+// computed from msg_coeffs only, so a split claim carrying Ajtai terms
+// would silently drop that opening's contribution (Ajtai material is
+// per-round, never multi-wave; the layer's claim families carry none).
+
+/// Typed rejection from the wave-partition helpers (audit 2026-07-14
+/// M-01): malformed external input surfaces as an error a verifier can
+/// report — never a panic.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum WaveError {
+    /// The wave cap is zero.
+    ZeroCap,
+    /// A co-location group is larger than the wave cap.
+    GroupExceedsCap { group: usize, len: usize, cap: usize },
+    /// A commitment index (group member or claim reference) is out of
+    /// range for the plan.
+    CommitIndexOutOfRange { index: usize, n_commits: usize },
+    /// A commitment appears in two co-location groups.
+    OverlappingGroups { index: usize },
+    /// A message slot index is out of range for its commitment group.
+    SlotOutOfRange { commit: usize, slot: usize },
+    /// The plan's slot table is internally inconsistent (hand-built or
+    /// stale plan; plan_waves never produces this).
+    PlanInconsistent { index: usize },
+    /// The splitter REJECTS claims carrying Ajtai coefficients (M-01):
+    /// the share scalar is a msg_coeffs functional only, so an
+    /// Ajtai-bearing claim cannot be split without silently dropping the
+    /// Ajtai opening's contribution.
+    AjtaiClaimUnsupported,
+    /// A quadratic claim references no commitment at all.
+    EmptyQuadClaim,
+    /// A quadratic claim's commitments straddle waves (quads are never
+    /// split — co-locate via plan_waves groups).
+    QuadStraddlesWaves,
+    /// The prover's reveal list does not match the derived share
+    /// structure (count or wave labels).
+    RevealShapeMismatch,
+    /// A revealed partial is a non-centered representative or the
+    /// partials do not sum to the claim total (the sum gate).
+    PartialSumGate,
+}
+
+impl std::fmt::Display for WaveError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            WaveError::ZeroCap => write!(f, "wave cap must be positive"),
+            WaveError::GroupExceedsCap { group, len, cap } => {
+                write!(f, "co-location group {group} has {len} members, cap {cap}")
+            }
+            WaveError::CommitIndexOutOfRange { index, n_commits } => {
+                write!(f, "commitment index {index} out of range ({n_commits} commitments)")
+            }
+            WaveError::OverlappingGroups { index } => {
+                write!(f, "commitment {index} appears in two co-location groups")
+            }
+            WaveError::SlotOutOfRange { commit, slot } => {
+                write!(f, "slot {slot} out of range for commitment {commit}")
+            }
+            WaveError::PlanInconsistent { index } => {
+                write!(f, "wave plan slot table inconsistent at commitment {index}")
+            }
+            WaveError::AjtaiClaimUnsupported => {
+                write!(f, "Ajtai-bearing claims are rejected by the multi-wave splitter")
+            }
+            WaveError::EmptyQuadClaim => write!(f, "quadratic claim references no commitment"),
+            WaveError::QuadStraddlesWaves => {
+                write!(f, "quadratic claim straddles waves (co-locate via plan_waves groups)")
+            }
+            WaveError::RevealShapeMismatch => {
+                write!(f, "partial reveals do not match the derived share structure")
+            }
+            WaveError::PartialSumGate => {
+                write!(f, "partial scalar fails the centered-representative/sum gate")
+            }
+        }
+    }
+}
 
 /// Reduce mod q and center into (-q/2, q/2].
 fn center_i128(zq: &super::Zq, v: i128) -> i64 {
@@ -1568,13 +1650,26 @@ pub struct WavePlan {
     pub slot_of: Vec<(usize, usize)>,
 }
 
-pub fn plan_waves(n_commits: usize, groups: &[Vec<usize>], cap: usize) -> WavePlan {
-    assert!(cap >= 1, "wave cap must be positive");
+pub fn plan_waves(
+    n_commits: usize,
+    groups: &[Vec<usize>],
+    cap: usize,
+) -> Result<WavePlan, WaveError> {
+    if cap == 0 {
+        return Err(WaveError::ZeroCap);
+    }
     let mut group_of = vec![usize::MAX; n_commits];
     for (g, members) in groups.iter().enumerate() {
-        assert!(members.len() <= cap, "co-location group exceeds the wave cap");
+        if members.len() > cap {
+            return Err(WaveError::GroupExceedsCap { group: g, len: members.len(), cap });
+        }
         for &i in members {
-            assert!(group_of[i] == usize::MAX, "overlapping co-location groups");
+            if i >= n_commits {
+                return Err(WaveError::CommitIndexOutOfRange { index: i, n_commits });
+            }
+            if group_of[i] != usize::MAX {
+                return Err(WaveError::OverlappingGroups { index: i });
+            }
             group_of[i] = g;
         }
     }
@@ -1603,36 +1698,47 @@ pub fn plan_waves(n_commits: usize, groups: &[Vec<usize>], cap: usize) -> WavePl
             slot_of[g] = (w, l);
         }
     }
-    WavePlan { waves, slot_of }
+    Ok(WavePlan { waves, slot_of })
+}
+
+/// Bounds-checked plan lookup: commitment index in range AND its slot
+/// entry consistent with the plan's wave table.
+fn plan_slot(plan: &WavePlan, ci: usize) -> Result<(usize, usize), WaveError> {
+    let n_commits = plan.slot_of.len();
+    if ci >= n_commits {
+        return Err(WaveError::CommitIndexOutOfRange { index: ci, n_commits });
+    }
+    let (w, l) = plan.slot_of[ci];
+    if w >= plan.waves.len() || l >= plan.waves[w].len() || plan.waves[w][l] != ci {
+        return Err(WaveError::PlanInconsistent { index: ci });
+    }
+    Ok((w, l))
 }
 
 /// The PUBLIC per-wave shares of a linear claim: msg_coeffs partitioned
 /// by the plan, commitment indices re-based wave-locally, scalars left 0
-/// for the caller to fill. Ajtai coefficients are per-round material and
-/// never split: a claim carrying them must land in exactly one wave
-/// (asserted; the chain's q31 claim families carry none).
-pub fn split_claim_shares(plan: &WavePlan, claim: &CtClaim) -> Vec<(usize, CtClaim)> {
+/// for the caller to fill. Ajtai-bearing claims are REJECTED (audit
+/// 2026-07-14 M-01): the share scalar is computed from msg_coeffs only,
+/// so splitting a claim with Ajtai coefficients would silently drop that
+/// opening's contribution. Ajtai material is per-round and never enters
+/// the multi-wave splitter (the chain's q31 claim families carry none).
+pub fn split_claim_shares(
+    plan: &WavePlan,
+    claim: &CtClaim,
+) -> Result<Vec<(usize, CtClaim)>, WaveError> {
+    if !claim.ajtai_coeffs.is_empty() {
+        return Err(WaveError::AjtaiClaimUnsupported);
+    }
     let mut by_wave: std::collections::BTreeMap<usize, CtClaim> = std::collections::BTreeMap::new();
     for (ci, s, p) in &claim.msg_coeffs {
-        let (w, l) = plan.slot_of[*ci];
+        let (w, l) = plan_slot(plan, *ci)?;
         by_wave
             .entry(w)
             .or_insert_with(|| CtClaim { msg_coeffs: vec![], ajtai_coeffs: vec![], scalar: 0 })
             .msg_coeffs
             .push((l, *s, p.clone()));
     }
-    if !claim.ajtai_coeffs.is_empty() {
-        assert!(
-            by_wave.len() <= 1,
-            "a claim with Ajtai coefficients must not straddle waves (S0 scope)"
-        );
-        let w = by_wave.keys().next().copied().unwrap_or(0);
-        by_wave
-            .entry(w)
-            .or_insert_with(|| CtClaim { msg_coeffs: vec![], ajtai_coeffs: vec![], scalar: 0 })
-            .ajtai_coeffs = claim.ajtai_coeffs.clone();
-    }
-    by_wave.into_iter().collect()
+    Ok(by_wave.into_iter().collect())
 }
 
 /// Prover-side split (U-R1 D-1): per-wave claim lists plus, per original
@@ -1645,16 +1751,21 @@ pub fn split_claims_prover(
     plan: &WavePlan,
     claims: &[CtClaim],
     msgs: &[&[Poly]],
-) -> (Vec<Vec<CtClaim>>, Vec<Vec<(usize, i64)>>) {
+) -> Result<(Vec<Vec<CtClaim>>, Vec<Vec<(usize, i64)>>), WaveError> {
     let mut per_wave: Vec<Vec<CtClaim>> = (0..plan.waves.len()).map(|_| Vec::new()).collect();
     let mut reveals: Vec<Vec<(usize, i64)>> = Vec::with_capacity(claims.len());
     for claim in claims {
         let mut touched: Vec<(usize, i64)> = Vec::new();
-        for (w, mut share) in split_claim_shares(plan, claim) {
+        for (w, mut share) in split_claim_shares(plan, claim)? {
             let mut acc: i128 = 0;
             for (l, s, p) in &share.msg_coeffs {
                 let gi = plan.waves[w][*l];
-                acc += ct_mul_centered(zq, p, &msgs[gi][*s]) as i128;
+                let msg = msgs
+                    .get(gi)
+                    .ok_or(WaveError::CommitIndexOutOfRange { index: gi, n_commits: msgs.len() })?
+                    .get(*s)
+                    .ok_or(WaveError::SlotOutOfRange { commit: gi, slot: *s })?;
+                acc += ct_mul_centered(zq, p, msg) as i128;
             }
             share.scalar = center_i128(zq, acc);
             touched.push((w, share.scalar));
@@ -1662,49 +1773,53 @@ pub fn split_claims_prover(
         }
         reveals.push(touched);
     }
-    (per_wave, reveals)
+    Ok((per_wave, reveals))
 }
 
 /// Verifier-side split: rebuilds the per-wave claims from the PUBLIC
 /// weights and the prover's partial reveals, gating (a) share structure,
 /// (b) centered representatives, and (c) sum(partials) == claim total
-/// mod q. None on any violation; per-wave ct-round verification then
-/// holds each partial to its wave's committed material.
+/// mod q. A typed error on any violation; per-wave ct-round verification
+/// then holds each partial to its wave's committed material.
 pub fn split_claims_verifier(
     zq: &super::Zq,
     plan: &WavePlan,
     claims: &[CtClaim],
     reveals: &[Vec<(usize, i64)>],
-) -> Option<Vec<Vec<CtClaim>>> {
+) -> Result<Vec<Vec<CtClaim>>, WaveError> {
     if reveals.len() != claims.len() {
-        return None;
+        return Err(WaveError::RevealShapeMismatch);
     }
     let mut per_wave: Vec<Vec<CtClaim>> = (0..plan.waves.len()).map(|_| Vec::new()).collect();
     for (claim, rv) in claims.iter().zip(reveals.iter()) {
-        let shares = split_claim_shares(plan, claim);
+        let shares = split_claim_shares(plan, claim)?;
         if shares.len() != rv.len() {
-            return None;
+            return Err(WaveError::RevealShapeMismatch);
         }
         let mut sum: i128 = 0;
         for ((w, mut share), &(rw, part)) in shares.into_iter().zip(rv.iter()) {
-            if w != rw || part.unsigned_abs() > zq.q / 2 {
-                return None;
+            if w != rw {
+                return Err(WaveError::RevealShapeMismatch);
+            }
+            if part.unsigned_abs() > zq.q / 2 {
+                return Err(WaveError::PartialSumGate);
             }
             share.scalar = part;
             sum += part as i128;
             per_wave[w].push(share);
         }
         if center_i128(zq, sum) != claim.scalar {
-            return None;
+            return Err(WaveError::PartialSumGate);
         }
     }
-    Some(per_wave)
+    Ok(per_wave)
 }
 
-/// The single wave a quadratic ring claim lives in, or None if its
-/// operand/output commitments straddle waves — quads are never split
-/// (U-R1 D-1); the caller co-locates them via `plan_waves` groups.
-pub fn quad_ring_wave(plan: &WavePlan, qc: &QuadRingClaim) -> Option<usize> {
+/// The single wave a quadratic ring claim lives in;
+/// Err(QuadStraddlesWaves) if its operand/output commitments straddle
+/// waves — quads are never split (U-R1 D-1); the caller co-locates them
+/// via `plan_waves` groups. Every commitment index is bounds-checked.
+pub fn quad_ring_wave(plan: &WavePlan, qc: &QuadRingClaim) -> Result<usize, WaveError> {
     let mut idxs: Vec<usize> = Vec::new();
     for (i, _, k, _, _) in &qc.quad {
         idxs.push(*i);
@@ -1713,20 +1828,30 @@ pub fn quad_ring_wave(plan: &WavePlan, qc: &QuadRingClaim) -> Option<usize> {
     for (i, _, _) in &qc.msg_coeffs {
         idxs.push(*i);
     }
-    assert!(!idxs.is_empty(), "empty quadratic claim");
-    let w0 = plan.slot_of[idxs[0]].0;
-    if idxs.iter().all(|&i| plan.slot_of[i].0 == w0) { Some(w0) } else { None }
+    if idxs.is_empty() {
+        return Err(WaveError::EmptyQuadClaim);
+    }
+    let (w0, _) = plan_slot(plan, idxs[0])?;
+    for &i in &idxs[1..] {
+        if plan_slot(plan, i)?.0 != w0 {
+            return Err(WaveError::QuadStraddlesWaves);
+        }
+    }
+    Ok(w0)
 }
 
 /// Wave-local re-indexing of a co-located quadratic claim.
-pub fn quad_ring_localized(plan: &WavePlan, qc: &QuadRingClaim) -> (usize, QuadRingClaim) {
-    let w = quad_ring_wave(plan, qc).expect("quad claim straddles waves — co-locate via plan_waves groups");
+pub fn quad_ring_localized(
+    plan: &WavePlan,
+    qc: &QuadRingClaim,
+) -> Result<(usize, QuadRingClaim), WaveError> {
+    let w = quad_ring_wave(plan, qc)?;
     let l = |ci: usize| plan.slot_of[ci].1;
-    (
+    Ok((
         w,
         QuadRingClaim {
             quad: qc.quad.iter().map(|(i, j, k, m, p)| (l(*i), *j, l(*k), *m, p.clone())).collect(),
             msg_coeffs: qc.msg_coeffs.iter().map(|(i, s, p)| (l(*i), *s, p.clone())).collect(),
         },
-    )
+    ))
 }
