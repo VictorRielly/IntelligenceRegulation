@@ -600,3 +600,182 @@ identity or an exhibited attack/defense pair with its battery leg.
    and is therefore preserved — the U-K5e "strictly more data"
    argument — but each S1 battery edge must be RE-RUN under masking
    (Z1-e), exactly as U-K5d re-ran E3-N1..N5.
+
+## 5. The rank/leakage/recovery battery spec
+
+The implementation tranche MUST land every leg below; the pattern is
+the [R1] battery (leak pair + order pair, F5 style;
+SOUNDNESS_REFERENCE Section 8 item 1) and the [U-K5c]/[U-K5d]
+batteries (m-recovery harness at engine scale, rank certificates as
+derive-time canaries, ordering pairs both directions). Legs Z1-a/b/g
+are the audit's demanded "rank/recovery test that attempts to infer
+activation chunks from all honest wave transcripts and compares
+leakage with the original total claim" (REMEDIATION_PLAN Phase 2.4),
+made precise.
+
+**The baseline statements the battery certifies** (Section 1.3's
+table, as executable claims):
+
+- learnable-from-totals: 0 fresh witness equations per proof (the
+  totals are public functions of U-K5-simulatable pinned values);
+- learnable-from-shares TODAY: 9(W−1) fresh equations per proof,
+  accumulating across proofs at fixed plan;
+- learnable-from-shares MASKED: 0 fresh equations — equal to the
+  totals baseline.
+
+**[Z1-a] — the leak, demonstrated (unmasked baseline).** At a rigged
+toy claim set (the [U-R1a] style: single-coefficient-support
+commitments so that each wave's touched support s_w ≤ 9), run the
+AS-BUILT splitter and recover the wave's private committed values
+EXACTLY from one transcript's pin shares by solving the public linear
+system (1) — the Z1b/Q4.3e "recovered exactly, rank s_w/s_w" pattern.
+This leg is the C-02 exhibit and stays in the suite permanently as the
+pre-fix regression (run against the legacy `Revealed` policy).
+
+**[Z1-b] — masked non-recovery + the counting canary.** Same pipeline
+against the masked transcript: the recovered values MUST differ from
+the truth (recovered ≠ witness), and the solver's consistent solution
+set MUST be the full coset predicted by 3.1. Derive-time canary at
+engine shapes (the E3Z-N4 pattern): per claim j, #free exposures
+(k_j − 1) == #free pads (k_j − 1), and the exposure/pad map is the
+identity-plus-solve bijection — counted, not assumed.
+
+**[Z1-c] — the F5 order pair (pad-commitment binding).** Attack
+direction: pad commitments OUTSIDE h0_link (or h0_w built without the
+wave's pad-commitment identity) — present δ-shifted pads to the wave
+rounds and a consistent zero-sum set to the closing round; a false pin
+total ACCEPTS. Defense direction: the shipped order (pads in h0_link,
+wave lists derived from the plan) REJECTS the same crafting. Both
+directions demonstrated, per the F5 house rule.
+
+**[Z1-d] — the zero-sum load-bearing pair.** With the closing round
+DISABLED (rigged verifier): committed pads with Σe = δ ≠ 0 and
+honestly-computed σ̃ ACCEPT a false total T + δ (Section 4.2's
+attack). With the closing round wired: the same proof REJECTS at
+exactly the closing round. (The multi-wave analogue of U-R1a's
+"compensated lie passes the gate but its wave REJECTS" — one level
+up.)
+
+**[Z1-e] — the S1/S3 tamper set re-run under masking.** Lied σ̃
+REJECTS at the sum gate; compensated σ̃ pair passes the gate but
+REJECTS at its wave's round (the pad term makes the wave claim false);
+the g-mask cross-use forgery REJECTS; the lookup-h0 flip, off-table Y,
+tampered Z, straddling-quad legs all re-run at the masked shape —
+h0_link binding strictly more data must preserve every edge.
+
+**[Z1-f] — the zeta deletion legs.** (i) Canary: honest per-wave zeta
+functionals are identically zero across the full shape sweep (assert
+at pack time — the fragility flag of 2.4); (ii) a junk-bearing witness
+REJECTS at exactly its wave (per-wave localization, stronger than the
+old layer-wide gate); (iii) the transcript-byte differential is
+recorded (the −576 B/chunk-wave claim of Section 6.2 becomes a
+measured row).
+
+**[Z1-g] — the accumulation stall.** P fresh proofs of the SAME toy
+witness (fresh commitment randomness, fresh psi/alpha/z*): unmasked,
+the stacked system's rank grows by 9(W−1) per proof until exact
+recovery (demonstrate recovery at the toy scale where P is small);
+masked, the stacked system's solution set never shrinks below the
+totals-only baseline — the rank STALLS. This is the quantitative form
+of the 3.1 corollary.
+
+**[Z1-h] — pad freshness (the E3Z-N3 analogue).** Two proofs sharing
+one pad vector: the difference σ̃ − σ̃' = σ − σ' re-exposes honest
+share differences — the leak returns at half rate (demonstrated), and
+the engine REFUSES pad reuse (enforced: pads drawn from the per-proof
+ProverRng stream, freshness asserted derive-time, pinned by the
+freeze row).
+
+**[Z1-i] — layout determinism and edge cases.** The verifier
+re-derives pad count, layout, and wave lists from the public plan and
+must agree with the prover byte-for-byte (the D-2 discipline extended
+to pads); centered-representative edge cases at σ̃ near ±q/2 exercise
+the mod-q sum gate; a claim touching ONE wave takes no pad (k_j = 1 →
+zero free exposures — the splitter must not spend a pad where the
+share IS the public total).
+
+## 6. Cost delta, priced
+
+Every input below is a repo-recorded number: the S2/S3 measured tables
+(PROGRESS_UR.md, 2026-07-14, 1T [NOISY-SHARED]), the LKP-9 frozen wave
+constants, and the audit's C-03 byte arithmetic
+(codex-audit-2026-07-14/FINDINGS.md). Everything derived from them is
+[MODEL] arithmetic shown inline. Accounting basis: 1 dce = one
+committed q31 message coefficient; one commitment at the layer shape
+(msg_r 8 × D 128) = 1024 dce — the same basis that makes S2's "~2
+extra g-groups per wave" ≈ 2048 dce per ~1565-el wave ≈ the recorded
+~1.3 dce/el pin floor.
+
+### 6.1 Committed material (dce/el)
+
+Ingredients per shape (waves W = 43/168/670; el 65,532 / 262,140 /
+1,048,572 — S2 table):
+
+| item | 2^16 | 2^18 | 2^20 |
+|---|---:|---:|---:|
+| pad scalars 9W | 387 | 1,512 | 6,030 |
+| pad commitments ceil(9W/1024) | 1 | 2 | 6 |
+| pad dce (×1024) | 1,024 | 2,048 | 6,144 |
+| closing-round g (2 groups) | 2,048 | 2,048 | 2,048 |
+| **new committed dce** | 3,072 | 4,096 | 8,192 |
+| per element | +0.047 | +0.016 | **+0.008** |
+| wave-count effect (cap 76→75, ×76/75 on the per-wave surcharge ≈ ×1.013 on ~1.3) [MODEL] | +0.021 | +0.018 | +0.017 |
+| **total dce/el delta** | +0.068 | +0.034 | **+0.025** |
+| measured baseline (S2 lookup marginal dce/el) | 1.609 | 1.387 | 1.335 |
+| projected masked | ~1.68 | ~1.42 | **~1.36** |
+| relative | +4.2% | +2.5% | **+1.9%** |
+
+Against the ~1.3 dce/el pin-floor comparison the task demands: the
+masking costs ~2% of the floor at the 2^20 shape, falling with n (the
+pad commitments amortize as 1/n; only the cap-driven wave-count term
+is a per-wave constant). The S3 range arm adds nothing (shared psi
+batch, Section 2.1). The pin floor itself — the S2 finding that the
+per-wave pin g surcharge does NOT fall as 1/n — is untouched by this
+design in either direction.
+
+### 6.2 Transcript bytes, masked-descent ledger
+
+The ledger that S2 reports (0.512 B/el at 2^20) — relabeled by Z3 as
+"masked-descent bytes only, EXCLUDES per-wave CtRoundProofs". Deltas:
+pin reveals unchanged (9 × 12 B per wave — σ̃ replaces σ); zeta wire
+DELETED (−48 × 12 B = −576 B per chunk wave); the closing round adds
+no reveal bytes (public zero scalars).
+
+| B/el | 2^16 | 2^18 | 2^20 |
+|---|---:|---:|---:|
+| measured (S2, arm A) | 1.417 | 0.716 | 0.512 |
+| zeta deletion (−576·W/el) | −0.378 | −0.369 | −0.368 |
+| **projected masked** | ~1.04 | ~0.35 | **~0.14** |
+
+Net NEGATIVE: the free rider pays for the masking three times over in
+this ledger (−72% at 2^20).
+
+### 6.3 Transcript bytes, full-wire ledger (the C-03 accounting)
+
+The honest ledger: C-03 prices each commitment opening at z (n_r · D)
++ w1 (kappa · D) fixed-width — 88,247 openings ≈ 2,930.08 MiB at the
+measured 2^20 shape, ~34.0 KiB per opening. This design adds: +1
+opening per wave (the shared pad commitment in each wave's list, ~670)
++ ~8 in the closing round + ~1.3% more g openings from the cap step
+(~506) [MODEL]:
+
+    +1,184 openings × ~34.0 KiB ≈ +39 MiB ≈ +1.3% at 2^20.
+
+Stated plainly: **masking is orthogonal to the succinctness wall.**
+The 2.86 GiB / 11,720x-over-budget problem (C-03, adopted by Z3 as
+the design-doc problem statement) neither improves nor materially
+worsens; Phase 3 aggregation work owns it. A masking design that
+claimed transcript savings from the 6.2 ledger alone would be
+repeating the accounting error C-03 named — this one does not.
+
+### 6.4 Prover/verifier time and memory [MODEL]
+
+Analytic: +1 commitment in ~137-commitment rounds (+0.7% per-round
+work), +1.3% rounds, +6 commit operations, one closing round in ~671.
+Net ~+2%-class on prove and verify — INSIDE the S2 noise band (the
+A−B prove marginal at these shapes was −10..+42 us/el on 140-600 s
+totals, [NOISY-SHARED]). Honest statement: unmeasurable until built;
+the implementation tranche must carry it via the S2/S3 attribution
+counters (the "clean signal" discipline), not via A−B totals. Memory:
++6 commitment stores against the measured 8.23 GiB peak at 2^20 —
+noise; the 2^20 CLI cap and the 2^22 wall (S2/B-D2) are unmoved.
