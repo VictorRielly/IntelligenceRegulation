@@ -113,18 +113,23 @@ codex-audit-* read-only.
       entry points, out-of-range commit/slot indices, empty quads, plan
       errors and reveal-shape mismatches. Layer verifier path maps
       WaveError to fail-closed rejection (sum_gate_ok = false).
-- [ ] Z3 (ZB, audit C-03/M-02 + labeling backlog): (a) S2/S3 "transcript
+- [x] Z3 (ZB, audit C-03/M-02 + labeling backlog) — CLOSED 2026-07-15,
+      four commits, one per item: (a) [DONE 2026-07-15]
+      S2/S3 "transcript
       B/el" rows relabeled "masked-descent bytes only — EXCLUDES per-wave
       CtRoundProofs" in PROGRESS_UR.md + RANGE_AGGREGATION_DESIGN.md, and
       the audit's byte accounting (2.86 GiB @2^20 class, 15.4 GiB/layer,
       the 11,720x gap) adopted into the design doc as the succinctness
-      problem statement; (b) M-02: freeze rows documented as
+      problem statement; (b) [DONE 2026-07-15] M-02: freeze rows
+      documented as
       REPRODUCIBILITY pins; a new "Security exits (fail-closed, OPEN)"
       section listing: negligible rejection distance, multi-wave share
       privacy (Z1), serialized byte budget, adversarial parser, complete
-      FFN statement; (c) H-03 rename: "FFN-INTEGRATED/CLOSED" labels
+      FFN statement; (c) [DONE 2026-07-15] H-03 rename:
+      "FFN-INTEGRATED/CLOSED" labels
       qualified to "committed activation-chain rig" where they overstate;
-      (d) the 07-10 H-07 hash-ceiling note: soundness tables get a
+      (d) [DONE 2026-07-15] the 07-10 H-07 hash-ceiling note: soundness
+      tables get a
       min(algebraic, hash/FS) cap note with grinding/multi-theorem/quantum
       caveats. Numbers only from repo-recorded sources.
 - [ ] FINAL (orchestrator): merge ZB + ZC, suite green, push; review Z1
@@ -159,3 +164,45 @@ codex-audit-* read-only.
   PROGRESS_UR.md + M4_LOOKUP_DESIGN.md + RANGE_AGGREGATION_DESIGN.md
   incl. new Section 3b); ZC nothing started (worktree a3b7416a clean).
   All three relaunched from this state.
+- 2026-07-15 (ZB): Z3(a) DONE — C-03 relabels ("masked transcript B/el"
+  = masked-descent bytes + 12 B partial-scalar reveals ONLY, per-wave
+  CtRoundProofs EXCLUDED) in PROGRESS_UR.md S2/S3, M4_LOOKUP_DESIGN.md
+  quiesced-cost table, RANGE_AGGREGATION_DESIGN.md (Sections 1, 2b, 3,
+  3a table); new RANGE_AGGREGATION_DESIGN.md Section 3b "Proof bytes,
+  honestly" adopts the audit byte accounting (11.99 MiB battery /
+  2.86 GiB @2^20 / 11,720x gap / 15.4 GiB-per-layer + 492 GiB-per-pass
+  projections) plus the measured P3-EXIT whole-file anchors. All
+  numbers sourced: codex-audit-2026-07-14/FINDINGS.md C-03 +
+  PROGRESS_US.md P3-EXIT. Section 3b forward-references "Section 0's
+  security-exit list", which Z3(b) adds next.
+- 2026-07-15 (ZB): Z3(b) DONE — RANGE_AGGREGATION_DESIGN.md Section 0
+  "Security exits (fail-closed, OPEN)": freeze rows = REPRODUCIBILITY
+  pins (audit M-02 quote), five OPEN exits with sourced numbers
+  (C-01 t=1.5 tails + t~13.4/128-bit + Q4.2b 2^-102.9@t=12; C-02 670
+  waves x 9 pins ~ 6e3 measurements; C-03/Section 3b byte gap; C-04
+  parser exits pending Z4; H-03 complete-FFN statement). M-02 pin
+  notes at M4_LOOKUP_DESIGN.md LKP-8, LKP-9, and the Section 8
+  freeze-row discipline line. DISCREPANCY recorded in Section 0 item
+  3: TARGET_CONTRACT.md budget unit is "256 KB", audit computes vs
+  "256 KiB" — immaterial at 11,720x, contract line binding.
+- 2026-07-15 (ZB): Z3(c) DONE — H-03 renames at six sites:
+  M4_LOOKUP_DESIGN.md status header + 7' header + new 7'' rename
+  note; TARGET_CONTRACT.md Section 5 SiLU row; LLM_SCALE_ESTIMATE.md
+  lever-stack row; TRANSFORMER_PROOF_PLAN.md Section 2
+  reconciliation; PROGRESS.md milestone rename note (additive,
+  historical entries unedited). All read "committed activation-chain
+  rig — no FFN matmul/requant/residual in the proven statement" and
+  point to RANGE_AGGREGATION_DESIGN.md Section 0 item 5. Conservative
+  "remains OPEN" mentions (M4_LOOKUP_DESIGN.md Section 3,
+  Q4_LEMMAS.md honesty note) left as-is — they do not overstate.
+- 2026-07-15 (ZB): Z3(d) DONE — hash-ceiling cap notes (min(algebraic,
+  hash/FS incl. grinding + multi-theorem, commitment assumptions,
+  parameters); quantum preimage halving) on the three soundness
+  tables: M4_LOOKUP_DESIGN.md Section 2.1 (the H-07-cited 2^-486-class
+  rows + psi-capped 2^-279 total) and Section 6 graded table, and
+  ROUTE_R_DESIGN.md's challenge-set table (its post-FS column prices
+  Q=2^64 grinding but is still algebraic). Each note cites the
+  governing convention already in SOUNDNESS_REFERENCE.md Section 8
+  (Fiat-Shamir claim-discipline note, landed post-07-10-audit).
+  Z3 CLOSED — box ticked; commits dd35e12 (a), 9be8b46 (b),
+  82f47b3 (c), + this one (d).

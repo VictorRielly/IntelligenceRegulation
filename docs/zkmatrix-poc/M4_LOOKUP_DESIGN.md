@@ -14,7 +14,14 @@ composition's statement, per the R1.3-class honesty note); the U-K8
 integration exit CLOSED 2026-07-10 at row-block granularity: the
 masked committed lookup runs INSIDE a chain (range-proved X in,
 slot-packed E1-composed Y out, downstream gate-o-up, validated v2
-statement) with measured marginals — Sections 7'' and 8. Four
+statement) with measured marginals — Sections 7'' and 8. [H-03 rename
+2026-07-15 (audit 2026-07-14): what CLOSED is the COMMITTED
+ACTIVATION-CHAIN RIG — range -> lookup -> Hadamard over
+benchmark-generated tensors; no FFN matmul, requantization edge,
+residual, or model artifact is in the proven statement, so "FFN
+integration" in the statuses below reads as "activation-chain
+integration"; one complete caller-supplied FFN layer is an OPEN
+security exit, RANGE_AGGREGATION_DESIGN.md Section 0 item 5.] Four
 statuses, tracked separately: core algebra BUILT+MEASURED-1T; E4
 landing BUILT (N=256 committed rig); masked lookup
 BUILT+BATTERY-GREEN (battery shape; FFN-point mask material and
@@ -183,6 +190,18 @@ Both fields clear the 2^-128 target: GF(q^6) by ~29 bits, GF(q^16) by
 both options). FS grinding across the ~300-challenge transcript carries
 the standard random-oracle forking loss [MODEL], absorbed by either
 margin. Soundness therefore does NOT decide the field.
+
+[Hash-ceiling cap (added 2026-07-15; 2026-07-10 audit H-07): every
+entry in the table above is the FIELD-STATISTICAL term only. All
+Fiat-Shamir state and XOF keys are SHA-256 digests, so the concrete
+security of any composed statement is min(algebraic error above,
+hash/FS security including grinding and multi-theorem use,
+commitment-assumption bound, parameter bound) — the 2^-279 and
+2^-486-class rows do NOT survive that min. With SHA-256 transcripts
+the deployable claim stays 128-bit-class classical; under quantum
+search a 256-bit hash does not supply 256-bit preimage security.
+Governing convention: SOUNDNESS_REFERENCE.md Section 8, the
+Fiat-Shamir claim-discipline note.]
 
 ### 2.2 Prover multiplications per element, both ways
 
@@ -557,6 +576,17 @@ fact turns residues into integers (Section 1). Every step is exact
 once its side conditions hold, and the failure probabilities sum to
 ~2^-279 per pass at the recommended point.
 
+[Hash-ceiling cap (added 2026-07-15; 2026-07-10 audit H-07): the
+~2^-279 total and every per-row error term in the table above are
+ALGEBRAIC terms only. The published concrete bound is min(algebraic
+error, hash/FS security including grinding and multi-theorem use,
+commitment-assumption bound, parameter bound); row 11's [MODEL]
+forking loss does not remove the SHA-256 ceiling, and quantum
+preimage search halves hash margins. Quantitative soundness claims
+derived from this table must be published in that min() form —
+SOUNDNESS_REFERENCE.md Section 8, the Fiat-Shamir claim-discipline
+note, is the governing convention.]
+
 ## 7. Cost, with the arithmetic shown
 
 Units as in Section 0; anchors: pass commit bill 9.4e9 dce = 96-120 s
@@ -608,7 +638,9 @@ Nothing in this design blocks it; the SiLU lookup is deliberately its
 
 ### 7' — lookup-core measurement addendum (lookup-bench, 2026-07-10;
 ### relabeled per the 2026-07-10 audit H-01/H-02 — the U-K8 exit is
-### now CLOSED at row-block granularity, see Section 7'')
+### now CLOSED at row-block granularity, see Section 7''; H-03 rename
+### 2026-07-15: "closed" = the committed activation-chain rig, not an
+### FFN-layer proof — Section 7'' note)
 
 `ring_matmul lookup-bench` is an UNMASKED, UNCOMMITTED, single-thread
 lookup-CORE microbenchmark (fused leaves, trees, descents, verify with
@@ -649,6 +681,16 @@ Hadamard, and it is not FFN-shaped). Measured at N = 2^18 and 2^20
 ### 7'' — U-K8 committed-chain integration addendum (ffn-chain,
 ### 2026-07-10 — the audit H-01 exit, closed at row-block granularity)
 
+[H-03 rename 2026-07-15 (audit 2026-07-14): this milestone is the
+COMMITTED ACTIVATION-CHAIN RIG. `ffn-chain` stays as the binary's
+subcommand name, but the chain certifies range -> SiLU-lookup ->
+gate-o-up Hadamard over benchmark-generated X/UP at prototype
+granularity: none of an FFN's three matmuls (gate/up/down), no
+requantization edge, no residual/output binding, and no model
+artifact is in the proven statement. One complete caller-supplied
+quantized FFN layer is an OPEN security exit —
+RANGE_AGGREGATION_DESIGN.md Section 0 item 5.]
+
 `ring_matmul ffn-chain [n_blocks | battery]` is the first run of the
 MASKED, COMMITTED lookup INSIDE a chain: X range-proved upstream (q46
 bit planes + ARP + the U-L modulus link), Y = SiLU(X) table-certified
@@ -670,7 +712,13 @@ the chain's one NEW hash edge — zeta (the E2 slot-constancy weights)
 drawn before the slot commitments ACCEPTS crafted junk coordinates
 whose gate-o-up output constants are WRONG while the lookup itself
 still passes; the shipped post-commitment zeta REJECTS the same junk.
-Freeze row LKP-8 pins the operating point.
+Freeze row LKP-8 pins the operating point. [M-02 note 2026-07-15:
+LKP-8 — like every LKP row — is a REPRODUCIBILITY pin: it locks the
+restart formula, wave capacity, partition, and digests against
+accidental drift and certifies NO security property. In particular
+the pinned t = 1.5 rejection point is not a negligible-distance ZK
+claim (audit 2026-07-14 C-01/M-02). The fail-closed security-exit
+list lives in RANGE_AGGREGATION_DESIGN.md Section 0.]
 
 **The two as-built capacity walls this integration surfaced** (neither
 was visible from lookup-bench or the battery-shape U-K5c rig):
@@ -711,6 +759,12 @@ magnitude, and the quiesced re-measurement is the orchestrator's):
 | commit time | +64 us/el |
 | transcript | +38,272 B/block = 37.5 B/el |
 | peak RSS | unchanged, 0.29 GiB total — blocks stream; H-03's memory wall never binds at this granularity |
+
+[Relabel 2026-07-15, audit 2026-07-14 C-03: the "transcript" row is
+masked-descent bytes only — it EXCLUDES the per-round ct-round proof
+objects (z/w1 opening arrays) a non-interactive verifier must
+receive, so it is not proof size. The adopted byte accounting lives
+in RANGE_AGGREGATION_DESIGN.md Section 3b "Proof bytes, honestly".]
 
 Context for the prove marginal: the unmasked, uncommitted lookup CORE
 runs at 10.9 us/el (Section 7'); the committed + masked + pinned
@@ -794,7 +848,9 @@ this wall's plane+ARP architecture is PILOT-MEASURED —
 RANGE_AGGREGATION_DESIGN.md Section 3's appended table (range
 certification at ~0.07-0.27 dce/el and ~+15-18 us/el prove
 attribution vs 582 dce/el / ~10.3 ms/el as-built); the rejection
-constants above are now pinned both directions by freeze row LKP-9.
+constants above are now pinned both directions by freeze row LKP-9
+(a REPRODUCIBILITY pin, not a ZK claim — the Section 7'' M-02 note
+and RANGE_AGGREGATION_DESIGN.md Section 0 apply to LKP-9 verbatim).
 
 Forward plan for the range wall itself: RANGE_AGGREGATION_DESIGN.md
 (paper-first study, commit b6bb1e2) prices the Phase-5 pair — the
@@ -806,7 +862,10 @@ U-R tranche is now OPEN with S0 (multi-wave claim splitting) landed
 
 Discipline as in AUTOMORPHISM_GATE_DESIGN Section 7: paper-first items
 named; every hash edge lands with its F5-pair negative battery; every
-frozen constant gets a freeze row. E3 = the sumcheck/GKR transcript
+frozen constant gets a freeze row (a REPRODUCIBILITY pin against
+drift, never a security certification — audit 2026-07-14 M-02;
+security exits are tracked fail-closed in
+RANGE_AGGREGATION_DESIGN.md Section 0). E3 = the sumcheck/GKR transcript
 layer over GF(q^16); E4 = the MLE-evaluation claims. Both are exactly
 the two obligations GATE_ALTERNATIVES option 2 needs — build once, use
 twice.

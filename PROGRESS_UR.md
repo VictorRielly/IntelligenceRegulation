@@ -113,6 +113,14 @@ the masked descents/pins are untouched:
       masked transcript B/el (A)   1.417   0.716   0.512  | 37.5
       lkp attribution p/v us/el  24.6/9.9 22.5/9.8 23.4/10.2 | 99.7/39.7
 
+      [RELABEL 2026-07-15, audit 2026-07-14 C-03: the "masked
+      transcript B/el" row counts masked-descent bytes plus the 12 B
+      per-wave partial-scalar reveals ONLY — it EXCLUDES the per-wave
+      CtRoundProofs (the z/w1 opening arrays), which the harness
+      verifies and drops but a non-interactive verifier must RECEIVE.
+      It is NOT proof size. Full adopted accounting:
+      RANGE_AGGREGATION_DESIGN.md Section 3b "Proof bytes, honestly".]
+
       Findings (the design study's key unknown, answered):
       * The A-B prove marginal is NOISE-WIDE past 2^16 on this box
         (-10..+42 us/el across shapes on 140-600 s totals) — the
@@ -140,7 +148,8 @@ the masked descents/pins are untouched:
       * Masked transcript: descent pair is per-layer fixed; reveals
         scale with waves (12 B x ~56 shares/wave ~ 0.43 B/el
         asymptote at this wave shape) -> 0.512 B/el at 2^20 vs 37.5
-        at B = 1020 (73x).
+        at B = 1020 (73x). [Same C-03 relabel as above: descent +
+        reveal bytes only, per-wave CtRoundProofs excluded.]
 - [x] S3 — U-R2 pilot: replace X's planes+ARP with a 256-row [0,256)
       range lookup inside the layer instance (second table instance +
       m column; X read dense, no offset fold needed at w = 8); A/B
@@ -180,6 +189,11 @@ the masked descents/pins are untouched:
       (us/el except dce/B/GiB; attr = range descent-pair share of the
       lookup-stage attribution — the clean signal; R - A totals are
       box-noise-wide, exactly as in S2)
+
+      [RELABEL 2026-07-15, audit 2026-07-14 C-03: the "B/el" column
+      counts masked-descent bytes + partial-scalar reveals ONLY and
+      EXCLUDES the per-wave CtRoundProofs — not proof size; see
+      RANGE_AGGREGATION_DESIGN.md Section 3b "Proof bytes, honestly".]
 
       PUNCHLINE (the Section 3 prediction, measured): range
       certification per element falls from the block rig's q46

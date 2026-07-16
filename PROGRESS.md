@@ -10,6 +10,17 @@ Build: PATH="$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin:$PATH"
 Suite: PATH=... python3 -m unittest discover -s tests   (42 tests + freeze-check, must stay green)
 Do NOT touch: codex-audit-* (read-only), scripts/logup_*_spike.py, src/manifest.rs.
 
+[Milestone rename 2026-07-15 (audit 2026-07-14 H-03; U-Z tranche Z3):
+this ledger's "masked-lookup FFN integration" milestone is renamed
+the COMMITTED ACTIVATION-CHAIN RIG. The U-K8 chain that closed here
+certifies range -> SiLU-lookup -> gate-o-up Hadamard over
+benchmark-generated tensors at row-block granularity; it proves none
+of an FFN's three matmuls (gate/up/down), no requantization edge, no
+residual/output binding, and no model artifact. Historical entries
+below stand unedited. The fail-closed exit for one complete
+caller-supplied quantized FFN layer is RANGE_AGGREGATION_DESIGN.md
+Section 0 item 5.]
+
 ## Lanes and file ownership (three parallel agents)
 
 - Agent A (U-K8, THIS checkout): ring_matmul.rs (chain/battery/bench sections),
