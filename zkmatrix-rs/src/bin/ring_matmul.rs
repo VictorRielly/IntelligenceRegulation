@@ -14160,6 +14160,295 @@ fn self_test_wave_split() {
             && quad_ring_wave(&plan, &qc_bad)
                 == Err(ring::ct_engine::WaveError::QuadStraddlesWaves),
     );
+
+    // ---- [Z1-i] wave-share masking (U-Z1, design WAVE_SHARE_MASKING):
+    // layout determinism, the k_j = 1 no-pad rule, masked round-trips
+    // against committed pad material, centered reps at +-q/2, and the
+    // ForcedZero policy — all at the toy scale of the legs above. ------
+    {
+        use ring::ct_engine::{
+            SplitPolicy, WavePadLayout, WavePads, draw_wave_pads, pack_wave_pads,
+            split_claims_forced_zero, split_claims_prover_masked, split_claims_verifier_masked,
+            split_claims_verifier_policy,
+        };
+        println!("\n[Z1-i] wave-share masking: pad layout determinism + edge legs");
+        let n_waves = plan.waves.len();
+        // Layout: derived independently twice from the same PUBLIC data
+        // (claim-row count, plan-derived pad-wave set, shape) — the D-2
+        // discipline extended to pads, byte-for-byte.
+        let layout = WavePadLayout::derive(claims.len(), vec![0, 1], n_waves, shape.msg_r)
+            .expect("toy pad layout derives");
+        let layout_v = WavePadLayout::derive(claims.len(), vec![0, 1], n_waves, shape.msg_r)
+            .expect("verifier-side pad layout derives");
+        assert_true(
+            "[Z1-i] pad layout: prover- and verifier-derived layouts agree BYTE-FOR-BYTE (counts, pad-wave set, every (claim, wave) -> (cm, slot, coeff) position)",
+            layout.layout_bytes() == layout_v.layout_bytes() && layout.n_pad_cms == 1,
+        );
+        // Draw + pack + commit the shared pad commitment ONCE; it is
+        // opened by BOTH wave rounds below (the design 2.2 shared
+        // multi-round-opening pattern at toy scale).
+        let pads = draw_wave_pads(&mut rng, q, &layout);
+        let pad_vals: Vec<Vec<u64>> = pads.harness_values().to_vec();
+        assert_true(
+            "[Z1-i] pad draw: each claim row's pads sum to 0 mod q (the solved last pad) and rows are non-trivial",
+            pad_vals.iter().all(|row| {
+                row.iter().fold(0u128, |a, &v| (a + v as u128) % q as u128) == 0
+            }) && pad_vals.iter().any(|row| row.iter().any(|&v| v != 0)),
+        );
+        let pad_msgs = pack_wave_pads(&mut rng, q, shape.msg_r, &layout, &pads)
+            .expect("toy pad packing");
+        assert_eq!(pad_msgs.len(), 1);
+        let (mpw, mrv) = split_claims_prover_masked(&zq, &plan, &claims, &msg_refs, &layout, pads)
+            .expect("honest masked split");
+        // k_j = 1 (claim 1 touches ONE wave): NO pad spent — the single
+        // share IS the public total and gains no pad read.
+        let c1_wave = plan.slot_of[1].0;
+        assert_true(
+            "[Z1-i] k_j = 1: a single-wave claim takes NO pad — one reveal equal to the public total, share functional unchanged (no pad read term)",
+            mrv[1].len() == 1
+                && mrv[1][0] == (c1_wave, claims[1].scalar)
+                && mpw[c1_wave]
+                    .iter()
+                    .any(|s| s.scalar == claims[1].scalar
+                        && s.msg_coeffs.len() == claims[1].msg_coeffs.len()),
+        );
+        // Multi-wave claims: masked reveals cover EVERY pad wave and
+        // differ from the true partials (the C-02 wire is gone).
+        assert_true(
+            "[Z1-i] masked reveals: multi-wave claims reveal one masked share per pad wave, and the masked values differ from the true partials",
+            mrv[0].len() == 2
+                && mrv[2].len() == 2
+                && (mrv[0] != reveals[0] || mrv[2] != reveals[2]),
+        );
+        let mv = split_claims_verifier_masked(&zq, &plan, &claims, &mrv, &layout)
+            .expect("verifier masked rebuild");
+        assert_true(
+            "[Z1-i] verifier rebuild matches the prover's masked shares (scalars + functionals incl. the pad read) and passes the mod-q sum gate",
+            (0..n_waves).all(|w| {
+                mv[w].len() == mpw[w].len()
+                    && mv[w].iter().zip(mpw[w].iter()).all(|(a, b)| {
+                        a.scalar == b.scalar && a.msg_coeffs == b.msg_coeffs
+                    })
+            }),
+        );
+        // Per-wave ct-rounds against the masked claims: round list =
+        // [wave data | THE shared pad commitment | g-groups]; the same
+        // pad commitment (same rho) is opened in both rounds.
+        let pad_rho: Vec<Vec<i64>> =
+            (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+        let run_waves = |claims_p: &[Vec<CtClaim>],
+                         claims_v: &[Vec<CtClaim>],
+                         pad_msg: &Vec<Poly>,
+                         pad_rho: &[Vec<i64>],
+                         rng: &mut u64|
+         -> Vec<bool> {
+            let (pt1, pt2) = {
+                let rp0 = derive_ct_round_params(q, shape, 4, 0, 0, true);
+                let a1p0 = build_a1_paths(&crs, rp0.sigma, isqrt_u128(rp0.bound_sq));
+                commit(&KernelPath::A1(&a1p0), &crs, pad_msg, &pad_rho.to_vec())
+            };
+            (0..plan.waves.len())
+                .map(|w| {
+                    let wave = &plan.waves[w];
+                    let mut all_x: Vec<Vec<Poly>> = wave.iter().map(|&g| msgs[g].clone()).collect();
+                    all_x.push(pad_msg.clone());
+                    all_x.extend(ring::ct_engine::sample_g_masks(
+                        rng,
+                        q,
+                        shape.msg_r,
+                        claims_p[w].len(),
+                        0,
+                    ));
+                    let mut rhos_w: Vec<Vec<Vec<i64>>> = wave
+                        .iter()
+                        .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(rng)).collect())
+                        .collect();
+                    rhos_w.push(pad_rho.to_vec());
+                    for _ in wave.len() + 1..all_x.len() {
+                        rhos_w.push((0..shape.n_r).map(|_| rng_ternary_poly(rng)).collect());
+                    }
+                    let rp_w = derive_ct_round_params(q, shape, all_x.len(), 0, 0, true);
+                    let a1p_w = build_a1_paths(&crs, rp_w.sigma, isqrt_u128(rp_w.bound_sq));
+                    let path_w = KernelPath::A1(&a1p_w);
+                    let mut t1s_w: Vec<Vec<Poly>> = Vec::new();
+                    let mut t2s_w: Vec<Vec<Poly>> = Vec::new();
+                    for (i, x) in all_x.iter().enumerate() {
+                        if i == wave.len() {
+                            t1s_w.push(pt1.clone());
+                            t2s_w.push(pt2.clone());
+                        } else {
+                            let (t1, t2) = commit(&path_w, &crs, x, &rhos_w[i]);
+                            t1s_w.push(t1);
+                            t2s_w.push(t2);
+                        }
+                    }
+                    let mut ctx_w = b"z1i-masked-wave".to_vec();
+                    ctx_w.extend_from_slice(&(w as u64).to_le_bytes());
+                    let h0_w = ct_h0(&crs, &ctx_w, &t1s_w, &t2s_w, &[]);
+                    let openings_w: Vec<StdOpening> = all_x
+                        .iter()
+                        .zip(rhos_w.iter())
+                        .enumerate()
+                        .map(|(i, (x, rho))| StdOpening { t1: &t1s_w[i], t2: &t2s_w[i], x, rho })
+                        .collect();
+                    let (proof_w, _) = prove_ct_round(
+                        &path_w, &ring_ctx, &rp_w, None, &crs, &h0_w, &claims_p[w], &[], &[],
+                        &[], &openings_w, &[], &[], wave.len() + 1, &mut *rng,
+                    );
+                    verify_ct_round(
+                        &path_w, &ring_ctx, &rp_w, None, &crs, &h0_w, &claims_v[w], &[], &[],
+                        &[], &t1s_w, &t2s_w, &[], &[], &[], wave.len() + 1, &proof_w,
+                    )
+                })
+                .collect()
+        };
+        let honest = run_waves(&mpw, &mv, &pad_msgs[0], &pad_rho, &mut rng);
+        assert_true(
+            "[Z1-i] masked wave rounds: every wave ACCEPTS its masked share claims against committed data + the SHARED pad commitment (opened in every wave round)",
+            honest.iter().all(|&b| b),
+        );
+        // Lied masked reveal: the mod-q sum gate rejects.
+        let mut lied_m = mrv.clone();
+        lied_m[0][0].1 = if lied_m[0][0].1 == (q / 2) as i64 {
+            lied_m[0][0].1 - 1
+        } else {
+            lied_m[0][0].1 + 1
+        };
+        assert_true(
+            "[Z1-i] a lied MASKED reveal REJECTS at the sum gate (masking does not weaken the gate)",
+            split_claims_verifier_masked(&zq, &plan, &claims, &lied_m, &layout).is_err(),
+        );
+        // Compensated masked pair: the gate passes but the wave round
+        // REJECTS — the pad term makes the wave claim false (the Z1-e
+        // shape, exercised early at toy scale).
+        let mut comp_m = mrv.clone();
+        comp_m[0][0].1 += 1;
+        comp_m[0][1].1 -= 1;
+        let comp_rejected = match split_claims_verifier_masked(&zq, &plan, &claims, &comp_m, &layout)
+        {
+            Err(_) => false,
+            Ok(vw) => {
+                // Claim 0's +1/-1 pair touches BOTH waves: each affected
+                // round must reject its false masked share.
+                let verdicts = run_waves(&mpw, &vw, &pad_msgs[0], &pad_rho, &mut rng);
+                verdicts.iter().all(|&b| !b)
+            }
+        };
+        assert_true(
+            "[Z1-i] a COMPENSATED masked pair passes the sum gate but each affected wave's ct-round REJECTS the false masked share",
+            comp_rejected,
+        );
+        // Centered-representative edge: pads crafted so masked shares
+        // land exactly on +-(q-1)/2 — the mod-q sum gate and the
+        // ct-round must both accept (no restart guard exists or is
+        // needed: every masked share has a centered representative).
+        {
+            let half = ((q - 1) / 2) as i64;
+            let solve_row = |target: i64, sigma0: i64| -> Vec<u64> {
+                let qi = q as i128;
+                let e0 = (((target as i128 - sigma0 as i128) % qi + qi) % qi) as u64;
+                vec![e0, (q - e0) % q]
+            };
+            // reveals[] holds the TRUE partials from the legacy leg
+            // above: claim 0 pushed to +half, claim 2 pulled to -half.
+            let rows = vec![
+                solve_row(half, reveals[0][0].1),
+                pad_vals[1].clone(),
+                solve_row(-half, reveals[2][0].1),
+            ];
+            let pads_b = WavePads::harness_from_values(rows);
+            let pad_msgs_b = pack_wave_pads(&mut rng, q, shape.msg_r, &layout, &pads_b)
+                .expect("boundary pad packing");
+            let (bpw, brv) =
+                split_claims_prover_masked(&zq, &plan, &claims, &msg_refs, &layout, pads_b)
+                    .expect("boundary masked split");
+            let bv = split_claims_verifier_masked(&zq, &plan, &claims, &brv, &layout)
+                .expect("boundary rebuild");
+            let pad_rho_b: Vec<Vec<i64>> =
+                (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+            let verdicts = run_waves(&bpw, &bv, &pad_msgs_b[0], &pad_rho_b, &mut rng);
+            assert_true(
+                "[Z1-i] centered reps at +-(q-1)/2: masked shares on both boundary representatives ACCEPT through the sum gate AND the wave ct-rounds",
+                brv[0][0].1 == half
+                    && brv[2][0].1 == -half
+                    && verdicts.iter().all(|&b| b),
+            );
+        }
+        // ForcedZero policy: identically-zero functionals prove per-wave
+        // zero claims with NOTHING sent; a nonzero total errors; a
+        // nonempty reveal wire errors.
+        {
+            let p = poly_from_small(&zq, &rng_quinary_poly(&mut rng));
+            let np: Poly = p.iter().map(|&c| zq.neg(c)).collect();
+            let p2 = poly_from_small(&zq, &rng_quinary_poly(&mut rng));
+            let np2: Poly = p2.iter().map(|&c| zq.neg(c)).collect();
+            let zc = CtClaim {
+                msg_coeffs: vec![(0, 0, p.clone()), (0, 0, np), (1, 0, p2), (1, 0, np2)],
+                ajtai_coeffs: vec![],
+                scalar: 0,
+            };
+            let zpw = split_claims_forced_zero(&plan, std::slice::from_ref(&zc))
+                .expect("forced-zero split");
+            let zv = split_claims_verifier_policy(
+                &zq,
+                &plan,
+                std::slice::from_ref(&zc),
+                &[Vec::new()],
+                SplitPolicy::ForcedZero,
+                None,
+            )
+            .expect("forced-zero verifier rebuild");
+            let nonzero_total = CtClaim {
+                msg_coeffs: vec![(0, 0, p.clone())],
+                ajtai_coeffs: vec![],
+                scalar: 5,
+            };
+            let zero_ok = zpw.iter().flatten().all(|s| s.scalar == 0)
+                && zpw.iter().flatten().count() == 2
+                && (0..n_waves).all(|w| {
+                    zv[w].len() == zpw[w].len()
+                        && zv[w].iter().zip(zpw[w].iter()).all(|(a, b)| {
+                            a.scalar == b.scalar && a.msg_coeffs == b.msg_coeffs
+                        })
+                });
+            let pad_rho_z: Vec<Vec<i64>> =
+                (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+            let verdicts = run_waves(&zpw, &zv, &pad_msgs[0], &pad_rho_z, &mut rng);
+            assert_true(
+                "[Z1-i] ForcedZero: per-wave zero claims rebuild identically on both sides, ACCEPT at their ct-rounds with NOTHING sent; nonzero totals and nonempty reveal wires are typed errors",
+                zero_ok
+                    && verdicts.iter().all(|&b| b)
+                    && split_claims_forced_zero(&plan, std::slice::from_ref(&nonzero_total))
+                        .is_err()
+                    && split_claims_verifier_policy(
+                        &zq,
+                        &plan,
+                        std::slice::from_ref(&zc),
+                        &[vec![(0, 0)]],
+                        SplitPolicy::ForcedZero,
+                        None,
+                    )
+                    .is_err(),
+            );
+        }
+        // Fail-closed coverage: a multi-wave claim under Padded with a
+        // pad-less layout is a typed error, never a silent reveal.
+        {
+            let layout_nopads =
+                WavePadLayout::derive(claims.len(), vec![0], n_waves, shape.msg_r)
+                    .expect("single-wave layout derives (no pads)");
+            let pads_np = draw_wave_pads(&mut rng, q, &layout_nopads);
+            assert_true(
+                "[Z1-i] fail-closed: a multi-wave claim under Padded with a pad-less layout REJECTS (typed PadCoverage) instead of reverting to revealed partials",
+                matches!(
+                    split_claims_prover_masked(
+                        &zq, &plan, &claims, &msg_refs, &layout_nopads, pads_np
+                    ),
+                    Err(ring::ct_engine::WaveError::PadCoverage { .. })
+                ),
+            );
+        }
+    }
 }
 
 // ===========================================================================

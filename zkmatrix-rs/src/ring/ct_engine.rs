@@ -1637,6 +1637,16 @@ pub enum WaveError {
     /// A revealed partial is a non-centered representative or the
     /// partials do not sum to the claim total (the sum gate).
     PartialSumGate,
+    /// Z1: the pad layout does not match the round's inputs — claim
+    /// count vs layout, pad-table shape vs layout, a Padded call with
+    /// no layout/pads, or an unbuildable layout (n_claims exceeds one
+    /// commitment's coefficient space, pad waves not strictly
+    /// ascending / out of plan range).
+    PadLayoutMismatch,
+    /// Z1: a padded claim has support in a wave outside the layout's
+    /// pad-wave set (the plan-derived set must COVER every padded
+    /// claim's touched waves — design Section 2.5's circularity rule).
+    PadCoverage { wave: usize },
 }
 
 impl std::fmt::Display for WaveError {
@@ -1670,6 +1680,12 @@ impl std::fmt::Display for WaveError {
             }
             WaveError::PartialSumGate => {
                 write!(f, "partial scalar fails the centered-representative/sum gate")
+            }
+            WaveError::PadLayoutMismatch => {
+                write!(f, "wave-share pad layout inconsistent with the round's inputs")
+            }
+            WaveError::PadCoverage { wave } => {
+                write!(f, "padded claim touches wave {wave} outside the pad-wave set")
             }
         }
     }
@@ -1912,4 +1928,497 @@ pub fn quad_ring_localized(
             msg_coeffs: qc.msg_coeffs.iter().map(|(i, s, p)| (l(*i), *s, p.clone())).collect(),
         },
     ))
+}
+
+// ---------------------------------------------------------------------------
+// U-Z1 (WAVE_SHARE_MASKING_DESIGN.md, audit 2026-07-14 C-02): coset one-time
+// pads on the per-wave shares. The unmasked splitter above reveals, per
+// (claim, wave), the TRUE partial ct scalar — a public-coefficient linear
+// measurement of that wave's private committed coefficients (design eq. 1,
+// 9(W-1) fresh equations per proof beyond the totals, accumulating across
+// proofs). The fix: per padded claim j and pad-bearing wave w, a uniform
+// committed pad e_{j,w} with sum_w e_{j,w} = 0 (last pad SOLVED — the M4
+// solved-pad pattern; a uniform masked share always has a centered
+// representative, so there are NO degenerate draws and NO restart guards);
+// the wave's rebuilt share claim gains ONE weight-1 read of the pad
+// coefficient and its scalar becomes the masked reveal
+//     functional_w(msgs) + e_{j,w} = sigma~_{j,w}          (design eq. 3)
+// making the reveal vector EXACTLY uniform on the coset {sum = total}
+// (design Section 3.1 — a finite one-time-pad statement). The zero-sum
+// sum_w e_{j,w} = 0 is forced by the closing round (design eq. 4, Z1-impl-b).
+//
+// Layout discipline (design 2.2/2.5 + the psi-circularity rule): the pad
+// LAYOUT is a pure function of the PUBLIC plan — pads exist for every
+// (claim row j, pad wave w) position over the plan-derived pad-wave set,
+// wave-major, n_claims per wave, whole pad-waves per commitment. Pad
+// VALUES are drawn from the per-proof ProverRng stream and committed
+// (bound in the statement hash) BEFORE any challenge; which positions are
+// READ is derived symmetrically by prover and verifier from the claims.
+// A claim touching <= 1 wave takes NO pad — its single share IS the
+// public total (zero free exposures, Z1-i).
+//
+// Sharpening recorded against design Section 2.3 (found at implementation
+// time): the closing round's zero-sum read set must EQUAL the set of pad
+// positions the wave rounds read (all pad waves, per claim row). A closing
+// read over a strict superset would leave the extra positions unbound by
+// any wave relation, and a delta parked there forges a shifted total. The
+// splitter therefore gives every multi-wave padded claim a share in EVERY
+// pad wave (empty functional + pad read where the claim has no support),
+// so wave reads == closing reads == the full pad-wave set, per row.
+
+/// Splitter policy per claim family (design Section 2.4). The default for
+/// value-carrying share families (the pins) is `Padded`; identically-zero
+/// families (zeta slot-constancy) take `ForcedZero`; `Revealed` is the
+/// as-built C-02 leak, retained ONLY for the permanent [Z1-a] baseline
+/// exhibit and compiled away outside harness/test builds.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum SplitPolicy {
+    /// Coset one-time pads: masked reveals sigma~ = functional + pad.
+    Padded,
+    /// Per-wave shares forced to the public constant 0; NOTHING is sent
+    /// (the zeta deletion, design 2.4). Strictly stronger than the
+    /// layer-wide sum gate it replaces.
+    ForcedZero,
+    /// LEGACY (C-02): true partial scalars in the clear. Kept
+    /// compile-away for the [Z1-a] unmasked-leak regression only.
+    #[cfg(any(test, feature = "harness"))]
+    Revealed,
+}
+
+/// The public pad layout (design 2.2): wave-major, `n_claims` pads per
+/// pad wave, `waves_per_cm = msg_r * D / n_claims` whole pad-waves per
+/// pad commitment. Pure function of (claim-row count, plan-derived
+/// pad-wave set, commitment shape) — prover and verifier derive it
+/// independently and must agree byte-for-byte (`layout_bytes`, Z1-i).
+///
+/// Round-list convention: wave w's ct-round commitment list is
+/// [wave's data commitments | the wave's pad commitment | g-groups],
+/// so the pad commitment's wave-local index is the wave's data count
+/// and `g_base` shifts by one. The verifier builds the same list from
+/// the plan (D-2 — nothing prover-chosen enters the layout).
+pub struct WavePadLayout {
+    /// Padded claim rows (the pin batch: UR1_PIN_COPIES = 9).
+    pub n_claims: usize,
+    /// Ascending wave indices that carry pads (the plan-derived
+    /// pin-bearing set; at the layer rig's lookup arms: every wave).
+    pub pad_waves: Vec<usize>,
+    /// Whole pad-waves packed per pad commitment (113 at 9/1024).
+    pub waves_per_cm: usize,
+    /// ceil(|pad_waves| / waves_per_cm); 0 when |pad_waves| <= 1 or
+    /// n_claims == 0 (no pads — single-wave shares are public totals).
+    pub n_pad_cms: usize,
+}
+
+impl WavePadLayout {
+    /// Derive the layout. `pad_waves` must be strictly ascending and
+    /// within the plan's wave range; `n_claims` must fit one
+    /// commitment's coefficient space.
+    pub fn derive(
+        n_claims: usize,
+        pad_waves: Vec<usize>,
+        n_waves: usize,
+        msg_r: usize,
+    ) -> Result<Self, WaveError> {
+        if n_claims > msg_r * D {
+            return Err(WaveError::PadLayoutMismatch);
+        }
+        for (i, &w) in pad_waves.iter().enumerate() {
+            if w >= n_waves || (i > 0 && pad_waves[i - 1] >= w) {
+                return Err(WaveError::PadLayoutMismatch);
+            }
+        }
+        let waves_per_cm = if n_claims == 0 { 0 } else { (msg_r * D) / n_claims };
+        let n_pad_cms = if n_claims == 0 || pad_waves.len() <= 1 {
+            0
+        } else {
+            pad_waves.len().div_ceil(waves_per_cm)
+        };
+        Ok(WavePadLayout { n_claims, pad_waves, waves_per_cm, n_pad_cms })
+    }
+
+    /// Whether the construction carries pads at all.
+    pub fn has_pads(&self) -> bool {
+        self.n_pad_cms > 0
+    }
+
+    /// (pad-commitment ordinal, message slot, coefficient index) of the
+    /// pad for claim row j's share in pad-wave ordinal wi.
+    pub fn slot(&self, j: usize, wi: usize) -> (usize, usize, usize) {
+        debug_assert!(j < self.n_claims && wi < self.pad_waves.len());
+        let cm = wi / self.waves_per_cm;
+        let flat = (wi % self.waves_per_cm) * self.n_claims + j;
+        (cm, flat / D, flat % D)
+    }
+
+    /// Canonical byte serialization of the COMPLETE layout — counts,
+    /// pad-wave set, and every (claim, wave) -> (cm, slot, coeff)
+    /// position. The Z1-i determinism leg compares prover- and
+    /// verifier-derived layouts byte-for-byte.
+    pub fn layout_bytes(&self) -> Vec<u8> {
+        let mut out = Vec::new();
+        out.extend(b"z1-pad-layout-v1");
+        for v in [self.n_claims, self.waves_per_cm, self.n_pad_cms, self.pad_waves.len()] {
+            out.extend((v as u64).to_le_bytes());
+        }
+        for &w in &self.pad_waves {
+            out.extend((w as u64).to_le_bytes());
+        }
+        if self.has_pads() {
+            for j in 0..self.n_claims {
+                for wi in 0..self.pad_waves.len() {
+                    let (cm, s, c) = self.slot(j, wi);
+                    out.extend((cm as u64).to_le_bytes());
+                    out.extend((s as u64).to_le_bytes());
+                    out.extend((c as u64).to_le_bytes());
+                }
+            }
+        }
+        out
+    }
+}
+
+/// One proof's pad table — PRIVATE prover state until committed.
+/// ONE-TIME by construction (design 2.5's freshness rule, battery Z1-h):
+/// not `Clone`, drawn only from the per-proof RNG stream, and CONSUMED
+/// by value by `split_claims_prover_masked` (the last honest reader), so
+/// a second proof cannot reuse a pad table without deliberately
+/// reconstructing it through the harness-only escape hatch.
+pub struct WavePads {
+    /// values[j][wi]: the mod-q pad of claim row j in pad-wave ordinal
+    /// wi. Per row: uniform draws with the LAST entry solved so the row
+    /// sums to 0 mod q.
+    values: Vec<Vec<u64>>,
+}
+
+impl WavePads {
+    /// Battery-only raw access ([Z1-b]/[Z1-g] rank harnesses).
+    #[cfg(any(test, feature = "harness"))]
+    pub fn harness_values(&self) -> &[Vec<u64>] {
+        &self.values
+    }
+
+    /// Battery-only reconstruction — the [Z1-h] pad-REUSE attack arm.
+    /// Production code cannot reach this: pads are drawn fresh per
+    /// proof and moved into the splitter.
+    #[cfg(any(test, feature = "harness"))]
+    pub fn harness_from_values(values: Vec<Vec<u64>>) -> Self {
+        WavePads { values }
+    }
+}
+
+/// Draw one proof's pad table from the per-proof ProverRng stream
+/// (design 2.1): per claim row, |pad_waves| - 1 uniform Z_q draws with
+/// the last pad SOLVED (row sum = 0 mod q). NO restart guards — a
+/// uniform masked share always has a centered representative. Layouts
+/// without pads yield an empty table.
+pub fn draw_wave_pads(
+    rng: &mut dyn super::RngSource,
+    q: u64,
+    layout: &WavePadLayout,
+) -> WavePads {
+    if !layout.has_pads() {
+        return WavePads { values: vec![Vec::new(); layout.n_claims] };
+    }
+    let k = layout.pad_waves.len();
+    let values = (0..layout.n_claims)
+        .map(|_| {
+            let mut row: Vec<u64> = (0..k - 1).map(|_| super::rng_below(rng, q)).collect();
+            let sum = row.iter().fold(0u64, |a, &v| {
+                let s = a as u128 + v as u128;
+                (s % q as u128) as u64
+            });
+            row.push((q - sum) % q); // the solved last pad
+            row
+        })
+        .collect();
+    WavePads { values }
+}
+
+/// Pack the pad table into pad-commitment message groups (the wave-major
+/// layout). Coefficients not addressed by the layout are FRESH UNIFORM
+/// draws — they are never read by any claim and carry no structure.
+pub fn pack_wave_pads(
+    rng: &mut dyn super::RngSource,
+    q: u64,
+    msg_r: usize,
+    layout: &WavePadLayout,
+    pads: &WavePads,
+) -> Result<Vec<Vec<Poly>>, WaveError> {
+    if pads.values.len() != layout.n_claims {
+        return Err(WaveError::PadLayoutMismatch);
+    }
+    let mut cms: Vec<Vec<Poly>> = (0..layout.n_pad_cms)
+        .map(|_| {
+            (0..msg_r)
+                .map(|_| (0..D).map(|_| super::rng_below(rng, q)).collect())
+                .collect()
+        })
+        .collect();
+    if layout.has_pads() {
+        for (j, row) in pads.values.iter().enumerate() {
+            if row.len() != layout.pad_waves.len() {
+                return Err(WaveError::PadLayoutMismatch);
+            }
+            for (wi, &v) in row.iter().enumerate() {
+                let (cm, s, c) = layout.slot(j, wi);
+                cms[cm][s][c] = v;
+            }
+        }
+    }
+    Ok(cms)
+}
+
+/// The weight-1 pad read term of claim row j's share in pad-wave ordinal
+/// wi: (wave-local pad-commitment index, slot, conj(X^coeff)) — the
+/// coefficient-extraction functional (ct(conj(X^i) * m) = m_i). The
+/// wave-local index follows the round-list convention (the wave's data
+/// count — see WavePadLayout).
+fn pad_read_term(
+    zq: &super::Zq,
+    plan: &WavePlan,
+    layout: &WavePadLayout,
+    j: usize,
+    wi: usize,
+) -> (usize, usize, Poly) {
+    let w = layout.pad_waves[wi];
+    let (_, s, c) = layout.slot(j, wi);
+    let mut xi = poly_zero();
+    xi[c] = 1;
+    (plan.waves[w].len(), s, poly_conj(zq, &xi))
+}
+
+/// Shared prover/verifier share-structure walk for the Padded policy:
+/// per claim, the plan-split support shares keyed by wave, the touched
+/// count, and the coverage check (support must sit inside the pad-wave
+/// set). Returns (touched wave count, support map).
+fn padded_support(
+    plan: &WavePlan,
+    layout: &WavePadLayout,
+    claim: &CtClaim,
+) -> Result<(usize, std::collections::BTreeMap<usize, CtClaim>), WaveError> {
+    let shares = split_claim_shares(plan, claim)?;
+    let touched = shares.len();
+    if touched >= 2 {
+        // FAIL-CLOSED: a multi-wave claim under the Padded policy MUST
+        // be coverable by pads — a layout without pads (or one missing
+        // a touched wave) errors rather than silently reverting to the
+        // C-02 revealed partials.
+        for (w, _) in &shares {
+            if !layout.has_pads() || !layout.pad_waves.contains(w) {
+                return Err(WaveError::PadCoverage { wave: *w });
+            }
+        }
+    }
+    Ok((touched, shares.into_iter().collect()))
+}
+
+/// Prover-side MASKED split (design 2.1/2.3): per claim row j with >= 2
+/// touched waves, one share in EVERY pad wave — the wave's support
+/// functional (possibly empty) plus the weight-1 pad read — revealing
+/// sigma~ = center(functional + pad). Claims touching <= 1 wave take the
+/// unpadded single-share path (share == public total, NO reveal entry).
+/// CONSUMES the pad table (one-time freshness, Z1-h).
+pub fn split_claims_prover_masked(
+    zq: &super::Zq,
+    plan: &WavePlan,
+    claims: &[CtClaim],
+    msgs: &[&[Poly]],
+    layout: &WavePadLayout,
+    pads: WavePads,
+) -> Result<(Vec<Vec<CtClaim>>, Vec<Vec<(usize, i64)>>), WaveError> {
+    if claims.len() != layout.n_claims || pads.values.len() != layout.n_claims {
+        return Err(WaveError::PadLayoutMismatch);
+    }
+    let share_scalar = |share: &CtClaim, w: usize| -> Result<i128, WaveError> {
+        let mut acc: i128 = 0;
+        for (l, s, p) in &share.msg_coeffs {
+            let gi = plan.waves[w][*l];
+            let msg = msgs
+                .get(gi)
+                .ok_or(WaveError::CommitIndexOutOfRange { index: gi, n_commits: msgs.len() })?
+                .get(*s)
+                .ok_or(WaveError::SlotOutOfRange { commit: gi, slot: *s })?;
+            acc += ct_mul_centered(zq, p, msg) as i128;
+        }
+        Ok(acc)
+    };
+    let mut per_wave: Vec<Vec<CtClaim>> = (0..plan.waves.len()).map(|_| Vec::new()).collect();
+    let mut reveals: Vec<Vec<(usize, i64)>> = Vec::with_capacity(claims.len());
+    for (j, claim) in claims.iter().enumerate() {
+        let (touched, mut support) = padded_support(plan, layout, claim)?;
+        if touched <= 1 || !layout.has_pads() {
+            // Zero free exposures: the single share IS the public total
+            // (Z1-i) — no pad spent, nothing revealed beyond the claim.
+            let mut rv = Vec::new();
+            for (w, mut share) in support {
+                share.scalar = center_i128(zq, share_scalar(&share, w)?);
+                rv.push((w, share.scalar));
+                per_wave[w].push(share);
+            }
+            reveals.push(rv);
+            continue;
+        }
+        let mut rv = Vec::with_capacity(layout.pad_waves.len());
+        for wi in 0..layout.pad_waves.len() {
+            let w = layout.pad_waves[wi];
+            let mut share = support.remove(&w).unwrap_or(CtClaim {
+                msg_coeffs: vec![],
+                ajtai_coeffs: vec![],
+                scalar: 0,
+            });
+            let sigma = share_scalar(&share, w)?;
+            share.msg_coeffs.push(pad_read_term(zq, plan, layout, j, wi));
+            share.scalar = center_i128(zq, sigma + pads.values[j][wi] as i128);
+            rv.push((w, share.scalar));
+            per_wave[w].push(share);
+        }
+        reveals.push(rv);
+    }
+    Ok((per_wave, reveals))
+}
+
+/// Verifier-side MASKED split: rebuilds every share claim — support
+/// functionals from public weights PLUS the plan-derived pad read — from
+/// the prover's masked reveals, gating (a) reveal structure against the
+/// derived layout, (b) centered representatives, (c) the mod-q sum gate
+/// sum(sigma~) == total (pads cancel by the closing round's zero-sum).
+/// Per-wave ct-round verification then holds each masked share to the
+/// wave's committed data + pad material.
+pub fn split_claims_verifier_masked(
+    zq: &super::Zq,
+    plan: &WavePlan,
+    claims: &[CtClaim],
+    reveals: &[Vec<(usize, i64)>],
+    layout: &WavePadLayout,
+) -> Result<Vec<Vec<CtClaim>>, WaveError> {
+    if claims.len() != layout.n_claims || reveals.len() != claims.len() {
+        return Err(WaveError::RevealShapeMismatch);
+    }
+    let mut per_wave: Vec<Vec<CtClaim>> = (0..plan.waves.len()).map(|_| Vec::new()).collect();
+    for (j, (claim, rv)) in claims.iter().zip(reveals.iter()).enumerate() {
+        let (touched, mut support) = padded_support(plan, layout, claim)?;
+        if touched <= 1 || !layout.has_pads() {
+            // Unpadded single-share path: the reveal must restate the
+            // share the verifier derives itself (the share is public).
+            if rv.len() != touched {
+                return Err(WaveError::RevealShapeMismatch);
+            }
+            let mut sum: i128 = 0;
+            for ((w, mut share), &(rw, part)) in support.into_iter().zip(rv.iter()) {
+                if w != rw {
+                    return Err(WaveError::RevealShapeMismatch);
+                }
+                if part.unsigned_abs() > zq.q / 2 {
+                    return Err(WaveError::PartialSumGate);
+                }
+                share.scalar = part;
+                sum += part as i128;
+                per_wave[w].push(share);
+            }
+            if center_i128(zq, sum) != claim.scalar {
+                return Err(WaveError::PartialSumGate);
+            }
+            continue;
+        }
+        if rv.len() != layout.pad_waves.len() {
+            return Err(WaveError::RevealShapeMismatch);
+        }
+        let mut sum: i128 = 0;
+        for (wi, &(rw, part)) in rv.iter().enumerate() {
+            let w = layout.pad_waves[wi];
+            if w != rw {
+                return Err(WaveError::RevealShapeMismatch);
+            }
+            if part.unsigned_abs() > zq.q / 2 {
+                return Err(WaveError::PartialSumGate);
+            }
+            let mut share = support.remove(&w).unwrap_or(CtClaim {
+                msg_coeffs: vec![],
+                ajtai_coeffs: vec![],
+                scalar: 0,
+            });
+            share.msg_coeffs.push(pad_read_term(zq, plan, layout, j, wi));
+            share.scalar = part;
+            sum += part as i128;
+            per_wave[w].push(share);
+        }
+        if center_i128(zq, sum) != claim.scalar {
+            return Err(WaveError::PartialSumGate);
+        }
+    }
+    Ok(per_wave)
+}
+
+/// The ForcedZero split (the zeta deletion, design 2.4): per-wave share
+/// claims with the public scalar 0 and NO reveal wire — identical on
+/// both sides. Claims must carry a zero total (identity 2: every honest
+/// share of the slot-constancy family is identically zero); a nonzero
+/// total is a caller error, surfaced as the sum gate.
+pub fn split_claims_forced_zero(
+    plan: &WavePlan,
+    claims: &[CtClaim],
+) -> Result<Vec<Vec<CtClaim>>, WaveError> {
+    let mut per_wave: Vec<Vec<CtClaim>> = (0..plan.waves.len()).map(|_| Vec::new()).collect();
+    for claim in claims {
+        if claim.scalar != 0 {
+            return Err(WaveError::PartialSumGate);
+        }
+        for (w, mut share) in split_claim_shares(plan, claim)? {
+            share.scalar = 0;
+            per_wave[w].push(share);
+        }
+    }
+    Ok(per_wave)
+}
+
+/// Policy dispatch, prover side (the Z1 splitter entry point). `Padded`
+/// requires the layout and consumes the pad table; `ForcedZero` reveals
+/// nothing; `Revealed` (harness/test builds only) is the legacy C-02
+/// path for the permanent [Z1-a] baseline exhibit.
+pub fn split_claims_prover_policy(
+    zq: &super::Zq,
+    plan: &WavePlan,
+    claims: &[CtClaim],
+    msgs: &[&[Poly]],
+    policy: SplitPolicy,
+    layout: Option<&WavePadLayout>,
+    pads: Option<WavePads>,
+) -> Result<(Vec<Vec<CtClaim>>, Vec<Vec<(usize, i64)>>), WaveError> {
+    match policy {
+        SplitPolicy::Padded => {
+            let layout = layout.ok_or(WaveError::PadLayoutMismatch)?;
+            let pads = pads.ok_or(WaveError::PadLayoutMismatch)?;
+            split_claims_prover_masked(zq, plan, claims, msgs, layout, pads)
+        }
+        SplitPolicy::ForcedZero => {
+            Ok((split_claims_forced_zero(plan, claims)?, vec![Vec::new(); claims.len()]))
+        }
+        #[cfg(any(test, feature = "harness"))]
+        SplitPolicy::Revealed => split_claims_prover(zq, plan, claims, msgs),
+    }
+}
+
+/// Policy dispatch, verifier side.
+pub fn split_claims_verifier_policy(
+    zq: &super::Zq,
+    plan: &WavePlan,
+    claims: &[CtClaim],
+    reveals: &[Vec<(usize, i64)>],
+    policy: SplitPolicy,
+    layout: Option<&WavePadLayout>,
+) -> Result<Vec<Vec<CtClaim>>, WaveError> {
+    match policy {
+        SplitPolicy::Padded => {
+            let layout = layout.ok_or(WaveError::PadLayoutMismatch)?;
+            split_claims_verifier_masked(zq, plan, claims, reveals, layout)
+        }
+        SplitPolicy::ForcedZero => {
+            if reveals.iter().any(|rv| !rv.is_empty()) {
+                return Err(WaveError::RevealShapeMismatch);
+            }
+            split_claims_forced_zero(plan, claims)
+        }
+        #[cfg(any(test, feature = "harness"))]
+        SplitPolicy::Revealed => split_claims_verifier(zq, plan, claims, reveals),
+    }
 }

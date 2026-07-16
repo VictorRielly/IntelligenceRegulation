@@ -106,3 +106,28 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
   FINAL. NOTE for IA-3: Q4.2a' needs the opening-count/mask-freshness
   canary; Z1-h pad freshness is load-bearing for the composition
   (defect bound is per-proof).
+- 2026-07-16 (IA, impl-a 1/2): the ct_engine masking layer landed —
+  SplitPolicy {Padded, ForcedZero, Revealed(harness-gated, compile-away)}
+  with policy dispatchers on the Result-typed Z5 signatures; WavePadLayout
+  (wave-major, n_claims/wave, whole pad-waves per commitment, plan-derived
+  pad-wave set, canonical layout_bytes for the Z1-i byte-for-byte leg);
+  WavePads (non-Clone, drawn from the per-proof RNG stream, solved last
+  pad, CONSUMED by the prover splitter — the Z1-h structural freshness);
+  pack_wave_pads (unused coefficients uniform); masked prover/verifier
+  splitters (weight-1 conj(X^i) pad read at the wave-local convention
+  index = the wave's data count; mod-q sum gate; typed PadLayoutMismatch/
+  PadCoverage errors, FAIL-CLOSED on uncoverable multi-wave claims);
+  split_claims_forced_zero (zero totals enforced). [Z1-i] engine legs in
+  self_test_wave_split: layout determinism byte-for-byte, k_j = 1 takes NO
+  pad, masked round-trip against a SHARED pad commitment opened in both
+  toy waves, lied + compensated masked reveals, centered reps at exactly
+  +-(q-1)/2 accept, ForcedZero round-trip, fail-closed coverage. DESIGN
+  SHARPENING recorded (design Section 2.3, found in code): the closing
+  round's zero-sum read set must EQUAL the wave rounds' pad-read set —
+  an all-positions closing read over a strict superset leaves the extra
+  positions unbound and a delta parked there forges a shifted total. The
+  splitter therefore gives every multi-wave padded claim a share in EVERY
+  pad wave (empty functional + pad read where support is absent), so wave
+  reads == closing reads == the full pad-wave set per claim row; the
+  psi-circularity rule (2.5) is honored by deriving the pad-wave set from
+  the PLAN (pin-bearing waves), never from claim support.
