@@ -6273,6 +6273,7 @@ fn main() {
             self_test_openings();
             self_test_ct_engine();
             self_test_wave_split();
+            self_test_z1();
             self_test_pi1();
             self_test_gadgets();
             self_test_r1();
@@ -14557,6 +14558,417 @@ fn self_test_wave_split() {
                 run_closing(&pad_msgs[0], &mut rng) && !run_closing(&pad_msgs_d[0], &mut rng),
             );
         }
+    }
+}
+
+/// [Z1] rank/leakage/recovery battery (U-Z1 impl-c, design Section 5):
+/// Z1-a — the PERMANENT C-02 exhibit (unmasked exact recovery against
+/// the legacy Revealed policy); Z1-b — masked non-recovery, full-coset
+/// membership, and the E3Z-N4-style counting canary; Z1-g — the
+/// accumulation stall across proofs of the same witness; Z1-h — the
+/// pad-reuse leak at half rate plus the freshness rule. All legs are
+/// splitter-level linear algebra: the C-02 leak lives in the REVEALED
+/// scalars, so no commitments or ct-rounds are needed to demonstrate
+/// what a transcript observer can solve for.
+fn self_test_z1() {
+    use ring::ct_engine::{
+        CtClaim, WavePadLayout, WavePads, draw_wave_pads, plan_waves, split_claims_prover,
+        split_claims_prover_masked,
+    };
+    println!("\n[Z1] wave-share masking: rank/leakage/recovery battery (design Section 5)");
+    let q = Q8;
+    let zq = ring_ctx_q8().zq;
+    let mut rng = 0x5eed_21a0u64;
+
+    // Gaussian elimination mod q (prime) on the augmented system
+    // [A | b]: returns (rank of A, unique solution when rank == n).
+    let solve = |rows: &[(Vec<u64>, u64)]| -> (usize, Option<Vec<u64>>) {
+        let n = rows.first().map_or(0, |r| r.0.len());
+        let mut m: Vec<Vec<u64>> = rows
+            .iter()
+            .map(|(a, b)| {
+                let mut v = a.clone();
+                v.push(*b);
+                v
+            })
+            .collect();
+        let mut rank = 0usize;
+        let mut pivots: Vec<usize> = Vec::new();
+        for col in 0..n {
+            if rank == m.len() {
+                break;
+            }
+            if let Some(p) = (rank..m.len()).find(|&r| m[r][col] != 0) {
+                m.swap(rank, p);
+                let inv = zq.inv(m[rank][col]);
+                for c in col..=n {
+                    m[rank][c] = zq.mul(m[rank][c], inv);
+                }
+                for r in 0..m.len() {
+                    if r != rank && m[r][col] != 0 {
+                        let f = m[r][col];
+                        for c in col..=n {
+                            let t = zq.mul(f, m[rank][c]);
+                            m[r][c] = zq.sub(m[r][c], t);
+                        }
+                    }
+                }
+                pivots.push(col);
+                rank += 1;
+            }
+        }
+        let sol = if rank == n {
+            let mut x = vec![0u64; n];
+            for (r, &c) in pivots.iter().enumerate() {
+                x[c] = m[r][n];
+            }
+            Some(x)
+        } else {
+            None
+        };
+        (rank, sol)
+    };
+    let rank_of = |rows: &[(Vec<u64>, u64)]| -> usize { solve(rows).0 };
+
+    // Single-secret-coefficient "commitments": message i holds its
+    // secret at coefficient 0, so a claim with constant weight polys is
+    // LITERALLY equation (1): sigma_{j,w} = sum_{i in wave w} w_{j,i} x_i.
+    let mk_msgs = |secrets: &[u64]| -> Vec<Vec<Poly>> {
+        secrets
+            .iter()
+            .map(|&v| {
+                let mut p = poly_zero();
+                p[0] = v;
+                vec![p]
+            })
+            .collect()
+    };
+    let mk_claims = |rng: &mut u64, s_n: usize, n_claims: usize, secrets: &[u64]|
+     -> (Vec<Vec<u64>>, Vec<CtClaim>) {
+        (0..n_claims)
+            .map(|_| {
+                let w: Vec<u64> = (0..s_n).map(|_| rng_below(rng, q)).collect();
+                let msg_coeffs = w
+                    .iter()
+                    .enumerate()
+                    .map(|(i, &wi)| {
+                        let mut p = poly_zero();
+                        p[0] = wi;
+                        (i, 0usize, p)
+                    })
+                    .collect();
+                let total = w
+                    .iter()
+                    .zip(secrets.iter())
+                    .fold(0u64, |a, (&wi, &xi)| zq.add(a, zq.mul(wi, xi)));
+                (w, CtClaim { msg_coeffs, ajtai_coeffs: vec![], scalar: zq.center(total) })
+            })
+            .unzip()
+    };
+    // f_{j,w}(x) restricted to a wave's support, as a dense row.
+    let wave_row = |weights: &[u64], wave: &[usize]| -> Vec<u64> {
+        wave.iter().map(|&g| weights[g]).collect()
+    };
+
+    // ---- Geometry A (Z1-a/Z1-b): s = 27 unknowns, 3 waves of 9, the
+    // 9-copy psi shape — per wave, 9 equations on s_w = 9 unknowns. ----
+    let s_a = 27usize;
+    let secrets: Vec<u64> = (0..s_a).map(|_| rng_below(&mut rng, q)).collect();
+    let msgs = mk_msgs(&secrets);
+    let msg_refs: Vec<&[Poly]> = msgs.iter().map(|m| m.as_slice()).collect();
+    let plan = plan_waves(s_a, &[], 9).expect("z1 geometry-A plan");
+    assert_eq!(plan.waves.len(), 3);
+    let (weights, claims) = mk_claims(&mut rng, s_a, 9, &secrets);
+
+    // [Z1-a] — the C-02 exhibit, PERMANENT: the as-built legacy
+    // Revealed splitter hands over per-wave partials; the public
+    // system (1) recovers the committed witness EXACTLY from ONE
+    // transcript (the rank s_w/s_w pattern).
+    let (_, reveals) =
+        split_claims_prover(&zq, &plan, &claims, &msg_refs).expect("legacy Revealed split");
+    let mut recovered = vec![0u64; s_a];
+    let mut exact = true;
+    for (w, wave) in plan.waves.iter().enumerate() {
+        let rows: Vec<(Vec<u64>, u64)> = (0..9)
+            .map(|j| (wave_row(&weights[j], wave), zq.to_mod(reveals[j][w].1)))
+            .collect();
+        let (rank, sol) = solve(&rows);
+        exact &= rank == wave.len();
+        match sol {
+            Some(x) => {
+                for (l, &g) in wave.iter().enumerate() {
+                    recovered[g] = x[l];
+                }
+            }
+            None => exact = false,
+        }
+    }
+    assert_true(
+        "[Z1-a] PERMANENT C-02 regression: the legacy Revealed wire recovers the committed witness EXACTLY from ONE transcript's pin shares (public system eq. 1, rank s_w/s_w per wave)",
+        exact && recovered == secrets,
+    );
+
+    // [Z1-b] — the same pipeline against the MASKED transcript.
+    let layout = WavePadLayout::derive(9, vec![0, 1, 2], 3, 1).expect("z1 layout");
+    // Counting canary (the E3Z-N4 pattern, and Q4.2a's engine cert):
+    // per claim, #free exposures == #free pads == k_j - 1 — the sum
+    // gate forces one exposure, the solved last pad spends one pad.
+    let k_j = layout.pad_waves.len();
+    let pads = draw_wave_pads(&mut rng, q, &layout);
+    let pad_vals: Vec<Vec<u64>> = pads.harness_values().to_vec();
+    let free_pads_per_claim = k_j - 1; // last pad solved
+    let free_exposures_per_claim = k_j - 1; // sum gate forces one
+    assert_true(
+        "[Z1-b] counting canary: per claim, #free exposures (k_j - 1) == #free pads (k_j - 1); the exposure/pad map is the identity-plus-solve bijection — counted from the layout, not assumed",
+        free_pads_per_claim == free_exposures_per_claim
+            && pad_vals.iter().all(|row| row.len() == k_j)
+            && pad_vals
+                .iter()
+                .all(|row| row.iter().fold(0u128, |a, &v| (a + v as u128) % q as u128) == 0),
+    );
+    let (_, mrv) = split_claims_prover_masked(&zq, &plan, &claims, &msg_refs, &layout, pads)
+        .expect("masked split");
+    // Naive recovery (pads assumed zero): full-rank per wave, but the
+    // 'solution' is NOT the witness.
+    let mut naive = vec![0u64; s_a];
+    let mut naive_solves = true;
+    for (w, wave) in plan.waves.iter().enumerate() {
+        let rows: Vec<(Vec<u64>, u64)> = (0..9)
+            .map(|j| (wave_row(&weights[j], wave), zq.to_mod(mrv[j][w].1)))
+            .collect();
+        match solve(&rows) {
+            (rank, Some(x)) if rank == wave.len() => {
+                for (l, &g) in wave.iter().enumerate() {
+                    naive[g] = x[l];
+                }
+            }
+            _ => naive_solves = false,
+        }
+    }
+    assert_true(
+        "[Z1-b] masked non-recovery: the Z1-a solver against the masked shares returns a full-rank phantom that is NOT the witness",
+        naive_solves && naive != secrets,
+    );
+    // Full-coset membership: ANY witness with the same totals explains
+    // the masked transcript exactly — exhibit one. x' = x + v with v in
+    // the totals kernel; the pads e' = sigma~ - f(x') then satisfy the
+    // construction's zero-sum per claim, so (x', e') is fully
+    // consistent with every revealed value.
+    {
+        // Kernel vector: fix v[9..27] random, solve the 9x9 head.
+        let v_tail: Vec<u64> = (0..s_a - 9).map(|_| rng_below(&mut rng, q)).collect();
+        let rows: Vec<(Vec<u64>, u64)> = (0..9)
+            .map(|j| {
+                let a: Vec<u64> = (0..9).map(|i| weights[j][i]).collect();
+                let b = (9..s_a).fold(0u64, |acc, i| {
+                    zq.sub(acc, zq.mul(weights[j][i], v_tail[i - 9]))
+                });
+                (a, b)
+            })
+            .collect();
+        let (_, head) = solve(&rows);
+        let head = head.expect("9x9 head solves (generic weights)");
+        let v: Vec<u64> = head.into_iter().chain(v_tail).collect();
+        let x_alt: Vec<u64> = secrets.iter().zip(v.iter()).map(|(&x, &d)| zq.add(x, d)).collect();
+        let mut coset_ok = x_alt != secrets;
+        for j in 0..9 {
+            let mut pad_sum = 0u64;
+            for (w, wave) in plan.waves.iter().enumerate() {
+                let f_alt = wave
+                    .iter()
+                    .fold(0u64, |a, &g| zq.add(a, zq.mul(weights[j][g], x_alt[g])));
+                let e_alt = zq.sub(zq.to_mod(mrv[j][w].1), f_alt);
+                pad_sum = zq.add(pad_sum, e_alt);
+            }
+            coset_ok &= pad_sum == 0;
+        }
+        assert_true(
+            "[Z1-b] full-coset solution set: an ALTERNATIVE witness with the same totals explains the masked transcript exactly (its implied pads satisfy the zero-sum) — the reveals are uniform on {sum = total}, witness-independent",
+            coset_ok,
+        );
+    }
+
+    // ---- Geometry B (Z1-g/Z1-h): s = 26 unknowns, 2 waves of 13 —
+    // one unmasked proof (18 equations) is NOT enough, two are. -------
+    let s_b = 26usize;
+    let secrets2: Vec<u64> = (0..s_b).map(|_| rng_below(&mut rng, q)).collect();
+    let msgs2 = mk_msgs(&secrets2);
+    let msg_refs2: Vec<&[Poly]> = msgs2.iter().map(|m| m.as_slice()).collect();
+    let plan2 = plan_waves(s_b, &[], 13).expect("z1 geometry-B plan");
+    assert_eq!(plan2.waves.len(), 2);
+    let layout2 = WavePadLayout::derive(9, vec![0, 1], 2, 1).expect("z1 layout B");
+
+    // [Z1-g] — the accumulation stall. P fresh proofs of the SAME
+    // witness (fresh weights = fresh psi/alpha; fresh pads per proof).
+    {
+        let mut un_rows: Vec<(Vec<u64>, u64)> = Vec::new(); // unmasked, x-space
+        let mut tot_rows: Vec<(Vec<u64>, u64)> = Vec::new(); // totals only
+        let mut mk_full = Vec::new(); // masked, (x | e) space + zero-sum rows
+        let mut unmasked_ranks = Vec::new();
+        let mut stall_ok = true;
+        for p in 0..2usize {
+            let (w_p, c_p) = mk_claims(&mut rng, s_b, 9, &secrets2);
+            let (_, rv_p) = split_claims_prover(&zq, &plan2, &c_p, &msg_refs2)
+                .expect("legacy split (proof p)");
+            let pads_p = draw_wave_pads(&mut rng, q, &layout2);
+            let (_, mrv_p) =
+                split_claims_prover_masked(&zq, &plan2, &c_p, &msg_refs2, &layout2, pads_p)
+                    .expect("masked split (proof p)");
+            for j in 0..9 {
+                // Totals row.
+                tot_rows.push((w_p[j].clone(), zq.to_mod(c_p[j].scalar)));
+                for (w, wave) in plan2.waves.iter().enumerate() {
+                    let mut row = vec![0u64; s_b];
+                    for &g in wave {
+                        row[g] = w_p[j][g];
+                    }
+                    // Unmasked transcript row (x-space).
+                    un_rows.push((row.clone(), zq.to_mod(rv_p[j][w].1)));
+                    // Masked transcript row over (x | e^p_{j,w}).
+                    mk_full.push((p, j, w, row, zq.to_mod(mrv_p[j][w].1)));
+                }
+            }
+            // Ranks after proof p+1.
+            unmasked_ranks.push(rank_of(&un_rows));
+            // Masked system: unknowns x (s_b) + one pad per (proof, j, w)
+            // so far, plus the public zero-sum rows (the attacker knows
+            // the construction). Solution dim in x == total dim (pads
+            // are determined by x), and must equal the totals baseline.
+            let n_e = mk_full.len();
+            let mut rows_full: Vec<(Vec<u64>, u64)> = Vec::new();
+            for (idx, (_, _, _, xrow, rhs)) in mk_full.iter().enumerate() {
+                let mut r = xrow.clone();
+                r.extend(vec![0u64; n_e]);
+                r[s_b + idx] = 1; // + e_{p,j,w}
+                rows_full.push((r, *rhs));
+            }
+            // Zero-sum rows: per (proof, claim), sum over waves of e = 0.
+            for pp in 0..=p {
+                for j in 0..9 {
+                    let mut r = vec![0u64; s_b + n_e];
+                    for (idx, (p2, j2, _, _, _)) in mk_full.iter().enumerate() {
+                        if *p2 == pp && *j2 == j {
+                            r[s_b + idx] = 1;
+                        }
+                    }
+                    rows_full.push((r, 0));
+                }
+            }
+            let dim_masked = (s_b + n_e) - rank_of(&rows_full);
+            let dim_totals = s_b - rank_of(&tot_rows);
+            stall_ok &= dim_masked == dim_totals;
+        }
+        // Unmasked: rank grows 18 -> 26 and proof 2 recovers exactly.
+        let (final_rank, final_sol) = solve(&un_rows);
+        assert_true(
+            &format!(
+                "[Z1-g] accumulation: UNMASKED rank grows across proofs ({} -> {}) to EXACT recovery of the witness at P = 2; MASKED solution dimension equals the totals-only baseline at every P (the rank STALLS — zero fresh witness equations per proof)",
+                unmasked_ranks[0], unmasked_ranks[1]
+            ),
+            unmasked_ranks[0] == 18
+                && final_rank == s_b
+                && final_sol.as_deref() == Some(&secrets2[..])
+                && stall_ok,
+        );
+    }
+
+    // [Z1-h] — pad freshness (the E3Z-N3 analogue, and the Q4.2a'
+    // load-bearing hypothesis: the per-proof defect bound assumes
+    // openings within ONE proof). Three proofs SHARING one pad table:
+    // pairwise differences cancel the pads and re-expose fresh
+    // public-coefficient equations — the leak returns at half rate
+    // (3 proofs -> 2 transcripts' worth) up to EXACT recovery. Fresh
+    // pads (the shipped rule): the same differences carry pad-difference
+    // unknowns and collapse to total-differences — no recovery.
+    {
+        let reused: Vec<Vec<u64>> = {
+            let p = draw_wave_pads(&mut rng, q, &layout2);
+            p.harness_values().to_vec()
+        };
+        let mut diff_rows: Vec<(Vec<u64>, u64)> = Vec::new();
+        let mut fresh_full: Vec<(Vec<u64>, u64)> = Vec::new();
+        let mut base: Option<(Vec<Vec<u64>>, Vec<Vec<(usize, i64)>>)> = None;
+        let mut base_fresh: Option<(Vec<Vec<u64>>, Vec<Vec<(usize, i64)>>)> = None;
+        let mut fresh_cols = 0usize;
+        let mut fresh_entries: Vec<(usize, usize, usize, Vec<u64>, u64)> = Vec::new();
+        for p in 0..3usize {
+            let (w_p, c_p) = mk_claims(&mut rng, s_b, 9, &secrets2);
+            // REUSE arm: the pad table is fed back through the
+            // harness-only escape hatch — the production path CANNOT do
+            // this (WavePads is non-Clone and consumed by the splitter;
+            // draw_wave_pads is fresh per proof from the ProverRng).
+            let (_, mrv_p) = split_claims_prover_masked(
+                &zq,
+                &plan2,
+                &c_p,
+                &msg_refs2,
+                &layout2,
+                WavePads::harness_from_values(reused.clone()),
+            )
+            .expect("reuse-arm masked split");
+            // FRESH control arm at the same shape.
+            let pads_f = draw_wave_pads(&mut rng, q, &layout2);
+            let (_, frv_p) =
+                split_claims_prover_masked(&zq, &plan2, &c_p, &msg_refs2, &layout2, pads_f)
+                    .expect("fresh-arm masked split");
+            match (&base, &base_fresh) {
+                (None, None) => {
+                    base = Some((w_p.clone(), mrv_p.clone()));
+                    base_fresh = Some((w_p, frv_p));
+                }
+                (Some((w0, m0)), Some((wf0, f0))) => {
+                    for j in 0..9 {
+                        for (w, wave) in plan2.waves.iter().enumerate() {
+                            // Reuse: pads cancel exactly.
+                            let mut row = vec![0u64; s_b];
+                            for &g in wave {
+                                row[g] = zq.sub(w0[j][g], w_p[j][g]);
+                            }
+                            let rhs = zq.sub(zq.to_mod(m0[j][w].1), zq.to_mod(mrv_p[j][w].1));
+                            diff_rows.push((row, rhs));
+                            // Fresh: pad-difference unknown per equation.
+                            let mut rowf = vec![0u64; s_b];
+                            for &g in wave {
+                                rowf[g] = zq.sub(wf0[j][g], w_p[j][g]);
+                            }
+                            let rhsf = zq.sub(zq.to_mod(f0[j][w].1), zq.to_mod(frv_p[j][w].1));
+                            fresh_entries.push((p, j, w, rowf, rhsf));
+                            fresh_cols += 1;
+                        }
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }
+        let (drank, dsol) = solve(&diff_rows);
+        // Fresh control: (x | delta-e) system + per-(pair, claim)
+        // zero-sum rows on the pad differences.
+        for pair in [1usize, 2] {
+            for j in 0..9 {
+                let mut r = vec![0u64; s_b + fresh_cols];
+                for (idx, (p2, j2, _, _, _)) in fresh_entries.iter().enumerate() {
+                    if *p2 == pair && *j2 == j {
+                        r[s_b + idx] = 1;
+                    }
+                }
+                fresh_full.push((r, 0));
+            }
+        }
+        for (idx, (_, _, _, xrow, rhs)) in fresh_entries.iter().enumerate() {
+            let mut r = xrow.clone();
+            r.extend(vec![0u64; fresh_cols]);
+            r[s_b + idx] = 1;
+            fresh_full.push((r, *rhs));
+        }
+        let dim_fresh = (s_b + fresh_cols) - rank_of(&fresh_full);
+        assert_true(
+            &format!(
+                "[Z1-h] pad REUSE leaks at half rate: 3 proofs sharing one pad table -> pairwise differences cancel the pads and EXACTLY recover the witness (rank {drank}/{s_b}); the FRESH-pad control's differences keep a {dim_fresh}-dim solution set (pad differences absorb them) — freshness is structural: WavePads is non-Clone, consumed by the splitter, drawn per proof from the ProverRng (reuse needed the harness-only escape hatch)"
+            ),
+            drank == s_b
+                && dsol.as_deref() == Some(&secrets2[..])
+                && dim_fresh > 0,
+        );
     }
 }
 

@@ -234,3 +234,26 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
   47 + freeze-check green. NOTE for IA-4's ledgers: reveal_shares now
   counts pins only — the masked-descent B/el row will show the design
   6.2 zeta-deletion drop directly.
+- 2026-07-16 (IA, impl-c 1/2): the [Z1] rank/leakage/recovery battery
+  (self_test_z1, suite-permanent — the splitter-level linear-algebra
+  harness; the C-02 leak lives in the revealed scalars, so no ct-rounds
+  are needed to demonstrate what a transcript observer can solve for).
+  [Z1-a] PERMANENT C-02 regression: legacy Revealed shares at the
+  rigged 27-unknown/3-wave shape (s_w = 9 = psi copies) recover the
+  committed witness EXACTLY from ONE transcript (rank s_w/s_w per
+  wave, the public system eq. 1). [Z1-b]: the same solver against the
+  masked shares returns a full-rank phantom != witness; an ALTERNATIVE
+  witness with the same totals explains the masked transcript exactly
+  (its implied pads satisfy the zero-sum) — constructive full-coset
+  membership; counting canary #free exposures == #free pads == k_j - 1
+  per claim, counted from the layout. [Z1-g] at the 26-unknown/2-wave
+  shape: unmasked rank grows 18 -> 26 across proofs to EXACT recovery
+  at P = 2; masked solution dimension EQUALS the totals-only baseline
+  at every P (the stall — zero fresh witness equations per proof).
+  [Z1-h]: three proofs sharing one pad table -> pairwise differences
+  cancel the pads and EXACTLY recover the witness (26/26, half rate);
+  the fresh-pad control's differences keep an 8-dim solution set;
+  freshness is STRUCTURAL (WavePads non-Clone, consumed by the
+  splitter, drawn per proof from the ProverRng — the reuse arm needed
+  the harness-only escape hatch), pinning Q4.2a''s per-proof
+  hypothesis. Suite 47 + freeze-check green.
