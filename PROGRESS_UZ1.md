@@ -77,7 +77,7 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
       this ledger's Log as "P1 GO" or "P1 NO-GO + reason" — IA's impl-b
       gate reads it. If NO-GO: also price/record what option 1 must
       prove instead.
-- [ ] P2 (PA): Q4.10 — the pad-coset lemma (design Section 3.1,
+- [x] P2 (PA): Q4.10 — the pad-coset lemma (design Section 3.1,
       bijective one-time pad on {Σ = T}; exact, witness-independent,
       independent across claims) + the extraction note (design Section 4
       item 3: σ_w := σ̃_w − e_w reduces to the unmasked split-claim
@@ -108,3 +108,13 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
   marginal alone would not factor the joint law, since all centers
   share rho). IA's impl-b gate is OPEN: shared-pad-commitment
   pattern approved, no fallback needed.
+- 2026-07-15 (PA): P2 done — Q4.10 (pad-coset lemma: solved last pad
+  uniform on H = {sum e = 0}; e |-> sigma + e bijects H onto
+  {sum x = T_j}; masked shares EXACTLY uniform on the coset,
+  witness-independent, independent across claims; k_j = 1 takes no
+  pad) and Q4.10-X (binding fixes pads across rounds;
+  sigma*_w := sigma~_w - e*_w reduces to the unmasked split-claim
+  extraction; eq. (4) load-bearing) transcribed into Q4_LEMMAS.md
+  with summary rows. Both PROVEN on paper; certs PLANNED: Q4.10 —
+  [Z1-b]/[Z1-g]/[Z1-h]/[Z1-i]; Q4.10-X — [Z1-d] both
+  directions/[Z1-e]/[Z1-c]. No design-doc repairs needed for P2.

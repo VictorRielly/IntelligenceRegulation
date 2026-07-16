@@ -1264,6 +1264,134 @@ update).
 
 ---
 
+## Q4.10 — The pad-coset lemma (wave shares exactly uniform on the
+sum coset), with the extraction note Q4.10-X
+
+Covers: WAVE_SHARE_MASKING_DESIGN.md Section 3.1 (the load-bearing
+new simulator step S4 of the multi-wave HVZK argument) and Section 4
+item 3 (extraction / soundness non-interference of the pads);
+(forward) the `Padded` policy of `split_claims_prover/verifier` and
+the pad sampling of Z1-impl-a, and the [Z1] battery legs named in the
+Status lines. Transcribed by tranche U-Z1 (PA lane, 2026-07-15).
+
+**Setting.** Base-field Z_q scalars (q = 2^31 - 399), NOT the lattice
+ring: a split linear claim j is routed through the splitter across
+the k_j >= 1 waves it touches, with TRUE per-wave shares
+sigma = (sigma_1, ..., sigma_{k_j}) in Z_q^{k_j} — fixed given the
+witness and the challenges — and public total
+sum_w sigma_w = T_j (mod q). The pads: e_w drawn UNIFORM in Z_q for
+the first k_j - 1 touched waves, and the last SOLVED,
+e_{k_j} := -sum_{w<k_j} e_w (mod q) — the M4 solved-pad pattern; a
+uniform masked share always has a centered representative, so there
+are NO degenerate draws and NO restart guards. The masked reveals are
+sigma~_w := sigma_w + e_w (mod q); the sum gate is unchanged
+(sum_w sigma~_w = T_j).
+
+**Lemma Q4.10a (solved last pad => exactly uniform on the
+subgroup).** H := {e in Z_q^{k_j} : sum_w e_w = 0} is a subgroup of
+Z_q^{k_j} of order q^{k_j - 1}, and the construction map
+Z_q^{k_j - 1} -> H, (e_1, ..., e_{k_j-1}) |-> (e_1, ..., e_{k_j-1},
+-sum e_w), is a bijection (its inverse is projection onto the first
+k_j - 1 coordinates). A uniform input vector therefore lands e
+EXACTLY uniform on H. **PROVEN** (finite group theory; exact, no
+defect).
+
+**Lemma Q4.10b (bijection onto the coset; exact witness
+independence).** The sum map sum: Z_q^{k_j} -> Z_q is a surjective
+group homomorphism with kernel H, so its level sets are precisely the
+cosets of H; in particular {x : sum x = T_j} = sigma + H for ANY
+sigma with sum sigma = T_j. For fixed sigma, the translation
+e |-> sigma + e is a bijection H -> sigma + H. Hence sigma~ =
+sigma + e is EXACTLY uniform on the coset {x : sum_w x_w = T_j} — a
+distribution determined by the PUBLIC total T_j alone, independent of
+sigma and hence of the witness. This is a finite one-time-pad
+statement: the degenerate EXACT case of the Libra Thm 4.1 counting
+[XZZPS19] — free exposures per claim = k_j - 1 (the sum is forced),
+free pad degrees of freedom = k_j - 1, and the exposure/pad map is a
+BIJECTION, not merely full-rank; nothing is generic, nothing is
+computational. **PROVEN** (exact, information-theoretic).
+
+**Lemma Q4.10c (independence across claims; the simulator step is
+exact).** Pads are drawn independently per claim j (and fresh per
+proof — battery Z1-h; reuse subtracts out, sigma~ - sigma~' =
+sigma - sigma', and re-exposes share differences at half rate), so
+the masked share vectors (sigma~_{j,.})_j are JOINTLY independent,
+each uniform on its own public coset. The witness-free simulator
+step S4 — sample k_j - 1 coordinates uniform, solve the last from
+T_j — samples from EXACTLY this distribution: the real world's solved
+PAD and the simulator's solved EXPOSURE are determined by the same
+public relation, so the real and simulated varieties coincide (the
+Q4.9 pattern, one level down and exact). Real and simulated share
+vectors are EQUAL in distribution — the design's H1 hybrid step has
+defect ZERO. **PROVEN.**
+
+**Degenerate case k_j = 1 (no free exposures, no pad).** H = {0}:
+zero free exposures — the single share IS the public total T_j — and
+zero pad degrees of freedom; the coset is the singleton {T_j} and
+leaks nothing, trivially. The splitter must NOT spend a pad here (the
+solved-pad rule would force e = 0 anyway; a drawn pad would be pure
+cost with no hiding effect) — the engine-side rule "a claim touching
+ONE wave takes no pad" is the Z1-i edge leg.
+
+*Consequence (the C-02 closure statement, design Section 3.1's
+corollary).* Given the totals, the masked share transcript carries
+ZERO information beyond them: the multi-wave transcript's
+distribution is a function of exactly the objects the monolithic
+single-round transcript exposes (commitments, descent transcripts,
+totals), so splitting a layer into waves adds NO leakage under this
+construction; what remains is what the monolith already leaked, which
+the U-K5 machinery already simulates.
+
+Status (Q4.10a-c): **PROVEN** (paper; exact and elementary
+throughout — the hiding statement is information-theoretic, "equal in
+distribution, not merely computationally close"). Engine-scale
+certificates OWED — PLANNED, tranche U-Z1 in flight; promotion leg by
+leg per the Q4.7-Q4.9 precedent: **[Z1-b]** masked non-recovery plus
+the counting canary (#free exposures = #free pads = k_j - 1 and the
+identity-plus-solve bijection COUNTED at derive time, not assumed;
+the solver's consistent solution set must be the full coset);
+**[Z1-g]** the accumulation stall across P proofs (the quantitative
+form of the closure corollary); **[Z1-h]** pad freshness (the
+one-time hypothesis of Q4.10c is load-bearing — reuse demonstrated to
+leak, engine refuses); **[Z1-i]** the k_j = 1 no-pad edge and layout
+determinism.
+
+**Q4.10-X (extraction note — the pads do not disturb knowledge
+extraction).** Transcribing design Section 4 item 3. The knowledge
+extractor runs the EXISTING per-round ct-round extractor
+(SOUNDNESS_REFERENCE 3.3) on each wave round and on the closing
+round; no new extraction machinery is introduced — the pad is one
+more committed message coefficient. (2.2) relaxed binding fixes ONE
+message vector per pad commitment across ALL ~114 rounds that open it
+(two distinct extracted messages for the same commitment yield an
+MSIS break; binding is round-independent, so the multi-round pattern
+is soundness-benign — the ZK side of that pattern is Q4.2a'). The
+wave rounds extract, per (j, w), the amended share relation
+functional_w(msg*) + e*_{j,w} = sigma~_{j,w} (design eq. 3); the
+closing round extracts sum_w e*_{j,w} = 0 (design eq. 4); the sum
+gate forces sum_w sigma~_{j,w} = T_j. Setting
+sigma*_w := sigma~_{j,w} - e*_{j,w} and adding (3) over w minus (4):
+sum_w functional_w(msg*) = T_j — EXACTLY the unmasked split-claim
+extraction guarantee (PROGRESS_UR.md S0's load-bearing leg: a
+compensated lie rejects at its wave), with the pads cancelling
+ALGEBRAICALLY, not statistically. Zero soundness surcharge. The one
+new forgery lever — commit pads with sum e = delta != 0, reveal
+sigma~ honestly, shift any pin total by delta — is closed by the
+closing round ALONE, so eq. (4) is load-bearing: drop it and the
+attack ACCEPTS; wire it and the same crafting REJECTS at exactly the
+closing round. ROM/forking losses for collecting the transcript pairs
+are the standing [MODEL] convention, inherited. Status: **PROVEN**
+(paper; an elementary composition of the [PROVEN] Section 3.3
+extractor with (2.2) binding — the design's own [SKETCH] grade was
+pending exactly this transcription). Engine-scale certificates OWED —
+PLANNED: **[Z1-d]** the zero-sum load-bearing pair, BOTH directions
+(the F5 discipline); **[Z1-e]** the compensated-lie and tamper
+re-runs under masking; **[Z1-c]** the pad-commitment-binding F5 pair
+(the h0_link swap attack — the hash-edge rows live in
+SOUNDNESS_REFERENCE Section 7).
+
+---
+
 ## 8. Status summary
 
 | lemma | subject | status |
@@ -1290,6 +1418,8 @@ update).
 | Q4.7 | E3-Z lookup round masks: adapted Libra counting, exposures uniform on the check variety | PROVEN at engine scale (E3Z-N4 rank canaries green, U-K5d 2026-07-10) |
 | Q4.8 | E3-Z boundary/blinder pads: interior rank 6/6 (a), leaf rank 4/4 + fresh-pad ledger (b) | PROVEN at engine scale (E3Z-N4 canaries green, U-K5d 2026-07-10) |
 | Q4.9 | E3-Z top: layer-1 quadruples uniform on the cross-check variety | PROVEN at engine scale (E3Z-N2 pair + canaries green, U-K5c/d 2026-07-10) |
+| Q4.10 | U-Z1 pad-coset lemma: masked wave shares EXACTLY uniform on {sum = T_j}, witness-independent, independent across claims; solved last pad; k_j = 1 takes no pad | PROVEN on paper (exact one-time pad, information-theoretic) — engine certs PLANNED: [Z1-b] counting canary, [Z1-g] stall, [Z1-h] freshness, [Z1-i] edge |
+| Q4.10-X | U-Z1 extraction note: binding fixes pads across rounds; sigma*_w := sigma~_w - e*_w reduces to the unmasked split-claim extraction; eq. (4) load-bearing | PROVEN on paper (3.3 extractor + (2.2) binding compose; pads cancel algebraically) — engine certs PLANNED: [Z1-d] both directions, [Z1-e], [Z1-c] |
 
 The honest reading across the set, after U-P and the U-K5e
 transcription:
@@ -1321,4 +1451,15 @@ transcription:
   label is LIFTED at the subprotocol level — honest-verifier ZK,
   proof-of-protocol; the FFN integration (U-K8) and chain-wide
   composition remain open obligations tracked in M4_LOOKUP_DESIGN.md.
+- **Q4.2a'/Q4.10/Q4.10-X are the U-Z1 transcription (PA lane,
+  2026-07-15)** of WAVE_SHARE_MASKING_DESIGN.md Sections 3.4, 3.1 and
+  4 item 3 — the wave-share masking construction's composition
+  obligation (discharged: P1 GO, PROGRESS_UZ1.md), its load-bearing
+  exact coset lemma, and its extraction reduction. All three are
+  PROVEN on paper; every named [Z1] certificate is PLANNED (tranche
+  in flight, Z1-impl-c), and each grade promotes to
+  PROVEN-at-engine-scale leg by leg when the battery lands, exactly
+  as Q4.7-Q4.9 did under U-K5c/d. One transcription repair is
+  recorded inside Q4.2a' (marginal -> pointwise center-independence);
+  the design docs were not silently patched.
 - Everything else (Q4.1/Q4.2/Q4.5) is unchanged from its prior grade.
