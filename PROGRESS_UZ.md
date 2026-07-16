@@ -53,18 +53,50 @@ codex-audit-* read-only.
       witness rejects at both entry points. LKP-8 wall-2 row, LKP-9 ARP
       row and both freeze fn docs relabeled REPRODUCIBILITY pins, not a
       ZK claim.
-- [ ] Z4 (ZA, audit C-04/H-01): verification pass on the P3 artifact
-      against C-04's four complaints: (a) serialized verify runs masked
-      descents WITH the mask-pin checks (pin = true) — if not, fix; (b)
-      port the E3Z-N1 false-lookup attack to the serialized byte API and
-      require REJECT; (c) statement/commitments arrive separately from
-      proof bytes (verify, document); (d) canonical <q coordinate checks +
-      total resource budget (verify, tighten if gaps). Plus H-01: put
-      harness_clone + from_test_seed behind #[cfg(any(test,
-      feature = "harness"))] (batteries/self-test keep working — they are
-      the harness); make ProverRng fork-safe (no fork-duplicable userspace
-      buffer: unbuffered read or reseed-on-fork); session_nonce claim
-      downgraded to bookkeeping OR bound publicly — pick one, record why.
+- [x] Z4 (ZA, audit C-04/H-01): verification pass on the P3 artifact.
+      (a) pin=false is CORRECT-by-design, not a gap: the verifier holds
+      only zero-mask SHELLS (pin=true would demand g_sum==0 and reject
+      honest proofs); the mask-pin boundary is enforced downstream by the
+      ct-round — p3_descent_pins makes g_sum/open_g/open_r PinnedValues
+      over the COMMITTED masks and verify_ct_round binds them to t1s/t2s.
+      Documented at the masked_gkr_verify call site. Satisfied by P3 as
+      built (84347ac) once verified; no code change needed for (a).
+      (b) E3Z-N1 PORTED to the serialized byte API: two legs in
+      self_test_p3 replay the attack's crafting moves on the honest
+      committed proof — the layer-1 root-ratio repair (p-value shift by
+      the derived-root delta) and the free g_sum-after-nu choice — and
+      require REJECT in-process AND in the fresh verify process. Both
+      reject (real-FS h0 recomputation + ct-round pinning close the
+      pin=false gap the isolated toy exposed).
+      (c) Statement/commitments arrive SEPARATELY from proof bytes:
+      verified — p3_verify_main decodes the statement from its own
+      file/arg, never from proof bytes; the statement independently binds
+      commitment identity (X/Y group digests + model_digest recomputed
+      from the proof's commitments and checked). Documented; commitment-
+      swap + model_digest tamper legs already require reject.
+      (d) Canonical <q + total budget: TIGHTENED — P3R now enforces
+      canonical `<q` on every decoded poly coefficient, p3_descent_canonical
+      checks every masked-descent K-limb, a single P3_MAX_TOTAL_SCALARS
+      budget spans all sections (charge()), and vec_norm_sq_i64 is now
+      SATURATING so a hostile response bundle can never wrap its l2^2 past
+      a norm bound. [Z4] canonical-reject legs added.
+      H-01: harness_clone + from_test_seed gated behind
+      #[cfg(any(test, feature="harness"))], default-on `harness` feature
+      in Cargo.toml; a library consumer with default-features=false gets
+      no reuse-path symbol (verified: --no-default-features strips them,
+      36 errors from the inline batteries). ProverRng is fork-safe:
+      Os inner records the filling PID and reopens /dev/urandom (dropping
+      the inherited buffer) on any post-fork draw; buffer shrunk to 64KiB.
+      session_nonce DOWNGRADED to internal diagnostic bookkeeping (it is
+      private prover state, never committed/absorbed, so no verifier can
+      read it to detect reuse — the real no-reuse property is structural:
+      masks moved by value, ProverRng non-Clone, OS stream fork-reseeded);
+      doc rewritten to drop the "auditable freshness handle" claim.
+      OPEN (recorded): a compilable production `--no-default-features`
+      BINARY needs the ~46 inline battery call sites + self-test dispatch
+      gated too; deferred as a follow-up (the library boundary is closed
+      now; gating 50 sites risks the suite-green invariant this tranche
+      holds).
 - [x] Z5 (ZA, audit M-01): wave helpers verifier-safe — plan_waves/
       split_claim_shares/split_claims_prover/split_claims_verifier/
       quad_ring_wave/quad_ring_localized now return Result<_, WaveError>
@@ -106,6 +138,21 @@ codex-audit-* read-only.
   bounds checks on every plan/claim index, [Z5] regression battery legs;
   all callers (S0 battery, layer rig, U-R1b battery, LKP-9 freeze rows)
   ported; suite + freeze-check green.
+- 2026-07-15 (ZA): Z2 landed — ARP relabeled LEGACY/non-ZK across code +
+  usage() + bench/self-test output + LKP-8/9 freeze rows; demotion
+  argument recorded at ARP_REJ_T; runtime center-norm gate added to
+  arp_attempt/arp_attempt_joint with a [Z2] battery leg. Suite green.
+- 2026-07-15 (ZA): Z4 landed — verified P3's four C-04 complaints against
+  the current code: (a) pin=false is correct-by-design (ct-round pins the
+  mask openings; documented) — satisfied by P3 P1/P3 as built, no code
+  change; (c) statement/commitments are separate (documented). Fixed (b)
+  E3Z-N1 ported to the byte API (root-repair + free-g_sum legs, REJECT
+  in-process + fresh process) and (d) canonical <q + total-scalar budget
+  in the decoder + saturating vec_norm_sq_i64 + [Z4] canonical-reject
+  legs. H-01: harness_clone/from_test_seed cfg-gated behind default-on
+  `harness` feature (library boundary closed; binary --no-default-features
+  gating deferred), ProverRng fork-reseeds on PID change, session_nonce
+  downgraded to diagnostic bookkeeping. Suite + freeze-check green.
 - 2026-07-15: box shutdown killed all three agents mid-flight. State found
   on resume: ZA nothing started (main checkout clean at 7ee79ca); ZB
   partial Z3(a) uncommitted in worktree ab71648a (C-03 relabels in

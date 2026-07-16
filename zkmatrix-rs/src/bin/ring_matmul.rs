@@ -10584,6 +10584,19 @@ fn p3_lookup_verify(statement: &manifest::Statement, proof: &P3Proof) -> Result<
     let h0_lkp = ct_h0(&crs, &ctx, &proof.t1s, &proof.t2s, &[]);
     let mut tv = LkpTranscript::new("p3-lookup", &h0_lkp);
     let av = tv.challenge_k(&kf);
+    // pin = false is CORRECT here, not a gap (audit 2026-07-14 C-04.a/.3):
+    // the verifier does NOT hold the secret mask set (it passes zero-mask
+    // SHELLS purely for shape), so masked_gkr_verify cannot check g_sum /
+    // open_g / open_r against a locally-known MaskSet — pin = true would
+    // demand `g_sum == shell.hypersum() == 0` and reject every honest
+    // proof. The mask-pin boundary is instead enforced downstream by the
+    // ct-round: p3_descent_pins turns exactly these openings (g_sum,
+    // open_g, open_r) into PinnedValues whose weights read the COMMITTED
+    // mask coefficients (base_wm/base_tm), and verify_ct_round binds them
+    // to the commitments t1s/t2s. So the E3Z-N1 "choose G after nu" move
+    // that accepts under an isolated pin = false descent is caught here
+    // through the commitment pinning (self_test_p3 ports it to the byte
+    // API and requires REJECT).
     let shell_w = zero_masks(&kf, lay.dw, 0);
     let shell_t = zero_masks(&kf, lay.dt, 0);
     let (roots_w, ew) = masked_gkr_verify(&kf, 1, lay.dw, &shell_w, &proof.pw, &mut tv, false)
@@ -10699,16 +10712,35 @@ impl P3W {
     }
 }
 
+/// Total decoded-scalar budget across the WHOLE proof (audit 2026-07-14
+/// C-04: a total resource budget, not just independent per-vector caps).
+/// The honest P3 artifact at the suite's 2^20 cap is far below this; the
+/// budget bounds a hostile proof's total allocation/work in one place.
+const P3_MAX_TOTAL_SCALARS: usize = 1 << 30;
+
 struct P3R<'a> {
     b: &'a [u8],
     p: usize,
+    /// Field modulus for canonical `< q` coordinate checks (C-04).
+    q: u64,
+    /// Remaining scalar budget (poly coefficients + i64 responses), the
+    /// total-resource cap shared across every section.
+    budget: usize,
 }
 impl<'a> P3R<'a> {
-    fn new(b: &'a [u8]) -> Self {
-        P3R { b, p: 0 }
+    fn new(b: &'a [u8], q: u64) -> Self {
+        P3R { b, p: 0, q, budget: P3_MAX_TOTAL_SCALARS }
     }
     fn remaining(&self) -> usize {
         self.b.len() - self.p
+    }
+    /// Charge `n` scalars against the total budget (C-04).
+    fn charge(&mut self, n: usize) -> Result<(), P3Error> {
+        if n > self.budget {
+            return Err(P3Error::ProofDecode("total scalar budget exceeded"));
+        }
+        self.budget -= n;
+        Ok(())
     }
     fn take(&mut self, n: usize) -> Result<&'a [u8], P3Error> {
         if n > self.remaining() {
@@ -10737,9 +10769,17 @@ impl<'a> P3R<'a> {
         if n > P3_MAX_POLY_LEN || n * 4 > self.remaining() {
             return Err(P3Error::ProofDecode("poly too long"));
         }
+        self.charge(n)?;
         let mut out = Vec::with_capacity(n);
         for _ in 0..n {
-            out.push(self.u32()? as u64);
+            let c = self.u32()? as u64;
+            // Canonical coordinate check (C-04): a field coefficient MUST
+            // be a canonical `< q` representative — non-canonical encodings
+            // are rejected, not silently reduced.
+            if c >= self.q {
+                return Err(P3Error::ProofDecode("noncanonical field coordinate (>= q)"));
+            }
+            out.push(c);
         }
         Ok(out)
     }
@@ -10768,6 +10808,7 @@ impl<'a> P3R<'a> {
         if n * 8 > self.remaining() {
             return Err(P3Error::ProofDecode("i64 vec too long"));
         }
+        self.charge(n)?;
         (0..n).map(|_| self.i64()).collect()
     }
     fn i64v2(&mut self) -> Result<Vec<Vec<i64>>, P3Error> {
@@ -10820,10 +10861,45 @@ fn p3_encode_proof(pf: &P3Proof) -> Vec<u8> {
     w.buf
 }
 
+/// Every K-field limb of a masked descent must be a canonical `< q`
+/// coordinate (audit 2026-07-14 C-04). The [U-S1] dump/load did not check
+/// this; the P3 artifact does.
+fn p3_descent_canonical(p: &ring::gkr_masked::MaskedDescentProof, q: u64) -> Result<(), P3Error> {
+    let lim = |e: &ring::kfield::KElem| e.iter().all(|&c| c < q);
+    let bad = || P3Error::ProofDecode("noncanonical field coordinate in descent (>= q)");
+    for quad in &p.layer1 {
+        if !quad.iter().all(lim) {
+            return Err(bad());
+        }
+    }
+    for l in &p.layers {
+        if !lim(&l.g_sum) || !lim(&l.open_g) || !l.boundary.iter().all(lim) {
+            return Err(bad());
+        }
+        for r in &l.rounds {
+            if !r.iter().all(lim) {
+                return Err(bad());
+            }
+        }
+        if let Some((a, b)) = &l.open_r {
+            if !lim(a) || !lim(b) {
+                return Err(bad());
+            }
+        }
+    }
+    Ok(())
+}
+
 /// Decode a proof from untrusted bytes, bounded by the statement-implied
 /// shape. NEVER panics; returns a structured error on any malformation.
+/// Canonical `< q` field coordinates and a single total-scalar budget are
+/// enforced across every section (audit 2026-07-14 C-04); trailing bytes
+/// are rejected (`finish`). The statement is NOT parsed here — it arrives
+/// separately (see `p3_verify_main`), so proof bytes never choose the
+/// proposition.
 fn p3_decode_proof(bytes: &[u8]) -> Result<P3Proof, P3Error> {
-    let mut r = P3R::new(bytes);
+    let q = ring_ctx_q8().zq.q;
+    let mut r = P3R::new(bytes, q);
     if r.take(4)? != P3_PROOF_MAGIC {
         return Err(P3Error::ProofDecode("bad magic"));
     }
@@ -10832,7 +10908,8 @@ fn p3_decode_proof(bytes: &[u8]) -> Result<P3Proof, P3Error> {
     }
     let t1s = r.polys2()?;
     let t2s = r.polys2()?;
-    // The masked descents ride the [U-S1] dump/load (already bounds-checked).
+    // The masked descents ride the [U-S1] dump/load (already bounds-checked
+    // and never-panic). Canonical `< q` limbs are enforced below (C-04).
     let pw = {
         let mut rd = Us1Rd { b: &r.b[r.p..], p: 0 };
         let p = us1_load_proof(&mut rd).ok_or(P3Error::ProofDecode("witness descent"))?;
@@ -10845,6 +10922,8 @@ fn p3_decode_proof(bytes: &[u8]) -> Result<P3Proof, P3Error> {
         r.p += rd.p;
         p
     };
+    p3_descent_canonical(&pw, q)?;
+    p3_descent_canonical(&pt, q)?;
     let ct = ring::ct_engine::CtRoundProof {
         h: r.polys()?,
         w1: r.polys2()?,
@@ -10873,6 +10952,18 @@ fn p3_decode_proof(bytes: &[u8]) -> Result<P3Proof, P3Error> {
 /// (P3-D3). Reads ONLY the statement bytes, the proof bytes, and derives the
 /// public CRS itself; no prover-local state. Exit 0 = ACCEPT, 1 = REJECT,
 /// 2 = unreadable file. Prints the structured reason on rejection.
+///
+/// SEPARATION OF STATEMENT AND PROOF (audit 2026-07-14 C-04.c/.1): the
+/// PublicStatement arrives as its OWN argument/file and is decoded
+/// independently; the proposition and the transcript context
+/// (`statement.digest()`) are NEVER parsed from proof bytes. The proof
+/// carries the commitment openings, but the statement independently binds
+/// commitment IDENTITY: its X/Y group digests and model_digest are
+/// recomputed from the proof's commitments and must match
+/// (`p3_lookup_verify`), so a prover cannot swap the proposition or the
+/// committed tensors without moving the statement digest (hence h0, hence
+/// rejection). This is the concrete fix for the U-S1 defect where
+/// `us1_verify_bytes` parsed spec_dg + commits_dg from the proof itself.
 fn p3_verify_main(stmt_path: &str, proof_path: &str) {
     let sb = match std::fs::read(stmt_path) {
         Ok(b) => b,
@@ -11007,6 +11098,95 @@ fn self_test_p3() {
         assert_true(
             "P3 descent tamper REJECTS (bumped round polynomial -> masked descent rejects)",
             p3_lookup_verify(&st, &pf_bad).is_err(),
+        );
+    }
+
+    // E3Z-N1 ported to the serialized byte API (audit 2026-07-14 C-04.b):
+    // the toy E3Z-N1 battery shows that an isolated masked descent with
+    // pin = false ACCEPTS a false lookup when the prover shifts the
+    // layer-1 p-value to repair the derived-root ratio and absorbs the
+    // defect into a G ("g_sum") chosen after nu — and rejects only with
+    // pin = true. P3 verifies with pin = false, so THIS is the boundary
+    // the audit flags as load-bearing. Here we replay both crafting moves
+    // on the honest committed proof, serialize, and require the
+    // independent verifier (in-process AND fresh process) to REJECT: in
+    // P3 the mask-pin is enforced by the ct-round (g_sum / open_g /
+    // open_r are ct-round PinnedValues over the committed masks) and h0
+    // is recomputed from the statement + commitments, so neither the
+    // root-repair shift nor the free g_sum choice survives.
+    {
+        let kf = ring::kfield::KField::new(&ring_ctx_q8());
+        // Move 1: the layer-1 root repair — E3Z-N1 shifts the witness
+        // p-value along the q-direction (p10 -> p10 + delta*q10) so the
+        // derived-root RATIO can be steered (for a false witness, back onto
+        // the table's). The honest proof's ratios already agree, so any
+        // nonzero shift perturbs an honest transcript exactly as the attack
+        // perturbs a false one; delta = 1 (i.e. + q10, or + 1 if q10 = 0).
+        let mut pf_root = P3Proof {
+            t1s: pf.t1s.clone(),
+            t2s: pf.t2s.clone(),
+            pw: MaskedTamper::clone_proof(&kf, &pf.pw),
+            pt: MaskedTamper::clone_proof(&kf, &pf.pt),
+            ct: p3_decode_proof(&pbytes).unwrap().ct,
+        };
+        let [p10, _p11, q10, _q11] = pf_root.pw.layer1[0].clone();
+        let shift = if kf.is_zero(&q10) { kf.one() } else { q10 };
+        pf_root.pw.layer1[0][0] = kf.add(&p10, &shift);
+        let root_bytes = p3_encode_proof(&pf_root);
+        let rp = dir.join(format!("p3-e3zn1-root-{}.bin", std::process::id()));
+        std::fs::write(&rp, &root_bytes).unwrap();
+        assert_true(
+            "P3 E3Z-N1 port (root-ratio repair): the layer-1 p-value shift REJECTS in-process AND in the fresh process (real-FS h0 + ct-round pinning close the pin=false gap)",
+            p3_lookup_verify(&st, &p3_decode_proof(&root_bytes).unwrap()).is_err()
+                && run(&sp, &rp) == 1,
+        );
+        let _ = std::fs::remove_file(&rp);
+
+        // Move 2: the free G choice — E3Z-N1 picks g_sum AFTER nu to absorb
+        // the layer-1 defect. In P3 g_sum is a ct-round pin over the
+        // committed mask hypersum, so any free shift REJECTS.
+        let mut pf_gsum = P3Proof {
+            t1s: pf.t1s.clone(),
+            t2s: pf.t2s.clone(),
+            pw: MaskedTamper::clone_proof(&kf, &pf.pw),
+            pt: MaskedTamper::clone_proof(&kf, &pf.pt),
+            ct: p3_decode_proof(&pbytes).unwrap().ct,
+        };
+        pf_gsum.pw.layers[0].g_sum = kf.add(&pf_gsum.pw.layers[0].g_sum, &kf.one());
+        let gsum_bytes = p3_encode_proof(&pf_gsum);
+        let gp = dir.join(format!("p3-e3zn1-gsum-{}.bin", std::process::id()));
+        std::fs::write(&gp, &gsum_bytes).unwrap();
+        assert_true(
+            "P3 E3Z-N1 port (free g_sum after nu): the descent G shift REJECTS in-process AND in the fresh process (g_sum is a ct-round pin over the committed mask)",
+            p3_lookup_verify(&st, &p3_decode_proof(&gsum_bytes).unwrap()).is_err()
+                && run(&sp, &gp) == 1,
+        );
+        let _ = std::fs::remove_file(&gp);
+    }
+
+    // Canonical field-coordinate reject (audit 2026-07-14 C-04.d): a
+    // proof carrying a non-canonical `>= q` coefficient is REJECTED at
+    // decode, not silently reduced.
+    {
+        let q = ring_ctx_q8().zq.q;
+        let mut pf_nc = p3_decode_proof(&pbytes).unwrap();
+        if let Some(first) = pf_nc.ct.h.first_mut() {
+            first[0] = q; // exactly the modulus — the smallest non-canonical value
+        } else {
+            pf_nc.t1s[0][0][0] = q;
+        }
+        let nc_bytes = p3_encode_proof(&pf_nc);
+        assert_true(
+            "P3 canonical check: a proof with a `>= q` field coordinate REJECTS at decode (C-04 canonical <q enforcement)",
+            matches!(p3_decode_proof(&nc_bytes), Err(P3Error::ProofDecode(_))),
+        );
+        // A non-canonical limb inside a masked descent is caught too.
+        let mut pf_ncd = p3_decode_proof(&pbytes).unwrap();
+        pf_ncd.pw.layers[0].g_sum[0] = q;
+        let ncd_bytes = p3_encode_proof(&pf_ncd);
+        assert_true(
+            "P3 canonical check: a `>= q` limb in a masked descent REJECTS at decode",
+            matches!(p3_decode_proof(&ncd_bytes), Err(P3Error::ProofDecode(_))),
         );
     }
 

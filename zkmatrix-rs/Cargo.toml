@@ -3,6 +3,15 @@ name = "zkmatrix-rs"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+# Deterministic prover generators and deep mask-clone helpers (audit
+# 2026-07-14 H-01). Default-on so the in-binary adversarial batteries and
+# the reproducible P3 artifact compile; a production extraction builds
+# with `--no-default-features` to strip every deterministic/clone reuse
+# path from the object.
+default = ["harness"]
+harness = []
+
 [dependencies]
 blstrs = "0.7"
 ff = "0.13"

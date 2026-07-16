@@ -200,7 +200,11 @@ impl MaskSet {
     /// value and there is no `Clone`; this named method is the only way
     /// to obtain a second identical set, and every caller is a battery
     /// that MODELS reuse (the E3Z-N3 / [U-S1] leak demonstrations and the
-    /// rank-canary probes that perturb one coefficient and re-run).
+    /// rank-canary probes that perturb one coefficient and re-run). Gated
+    /// behind `cfg(test)` / the `harness` feature (audit 2026-07-14
+    /// H-01): a production `--no-default-features` build has no
+    /// mask-duplication symbol at all.
+    #[cfg(any(test, feature = "harness"))]
     pub fn harness_clone(&self) -> MaskSet {
         MaskSet {
             g: self

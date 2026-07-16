@@ -217,7 +217,14 @@ pub fn poly_mul_small(a: &[i64], b: &[i64]) -> Vec<i64> {
 // Norms over the centered coefficient embedding.
 
 pub fn vec_norm_sq_i64(v: &[i64]) -> u128 {
-    v.iter().map(|&x| (x as i128 * x as i128) as u128).sum()
+    // Saturating (audit 2026-07-14 C-04: total resource budget). A hostile
+    // proof can supply arbitrary i64 responses; a wrapping sum could fold a
+    // huge l2^2 back to a small value and slip past a norm bound. Saturating
+    // to u128::MAX makes an oversized bundle ALWAYS exceed any real bound.
+    v.iter().fold(0u128, |acc, &x| {
+        let sq = (x as i128 * x as i128) as u128;
+        acc.saturating_add(sq)
+    })
 }
 
 /// floor(sqrt(x)): per-coordinate contract bound implied by an l2^2 bound.
@@ -722,44 +729,57 @@ pub trait RngSource {
 /// from Fiat-Shamir transcripts: prover masks, commitment randomness and
 /// rejection-sampling coins must never be derived from public statement data.
 enum ProverRngInner {
-    /// Linux GPU deployments use the kernel CSPRNG directly. A large buffer
-    /// keeps sampling hot paths from issuing one syscall per field limb.
-    Os(BufReader<std::fs::File>),
+    /// Linux GPU deployments use the kernel CSPRNG directly. A modest
+    /// buffer keeps sampling hot paths from issuing one syscall per field
+    /// limb. FORK-SAFE (audit 2026-07-14 H-01): the PID that filled the
+    /// buffer is recorded; a draw from a different PID (i.e. after fork)
+    /// reopens `/dev/urandom` and discards the inherited userspace buffer
+    /// before returning any bytes, so parent and child never share a
+    /// buffered stream.
+    Os { reader: BufReader<std::fs::File>, pid: u32 },
     /// Deterministic SHA-256 counter stream for batteries only.
     Test(XofReader),
 }
 
 pub struct ProverRng {
     inner: ProverRngInner,
-    /// The EXPLICIT proof-session nonce (C-01 remediation, U-S P1-D1).
-    /// Drawn from OS entropy at the head of every `from_os` session, this
-    /// is the auditable freshness handle: every prover secret drawn from
-    /// this generator (masks, blinders, commitment randomness, ARP and
-    /// rejection coins) belongs to exactly one session tagged by this
-    /// nonce, so two proofs of the same statement never share secrets.
-    /// It is a PROVER-side freshness tag, not a Fiat-Shamir input — the
-    /// verifier recomputes every challenge from public data (D3) and never
-    /// reads this value.
+    /// Internal diagnostic session tag (audit 2026-07-14 H-01: downgraded
+    /// from a security claim to bookkeeping). Drawn from OS entropy at the
+    /// head of every `from_os` session, it labels a generator for logs and
+    /// for the freshness batteries that assert two independent sessions
+    /// differ. It is PRIVATE prover state: it is neither committed nor
+    /// absorbed into any transcript, so no verifier or session registry
+    /// can read it to detect reuse. It is therefore NOT an enforceable
+    /// freshness invariant — the real no-reuse property is structural
+    /// (masks are consumed by value; `ProverRng` is non-`Clone`; the OS
+    /// stream is fork-reseeded). Do not treat this handle as auditable
+    /// freshness.
     session_nonce: [u8; 32],
 }
 
 impl ProverRng {
     /// Seed a fresh prover session from the operating system CSPRNG. The
-    /// leading 32 bytes of the session stream are consumed as the explicit
-    /// session nonce (see [`ProverRng::session_nonce`]) BEFORE any secret is
-    /// drawn, so the nonce is bound ahead of every commitment/challenge edge
-    /// that depends on the session's entropy.
+    /// leading 32 bytes of the session stream are consumed as the diagnostic
+    /// session tag (see [`ProverRng::session_nonce`]) before any secret is
+    /// drawn.
     pub fn from_os() -> std::io::Result<Self> {
         let source = std::fs::File::open("/dev/urandom")?;
-        let mut reader = BufReader::with_capacity(1 << 20, source);
+        let mut reader = BufReader::with_capacity(1 << 16, source);
         let mut session_nonce = [0u8; 32];
         reader.read_exact(&mut session_nonce)?;
-        Ok(ProverRng { inner: ProverRngInner::Os(reader), session_nonce })
+        Ok(ProverRng {
+            inner: ProverRngInner::Os { reader, pid: std::process::id() },
+            session_nonce,
+        })
     }
 
     /// Deterministic CSPRNG for batteries only. The name and documentation
     /// are intentionally explicit so production call sites cannot mistake a
-    /// public transcript hash for prover entropy.
+    /// public transcript hash for prover entropy. Gated behind `cfg(test)`
+    /// or the `harness` feature (audit 2026-07-14 H-01): a production build
+    /// with `--no-default-features` cannot construct a deterministic prover
+    /// generator at all.
+    #[cfg(any(test, feature = "harness"))]
     pub fn from_test_seed(domain: &str, seed: &[u8]) -> Self {
         let mut hasher = Sha256::new();
         hasher.update(b"zkmatrix-test-prover-rng-v1");
@@ -780,9 +800,10 @@ impl ProverRng {
         }
     }
 
-    /// The explicit proof-session nonce for this generator. Two independent
-    /// `from_os` sessions return distinct nonces with overwhelming
-    /// probability; every secret drawn afterward is bound to this session.
+    /// The diagnostic session tag for this generator (see the field doc:
+    /// internal bookkeeping, not an enforceable freshness invariant). Two
+    /// independent `from_os` sessions return distinct tags with
+    /// overwhelming probability.
     pub fn session_nonce(&self) -> [u8; 32] {
         self.session_nonce
     }
@@ -792,7 +813,19 @@ impl RngSource for ProverRng {
     #[inline(always)]
     fn next_u64(&mut self) -> u64 {
         match &mut self.inner {
-            ProverRngInner::Os(reader) => {
+            ProverRngInner::Os { reader, pid } => {
+                // Fork guard (H-01): if this process is not the one that
+                // filled the buffer, the inherited buffered bytes are
+                // shared with the other side of the fork. Reopen a fresh
+                // /dev/urandom handle (discarding the stale buffer) before
+                // returning anything.
+                let cur = std::process::id();
+                if cur != *pid {
+                    let source = std::fs::File::open("/dev/urandom")
+                        .expect("operating-system CSPRNG unavailable after fork");
+                    *reader = BufReader::with_capacity(1 << 16, source);
+                    *pid = cur;
+                }
                 let mut bytes = [0u8; 8];
                 reader
                     .read_exact(&mut bytes)
