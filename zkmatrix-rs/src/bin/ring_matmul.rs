@@ -15019,12 +15019,14 @@ enum LayerTamper {
     /// gate passes but each affected wave's ct-round REJECTS the false
     /// partial against its committed material (the load-bearing leg).
     CompensatedPin,
-    /// A lied ZETA partial: the zeta reveal gate (sum over waves == 0)
-    /// rejects.
-    PartialLieZeta,
-    /// A compensated zeta lie: gate passes, the affected waves' ct-rounds
-    /// reject.
-    CompensatedZeta,
+    /// U-Z1 impl-b (the zeta deletion, [Z1-f]): a junk-bearing witness —
+    /// one nonzero non-constant CRT coordinate injected into a Y chunk,
+    /// consumed CONSISTENTLY downstream (Z is the ring product of the
+    /// tampered Y, so the Hadamard quad stays TRUE; slot constants are
+    /// untouched, so the lookup and pins pass). The ONLY failing gate is
+    /// that wave's ForcedZero zeta claim — per-wave localization,
+    /// strictly stronger than the deleted layer-wide sum gate.
+    JunkY,
     /// U-R2: an out-of-range X — x_u = 300 smuggled into the dense
     /// committed column (consistently: multiplicities, trees and pins
     /// all read the smuggled value) — the range lookup's root
@@ -15052,8 +15054,6 @@ struct LayerVerdict {
     /// split_claims_verifier accepted the pin reveals (structure +
     /// centered bound + sum gate).
     sum_gate_ok: bool,
-    /// The zeta reveal gates (centered bound per share, per-row sum == 0).
-    zeta_gate_ok: bool,
     waves_ok: bool,
     first_bad_wave: Option<usize>,
     /// U-Z1 impl-b: the closing round's verdict — the nine exact
@@ -15071,7 +15071,6 @@ impl LayerVerdict {
             && self.lookup_ok
             && self.range_ok
             && self.sum_gate_ok
-            && self.zeta_gate_ok
             && self.waves_ok
             && self.closing_ok
     }
@@ -15195,7 +15194,6 @@ fn ffn_layer_run(
         lookup_ok: true,
         range_ok: true,
         sum_gate_ok: true,
-        zeta_gate_ok: true,
         waves_ok: true,
         first_bad_wave: None,
         closing_ok: true,
@@ -15383,17 +15381,59 @@ fn ffn_layer_run(
         }
         slot_pack(&ctx_ring, &lane)
     };
+    // U-Z1 impl-b: the Y chunk builder, with the [Z1-f] junk tamper —
+    // one nonzero junk (non-constant CRT) coordinate injected into
+    // chunk 0 and consumed CONSISTENTLY (Z below multiplies the
+    // tampered chunk, so the Hadamard quad stays true; slot constants
+    // are untouched, so lookup and pins pass — the ForcedZero zeta
+    // claim of that wave is the only gate that can see it).
+    let y_chunk = |u: usize| -> Poly {
+        let mut p = slot_chunk(&ys_all, u);
+        if tamper == LayerTamper::JunkY && u == 0 {
+            let mut split = crt_split(&ctx_ring, &p);
+            split[1] = zq.add(split[1], 1); // junk coordinate 1 of slot 0
+            crt_merge(&ctx_ring, &mut split);
+            p = split;
+        }
+        p
+    };
+    // The zeta-deletion pack canary (design 2.4's fragility flag,
+    // [Z1-f]): the per-wave ForcedZero zeta claims PROVE
+    // zeta-functional(junk) = 0, so honest packing must leave every
+    // junk coordinate zero — asserted at pack time, converting silent
+    // packer drift into a named failure instead of a loud completeness
+    // reject at the waves. (A malicious prover simply skips it — the
+    // JunkY battery leg models exactly that.)
+    let junk_canary = |p: &Poly, u: usize| {
+        let split = crt_split(&ctx_ring, p);
+        for (c, &v) in split.iter().enumerate() {
+            let is_value = c % sd == 0 && u * k_slots + c / sd < n_el;
+            assert!(
+                is_value || v == 0,
+                "zeta junk canary: nonzero junk coordinate at pack time (chunk {u}, coord {c})"
+            );
+        }
+    };
     for tensor in 0..3usize {
         for cm in 0..slot_cms {
             let mut polys: Vec<Poly> = Vec::with_capacity(msg_r);
             for s in 0..msg_r {
                 let u = cm * msg_r + s;
                 let p = match tensor {
-                    0 => slot_chunk(&ys_all, u),
-                    1 => slot_chunk(&up_all, u),
+                    0 => {
+                        let p = y_chunk(u);
+                        if !(tamper == LayerTamper::JunkY && u == 0) {
+                            junk_canary(&p, u);
+                        }
+                        p
+                    }
+                    1 => {
+                        let p = slot_chunk(&up_all, u);
+                        junk_canary(&p, u);
+                        p
+                    }
                     _ => {
-                        let mut z =
-                            poly_mul_g(&zq, &slot_chunk(&ys_all, u), &slot_chunk(&up_all, u));
+                        let mut z = poly_mul_g(&zq, &y_chunk(u), &slot_chunk(&up_all, u));
                         if tamper == LayerTamper::HadamardZ && u == 0 {
                             let mut split = crt_split(&ctx_ring, &z);
                             split[7 * sd] = zq.add(split[7 * sd], 1);
@@ -15955,6 +15995,13 @@ fn ffn_layer_run(
                     if !ok {
                         verdict.differential_ok = false;
                     }
+                    // [Z1-f] identity (2), executable: an honest
+                    // witness's TRUE zeta partials are identically
+                    // zero PER WAVE — the fact that lets the reveal
+                    // wire be deleted at all (design 2.4).
+                    if tamper == LayerTamper::None && expect.scalar != 0 {
+                        verdict.differential_ok = false;
+                    }
                 }
             }
         }
@@ -16106,24 +16153,11 @@ fn ffn_layer_run(
     let mut zs_up_p = ZetaStream::new(&ctx_ring, ls.lp, &coord_m, &h0_zeta_up);
     let mut zs_y_v = ZetaStream::new(&ctx_ring, ls.lp, &coord_m, &h0_zeta_y);
     let mut zs_up_v = ZetaStream::new(&ctx_ring, ls.lp, &coord_m, &h0_zeta_up);
-    // The zeta reveal wire: sent partial per (family row, share index) —
-    // tampers mutate the wire, never the prover's own claims.
-    let mut zeta_share_ctr = vec![0usize; 2 * l_zeta];
-    let zeta_tamper = |row_g: usize, share_idx: usize, v: i64| -> i64 {
-        match tamper {
-            LayerTamper::PartialLieZeta if row_g == 0 && share_idx == 0 => {
-                center128(v as i128 + 1)
-            }
-            LayerTamper::CompensatedZeta if row_g == 0 && share_idx == 0 => {
-                center128(v as i128 + 1)
-            }
-            LayerTamper::CompensatedZeta if row_g == 0 && share_idx == 1 => {
-                center128(v as i128 - 1)
-            }
-            _ => v,
-        }
-    };
-    let mut zeta_sums = vec![0i128; 2 * l_zeta];
+    // U-Z1 impl-b: the zeta reveal WIRE IS DELETED (design 2.4). Honest
+    // zeta shares are identically zero (identity 2 — the [Z1-f] canary
+    // asserts junk == 0 at pack time), so the per-wave claims carry the
+    // public scalar 0 (ForcedZero), nothing is sent, and the layer-wide
+    // zeta_sums gate is RETIRED — per-wave zero is strictly stronger.
     // GMaskCrossUse (the S1-deferred forgery): the prover cross-uses a
     // DONOR wave's g-mask commitments in the TARGET wave's round —
     // self-consistently (donor g's presented in the wave list, opened,
@@ -16222,28 +16256,18 @@ fn ffn_layer_run(
         // ================= PROVER =================
         let t_p = Instant::now();
         let mut claims_p: Vec<CtClaim> = std::mem::take(&mut pw_pins[w]);
-        let mut sent_zeta: Vec<i64> = Vec::with_capacity(2 * l_zeta);
-        for (fam, (zs, base)) in
-            [(&mut zs_y_p, ls.base_y), (&mut zs_up_p, ls.base_up)].into_iter().enumerate()
-        {
+        // The zeta deletion: per-wave ForcedZero claims — the prover
+        // computes NO partials (the ct_mul_centered walk over every
+        // Y/UP chunk is gone with the wire) and sends NOTHING.
+        for (zs, base) in [(&mut zs_y_p, ls.base_y), (&mut zs_up_p, ls.base_up)] {
             if c1 == c0 {
                 continue;
             }
             let shares = zs.wave_shares(c0, c1, &|u| {
                 (ls.plan.slot_of[base + u / msg_r].1, u % msg_r)
             });
-            for (row, coeffs) in shares.into_iter().enumerate() {
-                let mut acc: i128 = 0;
-                for (li, s, p) in &coeffs {
-                    acc += ct_mul_centered(&zq, p, &msgs[wave[*li]][*s]) as i128;
-                }
-                let part = center128(acc);
-                let row_g = fam * l_zeta + row;
-                let sent = zeta_tamper(row_g, zeta_share_ctr[row_g], part);
-                zeta_share_ctr[row_g] += 1;
-                sent_zeta.push(sent);
-                cost.reveal_shares += 1;
-                claims_p.push(CtClaim { msg_coeffs: coeffs, ajtai_coeffs: vec![], scalar: part });
+            for coeffs in shares {
+                claims_p.push(CtClaim { msg_coeffs: coeffs, ajtai_coeffs: vec![], scalar: 0 });
             }
         }
         assert_eq!(
@@ -16286,7 +16310,9 @@ fn ffn_layer_run(
         // ================= VERIFIER =================
         let t_v = Instant::now();
         let mut claims_v: Vec<CtClaim> = std::mem::take(&mut v_pins[w]);
-        let mut sent_iter = sent_zeta.iter();
+        // The verifier builds the SAME public zero claims — nothing was
+        // sent, nothing is gated here; the wave's ct-round proves
+        // zeta-functional(junk) = 0 directly against the commitments.
         for (zs, base) in [(&mut zs_y_v, ls.base_y), (&mut zs_up_v, ls.base_up)] {
             if c1 == c0 {
                 continue;
@@ -16295,23 +16321,7 @@ fn ffn_layer_run(
                 (ls.plan.slot_of[base + u / msg_r].1, u % msg_r)
             });
             for coeffs in shares {
-                let sent = *sent_iter.next().expect("zeta reveal wire underrun");
-                // The S0 verifier gates lifted to the streaming path:
-                // centered representative bound now, per-row sum at the
-                // end (the total is the public y = 0).
-                if sent.unsigned_abs() > q / 2 {
-                    verdict.zeta_gate_ok = false;
-                }
-                claims_v.push(CtClaim { msg_coeffs: coeffs, ajtai_coeffs: vec![], scalar: sent });
-            }
-        }
-        // Track per-row sums (claims_v pushed Y rows then UP rows).
-        {
-            let mut it = sent_zeta.iter();
-            if c1 > c0 {
-                for row_g in 0..2 * l_zeta {
-                    zeta_sums[row_g] += *it.next().unwrap() as i128;
-                }
+                claims_v.push(CtClaim { msg_coeffs: coeffs, ajtai_coeffs: vec![], scalar: 0 });
             }
         }
         let mut state_v: Vec<u8> = lkp_state_v.to_vec();
@@ -16329,15 +16339,9 @@ fn ffn_layer_run(
         }
         cost.verify_s += t_v.elapsed().as_secs_f64();
     }
-    // The zeta sum gate closes over the whole layer: every row's partials
-    // must sum to the public total (0 for the slot-constancy family).
-    let t_gate = Instant::now();
-    for &s in &zeta_sums {
-        if center128(s) != 0 {
-            verdict.zeta_gate_ok = false;
-        }
-    }
-    cost.verify_s += t_gate.elapsed().as_secs_f64();
+    // (The layer-wide zeta_sums gate that closed here is RETIRED with
+    // the wire: every wave's ct-round now proves its zeta claims equal
+    // the public constant 0 — per-wave localization, strictly stronger.)
 
     // ---- U-Z1 impl-b: the CLOSING ROUND — the nine exact zero-sum
     // claims sum_w e_{j,w} = 0 (design eq. 4) over the shared pad
@@ -16448,24 +16452,52 @@ fn self_test_ffn_layer() {
     let (vc, _) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::CompensatedPin, 0x5eed_0113, ChainEntropy::Test, true);
     assert_true(
         "U-R1b wave boundary: a COMPENSATED pin lie passes the sum gate but its wave's ct-round REJECTS the false partial (the load-bearing leg)",
-        vc.sum_gate_ok && !vc.waves_ok && vc.lookup_ok && vc.zeta_gate_ok,
+        vc.sum_gate_ok && !vc.waves_ok && vc.lookup_ok,
     );
-    // Wave boundary, zeta family (the streaming path's gates).
-    let (vz, _) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::PartialLieZeta, 0x5eed_0114, ChainEntropy::Test, true);
+    // [Z1-f] the zeta deletion (U-Z1 impl-b): the reveal wire is GONE —
+    // per-wave ForcedZero claims replace it. (i) The reveal-count
+    // differential: only the 9 pin shares per pad wave remain on the
+    // wire (was 9 + 48 per chunk wave — the -576 B/chunk-wave of design
+    // 6.2, recorded here as an executable count; the honest-witness
+    // zero-partials identity is asserted inside the differential leg
+    // above, and the pack canary asserts junk == 0 at commit time).
+    {
+        let ls_b = ur1_layer_shape(lg, LayerArm::Lookup, CommitShape { kappa: 8, n_r: 26, msg_r: 8 }, Q8, true);
+        let n_chunk_waves =
+            (0..ls_b.plan.waves.len()).filter(|&w| ls_b.wave_chunks[w].1 > ls_b.wave_chunks[w].0).count();
+        assert_true(
+            &format!(
+                "[Z1-f] the zeta wire is DELETED: {} reveal shares == 9 pins x {} pad waves (48 zeta reveals/chunk wave retired -> -{} B here, -576 B/chunk-wave at scale); per-wave zero claims are strictly stronger than the retired layer-wide gate",
+                ca.reveal_shares,
+                ls_b.pad_layout.pad_waves.len(),
+                48 * 12 * n_chunk_waves
+            ),
+            ca.reveal_shares == 9 * ls_b.pad_layout.pad_waves.len(),
+        );
+    }
+    // (ii) A junk-bearing witness — nonzero junk CRT coordinate in a Y
+    // chunk, consumed consistently (Z is the ring product of the
+    // tampered Y, so the quad is TRUE; constants untouched, so lookup
+    // and pins pass) — REJECTS at exactly its wave's ForcedZero zeta
+    // claim: the per-wave localization the deletion buys.
+    let (vj, _) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::JunkY, 0x5eed_0114, ChainEntropy::Test, true);
+    let junk_wave = {
+        let ls_b = ur1_layer_shape(lg, LayerArm::Lookup, CommitShape { kappa: 8, n_r: 26, msg_r: 8 }, Q8, true);
+        ls_b.plan.slot_of[ls_b.base_y].0
+    };
     assert_true(
-        "U-R1b wave boundary: a lied zeta partial REJECTS at the per-row sum gate",
-        !vz.zeta_gate_ok && vz.lookup_ok && vz.sum_gate_ok,
-    );
-    let (vzc, _) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::CompensatedZeta, 0x5eed_0115, ChainEntropy::Test, true);
-    assert_true(
-        "U-R1b wave boundary: a compensated zeta lie passes the gate but the affected waves REJECT at their ct-rounds",
-        vzc.zeta_gate_ok && !vzc.waves_ok && vzc.lookup_ok && vzc.sum_gate_ok,
+        "[Z1-f] a junk-bearing witness REJECTS at exactly its wave's ForcedZero zeta claim (quad TRUE, lookup/pins/sum gate/closing round all pass) — per-wave localization",
+        !vj.waves_ok
+            && vj.first_bad_wave == Some(junk_wave)
+            && vj.lookup_ok
+            && vj.sum_gate_ok
+            && vj.closing_ok,
     );
     // The block-rig chain edges at the layer shape.
     let (vy, _) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::OffTableY, 0x5eed_0116, ChainEntropy::Test, true);
     assert_true(
         "U-R1b edge (lookup): an off-table Y REJECTS at the masked lookup's root cross-check; every wave passes (the edge is isolated)",
-        !vy.lookup_ok && vy.waves_ok && vy.sum_gate_ok && vy.zeta_gate_ok,
+        !vy.lookup_ok && vy.waves_ok && vy.sum_gate_ok,
     );
     let (vh, _) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::HadamardZ, 0x5eed_0117, ChainEntropy::Test, true);
     let z_wave = {
@@ -16475,7 +16507,7 @@ fn self_test_ffn_layer() {
     };
     assert_true(
         "U-R1b edge (gate-o-up): a tampered Z slot constant REJECTS at its wave's quad ring claim; the lookup passes",
-        !vh.waves_ok && vh.first_bad_wave == Some(z_wave) && vh.lookup_ok && vh.zeta_gate_ok,
+        !vh.waves_ok && vh.first_bad_wave == Some(z_wave) && vh.lookup_ok,
     );
     let (vk, _) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::LookupH0, 0x5eed_0118, ChainEntropy::Test, true);
     assert_true(
@@ -16533,8 +16565,8 @@ fn self_test_ffn_layer() {
     // cross-check is the single rejecting gate.
     let (vrx, _) = ffn_layer_run(lg, LayerArm::RangeOnly, true, LayerTamper::RangeX, 0x5eed_0213, ChainEntropy::Test, true);
     assert_true(
-        "U-R2a edge (range): x_u = 300 smuggled into the dense column REJECTS at the range lookup's root cross-check; waves/zeta/sum gates all pass (the edge is isolated)",
-        !vrx.range_ok && vrx.waves_ok && vrx.sum_gate_ok && vrx.zeta_gate_ok && vrx.statement_ok,
+        "U-R2a edge (range): x_u = 300 smuggled into the dense column REJECTS at the range lookup's root cross-check; waves/sum gates all pass (the edge is isolated)",
+        !vrx.range_ok && vrx.waves_ok && vrx.sum_gate_ok && vrx.statement_ok,
     );
     // The same smuggle on the full arm: X is DOUBLY covered there (the
     // silu lookup fuses the same X), so both root checks reject —
@@ -16553,12 +16585,11 @@ fn self_test_ffn_layer() {
         (0..ls.plan.waves.len()).filter(|&w| ls.wave_chunks[w].1 > ls.wave_chunks[w].0).next_back().unwrap()
     };
     assert_true(
-        "U-R1b forgery (deferred from S1): a donor wave's g-masks cross-used self-consistently in another wave REJECT at exactly that wave (per-wave h0 binds the wave's OWN commitment list); lookup/zeta/sum gates pass",
+        "U-R1b forgery (deferred from S1): a donor wave's g-masks cross-used self-consistently in another wave REJECT at exactly that wave (per-wave h0 binds the wave's OWN commitment list); lookup/sum gates pass",
         !vgx.waves_ok
             && vgx.first_bad_wave == Some(gx_target)
             && vgx.lookup_ok
-            && vgx.sum_gate_ok
-            && vgx.zeta_gate_ok,
+            && vgx.sum_gate_ok,
     );
     println!(
         "  [U-R1b] battery done in {:.1}s (timings [NOISY-SHARED])",
@@ -16574,7 +16605,7 @@ fn self_test_ffn_layer_smoke() {
     let (v, c) = ffn_layer_run(12, LayerArm::Lookup, true, LayerTamper::None, 0x5eed_0110, ChainEntropy::Test, false);
     assert_true(
         &format!(
-            "U-R1b smoke: honest 2^12 layer ACCEPTS ({} el, {} waves, {} data + {} g commitments; sum gate + zeta gate + {} wave rounds green; streaming-zeta differential {})",
+            "U-R1b smoke: honest 2^12 layer ACCEPTS ({} el, {} waves, {} data + {} g commitments; sum gate + ForcedZero zeta claims + {} wave rounds + closing round green; streaming-zeta differential {})",
             c.n_el,
             c.n_waves,
             c.n_data,

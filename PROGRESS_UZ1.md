@@ -69,13 +69,41 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
       opened by multiple rounds, lied/compensated masked reveals,
       centered reps at exactly ±(q-1)/2, ForcedZero round-trip,
       fail-closed pad coverage). Suite 47 + freeze-check green.
-- [ ] IA-2 (Z1-impl-b): the closing round + the zeta deletion. Nine
+- [x] IA-2 (Z1-impl-b): the closing round + the zeta deletion. Nine
       exact zero-sum claims (design eq. 4) over the pad commitments, one
       standalone ct-round (or folded into the last wave — pick one,
       record why); zeta family switched to ForcedZero per-wave zero
       claims, reveal wire deleted, zeta_sums retired, pack-time junk==0
       canary. Exit: honest layer ACCEPT at the 2^12 battery shape, BOTH
       arms (A and R); Z1-d both-directions pair + Z1-f legs green.
+      DONE 2026-07-16 (IA, two commits — closing round fe5dc21, zeta
+      deletion this one). Gate read before starting: P1 GO (shared
+      layout; no option-1 fallback). Closing round: STANDALONE (choice
+      recorded: auditability — the design specifies it — and budget
+      isolation: folding would couple the wave plan to the closing
+      shape); per padded claim row ONE exact zero-sum claim reading
+      EXACTLY the wave rounds' pad positions (the Section 2.3 read-set
+      sharpening); closing g's committed pre-h0_link (D-4); c_z's h0 =
+      lkp state + closing tag + all pad commitments (design 2.5 row 3);
+      no reveals — the verifier rebuilds the claims. Zeta deletion:
+      per-wave ForcedZero claims (public scalar 0), reveal wire DELETED
+      (57 -> 9 reveals/wave measured in-battery: 27 == 9 x 3 pad waves
+      at 2^12), zeta_sums layer gate RETIRED (per-wave zero strictly
+      stronger), pack-time junk==0 canary on every Y/UP chunk (the
+      design 2.4 fragility flag — packer drift becomes a named assert),
+      prover no longer computes zeta partials at all (the per-share
+      ct_mul_centered walk went with the wire). [Z1-d] both directions
+      green (attack accepts a false total T+delta with the closing
+      round absent; the closing round rejects exactly there). [Z1-f]
+      legs green: (i) identity-2 executable — honest TRUE zeta partials
+      identically zero per wave, asserted inside the differential leg +
+      the pack canary; (ii) JunkY — a junk-bearing witness (junk CRT
+      coordinate in a Y chunk, consumed consistently so the Hadamard
+      quad stays TRUE and lookup/pins pass) REJECTS at exactly its
+      wave's ForcedZero claim; (iii) the reveal-byte differential
+      recorded (-576 B/chunk-wave class). Honest ACCEPT at 2^12 on
+      BOTH arms (A and R) + RangeOnly/Bare. Suite 47 + freeze-check
+      green.
 - [ ] IA-3 (Z1-impl-c): the full [Z1] battery. Z1-a (unmasked exact-
       recovery exhibit vs the legacy Revealed policy — PERMANENT), Z1-b
       (masked non-recovery + coset check + counting canaries), Z1-c (F5
@@ -192,3 +220,17 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
   round accepts honest pads and REJECTS the rigged set at exactly the
   zero-sum claims. Battery green (closing round live on the honest
   arms); suite 47 + freeze-check green.
+- 2026-07-16 (IA, impl-b 2/2 — IA-2 DONE): the zeta deletion. Reveal
+  wire deleted (the layer battery counts 27 == 9 x 3 pad-wave reveals
+  at 2^12 — the 57 -> 9/wave collapse), per-wave ForcedZero zeta claims
+  on both sides, zeta_sums layer gate retired, pack-time junk==0 canary
+  on every Y/UP chunk, prover-side zeta partial computation deleted
+  outright. PartialLieZeta/CompensatedZeta tampers retired with the
+  wire they tampered; new JunkY tamper (junk CRT coordinate consumed
+  consistently — quad TRUE, lookup/pins pass) REJECTS at exactly its
+  wave. Differential leg now also asserts identity (2): honest TRUE
+  zeta partials are identically zero per wave. IA-2 exit met: honest
+  ACCEPT at 2^12 on arms A and R; Z1-d pair + Z1-f legs green; suite
+  47 + freeze-check green. NOTE for IA-4's ledgers: reveal_shares now
+  counts pins only — the masked-descent B/el row will show the design
+  6.2 zeta-deletion drop directly.
