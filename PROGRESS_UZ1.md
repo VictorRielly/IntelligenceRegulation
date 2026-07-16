@@ -171,3 +171,24 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
   RangeOnly, where the pad-wave set is a PROPER subset of the waves
   (triple waves are not pin-bearing there) — and every S1/S3 tamper
   leg re-passes (Z1-e pre-staged). Suite 47 + freeze-check green.
+- 2026-07-16 (IA, impl-b 1/2 — gate read: P1 GO, shared layout kept):
+  the CLOSING ROUND. Engine closing_round_claims: per padded claim row,
+  ONE exact zero-sum ct-claim reading — weight 1 — EXACTLY the pad
+  positions the wave rounds read (the Section 2.3 sharpening; all pad
+  waves, row-major), public zero scalar, no psi compression, one g-slot
+  each. Rig: STANDALONE round (recorded choice vs folding into the last
+  wave: (a) auditability — the design specifies it; (b) budget
+  isolation — folding would charge the last wave's C2 budget the
+  n_pad_cms + closing-g commitments and couple the wave plan to the
+  closing shape); closing g-groups (9 slots -> 2 groups at msg_r 8)
+  committed BEFORE h0_link with every other g (D-4); c_z's h0 = lookup
+  transcript state + closing tag + the round's list (all pad
+  commitments), design 2.5 row 3; verifier rebuilds the claims itself —
+  no reveals ride the round; LayerVerdict.closing_ok in all_ok. [Z1-d]
+  BOTH DIRECTIONS at toy scale: ATTACK — pads rigged to sum delta +
+  honestly-computed masked reveals ACCEPT a false total T + delta
+  through the sum gate and every wave round when the closing round is
+  absent (the exhibited design 4.2 forgery); DEFENSE — the closing
+  round accepts honest pads and REJECTS the rigged set at exactly the
+  zero-sum claims. Battery green (closing round live on the honest
+  arms); suite 47 + freeze-check green.

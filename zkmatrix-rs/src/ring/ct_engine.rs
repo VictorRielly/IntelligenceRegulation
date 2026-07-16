@@ -2398,6 +2398,41 @@ pub fn split_claims_prover_policy(
     }
 }
 
+/// The closing round's exact zero-sum claims (design eq. 4, Z1-impl-b):
+/// for each padded claim row j, ONE linear ct-claim reading — with
+/// weight 1 — EXACTLY the pad positions the wave rounds read (row j
+/// across ALL pad waves) with the public zero scalar. No psi
+/// compression: these are exact single claims, so no new 2^-31-per-copy
+/// edge opens; each consumes one g-slot of the closing round.
+///
+/// Read-set discipline (the Section 2.3 sharpening recorded in the
+/// module header above): the zero-sum read set EQUALS the wave rounds'
+/// pad-read set per row. Commitment index convention for the closing
+/// round's list: pad commitment k at local index k (0..n_pad_cms),
+/// g-groups from n_pad_cms.
+pub fn closing_round_claims(zq: &super::Zq, layout: &WavePadLayout) -> Vec<CtClaim> {
+    if !layout.has_pads() {
+        return Vec::new();
+    }
+    (0..layout.n_claims)
+        .map(|j| {
+            // Indicator chunks per (cm, slot), conjugated once per chunk:
+            // ct(conj(sum_i X^i) * m) = sum_i m_i over the read set.
+            let mut chunks: std::collections::BTreeMap<(usize, usize), Poly> =
+                std::collections::BTreeMap::new();
+            for wi in 0..layout.pad_waves.len() {
+                let (cm, s, c) = layout.slot(j, wi);
+                chunks.entry((cm, s)).or_insert_with(poly_zero)[c] = 1;
+            }
+            let msg_coeffs = chunks
+                .into_iter()
+                .map(|((cm, s), ind)| (cm, s, poly_conj(zq, &ind)))
+                .collect();
+            CtClaim { msg_coeffs, ajtai_coeffs: vec![], scalar: 0 }
+        })
+        .collect()
+}
+
 /// Policy dispatch, verifier side.
 pub fn split_claims_verifier_policy(
     zq: &super::Zq,

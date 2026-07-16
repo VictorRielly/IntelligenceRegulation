@@ -14448,6 +14448,115 @@ fn self_test_wave_split() {
                 ),
             );
         }
+
+        // ---- [Z1-d] the zero-sum load-bearing pair (design 4.2 /
+        // Section 5): with the closing round ABSENT, pads rigged to
+        // sum delta != 0 plus honestly-computed masked reveals ACCEPT a
+        // FALSE total T + delta at every gate; with the closing round
+        // wired, the same transcript REJECTS at exactly that round.
+        // Both directions, per the F5 house rule. ----------------------
+        {
+            use ring::ct_engine::closing_round_claims;
+            println!("\n[Z1-d] the zero-sum closing round is load-bearing (both directions)");
+            let delta = 7i64;
+            let center = |v: i128| -> i64 {
+                let qq = q as i128;
+                let mut r = v.rem_euclid(qq);
+                if r > qq / 2 {
+                    r -= qq;
+                }
+                r as i64
+            };
+            // Rig pads: row 0 sums to delta instead of 0.
+            let mut rows = pad_vals.clone();
+            rows[0][0] = (rows[0][0] + delta as u64) % q;
+            let pads_d = WavePads::harness_from_values(rows);
+            let pad_msgs_d = pack_wave_pads(&mut rng, q, shape.msg_r, &layout, &pads_d)
+                .expect("rigged pad packing");
+            // The cheating prover's claim set: claim 0's public total
+            // shifted by delta (the false statement being smuggled).
+            let claims_false: Vec<CtClaim> = claims
+                .iter()
+                .enumerate()
+                .map(|(j, c)| CtClaim {
+                    msg_coeffs: c.msg_coeffs.clone(),
+                    ajtai_coeffs: vec![],
+                    scalar: if j == 0 { center(c.scalar as i128 + delta as i128) } else { c.scalar },
+                })
+                .collect();
+            // Honestly-computed masked reveals over the RIGGED pads
+            // (the splitter never reads claim totals).
+            let (dpw, drv) =
+                split_claims_prover_masked(&zq, &plan, &claims, &msg_refs, &layout, pads_d)
+                    .expect("rigged-pad masked split");
+            // ATTACK direction (closing round ABSENT): the sum gate
+            // accepts the false total, and every wave round accepts —
+            // each share claim is TRUE over the committed data + pads.
+            let attack_gate =
+                split_claims_verifier_masked(&zq, &plan, &claims_false, &drv, &layout);
+            let attack_accepts = match attack_gate {
+                Err(_) => false,
+                Ok(vw) => {
+                    let pad_rho_d: Vec<Vec<i64>> =
+                        (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+                    run_waves(&dpw, &vw, &pad_msgs_d[0], &pad_rho_d, &mut rng)
+                        .iter()
+                        .all(|&b| b)
+                }
+            };
+            assert_true(
+                "[Z1-d] ATTACK: pads rigged to sum delta + honest masked reveals ACCEPT a FALSE total T + delta through the sum gate and EVERY wave round when the closing round is absent",
+                attack_accepts,
+            );
+            // DEFENSE direction: the closing round — nine exact
+            // zero-sum claims over the pad commitment — REJECTS the
+            // rigged pads (row 0 sums to delta, a false claim over
+            // committed data) and ACCEPTS the honest ones.
+            let run_closing = |pad_msg: &Vec<Poly>, rng: &mut u64| -> bool {
+                let cl = closing_round_claims(&zq, &layout);
+                assert_eq!(cl.len(), claims.len());
+                let mut all_x: Vec<Vec<Poly>> = vec![pad_msg.clone()];
+                all_x.extend(ring::ct_engine::sample_g_masks(
+                    rng,
+                    q,
+                    shape.msg_r,
+                    cl.len(),
+                    0,
+                ));
+                let rhos_z: Vec<Vec<Vec<i64>>> = (0..all_x.len())
+                    .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(rng)).collect())
+                    .collect();
+                let rp_z = derive_ct_round_params(q, shape, all_x.len(), 0, 0, true);
+                let a1p_z = build_a1_paths(&crs, rp_z.sigma, isqrt_u128(rp_z.bound_sq));
+                let path_z = KernelPath::A1(&a1p_z);
+                let mut t1s_z: Vec<Vec<Poly>> = Vec::new();
+                let mut t2s_z: Vec<Vec<Poly>> = Vec::new();
+                for (x, rho) in all_x.iter().zip(rhos_z.iter()) {
+                    let (t1, t2) = commit(&path_z, &crs, x, rho);
+                    t1s_z.push(t1);
+                    t2s_z.push(t2);
+                }
+                let h0_z = ct_h0(&crs, b"z1d-closing", &t1s_z, &t2s_z, &[]);
+                let openings_z: Vec<StdOpening> = all_x
+                    .iter()
+                    .zip(rhos_z.iter())
+                    .enumerate()
+                    .map(|(i, (x, rho))| StdOpening { t1: &t1s_z[i], t2: &t2s_z[i], x, rho })
+                    .collect();
+                let (proof_z, _) = prove_ct_round(
+                    &path_z, &ring_ctx, &rp_z, None, &crs, &h0_z, &cl, &[], &[], &[],
+                    &openings_z, &[], &[], 1, &mut *rng,
+                );
+                verify_ct_round(
+                    &path_z, &ring_ctx, &rp_z, None, &crs, &h0_z, &cl, &[], &[], &[],
+                    &t1s_z, &t2s_z, &[], &[], &[], 1, &proof_z,
+                )
+            };
+            assert_true(
+                "[Z1-d] DEFENSE: the closing round ACCEPTS the honest zero-sum pads and REJECTS the delta-rigged pads at exactly the zero-sum claims — the pair closes the forgery lever",
+                run_closing(&pad_msgs[0], &mut rng) && !run_closing(&pad_msgs_d[0], &mut rng),
+            );
+        }
     }
 }
 
@@ -14598,6 +14707,10 @@ struct LayerShape {
     /// so h0_link binds them before any challenge.
     pad_layout: ring::ct_engine::WavePadLayout,
     base_pad: usize,
+    /// U-Z1 impl-b: g-groups of the STANDALONE closing round — one
+    /// g-slot per exact zero-sum claim (design eq. 4; 9 claims -> 2
+    /// groups at msg_r 8). Zero when the shape carries no pads.
+    closing_g_groups: usize,
     lp: ring::link::LinkParams,
     plan: ring::ct_engine::WavePlan,
     /// Per wave: the CONTIGUOUS chunk range [c0, c1) its Y/UP/Z triples
@@ -14772,6 +14885,8 @@ fn ur1_layer_shape(
             .expect("layer pad layout derives (internal shape, not verifier input)")
     };
     let base_pad = n_data;
+    let closing_g_groups =
+        if pad_layout.has_pads() { pad_layout.n_claims.div_ceil(msg_r) } else { 0 };
     LayerShape {
         n_el,
         chunks,
@@ -14797,6 +14912,7 @@ fn ur1_layer_shape(
         data_cap,
         pad_layout,
         base_pad,
+        closing_g_groups,
         lp,
         plan,
         wave_chunks,
@@ -14940,6 +15056,10 @@ struct LayerVerdict {
     zeta_gate_ok: bool,
     waves_ok: bool,
     first_bad_wave: Option<usize>,
+    /// U-Z1 impl-b: the closing round's verdict — the nine exact
+    /// zero-sum claims over the shared pad commitments (design eq. 4).
+    /// True when the shape carries no pads.
+    closing_ok: bool,
     /// The [U-R1b] streaming-vs-materialized zeta differential ran and
     /// matched (small shapes only).
     differential_ok: bool,
@@ -14953,6 +15073,7 @@ impl LayerVerdict {
             && self.sum_gate_ok
             && self.zeta_gate_ok
             && self.waves_ok
+            && self.closing_ok
     }
 }
 
@@ -15059,9 +15180,11 @@ fn ffn_layer_run(
         n_el,
         n_waves,
         n_data,
-        n_g_groups: ls.wave_g_groups.iter().sum(),
+        n_g_groups: ls.wave_g_groups.iter().sum::<usize>() + ls.closing_g_groups,
         q31_data_coeffs: n_data * msg_r * D,
-        q31_g_coeffs: ls.wave_g_groups.iter().sum::<usize>() * msg_r * D,
+        q31_g_coeffs: (ls.wave_g_groups.iter().sum::<usize>() + ls.closing_g_groups)
+            * msg_r
+            * D,
         q31_pad_coeffs: ls.pad_layout.n_pad_cms * msg_r * D,
         masked_bytes: (usize::from(arm.has_silu()) + usize::from(arm.has_range()))
             * masked_pass_bytes(ls.dw, ls.dt, 0, 1),
@@ -15075,6 +15198,7 @@ fn ffn_layer_run(
         zeta_gate_ok: true,
         waves_ok: true,
         first_bad_wave: None,
+        closing_ok: true,
         differential_ok: true,
     };
 
@@ -15319,6 +15443,17 @@ fn ffn_layer_run(
         }
         let gm = sample_g_masks(&mut rng, q, msg_r, ls.wave_lin[w], n_pads);
         assert_eq!(gm.len(), ls.wave_g_groups[w]);
+        for m in gm {
+            push_commit(m, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        }
+    }
+    // U-Z1 impl-b: the closing round's g-groups (one ct g-slot per exact
+    // zero-sum claim) — committed with everything else BEFORE h0_link,
+    // the same D-4 rule every wave's g obeys.
+    let g_closing_off = msgs.len();
+    if ls.closing_g_groups > 0 {
+        let gm = sample_g_masks(&mut rng, q, msg_r, ls.pad_layout.n_claims, 0);
+        assert_eq!(gm.len(), ls.closing_g_groups);
         for m in gm {
             push_commit(m, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
         }
@@ -16203,6 +16338,70 @@ fn ffn_layer_run(
         }
     }
     cost.verify_s += t_gate.elapsed().as_secs_f64();
+
+    // ---- U-Z1 impl-b: the CLOSING ROUND — the nine exact zero-sum
+    // claims sum_w e_{j,w} = 0 (design eq. 4) over the shared pad
+    // commitments. STANDALONE round rather than folded into the last
+    // wave (the engine choice design 2.3 leaves open), for two recorded
+    // reasons: (a) auditability — the design document specifies the
+    // standalone form; (b) budget isolation — folding would charge the
+    // last wave's C2 budget the n_pad_cms + closing-g commitments and
+    // couple the wave plan to the closing shape. Soundness chain: the
+    // wave rounds force sigma~ = functional + pad (eq. 3), this round
+    // forces sum pads = 0 (eq. 4), the sum gate forces sum sigma~ = T;
+    // adding and subtracting: sum functional = T — exactly the unmasked
+    // guarantee. The [Z1-d] pair demonstrates BOTH directions. --------
+    if ls.pad_layout.has_pads() {
+        use ring::ct_engine::closing_round_claims;
+        let idxs_z: Vec<usize> = (ls.base_pad..ls.base_pad + ls.pad_layout.n_pad_cms)
+            .chain(g_closing_off..g_closing_off + ls.closing_g_groups)
+            .collect();
+        let n_cz = idxs_z.len();
+        if !rp_cache.contains_key(&n_cz) {
+            let rp = derive_ct_round_params(q, shape, n_cz, 0, 0, true);
+            let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cz, (rp, a1p));
+        }
+        let (rp_z, a1p_z) = rp_cache.get(&n_cz).unwrap();
+        let path_z = KernelPath::A1(a1p_z);
+        let zt1s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t1s[i].clone()).collect();
+        let zt2s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t2s[i].clone()).collect();
+        // ================= PROVER =================
+        let t_p = Instant::now();
+        let claims_z = closing_round_claims(&zq, &ls.pad_layout);
+        // c_z's h0: the lookup-transcript state (which binds h0_link and
+        // through it EVERY commitment) + the closing tag + the round's
+        // own list — all pad commitments — per design 2.5 row 3.
+        let mut state_z: Vec<u8> = lkp_state_p.to_vec();
+        state_z.extend(b"z1-closing");
+        let h0_z = ct_h0(&crs, &state_z, &zt1s, &zt2s, &[]);
+        let zrhos: Vec<Vec<Vec<i64>>> = idxs_z.iter().map(|&i| unpack_rho(&rhos8[i])).collect();
+        let openings_z: Vec<StdOpening> = idxs_z
+            .iter()
+            .enumerate()
+            .map(|(j, &i)| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &msgs[i], rho: &zrhos[j] })
+            .collect();
+        let (proof_z, _) = prove_ct_round(
+            &path_z, &ctx_ring, rp_z, None, &crs, &h0_z, &claims_z, &[], &[], &[],
+            &openings_z, &[], &[], ls.pad_layout.n_pad_cms, &mut rng,
+        );
+        cost.prove_s += t_p.elapsed().as_secs_f64();
+        // ================= VERIFIER =================
+        // Everything on this side is public: the verifier rebuilds the
+        // nine zero-scalar claims itself (no reveals ride this round).
+        let t_v = Instant::now();
+        let claims_zv = closing_round_claims(&zq, &ls.pad_layout);
+        let mut state_zv: Vec<u8> = lkp_state_v.to_vec();
+        state_zv.extend(b"z1-closing");
+        let h0_zv = ct_h0(&crs, &state_zv, &zt1s, &zt2s, &[]);
+        if !verify_ct_round(
+            &path_z, &ctx_ring, rp_z, None, &crs, &h0_zv, &claims_zv, &[], &[], &[],
+            &zt1s, &zt2s, &[], &[], &[], ls.pad_layout.n_pad_cms, &proof_z,
+        ) {
+            verdict.closing_ok = false;
+        }
+        cost.verify_s += t_v.elapsed().as_secs_f64();
+    }
     (verdict, cost)
 }
 
