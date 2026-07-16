@@ -25,7 +25,7 @@ codex-audit-* read-only.
 
 ## Deliverables
 
-- [ ] Z1 (ZC, audit C-02, PAPER-FIRST): masked per-wave partial shares —
+- [x] Z1 (ZC, audit C-02, PAPER-FIRST): masked per-wave partial shares —
       random additive pads, committed pre-challenge, canceling only in
       aggregate; a SIMULATOR argument for the complete multi-wave
       transcript; a rank/leakage/recovery battery spec (what is learnable
@@ -33,6 +33,23 @@ codex-audit-* read-only.
       (pads are per-claim-per-wave — compare against the measured ~1.3
       dce/el pin floor). Design doc only; implementation is a follow-up
       tranche gated on review.
+      DONE 2026-07-15 (ZC): docs/zkmatrix-poc/WAVE_SHARE_MASKING_DESIGN.md.
+      Construction: coset one-time pads (Σ pads = 0, last pad solved) in
+      ceil(9W/1024) SHARED pad commitments bound in h0_link, per-wave
+      share claims gain a +1 pad read, ONE closing ct-round proves the
+      nine exact zero-sum claims; free rider: the zeta shares are
+      IDENTICALLY ZERO honest (proven), so their 48-reveals/wave wire is
+      deleted (per-wave zero claims — strictly stronger). Simulator for
+      the complete transcript graded: the pad-coset lemma is exact
+      ([PROVEN* — paper-only round, machine certs named]), the one new
+      engine pattern (a commitment opened in ~114 rounds) surfaced as an
+      OBLIGATION with a priced fallback (+0.65 dce/el). Battery spec
+      [Z1-a..i] (leak/recovery pair, F5 order pair, zero-sum load-bearing
+      pair, accumulation stall, pad freshness). Priced vs S2: +0.025
+      dce/el on the 1.335 floor at 2^20 (+1.9%); masked-descent B/el
+      0.512 → ~0.14 (zeta deletion); C-03 full-wire +1.3% — succinctness
+      explicitly NOT closed (orthogonal, Phase 3). Review before any
+      implementation tranche (Section 8 sketch + LKP-10 candidate).
 - [x] Z2 (ZA, audit C-01): ARP demoted off the target path. Marked
       non-ZK-grade at the frozen point in: the ct_engine module header,
       the ARP_REJ_T doc (which now RECORDS the demotion argument: 128-bit
@@ -206,3 +223,11 @@ codex-audit-* read-only.
   (Fiat-Shamir claim-discipline note, landed post-07-10-audit).
   Z3 CLOSED — box ticked; commits dd35e12 (a), 9be8b46 (b),
   82f47b3 (c), + this one (d).
+- 2026-07-15 (ZC): Z1 design round landed (5 incremental commits,
+  WAVE_SHARE_MASKING_DESIGN.md). Two facts the other lanes should know:
+  (a) the zeta reveal wire is deletable outright (honest shares are
+  identically zero) — worth folding into Z3's byte-ledger narrative as
+  a designed follow-up, NOT as an as-built number; (b) the design
+  constrains Phase 3 aggregation: any succinct aggregator must not
+  re-expose per-wave right-hand sides, or it undoes Z1 (recorded in the
+  doc's Section 7.1).
