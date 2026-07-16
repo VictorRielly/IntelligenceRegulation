@@ -93,3 +93,16 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
 
 - 2026-07-15: tranche opened at 274befd; IA (code, main checkout) + PA
   (paper, worktree) launched in parallel. Victor approved the launch.
+- 2026-07-16 (orchestrator, relaying PA's committed verdict 92a58d6):
+  **P1 GO** — Q4.2a' closes on paper (Q4.2a's rejection bound holds
+  pointwise in the center, surviving conditioning across rounds; ~114
+  openings factor with total defect ~2^-93; all four hypotheses check
+  against the construction). IA's impl-b gate is OPEN: shared-pad-
+  commitment layout approved, no option-1 fallback. PA lane fully done
+  (P1/P2/P3, commits 92a58d6/19e1bba/df85b63 on its worktree branch;
+  Q4.2a' + Q4.10 + Q4.10-X graded PROVEN-on-paper with [Z1] certs
+  PLANNED; design 3.4's "so" repaired to the pointwise/conditional
+  form — delta recorded in the lemma). Orchestrator merges PA at
+  FINAL. NOTE for IA-3: Q4.2a' needs the opening-count/mask-freshness
+  canary; Z1-h pad freshness is load-bearing for the composition
+  (defect bound is per-proof).
