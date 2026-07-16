@@ -691,10 +691,10 @@ the concrete attack when the edge is violated, and the regression that
 pins it. This table IS the soundness of the non-interactive layer;
 any new challenge added to the protocol must be added here.
 
-The last four rows are the E3-Z rows — the hash edges added or
-amended by the lookup subprotocol's zero-knowledge masking
-(M4_LOOKUP_ZK_DESIGN.md), merged from that document's Section 3.3 by
-tranche U-K5e. Their vocabulary, defined once here: h0_lkp is the
+The four E3-Z rows (the block before the closing Z1 rows) are the
+hash edges added or amended by the lookup subprotocol's
+zero-knowledge masking (M4_LOOKUP_ZK_DESIGN.md), merged from that
+document's Section 3.3 by tranche U-K5e. Their vocabulary, defined once here: h0_lkp is the
 lookup statement hash (it binds the context string, the CRS, and
 every X/Y/m tensor commitment; E3-Z adds the mask and blinder
 commitments — the round/boundary mask polynomials and the committed
@@ -717,6 +717,31 @@ with tranche U-K5d (2026-07-10) — the "pinned by" entries below name
 the live batteries in the ring self-test (`self_test_lookup_zk`,
 sections `[U-K5c]` and `[U-K5d]`).
 
+The last four rows are the Z1 rows — the hash edges added by the
+wave-share masking construction (WAVE_SHARE_MASKING_DESIGN.md
+Section 2.5), merged by tranche U-Z1 (PA lane, 2026-07-15); the
+construction's transcribed lemmas are Q4_LEMMAS.md Q4.2a' (the
+multi-round shared-commitment composition) and Q4.10/Q4.10-X (the
+pad-coset lemma and its extraction note). Vocabulary, defined once
+here: h0_link is the multi-wave layer rig's statement hash
+(RANGE_AGGREGATION_DESIGN.md Section 2b) — it now binds the pad
+commitments (the shared BDLOP commitments carrying the coset
+one-time pads e_{j,w}, wave-major, 9 per wave) alongside the
+data/lookup/mask/g commitments; c_w is wave w's ct-round challenge,
+whose round list gains the wave's pad commitment
+(verifier-derived from the public plan, D-2); c_z is the closing
+round's challenge over ALL pad commitments (the nine exact zero-sum
+claims sum_w e_{j,w} = 0); sigma~ (the design's masked reveals) are
+the per-wave masked shares; the psi in the last row is the pin-batch
+challenge (its edge is UNCHANGED — that row is a scope note, not a
+new draw). UNLIKE every earlier block in this table, these rows'
+batteries are PLANNED, not live: the [Z1] battery lands with tranche
+U-Z1's Z1-impl-c, and each "pinned by" entry names the planned leg —
+it must be flipped to the live battery name (or the row re-graded)
+when the implementation lands; until then the rows carry
+design-round authority only (grading convention:
+WAVE_SHARE_MASKING_DESIGN.md Section 0.3).
+
 | challenge | drawn from | must follow | attack if violated | pinned by |
 |---|---|---|---|---|
 | s, v (gate row/col challenges) | pre-hash | A, B, C commitments | choose C after s, v: defeat 5.2's SZ step | `CE full round: wrong C fails` (transcript-level) |
@@ -733,6 +758,10 @@ sections `[U-K5c]` and `[U-K5d]`).
 | nu_j (lookup mask combination, one per layer sumcheck) | XOF(prefix through the layer-j claim and the sent G_j) | the round-mask commitment (in h0_lkp) and G_j | G chosen after nu_j absorbs any claim defect: G := G_true + (C_true − C_false)/nu_j waves a false lookup through — spike Z4 demonstrates the accept; the shipped order (G E4-pinned to the pre-committed coefficients) rejects the same crafting | `[U-K5d] E3Z-N1` F5 pair (both directions live) |
 | h0_lkp (lookup statement hash) — E3-Z scope note | — (a hash, not a challenge draw) | now binds the mask and blinder commitments alongside the X/Y/m commitments | none new: binding strictly more data preserves every existing edge; each E3-N pair must be RE-RUN under masking | `[U-K5d]` D3 re-runs: E3-N1 (alpha binds masks+blinders) + masked tamper-rejects (E3-N4/N5 class) live; E3-N2/E4-N2 structurally unchanged by masking, inherited by the honest masked pass + committed ct-round (recorded in the tranche ledger) |
 | psi (lookup E4 coordinate batch) — E3-Z addendum | XOF(prefix through ALL claimed values, now including every G_j and every mask opening) | the mask openings and the aggregate leaf pins | craft an opened value after psi: coordinate defects orthogonal to psi pass — E4-N1's attack shape on a grown claim set | `[U-K5d]` E4-N1 masked variant (pin psi batches the mask openings) live |
+| h0_link (layer statement hash) — Z1 scope note | — (a hash, not a challenge draw) | now binds the pad commitments alongside the data/lookup/mask/g commitments | a pad commitment outside h0_link can be SWAPPED between the wave rounds and the closing round: present pads summing to delta != 0 to the waves and a different zero-sum set to the closing round — any pin total shifts by delta and a false claim ACCEPTS | PLANNED — `[Z1-c]` F5 pair, both directions (Z1-impl-c) |
+| c_w (per-wave round challenge) — Z1 addendum | XOF(h0_w), h0_w = XOF(lkp state, wave index, wave list INCLUDING the wave's pad commitment) | the wave's pad commitment and the masked reveals sigma~ | pads/sigma~ chosen after c_w absorb a claim defect — the R1.2 pad-after-challenge shape lifted to wave shares; the g-mask cross-use forgery class returns if the pad-commitment identity is not in h0_w | PLANNED — `[Z1-c]` pair + `[Z1-e]` re-runs (Z1-impl-c) |
+| c_z (closing-round challenge) — Z1 | XOF(lkp state, closing tag, ALL pad commitments) | every pad commitment | the zero-sum "proven" against a pad set other than the one the waves read | PLANNED — `[Z1-c]` (same pair, closing direction) |
+| psi (pin batch) — Z1 scope note | unchanged (M4_LOOKUP_DESIGN E4-N1 edge) | pad LAYOUT precedes everything (plan-derived); pad VALUES are drawn independent of psi | none new: the pad term is verifier-added public structure — the pad at (j, w) is "the pad for copy j's wave-w share", a public position, not a psi-dependent object, so no circularity | PLANNED — E4-N1 re-run under masking (`[Z1-e]` class, Z1-impl-c) |
 
 ## 8. Honest limitations and open obligations
 

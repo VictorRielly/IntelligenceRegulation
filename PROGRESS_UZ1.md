@@ -82,7 +82,7 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
       independent across claims) + the extraction note (design Section 4
       item 3: σ_w := σ̃_w − e_w reduces to the unmasked split-claim
       extraction). Q4_LEMMAS summary table rows added.
-- [ ] P3 (PA): SOUNDNESS_REFERENCE.md Section 7 gains the design
+- [x] P3 (PA): SOUNDNESS_REFERENCE.md Section 7 gains the design
       Section 2.5 hash-edge rows (h0_link pad binding / c_w / c_z /
       psi scope note) marked PLANNED-[Z1-c] until the battery lands.
 - [ ] FINAL (orchestrator): merge PA, impl-d re-grade of the design
@@ -118,3 +118,11 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
   with summary rows. Both PROVEN on paper; certs PLANNED: Q4.10 —
   [Z1-b]/[Z1-g]/[Z1-h]/[Z1-i]; Q4.10-X — [Z1-d] both
   directions/[Z1-e]/[Z1-c]. No design-doc repairs needed for P2.
+- 2026-07-15 (PA): P3 done — SOUNDNESS_REFERENCE.md Section 7 gains
+  the four Z1 hash-edge rows (h0_link pad binding / c_w / c_z / psi
+  scope note) in the table's format, every "pinned by" entry marked
+  PLANNED naming its [Z1-c]/[Z1-e]-class leg (flip to live names at
+  Z1-impl-c). No pre-existing row touched; one non-row consistency
+  amendment recorded: the E3-Z intro's "last four rows" phrase
+  updated since the Z1 rows now sit last. PA lane complete
+  (P1/P2/P3); ready for orchestrator merge.
