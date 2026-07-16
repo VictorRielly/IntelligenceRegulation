@@ -149,8 +149,21 @@ codex-audit-* read-only.
       tables get a
       min(algebraic, hash/FS) cap note with grinding/multi-theorem/quantum
       caveats. Numbers only from repo-recorded sources.
-- [ ] FINAL (orchestrator): merge ZB + ZC, suite green, push; review Z1
-      design; decide the Z1 implementation tranche.
+- [x] FINAL (orchestrator) — DONE 2026-07-15: ZB merged (84647b1), ZC
+      merged (f78b1b0), suite 47 green + freeze-check on the merged
+      tree, pushed. Z1 REVIEW VERDICT: GO for the Section 8 sub-tranches
+      (Z1-impl-a..d) with two binding conditions: (i) the Section 3.4
+      multi-round shared-commitment composition [OBLIGATION] must be
+      transcribed to Q4_LEMMAS (a Q4.2a' corollary) during Z1-impl-d,
+      else fall back to Section 2.6 option 1 (per-wave pad commitments,
+      +0.65 dce/el); (ii) the [Z1-a] unmasked-leak exhibit stays in the
+      suite permanently as the C-02 regression. Grounds: the pad-coset
+      lemma is exact (distributional identity, not rank-genericity);
+      soundness closes both directions with the zero-sum round
+      load-bearing (Z1-d pair); cost +1.9% of the pin floor at 2^20 and
+      net-negative on the masked-descent ledger via the zeta deletion.
+      LAUNCH of Z1-impl-a..d staged pending Victor's go (new tranche,
+      not part of the interrupted one).
 
 ## Log
 
@@ -231,3 +244,8 @@ codex-audit-* read-only.
   constrains Phase 3 aggregation: any succinct aggregator must not
   re-expose per-wave right-hand sides, or it undoes Z1 (recorded in the
   doc's Section 7.1).
+- 2026-07-15 (orchestrator): U-Z TRANCHE CLOSED. ZB + ZC merged, suite
+  47 green on the merged tree, pushed. Z1 design reviewed: GO with two
+  binding conditions (FINAL box). Open residue carried forward: ZA's
+  production --no-default-features binary gating (~46 battery call
+  sites, recorded under Z4); Z1-impl-a..d launch awaiting Victor.
