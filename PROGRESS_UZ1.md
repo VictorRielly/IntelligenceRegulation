@@ -68,7 +68,7 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
       counters (the clean signal, not A-B totals), peak RSS. Freeze row
       LKP-10: pad layout rule, pad freshness rule, closing-round shape,
       zeta deletion (57 -> 9 reveals/wave), re-derived data cap.
-- [ ] P1 (PA, FIRST): Q4.2a' — the multi-round-openings composition
+- [x] P1 (PA, FIRST): Q4.2a' — the multi-round-openings composition
       corollary (one commitment opened in ~114 rounds; joint
       distribution = product of per-round Q4.2a-simulable openings,
       linear defect accumulation). Transcribe into Q4_LEMMAS.md in the
@@ -93,3 +93,18 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
 
 - 2026-07-15: tranche opened at 274befd; IA (code, main checkout) + PA
   (paper, worktree) launched in parallel. Victor approved the launch.
+- 2026-07-15 (PA): P1 GO — Q4.2a' closes on paper: the rejection
+  lemma Q4.2a invokes ([Lyu12] Thm 4.6) holds POINTWISE in the
+  center, so a round-by-round hybrid factors the ~114 openings of one
+  (x, rho) into center-independent per-round laws with defect
+  <= 114·2^-100-class ~ 2^-93; all four hypotheses (fresh y/round,
+  per-round rejection, one message across rounds, no shared
+  randomness beyond the commitment) check against the construction.
+  Q4.2a' graded PROVEN on paper, engine certs PLANNED
+  ([Z1-b]/[Z1-e]/[Z1-g] + opening-count canary). One transcription
+  repair recorded IN the lemma, not silently fixed: design 3.4's
+  marginal-independence inference strengthened to the
+  pointwise/conditional form (which the cited lemma provides —
+  marginal alone would not factor the joint law, since all centers
+  share rho). IA's impl-b gate is OPEN: shared-pad-commitment
+  pattern approved, no fallback needed.

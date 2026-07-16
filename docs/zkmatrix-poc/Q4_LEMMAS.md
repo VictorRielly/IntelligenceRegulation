@@ -12,7 +12,11 @@ zero-knowledge masking lemmas of the lookup subprotocol's E3-Z design
 round (M4_LOOKUP_ZK_DESIGN.md Section 4) at the same discipline; they
 live over GF(q^16), not the lattice ring, so their setting is defined
 where they start (the notation paragraph below is the lattice
-layer's). Summary table in Section 8.
+layer's). Corollary Q4.2a' and Lemma Q4.10 (with its extraction note
+Q4.10-X), added by tranche U-Z1 (PA lane, 2026-07-15), transcribe the
+wave-share masking claims of WAVE_SHARE_MASKING_DESIGN.md (Sections
+3.4, 3.1, and 4 item 3); Q4.2a' lives in the lattice layer, Q4.10
+over base-field Z_q scalars. Summary table in Section 8.
 
 Notation: R_q = Z_q[X]/(X^D + 1), D = 128; quinary challenge set C
 (coefficients in {-2..2}, E[c_i^2] = 2); c-bar = c - c' a challenge
@@ -179,6 +183,156 @@ stays OUTSIDE this joint test by design: its restart must re-commit
 the mask and re-derive R (the FS-with-aborts loop in ring_matmul.rs
 U3b), so it multiplies the mask-commit loop, not the ct-round
 attempts. Folding it in would break the commit-before-R ordering.
+
+---
+
+## Q4.2a' — Multi-round openings of a shared commitment (the U-Z1
+composition corollary)
+
+Covers: WAVE_SHARE_MASKING_DESIGN.md Sections 2.2 and 3.4 (the shared
+pad commitments, each opened in ~113 wave ct-rounds plus the closing
+round — the one genuinely NEW engine pattern of the wave-share
+masking construction); (forward) the Z1-impl engine build
+(`ct_engine.rs` wave round lists gaining the wave's pad commitment,
+the closing round) and the [Z1] battery legs named in the Status
+line. Transcribed by tranche U-Z1 (PA lane, 2026-07-15): this is the
+discharge of the design's Section 3.4 [OBLIGATION] and the review
+gate for Z1-impl-b (PROGRESS_UZ1.md P1).
+
+**Setting.** One BDLOP commitment com(x; rho) = (t1, t2) at the layer
+shape (SOUNDNESS_REFERENCE Section 2) is OPENED — masked response z,
+Ajtai image w1, per the Section 3.1 ct-round — in N distinct
+ct-rounds of the SAME proof. At the 2^20 shape: 1024 pad coefficients
+per commitment / 9 pads per wave gives ~113 wave rounds sharing each
+pad commitment, plus the closing round — N ~ 114 openings per pad
+commitment (6 such commitments; every OTHER commitment in the system
+is opened exactly once, design Section 2.2). Round k (k = 1..N)
+draws its own Gaussian mask bundle y^(k) covering all commitments in
+its list, computes its head, receives its challenge c_k, responds
+z^(k) = c_k rho + y^(k) for the shared commitment, and
+rejection-samples the whole bundle (Q4.2a as coded / Q4.2b joint
+test); on reject the round restarts with fresh masks. The corollary
+is stated in the honest-verifier interactive form (challenges as
+fresh public coins), matching how the per-round HVZK is stated in
+SOUNDNESS_REFERENCE 3.2; the FS/ROM lift of the ~700-draw challenge
+chain is the standing repo-wide [MODEL] convention
+(WAVE_SHARE_MASKING_DESIGN.md Section 3.2 table), which this
+corollary INHERITS and does not add to.
+
+**Hypotheses, stated explicitly and checked against the
+construction.**
+
+- **(H1) Fresh mask per round.** y^(k) is drawn fresh, independent
+  across rounds and across restarts; no mask material is shared
+  between rounds. CHECK: `prove_ct_round` samples its bundle per
+  invocation (SOUNDNESS_REFERENCE 3.1 step 1) and restarts redraw it
+  (step 3); the design adds the E3Z-N4-style derive-time canary
+  COUNTING openings per commitment (Section 3.4; lands with
+  Z1-impl-c).
+- **(H2) Per-round rejection sampling, POINTWISE in the center.**
+  Each round's accept test satisfies the report's Lemma 6.3 /
+  [Lyu12] Thm 4.6 in its pointwise form: for EVERY fixed center
+  v = c_k rho with ||v|| <= T (admissible on accepted attempts by the
+  Q4.1 restart gate), the accepted-response law is within
+  eps_k = 2^-100-class of ONE FIXED center-independent Gaussian, and
+  the acceptance probability is within the same class of 1/M. CHECK:
+  this is the lemma Q4.2a already invokes per bundle — the underlying
+  rejection-sampling lemma is proven per fixed center, which is the
+  form used below (see the transcription-delta note). Restart counts
+  are not transcript-visible (Q4.1c-i); the only abort-visible
+  channel in the system is the Q4.5 salt, separately simulated.
+- **(H3) One message, one randomness, across rounds.** All N rounds
+  open the SAME (x, rho): the pads are committed once, pre-challenge,
+  h0_link-bound; the honest prover holds no second copy. (On the
+  soundness side this is a guarantee, not an assumption: (2.2)
+  relaxed binding fixes one extracted message across all rounds
+  opening the commitment — that direction is Q4.10-X.) Pads and rho
+  are fresh PER PROOF (design rule, battery Z1-h), so N is capped at
+  the per-proof opening count — the defect below does not accumulate
+  across proofs.
+- **(H4) No cross-round shared randomness beyond (x, rho).** Round
+  k's other secret material — the other commitments' masks, g-group
+  masks, R1 pads — is per-round fresh; the challenges are public
+  coins per the Setting's scoping. CHECK: per-wave g-groups are
+  per-round objects; the pad commitment is the only object appearing
+  in more than one round's list (design Section 2.2), and the wave
+  lists are verifier-derived from the public plan (D-2).
+
+**Corollary Q4.2a' (product law across rounds).** Under (H1)-(H4),
+conditioned on the challenge values, the joint distribution of the N
+accepted openings (z^(1), w1^(1)), ..., (z^(N), w1^(N)) of
+com(x; rho) is within sum_k eps_k <= N * 2^-100-class statistical
+distance of the PRODUCT of the per-round simulable laws: z^(k)
+distributed as H2's fixed center-independent Gaussian, and
+w1^(k) := A1 z^(k) - c_k t1 forced. At N = 114 the defect is
+<= 2^-93-class — negligible at the C1' discipline, LINEAR in N as
+claimed, and inside the same accounting family the engine already
+carries for its W = 670 per-round defects per proof (the design's
+Section 3.3 hybrid H3; the six pad commitments together contribute
+one eps per round-appearance, ~676 total at 2^20, same class).
+
+*Proof.* Two observations and a hybrid.
+
+(1) *w1 is not a channel.* Given z^(k) and c_k, the verifier's Ajtai
+check forces w1^(k) = A1 z^(k) - c_k t1, so the opening's
+information content is z^(k) alone. (The rest of round k's transcript
+— g-masked claim material, R1-padded quadratic images — is per-round
+material covered by the imported per-round machinery; this corollary
+supplies only the joint law of the shared commitment's openings,
+which is the one new piece the design's H3 hybrid needs.)
+
+(2) *The pointwise form survives conditioning.* Fix any values of the
+other rounds' transcripts and of c_k. These fix at most (x, rho, the
+other rounds' fresh randomness) — nothing that round k's mask y^(k)
+or its rejection uniforms depend on (H1, H4). Round k's center
+v^(k) = c_k rho is then one FIXED admissible vector, and H2's
+pointwise statement applies verbatim to the CONDITIONAL law:
+Delta( law(z^(k) | accept, everything else), D_k ) <= eps_k, with the
+acceptance probability's center-dependence absorbed in the same
+eps_k class. This is the step that needs pointwise-in-center; a
+merely marginal center-independence would not survive the
+conditioning, because all N centers share rho.
+
+*Hybrid.* Let H_0 be the real joint law and H_m the law with rounds
+1..m's conditional opening laws replaced by D_1..D_m. The swap
+H_{m-1} -> H_m costs <= eps_m by (2) — a statistical-distance
+replacement of one conditional factor, valid because (2)'s bound
+holds for EVERY conditioning value. H_N is the product law. Total
+defect <= sum_k eps_k. Each D_k is exactly the law the round's
+single-opening simulator samples (SOUNDNESS_REFERENCE 3.2), so the
+joint simulator is "run the per-round simulators independently" —
+which is precisely what the design's S5/S6 steps do. QED.
+**PROVEN** (elementary hybrid over the pointwise form of the
+rejection lemma; the per-round input is the existing [PROVEN]
+machinery; the FS/ROM term is inherited [MODEL], not new).
+
+*Transcription delta, recorded (the honest-repair note).* Design
+Section 3.4 argues: "each round's z is, after rejection sampling,
+distributed independently of its center (Q4.2a) — so the JOINT
+distribution of ~114 openings of one rho is the product of the
+per-round simulable distributions". As phrased, the inference is
+incomplete: all N centers share rho, so per-round MARGINAL
+center-independence alone does not factor the joint law (correlated
+defects could in principle survive the marginals). The repair is
+(H2)'s pointwise form — which the cited lemma ([Lyu12] Thm 4.6 /
+report Lemma 6.3) does provide — making each round's law
+center-independent CONDITIONALLY on everything else, which is what
+the hybrid needs. Same conclusion, strictly stated hypotheses, no
+change to the construction; recorded here rather than silently
+fixed.
+
+Status: **PROVEN** (paper; the complete elementary argument above).
+Engine-scale certificates OWED — PLANNED, tranche U-Z1 in flight;
+promotion to PROVEN-at-engine-scale leg by leg when they land, per
+the Q4.7-Q4.9 precedent: the derive-time opening-count /
+mask-freshness canary (Z1-impl-c, the H1 check); **[Z1-b]** masked
+non-recovery + coset counting (the joint masked transcript exercised
+at battery shape); **[Z1-e]** the S1/S3 tamper set re-run under
+masking (the ~114-opening pattern exercised adversarially);
+**[Z1-g]** the accumulation stall across P proofs (the cross-proof
+form of H3's freshness cap). If a leg fails, the recorded fallback is
+WAVE_SHARE_MASKING_DESIGN.md Section 2.6 option 1 / Section 7.2
+(per-wave pad commitments + closing tree, +0.65 dce/el at 2^20).
 
 ---
 
@@ -1118,6 +1272,7 @@ update).
 | Q4.1b | restart probability (completeness cost) | SKETCH (Hanson-Wright cited; empirical counters corroborate) |
 | Q4.1c | restart-rule soundness accounting | PROVEN (i, as implemented) / SKETCH (ii, no-restart variant inventory) |
 | Q4.2a | M-product law for multi-bundle rejection | PROVEN |
+| Q4.2a' | U-Z1: multi-round openings of one shared commitment — joint law = product of per-round laws, defect <= N·2^-100-class (N ~ 114) | PROVEN on paper (pointwise-center hybrid over Q4.2a's lemma; FS/ROM term inherited [MODEL]) — engine certs PLANNED: [Z1-b]/[Z1-e]/[Z1-g] + the opening-count canary |
 | Q4.2b | joint-scaling variant (21.1 -> 5.7 attempts) | PROVEN (engine change is a build item) |
 | Q4.3a | mask-image uniformity (marginal of A2 y) | SKETCH — and beside the point for the ZK leak (Q4.3d) |
 | Q4.3b | which head pieces genuinely simulate | PROVEN (h; linear-claim + tie W's forced) / CORRECTED (quad W's do NOT — retraction) |
