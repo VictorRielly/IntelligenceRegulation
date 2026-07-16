@@ -32,7 +32,7 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
 
 ## Deliverables
 
-- [ ] IA-1 (Z1-impl-a): splitter policy + pad plumbing. The
+- [x] IA-1 (Z1-impl-a): splitter policy + pad plumbing. The
       {Padded, ForcedZero, Revealed} policy enum on the Result-typed
       split_claims_prover/verifier (coordinate with Z5's WaveError
       signatures — landed at 30ac90b); pad sampling from the per-proof
@@ -45,6 +45,30 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
       only. Exit: [U-R1a]-style self-test with pads live, honest ACCEPT
       at toy scale, Z1-i determinism/edge legs (byte-for-byte layout
       agreement; k_j = 1 claims take NO pad; centered reps near ±q/2).
+      DONE 2026-07-16 (IA, two commits — engine 89a87e0, rig this one).
+      Engine: SplitPolicy {Padded, ForcedZero, Revealed(harness-gated)}
+      + WavePadLayout (plan-derived pad-wave set = the pin-bearing
+      waves; wave-major 9/wave; 113 whole pad-waves per 1024-coeff
+      commitment; canonical layout_bytes) + WavePads (per-proof RNG,
+      solved last pad, non-Clone, consumed by the prover splitter) +
+      masked splitter pair (weight-1 conj(X^i) pad read at wave-local
+      index = the wave's data count; mod-q sum gate; fail-closed typed
+      errors). Rig: pad commitments committed in Pass 1.5 (bound by
+      h0_link before every challenge); every pin-bearing wave's round
+      list gains its shared pad commitment (verifier-built from the
+      plan; g_base shifts by one); verifier re-derives the layout from
+      the public shape and asserts byte-for-byte agreement. C2 cap
+      RE-DERIVED by the engine's own scan: 76 -> 75 at the 2^12/silu
+      point (design 6.1's prediction confirmed; LKP-9's legacy pins
+      keep gating the masked=false path, untouched). Exit evidence:
+      full [U-R1b]+[U-R2a] battery green at 2^12 UNDER MASKING (honest
+      ACCEPT all four arms incl. RangeOnly's pad_waves-proper-subset
+      case; every S1/S3 tamper leg re-passes — pre-staging Z1-e);
+      [Z1-i] legs green (layout determinism byte-for-byte, k_j = 1
+      takes NO pad, masked round-trip against a SHARED pad commitment
+      opened by multiple rounds, lied/compensated masked reveals,
+      centered reps at exactly ±(q-1)/2, ForcedZero round-trip,
+      fail-closed pad coverage). Suite 47 + freeze-check green.
 - [ ] IA-2 (Z1-impl-b): the closing round + the zeta deletion. Nine
       exact zero-sum claims (design eq. 4) over the pad commitments, one
       standalone ct-round (or folded into the last wave — pick one,
@@ -131,3 +155,19 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
   reads == closing reads == the full pad-wave set per claim row; the
   psi-circularity rule (2.5) is honored by deriving the pad-wave set from
   the PLAN (pin-bearing waves), never from claim support.
+- 2026-07-16 (IA, impl-a 2/2 — IA-1 DONE): pads live in the layer rig.
+  ur1_layer_shape(masked) derives the pad layout + charges each
+  pin-bearing wave's C2 budget the +1 pad commitment (cap re-derived by
+  the engine's scan: 76 -> 75 at 2^12/silu — the design 6.1 prediction,
+  not hand-carried); ffn_layer_run(masked): pads drawn from the
+  per-proof ProverRng and committed in Pass 1.5 (h0_link binds them
+  before alpha/psi/wave h0s), masked splitter both sides, verifier
+  re-derives the layout independently and asserts byte-for-byte
+  agreement, wave round lists gain the shared pad commitment with
+  g_base +1. Battery + smoke + benches run MASKED by default; the
+  legacy Revealed rig path (masked=false) exists solely for [Z1-a] and
+  the LKP-9 legacy pins (which pin the masked=false shape, unchanged).
+  Full 2^12 battery green under masking on all four arms — including
+  RangeOnly, where the pad-wave set is a PROPER subset of the waves
+  (triple waves are not pin-bearing there) — and every S1/S3 tamper
+  leg re-passes (Z1-e pre-staged). Suite 47 + freeze-check green.

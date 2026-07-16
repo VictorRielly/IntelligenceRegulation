@@ -14589,6 +14589,15 @@ struct LayerShape {
     dt: usize,
     c2_max: usize,
     data_cap: usize,
+    /// U-Z1: the wave-share pad layout (design 2.2) — plan-derived
+    /// pad-wave set (the pin-bearing waves), 9 pads per pad wave,
+    /// wave-major, whole pad-waves per commitment. `n_claims == 0` on
+    /// unmasked/bare shapes. Pad commitments (when present) sit at
+    /// global indices base_pad .. base_pad + pad_layout.n_pad_cms,
+    /// immediately after the data commitments and BEFORE the g-groups,
+    /// so h0_link binds them before any challenge.
+    pad_layout: ring::ct_engine::WavePadLayout,
+    base_pad: usize,
     lp: ring::link::LinkParams,
     plan: ring::ct_engine::WavePlan,
     /// Per wave: the CONTIGUOUS chunk range [c0, c1) its Y/UP/Z triples
@@ -14600,8 +14609,21 @@ struct LayerShape {
     wave_g_groups: Vec<usize>,
 }
 
-fn ur1_layer_shape(log2_el: usize, arm: LayerArm, shape: CommitShape, q: u64) -> LayerShape {
-    use ring::ct_engine::{plan_waves, r1_pad_count};
+/// `masked = true` is the U-Z1 wave-share-masking shape (pin shares
+/// carry coset one-time pads; every pin-bearing wave's round list gains
+/// its shared pad commitment, so the C2 budget charges +1 commitment
+/// there and the data cap re-derives — 76 -> 75 at the 2^12/silu
+/// point). `masked = false` is the LEGACY as-built (C-02 Revealed)
+/// shape, kept for the permanent [Z1-a] baseline exhibit and the LKP-9
+/// reproducibility pins.
+fn ur1_layer_shape(
+    log2_el: usize,
+    arm: LayerArm,
+    shape: CommitShape,
+    q: u64,
+    masked: bool,
+) -> LayerShape {
+    use ring::ct_engine::{WavePadLayout, plan_waves, r1_pad_count};
     use ring::gkr::ceiling_gate_ok;
     use ring::gkr_masked::{blinder_positions, mask_coeff_counts};
     use ring::kfield::K_DEG;
@@ -14686,7 +14708,10 @@ fn ur1_layer_shape(log2_el: usize, arm: LayerArm, shape: CommitShape, q: u64) ->
             let lin_w = if has_pin { UR1_PIN_COPIES } else { 0 } + if c1 > c0 { 2 * l } else { 0 };
             let gslots = lin_w + r1_pad_count(0, c1 - c0, 0);
             let g_groups = gslots.div_ceil(msg_r);
-            if wave.len() + g_groups > c2_max {
+            // U-Z1: a pin-bearing wave's round list gains its shared pad
+            // commitment (design 2.2 rule 2) — one more slot under C2.
+            let pad_cm = usize::from(masked && arm.has_any() && has_pin);
+            if wave.len() + pad_cm + g_groups > c2_max {
                 return None;
             }
             chunk_rng.push((c0, c1));
@@ -14704,7 +14729,11 @@ fn ur1_layer_shape(log2_el: usize, arm: LayerArm, shape: CommitShape, q: u64) ->
         let t = cap / 3;
         let lin_w = if arm.has_any() { UR1_PIN_COPIES } else { 0 } + 2 * l;
         let gslots = lin_w + r1_pad_count(0, t * msg_r, 0);
-        cap + gslots.div_ceil(msg_r) <= c2_max
+        // Worst case charges the pad commitment whenever the shape is
+        // masked (conservative for arms whose worst wave is pin-free;
+        // the real per-wave budget above decides).
+        let pad_cm = usize::from(masked && arm.has_any());
+        cap + pad_cm + gslots.div_ceil(msg_r) <= c2_max
     };
     let mut data_cap = c2_max;
     while data_cap > 3 && !fits_analytic(data_cap) {
@@ -14721,6 +14750,28 @@ fn ur1_layer_shape(log2_el: usize, arm: LayerArm, shape: CommitShape, q: u64) ->
         data_cap -= 1;
         assert!(data_cap > 3, "no viable wave data cap");
     };
+    // U-Z1: the PLAN-derived pad layout (design 2.5's circularity rule —
+    // the pad-wave set is the pin-bearing waves, a pure function of the
+    // shape; claim support never enters). Prover and verifier both
+    // derive this; the rig asserts byte-for-byte agreement (Z1-i).
+    let pad_layout = {
+        let pin_hi = if arm.has_silu() { base_up } else { base_y };
+        let (n_claims, pad_waves) = if masked && arm.has_any() {
+            let pw: Vec<usize> = plan
+                .waves
+                .iter()
+                .enumerate()
+                .filter(|(_, wave)| wave.iter().any(|&i| i < pin_hi))
+                .map(|(w, _)| w)
+                .collect();
+            (UR1_PIN_COPIES, pw)
+        } else {
+            (0, Vec::new())
+        };
+        WavePadLayout::derive(n_claims, pad_waves, plan.waves.len(), msg_r)
+            .expect("layer pad layout derives (internal shape, not verifier input)")
+    };
+    let base_pad = n_data;
     LayerShape {
         n_el,
         chunks,
@@ -14744,6 +14795,8 @@ fn ur1_layer_shape(log2_el: usize, arm: LayerArm, shape: CommitShape, q: u64) ->
         dt,
         c2_max,
         data_cap,
+        pad_layout,
+        base_pad,
         lp,
         plan,
         wave_chunks,
@@ -14922,16 +14975,27 @@ struct LayerCost {
     masked_bytes: usize,
     /// Partial-scalar reveal count (pins + zeta), 12 B each on the wire.
     reveal_shares: usize,
+    /// U-Z1: committed pad-commitment coefficients (design 6.1's "pad
+    /// dce" row — ceil(9W/1024) commitments x 1024).
+    q31_pad_coeffs: usize,
 }
 
 /// One committed per-layer run: commit -> validated statement -> ONE
 /// masked descent pair -> multi-wave q31 ct-rounds with split claims ->
 /// verify. Prove and verify interleave per wave (proofs drop after each
 /// wave; the H-03 discipline), with separately accumulated timers.
+///
+/// `masked = true` (U-Z1, the shipped mode): pin shares carry coset
+/// one-time pads in shared pre-challenge pad commitments; every
+/// pin-bearing wave's round list gains its pad commitment and the
+/// reveals are sigma~ = functional + pad. `masked = false` is the
+/// LEGACY C-02 Revealed wire, kept ONLY for the permanent [Z1-a]
+/// unmasked-leak baseline exhibit.
 #[allow(clippy::too_many_lines)]
 fn ffn_layer_run(
     log2_el: usize,
     arm: LayerArm,
+    masked: bool,
     tamper: LayerTamper,
     seed: u64,
     entropy: ChainEntropy,
@@ -14940,9 +15004,10 @@ fn ffn_layer_run(
     use manifest::{ClaimManifest, Operation, Orientation, QuantMeta};
     use ring::commit::CommitShape as CS;
     use ring::ct_engine::{
-        CtClaim, QuadRingClaim, StdOpening, ct_h0, ct_mul_centered, derive_ct_round_params,
-        prove_ct_round, quad_ring_localized, sample_g_masks, split_claims_prover,
-        split_claims_verifier, verify_ct_round,
+        CtClaim, QuadRingClaim, StdOpening, WavePads, ct_h0, ct_mul_centered,
+        derive_ct_round_params, draw_wave_pads, pack_wave_pads, prove_ct_round,
+        quad_ring_localized, sample_g_masks, split_claims_prover, split_claims_prover_masked,
+        split_claims_verifier, split_claims_verifier_masked, verify_ct_round,
     };
     use ring::gkr::{ceiling_gate_ok, eq_table};
     use ring::gkr_masked::{
@@ -14974,7 +15039,7 @@ fn ffn_layer_run(
     let msg_r = shape.msg_r;
     let kpc = msg_r * D / K_DEG;
     let crs = expand_crs(shape, q, 0x0_8CA);
-    let ls = ur1_layer_shape(log2_el, arm, shape, q);
+    let ls = ur1_layer_shape(log2_el, arm, shape, q, masked);
     let (n_el, chunks, slot_cms, nx, n_data) = (ls.n_el, ls.chunks, ls.slot_cms, ls.nx, ls.n_data);
     let l_zeta = ls.lp.l;
     let n_waves = ls.plan.waves.len();
@@ -14997,6 +15062,7 @@ fn ffn_layer_run(
         n_g_groups: ls.wave_g_groups.iter().sum(),
         q31_data_coeffs: n_data * msg_r * D,
         q31_g_coeffs: ls.wave_g_groups.iter().sum::<usize>() * msg_r * D,
+        q31_pad_coeffs: ls.pad_layout.n_pad_cms * msg_r * D,
         masked_bytes: (usize::from(arm.has_silu()) + usize::from(arm.has_range()))
             * masked_pass_bytes(ls.dw, ls.dt, 0, 1),
         ..LayerCost::default()
@@ -15220,6 +15286,27 @@ fn ffn_layer_run(
     }
     assert_eq!(msgs.len(), n_data);
 
+    // ---- Pass 1.5 (U-Z1): the shared wave-share pad commitments —
+    // statement material, committed HERE so h0_link binds them before
+    // any challenge (alpha, psi, every per-wave h0) derives. Pad values
+    // come from the per-proof ProverRng stream (fresh per proof — the
+    // Z1-h freshness rule); the layout is the PUBLIC plan-derived
+    // WavePadLayout. -------------------------------------------------------
+    let masked_pins = masked && arm.has_any();
+    let mut pads_live: Option<WavePads> = None;
+    if masked_pins {
+        assert_eq!(ls.base_pad, msgs.len(), "pad commitments sit right after the data");
+        let pads = draw_wave_pads(&mut rng, q, &ls.pad_layout);
+        let pad_msgs = pack_wave_pads(&mut rng, q, msg_r, &ls.pad_layout, &pads)
+            .expect("pad packing follows the plan-derived layout");
+        assert_eq!(pad_msgs.len(), ls.pad_layout.n_pad_cms);
+        for m in pad_msgs {
+            push_commit(m, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        }
+        pads_live = Some(pads);
+    }
+    assert_eq!(msgs.len(), n_data + ls.pad_layout.n_pad_cms);
+
     // ---- Pass 2: per-wave g-groups (sizes from the plan-deterministic
     // budgets, D-4), still BEFORE any challenge derives. -------------------
     let mut g_base_global: Vec<usize> = Vec::with_capacity(n_waves);
@@ -15310,14 +15397,20 @@ fn ffn_layer_run(
 
     if !quiet {
         println!(
-            "  layer shape: {} el (2^{} - 4), {} data + {} g commitments across {} waves (data cap {}, C2 max {}), descent pairs dw = {} / dt = {} (silu {}, range {}); NO q46 plane/ARP side (ledger D-5{})",
+            "  layer shape: {} el (2^{} - 4), {} data + {} pad + {} g commitments across {} waves (data cap {}, C2 max {}; {}), descent pairs dw = {} / dt = {} (silu {}, range {}); NO q46 plane/ARP side (ledger D-5{})",
             n_el,
             log2_el,
             n_data,
+            ls.pad_layout.n_pad_cms,
             cost.n_g_groups,
             n_waves,
             ls.data_cap,
             ls.c2_max,
+            if masked {
+                "U-Z1 MASKED: pin shares carry coset one-time pads"
+            } else {
+                "LEGACY Revealed — the C-02 wire, [Z1-a] baseline only"
+            },
             ls.dw,
             ls.dt,
             arm.has_silu(),
@@ -15654,11 +15747,25 @@ fn ffn_layer_run(
         tr_state = Some(tr);
     }
 
-    // Split the pin claims across waves (the audited S0 path) and apply
-    // the reveal-wire tampers.
+    // Split the pin claims across waves and apply the reveal-wire
+    // tampers. Masked mode (U-Z1, the shipped path): coset one-time
+    // pads — sigma~ = functional + pad, the pad table CONSUMED here
+    // (one-time freshness). Unmasked mode is the LEGACY C-02 Revealed
+    // wire, [Z1-a] baseline only.
     let msg_refs: Vec<&[Poly]> = msgs[..n_data].iter().map(|m| m.as_slice()).collect();
-    let (mut pw_pins, mut pin_reveals) = split_claims_prover(&zq, &ls.plan, &pin_claims_p, &msg_refs)
-        .expect("honest pin split (prover-side, layout-derived plan)");
+    let (mut pw_pins, mut pin_reveals) = if masked_pins {
+        split_claims_prover_masked(
+            &zq,
+            &ls.plan,
+            &pin_claims_p,
+            &msg_refs,
+            &ls.pad_layout,
+            pads_live.take().expect("pads were drawn pre-challenge"),
+        )
+    } else {
+        split_claims_prover(&zq, &ls.plan, &pin_claims_p, &msg_refs)
+    }
+    .expect("honest pin split (prover-side, layout-derived plan)");
     drop(pin_claims_p);
     if pw_pins.is_empty() {
         pw_pins = (0..n_waves).map(|_| Vec::new()).collect();
@@ -15803,18 +15910,32 @@ fn ffn_layer_run(
             return (verdict, cost);
         }
     }
-    let v_pins: Vec<Vec<CtClaim>> =
-        match split_claims_verifier(&zq, &ls.plan, &pin_claims_v, &pin_reveals) {
-            Ok(v) => v,
-            Err(_) => {
-                // Typed WaveError (audit M-01): the layer verifier rejects
-                // fail-closed on any malformed/lied reveal structure.
-                verdict.sum_gate_ok = false;
-                verdict.waves_ok = false;
-                cost.verify_s += t_verify.elapsed().as_secs_f64();
-                return (verdict, cost);
-            }
-        };
+    let v_pins_result = if masked_pins {
+        // The verifier derives the pad layout INDEPENDENTLY from the
+        // public shape (D-2 lifted to pads) and must agree with the
+        // prover byte-for-byte — the Z1-i determinism gate. A mismatch
+        // is a code bug, not adversarial input: loud assert.
+        let layout_v = ur1_layer_shape(log2_el, arm, shape, q, masked).pad_layout;
+        assert_eq!(
+            layout_v.layout_bytes(),
+            ls.pad_layout.layout_bytes(),
+            "verifier-derived pad layout must match the prover's byte-for-byte (Z1-i)"
+        );
+        split_claims_verifier_masked(&zq, &ls.plan, &pin_claims_v, &pin_reveals, &layout_v)
+    } else {
+        split_claims_verifier(&zq, &ls.plan, &pin_claims_v, &pin_reveals)
+    };
+    let v_pins: Vec<Vec<CtClaim>> = match v_pins_result {
+        Ok(v) => v,
+        Err(_) => {
+            // Typed WaveError (audit M-01): the layer verifier rejects
+            // fail-closed on any malformed/lied reveal structure.
+            verdict.sum_gate_ok = false;
+            verdict.waves_ok = false;
+            cost.verify_s += t_verify.elapsed().as_secs_f64();
+            return (verdict, cost);
+        }
+    };
     drop(pin_claims_v);
     let mut v_pins = v_pins;
     if v_pins.is_empty() {
@@ -15889,6 +16010,19 @@ fn ffn_layer_run(
     };
     let mut rp_cache: std::collections::BTreeMap<usize, (ring::ct_engine::CtRoundParams, ring::commit::A1Paths)> =
         std::collections::BTreeMap::new();
+    // U-Z1: wave -> ordinal in the pad-wave set (None off the set); a
+    // pad wave's round list gains its shared pad commitment at local
+    // index wave.len() — the layout convention, derived from the PUBLIC
+    // plan by both sides.
+    let pad_ord: Vec<Option<usize>> = {
+        let mut m = vec![None; n_waves];
+        if ls.pad_layout.has_pads() {
+            for (wi, &w) in ls.pad_layout.pad_waves.iter().enumerate() {
+                m[w] = Some(wi);
+            }
+        }
+        m
+    };
     for w in 0..n_waves {
         let wave = &ls.plan.waves[w];
         let (c0, c1) = ls.wave_chunks[w];
@@ -15901,15 +16035,27 @@ fn ffn_layer_run(
         }
         let g_off = g_base_global[w];
         let g_cnt = ls.wave_g_groups[w];
+        let pad_cm: Option<usize> =
+            pad_ord[w].map(|wi| ls.base_pad + wi / ls.pad_layout.waves_per_cm);
+        let pad_shift = usize::from(pad_cm.is_some());
         // The verifier's (honest, layout-derived) wave list; the prover's
         // list differs only under the cross-use forgery.
-        let idxs: Vec<usize> = wave.iter().copied().chain(g_off..g_off + g_cnt).collect();
+        let idxs: Vec<usize> = wave
+            .iter()
+            .copied()
+            .chain(pad_cm)
+            .chain(g_off..g_off + g_cnt)
+            .collect();
         let g_off_p = match gx_pair {
             Some((t, d)) if w == t => g_base_global[d],
             _ => g_off,
         };
-        let idxs_p: Vec<usize> =
-            wave.iter().copied().chain(g_off_p..g_off_p + g_cnt).collect();
+        let idxs_p: Vec<usize> = wave
+            .iter()
+            .copied()
+            .chain(pad_cm)
+            .chain(g_off_p..g_off_p + g_cnt)
+            .collect();
         let n_cw = idxs.len();
         assert!(n_cw <= ls.c2_max);
         if !rp_cache.contains_key(&n_cw) {
@@ -15997,7 +16143,7 @@ fn ffn_layer_run(
         };
         let (proof_w, _) = prove_ct_round(
             &path_w, &ctx_ring, rp_w, None, &crs, &h0_w, &claims_p, &[], &[], &quads_loc,
-            &openings, &[], &[], wave.len(), &mut rng,
+            &openings, &[], &[], wave.len() + pad_shift, &mut rng,
         );
         drop(claims_p);
         cost.prove_s += t_p.elapsed().as_secs_f64();
@@ -16038,7 +16184,7 @@ fn ffn_layer_run(
         let h0_wv = ct_h0(&crs, &state_v, &wt1s, &wt2s, &[]);
         let ok_w = verify_ct_round(
             &path_w, &ctx_ring, rp_w, None, &crs, &h0_wv, &claims_v, &[], &[], &quads_loc,
-            &wt1s, &wt2s, &[], &[], &[], wave.len(), &proof_w,
+            &wt1s, &wt2s, &[], &[], &[], wave.len() + pad_shift, &proof_w,
         );
         if !ok_w {
             verdict.waves_ok = false;
@@ -16071,7 +16217,7 @@ fn self_test_ffn_layer() {
     println!("\n[U-R1b] per-layer multi-wave rig: split claims, one descent pair, wave-boundary tampers");
     let lg = 12usize;
     let t0 = Instant::now();
-    let (va, ca) = ffn_layer_run(lg, LayerArm::Lookup, LayerTamper::None, 0x5eed_0111, ChainEntropy::Test, false);
+    let (va, ca) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::None, 0x5eed_0111, ChainEntropy::Test, false);
     assert_true(
         &format!(
             "U-R1b honest layer ACCEPTS end-to-end ({} el across {} waves: statement v2 + ONE masked descent pair + split pin/zeta claims + per-wave ct-rounds; commit {:.2}s prove {:.2}s verify {:.2}s)",
@@ -16083,7 +16229,7 @@ fn self_test_ffn_layer() {
         "U-R1b differential: streaming zeta shares == link_claims_tgt_slot + split_claims_prover (bit-for-bit at the battery shape)",
         va.differential_ok,
     );
-    let (vb, cb) = ffn_layer_run(lg, LayerArm::Bare, LayerTamper::None, 0x5eed_0111, ChainEntropy::Test, true);
+    let (vb, cb) = ffn_layer_run(lg, LayerArm::Bare, true, LayerTamper::None, 0x5eed_0111, ChainEntropy::Test, true);
     assert_true(
         &format!(
             "U-R1b baseline arm (lookup omitted) ACCEPTS — the A/B marginal is measurable (prove +{:.2}s, verify +{:.2}s, commit +{} q31 coefficients)",
@@ -16095,44 +16241,44 @@ fn self_test_ffn_layer() {
         vb.all_ok(),
     );
     // Wave boundary, pin family (the audited S0 path at layer scale).
-    let (vl, _) = ffn_layer_run(lg, LayerArm::Lookup, LayerTamper::PartialLiePin, 0x5eed_0112, ChainEntropy::Test, true);
+    let (vl, _) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::PartialLiePin, 0x5eed_0112, ChainEntropy::Test, true);
     assert_true(
         "U-R1b wave boundary: a lied pin partial scalar REJECTS at split_claims_verifier's sum gate (lookup itself passes)",
         !vl.sum_gate_ok && vl.lookup_ok && vl.statement_ok,
     );
-    let (vc, _) = ffn_layer_run(lg, LayerArm::Lookup, LayerTamper::CompensatedPin, 0x5eed_0113, ChainEntropy::Test, true);
+    let (vc, _) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::CompensatedPin, 0x5eed_0113, ChainEntropy::Test, true);
     assert_true(
         "U-R1b wave boundary: a COMPENSATED pin lie passes the sum gate but its wave's ct-round REJECTS the false partial (the load-bearing leg)",
         vc.sum_gate_ok && !vc.waves_ok && vc.lookup_ok && vc.zeta_gate_ok,
     );
     // Wave boundary, zeta family (the streaming path's gates).
-    let (vz, _) = ffn_layer_run(lg, LayerArm::Lookup, LayerTamper::PartialLieZeta, 0x5eed_0114, ChainEntropy::Test, true);
+    let (vz, _) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::PartialLieZeta, 0x5eed_0114, ChainEntropy::Test, true);
     assert_true(
         "U-R1b wave boundary: a lied zeta partial REJECTS at the per-row sum gate",
         !vz.zeta_gate_ok && vz.lookup_ok && vz.sum_gate_ok,
     );
-    let (vzc, _) = ffn_layer_run(lg, LayerArm::Lookup, LayerTamper::CompensatedZeta, 0x5eed_0115, ChainEntropy::Test, true);
+    let (vzc, _) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::CompensatedZeta, 0x5eed_0115, ChainEntropy::Test, true);
     assert_true(
         "U-R1b wave boundary: a compensated zeta lie passes the gate but the affected waves REJECT at their ct-rounds",
         vzc.zeta_gate_ok && !vzc.waves_ok && vzc.lookup_ok && vzc.sum_gate_ok,
     );
     // The block-rig chain edges at the layer shape.
-    let (vy, _) = ffn_layer_run(lg, LayerArm::Lookup, LayerTamper::OffTableY, 0x5eed_0116, ChainEntropy::Test, true);
+    let (vy, _) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::OffTableY, 0x5eed_0116, ChainEntropy::Test, true);
     assert_true(
         "U-R1b edge (lookup): an off-table Y REJECTS at the masked lookup's root cross-check; every wave passes (the edge is isolated)",
         !vy.lookup_ok && vy.waves_ok && vy.sum_gate_ok && vy.zeta_gate_ok,
     );
-    let (vh, _) = ffn_layer_run(lg, LayerArm::Lookup, LayerTamper::HadamardZ, 0x5eed_0117, ChainEntropy::Test, true);
+    let (vh, _) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::HadamardZ, 0x5eed_0117, ChainEntropy::Test, true);
     let z_wave = {
         let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
-        let ls = ur1_layer_shape(lg, LayerArm::Lookup, shape, Q8);
+        let ls = ur1_layer_shape(lg, LayerArm::Lookup, shape, Q8, true);
         ls.plan.slot_of[ls.base_y].0
     };
     assert_true(
         "U-R1b edge (gate-o-up): a tampered Z slot constant REJECTS at its wave's quad ring claim; the lookup passes",
         !vh.waves_ok && vh.first_bad_wave == Some(z_wave) && vh.lookup_ok && vh.zeta_gate_ok,
     );
-    let (vk, _) = ffn_layer_run(lg, LayerArm::Lookup, LayerTamper::LookupH0, 0x5eed_0118, ChainEntropy::Test, true);
+    let (vk, _) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::LookupH0, 0x5eed_0118, ChainEntropy::Test, true);
     assert_true(
         "U-R1b transcript boundary (C-02): a free prover-chosen lookup h0 REJECTS because the verifier DERIVES h0 from statement+commitments — the masked descents diverge and cannot ground the wave pins; no prover h0 is read or compared, and the layer does not accept",
         !vk.lookup_ok && !vk.all_ok(),
@@ -16141,7 +16287,7 @@ fn self_test_ffn_layer() {
     // waves and quad_ring_wave detects it.
     {
         let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
-        let ls = ur1_layer_shape(lg, LayerArm::Lookup, shape, Q8);
+        let ls = ur1_layer_shape(lg, LayerArm::Lookup, shape, Q8, true);
         let naive = plan_waves(ls.n_data, &[], ls.data_cap).expect("naive plan derives");
         let one_poly = {
             let mut p = poly_zero();
@@ -16169,7 +16315,7 @@ fn self_test_ffn_layer() {
     }
 
     // ---- [U-R2a] S3 legs: the range-table instance. ----------------------
-    let (vr, cr) = ffn_layer_run(lg, LayerArm::LookupRange, LayerTamper::None, 0x5eed_0211, ChainEntropy::Test, false);
+    let (vr, cr) = ffn_layer_run(lg, LayerArm::LookupRange, true, LayerTamper::None, 0x5eed_0211, ChainEntropy::Test, false);
     assert_true(
         &format!(
             "U-R2a honest layer + RANGE table ACCEPTS (second 256-row instance, own m/blinders/masks, X read dense at w = 8; commit +{} q31 coefficients over the silu arm)",
@@ -16178,7 +16324,7 @@ fn self_test_ffn_layer() {
         ),
         vr.all_ok(),
     );
-    let (vro, _) = ffn_layer_run(lg, LayerArm::RangeOnly, LayerTamper::None, 0x5eed_0212, ChainEntropy::Test, true);
+    let (vro, _) = ffn_layer_run(lg, LayerArm::RangeOnly, true, LayerTamper::None, 0x5eed_0212, ChainEntropy::Test, true);
     assert_true(
         "U-R2a range-only arm ACCEPTS (the range table as the SOLE X certifier — the S3 architecture)",
         vro.all_ok(),
@@ -16186,7 +16332,7 @@ fn self_test_ffn_layer() {
     // Out-of-range X, ISOLATED: on the range-only arm nothing but the
     // range lookup reads X's values off a table, so the range root
     // cross-check is the single rejecting gate.
-    let (vrx, _) = ffn_layer_run(lg, LayerArm::RangeOnly, LayerTamper::RangeX, 0x5eed_0213, ChainEntropy::Test, true);
+    let (vrx, _) = ffn_layer_run(lg, LayerArm::RangeOnly, true, LayerTamper::RangeX, 0x5eed_0213, ChainEntropy::Test, true);
     assert_true(
         "U-R2a edge (range): x_u = 300 smuggled into the dense column REJECTS at the range lookup's root cross-check; waves/zeta/sum gates all pass (the edge is isolated)",
         !vrx.range_ok && vrx.waves_ok && vrx.sum_gate_ok && vrx.zeta_gate_ok && vrx.statement_ok,
@@ -16195,16 +16341,16 @@ fn self_test_ffn_layer() {
     // silu lookup fuses the same X), so both root checks reject —
     // recorded honestly; the range check remains the load-bearing one
     // once S3's architecture drops the plane/ARP side for good.
-    let (vrx2, _) = ffn_layer_run(lg, LayerArm::LookupRange, LayerTamper::RangeX, 0x5eed_0214, ChainEntropy::Test, true);
+    let (vrx2, _) = ffn_layer_run(lg, LayerArm::LookupRange, true, LayerTamper::RangeX, 0x5eed_0214, ChainEntropy::Test, true);
     assert_true(
         "U-R2a edge (range, full arm): the smuggled x_u = 300 REJECTS at the range root check (and at the silu root too — X is doubly covered on this arm); waves pass",
         !vrx2.range_ok && !vrx2.lookup_ok && vrx2.waves_ok && vrx2.sum_gate_ok,
     );
     // The S1-deferred wave-boundary forgery: cross-used g-masks.
-    let (vgx, _) = ffn_layer_run(lg, LayerArm::Lookup, LayerTamper::GMaskCrossUse, 0x5eed_0215, ChainEntropy::Test, true);
+    let (vgx, _) = ffn_layer_run(lg, LayerArm::Lookup, true, LayerTamper::GMaskCrossUse, 0x5eed_0215, ChainEntropy::Test, true);
     let gx_target = {
         let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
-        let ls = ur1_layer_shape(lg, LayerArm::Lookup, shape, Q8);
+        let ls = ur1_layer_shape(lg, LayerArm::Lookup, shape, Q8, true);
         (0..ls.plan.waves.len()).filter(|&w| ls.wave_chunks[w].1 > ls.wave_chunks[w].0).next_back().unwrap()
     };
     assert_true(
@@ -16226,7 +16372,7 @@ fn self_test_ffn_layer() {
 /// `ffn-chain layer battery` to keep self-test fast).
 fn self_test_ffn_layer_smoke() {
     println!("\n[U-R1b] per-layer multi-wave smoke: one honest shape, both gates");
-    let (v, c) = ffn_layer_run(12, LayerArm::Lookup, LayerTamper::None, 0x5eed_0110, ChainEntropy::Test, false);
+    let (v, c) = ffn_layer_run(12, LayerArm::Lookup, true, LayerTamper::None, 0x5eed_0110, ChainEntropy::Test, false);
     assert_true(
         &format!(
             "U-R1b smoke: honest 2^12 layer ACCEPTS ({} el, {} waves, {} data + {} g commitments; sum gate + zeta gate + {} wave rounds green; streaming-zeta differential {})",
@@ -16252,12 +16398,12 @@ fn ffn_layer_bench(log2_el: usize) {
     println!(
         "u-r1 ffn-chain layer bench: 2^{log2_el} - 4 elements, ONE per-layer instance, multi-wave q31, 1T"
     );
-    let (va, ca) = ffn_layer_run(log2_el, LayerArm::Lookup, LayerTamper::None, 0x5eed_01b1, ChainEntropy::Os, false);
+    let (va, ca) = ffn_layer_run(log2_el, LayerArm::Lookup, true, LayerTamper::None, 0x5eed_01b1, ChainEntropy::Os, false);
     let wall_a = t_a.elapsed().as_secs_f64();
     assert!(va.all_ok(), "arm A (lookup-integrated layer) must verify");
     let hwm_a = vm_hwm_kb();
     let t_b = Instant::now();
-    let (vb, cb) = ffn_layer_run(log2_el, LayerArm::Bare, LayerTamper::None, 0x5eed_01b1, ChainEntropy::Os, true);
+    let (vb, cb) = ffn_layer_run(log2_el, LayerArm::Bare, true, LayerTamper::None, 0x5eed_01b1, ChainEntropy::Os, true);
     let wall_b = t_b.elapsed().as_secs_f64();
     assert!(vb.all_ok(), "arm B (lookup omitted) must verify");
     let hwm_b = vm_hwm_kb();
@@ -16282,11 +16428,11 @@ fn ffn_layer_bench(log2_el: usize) {
         ca.lkp_verify_s,
         ca.lkp_verify_s / el * 1e6
     );
-    let dce_a = ca.q31_data_coeffs + ca.q31_g_coeffs;
-    let dce_b = cb.q31_data_coeffs + cb.q31_g_coeffs;
+    let dce_a = ca.q31_data_coeffs + ca.q31_g_coeffs + ca.q31_pad_coeffs;
+    let dce_b = cb.q31_data_coeffs + cb.q31_g_coeffs + cb.q31_pad_coeffs;
     println!(
-        "  committed q31 coefficients: A {dce_a} (data {} + g {}), B {dce_b} -> lookup marginal {:.3} dce/el at ONE {}-el instance (m + blinders + masks + pin g's, amortized layer-wide)",
-        ca.q31_data_coeffs, ca.q31_g_coeffs, (dce_a - dce_b) as f64 / el, ca.n_el
+        "  committed q31 coefficients: A {dce_a} (data {} + g {} + Z1 pads {}), B {dce_b} -> lookup marginal {:.3} dce/el at ONE {}-el instance (m + blinders + masks + pin g's + wave-share pads, amortized layer-wide)",
+        ca.q31_data_coeffs, ca.q31_g_coeffs, ca.q31_pad_coeffs, (dce_a - dce_b) as f64 / el, ca.n_el
     );
     println!(
         "  masked transcript: {} B descent pair + {} partial reveals x 12 B = {:.1} KB total -> {:.3} B/el (arm A)",
@@ -16299,11 +16445,11 @@ fn ffn_layer_bench(log2_el: usize) {
         "  wave accounting: {} waves (data cap {} of C2 max {}), {} data + {} g commitments; g fraction {:.1}%",
         ca.n_waves,
         {
-            let ls = ur1_layer_shape(log2_el, LayerArm::Lookup, CommitShape { kappa: 8, n_r: 26, msg_r: 8 }, Q8);
+            let ls = ur1_layer_shape(log2_el, LayerArm::Lookup, CommitShape { kappa: 8, n_r: 26, msg_r: 8 }, Q8, true);
             ls.data_cap
         },
         {
-            let ls = ur1_layer_shape(log2_el, LayerArm::Lookup, CommitShape { kappa: 8, n_r: 26, msg_r: 8 }, Q8);
+            let ls = ur1_layer_shape(log2_el, LayerArm::Lookup, CommitShape { kappa: 8, n_r: 26, msg_r: 8 }, Q8, true);
             ls.c2_max
         },
         ca.n_data,
@@ -16336,12 +16482,12 @@ fn ffn_layer_range_bench(log2_el: usize) {
     println!(
         "u-r2 ffn-chain layer RANGE bench: 2^{log2_el} - 4 elements, arm R = silu + range table, arm A = silu only, 1T"
     );
-    let (vr, cr) = ffn_layer_run(log2_el, LayerArm::LookupRange, LayerTamper::None, 0x5eed_02b1, ChainEntropy::Os, false);
+    let (vr, cr) = ffn_layer_run(log2_el, LayerArm::LookupRange, true, LayerTamper::None, 0x5eed_02b1, ChainEntropy::Os, false);
     let wall_r = t_r.elapsed().as_secs_f64();
     assert!(vr.all_ok(), "arm R (range-integrated layer) must verify");
     let hwm_r = vm_hwm_kb();
     let t_a = Instant::now();
-    let (va, ca) = ffn_layer_run(log2_el, LayerArm::Lookup, LayerTamper::None, 0x5eed_02b1, ChainEntropy::Os, true);
+    let (va, ca) = ffn_layer_run(log2_el, LayerArm::Lookup, true, LayerTamper::None, 0x5eed_02b1, ChainEntropy::Os, true);
     let wall_a = t_a.elapsed().as_secs_f64();
     assert!(va.all_ok(), "arm A (silu only) must verify");
     let el = cr.n_el as f64;
@@ -16367,10 +16513,10 @@ fn ffn_layer_range_bench(log2_el: usize) {
         (cr.lkp_prove_s - ca.lkp_prove_s) / el * 1e6,
         (cr.lkp_verify_s - ca.lkp_verify_s) / el * 1e6
     );
-    let dce_r = cr.q31_data_coeffs + cr.q31_g_coeffs;
-    let dce_a = ca.q31_data_coeffs + ca.q31_g_coeffs;
+    let dce_r = cr.q31_data_coeffs + cr.q31_g_coeffs + cr.q31_pad_coeffs;
+    let dce_a = ca.q31_data_coeffs + ca.q31_g_coeffs + ca.q31_pad_coeffs;
     println!(
-        "  committed q31 coefficients: R {dce_r}, A {dce_a} -> RANGE marginal {:.4} dce/el (m_r + blinders_r + masks_r; the per-wave pin g budget is UNCHANGED — pins stay 9 psi copies)",
+        "  committed q31 coefficients: R {dce_r}, A {dce_a} -> RANGE marginal {:.4} dce/el (m_r + blinders_r + masks_r; the per-wave pin g budget is UNCHANGED — pins stay 9 psi copies; Z1 pad commitments shared, no doubling)",
         (dce_r - dce_a) as f64 / el
     );
     println!(
@@ -16435,8 +16581,8 @@ fn freeze_check_ur1() -> bool {
     // capacity wall the cap sits under: a 77-data-commit triple wave
     // would need 135 total commitments.
     {
-        let ls1 = ur1_layer_shape(12, LayerArm::Lookup, shape, Q8);
-        let ls2 = ur1_layer_shape(12, LayerArm::Lookup, shape, Q8);
+        let ls1 = ur1_layer_shape(12, LayerArm::Lookup, shape, Q8, false);
+        let ls2 = ur1_layer_shape(12, LayerArm::Lookup, shape, Q8, false);
         let wall_77 = 77 + (UR1_PIN_COPIES + 2 * 24 + r1_pad_count(0, (77 / 3) * 8, 0)).div_ceil(8);
         gate(
             "LKP-9 partition rule at 2^12/silu: data cap 76, 3 waves, chunk-wave budget 57; plan deterministic; 77-commit triple wave busts C2",
