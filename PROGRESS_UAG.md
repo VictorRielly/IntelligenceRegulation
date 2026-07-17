@@ -55,9 +55,28 @@ codex-audit-* read-only.
 
 - [ ] GA: AGGREGATION_LITERATURE.md — families (a)-(e) priced on the
       common axes, verdict + recommendation.
-- [ ] GB: PROOF_BYTE_LEDGER.md — component ledger reconciled to
+- [x] GB: PROOF_BYTE_LEDGER.md — component ledger reconciled to
       measured bytes, budget decomposition, requirements sheet, hard
       budget-test spec.
+      DONE 2026-07-17 (docs/zkmatrix-poc/PROOF_BYTE_LEDGER.md).
+      Headline: canonical complete artifact @2^20 = 3,543.7 MiB
+      (openings 73.9% + identities 19.6% + claim layer 6.5%), 14,175x
+      over 256 KiB; 18.59 GiB per 512x11008 layer (76,162x), 595 GiB
+      per 32-layer pass. Audit C-03's 2,930.08 MiB CONFIRMED as exact
+      arithmetic on its widths (88,247 openings re-derived from code
+      to the digit) but the true wire artifact is +21%: canonical u32
+      w1 saves 332.6 MiB, while the audit-uncounted commitment
+      identities (695.6 MiB) and claim-layer polys (230.4 MiB)
+      dominate the correction. Model calibration: reproduces all four
+      P3-EXIT measured files to <0.07% and the IA-4 masked-descent
+      B/el rows exactly. Surprises recorded: descent wire is 2x the
+      LKP-7 model (8 vs 4 B/limb — at dw 24 the shipped pair alone is
+      207.9 KiB, 81% of budget); post-Z1 pin reveals alone (379 KiB)
+      bust the budget at FFN-layer scale, so RHS folding is forced by
+      bytes AND Z1 privacy; C-04's P3_MAX_TOTAL_SCALARS (2^30)
+      already rejects the honest linear FFN-layer artifact (z scalars
+      1.59e9); verifier gap ~528x at FFN scale — sublinear
+      verification is a hard requirement, not a nicety.
 - [ ] FINAL (orchestrator): merge, review, U-AG2 direction decided,
       push, Victor briefed.
 
