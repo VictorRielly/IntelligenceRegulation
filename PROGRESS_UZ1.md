@@ -285,3 +285,14 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
   exit met: full [Z1] battery green (Z1-a/b/c/e/g/h + the Z1-i/Z1-d/
   Z1-f legs from impl-a/b); suite 47 + freeze-check green. The
   permanent [Z1-a] C-02 regression is in the always-on self-test.
+- 2026-07-16 (IA, impl-d 1/2 — LKP-10 freeze row): freeze_check_uz1
+  added and wired into freeze-check, pinning both directions: pad
+  layout rule (9/wave, wave-major, 113 pad-waves/1024-coeff commitment,
+  6 pad commitments at W=670, layout_bytes deterministic); the
+  re-derived data cap (masked 75 vs legacy 76 — the engine's own scan,
+  not hand-carried); the closing-round shape (9 exact zero-sum claims,
+  2 g-groups); the zeta deletion (57 -> 9 reveals/wave, l=24, 2
+  families); the pad freshness rule (solved last pad, non-Clone
+  consumed WavePads). freeze-check + suite green. Measured numbers
+  (dce/el, B/el, attribution, RSS) go in the IA-4 box next, from the
+  serialized S2-shape runs.

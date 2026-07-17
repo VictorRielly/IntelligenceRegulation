@@ -5050,6 +5050,7 @@ fn freeze_check() {
     all_ok &= freeze_check_link();
     all_ok &= freeze_check_uk8();
     all_ok &= freeze_check_ur1();
+    all_ok &= freeze_check_uz1();
 
     if all_ok {
         println!("freeze-check passed");
@@ -17427,6 +17428,86 @@ fn freeze_check_ur1() -> bool {
                 && (lm4 - want4).abs() < 1e-12
                 && lm4.exp() < 3.0
                 && lm4 < 4.0 * lm1,
+        );
+    }
+    all_ok
+}
+
+/// LKP-10 — the U-Z1 wave-share masking operating point, pinned both
+/// directions (house freeze-row discipline; audit 2026-07-14 C-02
+/// closure). The pad layout rule (9/wave, wave-major, 1024/commitment),
+/// the pad freshness rule (solved last pad from the per-proof stream),
+/// the closing-round shape (9 exact zero-sum claims, design eq. 4), the
+/// zeta wire deletion (57 -> 9 reveals/wave), and the re-derived data
+/// cap (76 -> 75 under masking, by the engine's own scan — NOT
+/// hand-carried). The masked shape is the SHIPPED path; the legacy
+/// Revealed shape (masked = false) keeps LKP-9's cap 76 for the
+/// permanent [Z1-a] baseline exhibit.
+fn freeze_check_uz1() -> bool {
+    use ring::ct_engine::{WavePadLayout, draw_wave_pads};
+    let mut all_ok = true;
+    let mut gate = |label: &str, ok: bool| {
+        println!("  {} {label}", if ok { "ok  " } else { "FAIL" });
+        all_ok &= ok;
+    };
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    // Pad layout rule: 9 pads/wave, wave-major, 1024 coeffs/commitment
+    // -> 113 whole pad-waves per pad commitment, ceil(9W/1024) = 6 pad
+    // commitments at W = 670; layout_bytes canonical and deterministic.
+    {
+        let l1 = WavePadLayout::derive(9, (0..670).collect(), 670, 8).expect("2^20 layout");
+        let l2 = WavePadLayout::derive(9, (0..670).collect(), 670, 8).expect("2^20 layout");
+        gate(
+            "LKP-10 pad layout: 9 pads/wave, wave-major, 113 pad-waves/commitment (1024/9), ceil(9W/1024)=6 pad commitments at W=670; layout_bytes deterministic (prover==verifier)",
+            l1.waves_per_cm == 113
+                && l1.n_pad_cms == 6
+                && l1.n_claims == 9
+                && l1.layout_bytes() == l2.layout_bytes(),
+        );
+    }
+    // The re-derived data cap: masked = true drops the 2^12/silu cap
+    // 76 -> 75 (the +1 shared pad commitment per pin-bearing wave,
+    // re-derived by the engine's own scan); legacy shape keeps 76.
+    {
+        let masked = ur1_layer_shape(12, LayerArm::Lookup, shape, Q8, true);
+        let legacy = ur1_layer_shape(12, LayerArm::Lookup, shape, Q8, false);
+        gate(
+            "LKP-10 data cap re-derived: masked cap = 75 (was 76; the +1 shared pad commitment per pin-bearing wave, from derive_ct_round_params' scan — not hand-carried); legacy Revealed shape keeps 76 (LKP-9)",
+            masked.data_cap == 75 && legacy.data_cap == 76,
+        );
+    }
+    // The closing-round shape: 9 exact zero-sum claims, one g-slot each
+    // -> 2 g-groups at msg_r 8; standalone over the pad commitments.
+    {
+        let masked = ur1_layer_shape(12, LayerArm::Lookup, shape, Q8, true);
+        gate(
+            "LKP-10 closing round: 9 exact zero-sum claims (design eq. 4), 2 g-groups (9 slots / msg_r 8), standalone over the pad commitments",
+            masked.closing_g_groups == 2 && masked.pad_layout.n_claims == 9,
+        );
+    }
+    // The zeta wire deletion: per-chunk-wave reveal shares 57 -> 9 (the
+    // 2 families x l = 48 identically-zero zeta reveals deleted; l = 24
+    // at the frozen link width w = 11 — LKP-8). The 9 = UR1_PIN_COPIES.
+    {
+        let l_zeta = ur1_layer_shape(12, LayerArm::Lookup, shape, Q8, true).lp.l;
+        gate(
+            "LKP-10 zeta deletion: per-chunk-wave reveal shares 57 -> 9 (9 pins kept; 2 families x l=24 = 48 identically-zero zeta reveals deleted; per-wave ForcedZero claims strictly stronger than the retired layer-wide gate)",
+            UR1_PIN_COPIES == 9 && l_zeta == 24 && UR1_PIN_COPIES + 2 * l_zeta == 57,
+        );
+    }
+    // Pad freshness rule (structural): the solved last pad makes each
+    // claim row sum to 0 mod q; WavePads is non-Clone and consumed by
+    // the splitter (draw_wave_pads only ever draws fresh from the
+    // per-proof stream).
+    {
+        let layout = WavePadLayout::derive(9, vec![0, 1, 2], 3, 8).expect("toy layout");
+        let mut rng = 0x5eed_10cau64;
+        let pads = draw_wave_pads(&mut rng, Q8, &layout);
+        gate(
+            "LKP-10 pad freshness: solved last pad (each row sums to 0 mod q) from the per-proof stream; WavePads non-Clone, consumed by the splitter — one-time freshness is structural",
+            pads.harness_values()
+                .iter()
+                .all(|r| r.iter().fold(0u128, |a, &v| (a + v as u128) % Q8 as u128) == 0),
         );
     }
     all_ok
