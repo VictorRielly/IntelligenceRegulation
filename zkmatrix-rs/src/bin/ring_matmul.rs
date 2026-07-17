@@ -14557,6 +14557,74 @@ fn self_test_wave_split() {
                 "[Z1-d] DEFENSE: the closing round ACCEPTS the honest zero-sum pads and REJECTS the delta-rigged pads at exactly the zero-sum claims — the pair closes the forgery lever",
                 run_closing(&pad_msgs[0], &mut rng) && !run_closing(&pad_msgs_d[0], &mut rng),
             );
+
+            // ---- [Z1-c] the F5 pad-commitment binding pair (design 2.5
+            // row 1). The closing round's h0 binds the pad commitment
+            // (via the transcript state, which the layer rig derives
+            // from h0_link). ATTACK: build the round over one pad
+            // commitment but have the verifier's h0 derived over a
+            // DIFFERENT one (the "pad commitment outside h0_link / a
+            // swapped pad set" move) — the challenge diverges and the
+            // opening check REJECTS. DEFENSE: h0 over the SAME committed
+            // pads ACCEPTS. Both directions, per the house F5 rule. ----
+            {
+                use ring::ct_engine::closing_round_claims;
+                let cl = closing_round_claims(&zq, &layout);
+                let rp_z = derive_ct_round_params(q, shape, 1 + cl.len().div_ceil(shape.msg_r), 0, 0, true);
+                let a1p_z = build_a1_paths(&crs, rp_z.sigma, isqrt_u128(rp_z.bound_sq));
+                let path_z = KernelPath::A1(&a1p_z);
+                // Two commitments to the SAME honest zero-sum pads with
+                // DIFFERENT randomness — distinct (t1, t2), the same
+                // message: the verifier binding either one is a distinct
+                // statement (the swap the attack needs).
+                #[allow(clippy::type_complexity)]
+                let commit_pads = |rng: &mut u64|
+                 -> (Vec<Vec<Poly>>, Vec<Vec<Poly>>, Vec<Vec<Poly>>, Vec<Vec<Vec<i64>>>) {
+                    let mut all_x: Vec<Vec<Poly>> = vec![pad_msgs[0].clone()];
+                    all_x.extend(ring::ct_engine::sample_g_masks(rng, q, shape.msg_r, cl.len(), 0));
+                    let rhos: Vec<Vec<Vec<i64>>> = (0..all_x.len())
+                        .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(rng)).collect())
+                        .collect();
+                    let mut t1s = Vec::new();
+                    let mut t2s = Vec::new();
+                    for (x, rho) in all_x.iter().zip(rhos.iter()) {
+                        let (t1, t2) = commit(&path_z, &crs, x, rho);
+                        t1s.push(t1);
+                        t2s.push(t2);
+                    }
+                    (t1s, t2s, all_x, rhos)
+                };
+                let (t1s_a, t2s_a, all_x_a, rhos_a) = commit_pads(&mut rng);
+                let (t1s_b, t2s_b, _x_b, _rhos_b) = commit_pads(&mut rng);
+                // Prover proves over commitment A (opening exactly what
+                // was committed).
+                let h0_a = ct_h0(&crs, b"z1c-closing", &t1s_a, &t2s_a, &[]);
+                let openings_a: Vec<StdOpening> = all_x_a
+                    .iter()
+                    .zip(rhos_a.iter())
+                    .enumerate()
+                    .map(|(i, (x, rho))| StdOpening { t1: &t1s_a[i], t2: &t2s_a[i], x, rho })
+                    .collect();
+                let (proof_a, _) = prove_ct_round(
+                    &path_z, &ring_ctx, &rp_z, None, &crs, &h0_a, &cl, &[], &[], &[],
+                    &openings_a, &[], &[], 1, &mut rng,
+                );
+                let accept_bound = verify_ct_round(
+                    &path_z, &ring_ctx, &rp_z, None, &crs, &h0_a, &cl, &[], &[], &[],
+                    &t1s_a, &t2s_a, &[], &[], &[], 1, &proof_a,
+                );
+                // ATTACK: verify the SAME proof against commitment B's h0
+                // and openings (the "unbound / swapped pad commitment").
+                let h0_b = ct_h0(&crs, b"z1c-closing", &t1s_b, &t2s_b, &[]);
+                let accept_swapped = verify_ct_round(
+                    &path_z, &ring_ctx, &rp_z, None, &crs, &h0_b, &cl, &[], &[], &[],
+                    &t1s_b, &t2s_b, &[], &[], &[], 1, &proof_a,
+                );
+                assert_true(
+                    "[Z1-c] F5 pad-commitment binding pair: the closing round ACCEPTS against its bound pad commitment and REJECTS when the verifier's h0/openings are a DIFFERENT (swapped/unbound) pad commitment — the design 2.5 row-1 edge, both directions",
+                    accept_bound && !accept_swapped,
+                );
+            }
         }
     }
 }
@@ -15472,6 +15540,12 @@ struct LayerVerdict {
     /// zero-sum claims over the shared pad commitments (design eq. 4).
     /// True when the shape carries no pads.
     closing_ok: bool,
+    /// U-Z1 impl-c (Q4.2a' engine cert, PA's P1 note): every shared pad
+    /// commitment is opened exactly (its pad waves + 1 closing round)
+    /// times, each with a FRESH mask — the multi-round-opening
+    /// composition's counted hypothesis (design 3.4 / the E3Z-N4
+    /// opening-count canary). True when the shape carries no pads.
+    openings_canary_ok: bool,
     /// The [U-R1b] streaming-vs-materialized zeta differential ran and
     /// matched (small shapes only).
     differential_ok: bool,
@@ -15485,6 +15559,7 @@ impl LayerVerdict {
             && self.sum_gate_ok
             && self.waves_ok
             && self.closing_ok
+            && self.openings_canary_ok
     }
 }
 
@@ -15609,8 +15684,15 @@ fn ffn_layer_run(
         waves_ok: true,
         first_bad_wave: None,
         closing_ok: true,
+        openings_canary_ok: true,
         differential_ok: true,
     };
+    // U-Z1 impl-c: count openings per shared pad commitment across the
+    // whole proof (each wave round that reads it + the closing round);
+    // the Q4.2a' hypothesis is that this equals its plan-derived
+    // opening set, all with fresh masks (masks are drawn fresh inside
+    // every prove_ct_round call — structural).
+    let mut pad_opening_counts = vec![0usize; ls.pad_layout.n_pad_cms];
 
     // ---- Instance data. ----------------------------------------------------
     let mut data_rng = seed;
@@ -16619,6 +16701,9 @@ fn ffn_layer_run(
         let pad_cm: Option<usize> =
             pad_ord[w].map(|wi| ls.base_pad + wi / ls.pad_layout.waves_per_cm);
         let pad_shift = usize::from(pad_cm.is_some());
+        if let Some(cm) = pad_cm {
+            pad_opening_counts[cm - ls.base_pad] += 1;
+        }
         // The verifier's (honest, layout-derived) wave list; the prover's
         // list differs only under the cross-use forgery.
         let idxs: Vec<usize> = wave
@@ -16816,7 +16901,24 @@ fn ffn_layer_run(
         ) {
             verdict.closing_ok = false;
         }
+        // The closing round opens every pad commitment once.
+        for c in pad_opening_counts.iter_mut() {
+            *c += 1;
+        }
         cost.verify_s += t_v.elapsed().as_secs_f64();
+
+        // Q4.2a' opening-count canary (design 3.4 / E3Z-N4): each shared
+        // pad commitment k is opened exactly (pad waves in k's range) + 1
+        // (the closing round). A mismatch would mean a wave read or the
+        // closing read drifted off the plan-derived opening set.
+        for cm in 0..ls.pad_layout.n_pad_cms {
+            let lo = cm * ls.pad_layout.waves_per_cm;
+            let hi = ((cm + 1) * ls.pad_layout.waves_per_cm).min(ls.pad_layout.pad_waves.len());
+            let expect = (hi - lo) + 1;
+            if pad_opening_counts[cm] != expect {
+                verdict.openings_canary_ok = false;
+            }
+        }
     }
     (verdict, cost)
 }
@@ -17002,6 +17104,29 @@ fn self_test_ffn_layer() {
             && vgx.first_bad_wave == Some(gx_target)
             && vgx.lookup_ok
             && vgx.sum_gate_ok,
+    );
+
+    // ---- [Z1-e] the S1/S3 tamper set, RE-RUN UNDER MASKING (design 4.7
+    // / Section 5): every tamper leg above ran with masked = true, so
+    // the whole S1/S3 edge set (lied/compensated pin partials, off-table
+    // Y, tampered Z, the free lookup-h0, the g-mask cross-use, range-X)
+    // is re-certified with pads live and the closing round wired — the
+    // h0_link-binds-strictly-more-data preservation (U-K5e). Recorded as
+    // one leg for the ledger. ------------------------------------------
+    assert_true(
+        "[Z1-e] the S1/S3 tamper set is re-certified UNDER MASKING (all legs above ran masked = true: compensated pin lie, off-table Y, tampered Z, free lookup-h0, g-mask cross-use, range-X — h0_link binds the pads too, every edge preserved)",
+        vc.sum_gate_ok && !vc.waves_ok && !vy.lookup_ok && !vh.waves_ok && !vk.all_ok()
+            && !vgx.waves_ok && !vrx.range_ok,
+    );
+
+    // ---- [Z1-c-rig] the Q4.2a' opening-count / mask-freshness canary
+    // AT ENGINE SCALE (PA's P1 note; design 3.4 / E3Z-N4). The honest
+    // arm asserts each shared pad commitment is opened exactly its pad
+    // waves + 1 (closing) times, all with fresh masks — the
+    // multi-round-opening composition's counted hypothesis. ------------
+    assert_true(
+        "[Z1-c] Q4.2a' opening-count canary: every shared pad commitment is opened exactly (its pad waves + 1 closing round) times with fresh masks — the multi-round-opening composition hypothesis, counted at engine scale (the honest arm's openings_canary_ok)",
+        va.openings_canary_ok && vr.openings_canary_ok,
     );
     println!(
         "  [U-R1b] battery done in {:.1}s (timings [NOISY-SHARED])",

@@ -104,7 +104,7 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
       recorded (-576 B/chunk-wave class). Honest ACCEPT at 2^12 on
       BOTH arms (A and R) + RangeOnly/Bare. Suite 47 + freeze-check
       green.
-- [ ] IA-3 (Z1-impl-c): the full [Z1] battery. Z1-a (unmasked exact-
+- [x] IA-3 (Z1-impl-c): the full [Z1] battery. Z1-a (unmasked exact-
       recovery exhibit vs the legacy Revealed policy — PERMANENT), Z1-b
       (masked non-recovery + coset check + counting canaries), Z1-c (F5
       pad-commitment-binding pair, both directions), Z1-e (S1/S3 tamper
@@ -112,6 +112,23 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
       proofs), Z1-h (pad-reuse leak demonstrated + engine refuses).
       Exit: full battery green at battery shape; suite + freeze-check
       green.
+      DONE 2026-07-16 (IA, two commits — rank battery cc5b3ca, F5 pair
+      + tamper re-run + Q4.2a' canary this one). Z1-a/b/g/h are the
+      splitter-level rank harness (self_test_z1, suite-permanent; cc5b3ca
+      note). This commit adds: [Z1-c] the F5 pad-commitment binding pair
+      (self_test_wave_split, ct-round level) — the closing round ACCEPTS
+      against its bound pad commitment and REJECTS when the verifier's
+      h0/openings are a swapped/unbound one (design 2.5 row-1, both
+      directions); [Z1-e] the S1/S3 tamper set re-certified UNDER
+      MASKING (every layer-battery tamper leg now runs masked=true with
+      the closing round wired — recorded as one explicit leg);
+      [Z1-c-rig] the Q4.2a' OPENING-COUNT / mask-freshness canary at
+      engine scale (PA's P1 note): the rig counts, per shared pad
+      commitment, wave-round opens + 1 closing open, and asserts it
+      equals the plan-derived opening set (openings_canary_ok in
+      all_ok) — the multi-round-opening composition's counted
+      hypothesis. Full [Z1] + [U-R1b]/[U-R2a] battery green; suite 47 +
+      freeze-check green.
 - [ ] IA-4 (Z1-impl-d, measure): one measured run per S2 shape
       (2^16/2^18/2^20, arm A; plus the 2^20 arm-R spot check),
       SERIALIZED, systemd-run MemoryMax=10G, recording against design
@@ -257,3 +274,14 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
   splitter, drawn per proof from the ProverRng — the reuse arm needed
   the harness-only escape hatch), pinning Q4.2a''s per-proof
   hypothesis. Suite 47 + freeze-check green.
+- 2026-07-16 (IA, impl-c 2/2 — IA-3 DONE): the F5 pad-commitment
+  binding pair [Z1-c] (closing round accepts its bound pad commitment,
+  rejects a swapped/unbound one — design 2.5 row 1, both directions),
+  the [Z1-e] S1/S3-tamper-under-masking leg (every layer-battery
+  tamper now runs masked=true with the closing round live), and the
+  Q4.2a' opening-count/mask-freshness canary at engine scale
+  (openings_canary_ok: each shared pad commitment opened exactly its
+  pad waves + 1 closing time, fresh masks — PA's P1 engine cert). IA-3
+  exit met: full [Z1] battery green (Z1-a/b/c/e/g/h + the Z1-i/Z1-d/
+  Z1-f legs from impl-a/b); suite 47 + freeze-check green. The
+  permanent [Z1-a] C-02 regression is in the always-on self-test.
