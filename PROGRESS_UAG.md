@@ -55,6 +55,15 @@ codex-audit-* read-only.
 
 - [ ] GA: AGGREGATION_LITERATURE.md — families (a)-(e) priced on the
       common axes, verdict + recommendation.
+      STATUS 2026-07-17 (GA, in progress, NOT blocked): worktree was
+      opened on a stale base (old merge-base 7a3e7a0, no docs); reset
+      to e4cd608 before work started — any orchestrator check against
+      the old tree state predates that. Committed so far: 5225e77
+      (Sections 0-1: ground rules, the 0.67 GiB commitment-bytes
+      structural result, family (a) LaBRADOR priced, 8 verified refs).
+      Web verification done for (b)/(c) leads (Orthus 2026/398,
+      HyperWolf 2025/922, Neo abstract, Greyhound confirmations);
+      writing families (b)-(e) + verdict now, committing per section.
 - [ ] GB: PROOF_BYTE_LEDGER.md — component ledger reconciled to
       measured bytes, budget decomposition, requirements sheet, hard
       budget-test spec.
