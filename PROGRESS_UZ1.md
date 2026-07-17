@@ -129,7 +129,7 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
       all_ok) — the multi-round-opening composition's counted
       hypothesis. Full [Z1] + [U-R1b]/[U-R2a] battery green; suite 47 +
       freeze-check green.
-- [ ] IA-4 (Z1-impl-d, measure): one measured run per S2 shape
+- [x] IA-4 (Z1-impl-d, measure): one measured run per S2 shape
       (2^16/2^18/2^20, arm A; plus the 2^20 arm-R spot check),
       SERIALIZED, systemd-run MemoryMax=10G, recording against design
       Section 6 projections: committed dce/el (+0.025 predicted at
@@ -137,6 +137,86 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
       counters (the clean signal, not A-B totals), peak RSS. Freeze row
       LKP-10: pad layout rule, pad freshness rule, closing-round shape,
       zeta deletion (57 -> 9 reveals/wave), re-derived data cap.
+      DONE 2026-07-16. LKP-10 landed (ca2184c). All four runs honest
+      ACCEPT end-to-end under masking (closing round + the Q4.2a'
+      opening-count canary live at 670 waves). Serialized,
+      MemoryMax=10G, 1T [NOISY-SHARED — box load was ~3x the S2
+      session's: arm B (zero masking changes) slowed identically, so
+      A-B deltas and the attribution counters remain the valid
+      signals]. MEASURED vs design Section 6 (S2 baselines cited):
+
+      committed marginal dce/el   S2      masked  delta    predicted
+      2^16 (43 waves, 1 pad cm)   1.609   1.656   +0.047   +0.068
+      2^18 (168 waves, 2 cms)     1.387   1.402   +0.015   +0.034
+      2^20 (670 waves, 6 cms)     1.335   1.343   +0.008   +0.025
+
+      -> the measured delta is EXACTLY the pad material at every shape
+      (3072 / 4096 / 8192 dce: pads x 1024 + 2048 closing g). The
+      design 6.1 wave-count term ([MODEL], cap 76 -> 75 ~ +1.3% waves)
+      NEVER BOUND: first-fit kept 43/168/670 waves at cap 75 at every
+      shape, so the 2^20 cost is +0.6% of the 1.335 floor, ~3x better
+      than the +1.9% projection.
+
+      masked-descent B/el         S2      masked  predicted
+      2^16                        1.417   1.047   ~1.04
+      2^18                        0.716   0.354   ~0.35
+      2^20                        0.512   0.151   ~0.14
+
+      -> net NEGATIVE as designed: the zeta deletion (-0.361 measured
+      at 2^20 vs -0.368 predicted) pays for the masking three times
+      over on this ledger; reveals 387/1512/6030 == 9 x waves exactly
+      (the 57 -> 9 collapse at scale). [Same C-03 relabel as S2: this
+      ledger EXCLUDES per-wave CtRoundProofs — not proof size.]
+
+      attribution p/v us/el       S2          masked
+      2^16                        24.6/9.9    22.2/10.0
+      2^18                        22.5/9.8    22.5/9.8
+      2^20                        23.4/10.2   23.0/10.0
+
+      -> FLAT: the masking is invisible in the clean signal (design
+      6.4's inside-the-noise-band claim, confirmed via counters). A-B
+      totals (+82.7/+14.1 us/el at 2^20) are box-noise-wide, exactly
+      as S2 warned — not the signal. Peak RSS 0.52 / 2.07 / 8.23 GiB
+      == S2's 0.52 / 2.06 / 8.23 (the +6 commitment stores are noise;
+      the 2^20 CLI cap and 2^22 wall unmoved).
+
+      2^20 arm-R spot check: RANGE marginal 0.0146 dce/el == S3's
+      0.0146 EXACTLY and range share 0.082 B/el == S3's 0.082 — the
+      shared psi batch means the pad commitments do NOT double
+      (design 2.1 confirmed); reveals R == A == 6030; range descent
+      attribution +16.9/+1.0 us/el (S3 +15.3/+1.4, flat); peak RSS
+      8.40 GiB == S3's 8.40. Raw shape-line detail per run:
+      * 2^16 arm A (43 waves, cap 75, 1 pad cm): committed marginal
+        1.656 dce/el (S2 unmasked 1.609 -> DELTA +0.047 = exactly the
+        pad material 3072 dce = 1024 pad cm + 2048 closing g; the
+        design 6.1 wave-count term +0.021 did NOT bind — the wave
+        count stayed 43 at cap 75); masked-descent 1.047 B/el vs ~1.04
+        predicted (S2 1.417; zeta deletion measured -0.370 vs -0.378
+        predicted; reveals 387 == 9 x 43); attribution 22.2/10.0
+        us/el prove/verify (S2 24.6/9.9 — flat); peak RSS 0.52 GiB
+        (== S2).
+      * 2^18 arm A (168 waves, cap 75, 2 pad cms): committed marginal
+        1.402 dce/el (S2 1.387 -> DELTA +0.015 = exactly the pad
+        material 4096 dce; wave count again UNCHANGED at 168 — the
+        cap term did not bind at this shape either); masked-descent
+        0.354 B/el vs ~0.35 predicted (S2 0.716; zeta deletion -0.362
+        vs -0.369 predicted; reveals 1512 == 9 x 168); attribution
+        22.5/9.8 us/el — IDENTICAL to S2's 22.5/9.8; peak RSS
+        2.07 GiB (S2 2.06).
+      * 2^20 arm A (670 waves, cap 75, 6 pad cms — the headline shape):
+        committed marginal 1.343 dce/el (S2 1.335 -> DELTA +0.008 =
+        exactly the pad material 8192 dce = 6 x 1024 pad + 2048
+        closing g; design predicted +0.025 — the [MODEL] wave-count
+        term +0.017 never bound, the first-fit plan kept 670 waves at
+        cap 75 at EVERY shape, so the measured cost is the pure pad
+        term, ~3x BETTER than projected); masked-descent 0.151 B/el
+        (S2 0.512, -70.5%; ~0.14 predicted; reveals 6030 == 9 x 670 —
+        the 57 -> 9/wave collapse at scale); attribution 23.0/10.0
+        us/el vs S2 23.4/10.2 (flat — the masking is invisible in the
+        clean signal, confirming design 6.4's inside-noise-band
+        claim); peak RSS 8.23 GiB == S2's 8.23 exactly. A-B totals
+        prove +82.7 / verify +14.1 us/el [NOISY-SHARED, box-noise-wide
+        exactly as S2 warned — not the signal].
 - [ ] P1 (PA, FIRST): Q4.2a' — the multi-round-openings composition
       corollary (one commitment opened in ~114 rounds; joint
       distribution = product of per-round Q4.2a-simulable openings,
@@ -296,3 +376,26 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
   consumed WavePads). freeze-check + suite green. Measured numbers
   (dce/el, B/el, attribution, RSS) go in the IA-4 box next, from the
   serialized S2-shape runs.
+- 2026-07-16 (IA, impl-d 2/2 — IA-4 DONE, IA lane COMPLETE): the four
+  serialized measured runs landed (table in the IA-4 box, verbatim).
+  Headlines: committed delta at 2^20 is +0.008 dce/el — EXACTLY the
+  pad material, ~3x better than the design's +0.025 projection because
+  the [MODEL] wave-count term never bound (first-fit kept 43/168/670
+  waves at cap 75 at every shape — a surfaced conservative assumption,
+  design Section 6.1/7.3); masked-descent ledger 0.512 -> 0.151 B/el
+  at 2^20 (-70.5%, ~-72% predicted) — the zeta deletion pays for the
+  masking; attribution counters FLAT at all shapes (the masking is
+  invisible in the clean signal); RSS unchanged everywhere; arm R's
+  range marginal and byte share IDENTICAL to S3's (pads shared across
+  tables, not doubled). All runs honest ACCEPT under masking with the
+  closing round and the Q4.2a' opening-count canary live at 670 waves.
+  IA lane (impl-a..d) COMPLETE: C-02 closed at engine scale on this
+  rig's wave shares — the [Z1-a] exhibit remains in the suite
+  permanently as the regression, per the review condition. Remaining
+  for the ORCHESTRATOR (FINAL box): merge PA, re-grade the design
+  doc's [PROVEN*] rows against the [Z1] battery + these measurements
+  (IA recommendation: 3.1 pad-coset -> PROVEN at engine scale via
+  Z1-b/Z1-g; identity-2/zeta rows -> PROVEN at engine scale via
+  Z1-f + the differential's zero-partials cert; 3.4 multi-round
+  composition -> per Q4.2a' + the opening-count canary; the design
+  6.1 wave-count term -> relabel measured-not-binding), suite, push.
