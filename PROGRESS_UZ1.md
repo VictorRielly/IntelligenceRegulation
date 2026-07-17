@@ -217,7 +217,7 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
         claim); peak RSS 8.23 GiB == S2's 8.23 exactly. A-B totals
         prove +82.7 / verify +14.1 us/el [NOISY-SHARED, box-noise-wide
         exactly as S2 warned — not the signal].
-- [ ] P1 (PA, FIRST): Q4.2a' — the multi-round-openings composition
+- [x] P1 (PA, FIRST): Q4.2a' — the multi-round-openings composition
       corollary (one commitment opened in ~114 rounds; joint
       distribution = product of per-round Q4.2a-simulable openings,
       linear defect accumulation). Transcribe into Q4_LEMMAS.md in the
@@ -226,12 +226,12 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
       this ledger's Log as "P1 GO" or "P1 NO-GO + reason" — IA's impl-b
       gate reads it. If NO-GO: also price/record what option 1 must
       prove instead.
-- [ ] P2 (PA): Q4.10 — the pad-coset lemma (design Section 3.1,
+- [x] P2 (PA): Q4.10 — the pad-coset lemma (design Section 3.1,
       bijective one-time pad on {Σ = T}; exact, witness-independent,
       independent across claims) + the extraction note (design Section 4
       item 3: σ_w := σ̃_w − e_w reduces to the unmasked split-claim
       extraction). Q4_LEMMAS summary table rows added.
-- [ ] P3 (PA): SOUNDNESS_REFERENCE.md Section 7 gains the design
+- [x] P3 (PA): SOUNDNESS_REFERENCE.md Section 7 gains the design
       Section 2.5 hash-edge rows (h0_link pad binding / c_w / c_z /
       psi scope note) marked PLANNED-[Z1-c] until the battery lands.
 - [ ] FINAL (orchestrator): merge PA, impl-d re-grade of the design
@@ -399,3 +399,36 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
   Z1-f + the differential's zero-partials cert; 3.4 multi-round
   composition -> per Q4.2a' + the opening-count canary; the design
   6.1 wave-count term -> relabel measured-not-binding), suite, push.
+- 2026-07-15 (PA): P1 GO — Q4.2a' closes on paper: the rejection
+  lemma Q4.2a invokes ([Lyu12] Thm 4.6) holds POINTWISE in the
+  center, so a round-by-round hybrid factors the ~114 openings of one
+  (x, rho) into center-independent per-round laws with defect
+  <= 114·2^-100-class ~ 2^-93; all four hypotheses (fresh y/round,
+  per-round rejection, one message across rounds, no shared
+  randomness beyond the commitment) check against the construction.
+  Q4.2a' graded PROVEN on paper, engine certs PLANNED
+  ([Z1-b]/[Z1-e]/[Z1-g] + opening-count canary). One transcription
+  repair recorded IN the lemma, not silently fixed: design 3.4's
+  marginal-independence inference strengthened to the
+  pointwise/conditional form (which the cited lemma provides —
+  marginal alone would not factor the joint law, since all centers
+  share rho). IA's impl-b gate is OPEN: shared-pad-commitment
+  pattern approved, no fallback needed.
+- 2026-07-15 (PA): P2 done — Q4.10 (pad-coset lemma: solved last pad
+  uniform on H = {sum e = 0}; e |-> sigma + e bijects H onto
+  {sum x = T_j}; masked shares EXACTLY uniform on the coset,
+  witness-independent, independent across claims; k_j = 1 takes no
+  pad) and Q4.10-X (binding fixes pads across rounds;
+  sigma*_w := sigma~_w - e*_w reduces to the unmasked split-claim
+  extraction; eq. (4) load-bearing) transcribed into Q4_LEMMAS.md
+  with summary rows. Both PROVEN on paper; certs PLANNED: Q4.10 —
+  [Z1-b]/[Z1-g]/[Z1-h]/[Z1-i]; Q4.10-X — [Z1-d] both
+  directions/[Z1-e]/[Z1-c]. No design-doc repairs needed for P2.
+- 2026-07-15 (PA): P3 done — SOUNDNESS_REFERENCE.md Section 7 gains
+  the four Z1 hash-edge rows (h0_link pad binding / c_w / c_z / psi
+  scope note) in the table's format, every "pinned by" entry marked
+  PLANNED naming its [Z1-c]/[Z1-e]-class leg (flip to live names at
+  Z1-impl-c). No pre-existing row touched; one non-row consistency
+  amendment recorded: the E3-Z intro's "last four rows" phrase
+  updated since the Z1 rows now sit last. PA lane complete
+  (P1/P2/P3); ready for orchestrator merge.
