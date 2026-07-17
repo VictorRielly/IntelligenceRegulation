@@ -234,9 +234,24 @@ protocol, PROGRESS_UR.md header). codex-audit-* read-only.
 - [x] P3 (PA): SOUNDNESS_REFERENCE.md Section 7 gains the design
       Section 2.5 hash-edge rows (h0_link pad binding / c_w / c_z /
       psi scope note) marked PLANNED-[Z1-c] until the battery lands.
-- [ ] FINAL (orchestrator): merge PA, impl-d re-grade of the design
-      doc's [PROVEN*] rows (promote to PROVEN-at-engine-scale or demote,
-      row by row, against IA-3/IA-4 results), suite green, push.
+- [x] FINAL (orchestrator) — DONE 2026-07-16: PA merged (e90f809).
+      Re-grade applied per IA's recommendation: WAVE_SHARE_MASKING_
+      DESIGN.md status header carries the supersession block (every
+      [PROVEN*] row -> PROVEN AT ENGINE SCALE via its named green [Z1]
+      certs; 3.4 [SKETCH/OBLIGATION] -> Q4.2a' PROVEN-on-paper + the
+      engine-scale opening-count canary; 6.1 wave-count term relabeled
+      measured-not-binding; IA's closing-read-equals-wave-reads
+      sharpening recorded); the three load-bearing grade sites (3.1,
+      3.4, the 6.1 table row) also flipped in place. SOUNDNESS_
+      REFERENCE Section 7's four Z1 rows flipped PLANNED -> LIVE
+      (e36ee7b). Suite green on the merged tree; pushed. C-02 is
+      CLOSED AT ENGINE SCALE for the layer rig's wave shares.
+      Carried forward (unchanged from the design's Section 7): C-03
+      succinctness (Phase 3, with the no-re-exposed-RHS constraint),
+      block-chain link_reveal_y (Z2 legacy arm), independent
+      cryptographer review (Phase 2.5), unseeded secrets.randbelow
+      flake in tests/test_zk_lattice.py (pre-existing, IA
+      root-caused, seed fix someday).
 
 ## Log
 

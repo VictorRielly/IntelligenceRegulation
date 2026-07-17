@@ -1,6 +1,26 @@
 # Wave-Share Masking Design (Z1): Closing the Multi-Wave Partial-Scalar Leak
 
-Status: DESIGN ROUND ONLY (tranche U-Z, item Z1, 2026-07-15). This
+Status: IMPLEMENTED AND MEASURED (tranche U-Z1, 2026-07-16 — commits
+89a87e0..0720ee0; ledger PROGRESS_UZ1.md). The [Z1] battery is green
+(Z1-a..i incl. the permanent C-02 exhibit), LKP-10 pins the operating
+point, and the Section 6 costs were confirmed or beaten at every
+measured shape (+0.008 dce/el at 2^20 vs +0.025 predicted — the 6.1
+wave-count term never bound; masked-descent 0.512 -> 0.151 B/el).
+RE-GRADE 2026-07-16 (orchestrator, per Section 8's exit): every
+[PROVEN*] row below is now PROVEN AT ENGINE SCALE (its named [Z1]
+certificates ran green); the 3.4 composition [SKETCH/OBLIGATION] is
+transcribed as Q4_LEMMAS Q4.2a' (PROVEN on paper, with one recorded
+repair: the marginal-independence inference strengthened to the
+pointwise/conditional form) and its opening-count canary runs at
+engine scale; 3.1 is transcribed as Q4.10, the extraction note as
+Q4.10-X. One build sharpening (IA, soundness-relevant): Section 2.3's
+closing-round read is EQUAL to the union of wave reads — not a
+superset — because unread pad positions would be forgery room; every
+multi-wave padded claim therefore takes a share in every pad wave
+(plan-derived, resolving 2.1-vs-2.5 in favor of plan-derived).
+Original text below is unchanged; grades read through this block.
+
+Original status: DESIGN ROUND ONLY (tranche U-Z, item Z1, 2026-07-15). This
 round ships NO code and NO spike by the tranche's own discipline
 ("paper-first, implementation gated on review" — PROGRESS_UZ.md Z1);
 that is one step MORE conservative than the M4_LOOKUP_ZK_DESIGN
@@ -475,7 +495,10 @@ independently per claim). S4 samples from precisely this
 distribution: the real and simulated share vectors are EQUAL in
 distribution, not merely computationally close.
 
-Grade: **[PROVEN*]** — a finite one-time-pad statement (elementary
+Grade: **[PROVEN*] → PROVEN AT ENGINE SCALE (2026-07-16: Q4.10
+transcribed; Z1-b coset + counting certs and the Z1-g accumulation
+stall ran green at the battery shape)** — a finite one-time-pad
+statement (elementary
 group theory; the degenerate exact case of the Libra Thm 4.1 counting:
 free exposures per claim = k_j − 1 (the sum is forced), pad degrees of
 freedom = k_j − 1, and the exposure/pad map is a bijection, not just
@@ -527,7 +550,10 @@ center (Q4.2a) — so the JOINT distribution of ~114 openings of one rho
 is the product of the per-round simulable distributions, and the
 statistical defect accumulates linearly (114 × the per-opening defect,
 negligible-class at the frozen ct-round parameters). Argument class:
-standard FS-with-aborts multi-proof composition. Grade: **[SKETCH]**
+standard FS-with-aborts multi-proof composition. Grade
+(superseded 2026-07-16 — see the status header: Q4.2a' transcribed
+PROVEN on paper with the pointwise/conditional repair recorded, and
+the opening-count canary runs at engine scale): **[SKETCH]**
 here — the repo has no transcribed lemma for the joint case, and this
 design refuses to inherit one silently: transcription into Q4_LEMMAS
 (a Q4.2a' composition corollary) is a named [OBLIGATION], with the
@@ -719,7 +745,7 @@ Ingredients per shape (waves W = 43/168/670; el 65,532 / 262,140 /
 | closing-round g (2 groups) | 2,048 | 2,048 | 2,048 |
 | **new committed dce** | 3,072 | 4,096 | 8,192 |
 | per element | +0.047 | +0.016 | **+0.008** |
-| wave-count effect (cap 76→75, ×76/75 on the per-wave surcharge ≈ ×1.013 on ~1.3) [MODEL] | +0.021 | +0.018 | +0.017 |
+| wave-count effect (cap 76→75, ×76/75 on the per-wave surcharge ≈ ×1.013 on ~1.3) [MODEL — MEASURED 2026-07-16: NEVER BOUND; first-fit kept 43/168/670 waves at cap 75 at every shape, so the measured delta is the pure pad term above] | +0.021 | +0.018 | +0.017 |
 | **total dce/el delta** | +0.068 | +0.034 | **+0.025** |
 | measured baseline (S2 lookup marginal dce/el) | 1.609 | 1.387 | 1.335 |
 | projected masked | ~1.68 | ~1.42 | **~1.36** |
