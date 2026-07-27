@@ -63,8 +63,41 @@ Standing constraints (inherited, non-negotiable):
 - [ ] FINAL (orchestrator): merged, reviewed, verdicts recorded,
       U-AG3 direction decided, pushed, Victor briefed.
 
+## Agent DB status (wt-uag2-claims) — LANE COMPLETE
+
+- done: BOTH deliverables landed.
+  docs/zkmatrix-poc/AGGREGATION_CLAIM_REDUCTION.md — complete O-3
+  design doc: reduction lemmas CR-L1..CR-L6, code-enumerated
+  inventory C1-C13 reconciled vs docs (deltas d1-d3, no undocumented
+  class found), per-class reductions CR-1..CR-10, claim-count +
+  batching arithmetic (O-2 feed), FS table CRB-N1..N5, Z1/ZK
+  per-class O-4 handoff. scripts/claim_reduction_spike.py — 25/25 OK
+  ~15 ms, every reduction leg with a tamper negative.
+- **VERDICT: O-3 CLOSES — no walls; the family (d)/BaseFold fallback
+  trigger is NOT pulled.** The committed-executions gate (the flagged
+  hard case) REDUCES BY RETIREMENT: the matmul statement becomes the
+  textbook degree-2 sumcheck (CR-1), and the general conj-twisted
+  claim form reduces via twist-on-the-public-point (CR-2) — the tie
+  obstruction is Sigma-engine-specific and has no counterpart.
+  REDUCES: C1-C5, C7, C9. REDUCES-WITH-COST: C8 (link; unit-scoped,
+  dense-xi kernel priced, tensor-scale boundary recorded). DISSOLVES:
+  C6 (zeta — load-bearing on IA-O1-4 dense packing), C10 (waves/
+  pads). RETIRED: C11-C13.
+- for the orchestrator/DA reconciliation: six interface assumptions
+  IA-O1-1..6 (doc Section 0.3) — IA-O1-4 (dense value packing) is the
+  single most important one to confirm (the zeta dissolution rides
+  it; its violation costs one packing-image sumcheck per packed
+  tensor, priced, not a wall). O-2 feed: +27-40 KiB [MODEL] new
+  sumcheck transcript; 1-3 eval proofs/layer. O-4/O-7 obligation
+  lists in doc Sections 11/12.3.
+- deliverable checkbox left for the orchestrator (GA precedent).
+- commits: e80c617, 6383cfd, 1c15d5c, 49924a1, 3d3b437, 57e29f7
+  (+ this close-out).
+
 ## Log
 
 - 2026-07-27: tranche opened at 379e34f, same session as the U-AG
   close. Victor: "continue to the next steps on both" (this + the song
   lane). DA + DB launched in parallel worktrees.
+- 2026-07-27 (DB): lane started; reading + code enumeration done;
+  status section above is the lane's checkpoint surface.
