@@ -50,7 +50,7 @@ runner-ups, and the U-AG2 obligation list: Section 8.
 - [x] Section 4: family (d) hash-based transcript compression
 - [x] Section 5: family (e) SNARK-wrap recursion
 - [x] Section 6: cross-cutting — Z1 compatibility, verifier budget
-- [ ] Section 7: the pricing table
+- [x] Section 7: the pricing table
 - [ ] Section 8: verdict in full
 - [ ] Section 9: what we did not find
 - [x] References (verified links; grows with sections)
@@ -905,7 +905,47 @@ budget; and the aggregate artifact must fit under the EXISTING
 post-aggregation artifact here, fatally violated by the status
 quo at FFN scale.
 
-## 7. The pricing table — PENDING
+## 7. The pricing table
+
+All families, all eight axes of Section 0.5, one table. Baseline
+row from PROOF_BYTE_LEDGER.md Sections 1-3 [MEASURED/DERIVED];
+family rows are this review's models on repo-recorded unit costs,
+[MODEL] unless marked verified in their sections. "@2^20" = the
+measured 2^20 layer shape; "pass" = 32 x 512x11008 layers (the
+audit's projection unit; a LOWER bound on the real pass —
+PROOF_BYTE_LEDGER.md Section 2 footnote).
+
+| family | bytes @2^20 layer | bytes, 32-layer pass | verifier @FFN vs <= 2 s | prover x whole-prove | PQ | Z1 | engine reuse | maturity | risk |
+|---|---|---|---|---|---|---|---|---|---|
+| TODAY (no aggregation) | 3,543.7 MiB (14,175x) | 595.0 GiB (2,437,197x) | ~1,056 s — FAIL 528x | 1x | yes | C-02 closed | — | — | — |
+| (a) LaBRADOR standalone | ~0.68 GiB — FAIL (identity-dominated) | ~117 GiB — FAIL | linear — FAIL (sqrt if Orthus composes, 6.2) | ~1.2-2x | yes | compatible; ZK layer owed | kernels + codec; ct-rounds replaced | best in class (1.4) | medium |
+| (b) folding standalone | ~0.69 GiB — FAIL (same ceiling) | ~118 GiB — FAIL | linear in waves — MARGINAL | ~1.1-1.5x | yes | compatible; FS lemma owed | highest | paper-only | high |
+| (c) PCS reroute | ~150-260 KiB — AT BUDGET | ~7-8 MiB (x32, unfolded) | ms-to-sub-s — MEETS | ~1.5-3x | yes | subsumes (no waves) | maximal (E3/E4 realized) | CRYPTO 2024 + LaBRADOR stack | med-high (restructure) |
+| (d) hash sumcheck | ~150-400 KiB — budget-adjacent, widest bars | ~5-13 MiB (x32) | sub-ms-to-ms — MEETS (best) | ~1.3-2x | yes | compatible; link obligations | sumcheck only | components hardened, field walls | medium |
+| (e) SNARK-wrap standalone | ~100-300 KB | ~100-300 KB | ms — MEETS | FATAL: >= +1,056 s/layer at 1x overhead, 10^2-4x real | yes (STARK) | subsumed | none | mature stacks, zero precedent at this shape | extreme |
+| **(c) + (b) cross-layer + (a) as compressor — RECOMMENDED** | **~150-260 KiB** | **~0.5 MiB class: 32 x ~8 KiB fold msgs + one ~250 KiB decider** | **ms-to-sub-s — MEETS** | **~1.5-3x** | **yes** | **subsumes + fold lemma** | **maximal** | **components published; composition novel** | **med-high** |
+
+Reading the table:
+
+- Only ROWS that abolish or digest-bind the commitment layer reach
+  budget class: the Section 0.3 structural result, confirmed at
+  695.6 MiB @2^20 / 3.65 GiB @FFN by the ledger, separates the
+  table's top half from its bottom half all by itself.
+- The recommended combination meets the LAYER budget with
+  published components (Greyhound's 53 KB + LaBRADOR's 58 KB
+  classes + the in-house descent pair at 4 B/limb). At PASS scope
+  it lands ~0.5 MiB — ~2x over IF the 256 KiB budget is read
+  per-pass; the budget's pass-vs-layer scope is exactly the
+  decision PROOF_BYTE_LEDGER.md Section 3.1/R1 leaves open, and
+  the closing levers (smaller fold messages, one more recursion
+  level over the 32 fold steps) are ordinary engineering inside
+  family (a)'s machinery, not new mathematics. Recorded as U-AG2
+  obligation O-2, not assumed.
+- Prover multipliers are the axis nobody in the table breaks
+  except (e): every recommended component is linear with
+  kernel-served constants. The H-05 concern (>10x re-break) does
+  not materialize on paper anywhere in the recommendation
+  [MODEL — U-AG2 must model it properly before build].
 
 ## 8. The verdict in full — PENDING
 
