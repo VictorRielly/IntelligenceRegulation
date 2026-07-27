@@ -68,3 +68,32 @@ Standing constraints (inherited, non-negotiable):
 - 2026-07-27: tranche opened at 379e34f, same session as the U-AG
   close. Victor: "continue to the next steps on both" (this + the song
   lane). DA + DB launched in parallel worktrees.
+
+### Agent DA lane log (worktree wt-uag2-params)
+
+- 2026-07-27 (run 1, crashed on API drop; run 2 resumed at 683a373):
+  DONE: read-first set complete (params.rs verified: D=128,
+  q31=2147483249, quinary |C|=2^297.2, op conc 20.8, C2/C3 chains;
+  ledger inventory + budgets; ESTIMATOR_NOTE core-SVP conventions);
+  external refs verified this session: Greyhound abstract (ePrint
+  2024/1293: 53 KB @ N=2^30, O(sqrt N) verifier), LaBRADOR abstract
+  (2022/1341: 58 KB @ 2^20 R1CS), full protocol structure via the two
+  zksecurity expositions (Greyhound three-round w/z/t-hat + outer
+  commitment; LaBRADOR fold/outer-commit/JL recursion, JL slack
+  sqrt(128/30), z 2-part decomposition, r ~ cbrt schedules) plus the
+  2026-04-30 zksecurity finding that LaBRADOR soundness collapses in
+  small-slot-field NTT-friendly rings (our 8-slot GF(q^16) = 2^496
+  survives the exact failure mode — quotable external check).
+  greyhound_params_spike.py committed (683a373): 15/15 anchor
+  self-checks OK, incl. exact reproduction of the ct_engine C2 wave
+  cap at 134 commitments (sigma 2^17.3) — the cap the reroute vacates.
+  DECISIONS so far: two super-commitments (data + blind segments);
+  e0=1..2 digit bases at q31 (gamma_z ~ 2^20.9-21.4); no Gaussian
+  masking anywhere in the aggregate opening layer (derived: sigma =
+  12*gamma_z blows past q31 — ZK must ride masked tensors + blind
+  segment, O-4 interface); three slack-composition readings carried
+  (per-level / exact-digit / compounded) — the O-7 lemma decides.
+  NEXT: fix the spike's depth-loop bug (recursion capped at 1 level —
+  current 21-159x OVER table is NOT the derivation's verdict), re-run
+  the frontier, then AGGREGATION_PARAMS_DESIGN.md sections (a)-(e),
+  one commit each.
