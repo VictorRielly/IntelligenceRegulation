@@ -405,3 +405,85 @@ of parameter change that silently killed those implementations — and
 Sections 3.1/3.5 + Section 4 are that re-derivation. [External
 confirmation that the slot-field SIZE is the load-bearing quantity;
 our design passes it with 365 bits of margin over the 128-bit line.]
+
+## 4. (c) Batched MLE-evaluation claims over the 8-slot GF(q^16) structure
+
+AGGREGATION_LITERATURE.md Section 9 records: "RLC batching of
+evaluation claims is folklore over fields; at our 8-slot GF(q^16) CRT
+structure with small-norm challenge sets, the knowledge-error
+accounting is nowhere in print." This section derives it. Setting: the
+masked sumcheck/GKR engine (DB's O-3 output) leaves B claims
+
+    v_{i,s} = f~_i(r) |_slot s        i = 1..B,  s = 1..8,
+
+where f~_i is the multilinear extension of segment i of T_data/T_blind
+over the slot field GF(q^16), r ∈ GF(q^16)^{dw} is the common
+evaluation point (interface I-1), and the verifier holds all 8 slot
+values per claim (interface I-3).
+
+### 4.1 The batching lemma [PROVEN]
+
+Batch with INDEPENDENT quinary ring challenges gamma_1..gamma_B
+(norm-driven choice, 4.2): the batched claim, per slot s, is
+
+    sum_i res_s(gamma_i) · v_{i,s}  =  ( sum_i gamma_i ⊙ f~_i )(r) |_s,
+
+where res_s is the (injective, by L1/LS18) restriction of the
+challenge to slot s and ⊙ is the ring action on the slot
+decomposition. Soundness claim: if for some claim i* and slot s* the
+prover's committed f~ disagrees with the claimed v_{i*,s*}, the
+batched check in slot s* passes with probability at most 2^−297 over
+gamma.
+
+Proof (the L2 conditioning argument of SOUNDNESS_REFERENCE 1.3,
+verbatim in a new role): let delta_i = f~_i(r)|_{s*} − v_{i,s*} ∈
+GF(q^16), not all zero. The batched check in slot s* requires
+sum_i res_{s*}(gamma_i) · delta_i = 0. Fix any i0 with delta_{i0} ≠ 0
+and condition on all gamma_i, i ≠ i0: the requirement becomes
+res_{s*}(gamma_{i0}) = k for a fixed slot-field constant k
+(delta_{i0} is invertible in the FIELD GF(q^16)). By L2, res_{s*} is
+injective on C, so Pr <= 5^−128 = 2^−297. Since the verifier checks
+ALL 8 slots (I-3), a disagreement in ANY slot is caught with the same
+bound — no union over slots is even needed; the spike's ledger entry
+charges 2^−293 (= B·2^−297 at B = 16, the lazy union over claims,
+strictly looser than the conditioning bound). ∎
+
+Two design rules fall out of the proof, both binding on DB (Section 7):
+(i) claims must be checked slot-COMPLETE — a design that sums or
+samples slots re-opens the small-slot escape of Reference 6; (ii) the
+batching weights must come from a set with per-slot injectivity — the
+house quinary set qualifies via LS18; an ad-hoc small set would not.
+
+### 4.2 The norm side of batching [PROVEN arithmetic]
+
+The gamma_i multiply committed columns inside the fold, so they enter
+the level-0 norm chain: independent quinary weights contribute the
+same E[c²] = 2 as the fold challenges, and the batched fold over
+(B segments spanning the m2 columns) has EXACTLY the gamma_z of
+Section 3.2 — batching is norm-free beyond the fold it rides
+(the segments partition the columns; no column is folded twice).
+Powers-of-one-challenge batching (gamma^j weights) is REJECTED on
+norms: op(gamma^j) grows as 20.8^j, unusable past j = 2 at our
+budget; independent draws also carry the cleaner lemma above. The
+FS transcript cost of B independent challenges is zero (XOF-derived).
+
+### 4.3 Multi-point handling
+
+If DB's reduction lands claims at k > 1 distinct points, the standard
+merge (one extra batch-evaluation sumcheck over an RLC of the k
+point-evaluations) costs one dw-round transcript: the Section 5 model
+prices it at dw·(deg+1) K-elements — 5,376 B at 2^20, 6,144 B at FFN
+[MODEL] — and its soundness rides the same SZ/2^496 engine. Every
+point family BEYOND the first adds one such block; more than ~4
+erodes the byte line (Section 5). Hence interface I-1: land at ONE
+point, or as few as possible.
+
+### 4.4 What remains for O-7 here
+
+The lemma of 4.1 is per-round sound. The EXTRACTOR for the batched
+composition (B+1-transcript forking across the batching round,
+composed with the level extractors of Section 3.4) is predicate-
+special-soundness territory (the PSS pattern, ePrint 2024/311 [S10])
+and is owed as part of O-7 [OBLIGATION]. Nothing in the byte or norm
+accounting depends on its outcome; the knowledge-error TARGET already
+carries it as the dominant [MODEL] flag (Section 3.5).
