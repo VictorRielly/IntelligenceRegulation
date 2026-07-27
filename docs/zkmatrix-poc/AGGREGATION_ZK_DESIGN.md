@@ -40,21 +40,24 @@ Section 3 style:
    reduced protocol (3 matmuls, Hadamard, binariness/requant
    zero-checks, the packing-image check if EA keeps slot encoding,
    the CR-L4 batch and multi-point merge sumchecks): Libra-shape
-   round masks, one per instance, ~600-1,000 K-elements total —
-   inside the T_blind [MODEL] budget with >5x headroom (Section 2).
+   round masks, one per instance, ~360-660 K-elements of new mask
+   material — T_blind carries everything (masks + pads + claim
+   blinds, ~460-560 rings) with ~2x headroom at the low end of its
+   [MODEL] window (Section 2).
    Two precisely-identified extensions are NOT covered by the built
    lemmas and are stated and spike-checked here: the joint counting
    for instances SHARING round challenges (AZ-L1b), and the
    composition of round masks with a blinded (nonzero, private)
    initial claim for the matmul instances (Section 2.4).
 2. **Surface 2 (terminal evaluation values) CLOSES.** The U-K5c
-   aggregate-only-pin discipline generalizes as BLIND-EXTENSION rows:
-   every proven tensor is extended by one index bit whose extension
-   block is fresh committed blind material constrained to satisfy the
-   instance relation; every terminal and claimed value the verifier
-   sees is then uniform on the batch-consistency coset (AZ-L2, the
-   Q4.8b rank pattern one level up), and the true per-tensor values
-   never appear on the wire. Compatible with DA's batch shape (one
+   aggregate-only-pin discipline generalizes as SELECTOR-EXTENSION
+   pads: every proven tensor is extended by one index bit whose
+   extension block is FREE fresh committed blind material, with a
+   public selector in the instance kernel keeping the proven
+   relation exactly the original one; every terminal and claimed
+   value the verifier sees is then uniform on the check coset
+   (AZ-L2, the Q4.8b rank pattern one level up), and the true
+   per-tensor values never appear on the wire. Compatible with DA's batch shape (one
    common point I-1, quinary ring weights I-4, slot-complete checks
    I-3) — with one new binding design rule: blinding must be
    slot-complete (AZ-R1). (Section 3.)
@@ -69,9 +72,12 @@ Section 3 style:
    configuration. **What does NOT close: the final bare witness of
    the LaBRADOR recursion floor** (~6.4-8.0 x 10^4 base-field
    coordinates at the derived schedules) is a challenge-keyed
-   deterministic image of the private tensors, it accumulates as
-   clean LINEAR equations across proofs of the same witness
-   (recomposition linearity, Section 4.4 — spike-demonstrated), and
+   deterministic image of the private tensors — linear in the
+   final-level witness, hence cleanly linearly accumulating across
+   proofs in the unrecursed Greyhound sub-case (spike-demonstrated
+   exact recovery), and accumulating as ~79k explicit constraint
+   values per proof with digit-range structure in the recursed case
+   (Section 4.4) — and
    at q31 under I-6 and the 262,144 B budget NO known technique
    masks it: Gaussian, uniform-flooding, and uniform-rejection
    masking all violate either the q/8 norm line or the byte budget
@@ -250,7 +256,7 @@ in the D-1 encoding decision and stated for both cases.
 | W8 | eval proof: level-i outer commitments u_i (incl. u2 with g/h garbage) | Ajtai images of level witnesses (folds, t-digits, g_ij = <s_i,s_j>, h_ij) + tails | not a leak GIVEN per-level tails [MODEL, Section 4.3] | commitment hiding |
 | W9 | eval proof: JL projections p (JL configs only; 256/512 base-field coords x (L-1) levels) | p = Pi s — DIRECT public-matrix linear images of the level witness, norm-checked in cleartext | **LEAK: recoverable-witness-image class** — 1,536-4,096 cleartext linear equations per proof on level witnesses, hence (by recomposition linearity, 4.4) on the original digits | ELIMINATED by the exact-digit configuration (Section 4.3) — the ZK-mandated config |
 | W10 | eval proof: level aggregation scalars | functions of committed g/h material + public challenges, pinned by level check equations | forced-class [OBLIGATION AZ-O4: per-message enumeration against the LaBRADOR spec at build time] | check-equation forcing |
-| W11 | eval proof: final bare witness z_L (~500-624 rings = 64,000-79,872 base coords; PARAMS 3.2/5.2) | the full fold-and-decompose chain applied to ALL columns: z-descended coords = PURE digit folds of T_data/T_blind (hiding tails occupy SEPARATE coordinates and do not pad them — Section 4.4); g/h-descended coords = witness inner products; t-descended coords = commitment digits (tail-protected) | **LEAK: the residual R** — z- and g/h-descended coordinates are challenge-keyed deterministic witness images; linear accumulation across proofs by recomposition linearity (4.4, SPKZ-6) | NOT COVERED — the AZ-T1 obstruction (Section 4.4); confinement verified by the battery (Section 6) |
+| W11 | eval proof: final bare witness z_L (~500-624 rings = 64,000-79,872 base coords; PARAMS 3.2/5.2) | the full fold-and-decompose chain applied to ALL columns: z-descended coords = PURE digit folds of T_data/T_blind (hiding tails occupy SEPARATE coordinates and do not pad them — Section 4.4); g/h-descended coords = witness inner products; t-descended coords = commitment digits (tail-protected) | **LEAK: the residual R** — z- and g/h-descended coordinates are challenge-keyed deterministic witness images, linear in the level-L witness; clean linear accumulation in the unrecursed sub-case (4.4, SPKZ-6), explicit constraint accumulation with digit-range structure in the recursed case | NOT COVERED — the AZ-T1 obstruction (Section 4.4); confinement verified by the battery (Section 6) |
 | W12 | norm checks: ||z_L|| bound; JL window checks | properties of R (and p) | rides W9/W11 | — |
 
 ### 1.2 What accumulates, quantified
@@ -265,12 +271,15 @@ The three accumulating rows before this design's mechanisms:
   witnesses. CLOSED by the exact-digit mandate (deleted wire).
 - W11 (floor): 64,000-79,872 base-field values per proof, of which
   the z- and g/h-descended blocks (the majority at the derived
-  floor shapes [MODEL]) are witness images. **NOT closed.** Naive
-  linear-algebra recovery of the full digit witness needs ~10^3-10^5
-  proofs of the same witness depending on shape and encoding
-  (Section 7.3's table) — and by the WSMD 1.1 honesty rule this
-  number is an UPPER bound on adversary cost (integer/digit
-  structure undercuts it) and confers NO safety margin: by the R1
+  floor shapes [MODEL]) are witness images. **NOT closed.** In the
+  unrecursed Greyhound sub-case the equations are linear on the
+  FIXED column matrix and m2 transcripts recover it EXACTLY
+  (SPKZ-6); in the recursed case each proof contributes ~79k
+  explicit deterministic constraint values whose unknowns are
+  digit-range-structured (integer-programming-shaped, not
+  linear-algebra-shaped — Section 7.3's threshold table is
+  [MODEL] and one-directional) — and by the WSMD 1.1 honesty rule
+  NO safety margin is read into the nonlinearity: by the R1
   principle the construction is non-ZK at ONE proof.
 
 ### 1.3 Encoding-parametric rows (EA reconciliation)
@@ -550,3 +559,249 @@ restart surfaces beyond the ~2^-495 guard class. Per-instance wiring
 tables (which index bit, which sub-block, per tensor) are build-round
 detail [OBLIGATION], with the Hadamard and matmul wirings of 3.2 as
 the two normative exemplars.
+
+## 4. Surface 3 — the eval-proof ZK layer under I-6 (deliverable d)
+
+### 4.1 What the composed proof exposes, at our layout
+
+Mapping the verified protocol structure (Section 0.4) onto the PARAMS
+5.1 byte lines:
+
+| byte-model line | object | exposure class |
+|---|---|---|
+| outer identities u (2x) | Ajtai + tails | committed (hiding) |
+| level-0 v commitment | the Greyhound w = a^T G S message, decomposed and COMMITTED (the LaBRADOR handoff commits it; w never rides bare) | committed (hiding, given a tail on the v commitment [MODEL]) |
+| level messages: u_i | level outer commitments (incl. u2 carrying g_ij = <s_i, s_j>, h_ij) | committed (hiding, given PER-LEVEL tails — 4.3) |
+| level messages: JL | p = Pi s in CLEARTEXT, 256/512 base coords x level | **cleartext witness image** (W9) — JL configs only |
+| level messages: agg scalars | challenge-weighted claim constants pinned by level check equations against committed material | forced-class [AZ-O4] |
+| final bare witness | z_L, 64,000-79,872 base coords | **cleartext witness image** (W11) — the residual R |
+| batched claim values | Surface 2 objects | blinded (AZ-L2b) |
+
+The published protocols carry NO masking of any of these (Section
+0.4 — confirmed against both expositions); every ZK property must be
+supplied by our side. Two further structural facts, both load-bearing
+below: (i) the hiding tails occupy SEPARATE coordinates of each
+column, so the fold z = sum c_j s_j has a data-block that is a PURE
+digit fold — tails hide commitments, they do NOT pad fold images;
+(ii) g_ij = <s_i, s_j> includes data-data inner products — the
+garbage terms are witness images too (committed at levels < L, bare
+in the floor).
+
+### 4.2 The toolkit route (ePrint 2026/1289) — priced and REJECTED at tensor scale
+
+The toolkit's architecture (AGGREGATION_LITERATURE 1.3 [S10];
+abstract confirmed this session): the LNP22 linear-size ZK proof
+proves the witness-bearing statement; LaBRADOR compresses the
+VERIFICATION of the LNP22 proof. The load-bearing principle: **the
+compressed witness is the LNP22 transcript, which is a ZK artifact —
+simulatable — so LaBRADOR's cleartext tail (JL, bare floor) leaks
+nothing sensitive.** Sanitize the witness, then compress in the
+clear.
+
+Why it does not port to our layer, four reasons with arithmetic:
+
+1. **In-ring (LNP22 at q31): the I-6 eviction applies to LNP22's own
+   masking.** LNP22's ZK is Fiat-Shamir-with-aborts: Gaussian
+   rejection-sampled masked responses over the witness [S10
+   structure]. For the tensor-scale witness the masking arithmetic
+   is EXACTLY PARAMS 2.4 item 1: sigma ~ 12 x gamma_z ~ 2^25.3,
+   response bound ~2^37 against q/8 = 2^28 — impossible. The
+   toolkit cannot run its front-end in our ring at our scale. [The
+   same spike leg SPKZ-7 that anchors I-6 anchors this.]
+2. **Out-of-ring (LNP22 at a larger q'): the tensor-scale
+   cross-modulus wall.** Proving "com_q31(x) opens to x AND the
+   batched claim holds" inside a mod-q' system requires carrying
+   the q31 residue relation at tensor scale across moduli — CR 12.2
+   rule 2's recorded open problem (the U-L link's per-row counting
+   argument does not survive tensor-structuring; CR 7.3). The
+   alternative — moving the whole commitment layout to q46+ — is
+   PARAMS 5.2's q46 row: 354,104 B = 1.35x, OVER. Blocked both
+   ways.
+3. **Engine reuse ~zero, review burden maximal.** LNP22/LaZer
+   publish and implement at degree-64 rings with their own
+   challenge sets and samplers; a D = 128 / q31 port of the full
+   LNP22 apparatus (ABDLOP, Gaussian samplers, abort loops) is the
+   M4-flagged "first of its shape" composition — against the house
+   route's reuse of machinery that is already PROVEN at engine
+   scale (Q4.7-9) and already reviewed in-house.
+4. **Prover cost.** Gaussian sampling + rejection restarts over
+   tensor-scale mask vectors multiply the commit-class pass [MODEL];
+   the house route's masks are committed data — no per-round
+   sampling surface at all (the M4 Section 5.5 argument).
+
+The toolkit's one genuine advantage — published, third-party-
+implemented maturity — is real but attaches to foreign parameters.
+**DECISION: house route.** The toolkit PRINCIPLE (only simulatable
+witnesses reach the compressor's cleartext tail) is retained as the
+correct lens — and Section 4.4 shows precisely why its q31-native
+instantiation fails, which is the finding.
+
+### 4.3 The house route (adopted): what T_blind + masked sumcheck + tails DO close
+
+1. **Committed internals.** Every commitment in the eval-proof
+   transcript carries a hiding tail: the top-level inner columns and
+   outer witness are already tailed in PARAMS 2.5 (MLWE at the
+   measured 193.3-bit row); the level-0 v commitment and every
+   level-i inner/outer commitment need the SAME 16-ring ternary
+   tails — a layout amendment this document adds [MODEL: ~(r_i + 2)
+   x 16 rings committed per level, zero wire; flagged to O-2 and to
+   the build round]. With tails, W1/W7/W8 are MLWE-hiding — closed.
+2. **The exact-digit mandate (the ZK-side selection of PARAMS
+   3.5's sound config).** The JL configurations put 256/512
+   cleartext base-field projections of the level witness on the
+   wire per level (W9) — a direct witness-image class that no house
+   mechanism can mask (the projections are norm-checked; masking
+   them is 4.4's dead end). The exact-digit variant DELETES the
+   class: range facts become committed digit columns proven by
+   relations inside the recursion (PARAMS 6.4 obligation 4's
+   plumbing), i.e. committed material under (1). ZK therefore
+   MANDATES exact-digit — stacking with its FS advantage (2^-217,
+   no JL statistical term, no unconfirmed paper constant). Byte
+   cost of the mandate at FFN: +10,112 B vs per-level+512-JL
+   (289,080 vs 278,968 — PARAMS 5.2) — the ZK-mandated config is
+   the more expensive sound config; O-2 line item.
+3. **Pad-polynomial reach.** T_blind's pads close Surfaces 1-2
+   (Sections 2-3) including every claimed VALUE the eval proof
+   serves. What pads cannot reach: the cleartext norm-checked tail
+   — next.
+
+### 4.4 The obstruction AZ-T1: the cleartext floor cannot be masked or sanitized at q31
+
+**The residual object.** After 4.3, exactly one wire object class
+remains unsimulatable: R := the final bare witness z_L (the JL rows
+being deleted by the mandate). Its z-descended data-block coordinates
+are pure challenge-fold images of T_data/T_blind digit columns
+(Section 4.1 fact (i)); its g/h-descended coordinates are witness
+inner products; its t-descended coordinates are tail-protected
+commitment digits (the one sub-block with a hiding argument — graded
+[OBLIGATION AZ-O5]: the leakage-resilient-MLWE reading under the
+concurrent tail-fold exposure). Dimension: 64,000-79,872 base
+coordinates at the PARAMS 3.2 schedules.
+
+**Lemma AZ-L3 (what R is, exactly).** (a) Each coordinate of z_L is
+a public-coefficient LINEAR functional of the level-L witness
+s^(L) (z_L = sum c_j s_j^(L), challenges public). (b) In the
+unrecursed Greyhound sub-case (L = 0: z = S c bare), the functionals
+act on the FIXED original column matrix S, and m2 transcripts with
+fresh challenges recover S EXACTLY by linear algebra — the C-02
+recovery shape at the aggregate layer. (c) In the recursed case,
+s^(L) is an explicit, publicly-computable but NONLINEAR
+(digit-extraction) function of the original witness; each proof
+contributes dim(z_L) explicit constraint values on the fixed
+original witness with digit-range side structure. Status: (a), (b)
+**[PROVEN*]** — certificate SPKZ-6 (exact recovery, rank m2/m2, plus
+the recomputation check that every floor coordinate is an explicit
+deterministic witness image at L = 1); (c) accumulation-complexity
+deliberately UNGRADED in the adversary's favor (WSMD 1.1's honesty
+rule: digit-structured integer systems are what lattice decoders
+eat; no margin is read into the nonlinearity).
+
+**Why no masking closes it** (the I-6 arithmetic, extended to all
+three masking families and to floor scale — certificate SPKZ-7):
+
+| masking route | norm side (vs q/8 = 2^28.00) | byte side | verdict |
+|---|---|---|---|
+| Gaussian, global fold (I-6's own row) | bound ~2^37 | — | dead (PARAMS 2.4 item 1, reproduced) |
+| Gaussian, floor scale, byte-optimal schedule (e_L = 9-10) | bound ~2^32.5 | — | dead on norms |
+| Gaussian, floor scale, forced e_L <= 4 | bound 2^27.3-2^27.9 — AT the line | masked response ~4 B/coord x 79-175k coords = 317-700 KB vs 79,872 B bare: +190-240 KB minimum | **dead on bytes** (1.8-2.7x budget) |
+| uniform flooding (statistical distance 2^-lambda) | needs ~lambda + log(dim) extra bits — 2^37+ class | same width problem | dead |
+| uniform rejection (Lyubashevsky-09 style) | A ~ dim x T for constant acceptance: 2^28+ at floor dims | same width problem | dead |
+
+The unifying fact, stated once: **a norm-checked cleartext object
+cannot be information-theoretically masked** (a mask wide enough to
+hide breaks the norm check; a mask narrow enough to pass leaks by
+range bias), and at q31 the computational escapes (rejection
+sampling) cost response width ~4 B/coordinate — 3-4x the bare
+witness's 1 B/coordinate digits — which alone exceeds the entire
+262,144 B budget. ZK and byte-optimality of the floor are in direct
+conflict at this modulus.
+
+**Why no sanitization closes it** (the digit wall — the failure of
+the toolkit principle's q31-native instantiation). Every route to
+"open only non-sensitive material" was worked and each is killed:
+
+1. *Uniformized opening* (open v = x + b, v uniform mod q): Ajtai
+   commits DIGITS and the digit map is nonlinear, so com(v) is not
+   derivable from com(x), com(b); committing v fresh requires
+   BINDING v = x + b, and every binding proof terminates in
+   evaluation claims against com(x) — the opening being avoided.
+   Circular.
+2. *Digit-level homomorphic blinding* (open d_x + d_b, the map IS
+   linear): bounded-integer sums have data-dependent range bias (no
+   one-time pad on bounded supports); wrapping mod 2^e0 restores
+   uniformity but breaks recomposition by a carry vector whose
+   value, given the wrapped digits, DETERMINES the data digit — the
+   carry cannot be committed-and-proven without re-importing the
+   leak. Killed both branches.
+3. *Pad columns in the fold*: pad influence on z_L passes through
+   the digit-extraction maps between levels — non-affine, no rank
+   argument survives; final-level pads enter affinely but must be
+   small-norm (they are folded and norm-checked), hence not uniform
+   — no OTP; and sizing them to dominate is the byte death again.
+4. *Never-open binding* (b bound by hash/XOF): requires hash
+   arithmetization in-house — family-(e) machinery, priced out at
+   GiB-witness scale (AGGREGATION_LITERATURE 5.2). Structured b
+   (low-rank/tensor): not tensor-hiding (v - x low-rank determines
+   x up to small dof).
+5. *MLWE-structured b* (b = A_pub f + e, open short (f, e) claims):
+   the terminal weight A_pub^T eq(z) costs the verifier O(N) at
+   tensor scale unless A_pub is tensor-structured — CR 12.2 rule
+   1's recorded near-wall — and tensor-structuring A_pub leaves
+   MLWE-hardness unsupported [nonstandard assumption; not
+   adoptable].
+
+**AZ-T1 (the obstruction, stated).** At q31, the norm budget forces
+balanced digit decomposition before commitment (e0 in {1..4} —
+PARAMS 2.2); digit decomposition destroys the module homomorphism
+that every known lattice ZK-opening technique rides (masked
+responses act on the module; sanitization needs commitment
+linearity in the VALUE, not the digits); and undecomposed openings
+have no masking room under q/8. Hence the composed evaluation proof
+at this ring is a proof of knowledge and NOT zero-knowledge, and no
+combination of T_blind material, masked sumcheck, or commitment
+hiding changes that for the floor object R. Grade: each kill above
+[PROVEN*] or [MODEL] as marked; the universal quantifier ("no known
+technique") is a SURVEY claim, not a theorem — it is exactly the
+question Section 7.2 poses for external review, and
+AGGREGATION_LITERATURE Section 9 already records that no published
+work addresses it.
+
+### 4.5 The five escapes, priced
+
+| escape | mechanism | price | status |
+|---|---|---|---|
+| E1: modulus escape | opening layer at q46+ (masking room exists there) | 354,104 B = 1.35x OVER (PARAMS 5.2) + tensor-scale cross-modulus link (CR 12.2 rule 2, open problem) | blocked at current budget |
+| E2: floor-scale masked response (an I-6 carve-out at e_L <= 4) | Gaussian mask of the ~79k-coord floor opening only | norm AT the line (2^27.3-27.9 vs 2^28); +190-240 KB response width | blocked on bytes; recorded as information, NOT a relitigation of I-6 |
+| E3: LNP22 at the floor (toolkit principle, floor scale) | sanitize only the floor statement | same response-width class as E2 + LNP22 port + its own overhead | dominated by E2; blocked |
+| E4: budget relief | at ~2x layer budget (~500 KiB), E2 opens: exact-digit + masked floor = full ZK | +~240 KB/layer; a policy decision (PROOF_BYTE_LEDGER 3.1's "the TOTAL may not move" would have to move) | the ONLY currently-actionable full-ZK path; orchestrator/R1 territory |
+| E5: a new primitive | a ZK opening for balanced-digit Ajtai commitments at q ~ 2^31 with response + proof <= ~100 KB | unknown | the external-review question; O-9 watch item (2026/1289 lineage at small moduli) |
+
+### 4.6 Deployment posture and the costs fed to O-2
+
+**Posture** (the M4 precedent — M4_LOOKUP_DESIGN 3.5/8's non-ZK
+label, applied one layer up): the aggregate layer ships with a
+**non-ZK deployment label** — "the evaluation-proof floor exposes
+~6.4-8.0 x 10^4 challenge-keyed deterministic witness functionals
+per proof; all other transcript components are simulatable (Section
+5)" — until an escape opens. Operational mitigation, recorded as a
+deployment rule: **at most one aggregate proof per witness** (fresh
+proofs of the same witness accumulate fresh floor images; a re-proof
+demand is served by caching, not re-proving) — this stalls
+accumulation operationally and is verifiable at the deployment
+layer; it does NOT change the single-proof label.
+
+**Costs to O-2** (consolidated):
+
+| item | delta | note |
+|---|---|---|
+| exact-digit config mandated | +10,112 B at FFN vs JL-512 | the ZK-side selection among PARAMS' two sound configs |
+| G_j values + mask openings (2.2) | +~1.3 KiB | wire |
+| extension rounds (3.5) | +~1-2 KiB | wire |
+| T_blind at ~460-560 rings | ~+3e-5 dce/el | committed only |
+| per-level hiding tails (4.3) | ~(r_i + 2) x 16 rings/level committed, zero wire | [MODEL]; build-round layout amendment |
+| E2 if ever adopted | +190-240 KB | the dead option's price, for the record |
+
+Prover-side: mask generation and extension blocks are committed data
+(no sampling loops, no restarts beyond ~2^-495 guards); the marginal
+rides the existing commit-pass model (PARAMS 5.4) at +0.1%-class
+[MODEL].
