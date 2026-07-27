@@ -638,3 +638,157 @@ corrects the same way (8·T_cap·(1+b)·beta' with sigma = 1, ~1 bit
 below the JL row). The compounded row survives as the correct
 arithmetic for the three protocols of Section 2.2, none of them
 ours.
+
+## 3. (c) The recursive Fiat-Shamir composition
+
+### 3.1 SC-L5 — the PSS transfer to our ring [CITED + house instantiation]
+
+**What [PSS] proves (Theorems 4.1, 4.2, I.1, Eq. (18); read this
+session).** For a (K, Phi)-predicate-special-sound multi-round
+protocol, the adaptive FS transform is knowledge sound with error
+
+    2(Q + 1) · sum_i max( (k_i - 1)/|C_i|,
+                          p_i^com + sum_l p_{i,l}^chal ),
+
+LINEAR in the prover's Q random-oracle queries (not Q^rounds), with
+extractor cost K + Q(K - 1) prover invocations, K = prod k_i. For
+base LaBRADOR, stated PARAMETRICALLY in the ring degree d, splitting
+factor l, challenge-set well-spreadness B, and challenge operator cap
+T_op (Theorem I.1):
+
+    2(Q + 1) · ( 2^-lambda  +  q^-ceil(lambda/log2 q)
+                 +  q^-(d/l)  +  (5 + 2l)·r·B )
+    + adv_MSIS(kappa, 8·T_op·(b+1)·beta') + adv_MSIS(kappa_1, 2·beta'),
+
+and for the t-fold recursion (Appendix I.5, Eq. (18)) the bracket
+SUMS over iterations — additive, still linear in Q — with the norm
+checks' slack sqrt(lambda/C2) entering the MSIS norms once per level
+("the norms of the M-SIS must tolerate this additional slack, too").
+
+**Transfer conditions at our ring, each checked:**
+
+1. *B-well-spreadness (their Definition 3.1) = the house L2 lemma.*
+   Per-slot point mass of the quinary set: B = 5^-128 = 2^-297.2
+   over each of the l = 8 slots [PROVEN, SOUNDNESS_REFERENCE 1.3].
+   Their framework was built for exactly this parametrization; the
+   2026-04-30 zksecurity finding (PARAMS 3.6) is the failure mode
+   when B is large — ours is 365 bits from it.
+2. *Challenge operator cap T_op.* Their theorem HYPOTHESIZES a
+   capped set; the house set must adopt R-EB1 (Section 1.3) for the
+   hypothesis to be satisfied. With the cap, T_op = T_cap.
+3. *Splitting-factor terms.* Their q^-(d/l) full-entropy aggregation
+   term instantiates to q^-16 = 2^-496 (house full-entropy R_q
+   engine, per-slot mass [PROVEN]).
+4. *Window.* Their "statements restricted to norm bound beta at most
+   q/C1" = C-win, checked per level (Section 1.4).
+5. *CWSS structure.* The house fold rounds are coordinate-wise
+   (r_i challenges per fold round, forked one coordinate at a time)
+   — their Appendix G/Theorem G.1 covers exactly this (used by
+   Theorem I.1). [Grey]'s Lemma 3.2 gives the same structure for
+   level 0.
+
+Grade: **[CITED]** for the framework and Eq. (18); **[PROVEN]** for
+transfer conditions 1, 3, 4 (house facts + arithmetic); condition 2
+is R-EB1 (design rule, [OBLIGATION] at build time); condition 5 is
+structural ([CITED] + inspection).
+
+### 3.2 The per-level error terms at house constants — including the term DA's model missed
+
+House instantiation of the Eq.-(18) bracket, per level i:
+
+| term | house value | source |
+|---|---|---|
+| modular-JL statistical | 2^-128 (256-row) / 2^-256 (512-row) / ABSENT (exact-digit) | SC-L2; [PSS] Lemma 2.2. **Correction: DA modeled 2^-141 and ~2^-282; the verified soundness-side constants are 2^-128/2^-256** (2^-141 is the per-ROW completeness tail, not the soundness term) |
+| ct-constraint aggregation | q^-t = 2^(-31·t) for t parallel Z_q draws | [LaB] protocol (psi/omega step); **THE MISSING TERM — absent from DA 3.5's accounting entirely** |
+| full-poly constraint aggregation | 2^-496 | house full-entropy R_q draws (alpha/beta step), per-slot mass |
+| fold (amortization) | (5 + 2l)·r_i·B = 21·r_i·2^-297 ~ 2^-288-class | [PSS] Thm I.1 bracket at l = 8, house B |
+| claim batching (once, Section 4) | B_claims·2^-297 ~ 2^-293 | SC-L6 |
+| GKR/sumcheck SZ (DB engine, once) | ~2^-485-class | DB 10.4 [PROVEN there] |
+
+**The missing term, spelled out.** [LaB]'s protocol aggregates the
+constant-coefficient (ct-class) constraints — the JL-consistency
+rows p_j = <pi_j, s> and any other F'-family members — with
+ceil(lambda/log2 q) parallel uniform Z_q combinations (their
+psi/omega step); a nonzero ct-defect survives with probability
+q^-ceil(lambda/log2 q). At their q ~ 2^32 and lambda = 128 this is
+2^-128 and disappears into the union. At OUR q31 with the same
+t = ceil(128/31) = 5 it is 2^-155 pre-FS — fine interactively —
+but post-FS it multiplies 2(Q+1) ~ 2^65 and lands at **2^-90: the
+whole chain FAILS the 2^-128 target through a term no house document
+priced.** DA's 3.5 accounting (fold/batch/SZ/JL) does not contain
+it; it is not a flaw in DA's levels but in the transferred protocol
+constant at a 31-bit modulus.
+
+**The fix, two options, both cheap (sizing rule R-EB3, exported):**
+
+- (t-up) run t >= ceil((128 + log2(2(Q+1)) + log2 L)/31) = **7**
+  Z_q-aggregation repetitions per level (Q = 2^64, L <= 8):
+  per-level term 2^-217, post-FS contribution 2^-149. Wire cost:
+  the b''-class objects are full R_q polynomials, t·516 B per level;
+  t = 7 vs DA's modeled 1,028 B/level aggregation line: **+2,584
+  B/level, ~ +18-21 KiB at L = 7-8** [MODEL; spike prices]. This is
+  the do-nothing-clever option and its cost is visible at FFN scale.
+- (K-draw) replace the t parallel Z_q draws by ONE full-entropy R_q
+  draw (house engine): a ct-defect is a Z_q scalar embedded in R_q;
+  an R_q-uniform multiple of it survives-as-zero with probability
+  q^-D-class << 2^-496 [PROVEN, house conditioning argument].
+  Wire cost ~one b''-object, 516-1,032 B/level — CHEAPER than DA's
+  modeled line. Cost: the aggregated function is no longer
+  ct-structured (the combination spreads defects across all D
+  coefficients), so the b''-correction bookkeeping of [LaB]'s
+  protocol must be restructured to full-polynomial targets —
+  protocol plumbing of the same class as the exact-digit variant
+  [OBLIGATION, build round]. Recommended direction, decision to the
+  orchestrator with O-2.
+
+### 3.3 The post-FS knowledge-error table [MODEL — constants cited, sum arithmetic spike-checked]
+
+House convention Q = 2^64 (grinding), L = 8 levels, additive per
+Eq. (18), times 2(Q+1) ~ 2^65:
+
+| configuration | dominant per-level term | pre-FS sum | post-FS | vs 2^-128 |
+|---|---|---:|---:|---|
+| 256-row JL (any t) | JL 2^-128 | ~2^-125 | **~2^-60** | **FAIL** (DA modeled 2^-70 — same verdict, worse constant) |
+| 512-row JL + t = 5 | ct-agg 2^-155 | ~2^-152 | **~2^-87** | **FAIL — the missing term** |
+| 512-row JL + t = 7 | ct-agg 2^-217 | ~2^-214 | **~2^-149** | PASS (DA's "2^-211" row, corrected) |
+| 512-row JL + K-draw | JL 2^-256 | ~2^-253 | **~2^-188** | PASS |
+| exact-digit (+ K-draw or no ct-class rows) | fold 2^-288-class | ~2^-285 | **~2^-220** | PASS (DA's "2^-217" row, confirmed within a bit) |
+
+Readings: (i) DA's two SOUND configurations survive, with the
+512-row one requiring R-EB3 explicitly; the 256-row configuration
+stays dead. (ii) The exact-digit column is the most robust — no
+heuristic JL constant, no window, no ct-aggregation pressure — and
+is now also the branch whose SOUNDNESS analysis carries the fewest
+[MODEL] flags; its cost remains bytes (DA 5.2: +10-16 KiB vs
+512-JL). (iii) Where DA's post-FS numbers came from: linear-in-Q
+loss on the pre-FS union — the right SHAPE ([PSS] Thm 4.1 confirms
+linear in Q); the constants shift as tabled.
+
+Two conventions, flagged for the external review rather than decided
+here: **(Q-conv)** the house charges Q = 2^64 oracle queries
+directly in the error; [PSS]'s own parameter estimates set Q = 0 for
+the extractor-runtime loss ("we ignore the security loss caused by
+the extractor's runtime"), i.e. the field's published numbers are
+LESS conservative than ours on this axis. **(X-run)** the PSS
+extractor's expected prover-invocation count K + Q(K-1) with
+K = prod_i 8·(2 r_i + 1) is astronomically large at L = 8 as a
+worst-case bound (~2^5x-class times Q); this is standard for
+expected-time extraction and affects the tightness of the security
+REDUCTION, not the protocol's error terms — recorded honestly as
+the same posture [PSS] takes, with the same caveat.
+
+### 3.4 FS ordering
+
+Every challenge in the chain must be derived from a state binding
+everything it constrains: the fold challenges bind the level's outer
+commitment(s) and the JL projection material; Pi binds the (outer)
+commitments (SC-L2 requires the witness fixed before Pi); the
+batching challenges bind the commitment identities, the claimed
+values, AND the evaluation point (Section 4). DB's Section 10.5
+table (CRB-N1..N5) already carries the claim-side rows; the
+eval-proof-side rows join it as CRB-N6 (Pi after u1; attack:
+choose witness after Pi, JL grounding voided) and CRB-N7 (fold c
+after JL p and aggregation; attack: the [LaB] App. B argument's
+independence structure collapses). Batteries are build-round scope
+(same posture as CRB-N1..N5). [OBLIGATION — battery specs, not new
+analysis.]
