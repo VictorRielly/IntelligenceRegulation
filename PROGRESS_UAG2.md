@@ -97,3 +97,16 @@ Standing constraints (inherited, non-negotiable):
   current 21-159x OVER table is NOT the derivation's verdict), re-run
   the frontier, then AGGREGATION_PARAMS_DESIGN.md sections (a)-(e),
   one commit each.
+- 2026-07-27 (run 2, LANE COMPLETE at b842636): spike depth bug fixed
+  (d72540f — deep recursion restored, g-garbage term, byte-optimal
+  stop bases, JL/exact-digit FS split); AGGREGATION_PARAMS_DESIGN.md
+  landed in 5 commits (dd8c9e7, c820acc, 88f9723, ceb82fb, b842636).
+  O-1 VERDICT: CLOSES-AT-THE-LINE, conditional — 2^20 layer 252,868 B
+  = 0.96x budget PASS; FFN 272,824-289,080 B = 1.04-1.10x OVER (sound
+  configs; descent pair is 39% and GKR-owned); verifier 0.14-0.93 s
+  PASS; prover +2-4%; top MSIS 132-140 bits [core-SVP]; post-FS
+  2^-211/-217 [MODEL]. BaseFold NOT triggered; precise trigger
+  boundary recorded (doc 6.3: compounded slack lemma AND exact-digit
+  failure -> one fold level only, 41.6 MB floor). O-2 skeleton + O-7
+  export list + I-1..I-8 DB interface assumptions in the doc.
+  DA deliverable checkbox: ready for orchestrator review.
