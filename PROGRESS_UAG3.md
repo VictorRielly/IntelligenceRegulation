@@ -76,9 +76,14 @@ Standing constraints (inherited, non-negotiable):
 
 ## Deliverables
 
-- [ ] EA: AGGREGATION_ENCODING_DESIGN.md + aggregation_byte_model_
+- [x] EA: AGGREGATION_ENCODING_DESIGN.md + aggregation_byte_model_
       spike.py — D-1 decided w/ derivation; O-2 model reconciled;
       scope recommendation; FFN verdict.
+      DONE 2026-07-27, merged (orchestrator-reviewed: spike re-run
+      21/21 incl. exact reproduction of DA's six totals). D-1
+      recommendation DENSE (adoption at FINAL); FFN 1.02x
+      ledger-unit / 1.11x complete-layer, descent pair the named
+      owner; scope rec PER-PASS -> U-AG4 = folding design round.
 - [ ] EB: AGGREGATION_SOUNDNESS_COMPOSITION.md + slack_composition_
       spike.py — O-7 settled or precisely conditioned.
 - [ ] EC: AGGREGATION_ZK_DESIGN.md + aggregation_zk_spike.py — O-4
@@ -136,3 +141,10 @@ Standing constraints (inherited, non-negotiable):
 - 2026-07-27: tranche opened at 93a6957 immediately after the U-AG2
   close, on Victor's console go. EA + EB + EC launched in parallel
   worktrees.
+- 2026-07-27 (EA close): lane finished first, orchestrator-reviewed
+  and merged. Its EB/EC exports (dense norm chain; softened-but-
+  still-fatal compounded floor; junk channel gone) are in
+  AGGREGATION_ENCODING_DESIGN Section 6 — EB/EC were briefed to
+  derive at DA's published parameters and mark encoding-parametric
+  rows, so FINAL owns folding these exports in. EB + EC still in
+  flight.
