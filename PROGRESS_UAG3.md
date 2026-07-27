@@ -93,10 +93,17 @@ Standing constraints (inherited, non-negotiable):
       ct-aggregation FS term, R-EB4 e<=7 caps, kappa 11); branch
       preference inverts to EXACT-DIGIT (2^20 0.991x PASS, FFN
       1.081x). SC-L4/SC-L6 = top Phase 2.5 review targets.
-- [ ] EC: AGGREGATION_ZK_DESIGN.md + aggregation_zk_spike.py — O-4
+- [x] EC: AGGREGATION_ZK_DESIGN.md + aggregation_zk_spike.py — O-4
       design-closed or precise gap.
-- [ ] FINAL (orchestrator): merged, reviewed, decisions adopted,
+      DONE 2026-07-27, merged (orchestrator-reviewed: spike re-run
+      14/14 incl. the floor-recovery demo and the norm/byte kill
+      grids). VERDICT: design-CLOSES with a PRECISE GAP — surfaces
+      1+2 close with exact simulators; surface 3's LaBRADOR-floor
+      bare witness (~79k coords/proof) is unmaskable at q31 under
+      I-6 + budget (the digit wall). Posture adopted at FINAL below.
+- [x] FINAL (orchestrator): merged, reviewed, decisions adopted,
       U-AG4 direction, pushed, Victor briefed.
+      DONE 2026-07-27 — see the FINAL section below.
 
 ## Agent EA status (wt-uag3-encoding) — LANE COMPLETE
 
@@ -190,6 +197,118 @@ Standing constraints (inherited, non-negotiable):
 - deliverable checkbox left for the orchestrator (GA precedent).
 - commits: 85442f1, 641798d, 7658390, 238b601, 7b2ea39, 27ded03,
   c133ba8, 736d61c (+ this close-out).
+## Agent EC status (O-4, ZK layer) — wt-uag3-zk
+
+Units (commit after each):
+- [x] U1: read-in complete (CR Sec 1/10/11, PARAMS 2.4/2.5/7, WSMD 3,
+      Q4.7-9, SR 7, PROGRESS_UAG2 FINAL) + external refs verified
+      (2026/1289 toolkit, 2024/1293 Greyhound, 2022/1341 LaBRADOR)
+      — 2026-07-27. Verified in-session: Greyhound wire objects
+      (w = a^T G S, z = S c, verifier's 3 equations, w committed as
+      v = D w-hat in the LaBRADOR handoff) and LaBRADOR level
+      messages (u1/u2 outer commits, JL p = Pi s in cleartext,
+      g_ij = <s_i,s_j> / h_ij garbage, bare final witness) from the
+      two zksecurity expositions (read in full); ePrint abstracts
+      2024/1293 + 2026/1289 confirmed; both PDFs bot-blocked (same
+      as DA's session) — LNP22 internals carried [S10]/[MODEL].
+      Early finding shaping the lane: neither published protocol
+      carries ANY ZK measure; the composed proof's cleartext tail
+      (JL projections + final bare witness) is a deterministic
+      witness image — the surface-3 analysis will center on it.
+- [x] U2: AGGREGATION_ZK_DESIGN.md Sections 0-1 (scope + leakage
+      inventory, JL + exact-digit variants, encoding-parametric rows)
+- [x] U3: Section 2 (Surface 1: mask-budget extension to
+      matmul/Hadamard/packing instances vs T_blind [MODEL])
+- [x] U4: Section 3 (Surface 2: terminal blinding — aggregate-only-pin
+      generalized; I-1/I-4 interaction)
+- [x] U5: Section 4 (Surface 3: eval-proof ZK under I-6 — toolkit vs
+      house pads DECIDED with reasons; costs to O-2)
+- [x] U6: Section 5 (the SIMULATOR, WSMD Sec-3 style, graded; the
+      fold-round FS-ordering lemma extending WSMD 3.4)
+- [x] U7: Section 6 (R3 battery analogue SPEC) + Section 7 (verdict,
+      exports/imports for EA, honest scope)
+- [x] U8: scripts/aggregation_zk_spike.py (self-checking N/N OK) +
+      output recorded in the doc
+- [x] U9: final report to orchestrator; ledger updated
+
+Log:
+- 2026-07-27 (U2-U7): AGGREGATION_ZK_DESIGN.md complete (Sections
+  0-8). Lane verdict: O-4 design-CLOSES surfaces 1-2 and surface 3's
+  committed internals; PRECISE GAP at the eval-proof floor — the
+  final bare witness (~2^16.3 base coords/proof) is a deterministic
+  witness image, unmaskable (norm-or-byte dead: masked response
+  256-700 KB vs 79,872 B bare) and unsanitizable (the digit wall,
+  AZ-T1) at q31 under I-6 + the byte budget. Toolkit 2026/1289
+  REJECTED at tensor scale (in-ring hits the I-6 eviction; out-of-
+  ring hits CR 12.2's cross-modulus wall or q46's 1.35x). ZK-mandated
+  config = EXACT-DIGIT (deletes the JL cleartext class; +10,112 B at
+  FFN). New lemmas AZ-L1a/b (Q4.7 extension incl. shared-challenge
+  joint counting), AZ-L2a/b (selector-extension terminal blinding),
+  AZ-L3 (floor-leak characterization), AZ-L4 (fold-round FS
+  ordering); obligations AZ-O2 (joint rank, the one closure-
+  threatening leg), AZ-O4, AZ-O5; battery spec AZB-1..9
+  (confinement, not denial). Non-ZK deployment label + one-proof-
+  per-witness rule proposed as freeze-row candidates. NEW for D-1:
+  dense re-encoding worsens the residual-leak ratio ~1-2 orders (the
+  privacy axis of the encoding decision). E4 (budget relief to
+  ~450-500 KiB) is the only currently-actionable full-ZK path.
+- 2026-07-27 (U8): aggregation_zk_spike.py landed — 14/14 OK, ~0.6 s,
+  stdlib, GF(q31). Two of its certificates caught real drafting bugs
+  (eq-kernel truthiness, mask-constant redundancy) — recorded in the
+  doc's Section 8 notes.
+- 2026-07-27 (U9): lane COMPLETE; checkbox for the orchestrator.
+
+## FINAL (orchestrator) — decisions adopted, tranche close
+
+All three lanes merged; all three spikes re-run by the orchestrator
+(21/21, 36/36, 14/14). Decisions ADOPTED:
+
+1. **D-1: DENSE value encoding for Y/UP/Z** (EA's derivation:
+   zero added claims, 151x witness reduction; reinforced by EB —
+   dense widens every soundness margin ~1.9 bits — and by EC's new
+   privacy axis: a ~13x smaller witness against the same fixed
+   ~79k-coordinate floor image). Slot form retained nowhere in the
+   committed layout; the slot FIELD engine (GF(q^16)) stays.
+2. **Configuration: EXACT-DIGIT** — triple-mandated: EB soundness
+   (fewest [MODEL] flags, no heuristic JL constants, no window) +
+   EB bytes post-corrections (2^20: 259,904 B = 0.991x PASS; FFN
+   283,392 B = 1.081x) + EC ZK (deletes the JL cleartext
+   projections outright). The 512-JL branch remains recorded as
+   sound-but-dominated.
+3. **Budget scope: PER-PASS** (EA's three contract anchors), with
+   per-layer 262,144 B kept as the U-AG-B1 engineering gate. Pass
+   at 8.92 MiB = 35.7x -> O-8 instance folding is MANDATORY.
+4. **O-7 recorded: PER-LEVEL HOLDS** (SC-L4 on C-alg/C-ground/
+   C-cap/C-msis). The PARAMS 6.3 fallback trigger is CLOSED on both
+   horns, subject to Phase 2.5 review of SC-L4/SC-L6 (top targets).
+   EB's corrections SUPERSEDE DA's tables where they overlap
+   (R-EB1 T_cap=33 sampled-cap rule, R-EB3 K-draw restructure
+   recommended over t>=7, R-EB4 floor bases e<=7, kappa 11); DA's
+   doc gets a status-header supersession block in the build round
+   (the WSMD precedent) — not edited this tranche.
+5. **O-4 posture: the M4/R1-precedent NON-ZK deployment label at
+   the aggregate layer + the one-proof-per-witness deployment
+   rule**, both freeze-row candidates for the build round. The leak
+   is exactly confined (simulator complete-minus-R; R's dimension
+   and accumulation law stated; AZB-1..9 battery spec certifies
+   confinement). Five escapes priced; E4 wrap (~450-500 KiB/layer)
+   is the only currently-actionable full-ZK path and joins O-8's
+   design space as the endgame option; AZ-T1 (a ZK opening for
+   balanced-digit Ajtai at q~2^31 within ~100 KB?) goes to external
+   review as a sharply-posed open question.
+
+**U-AG4 DIRECTION (recommendation, pending Victor): the folding
+design round (O-8)** — the family-(b) accumulator folding sumcheck
+INSTANCES (not just openings; EA's 5.7x floor), fold-message bytes
+and the 32-layer wire model, under two standing constraints: the
+fold must not enlarge EC's floor image (privacy axis), and AZ-L4(a)
+FS-ordering governs every fold challenge. E4-wrap endgame pricing
+rides along as the ZK-relief option. Build-round obligation queue
+(for U-AG-B1, after U-AG4): E-O1..E-O3, R-EB1..R-EB4 freeze rows,
+AZB battery + extension wiring, exact-digit plumbing, Q4/SR
+transcriptions, O-5/O-6 models to measurement.
+
+TRANCHE CLOSED 2026-07-27.
 
 ## Log
 
