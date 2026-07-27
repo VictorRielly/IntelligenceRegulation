@@ -48,7 +48,7 @@ runner-ups, and the U-AG2 obligation list: Section 8.
 - [x] Section 2: family (b) folding (LatticeFold lineage)
 - [x] Section 3: family (c) PCS reroute (Greyhound-class)
 - [x] Section 4: family (d) hash-based transcript compression
-- [ ] Section 5: family (e) SNARK-wrap recursion
+- [x] Section 5: family (e) SNARK-wrap recursion
 - [ ] Section 6: cross-cutting — Z1 compatibility, verifier budget
 - [ ] Section 7: the pricing table
 - [ ] Section 8: verdict in full
@@ -726,7 +726,101 @@ M4; est. 1.3-2x whole-prove [MODEL].
    burden is permanent (GATE_ALTERNATIVES.md option 2's own con,
    now applied to the repo's largest subsystem).
 
-## 5. Family (e): SNARK-wrap recursion — PENDING
+## 5. Family (e): SNARK-wrap of the verifier (generic recursion)
+
+### 5.1 The shape
+
+Keep the current proof EXACTLY as it is — then never send it: make
+the whole artifact witness data, and prove in an off-the-shelf
+succinct system that "there exists an artifact today's verifier
+accepts." The wire carries one wrapper proof; the verifier runs
+the wrapper's verifier. Bytes and verifier budget are subsumed in
+one move — on paper. Instantiations split by the PQ mandate:
+
+- **PQ wrappers**: STARK-class zkVMs (RISC-V guest programs) or
+  bespoke AIR circuits — hash-based, transparent. Notably these
+  EVADE the family (d) field wall: the wrapper proves over ITS
+  OWN FFT-friendly field and merely emulates our q31/ring
+  arithmetic as guest computation — the evasion is paid for in
+  emulation overhead.
+- **Non-PQ wrappers** (Groth16/KZG-class, the standard "wrap for
+  on-chain" move): excluded by mandate — the curve hybrid was
+  rejected on exactly this ground (GATE_ALTERNATIVES.md option 3;
+  Section 0.2). Recorded, not priced.
+- **The lattice-native instantiation of this idea is family (a)**:
+  LaBRADOR's recursion IS a SNARK-wrap of its own verifier,
+  executed natively in the same ring with no emulation. Family (e)
+  as a distinct family means the GENERIC wrap; everything that
+  makes recursion attractive here is available without emulation
+  inside families (a)/(c).
+
+### 5.2 The honest arithmetic — the prover axis is fatal standalone
+
+The wrapped computation is today's verify: 196.5 s native
+single-thread at 2^20 and ~1,056 s at FFN-layer scale
+(PROOF_BYTE_LEDGER.md Section 3.2) — a ~10^11-12 field-op-class
+computation whose advice is the 3.46 GiB / 18.59 GiB artifact
+(PROOF_BYTE_LEDGER.md Sections 1-2). Two repo-anchored kills:
+
+1. **Prover lower bound.** Even at a fantasy 1x arithmetization
+   overhead (proving as cheap per operation as native execution),
+   the wrap costs >= the verifier's native work: ~1,056 s/layer of
+   ADDED prover time — ~0.35x the whole-prove — before any real
+   overhead. Real arithmetization of non-native modular
+   arithmetic (q31 in a foreign field, per-instruction zkVM
+   emulation) multiplies native work by orders of magnitude
+   [MODEL; conservative band 10^2-10^4x] — prover cost lands in
+   the days-to-weeks class PER LAYER, a >10^3x H-05 re-break. No
+   published PQ recursion stack prices a witness of this shape
+   (Section 9).
+2. **The witness does not fit.** The FFN-scale advice tape is
+   18.59 GiB against the 15 GiB reference box that already OOMs at
+   the 2^22 serialize wall (PROGRESS_UZ1.md IA-4; PROGRESS_UR.md
+   S2) — the wrap's input cannot even be materialized on the
+   contract hardware, independent of proving speed.
+
+Both kills are AGAINST THE CURRENT ARTIFACT. They dissolve if the
+wrapped verifier is already small — which inverts the family's
+role: (e) is not an aggregation strategy, it is an OPTIONAL
+endgame compressor for whatever families (b)/(c) leave (a
+sqrt-verifier, KB-class artifact), if an O(1)-verifier object is
+ever needed for an on-chain or embedded consumer. At that point
+its cost is trivial and its PQ instantiations are mature.
+
+### 5.3 Z1 and the composition caveat
+
+Z1: structurally the best in the review — the entire per-wave
+transcript becomes witness and NOTHING per-wave reaches the wire;
+the WSMD Section 7.1 constraint is met by construction, provided
+the wrapper runs in its ZK mode (standard in STARK stacks).
+Composition caveat owed in any adoption: proving "the FS verifier
+accepts" inside another FS-compiled system is heuristic ROM-in-ROM
+composition; family (a)'s line is the only one in this review with
+a dedicated published analysis of exactly this pattern (PSS,
+ePrint 2024/311 — Section 1.4). A generic zkVM wrap would carry an
+UNANALYZED version of the same composition.
+
+### 5.4 Family (e) scorecard (axes of 0.5)
+
+1. **Bytes:** wrapper proof ~100-300 KB class [verified class for
+   STARK stacks] at ANY scope, including the 32-layer pass —
+   nominally MEETS; meaningless standalone given axis 3.
+2. **Verifier:** wrapper verify, ms class — MEETS.
+3. **Prover:** FAILS standalone by lower bound: >= +1,056 s/layer
+   at 1x overhead, realistically 10^2-10^4x that [MODEL]; the
+   witness cannot be materialized on the reference box. The kill
+   axis.
+4. **PQ:** yes for STARK wrappers; the convenient curve wraps are
+   mandate-excluded.
+5. **Z1:** subsumed by construction (ZK wrapper mode); ROM-in-ROM
+   composition unanalyzed for generic wraps.
+6. **Engine reuse:** none — a foreign stack emulating our ring
+   arithmetic; the repo's engine assets are bypassed entirely.
+7. **Maturity:** commercially mature ecosystems; zero precedent
+   for wrapping GiB-scale lattice Sigma-protocol transcripts.
+8. **Risk class:** extreme standalone (prover + memory + ops);
+   LOW as a post-(c) endgame wrap of an already-small verifier —
+   the only role this review assigns it.
 
 ## 6. Cross-cutting: Z1 compatibility and the verifier budget — PENDING
 
