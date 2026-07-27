@@ -599,3 +599,159 @@ say "per layer, 32 needed per pass" — the TARGET_CONTRACT honesty
 pattern. If FINAL instead adopts the per-layer reading, the contract
 text should be AMENDED to say so explicitly (one sentence in Section
 4), because as written it does not.
+
+## 5. Verdict
+
+### 5.1 The D-1 + O-2 verdict row
+
+**D-1 DECIDED (recommendation to FINAL): dense value encoding for
+Y/UP/Z; slot form retained nowhere in the committed layout; IA-O1-4
+CONFIRMED; R-2 closed.** Dense re-encoding is sound with zero added
+claims (Section 2.1), strictly dominates the completed slot form on
+every axis measured (bytes −6.2..−8.1%, norm headroom 4-5x, verifier
+15x, prover marginal ~100x, apparatus deleted), and the only D-1-level
+cost is layout metadata (E-O1).
+
+**At the recommended encoding (dense, per-level slack + 512-row JL):**
+
+| shape / scope | bytes | vs 262,144 B | verdict |
+|---|---:|---:|---|
+| 2^20 layer, ledger-unit | 242,128 | **0.92x** | **PASS** (slot+image: 1.00x OVER — dense is what preserves the PASS) |
+| FFN layer, ledger-unit (DA-comparable) | 266,832 | **1.02x** | **FAILS by 4,688 B (1.8%)** |
+| FFN layer, ledger-unit, exact-digit + bit-packing lever | 262,544 | 1.0015x | FAILS by 400 B [MODEL lever] |
+| FFN layer, complete-layer (honest R1 unit) | 292,240 | **1.11x** | **FAILS by 30,096 B** (band 1.09-1.12x) |
+| 32-layer pass (if per-pass scope) | 9,351,680 | 35.7x | FAILS — O-8 mandatory (Section 4.3) |
+
+The FFN gap has one named owner: the masked descent pair is 105,664 B
+= 36-40% of every artifact above (I-8 — the GKR engine's shape, not
+this lane's). A ~5% descent-side improvement (dw reduction, round
+elimination, or the O-8 fold) flips the ledger-unit verdict; ~28%
+flips the complete-layer verdict. No further commitment-layer or
+encoding-layer lever of comparable size exists in this model — the
+encoding decision has extracted what the commitment side had to give.
+
+### 5.2 Claim grades
+
+| claim | grade |
+|---|---|
+| consumer enumeration S1-S8 complete (grep-driven, all call sites visited) | [PROVEN] against source this session |
+| F-1: no claim class needs slot-packed Y/UP/Z under the new engine | [PROVEN* — enumeration + DB's certified reductions CR-3/CR-6/CR-8/CR-9/CR-10] |
+| F-2: slot form forces 31-bit coefficients; dense is 8/15-bit; 151x witness reduction | [PROVEN arithmetic — spike D-1 table] |
+| dense soundness, zero added claims (2.1) | [PROVEN* at design level; per-class digit plumbing = E-O1] |
+| norm-chain re-derivation (e0 4/5, headroom, MSIS) | [MODEL] (DA's concentration + core-SVP conventions, anchor-checked) |
+| sqrt-law refutation (F-4) | [PROVEN arithmetic — floor-dominated schedules] |
+| reconciled byte tables (3.3) | [MODEL] (constants cited per line; DA overlap machine-checked; DB band-checked) |
+| D-R1 range-arm rho-sharing | [MODEL — build-round verification item] |
+| E-O2 single-batched-opening geometry | [OBLIGATION] |
+| budget scope reads per-pass (4.1) | textual finding; decision at FINAL |
+| O-8 floor 5.7x (instance folding mandatory under per-pass) | [MODEL] |
+
+### 5.3 Obligations raised here (for the ledger)
+
+- **E-O1 (layout metadata, build round):** Statement v3 manifest
+  carries per-segment value-width classes (8/15/31) and per-class
+  digit bases; segment boundaries bit-block aligned (extends R-1's
+  requirement). Includes deleting `slot_pack`/`slot_pin_weights`/
+  zeta machinery from the target path (retirements S1-S5).
+- **E-O2 (one batched opening):** all committed domains (T_data,
+  T_blind, weights if committed, any q46 residue) share the two-tier
+  geometry so CR-L4b's nu-RLC folds every claim into ONE eval proof
+  — each extra proof is ~136 KiB (D-R2). Owner: build round with DA's
+  layout; FINAL should pin it as a design rule now.
+- **E-O3 (D-R1 verification):** confirm the range-arm witness descent
+  rho-shares the SiLU witness descent (or price the split honestly);
+  build-round battery item.
+- The bit-packing lever, if ever exercised, is an R4 canonical-codec
+  EXTENSION requiring review (DA lever 2, unchanged).
+
+## 6. Exports to O-4 / O-7 (Agents EC / EB)
+
+Recorded here because the encoding decision changes surfaces both
+lanes ride; numbers spike-printed.
+
+### 6.1 To EB (O-7, extraction-slack composition) — the kill switch's geometry moved
+
+1. **The norm chain EB's composition rides is now the Section 2.3
+   dense chain**: gamma_z = 2^20.26 (per-level) / 2^21.18
+   (exact-digit) at FFN, e0 = 4/5, C2' headroom 0.82/0.94 bits — not
+   DA's 0.16-0.20-bit razor edge. Slack budget arithmetic that was
+   marginal at slot form has 4-5x more room; nothing in EB's lemma
+   should still cite the e0 = 1 row except as the vacated baseline.
+2. **The compounded reading's blast radius shrank ~34x and its
+   one-level-only signature is GONE:** at dense, gamma_z at the
+   deepest base (e = 1) is 2^18.24 < gamma_max(L = 2) = 2^19.03, so
+   the compounded budget HOSTS a second fold level (spike self-check
+   C2); the compounded byte floor at dense FFN is ~1,225,536 B = 4.7x
+   budget (2 levels, 8,356-ring final witness) vs 41.6 MB = 158.67x
+   at slot form [MODEL]. Consequence for the fallback boundary
+   (AGGREGATION_PARAMS_DESIGN 6.3): "compounded => exactly one fold
+   level => 41.6 MB floor" is no longer the correct statement of the
+   trigger at the recommended encoding — compounded still
+   architecture-FAILS on bytes (4.7x), so the kill switch still
+   kills, but EB's verdict row should restate the boundary with the
+   dense numbers. The exact-digit escape hatch also widens (e0 = 5
+   admits the deterministic digit claims at 2-3 limbs).
+3. Unchanged and still owed to EB: the per-level vs compounded lemma
+   itself, the batched-claim extractor (DA 4.4), the RLC-over-
+   partially-split-rings composition (DB 10.4) — this lane adds no
+   new obligation, it re-parameterizes the existing ones.
+
+### 6.2 To EC (O-4, ZK layer) — the exposure surface got smaller
+
+1. **The slot-junk channel no longer exists.** At dense there are no
+   junk coordinates anywhere in T_data — the packed-junk surface
+   (which honest provers zeroed but which was a REAL mask-discipline
+   surface at slot form: zeta shares, junk-bearing commitments) is
+   gone. The three exposure surfaces of AGGREGATION_CLAIM_REDUCTION
+   Section 11 are unchanged in kind — masked sumcheck rounds,
+   terminal values, eval-proof internals — with FEWER instances on
+   surface (i) than slot+image would have had (no packing-image
+   sumchecks to mask: 3 fewer masked-instance budgets at FFN).
+2. **T_blind sizing is unaffected by the encoding decision**
+   (2^10-2^12 rings, DA 2.5); in the dense digit chain it rides the
+   31-bit aux class (Section 2.3) — its columns decompose at the
+   class base, priced in every schedule; the claim-blinding segment
+   folds with unit weight into every batch exactly as DA drew it.
+   The new-instance mask budget EC owes (matmul/Hadamard/requant/
+   batch, the DB Section 11 list) is the COMPLETE-LAYER instance
+   list of Section 3.1 — 8 instances at FFN dense, degrees <= 3;
+   masks are per-instance Libra-class (Q4.7-9 pattern), and the
+   masked-transcript byte delta is already inside the Section 3.3
+   tables (the transcript lines ARE the masked wire).
+3. **Terminal-value blinding count:** the entries line (60/135
+   [MODEL]) is the population of surface-(ii) values EC's counting
+   lemma must cover; each is one K value against a global commitment
+   with the U-K5c aggregate-only discipline carried over (DB Section
+   11 row C4/C5).
+4. Masked material that DISAPPEARS from the wire entirely at dense:
+   nothing that Z1/WSMD masks today re-appears — the zeta wire was
+   already identically zero (WSMD 1.2) and its claim family
+   dissolves; no per-wave object returns (waves are gone regardless
+   of encoding). Dense strictly shrinks EC's obligation list; it adds
+   nothing.
+
+## 7. References
+
+1. AGGREGATION_PARAMS_DESIGN.md (U-AG2 DA) — layout, level machinery,
+   slack models, O-2 skeleton; its spike imported and re-anchored by
+   this lane's spike.
+2. AGGREGATION_CLAIM_REDUCTION.md (U-AG2 DB) — CR-L1..L6, CR-1..10,
+   6.3 packing-image price, 10.1/10.2 instance and entry counts,
+   Section 11 exposure surfaces.
+3. PROOF_BYTE_LEDGER.md (U-AG GB) — unit costs, inventories, budget
+   decomposition, R1-R6 exit sheet, U-AG-B1 gate spec.
+4. TARGET_CONTRACT.md — the frozen benchmark boundary; Sections 1-5
+   are the scope ruling's text.
+5. WAVE_SHARE_MASKING_DESIGN.md 0.1/1.2, SOUNDNESS_REFERENCE.md 8.3,
+   M4_LOOKUP_DESIGN.md 3.1/3.2/3.4/7'' — the slot-form record.
+6. Source files as cited inline (ct_engine.rs, link.rs, lookup.rs,
+   ring_matmul.rs) — all read in this worktree at 5d6c6f1.
+
+---
+
+*Changelog: 2026-07-27 — first edition (U-AG3 Agent EA lane): D-1
+consumer enumeration + derivation (dense recommended, R-2 closed),
+O-2 reconciled byte model (R8-a..d, two scopes, DA overlap
+machine-checked), pass-vs-layer scope analysis (per-pass reading,
+O-8 mandatory), verdict + EB/EC exports. Spike
+`aggregation_byte_model_spike.py` 21/21.*
