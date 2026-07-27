@@ -157,6 +157,24 @@ precedent).
   Section 2 + refs 6/7/9; Q4 style; SOUNDNESS_REFERENCE target line =
   the H-07 min() note, 128-bit class). Fetching primary sources
   (2024/257, 2025/247, + Neo 2025/294) into references/.
+- PRIMARY SOURCES READ: LatticeFold 2024/257 (Dec 15 2025 revision,
+  Wayback route — ePrint bot-check again) read IN FULL: Thms
+  3.1/3.2/3.3 + extractor + Lemma 3.7 + Section 3.3 small-modulus
+  challenge set (slot-diagonal, size q^tau) + Section 4 CCS variant +
+  App. B. LatticeFold+ 2025/247 (Aug 9 2025 revision) read IN FULL:
+  monomial range proof (Lemmas 4.2-4.7), Pi_cm extraction (Thm 4.3 /
+  Lemma 4.10 with the mu*|S|-union + two-parallel-sumcheck artifact,
+  Remark 4.9), folding Thms 5.1-5.3 + Eq. (28), App. B tensor-of-rings
+  (sumchecks over K, folding over R_q — the house split exactly).
+  Neo 2025/294: soundness core read (Thm 1 invertibility, Defs 14/15,
+  Lemma 3, the phi-restricted composition Thm 5 — the linearization
+  seam is NOT plain-composable; noted for FA). Key early findings:
+  LF Lemma 2.3 hypothesis at our ring IS house C0'/LS18 with the same
+  1.30x margin; LF's range arm = SC-L3-class exact pinning (slack 1);
+  fold-challenge entropy capped by q^16 = 2^496 pigeonhole (the
+  small-slot axis); FS of the fold left as FUTURE WORK by LF Remark
+  3.3 — the house PSS/SC-L5 transfer must carry it. F-IF1 not landed
+  yet (checked). Writing AGGREGATION_FOLDING_SOUNDNESS.md now.
 
 ## Log
 
