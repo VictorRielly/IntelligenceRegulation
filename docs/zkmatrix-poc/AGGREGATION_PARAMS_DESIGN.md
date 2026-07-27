@@ -487,3 +487,114 @@ special-soundness territory (the PSS pattern, ePrint 2024/311 [S10])
 and is owed as part of O-7 [OBLIGATION]. Nothing in the byte or norm
 accounting depends on its outcome; the knowledge-error TARGET already
 carries it as the dominant [MODEL] flag (Section 3.5).
+
+## 5. (d) The O-2 byte-model skeleton and the verifier model
+
+### 5.1 The closed-form artifact
+
+In the ledger's unit-cost style (PROOF_BYTE_LEDGER.md Section 0
+widths: poly = 516 B, K-element = 64 B at the canonical 4 B/limb,
+u32 length prefixes), the complete aggregate artifact is:
+
+    bytes = statement                                  (v3 codec, ~4 KiB)
+          + n_gc · (4 + kappa·516)                     (outer identities u)
+          + kel(dw, dt) · 64                           (masked descent pair)
+          + [k>1 points] · dw·(deg+1)·64               (batch-merge sumcheck)
+          + (4 + kappa·516)                            (level-0 v commitment)
+          + (L−1) · [ (4+kappa·516) + JL + agg ]       (level messages)
+          + n_L · 128 · ceil((e_L+1)/8)                (final bare witness)
+          + B·8·64                                     (batched claim values)
+          + framing
+
+with every constant either a ledger width or a Section 2/3 derived
+shape. The spike evaluates it with the level schedule of Section 3.2;
+JL = 1,028 B at 256 rows / 2,052 B at the sound 512-row setting.
+
+### 5.2 The tables (spike output, canonical widths)
+
+**2^20 layer, q31, per-level + 512-row JL (the sound byte-optimum):**
+
+| component | bytes |
+|---|---:|
+| statement (v3) | 4,096 |
+| 2 outer identities (kappa = 10) | 10,328 |
+| masked descent pair (dw 21 + dt 9) | 86,272 |
+| batch-merge sumcheck [MODEL] | 5,376 |
+| eval proof: 7 level messages (incl. 512-row JL) | 56,684 |
+| eval proof: final bare witness (624 rings, 7-bit digits) | 79,872 |
+| batched claim values (16 x 8 slots) [MODEL] | 8,192 |
+| framing [MODEL] | 2,048 |
+| **TOTAL** | **252,868 B = 246.9 KiB = 0.96x budget → PASS** |
+
+**FFN 512x11008, q31 — the sound frontier:**
+
+| configuration | bytes | vs 262,144 B |
+|---|---:|---:|
+| per-level + 512-row JL | 278,968 | **1.06x — OVER** |
+| per-level + 512-row JL + one-point landing (I-1) | 272,824 | 1.04x — OVER |
+| exact-digit | 289,080 | 1.10x — OVER |
+| exact-digit + one-point landing | 282,936 | 1.08x — OVER |
+| (256-row JL, FS-unsound, lower bound) | (271,800) | (1.04x) |
+| compounded slack reading | 41,593,548 | 158.67x — architecture-fail |
+| q46, per-level + 512-row JL | 354,104 | 1.35x — OVER (wider coeffs everywhere) |
+
+Reading: at FFN scale the model lands **10,700-27,000 B (4-10%) over**
+the hard line with all repo-recorded levers applied. The remaining
+named levers, each with its owner:
+
+1. **The descent pair is 105,664 B = 39% of the artifact** — the
+   single biggest line, owned by the GKR engine shape (dw 24 + dt 9),
+   not by this lane. Any descent-side compression (round-elimination,
+   cross-layer folding of the pair under O-8, or a dw reduction from
+   DB's claim restructuring) moves the verdict one-for-one.
+2. **Digit bit-packing** of the final witness ((e+1)-bit packed vs
+   byte-aligned): worth ~1/8 of the bare-witness line when e_L = 7
+   lands on a byte boundary (current schedules: zero gain — the
+   stop-scan already found byte-aligned optima) but up to 10 KiB on
+   schedules with e_L = 5-6; a canonical-codec EXTENSION (R4 review
+   required) [MODEL].
+3. **32-layer pass scope** (R1 requires the number stated): one
+   artifact per layer x 32 = **8.5-8.9 MiB/pass** at the FFN sound
+   frontier; the (b)-folding accumulator (O-8) is the recorded
+   mechanism to beat that, not this lane's. If the 256 KiB budget is
+   read per-PASS, family (c) alone misses by ~34x and O-8 is
+   mandatory — same conclusion as the literature round
+   (AGGREGATION_LITERATURE Section 7 note).
+
+Against today: 18.59 GiB → 279 KB at FFN scale is a **71,569x
+reduction** [MODEL vs the ledger's DERIVED baseline]; the residual gap
+to budget is 1.06x.
+
+### 5.3 The verifier model [MODEL] vs ≤ 2 s
+
+Ring-MAC accounting at the measured 0.18 us/ring-MAC kernel class
+(RING_MULT_BOTTLENECK.md 6.5), single-threaded:
+
+| shape / config | dominant term | modeled verify |
+|---|---|---:|
+| 2^20, per-level | level-1 statement pass (kappa·(z_len + t̂ + ŵ) ≈ 8.6e5 MACs) | **0.18 s** |
+| 2^20, exact-digit | same class | 0.14 s |
+| FFN, per-level | level-1 statement pass ≈ 4.6e6 MACs | **0.93 s** |
+| FFN, exact-digit | same, smaller l0 | 0.52 s |
+| FFN, q46 | fewer limbs | 0.30 s |
+
+All PASS the 2 s line; the FFN per-level point has only **2.2x
+headroom** — statement validation, hashing, and codec overhead
+[not modeled] must fit in that. The structural claim survives: the
+verifier is O(sqrt N)-statement-sized (the level-1 pass) + polylog
+(descents), never linear in the 2.16e6-ring witness; the ledger's
+Section 3.2 rule ("sublinear in commitments x waves; no per-wave
+re-checks") is met by construction since neither commitments-per-wave
+nor waves exist. Assert-3 of the U-AG-B1 gate (p95 over 20 runs) is
+where this model gets measured.
+
+### 5.4 The prover marginal [MODEL] vs H-05
+
+Commit-path marginal of the reroute (inner + outer commits + fold
+passes, kernel-served): **+25.6 us/el at the FFN per-level point
+(+4% on the 578.7 us/el whole-prove), +13.2 us/el (+2%) exact-digit,
++9.1/+6.6 us/el at 2^20.** The e0 = 1 decomposition (31 limbs) is
+what makes the per-level q31 point the most expensive; still far
+inside the >10x H-05 re-break line. O-6 owes the full model (this is
+the commit-path term only; the retired per-wave BDLOP commits and
+Sigma rounds come OFF the bill and are not credited here).
