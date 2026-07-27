@@ -86,6 +86,42 @@ Standing constraints (inherited, non-negotiable):
 - [ ] FINAL (orchestrator): merged, reviewed, decisions adopted,
       U-AG4 direction, pushed, Victor briefed.
 
+## Agent EC status (O-4, ZK layer) — wt-uag3-zk
+
+Units (commit after each):
+- [x] U1: read-in complete (CR Sec 1/10/11, PARAMS 2.4/2.5/7, WSMD 3,
+      Q4.7-9, SR 7, PROGRESS_UAG2 FINAL) + external refs verified
+      (2026/1289 toolkit, 2024/1293 Greyhound, 2022/1341 LaBRADOR)
+      — 2026-07-27. Verified in-session: Greyhound wire objects
+      (w = a^T G S, z = S c, verifier's 3 equations, w committed as
+      v = D w-hat in the LaBRADOR handoff) and LaBRADOR level
+      messages (u1/u2 outer commits, JL p = Pi s in cleartext,
+      g_ij = <s_i,s_j> / h_ij garbage, bare final witness) from the
+      two zksecurity expositions (read in full); ePrint abstracts
+      2024/1293 + 2026/1289 confirmed; both PDFs bot-blocked (same
+      as DA's session) — LNP22 internals carried [S10]/[MODEL].
+      Early finding shaping the lane: neither published protocol
+      carries ANY ZK measure; the composed proof's cleartext tail
+      (JL projections + final bare witness) is a deterministic
+      witness image — the surface-3 analysis will center on it.
+- [ ] U2: AGGREGATION_ZK_DESIGN.md Sections 0-1 (scope + leakage
+      inventory, JL + exact-digit variants, encoding-parametric rows)
+- [ ] U3: Section 2 (Surface 1: mask-budget extension to
+      matmul/Hadamard/packing instances vs T_blind [MODEL])
+- [ ] U4: Section 3 (Surface 2: terminal blinding — aggregate-only-pin
+      generalized; I-1/I-4 interaction)
+- [ ] U5: Section 4 (Surface 3: eval-proof ZK under I-6 — toolkit vs
+      house pads DECIDED with reasons; costs to O-2)
+- [ ] U6: Section 5 (the SIMULATOR, WSMD Sec-3 style, graded; the
+      fold-round FS-ordering lemma extending WSMD 3.4)
+- [ ] U7: Section 6 (R3 battery analogue SPEC) + Section 7 (verdict,
+      exports/imports for EA, honest scope)
+- [ ] U8: scripts/aggregation_zk_spike.py (self-checking N/N OK) +
+      output recorded in the doc
+- [ ] U9: final report to orchestrator; ledger updated
+
+Log: (per-unit notes below)
+
 ## Log
 
 - 2026-07-27: tranche opened at 93a6957 immediately after the U-AG2
