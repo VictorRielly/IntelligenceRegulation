@@ -152,7 +152,11 @@ precedent).
 
 ## Agent FC status (wt-uag4-soundness)
 
-- (lane opens here)
+- 2026-07-27: lane OPEN. House docs read (SC composition in full incl.
+  R-EB1..R-EB4 rows; PARAMS Sections 1-4/3.6; AZ-L4; literature
+  Section 2 + refs 6/7/9; Q4 style; SOUNDNESS_REFERENCE target line =
+  the H-07 min() note, 128-bit class). Fetching primary sources
+  (2024/257, 2025/247, + Neo 2025/294) into references/.
 
 ## Log
 
