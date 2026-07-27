@@ -86,6 +86,33 @@ Standing constraints (inherited, non-negotiable):
 - [ ] FINAL (orchestrator): merged, reviewed, decisions adopted,
       U-AG4 direction, pushed, Victor briefed.
 
+## Agent EB status (wt-uag3-soundness) — O-7 slack composition
+
+- state: STARTED 2026-07-27. Read-first set complete: PROGRESS_UAG2
+  FINAL (R-4, verdict), AGGREGATION_PARAMS_DESIGN Sections 1-7 (esp.
+  3.4 three readings, 3.5 FS accounting, 6.3 fallback boundary, 6.4
+  export list), AGGREGATION_CLAIM_REDUCTION Sections 1/10/12.3 (CR-L4b
+  restatement, 10.4 flagged row, CRB-N1..N5), Q4_LEMMAS style (Q4.1,
+  Q4.4a-c — the ARP extraction lemma is the house template for the
+  JL-grounding argument), SOUNDNESS_REFERENCE Sections 0-2 (grading,
+  L1/L2 engines, relaxed binding 2.2), AGGREGATION_LITERATURE Sections
+  1/9/10, greyhound_params_spike.py (SLACK_MODELS + gamma_budget are
+  the arithmetic my lemma must ground or refute).
+- next: verify external sources (LaBRADOR 2022/1341 soundness section
+  — THE primary; Greyhound 2024/1293 soundness statement; PSS 2024/311
+  composition pattern; zksecurity LaBRADOR mechanics), then
+  AGGREGATION_SOUNDNESS_COMPOSITION.md sections (a)-(e), one commit
+  each, then scripts/slack_composition_spike.py.
+- working hypothesis to prove or kill (from the house documents alone,
+  pre-external-check): relaxation factors CANNOT compound in the
+  algebra (LS18 invertibility clears dc per level exactly mod q);
+  norm slack is re-grounded per level by the level's own norm check
+  (modular-JL projection or exact digit claims) — the compounded
+  reading corresponds to a chain with no per-level norm checks, which
+  ours is not. The conditional to nail: the modular-JL wrap window at
+  q31 (the huge-norm regime) and the FS/grinding accounting.
+- commits: (none yet beyond this section)
+
 ## Log
 
 - 2026-07-27: tranche opened at 93a6957 immediately after the U-AG2
