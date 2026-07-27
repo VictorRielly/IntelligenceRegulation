@@ -422,7 +422,160 @@ Reconciliation deltas (code vs docs), flagged per the lane brief:
   `pin_claims`, `closing_round_claims`, `split_claims_*` — and both
   rigs' claim-construction sites.)
 
-<!-- UNIT-MARKER: sections 3+ follow -->
+## 3. The committed-executions gate (C1) — the hard case, treated first
+
+### 3.1 What the gate certifies, and what it costs today
+
+The gate + tie construction (AUTOMORPHISM_GATE_DESIGN.md Appendices
+B/B.1; SOUNDNESS_REFERENCE.md Section 5) certifies ONE statement:
+C = A·B over committed packed matrices, at r = 1 with per-slot
+2^-296-class soundness. Its apparatus, per matmul claim:
+
+1. the trace identity (SR 5.2): T(y) = sum over all D automorphisms
+   kills every non-constant monomial, converting per-entry ct-facts
+   into one ring equation over TWISTED EXECUTION combinations
+   xa^t = sum_i sigma_t(s_i) apack_i;
+2. three fresh execution COMMITMENTS Y^A, Y^B, Y^C re-committing the
+   h = 128 combinations per side (wide msg_r = h·inner/D shapes at
+   production — AGD B.2's build note);
+3. the TIE: per side, mask commitments M, N with nu_t = sigma_t(mu_t)
+   (never checked), full-entropy psi_t, masked reveals
+   F_t = psi_t Y_t + mu_t (mask-side-psi variant at production),
+   quinary tau_i/tau_ii drawn after F, two `RingClaim`s with public
+   constants — the 5.4 obstruction's resolution;
+4. ONE `TwistedQuadRingClaim`:
+   sum_t conj(YA_t) YB_t - sum_t conj(shat_tw_t) YC_t = 0;
+5. R1 pads masking (Ga, Gb, G0, w_tq) — without which the round
+   leaks the product matrix C exactly (Q4_LEMMAS.md Q4.3e).
+
+Measured cost (AGD B.1/B.2): gate + tie marginal ~1.23 MB per matmul
+claim at the demo shape (9 commitments 593 KB + 9 openings 446 KB +
+F reveals 186 KB + claim images 5 KB), ~2.5-2.74 MB whole pi2-CE
+round at 128x256x64 — MB-class PER MATMUL CLAIM, the scale problem
+this tranche exists to kill.
+
+### 3.2 Why the apparatus exists: two engine-specific obstructions
+
+Every piece of C1's machinery answers an obstruction of the
+SIGMA-PROTOCOL claim engine, not of the statement:
+
+- **F2 (junk non-commutation, SR 5.1).** ct(w·P) != w·ct(P): a ring
+  challenge mixes the packed pair-products' junk coefficients into
+  the constant term, and nothing committed matches the junk. This is
+  an artifact of PACKING rows into ring elements and compressing
+  with RING challenges. The trace identity exists to kill the junk.
+- **The tie obstruction (SR 5.4).** The round's virtual opening
+  P = c·x - Y drags sigma_t(c) into any twisted claim; one check
+  equation pins per-monomial, so no plain claim can cross a twist.
+  The two-sided masked reveals exist to move every twist onto public
+  data.
+
+The reduction target has NEITHER obstruction. Values are committed
+on the hypercube (no packing junk exists — IA-O1-1/IA-O1-4), and
+CR-L2b moves Galois twists onto the PUBLIC evaluation point. The
+correct reduction of C1 is therefore not a translation of its
+machinery but its RETIREMENT: prove the underlying statement in the
+engine that does not need the machinery.
+
+### 3.3 The reduction: CR-1 (matmul instances)
+
+**Claim CR-1.** Let A, B, C be committed as global value tensors
+(IA-O1-1; A and C are layer tensors already in the global set, B is
+the weight tensor — IA-O1-5). The statement C = A·B is proven by one
+CR-L3 sumcheck: challenges (rx, ry) from the FS state binding all
+three commitments, li rounds of degree-2 sumcheck, terminal claims
+
+    MLE(A)(rx, r*),  MLE(B)(r*, ry),  MLE(C)(rx, ry),
+
+all three entering the layer's CR-L4 batch. Soundness (field-
+statistical): (lr + lm)/|K| SZ + 2·li/|K| rounds ~ 2^-490-class at
+li <= 14 (inner = 11008-class — TARGET_CONTRACT shapes); the FS
+ordering edge is the standard one (rx, ry, and round challenges all
+follow the three commitments — Section 10.5's table). What the
+engine must prove: one masked degree-2 sumcheck of li rounds per
+matmul (three matmuls per FFN layer: gate-proj, up-proj, down-proj).
+Prover cost class: O(r·m·inner) K-mult-class work with the standard
+linear-time sumcheck schedule — the whole-prove multiplier is O-6's
+model to build, flagged [MODEL] here.
+
+**What retires with it, item by item:** the trace identity (no junk
+to kill), Y^A/Y^B/Y^C (no derived objects need re-committing — the
+sumcheck references A, B, C directly), the tau ties and the entire
+masked-reveal complex psi/F/tau_i/tau_ii/M/N (no twist ever touches
+committed data), the h = 128 twisted executions (the "(twisted
+executions) x (1/packing density) = D" frontier law of AGD Section 3
+priced a cost the MLE engine simply does not pay — its analogue is
+the li sumcheck rounds, LOGARITHMIC in inner rather than linear in
+D), and the R1 pads on the gate claim (the leak surface they mask —
+garbage images pinned by revealed responses — has no counterpart;
+the sumcheck transcript is masked by the E3 machinery instead,
+Section 11 row C1).
+
+Status: **REDUCES (by retirement)** — [PROVEN*], certificates SPK-3
+(matmul sumcheck honest/tampered end-to-end) and SPK-2 (the twist
+law that makes the retirement safe for the general form, next).
+
+### 3.4 The general conj-twisted quadratic form: CR-2
+
+C1's claim FORM (`TwistedQuadRingClaim`,
+sum_p gamma_p conj(x_{a_p}) x_{b_p} + sum a x = 0 over R_q) is more
+general than the gate instance, and the engine offers it to any
+caller. The form itself reduces — this is where CR-L2 earns its
+keep:
+
+**Claim CR-2.** For committed element vectors x with global
+coefficient commitments, the claim
+sum_p gamma_p conj(x_{a_p}) x_{b_p} + sum_j a_j x_j = 0 over R_q is
+equivalent (CR-L2a) to the 8 slot identities, t = 1..8:
+
+    sum_p ev_t(gamma_p) · Ea_p^t · Eb_p^t
+      + sum_j ev_t(a_j) · Ej^t  =  0   in K,
+
+where ev_t := ev_{omega_t}, Ea_p^t := ev_{omega_t^{-1}}(x_{a_p})
+(the conj twist moved to the point, CR-L2b), Eb_p^t :=
+ev_{omega_t}(x_{b_p}), and every E is a public-scalar multiple of a
+partial MLE evaluation of its committed tensor (CR-L1/CR-L2c). RLC
+the 8 identities with lambda in K^8 (defect survives with per-slot
+point mass <= q^-16 ~ 2^-496 — the L2 argument run inside K);
+when the claim ranges over ELEMENT INDEX u (a per-chunk family, as
+in the Hadamard case), wrap the per-u identity in a CR-L6 zero-check
+over the index variables. Terminals: eval claims at the (public,
+omega-shifted) points z(omega_t^{±1}) composed with the batch point —
+all CR-L4-batchable. Sigma-twists other than conj reduce identically
+with point w |-> w^t. Status: **[PROVEN*]** — SPK-2 verifies, at a
+toy negacyclic ring with the toy field carrying an order-2D_toy
+root: the hom law, the twist law, and accept/reject of a full toy
+conj-twisted quadratic claim under the 8-point (toy: D_toy-point)
+RLC with a tampered witness.
+
+*Residual-use audit.* Callers of the twisted form in code: the
+pi2-CE gate (retired by CR-1) and the U6/gadget conj-ct-quadratics
+(C3 — Section 4.2, which uses the coefficient-inner-product special
+case). No caller needs CR-2's full generality on the target path;
+it is recorded because O-3's contract is that the FORM reduces, not
+merely today's instances — any future twisted claim rides CR-2
+instead of re-importing the tie.
+
+### 3.5 The gate verdict, in one paragraph
+
+The committed-executions gate — the U-AG verdict's flagged hard case
+— REDUCES, and the reduction is a retirement: the matmul statement
+becomes one textbook degree-2 sumcheck per matmul (CR-1), and the
+conj-twisted ring-quadratic claim form that the gate forced into
+existence becomes an 8-point evaluated bilinear identity under the
+slot-evaluation lemma (CR-2), with every Galois twist acting on
+public evaluation points rather than committed data. Nothing in the
+gate's soundness content is lost: CR-1 pins C = A·B exactly (up to
+2^-490-class SZ in |K| ~ 2^496, versus 2^-296-class per-slot today
+— the reduced form is STRONGER on the field-statistical axis), and
+the wide execution commitments, ties, masked reveals, trace
+identity, and their ~1.23 MB/claim wire cost (AGD B.1) leave the
+protocol entirely. The crux flagged by the verdict — "its
+conj-twisted structure vs the MLE claim form" — dissolves on
+inspection: the conj-twisted structure was the Sigma engine's way of
+paying for packing; the MLE engine does not pack.
+
+<!-- UNIT-MARKER: sections 4+ follow -->
 
 ---
 
