@@ -47,7 +47,7 @@ runner-ups, and the U-AG2 obligation list: Section 8.
 - [x] Section 1: family (a) LaBRADOR-class (papers verified)
 - [x] Section 2: family (b) folding (LatticeFold lineage)
 - [x] Section 3: family (c) PCS reroute (Greyhound-class)
-- [ ] Section 4: family (d) hash-based transcript compression
+- [x] Section 4: family (d) hash-based transcript compression
 - [ ] Section 5: family (e) SNARK-wrap recursion
 - [ ] Section 6: cross-cutting — Z1 compatibility, verifier budget
 - [ ] Section 7: the pricing table
@@ -599,7 +599,132 @@ owed in U-AG2's design, not assumed.
    independently budget-fatal (PROOF_BYTE_LEDGER.md Section 3.1),
    and no family that keeps the wave structure can pay them.
 
-## 4. Family (d): hash-based transcript compression — PENDING
+## 4. Family (d): hash-based sumcheck/FRI transcript compression
+
+### 4.1 The shape, and what it inherits from GATE_ALTERNATIVES
+
+This is option 2 of GATE_ALTERNATIVES.md, promoted from "gate
+fallback" to "carry the whole claim structure": commit the witness
+additionally under a hash-based polynomial commitment
+(Brakedown/Ligero/FRI class — "linear-time committing, no FFT,
+GPU-friendly, post-quantum"), prove all claims with sumcheck over
+the hash commitments, and tie hash-committed to lattice-committed
+values with the link-row machinery priced for the gadget-modulus
+decision (~59 KB/tensor, GADGET_MODULUS_DECISION.md Section 3.5
+via GATE_ALTERNATIVES.md option 2). The recorded cons scale up
+with the promotion: every tensor committed twice, and "two proof
+systems to maintain and audit."
+
+### 4.2 What the hash family achieves where the field permits
+
+Verified state of the art: WHIR (Arnon-Chiesa-Fenzi-Yogev, ePrint
+2024/1586) reports, at degree 2^22 and 100 bits of security, **63
+KiB proofs verified in 360 microseconds** [abstract verified] —
+both repo budgets met with orders of headroom, on paper, at
+exactly our witness scale. The surrounding ecosystem is the most
+production-hardened in this review: M4 already relies on it as
+precedent ("Stwo/SP1 ... running LogUp over FRI at field sizes
+like 2^31, our field class," M4_LOOKUP_LITERATURE.md Section 4),
+and the whole family is transparent and hash-PQ.
+
+### 4.3 The wall: this repo's field cannot host the cheap instantiation
+
+FRI/STIR/WHIR encode over Reed-Solomon domains — multiplicative
+subgroups of smooth (power-of-two) order. Our protocol field: q31
+= 2^31 - 399 with q ≡ 17 (mod 32) (SOUNDNESS_REFERENCE.md 1.1),
+so q - 1 = 16 x (2^27 - 25) and **v2(q-1) = 4** [DERIVED]: the
+largest power-of-two subgroup of F_q* has SIXTEEN elements,
+against codewords of length 2^22+. Extending does not rescue it:
+v2(q^16 - 1) = v2(q-1) + v2(q+1) + v2(16) - 1 = 4 + 1 + 4 - 1 =
+8 [DERIVED, lifting-the-exponent], a 256-point domain. (The A1
+report describes its ring generation as q ≡ 5 (mod 8) with
+v2(q-1) = 2, A1_AUX_NTT_REPORT.md; either reading is 18+ doublings
+short — the conclusion does not depend on which.) The repo already
+imports the Goldilocks prime (v2(p-1) = 32) for prover-internal
+NTTs, but that import "carries no protocol role"
+(A1_AUX_NTT_REPORT.md) — an RNS trick for exact integer
+arithmetic, structurally unable to host commitments the
+verification equations see.
+
+### 4.4 The escapes, each priced
+
+1. **Field-agnostic codes — BaseFold** (Zeilberger-Chen-Fisch,
+   ePrint 2023/1705): multilinear PCS from random foldable codes,
+   O(log^2 n) verifier, O(n log n) encoding "over any sufficiently
+   large field" [abstract verified] — directly instantiable over
+   q31/GF(q^16). Cost honesty: the abstract quotes only relative
+   numbers (proofs >10x smaller than Hyperplonk-with-Brakedown,
+   verification >30x faster at 2^20+ gates); log^2-class proofs
+   are materially larger than WHIR's 63 KiB at equal scale, and no
+   published table prices BaseFold at our exact shape — budget-
+   adjacent, [MODEL]-only, must be concretely priced before this
+   family is ever activated.
+2. **Brakedown itself** (Golovnev-Lee-Setty-Thaler-Wahby, ePrint
+   2021/1043): field-agnostic, linear-time prover [abstract
+   verified] — but sqrt-sized proofs (the BaseFold abstract's
+   ">10x smaller" is measured AGAINST it): MB-class at our scales,
+   over budget as the outer layer; usable only under a wrapping
+   compressor, which re-imports family (e).
+3. **ECFFT** (Ben-Sasson-Carmon-Kopparty-Levit, "Scalable and
+   Transparent Proofs over All Large Fields, via Elliptic Curves,"
+   TCC 2022, ePrint 2022/1542): RS-style scalable IOPs over ALL
+   large fields, replacing the smooth subgroup with
+   elliptic-curve-derived FFT domains [ePrint page verified]. The
+   curves are combinatorial (domain structure), not cryptographic
+   — PQ is preserved. Asymptotic rescue with no concrete
+   deployment-grade cost tables; highest engineering burden in
+   this family.
+4. **Field-switch + link**: hash-commit the witness over an
+   FFT-friendly field (Goldilocks/BabyBear) and bind to the q31
+   lattice commitments with U-L-style cross-modulus link rows
+   (link.rs; the integer-exact pattern of
+   GADGET_MODULUS_DECISION.md Section 3.5). The links are the
+   bytes: ~59 KB/tensor x 3 tensors x 32 layers ~ 5.7 MB — the
+   link layer itself must then be aggregated, which is the
+   original problem one level down. Viable only if the links ride
+   INSIDE the hash proof (proving the lattice-opening relation in
+   the hash circuit — family (e) in disguise).
+
+### 4.5 Z1, verifier, prover
+
+Z1: the sumcheck side runs over masked data exactly as in family
+(c) (the built masked-GKR machinery applies); hash commitments
+hide via salting; NEW obligation — the cross-commitment link
+argument must be simulatable too, and the double-committed witness
+doubles the surface the rank/recovery battery class must cover.
+Verifier: polylog hashing — meets <= 2 s trivially [verified
+class: WHIR's 360 us]. Prover: a second full commitment pass over
+all witness data (hashing, ~GB/s class — cheap next to the 578.7
+us/el whole-prove) plus the sumcheck constants already priced in
+M4; est. 1.3-2x whole-prove [MODEL].
+
+### 4.6 Family (d) scorecard (axes of 0.5)
+
+1. **Bytes:** 63 KiB-class IF the field permitted (it does not);
+   over our field: BaseFold-class ~150-400 KiB [MODEL, unpriced by
+   any paper at our shape] or field-switch with an unsolved
+   link-aggregation residue — budget-adjacent with the widest
+   error bars in this review.
+2. **Verifier:** polylog, sub-ms-to-ms class — MEETS, best in
+   review.
+3. **Prover:** ~1.3-2x [MODEL]; second commit pass is cheap.
+4. **PQ:** yes (hash; ECFFT's curves are combinatorial).
+5. **Z1:** compatible via masked sumcheck; link-layer simulation
+   and double-commitment coverage are NEW obligations.
+6. **Engine reuse:** the sumcheck engine (E3) is reused — the
+   one-engine-two-uses argument that made this the recorded
+   fallback; but the PCS, codec extension, and transcript layer
+   are all new, and the lattice claim engine is bypassed rather
+   than composed.
+7. **Maturity:** components most production-hardened in the
+   review (FRI ecosystems) — but NOT at our field; the
+   field-agnostic corner (BaseFold 2023, ECFFT 2022) is young and
+   thinly deployed.
+8. **Risk class:** medium: no new cryptography, but the
+   two-adicity wall forces either young codes or a cross-field
+   link whose aggregation is unsolved; the two-proof-system audit
+   burden is permanent (GATE_ALTERNATIVES.md option 2's own con,
+   now applied to the repo's largest subsystem).
 
 ## 5. Family (e): SNARK-wrap recursion — PENDING
 
@@ -667,6 +792,33 @@ owed in U-AG2's design, not assumed.
     linear prover; **WITHDRAWN October 2025** — cited here only as
     the negative result that no confirmed lattice PCS beats
     Greyhound's sqrt verifier]
+11. Gal Arnon, Alessandro Chiesa, Giacomo Fenzi, Eylon Yogev.
+    "WHIR: Reed-Solomon Proximity Testing with Super-Fast
+    Verification." IACR ePrint 2024/1586.
+    https://eprint.iacr.org/2024/1586 [abstract verified: 63 KiB
+    proof at degree 2^22 / 100-bit security, 360 us verification;
+    RS-domain-bound, hence walled off by our field's two-adicity]
+12. Hadas Zeilberger, Binyi Chen, Ben Fisch. "BaseFold: Efficient
+    Field-Agnostic Polynomial Commitment Schemes from Foldable
+    Codes." IACR ePrint 2023/1705.
+    https://eprint.iacr.org/2023/1705 [abstract verified:
+    O(log^2 n) verifier, O(n log n) encoding over any sufficiently
+    large field; relative sizes only (>10x smaller than
+    Hyperplonk-with-Brakedown)]
+13. Alexander Golovnev, Jonathan Lee, Srinath Setty, Justin
+    Thaler, Riad S. Wahby. "Brakedown: Linear-time and
+    field-agnostic SNARKs for R1CS." IACR ePrint 2021/1043.
+    https://eprint.iacr.org/2021/1043 [abstract verified:
+    linear-time prover, arbitrary fields of sufficient size; no
+    concrete sizes in abstract — sqrt-class proofs, MB-class at
+    our scales per the BaseFold comparison]
+14. Eli Ben-Sasson, Dan Carmon, Swastik Kopparty, David Levit.
+    "Scalable and Transparent Proofs over All Large Fields, via
+    Elliptic Curves (ECFFT part II)." TCC 2022; IACR ePrint
+    2022/1542. https://eprint.iacr.org/2022/1542 [ePrint page
+    verified: scalable IOPs over any field of size at least
+    quadratic in computation length, removing the FFT-friendly
+    requirement]
 
 ---
 
