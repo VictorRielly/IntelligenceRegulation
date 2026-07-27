@@ -792,3 +792,128 @@ after JL p and aggregation; attack: the [LaB] App. B argument's
 independence structure collapses). Batteries are build-round scope
 (same posture as CRB-N1..N5). [OBLIGATION — battery specs, not new
 analysis.]
+
+## 4. (d) The RLC-batching knowledge error over the partially split ring, composed through the evaluation proof
+
+AGGREGATION_LITERATURE Section 9 records: "RLC batching of
+evaluation claims is folklore over fields; at our 8-slot GF(q^16)
+CRT structure with small-norm challenge sets, the knowledge-error
+accounting is nowhere in print." DA proved the per-round SOUNDNESS
+lemma (PARAMS 4.1, the L2-conditioning argument); DB proved the
+claim-side algebra (CR-L4a/b) and both restated the EXTRACTOR to
+O-7 (PARAMS 4.4, DB 10.4/12.3). This section is that extractor.
+**To our knowledge it is the first written treatment of this
+composition; it should be read by the independent review with that
+in mind, not as a transcription of anything published.** (The
+closest published object is [PSS]'s aggregation of many Falcon
+verifications inside one LaBRADOR statement; their pattern —
+extract once, then argue per-instance correctness through the
+random-combination round's failure density — is the pattern used
+here, which is why the result lands as a predicate argument rather
+than a forking argument.)
+
+### 4.1 Setting (from DA 4.1 and DB CR-L4, fixed notation)
+
+After DB's engine runs, the verifier holds B batch entries: claimed
+values v_{i,s} = f~_i(r)|_s for segments i = 1..B of the committed
+vector behind T_data/T_blind, slots s = 1..8, common point
+r in K^dw (I-1), all 8 slots per claim (I-3). The batching round
+draws independent op-norm-capped quinary gamma_1..gamma_B (I-4 +
+R-EB1) and the chain of Sections 1-3 proves the ONE batched claim
+
+    sum_i res_s(gamma_i) · v_{i,s} = (sum_i gamma_i ⊙ f~_i)(r)|_s
+    for all 8 slots s
+
+against the commitment, where the batched polynomial's coefficient
+vector is a PUBLIC linear image of the committed vector (public
+weights assembled from gamma and the segment map).
+
+### 4.2 SC-L6 — the batching extractor (straight-line over the batching round)
+
+**Statement.** Suppose (i) the chain of Sections 1-3 is knowledge
+sound for the batched claim (SC-L4 + SC-L5, with their conditions),
+(ii) gamma is FS-derived from a state binding the commitment
+identities u, ALL claimed values v_{i,s}, and the point r (CRB-N4/
+N5 rows), and (iii) claims are slot-complete (I-3). Then there is an
+extractor that, with the chain's knowledge error plus an additive
+term
+
+    eps_batch = B · 2^-297   (per false-claim event; through FS:
+    one more failure-density row inside the [PSS] Thm 4.1 sum,
+    contributing 2(Q+1)·B·2^-297 ~ 2^-228 at B = 16, Q = 2^64),
+
+outputs a single opening f* of T_data/T_blind such that EVERY
+individual claim is true of f*: f*_i(r)|_s = v_{i,s} for all i, s.
+
+**Proof.** Run the chain extractor ONCE on the batched claim: it
+outputs (SC-L4, level-0 clause) the committed vector's opening f*,
+pinned by binding across all accepting continuations (two distinct
+extracted openings break MSIS at the Section 2.1 bounds — the same
+instances already required by C-msis; batching adds NO new MSIS
+instance because the batched polynomial is a public linear image of
+the SAME committed vector, not a new commitment). f* is fixed
+before gamma is drawn: by (ii), gamma's FS state binds u, and f* is
+a function of the commitment openings alone (SC-L4's extraction
+never uses gamma-forks — this is what "straight-line over the
+batching round" means).
+
+Define the TRUE values v*_{i,s} := f*_i(r)|_s — computable from f*
+by evaluation. Suppose the claimed and true values differ somewhere:
+delta_{i0, s0} := v*_{i0,s0} - v_{i0,s0} != 0. The chain proves (for
+f*, exactly — SC-L0) the batched identity, so in slot s0:
+
+    sum_i res_{s0}(gamma_i) · (v*_{i,s0} - v_{i,s0}) = 0 in GF(q^16).
+
+Condition on all gamma_i, i != i0 (independent draws): the equation
+demands res_{s0}(gamma_{i0}) = k for a FIXED slot-field constant k
+(delta_{i0,s0} is invertible in the FIELD — the slot field has no
+zero divisors; this is where partial splitting does the work that
+fails at NTT-friendly rings). By L2, res_{s0} is injective on C, so
+the probability over gamma_{i0} is <= 5^-128 = 2^-297. Union over
+the B claims (the lazy bound; slots need no union — any single
+disagreeing slot is caught, I-3): eps_batch = B·2^-297. In the FS
+setting this is a challenge-predicate failure density in the
+batching round ([PSS] Definition 4.5 shape): the predicate "the
+claimed v equal f*'s true values" fails only on a 2^-297-mass set
+of gamma per false claim, and Theorem 4.1's sum absorbs it linearly
+in Q. So in any accepting FS transcript, except with the stated
+probability, v = v* — and f* witnesses every individual claim. ∎
+
+**Grade: [PROVEN]**, on top of SC-L4/SC-L5's conditions; the
+FS-ordering hypothesis (ii) is load-bearing (if gamma failed to bind
+some v_{i,s}, the prover could choose that value after seeing gamma
+and only the gamma-combination would be pinned — DB's E4-N1-analogue
+attack, CRB-N4's row); the slot-completeness hypothesis (iii) is
+load-bearing (a slot-sampling design re-opens the small-slot escape
+— DA 4.1's design rule (i), [PSS] Definition 3.1's B would
+effectively collapse).
+
+*Three structural notes for the review.* (1) No forking over gamma:
+the classical "B+1 transcripts + invert the challenge matrix"
+extractor would multiply the extracted witness by the inverse of a
+quinary-challenge matrix — whose entries are NOT short — and is
+both unnecessary and norm-toxic here; binding + straight-line
+predicate argument avoids it entirely. This is the answer to DB
+10.4's flagged row. (2) The norm side: gamma enters the fold with
+op(gamma) <= T_cap (R-EB1 applies to batching challenges too —
+PARAMS 4.2's E[c^2] = 2 accounting covers honest sizing; the cap
+covers extraction). (3) Multi-point merges (DA 4.3 / DB CR-L4a)
+happen BEFORE this round inside the DB engine over K with SZ-class
+error (2^-49x); they add no ring-challenge structure and nothing to
+this extractor.
+
+### 4.3 What this closes
+
+- PARAMS 4.4 ("extractor for the batched composition ... owed as
+  part of O-7"): CLOSED by SC-L6.
+- DB 10.4's flagged row ("KNOWLEDGE-ERROR composition of all RLCs
+  through the evaluation proof's extraction at the partially-split
+  ring"): CLOSED — the K-side RLCs (mu, nu, lambda) live inside
+  DB's engine with SZ/field errors [PROVEN there]; the ring-side
+  RLC (gamma) is SC-L6; the seam between them is the FS state
+  ordering (ii), now explicit.
+- PARAMS 6.4 item 2: CLOSED by SC-L6; item 3 (concentration/restart
+  surcharge transcription for the new folds): SUBSUMED — the
+  extraction constants use T_cap worst-case (no concentration claim
+  to transcribe on the adversarial side), and the honest-side
+  restart discipline stays Q4.1(i) with no soundness surcharge.
