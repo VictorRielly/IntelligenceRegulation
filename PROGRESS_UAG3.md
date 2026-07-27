@@ -86,6 +86,51 @@ Standing constraints (inherited, non-negotiable):
 - [ ] FINAL (orchestrator): merged, reviewed, decisions adopted,
       U-AG4 direction, pushed, Victor briefed.
 
+## Agent EA status (wt-uag3-encoding) — LANE COMPLETE
+
+- done: BOTH deliverables landed.
+  docs/zkmatrix-poc/AGGREGATION_ENCODING_DESIGN.md — D-1 consumer
+  enumeration S1-S8 (code-cited) + soundness derivation + the
+  recommendation; O-2 reconciled byte model (R8-a..d, two statement
+  scopes, DA overlap machine-checked, DB band-checked); pass-vs-layer
+  scope analysis; verdict + claim grades + EB/EC exports.
+  scripts/aggregation_byte_model_spike.py — 21/21 self-checks,
+  imports DA's spike read-only and reproduces its six verdict totals
+  exactly before printing anything.
+- **D-1 DECIDED (recommendation to FINAL): DENSE value encoding for
+  Y/UP/Z; slot form retained nowhere; IA-O1-4 CONFIRMED; R-2
+  closed.** Every load-bearing slot consumer is a Sigma-engine
+  artifact (S1-S6); the survivors consume the slot FIELD, not the
+  packing; dense adds ZERO claims (the packing-image class only
+  ties packed-to-dense and nothing packed remains). Width finding
+  F-2: slot idempotents force 31-bit coefficients vs dense 8/15-bit
+  — witness 151x down, FFN e0 relaxes 1->4/2->5, C2' headroom
+  0.20->0.82 b, top-MSIS 132.6->141.4 b. Honest negative F-4: R-2's
+  sqrt-law is REFUTED (eval proof is recursion-floor-dominated;
+  dense buys ~15-25 KiB, not sqrt(13)x).
+- **O-2 verdicts (dense, per-level + 512-row JL):** 2^20 ledger-unit
+  242,128 B = 0.92x PASS (completed slot form 1.00x OVER — dense is
+  what keeps the PASS alive); FFN ledger-unit 266,832 B = 1.02x
+  FAILS by 1.8%; FFN complete-layer 292,240 B = 1.11x (band
+  1.09-1.12x); descent pair 105,664 B = 36-40% is the one named
+  owner of the gap (GKR/O-8). Named risks D-R1 (range-arm
+  rho-sharing) / D-R2 (extra eval proofs ~136 KiB each ->
+  budget-fatal; E-O2 one-batched-opening rule).
+- **Scope recommendation (adoption at FINAL): PER-PASS** — the
+  contract text pins it (three anchors incl. the 150-KB/pass
+  tightness flag); pass = 8.92 MiB = 35.7x; O-8 floor 5.7x even
+  with perfect descent/eval folding -> the (b) accumulator must
+  fold INSTANCES; keep per-layer 262,144 B as the B1 engineering
+  gate; U-AG4 = folding design round.
+- exports recorded (doc Section 6): EB — dense norm chain,
+  compounded L=2 now hosted, kill-switch byte floor 41.6 MB ->
+  1.23 MB (4.7x, still architecture-fail; boundary restatement
+  owed); EC — junk channel gone, 3 fewer masked instances than
+  slot+image, T_blind unchanged, entries = surface-(ii) population.
+- deliverable checkbox left for the orchestrator (GA/DB precedent).
+- commits: 88a9dfe, 03b6847, 154e6a6, bdd60d2, 899a4cd, acafee6
+  (+ this close-out).
+
 ## Log
 
 - 2026-07-27: tranche opened at 93a6957 immediately after the U-AG2
