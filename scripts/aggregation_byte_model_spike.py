@@ -645,6 +645,38 @@ def main():
           "one-level-only no longer follows from the compounded lemma "
           "alone" % (math.log2(gz1),
                      math.log2(da.gamma_budget(31.0, "compounded", 1))))
+    # the compounded byte floor at dense (PARAMS_DESIGN 6.3's 41.6 MB
+    # re-run at the recommended encoding): depth-search like DA's
+    kappa_c, _ = da.c3_kappa(28.0, 31.0)
+    best_c = None
+    for depth in range(1, 10):
+        gm = da.gamma_budget(31.0, "compounded", depth - 1)
+        if gm < 1.0:
+            continue
+        sc = schedule2(classes, 31.0, gm, kappa_c, max_levels=depth)
+        if sc is None or not sc["stops"]:
+            continue
+        epc = eval_proof2(sc, kappa_c)
+        # heavy lines only (descent+transcript etc. unchanged): reuse
+        # the complete-layer fixed lines from the dense per-level run
+        fixed = (4096 + 2 * (4 + kappa_c * POLY_B)
+                 + SHAPES["FFN 512x11008"]["kel"] * KEL_B
+                 + ex["tr"] + ENTRIES["complete-layer"][1] * KEL_B + 2048)
+        tot = (fixed + epc["stop_level"] * epc["per_level_wire"]
+               + 1024 * max(0, epc["stop_level"] - 1) + epc["bare"])
+        if best_c is None or tot < best_c[0]:
+            best_c = (tot, depth, epc)
+    print("  to EB (O-7) cont.: compounded-reading byte floor at dense "
+          "FFN = %s B (%.1fx budget; %d levels, %d-ring final witness) "
+          "vs 41,593,548 B (158.67x) at slot form [MODEL] — the "
+          "fallback boundary SOFTENS ~%.0fx but remains architecture-"
+          "fail on bytes; EB owns the precise re-statement"
+          % (format(best_c[0], ","), best_c[0] / BUDGET,
+             len(schedule2(classes, 31.0,
+                           da.gamma_budget(31.0, "compounded",
+                                           best_c[1] - 1),
+                           kappa_c, max_levels=best_c[1])["rows"]) - 1,
+             best_c[2]["n_final"], 41_593_548 / best_c[0]))
     print("  to EC (O-4): dense kills the slot-junk channel (no junk "
           "coordinates exist); exposure surfaces stay the three of "
           "CLAIM_REDUCTION 11; T_blind unchanged (2^10-2^12 rings, "
