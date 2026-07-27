@@ -1125,4 +1125,12 @@ REDUCES-WITH-COST unit-scoped, lookup kept + re-landed,
 waves/pads/ARP/digits dissolved or retired), Sections 10-12 (claim
 counts + batching soundness terms + FS table, Z1/ZK per-class O-4
 handoff, VERDICT: O-3 CLOSES, no walls, fallback not pulled).
-Machine checks: scripts/claim_reduction_spike.py SPK-1..SPK-7.*
+Machine checks: scripts/claim_reduction_spike.py SPK-1..SPK-7 —
+LANDED, 25/25 OK in ~15 ms, every reduction leg with a tamper
+negative. One honesty note from the spike's own history: the
+reduced-link tamper leg first ran over a p = 97 toy field and the
+initial draft's closure bug aside, the small-field configuration is
+exactly where accidental mu-xi zeros live at ~1/p per draw — the leg
+now runs at the real (q31, q46) pair and the incident is recorded in
+the spike's comments as a live illustration of why the production
+sumcheck field is GF(q^16) ~ 2^496.*
