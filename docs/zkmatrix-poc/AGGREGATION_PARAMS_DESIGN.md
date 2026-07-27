@@ -247,3 +247,161 @@ arguments belong to O-4:
   5 claim-value line. WSMD Section 7.1 is satisfied via its second
   branch ("re-derive the privacy argument") — the re-derivation itself
   is O-4's deliverable, on the built masked-sumcheck machinery.
+
+## 3. (b) The Greyhound + LaBRADOR security re-derivation at our ring
+
+### 3.1 Challenge sets and operator norms at D = 128
+
+Greyhound/LaBRADOR publish at degree-64 rings with their own challenge
+sets (Reference 5: d = 64, challenges sampled sparse/small with
+pairwise-invertible differences). At our ring every challenge role is
+filled by an existing house object — no new set is introduced:
+
+| role | house object | op norm | soundness engine |
+|---|---|---|---|
+| fold challenges (multiply witnesses) | quinary C, |C| = 2^297.2 | 20.8 conc / 256 worst (params.rs) | L2 per-slot point mass 2^−297 [PROVEN] |
+| fold-challenge differences (extraction) | C − C | 29.4 conc / 512 worst | LS18 invertibility, margin 1.30x (C0') [PROVEN, checked at derive time] |
+| constraint-aggregation challenges (never multiply witnesses) | full-entropy R_q (SOUNDNESS_REFERENCE 1.3) | — | per-slot q^−16 = 2^−496 [PROVEN] |
+| sumcheck/batching field challenges | GF(q^16) K-field draws | — | SZ over 2^496 field |
+
+The concentration figures carry the house restart discipline
+(params.rs `conc` + `center_sq`: restart-if-exceeded on honest
+centers, 2^-64-class soundness surcharge — Q4 note), extended
+unchanged to the new folds [OBLIGATION: the Q4-style transcription of
+that surcharge for the aggregate folds, folded into O-7].
+
+### 3.2 Level norm chains
+
+**Level 0 (Greyhound fold).** z = sum_j c_j ŝ_j over the m2 columns;
+with digit magnitude 2^{e0−1} and column flat dimension m1·l0·D, the
+concentration bound is
+
+    gamma_z = 20.8 · 2^{e0−1} · sqrt(n · l0 · D),    n = m1·m2.
+
+Spike values: 2^20.92 (2^20 shape, e0 = 3) / 2^20.88 (FFN, e0 = 1) /
+2^21.40-2^21.69 (exact-digit variants) — against gamma_max = 2^21.07
+(per-level) / 2^22.12 (exact-digit). Headroom 0.15-0.7 bits: REAL but
+thin; e0 is pinned to {1,2,3,4} by it (Section 2.2's table). The
+verifier checks ||z|| <= gamma_z with the house restart rule sizing
+the honest success rate.
+
+**Levels >= 1 (LaBRADOR steps).** Each level: split the current
+witness (all entries digits of magnitude <= 2^{e_i−1}) into r_i
+chunks, commit chunks (fresh inner commitments, kappa rings each),
+send one merged outer commitment + norm-check material + aggregation
+scalars, fold with quinary challenges, decompose the fold and the new
+commitment/garbage coefficients for the next level. The recurrence the
+spike optimizes (g and h garbage terms per Reference 5's protocol —
+r(r+1)/2 each, mod-q, decomposed):
+
+    n_{i+1} = ceil(n_i/r_i)·l_z + r_i·kappa·l_t + r_i(r_i+1)·l_gh
+
+with ADAPTIVE digit bases: e_i = the largest base with
+20.8·2^{e_i−1}·sqrt(n_i·D) <= gamma_max. This adaptivity is what makes
+deep recursion possible at all at q31 — the base grows as dimensions
+shrink (e = 1..4 at the top, e = 9-10 at the floor), keeping every
+level's fold norm just under the same gamma_max. Spike schedules run
+7-9 levels to a floor of ~500-620 rings (both shapes, both sound
+models); the floor is set by the r_i·kappa·l_t + r_i²·l_gh regrowth
+terms, exactly the LaBRADOR floor structure (Reference 5).
+
+### 3.3 MSIS instances at the resulting shapes
+
+Every level's binding is a fresh MSIS instance at that level's
+extracted-difference bound. Sizing follows the house C3 line with
+kappa = ceil(k_Z/128), then a [core-SVP] bit count (ESTIMATOR_NOTE
+conventions, spike-implemented and anchor-checked):
+
+| instance | q | log2 beta_top | k_Z | kappa | core-SVP bits |
+|---|---|---:|---:|---:|---:|
+| top (level-0 inner), 2^20, per-level | q31 | 27.84 | 1,188 | 10 | **132.1** |
+| top, 2^20, exact-digit | q31 | 27.56 | 1,188 | 10 | **135.9** |
+| top, FFN, per-level | q31 | 27.80 | 1,188 | 10 | **132.6** |
+| top, FFN, exact-digit | q31 | 27.28 | 1,188 | 10 | **140.0** |
+| top, FFN, q46 per-level | q46 | 40.32 | 1,887 | 15 | **155.7** |
+
+All clear 128-bit classical [MODEL: core-SVP floor; MATZOV would sit
+20-30 bits higher per ESTIMATOR_NOTE's measured spreads]. Levels >= 1
+have the same gamma_max by construction, hence the same instance class;
+kappa = 10 is used uniformly [q31]. The C2' validity condition
+beta_top <= q/8 holds at every row above (limit 2^28.00 at q31) — with
+as little as **0.16 bits to spare** at the FFN per-level point. That is
+the honest thinness of q31: one lost bit anywhere in the norm chain
+flips the verdict, which is why every constant above is either measured,
+anchor-checked, or flagged.
+
+Quantum note: at kappa = 10 the top instances sit near the classical
+frozen-point margins; the ESTIMATOR_NOTE quantum caveat (0.257b) applies
+unchanged — a 128-bit-quantum policy would cost kappa+1 exactly as
+documented there (not adopted, matching the freeze).
+
+### 3.4 Recursion slack — the load-bearing unknown, stated precisely
+
+The extraction slack that the C2/C3 chains must absorb is
+beta_top = slack · gamma_z with three defensible readings; O-7 must
+decide which lemma is provable for OUR composition:
+
+| reading | slack | at q31 this admits | source of the factors |
+|---|---|---|---|
+| **per-level** (baseline) | 2 (fork) · 2.07 (one JL application) · 29.4 (one dc-clearing) = 121.7 | gamma_max 2^21.07, depth 9: **works** | each level's binding is a fresh MSIS pinning that level's witness; cross-level consistency by committed-value equality, not norm transport — the house relaxed-binding shape (SOUNDNESS_REFERENCE 2.2) |
+| **exact-digit** | 2 · 29.4 = 58.8 | gamma_max 2^22.12: works, +1 bit | replace the JL norm check with the house deterministic digit range claims (sigma.rs / M2 binary ct-claims class) — no JL slack, no JL statistical term |
+| **compounded** (adversarial) | 121.7 · 4.13^(L−1) | gamma_max(L=2) = 2^19.02 < min gamma_z = 2^20.88: **NO second level fits** | if extracted-norm slack multiplies through levels, q31's 31 bits cannot host even L = 2 |
+
+The compounded row is the PRECISE FAILURE STATEMENT the tranche brief
+asked for: at q31, if slack compounds, the layout admits exactly one
+fold level, the final witness is 323,827 rings, and the artifact floor
+is 41,593,548 B = 158.67x budget (spike, FFN/q31/compounded row) — the
+architecture then fails at this modulus regardless of engineering.
+LaBRADOR's published viability at q ≈ 2^32 with 6-7 levels (References
+2, 5) is strong evidence AGAINST the compounded reading — a compounded
+stack would break their published parameters equally — but their
+knowledge analysis is exactly what the PSS line (ePrint 2024/311 [S10])
+was written to repair, so this design does not lean on it silently:
+**[OBLIGATION → O-7]: prove the per-level (or exact-digit) composition
+lemma for our chain in the Q4_LEMMAS transcription style.**
+
+### 3.5 Knowledge error per level and FS composition
+
+Spike accounting (FFN point; 2^20 within 1 bit):
+
+- fold rounds: sum of r_i challenge dimensions, L2 engine:
+  2^−288 [PROVEN per-round engine, composition OBLIGATION]
+- claim batching (Section 4): 2^−293 [PROVEN lemma, Section 4.1]
+- sumcheck SZ over GF(q^16): 2^−487 [PROVEN class]
+- JL norm-check statistical term (only when JL is used): **2^−141
+  [MODEL — LaBRADOR-class constant at 256 projection rows; the exact
+  paper constant was not independently confirmable this session]**
+- pre-FS union: 2^−139 (JL) / 2^−286 (exact-digit)
+- FS composition, PSS-style linear-in-Q loss [MODEL], Q = 2^64,
+  R ≈ 33 rounds: post-FS **2^−70 with 256-row JL — FAILS the 2^−128
+  target**; 2^−211 with 512-row JL [MODEL]; 2^−217 exact-digit —
+  both PASS.
+
+Design consequence (firm): the 256-row JL configuration is NOT
+shippable at our target under FS grinding; the two sound
+configurations are **per-level + 512-row JL** (+1,024 B/level wire)
+and **exact-digit** (no JL; integration of the existing deterministic
+digit claims into the level loop is new protocol plumbing
+[OBLIGATION], priced in Section 5). Both appear in every Section 5/6
+table; nothing below quotes the unsound configuration except as a
+bound.
+
+### 3.6 The split-ring check the field just learned to make
+
+zksecurity's 2026-04-30 review (Reference 6) found three public
+LaBRADOR implementations UNSOUND — soundness collapsing to 1-31 bits —
+because their rings split into small CRT factors (NTT-friendly moduli),
+breaking the RLC-aggregation argument: a cheating witness nonzero in
+one small slot survives the random combination with probability
+1/|smallest factor|. The failure mode is precisely the quantity our
+house engines were built around: our ring splits into EIGHT factors of
+size **2^496** (not degree-1 factors of size 2^31), the small-norm
+challenges carry the L2 per-slot injection lemma (2^−297 per slot),
+and the full-entropy aggregation challenges carry 2^−496 per slot;
+the LS18 margin (1.30x, freeze-checked) guards difference
+invertibility. The re-derivation at k = 8 (vs LaBRADOR's specified
+2-factor split) is therefore NOT a formality — it is exactly the class
+of parameter change that silently killed those implementations — and
+Sections 3.1/3.5 + Section 4 are that re-derivation. [External
+confirmation that the slot-field SIZE is the load-bearing quantity;
+our design passes it with 365 bits of margin over the 128-bit line.]
