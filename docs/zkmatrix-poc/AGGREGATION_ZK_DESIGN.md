@@ -805,3 +805,194 @@ Prover-side: mask generation and extension blocks are committed data
 (no sampling loops, no restarts beyond ~2^-495 guards); the marginal
 rides the existing commit-pass model (PARAMS 5.4) at +0.1%-class
 [MODEL].
+
+## 5. The simulator for the aggregate transcript (deliverable e)
+
+The claim, stated with the Section 4 finding built in: the aggregate
+transcript factors as (T_sim, R), where R is the floor bare witness
+(W11) and T_sim is everything else; T_sim is simulatable in the WSMD
+Section 3 sense (a simulator holding only the statement produces
+T_sim indistinguishably), R is NOT, and the joint claim
+"(T_sim, R) with T_sim independent of the witness given R" requires
+one named rank condition (AZ-O2). This section is the WSMD-style
+component-by-component argument for exactly that.
+
+### 5.1 What the verifier sees, in transcript order
+
+1. The statement: T_data + T_blind outer identities u, the statement
+   hash h0_agg binding both (with CRS, shape, segment manifest);
+   T_blind contains ALL Surface-1 masks, Surface-2 extension pads,
+   and the claim-blind segment (fresh per proof).
+2. Per instance, in the protocol DAG order: the instance's
+   challenges (derived), the masked round polynomials, the G_i pin
+   and mask opening, the blinded initial claim (matmul class) and
+   blinded terminal values.
+3. The batch: mu / nu / gamma draws (derived), the batched claim
+   values v*_{group, s} (all 8 slots).
+4. The evaluation proof: the level-0 v commitment; per level i:
+   u_i, the exact-digit range-claim material (committed), the
+   aggregation scalars, the fold challenges c^(i) (derived); the
+   floor: the bare witness z_L and the verifier's closing checks
+   (statement pass + norm).
+
+### 5.2 The simulator S1-S7 and component grades
+
+- **S1** commit garbage in every commitment (T_data segments,
+  T_blind, v, every u_i) — MLWE hiding with tails; derive h0_agg.
+- **S2** per instance: sample the blinded initial claim uniform on
+  its coset (AZ-L2), then the rounds by AZ-L1 variety sampling (d_t
+  free evaluations per round, one forced by the running check),
+  then the blinded terminals uniform with the end check forcing
+  consistency; solve G_i and the mask opening from the end check.
+- **S3** derive mu / nu / gamma; compute the batched claim values by
+  public arithmetic from S2's outputs plus uniform claim-segment
+  values.
+- **S4** run the imported U-K5 simulator for the two descent pairs
+  (uniform samples + forced values; witness-free).
+- **S5** eval-proof committed internals: S1's garbage commitments;
+  aggregation scalars solved from the level check equations against
+  the committed material.
+- **S6** exact-digit range material: committed relations against
+  S1's commitments (no cleartext object exists — the 4.3 mandate;
+  under a JL config this step would FAIL: p cannot be produced
+  without the witness).
+- **S7** the floor: **fails.** The simulator can output a z_L
+  consistent with its own garbage commitments (run the honest floor
+  on the garbage), but the distribution is distinguishable with
+  auxiliary input: a distinguisher holding the witness recomputes
+  the fold chain from the public challenges and compares — matches
+  the real transcript with probability 1 and the simulated one with
+  probability ~q^-dim. This is the precise sense in which R is a
+  LEAK and not a modeling artifact.
+
+| # | component | claim | grade |
+|---|---|---|---|
+| 1 | commitments (T_data, T_blind, v, u_i) | hiding | [PROVEN under MLWE] top level (PARAMS 2.5, measured row); [MODEL] per-level tails (4.3's amendment) |
+| 2 | instance round transcripts (new instances) | uniform on check varieties | **[PROVEN*]** AZ-L1a/b — SPKZ-2, SPKZ-3a/c |
+| 3 | blinded initial/terminal values | uniform on the check coset; full-rank pad image | **[PROVEN*]** AZ-L2a — SPKZ-2, SPKZ-3b |
+| 4 | batched claim values | public arithmetic on 3 + uniform segment claims | **[PROVEN*]** AZ-L2b — SPKZ-1 |
+| 5 | descent pairs | simulatable | [PROVEN at engine scale] — imported (Q4.7-9, U-K5 batteries) |
+| 6 | G pins, mask openings, end checks | forced values | [PROVEN] — E4-pin class import |
+| 7 | aggregation scalars | forced given committed material | [OBLIGATION AZ-O4] (per-message enumeration at build) |
+| 8 | exact-digit range material | committed relations, no cleartext | [MODEL] — rides PARAMS 6.4 obligation 4 plumbing |
+| 9 | fold challenges, all FS draws | hash outputs | [PROVEN] (FS/ROM repo convention) |
+| 10 | floor bare witness z_L | NOT simulatable (S7's distinguisher) | **LEAK — the residual R** (AZ-T1) |
+| — | FS/ROM programming (~10^2-10^3 draws) | hybrid | [MODEL] — repo-wide convention |
+| — | whole-transcript composition | hybrid chain 5.3 | [SKETCH] here; Q4-transcription owed (build round) |
+
+### 5.3 The hybrid chain, with the one conditional step
+
+H0 = real. H1: per instance in DAG order, replace the blinded
+initial/terminal values by coset sampling — distributionally
+IDENTICAL (AZ-L2a is exact), defect 0. H2: replace the masked rounds
+by variety sampling — IDENTICAL (AZ-L1a/b exact), defect 0. H3:
+replace the descent pairs by the U-K5 simulator — defect bounded by
+the imported U-K5 stack (MLWE + lemmas). H4: replace all commitments
+by garbage — MLWE, including the per-level tails [MODEL]. H5 =
+(T_sim simulated, R real).
+
+The conditional step, stated honestly: H1/H2's exactness treats the
+pad/mask coefficients as uniform and INDEPENDENT of everything the
+verifier sees — but R reveals ~79k functionals of the joint column
+space INCLUDING T_blind's columns (the G-pin claims put mask columns
+into the batched opening — Section 2.4 item 3). Jointly, (T_sim, R)
+is simulatable-given-R only if the exposure system (sumcheck
+exposures + R) restricted to the pad/mask dimensions keeps full row
+rank on the T_sim block — **obligation AZ-O2**, battery leg AZB-8,
+counting in its favor (~5 x 10^5 fresh pad coordinates per proof vs
+79k floor constraints [MODEL]) but counting is not a proof. Under a
+one-proof-per-witness deployment (4.6) this is a single-system rank
+condition, checkable at derive time exactly like E3Z-N4.
+
+### 5.4 The residual R, characterized (the deployment label's text)
+
+R = the floor bare witness z_L: 64,000-79,872 base-field
+coordinates per proof [PARAMS 3.2/5.2 schedules]; its z- and
+g/h-descended blocks are challenge-keyed deterministic images of
+the private tensors (AZ-L3); linear accumulation with exact
+recovery in the unrecursed sub-case (SPKZ-6: rank m2/m2 after m2
+transcripts); explicit constraint accumulation with digit-range
+structure in the recursed case, ungraded in the adversary's favor.
+Everything else in the transcript is simulatable per 5.2's table.
+The label: "aggregate proofs expose ~2^16.3 deterministic witness
+functionals per proof at the evaluation-proof floor; do not treat
+the aggregate layer as zero-knowledge; one aggregate proof per
+witness maximum."
+
+### 5.5 The fold-round FS-ordering lemma (AZ-L4) and the hash-edge rows
+
+WSMD 3.4 treated ONE commitment opened in MANY rounds; the reduced
+protocol INVERTS the pattern: ONE commitment (T_blind) FEEDS many
+protocol components (every instance's masks, every extension pad,
+the claim segment) and is opened ONCE, by the batched eval proof
+whose floor image touches all of it. The ordering lemma must
+therefore cover both soundness-side and privacy-side edges.
+
+**Lemma AZ-L4 (fold-round FS ordering).** (a) *Soundness side.* For
+every level i of the composed eval proof, the fold challenge c^(i)
+must be derived from FS state that has absorbed the statement hash
+(binding T_data AND T_blind with all masks/pads/extensions), every
+level-j message for j < i, and the level-i outer commitment u_i
+with its norm-claim material. (b) *Privacy side.* Every mask/pad
+commitment must precede (in the FS chain) EVERY challenge that its
+uniformity lemma treats as independent: extension pads before the
+instance challenges (rx, ry, r), round masks before nu_i, the claim
+segment before mu/nu/gamma; and T_blind must be fresh per proof.
+Attacks if violated, F5-pair style:
+
+- **A1 (u_i after c^(i))**: the level witness is committed after
+  the fold challenge — binding is voided and a false opening
+  ACCEPTS (choose the witness to satisfy the folded relation for
+  any claimed value). Both directions demonstrated at toy scale:
+  certificate SPKZ-5.
+- **A2 (extension pads after r / terminals after mu)**: the
+  R1.2/E3Z-N1 shape one level up — a pad chosen after the challenge
+  absorbs a claim defect and a FALSE instance accepts; the shipped
+  order rejects the same crafting. Both directions: SPKZ-4. This
+  extends CR 10.5's CRB-N4 row to the blinded variant: mu must
+  follow the BLINDED terminal values, and the extension commitments
+  must precede the instance's own challenges.
+- **A3 (T_blind outside the statement hash)**: the WSMD Z1-c swap
+  shape — one pad set shown to the instances, another to the eval
+  proof; totals shift by the difference. Inherited edge; F5 pair at
+  build (AZB-3).
+- **A4 (privacy direction of A2)**: even where soundness survives,
+  a pad chosen after "its" challenge is correlated with it — the
+  coset lemma's independence hypothesis fails and the masked value
+  leaks. SPKZ-4's attack leg doubles as this exhibit (the crafted
+  pad is a function of the challenge).
+
+New hash-edge rows (CR 10.5's CRB-N1..N5 inherited unchanged; SR
+Section 7 format; batteries are Section 6 legs):
+
+| challenge | drawn from | must follow | attack if violated | pinned by (planned) |
+|---|---|---|---|---|
+| h0_agg (statement hash) | — (a hash) | T_data AND T_blind (all masks, extension pads, claim segment) | A3 swap; A4 | AZB-3 F5 pair |
+| instance challenges (rx, ry, zero-check r) | FS on h0_agg | every referenced commitment INCL. the extensions | A2 (pad absorbs defect); CRB-N1's own attack | AZB-4 + CRB-N1 |
+| nu_i (per-instance mask combination) | prefix through C_i and G_i | the mask commitment (in h0_agg) and the G_i pin | E3Z-N1's crafting, per instance | AZB-4 (E3Z-N1 analogue) |
+| mu (terminal point batch) | prefix through ALL blinded terminals | every tilde-v absorbed | CRB-N4 one level up, blinded variant | AZB-4 |
+| c^(i) (level-i fold) | prefix through u_i + level-i norm material | u_i | A1: false opening accepts | AZB-6 F5 pair (SPKZ-5) |
+| (floor) | — | z_L sent after ALL fold challenges | prover-chosen floor before challenges is the same A1 class | AZB-6 |
+
+### 5.6 The WSMD 7.1 constraint, discharged — with its one caveat
+
+WSMD 7.1 item 1 binds any aggregation scheme: PRESERVE the pad
+structure or RE-DERIVE the privacy argument; an aggregator that
+re-exposes per-wave right-hand sides undoes Z1. Discharge, second
+branch, structural: the reduced protocol HAS no per-wave objects —
+no wave partition, no share scalars, no closing round (CR 9.1) —
+so nothing Z1 masked exists to re-expose; the pin-total class that
+Z1's coset pads protected has its counterpart (terminal values)
+extension-blinded by Section 3; the re-derived privacy argument is
+Sections 2-3 + this section's simulator, exact where Z1's was exact
+(coset/variety uniformity), with the Q4.10 coset lemma retired
+together with its leak surface. **The caveat, stated plainly rather
+than papered over:** the old post-Z1 wave architecture was fully
+HVZK at proof level — its openings were Gaussian-masked ct-rounds
+(a luxury the aggregate layer cannot afford under I-6). The reroute
+trades the 2.9-GiB wire for a ~79k-coordinate residual floor image
+that the wave architecture never exposed. Z1's letter is preserved
+(nothing formerly masked reappears — the floor image is a NEW
+object); Z1's spirit (no deterministic witness images on the wire)
+is met everywhere EXCEPT the floor, which is exactly the Section 4
+gap and the deployment label's subject.
