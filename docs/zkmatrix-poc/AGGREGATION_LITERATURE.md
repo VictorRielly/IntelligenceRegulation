@@ -46,7 +46,7 @@ runner-ups, and the U-AG2 obligation list: Section 8.
 - [x] Section 0: ground rules, the wall, the pricing axes
 - [x] Section 1: family (a) LaBRADOR-class (papers verified)
 - [x] Section 2: family (b) folding (LatticeFold lineage)
-- [ ] Section 3: family (c) PCS reroute (Greyhound-class)
+- [x] Section 3: family (c) PCS reroute (Greyhound-class)
 - [ ] Section 4: family (d) hash-based transcript compression
 - [ ] Section 5: family (e) SNARK-wrap recursion
 - [ ] Section 6: cross-cutting — Z1 compatibility, verifier budget
@@ -458,7 +458,146 @@ witnesses are already in LatticeFold's low-norm form.
    family (c) unit proof exists — the fold then operates on a few
    small instances per layer, not 670.
 
-## 3. Family (c): polynomial-commitment reroute (Greyhound-class) — PENDING
+## 3. Family (c): polynomial-commitment reroute (Greyhound-class)
+
+### 3.1 Greyhound — what it is and what is verified
+
+Greyhound (Nguyen-Seiler, "Greyhound: Fast Polynomial Commitments
+from Lattices," CRYPTO 2024, ePrint 2024/1293) is the first
+concretely efficient lattice polynomial commitment: a two-tier
+Ajtai structure over the coefficient matrix, a three-round
+evaluation protocol whose verifier runs in **O(sqrt N)**, and
+LaBRADOR as the compression layer for the evaluation proof.
+Verified headline (ePrint 2024/1293 abstract): **evaluation proofs
+of 53 KB at degree N = 2^30**, >10^4x smaller than SLAP; assumption
+Module-SIS; transparent. M4 already logged it as the existence
+proof that "MLE/polynomial evaluation claims against lattice
+commitments is a solved problem class" (M4_LOOKUP_LITERATURE.md
+Section 1.37).
+
+Frontier caveat, load-bearing for expectations: HyperWolf (ePrint
+2025/922) claimed a lattice PCS with O(log N) proof size AND
+verifier time — and was **withdrawn** (October 2025, per its ePrint
+page). Nothing confirmed currently beats Greyhound's sqrt verifier
+in the lattice-PCS class; Section 9 records this as the field's
+honest state, and Orthus (ePrint 2026/398, Section 6) as the
+adjacent sqrt-verifier result for batch-verifying lattice
+relations.
+
+### 3.2 The reroute — a re-architecture, not an add-on
+
+Families (a)/(b) hit the same ceiling: they compress openings but
+inherit the per-wave COMMITMENT LIST (Section 0.3; 695.6 MiB at
+2^20, PROOF_BYTE_LEDGER.md Section 1 row 3). Family (c) removes the
+ceiling by changing what is committed. Today each tensor is
+scattered across tens of thousands of msg_r = 8 BDLOP commitments
+(~1,024 coefficients each) because the per-wave ct-round and the
+C2 wave cap shaped the commitment layer around Sigma-protocol
+openings (TARGET_CONTRACT.md Section 3: the cap binds near 2^17
+elements). The reroute:
+
+1. commit each tensor (Y/UP/Z, lookup material, pads) as a FEW
+   global polynomial commitments — one 5.6e6-coefficient tensor is
+   degree ~2^22.4, well inside Greyhound's published 2^30;
+2. collapse the claim structure (9 pins, ~169k zeta claims, ~705k
+   Hadamard chunk claims, lookup/range claims at FFN scale —
+   PROOF_BYTE_LEDGER.md Section 2) into a FEW batched
+   MLE-evaluation claims via the masked sumcheck/GKR engine — the
+   M4 obligations E3/E4 verbatim (M4_LOOKUP_LITERATURE.md Section
+   6); aggregation is the third use of the engine bought for the
+   lookup;
+3. serve the batched evaluation claims with Greyhound evaluation
+   proofs, LaBRADOR-compressed — a handful of 53 KB-class objects,
+   batchable further by random linear combination of claims at a
+   common point (standard MLE batching; soundness at our GF(q^16)
+   slot field to be re-derived, U-AG2).
+
+Bottom-up wire arithmetic at FFN-layer scale [MODEL, components
+priced against PROOF_BYTE_LEDGER.md Section 3.1's allocation]:
+statement ~4-8 KiB; global commitment identities ~10 x 8.3 KiB
+class; masked descent pair 103.2 KiB at the canonical 4 B/limb
+width (PROOF_BYTE_LEDGER.md Section 3.1); one-to-few batched
+evaluation proofs 53-110 KiB; O(1) aggregated claim scalars. Total
+**~200-260 KiB — the only family whose bottom-up sum lands at the
+budget line at the complete-FFN-layer scale.** Tight, not
+comfortable: the descent pair plus one eval proof already spends
+~60% of the budget, so claim batching (ONE eval proof, not five)
+and the 4 B/limb descent codec are both load-bearing. The 32-layer
+pass multiplies by 32 unless family (b) folds across layers —
+which is exactly the (b)+(c) composition Section 8 recommends.
+
+Verifier [MODEL]: sumcheck/GKR verify is polylog; Greyhound verify
+is O(sqrt N) — at N = 2^23, ~2^11.5 ring-op class, milliseconds on
+the A1 kernels' measured ~0.16-0.20 us/ring-MAC class
+(RING_MULT_BOTTLENECK.md Section 6.5); LaBRADOR's linear verifier
+runs over the ALREADY-SQRT-SIZED Greyhound relation, not the
+witness — this is how the composition dodges family (a)'s
+disqualifier. Orders of headroom under 2 s; the only family that
+fixes BOTH broken budgets (bytes 76,162x, verifier ~528x —
+PROOF_BYTE_LEDGER.md Sections 2, 3.2) with published components.
+
+Prover [MODEL — U-AG2 must model properly]: Greyhound commit =
+Ajtai matvecs (linear, kernel-served); evaluation prover linear;
+sumcheck linear with the M4-class constants (~43 ext-mults/el
+class, M4_LOOKUP_LITERATURE.md Section 4). Est. 1.5-3x on the
+578.7 us/el whole-prove — inside the <10x H-05 line, unverified.
+
+Frictions, both U-AG2 design work: (i) parameter re-derivation at
+D = 128 / q31 (Greyhound and LaBRADOR publish at degree-64 rings;
+same friction class as Section 1.2's ring mismatch — review
+burden, not new mathematics); (ii) claim-class reduction — the
+ct-engine's pin/zeta/QuadRing claims and the U-L cross-modulus
+link must all be re-expressed as evaluation claims against the
+global commitments; the committed-executions gate (the quadratic
+layer) is the hard case, and if any claim class cannot reduce, a
+residual per-wave structure survives and re-imports the old bytes.
+
+### 3.3 Z1 under the reroute
+
+The reroute does not aggregate the per-wave RHS — it ABOLISHES
+them: no wave structure survives, so nothing per-wave can be
+re-exposed, and the WSMD Section 7.1 constraint is met by its
+second branch ("or re-derive the privacy argument"). The
+re-derivation rides built machinery: the sumcheck runs over MASKED
+MLEs (ring/gkr_masked.rs, HVZK lemmas Q4.7-Q4.9 — the repo already
+runs masked sumcheck at engine scale), and the final evaluation
+values are blinded by pad-polynomial terms folded into the batched
+claim, with the ZK gap of the Greyhound/LaBRADOR layer closed the
+same way as family (a)'s (the 2026 toolkit line, ePrint
+2026/1289). Obligations, not blockers: an aggregated-transcript
+simulator in the WSMD Section 3 style, and an
+aggregated-transcript analogue of the rank/recovery battery
+(PROOF_BYTE_LEDGER.md Section 4, R3). Note Greyhound, like
+LaBRADOR, is a proof of knowledge as published — the ZK layer is
+owed in U-AG2's design, not assumed.
+
+### 3.4 Family (c) scorecard (axes of 0.5)
+
+1. **Bytes:** ~200-260 KiB per complete FFN-layer statement
+   [MODEL] — the only family AT the budget; 32-layer pass needs
+   the (b) accumulator on top (else x32 ~ 7-8 MiB).
+2. **Verifier:** polylog sumcheck + O(sqrt N) Greyhound —
+   ms-to-sub-second class [MODEL]; MEETS <= 2 s with headroom;
+   fixes the ~528x verifier gap.
+3. **Prover:** [MODEL] ~1.5-3x whole-prove; linear, kernel-served;
+   U-AG2 modeling obligation.
+4. **PQ:** yes (Module-SIS, transparent).
+5. **Z1:** subsumes the constraint (no per-wave RHS exists);
+   privacy argument re-derivation owed on built masked-sumcheck
+   machinery; ZK layer for the eval proof owed.
+6. **Engine reuse:** the M4 one-engine-many-uses payoff realized —
+   sumcheck/GKR (E3), MLE-eval claims (E4), A1 kernels, Statement
+   v3 codec; the per-wave ct-round layer is RETIRED, not reused.
+7. **Maturity:** CRYPTO 2024, author implementation, LaBRADOR
+   stack beneath it (Section 1.4's review depth applies to the
+   compression layer); less end-to-end precedent than (a) — nobody
+   has published "GKR claim aggregation + Greyhound serving" as
+   one system.
+8. **Risk class:** highest single-family restructuring (retires
+   the wave architecture) — but the byte ledger shows the
+   restructuring is FORCED regardless: identities and reveals are
+   independently budget-fatal (PROOF_BYTE_LEDGER.md Section 3.1),
+   and no family that keeps the wave structure can pay them.
 
 ## 4. Family (d): hash-based transcript compression — PENDING
 
@@ -521,6 +660,13 @@ witnesses are already in LatticeFold's low-norm form.
    verified: lattice folding for CCS; pay-per-bit Ajtai (bits 32x
    cheaper than 32-bit values to commit); small fields
    (Goldilocks-class); no cyclotomic requirement; plausible PQ]
+10. Lizhen Zhang, Shang Gao, Bin Xiao. "HyperWolf: Efficient
+    Polynomial Commitment Schemes from Lattices." IACR ePrint
+    2025/922. https://eprint.iacr.org/2025/922 [ePrint page
+    verified: claimed O(log N) proof size and verifier time,
+    linear prover; **WITHDRAWN October 2025** — cited here only as
+    the negative result that no confirmed lattice PCS beats
+    Greyhound's sqrt verifier]
 
 ---
 
