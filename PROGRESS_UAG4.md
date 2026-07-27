@@ -144,7 +144,27 @@ precedent).
 
 ## Agent FA status (wt-uag4-folding)
 
-- (lane opens here)
+- 2026-07-27: docs read (ENCODING 3/4/6, CLAIM_REDUCTION lemmas+10,
+  PARAMS 2/3/5, SC-L4 + R-EB rows, AZ-L4/4.4, ZK_GAP 6-7, A1, PBL,
+  three prior spikes). **F-IF1 COMMITTED** in
+  docs/zkmatrix-poc/AGGREGATION_FOLDING_DESIGN.md Section 2: the
+  fold is INDEX-EXTENSION FOLDING (IXF), flat arity 32 — 5
+  layer-index MLE variables extend every instance family; zero fold
+  messages; norm law = one-time sqrt(32) absorbed at e0 (act group
+  e0=2 exact-digit gate / weights e0=1); one eval proof per
+  commitment group (P2 split hook built in); descent pair folds to
+  ONE at dw+5, dt unchanged. Sequential/tree RLC folding priced and
+  REJECTED (>=176 KB messages + per-step norm growth + new
+  extraction surface). kel(dw,9) = 2dw^2+11dw+235 exact fit to the
+  4 recorded points [MODEL].
+- FLAG for orchestrator: recorded per-layer artifacts (DA 5.2 /
+  EA 3.3 / EB 2.4) price NO weight-domain opening (activation-only
+  witnesses) — latent assumption made explicit in F-IF1.4; EB's
+  corrected byte rows run on the SLOT 31-bit witness (never composed
+  with EA's dense encoding) — FA's spike does that composition with
+  anchors on both sides.
+- Next: spike (toy IXF folds + negatives + norm law + byte tables),
+  then Sections 3-9.
 
 ## Agent FB status (wt-uag4-privacy)
 
