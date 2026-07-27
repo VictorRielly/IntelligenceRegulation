@@ -397,3 +397,244 @@ external review rejects the heuristic JL constants.
 The bare witness is wire data; the verifier checks its norm and
 equations directly. Extraction reads it. This anchors the induction:
 sigma_{L+1} = 1, and every recursion of SC-L1 terminates here.
+
+## 2. (b) THE LEMMA: how extracted-witness slack composes
+
+### 2.1 SC-L4 — the per-level composition lemma
+
+**Statement.** Consider the house chain of Section 1.1 (level 0
+Greyhound fold, levels 1..L LaBRADOR iterations, bare level L), at
+q31, with per-level stated bounds beta_0..beta_L (DA's adaptive-base
+schedules), and suppose:
+
+- **(C-alg)** every fold/batching challenge difference used in
+  extraction is invertible in R_q — the L1/LS18 criterion, asserted
+  at derive time (C0', margin 1.30x) [PROVEN, house];
+- **(C-ground)** every level i in 1..L carries its own norm
+  re-grounding: either the modular-JL projection with window C-win
+  satisfied at beta_i (SC-L2), or the exact-digit residue pinning
+  (SC-L3); the bare level grounds itself (1.6);
+- **(C-cap)** the fold/batching challenge sets are operator-norm
+  capped at T_cap (R-EB1);
+- **(C-msis)** for every level i, MSIS is hard (>= 128-bit
+  [core-SVP] house convention) at the level's TWO binding bounds:
+  outer: 2·sigma·beta'_i; inner:
+  max(8·T_cap·(1+b_i)·sigma·beta'_i,
+      2·(1+b_i)·sigma·beta'_i + 4·T_cap·sigma·beta_i),
+  with sigma = 2.07 (JL grounding) or 1 (exact-digit / bare next
+  level) applied ONCE per level ([LaB] Remark 5.2).
+
+Then the composed chain is a knowledge-sound proof for the level-0
+statement with:
+
+1. **extracted-witness norm slack sigma_0 = 2.07 (JL) or 1
+   (exact-digit) — ONE factor, independent of the depth L** (the
+   level-0 witness is grounded by level 0/1's own norm statement,
+   not by transport through the chain);
+2. **per-level MSIS bounds as in (C-msis) — each carrying exactly
+   ONE composed grounding factor sigma, never a product over
+   levels**;
+3. **knowledge error = the SUM of per-level errors** (Section 3
+   prices them; interactively this is [LaB] Lemma 3.7; under FS it
+   is [PSS] Thm 4.1/Eq. 18, linear in Q).
+
+**Proof.** By downward induction on the level, composing [LaB]
+Lemma 3.7 (proof-of-knowledge reductions compose, knowledge errors
+add) with the single-level extraction SC-L1.
+
+*Base (level L).* The bare witness is read off the wire; the
+verifier checks its norm and equations directly. Extraction slack 1,
+error 0 (1.6).
+
+*Step (level i, given level i+1).* By the induction hypothesis the
+level-(i+1) protocol is a knowledge-sound proof of level i's target
+relation — the consolidated relation with stated bound beta'_i —
+with norm slack sigma_{i+1} in {1, 2.07} and additive error. Level
+i's extractor (SC-L1) then needs from below EXACTLY TWO things, and
+this is the mechanism the whole question turns on:
+
+  (i) *exact algebra*: the level-i verification equations hold for
+  the extracted level-(i+1) witness. The inner extractor returns
+  them relaxed by challenge differences; SC-L0 clears the relaxation
+  exactly in R_q (C-alg). NOTHING about the inner extraction's NORM
+  quality enters here — algebra over R_q has no norms.
+
+  (ii) *a norm bound at the stated level*: the level-i last-message
+  vectors (z-parts, that, garbage digits) have norm <=
+  sigma_{i+1}·beta'_i. This is the induction hypothesis VERBATIM —
+  and sigma_{i+1} is a constant in {1, 2.07} fixed by level (i+1)'s
+  OWN grounding, NOT a function of levels i+2..L, because level
+  (i+1)'s grounding (SC-L2/SC-L3) quantifies over ALL centered
+  representatives: however wild the deeper extraction's a-priori
+  norms, level (i+1)'s JL window or residue pinning caps what its
+  extractor can output at sigma_{i+1}·beta'_i. The deeper levels'
+  slack has no channel into this bound.
+
+  With (i) and (ii), SC-L1 runs level i's extraction: outer binding
+  at 2·sigma_{i+1}·beta'_i, weak inner openings at
+  2(1+b_i)·sigma_{i+1}·beta'_i, inner binding at the (C-msis)
+  bounds, and level i's OWN grounding (C-ground) re-grounds the
+  extracted level-i witness at sigma_i·beta_i — handing the
+  induction to level i-1 with a fresh constant. Knowledge errors add
+  by [LaB] Lemma 3.7's rewinding argument (the inner extractor is
+  invoked as a subroutine; its failure probability joins additively,
+  not multiplicatively into norms).
+
+*Level 0 (Greyhound).* [Grey] Thm 4.1's shape: weak binding at
+max(4·(2·T_cap)·betabar, 2·gammabar) with betabar = 2·gammabar and
+gammabar = sigma_1·beta'_0 (their kbar = 2·kappa becomes 2·T_cap at
+our set — their challenge-sparsity L1 cap plays the role our
+operator cap plays); extraction probability eps - eps_1 - m2/|C|;
+the extracted committed polynomial is pinned by binding, and — the
+Greyhound-specific point — needs NO norm at all (the committed
+message is arbitrary mod q; only the DECOMPOSED digit witnesses
+carry norms, and those are level-1 material grounded by level 1).
+The composed chain's level-0 output is therefore the exact
+committed-vector opening the evaluation claims refer to. ∎
+
+**Grade: [PROVEN] as a composition of [CITED] published components
+with house-instantiated constants** — precisely: the skeleton
+([LaB] Thm 5.1 + Remark 5.2 + Lemma 3.7, [Grey] Thm 4.1, [PSS] Eq.
+18) is published and was read in full this session; the house
+substitutions (L2 point masses for challenge terms, LS18 for
+invertibility, k = 8/GF(q^16) slot structure for the aggregation
+terms, T_cap for their constructed caps, CR-L6 for the exact-digit
+branch) are each individually [PROVEN] house facts; what is NOT
+published anywhere is this chain AT OUR RING — the transfer is this
+document, and the standing independent review (Section 5.3) is the
+external check on the transfer.
+
+### 2.2 Why the compounded reading fails to apply — and what it WOULD describe
+
+The compounded reading's mechanism — "level k's extractor consumes
+level k+1's relaxed witness, so relaxation factors multiply into the
+MSIS bound" — requires a channel by which the inner extraction's
+norm quality propagates outward. SC-L4's proof shows the two
+channels that exist ((i) algebra, (ii) the stated-bound norm) are
+both slack-inert: (i) is exact after LS18 clearing, (ii) is capped
+by the inner level's own grounding. The multiplication the
+compounded reading imagines happens only if a level LACKS its own
+grounding, and then it is real. Three concrete protocols where the
+compounded arithmetic is the CORRECT one:
+
+1. **Fold-only recursion** (no per-level norm statement): the only
+   handle on the level-i witness norm is the recomposed bound
+   (1+b)·(previous extracted bound), and the extracted bound
+   multiplies by 2·T·(1+b)-class per level — DA's 4.13^(L-1) row is
+   exactly this shape. LaBRADOR's JL projection exists precisely to
+   break this; a house variant that dropped the projection to save
+   its bytes would resurrect it.
+2. **The [NS22]-style last-iteration garbage optimization under
+   Fiat-Shamir**: [PSS] Appendix I.6 (read this session) shows the
+   FS extraction of that optimization carries slack proportional to
+   (T_op)^r — exponential in the multiplicity — because witnesses
+   can no longer be extracted independently per round. **Design
+   rule R-EB2 (exported): the house chain must NOT adopt the
+   [NS22] garbage-reduction optimization at any recursed level;
+   DA's byte model already uses the full r(r+1)-garbage count, so
+   no byte table changes** — but the rule must be recorded so a
+   future byte hunt does not re-import it silently. (The bare last
+   level MAY use it interactively-style only if a second amortized
+   opening is added — [PSS] I.6's suggested fix — not designed
+   here.)
+3. **Grounding with a broken window**: if some level's bound
+   violated C-win (sigma·beta_i > q/C1), Lemma 4.2 gives nothing at
+   that level and the norm handle degrades to the fold-only
+   transport from the nearest grounded level below — locally
+   compounded until re-grounded. C-win is therefore a PER-LEVEL
+   freeze obligation, not a one-time check.
+
+This section is the honest content of the compounded row: it is not
+a wrong reading of a theorem, it is the right reading of three
+DIFFERENT protocols, none of which is ours as designed — and each
+of which is one design shortcut away. R-EB1/R-EB2 + the C-win
+freeze rows are the fence.
+
+### 2.3 DA's adaptive digit bases ARE the honest-side half of the renormalization
+
+The tranche brief asked whether DA's adaptive bases are "the
+renormalization" the conditional lemma needs. Answer: they are
+exactly HALF of it, and the necessary half:
+
+- **Honest side (completeness):** re-decomposing the fold at base
+  b_i = 2^{e_i} resets the honest witness norm to the digit scale,
+  so every level's STATED bound beta_i stays in the narrow band
+  2^20.9-2^21.7 instead of growing by sqrt(r_i)·T-class per fold.
+  Without this, C-win (beta_i <= q/C1-class ~ 2^23-24) would break
+  within two levels — i.e., DA's adaptive bases are what make the
+  WINDOW hypothesis of the grounding lemma satisfiable at 31 bits.
+- **Extracted side (soundness):** the decomposition alone proves
+  nothing about a cheating prover (extracted "digits" are arbitrary
+  mod q until checked). The JL projection (SC-L2) or the residue
+  pinning (SC-L3) is the other half — it forces the extracted
+  witness back to the stated scale.
+
+So the conditional shape "holds iff the recursion re-decomposes and
+re-grounds per level" resolves as: DA's chain re-decomposes (his
+bases) AND re-grounds (his JL/exact-digit configurations) at every
+level — both halves present, SC-L4 applies.
+
+### 2.4 The corrected per-level constant, and the corrected validity line
+
+Two honest corrections to DA's Section 3.4 numbers fall out of the
+transcription. Neither changes the verdict; both change margins and
+one changes kappa. (All numbers spike-printed; representative values
+here.)
+
+**(a) The per-level slack constant is bigger than 121.7.** DA's
+per-level row priced base = 2 (fork) · 2.07 (JL) · 29.4 (dc-conc) =
+121.7 = 2^6.93 applied to gamma_z. The [LaB]-form inner-binding
+bound instantiated at house constants is
+
+    beta_top = 8 · T_cap · (1 + b) · sigma · beta',
+
+and since beta' ~ sqrt(2)·gamma/b (the z-decomposition parts
+dominate), (1+b)·beta' ~ sqrt(2)·(1+1/b)·gamma, so
+
+    beta_top ~ 8 · T_cap · sqrt(2)·(1+1/b) · 2.07 · gamma
+             ~ (2^8.9 to 2^9.6) · gamma   at T_cap = 25-28,
+
+vs DA's 2^6.93·gamma — i.e. **the honest constant costs ~2.0-2.7
+bits over the modeled one** (and would cost 3.3 more at the uncapped
+worst T = 256 — R-EB1's price of admission). Mechanically: DA's
+29.4 was a concentration value where an adversarial worst-case cap
+belongs, and the (1+b) recomposition and the 8T cross-clearing were
+not in the model.
+
+**(b) The q/8 validity line is not the right line, and removing it
+returns most of what (a) costs.** DA's gamma_budget derived
+gamma_max = (q/8)/slack from the house C2 discipline (q > 8·beta).
+That discipline guards the MASKED ct-round's integer-window
+recovery — a protocol object the aggregate layer does not contain
+(I-6: no Gaussian-masked openings; all aggregate-layer verification
+is mod-q algebra + JL windows + the bare level's direct checks).
+The published chain needs only:
+
+    (C-win)   sigma·beta_i <= q/C1    per level (hard), and
+    (C-msis)  >= 128-bit MSIS at the Section 2.1 bounds (soft —
+              kappa-tunable).
+
+At q31 with DA's schedules: C-win holds with 0.8-2.2 bits of margin
+(Section 1.4); the top-instance MSIS at the corrected constant
+beta_top ~ 2^30.1 gives ~110-115 [core-SVP] bits at kappa = 10 —
+BELOW the line — and recovers to ~133 bits at **kappa = 11**
+(k_Z = 1408). Byte cost of kappa 10 -> 11: +516 B per outer
+identity and per level message, plus the t-hat term growth in every
+level's witness — the spike re-runs DA's schedule machinery at
+kappa = 11 end-to-end: **2^20 layer stays PASS (~0.98-0.99x
+budget); FFN moves ~1.06x -> ~1.08-1.09x-class** [MODEL, spike
+tables] — inside the O-2/EA lever discussion, not a new wall. The
+"0.16 bits to spare" thinness DA reported at FFN was an artifact of
+measuring the optimistic constant against the over-strict q/8 line;
+the honest picture is: hard margins of ~1-2 bits (window), soft
+margins bought with kappa (MSIS), no cliff.
+
+**(c) What survives of DA's three-readings table.** The per-level
+ROW's structure survives (fresh MSIS per level, cross-level
+consistency by committed-value equality — confirmed as [LaB]'s own
+architecture); its CONSTANT is corrected by (a)+(b). The exact-digit
+row survives with sigma = 1 and no window (SC-L3) — its constant
+corrects the same way (8·T_cap·(1+b)·beta' with sigma = 1, ~1 bit
+below the JL row). The compounded row survives as the correct
+arithmetic for the three protocols of Section 2.2, none of them
+ours.
