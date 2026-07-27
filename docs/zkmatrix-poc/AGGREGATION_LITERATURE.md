@@ -15,25 +15,35 @@ family (d) here), and M4_LOOKUP_LITERATURE.md (the house precedent:
 this review copies its format, its pricing discipline, and its
 one-engine-many-uses lens).
 
-## Executive verdict (DRAFT — finalized in Section 8 when all families are priced)
+## Executive verdict
 
 The literature offers exactly one architecture with a defensible
 analytic path to <= 256 KiB at the full-pass scale, and it is a
-COMBINATION, not a single system: (1) collapse the per-wave claim
-structure into batched MLE-evaluation claims using the sumcheck/GKR
-engine the M4 verdict already committed this repo to build, then
-(2) serve those claims from a FEW global lattice polynomial
-commitments via a Greyhound-class evaluation proof (Nguyen-Seiler,
+COMBINATION, not a single system: (1) collapse the claim structure
+into batched MLE-evaluation claims using the masked sumcheck/GKR
+engine the M4 verdict already committed this repo to build, (2)
+serve those claims from a FEW global lattice polynomial commitments
+per tensor via a Greyhound-class evaluation proof (Nguyen-Seiler,
 CRYPTO 2024: 53 KB evaluation proofs at degree 2^30, O(sqrt N)
 verifier), itself compressed by LaBRADOR recursion (Beullens-Seiler,
 CRYPTO 2023: 58 KB for 2^20-constraint R1CS) with the 2026
-zero-knowledge LaBRADOR toolkit closing the ZK gap. Standalone
-opening aggregation (family (a) alone) cannot reach the budget — the
-un-aggregated commitments themselves weigh ~0.7 GiB at the measured
-2^20 shape (Section 0.3, a component the C-03 subtotal excludes) —
-and the hash family (d) is walled off from its cheapest instantiation
-by this repo's field (two-adicity 4; Section 4). Full verdict,
-runner-ups, and the U-AG2 obligation list: Section 8.
+zero-knowledge toolkit closing the ZK gap, and (3) accumulate the 32
+layer statements with LatticeFold-class folding at O(1) wire per
+layer. Priced bottom-up this lands at ~150-260 KiB per complete
+FFN-layer statement against today's 18.59 GiB (76,162x over budget)
+and closes the ~528x verifier gap with sqrt + polylog structure
+(PROOF_BYTE_LEDGER.md Sections 2-3; Sections 3, 7-8 here). Every
+other family fails structurally: standalone opening aggregation
+((a)/(b)) strands the ~0.7 GiB commitment-identity layer (Section
+0.3, confirmed at 695.6 MiB by the GB ledger); the hash family (d)
+is walled off from its cheapest instantiation (WHIR-class: 63 KiB,
+360 us verify) by this repo's field — v2(q-1) = 4, two-adicity 4
+(Section 4); the generic SNARK-wrap (e) fails a zero-overhead
+prover lower bound and cannot even materialize its witness on the
+reference box (Section 5). Z1 masking is not merely preserved but
+subsumed — bytes and privacy force the same design move everywhere
+(Section 6). Full verdict, runner-ups, and the U-AG2 obligation
+list: Section 8.
 
 ## PROGRESS
 
@@ -51,7 +61,8 @@ runner-ups, and the U-AG2 obligation list: Section 8.
 - [x] Section 5: family (e) SNARK-wrap recursion
 - [x] Section 6: cross-cutting — Z1 compatibility, verifier budget
 - [x] Section 7: the pricing table
-- [ ] Section 8: verdict in full
+- [x] Section 8: verdict in full + U-AG2 obligations; executive
+      verdict finalized (DRAFT marker removed)
 - [ ] Section 9: what we did not find
 - [x] References (verified links; grows with sections)
 
@@ -88,6 +99,14 @@ exclusions — the commitments themselves — is independently
 budget-fatal, which constrains which families can win at all. The
 full component ledger is the GB lane's deliverable
 (PROOF_BYTE_LEDGER.md); this review only needs the two facts above.
+
+[Landed since this section was written: the GB ledger prices the
+COMPLETE canonical artifact at 2^20 at **3,543.7 MiB = 14,175x**
+the budget — openings 73.9% + commitment identities 19.6% + claim
+layer 6.5% — and 18.59 GiB per 512x11008 layer / 595.0 GiB per
+32-layer pass (PROOF_BYTE_LEDGER.md Sections 1-2). The audit's
+2.86 GiB understates the true wire by ~21%. Sections 2-8 price
+against the ledger's numbers.]
 
 ### 0.2 The budgets, and the two-orders-of-magnitude verifier gap
 
@@ -152,7 +171,11 @@ proving hash preimages or by restructuring what is committed).
 This fact is not in the audit table (C-03 lists "public commitments"
 among exclusions without pricing them); it is this review's first
 result, and the GB byte ledger should confirm or correct the 0.67
-GiB figure against the serializer.
+GiB figure against the serializer. [CONFIRMED since: the ledger
+counts 88,255 identities x 8,264 B = **695.6 MiB (19.63%)** at 2^20
+against the canonical codec — "the single largest omission ... the
+verifier cannot derive commitments" — and 3.65 GiB at FFN-layer
+scale (PROOF_BYTE_LEDGER.md Section 1 row 3, Section 2 row 3).]
 
 ### 0.4 The engine assets any candidate can ride (the one-engine-many-uses lens)
 
@@ -947,7 +970,124 @@ Reading the table:
   not materialize on paper anywhere in the recommendation
   [MODEL — U-AG2 must model it properly before build].
 
-## 8. The verdict in full — PENDING
+## 8. The verdict in full (the executive verdict, with its arithmetic)
+
+Recommendation, in the M4 "adapt X" framing: **adapt Greyhound** —
+re-architect the proof around a few global lattice polynomial
+commitments per tensor served by Greyhound-class evaluation proofs
+(family (c)), with the claim structure collapsed into batched
+MLE-evaluation claims by the house masked sumcheck/GKR engine (the
+M4 E3/E4 obligations, third use), LaBRADOR as the compression
+layer inside the evaluation proof (family (a), where its published
+security stack — CRYPTO 2023 + PSS + LaZer + the 2026 ZK toolkit —
+is exactly what the repo's review obligations want), and
+LatticeFold-class folding (family (b)) as the cross-layer
+accumulator for the 32-layer pass. Family (e) is an optional
+endgame wrap of the resulting small verifier; family (d) is the
+priced fallback.
+
+The arithmetic that forces the combination, all from the ledger:
+
+1. **What must die.** The ct-round layer — openings 73.9% +
+   commitment identities 19.6% + claim polys 6.5% — is 99.997% of
+   the artifact at every shape from 2^16 up
+   (PROOF_BYTE_LEDGER.md Section 2, "which component is THE
+   wall"). Any candidate that kills only the openings strands
+   ~4.9 GiB at FFN scale. The reroute kills all three at once:
+   global commitments (identities -> KB), sumcheck claim collapse
+   (claim polys -> transcript), batched eval proofs (openings ->
+   ~53-110 KiB).
+2. **The target shape was already visible in the ledger.** "The
+   already-sublinear components (descents, reveals, statement:
+   0.003%) are the proof's future skeleton: a descent pair + an
+   aggregate opening argument + a statement is the natural
+   post-aggregation shape" (PROOF_BYTE_LEDGER.md Section 2). The
+   GB lane derived from the wire what this review's literature
+   pass selects from the field — the two lanes converge on the
+   same artifact.
+3. **Bottom-up bytes** [MODEL, Section 3.2]: statement 4-8 KiB +
+   ~10 global identities ~83 KiB -> bindable to KB-class + masked
+   descent pair 103.2 KiB (4 B/limb — the codec fix is
+   load-bearing, PROOF_BYTE_LEDGER.md Section 3.1) + one batched
+   eval proof 53-110 KiB + O(1) aggregated scalars = **~150-260
+   KiB per complete FFN-layer statement**, against 18.59 GiB today
+   (76,162x). Pass scope: ~0.5 MiB via 32 fold steps + one decider
+   — the pass-vs-layer budget decision and the ~2x closing levers
+   are obligation O-2.
+4. **Verifier**: polylog sumcheck + O(sqrt N) Greyhound + O(1)
+   fold checks — ms-to-sub-second class on the A1 kernel constants
+   [MODEL], closing the ~528x gap with headroom; the only
+   architecture in the table that meets BOTH budgets (Section 7).
+5. **Z1 is subsumed, not merely respected**: the wave structure
+   that Z1 masks ceases to exist; privacy re-derives on the
+   in-house masked-sumcheck machinery plus a ZK layer on the
+   evaluation proof (Section 6.1). Bytes and privacy force the
+   same move — there is no competing design pull.
+
+Runner-ups, and why not:
+
+- **(a)+Orthus, minimal restructuring** (keep waves, batch-verify
+  the openings, sqrt verifier): dies on Section 0.3 — the 3.65 GiB
+  identity layer at FFN scale is wire the openings-compressor
+  never touches. Orthus sharpens the recommendation's compression
+  layer instead (watch item, Section 6.2).
+- **(d) hash sumcheck**: the WHIR-class numbers (63 KiB, 360 us)
+  are the best in the review but sit behind the two-adicity wall
+  (v2(q-1) = 4, Section 4.3); the field-agnostic escapes are
+  young (BaseFold) or heavy (ECFFT), and the cross-field link
+  re-imports the problem. FALLBACK: activate only if the
+  Greyhound/LaBRADOR parameter re-derivation at D = 128 / q31
+  fails or the claim-class reduction (O-3) hits an obstruction;
+  first act then is concrete BaseFold pricing at our shape.
+- **(e) standalone**: prover lower bound and witness
+  materialization both fatal against the current artifact
+  (Section 5.2); reserved as post-(c) endgame.
+
+### 8.1 The U-AG2 obligation list (the design round's exit sheet)
+
+- **O-1 — parameters.** Global-commitment layout per tensor
+  (two-tier Ajtai at D = 128 / q31; CRS sizing; the C2-cap
+  question re-derived for the global shape) and the
+  Greyhound/LaBRADOR security re-derivation at our ring
+  (challenge operator norms, recursion slack absorbed into the
+  C2/C3 parameter chains — Section 1.2's frictions, now on the
+  critical path).
+- **O-2 — the byte model to R1 discipline.** Closed-form size
+  model of the complete aggregate artifact in the ledger's
+  unit-cost style, <= 262,144 B at FFN-layer scale; the
+  pass-vs-layer budget scope DECIDED and recorded; the ~2x pass
+  levers priced; constants feed the U-AG-B1 budget gate's Tier B
+  (PROOF_BYTE_LEDGER.md Section 5).
+- **O-3 — claim-class reduction.** Every ct-engine claim class —
+  pins, zeta/ForcedZero, QuadRing/Hadamard, the
+  committed-executions gate, the U-L cross-modulus link, lookup
+  claims — re-expressed as MLE-evaluation claims against the
+  global commitments; any class that cannot reduce is a surfaced
+  wall (residual wave structure re-imports the old bytes).
+- **O-4 — Z1/ZK.** Aggregated-transcript simulator in the WSMD
+  Section 3 style; rank/recovery battery analogue (R3); the ZK
+  layer on the evaluation proof (toolkit ePrint 2026/1289
+  composition, or house pad-polynomial masking); the fold-round
+  FS-ordering lemma extending WSMD 3.4.
+- **O-5 — verifier model to R2.** Sqrt + polylog cost model on
+  measured kernel constants, statement validation included,
+  against <= 2 s single-threaded p95.
+- **O-6 — prover model vs H-05.** Multiplier on the 578.7 us/el
+  whole-prove, including the commit-path change (global Ajtai
+  matvecs replacing per-wave BDLOP commits); >10x means surface
+  it, not ship it.
+- **O-7 — soundness reduction to R5.** Knowledge-error and
+  extraction write-up in the Q4_LEMMAS transcription style,
+  including the recursive-FS composition (the PSS pattern, ePrint
+  2024/311); scope handed to the standing independent review
+  (REMEDIATION_PLAN Phase 2.5).
+- **O-8 — cross-layer folding design.** Instance shape for the
+  per-layer aggregated claim, fold-message contents and bytes,
+  decider = one family (c) unit; the 32-layer wire model.
+- **O-9 — watch items.** Orthus composition with the
+  LaBRADOR/LaZer stack (verifier sharpening); toolkit 2026/1289
+  maturation; BaseFold concrete pricing (fallback trigger);
+  SuperNeo/folding line movement.
 
 ## 9. What we did not find — PENDING
 
