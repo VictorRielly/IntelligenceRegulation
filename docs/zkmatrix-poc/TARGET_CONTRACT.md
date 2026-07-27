@@ -57,7 +57,10 @@ where a budget is not yet met (or not yet measurable) it says so.
 - **Private:** weights (committed once, off the clock) and all
   activations/intermediates (committed per proof). **Public:** the
   statement (shapes, quantization metadata, digests), the declared
-  output tensor values, the proof. ZK status (updated 2026-07-10,
+  output tensor values, the proof. [AMENDED 2026-07-27 — Amendment
+  A1: the private set becomes a per-deployment declaration (modes
+  P1/P2/P3, ZK_GAP_OPTIONS.md Section 6); zero-knowledge for the
+  DECLARED private set is non-negotiable.] ZK status (updated 2026-07-10,
   tranche U-K5): the lookup transcript is now MASKED — the U-K5
   masking landed with its adversarial battery green, closing the
   histogram leak the audit flagged (C-01); the masked subprotocol is
@@ -99,6 +102,8 @@ where a budget is not yet met (or not yet measurable) it says so.
 - **Proof size budget:** <= 256 KB serialized. Current ~120-170 KB
   figures are modeled from field-element counts, not a wire format
   (audit M-05) — the budget binds once a canonical encoding exists.
+  [AMENDED 2026-07-27 — see the Amendment A1 block at the end of
+  this document: ZK is non-negotiable; the size line is re-tiered.]
   TIGHTNESS FLAG (2026-07-10): the masked lookup transcript alone is
   150 KB at the FFN point (freeze row LKP-7, counted at 64 B per
   extension-field element) — masking added ~30 KB over the unmasked
@@ -126,3 +131,52 @@ where a budget is not yet met (or not yet measurable) it says so.
 M5_LITE_REPORT.md (measured commitment stream), CLAIM_MANIFEST.md +
 src/manifest.rs (statement format), codex-audit-2026-07-10 (findings
 H-02/H-05 this contract answers).*
+
+## Amendment A1 (2026-07-27) — ZK non-negotiable; size line re-tiered
+
+Authority: Victor, console decision 2026-07-27 ("Let's go with option
+B. Zero Knowledge is nonnegotiable (although partial knowledge may be
+acceptable in some cases)"), at the U-AG3 close. Context and the full
+options analysis: ZK_GAP_OPTIONS.md; technical basis:
+AGGREGATION_ZK_DESIGN.md (the evaluation-proof floor leak, AZ-T1).
+This block supersedes the two lines it is referenced from; nothing
+else in the contract moves.
+
+1. **ZK requirement (new, binding).** The deployment claim requires
+   zero-knowledge for the deployment's DECLARED private set. The
+   private set is a per-deployment declaration: P3 = weights AND
+   inputs/activations private (the original Section 3 reading, the
+   default); P2 = weights private, inputs public; P1 = inputs
+   private, weights public; P0 = nothing private (verification-only;
+   no ZK machinery required, non-ZK label permitted). Partial
+   knowledge is acceptable ONLY as an explicit per-deployment
+   declaration of a smaller private set — never as a silent
+   degradation of a declared one. Weights are the
+   accumulation-critical class (a fixed witness re-proven every
+   pass): any mode declaring weights private requires the masked
+   (full-ZK) evaluation-proof path on every weight-touching proof,
+   every pass.
+2. **Proof-size budget (re-tiered; supersedes the single <= 256 KB
+   line).**
+   - Tier N (non-ZK-labeled aggregate artifact, mode P0 only):
+     <= 262,144 B per FFN layer — the U-AG-B1 engineering gate,
+     unchanged in number, now explicitly scoped to P0.
+   - Tier Z (full-ZK aggregate artifact, modes P1-P3): interim
+     ceiling <= 512 KiB per FFN layer unfolded (the Option B
+     corridor, 453-517 KiB [MODEL]); the BINDING pass-level Tier Z
+     budget is to be FROZEN at the U-AG4 FINAL from the folding
+     round's derived numbers (target class 0.5-2 MiB per 32-layer
+     pass [MODEL] — the ZK surcharge is per evaluation proof, not
+     per layer, so folding concentrates it).
+   - The pre-reroute wave-architecture path keeps the original
+     Section 4 line unchanged (it is fully HVZK and does not meet
+     any aggregate byte tier; its role is recorded in
+     ZK_GAP_OPTIONS.md Option E).
+   - Budget scope: the 256 KB figure historically read ambiguously;
+     the per-pass reading was adopted at the U-AG3 FINAL
+     (AGGREGATION_ENCODING_DESIGN.md Section 4's three contract
+     anchors). Tier N is per-layer BY THIS AMENDMENT (an engineering
+     gate); Tier Z's frozen form at U-AG4 FINAL will state its scope
+     explicitly.
+3. **Verifier budget:** unchanged (<= 2 s single-threaded, statement
+   validation included) and applies to every tier and mode.

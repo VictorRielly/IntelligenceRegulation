@@ -3,8 +3,14 @@
 Status: decision document, written 2026-07-27 at the U-AG3 close, for
 Victor. Technical source: AGGREGATION_ZK_DESIGN.md (Sections 4.4-4.6
 contain the proofs and prices; this document is the plain-language
-companion and the standing menu of ways forward). Nothing here adds
-new results; it organizes the recorded ones for a later decision.
+companion and the standing menu of ways forward).
+
+**DECIDED 2026-07-27 (same day): Option B ADOPTED — zero-knowledge is
+non-negotiable, with per-deployment partial-privacy modes. See
+Section 7 (the decision) and Section 6 (the modes). TARGET_CONTRACT
+Amendment A1 is the binding record. Options A, C, D, E remain fully
+documented below as return paths and are NOT deleted by the
+decision.**
 
 ## 1. Background: what "zero-knowledge" buys us, in this project
 
@@ -135,8 +141,11 @@ operationally.
 
 ## 4. The options (documented for a later decision)
 
-The adopted interim posture is Option A. Options are not mutually
-exclusive; B-E can each end the interim.
+[Historical note: Option A was the U-AG3 FINAL's interim posture for
+a few hours on 2026-07-27; Section 7's decision supersedes it —
+Option B is adopted, and A survives only as the P0-mode/Tier N
+posture. The full option texts are retained unedited below, per the
+decision's "fully document all the alternatives" instruction.]
 
 ### Option A — Ship under a non-ZK label with the confinement rules
 (ADOPTED INTERIM POSTURE, U-AG3 FINAL)
@@ -279,7 +288,7 @@ size-critical uses.
 - Silently re-exposing wave structure to dodge the floor: undoes Z1;
   forbidden by the standing constraint.
 
-## 5. Recommendation on file (orchestrator, 2026-07-27)
+## 5. Recommendation on file (orchestrator, 2026-07-27) — SUPERSEDED by Section 7 the same day; retained for the record
 
 Option A now (adopted at the U-AG3 FINAL, already in force), with
 Option B formally evaluated at the U-AG4 FINAL as a ZK MODE decision
@@ -290,3 +299,106 @@ deployment materializes before B decides. Option C stays parked
 behind its two blockers. The decision that actually needs Victor is
 B — it moves a frozen contract line — and it should be taken with
 U-AG4's pass-level numbers on the table, not before.
+
+## 6. Partial-privacy deployment modes (added 2026-07-27, from
+Victor's refinement: "partial knowledge may be acceptable in some
+cases — knowledge of the inputs might be acceptable so long as
+knowledge of the parameters is not leaked, or vice versa")
+
+The floor leaks functionals of whatever is COMMITTED into the proof.
+Which tensors are committed — and which proofs touch which
+commitments — is therefore a privacy dial, not a fixed fact. The
+modes (now also in TARGET_CONTRACT Amendment A1):
+
+| mode | private | public | what the floor threatens | ZK machinery required |
+|---|---|---|---|---|
+| P0 | nothing | weights + inputs + activations | nothing (nothing committed is secret) | none — non-ZK label permitted (old Option A posture, now scoped to P0 only) |
+| P1 | inputs/activations | weights | that pass's activations | masked path on activation-touching proofs (but see the accumulation asymmetry below) |
+| P2 | weights | inputs/activations | the weights — the accumulation-critical case | masked path on EVERY weight-touching proof, every pass, always |
+| P3 | both | — | everything | full Option B: masked path on all evaluation proofs (the default contract reading) |
+
+**The accumulation asymmetry (the load-bearing observation).**
+Exact recovery from the floor needs MANY transcripts with fresh
+challenges against the SAME witness (the spike's recovery is
+rank-complete at m2 transcripts). The two tensor classes differ
+fundamentally here:
+
+- **Weights are a fixed witness re-proven on every pass.** Floors
+  accumulate against them across every proof the deployment ever
+  makes. No operational rule can help (re-proving is the product).
+  Any mode with private weights (P2/P3) therefore requires the
+  masked evaluation-proof path on every weight-touching proof,
+  unconditionally. This is why "weights private" is the expensive
+  direction of Victor's or-vice-versa.
+- **Activations are a fresh witness every pass.** One pass = one
+  proof = ONE floor of ~64-80k linear constraints against millions
+  of secret coordinates — far below recovery rank. Under the
+  one-proof-per-witness rule (never re-prove the same pass), the
+  P1 leak is a BOUNDED, quantified partial leak: dim(z_L)
+  constraints, once, ever, per pass. If Victor's "partial knowledge
+  of inputs acceptable" tolerance covers that bound, P1 can run the
+  UNMASKED (Tier N) path on activation proofs and needs no mask at
+  all when weights are public. The bound and its rank margin should
+  be stated per shape in the deployment label; the AZB battery's
+  confinement certification applies verbatim.
+
+**The split-proof design direction (for U-AG4 to price; [MODEL],
+not yet derived).** Under P2 — the likely flagship mode (proprietary
+model, non-secret inputs) — the batched opening can be SPLIT by
+privacy class: activation/input claims go to a bare (Tier N)
+evaluation proof; weight claims go to a masked (Tier Z) evaluation
+proof. Cost structure: one extra evaluation proof (~136 KiB — the
+E-O2/D-R2 price, paid once per layer unfolded or once per pass under
+folding) plus the mask surcharge (+176-240 KB) on the WEIGHT side
+only. Under folding this plausibly prices P2 at
+"Tier N pass + ~0.3-0.4 MiB" — cheaper than full P3 masking.
+Open design questions U-AG4 must answer before this is real:
+(a) the matmul sumcheck ties weight and activation tensors in one
+instance — the terminal claims must split cleanly onto the two
+commitments (the CR-L4 batching already keeps per-commitment
+structure, so this looks mechanical, but it is unverified);
+(b) E-O2 (the one-batched-opening rule) was byte-motivated — this
+buys a justified exception, but the second proof's floor is a bare
+leak of ACTIVATION functionals and must be certified to carry no
+weight-dependence (an AZB battery leg: the weight-independence
+canary); (c) whether the weight-side masked proof can amortize
+across layers under folding (one weight commitment, one masked
+opening per pass) — if yes, P2's surcharge is once per pass and
+small. None of (a)-(c) is settled; they are U-AG4 deliverables by
+this document.
+
+## 7. THE DECISION (Victor, 2026-07-27, console)
+
+Verbatim intent: "Let's go with option B. Zero Knowledge is
+nonnegotiable (although partial knowledge may be acceptable in some
+cases). For instance, in some cases knowledge of the inputs might be
+acceptable so long as knowledge of the parameters is not leaked, or
+visa versa. Fully document all the alternatives so we may return to
+them later."
+
+Adopted, and recorded in TARGET_CONTRACT Amendment A1:
+
+1. **Option B is the direction.** The full-ZK (masked-floor,
+   exact-digit) path is the primary deliverable; bytes yield to ZK.
+   Tier Z budget: interim <= 512 KiB/layer unfolded; the binding
+   pass-level number is frozen at the U-AG4 FINAL (target class
+   0.5-2 MiB/pass [MODEL] — the surcharge is per evaluation proof,
+   so folding concentrates it).
+2. **Partial privacy is a per-deployment DECLARATION** (Section 6
+   modes), never a silent degradation: P0 keeps the old 256 KiB
+   Tier N gate and the non-ZK label; P1 may run Tier N with the
+   bounded-leak label if the stated bound is accepted; P2/P3 run
+   Tier Z on every weight-touching proof.
+3. **All alternatives stay documented** (this file, Sections 4A-4E):
+   A survives as the P0/Tier N posture only; C stays parked behind
+   its two blockers; D stays as the external-review question and
+   literature watch (if E5 lands, Tier Z collapses back toward
+   256 KiB — the budget relief is then reversible); E remains the
+   interim answer if a P2/P3 deployment materializes before the
+   Tier Z path is built.
+4. **Consequences for U-AG4 (the folding design round):** its
+   deliverables now include, as PRIMARY items: the folded Tier Z
+   pass number (freezes Amendment A1's budget), the split-proof
+   pricing for P2 (Section 6 questions (a)-(c)), and the fold/mask
+   interaction (the fold must not enlarge the floor image — the
+   EC export — and AZ-L4 ordering governs mask-then-fold).
