@@ -49,7 +49,7 @@ runner-ups, and the U-AG2 obligation list: Section 8.
 - [x] Section 3: family (c) PCS reroute (Greyhound-class)
 - [x] Section 4: family (d) hash-based transcript compression
 - [x] Section 5: family (e) SNARK-wrap recursion
-- [ ] Section 6: cross-cutting — Z1 compatibility, verifier budget
+- [x] Section 6: cross-cutting — Z1 compatibility, verifier budget
 - [ ] Section 7: the pricing table
 - [ ] Section 8: verdict in full
 - [ ] Section 9: what we did not find
@@ -822,7 +822,88 @@ UNANALYZED version of the same composition.
    LOW as a post-(c) endgame wrap of an already-small verifier —
    the only role this review assigns it.
 
-## 6. Cross-cutting: Z1 compatibility and the verifier budget — PENDING
+## 6. Cross-cutting: Z1 compatibility and the verifier budget
+
+### 6.1 The Z1 matrix
+
+The binding constraint (WAVE_SHARE_MASKING_DESIGN.md Section 7.1;
+operationalized as R3 in PROOF_BYTE_LEDGER.md Section 4): no
+per-wave sigma values and no per-wave functional images of private
+Y coefficients on the wire; the Z1 simulator argument must extend
+to the aggregated transcript; the rank/recovery battery class
+needs an aggregated-transcript analogue. All five families, one
+table:
+
+| family | per-wave RHS on the wire? | mechanism | Z1 obligations owed |
+|---|---|---|---|
+| (a) LaBRADOR | NO — the aggregate asserts the zero-sum closing relation directly over committed pads (REMEDIATION_PLAN Phase 2.3's third option) | claims aggregated inside one PoK | LNP22-class ZK layer (ePrint 2026/1289), else the aggregated WITNESS leaks; simulator extension |
+| (b) folding | NO — only RLC-aggregated images published | fold over MASKED instances | FS-ordering lemma: fold challenges after pad commitments (extends WSMD 3.4) |
+| (c) PCS reroute | no waves EXIST | wave structure abolished; masked sumcheck (gkr_masked.rs, Q4.7-Q4.9) + blinded eval claims | privacy argument RE-DERIVED (WSMD 7.1 second branch); ZK layer on eval proofs; battery analogue |
+| (d) hash | NO — masked sumcheck as in (c) | salted hash commitments | link-layer simulatability; double-commitment battery coverage |
+| (e) wrap | NO — entire transcript is witness | wrapper ZK mode | ROM-in-ROM composition unanalyzed (generic wraps) |
+
+Two cross-cutting facts fall out:
+
+1. **Bytes and privacy point at the same design move — everywhere.**
+   The byte ledger derived it from the wire side (per-wave reveals
+   alone bust the budget at FFN scale, so O(1) aggregated RHS is
+   forced by BYTES — PROOF_BYTE_LEDGER.md Section 3.1, reveals
+   row); Z1 derives it from the privacy side. No family in this
+   review exhibits a tension between the two mandates. Aggregation
+   is not merely Z1-compatible; done at all, it is Z1-completing.
+2. **Every lattice family owes the same ZK layer.** LaBRADOR and
+   Greyhound are proofs of knowledge as published (Sections 1.1,
+   3.3); witness privacy arrives only via the 2026 toolkit line
+   (ePrint 2026/1289) or via this repo's own pad/masking
+   discipline extended to the new claims. The sumcheck side is
+   already covered in-house (the masked descent layer runs at
+   engine scale); the evaluation/opening side is the U-AG2 design
+   obligation shared by (a), (b), and (c).
+
+### 6.2 The verifier budget across families
+
+The gap being closed: 187.4 us/el = 196.5 s at 2^20, ~98x over
+budget; ~1,056 s at FFN-layer scale, **~528x over** — and the
+ledger's rule: verifier work must be SUBLINEAR in commitments x
+waves, polylog or O(sqrt) class; no per-wave opening re-checks
+(PROOF_BYTE_LEDGER.md Section 3.2).
+
+| family | verifier scaling | vs <= 2 s at FFN scale |
+|---|---|---|
+| today (no aggregation) | linear, 88,925-477,814 opening checks | ~1,056 s — FAILS 528x |
+| (a) standalone | linear in original statement | minutes-to-hours class — FAILS |
+| (a) + Orthus-class batch verification | O(sqrt witness) | plausibly MEETS [see below] |
+| (b) standalone | linear in waves, small constant | ~seconds — MARGINAL, fails the sublinearity rule's letter |
+| (c) reroute | polylog sumcheck + O(sqrt N) Greyhound | ms-to-sub-second — MEETS with headroom |
+| (d) hash | polylog hashing | sub-ms-to-ms — MEETS, most headroom |
+| (e) wrap | wrapper verify, ~O(1) | ms — MEETS (prover-fatal, Section 5.2) |
+
+**Orthus** (Bolboceanu-Bootle-Lyubashevsky-Merino-Gallardo-Seiler,
+ePrint 2026/398) deserves its own paragraph: sublinear
+BATCH-VERIFICATION of lattice relations from standard assumptions
+— verification time growing with the square root of the witness
+size, measured 9x speedup aggregating 2^17 Falcon signatures
+[abstract verified]. It is the IBM line's direct answer to the
+exact axis that disqualified family (a) standalone (their own
+framing: lattice systems "around an order of magnitude slower" in
+verification), published mid-2026 by the same group that owns
+LaBRADOR/LaZer/the ZK toolkit. If it composes with that stack at
+our parameters, the family (a) verifier objection lifts — but the
+Section 0.3 identity ceiling stands regardless (Orthus batches
+relation-VERIFICATION; it does not shrink the commitment list on
+the wire), so it sharpens the compression layer rather than
+displacing the family (c) reroute. Watch item for U-AG2.
+
+Two boundary conditions from the contract and ledger apply to
+every row: the 2 s budget INCLUDES statement validation
+(TARGET_CONTRACT.md Section 4) — under (c) the statement is
+KB-class and validation is trivial, while any family that keeps
+474k identities in the statement pays their hashing inside the
+budget; and the aggregate artifact must fit under the EXISTING
+`P3_MAX_TOTAL_SCALARS` decode discipline without raising it
+(PROOF_BYTE_LEDGER.md Section 3.3) — trivially satisfied by every
+post-aggregation artifact here, fatally violated by the status
+quo at FFN scale.
 
 ## 7. The pricing table — PENDING
 
@@ -913,6 +994,13 @@ UNANALYZED version of the same composition.
     verified: scalable IOPs over any field of size at least
     quadratic in computation length, removing the FFT-friendly
     requirement]
+15. Madalina Bolboceanu, Jonathan Bootle, Vadim Lyubashevsky,
+    Antonio Merino-Gallardo, Gregor Seiler. "Orthus: Practical
+    Sublinear Batch-Verification of Lattice Relations from
+    Standard Assumptions." IACR ePrint 2026/398.
+    https://eprint.iacr.org/2026/398 [abstract verified:
+    verification time grows with the square root of witness size;
+    measured 9x speedup aggregating 2^17 Falcon signatures]
 
 ---
 
