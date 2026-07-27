@@ -248,9 +248,16 @@ def schedule(n_ring, log2_q, gamma_max, kappa, val_bits, max_levels=10,
                 e_i, n_i = e_try, n_try
         if e_i is None:
             break
-        # bare-witness stop option at this level: n_i rings of e_i-bit digits
-        bare = n_i * D * math.ceil((e_i + 1) / 8)
-        stops.append((lvl, n_i, e_i, bare))
+        # bare-witness stop option at this level: the witness re-decomposed
+        # at the byte-optimal base e_s <= e_i (a bare-sent witness is
+        # norm-checked directly, no fold, so any base <= e_i is valid).
+        bare, e_bare, n_bare = None, None, None
+        for e_s in range(1, e_i + 1):
+            n_s = sum(c * max(1, math.ceil(b / e_s)) for c, b in pend)
+            bytes_s = n_s * D * math.ceil((e_s + 1) / 8)
+            if bare is None or bytes_s < bare:
+                bare, e_bare, n_bare = bytes_s, e_s, n_s
+        stops.append((lvl, n_bare, e_bare, bare))
         # choose fold r minimizing next witness
         best = None
         for r in range(4, 257):
@@ -260,7 +267,7 @@ def schedule(n_ring, log2_q, gamma_max, kappa, val_bits, max_levels=10,
             wz_b = math.log2(fold_inf_norm(r, e_i))
             nxt = [(math.ceil(n_i / r), wz_b),        # z fold
                    (r * kappa, val_bits),             # fresh inner commits
-                   (r * (r + 1) // 2, val_bits)]      # h garbage (linear agg)
+                   (r * (r + 1), val_bits)]           # g + h garbage terms
             n_nxt = sum(c * max(1, math.ceil(b / e_i)) for c, b in nxt)
             if best is None or n_nxt < best[1]:
                 best = (r, n_nxt, gamma_i, wz_b, nxt)
@@ -380,14 +387,21 @@ def prover_model(shape, n_ring, sched, kappa):
 # Knowledge error [MODEL where marked]
 # ---------------------------------------------------------------------------
 
-def knowledge_error(sched, n_claims=16):
+def knowledge_error(sched, use_jl=True, jl_rows=256, n_claims=16):
+    """Per-term accounting. The quinary per-slot engine (house L2 lemma,
+    SOUNDNESS_REFERENCE 1.3) drives the fold and batch terms; the JL
+    norm-check term exists only when the LaBRADOR projection is used
+    (the exact-digit variant replaces it with deterministic range
+    claims and the term VANISHES). JL constants [MODEL]: 2^-141 at 256
+    projection rows (LaBRADOR-class), ~2^-282 at 512 rows."""
     per_slot = -LOG2_C  # log2(5^-128) = -297.2, house L2 lemma
     lvls = len(sched["rows"])
     eps_fold = math.log2(sum(r["r"] for r in sched["rows"])) + per_slot
-    eps_jl = -141.0     # LaBRADOR modular-JL constant [MODEL]
+    eps_jl = (-141.0 if jl_rows == 256 else -282.0) if use_jl else None
     eps_batch = math.log2(n_claims) + per_slot
     eps_sz = math.log2(24 * 3 * 8) - 496.0  # sumcheck SZ over GF(q^16)
-    pre_fs = max(eps_fold, eps_jl, eps_batch, eps_sz) + 2  # union slop
+    terms = [eps_fold, eps_batch, eps_sz] + ([eps_jl] if use_jl else [])
+    pre_fs = max(terms) + 2  # union slop
     # FS: PSS-style linear-in-Q loss [MODEL], Q = 2^64, R ~ 3(L+1) rounds
     rounds = 3 * (lvls + 1)
     post_fs = pre_fs + 64 + math.log2(rounds)
@@ -410,7 +424,11 @@ def run_point(label, shape, log2_q, val_bits, model, print_levels=True):
     print("\n== %s | %s | slack model: %s ==" % (label, "q%d" % round(log2_q),
                                                  model))
     best = None
-    for depth in range(1, 10):
+    # per-level slack: gamma budget is depth-independent -> one deep pass.
+    # compounded: gamma budget shrinks with depth -> search depths.
+    depths = ([9] if SLACK_MODELS[model]["per_level"] == 1.0
+              else list(range(1, 10)))
+    for depth in depths:
         gmax = gamma_budget(log2_q, model, depth - 1)
         if gmax < 1.0:
             continue
@@ -420,8 +438,6 @@ def run_point(label, shape, log2_q, val_bits, model, print_levels=True):
         _, total, ep = artifact_table(shape, s, kappa)
         if best is None or total < best[0]:
             best = (total, depth, gmax, s)
-        if SLACK_MODELS[model]["per_level"] == 1.0:
-            break  # gamma budget depth-independent: one pass suffices
     if best is None:
         print("  INFEASIBLE at this modulus/slack model: no digit base "
               "fits any depth's gamma budget")
@@ -458,21 +474,55 @@ def run_point(label, shape, log2_q, val_bits, model, print_levels=True):
     print("    %-58s %10s B  = %.1f KiB  (%.2fx budget) -> %s"
           % ("TOTAL vs 262,144 B", format(total, ","), total / 1024.0,
              over, "PASS" if total <= BUDGET else "OVER"))
-    ke = knowledge_error(sched)
-    print("  knowledge error: fold 2^%.0f, JL 2^%.0f [MODEL], batch 2^%.0f,"
+    use_jl = model != "exact-digit"
+    # Sound-configuration frontier + remaining priced levers:
+    #  - 512-row JL (fixes the FS-grinding term when JL is used):
+    #    +1,024 B per executed level [MODEL]
+    #  - digit bit-packing of the final bare witness ((e+1)-bit packing
+    #    instead of byte-aligned): a canonical-codec EXTENSION [MODEL]
+    #  - one-point claim landing (DB interface): drops the batch-merge line
+    jl_extra = (1024 * max(0, ep["stop_level"] - 1)) if use_jl else 0
+    packed_bare = math.ceil(ep["n_final"] * D * (ep["e_final"] + 1) / 8)
+    pack_save = ep["bare"] - packed_bare
+    merge_save = shape["dw"] * 4 * KEL_B
+    sound_total = total + jl_extra
+    print("  sound-config frontier: base %s B; +512-row JL %+d; "
+          "SOUND TOTAL %s B (%.2fx) -> %s"
+          % (format(total, ","), jl_extra, format(sound_total, ","),
+             sound_total / BUDGET,
+             "PASS" if sound_total <= BUDGET else "OVER"))
+    print("    levers [MODEL]: digit bit-packing %+d B; one-point claim "
+          "landing (O-3 interface) %+d B; both applied: %s B (%.2fx) -> %s"
+          % (-pack_save, -merge_save,
+             format(sound_total - pack_save - merge_save, ","),
+             (sound_total - pack_save - merge_save) / BUDGET,
+             "PASS" if sound_total - pack_save - merge_save <= BUDGET
+             else "OVER"))
+    ke = knowledge_error(sched, use_jl=use_jl)
+    jl_str = ("JL 2^%.0f [MODEL], " % ke["eps_jl"]) if use_jl else \
+        "JL: none (exact digit range claims), "
+    print("  knowledge error: fold 2^%.0f, %sbatch 2^%.0f,"
           " SZ 2^%.0f; pre-FS 2^%.0f; post-FS (PSS linear, R=%d) 2^%.0f "
           "[MODEL] vs 2^-128 -> %s"
-          % (ke["eps_fold"], ke["eps_jl"], ke["eps_batch"], ke["eps_sz"],
+          % (ke["eps_fold"], jl_str, ke["eps_batch"], ke["eps_sz"],
              ke["pre_fs"], ke["rounds"], ke["post_fs"],
              "PASS" if ke["post_fs"] <= -128 else "FAIL"))
+    if use_jl and ke["post_fs"] > -128:
+        ke5 = knowledge_error(sched, use_jl=True, jl_rows=512)
+        print("    (JL grinding is the failing term; at 512 projection "
+              "rows [MODEL]: post-FS 2^%.0f -> %s; or the exact-digit "
+              "variant removes the term)"
+              % (ke5["post_fs"], "PASS" if ke5["post_fs"] <= -128
+                 else "FAIL"))
     tv = verifier_model(shape, sched, kappa)
     tp = prover_model(shape, n_ring, sched, kappa)
     print("  verifier [MODEL]: %.2f s 1T (budget 2 s) -> %s;  "
           "prover commit-path marginal [MODEL]: %.1f us/el "
           "(vs 578.7 us/el whole-prove: %+.0f%%)"
           % (tv, "PASS" if tv <= 2.0 else "FAIL", tp, 100 * tp / 578.7))
-    return dict(total=total, sched=sched, beta_top=beta_top, bits=bits,
-                verifier_s=tv)
+    return dict(total=total, sound_total=sound_total,
+                levered=sound_total - pack_save - merge_save,
+                sched=sched, beta_top=beta_top, bits=bits, verifier_s=tv)
 
 
 def main():
@@ -518,8 +568,10 @@ def main():
         if r is None:
             print("  %-45s INFEASIBLE" % (str(k),))
             continue
-        print("  %-45s bytes %9s (%.2fx), top-MSIS %.1f bits, verify %.2f s"
-              % (str(k), format(r["total"], ","), r["total"] / BUDGET,
+        print("  %-45s sound %10s B (%.2fx; levered %.2fx), top-MSIS "
+              "%.1f bits, verify %.2f s"
+              % (str(k), format(r["sound_total"], ","),
+                 r["sound_total"] / BUDGET, r["levered"] / BUDGET,
                  r["bits"], r["verifier_s"]))
     print("\nALL DONE - %d/%d self-checks OK" % (n_ok, len(checks)))
 
