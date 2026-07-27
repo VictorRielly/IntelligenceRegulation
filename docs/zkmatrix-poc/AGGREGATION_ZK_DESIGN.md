@@ -773,7 +773,7 @@ work addresses it.
 | E1: modulus escape | opening layer at q46+ (masking room exists there) | 354,104 B = 1.35x OVER (PARAMS 5.2) + tensor-scale cross-modulus link (CR 12.2 rule 2, open problem) | blocked at current budget |
 | E2: floor-scale masked response (an I-6 carve-out at e_L <= 4) | Gaussian mask of the ~79k-coord floor opening only | norm AT the line only in the no-limb-growth corner (2^27.2-2^28.6 vs 2^28); +176-620 KB response width | blocked on bytes; recorded as information, NOT a relitigation of I-6 |
 | E3: LNP22 at the floor (toolkit principle, floor scale) | sanitize only the floor statement | same response-width class as E2 + LNP22 port + its own overhead | dominated by E2; blocked |
-| E4: budget relief | at ~2x layer budget (~450-500 KiB), E2 opens: exact-digit + masked floor = full ZK | +~240 KB/layer; a policy decision (PROOF_BYTE_LEDGER 3.1's "the TOTAL may not move" would have to move) | the ONLY currently-actionable full-ZK path; orchestrator/R1 territory |
+| E4: budget relief | at ~1.8-2x the layer budget (~450-500 KiB), E2 opens: exact-digit + masked floor = full ZK | +176-240 KB/layer at the no-limb-growth corner; a policy decision (PROOF_BYTE_LEDGER 3.1's "the TOTAL may not move" would have to move) | the ONLY currently-actionable full-ZK path; orchestrator/R1 territory |
 | E5: a new primitive | a ZK opening for balanced-digit Ajtai commitments at q ~ 2^31 with response + proof <= ~100 KB | unknown | the external-review question; O-9 watch item (2026/1289 lineage at small moduli) |
 
 ### 4.6 Deployment posture and the costs fed to O-2
