@@ -86,6 +86,41 @@ Standing constraints (inherited, non-negotiable):
 - [ ] FINAL (orchestrator): merged, reviewed, decisions adopted,
       U-AG4 direction, pushed, Victor briefed.
 
+## Agent EA status (wt-uag3-encoding) — D-1 + O-2 lane
+
+- done: read-first set complete (PROGRESS_UAG2 FINAL R-1..R-8;
+  AGGREGATION_PARAMS_DESIGN 2/5/6/7 + greyhound_params_spike re-run,
+  15/15 OK, per-level q31 schedules captured for cross-check;
+  AGGREGATION_CLAIM_REDUCTION 0.3/2/6/10/11; PROOF_BYTE_LEDGER unit
+  costs + 3.1 allocation; TARGET_CONTRACT budget wording; slot
+  consumers from source: ct_engine.rs quads/slot machinery,
+  link.rs crt_coord_rows/derive_link_zeta/link_claims_tgt_slot,
+  lookup.rs slot_pin_weights + pin/E4 layer, ring_matmul.rs
+  slot_pack + U-K8 header ("Y lives ONLY slot-packed so the
+  downstream Hadamard can consume it"), WSMD 0.1/1.2,
+  SOUNDNESS_REFERENCE 8.3, M4_LOOKUP_DESIGN 3.1/3.4).
+- key findings so far (to be derived in the doc + spike):
+  (1) every slot-form consumer is either a Sigma-engine artifact
+  (Hadamard-as-ring-mult, E1 projection reads, E2 zeta junk
+  pinning, slot_pin_weights adapter) or encoding-agnostic (lookup
+  descent consumes VALUES; kappa:=Y fusion is K-field structure,
+  not H3 packing) — dense re-encoding of Y/UP/Z looks sound with
+  NO packing-image claim (nothing slot-packed remains to tie);
+  (2) slot idempotents force full 31-bit coefficients, dense
+  values are 8-15 bit — the norm-chain relaxation is therefore
+  bigger than the 13x ring count alone (l0 drops too);
+  (3) DA's eval proof is near-shape-invariant (deep-recursion
+  floor), so the sqrt-law expectation from R-2 needs testing —
+  savings come from fewer levels + relaxed e0, spike to settle.
+- next: scripts/aggregation_byte_model_spike.py (reconciled model,
+  both shapes x both encodings, dense norm-chain re-derivation,
+  self-checked vs DA overlap rows), then
+  docs/zkmatrix-poc/AGGREGATION_ENCODING_DESIGN.md sections with a
+  commit each: D-1 enumeration+derivation, O-2 model, pass-vs-layer
+  scope, verdict + exports to O-4/O-7.
+- decisions pending: none adopted here — D-1 recommendation and
+  scope reading go to FINAL.
+
 ## Log
 
 - 2026-07-27: tranche opened at 93a6957 immediately after the U-AG2
