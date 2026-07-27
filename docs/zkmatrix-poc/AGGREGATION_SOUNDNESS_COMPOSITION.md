@@ -12,9 +12,12 @@ under four named conditions, all satisfiable at DA's recommended
 parameter family; the COMPOUNDED reading is refuted for our chain (it
 describes protocols without per-level norm re-grounding, which ours is
 not); the BaseFold fallback boundary of AGGREGATION_PARAMS_DESIGN 6.3
-is NOT engaged** — with three honest corrections to DA's constants
-(Sections 2.4, 3.2) that cost roughly kappa 10 -> 11 and single-digit
-KiB, not the architecture.
+is NOT engaged** — with four honest corrections to DA's constants
+(Sections 2.4, 3.2: the extraction operator-norm cap, the deep-level
+base cap R-EB4, kappa 10 -> 11, and a missing FS aggregation term)
+whose net cost is +3-9% bytes depending on branch — the 2^20 layer
+keeps its PASS on the exact-digit branch (0.991x, spike) — not the
+architecture.
 
 Spike: `scripts/slack_composition_spike.py` (stdlib + numpy, seconds,
 tiny memory; checks the ARITHMETIC of this document — norm chains,
@@ -280,21 +283,27 @@ obtains a worst-case T by CONSTRUCTION: their challenge set is
 rejection-sampled to operator norm <= 15 at d = 64. The house
 quinary set carries NO such cap (params.rs verified this session):
 worst case op = 2D = 256, and DA's slack table used the
-concentration value 29.4 in its place — sound for honest sizing,
-NOT for extraction bounds. **Design rule R-EB1 (exported): the
-aggregate layer's fold-challenge sampling (and batching-challenge
-sampling, Section 4) MUST enforce an operator-norm cap T_cap by
-resampling, with T_cap and its honest resampling rate frozen as
-derive-time constants.** The spike's Monte-Carlo section measures
-the operator-norm distribution of quinary challenges at D = 128
-(singular values via evaluation at the odd 256th roots of unity):
-T_cap ~ 24-26 rejects only a percent-level fraction and T_cap = 28
-essentially nothing [MODEL — MC at 10^4 draws; exact percentiles
-printed by the spike]. All Section 2.4 tables are given as functions
-of T_cap ∈ {21, 25, 28, 42}. Without R-EB1 the honest worst-case
-T = 256 costs ~3.3 bits over T_cap = 25 in beta_top — the
-architecture survives even that (Section 2.4 table), so R-EB1 is an
-efficiency rule, not a viability condition.
+concentration value 29.4 in its place. The spike's Monte-Carlo
+section (20k draws; singular values via evaluation at the odd 256th
+roots of unity) shows the true operator-norm distribution of quinary
+challenges at D = 128 is p50 = 34.2, p99 = 46.8 (RMS scale 16) —
+i.e. **the house `op_norm(conc)` = 20.8 is a per-use concentration
+bound for c·u with u FIXED (valid for honest sizing under the Q4.1
+restart discipline) and sits BELOW the median of the actual operator
+norm; neither 20.8 nor 29.4 can serve as an extraction-side
+challenge bound.** **Design rule R-EB1 (exported): the aggregate
+layer's fold-challenge sampling (and batching-challenge sampling,
+Section 4) MUST enforce an operator-norm cap T_cap by resampling
+(deterministic FS counter loop, the house salt pattern; [LaB] does
+exactly this with T = 15 at d = 64), with T_cap and its honest
+resampling rate frozen as derive-time constants.** Measured
+candidates [MODEL — MC]: T_cap = 33 accepts 38% (~3 attempts per
+challenge); 36 accepts 67%; 42 accepts 94%. The working point used
+in every Section 2.4 number is **T_cap = 33**. Without R-EB1 the
+honest worst-case T = 256 costs ~2.9 bits over T_cap = 33 in
+beta_top — R-EB4's base caps would tighten by the same bits and the
+architecture would still stand (shallower bases, more bytes), so
+R-EB1 is an efficiency rule, not a viability condition.
 
 *Where used:* SC-L4 (the induction step); Section 2.4 (the corrected
 per-level constant).
@@ -336,11 +345,15 @@ the WINDOW on the bound itself:
     **(C-win)  sigma · beta_i <= q / C1**, C1 = 120 (lambda = 128)
                or 168 (lambda = 256).
 
-House arithmetic at q31 (spike-checked, Section 2.4 table): DA's
-level bounds run beta_i ~ 2^20.9-2^21.7, so sigma·beta_i ~
-2^21.9-2^22.8 against q/C1 = 2^24.09 (lambda = 128) / 2^23.60
-(lambda = 256): **margin 1.3-2.2 bits (256-row) / 0.8-1.7 bits
-(512-row) at every level of every DA schedule — C-win HOLDS.**
+House arithmetic at q31 (spike-checked per level, both shapes, both
+branches): the window applies to the level's WITNESS bound beta_i —
+the digit-decomposed material, 2^14.1-2^16.8 across all schedules —
+NOT to the fold norm gamma_i ~ 2^20.9 (the fold is never the object
+the projection grounds; its recomposition is R-EB4's business,
+Section 2.4). So sigma·beta_i ~ 2^15.1-2^17.8 against q/C1 =
+2^24.06 (lambda = 128) / 2^23.60 (lambda = 256): **minimum margin
++6.2 bits (256-row) / +5.8 bits (512-row) over every level of every
+schedule — C-win HOLDS comfortably.**
 Grade: [CITED] for the lemmas (statements transcribed above;
 constants from [PSS]'s recomputation — note [LaB]'s own text says
 q/125 where [PSS]'s jl.py says q/120; the spike uses the TIGHTER
@@ -381,12 +394,24 @@ proves only the SUM sum_i a_i(a_i - 1) ≡ 0 and therefore needs the
 norm window n + 3k < 15q/128 to lift to Z — the house per-position
 kernel is strictly stronger and needs no window).
 
-**[OBLIGATION — plumbing, DA 6.4 item 4]:** committing each level's
-witness bit-decomposed and running the CR-L6 instances per level is
-new protocol plumbing: the bit-width blowup of the committed level
-witnesses (x e_i per level), the per-level zero-check transcripts,
-and their mask budget (EC's lane) are build-round work, priced by DA
-(Section 5.2 exact-digit rows) at the byte level only.
+**[OBLIGATION — plumbing, DA 6.4 item 4]:** integrating the
+per-position claims is new protocol plumbing with one design fork,
+named here so the build round prices it rather than discovers it:
+the level constraint systems are QUADRATIC (dot-product form), so
+per-position range pinning of base-2^e digits needs bit-level
+witness columns (d = sum_j 2^j b_j - offset, each b_j pinned by
+b(b-1) = 0) — a dimension-times-e_i growth of the digit part of
+each level witness whose byte effect is unpriced in both DA's and
+this document's exact-digit rows (Section 2.4(c) flag). The
+per-position families aggregate inside the level's own
+constraint-RLC — with the K-draw variant (Section 3.2) the
+aggregation error is 2^-496-class, so SC-L3's "no heuristic
+constant, no window" property is preserved; the residues are pinned
+except with that statistical RLC error, which joins the additive
+sum of Section 3 (already counted: the exact-digit column's K-draw
+term). Alternatively CR-L6 zero-checks over T_data-committed digit
+material serve the LEVEL-0 witness only. Mask budgets are EC's
+lane.
 
 *Where used:* SC-L4 (the sigma = 1 branch); the fallback boundary
 (Section 5.1) — exact-digit is the backstop that holds even if an
@@ -576,30 +601,40 @@ level — both halves present, SC-L4 applies.
 
 ### 2.4 The corrected per-level constant, and the corrected validity line
 
-Two honest corrections to DA's Section 3.4 numbers fall out of the
-transcription. Neither changes the verdict; both change margins and
-one changes kappa. (All numbers spike-printed; representative values
-here.)
+Three honest corrections to DA's Section 3.4 numbers fall out of the
+transcription and the spike. None changes the verdict; they change
+margins, kappa, the deep bases, and the branch preference. (All
+numbers spike-printed; representative values here.)
 
-**(a) The per-level slack constant is bigger than 121.7.** DA's
-per-level row priced base = 2 (fork) · 2.07 (JL) · 29.4 (dc-conc) =
-121.7 = 2^6.93 applied to gamma_z. The [LaB]-form inner-binding
-bound instantiated at house constants is
+**(a) The per-level slack constant is bigger than 121.7, and it
+CAPS THE DEEP BASES (R-EB4).** DA's per-level row priced base =
+2 (fork) · 2.07 (JL) · 29.4 (dc-conc) = 121.7 = 2^6.93 applied to
+gamma_z. The [LaB]-form inner-binding bound instantiated at house
+constants is level-local:
 
-    beta_top = 8 · T_cap · (1 + b) · sigma · beta',
+    beta_top(i) = 8 · T_cap · (1 + b_i) · sigma · beta'_i,
 
-and since beta' ~ sqrt(2)·gamma/b (the z-decomposition parts
-dominate), (1+b)·beta' ~ sqrt(2)·(1+1/b)·gamma, so
+with b_i = 2^{e_i} the level's decomposition base and beta'_i the
+next witness bound (2^14-16.8-class). Three consequences, all
+spike-printed per level:
 
-    beta_top ~ 8 · T_cap · sqrt(2)·(1+1/b) · 2.07 · gamma
-             ~ (2^8.9 to 2^9.6) · gamma   at T_cap = 25-28,
-
-vs DA's 2^6.93·gamma — i.e. **the honest constant costs ~2.0-2.7
-bits over the modeled one** (and would cost 3.3 more at the uncapped
-worst T = 256 — R-EB1's price of admission). Mechanically: DA's
-29.4 was a concentration value where an adversarial worst-case cap
-belongs, and the (1+b) recomposition and the 8T cross-clearing were
-not in the model.
+- at DA's SHALLOW levels (e_i = 1-6) this lands 2^26.0-2^30.1 —
+  valid MSIS instances, kappa = 10-11;
+- at DA's FLOOR levels the adaptive bases reach e_i = 8-10, and
+  (1 + 2^9)-class recomposition factors push beta_top to
+  **2^31.8-2^34.1 > q — the MSIS instances there are VACUOUS as
+  bounded**: DA's fold-norm budget admitted bases the binding
+  analysis cannot support. **Design rule R-EB4 (exported): the
+  adaptive-base rule must enforce, at every level,
+  8·T_cap·(1 + 2^{e_i})·sigma·beta_i(e_i) <= 2^30.5 in addition to
+  the fold-norm budget** — in practice this caps e_i <= 7 at the
+  floor (vs DA's 9-10), raising the recursion floor from ~500-620
+  to ~620-770 rings and the final bare witness by ~18 KiB;
+- DA's dc-conc 29.4 was a concentration value where an adversarial
+  worst-case cap belongs (Section 1.3's MC finding), and the (1+b)
+  recomposition and 8T cross-clearing were not in his model. With
+  R-EB4 active: **max beta_top = 2^30.14 (JL branch) / 2^29.93
+  (exact-digit) over all levels of both shapes — all valid.**
 
 **(b) The q/8 validity line is not the right line, and removing it
 returns most of what (a) costs.** DA's gamma_budget derived
@@ -614,30 +649,47 @@ The published chain needs only:
     (C-msis)  >= 128-bit MSIS at the Section 2.1 bounds (soft —
               kappa-tunable).
 
-At q31 with DA's schedules: C-win holds with 0.8-2.2 bits of margin
-(Section 1.4); the top-instance MSIS at the corrected constant
-beta_top ~ 2^30.1 gives ~110-115 [core-SVP] bits at kappa = 10 —
-BELOW the line — and recovers to ~133 bits at **kappa = 11**
-(k_Z = 1408). Byte cost of kappa 10 -> 11: +516 B per outer
-identity and per level message, plus the t-hat term growth in every
-level's witness — the spike re-runs DA's schedule machinery at
-kappa = 11 end-to-end: **2^20 layer stays PASS (~0.98-0.99x
-budget); FFN moves ~1.06x -> ~1.08-1.09x-class** [MODEL, spike
-tables] — inside the O-2/EA lever discussion, not a new wall. The
-"0.16 bits to spare" thinness DA reported at FFN was an artifact of
-measuring the optimistic constant against the over-strict q/8 line;
-the honest picture is: hard margins of ~1-2 bits (window), soft
-margins bought with kappa (MSIS), no cliff.
+At q31 with the R-EB4-corrected schedules: C-win holds with >= +5.8
+bits of margin at every level (Section 1.4); the worst-level MSIS at
+the corrected bounds needs **kappa = 11** (spike: kappa >= 11 at the
+tightest levels, both branches; kappa = 10 falls short there). Byte
+consequences of {kappa 11, R-EB4 base caps, R-EB3} together, spike
+tables (T_cap = 33, K-draw aggregation):
+
+    2^20:  exact-digit 259,904 B = 0.991x -> PASS
+           512-row JL  285,280 B = 1.088x -> OVER (pre-lever)
+    FFN:   exact-digit 283,392 B = 1.081x -> OVER
+           512-row JL  312,928 B = 1.194x -> OVER
+
+i.e. the corrections cost +3% (exact-digit) to +9-13% (512-JL) over
+DA's corresponding rows; **the 2^20 PASS survives on the exact-digit
+branch; the 512-JL branch loses its byte advantage entirely** (its
+JL wire + aggregation objects now exceed the digit-claims premium).
+The "0.16 bits to spare" thinness DA reported at FFN was an artifact
+of measuring the optimistic constant against the over-strict q/8
+line; the honest picture is: hard margins of ~6 bits (window), soft
+margins bought with kappa (MSIS), base caps at the floor (R-EB4),
+no cliff. Dropping the q/8 line also unlocks a relaxed-e0 lever
+(level-0 bases 4-5 instead of 1-3, all soundness gates green —
+spike Section 4b) worth only 1-6 KiB at these shapes — recorded as
+an O-2 export, not adopted here.
 
 **(c) What survives of DA's three-readings table.** The per-level
 ROW's structure survives (fresh MSIS per level, cross-level
 consistency by committed-value equality — confirmed as [LaB]'s own
 architecture); its CONSTANT is corrected by (a)+(b). The exact-digit
 row survives with sigma = 1 and no window (SC-L3) — its constant
-corrects the same way (8·T_cap·(1+b)·beta' with sigma = 1, ~1 bit
-below the JL row). The compounded row survives as the correct
-arithmetic for the three protocols of Section 2.2, none of them
-ours.
+corrects the same way (~1 bit below the JL row) — and at the
+corrected constants it becomes the BYTE-cheaper branch as well
+(table above), inverting DA's 5.2 ordering. One byte-honesty flag
+on both exact-digit rows (DA's and ours): they price the recursion
+in DIGIT form; the per-position range claims need bit-level
+witness columns inside the level constraint systems (SC-L3's
+plumbing note), whose dimension effect on the level witnesses is
+UNPRICED in both models — flagged [MODEL], same assumption both
+sides, resolved by the plumbing obligation. The compounded row
+survives as the correct arithmetic for the three protocols of
+Section 2.2, none of them ours.
 
 ## 3. (c) The recursive Fiat-Shamir composition
 
@@ -931,19 +983,24 @@ boundary is NOT engaged.** By SC-L4 (cite: this document Section
 > with window, or exact-digit residue pinning — DA's two sound
 > configurations are exactly the two branches); **C-cap** (operator-
 > norm-capped fold AND batching challenge sets — NEW design rule
-> R-EB1, build-round item, spike-measured cap candidates); **C-msis**
+> R-EB1, T_cap = 33 working point, spike-measured); **C-msis**
 > (>= 128-bit MSIS at the Section 2.1 per-level bounds with the
-> CORRECTED constants — satisfied at kappa = 11, was kappa = 10).
+> CORRECTED constants — satisfied at kappa = 11 WITH the R-EB4
+> deep-level base caps; DA's kappa = 10 and his e = 8-10 floor
+> bases both fall short of it).
 
 DA's recommended parameters SURVIVE in structure and land with these
-adjustments: kappa 10 -> 11 (+~5-7 KiB class across the artifact);
-the 512-row-JL configuration additionally needs R-EB3 (ct-
-aggregation sizing: t >= 7, +18-21 KiB, OR the K-draw restructure at
-~zero bytes [OBLIGATION]); the exact-digit configuration needs
-neither and is now the soundness-preferred branch (fewest [MODEL]
-flags), with its byte premium unchanged (DA 5.2). 2^20 layer stays
-PASS; the FFN overage moves from 1.04-1.10x to the ~1.06-1.12x class
-before EA/O-2 levers — the sign at FFN scale remains the O-2/D-1
+adjustments (all spike-quantified, Section 2.4(b) table): kappa 10
+-> 11; R-EB4 base caps (floor e_i <= 7, bare witness +~18 KiB); the
+512-row-JL configuration additionally needs R-EB3 (t >= 7, +18-21
+KiB, OR the K-draw restructure at ~zero bytes [OBLIGATION]).
+Net standing: **the exact-digit branch is now preferred on BOTH
+axes — soundness (fewest [MODEL] flags: no heuristic JL constant,
+no window, no ct-aggregation pressure) and bytes (2^20: 259,904 B =
+0.991x PASS; FFN: 283,392 B = 1.081x)** — subject to the shared
+digit-plumbing byte flag (2.4(c)); the 512-JL branch remains sound
+but byte-dominated (1.088x / 1.194x). The FFN overage stays in the
+lever band (~1.08x) — the sign at FFN scale remains the O-2/D-1
 discussion, exactly as DA left it. The compounded reading is
 REFUTED for our chain as designed (Section 2.2) — it is the correct
 arithmetic only for three specifically-excluded design variants, and
@@ -966,7 +1023,10 @@ not only integrable but the most robust configuration.
 | missing ct-aggregation term + R-EB3 sizing | [PROVEN] arithmetic (the term is in [LaB]'s protocol and [PSS]'s Eq. 18; only its q31 size is news) |
 | post-FS table constants | [MODEL] (cited constants, spike-checked sums; Q-conv flagged) |
 | SC-L6 batching extractor | [PROVEN] on SC-L4/L5's conditions; FIRST WRITTEN treatment — priority review target |
-| corrected per-level constant + kappa = 11 + byte deltas | [MODEL] (spike tables; MC cap distribution) |
+| MC operator-norm finding (conc 20.8 below the true op-norm median) + T_cap table | [MODEL] (20k-draw MC; exact tail behavior owed a proof or a larger run at build time) |
+| R-EB4 (deep-base cap) necessity + corrected schedules | [PROVEN] arithmetic (beta_top > q at DA's floor bases is a computed fact) + [MODEL] byte consequences |
+| corrected per-level constant + kappa = 11 + byte deltas | [MODEL] (spike tables) |
+| exact-digit byte rows (both DA's and ours) | [MODEL] — digit-form recursion assumed; bit-plumbing dimension effect unpriced (2.4(c)) |
 
 ### 5.3 What remains for the standing independent review (REMEDIATION_PLAN Phase 2.5)
 
@@ -999,21 +1059,28 @@ Listed explicitly, in priority order:
 
 **To the orchestrator/ledger (design rules, all build-round):**
 - **R-EB1**: operator-norm cap T_cap on fold AND batching challenge
-  sampling (resample-until-under; freeze T_cap + honest rate).
-  Spike MC: T_cap = 25-26 costs percent-level resampling at D = 128.
+  sampling (resample-until-under, deterministic FS counter; freeze
+  T_cap + honest rate). Spike MC at D = 128: T_cap = 33 accepts 38%
+  (~3 attempts/challenge), 36 accepts 67%, 42 accepts 94%; the
+  Section 2.4 numbers use 33.
 - **R-EB2**: no [NS22]-style garbage-count optimization at any
   recursed level under FS ((T_op)^r slack, [PSS] I.6); bare last
   level only, or add the second amortized opening.
 - **R-EB3**: ct-aggregation sizing t >= 7 at q31, or the K-draw
   restructure (recommended; plumbing owed).
+- **R-EB4**: the adaptive-base rule gains a second constraint —
+  8·T_cap·(1+2^{e_i})·sigma·beta_i(e_i) <= 2^30.5 at every level
+  (caps floor bases at e_i <= 7; DA's e = 8-10 floor bases are
+  binding-vacuous and MUST NOT ship).
 - **Freeze rows**: C-win per level (sigma·beta_i <= q/C1); T_cap;
-  t; kappa = 11.
+  t; kappa = 11; the R-EB4 inequality per level.
 - **Corrections to DA's tables** (PARAMS 3.3/3.4/3.5/5.2/6.1):
-  kappa 11, the corrected per-level constant, the corrected JL error
-  constants, the R-EB3 line item; DA's verdict language survives,
-  his margins move as Section 2.4/3.3 state. The orchestrator
-  reconciles the two documents at FINAL (this lane does not edit
-  DA's).
+  kappa 11, the corrected per-level constant + R-EB4 schedules, the
+  corrected JL error constants (2^-128/2^-256), the R-EB3 line
+  item, the branch-preference inversion (exact-digit now cheaper);
+  DA's verdict language survives, his margins move as Sections
+  2.4/3.3 state. The orchestrator reconciles the two documents at
+  FINAL (this lane does not edit DA's).
 
 **To EA (D-1 direction note, derived-at-DA's-parameters honored):**
 dense re-encoding of Y/UP/Z (~13x fewer committed rings) shrinks
@@ -1059,7 +1126,13 @@ the slot-form encoding.
 against DA's published parameter chain at 5d6c6f1; primary sources
 retrieved and read in-session (Wayback route); spike landed in the
 same tranche. The three-readings question of PARAMS 3.4 is settled
-PER-LEVEL with named conditions; two new quantitative findings along
+PER-LEVEL with named conditions; four new quantitative findings along
 the way: the ct-aggregation term missing from all house accounting
-(Section 3.2, with the R-EB3 fix) and the uncapped-challenge-set gap
-in the extraction constants (Section 1.3, with the R-EB1 fix).*
+(Section 3.2, R-EB3 fix); the uncapped-challenge-set gap in the
+extraction constants, with the MC measurement showing the house conc
+value 20.8 sits below the true op-norm median (Section 1.3, R-EB1
+fix); the binding-vacuous deep bases in DA's floor schedules
+(Section 2.4(a), R-EB4 fix); and the branch-preference inversion —
+at the corrected constants the exact-digit configuration beats
+512-row JL on bytes as well as on [MODEL]-flag count (Sections
+2.4(b), 5.1).*
