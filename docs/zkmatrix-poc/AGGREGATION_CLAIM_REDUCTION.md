@@ -780,7 +780,168 @@ l = 24) is replaced by the 2^-486-class CR-L6 kernel. Status:
 [PROVEN*] (SPK-6b: toy packing map, honest accept, junk-bearing
 witness rejected).
 
-<!-- UNIT-MARKER: sections 7+ follow -->
+## 7. C8 — the U-L cross-modulus link (q46 <-> q31)
+
+### 7.1 What must be preserved exactly
+
+The link's soundness is NOT claim-form algebra alone — it is integer
+arithmetic (SR 6.1/6.2): the w_max rule bounds |<xi_l, V>| below
+q46/2 so residue equality mod q46 IS integer equality; the range
+gate on revealed y_l forces the claimed integer below the wrap; the
+per-row 2^-w point mass needs xi entries ranging over 2^w
+CONSECUTIVE INTEGERS (small signed weights — a structured or large
+challenge would break the counting argument AND the non-overflow
+bound). So the reduction may change WHERE the two sides' residue
+claims are proven, but not the weight family, the reveal, or the
+gate. Both sides' claims are plain linear ct-functionals
+(link_claims_gnd / link_claims_tgt(_slot)).
+
+### 7.2 CR-9 — the reduction, unit-scoped
+
+**Claim CR-9.** Fix a link instance: n values (frozen point n = 128,
+W = 4 bit planes, w = 11, l = 24 — SR 6), values committed inside a
+q31 global tensor at an aligned slice (IA-O1-1), bit planes inside a
+q46-domain commitment (IA-O1-6: only if a q46 domain exists at all —
+see 7.4). Per side and per row l:
+
+1. The claim <xi_l, V_slice> ≡ y_l (mod q_side) is a sumcheck over
+   the slice's log2(n) = 7 variables (CR-L5): the kernel is
+   MLE(xi_l), which the verifier evaluates DIRECTLY at the terminal
+   point in O(n) = O(128) base-field ops — dense weights are
+   affordable exactly because the w_max rule CAPS the unit size.
+2. The l = 24 rows and both sides batch by CR-L4 (mu over rows,
+   shared terminal point per side); terminals: one eval claim per
+   side per instance (at boolean-prefixed points (u_bits, r_low) —
+   the slice index composes with the batch point).
+3. The reveals y_l, the range gate |y_l| < q46/2, and the mod-q
+   scalar bookkeeping (centered residues both sides) carry over
+   VERBATIM as public verifier checks — they were never ct-round
+   material.
+4. The ordering edge (xi from h0_link binding BOTH sides'
+   commitments — SR Section 7 xi row) carries over: xi must derive
+   from FS state binding both GLOBAL commitments; the E2 zeta rows
+   that shared the edge dissolve (CR-8).
+
+Verifier cost: O(l·n) = O(3,072) base-field ops per instance + the
+shared sumcheck rounds — trivial at gadget-arm scale. Status:
+**REDUCES-WITH-COST**, the cost being (a) O(l·n) terminal
+kernel evaluations per instance — linear in LINKED volume, and (b)
+the q46 side requires a second commitment domain (7.4). [PROVEN*]
+algebra — certificate SPK-5 (toy two-modulus link: slice-sumcheck
+identity, integer-exactness honest/tamper, range-gate logic).
+
+### 7.3 The honest scale boundary (recorded, not hit)
+
+The dense-xi kernel makes the link verifier LINEAR in linked volume:
+at tensor scale (5.6e6 values) it would cost ~24 x 5.6e6 ~ 1.3e8
+base-field ops ~ seconds-class single-threaded [MODEL from the A1
+kernel constants, RING_MULT_BOTTLENECK.md 6.5] — busting the R2
+budget. This is NOT hit on the target path: the layer rig links
+NOTHING at tensor scale (ranges via the q31-native range-lookup,
+D-5; the link exists at gadget-unit scale n = 128 where the w_max
+rule pins it). The boundary is recorded as a design rule (Section
+12.2): any FUTURE tensor-scale cross-modulus need must either accept
+the linear verifier term or redesign the link with structured small
+weights — an open problem this document does NOT claim to solve
+(the per-row 2^-w counting argument does not survive naive
+tensor-structuring of xi; a candidate replacement would need its own
+soundness round).
+
+### 7.4 The q46 domain question (IA-O1-6)
+
+The target path needs NO q46 global commitment: the layer rig is
+ARP-free and q31-native. If the legacy gadget arm must ever ride the
+aggregate, DA's layout gains a (small) q46-domain commitment for the
+bit planes and CR-9 applies as written; the g46 grounding side's
+ct-claims are the same CR-L5 shape at q46. Flagged to DA; NOT
+assumed; NOT a wall (the legacy arm is out of the aggregation
+contract's scope — PROGRESS_UZ.md Z2 legacy-arm labeling,
+WSMD 0.1(a)).
+
+## 8. C9 — the lookup layer (LogUp-GKR): kept, re-landed
+
+### 8.1 What stays verbatim
+
+The descents ARE the target engine: the masked LogUp-GKR sumcheck
+over K (gkr_masked.rs; M4_LOOKUP_DESIGN 3.4) with the Q4.7-Q4.9
+masking PROVEN at engine scale. Round polynomials, boundary values,
+lambda/mu/r challenge schedule, the fused kappa := Y pair binding,
+the characteristic ceiling N_inst < q and its per-layer instancing —
+all carry over unchanged. The aggregation reroute touches ONLY the
+landing (what happens to the terminal claims) and the grounding of
+the pin layer (Sections 5.1-5.2).
+
+### 8.2 CR-10 — the re-landed lookup
+
+**Claim CR-10.** Per layer: the witness descent terminates in v^X,
+v^Y claims and the table descent in v^M (M4_LOOKUP_DESIGN 3.4);
+under the reroute these are CR-L4 batch entries against the global
+X, Y, m commitments (CR-6), the mask-polynomial and blinder pins are
+CR-5 structured claims against the aux commitment, and the aggregate
+root cross-check stays verifier arithmetic on claimed (blinded)
+values exactly as in the masked design. The range arm (exact [0,256)
+table) is the SAME shape with its own m column — no ARP, no q46.
+What the engine must prove: the two descents (depth 23 + depth 8 at
+2^20-class; dw 24 + dt 9 at FFN scale — PBL Section 2 row 6) plus
+the batched terminal sumcheck — all already-built machinery. What is
+DELETED: the E4 coefficient detour (CR-6), the per-wave pin
+splitting + pads (C10), and the multiplicity column's per-wave
+commitment slots (m joins a global aux commitment — IA-O1-1).
+Status: **REDUCES (kept engine, re-landed terminals) — [PROVEN*]**
+(no new algebra; the moving parts are CR-5/CR-6/CR-L4, certified by
+SPK-6a/SPK-7).
+
+## 9. Retired and dissolved machinery (C10-C13)
+
+### 9.1 C10 — waves, pads, closing round: DISSOLVES
+
+The wave partition exists because the Sigma round's C2 cap binds at
+~134 commitments per round (WSMD 0.1); the Z1 pads exist because
+SPLITTING claims across waves revealed per-wave partials (C-02); the
+closing round exists to ground the pads' zero-sum. Under the reroute
+there is no round cap (no rounds), no split (claims are global
+sumchecks), no partials (nothing per-wave exists to reveal) — the
+entire C10 complex dissolves: `plan_waves`, `split_claims_*`,
+`WavePadLayout`, `draw_wave_pads`, `closing_round_claims`, the 32
+pad commitments and 9 closing claims at FFN scale (PBL Section 2).
+The PRIVACY function does not dissolve — it is subsumed, argued
+class-by-class in Section 11 (this is the WSMD 7.1 second branch:
+the privacy argument is RE-DERIVED on the masked-sumcheck machinery,
+and Q4.10's coset lemma is retired WITH its leak surface, not
+weakened). The zero-sum forgery lever (WSMD 4.2) has no analogue:
+there are no shares to shift. Status: **DISSOLVES** — with the
+Section 11 obligation set as the O-4 handoff.
+
+### 9.2 C11 — ARP + Ajtai slots: RETIRED (already legacy)
+
+ARP is non-ZK at the frozen operating point and demoted to the
+legacy q46 block chain (ct_engine.rs header: "ARP IS LEGACY, NOT
+ZK-GRADE", audit C-01; D-5 makes the layer rig ARP-free). The
+Ajtai-slot (ABDLOP) machinery exists only to norm-ground ARP masks
+— the splitter already rejects Ajtai-bearing claims
+(`AjtaiClaimUnsupported`, audit M-01). On the target path the range
+facts ride the exact range-lookup (CR-10). Nothing to reduce;
+recorded so the inventory is total. If the legacy arm is ever
+aggregated, ARP would be a REAL problem (its JL reveals and
+rejection clipping have no MLE-claim counterpart and its ZK defect
+is structural) — but that arm is outside the contract scope
+(Section 7.4). Status: **RETIRED**.
+
+### 9.3 C12/C13 — digits, theta/g/reveal mechanics: RETIRED with the round
+
+Digit-decomposed openings, combined-commitment `DigitOpening`s, the
+theta randomizer rows, the g-mask commitments and ct reveals h_l,
+the per-claim W images, R1 pads — all are mechanics OF the masked
+Sigma round: they open commitments and mask reveal surfaces that the
+reroute's proof objects (sumcheck transcripts + evaluation proofs)
+do not have. Their FUNCTIONS map as: opening soundness -> the
+evaluation proof's extraction (DA/O-1, O-7); reveal masking -> the
+E3 masked transcript (Q4.7-9) + terminal blinding (Section 11);
+ordering discipline (F5/theta, R1.2, g-before-theta) -> the
+Section 10.5 FS table. Status: **RETIRED** (functions transferred,
+no residual claim content).
+
+<!-- UNIT-MARKER: sections 10+ follow -->
 
 ---
 
