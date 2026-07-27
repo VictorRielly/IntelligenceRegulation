@@ -86,32 +86,53 @@ Standing constraints (inherited, non-negotiable):
 - [ ] FINAL (orchestrator): merged, reviewed, decisions adopted,
       U-AG4 direction, pushed, Victor briefed.
 
-## Agent EB status (wt-uag3-soundness) — O-7 slack composition
+## Agent EB status (wt-uag3-soundness) — O-7 slack composition — LANE COMPLETE
 
-- state: STARTED 2026-07-27. Read-first set complete: PROGRESS_UAG2
-  FINAL (R-4, verdict), AGGREGATION_PARAMS_DESIGN Sections 1-7 (esp.
-  3.4 three readings, 3.5 FS accounting, 6.3 fallback boundary, 6.4
-  export list), AGGREGATION_CLAIM_REDUCTION Sections 1/10/12.3 (CR-L4b
-  restatement, 10.4 flagged row, CRB-N1..N5), Q4_LEMMAS style (Q4.1,
-  Q4.4a-c — the ARP extraction lemma is the house template for the
-  JL-grounding argument), SOUNDNESS_REFERENCE Sections 0-2 (grading,
-  L1/L2 engines, relaxed binding 2.2), AGGREGATION_LITERATURE Sections
-  1/9/10, greyhound_params_spike.py (SLACK_MODELS + gamma_budget are
-  the arithmetic my lemma must ground or refute).
-- next: verify external sources (LaBRADOR 2022/1341 soundness section
-  — THE primary; Greyhound 2024/1293 soundness statement; PSS 2024/311
-  composition pattern; zksecurity LaBRADOR mechanics), then
-  AGGREGATION_SOUNDNESS_COMPOSITION.md sections (a)-(e), one commit
-  each, then scripts/slack_composition_spike.py.
-- working hypothesis to prove or kill (from the house documents alone,
-  pre-external-check): relaxation factors CANNOT compound in the
-  algebra (LS18 invertibility clears dc per level exactly mod q);
-  norm slack is re-grounded per level by the level's own norm check
-  (modular-JL projection or exact digit claims) — the compounded
-  reading corresponds to a chain with no per-level norm checks, which
-  ours is not. The conditional to nail: the modular-JL wrap window at
-  q31 (the huge-norm regime) and the FS/grinding accounting.
-- commits: (none yet beyond this section)
+- done: BOTH deliverables landed.
+  docs/zkmatrix-poc/AGGREGATION_SOUNDNESS_COMPOSITION.md — the O-7
+  composition doc: SC-L0..SC-L6 in Q4 transcription style, THE lemma
+  (SC-L4) proved by downward induction over the published skeleton
+  (LaBRADOR Thm 5.1 + Remark 5.2 + Lemma 3.7, PSS Thm 4.1/Eq 18,
+  Greyhound Thm 4.1 — all three ePrint PDFs READ IN FULL this session
+  via Wayback-archived copies; the bot check blocks live PDFs), house
+  constants substituted and spike-checked.
+  scripts/slack_composition_spike.py — 36/36 OK, <1 s, arithmetic +
+  MC only (says so in its header).
+- **VERDICT: O-7 SETTLES PER-LEVEL — the architecture stands; the
+  PARAMS 6.3 BaseFold boundary is NOT engaged.** Mechanism: (i)
+  relaxation factors clear ALGEBRAICALLY per level (LS18/C0'
+  invertibility — they never accumulate as algebra); (ii) every
+  level's extracted-witness norm is RE-GROUNDED by that level's own
+  norm statement (modular-JL Lemma 4.2 with its q/C1 window — margins
+  +5.8 bits min at DA's shapes — or exact-digit residue pinning at
+  slack exactly 1); (iii) one slack factor sigma per level enters
+  that level's MSIS bounds (Remark 5.2 / PSS Eq 18 "additional
+  slack"), never a product over depth; (iv) knowledge errors ADD,
+  linear in Q under FS (PSS). Compounded is the correct arithmetic
+  only for fold-only recursion, the NS22 garbage optimization under
+  FS, or broken-window levels — none ours; fenced by R-EB1/2/4.
+- four quantitative findings (all with fixes, none architecture-
+  fatal): (1) LaBRADOR's ct-aggregation term q^-ceil(128/31) =
+  2^-155 is MISSING from all house accounting and post-FS lands at
+  2^-87 — FAILS the target at q31 unless t >= 7 reps (+18-21 KiB) or
+  the K-draw restructure (~free, recommended) [R-EB3]; (2) the house
+  quinary set has NO op-norm cap and conc 20.8 is BELOW the true
+  op-norm median (MC p50 = 34.2) — extraction constants need a
+  sampled cap, T_cap = 33 at ~3 attempts/challenge [R-EB1]; (3) DA's
+  e = 8-10 floor bases give binding bounds beta_top up to 2^34.1 > q
+  (vacuous MSIS) — deep bases cap at e <= 7 [R-EB4]; (4) with all
+  corrections (kappa 10 -> 11), the branch preference INVERTS:
+  exact-digit is now cheaper AND cleaner (2^20: 259,904 B = 0.991x
+  PASS; FFN 1.081x) vs 512-JL (1.088x / 1.194x).
+- for the orchestrator: exports in doc 5.4 (R-EB1..R-EB4, freeze
+  rows, DA-table corrections to reconcile at FINAL — this lane did
+  not edit DA's doc); Phase 2.5 review list in doc 5.3 (SC-L4
+  transfer + SC-L6 first-written treatment at top); EA direction
+  note: dense re-encoding strictly WIDENS every margin here (~1.9
+  bits) — nothing in the lane resists D-1.
+- deliverable checkbox left for the orchestrator (GA precedent).
+- commits: 85442f1, 641798d, 7658390, 238b601, 7b2ea39, 27ded03,
+  c133ba8, 736d61c (+ this close-out).
 
 ## Log
 
