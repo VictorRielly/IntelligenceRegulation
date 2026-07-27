@@ -330,3 +330,272 @@ and this design does both. IA-O1-4 is hereby CONFIRMED as the layout
 (closing R-2); DA's Section 2.1 segment table amends to X 1 coeff/el,
 Y/UP/Z 1 coeff/el, lookup material as today — total T_data 22,041
 commits = 176,328 rings at FFN, 4,117 commits = 32,936 rings at 2^20.
+
+## 3. O-2: the reconciled closed-form byte model
+
+### 3.1 Reconciliation decisions (what changed vs DA's Section 5 and DB's Section 10, and why)
+
+R-8 left the two lanes' byte accountings un-merged. The reconciled
+model makes four decisions, each recorded so FINAL can audit them:
+
+- **R8-a (the merge line is one of DB's instances).** DA's skeleton
+  carried a separate "batch-merge sumcheck [MODEL]" line (dw·4
+  K-elements) for multi-point landing; DB's instance list carries "the
+  terminal batch sumcheck" (CR-L4, shared rounds). These are the SAME
+  object — the one point-family merge of R-3. The reconciled model
+  prices it ONCE, inside the per-instance transcript (Section 3.5
+  gives the point-family arithmetic DA's I-1 asked for).
+- **R8-b (instances priced individually).** DB's "+27-40 KiB [MODEL]"
+  band is replaced by per-instance arithmetic: rounds x on-wire
+  K-elements per round (degree-d sumcheck sends d evaluations per
+  round — the send-3 optimization, M4_LOOKUP_DESIGN 3.4) + 4 boundary
+  values per instance [MODEL]. Self-check B5 verifies the derived
+  complete-layer numbers land inside/near DB's band (25.1-29.6 KiB at
+  FFN dense — the low half of the band).
+- **R8-c (claim values from DB's entry count).** The claimed-value
+  wire line is DB 10.2's batch-entry count (one K value per entry;
+  100-170 at the complete layer, midpoint 135; ~48-68 at the ledger
+  unit, midpoint 60 [MODEL]) — replacing DA's "16 claims x 8 slots"
+  [both happen to land ~8 KiB at the complete layer; the agreement is
+  a coincidence of constants, not a derivation].
+- **R8-d (slot form priced as COMPLETED).** DA's slot rows carry no
+  packing-image apparatus and are therefore INCOMPLETE under DB's
+  reduction (the R-2 violation): the value claims (Hadamard, lookup
+  terminals) have no dense object to run on. The honest slot
+  configuration ("slot+image") adds the 6.3 apparatus: dense copies
+  of Y/UP/Z committed alongside the packed forms (+16,512 commits at
+  FFN), 3 packing-image sumchecks, +6 entries. DA's as-priced rows
+  appear only as the A2 self-check baseline.
+
+Two statement SCOPES are priced, because the two lanes silently used
+different ones:
+
+- **ledger-unit** — the PROOF_BYTE_LEDGER Section 1/2 statement (one
+  activation tensor, SiLU lookup + Hadamard, arm A): the 18.59-GiB
+  baseline's unit and the unit DA's tables actually priced (no matmul
+  instances exist in that statement). Instances: Hadamard zero-check
+  + terminal batch (+ packing-image x3 at slot+image).
+- **complete-layer** — TARGET_CONTRACT Section 1's workload (3
+  matmuls + Hadamard + SiLU + requant edges + range arm): DB's 10.1
+  instance list and R1's honest target. Adds 3 matmul sumchecks
+  (degree 2; 12+12+14 rounds), 1-2 requant zero-checks, and the
+  range-arm table descent (28 rounds), with the range-arm WITNESS side
+  assumed to rho-share the SiLU witness descent [MODEL — risk D-R1].
+
+### 3.2 The closed form
+
+In ledger unit-cost style (widths from PROOF_BYTE_LEDGER Section 0;
+kappa = 10, two super-commitments; 512-row JL in the per-level
+config):
+
+    bytes = 4,096                                   (statement, v3)
+          + 2 · (4 + kappa·516)                     (outer identities u)
+          + kel(dw, dt) · 64                        (masked descent pair, I-8)
+          + [ sum_inst rounds_i · deg_wire_i · 64
+              + 4·64 · n_inst ]                     (NEW instance transcript, R8-b)
+          + stop_level · 7,220 + 1,024·(stop_level−1)   (eval-proof level msgs + 512-JL)
+          + n_L · 128 · ceil((e_L+1)/8)             (final bare witness)
+          + n_entries · 64                          (batch-entry claimed values, R8-c)
+          + 2,048                                   (framing [MODEL])
+
+with the level schedule from the value-width-aware recursion
+(`schedule2`) at the Section 2.4 encoding. Every constant is a ledger
+width, a DA-derived shape, or a DB count; [MODEL] items: boundary/
+framing constants, entry midpoints, the rho-sharing assumption.
+
+### 3.3 The tables
+
+**FFN 512x11008, per-level + 512-row JL, both encodings, both scopes**
+(spike-printed; exact-digit variants in the verdict list below):
+
+| component | slot+image, ledger-unit | dense, ledger-unit | slot+image, complete | dense, complete |
+|---|---:|---:|---:|---:|
+| statement (v3) | 4,096 | 4,096 | 4,096 | 4,096 |
+| 2 outer identities (kappa = 10) | 10,328 | 10,328 | 10,328 | 10,328 |
+| masked descent pair (dw 24 + dt 9) | 105,664 | 105,664 | 105,664 | 105,664 |
+| NEW sumcheck transcript | 21,632 (5 inst) | 9,728 (2 inst) | 42,240 (11 inst) | 30,336 (8 inst) |
+| eval proof: level msgs (incl. JL) | 64,928 (8) | 48,440 (6) | 64,928 (8) | 48,440 (6) |
+| eval proof: final bare witness | 77,568 (606 rings) | 82,688 (646 rings) | 77,568 | 82,688 |
+| batch-entry claimed values | 4,224 (66) | 3,840 (60) | 9,024 (141) | 8,640 (135) |
+| framing [MODEL] | 2,048 | 2,048 | 2,048 | 2,048 |
+| **TOTAL** | **290,488 = 1.11x** | **266,832 = 1.02x** | **315,896 = 1.21x** | **292,240 = 1.11x** |
+
+**The delta table** (dense vs completed slot form — the D-1 bytes
+verdict):
+
+| shape | scope | slack model | slot+image | dense | delta |
+|---|---|---|---:|---:|---:|
+| 2^20 | ledger-unit | per-level | 263,108 (1.00x) | **242,128 (0.92x PASS)** | −8.0% |
+| 2^20 | ledger-unit | exact-digit | 275,524 (1.05x) | 256,208 (0.98x PASS) | −7.0% |
+| FFN | ledger-unit | per-level | 290,488 (1.11x) | **266,832 (1.02x)** | −8.1% |
+| FFN | ledger-unit | exact-digit | 300,600 (1.15x) | 280,324 (1.07x) | −6.7% |
+| FFN | complete-layer | per-level | 315,896 (1.21x) | **292,240 (1.11x)** | −7.5% |
+| FFN | complete-layer | exact-digit | 326,008 (1.24x) | 305,732 (1.17x) | −6.2% |
+
+With the digit bit-packing lever (DA's lever 2, R4 codec extension
+[MODEL]; the packed stop-scan sometimes prefers a different stop):
+2^20 dense exact-digit 237,584 (0.91x), FFN dense exact-digit ledger-
+unit **262,544 (1.0015x — 400 B over the line)**, FFN dense complete
+exact-digit 287,952 (1.10x); zero gain at the per-level optima (their
+stops are already byte-aligned).
+
+### 3.4 Cross-check against DA, and the named divergences
+
+Where configurations overlap, the spike reproduces DA's numbers
+EXACTLY (self-check A2: all six recorded totals, 252,868 ..
+41,593,548, from DA's own functions). The reconciled rows then differ
+from DA's for exactly three audited reasons: (i) R8-a/b/c replace
+DA's two [MODEL] lines (−13,568 B at 2^20) with the per-instance
+transcript + entries (+13,024-23,552 B depending on scope/encoding);
+(ii) R8-d adds the 6.3 apparatus to slot rows; (iii) the dense rows
+use the Section 2.3 schedules. Net headline shifts vs DA Section 5.2:
+
+- DA's 2^20 PASS at 0.96x becomes **1.00x OVER at completed slot form
+  — and 0.92x PASS at dense**: the R-2 finding was not cosmetic; the
+  honest reconciliation consumes DA's whole 9.3 KiB margin unless the
+  encoding flips.
+- DA's FFN 1.04-1.06x becomes 1.11x (slot+image) / **1.02x (dense)**
+  at the DA-comparable ledger-unit scope: dense buys back almost
+  exactly what the honest transcript accounting costs.
+
+Named model risks (each a sensitivity line in the spike):
+
+- **D-R1 (range-arm sharing).** The complete-layer rows assume the
+  range arm's witness descent rho-shares the SiLU witness descent
+  (same depth class, table-agnostic layer relation — the M4 Section 5
+  batching pattern extended across tables [MODEL]). If it cannot, the
+  worst case is a second full pair: +105,664 B -> 1.52x. DB's 10.1
+  lists the range pair at "~same pair" rounds while its +27-40 KiB
+  band cannot contain one — the tension is resolved here by the
+  sharing assumption and is an explicit build-round verification item.
+- **D-R2 (eval-proof count).** DB 10.2 allows "up to 3" eval proofs.
+  Each extra proof at this shape's schedule costs ~136 KiB —
+  budget-fatal. ONE batched opening across every claim domain
+  (activations + aux + weights if committed + T_blind) is therefore
+  load-bearing, which requires all committed domains to share the
+  two-tier geometry so the cross-commitment nu-RLC (CR-L4b) folds
+  them into one opening — obligation E-O2. Under IA-O1-5's
+  weights-committed reading the weight domain joins the same batch;
+  its dense int8 rings (~1.06e6 at FFN) would still fold into a
+  witness 2x SMALLER than today's slot-form activations alone.
+- **Entry/requant band.** DB's count bands move the FFN dense
+  complete-layer total 285,328-294,480 B (1.09-1.12x) — the verdict
+  is band-stable.
+
+### 3.5 Point-family arithmetic (DA I-1, closed)
+
+DA priced each point family beyond the first at 5.4-6.1 KiB and
+flagged >~4 as eroding the line. From DB's ACTUAL instance list: every
+terminal (9 matmul + 3 Hadamard + ~6 lookup + pins + requant) merges
+in the ONE terminal-batch sumcheck (CR-L4a/b shared rounds), which is
+priced at 4,800-5,568 B (25-29 rounds x 3 K-el x 64 B) — inside DA's
+per-family price. Point families beyond it: **zero**. I-1 is
+therefore SATISFIED BY CONSTRUCTION in the reconciled model; the
+"family count" knob DA worried about does not exist post-reduction —
+what exists is the batch sumcheck's round count, which scales with
+log(committed coefficients) and is already in the tables.
+
+### 3.6 Verifier, prover, knowledge error at the recommendation
+
+[MODEL], DA's accounting run on the dense schedules (spike-printed):
+verifier 0.029 s (2^20) / 0.060 s (FFN) single-threaded vs DA's slot
+rows 0.18 / 0.93 s — the R2 headroom at FFN goes from 2.2x to 33x,
+and the level-1 statement pass stops being the dominant term; prover
+commit-path marginal +0.2 us/el (+0.03% of whole-prove) vs +25.6
+us/el (+4%) at slot form — O-6's inherited number; knowledge error
+unchanged in class: post-FS 2^-211 [MODEL] (512-row JL, PSS-style
+linear-in-Q loss), 2^-217-class exact-digit.
+
+## 4. The pass-vs-layer budget scope
+
+### 4.1 What TARGET_CONTRACT's text actually pins
+
+The budget sentence (TARGET_CONTRACT.md Section 4): "**Proof size
+budget: <= 256 KB serialized**", sitting under "Hardware, statistics,
+and budgets" for the headline claim, whose workload (Sections 1/3) is
+the 32-block FFN surrogate at T = 512 prefill — ONE proof whose clock
+"stops when the serialized proof bytes exist". Three textual anchors,
+none of them a per-layer reading:
+
+1. The proof of the claim is the proof of the WORKLOAD — 32 blocks
+   under one statement (Section 5's "multi-layer chaining (32 blocks
+   under one statement)" row is the missing piece named by the
+   contract itself). Nothing in the text scopes the byte budget to a
+   sub-unit of that statement.
+2. The TIGHTNESS FLAG in the same section prices "the masked lookup
+   transcript alone ... 150 KB" against the budget — and that figure
+   is the PER-PASS LKP-7 row ("masked transcript 150 KB/pass",
+   Section 5). The contract's own arithmetic treats a per-pass object
+   as pressing against the 256 KB line.
+3. The verifier budget in the same bullet list ("<= 2 s ... statement
+   validation included") is unambiguously per-proof = per-pass; the
+   byte budget sits in the same list with the same grammar.
+
+Against that: the per-LAYER reading exists only downstream — the
+ledger's Section 3.1 allocation ("this allocation holds for ONE layer
+statement", explicitly a PROPOSAL) and the U-AG-B1 gate spec (Tier B
+asserts the layer number and "prints the pass number against the
+recorded budget scope decision" — i.e. the ledger itself records the
+scope as UNDECIDED and the pass number as mandatory output). R1
+requires "the 32-layer-pass number also stated and the budget's
+pass-vs-layer scope decided and recorded".
+
+**Reading: the contract text pins the budget to the PASS.** The
+per-layer number is an engineering waypoint the repo invented for
+tractability — legitimately, but it is not what Section 4 says.
+[This is a textual finding, not a preference; the counter-argument —
+that Section 4's budget was written when "proof" loosely meant the
+per-layer artifacts then being modeled at "~120-170 KB" — is
+recorded for FINAL, but the 150-KB/pass tightness flag already reads
+the budget per-pass IN the contract.]
+
+### 4.2 The 32-layer numbers under this model
+
+| configuration | per-layer | x 32 (pass) | vs 262,144 B per-pass |
+|---|---:|---:|---:|
+| dense, per-level, complete-layer | 292,240 B | 9,351,680 B = 8.92 MiB | 35.7x |
+| slot+image, per-level, complete-layer | 315,896 B | 10,108,672 B = 9.64 MiB | 38.6x |
+
+(DA's 8.5-8.9 MiB pass estimate is reproduced in class; the honest
+reconciled number is at its top edge.)
+
+### 4.3 The pass levers, priced
+
+The ~2x-class levers DA/GA flagged, evaluated against the 35.7x gap:
+
+| lever | owner | worth (per pass) | note |
+|---|---|---:|---|
+| statement sharing (one v3 statement for the pass) | build round | −31 x 4 KiB = −124 KiB | real, small |
+| digit bit-packing (DA lever 2) | R4 codec ext | 0 to −18 KiB/layer | config-dependent; zero at per-level optima |
+| descent-side compression / dw reduction | GKR engine (I-8) | the descent pair is 105.7 KiB/layer = 36-40% of every artifact | the single biggest line; any improvement moves layer AND pass one-for-one |
+| cross-layer folding of descents + openings (family (b)) | **O-8** | −31 descent pairs − 31 eval proofs ~ −7.3 MiB | THE pass mechanism |
+
+**The O-8 floor, computed honestly:** even with ONE descent pair and
+ONE eval proof for the whole pass (perfect folding of the heavy
+lines), the 32 per-layer instance transcripts + entries alone are
+32 x 38,976 B = 1,247,232 B -> pass floor ~1,500,496 B = **5.7x** the
+per-pass budget [MODEL]. Conclusion the FINAL needs: under the
+per-pass reading, the (b) accumulator must fold the sumcheck
+INSTANCES themselves (one folded transcript for 32 layers), not just
+the openings — that is precisely the folding-design scope (Nova-class
+claim accumulation over the house engine) that PROGRESS_UAG3.md
+defers to the next round. No lever priced this round closes the pass
+gap; nothing here contradicts the feasibility of instance folding
+(the layers are structurally identical — the best possible case for
+an accumulator), but it is undesigned.
+
+### 4.4 Recommendation
+
+**Recommendation to FINAL (not adopted here):** adopt the PER-PASS
+reading as the contract's binding interpretation — the text supports
+no other honest reading (4.1) — and simultaneously: (a) keep the
+per-layer 262,144 B line as the U-AG-B1 Tier-A/B engineering gate
+(the ledger's proposal, now with the scope recorded as decided);
+(b) declare O-8 (cross-layer folding: descents + eval proofs +
+INSTANCE accumulation) MANDATORY on the target path, per the O-8
+interaction recorded in 4.3 — U-AG4 should be the folding design
+round; (c) any public statement of "proof size" before O-8 lands must
+say "per layer, 32 needed per pass" — the TARGET_CONTRACT honesty
+pattern. If FINAL instead adopts the per-layer reading, the contract
+text should be AMENDED to say so explicitly (one sentence in Section
+4), because as written it does not.
