@@ -598,3 +598,149 @@ what makes the per-level q31 point the most expensive; still far
 inside the >10x H-05 re-break line. O-6 owes the full model (this is
 the commit-path term only; the retired per-wave BDLOP commits and
 Sigma rounds come OFF the bill and are not credited here).
+
+## 6. (e) The verdict
+
+### 6.1 O-1 verdict row
+
+**O-1 CLOSES-AT-THE-LINE, conditional — the BaseFold fallback is NOT
+triggered.** The family-(c) architecture is viable at OUR ring at the
+following parameter point (the recommendation):
+
+> D = 128, q31 = 2,147,483,249; quinary challenge set C (|C| =
+> 2^297.2), full-entropy R_q aggregation challenges; two global
+> super-commitments (T_data + T_blind), two-tier Ajtai with kappa = 10
+> (k_Z = 1,188 via the C3 line; top MSIS 132.1-140.0 bits [core-SVP]),
+> 16-ring ternary hiding tails (MLWE 193.3 bits, ESTIMATOR_NOTE's
+> measured row); level-0 split m1 = 2,003/4,645 x m2 = 201/465
+> (2^20/FFN), digit base e0 ∈ {1..4} pinned by the norm budget;
+> 7-9 adaptive-base LaBRADOR levels to a ~500-620-ring floor; sound
+> knowledge configuration = per-level slack + 512-row JL (or the
+> exact-digit variant); independent-quinary claim batching per
+> Section 4.
+
+At that point: **2^20 layer artifact 252,868 B = 0.96x budget (PASS);
+FFN layer 272,824-289,080 B = 1.04-1.10x (OVER by 4-10%); verifier
+0.14-0.93 s (PASS, 2.2x headroom at worst); prover +2-4%;
+post-FS knowledge error 2^-211/-217 [MODEL].**
+
+### 6.2 Claim grades
+
+| claim | grade |
+|---|---|
+| ring/challenge constants, C2/C3 chain reuse | [PROVEN] against source; 15 spike anchors |
+| old C2 cap = 134 and its eviction at the global shape | [PROVEN] arithmetic (spike-reproduced) |
+| batching lemma over 8 slots (4.1) | [PROVEN], extractor composition [OBLIGATION] |
+| level norm chains, gamma_z, adaptive schedules | [MODEL] (concentration + restart discipline, house Q4 surcharge owed) |
+| MSIS bits at derived shapes | [MODEL] (core-SVP floor; native-estimator rerun welcome, ESTIMATOR_NOTE Section 8 pattern) |
+| slack composition per-level | [OBLIGATION] — THE O-7 lemma (Section 3.4) |
+| JL constants (2^-141 / ~2^-282) | [MODEL — paper constant unconfirmed this session] |
+| FS loss linear-in-Q (PSS pattern) | [MODEL] |
+| byte tables, verifier/prover models | [MODEL] (constants cited per line) |
+
+### 6.3 The fallback boundary, stated precisely
+
+The recorded fallback trigger (PROGRESS_UAG2.md: "if O-1 fails at
+D=128/q31 ... family (d) via concrete BaseFold pricing") is NOT pulled,
+because the architecture closes at the 2^20 shape and misses FFN by
+4-10% with non-architectural levers named. It WOULD be pulled by the
+following precise event, and only by it:
+
+> **O-7 proves the slack composition COMPOUNDED (per-level lemma
+> unprovable) AND the exact-digit variant fails to integrate** (the
+> deterministic digit range claims cannot replace JL in the level
+> loop). Then at q31 the layout admits exactly ONE fold level
+> (gamma_max(L=2) = 2^19.02 < gamma_z^min = 2^20.88), the artifact
+> floor is 41.6 MB (158.67x), q46 does not rescue bytes (1.35x even
+> in the benign reading), and family (c) is dead at our ring — at
+> which point BaseFold pricing (AGGREGATION_LITERATURE Section 8
+> runner-up) activates.
+
+Also recorded, not a trigger: if the FFN-scale hard gate must be
+strictly <= 262,144 B with no descent-side movement and no codec
+extension, the sound frontier misses by 4-10% and the budget's
+allocation (ledger 3.1: "U-AG2 may rebalance ... the TOTAL may not
+move") cannot absorb it — closure then depends on the Section 5.2
+levers, which belong to O-2/O-8/DB, not to more parameter tuning here.
+
+### 6.4 Obligations exported (for O-7 and the tranche ledger)
+
+1. The slack-composition lemma (per-level vs compounded) for the
+   Greyhound-level + L LaBRADOR-level chain, PSS-style, Q4_LEMMAS
+   transcription [the load-bearing one].
+2. Extractor for the batched-claim round (4.4).
+3. Q4-style transcription of the concentration/restart surcharge for
+   the new folds (3.1).
+4. Exact-digit-variant protocol plumbing, if selected (3.5).
+5. JL constants confirmed against the LaBRADOR paper once accessible
+   (3.5); 512-row projection soundness written down.
+6. O-4: simulator + battery analogue on the Section 2.5 layout; the
+   no-Gaussian-mask constraint (2.4 item 1) is its hard input.
+
+## 7. Interface assumptions for O-3 (Agent DB / orchestrator reconcile)
+
+- **I-1 (points):** all claim classes land as MLE evaluations at ONE
+  common point r ∈ GF(q^16)^dw (or minimally few; each extra point
+  family costs a 5.4-6.1 KiB merge block and >~4 erodes the line).
+- **I-2 (segments):** tensors are addressed as segments of T_data via
+  index bits; encodings as in Section 2.1 (X 1 coeff/el; Y/UP/Z slot
+  form 16 coeff/el; lookup material as today). DB to confirm no claim
+  class needs per-tensor commitments.
+- **I-3 (slot-complete checks):** every batched claim is checked in
+  all 8 slots — binding, from the 4.1 lemma; slot-sampling designs
+  are unsound at this ring.
+- **I-4 (weights):** batching weights are independent quinary ring
+  challenges (per-slot-injective); DB's reduction must tolerate
+  ring-challenge (not field-scalar) weights.
+- **I-5 (linear interface):** the eval layer serves LINEAR MLE claims
+  only; quadratic structure (Hadamard, committed-executions gate) must
+  be sumcheck-reduced BEFORE the commitment interface — the GKR engine
+  owns products, Greyhound owns evaluations.
+- **I-6 (no Gaussian masks):** no claim reduction may assume a masked
+  (rejection-sampled) opening anywhere in the aggregate layer —
+  derived impossible at q31 (Section 2.4). ZK rides T_blind + masked
+  sumcheck only.
+- **I-7 (q46 residue):** the q31 global commitments serve q31-resident
+  material only; any surviving q46 range/bit-plane material keeps its
+  own wire (U-L link class) and is NOT priced in Section 5 — DB's
+  reduction table must say what survives at q46, and its bytes join
+  the O-2 model as a new line.
+- **I-8 (descent shape):** Section 5 assumes ONE masked descent pair
+  (dw 21/24 + dt 9) as today's ledger shape; if DB's reduction changes
+  dw or adds descents, the 39%-line moves one-for-one.
+
+## 8. References
+
+1. Nguyen, Seiler. "Greyhound: Fast Polynomial Commitments from
+   Lattices." CRYPTO 2024, ePrint 2024/1293 — abstract page verified
+   this session (53 KB @ N = 2^30, O(sqrt N) verifier,
+   LaBRADOR-composed). PDF behind bot-check this session.
+2. Beullens, Seiler. "LaBRADOR." CRYPTO 2023, ePrint 2022/1341 —
+   abstract page verified this session (58 KB @ 2^20 R1CS).
+3. AGGREGATION_LITERATURE.md Section 10 refs used without
+   re-verification [S10]: PSS (ePrint 2024/311), ZK toolkit (ePrint
+   2026/1289), Orthus (ePrint 2026/398), LaZer (ePrint 2024/1846).
+4. zksecurity, "Proofs On A Leash: Post-Quantum Lattice SNARK With
+   Greyhound" (D. Wong, 2025-06-03) — protocol structure: matrix
+   layout, w/z messages, verifier equations, outer commitment,
+   LaBRADOR embedding. Read in full this session.
+5. zksecurity, "Playing with LaBRADOR" (G. Raikos, 2025-11-13) —
+   recursion mechanics: principal relation, amortized opening, g/h
+   garbage, outer commitments u1/u2, modular-JL norm check with
+   sqrt(128/30) slack and the sqrt(30)/sqrt(337) window, z 2-part
+   decomposition, r ~ cbrt schedules, 6-7 levels in practice, d = 64.
+   Read in full this session.
+6. zksecurity, "Soundness Failures in LaBRADOR Implementations from
+   NTT-Friendly Rings" (G. Raikos, 2026-04-30) — three implementations
+   broken by small CRT slot fields (1-31 bits of soundness); the
+   external confirmation for Section 3.6. Read in full this session.
+
+---
+
+*Changelog: 2026-07-27 — first edition (U-AG2 DA lane). Run 1 crashed
+mid-derivation (API drop, zero commits lost the doc; spike survived);
+run 2 resumed from the spike, fixed its depth-loop bug (the 21-159x
+"verdict" of the interim table was an artifact of recursion capped at
+one level), added the g-garbage term and byte-optimal stop bases, split
+the FS accounting by JL configuration, and wrote this document against
+the corrected 15/15-anchored spike output.*
