@@ -104,23 +104,48 @@ Units (commit after each):
       carries ANY ZK measure; the composed proof's cleartext tail
       (JL projections + final bare witness) is a deterministic
       witness image — the surface-3 analysis will center on it.
-- [ ] U2: AGGREGATION_ZK_DESIGN.md Sections 0-1 (scope + leakage
+- [x] U2: AGGREGATION_ZK_DESIGN.md Sections 0-1 (scope + leakage
       inventory, JL + exact-digit variants, encoding-parametric rows)
-- [ ] U3: Section 2 (Surface 1: mask-budget extension to
+- [x] U3: Section 2 (Surface 1: mask-budget extension to
       matmul/Hadamard/packing instances vs T_blind [MODEL])
-- [ ] U4: Section 3 (Surface 2: terminal blinding — aggregate-only-pin
+- [x] U4: Section 3 (Surface 2: terminal blinding — aggregate-only-pin
       generalized; I-1/I-4 interaction)
-- [ ] U5: Section 4 (Surface 3: eval-proof ZK under I-6 — toolkit vs
+- [x] U5: Section 4 (Surface 3: eval-proof ZK under I-6 — toolkit vs
       house pads DECIDED with reasons; costs to O-2)
-- [ ] U6: Section 5 (the SIMULATOR, WSMD Sec-3 style, graded; the
+- [x] U6: Section 5 (the SIMULATOR, WSMD Sec-3 style, graded; the
       fold-round FS-ordering lemma extending WSMD 3.4)
-- [ ] U7: Section 6 (R3 battery analogue SPEC) + Section 7 (verdict,
+- [x] U7: Section 6 (R3 battery analogue SPEC) + Section 7 (verdict,
       exports/imports for EA, honest scope)
-- [ ] U8: scripts/aggregation_zk_spike.py (self-checking N/N OK) +
+- [x] U8: scripts/aggregation_zk_spike.py (self-checking N/N OK) +
       output recorded in the doc
-- [ ] U9: final report to orchestrator; ledger updated
+- [x] U9: final report to orchestrator; ledger updated
 
-Log: (per-unit notes below)
+Log:
+- 2026-07-27 (U2-U7): AGGREGATION_ZK_DESIGN.md complete (Sections
+  0-8). Lane verdict: O-4 design-CLOSES surfaces 1-2 and surface 3's
+  committed internals; PRECISE GAP at the eval-proof floor — the
+  final bare witness (~2^16.3 base coords/proof) is a deterministic
+  witness image, unmaskable (norm-or-byte dead: masked response
+  256-700 KB vs 79,872 B bare) and unsanitizable (the digit wall,
+  AZ-T1) at q31 under I-6 + the byte budget. Toolkit 2026/1289
+  REJECTED at tensor scale (in-ring hits the I-6 eviction; out-of-
+  ring hits CR 12.2's cross-modulus wall or q46's 1.35x). ZK-mandated
+  config = EXACT-DIGIT (deletes the JL cleartext class; +10,112 B at
+  FFN). New lemmas AZ-L1a/b (Q4.7 extension incl. shared-challenge
+  joint counting), AZ-L2a/b (selector-extension terminal blinding),
+  AZ-L3 (floor-leak characterization), AZ-L4 (fold-round FS
+  ordering); obligations AZ-O2 (joint rank, the one closure-
+  threatening leg), AZ-O4, AZ-O5; battery spec AZB-1..9
+  (confinement, not denial). Non-ZK deployment label + one-proof-
+  per-witness rule proposed as freeze-row candidates. NEW for D-1:
+  dense re-encoding worsens the residual-leak ratio ~1-2 orders (the
+  privacy axis of the encoding decision). E4 (budget relief to
+  ~450-500 KiB) is the only currently-actionable full-ZK path.
+- 2026-07-27 (U8): aggregation_zk_spike.py landed — 14/14 OK, ~0.6 s,
+  stdlib, GF(q31). Two of its certificates caught real drafting bugs
+  (eq-kernel truthiness, mask-constant redundancy) — recorded in the
+  doc's Section 8 notes.
+- 2026-07-27 (U9): lane COMPLETE; checkbox for the orchestrator.
 
 ## Log
 
