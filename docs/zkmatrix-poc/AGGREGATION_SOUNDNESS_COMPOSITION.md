@@ -917,3 +917,149 @@ this extractor.
   extraction constants use T_cap worst-case (no concentration claim
   to transcribe on the adversarial side), and the honest-side
   restart discipline stays Q4.1(i) with no soundness surcharge.
+
+## 5. (e) Verdict, grades, and what remains
+
+### 5.1 The verdict row, against AGGREGATION_PARAMS_DESIGN 6.3
+
+**PER-LEVEL HOLDS — the architecture stands; the BaseFold fallback
+boundary is NOT engaged.** By SC-L4 (cite: this document Section
+2.1), on the four conditions:
+
+> **C-alg** (LS18 difference invertibility — house C0', already
+> freeze-checked); **C-ground** (every level re-grounds: modular-JL
+> with window, or exact-digit residue pinning — DA's two sound
+> configurations are exactly the two branches); **C-cap** (operator-
+> norm-capped fold AND batching challenge sets — NEW design rule
+> R-EB1, build-round item, spike-measured cap candidates); **C-msis**
+> (>= 128-bit MSIS at the Section 2.1 per-level bounds with the
+> CORRECTED constants — satisfied at kappa = 11, was kappa = 10).
+
+DA's recommended parameters SURVIVE in structure and land with these
+adjustments: kappa 10 -> 11 (+~5-7 KiB class across the artifact);
+the 512-row-JL configuration additionally needs R-EB3 (ct-
+aggregation sizing: t >= 7, +18-21 KiB, OR the K-draw restructure at
+~zero bytes [OBLIGATION]); the exact-digit configuration needs
+neither and is now the soundness-preferred branch (fewest [MODEL]
+flags), with its byte premium unchanged (DA 5.2). 2^20 layer stays
+PASS; the FFN overage moves from 1.04-1.10x to the ~1.06-1.12x class
+before EA/O-2 levers — the sign at FFN scale remains the O-2/D-1
+discussion, exactly as DA left it. The compounded reading is
+REFUTED for our chain as designed (Section 2.2) — it is the correct
+arithmetic only for three specifically-excluded design variants, and
+R-EB1/R-EB2 + the C-win freeze rows are the standing fence. The
+fallback trigger of PARAMS 6.3 ("O-7 proves compounded AND
+exact-digit fails to integrate") is therefore NOT pulled on either
+horn: the composition is per-level, and the exact-digit branch is
+not only integrable but the most robust configuration.
+
+### 5.2 Claim grades
+
+| claim | grade |
+|---|---|
+| SC-L0 algebraic clearing | [PROVEN] (house L1) |
+| SC-L1 one-level extraction at house constants | [CITED] strategy ([LaB] App. B) + [PROVEN] substitutions, conditional on C-cap |
+| SC-L2 modular JL + window arithmetic at q31 | [CITED] lemmas (heuristic per [PSS]) + [PROVEN] window check; 512-row constants [CITED] to [PSS] jl.py |
+| SC-L3 exact-digit residue pinning | [PROVEN] mechanism; plumbing [OBLIGATION] |
+| SC-L4 THE composition lemma | [PROVEN] as composition of [CITED] skeleton + house substitutions; the at-our-ring transfer is this document (review target) |
+| SC-L5 PSS/FS transfer | [CITED] + [PROVEN] conditions 1/3/4; R-EB1 [OBLIGATION] |
+| missing ct-aggregation term + R-EB3 sizing | [PROVEN] arithmetic (the term is in [LaB]'s protocol and [PSS]'s Eq. 18; only its q31 size is news) |
+| post-FS table constants | [MODEL] (cited constants, spike-checked sums; Q-conv flagged) |
+| SC-L6 batching extractor | [PROVEN] on SC-L4/L5's conditions; FIRST WRITTEN treatment — priority review target |
+| corrected per-level constant + kappa = 11 + byte deltas | [MODEL] (spike tables; MC cap distribution) |
+
+### 5.3 What remains for the standing independent review (REMEDIATION_PLAN Phase 2.5)
+
+Listed explicitly, in priority order:
+
+1. **SC-L4's transfer** — the composition at k = 8 / GF(q^16) /
+   quinary C is the "first of its shape" object (AGGREGATION_
+   LITERATURE Section 9's gap); the skeleton is published, the
+   instantiation is ours. A reviewer should check the induction
+   step's two-channel claim (Section 2.1 step (i)/(ii)) against
+   [LaB] Appendix B directly.
+2. **SC-L6** — first written anywhere; both hypotheses (FS ordering,
+   slot completeness) and the no-forking argument deserve hostile
+   reading.
+3. **The heuristic JL constants** ([PSS] Lemma 2.2 is flagged
+   heuristic by its own authors; C1/C2 at lambda = 256 come from
+   their jl.py) — either re-run their script at our parameters at
+   build time [OBLIGATION] or prefer the exact-digit branch, which
+   removes this item entirely.
+4. **R-EB1's cap** — the MC operator-norm distribution (spike) is
+   sampling evidence, not a tail proof; the cap needs a freeze row
+   and a measured honest resampling rate at build time.
+5. **Q-conv / X-run** (Section 3.3) — the house's Q = 2^64 charging
+   vs the field's Q = 0 extractor-runtime convention; a reviewer
+   should bless one posture.
+6. **Wayback-vs-live source identity** — re-verify the three PDFs
+   against live ePrint when the bot check lifts (Section 0.2 note).
+
+### 5.4 Exports
+
+**To the orchestrator/ledger (design rules, all build-round):**
+- **R-EB1**: operator-norm cap T_cap on fold AND batching challenge
+  sampling (resample-until-under; freeze T_cap + honest rate).
+  Spike MC: T_cap = 25-26 costs percent-level resampling at D = 128.
+- **R-EB2**: no [NS22]-style garbage-count optimization at any
+  recursed level under FS ((T_op)^r slack, [PSS] I.6); bare last
+  level only, or add the second amortized opening.
+- **R-EB3**: ct-aggregation sizing t >= 7 at q31, or the K-draw
+  restructure (recommended; plumbing owed).
+- **Freeze rows**: C-win per level (sigma·beta_i <= q/C1); T_cap;
+  t; kappa = 11.
+- **Corrections to DA's tables** (PARAMS 3.3/3.4/3.5/5.2/6.1):
+  kappa 11, the corrected per-level constant, the corrected JL error
+  constants, the R-EB3 line item; DA's verdict language survives,
+  his margins move as Section 2.4/3.3 state. The orchestrator
+  reconciles the two documents at FINAL (this lane does not edit
+  DA's).
+
+**To EA (D-1 direction note, derived-at-DA's-parameters honored):**
+dense re-encoding of Y/UP/Z (~13x fewer committed rings) shrinks
+n_0, hence m2 and every r_i, hence: the fold error terms
+(21·r_i·2^-297) shrink ~linearly; recursion depth L drops by ~1-2
+levels (fewer Eq.-18 summands, fewer R-EB3 objects, fewer C-win
+rows); gamma_z drops ~sqrt(13) ~ 1.85 bits, WIDENING the C-win and
+beta_top margins by the same ~1.9 bits — i.e. **every margin this
+document computed gets strictly easier under EA's dense encoding;
+nothing here resists it.** No statement in Sections 1-4 depends on
+the slot-form encoding.
+
+## 6. References
+
+1. Beullens, Seiler. "LaBRADOR: Compact Proofs for R1CS from
+   Module-SIS." CRYPTO 2023; ePrint 2022/1341 — READ IN FULL this
+   session via Wayback-archived PDF (Section 0.2 route note).
+   Load-bearing: Lemma 3.7, Lemmas 4.1/4.2, Thm 5.1, Remark 5.2,
+   Sections 5.2-5.6, Appendix B, Section 6.
+2. Aardal, Aranha, Boudgoust, Kolby, Takahashi. "Aggregating Falcon
+   Signatures with LaBRADOR." CRYPTO 2024; ePrint 2024/311 — READ
+   (soundness machinery in full) this session, same route.
+   Load-bearing: Def 3.1, Lemma 2.2 (+ jl.py constants), Thms 4.1/
+   4.2/I.1/G.1 (existence), Eq. (18), Appendix I.5/I.6.
+3. Nguyen, Seiler. "Greyhound: Fast Polynomial Commitments from
+   Lattices." CRYPTO 2024; ePrint 2024/1293 — soundness sections
+   read this session, same route. Load-bearing: Lemma 3.2, Thm 4.1.
+4. House: SOUNDNESS_REFERENCE.md (L1/L2, 2.2), Q4_LEMMAS.md (Q4.1,
+   Q4.4a-c — the style template and the house precedent for
+   JL-composition honesty), AGGREGATION_PARAMS_DESIGN.md (DA),
+   AGGREGATION_CLAIM_REDUCTION.md (DB), AGGREGATION_LITERATURE.md
+   (Sections 1, 9), params.rs / mod.rs (constants, verified
+   2026-07-27).
+5. [GHL21] Gentry, Halevi, Lyubashevsky — cited THROUGH [LaB]
+   (their Corollaries 3.2/3.3 as restated in [LaB] Lemmas 4.1/4.2);
+   not independently retrieved this session [S10-style flag].
+6. [NS22] Nguyen, Seiler (CRYPTO 2022 amortization) — cited THROUGH
+   [LaB] App. B and [PSS] I.6; not independently retrieved.
+
+---
+
+*Changelog: 2026-07-27 — first edition (U-AG3 Agent EB lane). Written
+against DA's published parameter chain at 5d6c6f1; primary sources
+retrieved and read in-session (Wayback route); spike landed in the
+same tranche. The three-readings question of PARAMS 3.4 is settled
+PER-LEVEL with named conditions; two new quantitative findings along
+the way: the ct-aggregation term missing from all house accounting
+(Section 3.2, with the R-EB3 fix) and the uncapped-challenge-set gap
+in the extraction constants (Section 1.3, with the R-EB1 fix).*
