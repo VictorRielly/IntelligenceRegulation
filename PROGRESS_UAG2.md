@@ -58,8 +58,14 @@ Standing constraints (inherited, non-negotiable):
 
 - [ ] DA: AGGREGATION_PARAMS_DESIGN.md + greyhound_params_spike.py —
       O-1 discharged or precisely failed; O-2 skeleton.
-- [ ] DB: AGGREGATION_CLAIM_REDUCTION.md + claim_reduction_spike.py —
+- [x] DB: AGGREGATION_CLAIM_REDUCTION.md + claim_reduction_spike.py —
       O-3 reduction table complete; walls surfaced; O-4 inputs.
+      DONE 2026-07-27, merged 740152c (orchestrator-reviewed: spike
+      re-run 25/25; CR-L2's number-theoretic hinge — q ≡ 113 mod 256,
+      ord 16, v2(q^16-1)=8 via LTE — independently re-derived and
+      confirmed). VERDICT: O-3 CLOSES, no walls, fallback NOT pulled;
+      gate retires via twist-on-points; details in the DB status
+      section below and the doc's executive verdict.
 - [ ] FINAL (orchestrator): merged, reviewed, verdicts recorded,
       U-AG3 direction decided, pushed, Victor briefed.
 
@@ -101,3 +107,10 @@ Standing constraints (inherited, non-negotiable):
   lane). DA + DB launched in parallel worktrees.
 - 2026-07-27 (DB): lane started; reading + code enumeration done;
   status section above is the lane's checkpoint surface.
+- 2026-07-27 (DB close): lane survived one mid-run watchdog kill
+  (resumed from its 4-commit checkpoint — the resumable discipline
+  paid again), finished, orchestrator-reviewed and merged (740152c).
+  DA lane still in flight (also crash-resumed once, from an
+  uncommitted-spike checkpoint; commit discipline re-imposed).
+  FINAL reconciliation (esp. IA-O1-4 dense packing vs DA's layout)
+  waits on DA.
