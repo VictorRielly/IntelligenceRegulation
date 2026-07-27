@@ -63,8 +63,29 @@ Standing constraints (inherited, non-negotiable):
 - [ ] FINAL (orchestrator): merged, reviewed, verdicts recorded,
       U-AG3 direction decided, pushed, Victor briefed.
 
+## Agent DB status (wt-uag2-claims)
+
+- done: read-first set complete (AGGREGATION_LITERATURE 0/3/6/8/9,
+  SOUNDNESS_REFERENCE, AUTOMORPHISM_GATE_DESIGN + B.1/B.2,
+  WAVE_SHARE_MASKING_DESIGN, M4_LOOKUP_DESIGN 3.x, Q4_LEMMAS style,
+  PROOF_BYTE_LEDGER counts; code enumeration: ct_engine.rs claim
+  structs + splitter/pads, lookup.rs pin layer, link.rs, sigma.rs,
+  gkr_masked.rs, ring_matmul.rs wave loop).
+- next: AGGREGATION_CLAIM_REDUCTION.md in units (framework + inventory
+  -> gate -> quadratics -> linear/zeta -> link/lookup -> counts +
+  Z1 table + verdict), then claim_reduction_spike.py.
+- decisions so far: (1) reductions written PARAMETRIC in DA's layout
+  (explicit "Interface assumptions for O-1" section); (2) the two
+  load-bearing reduction lemmas are the power-point lemma (tensor
+  weights = shifted MLE evaluation) and the slot-evaluation lemma
+  (ring claims = evaluation claims at order-256 points of GF(q^16);
+  Galois twists move the PUBLIC point, not the committed data) —
+  ord(q mod 256) = 16 checked, consistent with the k = 8 split.
+
 ## Log
 
 - 2026-07-27: tranche opened at 379e34f, same session as the U-AG
   close. Victor: "continue to the next steps on both" (this + the song
   lane). DA + DB launched in parallel worktrees.
+- 2026-07-27 (DB): lane started; reading + code enumeration done;
+  status section above is the lane's checkpoint surface.
