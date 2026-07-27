@@ -55,7 +55,34 @@ codex-audit-* read-only.
 
 - [ ] GA: AGGREGATION_LITERATURE.md — families (a)-(e) priced on the
       common axes, verdict + recommendation.
-      STATUS 2026-07-17 (GA, in progress, NOT blocked): worktree was
+      STATUS 2026-07-27 (GA, COMPLETE — checkbox left for the
+      orchestrator): doc finished at 404 -> ~1,100 lines, Sections
+      0-9 + 15 verified refs, committed one section per commit
+      (5225e77 Sections 0-1; then 2/9..9/9 on this worktree branch).
+      VERDICT: adapt Greyhound — the family (c) PCS reroute is the
+      architecture (a few global lattice polynomial commitments per
+      tensor; claim structure collapsed to batched MLE-evaluation
+      claims by the house masked sumcheck/GKR engine, the M4 E3/E4
+      obligations' third use; Greyhound-class evaluation proofs
+      LaBRADOR-compressed, 2026 ZK toolkit closing the ZK gap), with
+      LatticeFold-class folding as the cross-layer accumulator and
+      family (e) only as an optional endgame wrap. Bottom-up ~150-260
+      KiB per complete FFN-layer statement vs the ledger's 18.59 GiB
+      (76,162x), verifier ms-to-sub-second vs the ~528x gap — the
+      only architecture meeting BOTH budgets; standalone (a)/(b) die
+      on the 695.6 MiB identity layer (the Section 0.3 structural
+      result, ledger-confirmed), family (d) is walled off from
+      WHIR-class costs by v2(q-1) = 4. Z1 is subsumed, not just
+      preserved (bytes and privacy force the same move; Section 6
+      matrix). U-AG2 obligation list O-1..O-9 in Section 8.1;
+      surprises recorded: HyperWolf (claimed log-verifier lattice
+      PCS) WITHDRAWN Oct 2025; Orthus (2026/398, sqrt
+      batch-verification, same IBM group) may lift family (a)'s
+      verifier objection — watch item, does not displace the
+      reroute. Pass-scope honesty: 32-layer pass lands ~0.5 MiB
+      (~2x over a per-pass budget reading) — scope decision +
+      closing levers are obligation O-2.
+      STATUS 2026-07-17 (GA, superseded): worktree was
       opened on a stale base (old merge-base 7a3e7a0, no docs); reset
       to e4cd608 before work started — any orchestrator check against
       the old tree state predates that. Committed so far: 5225e77

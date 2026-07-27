@@ -1,8 +1,10 @@
 # U-AG Aggregation Literature Review: What the Field Offers Against the 11,720x Proof-Size Wall
 
-Status: IN PROGRESS — literature review tranche (U-AG round 1, Agent
-GA; searched and read 2026-07-16/17; primary papers verified against
-their ePrint pages wherever costs are quoted). Companion to
+Status: COMPLETE — literature review tranche (U-AG round 1, Agent
+GA; searched and read 2026-07-16/17, completed 2026-07-27; primary
+papers verified against their ePrint pages wherever costs are
+quoted; priced against the GB lane's PROOF_BYTE_LEDGER.md, which
+landed between the two sessions). Companion to
 RANGE_AGGREGATION_DESIGN.md Section 3b (the adopted byte accounting
 this review must defeat), the C-03 finding it answers
 (codex-audit-2026-07-14/FINDINGS.md), REMEDIATION_PLAN.md Phase 3
@@ -63,8 +65,8 @@ list: Section 8.
 - [x] Section 7: the pricing table
 - [x] Section 8: verdict in full + U-AG2 obligations; executive
       verdict finalized (DRAFT marker removed)
-- [ ] Section 9: what we did not find
-- [x] References (verified links; grows with sections)
+- [x] Section 9: what we did not find
+- [x] References (verified links; 15 refs, all verified)
 
 ## 0. Ground rules: the wall, the budgets, and what "priced" means
 
@@ -1089,9 +1091,65 @@ Runner-ups, and why not:
   maturation; BaseFold concrete pricing (fallback trigger);
   SuperNeo/folding line movement.
 
-## 9. What we did not find — PENDING
+## 9. What we did NOT find (honest gaps)
 
-## 10. References (verified 2026-07-16/17 unless noted)
+- **No published system aggregates our exact object.** "Many
+  BDLOP ct-round openings, across masked waves, with pin/zeta/
+  quadratic/cross-modulus claim classes" appears in no paper. The
+  closest published precedent is Falcon-signature aggregation
+  under LaBRADOR (ePrint 2024/311) — many small lattice
+  verifications into one proof, but with a single, simple claim
+  class and no masking discipline. Every landing constant in
+  Sections 2-8 is therefore our arithmetic, flagged [MODEL]; no
+  paper's measured numbers cover the composition we recommend.
+- **No confirmed lattice PCS beats a sqrt verifier.** The one
+  claimed O(log) proof-and-verifier lattice PCS (HyperWolf,
+  ePrint 2025/922) was WITHDRAWN in October 2025. Greyhound's
+  O(sqrt N) stands as the confirmed frontier; any future
+  "log-verifier lattice PCS" claim should be treated as unproven
+  until it survives review.
+- **No implementation or library for lattice folding.** The
+  LatticeFold/LatticeFold+/Neo line is paper-only — no LaZer
+  analogue, no deployment, no third-party security analysis.
+  Family (b)'s maturity axis is the thinnest in the review.
+- **No FRI-class instantiation over a two-adicity-4 field.**
+  Nothing published bridges RS-domain proximity testing onto a
+  field like q31 short of ECFFT machinery (no deployment-grade
+  cost tables) or field-agnostic codes (BaseFold's abstract
+  quotes only relative sizes; no concrete table at our shape).
+  The family (d) fallback cannot be priced to the byte from the
+  literature today.
+- **No ZK analysis for Greyhound composition.** The 2026 toolkit
+  (ePrint 2026/1289) closes ZK for LaBRADOR-over-LNP22; nothing
+  published gives witness privacy for Greyhound evaluation proofs
+  under an external masking discipline like ours. O-4 discharges
+  this in-house or the recommendation's ZK story has a hole —
+  same class of gap M4 recorded for lookup hiding
+  (M4_LOOKUP_LITERATURE.md Section 7).
+- **No PQ recursion stack prices GiB-scale witness ingestion.**
+  Family (e)'s honest cost had to be built from a zero-overhead
+  lower bound (Section 5.2) because no zkVM/STARK publication
+  reports wrapping anything in the 10^11-op / multi-GiB-advice
+  class.
+- **No soundness treatment of MLE-claim batching over partially
+  split rings.** RLC batching of evaluation claims is folklore
+  over fields; at our 8-slot GF(q^16) CRT structure with
+  small-norm challenge sets, the knowledge-error accounting is
+  nowhere in print — O-1/O-7 territory, first of its shape.
+- **No published composition of Orthus with LaBRADOR/Greyhound.**
+  Each is verified separately (refs 1, 2, 15); the combined
+  "sqrt batch-verification inside the compression stack" system
+  Section 6.2 hopes for does not exist in print yet.
+- **No literature counterpart to the Z1 constraint.** Aggregation
+  papers assume public per-instance statements; none address
+  aggregating claims whose right-hand sides are deliberately
+  masked wire-absent values. Section 6.1's compatibility matrix
+  is this review's own derivation, and the simulator/battery
+  obligations (O-4) have no external template beyond the repo's
+  WSMD machinery.
+
+## 10. References (refs 1-8 verified 2026-07-16/17; refs 9-15
+verified 2026-07-27)
 
 1. Ward Beullens, Gregor Seiler. "LaBRADOR: Compact Proofs for R1CS
    from Module-SIS." CRYPTO 2023; IACR ePrint 2022/1341.
@@ -1186,4 +1244,14 @@ Runner-ups, and why not:
 
 *Changelog: 2026-07-17 — Sections 0-1 first commit (U-AG GA lane,
 mid-tranche checkpoint per orchestrator request); families (b)-(e),
-cross-cutting, table, and verdict follow in subsequent commits.*
+cross-cutting, table, and verdict follow in subsequent commits.
+2026-07-27 — lane resumed and completed: families (b)-(e) priced
+(Sections 2-5, one commit each), cross-cutting Z1/verifier matrix
+(Section 6), pricing table (Section 7), verdict finalized with the
+U-AG2 obligation list O-1..O-9 (Section 8, executive verdict DRAFT
+marker removed), honest negatives (Section 9); refs grown 8 -> 15
+(Neo, HyperWolf-withdrawn, WHIR, BaseFold, Brakedown, ECFFT,
+Orthus); Section 0 updated in place with the landed
+PROOF_BYTE_LEDGER.md confirmations (3,543.7 MiB / 14,175x complete
+artifact; identities 695.6 MiB confirming the 0.67 GiB [MODEL]
+structural result).*
