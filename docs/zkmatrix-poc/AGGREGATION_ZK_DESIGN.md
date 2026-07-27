@@ -996,3 +996,226 @@ that the wave architecture never exposed. Z1's letter is preserved
 object); Z1's spirit (no deterministic witness images on the wire)
 is met everywhere EXCEPT the floor, which is exactly the Section 4
 gap and the deployment label's subject.
+
+## 6. The R3 battery analogue — SPEC (deliverable f; implementation is build-round scope)
+
+Pattern: the [Z1-a..i] battery (WSMD Section 5) and the
+[U-K5c]/[U-K5d] batteries — leak pair + order pair, F5 style, rank
+certificates as derive-time canaries, rigged
+single-coefficient-support shapes for recovery legs (the U-R1a
+style). Harness discipline: serialized runs, 2^22 element cap,
+MemoryMax wrap (the shared-box rule). The battery's job is NOT to
+certify "no leak" — Section 4 proves that is false — but to certify
+**confinement**: everything is simulatable except exactly R, and R
+is exactly what Section 5.4 says it is.
+
+**Baseline statements certified** (Section 1's table as executable
+claims): learnable-from-transcript UNMASKED terminals: ~1,760-2,720
+fresh equations per proof; MASKED: 0 fresh equations beyond R;
+R itself: dim(z_L) values per proof, matching the predicted
+functional form exactly.
+
+- **[AZB-1] the terminal leak, demonstrated (permanent baseline).**
+  Rigged toy claim set, UNMASKED terminals: recover committed
+  values exactly from the terminal system across proofs (the Z1-a
+  pattern). Stays in the suite as the pre-fix regression. PASS =
+  exact recovery at the predicted proof count.
+- **[AZB-2] masked non-recovery + the counting canaries.** The same
+  pipeline against the masked transcript: recovered != witness;
+  the consistent solution set is the FULL coset predicted by
+  AZ-L2a. Derive-time canaries at engine shapes (the E3Z-N4
+  pattern): per instance, mask-map rank = n_g with exactly ell + 1
+  forced relations (AZ-L1a); joint rank across shared-challenge
+  instances = sum of n_g (AZ-L1b); terminal/pad map full-rank
+  diagonal (AZ-L2a). PASS = all ranks exact, counted not assumed.
+- **[AZB-3] the statement-hash F5 pair.** T_blind (or any mask/pad
+  commitment) outside h0_agg: the A3 swap crafting ACCEPTS a
+  shifted claim; the shipped order REJECTS the same crafting. Both
+  directions.
+- **[AZB-4] instance/batch ordering pairs.** (i) extension pads
+  committed after the instance challenge r absorb a false-instance
+  defect: ACCEPTS; shipped order REJECTS (A2, = SPKZ-4 at engine
+  scale). (ii) mu drawn before the blinded terminals: the CRB-N4
+  attack one level up. (iii) nu_i/G_i: the E3Z-N1 crafting per new
+  instance. Each pair both directions.
+- **[AZB-5] T_blind freshness.** Two proofs sharing pad/mask
+  material: transcript differences re-expose unmasked values (the
+  leak returns at half rate — E3Z-N3/Z1-h class), and the engine
+  REFUSES reuse (derive-time freshness assert, freeze-row pinned).
+- **[AZB-6] the fold-ordering pair (eval-proof levels).** A level
+  commitment u_i accepted after c^(i): the A1 forgery ACCEPTS a
+  false opening; the shipped FS chain REJECTS (SPKZ-5 at engine
+  scale). Both directions, per level.
+- **[AZB-7] the floor exhibit + confinement (the permanent AZ-T1
+  regression).** At engine scale: (i) recompute the floor image
+  from the witness and public challenges — must MATCH the
+  transcript exactly (the leak is exactly the predicted object,
+  no more, no less); (ii) in the unrecursed harness, accumulate P
+  transcripts: system rank grows by exactly dim(z) per proof until
+  exact recovery at the predicted threshold (demonstrated at
+  rigged toy scale); (iii) every OTHER transcript component passes
+  its simulator-match test (distributional tests against the S1-S6
+  sampler at toy scale). PASS = the leak is confined and
+  documented; this leg is to AZ-T1 what Z1-a is to C-02.
+- **[AZB-8] the joint-rank certificate (AZ-O2).** The combined
+  exposure system (all sumcheck exposures + the floor image)
+  restricted to the pad/mask dimensions: full row rank on the
+  T_sim block, at derive time. FAIL demotes the Surface-1/2 grades
+  (the 5.3 conditional step) — this is the battery's one
+  closure-threatening leg, expected to pass by counting [MODEL].
+- **[AZB-9] slot-completeness of blinding (AZ-R1).** A rigged
+  slot-shared blind: per-slot leak demonstrated (attack direction);
+  ring-granular blinds: all-8-slot uniformity certified (defense
+  direction).
+
+## 7. Verdict, honest scope, exports (deliverable g)
+
+### 7.1 The O-4 verdict row
+
+**O-4: design-CLOSES surfaces 1 and 2 and surface 3's committed
+internals; PRECISE GAP at surface 3's cleartext floor.** In detail:
+
+> Surfaces 1-2: CLOSED at design level — exact simulators (AZ-L1,
+> AZ-L2, coset/variety uniformity, no statistical defect), mask +
+> pad material ~460-560 rings fitting T_blind's [MODEL] window with
+> ~2x headroom, DA-interface compatible (I-1/I-3/I-4; new binding
+> rule AZ-R1), FS edges tabulated with F5 pairs (AZ-L4). Surface 3
+> committed internals: CLOSED under MLWE with the tails amendment.
+> ZK-mandated configuration: EXACT-DIGIT (deletes the JL cleartext
+> class; +10,112 B at FFN — O-2 line). THE GAP: the final bare
+> witness R (~2^16.3 base coordinates per proof) is a
+> challenge-keyed deterministic witness image; under I-6 + the
+> 262,144 B budget at q31 it is unmaskable (norm-or-byte dead on
+> all three masking families) and unsanitizable (the digit wall,
+> AZ-T1); the toolkit-2026/1289 composition does not port (Section
+> 4.2). The aggregate layer carries the non-ZK deployment label +
+> the one-proof-per-witness rule until one of E1-E5 opens (E4,
+> budget relief to ~500 KiB/layer, is the only currently-actionable
+> full-ZK path). The architecture's byte/soundness closure (O-1/O-3
+> verdicts) is NOT affected — this gap gates the ZK deployment
+> label only.
+
+### 7.2 What needs the build round; what needs external review
+
+Build round: engine-scale certification of AZ-L1/AZ-L2 and the
+AZB-1..9 battery; per-instance extension wiring tables (3.5); the
+per-level hiding-tail layout (4.3); the exact-digit plumbing (rides
+PARAMS 6.4 obligation 4); the AZ-O4 aggregation-scalar enumeration
+against the LaBRADOR spec; the AZ-O2 joint-rank canary;
+transcription of AZ-L1..L4 into Q4_LEMMAS.md and the 5.5 rows into
+SOUNDNESS_REFERENCE.md Section 7.
+
+External review (the REMEDIATION-plan pattern — this document is
+the input, not the substitute): (i) **the AZ-T1 survey claim**,
+posed sharply: is there a zero-knowledge opening for
+balanced-digit-decomposed Ajtai commitments at q ~ 2^31 with
+response + proof <= ~100 KB? No published work addresses it
+(AGGREGATION_LITERATURE Section 9's recorded gap — this document is
+the first worked analysis and reaches a negative); (ii) the
+FS/ROM programming convention at ~10^3 draws; (iii) the
+leakage-resilient-MLWE reading of the tail-protected floor blocks
+(AZ-O5); (iv) the E4 budget-relief trade (a policy question with a
+cryptographic payload).
+
+### 7.3 Exports / Imports (EA, EB, O-2, orchestrator)
+
+**To EA (D-1 encoding lane).** (a) The Section 1.3
+encoding-parametric leakage rows: slot form adds the packing-image
+instance (one more mask family + 2 terminals — priced rows in 2.2);
+dense form removes it. (b) **The D-1 privacy axis [MODEL], new:**
+the floor image's dimension is set by the LaBRADOR regrowth floor,
+not by n — so dense re-encoding shrinks the witness ~13x against
+the SAME ~79k-coordinate per-proof leak: the naive full-recovery
+threshold drops from ~10^5-class (slot, FFN) to ~10^3-class
+(dense) proofs of the same witness [MODEL, both numbers naive
+upper bounds that confer no margin]. Under the
+one-proof-per-witness rule this does not change the label, but the
+orchestrator should weigh it in D-1. (c) Segment-layout imports:
+per-tensor blind sub-segments and extension bits must be bit-block
+aligned in the manifest; if EA's encoding changes dw or instance
+round counts, mask sizes rescale by 2.2's formulas (linear in
+rounds — noise either way).
+
+**To EB (O-7 lane).** The exact-digit mandate selects PARAMS 3.4's
+exact-digit slack reading as the ZK-side configuration — EB's
+composition lemma should cover it as the primary config (no JL slack
+row). AZ-L4(a)'s fold-ordering edges are jointly soundness edges;
+they belong inside EB's recursive-FS composition (PSS pattern) —
+flagged, not duplicated. Nothing in the ZK gap touches extraction.
+
+**To O-2 (byte model).** The 4.6 cost table: exact-digit mandated
+(+10,112 B at FFN), +~2-3 KiB wire (G values, openings, extension
+rounds), T_blind ~460-560 rings committed, per-level tails
+[MODEL], E2's +190-240 KB recorded as the dead option.
+
+**To the orchestrator.** The verdict row; the E4 decision; the
+deployment label + one-proof rule as freeze-row candidates; the O-9
+watch-list addition (any ZK-opening result for gadget-decomposed
+commitments at small moduli; the 2026/1289 lineage). And one
+framing note for the U-AG4 decision: the U-AG2 tranche's
+AGGREGATION_LITERATURE 3.3 assumed surface 3 would close "the same
+way as family (a)'s" — this round shows that assumption FAILS at
+q31; the finding does not reopen the byte/soundness verdicts, but
+any deployment story that promised full ZK at the aggregate layer
+must route through E4 or wait on E5.
+
+### 7.4 Honest negatives — what could kill the CLOSED parts
+
+1. **AZB-8 / AZ-O2 fails** (the floor image strips mask rank): the
+   Surface-1/2 exactness demotes to conditional. No cheap fallback
+   exists (excluding T_blind from the batch just moves its opening
+   elsewhere); the honest posture is the canary + the counting
+   argument (~6x pad surplus [MODEL]). Risk LOW, closure-relevant,
+   named.
+2. **The per-level tail amendment** meets an unforeseen norm/layout
+   constraint in the LaBRADOR levels [MODEL row — PARAMS owns the
+   level norm chains; the +16-ring tails are inside the adaptive
+   base's slack at every level by the 2.3-class arithmetic, but
+   the build round must re-run the schedule with tails on].
+3. **An aggregation scalar turns out non-forced** (AZ-O4): it joins
+   the leak inventory and needs a pad — T_blind headroom absorbs
+   K-element-scale additions; a tensor-scale surprise would be a
+   real problem [not expected from the verified protocol
+   structure].
+4. **HVZK scope**: honest-verifier, proof-of-protocol, per-layer —
+   chain-wide composition and side channels remain out of scope
+   (the standing R1.3/B.2 note).
+
+## References
+
+1. zksecurity, "Proofs On A Leash: Post-Quantum Lattice SNARK With
+   Greyhound" (D. Wong, 2025-06-03) — Greyhound wire objects and
+   verifier equations; the LaBRADOR handoff matrix (v = D w-hat).
+   Read in full this session.
+2. zksecurity, "Playing with LaBRADOR" (G. Raikos, 2025-11-13) —
+   level messages u1/u2, JL projection mechanics and window, g/h
+   garbage shapes, bare final witness, recursion recurrence. Read
+   in full this session.
+3. ePrint 2024/1293 (Greyhound), 2026/1289 (ZK toolkit) — abstracts
+   verified this session; PDFs bot-blocked (both sessions); LNP22
+   internals carried [S10] from AGGREGATION_LITERATURE 1.3.
+4. ePrint 2022/1341 (LaBRADOR), 2019/317 (Libra), 2017/305 (CFS
+   masked sumcheck) — as recorded in the companion docs [S10].
+5. Repo: AGGREGATION_CLAIM_REDUCTION.md, AGGREGATION_PARAMS_DESIGN.md,
+   WAVE_SHARE_MASKING_DESIGN.md, M4_LOOKUP_ZK_DESIGN.md,
+   Q4_LEMMAS.md Q4.7-Q4.10, SOUNDNESS_REFERENCE.md,
+   PROOF_BYTE_LEDGER.md — cited inline throughout.
+
+---
+
+*Changelog: 2026-07-27 — first edition (U-AG3 EC lane, O-4).
+Leakage inventory (12 wire rows, JL/exact-digit variants,
+encoding-parametric); Surface 1 closed (AZ-L1a/b, per-instance mask
+table, T_blind budget ~460-560 rings); Surface 2 closed (AZ-L2a/b
+selector-extension pads, AZ-R1 slot rule, DA-interface
+compatibility); Surface 3 decided (toolkit REJECTED with arithmetic,
+house route adopted: tails + exact-digit mandate) and honestly
+split: committed internals closed, the floor bare witness surfaced
+as the AZ-T1 obstruction (unmaskable: norm-or-byte dead on three
+masking families; unsanitizable: the digit wall, five routes
+killed); five escapes priced; simulator complete-minus-R with
+grades and the conditional AZ-O2 step; AZ-L4 fold-round FS lemma +
+hash-edge rows; AZB-1..9 battery spec (confinement, not denial);
+verdict: O-4 closes-with-precise-gap, non-ZK deployment label,
+one-proof-per-witness rule, E4 the only actionable full-ZK path.
+Spike: aggregation_zk_spike.py (SPKZ-1..7) — output in Section 8.*
