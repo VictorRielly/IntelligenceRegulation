@@ -81,7 +81,7 @@ Section 3 style:
    at q31 under I-6 and the 262,144 B budget NO known technique
    masks it: Gaussian, uniform-flooding, and uniform-rejection
    masking all violate either the q/8 norm line or the byte budget
-   (the masked floor response alone costs ~317 KB — Section 4.5's
+   (the masked floor response alone costs 256-700 KB — Section 4.4's
    arithmetic, spike-anchored); the toolkit-2026/1289 composition
    does not port (the LNP22 front-end needs either the same evicted
    masking arithmetic in-ring or a tensor-scale cross-modulus escape
@@ -703,7 +703,7 @@ three masking families and to floor scale — certificate SPKZ-7):
 |---|---|---|---|
 | Gaussian, global fold (I-6's own row) | bound ~2^37 | — | dead (PARAMS 2.4 item 1, reproduced) |
 | Gaussian, floor scale, byte-optimal schedule (e_L = 9-10) | bound ~2^32.5 | — | dead on norms |
-| Gaussian, floor scale, forced e_L <= 4 | bound 2^27.3-2^27.9 — AT the line | masked response ~4 B/coord x 79-175k coords = 317-700 KB vs 79,872 B bare: +190-240 KB minimum | **dead on bytes** (1.8-2.7x budget) |
+| Gaussian, floor scale, forced e_L <= 4 | bound 2^27.2 (optimistic, no limb growth) to 2^28.6 (with limb growth) — AT/over the line | masked response ~4 B/coord x 64-175k coords = 256-700 KB vs 79,872 B bare: >= +176 KB | **dead on bytes** (>= 1.77x budget) |
 | uniform flooding (statistical distance 2^-lambda) | needs ~lambda + log(dim) extra bits — 2^37+ class | same width problem | dead |
 | uniform rejection (Lyubashevsky-09 style) | A ~ dim x T for constant acceptance: 2^28+ at floor dims | same width problem | dead |
 
@@ -771,9 +771,9 @@ work addresses it.
 | escape | mechanism | price | status |
 |---|---|---|---|
 | E1: modulus escape | opening layer at q46+ (masking room exists there) | 354,104 B = 1.35x OVER (PARAMS 5.2) + tensor-scale cross-modulus link (CR 12.2 rule 2, open problem) | blocked at current budget |
-| E2: floor-scale masked response (an I-6 carve-out at e_L <= 4) | Gaussian mask of the ~79k-coord floor opening only | norm AT the line (2^27.3-27.9 vs 2^28); +190-240 KB response width | blocked on bytes; recorded as information, NOT a relitigation of I-6 |
+| E2: floor-scale masked response (an I-6 carve-out at e_L <= 4) | Gaussian mask of the ~79k-coord floor opening only | norm AT the line only in the no-limb-growth corner (2^27.2-2^28.6 vs 2^28); +176-620 KB response width | blocked on bytes; recorded as information, NOT a relitigation of I-6 |
 | E3: LNP22 at the floor (toolkit principle, floor scale) | sanitize only the floor statement | same response-width class as E2 + LNP22 port + its own overhead | dominated by E2; blocked |
-| E4: budget relief | at ~2x layer budget (~500 KiB), E2 opens: exact-digit + masked floor = full ZK | +~240 KB/layer; a policy decision (PROOF_BYTE_LEDGER 3.1's "the TOTAL may not move" would have to move) | the ONLY currently-actionable full-ZK path; orchestrator/R1 territory |
+| E4: budget relief | at ~2x layer budget (~450-500 KiB), E2 opens: exact-digit + masked floor = full ZK | +~240 KB/layer; a policy decision (PROOF_BYTE_LEDGER 3.1's "the TOTAL may not move" would have to move) | the ONLY currently-actionable full-ZK path; orchestrator/R1 territory |
 | E5: a new primitive | a ZK opening for balanced-digit Ajtai commitments at q ~ 2^31 with response + proof <= ~100 KB | unknown | the external-review question; O-9 watch item (2026/1289 lineage at small moduli) |
 
 ### 4.6 Deployment posture and the costs fed to O-2
@@ -799,7 +799,7 @@ layer; it does NOT change the single-proof label.
 | extension rounds (3.5) | +~1-2 KiB | wire |
 | T_blind at ~460-560 rings | ~+3e-5 dce/el | committed only |
 | per-level hiding tails (4.3) | ~(r_i + 2) x 16 rings/level committed, zero wire | [MODEL]; build-round layout amendment |
-| E2 if ever adopted | +190-240 KB | the dead option's price, for the record |
+| E2 if ever adopted | +176-620 KB | the dead option's price, for the record |
 
 Prover-side: mask generation and extension blocks are committed data
 (no sampling loops, no restarts beyond ~2^-495 guards); the marginal
@@ -1146,7 +1146,7 @@ flagged, not duplicated. Nothing in the ZK gap touches extraction.
 **To O-2 (byte model).** The 4.6 cost table: exact-digit mandated
 (+10,112 B at FFN), +~2-3 KiB wire (G values, openings, extension
 rounds), T_blind ~460-560 rings committed, per-level tails
-[MODEL], E2's +190-240 KB recorded as the dead option.
+[MODEL], E2's +176-620 KB recorded as the dead option.
 
 **To the orchestrator.** The verdict row; the E4 decision; the
 deployment label + one-proof rule as freeze-row candidates; the O-9
@@ -1219,3 +1219,40 @@ hash-edge rows; AZB-1..9 battery spec (confinement, not denial);
 verdict: O-4 closes-with-precise-gap, non-ZK deployment label,
 one-proof-per-witness rule, E4 the only actionable full-ZK path.
 Spike: aggregation_zk_spike.py (SPKZ-1..7) — output in Section 8.*
+
+## 8. Spike output (recorded verbatim)
+
+`python3 scripts/aggregation_zk_spike.py`, 2026-07-27, exit 0
+(~0.6 s, stdlib only, GF(q31) toy arithmetic):
+
+    OK SPKZ-1a: UNMASKED terminals: 16 fresh-point evaluations recover the tensor EXACTLY (rank 16/16) — the C-02 accumulation shape at the aggregate layer
+    OK SPKZ-1b: BLINDED terminals: after 48 transcripts EVERY candidate tensor stays consistent (each equation has a fresh invertible-weight pad unknown) — 0 fresh equations on the data, the AZ-L2 coset statement
+    OK SPKZ-2a: masked selector-extension zero-check ACCEPTS the honest witness and the sent terminal differs from the unblinded MLE (blinds live)
+    OK SPKZ-2b: a single tampered Hadamard position REJECTS under the full masking machinery, honest order — masks and blinds do not help a cheating prover
+    OK SPKZ-3a: AZ-L1a counting at degrees [4, 3, 3, 3]: coefficient-to-exposure rank 14 = n_g, with exactly ell+1 = 5 forced relations among the 19 exposures — the Q4.7 counting at the new degree pattern
+    OK SPKZ-3b: AZ-L2a: the 3 terminal exposures are a FULL-ROW-RANK (3/3) affine image of the 3 dedicated pad dimensions — one fresh pad per exposure, none spent twice
+    OK SPKZ-3c: AZ-L1b joint counting, SHARED round challenges: joint rank 28 = n_g1 + n_g2, forced relations exactly 2(ell+1) = 10 — block-diagonal masks stay jointly full-rank under challenge sharing
+    OK SPKZ-4: F5 pair (AZ-L4 A2/A4): extension pad chosen AFTER the challenges absorbs the false-instance defect and the forged transcript ACCEPTS; the shipped order (pads committed before the statement hash) REJECTS the same instance
+    OK SPKZ-5: F5 pair (AZ-L4 A1): inner commitments fixed AFTER the fold challenge let a FALSE batched evaluation claim ACCEPT (t steered to match a steered z); the shipped order (commit u_i, then c^(i)) forces z and REJECTS the same claim
+    OK SPKZ-6a: the floor exhibit: 5 bare fold transcripts with fresh challenges recover the ENTIRE column matrix exactly (rank 5/5, linear algebra only) — the AZ-L3(b) recovery, C-02's shape at the aggregate layer
+    OK SPKZ-6b: one digit-decomposition level deeper, every floor coordinate is STILL an explicitly recomputable deterministic function of (witness, challenges) — AZ-L3(c): nonlinear, but nothing about it is hidden
+    OK SPKZ-7a: global masked opening (I-6 reproduced): sigma 2^24.5..2^25.3 (PARAMS: 2^25.3-class), response bound 2^35.5..2^36.8 incl. 2^36.8 at the FFN headline (PARAMS: ~2^37) vs q/8 = 2^28.00 — over the C2 line by >= 7.5 bits at every derived shape; no Gaussian-masked global opening exists at q31
+    OK SPKZ-7b: floor masking grid: DEAD at the byte-optimal schedules (e_L=9-10: bound 2^32.5); AT the line only in the optimistic e_L=4 corner (2^27.2 vs 2^28.00; with limb growth 2^28.6 — over)
+    OK SPKZ-7c: byte kill: masked floor response 256000-700000 B vs 79872 B bare (>= 3.2x); artifact with a masked floor >= 1.77x the 262,144 B budget — floor ZK is byte-dead even where norm-viable
+    14/14 OK — all aggregation_zk_spike assertions passed
+
+Reproduction notes: toy field GF(q31) directly (the real base modulus,
+per the claim-reduction spike's small-field incident note); the
+selector-extension zero-check runs at ell = 4 (1 extension + 3 real
+bits), degrees (4, 3, 3, 3), n_g = 14, with Libra masks in the
+zero-constant coefficient form (constants absorbed into a0 — the
+exact Q4.7 counting convention); the fold toys use an injective toy
+Ajtai matrix (k = m + 2), which demonstrates the ORDERING edges, not
+lattice binding strength; SPKZ-7 is log2 arithmetic at the repo
+constants (op 20.8, TAIL/12-sigma discipline, PARAMS Section 2/3
+shapes). One debugging incident recorded honestly: the first draft's
+eq kernel treated field-valued points as booleans (a truthiness bug
+caught by the round-2 fold check failing) and its mask
+representation carried redundant per-round constants (n_g = 18, not
+1 + sum d_t) — both exactly the class of off-by-convention errors
+the counting certificates exist to catch, and both caught by them.
