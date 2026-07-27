@@ -941,11 +941,188 @@ ordering discipline (F5/theta, R1.2, g-before-theta) -> the
 Section 10.5 FS table. Status: **RETIRED** (functions transferred,
 no residual claim content).
 
-<!-- UNIT-MARKER: sections 10+ follow -->
+## 10. Claim-count and batching arithmetic (the O-2 feed)
+
+### 10.1 Surviving sumcheck instances per FFN layer
+
+The complete layer (TARGET_CONTRACT.md Section 1: three matmuls +
+Hadamard + SiLU + requant edges; the PBL ledger unit is ONE
+activation tensor — its "lower bound on the naive pass" footnote
+carries over to every count here):
+
+| instance | lemma | degree | rounds [MODEL where est.] |
+|---|---|---|---|
+| matmul gate-proj / up-proj / down-proj | CR-1 | 2 | ~12-14 each (log inner at 4096/11008-class) |
+| Hadamard zero-check | CR-3 | 3 | ~23 (n = log 5.6e6) |
+| SiLU lookup descent pair | CR-10 (kept) | 3 | 253 + 28 (M4_LOOKUP_DESIGN 3.4; dw 24 + dt 9 at FFN — PBL Sec. 2 row 6) |
+| range lookup descent pair (arm R) | CR-10 | 3 | ~same pair |
+| requant/rescale zero-checks | CR-7 | <= 3 | ~23 x 1-2 |
+| packing-image checks (only if IA-O1-4 violated) | CR-8 fallback | 2 | ~23 per packed tensor |
+| the terminal batch sumcheck | CR-L4 | 3 (eq·kernel·T) | ~23 (shared across all tensors) |
+
+Total masked-round transcript: the descent pairs are today's 1,651
+K-elements (103.2 KiB at the canonical 4 B/limb — PBL Section 3.1);
+the NEW instances add ~420-600 K-elements ~ **+27-40 KiB [MODEL,
+derived: ~130-160 added rounds x 3-4 K-elements x 64 B]**. Flagged
+to O-2: the AGGREGATION_LITERATURE Section 3.2 byte model budgeted
+"one descent pair"; the true post-reduction transcript is descent
+pair + matmul/Hadamard/batch rounds — inside the 150-260 KiB band
+only if the (a)-compressor line absorbs it, O-2's arithmetic to pin.
+
+### 10.2 Terminal evaluation claims, before and after batching
+
+Batch ENTRIES before batching (each an MLE-evaluation claim at a
+known point against one global commitment): 9 matmul terminals
+(3 x {A, B=weights, C}) + 3 Hadamard + ~6 lookup tensor terminals
+(v^X, v^Y, v^M x two arms) + ~80-120 pin/mask/blinder entries
+(CR-5; the ~40-60 pinned values per descent pair x two arms) + ~2-4
+requant + link entries where the gadget arm rides ~ **~110-170
+entries [MODEL]**. After CR-L4a (per-tensor mu batch, shared
+terminal point) and CR-L4b (cross-commitment nu RLC): **ONE batched
+evaluation claim per commitment group; 1 eval proof at the target
+layout (IA-O1-3), up to 3 if the weight domain or a q46 domain stays
+separate.** Versus today's per-layer population: 201,486 linear +
+704,512 quadratic claims + 477,814 openings (PBL Section 2) ->
+~10 sumcheck instances + ~150 batch entries + 1-3 eval proofs.
+
+### 10.3 The IA-O1-2 fallback multiplier
+
+If the evaluation-proof layer serves only Z_q-linear functionals,
+every K-valued terminal claim decomposes into K_DEG = 16 base-field
+coordinate rows (`k_weight_coords` pattern): the 1-3 batched claims
+become 16-48 base rows, re-batched by one more base-field RLC to
+1-3 OPENINGS — the x16 lives in verifier-side row bookkeeping, not
+in eval-proof count [DERIVED]. Recorded so DA can trade it against
+native-K support in the lattice relation.
+
+### 10.4 Soundness terms (field-statistical; H-07 min() discipline applies)
+
+| term | draw | bound | grade |
+|---|---|---|---|
+| outer SZ points (rx, ry, zero-check r) | K^n after commitments | <= n/|K| ~ 2^-489-class at n <= 23, |K| ~ 2^496 | [PROVEN*] per CR-L3/CR-L6 |
+| sumcheck rounds | K per round | <= deg/|K| per round; summed ~ 2^-485-class over ~650 rounds | [PROVEN*] (standard) |
+| slot RLC lambda (CR-L2c) | K^8 | per-slot point mass q^-16 ~ 2^-496 | [PROVEN*] (L2 in K) |
+| point batch mu (CR-L4a) | K^m, m ~ 170 | <= 1/|K| + sumcheck term | [PROVEN*] algebra |
+| cross-commitment nu (CR-L4b) | K^{#groups} | <= 1/|K| | [PROVEN*] algebra |
+| KNOWLEDGE-ERROR composition of all RLCs through the evaluation proof's extraction at the partially-split ring (small-norm challenge sets, relaxed openings) | — | — | **[OBLIGATION -> O-7]** — the AGGREGATION_LITERATURE Section 9 gap, restated; nothing here discharges it |
+| FS/ROM, grinding, multi-theorem | — | min() with 128-bit hash class | [MODEL] — standing convention (SR Section 8 item 6) |
+
+### 10.5 The FS-ordering table for the new challenges (SR Section 7 format; batteries owed to the build round)
+
+| challenge | drawn from | must follow | attack if violated | pinned by (planned) |
+|---|---|---|---|---|
+| rx, ry / zero-check r | FS state binding ALL referenced global commitments | every commitment the instance reads | commit C after (rx, ry): SZ event voided, any product accepted | CRB-N1 F5 pair |
+| round challenges r_t | prefix through round poly g_t | g_t | the classic sumcheck order attack (M4 E3-N4's shape) | CRB-N2 (E3-N4 re-run at the new instances) |
+| lambda (slot RLC) | after commitments | the ring-claim family's commitments | park a defect in an un-RLC'd slot | CRB-N3 |
+| mu (terminal point batch) | prefix through ALL claimed terminal values | every claimed v absorbed | choose v after mu: only the mu-combination pinned — E4-N1 one level up | CRB-N4 (E4-N1 analogue) |
+| nu (cross-commitment RLC) | prefix through the mu-batch terminals | the batched claims | shift one tensor's claim against another's | CRB-N5 |
+| eval-proof challenges | DA/O-1 schedule | the batched opening statement | DA's table | O-1 |
+
+## 11. Z1/ZK compatibility per class — the O-4 handoff
+
+The reduced protocol has exactly THREE exposure surfaces: (i) masked
+sumcheck round transcripts, (ii) terminal/claimed evaluation values,
+(iii) evaluation-proof internals. Surface (i) is covered by the
+built Q4.7-Q4.9 machinery for the lookup descents and EXTENDS to the
+new instances (same GMask/sc_degrees pattern at degree <= 3 — an
+O-4 build item, not new mathematics). Surface (ii) is the
+aggregate-only-pin discipline of U-K5c, generalized: raw per-tensor
+terminals are random linear images of private tensors and MUST be
+blinded (blinder tensors riding the aux commitment, folded into the
+batch — the M4 blinding-leaf pattern; O-4 owns the counting lemma).
+Surface (iii) is the ZK layer on Greyhound/LaBRADOR (toolkit ePrint
+2026/1289 composition or house pads) — shared with DA, recorded in
+AGGREGATION_LITERATURE 6.1. Per class:
+
+| class | Z1-masked object today | reduced-form exposure | re-exposes anything Z1 hides? | O-4 obligations |
+|---|---|---|---|---|
+| C1 gate | R1 pads mask (Ga, Gb, G0, W) — the C-leak Q4.3e | matmul rounds (i) + A/B/C terminals (ii) | NO — no per-wave/garbage surface exists | mask budget for 3 matmul instances; blind terminals |
+| C2 Hadamard | R1 pads on 704,512 quads | one zero-check (i) + 3 terminals (ii) | NO | same pattern |
+| C3 binary/gadget | g-masks + theta | zero-check (i) + B terminal (ii) | NO | same |
+| C4/C5 pins/E4 | aggregate-only pins + blinder leaves (U-K5c) | batch entries (ii) | NO — PROVIDED the aggregate-only discipline is kept (raw pinned values never sent) | carry the U-K5c blinder ledger into the batch; counting canary analogue of E3Z-N4 |
+| C6 zeta | wire already deleted (identically zero — WSMD 1.2) | NOTHING (class dissolved) | NO | none |
+| C7 RingClaims | W_ring forced/simulatable (SR 4.1) | terminals (ii) | NO | blind terminals |
+| C8 link | y reveals are a LABELED legacy exposure (Z2 arm — WSMD 0.1a), not Z1-masked | y reveals unchanged (public integer checks) | NO CHANGE — the label carries over verbatim; note: y CANNOT be coset-padded (mod-q pads break the integer range gate) — the label is the honest state | keep the Z2 label; unit-scope only |
+| C9 lookup | Q4.7-9 masks + blinders (PROVEN at engine scale) | same masked descents (i) + batch entries (ii) | NO | re-run mask batteries at the re-landed shape |
+| C10 waves/pads | the Q4.10 coset pads on 9(W-1) shares — C-02's subject | NOTHING per-wave exists; totals become batch RHS | **NO — the leak's domain is abolished**: the 9(W-1)-dimensional share quotient (WSMD 1.1) has no counterpart object | the WSMD-Section-3-style simulator for the AGGREGATED transcript + the R3 rank/recovery battery analogue (PBL Section 4) — O-4's first deliverable |
+| C11 ARP | non-ZK structurally (C-01) | retired | — | none (one more reason it cannot ride) |
+| C12/C13 | round mechanics | retired | — | none |
+
+**The subsumption statement (WSMD 7.1, second branch, discharged at
+design level):** the reduced transcript is a function of global
+commitments (MLWE-hiding), masked sumcheck transcripts (Q4.7-9
+class), blinded aggregate terminals (U-K5c class), and eval-proof
+internals (O-4 ZK layer) — the per-wave right-hand sides Z1 masks
+have NO counterpart object, so nothing Z1 hides can be re-exposed.
+This re-derives, rather than preserves, the privacy argument; the
+formal simulator and battery analogue are O-4's deliverables, named
+above, with no identified blocker.
+
+## 12. Verdict, boundaries, obligations
+
+### 12.1 VERDICT row
+
+**O-3 CLOSES.** Every claim class reduces, dissolves into a
+strictly-stronger reduced form, or retires with its function
+transferred; the table is complete (Section 2; C1-C13) and no class
+is WALLED. Summary: REDUCES — C1 (by retirement; CR-1/CR-2), C2
+(CR-3), C3 (CR-4), C4 (CR-5), C5 (native; CR-6), C7 (CR-7), C9
+(kept engine; CR-10); REDUCES-WITH-COST — C8 (unit-scoped dense-xi
+kernels, O(l·n) per instance, plus a q46 domain if the legacy arm
+ever rides); DISSOLVES — C6, C10; RETIRED — C11, C12, C13. The
+committed-executions gate — the verdict's flagged hard case — is the
+retirement case, Section 3.5. The family (d)/BaseFold fallback
+trigger is NOT pulled.
+
+### 12.2 Residual design rules (the boundaries that kept this closed)
+
+1. **Weights structured or unit-capped.** Any claim family whose
+   public weights are dense-pseudorandom at tensor scale costs the
+   verifier O(N) at the sumcheck terminal. Surviving families
+   comply (pins/E4 product-structured; link unit-capped n = 128;
+   zeta dissolved). Binding on all future claim families and on
+   DA's claim interface.
+2. **No tensor-scale cross-modulus link.** Section 7.3's boundary:
+   the target path needs none; a future need must accept the linear
+   verifier term or fund a new soundness round for structured small
+   weights.
+3. **The IA-O1 assumptions (Section 0.3)** — six, each flagged at
+   its point of use — must be confirmed by DA at the FINAL merge;
+   IA-O1-2's x16 fallback and IA-O1-4's packing fallback are priced
+   (10.3, 6.3), so neither is closure-threatening.
+4. **The near-wall, named honestly:** if zeta/E2 had needed
+   TRANSLATION instead of dissolution, its 169,104 dense-XOF-weight
+   rows would have been rule-1's counterexample at tensor scale —
+   the one place the reduction would have walled. Dissolution
+   (IA-O1-4) is therefore load-bearing, and IA-O1-4 is the single
+   most important interface fact for DA to confirm.
+
+### 12.3 Obligations handed on (none block O-3's closure)
+
+- **O-4:** the aggregated-transcript simulator + R3 battery
+  analogue; mask budgets for the new sumcheck instances; terminal
+  blinding counting lemma; the eval-proof ZK layer (with DA);
+  Section 11's per-class rows are the input list.
+- **O-7:** knowledge-error composition of the CR-L4 RLC chain
+  through the evaluation proof's extraction at the partially-split
+  ring (Section 10.4's flagged row); the Section 10.5 F5 batteries
+  (CRB-N1..N5) at build time.
+- **O-2:** the +27-40 KiB [MODEL] transcript delta of Section 10.1
+  and the 1-vs-3 eval-proof count of Section 10.2 are inputs to the
+  byte model.
+- **O-6:** prover multipliers for the new instances (matmul
+  sumchecks at O(r·m·inner) K-mult class) — [MODEL] until measured.
 
 ---
 
 *Changelog: 2026-07-27 — O-3 lane opened (U-AG2 Agent DB): framework,
 reduction lemmas CR-L1..CR-L6, code-enumerated inventory with docs
-reconciliation. Sections 3-12 land in subsequent commits this
-tranche.*
+reconciliation. Same day: Section 3 (the committed-executions gate —
+REDUCES by retirement, CR-1/CR-2, twist-on-points), Sections 4-6
+(CR-3..CR-8: Hadamard/binary zero-checks, pins/E4/RingClaims, zeta
+dissolution + packing fallback), Sections 7-9 (link
+REDUCES-WITH-COST unit-scoped, lookup kept + re-landed,
+waves/pads/ARP/digits dissolved or retired), Sections 10-12 (claim
+counts + batching soundness terms + FS table, Z1/ZK per-class O-4
+handoff, VERDICT: O-3 CLOSES, no walls, fallback not pulled).
+Machine checks: scripts/claim_reduction_spike.py SPK-1..SPK-7.*
