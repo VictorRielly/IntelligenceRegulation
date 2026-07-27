@@ -575,7 +575,212 @@ conj-twisted structure vs the MLE claim form" — dissolves on
 inspection: the conj-twisted structure was the Sigma engine's way of
 paying for packing; the MLE engine does not pack.
 
-<!-- UNIT-MARKER: sections 4+ follow -->
+## 4. Quadratic classes (C2, C3)
+
+### 4.1 CR-3 — Hadamard `QuadRingClaim` (C2)
+
+**Today.** One `QuadRingClaim` per value chunk:
+y_chunk · up_chunk - z_chunk = 0 over R_q on H3 slot-packed elements
+(the wave loop's `quads_loc`, PBL Section 0.1), 704,512 claims at
+FFN scale carrying 3 ring polys each — 1,090.6 MB of quad-claim
+layer, 5.46% of the artifact (PBL Section 2 row 5) — plus the E2
+zeta family policing the packing junk that makes per-slot products
+mean per-value products (SR 8 item 3).
+
+**Claim CR-3.** With G (gate), U (up), Z committed as dense global
+value tensors (IA-O1-4), the whole family is ONE zero-check
+(CR-L6):
+
+    sum_b eq(r, b) · ( G(b) · U(b) - Z(b) )  =  0,
+
+r drawn from the FS state binding the three commitments; a nonzero
+Hadamard defect at ANY position survives with probability
+<= n/|K| ~ 2^-486 at n = 23 (SZ on the defect's MLE). Degree 3 per
+round (eq · G · U), n rounds, terminals MLE(G)(r*), MLE(U)(r*),
+MLE(Z)(r*) — three eval claims into the CR-L4 batch. This is
+per-position exactness, strictly stronger than today's per-chunk
+ring claims, with NO packing precondition — the slot-constancy
+machinery it leaned on is not translated but obviated (Section 6).
+Status: **REDUCES — [PROVEN*]**, certificate SPK-4 (toy zero-check,
+honest accept + single-position tamper reject).
+
+*Cost note.* 704,512 claims x 1,548 B -> ~n·4 K-elements of shared
+round transcript + 3 terminal claims: the class's wire contribution
+drops from 1,090.6 MB to KB-class [DERIVED from PBL row 5 and the
+CR-L6 transcript shape]. If DA retains H3 packing for any of the
+three tensors (against IA-O1-4), CR-3 runs on the VALUE tensor
+extracted by the packing-image map and Section 6.3's claim binds
+packed to dense — same terminal count, one extra linear sumcheck.
+
+### 4.2 CR-4 — `QuadCtClaim` (C3: binariness and gadget ct-quadratics)
+
+**Today.** ct( sum_p gamma_p conj(x_{a_p}) x_{b_p} + sum a x + g )
+= scalar — the binary gadget's b∘b = b shape rides
+ct(conj(b)·b) = <b, b> (coefficient inner product,
+SOUNDNESS_REFERENCE 1.2 fact 3), F5-hardened by post-commitment
+theta randomizers, g-masked, ARP-side-conditioned at q46.
+
+**Claim CR-4.** Two sub-cases, both closing:
+
+- **(a) Per-position families (binariness and friends).** The
+  statement "b_i in {0,1} for all i" is the zero-check
+  sum_b eq(r, b) · B(b)·(B(b) - 1) = 0 (CR-L6, degree 3) — one
+  sumcheck per bit-tensor, terminal MLE(B)(r*). The theta
+  randomizers, the g-masks, and the F5 g-shift surface all retire
+  with the ct-claim form; the ordering discipline they enforced
+  (randomizer after commitment) survives as the standard "r after
+  commitment" edge of CR-L6, one row in Section 10.5. The ARP
+  non-wrap side condition is NOT translated: on the target path
+  range facts come from the exact range-lookup (C9/D-5), and
+  binariness proven positionally over Z_q needs no norm grounding
+  at all — b(b-1) = 0 in Z_q IS the integer statement for b in
+  {0,1} (no wrap is possible: the claim is per-position, not a
+  weighted sum).
+- **(b) Genuine bilinear ct-functionals.** The general form is a
+  public bilinear functional of committed coefficient vectors:
+  ct(gamma · conj(x) · y) = <x, coeffs(gamma·y)> = x^T M_gamma y
+  with M_gamma the negacyclic matrix of the public gamma. Reduce by
+  CR-2's special case: the scalar claim is the constant coefficient
+  of a ring equation, and ct(w) = (1/D)·T(w) = (1/D) sum over all
+  slots/conjugates — or directly: run the CR-2 slot identities and
+  take the public K-linear "constant coefficient" functional of the
+  8 slot values (ct is a Z_q-linear combination of the 8
+  representative evaluations' traces — a public 8-row K-to-Z_q map
+  the verifier applies to the batched slot claims; the trace over
+  the Frobenius orbit is verifier-side arithmetic on CLAIMED slot
+  values, no new claim). Terminals: the CR-2 eval claims. Status:
+  **REDUCES — [PROVEN*]** (SPK-4 leg (a); leg (b) inherits SPK-2's
+  certificates; the ct-via-trace identity ct = (1/D)·T(·) is SR
+  5.2's killed-monomial lemma read backwards and is exercised by
+  SPK-2's hom check).
+
+## 5. Linear classes (C4, C5, C7)
+
+### 5.1 CR-5 — the pin claims (C4)
+
+**Today.** Every masked-descent claim (G_j hypersums, mask openings,
+aggregate leaf P/Q pins) is a PINNED VALUE — a public-weight
+K-linear functional of committed mask/blinder/tensor data equal to a
+transcript value — decomposed into K_DEG = 16 coordinate rows and
+batched by 9 psi copies into 9 `CtClaim`s per wave-context
+(lookup.rs pin_claims; 32,373 pin rows at FFN scale, PBL Section 2
+row 4), then SPLIT across waves with Z1 coset pads.
+
+**Claim CR-5.** Under global commitments the pin layer keeps its
+STRUCTURE and loses its DETOUR:
+
+1. Every `PinTerm` weight family is product-structured: Lagrange
+   tensor weights L_{z*} (the doubling recursion — a pure tensor
+   product, CR-L1-evaluable in O(n)), kappa-multiplication
+   coordinate rows (`k_weight_coords` — a fixed 16 x 16 public
+   matrix per term), hypersum weights (`g_hypersum_weights` — fixed
+   per-degree constants), point-opening weights (powers — CR-L1),
+   psi copies (9 x 16 scalars), rho instance weights (32 block
+   scalars over 5 instance bits — CR-L1). NONE is dense-pseudorandom
+   at tensor scale — the pin layer passes the Section 12.2 weight
+   rule as built.
+2. Each pinned value therefore becomes ONE K-valued eval-style claim
+   against the aux commitment (mask/blinder columns — IA-O1-1) or
+   the data tensors, entering the CR-L4 mu-batch directly; the
+   16-coordinate-row decomposition is needed only under the IA-O1-2
+   fallback, and the 9-copy psi batch (2^-279 at 9 copies — the
+   theta convention) is SUBSUMED by the single CR-L4 mu draw
+   (2^-490-class): fewer challenges, stronger term.
+3. The Z1 SPLITTING of pins across waves — the C-02 machinery —
+   dissolves with the waves (Section 9.1); the pin TOTALS T_j (the
+   only pin values with transcript existence post-Z1) become
+   ordinary batched-claim right-hand sides.
+
+Status: **REDUCES — [PROVEN*]**, certificate SPK-6a (toy
+K-coordinate decomposition: `k_weight_coords`-style rows against
+direct extension-field arithmetic, plus an RLC-batch tamper).
+
+### 5.2 CR-6 — the E4 claims (C5): the detour deleted
+
+**Today.** The descents terminate in v^X = MLE(X~)(z*), v^Y, v^M —
+ALREADY MLE-evaluation claims — which e4_claims/pin_claims then
+re-express as coefficient-level ct-claims against per-wave BDLOP
+commitments because that is the only claim form the Sigma engine
+serves (M4_LOOKUP_DESIGN 3.4: "no new claim family").
+
+**Claim CR-6.** Under the reroute these claims are served NATIVELY:
+the descent's terminal IS the eval claim, handed to the CR-L4 batch
+against the global X/Y/m commitments. The rho-weighted concatenation
+X~ across 32 instances is CR-L1 structure (block weights over 5
+instance bits; IA-O1-1 alignment), so v^X-claims land on the SAME
+global commitment as every other X-claim. The e4_claims /
+pack_functional code path — the E4 coefficient detour, psi copies
+included — is deleted, not translated. Status: **REDUCES (native) —
+[PROVEN*]** (no new algebra beyond CR-L1/CR-L4; exercised by SPK-7's
+batch certificate).
+
+### 5.3 CR-7 — `RingClaim` linear families (C7)
+
+**Today.** sum a_(i,j) x_(i,j) = K over R_q — the tie claims (retired
+with C1), rescale/recomposition links, negacyclic-block public maps,
+shift/gadget-matrix wiring (SR 4.1; U6a batteries).
+
+**Claim CR-7.** A ring-valued linear identity sum_j a_j x_j = K is,
+by CR-L2a/c, 8 evaluated identities
+sum_j ev_t(a_j)·Ej^t = ev_t(K) — K-linear relations among partial
+MLE evaluations with public K-scalars ev_t(a_j) (the verifier
+evaluates each public ring coefficient at 8 points once, O(8D) per
+distinct coefficient). Families over element indexes (rescale chains,
+recomposition ladders with radix weights 2^{e l}) wrap in CR-L6
+zero-checks with CR-L1 tensor weights — the gadget radix is
+geometric, hence tensor-structured. Terminals: eval claims at
+omega-shifted points, CR-L4-batched. The public constant K (tie
+form) is verifier-side data exactly as today (SR 4.1's "constant is
+STATEMENT data" note carries over: it must be FS-bound before the
+zero-check point r is drawn). Status: **REDUCES — [PROVEN*]**
+(SPK-2's evaluated-identity certificate covers the linear case as
+the degree-1 instance).
+
+## 6. C6 — zeta/ForcedZero slot-constancy: a class that DISSOLVES
+
+### 6.1 What the class is for
+
+The E2 zeta rows pin the NON-CONSTANT CRT coordinates of H3
+slot-packed elements to zero (SR 8 item 3): GF(q^16) multiplication
+mixes coordinates, so junk with correct constants could shift a
+composed Hadamard's products — a soundness patch for the PACKING,
+not a fact about the witness values. Post-Z1 they are ForcedZero
+claims with no reveal wire (WSMD 2.4); at FFN scale they are still
+169,104 claim rows carrying h + w_claim polys — 83% of the linear
+claim layer's bytes (PBL Section 2 row 4: 169,104 of 201,486 rows).
+
+### 6.2 CR-8 — the dissolution
+
+**Claim CR-8.** Under IA-O1-4 (dense value commitments) the class is
+VACUOUS: there are no junk coordinates because there is no packing —
+every committed coefficient IS a value the claims read. The Hadamard
+family that slot-constancy protected is reduced positionally by CR-3
+with no packing precondition. Nothing is translated because the
+INVARIANT ("products of slot constants are products of values") is
+enforced by construction of the dense grid. The 169,104 rows and
+their zeta-weight machinery (derive_link_zeta, ZetaStream, the
+w = 11 / l = 24 frozen point) leave the protocol. Status:
+**DISSOLVES — [PROVEN*]** (definitional given IA-O1-4; SPK-6b's
+negative leg shows the dense zero-check catching exactly the defect
+class E2 existed for).
+
+### 6.3 The fallback if packing survives (IA-O1-4 violated)
+
+If DA's layout keeps H3 packing for some tensor, the invariant
+becomes a PACKING-IMAGE claim between two committed objects: packed
+x and dense v satisfy x_u = sum_{t<k} v_{uk+t}·e_t with e_t the k =
+8 fixed public basis ring elements — per-coefficient:
+x(u, i) = sum_t E(i, t)·v(u, t) with E the public 128 x 8 matrix
+E(i, t) = e_t[i]. That is one CR-L6 zero-check over (u, i) of a
+relation whose kernel the verifier evaluates from E in O(D·k) — and
+"junk-free" is IMPLIED (x in the packing image has zero junk by
+construction of e_t). One extra linear sumcheck + 2 terminals per
+packed tensor; the zeta point-mass machinery (2^-264 at w = 11,
+l = 24) is replaced by the 2^-486-class CR-L6 kernel. Status:
+[PROVEN*] (SPK-6b: toy packing map, honest accept, junk-bearing
+witness rejected).
+
+<!-- UNIT-MARKER: sections 7+ follow -->
 
 ---
 
