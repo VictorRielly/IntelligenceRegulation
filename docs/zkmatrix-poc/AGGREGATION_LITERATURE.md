@@ -45,7 +45,7 @@ runner-ups, and the U-AG2 obligation list: Section 8.
       PROGRESS_US P3-EXIT, PROGRESS_UZ1 IA-4)
 - [x] Section 0: ground rules, the wall, the pricing axes
 - [x] Section 1: family (a) LaBRADOR-class (papers verified)
-- [ ] Section 2: family (b) folding (LatticeFold lineage)
+- [x] Section 2: family (b) folding (LatticeFold lineage)
 - [ ] Section 3: family (c) PCS reroute (Greyhound-class)
 - [ ] Section 4: family (d) hash-based transcript compression
 - [ ] Section 5: family (e) SNARK-wrap recursion
@@ -337,7 +337,126 @@ stack of any lattice candidate in this review.
    integration — medium; "first of its shape" composition with our
    BDLOP layer — the M4-style flagged unknown.
 
-## 2. Family (b): folding / split-and-fold accumulation — PENDING (next commit)
+## 2. Family (b): folding / split-and-fold accumulation (LatticeFold lineage)
+
+### 2.1 The lineage, and what is verified
+
+Folding schemes (the Nova line, lattice edition) accumulate many
+same-shaped instances into ONE running instance whose witness stays
+one-instance-sized; succinctness comes at the end, from a single
+"decider" proof of the accumulated instance. The lattice lineage:
+
+- **LatticeFold** (Boneh-Chen, ePrint 2024/257): the first
+  lattice-based folding protocol, from Module-SIS; "as performant as
+  HyperNova, while providing plausible post-quantum security"; works
+  over small (64-bit) fields [abstract verified]. Norm control by
+  decomposing witnesses into low-radix digits before folding — the
+  cost model this repo's digit-decomposed openings already live in
+  (SOUNDNESS_REFERENCE Sections 2-4) — and a sumcheck at the core of
+  every fold.
+- **LatticeFold+** (Boneh-Chen, ePrint 2025/247): prover 5-10x
+  faster, shorter folding proofs, via a monomial-embedding algebraic
+  range proof and a sumcheck-based double-commitment transformation
+  [abstract verified; ref 7].
+- **Neo** (Nguyen-Setty, ePrint 2025/294): lattice folding for CCS
+  with pay-per-bit Ajtai commitments ("committing to a vector of
+  bits is 32x cheaper than committing to a vector of 32-bit
+  values"), small prime fields (Goldilocks-class), no cyclotomic
+  ring requirement [abstract verified]. SuperNeo (ePrint 2026/242)
+  extends the line; M4 already recorded this family as "the
+  structural competitor to watch, not the M4 move"
+  (M4_LOOKUP_LITERATURE.md Section 1.37) because pay-per-bit
+  economics do not arrive by swapping a kernel under our dense
+  Sigma-protocol openings.
+
+### 2.2 What folding buys HERE — the honest wire arithmetic
+
+The natural instance is ONE WAVE's ct-round relation (~133
+commitments sharing a challenge, PROOF_BYTE_LEDGER.md Section 0.1),
+not one opening: 670 instances at 2^20, 3,597 at FFN-layer scale
+(PROOF_BYTE_LEDGER.md Sections 1-2). Folding then prices as follows
+[MODEL, unit costs from PROOF_BYTE_LEDGER.md Section 0]:
+
+- **Fold messages.** Each fold step emits commitment-sized cross
+  material (an Ajtai commitment and/or sumcheck rounds), ~4-8 KiB at
+  our kappa/msg_r shape. 669 steps x ~8 KiB ~ **5.4 MiB at 2^20**
+  (~29 MiB at FFN scale) — a ~500x cut of the opening layer, far
+  short of 14,175x, and that is BEFORE the decider.
+- **The decider.** The accumulated witness is one-wave-sized, so a
+  naive decider re-sends one wave's openings: ~133 x 30,864 B ~ 3.9
+  MiB — over budget alone. The decider must itself be compressed by
+  a family (a)/(c) proof (~60-100 KB class); folding does not remove
+  the need for a succinct final argument, it amortizes it.
+- **The identities stay.** Every instance's commitments are its
+  public IO; the folding verifier must read them. The 0.67 GiB
+  commitment layer (Section 0.3; confirmed at 695.6 MiB by
+  PROOF_BYTE_LEDGER.md Section 1 row 3) is untouched: **family (b)
+  standalone lands at ~0.7 GiB at 2^20, identity-dominated — the
+  same structural ceiling as family (a).** Only commitment
+  restructuring (family (c)) or digest-binding-with-recursion
+  escapes it.
+
+Verifier: each fold-verify is an RLC over ~16 ring elements plus
+transcript hashing — no opening re-check, ~ms class per step, so
+~0.7-4 s single-threaded across 670-3,597 steps [MODEL] plus the
+decider verify. That is linear in waves with a small constant:
+inside the 2 s budget only marginally at layer scale, and it
+violates the letter of the sublinearity rule PROOF_BYTE_LEDGER.md
+Section 3.2 imposes (verifier work sublinear in commitments x
+waves) unless the folds are arranged in a tree whose upper levels
+are proven rather than replayed — which is recursion, i.e. family
+(a) machinery again.
+
+**Where folding IS the right primitive: the cross-layer axis.** The
+byte ledger's budget table flags that at one descent pair per layer,
+a 32-layer pass costs 32 x 103.2 KiB = 3.2 MiB in descents alone —
+"cross-layer descent aggregation/folding is ALSO mandatory, not
+optional" (PROOF_BYTE_LEDGER.md Section 3.1). Folding accumulates
+layer k's aggregated claim into layer k+1 at O(1) wire per layer
+with one final decider — exactly the shape of the not-yet-built
+multi-layer chaining (TARGET_CONTRACT.md Section 5). No other
+family provides this axis natively: (a) and (c) prove one batch
+ever-so-compactly but need to be re-run or tree-composed per layer.
+
+### 2.3 Z1 and engine fit
+
+Z1: folding is random linear combination over instances. Post-Z1
+the per-wave RHS are already committed pads plus one zero-sum
+closing claim (WAVE_SHARE_MASKING_DESIGN.md Sections 2-3); folding
+over the MASKED instances keeps every pad committed and publishes
+only RLC-aggregated images, so no per-wave RHS re-appears —
+compatible, PROVIDED the folding challenges are drawn after the pad
+commitments in the FS order (the same discipline as WSMD Section
+3.4's multi-round composition, which must be extended to cover the
+fold rounds — a U-AG2 lemma obligation). Engine fit is the best of
+any family: every fold step is a sumcheck over GF(q^16)-class
+extensions plus Ajtai RLC — the U-K1..K9 sumcheck stack and the A1
+kernels are the exact required objects, and the digit-decomposed
+witnesses are already in LatticeFold's low-norm form.
+
+### 2.4 Family (b) scorecard (axes of 0.5)
+
+1. **Bytes:** fold messages ~5.4 MiB @2^20 / ~29 MiB @FFN [MODEL] +
+   decider + the untouched ~0.7 GiB identity layer — standalone
+   FAILS the budget at every scope; as the CROSS-LAYER accumulator
+   over family (c) units, adds O(1) per layer — MEETS it.
+2. **Verifier:** linear in waves at small constant (~seconds class);
+   sublinear only via tree + recursion. Marginal standalone.
+3. **Prover:** one sumcheck + RLC per wave over one-wave witnesses —
+   [MODEL] ~1.1-1.5x on whole-prove; LatticeFold+ exists because
+   the naive version was 5-10x slower — parameters matter.
+4. **PQ:** yes (Module-SIS, transparent).
+5. **Z1:** compatible over masked instances; FS-ordering lemma owed
+   (fold rounds into the WSMD 3.4 composition argument).
+6. **Engine reuse:** highest of all families — sumcheck stack,
+   kernels, digit decomposition all load-bearing.
+7. **Maturity:** ePrint line 2024-2026, no production deployment, no
+   maintained library (contrast LaZer for family (a)); Neo/SuperNeo
+   still moving. Security analyses are paper-only.
+8. **Risk class:** high standalone (decider + parameter chains +
+   heterogeneous-wave shaping); LOW as an add-on accumulator once a
+   family (c) unit proof exists — the fold then operates on a few
+   small instances per layer, not 670.
 
 ## 3. Family (c): polynomial-commitment reroute (Greyhound-class) — PENDING
 
@@ -396,6 +515,12 @@ stack of any lattice candidate in this review.
    https://blog.zksecurity.xyz/posts/labrador/ [third-party
    analysis; source for the linear-verifier characterization and
    the 60-70 KB @ up-to-2^30-constraints class]
+9. Wilson Nguyen, Srinath Setty. "Neo: Lattice-based folding scheme
+   for CCS over small fields and pay-per-bit commitments." IACR
+   ePrint 2025/294. https://eprint.iacr.org/2025/294 [abstract
+   verified: lattice folding for CCS; pay-per-bit Ajtai (bits 32x
+   cheaper than 32-bit values to commit); small fields
+   (Goldilocks-class); no cyclotomic requirement; plausible PQ]
 
 ---
 
