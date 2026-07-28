@@ -61,21 +61,29 @@ Findings, in plain terms:
    pigeonhole argument in the LatticeFold paper itself, at the SLOT
    FIELD SIZE — the exact quantity whose smallness killed three
    public LaBRADOR implementations. Our slots are 2^496; the fold
-   challenge surfaces clear the 128-bit line by 98 to 292 bits
-   (Section 4, re-derived, not imported). The spike demonstrates the
-   BREAK at a toy fully-split ring and its absence at a toy
-   partially-split ring.
+   challenge surfaces clear the 128-bit line by 92 to 286 bits
+   (Section 4, re-derived, not imported; spike checks 6/8/9). The
+   spike demonstrates the BREAK at a toy fully-split ring and its
+   absence at a toy partially-split ring, plus a constructive
+   extraction breakdown from a slot-degenerate fold-challenge
+   subset.
 4. **One genuine gap: their theorems are l_inf-native, our chain is
    l2-native, and at a 31-bit modulus the naive conversion between
-   the two eats the parameter room.** Transcribed literally
-   (l_inf hypotheses costed with the house l2 estimator), the fold
-   only closes at small digit bases. The fix is a house l2
-   re-derivation of the one affected step (the binding bound, AFS-L6
-   — elementary, same arithmetic class as SC-L1), after which the
-   fold's MSIS instances land in the SAME class as the eval-proof
-   levels already priced by R-EB4/kappa 11. LatticeFold+'s authors
-   themselves flag the l2 variant as open future work; AFS-L6 is the
-   house's answer for the one step we need.
+   the two eats the parameter room.** Transcribed literally (l_inf
+   hypotheses costed with the house l2 estimator), the fold's
+   binding instances sit on a knife-edge at the smallest plausible
+   shapes (0.4 bits under the R-EB4 validity line) and FAIL 13 of
+   the 48 envelope rows, crossing q itself at the larger ones
+   (spike check 7). The fix is a house l2 re-derivation of the one
+   affected step (the binding bound, AFS-L6 — elementary, same
+   arithmetic class as SC-L1), which recovers log2(256/33) ≈ 3.0
+   bits per row: the l2 route passes 48/48 with ≥ 0.9 bits of
+   headroom everywhere and 3.4 bits at the representative shape,
+   landing the fold's MSIS instances in the SAME class as the
+   eval-proof levels already priced by R-EB4/kappa 11.
+   LatticeFold+'s authors themselves flag the l2 variant as open
+   future work; AFS-L6 is the house's answer for the one step we
+   need.
 5. **Fiat–Shamir for the fold is NOT in the papers** (LatticeFold
    Remark 3.3 leaves it as future work). The house already owns the
    machinery that closes this — the [PSS] predicate-special-soundness
@@ -84,9 +92,13 @@ Findings, in plain terms:
    rows for every fold challenge are in Section 7 (joint with
    AZ-L4(a)).
 6. **The total knowledge-error budget for a complete folded 32-layer
-   pass lands at ~2^-219 post-FS [MODEL]** — PASS against the house
-   128-bit-class target with ~91 bits of margin (Section 6 table;
-   spike-reproduced).
+   pass lands at 2^-219.5 post-FS [MODEL]** — PASS against the house
+   128-bit-class target with 91.5 bits of margin; folding 32 layers
+   costs ~0.5 bits vs the unfolded pass (Section 6 table;
+   spike-reproduced). One inversion found BY the spike: if the
+   design adopts LatticeFold+ machinery, its two-parallel-sumcheck
+   form is REQUIRED at our ring under FS grinding, not an
+   optimization artifact (AFS-L5 item 3).
 
 Grading legend (SOUNDNESS_REFERENCE.md Section 0): **[PROVEN]** —
 complete argument here or verified published fact with the exact
@@ -461,20 +473,27 @@ arms, the transcription facts are:
    mu·(log^2 kappa + (2 log n)^2)/|C| with mu = 3 + dk. At house
    sizes every |C|-term is 2^-480-class (|C| = |C_K| = 2^496) and
    every |S-bar| term is 2^-290-class. [CITED + PROVEN arithmetic.]
-3. **The mu·|S-bar| union bound and the two-parallel-sumcheck
-   artifact (their Claim 2 / Remark 4.9).** Their extractor's union
-   is over up to mu·|S-bar| adversary calls; at their parameters
-   this forces TWO parallel sumchecks (squared error) to survive.
-   At OUR ring: mu·|S-bar| ≈ 2^305-class (mu ≈ 2^8, |S-bar| =
-   2^297.2), and a SINGLE K-sumcheck per-call term is
-   (log kappa + (2 log n)^2-class)/2^496 ≈ 2^-485; the union lands
-   at ≈ 2^-180 — comfortably under the target even single. **House
-   arithmetic says one sumcheck suffices at GF(q^16) where their
-   128-bit field needs two [MODEL — their Remark 4.9 flags the
-   union as possibly a proof artifact; the house posture is: adopt
-   the single-sumcheck saving only with this row cited, or keep
-   their two-sumcheck form conservatively; decision to FA/FINAL
-   with the spike row (check 6).**
+3. **The mu·|S-bar| union bound: the two-parallel-sumcheck form is
+   REQUIRED at our ring (their Claim 2 / Remark 4.9, house
+   arithmetic — spike check 6).** Their extractor's Claim-2 union is
+   over up to mu·|S-bar| adversary calls; in THEIR setting
+   |S-bar| = |C|, so one factor of |C| cancels and the squared
+   (two-sumcheck) per-call error absorbs the union. At OUR ring the
+   sets are DIFFERENT sizes (|S-bar| = 2^297.2, |C| = 2^496 — no
+   cancellation): a SINGLE K-sumcheck leaves a per-round union term
+   mu·|S-bar|·(log-class/|C|) ≈ 2^-185, i.e. ≈ 2^-181 over 31
+   rounds — which PASSES interactively but lands at ≈ 2^-116 under
+   the house Q = 2^64 FS charging: **FAILS the 2^-128 line.** The
+   two-parallel form gives mu·|S-bar|·(log-class)^2/|C|^2 ≈ 2^-672
+   over all rounds, ≈ 2^-607 post-FS: PASSES with room. **Verdict:
+   if FA adopts [LF+] machinery, the two-parallel-sumcheck form is
+   a HARD requirement at our ring under (Q-conv), unless their
+   Remark-4.9 question ("proof artifact or attack?") is resolved in
+   the artifact direction by the standing review. Initially this
+   lane's draft had the saving backwards; the spike caught it —
+   recorded per the EB honesty precedent.** [PROVEN arithmetic
+   under (Q-conv); the union's FS-composition posture itself is
+   [MODEL], conservative direction.]
 4. **The completeness/binding norm condition (their Thm 4.3 /
    Eq. (28)):** b_bind ≥ 2·T_inf·(d′ + 1 + B + dk), and the folding
    theorem 5.1/5.2 needs com (2B^2, S-bar − S-bar)-binding with
@@ -642,12 +661,12 @@ margin imported from the LaBRADOR-context 365-bit figure).
 
 | # | surface | set | per-slot / per-event mass | worst post-FS use (x 2(Q+1) = 2^65, x count) | margin vs 2^-128 |
 |---|---|---|---|---|---|
-| S1 | fold RLC challenges rho_i | quinary C, 2^297.2 | per-slot point mass 2^-297.2 (L2 [PROVEN]) | 2^65 · 2·n_inst·2^-297.2 ≈ 2^-226 (n_inst ≤ 64, all rounds) | **+98 bits** |
+| S1 | fold RLC challenges rho_i | quinary C, 2^297.2 | per-slot point mass 2^-297.2 (L2 [PROVEN]) | 2^65 · 31 · 2·n_inst·2^-297.2 ≈ 2^-220.3 (n_inst ≤ 64, all rounds) | **+92 bits** |
 | S2 | fold-challenge differences (extraction) | C − C | LS18-invertible, margin 1.30x (C0') | not a mass — an algebra fact; fails only if the set collides per-slot (S4 demo) | structural |
-| S3 | sumcheck / batching challenges (alpha, mu, beta, r_o) | slot-diagonal K-set, 2^496 | SZ class ((2b+1)log m + 2n_inst)·2^-496 ≈ 2^-485 | 2^65 · N_fold · 2^-485 ≈ 2^-415 | **+287 bits** |
+| S3 | sumcheck / batching challenges (alpha, mu, beta, r_o) | slot-diagonal K-set, 2^496 | SZ class ((2b+1)log m + 2n_inst)·2^-496 ≈ 2^-485 | 2^65 · N_fold · 2^-485 ≈ 2^-414.5 | **+286 bits** |
 | S4 | the structural cap (AFS-L0(c)) | ANY strong sampling set | ≤ q^16 = 2^496 at our ring; ≤ q = 2^31 at a fully-split ring | need ≥ 2^(128+65+log) ≈ 2^200-class | **+296 bits of structural room; the fully-split cap 2^31 is 169 bits BELOW need — the break regime, unfixable by set design** |
 
-Readings. (i) The tightest fold-layer surface is S1 at +98 bits —
+Readings. (i) The tightest fold-layer surface is S1 at +92 bits —
 comfortable, and NOT the chain's binding constraint (the eval-proof
 floor terms of Section 6 dominate). (ii) The broken regime is not a
 "bad set choice" but a ring property: at a fully-split q31 ring NO
@@ -685,11 +704,14 @@ fold-challenge subset.]**
 **Why needed.** [LF] Thm 3.3's binding hypothesis is
 MSIS^{inf}_{kappa,m,8·T_inf·B}. The house estimator costs l2; the
 generic conversion (an l_inf solution < beta_inf is an l2 solution
-< sqrt(d·m)·beta_inf) multiplies by sqrt(d·m) ≈ 2^9 at fold shapes,
-and 8·T_inf·B·2^9 crosses q for any digit base e ≥ 3 — the theorem
-would be vacuous-as-bounded exactly in the R-EB4 sense. [LF+]
-Section 6 lists the l2 variant as open. The fix is to re-derive the
-single step that produces the MSIS solution, natively in l2.
+< sqrt(d·m)·beta_inf) multiplies by sqrt(d·m) ≈ 2^9-2^10.5 at fold
+shapes, and with T_inf = 256 the resulting bounds sit 0.4 bits
+under the R-EB4 validity line at the SMALLEST plausible shape, fail
+13/48 of the envelope, and cross q outright at the larger shapes
+(spike check 7) — vacuous-as-bounded exactly in the R-EB4 sense.
+[LF+] Section 6 lists the l2 variant as open. The fix is to
+re-derive the single step that produces the MSIS solution, natively
+in l2.
 
 **Statement.** Let the fold-round extractor (AFS-L1) obtain two
 2B-weak openings (Delta_1, x_1), (Delta_2, x_2) of the same
@@ -710,16 +732,19 @@ nonzero by the AFS-L1 step-3 disagreement. ∎ **[PROVEN]** (three
 lines; it is SC-L1 step 3's arithmetic with the fold's objects).
 
 **House numbers** (spike check 7): with T_cap = 33,
-m_acc ∈ [2^10, 2^13] rings, d = 128, and B_acc = n_inst·T-class·(b−1)
-per AFS-L4 at digit bases e ≤ 7:
-beta_fold ≈ 2^{8.04}·2^{8.5..10}·B_acc. Representative row:
-m_acc = 2^11, B_acc = 2^9.3 (n_inst = 2, l2-capped, b−1 = 64-class
-honest digits): beta_fold ≈ 2^{26.8} ≤ 2^30.5 with 3.7 bits to the
-R-EB4 line and kappa = 11 sufficient on the C3 line — **the fold's
-binding instances land in the same MSIS class as the eval-proof
-levels R-EB4 already validated.** The full (b, k, n_inst, m_acc)
-envelope with PASS/FAIL per row is spike check 7; the envelope caps
-the fold at the same e ≤ 7-class bases as the floor levels —
+m_acc ∈ [2^10, 2^13] rings, d = 128, honest accumulator bound
+B_acc from the concentration + restart discipline (Q4.1;
+B_acc = 1.3·sqrt(n_inst·2·d/3)·2^{e−1}), over the envelope
+n_inst ∈ {2..16} x e ∈ {2,4,7} x m_acc: **the l2 route passes
+48/48 rows** with worst headroom 0.9 bits; representative row
+(n_inst = 2, e = 7, m_acc = 2^11): B_acc = 2^10.1,
+beta_fold(l2) = 2^27.1 vs the 2^30.5 line — 3.4 bits of headroom,
+kappa = 11 sufficient on the C3 line — **the fold's binding
+instances land in the same MSIS class as the eval-proof levels
+R-EB4 already validated.** The naive l_inf-costed route passes only
+35/48 (knife-edge 2^30.1 at the representative row) — AFS-L6
+recovers exactly log2(256/33) = 2.96 bits per row. The envelope
+caps the fold at the same e ≤ 7-class bases as the floor levels —
 convergent with AFS-L5 item 1.
 
 ## 6. The knowledge-error budget for a complete folded pass
@@ -737,22 +762,22 @@ spike-reproduced (check 5); exponents rounded to 0.1.
 | 1 | fold RLC / hypergeometric (n_inst/|C_s|) | ≤ 2^6·2^-297.2 = 2^-291.2 | 31 | 2^-286.3 | AFS-L1; [LF] Thm 3.3 |
 | 2 | fold sumcheck SZ (E1+E2+E3 over C_K) | ≤ 2^-485 | 31 | 2^-480 | AFS-L1; [LF] Lemma 3.7 |
 | 3 | fold binding | eps_bind: computational, MSIS kappa 11 at beta_fold (AFS-L6) | 31 instances, one class | adv-term, not statistical | AFS-L6; C3 line |
-| 4 | [if LF+ machinery] Pi_cm union-bound term | 2^-180-class (single K-sumcheck) | per round | ≤ 2^-175 | AFS-L5 item 3 [MODEL] |
+| 4 | [if LF+ machinery] Pi_cm union term, two-parallel-sumcheck form (REQUIRED — AFS-L5 item 3) | 2^-676.8 | 31 | 2^-671.9 | AFS-L5 item 3 |
 | 5 | claim batching into the decide (SC-L6) | B·2^-297 | once | 2^-293 | SC-L6 [PROVEN] |
 | 6 | decide: eval-proof chain, exact-digit column (fold 2^-288-class, K-draw agg 2^-496, GKR/SZ 2^-485) | — | once | 2^-285 | SC 3.2/3.3 table |
 | 7 | GKR/sumcheck instance-side SZ (per-layer engines) | 2^-485-class | once (batched) | 2^-485 | DB 10.4 |
-|   | **pre-FS union** | | | **≈ 2^-284.9** | dominated by rows 1 + 6 |
-|   | **post-FS: x 2(Q+1) ≈ 2^65 ([PSS] Thm 4.1/Eq. (18), fold rounds joining the additive bracket — SC-L5 transfer conditions re-checked for the fold rounds: (1) well-spreadness = S1 row; (2) T_op cap = F-C2; (3) splitting terms = S3 row; (4) window — NOT NEEDED, slack-1 grounding; (5) CWSS structure = AFS-L1 step 1)** | | | **≈ 2^-219.9** | |
-|   | **vs 2^-128 (H-07 min() target, statistical leg)** | | | **PASS, margin ≈ 91.9 bits** | |
+|   | **pre-FS union** | | | **2^-284.5** | dominated by rows 6 + 1 |
+|   | **post-FS: x 2(Q+1) ≈ 2^65 ([PSS] Thm 4.1/Eq. (18), fold rounds joining the additive bracket — SC-L5 transfer conditions re-checked for the fold rounds: (1) well-spreadness = S1 row; (2) T_op cap = F-C2; (3) splitting terms = S3 row; (4) window — NOT NEEDED, slack-1 grounding; (5) CWSS structure = AFS-L1 step 1)** | | | **2^-219.5** | |
+|   | **vs 2^-128 (H-07 min() target, statistical leg)** | | | **PASS, margin 91.5 bits** | |
 
 **Headline: a complete folded 32-layer pass carries post-FS
-knowledge error ≈ 2^-219 [MODEL — cited constants, spike-checked
-sums], statistically indistinguishable from the UNFOLDED exact-digit
-pass (2^-220-class, SC 3.3): folding 32 layers costs ≈ 1 bit of
-knowledge error.** The budget is dominated by the decide's fold
-(amortization) terms exactly as before; the new fold-layer terms sit
-70+ bits below them. The computational legs (rows 3 + C-msis) are
-unchanged in class: kappa 11 covers both.
+knowledge error 2^-219.5 [MODEL — cited constants, spike-checked
+sums], vs the UNFOLDED exact-digit pass at 2^-220-class (SC 3.3):
+folding 32 layers costs ≈ 0.5 bits of knowledge error.** The budget
+is dominated by the decide's fold (amortization) terms exactly as
+before; the new fold-layer terms sit ~66 bits below them (row 1 vs
+row 6). The computational legs (rows 3 + C-msis) are unchanged in
+class: kappa 11 covers both.
 
 Convention flags carried unchanged: (Q-conv) and (X-run) from SC 3.3
 apply verbatim — the fold multiplies the extractor's expected-time
@@ -829,14 +854,15 @@ per-level reading survives a 32-fold: fold rounds ground their own
 norms at slack exactly 1 (the SC-L3 mechanism species), the two
 SC-L4 channels stay slack-inert across both seams, and no
 compounding channel opens. The knowledge-error headline for a
-complete folded pass is ≈ 2^-219 post-FS [MODEL] — PASS with ~92
-bits of margin; folding costs ≈ 1 bit vs the unfolded pass. The
+complete folded pass is 2^-219.5 post-FS [MODEL] — PASS with 91.5
+bits of margin; folding costs ≈ 0.5 bits vs the unfolded pass. The
 architecture stands. FAILURE modes are precisely fenced: dropping a
 range arm (F-C1), uncapped fold challenges (F-C2), naive
-l_inf-to-l2 costing without AFS-L6 (F-C3′), or a fully-split ring
-(Section 4 S4) each individually kill the composition, and none is
-present in the recommended family. F-IF1 verification pending
-(Section 8 checklist).**
+l_inf-to-l2 costing without AFS-L6 (F-C3′), a single-sumcheck [LF+]
+Pi_cm under FS (AFS-L5 item 3), or a fully-split ring (Section 4
+S4) each individually kill the composition, and none is present in
+the recommended family. F-IF1 verification pending (Section 8
+checklist).**
 
 ## 10. Exports
 
@@ -882,8 +908,12 @@ present in the recommended family. F-IF1 verification pending
 - The SC 2.4(c) exact-digit plumbing flag is WEAKENED for the fold
   layer specifically: [LF]'s digit-level range product inside a
   sumcheck avoids bit-level witness columns (Section 2.3 note).
-- The single-vs-double sumcheck decision (AFS-L5 item 3) is open
-  for FINAL with the spike row.
+- The single-vs-double sumcheck question (AFS-L5 item 3) is
+  SETTLED in the conservative direction by house arithmetic: if
+  [LF+] machinery ships, two-parallel sumchecks are REQUIRED at our
+  ring under (Q-conv) — the single-sumcheck form fails post-FS at
+  2^-116. Only a review resolution of their Remark-4.9 question
+  ("artifact or attack") could re-open it.
 - Wayback-vs-live source identity: re-verify 2024/257 (Dec 15 2025
   snapshot), 2025/247 (Aug 9 2025 snapshot), 2025/294 against live
   ePrint when the bot check lifts (the SC 5.3 item 6 posture).
@@ -897,7 +927,7 @@ present in the recommended family. F-IF1 verification pending
 | AFS-L2 (range arm = slack-1 grounding) | [PROVEN] mechanism (house); [CITED] protocol |
 | AFS-L3 (decomposition, error-free) | [CITED] + [PROVEN] arithmetic |
 | AFS-L4 (depth-independent norm law) | [PROVEN] arithmetic; spike-verified numerically |
-| AFS-L5 ([LF+] machinery at our ring; e ≤ 7 convergence; union-bound arithmetic) | [CITED] + [PROVEN] arithmetic; single-sumcheck saving [MODEL] |
+| AFS-L5 ([LF+] machinery at our ring; e ≤ 7 convergence; two-parallel-sumcheck REQUIREMENT) | [CITED] + [PROVEN] arithmetic under (Q-conv); the union's FS posture [MODEL, conservative] |
 | AFS-L6 (l2 fold binding bound) | [PROVEN] (house, 3 lines); its NECESSITY at q31 is [PROVEN] arithmetic (the l_inf route's vacuity) |
 | AFS-L7 (the extended per-level composition) | [PROVEN] as composition of cited skeletons + house constants; independent-review target at the same priority class as SC-L4 |
 | small-slot margins (Section 4 table) | [PROVEN] arithmetic; break demos spike-executed |
@@ -943,7 +973,13 @@ present in the recommended family. F-IF1 verification pending
 Primary sources 2024/257 + 2025/247 read in full and 2025/294's
 soundness core read this session (Wayback route; bot-check note
 carried); transcription AFS-L0..L7 written against the R-EB-corrected
-SC chain; the l_inf/l2 gap identified and closed by AFS-L6; the
-small-slot break re-derived for the fold surfaces with the
-pigeonhole cap stated as a theorem; budget headline 2^-219 [MODEL];
-F-IF1 pending at close — Section 8 checklist left binding.*
+SC chain; the l_inf/l2 gap identified and closed by AFS-L6 (l2 route
+48/48 vs naive 35/48, spike); the small-slot break re-derived for
+the fold surfaces with the pigeonhole cap stated as a theorem and
+both break demos executed; budget headline 2^-219.5 / margin 91.5
+bits [MODEL]. One correction found by the spike against this
+document's own draft (EB precedent honored): the [LF+]
+single-sumcheck saving was backwards — at our ring the mu·|S|-union
+does NOT cancel (|S| != |C|) and the two-parallel form is REQUIRED
+under FS; AFS-L5 item 3 records the corrected arithmetic. F-IF1
+pending at close — Section 8 checklist left binding.*
