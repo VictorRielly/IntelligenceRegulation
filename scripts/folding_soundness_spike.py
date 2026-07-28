@@ -524,6 +524,47 @@ ok(f"BREAK DEMO B (F5-pair shape): fold challenges from the "
    f"~ 1/17 per draw (per-slot law), and the house quinary/K sets put "
    f"that rate at 2^-297 / 2^-496")
 
-print(f"\nALL {ok_count}/9 checks PASS — arithmetic of "
+# ----------------------------------------------------------------------------
+# check 10 — F-IF1 verification arithmetic (FA's IXF interface, landed)
+# ----------------------------------------------------------------------------
+# F-IF1.5 norm-law chain: gamma_z = OP_CONC * 2^(e0-1) * sqrt(N_limb * D),
+# N_limb(pass) = 32 * N_limb(layer). Verify the RELATIVE chain against
+# FA's committed slots (layer e0=5 headroom 0.94 b at the exact-digit
+# gate; pass e0=2 headroom ~0.87 b; per-level-gate e0=1 ~0.33 b).
+sqrt32_bits = 0.5 * L2(32)
+if abs(sqrt32_bits - 2.5) > 1e-12:
+    fail("sqrt(32) != +2.5 bits")
+layer_head_e5 = 0.94                       # FA slot (layer, e0=5, gate 22.12)
+# 31-bit-class limb chain l0 = ceil(31/e0): e0 5 -> 2 shifts gamma by
+# 2^(2-5) * sqrt(ceil(31/2)/ceil(31/5)) — the class-mix caveat is R-FC2
+shift_5to2 = (2 - 5) + 0.5 * L2(math.ceil(31 / 2) / math.ceil(31 / 5))
+pass_head_e2 = layer_head_e5 - sqrt32_bits - shift_5to2
+neg_e5 = layer_head_e5 - sqrt32_bits       # e0=5 kept at pass scope
+shift_2to1 = (1 - 2) + 0.5 * L2(math.ceil(31 / 1) / math.ceil(31 / 2))
+gate_shift = L2(2 ** 22.12 / 2 ** 21.07)   # exact-digit -> per-level gate
+pass_head_e1 = pass_head_e2 - gate_shift - shift_2to1
+if neg_e5 >= 0:
+    fail("FA negative check contradicted: e0=5 survives x32?!")
+if abs(pass_head_e2 - 0.87) > 0.15 or abs(pass_head_e1 - 0.33) > 0.15:
+    fail(f"F-IF1.5 headroom chain off: e0=2 {pass_head_e2:.2f} vs ~0.87, "
+         f"e0=1 {pass_head_e1:.2f} vs ~0.33")
+# IXF budget: no claim-layer fold challenges -> drop rows 1/2/4; add 5
+# extra K-rounds per instance (~9 instances) and +3 eval-proof levels
+ixf_extra = L2(9 * 5 * 3 + 3 * 60) - LOG_CK       # SZ class, generous
+ixf_pre = log2sum([row5, row6, row7, ixf_extra])
+ixf_post = ixf_pre + FS_LOSS
+if not (-222 < ixf_post < -218):
+    fail(f"IXF budget 2^{ixf_post:.1f} outside expected band")
+ok(f"F-IF1 verification arithmetic: sqrt(32) = +{sqrt32_bits:.1f} b exactly; "
+   f"e0=5 at pass scope goes NEGATIVE ({neg_e5:.2f} b — FA's negative "
+   f"check confirmed); re-derivation chain gives e0=2 headroom "
+   f"{pass_head_e2:.2f} b (FA ~0.87) and e0=1 {pass_head_e1:.2f} b "
+   f"(FA ~0.33) — consistent within 0.1 b on the 31-bit limb chain "
+   f"[class-mix caveat = R-FC2]; IXF pass budget (no claim-layer fold "
+   f"challenges, +5 K-rounds x instances, +3 levels) post-FS "
+   f"2^{ixf_post:.1f} — the unfolded class, folding via IXF costs ~0 bits")
+
+print(f"\nALL {ok_count}/10 checks PASS — arithmetic of "
       f"AGGREGATION_FOLDING_SOUNDNESS.md reproduced (norm law, error "
-      f"budget, entropy margins, AFS-L6 envelope, break demos).")
+      f"budget, entropy margins, AFS-L6 envelope, break demos, F-IF1 "
+      f"verification).")

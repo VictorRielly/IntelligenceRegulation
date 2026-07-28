@@ -175,6 +175,28 @@ precedent).
   small-slot axis); FS of the fold left as FUTURE WORK by LF Remark
   3.3 — the house PSS/SC-L5 transfer must carry it. F-IF1 not landed
   yet (checked). Writing AGGREGATION_FOLDING_SOUNDNESS.md now.
+- LANE COMPLETE: AGGREGATION_FOLDING_SOUNDNESS.md (AFS-L0..L8,
+  F-C1..F-C6, small-slot margins re-derived +92/+286 bits, budget
+  2^-219.5 post-FS / margin 91.5 b [MODEL], FS rows FSB-1..4 + F-N1)
+  + folding_soundness_spike.py 10/10 OK (<5 s, ~10 MB RSS). Two
+  substantive findings beyond the brief: (1) the l_inf/l2 norm-shape
+  gap — LF theorems costed naively fail 13/48 of the envelope at
+  q31; house l2 re-derivation AFS-L6 recovers 2.96 b/row, 48/48
+  PASS; (2) spike-caught inversion — [LF+] two-parallel sumchecks
+  are REQUIRED at our ring (mu|S|-union does not cancel, single form
+  2^-116 post-FS FAILS). F-IF1 LANDED mid-lane (0aeae08, IXF flat-32,
+  LatticeFold shape REJECTED by FA): hostile-read + VERIFIED (V1-V6;
+  spike check 10 confirms FA's e0 negative check and headroom chain
+  within 0.1 b); new lemma AFS-L8 (SC-L6 at two commitment groups)
+  discharged; R-FC1..R-FC4 filed (none architectural: R-FC1 LF
+  rejection-reason imprecision — rejection survives on corrected
+  grounds; R-FC2 knife-edge pass headrooms < 1 b need per-group
+  freeze rows; R-FC3 "SC-L6 verbatim" needs AFS-L8 at two groups;
+  R-FC4 slot-completeness not restated in the binding interface).
+  VERDICT: extraction COMPOSES — IXF via SC-L4 at pass shape +
+  AFS-L8 (folding costs ~0 bits); RLC shape composes under
+  F-C1..F-C6 (archived, governs eval-proof-internal folds +
+  streaming variant). Deliverables checkbox left for orchestrator.
 
 ## Log
 

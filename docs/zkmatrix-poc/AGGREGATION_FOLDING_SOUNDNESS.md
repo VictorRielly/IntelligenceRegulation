@@ -1,22 +1,44 @@
 # O-8 soundness lane: Folding (LatticeFold-class) Extraction at the House Ring, Composed with the Per-Level Result
 
-Status: DESIGN COMPLETE, F-IF1 verification PENDING (U-AG4 tranche,
-Agent FC lane, 2026-07-27; paper + Python spike only — no engine
-changes). This document is the SOUNDNESS side of the O-8 folding
-round: it transcribes the LatticeFold-class knowledge-soundness
-(extraction) theory to the house setting and settles whether the fold
-composes with the existing per-level extraction result (SC-L4,
+Status: DESIGN COMPLETE, F-IF1 VERIFIED (landed mid-lane; four R-FC
+rows — Section 8) (U-AG4 tranche, Agent FC lane, 2026-07-27; paper +
+Python spike only — no engine changes). This document is the
+SOUNDNESS side of the O-8 folding round: it transcribes the
+LatticeFold-class knowledge-soundness (extraction) theory to the
+house setting and settles whether the fold composes with the
+existing per-level extraction result (SC-L4,
 AGGREGATION_SOUNDNESS_COMPOSITION.md).
+
+**Role note after F-IF1 (read with the summary):** FA's committed
+interface adopts INDEX-EXTENSION folding (IXF flat-32) and REJECTS
+the LatticeFold-class RLC fold. That does not idle this lane's
+transcription — it re-aims it. The transcription now serves four
+masters: (1) it VERIFIES F-IF1's soundness claims (Section 8 — the
+"extraction = SC-L4 at pass shape" claim is confirmed, with
+conditions and one new small lemma AFS-L8); (2) it CERTIFIES the
+rejection of the RLC alternative on corrected grounds (R-FC1: FA's
+stated soundness reasons were partly imprecise; the rejection
+survives on bytes + apparatus + FS-surface + AFS-L6-envelope
+grounds); (3) it GOVERNS the eval-proof-internal folds, which IXF
+keeps unchanged and which are the only witness-multiplying
+challenges left in the design; (4) it is the ARCHIVE the future
+streaming variant (F-IF1.3's out-of-scope note) must reopen at
+exactly the F-C1..F-C6 conditions.
 
 **The question in one line: does folding 32 layers into one proof
 preserve the security proof, at our ring?**
 
-**The answer in one line (verdict, Section 8): extraction COMPOSES
-UNDER SIX PRECISE CONDITIONS (F-C1..F-C6, all satisfiable at the
-house parameter family) — the per-level property survives a 32-fold
-because every fold round re-grounds norms with its own algebraic
-range arm, exactly the mechanism SC-L4 already relies on; no
-compounding channel opens; the architecture stands.**
+**The answer in one line (verdict, Section 9): extraction COMPOSES.
+For FA's adopted IXF flat-32 design (F-IF1, landed mid-lane and
+verified here): via SC-L4 at pass shape plus AFS-L8, with knife-edge
+norm headrooms flagged for freeze rows (R-FC2). For the
+LatticeFold-class RLC shape (rejected by FA; still governing for the
+eval-proof-internal folds and any future streaming variant): under
+six precise conditions F-C1..F-C6, all satisfiable at the house
+parameter family — the per-level property survives because every
+fold round re-grounds norms with its own algebraic range arm,
+exactly the mechanism SC-L4 already relies on; no compounding
+channel opens; the architecture stands either way.**
 
 ## Plain-language summary (read this first)
 
@@ -112,11 +134,12 @@ claim-discipline note (audit H-07): min(algebraic error, FS/hash
 security incl. grinding, commitment-assumption bound, parameter
 bound) — the deployable classical target is 128-bit-class.
 
-Spike: `scripts/folding_soundness_spike.py` (stdlib, < 1 min, tiny
-memory; checks the ARITHMETIC of this document — the norm-growth law
-over chained folds at toy scale, the knowledge-error table, the
-challenge-set entropy margins, the negative small-slot demos — NOT
-the proofs).
+Spike: `scripts/folding_soundness_spike.py` (stdlib, < 5 s, tiny
+memory; 10 numbered checks, all passing — the ARITHMETIC of this
+document, not the proofs: the norm-growth law over chained folds at
+toy scale, the knowledge-error table, the challenge-set entropy
+margins, the AFS-L6 envelope, both negative small-slot demos, and
+the F-IF1 verification arithmetic).
 
 ## 0. Scope, sources, and the fold-shape caveat
 
@@ -129,10 +152,13 @@ CONSTRUCTION (what folds, arity, schedule, wire bytes) and publishes
 the F-IF1 interface; every statement here that depends on the fold
 shape is PARAMETRIC in (n_inst per step, digit base b, decomposition
 depth k, number of fold rounds N_fold) and is marked for F-IF1
-verification. **F-IF1 status at close of this lane: [F-IF1 PENDING]
-— checked against wt-uag4-folding; not yet published. Section 8's
-R-FC rows are therefore conditional verification obligations, not
-findings.**
+verification. **F-IF1 status at close of this lane: LANDED
+(wt-uag4-folding commit 0aeae08) and VERIFIED — Section 8 carries
+the verification (V1-V6), the new small lemma AFS-L8 it needs, and
+four R-FC rows (none architectural). Sections 2-7 were written
+fold-shape-independently before F-IF1 landed and are kept in that
+parametric form; the header role note says which parts govern the
+adopted IXF design vs the rejected RLC path.**
 
 ### 0.2 Sources
 
@@ -751,7 +777,9 @@ convergent with AFS-L5 item 1.
 
 Model: N_fold fold rounds (32 leaves; N_fold = 31 for either a
 binary tree or a sequential 2-ary schedule — same count; parametric
-otherwise [F-IF1 PENDING]), each with the AFS-L1 error; ONE decide
+otherwise — this table prices the RLC shape; the adopted IXF
+design's budget is spike check 10, Section 8), each with the AFS-L1
+error; ONE decide
 via the SC-L4 chain in the exact-digit configuration (triple-mandated
 config; SC 3.3's most robust column); house Q-convention Q = 2^64
 charged directly (SC 3.3 (Q-conv), same posture). All terms
@@ -810,81 +838,198 @@ FSB-4 needs a fresh rig (two accumulators, one transcript).
 [OBLIGATION — battery specs at build round; same posture as
 CRB-N1..N5.]
 
-## 8. R-FC rows and the F-IF1 verification protocol
+## 8. F-IF1 VERIFIED — the verification, the R-FC rows, and AFS-L8
 
-**[F-IF1 PENDING]** — `git show wt-uag4-folding:docs/zkmatrix-poc/
-AGGREGATION_FOLDING_DESIGN.md` checked during this lane; not yet
-published at close. No R-FC discrepancy rows can be filed against an
-unpublished interface. What WILL be verified against F-IF1 when it
-lands (the checklist is binding on FINAL if this lane closes first):
+F-IF1 landed on wt-uag4-folding (commit 0aeae08, "F-IF1 COMMITTED")
+during this lane and was hostile-read in full against Sections 1-7.
+FA's design is **IXF flat-32**: the layer number becomes 5 MLE index
+variables; NO per-step fold messages, NO accumulator-witness mixing,
+NO witness-multiplying challenge at the claim layer; folding
+soundness claimed as "sumcheck soundness over 5 more variables +
+CR-L4/CR-L5 verbatim + the eval-proof chain (SC-L4) at the pass
+shape" (F-IF1.0).
 
-- **R-FC-V1**: the fold's challenge sets — fold RLC from quinary C
-  with the R-EB1 cap (F-C2); sumcheck/batching/point draws from the
-  slot-diagonal K-set, never Z_q-diagonal (Section 4 S3/S4) and
-  never raw-R_q where Lemma 3.2's RotSum bookkeeping is needed (G4).
-- **R-FC-V2**: every fold round carries the range arm (F-C1) — no
-  arm-free intermediate rounds in the schedule.
-- **R-FC-V3**: the norm law and arity: FA's per-round
-  (n_inst, b, k) against AFS-L4's condition n_inst·T·(b−1) < B and
-  the AFS-L6/R-EB4 envelope (spike check 7 rows); B_acc consistent
-  with what the decide chain's level-0 expects (Seam 2).
-- **R-FC-V4**: FS ordering of every fold challenge matches Section
-  7's table (esp. theta-before-rho and F-N1).
-- **R-FC-V5**: fold-message byte skeleton consistent with the
-  tau = 16 terminal-opening count (G3/H-FA7) and, if LF+ machinery,
-  with the single-vs-double sumcheck decision (AFS-L5 item 3).
-- **R-FC-V6**: the composition discipline — monolithic rounds or a
-  restricted-composition lemma (H-FA3 / Section 2.7).
+### 8.1 The verification (checklist disposition)
 
-(Pre-emptive numerical note for the reconcile, not an R-FC row:
-AGGREGATION_LITERATURE 2.2's fold-message estimate "~4-8 KiB at our
-kappa/msg_r shape" predates [LF+] Thm 5.3's inventory
-(L·(5·kappa + 6) + 10 R_q-elements + L(dk+5) S-bar-elements +
-L(2dk+d+1) C-elements); FA's byte model should derive from the
-latter.)
+- **V1 (challenge sets): PASS.** F-IF1.6's complete draw list
+  introduces only K = GF(q^16) draws (CRB-N1/N2/N4/N5 classes) and
+  keeps the eval-proof's quinary T_cap = 33 folds — "R-EB3-clean by
+  construction". No Z_q-parallel draw, no new witness-multiplying
+  class; the Section 4 break surfaces are covered (S3 class for the
+  new draws; S1/S2 live only inside the eval proof, unchanged).
+- **V2 (range arms): PASS by vacuity at the claim layer** — IXF has
+  no fold rounds to arm; the norm story is entirely the eval
+  proof's, where C-ground stands (F-C1 remains binding on any
+  future streaming variant).
+- **V3 (norm law): PASS with a knife-edge flag (R-FC2).** F-IF1.5's
+  law (one-time sqrt(32) = +2.5 bits, no per-step growth) is
+  verified as a formula chain: spike check 10 confirms FA's
+  negative check (layer e0 = 5 goes −1.56 b at pass scope) and
+  reproduces the re-derived headrooms (e0 = 2: 0.84 b vs FA's
+  ~0.87; e0 = 1: 0.32 b vs ~0.33) within 0.1 b on the 31-bit limb
+  chain.
+- **V4 (FS ordering): PASS.** F-IF1.6's table places h0_agg
+  (statement incl. 32-segment manifest + group map + T_blind)
+  before every draw; mu after ALL blinded terminals; nu_g after mu;
+  eval-proof edges per AZ-L4(a). The Section 7 fold-layer rows
+  (theta-before-rho etc.) apply to IXF only inside the eval proof,
+  where AZ-L4(a) already carries them; F-N1's decide-seam edge maps
+  to F-IF1.6's h0_agg row (the accumulator = the pass statement
+  itself — bound by construction in the flat design).
+- **V5 (bytes): N/A at the claim layer** (zero fold messages —
+  verified against F-IF1.7's skeleton: the only overheads are +5
+  rounds per instance, kel(dw+5) − kel(dw), +1-3 levels, manifest
+  rows); the [LF+] Thm 5.3 inventory note below stays for the
+  rejected-path record.
+- **V6 (composition discipline): PASS via SC-L4 + AFS-L8.** IXF
+  needs no restricted-composition lemma (nothing is linearized and
+  then separately norm-grounded at the claim layer); the one seam
+  it DOES add is the two-group opening, discharged by AFS-L8 below.
+
+### 8.2 AFS-L8 — SC-L6 at two commitment groups [PROVEN, small]
+
+F-IF1.4 emits one batched eval proof PER GROUP (T_act always; T_W
+per deployment), with one mu across all terminals and nu_g drawn
+per group. SC-L6 was stated for a single T_data/T_blind opening;
+the pass needs the two-group form. **Statement.** Suppose (i) each
+group's chain is knowledge sound at its own shape (SC-L4 per
+group), (ii) mu's FS state binds ALL claimed terminal values of
+BOTH groups and the group map (F-IF1.6 rows — checked), (iii) each
+nu_g binds its group's mu-batched terminals, (iv) no claim crosses
+groups (F-IF1.4's "by construction" — each terminal references one
+tensor, each tensor lives in one group). Then running the SC-L6
+extractor once per group yields openings f*_act, f*_W such that
+every individual claim of every layer is true of the respective
+opening, with additive error B_act·2^-297 + B_W·2^-297 — the
+SC-L6 bound summed over groups. *Proof:* hypothesis (iv) makes the
+claim sets disjoint; SC-L6 applies verbatim per group (the
+straight-line/no-forking argument never touches the other group's
+gamma or opening); errors add by the union bound; hypothesis (ii)
+prevents the cross-group variant of CRB-N4's attack (a terminal
+value chosen after mu in EITHER group). ∎ **[PROVEN]** (a product
+composition; recorded so the interface's "verbatim" does not paper
+over the two-group seam — see R-FC3).
+
+### 8.3 R-FC rows (discrepancies/imprecisions found — none
+architectural)
+
+- **R-FC1 (imprecise rejection reasons in F-IF1.3 / the Section-0
+  summary; the rejection itself SURVIVES).** FA's reason (ii) says
+  sequential RLC folding "grows their NORMS multiplicatively at
+  every step — the reason LatticeFold needs its decompose-then-fold
+  machinery": with that machinery in place the growth is
+  DEPTH-INDEPENDENT (AFS-L4, spike-verified over 20 chained
+  rounds) — the accurate cost is the apparatus itself (per-round
+  range arms + decompositions), not runaway norms. Reason (iii)
+  says it "imports a new extraction theorem (32 nested rewindings)":
+  the LF extractor is coordinate-wise forking with ADDITIVE error
+  and expected cost (1 + 1/(eps − ...))·(1 + n_inst) per round
+  (AFS-L1) — linear accumulation, not nesting. The rejection stands
+  on the CORRECT grounds: ≥ 176 KB fold messages, the per-round
+  apparatus bytes, 31 extra FS surfaces, and the AFS-L6 binding
+  envelope tax at q31 — this document supplies that certificate.
+  Disposition: doc-precision fix for FA/FINAL; no design change.
+- **R-FC2 (knife-edge headrooms in F-IF1.5 need freeze rows).** The
+  re-derived pass digit bases carry < 1 bit of headroom (0.87 /
+  0.33 / 0.23 / 0.10 b classes; 8B weight-group ~0.05 b). The
+  formula chain is verified (spike check 10, within 0.1 b on the
+  31-bit limb chain) but the DENSE value classes (8/15/31-bit) mix
+  limb counts, and FA's [spike-final] slots must print the exact
+  per-class N_limb chain. Disposition: request C-win-style
+  per-group freeze rows (gamma_z(pass) vs gate, per group, per
+  deployment mode) at FINAL — same posture as the C-win per-level
+  freeze export.
+- **R-FC3 ("SC-L6 at the pass shape" is not verbatim at two
+  groups).** FD-L4/F-IF1.2 describe the batching as CR-L4b + SC-L6
+  "verbatim"; with TWO commitment groups the extractor is a product
+  composition with a shared mu and per-group nu, and its hypotheses
+  ((ii)/(iv) above) are load-bearing. Discharged here as AFS-L8 —
+  adopt it (or restate it in FA's Section 3) so the interface's
+  soundness claim cites an actual lemma. Disposition: text adoption;
+  no design change (F-IF1.6's orderings already satisfy AFS-L8's
+  hypotheses).
+- **R-FC4 (slot-completeness not restated in the binding
+  interface).** F-IF1 inherits I-3 via the standing constraints but
+  never says it for the NEW pass-scope claim families; SC-L6/AFS-L8
+  hypothesis and the Section 4 break analysis make slot-complete
+  checking load-bearing at every batched claim (a slot-sampling
+  "optimization" anywhere in the pass instances re-opens the S4
+  escape). Disposition: one sentence in F-IF1.1 or FD-L4 at FINAL.
+
+(Rejected-path record, kept for the reconcile: AGGREGATION_
+LITERATURE 2.2's fold-message estimate "~4-8 KiB/step" predates
+[LF+] Thm 5.3's inventory (L·(5·kappa + 6) + 10 R_q-elements +
+L(dk+5) S-bar-elements + L(2dk+d+1) C-elements); any future revisit
+of the sequential path should derive from the latter, plus this
+document's F-C1..F-C6.)
 
 ## 9. Verdict row
 
-**Extraction COMPOSES — under the six named conditions F-C1..F-C6,
-all satisfiable at the house parameter family (kappa 11, R-EB1
-T_cap = 33 extended to fold challenges, R-EB4-class base caps
-e ≤ 7 which the fold's own binding envelope independently
-reproduces, K-draw sumcheck challenges, exact-digit decide). The
-per-level reading survives a 32-fold: fold rounds ground their own
-norms at slack exactly 1 (the SC-L3 mechanism species), the two
-SC-L4 channels stay slack-inert across both seams, and no
-compounding channel opens. The knowledge-error headline for a
-complete folded pass is 2^-219.5 post-FS [MODEL] — PASS with 91.5
-bits of margin; folding costs ≈ 0.5 bits vs the unfolded pass. The
-architecture stands. FAILURE modes are precisely fenced: dropping a
-range arm (F-C1), uncapped fold challenges (F-C2), naive
-l_inf-to-l2 costing without AFS-L6 (F-C3′), a single-sumcheck [LF+]
-Pi_cm under FS (AFS-L5 item 3), or a fully-split ring (Section 4
-S4) each individually kill the composition, and none is present in
-the recommended family. F-IF1 verification pending (Section 8
-checklist).**
+**Extraction COMPOSES.**
+
+**For the ADOPTED design (F-IF1 IXF flat-32, verified Section 8):
+the fold introduces no witness-multiplying challenge at the claim
+layer, so folding soundness IS the existing per-level story —
+SC-L4 at pass shape (+1-3 levels, each self-grounding under
+C-ground/R-EB4), CR-L5/CR-L6 at n+5 variables, SC-L6 in the
+two-group form AFS-L8, under the F-IF1.6 FS orderings (verified
+against AZ-L4(a) and Section 7). Knowledge-error headline for the
+folded pass: 2^-220-class post-FS [MODEL, spike check 10] — the
+unfolded class; IXF folding costs ~0 bits. Conditions: the R-FC2
+knife-edge norm headrooms (< 1 bit per group) must become
+per-group freeze rows, and R-FC3/R-FC4's text adoptions land at
+FINAL. No compounding channel exists to open.**
+
+**For the LatticeFold-class RLC shape (rejected by FA at the claim
+layer; governing for the eval-proof-internal folds and archived for
+any streaming variant): composes under the six named conditions
+F-C1..F-C6 at the house family (kappa 11, R-EB1 T_cap = 33 extended
+to fold challenges, R-EB4-class base caps e ≤ 7 which the fold's
+own binding envelope independently reproduces, K-draw sumcheck
+challenges, exact-digit decide); headline 2^-219.5 post-FS [MODEL],
+margin 91.5 bits, cost ≈ 0.5 bits vs unfolded. FAILURE modes
+precisely fenced: dropping a range arm (F-C1), uncapped fold
+challenges (F-C2), naive l_inf-to-l2 costing without AFS-L6
+(F-C3′), a single-sumcheck [LF+] Pi_cm under FS (AFS-L5 item 3), or
+a fully-split ring (Section 4 S4) each individually kill the
+composition; none is present in either the recommended RLC family
+or the adopted IXF design.**
 
 ## 10. Exports
 
-**To FA (hypotheses the fold design must satisfy — H-FA1..H-FA8):**
-- H-FA1 (= F-C1, HARD): range arm in every fold round.
+**To FA (disposition after F-IF1 landed):** the H-FA hypotheses
+below were drafted fold-shape-independently; against the adopted
+IXF design their status is — H-FA1/H-FA3/H-FA5/H-FA7 apply only to
+the REJECTED RLC path (archived; binding on any streaming variant);
+H-FA2 applies to the eval-proof-internal folds (already R-EB1 —
+F-IF1.6 complies); H-FA4 (slot-diagonal K-draws + slot-complete
+claims) applies to IXF and is R-FC4's subject; H-FA6's transpose
+bookkeeping is moot at the claim layer (no fold range arm) but
+survives inside the eval proof's exact-digit plumbing as before;
+H-FA8 maps to F-IF1.6's h0_agg row (complies). The four ACTIVE asks
+on FA are the R-FC rows of Section 8.3: adopt the R-FC1 precision
+fix, print the R-FC2 per-class norm chains + freeze rows, cite
+AFS-L8 for the two-group batching (R-FC3), restate I-3 (R-FC4).
+- H-FA1 (= F-C1, HARD) [RLC path]: range arm in every fold round.
 - H-FA2 (= F-C2): fold challenges quinary + T_cap = 33 resampling
   (R-EB1 counter/salt pattern); state the norm accounting (l2
   recommended; if any l_inf bookkeeping remains, the l1-cap row
   [MODEL 160 @ ~77%] must be frozen alongside).
-- H-FA3 (= Section 2.7, HARD): monolithic round extraction or a
-  proved restricted-composition lemma; no bare linearization + bare
-  fold composed by [KP23] alone.
+- H-FA3 (= Section 2.7, HARD) [RLC path]: monolithic round
+  extraction or a proved restricted-composition lemma; no bare
+  linearization + bare fold composed by [KP23] alone.
 - H-FA4 (= G4): instance evaluation points from the slot-diagonal
   K-set; slot-complete range statements (I-3 extended).
-- H-FA5 (= F-C3′/F-C4): per-round (n_inst, b, k) inside the AFS-L6 /
-  R-EB4 envelope (spike check 7 table); per-round re-decomposition.
+- H-FA5 (= F-C3′/F-C4) [RLC path]: per-round (n_inst, b, k) inside
+  the AFS-L6 / R-EB4 envelope (spike check 7 table); per-round
+  re-decomposition.
 - H-FA6 (= G3): NTT-transpose bookkeeping for the range layer under
   DENSE encoding — price it, don't discover it.
-- H-FA7: wire inventory per round includes tau = 16 terminal
-  openings per instance ([LF] Eq. (30)/(32)) — the byte model line.
+- H-FA7 [RLC path]: wire inventory per round includes tau = 16
+  terminal openings per instance ([LF] Eq. (30)/(32)).
 - H-FA8 (= F-C5/F-N1): FS ordering per Section 7; the decide
-  statement hash absorbs the final accumulator instance.
+  statement hash absorbs the final accumulator instance (IXF: the
+  pass statement itself — complies by construction).
 
 **To FB (mask-related extraction interactions):**
 - The fold extractor is straight-line over T_blind: it rewinds fold
@@ -935,7 +1080,9 @@ checklist).**
 | l1-cap 160 @ 77% accept | [MODEL] (CLT + spike MC) |
 | FS transfer of the fold rounds ([PSS] via SC-L5) | [PROVEN] transfer-shape checks; battery legs [OBLIGATION] |
 | Neo composition caveat / H-FA3 | [CITED] ([Neo] Section 5 read; protocol sections skimmed) |
-| F-IF1 verification | [PENDING] — Section 8 checklist binding on FINAL |
+| AFS-L8 (SC-L6 at two commitment groups) | [PROVEN] (product composition on F-IF1.6's orderings) |
+| F-IF1 verification (V1-V6) + R-FC1..R-FC4 | VERIFIED this lane (commit 0aeae08 hostile-read; spike check 10); R-FC2 freeze rows + R-FC3/4 text adoptions owed at FINAL |
+| IXF pass budget ~2^-220 post-FS | [MODEL] (spike check 10; FA's [spike-final] slots pending in FA's own spike) |
 
 ## 12. References
 
@@ -981,5 +1128,9 @@ bits [MODEL]. One correction found by the spike against this
 document's own draft (EB precedent honored): the [LF+]
 single-sumcheck saving was backwards — at our ring the mu·|S|-union
 does NOT cancel (|S| != |C|) and the two-parallel form is REQUIRED
-under FS; AFS-L5 item 3 records the corrected arithmetic. F-IF1
-pending at close — Section 8 checklist left binding.*
+under FS; AFS-L5 item 3 records the corrected arithmetic. Same day:
+F-IF1 LANDED (0aeae08, IXF flat-32 — the LatticeFold shape
+rejected) and was hostile-read and verified — Section 8 rewritten
+from checklist to verification (V1-V6 + AFS-L8 + R-FC1..R-FC4,
+spike check 10); verdict split into adopted-IXF and RLC-archive
+rows; exports re-dispositioned.*
