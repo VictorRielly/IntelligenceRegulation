@@ -144,7 +144,53 @@ precedent).
 
 ## Agent FA status (wt-uag4-folding)
 
-- (lane opens here)
+- 2026-07-27: docs read (ENCODING 3/4/6, CLAIM_REDUCTION lemmas+10,
+  PARAMS 2/3/5, SC-L4 + R-EB rows, AZ-L4/4.4, ZK_GAP 6-7, A1, PBL,
+  three prior spikes). **F-IF1 COMMITTED** in
+  docs/zkmatrix-poc/AGGREGATION_FOLDING_DESIGN.md Section 2: the
+  fold is INDEX-EXTENSION FOLDING (IXF), flat arity 32 — 5
+  layer-index MLE variables extend every instance family; zero fold
+  messages; norm law = one-time sqrt(32) absorbed at e0 (act group
+  e0=2 exact-digit gate / weights e0=1); one eval proof per
+  commitment group (P2 split hook built in); descent pair folds to
+  ONE at dw+5, dt unchanged. Sequential/tree RLC folding priced and
+  REJECTED (>=176 KB messages + per-step norm growth + new
+  extraction surface). kel(dw,9) = 2dw^2+11dw+235 exact fit to the
+  4 recorded points [MODEL].
+- FLAG for orchestrator: recorded per-layer artifacts (DA 5.2 /
+  EA 3.3 / EB 2.4) price NO weight-domain opening (activation-only
+  witnesses) — latent assumption made explicit in F-IF1.4; EB's
+  corrected byte rows run on the SLOT 31-bit witness (never composed
+  with EA's dense encoding) — FA's spike does that composition with
+  anchors on both sides.
+- 2026-07-27 (later): **LANE COMPLETE.** Spike
+  scripts/aggregation_folding_spike.py 33/33 (DA/EA/EB anchors
+  reproduced incl. the 1,500,496 B floor and EB's kappa-11 totals;
+  toy IXF folds verify with tampers rejected; AZ-L4 A1/A2 early-draw
+  negative caught both directions; naive-product cross-term negative
+  both directions; norm laws measured — stacked sqrt slope 0.49 over
+  m=4..512, 12-fold RLC chain under the linear certified bound,
+  +10.0 vs +2.5 bits at 32 folds; decompose-refold reset shown).
+  AGGREGATION_FOLDING_DESIGN.md complete: FD-L1..L4, sequential fold
+  rejected+priced, norm tables, byte tables, AZB-7 hash edges,
+  verdict, FB/FC exports, obligations F-O1..F-O5.
+- **VERDICT: floor BEATEN.** Folded Tier N pass (FFN complete):
+  activation-only 352,948 B = 0.337 MiB (4.25x under the 1,500,496 B
+  floor; EA-comparable unit); RECOMMENDED W-C two-proof layout
+  (committed weights, P2-ready, 8B-viable) 505,272 B = 0.482 MiB
+  (2.97x under); W-B merged 356,020 B (7B-only — dies at 8B, F-N4).
+  2^20 ledger-unit pass 294,136 B. Per-layer amortized 15,789 B =
+  0.060x of the B1 gate. Tier Z preview on the W-C base: P2
+  ~0.65-0.71 MiB, P3 ~0.82-0.94 MiB — inside A1's 0.5-2 MiB class
+  (FB owns the freeze number).
+- Findings for FINAL: F-N2 (weight-group opening infeasible at the
+  per-level gate — exact-digit branch load-bearing), F-N3 (robust
+  act e0=2 costs zero bytes — adopted), F-N4 (8B weight-group
+  headroom 0.05 b — relaxed-e0 line must be adopted for the 8B rung,
+  obligation F-O4), floor dims at pass scope are 90,880/93,952 B
+  (R-EB4-corrected, larger than EC's 64-80k class — export note to
+  FB), plus the weight-domain latent-assumption flag above.
+- Deliverables checkbox left for the orchestrator.
 
 ## Agent FB status (wt-uag4-privacy)
 
