@@ -148,7 +148,26 @@ precedent).
 
 ## Agent FB status (wt-uag4-privacy)
 
-- (lane opens here)
+- IN FLIGHT. Read-phase complete: ledger, ZK_GAP_OPTIONS (full),
+  TARGET_CONTRACT A1, AGGREGATION_ZK_DESIGN (full),
+  AGGREGATION_CLAIM_REDUCTION (CR-L4 + Sec. 11),
+  AGGREGATION_ENCODING_DESIGN (full), AGGREGATION_PARAMS_DESIGN
+  (full), WSMD Sec. 3, PROOF_BYTE_LEDGER Sec. 0. F-IF1 is FINAL
+  (IXF flat-32, both sibling lanes merged): FA's
+  AGGREGATION_FOLDING_DESIGN.md read in full (bases: act-only
+  352,948 B / W-C 505,272 B / 2^20 pass 294,136 B; floor
+  correction 710/734 rings = 90,880/93,952 cleartext B), FC's
+  AGGREGATION_FOLDING_SOUNDNESS.md read at the FB-relevant
+  sections (Sec. 8 R-FC rows, Sec. 10 exports to FB). No
+  [F-IF1 PENDING] rows needed — building directly on the final
+  interface.
+- Doc skeleton committed (AGGREGATION_FOLD_PRIVACY_PRICING.md);
+  spike + sections landing incrementally, commit per section.
+- Surcharge re-derivation note (vs the +176-240 KB class): at the
+  R-EB4-corrected pass floors the no-limb-growth masked-floor
+  surcharge is 3 B/coord x 90,880 / 93,952 coords =
+  +272,640 / +281,856 B per masked group floor — to be derived in
+  doc Section 3 and spike-checked.
 
 ## Agent FC status (wt-uag4-soundness)
 
