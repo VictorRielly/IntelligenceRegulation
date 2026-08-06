@@ -161,13 +161,33 @@ precedent).
   sections (Sec. 8 R-FC rows, Sec. 10 exports to FB). No
   [F-IF1 PENDING] rows needed — building directly on the final
   interface.
-- Doc skeleton committed (AGGREGATION_FOLD_PRIVACY_PRICING.md);
-  spike + sections landing incrementally, commit per section.
-- Surcharge re-derivation note (vs the +176-240 KB class): at the
-  R-EB4-corrected pass floors the no-limb-growth masked-floor
-  surcharge is 3 B/coord x 90,880 / 93,952 coords =
-  +272,640 / +281,856 B per masked group floor — to be derived in
-  doc Section 3 and spike-checked.
+- **LANE COMPLETE (2026-08-06).** Deliverables landed:
+  docs/zkmatrix-poc/AGGREGATION_FOLD_PRIVACY_PRICING.md +
+  scripts/fold_privacy_pricing_spike.py (15/15 OK, < 1 s).
+- Verdict: fold/mask lemma HOLDS for IXF (FP-L1: one floor per
+  group, 14-29x less floor exposure than 32 unfolded proofs,
+  accumulation law unchanged; FP-L2: mask-then-fold by
+  construction, group-map hash edge = the one new privacy edge;
+  fences FP-C1 cleartext-per-step folds, FP-C2 W-B has no partial
+  privacy). Tier Z surcharges RE-DERIVED at the corrected floors
+  (+272,640 / +281,856 B per masked group floor — the +176-240 KB
+  class retired). Folded Tier Z pass (FFN, W-C): P3 = 1,063,096 B
+  = 1.014 MiB, P2 = 788,792 B = 0.752 MiB = Tier N + 283,520 B,
+  P1-label = 508,600 B, P1-strict = 781,240 B; 2^20 rig pass
+  Tier Z = 576,056 B. **A1 freeze candidate: 1,114,112 B = 1.0625
+  MiB** (P3 scope; conditions F-Z1 corner / F-Z2 extraction at
+  masked bound / F-O2 kel). P2 (a) VERIFIED (FP-L3 + spike
+  positive/negative), (b) canary specified as AZB-11, (c)
+  amortization CONFIRMED (once per pass, W-C-conditional).
+  Unfolded 14-16 MiB class reproduced from formulas; E4 endgame =
+  one wrap per pass per private group (14.0-15.9x vs unfolded).
+- Cross-checks vs FA: preview Tier Z rows superseded (floor
+  correction explains +0.05-0.09 MiB); FA's FFN instance
+  transcript independently re-derived and matches; AZB numbering
+  collision flagged (FA's "AZB-7" pair -> proposed AZB-10, canary
+  AZB-11); A1 interim 512 KiB/layer line inconsistent with its own
+  corridor top (516.75 KiB) — retire at freeze.
+- Deliverables checkbox left for the orchestrator.
 
 ## Agent FC status (wt-uag4-soundness)
 
