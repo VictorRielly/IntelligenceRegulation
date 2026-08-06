@@ -161,13 +161,26 @@ else in the contract moves.
    - Tier N (non-ZK-labeled aggregate artifact, mode P0 only):
      <= 262,144 B per FFN layer — the U-AG-B1 engineering gate,
      unchanged in number, now explicitly scoped to P0.
-   - Tier Z (full-ZK aggregate artifact, modes P1-P3): interim
-     ceiling <= 512 KiB per FFN layer unfolded (the Option B
-     corridor, 453-517 KiB [MODEL]); the BINDING pass-level Tier Z
-     budget is to be FROZEN at the U-AG4 FINAL from the folding
-     round's derived numbers (target class 0.5-2 MiB per 32-layer
-     pass [MODEL] — the ZK surcharge is per evaluation proof, not
-     per layer, so folding concentrates it).
+   - Tier Z (full-ZK aggregate artifact, modes P1-P3): **FROZEN at
+     the U-AG4 FINAL (2026-08-06): <= 1,114,112 B = 1.0625 MiB per
+     32-layer FFN pass** — the binding pass-level number this
+     amendment promised. Scope stated explicitly: PER-PASS, mode P3
+     (both commitment-group floors masked) on the W-C two-proof
+     layout (AGGREGATION_FOLDING_DESIGN.md F-IF1.4). Basis: derived
+     P3 pass 1,063,096 B, worst band 1,075,464 B [MODEL]
+     (AGGREGATION_FOLD_PRIVACY_PRICING.md; surcharges re-derived at
+     the R-EB4-corrected floors, +272,640/+281,856 B per masked
+     floor). Freeze conditions carried as build-round obligations:
+     F-Z1 (masking-corner re-check in build schedules), F-Z2
+     (SC-L4 at the masked-floor response bound), F-O2 (kel(dw,dt)
+     descent-size measurement). Smaller-private-set modes price
+     UNDER the frozen line (P2 = Tier N pass + 283,520 B = 788,792
+     B; P1-label 508,600 B; ZK_GAP_OPTIONS.md Section 8). The
+     interim per-layer ceiling ("<= 512 KiB/layer unfolded") is
+     RETIRED at this freeze: it sat below its own corridor top
+     (529,152 B = 516.75 KiB — an internal inconsistency FB
+     flagged), and no unfolded path remains on the target
+     architecture.
    - The pre-reroute wave-architecture path keeps the original
      Section 4 line unchanged (it is fully HVZK and does not meet
      any aggregate byte tier; its role is recorded in

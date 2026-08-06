@@ -402,3 +402,43 @@ Adopted, and recorded in TARGET_CONTRACT Amendment A1:
    pricing for P2 (Section 6 questions (a)-(c)), and the fold/mask
    interaction (the fold must not enlarge the floor image — the
    EC export — and AZ-L4 ordering governs mask-then-fold).
+
+## 8. The U-AG4 numbers (FINAL, 2026-08-06) — Section 7's open items
+settled
+
+The folding round delivered everything Section 7 item 4 asked for.
+Full derivations: AGGREGATION_FOLDING_DESIGN.md (the IXF fold,
+Tier N), AGGREGATION_FOLD_PRIVACY_PRICING.md (the masked tiers and
+modes), AGGREGATION_FOLDING_SOUNDNESS.md (extraction at our ring,
+2^-220-class knowledge error, 91.5-bit margin).
+
+Superseded by this section: Section 4B's per-proof surcharge class
+(+176-240 KB — re-derived at the R-EB4-corrected floors to
++272,640/+281,856 B per masked floor) and the 0.5-2 MiB folded
+guess band (now derived numbers).
+
+Per 32-layer FFN pass, FOLDED (IXF flat-32, W-C two-proof layout,
+exact-digit, [MODEL] until build-round measurement):
+
+| mode | pass bytes | reading |
+|---|---:|---|
+| P0 (Tier N, act-only unit) | 352,948 B (0.337 MiB) | 4.25x under the 1,500,496 B fold floor |
+| P0 (Tier N, W-C layout) | 505,272 B (0.482 MiB) | the P2-ready base |
+| P1-label (bounded-leak, Tier N path) | 508,600 B (0.485 MiB) | leak = ONE 90,880-constraint floor vs 7.2e8 committed coeffs (~0.013% of naive recovery rank); rank-completeness needs ~7,953 fresh proofs of the SAME pass — forbidden by the one-proof rule |
+| P2 (weights masked, split proof) | 788,792 B = Tier N + 283,520 B (0.752 MiB) | questions (a)-(c): (a) VERIFIED — terminal claims split cleanly per commitment group (FP-L3); (b) weight-independence canary = battery leg AZB-11; (c) CONFIRMED — one weight commitment group, ONE masked opening per pass (W-C only; W-B has NO partial-privacy mode, fence FP-C2) |
+| P3 (both masked, full ZK) | 1,063,096 B (1.014 MiB) | worst band 1,075,464 B |
+| **A1 frozen budget (P3/W-C scope)** | **1,114,112 B = 1.0625 MiB** | frozen in TARGET_CONTRACT Amendment A1; conditions F-Z1/F-Z2/F-O2 |
+
+The accumulation asymmetry (Section 6), now with a number: bare
+weight floors would reach naive recovery rank in ~46,072 passes =
+~8 DAYS of continuous proving at the 15 s/pass target — the P2/P3
+weight-mask mandate is not conservatism, it is an operational
+cliff. Activation floors stay bounded by the one-proof rule
+(~7,953-proof naive threshold per pass, never approached).
+
+Unfolded check rows (Section 4B) reproduce exactly from the same
+formulas (Option A 8.65 MiB/pass; Option B 14.15-16.15 MiB/pass),
+and the fold concentrates the masked-floor surcharge 10.4-14.2x.
+E4-wrap endgame re-priced under folding: one wrap per pass per
+group; D/E5 landing still collapses Tier Z toward Tier N (the
+return paths of Section 4 stand).

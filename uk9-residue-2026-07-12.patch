@@ -1,0 +1,57 @@
+diff --git a/zkmatrix-rs/src/ring/kfield.rs b/zkmatrix-rs/src/ring/kfield.rs
+index ffd5549..7b46292 100644
+--- a/zkmatrix-rs/src/ring/kfield.rs
++++ b/zkmatrix-rs/src/ring/kfield.rs
+@@ -505,16 +505,18 @@ fn tree_step_body(kern: &KKern, cp: &[u32], cq: &[u32], np: &mut [u32], nq: &mut
+     }
+ }
+ 
+-/// Fold full blocks: out[i] = T[2i] + r (T[2i+1] - T[2i]).
++/// Fold full blocks IN PLACE: T'[i] = T[2i] + r (T[2i+1] - T[2i]),
++/// writing block m from blocks 2m, 2m+1 (forward-safe: m <= 2m and the
++/// block is staged on the stack before the store).
+ #[inline(always)]
+-fn fold_body(kern: &KKern, src: &[u32], r: &[u32; K_DEG], dst: &mut [u32], nblk: usize) {
++fn fold_body(kern: &KKern, d_io: &mut [u32], r: &[u32; K_DEG], nblk: usize) {
+     let q32 = kern.q as u32;
+     let mut t0 = [0u32; KBLK];
+     let mut t1 = [0u32; KBLK];
+     let mut d = [0u32; KBLK];
+     let mut out = [0u32; KBLK];
+     for m in 0..nblk {
+-        deint_pair(src, m, &mut t0, &mut t1);
++        deint_pair(d_io, m, &mut t0, &mut t1);
+         for x in 0..KBLK {
+             d[x] = subm32(t1[x], t0[x], q32);
+         }
+@@ -525,7 +527,29 @@ fn fold_body(kern: &KKern, src: &[u32], r: &[u32; K_DEG], dst: &mut [u32], nblk:
+         for x in 0..KBLK {
+             out[x] = addm32(t0[x], out[x], q32);
+         }
+-        dst[m * KBLK..(m + 1) * KBLK].copy_from_slice(&out);
++        d_io[m * KBLK..(m + 1) * KBLK].copy_from_slice(&out);
++    }
++}
++
++/// One eq-table doubling step IN PLACE over full blocks: block m -> block
++/// m * zbar (low half) and block m+half * z (high half). The operand block
++/// is staged before either store.
++#[inline(always)]
++fn eq_double_body(kern: &KKern, d_io: &mut [u32], half_nblk: usize, zbar: &[u32; K_DEG], z: &[u32; K_DEG]) {
++    let mut a = [0u32; KBLK];
++    let mut out = [0u32; KBLK];
++    for m in 0..half_nblk {
++        a.copy_from_slice(&d_io[m * KBLK..(m + 1) * KBLK]);
++        let mut lo = [0u64; 31 * KL];
++        let mut hi = [0u64; 31 * KL];
++        mac_block_fixed(&a, zbar, &mut lo, &mut hi);
++        red_block(kern, &lo, &hi, &mut out);
++        d_io[m * KBLK..(m + 1) * KBLK].copy_from_slice(&out);
++        let mut lo = [0u64; 31 * KL];
++        let mut hi = [0u64; 31 * KL];
++        mac_block_fixed(&a, z, &mut lo, &mut hi);
++        red_block(kern, &lo, &hi, &mut out);
++        d_io[(m + half_nblk) * KBLK..(m + half_nblk + 1) * KBLK].copy_from_slice(&out);
+     }
+ }
+ 

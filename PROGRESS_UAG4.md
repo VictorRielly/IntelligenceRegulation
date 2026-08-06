@@ -127,20 +127,83 @@ precedent).
 
 ## Deliverables
 
-- [ ] FA: AGGREGATION_FOLDING_DESIGN.md + aggregation_folding_
+- [x] FA: AGGREGATION_FOLDING_DESIGN.md + aggregation_folding_
       spike.py — fold designed, F-IF1 published, folded Tier N
       pass number vs the 5.7x floor.
-- [ ] FB: AGGREGATION_FOLD_PRIVACY_PRICING.md + fold_privacy_
+      DONE 2026-07-27, merged 4b6e47b (orchestrator-reviewed:
+      spike re-run 33/33). VERDICT: floor BEATEN via IXF flat-32
+      — act-only pass 352,948 B (4.25x under), W-C recommended
+      505,272 B; F-IF1 early at 0aeae08, structure stable.
+- [x] FB: AGGREGATION_FOLD_PRIVACY_PRICING.md + fold_privacy_
       pricing_spike.py — fold/mask lemma, folded Tier Z number
       (A1 freeze candidate), P2 (a)-(c) priced, P1 label
       template, E4-wrap pricing.
-- [ ] FC: AGGREGATION_FOLDING_SOUNDNESS.md + folding_soundness_
+      DONE 2026-08-06, merged 1d6de5e (orchestrator-reviewed:
+      spike re-run 15/15). VERDICT: FP-L1/FP-L2 HOLD for IXF;
+      Tier Z P3 1.014 MiB / P2 0.752 MiB at corrected floors;
+      freeze candidate 1,114,112 B adopted at FINAL. Lane hung
+      twice on blocking git inspection commands (resumed both
+      times; zero work lost — the skeleton-commit-first rule
+      worked as designed on attempt 3).
+- [x] FC: AGGREGATION_FOLDING_SOUNDNESS.md + folding_soundness_
       spike.py — extraction transcribed at our ring, SC-L4
       composition settled or precisely conditioned, F-IF1
       verified.
-- [ ] FINAL (orchestrator): merged, reviewed, A1 Tier Z number
+      DONE 2026-07-27, merged cad1d4f (orchestrator-reviewed:
+      spike re-run 10/10). VERDICT: extraction COMPOSES both ways
+      (IXF ~0 bits; RLC-archive under F-C1..F-C6); 2^-220-class
+      knowledge error, 91.5-bit margin; R-FC1..4 filed, none
+      architectural.
+- [x] FINAL (orchestrator): merged, reviewed, A1 Tier Z number
       FROZEN, pricing recorded, next round decided, pushed,
       Victor briefed.
+      DONE 2026-08-06 — see the FINAL section below.
+
+## FINAL (orchestrator, 2026-08-06)
+
+All three lanes merged and independently re-verified (spikes
+33/33, 15/15, 10/10 re-run in the main checkout). Decisions:
+
+1. **O-8 DESIGN-CLOSES. The fold is IXF flat-32** (index-extension
+   folding: 5 layer-index MLE variables, zero fold messages, one
+   eval proof per commitment group). The W-C two-proof layout is
+   ADOPTED as the target layout (P2-ready, 8B-viable; W-B retained
+   as a P0-only 7B footnote — fence FP-C2 gives it no privacy
+   mode). LatticeFold-class RLC folding is REJECTED at the claim
+   layer on FC's corrected grounds (R-FC1) and ARCHIVED with its
+   composition conditions F-C1..F-C6 for any future streaming
+   variant (fence FP-C1).
+2. **Amendment A1 Tier Z number FROZEN in TARGET_CONTRACT.md:
+   1,114,112 B = 1.0625 MiB per 32-layer FFN pass, P3/W-C scope**
+   (covers the derived 1,063,096 B and its 1,075,464 B worst band).
+   The interim 512 KiB/layer line RETIRED (FB's inconsistency
+   finding). Mode pricing recorded in ZK_GAP_OPTIONS.md Section 8:
+   P2 788,792 B = Tier N + 283,520 B; P1-label 508,600 B; the
+   ~8-day weight-recovery cliff is the recorded P2/P3 mask
+   motivator.
+3. **Soundness stands:** knowledge error 2^-220-class post-FS,
+   91.5 bits over the H-07 target; folding costs ~0 bits. FC's
+   R-FC1..4 dispositions + FB's AZB collision RULED in the FINAL
+   reconciliation block of AGGREGATION_FOLDING_DESIGN.md Section 8
+   (Tier Z previews superseded; AZB-10 = IXF segment/group F5
+   pair, AZB-11 = weight-independence canary; AFS-L8 cited for
+   two-group composition; I-3 restated as F-IF1-binding).
+4. **Build-round obligation queue (U-AG-B1), consolidated:**
+   E-O1..E-O3, R-EB1..R-EB4 freeze rows, R-FC2 per-group
+   digit-headroom freeze rows, AZB battery + AZB-10/AZB-11 legs,
+   exact-digit plumbing (F-N2 load-bearing), F-O1..F-O5 (F-O2 kel
+   measurement, F-O4 relaxed-e0 before any 8B freeze), F-Z1..F-Z3
+   (masking corner, SC-L4 at masked bound — exported to Phase 2.5
+   review with SC-L4/SC-L6, floor-mask sampler discipline), Q4/SR
+   transcriptions, O-5/O-6 models to measurement.
+5. **Next round: U-AG-B1, the aggregation BUILD round** — the
+   design trench is CLOSED (U-AG literature -> U-AG2 -> U-AG3 ->
+   U-AG4, every O-item settled). First build target: the frugal-lm
+   ladder shapes (125M 768->2048 first integration rung; see
+   memory project-provable-llm-convergence), reference shapes
+   retained for the ledger.
+
+TRANCHE CLOSED 2026-08-06.
 
 ## Agent FA status (wt-uag4-folding)
 
@@ -288,3 +351,12 @@ precedent).
 - 2026-07-27: tranche opened at 0dd8aab on Victor's console go
   ("Let's continue with the tranche from option B"). FA + FB + FC
   launching in parallel worktrees.
+- 2026-07-27: FC closed first (10/10), merged cad1d4f. FA closed
+  (33/33), merged 4b6e47b; F-IF1 was final before FB wrote a row.
+  FB hung twice (blocking git inspection commands — diagnosed via
+  identical stall signatures at sibling-branch file access);
+  stopped + resumed both times, method switched to direct Read of
+  merged copies, skeleton-commit-first mandated.
+- 2026-08-06: FB closed (15/15), merged 1d6de5e. FINAL executed:
+  A1 frozen, ZK_GAP_OPTIONS Section 8, FA-doc reconciliation
+  block, obligations consolidated, worktrees removed, pushed.

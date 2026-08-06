@@ -699,6 +699,39 @@ per-layer table at n + 5.
 | Tier Z preview (FB owns the number): W-C + one masked weight floor (P2) | ~0.65-0.71 MiB | inside Amendment A1's 0.5-2 MiB class |
 | Tier Z preview: both floors masked (P3) | ~0.82-0.94 MiB | inside the class |
 
+> **FINAL RECONCILIATION BLOCK (orchestrator, U-AG4 FINAL,
+> 2026-08-06)** — four rulings, per the ledger's
+> changes-via-orchestrator rule:
+> 1. **The two Tier Z preview rows above are SUPERSEDED** by FB's
+>    corrected-floor derivation: P2 788,792 B = 0.752 MiB, P3
+>    1,063,096 B = 1.014 MiB (AGGREGATION_FOLD_PRIVACY_PRICING.md).
+>    The delta is fully explained by the R-EB4 floor correction
+>    (90,880/93,952 cleartext coords, ~13-17% above EC's 64-80k
+>    class); FB's numbers are the recorded ones, and the A1 freeze
+>    (1,114,112 B, P3/W-C scope) is in TARGET_CONTRACT.md.
+> 2. **AZB renumbering:** this doc's "AZB-7" label (Sections 7/9,
+>    the segment-map/group-map F5 pair) collided with EC's AZB-7
+>    (the floor exhibit, priority by age). RULING: the IXF
+>    segment/group pair = **AZB-10**; FB's weight-independence
+>    canary = **AZB-11**. Read every "AZB-7 F5 pair" in this doc as
+>    AZB-10.
+> 3. **R-FC3 discharged by citation:** the two-commitment-group
+>    composition step (one eval proof per group under shared mu,
+>    per-group nu) rides **AFS-L8** in
+>    AGGREGATION_FOLDING_SOUNDNESS.md — "SC-L6 verbatim" was not
+>    verbatim at two groups; AFS-L8 is the correct citation.
+> 4. **R-FC4 discharged (binding, F-IF1 amendment):**
+>    slot-completeness **I-3 is restated as binding** for every
+>    pass-scope claim family F-IF1.2 enumerates — the 5 index
+>    variables extend each family's slot population; no family may
+>    leave slots outside the extended enumeration. (FC's
+>    one-sentence fix, adopted verbatim.)
+> Also noted from FC: R-FC1 (this doc's Section 4 LatticeFold
+> rejection stands on corrected grounds — bytes/FS-surfaces/
+> envelope tax, not norm-growth-depth or nested rewinding) and
+> R-FC2 (the Section 5 digit-base headrooms are knife-edge, <1 b;
+> per-group freeze rows are a build-round obligation).
+
 **Does instance folding beat the floor — YES**, by 3.0-4.3x
 depending on layout, under these conditions: (1) the D-R1
 rho-sharing assumption extends to pass scope (break case 648,376 B —
