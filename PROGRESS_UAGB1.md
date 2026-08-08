@@ -521,6 +521,74 @@ arithmetic.
   tests/test_azb_battery.py + results JSON + this section.
   Deliverables checkbox left for the orchestrator.
 
+## Wave 2 (opened 2026-08-08 on Victor's console go: "Lets go ahead
+## and launch wave 2")
+
+Base: 4b1245b (wave 1 closed). Worktrees wt-uagb1-bd / wt-uagb1-be /
+wt-uagb1-bf, branches uagb1-bd / uagb1-be / uagb1-bf. Same lane
+discipline as wave 1 (skeleton-commit-first, own-section-only ledger
+edits, no blocking git commands, suite + freeze-check green, honest
+fallbacks, [MAC-BOX]/[NOISY-SHARED] timing marks).
+
+- BD (aggregation stack, WORKTREE wt-uagb1-bd): the batched
+  opening/eval-proof layer that replaces the wave-1 opening volume
+  (99.8% of 117.4 MB): CR-L4-class batching of the statement's
+  claims per commitment group -> descent -> the eval proof, bare
+  (unmasked) first, at the 125M single-layer statement; then the
+  masked path (FP-L2 mask-then-fold ordering hooks, F-Z3 sampler
+  discipline, I-6 respected) and the AZB engine legs its stages
+  unlock (E-blocks per AZB_BATTERY_PLAN.md Section 3); posts the
+  FLOOR SCHEDULE (coords/rings) the moment a floor exists (unblocks
+  BC's F-Z1 recompute recipe + kel/F-O2 instrumentation); wire
+  format (audit M-05) as stretch. 125M-shape rows DERIVED and
+  frozen, never extrapolated (BA rule); freeze-script row ids cited
+  in derive-time asserts.
+- BE (IXF fold, WORKTREE wt-uagb1-be): index-extension folding over
+  the per-layer instance families at the 12-layer 125M pass —
+  settle 12->16 padding against F-IF1 (4 index vars vs the frozen
+  5-at-32; norm law one-time sqrt(16) — every delta from F-IF1
+  re-derived and pinned as 125M-shape rows, R-row filed if anything
+  would move a frozen constant); fold the sumcheck instances
+  (stacked zero-check + joint matmul terminals per FA's design)
+  with tamper legs incl. AZB-10 group/segment-map F5 pairs at
+  engine scale where its stages allow; coordinates with BD ONLY
+  through F-IF1 + the orchestrator.
+- BF (integration, WORKTREE wt-uagb1-bf): D3-F1 per-scale SiLU
+  table family (frozen per-exponent int8 tables + digests, eGate=-3
+  hosted on all 12 layers); D3-F2 QuantMeta typing (positive
+  exponents, [-127,127] symmetric range, honest declared-type
+  accumulator widths 25/26-bit); then the 12-LAYER P0 PASS ON REAL
+  WEIGHTS (ckpt-00009536 exported read-only from frugal-lm):
+  per-layer gate/up/down full-shape matmul proofs + SiLU lookup at
+  the new tables + Hadamard + range chain, honest byte/time
+  reporting (bytes stay opening-dominated until BD lands — report,
+  don't hide). Committed exit: >= 2 layers fully proven + all 12
+  validated/digested + measured cost table + extrapolation; full
+  12-layer prove if wall-clock permits (background runs fine).
+  Housekeeping (tight-scope exceptions to the frozen-files rule):
+  pinned-entropy fix for tests/test_zk_lattice.py
+  CommitmentTests.test_opening_proof_roundtrip (the Pi1 precedent
+  in the same file; do NOT weaken the test) + the Darwin ru_maxrss
+  print scaling in scripts/aggregation_folding_spike.py
+  (print-only, checks untouched).
+- Orchestrator: merges in dependency order (BF/BE mergeable
+  independently; BD last if interface friction), re-runs, F-Z1
+  recompute when BD posts the schedule, reconciliation, push,
+  brief. P2/Tier Z 12-layer composition = wave-3 unless BD+BF both
+  land with room.
+
+## Agent BD status (wt-uagb1-bd)
+
+- (lane launches here)
+
+## Agent BE status (wt-uagb1-be)
+
+- (lane launches here)
+
+## Agent BF status (wt-uagb1-bf)
+
+- (lane launches here)
+
 ## Blocker
 
 (none so far)
