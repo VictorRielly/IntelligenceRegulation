@@ -122,7 +122,28 @@ machine-independent and land at full grade.
 
 ## Agent BA status (wt-uagb1-ba)
 
-- (lane launches here)
+- 2026-08-08: lane OPEN, read phase COMPLETE (ledger; roadmap S3;
+  R-EB rows in AGGREGATION_SOUNDNESS_COMPOSITION.md 1.3/2.2/3.2/2.4 +
+  5.4 exports; DA tables; R-FC2 + AFS-L0..L8 in
+  AGGREGATION_FOLDING_SOUNDNESS.md; F-IF1.5/Section-5 headroom chain
+  in AGGREGATION_FOLDING_DESIGN.md; E-O1..E-O3 in
+  AGGREGATION_ENCODING_DESIGN.md 5.3; Q4/SR conventions; LKP-7/8/9
+  freeze precedent in ring_matmul.rs). Both spikes re-run green on
+  this box (slack_composition 36/36, aggregation_folding 33/33) and
+  every R-FC2/R-EB constant re-derived by hand against them before
+  pinning.
+- Plan: (1) scripts/aggregation_freeze_rows.py — both-direction
+  freeze rows R-EB1/R-EB2/R-EB3/R-EB4 (+kappa-11, C-win window
+  constants) and R-FC2 per-group digit-headroom rows, re-derived from
+  transcribed doc formulas, asserted against pins;
+  tests/test_aggregation_freeze.py runs it under the suite. (2) Dated
+  additive freeze-table sections in AGGREGATION_SOUNDNESS_
+  COMPOSITION.md (R-EB rows) and AGGREGATION_FOLDING_DESIGN.md
+  (R-FC2 rows). (3) E-O1..E-O3 dispositioned (land params/doc side,
+  export engine side to BB). (4) AFS-L0..L8 transcribed into
+  Q4_LEMMAS.md + SOUNDNESS_REFERENCE.md per their conventions.
+- SKELETON at this commit: stub script + stub test landed; content
+  follows in the next commits.
 
 ## Agent BB status (wt-uagb1-bb)
 
