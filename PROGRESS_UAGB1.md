@@ -130,7 +130,26 @@ machine-independent and land at full grade.
 
 ## Agent BC status (wt-uagb1-bc)
 
-- (lane launches here)
+- 2026-08-08: lane OPEN. Read phase complete (ledger; roadmap 1/3/5;
+  AGGREGATION_ZK_DESIGN Section 6 AZB-1..9 + Section 8 spike output;
+  AGGREGATION_FOLDING_DESIGN Section 8 FINAL block AZB-10/11 ruling +
+  F-O1..F-O5; AGGREGATION_FOLD_PRIVACY_PRICING FP-L1/L2/L3, AZB-11
+  canary spec 4.2, F-Z1 3.1, F-Z3 8.3, Tier Z tables 3.3;
+  O-5/O-6 identified from AGGREGATION_LITERATURE 8.1 via the
+  PROGRESS_UAG FINAL + PARAMS 5.3/5.4 model rows; TARGET_CONTRACT
+  Section 2 + Amendment A1; spike machinery surveyed in
+  aggregation_zk_spike.py / aggregation_folding_spike.py /
+  fold_privacy_pricing_spike.py). frugal-lm surveyed READ-ONLY:
+  runs/125m-baseline ckpt-00009536 is a COMPLETED 2.5e9-token 125M
+  run (val_loss 3.0816, bf16 safetensors, blocks.N.mlp.{w_gate,w_up,
+  w_down}, shapes 2048x768 / 768x2048; mlp_hidden resolves to 2048
+  via config.py default_mlp_hidden — the yaml omits it); frugal-lm
+  .venv has mlx+safetensors+numpy (inference possible on-box).
+  Deliverable skeletons committed: scripts/azb_battery_spike.py,
+  docs/zkmatrix-poc/AZB_BATTERY_PLAN.md,
+  scripts/m125_int8_calibration.py,
+  docs/zkmatrix-poc/M125_CALIBRATION_STUDY.md. Building the AZB
+  battery legs first.
 
 ## Blocker
 
