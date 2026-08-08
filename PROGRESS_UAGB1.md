@@ -312,6 +312,26 @@ machine-independent and land at full grade.
     this shape (no capacity wall, no memory wall).
   * Freeze rows UAGB1-2a..2d (battery + full-shape layouts derived
     both directions); all pre-existing freeze digests unmoved.
+  * D3 STRETCH LANDED (skeleton only, honest labels): `ring_matmul
+    statement-125m` — the 12-layer 125M FFN-pass statement (288
+    entries, 276 ops, 12 outputs) VALIDATES + digests under
+    manifest v3 at BC's calibrated quantization (weights 2^-9,
+    derived per-layer shifts, stacked-plane range facts); every op
+    class labeled NOT PROVEN; inter-layer edge NOT wired
+    (RMSNorm/residual not integer-specified — fresh X per layer, the
+    honest FFN-only scope). TWO statement-typing findings raised by
+    the REAL calibration data, printed per layer (14 surrogate
+    deviations): D3-F1 the frozen frac-4 SiLU table cannot host the
+    calibrated eGate = -3 on 10/12 layers (per-scale table family
+    needed — integration-blocking if unaddressed); D3-F2 QuantMeta
+    cannot express positive scale exponents (eZ +1 / eH +2 clamped
+    to frac 0 with widened 9/10-bit storage). Both exported to the
+    pass-statement typing stage.
+- BB LANE STATUS: items (1) and (2) COMPLETE and green (build +
+  suite + freeze-check + batteries + measured); item (3) landed as
+  the honest skeleton described above. Items (4)-(6) (IXF fold,
+  masked eval path, wire format) remain the round's path — NOT
+  claimed, next context's bite.
 
 ## Agent BC status (wt-uagb1-bc)
 

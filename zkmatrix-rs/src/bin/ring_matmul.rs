@@ -6257,7 +6257,7 @@ fn self_test_pi2_ce() {
 }
 
 fn usage() {
-    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory | uagb1-digit-battery | matmul-statement [battery | <rows> <inner> <cols>]");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory | uagb1-digit-battery | matmul-statement [battery | <rows> <inner> <cols>] | statement-125m");
     eprintln!();
     eprintln!("  ffn-chain [n_blocks | battery] is the LEGACY q46 block chain: its range");
     eprintln!("  grounding uses the ARP legacy range arm (rejection clipping ~2^-4.75 at");
@@ -6296,6 +6296,7 @@ fn main() {
             self_test_m5_chunking();
             self_test_uagb1_digits();
             self_test_uagb1_matmul();
+            uagb1_statement_125m();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         Some("chain-demo") if args.len() == 5 => {
@@ -6377,6 +6378,7 @@ fn main() {
             self_test_uagb1_digits();
             println!("\n[UAGB1-D1] battery passed in {:.2}s", t.elapsed().as_secs_f64());
         }
+        Some("statement-125m") => uagb1_statement_125m(),
         Some("matmul-statement") => {
             // `matmul-statement battery` = the adversarial battery at
             // 128x768x256; `matmul-statement <rows> <inner> <cols>` =
@@ -19473,4 +19475,224 @@ fn freeze_check_uagb1_d2() -> bool {
             && ring::digits::CLASS_ACC24_768.max == 12_582_912,
     );
     all_ok
+}
+
+// ===========================================================================
+// [UAGB1-D3] STRETCH: the 12-layer 125M FFN-pass statement SKELETON —
+// statement plumbing ONLY (DAG wiring + typed metadata; NO proof path is
+// wired at this stage; every operation below is NOT PROVEN by this
+// subcommand). Shapes are the frugal-lm 125M integration rung
+// (LLM_POC_ROADMAP Section 1: 12 layers, d = 768, f = 2048, T = 512,
+// SwiGLU), quantization from BC's calibration study
+// (M125_CALIBRATION_STUDY.md Section 3 table; weights uniformly 2^-9).
+//
+// HONEST SCOPE LABELS (printed by the subcommand, recorded here):
+// - FFN-ONLY: each layer's X is a FRESH committed input and each
+//   layer's z a declared output. The inter-layer edge is RMSNorm +
+//   residual — NOT integer-specified (TARGET_CONTRACT Section 1), so
+//   it is NOT wired; the 7B surrogate's direct X_out -> X_in chain
+//   would be a fiction for the real model and is not used.
+// - SURROGATE SCALES where the v3 type system cannot carry the
+//   calibrated value (each deviation printed per layer):
+//   (a) gate/activation scales forced to the frozen SiLU table's
+//       frac-4 grid — TRUE for the eGate = -4 layers, SURROGATE for
+//       the eGate = -3 layers (finding D3-F1: the single frozen
+//       frac-4 table cannot host the calibrated per-layer gate
+//       scales; the integration statement needs a per-scale table
+//       family, a statement-typing extension).
+//   (b) eH/eZ > 0 layers clamp to frac 0 with widened storage bits
+//       (finding D3-F2: QuantMeta has no signed scale exponent; a
+//       scale 2^e, e > 0, is not expressible — same gap class as the
+//       missing symmetric-range field).
+// Both findings are exports to the pass-statement typing stage
+// (E-O1-BB territory), raised by REAL calibration data, not
+// hypotheticals.
+
+/// BC's calibrated exponents (M125_CALIBRATION_STUDY Section 3):
+/// (eX, eGate, eA, eUp, eH, eZ) per layer; eW = -9 uniform.
+const M125_EXP: [(i32, i32, i32, i32, i32, i32); 12] = [
+    (-3, -3, -3, -3, 0, 1),
+    (-2, -4, -4, -3, 0, -1),
+    (-2, -3, -3, -2, 2, 1),
+    (-2, -3, -3, -4, -1, -1),
+    (-2, -4, -4, -4, -2, -1),
+    (-2, -3, -3, -3, -1, -3),
+    (-2, -3, -3, -3, 0, -3),
+    (-2, -3, -3, -3, -1, -3),
+    (-2, -3, -3, -3, 0, -2),
+    (-2, -3, -3, -3, 0, -2),
+    (-2, -3, -3, -2, 0, 0),
+    (-2, -3, -3, -2, 0, 1),
+];
+
+fn uagb1_statement_125m() {
+    use manifest::{ClaimManifest, Operation, Orientation, PadSpec, QuantMeta, Statement};
+    let (layers, dm, fh, tk) = (12usize, 768usize, 2048usize, 512usize);
+    println!("[UAGB1-D3] 125M 12-layer FFN-pass statement SKELETON (plumbing only — NOTHING below is proven by this command)");
+    println!("  scope: FFN-only; per-layer fresh X inputs and z outputs; the RMSNorm/residual inter-layer edge is NOT integer-specified and NOT wired");
+    println!("  quantization: M125_CALIBRATION_STUDY Section 3 (weights 2^-9); surrogate deviations printed per layer");
+
+    fn add(
+        mf: &mut ClaimManifest,
+        quant: &mut Vec<QuantMeta>,
+        label: &str,
+        rows: usize,
+        cols: usize,
+        qm: QuantMeta,
+    ) -> u32 {
+        let id = mf.add_commitment(label, rows, cols, Orientation::RowMajor, vec![], vec![]);
+        quant.push(qm);
+        id
+    }
+    let qm = |bits: u32, frac_bits: u32, signed: bool| QuantMeta { bits, frac_bits, signed };
+    let plane = qm(1, 0, false);
+
+    let mut mf = ClaimManifest::new("lattice-uagb1-125m", b"uagb1-statement-125m");
+    let mut quant: Vec<QuantMeta> = Vec::new();
+    let mut outputs: Vec<u32> = Vec::new();
+    let mut surrogate_notes = 0usize;
+    for (l, &(e_x, e_gate, _e_a, e_up, e_h, e_z)) in M125_EXP.iter().enumerate() {
+        let lb = |s: &str| format!("{s}{l}");
+        let fx = (-e_x) as u32; // eX < 0 on every calibrated layer
+        let fup = (-e_up) as u32;
+        // Table-grid forcing (D3-F1): gate + SiLU output at frac 4.
+        let fg = 4u32;
+        if e_gate != -4 {
+            println!("  [SURROGATE] layer {l}: eGate {e_gate} forced to -4 (frozen frac-4 SiLU table; D3-F1)");
+            surrogate_notes += 1;
+        }
+        // frac-0 clamps (D3-F2) with widened storage for e > 0.
+        let fh8 = if e_h < 0 { (-e_h) as u32 } else { 0 };
+        let h8_bits = 8 + e_h.max(0) as u32;
+        if e_h > 0 {
+            println!("  [SURROGATE] layer {l}: eH +{e_h} clamped to frac 0, h8 widened to {h8_bits} bits (D3-F2)");
+            surrogate_notes += 1;
+        }
+        let fz = if e_z < 0 { (-e_z) as u32 } else { 0 };
+        let z_bits = 8 + e_z.max(0) as u32;
+        if e_z > 0 {
+            println!("  [SURROGATE] layer {l}: eZ +{e_z} clamped to frac 0, z widened to {z_bits} bits (D3-F2)");
+            surrogate_notes += 1;
+        }
+        // Entries.
+        let x_in = add(&mut mf, &mut quant, &lb("X"), dm, tk, qm(8, fx, true));
+        let wg = add(&mut mf, &mut quant, &lb("Wg"), fh, dm, qm(8, 9, true));
+        let wu = add(&mut mf, &mut quant, &lb("Wu"), fh, dm, qm(8, 9, true));
+        let wd = add(&mut mf, &mut quant, &lb("Wd"), dm, fh, qm(8, 9, true));
+        // Gate: acc(27b declared-type at inner 768 is 25; declare 25) ->
+        // rescale to the table grid -> SiLU.
+        let f_acc_g = fx + 9;
+        let shift_g = f_acc_g - fg;
+        let g_acc = add(&mut mf, &mut quant, &lb("Gacc"), fh, tk, qm(25, f_acc_g, true));
+        let g8 = add(&mut mf, &mut quant, &lb("g8"), fh, tk, qm(8, fg, true));
+        let rg = add(&mut mf, &mut quant, &lb("Rg"), fh, tk, qm(shift_g, f_acc_g, false));
+        let rg_bits = add(&mut mf, &mut quant, &lb("Rg-bits"), shift_g as usize * fh, tk, plane);
+        let a8 = add(&mut mf, &mut quant, &lb("a8"), fh, tk, qm(8, fg, true));
+        mf.add_operation(Operation::Matmul { a: wg, b: x_in, c: g_acc });
+        mf.add_operation(Operation::Rescale { x: g_acc, y: g8, r: rg, shift: shift_g });
+        mf.add_operation(Operation::Range { value: rg, bits: rg_bits, width: shift_g, signed: false });
+        mf.add_operation(Operation::Binary { bits: rg_bits });
+        mf.add_operation(Operation::Lookup { x: g8, y: a8 });
+        // Up: acc -> rescale to int8 at the TRUE calibrated eUp + proven
+        // narrowing.
+        let f_acc_u = fx + 9;
+        let shift_u = f_acc_u - fup;
+        let u_acc = add(&mut mf, &mut quant, &lb("Uacc"), fh, tk, qm(25, f_acc_u, true));
+        let u8v = add(&mut mf, &mut quant, &lb("u8"), fh, tk, qm(8, fup, true));
+        let ru = add(&mut mf, &mut quant, &lb("Ru"), fh, tk, qm(shift_u, f_acc_u, false));
+        let ru_bits = add(&mut mf, &mut quant, &lb("Ru-bits"), shift_u as usize * fh, tk, plane);
+        let u8_bits = add(&mut mf, &mut quant, &lb("u8-bits"), 8 * fh, tk, plane);
+        mf.add_operation(Operation::Matmul { a: wu, b: x_in, c: u_acc });
+        mf.add_operation(Operation::Rescale { x: u_acc, y: u8v, r: ru, shift: shift_u });
+        mf.add_operation(Operation::Range { value: ru, bits: ru_bits, width: shift_u, signed: false });
+        mf.add_operation(Operation::Binary { bits: ru_bits });
+        mf.add_operation(Operation::Range { value: u8v, bits: u8_bits, width: 8, signed: true });
+        mf.add_operation(Operation::Binary { bits: u8_bits });
+        // gate o up -> rescale -> proven narrowing at the (possibly
+        // clamped) h8 grid.
+        let f_h = fg + fup;
+        let shift_h = f_h - fh8;
+        let hh = add(&mut mf, &mut quant, &lb("H"), fh, tk, qm(16, f_h, true));
+        let h8 = add(&mut mf, &mut quant, &lb("h8"), fh, tk, qm(h8_bits, fh8, true));
+        let rh = add(&mut mf, &mut quant, &lb("Rh"), fh, tk, qm(shift_h, f_h, false));
+        let rh_bits = add(&mut mf, &mut quant, &lb("Rh-bits"), shift_h as usize * fh, tk, plane);
+        let h8_bits_t = add(&mut mf, &mut quant, &lb("h8-bits"), h8_bits as usize * fh, tk, plane);
+        mf.add_operation(Operation::Hadamard { x: a8, y: u8v, z: hh });
+        mf.add_operation(Operation::Rescale { x: hh, y: h8, r: rh, shift: shift_h });
+        mf.add_operation(Operation::Range { value: rh, bits: rh_bits, width: shift_h, signed: false });
+        mf.add_operation(Operation::Binary { bits: rh_bits });
+        mf.add_operation(Operation::Range { value: h8, bits: h8_bits_t, width: h8_bits, signed: true });
+        mf.add_operation(Operation::Binary { bits: h8_bits_t });
+        // Down: acc at inner 2048 (declared-type width) -> rescale to the
+        // (possibly clamped) z grid + proven narrowing; z is the layer's
+        // declared output.
+        let f_acc_d = fh8 + 9;
+        let shift_d = f_acc_d - fz;
+        let d_acc = add(&mut mf, &mut quant, &lb("Dacc"), dm, tk, qm(mm_acc_bits_hb(2048, h8_bits), f_acc_d, true));
+        let zv = add(&mut mf, &mut quant, &lb("z"), dm, tk, qm(z_bits, fz, true));
+        let rd = add(&mut mf, &mut quant, &lb("Rd"), dm, tk, qm(shift_d, f_acc_d, false));
+        let rd_bits = add(&mut mf, &mut quant, &lb("Rd-bits"), shift_d as usize * dm, tk, plane);
+        let z_bits_t = add(&mut mf, &mut quant, &lb("z-bits"), z_bits as usize * dm, tk, plane);
+        mf.add_operation(Operation::Matmul { a: wd, b: h8, c: d_acc });
+        mf.add_operation(Operation::Rescale { x: d_acc, y: zv, r: rd, shift: shift_d });
+        mf.add_operation(Operation::Range { value: rd, bits: rd_bits, width: shift_d, signed: false });
+        mf.add_operation(Operation::Binary { bits: rd_bits });
+        mf.add_operation(Operation::Range { value: zv, bits: z_bits_t, width: z_bits, signed: true });
+        mf.add_operation(Operation::Binary { bits: z_bits_t });
+        outputs.push(zv);
+    }
+    let model_digest: [u8; 32] = uk8_sha(&[
+        b"uagb1-125m-ffn-pass-skeleton-v1",
+        &(layers as u64).to_le_bytes(),
+        &(dm as u64).to_le_bytes(),
+        &(fh as u64).to_le_bytes(),
+        &(tk as u64).to_le_bytes(),
+    ]);
+    let modulus_bits = 63 - Q8.leading_zeros();
+    let mut st = Statement::new(model_digest, Some(manifest::SILU_INT8_TABLE_SPEC), modulus_bits, mf);
+    st.quant = quant;
+    st.pad = st
+        .manifest
+        .commitments
+        .iter()
+        .map(|e| PadSpec::exact(e.rows as usize, e.cols as usize))
+        .collect();
+    st.outputs = outputs;
+    let (n_entries, n_ops) = (st.manifest.commitments.len(), st.manifest.operations.len());
+    match st.validate() {
+        Ok(()) => {
+            let dg = st.digest().expect("validated statement digests");
+            println!(
+                "  ok   SKELETON VALIDATES: {n_entries} entries, {n_ops} operations, {} declared outputs, digest {}",
+                st.outputs.len(),
+                hex_prefix(&dg)
+            );
+        }
+        Err(err) => {
+            println!("  FAIL: 125M skeleton does not validate: {err}");
+            std::process::exit(1);
+        }
+    }
+    println!("  surrogate deviations from the calibrated table: {surrogate_notes} (D3-F1 table grid, D3-F2 positive exponents)");
+    println!("  status per op class: Matmul x36 NOT PROVEN at pass scope (D2 proves ONE matmul statement at 512x768x2048);");
+    println!("    Rescale x36 / Range x84 / Binary x84 NOT PROVEN here (chain-demo proves the gadget class at toy shape);");
+    println!("    Lookup x12 NOT PROVEN here (U-K5c/U-R1 prove the class at layer shape); Hadamard x12 NOT PROVEN here (same);");
+    println!("    inter-layer chaining NOT WIRED (RMSNorm/residual not integer-specified — TARGET_CONTRACT Section 1)");
+}
+
+/// Declared-type accumulator width for an inner dimension with an
+/// hb-bit signed second operand (the down matmul consumes h8, which
+/// may be widened past 8 bits by the D3-F2 clamp).
+fn mm_acc_bits_hb(inner: usize, hb: u32) -> u32 {
+    let a_lo = -(1i128 << 7);
+    let a_hi = (1i128 << 7) - 1;
+    let b_lo = -(1i128 << (hb - 1));
+    let b_hi = (1i128 << (hb - 1)) - 1;
+    let lo = inner as i128 * (a_lo * b_hi).min(a_hi * b_lo);
+    let hi = inner as i128 * (a_lo * b_lo).max(a_hi * b_hi);
+    let mut b = 2u32;
+    while -(1i128 << (b - 1)) > lo || (1i128 << (b - 1)) - 1 < hi {
+        b += 1;
+    }
+    b
 }

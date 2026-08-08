@@ -222,6 +222,37 @@ equal to the D1 class. All derived, none extrapolated
 (aggregation_freeze_rows.py citation: the gamma gate matches row
 H-gate-ed = 28 - log2(2*29.4) = 2^22.12).
 
+### 2.6 Deliverable 3 (stretch) — the 12-layer 125M statement SKELETON (statement plumbing only)
+
+`ring_matmul statement-125m` (also in self-test): the 12-layer 125M
+FFN-pass statement — 288 entries, 276 operations, 12 declared
+outputs — VALIDATES under manifest v3 and digests. Shapes are the
+integration rung (d 768, f 2048, T 512, SwiGLU); quantization is
+BC's calibrated table (M125_CALIBRATION_STUDY Section 3; weights
+2^-9), with derived per-layer requant shifts and stacked-plane range
+facts. NOTHING in it is proven by this stage — every op class
+carries an explicit NOT-PROVEN label, and the inter-layer edge
+(RMSNorm/residual, not integer-specified) is NOT wired: each layer
+takes a fresh committed X and declares its z output (the honest
+FFN-only scope; the 7B surrogate's direct X_out -> X_in chain is a
+fiction for the real model and is not used).
+
+Two REAL statement-typing findings raised by the calibrated data
+(14 surrogate deviations, each printed per layer):
+
+- **D3-F1 (table-grid conflict).** The frozen SiLU table
+  (silu-int8-table-v1) pins frac 4 on both sides; the calibrated
+  gate scale is eGate = -3 on 10 of 12 layers. A single frozen table
+  cannot host per-layer gate scales — the integration statement
+  needs a per-scale table family (typed TableSpec extension) or a
+  recalibration onto the table grid. PoC-integration-blocking if
+  unaddressed; exported.
+- **D3-F2 (positive scale exponents).** QuantMeta has no signed
+  scale exponent: eZ = +1 (layers 0/2/11) and eH = +2 (layer 2) are
+  not expressible; the skeleton clamps to frac 0 with widened
+  storage bits (9-bit z, 10-bit h8) — semantics-preserving but a
+  typed-field gap, same class as the missing symmetric-range field.
+
 ## 3. Walls and findings
 
 1. **The C2 recipe holds at the full shape** — the load-bearing
