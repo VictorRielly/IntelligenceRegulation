@@ -579,7 +579,137 @@ fallbacks, [MAC-BOX]/[NOISY-SHARED] timing marks).
 
 ## Agent BD status (wt-uagb1-bd)
 
-- (lane launches here)
+- 2026-08-08 PLAN COMMIT (skeleton-commit-first; read phase COMPLETE:
+  ledger + BB dispositions; UAGB1_ENGINE_REPORT (waves/splitter/
+  ct-rounds/byte rows); CR (CR-L1..L6, 10.2 one-batched-claim-per-
+  group, 10.5 FS table); DA (2.2 two-tier shape, 3.2 chains, 5.1
+  model, I-1..I-8); EA S8 (E-O1/O2/O3-BB); ZK 4.4-4.6 (AZ-T1, floor
+  posture, one-proof-per-witness); FP (FP-L1/L2, 3.1 surcharges,
+  F-Z1/F-Z2/F-Z3, 1.4 I-6-vs-TierZ reconciliation); FD S2 (F-IF1.0-
+  1.8 frozen fold interface, 6,716 B/level class, kel model); FS 8.2
+  (AFS-L8 two-group lemma), R-FC2/R-FC3/R-FC4;
+  AZB_BATTERY_PLAN S3 (E-1..E-11 specs) + S4 (F-Z1 recipe b = 27.2 +
+  0.5*log2(coords/81920)); aggregation_freeze_rows.py (85 rows — the
+  citable ids); engine: commit.rs, digits.rs, sumcheck.rs, kfield.rs,
+  gkr_masked.rs (masked_transcript_totals), lookup.rs
+  (k_weight_coords), uagb1_matmul_run end to end).
+- READ-PHASE FINDING (pre-registered for the report): the engine's
+  OWN structural counter masked_transcript_totals(dw,0,1) +
+  masked_transcript_totals(9,0,1) reproduces ALL FOUR recorded kel
+  points EXACTLY (dw 17/19/21/24 -> 1,000/1,166/1,348/1,651) and
+  yields 1,760/1,873/2,236 at dw 25/26/29 — bit-identical to the
+  [MODEL] quadratic fit kel(dw,9) = 2dw^2+11dw+235. The fit is not a
+  fit; it is the transcript-shape arithmetic. F-O2 standalone route
+  therefore = validate counter == real flatten at reachable dw
+  (real runs), then cite counter values at 25/26/29 as
+  ENGINE-STRUCTURAL (not extrapolated) counts.
+- STAGE PLAN (honest-fallback at every stage; files owned:
+  src/ring/eval_proof.rs (new), [UAGB1-BD] section + one `agg-matmul`
+  match arm + one freeze_check line in ring_matmul.rs, ADDITIVE
+  aggregated-artifact descriptor in manifest.rs (QuantMeta untouched),
+  docs/zkmatrix-poc/UAGB1_AGG_STACK_REPORT.md, optional additive
+  tests/test_uagb1_agg.py, this section):
+  * S1 BATCHING (CR-L4-class): W-C commitment groups at the 125M
+    single-layer statement — T_W = {A 512x768 w8s e0=1 l0=8}, T_act =
+    {B 768x2048 a8s e0=2 l0=5; C 512x2048 acc24-768 e0=2 l0=13}
+    (frozen class table UAGB1-1a consumed as-is). Values enter the
+    two-tier global commitment DIGIT-decomposed (exact-digit branch,
+    the only e0=1 path — F-BB1); per group ONE outer identity u_0
+    (4 + 11*516 = 5,680 B at KAP-11) binds the level-0 column
+    commitments t_j (witness, never wire). Claim layer: the SAME
+    degree-2 matmul sumcheck over K as wave 1 (rx/ry from h0_agg
+    binding statement + BOTH groups' u_0), terminals -> per-group
+    nu_g RLC (drawn after ALL terminals absorbed — CRB-N5; AFS-L8
+    hypothesis (iii)) -> K_DEG = 16 coordinate rows (k_weight_coords
+    pattern, IA-O1-2 fallback) -> 16 ring-embedded functional claims
+    F_c(w) = B_c with ct(B_c) publicly pinned to the K-claim
+    coordinate (conj-packing ct(conj(a)b) = <a,b>, SR 1.2 fact 3).
+    Multi-point-per-tensor input supported via mu-additive row
+    weights (folded instance families remain valid inputs — F-IF1
+    NOT foreclosed; no fold-zone code touched). E-O2-BB LANDS HERE:
+    group descriptor counts openings; a second batched opening in a
+    group = BUILD ERROR + negative test. E-O3-BB DISPOSITION: the
+    single-matmul statement carries NO lookup/range descent pair —
+    D-R1 rho-sharing has no object at this scope; neither the
+    battery leg nor the +143,104 B split price applies HERE;
+    obligation transfers to the pass statement (recorded, not
+    silent).
+  * S2 DESCENT / EVAL PROOF, BARE: per group, the LaBRADOR-form
+    recursion at kappa 11 — per level: K-draw ct-aggregation of the
+    accumulated constraint set (full-entropy R_q alphas, R-EB3
+    K-draw class 496 = EB3-kdraw; alphas drawn AFTER claim material
+    absorbed), chunk split r_i (derive-time search seeded by the DA
+    balance rule), garbage families g_jk = <s_j,s_k> and h_jk
+    (functional cross terms) at the FULL r(r+1) count (R-EB2
+    EB2-count — g carried although exact-digit norms are syntactic,
+    keeping the frozen recurrence), outer commitment u_i over
+    (t-hat ++ g-hat ++ h-hat) digits (5,680 B/level wire), quinary
+    fold challenges resample-until-under T_cap = 33 (EB1-tcap,
+    deterministic FS counter), fold z; next witness = [z-hat | t-hat
+    | g-hat | h-hat] at adaptive base e_{i+1}: largest e with
+    OP_CONC*2^(e-1)*sqrt(n*D) <= gamma_max(exact) = 2^22.12
+    (H-gate-ed) AND e <= 7 (EB4-emax); transported constraints (fold
+    consistency A_i z = sum c_j t_j; functional transport via h;
+    norm transport <z,z> = sum c_j c_k g_jk via next-level quadratic
+    terms; outer binding B_i(...) = u_i) — ALL targets public;
+    FLOOR: bare witness (1 B/coord class at e_L <= 7), verifier
+    evaluates every accumulated constraint + alphabet membership
+    directly. THE MOMENT THE SCHEDULE DERIVES: floor
+    coordinates/rings per group POSTED here + "FLOOR SCHEDULE
+    POSTED" commit line (BC's F-Z1 recipe + F-O2 hang on it). kel:
+    real masked-descent runs at reachable dw (counter == flatten
+    asserted) + structural counts at 25/26/29.
+  * S3 BYTE ACCOUNTING: counted-not-serialized convention (64 B/K-el,
+    4 B/coeff, 8 B/response, 12 B/reveal, 4 + 516/poly), full
+    per-group per-level decomposition vs Tier N 262,144 B/layer
+    (P0) and vs wave-1's 117,396,459 B. Whether Tier N is met is a
+    RESULT, reported as it lands. Rough pre-registered expectation
+    [MODEL, hand recurrence]: floors ~650-750 rings/group, totals
+    250-290 KB class — either side of the gate is a finding, not a
+    failure.
+  * S4 MASKED PATH (only after 1-3 green): the Tier-Z floor
+    treatment EXACTLY as priced — re-derived Tier-Z schedule with
+    e_L <= 4 floor base (the F-Z1 no-limb-growth corner), F-Z1
+    asserted at derive (b = 27.2 + 0.5*log2(coords/81920) < 28.00,
+    growth branch dead), rejection-sampled masked floor response at
+    ~4 B/coord (F-Z3 sampler + abort discipline; mask
+    prover-internal, never committed, NO hash edge — FP-L2 row A8;
+    response sent after ALL of that group's level challenges —
+    AZB-6 ordering unchanged; restart counts logged). I-6 HARD
+    everywhere else: the floor response under the A1 carve-out is
+    the ONLY Gaussian-masked object; if anything else seems to need
+    one, STOP and file an R-row. AZB E-blocks unlocked and wired:
+    E-6 (per-level per-group c-before-u F5 pair, both directions),
+    E-7(i) floor recompute byte-exact from (witness, challenges) +
+    (ii) toy rank law, E-11 legs 1-2 (static support + activation
+    recompute from (T_act, challenges) alone) — legs 3-4 are
+    pass-scope, labeled PARTIAL. AZB-11 at engine scale only as far
+    as legs 1-2 reach at this statement (P2 group-map semantics are
+    pass-stage).
+  * S5 STRETCH: canonical wire format (M-05). If unreached: counted
+    convention continues, stated in report + ledger.
+- BATTERY (house F5 discipline, pairs on every negative): S1 —
+  honest ACCEPT small + full shape; E-O2-BB second-opening build
+  error; nu-ordering F5 pair (CRB-N5 class); tampered claim value
+  REJECT. S2 — honest ACCEPT; floor coordinate tamper REJECT; OOA
+  floor digit REJECT; level-ordering F5 pair (E-6/AZB-6 class:
+  c^(i) before u_i ACCEPTS under hook / shipped REJECTS); alpha-
+  before-B_c F5 pair (CRB-N3/N4 class); wrong-V transport REJECT;
+  garbage tamper REJECT; global stale-rx/ry F5 (h0_agg edge, the
+  wave-1 StaleOrder shape at the aggregate statement). S4 — masked
+  honest ACCEPT; masked-floor norm tamper REJECT; F-Z1 derive
+  assert; E-7/E-11 canaries as above.
+- FREEZE: run `freeze-check` before/after every stage (ALL existing
+  digests must not move); new rows UAGB1-BD-1..(layouts, schedules,
+  floors, gammas vs H-gate-ed, byte totals) both directions in
+  freeze_check_uagb1_bd(); derive-time asserts cite row ids
+  (EB1-tcap, EB4-emax, H-gate-ed, EB3-kdraw, FC2-act-e0, FC2-w-e0),
+  never re-derive ad hoc.
+- WILL NOT DO: fold-zone code / 12->16 index padding (lane BE;
+  F-IF1 is the ruling where we meet); lookup.rs / QuantMeta / SiLU
+  tables (lane BF); q46 side; GPU; attention; any Gaussian-masked
+  opening outside the priced Tier-Z floor carve-out; edits to
+  existing scripts/tests or other ledger sections; push.
 
 ## Agent BE status (wt-uagb1-be)
 
