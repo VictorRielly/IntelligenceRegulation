@@ -31,6 +31,7 @@ pub mod aux;
 
 pub mod commit;
 pub mod ct_engine;
+pub mod digits;
 pub mod gkr;
 pub mod gkr_masked;
 pub mod kfield;
