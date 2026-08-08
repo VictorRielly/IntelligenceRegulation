@@ -1134,3 +1134,20 @@ rejected) and was hostile-read and verified — Section 8 rewritten
 from checklist to verification (V1-V6 + AFS-L8 + R-FC1..R-FC4,
 spike check 10); verdict split into adopted-IXF and RLC-archive
 rows; exports re-dispositioned.*
+
+*2026-08-08 (U-AG-B1 Agent BA) — two dispositions, text above
+unedited: (1) **R-FC2 DISCHARGED**: the per-group digit-headroom
+freeze rows this section requested now exist —
+AGGREGATION_FOLDING_DESIGN.md Section 10 (the dated table) enforced
+both directions by scripts/aggregation_freeze_rows.py under
+tests/test_aggregation_freeze.py; the knife edges are pinned at their
+exact values (act +0.865 b / weight +0.237 b / 8B weight +0.047 b
+[MODEL]) with the F-N2/N5 negative directions asserted, and the
+0.86-vs-0.87 / 0.24-vs-0.23 prints between this document's 8.3 and
+FA's Section 5 are recorded there as the two rounding directions of
+the same exact values. (2) **AFS-L0..L8 entered the house lemma
+corpus** at the U-AG-B1 open: SOUNDNESS_REFERENCE.md Section 10
+(ring/challenge-engine class: AFS-L0, AFS-L6, and the fold-layer
+hash-edge pointer) and Q4_LEMMAS.md Section 9 (transcription class:
+AFS-L1..L5, L7, L8), lemma ids preserved as cross-references, this
+document remaining the authority for the full statements and proofs.*
