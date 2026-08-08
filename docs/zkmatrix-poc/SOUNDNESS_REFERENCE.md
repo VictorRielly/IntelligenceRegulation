@@ -914,6 +914,85 @@ rows + E2 zeta junk pinning at zero extra rows) closes the
 composed-Hadamard soundness gap; Section 8 item 3 added (subsequent
 items renumbered), the zeta ordering row added to Section 7, the U-E2
 battery and junk-count freeze row added to the suite.*
+*2026-08-08 (U-AG-B1 tranche, Agent BA) — Section 10 appended: the
+aggregation-layer folding-soundness results of
+AGGREGATION_FOLDING_SOUNDNESS.md enter the house corpus at the
+U-AG-B1 open. The ring/challenge-engine-class entries (AFS-L0, the
+pigeonhole entropy cap, AFS-L6) live here beside the L1/L2 engines
+and the (2.2) relaxed-binding shape they extend; the
+transcription-class lemmas (AFS-L1..L5, L7, L8) live in Q4_LEMMAS.md
+Section 9. Lemma ids preserved as cross-references; the folding
+document remains the authority for full statements, proofs, and the
+F-C1..F-C6 conditions. No pre-existing text edited.*
+
+## 10. Aggregation-layer addendum (U-AG-B1): fold-layer challenge-set and binding facts
+
+Added 2026-08-08 (U-AG-B1 Agent BA). These entries extend the Section
+1.3 challenge-engine inventory and the (2.2) relaxed-binding shape to
+the aggregation/folding layer designed by the U-AG trench. Authority:
+AGGREGATION_FOLDING_SOUNDNESS.md (statements transcribed; ids
+preserved). They cover DESIGNED protocol objects — the aggregate
+engine is not yet built; the build round (U-AG-B1 BB) owes the
+derive-time asserts and the Section 7 hash-edge row merges when the
+fold challenges become live code.
+
+**(10.1) AFS-L0 — the fold-layer challenge sets at our ring
+[PROVEN].** (a) The quinary set C is a strong sampling set for the
+fold role: differences have coefficients in [−4, 4], and the
+[LS18]/[LF Lemma 2.3] hypothesis at (t = 8, q31) is
+||y||_inf < q^{1/8}/sqrt(8) = 5.19 — margin 1.297x, EXACTLY the C0'
+freeze check params.rs already asserts (Section 1.3 L1 is the same
+fact in its house form). (b) The slot-diagonal K-set {diagonal
+embeddings of GF(q^16)} is a strong sampling set of size q^16 =
+2^496: a nonzero difference is nonzero in EVERY slot, hence
+invertible (the Section 1.3 full-entropy engine's mass, now with the
+strong-sampling reading made explicit). (c) **The pigeonhole entropy
+cap** ([LF] Section 3.3's argument, stated as a ring theorem): ANY
+strong sampling set in R_q ≅ GF(q^16)^8 has size at most q^16 —
+two elements agreeing in one slot differ by a zero divisor. So the
+fold-challenge entropy of ANY design at our ring is structurally
+capped at 496 bits per challenge; at a FULLY-split ring the cap is
+q = 2^31 — the 2026-04-30 break regime (three public LaBRADOR
+implementations died exactly there), unfixable by set design. This
+is the quantitative justification, stated once, for the k = 8
+partial-splitting choice of Section 1.1.
+
+**(10.2) AFS-L6 — the fold binding bound, re-derived in l2
+[PROVEN].** The (2.2) relaxed-binding shape at the fold layer, with
+the l_inf-native [LF]/[LF+] hypothesis replaced by house l2 objects:
+two 2B-weak openings (Delta_j, x_j) of one commitment with
+range-pinned ||x_j||_inf < 2B_acc (hence ||x_j||_2 <
+2·sqrt(d·m_acc)·B_acc) and op-norm-capped challenge differences
+op_2(Delta_j) <= 2·T_cap yield the nonzero MSIS solution
+Delta_2·x_1 − Delta_1·x_2 with
+
+    beta_fold(l2) <= 8 · T_cap · sqrt(d·m_acc) · B_acc.
+
+Three lines (op-norm submultiplicativity + triangle inequality —
+SC-L1 step 3's arithmetic with the fold's objects), but load-bearing:
+the naive l_inf-to-l2 conversion costs sqrt(d·m) and lands the fold's
+binding instances 0.4 bits under the R-EB4 validity line at the
+smallest plausible shapes (13/48 envelope failures, crossing q at the
+larger ones); the l2 route passes 48/48 with >= 0.9 b headroom,
+recovering log2(256/33) = 2.96 bits per row. [LF+] Section 6 leaves
+the l2 variant open — this is the house's answer for the one step the
+chain needs. Frozen constants: T_cap = 33 (R-EB1), kappa = 11,
+validity line 2^30.5, floor bases e <= 7 (R-EB4) — all pinned both
+directions by `scripts/aggregation_freeze_rows.py` (suite:
+`tests/test_aggregation_freeze.py`).
+
+**(10.3) Fold-layer hash edges — pointer row.** The Section 7
+ordering audit gains NO live rows yet: the fold challenges are
+design-stage. Their complete edge tables (with attacks and planned F5
+pairs FSB-1..4, AZB-10) are AGGREGATION_FOLDING_SOUNDNESS.md Section
+7 and AGGREGATION_FOLDING_DESIGN.md Section 7 (IXF: the segment-map
+and group-map edges in h0_agg, mu after ALL blinded terminals, nu_g
+after mu, per-group eval-proof edges per AZ-L4(a); theta-before-rho
+inside the eval proof). Per this document's own rule ("any new
+challenge added to the protocol must be added here"), those rows MERGE
+into Section 7 when lane BB lands the fold challenges as code —
+recorded here so the merge is an obligation with an owner, not a
+surprise.
 
 
 

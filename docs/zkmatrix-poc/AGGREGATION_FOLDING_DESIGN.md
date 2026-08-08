@@ -850,6 +850,79 @@ edited in place)
   base + FB's mask deltas — the Amendment A1 freeze candidate is
   FB's deliverable on this base.
 
+## 10. R-FC2 per-group digit-headroom FREEZE ROWS (dated addition, 2026-08-08, U-AG-B1 Agent BA)
+
+R-FC2 (AGGREGATION_FOLDING_SOUNDNESS.md 8.3: "the Section 5
+digit-base headrooms are knife-edge, < 1 b; per-group freeze rows are
+a build-round obligation") is DISCHARGED here. Enforcement:
+`scripts/aggregation_freeze_rows.py` Section 5 (run under the suite
+by `tests/test_aggregation_freeze.py`) re-derives every row below
+from the transcribed chain and fails if EITHER the chain or a pin
+moves. Nothing above this section was edited.
+
+### 10.1 The frozen chain (exactly the F-IF1.5 / spike form)
+
+    N_limb(e0)    = sum over value classes c of  n_c · max(1, ceil(bits_c / e0))
+    gamma_z(pass) = OP_CONC · 2^(e0−1) · sqrt(N_limb · D),   OP_CONC = 20.8 = 1.3·sqrt(2D)
+    headroom      = log2(gamma_max) − log2(gamma_z)
+    gamma_max     = 2^28 / 58.81 = 2^22.12  (exact-digit gate; = (q/8)/(2·29.42))
+                  = 2^28 / 121.5 = 2^21.07  (per-level gate, recorded alternative)
+
+Frozen class inventories (rings, value bits) — the derivation side of
+the count pins:
+
+| group | classes | derivation | source |
+|---|---|---|---|
+| activation, FFN pass | (4,227,072, 8), (1,409,024, 15), (6,400, 31), (4,096, 31) | 32 x 3 x 44,032 (X/Y/UP dense int8, 512x11008/128 rings each); 32 x 44,032 (Z); 32 x 200 aux; T_blind 2^12 [MODEL] | 5.1; EA 2.3/2.4; DA 2.5 |
+| weight, W-C | (33,816,576, 8) | 3 x 32 x 4096·11008/128, dense int8 | 5.2; F-IF1.4 |
+| weight, 8B [MODEL] | (44,040,192, 8) | 3 x 32 x 4096·14336/128 | 5.2 F-N4 |
+| activation, 2^20 ledger-unit pass | (786,432, 8), (262,144, 15), (5,376, 31), (4,096, 31) | 32 x per-layer (24,576 / 8,192 / 168) + T_blind | EA SHAPES; spike pass_classes |
+
+### 10.2 The rows
+
+Deployment-mode note: the mode (P0-P3) decides WHICH groups open and
+whether their floors are masked (F-IF1.4); it does NOT move gamma_z —
+masking is a byte surcharge, not a norm term (FB's lemma set). The
+norm rows below are therefore mode-independent; the per-mode content
+of the freeze is the group map itself (activation group opens in
+every mode; weight group per deployment; W-B merged priced,
+NOT recommended, no P2 split, no 8B future).
+
+| row id | group / point | e0 | N_limb | gamma_z | gate | headroom | verdict | doc prints |
+|---|---|---:|---:|---|---|---:|---|---|
+| FC2-act2 | activation, FFN pass — **ADOPTED** (all modes) | 2 | 28,348,416 | 2^21.26 | 2^22.12 | **+0.865 b** | fits, robust, zero byte premium (F-N3) | 0.86 here; 0.87 in FS 8.3 (rounding ulp) |
+| FC2-act3 | activation, byte-optimal (razor; NOT adopted) | 3 | 19,841,792 | 2^22.00 | 2^22.12 | +0.122 b | fits, razor | 0.12 |
+| FC2-act1 | activation, conservative per-level-gate variant | 1 | 55,277,312 | 2^20.74 | 2^21.07 | +0.336 b | fits (EB-Section-4-convention variant) | 0.33 (exact 0.336) |
+| FC2-act5 | activation, the LAYER base at x32 — NEGATIVE row | 5 | 12,754,688 | 2^23.68 | 2^22.12 | **−1.559 b** | FAILS — the pass re-derivation is mandatory (spike N5) | −1.56 |
+| FC2-W | weight, W-C — **ADOPTED** (sign-binary) | 1 | 270,532,608 | 2^21.88 | 2^22.12 | **+0.237 b** | fits ONLY on the exact-digit branch | 0.24 here; 0.23 in FS 8.3 |
+| FC2-FN2 | weight vs the per-level gate — NEGATIVE row | 1 | 270,532,608 | 2^21.88 | 2^21.07 | −0.809 b | INFEASIBLE — F-N2: exact-digit is load-bearing for the weight opening | (structural) |
+| FC2-WB | merged W-B variant (priced, NOT recommended) | 1 | 325,809,920 | 2^22.02 | 2^22.12 | +0.103 b | 7B-only; exceeds the gate at 8B | 0.10 |
+| FC2-W8B | weight at the 8B shape [MODEL] — the knife edge | 1 | 352,321,536 | 2^22.07 | 2^22.12 | **+0.047 b** | the sharpest number in the design; F-O4 (relaxed-e0 line BEFORE any 8B freeze) stands as the fence | 0.05 |
+| FC2-led | activation, 2^20 ledger-unit pass | 4 | 2,697,216 | 2^21.56 | 2^22.12 | +0.561 b | fits | 0.56 |
+| FC2-law | the one-time pass norm law | — | — | — | — | +2.5 b = log2 sqrt(32), once, NO per-step growth | verified (FS V3) | 2.5 |
+
+Pins are the exact derived values at 3 decimals; every doc-printed
+2dp value above sits within 0.01 of its pin (the FS-8.3 "0.87/0.33/
+0.23" prints and this document's "0.86/0.33/0.24" prints are the two
+rounding directions of the same exact values — recorded so neither
+gets "corrected" into a real change later).
+
+### 10.3 What must extend this table (exports)
+
+- **Lane BB (engine):** when the pass commitment layout lands in
+  Rust, the group map + per-group (e0, N_limb chain, gamma gate) must
+  be asserted at derive time and pinned in `freeze-check` (the
+  LKP-7/8/9 both-direction pattern); the Python battery is the
+  enforcement point until then. The 125M-shape rows (512x768x2048,
+  12 layers, index pad to 16) do NOT exist yet — they must be DERIVED
+  by the build round and appended here as new dated rows, not
+  extrapolated from the FFN rows [MODEL until derived].
+- **Lane BC (F-O4):** the 8B row's 0.047 b headroom is frozen HERE at
+  the q/8-derived gate; adopting EB 2.4(b)'s relaxed-e0 line (the
+  honest C-win/C-msis gates, ~6 b window margin) is the recorded
+  relief and MUST be an explicit dated amendment to this table before
+  any 8B q31 layout freeze.
+
 ## References
 
 1. AGGREGATION_ENCODING_DESIGN.md (U-AG3 EA) — instance population,
@@ -880,3 +953,10 @@ IXF lemmas FD-L1..L4, sequential-fold rejection priced, norm tables
 (F-N2/F-N3/F-N4), byte tables (294,136 / 352,948 / 505,272 /
 356,020 B), hash-edge rows (AZB-7's two new edges), verdict (floor
 beaten 3.0-4.3x), FB/FC exports, obligations F-O1..F-O5.*
+
+*2026-08-08 (U-AG-B1 Agent BA) — Section 10 appended: the R-FC2
+per-group digit-headroom freeze rows (chain, class inventories, nine
+rows + the one-time law) with both-direction enforcement in
+scripts/aggregation_freeze_rows.py / tests/test_aggregation_freeze.py;
+engine wiring exported to lane BB, the 8B relaxed-e0 amendment fence
+to lane BC (F-O4). No pre-existing text edited.*

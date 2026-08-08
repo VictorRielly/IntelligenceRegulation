@@ -1136,3 +1136,101 @@ fix); the binding-vacuous deep bases in DA's floor schedules
 at the corrected constants the exact-digit configuration beats
 512-row JL on bytes as well as on [MODEL]-flag count (Sections
 2.4(b), 5.1).*
+
+*2026-08-08 (U-AG-B1 Agent BA) — Section 7 appended: the Section 5.4
+freeze-row export is DISCHARGED as a both-direction battery
+(scripts/aggregation_freeze_rows.py, run by
+tests/test_aggregation_freeze.py under the suite) plus the dated table
+below. No text above this changelog was edited; the four BA-F*
+transcription findings against Sections 1.3/1.4/2.4 are recorded in
+7.3 with the working values pinned.*
+
+## 7. U-AG-B1 freeze-row table (dated addition, 2026-08-08, BA lane)
+
+### 7.1 Where the freeze lives, and what "both directions" means here
+
+The R-EB1..R-EB4 design rules of Section 5.4 (plus kappa = 11 and the
+C-win window constants) are FROZEN as of the U-AG-B1 open. The
+enforcement point is `scripts/aggregation_freeze_rows.py` (85 rows,
+run under the suite by `tests/test_aggregation_freeze.py`): every
+pinned constant is RE-DERIVED there from the recorded
+formula/derivation transcribed out of this document, DA's tables, and
+the two spikes, and asserted equal to its pin — the LKP-7/8/9 pattern
+in script form. The derivation chain moving fails the row; an edited
+pin fails the row. [MODEL] rows (the Monte-Carlo acceptance table)
+pin the recorded measurements and re-assert the spike's own
+consistency bands instead of a derivation.
+
+Engine note (export to lane BB): the Rust aggregate layer does not
+exist yet. When BB lands it, T_cap, kappa, the R-EB4 base filter, and
+the per-level C-win checks MUST also gain derive-time asserts and
+`freeze-check` rows in the engine (the LKP precedent — pinned both
+directions at derive time, per level, on the actual schedule). Until
+then the Python battery above is the single enforcement point, and
+the PER-LEVEL instantiation of C-win/R-EB4 remains schedule-side
+(spike-checked) rather than engine-side.
+
+### 7.2 The table
+
+| row id | constant | frozen value | both-direction gate (the re-derivation) | source |
+|---|---|---|---|---|
+| EB1-tcap | T_cap — operator-norm cap on fold AND batching challenge sampling (resample-until-under, deterministic FS counter/salt) | **33** | 20.8 = 1.3·sqrt(2D) < 33 < 256 = 2D; cost of no cap log2(256/33) = 2.96 b (AFS-L6's recovered bits) | 1.3 (C-cap), 5.4; FS F-C2 |
+| EB1-diffcap | challenge-DIFFERENCE cap used in extraction bounds | 66 | = 2·T_cap (a difference is a sum of two capped draws) | FS AFS-L6 |
+| EB1-mc | [MODEL] MC acceptance at cap 33 / 36 / 42; op-norm p50/p99 | 38.43% / 66.77% / 94.34%; 34.2 / 46.8 | measurement (20k draws, seed 7) — bands re-asserted: 5% <= acc(33) <= 50%, acc(42) >= 90%, ~3 attempts at 33, conc 20.8 < p50 | spike sec 2; 1.3 |
+| EB2-rule | [NS22]-style garbage-count optimization at recursed levels under FS | **FORBIDDEN** | rule row ((T_op)^r slack, [PSS] I.6); byte model must keep the FULL garbage count | 2.2 item 2, 5.4 |
+| EB2-count | per-level garbage ring count before decomposition | r(r+1) | r(r+1)/2 per family (g, h) x 2 families; = the DA 3.2 recurrence coefficient | DA 3.2 |
+| EB3-tmin | ct-aggregation repetitions (t-up option) | **t >= 7** | ceil((128 + log2(2(Q+1)) + log2 L)/31) at Q = 2^64, L <= 8; t = 5 (the [LaB] transfer) FAILS post-FS (2^-90 headline / 2^-86.5 spike sum), t = 7 lands 2^-149 | 3.2 |
+| EB3-kdraw | K-draw error-class exponent | 496 | 16·31 (full-entropy R_q per-slot mass q^-16) | 3.2; SR 1.3 |
+| EB3-wire | wire lines | t-up +2,584 B/level; K-draw 1,036 B/level | 7·516 − 1,028; 4 + 2·516 (kappa-11 adopted line; the 3.2 band "516-1,032" is the object cost sans the 4 B length prefix) | 3.2; FD F-IF1.7 |
+| EB3-adopted | adopted direction | **K-draw** | rule row; restructure plumbing owed to lane BB | FD S1; 5.4 |
+| EB4-line | inner-binding validity line | **2^30.5** | < q31; equals kappa-11's C3 coverage 2·sqrt(11·128·31·0.005326) = 2^30.49 (consistency gate) | 2.4(a); DA S1 |
+| EB4-emax | floor digit-base cap | **e_i <= 7** | 8·T_cap·(1+2^e)·sigma·beta_i(e) <= 2^30.5 with beta_i(e) = 1.3·sqrt(n·D·(2/3)·4^(e−1)) at the recorded floor sizes 620-770 rings: e = 7 passes, e = 8 fails, BOTH sigma branches; digit magnitude 2^6 = 64 stays inside the [LF+] monomial window | 2.4(a); FS AFS-L5/L6 |
+| EB4-btmax | max realized beta_top (R-EB4-capped schedules) | 2^29.93 (exact-digit) / 2^30.40 (JL) | 8·T_cap·(1+2^7)·sigma·beta' at the recorded worst levels (2^20 L3 / 2^20 L7); both <= 2^30.5 | spike 3b [BA-F2] |
+| KAP-11 | commitment row count kappa | **11** | C3 line: beta 2^30.40 -> k_Z 1400 -> kappa 11; kappa-10 coverage 2^29.07 falls short of both branch maxima; core-SVP >= 128 bits at both | 2.4(b), 5.1 |
+| CWIN-256/512 | C-win window lines | q/125 = 2^24.03 (256-row); q/168 = 2^23.61 (512-row) | derived from q31 and the pinned C1 constants (125 the tighter [LaB] value, 168 [PSS] lambda-256); recorded witness class <= 2^17.8 keeps >= +6.2 / +5.8 b margin | 1.4 [BA-F3] |
+| CWIN-jlerr | JL soundness error exponents | 2^-128 / 2^-256 | the corrected constants (DA's modeled 2^-141 / ~2^-282 superseded) | 3.2 |
+
+Scope note: the exact-digit branch is the triple-mandated
+configuration; the JL-branch rows (CWIN-*, the JL beta_top max) are
+frozen as the RECORDED ALTERNATIVE so a future branch flip cannot
+silently re-derive them looser.
+
+### 7.3 Transcription findings recorded at freeze time (doc text unedited)
+
+Hostile-read findings from the U-AG-B1 BA transcription of this
+document against its own spike — the EB honesty precedent applied to
+EB. None changes a verdict; each is pinned at the WORKING value:
+
+- **BA-F1 (Section 1.4 formula string).** The sigma formula is
+  printed as "sqrt(2·lambda/C2) ... sigma = sqrt(256/30) at 256 rows
+  = sqrt(512/60)" — which evaluates to 2.92, contradicting the
+  section's own printed value 2.07. The working constant everywhere
+  (DA 3.4's base 121.7 = 2·2.066·29.4, the spike's S_JL, SC-L4's
+  C-msis arithmetic) is **sigma = sqrt(lambda/C2) = sqrt(128/30) =
+  sqrt(256/60) = 2.0656** — the published Greyhound/LaBRADOR JL slack
+  shape (verifier line sqrt(lambda)·beta against the sqrt(C2)·b lower
+  bound). The formula string carries a spurious factor 2 under the
+  root (rows = 2·lambda conflated with lambda). Pinned: 2.07 (2dp).
+- **BA-F2 (Section 2.4(a)/(b) beta_top prints).** The text quotes
+  DA's uncapped floor bases landing at "2^31.8-2^34.1 > q" and the
+  corrected JL-branch maximum as "2^30.14"; the spike prints
+  2^31.9-2^34.5 (max 2^34.52) and **2^30.39-2^30.40** respectively.
+  Verdicts unchanged (uncapped still > q; corrected still <= 2^30.5;
+  kappa 11 still covers, at 0.09 b rather than 0.36 b of C3-coverage
+  margin). Pinned: the spike values (29.93 / 30.40).
+- **BA-F3 (Section 1.4 window print).** "q/C1 = 2^24.06 (lambda =
+  128)" matches neither C1 = 120 (2^24.09) nor the spike's tighter
+  C1 = 125 (2^24.03). Margins unaffected (>= +6.2 b either way).
+  Pinned: 2^24.03 at C1 = 125 per the spike. The 512-row line
+  2^23.60 is 2^23.61 at 2dp.
+- **BA-F4 (Section 0.2 constant print).** "op_norm(conc) =
+  1.3·sqrt(2D) = 20.79" — exact value 20.80 (DA S1 prints 20.8; the
+  folding docs inherit "20.79"). Pinned: 20.8.
+
+One cross-document labeling slip recorded for the orchestrator (not
+this document's text): LLM_POC_ROADMAP.md Section 3's BA paragraph
+glosses R-EB2 as "(K-draw restructure)" and folds the floor-base
+correction into "R-EB3/R-EB4" — per Section 5.4 here, R-EB2 is the
+NS22 prohibition and R-EB3 is the K-draw/t-up rule. The lane briefs
+carried the correct reading; the roadmap gloss should be fixed at
+FINAL (roadmap is orchestrator-owned).

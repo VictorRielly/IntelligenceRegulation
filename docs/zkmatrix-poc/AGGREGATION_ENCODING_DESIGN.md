@@ -755,3 +755,86 @@ O-2 reconciled byte model (R8-a..d, two scopes, DA overlap
 machine-checked), pass-vs-layer scope analysis (per-pass reading,
 O-8 mandatory), verdict + EB/EC exports. Spike
 `aggregation_byte_model_spike.py` 21/21.*
+
+*2026-08-08 (U-AG-B1 Agent BA) — Section 8 appended: the three
+Section 5.3 obligations dispositioned (E-O1 params frozen here /
+engine exported; E-O2 rule restated per-group per the U-AG4 W-C
+adoption / engine exported; E-O3 exported whole). No pre-existing
+text edited.*
+
+## 8. E-O1..E-O3 dispositions (dated addition, 2026-08-08, U-AG-B1 Agent BA)
+
+Lane rule applied: params/doc content lands here; anything requiring
+Rust engine code is exported to lane BB with an acceptance criterion
+(the lane briefs' discipline). Nothing ends silent.
+
+### 8.1 E-O1 — layout metadata: params FROZEN here, manifest/deletion work EXPORTED
+
+**Landed (the frozen layout parameters).** The per-class value widths
+and the adopted digit bases are now FROZEN constants with
+both-direction enforcement (`scripts/aggregation_freeze_rows.py`
+rows FC2-cls-* and FC2-*-e0, under the suite):
+
+| parameter | frozen value | source |
+|---|---|---|
+| value-width classes (dense) | X/Y/UP 8-bit; Z 15-bit; lookup aux + T_blind 31-bit | 2.3/2.4; TARGET_CONTRACT S2 |
+| pass-scope adopted e0, activation group | 2 (robust point, zero byte premium) | FOLDING_DESIGN F-IF1.5/F-N3 |
+| pass-scope adopted e0, weight group (W-C) | 1 (sign-binary; exact-digit branch load-bearing, F-N2) | FOLDING_DESIGN 5.2 |
+| per-class limb rule | limbs(c) = max(1, ceil(bits_c / e0)) | 2.3 schedule2; freeze script Section 5 |
+| segment-boundary rule | bit-block aligned (R-1 extension), layer = the 5 HIGH index bits | 5.3; FOLDING_DESIGN 3 (IA-O1-1) |
+
+**Exported to BB (E-O1-BB, engine):** (a) Statement v3 manifest
+extension — per-segment value-width class, per-class digit base, the
+32-row layer-segment map and privacy-class group map (one object with
+F-O1; the manifest is hashed into h0_agg BEFORE every draw, AZB-10's
+edge). Acceptance: statement-inventory prints the class/base per
+segment; a manifest missing either field fails validation; the
+statement-negative battery gains a wrong-class and a wrong-base
+vector. (b) The S1-S5 retirements on the target path (delete
+`slot_pack` consumption, `slot_pin_weights`, zeta machinery from the
+aggregate route — legacy paths stay for the old rigs). Acceptance:
+no aggregate-path claim references slot-packed Y/UP/Z; grep-level
+check recorded in BB's status.
+
+### 8.2 E-O2 — the one-batched-opening rule: RESTATED PER-GROUP (dated amendment), enforcement EXPORTED
+
+As written above (5.3), E-O2 demanded ONE eval proof across every
+committed domain. The U-AG4 FINAL adopted the W-C TWO-PROOF layout
+(FOLDING_DESIGN F-IF1.4 + TARGET_CONTRACT Amendment A1), which
+supersedes the single-proof form. The rule as now binding:
+
+> **E-O2':** one batched evaluation proof PER COMMITMENT GROUP —
+> activation group always; weight group per deployment mode — with
+> nu_g drawn per group (the AFS-L8 two-group extractor's hypothesis),
+> no claim crossing groups (F-IF1.4 "by construction"), and every
+> committed domain WITHIN a group (T_data segments, T_blind, q46
+> residue if any survives) sharing the two-tier geometry so the
+> group's nu-RLC folds its claims into that ONE opening. Each
+> unplanned extra opening still costs ~136-147 KiB (D-R2's number at
+> layer scale; 143,572-146,644 B at pass scale) — the rule's teeth
+> are unchanged, the unit is now the group.
+
+**Exported to BB (E-O2-BB, engine):** the pass statement builder must
+emit exactly one batched opening per declared group and REFUSE a
+second within a group (build error, not a warning). Acceptance:
+statement-inventory prints openings-per-group == 1 for every group in
+the deployment's group map; a two-opening-one-group vector fails.
+
+### 8.3 E-O3 — D-R1 rho-sharing verification: EXPORTED whole
+
+E-O3 (confirm the range-arm witness descent rho-shares the SiLU
+witness descent, or price the split honestly) cannot land in a
+paper lane: it is a property of the BUILT folded descent rig.
+**Exported to BB (E-O3-BB):** when the pass-scope descent pair lands
+(BB item 2/3 territory), run the D-R1 verification: (a) the range
+arm rides the folded SiLU witness descent's rho at dw+5 with a
+battery leg showing a range lie still REJECTS through the shared
+descent (the F5 both-directions shape); or (b) if sharing fails,
+record the honest split price (+1 full pass descent pair =
++143,104 B at FFN-pass, FOLDING_DESIGN 6.3's break row — verdict
+band-stable, 0.618 MiB still 2.3x under the floor) as a dated
+amendment to the FOLDING_DESIGN 6.1 table. Acceptance: either the
+battery leg green + a dated "D-R1 holds at pass scope" note, or the
+split row landed; NOT silent. (BC's battery lane runs the leg if BB
+hands over the rig — ownership of the RESULT stays with this export
+row.)
