@@ -91,6 +91,47 @@ frugal-lm-stack laundering-screen detector as the engine's second
 real model (roadmap Section 6). No B1 lane owns it; its build items
 are PV-S2..PV-S5 in that doc.
 
+## Machine note (timing hygiene, this round)
+
+This round runs on Victor's Mac (Darwin, Apple silicon, Homebrew
+rust 1.96.0) — NOT the contract's CPU reference machine (the WSL2
+Intel box every recorded measurement to date comes from). Every
+timing this round is therefore marked [MAC-BOX, non-reference];
+magnitudes and ratios only. Contract-grade numbers (p50/p95 ladder
+rows) require either a reference-box pass or a dated
+TARGET_CONTRACT machine-line amendment — orchestrator decision at
+FINAL, not a lane decision. Byte counts and battery verdicts are
+machine-independent and land at full grade.
+
+## Lane discipline (all lanes)
+
+- Worktrees: wt-uagb1-ba / wt-uagb1-bb / wt-uagb1-bc under
+  /Users/victorrielly/, branches uagb1-ba / uagb1-bb / uagb1-bc.
+- Skeleton-commit-first (the U-AG4 FB lesson), then commit early and
+  often; NO blocking git inspection commands (no pagers, no -p logs
+  — FB hung twice on these).
+- Each lane edits ONLY its own status section below plus its own
+  deliverable files; file ownership per lane brief; PROGRESS_UAGB1.md
+  edits outside your section are orchestrator-only.
+- Suite + freeze-check green before every lane-complete claim:
+  `python3 -m unittest discover -s tests` from repo root and
+  `zkmatrix-rs$ cargo build --release` both work on this box
+  (baseline established at launch; see Log).
+- codex-audit-* read-only; numbers cited from repo sources;
+  [MODEL]/[MEASURED]/[MAC-BOX] flags per house rule.
+
+## Agent BA status (wt-uagb1-ba)
+
+- (lane launches here)
+
+## Agent BB status (wt-uagb1-bb)
+
+- (lane launches here)
+
+## Agent BC status (wt-uagb1-bc)
+
+- (lane launches here)
+
 ## Blocker
 
 (none so far)
@@ -99,3 +140,12 @@ are PV-S2..PV-S5 in that doc.
 
 - 2026-08-08: ledger opened at 867bfaf with the roadmap + provenance
   pillar docs (this session). Lane launch pending console go.
+- 2026-08-08 (later): console GO received ("Go for it. Go ahead and
+  launch the U-AG-B1 lanes"). Baseline build + suite run on the Mac
+  box; machine note added; BA/BB/BC launched in worktrees. BB scoped
+  to critical-path items (1)-(2) first (exact-digit plumbing +
+  committed matmul statement at 125M layer shape), (3)+ only after
+  those land green — the ledger's six-item list is the ROUND's path,
+  not one context's bite. BC additionally owns the frugal-lm 125M
+  int8 calibration study (roadmap risk 5 de-risk) as its unblocked
+  integration-prep item.
