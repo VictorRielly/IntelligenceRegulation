@@ -5051,6 +5051,8 @@ fn freeze_check() {
     all_ok &= freeze_check_uk8();
     all_ok &= freeze_check_ur1();
     all_ok &= freeze_check_uz1();
+    all_ok &= freeze_check_uagb1();
+    all_ok &= freeze_check_uagb1_d2();
 
     if all_ok {
         println!("freeze-check passed");
@@ -6255,7 +6257,7 @@ fn self_test_pi2_ce() {
 }
 
 fn usage() {
-    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory | uagb1-digit-battery | matmul-statement [battery | <rows> <inner> <cols>] | statement-125m");
     eprintln!();
     eprintln!("  ffn-chain [n_blocks | battery] is the LEGACY q46 block chain: its range");
     eprintln!("  grounding uses the ARP legacy range arm (rejection clipping ~2^-4.75 at");
@@ -6292,6 +6294,9 @@ fn main() {
             self_test_ffn_layer_smoke();
             self_test_uk9();
             self_test_m5_chunking();
+            self_test_uagb1_digits();
+            self_test_uagb1_matmul();
+            uagb1_statement_125m();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         Some("chain-demo") if args.len() == 5 => {
@@ -6368,6 +6373,31 @@ fn main() {
             println!("\n[U-S1] battery passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         Some("freeze-check") => freeze_check(),
+        Some("uagb1-digit-battery") => {
+            let t = Instant::now();
+            self_test_uagb1_digits();
+            println!("\n[UAGB1-D1] battery passed in {:.2}s", t.elapsed().as_secs_f64());
+        }
+        Some("statement-125m") => uagb1_statement_125m(),
+        Some("matmul-statement") => {
+            // `matmul-statement battery` = the adversarial battery at
+            // 128x768x256; `matmul-statement <rows> <inner> <cols>` =
+            // one honest measured instance (the 125M layer shape is
+            // 512 768 2048).
+            if args.get(1).map(String::as_str) == Some("battery") {
+                let t = Instant::now();
+                uagb1_matmul_battery();
+                println!("\n[UAGB1-D2] battery passed in {:.2}s", t.elapsed().as_secs_f64());
+            } else if args.len() == 4 {
+                let dims: Vec<usize> = args[1..4].iter().map(|s| s.parse().expect("dim")).collect();
+                assert!(dims[0].is_power_of_two() && dims[2].is_power_of_two(),
+                    "rows/cols must be powers of two (committed index spaces); inner is free");
+                assert!(dims.iter().all(|&d| (16..=4096).contains(&d)), "dims in 16..=4096");
+                uagb1_matmul_bench(dims[0], dims[1], dims[2]);
+            } else {
+                usage();
+            }
+        }
         Some("statement-inventory") => statement_inventory(),
         Some("gate-spike") => gate_spike(),
         Some("link-demo") => {
@@ -17516,4 +17546,2153 @@ fn freeze_check_uz1() -> bool {
 /// Full 64-hex-char digest rendering (freeze-row pinning).
 fn hex_full(d: &[u8; 32]) -> String {
     d.iter().map(|b| format!("{b:02x}")).collect()
+}
+
+// ===========================================================================
+// [UAGB1-D1] U-AG-B1 lane BB, Deliverable 1: the EXACT-DIGIT plumbing
+// (F-N2, triple-mandated) — ring/digits.rs is the module; this section is
+// the committed rig, the balanced-vs-exact differential battery, and the
+// freeze rows. The Balanced (Q2) path — sigma.rs derive_digit_params /
+// prove_opening_digits — is exercised UNCHANGED as the differential leg.
+//
+// The rig proves, for one value column of a declared ExactDigitClass:
+//   (a) digit columns committed alongside the value column,
+//   (b) EXACT recomposition (ring/digits.rs RingClaims, constant public
+//       coefficients, non-wrap gated at derive time),
+//   (c) EXACT digit-alphabet membership by a range-table lookup into the
+//       tiny shifted alphabet ([0,3) at e0 = 1, [0,2^e0) at e0 >= 2) —
+//       the U-R2 exact range machinery (masked descent pair, blinded
+//       trees, root cross-check, aggregate pins), no ARP, no JL, no
+//       Gaussian digit responses,
+// all grounded by ONE masked ct-round (single wave — the rig's commitment
+// count sits far under the C2 cap; multi-wave is Deliverable 2's layer).
+
+/// Battery tampers for the exact-digit rig.
+#[derive(Clone, Copy, PartialEq)]
+enum DigitTamper {
+    None,
+    /// Out-of-alphabet digit with recomposition PRESERVED (value base =
+    /// 2^e0 re-expressed as digit vector (base, 0, ..)): only the range
+    /// lookup's root cross-check can see it.
+    OoaDigit,
+    /// In-alphabet digit tamper breaking recomposition: only the
+    /// recomposition RingClaims can see it.
+    RecompDefect,
+    /// Post-commit message tamper on digit column 0: the ct-round's
+    /// opening equations reject.
+    TamperCommit,
+    /// The stale-alpha F5 construction: alpha drawn from a transcript
+    /// that does NOT bind the commitments; the attacker plants an OOA
+    /// digit and absorbs the LogUp defect into the table blinder mass
+    /// (solve at the known alpha). The SHIPPED verifier re-derives
+    /// alpha from the full h0 and rejects; the WEAK verifier (same
+    /// stale seeding) accepts — the pair shows the hash edge is
+    /// load-bearing.
+    StaleAlpha,
+}
+
+struct DigitVerdict {
+    descents_ok: bool,
+    root_ok: bool,
+    round_ok: bool,
+}
+
+impl DigitVerdict {
+    fn accept(&self) -> bool {
+        self.descents_ok && self.root_ok && self.round_ok
+    }
+}
+
+/// One committed exact-digit instance. `weak_stale_alpha` runs the
+/// deliberately-weakened verifier (battery-only, the F5 attack leg).
+fn uagb1_digit_run(
+    class: &ring::digits::ExactDigitClass,
+    n_el: usize,
+    tamper: DigitTamper,
+    weak_stale_alpha: bool,
+    seed: u64,
+) -> DigitVerdict {
+    use ring::ct_engine::{RingClaim, StdOpening, ct_h0, derive_ct_round_params, prove_ct_round, sample_ct_masks, verify_ct_round};
+    use ring::digits::{alphabet, alphabet_rows, alphabet_shift, exact_digit_decompose, digit_recomposition_claims};
+    use ring::gkr::ceiling_gate_ok;
+    use ring::gkr_masked::{BlinderSet, blinded_table_tree, blinded_witness_tree, draw_masks, mask_coeff_counts, masked_gkr_prove, masked_gkr_verify, zero_masks};
+    use ring::kfield::{K_DEG, KElem, KField};
+    use ring::lookup::{PinTerm, PinnedValue, derive_pin_psi, multiplicities, pin_claims};
+    use ring::sumcheck::LkpTranscript;
+
+    let ctx_ring = ring_ctx_q8();
+    let kf = KField::new(&ctx_ring);
+    let zq = ctx_ring.zq;
+    let q = zq.q;
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    let msg_r = shape.msg_r;
+    let per = msg_r * D;
+    let kpc = per / K_DEG;
+    let crs = expand_crs(shape, q, 0x0AB1);
+    let (e0, l0) = (class.e0, class.l0);
+    let shift = alphabet_shift(e0);
+    let t_rows = alphabet_rows(e0);
+    let (alo, ahi) = alphabet(e0);
+
+    // ---- Data: values in class range; the tamper plants live in the
+    // digit matrix, not the values (recomposition-preserving cases).
+    let mut dr = seed;
+    let span = (class.max as i128 - class.min as i128 + 1) as u64;
+    let mut vals: Vec<i64> = (0..n_el)
+        .map(|_| class.min + (rng_below(&mut dr, span.min(u64::MAX)) as i128 % span as i128) as i64)
+        .collect();
+    let plant_ooa = tamper == DigitTamper::OoaDigit || tamper == DigitTamper::StaleAlpha;
+    if plant_ooa || tamper == DigitTamper::RecompDefect {
+        // Force value 0 to `base` so its canonical digits are (0, 1, 0..).
+        vals[0] = 1i64 << e0;
+    }
+    let mut digs: Vec<Vec<i64>> = vals.iter().map(|&x| exact_digit_decompose(x, e0, l0)).collect();
+    if plant_ooa {
+        // (0, 1, ..) -> (base, 0, ..): recomposition preserved, digit 0
+        // out of alphabet.
+        assert_eq!(digs[0][0], 0);
+        assert_eq!(digs[0][1], 1);
+        digs[0][0] = 1i64 << e0;
+        digs[0][1] = 0;
+        assert!(digs[0][0] > ahi, "planted digit must be out of alphabet");
+    }
+    if tamper == DigitTamper::RecompDefect {
+        // (0, 1, ..) -> (1, 1, ..): in-alphabet, recomposition false.
+        digs[0][0] = 1;
+        assert!(digs[0][0] >= alo && digs[0][0] <= ahi);
+    }
+    // Honest-arm sanity: digits within alphabet, recomposition exact.
+    if tamper == DigitTamper::None {
+        for (x, dv) in vals.iter().zip(digs.iter()) {
+            assert!(dv.iter().all(|&d| (alo..=ahi).contains(&d)));
+            assert_eq!(ring::digits::exact_digit_recompose(dv, e0), *x);
+        }
+    }
+
+    // ---- Layout: values | digit columns | m | blinders | wm | tm | g.
+    let nx = n_el.div_ceil(per);
+    let idx_digits = nx;
+    let idx_m = idx_digits + l0 * nx;
+    let idx_bl = idx_m + 1;
+    let n_w = n_el * l0;
+    let mut dw = 4usize;
+    while (1usize << (dw - 1)) - 4 < n_w {
+        dw += 1;
+    }
+    let dt = 4usize; // alphabet tables (3-4 rows) + blinders
+    assert!(ceiling_gate_ok(1u64 << dw, q));
+    let (gw, rw) = mask_coeff_counts(dw, 0);
+    let (gt, rt) = mask_coeff_counts(dt, 0);
+    let kel_cms = |n_kel: usize| (n_kel * K_DEG).div_ceil(per).max(1);
+    let (wm_c, tm_c) = (kel_cms(gw + rw), kel_cms(gt + rt));
+    let base_wm = idx_bl + 1;
+    let base_tm = base_wm + wm_c;
+    let n_data = base_tm + tm_c;
+    let g_base = n_data;
+    let g_groups = UR1_PIN_COPIES.div_ceil(msg_r);
+    let n_commits = n_data + g_groups;
+
+    let mut rng = ring::ProverRng::from_test_seed("uagb1-digit-session", &seed.to_le_bytes());
+    let masks_w = draw_masks(&kf, &mut rng, dw, 0);
+    let masks_t = draw_masks(&kf, &mut rng, dt, 0);
+    let bl_w = BlinderSet::draw(&kf, &mut rng);
+    let mut bl_t = BlinderSet::draw(&kf, &mut rng);
+    bl_t.solve_mass(&kf, &bl_w.mass(&kf));
+
+    // Witness: shifted digits, digit-column-major (t = j * n_el + i).
+    let w_shift: Vec<KElem> = (0..n_w)
+        .map(|t| kf.embed(zq.to_mod(digs[t % n_el][t / n_el] + shift)))
+        .collect();
+    let tab: Vec<KElem> = (0..t_rows as u64).map(|r| kf.embed(r)).collect();
+    let m_k = multiplicities(&kf, &w_shift, &tab);
+    let m_vals: Vec<i64> = m_k.iter().map(|e| e[0] as i64).collect();
+
+    // ---- Commitments (canonical order; everything pre-challenge).
+    let pack_scalars = |v: &[i64]| -> Vec<Poly> {
+        let mut polys = vec![poly_zero(); msg_r];
+        for (i, &x) in v.iter().enumerate() {
+            polys[i / D][i % D] = zq.to_mod(x);
+        }
+        polys
+    };
+    let pack_kelems = |kelems: &[KElem]| -> Vec<Vec<Poly>> {
+        let mut flat: Vec<u64> = Vec::with_capacity(kelems.len() * K_DEG);
+        for e in kelems {
+            flat.extend_from_slice(&e[..]);
+        }
+        let ng = flat.len().div_ceil(per).max(1);
+        (0..ng)
+            .map(|g| {
+                (0..msg_r)
+                    .map(|s| {
+                        (0..D)
+                            .map(|c| flat.get(g * per + s * D + c).copied().unwrap_or(0))
+                            .collect()
+                    })
+                    .collect()
+            })
+            .collect()
+    };
+    let mut all_msgs: Vec<Vec<Poly>> = Vec::with_capacity(n_commits);
+    for c in 0..nx {
+        let lo = c * per;
+        let hi = (lo + per).min(n_el);
+        all_msgs.push(pack_scalars(&vals[lo..hi]));
+    }
+    for j in 0..l0 {
+        for c in 0..nx {
+            let lo = c * per;
+            let hi = (lo + per).min(n_el);
+            let col: Vec<i64> = (lo..hi).map(|i| digs[i][j]).collect();
+            all_msgs.push(pack_scalars(&col));
+        }
+    }
+    all_msgs.push(pack_scalars(&m_vals));
+    let blinder_kelems: Vec<KElem> = {
+        let mut v = Vec::with_capacity(16);
+        for b in [&bl_w.tl, &bl_w.tr, &bl_w.f0, &bl_w.f1, &bl_t.tl, &bl_t.tr, &bl_t.f0, &bl_t.f1] {
+            v.push(b.a.clone());
+            v.push(b.u.clone());
+        }
+        v
+    };
+    let bl_groups = pack_kelems(&blinder_kelems);
+    assert_eq!(bl_groups.len(), 1);
+    all_msgs.extend(bl_groups);
+    let wm_groups = pack_kelems(&masks_w.flatten());
+    assert_eq!(wm_groups.len(), wm_c);
+    all_msgs.extend(wm_groups);
+    let tm_groups = pack_kelems(&masks_t.flatten());
+    assert_eq!(tm_groups.len(), tm_c);
+    all_msgs.extend(tm_groups);
+    let g_masks = sample_ct_masks(&mut rng, q, msg_r, UR1_PIN_COPIES);
+    assert_eq!(g_masks.len(), g_groups);
+    all_msgs.extend(g_masks);
+    assert_eq!(all_msgs.len(), n_commits);
+
+    let rp = derive_ct_round_params(q, shape, n_commits, 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+    let path = KernelPath::A1(&a1p);
+    let all_rho: Vec<Vec<Vec<i64>>> = (0..n_commits)
+        .map(|_| (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect())
+        .collect();
+    let (mut t1s, mut t2s): (Vec<Vec<Poly>>, Vec<Vec<Poly>>) = (Vec::new(), Vec::new());
+    for (xm, rho) in all_msgs.iter().zip(all_rho.iter()) {
+        let (t1, t2) = commit(&path, &crs, xm, rho);
+        t1s.push(t1);
+        t2s.push(t2);
+    }
+
+    // The rig's statement surrogate: class + shape constants (the D2
+    // statement layer carries the full manifest treatment).
+    let ctx = uk8_sha(&[
+        b"uagb1-digit-stmt-v1",
+        class.name.as_bytes(),
+        &(e0 as u64).to_le_bytes(),
+        &(l0 as u64).to_le_bytes(),
+        &class.min.to_le_bytes(),
+        &class.max.to_le_bytes(),
+        &(n_el as u64).to_le_bytes(),
+        &(t_rows as u64).to_le_bytes(),
+        &crs.crs_hash,
+    ]);
+    let h0_full = ct_h0(&crs, &ctx, &t1s, &t2s, &[]);
+    // The stale seed binds NOTHING but the public statement — the F5
+    // attack's transcript root (commitments unbound).
+    let h0_stale = ct_h0(&crs, &ctx, &[], &[], &[]);
+    let h0_prover = if tamper == DigitTamper::StaleAlpha { h0_stale } else { h0_full };
+
+    // ---- Prover: descents on blinded trees, pins, recomposition, round.
+    let mut tr = LkpTranscript::new("uagb1-digits", &h0_prover);
+    let alpha = tr.challenge_k(&kf);
+    let (bl_w, bl_t) = if tamper == DigitTamper::StaleAlpha {
+        // The attack: absorb the OOA LogUp defect into the table
+        // blinder mass AT THE PRE-KNOWN alpha, then commit. (Here the
+        // blinders were already committed above — the attack recommits
+        // them; both lists feed the WEAK h0, which binds neither.)
+        let mut bl_t2 = BlinderSet::draw(&kf, &mut rng);
+        let wsum = w_shift.iter().fold(kf.zero(), |a, w| kf.add(&a, &kf.inv(&kf.sub(&alpha, w))));
+        let tsum = tab.iter().zip(m_k.iter()).fold(kf.zero(), |a, (t, m)| {
+            kf.add(&a, &kf.mul(m, &kf.inv(&kf.sub(&alpha, t))))
+        });
+        let delta = kf.sub(&wsum, &tsum);
+        bl_t2.solve_mass(&kf, &kf.add(&bl_w.mass(&kf), &delta));
+        // Recommit blinder group with the solved set.
+        let blk: Vec<KElem> = {
+            let mut v = Vec::with_capacity(16);
+            for b in [&bl_w.tl, &bl_w.tr, &bl_w.f0, &bl_w.f1, &bl_t2.tl, &bl_t2.tr, &bl_t2.f0, &bl_t2.f1] {
+                v.push(b.a.clone());
+                v.push(b.u.clone());
+            }
+            v
+        };
+        let g = pack_kelems(&blk);
+        all_msgs[idx_bl] = g.into_iter().next().unwrap();
+        let (t1, t2) = commit(&path, &crs, &all_msgs[idx_bl], &all_rho[idx_bl]);
+        t1s[idx_bl] = t1;
+        t2s[idx_bl] = t2;
+        (bl_w, bl_t2)
+    } else {
+        (bl_w, bl_t)
+    };
+    let wtree = blinded_witness_tree(&kf, &alpha, &w_shift, dw, &bl_w);
+    let ttree = blinded_table_tree(&kf, &alpha, &tab, &m_k, dt, &bl_t);
+    let shell_w = zero_masks(&kf, dw, 0);
+    let shell_t = zero_masks(&kf, dt, 0);
+    let (pw, endw) = masked_gkr_prove(&kf, &[wtree], masks_w, &mut tr);
+    let (pt, endt) = masked_gkr_prove(&kf, &[ttree], masks_t, &mut tr);
+
+    // Leaf pins, digit variant: the witness Q pin reads the DIGIT
+    // commitments (-lw weights) with the public +shift fold riding the
+    // pin value (the U-K8 D-2 offset-fold pattern); the table side is
+    // the public alphabet table.
+    let leaf_pins_digits = |endw: &ring::gkr_masked::DescentEnd,
+                            endt: &ring::gkr_masked::DescentEnd,
+                            alpha: &KElem|
+     -> Vec<PinnedValue> {
+        use ring::gkr::eq_table;
+        use ring::gkr_masked::{blinder_positions, table_row_positions};
+        let zero = kf.zero();
+        let one = kf.one();
+        let lw = eq_table(&kf, &endw.zstar);
+        let lt = eq_table(&kf, &endt.zstar);
+        let (nw, nt) = (1usize << dw, 1usize << dt);
+        let bpw = blinder_positions(nw);
+        let bpt = blinder_positions(nt);
+        let tpos = table_row_positions(t_rows, nt);
+        let eqw: Vec<KElem> = bpw.iter().map(|&p| lw[p].clone()).collect();
+        let eqt: Vec<KElem> = bpt.iter().map(|&p| lt[p].clone()).collect();
+        let hw = (0..n_w).fold(zero.clone(), |a, i| kf.add(&a, &lw[i]));
+        let ht = (0..t_rows).fold(zero.clone(), |a, j| kf.add(&a, &lt[tpos[j]]));
+        let sum_eqw = eqw.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+        let sum_eqt = eqt.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+        let ft = (0..t_rows).fold(zero.clone(), |a, j| kf.add(&a, &kf.mul(&lt[tpos[j]], &tab[j])));
+        let z = zero.clone();
+        // Witness P: p* - H = sum eqw a_bl.
+        let wp = PinnedValue {
+            terms: vec![PinTerm::Kelems {
+                commit: idx_bl,
+                coeff0: 0,
+                weights: vec![
+                    eqw[0].clone(), z.clone(), eqw[1].clone(), z.clone(),
+                    eqw[2].clone(), z.clone(), eqw[3].clone(), z.clone(),
+                ],
+            }],
+            value: kf.sub(&endw.p_claim, &hw),
+        };
+        // Witness Q: q* - (alpha - shift) H - D_dummy = sum eqw u_bl - sum lw d.
+        let ddw = kf.sub(&kf.sub(&one, &hw), &sum_eqw);
+        let mut wq_terms = vec![PinTerm::Kelems {
+            commit: idx_bl,
+            coeff0: 0,
+            weights: vec![
+                z.clone(), eqw[0].clone(), z.clone(), eqw[1].clone(),
+                z.clone(), eqw[2].clone(), z.clone(), eqw[3].clone(),
+            ],
+        }];
+        for j in 0..l0 {
+            for c in 0..nx {
+                let lo = c * per;
+                let hi = (lo + per).min(n_el);
+                wq_terms.push(PinTerm::Scalar {
+                    commit: idx_digits + j * nx + c,
+                    coeff0: 0,
+                    weights: (lo..hi).map(|i| kf.neg(&lw[j * n_el + i])).collect(),
+                });
+            }
+        }
+        let alpha_eff = kf.sub(alpha, &kf.embed(shift as u64));
+        let wq = PinnedValue {
+            terms: wq_terms,
+            value: kf.sub(&kf.sub(&endw.q_claim, &kf.mul(&alpha_eff, &hw)), &ddw),
+        };
+        // Table P: p*_t = sum L_pos m_j + sum eqt a'_bl.
+        let tp = PinnedValue {
+            terms: vec![
+                PinTerm::Scalar {
+                    commit: idx_m,
+                    coeff0: 0,
+                    weights: (0..t_rows).map(|j| lt[tpos[j]].clone()).collect(),
+                },
+                PinTerm::Kelems {
+                    commit: idx_bl,
+                    coeff0: 8 * K_DEG,
+                    weights: vec![
+                        eqt[0].clone(), z.clone(), eqt[1].clone(), z.clone(),
+                        eqt[2].clone(), z.clone(), eqt[3].clone(), z.clone(),
+                    ],
+                },
+            ],
+            value: endt.p_claim.clone(),
+        };
+        // Table Q: q*_t - alpha H_t - D_dummy + FT = sum eqt u'_bl.
+        let ddt = kf.sub(&kf.sub(&one, &ht), &sum_eqt);
+        let tq = PinnedValue {
+            terms: vec![PinTerm::Kelems {
+                commit: idx_bl,
+                coeff0: 8 * K_DEG,
+                weights: vec![
+                    z.clone(), eqt[0].clone(), z.clone(), eqt[1].clone(),
+                    z.clone(), eqt[2].clone(), z.clone(), eqt[3].clone(),
+                ],
+            }],
+            value: kf.add(&kf.sub(&kf.sub(&endt.q_claim, &kf.mul(alpha, &ht)), &ddt), &ft),
+        };
+        vec![wp, wq, tp, tq]
+    };
+
+    let mut pins = p3_descent_pins(&kf, base_wm, &shell_w, &pw, &endw, dw, kpc);
+    pins.extend(p3_descent_pins(&kf, base_tm, &shell_t, &pt, &endt, dt, kpc));
+    pins.extend(leaf_pins_digits(&endw, &endt, &alpha));
+    for p in &pins {
+        tr.absorb_k(&kf, "uagb1-pin", std::slice::from_ref(&p.value));
+    }
+    let psi = derive_pin_psi(&tr.state(), UR1_PIN_COPIES, pins.len() * K_DEG, q);
+    let claims = pin_claims(&kf, &pins, n_data, msg_r, &psi);
+    // Exact recomposition RingClaims: value chunk c against its l0
+    // digit chunks, per message slot.
+    let mut ring_claims: Vec<RingClaim> = Vec::new();
+    for c in 0..nx {
+        let digit_cms: Vec<usize> = (0..l0).map(|j| idx_digits + j * nx + c).collect();
+        ring_claims.extend(digit_recomposition_claims(&zq, c, &digit_cms, msg_r, e0, class.mod_q));
+    }
+    // Post-commit message tamper (the opening-equation leg): the prover
+    // opens digit column 0 with a +1-ed coefficient.
+    if tamper == DigitTamper::TamperCommit {
+        all_msgs[idx_digits][0][0] = zq.add(all_msgs[idx_digits][0][0], 1);
+    }
+    let h0_round = ct_h0(&crs, &tr.state(), &t1s, &t2s, &[]);
+    let openings: Vec<StdOpening> = all_msgs
+        .iter()
+        .zip(all_rho.iter())
+        .enumerate()
+        .map(|(i, (xm, rho))| StdOpening { t1: &t1s[i], t2: &t2s[i], x: xm, rho })
+        .collect();
+    let (ct, _) = prove_ct_round(
+        &path, &ctx_ring, &rp, None, &crs, &h0_round, &claims, &ring_claims, &[], &[], &openings,
+        &[], &[], g_base, &mut rng,
+    );
+
+    // ---- Verifier (independent transcript; weak mode = the F5 attack
+    // ordering, battery-only).
+    let h0_v = if weak_stale_alpha { h0_stale } else { h0_full };
+    let mut tv = LkpTranscript::new("uagb1-digits", &h0_v);
+    let av = tv.challenge_k(&kf);
+    let mut verdict = DigitVerdict { descents_ok: true, root_ok: true, round_ok: true };
+    let vw = masked_gkr_verify(&kf, 1, dw, &shell_w, &pw, &mut tv, false);
+    let vt = masked_gkr_verify(&kf, 1, dt, &shell_t, &pt, &mut tv, false);
+    let (roots_w, ew, roots_t, et) = match (vw, vt) {
+        (Some((rw2, ew)), Some((rt2, et))) => (rw2, ew, rt2, et),
+        _ => {
+            verdict.descents_ok = false;
+            verdict.root_ok = false;
+            verdict.round_ok = false;
+            return verdict;
+        }
+    };
+    verdict.root_ok = !kf.is_zero(&roots_w[0][1])
+        && !kf.is_zero(&roots_t[0][1])
+        && kf.mul(&roots_w[0][0], &roots_t[0][1]) == kf.mul(&roots_t[0][0], &roots_w[0][1]);
+    let mut pv = p3_descent_pins(&kf, base_wm, &shell_w, &pw, &ew, dw, kpc);
+    pv.extend(p3_descent_pins(&kf, base_tm, &shell_t, &pt, &et, dt, kpc));
+    pv.extend(leaf_pins_digits(&ew, &et, &av));
+    for p in &pv {
+        tv.absorb_k(&kf, "uagb1-pin", std::slice::from_ref(&p.value));
+    }
+    let psi_v = derive_pin_psi(&tv.state(), UR1_PIN_COPIES, pv.len() * K_DEG, q);
+    let claims_v = pin_claims(&kf, &pv, n_data, msg_r, &psi_v);
+    let mut ring_claims_v: Vec<RingClaim> = Vec::new();
+    for c in 0..nx {
+        let digit_cms: Vec<usize> = (0..l0).map(|j| idx_digits + j * nx + c).collect();
+        ring_claims_v.extend(digit_recomposition_claims(&zq, c, &digit_cms, msg_r, e0, class.mod_q));
+    }
+    let h0r_v = ct_h0(&crs, &tv.state(), &t1s, &t2s, &[]);
+    verdict.round_ok = verify_ct_round(
+        &path, &ctx_ring, &rp, None, &crs, &h0r_v, &claims_v, &ring_claims_v, &[], &[], &t1s,
+        &t2s, &[], &[], &[], g_base, &ct,
+    );
+    verdict
+}
+
+/// Non-panicking replica of sigma.rs derive_digit_params' C2 gate
+/// (panic = abort forbids probing the assert): whether the balanced Q2
+/// chain's digit + recombined-witness betas fit under q/8 at this
+/// class. The formulas are sigma.rs's own, line for line.
+fn uagb1_balanced_c2_ok(q: u64, shape: CommitShape, e: u32, l: usize, w_inf: i64) -> bool {
+    let n_z = (shape.n_r * D) as f64;
+    let op_c = 1.3 * (2.0 * D as f64).sqrt();
+    let half = (1u64 << (e - 1)) as f64;
+    let bundle_dim = (l as f64) * n_z;
+    let t_bundle = op_c * half * bundle_dim.sqrt();
+    let sigma = (12.0 * t_bundle).ceil();
+    let bound = 1.2 * sigma * bundle_dim.sqrt();
+    let beta_dig = 2.0 * bound + op_c * half * n_z.sqrt();
+    let beta_rec = op_c * w_inf as f64 * n_z.sqrt();
+    let beta = beta_dig.max(beta_rec).ceil() as u128;
+    (q as u128) > 8 * beta
+}
+
+/// The balanced-path differential leg: the SAME values through the
+/// UNCHANGED Q2 chain (sigma.rs). Returns (verify_ok, attempts,
+/// restarts). Panics if called at e0 = 1 (the recorded finding: the
+/// balanced path has no sign-binary base).
+fn uagb1_balanced_leg(
+    class: &ring::digits::ExactDigitClass,
+    vals: &[i64],
+    seed: u64,
+) -> (bool, usize, usize) {
+    use ring::commit::{MatvecKind, a1_matvec};
+    assert!(class.e0 >= 2, "balanced path has no e0 = 1 base (lane finding)");
+    let ctx_ring = ring_ctx_q8();
+    let q = ctx_ring.zq.q;
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    let crs = expand_crs(shape, q, 0x0AB1);
+    let w_inf = class.max.abs().max(class.min.abs());
+    let dp = derive_digit_params(q, shape.kappa, shape.n_r, class.e0, class.l0, w_inf);
+    let a1p = build_a1_paths(&crs, dp.sigma, isqrt_u128(dp.bound_sq));
+    let path = KernelPath::A1(&a1p);
+    // The Q2 chain's witness spans the full n_r column space (the A1
+    // mask kernel's contract); the value tail is zero columns.
+    assert!(vals.len() <= shape.n_r * D, "balanced leg shape: values fit n_r columns");
+    let u: Vec<Vec<i64>> = (0..shape.n_r)
+        .map(|c| (0..D).map(|i| vals.get(c * D + i).copied().unwrap_or(0)).collect())
+        .collect();
+    let t = a1_matvec(&path, &crs, MatvecKind::Mask, &u);
+    let mut rng = ring::ProverRng::from_test_seed("uagb1-balanced-leg", &seed.to_le_bytes());
+    let (proof, attempts, restarts) =
+        prove_opening_digits(&path, &dp, &crs, &t, &u, b"uagb1-diff", &mut rng);
+    let ok = verify_opening_digits(&path, &ctx_ring, &dp, &crs, &t, b"uagb1-diff", &proof);
+    (ok, attempts, restarts)
+}
+
+fn self_test_uagb1_digits() {
+    use ring::digits::{
+        CLASS_A8S, CLASS_A8U, CLASS_ACC24_768, CLASS_Q31C, CLASS_W8S, EXACT_DIGIT_CLASSES,
+        alphabet, derive_l0, exact_digit_decompose, exact_digit_recompose, fold_norm_gamma,
+        gamma_max_exact, recomposition_nonwrap_ok,
+    };
+    println!("\n[UAGB1-D1] exact-digit path: decomposition, differential, committed rig, tampers");
+
+    // (1) Decomposition round-trip + alphabet membership: exhaustive for
+    // the 8-bit classes, endpoint + sweep for the wide ones.
+    for class in EXACT_DIGIT_CLASSES {
+        let (alo, ahi) = alphabet(class.e0);
+        let mut probes: Vec<i64> = if class.max - class.min < 1 << 12 {
+            (class.min..=class.max).collect()
+        } else {
+            let mut v = vec![class.min, class.max, 0, 1, -1, class.min + 1, class.max - 1];
+            let mut s = 0xD16u64;
+            for _ in 0..4096 {
+                let span = (class.max as i128 - class.min as i128 + 1) as u128;
+                s = splitmix64(&mut s);
+                v.push((class.min as i128 + (s as u128 % span) as i128) as i64);
+            }
+            v
+        };
+        probes.retain(|x| *x >= class.min && *x <= class.max);
+        let mut ok = true;
+        for &x in &probes {
+            let d = exact_digit_decompose(x, class.e0, class.l0);
+            ok &= d.len() == class.l0;
+            ok &= d.iter().all(|&di| (alo..=ahi).contains(&di));
+            ok &= exact_digit_recompose(&d, class.e0) == x;
+            // Shared arithmetic with the balanced path at e0 >= 2.
+            if class.e0 >= 2 {
+                ok &= d == digit_decompose(x, class.e0, class.l0);
+            }
+        }
+        assert_true(
+            &format!(
+                "{}: round-trip + alphabet [{},{}] over {} probes (e0={}, l0={})",
+                class.name, alo, ahi, probes.len(), class.e0, class.l0
+            ),
+            ok,
+        );
+        assert_true(
+            &format!("{}: pinned l0 == derive_l0 and l0-1 fails coverage", class.name),
+            derive_l0(class.min, class.max, class.e0) == class.l0
+                && (class.l0 == 1 || {
+                    let (lo, hi) = ring::digits::representable(class.e0, class.l0 - 1);
+                    !(lo <= class.min as i128 && (class.max as i128) <= hi)
+                }),
+        );
+        assert_true(
+            &format!(
+                "{}: non-wrap gate {} (recomposition semantic: {})",
+                class.name,
+                if class.mod_q { "structurally violated, semantic pinned mod-q" } else { "holds — integer-exact" },
+                if class.mod_q { "mod-q native (PARAMS 2.2)" } else { "integer identity" }
+            ),
+            recomposition_nonwrap_ok(class.e0, class.l0, Q8) != class.mod_q,
+        );
+    }
+    // The balanced base-2 finding, pinned as arithmetic (panic = abort
+    // forbids catch_unwind): the balanced digit set at e = 1 is {-1, 0}
+    // (digit_decompose's balanced window [-half, half) at half = 1), so
+    // its representable maximum is 0 — it cannot carry ANY positive
+    // value; the exact path's sign-binary alphabet {-1, 0, 1} covers
+    // [-255, 255] at l = 8 and is the engine's only e0 = 1 base (the
+    // F-N2 weight-group base).
+    let balanced_e1_max: i128 = 0; // (half - 1) * geo = 0 at half = 1
+    assert_true(
+        "balanced base-2 digits cannot represent +1 (representable max 0); exact sign-binary can (F-N2 finding)",
+        balanced_e1_max < 1
+            && digit_decompose(-1, 1, 8)[0] == -1
+            && exact_digit_recompose(&exact_digit_decompose(1, 1, 8), 1) == 1
+            && ring::digits::representable(1, 8) == (-255, 255),
+    );
+
+    // (2) The gamma gate arithmetic (trench constants, freeze-checked in
+    // freeze_check_uagb1; here: the D2 statement classes clear the gate).
+    let gmax = gamma_max_exact(Q8);
+    let a_limbs = CLASS_W8S.l0 * (512 * 768usize).div_ceil(D);
+    let b_limbs = CLASS_A8S.l0 * (768 * 2048usize).div_ceil(D);
+    let c_limbs = CLASS_ACC24_768.l0 * (512 * 2048usize).div_ceil(D);
+    for (name, e0, limbs) in [
+        ("A 512x768 w8s", CLASS_W8S.e0, a_limbs),
+        ("B 768x2048 a8s", CLASS_A8S.e0, b_limbs),
+        ("C 512x2048 acc24", CLASS_ACC24_768.e0, c_limbs),
+    ] {
+        let g = fold_norm_gamma(e0, limbs);
+        assert_true(
+            &format!("{name}: fold-norm gamma 2^{:.2} < exact-digit gate 2^{:.2}", g.log2(), gmax.log2()),
+            g < gmax,
+        );
+    }
+
+    // (3) Committed rig: honest ACCEPT per class (battery shapes small).
+    let sizes = [(&CLASS_W8S, 252usize), (&CLASS_A8S, 404), (&CLASS_A8U, 404), (&CLASS_ACC24_768, 156)];
+    for (class, n_el) in sizes {
+        let v = uagb1_digit_run(class, n_el, DigitTamper::None, false, 0xD1_0001);
+        assert_true(
+            &format!("rig honest ACCEPT: {} at n_el = {n_el}", class.name),
+            v.accept(),
+        );
+    }
+    // Q31C honest ACCEPT (full-column class, the aggregate layout's own).
+    let v = uagb1_digit_run(&CLASS_Q31C, 120, DigitTamper::None, false, 0xD1_0002);
+    assert_true("rig honest ACCEPT: q31c-full-column at n_el = 120", v.accept());
+
+    // (4) The balanced-vs-exact differential on identical inputs.
+    // e0 = 1 is exact-only (no balanced sign-binary base — finding 1);
+    // the narrow e0 = 2 classes run BOTH paths; the wide accumulator
+    // class is REJECTED AT DERIVE TIME by the balanced chain's own C2
+    // gate (beta_rec = op * w_inf * sqrt(n_z) over q/8 at w_inf ~ 2^23.6)
+    // while the exact path accepted it above — F-N2 at engine scale:
+    // the Gaussian digit transport cannot host wide value classes at
+    // q31; the exact configuration is the only path that can.
+    let shape8 = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    for (class, n_el) in [(&CLASS_A8S, 404usize), (&CLASS_A8U, 404)] {
+        assert!(uagb1_balanced_c2_ok(Q8, shape8, class.e0, class.l0, class.max.abs().max(class.min.abs())));
+        let mut dr = 0xD1FFu64;
+        let span = (class.max as i128 - class.min as i128 + 1) as u64;
+        let vals: Vec<i64> = (0..n_el)
+            .map(|_| class.min + (rng_below(&mut dr, span) as i128 % span as i128) as i64)
+            .collect();
+        let (bal_ok, attempts, restarts) = uagb1_balanced_leg(class, &vals, 0xD1_0003);
+        assert_true(
+            &format!(
+                "differential {}: balanced Q2 leg verifies on the same values (attempts {attempts}, restarts {restarts})",
+                class.name
+            ),
+            bal_ok,
+        );
+    }
+    assert_true(
+        "differential acc24-inner768: balanced Q2 chain REJECTS at derive (C2 gate, w_inf 2^23.6 at q31) while the exact path ACCEPTS — the wide-class wall (F-N2 at engine scale)",
+        !uagb1_balanced_c2_ok(Q8, shape8, CLASS_ACC24_768.e0, CLASS_ACC24_768.l0, CLASS_ACC24_768.max)
+            && uagb1_balanced_c2_ok(Q8, shape8, CLASS_A8S.e0, CLASS_A8S.l0, 128),
+    );
+
+    // (5) Tamper legs.
+    let v = uagb1_digit_run(&CLASS_W8S, 252, DigitTamper::OoaDigit, false, 0xD1_0004);
+    assert_true(
+        "OOA digit (recomposition-preserving) REJECT at the root cross-check ONLY",
+        !v.accept() && !v.root_ok && v.descents_ok && v.round_ok,
+    );
+    let v = uagb1_digit_run(&CLASS_A8S, 404, DigitTamper::OoaDigit, false, 0xD1_0005);
+    assert_true(
+        "OOA digit REJECT at e0 = 2 (root cross-check)",
+        !v.accept() && !v.root_ok,
+    );
+    let v = uagb1_digit_run(&CLASS_W8S, 252, DigitTamper::RecompDefect, false, 0xD1_0006);
+    assert_true(
+        "recomposition defect (in-alphabet) REJECT at the ct-round ONLY (lookup passes)",
+        !v.accept() && !v.round_ok && v.root_ok && v.descents_ok,
+    );
+    let v = uagb1_digit_run(&CLASS_W8S, 252, DigitTamper::TamperCommit, false, 0xD1_0007);
+    assert_true("post-commit message tamper REJECT (opening equations)", !v.accept() && !v.round_ok);
+    // (6) The stale-alpha F5 pair (both directions).
+    let v = uagb1_digit_run(&CLASS_W8S, 252, DigitTamper::StaleAlpha, false, 0xD1_0008);
+    assert_true(
+        "F5 DEFENSE: stale-alpha OOA forgery REJECTED by the shipped verifier (alpha from full h0)",
+        !v.accept(),
+    );
+    let v = uagb1_digit_run(&CLASS_W8S, 252, DigitTamper::StaleAlpha, true, 0xD1_0009);
+    assert_true(
+        "F5 ATTACK: the same forgery ACCEPTS under the weakened (commitment-free h0) ordering — the hash edge is load-bearing",
+        v.accept(),
+    );
+}
+
+/// UAGB1 freeze rows (Deliverable 1): the exact-digit constants, both
+/// directions. REPRODUCIBILITY pins per the Section-0 house rule — a
+/// green row certifies the constants have not drifted, nothing more.
+fn freeze_check_uagb1() -> bool {
+    use ring::digits::{
+        EXACT_DIGIT_CLASSES, alphabet_rows, decomposition_digest, derive_l0, fold_norm_gamma,
+        gamma_max_exact, recomposition_nonwrap_ok, representable,
+    };
+    let mut all_ok = true;
+    let mut gate = |label: &str, ok: bool| {
+        println!("  {} {label}", if ok { "ok  " } else { "FAIL" });
+        all_ok &= ok;
+    };
+    // UAGB1-1a: the class table, rederived both directions.
+    for class in EXACT_DIGIT_CLASSES {
+        let l_derived = derive_l0(class.min, class.max, class.e0);
+        let under = if class.l0 > 1 {
+            let (lo, hi) = representable(class.e0, class.l0 - 1);
+            !(lo <= class.min as i128 && (class.max as i128) <= hi)
+        } else {
+            true
+        };
+        gate(
+            &format!(
+                "UAGB1-1a {}: e0={} l0={} rederives ({} rows/table); l0-1 fails coverage; recomposition {}",
+                class.name, class.e0, class.l0, alphabet_rows(class.e0),
+                if class.mod_q { "mod-q native (non-wrap gate violated BY DESIGN, pinned)" } else { "integer-exact (non-wrap gate holds)" }
+            ),
+            l_derived == class.l0
+                && under
+                && (recomposition_nonwrap_ok(class.e0, class.l0, Q8) != class.mod_q),
+        );
+    }
+    // Pinned trench alignments: W8S is the F-N2 weight base (e0 = 1);
+    // Q31C matches PARAMS 2.2's l0 = ceil(31/e0).
+    gate(
+        "UAGB1-1a trench alignment: weight class e0 = 1 (F-N2), q31 column l0 = ceil(31/2) = 16",
+        ring::digits::CLASS_W8S.e0 == 1 && ring::digits::CLASS_Q31C.l0 == 31usize.div_ceil(2),
+    );
+    // UAGB1-1b: the exact-digit gamma gate (PARAMS 3.4 slack 58.8) and
+    // the F-IF1.5 pass-scale base comparisons, as recorded constants.
+    let gmax = gamma_max_exact(Q8);
+    gate(
+        &format!("UAGB1-1b gamma_max(exact) = {:.0} ~ 2^{:.2} ((q/8)/58.8; PARAMS 3.4 row 2)", gmax, gmax.log2()),
+        (gmax - 4_565_228.0).abs() < 1.0 && (gmax.log2() - 22.12).abs() < 0.005,
+    );
+    // F-IF1.5's recorded pass-scale gammas vs the gate, reproduced from
+    // the formula at the doc's cited values: activation group e0 = 2 at
+    // 2^21.26 FITS, e0 = 5 at 2^23.68 does NOT; weight group e0 = 1 at
+    // 2^21.88 FITS, e0 = 2 (+1 bit) does NOT.
+    gate(
+        "UAGB1-1b F-IF1.5 gate comparisons: act e0=2 (2^21.26) fits, e0=5 (2^23.68) does not; weight e0=1 (2^21.88) fits, e0=2 does not",
+        2f64.powf(21.26) < gmax
+            && 2f64.powf(23.68) > gmax
+            && 2f64.powf(21.88) < gmax
+            && 2f64.powf(22.88) > gmax,
+    );
+    // The D2 statement classes at the 125M layer shape clear the gate
+    // with wide margin (single-layer scale; the pass-scale tightness is
+    // the design's).
+    let a_g = fold_norm_gamma(1, 8 * (512 * 768usize).div_ceil(D));
+    let b_g = fold_norm_gamma(2, 5 * (768 * 2048usize).div_ceil(D));
+    let c_g = fold_norm_gamma(2, 13 * (512 * 2048usize).div_ceil(D));
+    gate(
+        &format!(
+            "UAGB1-1b D2 classes at 512x768x2048: gammas 2^{:.2} / 2^{:.2} / 2^{:.2} all under the gate",
+            a_g.log2(), b_g.log2(), c_g.log2()
+        ),
+        a_g < gmax && b_g < gmax && c_g < gmax,
+    );
+    // UAGB1-1c: the canonical decomposition digest (arithmetic pin).
+    let dg = decomposition_digest();
+    let expect = "1602129d5922fbafca357ee36e5bdf3e4d3d25bc020790e4e8ee3e4df4462197";
+    gate(
+        &format!("UAGB1-1c decomposition digest {}", hex_full(&dg)),
+        hex_full(&dg) == expect,
+    );
+    // UAGB1-1d: the non-wrap gate rejects an over-wide config (e0 = 2,
+    // l0 = 17 reaches past q/2) — the negative direction.
+    gate(
+        "UAGB1-1d non-wrap gate rejects (e0=2, l0=17) at q31; accepts every class-table row",
+        !recomposition_nonwrap_ok(2, 17, Q8),
+    );
+    all_ok
+}
+
+// ===========================================================================
+// [UAGB1-D2] U-AG-B1 lane BB, Deliverable 2: the DENSE COMMITTED MATMUL
+// STATEMENT at the 125M layer shape (512x768x2048) — C = A * B with
+// committed A (weight-class int8), committed B (activation-class int8),
+// committed C (accumulator class), dense D-1 encoding (1 coeff/el,
+// row-major), the multi-wave C2 machinery of RANGE_AGGREGATION_DESIGN
+// Phase 5 (plan_waves + the U-Z1 MASKED share splitter + closing round —
+// the shipped Z1 path), and ONE degree-2 matmul sumcheck over K tying
+// the three tensors together:
+//
+//   C~(rx, ry) = sum_{k in {0,1}^lk} A~(rx, k) * B~(k, ry)
+//
+// (rx in K^lr, ry in K^lc drawn AFTER every commitment is bound — the
+// D-4 ordering; the inner dimension zero-extends to 2^lk in the PROVER'S
+// tables only, commitments carry real data). The sumcheck's three
+// terminal MLE evaluations (v = C~(rx,ry), a* = A~(rx,k*), b* =
+// B~(k*,ry)) land as aggregate pins (PinnedValue -> 9 psi-batched
+// ct-claims, psi drawn after the pinned values — the E4-N1 edge), split
+// across the C2-capped waves with coset one-time pads, and grounded by
+// per-wave masked ct-rounds against the commitments.
+//
+// HONEST SCOPE LABEL: the aggregate/eval-proof layer (BB items 4-6: IXF
+// fold, masked eval path, wire format) is NOT in this statement. The
+// wire is per-wave ct-round proofs + the sumcheck + pins; the counted
+// bytes therefore carry the pre-aggregation opening volume and are
+// reported against the Tier N gate as the round's designed-vs-built gap.
+// The statement DECLARES the Deliverable-1 exact-digit classes of its
+// three tensors (bound into the model digest) — the config the
+// aggregate layer consumes.
+
+#[derive(Clone, Copy, PartialEq)]
+enum MmTamper {
+    None,
+    /// C committed with one wrong entry; the prover claims the honest
+    /// A*B value. Everything is green EXCEPT the commitment grounding:
+    /// the C pin's masked shares no longer sum to the claimed value.
+    WrongC,
+    /// Post-commit message tamper on a C commitment (opening equations).
+    TamperMsg,
+    /// The commit-before-challenge F5 construction: rx/ry drawn from a
+    /// transcript binding A and B but NOT C; the attacker then solves 16
+    /// base-field C entries so the garbage C hits C~(rx,ry) = sum TA*TB
+    /// and commits. The weakened verifier (same stale ordering) ACCEPTS
+    /// a C that is NOT A*B; the shipped verifier re-derives rx/ry from
+    /// the full h0 and REJECTS.
+    StaleOrder,
+    /// +1 on one wave's masked reveal (sum gate catches).
+    PartialLie,
+    /// +1/-1 on two waves' masked reveals (sum preserved; the per-wave
+    /// ct-rounds catch the false shares).
+    CompensatedLie,
+    /// Wave-boundary tamper 1: the prover binds wave w's round to the
+    /// wrong wave index ((w+1) mod n_waves in its transcript-state
+    /// extension) — the verifier's independently-derived h0_w differs.
+    WaveOrderSwap,
+    /// Wave-boundary tamper 2: the contents of two B commitments in
+    /// DIFFERENT waves are swapped before the statement is built (the
+    /// attacker is self-consistent: statement + digests are over the
+    /// swapped list). The committed B tensor read position-wise no
+    /// longer matches A*B = C — content moved across waves must be
+    /// caught by the value-position binding.
+    CrossWaveSwap,
+    /// E-O1-BB negative vector (digest-binding form): the prover's
+    /// statement declares a WRONG digit base for the weight tensor
+    /// (e0 = 2 instead of the F-N2-mandated 1). The verifier recomputes
+    /// the model digest with the canonical class table — statement
+    /// REJECT before any crypto.
+    WrongClassDecl,
+}
+
+struct MmVerdict {
+    statement_ok: bool,
+    sumcheck_ok: bool,
+    sum_gate_ok: bool,
+    waves_ok: bool,
+    first_bad_wave: Option<usize>,
+    closing_ok: bool,
+}
+
+impl MmVerdict {
+    fn accept(&self) -> bool {
+        self.statement_ok && self.sumcheck_ok && self.sum_gate_ok && self.waves_ok && self.closing_ok
+    }
+}
+
+#[derive(Default)]
+struct MmCost {
+    n_data: usize,
+    n_commits: usize,
+    n_waves: usize,
+    commit_s: f64,
+    prove_s: f64,
+    verify_s: f64,
+    /// COUNTED bytes (64 B per K-element, 4 B per q31 coefficient, 8 B
+    /// per i64 response coefficient, 12 B per revealed partial scalar —
+    /// counted-not-serialized; the canonical wire format is BB item 6).
+    bytes_statement: usize,
+    bytes_commit_tags: usize,
+    bytes_sumcheck: usize,
+    bytes_reveals: usize,
+    bytes_ct_z: usize,
+    bytes_ct_w1: usize,
+    bytes_ct_other: usize,
+}
+
+impl MmCost {
+    fn bytes_total(&self) -> usize {
+        self.bytes_statement
+            + self.bytes_commit_tags
+            + self.bytes_sumcheck
+            + self.bytes_reveals
+            + self.bytes_ct_z
+            + self.bytes_ct_w1
+            + self.bytes_ct_other
+    }
+}
+
+/// The deterministic statement layout: dense row-major tensors packed
+/// into msg_r*D-coefficient commitments, first-fit waves at the derived
+/// data cap, pad commitments for the masked share splitter, one closing
+/// g block, two g-groups per wave. A pure function of (shape, commit
+/// shape, q) — prover and verifier derive it independently (D-2).
+struct MmLayout {
+    rows: usize,
+    inner: usize,
+    cols: usize,
+    lr: usize,
+    lk: usize,
+    lc: usize,
+    a_cms: usize,
+    b_cms: usize,
+    c_cms: usize,
+    n_data: usize,
+    base_b: usize,
+    base_c: usize,
+    base_pad: usize,
+    base_closing_g: usize,
+    base_wave_g: usize,
+    n_commits: usize,
+    c2_max: usize,
+    data_cap: usize,
+    wave_g_groups: usize,
+    closing_g_groups: usize,
+    acc_bits: u32,
+    plan: ring::ct_engine::WavePlan,
+    pad_layout: ring::ct_engine::WavePadLayout,
+}
+
+/// Smallest signed bit width covering the matmul accumulator interval
+/// at this inner dimension (manifest v3 asymmetric interval arithmetic:
+/// per-product [lo, hi] = [-128*127, 128*128] for signed int8 inputs).
+fn mm_acc_bits(inner: usize) -> u32 {
+    let lo = inner as i128 * (-128 * 127);
+    let hi = inner as i128 * (128 * 128);
+    let mut b = 2u32;
+    while -(1i128 << (b - 1)) > lo || (1i128 << (b - 1)) - 1 < hi {
+        b += 1;
+    }
+    b
+}
+
+fn mm_layout(rows: usize, inner: usize, cols: usize, shape: CommitShape, q: u64) -> MmLayout {
+    use ring::ct_engine::{WavePadLayout, plan_waves};
+    let per = shape.msg_r * D;
+    assert!(rows.is_power_of_two() && cols.is_power_of_two(), "rows/cols are committed index spaces");
+    let lr = rows.trailing_zeros() as usize;
+    let lc = cols.trailing_zeros() as usize;
+    let lk = usize::BITS as usize - (inner - 1).leading_zeros() as usize; // ceil log2
+    // No-tail discipline: every tensor must pack its commitments
+    // EXACTLY (no unread junk-tolerant tail coefficients exist — the
+    // manifest's junk-free rule made a derive-time gate; a shape with
+    // tails needs a transcript-weighted zero-tail pin FIRST).
+    assert!(
+        (rows * inner) % per == 0 && (inner * cols) % per == 0 && (rows * cols) % per == 0,
+        "no-tail discipline: tensor sizes must be multiples of msg_r*D = {per}"
+    );
+    let a_cms = (rows * inner).div_ceil(per);
+    let b_cms = (inner * cols).div_ceil(per);
+    let c_cms = (rows * cols).div_ceil(per);
+    let n_data = a_cms + b_cms + c_cms;
+    let wave_g_groups = UR1_PIN_COPIES.div_ceil(shape.msg_r);
+    let c2_max = ur1_c2_max_commits(q, shape);
+    // Every wave is pin-bearing (the psi batch spans all three tensors),
+    // so every wave's round list carries [data | pad | g-groups].
+    let data_cap = c2_max - 1 - wave_g_groups;
+    let plan = plan_waves(n_data, &[], data_cap).expect("group-free first-fit plan");
+    let n_waves = plan.waves.len();
+    let pad_layout = WavePadLayout::derive(
+        UR1_PIN_COPIES,
+        (0..n_waves).collect(),
+        n_waves,
+        shape.msg_r,
+    )
+    .expect("pad layout derives from the public plan");
+    let closing_g_groups = if pad_layout.has_pads() { UR1_PIN_COPIES.div_ceil(shape.msg_r) } else { 0 };
+    let base_pad = n_data;
+    let base_closing_g = base_pad + pad_layout.n_pad_cms;
+    let base_wave_g = base_closing_g + closing_g_groups;
+    let n_commits = base_wave_g + n_waves * wave_g_groups;
+    MmLayout {
+        rows, inner, cols, lr, lk, lc, a_cms, b_cms, c_cms, n_data,
+        base_b: a_cms,
+        base_c: a_cms + b_cms,
+        base_pad, base_closing_g, base_wave_g, n_commits, c2_max, data_cap,
+        wave_g_groups, closing_g_groups,
+        acc_bits: mm_acc_bits(inner),
+        plan, pad_layout,
+    }
+}
+
+/// The public statement: manifest v3 with the three commitment entries
+/// (digests over each tensor's commitment groups), the Matmul
+/// operation, int8/int8/accumulator quantization, and the model digest
+/// binding shape + quant + the DELIVERABLE-1 EXACT-DIGIT CLASS
+/// DECLARATIONS + every data commitment digest.
+fn mm_build_statement(
+    ml: &MmLayout,
+    crs_hash: &[u8],
+    commit_digests: &[Vec<u8>],
+    wrong_class_decl: bool,
+) -> manifest::Statement {
+    use manifest::{ClaimManifest, Operation, Orientation, PadSpec, QuantMeta, Statement};
+    use ring::digits::{CLASS_A8S, CLASS_W8S, derive_l0};
+    let q8 = QuantMeta { bits: 8, frac_bits: 0, signed: true };
+    let qacc = QuantMeta { bits: ml.acc_bits, frac_bits: 0, signed: true };
+    let mut mf = ClaimManifest::new("lattice-uagb1-matmul", crs_hash);
+    let ki = key_info_bytes(&CommitShape { kappa: 8, n_r: 26, msg_r: 8 }, Q8);
+    let a_dg = group_list_digest(&commit_digests[0..ml.a_cms]);
+    let b_dg = group_list_digest(&commit_digests[ml.base_b..ml.base_b + ml.b_cms]);
+    let c_dg = group_list_digest(&commit_digests[ml.base_c..ml.base_c + ml.c_cms]);
+    let id_a = mf.add_commitment("A", ml.rows, ml.inner, Orientation::RowMajor, ki.clone(), a_dg);
+    let id_b = mf.add_commitment("B", ml.inner, ml.cols, Orientation::RowMajor, ki.clone(), b_dg);
+    let id_c = mf.add_commitment("C", ml.rows, ml.cols, Orientation::RowMajor, ki, c_dg);
+    mf.add_operation(Operation::Matmul { a: id_a, b: id_b, c: id_c });
+    // Model digest: shape + quant + the D1 exact-digit class
+    // declarations (the aggregate layer's config) + data commit digests.
+    let acc_lo = ml.inner as i128 * (-128 * 127);
+    let acc_hi = ml.inner as i128 * (128 * 128);
+    let acc_l0 = derive_l0(acc_lo as i64, acc_hi as i64, 2);
+    let mut parts: Vec<u8> = b"uagb1-matmul-model-v1".to_vec();
+    for v in [ml.rows, ml.inner, ml.cols] {
+        parts.extend((v as u64).to_le_bytes());
+    }
+    parts.extend([8u8, ml.acc_bits as u8]);
+    // (class name, e0, l0) per tensor: A weight, B activation, C accum.
+    // The E-O1-BB wrong-base vector: a tampered weight-class base.
+    let a_e0 = if wrong_class_decl { 2 } else { CLASS_W8S.e0 };
+    for (name, e0, l0) in [
+        (CLASS_W8S.name, a_e0, CLASS_W8S.l0),
+        (CLASS_A8S.name, CLASS_A8S.e0, CLASS_A8S.l0),
+        ("acc-inner-derived", 2u32, acc_l0),
+    ] {
+        parts.extend(name.as_bytes());
+        parts.extend(e0.to_le_bytes());
+        parts.extend((l0 as u64).to_le_bytes());
+    }
+    parts.extend((ml.n_data as u64).to_le_bytes());
+    for d in &commit_digests[0..ml.n_data] {
+        parts.extend((d.len() as u64).to_le_bytes());
+        parts.extend(d);
+    }
+    let model_digest = uk8_sha(&[&parts]);
+    let mut st = Statement::new(model_digest, None, 30, mf);
+    st.quant = vec![q8, q8, qacc];
+    st.pad = vec![
+        PadSpec::exact(ml.rows, ml.inner),
+        PadSpec::exact(ml.inner, ml.cols),
+        PadSpec::exact(ml.rows, ml.cols),
+    ];
+    st.outputs = vec![2];
+    st
+}
+
+/// Solve the 16 x 16 base-field system sum_e w_e * x_e = target for
+/// base-field x (w_e in K): Gaussian elimination mod q. None if the
+/// weight matrix is singular (battery seeds avoid this).
+fn mm_solve_base16(
+    kf: &ring::kfield::KField,
+    weights: &[ring::kfield::KElem],
+    target: &ring::kfield::KElem,
+) -> Option<Vec<u64>> {
+    use ring::kfield::K_DEG;
+    let zq = &kf.zq;
+    assert_eq!(weights.len(), K_DEG);
+    // m[c][e] = coordinate c of w_e; augmented with target.
+    let mut m: Vec<Vec<u64>> = (0..K_DEG)
+        .map(|c| {
+            let mut row: Vec<u64> = weights.iter().map(|w| w[c]).collect();
+            row.push(target[c]);
+            row
+        })
+        .collect();
+    for col in 0..K_DEG {
+        let piv = (col..K_DEG).find(|&r| m[r][col] != 0)?;
+        m.swap(col, piv);
+        let inv = zq.inv(m[col][col]);
+        for x in m[col].iter_mut() {
+            *x = zq.mul(*x, inv);
+        }
+        for r in 0..K_DEG {
+            if r != col && m[r][col] != 0 {
+                let f = m[r][col];
+                for cc in 0..=K_DEG {
+                    let sub = zq.mul(f, m[col][cc]);
+                    m[r][cc] = zq.sub(m[r][cc], sub);
+                }
+            }
+        }
+    }
+    Some((0..K_DEG).map(|e| m[e][K_DEG]).collect())
+}
+
+/// One committed matmul statement instance: prove + verify, with the
+/// battery tampers. `weak_stale_order` runs the deliberately-weakened
+/// verifier (battery-only, the F5 attack leg).
+fn uagb1_matmul_run(
+    rows: usize,
+    inner: usize,
+    cols: usize,
+    tamper: MmTamper,
+    weak_stale_order: bool,
+    seed: u64,
+    quiet: bool,
+) -> (MmVerdict, MmCost) {
+    use ring::ct_engine::{
+        CtClaim, StdOpening, WavePads, closing_round_claims, ct_h0, derive_ct_round_params,
+        draw_wave_pads, pack_wave_pads, prove_ct_round, sample_ct_masks,
+        split_claims_prover_masked, split_claims_verifier_masked, verify_ct_round,
+    };
+    use ring::gkr::eq_table;
+    use ring::kfield::{K_DEG, KElem, KField};
+    use ring::lookup::{PinTerm, PinnedValue, derive_pin_psi, pin_claims};
+    use ring::sumcheck::{LkpTranscript, sumcheck_prove, sumcheck_verify};
+
+    let ctx_ring = ring_ctx_q8();
+    let kf = KField::new(&ctx_ring);
+    let zq = ctx_ring.zq;
+    let q = zq.q;
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    let msg_r = shape.msg_r;
+    let per = msg_r * D;
+    let crs = expand_crs(shape, q, 0x0AB2);
+    let ml = mm_layout(rows, inner, cols, shape, q);
+    let n_waves = ml.plan.waves.len();
+    let mut cost = MmCost {
+        n_data: ml.n_data,
+        n_commits: ml.n_commits,
+        n_waves,
+        ..MmCost::default()
+    };
+    let mut verdict = MmVerdict {
+        statement_ok: true,
+        sumcheck_ok: true,
+        sum_gate_ok: true,
+        waves_ok: true,
+        first_bad_wave: None,
+        closing_ok: true,
+    };
+
+    // ---- Witness data: A, B int8; C = A * B exactly over Z. The value
+    // convention is [-127, 127] (BC export, U-AG-B1: forced by the
+    // contract's own 27-bit@4096 accumulator row; M125_CALIBRATION_STUDY).
+    // The DECLARED v3 type stays int8 signed ([-128, 127]) and the
+    // accumulator width is computed from the declared type (the
+    // validator's own arithmetic) — at inner 768 both readings give 25
+    // bits; the inner-2048 delta (27 declared vs 26 honest) is a
+    // statement-typing note for the pass stage (QuantMeta has no
+    // symmetric-range field yet).
+    let mut dr = seed;
+    let a_i8: Vec<i64> = (0..rows * inner).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
+    let b_i8: Vec<i64> = (0..inner * cols).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
+    let mut c_acc: Vec<i64> = vec![0; rows * cols];
+    for i in 0..rows {
+        for k in 0..inner {
+            let a = a_i8[i * inner + k];
+            if a == 0 {
+                continue;
+            }
+            let brow = &b_i8[k * cols..(k + 1) * cols];
+            let crow = &mut c_acc[i * cols..(i + 1) * cols];
+            for (cv, &bv) in crow.iter_mut().zip(brow.iter()) {
+                *cv += a * bv;
+            }
+        }
+    }
+    if tamper == MmTamper::WrongC {
+        c_acc[0] += 1;
+    }
+
+    // ---- Commitments (pass 1, everything before any challenge). --------
+    let t_commit = Instant::now();
+    let mut rng = ring::ProverRng::from_test_seed("uagb1-mm-session", &seed.to_le_bytes());
+    // Pads drawn from the per-proof stream BEFORE any challenge; the
+    // table is consumed by the masked splitter (one-time by construction).
+    let mut pads_live: Option<WavePads> = if ml.pad_layout.has_pads() {
+        Some(draw_wave_pads(&mut rng, q, &ml.pad_layout))
+    } else {
+        None
+    };
+    let pack_dense = |vals: &[i64], g: usize| -> Vec<Poly> {
+        let mut polys = vec![poly_zero(); msg_r];
+        for s in 0..msg_r {
+            for c in 0..D {
+                let idx = g * per + s * D + c;
+                if idx < vals.len() {
+                    polys[s][c] = zq.to_mod(vals[idx]);
+                }
+            }
+        }
+        polys
+    };
+    let mut msgs: Vec<Vec<Poly>> = Vec::with_capacity(ml.n_commits);
+    for g in 0..ml.a_cms {
+        msgs.push(pack_dense(&a_i8, g));
+    }
+    for g in 0..ml.b_cms {
+        msgs.push(pack_dense(&b_i8, g));
+    }
+    // Under StaleOrder the attacker's C is built AFTER the stale
+    // challenges; placeholder zeros here, replaced below.
+    let c_garbage = tamper == MmTamper::StaleOrder;
+    for g in 0..ml.c_cms {
+        if c_garbage {
+            msgs.push(vec![poly_zero(); msg_r]);
+        } else {
+            msgs.push(pack_dense(&c_acc, g));
+        }
+    }
+    if tamper == MmTamper::CrossWaveSwap {
+        // Swap the FIRST B commitment with the LAST B commitment — at
+        // the battery shape B spans waves 0..2, so the same tensor's
+        // content moves across a wave boundary; the statement and every
+        // digest are rebuilt self-consistently below.
+        let (i, j) = (ml.base_b, ml.base_b + ml.b_cms - 1);
+        assert_ne!(ml.plan.slot_of[i].0, ml.plan.slot_of[j].0, "swap must straddle waves");
+        msgs.swap(i, j);
+    }
+    if ml.pad_layout.has_pads() {
+        let pad_msgs = pack_wave_pads(&mut rng, q, msg_r, &ml.pad_layout, pads_live.as_ref().unwrap())
+            .expect("pad packing");
+        msgs.extend(pad_msgs);
+    }
+    let closing_g = sample_ct_masks(&mut rng, q, msg_r, if ml.closing_g_groups > 0 { UR1_PIN_COPIES } else { 0 });
+    assert_eq!(closing_g.len(), ml.closing_g_groups);
+    msgs.extend(closing_g);
+    for _ in 0..n_waves {
+        let wg = sample_ct_masks(&mut rng, q, msg_r, UR1_PIN_COPIES);
+        assert_eq!(wg.len(), ml.wave_g_groups);
+        msgs.extend(wg);
+    }
+    assert_eq!(msgs.len(), ml.n_commits);
+
+    let rp_probe = derive_ct_round_params(q, shape, ml.data_cap + 1 + ml.wave_g_groups, 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp_probe.sigma, isqrt_u128(rp_probe.bound_sq));
+    let path = KernelPath::A1(&a1p);
+    let mut rhos8: Vec<Vec<i8>> = Vec::with_capacity(ml.n_commits);
+    let mut t1s: Vec<Vec<Poly>> = Vec::with_capacity(ml.n_commits);
+    let mut t2s: Vec<Vec<Poly>> = Vec::with_capacity(ml.n_commits);
+    for m in &msgs {
+        let rho: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+        let (t1, t2) = commit(&path, &crs, m, &rho);
+        rhos8.push(rho.iter().flat_map(|p| p.iter().map(|&x| x as i8)).collect());
+        t1s.push(t1);
+        t2s.push(t2);
+    }
+    cost.commit_s = t_commit.elapsed().as_secs_f64();
+
+    // ---- The StaleOrder attack construction (battery-only): stale
+    // challenges from a transcript binding A and B but NOT C; C solved
+    // afterwards and recommitted. -----------------------------------------
+    let t_prove = Instant::now();
+    let stale_h0 = {
+        let ab: usize = ml.base_c;
+        ct_h0(&crs, b"uagb1-mm-stale", &t1s[0..ab].to_vec(), &t2s[0..ab].to_vec(), &[])
+    };
+    // (Shared tables for both the attack and the honest path.)
+    let build_eq = |z: &[KElem]| eq_table(&kf, z);
+    let ta_tb = |rx_t: &[KElem], ry_t: &[KElem]| -> (Vec<KElem>, Vec<KElem>) {
+        let eq_rx = build_eq(rx_t);
+        let eq_ry = build_eq(ry_t);
+        let nk = 1usize << ml.lk;
+        let mut ta = vec![kf.zero(); nk];
+        for i in 0..rows {
+            let w = &eq_rx[i];
+            if kf.is_zero(w) {
+                continue;
+            }
+            for k in 0..inner {
+                let v = a_i8[i * inner + k];
+                if v != 0 {
+                    ta[k] = kf.add(&ta[k], &kf.scale(zq.to_mod(v), w));
+                }
+            }
+        }
+        let mut tb = vec![kf.zero(); nk];
+        for k in 0..inner {
+            let row = &b_i8[k * cols..(k + 1) * cols];
+            let mut acc = kf.zero();
+            for (j, &v) in row.iter().enumerate() {
+                if v != 0 {
+                    acc = kf.add(&acc, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+                }
+            }
+            tb[k] = acc;
+        }
+        (ta, tb)
+    };
+    if c_garbage {
+        // Attack: derive rx/ry at the stale seed, compute v_AB, solve 16
+        // C entries so garbage-C~(rx,ry) = v_AB, recommit those groups.
+        let mut ta = LkpTranscript::new("uagb1-mm", &stale_h0);
+        let rx: Vec<KElem> = (0..ml.lr).map(|_| ta.challenge_k(&kf)).collect();
+        let ry: Vec<KElem> = (0..ml.lc).map(|_| ta.challenge_k(&kf)).collect();
+        let (tta, ttb) = ta_tb(&rx, &ry);
+        let v_ab = tta.iter().zip(ttb.iter()).fold(kf.zero(), |a, (x, y)| kf.add(&a, &kf.mul(x, y)));
+        let eq_rx = build_eq(&rx);
+        let eq_ry = build_eq(&ry);
+        // Weights of the first 16 flat C entries (row 0, cols 0..16).
+        let w16: Vec<KElem> = (0..K_DEG).map(|j| kf.mul(&eq_rx[0], &eq_ry[j])).collect();
+        let x16 = mm_solve_base16(&kf, &w16, &v_ab).expect("attack system solvable at this seed");
+        let mut c_forged = vec![0i64; rows * cols];
+        for (j, &x) in x16.iter().enumerate() {
+            c_forged[j] = zq.center(x);
+        }
+        for g in 0..ml.c_cms {
+            msgs[ml.base_c + g] = pack_dense(&c_forged, g);
+            let rho: Vec<Vec<i64>> = (0..shape.n_r)
+                .map(|r| rhos8[ml.base_c + g][r * D..(r + 1) * D].iter().map(|&b| b as i64).collect())
+                .collect();
+            let (t1, t2) = commit(&path, &crs, &msgs[ml.base_c + g], &rho);
+            t1s[ml.base_c + g] = t1;
+            t2s[ml.base_c + g] = t2;
+        }
+    }
+
+    // ---- The statement (over the final commitment list) and h0. --------
+    let commit_digests: Vec<Vec<u8>> =
+        (0..ml.n_commits).map(|i| group_digest(&t1s[i], &t2s[i])).collect();
+    let statement =
+        mm_build_statement(&ml, &crs.crs_hash, &commit_digests, tamper == MmTamper::WrongClassDecl);
+    let ctx = statement.digest().expect("prover statement validates");
+    cost.bytes_statement = statement.encode().len();
+    cost.bytes_commit_tags = ml.n_commits * (shape.kappa + msg_r) * D * 4;
+    let h0_link = ct_h0(&crs, &ctx, &t1s, &t2s, &[]);
+    let h0_prover = if tamper == MmTamper::StaleOrder { stale_h0 } else { h0_link };
+
+    // ---- Prover transcript: rx/ry, the claim, the sumcheck, the pins. --
+    let mut tr = LkpTranscript::new("uagb1-mm", &h0_prover);
+    let rx: Vec<KElem> = (0..ml.lr).map(|_| tr.challenge_k(&kf)).collect();
+    let ry: Vec<KElem> = (0..ml.lc).map(|_| tr.challenge_k(&kf)).collect();
+    let (tta, ttb) = ta_tb(&rx, &ry);
+    // The claimed value v: honest = C~(rx, ry) over the COMMITTED C;
+    // cheating arms (WrongC / CrossWaveSwap / StaleOrder) claim the A*B
+    // value (their best play — the committed C no longer matches it).
+    let eq_rx = build_eq(&rx);
+    let eq_ry = build_eq(&ry);
+    let v_claim = if tamper == MmTamper::None || tamper == MmTamper::TamperMsg
+        || tamper == MmTamper::PartialLie || tamper == MmTamper::CompensatedLie
+        || tamper == MmTamper::WaveOrderSwap
+    {
+        // C~(rx,ry) from the committed values (row-major).
+        let mut acc = kf.zero();
+        for i in 0..rows {
+            let row = &c_acc[i * cols..(i + 1) * cols];
+            let mut ri = kf.zero();
+            for (j, &v) in row.iter().enumerate() {
+                if v != 0 {
+                    ri = kf.add(&ri, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+                }
+            }
+            acc = kf.add(&acc, &kf.mul(&ri, &eq_rx[i]));
+        }
+        acc
+    } else {
+        tta.iter().zip(ttb.iter()).fold(kf.zero(), |a, (x, y)| kf.add(&a, &kf.mul(x, y)))
+    };
+    tr.absorb_k(&kf, "mm-claim", std::slice::from_ref(&v_claim));
+    let product = |kf: &KField, vals: &[KElem]| kf.mul(&vals[0], &vals[1]);
+    let (scp, kstar) = sumcheck_prove(&kf, vec![tta, ttb], 2, &product, &mut tr);
+    tr.absorb_k(&kf, "mm-final", &scp.final_evals);
+    cost.bytes_sumcheck = 64 * (1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len());
+
+    // The three MLE-evaluation pins (values bound before psi — E4-N1).
+    let eq_k = build_eq(&kstar);
+    let build_pins = |v: &KElem, a_star: &KElem, b_star: &KElem| -> Vec<PinnedValue> {
+        let scalar_terms = |base: usize, n_cms: usize, wf: &dyn Fn(usize) -> Option<KElem>| {
+            let mut terms = Vec::new();
+            for g in 0..n_cms {
+                let lo = g * per;
+                let mut weights: Vec<KElem> = Vec::with_capacity(per);
+                let mut any = false;
+                for c in 0..per {
+                    match wf(lo + c) {
+                        Some(w) => {
+                            if !kf.is_zero(&w) {
+                                any = true;
+                            }
+                            weights.push(w);
+                        }
+                        None => weights.push(kf.zero()),
+                    }
+                }
+                if any {
+                    terms.push(PinTerm::Scalar { commit: base + g, coeff0: 0, weights });
+                }
+            }
+            terms
+        };
+        let pin_c = PinnedValue {
+            terms: scalar_terms(ml.base_c, ml.c_cms, &|f| {
+                if f < rows * cols { Some(kf.mul(&eq_rx[f / cols], &eq_ry[f % cols])) } else { None }
+            }),
+            value: v.clone(),
+        };
+        let pin_a = PinnedValue {
+            terms: scalar_terms(0, ml.a_cms, &|f| {
+                if f < rows * inner { Some(kf.mul(&eq_rx[f / inner], &eq_k[f % inner])) } else { None }
+            }),
+            value: a_star.clone(),
+        };
+        let pin_b = PinnedValue {
+            terms: scalar_terms(ml.base_b, ml.b_cms, &|f| {
+                if f < inner * cols { Some(kf.mul(&eq_k[f / cols], &eq_ry[f % cols])) } else { None }
+            }),
+            value: b_star.clone(),
+        };
+        vec![pin_c, pin_a, pin_b]
+    };
+    let pins = build_pins(&v_claim, &scp.final_evals[0], &scp.final_evals[1]);
+    for p in &pins {
+        tr.absorb_k(&kf, "mm-pin", std::slice::from_ref(&p.value));
+    }
+    let psi = derive_pin_psi(&tr.state(), UR1_PIN_COPIES, pins.len() * K_DEG, q);
+    let claims_p = pin_claims(&kf, &pins, ml.n_data, msg_r, &psi);
+    drop(pins);
+
+    // Masked split across waves (the Z1 shipped path).
+    let msg_refs: Vec<&[Poly]> = msgs[..ml.n_data].iter().map(|m| m.as_slice()).collect();
+    let (mut pw_claims, mut reveals) = split_claims_prover_masked(
+        &zq,
+        &ml.plan,
+        &claims_p,
+        &msg_refs,
+        &ml.pad_layout,
+        pads_live.take().unwrap_or_else(|| draw_wave_pads(&mut rng, q, &ml.pad_layout)),
+    )
+    .expect("honest masked split");
+    drop(claims_p);
+    if pw_claims.is_empty() {
+        pw_claims = (0..n_waves).map(|_| Vec::new()).collect();
+    }
+    match tamper {
+        MmTamper::PartialLie => {
+            assert!(reveals[0].len() >= 2);
+            reveals[0][0].1 = {
+                let v = reveals[0][0].1 as i128 + 1;
+                let qq = q as i128;
+                let mut r = v.rem_euclid(qq);
+                if r > qq / 2 { r -= qq; }
+                r as i64
+            };
+        }
+        MmTamper::CompensatedLie => {
+            assert!(reveals[0].len() >= 2);
+            let bump = |x: i64, d: i128| -> i64 {
+                let v = x as i128 + d;
+                let qq = q as i128;
+                let mut r = v.rem_euclid(qq);
+                if r > qq / 2 { r -= qq; }
+                r as i64
+            };
+            reveals[0][0].1 = bump(reveals[0][0].1, 1);
+            reveals[0][1].1 = bump(reveals[0][1].1, -1);
+        }
+        _ => {}
+    }
+    cost.bytes_reveals = 12 * reveals.iter().map(|r| r.len()).sum::<usize>();
+
+    // Post-commit message tamper (opening-equation leg).
+    if tamper == MmTamper::TamperMsg {
+        msgs[ml.base_c][0][0] = zq.add(msgs[ml.base_c][0][0], 1);
+    }
+
+    // ---- Wave rounds (prover), then verifier below. --------------------
+    let unpack_rho = |packed: &[i8]| -> Vec<Vec<i64>> {
+        (0..shape.n_r)
+            .map(|r| packed[r * D..(r + 1) * D].iter().map(|&b| b as i64).collect())
+            .collect()
+    };
+    let wave_idxs = |w: usize| -> Vec<usize> {
+        let mut v = ml.plan.waves[w].clone();
+        if ml.pad_layout.has_pads() {
+            v.push(ml.base_pad + w / ml.pad_layout.waves_per_cm);
+        }
+        let g0 = ml.base_wave_g + w * ml.wave_g_groups;
+        v.extend(g0..g0 + ml.wave_g_groups);
+        v
+    };
+    let mut wave_proofs: Vec<ring::ct_engine::CtRoundProof> = Vec::with_capacity(n_waves);
+    let mut rp_cache: std::collections::BTreeMap<usize, (ring::ct_engine::CtRoundParams, ring::commit::A1Paths)> =
+        std::collections::BTreeMap::new();
+    let tr_state = tr.state();
+    for w in 0..n_waves {
+        let idxs = wave_idxs(w);
+        let n_cw = idxs.len();
+        assert!(n_cw <= ml.c2_max);
+        if !rp_cache.contains_key(&n_cw) {
+            let rp = derive_ct_round_params(q, shape, n_cw, 0, 0, true);
+            let a1pw = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cw, (rp, a1pw));
+        }
+        let (rp_w, a1p_w) = rp_cache.get(&n_cw).unwrap();
+        let path_w = KernelPath::A1(a1p_w);
+        let claims_w: Vec<CtClaim> = std::mem::take(&mut pw_claims[w]);
+        let wrhos: Vec<Vec<Vec<i64>>> = idxs.iter().map(|&i| unpack_rho(&rhos8[i])).collect();
+        let openings: Vec<StdOpening> = idxs
+            .iter()
+            .enumerate()
+            .map(|(j, &i)| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &msgs[i], rho: &wrhos[j] })
+            .collect();
+        let w_bind = if tamper == MmTamper::WaveOrderSwap { (w + 1) % n_waves } else { w };
+        let mut state_p: Vec<u8> = tr_state.to_vec();
+        state_p.extend((w_bind as u64).to_le_bytes());
+        let wt1s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t1s[i].clone()).collect();
+        let wt2s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_w = ct_h0(&crs, &state_p, &wt1s, &wt2s, &[]);
+        let pad_shift = usize::from(ml.pad_layout.has_pads());
+        let (proof_w, _) = prove_ct_round(
+            &path_w, &ctx_ring, rp_w, None, &crs, &h0_w, &claims_w, &[], &[], &[], &openings,
+            &[], &[], ml.plan.waves[w].len() + pad_shift, &mut rng,
+        );
+        // Counted bytes: per-commitment z / w1, per-claim h + w_claim.
+        cost.bytes_ct_z += n_cw * shape.n_r * D * 8;
+        cost.bytes_ct_w1 += n_cw * shape.kappa * D * 4;
+        cost.bytes_ct_other += claims_w.len() * D * 4 * 2;
+        wave_proofs.push(proof_w);
+    }
+    // Closing round (prover side).
+    let closing_proof = if ml.pad_layout.has_pads() {
+        let idxs_z: Vec<usize> = (ml.base_pad..ml.base_pad + ml.pad_layout.n_pad_cms)
+            .chain(ml.base_closing_g..ml.base_closing_g + ml.closing_g_groups)
+            .collect();
+        let n_cz = idxs_z.len();
+        if !rp_cache.contains_key(&n_cz) {
+            let rp = derive_ct_round_params(q, shape, n_cz, 0, 0, true);
+            let a1pz = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cz, (rp, a1pz));
+        }
+        let (rp_z, a1p_z) = rp_cache.get(&n_cz).unwrap();
+        let path_z = KernelPath::A1(a1p_z);
+        let claims_z = closing_round_claims(&zq, &ml.pad_layout);
+        let mut state_z: Vec<u8> = tr_state.to_vec();
+        state_z.extend(b"mm-closing");
+        let zt1s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t1s[i].clone()).collect();
+        let zt2s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_z = ct_h0(&crs, &state_z, &zt1s, &zt2s, &[]);
+        let zrhos: Vec<Vec<Vec<i64>>> = idxs_z.iter().map(|&i| unpack_rho(&rhos8[i])).collect();
+        let openings_z: Vec<StdOpening> = idxs_z
+            .iter()
+            .enumerate()
+            .map(|(j, &i)| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &msgs[i], rho: &zrhos[j] })
+            .collect();
+        let (proof_z, _) = prove_ct_round(
+            &path_z, &ctx_ring, rp_z, None, &crs, &h0_z, &claims_z, &[], &[], &[], &openings_z,
+            &[], &[], ml.pad_layout.n_pad_cms, &mut rng,
+        );
+        cost.bytes_ct_z += n_cz * shape.n_r * D * 8;
+        cost.bytes_ct_w1 += n_cz * shape.kappa * D * 4;
+        cost.bytes_ct_other += claims_z.len() * D * 4 * 2;
+        Some(proof_z)
+    } else {
+        None
+    };
+    cost.prove_s = t_prove.elapsed().as_secs_f64();
+
+    // ---- VERIFIER: statement, transcript, sumcheck, pins, waves. -------
+    let t_verify = Instant::now();
+    // Statement gate: validate + digest; the model digest recomputes
+    // over the actual commitments (a swapped/tampered commitment list
+    // changes it and the statement digest with it).
+    let ctx_v = match statement.validate() {
+        Ok(()) => statement.digest().expect("validated statement digests"),
+        Err(_) => {
+            verdict.statement_ok = false;
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (verdict, cost);
+        }
+    };
+    let commit_digests_v: Vec<Vec<u8>> =
+        (0..ml.n_commits).map(|i| group_digest(&t1s[i], &t2s[i])).collect();
+    let statement_v = mm_build_statement(&ml, &crs.crs_hash, &commit_digests_v, false);
+    if statement_v.digest().expect("rebuilt statement digests") != ctx_v {
+        verdict.statement_ok = false;
+        cost.verify_s = t_verify.elapsed().as_secs_f64();
+        return (verdict, cost);
+    }
+    let h0_link_v = ct_h0(&crs, &ctx_v, &t1s, &t2s, &[]);
+    let h0_v = if weak_stale_order { stale_h0 } else { h0_link_v };
+    let mut tv = LkpTranscript::new("uagb1-mm", &h0_v);
+    let rx_v: Vec<KElem> = (0..ml.lr).map(|_| tv.challenge_k(&kf)).collect();
+    let ry_v: Vec<KElem> = (0..ml.lc).map(|_| tv.challenge_k(&kf)).collect();
+    tv.absorb_k(&kf, "mm-claim", std::slice::from_ref(&v_claim));
+    let sc_v = sumcheck_verify(&kf, ml.lk, 2, &v_claim, &scp, &product, &mut tv);
+    let (kstar_v, _c_end) = match sc_v {
+        Some(x) => x,
+        None => {
+            verdict.sumcheck_ok = false;
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (verdict, cost);
+        }
+    };
+    tv.absorb_k(&kf, "mm-final", &scp.final_evals);
+    // Rebuild the pins from PUBLIC data at the verifier's challenges.
+    let eq_rx_v = build_eq(&rx_v);
+    let eq_ry_v = build_eq(&ry_v);
+    let eq_k_v = build_eq(&kstar_v);
+    let pins_v: Vec<PinnedValue> = {
+        let scalar_terms = |base: usize, n_cms: usize, wf: &dyn Fn(usize) -> Option<KElem>| {
+            let mut terms = Vec::new();
+            for g in 0..n_cms {
+                let lo = g * per;
+                let mut weights: Vec<KElem> = Vec::with_capacity(per);
+                let mut any = false;
+                for c in 0..per {
+                    match wf(lo + c) {
+                        Some(w) => {
+                            if !kf.is_zero(&w) {
+                                any = true;
+                            }
+                            weights.push(w);
+                        }
+                        None => weights.push(kf.zero()),
+                    }
+                }
+                if any {
+                    terms.push(PinTerm::Scalar { commit: base + g, coeff0: 0, weights });
+                }
+            }
+            terms
+        };
+        vec![
+            PinnedValue {
+                terms: scalar_terms(ml.base_c, ml.c_cms, &|f| {
+                    if f < rows * cols {
+                        Some(kf.mul(&eq_rx_v[f / cols], &eq_ry_v[f % cols]))
+                    } else {
+                        None
+                    }
+                }),
+                value: v_claim.clone(),
+            },
+            PinnedValue {
+                terms: scalar_terms(0, ml.a_cms, &|f| {
+                    if f < rows * inner {
+                        Some(kf.mul(&eq_rx_v[f / inner], &eq_k_v[f % inner]))
+                    } else {
+                        None
+                    }
+                }),
+                value: scp.final_evals[0].clone(),
+            },
+            PinnedValue {
+                terms: scalar_terms(ml.base_b, ml.b_cms, &|f| {
+                    if f < inner * cols {
+                        Some(kf.mul(&eq_k_v[f / cols], &eq_ry_v[f % cols]))
+                    } else {
+                        None
+                    }
+                }),
+                value: scp.final_evals[1].clone(),
+            },
+        ]
+    };
+    for p in &pins_v {
+        tv.absorb_k(&kf, "mm-pin", std::slice::from_ref(&p.value));
+    }
+    let psi_v = derive_pin_psi(&tv.state(), UR1_PIN_COPIES, pins_v.len() * K_DEG, q);
+    let claims_v = pin_claims(&kf, &pins_v, ml.n_data, msg_r, &psi_v);
+    drop(pins_v);
+    let v_split = split_claims_verifier_masked(&zq, &ml.plan, &claims_v, &reveals, &ml.pad_layout);
+    let mut vw_claims: Vec<Vec<CtClaim>> = match v_split {
+        Ok(v) => v,
+        Err(_) => {
+            verdict.sum_gate_ok = false;
+            verdict.waves_ok = false;
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (verdict, cost);
+        }
+    };
+    drop(claims_v);
+    if vw_claims.is_empty() {
+        vw_claims = (0..n_waves).map(|_| Vec::new()).collect();
+    }
+    let tv_state = tv.state();
+    for w in 0..n_waves {
+        let idxs = wave_idxs(w);
+        let n_cw = idxs.len();
+        let (rp_w, a1p_w) = rp_cache.get(&n_cw).expect("verifier derives the same round shapes");
+        let path_w = KernelPath::A1(a1p_w);
+        let claims_w: Vec<CtClaim> = std::mem::take(&mut vw_claims[w]);
+        let mut state_v: Vec<u8> = tv_state.to_vec();
+        state_v.extend((w as u64).to_le_bytes());
+        let wt1s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t1s[i].clone()).collect();
+        let wt2s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_wv = ct_h0(&crs, &state_v, &wt1s, &wt2s, &[]);
+        let pad_shift = usize::from(ml.pad_layout.has_pads());
+        let ok_w = verify_ct_round(
+            &path_w, &ctx_ring, rp_w, None, &crs, &h0_wv, &claims_w, &[], &[], &[], &wt1s, &wt2s,
+            &[], &[], &[], ml.plan.waves[w].len() + pad_shift, &wave_proofs[w],
+        );
+        if !ok_w {
+            verdict.waves_ok = false;
+            if verdict.first_bad_wave.is_none() {
+                verdict.first_bad_wave = Some(w);
+            }
+        }
+    }
+    if let Some(proof_z) = &closing_proof {
+        let idxs_z: Vec<usize> = (ml.base_pad..ml.base_pad + ml.pad_layout.n_pad_cms)
+            .chain(ml.base_closing_g..ml.base_closing_g + ml.closing_g_groups)
+            .collect();
+        let n_cz = idxs_z.len();
+        let (rp_z, a1p_z) = rp_cache.get(&n_cz).expect("closing shape derived");
+        let path_z = KernelPath::A1(a1p_z);
+        let claims_zv = closing_round_claims(&zq, &ml.pad_layout);
+        let mut state_zv: Vec<u8> = tv_state.to_vec();
+        state_zv.extend(b"mm-closing");
+        let zt1s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t1s[i].clone()).collect();
+        let zt2s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_zv = ct_h0(&crs, &state_zv, &zt1s, &zt2s, &[]);
+        if !verify_ct_round(
+            &path_z, &ctx_ring, rp_z, None, &crs, &h0_zv, &claims_zv, &[], &[], &[], &zt1s, &zt2s,
+            &[], &[], &[], ml.pad_layout.n_pad_cms, proof_z,
+        ) {
+            verdict.closing_ok = false;
+        }
+    }
+    cost.verify_s = t_verify.elapsed().as_secs_f64();
+    if !quiet {
+        println!(
+            "  shape {}x{}x{} | data cms {} | waves {} | commit {:.2}s prove {:.2}s verify {:.2}s | accept {}",
+            rows, inner, cols, ml.n_data, n_waves, cost.commit_s, cost.prove_s, cost.verify_s,
+            verdict.accept()
+        );
+    }
+    (verdict, cost)
+}
+
+/// [UAGB1-D2] smoke (rides self-test): honest ACCEPT + the sharpest
+/// REJECT at a small multi-wave shape with a non-power-of-two inner
+/// dimension (the zero-extension path is real, not decorative).
+fn self_test_uagb1_matmul() {
+    println!("\n[UAGB1-D2] dense committed matmul statement: multi-wave smoke at 64x96x128");
+    let (v, c) = uagb1_matmul_run(64, 96, 128, MmTamper::None, false, 0xB1_0001, true);
+    assert_true(
+        &format!(
+            "honest ACCEPT at 64x96x128 ({} data cms, {} wave(s), commit {:.2}s prove {:.2}s verify {:.2}s)",
+            c.n_data, c.n_waves, c.commit_s, c.prove_s, c.verify_s
+        ),
+        v.accept(),
+    );
+    let (v, _) = uagb1_matmul_run(64, 96, 128, MmTamper::WrongC, false, 0xB1_0002, true);
+    assert_true(
+        "wrong-C-entry REJECT (sumcheck green, commitment grounding fails)",
+        !v.accept() && v.sumcheck_ok,
+    );
+}
+
+/// [UAGB1-D2] the full adversarial battery at a >= 3-wave shape with the
+/// real 768 inner dimension (`matmul-statement battery`).
+fn uagb1_matmul_battery() {
+    println!("\n[UAGB1-D2] battery at 128x768x256 (multi-wave, real 768 zero-extension)");
+    let (rows, inner, cols) = (128usize, 768usize, 256usize);
+    let (v, c) = uagb1_matmul_run(rows, inner, cols, MmTamper::None, false, 0xB1_1001, true);
+    assert_true(
+        &format!(
+            "honest ACCEPT ({} data cms, {} waves, commit {:.2}s prove {:.2}s verify {:.2}s, counted {} B)",
+            c.n_data, c.n_waves, c.commit_s, c.prove_s, c.verify_s, c.bytes_total()
+        ),
+        v.accept() && c.n_waves >= 3,
+    );
+    let (v, _) = uagb1_matmul_run(rows, inner, cols, MmTamper::WrongC, false, 0xB1_1002, true);
+    assert_true(
+        "wrong-C-entry REJECT: prover claims the true A*B value against a tampered committed C — sumcheck green, the C pin's masked shares fail their gates",
+        !v.accept() && v.sumcheck_ok && !(v.sum_gate_ok && v.waves_ok),
+    );
+    let (v, _) = uagb1_matmul_run(rows, inner, cols, MmTamper::TamperMsg, false, 0xB1_1003, true);
+    assert_true(
+        &format!(
+            "tampered-commitment REJECT: post-commit message tamper on a C group fails its wave's opening equations (first bad wave {:?})",
+            v.first_bad_wave
+        ),
+        !v.accept() && !v.waves_ok,
+    );
+    // The stale-hash-ordering F5 pair (both directions).
+    let (v, _) = uagb1_matmul_run(rows, inner, cols, MmTamper::StaleOrder, false, 0xB1_1004, true);
+    assert_true(
+        "F5 DEFENSE: the stale-order forged C (16 solved entries, NOT A*B) is REJECTED by the shipped verifier (rx/ry from the full h0)",
+        !v.accept(),
+    );
+    let (v, _) = uagb1_matmul_run(rows, inner, cols, MmTamper::StaleOrder, true, 0xB1_1004, true);
+    assert_true(
+        "F5 ATTACK: the same forged C ACCEPTS under the weakened ordering (challenges drawn before C is bound) — commit-before-challenge is load-bearing",
+        v.accept(),
+    );
+    // Wave-boundary tampers.
+    let (v, _) = uagb1_matmul_run(rows, inner, cols, MmTamper::CrossWaveSwap, false, 0xB1_1005, true);
+    assert_true(
+        "wave-boundary REJECT (content): two B commitments swapped ACROSS waves (statement self-consistent) — the position-determined pin weights catch the move",
+        !v.accept() && v.sumcheck_ok && !(v.sum_gate_ok && v.waves_ok),
+    );
+    let (v, _) = uagb1_matmul_run(rows, inner, cols, MmTamper::WaveOrderSwap, false, 0xB1_1006, true);
+    assert_true(
+        &format!(
+            "wave-boundary REJECT (binding): wave rounds bound to permuted wave indices fail the verifier's independently-derived h0_w (first bad wave {:?})",
+            v.first_bad_wave
+        ),
+        !v.accept() && !v.waves_ok,
+    );
+    // Masked-reveal lies (the Z1 share wire).
+    let (v, _) = uagb1_matmul_run(rows, inner, cols, MmTamper::PartialLie, false, 0xB1_1007, true);
+    assert_true(
+        "masked-reveal lie REJECT: +1 on one wave's masked share breaks the sum gate",
+        !v.accept() && !v.sum_gate_ok,
+    );
+    let (v, _) = uagb1_matmul_run(rows, inner, cols, MmTamper::CompensatedLie, false, 0xB1_1008, true);
+    assert_true(
+        &format!(
+            "compensated lie REJECT: +1/-1 across two waves passes the sum gate, fails its wave rounds (first bad wave {:?})",
+            v.first_bad_wave
+        ),
+        !v.accept() && v.sum_gate_ok && !v.waves_ok,
+    );
+    // E-O1-BB negative vector (digest-binding form; the typed v3 field
+    // extension is pass-statement work, recorded in the ledger).
+    let (v, _) = uagb1_matmul_run(rows, inner, cols, MmTamper::WrongClassDecl, false, 0xB1_1009, true);
+    assert_true(
+        "wrong-digit-base declaration REJECT at the statement gate (model-digest class binding; E-O1-BB negative vector)",
+        !v.accept() && !v.statement_ok,
+    );
+}
+
+/// [UAGB1-D2] measurement run (`matmul-statement <rows> <inner> <cols>`)
+/// — honest instance, timing + counted-byte decomposition, RSS sampled
+/// via ps (approximate; drive under /usr/bin/time -l for the peak).
+fn uagb1_matmul_bench(rows: usize, inner: usize, cols: usize) {
+    let rss_mb = || -> f64 {
+        std::process::Command::new("ps")
+            .args(["-o", "rss=", "-p", &std::process::id().to_string()])
+            .output()
+            .ok()
+            .and_then(|o| String::from_utf8(o.stdout).ok())
+            .and_then(|s| s.trim().parse::<f64>().ok())
+            .map(|kb| kb / 1024.0)
+            .unwrap_or(0.0)
+    };
+    println!(
+        "[UAGB1-D2] dense committed matmul statement at {rows}x{inner}x{cols} (one honest instance)"
+    );
+    println!("  [MAC-BOX, non-reference; NOISY-SHARED if sibling lanes run — magnitudes only]");
+    let t0 = Instant::now();
+    let (v, c) = uagb1_matmul_run(rows, inner, cols, MmTamper::None, false, 0xB1_2001, false);
+    let total = t0.elapsed().as_secs_f64();
+    println!("  verdict: accept = {}", v.accept());
+    println!(
+        "  wall-clock: commit {:.2}s | prove {:.2}s | verify {:.2}s | total {:.2}s",
+        c.commit_s, c.prove_s, c.verify_s, total
+    );
+    println!("  rss now ~{:.0} MiB (ps sample; peak via /usr/bin/time -l)", rss_mb());
+    println!(
+        "  layout: {} data cms ({} A + {} B + {} C) | {} waves | {} aux cms (pads + g) | {} commitments total",
+        c.n_data,
+        (rows * inner).div_ceil(1024),
+        (inner * cols).div_ceil(1024),
+        (rows * cols).div_ceil(1024),
+        c.n_waves,
+        c.n_commits - c.n_data,
+        c.n_commits
+    );
+    println!("  counted bytes (counted-NOT-serialized; 64 B/K-el, 4 B/q31 coeff, 8 B/i64 resp, 12 B/reveal):");
+    println!("    statement (serialized, real)   {:>14}", c.bytes_statement);
+    println!("    commitment tags t1+t2          {:>14}", c.bytes_commit_tags);
+    println!("    sumcheck (v + rounds + finals) {:>14}", c.bytes_sumcheck);
+    println!("    masked share reveals           {:>14}", c.bytes_reveals);
+    println!("    ct-round z responses           {:>14}", c.bytes_ct_z);
+    println!("    ct-round w1 images             {:>14}", c.bytes_ct_w1);
+    println!("    ct-round h + w_claim           {:>14}", c.bytes_ct_other);
+    let total_b = c.bytes_total();
+    println!("    TOTAL                          {:>14}", total_b);
+    println!(
+        "  vs Tier N gate 262,144 B/layer (P0): {:.1}x {} — the opening layer is the gap; the designed eval-proof/aggregation layer (BB items 4-6, unbuilt) is exactly what replaces it",
+        total_b as f64 / 262_144.0,
+        if total_b <= 262_144 { "UNDER" } else { "OVER" }
+    );
+}
+
+/// UAGB1-2 freeze rows (Deliverable 2): the statement operating point at
+/// the battery shape, both directions.
+fn freeze_check_uagb1_d2() -> bool {
+    let mut all_ok = true;
+    let mut gate = |label: &str, ok: bool| {
+        println!("  {} {label}", if ok { "ok  " } else { "FAIL" });
+        all_ok &= ok;
+    };
+    let q = Q8;
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    // The battery shape 128x768x256: derived layout constants.
+    let ml = mm_layout(128, 768, 256, shape, q);
+    gate(
+        &format!(
+            "UAGB1-2a battery shape 128x768x256: {} data cms (96 A + 192 B + 32 C), cap {} = c2 {} - 1 pad - {} g, {} waves, {} pad cm, acc bits {}",
+            ml.n_data, ml.data_cap, ml.c2_max, ml.wave_g_groups, ml.plan.waves.len(),
+            ml.pad_layout.n_pad_cms, ml.acc_bits
+        ),
+        ml.n_data == 320
+            && ml.a_cms == 96
+            && ml.b_cms == 192
+            && ml.c_cms == 32
+            && ml.data_cap == ml.c2_max - 1 - ml.wave_g_groups
+            && ml.plan.waves.len() == ml.n_data.div_ceil(ml.data_cap)
+            && ml.pad_layout.n_pad_cms == 1
+            && ml.acc_bits == 25,
+    );
+    // The 125M layer shape: the full-shape layout this deliverable lands.
+    let mf = mm_layout(512, 768, 2048, shape, q);
+    gate(
+        &format!(
+            "UAGB1-2b 125M layer shape 512x768x2048: {} data cms (384 A + 1536 B + 1024 C), {} waves at cap {}, {} commitments total, acc bits {}",
+            mf.n_data, mf.plan.waves.len(), mf.data_cap, mf.n_commits, mf.acc_bits
+        ),
+        mf.n_data == 2944
+            && mf.a_cms == 384
+            && mf.b_cms == 1536
+            && mf.c_cms == 1024
+            && mf.plan.waves.len() == mf.n_data.div_ceil(mf.data_cap)
+            && mf.acc_bits == 25,
+    );
+    // Both directions: one commitment past the cap busts the wave's C2
+    // derivation (the enforcement gate is derive_ct_round_params' own
+    // assert; here its replica).
+    gate(
+        "UAGB1-2c the wave budget is tight both directions: cap + pad + g fits C2; cap+1 does not",
+        ml.data_cap + 1 + ml.wave_g_groups <= ml.c2_max
+            && ml.data_cap + 1 + 1 + ml.wave_g_groups > ml.c2_max,
+    );
+    // The accumulator class bit width at inner 768 matches the D1 class
+    // table's interval (asymmetric v3 arithmetic).
+    gate(
+        "UAGB1-2d acc interval at inner 768 = [-12,484,608, 12,582,912] (bits 25); D1 class acc24-inner768 range identical",
+        mm_acc_bits(768) == 25
+            && ring::digits::CLASS_ACC24_768.min == -12_484_608
+            && ring::digits::CLASS_ACC24_768.max == 12_582_912,
+    );
+    all_ok
+}
+
+// ===========================================================================
+// [UAGB1-D3] STRETCH: the 12-layer 125M FFN-pass statement SKELETON —
+// statement plumbing ONLY (DAG wiring + typed metadata; NO proof path is
+// wired at this stage; every operation below is NOT PROVEN by this
+// subcommand). Shapes are the frugal-lm 125M integration rung
+// (LLM_POC_ROADMAP Section 1: 12 layers, d = 768, f = 2048, T = 512,
+// SwiGLU), quantization from BC's calibration study
+// (M125_CALIBRATION_STUDY.md Section 3 table; weights uniformly 2^-9).
+//
+// HONEST SCOPE LABELS (printed by the subcommand, recorded here):
+// - FFN-ONLY: each layer's X is a FRESH committed input and each
+//   layer's z a declared output. The inter-layer edge is RMSNorm +
+//   residual — NOT integer-specified (TARGET_CONTRACT Section 1), so
+//   it is NOT wired; the 7B surrogate's direct X_out -> X_in chain
+//   would be a fiction for the real model and is not used.
+// - SURROGATE SCALES where the v3 type system cannot carry the
+//   calibrated value (each deviation printed per layer):
+//   (a) gate/activation scales forced to the frozen SiLU table's
+//       frac-4 grid — TRUE for the eGate = -4 layers, SURROGATE for
+//       the eGate = -3 layers (finding D3-F1: the single frozen
+//       frac-4 table cannot host the calibrated per-layer gate
+//       scales; the integration statement needs a per-scale table
+//       family, a statement-typing extension).
+//   (b) eH/eZ > 0 layers clamp to frac 0 with widened storage bits
+//       (finding D3-F2: QuantMeta has no signed scale exponent; a
+//       scale 2^e, e > 0, is not expressible — same gap class as the
+//       missing symmetric-range field).
+// Both findings are exports to the pass-statement typing stage
+// (E-O1-BB territory), raised by REAL calibration data, not
+// hypotheticals.
+
+/// BC's calibrated exponents (M125_CALIBRATION_STUDY Section 3):
+/// (eX, eGate, eA, eUp, eH, eZ) per layer; eW = -9 uniform.
+const M125_EXP: [(i32, i32, i32, i32, i32, i32); 12] = [
+    (-3, -3, -3, -3, 0, 1),
+    (-2, -4, -4, -3, 0, -1),
+    (-2, -3, -3, -2, 2, 1),
+    (-2, -3, -3, -4, -1, -1),
+    (-2, -4, -4, -4, -2, -1),
+    (-2, -3, -3, -3, -1, -3),
+    (-2, -3, -3, -3, 0, -3),
+    (-2, -3, -3, -3, -1, -3),
+    (-2, -3, -3, -3, 0, -2),
+    (-2, -3, -3, -3, 0, -2),
+    (-2, -3, -3, -2, 0, 0),
+    (-2, -3, -3, -2, 0, 1),
+];
+
+fn uagb1_statement_125m() {
+    use manifest::{ClaimManifest, Operation, Orientation, PadSpec, QuantMeta, Statement};
+    let (layers, dm, fh, tk) = (12usize, 768usize, 2048usize, 512usize);
+    println!("[UAGB1-D3] 125M 12-layer FFN-pass statement SKELETON (plumbing only — NOTHING below is proven by this command)");
+    println!("  scope: FFN-only; per-layer fresh X inputs and z outputs; the RMSNorm/residual inter-layer edge is NOT integer-specified and NOT wired");
+    println!("  quantization: M125_CALIBRATION_STUDY Section 3 (weights 2^-9); surrogate deviations printed per layer");
+
+    fn add(
+        mf: &mut ClaimManifest,
+        quant: &mut Vec<QuantMeta>,
+        label: &str,
+        rows: usize,
+        cols: usize,
+        qm: QuantMeta,
+    ) -> u32 {
+        let id = mf.add_commitment(label, rows, cols, Orientation::RowMajor, vec![], vec![]);
+        quant.push(qm);
+        id
+    }
+    let qm = |bits: u32, frac_bits: u32, signed: bool| QuantMeta { bits, frac_bits, signed };
+    let plane = qm(1, 0, false);
+
+    let mut mf = ClaimManifest::new("lattice-uagb1-125m", b"uagb1-statement-125m");
+    let mut quant: Vec<QuantMeta> = Vec::new();
+    let mut outputs: Vec<u32> = Vec::new();
+    let mut surrogate_notes = 0usize;
+    for (l, &(e_x, e_gate, _e_a, e_up, e_h, e_z)) in M125_EXP.iter().enumerate() {
+        let lb = |s: &str| format!("{s}{l}");
+        let fx = (-e_x) as u32; // eX < 0 on every calibrated layer
+        let fup = (-e_up) as u32;
+        // Table-grid forcing (D3-F1): gate + SiLU output at frac 4.
+        let fg = 4u32;
+        if e_gate != -4 {
+            println!("  [SURROGATE] layer {l}: eGate {e_gate} forced to -4 (frozen frac-4 SiLU table; D3-F1)");
+            surrogate_notes += 1;
+        }
+        // frac-0 clamps (D3-F2) with widened storage for e > 0.
+        let fh8 = if e_h < 0 { (-e_h) as u32 } else { 0 };
+        let h8_bits = 8 + e_h.max(0) as u32;
+        if e_h > 0 {
+            println!("  [SURROGATE] layer {l}: eH +{e_h} clamped to frac 0, h8 widened to {h8_bits} bits (D3-F2)");
+            surrogate_notes += 1;
+        }
+        let fz = if e_z < 0 { (-e_z) as u32 } else { 0 };
+        let z_bits = 8 + e_z.max(0) as u32;
+        if e_z > 0 {
+            println!("  [SURROGATE] layer {l}: eZ +{e_z} clamped to frac 0, z widened to {z_bits} bits (D3-F2)");
+            surrogate_notes += 1;
+        }
+        // Entries.
+        let x_in = add(&mut mf, &mut quant, &lb("X"), dm, tk, qm(8, fx, true));
+        let wg = add(&mut mf, &mut quant, &lb("Wg"), fh, dm, qm(8, 9, true));
+        let wu = add(&mut mf, &mut quant, &lb("Wu"), fh, dm, qm(8, 9, true));
+        let wd = add(&mut mf, &mut quant, &lb("Wd"), dm, fh, qm(8, 9, true));
+        // Gate: acc(27b declared-type at inner 768 is 25; declare 25) ->
+        // rescale to the table grid -> SiLU.
+        let f_acc_g = fx + 9;
+        let shift_g = f_acc_g - fg;
+        let g_acc = add(&mut mf, &mut quant, &lb("Gacc"), fh, tk, qm(25, f_acc_g, true));
+        let g8 = add(&mut mf, &mut quant, &lb("g8"), fh, tk, qm(8, fg, true));
+        let rg = add(&mut mf, &mut quant, &lb("Rg"), fh, tk, qm(shift_g, f_acc_g, false));
+        let rg_bits = add(&mut mf, &mut quant, &lb("Rg-bits"), shift_g as usize * fh, tk, plane);
+        let a8 = add(&mut mf, &mut quant, &lb("a8"), fh, tk, qm(8, fg, true));
+        mf.add_operation(Operation::Matmul { a: wg, b: x_in, c: g_acc });
+        mf.add_operation(Operation::Rescale { x: g_acc, y: g8, r: rg, shift: shift_g });
+        mf.add_operation(Operation::Range { value: rg, bits: rg_bits, width: shift_g, signed: false });
+        mf.add_operation(Operation::Binary { bits: rg_bits });
+        mf.add_operation(Operation::Lookup { x: g8, y: a8 });
+        // Up: acc -> rescale to int8 at the TRUE calibrated eUp + proven
+        // narrowing.
+        let f_acc_u = fx + 9;
+        let shift_u = f_acc_u - fup;
+        let u_acc = add(&mut mf, &mut quant, &lb("Uacc"), fh, tk, qm(25, f_acc_u, true));
+        let u8v = add(&mut mf, &mut quant, &lb("u8"), fh, tk, qm(8, fup, true));
+        let ru = add(&mut mf, &mut quant, &lb("Ru"), fh, tk, qm(shift_u, f_acc_u, false));
+        let ru_bits = add(&mut mf, &mut quant, &lb("Ru-bits"), shift_u as usize * fh, tk, plane);
+        let u8_bits = add(&mut mf, &mut quant, &lb("u8-bits"), 8 * fh, tk, plane);
+        mf.add_operation(Operation::Matmul { a: wu, b: x_in, c: u_acc });
+        mf.add_operation(Operation::Rescale { x: u_acc, y: u8v, r: ru, shift: shift_u });
+        mf.add_operation(Operation::Range { value: ru, bits: ru_bits, width: shift_u, signed: false });
+        mf.add_operation(Operation::Binary { bits: ru_bits });
+        mf.add_operation(Operation::Range { value: u8v, bits: u8_bits, width: 8, signed: true });
+        mf.add_operation(Operation::Binary { bits: u8_bits });
+        // gate o up -> rescale -> proven narrowing at the (possibly
+        // clamped) h8 grid.
+        let f_h = fg + fup;
+        let shift_h = f_h - fh8;
+        let hh = add(&mut mf, &mut quant, &lb("H"), fh, tk, qm(16, f_h, true));
+        let h8 = add(&mut mf, &mut quant, &lb("h8"), fh, tk, qm(h8_bits, fh8, true));
+        let rh = add(&mut mf, &mut quant, &lb("Rh"), fh, tk, qm(shift_h, f_h, false));
+        let rh_bits = add(&mut mf, &mut quant, &lb("Rh-bits"), shift_h as usize * fh, tk, plane);
+        let h8_bits_t = add(&mut mf, &mut quant, &lb("h8-bits"), h8_bits as usize * fh, tk, plane);
+        mf.add_operation(Operation::Hadamard { x: a8, y: u8v, z: hh });
+        mf.add_operation(Operation::Rescale { x: hh, y: h8, r: rh, shift: shift_h });
+        mf.add_operation(Operation::Range { value: rh, bits: rh_bits, width: shift_h, signed: false });
+        mf.add_operation(Operation::Binary { bits: rh_bits });
+        mf.add_operation(Operation::Range { value: h8, bits: h8_bits_t, width: h8_bits, signed: true });
+        mf.add_operation(Operation::Binary { bits: h8_bits_t });
+        // Down: acc at inner 2048 (declared-type width) -> rescale to the
+        // (possibly clamped) z grid + proven narrowing; z is the layer's
+        // declared output.
+        let f_acc_d = fh8 + 9;
+        let shift_d = f_acc_d - fz;
+        let d_acc = add(&mut mf, &mut quant, &lb("Dacc"), dm, tk, qm(mm_acc_bits_hb(2048, h8_bits), f_acc_d, true));
+        let zv = add(&mut mf, &mut quant, &lb("z"), dm, tk, qm(z_bits, fz, true));
+        let rd = add(&mut mf, &mut quant, &lb("Rd"), dm, tk, qm(shift_d, f_acc_d, false));
+        let rd_bits = add(&mut mf, &mut quant, &lb("Rd-bits"), shift_d as usize * dm, tk, plane);
+        let z_bits_t = add(&mut mf, &mut quant, &lb("z-bits"), z_bits as usize * dm, tk, plane);
+        mf.add_operation(Operation::Matmul { a: wd, b: h8, c: d_acc });
+        mf.add_operation(Operation::Rescale { x: d_acc, y: zv, r: rd, shift: shift_d });
+        mf.add_operation(Operation::Range { value: rd, bits: rd_bits, width: shift_d, signed: false });
+        mf.add_operation(Operation::Binary { bits: rd_bits });
+        mf.add_operation(Operation::Range { value: zv, bits: z_bits_t, width: z_bits, signed: true });
+        mf.add_operation(Operation::Binary { bits: z_bits_t });
+        outputs.push(zv);
+    }
+    let model_digest: [u8; 32] = uk8_sha(&[
+        b"uagb1-125m-ffn-pass-skeleton-v1",
+        &(layers as u64).to_le_bytes(),
+        &(dm as u64).to_le_bytes(),
+        &(fh as u64).to_le_bytes(),
+        &(tk as u64).to_le_bytes(),
+    ]);
+    let modulus_bits = 63 - Q8.leading_zeros();
+    let mut st = Statement::new(model_digest, Some(manifest::SILU_INT8_TABLE_SPEC), modulus_bits, mf);
+    st.quant = quant;
+    st.pad = st
+        .manifest
+        .commitments
+        .iter()
+        .map(|e| PadSpec::exact(e.rows as usize, e.cols as usize))
+        .collect();
+    st.outputs = outputs;
+    let (n_entries, n_ops) = (st.manifest.commitments.len(), st.manifest.operations.len());
+    match st.validate() {
+        Ok(()) => {
+            let dg = st.digest().expect("validated statement digests");
+            println!(
+                "  ok   SKELETON VALIDATES: {n_entries} entries, {n_ops} operations, {} declared outputs, digest {}",
+                st.outputs.len(),
+                hex_prefix(&dg)
+            );
+        }
+        Err(err) => {
+            println!("  FAIL: 125M skeleton does not validate: {err}");
+            std::process::exit(1);
+        }
+    }
+    println!("  surrogate deviations from the calibrated table: {surrogate_notes} (D3-F1 table grid, D3-F2 positive exponents)");
+    println!("  status per op class: Matmul x36 NOT PROVEN at pass scope (D2 proves ONE matmul statement at 512x768x2048);");
+    println!("    Rescale x36 / Range x84 / Binary x84 NOT PROVEN here (chain-demo proves the gadget class at toy shape);");
+    println!("    Lookup x12 NOT PROVEN here (U-K5c/U-R1 prove the class at layer shape); Hadamard x12 NOT PROVEN here (same);");
+    println!("    inter-layer chaining NOT WIRED (RMSNorm/residual not integer-specified — TARGET_CONTRACT Section 1)");
+}
+
+/// Declared-type accumulator width for an inner dimension with an
+/// hb-bit signed second operand (the down matmul consumes h8, which
+/// may be widened past 8 bits by the D3-F2 clamp).
+fn mm_acc_bits_hb(inner: usize, hb: u32) -> u32 {
+    let a_lo = -(1i128 << 7);
+    let a_hi = (1i128 << 7) - 1;
+    let b_lo = -(1i128 << (hb - 1));
+    let b_hi = (1i128 << (hb - 1)) - 1;
+    let lo = inner as i128 * (a_lo * b_hi).min(a_hi * b_lo);
+    let hi = inner as i128 * (a_lo * b_lo).max(a_hi * b_hi);
+    let mut b = 2u32;
+    while -(1i128 << (b - 1)) > lo || (1i128 << (b - 1)) - 1 < hi {
+        b += 1;
+    }
+    b
 }
