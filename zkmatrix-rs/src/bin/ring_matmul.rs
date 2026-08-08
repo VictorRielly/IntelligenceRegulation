@@ -18374,13 +18374,19 @@ enum MmTamper {
     /// wrong wave index ((w+1) mod n_waves in its transcript-state
     /// extension) — the verifier's independently-derived h0_w differs.
     WaveOrderSwap,
-    /// Wave-boundary tamper 2: the contents of two C commitments in
+    /// Wave-boundary tamper 2: the contents of two B commitments in
     /// DIFFERENT waves are swapped before the statement is built (the
     /// attacker is self-consistent: statement + digests are over the
-    /// swapped list). The committed C tensor read position-wise is no
-    /// longer A*B — content moved across waves must be caught by the
-    /// value-position binding.
+    /// swapped list). The committed B tensor read position-wise no
+    /// longer matches A*B = C — content moved across waves must be
+    /// caught by the value-position binding.
     CrossWaveSwap,
+    /// E-O1-BB negative vector (digest-binding form): the prover's
+    /// statement declares a WRONG digit base for the weight tensor
+    /// (e0 = 2 instead of the F-N2-mandated 1). The verifier recomputes
+    /// the model digest with the canonical class table — statement
+    /// REJECT before any crypto.
+    WrongClassDecl,
 }
 
 struct MmVerdict {
@@ -18481,6 +18487,14 @@ fn mm_layout(rows: usize, inner: usize, cols: usize, shape: CommitShape, q: u64)
     let lr = rows.trailing_zeros() as usize;
     let lc = cols.trailing_zeros() as usize;
     let lk = usize::BITS as usize - (inner - 1).leading_zeros() as usize; // ceil log2
+    // No-tail discipline: every tensor must pack its commitments
+    // EXACTLY (no unread junk-tolerant tail coefficients exist — the
+    // manifest's junk-free rule made a derive-time gate; a shape with
+    // tails needs a transcript-weighted zero-tail pin FIRST).
+    assert!(
+        (rows * inner) % per == 0 && (inner * cols) % per == 0 && (rows * cols) % per == 0,
+        "no-tail discipline: tensor sizes must be multiples of msg_r*D = {per}"
+    );
     let a_cms = (rows * inner).div_ceil(per);
     let b_cms = (inner * cols).div_ceil(per);
     let c_cms = (rows * cols).div_ceil(per);
@@ -18524,6 +18538,7 @@ fn mm_build_statement(
     ml: &MmLayout,
     crs_hash: &[u8],
     commit_digests: &[Vec<u8>],
+    wrong_class_decl: bool,
 ) -> manifest::Statement {
     use manifest::{ClaimManifest, Operation, Orientation, PadSpec, QuantMeta, Statement};
     use ring::digits::{CLASS_A8S, CLASS_W8S, derive_l0};
@@ -18549,8 +18564,10 @@ fn mm_build_statement(
     }
     parts.extend([8u8, ml.acc_bits as u8]);
     // (class name, e0, l0) per tensor: A weight, B activation, C accum.
+    // The E-O1-BB wrong-base vector: a tampered weight-class base.
+    let a_e0 = if wrong_class_decl { 2 } else { CLASS_W8S.e0 };
     for (name, e0, l0) in [
-        (CLASS_W8S.name, CLASS_W8S.e0, CLASS_W8S.l0),
+        (CLASS_W8S.name, a_e0, CLASS_W8S.l0),
         (CLASS_A8S.name, CLASS_A8S.e0, CLASS_A8S.l0),
         ("acc-inner-derived", 2u32, acc_l0),
     ] {
@@ -18661,10 +18678,18 @@ fn uagb1_matmul_run(
         closing_ok: true,
     };
 
-    // ---- Witness data: A, B int8; C = A * B exactly over Z. ------------
+    // ---- Witness data: A, B int8; C = A * B exactly over Z. The value
+    // convention is [-127, 127] (BC export, U-AG-B1: forced by the
+    // contract's own 27-bit@4096 accumulator row; M125_CALIBRATION_STUDY).
+    // The DECLARED v3 type stays int8 signed ([-128, 127]) and the
+    // accumulator width is computed from the declared type (the
+    // validator's own arithmetic) — at inner 768 both readings give 25
+    // bits; the inner-2048 delta (27 declared vs 26 honest) is a
+    // statement-typing note for the pass stage (QuantMeta has no
+    // symmetric-range field yet).
     let mut dr = seed;
-    let a_i8: Vec<i64> = (0..rows * inner).map(|_| rng_below(&mut dr, 256) as i64 - 128).collect();
-    let b_i8: Vec<i64> = (0..inner * cols).map(|_| rng_below(&mut dr, 256) as i64 - 128).collect();
+    let a_i8: Vec<i64> = (0..rows * inner).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
+    let b_i8: Vec<i64> = (0..inner * cols).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
     let mut c_acc: Vec<i64> = vec![0; rows * cols];
     for i in 0..rows {
         for k in 0..inner {
@@ -18723,10 +18748,11 @@ fn uagb1_matmul_run(
         }
     }
     if tamper == MmTamper::CrossWaveSwap {
-        // Swap the first C commitment with the LAST C commitment (they
-        // sit in different waves at every battery shape) — content
-        // moved across waves, statement built self-consistently below.
-        let (i, j) = (ml.base_c, ml.base_c + ml.c_cms - 1);
+        // Swap the FIRST B commitment with the LAST B commitment — at
+        // the battery shape B spans waves 0..2, so the same tensor's
+        // content moves across a wave boundary; the statement and every
+        // digest are rebuilt self-consistently below.
+        let (i, j) = (ml.base_b, ml.base_b + ml.b_cms - 1);
         assert_ne!(ml.plan.slot_of[i].0, ml.plan.slot_of[j].0, "swap must straddle waves");
         msgs.swap(i, j);
     }
@@ -18831,7 +18857,8 @@ fn uagb1_matmul_run(
     // ---- The statement (over the final commitment list) and h0. --------
     let commit_digests: Vec<Vec<u8>> =
         (0..ml.n_commits).map(|i| group_digest(&t1s[i], &t2s[i])).collect();
-    let statement = mm_build_statement(&ml, &crs.crs_hash, &commit_digests);
+    let statement =
+        mm_build_statement(&ml, &crs.crs_hash, &commit_digests, tamper == MmTamper::WrongClassDecl);
     let ctx = statement.digest().expect("prover statement validates");
     cost.bytes_statement = statement.encode().len();
     cost.bytes_commit_tags = ml.n_commits * (shape.kappa + msg_r) * D * 4;
@@ -19082,7 +19109,7 @@ fn uagb1_matmul_run(
     };
     let commit_digests_v: Vec<Vec<u8>> =
         (0..ml.n_commits).map(|i| group_digest(&t1s[i], &t2s[i])).collect();
-    let statement_v = mm_build_statement(&ml, &crs.crs_hash, &commit_digests_v);
+    let statement_v = mm_build_statement(&ml, &crs.crs_hash, &commit_digests_v, false);
     if statement_v.digest().expect("rebuilt statement digests") != ctx_v {
         verdict.statement_ok = false;
         cost.verify_s = t_verify.elapsed().as_secs_f64();
@@ -19300,7 +19327,7 @@ fn uagb1_matmul_battery() {
     // Wave-boundary tampers.
     let (v, _) = uagb1_matmul_run(rows, inner, cols, MmTamper::CrossWaveSwap, false, 0xB1_1005, true);
     assert_true(
-        "wave-boundary REJECT (content): two C commitments swapped ACROSS waves (statement self-consistent) — the position-determined pin weights catch the move",
+        "wave-boundary REJECT (content): two B commitments swapped ACROSS waves (statement self-consistent) — the position-determined pin weights catch the move",
         !v.accept() && v.sumcheck_ok && !(v.sum_gate_ok && v.waves_ok),
     );
     let (v, _) = uagb1_matmul_run(rows, inner, cols, MmTamper::WaveOrderSwap, false, 0xB1_1006, true);
@@ -19324,6 +19351,13 @@ fn uagb1_matmul_battery() {
             v.first_bad_wave
         ),
         !v.accept() && v.sum_gate_ok && !v.waves_ok,
+    );
+    // E-O1-BB negative vector (digest-binding form; the typed v3 field
+    // extension is pass-statement work, recorded in the ledger).
+    let (v, _) = uagb1_matmul_run(rows, inner, cols, MmTamper::WrongClassDecl, false, 0xB1_1009, true);
+    assert_true(
+        "wrong-digit-base declaration REJECT at the statement gate (model-digest class binding; E-O1-BB negative vector)",
+        !v.accept() && !v.statement_ok,
     );
 }
 
@@ -19355,7 +19389,7 @@ fn uagb1_matmul_bench(rows: usize, inner: usize, cols: usize) {
     );
     println!("  rss now ~{:.0} MiB (ps sample; peak via /usr/bin/time -l)", rss_mb());
     println!(
-        "  layout: {} data cms ({} A + {} B + {} C) | {} waves (cap {}) | {} commitments total",
+        "  layout: {} data cms ({} A + {} B + {} C) | {} waves | {} aux cms (pads + g) | {} commitments total",
         c.n_data,
         (rows * inner).div_ceil(1024),
         (inner * cols).div_ceil(1024),

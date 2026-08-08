@@ -114,16 +114,154 @@ gate. 1c canonical decomposition digest
 1d non-wrap gate rejects (e0=2, l0=17). All existing freeze rows
 unmoved (56 ok rows total).
 
-## 2. Deliverable 2 — the dense committed matmul statement
+## 2. Deliverable 2 — the dense committed matmul statement (LANDED at the FULL 512x768x2048 shape, battery green)
 
-(to be filled: statement layout, wave plan at shape, transcript
-order, battery legs + verdicts, measurement table, counted-byte
-decomposition vs the Tier N 262,144 B/layer P0 gate)
+This closes the "largest full matmul claim proof = 128x256x64" gap:
+the engine's largest committed matmul statement is now the 125M layer
+shape 512x768x2048 (3,014,656 committed values), proven under ONE
+statement.
+
+### 2.1 The construction
+
+- Statement: manifest v3 (`mm_build_statement`) — A 512x768 int8
+  (weight class), B 768x2048 int8 (activation class), C 512x2048
+  25-bit accumulator (derived from the declared-type interval, the
+  validator's own arithmetic — never copied from the 7B rows),
+  RowMajor, `Operation::Matmul`, PadSpec exact; the model digest
+  binds shape + quant + the DELIVERABLE-1 EXACT-DIGIT CLASS
+  DECLARATIONS (A w8s e0=1, B a8s e0=2, C acc e0=2 l0-derived) +
+  every data commitment digest. Witness values follow the [-127,127]
+  convention (BC export; the declared v3 type stays int8 — at inner
+  768 both readings give 25 accumulator bits; the inner-2048
+  divergence 27-declared vs 26-honest is a recorded statement-typing
+  item: QuantMeta has no symmetric-range field).
+- Dense D-1 encoding: 1 coefficient per element, row-major,
+  msg_r*D = 1024 coefficients per commitment; NO-TAIL discipline
+  asserted at derive time (every tensor packs exactly; a shape with
+  tails needs a transcript-weighted zero-tail pin first).
+- Multi-wave C2 (RANGE_AGGREGATION Phase 5, the as-built U-R1/U-Z1
+  machinery): first-fit plan at data cap 131 = C2 max 134 - 1 pad -
+  2 g-groups; every commitment (data + pads + g) committed and bound
+  into the statement/h0 BEFORE any challenge (D-4).
+- The claim: one degree-2 sumcheck over K = GF(q^16), rx in K^9 and
+  ry in K^11 drawn post-commit; inner 768 zero-extends to 2^10 in
+  the prover's tables only; terminal MLE evaluations v = C~(rx,ry),
+  a* = A~(rx,k*), b* = B~(k*,ry) land as three PinnedValues -> 9
+  psi-batched ct-claims (psi after pinned values, E4-N1) -> the
+  MASKED share splitter (U-Z1 coset pads, the Z1 shipped path; no
+  cleartext partial functionals) -> per-wave masked ct-rounds +
+  the zero-sum closing round.
+- One-opening discipline: every data commitment is opened in exactly
+  one wave round (plan bijection); pads per pad-wave + closing (the
+  U-Z1 pattern). The per-GROUP batched-opening rule (E-O2') binds
+  the eval-proof layer when it lands.
+
+### 2.2 Battery (`matmul-statement battery`, 128x768x256, 3 waves, all green, 49 s)
+
+| leg | verdict |
+|---|---|
+| honest ACCEPT (320 data cms, 3 waves) | green |
+| wrong-C-entry: prover claims the true A*B value against a tampered committed C | REJECT — sumcheck green, the C pin's masked shares fail their gates (the sharp leg: only the commitment grounding catches it) |
+| tampered commitment (post-commit message tamper on a C group) | REJECT at its wave's opening equations |
+| stale-hash-ordering F5, DEFENSE | the forged C (16 solved entries, NOT A*B, built after stale rx/ry) REJECTED by the shipped verifier |
+| stale-hash-ordering F5, ATTACK | the same forged C ACCEPTS under the weakened ordering (challenges before C is bound) — commit-before-challenge is load-bearing, demonstrated both directions |
+| wave-boundary (content): two B commitments swapped ACROSS waves, statement self-consistent | REJECT — position-determined pin weights catch the move |
+| wave-boundary (binding): wave rounds bound to permuted wave indices | REJECT — the verifier's independently-derived h0_w differs |
+| masked-reveal lie (+1 one wave) | REJECT at the sum gate |
+| compensated lie (+1/-1 two waves) | sum gate passes, REJECT at the wave rounds |
+| wrong-digit-base declaration (weight class e0=2 instead of 1) | REJECT at the statement gate (model-digest class binding; the E-O1-BB negative vector, digest-binding form) |
+
+### 2.3 Measurement [MAC-BOX, non-reference; BA/BC lanes closed at run time, orchestrator activity possible — magnitudes only]
+
+| shape | data cms | waves | commit | prove | verify | peak RSS |
+|---|---:|---:|---:|---:|---:|---:|
+| 64x96x128 (sanity) | 26 | 1 | 0.01 s | 0.72 s | 0.04 s | ~22 MiB (ps) |
+| 512x768x2048 (FULL, run 1) | 2,944 | 23 | 0.31 s | 45.2 s | 4.2 s | 1.13 GiB (/usr/bin/time -l) |
+| 512x768x2048 (FULL, run 2) | 2,944 | 23 | 0.31 s | 45.2 s | 4.2 s | 1.25 GiB |
+
+Run 2: 49.7 s user on 50.6 s real — the run is effectively
+SINGLE-THREADED (1T); two runs agree to within noise. Not p50/p95
+grade (two runs, non-reference box — the machine note governs).
+
+Verify at 4.2 s exceeds the contract's 2 s line — that line binds the
+AGGREGATE artifact's verifier (the eval-proof layer, unbuilt); this
+pre-aggregation verifier re-runs every wave's ct-round. Recorded as
+context, not claimed compliant.
+
+### 2.4 Counted bytes vs the Tier N gate (counted-NOT-serialized; 64 B/K-el, 4 B/q31 coeff, 8 B/i64 response, 12 B/reveal)
+
+Full shape 512x768x2048, one honest instance:
+
+| component | bytes | share |
+|---|---:|---:|
+| statement (serialized, real) | 503 | ~0% |
+| commitment tags t1+t2 | 24,518,656 | 20.9% |
+| sumcheck (v + rounds + finals) | 2,112 | ~0% |
+| masked share reveals (9 x 23 x 12) | 2,484 | ~0% |
+| ct-round z responses | 80,297,984 | 68.4% |
+| ct-round w1 images | 12,353,536 | 10.5% |
+| ct-round h + w_claim | 221,184 | 0.2% |
+| **TOTAL** | **117,396,459** | |
+
+**vs Tier N 262,144 B/layer (P0): 447.8x OVER.** The claim layer
+itself (statement + sumcheck + reveals + h/w_claim) is ~226 KB; the
+OPENING layer (z + w1 + tags) is 99.8% of the artifact. This is the
+round's load-bearing designed-vs-built gap number: the designed
+eval-proof/aggregation layer (BB items 4-6, unbuilt) replaces exactly
+the opening volume; the C-03 accounting predicted this class of
+number and the trench's whole architecture exists to remove it. The
+Tier N gate is NOT met by this statement and is not claimed.
+
+### 2.5 Freeze rows (UAGB1-2a..2d)
+
+Battery-shape layout (320 data cms, cap 131 = 134-1-2, 3 waves, 1
+pad cm, acc 25); full-shape layout (2,944 data cms, 23 waves, 2,993
+commitments, acc 25); the wave budget tight both directions (cap
+fits, cap+1 busts); the accumulator interval at inner 768 pinned
+equal to the D1 class. All derived, none extrapolated
+(aggregation_freeze_rows.py citation: the gamma gate matches row
+H-gate-ed = 28 - log2(2*29.4) = 2^22.12).
 
 ## 3. Walls and findings
 
-(to be filled)
+1. **The C2 recipe holds at the full shape** — the load-bearing
+   engineering answer for the round: 2,944 data commitments across
+   23 first-fit waves at cap 131, one sumcheck + 9 masked pin claims
+   + closing round; no capacity wall, no memory wall (1.13 GiB peak
+   on a 256 GiB box), prove 45 s / verify 4.2 s [MAC-BOX] at the
+   125M layer shape. The multi-wave machinery (U-R1/U-Z1) consumed
+   as-is; no parallel wave layer was built.
+2. **The opening layer is 99.8% of the counted artifact** (Section
+   2.4) — the designed aggregation layer replaces exactly this; no
+   other component is within two orders of magnitude of the gate.
+3. **F-BB1/F-BB2/F-BB3** (Section 1.4): the exact-digit branch is
+   the engine's only sign-binary base; the balanced Gaussian chain
+   rejects wide value classes at q31 that the exact path accepts;
+   full-column recomposition is mod-q native.
+4. **Statement-typing gaps recorded, not resolved silently:** (a)
+   QuantMeta lacks a symmetric-range field ([-127,127] vs declared
+   [-128,127] — diverges at inner 2048: 27 vs 26 accumulator bits);
+   (b) the typed v3 class/base manifest fields + 32-row maps
+   (E-O1-BB full form) belong to the pass-statement stage in one
+   versioned codec change — the class declarations are bound through
+   the model digest here, with the wrong-base negative vector green.
 
-## 4. Exports to BA / BC
+## 4. Exports to BA / BC / orchestrator
 
-(to be filled)
+- To BC (battery lane): the matmul statement rig
+  (`uagb1_matmul_run`) is the hook for AZB legs when items 4-5 land;
+  none of E-1..E-11 are unlocked by items 1-2 (all bind the
+  aggregate/T_blind/eval-proof/IXF layers). The rig's own hash-edge
+  F5 pairs (stale-alpha, stale-order) are lane batteries, not AZB
+  legs, and are not claimed as such.
+- To the orchestrator: E-O1-BB PARTIAL (digest binding + negative
+  vector landed; typed fields deferred to the pass statement with
+  reason); E-O2-BB structural predecessor asserted (one wave round
+  per commitment), builder-refusal semantics land with the
+  eval-proof openings; E-O3-BB N/A at items 1-2 (no descent in the
+  matmul statement; D1's descents per-instance by design). F-Z1
+  schedule: no floor exists yet at items 1-2.
+- Verify-time context for the O-5 plan: the 4.2 s pre-aggregation
+  verify at the full shape is dominated by per-wave ct-round
+  re-verification — the aggregate verifier model (0.14-0.52 s
+  PARAMS 5.3 [MODEL]) replaces it wholesale.

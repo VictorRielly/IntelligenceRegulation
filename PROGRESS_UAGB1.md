@@ -217,6 +217,101 @@ machine-independent and land at full grade.
   ownership; any new Gaussian-masked opening class (per-wave
   ct-rounds are the existing C2-gated house machinery; I-6's
   aggregate-layer prohibition respected).
+- 2026-08-08 D1 LANDED (commit 0764bfd): ring/digits.rs + [UAGB1-D1]
+  rig + battery 27/27 + freeze rows UAGB1-1a..1d; suite 47/47,
+  self-test 238.7 s, freeze-check green (existing rows unmoved).
+  Findings F-BB1/F-BB2/F-BB3 in UAGB1_ENGINE_REPORT.md Section 1.4.
+  Hygiene note: 0764bfd also carries the then-unverified D2
+  scaffolding (same file); D2 verified in the next commit.
+- 2026-08-08 ORCHESTRATOR UPDATE dispositioned (BA/BC closed, main
+  at ac58c23; read-only reads from the main checkout):
+  * [-127,127] convention (BC-a): ADOPTED in the D2 witness
+    generation (rng 255 - 127). The v3 DECLARED type stays int8
+    signed [-128,127] and the accumulator width follows the
+    validator's own declared-type arithmetic — both readings give 25
+    bits at inner 768 (this statement); at inner 2048 they diverge
+    (27 declared vs 26 honest) because QuantMeta has no
+    symmetric-range field — flagged as a statement-typing item for
+    the pass stage, not silently resolved. D1's class table keeps
+    declared-type bounds (classes must COVER the type; [-127,127] is
+    inside; landed digest unmoved).
+  * Honest accumulator widths (BC-c): my mm_acc_bits DERIVES from
+    the declared-type interval (25 at 768 — matches BC; never copies
+    the 7B rows). Freeze row UAGB1-2d pins the inner-768 interval.
+  * Requantization form (BC-d): N/A this statement — no requant
+    edge in the single-matmul statement; choice lands at the
+    chaining stage (if D3 skeleton is reached, its requant edge
+    carries an honest NOT-PROVEN + floor-vs-rounding OPEN label).
+  * Quantization metadata table (BC-b): the 12-row 125M table binds
+    the INTEGRATION statement; this synthetic single-matmul
+    statement declares frac_bits 0 (recorded); the integration
+    statement carries BC's exact fields when built.
+  * E-O1-BB: PARTIAL here — the statement BINDS the D1 exact-digit
+    class/base declarations through the model digest (functional
+    binding), and the battery carries the wrong-base negative
+    vector (WrongClassDecl REJECT at the statement gate). The TYPED
+    v3 manifest fields + 32-row layer-segment/group maps +
+    inventory prints are pass-statement work (one versioned codec
+    change together, not two) — remaining E-O1-BB scope recorded as
+    open for the pass-statement stage.
+  * E-O2-BB: the per-GROUP batched-opening rule binds the
+    eval-proof layer (unbuilt, items 4-6). At this stage the
+    structural predecessor holds: every data commitment is opened
+    in EXACTLY one wave round (plan bijection; pads per pad-wave +
+    closing per the U-Z1 canary pattern). Builder-refusal semantics
+    land with the eval-proof openings.
+  * E-O3-BB: N/A at items 1-2 — the matmul statement has NO descent
+    (its claims are sumcheck + pins); the D1 digit rig's descent
+    pair is per-instance by design (no sharing assumed, priced as
+    its own). D-R1 verification lands with the pass-scope descent
+    (item 3+).
+  * aggregation_freeze_rows.py citation: my gamma gate matches the
+    script's H-gate-ed row (gamma_max(exact-digit) log2 = 28 -
+    log2(2*29.4) = 22.12); UAGB1-1b's label carries the value; row
+    ids cited in the report. 125M rows: my freeze rows DERIVE
+    (UAGB1-2a/2b layout arithmetic), never extrapolate.
+  * AZB E-1..E-11: NONE unlocked by items 1-2 (all are
+    aggregate/T_blind/eval-proof/IXF legs — first unlock at items
+    4-5). My landed batteries carry their own hash-edge F5 pairs
+    (stale-alpha, stale-order) which are NOT the AZB legs and are
+    not claimed as such.
+  * F-Z1 recipe: no floor exists at items 1-2 (no eval proof) — no
+    schedule to post yet; recorded.
+  * Flaky test noted (tests.test_zk_lattice ...roundtrip):
+    will re-run before concluding anything from a suite failure.
+  * No conflict with a committed decision — no SendMessage needed.
+- 2026-08-08 BB VERDICT ROW (items 1+2 of the critical path):
+  * D1 exact-digit plumbing LANDED (0764bfd): config-gated Exact
+    path (committed digit columns + alphabet range-lookup + exact
+    recomposition; Gaussian-free, JL-free) alongside the untouched
+    Balanced Q2 chain; battery 27/27; freeze rows UAGB1-1a..1d;
+    findings F-BB1 (exact-digit is the engine's ONLY sign-binary
+    base — F-N2 concrete), F-BB2 (balanced chain C2-rejects wide
+    classes the exact path accepts), F-BB3 (full-column
+    recomposition is mod-q native).
+  * D2 dense committed matmul statement LANDED AT THE FULL
+    512x768x2048 SHAPE — the "largest full matmul claim proof =
+    128x256x64" gap is CLOSED at the 125M integration-rung shape:
+    3,014,656 committed values (2,944 data commitments, dense D-1),
+    23 first-fit waves at cap 131 (C2 max 134 - pad - 2 g), ONE
+    degree-2 matmul sumcheck over K + 3 MLE pins -> 9 psi claims ->
+    U-Z1 MASKED share splitter + closing round -> per-wave masked
+    ct-rounds; manifest v3 statement (validated, digest = transcript
+    ctx) binding the D1 exact-digit class declarations; [-127,127]
+    witness convention per BC. Battery 10/10 at 128x768x256 incl.
+    the stale-order F5 pair BOTH directions, cross-wave content
+    swap, wave-binding swap, compensated-lie, wrong-class-decl
+    (E-O1-BB negative vector). Measured [MAC-BOX, ~1T]: commit
+    0.31 s / prove 45.2 s / verify 4.2 s / peak RSS 1.13-1.25 GiB
+    (2 runs, stable). Counted bytes 117,396,459 B = 447.8x the
+    Tier N 262,144 B P0 gate — the OPENING layer (z + w1 + tags) is
+    99.8% of it; the claim layer proper is ~226 KB. That ratio is
+    the round's designed-vs-built gap number: the eval-proof/
+    aggregation layer (items 4-6, unbuilt) replaces exactly the
+    opening volume. Tier N NOT met, NOT claimed — no wall hit at
+    this shape (no capacity wall, no memory wall).
+  * Freeze rows UAGB1-2a..2d (battery + full-shape layouts derived
+    both directions); all pre-existing freeze digests unmoved.
 
 ## Agent BC status (wt-uagb1-bc)
 
