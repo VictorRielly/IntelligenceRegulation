@@ -26,6 +26,8 @@ Please reach out if you have further ideas on how we can make this work. victorr
 
 ## Project Plans
 
+- [ZK-of-LLM PoC roadmap](docs/zkmatrix-poc/LLM_POC_ROADMAP.md): the consolidated path from the closed aggregation design trench to a proven 32-layer-class FFN pass on a real model (frugal-lm 125M first rung); frames the U-AG-B1 build round ([ledger](PROGRESS_UAGB1.md)).
+- [Music provenance PoC](docs/provenance/MUSIC_PROVENANCE_POC.md): proving music is man-made — attested capture, ZK edit chain (mixdown as committed matmul; spike `scripts/music_provenance_spike.py` 7/7), and the honest limits of the analog-hole classifier screen.
 - [zkMatrix proof-of-concept plan](docs/zkmatrix-poc/README.md): roadmap for proving a small Transformer-like feed-forward with committed matrix multiplication proofs and explicit nonlinear constraints.
 - [zkMatrix implementation guide](docs/zkmatrix-poc/IMPLEMENTATION.md): how to build, test, and benchmark the Python and Rust zkMatrix proof prototypes, including the "Deviations From The Paper" record.
 - [Review notes and roadmap](ZKMATRIX_REVIEW_NOTES.md): independent code-and-paper review; the P0 decoupling-challenge fix and P1 transcript-binding fix are now implemented across all backends.
