@@ -75,9 +75,20 @@ must be DERIVED by this round (the frozen A1 number is the
       frozen both directions; E-O1 landed + E-O1-BB/E-O2-BB/E-O3-BB
       exported; AFS corpus transcriptions in SR S10 + Q4 S9;
       findings BA-F1..F5 filed (BA-F5 fixed in roadmap same day).
-- [ ] BB: matmul statement at 125M shape -> 12-layer chain -> IXF
+- [~] BB: matmul statement at 125M shape -> 12-layer chain -> IXF
       fold -> masked path -> wire format; battery-grade tamper legs
       at each stage.
+      ITEMS 1-2 DONE + 3-SKELETON 2026-08-08, merged 304df33
+      (orchestrator re-run: freeze-check green w/ UAGB1 rows +
+      pre-existing digests unmoved, D1 27 legs 4.19 s, D2 10 legs
+      49.35 s). Exact-digit path landed (the engine's only e0=1
+      path, F-BB1); FULL 512x768x2048 statement proves/verifies —
+      the 128x256x64 gap CLOSED, multi-wave recipe held as-is (23
+      waves at cap 131). Measured [MAC-BOX ~1T]: prove 45.2 s /
+      verify 4.2 s / RSS 1.25 GiB. Counted artifact 117,396,459 B =
+      447.8x Tier N, opening layer 99.8% — the number items 4-6
+      exist to close; Tier N NOT met, NOT claimed. Items 4-6 remain
+      OPEN (wave 2 of this round).
 - [x] BC: F-O/F-Z obligations dispositioned; AZB battery green incl.
       AZB-10/AZB-11; kel measured (F-O2); gates checked.
       DONE 2026-08-08 at spike scope, merged 8b2ffa8 (orchestrator
@@ -559,3 +570,24 @@ arithmetic.
   aggregation_folding_spike.py (cosmetic, checks unaffected) — FINAL.
   Calibration script re-run (seeded, frugal venv) scheduled at FINAL
   quiesced pass rather than at this merge.
+- 2026-08-08: BB closed last (items 1-2 + honest 3-skeleton),
+  merged 304df33 (orchestrator re-run: freeze-check + both
+  batteries green in main; full suite pass follows before push).
+  WAVE 1 OF THE ROUND IS CLOSED: all three launched lanes landed
+  and merged, every deliverable at its briefed scope or better,
+  zero blockers, zero dishonest claims. The round's load-bearing
+  number: the full-shape statement artifact is 447.8x Tier N with
+  99.8% of it in the OPENING layer — exactly the volume the
+  designed eval-proof/aggregation stack (BB items 4-6) replaces;
+  per the U-AG4 tables the folded W-C pass target for 12 layers is
+  the 0.3-0.5 MiB class [MODEL until built]. WAVE 2 QUEUE (next
+  console go): BB items 4-6 (IXF fold at 12->16 index padding,
+  masked eval-proof path, wire format) + the two integration
+  unblocks from D3 findings (per-scale SiLU table family for
+  eGate=-3 on 10/12 layers; QuantMeta typing for positive
+  exponents + [-127,127]) + AZB engine legs E-1..E-11 as stages
+  land + F-Z1 exact 125M point once a floor schedule exists +
+  INTEGRATION (the 12-layer P2 pass on ckpt-00009536) + the
+  pinned-entropy flake fix + BC-f Darwin RSS print fix
+  (housekeeping). The tranche ledger STAYS OPEN across waves
+  (U-K8/U-K9 precedent).
