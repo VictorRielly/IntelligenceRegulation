@@ -126,7 +126,97 @@ machine-independent and land at full grade.
 
 ## Agent BB status (wt-uagb1-bb)
 
-- (lane launches here)
+- 2026-08-08 PLAN COMMIT (before any code; skeleton-commit-first).
+  Scope this context: items (1)+(2) only; (3) stretch iff 1+2 fully
+  green. Baseline on this box at plan time: `cargo build --release`
+  GREEN, `ring_matmul freeze-check` GREEN (every LKP-* row), python
+  suite launched (result recorded at first code commit).
+- READ-PHASE FINDINGS binding the plan:
+  * The multi-wave C2 machinery (RANGE_AGGREGATION Phase 5) EXISTS
+    in-engine (U-R1/U-Z1: plan_waves, split_claims_prover/-verifier
+    _masked, WavePadLayout, closing_round_claims, the `ffn-chain
+    layer` rig, LKP-9/LKP-10 rows). Deliverable 2 REUSES it — no
+    parallel wave layer is built.
+  * The engine's EXACT range mechanism at q31 is the range-table
+    lookup (U-R2 — exact, ARP-free, no wrap side condition). The M2
+    binary ct-claims at q31 carry the U3 side-condition caveat (ARP
+    budget closes at q46-class only). The exact-digit path therefore
+    grounds digit alphabets at q31 by range-table lookup instances +
+    exact recomposition RingClaims (constant public coefficients) —
+    deterministic, Gaussian-free, JL-free; consistent with the
+    trench's exact-digit reading (PARAMS 3.4/3.5 committed digit
+    columns + deterministic relations) and with I-6.
+  * digit_decompose(e=1) cannot represent positive values (balanced
+    base-2 digits land in {-1,0}); the exact-digit path adds the
+    canonical sign-binary decomposition for e0 = 1 (the F-N2
+    weight-group base): d_j = sign(x)*bit_j(|x|) in {-1,0,1}.
+- D1 PLAN (exact-digit plumbing, F-N2): new src/ring/digits.rs —
+  DigitMode { Balanced, Exact } (Balanced = existing Q2/DigitOpening
+  path, UNTOUCHED); ExactDigitConfig (e0, l0, width, signedness) +
+  the trench class table (weight int8 e0=1 l0=8; activation offset
+  e0=2 l0=4; accumulator 24-bit e0=2 l0=12) + derive-time gates
+  (gamma_max exact-digit = (q/8)/58.8 ~ 2^22.12 form; fold-norm
+  formula OP_CONC*2^(e0-1)*sqrt(n*l0*D); recomposition non-wrap
+  2^(e0*l0-1) < q/2); exact decomposition/recomposition (e0>=2
+  balanced via shared digit_decompose, e0=1 sign-binary), exact
+  round-trip asserted; digit-column dense packing + shifted-alphabet
+  columns ([0,3) at e0=1, [0,2^e0) at e0>=2); base-2^e0
+  recomposition RingClaims. Rig: commit value column + digit
+  columns, range-table lookup instance over the shifted digits (m,
+  blinders, masks, one masked descent pair, pins, root cross-check),
+  recomposition claims, ct-round. Battery: differential balanced-vs-
+  exact on identical inputs across the class table (round-trip
+  bit-identical; balanced leg prove/verify green, response norms in
+  bound_sq; exact leg commitments + claims green, digit inf-norms at
+  alphabet bounds, gamma arithmetic checked); tamper legs
+  out-of-alphabet digit REJECT, recomposition-defect REJECT,
+  tampered-commitment REJECT, hash-ordering F5 pair. Freeze row(s)
+  UAGB1-1 both directions (class table, gates, canonical
+  decomposition digest); existing digests MUST NOT move.
+- D2 PLAN (dense committed matmul statement, 512x768x2048): new
+  ring_matmul section + `matmul-statement <rows> <inner> <cols>
+  [battery]`. manifest::Statement (Operation::Matmul, QuantMeta
+  int8, commitment digests) validated + digest bound into the
+  transcript (D-4). Dense D-1 encoding 1 coeff/el, msg_r-packed; A
+  512x768 int8 weight-class, B 768x2048 int8 activation-class, C
+  512x2048 accumulator-class (|C| <= 768*127^2 < 2^23.6, exact at
+  q31); inner 768 zero-extended to 2^10 in prover tables ONLY
+  (commitments carry real data; eval functionals touch only
+  committed indices). Multi-wave commit via plan_waves at the
+  derived cap (c2_max - pin g-groups - pad commitment), every
+  commitment bound before any challenge. Claim: Thaler degree-2
+  matmul sumcheck over K (rx in K^9, ry in K^11 post-commit; 10
+  rounds; endpoint a*, b*; final check v_end = a* * b*); the three
+  MLE-eval claims land as PinnedValues -> pin_claims (9 psi copies,
+  psi after pins — E4-N1) -> split_claims_*_masked + WavePadLayout +
+  closing round (Z1: masked splitter is the shipped path) -> per-
+  wave masked ct-rounds. The statement CARRIES the D1 exact-digit
+  class declaration for its three tensor classes in the bound
+  context (the config the aggregate layer consumes); honest label:
+  the eval-proof/aggregate layer (items 4-6) is NOT in this
+  statement — the wire is ct-round proofs + sumcheck + pins.
+  Battery at a >= 3-wave shape with real 768 padding (128x768x256):
+  honest ACCEPT; wrong-C-entry REJECT; tampered-commitment REJECT;
+  stale-hash-ordering F5 pair; wave-boundary tamper legs
+  (cross-wave content swap; wave-order/binding swap). Measurement
+  [MAC-BOX, non-reference; + NOISY-SHARED while siblings run]:
+  commit/prove/verify wall-clock + peak RSS at 512x768x2048 + one
+  sanity shape; COUNTED bytes (64 B/K-el, counted-not-serialized)
+  decomposed (ct-round openings | sumcheck | pins/reveals |
+  commitment tags | pads/closing) vs the Tier N 262,144 B/layer P0
+  gate — expected far OVER on the openings line (the designed
+  eval-proof layer is exactly what replaces it; the number is the
+  round's load-bearing designed-vs-built gap, reported, not hidden).
+  Freeze row UAGB1-2 (battery-shape operating point) both
+  directions. HONEST-FALLBACK: largest green shape + precise wall
+  row if the full shape does not land.
+- D3 (stretch, only if 1+2 fully green): 12-layer chaining skeleton,
+  DAG wiring + statement plumbing only, honest NOT-PROVEN labels.
+- WILL NOT DO: IXF fold, masked eval-proof path, wire format (items
+  4-6); GPU; attention/softmax; q46 side; edits outside my file
+  ownership; any new Gaussian-masked opening class (per-wave
+  ct-rounds are the existing C2-gated house machinery; I-6's
+  aggregate-layer prohibition respected).
 
 ## Agent BC status (wt-uagb1-bc)
 
