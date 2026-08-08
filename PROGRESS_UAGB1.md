@@ -149,3 +149,9 @@ machine-independent and land at full grade.
   not one context's bite. BC additionally owns the frugal-lm 125M
   int8 calibration study (roadmap risk 5 de-risk) as its unblocked
   integration-prep item.
+- 2026-08-08: Mac-box BASELINE GREEN at bfd2753 — cargo build
+  --release clean (30.4 s warm, warnings only), Python suite 47/47
+  OK in 287.3 s including the Rust self-test battery (235.8 s) and
+  freeze-check [MAC-BOX]. Stale wt-uag4-* worktrees from the
+  superseded local line removed (clean, content preserved in the
+  merged remote round). Lanes BA/BB/BC launched in their worktrees.
