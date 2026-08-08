@@ -240,3 +240,13 @@ arithmetic.
   freeze-check [MAC-BOX]. Stale wt-uag4-* worktrees from the
   superseded local line removed (clean, content preserved in the
   merged remote round). Lanes BA/BB/BC launched in their worktrees.
+- 2026-08-08: BA closed first (suite 50/50 in-lane), merged 883b1f9
+  (orchestrator re-run: freeze script exit 0 + 3/3 test module in
+  the main checkout; full-suite pass follows before push). BA-F5
+  (roadmap R-EB2/R-EB3 mislabel) fixed in LLM_POC_ROADMAP.md same
+  day. NEW KNOWN FLAKE for reconcile: tests.test_zk_lattice
+  CommitmentTests.test_opening_proof_roundtrip failed once in BA's
+  first full-suite run, passes isolated 3/3 and on re-run —
+  probabilistic, same class as the 2026-07 Pi1 tamper flake that got
+  pinned entropy; queue a pinned-entropy fix (Agent-C-class lane or
+  FINAL housekeeping), do NOT weaken the test.

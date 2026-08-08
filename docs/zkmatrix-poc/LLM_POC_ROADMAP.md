@@ -88,11 +88,18 @@ Queue consolidated at the U-AG4 FINAL (PROGRESS_UAG4.md item 4),
 grouped here into workable lanes; ledger: PROGRESS_UAGB1.md.
 
 **BA — freeze-row + discipline lane (paper-to-code, low risk):**
-R-EB1 (T_cap = 33 sampled-cap rule), R-EB2 (K-draw restructure),
-R-EB3/R-EB4 (corrected floor bases e <= 7, kappa 11) as engine freeze
-rows; R-FC2 per-group digit-headroom rows (the < 1-bit knife edges);
-E-O1..E-O3 encoding obligations; Q4/SR transcriptions of the folding
-lemmas (AFS-L0..L8 into the house lemma docs).
+R-EB1 (T_cap = 33 sampled-cap rule), R-EB2 (the NS22 prohibition at
+recursed levels + full r(r+1) garbage count), R-EB3 (t >= 7 + the
+K-draw restructure), R-EB4 (corrected floor bases e <= 7, kappa 11)
+as engine freeze rows [row attribution corrected 2026-08-08, finding
+BA-F5]; R-FC2 per-group digit-headroom rows (the < 1-bit knife
+edges); E-O1..E-O3 encoding obligations; Q4/SR transcriptions of the
+folding lemmas (AFS-L0..L8 into the house lemma docs).
+[STATUS 2026-08-08: BA LANDED — 85 rows frozen both directions in
+scripts/aggregation_freeze_rows.py under tests/test_aggregation_freeze.py;
+E-O1 params landed, E-O1-BB/E-O2-BB/E-O3-BB exported to the engine
+lane; transcriptions in SOUNDNESS_REFERENCE Section 10 + Q4_LEMMAS
+Section 9.]
 
 **BB — engine lane (the critical path):**
 1. Exact-digit plumbing (F-N2 — load-bearing: the weight-group
