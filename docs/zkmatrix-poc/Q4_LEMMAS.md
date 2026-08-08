@@ -16,7 +16,12 @@ layer's). Corollary Q4.2a' and Lemma Q4.10 (with its extraction note
 Q4.10-X), added by tranche U-Z1 (PA lane, 2026-07-15), transcribe the
 wave-share masking claims of WAVE_SHARE_MASKING_DESIGN.md (Sections
 3.4, 3.1, and 4 item 3); Q4.2a' lives in the lattice layer, Q4.10
-over base-field Z_q scalars. Summary table in Section 8.
+over base-field Z_q scalars. Summary table in Section 8. The
+aggregation folding lemmas AFS-L1..L5/L7/L8, added by tranche U-AG-B1
+(BA lane, 2026-08-08), transcribe AGGREGATION_FOLDING_SOUNDNESS.md
+into Section 9 with their ids preserved as cross-references (AFS-L0
+and AFS-L6 live in SOUNDNESS_REFERENCE.md Section 10); they live over
+the aggregate layer's ring and are graded in Section 9.1.
 
 Notation: R_q = Z_q[X]/(X^D + 1), D = 128; quinary challenge set C
 (coefficients in {-2..2}, E[c_i^2] = 2); c-bar = c - c' a challenge
@@ -1463,3 +1468,165 @@ transcription:
   recorded inside Q4.2a' (marginal -> pointwise center-independence);
   the design docs were not silently patched.
 - Everything else (Q4.1/Q4.2/Q4.5) is unchanged from its prior grade.
+
+---
+
+## 9. U-AG-B1 addendum — the aggregation folding lemmas enter the corpus (2026-08-08, Agent BA)
+
+The folding-soundness results of AGGREGATION_FOLDING_SOUNDNESS.md
+(U-AG4 Agent FC lane) enter the house lemma corpus at the U-AG-B1
+open. **Ids are preserved as cross-references (AFS-L*), not
+renumbered into Q4.x** — the folding document remains the authority
+for full statements, extraction mechanisms, and the F-C1..F-C6
+condition set; these entries are the corpus-resident transcriptions
+at the Q4.7-9 discipline (condensed statement, what it covers, grade,
+certificate status). The ring/challenge-engine-class members (AFS-L0,
+AFS-L6) live in SOUNDNESS_REFERENCE.md Section 10; the R-FC2 freeze
+rows they reference are enforced by
+`scripts/aggregation_freeze_rows.py` (suite:
+`tests/test_aggregation_freeze.py`). Setting for all entries: the
+aggregate layer's ring (D = 128, q31, 8 slots GF(q^16)), quinary fold
+challenges under T_cap = 33 (R-EB1), K = GF(q^16) sumcheck draws,
+exact-digit configuration, kappa = 11 — the R-EB-corrected family.
+No engine code exists yet for these objects; every "certificate"
+entry is the build round's obligation, named.
+
+**AFS-L1 (fold extraction at our ring; [LF] Thm 3.3 + Lemma 3.7
+transcribed).** Covers: the LatticeFold-class fold round (rejected
+for the claim layer, GOVERNING for the eval-proof-internal folds and
+any future streaming variant). One fold round over n_inst instances
+— batching draws from C_K (|C_K| = 2^496), ONE combined
+evaluation+range sumcheck, terminal openings, quinary fold challenges
+— has an expected-poly extractor returning valid witnesses for ALL
+n_inst inputs at ||f_i||_inf < b, slack EXACTLY 1, with knowledge
+error n_inst/|C_s| + eps_bind + ((2b+1)·log m + 2·n_inst)/|C_K| —
+house values 2^-291-class + eps_bind + 2^-485-class per round. The
+extractor is coordinate-wise CWSS forking (the [PSS] App. G shape
+SC-L5 condition 5 already covers), quotient interpolation under
+C0'/LS18 invertibility, relaxed binding at the AFS-L6 l2 bound, and
+norm re-grounding by the round's OWN range arm — the mechanism that
+makes extracted norms depth-independent. Status: **CITED skeleton
+(read in full, Wayback route) + PROVEN house substitutions;
+conditional on F-C2 (capped fold challenges) and F-C3' (the l2
+binding bound).** Honest gap list carried verbatim: G1 norm-shape
+(closed by AFS-L6), G2 FS (closed via SC-L5, batteries owed), G3
+encoding-seam plumbing, G4 slot-diagonal instance points.
+
+**AFS-L2 (the range arm is exact-digit-class grounding).** Covers:
+the fold layer's norm story; the SC-L3 species claim. The per-round
+range arm (the product Prod_{j=1-b}^{b-1}(mle[f](x) − j) riding the
+round's sumcheck) pins every NTT slot of every extracted entry to a
+residue in (−b, b) — an INTEGER statement, slack exactly 1, no
+statistical norm window (contrast C-win, which only the JL branch
+needs); only the round's E1/E2/E3 SZ mass over C_K is paid. Per slot
+the slot field has no zero divisors; slot-completeness (I-3 extended
+to the fold layer) pins every slot; no integer lift is ever taken.
+The house CR-L6 b(b−1) = 0 kernel is the b = 1 case; [LF]'s
+degree-(2b−1) product is the digit-base generalization — evidence
+that digit-level (not bit-level) range columns suffice when the
+product rides a sumcheck, WEAKENING the SC 2.4(c) bit-plumbing
+concern for the fold layer specifically. Status: **PROVEN mechanism
+(house); CITED protocol.**
+
+**AFS-L3 (decomposition is error-free renormalization).** Covers:
+[LF] Pi_dec; DA's adaptive-base re-decomposition in the fold layer.
+Splitting a B-bounded accumulator into k base-b digit vectors
+(b^k = B) has EXACT knowledge soundness — the extractor recomposes
+through the public gadget identity, norm bound Sum b^i(b−1) < B, no
+statistical term, no window beyond B < q/2. The honest-side half of
+the two-halves discipline (re-decompose + re-ground) that makes both
+the fold and the eval chain per-level. Status: **CITED + PROVEN
+arithmetic.**
+
+**AFS-L4 (depth-independent norm law).** Covers: the fold schedule's
+norm accounting; FA's Section 4 rejection arithmetic (R-FC1's
+corrected grounds). One fold round: ||f_o||_inf <=
+n_inst·T·(b−1); re-decomposition (AFS-L3) resets the bound before
+the next round, so N chained (fold, decompose) rounds carry
+max-norm <= n_inst·T·(b−1) at EVERY round boundary — no
+N-dependence; parameter condition n_inst·T·(b−1) < B. Spike-verified
+over 20 chained rounds (folding_soundness_spike check 4). The
+certified-bound law WITHOUT the apparatus is additive-linear
+(+10.0 bits at 32 folds, aggregation_folding_spike checks 19-21) —
+which is why the sequential shape pays the decompose-refold apparatus
+and IXF pays sqrt(32) = +2.5 bits once (the R-FC2 freeze law row).
+Status: **PROVEN arithmetic; spike-verified numerically.**
+
+**AFS-L5 ([LF+] machinery at our ring — including the two-parallel
+sumcheck REQUIREMENT).** Covers: any adoption of monomial-embedding
+range proofs (Pi_mon/Pi_rgchk/Pi_cm). (1) The monomial window is
+(−64, 64) at D = 128, and R-EB4's floor cap e <= 7 puts every house
+digit inside it at the cheapest k = 1 setting. (2) All |C|-class
+error terms are 2^-480-class, |S-bar|-class terms 2^-290-class at
+house sizes. (3) **At our ring the two-parallel-sumcheck form of
+Pi_cm is REQUIRED under FS, not an optimization artifact**: the
+Claim-2 union is over mu·|S-bar| calls, and at our sets
+(|S-bar| = 2^297.2 != |C| = 2^496) the single-sumcheck cancellation
+that saves [LF+]'s own parametrization does NOT occur — a single
+sumcheck lands ~2^-116 post-FS under (Q-conv) and FAILS the 128-bit
+line; the two-parallel form lands ~2^-607. The spike caught the
+draft's saving running backwards (EB precedent honored in the source
+doc). (4) Binding/completeness conditions (their Eq. (28)) clear the
+R-EB4-class validity cap at k <= 3, loose at the k = 1 operating
+point. Status: **CITED + PROVEN arithmetic under (Q-conv); the
+union's FS-composition posture MODEL, conservative direction.**
+
+**AFS-L7 (the extended per-level composition — SC-L4 with fold
+segments prepended).** Covers: the composed chain [32 layers' claims
+-> N_fold fold rounds -> one accumulator -> Greyhound + LaBRADOR
+decide]; the O-8 soundness verdict. The composed chain is knowledge
+sound with (1) norm slack ONE constant per segment — slack 1 at
+every fold round (AFS-L2), sigma in {1, 2.07} once in the decide —
+never a product over rounds or levels; (2) per-round/per-level MSIS
+bounds each carrying one grounding constant (fold: AFS-L6; decide:
+C-msis at kappa 11); (3) knowledge error the SUM of segment terms,
+linear in Q under FS ([PSS] Eq. (18) posture). Conditions F-C1..F-C6
+(range arm everywhere, capped challenges, l2 binding, per-round
+re-decomposition, FS ordering, the decide's own four conditions).
+Compounding re-enters EXACTLY where a round lacks its own grounding
+(F-C1 broken) or l_inf bounds are costed naively (F-C3' ignored) —
+the SC 2.2 fence list extended by one row each. Budget headline:
+2^-219.5 post-FS at the RLC shape / 2^-220-class for adopted IXF
+[MODEL], margin 91.5 bits, folding cost ~0.5 bits (RLC) / ~0 bits
+(IXF). Status: **PROVEN as a composition of cited skeletons + house
+constants, at SC-L4's own grading — independent-review target at the
+same priority class; the at-our-ring transfer is the two source
+documents.**
+
+**AFS-L8 (SC-L6 at two commitment groups).** Covers: the W-C
+two-proof layout's batching seam (F-IF1.4: one batched eval proof
+per group, shared mu, per-group nu_g); the R-FC3 discharge (adopted
+by the U-AG4 FINAL reconciliation, FOLDING_DESIGN Section 8 ruling
+3). Hypotheses: (i) each group's chain knowledge-sound at its shape
+(SC-L4 per group); (ii) mu's FS state binds ALL claimed terminals of
+BOTH groups and the group map; (iii) each nu_g binds its group's
+mu-batched terminals; (iv) no claim crosses groups. Then the SC-L6
+extractor run once per group yields openings f*_act, f*_W with every
+individual claim of every layer true of the respective opening, at
+additive error B_act·2^-297 + B_W·2^-297. A product composition —
+recorded because "SC-L6 verbatim" was NOT verbatim at two groups,
+and hypothesis (ii) is the fence against the cross-group CRB-N4
+attack (a terminal chosen after mu in either group). Status:
+**PROVEN (on F-IF1.6's orderings).**
+
+### 9.1 Status summary (addendum rows)
+
+| lemma | subject | status |
+|---|---|---|
+| AFS-L0 | fold-layer challenge sets; the pigeonhole entropy cap (496 bits; 31 at a fully-split ring) | PROVEN — SR Section 10.1 |
+| AFS-L1 | fold-round extraction at our ring, slack exactly 1 | CITED skeleton + PROVEN substitutions; conditional on F-C2/F-C3' |
+| AFS-L2 | range arm = exact-digit-class grounding, no window | PROVEN mechanism; CITED protocol |
+| AFS-L3 | decomposition renormalization, error-free | CITED + PROVEN arithmetic |
+| AFS-L4 | depth-independent norm law (and the +10-bit no-apparatus law) | PROVEN arithmetic; spike-verified |
+| AFS-L5 | [LF+] machinery; two-parallel sumcheck REQUIRED under FS at our ring | CITED + PROVEN arithmetic under (Q-conv); FS posture MODEL |
+| AFS-L6 | l2 fold binding bound (the one house-owed step; 48/48 vs 35/48) | PROVEN — SR Section 10.2 |
+| AFS-L7 | extended per-level composition (fold + decide), F-C1..F-C6 | PROVEN (composition of cited skeletons); review target, SC-L4 class |
+| AFS-L8 | SC-L6 at two commitment groups (W-C seam) | PROVEN (product composition) |
+
+Certificates owed (build round, named in the source docs): the
+FSB-1..4 + AZB-10/AZB-11 battery legs (fold-layer hash edges, IXF
+segment/group map, weight-independence canary), the derive-time
+T_cap/kappa/R-EB4/C-win asserts in the engine (LKP pattern), and the
+D-R1 pass-scope verification (E-O3-BB, AGGREGATION_ENCODING_DESIGN
+Section 8.3). These promote grades leg by leg exactly as Q4.7-Q4.9
+did under U-K5c/d.
