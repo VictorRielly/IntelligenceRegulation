@@ -68,13 +68,28 @@ must be DERIVED by this round (the frozen A1 number is the
 
 ## Deliverables
 
-- [ ] BA: freeze rows + encoding obligations + transcriptions landed,
+- [x] BA: freeze rows + encoding obligations + transcriptions landed,
       suite + freeze-check green.
+      DONE 2026-08-08, merged 883b1f9 (orchestrator re-run: freeze
+      script exit 0 + 3/3; main suite 50/50 after merge). 85 rows
+      frozen both directions; E-O1 landed + E-O1-BB/E-O2-BB/E-O3-BB
+      exported; AFS corpus transcriptions in SR S10 + Q4 S9;
+      findings BA-F1..F5 filed (BA-F5 fixed in roadmap same day).
 - [ ] BB: matmul statement at 125M shape -> 12-layer chain -> IXF
       fold -> masked path -> wire format; battery-grade tamper legs
       at each stage.
-- [ ] BC: F-O/F-Z obligations dispositioned; AZB battery green incl.
+- [x] BC: F-O/F-Z obligations dispositioned; AZB battery green incl.
       AZB-10/AZB-11; kel measured (F-O2); gates checked.
+      DONE 2026-08-08 at spike scope, merged 8b2ffa8 (orchestrator
+      re-run 20/20): every AZB id executable at spike level + 11
+      [ENGINE PENDING - BB] specs; F-Z1 corner survives (~0.7 b),
+      125M point awaits BB's schedule; F-O2 re-scoped by finding —
+      kel dw~25 at 125M is one step past the recorded fit point, so
+      the measurement is 7B-FREEZE-blocking, not PoC-blocking (the
+      A1 condition stands, discharged at the standalone rig or BB
+      stages 2-5); byte gates ride on BB's statement. PLUS the
+      integration-prep win: 125M calibration VERDICT = CALIBRATES
+      as-is (see merge message + M125_CALIBRATION_STUDY.md).
 - [ ] INTEGRATION: frugal-lm 125M checkpoint imported (int8
       calibration honest — an uncalibratable model fails its range
       facts by design), 12-layer P2 pass proven end to end, measured
@@ -323,3 +338,19 @@ arithmetic.
   probabilistic, same class as the 2026-07 Pi1 tamper flake that got
   pinned entropy; queue a pinned-entropy fix (Agent-C-class lane or
   FINAL housekeeping), do NOT weaken the test.
+- 2026-08-08: BC closed second (suite 48 in-lane), merged 8b2ffa8
+  (orchestrator re-run: azb battery 20/20 + test module in main).
+  Load-bearing reads: (1) roadmap risk 5 RETIRED in its worst form —
+  the completed 125m-baseline checkpoint calibrates with zero
+  range-fact violations and the weights-only side is free, so the
+  P2 PoC statement targets it as-is; the +2.29-nat activation
+  quality delta is a model-side QAT option, not a proof-system
+  blocker; (2) F-O2 demoted from PoC-blocking to 7B-freeze-blocking;
+  (3) BC exports to BB queued via orchestrator message ([-127,127]
+  forced, 25/26-bit honest accumulators at 125M, pre-add-rounding
+  requant form ~2.7 nats free w/ boundary caveat + declared-margin
+  requirement, metadata table in M125_CALIBRATION_STUDY.md).
+  Housekeeping queue: BC-f Darwin ru_maxrss print misread in
+  aggregation_folding_spike.py (cosmetic, checks unaffected) — FINAL.
+  Calibration script re-run (seeded, frugal venv) scheduled at FINAL
+  quiesced pass rather than at this merge.

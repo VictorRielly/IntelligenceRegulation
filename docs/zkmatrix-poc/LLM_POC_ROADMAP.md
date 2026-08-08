@@ -177,6 +177,12 @@ In contract order, none of it PoC-blocking:
 5. Quantization reality of the 125M checkpoint: if calibration fails
    the range facts, the PoC needs a quantization-aware pass first
    (frugal-lm side work, not proof-system work).
+   [STATUS 2026-08-08, BC calibration study: RETIRED in its worst
+   form — the completed 125m-baseline checkpoint CALIBRATES as-is
+   (0 range-fact violations held-out; honest accumulators 25/26-bit
+   at 125M dims; weights-only int8 free, P2 side safe). Residual:
+   a +2.29-nat activation-outlier quality delta — a model-side QAT
+   option, not a proof-system blocker. M125_CALIBRATION_STUDY.md.]
 
 ## 6. The provenance tie-in (why the two PoCs converge)
 
