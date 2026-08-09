@@ -6404,18 +6404,21 @@ fn main() {
         Some("agg-matmul") => {
             // [UAGB1-BD] the aggregation stack: `agg-matmul battery`
             // runs the tamper/F5 battery; `agg-matmul <r> <i> <c>` the
-            // measurement instance (125M shape: 512 768 2048).
-            if args.get(1).map(String::as_str) == Some("battery") || args.len() == 1 {
+            // bare measurement instance (125M shape: 512 768 2048);
+            // `agg-matmul tierz <r> <i> <c>` the masked-floor mode.
+            let sub = args.get(1).map(String::as_str);
+            if sub == Some("battery") || args.len() == 1 {
                 let t = Instant::now();
                 uagb1_agg_battery();
                 println!("\n[UAGB1-BD] battery passed in {:.2}s", t.elapsed().as_secs_f64());
             } else {
-                let dims: Vec<usize> = args[1..4.min(args.len())]
+                let (tier_z, base) = if sub == Some("tierz") { (true, 2) } else { (false, 1) };
+                let dims: Vec<usize> = args[base..(base + 3).min(args.len())]
                     .iter()
                     .map(|s| s.parse().expect("rows inner cols"))
                     .collect();
-                assert!(dims.len() == 3, "agg-matmul <rows> <inner> <cols>");
-                uagb1_agg_bench(dims[0], dims[1], dims[2]);
+                assert!(dims.len() == 3, "agg-matmul [tierz] <rows> <inner> <cols>");
+                uagb1_agg_bench(dims[0], dims[1], dims[2], tier_z);
             }
         }
         Some("agg-kel") => {
@@ -19790,6 +19793,10 @@ struct AggCost {
     /// Per group: (name, outer identities, claim rows, level msgs,
     /// floor, floor rings, floor e, levels).
     group_lines: Vec<(&'static str, usize, usize, usize, usize, usize, u32, usize)>,
+    /// Tier-Z lines per masked group: (name, mask-image bytes,
+    /// sampler restarts) — the response bytes ride the group's floor
+    /// slot at 4 B/coordinate.
+    tierz_lines: Vec<(&'static str, usize, u32)>,
 }
 
 impl AggCost {
@@ -19797,6 +19804,7 @@ impl AggCost {
         self.bytes_statement
             + self.bytes_sumcheck
             + self.group_lines.iter().map(|g| g.1 + g.2 + g.3 + g.4).sum::<usize>()
+            + self.tierz_lines.iter().map(|t| t.1).sum::<usize>()
     }
 }
 
@@ -20167,7 +20175,9 @@ fn agg_prove_group(
     lie_ct_rows: bool,     // WrongC: force ct(B_c) = V_g[c] on lying rows
     craft_alpha_early: bool,
     craft_c_early_l1: bool,
-) -> (ring::eval_proof::GroupEvalProof, Vec<u32>) {
+    tier_z: bool,
+    rng: &mut ring::ProverRng,
+) -> (ring::eval_proof::GroupEvalProof, Option<TierZFloor>) {
     use ring::eval_proof::{
         expand_level_matrix, matvec_modq_small, transport_level, transport_rows, NextLayout,
         OuterBinding, KAPPA_AGG,
@@ -20270,6 +20280,7 @@ fn agg_prove_group(
 
     // ---- Degenerate (zero levels): the floor is w^(0) itself. ----
     if sched.levels.is_empty() {
+        assert!(!tier_z, "Tier-Z floor treatment needs a recursed schedule");
         return (
             ring::eval_proof::GroupEvalProof {
                 u0,
@@ -20280,7 +20291,7 @@ fn agg_prove_group(
                 floor_e: sched.floor_e,
                 tcap_attempts,
             },
-            Vec::new(),
+            None,
         );
     }
 
@@ -20417,17 +20428,30 @@ fn agg_prove_group(
         w_cur = w_next;
     }
     assert_eq!(w_cur.len(), sched.floor_rings, "floor size mismatch vs schedule");
+    // ---- Stage 4: the Tier-Z masked floor replaces the bare floor
+    // (I-6 stands everywhere else; this is the priced A1 carve-out).
+    let (floor, tz) = if tier_z {
+        let plan_last = sched.levels.last().unwrap();
+        let layout_last = NextLayout::new(plan_last);
+        let tzf = agg_tier_z_mask_floor(
+            ctxr, &w_cur, plan_last, &layout_last, &prev_bindings_data, &prev_a_mat, &prev_c,
+            &phi_cur, tr, group.name, rng,
+        );
+        (tzf.response.clone(), Some(tzf))
+    } else {
+        (w_cur, None)
+    };
     (
         ring::eval_proof::GroupEvalProof {
             u0,
             ugh0,
             b_rows,
             level_us,
-            floor: w_cur,
+            floor,
             floor_e: sched.floor_e,
             tcap_attempts: tcap_attempts.clone(),
         },
-        tcap_attempts,
+        tz,
     )
 }
 
@@ -20448,6 +20472,7 @@ fn agg_verify_group(
     seed: u64,
     weak_alpha_early: bool,
     weak_c_early_l1: bool,
+    tier_z: Option<&TierZFloor>,
 ) -> Result<(), &'static str> {
     use ring::eval_proof::{
         compute_cpairs, compute_psi, expand_level_matrix, matvec_modq_small, recompose_rings,
@@ -20620,6 +20645,52 @@ fn agg_verify_group(
     if proof.floor.len() != layout.n_total || proof.floor.len() != sched.floor_rings {
         return Err("wire-shape");
     }
+    // ---- Tier-Z masked branch: the sigma-protocol floor. ----
+    if let Some(tz) = tier_z {
+        let coords = proof.floor.len() * D;
+        let bound = ring::eval_proof::tier_z_response_bound(coords);
+        let n_fams = KAPPA_AGG * prev_bindings_data.len() + KAPPA_AGG + 2;
+        if tz.images.len() != n_fams || tz.response.len() != proof.floor.len() {
+            return Err("wire-shape");
+        }
+        // The response norm gate (replaces the alphabet check; the
+        // F-Z1 corner line is the acceptance bound).
+        for ring_u in &tz.response {
+            for &x in ring_u {
+                if x.abs() > bound {
+                    return Err("tierz-response-norm");
+                }
+            }
+        }
+        // Re-derive the floor challenge from (pre-mask state, images).
+        let st =
+            uk8_sha(&[b"agg-tz", group.name.as_bytes(), &tr.state(), &polys_bytes(&tz.images)]);
+        let (c_fl, _) = ring::eval_proof::draw_quinary_capped(&st, "agg-tz-c", 0);
+        // Family values on the response; targets in family order.
+        let vals = agg_floor_family_values(
+            ctxr, &tz.response, plan_last, &layout, &prev_bindings_data, &prev_a_mat, &prev_c,
+            &phi_cur,
+        );
+        let mut targets: Vec<Poly> = Vec::with_capacity(n_fams);
+        for (_, _, _, u) in &prev_bindings_data {
+            targets.extend(u.iter().cloned());
+        }
+        targets.extend(std::iter::repeat_n(poly_zero(), KAPPA_AGG)); // T4
+        targets.push(h_cur.clone()); // T1
+        targets.push(poly_zero()); // L1 (target-0 form)
+        let c_fl_p = poly_from_small(zq, &c_fl);
+        for ((val, img), tgt) in vals.iter().zip(tz.images.iter()).zip(targets.iter()) {
+            let want = poly_add(zq, img, &ring_mul_split_kara_fast(ctxr, &c_fl_p, tgt));
+            if val != &want {
+                return Err("tierz-family");
+            }
+        }
+        ring::eval_proof::absorb_polys(tr, &format!("agg-tz-img-{}", group.name), &tz.images);
+        for r0 in &tz.response {
+            tr.absorb("agg-tz-resp", &r0.iter().flat_map(|x| x.to_le_bytes()).collect::<Vec<u8>>());
+        }
+        return Ok(());
+    }
     // Alphabet (uniform balanced base at the floor).
     let (lo, hi) = ring::digits::alphabet(sched.floor_e);
     for ring_u in &proof.floor {
@@ -20707,6 +20778,24 @@ fn uagb1_agg_run(
     seed: u64,
     quiet: bool,
 ) -> (AggVerdict, AggCost) {
+    uagb1_agg_run_full(rows, inner, cols, tamper, weak_verify, force_levels, false, seed, quiet)
+}
+
+/// The full runner (stage 4 adds `tier_z`: BOTH groups' floors run
+/// the masked treatment — the P3-shaped demonstration; the P1/P2
+/// group-selection map is pass-stage deployment work).
+#[allow(clippy::too_many_arguments)]
+fn uagb1_agg_run_full(
+    rows: usize,
+    inner: usize,
+    cols: usize,
+    tamper: AggTamper,
+    weak_verify: bool,
+    force_levels: Option<usize>,
+    tier_z: bool,
+    seed: u64,
+    quiet: bool,
+) -> (AggVerdict, AggCost) {
     use ring::eval_proof::{plan_schedule, TensorClaimKernel};
     use ring::gkr::eq_table;
     use ring::kfield::{KElem, KField, K_DEG};
@@ -20753,8 +20842,17 @@ fn uagb1_agg_run(
     // E-O2-BB: exactly one batched opening per group.
     gw.begin_opening().expect("first weight-group opening");
     ga.begin_opening().expect("first act-group opening");
-    let sched_w = plan_schedule(gw.n_digit_rings, 1, q, force_levels);
-    let sched_a = plan_schedule(ga.n_digit_rings, 2, q, force_levels);
+    let (sched_w, sched_a) = if tier_z {
+        (
+            ring::eval_proof::plan_schedule_tier_z(gw.n_digit_rings, 1, q, force_levels),
+            ring::eval_proof::plan_schedule_tier_z(ga.n_digit_rings, 2, q, force_levels),
+        )
+    } else {
+        (
+            plan_schedule(gw.n_digit_rings, 1, q, force_levels),
+            plan_schedule(ga.n_digit_rings, 2, q, force_levels),
+        )
+    };
     let w0_w = agg_digit_witness(&gw, &[&a_i8]);
     let w0_a = agg_digit_witness(&ga, &[&b_i8, &c_acc]);
     let crs_seed = 0xB1_A6u64 ^ seed.rotate_left(17);
@@ -20861,34 +20959,59 @@ fn uagb1_agg_run(
         },
     ];
     let lie_rows = tamper == AggTamper::WrongC;
-    let (proof_w, _) = agg_prove_group(
+    let mut mask_rng = ring::ProverRng::from_test_seed("uagb1-agg-tz", &seed.to_le_bytes());
+    let (proof_w, tz_w) = agg_prove_group(
         &ctxr, &kf, &gw, &sched_w, &w0_w, &kernels_w, &v_batch_w, pre_w, &mut tr, crs_seed,
-        false, false, false,
+        false, false, false, tier_z, &mut mask_rng,
     );
-    let (proof_a, _) = agg_prove_group(
+    let (proof_a, tz_a) = agg_prove_group(
         &ctxr, &kf, &ga, &sched_a, &w0_a, &kernels_a, &v_batch_a, pre_a, &mut tr, crs_seed,
         lie_rows,
         tamper == AggTamper::AlphaEarly,
         tamper == AggTamper::COrderEarly,
+        tier_z,
+        &mut mask_rng,
     );
     cost.prove_s = t_prove.elapsed().as_secs_f64();
+    let mut tz_a = tz_a;
+    if tier_z {
+        match tamper {
+            AggTamper::TamperFloor => {
+                // Tier-Z variant: bump one response coefficient past the
+                // corner bound — the norm gate must catch it.
+                let tz = tz_a.as_mut().expect("tier-z proof");
+                let coords = tz.response.len() * D;
+                tz.response[0][0] = ring::eval_proof::tier_z_response_bound(coords) + 7;
+            }
+            AggTamper::OoaFloor => {
+                // Tier-Z variant: tamper one mask image (family lie) —
+                // the family equations must catch it.
+                let tz = tz_a.as_mut().expect("tier-z proof");
+                tz.images[0][0] = zq.add(tz.images[0][0], 1);
+            }
+            _ => {}
+        }
+    }
 
-    // Floor tampers (post-prove wire mutations).
+    // Floor tampers (post-prove wire mutations; bare mode — the
+    // tier-z variants were applied to the masked bundle above).
     let mut proof_a = proof_a;
-    match tamper {
-        AggTamper::TamperFloor => {
-            assert!(!sched_a.levels.is_empty(), "floor tamper needs a recursed shape");
-            proof_a.floor[0][0] += 1;
+    if !tier_z {
+        match tamper {
+            AggTamper::TamperFloor => {
+                assert!(!sched_a.levels.is_empty(), "floor tamper needs a recursed shape");
+                proof_a.floor[0][0] += 1;
+            }
+            AggTamper::OoaFloor => {
+                assert!(!sched_a.levels.is_empty() && sched_a.levels.last().unwrap().l_z >= 2);
+                // Recomposition-preserving out-of-alphabet pair on the first
+                // z source ring: d_0 += 2^e, d_1 -= 1.
+                let e = sched_a.floor_e as usize;
+                proof_a.floor[0][0] += 1i64 << e;
+                proof_a.floor[1][0] -= 1;
+            }
+            _ => {}
         }
-        AggTamper::OoaFloor => {
-            assert!(!sched_a.levels.is_empty() && sched_a.levels.last().unwrap().l_z >= 2);
-            // Recomposition-preserving out-of-alphabet pair on the first
-            // z source ring: d_0 += 2^e, d_1 -= 1.
-            let e = sched_a.floor_e as usize;
-            proof_a.floor[0][0] += 1i64 << e;
-            proof_a.floor[1][0] -= 1;
-        }
-        _ => {}
     }
 
     // ---- VERIFIER. ----
@@ -20962,10 +21085,11 @@ fn uagb1_agg_run(
     let weak_corder = weak_verify && tamper == AggTamper::COrderEarly;
     let res_w = agg_verify_group(
         &ctxr, &kf, &gw_v, &sched_w, &kernels_w_v, &vb_w, &proof_w, &mut tv, crs_seed, false, false,
+        tz_w.as_ref(),
     );
     let res_a = agg_verify_group(
         &ctxr, &kf, &ga_v, &sched_a, &kernels_a_v, &vb_a, &proof_a, &mut tv, crs_seed, weak_alpha,
-        weak_corder,
+        weak_corder, tz_a.as_ref(),
     );
     for res in [&res_w, &res_a] {
         if let Err(e) = res {
@@ -20981,20 +21105,29 @@ fn uagb1_agg_run(
     cost.verify_s = t_verify.elapsed().as_secs_f64();
 
     // ---- Byte accounting (counted-not-serialized). ----
-    for (name, sched, proof) in
-        [("weight", &sched_w, &proof_w), ("act", &sched_a, &proof_a)]
-    {
+    for (name, sched, proof, tz) in [
+        ("weight", &sched_w, &proof_w, tz_w.as_ref()),
+        ("act", &sched_a, &proof_a, tz_a.as_ref()),
+    ] {
         let b = proof.counted_bytes();
+        let floor_b = match tz {
+            // Masked response: 4 B/coordinate (29-bit + sign class).
+            Some(_) => 4 + proof.floor.len() * D * 4,
+            None => b.floor,
+        };
         cost.group_lines.push((
             name,
             b.outer_identities,
             b.claim_rows,
             b.level_msgs,
-            b.floor,
+            floor_b,
             sched.floor_rings,
             sched.floor_e,
             sched.levels.len(),
         ));
+        if let Some(tz) = tz {
+            cost.tierz_lines.push((name, 4 + tz.images.len() * 516, tz.restarts));
+        }
     }
     if !quiet {
         println!(
@@ -21010,6 +21143,177 @@ fn uagb1_agg_run(
         );
     }
     (verdict, cost)
+}
+
+/// [UAGB1-BD stage 4] The Tier-Z masked floor: the sigma-protocol
+/// carve-out over the floor witness. The prover samples a Gaussian
+/// mask y (PROVER-INTERNAL, never committed — FP-L2 row A8), sends
+/// the mask images V_k = L_k(y) of every floor check family, receives
+/// ONE quinary T_cap-capped challenge c_fl (AFTER all level
+/// challenges — AZB-6), and ships the rejection-sampled response
+/// z' = y + c_fl (x) w_floor at 4 B/coordinate. The verifier gates
+/// ||z'||_inf at the F-Z1 corner bound and checks every family as
+/// L_k(z') = V_k + c_fl (x) target_k. Restart counts are logged
+/// (F-Z3 abort discipline); the FS-with-aborts transcription is
+/// obligation F-Z2, cited not discharged.
+struct TierZFloor {
+    images: Vec<Poly>,   // mask images, family order = [T5 rows.., T4 rows.., T1, L1-LHS]
+    response: Vec<Vec<i64>>, // floor rings, coefficients bounded by the corner line
+    restarts: u32,
+}
+
+/// The floor check families as explicit linear maps: returns the
+/// family VALUES on an arbitrary floor-shaped vector (mod-q polys).
+/// Family order: per binding kappa T5 rows, kappa T4 rows
+/// (A z - sum c t), T1 (sum diag h), L1-LHS (sum Psi rec_z - sum
+/// cpair rec_h — target 0 form).
+#[allow(clippy::too_many_arguments)]
+fn agg_floor_family_values(
+    ctxr: &RingCtx,
+    vecs: &[Vec<i64>],
+    plan_last: &ring::eval_proof::LevelPlan,
+    layout: &ring::eval_proof::NextLayout,
+    bindings: &[(Vec<Poly>, usize, usize, Vec<Poly>)],
+    a_mat: &[Poly],
+    cs: &[Vec<i64>],
+    phi: &[Poly],
+) -> Vec<Poly> {
+    use ring::eval_proof::{
+        compute_cpairs, compute_psi, matvec_modq_small, recompose_rings, KAPPA_AGG,
+    };
+    let zq = &ctxr.zq;
+    let mut out = Vec::new();
+    // T5 per binding.
+    for (bm, cb, cl, _) in bindings {
+        let slice: Vec<Vec<i64>> = vecs[layout.t_base + cb..layout.t_base + cb + cl].to_vec();
+        out.extend(matvec_modq_small(ctxr, bm, KAPPA_AGG, *cl, &slice));
+    }
+    // Recompositions, center-reduced mod q (masked-response inputs
+    // carry ~2^27-class coefficients; reduction keeps every later
+    // small-poly product inside i64 while preserving the mod-q
+    // identities being checked).
+    let rec_block = |base: usize, count: usize, stride: usize| -> Vec<Vec<i64>> {
+        (0..count)
+            .map(|s| {
+                let refs: Vec<&Vec<i64>> = (0..stride).map(|l| &vecs[base + s * stride + l]).collect();
+                recompose_rings(&refs, plan_last.e_next)
+                    .into_iter()
+                    .map(|x| zq.center(zq.to_mod(x)))
+                    .collect()
+            })
+            .collect()
+    };
+    let z_rec = rec_block(layout.z_base, plan_last.chunk, plan_last.l_z);
+    let t_rec = rec_block(layout.t_base, plan_last.r * KAPPA_AGG, plan_last.l_t);
+    let h_rec = rec_block(layout.h_base, plan_last.n_pairs, plan_last.l_h);
+    // T4 rows: A z - sum_j c_j t_j.
+    let az = matvec_modq_small(ctxr, a_mat, KAPPA_AGG, plan_last.chunk, &z_rec);
+    for (kap, azk) in az.iter().enumerate() {
+        let mut rhs = vec![0i64; D];
+        for (j, c) in cs.iter().enumerate() {
+            let prod = poly_mul_small(c, &t_rec[j * KAPPA_AGG + kap]);
+            for (a, p) in rhs.iter_mut().zip(prod.iter()) {
+                *a += p;
+            }
+        }
+        let rhs_m = poly_from_small(zq, &rhs);
+        let mut d = poly_zero();
+        for i in 0..D {
+            d[i] = zq.sub(azk[i], rhs_m[i]);
+        }
+        out.push(d);
+    }
+    // T1: sum_j rec(h_jj).
+    let mut t1 = vec![0i64; D];
+    for j in 0..plan_last.r {
+        let p = ring::eval_proof::pair_index(plan_last.r, j, j);
+        for (a, b) in t1.iter_mut().zip(h_rec[p].iter()) {
+            *a += b;
+        }
+    }
+    out.push(poly_from_small(zq, &t1));
+    // L1 (target-0 form): sum Psi rec_z - sum cpair rec_h.
+    let psi = compute_psi(ctxr, phi, plan_last.chunk, cs);
+    let mut l1 = poly_zero();
+    for (p, zs) in psi.iter().zip(z_rec.iter()) {
+        l1 = poly_add(zq, &l1, &ring_mul_split_kara_fast(ctxr, p, &poly_from_small(zq, zs)));
+    }
+    let cpairs = compute_cpairs(zq, cs);
+    for (cp, hs) in cpairs.iter().zip(h_rec.iter()) {
+        let m = ring_mul_split_kara_fast(ctxr, cp, &poly_from_small(zq, hs));
+        for i in 0..D {
+            l1[i] = zq.sub(l1[i], m[i]);
+        }
+    }
+    out.push(l1);
+    out
+}
+
+/// The Tier-Z floor prover step (F-Z3 sampler discipline).
+#[allow(clippy::too_many_arguments)]
+fn agg_tier_z_mask_floor(
+    ctxr: &RingCtx,
+    w_floor: &[Vec<i64>],
+    plan_last: &ring::eval_proof::LevelPlan,
+    layout: &ring::eval_proof::NextLayout,
+    bindings: &[(Vec<Poly>, usize, usize, Vec<Poly>)],
+    a_mat: &[Poly],
+    cs: &[Vec<i64>],
+    phi: &[Poly],
+    tr: &mut ring::sumcheck::LkpTranscript,
+    group_name: &str,
+    rng: &mut ring::ProverRng,
+) -> TierZFloor {
+    let coords = w_floor.len() * D;
+    let sigma = ring::eval_proof::tier_z_sigma(coords);
+    let bound = ring::eval_proof::tier_z_response_bound(coords);
+    // FS-with-aborts: the challenge derives from (pre-mask transcript
+    // state, images); failed attempts never touch the transcript.
+    let pre_state = tr.state();
+    let mut restarts = 0u32;
+    loop {
+        // Mask y: discrete Gaussian at the corner sigma (prover-
+        // internal; never committed; no hash edge — FP-L2 row A8).
+        let y: Vec<Vec<i64>> =
+            (0..w_floor.len()).map(|_| gaussian_ivec(rng, D, sigma as u64)).collect();
+        // Mask images of every family (sent BEFORE the challenge).
+        let images =
+            agg_floor_family_values(ctxr, &y, plan_last, layout, bindings, a_mat, cs, phi);
+        let st = uk8_sha(&[b"agg-tz", group_name.as_bytes(), &pre_state, &polys_bytes(&images)]);
+        let (c_fl, _) = ring::eval_proof::draw_quinary_capped(&st, "agg-tz-c", 0);
+        // Response z' = y + c_fl (x) w.
+        let mut resp = Vec::with_capacity(w_floor.len());
+        let mut ok = true;
+        let mut dot: f64 = 0.0;
+        let mut vsq: f64 = 0.0;
+        for (yu, wu) in y.iter().zip(w_floor.iter()) {
+            let v = poly_mul_small(&c_fl, wu);
+            let mut zu = vec![0i64; D];
+            for i in 0..D {
+                zu[i] = yu[i] + v[i];
+                dot += zu[i] as f64 * v[i] as f64;
+                vsq += v[i] as f64 * v[i] as f64;
+                if zu[i].abs() > bound {
+                    ok = false;
+                }
+            }
+            resp.push(zu);
+        }
+        // Lyubashevsky rejection: accept w.p. ~ exp((-2<z,v>+|v|^2)/2s^2)
+        // (the exact FS-with-aborts constant is obligation F-Z2).
+        let ratio = ((-2.0 * dot + vsq) / (2.0 * sigma * sigma)).exp().min(1.0);
+        let coin = (rng_below(rng, 1 << 24) as f64) / ((1u64 << 24) as f64);
+        if ok && coin <= ratio {
+            // Commit the accepted attempt into the REAL transcript.
+            tr.absorb(&format!("agg-tz-img-{group_name}"), &polys_bytes(&images));
+            for r0 in &resp {
+                tr.absorb("agg-tz-resp", &r0.iter().flat_map(|x| x.to_le_bytes()).collect::<Vec<u8>>());
+            }
+            return TierZFloor { images, response: resp, restarts };
+        }
+        restarts += 1;
+        assert!(restarts < 64, "F-Z3 sampler failed to accept (corner too thin?)");
+    }
 }
 
 /// [UAGB1-BD] battery: claim-layer + descent verdict legs with house
@@ -21171,16 +21475,65 @@ fn uagb1_agg_battery() {
             solved_entry > acc_hi || solved_entry < acc_lo,
         );
     }
+    // ---- Stage 4: the Tier-Z masked floor (both groups masked — the
+    // P3-shaped demonstration; I-6 stands everywhere else). The
+    // battery shape's floors genuinely CLOSE the F-Z1 corner (auto
+    // Tier-Z floor 2,428 rings = 310,784 coords, b = 2^28.16 > 28.00;
+    // the derive gate REFUSES to plan them — observed live) — a real
+    // finding: the corner needs floors under 1,940 rings, which this
+    // stack reaches only at larger witnesses. The Tier-Z legs
+    // therefore run at 256x768x2048 (act n_0 = 114,688 digit rings),
+    // the smallest battery-affordable shape whose floors survive.
+    {
+        let b_small = ring::eval_proof::fz1_corner_log2(310_784);
+        assert_true(
+            &format!(
+                "F-Z1 arithmetic: the battery shape's auto Tier-Z floor (310,784 coords) sits at \
+                 b = 2^{b_small:.2} >= 28.00 — the corner is CLOSED there and the derive gate \
+                 refuses the schedule (observed; floors must be < 1,940 rings)"
+            ),
+            b_small >= 28.0,
+        );
+    }
+    let (v, c) =
+        uagb1_agg_run_full(256, 768, 2048, AggTamper::None, false, None, true, 0xB1_3010, true);
+    let restarts: u32 = c.tierz_lines.iter().map(|t| t.2).sum();
+    assert_true(
+        &format!(
+            "TIER-Z honest ACCEPT at 256x768x2048 (masked floors at e_L = 4, {}/{} rings; \
+             {} B counted, sampler restarts {}; F-Z1 corner asserted at derive)",
+            c.group_lines[0].5,
+            c.group_lines[1].5,
+            c.bytes_total(),
+            restarts
+        ),
+        v.accept() && c.tierz_lines.len() == 2,
+    );
+    let (v, _) =
+        uagb1_agg_run_full(256, 768, 2048, AggTamper::TamperFloor, false, None, true, 0xB1_3011, true);
+    assert_true(
+        "TIER-Z response-norm tamper REJECT (a response coefficient past the F-Z1 corner bound)",
+        !v.accept() && v.first_fail == Some("tierz-response-norm"),
+    );
+    let (v, _) =
+        uagb1_agg_run_full(256, 768, 2048, AggTamper::OoaFloor, false, None, true, 0xB1_3012, true);
+    assert_true(
+        "TIER-Z mask-image tamper REJECT (a family equation fails on the masked floor)",
+        !v.accept() && v.first_fail == Some("tierz-family"),
+    );
 }
 
 /// [UAGB1-BD] measurement run: the aggregation stack at a full shape
 /// with the byte table, the floor schedule, and the F-Z1 recompute.
-fn uagb1_agg_bench(rows: usize, inner: usize, cols: usize) {
+/// `tier_z` prices the masked-floor mode (stage 4).
+fn uagb1_agg_bench(rows: usize, inner: usize, cols: usize, tier_z: bool) {
     println!(
-        "[UAGB1-BD] aggregation stack at {rows}x{inner}x{cols} (one honest instance; \
-         counted-not-serialized bytes; [MAC-BOX, non-reference])"
+        "[UAGB1-BD] aggregation stack at {rows}x{inner}x{cols} ({}; \
+         counted-not-serialized bytes; [MAC-BOX, non-reference])",
+        if tier_z { "TIER-Z masked floors" } else { "bare floors, Tier N mode" }
     );
-    let (v, c) = uagb1_agg_run(rows, inner, cols, AggTamper::None, false, None, 0xB1_4001, false);
+    let (v, c) =
+        uagb1_agg_run_full(rows, inner, cols, AggTamper::None, false, None, tier_z, 0xB1_4001, false);
     assert!(v.accept(), "honest bench instance must accept");
     println!("\n  byte decomposition (counted convention: 64 B/K-el, 4 B/coeff, poly 4+512 B):");
     println!("    statement (serialized, real)      {:>12} B", c.bytes_statement);
@@ -21190,10 +21543,17 @@ fn uagb1_agg_bench(rows: usize, inner: usize, cols: usize) {
         println!(
             "    [{name}] outer identities          {outer:>12} B\n      \
              claim rows (16 polys)          {rows_b:>12} B\n      \
-             level messages ({nl} levels)    {lvls:>12} B\n      \
-             bare floor ({fr} rings, e={fe})  {floor:>12} B",
+             level msgs ({nl} levels)        {lvls:>12} B\n      \
+             {} ({fr} rings, e={fe})  {floor:>12} B",
+            if tier_z { "MASKED response 4 B/coord" } else { "bare floor" },
         );
         floor_note.push((*name, *fr, *fe));
+    }
+    for (name, img_b, restarts) in &c.tierz_lines {
+        println!(
+            "    [{name}] tier-z mask images        {img_b:>12} B  (sampler restarts {restarts} — \
+             F-Z3 abort discipline, logged not wire)"
+        );
     }
     let total = c.bytes_total();
     println!("    TOTAL                             {total:>12} B");

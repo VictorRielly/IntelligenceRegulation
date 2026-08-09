@@ -334,6 +334,101 @@ pub fn plan_schedule(n0: usize, e0: u32, q: u64, force_levels: Option<usize>) ->
 /// with the counted 4-byte length prefix: 4 + kappa * 516.
 pub const LEVEL_WIRE_BYTES: usize = 4 + KAPPA_AGG * (4 + D * 4);
 
+/// The Tier-Z floor base cap: the F-Z1 masking corner exists only at
+/// e_L <= 4 with no limb growth (AGGREGATION_FOLD_PRIVACY_PRICING 3.1;
+/// AZB_BATTERY_PLAN Section 4).
+pub const TIER_Z_FLOOR_E: u32 = 4;
+
+/// The F-Z1 corner bound (BC's recipe, AZB_BATTERY_PLAN Section 4):
+/// b = 27.2 + 0.5*log2(floor_coords / 81,920); the corner survives iff
+/// b < 28.00 = log2(q/8), and the limb-growth branch (28.6 + the same
+/// scaling) must stay dead.
+pub fn fz1_corner_log2(floor_coords: usize) -> f64 {
+    27.2 + 0.5 * ((floor_coords as f64) / 81_920.0).log2()
+}
+
+/// Tier-Z schedule: the bare schedule with the LAST level re-derived
+/// at the corner base e = 4 (interior levels keep their adaptive
+/// bases; only the floor is masked). Derive-time asserts: the corner
+/// survives at the resulting floor and the growth branch stays dead.
+pub fn plan_schedule_tier_z(n0: usize, e0: u32, q: u64, force_levels: Option<usize>) -> EvalSchedule {
+    let bare = plan_schedule(n0, e0, q, force_levels);
+    assert!(
+        !bare.levels.is_empty(),
+        "Tier-Z floor treatment needs at least one level (mask the level-0 witness directly is \
+         not a designed mode)"
+    );
+    let mut levels = bare.levels;
+    let last = levels.last().unwrap().clone();
+    // Re-derive the last level at the forced corner base.
+    let l_z = {
+        let bound = {
+            // Same concentration bound the bare planner uses.
+            let var = 2.0 * (last.r as f64) * (D as f64) * (2.0 / 3.0)
+                * 4f64.powi(last.e_in as i32 - 1);
+            let conc = 1.3 * var.sqrt();
+            let bits = conc.log2().ceil() as u32 + 2;
+            1i128 << bits.min(62)
+        };
+        limbs_for_bound(bound, TIER_Z_FLOOR_E)
+    };
+    let l_t = limbs_for_bound((q as i128 - 1) / 2, TIER_Z_FLOOR_E);
+    let l_h = l_t;
+    let n_out = last.chunk * l_z + last.r * KAPPA_AGG * l_t + last.n_pairs * l_h;
+    let forced = LevelPlan {
+        e_next: TIER_Z_FLOOR_E,
+        l_z,
+        l_t,
+        l_h,
+        n_out,
+        ..last
+    };
+    *levels.last_mut().unwrap() = forced;
+    let floor_rings = n_out;
+    let floor_coords = floor_rings * D;
+    let b = fz1_corner_log2(floor_coords);
+    assert!(
+        b < 28.0,
+        "F-Z1: the masking corner is CLOSED at this floor ({floor_coords} coords, b = 2^{b:.2})"
+    );
+    assert!(
+        28.6 + 0.5 * ((floor_coords as f64) / 81_920.0).log2() > 28.0,
+        "F-Z1: the limb-growth branch must stay dead"
+    );
+    EvalSchedule {
+        levels,
+        floor_rings,
+        floor_e: TIER_Z_FLOOR_E,
+        gamma_headrooms: bare.gamma_headrooms,
+    }
+}
+
+// ---------------------------------------------------------------------------
+// The Tier-Z masked floor (the E2/E4 carve-out under Amendment A1;
+// FP 1.4 reconciliation): the ONLY rejection-sampled Gaussian-masked
+// object in the aggregate layer — everywhere else I-6 stands. The
+// mask is PROVER-INTERNAL (never committed; no hash edge exists or is
+// needed — FP-L2 row A8); the response is sent after ALL of the
+// group's level challenges (AZB-6 unchanged). The sampler follows the
+// F-Z3 discipline: rejection-sampled, abort counts logged; the exact
+// FS-with-aborts transcription is obligation F-Z2 (Q4.2a' class), not
+// discharged here.
+
+/// The masked-floor response bound (per coefficient): the F-Z1 corner
+/// line 2^b at this floor, the verifier's acceptance gate. 4 B/coord
+/// wire class (29 bits + sign).
+pub fn tier_z_response_bound(floor_coords: usize) -> i64 {
+    2f64.powf(fz1_corner_log2(floor_coords)) as i64
+}
+
+/// Mask sigma: the corner bound over 8 (a >= 8-sigma clip margin for
+/// the honest response; the shift |c (x) w|_inf at e <= 4 digits is
+/// 2^11-class, ~2^13 under sigma — the rejection test removes the
+/// shift dependence, F-Z2's transcription owing the exact constant).
+pub fn tier_z_sigma(floor_coords: usize) -> f64 {
+    2f64.powf(fz1_corner_log2(floor_coords)) / 8.0
+}
+
 // ---------------------------------------------------------------------------
 // Exact operator norm of a negacyclic multiplier (T_cap acceptance).
 // A negacyclic circulant diagonalizes over C at the 128 primitive odd
