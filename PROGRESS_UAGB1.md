@@ -583,7 +583,81 @@ fallbacks, [MAC-BOX]/[NOISY-SHARED] timing marks).
 
 ## Agent BE status (wt-uagb1-be)
 
-- (lane launches here)
+- 2026-08-08 PLAN COMMIT (before any code; skeleton-commit-first).
+  Read phase COMPLETE: ledger (wave-1 verdicts, BB dispositions, my
+  lane definition); AGGREGATION_FOLDING_DESIGN.md IN FULL (F-IF1.0-1.8,
+  FD-L1..L4, AZ-L4(a) rows S7, byte tables S6, F-N2/N3/N4, Section 10
+  freeze table + 10.3's explicit 125M-row commission); AGGREGATION_
+  FOLDING_SOUNDNESS.md (AFS-L0..L8, F-C fences, R-FC1..4, V1-V6);
+  scripts/aggregation_folding_spike.py (toy IXF reference semantics —
+  READ ONLY, Darwin RSS print left for BF); aggregation_freeze_rows.py
+  (R-FC2/FC2-* row ids cited, never re-derived ad hoc);
+  UAGB1_ENGINE_REPORT.md + engine (ring_matmul.rs [UAGB1-D1/D2/D3]
+  sections incl. the full uagb1_matmul_run pipeline, sumcheck.rs,
+  digits.rs, lookup.rs pins, manifest.rs v3, freeze_check chain);
+  AZB_BATTERY_PLAN.md S3 (E-10 spec).
+- THE 12->16 RULING (settled at plan time; full text + rows land as
+  D-BE1): lambda(125M) = 4 DERIVED (F-IF1's 5 is the 32-layer 7B
+  instantiation; FD-L1 "variable-count-generic", FD 10.3 commissions
+  the 125M rows); PADS = 4 vacuous slots handled by the engine's
+  existing zero-extension discipline (D-1/D2 precedent: prover tables
+  extend, commitments carry real data, verifier functionals touch only
+  committed indices) — I-3 kept (the sumcheck runs over all 16 slots),
+  padded-slot tamper leg fences it; NORM LAW one-time log2 sqrt(12) =
+  1.79 b on the committed inventory (conservative index-space bound
+  sqrt(16) = 2.0 b also pinned; both < the frozen 7B sqrt(32) = 2.5 b
+  row FC2-law, which does NOT move); DESCENT dim dw_pass = dw + 4
+  (BC's kel(25) = 1,760 [MODEL] row STANDS); no frozen constant moves,
+  no F-IF1/AFS-L8 contradiction => no R-row at plan time.
+- D-BE1: ruling pinned — UAGB1_FOLD_REPORT.md Section 1 + freeze rows
+  UAGB1-BE* (both directions, new fn freeze_check_uagb1_be in the
+  freeze-check chain; every pre-existing digest must stay unmoved).
+- D-BE2: src/ring/fold.rs (FoldLayout; degree-SCHEDULED sumcheck
+  prove/verify — FD-L2's (3,2) wire form; stacked eq/table/pin
+  builders with layer-extended position-determined weights; the norm
+  arithmetic) + [UAGB1-BE] section in ring_matmul.rs: `ixf-fold`
+  subcommand (one match arm) — TWO engine-scale fold rigs with full
+  commitment grounding (multi-wave C2 + U-Z1 masked splitter +
+  per-wave masked ct-rounds, the D2 pipeline layer-extended): (i) the
+  JOINT MATMUL fold (12 x C_l = A_l*B_l, one (lambda+lk)-round
+  sumcheck, 3 stacked pins), (ii) the STACKED ZERO-CHECK fold
+  (12 x Z_l = Y_l o U_l Hadamard form, one (lambda+n)-round
+  zero-check, 3 stacked pins). Zero fold messages; h0 binds statement
+  (incl. layer-segment map through the model digest — D2's digest
+  pattern; NO manifest.rs codec change, see WILL-NOT-DO) + all
+  commitments before every draw (AZ-L4(a); hash-edge rows in report).
+- D-BE3 BATTERY: honest ACCEPT at toy layer count AND at 12 layers
+  (both families); cross-layer content swap REJECT (index binding);
+  early-draw A1/A2 F5 pairs BOTH directions (zero-check two-position
+  crafting + matmul stale-order stacked-C forge); naive-product
+  cross-term negative BOTH directions (FD-L2 exhibit at engine
+  arithmetic); padded-slot tamper REJECT (content smuggled into a
+  vacuous slot); AZB-10a segment-map F5 pair at engine scale
+  (statement-digest edge). AZB-10b group face: recorded BLOCKED on
+  BD's eval-proof layer (the leak semantics need a floor) — spec
+  stays E-10. Freeze-check + suite green at every commit.
+- D-BE4 NORM, measured: engine-ring (D = 128) quinary negacyclic
+  fold-norm slope re-measure (spike's 0.49 at toy D = 32); 12x ratio
+  vs sqrt(12) law; e0 absorption re-derived at the REAL 125M
+  12-layer matmul-family inventory (derived rows, both directions,
+  incl. the honest finding if the layer e0 = 5 negative does NOT
+  transfer at this inventory scale). [MAC-BOX]/[NOISY-SHARED] flags.
+- D-BE5 BYTES: folded vs unfolded instance-transcript accounting at
+  the 12-layer 125M shape (counted-not-serialized), FA-model vs
+  engine-actual (d+1 evals) conventions BOTH reported; full-shape
+  table DERIVED from layout arithmetic + measured where runs land;
+  opening layer honestly reported as unchanged-until-BD.
+- WILL NOT DO: eval/opening-zone changes (BD's lane; seam = folded
+  families in, one eval proof per commitment group out, F-IF1.4/AFS-L8
+  — orchestrator reconciles at merge); ring/lookup.rs + QuantMeta
+  (BF's); manifest.rs codec changes (a typed segment-map field would
+  move existing statement digests OR need the E-O1-BB one-versioned-
+  codec-change — BB's recorded disposition defers that to the pass
+  statement; my segment map binds through the model digest instead,
+  the D2 pattern); the folded DESCENT implementation (FD-L3 dw+4
+  ruling on paper; the rig needs the multi-wave C2 lift per
+  AZB_BATTERY_PLAN S7 route 2 — recorded, not built); edits to
+  existing scripts/tests/other ledger sections.
 
 ## Agent BF status (wt-uagb1-bf)
 
