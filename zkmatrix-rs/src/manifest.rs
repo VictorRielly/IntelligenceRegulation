@@ -2259,3 +2259,64 @@ pub fn statement_codec_battery() -> bool {
     }
     ok
 }
+
+// ===========================================================================
+// [UAGB1-BD] dated ADDITIVE section (2026-08-08, U-AG-B1 wave 2 lane BD):
+// the aggregated-artifact GROUP DESCRIPTOR — the statement-side object
+// binding the W-C commitment-group layout (which tensors live in which
+// group, each tensor's exact-digit class declaration, and the group's
+// batched-opening count) into the model digest of an aggregated
+// statement. E-O2' (AGGREGATION_ENCODING_DESIGN 8.2) binds one batched
+// evaluation proof per group; the descriptor is what the builder's
+// refusal and the statement-inventory print read. Nothing here touches
+// QuantMeta or any existing codec (lane-BF territory); this is a pure
+// addition consumed by the [UAGB1-BD] statement builder.
+
+/// One tensor's row in an aggregated-artifact group descriptor.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AggTensorDecl {
+    pub name: String,
+    pub rows: u64,
+    pub cols: u64,
+    /// Exact-digit class declaration (name, e0, l0) — the frozen
+    /// UAGB1-1a class-table semantics the aggregate layer consumes.
+    pub class_name: String,
+    pub e0: u32,
+    pub l0: u32,
+}
+
+/// One commitment group of the aggregated artifact (W-C layout:
+/// "act" always; "weight" per deployment mode).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AggGroupDescriptor {
+    pub name: String,
+    pub tensors: Vec<AggTensorDecl>,
+    /// Batched openings emitted for this group. E-O2' requires exactly
+    /// one; the builder REFUSES a second (build error, not a warning).
+    pub openings: u32,
+}
+
+impl AggGroupDescriptor {
+    /// Canonical bytes for the model digest (length-prefixed, order-
+    /// preserving — any reordering, renaming, or class drift moves the
+    /// statement digest).
+    pub fn encode(&self) -> Vec<u8> {
+        let mut out = b"agg-group-v1".to_vec();
+        let put_str = |out: &mut Vec<u8>, s: &str| {
+            out.extend((s.len() as u64).to_le_bytes());
+            out.extend(s.as_bytes());
+        };
+        put_str(&mut out, &self.name);
+        out.extend((self.tensors.len() as u64).to_le_bytes());
+        for t in &self.tensors {
+            put_str(&mut out, &t.name);
+            out.extend(t.rows.to_le_bytes());
+            out.extend(t.cols.to_le_bytes());
+            put_str(&mut out, &t.class_name);
+            out.extend(t.e0.to_le_bytes());
+            out.extend(t.l0.to_le_bytes());
+        }
+        out.extend(self.openings.to_le_bytes());
+        out
+    }
+}
