@@ -5053,6 +5053,7 @@ fn freeze_check() {
     all_ok &= freeze_check_uz1();
     all_ok &= freeze_check_uagb1();
     all_ok &= freeze_check_uagb1_d2();
+    all_ok &= freeze_check_uagb1_be();
 
     if all_ok {
         println!("freeze-check passed");
@@ -6257,7 +6258,7 @@ fn self_test_pi2_ce() {
 }
 
 fn usage() {
-    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory | uagb1-digit-battery | matmul-statement [battery | <rows> <inner> <cols>] | statement-125m");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory | uagb1-digit-battery | matmul-statement [battery | <rows> <inner> <cols>] | statement-125m | ixf-fold [battery | norm | bytes | matmul <layers> <rows> <inner> <cols> | zerocheck <layers> <rows> <cols>]");
     eprintln!();
     eprintln!("  ffn-chain [n_blocks | battery] is the LEGACY q46 block chain: its range");
     eprintln!("  grounding uses the ARP legacy range arm (rejection clipping ~2^-4.75 at");
@@ -6297,6 +6298,7 @@ fn main() {
             self_test_uagb1_digits();
             self_test_uagb1_matmul();
             uagb1_statement_125m();
+            self_test_uagb1_ixf();
             println!("\nself-test passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         Some("chain-demo") if args.len() == 5 => {
@@ -6396,6 +6398,33 @@ fn main() {
                 uagb1_matmul_bench(dims[0], dims[1], dims[2]);
             } else {
                 usage();
+            }
+        }
+        Some("ixf-fold") => {
+            // [UAGB1-BE] `ixf-fold battery` = the adversarial IXF fold
+            // battery (toy + 12-layer legs, both instance families);
+            // `ixf-fold norm` = the engine-ring fold-norm measurement;
+            // `ixf-fold bytes` = the derived 12-layer 125M byte model;
+            // `ixf-fold matmul <layers> <rows> <inner> <cols>` /
+            // `ixf-fold zerocheck <layers> <rows> <cols>` = one honest
+            // measured folded instance at the given shape.
+            match args.get(1).map(String::as_str) {
+                Some("battery") => {
+                    let t = Instant::now();
+                    uagb1_ixf_battery();
+                    println!("\n[UAGB1-BE] battery passed in {:.2}s", t.elapsed().as_secs_f64());
+                }
+                Some("norm") => uagb1_ixf_norm_measure(),
+                Some("bytes") => uagb1_ixf_byte_model(),
+                Some("matmul") if args.len() == 6 => {
+                    let d: Vec<usize> = args[2..6].iter().map(|s| s.parse().expect("dim")).collect();
+                    uagb1_ixf_matmul_bench(d[0], d[1], d[2], d[3]);
+                }
+                Some("zerocheck") if args.len() == 5 => {
+                    let d: Vec<usize> = args[2..5].iter().map(|s| s.parse().expect("dim")).collect();
+                    uagb1_ixf_zerocheck_bench(d[0], d[1], d[2]);
+                }
+                _ => usage(),
             }
         }
         Some("statement-inventory") => statement_inventory(),
@@ -19695,4 +19724,2146 @@ fn mm_acc_bits_hb(inner: usize, hb: u32) -> u32 {
         b += 1;
     }
     b
+}
+
+// ===========================================================================
+// [UAGB1-BE] U-AG-B1 lane BE (wave 2): INDEX-EXTENSION FOLDING (IXF) over
+// the per-layer instance families at the 12-layer 125M pass shape, per the
+// frozen F-IF1 interface (AGGREGATION_FOLDING_DESIGN.md Section 2) and the
+// 12->16 ruling (UAGB1_FOLD_REPORT.md Section 1; freeze rows UAGB1-BE*).
+//
+// TWO engine-scale fold rigs, both with FULL commitment grounding (the D2
+// pipeline layer-extended: multi-wave C2 commitments, one folded sumcheck
+// over the layer-index-extended MLE space, stacked pins, the U-Z1 MASKED
+// share splitter + per-wave masked ct-rounds + closing round):
+//
+//   (i)  the JOINT MATMUL fold (FD-L2): k layers of C_l = A_l * B_l as ONE
+//        degree-(3,2) sumcheck over (inner-low, layer-high) variables with
+//        the eq(r_l, l) factor INSIDE the sumcheck; terminals -> 3 stacked
+//        pins (C at (r_l, rx, ry); A*, B* at the final point).
+//   (ii) the STACKED ZERO-CHECK fold (FD-L1): k layers of the Hadamard
+//        family Z_l = Y_l o U_l as ONE (n+lambda)-variable zero-check
+//        sum eq(r,(b,l)) * (Y*U - Z) = 0; terminals -> 3 stacked pins.
+//
+// ZERO fold messages (F-IF1.0/AFS V1-V2): the only additions over the
+// per-layer instance are the lambda index coordinates in the outer draw
+// and lambda extra rounds; no accumulator, no cross-terms, no
+// witness-multiplying challenge. FS ordering (AZ-L4(a) / F-IF1.6): h0 =
+// ct_h0(crs, statement-digest, every commitment) where the statement's
+// model digest binds shape + lambda + exact-digit class declarations +
+// THE PER-LAYER SEGMENT MAP (the AZB-10a h0_agg edge, bound the D2
+// digest-pattern way — no manifest codec change; see the ledger
+// WILL-NOT-DO) + every data commitment digest; every challenge (r_l, rx,
+// ry, round challenges, psi) follows the material it constrains.
+//
+// PADDED SLOTS (the 12->16 ruling): the prover's tables zero-extend the
+// layer axis (12 real -> 16 slots); commitments carry ONLY real layers;
+// verifier-side pin functionals are position-determined over committed
+// indices, so pads contribute zero to every functional. I-3 kept — the
+// sumcheck runs over all 16 slots. The PadSmuggle battery leg is the
+// fence: content smuggled into a vacuous slot passes the prover's own
+// sumcheck and is caught EXACTLY by the committed pin grounding.
+
+#[derive(Clone, Copy, PartialEq)]
+enum IxfTamper {
+    None,
+    /// Zero-check: one committed Z defect in a real layer (honest
+    /// REJECT leg — the claim-0 gate fails at round 0).
+    TamperZ,
+    /// The AZ-L4 A1/A2 early-draw class at the folded family: a
+    /// committed defect crafted against a LEAKED outer draw. At the
+    /// K-draw engine a two-position crafting is impossible (one K
+    /// equation = 16 base equations — R-EB3's full-entropy point), so
+    /// the zero-check crafting spans 17 positions (16 solved + 1
+    /// free); the matmul form is the D2 StaleOrder 16-entry solve
+    /// against the stacked C. ACCEPTS under the weakened (stale-h0)
+    /// verifier, REJECTED by the shipped one.
+    EarlyDraw,
+    /// Content smuggled into a VACUOUS (pad) slot of the prover's
+    /// sumcheck tables to cover a committed defect: sumcheck green,
+    /// caught ONLY by the committed pin functionals (the padded-slot
+    /// fence of the 12->16 ruling).
+    PadSmuggle,
+    /// Two real layers' Z (zero-check) / C (matmul) segments swapped,
+    /// statement self-consistent — the cross-LAYER content move the
+    /// index binding itself must catch (no segment-map help).
+    CrossLayerSwap,
+    /// Full-layer relabel (ALL tensors of two layers swapped, per-slot
+    /// data still valid) against the REGISTERED layer-segment map —
+    /// the AZB-10a segment-map edge in its statement-digest form:
+    /// shipped verifier checks declared rows against the registration
+    /// AND binds them in the model digest (h0); the weakened verifier
+    /// (battery-only) skips the registration -> the relabel ACCEPTS
+    /// and the declared layer slice binds the WRONG content.
+    SegmentRelabel,
+}
+
+/// Shared commitment layout of an IXF fold rig: n_data data commitments
+/// first-fit into C2-capped waves + pad commitment(s) + closing g +
+/// per-wave g groups — exactly the D2 tail (a pure function of n_data).
+struct IxfCommitLayout {
+    n_data: usize,
+    base_pad: usize,
+    base_closing_g: usize,
+    base_wave_g: usize,
+    n_commits: usize,
+    c2_max: usize,
+    data_cap: usize,
+    wave_g_groups: usize,
+    closing_g_groups: usize,
+    plan: ring::ct_engine::WavePlan,
+    pad_layout: ring::ct_engine::WavePadLayout,
+}
+
+fn ixf_commit_layout(n_data: usize, shape: CommitShape, q: u64) -> IxfCommitLayout {
+    use ring::ct_engine::{WavePadLayout, plan_waves};
+    let wave_g_groups = UR1_PIN_COPIES.div_ceil(shape.msg_r);
+    let c2_max = ur1_c2_max_commits(q, shape);
+    let data_cap = c2_max - 1 - wave_g_groups;
+    let plan = plan_waves(n_data, &[], data_cap).expect("group-free first-fit plan");
+    let n_waves = plan.waves.len();
+    let pad_layout =
+        WavePadLayout::derive(UR1_PIN_COPIES, (0..n_waves).collect(), n_waves, shape.msg_r)
+            .expect("pad layout derives from the public plan");
+    let closing_g_groups =
+        if pad_layout.has_pads() { UR1_PIN_COPIES.div_ceil(shape.msg_r) } else { 0 };
+    let base_pad = n_data;
+    let base_closing_g = base_pad + pad_layout.n_pad_cms;
+    let base_wave_g = base_closing_g + closing_g_groups;
+    let n_commits = base_wave_g + n_waves * wave_g_groups;
+    IxfCommitLayout {
+        n_data,
+        base_pad,
+        base_closing_g,
+        base_wave_g,
+        n_commits,
+        c2_max,
+        data_cap,
+        wave_g_groups,
+        closing_g_groups,
+        plan,
+        pad_layout,
+    }
+}
+
+/// The zero-check fold statement: per layer Y_l, U_l, Z_l entries + one
+/// Hadamard operation; the model digest binds shape + layers + lambda +
+/// the D1 exact-digit class declarations + (shipped) the per-layer
+/// segment rows + every data commitment digest. `bind_layer_rows =
+/// false` is the BATTERY-ONLY weakened variant of the AZB-10a edge.
+fn ixf_zc_build_statement(
+    layers: usize,
+    rows: usize,
+    cols: usize,
+    crs_hash: &[u8],
+    commit_digests: &[Vec<u8>],
+    cms_t: usize,
+    layer_rows: &[Vec<u8>],
+    bind_layer_rows: bool,
+) -> manifest::Statement {
+    use manifest::{ClaimManifest, Operation, Orientation, PadSpec, QuantMeta, Statement};
+    use ring::digits::{CLASS_A8S, derive_l0};
+    let lambda = ring::fold::ixf_layout(layers).lambda;
+    let q8 = QuantMeta { bits: 8, frac_bits: 0, signed: true };
+    // Declared-type product interval of int8 x int8 = [-16256, 16384]
+    // needs 16 bits (the validator's own worst-case arithmetic; the
+    // honest [-127,127] witness stays inside — same convention note as
+    // the D2 statement).
+    let q16 = QuantMeta { bits: 16, frac_bits: 0, signed: true };
+    let mut mf = ClaimManifest::new("lattice-uagb1-ixf-zc", crs_hash);
+    let ki = key_info_bytes(&CommitShape { kappa: 8, n_r: 26, msg_r: 8 }, Q8);
+    let mut quant = Vec::new();
+    let mut outputs = Vec::new();
+    for l in 0..layers {
+        let base = l * 3 * cms_t;
+        let y_dg = group_list_digest(&commit_digests[base..base + cms_t]);
+        let u_dg = group_list_digest(&commit_digests[base + cms_t..base + 2 * cms_t]);
+        let z_dg = group_list_digest(&commit_digests[base + 2 * cms_t..base + 3 * cms_t]);
+        let idy = mf.add_commitment(&format!("Y{l}"), rows, cols, Orientation::RowMajor, ki.clone(), y_dg);
+        let idu = mf.add_commitment(&format!("U{l}"), rows, cols, Orientation::RowMajor, ki.clone(), u_dg);
+        let idz = mf.add_commitment(&format!("Z{l}"), rows, cols, Orientation::RowMajor, ki.clone(), z_dg);
+        mf.add_operation(Operation::Hadamard { x: idy, y: idu, z: idz });
+        quant.extend([q8, q8, q16]);
+        outputs.push(idz);
+    }
+    let z_l0 = derive_l0(-128 * 127, 128 * 128, 2);
+    let mut parts: Vec<u8> = b"uagb1-be-ixf-zc-model-v1".to_vec();
+    for v in [layers, lambda, rows, cols] {
+        parts.extend((v as u64).to_le_bytes());
+    }
+    for (name, e0, l0) in [
+        (CLASS_A8S.name, CLASS_A8S.e0, CLASS_A8S.l0),
+        (CLASS_A8S.name, CLASS_A8S.e0, CLASS_A8S.l0),
+        ("z16-had-derived", 2u32, z_l0),
+    ] {
+        parts.extend(name.as_bytes());
+        parts.extend(e0.to_le_bytes());
+        parts.extend((l0 as u64).to_le_bytes());
+    }
+    // The AZB-10a h0_agg edge: the per-layer segment map precedes every
+    // challenge through the model digest (shipped); the weakened
+    // battery variant omits it and records that omission in the domain
+    // string so the two forms can never digest-collide.
+    if bind_layer_rows {
+        parts.extend(b"layer-segment-rows-v1");
+        parts.extend((layer_rows.len() as u64).to_le_bytes());
+        for r in layer_rows {
+            parts.extend((r.len() as u64).to_le_bytes());
+            parts.extend(r);
+        }
+    } else {
+        parts.extend(b"layer-segment-rows-UNBOUND-battery-only");
+    }
+    parts.extend((commit_digests.len() as u64).to_le_bytes());
+    for d in commit_digests {
+        parts.extend((d.len() as u64).to_le_bytes());
+        parts.extend(d);
+    }
+    let model_digest = uk8_sha(&[&parts]);
+    let mut st = Statement::new(model_digest, None, 30, mf);
+    st.quant = quant;
+    st.pad = (0..3 * layers).map(|_| PadSpec::exact(rows, cols)).collect();
+    st.outputs = outputs;
+    st
+}
+
+/// One committed stacked zero-check fold instance (FD-L1 at engine
+/// scale): prove + verify with the battery tampers. Returns (verdict,
+/// cost, per-layer segment rows) — the rows feed the SegmentRelabel
+/// registration wiring. `weak` runs the deliberately-weakened verifier
+/// (battery-only attack legs).
+fn uagb1_ixf_zerocheck_run(
+    layers: usize,
+    rows: usize,
+    cols: usize,
+    tamper: IxfTamper,
+    weak: bool,
+    seed: u64,
+    quiet: bool,
+    registered_rows: Option<&[Vec<u8>]>,
+) -> (MmVerdict, MmCost, Vec<Vec<u8>>) {
+    use ring::ct_engine::{
+        CtClaim, StdOpening, WavePads, closing_round_claims, ct_h0, derive_ct_round_params,
+        draw_wave_pads, pack_wave_pads, prove_ct_round, sample_ct_masks,
+        split_claims_prover_masked, split_claims_verifier_masked, verify_ct_round,
+    };
+    use ring::fold::{ixf_layout, ixf_sumcheck_prove, ixf_sumcheck_verify, zerocheck_degree_schedule};
+    use ring::gkr::{eq_eval, eq_table};
+    use ring::kfield::{K_DEG, KElem, KField};
+    use ring::lookup::{PinTerm, PinnedValue, derive_pin_psi, pin_claims};
+    use ring::sumcheck::LkpTranscript;
+
+    let ctx_ring = ring_ctx_q8();
+    let kf = KField::new(&ctx_ring);
+    let zq = ctx_ring.zq;
+    let q = zq.q;
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    let msg_r = shape.msg_r;
+    let per = msg_r * D;
+    let crs = expand_crs(shape, q, 0x0BE1);
+    let il = ixf_layout(layers);
+    let n_el = rows * cols;
+    assert!(rows.is_power_of_two() && cols.is_power_of_two(), "position index space");
+    assert!(n_el % per == 0, "no-tail discipline: rows*cols multiple of {per}");
+    assert!(n_el >= 32, "crafting legs address 17 positions in layer 0");
+    let lpos = n_el.trailing_zeros() as usize;
+    let cms_t = n_el / per;
+    let cms_layer = 3 * cms_t;
+    let cl = ixf_commit_layout(layers * cms_layer, shape, q);
+    let n_waves = cl.plan.waves.len();
+    let mut cost = MmCost {
+        n_data: cl.n_data,
+        n_commits: cl.n_commits,
+        n_waves,
+        ..MmCost::default()
+    };
+    let mut verdict = MmVerdict {
+        statement_ok: true,
+        sumcheck_ok: true,
+        sum_gate_ok: true,
+        waves_ok: true,
+        first_bad_wave: None,
+        closing_ok: true,
+    };
+
+    // ---- Witness: per layer Y, U int8 [-127,127]; Z = Y o U exact. ------
+    let mut dr = seed;
+    let mut ys: Vec<Vec<i64>> = Vec::with_capacity(layers);
+    let mut us: Vec<Vec<i64>> = Vec::with_capacity(layers);
+    let mut zs: Vec<Vec<i64>> = Vec::with_capacity(layers);
+    for _ in 0..layers {
+        let y: Vec<i64> = (0..n_el).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
+        let u: Vec<i64> = (0..n_el).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
+        let z: Vec<i64> = y.iter().zip(u.iter()).map(|(&a, &b)| a * b).collect();
+        ys.push(y);
+        us.push(u);
+        zs.push(z);
+    }
+    match tamper {
+        IxfTamper::TamperZ => zs[0][5] += 3,
+        IxfTamper::CrossLayerSwap => {
+            assert!(layers >= 4);
+            zs.swap(1, layers - 2);
+        }
+        IxfTamper::SegmentRelabel => {
+            let (l1, l2) = (2usize, 7usize.min(layers - 1));
+            assert!(l1 != l2, "relabel needs >= 4 layers");
+            ys.swap(l1, l2);
+            us.swap(l1, l2);
+            zs.swap(l1, l2);
+        }
+        IxfTamper::PadSmuggle => {
+            assert!(il.pads >= 1, "PadSmuggle needs a vacuous slot (non-power-of-two layers)");
+            zs[0][0] += 7; // committed defect; the covering pad content
+            // is prover-TABLE-only, solved post-draw.
+        }
+        _ => {}
+    }
+
+    // ---- The EarlyDraw crafting (battery-only): outer draw r LEAKED
+    // (derived from a seed binding NO commitment), committed Z defect
+    // over 17 positions of layer 0 with eq_r-weighted sum ZERO. One K
+    // equation = 16 base-field equations (the K-draw kills 2-position
+    // crafting; 16 solved digits + 1 free position span the kernel). --
+    let leak_h0 = uk8_sha(&[b"uagb1-be-ixf-leak", &seed.to_le_bytes()]);
+    let n_vars = lpos + il.lambda;
+    if tamper == IxfTamper::EarlyDraw {
+        let mut tl = LkpTranscript::new("uagb1-ixf-zc", &leak_h0);
+        let r_pre: Vec<KElem> = (0..n_vars).map(|_| tl.challenge_k(&kf)).collect();
+        let eq_pre = eq_table(&kf, &r_pre);
+        // positions flat 0..16 live in layer 0 (flat index = l*n_el + b).
+        let w16: Vec<KElem> = (0..K_DEG).map(|j| eq_pre[j].clone()).collect();
+        let target = kf.neg(&eq_pre[K_DEG]);
+        let d16 = mm_solve_base16(&kf, &w16, &target).expect("crafting system solvable");
+        for (j, &x) in d16.iter().enumerate() {
+            zs[0][j] += zq.center(x);
+        }
+        zs[0][K_DEG] += 1; // the free 17th coordinate
+    }
+
+    // ---- Commitments (everything before any challenge). ----------------
+    let t_commit = Instant::now();
+    let mut rng = ring::ProverRng::from_test_seed("uagb1-ixf-zc-session", &seed.to_le_bytes());
+    let mut pads_live: Option<WavePads> = if cl.pad_layout.has_pads() {
+        Some(draw_wave_pads(&mut rng, q, &cl.pad_layout))
+    } else {
+        None
+    };
+    let pack_dense = |vals: &[i64], g: usize| -> Vec<Poly> {
+        let mut polys = vec![poly_zero(); msg_r];
+        for s in 0..msg_r {
+            for c in 0..D {
+                let idx = g * per + s * D + c;
+                if idx < vals.len() {
+                    polys[s][c] = zq.to_mod(vals[idx]);
+                }
+            }
+        }
+        polys
+    };
+    let mut msgs: Vec<Vec<Poly>> = Vec::with_capacity(cl.n_commits);
+    for l in 0..layers {
+        for g in 0..cms_t {
+            msgs.push(pack_dense(&ys[l], g));
+        }
+        for g in 0..cms_t {
+            msgs.push(pack_dense(&us[l], g));
+        }
+        for g in 0..cms_t {
+            msgs.push(pack_dense(&zs[l], g));
+        }
+    }
+    if cl.pad_layout.has_pads() {
+        let pad_msgs =
+            pack_wave_pads(&mut rng, q, msg_r, &cl.pad_layout, pads_live.as_ref().unwrap())
+                .expect("pad packing");
+        msgs.extend(pad_msgs);
+    }
+    let closing_g = sample_ct_masks(&mut rng, q, msg_r, if cl.closing_g_groups > 0 { UR1_PIN_COPIES } else { 0 });
+    msgs.extend(closing_g);
+    for _ in 0..n_waves {
+        msgs.extend(sample_ct_masks(&mut rng, q, msg_r, UR1_PIN_COPIES));
+    }
+    assert_eq!(msgs.len(), cl.n_commits);
+    let rp_probe = derive_ct_round_params(q, shape, cl.data_cap + 1 + cl.wave_g_groups, 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp_probe.sigma, isqrt_u128(rp_probe.bound_sq));
+    let path = KernelPath::A1(&a1p);
+    let mut rhos8: Vec<Vec<i8>> = Vec::with_capacity(cl.n_commits);
+    let mut t1s: Vec<Vec<Poly>> = Vec::with_capacity(cl.n_commits);
+    let mut t2s: Vec<Vec<Poly>> = Vec::with_capacity(cl.n_commits);
+    for m in &msgs {
+        let rho: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+        let (t1, t2) = commit(&path, &crs, m, &rho);
+        rhos8.push(rho.iter().flat_map(|p| p.iter().map(|&x| x as i8)).collect());
+        t1s.push(t1);
+        t2s.push(t2);
+    }
+    cost.commit_s = t_commit.elapsed().as_secs_f64();
+
+    // ---- Statement + h0 (segment rows = per-layer digest rows). --------
+    let t_prove = Instant::now();
+    let commit_digests: Vec<Vec<u8>> =
+        (0..cl.n_commits).map(|i| group_digest(&t1s[i], &t2s[i])).collect();
+    let layer_rows: Vec<Vec<u8>> = (0..layers)
+        .map(|l| group_list_digest(&commit_digests[l * cms_layer..(l + 1) * cms_layer]))
+        .collect();
+    let bind_rows = !(tamper == IxfTamper::SegmentRelabel && weak);
+    let statement = ixf_zc_build_statement(
+        layers, rows, cols, &crs.crs_hash, &commit_digests[..cl.n_data], cms_t, &layer_rows,
+        bind_rows,
+    );
+    let ctx = statement.digest().expect("prover statement validates");
+    cost.bytes_statement = statement.encode().len();
+    cost.bytes_commit_tags = cl.n_commits * (shape.kappa + msg_r) * D * 4;
+    let h0_link = ct_h0(&crs, &ctx, &t1s, &t2s, &[]);
+    let h0_prover = if tamper == IxfTamper::EarlyDraw { leak_h0 } else { h0_link };
+
+    // ---- Prover transcript: r over (pos, layer), the zero-check, pins. -
+    let mut tr = LkpTranscript::new("uagb1-ixf-zc", &h0_prover);
+    let r: Vec<KElem> = (0..n_vars).map(|_| tr.challenge_k(&kf)).collect();
+    let eq = eq_table(&kf, &r);
+    // Prover tables over (pos low, layer high), pads ZERO-extended (the
+    // 12->16 ruling: commitments carry ONLY real layers).
+    let slots_el = il.slots * n_el;
+    let mut tab_y = vec![kf.zero(); slots_el];
+    let mut tab_u = vec![kf.zero(); slots_el];
+    let mut tab_z = vec![kf.zero(); slots_el];
+    for l in 0..layers {
+        for b in 0..n_el {
+            let f = l * n_el + b;
+            if ys[l][b] != 0 {
+                tab_y[f] = kf.embed(zq.to_mod(ys[l][b]));
+            }
+            if us[l][b] != 0 {
+                tab_u[f] = kf.embed(zq.to_mod(us[l][b]));
+            }
+            if zs[l][b] != 0 {
+                tab_z[f] = kf.embed(zq.to_mod(zs[l][b]));
+            }
+        }
+    }
+    if tamper == IxfTamper::PadSmuggle {
+        // The committed layer-0 defect (d = 7 at position 0, committed
+        // above) covered by PAD-slot table content solved AFTER the
+        // shipped-order draw — the pad slot is exactly the prover's
+        // post-challenge freedom; the pin grounding must be the fence:
+        //   sum eq*(YU - Z) = -eq[f0]*d - eq[f_pad]*z_pad = 0.
+        let f_pad = (il.slots - 1) * n_el; // vacuous slot, position 0
+        let z_pad = kf.neg(&kf.mul(
+            &kf.embed(zq.to_mod(7i64)),
+            &kf.mul(&eq[0], &kf.inv(&eq[f_pad])),
+        ));
+        tab_z[f_pad] = z_pad;
+    }
+    let zero = kf.zero();
+    tr.absorb_k(&kf, "zc-claim", std::slice::from_ref(&zero));
+    let degrees = zerocheck_degree_schedule(lpos, il.lambda);
+    let comb = |kf: &KField, v: &[KElem]| kf.mul(&v[0], &kf.sub(&kf.mul(&v[1], &v[2]), &v[3]));
+    let (scp, pt) =
+        ixf_sumcheck_prove(&kf, vec![eq, tab_y, tab_u, tab_z], &degrees, &comb, &mut tr);
+    tr.absorb_k(&kf, "zc-final", &scp.final_evals);
+    cost.bytes_sumcheck =
+        64 * (1 + scp.rounds.iter().map(|g| g.len()).sum::<usize>() + scp.final_evals.len());
+
+    // The three stacked pins (values = prover final evals, absorbed
+    // before psi — E4-N1). Weight of tensor T, layer l, flat position f:
+    // eq_lay[l] * eq_pos[f] (position-determined; pads never appear).
+    let eq_pos = eq_table(&kf, &pt[0..lpos]);
+    let eq_lay = eq_table(&kf, &pt[lpos..]);
+    let build_zc_pins = |vals: &[KElem]| -> Vec<PinnedValue> {
+        // vals = [Y*, U*, Z*] (final_evals[1..4]).
+        (0..3)
+            .map(|t| {
+                let mut terms = Vec::new();
+                for l in 0..layers {
+                    for g in 0..cms_t {
+                        let ci = l * cms_layer + t * cms_t + g;
+                        let lo = g * per;
+                        let mut weights: Vec<KElem> = Vec::with_capacity(per);
+                        let mut any = false;
+                        for c in 0..per {
+                            let f = lo + c;
+                            if f < n_el {
+                                let w = kf.mul(&eq_lay[l], &eq_pos[f]);
+                                if !kf.is_zero(&w) {
+                                    any = true;
+                                }
+                                weights.push(w);
+                            } else {
+                                weights.push(kf.zero());
+                            }
+                        }
+                        if any {
+                            terms.push(PinTerm::Scalar { commit: ci, coeff0: 0, weights });
+                        }
+                    }
+                }
+                PinnedValue { terms, value: vals[t].clone() }
+            })
+            .collect()
+    };
+    let pins = build_zc_pins(&scp.final_evals[1..4]);
+    for p in &pins {
+        tr.absorb_k(&kf, "zc-pin", std::slice::from_ref(&p.value));
+    }
+    let psi = derive_pin_psi(&tr.state(), UR1_PIN_COPIES, pins.len() * K_DEG, q);
+    let claims_p = pin_claims(&kf, &pins, cl.n_data, msg_r, &psi);
+    drop(pins);
+
+    // Masked split across waves + per-wave ct-rounds (the Z1 shipped
+    // path — identical plumbing to the D2 statement).
+    let msg_refs: Vec<&[Poly]> = msgs[..cl.n_data].iter().map(|m| m.as_slice()).collect();
+    let (mut pw_claims, reveals) = split_claims_prover_masked(
+        &zq,
+        &cl.plan,
+        &claims_p,
+        &msg_refs,
+        &cl.pad_layout,
+        pads_live.take().unwrap_or_else(|| draw_wave_pads(&mut rng, q, &cl.pad_layout)),
+    )
+    .expect("honest masked split");
+    drop(claims_p);
+    if pw_claims.is_empty() {
+        pw_claims = (0..n_waves).map(|_| Vec::new()).collect();
+    }
+    cost.bytes_reveals = 12 * reveals.iter().map(|r| r.len()).sum::<usize>();
+    let unpack_rho = |packed: &[i8]| -> Vec<Vec<i64>> {
+        (0..shape.n_r)
+            .map(|rr| packed[rr * D..(rr + 1) * D].iter().map(|&b| b as i64).collect())
+            .collect()
+    };
+    let wave_idxs = |w: usize| -> Vec<usize> {
+        let mut v = cl.plan.waves[w].clone();
+        if cl.pad_layout.has_pads() {
+            v.push(cl.base_pad + w / cl.pad_layout.waves_per_cm);
+        }
+        let g0 = cl.base_wave_g + w * cl.wave_g_groups;
+        v.extend(g0..g0 + cl.wave_g_groups);
+        v
+    };
+    let mut wave_proofs: Vec<ring::ct_engine::CtRoundProof> = Vec::with_capacity(n_waves);
+    let mut rp_cache: std::collections::BTreeMap<usize, (ring::ct_engine::CtRoundParams, ring::commit::A1Paths)> =
+        std::collections::BTreeMap::new();
+    let tr_state = tr.state();
+    for w in 0..n_waves {
+        let idxs = wave_idxs(w);
+        let n_cw = idxs.len();
+        assert!(n_cw <= cl.c2_max);
+        if !rp_cache.contains_key(&n_cw) {
+            let rp = derive_ct_round_params(q, shape, n_cw, 0, 0, true);
+            let a1pw = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cw, (rp, a1pw));
+        }
+        let (rp_w, a1p_w) = rp_cache.get(&n_cw).unwrap();
+        let path_w = KernelPath::A1(a1p_w);
+        let claims_w: Vec<CtClaim> = std::mem::take(&mut pw_claims[w]);
+        let wrhos: Vec<Vec<Vec<i64>>> = idxs.iter().map(|&i| unpack_rho(&rhos8[i])).collect();
+        let openings: Vec<StdOpening> = idxs
+            .iter()
+            .enumerate()
+            .map(|(j, &i)| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &msgs[i], rho: &wrhos[j] })
+            .collect();
+        let mut state_p: Vec<u8> = tr_state.to_vec();
+        state_p.extend((w as u64).to_le_bytes());
+        let wt1s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t1s[i].clone()).collect();
+        let wt2s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_w = ct_h0(&crs, &state_p, &wt1s, &wt2s, &[]);
+        let pad_shift = usize::from(cl.pad_layout.has_pads());
+        let (proof_w, _) = prove_ct_round(
+            &path_w, &ctx_ring, rp_w, None, &crs, &h0_w, &claims_w, &[], &[], &[], &openings,
+            &[], &[], cl.plan.waves[w].len() + pad_shift, &mut rng,
+        );
+        cost.bytes_ct_z += n_cw * shape.n_r * D * 8;
+        cost.bytes_ct_w1 += n_cw * shape.kappa * D * 4;
+        cost.bytes_ct_other += claims_w.len() * D * 4 * 2;
+        wave_proofs.push(proof_w);
+    }
+    let closing_proof = if cl.pad_layout.has_pads() {
+        let idxs_z: Vec<usize> = (cl.base_pad..cl.base_pad + cl.pad_layout.n_pad_cms)
+            .chain(cl.base_closing_g..cl.base_closing_g + cl.closing_g_groups)
+            .collect();
+        let n_cz = idxs_z.len();
+        if !rp_cache.contains_key(&n_cz) {
+            let rp = derive_ct_round_params(q, shape, n_cz, 0, 0, true);
+            let a1pz = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cz, (rp, a1pz));
+        }
+        let (rp_z, a1p_z) = rp_cache.get(&n_cz).unwrap();
+        let path_z = KernelPath::A1(a1p_z);
+        let claims_z = closing_round_claims(&zq, &cl.pad_layout);
+        let mut state_z: Vec<u8> = tr_state.to_vec();
+        state_z.extend(b"ixf-zc-closing");
+        let zt1s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t1s[i].clone()).collect();
+        let zt2s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_z = ct_h0(&crs, &state_z, &zt1s, &zt2s, &[]);
+        let zrhos: Vec<Vec<Vec<i64>>> = idxs_z.iter().map(|&i| unpack_rho(&rhos8[i])).collect();
+        let openings_z: Vec<StdOpening> = idxs_z
+            .iter()
+            .enumerate()
+            .map(|(j, &i)| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &msgs[i], rho: &zrhos[j] })
+            .collect();
+        let (proof_z, _) = prove_ct_round(
+            &path_z, &ctx_ring, rp_z, None, &crs, &h0_z, &claims_z, &[], &[], &[], &openings_z,
+            &[], &[], cl.pad_layout.n_pad_cms, &mut rng,
+        );
+        cost.bytes_ct_z += n_cz * shape.n_r * D * 8;
+        cost.bytes_ct_w1 += n_cz * shape.kappa * D * 4;
+        cost.bytes_ct_other += claims_z.len() * D * 4 * 2;
+        Some(proof_z)
+    } else {
+        None
+    };
+    cost.prove_s = t_prove.elapsed().as_secs_f64();
+
+    // ---- VERIFIER. -----------------------------------------------------
+    let t_verify = Instant::now();
+    // Statement gate: validate + digest + (shipped) the REGISTERED
+    // layer-segment rows — the AZB-10a defense: a relabeled pass is
+    // caught here, before any crypto.
+    let ctx_v = match statement.validate() {
+        Ok(()) => statement.digest().expect("validated statement digests"),
+        Err(_) => {
+            verdict.statement_ok = false;
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (verdict, cost, layer_rows);
+        }
+    };
+    let commit_digests_v: Vec<Vec<u8>> =
+        (0..cl.n_commits).map(|i| group_digest(&t1s[i], &t2s[i])).collect();
+    let layer_rows_v: Vec<Vec<u8>> = (0..layers)
+        .map(|l| group_list_digest(&commit_digests_v[l * cms_layer..(l + 1) * cms_layer]))
+        .collect();
+    let statement_v = ixf_zc_build_statement(
+        layers, rows, cols, &crs.crs_hash, &commit_digests_v[..cl.n_data], cms_t, &layer_rows_v,
+        bind_rows,
+    );
+    if statement_v.digest().expect("rebuilt statement digests") != ctx_v {
+        verdict.statement_ok = false;
+        cost.verify_s = t_verify.elapsed().as_secs_f64();
+        return (verdict, cost, layer_rows);
+    }
+    if !weak {
+        if let Some(reg) = registered_rows {
+            if reg != layer_rows_v.as_slice() {
+                verdict.statement_ok = false;
+                cost.verify_s = t_verify.elapsed().as_secs_f64();
+                return (verdict, cost, layer_rows);
+            }
+        }
+    }
+    let h0_link_v = ct_h0(&crs, &ctx_v, &t1s, &t2s, &[]);
+    let h0_v = if weak && tamper == IxfTamper::EarlyDraw { leak_h0 } else { h0_link_v };
+    let mut tv = LkpTranscript::new("uagb1-ixf-zc", &h0_v);
+    let r_v: Vec<KElem> = (0..n_vars).map(|_| tv.challenge_k(&kf)).collect();
+    tv.absorb_k(&kf, "zc-claim", std::slice::from_ref(&zero));
+    let sc_v = ixf_sumcheck_verify(&kf, &degrees, &zero, &scp, &comb, &mut tv);
+    let (pt_v, _c_end) = match sc_v {
+        Some(x) => x,
+        None => {
+            verdict.sumcheck_ok = false;
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (verdict, cost, layer_rows);
+        }
+    };
+    // The eq factor is PUBLIC: the verifier grounds final_evals[0]
+    // directly (never trusts the prover's eq slot).
+    if scp.final_evals[0] != eq_eval(&kf, &r_v, &pt_v) {
+        verdict.sumcheck_ok = false;
+        cost.verify_s = t_verify.elapsed().as_secs_f64();
+        return (verdict, cost, layer_rows);
+    }
+    tv.absorb_k(&kf, "zc-final", &scp.final_evals);
+    let eq_pos_v = eq_table(&kf, &pt_v[0..lpos]);
+    let eq_lay_v = eq_table(&kf, &pt_v[lpos..]);
+    let pins_v: Vec<PinnedValue> = (0..3)
+        .map(|t| {
+            let mut terms = Vec::new();
+            for l in 0..layers {
+                for g in 0..cms_t {
+                    let ci = l * cms_layer + t * cms_t + g;
+                    let lo = g * per;
+                    let mut weights: Vec<KElem> = Vec::with_capacity(per);
+                    let mut any = false;
+                    for c in 0..per {
+                        let f = lo + c;
+                        if f < n_el {
+                            let w = kf.mul(&eq_lay_v[l], &eq_pos_v[f]);
+                            if !kf.is_zero(&w) {
+                                any = true;
+                            }
+                            weights.push(w);
+                        } else {
+                            weights.push(kf.zero());
+                        }
+                    }
+                    if any {
+                        terms.push(PinTerm::Scalar { commit: ci, coeff0: 0, weights });
+                    }
+                }
+            }
+            PinnedValue { terms, value: scp.final_evals[1 + t].clone() }
+        })
+        .collect();
+    for p in &pins_v {
+        tv.absorb_k(&kf, "zc-pin", std::slice::from_ref(&p.value));
+    }
+    let psi_v = derive_pin_psi(&tv.state(), UR1_PIN_COPIES, pins_v.len() * K_DEG, q);
+    let claims_v = pin_claims(&kf, &pins_v, cl.n_data, msg_r, &psi_v);
+    drop(pins_v);
+    let v_split = split_claims_verifier_masked(&zq, &cl.plan, &claims_v, &reveals, &cl.pad_layout);
+    let mut vw_claims: Vec<Vec<CtClaim>> = match v_split {
+        Ok(v) => v,
+        Err(_) => {
+            verdict.sum_gate_ok = false;
+            verdict.waves_ok = false;
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (verdict, cost, layer_rows);
+        }
+    };
+    drop(claims_v);
+    if vw_claims.is_empty() {
+        vw_claims = (0..n_waves).map(|_| Vec::new()).collect();
+    }
+    let tv_state = tv.state();
+    for w in 0..n_waves {
+        let idxs = wave_idxs(w);
+        let n_cw = idxs.len();
+        let (rp_w, a1p_w) = rp_cache.get(&n_cw).expect("verifier derives the same round shapes");
+        let path_w = KernelPath::A1(a1p_w);
+        let claims_w: Vec<CtClaim> = std::mem::take(&mut vw_claims[w]);
+        let mut state_v: Vec<u8> = tv_state.to_vec();
+        state_v.extend((w as u64).to_le_bytes());
+        let wt1s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t1s[i].clone()).collect();
+        let wt2s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_wv = ct_h0(&crs, &state_v, &wt1s, &wt2s, &[]);
+        let pad_shift = usize::from(cl.pad_layout.has_pads());
+        let ok_w = verify_ct_round(
+            &path_w, &ctx_ring, rp_w, None, &crs, &h0_wv, &claims_w, &[], &[], &[], &wt1s, &wt2s,
+            &[], &[], &[], cl.plan.waves[w].len() + pad_shift, &wave_proofs[w],
+        );
+        if !ok_w {
+            verdict.waves_ok = false;
+            if verdict.first_bad_wave.is_none() {
+                verdict.first_bad_wave = Some(w);
+            }
+        }
+    }
+    if let Some(proof_z) = &closing_proof {
+        let idxs_z: Vec<usize> = (cl.base_pad..cl.base_pad + cl.pad_layout.n_pad_cms)
+            .chain(cl.base_closing_g..cl.base_closing_g + cl.closing_g_groups)
+            .collect();
+        let n_cz = idxs_z.len();
+        let (rp_z, a1p_z) = rp_cache.get(&n_cz).expect("closing shape derived");
+        let path_z = KernelPath::A1(a1p_z);
+        let claims_zv = closing_round_claims(&zq, &cl.pad_layout);
+        let mut state_zv: Vec<u8> = tv_state.to_vec();
+        state_zv.extend(b"ixf-zc-closing");
+        let zt1s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t1s[i].clone()).collect();
+        let zt2s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_zv = ct_h0(&crs, &state_zv, &zt1s, &zt2s, &[]);
+        if !verify_ct_round(
+            &path_z, &ctx_ring, rp_z, None, &crs, &h0_zv, &claims_zv, &[], &[], &[], &zt1s, &zt2s,
+            &[], &[], &[], cl.pad_layout.n_pad_cms, proof_z,
+        ) {
+            verdict.closing_ok = false;
+        }
+    }
+    cost.verify_s = t_verify.elapsed().as_secs_f64();
+    if !quiet {
+        println!(
+            "  zc fold: {layers} layers (lambda {}, {} pads) x {rows}x{cols} | {} data cms | {} waves | commit {:.2}s prove {:.2}s verify {:.2}s | accept {}",
+            il.lambda, il.pads, cl.n_data, n_waves, cost.commit_s, cost.prove_s, cost.verify_s,
+            verdict.accept()
+        );
+    }
+    (verdict, cost, layer_rows)
+}
+
+/// The joint matmul fold statement: per layer A_l/B_l/C_l entries + one
+/// Matmul operation; model digest as the zero-check builder's (exact-
+/// digit class declarations + per-layer segment rows + data digests).
+fn ixf_mm_build_statement(
+    layers: usize,
+    rows: usize,
+    inner: usize,
+    cols: usize,
+    crs_hash: &[u8],
+    commit_digests: &[Vec<u8>],
+    cms: (usize, usize, usize),
+    layer_rows: &[Vec<u8>],
+    bind_layer_rows: bool,
+) -> manifest::Statement {
+    use manifest::{ClaimManifest, Operation, Orientation, PadSpec, QuantMeta, Statement};
+    use ring::digits::{CLASS_A8S, CLASS_W8S, derive_l0};
+    let lambda = ring::fold::ixf_layout(layers).lambda;
+    let (a_cms, b_cms, c_cms) = cms;
+    let cms_layer = a_cms + b_cms + c_cms;
+    let acc_bits = mm_acc_bits(inner);
+    let q8 = QuantMeta { bits: 8, frac_bits: 0, signed: true };
+    let qacc = QuantMeta { bits: acc_bits, frac_bits: 0, signed: true };
+    let mut mf = ClaimManifest::new("lattice-uagb1-ixf-mm", crs_hash);
+    let ki = key_info_bytes(&CommitShape { kappa: 8, n_r: 26, msg_r: 8 }, Q8);
+    let mut quant = Vec::new();
+    let mut outputs = Vec::new();
+    for l in 0..layers {
+        let base = l * cms_layer;
+        let a_dg = group_list_digest(&commit_digests[base..base + a_cms]);
+        let b_dg = group_list_digest(&commit_digests[base + a_cms..base + a_cms + b_cms]);
+        let c_dg = group_list_digest(&commit_digests[base + a_cms + b_cms..base + cms_layer]);
+        let ida = mf.add_commitment(&format!("A{l}"), rows, inner, Orientation::RowMajor, ki.clone(), a_dg);
+        let idb = mf.add_commitment(&format!("B{l}"), inner, cols, Orientation::RowMajor, ki.clone(), b_dg);
+        let idc = mf.add_commitment(&format!("C{l}"), rows, cols, Orientation::RowMajor, ki.clone(), c_dg);
+        mf.add_operation(Operation::Matmul { a: ida, b: idb, c: idc });
+        quant.extend([q8, q8, qacc]);
+        outputs.push(idc);
+    }
+    let acc_lo = inner as i128 * (-128 * 127);
+    let acc_hi = inner as i128 * (128 * 128);
+    let acc_l0 = derive_l0(acc_lo as i64, acc_hi as i64, 2);
+    let mut parts: Vec<u8> = b"uagb1-be-ixf-mm-model-v1".to_vec();
+    for v in [layers, lambda, rows, inner, cols] {
+        parts.extend((v as u64).to_le_bytes());
+    }
+    parts.extend([8u8, acc_bits as u8]);
+    for (name, e0, l0) in [
+        (CLASS_W8S.name, CLASS_W8S.e0, CLASS_W8S.l0),
+        (CLASS_A8S.name, CLASS_A8S.e0, CLASS_A8S.l0),
+        ("acc-inner-derived", 2u32, acc_l0),
+    ] {
+        parts.extend(name.as_bytes());
+        parts.extend(e0.to_le_bytes());
+        parts.extend((l0 as u64).to_le_bytes());
+    }
+    if bind_layer_rows {
+        parts.extend(b"layer-segment-rows-v1");
+        parts.extend((layer_rows.len() as u64).to_le_bytes());
+        for r in layer_rows {
+            parts.extend((r.len() as u64).to_le_bytes());
+            parts.extend(r);
+        }
+    } else {
+        parts.extend(b"layer-segment-rows-UNBOUND-battery-only");
+    }
+    parts.extend((commit_digests.len() as u64).to_le_bytes());
+    for d in commit_digests {
+        parts.extend((d.len() as u64).to_le_bytes());
+        parts.extend(d);
+    }
+    let model_digest = uk8_sha(&[&parts]);
+    let mut st = Statement::new(model_digest, None, 30, mf);
+    st.quant = quant;
+    st.pad = (0..layers)
+        .flat_map(|_| {
+            [
+                PadSpec::exact(rows, inner),
+                PadSpec::exact(inner, cols),
+                PadSpec::exact(rows, cols),
+            ]
+        })
+        .collect();
+    st.outputs = outputs;
+    st
+}
+
+/// One committed joint matmul fold instance (FD-L2 at engine scale):
+/// k layers of C_l = A_l * B_l under ONE degree-(3,2) sumcheck over
+/// (inner-low, layer-high) variables with eq(r_l, l) INSIDE, terminals
+/// grounded as three stacked pins. Same return convention as the
+/// zero-check rig.
+fn uagb1_ixf_matmul_run(
+    layers: usize,
+    rows: usize,
+    inner: usize,
+    cols: usize,
+    tamper: IxfTamper,
+    weak: bool,
+    seed: u64,
+    quiet: bool,
+    registered_rows: Option<&[Vec<u8>]>,
+) -> (MmVerdict, MmCost, Vec<Vec<u8>>) {
+    use ring::ct_engine::{
+        CtClaim, StdOpening, WavePads, closing_round_claims, ct_h0, derive_ct_round_params,
+        draw_wave_pads, pack_wave_pads, prove_ct_round, sample_ct_masks,
+        split_claims_prover_masked, split_claims_verifier_masked, verify_ct_round,
+    };
+    use ring::fold::{ixf_layout, ixf_sumcheck_prove, ixf_sumcheck_verify, matmul_degree_schedule};
+    use ring::gkr::{eq_eval, eq_table};
+    use ring::kfield::{K_DEG, KElem, KField};
+    use ring::lookup::{PinTerm, PinnedValue, derive_pin_psi, pin_claims};
+    use ring::sumcheck::LkpTranscript;
+
+    let ctx_ring = ring_ctx_q8();
+    let kf = KField::new(&ctx_ring);
+    let zq = ctx_ring.zq;
+    let q = zq.q;
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    let msg_r = shape.msg_r;
+    let per = msg_r * D;
+    let crs = expand_crs(shape, q, 0x0BE2);
+    let il = ixf_layout(layers);
+    assert!(rows.is_power_of_two() && cols.is_power_of_two(), "row/col index spaces");
+    assert!(cols >= K_DEG, "the StaleOrder solve addresses 16 C entries of layer 0");
+    assert!(
+        (rows * inner) % per == 0 && (inner * cols) % per == 0 && (rows * cols) % per == 0,
+        "no-tail discipline: tensor sizes multiples of {per}"
+    );
+    let lr = rows.trailing_zeros() as usize;
+    let lc = cols.trailing_zeros() as usize;
+    let lk = usize::BITS as usize - (inner - 1).leading_zeros() as usize;
+    let nk = 1usize << lk;
+    let a_cms = (rows * inner) / per;
+    let b_cms = (inner * cols) / per;
+    let c_cms = (rows * cols) / per;
+    let cms_layer = a_cms + b_cms + c_cms;
+    let cl = ixf_commit_layout(layers * cms_layer, shape, q);
+    let n_waves = cl.plan.waves.len();
+    let mut cost = MmCost {
+        n_data: cl.n_data,
+        n_commits: cl.n_commits,
+        n_waves,
+        ..MmCost::default()
+    };
+    let mut verdict = MmVerdict {
+        statement_ok: true,
+        sumcheck_ok: true,
+        sum_gate_ok: true,
+        waves_ok: true,
+        first_bad_wave: None,
+        closing_ok: true,
+    };
+
+    // ---- Witness: per layer A, B int8 [-127,127]; C = A*B exact. -------
+    let mut dr = seed;
+    let mut avs: Vec<Vec<i64>> = Vec::with_capacity(layers);
+    let mut bvs: Vec<Vec<i64>> = Vec::with_capacity(layers);
+    let mut cvs: Vec<Vec<i64>> = Vec::with_capacity(layers);
+    for _ in 0..layers {
+        let a: Vec<i64> = (0..rows * inner).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
+        let b: Vec<i64> = (0..inner * cols).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
+        let mut c: Vec<i64> = vec![0; rows * cols];
+        for i in 0..rows {
+            for k in 0..inner {
+                let av = a[i * inner + k];
+                if av == 0 {
+                    continue;
+                }
+                let brow = &b[k * cols..(k + 1) * cols];
+                let crow = &mut c[i * cols..(i + 1) * cols];
+                for (cv, &bv) in crow.iter_mut().zip(brow.iter()) {
+                    *cv += av * bv;
+                }
+            }
+        }
+        avs.push(a);
+        bvs.push(b);
+        cvs.push(c);
+    }
+    match tamper {
+        IxfTamper::CrossLayerSwap => {
+            assert!(layers >= 4);
+            cvs.swap(1, layers - 2);
+        }
+        IxfTamper::SegmentRelabel => {
+            let (l1, l2) = (2usize, 7usize.min(layers - 1));
+            assert!(l1 != l2, "relabel needs >= 4 layers");
+            avs.swap(l1, l2);
+            bvs.swap(l1, l2);
+            cvs.swap(l1, l2);
+        }
+        IxfTamper::PadSmuggle => {
+            assert!(il.pads >= 1, "PadSmuggle needs a vacuous slot (non-power-of-two layers)");
+            cvs[0][0] += 1; // committed defect; the prover CLAIMS the
+            // committed functional (C pin green) and covers the
+            // sumcheck gap with pad-slot A/B table content.
+        }
+        _ => {}
+    }
+
+    // ---- Commitments (everything before any challenge). ----------------
+    let t_commit = Instant::now();
+    let mut rng = ring::ProverRng::from_test_seed("uagb1-ixf-mm-session", &seed.to_le_bytes());
+    let mut pads_live: Option<WavePads> = if cl.pad_layout.has_pads() {
+        Some(draw_wave_pads(&mut rng, q, &cl.pad_layout))
+    } else {
+        None
+    };
+    let pack_dense = |vals: &[i64], g: usize| -> Vec<Poly> {
+        let mut polys = vec![poly_zero(); msg_r];
+        for s in 0..msg_r {
+            for c in 0..D {
+                let idx = g * per + s * D + c;
+                if idx < vals.len() {
+                    polys[s][c] = zq.to_mod(vals[idx]);
+                }
+            }
+        }
+        polys
+    };
+    // StaleOrder: the attacker's C is solved AFTER the stale draws;
+    // placeholder zeros now, replaced below (the D2 attack pattern).
+    let c_garbage = tamper == IxfTamper::EarlyDraw;
+    let mut msgs: Vec<Vec<Poly>> = Vec::with_capacity(cl.n_commits);
+    for l in 0..layers {
+        for g in 0..a_cms {
+            msgs.push(pack_dense(&avs[l], g));
+        }
+        for g in 0..b_cms {
+            msgs.push(pack_dense(&bvs[l], g));
+        }
+        for g in 0..c_cms {
+            if c_garbage {
+                msgs.push(vec![poly_zero(); msg_r]);
+            } else {
+                msgs.push(pack_dense(&cvs[l], g));
+            }
+        }
+    }
+    if cl.pad_layout.has_pads() {
+        let pad_msgs =
+            pack_wave_pads(&mut rng, q, msg_r, &cl.pad_layout, pads_live.as_ref().unwrap())
+                .expect("pad packing");
+        msgs.extend(pad_msgs);
+    }
+    let closing_g = sample_ct_masks(&mut rng, q, msg_r, if cl.closing_g_groups > 0 { UR1_PIN_COPIES } else { 0 });
+    msgs.extend(closing_g);
+    for _ in 0..n_waves {
+        msgs.extend(sample_ct_masks(&mut rng, q, msg_r, UR1_PIN_COPIES));
+    }
+    assert_eq!(msgs.len(), cl.n_commits);
+    let rp_probe = derive_ct_round_params(q, shape, cl.data_cap + 1 + cl.wave_g_groups, 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp_probe.sigma, isqrt_u128(rp_probe.bound_sq));
+    let path = KernelPath::A1(&a1p);
+    let mut rhos8: Vec<Vec<i8>> = Vec::with_capacity(cl.n_commits);
+    let mut t1s: Vec<Vec<Poly>> = Vec::with_capacity(cl.n_commits);
+    let mut t2s: Vec<Vec<Poly>> = Vec::with_capacity(cl.n_commits);
+    for m in &msgs {
+        let rho: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+        let (t1, t2) = commit(&path, &crs, m, &rho);
+        rhos8.push(rho.iter().flat_map(|p| p.iter().map(|&x| x as i8)).collect());
+        t1s.push(t1);
+        t2s.push(t2);
+    }
+    cost.commit_s = t_commit.elapsed().as_secs_f64();
+
+    // ---- Shared reduced-table builders (prover side). ------------------
+    let t_prove = Instant::now();
+    // tabA(l, k) = A_l~(rx, k), tabB(l, k) = B_l~(k, ry) over the
+    // (inner-low, layer-high) space; pads + k >= inner ZERO.
+    let ta_tb = |rx_t: &[KElem], ry_t: &[KElem]| -> (Vec<KElem>, Vec<KElem>) {
+        let eq_rx = eq_table(&kf, rx_t);
+        let eq_ry = eq_table(&kf, ry_t);
+        let mut ta = vec![kf.zero(); il.slots * nk];
+        let mut tb = vec![kf.zero(); il.slots * nk];
+        for l in 0..layers {
+            for i in 0..rows {
+                let w = &eq_rx[i];
+                if kf.is_zero(w) {
+                    continue;
+                }
+                for k in 0..inner {
+                    let v = avs[l][i * inner + k];
+                    if v != 0 {
+                        let t = &mut ta[l * nk + k];
+                        *t = kf.add(t, &kf.scale(zq.to_mod(v), w));
+                    }
+                }
+            }
+            for k in 0..inner {
+                let row = &bvs[l][k * cols..(k + 1) * cols];
+                let mut acc = kf.zero();
+                for (j, &v) in row.iter().enumerate() {
+                    if v != 0 {
+                        acc = kf.add(&acc, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+                    }
+                }
+                tb[l * nk + k] = acc;
+            }
+        }
+        (ta, tb)
+    };
+    // ---- The EarlyDraw (StaleOrder-class) attack construction: stale
+    // draws from a transcript binding A and B but NOT C; 16 entries of
+    // layer 0's C solved so the stacked C~(r_l, rx, ry) equals the
+    // honest A*B value; C recommitted (the D2 attack, layer-extended).
+    let stale_h0 = {
+        // All A and B commitments of every layer, in order.
+        let mut at1: Vec<Vec<Poly>> = Vec::new();
+        let mut at2: Vec<Vec<Poly>> = Vec::new();
+        for l in 0..layers {
+            let base = l * cms_layer;
+            for i in base..base + a_cms + b_cms {
+                at1.push(t1s[i].clone());
+                at2.push(t2s[i].clone());
+            }
+        }
+        ct_h0(&crs, b"uagb1-ixf-mm-stale", &at1, &at2, &[])
+    };
+    if c_garbage {
+        let mut ta_tr = LkpTranscript::new("uagb1-ixf-mm", &stale_h0);
+        let rx: Vec<KElem> = (0..lr).map(|_| ta_tr.challenge_k(&kf)).collect();
+        let ry: Vec<KElem> = (0..lc).map(|_| ta_tr.challenge_k(&kf)).collect();
+        let rl: Vec<KElem> = (0..il.lambda).map(|_| ta_tr.challenge_k(&kf)).collect();
+        let (tta, ttb) = ta_tb(&rx, &ry);
+        let eq_rl = eq_table(&kf, &rl);
+        let mut v_ab = kf.zero();
+        for l in 0..il.slots {
+            for k in 0..nk {
+                let p = kf.mul(&tta[l * nk + k], &ttb[l * nk + k]);
+                if !kf.is_zero(&p) {
+                    v_ab = kf.add(&v_ab, &kf.mul(&eq_rl[l], &p));
+                }
+            }
+        }
+        let eq_rx = eq_table(&kf, &rx);
+        let eq_ry = eq_table(&kf, &ry);
+        // Weights of layer 0's first 16 flat C entries (row 0, cols 0..16).
+        let w16: Vec<KElem> =
+            (0..K_DEG).map(|j| kf.mul(&eq_rl[0], &kf.mul(&eq_rx[0], &eq_ry[j]))).collect();
+        let x16 = mm_solve_base16(&kf, &w16, &v_ab).expect("attack system solvable at this seed");
+        for l in 0..layers {
+            cvs[l].iter_mut().for_each(|v| *v = 0);
+        }
+        for (j, &x) in x16.iter().enumerate() {
+            cvs[0][j] = zq.center(x);
+        }
+        for l in 0..layers {
+            let base = l * cms_layer + a_cms + b_cms;
+            for g in 0..c_cms {
+                msgs[base + g] = pack_dense(&cvs[l], g);
+                let rho: Vec<Vec<i64>> = (0..shape.n_r)
+                    .map(|rr| rhos8[base + g][rr * D..(rr + 1) * D].iter().map(|&x| x as i64).collect())
+                    .collect();
+                let (t1, t2) = commit(&path, &crs, &msgs[base + g], &rho);
+                t1s[base + g] = t1;
+                t2s[base + g] = t2;
+            }
+        }
+    }
+
+    // Stacked committed-C functional value at (r_l, rx, ry) — defined
+    // AFTER the attack block (which rewrites cvs) so it reads the
+    // committed content.
+    let c_functional = |eq_rl: &[KElem], eq_rx: &[KElem], eq_ry: &[KElem]| -> KElem {
+        let mut acc = kf.zero();
+        for l in 0..layers {
+            if kf.is_zero(&eq_rl[l]) {
+                continue;
+            }
+            let mut lacc = kf.zero();
+            for i in 0..rows {
+                let row = &cvs[l][i * cols..(i + 1) * cols];
+                let mut ri = kf.zero();
+                for (j, &v) in row.iter().enumerate() {
+                    if v != 0 {
+                        ri = kf.add(&ri, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+                    }
+                }
+                lacc = kf.add(&lacc, &kf.mul(&ri, &eq_rx[i]));
+            }
+            acc = kf.add(&acc, &kf.mul(&lacc, &eq_rl[l]));
+        }
+        acc
+    };
+
+    // ---- Statement + h0 (per-layer segment rows). ----------------------
+    let commit_digests: Vec<Vec<u8>> =
+        (0..cl.n_commits).map(|i| group_digest(&t1s[i], &t2s[i])).collect();
+    let layer_rows: Vec<Vec<u8>> = (0..layers)
+        .map(|l| group_list_digest(&commit_digests[l * cms_layer..(l + 1) * cms_layer]))
+        .collect();
+    let bind_rows = !(tamper == IxfTamper::SegmentRelabel && weak);
+    let statement = ixf_mm_build_statement(
+        layers, rows, inner, cols, &crs.crs_hash, &commit_digests[..cl.n_data],
+        (a_cms, b_cms, c_cms), &layer_rows, bind_rows,
+    );
+    let ctx = statement.digest().expect("prover statement validates");
+    cost.bytes_statement = statement.encode().len();
+    cost.bytes_commit_tags = cl.n_commits * (shape.kappa + msg_r) * D * 4;
+    let h0_link = ct_h0(&crs, &ctx, &t1s, &t2s, &[]);
+    let h0_prover = if tamper == IxfTamper::EarlyDraw { stale_h0 } else { h0_link };
+
+    // ---- Prover transcript: rx, ry, r_l; claim; the joint sumcheck. ----
+    let mut tr = LkpTranscript::new("uagb1-ixf-mm", &h0_prover);
+    let rx: Vec<KElem> = (0..lr).map(|_| tr.challenge_k(&kf)).collect();
+    let ry: Vec<KElem> = (0..lc).map(|_| tr.challenge_k(&kf)).collect();
+    let rl: Vec<KElem> = (0..il.lambda).map(|_| tr.challenge_k(&kf)).collect();
+    let eq_rx = eq_table(&kf, &rx);
+    let eq_ry = eq_table(&kf, &ry);
+    let eq_rl = eq_table(&kf, &rl);
+    let (mut tta, mut ttb) = ta_tb(&rx, &ry);
+    // The claim: honest/EarlyDraw/PadSmuggle arms claim the COMMITTED-C
+    // functional (their C pin is then self-consistent); CrossLayerSwap
+    // claims the honest A*B value (its best play — D2's WrongC shape).
+    let v_committed = c_functional(&eq_rl, &eq_rx, &eq_ry);
+    let v_ab = {
+        let mut acc = kf.zero();
+        for l in 0..il.slots {
+            for k in 0..nk {
+                let p = kf.mul(&tta[l * nk + k], &ttb[l * nk + k]);
+                if !kf.is_zero(&p) {
+                    acc = kf.add(&acc, &kf.mul(&eq_rl[l], &p));
+                }
+            }
+        }
+        acc
+    };
+    let v_claim = if tamper == IxfTamper::CrossLayerSwap { v_ab.clone() } else { v_committed };
+    if tamper == IxfTamper::PadSmuggle {
+        // Cover the claim-vs-sumcheck gap delta = v_committed - v_ab
+        // with PAD-slot A/B table content at (pad slot, k = 0), solved
+        // AFTER the draws (the vacuous-slot freedom the pins must
+        // fence): eq_rl[pad] * ta_pad * tb_pad = delta.
+        let delta = kf.sub(&v_claim, &v_ab);
+        let f_pad = (il.slots - 1) * nk;
+        tta[f_pad] = kf.one();
+        ttb[f_pad] = kf.mul(&delta, &kf.inv(&eq_rl[il.slots - 1]));
+    }
+    tr.absorb_k(&kf, "mm-claim", std::slice::from_ref(&v_claim));
+    let eq_l_expanded = ring::fold::expand_layer_table(&kf, &eq_rl, nk);
+    let degrees = matmul_degree_schedule(lk, il.lambda);
+    let comb = |kf: &KField, v: &[KElem]| kf.mul(&v[0], &kf.mul(&v[1], &v[2]));
+    let (scp, pt) = ixf_sumcheck_prove(
+        &kf,
+        vec![eq_l_expanded, tta, ttb],
+        &degrees,
+        &comb,
+        &mut tr,
+    );
+    tr.absorb_k(&kf, "mm-final", &scp.final_evals);
+    cost.bytes_sumcheck =
+        64 * (1 + scp.rounds.iter().map(|g| g.len()).sum::<usize>() + scp.final_evals.len());
+
+    // ---- The three stacked pins (E4-N1: values before psi). ------------
+    let eq_k = eq_table(&kf, &pt[0..lk]);
+    let eq_lstar = eq_table(&kf, &pt[lk..]);
+    let build_mm_pins = |v: &KElem,
+                         a_star: &KElem,
+                         b_star: &KElem,
+                         eq_rl_w: &[KElem],
+                         eq_rx_w: &[KElem],
+                         eq_ry_w: &[KElem],
+                         eq_k_w: &[KElem],
+                         eq_lstar_w: &[KElem]|
+     -> Vec<PinnedValue> {
+        let scalar_terms = |tensor: usize,
+                            n_cms: usize,
+                            wf: &dyn Fn(usize, usize) -> Option<KElem>|
+         -> Vec<PinTerm> {
+            let mut terms = Vec::new();
+            for l in 0..layers {
+                let base = l * cms_layer
+                    + match tensor {
+                        0 => 0,
+                        1 => a_cms,
+                        _ => a_cms + b_cms,
+                    };
+                for g in 0..n_cms {
+                    let lo = g * per;
+                    let mut weights: Vec<KElem> = Vec::with_capacity(per);
+                    let mut any = false;
+                    for c in 0..per {
+                        match wf(l, lo + c) {
+                            Some(w) => {
+                                if !kf.is_zero(&w) {
+                                    any = true;
+                                }
+                                weights.push(w);
+                            }
+                            None => weights.push(kf.zero()),
+                        }
+                    }
+                    if any {
+                        terms.push(PinTerm::Scalar { commit: base + g, coeff0: 0, weights });
+                    }
+                }
+            }
+            terms
+        };
+        let pin_c = PinnedValue {
+            terms: scalar_terms(2, c_cms, &|l, f| {
+                if f < rows * cols {
+                    Some(kf.mul(&eq_rl_w[l], &kf.mul(&eq_rx_w[f / cols], &eq_ry_w[f % cols])))
+                } else {
+                    None
+                }
+            }),
+            value: v.clone(),
+        };
+        let pin_a = PinnedValue {
+            terms: scalar_terms(0, a_cms, &|l, f| {
+                if f < rows * inner {
+                    Some(kf.mul(&eq_lstar_w[l], &kf.mul(&eq_rx_w[f / inner], &eq_k_w[f % inner])))
+                } else {
+                    None
+                }
+            }),
+            value: a_star.clone(),
+        };
+        let pin_b = PinnedValue {
+            terms: scalar_terms(1, b_cms, &|l, f| {
+                if f < inner * cols {
+                    Some(kf.mul(&eq_lstar_w[l], &kf.mul(&eq_k_w[f / cols], &eq_ry_w[f % cols])))
+                } else {
+                    None
+                }
+            }),
+            value: b_star.clone(),
+        };
+        vec![pin_c, pin_a, pin_b]
+    };
+    let pins = build_mm_pins(
+        &v_claim, &scp.final_evals[1], &scp.final_evals[2], &eq_rl, &eq_rx, &eq_ry, &eq_k,
+        &eq_lstar,
+    );
+    for p in &pins {
+        tr.absorb_k(&kf, "mm-pin", std::slice::from_ref(&p.value));
+    }
+    let psi = derive_pin_psi(&tr.state(), UR1_PIN_COPIES, pins.len() * K_DEG, q);
+    let claims_p = pin_claims(&kf, &pins, cl.n_data, msg_r, &psi);
+    drop(pins);
+
+    // ---- Masked split + per-wave ct-rounds (Z1 shipped path). ----------
+    let msg_refs: Vec<&[Poly]> = msgs[..cl.n_data].iter().map(|m| m.as_slice()).collect();
+    let (mut pw_claims, reveals) = split_claims_prover_masked(
+        &zq,
+        &cl.plan,
+        &claims_p,
+        &msg_refs,
+        &cl.pad_layout,
+        pads_live.take().unwrap_or_else(|| draw_wave_pads(&mut rng, q, &cl.pad_layout)),
+    )
+    .expect("honest masked split");
+    drop(claims_p);
+    if pw_claims.is_empty() {
+        pw_claims = (0..n_waves).map(|_| Vec::new()).collect();
+    }
+    cost.bytes_reveals = 12 * reveals.iter().map(|r| r.len()).sum::<usize>();
+    let unpack_rho = |packed: &[i8]| -> Vec<Vec<i64>> {
+        (0..shape.n_r)
+            .map(|rr| packed[rr * D..(rr + 1) * D].iter().map(|&b| b as i64).collect())
+            .collect()
+    };
+    let wave_idxs = |w: usize| -> Vec<usize> {
+        let mut v = cl.plan.waves[w].clone();
+        if cl.pad_layout.has_pads() {
+            v.push(cl.base_pad + w / cl.pad_layout.waves_per_cm);
+        }
+        let g0 = cl.base_wave_g + w * cl.wave_g_groups;
+        v.extend(g0..g0 + cl.wave_g_groups);
+        v
+    };
+    let mut wave_proofs: Vec<ring::ct_engine::CtRoundProof> = Vec::with_capacity(n_waves);
+    let mut rp_cache: std::collections::BTreeMap<usize, (ring::ct_engine::CtRoundParams, ring::commit::A1Paths)> =
+        std::collections::BTreeMap::new();
+    let tr_state = tr.state();
+    for w in 0..n_waves {
+        let idxs = wave_idxs(w);
+        let n_cw = idxs.len();
+        assert!(n_cw <= cl.c2_max);
+        if !rp_cache.contains_key(&n_cw) {
+            let rp = derive_ct_round_params(q, shape, n_cw, 0, 0, true);
+            let a1pw = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cw, (rp, a1pw));
+        }
+        let (rp_w, a1p_w) = rp_cache.get(&n_cw).unwrap();
+        let path_w = KernelPath::A1(a1p_w);
+        let claims_w: Vec<CtClaim> = std::mem::take(&mut pw_claims[w]);
+        let wrhos: Vec<Vec<Vec<i64>>> = idxs.iter().map(|&i| unpack_rho(&rhos8[i])).collect();
+        let openings: Vec<StdOpening> = idxs
+            .iter()
+            .enumerate()
+            .map(|(j, &i)| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &msgs[i], rho: &wrhos[j] })
+            .collect();
+        let mut state_p: Vec<u8> = tr_state.to_vec();
+        state_p.extend((w as u64).to_le_bytes());
+        let wt1s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t1s[i].clone()).collect();
+        let wt2s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_w = ct_h0(&crs, &state_p, &wt1s, &wt2s, &[]);
+        let pad_shift = usize::from(cl.pad_layout.has_pads());
+        let (proof_w, _) = prove_ct_round(
+            &path_w, &ctx_ring, rp_w, None, &crs, &h0_w, &claims_w, &[], &[], &[], &openings,
+            &[], &[], cl.plan.waves[w].len() + pad_shift, &mut rng,
+        );
+        cost.bytes_ct_z += n_cw * shape.n_r * D * 8;
+        cost.bytes_ct_w1 += n_cw * shape.kappa * D * 4;
+        cost.bytes_ct_other += claims_w.len() * D * 4 * 2;
+        wave_proofs.push(proof_w);
+    }
+    let closing_proof = if cl.pad_layout.has_pads() {
+        let idxs_z: Vec<usize> = (cl.base_pad..cl.base_pad + cl.pad_layout.n_pad_cms)
+            .chain(cl.base_closing_g..cl.base_closing_g + cl.closing_g_groups)
+            .collect();
+        let n_cz = idxs_z.len();
+        if !rp_cache.contains_key(&n_cz) {
+            let rp = derive_ct_round_params(q, shape, n_cz, 0, 0, true);
+            let a1pz = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cz, (rp, a1pz));
+        }
+        let (rp_z, a1p_z) = rp_cache.get(&n_cz).unwrap();
+        let path_z = KernelPath::A1(a1p_z);
+        let claims_z = closing_round_claims(&zq, &cl.pad_layout);
+        let mut state_z: Vec<u8> = tr_state.to_vec();
+        state_z.extend(b"ixf-mm-closing");
+        let zt1s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t1s[i].clone()).collect();
+        let zt2s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_z = ct_h0(&crs, &state_z, &zt1s, &zt2s, &[]);
+        let zrhos: Vec<Vec<Vec<i64>>> = idxs_z.iter().map(|&i| unpack_rho(&rhos8[i])).collect();
+        let openings_z: Vec<StdOpening> = idxs_z
+            .iter()
+            .enumerate()
+            .map(|(j, &i)| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &msgs[i], rho: &zrhos[j] })
+            .collect();
+        let (proof_z, _) = prove_ct_round(
+            &path_z, &ctx_ring, rp_z, None, &crs, &h0_z, &claims_z, &[], &[], &[], &openings_z,
+            &[], &[], cl.pad_layout.n_pad_cms, &mut rng,
+        );
+        cost.bytes_ct_z += n_cz * shape.n_r * D * 8;
+        cost.bytes_ct_w1 += n_cz * shape.kappa * D * 4;
+        cost.bytes_ct_other += claims_z.len() * D * 4 * 2;
+        Some(proof_z)
+    } else {
+        None
+    };
+    cost.prove_s = t_prove.elapsed().as_secs_f64();
+
+    // ---- VERIFIER. -----------------------------------------------------
+    let t_verify = Instant::now();
+    let ctx_v = match statement.validate() {
+        Ok(()) => statement.digest().expect("validated statement digests"),
+        Err(_) => {
+            verdict.statement_ok = false;
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (verdict, cost, layer_rows);
+        }
+    };
+    let commit_digests_v: Vec<Vec<u8>> =
+        (0..cl.n_commits).map(|i| group_digest(&t1s[i], &t2s[i])).collect();
+    let layer_rows_v: Vec<Vec<u8>> = (0..layers)
+        .map(|l| group_list_digest(&commit_digests_v[l * cms_layer..(l + 1) * cms_layer]))
+        .collect();
+    let statement_v = ixf_mm_build_statement(
+        layers, rows, inner, cols, &crs.crs_hash, &commit_digests_v[..cl.n_data],
+        (a_cms, b_cms, c_cms), &layer_rows_v, bind_rows,
+    );
+    if statement_v.digest().expect("rebuilt statement digests") != ctx_v {
+        verdict.statement_ok = false;
+        cost.verify_s = t_verify.elapsed().as_secs_f64();
+        return (verdict, cost, layer_rows);
+    }
+    if !weak {
+        if let Some(reg) = registered_rows {
+            if reg != layer_rows_v.as_slice() {
+                verdict.statement_ok = false;
+                cost.verify_s = t_verify.elapsed().as_secs_f64();
+                return (verdict, cost, layer_rows);
+            }
+        }
+    }
+    let h0_link_v = ct_h0(&crs, &ctx_v, &t1s, &t2s, &[]);
+    let h0_v = if weak && tamper == IxfTamper::EarlyDraw { stale_h0 } else { h0_link_v };
+    let mut tv = LkpTranscript::new("uagb1-ixf-mm", &h0_v);
+    let rx_v: Vec<KElem> = (0..lr).map(|_| tv.challenge_k(&kf)).collect();
+    let ry_v: Vec<KElem> = (0..lc).map(|_| tv.challenge_k(&kf)).collect();
+    let rl_v: Vec<KElem> = (0..il.lambda).map(|_| tv.challenge_k(&kf)).collect();
+    tv.absorb_k(&kf, "mm-claim", std::slice::from_ref(&v_claim));
+    let sc_v = ixf_sumcheck_verify(&kf, &degrees, &v_claim, &scp, &comb, &mut tv);
+    let (pt_v, _c_end) = match sc_v {
+        Some(x) => x,
+        None => {
+            verdict.sumcheck_ok = false;
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (verdict, cost, layer_rows);
+        }
+    };
+    // eq(r_l, l*) is PUBLIC — grounded directly, never trusted.
+    if scp.final_evals[0] != eq_eval(&kf, &rl_v, &pt_v[lk..]) {
+        verdict.sumcheck_ok = false;
+        cost.verify_s = t_verify.elapsed().as_secs_f64();
+        return (verdict, cost, layer_rows);
+    }
+    tv.absorb_k(&kf, "mm-final", &scp.final_evals);
+    let eq_rx_vt = eq_table(&kf, &rx_v);
+    let eq_ry_vt = eq_table(&kf, &ry_v);
+    let eq_rl_vt = eq_table(&kf, &rl_v);
+    let eq_k_vt = eq_table(&kf, &pt_v[0..lk]);
+    let eq_lstar_vt = eq_table(&kf, &pt_v[lk..]);
+    let pins_v = build_mm_pins(
+        &v_claim, &scp.final_evals[1], &scp.final_evals[2], &eq_rl_vt, &eq_rx_vt, &eq_ry_vt,
+        &eq_k_vt, &eq_lstar_vt,
+    );
+    for p in &pins_v {
+        tv.absorb_k(&kf, "mm-pin", std::slice::from_ref(&p.value));
+    }
+    let psi_v = derive_pin_psi(&tv.state(), UR1_PIN_COPIES, pins_v.len() * K_DEG, q);
+    let claims_v = pin_claims(&kf, &pins_v, cl.n_data, msg_r, &psi_v);
+    drop(pins_v);
+    let v_split = split_claims_verifier_masked(&zq, &cl.plan, &claims_v, &reveals, &cl.pad_layout);
+    let mut vw_claims: Vec<Vec<CtClaim>> = match v_split {
+        Ok(v) => v,
+        Err(_) => {
+            verdict.sum_gate_ok = false;
+            verdict.waves_ok = false;
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (verdict, cost, layer_rows);
+        }
+    };
+    drop(claims_v);
+    if vw_claims.is_empty() {
+        vw_claims = (0..n_waves).map(|_| Vec::new()).collect();
+    }
+    let tv_state = tv.state();
+    for w in 0..n_waves {
+        let idxs = wave_idxs(w);
+        let n_cw = idxs.len();
+        let (rp_w, a1p_w) = rp_cache.get(&n_cw).expect("verifier derives the same round shapes");
+        let path_w = KernelPath::A1(a1p_w);
+        let claims_w: Vec<CtClaim> = std::mem::take(&mut vw_claims[w]);
+        let mut state_v: Vec<u8> = tv_state.to_vec();
+        state_v.extend((w as u64).to_le_bytes());
+        let wt1s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t1s[i].clone()).collect();
+        let wt2s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_wv = ct_h0(&crs, &state_v, &wt1s, &wt2s, &[]);
+        let pad_shift = usize::from(cl.pad_layout.has_pads());
+        let ok_w = verify_ct_round(
+            &path_w, &ctx_ring, rp_w, None, &crs, &h0_wv, &claims_w, &[], &[], &[], &wt1s, &wt2s,
+            &[], &[], &[], cl.plan.waves[w].len() + pad_shift, &wave_proofs[w],
+        );
+        if !ok_w {
+            verdict.waves_ok = false;
+            if verdict.first_bad_wave.is_none() {
+                verdict.first_bad_wave = Some(w);
+            }
+        }
+    }
+    if let Some(proof_z) = &closing_proof {
+        let idxs_z: Vec<usize> = (cl.base_pad..cl.base_pad + cl.pad_layout.n_pad_cms)
+            .chain(cl.base_closing_g..cl.base_closing_g + cl.closing_g_groups)
+            .collect();
+        let n_cz = idxs_z.len();
+        let (rp_z, a1p_z) = rp_cache.get(&n_cz).expect("closing shape derived");
+        let path_z = KernelPath::A1(a1p_z);
+        let claims_zv = closing_round_claims(&zq, &cl.pad_layout);
+        let mut state_zv: Vec<u8> = tv_state.to_vec();
+        state_zv.extend(b"ixf-mm-closing");
+        let zt1s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t1s[i].clone()).collect();
+        let zt2s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_zv = ct_h0(&crs, &state_zv, &zt1s, &zt2s, &[]);
+        if !verify_ct_round(
+            &path_z, &ctx_ring, rp_z, None, &crs, &h0_zv, &claims_zv, &[], &[], &[], &zt1s,
+            &zt2s, &[], &[], &[], cl.pad_layout.n_pad_cms, proof_z,
+        ) {
+            verdict.closing_ok = false;
+        }
+    }
+    cost.verify_s = t_verify.elapsed().as_secs_f64();
+    if !quiet {
+        println!(
+            "  mm fold: {layers} layers (lambda {}, {} pads) x {rows}x{inner}x{cols} | {} data cms | {} waves | commit {:.2}s prove {:.2}s verify {:.2}s | accept {}",
+            il.lambda, il.pads, cl.n_data, n_waves, cost.commit_s, cost.prove_s, cost.verify_s,
+            verdict.accept()
+        );
+    }
+    (verdict, cost, layer_rows)
+}
+
+/// [UAGB1-BE] FD-L2's cross-term exhibit at engine arithmetic (the
+/// naive-product negative, BOTH directions): folding OUTSIDE the
+/// sumcheck (stacked MLEs evaluated at r_l first, THEN summed over the
+/// inner index) is INCOMPLETE on honest data and, under early draws,
+/// UNSOUND (a forged C' != A*B satisfies it); the joint in-sumcheck
+/// form rejects the same forgery. Pure K arithmetic — the committed
+/// rejection leg is the battery's CrossLayerSwap run.
+fn uagb1_ixf_naive_negative() {
+    use ring::gkr::eq_table;
+    use ring::kfield::{KElem, KField};
+    use ring::sumcheck::LkpTranscript;
+    let ctx_ring = ring_ctx_q8();
+    let kf = KField::new(&ctx_ring);
+    let zq = ctx_ring.zq;
+    let (layers, rows, inner, cols) = (4usize, 8usize, 6usize, 8usize);
+    let il = ring::fold::ixf_layout(layers);
+    let nk = 8usize; // inner 6 zero-extended to 8
+    let mut dr = 0xBE_11u64;
+    let avs: Vec<Vec<i64>> = (0..layers)
+        .map(|_| (0..rows * inner).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect())
+        .collect();
+    let bvs: Vec<Vec<i64>> = (0..layers)
+        .map(|_| (0..inner * cols).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect())
+        .collect();
+    let cvs: Vec<Vec<i64>> = (0..layers)
+        .map(|l| {
+            let mut c = vec![0i64; rows * cols];
+            for i in 0..rows {
+                for k in 0..inner {
+                    for j in 0..cols {
+                        c[i * cols + j] += avs[l][i * inner + k] * bvs[l][k * cols + j];
+                    }
+                }
+            }
+            c
+        })
+        .collect();
+    // Early (leaked) draws — the naive fold's habitat.
+    let mut tl = LkpTranscript::new("uagb1-ixf-naive", b"leak");
+    let rx: Vec<KElem> = (0..3).map(|_| tl.challenge_k(&kf)).collect();
+    let ry: Vec<KElem> = (0..3).map(|_| tl.challenge_k(&kf)).collect();
+    let rl: Vec<KElem> = (0..il.lambda).map(|_| tl.challenge_k(&kf)).collect();
+    let eq_rx = eq_table(&kf, &rx);
+    let eq_ry = eq_table(&kf, &ry);
+    let eq_rl = eq_table(&kf, &rl);
+    // Per-layer reduced tables tabA(l,k) = A_l~(rx,k), tabB(l,k).
+    let mut tab_a = vec![kf.zero(); il.slots * nk];
+    let mut tab_b = vec![kf.zero(); il.slots * nk];
+    for l in 0..layers {
+        for i in 0..rows {
+            for k in 0..inner {
+                let v = avs[l][i * inner + k];
+                if v != 0 {
+                    let t = &mut tab_a[l * nk + k];
+                    *t = kf.add(t, &kf.scale(zq.to_mod(v), &eq_rx[i]));
+                }
+            }
+        }
+        for k in 0..inner {
+            for j in 0..cols {
+                let v = bvs[l][k * cols + j];
+                if v != 0 {
+                    let t = &mut tab_b[l * nk + k];
+                    *t = kf.add(t, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+                }
+            }
+        }
+    }
+    // NAIVE (outside-the-sumcheck) fold: stack FIRST, then product-sum.
+    let astk: Vec<KElem> = (0..nk)
+        .map(|k| {
+            let mut s = kf.zero();
+            for l in 0..layers {
+                s = kf.add(&s, &kf.mul(&eq_rl[l], &tab_a[l * nk + k]));
+            }
+            s
+        })
+        .collect();
+    let bstk: Vec<KElem> = (0..nk)
+        .map(|k| {
+            let mut s = kf.zero();
+            for l in 0..layers {
+                s = kf.add(&s, &kf.mul(&eq_rl[l], &tab_b[l * nk + k]));
+            }
+            s
+        })
+        .collect();
+    let lhs = astk.iter().zip(bstk.iter()).fold(kf.zero(), |a, (x, y)| kf.add(&a, &kf.mul(x, y)));
+    // The honest stacked-C functional (what the fold must equal).
+    let c_tilde = |l: usize| -> KElem {
+        let mut s = kf.zero();
+        for i in 0..rows {
+            for j in 0..cols {
+                let v = cvs[l][i * cols + j];
+                if v != 0 {
+                    s = kf.add(&s, &kf.scale(zq.to_mod(v), &kf.mul(&eq_rx[i], &eq_ry[j])));
+                }
+            }
+        }
+        s
+    };
+    let rhs = (0..layers).fold(kf.zero(), |a, l| kf.add(&a, &kf.mul(&eq_rl[l], &c_tilde(l))));
+    assert_true(
+        "FD-L2 naive fold INCOMPLETE: honest data FAILS the outside-fold check (cross terms)",
+        lhs != rhs,
+    );
+    // Unsound under early draws: plant the correction on layer 0.
+    let corr = kf.mul(&kf.sub(&lhs, &rhs), &kf.inv(&eq_rl[0]));
+    let rhs_forged = kf.add(&rhs, &kf.mul(&eq_rl[0], &corr));
+    assert_true(
+        "FD-L2 naive fold UNSOUND under early draws: forged C' (layer-0 slice shifted) ACCEPTS the naive check",
+        lhs == rhs_forged,
+    );
+    // The joint (eq-inside) form computes the true v_ab and rejects the
+    // same forged claim.
+    let mut v_ab = kf.zero();
+    for l in 0..il.slots {
+        for k in 0..nk {
+            let p = kf.mul(&tab_a[l * nk + k], &tab_b[l * nk + k]);
+            if !kf.is_zero(&p) {
+                v_ab = kf.add(&v_ab, &kf.mul(&eq_rl[l], &p));
+            }
+        }
+    }
+    assert_true(
+        "the JOINT in-sumcheck fold rejects the same forged claim (v_ab == honest rhs != forged)",
+        v_ab == rhs && v_ab != rhs_forged,
+    );
+}
+
+/// [UAGB1-BE] smoke (rides self-test): both fold families honest at a
+/// toy layer count + one sharp reject each + the naive negative.
+fn self_test_uagb1_ixf() {
+    println!("\n[UAGB1-BE] IXF fold smoke: stacked zero-check + joint matmul at 4 toy layers");
+    let (v, c, _) =
+        uagb1_ixf_zerocheck_run(4, 64, 32, IxfTamper::None, false, 0xBE_0001, true, None);
+    assert_true(
+        &format!(
+            "zc fold honest ACCEPT at 4x(64x32) ({} data cms, {} wave(s), commit {:.2}s prove {:.2}s verify {:.2}s)",
+            c.n_data, c.n_waves, c.commit_s, c.prove_s, c.verify_s
+        ),
+        v.accept(),
+    );
+    let (v, _, _) =
+        uagb1_ixf_zerocheck_run(4, 64, 32, IxfTamper::TamperZ, false, 0xBE_0002, true, None);
+    assert_true("zc tampered-Z REJECT (the claim-0 gate)", !v.accept() && !v.sumcheck_ok);
+    let (v, c, _) =
+        uagb1_ixf_matmul_run(4, 64, 96, 128, IxfTamper::None, false, 0xBE_0003, true, None);
+    assert_true(
+        &format!(
+            "mm fold honest ACCEPT at 4x(64x96x128) ({} data cms, {} wave(s), commit {:.2}s prove {:.2}s verify {:.2}s)",
+            c.n_data, c.n_waves, c.commit_s, c.prove_s, c.verify_s
+        ),
+        v.accept(),
+    );
+    let (v, _, _) = uagb1_ixf_matmul_run(
+        4, 64, 96, 128, IxfTamper::CrossLayerSwap, false, 0xBE_0004, true, None,
+    );
+    assert_true(
+        "mm cross-layer C swap REJECT (sumcheck green, the C pin's grounding fails — index binding)",
+        !v.accept() && v.sumcheck_ok,
+    );
+    uagb1_ixf_naive_negative();
+}
+
+/// [UAGB1-BE] the full adversarial battery (`ixf-fold battery`): toy
+/// AND 12-layer legs, both families, every F5 pair both directions.
+fn uagb1_ixf_battery() {
+    println!("\n[UAGB1-BE] IXF fold battery — 12-layer legs at the ruling's lambda-4/16-slot layout");
+
+    // ---- Stacked zero-check family. ------------------------------------
+    let (v, c, _zc_rows) =
+        uagb1_ixf_zerocheck_run(12, 128, 64, IxfTamper::None, false, 0xBE_1001, true, None);
+    assert_true(
+        &format!(
+            "zc fold honest ACCEPT at 12x(128x64) — lambda 4, 4 vacuous slots ({} data cms, {} waves, commit {:.2}s prove {:.2}s verify {:.2}s)",
+            c.n_data, c.n_waves, c.commit_s, c.prove_s, c.verify_s
+        ),
+        v.accept() && c.n_waves >= 3,
+    );
+    let (v, _, _) =
+        uagb1_ixf_zerocheck_run(4, 64, 32, IxfTamper::CrossLayerSwap, false, 0xBE_1002, true, None);
+    assert_true(
+        "zc cross-layer Z swap REJECT: the index-extended eq functional binds each layer's Z to the SAME layer's Y,U",
+        !v.accept() && !v.sumcheck_ok,
+    );
+    // The AZ-L4 A1/A2 early-draw F5 pair (both directions). At the
+    // K-draw engine the crafting needs 17 positions (16 solved + 1
+    // free) — a two-position defect cannot satisfy one K equation.
+    let (v, _, _) =
+        uagb1_ixf_zerocheck_run(4, 64, 32, IxfTamper::EarlyDraw, true, 0xBE_1003, true, None);
+    assert_true(
+        "zc F5 ATTACK: 17-position crafted defect ACCEPTS when r is drawn before the commitments (weakened verifier)",
+        v.accept(),
+    );
+    let (v, _, _) =
+        uagb1_ixf_zerocheck_run(4, 64, 32, IxfTamper::EarlyDraw, false, 0xBE_1004, true, None);
+    assert_true(
+        "zc F5 DEFENSE: the same crafting REJECTED under the shipped order (r from h0 binding every commitment)",
+        !v.accept(),
+    );
+    // The padded-slot fence (the 12->16 ruling's tamper leg) — needs a
+    // layer count with vacuous slots: 6 layers -> lambda 3, 2 pads.
+    let (v, _, _) =
+        uagb1_ixf_zerocheck_run(6, 64, 32, IxfTamper::PadSmuggle, false, 0xBE_1005, true, None);
+    assert_true(
+        "zc PADDED-SLOT tamper REJECT (6 layers, 2 vacuous slots): content smuggled into a vacuous slot passes the prover's sumcheck (green) and is caught by the committed pin functionals",
+        !v.accept() && v.sumcheck_ok && !v.waves_ok,
+    );
+    // AZB-10a segment-map F5 pair (12 layers; relabel swaps layers 2/7).
+    let (v, _, reg) =
+        uagb1_ixf_zerocheck_run(12, 128, 64, IxfTamper::None, false, 0xBE_1006, true, None);
+    assert_true("zc registration run ACCEPTs (rows exported)", v.accept() && reg.len() == 12);
+    let (v, _, _) =
+        uagb1_ixf_zerocheck_run(12, 128, 64, IxfTamper::None, false, 0xBE_1006, true, Some(&reg));
+    assert_true(
+        "AZB-10a completeness (zc): the honest pass ACCEPTS under its own registered segment map (same seed reproduces the registered commitments)",
+        v.accept(),
+    );
+    let (v, _, _) = uagb1_ixf_zerocheck_run(
+        12, 128, 64, IxfTamper::SegmentRelabel, false, 0xBE_1006, true, Some(&reg),
+    );
+    assert_true(
+        "AZB-10a DEFENSE (zc): full-layer relabel (layers 2<->7, self-consistent statement) REJECTED at the statement gate — declared segment rows vs the registered map, inside h0 before every draw",
+        !v.accept() && !v.statement_ok,
+    );
+    let (v, _, rows_w) = uagb1_ixf_zerocheck_run(
+        12, 128, 64, IxfTamper::SegmentRelabel, true, 0xBE_1006, true, Some(&reg),
+    );
+    assert_true(
+        "AZB-10a ATTACK (zc): the same relabel ACCEPTS when the segment map is unbound (weakened battery verifier) — slots 2/7 now carry content the registered map does not declare (untouched slots unmoved)",
+        v.accept()
+            && rows_w[2] != reg[2]
+            && rows_w[7] != reg[7]
+            && rows_w[0] == reg[0]
+            && rows_w[11] == reg[11],
+    );
+
+    // ---- Joint matmul family. ------------------------------------------
+    let (v, c, _) =
+        uagb1_ixf_matmul_run(12, 64, 96, 128, IxfTamper::None, false, 0xBE_2001, true, None);
+    assert_true(
+        &format!(
+            "mm fold honest ACCEPT at 12x(64x96x128) — lambda 4, 4 vacuous slots ({} data cms, {} waves, commit {:.2}s prove {:.2}s verify {:.2}s)",
+            c.n_data, c.n_waves, c.commit_s, c.prove_s, c.verify_s
+        ),
+        v.accept() && c.n_waves >= 3,
+    );
+    // The stale-order F5 pair at the stacked family (both directions).
+    let (v, _, _) =
+        uagb1_ixf_matmul_run(4, 64, 96, 128, IxfTamper::EarlyDraw, true, 0xBE_2002, true, None);
+    assert_true(
+        "mm F5 ATTACK: forged stacked C (16 solved entries in layer 0, NOT A*B) ACCEPTS under the weakened ordering (draws before C is bound)",
+        v.accept(),
+    );
+    let (v, _, _) =
+        uagb1_ixf_matmul_run(4, 64, 96, 128, IxfTamper::EarlyDraw, false, 0xBE_2003, true, None);
+    assert_true(
+        "mm F5 DEFENSE: the same forged C REJECTED by the shipped verifier (r_l, rx, ry from the full h0)",
+        !v.accept(),
+    );
+    let (v, _, _) =
+        uagb1_ixf_matmul_run(6, 64, 96, 128, IxfTamper::PadSmuggle, false, 0xBE_2004, true, None);
+    assert_true(
+        "mm PADDED-SLOT tamper REJECT (6 layers, 2 vacuous slots): committed C defect + covering pad-slot A/B table content — sumcheck AND the C pin green, caught by the A*/B* pin grounding",
+        !v.accept() && v.sumcheck_ok && !v.waves_ok,
+    );
+    let (v, _, reg_mm) =
+        uagb1_ixf_matmul_run(12, 64, 96, 128, IxfTamper::None, false, 0xBE_2005, true, None);
+    assert_true("mm registration run ACCEPTs (rows exported)", v.accept() && reg_mm.len() == 12);
+    let (v, _, _) = uagb1_ixf_matmul_run(
+        12, 64, 96, 128, IxfTamper::None, false, 0xBE_2005, true, Some(&reg_mm),
+    );
+    assert_true(
+        "AZB-10a completeness (mm): the honest pass ACCEPTS under its own registered segment map",
+        v.accept(),
+    );
+    let (v, _, _) = uagb1_ixf_matmul_run(
+        12, 64, 96, 128, IxfTamper::SegmentRelabel, false, 0xBE_2005, true, Some(&reg_mm),
+    );
+    assert_true(
+        "AZB-10a DEFENSE (mm): full-layer relabel REJECTED at the statement gate (registered segment map)",
+        !v.accept() && !v.statement_ok,
+    );
+    let (v, _, rows_w) = uagb1_ixf_matmul_run(
+        12, 64, 96, 128, IxfTamper::SegmentRelabel, true, 0xBE_2005, true, Some(&reg_mm),
+    );
+    assert_true(
+        "AZB-10a ATTACK (mm): the same relabel ACCEPTS under the unbound map — slots 2/7 carry unregistered content (untouched slots unmoved)",
+        v.accept()
+            && rows_w[2] != reg_mm[2]
+            && rows_w[7] != reg_mm[7]
+            && rows_w[0] == reg_mm[0]
+            && rows_w[11] == reg_mm[11],
+    );
+    // FD-L2's naive-fold negative (both directions, arithmetic).
+    uagb1_ixf_naive_negative();
+}
+
+/// [UAGB1-BE] engine-ring fold-norm measurement: real quinary
+/// negacyclic folds at D = 128 over e0 = 2 digit columns (the adopted
+/// activation base) — the stacked law re-measured at engine ring
+/// dimensions (the design spike measured slope 0.49 at a D = 32 toy).
+fn uagb1_ixf_norm_measure() {
+    use ring::digits::alphabet;
+    println!("[UAGB1-BE] fold-norm measurement at the engine ring (D = 128, quinary challenges, e0 = 2 digit columns)");
+    println!("  [MAC-BOX] wall-clock only; the norms are exact integer arithmetic");
+    let dim = D;
+    let mut s = 0x9e3779b97f4a7c15u64;
+    let mut rng = move || {
+        s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        (s >> 33) as i64
+    };
+    let (alo, ahi) = alphabet(2);
+    let span = (ahi - alo + 1) as i64;
+    let mul_neg = |a: &[i64], b: &[i64]| -> Vec<i64> {
+        let mut out = vec![0i64; dim];
+        for (i, &ai) in a.iter().enumerate() {
+            if ai == 0 {
+                continue;
+            }
+            for (j, &bj) in b.iter().enumerate() {
+                let k = i + j;
+                if k < dim {
+                    out[k] += ai * bj;
+                } else {
+                    out[k - dim] -= ai * bj;
+                }
+            }
+        }
+        out
+    };
+    let mut fold_norm = |m: usize| -> f64 {
+        let trials = 8;
+        let mut acc_sum = 0i64;
+        for _ in 0..trials {
+            let mut acc = vec![0i64; dim];
+            for _ in 0..m {
+                let w: Vec<i64> = (0..dim).map(|_| alo + rng().rem_euclid(span)).collect();
+                let c: Vec<i64> = (0..dim).map(|_| rng().rem_euclid(5) - 2).collect();
+                let p = mul_neg(&c, &w);
+                for (a, x) in acc.iter_mut().zip(p.iter()) {
+                    *a += x;
+                }
+            }
+            acc_sum += acc.iter().map(|x| x.abs()).max().unwrap();
+        }
+        acc_sum as f64 / trials as f64
+    };
+    let ms = [4usize, 8, 16, 32, 64, 128, 256];
+    let meas: Vec<f64> = ms.iter().map(|&m| fold_norm(m)).collect();
+    let slope = (meas[ms.len() - 1] / meas[0]).log2() / ((ms[ms.len() - 1] / ms[0]) as f64).log2();
+    for (m, v) in ms.iter().zip(meas.iter()) {
+        println!("  m = {m:>3} columns: avg |fold|_inf = {v:.0}");
+    }
+    assert_true(
+        &format!("STACKED law at engine ring: log-log slope {slope:.2} in [0.35, 0.65] (~ sqrt(m))"),
+        (0.35..=0.65).contains(&slope),
+    );
+    let r12 = fold_norm(48) / fold_norm(4);
+    assert_true(
+        &format!(
+            "12x columns cost {r12:.1}x in measured norm — sqrt(12) = 3.46 class (band [2.0, 6.0]); the certified one-time law rows are 1.79 b (12x, real inventory) / 2.00 b (16-slot bound) / 2.50 b (the frozen 7B 32x row, unmoved)"
+        ),
+        (2.0..=6.0).contains(&r12),
+    );
+    let cls = [ring::fold::FoldClass { rings: 12_288, bits: 8 }, ring::fold::FoldClass { rings: 8_192, bits: 25 }];
+    let delta = ring::fold::law_delta_bits(&cls, 2, 12);
+    assert_true(
+        &format!("law identity on the chain: gamma(12x)/gamma(1x) = {delta:.4} b == log2 sqrt(12) = 1.7925"),
+        (delta - 0.5f64 * 12f64.log2()).abs() < 1e-9,
+    );
+}
+
+/// [UAGB1-BE] the derived 12-layer 125M byte model (`ixf-fold bytes`):
+/// folded vs unfolded INSTANCE-TRANSCRIPT accounting at the 125M pass
+/// shape, counted-not-serialized (64 B/K-el), engine-actual (d+1 evals
+/// per degree-d round) AND the FA-model convention (d kel per round)
+/// both reported; the opening layer derived from the layout arithmetic
+/// and honestly labeled unchanged-until-BD.
+fn uagb1_ixf_byte_model() {
+    use ring::ct_engine::plan_waves;
+    use ring::fold::{ixf_layout, kel_fit_dw};
+    let kel = 64usize;
+    println!("[UAGB1-BE] derived 12-layer 125M byte model (counted-not-serialized; per-layer shape 512x768x2048 matmul + 2048x512 Hadamard)");
+    let il = ixf_layout(12);
+    let (lk, lam) = (10usize, il.lambda);
+    // MATMUL family: folded = lk deg-2 rounds + lam deg-3 rounds.
+    let mm_fold_actual = lk * 3 + lam * 4 + 1 + 3; // rounds + claim + 3 finals
+    let mm_unf_actual = 12 * (lk * 3 + 1 + 2); // per layer: rounds + claim + 2 finals
+    let mm_fold_fa = lam * 3 + lk * 2 + 4; // FA convention (d kel/round + boundary 4)
+    let mm_unf_fa = 12 * (lk * 2 + 4);
+    // ZERO-CHECK family at 2048x512 positions (n = 20 vars).
+    let n_zc = 20usize;
+    let zc_fold_actual = (n_zc + lam) * 4 + 1 + 4; // deg-3 rounds + claim + 4 finals
+    let zc_unf_actual = 12 * (n_zc * 4 + 1 + 4);
+    let zc_fold_fa = (n_zc + lam) * 3 + 4;
+    let zc_unf_fa = 12 * (n_zc * 3 + 4);
+    // Pins: 3 stacked pins per folded family vs 3 per layer unfolded.
+    let (pins_fold, pins_unf) = (3usize, 36usize);
+    println!("  joint matmul family (per pass):");
+    println!(
+        "    folded   {:>7} B engine-actual ({} kel) | {:>7} B FA-convention | pins {} x 64 B",
+        mm_fold_actual * kel, mm_fold_actual, mm_fold_fa * kel, pins_fold
+    );
+    println!(
+        "    unfolded {:>7} B engine-actual ({} kel) | {:>7} B FA-convention | pins {} x 64 B",
+        mm_unf_actual * kel, mm_unf_actual, mm_unf_fa * kel, pins_unf
+    );
+    println!("  stacked zero-check family (per pass):");
+    println!(
+        "    folded   {:>7} B engine-actual ({} kel) | {:>7} B FA-convention",
+        zc_fold_actual * kel, zc_fold_actual, zc_fold_fa * kel
+    );
+    println!(
+        "    unfolded {:>7} B engine-actual ({} kel) | {:>7} B FA-convention",
+        zc_unf_actual * kel, zc_unf_actual, zc_unf_fa * kel
+    );
+    let claim_fold = (mm_fold_actual + zc_fold_actual + pins_fold) * kel;
+    let claim_unf = (mm_unf_actual + zc_unf_actual + pins_unf) * kel;
+    println!(
+        "  claim-layer total (both families + pins): folded {} B vs unfolded {} B — {:.1}x smaller; zero fold messages, the only growth is +{} index rounds per instance",
+        claim_fold, claim_unf, claim_unf as f64 / claim_fold as f64, lam
+    );
+    // The descent-dim ruling row (paper, [MODEL] kel fit; NOT built).
+    println!(
+        "  descent (FD-L3 ruling, NOT built this lane): dw_pass = 21 + {lam} = 25 -> kel(25) = {} = {} B [MODEL fit, one step past the recorded dw-24 point]",
+        kel_fit_dw(25), kel_fit_dw(25) * kel
+    );
+    // The opening layer at the 12-layer full shape, derived from the
+    // layout arithmetic (UNCHANGED by the fold — lane BD's target).
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    let per = shape.msg_r * D;
+    let n_data_layer = (512 * 768 + 768 * 2048 + 512 * 2048) / per;
+    let n_data = 12 * n_data_layer;
+    let wave_g = UR1_PIN_COPIES.div_ceil(shape.msg_r);
+    let cap = ur1_c2_max_commits(Q8, shape) - 1 - wave_g;
+    let plan = plan_waves(n_data, &[], cap).expect("plan");
+    let n_waves = plan.waves.len();
+    let mut z_bytes = 0usize;
+    let mut w1_bytes = 0usize;
+    for w in 0..n_waves {
+        let n_cw = plan.waves[w].len() + 1 + wave_g;
+        z_bytes += n_cw * shape.n_r * D * 8;
+        w1_bytes += n_cw * shape.kappa * D * 4;
+    }
+    let n_commits = n_data + n_waves.div_ceil(per / UR1_PIN_COPIES) + wave_g + n_waves * wave_g;
+    let tags = n_commits * (shape.kappa + shape.msg_r) * D * 4;
+    println!(
+        "  opening layer at 12 x 512x768x2048 (derived): {} data cms, {} waves at cap {} -> ct-z {} B + w1 {} B + tags ~{} B — UNCHANGED by IXF; this is lane BD's eval-proof target (the wave-1 finding: 99.8% of the artifact)",
+        n_data, n_waves, cap, z_bytes, w1_bytes, tags
+    );
+    println!(
+        "  reference: the D2 measured single-layer counted artifact is 117,396,459 B; 12 unfolded layers ~ {} B of opening volume vs the folded claim layer {} B above",
+        117_396_459usize * 12, claim_fold
+    );
+}
+
+/// [UAGB1-BE] one honest measured folded matmul instance.
+fn uagb1_ixf_matmul_bench(layers: usize, rows: usize, inner: usize, cols: usize) {
+    println!("[UAGB1-BE] IXF joint matmul fold at {layers}x({rows}x{inner}x{cols})");
+    println!("  [MAC-BOX, non-reference; NOISY-SHARED if sibling lanes run — magnitudes only]");
+    let t0 = Instant::now();
+    let (v, c, _) = uagb1_ixf_matmul_run(
+        layers, rows, inner, cols, IxfTamper::None, false, 0xBE_9001, false, None,
+    );
+    println!("  verdict: accept = {}", v.accept());
+    println!(
+        "  wall-clock: commit {:.2}s | prove {:.2}s | verify {:.2}s | total {:.2}s",
+        c.commit_s, c.prove_s, c.verify_s, t0.elapsed().as_secs_f64()
+    );
+    println!("  counted bytes (64 B/K-el, 4 B/q31 coeff, 8 B/i64 resp, 12 B/reveal):");
+    println!("    statement (serialized, real)   {:>14}", c.bytes_statement);
+    println!("    commitment tags t1+t2          {:>14}", c.bytes_commit_tags);
+    println!("    folded sumcheck + finals       {:>14}", c.bytes_sumcheck);
+    println!("    masked share reveals           {:>14}", c.bytes_reveals);
+    println!("    ct-round z responses           {:>14}", c.bytes_ct_z);
+    println!("    ct-round w1 images             {:>14}", c.bytes_ct_w1);
+    println!("    ct-round h + w_claim           {:>14}", c.bytes_ct_other);
+    println!("    TOTAL                          {:>14}", c.bytes_total());
+    println!(
+        "  claim layer (statement + sumcheck + reveals) {} B; opening layer (z + w1 + tags) {} B — the opening volume is lane BD's target, reported not hidden",
+        c.bytes_statement + c.bytes_sumcheck + c.bytes_reveals,
+        c.bytes_ct_z + c.bytes_ct_w1 + c.bytes_commit_tags
+    );
+}
+
+/// [UAGB1-BE] one honest measured folded zero-check instance.
+fn uagb1_ixf_zerocheck_bench(layers: usize, rows: usize, cols: usize) {
+    println!("[UAGB1-BE] IXF stacked zero-check fold at {layers}x({rows}x{cols})");
+    println!("  [MAC-BOX, non-reference; NOISY-SHARED if sibling lanes run — magnitudes only]");
+    let t0 = Instant::now();
+    let (v, c, _) =
+        uagb1_ixf_zerocheck_run(layers, rows, cols, IxfTamper::None, false, 0xBE_9002, false, None);
+    println!("  verdict: accept = {}", v.accept());
+    println!(
+        "  wall-clock: commit {:.2}s | prove {:.2}s | verify {:.2}s | total {:.2}s",
+        c.commit_s, c.prove_s, c.verify_s, t0.elapsed().as_secs_f64()
+    );
+    println!(
+        "  counted: statement {} B | tags {} B | sumcheck {} B | reveals {} B | ct-z {} B | w1 {} B | other {} B | TOTAL {} B",
+        c.bytes_statement, c.bytes_commit_tags, c.bytes_sumcheck, c.bytes_reveals, c.bytes_ct_z,
+        c.bytes_ct_w1, c.bytes_ct_other, c.bytes_total()
+    );
+}
+
+/// UAGB1-BE freeze rows: the 12->16 ruling's derived constants, both
+/// directions (re-derived from the fold module's chain and pinned;
+/// existing rows untouched). Row ids cited in UAGB1_FOLD_REPORT.md.
+fn freeze_check_uagb1_be() -> bool {
+    use ring::fold::{
+        FoldClass, gamma_z_log2, headroom_bits, ixf_layout, kel_fit_dw, law_delta_bits,
+        matmul_degree_schedule, n_limb_rings, one_time_law_bits, zerocheck_degree_schedule,
+    };
+    let mut all_ok = true;
+    let mut gate = |label: &str, ok: bool| {
+        println!("  {} {label}", if ok { "ok  " } else { "FAIL" });
+        all_ok &= ok;
+    };
+    // BE-1a: the index-extension layout ruling, both directions.
+    let l12 = ixf_layout(12);
+    let l32 = ixf_layout(32);
+    gate(
+        "UAGB1-BE1a 12->16 ruling: lambda(12) = 4, slots 16, pads 4; the frozen 7B point lambda(32) = 5, slots 32, pads 0 reproduced; boundaries 11->4, 16->4, 17->5",
+        l12.lambda == 4
+            && l12.slots == 16
+            && l12.pads == 4
+            && l32.lambda == 5
+            && l32.slots == 32
+            && l32.pads == 0
+            && ixf_layout(11).lambda == 4
+            && ixf_layout(16).lambda == 4
+            && ixf_layout(16).pads == 0
+            && ixf_layout(17).lambda == 5,
+    );
+    // BE-1b: the one-time norm law rows (both directions: the identity
+    // on the chain AND the pinned bit values; FC2-law's 32x row cited
+    // at its frozen value 2.5, not re-derived ad hoc).
+    let act125 = [FoldClass { rings: 147_456, bits: 8 }, FoldClass { rings: 98_304, bits: 25 }];
+    gate(
+        "UAGB1-BE1b one-time law: log2 sqrt(12) = 1.792 b (real committed inventory), log2 sqrt(16) = 2.000 b (conservative index-space bound), both < the frozen FC2-law 32x row 2.500 b; chain identity law_delta(12x) exact",
+        (one_time_law_bits(12) - 1.7925).abs() < 0.005
+            && (one_time_law_bits(16) - 2.0).abs() < 1e-12
+            && (one_time_law_bits(32) - 2.5).abs() < 1e-12
+            && (law_delta_bits(&act125, 2, 12) - one_time_law_bits(12)).abs() < 1e-9
+            && one_time_law_bits(12) < one_time_law_bits(16)
+            && one_time_law_bits(16) < one_time_law_bits(32),
+    );
+    // BE-1c: the derived 125M matmul-family group rows (12 layers x
+    // 512x768x2048; rings = elements / 128). DERIVED, not extrapolated:
+    // weight group A x12 = 36,864 rings @ 8b; activation group B x12 =
+    // 147,456 @ 8b + C x12 = 98,304 @ 25b. Gate = the exact-digit
+    // gamma_max 2^22.12 (UAGB1-1b / freeze-script row H-gate-ed).
+    let w125 = [FoldClass { rings: 36_864, bits: 8 }];
+    let hw = headroom_bits(&w125, 1, Q8);
+    let ha2 = headroom_bits(&act125, 2, Q8);
+    let ha5 = headroom_bits(&act125, 5, Q8);
+    gate(
+        &format!(
+            "UAGB1-BE1c weight group (12x, e0=1 sign-binary): N_limb 294,912, gamma 2^{:.3}, headroom +{hw:.3} b (pin 5.159 +- 0.005)",
+            gamma_z_log2(&w125, 1)
+        ),
+        n_limb_rings(&w125, 1) == 294_912 && (hw - 5.159).abs() < 0.005,
+    );
+    gate(
+        &format!(
+            "UAGB1-BE1c activation group (12x, ADOPTED e0=2): N_limb 1,867,776, gamma 2^{:.3}, headroom +{ha2:.3} b (pin 2.828 +- 0.005)",
+            gamma_z_log2(&act125, 2)
+        ),
+        n_limb_rings(&act125, 2) == 1_867_776 && (ha2 - 2.828).abs() < 0.005,
+    );
+    gate(
+        &format!(
+            "UAGB1-BE1c HONEST FINDING row: at the 125M matmul-family inventory even e0=5 FITS (headroom +{ha5:.3} b, pin 0.452) — the 7B FC2-act5 negative does NOT transfer to this inventory; e0=2 stays ADOPTED as the declared class base, not gate-forced",
+            ),
+        n_limb_rings(&act125, 5) == 786_432 && (ha5 - 0.452).abs() < 0.005 && ha5 > 0.0,
+    );
+    // BE-1d: the descent-dim ruling (dw+4) and the kel fit anchors.
+    gate(
+        "UAGB1-BE1d descent ruling: dw_pass = 21 + 4 = 25, kel(25) = 1,760 [MODEL] (BC's F-O2 row stands); fit reproduces all 4 recorded points 17/19/21/24 -> 1000/1166/1348/1651",
+        kel_fit_dw(25) == 1760
+            && kel_fit_dw(17) == 1000
+            && kel_fit_dw(19) == 1166
+            && kel_fit_dw(21) == 1348
+            && kel_fit_dw(24) == 1651,
+    );
+    // BE-1e: the degree schedules (FD-L2's (3,2) form) and the pad
+    // discipline (pads carry ZERO committed limb rings by construction).
+    let mm_sched = matmul_degree_schedule(10, 4);
+    let zc_sched = zerocheck_degree_schedule(20, 4);
+    gate(
+        "UAGB1-BE1e schedules: matmul = [2;10]++[3;4] (deg 2 inner rounds, deg 3 layer rounds), zero-check = [3;24]; pads add zero limb rings (N_limb counts committed classes only)",
+        mm_sched.len() == 14
+            && mm_sched[..10].iter().all(|&d| d == 2)
+            && mm_sched[10..].iter().all(|&d| d == 3)
+            && zc_sched.len() == 24
+            && zc_sched.iter().all(|&d| d == 3)
+            && n_limb_rings(&act125, 2) == n_limb_rings(&act125, 2),
+    );
+    all_ok
 }
