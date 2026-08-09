@@ -33,7 +33,10 @@ class IxfFoldTests(unittest.TestCase):
             stdout=subprocess.PIPE,
         )
         self.assertIn("battery passed", result.stdout)
-        self.assertNotIn("FAIL", result.stdout)
+        # assert_true's failure marker is the line prefix "  FAIL " —
+        # a bare "FAIL" substring would trip on leg labels ("... FAILS
+        # the outside-fold check").
+        self.assertNotIn("\n  FAIL ", result.stdout)
 
     def test_ixf_fold_norm_measurement(self):
         result = subprocess.run(
@@ -43,7 +46,7 @@ class IxfFoldTests(unittest.TestCase):
             stdout=subprocess.PIPE,
         )
         self.assertIn("STACKED law at engine ring", result.stdout)
-        self.assertNotIn("FAIL", result.stdout)
+        self.assertNotIn("\n  FAIL ", result.stdout)
 
 
 if __name__ == "__main__":

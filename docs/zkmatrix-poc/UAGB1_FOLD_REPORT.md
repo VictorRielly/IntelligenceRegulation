@@ -180,9 +180,27 @@ listed with its verdict in Section 3.1. F5 pairs run BOTH directions
 (attack accepts under the weakened verifier, shipped rejects the
 same crafting).
 
-### 3.1 Legs
+### 3.1 Legs (`ixf-fold battery` — 20/20 green, 53.2 s [MAC-BOX]; also carried by tests/test_uagb1_fold.py)
 
-(see the battery output table — recorded on lane close)
+| leg | verdict |
+|---|---|
+| zc fold honest ACCEPT at 12x(128x64) — lambda 4, 4 vacuous slots (288 data cms, 3 waves; commit 0.03 s / prove 5.51 s / verify 0.41 s) | green |
+| zc cross-layer Z swap (self-consistent statement): index-extended eq binds each layer's Z to the SAME layer's Y,U | REJECT |
+| zc early-draw F5 ATTACK: 17-position crafted defect (16 solved + 1 free — see BE-F2) ACCEPTS under the weakened (leaked-r) verifier | accepts (attack lands) |
+| zc early-draw F5 DEFENSE: same crafting under the shipped order (r from h0 binding every commitment) | REJECT |
+| zc PADDED-SLOT tamper (6 layers, 2 vacuous slots): committed layer-0 defect + covering pad-slot table content solved post-draw — sumcheck GREEN, caught by the committed pin functionals | REJECT (waves) |
+| AZB-10a (zc) completeness: honest pass under its own registered segment map | ACCEPT |
+| AZB-10a (zc) DEFENSE: full-layer relabel (2<->7, self-consistent) vs the registered map bound in h0 | REJECT (statement gate) |
+| AZB-10a (zc) ATTACK: same relabel under the map-unbound weakened verifier — slots 2/7 carry unregistered content, untouched slots unmoved | accepts (edge exhibited) |
+| mm fold honest ACCEPT at 12x(64x96x128) — lambda 4, 4 vacuous slots (312 data cms, 3 waves; commit 0.03 s / prove 9.94 s / verify 0.52 s) | green |
+| mm stale-order F5 ATTACK: forged stacked C (16 solved entries in layer 0, NOT A*B) under draws-before-C ordering | accepts (attack lands) |
+| mm stale-order F5 DEFENSE: same forged C under the shipped verifier (r_l, rx, ry from the full h0) | REJECT |
+| mm PADDED-SLOT tamper (6 layers): committed C defect + covering pad-slot A/B content — sumcheck green AND the C pin consistent BY CONSTRUCTION (the claim is defined as the committed-C functional), caught by the A*/B* pin grounding | REJECT (waves) |
+| AZB-10a (mm) completeness / DEFENSE / ATTACK (as zc) | ACCEPT / REJECT / accepts+exhibit |
+| FD-L2 naive fold INCOMPLETE on honest data (cross terms) | exhibited |
+| FD-L2 naive fold UNSOUND under early draws (forged C' accepts the naive check) | exhibited |
+| the JOINT in-sumcheck fold rejects the same forged claim | exhibited |
+| (self-test smoke) zc + mm honest ACCEPT at 4 toy layers + zc TamperZ REJECT + mm cross-layer C swap REJECT (sumcheck green, C pin fails) | green |
 
 ### 3.2 An engine-scale crafting finding (BE-F2)
 
@@ -221,13 +239,127 @@ survives only at 17+ positions AND only under a broken hash order.
 
 ## 5. Norm measurements and byte model (deliverables 4-5)
 
-### 5.1 Norm (measured at the engine ring)
+### 5.1 Norm (measured at the engine ring — `ixf-fold norm`)
 
-(filled from `ixf-fold norm` on lane close)
+Real quinary negacyclic folds at D = 128 over e0 = 2 digit columns
+(the adopted activation base), 8 trials per point, exact integer
+norms ([MAC-BOX] applies to wall-clock only):
 
-### 5.2 Byte model
+| m columns | 4 | 8 | 16 | 32 | 64 | 128 | 256 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| avg fold inf-norm | 99 | 152 | 231 | 328 | 430 | 563 | 854 |
 
-(filled from `ixf-fold bytes` + measured runs on lane close)
+- log-log slope **0.52** (band [0.35, 0.65]) — the sqrt(m) stacked
+  law at engine ring dimensions; the design spike measured 0.49 at
+  its D = 32 toy. MEASURED, engine scale.
+- 12x columns cost **3.9x** measured (sqrt(12) = 3.46 class, band
+  [2.0, 6.0]).
+- The certified law rows: 1.792 b (12x, real committed inventory) /
+  2.000 b (16-slot conservative bound) / 2.500 b (the frozen 7B 32x
+  row FC2-law — unmoved). Chain identity gamma(12x)/gamma(1x) =
+  log2 sqrt(12) asserted exact (1e-9) — row UAGB1-BE1b.
+- The e0 absorption at the act group re-derived and pinned: Section
+  1.3's table (rows UAGB1-BE1c), including the BE-F1 honest finding.
+
+### 5.2 Byte model (`ixf-fold bytes` — derived; counted-not-serialized, 64 B/K-el)
+
+Folded vs unfolded INSTANCE-TRANSCRIPT accounting at the 12-layer
+125M pass shape (matmul family at 512x768x2048/layer; zero-check
+family at 2048x512 positions/layer). Engine-actual counts d+1 evals
+per degree-d round; the FA convention counts d kel/round + 4
+boundary:
+
+| family | folded (engine-actual) | unfolded (engine-actual) | folded (FA-conv) | unfolded (FA-conv) |
+|---|---:|---:|---:|---:|
+| joint matmul (10 deg-2 + 4 deg-3 rounds vs 12 x 10 deg-2) | 3,200 B (50 kel) | 25,344 B (396 kel) | 2,304 B | 18,432 B |
+| stacked zero-check (24 vs 12 x 20 deg-3 rounds) | 6,464 B (101 kel) | 65,280 B (1,020 kel) | 4,864 B | 49,152 B |
+| pins | 3 x 64 B | 36 x 64 B | — | — |
+| **claim-layer total** | **9,856 B** | **92,928 B** | — | — |
+
+**The fold shrinks the claim layer 9.4x with ZERO fold messages** —
+the only growth is +4 index rounds per instance and the lambda
+coordinates inside the existing outer draw. Count-invariance holds:
+3 stacked pins per folded family vs 3 per layer unfolded (36).
+
+Descent row (ruling only, NOT built): dw_pass = 25 -> kel(25) =
+1,760 = 112,640 B [MODEL — F-IF1.8 fit one step past the recorded
+dw-24 point].
+
+**The FA-table "folded instance transcript" line at the FULL
+F-IF1.1 population, 125M shape, lambda = 4 (DERIVED, FA convention:
+d kel per degree-d round + 4 boundary/instance) [MODEL where
+flagged]:**
+
+| instance (per pass) | rounds | kel |
+|---|---|---:|
+| matmul gate (inner 768 -> lk 10) | 4x3 + 10x2 | 32 |
+| matmul up (lk 10) | 4x3 + 10x2 | 32 |
+| matmul down (inner 2048 -> lk 11) | 4x3 + 11x2 | 34 |
+| Hadamard zero-check (2^20 pos + 4) | 24x3 | 72 |
+| requant zero-checks x2 | 24x3 each | 144 |
+| range-table descent (shared table, unchanged) | 28x3 | 84 |
+| terminal batch [MODEL — rounds = ceil(log2 pass coeffs) ~ 27; exact count awaits the integration statement inventory (lane BF)] | 27x3 | 81 |
+| boundary (8 instances x 4) | — | 32 |
+| **folded pass instance transcript** | | **511 kel = 32,704 B** |
+| unfolded 12x per-layer equivalent | | ~5,160 kel = ~330,240 B |
+
+The 7B FA table's counterpart line is 37,056 B over 8 instances at
+lambda = 5 (FD 6.1) — the 125M line lands in the same class, smaller
+with the smaller index space and shapes, ~10x under its unfolded
+form. DERIVED from the ruling's lambda = 4 and the 125M shapes; the
+terminal-batch row is the one [MODEL] slot.
+
+The OPENING layer at the 12-layer full shape, derived from the
+layout arithmetic (35,328 data cms, 270 waves at cap 131): ct-z
+962,138,112 B + w1 148,021,248 B + tags ~293,871,616 B — UNCHANGED
+by IXF (the D2 wave-1 finding at 12x: the opening volume is 99.8%+
+of the artifact and is exactly what lane BD's eval-proof stack
+replaces; reference: 12 x the measured D2 single-layer artifact ~
+1.409 GB of opening volume vs the folded claim layer's 9,856 B).
+
+### 5.3 Measured folded runs [MAC-BOX, NOISY-SHARED]
+
+| run | data cms | waves | commit | prove | verify | counted total |
+|---|---:|---:|---:|---:|---:|---:|
+| zc fold 12 x (128x64) (battery leg) | 288 | 3 | 0.03 s | 5.51 s | 0.41 s | (battery leg) |
+| mm fold 12 x (64x96x128) (battery leg) | 312 | 3 | 0.03 s | 9.94 s | 0.52 s | (battery leg) |
+| zc fold 12 x (512x256) (mid shape; 2^17 positions/layer, 21-round fold, RSS 2.97 GiB) | 4,608 | 36 | 0.48 s | 51.5 s | 6.75 s | 183,686,051 B |
+| **mm fold 12 x (512x768x2048) — the FULL 125M-shape 12-layer fold, honest ACCEPT** | **35,328** | **270** | **4.07 s** | **431.5 s** | **59.3 s** | **1,406,719,131 B** |
+
+### 5.4 The full-shape capstone row, decomposed [MAC-BOX, NOISY-SHARED (lane BD's self-test ran concurrently); single run — magnitudes, not p50/p95]
+
+The 12-layer fold AT THE FULL 125M LAYER SHAPE (512x768x2048 per
+layer = 12 x the D2-proven statement shape) proves and verifies as
+ONE folded instance: total wall 499.4 s (492.6 s user — effectively
+single-threaded), peak RSS 13.57 GiB (/usr/bin/time -l;
+14,571,339,776 B — the pin weight vectors dominate the transient).
+
+| component | bytes | share |
+|---|---:|---:|
+| statement (serialized, real; 36 entries + 12 Matmul ops + segment map in the model digest) | 4,659 | ~0% |
+| commitment tags t1+t2 | 293,871,616 | 20.9% |
+| folded sumcheck (claim + 14 rounds + finals) | 3,200 | ~0% |
+| masked share reveals (9 x 270 x 12) | 29,160 | ~0% |
+| ct-round z responses | 962,271,232 | 68.4% |
+| ct-round w1 images | 148,041,728 | 10.5% |
+| ct-round h + w_claim | 2,497,536 | 0.2% |
+| **TOTAL** | **1,406,719,131** | |
+
+- The folded sumcheck measured EXACTLY the derived 50 kel = 3,200 B
+  (Section 5.2's model row — derived and measured agree); the wave
+  plan measured exactly the derived 270 waves at cap 131.
+- What the fold compressed (vs 12 unfolded D2 statements): 12
+  sumchecks -> 1 (25,344 -> 3,200 B), 12 statements -> 1, 36 pins ->
+  3. What it does NOT touch: the wave-bound material — reveals and
+  h/w_claim scale with WAVES (270 vs 12 x 23 = 276, ~unchanged) and
+  the opening volume (z + w1 + tags = 99.8%) is byte-for-byte the
+  D2 finding at 12x — 1.404 GB vs 12 x 117.4 MB = 1.409 GB. THE
+  FOLDED FAMILY IS NOW A CLEAN SINGLE-INSTANCE INPUT to lane BD's
+  per-group batched opening; the opening volume is exactly what BD
+  replaces (F-IF1's design: one eval proof per commitment group).
+- Prover scaling: 12x the D2 single-layer data at 431.5 s vs D2's
+  45.2 s — 9.5x wall for 12x commitments (sublinear: the single
+  folded sumcheck + 3 pins amortize).
 
 ## 6. Exports
 
@@ -244,4 +376,22 @@ survives only at 17+ positions AND only under a broken hash order.
 
 ## 7. Verdict row
 
-(filled on lane close)
+**IXF LANDS AT 12 LAYERS, FULL 125M SHAPE, per the frozen F-IF1
+interface — the 12->16 ruling settled with zero frozen-constant
+moves and zero R-rows.**
+
+| item | status |
+|---|---|
+| 12->16 ruling | SETTLED + PINNED (rows UAGB1-BE1a..1e, both directions, all green; every pre-existing freeze digest unmoved). lambda 4 / 16 slots / 4 pads; pads = zero-extension, I-3 kept; law 1.792 b (real) / 2.000 b (bound) < frozen 2.5; dw_pass 25. No R-rows. |
+| fold implementation | LANDED: fold.rs + two engine-scale rigs (FD-L1 stacked zero-check, FD-L2 joint matmul) with full commitment grounding; zero fold messages; AZ-L4(a) hash edges as Section 4. |
+| battery | 20/20 legs green (53.2 s): honest ACCEPT at 4 AND 12 layers both families; cross-layer swap REJECT; early-draw F5 pairs BOTH directions (incl. BE-F2's 17-position K-draw crafting); padded-slot tampers REJECT both families; AZB-10a segment-map completeness/DEFENSE/ATTACK both families; FD-L2 naive-fold negative all three directions. AZB-10b honestly blocked on BD (E-10 spec stands). |
+| capstone | the 12-layer FULL-125M-shape joint matmul fold: honest ACCEPT — 35,328 data cms, 270 waves, prove 431.5 s / verify 59.3 s / RSS 13.57 GiB [MAC-BOX, NOISY-SHARED], folded sumcheck measured = derived 3,200 B. |
+| norm | measured at engine ring: slope 0.52 (sqrt law), 12x ratio 3.9x vs sqrt(12) = 3.46; law identity exact; 125M e0 rows derived + pinned incl. finding BE-F1. |
+| bytes | claim-layer fold 9.4x (derived, both conventions); full-population FA-table line 511 kel = 32,704 B [MODEL on terminal-batch rounds]; opening layer honestly reported unchanged (BD's target). |
+| suite | full python suite green in-lane (53 tests) + freeze-check green at every commit. |
+
+Findings: **BE-F1** (the 7B e0=5 negative does not transfer to the
+125M matmul-family inventory — pinned as a positive-headroom row,
+e0=2 stays the declared class base); **BE-F2** (the K-draw forces
+17-position early-draw crafting where the base-field toy needed 2 —
+R-EB3's full-entropy margin made concrete at the engine).

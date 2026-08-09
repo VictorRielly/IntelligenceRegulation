@@ -658,6 +658,71 @@ fallbacks, [MAC-BOX]/[NOISY-SHARED] timing marks).
   ruling on paper; the rig needs the multi-wave C2 lift per
   AZB_BATTERY_PLAN S7 route 2 — recorded, not built); edits to
   existing scripts/tests/other ledger sections.
+- 2026-08-09 (lane opened 2026-08-08): **lane COMPLETE.** All five
+  deliverables landed at or above briefed scope; full suite green
+  in-lane (53 tests, incl. new tests/test_uagb1_fold.py; the one
+  first-pass failure was my own test's over-broad "FAIL" substring
+  marker tripping on a leg LABEL — marker fixed to assert_true's
+  exact "  FAIL " prefix, module re-run green, full-suite re-run
+  green); freeze-check green at every commit with every
+  pre-existing digest unmoved; everything committed to uagb1-be.
+
+**VERDICT ROW (BE).** THE 12->16 RULING SETTLED — zero frozen
+constants moved, zero R-rows: lambda(12) = 4 DERIVED over 16 slots
+with 4 vacuous pads (F-IF1's 5 = the 32-layer instantiation,
+reproduced unmoved; FD 10.3's commissioned 125M rows now exist);
+pads = the engine's zero-extension discipline (commitments carry 12
+real layers only; prover tables extend; verifier pins are
+position-determined — I-3 KEPT, sumcheck runs over all 16 slots);
+one-time norm law log2 sqrt(12) = 1.792 b on the real committed
+inventory (sqrt(16) = 2.0 conservative bound; frozen 7B FC2-law 2.5
+untouched); descent dim dw_pass = 21 + 4 = 25, kel(25) = 1,760
+[MODEL] (BC's F-O2 row STANDS). Freeze rows UAGB1-BE1a..1e both
+directions. IXF FOLD LANDS: src/ring/fold.rs (degree-scheduled
+sumcheck in FD-L2's (3,2) form + the norm-law chain) + two
+[UAGB1-BE] engine rigs with FULL commitment grounding (multi-wave
+C2 + segment-map-bearing statement v3 + stacked pins -> psi -> U-Z1
+masked splitter -> per-wave masked ct-rounds): the FD-L1 stacked
+zero-check and the FD-L2 joint matmul (eq INSIDE, deg-2 inner /
+deg-3 layer rounds, 3 stacked pins, eq* verifier-recomputed);
+ZERO fold messages (only +lambda outer coords, CRB-N1 class, +
+lambda in-round challenges). BATTERY 20/20 (53 s) + smoke in
+self-test: honest ACCEPT at 4 AND 12 layers BOTH families;
+cross-layer content swap REJECT (index binding); early-draw F5
+pairs BOTH directions BOTH families; PADDED-SLOT tampers REJECT
+both families (committed defect + post-draw pad-table cover:
+sumcheck green — and on the matmul family the C pin consistent by
+construction — caught exactly by the committed pin functionals);
+AZB-10a segment-map completeness/DEFENSE/ATTACK both families
+(registered map in h0 rejects a self-consistent full-layer relabel;
+unbound-map weakened verifier accepts it, wrong-slice binding
+exhibited); FD-L2 naive-fold negative all three directions. AZB-10b
+(group face) honestly BLOCKED on BD's eval-proof layer — E-10 spec
+stands. CAPSTONE MEASURED: the 12-layer fold AT THE FULL 125M LAYER
+SHAPE 512x768x2048 honest-ACCEPTS as ONE folded instance — 35,328
+data cms, 270 waves (= derived), commit 4.07 s / prove 431.5 s /
+verify 59.3 s / peak RSS 13.57 GiB [MAC-BOX, NOISY-SHARED], folded
+sumcheck measured EXACTLY the derived 3,200 B; counted total
+1,406,719,131 B with the opening layer 99.8% (= the D2 wave-1
+finding at 12x, byte-for-byte the volume lane BD's per-group eval
+proof replaces — the folded family is its clean single-instance
+input). NORM measured at engine ring D = 128: slope 0.52 (sqrt
+law; spike's toy was 0.49), 12x ratio 3.9x vs sqrt(12) = 3.46, law
+identity exact; 125M e0 rows DERIVED + pinned: weight e0 = 1
++5.159 b, act e0 = 2 ADOPTED +2.828 b. BYTES: claim-layer fold
+9.4x derived (9,856 vs 92,928 B, both conventions reported);
+full-F-IF1.1-population FA-table line at 125M = 511 kel = 32,704 B
+[MODEL terminal-batch rounds]. FINDINGS: BE-F1 — the 7B FC2-act5
+negative (e0 = 5 fails at x32) does NOT transfer to the 125M
+matmul-family inventory (+0.452 b, FITS; pinned as an honest
+positive row; e0 = 2 stays the declared class base by consistency
+not necessity); BE-F2 — the K-draw engine forces 17-position
+early-draw crafting (16 Gaussian-solved + 1 free) where the
+base-field spike toy needed 2 positions: one K equation = 16 base
+equations, R-EB3's full-entropy margin concrete in an executable
+attack leg. Report: docs/zkmatrix-poc/UAGB1_FOLD_REPORT.md
+(ruling, hash-edge table, battery table, norm/byte tables, BD/BF
+exports). Deliverables checkbox left for the orchestrator.
 
 ## Agent BF status (wt-uagb1-bf)
 
