@@ -103,6 +103,20 @@ pub enum Operation {
     /// DOMAIN is part of the lookup claim, so a Lookup also serves as the
     /// range fact for its input (LogUp-GKR engine, M4).
     Lookup { x: u32, y: u32 },
+    /// [UAGB1-BF, v4 only] Elementwise activation through table index
+    /// `table` of the statement's `tables` vector (the per-scale table
+    /// FAMILY — D3-F1). Same lookup semantics as `Lookup`, with the
+    /// table chosen per operation so one statement can host per-layer
+    /// activation scales. Every referenced spec must equal a FROZEN
+    /// registry member exactly.
+    LookupAt { x: u32, y: u32, table: u32 },
+    /// [UAGB1-BF, v4 only] Range fact discharged by a range-TABLE lookup
+    /// instance (the U-R2 exact q31 mechanism): `value` is proven to lie
+    /// in its declared `width`/`signed` type's range by a [0, 2^width)
+    /// table lookup over its (offset) codes — no bit-plane entry, no
+    /// Binary fact. The proving layer owes one masked lookup instance
+    /// per RangeLookup operation.
+    RangeLookup { value: u32, width: u32, signed: bool },
 }
 
 #[derive(Clone, Debug, Default)]
@@ -255,6 +269,20 @@ impl ClaimManifest {
                     hasher.update(x.to_le_bytes());
                     hasher.update(y.to_le_bytes());
                 }
+                // [UAGB1-BF] v4-only operations: NEW tags, never emitted
+                // by v3 statements — every pre-existing digest is unmoved.
+                Operation::LookupAt { x, y, table } => {
+                    hasher.update([12u8]);
+                    hasher.update(x.to_le_bytes());
+                    hasher.update(y.to_le_bytes());
+                    hasher.update(table.to_le_bytes());
+                }
+                Operation::RangeLookup { value, width, signed } => {
+                    hasher.update([13u8]);
+                    hasher.update(value.to_le_bytes());
+                    hasher.update(width.to_le_bytes());
+                    hasher.update([*signed as u8]);
+                }
             }
         }
         hasher.finalize().into()
@@ -396,6 +424,11 @@ impl ClaimManifest {
 /// hash-only manifest above is retroactively "v1". Unknown versions reject.
 pub const STATEMENT_VERSION: u32 = 3;
 const STATEMENT_TAG: &str = "zkmatrix-statement-v3";
+/// [UAGB1-BF] v4 = typed integer semantics with signed scale exponents,
+/// symmetric-range declarations, E-O1-BB class/base fields and the
+/// activation-table family. v3 stays fully valid under its own rules.
+pub const STATEMENT_VERSION_V4: u32 = 4;
+const STATEMENT_TAG_V4: &str = "zkmatrix-statement-v4";
 
 /// Per-tensor quantization metadata: integer bit width, fixed-point
 /// fraction bits, signedness. `bits` counts the full two's-complement
@@ -551,6 +584,122 @@ pub const SILU_INT8_TABLE_DIGEST: [u8; 32] = [
     0x4c, 0x03, 0x18, 0x68, 0x5c, 0x40, 0xd2, 0x97,
 ];
 
+// ===========================================================================
+// [UAGB1-BF] Statement v4 — the ONE versioned codec change deferred by
+// lane BB (E-O1-BB: "typed v3 class/base fields ... to the pass statement
+// in one versioned codec change"). v4 adds, per entry, the typed fields
+// v3's QuantMeta cannot express (findings D3-F2 + the BC symmetric-range
+// export), plus the E-O1-BB digit class/base declarations, plus a table
+// FAMILY so per-layer activation scales fit one statement (D3-F1):
+//
+//   - `scale_exp: i32` — the SIGNED scale exponent: value = raw *
+//     2^scale_exp. v3's frac_bits is the special case scale_exp =
+//     -frac_bits; the calibrated eZ = +1 / eH = +2 layers are now
+//     expressible without clamping or widened storage.
+//   - `symmetric: bool` — the int8-symmetric range declaration: a signed
+//     entry with `symmetric` covers [-(2^(b-1)-1), 2^(b-1)-1], the
+//     contract's forced [-127, 127] reading (M125_CALIBRATION_STUDY
+//     Section 1). Interval arithmetic then DERIVES the honest 25-bit
+//     (inner 768) / 26-bit (inner 2048) accumulator widths — the
+//     asymmetric declared-type reading gives 25/27 and stays available
+//     as symmetric = false.
+//   - `class: u32`, `base_e0: u32` — the E-O1-BB per-entry value-width
+//     class and digit-base declaration (AGGREGATION_ENCODING_DESIGN
+//     Section 8.1: frozen widths + adopted bases; weight e0 = 1
+//     sign-binary per F-N2, activation/accumulator/aux e0 = 2). The
+//     validator pins base_e0 to the class and the class window to the
+//     declared type — wrong-class and wrong-base statements REJECT
+//     before any crypto.
+//
+// Version gate: v3 statements validate under the UNCHANGED v3 rules and
+// their digest/codec bytes DO NOT MOVE (the v3 paths below are
+// byte-for-byte the pre-v4 code); v4 uses a new digest tag and codec
+// container version. v4-only operations: LookupAt (table family),
+// RangeLookup (the U-R2 range-table fact form — no bit planes).
+
+/// v4 per-entry typing extension. For a v4 statement `typing.len()`
+/// equals the entry count and entry i's full type is
+/// (quant[i].bits, quant[i].signed, typing[i]); quant[i].frac_bits must
+/// be 0 (the scale lives HERE — one source of truth on the wire).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct TypingV4 {
+    /// Signed scale exponent: represented value = raw * 2^scale_exp.
+    pub scale_exp: i32,
+    /// Signed entries only: raw range is +-(2^(bits-1) - 1) (the
+    /// [-127,127]-style symmetric declaration). Must be false unsigned.
+    pub symmetric: bool,
+    /// E-O1-BB value-width class id (the CLS_* registry below).
+    pub class: u32,
+    /// E-O1-BB digit-base declaration; must equal the class's pinned e0.
+    pub base_e0: u32,
+}
+
+/// The frozen v4 class registry (E-O1-BB; ids are wire values and MUST
+/// NOT be renumbered). Sources: AGGREGATION_ENCODING_DESIGN 8.1 frozen
+/// value-width classes + adopted digit bases (weight e0 = 1 sign-binary
+/// F-N2; everything else e0 = 2), aligned with the D1 exact-digit class
+/// table (ring/digits.rs, freeze row UAGB1-1a).
+pub const CLS_W8S: u32 = 1; // weight int8, signed, bits <= 8, e0 = 1
+pub const CLS_ACT8: u32 = 2; // activation int8 (signed or offset-unsigned), bits <= 8, e0 = 2
+pub const CLS_ACC: u32 = 3; // wide signed accumulator/product, bits <= 31, e0 = 2
+pub const CLS_REM: u32 = 4; // unsigned requant remainder, bits <= 16, e0 = 2
+pub const CLS_AUX31: u32 = 5; // full-column q31 aux, bits <= 31, e0 = 2
+
+/// (class id, pinned e0, max bits, signedness constraint) rows;
+/// signedness: Some(true) = must be signed, Some(false) = must be
+/// unsigned, None = either.
+pub const V4_CLASS_TABLE: [(u32, u32, u32, Option<bool>); 5] = [
+    (CLS_W8S, 1, 8, Some(true)),
+    (CLS_ACT8, 2, 8, None),
+    (CLS_ACC, 2, 31, Some(true)),
+    (CLS_REM, 2, 16, Some(false)),
+    (CLS_AUX31, 2, 31, None),
+];
+
+/// [UAGB1-BF] The frozen per-scale SiLU family digests (v2 spec headers;
+/// ring/lookup.rs::table_spec_digest_v2 — the UAGB1-BF-2a freeze row
+/// cross-checks these copies against the generating side, the same
+/// duplicated-constant discipline as SILU_INT8_TABLE_DIGEST).
+pub const SILU_V2_M3_TABLE_DIGEST: [u8; 32] = [
+    0xbd, 0xf8, 0xbc, 0x71, 0x29, 0xdc, 0x6e, 0xc8,
+    0xb0, 0x02, 0xaf, 0x51, 0xfd, 0x4d, 0xbe, 0xf3,
+    0xd7, 0xc1, 0x24, 0x0f, 0x65, 0xc4, 0xda, 0x01,
+    0xce, 0x2d, 0xb2, 0xa7, 0xc9, 0xbb, 0x6c, 0x50,
+];
+pub const SILU_V2_M4_TABLE_DIGEST: [u8; 32] = [
+    0x06, 0x39, 0x93, 0x48, 0x1a, 0x8f, 0xc0, 0x08,
+    0x70, 0x14, 0xb2, 0x53, 0x57, 0xa2, 0x2b, 0x95,
+    0xd8, 0x8b, 0xda, 0x64, 0x9c, 0xc6, 0x99, 0x7e,
+    0x2f, 0xe2, 0x7c, 0x5b, 0xac, 0xd1, 0x7a, 0xda,
+];
+
+/// The (-3,-3) family member's typed spec (10 of the 12 calibrated 125M
+/// layers). frac_bits carries -scale_exp; v4 operand matching converts.
+pub const SILU_V2_M3_TABLE_SPEC: TableSpec = TableSpec {
+    digest: SILU_V2_M3_TABLE_DIGEST,
+    input: QuantMeta { bits: 8, frac_bits: 3, signed: true },
+    output: QuantMeta { bits: 8, frac_bits: 3, signed: true },
+    domain_min: -128,
+    domain_max: 127,
+};
+
+/// The (-4,-4) family member (calibrated layers 1 and 4). Its BYTES are
+/// the v1 table (family identity, freeze row UAGB1-BF-1b); the digest
+/// differs from v1's only via the v2 header format.
+pub const SILU_V2_M4_TABLE_SPEC: TableSpec = TableSpec {
+    digest: SILU_V2_M4_TABLE_DIGEST,
+    input: QuantMeta { bits: 8, frac_bits: 4, signed: true },
+    output: QuantMeta { bits: 8, frac_bits: 4, signed: true },
+    domain_min: -128,
+    domain_max: 127,
+};
+
+/// The frozen table registry a v4 statement's `tables` entries must come
+/// from (exact equality, the C-03c discipline extended to the family).
+pub fn v4_table_registry() -> [TableSpec; 3] {
+    [SILU_INT8_TABLE_SPEC, SILU_V2_M3_TABLE_SPEC, SILU_V2_M4_TABLE_SPEC]
+}
+
 /// The statement header: format version, the identity digest of the exact
 /// quantized model being claimed (weights + architecture + quantization
 /// spec), the typed activation-table binding (None when the statement
@@ -574,6 +723,11 @@ pub struct Statement {
     pub quant: Vec<QuantMeta>,
     pub pad: Vec<PadSpec>,
     pub outputs: Vec<u32>,
+    /// [UAGB1-BF] v4 per-entry typing (empty and forbidden for v3).
+    pub typing: Vec<TypingV4>,
+    /// [UAGB1-BF] v4 table family (empty and forbidden for v3; every
+    /// entry must equal a `v4_table_registry()` member exactly).
+    pub tables: Vec<TableSpec>,
 }
 
 /// Structured validation errors. `op` fields are indices into
@@ -658,6 +812,27 @@ pub enum StatementError {
     UnknownOutput { id: u32 },
     /// A declared output no operation produces.
     OutputNotProduced { id: u32 },
+    /// [UAGB1-BF, v4] typing.len() != entry count (v4), or typing/tables
+    /// nonempty on a v3 statement.
+    TypingCount { entries: usize, typings: usize },
+    /// [UAGB1-BF, v4] A typed-field rule violated at entry `id`; `field`
+    /// names the rule (nonzero v3 frac_bits, symmetric-on-unsigned, ...).
+    TypingViolation { id: u32, field: &'static str },
+    /// [UAGB1-BF, v4] An entry's declared class does not exist or its
+    /// window/signedness does not cover the declared type (E-O1-BB
+    /// wrong-class vector).
+    WrongClass { id: u32 },
+    /// [UAGB1-BF, v4] An entry's declared digit base differs from its
+    /// class's pinned e0 (E-O1-BB wrong-base vector; weight e0 = 1 is
+    /// F-N2-mandated).
+    WrongBase { id: u32 },
+    /// [UAGB1-BF, v4] LookupAt names a table index outside `tables`.
+    TableIndex { op: usize, table: u32 },
+    /// [UAGB1-BF, v4] A `tables` entry equals no frozen registry member.
+    TableNotFrozen { index: usize },
+    /// [UAGB1-BF] An operation is not admissible under the statement's
+    /// version (LookupAt/RangeLookup in v3; plain Lookup in v4).
+    VersionedOperation { op: usize },
 }
 
 impl std::fmt::Display for StatementError {
@@ -744,6 +919,27 @@ impl std::fmt::Display for StatementError {
             StatementError::OutputNotProduced { id } => {
                 write!(f, "output {id} is not produced by any operation")
             }
+            StatementError::TypingCount { entries, typings } => {
+                write!(f, "{entries} entries but {typings} v4 typing records")
+            }
+            StatementError::TypingViolation { id, field } => {
+                write!(f, "v4 typing rule '{field}' violated at entry {id}")
+            }
+            StatementError::WrongClass { id } => {
+                write!(f, "entry {id} declares a class that does not cover its type (E-O1-BB)")
+            }
+            StatementError::WrongBase { id } => {
+                write!(f, "entry {id} declares a digit base off its class's pinned e0 (E-O1-BB)")
+            }
+            StatementError::TableIndex { op, table } => {
+                write!(f, "operation {op} references table index {table} outside the family")
+            }
+            StatementError::TableNotFrozen { index } => {
+                write!(f, "tables[{index}] equals no frozen registry member")
+            }
+            StatementError::VersionedOperation { op } => {
+                write!(f, "operation {op} is not admissible under this statement version")
+            }
         }
     }
 }
@@ -785,6 +981,9 @@ fn first_dataflow_cycle(graph: &[Vec<usize>]) -> Option<u32> {
 
 const STATEMENT_CODEC_MAGIC: &[u8; 4] = b"ZKMS";
 const STATEMENT_CODEC_VERSION: u32 = 1;
+/// [UAGB1-BF] Container version of the v4 statement layout (adds the
+/// per-entry typing records and the table family after the outputs).
+const STATEMENT_CODEC_VERSION_V4: u32 = 2;
 
 // Absolute decode caps (independent of the wire). A well-formed statement
 // for any admissible model is far below these; the caps bound allocation
@@ -1031,6 +1230,18 @@ fn encode_operation(w: &mut StatementWriter, op: &Operation) {
             w.u32(*x);
             w.u32(*y);
         }
+        Operation::LookupAt { x, y, table } => {
+            w.u8(11);
+            w.u32(*x);
+            w.u32(*y);
+            w.u32(*table);
+        }
+        Operation::RangeLookup { value, width, signed } => {
+            w.u8(12);
+            w.u32(*value);
+            w.u32(*width);
+            w.u8(*signed as u8);
+        }
     }
 }
 
@@ -1057,6 +1268,16 @@ fn decode_operation(r: &mut ByteReader) -> Result<Operation, DecodeError> {
         8 => Operation::Rescale { x: r.u32()?, y: r.u32()?, r: r.u32()?, shift: r.u32()? },
         9 => Operation::BiasBroadcast { bias: r.u32()?, broadcast: r.u32()? },
         10 => Operation::Lookup { x: r.u32()?, y: r.u32()? },
+        11 => Operation::LookupAt { x: r.u32()?, y: r.u32()?, table: r.u32()? },
+        12 => Operation::RangeLookup {
+            value: r.u32()?,
+            width: r.u32()?,
+            signed: match r.u8()? {
+                0 => false,
+                1 => true,
+                t => return Err(DecodeError::BadTag { ctx: "rangelookup-signed", tag: t }),
+            },
+        },
         t => return Err(DecodeError::BadTag { ctx: "operation", tag: t }),
     })
 }
@@ -1079,6 +1300,33 @@ impl Statement {
             quant: Vec::new(),
             pad: Vec::new(),
             outputs: Vec::new(),
+            typing: Vec::new(),
+            tables: Vec::new(),
+        }
+    }
+
+    /// [UAGB1-BF] A v4 statement: table FAMILY instead of the single
+    /// header table (header.table stays None), typed per-entry metadata
+    /// in `typing` (caller fills it alongside `quant`).
+    pub fn new_v4(
+        model_digest: [u8; 32],
+        tables: Vec<TableSpec>,
+        modulus_bits: u32,
+        manifest: ClaimManifest,
+    ) -> Self {
+        Statement {
+            header: StatementHeader {
+                version: STATEMENT_VERSION_V4,
+                model_digest,
+                table: None,
+                modulus_bits,
+            },
+            manifest,
+            quant: Vec::new(),
+            pad: Vec::new(),
+            outputs: Vec::new(),
+            typing: Vec::new(),
+            tables,
         }
     }
 
@@ -1090,6 +1338,9 @@ impl Statement {
             matches!(other, Operation::Range { value, width, signed, .. }
                 if *value == id && *width == q.bits && *signed == q.signed)
                 || matches!(other, Operation::Lookup { x: lx, .. } if *lx == id)
+                || matches!(other, Operation::LookupAt { x: lx, .. } if *lx == id)
+                || matches!(other, Operation::RangeLookup { value, width, signed }
+                    if *value == id && *width == q.bits && *signed == q.signed)
         })
     }
 
@@ -1099,8 +1350,10 @@ impl Statement {
     /// outputs/coverage).
     pub fn validate(&self) -> Result<(), StatementError> {
         use StatementError as E;
-        // --- Header. ------------------------------------------------------
-        if self.header.version != STATEMENT_VERSION {
+        // --- Header (version gate: v3 rules are UNCHANGED; v4 adds the
+        // --- typed extension — [UAGB1-BF]). --------------------------------
+        let v4 = self.header.version == STATEMENT_VERSION_V4;
+        if self.header.version != STATEMENT_VERSION && !v4 {
             return Err(E::UnknownVersion { got: self.header.version });
         }
         if self.header.model_digest == [0u8; 32] {
@@ -1140,6 +1393,57 @@ impl Statement {
                 return Err(E::ModulusCapacity { id: index as u32 });
             }
         }
+        // --- [UAGB1-BF] v4 typing extension / v3 emptiness gate. -----------
+        if !v4 {
+            if !self.typing.is_empty() {
+                return Err(E::TypingCount { entries: entries.len(), typings: self.typing.len() });
+            }
+            if !self.tables.is_empty() {
+                return Err(E::TypingViolation { id: 0, field: "tables[] on a v3 statement" });
+            }
+        } else {
+            if self.typing.len() != entries.len() {
+                return Err(E::TypingCount { entries: entries.len(), typings: self.typing.len() });
+            }
+            if self.header.table.is_some() {
+                return Err(E::TypingViolation { id: 0, field: "v4 binds tables[], not header.table" });
+            }
+            for (index, t) in self.typing.iter().enumerate() {
+                let q = &self.quant[index];
+                let id = index as u32;
+                // One source of truth for the scale on the wire.
+                if q.frac_bits != 0 {
+                    return Err(E::TypingViolation { id, field: "v4 quant.frac_bits must be 0" });
+                }
+                if t.symmetric && !q.signed {
+                    return Err(E::TypingViolation { id, field: "symmetric on unsigned" });
+                }
+                if !(-64..=64).contains(&t.scale_exp) {
+                    return Err(E::TypingViolation { id, field: "scale exponent range" });
+                }
+                // E-O1-BB class/base declarations against the frozen table.
+                let Some(row) = V4_CLASS_TABLE.iter().find(|r| r.0 == t.class) else {
+                    return Err(E::WrongClass { id });
+                };
+                if q.bits > row.2 {
+                    return Err(E::WrongClass { id });
+                }
+                if let Some(want_signed) = row.3 {
+                    if q.signed != want_signed {
+                        return Err(E::WrongClass { id });
+                    }
+                }
+                if t.base_e0 != row.1 {
+                    return Err(E::WrongBase { id });
+                }
+            }
+            let registry = v4_table_registry();
+            for (index, spec) in self.tables.iter().enumerate() {
+                if !registry.iter().any(|r| r == spec) {
+                    return Err(E::TableNotFrozen { index });
+                }
+            }
+        }
         if self.manifest.operations.is_empty() {
             return Err(E::EmptyOperations);
         }
@@ -1147,6 +1451,26 @@ impl Statement {
             entries.get(id as usize).ok_or(E::DanglingId { op, id })
         };
         let quant = |id: u32| -> &QuantMeta { &self.quant[id as usize] };
+        // [UAGB1-BF] Effective typed views. v3: scale = -frac_bits and the
+        // asymmetric declared-type bounds (byte-identical semantics to the
+        // pre-v4 code). v4: the signed scale exponent and, for symmetric
+        // signed entries, the +-(2^(b-1)-1) window ([-127,127] at int8).
+        let se = |id: u32| -> i64 {
+            if v4 {
+                self.typing[id as usize].scale_exp as i64
+            } else {
+                -(self.quant[id as usize].frac_bits as i64)
+            }
+        };
+        let bnd = |id: u32| -> RawBounds {
+            let q = &self.quant[id as usize];
+            if v4 && q.signed && self.typing[id as usize].symmetric {
+                let m = (1i128 << (q.bits - 1)) - 1;
+                RawBounds { lo: -m, hi: m }
+            } else {
+                q.raw_bounds()
+            }
+        };
         let same_shape = |op: usize, l: &CommitmentEntry, r: &CommitmentEntry| {
             if l.rows != r.rows || l.cols != r.cols {
                 return Err(E::ShapeMismatch { op, left: l.id, right: r.id });
@@ -1196,15 +1520,17 @@ impl Statement {
                     if qc.signed != (qa.signed || qb.signed) {
                         return Err(E::QuantMismatch { op, id: *c, field: "matmul signedness" });
                     }
-                    if qc.frac_bits != qa.frac_bits + qb.frac_bits {
+                    if se(*c) != se(*a) + se(*b) {
                         return Err(E::QuantMismatch { op, id: *c, field: "matmul fraction bits" });
                     }
                     // Accumulator interval: inner * (a-bounds x b-bounds),
                     // lower and upper endpoints tracked separately. A
                     // matmul accumulator NEVER narrows: a range fact on
-                    // the sum does not bound the partial sums.
-                    let acc = qa.raw_bounds().mul(qb.raw_bounds()).scale(ea.cols as i128);
-                    if !qc.raw_bounds().contains(acc) {
+                    // the sum does not bound the partial sums. Under v4
+                    // symmetric operands ([-127,127]) this DERIVES the
+                    // honest 25/26-bit 125M accumulator rows.
+                    let acc = bnd(*a).mul(bnd(*b)).scale(ea.cols as i128);
+                    if !bnd(*c).contains(acc) {
                         return Err(E::QuantMismatch { op, id: *c, field: "matmul accumulator width" });
                     }
                     if !acc.fits_modulus(mb) {
@@ -1226,10 +1552,10 @@ impl Statement {
                     same_orient(op, ex, ez)?;
                     let (qx, qy, qz) = (quant(*x), quant(*y), quant(*z));
                     // Scale exponents compose unconditionally (C-03a).
-                    if qz.frac_bits != qx.frac_bits + qy.frac_bits {
+                    if se(*z) != se(*x) + se(*y) {
                         return Err(E::QuantMismatch { op, id: *z, field: "hadamard fraction bits" });
                     }
-                    let worst = qx.raw_bounds().mul(qy.raw_bounds());
+                    let worst = bnd(*x).mul(bnd(*y));
                     // Calibrated narrowing: a declared type the worst case
                     // does not cover (width OR signedness) is legal only
                     // with a Range/Lookup fact on z.
@@ -1237,7 +1563,7 @@ impl Statement {
                         if qz.signed != (qx.signed || qy.signed) {
                             return Err(E::QuantMismatch { op, id: *z, field: "hadamard signedness" });
                         }
-                        if !qz.raw_bounds().contains(worst) {
+                        if !bnd(*z).contains(worst) {
                             return Err(E::QuantMismatch { op, id: *z, field: "hadamard product width" });
                         }
                     }
@@ -1271,8 +1597,12 @@ impl Statement {
                     // Integer identity and fixed-point interpretation are
                     // independent of whether a later Range/Lookup proves a
                     // calibrated narrowing. Narrowing may justify width; it
-                    // cannot waive the scale equation (C-03a).
-                    if qx.frac_bits < *shift || qy.frac_bits != qx.frac_bits - shift {
+                    // cannot waive the scale equation (C-03a). v3 keeps its
+                    // frac_bits >= shift floor (unsigned storage); v4's
+                    // signed exponents need no floor — se(y) = se(x) + shift
+                    // covers the calibrated eZ = +1 / eH = +2 layers
+                    // (D3-F2 closed).
+                    if (!v4 && qx.frac_bits < *shift) || se(*y) != se(*x) + *shift as i64 {
                         return Err(E::QuantMismatch { op, id: *y, field: "rescale fraction bits" });
                     }
                     // Calibrated requantization: a rescale output declared
@@ -1285,22 +1615,26 @@ impl Statement {
                     // soundness hole. Without such a fact the declared
                     // width must cover the worst case and the fixed-point
                     // fraction bookkeeping must be exact.
-                    let worst = qx.raw_bounds().shr(*shift);
-                    if !self.narrowing_fact(*y, qy) && !qy.raw_bounds().contains(worst) {
+                    let worst = bnd(*x).shr(*shift);
+                    if !self.narrowing_fact(*y, qy) && !bnd(*y).contains(worst) {
                         return Err(E::QuantMismatch { op, id: *y, field: "rescale width" });
                     }
                     if !worst.fits_modulus(mb) {
                         return Err(E::QuantMismatch { op, id: *y, field: "modulus capacity" });
                     }
-                    if qr.signed || qr.bits != *shift || qr.frac_bits != qx.frac_bits {
+                    if qr.signed || qr.bits != *shift || se(*r) != se(*x) {
                         return Err(E::QuantMismatch { op, id: *r, field: "rescale remainder quant" });
                     }
                     // The remainder MUST carry an unsigned width-`shift`
                     // range fact — without it the mod-q rescale identity
-                    // admits integer wraparound (audit C-02).
+                    // admits integer wraparound (audit C-02). v4 may
+                    // discharge it by a RangeLookup (the U-R2 range-table
+                    // form) instead of a bit-plane Range.
                     let has_range = self.manifest.operations.iter().any(|other| {
                         matches!(other, Operation::Range { value, width, signed, .. }
                             if value == r && width == shift && !signed)
+                            || matches!(other, Operation::RangeLookup { value, width, signed }
+                                if value == r && width == shift && !signed)
                     });
                     if !has_range {
                         return Err(E::MissingRangeFact { op, r: *r });
@@ -1365,11 +1699,11 @@ impl Statement {
                         same_shape(op, ei, eo)?;
                         same_orient(op, ei, eo)?;
                         let qi = quant(*input);
-                        if qi.frac_bits != qo.frac_bits {
+                        if se(*input) != se(*output) {
                             return Err(E::QuantMismatch { op, id: *input, field: "add fraction bits" });
                         }
                         any_signed |= qi.signed;
-                        sum = sum.add(qi.raw_bounds());
+                        sum = sum.add(bnd(*input));
                         read[*input as usize] = true;
                         reads.push(*input);
                     }
@@ -1380,7 +1714,7 @@ impl Statement {
                         if any_signed && !qo.signed {
                             return Err(E::QuantMismatch { op, id: *output, field: "add signedness" });
                         }
-                        if !qo.raw_bounds().contains(sum) {
+                        if !bnd(*output).contains(sum) {
                             return Err(E::QuantMismatch { op, id: *output, field: "add width" });
                         }
                     }
@@ -1408,11 +1742,11 @@ impl Statement {
                     if qo.signed != qi.signed {
                         return Err(E::QuantMismatch { op, id: *output, field: "scale signedness" });
                     }
-                    if qo.frac_bits != qi.frac_bits {
+                    if se(*output) != se(*input) {
                         return Err(E::QuantMismatch { op, id: *output, field: "scale fraction bits" });
                     }
-                    let worst = qi.raw_bounds().scale(scalar.min(i128::MAX as u128) as i128);
-                    if !qo.raw_bounds().contains(worst) {
+                    let worst = bnd(*input).scale(scalar.min(i128::MAX as u128) as i128);
+                    if !bnd(*output).contains(worst) {
                         return Err(E::QuantMismatch { op, id: *output, field: "scale width" });
                     }
                     if !worst.fits_modulus(mb) {
@@ -1431,6 +1765,9 @@ impl Statement {
                     if quant(*left) != quant(*right) {
                         return Err(E::QuantMismatch { op, id: *right, field: "link quant" });
                     }
+                    if v4 && self.typing[*left as usize] != self.typing[*right as usize] {
+                        return Err(E::QuantMismatch { op, id: *right, field: "link typing" });
+                    }
                     read[*left as usize] = true;
                     read[*right as usize] = true;
                     reads.extend([*left, *right]);
@@ -1446,6 +1783,9 @@ impl Statement {
                     }
                     if quant(*by_rows) != quant(*by_cols) {
                         return Err(E::QuantMismatch { op, id: *by_cols, field: "link quant" });
+                    }
+                    if v4 && self.typing[*by_rows as usize] != self.typing[*by_cols as usize] {
+                        return Err(E::QuantMismatch { op, id: *by_cols, field: "link typing" });
                     }
                     read[*by_rows as usize] = true;
                     read[*by_cols as usize] = true;
@@ -1468,6 +1808,9 @@ impl Statement {
                     if quant(*bias) != quant(*broadcast) {
                         return Err(E::QuantMismatch { op, id: *broadcast, field: "broadcast quant" });
                     }
+                    if v4 && self.typing[*bias as usize] != self.typing[*broadcast as usize] {
+                        return Err(E::QuantMismatch { op, id: *broadcast, field: "broadcast typing" });
+                    }
                     read[*bias as usize] = true;
                     written[*broadcast as usize] = true;
                     flow[*bias as usize].push(*broadcast as usize);
@@ -1475,6 +1818,12 @@ impl Statement {
                     writes.push(*broadcast);
                 }
                 Operation::Lookup { x, y } => {
+                    // [UAGB1-BF] v4 statements bind their tables through
+                    // the FAMILY (LookupAt); the single-header form is
+                    // v3-only.
+                    if v4 {
+                        return Err(E::VersionedOperation { op });
+                    }
                     let (ex, ey) = (entry(op, *x)?, entry(op, *y)?);
                     same_shape(op, ex, ey)?;
                     same_orient(op, ex, ey)?;
@@ -1503,6 +1852,57 @@ impl Statement {
                     flow[*x as usize].push(*y as usize);
                     reads.push(*x);
                     writes.push(*y);
+                }
+                // [UAGB1-BF] v4-only: the per-scale table family form.
+                Operation::LookupAt { x, y, table } => {
+                    if !v4 {
+                        return Err(E::VersionedOperation { op });
+                    }
+                    let (ex, ey) = (entry(op, *x)?, entry(op, *y)?);
+                    same_shape(op, ex, ey)?;
+                    same_orient(op, ex, ey)?;
+                    let Some(spec) = self.tables.get(*table as usize) else {
+                        return Err(E::TableIndex { op, table: *table });
+                    };
+                    // Registry equality holds globally (TableNotFrozen);
+                    // the OPERANDS must match the member's typed spec —
+                    // width, signedness, and the SIGNED scale (spec
+                    // frac_bits reads as scale_exp = -frac_bits). A
+                    // per-layer scale mismatch (the D3-F1 wrong-table
+                    // statement form) rejects HERE, pre-crypto.
+                    let (qx, qy) = (quant(*x), quant(*y));
+                    if qx.bits != spec.input.bits
+                        || qx.signed != spec.input.signed
+                        || se(*x) != -(spec.input.frac_bits as i64)
+                    {
+                        return Err(E::QuantMismatch { op, id: *x, field: "lookup domain quant" });
+                    }
+                    if qy.bits != spec.output.bits
+                        || qy.signed != spec.output.signed
+                        || se(*y) != -(spec.output.frac_bits as i64)
+                    {
+                        return Err(E::QuantMismatch { op, id: *y, field: "lookup image quant" });
+                    }
+                    read[*x as usize] = true;
+                    written[*y as usize] = true;
+                    flow[*x as usize].push(*y as usize);
+                    reads.push(*x);
+                    writes.push(*y);
+                }
+                // [UAGB1-BF] v4-only: a range fact in range-table form (no
+                // plane stack, no Binary fact; the proving layer owes one
+                // masked [0, 2^width) lookup instance per operation).
+                Operation::RangeLookup { value, width, signed } => {
+                    if !v4 {
+                        return Err(E::VersionedOperation { op });
+                    }
+                    entry(op, *value)?;
+                    let qv = quant(*value);
+                    if *width == 0 || qv.bits != *width || qv.signed != *signed {
+                        return Err(E::QuantMismatch { op, id: *value, field: "range width/sign" });
+                    }
+                    read[*value as usize] = true;
+                    reads.push(*value);
                 }
             }
             for id in writes {
@@ -1584,9 +1984,12 @@ impl Statement {
     /// commitment/key bytes the digest already covers), so a decode ->
     /// re-digest reproduces the transcript context with no prover state.
     pub fn encode(&self) -> Vec<u8> {
+        let v4 = self.header.version == STATEMENT_VERSION_V4;
         let mut w = StatementWriter::new();
         w.raw(STATEMENT_CODEC_MAGIC);
-        w.u32(STATEMENT_CODEC_VERSION);
+        // [UAGB1-BF] Container version 2 = the v4 layout (cv1 bytes for
+        // v3 statements are unchanged — the one versioned codec change).
+        w.u32(if v4 { STATEMENT_CODEC_VERSION_V4 } else { STATEMENT_CODEC_VERSION });
         // Header.
         w.u32(self.header.version);
         w.raw(&self.header.model_digest);
@@ -1635,6 +2038,23 @@ impl Statement {
         for o in &self.outputs {
             w.u32(*o);
         }
+        if v4 {
+            w.u32(self.typing.len() as u32);
+            for t in &self.typing {
+                w.u32(t.scale_exp as u32);
+                w.u8(t.symmetric as u8);
+                w.u32(t.class);
+                w.u32(t.base_e0);
+            }
+            w.u32(self.tables.len() as u32);
+            for spec in &self.tables {
+                w.raw(&spec.digest);
+                w.quant(&spec.input);
+                w.quant(&spec.output);
+                w.i64(spec.domain_min);
+                w.i64(spec.domain_max);
+            }
+        }
         w.into_vec()
     }
 
@@ -1649,7 +2069,7 @@ impl Statement {
             return Err(DecodeError::BadMagic);
         }
         let cv = r.u32()?;
-        if cv != STATEMENT_CODEC_VERSION {
+        if cv != STATEMENT_CODEC_VERSION && cv != STATEMENT_CODEC_VERSION_V4 {
             return Err(DecodeError::UnknownCodecVersion { got: cv });
         }
         let version = r.u32()?;
@@ -1718,6 +2138,36 @@ impl Statement {
         for _ in 0..n_out {
             outputs.push(r.u32()?);
         }
+        // [UAGB1-BF] cv2 carries the v4 typing + table-family records;
+        // the container and header versions must pair (canonicality).
+        if (cv == STATEMENT_CODEC_VERSION_V4) != (version == STATEMENT_VERSION_V4) {
+            return Err(DecodeError::BadTag { ctx: "codec/version pairing", tag: cv as u8 });
+        }
+        let (mut typing, mut tables) = (Vec::new(), Vec::new());
+        if cv == STATEMENT_CODEC_VERSION_V4 {
+            let n_t = r.len(MAX_ENTRIES)?;
+            typing.reserve(n_t);
+            for _ in 0..n_t {
+                let scale_exp = r.u32()? as i32;
+                let symmetric = match r.u8()? {
+                    0 => false,
+                    1 => true,
+                    t => return Err(DecodeError::BadTag { ctx: "typing-symmetric", tag: t }),
+                };
+                typing.push(TypingV4 { scale_exp, symmetric, class: r.u32()?, base_e0: r.u32()? });
+            }
+            let n_tb = r.len(MAX_ENTRIES)?;
+            tables.reserve(n_tb);
+            for _ in 0..n_tb {
+                tables.push(TableSpec {
+                    digest: r.bytes32()?,
+                    input: r.quant()?,
+                    output: r.quant()?,
+                    domain_min: r.i64()?,
+                    domain_max: r.i64()?,
+                });
+            }
+        }
         r.finish()?; // reject trailing bytes
         let st = Statement {
             header: StatementHeader { version, model_digest, table, modulus_bits },
@@ -1730,6 +2180,8 @@ impl Statement {
             quant,
             pad,
             outputs,
+            typing,
+            tables,
         };
         // A decoded statement must be a VALID statement — the fresh verifier
         // never trusts a wire statement's structure.
@@ -1739,8 +2191,12 @@ impl Statement {
 
     pub fn digest(&self) -> Result<[u8; 32], StatementError> {
         self.validate()?;
+        let v4 = self.header.version == STATEMENT_VERSION_V4;
         let mut hasher = Sha256::new();
-        absorb_bytes(&mut hasher, STATEMENT_TAG.as_bytes());
+        // [UAGB1-BF] Version-gated tag: the v3 byte stream is UNTOUCHED
+        // (existing frozen digests must not move); v4 hashes under its
+        // own tag and additionally absorbs typing + tables below.
+        absorb_bytes(&mut hasher, if v4 { STATEMENT_TAG_V4 } else { STATEMENT_TAG }.as_bytes());
         hasher.update(self.header.version.to_le_bytes());
         hasher.update(self.header.model_digest);
         let absorb_quant = |hasher: &mut Sha256, q: &QuantMeta| {
@@ -1774,6 +2230,23 @@ impl Statement {
         hasher.update((self.outputs.len() as u64).to_le_bytes());
         for output in &self.outputs {
             hasher.update(output.to_le_bytes());
+        }
+        if v4 {
+            hasher.update((self.typing.len() as u64).to_le_bytes());
+            for t in &self.typing {
+                hasher.update(t.scale_exp.to_le_bytes());
+                hasher.update([t.symmetric as u8]);
+                hasher.update(t.class.to_le_bytes());
+                hasher.update(t.base_e0.to_le_bytes());
+            }
+            hasher.update((self.tables.len() as u64).to_le_bytes());
+            for spec in &self.tables {
+                hasher.update(spec.digest);
+                absorb_quant(&mut hasher, &spec.input);
+                absorb_quant(&mut hasher, &spec.output);
+                hasher.update(spec.domain_min.to_le_bytes());
+                hasher.update(spec.domain_max.to_le_bytes());
+            }
         }
         hasher.update(self.manifest.digest());
         Ok(hasher.finalize().into())
@@ -2092,6 +2565,273 @@ pub fn codec_sample_statement() -> Statement {
         .collect();
     st.outputs = vec![h];
     st
+}
+
+/// [UAGB1-BF] A small VALID v4 statement exercising every new typed
+/// feature on the 125M pass semantics in miniature: symmetric [-127,127]
+/// int8 operands, a POSITIVE scale exponent chain (eH = +2 -> eZ = +1,
+/// the D3-F2 layers), a LookupAt into the per-scale family ((-3,-3)
+/// member), a RangeLookup remainder fact, and full class/base
+/// declarations. Shapes tiny; metadata-only.
+pub fn codec_sample_statement_v4() -> Statement {
+    let mut mf = ClaimManifest::new("statement-codec-v4", b"codec-setup-v4");
+    // h8 (se +2, the calibrated layer-2 eH) @ Wd (se -9) -> Dacc (se -7)
+    // -> rescale shift 8 -> z (se +1, the calibrated eZ) + remainder r8;
+    // g8 (se -3) -> LookupAt[(-3,-3)] -> a8; a8 o u8 -> H (se -6).
+    let h8 = mf.add_commitment("h8", 4, 8, Orientation::RowMajor, vec![], vec![0x11; 8]);
+    let wd = mf.add_commitment("Wd", 8, 4, Orientation::RowMajor, vec![], vec![0x22; 8]);
+    let dacc = mf.add_commitment("Dacc", 4, 4, Orientation::RowMajor, vec![], vec![0x33; 8]);
+    let zv = mf.add_commitment("z", 4, 4, Orientation::RowMajor, vec![], vec![0x44; 8]);
+    let rd = mf.add_commitment("Rd", 4, 4, Orientation::RowMajor, vec![], vec![0x55; 8]);
+    let g8 = mf.add_commitment("g8", 4, 4, Orientation::RowMajor, vec![], vec![0x66; 8]);
+    let a8 = mf.add_commitment("a8", 4, 4, Orientation::RowMajor, vec![], vec![0x77; 8]);
+    let u8v = mf.add_commitment("u8", 4, 4, Orientation::RowMajor, vec![], vec![0x88; 8]);
+    let hh = mf.add_commitment("H", 4, 4, Orientation::RowMajor, vec![], vec![0x99; 8]);
+    mf.add_operation(Operation::Matmul { a: h8, b: wd, c: dacc });
+    mf.add_operation(Operation::Rescale { x: dacc, y: zv, r: rd, shift: 8 });
+    mf.add_operation(Operation::RangeLookup { value: rd, width: 8, signed: false });
+    mf.add_operation(Operation::RangeLookup { value: zv, width: 8, signed: true });
+    mf.add_operation(Operation::LookupAt { x: g8, y: a8, table: 0 });
+    mf.add_operation(Operation::Hadamard { x: a8, y: u8v, z: hh });
+    let mut st = Statement::new_v4([8u8; 32], vec![SILU_V2_M3_TABLE_SPEC], 30, mf);
+    let q = |bits: u32, signed: bool| QuantMeta { bits, frac_bits: 0, signed };
+    let t = |scale_exp: i32, symmetric: bool, class: u32, base_e0: u32| TypingV4 {
+        scale_exp,
+        symmetric,
+        class,
+        base_e0,
+    };
+    st.quant = vec![
+        q(8, true),  // h8
+        q(8, true),  // Wd
+        q(19, true), // Dacc: 8 * 127^2 = 129,032 -> 18 bits + margin
+        q(8, true),  // z (narrowed by its RangeLookup)
+        q(8, false), // Rd
+        q(8, true),  // g8
+        q(8, true),  // a8
+        q(8, true),  // u8
+        q(16, true), // H
+    ];
+    st.typing = vec![
+        t(2, true, CLS_ACT8, 2),   // h8: eH = +2, symmetric
+        t(-9, true, CLS_W8S, 1),   // Wd: weight, e0 = 1 (F-N2)
+        t(-7, false, CLS_ACC, 2),  // Dacc
+        t(1, true, CLS_ACT8, 2),   // z: eZ = +1
+        t(-7, false, CLS_REM, 2),  // Rd (se == se(Dacc))
+        t(-3, false, CLS_ACT8, 2), // g8 (matches the (-3,-3) member)
+        t(-3, false, CLS_ACT8, 2), // a8
+        t(-3, false, CLS_ACT8, 2), // u8
+        t(-6, false, CLS_ACC, 2),  // H = a8 o u8
+    ];
+    st.pad = st
+        .manifest
+        .commitments
+        .iter()
+        .map(|e| PadSpec::exact(e.rows as usize, e.cols as usize))
+        .collect();
+    st.outputs = vec![zv, hh];
+    st
+}
+
+/// [UAGB1-BF] The v4 typing/codec battery: the ONE versioned codec
+/// change's positive and negative vectors. Returns overall pass.
+pub fn statement_v4_battery() -> bool {
+    fn note(label: &str, pass: bool, ok: &mut bool) {
+        if pass {
+            println!("  ok   {label}");
+        } else {
+            println!("  FAIL {label}");
+            *ok = false;
+        }
+    }
+    let mut ok = true;
+    use StatementError as SE;
+
+    let expect = |label: &str, st: &Statement, want: fn(&StatementError) -> bool, ok: &mut bool| {
+        match st.validate() {
+            Ok(()) => {
+                println!("  FAIL malicious statement accepted ({label})");
+                *ok = false;
+            }
+            Err(err) if want(&err) => println!("  ok   statement rejects {label}: {err}"),
+            Err(err) => {
+                println!("  FAIL wrong rejection for {label}: {err}");
+                *ok = false;
+            }
+        }
+    };
+
+    // (P1) The v4 base validates, digests deterministically, and its
+    // POSITIVE scale exponents (eH = +2, eZ = +1) are carried un-clamped
+    // at honest 8-bit storage — the D3-F2 gap closed.
+    let base = codec_sample_statement_v4();
+    match (base.validate(), base.digest(), base.digest()) {
+        (Ok(()), Ok(d1), Ok(d2)) if d1 == d2 => {
+            note("v4 base validates (eH +2 / eZ +1 expressible, 8-bit storage); digest deterministic", true, &mut ok)
+        }
+        _ => note("v4 base validates + digests", false, &mut ok),
+    }
+
+    // (P2) The v3 sample's digest and wire bytes are UNMOVED by the v4
+    // change (same statement, byte-identical cv1 encoding).
+    let v3 = codec_sample_statement();
+    let v3_bytes = v3.encode();
+    note(
+        "v3 sample still encodes at cv1 and round-trips (bytes + digest preserved)",
+        v3_bytes[4..8] == 1u32.to_le_bytes()
+            && Statement::decode(&v3_bytes).map(|b| b.encode() == v3_bytes).unwrap_or(false),
+        &mut ok,
+    );
+
+    // (P3) v4 codec round-trip: cv2, byte-identical re-encode, digest
+    // preserved across the wire.
+    let v4_bytes = base.encode();
+    match Statement::decode(&v4_bytes) {
+        Ok(back) => {
+            let d0 = base.digest().expect("base digests");
+            let dr = back.digest().expect("round-tripped digests");
+            note(
+                "v4 codec round-trip (cv2): re-encode byte-identical, digest preserved",
+                v4_bytes[4..8] == 2u32.to_le_bytes() && back.encode() == v4_bytes && d0 == dr,
+                &mut ok,
+            );
+        }
+        Err(e) => note(&format!("v4 codec round-trip decode ({e})"), false, &mut ok),
+    }
+
+    // (P4) The symmetric-range pair at the REAL 125M inner dims: under
+    // symmetric [-127,127] operands the validator itself derives the
+    // honest accumulator rows (25-bit @ 768 ACCEPTS, 26-bit @ 2048
+    // ACCEPTS); the SAME declarations under asymmetric operands REJECT —
+    // the BC-c divergence, now machine-checked instead of recorded.
+    let acc_pair = |inner: usize, acc_bits: u32, symmetric: bool| -> Statement {
+        let mut mf = ClaimManifest::new("statement-v4-acc", b"acc-pair");
+        let a = mf.add_commitment("A", 1, inner, Orientation::RowMajor, vec![], vec![]);
+        let b = mf.add_commitment("B", inner, 1, Orientation::RowMajor, vec![], vec![]);
+        let c = mf.add_commitment("C", 1, 1, Orientation::RowMajor, vec![], vec![]);
+        mf.add_operation(Operation::Matmul { a, b, c });
+        let mut st = Statement::new_v4([9u8; 32], vec![], 30, mf);
+        st.quant = vec![
+            QuantMeta { bits: 8, frac_bits: 0, signed: true },
+            QuantMeta { bits: 8, frac_bits: 0, signed: true },
+            QuantMeta { bits: acc_bits, frac_bits: 0, signed: true },
+        ];
+        st.typing = vec![
+            TypingV4 { scale_exp: -2, symmetric, class: CLS_ACT8, base_e0: 2 },
+            TypingV4 { scale_exp: -9, symmetric, class: CLS_W8S, base_e0: 1 },
+            TypingV4 { scale_exp: -11, symmetric: false, class: CLS_ACC, base_e0: 2 },
+        ];
+        st.pad = vec![
+            PadSpec::exact(1, inner),
+            PadSpec::exact(inner, 1),
+            PadSpec::exact(1, 1),
+        ];
+        st.outputs = vec![c];
+        st
+    };
+    note(
+        "symmetric [-127,127] operands: 25-bit @ inner 768 and 26-bit @ inner 2048 ACCEPT (honest 125M rows derived)",
+        acc_pair(768, 25, true).validate().is_ok() && acc_pair(2048, 26, true).validate().is_ok(),
+        &mut ok,
+    );
+    expect(
+        "the SAME 26-bit @ 2048 declaration under ASYMMETRIC operands (needs 27)",
+        &acc_pair(2048, 26, false),
+        |e| matches!(e, SE::QuantMismatch { field: "matmul accumulator width", .. }),
+        &mut ok,
+    );
+
+    // (N1) E-O1-BB wrong-class vector: the accumulator declared as an
+    // 8-bit activation class it does not fit.
+    let mut bad = codec_sample_statement_v4();
+    bad.typing[2].class = CLS_ACT8;
+    expect("wrong class declaration (acc entry as CLS_ACT8)", &bad, |e| {
+        matches!(e, SE::WrongClass { id: 2 })
+    }, &mut ok);
+
+    // (N2) E-O1-BB wrong-base vector: weight base e0 = 2 against the
+    // F-N2-mandated sign-binary e0 = 1.
+    let mut bad = codec_sample_statement_v4();
+    bad.typing[1].base_e0 = 2;
+    expect("wrong digit base (weight e0 = 2)", &bad, |e| matches!(e, SE::WrongBase { id: 1 }), &mut ok);
+
+    // (N3) Version gates, both directions.
+    let mut bad = codec_sample_statement();
+    bad.typing = vec![TypingV4 { scale_exp: 0, symmetric: false, class: CLS_ACT8, base_e0: 2 }];
+    expect("typing records on a v3 statement", &bad, |e| matches!(e, SE::TypingCount { .. }), &mut ok);
+    let mut bad = codec_sample_statement_v4();
+    bad.typing.clear();
+    expect("v4 statement missing its typing", &bad, |e| matches!(e, SE::TypingCount { .. }), &mut ok);
+    let mut bad = codec_sample_statement();
+    bad.manifest.operations.push(Operation::RangeLookup { value: 3, width: 16, signed: true });
+    expect("RangeLookup inside a v3 statement", &bad, |e| matches!(e, SE::VersionedOperation { .. }), &mut ok);
+    let mut bad = codec_sample_statement_v4();
+    bad.manifest.operations.push(Operation::Lookup { x: 5, y: 6 });
+    expect("plain Lookup inside a v4 statement", &bad, |e| matches!(e, SE::VersionedOperation { .. }), &mut ok);
+
+    // (N4) Table-family gates: bad index, off-registry spec, and the
+    // per-layer scale mismatch (the D3-F1 wrong-table statement form).
+    let mut bad = codec_sample_statement_v4();
+    if let Operation::LookupAt { table, .. } = &mut bad.manifest.operations[4] {
+        *table = 7;
+    }
+    expect("LookupAt with an out-of-family table index", &bad, |e| {
+        matches!(e, SE::TableIndex { table: 7, .. })
+    }, &mut ok);
+    let mut bad = codec_sample_statement_v4();
+    bad.tables[0].digest[0] ^= 0xff;
+    expect("a tables[] entry equal to no frozen registry member", &bad, |e| {
+        matches!(e, SE::TableNotFrozen { index: 0 })
+    }, &mut ok);
+    let mut bad = codec_sample_statement_v4();
+    bad.tables[0] = SILU_V2_M4_TABLE_SPEC; // frozen, but the wrong member for se = -3 operands
+    expect("the WRONG family member for the layer's exponent (g8 se -3 vs the (-4,-4) table)", &bad, |e| {
+        matches!(e, SE::QuantMismatch { field: "lookup domain quant", .. })
+    }, &mut ok);
+
+    // (N5) Typed-field rules: nonzero v4 frac_bits, symmetric-on-unsigned.
+    let mut bad = codec_sample_statement_v4();
+    bad.quant[0].frac_bits = 4;
+    expect("nonzero quant.frac_bits on a v4 statement", &bad, |e| {
+        matches!(e, SE::TypingViolation { field: "v4 quant.frac_bits must be 0", .. })
+    }, &mut ok);
+    let mut bad = codec_sample_statement_v4();
+    bad.typing[4].symmetric = true; // Rd is unsigned
+    expect("symmetric flag on an unsigned entry", &bad, |e| {
+        matches!(e, SE::TypingViolation { field: "symmetric on unsigned", .. })
+    }, &mut ok);
+
+    // (N6) Remainder coverage: deleting the RangeLookup starves the
+    // rescale of its remainder fact (the C-02 wraparound gate, v4 form).
+    let mut bad = codec_sample_statement_v4();
+    bad.manifest.operations.remove(2);
+    expect("rescale remainder with its RangeLookup deleted", &bad, |e| {
+        matches!(e, SE::MissingRangeFact { .. })
+    }, &mut ok);
+
+    // (N7) Codec pairing: a cv1 container claiming a v4 header (and the
+    // reverse) reject as structured errors, never as misparses.
+    let mut wire = codec_sample_statement_v4().encode();
+    wire[4..8].copy_from_slice(&1u32.to_le_bytes()); // cv2 -> cv1
+    note(
+        "codec pairing: v4 payload under a cv1 container rejects",
+        Statement::decode(&wire).is_err(),
+        &mut ok,
+    );
+    let mut wire = codec_sample_statement().encode();
+    wire[4..8].copy_from_slice(&2u32.to_le_bytes()); // cv1 -> cv2
+    note(
+        "codec pairing: v3 payload under a cv2 container rejects",
+        Statement::decode(&wire).is_err(),
+        &mut ok,
+    );
+
+    if ok {
+        println!("statement-v4 passed");
+    } else {
+        println!("statement-v4 FAILED");
+    }
+    ok
 }
 
 /// U-S Phase 3 (P3-D2/D4): canonical statement codec battery. Round-trip

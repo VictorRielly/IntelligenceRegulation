@@ -6380,6 +6380,10 @@ fn main() {
             println!("\n[UAGB1-D1] battery passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         Some("statement-125m") => uagb1_statement_125m(),
+        // [UAGB1-BF] the 12-layer 125M P0 pass on real ckpt-00009536
+        // weights: `m125-pass v4-battery | statement | prove <layer..> |
+        // battery [small]` — see the [UAGB1-BF] section.
+        Some("m125-pass") => m125_pass_main(&args[1..]),
         Some("matmul-statement") => {
             // `matmul-statement battery` = the adversarial battery at
             // 128x768x256; `matmul-statement <rows> <inner> <cols>` =
@@ -19776,5 +19780,67 @@ fn freeze_check_uagb1_bf() -> bool {
         clamp_ok && m3_min == -2 && m3_max == 127,
     );
 
+    // UAGB1-BF-2a: the manifest-side family digests are COPIES of the
+    // lookup.rs generation (the SILU_INT8_TABLE_DIGEST duplicated-
+    // constant discipline, extended to the family), and the frozen v4
+    // registry carries exactly the three members with the pinned class
+    // table (weight e0 = 1 F-N2; act/acc/rem/aux e0 = 2).
+    gate(
+        "UAGB1-BF-2a manifest family digests == lookup.rs generation; v4 registry = [v1, m3, m4]; class table pins (w8s e0=1, others e0=2)",
+        manifest::SILU_V2_M3_TABLE_DIGEST == SILU_V2_M3_DIGEST
+            && manifest::SILU_V2_M4_TABLE_DIGEST == SILU_V2_M4_DIGEST
+            && manifest::v4_table_registry().len() == 3
+            && manifest::v4_table_registry()[0] == manifest::SILU_INT8_TABLE_SPEC
+            && manifest::V4_CLASS_TABLE
+                .iter()
+                .all(|r| if r.0 == manifest::CLS_W8S { r.1 == 1 } else { r.1 == 2 }),
+    );
+
+    // UAGB1-BF-2b: v3 DIGEST STABILITY under the v4 codec change — the
+    // reference v3 statement's digest and cv1 wire bytes are pinned
+    // (captured at the pre-change baseline; any drift in the v3 path
+    // fails HERE, not in a downstream battery).
+    let v3_ref = manifest::codec_sample_statement();
+    let v3_dg = v3_ref.digest().expect("v3 reference digests");
+    let v3_wire = v3_ref.encode();
+    gate(
+        &format!("UAGB1-BF-2b v3 reference digest pinned f2a5acba.. (got {}); cv1 wire, {} B", hex_prefix(&v3_dg), v3_wire.len()),
+        hex_full(&v3_dg) == "f2a5acbaa52acc255f8def1b9bc710d80f6a926b7e5b644e82ecdd8823e9a3cd"
+            && v3_wire[4..8] == 1u32.to_le_bytes(),
+    );
+
+    // UAGB1-BF-2c: the v4 reference statement digest (reproducibility
+    // pin for the ONE versioned codec change; not a security claim).
+    let v4_dg = manifest::codec_sample_statement_v4().digest().expect("v4 reference digests");
+    gate(
+        &format!("UAGB1-BF-2c v4 reference digest pinned 9f83d3e9.. (got {})", hex_prefix(&v4_dg)),
+        hex_full(&v4_dg) == "9f83d3e9b69d8cb4e5d0fd6765830f119f969f78406839cc3bcb491576103845",
+    );
+
     all_ok
+}
+
+/// [UAGB1-BF] subcommand dispatch: the manifest-v4 battery, the pass
+/// statement, per-layer proofs and the pass-level tamper battery.
+fn m125_pass_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("v4-battery") => {
+            let t = Instant::now();
+            if !manifest::statement_v4_battery() {
+                std::process::exit(1);
+            }
+            println!("\n[UAGB1-BF] v4 battery passed in {:.2}s", t.elapsed().as_secs_f64());
+        }
+        Some("digests") => {
+            // Reproducibility aid: the pinned reference digests.
+            let v3 = manifest::codec_sample_statement().digest().expect("v3 sample");
+            let v4 = manifest::codec_sample_statement_v4().digest().expect("v4 sample");
+            println!("codec-sample v3 digest {}", hex_full(&v3));
+            println!("codec-sample v4 digest {}", hex_full(&v4));
+        }
+        _ => {
+            eprintln!("usage: ring_matmul m125-pass v4-battery | digests | statement | prove <layer> | battery [small]");
+            std::process::exit(2);
+        }
+    }
 }
