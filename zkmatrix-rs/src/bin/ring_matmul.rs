@@ -20798,7 +20798,7 @@ fn uagb1_agg_run_full(
 ) -> (AggVerdict, AggCost) {
     use ring::eval_proof::{plan_schedule, TensorClaimKernel};
     use ring::gkr::eq_table;
-    use ring::kfield::{KElem, KField, K_DEG};
+    use ring::kfield::{KElem, KField};
     use ring::sumcheck::{sumcheck_prove, sumcheck_verify, LkpTranscript};
     let ctxr = ring_ctx_q8();
     let kf = KField::new(&ctxr);

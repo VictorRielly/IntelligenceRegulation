@@ -807,6 +807,15 @@ fallbacks, [MAC-BOX]/[NOISY-SHARED] timing marks).
   * Report: docs/zkmatrix-poc/UAGB1_AGG_STACK_REPORT.md (byte
     decompositions, floor schedules, F-Z1, walls/findings,
     E-block table, exports, reproduction lines).
+- 2026-08-09 **LANE CLOSE-OUT: full suite 53/53 OK (296.7 s,
+  in-lane; 51 base + the 2 new agg tests) + freeze-check green at
+  the final build (every pre-existing digest unmoved). Second
+  full-shape bare sample: bytes IDENTICAL 344,318 (deterministic),
+  commit 8.5 / prove 56.9 / verify 17.7 s, RSS 1.52 GiB [MAC-BOX,
+  NOISY-SHARED both samples — sibling/suite activity overlapped;
+  magnitudes stable across runs]. All work committed to uagb1-bd;
+  no push (per brief). Deliverables checkbox left for the
+  orchestrator.**
 
 ## Agent BE status (wt-uagb1-be)
 
