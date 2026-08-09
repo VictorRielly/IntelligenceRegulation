@@ -710,6 +710,34 @@ fallbacks, [MAC-BOX]/[NOISY-SHARED] timing marks).
   tables (lane BF); q46 side; GPU; attention; any Gaussian-masked
   opening outside the priced Tier-Z floor carve-out; edits to
   existing scripts/tests or other ledger sections; push.
+- 2026-08-09 **FLOOR SCHEDULE POSTED** (derived by the public
+  planner, frozen in freeze_check_uagb1_bd BD-3, single-layer 125M
+  statement 512x768x2048, exact-digit branch, kappa 11, R-EB caps):
+  * weight group (T_W, A 512x768 w8s e0=1): n_0 = 24,576 digit
+    rings -> 6 levels -> FLOOR 939 rings = 120,192 coords at
+    e_L = 7 (1 B/coord bare).
+  * act group (T_act, B a8s + C acc24-768, e0=2): n_0 = 167,936
+    digit rings -> 7 levels -> FLOOR 936 rings = 119,808 coords at
+    e_L = 7.
+  * F-Z1 recompute (BC recipe b = 27.2 + 0.5*log2(coords/81920)):
+    weight b = 2^27.48, act b = 2^27.47 — both < 28.00: the masking
+    corner SURVIVES with ~0.53 b at both floors; the limb-growth
+    branch (28.6 + same scaling) stays dead; both floors far under
+    the 1,940-ring survival threshold.
+  * FINDING (mild, for BC/orchestrator): the floors land ~17% ABOVE
+    the 600-800-ring band BC called the expected landing zone
+    (AZB_BATTERY_PLAN S4 said "a schedule outside it would itself
+    be a finding") — driver: this planner's l_z sizing uses the
+    deterministic-concentration bound with +2 bits restart headroom
+    and the byte-optimal stop rule fires one level earlier than the
+    design-doc spike's schedules; the corner margin absorbs it.
+  * kel (F-O2 standalone route): REAL masked descent pairs at
+    dw 10/12/14/17/19/21 (dt 9) count EXACTLY equal to the engine's
+    structural counter masked_transcript_totals AND to the recorded
+    fit (545/655/781/1,000/1,166/1,348); the counter at 24/25/26/29
+    gives 1,651/1,760/1,873/2,236 = the fit values — the [MODEL]
+    fit is the engine's transcript-shape arithmetic, not an
+    extrapolation. dw 24/25 REAL runs in flight.
 
 ## Agent BE status (wt-uagb1-be)
 
