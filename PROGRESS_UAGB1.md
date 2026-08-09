@@ -89,6 +89,11 @@ must be DERIVED by this round (the frozen A1 number is the
       447.8x Tier N, opening layer 99.8% — the number items 4-6
       exist to close; Tier N NOT met, NOT claimed. Items 4-6 remain
       OPEN (wave 2 of this round).
+      WAVE-2 UPDATE: items 4-5 LANDED by lane BD at single-layer
+      scope (merged e3c9825): eval proof bare 344,318 B (341x under
+      wave 1, 1.313x over Tier N — pass amortization pending BE) +
+      masked Tier-Z path 1,527,878 B corner-safe. Item 6 (wire
+      format) still OPEN — counted convention continues.
 - [x] BC: F-O/F-Z obligations dispositioned; AZB battery green incl.
       AZB-10/AZB-11; kel measured (F-O2); gates checked.
       DONE 2026-08-08 at spike scope, merged 8b2ffa8 (orchestrator
