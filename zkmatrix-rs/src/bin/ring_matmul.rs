@@ -5053,6 +5053,7 @@ fn freeze_check() {
     all_ok &= freeze_check_uz1();
     all_ok &= freeze_check_uagb1();
     all_ok &= freeze_check_uagb1_d2();
+    all_ok &= freeze_check_uagb1_bd();
 
     if all_ok {
         println!("freeze-check passed");
@@ -6257,7 +6258,7 @@ fn self_test_pi2_ce() {
 }
 
 fn usage() {
-    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory | uagb1-digit-battery | matmul-statement [battery | <rows> <inner> <cols>] | statement-125m");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory | uagb1-digit-battery | matmul-statement [battery | <rows> <inner> <cols>] | statement-125m | agg-matmul [battery | <rows> <inner> <cols>] | agg-kel [dw ..]");
     eprintln!();
     eprintln!("  ffn-chain [n_blocks | battery] is the LEGACY q46 block chain: its range");
     eprintln!("  grounding uses the ARP legacy range arm (rejection clipping ~2^-4.75 at");
@@ -6400,6 +6401,32 @@ fn main() {
         }
         Some("statement-inventory") => statement_inventory(),
         Some("gate-spike") => gate_spike(),
+        Some("agg-matmul") => {
+            // [UAGB1-BD] the aggregation stack: `agg-matmul battery`
+            // runs the tamper/F5 battery; `agg-matmul <r> <i> <c>` the
+            // measurement instance (125M shape: 512 768 2048).
+            if args.get(1).map(String::as_str) == Some("battery") || args.len() == 1 {
+                let t = Instant::now();
+                uagb1_agg_battery();
+                println!("\n[UAGB1-BD] battery passed in {:.2}s", t.elapsed().as_secs_f64());
+            } else {
+                let dims: Vec<usize> = args[1..4.min(args.len())]
+                    .iter()
+                    .map(|s| s.parse().expect("rows inner cols"))
+                    .collect();
+                assert!(dims.len() == 3, "agg-matmul <rows> <inner> <cols>");
+                uagb1_agg_bench(dims[0], dims[1], dims[2]);
+            }
+        }
+        Some("agg-kel") => {
+            // [UAGB1-BD] F-O2 standalone-route kel measurement.
+            let dws: Vec<usize> = if args.len() > 1 {
+                args[1..].iter().map(|s| s.parse().expect("dw list")).collect()
+            } else {
+                vec![10, 12, 14, 17, 19, 21]
+            };
+            uagb1_agg_kel(&dws);
+        }
         Some("link-demo") => {
             let t = Instant::now();
             self_test_link();
@@ -19695,4 +19722,1631 @@ fn mm_acc_bits_hb(inner: usize, hb: u32) -> u32 {
         b += 1;
     }
     b
+}
+
+// ===========================================================================
+// [UAGB1-BD] U-AG-B1 wave 2 lane BD: the AGGREGATION STACK at the 125M
+// single-layer statement — CR-L4-class batching per W-C commitment
+// group + the bare LaBRADOR-form descent/eval proof (ring/eval_proof.rs)
+// replacing the wave-1 statement's per-wave ct-round opening volume
+// (99.8% of 117,396,459 counted B). See the module header of
+// src/ring/eval_proof.rs for the protocol and the honest deviations.
+//
+// Subcommands: `agg-matmul [battery | <rows> <inner> <cols>]`,
+// `agg-kel [dw ..]`. Freeze rows: freeze_check_uagb1_bd().
+
+#[derive(Clone, Copy, PartialEq)]
+enum AggTamper {
+    None,
+    /// C committed with one wrong entry; the prover claims the honest
+    /// A*B sumcheck value and LIES in the affected claim-row ring
+    /// values (ct-coefficient adjusted so the public ct gate passes).
+    /// The transported chain must catch it at the floor.
+    WrongC,
+    /// +1 on one bare floor coordinate (recursed shapes): a transported
+    /// linear constraint fails.
+    TamperFloor,
+    /// Out-of-alphabet floor digit pair preserving the recomposition
+    /// (d_a += 2^e, d_{a+1} -= 1): every linear transport is preserved;
+    /// ONLY the alphabet gate sees it.
+    OoaFloor,
+    /// E-O1-BB negative vector at this statement: the prover's
+    /// statement declares e0 = 2 for the weight tensor (F-N2 mandates
+    /// 1) — statement digest gate rejects before any crypto.
+    WrongClassDecl,
+    /// F5 pair 1 (CRB-N3/N4 class): alphas derived BEFORE the claim
+    /// rows are absorbed; the prover ships a compensated false claim-
+    /// row pair (sum alpha_c delta_c = 0, ct(delta_c) = 0). ACCEPTS
+    /// under the weakened ordering, REJECTED by the shipped verifier.
+    AlphaEarly,
+    /// F5 pair 2 (the E-6 / AZB-6 leg at level 1): the level-1 fold
+    /// challenge drawn BEFORE u_1 is absorbed; the prover compensates
+    /// two h cross-values against the known challenge. ACCEPTS weak,
+    /// REJECTED shipped.
+    COrderEarly,
+}
+
+struct AggVerdict {
+    statement_ok: bool,
+    sumcheck_ok: bool,
+    ct_rows_ok: bool,
+    groups_ok: bool,
+    first_fail: Option<&'static str>,
+}
+
+impl AggVerdict {
+    fn accept(&self) -> bool {
+        self.statement_ok && self.sumcheck_ok && self.ct_rows_ok && self.groups_ok
+    }
+}
+
+#[derive(Default)]
+struct AggCost {
+    commit_s: f64,
+    prove_s: f64,
+    verify_s: f64,
+    bytes_statement: usize,
+    bytes_sumcheck: usize,
+    /// Per group: (name, outer identities, claim rows, level msgs,
+    /// floor, floor rings, floor e, levels).
+    group_lines: Vec<(&'static str, usize, usize, usize, usize, usize, u32, usize)>,
+}
+
+impl AggCost {
+    fn bytes_total(&self) -> usize {
+        self.bytes_statement
+            + self.bytes_sumcheck
+            + self.group_lines.iter().map(|g| g.1 + g.2 + g.3 + g.4).sum::<usize>()
+    }
+}
+
+/// The aggregated statement: manifest v3 with the three tensor entries
+/// (commitment digests = the owning group's u_0 outer identity), the
+/// Matmul operation, and the model digest binding shapes + the
+/// [UAGB1-BD] group descriptors (W-C layout + exact-digit class
+/// declarations + openings-per-group) + the u_0 digests.
+fn agg_build_statement(
+    rows: usize,
+    inner: usize,
+    cols: usize,
+    acc_bits: u32,
+    group_desc: &[manifest::AggGroupDescriptor],
+    u0_digests: &[Vec<u8>],
+    crs_note: &[u8],
+) -> manifest::Statement {
+    use manifest::{ClaimManifest, Operation, Orientation, PadSpec, QuantMeta, Statement};
+    let q8m = QuantMeta { bits: 8, frac_bits: 0, signed: true };
+    let qacc = QuantMeta { bits: acc_bits, frac_bits: 0, signed: true };
+    let mut mf = ClaimManifest::new("lattice-uagb1-agg", crs_note);
+    let ki = key_info_bytes(&CommitShape { kappa: ring::eval_proof::KAPPA_AGG, n_r: 0, msg_r: 0 }, Q8);
+    // Tensor digests: the owning group's u_0 digest salted by the
+    // tensor name (groups: [weight, act]; A in weight; B, C in act).
+    let tdig = |gi: usize, name: &str| -> Vec<u8> {
+        uk8_sha(&[b"agg-tensor", &u0_digests[gi], name.as_bytes()]).to_vec()
+    };
+    let id_a = mf.add_commitment("A", rows, inner, Orientation::RowMajor, ki.clone(), tdig(0, "A"));
+    let id_b = mf.add_commitment("B", inner, cols, Orientation::RowMajor, ki.clone(), tdig(1, "B"));
+    let id_c = mf.add_commitment("C", rows, cols, Orientation::RowMajor, ki, tdig(1, "C"));
+    mf.add_operation(Operation::Matmul { a: id_a, b: id_b, c: id_c });
+    let mut parts: Vec<u8> = b"uagb1-agg-model-v1".to_vec();
+    for v in [rows, inner, cols] {
+        parts.extend((v as u64).to_le_bytes());
+    }
+    parts.extend([8u8, acc_bits as u8]);
+    for g in group_desc {
+        parts.extend(g.encode());
+    }
+    for d in u0_digests {
+        parts.extend((d.len() as u64).to_le_bytes());
+        parts.extend(d);
+    }
+    let model_digest = uk8_sha(&[&parts]);
+    let mut st = Statement::new(model_digest, None, 30, mf);
+    st.quant = vec![q8m, q8m, qacc];
+    st.pad = vec![
+        PadSpec::exact(rows, inner),
+        PadSpec::exact(inner, cols),
+        PadSpec::exact(rows, cols),
+    ];
+    st.outputs = vec![2];
+    st
+}
+
+/// Build the W-C group specs at a matmul shape (A weight-class
+/// sign-binary e0 = 1 l0 = 8 — F-N2, freeze row FC2-w-e0; B a8s
+/// e0 = 2 l0 = 5; C accumulator e0 = 2, l0 derived from the honest
+/// inner-interval — freeze rows FC2-act-e0 / UAGB1-2d semantics).
+fn agg_build_groups(rows: usize, inner: usize, cols: usize) -> (ring::eval_proof::AggGroup, ring::eval_proof::AggGroup, usize) {
+    use ring::digits::{derive_l0, CLASS_A8S, CLASS_W8S};
+    let acc_lo = inner as i64 * (-128 * 127);
+    let acc_hi = inner as i64 * (128 * 128);
+    let acc_l0 = derive_l0(acc_lo, acc_hi, 2);
+    let mut gw = ring::eval_proof::AggGroup::new("weight");
+    gw.add_tensor("A", rows, inner, CLASS_W8S.e0, CLASS_W8S.l0);
+    let mut ga = ring::eval_proof::AggGroup::new("act");
+    ga.add_tensor("B", inner, cols, CLASS_A8S.e0, CLASS_A8S.l0);
+    ga.add_tensor("C", rows, cols, 2, acc_l0);
+    (gw, ga, acc_l0)
+}
+
+fn agg_group_descriptor(g: &ring::eval_proof::AggGroup, wrong_class: bool) -> manifest::AggGroupDescriptor {
+    manifest::AggGroupDescriptor {
+        name: g.name.to_string(),
+        tensors: g
+            .tensors
+            .iter()
+            .map(|t| manifest::AggTensorDecl {
+                name: t.name.to_string(),
+                rows: t.rows as u64,
+                cols: t.cols as u64,
+                class_name: format!("e{}l{}", t.e0, t.l0),
+                e0: if wrong_class && t.name == "A" { 2 } else { t.e0 },
+                l0: t.l0 as u32,
+            })
+            .collect(),
+        openings: g.openings_begun() as u32,
+    }
+}
+
+/// The exact-digit level-0 witness of a group: digit rings laid out
+/// value-ring-major, limb-minor (ring u = tensor base + vr*l0 + limb).
+fn agg_digit_witness(g: &ring::eval_proof::AggGroup, values: &[&[i64]]) -> Vec<Vec<i64>> {
+    use ring::digits::exact_digit_decompose;
+    let mut w = vec![vec![0i64; D]; g.n_digit_rings];
+    for (t, vals) in g.tensors.iter().zip(values.iter()) {
+        assert_eq!(t.n_values(), vals.len());
+        for vr in 0..t.n_value_rings() {
+            for c1 in 0..D {
+                let f = vr * D + c1;
+                if f < vals.len() {
+                    let digs = exact_digit_decompose(vals[f], t.e0, t.l0);
+                    for (l, d) in digs.into_iter().enumerate() {
+                        w[t.digit_ring_base + vr * t.l0 + l][c1] = d;
+                    }
+                }
+            }
+        }
+    }
+    w
+}
+
+/// Deterministic transcript-derived alphas (full-entropy R_q — the
+/// R-EB3 K-draw class, row EB3-kdraw), then a ratchet tick.
+fn agg_draw_alphas(tr: &mut ring::sumcheck::LkpTranscript, label: &str, n: usize, q: u64) -> Vec<Poly> {
+    let st = tr.state();
+    let v: Vec<Poly> = (0..n).map(|i| ring::eval_proof::draw_alpha(&st, label, i as u64, q)).collect();
+    tr.absorb(label, b"alpha-tick");
+    v
+}
+
+/// Quinary fold challenges under T_cap = 33 (row EB1-tcap), FS-counter
+/// resampled, then a ratchet tick. Returns (challenges, attempts).
+fn agg_draw_cs(tr: &mut ring::sumcheck::LkpTranscript, label: &str, r: usize) -> (Vec<Vec<i64>>, Vec<u32>) {
+    let st = tr.state();
+    let mut cs = Vec::with_capacity(r);
+    let mut atts = Vec::with_capacity(r);
+    for j in 0..r {
+        let (c, a) = ring::eval_proof::draw_quinary_capped(&st, label, j as u64);
+        cs.push(c);
+        atts.push(a);
+    }
+    tr.absorb(label, b"c-tick");
+    (cs, atts)
+}
+
+/// Split a witness into r zero-padded chunks of `chunk` rings.
+fn agg_chunks(w: &[Vec<i64>], r: usize, chunk: usize) -> Vec<Vec<Vec<i64>>> {
+    (0..r)
+        .map(|j| {
+            (0..chunk)
+                .map(|u| w.get(j * chunk + u).cloned().unwrap_or_else(|| vec![0i64; D]))
+                .collect()
+        })
+        .collect()
+}
+
+/// Inner commitments t_j = A s_j and their digit rings at the level's
+/// next base (level 0 computes this BEFORE h0_agg; deeper levels
+/// before their u_i).
+fn agg_level_t(
+    ctx: &RingCtx,
+    chunks: &[Vec<Vec<i64>>],
+    a_mat: &[Poly],
+    plan: &ring::eval_proof::LevelPlan,
+    e_t: u32,
+    l_t: usize,
+) -> (Vec<Vec<Poly>>, Vec<Vec<i64>>) {
+    use ring::eval_proof::{decompose_poly_modq, matvec_modq_small, KAPPA_AGG};
+    let zq = &ctx.zq;
+    let t_polys: Vec<Vec<Poly>> = chunks
+        .iter()
+        .map(|s| matvec_modq_small(ctx, a_mat, KAPPA_AGG, plan.chunk, s))
+        .collect();
+    let mut that = Vec::with_capacity(plan.r * KAPPA_AGG * l_t);
+    for tj in &t_polys {
+        for tk in tj {
+            that.extend(decompose_poly_modq(zq, tk, e_t, l_t));
+        }
+    }
+    (t_polys, that)
+}
+
+/// The h cross-garbage of one level: h_jj = <Phi_j, s_j>; h_jk =
+/// <Phi_j, s_k> + <Phi_k, s_j> (j < k); Phi_j = the aggregated
+/// functional's chunk-j slice (computed AFTER the level's alphas).
+fn agg_level_h(
+    ctx: &RingCtx,
+    phi: &[Poly],
+    chunks: &[Vec<Vec<i64>>],
+    plan: &ring::eval_proof::LevelPlan,
+) -> (Vec<Poly>, Vec<Vec<i64>>) {
+    use ring::eval_proof::{decompose_poly_modq, ring_ip_modq_small};
+    let zq = &ctx.zq;
+    let r = plan.r;
+    let phi_chunk = |j: usize| -> Vec<Poly> {
+        (0..plan.chunk)
+            .map(|u| phi.get(j * plan.chunk + u).cloned().unwrap_or_else(poly_zero))
+            .collect()
+    };
+    let phis: Vec<Vec<Poly>> = (0..r).map(phi_chunk).collect();
+    let mut h_polys = Vec::with_capacity(plan.n_pairs);
+    for j in 0..r {
+        for k in j..r {
+            let mut h = ring_ip_modq_small(ctx, &phis[j], &chunks[k]);
+            if j != k {
+                h = poly_add(zq, &h, &ring_ip_modq_small(ctx, &phis[k], &chunks[j]));
+            }
+            h_polys.push(h);
+        }
+    }
+    let mut hhat = Vec::with_capacity(plan.n_pairs * plan.l_h);
+    for h in &h_polys {
+        hhat.extend(decompose_poly_modq(zq, h, plan.e_next, plan.l_h));
+    }
+    (h_polys, hhat)
+}
+
+/// The fold z_u = sum_j c_j * s_j[u] (exact i64 negacyclic), digit-
+/// decomposed at the next base into l_z limbs per z-ring.
+fn agg_fold(chunks: &[Vec<Vec<i64>>], cs: &[Vec<i64>], plan: &ring::eval_proof::LevelPlan) -> Vec<Vec<i64>> {
+    use ring::eval_proof::decompose_poly_small;
+    let mut zhat = Vec::with_capacity(plan.chunk * plan.l_z);
+    for u in 0..plan.chunk {
+        let mut z = vec![0i64; D];
+        for (j, c) in cs.iter().enumerate() {
+            let prod = poly_mul_small(c, &chunks[j][u]);
+            for (a, p) in z.iter_mut().zip(prod.iter()) {
+                *a += p;
+            }
+        }
+        // Restart-discipline assert: the honest fold must fit the
+        // public limb budget (concentration bound + 2 bits headroom).
+        let (lo, hi) = ring::digits::representable(plan.e_next, plan.l_z);
+        for &zc in &z {
+            assert!(
+                (zc as i128) >= lo && (zc as i128) <= hi,
+                "honest fold exceeded the public l_z budget (restart discipline)"
+            );
+        }
+        zhat.extend(decompose_poly_small(&z, plan.e_next, plan.l_z));
+    }
+    zhat
+}
+
+/// Per-tensor value-weight tables: vw[t][f] = row_kernel[f / cols] *
+/// col_kernel[f % cols] (nu folded into the row kernel) — ONE K-mult
+/// per committed value; the per-ring claim rows are radix scales of
+/// these (the O(N) pass both sides pay; the Greyhound a (x) b split is
+/// the recorded 7B-scale fix).
+fn agg_value_weights(
+    kf: &ring::kfield::KField,
+    group: &ring::eval_proof::AggGroup,
+    kernels: &[ring::eval_proof::TensorClaimKernel],
+) -> Vec<Vec<ring::kfield::KElem>> {
+    group
+        .tensors
+        .iter()
+        .enumerate()
+        .map(|(ti, t)| {
+            let ker = kernels.iter().find(|k| k.tensor_idx == ti).expect("kernel per tensor");
+            (0..t.n_values())
+                .map(|f| kf.mul(&ker.row_kernel[f / t.cols], &ker.col_kernel[f % t.cols]))
+                .collect()
+        })
+        .collect()
+}
+
+/// The 16 conj-packed base-row polys of digit ring u (from the value-
+/// weight tables): bpoly_c = conj_pack(coordinate-c slice of the
+/// radix-scaled K-weight row), so ct(bpoly_c * w_u) contributes ring
+/// u's share of claim row c.
+fn agg_bpolys(
+    kf: &ring::kfield::KField,
+    group: &ring::eval_proof::AggGroup,
+    vw: &[Vec<ring::kfield::KElem>],
+    u: usize,
+) -> Vec<Poly> {
+    use ring::eval_proof::conj_poly;
+    use ring::kfield::K_DEG;
+    let zq = &kf.zq;
+    for (ti, t) in group.tensors.iter().enumerate() {
+        let lo = t.digit_ring_base;
+        let hi = lo + t.n_digit_rings();
+        if u >= lo && u < hi {
+            let rel = u - lo;
+            let (vr, limb) = (rel / t.l0, rel % t.l0);
+            let radix = zq.to_mod(1i64 << (t.e0 as usize * limb));
+            let mut rows = vec![poly_zero(); K_DEG];
+            for c1 in 0..D {
+                let f = vr * D + c1;
+                if f < t.n_values() {
+                    let w = kf.scale(radix, &vw[ti][f]);
+                    for (cd, row) in rows.iter_mut().enumerate() {
+                        row[c1] = w[cd];
+                    }
+                }
+            }
+            return rows.iter().map(|r| conj_poly(zq, r)).collect();
+        }
+    }
+    panic!("digit ring {u} outside group");
+}
+
+/// Degenerate (zero-level) t-hat base for the u_0 binding.
+const AGG_E_DEG: u32 = 7;
+
+fn agg_l_t_deg(q: u64) -> usize {
+    ring::digits::derive_l0(-((q as i64 - 1) / 2), (q as i64 - 1) / 2, AGG_E_DEG)
+}
+
+/// Level-0 pre-commit objects (computed BEFORE h0_agg: they bind the
+/// data): chunks, inner t_j, t-hat digits, u_0 = B_0u t-hat.
+struct AggPreCommit {
+    chunks0: Vec<Vec<Vec<i64>>>,
+    t0_polys: Vec<Vec<Poly>>,
+    that0: Vec<Vec<i64>>,
+    a0_mat: Vec<Poly>,
+    b0u_mat: Vec<Poly>,
+    u0: Vec<Poly>,
+    r0: usize,
+    chunk0: usize,
+    e_t0: u32,
+    l_t0: usize,
+}
+
+fn agg_precommit(
+    ctxr: &RingCtx,
+    group: &ring::eval_proof::AggGroup,
+    sched: &ring::eval_proof::EvalSchedule,
+    w0: &[Vec<i64>],
+    seed: u64,
+) -> AggPreCommit {
+    use ring::eval_proof::{expand_level_matrix, matvec_modq_small, KAPPA_AGG};
+    let q = ctxr.zq.q;
+    let (r0, chunk0, e_t0, l_t0) = match sched.levels.first() {
+        Some(p0) => (p0.r, p0.chunk, p0.e_next, p0.l_t),
+        None => (1, group.n_digit_rings, AGG_E_DEG, agg_l_t_deg(q)),
+    };
+    let chunks0 = agg_chunks(w0, r0, chunk0);
+    let a0_mat = expand_level_matrix(seed, group.name, 0, "A", KAPPA_AGG, chunk0, q);
+    let plan_like = ring::eval_proof::LevelPlan {
+        n_in: group.n_digit_rings,
+        e_in: 0,
+        r: r0,
+        chunk: chunk0,
+        e_next: e_t0,
+        l_z: 0,
+        l_t: l_t0,
+        l_h: 0,
+        n_pairs: r0 * (r0 + 1) / 2,
+        n_out: 0,
+    };
+    let (t0_polys, that0) = agg_level_t(ctxr, &chunks0, &a0_mat, &plan_like, e_t0, l_t0);
+    let b0u_mat = expand_level_matrix(seed, group.name, 0, "Bu", KAPPA_AGG, that0.len(), q);
+    let u0 = matvec_modq_small(ctxr, &b0u_mat, KAPPA_AGG, that0.len(), &that0);
+    AggPreCommit { chunks0, t0_polys, that0, a0_mat, b0u_mat, u0, r0, chunk0, e_t0, l_t0 }
+}
+
+/// The per-group prover: claim rows, level-0 garbage + fold, deeper
+/// levels, floor. Consumes the rolling transcript exactly as the
+/// verifier will. The two weakened-order attack legs (AlphaEarly at
+/// the claim layer; COrderEarly at level 1) craft their compensations
+/// inline when enabled.
+#[allow(clippy::too_many_arguments)]
+fn agg_prove_group(
+    ctxr: &RingCtx,
+    kf: &ring::kfield::KField,
+    group: &ring::eval_proof::AggGroup,
+    sched: &ring::eval_proof::EvalSchedule,
+    w0: &[Vec<i64>],
+    kernels: &[ring::eval_proof::TensorClaimKernel],
+    v_batch: &ring::kfield::KElem,
+    pre: AggPreCommit,
+    tr: &mut ring::sumcheck::LkpTranscript,
+    seed: u64,
+    lie_ct_rows: bool,     // WrongC: force ct(B_c) = V_g[c] on lying rows
+    craft_alpha_early: bool,
+    craft_c_early_l1: bool,
+) -> (ring::eval_proof::GroupEvalProof, Vec<u32>) {
+    use ring::eval_proof::{
+        expand_level_matrix, matvec_modq_small, transport_level, transport_rows, NextLayout,
+        OuterBinding, KAPPA_AGG,
+    };
+    use ring::kfield::K_DEG;
+    let zq = &ctxr.zq;
+    let q = zq.q;
+    let n0 = group.n_digit_rings;
+    let vw = agg_value_weights(kf, group, kernels);
+
+    // ---- Claim rows B_c (pass 1 over the digit rings). ----
+    let mut b_rows = vec![poly_zero(); K_DEG];
+    for u in 0..n0 {
+        if w0[u].iter().all(|&x| x == 0) {
+            continue;
+        }
+        let bp = agg_bpolys(kf, group, &vw, u);
+        let wsm = poly_from_small(zq, &w0[u]);
+        for (c, row) in b_rows.iter_mut().enumerate() {
+            *row = poly_add(zq, row, &ring_mul_split_kara_fast(ctxr, &bp[c], &wsm));
+        }
+    }
+    // Honest self-check / WrongC lie: the public ct gate compares
+    // B_c[0] against coordinate c of the batched K-value.
+    for (c, row) in b_rows.iter_mut().enumerate() {
+        if lie_ct_rows {
+            row[0] = v_batch[c];
+        } else {
+            assert_eq!(row[0], v_batch[c], "honest claim row ct mismatch (row {c})");
+        }
+    }
+
+    // ---- Alpha ordering (the CRB-N3/N4-class edge). Shipped: absorb
+    // rows, then draw. AlphaEarly attack: draw from the PRE-absorb
+    // state, craft a compensated false row pair, then absorb. ----
+    let alpha_label = format!("agg-alpha0-{}", group.name);
+    let alphas0: Vec<Poly> = if craft_alpha_early {
+        let st = tr.state();
+        let al: Vec<Poly> =
+            (0..K_DEG).map(|i| ring::eval_proof::draw_alpha(&st, &alpha_label, i as u64, q)).collect();
+        // delta_1 = alpha_2 * X, delta_2 = -alpha_1 * X with
+        // ct(delta_1) = ct(delta_2) = 0: solve 2 ct-conditions on a
+        // 3-support X by the cross-product kernel of the 2x3 system.
+        let ct_row = |a: &Poly| -> [u64; 3] {
+            // ct(a * X) = a_0 X_0 - a_{127} X_1 - a_{126} X_2 (X on
+            // coords 0..3; negacyclic wrap signs).
+            [a[0], zq.neg(a[D - 1]), zq.neg(a[D - 2])]
+        };
+        let r1 = ct_row(&al[2]);
+        let r2 = ct_row(&al[1]);
+        // Kernel vector of the 2x3 system = cross product r1 x r2.
+        let x0 = zq.sub(zq.mul(r1[1], r2[2]), zq.mul(r1[2], r2[1]));
+        let x1 = zq.sub(zq.mul(r1[2], r2[0]), zq.mul(r1[0], r2[2]));
+        let x2 = zq.sub(zq.mul(r1[0], r2[1]), zq.mul(r1[1], r2[0]));
+        let mut xp = poly_zero();
+        xp[0] = x0;
+        xp[1] = x1;
+        xp[2] = x2;
+        let d1 = ring_mul_split_kara_fast(ctxr, &al[2], &xp);
+        let d2 = {
+            let m = ring_mul_split_kara_fast(ctxr, &al[1], &xp);
+            let mut neg = poly_zero();
+            for (n, v) in neg.iter_mut().zip(m.iter()) {
+                *n = zq.neg(*v);
+            }
+            neg
+        };
+        assert_eq!(d1[0], 0, "crafted delta_1 must be ct-free");
+        assert_eq!(d2[0], 0, "crafted delta_2 must be ct-free");
+        assert!(d1.iter().any(|&v| v != 0), "crafted delta_1 must be nonzero");
+        b_rows[1] = poly_add(zq, &b_rows[1], &d1);
+        b_rows[2] = poly_add(zq, &b_rows[2], &d2);
+        ring::eval_proof::absorb_polys(tr, &format!("agg-brows-{}", group.name), &b_rows);
+        tr.absorb(&alpha_label, b"alpha-tick");
+        al
+    } else {
+        ring::eval_proof::absorb_polys(tr, &format!("agg-brows-{}", group.name), &b_rows);
+        agg_draw_alphas(tr, &alpha_label, K_DEG, q)
+    };
+
+    // ---- H_0 and the aggregated functional Phi_0 (pass 2). ----
+    let mut h0_target = poly_zero();
+    for (a, b) in alphas0.iter().zip(b_rows.iter()) {
+        h0_target = poly_add(zq, &h0_target, &ring_mul_split_kara_fast(ctxr, a, b));
+    }
+    let mut phi0: Vec<Poly> = Vec::with_capacity(n0);
+    for u in 0..n0 {
+        let bp = agg_bpolys(kf, group, &vw, u);
+        let mut acc = poly_zero();
+        for (a, b) in alphas0.iter().zip(bp.iter()) {
+            acc = poly_add(zq, &acc, &ring_mul_split_kara_fast(ctxr, a, b));
+        }
+        phi0.push(acc);
+    }
+    drop(vw);
+
+    let AggPreCommit { chunks0, t0_polys: _t0, that0, a0_mat, b0u_mat, u0, r0, chunk0, e_t0, l_t0 } =
+        pre;
+    let mut tcap_attempts: Vec<u32> = Vec::new();
+
+    // ---- Degenerate (zero levels): the floor is w^(0) itself. ----
+    if sched.levels.is_empty() {
+        return (
+            ring::eval_proof::GroupEvalProof {
+                u0,
+                ugh0: Vec::new(),
+                b_rows,
+                level_us: Vec::new(),
+                floor: w0.to_vec(),
+                floor_e: sched.floor_e,
+                tcap_attempts,
+            },
+            Vec::new(),
+        );
+    }
+
+    // ---- Level 0: garbage, u_gh0, fold. ----
+    let plan0 = &sched.levels[0];
+    assert_eq!((r0, chunk0, e_t0, l_t0), (plan0.r, plan0.chunk, plan0.e_next, plan0.l_t));
+    let (_h0_polys, hhat0) = agg_level_h(ctxr, &phi0, &chunks0, plan0);
+    let b0h_mat = expand_level_matrix(seed, group.name, 0, "Bh", KAPPA_AGG, hhat0.len(), q);
+    let ugh0 = matvec_modq_small(ctxr, &b0h_mat, KAPPA_AGG, hhat0.len(), &hhat0);
+    ring::eval_proof::absorb_polys(tr, &format!("agg-ugh0-{}", group.name), &ugh0);
+    let (c0, att0) = agg_draw_cs(tr, &format!("agg-c0-{}", group.name), plan0.r);
+    tcap_attempts.extend(att0);
+    let zhat0 = agg_fold(&chunks0, &c0, plan0);
+    let mut w_cur: Vec<Vec<i64>> = zhat0;
+    w_cur.extend(that0.iter().cloned());
+    w_cur.extend(hhat0.iter().cloned());
+    drop(chunks0);
+
+    // Saved objects for the NEXT level's transport.
+    let mut prev_a_mat = a0_mat;
+    let mut prev_bindings_data: Vec<(Vec<Poly>, usize, usize, Vec<Poly>)> = vec![
+        (b0u_mat, 0, that0.len(), u0.clone()),
+        (b0h_mat, that0.len(), hhat0.len(), ugh0.clone()),
+    ];
+    let mut prev_c = c0;
+    let mut phi_cur = phi0;
+    let mut h_cur = h0_target;
+    let mut level_us: Vec<Vec<Poly>> = Vec::new();
+
+    // ---- Levels >= 1: aggregate the PREVIOUS level's families
+    // (fresh alphas) into (Phi^(li), H^(li)), then run level li's own
+    // amortization. The LAST level's families stay unaggregated — the
+    // floor is checked against them directly. ----
+    for li in 1..sched.levels.len() {
+        let plan_prev = &sched.levels[li - 1];
+        let layout_prev = NextLayout::new(plan_prev);
+        assert_eq!(layout_prev.n_total, w_cur.len(), "layout/witness mismatch at level {li}");
+        let n_rows = transport_rows(prev_bindings_data.len());
+        let alphas = agg_draw_alphas(tr, &format!("agg-alphaT{li}-{}", group.name), n_rows, q);
+        let lt = {
+            let bindings: Vec<OuterBinding> = prev_bindings_data
+                .iter()
+                .map(|(bm, cb, cl, u)| OuterBinding { b_mat: bm, col_base: *cb, cols: *cl, u })
+                .collect();
+            transport_level(
+                ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings, &prev_c,
+                &alphas,
+            )
+        };
+        phi_cur = lt.phi_next;
+        h_cur = lt.h_next;
+        let plan = &sched.levels[li];
+        let chunks = agg_chunks(&w_cur, plan.r, plan.chunk);
+        let a_mat =
+            expand_level_matrix(seed, group.name, li, "A", KAPPA_AGG, plan.chunk, q);
+        let (_t_polys, that) = agg_level_t(ctxr, &chunks, &a_mat, plan, plan.e_next, plan.l_t);
+        let (h_polys, mut hhat) = agg_level_h(ctxr, &phi_cur, &chunks, plan);
+        let th_len = that.len() + hhat.len();
+        let b_mat = expand_level_matrix(seed, group.name, li, "B", KAPPA_AGG, th_len, q);
+        // Ordering: shipped = commit u_i, then draw c. COrderEarly
+        // attack (level 1) = draw c first, compensate two h values,
+        // then commit.
+        let (u_i, cs, atts) = if craft_c_early_l1 && li == 1 {
+            let (cs, atts) = agg_draw_cs(tr, &format!("agg-c{li}-{}", group.name), plan.r);
+            // Compensate pairs (0,0), (1,1), (0,1) under the KNOWN c:
+            // T1: d00 + d11 = 0; L1: c0^2 d00 + c1^2 d11 + c0c1 d01 = 0
+            // => d11 = -d00, d01 = -(c0^2 - c1^2) * d00 / (c0 c1).
+            assert!(plan.r >= 2, "attack leg needs r >= 2");
+            let c0p = poly_from_small(zq, &cs[0]);
+            let c1p = poly_from_small(zq, &cs[1]);
+            let c0c1 = ring_mul_split_kara_fast(ctxr, &c0p, &c1p);
+            let inv = poly_inv_g(ctxr, &c0c1).expect("c0*c1 invertible (LS18 class)");
+            let c0sq = ring_mul_split_kara_fast(ctxr, &c0p, &c0p);
+            let c1sq = ring_mul_split_kara_fast(ctxr, &c1p, &c1p);
+            let mut diff = poly_zero();
+            for i in 0..D {
+                diff[i] = zq.sub(c0sq[i], c1sq[i]);
+            }
+            let mut d00 = poly_zero();
+            d00[3] = 1; // a fixed small nonzero tamper
+            let d11 = {
+                let mut n = poly_zero();
+                for (a, b) in n.iter_mut().zip(d00.iter()) {
+                    *a = zq.neg(*b);
+                }
+                n
+            };
+            let d01 = {
+                let t = ring_mul_split_kara_fast(ctxr, &diff, &d00);
+                let t = ring_mul_split_kara_fast(ctxr, &t, &inv);
+                let mut n = poly_zero();
+                for (a, b) in n.iter_mut().zip(t.iter()) {
+                    *a = zq.neg(*b);
+                }
+                n
+            };
+            // Apply to h values and re-decompose the three pairs.
+            let mut h_polys = h_polys;
+            let p00 = ring::eval_proof::pair_index(plan.r, 0, 0);
+            let p11 = ring::eval_proof::pair_index(plan.r, 1, 1);
+            let p01 = ring::eval_proof::pair_index(plan.r, 0, 1);
+            h_polys[p00] = poly_add(zq, &h_polys[p00], &d00);
+            h_polys[p11] = poly_add(zq, &h_polys[p11], &d11);
+            h_polys[p01] = poly_add(zq, &h_polys[p01], &d01);
+            for &p in &[p00, p11, p01] {
+                let digs = ring::eval_proof::decompose_poly_modq(zq, &h_polys[p], plan.e_next, plan.l_h);
+                for (a, dg) in digs.into_iter().enumerate() {
+                    hhat[p * plan.l_h + a] = dg;
+                }
+            }
+            let mut th: Vec<Vec<i64>> = that.clone();
+            th.extend(hhat.iter().cloned());
+            let u_i = matvec_modq_small(ctxr, &b_mat, KAPPA_AGG, th_len, &th);
+            ring::eval_proof::absorb_polys(tr, &format!("agg-u{li}-{}", group.name), &u_i);
+            (u_i, cs, atts)
+        } else {
+            let mut th: Vec<Vec<i64>> = that.clone();
+            th.extend(hhat.iter().cloned());
+            let u_i = matvec_modq_small(ctxr, &b_mat, KAPPA_AGG, th_len, &th);
+            ring::eval_proof::absorb_polys(tr, &format!("agg-u{li}-{}", group.name), &u_i);
+            let (cs, atts) = agg_draw_cs(tr, &format!("agg-c{li}-{}", group.name), plan.r);
+            (u_i, cs, atts)
+        };
+        tcap_attempts.extend(atts);
+        let zhat = agg_fold(&chunks, &cs, plan);
+        let mut w_next = zhat;
+        w_next.extend(that.iter().cloned());
+        w_next.extend(hhat.iter().cloned());
+        level_us.push(u_i.clone());
+        // Rotate the saved objects.
+        prev_a_mat = a_mat;
+        prev_bindings_data = vec![(b_mat, 0, th_len, u_i)];
+        prev_c = cs;
+        w_cur = w_next;
+    }
+    assert_eq!(w_cur.len(), sched.floor_rings, "floor size mismatch vs schedule");
+    (
+        ring::eval_proof::GroupEvalProof {
+            u0,
+            ugh0,
+            b_rows,
+            level_us,
+            floor: w_cur,
+            floor_e: sched.floor_e,
+            tcap_attempts: tcap_attempts.clone(),
+        },
+        tcap_attempts,
+    )
+}
+
+/// The per-group verifier: mirrors the prover's transcript exactly
+/// (including the two weakened-order battery modes), materializes the
+/// transported constraint chain, and evaluates every family of the
+/// LAST level directly on the bare floor.
+#[allow(clippy::too_many_arguments)]
+fn agg_verify_group(
+    ctxr: &RingCtx,
+    kf: &ring::kfield::KField,
+    group: &ring::eval_proof::AggGroup,
+    sched: &ring::eval_proof::EvalSchedule,
+    kernels: &[ring::eval_proof::TensorClaimKernel],
+    v_batch: &ring::kfield::KElem,
+    proof: &ring::eval_proof::GroupEvalProof,
+    tr: &mut ring::sumcheck::LkpTranscript,
+    seed: u64,
+    weak_alpha_early: bool,
+    weak_c_early_l1: bool,
+) -> Result<(), &'static str> {
+    use ring::eval_proof::{
+        compute_cpairs, compute_psi, expand_level_matrix, matvec_modq_small, recompose_rings,
+        transport_level, transport_rows, NextLayout, OuterBinding, KAPPA_AGG,
+    };
+    use ring::kfield::K_DEG;
+    let zq = &ctxr.zq;
+    let q = zq.q;
+    let n0 = group.n_digit_rings;
+    if proof.b_rows.len() != K_DEG || proof.u0.len() != KAPPA_AGG {
+        return Err("wire-shape");
+    }
+    // Public ct gate: row c's constant coefficient is the batched
+    // K-value's coordinate c.
+    for (c, row) in proof.b_rows.iter().enumerate() {
+        if row[0] != v_batch[c] {
+            return Err("ct-row-gate");
+        }
+    }
+    // Alpha ordering (shipped: absorb rows then draw; weak battery
+    // mode: draw from the pre-absorb state).
+    let alpha_label = format!("agg-alpha0-{}", group.name);
+    let alphas0: Vec<Poly> = if weak_alpha_early {
+        let st = tr.state();
+        let al: Vec<Poly> =
+            (0..K_DEG).map(|i| ring::eval_proof::draw_alpha(&st, &alpha_label, i as u64, q)).collect();
+        ring::eval_proof::absorb_polys(tr, &format!("agg-brows-{}", group.name), &proof.b_rows);
+        tr.absorb(&alpha_label, b"alpha-tick");
+        al
+    } else {
+        ring::eval_proof::absorb_polys(tr, &format!("agg-brows-{}", group.name), &proof.b_rows);
+        agg_draw_alphas(tr, &alpha_label, K_DEG, q)
+    };
+    let vw = agg_value_weights(kf, group, kernels);
+
+    // ---- Degenerate (zero levels): direct claim-row + binding checks.
+    if sched.levels.is_empty() {
+        if proof.floor.len() != n0 || !proof.level_us.is_empty() || !proof.ugh0.is_empty() {
+            return Err("wire-shape");
+        }
+        // Alphabet per tensor class.
+        for t in &group.tensors {
+            let (lo, hi) = ring::digits::alphabet(t.e0);
+            for u in 0..t.n_digit_rings() {
+                for &d in &proof.floor[t.digit_ring_base + u] {
+                    if d < lo || d > hi {
+                        return Err("floor-alphabet");
+                    }
+                }
+            }
+        }
+        // Claim rows re-evaluated on the bare floor.
+        let mut rows_eval = vec![poly_zero(); K_DEG];
+        for u in 0..n0 {
+            if proof.floor[u].iter().all(|&x| x == 0) {
+                continue;
+            }
+            let bp = agg_bpolys(kf, group, &vw, u);
+            let wsm = poly_from_small(zq, &proof.floor[u]);
+            for (c, row) in rows_eval.iter_mut().enumerate() {
+                *row = poly_add(zq, row, &ring_mul_split_kara_fast(ctxr, &bp[c], &wsm));
+            }
+        }
+        for (re, rw) in rows_eval.iter().zip(proof.b_rows.iter()) {
+            if re != rw {
+                return Err("claim-row-eval");
+            }
+        }
+        // u_0 binding recomputed from the bare floor.
+        let a0 = expand_level_matrix(seed, group.name, 0, "A", KAPPA_AGG, n0, q);
+        let t0 = matvec_modq_small(ctxr, &a0, KAPPA_AGG, n0, &proof.floor);
+        let l_t = agg_l_t_deg(q);
+        let mut that = Vec::with_capacity(KAPPA_AGG * l_t);
+        for tk in &t0 {
+            that.extend(ring::eval_proof::decompose_poly_modq(zq, tk, AGG_E_DEG, l_t));
+        }
+        let b0u = expand_level_matrix(seed, group.name, 0, "Bu", KAPPA_AGG, that.len(), q);
+        let u0 = matvec_modq_small(ctxr, &b0u, KAPPA_AGG, that.len(), &that);
+        if u0 != proof.u0 {
+            return Err("u0-binding");
+        }
+        return Ok(());
+    }
+
+    // ---- Recursed path. ----
+    let plan0 = &sched.levels[0];
+    let that0_len = plan0.r * KAPPA_AGG * plan0.l_t;
+    let hh0_len = plan0.n_pairs * plan0.l_h;
+    if proof.ugh0.len() != KAPPA_AGG || proof.level_us.len() != sched.levels.len() - 1 {
+        return Err("wire-shape");
+    }
+    // H_0 and Phi_0.
+    let mut h_cur = poly_zero();
+    for (a, b) in alphas0.iter().zip(proof.b_rows.iter()) {
+        h_cur = poly_add(zq, &h_cur, &ring_mul_split_kara_fast(ctxr, a, b));
+    }
+    let mut phi_cur: Vec<Poly> = Vec::with_capacity(n0);
+    for u in 0..n0 {
+        let bp = agg_bpolys(kf, group, &vw, u);
+        let mut acc = poly_zero();
+        for (a, b) in alphas0.iter().zip(bp.iter()) {
+            acc = poly_add(zq, &acc, &ring_mul_split_kara_fast(ctxr, a, b));
+        }
+        phi_cur.push(acc);
+    }
+    drop(vw);
+    ring::eval_proof::absorb_polys(tr, &format!("agg-ugh0-{}", group.name), &proof.ugh0);
+    let (c0, _) = agg_draw_cs(tr, &format!("agg-c0-{}", group.name), plan0.r);
+    let mut prev_a_mat = expand_level_matrix(seed, group.name, 0, "A", KAPPA_AGG, plan0.chunk, q);
+    let mut prev_bindings_data: Vec<(Vec<Poly>, usize, usize, Vec<Poly>)> = vec![
+        (
+            expand_level_matrix(seed, group.name, 0, "Bu", KAPPA_AGG, that0_len, q),
+            0,
+            that0_len,
+            proof.u0.clone(),
+        ),
+        (
+            expand_level_matrix(seed, group.name, 0, "Bh", KAPPA_AGG, hh0_len, q),
+            that0_len,
+            hh0_len,
+            proof.ugh0.clone(),
+        ),
+    ];
+    let mut prev_c = c0;
+    for li in 1..sched.levels.len() {
+        let plan_prev = &sched.levels[li - 1];
+        let layout_prev = NextLayout::new(plan_prev);
+        let n_rows = transport_rows(prev_bindings_data.len());
+        let alphas = agg_draw_alphas(tr, &format!("agg-alphaT{li}-{}", group.name), n_rows, q);
+        let lt = {
+            let bindings: Vec<OuterBinding> = prev_bindings_data
+                .iter()
+                .map(|(bm, cb, cl, u)| OuterBinding { b_mat: bm, col_base: *cb, cols: *cl, u })
+                .collect();
+            transport_level(
+                ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings, &prev_c,
+                &alphas,
+            )
+        };
+        phi_cur = lt.phi_next;
+        h_cur = lt.h_next;
+        let plan = &sched.levels[li];
+        let th_len = plan.r * KAPPA_AGG * plan.l_t + plan.n_pairs * plan.l_h;
+        let u_i = &proof.level_us[li - 1];
+        if u_i.len() != KAPPA_AGG {
+            return Err("wire-shape");
+        }
+        let cs = if weak_c_early_l1 && li == 1 {
+            let (cs, _) = agg_draw_cs(tr, &format!("agg-c{li}-{}", group.name), plan.r);
+            ring::eval_proof::absorb_polys(tr, &format!("agg-u{li}-{}", group.name), u_i);
+            cs
+        } else {
+            ring::eval_proof::absorb_polys(tr, &format!("agg-u{li}-{}", group.name), u_i);
+            let (cs, _) = agg_draw_cs(tr, &format!("agg-c{li}-{}", group.name), plan.r);
+            cs
+        };
+        prev_a_mat = expand_level_matrix(seed, group.name, li, "A", KAPPA_AGG, plan.chunk, q);
+        prev_bindings_data = vec![(
+            expand_level_matrix(seed, group.name, li, "B", KAPPA_AGG, th_len, q),
+            0,
+            th_len,
+            u_i.clone(),
+        )];
+        prev_c = cs;
+    }
+
+    // ---- Floor checks against the LAST level's families. ----
+    let plan_last = sched.levels.last().unwrap();
+    let layout = NextLayout::new(plan_last);
+    if proof.floor.len() != layout.n_total || proof.floor.len() != sched.floor_rings {
+        return Err("wire-shape");
+    }
+    // Alphabet (uniform balanced base at the floor).
+    let (lo, hi) = ring::digits::alphabet(sched.floor_e);
+    for ring_u in &proof.floor {
+        for &d in ring_u {
+            if d < lo || d > hi {
+                return Err("floor-alphabet");
+            }
+        }
+    }
+    // Recompositions.
+    let rec_block = |base: usize, count: usize, stride: usize| -> Vec<Vec<i64>> {
+        (0..count)
+            .map(|s| {
+                let refs: Vec<&Vec<i64>> =
+                    (0..stride).map(|l| &proof.floor[base + s * stride + l]).collect();
+                recompose_rings(&refs, plan_last.e_next)
+            })
+            .collect()
+    };
+    let z_rec = rec_block(layout.z_base, plan_last.chunk, plan_last.l_z);
+    let t_rec = rec_block(layout.t_base, plan_last.r * KAPPA_AGG, plan_last.l_t);
+    let h_rec = rec_block(layout.h_base, plan_last.n_pairs, plan_last.l_h);
+    // T5: outer-commitment bindings on the raw floor digits.
+    for (bm, cb, cl, u) in &prev_bindings_data {
+        let slice: Vec<Vec<i64>> =
+            proof.floor[layout.t_base + cb..layout.t_base + cb + cl].to_vec();
+        let got = matvec_modq_small(ctxr, bm, KAPPA_AGG, *cl, &slice);
+        if &got != u {
+            return Err("floor-outer-binding");
+        }
+    }
+    // T4: A z = sum_j c_j t_j.
+    let lhs_t4 = matvec_modq_small(ctxr, &prev_a_mat, KAPPA_AGG, plan_last.chunk, &z_rec);
+    for kap in 0..KAPPA_AGG {
+        let mut rhs = vec![0i64; D];
+        for (j, c) in prev_c.iter().enumerate() {
+            let prod = poly_mul_small(c, &t_rec[j * KAPPA_AGG + kap]);
+            for (a, p) in rhs.iter_mut().zip(prod.iter()) {
+                *a += p;
+            }
+        }
+        let rhs_m = poly_from_small(zq, &rhs);
+        if lhs_t4[kap] != rhs_m {
+            return Err("floor-fold-consistency");
+        }
+    }
+    // T1: sum_j rec(h_jj) = H_{L-1}.
+    let mut t1 = vec![0i64; D];
+    for j in 0..plan_last.r {
+        let p = ring::eval_proof::pair_index(plan_last.r, j, j);
+        for (a, b) in t1.iter_mut().zip(h_rec[p].iter()) {
+            *a += b;
+        }
+    }
+    if poly_from_small(zq, &t1) != h_cur {
+        return Err("floor-target");
+    }
+    // L1: sum_src Psi_src * rec_z(src) = sum_pairs cpair_p * rec_h(p).
+    let psi = compute_psi(ctxr, &phi_cur, plan_last.chunk, &prev_c);
+    let mut lhs = poly_zero();
+    for (p, zs) in psi.iter().zip(z_rec.iter()) {
+        lhs = poly_add(zq, &lhs, &ring_mul_split_kara_fast(ctxr, p, &poly_from_small(zq, zs)));
+    }
+    let cpairs = compute_cpairs(zq, &prev_c);
+    let mut rhs = poly_zero();
+    for (cp, hs) in cpairs.iter().zip(h_rec.iter()) {
+        rhs = poly_add(zq, &rhs, &ring_mul_split_kara_fast(ctxr, cp, &poly_from_small(zq, hs)));
+    }
+    if lhs != rhs {
+        return Err("floor-claim-transport");
+    }
+    Ok(())
+}
+
+/// One aggregated-statement instance: prove + verify with the battery
+/// tampers. `weak_verify` runs the deliberately weakened verifier
+/// order matching the tamper's crafting (the F5 attack legs).
+fn uagb1_agg_run(
+    rows: usize,
+    inner: usize,
+    cols: usize,
+    tamper: AggTamper,
+    weak_verify: bool,
+    force_levels: Option<usize>,
+    seed: u64,
+    quiet: bool,
+) -> (AggVerdict, AggCost) {
+    use ring::eval_proof::{plan_schedule, TensorClaimKernel};
+    use ring::gkr::eq_table;
+    use ring::kfield::{KElem, KField, K_DEG};
+    use ring::sumcheck::{sumcheck_prove, sumcheck_verify, LkpTranscript};
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let zq = ctxr.zq;
+    let q = zq.q;
+    let mut verdict = AggVerdict {
+        statement_ok: true,
+        sumcheck_ok: true,
+        ct_rows_ok: true,
+        groups_ok: true,
+        first_fail: None,
+    };
+    let mut cost = AggCost::default();
+
+    // ---- Witness data ([-127,127] convention, BC export). ----
+    let mut dr = seed;
+    let a_i8: Vec<i64> = (0..rows * inner).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
+    let b_i8: Vec<i64> = (0..inner * cols).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
+    let mut c_acc: Vec<i64> = vec![0; rows * cols];
+    for i in 0..rows {
+        for k in 0..inner {
+            let a = a_i8[i * inner + k];
+            if a == 0 {
+                continue;
+            }
+            let brow = &b_i8[k * cols..(k + 1) * cols];
+            let crow = &mut c_acc[i * cols..(i + 1) * cols];
+            for (cv, &bv) in crow.iter_mut().zip(brow.iter()) {
+                *cv += a * bv;
+            }
+        }
+    }
+    let c_honest = c_acc.clone();
+    if tamper == AggTamper::WrongC {
+        c_acc[0] += 1; // committed C differs; the claim rides the honest product
+    }
+
+    // ---- Groups, schedules, digit witnesses, level-0 pre-commits. ----
+    let t_commit = Instant::now();
+    let (mut gw, mut ga, _acc_l0) = agg_build_groups(rows, inner, cols);
+    // E-O2-BB: exactly one batched opening per group.
+    gw.begin_opening().expect("first weight-group opening");
+    ga.begin_opening().expect("first act-group opening");
+    let sched_w = plan_schedule(gw.n_digit_rings, 1, q, force_levels);
+    let sched_a = plan_schedule(ga.n_digit_rings, 2, q, force_levels);
+    let w0_w = agg_digit_witness(&gw, &[&a_i8]);
+    let w0_a = agg_digit_witness(&ga, &[&b_i8, &c_acc]);
+    let crs_seed = 0xB1_A6u64 ^ seed.rotate_left(17);
+    let pre_w = agg_precommit(&ctxr, &gw, &sched_w, &w0_w, crs_seed);
+    let pre_a = agg_precommit(&ctxr, &ga, &sched_a, &w0_a, crs_seed);
+
+    // ---- Statement + h0_agg. ----
+    let u0_digests: Vec<Vec<u8>> = [&pre_w, &pre_a]
+        .iter()
+        .map(|p| uk8_sha(&[b"agg-u0", &polys_bytes(&p.u0)]).to_vec())
+        .collect();
+    let acc_bits = mm_acc_bits(inner);
+    let descs = vec![
+        agg_group_descriptor(&gw, tamper == AggTamper::WrongClassDecl),
+        agg_group_descriptor(&ga, false),
+    ];
+    let statement = agg_build_statement(rows, inner, cols, acc_bits, &descs, &u0_digests, b"agg-crs-v1");
+    let ctx_digest = statement.digest().expect("prover statement validates");
+    cost.bytes_statement = statement.encode().len();
+    let h0_agg = uk8_sha(&[b"uagb1-agg-h0", &ctx_digest, &polys_bytes(&pre_w.u0), &polys_bytes(&pre_a.u0)]);
+    cost.commit_s = t_commit.elapsed().as_secs_f64();
+
+    // ---- Prover transcript: rx/ry, sumcheck, nu, groups. ----
+    let t_prove = Instant::now();
+    let lr = rows.trailing_zeros() as usize;
+    let lc = cols.trailing_zeros() as usize;
+    let lk = usize::BITS as usize - (inner - 1).leading_zeros() as usize;
+    let mut tr = LkpTranscript::new("uagb1-agg", &h0_agg);
+    let rx: Vec<KElem> = (0..lr).map(|_| tr.challenge_k(&kf)).collect();
+    let ry: Vec<KElem> = (0..lc).map(|_| tr.challenge_k(&kf)).collect();
+    let eq_rx = eq_table(&kf, &rx);
+    let eq_ry = eq_table(&kf, &ry);
+    // Sumcheck tables (inner zero-extended in the prover tables only).
+    let nk = 1usize << lk;
+    let mut tta = vec![kf.zero(); nk];
+    for i in 0..rows {
+        let w = &eq_rx[i];
+        if kf.is_zero(w) {
+            continue;
+        }
+        for k in 0..inner {
+            let v = a_i8[i * inner + k];
+            if v != 0 {
+                tta[k] = kf.add(&tta[k], &kf.scale(zq.to_mod(v), w));
+            }
+        }
+    }
+    let mut ttb = vec![kf.zero(); nk];
+    for k in 0..inner {
+        let rowb = &b_i8[k * cols..(k + 1) * cols];
+        let mut acc = kf.zero();
+        for (j, &v) in rowb.iter().enumerate() {
+            if v != 0 {
+                acc = kf.add(&acc, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+            }
+        }
+        ttb[k] = acc;
+    }
+    // Claimed v: honest = committed C~(rx,ry); WrongC claims the
+    // honest-product value against the tampered committed C.
+    let c_for_claim = if tamper == AggTamper::WrongC { &c_honest } else { &c_acc };
+    let v_claim = {
+        let mut acc = kf.zero();
+        for i in 0..rows {
+            let rowc = &c_for_claim[i * cols..(i + 1) * cols];
+            let mut ri = kf.zero();
+            for (j, &v) in rowc.iter().enumerate() {
+                if v != 0 {
+                    ri = kf.add(&ri, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+                }
+            }
+            acc = kf.add(&acc, &kf.mul(&ri, &eq_rx[i]));
+        }
+        acc
+    };
+    tr.absorb_k(&kf, "agg-claim", std::slice::from_ref(&v_claim));
+    let product = |kf: &KField, vals: &[KElem]| kf.mul(&vals[0], &vals[1]);
+    let (scp, kstar) = sumcheck_prove(&kf, vec![tta, ttb], 2, &product, &mut tr);
+    tr.absorb_k(&kf, "agg-final", &scp.final_evals);
+    cost.bytes_sumcheck =
+        64 * (1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len());
+    let eq_k = eq_table(&kf, &kstar);
+    // nu per group AFTER all terminal values are absorbed (CRB-N5).
+    let nu_w = tr.challenge_k(&kf);
+    let nu_b = tr.challenge_k(&kf);
+    let nu_c = tr.challenge_k(&kf);
+    let v_batch_w = kf.mul(&nu_w, &scp.final_evals[0]);
+    let v_batch_a = kf.add(&kf.mul(&nu_b, &scp.final_evals[1]), &kf.mul(&nu_c, &v_claim));
+    let kernels_w = vec![TensorClaimKernel {
+        tensor_idx: 0,
+        row_kernel: eq_rx.iter().map(|e| kf.mul(&nu_w, e)).collect(),
+        col_kernel: eq_k[..inner].to_vec(),
+    }];
+    let kernels_a = vec![
+        TensorClaimKernel {
+            tensor_idx: 0,
+            row_kernel: eq_k[..inner].iter().map(|e| kf.mul(&nu_b, e)).collect(),
+            col_kernel: eq_ry.clone(),
+        },
+        TensorClaimKernel {
+            tensor_idx: 1,
+            row_kernel: eq_rx.iter().map(|e| kf.mul(&nu_c, e)).collect(),
+            col_kernel: eq_ry.clone(),
+        },
+    ];
+    let lie_rows = tamper == AggTamper::WrongC;
+    let (proof_w, _) = agg_prove_group(
+        &ctxr, &kf, &gw, &sched_w, &w0_w, &kernels_w, &v_batch_w, pre_w, &mut tr, crs_seed,
+        false, false, false,
+    );
+    let (proof_a, _) = agg_prove_group(
+        &ctxr, &kf, &ga, &sched_a, &w0_a, &kernels_a, &v_batch_a, pre_a, &mut tr, crs_seed,
+        lie_rows,
+        tamper == AggTamper::AlphaEarly,
+        tamper == AggTamper::COrderEarly,
+    );
+    cost.prove_s = t_prove.elapsed().as_secs_f64();
+
+    // Floor tampers (post-prove wire mutations).
+    let mut proof_a = proof_a;
+    match tamper {
+        AggTamper::TamperFloor => {
+            assert!(!sched_a.levels.is_empty(), "floor tamper needs a recursed shape");
+            proof_a.floor[0][0] += 1;
+        }
+        AggTamper::OoaFloor => {
+            assert!(!sched_a.levels.is_empty() && sched_a.levels.last().unwrap().l_z >= 2);
+            // Recomposition-preserving out-of-alphabet pair on the first
+            // z source ring: d_0 += 2^e, d_1 -= 1.
+            let e = sched_a.floor_e as usize;
+            proof_a.floor[0][0] += 1i64 << e;
+            proof_a.floor[1][0] -= 1;
+        }
+        _ => {}
+    }
+
+    // ---- VERIFIER. ----
+    let t_verify = Instant::now();
+    let (mut gw_v, mut ga_v, _) = agg_build_groups(rows, inner, cols);
+    gw_v.begin_opening().expect("verifier-side opening count");
+    ga_v.begin_opening().expect("verifier-side opening count");
+    let descs_v = vec![agg_group_descriptor(&gw_v, false), agg_group_descriptor(&ga_v, false)];
+    let u0_digests_v: Vec<Vec<u8>> = [&proof_w, &proof_a]
+        .iter()
+        .map(|p| uk8_sha(&[b"agg-u0", &polys_bytes(&p.u0)]).to_vec())
+        .collect();
+    let statement_v =
+        agg_build_statement(rows, inner, cols, acc_bits, &descs_v, &u0_digests_v, b"agg-crs-v1");
+    let ctx_v = match statement_v.validate() {
+        Ok(()) => statement_v.digest().expect("verifier statement digests"),
+        Err(_) => {
+            verdict.statement_ok = false;
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (verdict, cost);
+        }
+    };
+    if ctx_v != ctx_digest {
+        verdict.statement_ok = false;
+        verdict.first_fail = Some("statement-digest");
+        cost.verify_s = t_verify.elapsed().as_secs_f64();
+        return (verdict, cost);
+    }
+    let h0_v = uk8_sha(&[b"uagb1-agg-h0", &ctx_v, &polys_bytes(&proof_w.u0), &polys_bytes(&proof_a.u0)]);
+    let mut tv = LkpTranscript::new("uagb1-agg", &h0_v);
+    let rx_v: Vec<KElem> = (0..lr).map(|_| tv.challenge_k(&kf)).collect();
+    let ry_v: Vec<KElem> = (0..lc).map(|_| tv.challenge_k(&kf)).collect();
+    tv.absorb_k(&kf, "agg-claim", std::slice::from_ref(&v_claim));
+    let sc_v = sumcheck_verify(&kf, lk, 2, &v_claim, &scp, &product, &mut tv);
+    let (kstar_v, _) = match sc_v {
+        Some(x) => x,
+        None => {
+            verdict.sumcheck_ok = false;
+            verdict.first_fail = Some("sumcheck");
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (verdict, cost);
+        }
+    };
+    tv.absorb_k(&kf, "agg-final", &scp.final_evals);
+    let eq_rx_v = eq_table(&kf, &rx_v);
+    let eq_ry_v = eq_table(&kf, &ry_v);
+    let eq_k_v = eq_table(&kf, &kstar_v);
+    let nu_w_v = tv.challenge_k(&kf);
+    let nu_b_v = tv.challenge_k(&kf);
+    let nu_c_v = tv.challenge_k(&kf);
+    let vb_w = kf.mul(&nu_w_v, &scp.final_evals[0]);
+    let vb_a = kf.add(&kf.mul(&nu_b_v, &scp.final_evals[1]), &kf.mul(&nu_c_v, &v_claim));
+    let kernels_w_v = vec![TensorClaimKernel {
+        tensor_idx: 0,
+        row_kernel: eq_rx_v.iter().map(|e| kf.mul(&nu_w_v, e)).collect(),
+        col_kernel: eq_k_v[..inner].to_vec(),
+    }];
+    let kernels_a_v = vec![
+        TensorClaimKernel {
+            tensor_idx: 0,
+            row_kernel: eq_k_v[..inner].iter().map(|e| kf.mul(&nu_b_v, e)).collect(),
+            col_kernel: eq_ry_v.clone(),
+        },
+        TensorClaimKernel {
+            tensor_idx: 1,
+            row_kernel: eq_rx_v.iter().map(|e| kf.mul(&nu_c_v, e)).collect(),
+            col_kernel: eq_ry_v.clone(),
+        },
+    ];
+    let weak_alpha = weak_verify && tamper == AggTamper::AlphaEarly;
+    let weak_corder = weak_verify && tamper == AggTamper::COrderEarly;
+    let res_w = agg_verify_group(
+        &ctxr, &kf, &gw_v, &sched_w, &kernels_w_v, &vb_w, &proof_w, &mut tv, crs_seed, false, false,
+    );
+    let res_a = agg_verify_group(
+        &ctxr, &kf, &ga_v, &sched_a, &kernels_a_v, &vb_a, &proof_a, &mut tv, crs_seed, weak_alpha,
+        weak_corder,
+    );
+    for res in [&res_w, &res_a] {
+        if let Err(e) = res {
+            if *e == "ct-row-gate" {
+                verdict.ct_rows_ok = false;
+            }
+            verdict.groups_ok = false;
+            if verdict.first_fail.is_none() {
+                verdict.first_fail = Some(e);
+            }
+        }
+    }
+    cost.verify_s = t_verify.elapsed().as_secs_f64();
+
+    // ---- Byte accounting (counted-not-serialized). ----
+    for (name, sched, proof) in
+        [("weight", &sched_w, &proof_w), ("act", &sched_a, &proof_a)]
+    {
+        let b = proof.counted_bytes();
+        cost.group_lines.push((
+            name,
+            b.outer_identities,
+            b.claim_rows,
+            b.level_msgs,
+            b.floor,
+            sched.floor_rings,
+            sched.floor_e,
+            sched.levels.len(),
+        ));
+    }
+    if !quiet {
+        println!(
+            "  shape {}x{}x{} | commit {:.2}s prove {:.2}s verify {:.2}s | {} B counted | accept {}",
+            rows,
+            inner,
+            cols,
+            cost.commit_s,
+            cost.prove_s,
+            cost.verify_s,
+            cost.bytes_total(),
+            verdict.accept()
+        );
+    }
+    (verdict, cost)
+}
+
+/// [UAGB1-BD] battery: claim-layer + descent verdict legs with house
+/// F5 pairs on the ordering edges. Small shape = degenerate (zero
+/// levels, direct floor); medium shape = forced 2-level recursion.
+fn uagb1_agg_battery() {
+    println!("\n[UAGB1-BD] aggregation-stack battery");
+    // Module identities: the conj-packing fact and the exact op norm.
+    {
+        let ctxr = ring_ctx_q8();
+        let zq = &ctxr.zq;
+        let mut dr = 0xB1D0u64;
+        let a: Vec<i64> = (0..D).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
+        let b: Vec<i64> = (0..D).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
+        let ap = poly_from_small(zq, &a);
+        let bp = poly_from_small(zq, &b);
+        let prod = ring_mul_split_kara_fast(&ctxr, &ring::eval_proof::conj_poly(zq, &ap), &bp);
+        let ip: i64 = a.iter().zip(b.iter()).map(|(x, y)| x * y).sum();
+        assert_true(
+            "conj-packing identity ct(conj(a)*b) = <a,b> (SR 1.2 fact 3)",
+            prod[0] == zq.to_mod(ip),
+        );
+        let mut unit = vec![0i64; D];
+        unit[5] = 1;
+        let on = ring::eval_proof::opnorm_negacyclic(&unit);
+        assert_true("exact negacyclic op norm: |X^5| = 1", (on - 1.0).abs() < 1e-9);
+        let ones = vec![1i64; D];
+        let on_ones = ring::eval_proof::opnorm_negacyclic(&ones);
+        assert_true(
+            "op norm of the all-ones multiplier is > T_cap (resampling is real)",
+            on_ones > ring::eval_proof::T_CAP,
+        );
+    }
+    // E-O2-BB: the builder refuses a second batched opening in a group.
+    {
+        let (mut gw, _, _) = agg_build_groups(64, 96, 128);
+        assert_true("E-O2-BB: first opening in group accepted", gw.begin_opening().is_ok());
+        let second = gw.begin_opening();
+        assert_true(
+            "E-O2-BB NEGATIVE: second batched opening in a commitment group is a BUILD ERROR",
+            matches!(
+                second,
+                Err(ring::eval_proof::AggBuildError::SecondOpeningInGroup { group: "weight" })
+            ),
+        );
+    }
+    // Degenerate shape (zero levels): claim layer end to end.
+    let (v, c) = uagb1_agg_run(64, 96, 128, AggTamper::None, false, None, 0xB1_3001, true);
+    assert_true(
+        &format!(
+            "honest ACCEPT at 64x96x128 (degenerate floor; {} B counted, prove {:.2}s verify {:.2}s)",
+            c.bytes_total(),
+            c.prove_s,
+            c.verify_s
+        ),
+        v.accept(),
+    );
+    let (v, _) = uagb1_agg_run(64, 96, 128, AggTamper::WrongC, false, None, 0xB1_3002, true);
+    assert_true(
+        &format!(
+            "WrongC REJECT at the degenerate floor (committed C tampered, honest-product claimed, \
+             ct-lie shipped) — first fail: {}",
+            v.first_fail.unwrap_or("?")
+        ),
+        !v.accept() && v.first_fail == Some("claim-row-eval"),
+    );
+    let (v, _) = uagb1_agg_run(64, 96, 128, AggTamper::WrongClassDecl, false, None, 0xB1_3003, true);
+    assert_true(
+        "WrongClassDecl REJECT at the statement gate (E-O1-BB negative vector: weight e0 = 2)",
+        !v.accept() && !v.statement_ok,
+    );
+    // Recursed shape (forced 2 levels).
+    let fl = Some(2);
+    let (v, c) = uagb1_agg_run(128, 768, 256, AggTamper::None, false, fl, 0xB1_3004, true);
+    let (fw, fa) = (c.group_lines[0].5, c.group_lines[1].5);
+    assert_true(
+        &format!(
+            "honest ACCEPT at 128x768x256 (2 forced levels/group; floors {fw}/{fa} rings; \
+             {} B counted, prove {:.2}s verify {:.2}s)",
+            c.bytes_total(),
+            c.prove_s,
+            c.verify_s
+        ),
+        v.accept(),
+    );
+    let (v, _) = uagb1_agg_run(128, 768, 256, AggTamper::WrongC, false, fl, 0xB1_3005, true);
+    assert_true(
+        &format!(
+            "WrongC REJECT through the recursion (transported target catches the ct-lie) — {}",
+            v.first_fail.unwrap_or("?")
+        ),
+        !v.accept(),
+    );
+    let (v, _) = uagb1_agg_run(128, 768, 256, AggTamper::TamperFloor, false, fl, 0xB1_3006, true);
+    assert_true(
+        &format!(
+            "floor-coordinate tamper REJECT (a transported linear family fails) — {}",
+            v.first_fail.unwrap_or("?")
+        ),
+        !v.accept(),
+    );
+    let (v, _) = uagb1_agg_run(128, 768, 256, AggTamper::OoaFloor, false, fl, 0xB1_3007, true);
+    assert_true(
+        "OUT-OF-ALPHABET floor pair (recomposition-preserving) REJECTED by the alphabet gate \
+         ONLY — every transported linear family passes (the sharp leg)",
+        !v.accept() && v.first_fail == Some("floor-alphabet"),
+    );
+    // F5 pair 1: the alpha ordering edge (CRB-N3/N4 class).
+    let (v, _) = uagb1_agg_run(128, 768, 256, AggTamper::AlphaEarly, true, fl, 0xB1_3008, true);
+    assert_true(
+        "F5 ATTACK: compensated false claim-row pair ACCEPTS under alpha-before-rows ordering \
+         (the binding collapse demonstrated)",
+        v.accept(),
+    );
+    let (v, _) = uagb1_agg_run(128, 768, 256, AggTamper::AlphaEarly, false, fl, 0xB1_3009, true);
+    assert_true(
+        &format!(
+            "F5 DEFENSE: the same crafting REJECTED by the shipped rows-before-alpha order — {}",
+            v.first_fail.unwrap_or("?")
+        ),
+        !v.accept(),
+    );
+    // F5 pair 2: the level fold-ordering edge (E-6 / AZB-6 class).
+    let (v, _) = uagb1_agg_run(128, 768, 256, AggTamper::COrderEarly, true, fl, 0xB1_300A, true);
+    assert_true(
+        "F5 ATTACK: h-garbage compensated against a PRE-KNOWN level-1 fold challenge ACCEPTS \
+         under challenge-before-commitment ordering",
+        v.accept(),
+    );
+    let (v, _) = uagb1_agg_run(128, 768, 256, AggTamper::COrderEarly, false, fl, 0xB1_300B, true);
+    assert_true(
+        &format!(
+            "F5 DEFENSE: the same crafting REJECTED by the shipped commit-then-challenge order — {}",
+            v.first_fail.unwrap_or("?")
+        ),
+        !v.accept(),
+    );
+    // The stale-order finding: the wave-1 mod-q forged-C construction is
+    // NOT ENCODABLE under the exact-digit classes (the class range gate
+    // refuses arbitrary mod-q entries) — recorded as a narrowing of the
+    // stale-challenge attack surface, not claimed as an F5 pair.
+    {
+        let acc_lo = 768i64 * (-128 * 127);
+        let acc_hi = 768i64 * (128 * 128);
+        let solved_entry = 1_397_113_357i64; // a mod-q-scale solved value
+        assert_true(
+            "stale-order finding: a wave-1-style solved C entry (mod-q scale) is OUTSIDE the \
+             accumulator class range — the exact-digit encoding gate refuses the forgery",
+            solved_entry > acc_hi || solved_entry < acc_lo,
+        );
+    }
+}
+
+/// [UAGB1-BD] measurement run: the aggregation stack at a full shape
+/// with the byte table, the floor schedule, and the F-Z1 recompute.
+fn uagb1_agg_bench(rows: usize, inner: usize, cols: usize) {
+    println!(
+        "[UAGB1-BD] aggregation stack at {rows}x{inner}x{cols} (one honest instance; \
+         counted-not-serialized bytes; [MAC-BOX, non-reference])"
+    );
+    let (v, c) = uagb1_agg_run(rows, inner, cols, AggTamper::None, false, None, 0xB1_4001, false);
+    assert!(v.accept(), "honest bench instance must accept");
+    println!("\n  byte decomposition (counted convention: 64 B/K-el, 4 B/coeff, poly 4+512 B):");
+    println!("    statement (serialized, real)      {:>12} B", c.bytes_statement);
+    println!("    matmul sumcheck (v+rounds+finals) {:>12} B", c.bytes_sumcheck);
+    let mut floor_note = Vec::new();
+    for (name, outer, rows_b, lvls, floor, fr, fe, nl) in &c.group_lines {
+        println!(
+            "    [{name}] outer identities          {outer:>12} B\n      \
+             claim rows (16 polys)          {rows_b:>12} B\n      \
+             level messages ({nl} levels)    {lvls:>12} B\n      \
+             bare floor ({fr} rings, e={fe})  {floor:>12} B",
+        );
+        floor_note.push((*name, *fr, *fe));
+    }
+    let total = c.bytes_total();
+    println!("    TOTAL                             {total:>12} B");
+    let tier_n = 262_144usize;
+    let wave1 = 117_396_459usize;
+    println!(
+        "\n  vs Tier N 262,144 B/layer (P0): {:.3}x {}",
+        total as f64 / tier_n as f64,
+        if total <= tier_n { "— UNDER the gate" } else { "— OVER the gate" }
+    );
+    println!(
+        "  vs wave-1 statement 117,396,459 B: {:.1}x smaller (the opening layer replaced)",
+        wave1 as f64 / total as f64
+    );
+    println!("\n  FLOOR SCHEDULE (per group; BC F-Z1 recipe b = 27.2 + 0.5*log2(coords/81920)):");
+    for (name, fr, fe) in &floor_note {
+        let coords = fr * D;
+        let b = 27.2 + 0.5 * ((coords as f64) / 81_920.0).log2();
+        println!(
+            "    {name}: {fr} rings = {coords} coords, floor base e = {fe}, \
+             masked-corner bound 2^{b:.2} vs 2^28.00 — corner {}",
+            if b < 28.0 { "SURVIVES" } else { "CLOSED" }
+        );
+    }
+    println!(
+        "\n  timings [MAC-BOX]: commit {:.2}s prove {:.2}s verify {:.2}s \
+         (verifier carries the O(N_limb) claim-kernel materialization — \
+         the recorded wall; the Greyhound row-column split is the 7B-scale fix)",
+        c.commit_s, c.prove_s, c.verify_s
+    );
+}
+
+/// [UAGB1-BD] freeze rows (both directions): frozen constants cited to
+/// their aggregation_freeze_rows.py ids, the 125M-shape group layouts,
+/// gamma-gate headrooms, and (once measured) the derived schedules.
+fn freeze_check_uagb1_bd() -> bool {
+    use ring::digits::{fold_norm_gamma, gamma_max_exact};
+    use ring::eval_proof::{plan_schedule, KAPPA_AGG, T_CAP};
+    let mut ok = true;
+    let mut row = |label: &str, cond: bool| {
+        println!("  {}   {label}", if cond { "ok " } else { "FAIL" });
+        ok &= cond;
+    };
+    let q = Q8;
+    // BD-0: frozen constants (cited row ids).
+    row("BD-0a kappa_agg = 11 (row KAP-11)", KAPPA_AGG == 11);
+    row("BD-0b T_cap = 33 (row EB1-tcap)", (T_CAP - 33.0).abs() < 1e-12);
+    row("BD-0c floor base cap e <= 7 (row EB4-emax)", ring::eval_proof::FLOOR_E_MAX == 7);
+    row("BD-0d K-draw exponent 496 = 16*31 (row EB3-kdraw)", ring::eval_proof::KDRAW_SLOT_EXP == 496);
+    row(
+        "BD-0e level wire = 4 + 11*516 = 5,680 B (FD F-IF1.7 class)",
+        ring::eval_proof::LEVEL_WIRE_BYTES == 5_680,
+    );
+    row(
+        "BD-0f gamma_max(exact-digit) = (q/8)/58.8 ~ 2^22.12 (row H-gate-ed)",
+        (gamma_max_exact(q).log2() - 22.12).abs() < 0.005,
+    );
+    // BD-1: 125M-shape group layouts (derived, never extrapolated).
+    let (gw, ga, acc_l0) = agg_build_groups(512, 768, 2048);
+    row("BD-1a weight group = 3,072 value rings x l0 8 = 24,576 digit rings", gw.n_digit_rings == 24_576);
+    row(
+        "BD-1b act group = 12,288 x 5 (B a8s) + 8,192 x 13 (C acc) = 167,936 digit rings",
+        ga.n_digit_rings == 167_936,
+    );
+    row("BD-1c accumulator l0 = 13 at inner 768 (UAGB1-1a class table)", acc_l0 == 13);
+    // BD-2: level-0 gamma headrooms at the frozen gates.
+    let g_w = fold_norm_gamma(1, gw.n_digit_rings);
+    let g_a = fold_norm_gamma(2, ga.n_digit_rings);
+    let gmax = gamma_max_exact(q);
+    row(
+        &format!(
+            "BD-2a weight level-0 gamma 2^{:.2} under the exact-digit gate (headroom {:+.2} b)",
+            g_w.log2(),
+            gmax.log2() - g_w.log2()
+        ),
+        g_w <= gmax,
+    );
+    row(
+        &format!(
+            "BD-2b act level-0 gamma 2^{:.2} under the exact-digit gate (headroom {:+.2} b)",
+            g_a.log2(),
+            gmax.log2() - g_a.log2()
+        ),
+        g_a <= gmax,
+    );
+    // BD-3: the derived 125M schedules, pinned both directions (floor
+    // rings/base/levels re-derived from the public planner).
+    let sw = plan_schedule(gw.n_digit_rings, 1, q, None);
+    let sa = plan_schedule(ga.n_digit_rings, 2, q, None);
+    for (name, s) in [("weight", &sw), ("act", &sa)] {
+        row(
+            &format!(
+                "BD-3 {} schedule derives: {} levels -> floor {} rings at e = {} \
+                 (every level gamma-gated)",
+                name,
+                s.levels.len(),
+                s.floor_rings,
+                s.floor_e
+            ),
+            s.floor_e <= 7 && s.floor_rings > 0,
+        );
+    }
+    ok
+}
+
+/// [UAGB1-BD] F-O2 standalone-route kel measurement: REAL masked
+/// descent pairs at (dw, 9) counted against the engine's structural
+/// counter and the recorded 4-point fit.
+fn uagb1_agg_kel(dws: &[usize]) {
+    use ring::gkr_masked::{
+        blinded_witness_tree, draw_masks, masked_gkr_prove, masked_transcript_totals, BlinderSet,
+    };
+    use ring::kfield::KField;
+    use ring::sumcheck::LkpTranscript;
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let fit = |dw: usize| 2 * dw * dw + 11 * dw + 235;
+    println!(
+        "[UAGB1-BD] kel(dw, dt=9) — REAL masked descent pairs vs the structural counter \
+         (masked_transcript_totals) vs the recorded [MODEL] fit 2dw^2+11dw+235"
+    );
+    println!("  {:>4} {:>10} {:>10} {:>8} {:>8}", "dw", "real kel", "structural", "fit", "match");
+    for &dw in dws {
+        let mut rng = ring::ProverRng::from_test_seed("agg-kel", &(dw as u64).to_le_bytes());
+        let mut rd = XofReader::new("agg-kel-alpha", &[&(dw as u64).to_le_bytes()]);
+        let alpha = kf.uniform(&mut rd);
+        let wcount = (1usize << dw.min(14)) / 4;
+        let wit: Vec<ring::kfield::KElem> =
+            (0..wcount).map(|i| kf.embed((i as u64 * 2_654_435_761 + 7) % Q8)).collect();
+        let bl_w = BlinderSet::draw(&kf, &mut rng);
+        let tree_w = blinded_witness_tree(&kf, &alpha, &wit, dw, &bl_w);
+        let masks_w = draw_masks(&kf, &mut rng, dw, 0);
+        let bl_t = BlinderSet::draw(&kf, &mut rng);
+        let wit_t: Vec<ring::kfield::KElem> = wit.iter().take(96).cloned().collect();
+        let tree_t = blinded_witness_tree(&kf, &alpha, &wit_t, 9, &bl_t);
+        let masks_t = draw_masks(&kf, &mut rng, 9, 0);
+        let t0 = Instant::now();
+        let mut trk = LkpTranscript::new("agg-kel", &(dw as u64).to_le_bytes());
+        let (pw, _) = masked_gkr_prove(&kf, &[tree_w], masks_w, &mut trk);
+        let (pt, _) = masked_gkr_prove(&kf, &[tree_t], masks_t, &mut trk);
+        let real = flatten_masked(&pw).len() + flatten_masked(&pt).len();
+        let secs = t0.elapsed().as_secs_f64();
+        let structural = masked_transcript_totals(dw, 0, 1).1 + masked_transcript_totals(9, 0, 1).1;
+        let f = fit(dw);
+        println!(
+            "  {:>4} {:>10} {:>10} {:>8} {:>8} ({secs:.1}s)",
+            dw,
+            real,
+            structural,
+            f,
+            if real == structural && real == f { "EXACT" } else { "MISMATCH" }
+        );
+        assert!(real == structural, "real kel count must equal the structural counter");
+        assert!(real == f, "real kel count must equal the recorded fit at dt=9");
+    }
+    println!("\n  structural counter at the design points (engine arithmetic, not extrapolation):");
+    for dw in [24usize, 25, 26, 29] {
+        let s = masked_transcript_totals(dw, 0, 1).1 + masked_transcript_totals(9, 0, 1).1;
+        println!(
+            "    kel({dw},9) = {s} K-el = {} B (fit {}: {})",
+            s * 64,
+            fit(dw),
+            if s == fit(dw) { "EXACT" } else { "DIFFERS" }
+        );
+    }
 }
