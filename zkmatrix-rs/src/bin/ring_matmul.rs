@@ -5053,6 +5053,7 @@ fn freeze_check() {
     all_ok &= freeze_check_uz1();
     all_ok &= freeze_check_uagb1();
     all_ok &= freeze_check_uagb1_d2();
+    all_ok &= freeze_check_uagb1_bf();
 
     if all_ok {
         println!("freeze-check passed");
@@ -19695,4 +19696,85 @@ fn mm_acc_bits_hb(inner: usize, hb: u32) -> u32 {
         b += 1;
     }
     b
+}
+
+// ===========================================================================
+// [UAGB1-BF] U-AG-B1 lane BF (wave 2, integration): per-scale SiLU table
+// family freeze rows (D1), the manifest v4 typing pins (D2), and the
+// 12-layer 125M P0 pass on real ckpt-00009536 weights (D3). Lane brief:
+// PROGRESS_UAGB1.md "Agent BF status"; report doc M125_PASS_REPORT.md.
+
+/// UAGB1-BF freeze rows: the silu-int8-table-v2 family constants (both
+/// directions) and the v3-digest-stability pins for the D2 codec change.
+fn freeze_check_uagb1_bf() -> bool {
+    use ring::lookup::{
+        SILU_INT8_OUTPUTS, SILU_INT8_TABLE_DIGEST, SILU_V2_M3_DIGEST, SILU_V2_M3_OUTPUTS,
+        SILU_V2_M4_DIGEST, SILU_V2_MEMBERS, silu_v2_generate, silu_v2_member, silu_v2_rows,
+        table_spec_digest, table_spec_digest_v2,
+    };
+    let mut all_ok = true;
+    let mut gate = |label: &str, ok: bool| {
+        println!("  {} {label}", if ok { "ok  " } else { "FAIL" });
+        all_ok &= ok;
+    };
+
+    // UAGB1-BF-1a: deterministic regeneration reproduces the FROZEN bytes
+    // and pinned v2 digests for every family member (platform drift is
+    // loud, the v1/LKP-1 discipline).
+    let mut regen_ok = true;
+    for &(eg, ea) in SILU_V2_MEMBERS.iter() {
+        let regen = silu_v2_generate(eg, ea);
+        let (frozen, dg_pin) = silu_v2_member(eg, ea).expect("frozen member");
+        let dg = table_spec_digest_v2(eg, ea, &silu_v2_rows(&regen));
+        regen_ok &= regen == *frozen && dg == dg_pin;
+    }
+    gate(
+        "UAGB1-BF-1a silu-int8-table-v2 members ((-3,-3), (-4,-4)) regenerate byte-identically; v2 spec digests match the pins",
+        regen_ok,
+    );
+
+    // UAGB1-BF-1b: the family identity — the (-4,-4) member IS the v1
+    // table (bytes), and the v1 spec header + digest are UNMOVED (checked
+    // against both the lookup.rs constant and the manifest copy).
+    let v1_dg = table_spec_digest(&ring::lookup::silu_int8_table());
+    gate(
+        "UAGB1-BF-1b family identity: generate(-4,-4) == SILU_INT8_OUTPUTS; v1 spec digest unmoved (lookup.rs == manifest.rs)",
+        silu_v2_generate(-4, -4) == SILU_INT8_OUTPUTS
+            && v1_dg == SILU_INT8_TABLE_DIGEST
+            && v1_dg == manifest::SILU_INT8_TABLE_DIGEST,
+    );
+
+    // UAGB1-BF-1c: the wrong-member direction — digests separate the
+    // members from each other and from the v1 header (a statement cannot
+    // silently swap tables or header versions), and non-frozen exponent
+    // pairs are refused.
+    gate(
+        "UAGB1-BF-1c member separation: m3 != m4 != v1 digests; non-frozen pair (-2,-2) refused",
+        SILU_V2_M3_DIGEST != SILU_V2_M4_DIGEST
+            && SILU_V2_M3_DIGEST != SILU_INT8_TABLE_DIGEST
+            && SILU_V2_M4_DIGEST != SILU_INT8_TABLE_DIGEST
+            && silu_v2_member(-2, -2).is_none(),
+    );
+
+    // UAGB1-BF-1d: totality without clamping — on both frozen members the
+    // raw rounded value already lies in [-127, 127] (the clamp in the
+    // spec declares totality; it never fires), and the m3 output range is
+    // the recorded [-2, 127].
+    let mut clamp_ok = true;
+    for &(eg, ea) in SILU_V2_MEMBERS.iter() {
+        for g in -128i32..=127 {
+            let x = g as f64 * (eg as f64).exp2();
+            let y = x / (1.0 + (-x).exp());
+            let v = (y / (ea as f64).exp2() + 0.5).floor();
+            clamp_ok &= (-127.0..=127.0).contains(&v);
+        }
+    }
+    let m3_min = SILU_V2_M3_OUTPUTS.iter().min().copied().unwrap();
+    let m3_max = SILU_V2_M3_OUTPUTS.iter().max().copied().unwrap();
+    gate(
+        "UAGB1-BF-1d clamp never fires on frozen members; m3 output range [-2, 127]",
+        clamp_ok && m3_min == -2 && m3_max == 127,
+    );
+
+    all_ok
 }

@@ -115,6 +115,133 @@ pub fn multiplicities(kf: &KField, witness: &[KElem], table: &[KElem]) -> Vec<KE
 }
 
 // ---------------------------------------------------------------------------
+// [UAGB1-BF] U-AG-B1 lane BF, Deliverable 1 (D3-F1): the PER-SCALE int8
+// SiLU table FAMILY `silu-int8-table-v2`.
+//
+// The frozen v1 table pins frac 4 on both sides; the 125M calibration
+// (M125_CALIBRATION_STUDY.md Section 3) lands eGate = eA = -3 on 10 of
+// the 12 layers and -4 on layers 1/4, so a single frozen table cannot
+// host the calibrated pass (finding D3-F1, integration-blocking). The
+// family generalizes the v1 construction to a signed exponent pair
+// (eGate, eA):
+//
+//     S[g] = clamp(round_half_up(silu(g * 2^eGate) / 2^eA), -127, 127)
+//
+// over the full int8 domain g = -128..=127, silu(x) = x * sigmoid(x)
+// evaluated in f64. round_half_up(x) = floor(x + 1/2) — the v1 rounding
+// rule. The clamp declares totality; for BOTH frozen members it never
+// fires (checked by the UAGB1-BF freeze rows). Protocol semantics must
+// not depend on a platform's libm: the FROZEN BYTES below, not the
+// runtime generation, define each member — the generator exists so the
+// freeze rows make any platform drift loud, exactly the v1 discipline.
+//
+// Family identity, load-bearing: under round_half_up the (-4, -4)
+// member is BYTE-IDENTICAL to `SILU_INT8_OUTPUTS` (the v1 table is the
+// frac-4 member of this family). The v1 table, its spec header and its
+// digest DO NOT MOVE; the (-4,-4) member gets a NEW v2 spec header and
+// digest for statements that reference the family uniformly.
+
+/// Frozen outputs of the (eGate, eA) = (-3, -3) member, indexed by
+/// g + 128. min -2, max 127; the clamp never fires.
+pub const SILU_V2_M3_OUTPUTS: [i8; 256] = [
+     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  -1,
+    -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -2,  -2,  -2,  -2,
+    -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2,  -1,  -1,   0,
+     0,   1,   1,   2,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,
+    14,  15,  16,  17,  18,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,
+    31,  32,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,
+    48,  49,  50,  51,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,
+    64,  65,  66,  67,  68,  69,  70,  71,  72,  73,  74,  75,  76,  77,  78,  79,
+    80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  90,  91,  92,  93,  94,  95,
+    96,  97,  98,  99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
+   112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127,
+];
+
+/// v2 spec digest of the (-3, -3) member (`table_spec_digest_v2`).
+pub const SILU_V2_M3_DIGEST: [u8; 32] = [
+    0xbd, 0xf8, 0xbc, 0x71, 0x29, 0xdc, 0x6e, 0xc8,
+    0xb0, 0x02, 0xaf, 0x51, 0xfd, 0x4d, 0xbe, 0xf3,
+    0xd7, 0xc1, 0x24, 0x0f, 0x65, 0xc4, 0xda, 0x01,
+    0xce, 0x2d, 0xb2, 0xa7, 0xc9, 0xbb, 0x6c, 0x50,
+];
+
+/// v2 spec digest of the (-4, -4) member. The member's BYTES are
+/// `SILU_INT8_OUTPUTS` (family identity); this digest differs from
+/// `SILU_INT8_TABLE_DIGEST` only because the v2 header carries signed
+/// scale exponents — same 256 rows, new header format.
+pub const SILU_V2_M4_DIGEST: [u8; 32] = [
+    0x06, 0x39, 0x93, 0x48, 0x1a, 0x8f, 0xc0, 0x08,
+    0x70, 0x14, 0xb2, 0x53, 0x57, 0xa2, 0x2b, 0x95,
+    0xd8, 0x8b, 0xda, 0x64, 0x9c, 0xc6, 0x99, 0x7e,
+    0x2f, 0xe2, 0x7c, 0x5b, 0xac, 0xd1, 0x7a, 0xda,
+];
+
+/// The exponent pairs of the frozen family members (every exponent the
+/// 12 calibrated 125M layers need: (-3,-3) on 10 layers, (-4,-4) on
+/// layers 1 and 4 — eGate == eA on all calibrated layers).
+pub const SILU_V2_MEMBERS: [(i32, i32); 2] = [(-3, -3), (-4, -4)];
+
+/// Deterministic family generation (f64; the freeze rows pin the frozen
+/// bytes against it so platform drift is loud, never silent).
+pub fn silu_v2_generate(e_gate: i32, e_act: i32) -> [i8; 256] {
+    let mut out = [0i8; 256];
+    for (i, slot) in out.iter_mut().enumerate() {
+        let g = i as i32 - 128;
+        let x = g as f64 * (e_gate as f64).exp2();
+        let y = x / (1.0 + (-x).exp());
+        let v = (y / (e_act as f64).exp2() + 0.5).floor();
+        *slot = v.clamp(-127.0, 127.0) as i8;
+    }
+    out
+}
+
+/// The frozen member for an exponent pair: (bytes, v2 spec digest).
+/// None for pairs outside the frozen family — statements must not
+/// reference tables that were never frozen.
+pub fn silu_v2_member(e_gate: i32, e_act: i32) -> Option<(&'static [i8; 256], [u8; 32])> {
+    match (e_gate, e_act) {
+        (-3, -3) => Some((&SILU_V2_M3_OUTPUTS, SILU_V2_M3_DIGEST)),
+        (-4, -4) => Some((&SILU_INT8_OUTPUTS, SILU_V2_M4_DIGEST)),
+        _ => None,
+    }
+}
+
+/// Rows (v, S[v]) of a member's output bytes (the `silu_int8_table`
+/// shape, family form).
+pub fn silu_v2_rows(outputs: &[i8; 256]) -> Vec<(i64, i64)> {
+    outputs.iter().enumerate().map(|(i, &y)| (i as i64 - 128, y as i64)).collect()
+}
+
+/// The canonical v2 spec-header digest: the Section 1.1 JSON layout
+/// with SIGNED scale exponents replacing frac_bits (the D3-F2 class of
+/// gap, fixed at the spec level here and at the statement level by the
+/// manifest v4 typing).
+pub fn table_spec_digest_v2(e_gate: i32, e_act: i32, rows: &[(i64, i64)]) -> [u8; 32] {
+    let mut json = format!(
+        "{{\"function\":\"silu-int8-table-v2\",\
+         \"input\":{{\"width\":8,\"scale_exp\":{e_gate},\"signed\":true}},\
+         \"output\":{{\"width\":8,\"scale_exp\":{e_act},\"signed\":true}},\
+         \"rounding\":\"y = clamp(round_half_up(silu(x*2^in_exp)/2^out_exp), -127, 127)\",\
+         \"table\":["
+    );
+    for (i, (v, s)) in rows.iter().enumerate() {
+        if i > 0 {
+            json.push(',');
+        }
+        json.push_str(&format!("[{v},{s}]"));
+    }
+    json.push_str("]}");
+    let mut h = Sha256::new();
+    h.update(json.as_bytes());
+    h.finalize().into()
+}
+
+// ---------------------------------------------------------------------------
 // E4 (U-K6): the MLE-evaluation landing. The descents end in claims
 // v = MLE(column)(z*) — one K-element per column. Coordinate c of v is
 // a BASE-FIELD public-weight linear functional of the committed
