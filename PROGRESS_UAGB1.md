@@ -587,7 +587,157 @@ fallbacks, [MAC-BOX]/[NOISY-SHARED] timing marks).
 
 ## Agent BF status (wt-uagb1-bf)
 
-- (lane launches here)
+- 2026-08-09 PLAN COMMIT (before any code; skeleton-commit-first).
+  Read phase COMPLETE (ledger incl. BB dispositions binding this lane;
+  UAGB1_ENGINE_REPORT D2 machinery + D3-F1/F2; M125_CALIBRATION_STUDY
+  + script + JSON; M4_LOOKUP_DESIGN + lookup.rs + the U-R1/U-R2
+  ffn-layer rig; manifest.rs v3 whole; AGGREGATION_ENCODING Section 8
+  E-O1-BB/E-O2'/E-O3; TARGET_CONTRACT S2 + A1). Baseline on this box
+  at plan time: cargo release GREEN (37 s warm), freeze-check GREEN,
+  statement-125m digest 7b913619fbffa5da captured (a v3 digest that
+  MUST NOT move). frugal-lm ckpt-00009536 + .venv + val shard
+  confirmed present (READ-ONLY).
+- READ-PHASE FINDINGS binding the plan:
+  * eGate == eA on ALL 12 calibrated layers; the family needs exactly
+    TWO members: (eGate,eA) = (-3,-3) [10 layers] and (-4,-4)
+    [layers 1/4]. The calibration script's generator
+    (silu_table(eg,ea): clamp(round(silu(g*2^eg)/2^ea), +-127)) is
+    the family formula; the v1 frozen table IS the (-4,-4) member
+    under round_half_up — a byte-identity freeze check, not a new
+    table.
+  * QuantMeta frac_bits is u32 and signed bounds are asymmetric
+    [-2^(b-1), 2^(b-1)-1]: D3-F2 (positive exponents) and the
+    [-127,127] symmetric declaration both need new typed fields —
+    with true exponents, h8 and z return to honest 8-bit and the
+    D3 skeleton's widened 9/10-bit storage disappears.
+  * The contract's recorded state: X and W ranges are DECLARED, not
+    proven (open M3 finding); proven facts = requant remainders +
+    requant-output narrowings (or table-domain membership). g8/a8
+    narrowing is FREE via SiLU domain; u8/h8/z need w8 facts;
+    rg/ru/rh/rd need [0,2^shift) facts.
+  * The exact q31 range mechanism is the U-R2 range-table lookup
+    (masked descent + root cross-check) at variable width — no bit
+    planes, no digit columns needed for dense value columns at
+    2^20 els (ceiling 2^25 clears). The requant EDGE itself is a
+    linear ring identity (Gacc - 2^s*g8 - rg = 0 per chunk) — the
+    D1 recomposition-RingClaim family with public constants.
+  * BB dispositions carried: [-127,127] adopted in witness data;
+    requant form = FLOOR as recorded (variant A semantics — the
+    calibrated 0-violation guarantee is for floor; the pre-add
+    rounding note stays a recorded option, NOT taken here).
+- D1 PLAN (per-scale SiLU table family; integration-blocking D3-F1):
+  additive in src/ring/lookup.rs — `silu-int8-table-v2` family:
+  deterministic generation per (eGate, eA) (f64 silu, round_half_up,
+  clamp +-127, domain all 256 int8 codes; platform-drift-loud via
+  digests, the v1 discipline); FROZEN byte arrays + digest constants
+  for the two members; v2 spec-header digest (canonical JSON with
+  SIGNED scale_exp fields); freeze rows UAGB1-BF-1* in a new
+  freeze_check_uagb1_bf() (hooked by ONE line in freeze_check):
+  regeneration == frozen bytes+digests both members; family(-4,-4)
+  bytes == SILU_INT8_OUTPUTS and v1-header digest ==
+  SILU_INT8_TABLE_DIGEST (v1 unmoved); (-3,-3) digest != v1 digest
+  (wrong-member direction). Generation spec written in
+  M125_PASS_REPORT.md (byte-identical regeneration procedure).
+- D2 PLAN (QuantMeta typing, ONE versioned codec change; D3-F2 +
+  E-O1-BB): manifest.rs v4 alongside v3 — Statement gains
+  `typing: Vec<TypingV4>` (scale_exp i32, symmetric bool, class u32,
+  base_e0 u32) and `tables: Vec<TableSpec>` (empty for v3;
+  Statement::new unchanged); new Operation::LookupAt {x, y, table}
+  (manifest-digest tag 12, codec tag 11 — existing variants' bytes
+  untouched); validate() version-gated: v3 = the byte-identical old
+  path + typing/tables must be EMPTY + LookupAt rejected; v4 =
+  typing required per entry, signed scale-exponent arithmetic
+  (matmul/hadamard add, rescale y = x + shift), symmetric signed
+  bounds +-(2^(b-1)-1) (the [-127,127] declaration -> honest 25/26
+  accumulator bits DERIVED by the validator), frozen v4 class
+  registry (E-O1 value-width classes + adopted bases: weight e0=1
+  sign-binary, act/acc/aux e0=2; class covers declared bounds,
+  base_e0 == class pin), LookupAt table in the frozen registry
+  (v1 spec + v2 family members) with operand typing == spec typing;
+  digest(): v3 path byte-for-byte untouched, v4 = new tag absorbing
+  typing+tables; codec: v3 -> cv1 bytes unchanged, v4 -> cv2.
+  Battery statement_v4_battery(): v3 sample digest/codec unchanged
+  (pinned), positive-exponent expressibility (eZ +1 / eH +2
+  un-clamped), symmetric-vs-asymmetric accumulator pair (26-bit at
+  inner 2048 ACCEPTS symmetric / REJECTS asymmetric), wrong-class +
+  wrong-base negative vectors, version-gate negatives (v3+typing,
+  v4-typing, LookupAt-in-v3, bad table index, off-registry table),
+  codec round-trip v4 + malformed vectors. Freeze rows: v3
+  codec-sample digest + statement-125m digest pinned (existing
+  digests must not move — enforced, not asserted).
+- D3 PLAN (the 12-layer P0 pass on real weights):
+  * Export (scripts/m125_export_ffn.py, additive; frugal venv;
+    READ-ONLY): 36 weight tensors via the pure-numpy safetensors
+    reader -> int8 at 2^-9 (transposed to matmul layouts WgT/WuT
+    768x2048, WdT 2048x768); per-layer X [512,768] captured from
+    ONE seeded held-out fineweb-edu-val sequence (same rng
+    construction as BC's script -> a window inside BC's measured
+    0-violation set) via frugal_lm's own model code (mlx walk,
+    fp32 reference, the study's capture point); per-layer z digests
+    from a Python variant-A replica for cross-validation. Binary
+    .bin exports + manifest JSON with SHA-256 digests into
+    results/m125_ffn_export/ (data git-ignored via a local
+    .gitignore inside that directory; JSON manifest + script
+    committed — regeneration documented).
+  * Witness chain derived IN RUST from X + weights (floor requant,
+    v2 family tables, exact integer arithmetic), range facts
+    asserted at derive time (loud fail = intended), z cross-checked
+    against the Python digests.
+  * The pass statement (v4): 12 layers, TRUE exponents (no
+    surrogates), per-layer LookupAt into the family, [-127,127]
+    symmetric on X/W (25/26-bit honest accumulators), entries bind
+    real commitment digests (commit pass per layer, streamed);
+    validates + digests = the ctx of EVERY proof instance.
+  * Per-layer proof (my own [UAGB1-BF] section; one commitment set,
+    one transcript, ONE first-fit wave plan at the derived cap —
+    every commitment opened exactly once per layer): 3 dense matmul
+    sumchecks (D2 recipe: gate/up at 512x768x2048, down at
+    512x2048x768, wave plan DERIVED at the down shape) + 9 MLE
+    pins; SiLU fused-pair masked descent pair at the layer's family
+    table (g8,a8 dense, dw = 22 for 2^20 els) + aggregate pins;
+    Hadamard by ONE degree-3 sumcheck (eq*a8*u8 vs H~(r)) + pins;
+    requant edges Gacc/Uacc/H/Dacc as per-chunk linear RingClaims
+    (public 2^shift constants); range facts as U-R2-style
+    [0,2^w) range-table masked descents: u8/h8/z offset codes at
+    w=8, rg/ru/rh/rd at w=shift; all pins psi-batched into the
+    shared wave rounds (U-Z1 masked splitter + closing round).
+  * COMMITTED EXIT (honest-fallback): layers 1-2 fully proven with
+    battery legs + all 12 validated/digested + measured per-op-class
+    cost table + honest 12-layer extrapolation; FULL 12-layer run
+    only if layer-1 wall-clock permits (measure first, decide,
+    report the decision). Long runs in background. P0 mode: no
+    privacy claim; byte totals reported opening-dominated (the
+    monster number reported, not hidden; BD's stack is what
+    replaces it).
+  * Battery (pass-level, real data at a reduced-T slice for the
+    suite + full-shape legs subcommand-driven): wrong weight tensor
+    in layer k (statement-digest gate); wrong table for a layer's
+    exponent (root cross-check REJECT with everything else green —
+    the sharp new leg; plus the v4 statement-level scale-mismatch
+    REJECT); cross-layer output/input mismatch at the statement
+    seam (g8 commitment swap across layers -> digest recompute
+    REJECT); range violation (out-of-range remainder value ->
+    range root cross-check REJECT).
+  * tests/test_uagb1_pass.py (additive): v4 battery + freeze rows +
+    the reduced-shape pass battery inside the suite budget.
+- HOUSEKEEPING PLAN (each its own tight-scope commit):
+  * 4a tests/test_zk_lattice.py: wrap test_opening_proof_roundtrip's
+    instance+prove in the file's OWN pinned_entropy() precedent
+    (seed chosen so honest ACCEPTS and both tamper arms REJECT);
+    asserts untouched; stability demonstrated 25/25 consecutive
+    runs.
+  * 4b scripts/aggregation_folding_spike.py: ru_maxrss print-only
+    platform fix (bytes on Darwin vs KiB on Linux); checks
+    untouched; spike re-run 33/33.
+- STRETCH (only if 1-3 fully land): P2-mode declaration plumbing
+  (mode field + private commitment-group declaration) — plumbing
+  only, no masking claim (BD's stack).
+- WILL NOT DO: BD's eval-proof/aggregation zone; BE's fold zone
+  (ring/fold.rs); the aggregated-artifact descriptor zone of
+  manifest.rs; edits to other lanes' files or ledger sections; any
+  Tier N/Tier Z compliance claim (P0 honest byte totals only); the
+  pre-add rounding requant switch (recorded option, not taken);
+  pushes.
 
 ## Blocker
 
