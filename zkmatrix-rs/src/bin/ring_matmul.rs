@@ -21056,8 +21056,8 @@ fn uagb1_agg_battery() {
             ),
         );
     }
-    // Degenerate shape (zero levels): claim layer end to end.
-    let (v, c) = uagb1_agg_run(64, 96, 128, AggTamper::None, false, None, 0xB1_3001, true);
+    // Degenerate shape (zero levels forced): claim layer end to end.
+    let (v, c) = uagb1_agg_run(64, 96, 128, AggTamper::None, false, Some(0), 0xB1_3001, true);
     assert_true(
         &format!(
             "honest ACCEPT at 64x96x128 (degenerate floor; {} B counted, prove {:.2}s verify {:.2}s)",
@@ -21067,7 +21067,7 @@ fn uagb1_agg_battery() {
         ),
         v.accept(),
     );
-    let (v, _) = uagb1_agg_run(64, 96, 128, AggTamper::WrongC, false, None, 0xB1_3002, true);
+    let (v, _) = uagb1_agg_run(64, 96, 128, AggTamper::WrongC, false, Some(0), 0xB1_3002, true);
     assert_true(
         &format!(
             "WrongC REJECT at the degenerate floor (committed C tampered, honest-product claimed, \
@@ -21076,7 +21076,17 @@ fn uagb1_agg_battery() {
         ),
         !v.accept() && v.first_fail == Some("claim-row-eval"),
     );
-    let (v, _) = uagb1_agg_run(64, 96, 128, AggTamper::WrongClassDecl, false, None, 0xB1_3003, true);
+    // The same shape UNFORCED: the planner recurses when it pays, and
+    // the lie is caught through the transported chain instead.
+    let (v, _) = uagb1_agg_run(64, 96, 128, AggTamper::WrongC, false, None, 0xB1_3002, true);
+    assert_true(
+        &format!(
+            "WrongC REJECT through the auto-planned recursion at the same shape — first fail: {}",
+            v.first_fail.unwrap_or("?")
+        ),
+        !v.accept(),
+    );
+    let (v, _) = uagb1_agg_run(64, 96, 128, AggTamper::WrongClassDecl, false, Some(0), 0xB1_3003, true);
     assert_true(
         "WrongClassDecl REJECT at the statement gate (E-O1-BB negative vector: weight e0 = 2)",
         !v.accept() && !v.statement_ok,
