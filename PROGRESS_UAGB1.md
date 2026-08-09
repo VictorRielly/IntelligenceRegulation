@@ -738,6 +738,75 @@ fallbacks, [MAC-BOX]/[NOISY-SHARED] timing marks).
     gives 1,651/1,760/1,873/2,236 = the fit values — the [MODEL]
     fit is the engine's transcript-shape arithmetic, not an
     extrapolation. dw 24/25 REAL runs in flight.
+- 2026-08-09 **BD VERDICT ROW (stages 1-4 landed; 5 unreached,
+  stated).**
+  * S1 BATCHING LANDED: W-C two-group claim layer (nu_g post-
+    terminals CRB-N5; 16 conj-packed ring rows/group, ct publicly
+    pinned; alpha K-draw RLC at the EB3-kdraw class; multi-claim
+    inputs additive — F-IF1 NOT foreclosed). E-O2-BB ENFORCED (a
+    second batched opening in a group = AggBuildError, negative
+    test green). E-O3-BB DISPOSITIONED: N/A at the single-matmul
+    statement (no lookup/range descent pair exists to rho-share;
+    neither the battery leg nor the +143,104 B price applies at
+    this scope; obligation transfers to the pass statement) — not
+    silent.
+  * S2 DESCENT/EVAL PROOF BARE LANDED at 512x768x2048: kappa 11
+    LaBRADOR-form recursion, exact-digit branch, per-level K-draw
+    aggregation + h cross-garbage + one 5,680 B outer commitment
+    committed pre-challenge + T_cap-33 exact-spectral-norm
+    resampling + adaptive bases e <= 7; floors checked bare
+    (T5/T4/T1/L1 + alphabet). g-family NOT carried (exact-digit:
+    nothing consumes it; NO NS22 shrink of h — R-EB2 respected;
+    deviation vs the modeled r(r+1) count named in the report).
+  * S3 BYTES (counted convention, measured): **344,318 B =
+    1.313x Tier N (OVER — reported, not forced; floor line 69.7%)
+    = 341.0x under wave-1's 117,396,459 B.** Prove 55.9 s / verify
+    17.4 s / RSS 1.36 GiB [MAC-BOX, NOISY-SHARED]. The verifier
+    carries an O(N_limb) claim-kernel materialization — the
+    recorded wall; the Greyhound row-column split is the designed
+    fix (bytes unaffected).
+  * S4 MASKED PATH LANDED (the A1 Tier-Z carve-out; I-6 holds
+    everywhere else): e_L = 4 refit schedules with the F-Z1 corner
+    ASSERTED at derive; prover-internal Gaussian mask (FP-L2 A8:
+    no hash edge), images-then-capped-challenge-then-response
+    (AZB-6), Lyubashevsky rejection w/ logged restarts (F-Z3);
+    response 4 B/coord as priced. Measured 512x768x2048: floors
+    1,368/1,364 rings e4, corner 2^27.75 SURVIVES, TOTAL 1,527,878
+    B, restarts 0. LIVE FINDING: at small statements (battery
+    shape) the Tier-Z floors (2,428 rings) CLOSE the corner
+    (b = 2^28.16) and the derive gate refuses them — the corner
+    needs floors < 1,940 rings; 125M/pass scales safely inside.
+  * BATTERY 23/23 (~224 s): honest degenerate + recursed + Tier-Z;
+    E-O2-BB build error; WrongC (ct-gate AND transported-floor
+    forms); floor tamper; SHARP OOA-alphabet leg; F5 PAIRS both
+    directions (alpha-before-rows binding collapse = CRB-N4 class;
+    level-1 challenge-before-commitment h compensation = the E-6/
+    AZB-6 engine leg); WrongClassDecl statement gate (E-O1-BB
+    vector); Tier-Z response-norm + mask-image REJECTs; stale-order
+    encoding-gate finding (wave-1-style mod-q forgery NOT ENCODABLE
+    under exact-digit classes).
+  * kel/F-O2: kel(24,9) = 1,651 RE-MEASURED real (33.7 s);
+    **kel(25,9) = 1,760 MEASURED real (67.5 s) — the 125M pass
+    point**; all 8 measured points EXACT vs counter vs fit; the
+    fit is engine transcript arithmetic; kel(29) stays structural
+    (7B-freeze residue).
+  * AZB E-blocks: E-6 WIRED (engine-scale F5 pair per level
+    structure); E-7(i) wired in substance (floor families ARE the
+    byte-exact recompute); E-1..E-5/E-7(ii,iii)/E-8..E-11 NOT
+    claimed (bind T_blind/pass-manifest machinery absent at this
+    statement); AZB-11 honestly NOT reachable at a single-matmul
+    statement (activation claims depend on A through the shared
+    sumcheck terminals) — semantics attach to the P2 pass group
+    map.
+  * Freeze: BD-0..3 rows both directions in freeze-check; every
+    derive assert cites its row id; ALL pre-existing digests
+    unmoved at every commit. Suite: tests/test_uagb1_agg.py (2
+    light tests); full-suite run at close (result in Log).
+  * S5 wire format NOT REACHED — counted-byte convention continues
+    (stated in report Section 1).
+  * Report: docs/zkmatrix-poc/UAGB1_AGG_STACK_REPORT.md (byte
+    decompositions, floor schedules, F-Z1, walls/findings,
+    E-block table, exports, reproduction lines).
 
 ## Agent BE status (wt-uagb1-be)
 
