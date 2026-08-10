@@ -258,23 +258,48 @@ failure), ShapeMismatch (counts inconsistent with META), BadPairing
 exercise both classes: structural bytes -> decode REJECT with the
 right error; in-range value bytes -> decode OK, verify REJECT.
 
-## 5. What the A1 budgets bind on
+## 5. What the A1 budgets bind on (measured, 2026-08-10)
 
-- The serialized-vs-counted table (delivered in the BI ledger row and
-  reproduced by `uagb1-bi wire-bench`) is measured by ACTUAL
-  encoding of the recorded wave-2 artifacts. Headline structure:
-  poly-block prefix hoisting is a ~-0.8% ripple; K-element lines are
-  byte-identical to counted; the ct-z width rule halves the opening
-  volume's dominant line; envelope + section headers add tens of
-  bytes per artifact (fixed, itemized).
-- The eval-proof artifact and the pass statement serialize within
-  ~0.5% of their counted figures — the historical Tier-N/Tier-Z
-  comparisons carry over essentially unchanged, now on real bytes.
-- The fold transcript serializes at ~2/3 of counted (the 8 -> 4 B
-  response line) — relevant to honesty about wave-2 artifacts, NOT to
-  the A1 tiers (the composed pass artifact replaces the opening
-  volume with kind-1 group records; its budget-binding lines are the
-  eval-proof + claim-layer forms above).
+The serialized-vs-counted table, measured by ACTUAL encoding of the
+recorded wave-2 artifacts (reproduce: `uagb1-bi wire-battery`,
+`uagb1-bi wire-bench eval [tierz] | fold | statement-m125`; full
+per-component tables in the ledger BI verdict row). Every serialized
+number is a real `encode()` length with the per-component arithmetic
+cross-asserted against it; counted totals reproduce the recorded
+wave-2 figures exactly.
+
+| artifact (recorded shape) | counted B | serialized B | ratio |
+|---|---:|---:|---:|
+| eval proof bare, 512x768x2048 | 344,318 | **343,709** | 0.9982 |
+| eval proof Tier-Z, 512x768x2048 | 1,527,878 | **1,527,085** | 0.9995 |
+| eval proof Tier-Z, 256x768x2048 | 1,511,494 | 1,510,701 | 0.9995 |
+| mm fold transcript, 12x(64x96x128) | 12,627,383 | 8,314,493 | 0.6584 |
+| v4 pass statement (12-layer, real) | 26,116 | 26,168 | 1.0020 |
+
+- **The A1-relevant rows move by less than 0.2%.** Serialized bare
+  eval proof = 343,709 B = 1.311x the Tier N 262,144 B/layer gate
+  (counted said 1.313x); serialized Tier-Z single-layer = 1,527,085 B
+  (the pass-level Tier-Z number composes at wave 3). The historical
+  counted comparisons carry over essentially unchanged, now on real
+  bytes — M-05's "budget binds once a canonical encoding exists" is
+  discharged with the budget arithmetic intact.
+- Structure of the deltas: poly-prefix hoisting -4 B/poly (level
+  messages 5,680 -> 5,636 B each); K-element lines +52-64 B per
+  sumcheck (explicit counts on rounds/finals — K-elements themselves
+  stay 64 B); SINT header +1 B per floor/response block; envelope +
+  section headers + META = 121 B per kind-1 artifact, 52 B per
+  statement wrap.
+- The fold transcript serializes at ~0.66x counted — the ct-z
+  response line halves (8 -> 4 B/coord, 68% of the artifact), and
+  reveals drop 12 -> 8 B. Relevant to honesty about the wave-2
+  artifacts, NOT to the A1 tiers: the composed pass artifact
+  replaces the opening volume with kind-1 group records; its
+  budget-binding lines are the eval-proof + claim-layer forms, which
+  sit at ~counted.
+- Digest neutrality measured on the real object: the 12-layer v4
+  pass statement digest 76dbf2040409333e is byte-identical through
+  the wire round trip (and the v3 reference digests are pinned
+  unmoved by the freeze rows).
 
 ## 6. Freeze row
 
