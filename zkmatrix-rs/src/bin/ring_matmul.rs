@@ -6260,7 +6260,7 @@ fn self_test_pi2_ce() {
 }
 
 fn usage() {
-    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory | uagb1-digit-battery | matmul-statement [battery | <rows> <inner> <cols>] | statement-125m | agg-matmul [battery | <rows> <inner> <cols>] | agg-kel [dw ..] | ixf-fold [battery | norm | bytes | matmul <layers> <rows> <inner> <cols> | zerocheck <layers> <rows> <cols>] | m125-pass <v4-battery|digests|statement|prove <layer>|battery [small|smoke]>");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory | uagb1-digit-battery | matmul-statement [battery | <rows> <inner> <cols>] | statement-125m | agg-matmul [battery | <rows> <inner> <cols>] | agg-kel [dw ..] | bh-verifier [battery | kernel [rows inner cols] | gkr [log2_els]] | ixf-fold [battery | norm | bytes | matmul <layers> <rows> <inner> <cols> | zerocheck <layers> <rows> <cols>] | m125-pass <v4-battery|digests|statement|prove <layer>|battery [small|smoke]>");
     eprintln!();
     eprintln!("  ffn-chain [n_blocks | battery] is the LEGACY q46 block chain: its range");
     eprintln!("  grounding uses the ARP legacy range arm (rejection clipping ~2^-4.75 at");
@@ -6463,6 +6463,27 @@ fn main() {
                 vec![10, 12, 14, 17, 19, 21]
             };
             uagb1_agg_kel(&dws);
+        }
+        Some("bh-verifier") => {
+            // [UAGB1-BH] verifier-performance lane: differential +
+            // BF-F3 battery, the claim-kernel phase bench, the
+            // gkr-capacity measurement.
+            match args.get(1).map(String::as_str) {
+                Some("battery") | None => uagb1_bh_battery(),
+                Some("kernel") => {
+                    let d: Vec<usize> =
+                        args[2..].iter().map(|s| s.parse().expect("rows inner cols")).collect();
+                    let (r, i, c) = if d.len() == 3 { (d[0], d[1], d[2]) } else { (512, 768, 2048) };
+                    uagb1_bh_kernel_bench(r, i, c);
+                }
+                Some("gkr") => {
+                    let l: usize = args.get(2).map(|s| s.parse().expect("log2")).unwrap_or(20);
+                    uagb1_bh_gkr_bench(l);
+                }
+                _ => eprintln!(
+                    "usage: ring_matmul bh-verifier [battery | kernel [rows inner cols] | gkr [log2_els]]"
+                ),
+            }
         }
         Some("link-demo") => {
             let t = Instant::now();
@@ -20510,7 +20531,8 @@ fn agg_verify_group(
 ) -> Result<(), &'static str> {
     use ring::eval_proof::{
         compute_cpairs, compute_psi, expand_level_matrix, matvec_modq_small, recompose_rings,
-        transport_level, transport_rows, NextLayout, OuterBinding, KAPPA_AGG,
+        transport_level, transport_level_from_psi, transport_rows, NextLayout, OuterBinding,
+        KAPPA_AGG,
     };
     use ring::kfield::K_DEG;
     let zq = &ctxr.zq;
@@ -20540,10 +20562,11 @@ fn agg_verify_group(
         ring::eval_proof::absorb_polys(tr, &format!("agg-brows-{}", group.name), &proof.b_rows);
         agg_draw_alphas(tr, &alpha_label, K_DEG, q)
     };
-    let vw = agg_value_weights(kf, group, kernels);
-
     // ---- Degenerate (zero levels): direct claim-row + binding checks.
+    // [UAGB1-BH] the vw table now lives only in this branch (small
+    // shapes); the recursed path below runs the row-column split.
     if sched.levels.is_empty() {
+        let vw = agg_value_weights(kf, group, kernels);
         if proof.floor.len() != n0 || !proof.level_us.is_empty() || !proof.ugh0.is_empty() {
             return Err("wire-shape");
         }
@@ -20598,23 +20621,21 @@ fn agg_verify_group(
     if proof.ugh0.len() != KAPPA_AGG || proof.level_us.len() != sched.levels.len() - 1 {
         return Err("wire-shape");
     }
-    // H_0 and Phi_0.
+    // H_0 (from the wire claim rows).
     let mut h_cur = poly_zero();
     for (a, b) in alphas0.iter().zip(proof.b_rows.iter()) {
         h_cur = poly_add(zq, &h_cur, &ring_mul_split_kara_fast(ctxr, a, b));
     }
-    let mut phi_cur: Vec<Poly> = Vec::with_capacity(n0);
-    for u in 0..n0 {
-        let bp = agg_bpolys(kf, group, &vw, u);
-        let mut acc = poly_zero();
-        for (a, b) in alphas0.iter().zip(bp.iter()) {
-            acc = poly_add(zq, &acc, &ring_mul_split_kara_fast(ctxr, a, b));
-        }
-        phi_cur.push(acc);
-    }
-    drop(vw);
     ring::eval_proof::absorb_polys(tr, &format!("agg-ugh0-{}", group.name), &proof.ugh0);
     let (c0, _) = agg_draw_cs(tr, &format!("agg-c0-{}", group.name), plan0.r);
+    // [UAGB1-BH] the row-column split: Phi_0 (n_0 rings) is consumed
+    // ONLY through Psi_0; compute Psi_0 factored (bit-identical to
+    // compute_psi(Phi_0, chunk_0, c_0) — differential battery) and
+    // never materialize Phi_0 or the N-value weight table.
+    let psi0 = ring::eval_proof::psi_level0_factored(
+        ctxr, kf, group, kernels, &alphas0, &c0, plan0.chunk,
+    );
+    let mut phi_cur: Vec<Poly> = Vec::new();
     let mut prev_a_mat = expand_level_matrix(seed, group.name, 0, "A", KAPPA_AGG, plan0.chunk, q);
     let mut prev_bindings_data: Vec<(Vec<Poly>, usize, usize, Vec<Poly>)> = vec![
         (
@@ -20641,10 +20662,19 @@ fn agg_verify_group(
                 .iter()
                 .map(|(bm, cb, cl, u)| OuterBinding { b_mat: bm, col_base: *cb, cols: *cl, u })
                 .collect();
-            transport_level(
-                ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings, &prev_c,
-                &alphas,
-            )
+            // [UAGB1-BH] level 1 consumes the factored Psi_0 directly;
+            // deeper levels transport the (small) materialized phi.
+            if li == 1 {
+                transport_level_from_psi(
+                    ctxr, &psi0, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings,
+                    &prev_c, &alphas,
+                )
+            } else {
+                transport_level(
+                    ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings,
+                    &prev_c, &alphas,
+                )
+            }
         };
         phi_cur = lt.phi_next;
         h_cur = lt.h_next;
@@ -20679,6 +20709,14 @@ fn agg_verify_group(
     if proof.floor.len() != layout.n_total || proof.floor.len() != sched.floor_rings {
         return Err("wire-shape");
     }
+    // [UAGB1-BH] the floor L1 Psi: for one-level schedules this IS
+    // Psi_0 (same plan/challenges — the factored object); deeper
+    // schedules fold the small transported phi as before.
+    let psi_floor = if sched.levels.len() == 1 {
+        psi0
+    } else {
+        compute_psi(ctxr, &phi_cur, plan_last.chunk, &prev_c)
+    };
     // ---- Tier-Z masked branch: the sigma-protocol floor. ----
     if let Some(tz) = tier_z {
         let coords = proof.floor.len() * D;
@@ -20703,7 +20741,7 @@ fn agg_verify_group(
         // Family values on the response; targets in family order.
         let vals = agg_floor_family_values(
             ctxr, &tz.response, plan_last, &layout, &prev_bindings_data, &prev_a_mat, &prev_c,
-            &phi_cur,
+            &psi_floor,
         );
         let mut targets: Vec<Poly> = Vec::with_capacity(n_fams);
         for (_, _, _, u) in &prev_bindings_data {
@@ -20783,7 +20821,7 @@ fn agg_verify_group(
         return Err("floor-target");
     }
     // L1: sum_src Psi_src * rec_z(src) = sum_pairs cpair_p * rec_h(p).
-    let psi = compute_psi(ctxr, &phi_cur, plan_last.chunk, &prev_c);
+    let psi = psi_floor; // [UAGB1-BH] computed above (factored at L = 1)
     let mut lhs = poly_zero();
     for (p, zs) in psi.iter().zip(z_rec.iter()) {
         lhs = poly_add(zq, &lhs, &ring_mul_split_kara_fast(ctxr, p, &poly_from_small(zq, zs)));
@@ -21200,7 +21238,10 @@ struct TierZFloor {
 /// family VALUES on an arbitrary floor-shaped vector (mod-q polys).
 /// Family order: per binding kappa T5 rows, kappa T4 rows
 /// (A z - sum c t), T1 (sum diag h), L1-LHS (sum Psi rec_z - sum
-/// cpair rec_h — target 0 form).
+/// cpair rec_h — target 0 form). [UAGB1-BH] takes the last level's
+/// Psi directly (callers hold it — the verifier's factored Psi_0 at
+/// L = 1, and the Tier-Z prover computes it once per group instead
+/// of once per restart attempt; values unchanged).
 #[allow(clippy::too_many_arguments)]
 fn agg_floor_family_values(
     ctxr: &RingCtx,
@@ -21210,11 +21251,9 @@ fn agg_floor_family_values(
     bindings: &[(Vec<Poly>, usize, usize, Vec<Poly>)],
     a_mat: &[Poly],
     cs: &[Vec<i64>],
-    phi: &[Poly],
+    psi: &[Poly],
 ) -> Vec<Poly> {
-    use ring::eval_proof::{
-        compute_cpairs, compute_psi, matvec_modq_small, recompose_rings, KAPPA_AGG,
-    };
+    use ring::eval_proof::{compute_cpairs, matvec_modq_small, recompose_rings, KAPPA_AGG};
     let zq = &ctxr.zq;
     let mut out = Vec::new();
     // T5 per binding.
@@ -21267,7 +21306,7 @@ fn agg_floor_family_values(
     }
     out.push(poly_from_small(zq, &t1));
     // L1 (target-0 form): sum Psi rec_z - sum cpair rec_h.
-    let psi = compute_psi(ctxr, phi, plan_last.chunk, cs);
+    assert_eq!(psi.len(), plan_last.chunk);
     let mut l1 = poly_zero();
     for (p, zs) in psi.iter().zip(z_rec.iter()) {
         l1 = poly_add(zq, &l1, &ring_mul_split_kara_fast(ctxr, p, &poly_from_small(zq, zs)));
@@ -21301,6 +21340,10 @@ fn agg_tier_z_mask_floor(
     let coords = w_floor.len() * D;
     let sigma = ring::eval_proof::tier_z_sigma(coords);
     let bound = ring::eval_proof::tier_z_response_bound(coords);
+    // [UAGB1-BH] the last level's Psi is challenge-fixed at this
+    // point — compute it once, not once per restart attempt (values
+    // identical; the L1 family consumes psi only).
+    let psi = ring::eval_proof::compute_psi(ctxr, phi, plan_last.chunk, cs);
     // FS-with-aborts: the challenge derives from (pre-mask transcript
     // state, images); failed attempts never touch the transcript.
     let pre_state = tr.state();
@@ -21312,7 +21355,7 @@ fn agg_tier_z_mask_floor(
             (0..w_floor.len()).map(|_| gaussian_ivec(rng, D, sigma as u64)).collect();
         // Mask images of every family (sent BEFORE the challenge).
         let images =
-            agg_floor_family_values(ctxr, &y, plan_last, layout, bindings, a_mat, cs, phi);
+            agg_floor_family_values(ctxr, &y, plan_last, layout, bindings, a_mat, cs, &psi);
         let st = uk8_sha(&[b"agg-tz", group_name.as_bytes(), &pre_state, &polys_bytes(&images)]);
         let (c_fl, _) = ring::eval_proof::draw_quinary_capped(&st, "agg-tz-c", 0);
         // Response z' = y + c_fl (x) w.
@@ -25884,4 +25927,447 @@ fn bf_layer_run(
         );
     }
     (verdict, cost)
+}
+
+// ===========================================================================
+// [UAGB1-BH] U-AG-B1 wave 3 lane BH: VERIFIER PERFORMANCE.
+//
+// (1) The Greyhound row-column split of the eval-proof claim kernel
+//     (PARAMS 2.2/5.3): ring/eval_proof.rs `psi_level0_factored` +
+//     `transport_level_from_psi`, consumed by agg_verify_group's
+//     recursed path (marked [UAGB1-BH] edits there). The verifier no
+//     longer materializes Phi_0 (n_0 ring elements) or the N-value
+//     weight table; Psi_0 — the single Phi_0-derived object the
+//     transported chain needs — is assembled from the rank-1 kernel
+//     factors. Exact mod-q identity => bit-identical transcripts and
+//     verdicts; asserted by the differential legs below and by BD's
+//     agg-matmul battery re-running green on the new verifier.
+// (2) BF-F3: the gkr_masked witness-tree capacity lift — the split
+//     fill (capacity n - 8, `witness_leaf_positions`), bit-identical
+//     below the historical 2^(d-1)-4 cap; measured dw 22 -> 21 at the
+//     2^20-element pass shape.
+//
+// Subcommands: `bh-verifier battery` (differential + BF-F3 legs),
+// `bh-verifier kernel [rows inner cols]` (reference-vs-factored Psi_0
+// timing + equality at a full shape), `bh-verifier gkr [log2_els]`
+// (the BF-F3 tree-work measurement).
+
+/// Deterministic battery kernels for a group (transcript-independent
+/// random K material — the claim-kernel algebra is kernel-agnostic).
+fn bh_random_kernels(
+    kf: &ring::kfield::KField,
+    group: &ring::eval_proof::AggGroup,
+    seed: u64,
+) -> Vec<ring::eval_proof::TensorClaimKernel> {
+    group
+        .tensors
+        .iter()
+        .enumerate()
+        .map(|(ti, t)| {
+            let mut rd = XofReader::new(
+                "bh-kernels",
+                &[&seed.to_le_bytes(), group.name.as_bytes(), &(ti as u64).to_le_bytes()],
+            );
+            ring::eval_proof::TensorClaimKernel {
+                tensor_idx: ti,
+                row_kernel: (0..t.rows).map(|_| kf.uniform(&mut rd)).collect(),
+                col_kernel: (0..t.cols).map(|_| kf.uniform(&mut rd)).collect(),
+            }
+        })
+        .collect()
+}
+
+/// The VERBATIM wave-2 verifier claim-kernel pipeline (the removed
+/// code, kept as the differential oracle): N-value weight table ->
+/// per-ring bpolys -> Phi_0 -> compute_psi.
+fn bh_psi_reference(
+    ctxr: &RingCtx,
+    kf: &ring::kfield::KField,
+    group: &ring::eval_proof::AggGroup,
+    kernels: &[ring::eval_proof::TensorClaimKernel],
+    alphas: &[Poly],
+    cs: &[Vec<i64>],
+    chunk: usize,
+) -> (Vec<Poly>, Vec<Poly>) {
+    let zq = &ctxr.zq;
+    let vw = agg_value_weights(kf, group, kernels);
+    let mut phi = Vec::with_capacity(group.n_digit_rings);
+    for u in 0..group.n_digit_rings {
+        let bp = agg_bpolys(kf, group, &vw, u);
+        let mut acc = poly_zero();
+        for (a, b) in alphas.iter().zip(bp.iter()) {
+            acc = poly_add(zq, &acc, &ring_mul_split_kara_fast(ctxr, a, b));
+        }
+        phi.push(acc);
+    }
+    let psi = ring::eval_proof::compute_psi(ctxr, &phi, chunk, cs);
+    (phi, psi)
+}
+
+/// One differential leg: factored Psi_0 == the wave-2 reference,
+/// coefficient-for-coefficient, on both W-C groups of a shape.
+fn bh_psi_leg(rows: usize, inner: usize, cols: usize, force_levels: Option<usize>, seed: u64) {
+    use ring::eval_proof::{plan_schedule, psi_level0_factored};
+    use ring::kfield::{KField, K_DEG};
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let q = ctxr.zq.q;
+    let (gw, ga, _) = agg_build_groups(rows, inner, cols);
+    let mut st = [0u8; 32];
+    st[..8].copy_from_slice(&seed.to_le_bytes());
+    for (g, e0) in [(&gw, 1u32), (&ga, 2u32)] {
+        let sched = plan_schedule(g.n_digit_rings, e0, q, force_levels);
+        assert!(!sched.levels.is_empty(), "differential leg needs a recursed schedule");
+        let plan0 = &sched.levels[0];
+        let kernels = bh_random_kernels(&kf, g, seed);
+        let alphas: Vec<Poly> =
+            (0..K_DEG).map(|i| ring::eval_proof::draw_alpha(&st, "bh-alpha", i as u64, q)).collect();
+        let cs: Vec<Vec<i64>> = (0..plan0.r)
+            .map(|j| ring::eval_proof::draw_quinary_capped(&st, "bh-c", j as u64).0)
+            .collect();
+        let (phi_ref, psi_ref) =
+            bh_psi_reference(&ctxr, &kf, g, &kernels, &alphas, &cs, plan0.chunk);
+        let psi_fac =
+            psi_level0_factored(&ctxr, &kf, g, &kernels, &alphas, &cs, plan0.chunk);
+        let aligned = g.tensors.iter().all(|t| t.cols % D == 0);
+        assert_true(
+            &format!(
+                "psi differential [{}x{}x{} {}]: factored == wave-2 reference (n0 {}, chunk {}, r {}, {})",
+                rows, inner, cols, g.name, g.n_digit_rings, plan0.chunk, plan0.r,
+                if aligned { "aligned" } else { "MISALIGNED cols -> generic branch" }
+            ),
+            psi_fac == psi_ref,
+        );
+        // The library's per-ring reference oracle ties to the bin
+        // pipeline too (small groups only — it is O(n0 * D) K-mults).
+        if g.n_digit_rings <= 4_096 {
+            let phi_lib = ring::eval_proof::phi0_reference(&ctxr, &kf, g, &kernels, &alphas);
+            assert_true(
+                &format!("phi0 oracle [{}]: library per-ring == bin vw pipeline", g.name),
+                phi_lib == phi_ref,
+            );
+        }
+    }
+}
+
+/// BF-F3 battery: the split fill's layout identity below the cap, the
+/// beyond-cap honest/tamper legs at depth 6, and the capacity gates.
+fn bh_gkr_legs() {
+    use ring::gkr_masked::{
+        blinded_witness_tree, blinder_positions, draw_masks, install_blinders,
+        masked_gkr_prove, masked_gkr_verify, witness_leaf_positions, BlinderSet,
+    };
+    use ring::gkr::eq_table;
+    use ring::kfield::KField;
+    use ring::sumcheck::LkpTranscript;
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    // (i) Below the cap the map is the identity (the historical layout).
+    for (w, dp) in [(28usize, 6usize), (100, 8), (2044, 12)] {
+        let n = 1usize << dp;
+        assert!(w <= n / 2 - 4);
+        let pos = witness_leaf_positions(w, n);
+        assert_true(
+            &format!("BF-F3 layout identity below the cap (w = {w}, depth {dp})"),
+            pos.iter().enumerate().all(|(j, &p)| p == j),
+        );
+    }
+    // (ii) Below the cap the LEAF VECTORS equal the historical fill
+    // (build_tree is deterministic in its leaves, so tree identity
+    // follows; roots compared as a sanity face).
+    {
+        let mut rng = ring::ProverRng::from_test_seed("bh-gkr-id", b"leg2");
+        let mut rd = XofReader::new("bh-gkr-alpha", &[b"leg2"]);
+        let alpha = kf.uniform(&mut rd);
+        let dp = 8usize;
+        let n = 1usize << dp;
+        let w: Vec<ring::kfield::KElem> = (0..100).map(|_| kf.uniform(&mut rd)).collect();
+        let bl = BlinderSet::draw(&kf, &mut rng);
+        // Historical fill (the pre-wave-3 body, inline).
+        let (mut p_old, mut q_old) = (vec![kf.zero(); n], vec![kf.one(); n]);
+        for (i, wv) in w.iter().enumerate() {
+            p_old[i] = kf.one();
+            q_old[i] = kf.sub(&alpha, wv);
+        }
+        install_blinders(&kf, &mut p_old, &mut q_old, &bl);
+        // Split fill via the public map.
+        let pos = witness_leaf_positions(w.len(), n);
+        let (mut p_new, mut q_new) = (vec![kf.zero(); n], vec![kf.one(); n]);
+        for (wv, &i) in w.iter().zip(pos.iter()) {
+            p_new[i] = kf.one();
+            q_new[i] = kf.sub(&alpha, wv);
+        }
+        install_blinders(&kf, &mut p_new, &mut q_new, &bl);
+        assert_true(
+            "BF-F3 leaf vectors below the cap == historical fill (bit-identical trees follow)",
+            p_old == p_new && q_old == q_new,
+        );
+        let t_old = ring::gkr::build_tree(&kf, p_old, q_old);
+        let t_new = blinded_witness_tree(&kf, &alpha, &w, dp, &bl);
+        assert_true("BF-F3 roots below the cap unchanged", t_old.root() == t_new.root());
+    }
+    // (iii) Beyond the cap: honest end-to-end masked descent at depth
+    // 6 with w = 40 > 28 = the historical cap; leaf claims checked
+    // against the SPLIT layout (the house pin-modelling convention).
+    let dp = 6usize;
+    let n = 1usize << dp;
+    let w_len = 40usize;
+    let run = |w: &[ring::kfield::KElem],
+               pin_positions: &[usize],
+               pin_w: &[ring::kfield::KElem],
+               alpha: &ring::kfield::KElem,
+               bl: &BlinderSet,
+               seed: &[u8]|
+     -> (bool, bool, bool) {
+        let mut rng = ring::ProverRng::from_test_seed("bh-gkr-e2e", seed);
+        let masks = draw_masks(&kf, &mut rng, dp, 0);
+        let tree = blinded_witness_tree(&kf, alpha, w, dp, bl);
+        let root = tree.root();
+        let mut tr = LkpTranscript::new("bh-gkr", seed);
+        let (proof, end) = masked_gkr_prove(&kf, &[tree], masks, &mut tr);
+        let mut rng2 = ring::ProverRng::from_test_seed("bh-gkr-e2e", seed);
+        let masks2 = draw_masks(&kf, &mut rng2, dp, 0);
+        let mut tv = LkpTranscript::new("bh-gkr", seed);
+        let Some((roots, endv)) = masked_gkr_verify(&kf, 1, dp, &masks2, &proof, &mut tv, true)
+        else {
+            return (false, false, false);
+        };
+        let roots_ok = roots.len() == 1 && roots[0] == root;
+        // The aggregate leaf-pin model: p*/q* are the true leaf MLEs;
+        // the committed-column side is rebuilt from (pin_w at
+        // pin_positions, blinders, dummies) — the verifier's view.
+        let lw = eq_table(&kf, &endv.zstar);
+        let blp = blinder_positions(n);
+        let hw = pin_positions.iter().fold(kf.zero(), |a, &p| kf.add(&a, &lw[p]));
+        let wsum = pin_positions
+            .iter()
+            .zip(pin_w.iter())
+            .fold(kf.zero(), |a, (&p, wv)| kf.add(&a, &kf.mul(&lw[p], wv)));
+        let bl_items = [&bl.tl, &bl.tr, &bl.f0, &bl.f1];
+        let asum = blp
+            .iter()
+            .zip(bl_items.iter())
+            .fold(kf.zero(), |a, (&p, b)| kf.add(&a, &kf.mul(&lw[p], &b.a)));
+        let usum = blp
+            .iter()
+            .zip(bl_items.iter())
+            .fold(kf.zero(), |a, (&p, b)| kf.add(&a, &kf.mul(&lw[p], &b.u)));
+        let sum_eqbl = blp.iter().fold(kf.zero(), |a, &p| kf.add(&a, &lw[p]));
+        let p_want = kf.add(&hw, &asum);
+        let dummies = kf.sub(&kf.sub(&kf.sub(&kf.one(), &hw), &sum_eqbl), &kf.zero());
+        let q_want = kf.add(
+            &kf.add(&kf.sub(&kf.mul(alpha, &hw), &wsum), &usum),
+            &dummies,
+        );
+        (true, roots_ok, endv.p_claim == p_want && endv.q_claim == q_want)
+    };
+    let mut rd = XofReader::new("bh-gkr-alpha", &[b"leg3"]);
+    let alpha = kf.uniform(&mut rd);
+    let w: Vec<ring::kfield::KElem> = (0..w_len).map(|_| kf.uniform(&mut rd)).collect();
+    let mut rng = ring::ProverRng::from_test_seed("bh-gkr-bl", b"leg3");
+    let bl = BlinderSet::draw(&kf, &mut rng);
+    let pos = witness_leaf_positions(w_len, n);
+    assert_true(
+        &format!(
+            "BF-F3 beyond-cap positions valid (w = {w_len} > cap 28 at depth 6; right block at n/2)"
+        ),
+        pos[27] == 27 && pos[28] == 32 && pos.iter().all(|p| !blinder_positions(n).contains(p)),
+    );
+    let (ok, roots_ok, pins_ok) = run(&w, &pos, &w, &alpha, &bl, b"honest");
+    assert_true(
+        "BF-F3 beyond-cap HONEST: masked descent verifies, derived roots match, leaf P/Q pins \
+         match the split layout",
+        ok && roots_ok && pins_ok,
+    );
+    // Tamper: one honest value in the RIGHT block changed — the leaf
+    // Q pin against the true committed column must reject.
+    let mut w_bad = w.clone();
+    w_bad[35] = kf.add(&w_bad[35], &kf.one());
+    let (ok, roots_ok, pins_ok) = run(&w_bad, &pos, &w, &alpha, &bl, b"tamper");
+    assert_true(
+        "BF-F3 beyond-cap TAMPER (right-block leaf): descent self-consistent but the leaf pin \
+         REJECTS against the true column",
+        ok && roots_ok && !pins_ok,
+    );
+    // Wrong map: pins computed as if the fill were contiguous — the
+    // position map is load-bearing.
+    let wrong_pos: Vec<usize> = (0..w_len).collect();
+    let (ok, _roots_ok, pins_ok) = run(&w, &wrong_pos, &w, &alpha, &bl, b"wrongmap");
+    assert_true(
+        "BF-F3 beyond-cap WRONG MAP (contiguous assumption): leaf pins REJECT — the split map \
+         is load-bearing",
+        ok && !pins_ok,
+    );
+    // (iv) Capacity gates + frozen blinder positions.
+    {
+        let n = 64usize;
+        let pos = witness_leaf_positions(n - 8, n);
+        let blp = blinder_positions(n);
+        let mut seen = vec![false; n];
+        let all_ok = pos.iter().all(|&p| {
+            let fresh = p < n && !seen[p] && !blp.contains(&p);
+            if p < n {
+                seen[p] = true;
+            }
+            fresh
+        });
+        assert_true(
+            "BF-F3 capacity n - 8: all positions distinct, in range, off the blinder slots",
+            all_ok && pos.len() == n - 8,
+        );
+        assert_true(
+            "BF-F3 blinder positions UNCHANGED (LKP-6 layout: [28, 60, 30, 61] at n = 64)",
+            blp == [28, 60, 30, 61],
+        );
+    }
+}
+
+/// `bh-verifier battery`: the lane's differential + BF-F3 legs.
+fn uagb1_bh_battery() {
+    println!("\n[UAGB1-BH] verifier-performance battery");
+    let t = Instant::now();
+    // D1 differential legs: aligned multi-tensor (mixed l0 5/13),
+    // forced-depth variants, and the misaligned-cols generic branch.
+    bh_psi_leg(128, 768, 256, Some(2), 0xB1B_0001);
+    bh_psi_leg(128, 768, 256, Some(1), 0xB1B_0002);
+    bh_psi_leg(64, 96, 128, Some(1), 0xB1B_0003); // A cols = 96: generic branch
+    // D1 end-to-end: the recursed runner honest + sharpest tamper at a
+    // battery shape (the full 23-leg battery is `agg-matmul battery`,
+    // re-run green at this HEAD — deliverable 3).
+    let (v, _) = uagb1_agg_run(128, 768, 256, AggTamper::None, false, Some(2), 0xB1_3004, true);
+    assert_true("row-column verifier: honest ACCEPT at 128x768x256 (2 levels)", v.accept());
+    let (v, _) = uagb1_agg_run(128, 768, 256, AggTamper::OoaFloor, false, Some(2), 0xB1_3007, true);
+    assert_true(
+        "row-column verifier: OOA floor pair still caught by the alphabet gate ONLY",
+        !v.accept() && v.first_fail == Some("floor-alphabet"),
+    );
+    // D2 legs.
+    bh_gkr_legs();
+    println!("\n[UAGB1-BH] battery passed in {:.2}s", t.elapsed().as_secs_f64());
+}
+
+/// `bh-verifier kernel [rows inner cols]`: the claim-kernel phase in
+/// isolation at a full shape — wave-2 reference vs the row-column
+/// split, timed, with the exact-equality assertion. [MAC-BOX].
+fn uagb1_bh_kernel_bench(rows: usize, inner: usize, cols: usize) {
+    use ring::eval_proof::{plan_schedule, psi_level0_factored};
+    use ring::kfield::{KField, K_DEG};
+    println!(
+        "[UAGB1-BH] claim-kernel phase at {rows}x{inner}x{cols}: wave-2 reference (N-value \
+         K-mult table + Phi_0 at n0 x 16 ring-mults + fold) vs the row-column split \
+         [MAC-BOX, non-reference]"
+    );
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let q = ctxr.zq.q;
+    let (gw, ga, _) = agg_build_groups(rows, inner, cols);
+    let mut st = [0u8; 32];
+    st[..8].copy_from_slice(&0xB1B_0010u64.to_le_bytes());
+    for (g, e0) in [(&gw, 1u32), (&ga, 2u32)] {
+        let sched = plan_schedule(g.n_digit_rings, e0, q, None);
+        assert!(!sched.levels.is_empty());
+        let plan0 = &sched.levels[0];
+        let kernels = bh_random_kernels(&kf, g, 0xB1B_0010);
+        let alphas: Vec<Poly> =
+            (0..K_DEG).map(|i| ring::eval_proof::draw_alpha(&st, "bh-alpha", i as u64, q)).collect();
+        let cs: Vec<Vec<i64>> = (0..plan0.r)
+            .map(|j| ring::eval_proof::draw_quinary_capped(&st, "bh-c", j as u64).0)
+            .collect();
+        let t0 = Instant::now();
+        let (_phi, psi_ref) = bh_psi_reference(&ctxr, &kf, g, &kernels, &alphas, &cs, plan0.chunk);
+        let t_ref = t0.elapsed().as_secs_f64();
+        let t1 = Instant::now();
+        let psi_fac = psi_level0_factored(&ctxr, &kf, g, &kernels, &alphas, &cs, plan0.chunk);
+        let t_fac = t1.elapsed().as_secs_f64();
+        assert!(psi_fac == psi_ref, "kernel-phase differential MUST be exact");
+        println!(
+            "  [{}] n0 {} digit rings (chunk {}, r {}): reference {:.3}s -> factored {:.3}s \
+             ({:.1}x) | psi EXACT-EQUAL",
+            g.name,
+            g.n_digit_rings,
+            plan0.chunk,
+            plan0.r,
+            t_ref,
+            t_fac,
+            t_ref / t_fac.max(1e-9),
+        );
+    }
+}
+
+/// `bh-verifier gkr [log2_els]`: the BF-F3 measurement — one masked
+/// witness descent at 2^log2 fused elements, historical padded depth
+/// vs the split depth. [MAC-BOX].
+fn uagb1_bh_gkr_bench(log2_els: usize) {
+    use ring::gkr_masked::{
+        blinded_witness_tree, draw_masks, masked_gkr_prove, masked_gkr_verify,
+        masked_transcript_totals, BlinderSet,
+    };
+    use ring::kfield::KField;
+    use ring::sumcheck::LkpTranscript;
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let n_els = 1usize << log2_els;
+    let mut dw_old = 4usize;
+    while (1usize << (dw_old - 1)) - 4 < n_els {
+        dw_old += 1;
+    }
+    let mut dw_new = 4usize;
+    while (1usize << dw_new) - 8 < n_els {
+        dw_new += 1;
+    }
+    println!(
+        "[UAGB1-BH] BF-F3 measurement: masked witness descent at 2^{log2_els} fused elements \
+         [MAC-BOX, non-reference]\n  historical capacity 2^(d-1)-4 -> depth {dw_old}; split \
+         capacity n-8 -> depth {dw_new}"
+    );
+    let mut rd = XofReader::new("bh-gkr-bench", &[&(log2_els as u64).to_le_bytes()]);
+    let alpha = kf.uniform(&mut rd);
+    let w: Vec<ring::kfield::KElem> =
+        (0..n_els).map(|i| kf.embed((i as u64 * 2_654_435_761 + 13) % Q8)).collect();
+    let mut results: Vec<(usize, f64, f64, f64)> = Vec::new();
+    for dw in [dw_old, dw_new] {
+        let mut rng = ring::ProverRng::from_test_seed("bh-gkr-bench", &(dw as u64).to_le_bytes());
+        let bl = BlinderSet::draw(&kf, &mut rng);
+        let masks = draw_masks(&kf, &mut rng, dw, 0);
+        let t0 = Instant::now();
+        let tree = blinded_witness_tree(&kf, &alpha, &w, dw, &bl);
+        let t_tree = t0.elapsed().as_secs_f64();
+        let mut tr = LkpTranscript::new("bh-gkr-bench", &(dw as u64).to_le_bytes());
+        let t1 = Instant::now();
+        let (proof, _end) = masked_gkr_prove(&kf, &[tree], masks, &mut tr);
+        let t_prove = t1.elapsed().as_secs_f64();
+        let mut rng2 = ring::ProverRng::from_test_seed("bh-gkr-bench", &(dw as u64).to_le_bytes());
+        let _bl2 = BlinderSet::draw(&kf, &mut rng2);
+        let masks2 = draw_masks(&kf, &mut rng2, dw, 0);
+        let mut tv = LkpTranscript::new("bh-gkr-bench", &(dw as u64).to_le_bytes());
+        let t2 = Instant::now();
+        let vres = masked_gkr_verify(&kf, 1, dw, &masks2, &proof, &mut tv, true);
+        let t_verify = t2.elapsed().as_secs_f64();
+        assert!(vres.is_some(), "bench descent must verify");
+        let (_, kel) = masked_transcript_totals(dw, 0, 1);
+        println!(
+            "  depth {dw}: tree {t_tree:.2}s prove {t_prove:.2}s verify {t_verify:.3}s | \
+             witness-side transcript {kel} K-el = {} B",
+            kel * 64
+        );
+        results.push((dw, t_tree, t_prove, t_verify));
+    }
+    let (a, b) = (&results[0], &results[1]);
+    let (_, kel9) = masked_transcript_totals(9, 0, 1);
+    let (_, kel_old) = masked_transcript_totals(a.0, 0, 1);
+    let (_, kel_new) = masked_transcript_totals(b.0, 0, 1);
+    println!(
+        "\n  TREE-WORK RATIO depth {} -> {}: tree {:.2}x, prove {:.2}x, tree+prove {:.2}x\n  \
+         pair transcript (with the dt = 9 table side): {} -> {} K-el ({} -> {} B, -{} B)",
+        a.0,
+        b.0,
+        a.1 / b.1.max(1e-9),
+        a.2 / b.2.max(1e-9),
+        (a.1 + a.2) / (b.1 + b.2).max(1e-9),
+        kel_old + kel9,
+        kel_new + kel9,
+        (kel_old + kel9) * 64,
+        (kel_new + kel9) * 64,
+        (kel_old - kel_new) * 64,
+    );
 }
