@@ -5055,6 +5055,7 @@ fn freeze_check() {
     all_ok &= freeze_check_uagb1_d2();
     all_ok &= freeze_check_uagb1_bd();
     all_ok &= freeze_check_uagb1_be();
+    all_ok &= freeze_check_uagb1_bf();
 
     if all_ok {
         println!("freeze-check passed");
@@ -6259,7 +6260,7 @@ fn self_test_pi2_ce() {
 }
 
 fn usage() {
-    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory | uagb1-digit-battery | matmul-statement [battery | <rows> <inner> <cols>] | statement-125m | agg-matmul [battery | <rows> <inner> <cols>] | agg-kel [dw ..] | ixf-fold [battery | norm | bytes | matmul <layers> <rows> <inner> <cols> | zerocheck <layers> <rows> <cols>]");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory | uagb1-digit-battery | matmul-statement [battery | <rows> <inner> <cols>] | statement-125m | agg-matmul [battery | <rows> <inner> <cols>] | agg-kel [dw ..] | ixf-fold [battery | norm | bytes | matmul <layers> <rows> <inner> <cols> | zerocheck <layers> <rows> <cols>] | m125-pass <v4-battery|digests|statement|prove <layer>|battery [small|smoke]>");
     eprintln!();
     eprintln!("  ffn-chain [n_blocks | battery] is the LEGACY q46 block chain: its range");
     eprintln!("  grounding uses the ARP legacy range arm (rejection clipping ~2^-4.75 at");
@@ -6382,6 +6383,10 @@ fn main() {
             println!("\n[UAGB1-D1] battery passed in {:.2}s", t.elapsed().as_secs_f64());
         }
         Some("statement-125m") => uagb1_statement_125m(),
+        // [UAGB1-BF] the 12-layer 125M P0 pass on real ckpt-00009536
+        // weights: `m125-pass v4-battery | statement | prove <layer..> |
+        // battery [small]` — see the [UAGB1-BF] section.
+        Some("m125-pass") => m125_pass_main(&args[1..]),
         Some("matmul-statement") => {
             // `matmul-statement battery` = the adversarial battery at
             // 128x768x256; `matmul-statement <rows> <inner> <cols>` =
@@ -23888,4 +23893,1995 @@ fn freeze_check_uagb1_be() -> bool {
             && n_limb_rings(&act125, 2) == n_limb_rings(&act125, 2),
     );
     all_ok
+}
+
+// ===========================================================================
+// [UAGB1-BF] U-AG-B1 lane BF (wave 2, integration): per-scale SiLU table
+// family freeze rows (D1), the manifest v4 typing pins (D2), and the
+// 12-layer 125M P0 pass on real ckpt-00009536 weights (D3). Lane brief:
+// PROGRESS_UAGB1.md "Agent BF status"; report doc M125_PASS_REPORT.md.
+
+/// UAGB1-BF freeze rows: the silu-int8-table-v2 family constants (both
+/// directions) and the v3-digest-stability pins for the D2 codec change.
+fn freeze_check_uagb1_bf() -> bool {
+    use ring::lookup::{
+        SILU_INT8_OUTPUTS, SILU_INT8_TABLE_DIGEST, SILU_V2_M3_DIGEST, SILU_V2_M3_OUTPUTS,
+        SILU_V2_M4_DIGEST, SILU_V2_MEMBERS, silu_v2_generate, silu_v2_member, silu_v2_rows,
+        table_spec_digest, table_spec_digest_v2,
+    };
+    let mut all_ok = true;
+    let mut gate = |label: &str, ok: bool| {
+        println!("  {} {label}", if ok { "ok  " } else { "FAIL" });
+        all_ok &= ok;
+    };
+
+    // UAGB1-BF-1a: deterministic regeneration reproduces the FROZEN bytes
+    // and pinned v2 digests for every family member (platform drift is
+    // loud, the v1/LKP-1 discipline).
+    let mut regen_ok = true;
+    for &(eg, ea) in SILU_V2_MEMBERS.iter() {
+        let regen = silu_v2_generate(eg, ea);
+        let (frozen, dg_pin) = silu_v2_member(eg, ea).expect("frozen member");
+        let dg = table_spec_digest_v2(eg, ea, &silu_v2_rows(&regen));
+        regen_ok &= regen == *frozen && dg == dg_pin;
+    }
+    gate(
+        "UAGB1-BF-1a silu-int8-table-v2 members ((-3,-3), (-4,-4)) regenerate byte-identically; v2 spec digests match the pins",
+        regen_ok,
+    );
+
+    // UAGB1-BF-1b: the family identity — the (-4,-4) member IS the v1
+    // table (bytes), and the v1 spec header + digest are UNMOVED (checked
+    // against both the lookup.rs constant and the manifest copy).
+    let v1_dg = table_spec_digest(&ring::lookup::silu_int8_table());
+    gate(
+        "UAGB1-BF-1b family identity: generate(-4,-4) == SILU_INT8_OUTPUTS; v1 spec digest unmoved (lookup.rs == manifest.rs)",
+        silu_v2_generate(-4, -4) == SILU_INT8_OUTPUTS
+            && v1_dg == SILU_INT8_TABLE_DIGEST
+            && v1_dg == manifest::SILU_INT8_TABLE_DIGEST,
+    );
+
+    // UAGB1-BF-1c: the wrong-member direction — digests separate the
+    // members from each other and from the v1 header (a statement cannot
+    // silently swap tables or header versions), and non-frozen exponent
+    // pairs are refused.
+    gate(
+        "UAGB1-BF-1c member separation: m3 != m4 != v1 digests; non-frozen pair (-2,-2) refused",
+        SILU_V2_M3_DIGEST != SILU_V2_M4_DIGEST
+            && SILU_V2_M3_DIGEST != SILU_INT8_TABLE_DIGEST
+            && SILU_V2_M4_DIGEST != SILU_INT8_TABLE_DIGEST
+            && silu_v2_member(-2, -2).is_none(),
+    );
+
+    // UAGB1-BF-1d: totality without clamping — on both frozen members the
+    // raw rounded value already lies in [-127, 127] (the clamp in the
+    // spec declares totality; it never fires), and the m3 output range is
+    // the recorded [-2, 127].
+    let mut clamp_ok = true;
+    for &(eg, ea) in SILU_V2_MEMBERS.iter() {
+        for g in -128i32..=127 {
+            let x = g as f64 * (eg as f64).exp2();
+            let y = x / (1.0 + (-x).exp());
+            let v = (y / (ea as f64).exp2() + 0.5).floor();
+            clamp_ok &= (-127.0..=127.0).contains(&v);
+        }
+    }
+    let m3_min = SILU_V2_M3_OUTPUTS.iter().min().copied().unwrap();
+    let m3_max = SILU_V2_M3_OUTPUTS.iter().max().copied().unwrap();
+    gate(
+        "UAGB1-BF-1d clamp never fires on frozen members; m3 output range [-2, 127]",
+        clamp_ok && m3_min == -2 && m3_max == 127,
+    );
+
+    // UAGB1-BF-2a: the manifest-side family digests are COPIES of the
+    // lookup.rs generation (the SILU_INT8_TABLE_DIGEST duplicated-
+    // constant discipline, extended to the family), and the frozen v4
+    // registry carries exactly the three members with the pinned class
+    // table (weight e0 = 1 F-N2; act/acc/rem/aux e0 = 2).
+    gate(
+        "UAGB1-BF-2a manifest family digests == lookup.rs generation; v4 registry = [v1, m3, m4]; class table pins (w8s e0=1, others e0=2)",
+        manifest::SILU_V2_M3_TABLE_DIGEST == SILU_V2_M3_DIGEST
+            && manifest::SILU_V2_M4_TABLE_DIGEST == SILU_V2_M4_DIGEST
+            && manifest::v4_table_registry().len() == 3
+            && manifest::v4_table_registry()[0] == manifest::SILU_INT8_TABLE_SPEC
+            && manifest::V4_CLASS_TABLE
+                .iter()
+                .all(|r| if r.0 == manifest::CLS_W8S { r.1 == 1 } else { r.1 == 2 }),
+    );
+
+    // UAGB1-BF-2b: v3 DIGEST STABILITY under the v4 codec change — the
+    // reference v3 statement's digest and cv1 wire bytes are pinned
+    // (captured at the pre-change baseline; any drift in the v3 path
+    // fails HERE, not in a downstream battery).
+    let v3_ref = manifest::codec_sample_statement();
+    let v3_dg = v3_ref.digest().expect("v3 reference digests");
+    let v3_wire = v3_ref.encode();
+    gate(
+        &format!("UAGB1-BF-2b v3 reference digest pinned f2a5acba.. (got {}); cv1 wire, {} B", hex_prefix(&v3_dg), v3_wire.len()),
+        hex_full(&v3_dg) == "f2a5acbaa52acc255f8def1b9bc710d80f6a926b7e5b644e82ecdd8823e9a3cd"
+            && v3_wire[4..8] == 1u32.to_le_bytes(),
+    );
+
+    // UAGB1-BF-2c: the v4 reference statement digest (reproducibility
+    // pin for the ONE versioned codec change; not a security claim).
+    let v4_dg = manifest::codec_sample_statement_v4().digest().expect("v4 reference digests");
+    gate(
+        &format!("UAGB1-BF-2c v4 reference digest pinned 9f83d3e9.. (got {})", hex_prefix(&v4_dg)),
+        hex_full(&v4_dg) == "9f83d3e9b69d8cb4e5d0fd6765830f119f969f78406839cc3bcb491576103845",
+    );
+
+    all_ok
+}
+
+/// [UAGB1-BF] subcommand dispatch: the manifest-v4 battery, the pass
+/// statement, per-layer proofs and the pass-level tamper battery.
+fn m125_pass_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("v4-battery") => {
+            let t = Instant::now();
+            if !manifest::statement_v4_battery() {
+                std::process::exit(1);
+            }
+            println!("\n[UAGB1-BF] v4 battery passed in {:.2}s", t.elapsed().as_secs_f64());
+        }
+        Some("digests") => {
+            // Reproducibility aid: the pinned reference digests.
+            let v3 = manifest::codec_sample_statement().digest().expect("v3 sample");
+            let v4 = manifest::codec_sample_statement_v4().digest().expect("v4 sample");
+            println!("codec-sample v3 digest {}", hex_full(&v3));
+            println!("codec-sample v4 digest {}", hex_full(&v4));
+        }
+        Some("statement") => m125_pass_statement(),
+        Some("prove") => {
+            let li: usize = args.get(1).map(|s| s.parse().expect("layer")).expect("prove <layer>");
+            assert!(li < 12, "layer in 0..12");
+            m125_pass_prove(li);
+        }
+        Some("battery") => match args.get(1).map(String::as_str) {
+            Some("small") => m125_pass_battery(16, false),
+            // Suite-budget smoke: the honest layer-0 leg only (T=16);
+            // the full tamper battery runs via `battery small`.
+            Some("smoke") => m125_pass_battery(16, true),
+            _ => m125_pass_battery(64, false),
+        },
+        _ => {
+            eprintln!("usage: ring_matmul m125-pass v4-battery | digests | statement | prove <layer> | battery [small]");
+            std::process::exit(2);
+        }
+    }
+}
+
+/// `m125-pass statement`: build + validate + digest the FULL 12-layer
+/// v4 pass statement at T = 512 over the real exports (all commitments
+/// derived; ~30 s).
+fn m125_pass_statement() {
+    let t0 = Instant::now();
+    println!("[UAGB1-BF] the 12-layer 125M P0 pass statement (manifest v4, real ckpt-00009536 exports)");
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    let q = Q8;
+    let crs = expand_crs(shape, q, 0x0BF1);
+    let rp = ring::ct_engine::derive_ct_round_params(q, shape, ur1_c2_max_commits(q, shape), 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+    let path = KernelPath::A1(&a1p);
+    let mut layers = Vec::with_capacity(12);
+    for l in 0..12 {
+        layers.push(bf_load_layer(l, BF_T, false));
+    }
+    let mut all_digests = Vec::with_capacity(12);
+    for lay in &layers {
+        let (digs, _) = bf_commit_entries(lay, BF_T, shape, &crs, &path, false);
+        all_digests.push(digs);
+    }
+    let st = m125_build_statement(BF_T, &layers, &all_digests, &crs.crs_hash);
+    match st.digest() {
+        Ok(dg) => {
+            println!(
+                "  ok   PASS STATEMENT VALIDATES (v4): {} entries, {} operations, {} outputs, tables {}, digest {}",
+                st.manifest.commitments.len(),
+                st.manifest.operations.len(),
+                st.outputs.len(),
+                st.tables.len(),
+                hex_prefix(&dg)
+            );
+            println!(
+                "  serialized statement: {} B (cv2); typed: TRUE signed exponents, 0 surrogate deviations (D3-F1/D3-F2 closed); [-127,127] symmetric X/W; honest 25/26-bit accumulators",
+                st.encode().len()
+            );
+            println!("  built in {:.1}s (12 layers loaded, chains derived + range-asserted, {} commitments digested)",
+                t0.elapsed().as_secs_f64(), 12 * 16384);
+        }
+        Err(e) => {
+            println!("  FAIL pass statement does not validate: {e}");
+            std::process::exit(1);
+        }
+    }
+}
+
+/// `m125-pass prove <layer>`: the full-shape (T = 512) committed layer
+/// proof against the 12-layer pass statement.
+fn m125_pass_prove(li: usize) {
+    println!("[UAGB1-BF] m125 pass PROVE, layer {li}, T = {BF_T} (P0; ctx = the 12-layer pass statement digest)");
+    println!("  [MAC-BOX, non-reference; NOISY-SHARED if sibling lanes run]");
+    let mut layers = Vec::with_capacity(12);
+    for l in 0..12 {
+        layers.push(bf_load_layer(l, BF_T, l == li));
+    }
+    let (v, c) = bf_layer_run(BF_T, &mut layers, li, BfTamper::None, false);
+    m125_report_cost(&c);
+    assert!(v.accept(), "honest layer {li} proof REJECTED");
+    println!("  LAYER {li} PROVEN: accept = true (statement gate, 3 matmul sumchecks, Hadamard sumcheck, 4 requant pins, 8 lookup roots, sum gate, {} waves, closing)", c.n_waves);
+}
+
+fn m125_report_cost(c: &BfCost) {
+    println!("  counted bytes (counted-NOT-serialized; D2 conventions):");
+    println!("    statement (serialized, real)   {:>14}", c.bytes_statement);
+    println!("    commitment tags t1+t2          {:>14}", c.bytes_commit_tags);
+    println!("    sumchecks (3 matmul + had)     {:>14}", c.bytes_sumcheck);
+    println!("    masked descent transcripts x16 {:>14}", c.bytes_descents);
+    println!("    masked share reveals           {:>14}", c.bytes_reveals);
+    println!("    ct-round z responses           {:>14}", c.bytes_ct_z);
+    println!("    ct-round w1 images             {:>14}", c.bytes_ct_w1);
+    println!("    ct-round h + w_claim           {:>14}", c.bytes_ct_other);
+    let total = c.bytes_total();
+    println!("    TOTAL                          {:>14}", total);
+    println!(
+        "  vs Tier N 262,144 B/layer (P0 gate): {:.1}x {} — opening-dominated until the BD aggregation stack lands (reported, not hidden)",
+        total as f64 / 262_144.0,
+        if total <= 262_144 { "UNDER" } else { "OVER" }
+    );
+}
+
+/// `m125-pass battery [small]`: the pass-level tamper battery on REAL
+/// data at a reduced sequence slice (T = 16 small / 64 default; rows of
+/// the true T = 512 chain, so every witness value is real model data).
+fn m125_pass_battery(t: usize, smoke_only: bool) {
+    let t0 = Instant::now();
+    println!("[UAGB1-BF] pass battery at T = {t} on real layer-0/1 data (layer 1 exercises the (-4,-4) family member)");
+    let load = || -> Vec<BfLayer> { (0..2).map(|l| bf_load_layer(l, t, true)).collect() };
+
+    let mut layers = load();
+    let (v, c) = bf_layer_run(t, &mut layers, 0, BfTamper::None, true);
+    assert_true(
+        &format!(
+            "honest layer 0 ACCEPT at T={t} ((-3,-3) member; {} cms, {} waves, {} pins; commit {:.1}s prove {:.1}s verify {:.1}s)",
+            c.n_commits, c.n_waves, c.n_pins, c.commit_s, c.prove_s, c.verify_s
+        ),
+        v.accept(),
+    );
+    if smoke_only {
+        println!("\n[UAGB1-BF] pass smoke passed in {:.1}s (full battery: `m125-pass battery small`)", t0.elapsed().as_secs_f64());
+        return;
+    }
+    let mut layers = load();
+    let (v, _) = bf_layer_run(t, &mut layers, 1, BfTamper::None, true);
+    assert_true("honest layer 1 ACCEPT ((-4,-4) family member — the per-scale table in action)", v.accept());
+
+    let mut layers = load();
+    let (v, _) = bf_layer_run(t, &mut layers, 0, BfTamper::WrongWeight, true);
+    assert_true(
+        "WRONG WEIGHT TENSOR (layer 1's Wg, chain rederived self-consistently) REJECT at the STATEMENT gate — the verifier recomputes the weight commitments from the public model",
+        !v.accept() && !v.statement_ok,
+    );
+    let mut layers = load();
+    let (v, _) = bf_layer_run(t, &mut layers, 0, BfTamper::WrongTable, true);
+    assert_true(
+        &format!(
+            "WRONG TABLE for the layer's exponent ((-4,-4) on an eGate=-3 layer, chain + m + trees self-consistent) REJECT: statement/matmuls/roots green (roots {:?}), the verifier's STATEMENT-table leaf pins fail in the wave rounds (first bad wave {:?})",
+            v.roots_ok, v.first_bad_wave
+        ),
+        !v.accept() && v.statement_ok && v.matmul_ok.iter().all(|&b| b) && v.roots_ok.iter().all(|&b| b) && !(v.sum_gate_ok && v.waves_ok),
+    );
+    let mut layers = load();
+    let (v, _) = bf_layer_run(t, &mut layers, 0, BfTamper::SeamSwap, true);
+    assert_true(
+        &format!(
+            "CROSS-LAYER SEAM (layer 1's g8 under layer 0's entry, statement self-consistent) REJECT: the requant + lookup pins tie g8 to Gacc/a8 (statement ok {}, first bad wave {:?})",
+            v.statement_ok, v.first_bad_wave
+        ),
+        !v.accept() && v.statement_ok,
+    );
+    let mut layers = load();
+    let (v, _) = bf_layer_run(t, &mut layers, 0, BfTamper::RangeViolation, true);
+    assert_true(
+        &format!(
+            "RANGE VIOLATION (rd pushed past 2^shift with the requant identity preserved) REJECT at the rd range instance's root cross-check ONLY (roots {:?}; every other gate green)",
+            v.roots_ok
+        ),
+        !v.accept()
+            && v.statement_ok
+            && v.roots_ok[6] == false
+            && v.roots_ok.iter().enumerate().all(|(i, &b)| b || i == 6)
+            && v.sum_gate_ok,
+    );
+    println!("
+[UAGB1-BF] pass battery passed in {:.1}s", t0.elapsed().as_secs_f64());
+}
+
+// ---------------------------------------------------------------------------
+// [UAGB1-BF] D3: the 12-layer 125M P0 pass on REAL ckpt-00009536 weights.
+//
+// Exports: results/m125_ffn_export/ (scripts/m125_export_ffn.py, run
+// READ-ONLY against frugal-lm under its venv): per layer X (int8, the
+// QUANTIZED end-to-end walk's mlp_norm output — BC's variant A
+// construction) and WgT/WuT/WdT (int8 @ 2^-9, matmul layout), plus a
+// digests.txt sidecar (tensor SHA-256 + shifts + the Python-replica z
+// digests). The witness CHAIN (Gacc..z) is derived HERE in exact
+// integer arithmetic per TARGET_CONTRACT S2 floor semantics at the v2
+// family tables; range facts assert at derive time (loud fail = the
+// intended uncalibratable-model behavior) and z cross-checks against
+// the Python replica byte-for-byte at the full T = 512 shape.
+//
+// The pass statement is manifest v4 (lane deliverable D2): TRUE signed
+// exponents (no D3-F2 clamps), [-127,127] symmetric X/W (the honest
+// 25/26-bit accumulators DERIVED), per-layer LookupAt into the family,
+// RangeLookup facts (the U-R2 range-table form), E-O1-BB class/base
+// fields. 17 entries + 16 operations per layer; 12 z outputs.
+//
+// P0 mode, stated honestly: no privacy claim; weight commitment
+// randomness rides a PUBLIC deterministic seed (the "weights committed
+// once, model identity public" reading — a verifier recomputes the
+// weight commitments from the public model, which is what makes the
+// wrong-weight battery leg a STATEMENT-gate reject); byte totals are
+// opening-dominated until lane BD's aggregation stack lands and are
+// REPORTED against the Tier N gate, not hidden.
+
+const BF_EXPORT_DIR: &str = "results/m125_ffn_export";
+
+/// The export directory, resolved from either the repo root or
+/// zkmatrix-rs/ (both are working directories in practice).
+fn bf_export_path() -> std::path::PathBuf {
+    let a = std::path::PathBuf::from(BF_EXPORT_DIR);
+    if a.exists() { a } else { std::path::PathBuf::from("..").join(BF_EXPORT_DIR) }
+}
+const BF_T: usize = 512;
+const BF_D: usize = 768;
+const BF_F: usize = 2048;
+
+/// Per-layer witness data: exports + the Rust-derived chain.
+struct BfLayer {
+    l: usize,
+    /// (eX, eGate, eA, eUp, eH, eZ) — BB's M125_EXP row (calibration).
+    exps: (i32, i32, i32, i32, i32, i32),
+    /// shifts (g, u, h, z) — derived from the true exponents; asserted
+    /// equal to the export sidecar's.
+    shifts: (u32, u32, u32, u32),
+    x: Vec<i64>,
+    wg_t: Vec<i64>,
+    wu_t: Vec<i64>,
+    wd_t: Vec<i64>,
+    gacc: Vec<i64>,
+    rg: Vec<i64>,
+    g8: Vec<i64>,
+    a8: Vec<i64>,
+    uacc: Vec<i64>,
+    ru: Vec<i64>,
+    u8v: Vec<i64>,
+    hh: Vec<i64>,
+    rh: Vec<i64>,
+    h8: Vec<i64>,
+    dacc: Vec<i64>,
+    rd: Vec<i64>,
+    z: Vec<i64>,
+}
+
+fn bf_read_i8(path: &std::path::Path, n: usize) -> Vec<i64> {
+    let bytes = std::fs::read(path).unwrap_or_else(|e| {
+        panic!(
+            "cannot read {} ({e}) — run scripts/m125_export_ffn.py under the frugal venv first",
+            path.display()
+        )
+    });
+    assert_eq!(bytes.len(), n, "{}: wrong size", path.display());
+    bytes.iter().map(|&b| b as i8 as i64).collect()
+}
+
+fn bf_sidecar() -> std::collections::BTreeMap<(usize, String), String> {
+    let path = bf_export_path().join("digests.txt");
+    let text = std::fs::read_to_string(&path)
+        .unwrap_or_else(|e| panic!("cannot read {} ({e})", path.display()));
+    let mut map = std::collections::BTreeMap::new();
+    for line in text.lines() {
+        let mut it = line.split_whitespace();
+        let l: usize = it.next().expect("layer").parse().expect("layer no");
+        let name = it.next().expect("name").to_string();
+        let rest: Vec<&str> = it.collect();
+        map.insert((l, name), rest.join(" "));
+    }
+    map
+}
+
+fn bf_sha_i8(vals: &[i64]) -> String {
+    let bytes: Vec<u8> = vals.iter().map(|&v| v as i8 as u8).collect();
+    hex_full(&uk8_sha(&[&bytes]))
+}
+
+/// The floor requantization x = 2^shift * y + r, r in [0, 2^shift)
+/// (Euclidean quotient/remainder — TARGET_CONTRACT S2 as written).
+fn bf_floor_requant(acc: &[i64], shift: u32) -> (Vec<i64>, Vec<i64>) {
+    let m = 1i64 << shift;
+    let y: Vec<i64> = acc.iter().map(|&a| a.div_euclid(m)).collect();
+    let r: Vec<i64> = acc.iter().map(|&a| a.rem_euclid(m)).collect();
+    (y, r)
+}
+
+/// Load one layer's exports and derive the witness chain in exact
+/// integer arithmetic at the first `t_rows` sequence positions
+/// (row-independent chain: rows 0..t of the full pass — the T = 512
+/// z digests bind the full shape). Asserts every range fact.
+fn bf_load_layer(l: usize, t_rows: usize, quiet: bool) -> BfLayer {
+    use ring::lookup::silu_v2_member;
+    let dir = bf_export_path();
+    // M125_EXP rows are (eX, eGate, eA, eUp, eH, eZ) — BC's calibrated
+    // table (eGate == eA on every calibrated layer).
+    let (e_x, e_gate, e_a, e_up, e_h, e_z) = M125_EXP[l];
+    assert_eq!(e_gate, e_a, "family assumes eGate == eA");
+    let sh_g = (e_gate - e_x + 9) as u32;
+    let sh_u = (e_up - e_x + 9) as u32;
+    let sh_h = (e_h - e_a - e_up) as u32;
+    let sh_z = (e_z - e_h + 9) as u32;
+    let side = bf_sidecar();
+    let want_shifts = side[&(l, "shifts".to_string())].clone();
+    assert_eq!(
+        want_shifts,
+        format!("{sh_g} {sh_u} {sh_h} {sh_z}"),
+        "layer {l}: derived shifts disagree with the export sidecar"
+    );
+
+    let x_full = bf_read_i8(&dir.join(format!("layer{l:02}_X.bin")), BF_T * BF_D);
+    let wg_t = bf_read_i8(&dir.join(format!("layer{l:02}_WgT.bin")), BF_D * BF_F);
+    let wu_t = bf_read_i8(&dir.join(format!("layer{l:02}_WuT.bin")), BF_D * BF_F);
+    let wd_t = bf_read_i8(&dir.join(format!("layer{l:02}_WdT.bin")), BF_F * BF_D);
+    if t_rows == BF_T {
+        for (name, vals) in [("X", &x_full), ("WgT", &wg_t), ("WuT", &wu_t), ("WdT", &wd_t)] {
+            assert_eq!(
+                bf_sha_i8(vals),
+                side[&(l, name.to_string())],
+                "layer {l} {name}: export digest mismatch"
+            );
+        }
+    }
+    let x: Vec<i64> = x_full[0..t_rows * BF_D].to_vec();
+
+    let mut lay = BfLayer {
+        l,
+        exps: (e_x, e_gate, e_a, e_up, e_h, e_z),
+        shifts: (sh_g, sh_u, sh_h, sh_z),
+        x, wg_t, wu_t, wd_t,
+        gacc: vec![], rg: vec![], g8: vec![], a8: vec![], uacc: vec![], ru: vec![],
+        u8v: vec![], hh: vec![], rh: vec![], h8: vec![], dacc: vec![], rd: vec![], z: vec![],
+    };
+    bf_derive_chain(&mut lay, t_rows, None);
+    let in_i8 = |v: &[i64]| v.iter().all(|&x| (-128..=127).contains(&x));
+    assert!(
+        in_i8(&lay.g8) && in_i8(&lay.u8v) && in_i8(&lay.h8) && in_i8(&lay.z),
+        "layer {l}: a range fact FAILS (uncalibratable witness — intended reject)"
+    );
+    if t_rows == BF_T {
+        assert_eq!(
+            bf_sha_i8(&lay.z),
+            side[&(l, "z".to_string())],
+            "layer {l}: Rust chain z differs from the Python replica"
+        );
+    }
+    if !quiet {
+        println!(
+            "  layer {l:2}: chain derived (shifts {sh_g}/{sh_u}/{sh_h}/{sh_z}, table ({e_gate},{e_a})); range facts HOLD{}",
+            if t_rows == BF_T { "; z == Python replica" } else { "" }
+        );
+    }
+    lay
+}
+
+/// (Re)derive the witness chain from X + weights (exact integer
+/// arithmetic, floor semantics, the layer's family table — or an
+/// override member for the wrong-table battery arm). No range asserts
+/// here: tampered chains ride as-is and the PROOF is what rejects.
+fn bf_derive_chain(lay: &mut BfLayer, t_rows: usize, table_override: Option<(i32, i32)>) {
+    use ring::lookup::silu_v2_member;
+    let (sh_g, sh_u, sh_h, sh_z) = lay.shifts;
+    let (eg, ea) = table_override.unwrap_or((lay.exps.1, lay.exps.2));
+    let matmul = |a: &[i64], b_t: &[i64], rows: usize, inner: usize, cols: usize| -> Vec<i64> {
+        let mut c = vec![0i64; rows * cols];
+        for i in 0..rows {
+            for k in 0..inner {
+                let av = a[i * inner + k];
+                if av == 0 {
+                    continue;
+                }
+                let brow = &b_t[k * cols..(k + 1) * cols];
+                let crow = &mut c[i * cols..(i + 1) * cols];
+                for (cv, &bv) in crow.iter_mut().zip(brow.iter()) {
+                    *cv += av * bv;
+                }
+            }
+        }
+        c
+    };
+    lay.gacc = matmul(&lay.x, &lay.wg_t, t_rows, BF_D, BF_F);
+    lay.uacc = matmul(&lay.x, &lay.wu_t, t_rows, BF_D, BF_F);
+    let (g8, rg) = bf_floor_requant(&lay.gacc, sh_g);
+    let (u8v, ru) = bf_floor_requant(&lay.uacc, sh_u);
+    let clamp_dom = |v: i64| v.clamp(-128, 127);
+    let (table, _dg) = silu_v2_member(eg, ea).expect("frozen family member");
+    lay.a8 = g8.iter().map(|&g| table[(clamp_dom(g) + 128) as usize] as i64).collect();
+    lay.g8 = g8;
+    lay.rg = rg;
+    lay.u8v = u8v;
+    lay.ru = ru;
+    lay.hh = lay.a8.iter().zip(lay.u8v.iter()).map(|(&a, &u)| a * u).collect();
+    let (h8, rh) = bf_floor_requant(&lay.hh, sh_h);
+    lay.h8 = h8;
+    lay.rh = rh;
+    lay.dacc = matmul(&lay.h8, &lay.wd_t, t_rows, BF_F, BF_D);
+    let (z, rd) = bf_floor_requant(&lay.dacc, sh_z);
+    lay.z = z;
+    lay.rd = rd;
+}
+
+/// Entry roles per layer, in commitment order (17 per layer).
+const BF_ENTRIES: [&str; 17] = [
+    "X", "WgT", "WuT", "WdT", "Gacc", "Rg", "g8", "a8", "Uacc", "Ru", "u8",
+    "H", "Rh", "h8", "Dacc", "Rd", "z",
+];
+
+/// (rows, cols) of entry `e` at sequence length t.
+fn bf_entry_shape(e: usize, t: usize) -> (usize, usize) {
+    match BF_ENTRIES[e] {
+        "X" => (t, BF_D),
+        "WgT" | "WuT" => (BF_D, BF_F),
+        "WdT" => (BF_F, BF_D),
+        "Dacc" | "Rd" | "z" => (t, BF_D),
+        _ => (t, BF_F),
+    }
+}
+
+/// The layer's per-entry (QuantMeta, TypingV4) rows under the v4 typed
+/// semantics — TRUE exponents, symmetric where honest, E-O1-BB classes.
+fn bf_entry_typing(e: usize, lay: &BfLayer) -> (manifest::QuantMeta, manifest::TypingV4) {
+    use manifest::{CLS_ACC, CLS_ACT8, CLS_REM, CLS_W8S, QuantMeta, TypingV4};
+    let (e_x, e_gate, e_a, e_up, e_h, e_z) = lay.exps;
+    let (sh_g, sh_u, sh_h, sh_z) = lay.shifts;
+    let q = |bits: u32, signed: bool| QuantMeta { bits, frac_bits: 0, signed };
+    let t = |se: i32, sym: bool, class: u32, e0: u32| TypingV4 {
+        scale_exp: se,
+        symmetric: sym,
+        class,
+        base_e0: e0,
+    };
+    match BF_ENTRIES[e] {
+        "X" => (q(8, true), t(e_x, true, CLS_ACT8, 2)),
+        "WgT" | "WuT" | "WdT" => (q(8, true), t(-9, true, CLS_W8S, 1)),
+        "Gacc" | "Uacc" => (q(25, true), t(e_x - 9, true, CLS_ACC, 2)),
+        "Rg" => (q(sh_g, false), t(e_x - 9, false, CLS_REM, 2)),
+        "Ru" => (q(sh_u, false), t(e_x - 9, false, CLS_REM, 2)),
+        "g8" => (q(8, true), t(e_gate, false, CLS_ACT8, 2)),
+        "a8" => (q(8, true), t(e_a, true, CLS_ACT8, 2)),
+        "u8" => (q(8, true), t(e_up, false, CLS_ACT8, 2)),
+        "H" => (q(15, true), t(e_a + e_up, false, CLS_ACC, 2)),
+        "Rh" => (q(sh_h, false), t(e_a + e_up, false, CLS_REM, 2)),
+        "h8" => (q(8, true), t(e_h, false, CLS_ACT8, 2)),
+        "Dacc" => (q(26, true), t(e_h - 9, false, CLS_ACC, 2)),
+        "Rd" => (q(sh_z, false), t(e_h - 9, false, CLS_REM, 2)),
+        "z" => (q(8, true), t(e_z, false, CLS_ACT8, 2)),
+        _ => unreachable!(),
+    }
+}
+
+/// The witness values of entry `e` (the chain tensors, in entry order).
+fn bf_entry_values<'a>(e: usize, lay: &'a BfLayer) -> &'a [i64] {
+    match BF_ENTRIES[e] {
+        "X" => &lay.x,
+        "WgT" => &lay.wg_t,
+        "WuT" => &lay.wu_t,
+        "WdT" => &lay.wd_t,
+        "Gacc" => &lay.gacc,
+        "Rg" => &lay.rg,
+        "g8" => &lay.g8,
+        "a8" => &lay.a8,
+        "Uacc" => &lay.uacc,
+        "Ru" => &lay.ru,
+        "u8" => &lay.u8v,
+        "H" => &lay.hh,
+        "Rh" => &lay.rh,
+        "h8" => &lay.h8,
+        "Dacc" => &lay.dacc,
+        "Rd" => &lay.rd,
+        "z" => &lay.z,
+        _ => unreachable!(),
+    }
+}
+
+/// The v4 pass statement over `layers` at sequence length t: 17 entries
+/// + 16 operations per layer, per-layer LookupAt table index, 12 (or
+/// n_layers) declared z outputs. `commit_digests[l][e]` are the entry
+/// group digests (weight entries: recomputable from the public model —
+/// the P0 identity discipline).
+fn m125_build_statement(
+    t_rows: usize,
+    layers: &[BfLayer],
+    commit_digests: &[Vec<Vec<u8>>],
+    crs_hash: &[u8],
+) -> manifest::Statement {
+    use manifest::{
+        ClaimManifest, Operation, Orientation, PadSpec, SILU_V2_M3_TABLE_SPEC,
+        SILU_V2_M4_TABLE_SPEC, Statement,
+    };
+    let mut mf = ClaimManifest::new("lattice-uagb1-bf-m125", crs_hash);
+    let mut quant = Vec::new();
+    let mut typing = Vec::new();
+    let mut outputs = Vec::new();
+    let mut model: Vec<u8> = b"uagb1-bf-m125-pass-v1".to_vec();
+    model.extend((t_rows as u64).to_le_bytes());
+    model.extend((layers.len() as u64).to_le_bytes());
+    for (li, lay) in layers.iter().enumerate() {
+        let base = (li * BF_ENTRIES.len()) as u32;
+        let (e_x, e_gate, _e_a, e_up, e_h, e_z) = lay.exps;
+        let (sh_g, sh_u, sh_h, sh_z) = lay.shifts;
+        for e in 0..BF_ENTRIES.len() {
+            let (rows, cols) = bf_entry_shape(e, t_rows);
+            let (qm, ty) = bf_entry_typing(e, lay);
+            mf.add_commitment(
+                &format!("{}{}", BF_ENTRIES[e], lay.l),
+                rows,
+                cols,
+                Orientation::RowMajor,
+                vec![],
+                commit_digests[li][e].clone(),
+            );
+            quant.push(qm);
+            typing.push(ty);
+        }
+        let id = |e: usize| base + e as u32;
+        let tbl = if e_gate == -3 { 0u32 } else { 1u32 };
+        mf.add_operation(Operation::Matmul { a: id(0), b: id(1), c: id(4) });
+        mf.add_operation(Operation::Rescale { x: id(4), y: id(6), r: id(5), shift: sh_g });
+        mf.add_operation(Operation::RangeLookup { value: id(5), width: sh_g, signed: false });
+        mf.add_operation(Operation::LookupAt { x: id(6), y: id(7), table: tbl });
+        mf.add_operation(Operation::Matmul { a: id(0), b: id(2), c: id(8) });
+        mf.add_operation(Operation::Rescale { x: id(8), y: id(10), r: id(9), shift: sh_u });
+        mf.add_operation(Operation::RangeLookup { value: id(9), width: sh_u, signed: false });
+        mf.add_operation(Operation::RangeLookup { value: id(10), width: 8, signed: true });
+        mf.add_operation(Operation::Hadamard { x: id(7), y: id(10), z: id(11) });
+        mf.add_operation(Operation::Rescale { x: id(11), y: id(13), r: id(12), shift: sh_h });
+        mf.add_operation(Operation::RangeLookup { value: id(12), width: sh_h, signed: false });
+        mf.add_operation(Operation::RangeLookup { value: id(13), width: 8, signed: true });
+        mf.add_operation(Operation::Matmul { a: id(13), b: id(3), c: id(14) });
+        mf.add_operation(Operation::Rescale { x: id(14), y: id(16), r: id(15), shift: sh_z });
+        mf.add_operation(Operation::RangeLookup { value: id(15), width: sh_z, signed: false });
+        mf.add_operation(Operation::RangeLookup { value: id(16), width: 8, signed: true });
+        outputs.push(id(16));
+        // Model identity: layer exponents + shifts + the EXPORT tensor
+        // digests (X + weights) — the frozen quantized model.
+        model.extend((lay.l as u64).to_le_bytes());
+        for v in [e_x, e_gate, e_up, e_h, e_z] {
+            model.extend(v.to_le_bytes());
+        }
+        for v in [sh_g, sh_u, sh_h, sh_z] {
+            model.extend(v.to_le_bytes());
+        }
+        for e in [0usize, 1, 2, 3] {
+            model.extend(bf_sha_i8(bf_entry_values(e, lay)).into_bytes());
+        }
+    }
+    model.extend(ring::lookup::SILU_V2_M3_DIGEST);
+    model.extend(ring::lookup::SILU_V2_M4_DIGEST);
+    let mut st = Statement::new_v4(
+        uk8_sha(&[&model]),
+        vec![SILU_V2_M3_TABLE_SPEC, SILU_V2_M4_TABLE_SPEC],
+        30,
+        mf,
+    );
+    st.quant = quant;
+    st.typing = typing;
+    st.pad = st
+        .manifest
+        .commitments
+        .iter()
+        .map(|e| PadSpec::exact(e.rows as usize, e.cols as usize))
+        .collect();
+    st.outputs = outputs;
+    st
+}
+
+/// Smallest tree depth whose witness data block (first half minus the 4
+/// blinder positions) holds n elements.
+fn bf_dw_for(n: usize) -> usize {
+    let mut d = 4usize;
+    while (1usize << (d - 1)) - 4 < n {
+        d += 1;
+    }
+    d
+}
+
+/// One lookup instance of the layer: the SiLU pair or a [0, 2^w) range
+/// table over a (possibly offset) committed dense column.
+#[derive(Clone)]
+struct BfInst {
+    name: &'static str,
+    /// Primary committed column (entry index 0..17).
+    entry: usize,
+    /// SiLU only: the image column (a8).
+    pair: Option<usize>,
+    /// Code offset: witness code = value + offset (128 for signed int8
+    /// columns against the [0,256) table; 0 for remainders/pairs).
+    offset: i64,
+    /// Table rows (256 for silu/w8; 2^shift for remainders).
+    t_rows: usize,
+    /// The family member exponent pair (silu) — None for range tables.
+    silu: Option<(i32, i32)>,
+    dw: usize,
+    dt: usize,
+    // Aux commitment indices (absolute), filled by the layout.
+    idx_m: usize,
+    idx_bl: usize,
+    base_wm: usize,
+    base_tm: usize,
+    wm_c: usize,
+    tm_c: usize,
+}
+
+/// The layer's 9 lookup instances in transcript order.
+fn bf_instances(lay: &BfLayer, t: usize) -> Vec<BfInst> {
+    let (sh_g, sh_u, sh_h, sh_z) = lay.shifts;
+    let (_, e_gate, e_a, ..) = lay.exps;
+    let nf = t * BF_F;
+    let nd = t * BF_D;
+    let mk = |name: &'static str, entry: usize, pair: Option<usize>, offset: i64,
+              t_rows: usize, silu: Option<(i32, i32)>, n_el: usize| BfInst {
+        name,
+        entry,
+        pair,
+        offset,
+        t_rows,
+        silu,
+        dw: bf_dw_for(n_el),
+        dt: (t_rows.trailing_zeros() as usize) + 1,
+        idx_m: usize::MAX,
+        idx_bl: usize::MAX,
+        base_wm: usize::MAX,
+        base_tm: usize::MAX,
+        wm_c: 0,
+        tm_c: 0,
+    };
+    vec![
+        mk("silu", 6, Some(7), 0, 256, Some((e_gate, e_a)), nf),
+        mk("rng-rg", 5, None, 0, 1 << sh_g, None, nf),
+        mk("rng-ru", 9, None, 0, 1 << sh_u, None, nf),
+        mk("rng-u8", 10, None, 128, 256, None, nf),
+        mk("rng-rh", 12, None, 0, 1 << sh_h, None, nf),
+        mk("rng-h8", 13, None, 128, 256, None, nf),
+        mk("rng-rd", 15, None, 0, 1 << sh_z, None, nd),
+        mk("rng-z", 16, None, 128, 256, None, nd),
+    ]
+}
+
+/// The layer's commitment layout: entry commitment bases, per-instance
+/// aux bases, the first-fit wave plan and the U-Z1 pad layout.
+struct BfLayout {
+    /// First commitment index + count of each of the 17 entries.
+    entry_base: [usize; 17],
+    entry_cms: [usize; 17],
+    insts: Vec<BfInst>,
+    n_data: usize,
+    base_pad: usize,
+    base_closing_g: usize,
+    base_wave_g: usize,
+    n_commits: usize,
+    c2_max: usize,
+    data_cap: usize,
+    wave_g_groups: usize,
+    closing_g_groups: usize,
+    plan: ring::ct_engine::WavePlan,
+    pad_layout: ring::ct_engine::WavePadLayout,
+}
+
+fn bf_layout(lay: &BfLayer, t: usize, shape: CommitShape, q: u64) -> BfLayout {
+    use ring::ct_engine::{WavePadLayout, plan_waves};
+    use ring::gkr_masked::mask_coeff_counts;
+    use ring::kfield::K_DEG;
+    let per = shape.msg_r * D;
+    let mut entry_base = [0usize; 17];
+    let mut entry_cms = [0usize; 17];
+    let mut cursor = 0usize;
+    for e in 0..17 {
+        let (rows, cols) = bf_entry_shape(e, t);
+        assert_eq!((rows * cols) % per, 0, "no-tail discipline at entry {e}");
+        entry_base[e] = cursor;
+        entry_cms[e] = (rows * cols) / per;
+        cursor += entry_cms[e];
+    }
+    let kel_cms = |n_kel: usize| (n_kel * K_DEG).div_ceil(per).max(1);
+    let mut insts = bf_instances(lay, t);
+    for inst in insts.iter_mut() {
+        let (gw, rw) = mask_coeff_counts(inst.dw, 0);
+        let (gt, rt) = mask_coeff_counts(inst.dt, 0);
+        inst.wm_c = kel_cms(gw + rw);
+        inst.tm_c = kel_cms(gt + rt);
+        inst.idx_m = cursor;
+        inst.idx_bl = cursor + 1;
+        inst.base_wm = cursor + 2;
+        inst.base_tm = cursor + 2 + inst.wm_c;
+        cursor += 2 + inst.wm_c + inst.tm_c;
+        assert!(inst.t_rows <= per, "m column fits one commitment");
+        assert!(ring::gkr::ceiling_gate_ok(1u64 << inst.dw, q));
+    }
+    let n_data = cursor;
+    let wave_g_groups = UR1_PIN_COPIES.div_ceil(shape.msg_r);
+    let c2_max = ur1_c2_max_commits(q, shape);
+    let data_cap = c2_max - 1 - wave_g_groups;
+    let plan = plan_waves(n_data, &[], data_cap).expect("group-free first-fit plan");
+    let n_waves = plan.waves.len();
+    let pad_layout =
+        WavePadLayout::derive(UR1_PIN_COPIES, (0..n_waves).collect(), n_waves, shape.msg_r)
+            .expect("pad layout derives");
+    let closing_g_groups =
+        if pad_layout.has_pads() { UR1_PIN_COPIES.div_ceil(shape.msg_r) } else { 0 };
+    let base_pad = n_data;
+    let base_closing_g = base_pad + pad_layout.n_pad_cms;
+    let base_wave_g = base_closing_g + closing_g_groups;
+    let n_commits = base_wave_g + n_waves * wave_g_groups;
+    BfLayout {
+        entry_base,
+        entry_cms,
+        insts,
+        n_data,
+        base_pad,
+        base_closing_g,
+        base_wave_g,
+        n_commits,
+        c2_max,
+        data_cap,
+        wave_g_groups,
+        closing_g_groups,
+        plan,
+        pad_layout,
+    }
+}
+
+/// Commit one layer's 17 entries (weights under the PUBLIC per-entry
+/// seed — the P0 model-identity discipline; witness entries under the
+/// layer session seed). Returns per-entry group digests (and optionally
+/// keeps the full materials for the proven layer).
+struct BfCommitted {
+    msgs: Vec<Vec<Poly>>,
+    rhos8: Vec<Vec<i8>>,
+    t1s: Vec<Vec<Poly>>,
+    t2s: Vec<Vec<Poly>>,
+}
+
+fn bf_commit_entries(
+    lay: &BfLayer,
+    t: usize,
+    shape: CommitShape,
+    crs: &ring::commit::RingCrs,
+    path: &KernelPath,
+    keep: bool,
+) -> (Vec<Vec<u8>>, Option<BfCommitted>) {
+    let zq = ring_ctx_q8().zq;
+    let per = shape.msg_r * D;
+    let mut entry_digests = Vec::with_capacity(17);
+    let mut kept = BfCommitted { msgs: Vec::new(), rhos8: Vec::new(), t1s: Vec::new(), t2s: Vec::new() };
+    for e in 0..17 {
+        let vals = bf_entry_values(e, lay);
+        let n_cms = vals.len().div_ceil(per);
+        let seed_tag = if (1..=3).contains(&e) { "uagb1-bf-w" } else { "uagb1-bf-wit" };
+        let mut rng = ring::ProverRng::from_test_seed(
+            seed_tag,
+            &[(lay.l as u64).to_le_bytes(), (e as u64).to_le_bytes()].concat(),
+        );
+        let mut cm_digests = Vec::with_capacity(n_cms);
+        for g in 0..n_cms {
+            let mut polys = vec![poly_zero(); shape.msg_r];
+            for s in 0..shape.msg_r {
+                for c in 0..D {
+                    let idx = g * per + s * D + c;
+                    if idx < vals.len() {
+                        polys[s][c] = zq.to_mod(vals[idx]);
+                    }
+                }
+            }
+            let rho: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+            let (t1, t2) = commit(path, crs, &polys, &rho);
+            cm_digests.push(group_digest(&t1, &t2));
+            if keep {
+                kept.msgs.push(polys);
+                kept.rhos8.push(rho.iter().flat_map(|p| p.iter().map(|&x| x as i8)).collect());
+                kept.t1s.push(t1);
+                kept.t2s.push(t2);
+            }
+        }
+        entry_digests.push(group_list_digest(&cm_digests));
+    }
+    (entry_digests, if keep { Some(kept) } else { None })
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum BfTamper {
+    None,
+    /// The prover uses the NEXT layer's gate weight tensor, fully
+    /// self-consistently (chain rederived) — caught at the STATEMENT
+    /// gate: the verifier recomputes the weight commitments from the
+    /// PUBLIC model (P0 identity discipline) and the digests differ.
+    WrongWeight,
+    /// The prover runs the SiLU instance against the WRONG family
+    /// member (chain rederived consistently) — descents and roots are
+    /// internally green; the verifier's table-side leaf pins fold the
+    /// STATEMENT's member and the psi'd claims fail in the wave rounds.
+    WrongTable,
+    /// g8 replaced by the OTHER layer's g8 (statement self-consistent)
+    /// — the statement seam: requant + lookup pins tie g8 to Gacc/a8,
+    /// so the wave rounds reject.
+    SeamSwap,
+    /// One remainder pushed out of [0, 2^shift) with the requant
+    /// identity preserved (rd += 2^s, z -= 1): ONLY the rd range
+    /// instance's root cross-check can see it.
+    RangeViolation,
+}
+
+struct BfVerdict {
+    statement_ok: bool,
+    matmul_ok: [bool; 3],
+    hadamard_ok: bool,
+    /// Per-instance root cross-check verdicts (silu + 7 range).
+    roots_ok: Vec<bool>,
+    sum_gate_ok: bool,
+    waves_ok: bool,
+    first_bad_wave: Option<usize>,
+    closing_ok: bool,
+}
+
+impl BfVerdict {
+    fn accept(&self) -> bool {
+        self.statement_ok
+            && self.matmul_ok.iter().all(|&b| b)
+            && self.hadamard_ok
+            && self.roots_ok.iter().all(|&b| b)
+            && self.sum_gate_ok
+            && self.waves_ok
+            && self.closing_ok
+    }
+}
+
+#[derive(Default)]
+struct BfCost {
+    n_data: usize,
+    n_commits: usize,
+    n_waves: usize,
+    n_pins: usize,
+    commit_s: f64,
+    matmul_s: f64,
+    had_s: f64,
+    req_s: f64,
+    lkp_s: f64,
+    pinclaims_s: f64,
+    waves_s: f64,
+    prove_s: f64,
+    verify_s: f64,
+    verify_lkp_s: f64,
+    verify_waves_s: f64,
+    bytes_statement: usize,
+    bytes_commit_tags: usize,
+    bytes_sumcheck: usize,
+    bytes_descents: usize,
+    bytes_reveals: usize,
+    bytes_ct_z: usize,
+    bytes_ct_w1: usize,
+    bytes_ct_other: usize,
+}
+
+impl BfCost {
+    fn bytes_total(&self) -> usize {
+        self.bytes_statement
+            + self.bytes_commit_tags
+            + self.bytes_sumcheck
+            + self.bytes_descents
+            + self.bytes_reveals
+            + self.bytes_ct_z
+            + self.bytes_ct_w1
+            + self.bytes_ct_other
+    }
+}
+
+/// eq(a, b) for two points of equal length.
+fn bf_eq_point(kf: &ring::kfield::KField, a: &[ring::kfield::KElem], b: &[ring::kfield::KElem]) -> ring::kfield::KElem {
+    let mut acc = kf.one();
+    for (x, y) in a.iter().zip(b.iter()) {
+        let xy = kf.mul(x, y);
+        let one_m = kf.mul(&kf.sub(&kf.one(), x), &kf.sub(&kf.one(), y));
+        acc = kf.mul(&acc, &kf.add(&xy, &one_m));
+    }
+    acc
+}
+
+/// One complete committed layer proof + verification of the 125M pass
+/// (statement ctx = the FULL pass statement digest; this layer's ops).
+/// Returns the verdict and the measured cost row.
+#[allow(clippy::too_many_lines)]
+fn bf_layer_run(
+    t: usize,
+    layers: &mut [BfLayer],
+    li: usize,
+    tamper: BfTamper,
+    quiet: bool,
+) -> (BfVerdict, BfCost) {
+    use ring::ct_engine::{
+        CtClaim, StdOpening, WavePads, closing_round_claims, ct_h0, derive_ct_round_params,
+        draw_wave_pads, pack_wave_pads, prove_ct_round, sample_ct_masks,
+        split_claims_prover_masked, split_claims_verifier_masked, verify_ct_round,
+    };
+    use ring::gkr::eq_table;
+    use ring::gkr_masked::{
+        BlinderSet, DescentEnd, MaskSet, MaskedDescentProof, blinded_table_tree,
+        blinded_witness_tree, blinder_positions, draw_masks, g_hypersum_weights, g_open_weights,
+        masked_gkr_prove, masked_gkr_verify, masked_pass_bytes, r_open_weights,
+        table_row_positions, zero_masks,
+    };
+    use ring::kfield::{K_DEG, KElem, KField};
+    use ring::lookup::{
+        PinTerm, PinnedValue, derive_pin_psi, fuse_pair, multiplicities, pin_claims, silu_v2_member,
+        silu_v2_rows,
+    };
+    use ring::sumcheck::{LkpTranscript, sumcheck_prove, sumcheck_verify};
+
+    let ctx_ring = ring_ctx_q8();
+    let kf = KField::new(&ctx_ring);
+    let zq = ctx_ring.zq;
+    let q = zq.q;
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    let msg_r = shape.msg_r;
+    let per = msg_r * D;
+    let kpc = per / K_DEG;
+    let crs = expand_crs(shape, q, 0x0BF1);
+    let zero = kf.zero();
+    let one = kf.one();
+
+    // ---- Tampered witness (self-consistent where the leg demands). ------
+    let other = if li + 1 < layers.len() { li + 1 } else { li - 1 };
+    match tamper {
+        BfTamper::WrongWeight => {
+            let wg = layers[other].wg_t.clone();
+            layers[li].wg_t = wg;
+            bf_derive_chain(&mut layers[li], t, None);
+        }
+        BfTamper::WrongTable => {
+            let (eg, ea) = (layers[li].exps.1, layers[li].exps.2);
+            let wrong = if eg == -3 { (-4, -4) } else { (-3, -3) };
+            assert!(silu_v2_member(wrong.0, wrong.1).is_some());
+            bf_derive_chain(&mut layers[li], t, Some(wrong));
+            let _ = (eg, ea);
+        }
+        BfTamper::SeamSwap => {
+            let g8 = layers[other].g8.clone();
+            assert_eq!(g8.len(), layers[li].g8.len());
+            layers[li].g8 = g8;
+        }
+        BfTamper::RangeViolation => {
+            let sh_z = layers[li].shifts.3;
+            // Pick a position whose z stays comfortably inside int8 so
+            // the ONLY out-of-range value is the remainder (leg
+            // isolation: the rd instance's root check is the sole gate).
+            let idx = layers[li].z.iter().position(|&v| v > -100 && v < 100).unwrap();
+            layers[li].rd[idx] += 1i64 << sh_z;
+            layers[li].z[idx] -= 1;
+        }
+        BfTamper::None => {}
+    }
+
+    // ---- Commit pass: every layer's entries (digests for the pass
+    // statement); the PROVEN layer keeps its materials + aux. -------------
+    let t_commit = Instant::now();
+    let rp_probe = derive_ct_round_params(q, shape, ur1_c2_max_commits(q, shape), 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp_probe.sigma, isqrt_u128(rp_probe.bound_sq));
+    let path = KernelPath::A1(&a1p);
+    let mut all_digests: Vec<Vec<Vec<u8>>> = Vec::with_capacity(layers.len());
+    let mut kept: Option<BfCommitted> = None;
+    for (i, lay) in layers.iter().enumerate() {
+        let (digs, keep) = bf_commit_entries(lay, t, shape, &crs, &path, i == li);
+        all_digests.push(digs);
+        if i == li {
+            kept = keep;
+        }
+    }
+    let lay = &layers[li];
+    let ml = bf_layout(lay, t, shape, q);
+    let BfCommitted { mut msgs, mut rhos8, mut t1s, mut t2s } = kept.expect("proven layer kept");
+
+    // Aux commitments (m columns, blinders, masks) + session material.
+    let mut rng = ring::ProverRng::from_test_seed(
+        "uagb1-bf-session",
+        &[(li as u64).to_le_bytes(), (t as u64).to_le_bytes()].concat(),
+    );
+    let mut pads_live: Option<WavePads> = if ml.pad_layout.has_pads() {
+        Some(draw_wave_pads(&mut rng, q, &ml.pad_layout))
+    } else {
+        None
+    };
+    let pack_scalars = |vals: &[u64]| -> Vec<Poly> {
+        assert!(vals.len() <= per);
+        let mut polys = vec![poly_zero(); msg_r];
+        for (i, &v) in vals.iter().enumerate() {
+            polys[i / D][i % D] = v;
+        }
+        polys
+    };
+    let pack_kelems = |kelems: &[KElem]| -> Vec<Vec<Poly>> {
+        let mut flat: Vec<u64> = Vec::with_capacity(kelems.len() * K_DEG);
+        for e in kelems {
+            flat.extend_from_slice(&e[..]);
+        }
+        (0..flat.len().div_ceil(per).max(1))
+            .map(|g| {
+                (0..msg_r)
+                    .map(|s| {
+                        (0..D)
+                            .map(|c| {
+                                let idx = g * per + s * D + c;
+                                if idx < flat.len() { flat[idx] } else { 0 }
+                            })
+                            .collect()
+                    })
+                    .collect()
+            })
+            .collect()
+    };
+    let mut push_commit = |m: Vec<Poly>,
+                           rng: &mut ring::ProverRng,
+                           msgs: &mut Vec<Vec<Poly>>,
+                           rhos8: &mut Vec<Vec<i8>>,
+                           t1s: &mut Vec<Vec<Poly>>,
+                           t2s: &mut Vec<Vec<Poly>>| {
+        let rho: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(rng)).collect();
+        let (t1, t2) = commit(&path, &crs, &m, &rho);
+        msgs.push(m);
+        rhos8.push(rho.iter().flat_map(|p| p.iter().map(|&x| x as i8)).collect());
+        t1s.push(t1);
+        t2s.push(t2);
+    };
+    // Per instance: the fused/code witness column + table + m column,
+    // masks + blinders (committed BEFORE any challenge, D-4).
+    struct InstMat {
+        w_col: Vec<ring::kfield::KElem>,
+        tab_k: Vec<ring::kfield::KElem>,
+        m_k: Vec<ring::kfield::KElem>,
+        masks_w: Option<ring::gkr_masked::MaskSet>,
+        masks_t: Option<ring::gkr_masked::MaskSet>,
+        bl_w: ring::gkr_masked::BlinderSet,
+        bl_t: ring::gkr_masked::BlinderSet,
+    }
+    let mut inst_mat: Vec<InstMat> = Vec::with_capacity(ml.insts.len());
+    // The WrongTable prover runs its SiLU instance against the wrong
+    // member CONSISTENTLY (witness a8 was rederived above): its committed
+    // m + trees use the wrong fused table.
+    for inst in &ml.insts {
+        let vals = bf_entry_values(inst.entry, lay);
+        let (w_col, tab_k): (Vec<KElem>, Vec<KElem>) = if let Some((eg, ea)) = inst.silu {
+            let (eg, ea) = if tamper == BfTamper::WrongTable {
+                if eg == -3 { (-4, -4) } else { (-3, -3) }
+            } else {
+                (eg, ea)
+            };
+            let (bytes, _) = silu_v2_member(eg, ea).expect("frozen member");
+            let rows = silu_v2_rows(bytes);
+            let pair = bf_entry_values(inst.pair.unwrap(), lay);
+            let w = vals
+                .iter()
+                .zip(pair.iter())
+                .map(|(&x, &y)| fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y)))
+                .collect();
+            let tk = rows.iter().map(|&(v, s)| fuse_pair(&kf, zq.to_mod(v), zq.to_mod(s))).collect();
+            (w, tk)
+        } else {
+            let w = vals.iter().map(|&x| kf.embed(zq.to_mod(x + inst.offset))).collect();
+            let tk = (0..inst.t_rows as u64).map(|j| kf.embed(j)).collect();
+            (w, tk)
+        };
+        let m_k = multiplicities(&kf, &w_col, &tab_k);
+        let m_vals: Vec<u64> = m_k.iter().map(|e| e[0]).collect();
+        push_commit(pack_scalars(&m_vals), &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        let bw = BlinderSet::draw(&kf, &mut rng);
+        let mut bt = BlinderSet::draw(&kf, &mut rng);
+        bt.solve_mass(&kf, &bw.mass(&kf));
+        let blinder_kelems: Vec<KElem> = {
+            let mut v = Vec::with_capacity(16);
+            for b in [&bw.tl, &bw.tr, &bw.f0, &bw.f1, &bt.tl, &bt.tr, &bt.f0, &bt.f1] {
+                v.push(b.a.clone());
+                v.push(b.u.clone());
+            }
+            v
+        };
+        let bl_msg = pack_kelems(&blinder_kelems);
+        assert_eq!(bl_msg.len(), 1);
+        push_commit(bl_msg.into_iter().next().unwrap(), &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        let mw = draw_masks(&kf, &mut rng, inst.dw, 0);
+        let mt = draw_masks(&kf, &mut rng, inst.dt, 0);
+        for m in pack_kelems(&mw.flatten()) {
+            push_commit(m, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        }
+        for m in pack_kelems(&mt.flatten()) {
+            push_commit(m, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        }
+        inst_mat.push(InstMat { w_col, tab_k, m_k, masks_w: Some(mw), masks_t: Some(mt), bl_w: bw, bl_t: bt });
+    }
+    assert_eq!(msgs.len(), ml.n_data);
+    if ml.pad_layout.has_pads() {
+        for m in pack_wave_pads(&mut rng, q, msg_r, &ml.pad_layout, pads_live.as_ref().unwrap())
+            .expect("pad packing")
+        {
+            push_commit(m, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        }
+    }
+    for m in sample_ct_masks(&mut rng, q, msg_r, if ml.closing_g_groups > 0 { UR1_PIN_COPIES } else { 0 }) {
+        push_commit(m, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+    }
+    for _ in 0..ml.plan.waves.len() {
+        for m in sample_ct_masks(&mut rng, q, msg_r, UR1_PIN_COPIES) {
+            push_commit(m, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        }
+    }
+    assert_eq!(msgs.len(), ml.n_commits);
+
+    let mut cost = BfCost {
+        n_data: ml.n_data,
+        n_commits: ml.n_commits,
+        n_waves: ml.plan.waves.len(),
+        commit_s: t_commit.elapsed().as_secs_f64(),
+        ..BfCost::default()
+    };
+    let mut verdict = BfVerdict {
+        statement_ok: true,
+        matmul_ok: [true; 3],
+        hadamard_ok: true,
+        roots_ok: vec![true; ml.insts.len()],
+        sum_gate_ok: true,
+        waves_ok: true,
+        first_bad_wave: None,
+        closing_ok: true,
+    };
+
+    // ---- The pass statement (all layers) and this layer's ctx. ----------
+    // The proven layer's ENTRY digests recompute from the kept tags (the
+    // tampered arms are self-consistent by construction).
+    {
+        let mut cursor = 0usize;
+        let mut digs = Vec::with_capacity(17);
+        for e in 0..17 {
+            let n = ml.entry_cms[e];
+            let cm_d: Vec<Vec<u8>> =
+                (cursor..cursor + n).map(|i| group_digest(&t1s[i], &t2s[i])).collect();
+            digs.push(group_list_digest(&cm_d));
+            cursor += n;
+        }
+        all_digests[li] = digs;
+    }
+    let statement = m125_build_statement(t, layers, &all_digests, &crs.crs_hash);
+    let lay = &layers[li];
+    let ctx = match statement.digest() {
+        Ok(d) => d,
+        Err(e) => panic!("pass statement does not validate: {e}"),
+    };
+    cost.bytes_statement = statement.encode().len();
+    cost.bytes_commit_tags = ml.n_commits * (shape.kappa + msg_r) * D * 4;
+    let mut ctx_layer: Vec<u8> = ctx.to_vec();
+    ctx_layer.extend((li as u64).to_le_bytes());
+    let h0_layer = ct_h0(&crs, &ctx_layer, &t1s, &t2s, &[]);
+
+    // ---- PROVER transcript. ---------------------------------------------
+    let t_prove = Instant::now();
+    let mut tr = LkpTranscript::new("uagb1-bf-pass", &h0_layer);
+    let mut pins: Vec<PinnedValue> = Vec::new();
+    let product2 = |kf: &KField, vals: &[KElem]| kf.mul(&vals[0], &vals[1]);
+    let product3 =
+        |kf: &KField, vals: &[KElem]| kf.mul(&kf.mul(&vals[0], &vals[1]), &vals[2]);
+
+    // The three matmuls: (a_entry, b_entry, c_entry, rows, inner, cols).
+    let matmuls: [(usize, usize, usize, usize, usize, usize); 3] = [
+        (0, 1, 4, t, BF_D, BF_F),
+        (0, 2, 8, t, BF_D, BF_F),
+        (13, 3, 14, t, BF_F, BF_D),
+    ];
+    let lg2 = |n: usize| usize::BITS as usize - (n - 1).leading_zeros() as usize;
+    // Builds the three MLE pins of one matmul instance from public
+    // challenge tables (shared by prover and verifier).
+    let matmul_pins = |ea: usize, eb: usize, ec: usize,
+                       rows: usize, inner: usize, cols: usize,
+                       eq_rx: &[KElem], eq_ry: &[KElem], eq_k: &[KElem],
+                       v: &KElem, a_star: &KElem, b_star: &KElem|
+     -> Vec<PinnedValue> {
+        let scalar_terms = |base: usize, n_cms: usize, wf: &dyn Fn(usize) -> Option<KElem>| {
+            let mut terms = Vec::new();
+            for g in 0..n_cms {
+                let lo = g * per;
+                let mut weights: Vec<KElem> = Vec::with_capacity(per);
+                let mut any = false;
+                for c in 0..per {
+                    match wf(lo + c) {
+                        Some(w) => {
+                            if !kf.is_zero(&w) {
+                                any = true;
+                            }
+                            weights.push(w);
+                        }
+                        None => weights.push(kf.zero()),
+                    }
+                }
+                if any {
+                    terms.push(PinTerm::Scalar { commit: base + g, coeff0: 0, weights });
+                }
+            }
+            terms
+        };
+        vec![
+            PinnedValue {
+                terms: scalar_terms(ml.entry_base[ec], ml.entry_cms[ec], &|f| {
+                    if f < rows * cols { Some(kf.mul(&eq_rx[f / cols], &eq_ry[f % cols])) } else { None }
+                }),
+                value: v.clone(),
+            },
+            PinnedValue {
+                terms: scalar_terms(ml.entry_base[ea], ml.entry_cms[ea], &|f| {
+                    if f < rows * inner { Some(kf.mul(&eq_rx[f / inner], &eq_k[f % inner])) } else { None }
+                }),
+                value: a_star.clone(),
+            },
+            PinnedValue {
+                terms: scalar_terms(ml.entry_base[eb], ml.entry_cms[eb], &|f| {
+                    if f < inner * cols { Some(kf.mul(&eq_k[f / cols], &eq_ry[f % cols])) } else { None }
+                }),
+                value: b_star.clone(),
+            },
+        ]
+    };
+
+    let t_mm = Instant::now();
+    let mut mm_proofs = Vec::new();
+    for &(ea, eb, ec, rows, inner, cols) in &matmuls {
+        let (lr, lk, lc) = (lg2(rows), lg2(inner), lg2(cols));
+        let a_vals = bf_entry_values(ea, lay);
+        let b_vals = bf_entry_values(eb, lay);
+        let c_vals = bf_entry_values(ec, lay);
+        let rx: Vec<KElem> = (0..lr).map(|_| tr.challenge_k(&kf)).collect();
+        let ry: Vec<KElem> = (0..lc).map(|_| tr.challenge_k(&kf)).collect();
+        let eq_rx = eq_table(&kf, &rx);
+        let eq_ry = eq_table(&kf, &ry);
+        let nk = 1usize << lk;
+        let mut ta = vec![kf.zero(); nk];
+        for i in 0..rows {
+            let w = &eq_rx[i];
+            if kf.is_zero(w) {
+                continue;
+            }
+            for k in 0..inner {
+                let v = a_vals[i * inner + k];
+                if v != 0 {
+                    ta[k] = kf.add(&ta[k], &kf.scale(zq.to_mod(v), w));
+                }
+            }
+        }
+        let mut tb = vec![kf.zero(); nk];
+        for k in 0..inner {
+            let row = &b_vals[k * cols..(k + 1) * cols];
+            let mut acc = kf.zero();
+            for (j, &v) in row.iter().enumerate() {
+                if v != 0 {
+                    acc = kf.add(&acc, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+                }
+            }
+            tb[k] = acc;
+        }
+        // v = C~(rx, ry) over the COMMITTED C.
+        let mut v = kf.zero();
+        for i in 0..rows {
+            let row = &c_vals[i * cols..(i + 1) * cols];
+            let mut ri = kf.zero();
+            for (j, &cv) in row.iter().enumerate() {
+                if cv != 0 {
+                    ri = kf.add(&ri, &kf.scale(zq.to_mod(cv), &eq_ry[j]));
+                }
+            }
+            v = kf.add(&v, &kf.mul(&ri, &eq_rx[i]));
+        }
+        tr.absorb_k(&kf, "bf-mm-claim", std::slice::from_ref(&v));
+        let (scp, kstar) = sumcheck_prove(&kf, vec![ta, tb], 2, &product2, &mut tr);
+        tr.absorb_k(&kf, "bf-mm-final", &scp.final_evals);
+        cost.bytes_sumcheck +=
+            64 * (1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len());
+        let eq_k = eq_table(&kf, &kstar);
+        pins.extend(matmul_pins(
+            ea, eb, ec, rows, inner, cols, &eq_rx, &eq_ry, &eq_k, &v,
+            &scp.final_evals[0], &scp.final_evals[1],
+        ));
+        mm_proofs.push((scp, v));
+    }
+    cost.matmul_s = t_mm.elapsed().as_secs_f64();
+
+    // Hadamard a8 o u8 = H by one degree-3 sumcheck.
+    let t_had = Instant::now();
+    let n_f = t * BF_F;
+    let lv_f = lg2(n_f);
+    let had_proof = {
+        let r2: Vec<KElem> = (0..lv_f).map(|_| tr.challenge_k(&kf)).collect();
+        let eq_r2 = eq_table(&kf, &r2);
+        let a8k: Vec<KElem> =
+            lay.a8.iter().map(|&v| kf.embed(zq.to_mod(v))).chain((lay.a8.len()..1 << lv_f).map(|_| kf.zero())).collect();
+        let u8k: Vec<KElem> =
+            lay.u8v.iter().map(|&v| kf.embed(zq.to_mod(v))).chain((lay.u8v.len()..1 << lv_f).map(|_| kf.zero())).collect();
+        let mut v_h = kf.zero();
+        for (j, &hv) in lay.hh.iter().enumerate() {
+            if hv != 0 {
+                v_h = kf.add(&v_h, &kf.scale(zq.to_mod(hv), &eq_r2[j]));
+            }
+        }
+        tr.absorb_k(&kf, "bf-had-claim", std::slice::from_ref(&v_h));
+        let (scp, kstar) = sumcheck_prove(&kf, vec![eq_r2.clone(), a8k, u8k], 3, &product3, &mut tr);
+        tr.absorb_k(&kf, "bf-had-final", &scp.final_evals);
+        cost.bytes_sumcheck +=
+            64 * (1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len());
+        let eq_z = eq_table(&kf, &kstar);
+        let col_pin = |e: usize, weights_tab: &[KElem], value: &KElem| PinnedValue {
+            terms: (0..ml.entry_cms[e])
+                .map(|g| PinTerm::Scalar {
+                    commit: ml.entry_base[e] + g,
+                    coeff0: 0,
+                    weights: weights_tab[g * per..(g + 1) * per].to_vec(),
+                })
+                .collect(),
+            value: value.clone(),
+        };
+        pins.push(col_pin(11, &eq_r2, &v_h));
+        pins.push(col_pin(7, &eq_z, &scp.final_evals[1]));
+        pins.push(col_pin(10, &eq_z, &scp.final_evals[2]));
+        (scp, v_h)
+    };
+    cost.had_s = t_had.elapsed().as_secs_f64();
+
+    // Requant edges as zero-valued MLE pins at transcript points.
+    let t_req = Instant::now();
+    let req_edges: [(usize, usize, usize, u32); 4] = [
+        (4, 6, 5, lay.shifts.0),
+        (8, 10, 9, lay.shifts.1),
+        (11, 13, 12, lay.shifts.2),
+        (14, 16, 15, lay.shifts.3),
+    ];
+    for &(xe, ye, re, shift) in &req_edges {
+        let n_el = bf_entry_values(xe, lay).len();
+        let lv = lg2(n_el);
+        let r: Vec<KElem> = (0..lv).map(|_| tr.challenge_k(&kf)).collect();
+        let lw = eq_table(&kf, &r);
+        let two_s = zq.to_mod(1i64 << shift);
+        let col_terms = |e: usize, f: &dyn Fn(&KElem) -> KElem| -> Vec<PinTerm> {
+            (0..ml.entry_cms[e])
+                .map(|g| PinTerm::Scalar {
+                    commit: ml.entry_base[e] + g,
+                    coeff0: 0,
+                    weights: lw[g * per..(g + 1) * per].iter().map(f).collect(),
+                })
+                .collect()
+        };
+        let mut terms = col_terms(xe, &|w| w.clone());
+        terms.extend(col_terms(ye, &|w| kf.neg(&kf.scale(two_s, w))));
+        terms.extend(col_terms(re, &|w| kf.neg(w)));
+        pins.push(PinnedValue { terms, value: kf.zero() });
+    }
+    cost.req_s = t_req.elapsed().as_secs_f64();
+
+    // ---- Lookup instances: masked descent pairs + pins (prover). --------
+    // Pin builders shared verbatim by the verifier (public data only).
+    let descent_pins = |base: usize,
+                        shape_masks: &MaskSet,
+                        proof: &MaskedDescentProof,
+                        end: &DescentEnd,
+                        depth: usize|
+     -> Vec<PinnedValue> {
+        let kelem_terms = |base: usize, flat_off: usize, weights: &[KElem]| -> Vec<PinTerm> {
+            let mut terms = Vec::new();
+            let mut i = 0usize;
+            while i < weights.len() {
+                let idx = flat_off + i;
+                let commit = base + idx / kpc;
+                let coeff0 = (idx % kpc) * K_DEG;
+                let take = (kpc - (idx % kpc)).min(weights.len() - i);
+                terms.push(PinTerm::Kelems { commit, coeff0, weights: weights[i..i + take].to_vec() });
+                i += take;
+            }
+            terms
+        };
+        let mut out = Vec::new();
+        for j in 1..depth {
+            let lp_j = &proof.layers[j - 1];
+            let gm = &shape_masks.g[j - 1];
+            out.push(PinnedValue {
+                terms: kelem_terms(base, shape_masks.g_offset(j), &g_hypersum_weights(&kf, gm)),
+                value: lp_j.g_sum.clone(),
+            });
+            let (open_pt, mu_prev, c_w) = &end.layer_pts[j - 1];
+            out.push(PinnedValue {
+                terms: kelem_terms(base, shape_masks.g_offset(j), &g_open_weights(&kf, gm, open_pt)),
+                value: lp_j.open_g.clone(),
+            });
+            if j >= 2 {
+                let (orp, orq) = lp_j.open_r.clone().expect("interior layer opens Rp/Rq");
+                let rw = r_open_weights(&kf, mu_prev, c_w);
+                out.push(PinnedValue {
+                    terms: kelem_terms(base, shape_masks.r_offset(j), &rw),
+                    value: orp,
+                });
+                out.push(PinnedValue {
+                    terms: kelem_terms(base, shape_masks.r_offset(j) + 6, &rw),
+                    value: orq,
+                });
+            }
+        }
+        out
+    };
+    // The four aggregate leaf pins of one instance: wp/wq/tp/tq. The
+    // verifier's copy folds the STATEMENT's table values (fused for the
+    // silu member, identity j for range tables) — the wrong-table leg's
+    // reject point.
+    let leaf_pins = |inst: &BfInst,
+                     tab_k: &[KElem],
+                     endw: &DescentEnd,
+                     endt: &DescentEnd,
+                     alpha: &KElem|
+     -> Vec<PinnedValue> {
+        let (er, ec) = bf_entry_shape(inst.entry, t);
+        let n_el = er * ec;
+        let lw = eq_table(&kf, &endw.zstar);
+        let lt = eq_table(&kf, &endt.zstar);
+        let nw = 1usize << inst.dw;
+        let nt = 1usize << inst.dt;
+        let bpw = blinder_positions(nw);
+        let bpt = blinder_positions(nt);
+        let tpos = table_row_positions(inst.t_rows, nt);
+        let eqw: Vec<KElem> = bpw.iter().map(|&p| lw[p].clone()).collect();
+        let eqt: Vec<KElem> = bpt.iter().map(|&p| lt[p].clone()).collect();
+        let hw = (0..n_el).fold(zero.clone(), |a, i| kf.add(&a, &lw[i]));
+        let ht = (0..inst.t_rows).fold(zero.clone(), |a, j| kf.add(&a, &lt[tpos[j]]));
+        let sum_eqw = eqw.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+        let sum_eqt = eqt.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+        let ft = (0..inst.t_rows)
+            .fold(zero.clone(), |a, j| kf.add(&a, &kf.mul(&lt[tpos[j]], &tab_k[j])));
+        let z = zero.clone();
+        let wp = PinnedValue {
+            terms: vec![PinTerm::Kelems {
+                commit: inst.idx_bl,
+                coeff0: 0,
+                weights: vec![
+                    eqw[0].clone(), z.clone(), eqw[1].clone(), z.clone(),
+                    eqw[2].clone(), z.clone(), eqw[3].clone(), z.clone(),
+                ],
+            }],
+            value: kf.sub(&endw.p_claim, &hw),
+        };
+        let ddw = kf.sub(&kf.sub(&one, &hw), &sum_eqw);
+        let mut wq_terms = vec![PinTerm::Kelems {
+            commit: inst.idx_bl,
+            coeff0: 0,
+            weights: vec![
+                z.clone(), eqw[0].clone(), z.clone(), eqw[1].clone(),
+                z.clone(), eqw[2].clone(), z.clone(), eqw[3].clone(),
+            ],
+        }];
+        // -sum lw * value over the committed primary column...
+        for g in 0..ml.entry_cms[inst.entry] {
+            let lo = g * per;
+            let n_c = (n_el - lo).min(per);
+            wq_terms.push(PinTerm::Scalar {
+                commit: ml.entry_base[inst.entry] + g,
+                coeff0: 0,
+                weights: (0..n_c).map(|i| kf.neg(&lw[lo + i])).collect(),
+            });
+        }
+        // ... minus Y * the pair column (silu), both dense.
+        if let Some(pe) = inst.pair {
+            for g in 0..ml.entry_cms[pe] {
+                let lo = g * per;
+                let n_c = (n_el - lo).min(per);
+                wq_terms.push(PinTerm::Scalar {
+                    commit: ml.entry_base[pe] + g,
+                    coeff0: 0,
+                    weights: (0..n_c)
+                        .map(|i| kf.neg(&ring::lookup::mul_y(&kf, &lw[lo + i])))
+                        .collect(),
+                });
+            }
+        }
+        // Code offset folds into the value: q = alpha - (value + offset).
+        let mut wq_value = kf.sub(&kf.sub(&endw.q_claim, &kf.mul(alpha, &hw)), &ddw);
+        if inst.offset != 0 {
+            wq_value = kf.add(&wq_value, &kf.scale(zq.to_mod(inst.offset), &hw));
+        }
+        let wq = PinnedValue { terms: wq_terms, value: wq_value };
+        let tp = PinnedValue {
+            terms: vec![
+                PinTerm::Scalar {
+                    commit: inst.idx_m,
+                    coeff0: 0,
+                    weights: (0..inst.t_rows).map(|j| lt[tpos[j]].clone()).collect(),
+                },
+                PinTerm::Kelems {
+                    commit: inst.idx_bl,
+                    coeff0: 8 * K_DEG,
+                    weights: vec![
+                        eqt[0].clone(), z.clone(), eqt[1].clone(), z.clone(),
+                        eqt[2].clone(), z.clone(), eqt[3].clone(), z.clone(),
+                    ],
+                },
+            ],
+            value: endt.p_claim.clone(),
+        };
+        let ddt = kf.sub(&kf.sub(&one, &ht), &sum_eqt);
+        let tq = PinnedValue {
+            terms: vec![PinTerm::Kelems {
+                commit: inst.idx_bl,
+                coeff0: 8 * K_DEG,
+                weights: vec![
+                    z.clone(), eqt[0].clone(), z.clone(), eqt[1].clone(),
+                    z.clone(), eqt[2].clone(), z.clone(), eqt[3].clone(),
+                ],
+            }],
+            value: kf.add(&kf.sub(&kf.sub(&endt.q_claim, &kf.mul(alpha, &ht)), &ddt), &ft),
+        };
+        vec![wp, wq, tp, tq]
+    };
+    // The STATEMENT-side table values of an instance (what the VERIFIER
+    // folds — independent of the prover's choice).
+    let stmt_tab_k = |inst: &BfInst| -> Vec<KElem> {
+        if let Some((eg, ea)) = inst.silu {
+            let (bytes, _) = silu_v2_member(eg, ea).expect("frozen member");
+            silu_v2_rows(bytes)
+                .iter()
+                .map(|&(v, s)| fuse_pair(&kf, zq.to_mod(v), zq.to_mod(s)))
+                .collect()
+        } else {
+            (0..inst.t_rows as u64).map(|j| kf.embed(j)).collect()
+        }
+    };
+
+    let t_lkp = Instant::now();
+    let mut inst_proofs: Vec<(MaskedDescentProof, MaskedDescentProof)> = Vec::new();
+    for (ii, inst) in ml.insts.iter().enumerate() {
+        let mat = &mut inst_mat[ii];
+        let alpha = tr.challenge_k(&kf);
+        let wtree = blinded_witness_tree(&kf, &alpha, &mat.w_col, inst.dw, &mat.bl_w);
+        let (pw, endw) = masked_gkr_prove(&kf, &[wtree], mat.masks_w.take().unwrap(), &mut tr);
+        let ttree = blinded_table_tree(&kf, &alpha, &mat.tab_k, &mat.m_k, inst.dt, &mat.bl_t);
+        let (pt, endt) = masked_gkr_prove(&kf, &[ttree], mat.masks_t.take().unwrap(), &mut tr);
+        let shell_w = zero_masks(&kf, inst.dw, 0);
+        let shell_t = zero_masks(&kf, inst.dt, 0);
+        pins.extend(descent_pins(inst.base_wm, &shell_w, &pw, &endw, inst.dw));
+        pins.extend(descent_pins(inst.base_tm, &shell_t, &pt, &endt, inst.dt));
+        // The PROVER folds its own table (the WrongTable arm folds the
+        // wrong member so its pins are self-consistent; the verifier's
+        // fold below is what rejects).
+        pins.extend(leaf_pins(inst, &mat.tab_k, &endw, &endt, &alpha));
+        cost.bytes_descents += masked_pass_bytes(inst.dw, inst.dt, 0, 1);
+        inst_proofs.push((pw, pt));
+        mat.w_col = Vec::new(); // drop the fused column early
+    }
+    cost.lkp_s = t_lkp.elapsed().as_secs_f64();
+
+    // ---- Pin batch -> psi claims -> masked wave split. ------------------
+    let t_pc = Instant::now();
+    for p in &pins {
+        tr.absorb_k(&kf, "bf-pin", std::slice::from_ref(&p.value));
+    }
+    cost.n_pins = pins.len();
+    let psi = derive_pin_psi(&tr.state(), UR1_PIN_COPIES, pins.len() * K_DEG, q);
+    let claims_p = pin_claims(&kf, &pins, ml.n_data, msg_r, &psi);
+    drop(pins);
+    cost.pinclaims_s = t_pc.elapsed().as_secs_f64();
+    let msg_refs: Vec<&[Poly]> = msgs[..ml.n_data].iter().map(|m| m.as_slice()).collect();
+    let (mut pw_claims, reveals) = split_claims_prover_masked(
+        &zq,
+        &ml.plan,
+        &claims_p,
+        &msg_refs,
+        &ml.pad_layout,
+        pads_live.take().expect("pads drawn pre-challenge"),
+    )
+    .expect("honest masked split");
+    drop(claims_p);
+    if pw_claims.is_empty() {
+        pw_claims = (0..ml.plan.waves.len()).map(|_| Vec::new()).collect();
+    }
+    cost.bytes_reveals = 12 * reveals.iter().map(|r| r.len()).sum::<usize>();
+
+    // ---- Wave rounds + closing (the D2 pattern). ------------------------
+    let t_waves = Instant::now();
+    let n_waves = ml.plan.waves.len();
+    let unpack_rho = |packed: &[i8]| -> Vec<Vec<i64>> {
+        (0..shape.n_r)
+            .map(|r| packed[r * D..(r + 1) * D].iter().map(|&b| b as i64).collect())
+            .collect()
+    };
+    let wave_idxs = |w: usize| -> Vec<usize> {
+        let mut v = ml.plan.waves[w].clone();
+        if ml.pad_layout.has_pads() {
+            v.push(ml.base_pad + w / ml.pad_layout.waves_per_cm);
+        }
+        let g0 = ml.base_wave_g + w * ml.wave_g_groups;
+        v.extend(g0..g0 + ml.wave_g_groups);
+        v
+    };
+    let mut wave_proofs: Vec<ring::ct_engine::CtRoundProof> = Vec::with_capacity(n_waves);
+    let mut rp_cache: std::collections::BTreeMap<usize, (ring::ct_engine::CtRoundParams, ring::commit::A1Paths)> =
+        std::collections::BTreeMap::new();
+    let tr_state = tr.state();
+    for w in 0..n_waves {
+        let idxs = wave_idxs(w);
+        let n_cw = idxs.len();
+        assert!(n_cw <= ml.c2_max);
+        if !rp_cache.contains_key(&n_cw) {
+            let rp = derive_ct_round_params(q, shape, n_cw, 0, 0, true);
+            let a1pw = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cw, (rp, a1pw));
+        }
+        let (rp_w, a1p_w) = rp_cache.get(&n_cw).unwrap();
+        let path_w = KernelPath::A1(a1p_w);
+        let claims_w: Vec<CtClaim> = std::mem::take(&mut pw_claims[w]);
+        let wrhos: Vec<Vec<Vec<i64>>> = idxs.iter().map(|&i| unpack_rho(&rhos8[i])).collect();
+        let openings: Vec<StdOpening> = idxs
+            .iter()
+            .enumerate()
+            .map(|(j, &i)| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &msgs[i], rho: &wrhos[j] })
+            .collect();
+        let mut state_p: Vec<u8> = tr_state.to_vec();
+        state_p.extend((w as u64).to_le_bytes());
+        let wt1s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t1s[i].clone()).collect();
+        let wt2s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_w = ct_h0(&crs, &state_p, &wt1s, &wt2s, &[]);
+        let pad_shift = usize::from(ml.pad_layout.has_pads());
+        let (proof_w, _) = prove_ct_round(
+            &path_w, &ctx_ring, rp_w, None, &crs, &h0_w, &claims_w, &[], &[], &[], &openings,
+            &[], &[], ml.plan.waves[w].len() + pad_shift, &mut rng,
+        );
+        cost.bytes_ct_z += n_cw * shape.n_r * D * 8;
+        cost.bytes_ct_w1 += n_cw * shape.kappa * D * 4;
+        cost.bytes_ct_other += claims_w.len() * D * 4 * 2;
+        wave_proofs.push(proof_w);
+    }
+    let closing_proof = if ml.pad_layout.has_pads() {
+        let idxs_z: Vec<usize> = (ml.base_pad..ml.base_pad + ml.pad_layout.n_pad_cms)
+            .chain(ml.base_closing_g..ml.base_closing_g + ml.closing_g_groups)
+            .collect();
+        let n_cz = idxs_z.len();
+        if !rp_cache.contains_key(&n_cz) {
+            let rp = derive_ct_round_params(q, shape, n_cz, 0, 0, true);
+            let a1pz = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cz, (rp, a1pz));
+        }
+        let (rp_z, a1p_z) = rp_cache.get(&n_cz).unwrap();
+        let path_z = KernelPath::A1(a1p_z);
+        let claims_z = closing_round_claims(&zq, &ml.pad_layout);
+        let mut state_z: Vec<u8> = tr_state.to_vec();
+        state_z.extend(b"bf-closing");
+        let zt1s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t1s[i].clone()).collect();
+        let zt2s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_z = ct_h0(&crs, &state_z, &zt1s, &zt2s, &[]);
+        let zrhos: Vec<Vec<Vec<i64>>> = idxs_z.iter().map(|&i| unpack_rho(&rhos8[i])).collect();
+        let openings_z: Vec<StdOpening> = idxs_z
+            .iter()
+            .enumerate()
+            .map(|(j, &i)| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &msgs[i], rho: &zrhos[j] })
+            .collect();
+        let (proof_z, _) = prove_ct_round(
+            &path_z, &ctx_ring, rp_z, None, &crs, &h0_z, &claims_z, &[], &[], &[], &openings_z,
+            &[], &[], ml.pad_layout.n_pad_cms, &mut rng,
+        );
+        cost.bytes_ct_z += n_cz * shape.n_r * D * 8;
+        cost.bytes_ct_w1 += n_cz * shape.kappa * D * 4;
+        cost.bytes_ct_other += claims_z.len() * D * 4 * 2;
+        Some(proof_z)
+    } else {
+        None
+    };
+    cost.waves_s = t_waves.elapsed().as_secs_f64();
+    cost.prove_s = t_prove.elapsed().as_secs_f64();
+
+    // ---- VERIFIER. ------------------------------------------------------
+    // Statement gate (the P0 model-identity discipline): the verifier
+    // rebuilds the pass statement from the PUBLIC model — honest export
+    // data reloaded, weight commitments RECOMPUTED under their public
+    // seeds — plus the RECEIVED witness commitment tags, and compares
+    // digests. A wrong-weight prover (self-consistent or not) fails
+    // HERE, before any crypto.
+    let t_verify = Instant::now();
+    let honest_li = bf_load_layer(li, t, true);
+    {
+        let mut v_digests = all_digests.clone();
+        let (honest_digs, _) = bf_commit_entries(&honest_li, t, shape, &crs, &path, false);
+        for e in 1..=3 {
+            v_digests[li][e] = honest_digs[e].clone();
+        }
+        let saved = std::mem::replace(&mut layers[li], honest_li);
+        let statement_v = m125_build_statement(t, layers, &v_digests, &crs.crs_hash);
+        layers[li] = saved;
+        let ctx_v = statement_v.digest().expect("verifier statement validates");
+        if ctx_v != ctx {
+            verdict.statement_ok = false;
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (verdict, cost);
+        }
+    }
+    let mut tv = LkpTranscript::new("uagb1-bf-pass", &h0_layer);
+    let mut pins_v: Vec<PinnedValue> = Vec::new();
+    for (mi, &(ea, eb, ec, rows, inner, cols)) in matmuls.iter().enumerate() {
+        let (lr, lk, lc) = (lg2(rows), lg2(inner), lg2(cols));
+        let (scp, v_claim) = &mm_proofs[mi];
+        let rx: Vec<KElem> = (0..lr).map(|_| tv.challenge_k(&kf)).collect();
+        let ry: Vec<KElem> = (0..lc).map(|_| tv.challenge_k(&kf)).collect();
+        tv.absorb_k(&kf, "bf-mm-claim", std::slice::from_ref(v_claim));
+        let sc = sumcheck_verify(&kf, lk, 2, v_claim, scp, &product2, &mut tv);
+        tv.absorb_k(&kf, "bf-mm-final", &scp.final_evals);
+        match sc {
+            Some((kstar, _)) => {
+                let eq_rx = eq_table(&kf, &rx);
+                let eq_ry = eq_table(&kf, &ry);
+                let eq_k = eq_table(&kf, &kstar);
+                pins_v.extend(matmul_pins(
+                    ea, eb, ec, rows, inner, cols, &eq_rx, &eq_ry, &eq_k, v_claim,
+                    &scp.final_evals[0], &scp.final_evals[1],
+                ));
+            }
+            None => {
+                verdict.matmul_ok[mi] = false;
+            }
+        }
+    }
+    {
+        let (scp, v_h) = &had_proof;
+        let r2: Vec<KElem> = (0..lv_f).map(|_| tv.challenge_k(&kf)).collect();
+        tv.absorb_k(&kf, "bf-had-claim", std::slice::from_ref(v_h));
+        let sc = sumcheck_verify(&kf, lv_f, 3, v_h, scp, &product3, &mut tv);
+        tv.absorb_k(&kf, "bf-had-final", &scp.final_evals);
+        match sc {
+            Some((kstar, _)) => {
+                // The eq-table final is verifier-computable; a lying
+                // prover cannot shift mass into it.
+                if scp.final_evals[0] != bf_eq_point(&kf, &r2, &kstar) {
+                    verdict.hadamard_ok = false;
+                }
+                let eq_r2 = eq_table(&kf, &r2);
+                let eq_z = eq_table(&kf, &kstar);
+                let col_pin = |e: usize, weights_tab: &[KElem], value: &KElem| PinnedValue {
+                    terms: (0..ml.entry_cms[e])
+                        .map(|g| PinTerm::Scalar {
+                            commit: ml.entry_base[e] + g,
+                            coeff0: 0,
+                            weights: weights_tab[g * per..(g + 1) * per].to_vec(),
+                        })
+                        .collect(),
+                    value: value.clone(),
+                };
+                pins_v.push(col_pin(11, &eq_r2, v_h));
+                pins_v.push(col_pin(7, &eq_z, &scp.final_evals[1]));
+                pins_v.push(col_pin(10, &eq_z, &scp.final_evals[2]));
+            }
+            None => {
+                verdict.hadamard_ok = false;
+            }
+        }
+    }
+    for &(xe, ye, re, shift) in &req_edges {
+        let (er, ec) = bf_entry_shape(xe, t);
+        let lv = lg2(er * ec);
+        let r: Vec<KElem> = (0..lv).map(|_| tv.challenge_k(&kf)).collect();
+        let lw = eq_table(&kf, &r);
+        let two_s = zq.to_mod(1i64 << shift);
+        let col_terms = |e: usize, f: &dyn Fn(&KElem) -> KElem| -> Vec<PinTerm> {
+            (0..ml.entry_cms[e])
+                .map(|g| PinTerm::Scalar {
+                    commit: ml.entry_base[e] + g,
+                    coeff0: 0,
+                    weights: lw[g * per..(g + 1) * per].iter().map(f).collect(),
+                })
+                .collect()
+        };
+        let mut terms = col_terms(xe, &|w| w.clone());
+        terms.extend(col_terms(ye, &|w| kf.neg(&kf.scale(two_s, w))));
+        terms.extend(col_terms(re, &|w| kf.neg(w)));
+        pins_v.push(PinnedValue { terms, value: kf.zero() });
+    }
+    let t_vlkp = Instant::now();
+    for (ii, inst) in ml.insts.iter().enumerate() {
+        let (pw, pt) = &inst_proofs[ii];
+        let alpha = tv.challenge_k(&kf);
+        let shell_w = zero_masks(&kf, inst.dw, 0);
+        let shell_t = zero_masks(&kf, inst.dt, 0);
+        let vw = masked_gkr_verify(&kf, 1, inst.dw, &shell_w, pw, &mut tv, false);
+        let vt = masked_gkr_verify(&kf, 1, inst.dt, &shell_t, pt, &mut tv, false);
+        match (vw, vt) {
+            (Some((roots_w, ew)), Some((roots_t, et))) => {
+                let mut ok = !kf.is_zero(&roots_w[0][1]) && !kf.is_zero(&roots_t[0][1]);
+                ok &= kf.mul(&roots_w[0][0], &roots_t[0][1])
+                    == kf.mul(&roots_t[0][0], &roots_w[0][1]);
+                verdict.roots_ok[ii] = ok;
+                pins_v.extend(descent_pins(inst.base_wm, &shell_w, pw, &ew, inst.dw));
+                pins_v.extend(descent_pins(inst.base_tm, &shell_t, pt, &et, inst.dt));
+                // The verifier folds the STATEMENT's table — the
+                // wrong-table reject point.
+                pins_v.extend(leaf_pins(inst, &stmt_tab_k(inst), &ew, &et, &alpha));
+            }
+            _ => {
+                verdict.roots_ok[ii] = false;
+            }
+        }
+    }
+    cost.verify_lkp_s = t_vlkp.elapsed().as_secs_f64();
+    for p in &pins_v {
+        tv.absorb_k(&kf, "bf-pin", std::slice::from_ref(&p.value));
+    }
+    let psi_v = derive_pin_psi(&tv.state(), UR1_PIN_COPIES, pins_v.len() * K_DEG, q);
+    let claims_v = pin_claims(&kf, &pins_v, ml.n_data, msg_r, &psi_v);
+    drop(pins_v);
+    let v_split = split_claims_verifier_masked(&zq, &ml.plan, &claims_v, &reveals, &ml.pad_layout);
+    drop(claims_v);
+    let mut vw_claims: Vec<Vec<CtClaim>> = match v_split {
+        Ok(v) => v,
+        Err(_) => {
+            verdict.sum_gate_ok = false;
+            verdict.waves_ok = false;
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (verdict, cost);
+        }
+    };
+    if vw_claims.is_empty() {
+        vw_claims = (0..n_waves).map(|_| Vec::new()).collect();
+    }
+    let t_vw = Instant::now();
+    let tv_state = tv.state();
+    for w in 0..n_waves {
+        let idxs = wave_idxs(w);
+        let n_cw = idxs.len();
+        let (rp_w, a1p_w) = rp_cache.get(&n_cw).expect("verifier derives the same round shapes");
+        let path_w = KernelPath::A1(a1p_w);
+        let claims_w: Vec<CtClaim> = std::mem::take(&mut vw_claims[w]);
+        let mut state_v: Vec<u8> = tv_state.to_vec();
+        state_v.extend((w as u64).to_le_bytes());
+        let wt1s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t1s[i].clone()).collect();
+        let wt2s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_wv = ct_h0(&crs, &state_v, &wt1s, &wt2s, &[]);
+        let pad_shift = usize::from(ml.pad_layout.has_pads());
+        let ok_w = verify_ct_round(
+            &path_w, &ctx_ring, rp_w, None, &crs, &h0_wv, &claims_w, &[], &[], &[], &wt1s, &wt2s,
+            &[], &[], &[], ml.plan.waves[w].len() + pad_shift, &wave_proofs[w],
+        );
+        if !ok_w {
+            verdict.waves_ok = false;
+            if verdict.first_bad_wave.is_none() {
+                verdict.first_bad_wave = Some(w);
+            }
+        }
+    }
+    if let Some(proof_z) = &closing_proof {
+        let idxs_z: Vec<usize> = (ml.base_pad..ml.base_pad + ml.pad_layout.n_pad_cms)
+            .chain(ml.base_closing_g..ml.base_closing_g + ml.closing_g_groups)
+            .collect();
+        let n_cz = idxs_z.len();
+        let (rp_z, a1p_z) = rp_cache.get(&n_cz).expect("closing shape derived");
+        let path_z = KernelPath::A1(a1p_z);
+        let claims_zv = closing_round_claims(&zq, &ml.pad_layout);
+        let mut state_zv: Vec<u8> = tv_state.to_vec();
+        state_zv.extend(b"bf-closing");
+        let zt1s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t1s[i].clone()).collect();
+        let zt2s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_zv = ct_h0(&crs, &state_zv, &zt1s, &zt2s, &[]);
+        if !verify_ct_round(
+            &path_z, &ctx_ring, rp_z, None, &crs, &h0_zv, &claims_zv, &[], &[], &[], &zt1s, &zt2s,
+            &[], &[], &[], ml.pad_layout.n_pad_cms, proof_z,
+        ) {
+            verdict.closing_ok = false;
+        }
+    }
+    cost.verify_waves_s = t_vw.elapsed().as_secs_f64();
+    cost.verify_s = t_verify.elapsed().as_secs_f64();
+    if !quiet {
+        println!(
+            "  layer {li}: accept={} | {} data cms ({} commitments, {} waves, {} pins) | commit {:.1}s prove {:.1}s (mm {:.1} had {:.1} req {:.1} lkp {:.1} pinclaims {:.1} waves {:.1}) verify {:.1}s (lkp {:.1} waves {:.1})",
+            verdict.accept(), ml.n_data, ml.n_commits, n_waves, cost.n_pins,
+            cost.commit_s, cost.prove_s, cost.matmul_s, cost.had_s, cost.req_s, cost.lkp_s,
+            cost.pinclaims_s, cost.waves_s, cost.verify_s, cost.verify_lkp_s, cost.verify_waves_s
+        );
+    }
+    (verdict, cost)
 }

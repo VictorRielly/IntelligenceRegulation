@@ -163,14 +163,24 @@ class CommitmentTests(unittest.TestCase):
         self.assertEqual(left, right)
 
     def test_opening_proof_roundtrip(self):
+        # Fixed seed (see pinned_entropy — the Pi1/Pi2 tamper-test
+        # precedent in this file): at toy parameters the honest opening
+        # proof carries small probabilistic tails (rejection-sampling
+        # norm tail on the accept side; a b-bit challenge collision on
+        # the wrong-commitment side), which made this test flake at low
+        # rate under fresh OS entropy (U-AG-B1 baseline log,
+        # 2026-08-08). Pinning the entropy makes every accept/reject
+        # below deterministic while exercising exactly the same prover
+        # and verifier code paths; nothing asserted is weakened.
         params, key = self.params, self.key
-        x = [secrets.randbelow(params.q) for _ in range(params.n)]
-        rho = ternary_vector(params.big_n)
-        t = commit(key, x, rho)
-        proof = prove_opening(key, t, rho)
+        with pinned_entropy(0x5EED_0165):
+            x = [secrets.randbelow(params.q) for _ in range(params.n)]
+            rho = ternary_vector(params.big_n)
+            t = commit(key, x, rho)
+            proof = prove_opening(key, t, rho)
+            t_bad = commit(key, x, ternary_vector(params.big_n))
         self.assertTrue(verify_opening(key, t, proof))
         # Wrong commitment must fail.
-        t_bad = commit(key, x, ternary_vector(params.big_n))
         self.assertFalse(verify_opening(key, t_bad, proof))
         # Norm violation must fail.
         gamma, zeta = proof
