@@ -26079,6 +26079,11 @@ struct BgOpts {
     migrate: Option<(usize, usize)>,
     perturb_w: bool,
     zero_w: bool,
+    /// Battery hook (AZB-10b/AZB-11 leg 4, the h0 face): suppress the
+    /// PROVER-side derive-time static refusal so the forged-map proof
+    /// gets produced and the SHIPPED VERIFIER's h0 map binding is the
+    /// gate that rejects it. Never a shipped mode.
+    prover_skip_static: bool,
     /// AZB-11 legs 2/3: honest-verifier fixed-coin transcripts (the
     /// engine's own leak-harness tool — challenges independent of
     /// absorbed content) + a pinned h0 so rigged-witness runs see the
@@ -26099,6 +26104,7 @@ impl Default for BgOpts {
             migrate: None,
             perturb_w: false,
             zero_w: false,
+            prover_skip_static: false,
             coins_fixed: false,
             h0_override: None,
             quiet: false,
@@ -27257,7 +27263,32 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
     let (vb_w, vb_a, gc_w, gc_a, static_violation, _split_vals) =
         assemble(&claims, &nus, &reg, &lays, &kf);
     if static_violation && !opts.weak_map_unbound {
-        panic!("AZB-11 leg 1 (static support) FIRED in the shipped prover: a weight-class tensor is referenced by the activation batch — deployment-blocking for P2");
+        // E-11 REJECT SEMANTICS (F-Z3 derive-path wiring): the shipped
+        // prover REFUSES to produce a proof whose activation batch
+        // references a weight-class tensor — deployment-blocking for
+        // P2, an error not a warning. (The battery's h0-face leg uses
+        // prover_skip_static to get the forged proof PRODUCED so the
+        // shipped VERIFIER's map binding is the gate instead.)
+        if !opts.prover_skip_static {
+            eprintln!(
+                "AZB-11 leg 1 (static support) FIRED in the shipped prover: a weight-class \
+                 tensor is referenced by the activation batch — deployment-blocking for P2 \
+                 (the declared label 'weights private' is void until the canary passes)"
+            );
+            verdict.groups_ok = false;
+            fail(&mut verdict, "azb11-static-prover");
+            return (
+                verdict,
+                cost,
+                BgArtifacts {
+                    h0: h0_agg,
+                    statement_digest: ctx_digest,
+                    act_snapshot: Vec::new(),
+                    act_floor: Vec::new(),
+                    azb11_static_violation: static_violation,
+                },
+            );
+        }
     }
 
     // ---- Group eval proofs (weight first, then act). ----
@@ -27662,13 +27693,23 @@ fn bg_battery() {
         "declared-output public-claim lie REJECT",
         !v.accept() && v.first_fail == Some("public-claim"),
     );
-    // L10 AZB-10b DEFENSE: forged group map vs the shipped
-    // statement-derived map inside h0_agg.
+    // L10a AZB-10b DEFENSE face 1: the shipped PROVER's derive-time
+    // static refusal (E-11 wired into derive — before any proving).
     let mut o = small(false, BgTamper::None);
     o.migrate = Some((0, 1));
     let (v, _, _) = bg_pass_run(&o);
     check(
-        "AZB-10b DEFENSE: forged group map REJECT at the h0 map binding",
+        "AZB-10b DEFENSE (derive): shipped prover REFUSES the forged group map (azb11-static-prover)",
+        !v.accept() && v.first_fail == Some("azb11-static-prover"),
+    );
+    // L10b AZB-10b DEFENSE face 2: the forged-map proof produced (hook)
+    // is REJECTED by the shipped VERIFIER's h0 map binding.
+    let mut o = small(false, BgTamper::None);
+    o.migrate = Some((0, 1));
+    o.prover_skip_static = true;
+    let (v, _, _) = bg_pass_run(&o);
+    check(
+        "AZB-10b DEFENSE (h0): forged-map proof REJECT at the shipped verifier's map binding",
         !v.accept() && v.first_fail == Some("h0-map-binding"),
     );
     // L11 AZB-10b ATTACK: the map-unbound weakened verifier accepts the
@@ -27785,22 +27826,30 @@ fn bg_canary() {
         "leg 3 perturbation: W perturbed, T_act fixed -> bare activation transcript byte-identical",
         art3.act_snapshot == art1.act_snapshot,
     );
-    // Leg 4 (REJECT F5): the group-map migration. Shipped: h0 binds the
-    // statement-derived map -> transcript invalid. Forged-from-start
-    // under the weak hook: legs 1-2 FIRE.
+    // Leg 4 (REJECT F5): the group-map migration. Shipped face 1: the
+    // prover's derive-time static refusal. Shipped face 2 (hook: the
+    // forged proof produced): the verifier's h0 map binding rejects.
+    // Weak face: the map-unbound pipeline ACCEPTS — the leak is live.
     let mut o4 = base();
     o4.migrate = Some((0, 1));
     o4.coins_fixed = false;
     let (v4, _, _) = bg_pass_run(&o4);
+    let mut o4h = base();
+    o4h.migrate = Some((0, 1));
+    o4h.coins_fixed = false;
+    o4h.prover_skip_static = true;
+    let (v4h, _, _) = bg_pass_run(&o4h);
     let mut o4w = base();
     o4w.migrate = Some((0, 1));
     o4w.weak_map_unbound = true;
     let (v4w, _, art4w) = bg_pass_run(&o4w);
     let floor_differs = art4w.act_floor != art1.act_floor;
     check(
-        "leg 4 migration F5: shipped h0 REJECTS; forged-map run fires the static leg and the act floor now folds weight data (AZB-10b leak face)",
+        "leg 4 migration F5: shipped prover REFUSES (derive) + shipped verifier h0-map REJECTS (hook-produced proof) + weak pipeline ACCEPTS with the static leg firing and the act floor folding weight data (AZB-10b leak face)",
         !v4.accept()
-            && v4.first_fail == Some("h0-map-binding")
+            && v4.first_fail == Some("azb11-static-prover")
+            && !v4h.accept()
+            && v4h.first_fail == Some("h0-map-binding")
             && v4w.accept()
             && art4w.azb11_static_violation
             && floor_differs,

@@ -185,6 +185,32 @@ for the full statement.
 
 ## 7. E-O3-BB disposition; E-blocks; walls and findings
 
+### 7.1 E-O3-BB at the pass statement (dispositioned, not silent)
+
+E-O3-BB = "D-R1 rho-sharing verified with a battery leg OR the split
+priced (+one descent pair), never silent" — transferred here from
+BA via BD. Disposition at the composed pass artifact: **the composed
+path carries NO descent pair at all** (the folded masked descent is
+the recorded unbuilt piece — Section 1), so D-R1 rho-sharing has no
+engine object THIS wave either. Both branches are PRICED in the
+Section 4 expectation: the rho-shared reading rides the design-form
+line (one witness arm shared); the break case adds one witness-arm
+descent pair per shared fold group ([MODEL], the FP 3.5 sensitivity
+form at 125M structure). The battery leg lands when the folded
+descent lands; the obligation stays OPEN and attached to that build
+item — recorded in the ledger verdict row.
+
+### 7.2 AZB E-blocks at this lane's stages
+
+| leg | status here |
+|---|---|
+| E-10 (AZB-10 vs the real pass manifest) | **group face (AZB-10b) WIRED at the composed pass**: the statement-derived group map binds inside h0_agg; forged-map F5 pair BOTH directions (shipped h0 REJECT / map-unbound weak verifier ACCEPTS with the leak face live) + the migrated-floor weight-functional exhibit (canary leg 4). The segment face (AZB-10a) stays BE's landed engine leg (statement-digest edge), consumed unchanged. |
+| E-11 (AZB-11, the weight-independence canary) | **WIRED at the pass group map** — the four FP 4.2 legs + both 11b contaminated variants (Section 6); leg 1 (static support) runs in EVERY shipped prove AND verify as an error, not a warning (deployment-blocking semantics per F-Z3). |
+| E-6 / E-7(i) | inherited from BD's landed engine legs; my per-level structure is BD's (one representative-level F5 pair battery-covered there). The AZB-11 leg-2 recompute IS the E-7(i) pattern applied per GROUP at pass scope. |
+| E-1..E-5, E-7(ii/iii), E-8, E-9 | **NOT unlocked** — they bind the T_blind/blinding machinery, which does not exist at the composed bare/Tier-Z path (the same honest gap as the P2 round-polynomial masking, Section 1). Stated, not fudged. |
+
+### 7.3 Walls and findings
+
 (filled at close)
 
 ## 8. Freeze rows and reproduction
