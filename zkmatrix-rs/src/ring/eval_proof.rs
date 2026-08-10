@@ -49,12 +49,20 @@
 // a challenge-keyed deterministic witness image (AZ-L3); this module
 // implements the proof system, the deployment rule lives one layer up.
 //
-// Verifier-scaling wall (recorded, not hidden): the transported
-// constraint chain materializes the aggregated level-0 functional at
-// O(N_limb) ring-mults on BOTH sides (the claim kernel has no
-// Greyhound row-column split in this implementation). Bytes and
-// soundness structure are unaffected; the a (x) b factored kernel
-// (PARAMS 2.2/5.3) is the recorded fix for the 7B-scale verifier.
+// Verifier-scaling wall — CLOSED FOR THE VERIFIER at wave 3 ([UAGB1-BH]):
+// the wave-2 implementation materialized the aggregated level-0
+// functional at O(N_limb) ring-mults on BOTH sides. The verifier-side
+// fix is the Greyhound row-column split (PARAMS 2.2/5.3), implemented
+// here as `psi_level0_factored` + `transport_level_from_psi`: in the
+// recursed path Phi_0 is consumed ONLY through Psi_0 = compute_psi(
+// Phi_0, chunk_0, c_0) (the level-1 L1 rows; the floor/Tier-Z L1 for
+// one-level schedules), and Psi_0 is computed DIRECTLY from the
+// rank-1 kernel factors without materializing Phi_0 or the N-value
+// weight table. Exact mod-q identity (sum regrouping only): the wire,
+// the transcript, and every verdict are bit-identical — asserted by
+// the [UAGB1-BH] differential battery. The PROVER still materializes
+// Phi_0 (its h-garbage consumes phi chunk slices); the prover-side
+// constant is a separate item.
 
 use super::digits::{gamma_max_exact, OP_CONC};
 use super::kfield::{KElem, KField, K_DEG};
@@ -703,13 +711,33 @@ pub fn transport_level(
     c: &[Vec<i64>],     // r quinary fold challenges
     alphas: &[Poly],    // transport_rows(bindings.len()) aggregation challenges
 ) -> LevelTransport {
+    let psi = compute_psi(ctx, phi, plan.chunk, c);
+    transport_level_from_psi(ctx, &psi, h_target, plan, layout, a_mat, bindings, c, alphas)
+}
+
+/// [UAGB1-BH] `transport_level` with Psi precomputed — phi enters the
+/// transport ONLY through Psi, so a caller holding the factored Psi_0
+/// (`psi_level0_factored`) never materializes Phi_0. Values are
+/// identical to `transport_level` by construction.
+#[allow(clippy::too_many_arguments)]
+pub fn transport_level_from_psi(
+    ctx: &RingCtx,
+    psi: &[Poly],       // compute_psi(phi, plan.chunk, c) — chunk rings
+    h_target: &Poly,    // H_i
+    plan: &LevelPlan,
+    layout: &NextLayout,
+    a_mat: &[Poly],     // kappa x chunk
+    bindings: &[OuterBinding],
+    c: &[Vec<i64>],     // r quinary fold challenges
+    alphas: &[Poly],    // transport_rows(bindings.len()) aggregation challenges
+) -> LevelTransport {
     let zq = &ctx.zq;
+    assert_eq!(psi.len(), plan.chunk);
     let n_rows = transport_rows(bindings.len());
     assert_eq!(alphas.len(), n_rows);
     let (a_t1, a_l1) = (&alphas[0], &alphas[1]);
     let a_t4 = &alphas[2..2 + KAPPA_AGG];
     let a_t5 = &alphas[2 + KAPPA_AGG..];
-    let psi = compute_psi(ctx, phi, plan.chunk, c);
     let cpair = compute_cpairs(zq, c);
     // T5 contribution of a next-witness position (relative to t_base).
     let t5_at = |pos: usize, acc: &mut Poly| {
@@ -951,6 +979,218 @@ impl ClaimKernelCtx<'_> {
 }
 
 // ---------------------------------------------------------------------------
+// [UAGB1-BH] The Greyhound row-column split of the claim kernel
+// (PARAMS 2.2/5.3) — the wave-3 verifier fix of the recorded
+// O(N_limb) wall.
+//
+// STRUCTURE. In the recursed path the verifier consumes the
+// aggregated level-0 functional Phi_0 ONLY through
+// Psi_0[u] = sum_k c_k * Phi_0[k*chunk + u] (compute_psi): the
+// level-1 transport's L1 rows, and — for one-level schedules — the
+// floor/Tier-Z L1 family. Phi_0 itself is
+//   Phi_0[v] = sum_c alpha_c * conj(row_c of digit ring v),
+// with the kw row of ring v = radix_limb * (row_ker[row] *_K
+// col_ker[col]) per coefficient slot. Two exact facts collapse it:
+//   (1) K-multiplication is F_q-bilinear over the coordinate basis
+//       {Y^d}: (s *_K x)[c] = sum_d x[d] * (s *_K Y^d)[c];
+//   (2) conj_poly is Z_q-linear over coefficients.
+// Hence, whenever a tensor's cols is a multiple of D (each value
+// ring lies inside ONE matrix row: f = row*cols + cb*D + c1),
+//   Phi_0[v] = radix_limb * sum_d beta[row][d] * conjQ[cb][d],
+//   beta[row][d] = sum_c (row_ker[row] *_K Y^d)[c] * alpha_c,
+//   conjQ[cb][d] = conj_poly(c1 -> col_ker[cb*D + c1][d]),
+// and Psi_0 assembles at O(rows * 16) scalar-scaled alpha sums +
+// O(n_value_rings * 16) ring-mults + O(n_0) radix-scale-adds —
+// never materializing Phi_0 (n_0 ring elements) or the N-value
+// weight table. Every step is an exact mod-q regrouping of the
+// reference sum, so Psi_0 is BIT-IDENTICAL to
+// compute_psi(Phi_0, chunk, c) — asserted by the [UAGB1-BH]
+// differential battery. Tensors with cols % D != 0 (battery-small
+// shapes) take the per-ring generic branch below, same values.
+
+/// Reference Phi_0 of one digit ring (the kw-row/bpolys formula of
+/// `ClaimKernelCtx`, kernels borrowed) — the generic branch of the
+/// factored Psi_0 and the differential oracle's per-ring form.
+fn phi0_ring(
+    ctx: &RingCtx,
+    kf: &KField,
+    group: &AggGroup,
+    kernels: &[TensorClaimKernel],
+    alphas: &[Poly],
+    u: usize,
+) -> Poly {
+    let zq = &ctx.zq;
+    for (ti, t) in group.tensors.iter().enumerate() {
+        let lo = t.digit_ring_base;
+        let hi = lo + t.n_digit_rings();
+        if u >= lo && u < hi {
+            let rel = u - lo;
+            let (vr, limb) = (rel / t.l0, rel % t.l0);
+            let radix = zq.to_mod(1i64 << (t.e0 as usize * limb));
+            let mut acc = poly_zero();
+            let Some(ker) = kernels.iter().find(|k| k.tensor_idx == ti) else {
+                return acc;
+            };
+            // kw row of ring u, coordinate-sliced and conj-packed
+            // (bpolys), contracted with the alphas.
+            let mut rows = vec![poly_zero(); K_DEG];
+            for c1 in 0..D {
+                let f = vr * D + c1;
+                if f < t.n_values() {
+                    let w = kf.scale(
+                        radix,
+                        &kf.mul(&ker.row_kernel[f / t.cols], &ker.col_kernel[f % t.cols]),
+                    );
+                    for (cd, row) in rows.iter_mut().enumerate() {
+                        row[c1] = w[cd];
+                    }
+                }
+            }
+            for (a, r) in alphas.iter().zip(rows.iter()) {
+                let bp = conj_poly(zq, r);
+                acc = poly_add(zq, &acc, &ring_mul_split_kara_fast(ctx, a, &bp));
+            }
+            return acc;
+        }
+    }
+    panic!("digit ring {u} outside group");
+}
+
+/// [UAGB1-BH] Psi_0 by the row-column split: exactly
+/// `compute_psi(Phi_0, chunk, c)` for the level-0 claim-kernel
+/// functional Phi_0(kernels, alphas), computed WITHOUT materializing
+/// Phi_0. `chunk`/`c` are the level-0 plan's split (chunk >= 1,
+/// r = c.len(), r * chunk >= n_digit_rings).
+pub fn psi_level0_factored(
+    ctx: &RingCtx,
+    kf: &KField,
+    group: &AggGroup,
+    kernels: &[TensorClaimKernel],
+    alphas: &[Poly],
+    c: &[Vec<i64>],
+    chunk: usize,
+) -> Vec<Poly> {
+    assert_eq!(alphas.len(), K_DEG);
+    let zq = &ctx.zq;
+    let r = c.len();
+    let c_polys: Vec<Poly> = c.iter().map(|ck| poly_from_small(zq, ck)).collect();
+    let mut psi = vec![poly_zero(); chunk];
+    // Scatter one digit ring's Phi_0 value into Psi (lazy per-(k,
+    // ring-source) fold products are the caller's job; here v is the
+    // global digit-ring index).
+    for (ti, t) in group.tensors.iter().enumerate() {
+        let ker = kernels.iter().find(|k| k.tensor_idx == ti);
+        let aligned = t.cols % D == 0 && ker.is_some();
+        if !aligned {
+            // Generic branch (misaligned cols or absent kernel):
+            // per-ring reference values, folded directly.
+            for rel in 0..t.n_digit_rings() {
+                let v = t.digit_ring_base + rel;
+                let (k, u) = (v / chunk, v % chunk);
+                debug_assert!(k < r);
+                let ph = phi0_ring(ctx, kf, group, kernels, alphas, v);
+                if ph.iter().all(|&x| x == 0) {
+                    continue;
+                }
+                let m = ring_mul_split_kara_fast(ctx, &ph, &c_polys[k]);
+                psi[u] = poly_add(zq, &psi[u], &m);
+            }
+            continue;
+        }
+        let ker = ker.unwrap();
+        let nb = t.cols / D;
+        // conjQ[cb][d]: conj-packed d-coordinate slice of the
+        // col-kernel block cb.
+        let conjq: Vec<Vec<Poly>> = (0..nb)
+            .map(|cb| {
+                (0..K_DEG)
+                    .map(|d| {
+                        let mut base = poly_zero();
+                        for c1 in 0..D {
+                            base[c1] = ker.col_kernel[cb * D + c1][d];
+                        }
+                        conj_poly(zq, &base)
+                    })
+                    .collect()
+            })
+            .collect();
+        // Coordinate basis powers Y^d.
+        let ybasis: Vec<KElem> = (0..K_DEG)
+            .map(|d| {
+                let mut e = kf.zero();
+                e[d] = 1;
+                e
+            })
+            .collect();
+        let radixes: Vec<u64> =
+            (0..t.l0).map(|l| zq.to_mod(1i64 << (t.e0 as usize * l))).collect();
+        for row in 0..t.rows {
+            let rk = &ker.row_kernel[row];
+            // beta[d] = sum_c (rk *_K Y^d)[c] * alpha_c — scalar-
+            // scaled alpha sums, no ring-mults.
+            let beta: Vec<Poly> = (0..K_DEG)
+                .map(|d| {
+                    let l_col = kf.mul(rk, &ybasis[d]);
+                    let mut acc = poly_zero();
+                    for (cd, a) in alphas.iter().enumerate() {
+                        if l_col[cd] != 0 {
+                            acc = poly_add(zq, &acc, &super::poly_scale(zq, l_col[cd], a));
+                        }
+                    }
+                    acc
+                })
+                .collect();
+            for cb in 0..nb {
+                let vr = row * nb + cb;
+                // RQ = sum_d beta[d] * conjQ[cb][d] = Phi_0 of this
+                // value ring's limb-0 (radix folded in below).
+                let mut rq = poly_zero();
+                for d in 0..K_DEG {
+                    if beta[d].iter().all(|&x| x == 0) {
+                        continue;
+                    }
+                    rq = poly_add(
+                        zq,
+                        &rq,
+                        &ring_mul_split_kara_fast(ctx, &beta[d], &conjq[cb][d]),
+                    );
+                }
+                // The l0 digit rings of this value ring: fold by the
+                // chunk split with a lazily-cached c_k * RQ product
+                // (k changes at most once inside a value ring).
+                let mut cached: Option<(usize, Poly)> = None;
+                for limb in 0..t.l0 {
+                    let v = t.digit_ring_base + vr * t.l0 + limb;
+                    let (k, u) = (v / chunk, v % chunk);
+                    debug_assert!(k < r);
+                    let s = match &cached {
+                        Some((ck, s)) if *ck == k => s.clone(),
+                        _ => {
+                            let s = ring_mul_split_kara_fast(ctx, &rq, &c_polys[k]);
+                            cached = Some((k, s.clone()));
+                            s
+                        }
+                    };
+                    psi[u] = poly_add(zq, &psi[u], &super::poly_scale(zq, radixes[limb], &s));
+                }
+            }
+        }
+    }
+    psi
+}
+
+/// [UAGB1-BH] Reference Phi_0 materialization over the whole group
+/// (the wave-2 verifier's object) — the differential oracle for
+/// `psi_level0_factored`; battery use.
+pub fn phi0_reference(
+    ctx: &RingCtx,
+    kf: &KField,
+    group: &AggGroup,
+    kernels: &[TensorClaimKernel],
+    alphas: &[Poly],
+) -> Vec<Poly> {
+    (0..group.n_digit_rings).map(|u| phi0_ring(ctx, kf, group, kernels, alphas, u)).collect()
+}
 
 /// Absorb a poly list into the transcript (canonical bytes).
 pub fn absorb_polys(tr: &mut LkpTranscript, label: &str, polys: &[Poly]) {

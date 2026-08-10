@@ -1147,11 +1147,32 @@ pub fn install_blinders(kf: &KField, p: &mut [KElem], q: &mut [KElem], bl: &Blin
     }
 }
 
+/// [UAGB1-BH wave 3, BF-F3] The public witness-leaf position map of
+/// `blinded_witness_tree`: honest leaf j sits at
+///   j                      for j <  n/2 - 4   (the left block), and
+///   n/2 + (j - (n/2 - 4))  for j >= n/2 - 4   (the right block),
+/// i.e. the contiguous front fill up to the first blinder position,
+/// then the right half from n/2 — the `table_row_positions` split
+/// discipline extended to witness columns. Capacity is n - 8: each
+/// half keeps its top blinder (tL/tR randomize the layer-1 values)
+/// and final-pad blinder (f0/f1) plus two spare dummies, exactly the
+/// dummy budget the split table layout already runs with. For
+/// n_used <= n/2 - 4 the map is the identity — the historical layout,
+/// BIT-IDENTICAL (the pre-wave-3 builder asserted that bound; there
+/// was no behavior above it to preserve). Pin builders consume this
+/// map; the 2^20-class pass tensors fit at depth 21 instead of the
+/// BF-F3 dummy-padded depth 22 (~2x tree work).
+pub fn witness_leaf_positions(n_used: usize, n: usize) -> Vec<usize> {
+    let cap_half = n / 2 - 4;
+    assert!(n_used <= n - 8, "witness exceeds the split capacity n - 8");
+    (0..n_used).map(|j| if j < cap_half { j } else { n / 2 + (j - cap_half) }).collect()
+}
+
 /// Blinder-extended witness tree: n_used honest fused leaves at the
-/// front, dummies (0, 1) elsewhere, the blinder set at the fixed
-/// positions. The honest block must end BELOW the first blinder
-/// position (n/2 - 4): each leaf-layer half needs dummy space for its
-/// top blinder or the layer-1 values stay unblinded.
+/// `witness_leaf_positions` map (front-contiguous below n/2 - 4 — the
+/// historical layout, bit-identical; split into the right half beyond
+/// it, capacity n - 8), dummies (0, 1) elsewhere, the blinder set at
+/// the fixed positions.
 pub fn blinded_witness_tree(
     kf: &KField,
     alpha: &KElem,
@@ -1160,13 +1181,14 @@ pub fn blinded_witness_tree(
     bl: &BlinderSet,
 ) -> FracTree {
     let n = 1usize << depth;
-    assert!(
-        w_fused.len() <= blinder_positions(n)[0],
-        "honest witness block would collide with a blinder position"
-    );
+    let pos = witness_leaf_positions(w_fused.len(), n);
+    debug_assert!({
+        let blp = blinder_positions(n);
+        pos.iter().all(|p| !blp.contains(p))
+    });
     let mut p = vec![kf.zero(); n];
     let mut q = vec![kf.one(); n];
-    for (i, w) in w_fused.iter().enumerate() {
+    for (w, &i) in w_fused.iter().zip(pos.iter()) {
         p[i] = kf.one();
         q[i] = kf.sub(alpha, w);
     }
