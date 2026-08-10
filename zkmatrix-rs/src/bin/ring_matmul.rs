@@ -5056,6 +5056,7 @@ fn freeze_check() {
     all_ok &= freeze_check_uagb1_bd();
     all_ok &= freeze_check_uagb1_be();
     all_ok &= freeze_check_uagb1_bf();
+    all_ok &= freeze_check_uagb1_bi(); // [UAGB1-BI] wire-format stability row
 
     if all_ok {
         println!("freeze-check passed");
@@ -6387,6 +6388,7 @@ fn main() {
         // weights: `m125-pass v4-battery | statement | prove <layer..> |
         // battery [small]` — see the [UAGB1-BF] section.
         Some("m125-pass") => m125_pass_main(&args[1..]),
+        Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("matmul-statement") => {
             // `matmul-statement battery` = the adversarial battery at
             // 128x768x256; `matmul-statement <rows> <inner> <cols>` =
@@ -26399,4 +26401,2190 @@ fn uagb1_bh_gkr_bench(log2_els: usize) {
         (kel_new + kel9) * 64,
         (kel_old - kel_new) * 64,
     );
+}
+
+// ===========================================================================
+// [UAGB1-BI] U-AG-B1 wave 3, lane BI: THE CANONICAL WIRE FORMAT (audit
+// M-05) + the p50/p95 measurement harness.
+//
+// Wire codec: src/wire.rs (ZKWF v1; spec docs/zkmatrix-poc/
+// WIRE_FORMAT.md — the spec is the authority on every byte). This
+// section owns the engine-facing side: honest-path drivers that
+// produce the wave-2 artifacts as OBJECTS (reusing the BD/BE machinery
+// of this module — zero changes inside their zones), object <-> wire
+// conversions, the round-trip + corruption battery (`uagb1-bi
+// wire-battery`), the serialized-vs-counted measurement (`uagb1-bi
+// wire-bench ...`), the contract-statistic harness (`uagb1-bi
+// bench-stat ...` — TARGET_CONTRACT Section 4: p95 over >= 20 warm
+// runs, p50 alongside, cold-start reported separately; protocol doc
+// docs/zkmatrix-poc/MEASUREMENT_PROTOCOL.md), and freeze row
+// UAGB1-BI-1 (wire-format stability, both directions).
+//
+// Shared-zone touches (each ONE line, listed in the lane report): the
+// `uagb1-bi` arm in main's dispatch match; the freeze_check_uagb1_bi()
+// line in freeze_check's chain.
+//
+// Decode discipline (panic = abort profile): wire::decode_* never
+// panics; the verify-from-wire drivers gate the decoded META against
+// the EXPECTED instance before any planner/derive code (whose asserts
+// are derive-time gates, not adversarial-input surfaces) can run.
+
+#[path = "../wire.rs"]
+mod wire;
+
+// ---------------------------------------------------------------------------
+// Object <-> wire conversions (kind 1).
+
+fn bi_group_to_wire(
+    name: &str,
+    p: &ring::eval_proof::GroupEvalProof,
+    tz: Option<&TierZFloor>,
+) -> wire::WireEvalGroup {
+    wire::WireEvalGroup {
+        name: name.to_string(),
+        u0: p.u0.clone(),
+        ugh0: p.ugh0.clone(),
+        b_rows: p.b_rows.clone(),
+        level_us: p.level_us.clone(),
+        floor_e: p.floor_e,
+        floor: p.floor.clone(),
+        tierz: tz.map(|t| wire::WireTierZ {
+            images: t.images.clone(),
+            response: t.response.clone(),
+            restarts: t.restarts,
+        }),
+    }
+}
+
+fn bi_group_from_wire(
+    g: &wire::WireEvalGroup,
+) -> (ring::eval_proof::GroupEvalProof, Option<TierZFloor>) {
+    (
+        ring::eval_proof::GroupEvalProof {
+            u0: g.u0.clone(),
+            ugh0: g.ugh0.clone(),
+            b_rows: g.b_rows.clone(),
+            level_us: g.level_us.clone(),
+            floor: g.floor.clone(),
+            floor_e: g.floor_e,
+            tcap_attempts: Vec::new(), // diagnostics; never wire
+        },
+        g.tierz.as_ref().map(|t| TierZFloor {
+            images: t.images.clone(),
+            response: t.response.clone(),
+            restarts: t.restarts,
+        }),
+    )
+}
+
+/// The proven eval-proof instance (the honest path of the BD stack,
+/// stopped at "serialized proof bytes exist" — everything a verifier
+/// consumes, nothing prover-internal).
+struct BiAggProven {
+    rows: usize,
+    inner: usize,
+    cols: usize,
+    tier_z: bool,
+    force_levels: Option<usize>,
+    crs_seed: u64,
+    statement_bytes: Vec<u8>,
+    v_claim: ring::kfield::KElem,
+    scp: ring::sumcheck::SumcheckProof,
+    proof_w: ring::eval_proof::GroupEvalProof,
+    tz_w: Option<TierZFloor>,
+    proof_a: ring::eval_proof::GroupEvalProof,
+    tz_a: Option<TierZFloor>,
+    commit_s: f64,
+    prove_s: f64,
+}
+
+fn bi_agg_to_wire(p: &BiAggProven) -> wire::WireEvalArtifact {
+    let forced = match p.force_levels {
+        None => 255u8,
+        Some(k) => {
+            assert!(k < 255);
+            k as u8
+        }
+    };
+    wire::WireEvalArtifact {
+        rows: p.rows as u32,
+        inner: p.inner as u32,
+        cols: p.cols as u32,
+        crs_seed: p.crs_seed,
+        tier_z: p.tier_z,
+        forced_levels: forced,
+        statement: p.statement_bytes.clone(),
+        sumcheck: wire::WireSumcheck {
+            v_claim: p.v_claim.clone(),
+            rounds: p.scp.rounds.clone(),
+            finals: p.scp.final_evals.clone(),
+        },
+        groups: vec![
+            bi_group_to_wire("weight", &p.proof_w, p.tz_w.as_ref()),
+            bi_group_to_wire("act", &p.proof_a, p.tz_a.as_ref()),
+        ],
+    }
+}
+
+/// The honest-path prover of the BD aggregation stack (the exact
+/// uagb1_agg_run_full flow with every tamper/weak arm removed),
+/// returning the wire-facing objects. Reuses agg_* machinery as-is.
+fn bi_agg_prove(
+    rows: usize,
+    inner: usize,
+    cols: usize,
+    tier_z: bool,
+    force_levels: Option<usize>,
+    seed: u64,
+) -> BiAggProven {
+    use ring::eval_proof::{plan_schedule, plan_schedule_tier_z, TensorClaimKernel};
+    use ring::gkr::eq_table;
+    use ring::kfield::{KElem, KField};
+    use ring::sumcheck::{sumcheck_prove, LkpTranscript};
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let zq = ctxr.zq;
+    let q = zq.q;
+    debug_assert_eq!(q, wire::WIRE_Q, "wire v1 field id pins q8_31");
+
+    // Witness ([-127,127] convention, BC export).
+    let mut dr = seed;
+    let a_i8: Vec<i64> = (0..rows * inner).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
+    let b_i8: Vec<i64> = (0..inner * cols).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
+    let mut c_acc: Vec<i64> = vec![0; rows * cols];
+    for i in 0..rows {
+        for k in 0..inner {
+            let a = a_i8[i * inner + k];
+            if a == 0 {
+                continue;
+            }
+            let brow = &b_i8[k * cols..(k + 1) * cols];
+            let crow = &mut c_acc[i * cols..(i + 1) * cols];
+            for (cv, &bv) in crow.iter_mut().zip(brow.iter()) {
+                *cv += a * bv;
+            }
+        }
+    }
+
+    // Groups, schedules, digit witnesses, level-0 pre-commits.
+    let t_commit = Instant::now();
+    let (mut gw, mut ga, _acc_l0) = agg_build_groups(rows, inner, cols);
+    gw.begin_opening().expect("first weight-group opening");
+    ga.begin_opening().expect("first act-group opening");
+    let (sched_w, sched_a) = if tier_z {
+        (
+            plan_schedule_tier_z(gw.n_digit_rings, 1, q, force_levels),
+            plan_schedule_tier_z(ga.n_digit_rings, 2, q, force_levels),
+        )
+    } else {
+        (
+            plan_schedule(gw.n_digit_rings, 1, q, force_levels),
+            plan_schedule(ga.n_digit_rings, 2, q, force_levels),
+        )
+    };
+    let w0_w = agg_digit_witness(&gw, &[&a_i8]);
+    let w0_a = agg_digit_witness(&ga, &[&b_i8, &c_acc]);
+    let crs_seed = 0xB1_A6u64 ^ seed.rotate_left(17);
+    let pre_w = agg_precommit(&ctxr, &gw, &sched_w, &w0_w, crs_seed);
+    let pre_a = agg_precommit(&ctxr, &ga, &sched_a, &w0_a, crs_seed);
+
+    // Statement + h0_agg.
+    let u0_digests: Vec<Vec<u8>> = [&pre_w, &pre_a]
+        .iter()
+        .map(|p| uk8_sha(&[b"agg-u0", &polys_bytes(&p.u0)]).to_vec())
+        .collect();
+    let acc_bits = mm_acc_bits(inner);
+    let descs = vec![agg_group_descriptor(&gw, false), agg_group_descriptor(&ga, false)];
+    let statement = agg_build_statement(rows, inner, cols, acc_bits, &descs, &u0_digests, b"agg-crs-v1");
+    let ctx_digest = statement.digest().expect("prover statement validates");
+    let statement_bytes = statement.encode();
+    let h0_agg =
+        uk8_sha(&[b"uagb1-agg-h0", &ctx_digest, &polys_bytes(&pre_w.u0), &polys_bytes(&pre_a.u0)]);
+    let commit_s = t_commit.elapsed().as_secs_f64();
+
+    // Prover transcript: rx/ry, sumcheck, nu, groups.
+    let t_prove = Instant::now();
+    let lr = rows.trailing_zeros() as usize;
+    let lc = cols.trailing_zeros() as usize;
+    let lk = usize::BITS as usize - (inner - 1).leading_zeros() as usize;
+    let mut tr = LkpTranscript::new("uagb1-agg", &h0_agg);
+    let rx: Vec<KElem> = (0..lr).map(|_| tr.challenge_k(&kf)).collect();
+    let ry: Vec<KElem> = (0..lc).map(|_| tr.challenge_k(&kf)).collect();
+    let eq_rx = eq_table(&kf, &rx);
+    let eq_ry = eq_table(&kf, &ry);
+    let nk = 1usize << lk;
+    let mut tta = vec![kf.zero(); nk];
+    for i in 0..rows {
+        let w = &eq_rx[i];
+        if kf.is_zero(w) {
+            continue;
+        }
+        for k in 0..inner {
+            let v = a_i8[i * inner + k];
+            if v != 0 {
+                tta[k] = kf.add(&tta[k], &kf.scale(zq.to_mod(v), w));
+            }
+        }
+    }
+    let mut ttb = vec![kf.zero(); nk];
+    for k in 0..inner {
+        let rowb = &b_i8[k * cols..(k + 1) * cols];
+        let mut acc = kf.zero();
+        for (j, &v) in rowb.iter().enumerate() {
+            if v != 0 {
+                acc = kf.add(&acc, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+            }
+        }
+        ttb[k] = acc;
+    }
+    let v_claim = {
+        let mut acc = kf.zero();
+        for i in 0..rows {
+            let rowc = &c_acc[i * cols..(i + 1) * cols];
+            let mut ri = kf.zero();
+            for (j, &v) in rowc.iter().enumerate() {
+                if v != 0 {
+                    ri = kf.add(&ri, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+                }
+            }
+            acc = kf.add(&acc, &kf.mul(&ri, &eq_rx[i]));
+        }
+        acc
+    };
+    tr.absorb_k(&kf, "agg-claim", std::slice::from_ref(&v_claim));
+    let product = |kf: &KField, vals: &[KElem]| kf.mul(&vals[0], &vals[1]);
+    let (scp, kstar) = sumcheck_prove(&kf, vec![tta, ttb], 2, &product, &mut tr);
+    tr.absorb_k(&kf, "agg-final", &scp.final_evals);
+    let eq_k = eq_table(&kf, &kstar);
+    let nu_w = tr.challenge_k(&kf);
+    let nu_b = tr.challenge_k(&kf);
+    let nu_c = tr.challenge_k(&kf);
+    let v_batch_w = kf.mul(&nu_w, &scp.final_evals[0]);
+    let v_batch_a = kf.add(&kf.mul(&nu_b, &scp.final_evals[1]), &kf.mul(&nu_c, &v_claim));
+    let kernels_w = vec![TensorClaimKernel {
+        tensor_idx: 0,
+        row_kernel: eq_rx.iter().map(|e| kf.mul(&nu_w, e)).collect(),
+        col_kernel: eq_k[..inner].to_vec(),
+    }];
+    let kernels_a = vec![
+        TensorClaimKernel {
+            tensor_idx: 0,
+            row_kernel: eq_k[..inner].iter().map(|e| kf.mul(&nu_b, e)).collect(),
+            col_kernel: eq_ry.clone(),
+        },
+        TensorClaimKernel {
+            tensor_idx: 1,
+            row_kernel: eq_rx.iter().map(|e| kf.mul(&nu_c, e)).collect(),
+            col_kernel: eq_ry.clone(),
+        },
+    ];
+    let mut mask_rng = ring::ProverRng::from_test_seed("uagb1-agg-tz", &seed.to_le_bytes());
+    let (proof_w, tz_w) = agg_prove_group(
+        &ctxr, &kf, &gw, &sched_w, &w0_w, &kernels_w, &v_batch_w, pre_w, &mut tr, crs_seed, false,
+        false, false, tier_z, &mut mask_rng,
+    );
+    let (proof_a, tz_a) = agg_prove_group(
+        &ctxr, &kf, &ga, &sched_a, &w0_a, &kernels_a, &v_batch_a, pre_a, &mut tr, crs_seed, false,
+        false, false, tier_z, &mut mask_rng,
+    );
+    let prove_s = t_prove.elapsed().as_secs_f64();
+    BiAggProven {
+        rows,
+        inner,
+        cols,
+        tier_z,
+        force_levels,
+        crs_seed,
+        statement_bytes,
+        v_claim,
+        scp,
+        proof_w,
+        tz_w,
+        proof_a,
+        tz_a,
+        commit_s,
+        prove_s,
+    }
+}
+
+/// Verify a DECODED kind-1 wire artifact against the expected instance
+/// (shape/mode gate first — decoded META never reaches derive-time
+/// asserts unvetted). Mirrors the shipped verifier exactly.
+fn bi_agg_verify_wire(
+    art: &wire::WireEvalArtifact,
+    rows: usize,
+    inner: usize,
+    cols: usize,
+    tier_z: bool,
+    force_levels: Option<usize>,
+) -> Result<(), &'static str> {
+    use ring::eval_proof::{plan_schedule, plan_schedule_tier_z, TensorClaimKernel};
+    use ring::gkr::eq_table;
+    use ring::kfield::{KElem, KField};
+    use ring::sumcheck::{sumcheck_verify, LkpTranscript};
+    let forced_wire = match force_levels {
+        None => 255u8,
+        Some(k) => k as u8,
+    };
+    if art.rows != rows as u32
+        || art.inner != inner as u32
+        || art.cols != cols as u32
+        || art.tier_z != tier_z
+        || art.forced_levels != forced_wire
+    {
+        return Err("meta-mismatch");
+    }
+    if art.sumcheck.v_claim.len() != ring::kfield::K_DEG {
+        return Err("wire-shape");
+    }
+    // The embedded statement must decode, re-encode byte-identically
+    // (canonical embedding), validate, and digest.
+    let statement = manifest::Statement::decode(&art.statement).map_err(|_| "statement-decode")?;
+    if statement.encode() != art.statement {
+        return Err("statement-noncanonical");
+    }
+    statement.validate().map_err(|_| "statement-invalid")?;
+    let ctx_digest = statement.digest().map_err(|_| "statement-digest-err")?;
+
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let zq = ctxr.zq;
+    let q = zq.q;
+    let (mut gw_v, mut ga_v, _) = agg_build_groups(rows, inner, cols);
+    gw_v.begin_opening().map_err(|_| "opening-count")?;
+    ga_v.begin_opening().map_err(|_| "opening-count")?;
+    let (sched_w, sched_a) = if tier_z {
+        (
+            plan_schedule_tier_z(gw_v.n_digit_rings, 1, q, force_levels),
+            plan_schedule_tier_z(ga_v.n_digit_rings, 2, q, force_levels),
+        )
+    } else {
+        (
+            plan_schedule(gw_v.n_digit_rings, 1, q, force_levels),
+            plan_schedule(ga_v.n_digit_rings, 2, q, force_levels),
+        )
+    };
+    let (proof_w, tz_w) = bi_group_from_wire(&art.groups[0]);
+    let (proof_a, tz_a) = bi_group_from_wire(&art.groups[1]);
+    // Rebuild the statement from the proof's u0 identities and require
+    // digest equality with the embedded statement (the D-4 gate).
+    let descs_v = vec![agg_group_descriptor(&gw_v, false), agg_group_descriptor(&ga_v, false)];
+    let u0_digests_v: Vec<Vec<u8>> = [&proof_w, &proof_a]
+        .iter()
+        .map(|p| uk8_sha(&[b"agg-u0", &polys_bytes(&p.u0)]).to_vec())
+        .collect();
+    let acc_bits = mm_acc_bits(inner);
+    let statement_v =
+        agg_build_statement(rows, inner, cols, acc_bits, &descs_v, &u0_digests_v, b"agg-crs-v1");
+    let ctx_v = match statement_v.validate() {
+        Ok(()) => statement_v.digest().map_err(|_| "statement-digest-err")?,
+        Err(_) => return Err("statement-invalid"),
+    };
+    if ctx_v != ctx_digest {
+        return Err("statement-digest");
+    }
+    let h0_v =
+        uk8_sha(&[b"uagb1-agg-h0", &ctx_v, &polys_bytes(&proof_w.u0), &polys_bytes(&proof_a.u0)]);
+    let mut tv = LkpTranscript::new("uagb1-agg", &h0_v);
+    let lr = rows.trailing_zeros() as usize;
+    let lc = cols.trailing_zeros() as usize;
+    let lk = usize::BITS as usize - (inner - 1).leading_zeros() as usize;
+    let rx_v: Vec<KElem> = (0..lr).map(|_| tv.challenge_k(&kf)).collect();
+    let ry_v: Vec<KElem> = (0..lc).map(|_| tv.challenge_k(&kf)).collect();
+    let v_claim = art.sumcheck.v_claim.clone();
+    tv.absorb_k(&kf, "agg-claim", std::slice::from_ref(&v_claim));
+    let scp = ring::sumcheck::SumcheckProof {
+        rounds: art.sumcheck.rounds.clone(),
+        final_evals: art.sumcheck.finals.clone(),
+    };
+    if scp.final_evals.len() != 2 {
+        return Err("wire-shape");
+    }
+    let product = |kf: &KField, vals: &[KElem]| kf.mul(&vals[0], &vals[1]);
+    let sc_v = sumcheck_verify(&kf, lk, 2, &v_claim, &scp, &product, &mut tv);
+    let (kstar_v, _) = match sc_v {
+        Some(x) => x,
+        None => return Err("sumcheck"),
+    };
+    tv.absorb_k(&kf, "agg-final", &scp.final_evals);
+    let eq_rx_v = eq_table(&kf, &rx_v);
+    let eq_ry_v = eq_table(&kf, &ry_v);
+    let eq_k_v = eq_table(&kf, &kstar_v);
+    let nu_w_v = tv.challenge_k(&kf);
+    let nu_b_v = tv.challenge_k(&kf);
+    let nu_c_v = tv.challenge_k(&kf);
+    let vb_w = kf.mul(&nu_w_v, &scp.final_evals[0]);
+    let vb_a = kf.add(&kf.mul(&nu_b_v, &scp.final_evals[1]), &kf.mul(&nu_c_v, &v_claim));
+    let kernels_w_v = vec![TensorClaimKernel {
+        tensor_idx: 0,
+        row_kernel: eq_rx_v.iter().map(|e| kf.mul(&nu_w_v, e)).collect(),
+        col_kernel: eq_k_v[..inner].to_vec(),
+    }];
+    let kernels_a_v = vec![
+        TensorClaimKernel {
+            tensor_idx: 0,
+            row_kernel: eq_k_v[..inner].iter().map(|e| kf.mul(&nu_b_v, e)).collect(),
+            col_kernel: eq_ry_v.clone(),
+        },
+        TensorClaimKernel {
+            tensor_idx: 1,
+            row_kernel: eq_rx_v.iter().map(|e| kf.mul(&nu_c_v, e)).collect(),
+            col_kernel: eq_ry_v.clone(),
+        },
+    ];
+    agg_verify_group(
+        &ctxr, &kf, &gw_v, &sched_w, &kernels_w_v, &vb_w, &proof_w, &mut tv, art.crs_seed, false,
+        false, tz_w.as_ref(),
+    )?;
+    agg_verify_group(
+        &ctxr, &kf, &ga_v, &sched_a, &kernels_a_v, &vb_a, &proof_a, &mut tv, art.crs_seed, false,
+        false, tz_a.as_ref(),
+    )?;
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Kind-2 drivers: the honest joint-matmul IXF fold (the BE rig's
+// shipped path), stopped at the transcript objects.
+
+fn bi_ct_to_wire(p: &ring::ct_engine::CtRoundProof) -> wire::WireCtRound {
+    // v1 scopes the record to the plain-commitment linear-claim form
+    // (what the BE rigs emit) — every other field must be empty.
+    assert!(
+        p.w1_ajtai.is_empty()
+            && p.w_ring.is_empty()
+            && p.h_quad.is_empty()
+            && p.gq.is_empty()
+            && p.w_quad.is_empty()
+            && p.gr.is_empty()
+            && p.w_qring.is_empty()
+            && p.gtq.is_empty()
+            && p.w_tq.is_empty()
+            && p.z_rho_ajtai.is_empty()
+            && p.z_s_ajtai.is_empty()
+            && p.t1_digits.is_empty()
+            && p.w1_digits.is_empty()
+            && p.z_digits.is_empty(),
+        "wire v1 ct-round record covers the plain linear form only"
+    );
+    wire::WireCtRound {
+        h: p.h.clone(),
+        w1: p.w1.clone(),
+        w_claim: p.w_claim.clone(),
+        z: p.z.clone(),
+    }
+}
+
+fn bi_ct_from_wire(c: &wire::WireCtRound) -> ring::ct_engine::CtRoundProof {
+    ring::ct_engine::CtRoundProof {
+        h: c.h.clone(),
+        w1: c.w1.clone(),
+        w1_ajtai: Vec::new(),
+        w_claim: c.w_claim.clone(),
+        w_ring: Vec::new(),
+        h_quad: Vec::new(),
+        gq: Vec::new(),
+        w_quad: Vec::new(),
+        gr: Vec::new(),
+        w_qring: Vec::new(),
+        gtq: Vec::new(),
+        w_tq: Vec::new(),
+        z: c.z.clone(),
+        z_rho_ajtai: Vec::new(),
+        z_s_ajtai: Vec::new(),
+        t1_digits: Vec::new(),
+        w1_digits: Vec::new(),
+        z_digits: Vec::new(),
+    }
+}
+
+struct BiFoldProven {
+    layers: usize,
+    rows: usize,
+    inner: usize,
+    cols: usize,
+    statement_bytes: Vec<u8>,
+    t1s: Vec<Vec<Poly>>,
+    t2s: Vec<Vec<Poly>>,
+    v_claim: ring::kfield::KElem,
+    scp: ring::sumcheck::SumcheckProof,
+    reveals: Vec<Vec<(usize, i64)>>,
+    waves: Vec<ring::ct_engine::CtRoundProof>,
+    closing: Option<ring::ct_engine::CtRoundProof>,
+    commit_s: f64,
+    prove_s: f64,
+}
+
+const BI_FOLD_CRS_SEED: u64 = 0x0BE2; // the BE rig's public CRS seed
+
+fn bi_fold_to_wire(p: &BiFoldProven) -> wire::WireFoldTranscript {
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    wire::WireFoldTranscript {
+        family: 1, // joint matmul
+        layers: p.layers as u32,
+        rows: p.rows as u32,
+        inner: p.inner as u32,
+        cols: p.cols as u32,
+        kappa: shape.kappa as u8,
+        msg_r: shape.msg_r as u8,
+        n_r: shape.n_r as u8,
+        crs_seed: BI_FOLD_CRS_SEED,
+        statement: p.statement_bytes.clone(),
+        t1s: p.t1s.clone(),
+        t2s: p.t2s.clone(),
+        sumcheck: wire::WireSumcheck {
+            v_claim: p.v_claim.clone(),
+            rounds: p.scp.rounds.clone(),
+            finals: p.scp.final_evals.clone(),
+        },
+        reveals: p
+            .reveals
+            .iter()
+            .map(|rv| rv.iter().map(|&(w, v)| (w as u32, v)).collect())
+            .collect(),
+        waves: p.waves.iter().map(bi_ct_to_wire).collect(),
+        closing: p.closing.as_ref().map(bi_ct_to_wire),
+    }
+}
+
+/// The three stacked pins of the joint matmul fold (the BE rig's local
+/// closure, replicated verbatim for the wire verifier — position-
+/// determined public weights over committed indices).
+#[allow(clippy::too_many_arguments)]
+fn bi_mm_pins(
+    kf: &ring::kfield::KField,
+    layers: usize,
+    rows: usize,
+    inner: usize,
+    cols: usize,
+    per: usize,
+    cms_layer: usize,
+    abc_cms: (usize, usize, usize),
+    v: &ring::kfield::KElem,
+    a_star: &ring::kfield::KElem,
+    b_star: &ring::kfield::KElem,
+    eq_rl_w: &[ring::kfield::KElem],
+    eq_rx_w: &[ring::kfield::KElem],
+    eq_ry_w: &[ring::kfield::KElem],
+    eq_k_w: &[ring::kfield::KElem],
+    eq_lstar_w: &[ring::kfield::KElem],
+) -> Vec<ring::lookup::PinnedValue> {
+    use ring::kfield::KElem;
+    use ring::lookup::{PinTerm, PinnedValue};
+    let (a_cms, b_cms, c_cms) = abc_cms;
+    let scalar_terms = |tensor: usize,
+                        n_cms: usize,
+                        wf: &dyn Fn(usize, usize) -> Option<KElem>|
+     -> Vec<PinTerm> {
+        let mut terms = Vec::new();
+        for l in 0..layers {
+            let base = l * cms_layer
+                + match tensor {
+                    0 => 0,
+                    1 => a_cms,
+                    _ => a_cms + b_cms,
+                };
+            for g in 0..n_cms {
+                let lo = g * per;
+                let mut weights: Vec<KElem> = Vec::with_capacity(per);
+                let mut any = false;
+                for c in 0..per {
+                    match wf(l, lo + c) {
+                        Some(w) => {
+                            if !kf.is_zero(&w) {
+                                any = true;
+                            }
+                            weights.push(w);
+                        }
+                        None => weights.push(kf.zero()),
+                    }
+                }
+                if any {
+                    terms.push(PinTerm::Scalar { commit: base + g, coeff0: 0, weights });
+                }
+            }
+        }
+        terms
+    };
+    let pin_c = PinnedValue {
+        terms: scalar_terms(2, c_cms, &|l, f| {
+            if f < rows * cols {
+                Some(kf.mul(&eq_rl_w[l], &kf.mul(&eq_rx_w[f / cols], &eq_ry_w[f % cols])))
+            } else {
+                None
+            }
+        }),
+        value: v.clone(),
+    };
+    let pin_a = PinnedValue {
+        terms: scalar_terms(0, a_cms, &|l, f| {
+            if f < rows * inner {
+                Some(kf.mul(&eq_lstar_w[l], &kf.mul(&eq_rx_w[f / inner], &eq_k_w[f % inner])))
+            } else {
+                None
+            }
+        }),
+        value: a_star.clone(),
+    };
+    let pin_b = PinnedValue {
+        terms: scalar_terms(1, b_cms, &|l, f| {
+            if f < inner * cols {
+                Some(kf.mul(&eq_lstar_w[l], &kf.mul(&eq_k_w[f / cols], &eq_ry_w[f % cols])))
+            } else {
+                None
+            }
+        }),
+        value: b_star.clone(),
+    };
+    vec![pin_c, pin_a, pin_b]
+}
+
+/// The honest joint-matmul IXF fold prover (the uagb1_ixf_matmul_run
+/// shipped path, tamper/weak arms removed), returning the transcript.
+fn bi_fold_prove(layers: usize, rows: usize, inner: usize, cols: usize, seed: u64) -> BiFoldProven {
+    use ring::ct_engine::{
+        ct_h0, derive_ct_round_params, draw_wave_pads, pack_wave_pads, prove_ct_round,
+        sample_ct_masks, split_claims_prover_masked, CtClaim, StdOpening, WavePads,
+    };
+    use ring::fold::{ixf_layout, ixf_sumcheck_prove, matmul_degree_schedule};
+    use ring::gkr::eq_table;
+    use ring::kfield::{KElem, KField};
+    use ring::lookup::{derive_pin_psi, pin_claims};
+    use ring::sumcheck::LkpTranscript;
+
+    let ctx_ring = ring_ctx_q8();
+    let kf = KField::new(&ctx_ring);
+    let zq = ctx_ring.zq;
+    let q = zq.q;
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    let msg_r = shape.msg_r;
+    let per = msg_r * D;
+    let crs = expand_crs(shape, q, BI_FOLD_CRS_SEED);
+    let il = ixf_layout(layers);
+    assert!(rows.is_power_of_two() && cols.is_power_of_two());
+    assert!((rows * inner) % per == 0 && (inner * cols) % per == 0 && (rows * cols) % per == 0);
+    let lr = rows.trailing_zeros() as usize;
+    let lc = cols.trailing_zeros() as usize;
+    let lk = usize::BITS as usize - (inner - 1).leading_zeros() as usize;
+    let nk = 1usize << lk;
+    let a_cms = (rows * inner) / per;
+    let b_cms = (inner * cols) / per;
+    let c_cms = (rows * cols) / per;
+    let cms_layer = a_cms + b_cms + c_cms;
+    let cl = ixf_commit_layout(layers * cms_layer, shape, q);
+    let n_waves = cl.plan.waves.len();
+
+    // Witness: per layer A, B int8 [-127,127]; C = A*B exact.
+    let mut dr = seed;
+    let mut avs: Vec<Vec<i64>> = Vec::with_capacity(layers);
+    let mut bvs: Vec<Vec<i64>> = Vec::with_capacity(layers);
+    let mut cvs: Vec<Vec<i64>> = Vec::with_capacity(layers);
+    for _ in 0..layers {
+        let a: Vec<i64> = (0..rows * inner).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
+        let b: Vec<i64> = (0..inner * cols).map(|_| rng_below(&mut dr, 255) as i64 - 127).collect();
+        let mut c: Vec<i64> = vec![0; rows * cols];
+        for i in 0..rows {
+            for k in 0..inner {
+                let av = a[i * inner + k];
+                if av == 0 {
+                    continue;
+                }
+                let brow = &b[k * cols..(k + 1) * cols];
+                let crow = &mut c[i * cols..(i + 1) * cols];
+                for (cv, &bv) in crow.iter_mut().zip(brow.iter()) {
+                    *cv += av * bv;
+                }
+            }
+        }
+        avs.push(a);
+        bvs.push(b);
+        cvs.push(c);
+    }
+
+    // Commitments (everything before any challenge).
+    let t_commit = Instant::now();
+    let mut rng = ring::ProverRng::from_test_seed("uagb1-ixf-mm-session", &seed.to_le_bytes());
+    let mut pads_live: Option<WavePads> = if cl.pad_layout.has_pads() {
+        Some(draw_wave_pads(&mut rng, q, &cl.pad_layout))
+    } else {
+        None
+    };
+    let pack_dense = |vals: &[i64], g: usize| -> Vec<Poly> {
+        let mut polys = vec![poly_zero(); msg_r];
+        for s in 0..msg_r {
+            for c in 0..D {
+                let idx = g * per + s * D + c;
+                if idx < vals.len() {
+                    polys[s][c] = zq.to_mod(vals[idx]);
+                }
+            }
+        }
+        polys
+    };
+    let mut msgs: Vec<Vec<Poly>> = Vec::with_capacity(cl.n_commits);
+    for l in 0..layers {
+        for g in 0..a_cms {
+            msgs.push(pack_dense(&avs[l], g));
+        }
+        for g in 0..b_cms {
+            msgs.push(pack_dense(&bvs[l], g));
+        }
+        for g in 0..c_cms {
+            msgs.push(pack_dense(&cvs[l], g));
+        }
+    }
+    if cl.pad_layout.has_pads() {
+        let pad_msgs = pack_wave_pads(&mut rng, q, msg_r, &cl.pad_layout, pads_live.as_ref().unwrap())
+            .expect("pad packing");
+        msgs.extend(pad_msgs);
+    }
+    let closing_g =
+        sample_ct_masks(&mut rng, q, msg_r, if cl.closing_g_groups > 0 { UR1_PIN_COPIES } else { 0 });
+    msgs.extend(closing_g);
+    for _ in 0..n_waves {
+        msgs.extend(sample_ct_masks(&mut rng, q, msg_r, UR1_PIN_COPIES));
+    }
+    assert_eq!(msgs.len(), cl.n_commits);
+    let rp_probe = derive_ct_round_params(q, shape, cl.data_cap + 1 + cl.wave_g_groups, 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp_probe.sigma, isqrt_u128(rp_probe.bound_sq));
+    let path = KernelPath::A1(&a1p);
+    let mut rhos8: Vec<Vec<i8>> = Vec::with_capacity(cl.n_commits);
+    let mut t1s: Vec<Vec<Poly>> = Vec::with_capacity(cl.n_commits);
+    let mut t2s: Vec<Vec<Poly>> = Vec::with_capacity(cl.n_commits);
+    for m in &msgs {
+        let rho: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+        let (t1, t2) = commit(&path, &crs, m, &rho);
+        rhos8.push(rho.iter().flat_map(|p| p.iter().map(|&x| x as i8)).collect());
+        t1s.push(t1);
+        t2s.push(t2);
+    }
+    let commit_s = t_commit.elapsed().as_secs_f64();
+
+    // Statement + h0 (per-layer segment rows).
+    let t_prove = Instant::now();
+    let commit_digests: Vec<Vec<u8>> =
+        (0..cl.n_commits).map(|i| group_digest(&t1s[i], &t2s[i])).collect();
+    let layer_rows: Vec<Vec<u8>> = (0..layers)
+        .map(|l| group_list_digest(&commit_digests[l * cms_layer..(l + 1) * cms_layer]))
+        .collect();
+    let statement = ixf_mm_build_statement(
+        layers,
+        rows,
+        inner,
+        cols,
+        &crs.crs_hash,
+        &commit_digests[..cl.n_data],
+        (a_cms, b_cms, c_cms),
+        &layer_rows,
+        true,
+    );
+    let ctx = statement.digest().expect("prover statement validates");
+    let statement_bytes = statement.encode();
+    let h0 = ct_h0(&crs, &ctx, &t1s, &t2s, &[]);
+
+    // Prover transcript: rx, ry, r_l; claim; the joint sumcheck.
+    let mut tr = LkpTranscript::new("uagb1-ixf-mm", &h0);
+    let rx: Vec<KElem> = (0..lr).map(|_| tr.challenge_k(&kf)).collect();
+    let ry: Vec<KElem> = (0..lc).map(|_| tr.challenge_k(&kf)).collect();
+    let rl: Vec<KElem> = (0..il.lambda).map(|_| tr.challenge_k(&kf)).collect();
+    let eq_rx = eq_table(&kf, &rx);
+    let eq_ry = eq_table(&kf, &ry);
+    let eq_rl = eq_table(&kf, &rl);
+    let mut tta = vec![kf.zero(); il.slots * nk];
+    let mut ttb = vec![kf.zero(); il.slots * nk];
+    for l in 0..layers {
+        for i in 0..rows {
+            let w = &eq_rx[i];
+            if kf.is_zero(w) {
+                continue;
+            }
+            for k in 0..inner {
+                let v = avs[l][i * inner + k];
+                if v != 0 {
+                    let t = &mut tta[l * nk + k];
+                    *t = kf.add(t, &kf.scale(zq.to_mod(v), w));
+                }
+            }
+        }
+        for k in 0..inner {
+            let row = &bvs[l][k * cols..(k + 1) * cols];
+            let mut acc = kf.zero();
+            for (j, &v) in row.iter().enumerate() {
+                if v != 0 {
+                    acc = kf.add(&acc, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+                }
+            }
+            ttb[l * nk + k] = acc;
+        }
+    }
+    // The committed-C functional value at (r_l, rx, ry) — the claim.
+    let v_claim = {
+        let mut acc = kf.zero();
+        for l in 0..layers {
+            if kf.is_zero(&eq_rl[l]) {
+                continue;
+            }
+            let mut lacc = kf.zero();
+            for i in 0..rows {
+                let row = &cvs[l][i * cols..(i + 1) * cols];
+                let mut ri = kf.zero();
+                for (j, &v) in row.iter().enumerate() {
+                    if v != 0 {
+                        ri = kf.add(&ri, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+                    }
+                }
+                lacc = kf.add(&lacc, &kf.mul(&ri, &eq_rx[i]));
+            }
+            acc = kf.add(&acc, &kf.mul(&lacc, &eq_rl[l]));
+        }
+        acc
+    };
+    tr.absorb_k(&kf, "mm-claim", std::slice::from_ref(&v_claim));
+    let eq_l_expanded = ring::fold::expand_layer_table(&kf, &eq_rl, nk);
+    let degrees = matmul_degree_schedule(lk, il.lambda);
+    let comb = |kf: &KField, v: &[KElem]| kf.mul(&v[0], &kf.mul(&v[1], &v[2]));
+    let (scp, pt) = ixf_sumcheck_prove(&kf, vec![eq_l_expanded, tta, ttb], &degrees, &comb, &mut tr);
+    tr.absorb_k(&kf, "mm-final", &scp.final_evals);
+
+    // The three stacked pins (E4-N1: values before psi).
+    let eq_k = eq_table(&kf, &pt[0..lk]);
+    let eq_lstar = eq_table(&kf, &pt[lk..]);
+    let pins = bi_mm_pins(
+        &kf,
+        layers,
+        rows,
+        inner,
+        cols,
+        per,
+        cms_layer,
+        (a_cms, b_cms, c_cms),
+        &v_claim,
+        &scp.final_evals[1],
+        &scp.final_evals[2],
+        &eq_rl,
+        &eq_rx,
+        &eq_ry,
+        &eq_k,
+        &eq_lstar,
+    );
+    for p in &pins {
+        tr.absorb_k(&kf, "mm-pin", std::slice::from_ref(&p.value));
+    }
+    let psi = derive_pin_psi(&tr.state(), UR1_PIN_COPIES, pins.len() * ring::kfield::K_DEG, q);
+    let claims_p = pin_claims(&kf, &pins, cl.n_data, msg_r, &psi);
+    drop(pins);
+
+    // Masked split + per-wave ct-rounds (the Z1 shipped path).
+    let msg_refs: Vec<&[Poly]> = msgs[..cl.n_data].iter().map(|m| m.as_slice()).collect();
+    let (mut pw_claims, reveals) = split_claims_prover_masked(
+        &zq,
+        &cl.plan,
+        &claims_p,
+        &msg_refs,
+        &cl.pad_layout,
+        pads_live.take().unwrap_or_else(|| draw_wave_pads(&mut rng, q, &cl.pad_layout)),
+    )
+    .expect("honest masked split");
+    drop(claims_p);
+    if pw_claims.is_empty() {
+        pw_claims = (0..n_waves).map(|_| Vec::new()).collect();
+    }
+    let unpack_rho = |packed: &[i8]| -> Vec<Vec<i64>> {
+        (0..shape.n_r)
+            .map(|rr| packed[rr * D..(rr + 1) * D].iter().map(|&b| b as i64).collect())
+            .collect()
+    };
+    let wave_idxs = |w: usize| -> Vec<usize> {
+        let mut v = cl.plan.waves[w].clone();
+        if cl.pad_layout.has_pads() {
+            v.push(cl.base_pad + w / cl.pad_layout.waves_per_cm);
+        }
+        let g0 = cl.base_wave_g + w * cl.wave_g_groups;
+        v.extend(g0..g0 + cl.wave_g_groups);
+        v
+    };
+    let mut wave_proofs: Vec<ring::ct_engine::CtRoundProof> = Vec::with_capacity(n_waves);
+    let mut rp_cache: std::collections::BTreeMap<
+        usize,
+        (ring::ct_engine::CtRoundParams, ring::commit::A1Paths),
+    > = std::collections::BTreeMap::new();
+    let tr_state = tr.state();
+    for w in 0..n_waves {
+        let idxs = wave_idxs(w);
+        let n_cw = idxs.len();
+        if !rp_cache.contains_key(&n_cw) {
+            let rp = derive_ct_round_params(q, shape, n_cw, 0, 0, true);
+            let a1pw = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cw, (rp, a1pw));
+        }
+        let (rp_w, a1p_w) = rp_cache.get(&n_cw).unwrap();
+        let path_w = KernelPath::A1(a1p_w);
+        let claims_w: Vec<CtClaim> = std::mem::take(&mut pw_claims[w]);
+        let wrhos: Vec<Vec<Vec<i64>>> = idxs.iter().map(|&i| unpack_rho(&rhos8[i])).collect();
+        let openings: Vec<StdOpening> = idxs
+            .iter()
+            .enumerate()
+            .map(|(j, &i)| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &msgs[i], rho: &wrhos[j] })
+            .collect();
+        let mut state_p: Vec<u8> = tr_state.to_vec();
+        state_p.extend((w as u64).to_le_bytes());
+        let wt1s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t1s[i].clone()).collect();
+        let wt2s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_w = ct_h0(&crs, &state_p, &wt1s, &wt2s, &[]);
+        let pad_shift = usize::from(cl.pad_layout.has_pads());
+        let (proof_w, _) = prove_ct_round(
+            &path_w,
+            &ctx_ring,
+            rp_w,
+            None,
+            &crs,
+            &h0_w,
+            &claims_w,
+            &[],
+            &[],
+            &[],
+            &openings,
+            &[],
+            &[],
+            cl.plan.waves[w].len() + pad_shift,
+            &mut rng,
+        );
+        wave_proofs.push(proof_w);
+    }
+    let closing_proof = if cl.pad_layout.has_pads() {
+        let idxs_z: Vec<usize> = (cl.base_pad..cl.base_pad + cl.pad_layout.n_pad_cms)
+            .chain(cl.base_closing_g..cl.base_closing_g + cl.closing_g_groups)
+            .collect();
+        let n_cz = idxs_z.len();
+        if !rp_cache.contains_key(&n_cz) {
+            let rp = derive_ct_round_params(q, shape, n_cz, 0, 0, true);
+            let a1pz = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cz, (rp, a1pz));
+        }
+        let (rp_z, a1p_z) = rp_cache.get(&n_cz).unwrap();
+        let path_z = KernelPath::A1(a1p_z);
+        let claims_z = ring::ct_engine::closing_round_claims(&zq, &cl.pad_layout);
+        let mut state_z: Vec<u8> = tr_state.to_vec();
+        state_z.extend(b"ixf-mm-closing");
+        let zt1s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t1s[i].clone()).collect();
+        let zt2s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_z = ct_h0(&crs, &state_z, &zt1s, &zt2s, &[]);
+        let zrhos: Vec<Vec<Vec<i64>>> = idxs_z.iter().map(|&i| unpack_rho(&rhos8[i])).collect();
+        let openings_z: Vec<StdOpening> = idxs_z
+            .iter()
+            .enumerate()
+            .map(|(j, &i)| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &msgs[i], rho: &zrhos[j] })
+            .collect();
+        let (proof_z, _) = prove_ct_round(
+            &path_z,
+            &ctx_ring,
+            rp_z,
+            None,
+            &crs,
+            &h0_z,
+            &claims_z,
+            &[],
+            &[],
+            &[],
+            &openings_z,
+            &[],
+            &[],
+            cl.pad_layout.n_pad_cms,
+            &mut rng,
+        );
+        Some(proof_z)
+    } else {
+        None
+    };
+    let prove_s = t_prove.elapsed().as_secs_f64() + commit_s;
+    BiFoldProven {
+        layers,
+        rows,
+        inner,
+        cols,
+        statement_bytes,
+        t1s,
+        t2s,
+        v_claim,
+        scp,
+        reveals,
+        waves: wave_proofs,
+        closing: closing_proof,
+        commit_s,
+        prove_s,
+    }
+}
+
+/// Verify a DECODED kind-2 wire transcript against the expected
+/// instance (META gate first). Mirrors the BE rig's shipped verifier.
+fn bi_fold_verify_wire(
+    art: &wire::WireFoldTranscript,
+    layers: usize,
+    rows: usize,
+    inner: usize,
+    cols: usize,
+) -> Result<(), &'static str> {
+    use ring::ct_engine::{ct_h0, derive_ct_round_params, split_claims_verifier_masked, verify_ct_round, CtClaim};
+    use ring::fold::{ixf_layout, ixf_sumcheck_verify, matmul_degree_schedule};
+    use ring::gkr::{eq_eval, eq_table};
+    use ring::kfield::{KElem, KField};
+    use ring::lookup::{derive_pin_psi, pin_claims};
+    use ring::sumcheck::LkpTranscript;
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    if art.family != 1
+        || art.layers != layers as u32
+        || art.rows != rows as u32
+        || art.inner != inner as u32
+        || art.cols != cols as u32
+        || art.kappa != shape.kappa as u8
+        || art.msg_r != shape.msg_r as u8
+        || art.n_r != shape.n_r as u8
+        || art.crs_seed != BI_FOLD_CRS_SEED
+    {
+        return Err("meta-mismatch");
+    }
+    let ctx_ring = ring_ctx_q8();
+    let kf = KField::new(&ctx_ring);
+    let zq = ctx_ring.zq;
+    let q = zq.q;
+    let msg_r = shape.msg_r;
+    let per = msg_r * D;
+    let crs = expand_crs(shape, q, art.crs_seed);
+    let il = ixf_layout(layers);
+    let lr = rows.trailing_zeros() as usize;
+    let lc = cols.trailing_zeros() as usize;
+    let lk = usize::BITS as usize - (inner - 1).leading_zeros() as usize;
+    let a_cms = (rows * inner) / per;
+    let b_cms = (inner * cols) / per;
+    let c_cms = (rows * cols) / per;
+    let cms_layer = a_cms + b_cms + c_cms;
+    let cl = ixf_commit_layout(layers * cms_layer, shape, q);
+    let n_waves = cl.plan.waves.len();
+    if art.t1s.len() != cl.n_commits || art.waves.len() != n_waves {
+        return Err("wire-shape");
+    }
+    // The embedded statement: decode, canonical re-encode, validate.
+    let statement = manifest::Statement::decode(&art.statement).map_err(|_| "statement-decode")?;
+    if statement.encode() != art.statement {
+        return Err("statement-noncanonical");
+    }
+    statement.validate().map_err(|_| "statement-invalid")?;
+    let ctx_claimed = statement.digest().map_err(|_| "statement-digest-err")?;
+    // Rebuild the statement from the wire tags (the D-4 identity gate).
+    let commit_digests_v: Vec<Vec<u8>> =
+        (0..cl.n_commits).map(|i| group_digest(&art.t1s[i], &art.t2s[i])).collect();
+    let layer_rows_v: Vec<Vec<u8>> = (0..layers)
+        .map(|l| group_list_digest(&commit_digests_v[l * cms_layer..(l + 1) * cms_layer]))
+        .collect();
+    let statement_v = ixf_mm_build_statement(
+        layers,
+        rows,
+        inner,
+        cols,
+        &crs.crs_hash,
+        &commit_digests_v[..cl.n_data],
+        (a_cms, b_cms, c_cms),
+        &layer_rows_v,
+        true,
+    );
+    let ctx_v = statement_v.digest().map_err(|_| "statement-invalid")?;
+    if ctx_v != ctx_claimed {
+        return Err("statement-digest");
+    }
+    let h0_v = ct_h0(&crs, &ctx_v, &art.t1s, &art.t2s, &[]);
+    let mut tv = LkpTranscript::new("uagb1-ixf-mm", &h0_v);
+    let rx_v: Vec<KElem> = (0..lr).map(|_| tv.challenge_k(&kf)).collect();
+    let ry_v: Vec<KElem> = (0..lc).map(|_| tv.challenge_k(&kf)).collect();
+    let rl_v: Vec<KElem> = (0..il.lambda).map(|_| tv.challenge_k(&kf)).collect();
+    let v_claim = art.sumcheck.v_claim.clone();
+    tv.absorb_k(&kf, "mm-claim", std::slice::from_ref(&v_claim));
+    let scp = ring::sumcheck::SumcheckProof {
+        rounds: art.sumcheck.rounds.clone(),
+        final_evals: art.sumcheck.finals.clone(),
+    };
+    if scp.final_evals.len() != 3 {
+        return Err("wire-shape");
+    }
+    let degrees = matmul_degree_schedule(lk, il.lambda);
+    let comb = |kf: &KField, v: &[KElem]| kf.mul(&v[0], &kf.mul(&v[1], &v[2]));
+    let sc_v = ixf_sumcheck_verify(&kf, &degrees, &v_claim, &scp, &comb, &mut tv);
+    let (pt_v, _c_end) = match sc_v {
+        Some(x) => x,
+        None => return Err("sumcheck"),
+    };
+    if scp.final_evals[0] != eq_eval(&kf, &rl_v, &pt_v[lk..]) {
+        return Err("eq-final");
+    }
+    tv.absorb_k(&kf, "mm-final", &scp.final_evals);
+    let eq_rx_vt = eq_table(&kf, &rx_v);
+    let eq_ry_vt = eq_table(&kf, &ry_v);
+    let eq_rl_vt = eq_table(&kf, &rl_v);
+    let eq_k_vt = eq_table(&kf, &pt_v[0..lk]);
+    let eq_lstar_vt = eq_table(&kf, &pt_v[lk..]);
+    let pins_v = bi_mm_pins(
+        &kf,
+        layers,
+        rows,
+        inner,
+        cols,
+        per,
+        cms_layer,
+        (a_cms, b_cms, c_cms),
+        &v_claim,
+        &scp.final_evals[1],
+        &scp.final_evals[2],
+        &eq_rl_vt,
+        &eq_rx_vt,
+        &eq_ry_vt,
+        &eq_k_vt,
+        &eq_lstar_vt,
+    );
+    for p in &pins_v {
+        tv.absorb_k(&kf, "mm-pin", std::slice::from_ref(&p.value));
+    }
+    let psi_v = derive_pin_psi(&tv.state(), UR1_PIN_COPIES, pins_v.len() * ring::kfield::K_DEG, q);
+    let claims_v = pin_claims(&kf, &pins_v, cl.n_data, msg_r, &psi_v);
+    drop(pins_v);
+    let reveals: Vec<Vec<(usize, i64)>> = art
+        .reveals
+        .iter()
+        .map(|rv| rv.iter().map(|&(w, v)| (w as usize, v)).collect())
+        .collect();
+    let v_split = split_claims_verifier_masked(&zq, &cl.plan, &claims_v, &reveals, &cl.pad_layout);
+    let mut vw_claims: Vec<Vec<CtClaim>> = match v_split {
+        Ok(v) => v,
+        Err(_) => return Err("sum-gate"),
+    };
+    drop(claims_v);
+    if vw_claims.is_empty() {
+        vw_claims = (0..n_waves).map(|_| Vec::new()).collect();
+    }
+    let wave_idxs = |w: usize| -> Vec<usize> {
+        let mut v = cl.plan.waves[w].clone();
+        if cl.pad_layout.has_pads() {
+            v.push(cl.base_pad + w / cl.pad_layout.waves_per_cm);
+        }
+        let g0 = cl.base_wave_g + w * cl.wave_g_groups;
+        v.extend(g0..g0 + cl.wave_g_groups);
+        v
+    };
+    let mut rp_cache: std::collections::BTreeMap<
+        usize,
+        (ring::ct_engine::CtRoundParams, ring::commit::A1Paths),
+    > = std::collections::BTreeMap::new();
+    let tv_state = tv.state();
+    for w in 0..n_waves {
+        let idxs = wave_idxs(w);
+        let n_cw = idxs.len();
+        if art.waves[w].w1.len() != n_cw {
+            return Err("wire-shape");
+        }
+        if !rp_cache.contains_key(&n_cw) {
+            let rp = derive_ct_round_params(q, shape, n_cw, 0, 0, true);
+            let a1pw = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cw, (rp, a1pw));
+        }
+        let (rp_w, a1p_w) = rp_cache.get(&n_cw).unwrap();
+        let path_w = KernelPath::A1(a1p_w);
+        let claims_w: Vec<CtClaim> = std::mem::take(&mut vw_claims[w]);
+        let mut state_v: Vec<u8> = tv_state.to_vec();
+        state_v.extend((w as u64).to_le_bytes());
+        let wt1s: Vec<Vec<Poly>> = idxs.iter().map(|&i| art.t1s[i].clone()).collect();
+        let wt2s: Vec<Vec<Poly>> = idxs.iter().map(|&i| art.t2s[i].clone()).collect();
+        let h0_wv = ct_h0(&crs, &state_v, &wt1s, &wt2s, &[]);
+        let pad_shift = usize::from(cl.pad_layout.has_pads());
+        let proof_w = bi_ct_from_wire(&art.waves[w]);
+        let ok_w = verify_ct_round(
+            &path_w,
+            &ctx_ring,
+            rp_w,
+            None,
+            &crs,
+            &h0_wv,
+            &claims_w,
+            &[],
+            &[],
+            &[],
+            &wt1s,
+            &wt2s,
+            &[],
+            &[],
+            &[],
+            cl.plan.waves[w].len() + pad_shift,
+            &proof_w,
+        );
+        if !ok_w {
+            return Err("wave");
+        }
+    }
+    if cl.pad_layout.has_pads() {
+        let proof_z = match &art.closing {
+            Some(c) => bi_ct_from_wire(c),
+            None => return Err("wire-shape"),
+        };
+        let idxs_z: Vec<usize> = (cl.base_pad..cl.base_pad + cl.pad_layout.n_pad_cms)
+            .chain(cl.base_closing_g..cl.base_closing_g + cl.closing_g_groups)
+            .collect();
+        let n_cz = idxs_z.len();
+        if proof_z.w1.len() != n_cz {
+            return Err("wire-shape");
+        }
+        if !rp_cache.contains_key(&n_cz) {
+            let rp = derive_ct_round_params(q, shape, n_cz, 0, 0, true);
+            let a1pz = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cz, (rp, a1pz));
+        }
+        let (rp_z, a1p_z) = rp_cache.get(&n_cz).unwrap();
+        let path_z = KernelPath::A1(a1p_z);
+        let claims_zv = ring::ct_engine::closing_round_claims(&zq, &cl.pad_layout);
+        let mut state_zv: Vec<u8> = tv_state.to_vec();
+        state_zv.extend(b"ixf-mm-closing");
+        let zt1s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| art.t1s[i].clone()).collect();
+        let zt2s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| art.t2s[i].clone()).collect();
+        let h0_zv = ct_h0(&crs, &state_zv, &zt1s, &zt2s, &[]);
+        if !verify_ct_round(
+            &path_z,
+            &ctx_ring,
+            rp_z,
+            None,
+            &crs,
+            &h0_zv,
+            &claims_zv,
+            &[],
+            &[],
+            &[],
+            &zt1s,
+            &zt2s,
+            &[],
+            &[],
+            &[],
+            cl.pad_layout.n_pad_cms,
+            &proof_z,
+        ) {
+            return Err("closing");
+        }
+    } else if art.closing.is_some() {
+        return Err("wire-shape");
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Serialized-vs-counted accounting (the M-05 table). Counted lines
+// replicate the historical conventions EXACTLY (AggCost / MmCost
+// formulas); serialized lines are arithmetic mirrors of the spec,
+// cross-ASSERTED against the measured encoding length.
+
+fn bi_sint_width(vals: &[i64]) -> usize {
+    let mut w = 1usize;
+    for &v in vals {
+        let need = if (-128..=127).contains(&v) {
+            1
+        } else if (-32_768..=32_767).contains(&v) {
+            2
+        } else if (i32::MIN as i64..=i32::MAX as i64).contains(&v) {
+            4
+        } else {
+            8
+        };
+        w = w.max(need);
+    }
+    w
+}
+
+struct BiLine {
+    name: String,
+    counted: usize,
+    serialized: usize,
+}
+
+fn bi_print_table(what: &str, lines: &[BiLine], total_serialized: usize) {
+    println!("  serialized vs counted — {what}:");
+    println!("    {:<38} {:>14} {:>14}", "component", "counted B", "serialized B");
+    let mut ct = 0usize;
+    let mut st = 0usize;
+    for l in lines {
+        println!("    {:<38} {:>14} {:>14}", l.name, l.counted, l.serialized);
+        ct += l.counted;
+        st += l.serialized;
+    }
+    println!("    {:<38} {:>14} {:>14}", "TOTAL", ct, st);
+    assert_eq!(
+        st, total_serialized,
+        "serialized component arithmetic must reproduce the measured encoding"
+    );
+    println!(
+        "    serialized/counted = {:.4} ({} B delta)",
+        st as f64 / ct as f64,
+        st as i64 - ct as i64
+    );
+}
+
+/// Kind-1 table lines (per the spec's fixed layout arithmetic).
+fn bi_eval_table(p: &BiAggProven, encoded: &[u8]) -> Vec<BiLine> {
+    let polyb_c = 4 + D * 4; // counted poly incl. its 4 B prefix
+    let sc_els = 1 + p.scp.rounds.iter().map(|r| r.len()).sum::<usize>() + p.scp.final_evals.len();
+    let sc_ser = 64 + 4
+        + p.scp.rounds.iter().map(|r| 4 + r.len() * 64).sum::<usize>()
+        + 4
+        + p.scp.final_evals.len() * 64;
+    let mut lines = vec![
+        BiLine {
+            name: "statement (manifest bytes)".into(),
+            counted: p.statement_bytes.len(),
+            serialized: p.statement_bytes.len(),
+        },
+        BiLine { name: "matmul sumcheck".into(), counted: 64 * sc_els, serialized: sc_ser },
+    ];
+    let mut overhead_ser = 24 + 5 * 12 + 24; // envelope + 5 section headers + META body
+    for (name, proof, tz) in
+        [("weight", &p.proof_w, p.tz_w.as_ref()), ("act", &p.proof_a, p.tz_a.as_ref())]
+    {
+        let b = proof.counted_bytes();
+        let outer_ser = 8 + (proof.u0.len() + proof.ugh0.len()) * D * 4;
+        let rows_ser = 4 + proof.b_rows.len() * D * 4;
+        let lvl_ser = 4 + proof.level_us.iter().map(|u| 4 + u.len() * D * 4).sum::<usize>();
+        let flat: Vec<i64> = proof.floor.iter().flatten().copied().collect();
+        let w = bi_sint_width(&flat);
+        let floor_ser = 5 + flat.len() * w;
+        lines.push(BiLine {
+            name: format!("[{name}] outer identities"),
+            counted: b.outer_identities,
+            serialized: outer_ser,
+        });
+        lines.push(BiLine {
+            name: format!("[{name}] claim rows"),
+            counted: b.claim_rows,
+            serialized: rows_ser,
+        });
+        lines.push(BiLine {
+            name: format!("[{name}] level messages"),
+            counted: b.level_msgs,
+            serialized: lvl_ser,
+        });
+        match tz {
+            None => {
+                lines.push(BiLine {
+                    name: format!("[{name}] bare floor"),
+                    counted: b.floor,
+                    serialized: floor_ser,
+                });
+            }
+            Some(t) => {
+                // Counted convention: masked response 4 + coords*4 in the
+                // floor slot; images line 4 + n*516 (AggCost tierz_lines).
+                lines.push(BiLine {
+                    name: format!("[{name}] Tier-Z masked response"),
+                    counted: 4 + proof.floor.len() * D * 4,
+                    serialized: floor_ser,
+                });
+                lines.push(BiLine {
+                    name: format!("[{name}] Tier-Z mask images"),
+                    counted: 4 + t.images.len() * polyb_c,
+                    serialized: 4 + t.images.len() * D * 4 + 4, // POLYS + restarts u32
+                });
+            }
+        }
+        overhead_ser += 1 + name.len() + 1; // STR + floor_e
+    }
+    lines.push(BiLine {
+        name: "wire envelope + headers + META".into(),
+        counted: 0,
+        serialized: overhead_ser,
+    });
+    let _ = encoded;
+    lines
+}
+
+/// Kind-2 table lines (MmCost conventions vs the spec arithmetic).
+fn bi_fold_table(p: &BiFoldProven, encoded: &[u8]) -> Vec<BiLine> {
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    let n_commits = p.t1s.len();
+    let sc_els = 1 + p.scp.rounds.iter().map(|r| r.len()).sum::<usize>() + p.scp.final_evals.len();
+    let sc_ser = 64 + 4
+        + p.scp.rounds.iter().map(|r| 4 + r.len() * 64).sum::<usize>()
+        + 4
+        + p.scp.final_evals.len() * 64;
+    let n_reveals = p.reveals.iter().map(|r| r.len()).sum::<usize>();
+    let reveals_ser = 4 + p.reveals.iter().map(|r| 4 + r.len() * 8).sum::<usize>();
+    let mut z_counted = 0usize;
+    let mut z_ser = 0usize;
+    let mut w1_counted = 0usize;
+    let mut w1_ser = 0usize;
+    let mut other_counted = 0usize;
+    let mut other_ser = 0usize;
+    let mut wave_overhead = 4; // n_waves u32
+    for c in p.waves.iter().chain(p.closing.iter()) {
+        let n_cw = c.z.len();
+        z_counted += n_cw * shape.n_r * D * 8;
+        let flat: Vec<i64> = c.z.iter().flatten().flatten().copied().collect();
+        z_ser += 5 + flat.len() * bi_sint_width(&flat);
+        w1_counted += n_cw * shape.kappa * D * 4;
+        w1_ser += 4 + n_cw * shape.kappa * D * 4; // n_cw u32 + polys
+        other_counted += c.h.len() * D * 4 * 2;
+        other_ser += (4 + c.h.len() * D * 4) + (4 + c.w_claim.len() * D * 4);
+    }
+    wave_overhead += 1; // closing presence byte
+    let lines = vec![
+        BiLine {
+            name: "statement (manifest bytes)".into(),
+            counted: p.statement_bytes.len(),
+            serialized: p.statement_bytes.len(),
+        },
+        BiLine {
+            name: "commitment tags t1+t2".into(),
+            counted: n_commits * (shape.kappa + shape.msg_r) * D * 4,
+            serialized: 4 + n_commits * (shape.kappa + shape.msg_r) * D * 4,
+        },
+        BiLine { name: "folded sumcheck".into(), counted: 64 * sc_els, serialized: sc_ser },
+        BiLine { name: "masked share reveals".into(), counted: 12 * n_reveals, serialized: reveals_ser },
+        BiLine { name: "ct-round z responses".into(), counted: z_counted, serialized: z_ser },
+        BiLine { name: "ct-round w1 images".into(), counted: w1_counted, serialized: w1_ser },
+        BiLine { name: "ct-round h + w_claim".into(), counted: other_counted, serialized: other_ser },
+        BiLine {
+            name: "wire envelope + headers + META".into(),
+            counted: 0,
+            serialized: 24 + 7 * 12 + 29 + wave_overhead,
+        },
+    ];
+    let _ = encoded;
+    lines
+}
+
+// ---------------------------------------------------------------------------
+// The wire battery (`uagb1-bi wire-battery`) — round trips, verify-
+// after-round-trip, corruption legs both classes, kinds 1-4.
+
+fn bi_corrupt(bytes: &[u8], pos: usize, mask: u8) -> Vec<u8> {
+    let mut v = bytes.to_vec();
+    v[pos] ^= mask;
+    v
+}
+
+/// Byte offset of section `idx`'s body inside an encoded artifact.
+fn bi_section_body_offset(bytes: &[u8], idx: usize) -> usize {
+    let sizes = wire::section_sizes(bytes).expect("well-formed artifact");
+    let mut off = 24usize;
+    for (i, (_, len)) in sizes.iter().enumerate() {
+        off += 12;
+        if i == idx {
+            return off;
+        }
+        off += *len as usize;
+    }
+    panic!("section index out of range");
+}
+
+fn bi_wire_battery(light: bool) {
+    use wire::WireError;
+    println!(
+        "\n[UAGB1-BI] ZKWF v1 wire battery (round trips, verify-after-round-trip, corruption legs){}",
+        if light { " — light face (Tier-Z leg runs in the full battery)" } else { "" }
+    );
+
+    // ---- Golden sample: canonicality + structural corruption. ----
+    {
+        let g = wire::golden_sample_kind1();
+        let bytes = wire::encode_eval_artifact(&g);
+        let dec = wire::decode_eval_artifact(&bytes).expect("golden decodes");
+        assert_true("golden: decode reproduces the artifact", dec == g);
+        assert_true(
+            "golden: re-encode is byte-identical",
+            wire::encode_eval_artifact(&dec) == bytes,
+        );
+        println!(
+            "       golden bytes {} | sha {}",
+            bytes.len(),
+            hex_prefix(&uk8_sha(&[&bytes]))
+        );
+        let legs: Vec<(&str, Vec<u8>, Option<WireError>)> = vec![
+            ("magic byte", bi_corrupt(&bytes, 0, 0x01), Some(WireError::BadMagic)),
+            ("format version", bi_corrupt(&bytes, 8, 0x02), None),
+            ("artifact kind", bi_corrupt(&bytes, 12, 0x04), None),
+            ("field id", bi_corrupt(&bytes, 14, 0x01), None),
+            ("reserved byte", bi_corrupt(&bytes, 15, 0x80), Some(WireError::ReservedNonzero)),
+            ("payload length", bi_corrupt(&bytes, 16, 0x01), None),
+            ("section tag", bi_corrupt(&bytes, 24, 0x01), None),
+            ("section length", bi_corrupt(&bytes, 28, 0x01), None),
+            ("truncated", bytes[..bytes.len() - 1].to_vec(), None),
+            ("trailing byte", {
+                let mut v = bytes.clone();
+                v.push(0);
+                v
+            }, Some(WireError::TrailingBytes)),
+        ];
+        for (name, mutated, want) in legs {
+            let r = wire::decode_eval_artifact(&mutated);
+            let ok = match (&r, &want) {
+                (Err(e), Some(w)) => e == w,
+                (Err(_), None) => true,
+                (Ok(_), _) => false,
+            };
+            assert_true(&format!("golden structural corruption REJECTS cleanly: {name}"), ok);
+        }
+        // A poly coefficient pushed out of canonical range (the u32
+        // high byte of the first u0 coefficient of group 'weight').
+        let g0_off = bi_section_body_offset(&bytes, 3); // META, STMT, SC, GROUP0
+        let coeff0 = g0_off + 1 + 6 + 4; // STR "weight" + POLYS count
+        let hi = bi_corrupt(&bytes, coeff0 + 3, 0x80);
+        assert_true(
+            "golden value corruption: coefficient >= q REJECTS (CoeffRange)",
+            wire::decode_eval_artifact(&hi) == Err(WireError::CoeffRange),
+        );
+        // Non-canonical SINT width: the floor block of group 'weight'
+        // holds w=1 digits; force the width byte to 2.
+        let floor_w_off = {
+            let name = 1 + 6;
+            let u0 = 4 + 11 * D * 4;
+            let ugh0 = 4 + 11 * D * 4;
+            let brows = 4 + 16 * D * 4;
+            let levels = 4 + (4 + 11 * D * 4);
+            g0_off + name + u0 + ugh0 + brows + levels + 1 + 4
+        };
+        let mut wid = bytes.clone();
+        assert_eq!(wid[floor_w_off], 1, "golden floor block is w = 1");
+        wid[floor_w_off] = 2;
+        assert_true(
+            "golden width corruption: non-minimal SINT width REJECTS",
+            matches!(
+                wire::decode_eval_artifact(&wid),
+                Err(WireError::NonCanonicalWidth) | Err(WireError::Truncated)
+            ),
+        );
+    }
+
+    // ---- Kind 1, degenerate schedule (forced 0 levels). ----
+    let small = bi_agg_prove(64, 96, 128, false, Some(0), 0xB1_5001);
+    {
+        let art = bi_agg_to_wire(&small);
+        let bytes = wire::encode_eval_artifact(&art);
+        let dec = wire::decode_eval_artifact(&bytes).expect("kind-1 degenerate decodes");
+        assert_true(
+            "kind-1 degenerate: re-encode byte-identical",
+            wire::encode_eval_artifact(&dec) == bytes,
+        );
+        assert_true(
+            "kind-1 degenerate: verify-after-round-trip ACCEPTS",
+            bi_agg_verify_wire(&dec, 64, 96, 128, false, Some(0)).is_ok(),
+        );
+        // Value corruption inside the weight floor (in-range digit
+        // change): decode OK, verify REJECTS.
+        let g0_off = bi_section_body_offset(&bytes, 3);
+        let floor_data = {
+            let name = 1 + 6;
+            let u0 = 4 + small.proof_w.u0.len() * D * 4;
+            let ugh0 = 4 + small.proof_w.ugh0.len() * D * 4;
+            let brows = 4 + small.proof_w.b_rows.len() * D * 4;
+            let levels = 4;
+            g0_off + name + u0 + ugh0 + brows + levels + 1 + 5
+        };
+        let tampered = bi_corrupt(&bytes, floor_data, 0x01);
+        match wire::decode_eval_artifact(&tampered) {
+            Ok(dec_t) => {
+                let v = bi_agg_verify_wire(&dec_t, 64, 96, 128, false, Some(0));
+                assert_true(
+                    &format!(
+                        "kind-1 degenerate: floor value corruption decodes, verify REJECTS ({})",
+                        v.err().unwrap_or("?")
+                    ),
+                    v.is_err(),
+                );
+            }
+            Err(e) => assert_true(
+                &format!("kind-1 degenerate: floor value corruption rejected at decode ({e})"),
+                true,
+            ),
+        }
+        // Claim-row corruption (non-ct coefficient): decode OK (still
+        // canonical), verify REJECTS via the claim-row evaluation.
+        let brow_data = {
+            let name = 1 + 6;
+            let u0 = 4 + small.proof_w.u0.len() * D * 4;
+            let ugh0 = 4 + small.proof_w.ugh0.len() * D * 4;
+            g0_off + name + u0 + ugh0 + 4 + 4
+        };
+        let tampered = bi_corrupt(&bytes, brow_data, 0x01);
+        match wire::decode_eval_artifact(&tampered) {
+            Ok(dec_t) => {
+                let v = bi_agg_verify_wire(&dec_t, 64, 96, 128, false, Some(0));
+                assert_true(
+                    &format!(
+                        "kind-1 degenerate: claim-row corruption decodes, verify REJECTS ({})",
+                        v.err().unwrap_or("?")
+                    ),
+                    v.is_err(),
+                );
+            }
+            Err(e) => assert_true(
+                &format!("kind-1 degenerate: claim-row corruption rejected at decode ({e})"),
+                true,
+            ),
+        }
+        // META corruption: the expect gate rejects before any planner.
+        let meta_off = bi_section_body_offset(&bytes, 0);
+        let tampered = bi_corrupt(&bytes, meta_off, 0x40);
+        match wire::decode_eval_artifact(&tampered) {
+            Ok(dec_t) => assert_true(
+                "kind-1 degenerate: META corruption REJECTS at the expect gate",
+                bi_agg_verify_wire(&dec_t, 64, 96, 128, false, Some(0)) == Err("meta-mismatch"),
+            ),
+            Err(_) => assert_true("kind-1 degenerate: META corruption rejected at decode", true),
+        }
+        // Cross-kind: the artifact must not decode as a fold transcript.
+        assert_true(
+            "kind gate: a kind-1 artifact refuses to decode as kind-2",
+            wire::decode_fold_transcript(&bytes) == Err(WireError::BadKind(wire::KIND_EVAL_PROOF)),
+        );
+    }
+
+    // ---- Kind 1, recursed schedule (forced 2 levels). ----
+    {
+        let p = bi_agg_prove(64, 96, 128, false, Some(2), 0xB1_5002);
+        let art = bi_agg_to_wire(&p);
+        let bytes = wire::encode_eval_artifact(&art);
+        let dec = wire::decode_eval_artifact(&bytes).expect("kind-1 recursed decodes");
+        assert_true(
+            "kind-1 recursed: re-encode byte-identical",
+            wire::encode_eval_artifact(&dec) == bytes,
+        );
+        assert_true(
+            "kind-1 recursed: verify-after-round-trip ACCEPTS",
+            bi_agg_verify_wire(&dec, 64, 96, 128, false, Some(2)).is_ok(),
+        );
+        // Level-message corruption: transported chain REJECTS.
+        let g1_off = bi_section_body_offset(&bytes, 4); // act group
+        let lvl_data = {
+            let name = 1 + 3;
+            let u0 = 4 + p.proof_a.u0.len() * D * 4;
+            let ugh0 = 4 + p.proof_a.ugh0.len() * D * 4;
+            let brows = 4 + p.proof_a.b_rows.len() * D * 4;
+            g1_off + name + u0 + ugh0 + brows + 4 + 4
+        };
+        let tampered = bi_corrupt(&bytes, lvl_data, 0x01);
+        match wire::decode_eval_artifact(&tampered) {
+            Ok(dec_t) => {
+                let v = bi_agg_verify_wire(&dec_t, 64, 96, 128, false, Some(2));
+                assert_true(
+                    &format!(
+                        "kind-1 recursed: level-message corruption decodes, verify REJECTS ({})",
+                        v.err().unwrap_or("?")
+                    ),
+                    v.is_err(),
+                );
+            }
+            Err(e) => assert_true(
+                &format!("kind-1 recursed: level-message corruption rejected at decode ({e})"),
+                true,
+            ),
+        }
+    }
+
+    // ---- Kind 1, Tier-Z at the smallest corner-surviving shape. ----
+    if !light {
+        let p = bi_agg_prove(256, 768, 2048, true, None, 0xB1_5003);
+        let art = bi_agg_to_wire(&p);
+        let bytes = wire::encode_eval_artifact(&art);
+        let dec = wire::decode_eval_artifact(&bytes).expect("kind-1 tier-z decodes");
+        assert_true(
+            "kind-1 Tier-Z: re-encode byte-identical",
+            wire::encode_eval_artifact(&dec) == bytes,
+        );
+        assert_true(
+            "kind-1 Tier-Z: verify-after-round-trip ACCEPTS",
+            bi_agg_verify_wire(&dec, 256, 768, 2048, true, None).is_ok(),
+        );
+        // Response corruption (in-range): the family equations REJECT.
+        let g0_off = bi_section_body_offset(&bytes, 3);
+        let resp_data = {
+            let name = 1 + 6;
+            let u0 = 4 + p.proof_w.u0.len() * D * 4;
+            let ugh0 = 4 + p.proof_w.ugh0.len() * D * 4;
+            let brows = 4 + p.proof_w.b_rows.len() * D * 4;
+            let levels = 4 + p.proof_w.level_us.iter().map(|u| 4 + u.len() * D * 4).sum::<usize>();
+            g0_off + name + u0 + ugh0 + brows + levels + 1 + 5
+        };
+        let tampered = bi_corrupt(&bytes, resp_data, 0x01);
+        match wire::decode_eval_artifact(&tampered) {
+            Ok(dec_t) => {
+                let v = bi_agg_verify_wire(&dec_t, 256, 768, 2048, true, None);
+                assert_true(
+                    &format!(
+                        "kind-1 Tier-Z: response corruption decodes, verify REJECTS ({})",
+                        v.err().unwrap_or("?")
+                    ),
+                    v.is_err(),
+                );
+            }
+            Err(e) => assert_true(
+                &format!("kind-1 Tier-Z: response corruption rejected at decode ({e})"),
+                true,
+            ),
+        }
+        let lines = bi_eval_table(&p, &bytes);
+        bi_print_table("Tier-Z eval proof at 256x768x2048", &lines, bytes.len());
+    }
+
+    // ---- Kind 2: the joint-matmul fold at the BE battery shape. ----
+    {
+        let p = bi_fold_prove(12, 64, 96, 128, 0xB1_5004);
+        let art = bi_fold_to_wire(&p);
+        let bytes = wire::encode_fold_transcript(&art);
+        let dec = wire::decode_fold_transcript(&bytes).expect("kind-2 decodes");
+        assert_true(
+            "kind-2 mm fold: re-encode byte-identical",
+            wire::encode_fold_transcript(&dec) == bytes,
+        );
+        assert_true(
+            "kind-2 mm fold: verify-after-round-trip ACCEPTS",
+            bi_fold_verify_wire(&dec, 12, 64, 96, 128).is_ok(),
+        );
+        // Tag corruption: the rebuilt statement digest gate REJECTS.
+        let tags_off = bi_section_body_offset(&bytes, 2);
+        let tampered = bi_corrupt(&bytes, tags_off + 4, 0x01);
+        match wire::decode_fold_transcript(&tampered) {
+            Ok(dec_t) => assert_true(
+                "kind-2: tag corruption decodes, statement-digest gate REJECTS",
+                bi_fold_verify_wire(&dec_t, 12, 64, 96, 128) == Err("statement-digest"),
+            ),
+            Err(e) => {
+                assert_true(&format!("kind-2: tag corruption rejected at decode ({e})"), true)
+            }
+        }
+        // z-response corruption inside wave 0: the wave REJECTS.
+        let waves_off = bi_section_body_offset(&bytes, 5);
+        let z_data = {
+            let c = &p.waves[0];
+            let h = 4 + c.h.len() * D * 4;
+            let w1 = 4 + c.w1.len() * 8 * D * 4;
+            let wc = 4 + c.w_claim.len() * D * 4;
+            waves_off + 4 + h + w1 + wc + 5
+        };
+        let tampered = bi_corrupt(&bytes, z_data, 0x01);
+        match wire::decode_fold_transcript(&tampered) {
+            Ok(dec_t) => {
+                let v = bi_fold_verify_wire(&dec_t, 12, 64, 96, 128);
+                assert_true(
+                    &format!(
+                        "kind-2: wave z corruption decodes, verify REJECTS ({})",
+                        v.err().unwrap_or("?")
+                    ),
+                    v.is_err(),
+                );
+            }
+            Err(e) => {
+                assert_true(&format!("kind-2: wave z corruption rejected at decode ({e})"), true)
+            }
+        }
+        // Reveal corruption: the masked-split sum gate REJECTS.
+        let rev_off = bi_section_body_offset(&bytes, 4);
+        let tampered = bi_corrupt(&bytes, rev_off + 4 + 4 + 4, 0x01);
+        match wire::decode_fold_transcript(&tampered) {
+            Ok(dec_t) => {
+                let v = bi_fold_verify_wire(&dec_t, 12, 64, 96, 128);
+                assert_true(
+                    &format!(
+                        "kind-2: reveal corruption decodes, verify REJECTS ({})",
+                        v.err().unwrap_or("?")
+                    ),
+                    v.is_err(),
+                );
+            }
+            Err(e) => {
+                assert_true(&format!("kind-2: reveal corruption rejected at decode ({e})"), true)
+            }
+        }
+        let lines = bi_fold_table(&p, &bytes);
+        bi_print_table("12x(64x96x128) mm fold transcript", &lines, bytes.len());
+    }
+
+    // ---- Kind 3: statement wraps, digest stability, pairing. ----
+    {
+        // v3: the aggregation statement at the battery shape (synthetic
+        // u0 digests — the wrap is about BYTES, not about this
+        // statement's provenance).
+        let (mut gw, mut ga, _) = agg_build_groups(64, 96, 128);
+        gw.begin_opening().unwrap();
+        ga.begin_opening().unwrap();
+        let descs = vec![agg_group_descriptor(&gw, false), agg_group_descriptor(&ga, false)];
+        let u0d = vec![vec![0xAAu8; 32], vec![0xBBu8; 32]];
+        let st3 = agg_build_statement(64, 96, 128, mm_acc_bits(96), &descs, &u0d, b"agg-crs-v1");
+        let d3_before = st3.digest().expect("v3 digests");
+        let wrap = wire::WireStatementWrap { version: 3, statement: st3.encode() };
+        let bytes = wire::encode_statement_wrap(&wrap);
+        let dec = wire::decode_statement_wrap(&bytes).expect("v3 wrap decodes");
+        assert_true(
+            "kind-3 v3: re-encode byte-identical",
+            wire::encode_statement_wrap(&dec) == bytes,
+        );
+        let st3_rt = manifest::Statement::decode(&dec.statement).expect("v3 re-decodes");
+        assert_true(
+            "kind-3 v3: manifest bytes verbatim + digest UNMOVED through the wire",
+            st3_rt.encode() == wrap.statement && st3_rt.digest().unwrap() == d3_before,
+        );
+        // v4: the manifest codec sample.
+        let st4 = manifest::codec_sample_statement_v4();
+        let d4_before = st4.digest().expect("v4 digests");
+        let wrap4 = wire::WireStatementWrap { version: 4, statement: st4.encode() };
+        let bytes4 = wire::encode_statement_wrap(&wrap4);
+        let dec4 = wire::decode_statement_wrap(&bytes4).expect("v4 wrap decodes");
+        let st4_rt = manifest::Statement::decode(&dec4.statement).expect("v4 re-decodes");
+        assert_true(
+            "kind-3 v4: manifest bytes verbatim + digest UNMOVED through the wire",
+            st4_rt.encode() == wrap4.statement && st4_rt.digest().unwrap() == d4_before,
+        );
+        // Pairing negatives, both directions.
+        let bad34 = wire::WireStatementWrap { version: 4, statement: st3.encode() };
+        assert_true(
+            "kind-3 pairing: v3 bytes under a version-4 wrap REJECT",
+            wire::decode_statement_wrap(&wire::encode_statement_wrap(&bad34))
+                == Err(WireError::BadPairing),
+        );
+        let bad43 = wire::WireStatementWrap { version: 3, statement: st4.encode() };
+        assert_true(
+            "kind-3 pairing: v4 bytes under a version-3 wrap REJECT",
+            wire::decode_statement_wrap(&wire::encode_statement_wrap(&bad43))
+                == Err(WireError::BadPairing),
+        );
+    }
+
+    // ---- Kind 4: the pass-artifact writer API (BG's target). ----
+    {
+        let st4 = manifest::codec_sample_statement_v4();
+        let group = bi_group_to_wire("weight", &small.proof_w, None);
+        let fold_sc = wire::WireSumcheck {
+            v_claim: small.v_claim.clone(),
+            rounds: small.scp.rounds.clone(),
+            finals: small.scp.final_evals.clone(),
+        };
+        let mut wtr = wire::PassArtifactWriter::new(2, 12, st4.encode());
+        wtr.add_group_eval(0, group)
+            .add_fold_claim(1, fold_sc, vec![small.v_claim.clone()])
+            .add_raw(0x0001, b"bg-extension-space".to_vec());
+        let bytes = wtr.finish();
+        let dec = wire::decode_pass_artifact(&bytes).expect("kind-4 decodes");
+        assert_true(
+            "kind-4 pass artifact: re-encode byte-identical (writer is canonical)",
+            wire::encode_pass_artifact(&dec) == bytes,
+        );
+        assert_true(
+            "kind-4: mode/layers/raw sections preserved exactly",
+            dec.mode == 2
+                && dec.layers == 12
+                && dec.raw == vec![(0x0001u16, b"bg-extension-space".to_vec())],
+        );
+        // Mode corruption REJECTS.
+        let meta_off = bi_section_body_offset(&bytes, 0);
+        let tampered = bi_corrupt(&bytes, meta_off, 0x04);
+        assert_true(
+            "kind-4: mode byte corruption REJECTS (ValueRange)",
+            wire::decode_pass_artifact(&tampered) == Err(WireError::ValueRange),
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// wire-bench: the serialized-vs-counted measurement rows (the M-05
+// table at the recorded shapes) — `uagb1-bi wire-bench ...`.
+
+fn bi_wire_bench_eval(rows: usize, inner: usize, cols: usize, tier_z: bool) {
+    println!(
+        "[UAGB1-BI] wire-bench eval {} at {rows}x{inner}x{cols}",
+        if tier_z { "TIER-Z" } else { "bare" }
+    );
+    println!("  [MAC-BOX, non-reference; NOISY-SHARED if sibling lanes run — magnitudes only]");
+    let t0 = Instant::now();
+    let p = bi_agg_prove(rows, inner, cols, tier_z, None, 0xB1_6001);
+    println!("  prove: commit {:.2}s prove {:.2}s", p.commit_s, p.prove_s);
+    let art = bi_agg_to_wire(&p);
+    let t_ser = Instant::now();
+    let bytes = wire::encode_eval_artifact(&art);
+    let ser_s = t_ser.elapsed().as_secs_f64();
+    let t_dec = Instant::now();
+    let dec = wire::decode_eval_artifact(&bytes).expect("decodes");
+    let dec_s = t_dec.elapsed().as_secs_f64();
+    assert!(wire::encode_eval_artifact(&dec) == bytes, "re-encode byte-identical");
+    let t_v = Instant::now();
+    let v = bi_agg_verify_wire(&dec, rows, inner, cols, tier_z, None);
+    let ver_s = t_v.elapsed().as_secs_f64();
+    assert!(v.is_ok(), "verify-after-round-trip must ACCEPT: {v:?}");
+    println!(
+        "  round trip: serialize {ser_s:.3}s | deserialize {dec_s:.3}s | verify-from-wire {ver_s:.2}s | accept true"
+    );
+    let lines = bi_eval_table(&p, &bytes);
+    bi_print_table(
+        &format!("eval proof {} {rows}x{inner}x{cols}", if tier_z { "TIER-Z" } else { "bare" }),
+        &lines,
+        bytes.len(),
+    );
+    println!("  total wall {:.1}s", t0.elapsed().as_secs_f64());
+}
+
+fn bi_wire_bench_fold(layers: usize, rows: usize, inner: usize, cols: usize) {
+    println!("[UAGB1-BI] wire-bench fold (joint matmul) at {layers}x({rows}x{inner}x{cols})");
+    println!("  [MAC-BOX, non-reference; NOISY-SHARED if sibling lanes run — magnitudes only]");
+    let t0 = Instant::now();
+    let p = bi_fold_prove(layers, rows, inner, cols, 0xB1_6002);
+    println!("  prove: commit {:.2}s prove {:.2}s", p.commit_s, p.prove_s);
+    let art = bi_fold_to_wire(&p);
+    let t_ser = Instant::now();
+    let bytes = wire::encode_fold_transcript(&art);
+    let ser_s = t_ser.elapsed().as_secs_f64();
+    let t_dec = Instant::now();
+    let dec = wire::decode_fold_transcript(&bytes).expect("decodes");
+    let dec_s = t_dec.elapsed().as_secs_f64();
+    assert!(wire::encode_fold_transcript(&dec) == bytes, "re-encode byte-identical");
+    let t_v = Instant::now();
+    let v = bi_fold_verify_wire(&dec, layers, rows, inner, cols);
+    let ver_s = t_v.elapsed().as_secs_f64();
+    assert!(v.is_ok(), "verify-after-round-trip must ACCEPT: {v:?}");
+    println!(
+        "  round trip: serialize {ser_s:.3}s | deserialize {dec_s:.3}s | verify-from-wire {ver_s:.2}s | accept true"
+    );
+    let lines = bi_fold_table(&p, &bytes);
+    bi_print_table(&format!("{layers}x({rows}x{inner}x{cols}) mm fold transcript"), &lines, bytes.len());
+    println!("  total wall {:.1}s", t0.elapsed().as_secs_f64());
+}
+
+fn bi_wire_bench_statement_m125() {
+    println!("[UAGB1-BI] wire-bench statement-m125: the REAL 12-layer v4 pass statement through the wire");
+    let t0 = Instant::now();
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    let q = Q8;
+    let crs = expand_crs(shape, q, 0x0BF1);
+    let rp = ring::ct_engine::derive_ct_round_params(q, shape, ur1_c2_max_commits(q, shape), 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+    let path = KernelPath::A1(&a1p);
+    let mut layers = Vec::with_capacity(12);
+    for l in 0..12 {
+        layers.push(bf_load_layer(l, BF_T, true));
+    }
+    let mut all_digests = Vec::with_capacity(12);
+    for lay in &layers {
+        let (digs, _) = bf_commit_entries(lay, BF_T, shape, &crs, &path, true);
+        all_digests.push(digs);
+    }
+    let st = m125_build_statement(BF_T, &layers, &all_digests, &crs.crs_hash);
+    let d_before = st.digest().expect("pass statement validates");
+    let enc = st.encode();
+    println!("  built in {:.1}s | digest {} | cv2 bytes {}", t0.elapsed().as_secs_f64(), hex_prefix(&d_before), enc.len());
+    let wrap = wire::WireStatementWrap { version: 4, statement: enc.clone() };
+    let bytes = wire::encode_statement_wrap(&wrap);
+    let dec = wire::decode_statement_wrap(&bytes).expect("wrap decodes");
+    let st_rt = manifest::Statement::decode(&dec.statement).expect("statement re-decodes");
+    let d_after = st_rt.digest().expect("re-validates");
+    assert!(st_rt.encode() == enc, "manifest bytes verbatim through the wire");
+    assert!(d_after == d_before, "DIGEST MOVED — wire format violated digest neutrality");
+    println!(
+        "  ok   digest STABLE through wire round trip ({} == {})",
+        hex_prefix(&d_before),
+        hex_prefix(&d_after)
+    );
+    println!("  serialized vs counted — pass statement:");
+    println!("    {:<38} {:>14} {:>14}", "component", "counted B", "serialized B");
+    println!("    {:<38} {:>14} {:>14}", "statement (manifest cv2, real)", enc.len(), enc.len());
+    println!("    {:<38} {:>14} {:>14}", "wire envelope + headers + META", 0, bytes.len() - enc.len());
+    println!("    {:<38} {:>14} {:>14}", "TOTAL", enc.len(), bytes.len());
+}
+
+// ---------------------------------------------------------------------------
+// bench-stat: the TARGET_CONTRACT Section 4 statistic — >= 20 warm
+// runs, p50 + p95 (nearest-rank), cold-start (first run after setup)
+// reported separately. Protocol: docs/zkmatrix-poc/
+// MEASUREMENT_PROTOCOL.md.
+
+fn bi_stats_line(name: &str, phase: &str, cold: f64, warm: &[f64]) {
+    let mut s = warm.to_vec();
+    s.sort_by(|a, b| a.partial_cmp(b).expect("finite timings"));
+    let nr = |p: f64| s[((p * s.len() as f64).ceil() as usize).clamp(1, s.len()) - 1];
+    println!(
+        "  BENCH-STAT {name} {phase}: n_warm={} cold={:.3}s p50={:.3}s p95={:.3}s min={:.3}s max={:.3}s",
+        s.len(),
+        cold,
+        nr(0.50),
+        nr(0.95),
+        s[0],
+        s[s.len() - 1]
+    );
+}
+
+fn bi_bench_note() {
+    println!("  [MAC-BOX, non-reference box; NOISY-SHARED if sibling lanes run — the contract");
+    println!("   statistic binds on the reference machine per MEASUREMENT_PROTOCOL.md]");
+}
+
+/// eval-verify: prove ONCE (setup, off the clock), then n+1 timed
+/// (deserialize + verify) passes — run 1 is the cold start.
+fn bi_bench_eval_verify(rows: usize, inner: usize, cols: usize, n_warm: usize) {
+    println!("[UAGB1-BI] bench-stat eval-verify at {rows}x{inner}x{cols} (bare)");
+    bi_bench_note();
+    let t_setup = Instant::now();
+    let p = bi_agg_prove(rows, inner, cols, false, None, 0xB1_7001);
+    let art = bi_agg_to_wire(&p);
+    let bytes = wire::encode_eval_artifact(&art);
+    println!(
+        "  setup (excluded): prove {:.1}s + serialize -> {} B artifact ({:.1}s total)",
+        p.commit_s + p.prove_s,
+        bytes.len(),
+        t_setup.elapsed().as_secs_f64()
+    );
+    let mut times = Vec::with_capacity(n_warm + 1);
+    for _ in 0..n_warm + 1 {
+        let t = Instant::now();
+        let dec = wire::decode_eval_artifact(&bytes).expect("decodes");
+        let ok = bi_agg_verify_wire(&dec, rows, inner, cols, false, None).is_ok();
+        times.push(t.elapsed().as_secs_f64());
+        assert!(ok, "honest verify must accept");
+    }
+    bi_stats_line("eval-verify", "deserialize+verify", times[0], &times[1..]);
+}
+
+/// matmul-prove: n+1 full honest D2 statement instances; per-phase
+/// times from the run's own cost struct — PROVE is the statistic.
+fn bi_bench_matmul_prove(rows: usize, inner: usize, cols: usize, n_warm: usize) {
+    println!("[UAGB1-BI] bench-stat matmul-prove at {rows}x{inner}x{cols} (D2 statement)");
+    bi_bench_note();
+    let mut commit = Vec::with_capacity(n_warm + 1);
+    let mut prove = Vec::with_capacity(n_warm + 1);
+    let mut verify = Vec::with_capacity(n_warm + 1);
+    for i in 0..n_warm + 1 {
+        let (v, c) = uagb1_matmul_run(rows, inner, cols, MmTamper::None, false, 0xB1_2001, true);
+        assert!(v.accept(), "honest instance must accept (run {i})");
+        commit.push(c.commit_s);
+        prove.push(c.prove_s);
+        verify.push(c.verify_s);
+    }
+    bi_stats_line("matmul-prove", "prove", prove[0], &prove[1..]);
+    bi_stats_line("matmul-prove", "commit", commit[0], &commit[1..]);
+    bi_stats_line("matmul-prove", "verify", verify[0], &verify[1..]);
+}
+
+/// spawn: generic whole-subcommand timing by re-invoking this binary
+/// (applicable to ANY subcommand; includes ~ms process spawn overhead,
+/// stated in the protocol; the freeze-check calibration row runs here).
+fn bi_bench_spawn(n_warm: usize, argv: &[String]) {
+    assert!(!argv.is_empty(), "spawn needs a subcommand");
+    println!("[UAGB1-BI] bench-stat spawn: `ring_matmul {}`", argv.join(" "));
+    bi_bench_note();
+    let exe = std::env::current_exe().expect("current exe");
+    let mut times = Vec::with_capacity(n_warm + 1);
+    for i in 0..n_warm + 1 {
+        let t = Instant::now();
+        let status = std::process::Command::new(&exe)
+            .args(argv)
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .status()
+            .expect("spawn");
+        times.push(t.elapsed().as_secs_f64());
+        assert!(status.success(), "workload must exit 0 (run {i})");
+    }
+    bi_stats_line(&format!("spawn[{}]", argv.join("-")), "whole-invocation", times[0], &times[1..]);
+}
+
+fn bi_bench_stat(args: &[String]) {
+    let n_default = 20usize;
+    match args.first().map(String::as_str) {
+        Some("eval-verify") => {
+            let rows = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(512);
+            let inner = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(768);
+            let cols = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(2048);
+            let n = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(n_default);
+            bi_bench_eval_verify(rows, inner, cols, n);
+        }
+        Some("matmul-prove") => {
+            let rows = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(128);
+            let inner = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(768);
+            let cols = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(256);
+            let n = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(n_default);
+            bi_bench_matmul_prove(rows, inner, cols, n);
+        }
+        Some("freeze-check") => {
+            let n = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(n_default);
+            bi_bench_spawn(n, &["freeze-check".to_string()]);
+        }
+        Some("spawn") => {
+            let n = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(n_default);
+            let sep = args.iter().position(|a| a == "--");
+            match sep {
+                Some(i) if i + 1 < args.len() => bi_bench_spawn(n, &args[i + 1..]),
+                _ => println!("usage: uagb1-bi bench-stat spawn <n_warm> -- <subcommand ...>"),
+            }
+        }
+        _ => {
+            println!("usage: uagb1-bi bench-stat [eval-verify [r i c] [n] | matmul-prove [r i c] [n] | freeze-check [n] | spawn <n> -- <argv..>]");
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Freeze row UAGB1-BI-1: wire-format stability, both directions.
+
+const BI_GOLDEN_SHA_PREFIX: &str = "e5c2f998852ff373";
+const BI_GOLDEN_LEN: usize = 51_715;
+
+fn freeze_check_uagb1_bi() -> bool {
+    let mut all_ok = true;
+    let mut gate = |label: &str, ok: bool| {
+        println!("  {} {label}", if ok { "ok  " } else { "FAIL" });
+        all_ok &= ok;
+    };
+    let g = wire::golden_sample_kind1();
+    let bytes = wire::encode_eval_artifact(&g);
+    let sha = hex_prefix(&uk8_sha(&[&bytes]));
+    gate(
+        &format!(
+            "UAGB1-BI-1a ZKWF v1 golden sample canonical bytes pinned: {} B, sha {}",
+            bytes.len(),
+            sha
+        ),
+        bytes.len() == BI_GOLDEN_LEN && sha == BI_GOLDEN_SHA_PREFIX,
+    );
+    let dec = wire::decode_eval_artifact(&bytes);
+    gate(
+        "UAGB1-BI-1b golden round trip: decode == artifact, re-encode byte-identical",
+        dec.as_ref().is_ok_and(|d| *d == g && wire::encode_eval_artifact(d) == bytes),
+    );
+    let mutated = bi_corrupt(&bytes, 30, 0x01);
+    let moved = wire::decode_eval_artifact(&mutated).is_err()
+        || hex_prefix(&uk8_sha(&[&mutated])) != sha;
+    gate(
+        "UAGB1-BI-1c the other direction: a mutated byte fails decode or moves the pinned sha",
+        moved,
+    );
+    all_ok
+}
+
+// ---------------------------------------------------------------------------
+// Dispatch (the lane's ONE arm in main's match).
+
+fn bi_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("wire-battery") => {
+            let t = Instant::now();
+            bi_wire_battery(args.get(1).map(String::as_str) == Some("light"));
+            println!("\n[UAGB1-BI] wire battery passed in {:.1}s", t.elapsed().as_secs_f64());
+        }
+        Some("wire-bench") => match args.get(1).map(String::as_str) {
+            Some("eval") => {
+                let rows = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(512);
+                let inner = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(768);
+                let cols = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(2048);
+                let tier_z = args.last().map(String::as_str) == Some("tierz");
+                bi_wire_bench_eval(rows, inner, cols, tier_z);
+            }
+            Some("fold") => {
+                let layers = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(12);
+                let rows = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(64);
+                let inner = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(96);
+                let cols = args.get(5).and_then(|s| s.parse().ok()).unwrap_or(128);
+                bi_wire_bench_fold(layers, rows, inner, cols);
+            }
+            Some("statement-m125") => bi_wire_bench_statement_m125(),
+            _ => println!(
+                "usage: uagb1-bi wire-bench [eval [r i c] [tierz] | fold [l r i c] | statement-m125]"
+            ),
+        },
+        Some("bench-stat") => bi_bench_stat(&args[1..]),
+        _ => println!("usage: uagb1-bi [wire-battery | wire-bench ... | bench-stat ...]"),
+    }
 }

@@ -1464,7 +1464,238 @@ orchestrator.
 
 ## Agent BI status (wt-uagb1-bi)
 
-- (lane launches here)
+- 2026-08-10 PLAN COMMIT (before any code; skeleton-commit-first).
+  Read phase COMPLETE: ledger in full (wave 1-3 sections, lane
+  discipline, machine note); TARGET_CONTRACT.md Section 4 (the M-05
+  finding: "budget binds once a canonical encoding exists"; the
+  statistic: p95 over >= 20 warm runs, p50 alongside, cold-start
+  separate) + Amendment A1 tiers; UAGB1_AGG_STACK_REPORT.md (byte
+  table S3, Tier-Z S5, counted conventions); UAGB1_FOLD_REPORT.md
+  (S5.2/5.4 byte model + capstone decomposition); M125_PASS_REPORT.md
+  (v4 statement 26,116 B cv2, v3 digest 7b913619 unmoved obligation);
+  engine surfaces: eval_proof.rs (GroupEvalProof + counted_bytes),
+  ct_engine.rs (CtRoundProof, masked splitter reveal type
+  Vec<Vec<(usize,i64)>>), fold.rs, sumcheck.rs (SumcheckProof),
+  manifest.rs (encode/decode cv1/cv2, digest), the BD/BE/BF rig
+  drivers in ring_matmul.rs (same-module private fns REUSABLE from my
+  section — no signature changes needed), freeze_check chain (BF's
+  one-line-hook precedent). Baseline on this box at plan time: cargo
+  release GREEN (44.7 s warm), freeze-check GREEN (every row), python
+  suite launched (result recorded at first code commit).
+- D1 PLAN (the canonical wire format, M-05). Spec FIRST in
+  docs/zkmatrix-poc/WIRE_FORMAT.md, then src/wire.rs (self-contained
+  codec module, path-included from my [UAGB1-BI] section the way
+  ring/manifest are). Format "ZKWF v1": magic + u32 version + u16
+  artifact kind + field-id (q8_31) envelope; fixed little-endian
+  widths; per-kind FIXED section order (tag u16 + u64 len), unknown/
+  out-of-order/duplicate/trailing = structured decode REJECT; q31
+  poly = 128 x u32 canonical-range coeffs (512 B, count hoisted to
+  block header — the counted 4 B/poly prefix disappears); K element
+  = 16 x u32 = 64 B ON the counted convention (kept: word-aligned;
+  bit-packing would save 3.1% and is declined, stated in spec);
+  signed-integer blocks (floor digits, ct-z responses, Tier-Z
+  responses) = u32 count + u8 width in {1,2,4,8} + two's-complement
+  LE values under a CANONICAL-MINIMAL-WIDTH rule (decoder re-checks
+  minimality; re-encode byte-identity by construction) — floor stays
+  1 B/coord, Tier-Z stays 4 B/coord, ct-z drops 8 -> 4 B/coord
+  (honest values bounded by the wave l2 bound < 2^27; the fold
+  transcript's dominant line HALVES — the big serialized-vs-counted
+  delta, pre-registered); reveals (u32 wave, i32 centered) = 8 B vs
+  12 counted. Artifact kinds: (1) EVAL-PROOF ARTIFACT bare+Tier-Z
+  (META shape/crs-seed/flags, STATEMENT = manifest bytes verbatim,
+  SUMCHECK, per-group u0/ugh0/b_rows/level_us/floor(+e)/TierZ
+  images+response+restarts; tcap diagnostics excluded from wire —
+  deterministic FS counter); (2) FOLD TRANSCRIPT (META family/shape,
+  STATEMENT, TAGS t1+t2, SUMCHECK, REVEALS, WAVES = per-wave
+  h/w1/w_claim/z records, CLOSING) — kind-2 v1 scopes the plain-
+  commitment linear-claim record (what the BE rigs emit; richer
+  claim classes reserved); (3) STATEMENT WRAP (v3 cv1 / v4 cv2
+  bytes verbatim; digest stability ASSERTED — serialization must
+  not move 7b913619 / 76dbf204 / any digest); (4) PASS ARTIFACT
+  (BG's) — tag allocated, layout spec'd, writer API landed (D3).
+  Round-trip tests: encode -> decode -> re-encode byte-identical;
+  verify-after-round-trip ACCEPTS from DECODED objects (my own
+  honest-path drivers in the [UAGB1-BI] section reuse BD's
+  agg_prove_group/agg_verify_group and BE's machinery — same-module
+  access, zero signature changes, zero edits in their zones);
+  corrupted-byte legs BOTH classes (structural byte -> decode
+  REJECT; in-range value byte -> decode OK + verify REJECT; panic=
+  abort profile means decode must be panic-free by construction —
+  all-Result, every shape/range validated before objects reach a
+  verifier). THE TABLE: serialized vs counted at the recorded
+  shapes — eval bare + Tier-Z at 512x768x2048 (counted 344,318 /
+  1,527,878), fold mm at 12x(64x96x128) battery shape + the
+  12x(512x768x2048) capstone (counted 1,406,719,131; run in
+  background, honest fallback = derived from the same per-component
+  arithmetic validated at the measured smaller shapes), zc mid
+  12x(512x256) if wall-clock permits, pass statement (26,116 B cv2).
+  Every divergence explained (prefix hoisting, width rule, envelope).
+- D2 PLAN (p50/p95 harness + protocol): ONE dispatch arm
+  `uagb1-bi` sub-dispatching {wire-battery, wire-bench, bench-stat}.
+  bench-stat implements the contract statistic (>= 20 warm, p50 +
+  p95 nearest-rank, cold-start = first run after setup, reported
+  separately): named in-process workloads `eval-verify [shape]`
+  (prove ONCE = setup; N+1 verifies via agg_verify_group),
+  `matmul-prove [shape]` (N+1 full uagb1_matmul_run instances,
+  per-phase stats from MmCost — prove is the statistic),
+  `freeze-check` + generic `spawn <n> -- <argv...>` (subprocess
+  whole-invocation timing, applicable to ANY subcommand; spawn
+  overhead stated). docs/zkmatrix-poc/MEASUREMENT_PROTOCOL.md: the
+  quiesced-machine reference-box protocol (preconditions, fixed run
+  order incl. the freeze-check calibration row, recorded fields,
+  [MAC-BOX]/[NOISY-SHARED]/reference labeling rules per the ledger
+  Machine note, how the full ~55-min reference pass would run — not
+  executed this lane). Measured this lane [MAC-BOX, NOISY-SHARED if
+  siblings run]: eval-verify at 512x768x2048, matmul-prove at
+  128x768x256 (the recorded battery mid shape), freeze-check
+  calibration row.
+- D3 PLAN (BG's writer API): kind-4 PASS ARTIFACT in WIRE_FORMAT.md
+  (mode P0-P3 declaration, statement, per-group eval-proof records
+  reusing kind-1 group form, folded-claim records reusing kind-2
+  forms, extensible (tag,len) sections with allocated tag space) +
+  PassArtifactWriter/Reader in wire.rs (new/add_*/add_raw_section/
+  finish; reader returns typed + raw sections). BG may finish after
+  me; deferred conformance at the orchestrator's merge expected.
+- Shared-zone touches (each ONE line, listed in the report): the
+  `uagb1-bi` arm in main's match; `all_ok &= freeze_check_uagb1_bi()`
+  in freeze_check (BF precedent). Freeze row UAGB1-BI-1: golden
+  wire sample digest pinned both directions (format stability).
+  Visibility edits in eval_proof.rs/fold.rs/manifest.rs: expected
+  ZERO (all consumed fields already pub; TierZFloor is same-module);
+  any that prove necessary will be one-line pub exposures listed
+  explicitly.
+- WILL NOT DO: edits to BD/BE/BF/BB functions or zones beyond the
+  two one-line hooks; lookup.rs / gkr_masked.rs internals; manifest
+  codec changes (wire WRAPS manifest bytes; digests must not move);
+  existing scripts/tests; other ledger sections; the full 55-min
+  reference pass (protocol doc only); pushes.
+- 2026-08-10 (later): **lane COMPLETE.** All three deliverables
+  landed; wire battery green (full 65.5 s incl. Tier-Z; light face
+  rides the suite via tests/test_wire_format.py); freeze-check green
+  with UAGB1-BI-1a..c and every pre-existing digest unmoved; FULL
+  SUITE 59/59 OK in-lane (437.6 s [NOISY-SHARED-free run at close];
+  58 at base + the new wire module); everything committed to
+  uagb1-bi. Deliverables checkbox left for the orchestrator.
+
+**VERDICT ROW (BI).** THE CANONICAL WIRE FORMAT EXISTS (M-05
+discharged at the recorded artifacts): ZKWF v1 —
+docs/zkmatrix-poc/WIRE_FORMAT.md (the byte-level spec, written
+first) + src/wire.rs (standalone codec, manifest.rs pattern) +
+[UAGB1-BI] drivers/battery/bench in ring_matmul.rs. Format: magic
+ZKMXWIRE + u32 version + u16 kind + field id (q8_31) envelope; fixed
+little-endian widths; per-kind FIXED section order under u64 length
+prefixes; q31 poly = 128 x u32 (counts hoisted — the counted 4 B/poly
+prefix disappears); K element = 16 x u32 = 64 B ON the counted
+convention (bit-packing declined, stated); signed blocks under a
+CANONICAL-MINIMAL-WIDTH rule the decoder re-checks (floor 1 B/coord,
+Tier-Z response 4 B/coord, ct-z responses 8 -> 4 B/coord — the
+in-memory i64 was never the value range); reveals (u32, i32) = 8 B.
+Kinds: 1 = eval-proof artifact bare+Tier-Z (Tier-Z carries the
+masked response ONCE in the floor slot — the engine's own semantics);
+2 = folded-family transcript (tags + scheduled sumcheck + reveals +
+per-wave ct-round records + closing; v1 scopes the plain
+linear-claim record the BE rigs emit); 3 = statement wrap (manifest
+bytes VERBATIM, digest neutrality structural); 4 = the multi-group
+PASS ARTIFACT for lane BG — tags allocated, layout spec'd (mode
+P0-P3 + per-group masked flags + kind-1 group records + fold-claim
+records + RAW extension subtag space), PassArtifactWriter/Reader
+LANDED (deliverable 3; BG conformance deferred to the orchestrator's
+merge as briefed). Decode NEVER panics (panic=abort profile): all
+Result, every coeff range-checked, width canonicity re-derived,
+shapes gated against the expected instance before any derive-time
+assert can see wire data.
+  * BATTERY (`uagb1-bi wire-battery`, 65.5 s, all green; suite face
+    7.7 s): golden-sample canonicality + pinned digest; 10
+    structural corruption legs (magic/version/kind/field-id/
+    reserved/payload-len/section-tag/section-len/truncation/
+    trailing) each REJECTING with the right error; CoeffRange +
+    NonCanonicalWidth value legs; kind-1 round trips at degenerate
+    AND recursed schedules AND Tier-Z (256x768x2048) — every one
+    re-encode byte-identical + verify-after-round-trip ACCEPTS from
+    DECODED objects; value corruptions that decode cleanly are
+    REJECTED by the verifier at the right gate (floor-alphabet,
+    claim-row-eval, floor-outer-binding, tierz-family); kind-2 fold
+    round trip + tag corruption -> statement-digest REJECT, z
+    corruption -> wave REJECT, reveal corruption -> sum-gate REJECT;
+    kind-3 v3+v4 digest-UNMOVED legs + both pairing negatives;
+    kind-4 writer round trip + mode-corruption REJECT. Freeze row
+    UAGB1-BI-1a..c: golden 51,715 B sha e5c2f998852ff373 pinned both
+    directions.
+  * **THE TABLE (serialized vs counted, measured by real encoding;
+    counted totals reproduce the recorded wave-2 numbers EXACTLY):**
+    | artifact (recorded shape) | counted B | serialized B | ratio |
+    | eval bare 512x768x2048 | 344,318 | **343,709** | 0.9982 |
+    | eval Tier-Z 512x768x2048 | 1,527,878 | **1,527,085** | 0.9995 |
+    | eval Tier-Z 256x768x2048 | 1,511,494 | 1,510,701 | 0.9995 |
+    | mm fold 12x(64x96x128) | 12,627,383 | 8,314,493 | 0.6584 |
+    | mm fold 12x(512x768x2048) CAPSTONE | 1,406,719,131 | **925,578,652** | 0.6580 |
+    | v4 pass statement (real) | 26,116 | 26,168 | 1.0020 |
+    Per-component tables in WIRE_FORMAT.md S5 + the wire-bench
+    output; serialized sub-line arithmetic is cross-ASSERTED against
+    every measured encoding. **Budget consequence: the A1-relevant
+    lines move < 0.2% — serialized bare eval = 343,709 B = 1.311x
+    Tier N (counted said 1.313x); the byte story the trench has been
+    telling carries over onto real bytes.** The fold transcript
+    serializes at ~0.658x counted (the ct-z 8 -> 4 B halving,
+    pre-registered at plan time; z is 68% of that artifact) —
+    honesty about the wave-2 artifact, not an A1 line (the composed
+    pass artifact replaces the opening volume). The capstone row is
+    a full real round trip at 1.4 GB: serialize 0.77 s / deserialize
+    0.54 s / verify-FROM-WIRE 60.5 s accept true / RSS 18.3 GiB
+    [MAC-BOX]. zc-family driver NOT built (declared): identical
+    section forms, transforms validated at two measured mm shapes;
+    its recorded mid-shape row lands in the same ~0.658x class.
+  * Format decisions that changed budget-relevant numbers (each in
+    the spec with rationale): per-poly prefix hoisting (-4 B/poly);
+    K-el KEPT at 64 B (counted-identical; -3.1% bit-packing
+    declined); canonical-minimal-width signed blocks (ct-z 8 -> 4 B
+    — fold artifacts only); reveals 12 -> 8 B; envelope + section
+    headers +121 B/kind-1 artifact (+52 statement wrap, +142
+    kind-2). Digest neutrality MEASURED on the real object: the
+    12-layer v4 pass statement digest 76dbf2040409333e byte-stable
+    through the wire round trip; v3 7b913619 pinned unmoved by the
+    existing freeze rows (untouched).
+  * p50/p95 HARNESS (deliverable 2, contract Section 4 statistic):
+    `uagb1-bi bench-stat` — eval-verify (prove-once setup excluded;
+    clock = deserialize + full verify), matmul-prove (n+1 full
+    honest instances, per-phase from MmCost), freeze-check
+    calibration + generic `spawn <n> -- <argv>` for ANY subcommand;
+    nearest-rank p50/p95, >= 20 warm, cold-start separate.
+    MEASURED [MAC-BOX, non-reference; solo runs]: freeze-check
+    calibration cold 0.003 / p50 0.003 / p95 0.004 s (the noise
+    floor; freeze-check is 5 ms of pure arithmetic); matmul-prove
+    128x768x256 prove cold 1.737 / p50 1.727 / p95 1.733 s (commit
+    p50 0.036, verify p50 0.467); **eval-verify 512x768x2048 cold
+    17.576 / p50 17.549 / p95 17.574 s over 20 warm** (max/min
+    1.003 — quiesced; the BD claim-kernel wall now measured under
+    the contract statistic; BH's row-column split is the fix lane).
+    docs/zkmatrix-poc/MEASUREMENT_PROTOCOL.md: the quiesced
+    reference-box protocol (preconditions, calibration-first order,
+    recorded fields, labeling rules per the Machine note, how the
+    ~55-min reference pass runs — NOT executed this lane, as
+    briefed).
+  * Files: src/wire.rs (new), docs/zkmatrix-poc/WIRE_FORMAT.md +
+    MEASUREMENT_PROTOCOL.md (new), tests/test_wire_format.py (new,
+    additive), [UAGB1-BI] section + freeze_check_uagb1_bi in
+    ring_matmul.rs. SHARED-ZONE TOUCHES, complete list: (1) ONE
+    dispatch arm `Some("uagb1-bi") => bi_main(..)` in main's match;
+    (2) ONE line `all_ok &= freeze_check_uagb1_bi();` in
+    freeze_check. **Visibility edits in eval_proof.rs / fold.rs /
+    manifest.rs: ZERO** (every consumed field was already pub;
+    TierZFloor is same-module). BD/BE/BF zones untouched — my
+    drivers REUSE their machinery same-module and replicate only
+    driver flow (the honest paths), verified by counted totals
+    matching their recorded numbers bit-exactly.
+  * Walls/findings: BI-F1 — the counted convention was already
+    byte-honest for every A1-relevant line (the wire confirms the
+    trench's byte tables at < 0.2%); the one materially counted-vs-
+    real gap in the corpus was the fold transcript's 8 B/response
+    convention (in-memory width, not value width) — now closed by
+    measurement. BI-F2 — verify-from-wire adds < 0.6 s decode at
+    1.4 GB and ~1 ms at 344 KB: deserialization is NOT a verifier-
+    budget concern at any recorded scale. BI-F3 — freeze-check is
+    5 ms end to end, so the calibration row measures spawn+noise
+    floor (0.003-0.004 s), useful exactly as intended.
 
 ## Blocker
 
