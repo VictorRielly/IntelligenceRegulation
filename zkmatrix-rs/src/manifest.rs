@@ -1130,6 +1130,11 @@ impl<'a> ByteReader<'a> {
     fn remaining(&self) -> usize {
         self.buf.len() - self.pos
     }
+    /// [UAGB1-BG] Non-consuming look at the next byte (the optional
+    /// trailing mode-declaration section's tag gate).
+    fn peek_u8(&self) -> Option<u8> {
+        self.buf.get(self.pos).copied()
+    }
     fn take(&mut self, n: usize) -> Result<&'a [u8], DecodeError> {
         if n > self.remaining() {
             return Err(DecodeError::Truncated { needed: n, have: self.remaining() });
@@ -2278,14 +2283,14 @@ impl Statement {
                 });
             }
         }
-        // [UAGB1-BG] Optional trailing mode-declaration section (tag
-        // 0x4D). Absent = None (the pre-BG wire); anything else
-        // trailing still rejects below.
-        let mode = if r.remaining() > 0 {
-            let tag = r.u8()?;
-            if tag != 0x4D {
-                return Err(DecodeError::BadTag { ctx: "mode-decl", tag });
-            }
+        // [UAGB1-BG] Optional trailing mode-declaration section,
+        // parsed ONLY when the section tag 0x4D opens it (a mode
+        // section is at least tag + mode + u32 count = 6 bytes).
+        // Absent = None (the pre-BG wire); any OTHER trailing content
+        // still rejects below as TrailingBytes — the pre-BG negative
+        // vectors keep their exact errors.
+        let mode = if r.remaining() >= 6 && r.peek_u8() == Some(0x4D) {
+            let _tag = r.u8()?;
             let mode = r.u8()?;
             let n_ids = r.len(MAX_ENTRIES)?;
             let mut private_entries = Vec::with_capacity(n_ids);

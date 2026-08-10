@@ -27176,11 +27176,17 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
     let mut public_vals: Vec<KElem> = Vec::new();
     for (e, tag) in [(0usize, "X"), (16usize, "z")] {
         for (li, lay) in lays.iter().enumerate() {
-            let mut v = bg_mle(&kf, bf_entry_values(e, lay), BF_D, &eq_or, &eq_oc);
-            if opts.tamper == BgTamper::PublicClaimLie && tag == "z" && li == 0 {
-                v = kf.add(&v, &kf.one());
-            }
-            public_vals.push(v.clone());
+            let v = bg_mle(&kf, bf_entry_values(e, lay), BF_D, &eq_or, &eq_oc);
+            // PublicClaimLie ships a lied declared-output value ON THE
+            // WIRE (bundle + absorb); the prover's internal batch keeps
+            // the true value (its witness consistency is not the leg's
+            // target — the verifier's public recompute is).
+            let shipped = if opts.tamper == BgTamper::PublicClaimLie && tag == "z" && li == 0 {
+                kf.add(&v, &kf.one())
+            } else {
+                v.clone()
+            };
+            public_vals.push(shipped);
             claims.push(BgClaim {
                 in_weight: false,
                 value: v,

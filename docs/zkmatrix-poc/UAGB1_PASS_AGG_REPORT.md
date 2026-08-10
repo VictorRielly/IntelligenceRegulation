@@ -124,7 +124,49 @@ F-Z1 asserted at derive (freeze row UAGB1-BG-1c).
 
 ## 3. THE BARE COMPOSITION (P0) — measured
 
-(filled at the full-shape run)
+**The pass-level Tier N artifact, 12 layers, T = 512, real
+ckpt-00009536 data, one shot, end to end: accept = true.**
+
+| component | measured B |
+|---|---:|
+| statement (serialized, real; v4 + P0 mode section; digest 6a2b52f5..) | 26,103 |
+| mm-gate 50 kel + mm-up 50 + mm-down 53 | 9,792 |
+| had 101 kel + rq-g/u/h 82 x3 + rq-d 79 | 22,208 |
+| public binding claims (24) | 1,536 |
+| [weight] outer 11,360 + rows 8,260 + levels 39,760 + floor 120,196 (939 rings e7, 8 levels) | 179,576 |
+| [act] outer 11,360 + rows 8,260 + levels 45,440 + floor 117,124 (915 rings e7, 9 levels) | 182,184 |
+| **TOTAL (counted-not-serialized)** | **426,455** |
+
+**Verdicts of the number:**
+
+- vs the DERIVED expectation (Section 4, 426,622 B): measured is
+  167 B under — the delta is entirely the statement's serialized
+  mode section (P0 = 10 B vs the P2 estimate used in the
+  expectation); every instance kel count and every group line is
+  EXACT to the derivation. Derived-vs-measured agreement at the
+  byte level.
+- vs the Tier N P0 gate (262,144 B/layer x 12 = 3,145,728 B/pass):
+  **0.1356x — 7.4x UNDER the gate; 35,538 B/layer amortized.** The
+  composed-scope label applies (Section 1): the artifact covers the
+  arithmetic-relation set + input/output binding; the [MODEL]
+  descent lines for the table-membership facts would bring the
+  full-statement expectation to ~1.39 MB (still under the pass
+  gate; Section 4).
+- vs BF's wave-path pass artifact (7,923,653,984 B): **18,581x
+  smaller.** vs BE's folded-transcript pass (1,406,719,131 B):
+  3,299x smaller. The opening volume (99.7-99.8% of every wave-1/2
+  artifact) is GONE — replaced by 2 outer identities + 2 eval-proof
+  descents, exactly as the aggregation trench designed.
+- The U-AG4 "folded W-C pass target 0.3-0.5 MiB class [MODEL]"
+  (wave-1 close) is now MEASURED at 0.407 MiB.
+
+Timing [MAC-BOX, non-reference, NOISY-SHARED — lane BH re-measures
++ the BG battery ran concurrently for parts of the run]: commit
+380.1 s (loads + chain derivation + digit witnesses + u_0s), prove
+4,178.1 s (69.6 min), verify 955.2 s (15.9 min), wall 5,521 s,
+peak RSS 38.2 GiB (/usr/bin/time -l; single-threaded). One shot,
+measured once, honestly — p50/p95 discipline is lane BI's harness
+(stretch not taken here; per-run numbers recorded as-is).
 
 ## 4. The derived 125M pass-budget expectation (BA rule; `pass-agg expect`, executable)
 
@@ -179,9 +221,51 @@ for the full statement.
 
 (filled at the full-shape run)
 
-## 6. Battery
+## 6. Battery and the AZB-11 canary
 
-(filled after the battery runs)
+### 6.1 The composition battery (`pass-agg battery` — 3 layers, T = 16, REAL ckpt data; lambda = 2 with 1 vacuous pad slot; shifts differ across the 3 layers so the requant publics are genuinely layer-keyed)
+
+(final leg table lands at close; the run is in flight)
+
+### 6.2 AZB-11 at the pass group map (`pass-agg canary` — **6/6 GREEN, 1,777.8 s**, 3 layers, T = 16, mode P2)
+
+The four FP 4.2 legs + both 11b contaminated variants, at the pass
+group map where the canary's semantics live (BD's wave-2
+disposition). Legs 2/3 run under the engine's own honest-verifier
+fixed-coin transcripts (challenges independent of absorbed content
+— the leak-harness tool; battery-only, never shipped) with the
+honest h0 pinned, which is exactly the spec's f(T_act, challenges)
+recompute form.
+
+| leg | verdict |
+|---|---|
+| 1 static support (derive-time, EVERY shipped pass): every act-batch tensor in T_act; nu support zero on T_W | **ok** |
+| 2 functional recompute: act batched claims AND act floor recomputed from (T_act, challenges) ALONE — the weight witness zeroed out — act-side proof bytes **byte-exact** | **ok** |
+| 3 perturbation: W perturbed, T_act fixed — the bare activation transcript **byte-identical** | **ok** |
+| 4 migration F5, three directions: shipped prover REFUSES at derive (azb11-static-prover — the E-11 F-Z3 wiring); hook-produced forged-map proof REJECTED by the shipped verifier's h0 map binding; map-unbound weak pipeline ACCEPTS (attack lands) with the static leg firing | **ok** |
+| AZB-11b(i) claim-layer smuggle (a weight-tensor claim marked act-side) fires the static leg | **ok** |
+| AZB-11b(ii) floor fold-in (delta = a WgT digit-ring column — an explicit weight functional) fires the leg-2 recompute | **ok** |
+
+**The AZB-10b leak face, exhibited (E-10 group face):** the
+weak-accepted migrated pass's act floor differs from the honest act
+floor (936 vs 921 rings) — the delta carries the migrated WgT_0
+digit rings folded into the bare floor (explicit weight-functional
+coordinates c_j (x) w_weight in the z-fold). The shipped defenses
+(derive refusal + h0 map binding) kill both routes to it.
+
+**REJECT semantics, wired:** any canary failure is
+DEPLOYMENT-BLOCKING for P2 — the shipped prover refuses at derive
+(loud error), the shipped verifier rejects (azb11-static /
+h0-map-binding) — errors, never warnings (F-Z3).
+
+**The positive certification this buys (the brief's ask):** the
+BARE ACTIVATION FLOOR of the P2 pass is certified
+weight-independent — its bytes are a function of (T_act witness,
+challenges) only, demonstrated by byte-exact recompute with the
+weight witness ABSENT and invariance under weight perturbation;
+weight-contaminated variants FIRE. The FP 4.3 accumulation story
+(the weight mask once per pass carries the across-pass asymmetry)
+rides on exactly this invariant.
 
 ## 7. E-O3-BB disposition; E-blocks; walls and findings
 
@@ -211,7 +295,62 @@ item — recorded in the ledger verdict row.
 
 ### 7.3 Walls and findings
 
-(filled at close)
+1. **BG-F1 (design finding): the shared-table fold assumption
+   breaks at 125M** — Section 1; the folded-descent line is 9
+   per-table pairs (~0.92 MiB [MODEL]) at 125M structure vs the
+   design's one-pair form (~0.11 MiB). Exported to the descent
+   build item and FINAL.
+2. **BG-F2: derived-vs-measured byte identity.** The measured pass
+   artifact equals the executable derivation line-for-line (the
+   only delta: the statement's 10-B P0 mode section vs the P2
+   estimate). The schedules, kel counts, and floors ARE the
+   artifact — the counted convention has no slack at this scope.
+3. **BG-F3 (the wall row): the pass-scale prover is level-0-
+   dominated.** Prove 69.6 min [MAC-BOX, NOISY-SHARED, 1T]:
+   the level-0 h cross-garbage is Theta(n_0 * r) ring-mults with
+   the planner's byte-optimal r pinned at the 64 cap for both
+   pass groups (~500M + ~227M kara-muls), plus three O(N_limb)
+   claim-kernel/phi passes (~16 kara-muls/ring each). Verify
+   15.9 min = BD's recorded O(N_limb) verifier wall at pass scale
+   (the phi materialization; this lane consumed the pre-split
+   eval_proof API — lane BH's row-column split is the recorded
+   fix, bytes unaffected). Commit 380 s = 12 chain derivations +
+   digit decomposition + the u_0 matvecs.
+4. **BG-F4: floor witness-size independence, demonstrated.** The
+   weight group's bare floor (939 rings) and Tier-Z floor (1,368
+   rings, corner 2^27.75) at the 3,538,944-ring pass witness EQUAL
+   lane BD's single-layer schedule values (24,576 rings) — the
+   FP-L1 regrowth law measured at 144x, and the reason the pass
+   amortization works at all.
+5. **BG-F5 (E-11 wiring design point):** the derive-time static
+   refusal first landed as a panic; converted to a loud
+   deployment-blocking VERDICT (azb11-static-prover) so both
+   shipped F5 faces are observable rejects (the battery caught
+   this — the leg-4 crash was my own refusal firing correctly but
+   uncatchably).
+6. **The P2 gap, restated:** the weight-touching ROUND POLYNOMIALS
+   ride unmasked (T_blind machinery absent — E-1..E-5); the FP 3.2
+   deltas price it at ~1,664 B [MODEL]. Deployment-grade P2 needs
+   the instance masks; the artifact and label say so.
+
+### 7.4 Exports
+
+- To the orchestrator/BH (API rows, filed at plan, held): (1)
+  eval_proof.rs ClaimKernelCtx supports ONE product-form kernel per
+  tensor (kernels.find) — the pass needs additive multi-claim
+  weights (built around in ring/pass_agg.rs::GroupClaims); (2) a
+  streaming (vw-free) kw_row variant — the materialized per-value
+  table is O(N_values) K-elems at pass scale. Both non-blocking;
+  merge-ready for BH's row-column split to consume.
+- To BI: the composed artifact's counted lines (Section 3) are the
+  wire-format's target inventory; the statement's mode section is
+  additive-only (old wire byte-identical) — the codec face is
+  already round-trip-tested in the manifest battery + freeze row.
+- To FINAL: the Tier N and Tier Z pass rows vs the derived
+  expectations and A1 (Sections 3/5); BG-F1 (the per-table descent
+  structure) attached to the folded-descent build item; E-O3-BB
+  still OPEN and attached there too (Section 7.1); the P1/P3
+  refusal is the standing honest gap (E-1..E-5).
 
 ## 8. Freeze rows and reproduction
 
