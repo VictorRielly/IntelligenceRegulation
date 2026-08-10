@@ -1237,6 +1237,67 @@ wire format (M-05) so budgets bind on serialized bytes; p50/p95
 measurement discipline; E-O3-BB at the pass statement; BF-F3
 gkr_masked padding seam as an optimization item.
 
+## Wave 3 (opened 2026-08-10 on Victor's console go: "Okay, let's
+## continue to the next wave")
+
+Base: a9ed98b (wave 2 closed). Worktrees wt-uagb1-bg / wt-uagb1-bh /
+wt-uagb1-bi, branches uagb1-bg / uagb1-bh / uagb1-bi. Lane
+discipline block above applies verbatim (skeleton-commit-first,
+own-section ledger edits, no blocking git, suite + freeze-check
+green at every claim, honest fallbacks, [MAC-BOX]/[NOISY-SHARED]).
+
+- BG (COMPOSITION, wt-uagb1-bg): compose BF's real-weights pass
+  statement -> BE's IXF folded instance families -> BD's per-group
+  batched opening + eval proof. Deliver: (1) the pass-level Tier N
+  (P0, bare) artifact MEASURED + the 125M pass budget expectation
+  DERIVED (BA rule: derived, never extrapolated from the 7B rows);
+  (2) the P2 pass: mode-declaration plumbing, weight group masked
+  ONCE per pass (the FP-L3 split; activation group bare), the
+  125M Tier Z pass number vs A1's derived-budget obligation;
+  (3) AZB-11 weight-independence canary AT THE PASS GROUP MAP
+  (its semantics live here — BD's disposition), AZB-10b at the
+  floor layer, E-O3-BB dispositioned at the pass statement,
+  remaining E-blocks its stages unlock. MUST NOT edit
+  eval_proof.rs internals (BH's zone this wave) — consume the API;
+  needed diffs filed as exports to the orchestrator.
+- BH (VERIFIER PERF, wt-uagb1-bh): owns eval_proof.rs this wave.
+  (1) The claim-kernel row-column split (the O(N_limb)
+  materialization behind the 17.4 s single-layer eval verify and
+  the per-layer pass verify wall) — measured before/after, public
+  API source-stable for BG; (2) BF-F3: the gkr_masked 2^(d-1)-4
+  capacity padding seam (~2x tree work at dw=22) — lift or avoid,
+  differential-tested; (3) all existing batteries green, freeze
+  digests unmoved. The 2 s contract line binds the aggregate
+  verifier on the reference box — BH targets the complexity fix
+  and reports ratios [MAC-BOX], not the contract claim.
+- BI (WIRE FORMAT + MEASUREMENT, wt-uagb1-bi): (1) the canonical
+  serialized wire format (audit M-05) — versioned, deterministic,
+  round-trip-tested — for the eval-proof artifact (bare + Tier-Z),
+  the folded-family transcript, and the pass statement; the
+  serialized-vs-counted byte table (budgets bind on serialized
+  bytes at FINAL); the writer API + format section BG's composed
+  artifact conforms to; (2) the p50/p95 measurement harness per
+  the contract statistic (>= 20 warm runs, p50+p95, cold-start
+  separate) + protocol doc for a reference-box pass; Mac runs
+  flagged. Visibility-only one-line edits in other zones allowed,
+  each listed in the report.
+- Orchestrator: merge by completion order with seam resolution
+  (BG consumes BH's API and BI's format — deferred conformance at
+  merge is acceptable and recorded); A1/F-IF1 comparisons + p50/
+  p95 + serialized-bytes reconciliation at FINAL; push; brief.
+
+## Agent BG status (wt-uagb1-bg)
+
+- (lane launches here)
+
+## Agent BH status (wt-uagb1-bh)
+
+- (lane launches here)
+
+## Agent BI status (wt-uagb1-bi)
+
+- (lane launches here)
+
 ## Blocker
 
 (none so far)
