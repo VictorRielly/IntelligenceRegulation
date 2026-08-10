@@ -1,1 +1,0 @@
-[UAGB1-BG] composed pass prove: 12 layers, T = 512, mode P0 — scope: arithmetic relations (3 folded matmuls + Hadamard + 4 requant) + X/z public binding; table-membership facts NOT composed (see pass-agg expect)
