@@ -21657,8 +21657,8 @@ fn uagb1_agg_bench(rows: usize, inner: usize, cols: usize, tier_z: bool) {
     }
     println!(
         "\n  timings [MAC-BOX]: commit {:.2}s prove {:.2}s verify {:.2}s \
-         (verifier carries the O(N_limb) claim-kernel materialization — \
-         the recorded wall; the Greyhound row-column split is the 7B-scale fix)",
+         ([UAGB1-BH] verifier runs the row-column claim kernel — Phi_0 never \
+         materialized; the PROVER still carries its O(N_limb) passes)",
         c.commit_s, c.prove_s, c.verify_s
     );
 }
@@ -26291,6 +26291,35 @@ fn uagb1_bh_kernel_bench(rows: usize, inner: usize, cols: usize) {
             t_fac,
             t_ref / t_fac.max(1e-9),
         );
+        // Residual attribution: the verifier's remaining heavy term is
+        // the level-0 CRS seed-expansion (+ the designed level-1
+        // transport pass); time the level-0 expansions at this
+        // schedule's real dims.
+        let l_t0 = plan0.l_t;
+        let that0_len = plan0.r * ring::eval_proof::KAPPA_AGG * l_t0;
+        let hh0_len = plan0.n_pairs * plan0.l_h;
+        let t2 = Instant::now();
+        let a0 = ring::eval_proof::expand_level_matrix(
+            0xB1B_0011, g.name, 0, "A", ring::eval_proof::KAPPA_AGG, plan0.chunk, q,
+        );
+        let b0u = ring::eval_proof::expand_level_matrix(
+            0xB1B_0011, g.name, 0, "Bu", ring::eval_proof::KAPPA_AGG, that0_len, q,
+        );
+        let b0h = ring::eval_proof::expand_level_matrix(
+            0xB1B_0011, g.name, 0, "Bh", ring::eval_proof::KAPPA_AGG, hh0_len, q,
+        );
+        println!(
+            "    residual: level-0 CRS expansion (A {}x{}, Bu {}x{}, Bh {}x{}) = {:.3}s \
+             [seed-XOF; identical on both implementations]",
+            ring::eval_proof::KAPPA_AGG,
+            plan0.chunk,
+            ring::eval_proof::KAPPA_AGG,
+            that0_len,
+            ring::eval_proof::KAPPA_AGG,
+            hh0_len,
+            t2.elapsed().as_secs_f64()
+        );
+        std::hint::black_box((a0, b0u, b0h));
     }
 }
 
