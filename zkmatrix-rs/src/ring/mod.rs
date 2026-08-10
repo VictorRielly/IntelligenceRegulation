@@ -33,6 +33,7 @@ pub mod commit;
 pub mod ct_engine;
 pub mod digits;
 pub mod eval_proof; // [UAGB1-BD] the batched-opening / eval-proof layer
+pub mod fold; // [UAGB1-BE] the IXF fold layer
 pub mod gkr;
 pub mod gkr_masked;
 pub mod kfield;
