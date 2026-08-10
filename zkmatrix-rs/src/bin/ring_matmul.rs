@@ -19844,10 +19844,13 @@ fn m125_pass_main(args: &[String]) {
             assert!(li < 12, "layer in 0..12");
             m125_pass_prove(li);
         }
-        Some("battery") => {
-            let t = if args.get(1).map(String::as_str) == Some("small") { 16 } else { 64 };
-            m125_pass_battery(t);
-        }
+        Some("battery") => match args.get(1).map(String::as_str) {
+            Some("small") => m125_pass_battery(16, false),
+            // Suite-budget smoke: the honest layer-0 leg only (T=16);
+            // the full tamper battery runs via `battery small`.
+            Some("smoke") => m125_pass_battery(16, true),
+            _ => m125_pass_battery(64, false),
+        },
         _ => {
             eprintln!("usage: ring_matmul m125-pass v4-battery | digests | statement | prove <layer> | battery [small]");
             std::process::exit(2);
@@ -19938,7 +19941,7 @@ fn m125_report_cost(c: &BfCost) {
 /// `m125-pass battery [small]`: the pass-level tamper battery on REAL
 /// data at a reduced sequence slice (T = 16 small / 64 default; rows of
 /// the true T = 512 chain, so every witness value is real model data).
-fn m125_pass_battery(t: usize) {
+fn m125_pass_battery(t: usize, smoke_only: bool) {
     let t0 = Instant::now();
     println!("[UAGB1-BF] pass battery at T = {t} on real layer-0/1 data (layer 1 exercises the (-4,-4) family member)");
     let load = || -> Vec<BfLayer> { (0..2).map(|l| bf_load_layer(l, t, true)).collect() };
@@ -19952,6 +19955,10 @@ fn m125_pass_battery(t: usize) {
         ),
         v.accept(),
     );
+    if smoke_only {
+        println!("\n[UAGB1-BF] pass smoke passed in {:.1}s (full battery: `m125-pass battery small`)", t0.elapsed().as_secs_f64());
+        return;
+    }
     let mut layers = load();
     let (v, _) = bf_layer_run(t, &mut layers, 1, BfTamper::None, true);
     assert_true("honest layer 1 ACCEPT ((-4,-4) family member — the per-scale table in action)", v.accept());
