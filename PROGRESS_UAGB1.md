@@ -1389,6 +1389,78 @@ green at every claim, honest fallbacks, [MAC-BOX]/[NOISY-SHARED]).
 - BASELINE at a714935 on this box: cargo release GREEN (42.5 s);
   baseline full-shape bare + tierz + freeze-check runs launched
   (results recorded at the first code commit).
+- 2026-08-10 (later): **lane COMPLETE.** All three deliverables
+  landed and measured; stretch D4 declared NOT TAKEN (the remaining
+  hot spots are the DESIGNED level-1 pass + seed-XOF CRS expansion —
+  the XOF lives outside my file zone; measured and exported, not
+  patched). Full suite green in-lane: **58 tests OK, 430.4 s**
+  (python3 -m unittest discover -s tests, quiesced, incl. the Rust
+  self-test battery 246.0 s and every uagb1-* module — zero
+  ERROR/FAIL lines); freeze-check green at every commit, every
+  pre-existing digest unmoved; everything committed to uagb1-bh;
+  no push.
+
+**VERDICT ROW (BH).** THE VERIFIER'S O(N_limb) WALL IS CLOSED —
+bit-identically. D1 row-column split LANDED (the Greyhound structure,
+PARAMS 2.2/5.3): in the recursed path Phi_0 is consumed ONLY through
+Psi_0 (transport_level's psi seam, now public as
+transport_level_from_psi; floor/Tier-Z L1 at L = 1 need the same
+object), and psi_level0_factored computes Psi_0 from the rank-1
+kernel factors (K-mult F_q-bilinearity + conj Z_q-linearity; exact
+mod-q regrouping; per-tensor generic branch for misaligned cols) —
+the verifier never materializes Phi_0 (192,512 rings at the 125M
+layer shape) or the 3.0M-value K-mult weight table. MEASURED
+[MAC-BOX, quiesced, 512x768x2048]: bare verify **17.16 -> 5.31 s
+(3.23x)**, Tier-Z verify **17.46 -> 5.38 s (3.25x)**, claim-kernel
+phase in isolation **13.96 -> 1.62 s (8.6x; weight 7.8x, act
+8.8x)**, prove/commit/bytes UNCHANGED (344,318 B bare / 1,527,878 B
+Tier-Z, byte-identical — the wire, transcript edges, and soundness
+structure untouched; the 2 s line binds the AGGREGATE verifier on
+the REFERENCE box and is NOT claimed). Differential evidence:
+bh-verifier battery 21/21 (factored == the verbatim wave-2 reference
+pipeline EXACTLY at aligned/misaligned/multi-tensor/forced-1-and-
+2-level shapes + full shape inside the kernel bench, twice; e2e
+honest + OOA-first-fail identical), BD's unmodified agg-matmul
+battery all 22 source legs green on the new verifier (194 s; BD
+prose said 23 — source carries 22 assert legs, a prose nit). D2
+BF-F3 LANDED: blinded_witness_tree capacity 2^(d-1)-4 -> n-8 by the
+split fill (witness_leaf_positions, the frozen table_row_positions
+discipline extended to witness columns; <= cap layout BIT-IDENTICAL
+incl. leaf-vector equality legs; blinder positions/mask
+families/prove/verify untouched). MEASURED at the 2^20 pass shape:
+depth 22 -> 21 = **tree 2.08x, prove 2.03x, tree+prove 2.03x** —
+BF-F3's ~2x removed — plus **-6,208 B per descent-pair transcript**
+(1,445 -> 1,348 K-el with the dt = 9 table side). Beyond-cap
+battery: honest e2e masked descent (roots + split-layout leaf P/Q
+pins), right-block leaf tamper REJECT, wrong-map (contiguous
+assumption) REJECT — the position map is load-bearing, demonstrated.
+D3: ALL engine batteries green at this HEAD — uagb1-digit-battery
+33 ok / matmul-statement 10 ok / agg-matmul 22 ok / ixf-fold 20 ok /
+m125-pass v4-battery 19 ok / m125-pass battery smoke on real
+layer-0/1 exports (73.7 s) / freeze-check 87 rows (pre-existing
+digests unmoved at every commit). API: eval_proof.rs public surface
+SOURCE-COMPATIBLE (nothing removed or re-signed; additions only —
+BG consumes as-is); BD-zone edits minimal + [UAGB1-BH]-marked
+(verifier psi seam, agg_floor_family_values takes psi at both call
+sites, Tier-Z prover psi hoisted out of the restart loop — BH-F2,
+values identical; one stale bench print corrected). FINDINGS:
+BH-F1 the wall WAS the claim kernel (81% of wave-2 verify; residual
+5.3 s = measured 1.03 s level-0 seed-XOF CRS expansion + the
+designed level-1 transport pass + deeper levels + floor checks —
+none O(N_limb); prover keeps its O(N_limb) passes by design);
+BH-F2 the Tier-Z restart loop recomputed a challenge-fixed Psi per
+attempt (hoisted); BH-F3 the BF-F3 depth drop is also a transcript
+byte win (-6,208 B/pair, kel freeze rows pin the function, unmoved).
+EXPORTS: (a) pass-rig wiring of the split map (BF-zone p3_dw-class
+layouts + leaf-pin builders; wrong-map leg = the acceptance test;
+~2x of the descents' 25.5% prove share ~ 10-12% pass-prove class +
+6,208 B x 8 pairs/layer counted [MODEL until wired]) — orchestrator/
+next wave; (b) the residual verifier profile (CRS XOF + level-1
+pass) as the next hot spots if the aggregate verifier needs them —
+XofReader is outside BH's file zone. Report:
+docs/zkmatrix-poc/UAGB1_VERIFIER_REPORT.md (algebra, tables,
+battery evidence, reproduction). Deliverables checkbox left for the
+orchestrator.
 
 ## Agent BI status (wt-uagb1-bi)
 

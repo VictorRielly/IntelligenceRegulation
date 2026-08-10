@@ -1,7 +1,7 @@
 # U-AG-B1 Verifier Performance Report — Lane BH (wave 3: the row-column split + the gkr_masked padding seam)
 
-Status: LANE DELIVERABLE (2026-08-10, U-AG-B1 wave 3, worktree
-wt-uagb1-bh). Ledger: PROGRESS_UAGB1.md "Agent BH status". Machine:
+Status: LANE DELIVERABLE, COMPLETE (2026-08-10, U-AG-B1 wave 3,
+worktree wt-uagb1-bh). Ledger: PROGRESS_UAGB1.md "Agent BH status". Machine:
 Victor's Mac (Apple silicon) — NOT the contract reference box; every
 timing here is [MAC-BOX, non-reference], [NOISY-SHARED] where marked
 (sibling lanes BG/BI and this lane's own battery jobs overlapped).
@@ -265,7 +265,7 @@ and gkr_masked sit under all of them) — that is the point. All runs
 | m125-pass v4-battery (BF) | **19 ok, passed** |
 | m125-pass battery smoke (BF, real layer-0/1 exports) | **passed**, 73.7 s |
 | freeze-check | **passed** (87 ok rows; every pre-existing digest unmoved) |
-| python suite (repo root) | see close-out line in the ledger |
+| python suite (repo root, quiesced) | **Ran 58 tests in 430.4 s — OK** (incl. the Rust self-test battery 246.0 s; zero ERROR/FAIL lines) |
 
 ## 4. Findings and exports
 
