@@ -1292,7 +1292,103 @@ green at every claim, honest fallbacks, [MAC-BOX]/[NOISY-SHARED]).
 
 ## Agent BH status (wt-uagb1-bh)
 
-- (lane launches here)
+- 2026-08-10 PLAN COMMIT (before any code; skeleton-commit-first).
+  Read phase COMPLETE: ledger in full; UAGB1_AGG_STACK_REPORT.md
+  (Section 6 item 1 = my target: verify 17.4 s at 512x768x2048, the
+  O(N_limb) claim-kernel materialization; Section 2 wire objects);
+  M125_PASS_REPORT.md (34.3 s/layer pass verify; BF-F3 gkr_masked
+  2^(d-1)-4 cap -> dw=22 dummy padding ~2x tree work);
+  AGGREGATION_PARAMS_DESIGN.md 2.2/5.3 (the designed verifier =
+  level-1 statement pass ~ kappa*(z+t+w) MACs, NEVER the level-0
+  functional; Greyhound two-tier row-column structure);
+  AGGREGATION_LITERATURE.md 3.1-3.2; src/ring/eval_proof.rs WHOLE
+  (mine this wave); src/ring/gkr_masked.rs WHOLE (mine);
+  [UAGB1-BD] section of ring_matmul.rs (agg_prove_group /
+  agg_verify_group / tier-z / battery / bench — read, not owned).
+- READ-PHASE FINDING binding the D1 plan (the row-column split has
+  an exact seam): in the RECURSED verifier path, phi_0 (n_0 rings,
+  materialized at n_0 x 16 ring-mults after an N_values K-mult vw
+  table) is consumed ONLY through compute_psi(phi_0, chunk_0, c_0)
+  inside transport_level at level 1 — psi_0 (chunk_0 rings) is the
+  single phi_0-derived object the whole chain needs (for L = 1
+  schedules the floor L1/Tier-Z families need the SAME psi_0). The
+  claim kernel is rank-1 per tensor (row_kernel x col_kernel) and
+  kf.mul is F_q-bilinear, so with cols % 128 == 0 (all 125M-shape
+  tensors; per-tensor fallback to the generic per-ring path
+  otherwise): phi_0[v] = radix_limb * sum_d beta[row][d] *
+  conjQ[cb][d] with beta[row][d] = sum_c L(row_ker[row])[d][c] *
+  alpha_c (scalar-scaled alpha sums, no ring-mults) and
+  conjQ[cb][d] = conj(d-coordinate slice of the col-kernel block) —
+  psi_0 then assembles at ~(n_value_rings x 16) ring-mults +
+  n_0 radix-scale-adds instead of (N_values K-mults + n_0 x 16
+  ring-mults + n_0 fold mults). Exact mod-q identity (sum
+  regrouping only) => bit-identical psi_0 => bit-identical
+  transcripts and verdicts BY CONSTRUCTION; asserted by
+  differential legs anyway.
+- D1 PLAN (row-column split, additive in eval_proof.rs + minimal
+  MARKED [UAGB1-BH] edits inside agg_verify_group / the two
+  floor-family call sites — the smallest possible BD-zone touch,
+  each line marked; prover UNTOUCHED this deliverable):
+  eval_proof.rs gains phi0_full (reference materialization via the
+  existing ClaimKernelCtx — the differential oracle),
+  psi_level0_factored (the split; per-tensor aligned/generic
+  branches), transport_level_from_psi (transport_level refactored
+  to delegate — public signature/behavior of transport_level
+  UNCHANGED); agg_verify_group's recursed path drops vw + phi_0 and
+  feeds psi_0 to level-1 transport (degenerate path untouched);
+  agg_floor_family_values takes psi (both call sites compute it —
+  the prover's Tier-Z restart loop also stops recomputing an
+  identical psi per attempt, values unchanged). Differential
+  battery (my own [UAGB1-BH] section + `bh-verifier` dispatch arm):
+  psi_level0_factored == compute_psi(phi0_full) EXACT at aligned +
+  misaligned (64x96x128 A-tensor cols 96) + forced-1-level +
+  full-shape legs; BD's agg-matmul battery re-run green (23 legs =
+  every tamper/F5 leg through the new verifier, verdicts +
+  first_fail strings asserted by the battery itself); full-shape
+  bare bytes must stay EXACTLY 344,318 (wire untouched);
+  before/after verify timings at 512x768x2048 bare + Tier-Z
+  [MAC-BOX, NOISY-SHARED — siblings BG/BI run this wave], kernel-
+  phase ratio measured standalone (reference vs factored psi_0 at
+  the full shape). The 2 s line binds the AGGREGATE verifier on the
+  REFERENCE box — I report complexity-fix ratios, never the
+  contract claim.
+- D2 PLAN (BF-F3, gkr_masked.rs): lift the blinded_witness_tree
+  capacity 2^(d-1)-4 -> n-8 by the SPLIT fill (left block
+  [0, n/2-4), overflow at [n/2, n/2 + rest), rest <= n/2-4) — the
+  exact table_row_positions precedent extended to witness columns;
+  <= cap layout BIT-IDENTICAL to today (same contiguous fill, same
+  blinder installs — the old assert becomes the n-8 gate);
+  blinder_positions / mask counts / transcript-shape functions /
+  masked_gkr_prove / masked_gkr_verify UNTOUCHED (they are
+  layout-agnostic). New pub witness_leaf_positions(n_used, n) is
+  the public map pin-builders consume. Battery (my section):
+  <= cap layout identity vs an inline reference of the old fill;
+  > cap honest END-TO-END masked descent pair at the REAL pass
+  shape (2^20 fused leaves, dt = 9) with root cross-check + leaf
+  MLE claims recomputed against the split layout (the house
+  battery pin-modelling convention); tamper legs (right-half leaf
+  tamper REJECT; contiguous-map pin mismatch REJECT); measured
+  dw=22 (old cap) vs dw=21 (split) at 2^20 leaves: tree build +
+  prove + verify wall clock, the tree-work ratio, and the
+  masked_transcript_totals byte delta. m125 rig wiring is BF-zone
+  (p3_dw-class layouts) — machinery + measured demonstration land
+  here, the rig switch is an EXPORT to the orchestrator.
+- D3 PLAN: re-run ALL engine batteries at my HEAD green
+  (uagb1-digit-battery, matmul-statement battery, agg-matmul
+  battery, ixf-fold battery, m125-pass v4-battery + battery smoke
+  on the present exports), full python suite + freeze-check (all
+  pre-existing digests unmoved), long runs backgrounded.
+- D4 STRETCH (only if 1-3 green): prover-side phi_0 via the same
+  factored helper (values identical, ~l0-fold cut of the prover's
+  second pass); any further verifier hot-spot with measured
+  evidence.
+- WILL NOT DO: prover protocol/wire changes; fold.rs / lookup.rs /
+  manifest.rs / pass-integration sections; edits to existing
+  scripts/tests or other ledger sections; blinder_positions or any
+  frozen-row constant; the contract verify claim; pushes.
+- BASELINE at a714935 on this box: cargo release GREEN (42.5 s);
+  baseline full-shape bare + tierz + freeze-check runs launched
+  (results recorded at the first code commit).
 
 ## Agent BI status (wt-uagb1-bi)
 
