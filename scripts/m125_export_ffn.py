@@ -205,7 +205,18 @@ def main():
 
     manifest["range_violations"] = total_viol
     (OUT_DIR / "manifest.json").write_text(json.dumps(manifest, indent=1))
-    print("manifest -> %s" % (OUT_DIR / "manifest.json"))
+    # Flat sidecar for the Rust loader (JSON-free): per layer the tensor
+    # digests + shifts, one line each.
+    lines = []
+    for r in manifest["layers"]:
+        li = r["layer"]
+        for name in ("X", "WgT", "WuT", "WdT", "z"):
+            lines.append("%02d %s %s" % (li, name, r["digests"][name]))
+        s = r["shifts"]
+        lines.append("%02d shifts %d %d %d %d" % (li, s["g"], s["u"],
+                                                  s["h"], s["z"]))
+    (OUT_DIR / "digests.txt").write_text("\n".join(lines) + "\n")
+    print("manifest -> %s (+ digests.txt sidecar)" % (OUT_DIR / "manifest.json"))
 
 
 if __name__ == "__main__":
