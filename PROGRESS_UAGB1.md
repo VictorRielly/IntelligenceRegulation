@@ -106,10 +106,17 @@ must be DERIVED by this round (the frozen A1 number is the
       stages 2-5); byte gates ride on BB's statement. PLUS the
       integration-prep win: 125M calibration VERDICT = CALIBRATES
       as-is (see merge message + M125_CALIBRATION_STUDY.md).
-- [ ] INTEGRATION: frugal-lm 125M checkpoint imported (int8
+- [~] INTEGRATION: frugal-lm 125M checkpoint imported (int8
       calibration honest — an uncalibratable model fails its range
       facts by design), 12-layer P2 pass proven end to end, measured
       p50/p95, artifact bytes vs derived budget, brief.
+      P0 HALF DONE 2026-08-10 (lane BF, merged b8a4b4b): the
+      12-layer pass PROVEN on real ckpt-00009536 weights, 12/12
+      layers, one v4 statement, prove 3,275 s / verify 411 s
+      [MAC-BOX ~1T single-shot, not p50/p95], counted 7.38 GiB
+      opening-dominated. The P2 half (masked weight group + BD's
+      stack + BE's fold composed onto the pass statement, pass-level
+      Tier N/Z bytes vs the derived budget, p50/p95) = WAVE 3.
 - [ ] FINAL (orchestrator): reconciliation, A1 condition status,
       ledger closed, pushed.
 
@@ -1203,6 +1210,32 @@ Deliverable detail:
     subcommand-driven (`m125-pass statement | prove <l> | battery`);
     P2-mode plumbing (stretch 5) NOT taken — wave-3 item alongside
     BD's masked path.
+
+## Wave 2 close (orchestrator, 2026-08-10)
+
+ALL THREE LANES LANDED AND MERGED (BD e3c9825, BE 9462d89, BF
+b8a4b4b), every gate re-run green at every merge, every
+pre-existing freeze digest unmoved, zero blockers, zero dishonest
+claims. The round now holds, on main: (1) the eval-proof stack
+collapsing a single-layer artifact 341x (344,318 B bare /
+1,527,878 B masked, corner-safe); (2) the IXF fold turning 12
+layers into ONE instance at full shape (ruling settled, zero
+R-rows); (3) the 12-layer P0 pass PROVEN on real 125M weights
+under one statement. F-Z1 + F-O2 discharged at 125M scale; the
+opening-proof flake fixed (25/25); manifest v4 typing + SiLU
+family v2 landed.
+
+WAVE 3 QUEUE (the composition wave — next console go): compose
+BE's folded pass family into BD's per-group eval proofs on BF's
+pass statement -> THE pass-level Tier N number vs the 262,144
+B/layer-x-amortization expectation and the Tier Z pass number vs
+A1's derived-budget obligation (P2 mode declaration plumbing +
+masked weight group, AZB-11 at the pass group map, AZB-10b at the
+floor layer, E-blocks remaining); the verifier kernel row-column
+split (17.4 s + 34.3 s/layer walls vs the 2 s aggregate line);
+wire format (M-05) so budgets bind on serialized bytes; p50/p95
+measurement discipline; E-O3-BB at the pass statement; BF-F3
+gkr_masked padding seam as an optimization item.
 
 ## Blocker
 
