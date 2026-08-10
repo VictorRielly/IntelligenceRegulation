@@ -5,7 +5,10 @@ wt-uagb1-bh). Ledger: PROGRESS_UAGB1.md "Agent BH status". Machine:
 Victor's Mac (Apple silicon) — NOT the contract reference box; every
 timing here is [MAC-BOX, non-reference], [NOISY-SHARED] where marked
 (sibling lanes BG/BI and this lane's own battery jobs overlapped).
-Byte counts and battery verdicts are machine-independent.
+Byte counts and battery verdicts are machine-independent. Raw
+measurement logs: bh_baseline_full / bh_after_full / bh_quiesced /
+bh_gkr20 / bh_d3_batteries / bh_aggbat_after (.log, session
+scratchpad; regenerate via Section 5).
 
 **The 2 s contract line binds the AGGREGATE verifier on the REFERENCE
 box (TARGET_CONTRACT R2). This lane reports complexity-fix ratios and
@@ -130,28 +133,52 @@ full-shape bare artifact is byte-identical: **344,318 B counted**
 
 ### 1.5 Measured (before/after)
 
-[MAC-BOX, non-reference. BEFORE = commit a714935 (wave-2 merged code)
-measured quiet on this box 2026-08-10; AFTER = this lane's HEAD.
-AFTER runs marked NOISY-SHARED overlapped this lane's own battery
-jobs; the quiesced re-run column is the clean number.]
+[MAC-BOX, non-reference. BEFORE = commit a714935 (the wave-2 merged
+code) measured QUIET on this box 2026-08-10 (bh_baseline_full.log);
+AFTER = this lane's HEAD, first run [NOISY-SHARED] (overlapped this
+lane's own battery jobs), then re-measured QUIESCED (nothing else
+running). The noise turned out negligible — the two AFTER columns
+agree to 0.1 s.]
 
-| measurement | BEFORE | AFTER [NOISY-SHARED] | AFTER (quiesced) | ratio (quiesced) |
+| measurement | BEFORE (quiet) | AFTER [NOISY-SHARED] | AFTER (quiesced) | ratio |
 |---|---:|---:|---:|---:|
-| 512x768x2048 bare: verify | 17.16 s | 5.31 s | TBD | TBD |
-| 512x768x2048 bare: prove | 55.61 s | 56.67 s | — | ~1x (untouched) |
+| 512x768x2048 bare: VERIFY | 17.16 s | 5.31 s | **5.31 s** | **3.23x** |
+| 512x768x2048 bare: prove | 55.61 s | 56.67 s | 56.85 s | ~1x (untouched) |
+| 512x768x2048 bare: commit | 8.28 s | 8.28 s | 8.27 s | 1x |
 | 512x768x2048 bare: counted bytes | 344,318 B | 344,318 B | 344,318 B | 1.000x (wire unchanged) |
-| 512x768x2048 Tier-Z: verify | 17.46 s | TBD | TBD | TBD |
-| 512x768x2048 Tier-Z: bytes | 1,527,878 B | TBD | — | 1.000x expected |
-| claim-kernel phase alone, weight group | TBD | — | TBD | TBD |
-| claim-kernel phase alone, act group | TBD | — | TBD | TBD |
+| 512x768x2048 Tier-Z: VERIFY | 17.46 s | 5.38 s | **5.38 s** | **3.25x** |
+| 512x768x2048 Tier-Z: prove | 56.35 s | 57.30 s | 57.32 s | ~1x |
+| 512x768x2048 Tier-Z: counted bytes | 1,527,878 B | 1,527,878 B | 1,527,878 B | 1.000x |
+| Tier-Z sampler restarts | 0 | 0 | 0 | — |
 
-(TBD rows filled at close-out from bh_after_full.log + the quiesced
-re-run; the kernel-phase rows come from `bh-verifier kernel`.)
+Claim-kernel PHASE in isolation (`bh-verifier kernel 512 768 2048`,
+quiesced; the reference leg is the verbatim removed pipeline, and the
+run ASSERTS factored == reference exactly):
 
-The residual AFTER verify time is NOT claim-kernel: it is the
-level-0/1 CRS expansions (seed-XOF, kappa x chunk_0 full-entropy
-polys), the level-1 transport pass (the DESIGNED kappa*(z+t+h) term),
-and the floor checks. Reported honestly in Section 4.
+| group | n_0 | chunk / r | wave-2 reference | row-column | ratio |
+|---|---:|---:|---:|---:|---:|
+| weight | 24,576 | 1,366 / 18 | 1.809 s | 0.231 s | **7.8x** |
+| act | 167,936 | 4,539 / 37 | 12.149 s | 1.387 s | **8.8x** |
+| both | 192,512 | — | 13.96 s | 1.62 s | **8.6x** |
+
+Cross-check: baseline verify 17.16 s minus the removed 12.34 s of
+kernel-phase delta predicts 4.8 s; measured 5.31 s (the factored
+kernel runs inside the full verifier with its allocation pattern) —
+consistent. The kernel phase was 81% of the wave-2 verify; it is now
+~30% of a 3.2x-smaller number.
+
+Residual (the honest decomposition of the remaining 5.31 s): the
+level-0 CRS seed-expansions alone are 0.25 s (weight) + 0.78 s (act)
+= 1.03 s, measured in-run at the real schedule dims (A 11x1366/
+11x4539, Bu 11x990/11x2035, Bh 11x855/11x3515); the rest is the
+deeper levels' CRS, the DESIGNED level-1 transport pass
+(kappa*(z+t+h) ring-mults — PARAMS 5.3's dominant modeled term), the
+floor family checks, and the statement rebuild. None of it is
+O(N_limb); the O(N_limb) claim-kernel wall recorded by BD is CLOSED
+on the verifier side. The prover (56-57 s) still carries its
+O(N_limb) passes by design (its h-garbage consumes phi chunk
+slices); the wave-2 module note's "on BOTH sides" now reads
+prover-only.
 
 ## 2. Deliverable 2 — the gkr_masked capacity seam (BF-F3)
 
@@ -224,20 +251,21 @@ reduction. [MODEL until wired.]
 
 ## 3. Deliverable 3 — battery re-runs at this HEAD
 
-(Filled at close-out; every battery below runs the changed engine —
-that is the point.)
+Every battery below runs the changed engine (the eval-proof verifier
+and gkr_masked sit under all of them) — that is the point. All runs
+2026-08-10 in this worktree, [MAC-BOX]; verdicts machine-independent.
 
 | battery | result |
 |---|---|
-| bh-verifier battery (NEW: differential + BF-F3) | 21/21 ok, 15.2 s |
-| agg-matmul battery (BD, 23 legs) | ok legs 22/22 printed, passed, 194.1 s |
-| uagb1-digit-battery (BB D1) | TBD |
-| matmul-statement battery (BB D2) | TBD |
-| ixf-fold battery (BE) | TBD |
-| m125-pass v4-battery (BF) | TBD |
-| m125-pass battery smoke (BF, real exports) | TBD |
-| freeze-check (all pre-existing digests) | TBD |
-| python suite (repo root) | TBD |
+| bh-verifier battery (NEW: differential + BF-F3) | **21/21 ok**, 15.2 s |
+| agg-matmul battery (BD) | **all 22 source legs ok, passed**, 194.1 s (BD prose said "23/23"; the battery source carries exactly 22 `assert_true` legs — a prose-count nit, not a missing leg) |
+| uagb1-digit-battery (BB D1) | **33 ok, passed**, 4.3 s |
+| matmul-statement battery (BB D2) | **10 ok, passed**, 50.3 s |
+| ixf-fold battery (BE) | **20 ok, passed**, 53.9 s |
+| m125-pass v4-battery (BF) | **19 ok, passed** |
+| m125-pass battery smoke (BF, real layer-0/1 exports) | **passed**, 73.7 s |
+| freeze-check | **passed** (87 ok rows; every pre-existing digest unmoved) |
+| python suite (repo root) | see close-out line in the ledger |
 
 ## 4. Findings and exports
 
