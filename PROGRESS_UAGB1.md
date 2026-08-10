@@ -1296,7 +1296,111 @@ green at every claim, honest fallbacks, [MAC-BOX]/[NOISY-SHARED]).
 
 ## Agent BI status (wt-uagb1-bi)
 
-- (lane launches here)
+- 2026-08-10 PLAN COMMIT (before any code; skeleton-commit-first).
+  Read phase COMPLETE: ledger in full (wave 1-3 sections, lane
+  discipline, machine note); TARGET_CONTRACT.md Section 4 (the M-05
+  finding: "budget binds once a canonical encoding exists"; the
+  statistic: p95 over >= 20 warm runs, p50 alongside, cold-start
+  separate) + Amendment A1 tiers; UAGB1_AGG_STACK_REPORT.md (byte
+  table S3, Tier-Z S5, counted conventions); UAGB1_FOLD_REPORT.md
+  (S5.2/5.4 byte model + capstone decomposition); M125_PASS_REPORT.md
+  (v4 statement 26,116 B cv2, v3 digest 7b913619 unmoved obligation);
+  engine surfaces: eval_proof.rs (GroupEvalProof + counted_bytes),
+  ct_engine.rs (CtRoundProof, masked splitter reveal type
+  Vec<Vec<(usize,i64)>>), fold.rs, sumcheck.rs (SumcheckProof),
+  manifest.rs (encode/decode cv1/cv2, digest), the BD/BE/BF rig
+  drivers in ring_matmul.rs (same-module private fns REUSABLE from my
+  section — no signature changes needed), freeze_check chain (BF's
+  one-line-hook precedent). Baseline on this box at plan time: cargo
+  release GREEN (44.7 s warm), freeze-check GREEN (every row), python
+  suite launched (result recorded at first code commit).
+- D1 PLAN (the canonical wire format, M-05). Spec FIRST in
+  docs/zkmatrix-poc/WIRE_FORMAT.md, then src/wire.rs (self-contained
+  codec module, path-included from my [UAGB1-BI] section the way
+  ring/manifest are). Format "ZKWF v1": magic + u32 version + u16
+  artifact kind + field-id (q8_31) envelope; fixed little-endian
+  widths; per-kind FIXED section order (tag u16 + u64 len), unknown/
+  out-of-order/duplicate/trailing = structured decode REJECT; q31
+  poly = 128 x u32 canonical-range coeffs (512 B, count hoisted to
+  block header — the counted 4 B/poly prefix disappears); K element
+  = 16 x u32 = 64 B ON the counted convention (kept: word-aligned;
+  bit-packing would save 3.1% and is declined, stated in spec);
+  signed-integer blocks (floor digits, ct-z responses, Tier-Z
+  responses) = u32 count + u8 width in {1,2,4,8} + two's-complement
+  LE values under a CANONICAL-MINIMAL-WIDTH rule (decoder re-checks
+  minimality; re-encode byte-identity by construction) — floor stays
+  1 B/coord, Tier-Z stays 4 B/coord, ct-z drops 8 -> 4 B/coord
+  (honest values bounded by the wave l2 bound < 2^27; the fold
+  transcript's dominant line HALVES — the big serialized-vs-counted
+  delta, pre-registered); reveals (u32 wave, i32 centered) = 8 B vs
+  12 counted. Artifact kinds: (1) EVAL-PROOF ARTIFACT bare+Tier-Z
+  (META shape/crs-seed/flags, STATEMENT = manifest bytes verbatim,
+  SUMCHECK, per-group u0/ugh0/b_rows/level_us/floor(+e)/TierZ
+  images+response+restarts; tcap diagnostics excluded from wire —
+  deterministic FS counter); (2) FOLD TRANSCRIPT (META family/shape,
+  STATEMENT, TAGS t1+t2, SUMCHECK, REVEALS, WAVES = per-wave
+  h/w1/w_claim/z records, CLOSING) — kind-2 v1 scopes the plain-
+  commitment linear-claim record (what the BE rigs emit; richer
+  claim classes reserved); (3) STATEMENT WRAP (v3 cv1 / v4 cv2
+  bytes verbatim; digest stability ASSERTED — serialization must
+  not move 7b913619 / 76dbf204 / any digest); (4) PASS ARTIFACT
+  (BG's) — tag allocated, layout spec'd, writer API landed (D3).
+  Round-trip tests: encode -> decode -> re-encode byte-identical;
+  verify-after-round-trip ACCEPTS from DECODED objects (my own
+  honest-path drivers in the [UAGB1-BI] section reuse BD's
+  agg_prove_group/agg_verify_group and BE's machinery — same-module
+  access, zero signature changes, zero edits in their zones);
+  corrupted-byte legs BOTH classes (structural byte -> decode
+  REJECT; in-range value byte -> decode OK + verify REJECT; panic=
+  abort profile means decode must be panic-free by construction —
+  all-Result, every shape/range validated before objects reach a
+  verifier). THE TABLE: serialized vs counted at the recorded
+  shapes — eval bare + Tier-Z at 512x768x2048 (counted 344,318 /
+  1,527,878), fold mm at 12x(64x96x128) battery shape + the
+  12x(512x768x2048) capstone (counted 1,406,719,131; run in
+  background, honest fallback = derived from the same per-component
+  arithmetic validated at the measured smaller shapes), zc mid
+  12x(512x256) if wall-clock permits, pass statement (26,116 B cv2).
+  Every divergence explained (prefix hoisting, width rule, envelope).
+- D2 PLAN (p50/p95 harness + protocol): ONE dispatch arm
+  `uagb1-bi` sub-dispatching {wire-battery, wire-bench, bench-stat}.
+  bench-stat implements the contract statistic (>= 20 warm, p50 +
+  p95 nearest-rank, cold-start = first run after setup, reported
+  separately): named in-process workloads `eval-verify [shape]`
+  (prove ONCE = setup; N+1 verifies via agg_verify_group),
+  `matmul-prove [shape]` (N+1 full uagb1_matmul_run instances,
+  per-phase stats from MmCost — prove is the statistic),
+  `freeze-check` + generic `spawn <n> -- <argv...>` (subprocess
+  whole-invocation timing, applicable to ANY subcommand; spawn
+  overhead stated). docs/zkmatrix-poc/MEASUREMENT_PROTOCOL.md: the
+  quiesced-machine reference-box protocol (preconditions, fixed run
+  order incl. the freeze-check calibration row, recorded fields,
+  [MAC-BOX]/[NOISY-SHARED]/reference labeling rules per the ledger
+  Machine note, how the full ~55-min reference pass would run — not
+  executed this lane). Measured this lane [MAC-BOX, NOISY-SHARED if
+  siblings run]: eval-verify at 512x768x2048, matmul-prove at
+  128x768x256 (the recorded battery mid shape), freeze-check
+  calibration row.
+- D3 PLAN (BG's writer API): kind-4 PASS ARTIFACT in WIRE_FORMAT.md
+  (mode P0-P3 declaration, statement, per-group eval-proof records
+  reusing kind-1 group form, folded-claim records reusing kind-2
+  forms, extensible (tag,len) sections with allocated tag space) +
+  PassArtifactWriter/Reader in wire.rs (new/add_*/add_raw_section/
+  finish; reader returns typed + raw sections). BG may finish after
+  me; deferred conformance at the orchestrator's merge expected.
+- Shared-zone touches (each ONE line, listed in the report): the
+  `uagb1-bi` arm in main's match; `all_ok &= freeze_check_uagb1_bi()`
+  in freeze_check (BF precedent). Freeze row UAGB1-BI-1: golden
+  wire sample digest pinned both directions (format stability).
+  Visibility edits in eval_proof.rs/fold.rs/manifest.rs: expected
+  ZERO (all consumed fields already pub; TierZFloor is same-module);
+  any that prove necessary will be one-line pub exposures listed
+  explicitly.
+- WILL NOT DO: edits to BD/BE/BF/BB functions or zones beyond the
+  two one-line hooks; lookup.rs / gkr_masked.rs internals; manifest
+  codec changes (wire WRAPS manifest bytes; digests must not move);
+  existing scripts/tests; other ledger sections; the full 55-min
+  reference pass (protocol doc only); pushes.
 
 ## Blocker
 
