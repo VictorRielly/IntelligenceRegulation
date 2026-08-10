@@ -1010,8 +1010,12 @@ def main():
         import resource
         rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         el = (os.times()[4] if hasattr(os, "times") else 0) - t0
+        # ru_maxrss is BYTES on Darwin but KiB on Linux (BC finding
+        # 2026-08-08, print-only fix — no check reads this value).
+        rss_mib = rss / (1024.0 * 1024.0) if sys.platform == "darwin" \
+            else rss / 1024.0
         print("runtime %.1f s, peak RSS %.0f MiB (caps: 600 s / 2 GiB)"
-              % (el, rss / 1024.0))
+              % (el, rss_mib))
     except Exception:
         pass
     if n_ok != len(CHECKS):
