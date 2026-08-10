@@ -133,8 +133,8 @@ whose counted rows are UAGB1_AGG_STACK_REPORT.md Section 3/5:
 
 | tag | section | payload |
 |---|---|---|
-| 0x0101 | META | rows u32, inner u32, cols u32, crs_seed u64, flags u8 (bit0 = Tier-Z; others 0), forced_levels u8 (0 = planner schedule; nonzero = battery-forced level count), reserved u16 = 0 |
-| 0x0102 | STATEMENT | the manifest container bytes verbatim (cv1 here — the v3 agg statement) |
+| 0x0101 | META | rows u32, inner u32, cols u32, crs_seed u64, flags u8 (bit0 = Tier-Z; others 0), forced_levels u8 (255 = the planner-derived schedule; any other value = a battery-forced level count, 0 = degenerate), reserved u16 = 0 |
+| 0x0102 | STATEMENT | the manifest container bytes verbatim (cv1 here — the v3 agg statement). The codec enforces the structural container marker; FULL manifest decode + validate + canonical re-encode identity is the verifier's first step (implemented so; a statement that fails it rejects before any crypto). |
 | 0x0103 | SUMCHECK | v_claim KELEM, u32 n_rounds, per round KVEC (the round evaluations), finals KVEC |
 | 0x0104 | GROUP (exactly twice: weight, then act) | Section 3.1.1 |
 
@@ -274,7 +274,20 @@ wave-2 figures exactly.
 | eval proof Tier-Z, 512x768x2048 | 1,527,878 | **1,527,085** | 0.9995 |
 | eval proof Tier-Z, 256x768x2048 | 1,511,494 | 1,510,701 | 0.9995 |
 | mm fold transcript, 12x(64x96x128) | 12,627,383 | 8,314,493 | 0.6584 |
+| **mm fold transcript, 12x(512x768x2048) — the wave-2 capstone** | 1,406,719,131 | **925,578,652** | 0.6580 |
 | v4 pass statement (12-layer, real) | 26,116 | 26,168 | 1.0020 |
+
+The capstone row is a full real round trip: prove 474.7 s, serialize
+0.77 s, deserialize 0.54 s, verify-FROM-WIRE 60.5 s accept true, peak
+RSS 18.3 GiB [MAC-BOX, single run]. Counted totals reproduce the
+BD/BE recorded artifact numbers exactly (344,318 / 1,527,878 /
+1,406,719,131), so the ratios apply to the recorded artifacts, not
+look-alikes. The stacked zero-check family uses the identical
+kind-2 section forms; its dedicated driver was not built this lane
+(declared): its recorded mid-shape row (12x(512x256), counted
+183,686,051 B) serializes in the same ~0.658x class by the same
+per-line transforms, all of which are validated by the two measured
+mm shapes.
 
 - **The A1-relevant rows move by less than 0.2%.** Serialized bare
   eval proof = 343,709 B = 1.311x the Tier N 262,144 B/layer gate
