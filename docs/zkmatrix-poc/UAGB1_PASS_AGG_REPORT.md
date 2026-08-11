@@ -7,6 +7,21 @@ timing [MAC-BOX, non-reference], [NOISY-SHARED] where sibling lanes
 (BH/BI) ran concurrently. Byte counts, schedules, battery verdicts,
 and freeze rows are machine-independent.
 
+**HEADLINES (both measured on real ckpt-00009536, 12 layers,
+T = 512, end to end, accept = true; composed-relation scope per
+Section 1):**
+
+> **Tier N pass (P0, bare): 426,455 B = 0.407 MiB = 0.1356x the P0
+> pass gate** (12 x 262,144 B) — derived expectation 426,622 B,
+> agreement to the statement-section byte.
+> **Tier Z pass (P2, weight floor masked once/pass): 1,019,211 B =
+> 0.972 MiB** — derived expectation 1,019,234 B; the A1 frozen
+> 1,114,112 B is the 7B-P3 scope (cited); the measured once-per-pass
+> weight-mask surcharge = 592,756 B (FP-L3/W-C amortization
+> measured).
+> vs BF's wave-path pass artifact: **18,581x smaller**; the
+> opening volume is GONE.
+
 ## 0. What this lane built, in one paragraph
 
 The pass-level composition: BF's 12-layer real-weights v4 pass
@@ -219,13 +234,77 @@ for the full statement.
 
 ## 5. THE P2 PASS (Tier Z) — measured
 
-(filled at the full-shape run)
+**The pass-level Tier Z artifact, mode P2 declared on the statement
+(Amendment A1 plumbing: private set = exactly the 36 weight-class
+entries), 12 layers, T = 512, real data: accept = true.** The FP-L3
+split as designed: the WEIGHT group's floor masked ONCE per pass
+(Tier-Z e_L = 4 refit, F-Z1 corner b = 2^27.75 asserted at derive,
+prover-internal Gaussian mask, FP-L2/A8 no hash edge, response after
+all level challenges per AZB-6, Lyubashevsky rejection with
+**0 restarts logged** — F-Z3); the activation group BARE.
+
+| component | measured B |
+|---|---:|
+| statement (serialized; v4 + P2 mode section 144 B; digest c8aaf326..) | 26,247 |
+| folded instances (identical to P0) | 32,000 |
+| public binding claims | 1,536 |
+| [weight] outer 11,360 + rows 8,260 + levels 39,760 + MASKED floor 700,420 (1,368 rings e4) + mask images 12,388 | 772,188 |
+| [act] outer 11,360 + rows 8,260 + levels 45,440 + bare floor 117,124 (915 rings e7) | 182,184 |
+| **TOTAL** | **1,019,211 = 0.972 MiB** |
+
+**Verdicts of the number:**
+
+- vs the DERIVED expectation (1,019,234 B): measured is 23 B under
+  — again the statement-section estimate; every protocol line
+  EXACT. The derivation IS the artifact.
+- **THE 125M-PASS TIER Z OBLIGATION (the ledger's "must be DERIVED
+  by this round"): P2 = 1,019,211 B measured at the composed scope
+  [+ ~0.92 MiB [MODEL] descent lines for the full statement —
+  Section 4].** The A1 FROZEN budget (1,114,112 B) is the 7B-pass
+  P3/W-C scope — cited for class only: the 125M P2 composed number
+  sits 94,901 B under it; the full-statement [MODEL] extension
+  (~1.98 MiB) sits above it, driven by BG-F1's 9-per-table descent
+  structure — an honest 125M-structural finding, not a 7B
+  statement.
+- **The measured once-per-pass weight-mask surcharge (FP 4.3's
+  amortization, measured): P2 - P0 = 592,756 B** = masked-vs-bare
+  floor (+580,224) + mask images (+12,388) + the mode section
+  (+144). Per layer amortized: +49,396 B. The unfolded per-layer
+  alternative would pay a masked floor PER LAYER; the composition
+  pays it once — the FP-L3/W-C design's point, now measured.
+- Restarts 0 across the pass (single Tier-Z floor challenge; the
+  F-Z3 abort discipline exercised with the logged counter).
+
+Timing [MAC-BOX, non-reference, NOISY-SHARED — the 14-leg battery
+ran concurrently]: commit 367.0 s, prove 4,121.9 s, verify 949.9 s,
+wall 5,446 s, peak RSS 42.9 GiB. Single-shot; p50/p95 = lane BI's
+harness (not claimed).
+
+P1/P3: REFUSED by the composition layer with the named gap (the
+act-side mask + T_blind instance masking = E-1..E-5, absent); the
+declarations themselves validate (plumbing complete) — no silent
+degradation in either direction.
 
 ## 6. Battery and the AZB-11 canary
 
-### 6.1 The composition battery (`pass-agg battery` — 3 layers, T = 16, REAL ckpt data; lambda = 2 with 1 vacuous pad slot; shifts differ across the 3 layers so the requant publics are genuinely layer-keyed)
+### 6.1 The composition battery (`pass-agg battery` — **14/14 GREEN, 4,682.8 s** [MAC-BOX, NOISY-SHARED]; 3 layers, T = 16, REAL ckpt data; lambda = 2 with 1 vacuous pad slot; shifts differ across the 3 layers so the requant publics are genuinely layer-keyed)
 
-(final leg table lands at close; the run is in flight)
+| leg | verdict |
+|---|---|
+| honest P0 ACCEPT (383,798 B counted at the small shape) | ok |
+| honest P2 ACCEPT (Tier-Z weight floor, restarts 0, 966,462 B) | ok |
+| **the composed seam**: fold-family claim lie (tampered gate A table; self-consistent sumcheck + claim; act b_rows ct-forced, the BD WrongC pattern) — REJECT lands at **floor-target**: the eval proof catches the claim-interface lie through the transported chain | ok |
+| wrong-layer content through the composed path: Gacc_0 <-> Gacc_1 witness swap (self-consistent commit) — REJECT at **sc-matmul** (the folded matmul's committed-C claim vs the sumcheck; the layer-keyed requant publics stand behind it) | ok |
+| bare-floor wire tamper — REJECT floor-fold-consistency | ok |
+| OOA floor pair (recomposition-preserving) — REJECT **isolated to the alphabet gate** (the BD sharp leg reproduced at pass scope) | ok |
+| Tier-Z response-norm tamper — REJECT tierz-response-norm | ok |
+| Tier-Z mask-image tamper — REJECT tierz-family | ok |
+| declared-output public-claim lie (shipped on the wire) — REJECT public-claim (the verifier's own recompute from public data) | ok |
+| AZB-10b DEFENSE (derive): shipped prover REFUSES the forged group map (azb11-static-prover, loud) | ok |
+| AZB-10b DEFENSE (h0): hook-produced forged-map proof REJECT at the shipped verifier's statement-derived map binding | ok |
+| AZB-10b ATTACK: map-unbound weakened verifier ACCEPTS the migrated pass — the leak face live (exhibit in 6.2) | ok |
+| E-O2-BB: second batched opening in a group = build error | ok |
+| mode plumbing: P2 digests; wrong private set REJECTS (ModeDeclInvalid); codec round-trips; P3 declaration validates; P1/P3 runner REFUSES | ok |
 
 ### 6.2 AZB-11 at the pass group map (`pass-agg canary` — **6/6 GREEN, 1,777.8 s**, 3 layers, T = 16, mode P2)
 
@@ -372,3 +451,15 @@ zkmatrix-rs$ ./target/release/ring_matmul pass-agg prove 12 512 p2   # THE Tier 
 zkmatrix-rs$ ./target/release/ring_matmul freeze-check
 repo$ python3 -m unittest tests.test_uagb1_pass_agg
 ```
+
+---
+
+*Changelog: 2026-08-10 — first edition (U-AG-B1 wave 3, lane BG):
+the pass-level composition landed and measured end to end on real
+weights — Tier N P0 426,455 B (0.136x the pass gate) and Tier Z P2
+1,019,211 B (0.972 MiB, weight floor masked once/pass, restarts 0),
+both within bytes of their executable derivations; battery 14/14;
+AZB-11 canary 6/6 with the AZB-10b leak exhibit; mode-declaration
+plumbing (additive manifest, old digests/wire unmoved); freeze rows
+UAGB1-BG-1a..2; suite 61/61; findings BG-F1..F5; E-O3-BB
+dispositioned open against the folded-descent build item.*

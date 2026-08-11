@@ -1415,6 +1415,112 @@ green at every claim, honest fallbacks, [MAC-BOX]/[NOISY-SHARED]).
   (2) a vw-free streaming kw_row variant (the materialized
   per-value table is O(N_values) K-elems — prohibitive at pass
   scale); both non-blocking for BH's row-column split.
+- 2026-08-10 (later): **lane COMPLETE.** All three deliverables
+  green + measured + written (UAGB1_PASS_AGG_REPORT.md complete);
+  stretch (p95 repeats) NOT taken — each full run is ~1.5 h wall on
+  this box and lane BI owns the harness; single-shot numbers
+  recorded honestly. Full suite 61/61 OK (717 s, in-lane, incl. the
+  new test module) + freeze-check green at the final build with
+  EVERY pre-existing digest unmoved. All committed to uagb1-bg; no
+  push (per brief).
+
+**VERDICT ROW (BG).** THE COMPOSITION LANDS, END TO END, ON THE
+REAL CHECKPOINT — BF's 12-layer v4 pass statement -> BE's folded
+families (+ the new folded requant family with public
+layer-coefficient MLEs) -> BD's per-group batched opening + eval
+proofs (W-C, E-O2-BB enforced), modes P0 AND P2, 12/12 layers at
+T = 512, accept = true both modes. **THE TWO PASS NUMBERS
+[MEASURED, counted convention, composed-relation scope]:**
+  * **Tier N (P0 bare): 426,455 B = 0.407 MiB = 0.1356x the P0
+    pass gate** (12 x 262,144 = 3,145,728 B; 35.5 KiB/layer
+    amortized) — vs the DERIVED expectation 426,622 B (BA rule,
+    executable via `pass-agg expect`): agreement to the
+    statement-section byte, every instance kel and group line
+    EXACT. 18,581x under BF's wave-path pass (7.38 GiB): the
+    opening volume is GONE. The U-AG4 folded W-C 0.3-0.5 MiB
+    class [MODEL] is now MEASURED at 0.407 MiB.
+  * **Tier Z (P2, the FP-L3 split: weight floor masked ONCE per
+    pass, act bare): 1,019,211 B = 0.972 MiB** — vs derived
+    1,019,234 B; restarts 0 (F-Z3 logged); F-Z1 corner 2^27.748
+    asserted at derive; measured once-per-pass weight-mask
+    surcharge = 592,756 B (the FP 4.3 amortization, measured).
+    THE 125M-PASS TIER Z OBLIGATION (ledger: "must be DERIVED by
+    this round") = this number at composed scope; A1's frozen
+    1,114,112 B is the 7B-P3 scope, cited not transferred (the
+    125M P2 sits 94,901 B under it; the full-statement [MODEL]
+    extension adds ~0.92 MiB of descent lines — finding BG-F1).
+  * HONEST SCOPE LABEL (on every print + report S1): composed =
+    arithmetic relations (3 folded matmuls + Hadamard + 4 requant)
+    + X/z public binding + weight binding via u_0/model identity;
+    NOT composed = the table-membership facts (SiLU + range) — the
+    folded masked descent stays the recorded unbuilt piece (BE's
+    WILL-NOT-DO carried), priced in the expectation BOTH structural
+    forms. BG-F1: the design's shared-table fold assumption BREAKS
+    at 125M (2 SiLU members + 6 remainder widths -> 9 per-table
+    pairs ~0.92 MiB [MODEL] vs the one-pair ~0.11 MiB form).
+  * MODE PLUMBING (deliverable 2): manifest::ModeDecl ADDITIVE
+    (digest/codec absorb only-when-declared; mode-less digests AND
+    wire bytes provably unmoved — freeze row BG-2 + the pre-existing
+    BF-2b/2c rows green; ByteReader::peek_u8 the one shared-plumbing
+    addition); validation P0..P3 (P2 = exactly the CLS_W8S set);
+    P1/P3 REFUSED loudly by the composition layer (E-1..E-5 gap
+    named — no silent degradation either direction). P2's residual
+    honest gap pre-registered and held: weight-touching ROUND
+    POLYNOMIALS ride unmasked (T_blind machinery absent; ~1,664 B
+    [MODEL] deltas priced), deployment-grade P2 requires it.
+  * BATTERY 14/14 (4,682.8 s, 3 layers T=16 real data): honest P0
+    (383,798 B) + P2 (966,462 B, restarts 0); the composed-SEAM leg
+    (fold-family claim lie -> REJECT at floor-target THROUGH the
+    eval proof); cross-layer Gacc swap -> sc-matmul REJECT;
+    floor/OOA (alphabet-isolated)/Tier-Z-response/Tier-Z-image
+    tampers; public-claim lie; AZB-10b THREE directions (derive
+    refusal + h0-map REJECT + weak-verifier ACCEPT with leak live);
+    E-O2-BB build error; mode-plumbing negatives.
+  * AZB-11 CANARY 6/6 at the pass group map (E-11 LANDED; 1,777.8
+    s): leg 1 static support (runs in EVERY shipped prove+verify as
+    an ERROR — deployment-blocking, F-Z3); leg 2 functional
+    recompute — act batched claims AND act floor BYTE-EXACT from
+    (T_act, challenges) alone (weight witness zeroed; the engine's
+    own fixed-coins honest-verifier harness); leg 3 W-perturbation
+    invariance (byte-identical act transcript); leg 4 migration F5
+    three directions; AZB-11b(i) claim smuggle + (ii) floor fold-in
+    both FIRE. AZB-10b leak face EXHIBITED (E-10 group face): the
+    weak-accepted migrated act floor (936 vs 921 rings) carries the
+    migrated WgT_0 digit rings — an explicit weight functional.
+    THE POSITIVE CERT: the P2 bare activation floor is
+    weight-independent, demonstrated not asserted.
+  * E-O3-BB DISPOSITIONED at the pass statement (not silent): the
+    composed path carries NO descent pair, so D-R1 rho-sharing has
+    no engine object this wave; BOTH branches priced in the
+    expectation; the battery leg transfers to the folded-descent
+    build item. E-blocks: E-10 group face + E-11 WIRED here;
+    E-6/E-7(i) inherited from BD; E-1..E-5/E-7(ii,iii)/E-8/E-9 NOT
+    unlocked (T_blind absent) — stated.
+  * FREEZE rows UAGB1-BG-1a..1c + BG-2 both directions (pass
+    inventories 7,823,360/3,538,944 digit rings; schedules L9/915-e7
+    act, L8/939-e7 weight, 1,368-e4 Tier-Z; F-Z1 corner; mode
+    digest/codec discipline); every pre-existing digest unmoved at
+    every commit. FINDING BG-F4: the weight floors (939 bare /
+    1,368 Tier-Z) EQUAL BD's single-layer values at a 144x witness
+    — FP-L1 witness-size independence measured.
+  * WALLS [MAC-BOX, NOISY-SHARED, 1T]: P0 commit 380/prove
+    4,178/verify 955 s, RSS 38.2 GiB; P2 367/4,122/950 s, RSS 42.9
+    GiB. Prover = level-0-dominated (h cross-garbage Theta(n_0*r),
+    r at the 64 cap, + 3 O(N_limb) kernel passes); verifier = BD's
+    recorded O(N_limb) claim-kernel wall at pass scale (this lane
+    consumed the pre-split eval_proof API; BH's row-column split is
+    the fix, bytes unaffected).
+  * FIXED IN-LANE (findings BG-F5-class): E-11 derive refusal
+    converted from panic to observable deployment-blocking verdict;
+    PublicClaimLie re-plumbed (lie on the wire, truth in the batch);
+    mode-decl decode gated on the 0x4D section tag so the pre-BG
+    codec negative vectors keep their exact errors (regression
+    caught by the suite, fixed, statement-codec + fuzz green).
+  * Report: docs/zkmatrix-poc/UAGB1_PASS_AGG_REPORT.md (headlines,
+    construction, derived expectation w/ executable printer, both
+    battery tables, E-block table, walls/findings BG-F1..F5,
+    exports, reproduction). Deliverables checkbox left for the
+    orchestrator.
 
 ## Agent BH status (wt-uagb1-bh)
 
