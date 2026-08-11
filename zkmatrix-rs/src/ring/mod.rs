@@ -43,6 +43,7 @@ pub mod lookup;
 pub mod sumcheck;
 pub mod params;
 pub mod sigma;
+pub mod t_blind; // [UAGB1-BL] T_blind: masking the weight-touching round polynomials (P2)
 
 pub use aux::D;
 pub const LOG2_DELTA0: f64 = 0.005326; // log2(1.0037), same C3 model as Route Z
