@@ -1255,3 +1255,42 @@ Orthus); Section 0 updated in place with the landed
 PROOF_BYTE_LEDGER.md confirmations (3,543.7 MiB / 14,175x complete
 artifact; identities 695.6 MiB confirming the 0.67 GiB [MODEL]
 structural result).*
+
+## Addendum 2026-08-11 — Attestable (external watch item, CLAIMS-ONLY)
+
+Attestable (attestable.com; Tel Aviv, founded 2025-07; $18.5M seed
+2026-02, TLV Partners; CTO Shahar Papini — Circle STARKs ePrint
+2024/278, StarkWare Stwo) published "Proving LLMs at Scale"
+2026-08-11 claiming ZK proofs of full LLM inference: Gemma-4-31B
+INT8, 53 tok/s proven (batch-1, 16K ctx) / 77 tok/s (batch-4) on
+ONE H100; proof 4.35-7.92 MiB; CPU verify 157-648 ms; weights
+private behind a commitment; hash-based, post-quantum, 100-bit;
+verbatim: "we prove all non-linear operations in floating points,
+we quantize all matrix multiplications to integers"; ~1.5x proving
+overhead via approximation (per heronsec.ai). NO paper, NO ePrint,
+NO code, NO third-party reproduction as of this entry — every
+number is [EXTERNAL, VENDOR-CLAIMED, UNVERIFIED].
+
+Refs: attestable.com/blog/proving-llms-scale;
+attestable.com/blog/model-weights-security;
+calcalistech.com/ctechnews/article/sjik6rzdwl;
+en.globes.co.il/en/article-former-ssi-engineer-founds-ai-startup-1001534082;
+app.fundz.net/fundings/attestable-funding-round-seed-d158d8;
+github.com/starkware-libs/stwo. Adjacent published systems for
+scale: Lagrange DeepProve-1 (GPT-2-class, open-sourced 2026-06);
+Polyhedra zkPyTorch (ePrint 2025/535, Llama-3-8B ~150 s/token);
+zkGPT (USENIX Sec'25, GPT-2 <25 s); zkAgent (ePrint 2026/199,
+0.40 s/token).
+
+House reading: exact statement class (private committed weights,
+int8 matmuls, ZK forward pass) — genuine prior-art flag, almost
+certainly Circle-STARK-family, so orthogonal on assumptions
+(hash/PQ vs our MLWE/MSIS lattice line). Two substantive deltas
+if their claims hold: (1) floating-point nonlinears with
+approximation semantics UNDEFINED publicly — our contract's
+integer-exact soundness (range-fact-failing-by-design) is a
+different, stricter guarantee class; (2) 100-bit target vs our
+128-bit class / 2^-220 knowledge error. Watch actions: monitor for
+a paper/code drop (O-9 discipline); their per-token framing vs our
+per-pass framing needs a conversion note before any comparison
+row is written.
