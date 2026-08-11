@@ -508,15 +508,27 @@ lines are unchanged.
   radix path) and on the misaligned 64x96x128 synthetic groups
   (generic branch, forced L2 + L1) with the per-ring oracle tied
   in; a perturbed contribution scale moves Psi (non-vacuity).
-- **`pass-agg canary`: 6/6 GREEN, 1,621.9 s** [MAC-BOX,
-  NOISY-SHARED — the m125 battery overlapped]: all four FP 4.2
-  legs + both 11b contaminated variants, byte-exact act-side
-  recompute (legs 2/3), the leg-4 three-direction migration F5
-  with the AZB-10b leak exhibit intact (weak-accepted migrated act
-  floor 936 vs honest 921 rings). The gate this stage existed for.
+- **`pass-agg canary`: 6/6 GREEN — twice** (1,621.9 s at the fix
+  commit; re-run **1,600.9 s at the final lane HEAD**) [MAC-BOX,
+  NOISY-SHARED]: all four FP 4.2 legs + both 11b contaminated
+  variants, byte-exact act-side recompute (legs 2/3), the leg-4
+  three-direction migration F5 with the AZB-10b leak exhibit
+  intact (weak-accepted migrated act floor 936 vs honest 921
+  rings). The gate this stage existed for.
+- **`pass-agg battery`: 14/14 GREEN at the final HEAD** (4,177.6 s
+  [MAC-BOX, NOISY-SHARED — stage-2 lanes ran concurrently]) — the
+  honest P0/P2 accepts reproduce the wave-3 counted bytes EXACTLY
+  (383,798 / 966,462 B), and every REJECT surface my rewiring sits
+  under lands with its recorded first-fail: floor-target,
+  sc-matmul, floor-fold-consistency, the OOA alphabet isolation,
+  tierz-response-norm, tierz-family (the two Tier-Z tampers now
+  RUN — at the merged wave-3 HEAD they panicked before reaching
+  the check), public-claim, the AZB-10b trio, E-O2-BB, and the
+  mode-plumbing legs.
 - **`m125-pass battery small`: 8/8 green** (Section 9.5's leg
-  included), **suite + freeze-check green at this HEAD** (see the
-  ledger BJ verdict row for the run inventory).
+  included); **python suite: Ran 62 tests — OK (674.0 s)** and
+  **freeze-check green** at the final HEAD with every pre-existing
+  digest unmoved.
 
 ### 9.4 Composed-verify re-measure under BH's split (deliverable 2)
 
@@ -532,7 +544,33 @@ fresh full prove in the same invocation (the BG rig has no
 serialized-artifact re-verify path; the artifact is re-proven and
 re-verified in one `pass-agg prove 12 512 p0` run):
 
-<!-- BJ-D2-TABLE -->
+| measurement (12 layers, T = 512, P0) | wave 3 (pre-split) | this HEAD | ratio |
+|---|---:|---:|---:|
+| **VERIFY** | **955.2 s** | **199.6 s** | **4.79x** |
+| prove | 4,178.1 s | 4,117.4 s | ~1x (untouched) |
+| commit | 380.1 s | 375.4 s | ~1x |
+| counted bytes | 426,455 B | 426,455 B | 1.000x (wire untouched) |
+| statement digest | 6a2b52f5.. | 6a2b52f5.. | identical |
+| accept | true | true | — |
+| wall / peak RSS (/usr/bin/time -l) | 5,521 s / 38.2 GiB | 4,700 s / 40.8 GiB | — |
+
+- Every byte LINE reproduces exactly (statement 26,103; instances
+  50/50/53/101/82/82/82/79 kel; [weight] 179,576 = outer 11,360 +
+  rows 8,260 + levels 39,760 + floor 120,196; [act] 182,184) — the
+  fix and the split are implementation restructures; the artifact
+  is bit-stable.
+- The verify drop BEATS the queued "expected ~3x" (BH's 3.23x was
+  measured at the single-layer statement with ONE kernel per
+  tensor): at pass scale the composed verifier's removed
+  kernel-pass materialized phi over 7.8M + 3.5M digit rings with
+  DOZENS of additive contributions per tensor, so the removed term
+  was a larger share. 199.6 s is user-dominated (99.6% CPU) despite
+  the shared box. The contract's 2 s R2 line binds the REFERENCE
+  box and is NOT claimed; [MAC-BOX] magnitude only.
+- RSS note: the pass peak (40.8 vs 38.2 GiB) sits in the PROVE
+  phase (the prover still materializes phi for its h-garbage by
+  design); the verifier-phase phi materialization (~8 GiB-class at
+  the act group) is gone.
 
 ### 9.5 BF-F3 wiring side effect on this report's [MODEL] lines
 

@@ -2082,6 +2082,85 @@ reconciliation + ledger FINAL (orchestrator).
   P0 re-measure); then pass-agg battery + canary re-run at final
   HEAD + suite + freeze-check; addenda drafted in both reports
   (measured tables pending).
+- 2026-08-11 **LANE COMPLETE. VERDICT ROW (BJ).**
+  * **D1 R-BG1 FIXED, gate MET.** Defect reproduced at the merged
+    base with backtrace (assert 972 vs 162 at
+    agg_floor_family_values:21318 via bg_verify_group — the Tier-Z
+    arm fed phi (r x chunk) into BH's psi-shaped parameter; every
+    composed P2 VERIFY panicked at merged HEAD; P0 + prover
+    unaffected). Fix = BG's export, landed ADDITIVELY in
+    eval_proof.rs ([UAGB1-BJ] MultiClaimKernel +
+    psi_level0_factored_multi + phi0_reference_multi — scale folds
+    into the row factor, contributions add ring-linearly; vw-free;
+    ClaimKernelCtx/psi_level0_factored/transport_level*/BD-BH call
+    sites untouched) + bg_verify_group rewired to BD's post-BH
+    factored shape (psi0 factored-multi; transport_level_from_psi
+    at level 1; psi_floor to BOTH floor branches). NEW `pass-agg
+    seam` differential 12/12 (46.3 s): factored-multi ==
+    compute_psi(bg_kernel_pass phi) on REAL groups (act 42
+    kernels / weight 9, e0=1 branch) + misaligned 64x96 generic
+    branch L2/L1 + per-ring oracle + perturbed-scale non-vacuity.
+    **Canary 6/6 GREEN TWICE (1,621.9 s at the fix commit; 1,600.9
+    s at the final HEAD)** with the AZB-10b exhibit intact (936 vs
+    921). **pass-agg battery 14/14 at the final HEAD** (4,177.6 s
+    [NOISY-SHARED]): honest P0/P2 counted bytes reproduce wave 3
+    EXACTLY (383,798 / 966,462 B); the Tier-Z tamper REJECTs now
+    RUN (they panicked pre-fix); every first-fail string as
+    recorded.
+  * **D2 COMPOSED-VERIFY RE-MEASURED under BH's split: 955.2 s ->
+    199.6 s = 4.79x** (12 layers, T=512, P0, single-shot, fresh
+    full prove+verify in one invocation — no serialized re-verify
+    path exists in the BG rig, stated; [MAC-BOX, NOISY-SHARED —
+    BK/BL ran concurrently; 99.6% CPU user-dominated]). Prove
+    4,117.4 s / commit 375.4 s (~1x, untouched); **counted bytes
+    426,455 B and statement digest 6a2b52f5.. BYTE-IDENTICAL** to
+    wave 3, every byte line reproduced. Beats the queued "~3x
+    expected" — at pass scale the removed multi-claim kernel pass
+    was a bigger verify share than BD's single-kernel wall. RSS
+    40.8 GiB (peak sits in the untouched prover). Dated addendum:
+    UAGB1_PASS_AGG_REPORT.md Section 9.
+  * **D3 BF-F3 WIRED into the m125 rig per BH's 2.4 export:**
+    bf_dw_for -> split-fill capacity n-8 (T=512: dw 22->21 x6
+    instances, 20->19 x2; smoke T=16: 17->16, 15->14); leaf_pins
+    witness weights on the PUBLIC witness_leaf_positions map
+    (trees already rode it). **Acceptance leg PASSES: WrongMap
+    (honest proof, contiguous-assumption verifier pins) REJECTS in
+    the wave rounds** with statement/matmuls/roots green +
+    non-identity precondition — m125-pass battery small 8/8
+    (558.2 s). **Measured effect [MAC-BOX single-shot]: layer-0
+    prove 288.5 -> 250.4 s = -13.2% (the exported ~10-12% class),
+    lkp phase 69.9 -> 35.1 s = 1.99x, verify 34.6 -> 31.9 s,
+    descent transcripts -48,640 B/layer (= 6 x 6,208 + 2 x 5,696,
+    exact kel arithmetic)**; statement digest stable. Finding
+    BJ-F1: T=16 smoke +6.9 s from the first-fit wave repack
+    (40->39 fuller waves — small-shape artifact; T=512 wave count
+    unchanged at 127, all phases down). Derived-line movement
+    recorded: 125M-STRUCTURAL [MODEL] 959,232 -> 898,496 B;
+    FULL-STATEMENT Tier N 1,385,854 -> 1,325,118 B, P2 1,978,466
+    -> 1,917,730 B (BK targets the UPDATED lines). Dated addendum:
+    M125_PASS_REPORT.md Section 9 (+ cross-note in PASS_AGG 9.5).
+  * **D4 GATES at the final HEAD: cargo build --release green;
+    freeze-check green (exit 0, every pre-existing digest
+    unmoved); python suite Ran 62 tests OK (674.0 s, incl.
+    self-test 239.1 s); canary 6/6.** Machine notes: all timings
+    [MAC-BOX, non-reference]; the wave-4 stage-2 lanes (BK/BL)
+    launched on this box mid-lane — measurement labels state the
+    overlap per run (D3 BEFORE quiet / AFTER tail-overlapped,
+    user-time consistent; D2 NOISY-SHARED like its wave-3
+    baseline). One harness-side note: a background measurement
+    script was killed mid-composed-run by the runner (~40 min
+    lost); re-run detached (nohup) to completion — no engine
+    artifact was affected.
+  * FILES: eval_proof.rs (additive [UAGB1-BJ] block only),
+    ring_matmul.rs ([UAGB1-BG] verifier call sites + bg_multi_kernels
+    + `pass-agg seam` arm + [UAGB1-BF] bf_dw_for/leaf_pins/WrongMap
+    leg), dated addenda in UAGB1_PASS_AGG_REPORT.md +
+    M125_PASS_REPORT.md, this section. NOT touched: pass_agg.rs,
+    fold.rs, lookup.rs, manifest.rs, wire.rs, gkr_masked.rs (the
+    wiring needed no library change), p3_dw/us1, other ledger
+    sections, existing scripts/tests. Deliverables checkbox left
+    for the orchestrator; wave-4 stage 2 (BK/BL) proceeds from the
+    fixed base.
 
 ## Blocker
 
