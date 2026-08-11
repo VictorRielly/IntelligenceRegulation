@@ -1959,10 +1959,34 @@ break: 9 per-table pairs, the full-statement Tier N ~1.39 MiB
 p50/p95 quiesced pass per MEASUREMENT_PROTOCOL.md; A1 condition
 reconciliation + ledger FINAL.
 
+## Wave 4 (opened 2026-08-10 on Victor's console go: "Let's go ahead
+## with wave 4") — STAGED
+
+Stage 1 (NOW): lane BJ (wt-uagb1-bj) — integration hardening on the
+merged HEAD: (1) R-BG1 FIX: the additive ClaimKernelCtx multi-claim
+API exactly as BG's report specified, canary harness call sites
+updated, AZB-11 canary 6/6 GREEN at merged HEAD (the gate this
+stage exists for); (2) composed-verify re-measure under BH's split
+(955 s baseline, expected ~3x); (3) BF-F3 m125 rig wiring per BH's
+export (p3_dw layouts + leaf-pin builders; acceptance = the
+wrong-map leg; ~10-12% pass-prove class to confirm); dated addenda
+to the existing reports, freeze digests unmoved, suite green.
+
+Stage 2 (after BJ merges — lanes branch from the FIXED base to
+avoid another R-BG1-class seam): BK = the folded masked descent for
+table-membership facts (BG-F1: per-table pairs, the full-statement
+Tier N line, [MODEL] ~1.39 MiB to beat or price honestly); BL =
+T_blind (E-1..E-5) for the P2 round-poly residual + the remaining
+AZB E-blocks it unlocks. Then the quiesced p50/p95 pass + A1
+reconciliation + ledger FINAL (orchestrator).
+
+## Agent BJ status (wt-uagb1-bj)
+
+- (lane launches here)
+
 ## Blocker
 
-(none blocking — R-BG1 is an open defect in a battery harness,
-dispositioned above)
+(none blocking — R-BG1 owned by BJ, stage 1)
 
 ## Log
 
