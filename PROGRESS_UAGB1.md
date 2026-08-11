@@ -2167,9 +2167,11 @@ recipe.
     it in pass_agg::GroupClaims (streaming kw_value_row), migratable
     verbatim when BJ lands it (non-blocking).
   * GATES: build green; freeze-check exit 0 (pre-existing digests
-    UNMOVED, new rows UAGB1-BK-1/2/3 both directions); report
-    docs/zkmatrix-poc/UAGB1_TABLE_DESCENT_REPORT.md. Full suite +
-    battery-green claim follow the backgrounded runs.
+    UNMOVED, new rows UAGB1-BK-1/2/3 both directions); **full suite
+    62/62 OK (748.7 s) from the worktree root** [MAC-BOX,
+    NOISY-SHARED]; report docs/zkmatrix-poc/UAGB1_TABLE_DESCENT_
+    REPORT.md. Battery verdicts + the measured 12x512 numbers follow
+    the backgrounded runs (recorded below when landed).
 
 ## Agent BL status (wt-uagb1-bl)
 
