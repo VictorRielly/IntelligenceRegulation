@@ -275,10 +275,12 @@ the entire delta).
 - **Full suite (worktree root)**: **67 tests OK in 1,013.9 s**
   [MAC-BOX, NOISY-SHARED] — includes the new tests/test_uagb1_tblind.py
   module and the Rust self-test battery.
-- **`pass-agg battery` at HEAD**: running at close (result recorded in
-  the ledger row when it lands; note the battery's P2 legs ride the
+- **`pass-agg battery` at HEAD**: launched at close, KILLED by the
+  session harness ~22 min in on the oversubscribed box — NO verdict,
+  NOT claimed. The orchestrator's merge re-run is the venue (house
+  pattern). Note for that re-run: the battery's P2 legs ride the
   BL-F1-fixed verifier — at the merged-HEAD base its honest-P2 leg
-  would hit the R-BG1-class assert).
+  would hit the R-BG1-class assert.
 - **Full-pass 12/512 P2+T_blind single-shot**: launched in background
   [NOISY-SHARED — sibling lanes run heavy jobs incl. a 12-layer pass];
   the derived expectation is exact (BL-1d: schedules unmoved) =
