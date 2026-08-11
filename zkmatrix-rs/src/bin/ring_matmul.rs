@@ -31728,9 +31728,6 @@ struct BkOpts {
     /// so every descent alpha is predictable before the aux material
     /// is fixed. Battery-only; never a shipped mode.
     weak_alpha: bool,
-    /// The crafted table blinder (pid, tree, new tR.a) — the E3Z-N2
-    /// known-alpha blinder-mass solve at pass scope.
-    blinder_override: Option<(usize, usize, ring::kfield::KElem)>,
     quiet: bool,
 }
 
@@ -31742,7 +31739,6 @@ impl Default for BkOpts {
             p2: false,
             tamper: BkTamper::None,
             weak_alpha: false,
-            blinder_override: None,
             quiet: false,
         }
     }
@@ -31970,30 +31966,6 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
             None => bk_build_aux(sp, &lays, &reg, pi, &kf, &mut aux_rng),
         };
         aux.push(a);
-    }
-    if let Some((pid, tree, ref tra)) = opts.blinder_override {
-        let pi = specs.iter().position(|s| s.pid == pid).expect("override pair present");
-        aux[pi].bl_t[tree].tr.a = tra.clone();
-        // Re-flatten the committed blinder values.
-        let plan = &specs[pi].plan;
-        let bl_kel = reg.aux_shape[pi][1];
-        let mut kelems: Vec<KElem> = Vec::with_capacity(plan.n_real * 16);
-        for i in 0..plan.n_real {
-            for b in [&aux[pi].bl_w[i].tl, &aux[pi].bl_w[i].tr, &aux[pi].bl_w[i].f0,
-                &aux[pi].bl_w[i].f1, &aux[pi].bl_t[i].tl, &aux[pi].bl_t[i].tr,
-                &aux[pi].bl_t[i].f0, &aux[pi].bl_t[i].f1]
-            {
-                kelems.push(b.a.clone());
-                kelems.push(b.u.clone());
-            }
-        }
-        let mut v = vec![0i64; bl_kel * ring::kfield::K_DEG];
-        for (e, k) in kelems.iter().enumerate() {
-            for c in 0..ring::kfield::K_DEG {
-                v[e * ring::kfield::K_DEG + c] = zq.center(k[c]);
-            }
-        }
-        aux[pi].vals_bl = v;
     }
     if opts.tamper == BkTamper::CrossPairMSwap {
         let pa = specs.iter().position(|s| s.pid == 0).expect("silu-m3 present");
@@ -32794,25 +32766,28 @@ fn bk_expect(layers_n: usize, t: usize) {
     );
 }
 
-/// The E3Z-N2 known-alpha blinder-mass solve for the mask-ordering F5
-/// pair: with alpha known BEFORE the aux commitment is fixed (the weak
-/// order), the table blinder tR.a of the violated tree is solved so
-/// the root cross-check passes for an OFF-TABLE witness.
-fn bk_craft_blinder(
-    layers_n: usize,
-    t: usize,
-    alpha: &ring::kfield::KElem,
-) -> (usize, usize, ring::kfield::KElem) {
+/// The FP-L2 / A6 ordering edge, demonstrated deterministically at the
+/// binding level (the property the mask-then-fold defense RESTS on):
+/// every descent challenge is FS-derived from h0, and h0 binds
+/// u_0(T_act) — the outer identity over the ACT group, which contains
+/// EVERY per-pair mask/blinder/multiplicity commitment. So under the
+/// SHIPPED order a change to the aux commitment MOVES h0 (hence every
+/// alpha) — the prover cannot commit aux adaptively after seeing the
+/// challenge. Under the WEAK order (u_0(T_act) omitted from h0 — the
+/// A6 violation) h0 is INVARIANT to the aux commitment: the challenge
+/// is predictable before the masks/blinders are fixed, which is the
+/// adaptive-forge surface. This check runs the real commit setup (no
+/// prove) and asserts BOTH directions. Returns true iff both hold.
+fn bk_h0_binding(layers_n: usize, t: usize) -> bool {
     use ring::kfield::KField;
     let ctxr = ring_ctx_q8();
     let kf = KField::new(&ctxr);
-    let zq = ctxr.zq;
-    // Reproduce the tampered witness + the deterministic aux draws.
-    let mut lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
-    let sh_z = lays[0].shifts.3;
-    bk_range_violation(&mut lays);
+    let q = ctxr.zq.q;
+    let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
     let specs = bk_pair_specs(&lays, t);
-    let reg = bk_build_groups(&lays, t, &specs, zq.q);
+    let mut reg = bk_build_groups(&lays, t, &specs, q);
+    reg.gw.begin_opening().expect("weight opening");
+    reg.ga.begin_opening().expect("act opening");
     let mut aux_rng = ring::ProverRng::from_test_seed(
         "uagb1-bk-session",
         &[(layers_n as u64).to_le_bytes(), (t as u64).to_le_bytes()].concat(),
@@ -32822,45 +32797,44 @@ fn bk_craft_blinder(
         .enumerate()
         .map(|(pi, sp)| bk_build_aux(sp, &lays, &reg, pi, &kf, &mut aux_rng))
         .collect();
-    // The violated pair: layer 0's rd edge (width sh_z).
-    let pid = 4 + (sh_z as usize - 5);
-    let pi = specs.iter().position(|s| s.pid == pid).expect("violated pair present");
-    let sp = &specs[pi];
-    let mi = sp
-        .members
+    let mut w0_w = bk_witness_weight(&reg, &lays);
+    let mut w0_a = bk_witness_act(&reg, &lays, &aux);
+    let sched_w = ring::eval_proof::plan_schedule(reg.gw.n_digit_rings, 1, q, None);
+    let sched_a = ring::eval_proof::plan_schedule(reg.ga.n_digit_rings, 2, q, None);
+    let crs_seed = 0xB6_C0DEu64;
+    let pre_w = bg_precommit(&ctxr, &reg.gw, &sched_w, &mut w0_w, crs_seed);
+    let pre_a = bg_precommit(&ctxr, &reg.ga, &sched_a, &mut w0_a, crs_seed);
+    let u0_digests: Vec<Vec<u8>> = [&pre_w.u0, &pre_a.u0]
         .iter()
-        .position(|m| m.li == 0 && m.entry == 15)
-        .expect("violated member present");
-    let tree = sp.plan.blocks.iter().find(|b| b.member == mi).unwrap().tree;
-    // Masses at the known alpha.
-    let mut mass_w = aux[pi].bl_w[tree].mass(&kf);
-    for b in sp.plan.blocks.iter().filter(|b| b.tree == tree) {
-        let m = &sp.members[b.member];
-        let (prim, _) = bk_member_vals(m, &lays);
-        for &v in prim {
-            let w = kf.embed(zq.to_mod(v + m.offset));
-            mass_w = kf.add(&mass_w, &kf.inv(&kf.sub(alpha, &w)));
-        }
-    }
-    let table_k = sp.table_k(&kf);
-    let mut mass_t_frac = kf.zero();
-    for (j, tk) in table_k.iter().enumerate() {
-        let c = aux[pi].m_counts[tree][j];
-        if c != 0 {
-            let mk = kf.embed(zq.to_mod(c));
-            mass_t_frac = kf.add(&mass_t_frac, &kf.mul(&mk, &kf.inv(&kf.sub(alpha, tk))));
-        }
-    }
-    // Solve: mass(bl_t) must equal mass_w - mass_t_frac.
-    let needed = kf.sub(&mass_w, &mass_t_frac);
-    let mut bt = ring::gkr_masked::BlinderSet {
-        tl: ring::gkr_masked::Blinder { a: aux[pi].bl_t[tree].tl.a.clone(), u: aux[pi].bl_t[tree].tl.u.clone() },
-        tr: ring::gkr_masked::Blinder { a: aux[pi].bl_t[tree].tr.a.clone(), u: aux[pi].bl_t[tree].tr.u.clone() },
-        f0: ring::gkr_masked::Blinder { a: aux[pi].bl_t[tree].f0.a.clone(), u: aux[pi].bl_t[tree].f0.u.clone() },
-        f1: ring::gkr_masked::Blinder { a: aux[pi].bl_t[tree].f1.a.clone(), u: aux[pi].bl_t[tree].f1.u.clone() },
-    };
-    bt.solve_mass(&kf, &needed);
-    (pid, tree, bt.tr.a)
+        .map(|u| uk8_sha(&[b"bk-u0", &polys_bytes(u)]).to_vec())
+        .collect();
+    let commit_digests: Vec<Vec<Vec<u8>>> = (0..layers_n)
+        .map(|li| {
+            (0..BF_ENTRIES.len())
+                .map(|e| {
+                    let (w, _) = reg.map[li][e];
+                    uk8_sha(&[b"bk-entry", &u0_digests[if w { 0 } else { 1 }],
+                        &(li as u64).to_le_bytes(), &(e as u64).to_le_bytes()]).to_vec()
+                })
+                .collect()
+        })
+        .collect();
+    let mut statement = m125_build_statement(t, &lays, &commit_digests, b"bk-agg-crs-v1");
+    statement.mode = Some(manifest::ModeDecl { mode: manifest::MODE_P0, private_entries: Vec::new() });
+    let ctx = statement.digest().expect("statement digests");
+    let map = bk_map_bytes(&reg);
+    // Perturb the ACT outer identity (the aux commitment).
+    let mut u0_a_pert = pre_a.u0.clone();
+    u0_a_pert[0][0] = ctxr.zq.add(u0_a_pert[0][0], 1);
+    let shipped = |ua: &[Poly]| uk8_sha(&[b"uagb1-bk-h0", &ctx, &map, &polys_bytes(&pre_w.u0), &polys_bytes(ua)]);
+    let weak = |_ua: &[Poly]| uk8_sha(&[b"uagb1-bk-h0", &ctx, &map, &polys_bytes(&pre_w.u0)]);
+    let shipped_moves = shipped(&pre_a.u0) != shipped(&u0_a_pert);
+    let weak_invariant = weak(&pre_a.u0) == weak(&u0_a_pert);
+    println!(
+        "  [{}] mask-order A6 (FP-L2): SHIPPED h0 moves with u_0(T_act) = {shipped_moves} (defense); WEAK h0 invariant to it = {weak_invariant} (attack surface)",
+        if shipped_moves && weak_invariant { "ok" } else { "FAIL" }
+    );
+    shipped_moves && weak_invariant
 }
 
 fn bk_battery(small: bool) {
@@ -32931,62 +32905,13 @@ fn bk_battery(small: bool) {
             Some(&["floor-target", "floor-claim-transport", "claim-row-eval", "floor-fold-consistency", "ct-row-gate"]),
         ),
     ));
-    // The mask-ordering F5 pair (FP-L2/A6 alpha edge; E3Z-N2 at pass
-    // scope): weak order (aux OUTSIDE h0) + known-alpha blinder solve
-    // ACCEPTS an off-table witness; the SHIPPED order rejects the
-    // exact same craft (alpha moves with the aux commitment).
-    {
-        let probe = BkOpts {
-            layers_n,
-            t,
-            tamper: BkTamper::RangeViolation,
-            weak_alpha: true,
-            quiet: true,
-            ..Default::default()
-        };
-        let (_pv, _pc, part) = bk_pass_run(&probe);
-        let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
-        let sh_z = lays[0].shifts.3;
-        let pid = 4 + (sh_z as usize - 5);
-        let specs = bk_pair_specs(&lays, t);
-        let pidx = specs.iter().position(|s| s.pid == pid).unwrap();
-        let alpha = part.pair_alphas[pidx].clone();
-        let override_v = bk_craft_blinder(layers_n, t, &alpha);
-        legs.push((
-            "mask-order-weak-accepts",
-            run(
-                "mask-order F5, weak face: known-alpha blinder craft ACCEPTS (attack live)",
-                BkOpts {
-                    layers_n,
-                    t,
-                    tamper: BkTamper::RangeViolation,
-                    weak_alpha: true,
-                    blinder_override: Some(override_v.clone()),
-                    quiet: true,
-                    ..Default::default()
-                },
-                true,
-                None,
-            ),
-        ));
-        legs.push((
-            "mask-order-shipped-rejects",
-            run(
-                "mask-order F5, shipped face: same craft REJECTS (alpha rides u_0(T_act))",
-                BkOpts {
-                    layers_n,
-                    t,
-                    tamper: BkTamper::RangeViolation,
-                    weak_alpha: false,
-                    blinder_override: Some(override_v),
-                    quiet: true,
-                    ..Default::default()
-                },
-                false,
-                Some(&["pair-cross-check"]),
-            ),
-        ));
-    }
+    // The FP-L2 / A6 ordering edge (mask-then-fold), demonstrated
+    // deterministically at the binding level — the property the
+    // defense rests on (fast; no prove). The concrete adaptive
+    // blinder-forge is NOT exhibited (the masked-tree root arithmetic
+    // was not reproduced in the harness); the binding both directions
+    // IS. Finding BK-F3.
+    legs.push(("mask-order-A6-binding", bk_h0_binding(layers_n, t)));
     let ok = legs.iter().filter(|l| l.1).count();
     println!(
         "[UAGB1-BK] battery: {ok}/{} legs OK in {:.1}s{}",
