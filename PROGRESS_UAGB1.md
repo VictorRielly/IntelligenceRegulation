@@ -2012,7 +2012,209 @@ recipe.
 
 ## Agent BJ status (wt-uagb1-bj)
 
-- (lane launches here)
+- 2026-08-10 PLAN COMMIT (skeleton-commit-first; read phase COMPLETE:
+  ledger wave-3 close + wave-4 brief; UAGB1_PASS_AGG_REPORT 2.2/6/7.4
+  (the ClaimKernelCtx one-kernel-per-tensor export + the additive
+  GroupClaims built-around + canary 6/6 design); UAGB1_VERIFIER_REPORT
+  1-2 (the row-column split, transport_level_from_psi, the BF-F3
+  capacity lift + Section 2.4 export); eval_proof.rs (ClaimKernelCtx,
+  psi_level0_factored, transport_level/_from_psi, compute_psi,
+  agg_floor_family_values seam); pass_agg.rs GroupClaims (read-only,
+  not mine); ring_matmul.rs [UAGB1-BG] bg_prove_group/bg_verify_group/
+  bg_pass_run/canary + [UAGB1-BD] post-BH agg_verify_group (the
+  reference wiring shape) + [UAGB1-BF] bf_dw_for/bf_layout/leaf_pins;
+  gkr_masked.rs witness_leaf_positions/blinded_witness_tree;
+  freeze_check_uagb1_bf/bg (no row pins dw/bytes I touch)).
+- R-BG1 ROOT CAUSE (pinned by read, to be confirmed by reproduce):
+  BH's merge changed agg_floor_family_values's last parameter from
+  phi (level array, r*chunk rings) to psi (per-chunk, chunk rings —
+  assert at ring_matmul.rs:21318). BD's call sites were updated by
+  BH; BG's bg_verify_group Tier-Z arm (written pre-BH, merged after)
+  still passes &phi_cur (len r*chunk = 6x162 = 972 at the canary
+  shape) — every P2 composed VERIFY panics there; P0 verify and the
+  P2 PROVER (agg_tier_z_mask_floor kept its phi parameter) are
+  unaffected — consistent with the wave-3 close's "shipped paths
+  unaffected" (P0 composed + suite green; the canary is the first P2
+  verify at merged HEAD).
+- D1 PLAN (R-BG1 fix): eval_proof.rs ADDITIVE ONLY — MultiClaimKernel
+  {tensor_idx, scale, Rc row/col kernels} (BG's ClaimContrib shape) +
+  psi_level0_factored_multi (the additive multi-claim generalization
+  of the row-column split: per tensor SUM over its kernels, scale
+  folded into the row factor; aligned + generic branches; vw-free —
+  subsumes BG export item 2) + phi0_reference_multi (differential
+  oracle). ClaimKernelCtx/psi_level0_factored/transport_level*
+  UNTOUCHED (BD's path byte-identical). ring_matmul.rs [UAGB1-BG]
+  call sites: bg_verify_group rewired to BD's post-BH shape (psi0
+  factored-multi after c0; transport_level_from_psi at level 1;
+  psi_floor = psi0 at 1-level schedules else compute_psi of the
+  transported phi; Tier-Z arm passes psi_floor — THE FIX; bare arm
+  consumes the same psi_floor). bg_prove_group untouched (its phi
+  materialization feeds bg_level_h by design, the BH prover
+  posture). GATE: pass-agg canary 6/6 GREEN at HEAD from the
+  worktree root; pass-agg battery re-run for the seam legs
+  (wall-clock permitting — full 14 legs preferred since the rewire
+  touches every composed verify; honest statement of what ran).
+- D2 PLAN (composed-verify re-measure): pass-agg prove 12 512 p0 at
+  HEAD, single-shot honest [MAC-BOX], backgrounded (~70 min prove +
+  verify in one invocation — no serialized-artifact reverify path
+  exists in the BG rig; stated as such); record verify_s vs the
+  955 s pre-split baseline + ratio in a dated addendum to
+  UAGB1_PASS_AGG_REPORT.md. The rewire is exactly what lets the
+  composed verifier ride BH's split (pre-fix it materializes phi via
+  bg_kernel_pass — the O(n_0) claim-kernel wall at pass scale).
+- D3 PLAN (BF-F3 wiring per BH's 2.4 export): bf_dw_for -> lifted
+  capacity (smallest d with 2^d - 8 >= n, the witness_leaf_positions
+  contract; T=512: dw 22->21 on the six 2^20-class instances, 20->19
+  on the two nd instances); leaf_pins closure -> the public map
+  (hw + committed-column/pair weights at witness_leaf_positions;
+  ddw complement form unchanged); prover trees already ride the map
+  inside blinded_witness_tree. Acceptance: NEW wrong-map battery leg
+  (BfTamper::WrongMap — honest proof, verifier leaf pins computed
+  under the contiguous assumption -> REJECT in the wave rounds;
+  asserted non-identity map at battery shape). Measure [MAC-BOX]:
+  m125-pass battery smoke + m125-pass prove 0 BEFORE (baseline at
+  the fixed base) and AFTER; expected ~10-12% pass-prove class +
+  -6,208 B per (22->21, dt 9) pair x6 + the (20->19) delta x2 per
+  layer; dated addendum to M125_PASS_REPORT.md (the rig's own
+  report). KNOWN DERIVED-LINE MOVEMENT (recorded, not hidden):
+  bg_expect's 125M-STRUCTURAL [MODEL] descent lines ride bf_dw_for
+  and will shift down at the lifted capacity — the ~1.39 MiB
+  full-statement line moves; BK's brief number gets the update in
+  the addendum + verdict row. No freeze row pins these (checked
+  freeze_check_uagb1_bf/bg).
+- GATES at HEAD: cargo build --release; freeze-check green with
+  every pre-existing digest unmoved; full python suite (62 at base)
+  from the worktree root; canary 6/6.
+- WILL NOT DO: pass_agg.rs / fold.rs / lookup.rs / manifest.rs /
+  wire.rs edits; p3_dw (the U-K5c us1 path with serialized frozen
+  fixtures); restructuring BH's factored functions or BD's call
+  sites; other ledger sections; existing scripts/tests; push.
+- 2026-08-11 MID-LANE STATUS: R-BG1 REPRODUCED at the merged base
+  exactly as pinned (assert 972 vs 162, bg_pass_run ->
+  bg_verify_group -> agg_floor_family_values:21318, backtrace on
+  file) then FIXED (D1 landed, commit d4c7dd4): eval_proof.rs
+  additive MultiClaimKernel + psi_level0_factored_multi +
+  phi0_reference_multi; bg_verify_group on BD's post-BH factored
+  shape; NEW `pass-agg seam` differential 12/12 (46.3 s) — the
+  factored-multi Psi_0 == compute_psi(bg_kernel_pass phi) on REAL
+  groups (act 42 kernels / weight 9, e0=1) + misaligned generic
+  branch + per-ring oracle + non-vacuity. GATE MET: `pass-agg
+  canary` 6/6 GREEN at the fixed HEAD, 1,621.9 s [MAC-BOX,
+  NOISY-SHARED], AZB-10b exhibit intact (936 vs 921). D3 LANDED
+  (commit 46652b4): bf_dw_for -> capacity n-8 (T=512 dw 22->21 x6,
+  20->19 x2), leaf_pins on witness_leaf_positions, WrongMap
+  acceptance leg REJECTS in the wave rounds w/ non-identity
+  precondition — m125-pass battery small 8/8 (558.2 s,
+  NOISY-SHARED); derived [MODEL] line movement recorded (structural
+  959,232 -> 898,496 B; full-statement Tier N 1,385,854 ->
+  1,325,118 B). IN FLIGHT: quiet sequential measurement phase
+  (m125 smoke + prove-0 before/after; then the composed 12-layer
+  P0 re-measure); then pass-agg battery + canary re-run at final
+  HEAD + suite + freeze-check; addenda drafted in both reports
+  (measured tables pending).
+- 2026-08-11 **LANE COMPLETE. VERDICT ROW (BJ).**
+  * **D1 R-BG1 FIXED, gate MET.** Defect reproduced at the merged
+    base with backtrace (assert 972 vs 162 at
+    agg_floor_family_values:21318 via bg_verify_group — the Tier-Z
+    arm fed phi (r x chunk) into BH's psi-shaped parameter; every
+    composed P2 VERIFY panicked at merged HEAD; P0 + prover
+    unaffected). Fix = BG's export, landed ADDITIVELY in
+    eval_proof.rs ([UAGB1-BJ] MultiClaimKernel +
+    psi_level0_factored_multi + phi0_reference_multi — scale folds
+    into the row factor, contributions add ring-linearly; vw-free;
+    ClaimKernelCtx/psi_level0_factored/transport_level*/BD-BH call
+    sites untouched) + bg_verify_group rewired to BD's post-BH
+    factored shape (psi0 factored-multi; transport_level_from_psi
+    at level 1; psi_floor to BOTH floor branches). NEW `pass-agg
+    seam` differential 12/12 (46.3 s): factored-multi ==
+    compute_psi(bg_kernel_pass phi) on REAL groups (act 42
+    kernels / weight 9, e0=1 branch) + misaligned 64x96 generic
+    branch L2/L1 + per-ring oracle + perturbed-scale non-vacuity.
+    **Canary 6/6 GREEN TWICE (1,621.9 s at the fix commit; 1,600.9
+    s at the final HEAD)** with the AZB-10b exhibit intact (936 vs
+    921). **pass-agg battery 14/14 at the final HEAD** (4,177.6 s
+    [NOISY-SHARED]): honest P0/P2 counted bytes reproduce wave 3
+    EXACTLY (383,798 / 966,462 B); the Tier-Z tamper REJECTs now
+    RUN (they panicked pre-fix); every first-fail string as
+    recorded.
+  * **D2 COMPOSED-VERIFY RE-MEASURED under BH's split: 955.2 s ->
+    199.6 s = 4.79x** (12 layers, T=512, P0, single-shot, fresh
+    full prove+verify in one invocation — no serialized re-verify
+    path exists in the BG rig, stated; [MAC-BOX, NOISY-SHARED —
+    BK/BL ran concurrently; 99.6% CPU user-dominated]). Prove
+    4,117.4 s / commit 375.4 s (~1x, untouched); **counted bytes
+    426,455 B and statement digest 6a2b52f5.. BYTE-IDENTICAL** to
+    wave 3, every byte line reproduced. Beats the queued "~3x
+    expected" — at pass scale the removed multi-claim kernel pass
+    was a bigger verify share than BD's single-kernel wall. RSS
+    40.8 GiB (peak sits in the untouched prover). Dated addendum:
+    UAGB1_PASS_AGG_REPORT.md Section 9.
+  * **D3 BF-F3 WIRED into the m125 rig per BH's 2.4 export:**
+    bf_dw_for -> split-fill capacity n-8 (T=512: dw 22->21 x6
+    instances, 20->19 x2; smoke T=16: 17->16, 15->14); leaf_pins
+    witness weights on the PUBLIC witness_leaf_positions map
+    (trees already rode it). **Acceptance leg PASSES: WrongMap
+    (honest proof, contiguous-assumption verifier pins) REJECTS in
+    the wave rounds** with statement/matmuls/roots green +
+    non-identity precondition — m125-pass battery small 8/8
+    (558.2 s). **Measured effect [MAC-BOX single-shot]: layer-0
+    prove 288.5 -> 250.4 s = -13.2% (the exported ~10-12% class),
+    lkp phase 69.9 -> 35.1 s = 1.99x, verify 34.6 -> 31.9 s,
+    descent transcripts -48,640 B/layer (= 6 x 6,208 + 2 x 5,696,
+    exact kel arithmetic)**; statement digest stable. Finding
+    BJ-F1: T=16 smoke +6.9 s from the first-fit wave repack
+    (40->39 fuller waves — small-shape artifact; T=512 wave count
+    unchanged at 127, all phases down). Derived-line movement
+    recorded: 125M-STRUCTURAL [MODEL] 959,232 -> 898,496 B;
+    FULL-STATEMENT Tier N 1,385,854 -> 1,325,118 B, P2 1,978,466
+    -> 1,917,730 B (BK targets the UPDATED lines). Dated addendum:
+    M125_PASS_REPORT.md Section 9 (+ cross-note in PASS_AGG 9.5).
+  * **D4 GATES at the final HEAD: cargo build --release green;
+    freeze-check green (exit 0, every pre-existing digest
+    unmoved); python suite Ran 62 tests OK (674.0 s, incl.
+    self-test 239.1 s); canary 6/6.** Machine notes: all timings
+    [MAC-BOX, non-reference]; the wave-4 stage-2 lanes (BK/BL)
+    launched on this box mid-lane — measurement labels state the
+    overlap per run (D3 BEFORE quiet / AFTER tail-overlapped,
+    user-time consistent; D2 NOISY-SHARED like its wave-3
+    baseline). One harness-side note: a background measurement
+    script was killed mid-composed-run by the runner (~40 min
+    lost); re-run detached (nohup) to completion — no engine
+    artifact was affected.
+  * FILES: eval_proof.rs (additive [UAGB1-BJ] block only),
+    ring_matmul.rs ([UAGB1-BG] verifier call sites + bg_multi_kernels
+    + `pass-agg seam` arm + [UAGB1-BF] bf_dw_for/leaf_pins/WrongMap
+    leg), dated addenda in UAGB1_PASS_AGG_REPORT.md +
+    M125_PASS_REPORT.md, this section. NOT touched: pass_agg.rs,
+    fold.rs, lookup.rs, manifest.rs, wire.rs, gkr_masked.rs (the
+    wiring needed no library change), p3_dw/us1, other ledger
+    sections, existing scripts/tests. Deliverables checkbox left
+    for the orchestrator; wave-4 stage 2 (BK/BL) proceeds from the
+    fixed base.
+  * MERGE-RECONCILIATION NOTE (orchestrator ask, for the BJ->BL
+    ruling): my fix lands AT THE bg_verify_group CALL SITE ITSELF —
+    the SHIPPED composed verifier every P0/P2 verify runs through
+    (pass-agg prove/battery/canary all ride it) — NOT a
+    canary-harness-only patch. It confirms BK-F2 (the shipped
+    Tier-Z P2 verify panic pre-exists on the merged base; P0
+    unaffected) and REPAIRS it: the Tier-Z arm now receives
+    psi_floor, and the whole recursed path additionally rides BH's
+    split via the additive multi-claim API BG's export specified
+    (psi_level0_factored_multi; transport_level_from_psi at level
+    1) — evidence: seam differential 12/12, canary 6/6 twice,
+    battery 14/14 with the Tier-Z REJECT legs reachable again, and
+    the 4.79x composed-verify drop. Versus BL-F1 (BL independently
+    fixed the same seam in its own lane): if BL's form is the
+    minimal psi insertion at the call site, this fix SUBSUMES it
+    functionally (same corrected semantics, plus the exported API
+    + the split ride + the measurements); if BL's form also
+    restructured the verifier, reconcile on the invariant that
+    agg_floor_family_values receives per-chunk psi of
+    plan_last.chunk rings and the battery/canary verdicts + wave-3
+    byte identity (383,798 / 966,462 / 426,455 B, digest
+    6a2b52f5..) — all reproduced at my HEAD — are the acceptance
+    tests either way. Keep-or-subsume is the orchestrator's call
+    at the BJ->BL merge.
 
 ## Agent BK status (wt-uagb1-bk)
 

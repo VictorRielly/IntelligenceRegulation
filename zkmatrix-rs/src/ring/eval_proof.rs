@@ -1192,6 +1192,242 @@ pub fn phi0_reference(
     (0..group.n_digit_rings).map(|u| phi0_ring(ctx, kf, group, kernels, alphas, u)).collect()
 }
 
+// ---------------------------------------------------------------------------
+// [UAGB1-BJ wave 4, R-BG1] The ADDITIVE multi-claim kernel API — lane
+// BG's wave-3 export against this file (UAGB1_PASS_AGG_REPORT 7.4):
+// `ClaimKernelCtx` supports ONE product-form kernel per tensor
+// (`kernels.find`); the composed pass batches MANY claims onto the
+// same per-layer tensor, and their weight tables ADD (the CR-L4a/b
+// mu/nu batching lands additively in the same rows —
+// ring/pass_agg.rs::GroupClaims is the built-around form). This block
+// is the additive ENTRY POINT: `MultiClaimKernel` carries one scaled
+// product-form contribution (weight of value f = scale *_K
+// row[f / cols] *_K col[f % cols]; any number of contributions per
+// tensor), and `psi_level0_factored_multi` is the row-column split of
+// the SUMMED weight — per kernel the scale folds into the row factor
+// (K is a field: scale * (row * col) = (scale * row) * col exactly),
+// so each contribution keeps the rank-1 shape the split needs, and
+// kernel contributions add ring-linearly into Psi_0. No O(N_values)
+// weight table and no Phi_0 materialization exist on this path (the
+// vw-free form — BG export item 2 subsumed). `ClaimKernelCtx`,
+// `psi_level0_factored`, `transport_level`, `transport_level_from_psi`
+// and every BD/BH call site are UNTOUCHED — bit-identical behavior.
+
+/// One additive claim contribution to tensor `tensor_idx` (the
+/// pass_agg::ClaimContrib shape, here as the eval-proof-owned API).
+pub struct MultiClaimKernel {
+    pub tensor_idx: usize,
+    pub scale: KElem,
+    pub row_kernel: std::rc::Rc<Vec<KElem>>,
+    pub col_kernel: std::rc::Rc<Vec<KElem>>,
+}
+
+/// Reference Phi_0 of one digit ring under the ADDITIVE multi-claim
+/// weight (sum over every kernel of tensor u's contribution) — the
+/// generic branch of `psi_level0_factored_multi` and the per-ring
+/// differential oracle.
+fn phi0_ring_multi(
+    ctx: &RingCtx,
+    kf: &KField,
+    group: &AggGroup,
+    kernels: &[MultiClaimKernel],
+    alphas: &[Poly],
+    u: usize,
+) -> Poly {
+    let zq = &ctx.zq;
+    for (ti, t) in group.tensors.iter().enumerate() {
+        let lo = t.digit_ring_base;
+        let hi = lo + t.n_digit_rings();
+        if u >= lo && u < hi {
+            let rel = u - lo;
+            let (vr, limb) = (rel / t.l0, rel % t.l0);
+            let radix = zq.to_mod(1i64 << (t.e0 as usize * limb));
+            let mut acc = poly_zero();
+            for ker in kernels.iter().filter(|k| k.tensor_idx == ti) {
+                let mut rows = vec![poly_zero(); K_DEG];
+                for c1 in 0..D {
+                    let f = vr * D + c1;
+                    if f < t.n_values() {
+                        let w = kf.scale(
+                            radix,
+                            &kf.mul(
+                                &ker.scale,
+                                &kf.mul(
+                                    &ker.row_kernel[f / t.cols],
+                                    &ker.col_kernel[f % t.cols],
+                                ),
+                            ),
+                        );
+                        for (cd, row) in rows.iter_mut().enumerate() {
+                            row[c1] = w[cd];
+                        }
+                    }
+                }
+                for (a, r) in alphas.iter().zip(rows.iter()) {
+                    let bp = conj_poly(zq, r);
+                    acc = poly_add(zq, &acc, &ring_mul_split_kara_fast(ctx, a, &bp));
+                }
+            }
+            return acc;
+        }
+    }
+    panic!("digit ring {u} outside group");
+}
+
+/// [UAGB1-BJ] Psi_0 by the row-column split under the ADDITIVE
+/// multi-claim weight: exactly `compute_psi(Phi_0, chunk, c)` for
+/// Phi_0 = sum-over-kernels of the per-kernel level-0 functional,
+/// computed WITHOUT materializing Phi_0 or any weight table. The
+/// multi-claim generalization of `psi_level0_factored` (which is the
+/// one-kernel-per-tensor special case at scale = 1); that function
+/// and its callers are not modified.
+pub fn psi_level0_factored_multi(
+    ctx: &RingCtx,
+    kf: &KField,
+    group: &AggGroup,
+    kernels: &[MultiClaimKernel],
+    alphas: &[Poly],
+    c: &[Vec<i64>],
+    chunk: usize,
+) -> Vec<Poly> {
+    assert_eq!(alphas.len(), K_DEG);
+    let zq = &ctx.zq;
+    let r = c.len();
+    let c_polys: Vec<Poly> = c.iter().map(|ck| poly_from_small(zq, ck)).collect();
+    let mut psi = vec![poly_zero(); chunk];
+    // Coordinate basis powers Y^d (shared across tensors/kernels).
+    let ybasis: Vec<KElem> = (0..K_DEG)
+        .map(|d| {
+            let mut e = kf.zero();
+            e[d] = 1;
+            e
+        })
+        .collect();
+    for (ti, t) in group.tensors.iter().enumerate() {
+        let kers: Vec<&MultiClaimKernel> =
+            kernels.iter().filter(|k| k.tensor_idx == ti).collect();
+        if kers.is_empty() {
+            continue; // zero contribution (matches the additive weight)
+        }
+        let aligned = t.cols % D == 0;
+        if !aligned {
+            // Generic branch (misaligned cols): per-ring reference
+            // values of the SUMMED weight, folded directly.
+            for rel in 0..t.n_digit_rings() {
+                let v = t.digit_ring_base + rel;
+                let (k, u) = (v / chunk, v % chunk);
+                debug_assert!(k < r);
+                let ph = phi0_ring_multi(ctx, kf, group, kernels, alphas, v);
+                if ph.iter().all(|&x| x == 0) {
+                    continue;
+                }
+                let m = ring_mul_split_kara_fast(ctx, &ph, &c_polys[k]);
+                psi[u] = poly_add(zq, &psi[u], &m);
+            }
+            continue;
+        }
+        let nb = t.cols / D;
+        // conjQ per KERNEL: conj-packed d-coordinate slices of the
+        // kernel's col-kernel blocks (kernels carry distinct col
+        // factors; contributions add only after the beta contraction).
+        let conjq: Vec<Vec<Vec<Poly>>> = kers
+            .iter()
+            .map(|ker| {
+                (0..nb)
+                    .map(|cb| {
+                        (0..K_DEG)
+                            .map(|d| {
+                                let mut base = poly_zero();
+                                for c1 in 0..D {
+                                    base[c1] = ker.col_kernel[cb * D + c1][d];
+                                }
+                                conj_poly(zq, &base)
+                            })
+                            .collect()
+                    })
+                    .collect()
+            })
+            .collect();
+        let radixes: Vec<u64> =
+            (0..t.l0).map(|l| zq.to_mod(1i64 << (t.e0 as usize * l))).collect();
+        for row in 0..t.rows {
+            // Per kernel: the scale folds into the row factor
+            // (rk_eff = scale *_K row_kernel[row]) — exact in K.
+            let betas: Vec<Vec<Poly>> = kers
+                .iter()
+                .map(|ker| {
+                    let rk_eff = kf.mul(&ker.scale, &ker.row_kernel[row]);
+                    (0..K_DEG)
+                        .map(|d| {
+                            let l_col = kf.mul(&rk_eff, &ybasis[d]);
+                            let mut acc = poly_zero();
+                            for (cd, a) in alphas.iter().enumerate() {
+                                if l_col[cd] != 0 {
+                                    acc = poly_add(zq, &acc, &super::poly_scale(zq, l_col[cd], a));
+                                }
+                            }
+                            acc
+                        })
+                        .collect()
+                })
+                .collect();
+            for cb in 0..nb {
+                let vr = row * nb + cb;
+                // RQ = sum over kernels of sum_d beta[d] * conjQ[cb][d]
+                // — the ADDITIVE Phi_0 of this value ring's limb 0
+                // (radix folded in below).
+                let mut rq = poly_zero();
+                for (ki, beta) in betas.iter().enumerate() {
+                    for d in 0..K_DEG {
+                        if beta[d].iter().all(|&x| x == 0) {
+                            continue;
+                        }
+                        rq = poly_add(
+                            zq,
+                            &rq,
+                            &ring_mul_split_kara_fast(ctx, &beta[d], &conjq[ki][cb][d]),
+                        );
+                    }
+                }
+                // The l0 digit rings of this value ring: fold by the
+                // chunk split with a lazily-cached c_k * RQ product.
+                let mut cached: Option<(usize, Poly)> = None;
+                for limb in 0..t.l0 {
+                    let v = t.digit_ring_base + vr * t.l0 + limb;
+                    let (k, u) = (v / chunk, v % chunk);
+                    debug_assert!(k < r);
+                    let s = match &cached {
+                        Some((ck, s)) if *ck == k => s.clone(),
+                        _ => {
+                            let s = ring_mul_split_kara_fast(ctx, &rq, &c_polys[k]);
+                            cached = Some((k, s.clone()));
+                            s
+                        }
+                    };
+                    psi[u] = poly_add(zq, &psi[u], &super::poly_scale(zq, radixes[limb], &s));
+                }
+            }
+        }
+    }
+    psi
+}
+
+/// [UAGB1-BJ] Reference Phi_0 materialization under the additive
+/// multi-claim weight — the differential oracle for
+/// `psi_level0_factored_multi` (`pass-agg seam` differential;
+/// battery use).
+pub fn phi0_reference_multi(
+    ctx: &RingCtx,
+    kf: &KField,
+    group: &AggGroup,
+    kernels: &[MultiClaimKernel],
+    alphas: &[Poly],
+) -> Vec<Poly> {
+    (0..group.n_digit_rings)
+        .map(|u| phi0_ring_multi(ctx, kf, group, kernels, alphas, u))
+        .collect()
+}
+
 /// Absorb a poly list into the transcript (canonical bytes).
 pub fn absorb_polys(tr: &mut LkpTranscript, label: &str, polys: &[Poly]) {
     tr.absorb(label, &super::polys_bytes(polys));

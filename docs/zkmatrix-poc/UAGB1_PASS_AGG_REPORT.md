@@ -452,7 +452,149 @@ zkmatrix-rs$ ./target/release/ring_matmul freeze-check
 repo$ python3 -m unittest tests.test_uagb1_pass_agg
 ```
 
+## 9. Wave-4 addendum (2026-08-11, lane BJ): R-BG1 fixed — the additive multi-claim API landed; composed verify re-measured under BH's split
+
+### 9.1 R-BG1: the defect, reproduced and pinned
+
+At the wave-3 merged HEAD the AZB-11 canary panicked in its first
+leg (`assertion left == right failed, left: 972, right: 162` at
+ring_matmul.rs:21318, `agg_floor_family_values` <- `bg_verify_group`
+<- `bg_pass_run` — reproduced with backtrace before any fix).
+Root cause: lane BH's factoring changed
+`agg_floor_family_values`'s last parameter from PHI (the level
+array, r x chunk rings) to PSI (per-chunk, `plan_last.chunk` rings)
+and updated BD's call sites; BG's `bg_verify_group` Tier-Z arm —
+written pre-BH, merged after — still passed `&phi_cur` (len
+r x chunk = 6 x 162 = 972 at the canary shape). Consequence at
+merged HEAD: EVERY composed P2 VERIFY panicked there (the canary,
+the battery's P2 legs, and a 12-layer P2 pass verify had one been
+run); the P0 verify and the P2 PROVER (`agg_tier_z_mask_floor` kept
+its phi parameter) were unaffected — which is exactly why the
+shipped-path checks stayed green and the canary was the first thing
+to hit it.
+
+### 9.2 The fix: the exported API, landed additively
+
+Per Section 7.4's export, `src/ring/eval_proof.rs` now carries the
+ADDITIVE multi-claim entry points ([UAGB1-BJ] block):
+`MultiClaimKernel` (one scaled product-form contribution per entry —
+the `pass_agg::ClaimContrib` shape; any number per tensor, weight
+tables ADD) and `psi_level0_factored_multi` — the row-column split
+of the SUMMED weight (per kernel the scale folds into the row
+factor, K being a field; contributions add ring-linearly into
+Psi_0; aligned + misaligned-generic branches; no O(N_values) table
+and no Phi_0 materialization — export item 2's vw-free form is
+subsumed). `ClaimKernelCtx`, `psi_level0_factored`,
+`transport_level`, `transport_level_from_psi` and every BD/BH call
+site are untouched. `phi0_reference_multi` is the per-ring oracle.
+
+`bg_verify_group` now rides BD's post-BH shape end to end: Psi_0
+factored-multi after c_0 (the wave-3 `bg_kernel_pass` alpha-pass
+phi materialization is GONE from the recursed verify),
+`transport_level_from_psi` at level 1, `psi_floor` = Psi_0 for
+one-level schedules else `compute_psi` of the small transported
+phi, and BOTH floor branches (bare L1 and the Tier-Z family
+values) consume `psi_floor` — the R-BG1 fix proper. The prover is
+untouched (it materializes phi for its h-garbage by design).
+Transcript absorb/draw order, wire bytes, and all counted-byte
+lines are unchanged.
+
+### 9.3 Evidence at this HEAD
+
+- **`pass-agg seam` (NEW, [UAGB1-BJ]): 12/12 green, 46.3 s** — the
+  factored-multi Psi_0 equals `compute_psi(bg_kernel_pass phi)`
+  coefficient-for-coefficient on the REAL 1-layer T = 16 groups
+  (act: 42 kernels, aligned; weight: 9 kernels, e0 = 1 sign-binary
+  radix path) and on the misaligned 64x96x128 synthetic groups
+  (generic branch, forced L2 + L1) with the per-ring oracle tied
+  in; a perturbed contribution scale moves Psi (non-vacuity).
+- **`pass-agg canary`: 6/6 GREEN — twice** (1,621.9 s at the fix
+  commit; re-run **1,600.9 s at the final lane HEAD**) [MAC-BOX,
+  NOISY-SHARED]: all four FP 4.2 legs + both 11b contaminated
+  variants, byte-exact act-side recompute (legs 2/3), the leg-4
+  three-direction migration F5 with the AZB-10b leak exhibit
+  intact (weak-accepted migrated act floor 936 vs honest 921
+  rings). The gate this stage existed for.
+- **`pass-agg battery`: 14/14 GREEN at the final HEAD** (4,177.6 s
+  [MAC-BOX, NOISY-SHARED — stage-2 lanes ran concurrently]) — the
+  honest P0/P2 accepts reproduce the wave-3 counted bytes EXACTLY
+  (383,798 / 966,462 B), and every REJECT surface my rewiring sits
+  under lands with its recorded first-fail: floor-target,
+  sc-matmul, floor-fold-consistency, the OOA alphabet isolation,
+  tierz-response-norm, tierz-family (the two Tier-Z tampers now
+  RUN — at the merged wave-3 HEAD they panicked before reaching
+  the check), public-claim, the AZB-10b trio, E-O2-BB, and the
+  mode-plumbing legs.
+- **`m125-pass battery small`: 8/8 green** (Section 9.5's leg
+  included); **python suite: Ran 62 tests — OK (674.0 s)** and
+  **freeze-check green** at the final HEAD with every pre-existing
+  digest unmoved.
+
+### 9.4 Composed-verify re-measure under BH's split (deliverable 2)
+
+Wave 3 measured the composed P0 pass verify at 955.2 s PRE-split
+(this report, Section 3 — the composed verifier materialized phi
+via its own kernel pass, the O(n_0)-class wall BH removed for BD's
+path). At this HEAD the composed verifier rides the split through
+the multi-claim entry point. Re-measured, single-shot honest, same
+machine [MAC-BOX, non-reference, NOISY-SHARED — wave-4 stage-2
+lanes BK/BL launched on this box mid-run and their batteries
+overlapped; the wave-3 baseline carried the same class of label],
+fresh full prove in the same invocation (the BG rig has no
+serialized-artifact re-verify path; the artifact is re-proven and
+re-verified in one `pass-agg prove 12 512 p0` run):
+
+| measurement (12 layers, T = 512, P0) | wave 3 (pre-split) | this HEAD | ratio |
+|---|---:|---:|---:|
+| **VERIFY** | **955.2 s** | **199.6 s** | **4.79x** |
+| prove | 4,178.1 s | 4,117.4 s | ~1x (untouched) |
+| commit | 380.1 s | 375.4 s | ~1x |
+| counted bytes | 426,455 B | 426,455 B | 1.000x (wire untouched) |
+| statement digest | 6a2b52f5.. | 6a2b52f5.. | identical |
+| accept | true | true | — |
+| wall / peak RSS (/usr/bin/time -l) | 5,521 s / 38.2 GiB | 4,700 s / 40.8 GiB | — |
+
+- Every byte LINE reproduces exactly (statement 26,103; instances
+  50/50/53/101/82/82/82/79 kel; [weight] 179,576 = outer 11,360 +
+  rows 8,260 + levels 39,760 + floor 120,196; [act] 182,184) — the
+  fix and the split are implementation restructures; the artifact
+  is bit-stable.
+- The verify drop BEATS the queued "expected ~3x" (BH's 3.23x was
+  measured at the single-layer statement with ONE kernel per
+  tensor): at pass scale the composed verifier's removed
+  kernel-pass materialized phi over 7.8M + 3.5M digit rings with
+  DOZENS of additive contributions per tensor, so the removed term
+  was a larger share. 199.6 s is user-dominated (99.6% CPU) despite
+  the shared box. The contract's 2 s R2 line binds the REFERENCE
+  box and is NOT claimed; [MAC-BOX] magnitude only.
+- RSS note: the pass peak (40.8 vs 38.2 GiB) sits in the PROVE
+  phase (the prover still materializes phi for its h-garbage by
+  design); the verifier-phase phi materialization (~8 GiB-class at
+  the act group) is gone.
+
+### 9.5 BF-F3 wiring side effect on this report's [MODEL] lines
+
+Lane BJ also wired BH's BF-F3 capacity lift into the m125 rig
+(`bf_dw_for` -> split-fill capacity n - 8; see the
+M125_PASS_REPORT.md wave-4 addendum). `pass-agg expect`'s
+125M-STRUCTURAL descent lines ride `bf_dw_for`, so the NOT-composed
+[MODEL] lines of Section 4 MOVE (every structural dw down 1):
+125M-STRUCTURAL total 959,232 -> 898,496 B (0.915 -> 0.857 MiB);
+FULL-STATEMENT expectations Tier N 1,385,854 -> 1,325,118 B
+(~1.32 -> ~1.26 MiB), P2 1,978,466 -> 1,917,730 B. The composed
+derivations (426,622 / 1,019,234 B) are UNCHANGED. Wave-4 stage 2
+(lane BK, the folded masked descent) should target the UPDATED
+structural lines; the design-form F-IF1.1 line (dw_pass = 25) is a
+formula, not a `bf_dw_for` consumer, and did not move.
+
 ---
+
+*Changelog: 2026-08-11 — wave-4 addendum (lane BJ): R-BG1 fixed
+(the additive multi-claim API of Section 7.4's export landed in
+eval_proof.rs; bg_verify_group rides the BH split; canary 6/6 at
+the fixed HEAD); composed P0 verify re-measured under the split
+(Section 9.4); [MODEL] descent lines updated for the BF-F3 lift
+(Section 9.5).*
 
 *Changelog: 2026-08-10 — first edition (U-AG-B1 wave 3, lane BG):
 the pass-level composition landed and measured end to end on real

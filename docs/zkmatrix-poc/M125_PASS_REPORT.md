@@ -357,7 +357,94 @@ BD lands]. Tier N is NOT met and NOT claimed.
 UAGB1-BF-1a..1d (the family), UAGB1-BF-2a..2c (v4/v3 digest
 stability) — every pre-existing row green and unmoved.
 
+## 9. Wave-4 addendum (2026-08-11, lane BJ): BF-F3 closed at the rig — the split-fill capacity wired in
+
+Finding BF-F3 (Section 7: witness blocks capped at 2^(d-1) - 4, so
+2^20-element tensors rode dummy-padded dw = 22 at ~2x tree work)
+was lifted by lane BH in wave 3 (`gkr_masked::witness_leaf_positions`,
+capacity n - 8, measured 2.03x at the standalone `bh-verifier gkr`
+rig) and exported to this rig as wiring
+(UAGB1_VERIFIER_REPORT.md Section 2.4). Landed here:
+
+- **`bf_dw_for`** derives depth against the split-fill capacity
+  n - 8 (was: the blinder-free front 2^(d-1) - 4). At T = 512 the
+  six nf-class instances (silu, rng-rg/ru/u8/rh/h8; 2^20 elements)
+  drop dw 22 -> 21 and the two nd-class instances (rng-rd/z;
+  393,216 elements) drop 20 -> 19. At the battery scale (T = 16):
+  17 -> 16 and 15 -> 14.
+- **`leaf_pins`** (the four aggregate leaf pins wp/wq/tp/tq, shared
+  by prover and verifier): the witness-side weights move from the
+  contiguous assumption to the PUBLIC map — `hw` and the
+  primary/pair committed-column weights index `lw` at
+  `witness_leaf_positions(n_el, 2^dw)`; the dummy-mass complement
+  `ddw` and the blinder terms are unchanged in form. The trees
+  already rode the map inside `blinded_witness_tree` (BH's change);
+  the root cross-checks are position-invariant (fraction-tree sums),
+  which is why ONLY the pin layer could see the map.
+- **Acceptance (the exported test): the WRONG-MAP battery leg** —
+  `BfTamper::WrongMap`: honest proof on split trees, the VERIFIER's
+  leaf pins recomputed under the pre-lift contiguous assumption ->
+  **REJECT in the wave rounds** with statement/matmuls/roots all
+  green (the position map is load-bearing at the rig), plus a
+  precondition leg asserting the map is NON-IDENTITY at the battery
+  shape (4 right-half leaves at n_el = 32,768, dw = 16).
+  **`m125-pass battery small`: 8/8 green, 558.2 s** [MAC-BOX,
+  NOISY-SHARED — the AZB-11 canary overlapped] — all six
+  pre-existing legs keep their exact reject surfaces on split trees.
+
+**Measured effect** [MAC-BOX, non-reference, single-shot; BEFORE =
+the pre-wiring binary (this HEAD minus the D3 commit), AFTER = this
+HEAD, same box, back to back. BEFORE ran quiet; the AFTER
+layer-prove's last ~3 min overlapped wave-4 stage-2 lane BK's
+launch on this box — user/real ratios stayed ~99% CPU on both runs
+(369.4/372.3 s vs 328.4/330.7 s), so the comparison stands]:
+
+| measurement (layer 0, T = 512 unless noted) | BEFORE | AFTER | effect |
+|---|---:|---:|---:|
+| prove | 288.5 s | 250.4 s | **-13.2%** |
+| ... lkp (descents) phase | 69.9 s | 35.1 s | **1.99x — BF-F3's ~2x, at the rig** |
+| ... waves phase | 202.9 s | 199.5 s | ~ (127 waves both) |
+| verify (its lkp phase) | 34.6 s (5.9) | 31.9 s (3.1) | -7.8% |
+| wall (/usr/bin/time, incl. 12-layer chain load) | 372.3 s | 330.7 s | -11.2% |
+| peak RSS | 12.08 GB | 13.29 GB | +10% (single-shot; not a gate) |
+| masked descent transcripts (counted, this layer) | 722,816 B | 674,176 B | **-48,640 B/layer** |
+| data cms / pins | 16,565 / 936 | 16,551 / 904 | -14 / -32 |
+| statement (serialized) | 26,116 B | 26,116 B | unchanged (digest stable) |
+| `battery smoke` total (T = 16) | 74.8 s | 81.7 s | +6.9 s — see BJ-F1 |
+
+- The **~10-12% pass-prove class** BH's export predicted lands at
+  **13.2% on the measured layer** (descents were 24.2% of prove;
+  the witness side halved on six dw 22 -> 21 instances and two
+  20 -> 19). Extrapolated to the 12-layer pass prove (Section 5's
+  3,275 s class): ~-460 s [MODEL from the one measured layer].
+- The **byte delta is exact kel arithmetic**: -48,640 B/layer =
+  6 x 6,208 (the (22 -> 21, dt 9) per-pair bonus BH measured) +
+  2 x 5,696 ((20 -> 19, dt 9) pairs). Kel-row freeze values pin
+  the FUNCTION at given dw and are unmoved.
+- **BJ-F1 (small-shape packing artifact, recorded):** at T = 16
+  the smoke TOTAL rose 74.8 -> 81.7 s even though descents
+  strictly shrink (dw 17 -> 16, 15 -> 14) — the depth drop
+  repacks the first-fit wave plan (40 -> 39 fuller waves at
+  T = 16; commitment count -10), and the wave rounds are the only
+  phase that grows. At T = 512 the wave count is unchanged (127)
+  and every phase moved down. Verdicts are unaffected (8/8);
+  battery wall-clock at the small shape pays ~10%, the real
+  target shape gains 13%. [MAC-BOX, single-shot both.]
+
+**Derived-line movement (recorded, not hidden):** `pass-agg
+expect`'s 125M-STRUCTURAL [MODEL] descent lines ride `bf_dw_for`;
+every structural dw drops by 1: total 959,232 -> 898,496 B (0.915
+-> 0.857 MiB); full-statement expectations Tier N 1,385,854 ->
+1,325,118 B, P2 1,978,466 -> 1,917,730 B (UAGB1_PASS_AGG_REPORT.md
+Section 9.5 carries the same note; wave-4 stage 2 targets the
+updated lines). No freeze row pins these; every pre-existing
+freeze digest is unmoved at this HEAD.
+
 ---
+
+*Changelog: 2026-08-11 — wave-4 addendum (lane BJ): BF-F3 wired
+into the rig (split-fill depths + mapped leaf pins; wrong-map leg
+8/8; measured effect + derived-line movement in Section 9).*
 
 *Changelog: 2026-08-10 — first edition (U-AG-B1 wave 2, lane BF):
 the per-scale SiLU table family frozen (two members, (-4,-4) == v1
