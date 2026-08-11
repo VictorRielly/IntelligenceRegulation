@@ -396,7 +396,37 @@ rig) and exported to this rig as wiring
 BEFORE = the pre-wiring binary (this HEAD minus the D3 commit),
 AFTER = this HEAD, same box, back to back]:
 
-<!-- BJ-D3-TABLE -->
+| measurement (layer 0, T = 512 unless noted) | BEFORE | AFTER | effect |
+|---|---:|---:|---:|
+| prove | 288.5 s | 250.4 s | **-13.2%** |
+| ... lkp (descents) phase | 69.9 s | 35.1 s | **1.99x — BF-F3's ~2x, at the rig** |
+| ... waves phase | 202.9 s | 199.5 s | ~ (127 waves both) |
+| verify (its lkp phase) | 34.6 s (5.9) | 31.9 s (3.1) | -7.8% |
+| wall (/usr/bin/time, incl. 12-layer chain load) | 372.3 s | 330.7 s | -11.2% |
+| peak RSS | 12.08 GB | 13.29 GB | +10% (single-shot; not a gate) |
+| masked descent transcripts (counted, this layer) | 722,816 B | 674,176 B | **-48,640 B/layer** |
+| data cms / pins | 16,565 / 936 | 16,551 / 904 | -14 / -32 |
+| statement (serialized) | 26,116 B | 26,116 B | unchanged (digest stable) |
+| `battery smoke` total (T = 16) | 74.8 s | 81.7 s | +6.9 s — see BJ-F1 |
+
+- The **~10-12% pass-prove class** BH's export predicted lands at
+  **13.2% on the measured layer** (descents were 24.2% of prove;
+  the witness side halved on six dw 22 -> 21 instances and two
+  20 -> 19). Extrapolated to the 12-layer pass prove (Section 5's
+  3,275 s class): ~-460 s [MODEL from the one measured layer].
+- The **byte delta is exact kel arithmetic**: -48,640 B/layer =
+  6 x 6,208 (the (22 -> 21, dt 9) per-pair bonus BH measured) +
+  2 x 5,696 ((20 -> 19, dt 9) pairs). Kel-row freeze values pin
+  the FUNCTION at given dw and are unmoved.
+- **BJ-F1 (small-shape packing artifact, recorded):** at T = 16
+  the smoke TOTAL rose 74.8 -> 81.7 s even though descents
+  strictly shrink (dw 17 -> 16, 15 -> 14) — the depth drop
+  repacks the first-fit wave plan (40 -> 39 fuller waves at
+  T = 16; commitment count -10), and the wave rounds are the only
+  phase that grows. At T = 512 the wave count is unchanged (127)
+  and every phase moved down. Verdicts are unaffected (8/8);
+  battery wall-clock at the small shape pays ~10%, the real
+  target shape gains 13%. [MAC-BOX, single-shot both.]
 
 **Derived-line movement (recorded, not hidden):** `pass-agg
 expect`'s 125M-STRUCTURAL [MODEL] descent lines ride `bf_dw_for`;
