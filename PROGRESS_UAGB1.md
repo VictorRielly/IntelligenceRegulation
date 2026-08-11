@@ -2181,10 +2181,14 @@ recipe.
     digests unmoved); **FULL SUITE 67/67 OK in 1,013.9 s** from the
     worktree root [MAC-BOX, NOISY-SHARED]; P0 differential green;
     P2+blind 3/16 accept. `pass-agg battery` + the full-pass 12/512
-    P2+blind single-shot launched at close (the battery's P2 legs ride
-    the BL-F1-fixed verifier; the full-pass derived expectation is
-    exact by BL-1d = 1,019,659 B) — results appended below when they
-    land.
+    P2+blind single-shot LAUNCHED and left running at lane close (the
+    box is oversubscribed — 5+ CPU-bound sibling jobs; the battery's
+    P2 legs ride the BL-F1-fixed verifier and were previously blocked
+    by the R-BG1-class assert at the merged base; the full-pass
+    derived expectation is exact by BL-1d = 1,019,659 B). Their
+    outputs land in this worktree's task logs; the orchestrator's
+    merge re-run covers both per house pattern (wave-3 precedent:
+    batteries follow pre-push).
   * Freeze rows UAGB1-BL-1a..1d; pre-existing digests unmoved,
     freeze-check green. Report UAGB1_TBLIND_REPORT.md; additive test
     tests/test_uagb1_tblind.py. Files: NEW ring/t_blind.rs, ring/mod.rs
