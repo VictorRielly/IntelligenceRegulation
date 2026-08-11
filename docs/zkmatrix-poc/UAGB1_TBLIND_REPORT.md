@@ -1,13 +1,13 @@
 # U-AG-B1 T_blind Report — Lane BL (wave 4: masking the weight-touching round polynomials in the composed P2 path)
 
-Status: PLAN (2026-08-10, U-AG-B1 wave 4, worktree wt-uagb1-bl,
-branch uagb1-bl, base f75aba3). Sections marked [PLAN] are the
-pre-implementation design transcription (deliverable 1); measured
-sections land as the stages land. Machine: Victor's Mac (Apple
-silicon) — NOT the contract reference box; every timing [MAC-BOX,
-non-reference], [NOISY-SHARED] where sibling lanes (BJ/BK/PV-S2) run
-concurrently. Byte counts, rank certificates, battery verdicts and
-freeze rows are machine-independent.
+Status: LANE DELIVERABLE (2026-08-10/11, U-AG-B1 wave 4, worktree
+wt-uagb1-bl, branch uagb1-bl, base f75aba3). Sections marked [PLAN]
+are the deliverable-1 design transcription, retained verbatim;
+Sections 5-7 carry the build + measurements. Machine: Victor's Mac
+(Apple silicon) — NOT the contract reference box; every timing
+[MAC-BOX, non-reference], [NOISY-SHARED] where sibling lanes
+(BJ/BK/PV-S2) run concurrently. Byte counts, rank certificates,
+battery verdicts and freeze rows are machine-independent.
 
 ## 0. What this lane closes, in one paragraph
 
@@ -170,40 +170,161 @@ t_blind ON (one marked line): P2 carries the surcharge, per the
 lane brief. The differential test asserts the P0 3/16 counted bytes
 equal BG's pinned 383,798 B with zero blind material present.
 
-## 4. AZB E-block dispositions [PLAN — table updated as legs land]
+## 4. AZB E-block dispositions (landed: `t-blind battery` 11/11 green, ~0.1 s)
 
-| leg | planned disposition |
+Every leg runs at REAL engine arithmetic (the K field, the house
+transcript, real matmul degree schedules incl. the extension round)
+on standalone masked instances — the certificate layer the E-blocks
+specify. The battery leg ids below are the `t-blind battery` prints.
+
+| leg | disposition (engine certificate) |
 |---|---|
-| E-1 | rigged sparse weight support (hook), blinding OFF (= the pre-BL P2 path, kept as the battery config), claims-only multi-proof collection under an h0 salt hook; solver over Z_q: rank grows by exactly min(48, remaining)/proof (3 K terminals = 48 base equations), EXACT recovery at ceil(dim/48), not before. Permanent pre-fix regression. |
-| E-2 | (i) blinding ON: rank stuck at the data dims (each proof adds 384 fresh pad unknowns), >= 2 planted wrong tensors explained EXACTLY (constructive coset certificate); (ii) derive-time counting canaries in the shipped blind path: per instance rank(mask map) = n_g with exactly ell+1 forced relations (AZ-L1a); joint rank = sum n_g (the composed instances draw SEQUENTIAL challenges — the block-diagonal case, easier than AZ-L1b's shared-challenge form, stated); pad/terminal map diagonal nonzero (AZ-L2a). |
-| E-3 | F5 pair: tblind_unbound hook (blind columns outside the committed group, openings ride as bare pins) — post-challenge mask-set swap ACCEPTS; shipped path REJECTS the same swap at the u_0/descent binding (the engine face of the h0-digest edge — Section 2.1 deviation note). |
-| E-4 | three F5 pairs at the composed path: (i) pad committed after the instance outer draw (crafted pad absorbs a terminal lie -> hook ACCEPTS / shipped REJECTS); (ii) nus drawn before terminal absorption (compensated terminal lie -> hook ACCEPTS / shipped REJECTS); (iii) rho drawn before the G pin (crafted G absorbs a round lie -> hook ACCEPTS / shipped REJECTS). |
-| E-5 | (i) attack: two salted proofs forced (hook) to share the blind draw — the differencing solver recovers the planted weight support at the predicted count (shared pads = one 384-dim unknown block instead of fresh-per-proof); fresh-blind control stays stuck; (ii) shipped derive REFUSES the repeated (witness digest, T_blind digest) pair loudly. Freeze row both directions. |
-| E-6, E-7(i), E-10, E-11 | landed by BD/BG (wave 2/3) — consumed unchanged, not re-claimed. |
-| E-7(ii) | toy 1-level floor-accumulation harness (direct LevelPlan, r = 4): rank grows by exactly dim(z)/proof, exact recovery at r proofs, not before. |
-| E-7(iii) | toy-scale distributional simulator match for the components THIS stage adds (masked rounds on the check variety, blinded terminal, G, g_open, v_s — all uniform); commitments documented as computational (MLWE class) — simulated, never statistically tested. |
-| E-8 | derive-time conditional-rank certificate, block-triangular composition: [rounds x mask] = AZ-L1a ranks; [terminals x pad] = diagonal; [b_rows x segment] = 2,048-dim diagonal unit block (structural); zero blocks (segment touches no round/terminal exposure; masks touch no terminal) verified; total conditional rank = n_exposures. FAIL = deployment-blocking error (F-Z3). |
-| E-9 | (i) slot-shared segment hook (one 16-coord residue tiled 8x per ring): the per-slot solver recovers planted slot-differences of the real b_rows content — leak exhibited against the witness; (ii) shipped ring-granular draw: the 8 slot images certified independently via lane_split (per-slot rank/uniformity). Real partially-split GF(q^16) arithmetic. |
+| E-1 (AZB-1) | **WIRED (leg L3)** — the permanent pre-fix regression: with terminals UNBLINDED, the solver recovers a dim-6 rigged secret at EXACTLY 6 proofs, rank growing by exactly 1/proof (never faster), recovery not-before. The unblinded config = the pre-BL P2 path, kept as `p2-noblind`. |
+| E-2 (AZB-2) | **WIRED (legs L4 + L5)** — (i) blinded non-recovery: a fresh pad unknown per proof keeps the augmented system rank = #proofs with the secret block FREE (the full-coset face); (ii) the AZ-L1a counting canary: the round-mask coefficient-to-exposure map computed by finite differences at a real schedule has FULL COLUMN RANK 16*n_g (240 = 240 at the L5 shape). The composed instances draw sequential challenges (the block-diagonal case of AZ-L1b — stated, easier than the shared-challenge form). |
+| E-3 (AZB-3) | **WIRED (leg L7), both directions** — the adaptive forged pin G' = G + (v_c − v_false)/rho ACCEPTS an arbitrary false claim when rho is drawn without G (unbound hook) and REJECTS shipped (rho = H(.., G) is a fixed point the attacker cannot solve). In-path, G is additionally grounded against the CO
 
-## 5. Measured results
+## 5. What landed in-path, and what is certified but pending
 
-[lands with deliverables 2-3]
+**In-path (the composed P2 prover/verifier, `pass-agg prove .. p2`):**
+Surface 1 (round-polynomial masking) + Surface 3 (the claim segment),
+mode-gated on `BgOpts.t_blind`. Per masked matmul: the mask is
+pre-drawn and committed in the weight group; G is pinned before rho;
+`ring::t_blind::masked_sumcheck_prove/verify` ship the round
+polynomials as (product + rho*M_t); g_open closes the mask; G and
+g_open are grounded as claims on the committed mask tensor (row =
+the public linear weights, col = the coefficient extractor) through
+the ONE weight-group opening. The segment adds one fresh committed
+uniform K-value to the opened weight-batch value. **The
+weight-touching ROUND POLYNOMIALS — the exact object BG's report named
+as the P2 gap — are masked in the real composed pass.**
 
-## 6. Battery
+**Certified in `t-blind battery`, in-path-pending:** Surface 2 (the
+terminal selector-extension pad for b*). The construction is complete
+and validated at real K arithmetic and real matmul schedules (battery
+legs L1/L6/L8, the E-8 joint-blinding cert). The in-path wiring is the
+one deferred piece: it needs the extended index space (one deg-2
+round), the `(1 - ext*)` scaling on the a*/b*/v_c claim reconstruction,
+and the eq_ks tensor-product factorization of the pad kernel across
+prover and verifier — a point-structure change to the composed loop
+that the round-mask wiring does not require. Its bytes (+576 B, 3
+instances x one deg-2 round) are in the derived-full total; it is
+NOT claimed on the wire this wave.
 
-[lands with deliverable 3]
+**Consequence, stated plainly:** the round polynomials are masked;
+the weight-side terminals b* still ship raw in-path (Surface 2
+pending), so in-path P2+T_blind closes the round-polynomial surface
+(the bulk exposure — ~38 kel/instance) but not the last terminal
+(1 K-el/instance). Deployment-grade P2 needs Surface 2 in-path too;
+its construction is proven, its wiring is the recorded next step.
+
+### 5.1 The surcharge: derived vs measured vs [MODEL]
+
+| line | derived | measured (3/16 composed runs) |
+|---|---:|---:|
+| Surface 1 round mask: G 64 + g_open 64, x3 instances | 384 | 384 |
+| Surface 3 claim segment value | 64 | 64 |
+| **in-path wire surcharge (P2+blind minus P2-noblind)** | **448** | **448 — BYTE-EXACT** (966,910 − 966,462) |
+| Surface 2 terminal pad (one deg-2 ext round x3) | +576 | — (certified in t_blind.rs, in-path-pending) |
+| **full-construction wire surcharge** | **1,024** | — |
+| BG's price for the whole gap | ~1,664 [MODEL] | superseded: the model's 4th masked instance (the CR-L4 terminal-batch sumcheck) does not exist in the engine; its face is the 64 B segment |
+| committed-only blind material (zero wire) | 1,728 digit rings in-path (2,304 with pads) | schedules UNMOVED: freeze row BL-1d pins tierz L8/1,368/e4 + bare L8/939/e7 at 3,538,944 + 1,728 — BG's exact pins |
+
+Derived 12-layer full-pass P2+blind expectation: 1,019,211 + 448 =
+**1,019,659 B = 0.972 MiB** (floors unmoved per BL-1d; the +448 B is
+the entire delta).
+
+## 6. Gates (measured, [MAC-BOX, non-reference, NOISY-SHARED])
+
+- **Build**: green (`cargo build --release`).
+- **T_blind certificate battery**: `t-blind battery` 11/11 green.
+- **Freeze-check**: green with the UAGB1-BL rows (n_g 35/37,
+  surcharge, masked sumcheck both directions); every pre-existing
+  digest unmoved.
+- **P0-unchanged differential (byte-identical)**: `pass-agg prove 3
+  16 p0` = **383,798 B counted, accept = true — EXACTLY BG's pinned
+  P0 battery value.** The T_blind wiring (all behind `if
+  opts.t_blind`) changes zero P0 bytes; blind surcharge 0. (P0 2/16
+  also accept, 377,631 B.) [MAC-BOX: commit 35.3 s / prove 344.4 s /
+  verify 83.6 s.]
+- **P2 composed run with the blind active**: `pass-agg prove 3 16 p2`
+  = **966,910 B counted, accept = true, blind surcharge 448 B** — the
+  weight round polynomials masked in the real composed pass on real
+  ckpt data [MAC-BOX, NOISY-SHARED: commit 33.8 s / prove 336.2 s /
+  verify 80.5 s].
+- **P2-noblind regression** (`p2-noblind`, the BG wave-3 config kept
+  for the differential): **966,462 B, accept = true — exactly BG's
+  pinned battery value**, confirming the BL-F1 Tier-Z verifier fix is
+  behavior-identical at r = 1 [commit 33.7 s / prove 335.3 s / verify
+  80.4 s].
+- **Full suite + `pass-agg battery`**: run at HEAD (results in the
+  ledger row).
+
+### 6.1 Finding BL-F1 (a BD Tier-Z verifier assumption the blind exposed)
+
+BD's Tier-Z masked-floor VERIFIER (`bg_verify_group`, the
+`agg_floor_family_values` call) passed the raw `phi_cur` (length
+r x chunk) as the L1-family `psi`, whereas the PROVER
+(`agg_tier_z_mask_floor`) folds it via `compute_psi(phi, chunk,
+prev_c)` (length chunk). The two coincide only when the last
+schedule level has r = 1 — true for every shipped pass schedule, so
+P2-noblind was always green. The T_blind tensors enlarge a SMALL-
+shape weight group's n0 enough to move the last level to r = 6,
+which surfaced the mismatch as a psi-length panic (960 vs 160). The
+one-line fix mirrors the prover in the verifier (fold via
+`compute_psi`); it is behavior-identical at r = 1 (P2-noblind
+regression re-run = 966,462 B accept, Section 6). The full 12-layer
+pass schedule keeps r = 1 at the last level regardless of the blind
+(BL-1d), so the shipped pass path was never affected.
+
+**R-BG1 connection (flagged for the BJ merge seam, NOT claimed as
+its fix):** R-BG1's recorded crash is the SAME assert at the same
+line class ("psi seam ... left 972 right 162" = 6 x 162 — the 3/16
+P2 weight-group last level r = 6, chunk = 162). The canary's P2
+verifies at merged HEAD hit exactly this raw-phi-vs-folded-psi
+mismatch. My fix removes that crash site in `bg_verify_group`'s
+Tier-Z branch; lane BJ owns R-BG1 (the eval_proof multi-claim API +
+the canary call sites) — the orchestrator should reconcile the two
+at the BJ -> BL merge (my change is one marked block, safe to keep
+or subsume).
 
 ## 7. Freeze rows and reproduction
 
-[lands with the implementation; UAGB1-BL-1a.. both directions:
-blind inventories + n_g arithmetic, P2+blind schedule vs the BG
-pins, the derived 1,024 B surcharge, the E-8 exposure/dimension
-counts.]
+`freeze_check_uagb1_bl()` (inside `freeze-check`), both directions:
+
+- UAGB1-BL-1a: n_g arithmetic at the pass matmul shapes — mm-gate/up
+  (lk 10) = 35, mm-down (lk 11) = 37.
+- UAGB1-BL-1b: the derived full-construction wire surcharge = 1,024 B
+  (3 x 320 + 64; BG's ~1,664 B [MODEL] superseded structurally).
+- UAGB1-BL-1c: masked-sumcheck completeness + forged-G soundness at a
+  real matmul-schedule instance (both directions, real K arithmetic).
+- UAGB1-BL-1d: the 12-layer pass schedules are UNMOVED by the blind
+  inventory (+1,728 rings): tierz L8 / 1,368 / e4 and bare L8 / 939 /
+  e7 — BG's exact pins (BG-F4 at pass scale).
+
+Every pre-existing freeze digest unmoved at every commit.
+
+```
+zkmatrix-rs$ cargo build --release
+zkmatrix-rs$ ./target/release/ring_matmul t-blind battery      # 11 certificate legs (E-1..E-9)
+zkmatrix-rs$ ./target/release/ring_matmul t-blind expect       # the derived surcharge
+zkmatrix-rs$ ./target/release/ring_matmul freeze-check         # incl. UAGB1-BL-1a..1d
+repo$ ./zkmatrix-rs/target/release/ring_matmul pass-agg prove 3 16 p0          # differential: 383,798 B (BG pin)
+repo$ ./zkmatrix-rs/target/release/ring_matmul pass-agg prove 3 16 p2-noblind  # regression: 966,462 B (BG pin)
+repo$ ./zkmatrix-rs/target/release/ring_matmul pass-agg prove 3 16 p2          # THE BLINDED P2: 966,910 B, +448 B
+repo$ python3 -m unittest tests.test_uagb1_tblind
+```
 
 ---
 
 *Changelog: 2026-08-10 — plan edition (deliverable 1): leak
 inventory, design transcription (zero-extra-identity T_blind in the
 weight group, masked instance FS rows, claim segment), derived
-surcharge 1,024 B vs the ~1,664 B [MODEL] price with the structural
-explanation, E-block plan table.*
+surcharge vs the ~1,664 B [MODEL] price with the structural
+explanation, E-block plan table.
+2026-08-11 — build edition (deliverables 2-3): t_blind.rs core +
+11/11 certificate battery; Surface 1 + segment wired into the
+composed P2 path; P0 differential byte-identical (383,798 B);
+P2-noblind regression byte-identical (966,462 B); P2+blind accept
+at 966,910 B with the 448 B surcharge byte-exact to derivation;
+finding BL-F1 (the Tier-Z verifier psi seam, R-BG1-class) fixed in
+the composed verifier; freeze rows BL-1a..1d.*

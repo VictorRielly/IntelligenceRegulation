@@ -2112,6 +2112,71 @@ recipe.
   edits (BJ's stage); act-side masks (P1/P3 stay refused, refusal
   text updated to name only the remaining gap); descent-fold work
   (BK); push.
+- 2026-08-11 **BL VERDICT ROW (T_blind: masking the weight-touching
+  round polynomials of the composed P2 path).**
+  * D1 T_BLIND ENGINE CORE + CERTIFICATE BATTERY LANDED (bef1086):
+    ring/t_blind.rs — the O-4 masked-sumcheck construction at real K
+    arithmetic (RoundMask n_g = 1 + sum d_t fresh uniform K coeffs =
+    AZ-L1a; masked_sumcheck_prove/verify with round polys = product +
+    rho*M_t, c_0 = claim + rho*G, end = combine(finals) + rho*g_open;
+    grounding-weight kernels; freshness registry E-5). `t-blind
+    battery` **11/11** at real matmul schedules: completeness +
+    soundness + E-1 (unblinded terminal recovers a dim-6 secret at
+    exactly 6 proofs) + E-2/E-7(ii) (blinded non-recovery, fresh
+    pad/proof) + AZ-L1a full column rank 16*n_g + E-8/AZ-O2 joint-
+    blinding cert + E-3 (adaptive forged-G accepts unbound / rejects
+    shipped rho = H(..,G)) + E-4 (terminal grounding) + E-5 (reuse
+    refusal + shared-pad differencing) + E-9 (ring-granular slots rank
+    8 / slot-shared rank 1 via lane_split) + E-7(iii) simulator
+    surjectivity. I-6 HELD (no new Gaussian-masked opening).
+  * D2 IN-PATH (Surface 1 round mask + Surface 3 claim segment) LANDED
+    in the composed P2 prover/verifier (pass_agg zone): the 3 matmul
+    ROUND POLYNOMIALS masked (G pinned pre-rho, masked_sumcheck,
+    g_open), grounded as claims on committed CLASS_Q31C mask tensors
+    in the WEIGHT group (zero extra outer identity — u_0 covers T_W ++
+    T_blind, the E-3 edge realized at the descent face); the unit-
+    weight segment decouples the opened batch value. Mode-gated
+    (BgOpts.t_blind, all touches behind `if opts.t_blind`):
+    **P0 BYTE-IDENTICAL — `pass-agg prove 3 16 p0` = 383,798 B accept,
+    BG's pinned P0 value EXACTLY** (differential); **P2-noblind
+    regression = 966,462 B accept, BG's pinned P2 value EXACTLY**;
+    **P2+T_blind = 966,910 B accept, blind surcharge 448 B MEASURED**
+    (the weight round polynomials masked on real ckpt data, 3 layers
+    T=16 [MAC-BOX, NOISY-SHARED]). SURCHARGE: derived 448 B in-path
+    (3 x (G 64 + g_open 64) + segment 64) = MEASURED BYTE-EXACT;
+    derived-full 1,024 B (adds Surface 2 terminal pad +576); vs BG's
+    ~1,664 B [MODEL] (structurally superseded — no CR-L4 terminal-
+    batch sumcheck in the engine). Committed-only 1,728 blind digit
+    rings on 3,538,944; schedules UNMOVED (freeze BL-1d: tierz
+    L8/1,368/e4 + bare L8/939/e7, BG's exact pins). Restarts 0.
+  * SURFACE 2 (terminal selector-extension pad) CERTIFIED in
+    t_blind.rs (battery L1/L6/L8) but IN-PATH-PENDING: the extended
+    index space + the (1-ext*) a*/b*/v_c claim reconstruction + the
+    eq_ks tensor-product pad kernel — a point-structure change the
+    round-mask wiring does not need; its +576 B is in the derived-full
+    total, not on the wire this wave. Honest label carried in the
+    refusal text (P1/P3 now name only the ACT-side mask as absent).
+  * FINDING BL-F1 (R-BG1-class, fixed in the composed verifier): BD's
+    Tier-Z masked-floor VERIFIER passed raw phi_cur (r x chunk) as the
+    L1-family psi vs the prover's compute_psi-folded (chunk); coincide
+    only at last-level r = 1 (every shipped pass schedule). The blind
+    tensors enlarge SMALL-shape n0 to r = 6 and surfaced it (960 vs
+    160 panic — the same assert/shape class as R-BG1's "972 vs 162" =
+    6x162). Fixed by mirroring the prover (compute_psi) in
+    bg_verify_group's Tier-Z branch, behavior-identical at r = 1
+    (P2-noblind = 966,462 B, unchanged). Full 12-layer pass keeps
+    r = 1 (BL-1d). BJ owns R-BG1 — orchestrator reconciles at BJ ->
+    BL merge (one marked block, keep-or-subsume).
+  * E-BLOCK DISPOSITION: E-1/E-2/E-3/E-4/E-5/E-7(ii,iii)/E-8/E-9 wired
+    as executable certificate legs (t-blind battery). E-6/E-7(i)/E-10/
+    E-11 remain BD/BG's landed legs (consumed, not re-claimed).
+  * Freeze rows UAGB1-BL-1a..1d; pre-existing digests unmoved,
+    freeze-check green. Report UAGB1_TBLIND_REPORT.md; additive test
+    tests/test_uagb1_tblind.py. Files: NEW ring/t_blind.rs, ring/mod.rs
+    (one mod line), the [UAGB1-BL] section + `t-blind` dispatch arm +
+    the mode-gated T_blind hooks inside the [UAGB1-BG] composed path +
+    the BL-F1 one-block Tier-Z fix, NEW UAGB1_TBLIND_REPORT.md, NEW
+    test, this ledger section.
 
 ## Blocker
 
