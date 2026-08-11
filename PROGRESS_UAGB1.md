@@ -1980,7 +1980,45 @@ T_blind (E-1..E-5) for the P2 round-poly residual + the remaining
 AZB E-blocks it unlocks. Then the quiesced p50/p95 pass + A1
 reconciliation + ledger FINAL (orchestrator).
 
+STAGING OVERRIDDEN 2026-08-10 (Victor, console: "Go ahead and
+Launch multiple agents so we can expidite the process"): BK + BL
+launch NOW from fc3fa8f in parallel with BJ, plus PV-S2 (provenance
+pillar, zero engine overlap). Seam mitigation: strict zones — BJ
+owns eval_proof.rs + the BG canary call sites + BF rig wiring; BK
+owns lookup.rs + a NEW descent-fold module + its own section (NO
+eval_proof edits — needs filed as exports; BJ's multi-claim API is
+coming, consume via public surface); BL owns pass_agg.rs + a NEW
+T_blind module + its own section (avoid the canary harness
+functions, BJ's this stage). Merge order: BJ -> BL -> BK,
+orchestrator resolves dispatch/EOF seams per the established
+recipe.
+
+- BK (folded masked descent, wt-uagb1-bk): the table-membership
+  facts (SiLU + range) into the composed artifact — per-table
+  descent pairs (BG-F1: 2 SiLU members + 6 remainder widths at
+  125M), folded per FP-L2 mask-then-fold, masked per the U-K5c
+  lineage; beat or honestly price the [MODEL] full-statement lines
+  (Tier N ~1.39 MiB / P2 ~1.98 MiB); battery w/ per-table tamper
+  legs + the E-O3-BB transferred leg.
+- BL (T_blind, wt-uagb1-bl): E-1..E-5 — T_blind masking for the
+  weight-touching round polynomials in the composed P2 path (the
+  ~1,664 B [MODEL] residual BG priced), I-6-compliant (T_blind +
+  masked sumcheck only), unlocking the remaining AZB E-blocks;
+  measured surcharge + battery legs.
+- PV-S2 (music pillar, wt-pv-s2): per
+  docs/provenance/MUSIC_PROVENANCE_POC.md Section 7 — WAV I/O +
+  session evidence objects + block-chained Pi1 at song scale,
+  reference-params measurement; no engine files touched.
+
 ## Agent BJ status (wt-uagb1-bj)
+
+- (lane launches here)
+
+## Agent BK status (wt-uagb1-bk)
+
+- (lane launches here)
+
+## Agent BL status (wt-uagb1-bl)
 
 - (lane launches here)
 
