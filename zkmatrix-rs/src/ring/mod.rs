@@ -35,6 +35,7 @@ pub mod digits;
 pub mod eval_proof; // [UAGB1-BD] the batched-opening / eval-proof layer
 pub mod fold; // [UAGB1-BE] the IXF fold layer
 pub mod gkr;
+pub mod pass_agg; // [UAGB1-BG] the pass-level composition (fold -> batch -> eval proofs)
 pub mod gkr_masked;
 pub mod kfield;
 pub mod link;

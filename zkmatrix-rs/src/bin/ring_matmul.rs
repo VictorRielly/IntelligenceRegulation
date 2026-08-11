@@ -5057,6 +5057,7 @@ fn freeze_check() {
     all_ok &= freeze_check_uagb1_be();
     all_ok &= freeze_check_uagb1_bf();
     all_ok &= freeze_check_uagb1_bi(); // [UAGB1-BI] wire-format stability row
+    all_ok &= freeze_check_uagb1_bg();
 
     if all_ok {
         println!("freeze-check passed");
@@ -6389,6 +6390,12 @@ fn main() {
         // battery [small]` — see the [UAGB1-BF] section.
         Some("m125-pass") => m125_pass_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
+        Some("pass-agg") => {
+            // [UAGB1-BG] the pass-level composition (wave 3): BF's
+            // real-weights pass statement -> BE's folded families ->
+            // BD's per-group eval proofs. See the [UAGB1-BG] section.
+            bg_main(&args[1..]);
+        }
         Some("matmul-statement") => {
             // `matmul-statement battery` = the adversarial battery at
             // 128x768x256; `matmul-statement <rows> <inner> <cols>` =
@@ -28586,5 +28593,2386 @@ fn bi_main(args: &[String]) {
         },
         Some("bench-stat") => bi_bench_stat(&args[1..]),
         _ => println!("usage: uagb1-bi [wire-battery | wire-bench ... | bench-stat ...]"),
+    }
+}
+
+// ===========================================================================
+// [UAGB1-BG] U-AG-B1 wave 3, lane BG: THE PASS-LEVEL COMPOSITION.
+//
+// BF's 12-layer real-weights v4 pass statement -> BE's IXF folded
+// instance families (joint matmul at the 3 pass positions + stacked
+// zero-checks) -> BD's per-group batched opening + eval proof (W-C
+// two-group layout, one eval proof per commitment group, E-O2-BB).
+//
+// COMPOSED RELATION SET (wave-3 machinery state, the honest scope
+// label carried on every print): the 3 folded MATMULS (gate/up/down),
+// the folded HADAMARD zero-check, 4 folded REQUANT zero-checks (a new
+// instance family on fold.rs's public scheduled-sumcheck API: stacked
+// linear zero-check with the PUBLIC layer-coefficient MLE c~(l) =
+// 2^{s_l} read from the statement's shift table; schedule
+// [2; n_pos] ++ [3; lambda]; eq* and sh* verifier-recomputed), and
+// PUBLIC-TENSOR BINDING claims (X_l and the declared z_l outputs at a
+// shared post-h0 point; the verifier computes those values from the
+// public data; weights are NEVER verifier-evaluated — the FD 6.4 W-A
+// rejection ruling; weight binding = the u_0 outer identity + the
+// statement digests, the per-model off-the-clock discipline).
+//
+// NOT COMPOSED (loud, everywhere): the table-membership facts (SiLU
+// LookupAt + the 7 RangeLookups per layer). The folded masked descent
+// is the recorded unbuilt piece (lane BE WILL-NOT-DO: needs the
+// multi-wave C2 lift; AZB_BATTERY_PLAN Section 7 route 2); at 125M it
+// additionally splits by table (2 SiLU family members, 6 distinct
+// remainder widths — a finding vs the design's shared-table
+// assumption, priced in `pass-agg expect`). Without those facts the
+// composed relations pin the chain up to the known table-fact
+// freedoms; the statement still DECLARES every fact, and the covered-
+// operation set is printed with the artifact.
+//
+// Privacy modes (manifest::ModeDecl, Amendment A1): P0 bare; P2 =
+// the FP-L3 split — the WEIGHT group's floor masked ONCE per pass
+// (the E2/E4 Tier-Z carve-out, BD's stage-4 machinery consumed
+// as-is), activation group bare. P1/P3 REFUSE loudly (the act-side
+// mask + the T_blind instance masking are absent this wave; under P2
+// the matmul/terminal ROUND POLYNOMIALS carry weight functionals
+// unmasked — the E-1..E-5 block, priced in the expectation, stated
+// in the report; deployment-grade P2 requires it).
+//
+// Subcommands: `pass-agg statement | expect | prove [layers t p0|p2]
+// | battery [small] | canary`. Freeze rows: freeze_check_uagb1_bg().
+
+/// Digit class (e0, l0) of entry role `e` under the frozen class
+/// table (weights CLASS_W8S sign-binary — F-N2; everything else
+/// e0 = 2 with l0 derived from the v4 typed interval).
+fn bg_entry_class(e: usize, lay: &BfLayer) -> (u32, usize) {
+    use ring::digits::{derive_l0, CLASS_W8S};
+    if matches!(BF_ENTRIES[e], "WgT" | "WuT" | "WdT") {
+        return (CLASS_W8S.e0, CLASS_W8S.l0);
+    }
+    let (qm, ty) = bf_entry_typing(e, lay);
+    let (lo, hi) = if qm.signed {
+        if ty.symmetric {
+            (-(1i64 << (qm.bits - 1)) + 1, (1i64 << (qm.bits - 1)) - 1)
+        } else {
+            (-(1i64 << (qm.bits - 1)), (1i64 << (qm.bits - 1)) - 1)
+        }
+    } else {
+        (0, (1i64 << qm.bits) - 1)
+    };
+    (2, derive_l0(lo, hi, 2))
+}
+
+/// The pass group registry: per-layer tensors under W-C two-group
+/// discipline. `migrate` (battery hook, AZB-10b/AZB-11 leg 4) forces
+/// one weight entry into the activation group — the forged map.
+struct BgRegistry {
+    gw: ring::eval_proof::AggGroup,
+    ga: ring::eval_proof::AggGroup,
+    /// (layer, entry role) -> (in_weight_group, tensor index in group).
+    map: Vec<[(bool, usize); 17]>,
+    migrated: Option<(usize, usize)>,
+}
+
+fn bg_is_weight_entry(e: usize) -> bool {
+    matches!(BF_ENTRIES[e], "WgT" | "WuT" | "WdT")
+}
+
+fn bg_build_groups(lays: &[BfLayer], t: usize, migrate: Option<(usize, usize)>) -> BgRegistry {
+    let mut gw = ring::eval_proof::AggGroup::new("weight");
+    let mut ga = ring::eval_proof::AggGroup::new("act");
+    let mut map = vec![[(false, 0usize); 17]; lays.len()];
+    for (li, lay) in lays.iter().enumerate() {
+        for e in 0..BF_ENTRIES.len() {
+            let (rows, cols) = bf_entry_shape(e, t);
+            let (e0, l0) = bg_entry_class(e, lay);
+            let to_weight = bg_is_weight_entry(e) && migrate != Some((li, e));
+            let g = if to_weight { &mut gw } else { &mut ga };
+            map[li][e] = (to_weight, g.tensors.len());
+            g.add_tensor(BF_ENTRIES[e], rows, cols, e0, l0);
+        }
+    }
+    BgRegistry { gw, ga, map, migrated: migrate }
+}
+
+/// The canonical privacy-class group/segment map bytes — DERIVED from
+/// the statement-declared classes by the shipped verifier and bound
+/// inside h0_agg (zero wire bytes; the AZB-10b weak hook omits the
+/// absorption / imports the prover's forged map).
+fn bg_map_bytes(reg: &BgRegistry) -> Vec<u8> {
+    let mut b: Vec<u8> = b"uagb1-bg-group-map-v1".to_vec();
+    for (gname, g) in [("weight", &reg.gw), ("act", &reg.ga)] {
+        b.extend(gname.as_bytes());
+        b.extend((g.tensors.len() as u64).to_le_bytes());
+        for t in &g.tensors {
+            b.extend(t.name.as_bytes());
+            for v in [t.rows, t.cols, t.e0 as usize, t.l0, t.digit_ring_base] {
+                b.extend((v as u64).to_le_bytes());
+            }
+        }
+    }
+    b
+}
+
+/// The group digit witness in registry order.
+fn bg_witness(reg: &BgRegistry, lays: &[BfLayer], weight_side: bool) -> Vec<Vec<i64>> {
+    let g = if weight_side { &reg.gw } else { &reg.ga };
+    let mut vals: Vec<&[i64]> = Vec::with_capacity(g.tensors.len());
+    for (li, lay) in lays.iter().enumerate() {
+        for e in 0..BF_ENTRIES.len() {
+            let (w, _) = reg.map[li][e];
+            if w == weight_side {
+                vals.push(bf_entry_values(e, lay));
+            }
+        }
+    }
+    agg_digit_witness(g, &vals)
+}
+
+// ---------------------------------------------------------------------------
+// The claim layer: folded instances + public binding claims.
+
+/// One batched-opening claim: value + per-tensor product-form parts
+/// ((layer, entry role, scale, row kernel, col kernel)).
+struct BgClaim {
+    in_weight: bool,
+    value: ring::kfield::KElem,
+    parts: Vec<(usize, usize, ring::kfield::KElem, std::rc::Rc<Vec<ring::kfield::KElem>>, std::rc::Rc<Vec<ring::kfield::KElem>>)>,
+}
+
+/// One folded-instance transcript (wire face).
+struct BgInstLine {
+    name: &'static str,
+    kel: usize,
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum BgTamper {
+    None,
+    /// The composed-seam leg: the gate fold's A table lies (+1 on one
+    /// entry); sumcheck + claim self-consistent, the act group's
+    /// b_rows are forced at the ct gate (BD's WrongC pattern) and the
+    /// transported chain must catch at the floor.
+    FoldClaimLie,
+    /// Wrong-layer content through the composed path: Gacc_0 <-> Gacc_1
+    /// witness swap (self-consistent commit); the folded matmul's
+    /// C-side claim vs the sumcheck AND the requant fold (per-layer
+    /// public shifts) must catch it.
+    CrossLayerGacc,
+    /// Bare-floor wire tampers (BD classes at the composed scope).
+    FloorTamper,
+    OoaFloor,
+    /// Tier-Z (P2) wire tampers.
+    TierZRespNorm,
+    TierZImage,
+    /// The prover lies in a declared-output public claim value.
+    PublicClaimLie,
+}
+
+/// The full composed pass run. `p2` = mode P2 (weight floor Tier-Z
+/// masked, act bare); `weak_map_unbound` = the AZB-10b hook (h0_agg
+/// does NOT bind the group map and the verifier imports the prover's
+/// registry); `migrate` = the forged map (one weight entry in T_act);
+/// `perturb_w`/`zero_w` = AZB-11 legs 3/2 witness riggings (T_act
+/// fixed); `tape` = the challenge tape.
+struct BgOpts {
+    layers_n: usize,
+    t: usize,
+    p2: bool,
+    tamper: BgTamper,
+    weak_map_unbound: bool,
+    migrate: Option<(usize, usize)>,
+    perturb_w: bool,
+    zero_w: bool,
+    /// Battery hook (AZB-10b/AZB-11 leg 4, the h0 face): suppress the
+    /// PROVER-side derive-time static refusal so the forged-map proof
+    /// gets produced and the SHIPPED VERIFIER's h0 map binding is the
+    /// gate that rejects it. Never a shipped mode.
+    prover_skip_static: bool,
+    /// AZB-11 legs 2/3: honest-verifier fixed-coin transcripts (the
+    /// engine's own leak-harness tool — challenges independent of
+    /// absorbed content) + a pinned h0 so rigged-witness runs see the
+    /// identical challenge stream. Battery use only, never shipped.
+    coins_fixed: bool,
+    h0_override: Option<[u8; 32]>,
+    quiet: bool,
+}
+
+impl Default for BgOpts {
+    fn default() -> BgOpts {
+        BgOpts {
+            layers_n: 12,
+            t: BF_T,
+            p2: false,
+            tamper: BgTamper::None,
+            weak_map_unbound: false,
+            migrate: None,
+            perturb_w: false,
+            zero_w: false,
+            prover_skip_static: false,
+            coins_fixed: false,
+            h0_override: None,
+            quiet: false,
+        }
+    }
+}
+
+struct BgVerdict {
+    statement_ok: bool,
+    publics_ok: bool,
+    instances_ok: bool,
+    groups_ok: bool,
+    first_fail: Option<&'static str>,
+}
+
+impl BgVerdict {
+    fn accept(&self) -> bool {
+        self.statement_ok && self.publics_ok && self.instances_ok && self.groups_ok
+    }
+}
+
+#[derive(Default)]
+struct BgCost {
+    commit_s: f64,
+    prove_s: f64,
+    verify_s: f64,
+    bytes_statement: usize,
+    inst_lines: Vec<BgInstLine>,
+    bytes_public_claims: usize,
+    group_lines: Vec<(&'static str, usize, usize, usize, usize, usize, u32, usize)>,
+    tierz_lines: Vec<(&'static str, usize, u32)>,
+}
+
+impl BgCost {
+    fn bytes_instances(&self) -> usize {
+        self.inst_lines.iter().map(|l| l.kel * 64).sum()
+    }
+    fn bytes_total(&self) -> usize {
+        self.bytes_statement
+            + self.bytes_instances()
+            + self.bytes_public_claims
+            + self.group_lines.iter().map(|g| g.1 + g.2 + g.3 + g.4).sum::<usize>()
+            + self.tierz_lines.iter().map(|t| t.1).sum::<usize>()
+    }
+}
+
+/// The act-group proof bytes snapshot (the AZB-11 comparison object:
+/// the BARE activation-side transcript).
+fn bg_act_snapshot(p: &ring::eval_proof::GroupEvalProof) -> Vec<u8> {
+    let mut b = polys_bytes(&p.u0);
+    b.extend(polys_bytes(&p.ugh0));
+    b.extend(polys_bytes(&p.b_rows));
+    for u in &p.level_us {
+        b.extend(polys_bytes(u));
+    }
+    for r0 in &p.floor {
+        b.extend(r0.iter().flat_map(|x| x.to_le_bytes()));
+    }
+    b
+}
+
+/// Level-0 pre-commit (slice-based; w0 is padded IN PLACE to the
+/// level-0 chunk grid so chunks are views, not copies).
+struct BgPre {
+    u0: Vec<Poly>,
+    that0: Vec<Vec<i64>>,
+    a0_mat: Vec<Poly>,
+    b0u_mat: Vec<Poly>,
+    r0: usize,
+    chunk0: usize,
+    e_t0: u32,
+    l_t0: usize,
+}
+
+fn bg_matvec_chunks(
+    ctxr: &RingCtx,
+    w: &[Vec<i64>],
+    r: usize,
+    chunk: usize,
+    a_mat: &[Poly],
+    e_t: u32,
+    l_t: usize,
+) -> (Vec<Vec<Poly>>, Vec<Vec<i64>>) {
+    use ring::eval_proof::{decompose_poly_modq, matvec_modq_small, KAPPA_AGG};
+    let zq = &ctxr.zq;
+    let t_polys: Vec<Vec<Poly>> = (0..r)
+        .map(|j| matvec_modq_small(ctxr, a_mat, KAPPA_AGG, chunk, &w[j * chunk..(j + 1) * chunk]))
+        .collect();
+    let mut that = Vec::with_capacity(r * KAPPA_AGG * l_t);
+    for tj in &t_polys {
+        for tk in tj {
+            that.extend(decompose_poly_modq(zq, tk, e_t, l_t));
+        }
+    }
+    (t_polys, that)
+}
+
+fn bg_precommit(
+    ctxr: &RingCtx,
+    group: &ring::eval_proof::AggGroup,
+    sched: &ring::eval_proof::EvalSchedule,
+    w0: &mut Vec<Vec<i64>>,
+    seed: u64,
+) -> BgPre {
+    use ring::eval_proof::{expand_level_matrix, matvec_modq_small, KAPPA_AGG};
+    let q = ctxr.zq.q;
+    let (r0, chunk0, e_t0, l_t0) = match sched.levels.first() {
+        Some(p0) => (p0.r, p0.chunk, p0.e_next, p0.l_t),
+        None => (1, group.n_digit_rings, AGG_E_DEG, agg_l_t_deg(q)),
+    };
+    w0.resize(r0 * chunk0, vec![0i64; D]);
+    let a0_mat = expand_level_matrix(seed, group.name, 0, "A", KAPPA_AGG, chunk0, q);
+    let (_t0, that0) = bg_matvec_chunks(ctxr, w0, r0, chunk0, &a0_mat, e_t0, l_t0);
+    let b0u_mat = expand_level_matrix(seed, group.name, 0, "Bu", KAPPA_AGG, that0.len(), q);
+    let u0 = matvec_modq_small(ctxr, &b0u_mat, KAPPA_AGG, that0.len(), &that0);
+    BgPre { u0, that0, a0_mat, b0u_mat, r0, chunk0, e_t0, l_t0 }
+}
+
+/// h cross-garbage over padded slices (phi padded by the caller).
+fn bg_level_h(
+    ctxr: &RingCtx,
+    phi: &[Poly],
+    w: &[Vec<i64>],
+    plan: &ring::eval_proof::LevelPlan,
+) -> (Vec<Poly>, Vec<Vec<i64>>) {
+    use ring::eval_proof::{decompose_poly_modq, ring_ip_modq_small};
+    let zq = &ctxr.zq;
+    let r = plan.r;
+    let c = plan.chunk;
+    let mut h_polys = Vec::with_capacity(plan.n_pairs);
+    for j in 0..r {
+        for k in j..r {
+            let mut h = ring_ip_modq_small(ctxr, &phi[j * c..(j + 1) * c], &w[k * c..(k + 1) * c]);
+            if j != k {
+                let h2 = ring_ip_modq_small(ctxr, &phi[k * c..(k + 1) * c], &w[j * c..(j + 1) * c]);
+                h = poly_add(zq, &h, &h2);
+            }
+            h_polys.push(h);
+        }
+    }
+    let mut hhat = Vec::with_capacity(plan.n_pairs * plan.l_h);
+    for h in &h_polys {
+        hhat.extend(decompose_poly_modq(zq, h, plan.e_next, plan.l_h));
+    }
+    (h_polys, hhat)
+}
+
+/// Quinary fold over padded slices.
+fn bg_fold(w: &[Vec<i64>], cs: &[Vec<i64>], plan: &ring::eval_proof::LevelPlan) -> Vec<Vec<i64>> {
+    use ring::eval_proof::decompose_poly_small;
+    let mut zhat = Vec::with_capacity(plan.chunk * plan.l_z);
+    for u in 0..plan.chunk {
+        let mut z = vec![0i64; D];
+        for (j, c) in cs.iter().enumerate() {
+            let prod = poly_mul_small(c, &w[j * plan.chunk + u]);
+            for (a, p) in z.iter_mut().zip(prod.iter()) {
+                *a += p;
+            }
+        }
+        let (lo, hi) = ring::digits::representable(plan.e_next, plan.l_z);
+        for &zc in &z {
+            assert!(
+                (zc as i128) >= lo && (zc as i128) <= hi,
+                "honest fold exceeded the public l_z budget (restart discipline)"
+            );
+        }
+        zhat.extend(decompose_poly_small(&z, plan.e_next, plan.l_z));
+    }
+    zhat
+}
+
+/// The generalized (multi-claim) claim-row + phi passes: for each
+/// tensor value ring compute the additive K-weight row ONCE, then
+/// radix-scale per limb. `into_rows` accumulates b_rows (functional x
+/// witness, skipping zero rings); `phi_alphas` = Some(alphas) builds
+/// the aggregated per-ring functional instead.
+#[allow(clippy::too_many_arguments)]
+fn bg_kernel_pass(
+    ctxr: &RingCtx,
+    kf: &ring::kfield::KField,
+    group: &ring::eval_proof::AggGroup,
+    claims: &ring::pass_agg::GroupClaims,
+    w0: Option<&[Vec<i64>]>,
+    phi_alphas: Option<&[Poly]>,
+) -> (Vec<Poly>, Vec<Poly>) {
+    use ring::kfield::K_DEG;
+    let zq = &ctxr.zq;
+    let mut b_rows = vec![poly_zero(); K_DEG];
+    let mut phi: Vec<Poly> = if phi_alphas.is_some() {
+        Vec::with_capacity(group.n_digit_rings)
+    } else {
+        Vec::new()
+    };
+    for (ti, t) in group.tensors.iter().enumerate() {
+        for vr in 0..t.n_value_rings() {
+            let kw = claims.kw_value_row(kf, t, ti, vr);
+            let kw_zero = kw.iter().all(|k| kf.is_zero(k));
+            for limb in 0..t.l0 {
+                let u = t.digit_ring_base + vr * t.l0 + limb;
+                let radix = zq.to_mod(1i64 << (t.e0 as usize * limb));
+                if let Some(alphas) = phi_alphas {
+                    if kw_zero {
+                        phi.push(poly_zero());
+                    } else {
+                        let bp = ring::pass_agg::bpolys_from_kw(zq, &kw, radix);
+                        let mut acc = poly_zero();
+                        for (a, b) in alphas.iter().zip(bp.iter()) {
+                            acc = poly_add(zq, &acc, &ring_mul_split_kara_fast(ctxr, a, b));
+                        }
+                        phi.push(acc);
+                    }
+                } else {
+                    let w = &w0.expect("witness for the rows pass")[u];
+                    if kw_zero || w.iter().all(|&x| x == 0) {
+                        continue;
+                    }
+                    let bp = ring::pass_agg::bpolys_from_kw(zq, &kw, radix);
+                    let wsm = poly_from_small(zq, w);
+                    for (c, row) in b_rows.iter_mut().enumerate() {
+                        *row = poly_add(zq, row, &ring_mul_split_kara_fast(ctxr, &bp[c], &wsm));
+                    }
+                }
+            }
+        }
+    }
+    (b_rows, phi)
+}
+
+/// The per-group composed prover (BD's agg_prove_group generalized to
+/// the multi-claim kernel + slice-based levels + the challenge tape).
+#[allow(clippy::too_many_arguments)]
+fn bg_prove_group(
+    ctxr: &RingCtx,
+    kf: &ring::kfield::KField,
+    group: &ring::eval_proof::AggGroup,
+    sched: &ring::eval_proof::EvalSchedule,
+    w0: &mut Vec<Vec<i64>>,
+    claims: &ring::pass_agg::GroupClaims,
+    v_batch: &ring::kfield::KElem,
+    pre: BgPre,
+    tr: &mut ring::sumcheck::LkpTranscript,
+    seed: u64,
+    lie_ct_rows: bool,
+    tier_z: bool,
+    rng: &mut ring::ProverRng,
+) -> (ring::eval_proof::GroupEvalProof, Option<TierZFloor>) {
+    use ring::eval_proof::{
+        expand_level_matrix, matvec_modq_small, transport_level, transport_rows, NextLayout,
+        OuterBinding, KAPPA_AGG,
+    };
+    use ring::kfield::K_DEG;
+    let zq = &ctxr.zq;
+    let q = zq.q;
+    let n0 = group.n_digit_rings;
+
+    // ---- Claim rows (pass 1). ----
+    let (mut b_rows, _) = bg_kernel_pass(ctxr, kf, group, claims, Some(&w0[..n0]), None);
+    for (c, row) in b_rows.iter_mut().enumerate() {
+        if lie_ct_rows {
+            row[0] = v_batch[c];
+        } else {
+            assert_eq!(row[0], v_batch[c], "honest claim row ct mismatch (row {c}, group {})", group.name);
+        }
+    }
+    ring::eval_proof::absorb_polys(tr, &format!("bg-brows-{}", group.name), &b_rows);
+    let alphas0 = agg_draw_alphas(tr, &format!("bg-alpha0-{}", group.name), K_DEG, q);
+
+    // ---- H_0 + Phi_0 (pass 2). ----
+    let mut h_cur = poly_zero();
+    for (a, b) in alphas0.iter().zip(b_rows.iter()) {
+        h_cur = poly_add(zq, &h_cur, &ring_mul_split_kara_fast(ctxr, a, b));
+    }
+    let (_, mut phi_cur) = bg_kernel_pass(ctxr, kf, group, claims, None, Some(&alphas0));
+
+    let BgPre { u0, that0, a0_mat, b0u_mat, r0, chunk0, e_t0, l_t0 } = pre;
+    let mut tcap_attempts: Vec<u32> = Vec::new();
+
+    if sched.levels.is_empty() {
+        assert!(!tier_z, "Tier-Z needs a recursed schedule");
+        w0.truncate(n0);
+        return (
+            ring::eval_proof::GroupEvalProof {
+                u0,
+                ugh0: Vec::new(),
+                b_rows,
+                level_us: Vec::new(),
+                floor: w0.clone(),
+                floor_e: sched.floor_e,
+                tcap_attempts,
+            },
+            None,
+        );
+    }
+
+    // ---- Level 0. ----
+    let plan0 = &sched.levels[0];
+    assert_eq!((r0, chunk0, e_t0, l_t0), (plan0.r, plan0.chunk, plan0.e_next, plan0.l_t));
+    phi_cur.resize(r0 * chunk0, poly_zero());
+    let (_h0p, hhat0) = bg_level_h(ctxr, &phi_cur, w0, plan0);
+    let b0h_mat = expand_level_matrix(seed, group.name, 0, "Bh", KAPPA_AGG, hhat0.len(), q);
+    let ugh0 = matvec_modq_small(ctxr, &b0h_mat, KAPPA_AGG, hhat0.len(), &hhat0);
+    ring::eval_proof::absorb_polys(tr, &format!("bg-ugh0-{}", group.name), &ugh0);
+    let (c0, att0) = agg_draw_cs(tr, &format!("bg-c0-{}", group.name), plan0.r);
+    tcap_attempts.extend(att0);
+    let zhat0 = bg_fold(w0, &c0, plan0);
+    let mut w_cur: Vec<Vec<i64>> = zhat0;
+    w_cur.extend(that0.iter().cloned());
+    w_cur.extend(hhat0.iter().cloned());
+    w0.clear();
+    w0.shrink_to_fit();
+    phi_cur.truncate(n0);
+
+    let mut prev_a_mat = a0_mat;
+    let mut prev_bindings_data: Vec<(Vec<Poly>, usize, usize, Vec<Poly>)> = vec![
+        (b0u_mat, 0, that0.len(), u0.clone()),
+        (b0h_mat, that0.len(), hhat0.len(), ugh0.clone()),
+    ];
+    let mut prev_c = c0;
+    let mut level_us: Vec<Vec<Poly>> = Vec::new();
+
+    for li in 1..sched.levels.len() {
+        let plan_prev = &sched.levels[li - 1];
+        let layout_prev = NextLayout::new(plan_prev);
+        assert_eq!(layout_prev.n_total, w_cur.len(), "layout/witness mismatch at level {li}");
+        let n_rows = transport_rows(prev_bindings_data.len());
+        let alphas = agg_draw_alphas(tr, &format!("bg-alphaT{li}-{}", group.name), n_rows, q);
+        let lt = {
+            let bindings: Vec<OuterBinding> = prev_bindings_data
+                .iter()
+                .map(|(bm, cb, cl, u)| OuterBinding { b_mat: bm, col_base: *cb, cols: *cl, u })
+                .collect();
+            transport_level(
+                ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings, &prev_c,
+                &alphas,
+            )
+        };
+        phi_cur = lt.phi_next;
+        h_cur = lt.h_next;
+        let plan = &sched.levels[li];
+        w_cur.resize(plan.r * plan.chunk, vec![0i64; D]);
+        phi_cur.resize(plan.r * plan.chunk, poly_zero());
+        let a_mat = expand_level_matrix(seed, group.name, li, "A", KAPPA_AGG, plan.chunk, q);
+        let (_tp, that) = bg_matvec_chunks(ctxr, &w_cur, plan.r, plan.chunk, &a_mat, plan.e_next, plan.l_t);
+        let (_hp, hhat) = bg_level_h(ctxr, &phi_cur, &w_cur, plan);
+        let th_len = that.len() + hhat.len();
+        let b_mat = expand_level_matrix(seed, group.name, li, "B", KAPPA_AGG, th_len, q);
+        let mut th: Vec<Vec<i64>> = that.clone();
+        th.extend(hhat.iter().cloned());
+        let u_i = matvec_modq_small(ctxr, &b_mat, KAPPA_AGG, th_len, &th);
+        ring::eval_proof::absorb_polys(tr, &format!("bg-u{li}-{}", group.name), &u_i);
+        let (cs, atts) = agg_draw_cs(tr, &format!("bg-c{li}-{}", group.name), plan.r);
+        tcap_attempts.extend(atts);
+        let zhat = bg_fold(&w_cur, &cs, plan);
+        let mut w_next = zhat;
+        w_next.extend(that.iter().cloned());
+        w_next.extend(hhat.iter().cloned());
+        level_us.push(u_i.clone());
+        phi_cur.truncate(layout_prev.n_total.min(phi_cur.len()));
+        prev_a_mat = a_mat;
+        prev_bindings_data = vec![(b_mat, 0, th_len, u_i)];
+        prev_c = cs;
+        w_cur = w_next;
+    }
+    assert_eq!(w_cur.len(), sched.floor_rings, "floor size mismatch vs schedule");
+    let (floor, tz) = if tier_z {
+        let plan_last = sched.levels.last().unwrap();
+        let layout_last = NextLayout::new(plan_last);
+        phi_cur.resize(plan_last.r * plan_last.chunk, poly_zero());
+        let tzf = agg_tier_z_mask_floor(
+            ctxr, &w_cur, plan_last, &layout_last, &prev_bindings_data, &prev_a_mat, &prev_c,
+            &phi_cur, tr, group.name, rng,
+        );
+        (tzf.response.clone(), Some(tzf))
+    } else {
+        (w_cur, None)
+    };
+    (
+        ring::eval_proof::GroupEvalProof {
+            u0,
+            ugh0,
+            b_rows,
+            level_us,
+            floor,
+            floor_e: sched.floor_e,
+            tcap_attempts,
+        },
+        tz,
+    )
+}
+
+/// The per-group composed verifier (BD's agg_verify_group generalized
+/// to the multi-claim kernel; the recursed floor checks and the
+/// Tier-Z sigma branch follow BD's shipped forms exactly).
+#[allow(clippy::too_many_arguments)]
+fn bg_verify_group(
+    ctxr: &RingCtx,
+    kf: &ring::kfield::KField,
+    group: &ring::eval_proof::AggGroup,
+    sched: &ring::eval_proof::EvalSchedule,
+    claims: &ring::pass_agg::GroupClaims,
+    v_batch: &ring::kfield::KElem,
+    proof: &ring::eval_proof::GroupEvalProof,
+    tr: &mut ring::sumcheck::LkpTranscript,
+    seed: u64,
+    tier_z: Option<&TierZFloor>,
+) -> Result<(), &'static str> {
+    use ring::eval_proof::{
+        compute_cpairs, compute_psi, expand_level_matrix, matvec_modq_small, recompose_rings,
+        transport_level, transport_rows, NextLayout, OuterBinding, KAPPA_AGG,
+    };
+    use ring::kfield::K_DEG;
+    let zq = &ctxr.zq;
+    let q = zq.q;
+    let n0 = group.n_digit_rings;
+    if proof.b_rows.len() != K_DEG || proof.u0.len() != KAPPA_AGG {
+        return Err("wire-shape");
+    }
+    for (c, row) in proof.b_rows.iter().enumerate() {
+        if row[0] != v_batch[c] {
+            return Err("ct-row-gate");
+        }
+    }
+    ring::eval_proof::absorb_polys(tr, &format!("bg-brows-{}", group.name), &proof.b_rows);
+    let alphas0 = agg_draw_alphas(tr, &format!("bg-alpha0-{}", group.name), K_DEG, q);
+    let mut h_cur = poly_zero();
+    for (a, b) in alphas0.iter().zip(proof.b_rows.iter()) {
+        h_cur = poly_add(zq, &h_cur, &ring_mul_split_kara_fast(ctxr, a, b));
+    }
+    let (_, mut phi_cur) = bg_kernel_pass(ctxr, kf, group, claims, None, Some(&alphas0));
+
+    if sched.levels.is_empty() {
+        if proof.floor.len() != n0 || !proof.level_us.is_empty() || !proof.ugh0.is_empty() {
+            return Err("wire-shape");
+        }
+        for t in &group.tensors {
+            let (lo, hi) = ring::digits::alphabet(t.e0);
+            for u in 0..t.n_digit_rings() {
+                for &d in &proof.floor[t.digit_ring_base + u] {
+                    if d < lo || d > hi {
+                        return Err("floor-alphabet");
+                    }
+                }
+            }
+        }
+        let (rows_eval, _) = bg_kernel_pass(ctxr, kf, group, claims, Some(&proof.floor), None);
+        for (re, rw) in rows_eval.iter().zip(proof.b_rows.iter()) {
+            if re != rw {
+                return Err("claim-row-eval");
+            }
+        }
+        let a0 = expand_level_matrix(seed, group.name, 0, "A", KAPPA_AGG, n0, q);
+        let t0 = matvec_modq_small(ctxr, &a0, KAPPA_AGG, n0, &proof.floor);
+        let l_t = agg_l_t_deg(q);
+        let mut that = Vec::with_capacity(KAPPA_AGG * l_t);
+        for tk in &t0 {
+            that.extend(ring::eval_proof::decompose_poly_modq(zq, tk, AGG_E_DEG, l_t));
+        }
+        let b0u = expand_level_matrix(seed, group.name, 0, "Bu", KAPPA_AGG, that.len(), q);
+        let u0 = matvec_modq_small(ctxr, &b0u, KAPPA_AGG, that.len(), &that);
+        if u0 != proof.u0 {
+            return Err("u0-binding");
+        }
+        return Ok(());
+    }
+
+    let plan0 = &sched.levels[0];
+    let that0_len = plan0.r * KAPPA_AGG * plan0.l_t;
+    let hh0_len = plan0.n_pairs * plan0.l_h;
+    if proof.ugh0.len() != KAPPA_AGG || proof.level_us.len() != sched.levels.len() - 1 {
+        return Err("wire-shape");
+    }
+    ring::eval_proof::absorb_polys(tr, &format!("bg-ugh0-{}", group.name), &proof.ugh0);
+    let (c0, _) = agg_draw_cs(tr, &format!("bg-c0-{}", group.name), plan0.r);
+    let mut prev_a_mat = expand_level_matrix(seed, group.name, 0, "A", KAPPA_AGG, plan0.chunk, q);
+    let mut prev_bindings_data: Vec<(Vec<Poly>, usize, usize, Vec<Poly>)> = vec![
+        (
+            expand_level_matrix(seed, group.name, 0, "Bu", KAPPA_AGG, that0_len, q),
+            0,
+            that0_len,
+            proof.u0.clone(),
+        ),
+        (
+            expand_level_matrix(seed, group.name, 0, "Bh", KAPPA_AGG, hh0_len, q),
+            that0_len,
+            hh0_len,
+            proof.ugh0.clone(),
+        ),
+    ];
+    let mut prev_c = c0;
+    for li in 1..sched.levels.len() {
+        let plan_prev = &sched.levels[li - 1];
+        let layout_prev = NextLayout::new(plan_prev);
+        let n_rows = transport_rows(prev_bindings_data.len());
+        let alphas = agg_draw_alphas(tr, &format!("bg-alphaT{li}-{}", group.name), n_rows, q);
+        let lt = {
+            let bindings: Vec<OuterBinding> = prev_bindings_data
+                .iter()
+                .map(|(bm, cb, cl, u)| OuterBinding { b_mat: bm, col_base: *cb, cols: *cl, u })
+                .collect();
+            transport_level(
+                ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings, &prev_c,
+                &alphas,
+            )
+        };
+        phi_cur = lt.phi_next;
+        h_cur = lt.h_next;
+        let plan = &sched.levels[li];
+        let th_len = plan.r * KAPPA_AGG * plan.l_t + plan.n_pairs * plan.l_h;
+        let u_i = &proof.level_us[li - 1];
+        if u_i.len() != KAPPA_AGG {
+            return Err("wire-shape");
+        }
+        ring::eval_proof::absorb_polys(tr, &format!("bg-u{li}-{}", group.name), u_i);
+        let (cs, _) = agg_draw_cs(tr, &format!("bg-c{li}-{}", group.name), plan.r);
+        prev_a_mat = expand_level_matrix(seed, group.name, li, "A", KAPPA_AGG, plan.chunk, q);
+        prev_bindings_data = vec![(
+            expand_level_matrix(seed, group.name, li, "B", KAPPA_AGG, th_len, q),
+            0,
+            th_len,
+            u_i.clone(),
+        )];
+        prev_c = cs;
+    }
+
+    let plan_last = sched.levels.last().unwrap();
+    let layout = NextLayout::new(plan_last);
+    if proof.floor.len() != layout.n_total || proof.floor.len() != sched.floor_rings {
+        return Err("wire-shape");
+    }
+    phi_cur.resize(plan_last.r * plan_last.chunk, poly_zero());
+    if let Some(tz) = tier_z {
+        let coords = proof.floor.len() * D;
+        let bound = ring::eval_proof::tier_z_response_bound(coords);
+        let n_fams = KAPPA_AGG * prev_bindings_data.len() + KAPPA_AGG + 2;
+        if tz.images.len() != n_fams || tz.response.len() != proof.floor.len() {
+            return Err("wire-shape");
+        }
+        for ring_u in &tz.response {
+            for &x in ring_u {
+                if x.abs() > bound {
+                    return Err("tierz-response-norm");
+                }
+            }
+        }
+        let st = uk8_sha(&[b"agg-tz", group.name.as_bytes(), &tr.state(), &polys_bytes(&tz.images)]);
+        let (c_fl, _) = ring::eval_proof::draw_quinary_capped(&st, "agg-tz-c", 0);
+        let vals = agg_floor_family_values(
+            ctxr, &tz.response, plan_last, &layout, &prev_bindings_data, &prev_a_mat, &prev_c,
+            &phi_cur,
+        );
+        let mut targets: Vec<Poly> = Vec::with_capacity(n_fams);
+        for (_, _, _, u) in &prev_bindings_data {
+            targets.extend(u.iter().cloned());
+        }
+        targets.extend(std::iter::repeat_n(poly_zero(), KAPPA_AGG));
+        targets.push(h_cur.clone());
+        targets.push(poly_zero());
+        let c_fl_p = poly_from_small(zq, &c_fl);
+        for ((val, img), tgt) in vals.iter().zip(tz.images.iter()).zip(targets.iter()) {
+            let want = poly_add(zq, img, &ring_mul_split_kara_fast(ctxr, &c_fl_p, tgt));
+            if val != &want {
+                return Err("tierz-family");
+            }
+        }
+        ring::eval_proof::absorb_polys(tr, &format!("agg-tz-img-{}", group.name), &tz.images);
+        for r0 in &tz.response {
+            tr.absorb("agg-tz-resp", &r0.iter().flat_map(|x| x.to_le_bytes()).collect::<Vec<u8>>());
+        }
+        return Ok(());
+    }
+    let (lo, hi) = ring::digits::alphabet(sched.floor_e);
+    for ring_u in &proof.floor {
+        for &d in ring_u {
+            if d < lo || d > hi {
+                return Err("floor-alphabet");
+            }
+        }
+    }
+    let rec_block = |base: usize, count: usize, stride: usize| -> Vec<Vec<i64>> {
+        (0..count)
+            .map(|s| {
+                let refs: Vec<&Vec<i64>> =
+                    (0..stride).map(|l| &proof.floor[base + s * stride + l]).collect();
+                recompose_rings(&refs, plan_last.e_next)
+            })
+            .collect()
+    };
+    let z_rec = rec_block(layout.z_base, plan_last.chunk, plan_last.l_z);
+    let t_rec = rec_block(layout.t_base, plan_last.r * KAPPA_AGG, plan_last.l_t);
+    let h_rec = rec_block(layout.h_base, plan_last.n_pairs, plan_last.l_h);
+    for (bm, cb, cl, u) in &prev_bindings_data {
+        let slice: Vec<Vec<i64>> = proof.floor[layout.t_base + cb..layout.t_base + cb + cl].to_vec();
+        let got = matvec_modq_small(ctxr, bm, KAPPA_AGG, *cl, &slice);
+        if &got != u {
+            return Err("floor-outer-binding");
+        }
+    }
+    let lhs_t4 = matvec_modq_small(ctxr, &prev_a_mat, KAPPA_AGG, plan_last.chunk, &z_rec);
+    for kap in 0..KAPPA_AGG {
+        let mut rhs = vec![0i64; D];
+        for (j, c) in prev_c.iter().enumerate() {
+            let prod = poly_mul_small(c, &t_rec[j * KAPPA_AGG + kap]);
+            for (a, p) in rhs.iter_mut().zip(prod.iter()) {
+                *a += p;
+            }
+        }
+        if lhs_t4[kap] != poly_from_small(zq, &rhs) {
+            return Err("floor-fold-consistency");
+        }
+    }
+    let mut t1 = vec![0i64; D];
+    for j in 0..plan_last.r {
+        let p = ring::eval_proof::pair_index(plan_last.r, j, j);
+        for (a, b) in t1.iter_mut().zip(h_rec[p].iter()) {
+            *a += b;
+        }
+    }
+    if poly_from_small(zq, &t1) != h_cur {
+        return Err("floor-target");
+    }
+    let psi = compute_psi(ctxr, &phi_cur, plan_last.chunk, &prev_c);
+    let mut lhs = poly_zero();
+    for (p, zs) in psi.iter().zip(z_rec.iter()) {
+        lhs = poly_add(zq, &lhs, &ring_mul_split_kara_fast(ctxr, p, &poly_from_small(zq, zs)));
+    }
+    let cpairs = compute_cpairs(zq, &prev_c);
+    let mut rhs = poly_zero();
+    for (cp, hs) in cpairs.iter().zip(h_rec.iter()) {
+        rhs = poly_add(zq, &rhs, &ring_mul_split_kara_fast(ctxr, cp, &poly_from_small(zq, hs)));
+    }
+    if lhs != rhs {
+        return Err("floor-claim-transport");
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// The composed pass run.
+
+/// MLE of a (rows x cols) value tensor at (row kernel, col kernel).
+fn bg_mle(
+    kf: &ring::kfield::KField,
+    vals: &[i64],
+    cols: usize,
+    eq_r: &[ring::kfield::KElem],
+    eq_c: &[ring::kfield::KElem],
+) -> ring::kfield::KElem {
+    let zq = &kf.zq;
+    let rows = vals.len() / cols;
+    let mut acc = kf.zero();
+    for i in 0..rows {
+        let row = &vals[i * cols..(i + 1) * cols];
+        let mut ri = kf.zero();
+        for (j, &v) in row.iter().enumerate() {
+            if v != 0 {
+                ri = kf.add(&ri, &kf.scale(zq.to_mod(v), &eq_c[j]));
+            }
+        }
+        if !kf.is_zero(&ri) {
+            acc = kf.add(&acc, &kf.mul(&ri, &eq_r[i]));
+        }
+    }
+    acc
+}
+
+/// Stacked (position-low, layer-high) table of entry role `e` over
+/// 2^n_pos padded positions (cols zero-extended to cols_pad).
+fn bg_stack_table(
+    kf: &ring::kfield::KField,
+    lays: &[BfLayer],
+    e: usize,
+    slots: usize,
+    n_pos: usize,
+    cols_real: usize,
+    cols_pad: usize,
+) -> Vec<ring::kfield::KElem> {
+    let zq = &kf.zq;
+    let np = 1usize << n_pos;
+    let mut tab = vec![kf.zero(); slots * np];
+    for (li, lay) in lays.iter().enumerate() {
+        let vals = bf_entry_values(e, lay);
+        let rows = vals.len() / cols_real;
+        for i in 0..rows {
+            for j in 0..cols_real {
+                let v = vals[i * cols_real + j];
+                if v != 0 {
+                    tab[li * np + i * cols_pad + j] = kf.scale(zq.to_mod(v), &kf.one());
+                }
+            }
+        }
+    }
+    tab
+}
+
+/// The bundle the verifier consumes (single-process wire face; the
+/// counted-byte convention is the artifact size, audit M-05 wire
+/// format = lane BI).
+struct BgBundle {
+    v_cs: Vec<ring::kfield::KElem>,
+    sc_proofs: Vec<ring::sumcheck::SumcheckProof>,
+    public_vals: Vec<ring::kfield::KElem>,
+    proof_w: ring::eval_proof::GroupEvalProof,
+    proof_a: ring::eval_proof::GroupEvalProof,
+    tz_w: Option<TierZFloor>,
+}
+
+struct BgArtifacts {
+    h0: [u8; 32],
+    statement_digest: [u8; 32],
+    act_snapshot: Vec<u8>,
+    act_floor: Vec<Vec<i64>>,
+    azb11_static_violation: bool,
+}
+
+/// Instance descriptors (fixed composition order).
+const BG_MM_INSTS: [(&str, usize, usize, usize); 3] =
+    [("mm-gate", 0, 1, 4), ("mm-up", 0, 2, 8), ("mm-down", 13, 3, 14)];
+const BG_RQ_INSTS: [(&str, usize, usize, usize); 4] =
+    [("rq-g", 4, 6, 5), ("rq-u", 8, 10, 9), ("rq-h", 11, 13, 12), ("rq-d", 14, 16, 15)];
+
+fn bg_rq_shift(name: &str, lay: &BfLayer) -> u32 {
+    let (sh_g, sh_u, sh_h, sh_z) = lay.shifts;
+    match name {
+        "rq-g" => sh_g,
+        "rq-u" => sh_u,
+        "rq-h" => sh_h,
+        "rq-d" => sh_z,
+        _ => unreachable!(),
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
+    use ring::fold::{
+        expand_layer_table, ixf_layout, ixf_sumcheck_prove, ixf_sumcheck_verify,
+        matmul_degree_schedule, zerocheck_degree_schedule,
+    };
+    use ring::gkr::{eq_eval, eq_table};
+    use ring::kfield::{KElem, KField, K_DEG};
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use ring::sumcheck::LkpTranscript;
+    use std::rc::Rc;
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let zq = ctxr.zq;
+    let q = zq.q;
+    let t = opts.t;
+    let il = ixf_layout(opts.layers_n);
+    let lambda = il.lambda;
+    let mut verdict = BgVerdict {
+        statement_ok: true,
+        publics_ok: true,
+        instances_ok: true,
+        groups_ok: true,
+        first_fail: None,
+    };
+    let mut cost = BgCost::default();
+    let mut fail = |v: &mut BgVerdict, what: &'static str| {
+        if v.first_fail.is_none() {
+            v.first_fail = Some(what);
+        }
+    };
+
+    // ---- Witness: the REAL ckpt-00009536 layers. ----
+    let mut lays: Vec<BfLayer> =
+        (0..opts.layers_n).map(|l| bf_load_layer(l, t, true)).collect();
+    if opts.tamper == BgTamper::CrossLayerGacc {
+        assert!(opts.layers_n >= 2);
+        let g0 = lays[0].gacc.clone();
+        lays[0].gacc = lays[1].gacc.clone();
+        lays[1].gacc = g0;
+    }
+    if opts.perturb_w {
+        lays[0].wg_t[0] += if lays[0].wg_t[0] < 100 { 1 } else { -1 };
+    }
+    if opts.zero_w {
+        for lay in lays.iter_mut() {
+            for w in [&mut lay.wg_t, &mut lay.wu_t, &mut lay.wd_t] {
+                w.iter_mut().for_each(|x| *x = 0);
+            }
+        }
+    }
+
+    // ---- Registry, schedules, witnesses, pre-commits. ----
+    let t_commit = Instant::now();
+    let mut reg = bg_build_groups(&lays, t, opts.migrate);
+    reg.gw.begin_opening().expect("first weight-group opening (E-O2-BB)");
+    reg.ga.begin_opening().expect("first act-group opening (E-O2-BB)");
+    let (sched_w, sched_a) = if opts.p2 {
+        (
+            ring::eval_proof::plan_schedule_tier_z(reg.gw.n_digit_rings, 1, q, None),
+            ring::eval_proof::plan_schedule(reg.ga.n_digit_rings, 2, q, None),
+        )
+    } else {
+        (
+            ring::eval_proof::plan_schedule(reg.gw.n_digit_rings, 1, q, None),
+            ring::eval_proof::plan_schedule(reg.ga.n_digit_rings, 2, q, None),
+        )
+    };
+    let mut w0_w = bg_witness(&reg, &lays, true);
+    let mut w0_a = bg_witness(&reg, &lays, false);
+    let crs_seed = 0xB6_C0DEu64;
+    let pre_w = bg_precommit(&ctxr, &reg.gw, &sched_w, &mut w0_w, crs_seed);
+    let pre_a = bg_precommit(&ctxr, &reg.ga, &sched_a, &mut w0_a, crs_seed);
+
+    // ---- Statement (v4 + mode declaration) and h0_agg. ----
+    let u0_digests: Vec<Vec<u8>> = [&pre_w.u0, &pre_a.u0]
+        .iter()
+        .map(|u| uk8_sha(&[b"bg-u0", &polys_bytes(u)]).to_vec())
+        .collect();
+    let commit_digests: Vec<Vec<Vec<u8>>> = (0..opts.layers_n)
+        .map(|li| {
+            (0..BF_ENTRIES.len())
+                .map(|e| {
+                    let (w, _) = reg.map[li][e];
+                    uk8_sha(&[
+                        b"bg-entry",
+                        &u0_digests[if w { 0 } else { 1 }],
+                        &(li as u64).to_le_bytes(),
+                        &(e as u64).to_le_bytes(),
+                    ])
+                    .to_vec()
+                })
+                .collect()
+        })
+        .collect();
+    let mut statement = m125_build_statement(t, &lays, &commit_digests, b"bg-agg-crs-v1");
+    let weight_ids: Vec<u32> = (0..statement.manifest.commitments.len() as u32)
+        .filter(|&id| statement.typing[id as usize].class == manifest::CLS_W8S)
+        .collect();
+    statement.mode = Some(if opts.p2 {
+        manifest::ModeDecl { mode: manifest::MODE_P2, private_entries: weight_ids }
+    } else {
+        manifest::ModeDecl { mode: manifest::MODE_P0, private_entries: Vec::new() }
+    });
+    let ctx_digest = match statement.validate() {
+        Ok(()) => statement.digest().expect("prover statement digests"),
+        Err(e) => panic!("prover statement invalid: {e}"),
+    };
+    cost.bytes_statement = statement.encode().len();
+    let map_bytes = bg_map_bytes(&reg);
+    let h0_agg = opts.h0_override.unwrap_or_else(|| {
+        if opts.weak_map_unbound {
+            uk8_sha(&[b"uagb1-bg-h0", &ctx_digest, &polys_bytes(&pre_w.u0), &polys_bytes(&pre_a.u0)])
+        } else {
+            uk8_sha(&[
+                b"uagb1-bg-h0",
+                &ctx_digest,
+                &map_bytes,
+                &polys_bytes(&pre_w.u0),
+                &polys_bytes(&pre_a.u0),
+            ])
+        }
+    });
+    cost.commit_s = t_commit.elapsed().as_secs_f64();
+
+    // ---- Prover claim layer (folded instances on ONE transcript). ----
+    let t_prove = Instant::now();
+    let mk_tr = |domain: &str, seed: &[u8]| -> LkpTranscript {
+        if opts.coins_fixed {
+            LkpTranscript::fixed_coins(domain, seed)
+        } else {
+            LkpTranscript::new(domain, seed)
+        }
+    };
+    let mut tr = mk_tr("uagb1-bg-pass", &h0_agg);
+    let product3 = |kf: &KField, v: &[KElem]| kf.mul(&kf.mul(&v[0], &v[1]), &v[2]);
+    let had_comb =
+        |kf: &KField, v: &[KElem]| kf.mul(&v[0], &kf.sub(&kf.mul(&v[1], &v[2]), &v[3]));
+    let rq_comb = |kf: &KField, v: &[KElem]| {
+        kf.mul(&v[0], &kf.sub(&kf.sub(&v[1], &kf.mul(&v[4], &v[2])), &v[3]))
+    };
+    let lr = t.trailing_zeros() as usize;
+    let mut claims: Vec<BgClaim> = Vec::new();
+    let mut v_cs: Vec<KElem> = Vec::new();
+    let mut sc_proofs: Vec<ring::sumcheck::SumcheckProof> = Vec::new();
+
+    for (name, a_e, b_e, c_e) in BG_MM_INSTS {
+        let (a_rows, a_cols) = bf_entry_shape(a_e, t); // (t, inner)
+        let (_b_rows, b_cols) = bf_entry_shape(b_e, t); // (inner, cols)
+        let inner = a_cols;
+        let cols = b_cols;
+        let lk = usize::BITS as usize - (inner - 1).leading_zeros() as usize;
+        let lc = usize::BITS as usize - (cols - 1).leading_zeros() as usize;
+        let nk = 1usize << lk;
+        let r_l: Vec<KElem> = (0..lambda).map(|_| tr.challenge_k(&kf)).collect();
+        let rx: Vec<KElem> = (0..lr).map(|_| tr.challenge_k(&kf)).collect();
+        let ry: Vec<KElem> = (0..lc).map(|_| tr.challenge_k(&kf)).collect();
+        let eq_rl = eq_table(&kf, &r_l);
+        let eq_rx = Rc::new(eq_table(&kf, &rx));
+        let eq_ry = Rc::new(eq_table(&kf, &ry));
+        // Reduced tables over (inner-low, layer-high).
+        let mut ta = vec![kf.zero(); il.slots * nk];
+        let mut tb = vec![kf.zero(); il.slots * nk];
+        for (li, lay) in lays.iter().enumerate() {
+            let av = bf_entry_values(a_e, lay);
+            for i in 0..a_rows {
+                let w = &eq_rx[i];
+                if kf.is_zero(w) {
+                    continue;
+                }
+                for k in 0..inner {
+                    let v = av[i * inner + k];
+                    if v != 0 {
+                        let s = &mut ta[li * nk + k];
+                        *s = kf.add(s, &kf.scale(zq.to_mod(v), w));
+                    }
+                }
+            }
+            let bv = bf_entry_values(b_e, lay);
+            for k in 0..inner {
+                let row = &bv[k * cols..(k + 1) * cols];
+                let mut acc = kf.zero();
+                for (j, &v) in row.iter().enumerate() {
+                    if v != 0 {
+                        acc = kf.add(&acc, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+                    }
+                }
+                tb[li * nk + k] = acc;
+            }
+        }
+        if opts.tamper == BgTamper::FoldClaimLie && name == "mm-gate" {
+            ta[0] = kf.add(&ta[0], &kf.one());
+        }
+        // v_C = the stacked claim on the COMMITTED C tensor (computed
+        // from the act witness — manifestly T_act-only, the AZB-11
+        // recompute form). The honest self-check asserts it equals the
+        // instance-table sum; the FoldClaimLie arm ships the tampered
+        // table sum instead (the attacker's self-consistent lie).
+        let table_sum = {
+            let mut s = kf.zero();
+            for li in 0..opts.layers_n {
+                for k in 0..inner {
+                    let p = kf.mul(&ta[li * nk + k], &tb[li * nk + k]);
+                    if !kf.is_zero(&p) {
+                        s = kf.add(&s, &kf.mul(&eq_rl[li], &p));
+                    }
+                }
+            }
+            s
+        };
+        let v_c = if opts.tamper == BgTamper::FoldClaimLie && name == "mm-gate" {
+            table_sum
+        } else {
+            let mut s = kf.zero();
+            for (li, lay) in lays.iter().enumerate() {
+                let m = bg_mle(&kf, bf_entry_values(c_e, lay), cols, &eq_rx, &eq_ry);
+                s = kf.add(&s, &kf.mul(&eq_rl[li], &m));
+            }
+            let rigged = opts.zero_w || opts.perturb_w || opts.tamper != BgTamper::None;
+            if !rigged {
+                assert_eq!(s, table_sum, "{name}: committed-C claim != instance-table sum (composition seam)");
+            }
+            s
+        };
+        tr.absorb_k(&kf, &format!("bg-claim-{name}"), std::slice::from_ref(&v_c));
+        let eq_exp = expand_layer_table(&kf, &eq_rl, nk);
+        let sched = matmul_degree_schedule(lk, lambda);
+        let (scp, point) =
+            ixf_sumcheck_prove(&kf, vec![eq_exp, ta, tb], &sched, &product3, &mut tr);
+        tr.absorb_k(&kf, &format!("bg-final-{name}"), &scp.final_evals);
+        cost.inst_lines.push(BgInstLine {
+            name,
+            kel: 1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len(),
+        });
+        let k_star = &point[..lk];
+        let l_star = &point[lk..];
+        let eq_ks = Rc::new(eq_table(&kf, k_star));
+        let eq_ls = eq_table(&kf, l_star);
+        let a_star = scp.final_evals[1].clone();
+        let b_star = scp.final_evals[2].clone();
+        claims.push(BgClaim {
+            in_weight: false,
+            value: a_star,
+            parts: (0..opts.layers_n)
+                .map(|li| (li, a_e, eq_ls[li].clone(), eq_rx.clone(), eq_ks.clone()))
+                .collect(),
+        });
+        claims.push(BgClaim {
+            in_weight: true,
+            value: b_star,
+            parts: (0..opts.layers_n)
+                .map(|li| (li, b_e, eq_ls[li].clone(), eq_ks.clone(), eq_ry.clone()))
+                .collect(),
+        });
+        claims.push(BgClaim {
+            in_weight: false,
+            value: v_c.clone(),
+            parts: (0..opts.layers_n)
+                .map(|li| (li, c_e, eq_rl[li].clone(), eq_rx.clone(), eq_ry.clone()))
+                .collect(),
+        });
+        v_cs.push(v_c);
+        sc_proofs.push(scp);
+    }
+
+    // Hadamard + requant stacked zero-checks.
+    let zc_insts: Vec<(&'static str, usize, usize, usize, bool)> = {
+        let mut v = vec![("had", 7usize, 10usize, 11usize, false)];
+        for (name, acc_e, y_e, r_e) in BG_RQ_INSTS {
+            v.push((name, acc_e, y_e, r_e, true));
+        }
+        v
+    };
+    for (name, e1, e2, e3, is_rq) in &zc_insts {
+        // Position space of the acc/product tensor (cols zero-extended).
+        let shape_e = if *is_rq { *e1 } else { *e3 };
+        let (rows, cols_real) = bf_entry_shape(shape_e, t);
+        let lcp = usize::BITS as usize - (cols_real - 1).leading_zeros() as usize;
+        let cols_pad = 1usize << lcp;
+        let n_pos = lr + lcp;
+        let r_q: Vec<KElem> = (0..n_pos + lambda).map(|_| tr.challenge_k(&kf)).collect();
+        let eq_full = eq_table(&kf, &r_q);
+        let t1 = bg_stack_table(&kf, &lays, *e1, il.slots, n_pos, cols_real, cols_pad);
+        let t2 = bg_stack_table(&kf, &lays, *e2, il.slots, n_pos, cols_real, cols_pad);
+        let t3 = bg_stack_table(&kf, &lays, *e3, il.slots, n_pos, cols_real, cols_pad);
+        let zero = kf.zero();
+        tr.absorb_k(&kf, &format!("bg-claim-{name}"), std::slice::from_ref(&zero));
+        let sched = if *is_rq {
+            let mut d = vec![2usize; n_pos];
+            d.extend(std::iter::repeat_n(3usize, lambda));
+            d
+        } else {
+            zerocheck_degree_schedule(n_pos, lambda)
+        };
+        let (scp, point) = if *is_rq {
+            let sh_layer: Vec<KElem> = (0..il.slots)
+                .map(|li| {
+                    if li < opts.layers_n {
+                        kf.scale(zq.to_mod(1i64 << bg_rq_shift(name, &lays[li])), &kf.one())
+                    } else {
+                        kf.zero()
+                    }
+                })
+                .collect();
+            let sh_exp = expand_layer_table(&kf, &sh_layer, 1 << n_pos);
+            ixf_sumcheck_prove(&kf, vec![eq_full, t1, t2, t3, sh_exp], &sched, &rq_comb, &mut tr)
+        } else {
+            ixf_sumcheck_prove(&kf, vec![eq_full, t1, t2, t3], &sched, &had_comb, &mut tr)
+        };
+        tr.absorb_k(&kf, &format!("bg-final-{name}"), &scp.final_evals);
+        cost.inst_lines.push(BgInstLine {
+            name,
+            kel: 1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len(),
+        });
+        let p_col = &point[..lcp];
+        let p_row = &point[lcp..n_pos];
+        let p_lay = &point[n_pos..];
+        let eq_pc = Rc::new(eq_table(&kf, p_col));
+        let eq_pr = Rc::new(eq_table(&kf, p_row));
+        let eq_pl = eq_table(&kf, p_lay);
+        for (fe, e) in [(1usize, *e1), (2, *e2), (3, *e3)] {
+            claims.push(BgClaim {
+                in_weight: false,
+                value: scp.final_evals[fe].clone(),
+                parts: (0..opts.layers_n)
+                    .map(|li| (li, e, eq_pl[li].clone(), eq_pr.clone(), eq_pc.clone()))
+                    .collect(),
+            });
+        }
+        sc_proofs.push(scp);
+    }
+
+    // Public binding claims: X_l + declared z_l at a shared point.
+    let lcx = 10usize; // 768 -> 1024 column space
+    let r_out: Vec<KElem> = (0..lr + lcx).map(|_| tr.challenge_k(&kf)).collect();
+    let eq_oc = Rc::new(eq_table(&kf, &r_out[..lcx]));
+    let eq_or = Rc::new(eq_table(&kf, &r_out[lcx..]));
+    let mut public_vals: Vec<KElem> = Vec::new();
+    for (e, tag) in [(0usize, "X"), (16usize, "z")] {
+        for (li, lay) in lays.iter().enumerate() {
+            let v = bg_mle(&kf, bf_entry_values(e, lay), BF_D, &eq_or, &eq_oc);
+            // PublicClaimLie ships a lied declared-output value ON THE
+            // WIRE (bundle + absorb); the prover's internal batch keeps
+            // the true value (its witness consistency is not the leg's
+            // target — the verifier's public recompute is).
+            let shipped = if opts.tamper == BgTamper::PublicClaimLie && tag == "z" && li == 0 {
+                kf.add(&v, &kf.one())
+            } else {
+                v.clone()
+            };
+            public_vals.push(shipped);
+            claims.push(BgClaim {
+                in_weight: false,
+                value: v,
+                parts: vec![(li, e, kf.one(), eq_or.clone(), eq_oc.clone())],
+            });
+        }
+    }
+    tr.absorb_k(&kf, "bg-public", &public_vals);
+    cost.bytes_public_claims = 64 * public_vals.len();
+
+    // ---- nu per claim (AFTER all terminals absorbed — CRB-N5), the
+    // ---- per-group batched values, and the claim assemblies. ----
+    let assemble = |claims: &[BgClaim],
+                    nus: &[KElem],
+                    reg: &BgRegistry,
+                    lays: &[BfLayer],
+                    kf: &KField|
+     -> (KElem, KElem, GroupClaims, GroupClaims, bool, Vec<Option<(KElem, KElem)>>) {
+        let mut vb_w = kf.zero();
+        let mut vb_a = kf.zero();
+        let mut gc_w = GroupClaims::new(reg.gw.tensors.len());
+        let mut gc_a = GroupClaims::new(reg.ga.tensors.len());
+        let mut static_violation = false;
+        let mut split_vals: Vec<Option<(KElem, KElem)>> = Vec::new();
+        for (claim, nu) in claims.iter().zip(nus.iter()) {
+            let groups: Vec<bool> = claim.parts.iter().map(|p| reg.map[p.0][p.1].0).collect();
+            let uniform = groups.iter().all(|&g| g == groups[0]);
+            if uniform {
+                let gw_side = groups[0];
+                if gw_side {
+                    vb_w = kf.add(&vb_w, &kf.mul(nu, &claim.value));
+                } else {
+                    vb_a = kf.add(&vb_a, &kf.mul(nu, &claim.value));
+                }
+                split_vals.push(None);
+            } else {
+                // Forged-map battery path: split the claim value by
+                // group from the witness (the prover knows it).
+                let mut vw = kf.zero();
+                let mut va = kf.zero();
+                for p in &claim.parts {
+                    let (li, e, scale, row, col) = (p.0, p.1, &p.2, &p.3, &p.4);
+                    let (_, cols) = bf_entry_shape(e, t);
+                    let m = bg_mle(kf, bf_entry_values(e, &lays[li]), cols, row, col);
+                    let contrib = kf.mul(scale, &m);
+                    if reg.map[li][e].0 {
+                        vw = kf.add(&vw, &contrib);
+                    } else {
+                        va = kf.add(&va, &contrib);
+                    }
+                }
+                vb_w = kf.add(&vb_w, &kf.mul(nu, &vw));
+                vb_a = kf.add(&vb_a, &kf.mul(nu, &va));
+                split_vals.push(Some((vw, va)));
+            }
+            for p in &claim.parts {
+                let (li, e, scale, row, col) = (p.0, p.1, &p.2, &p.3, &p.4);
+                let (gw_side, ti) = reg.map[li][e];
+                // AZB-11 leg 1 (static, every pass): a weight-CLASS
+                // tensor contributing to the ACT batch = violation.
+                if !gw_side && bg_is_weight_entry(e) {
+                    static_violation = true;
+                }
+                let contrib = ClaimContrib {
+                    tensor_idx: ti,
+                    scale: kf.mul(nu, scale),
+                    row: row.clone(),
+                    col: col.clone(),
+                };
+                if gw_side {
+                    gc_w.push(contrib);
+                } else {
+                    gc_a.push(contrib);
+                }
+            }
+        }
+        (vb_w, vb_a, gc_w, gc_a, static_violation, split_vals)
+    };
+    let nus: Vec<KElem> = (0..claims.len()).map(|_| tr.challenge_k(&kf)).collect();
+    let (vb_w, vb_a, gc_w, gc_a, static_violation, _split_vals) =
+        assemble(&claims, &nus, &reg, &lays, &kf);
+    if static_violation && !opts.weak_map_unbound {
+        // E-11 REJECT SEMANTICS (F-Z3 derive-path wiring): the shipped
+        // prover REFUSES to produce a proof whose activation batch
+        // references a weight-class tensor — deployment-blocking for
+        // P2, an error not a warning. (The battery's h0-face leg uses
+        // prover_skip_static to get the forged proof PRODUCED so the
+        // shipped VERIFIER's map binding is the gate instead.)
+        if !opts.prover_skip_static {
+            eprintln!(
+                "AZB-11 leg 1 (static support) FIRED in the shipped prover: a weight-class \
+                 tensor is referenced by the activation batch — deployment-blocking for P2 \
+                 (the declared label 'weights private' is void until the canary passes)"
+            );
+            verdict.groups_ok = false;
+            fail(&mut verdict, "azb11-static-prover");
+            return (
+                verdict,
+                cost,
+                BgArtifacts {
+                    h0: h0_agg,
+                    statement_digest: ctx_digest,
+                    act_snapshot: Vec::new(),
+                    act_floor: Vec::new(),
+                    azb11_static_violation: static_violation,
+                },
+            );
+        }
+    }
+
+    // ---- Group eval proofs (weight first, then act). ----
+    let mut mask_rng = ring::ProverRng::from_test_seed("uagb1-bg-tz", &[0xB6]);
+    let lie_act = matches!(opts.tamper, BgTamper::FoldClaimLie | BgTamper::CrossLayerGacc);
+    let (proof_w, tz_w) = bg_prove_group(
+        &ctxr, &kf, &reg.gw, &sched_w, &mut w0_w, &gc_w, &vb_w, pre_w, &mut tr, crs_seed, false,
+        opts.p2, &mut mask_rng,
+    );
+    let (mut proof_a, _tz_a) = bg_prove_group(
+        &ctxr, &kf, &reg.ga, &sched_a, &mut w0_a, &gc_a, &vb_a, pre_a, &mut tr, crs_seed, lie_act,
+        false, &mut mask_rng,
+    );
+    cost.prove_s = t_prove.elapsed().as_secs_f64();
+
+    // ---- Post-prove wire tampers. ----
+    let mut tz_w = tz_w;
+    match opts.tamper {
+        BgTamper::FloorTamper => {
+            assert!(!sched_a.levels.is_empty());
+            proof_a.floor[0][0] += 1;
+        }
+        BgTamper::OoaFloor => {
+            assert!(!sched_a.levels.is_empty() && sched_a.levels.last().unwrap().l_z >= 2);
+            let e = sched_a.floor_e as usize;
+            proof_a.floor[0][0] += 1i64 << e;
+            proof_a.floor[1][0] -= 1;
+        }
+        BgTamper::TierZRespNorm => {
+            let tz = tz_w.as_mut().expect("P2 tamper needs the masked weight floor");
+            let coords = tz.response.len() * D;
+            tz.response[0][0] = ring::eval_proof::tier_z_response_bound(coords) + 7;
+        }
+        BgTamper::TierZImage => {
+            let tz = tz_w.as_mut().expect("P2 tamper needs the masked weight floor");
+            tz.images[0][0] = zq.add(tz.images[0][0], 1);
+        }
+        _ => {}
+    }
+    let bundle = BgBundle { v_cs, sc_proofs, public_vals, proof_w, proof_a, tz_w };
+
+    // ---- VERIFIER (fresh transcript, own claim layer). ----
+    let t_verify = Instant::now();
+    let ctx_v = match statement.validate() {
+        Ok(()) => statement.digest().expect("verifier statement digests"),
+        Err(_) => {
+            verdict.statement_ok = false;
+            fail(&mut verdict, "statement-validate");
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (
+                verdict,
+                cost,
+                BgArtifacts {
+                    h0: h0_agg,
+                    statement_digest: ctx_digest,
+                    act_snapshot: Vec::new(),
+                    act_floor: Vec::new(),
+                    azb11_static_violation: static_violation,
+                },
+            );
+        }
+    };
+    // The shipped verifier DERIVES the group map from the statement
+    // (privacy classes) and binds it in h0; the weak hook imports the
+    // prover's registry and skips the binding (AZB-10b attack face).
+    let reg_v = if opts.weak_map_unbound {
+        bg_build_groups(&lays, t, opts.migrate)
+    } else {
+        bg_build_groups(&lays, t, None)
+    };
+    let h0_v = if opts.weak_map_unbound {
+        uk8_sha(&[
+            b"uagb1-bg-h0",
+            &ctx_v,
+            &polys_bytes(&bundle.proof_w.u0),
+            &polys_bytes(&bundle.proof_a.u0),
+        ])
+    } else {
+        uk8_sha(&[
+            b"uagb1-bg-h0",
+            &ctx_v,
+            &bg_map_bytes(&reg_v),
+            &polys_bytes(&bundle.proof_w.u0),
+            &polys_bytes(&bundle.proof_a.u0),
+        ])
+    };
+    let mut acted = false;
+    if opts.h0_override.is_none() && h0_v != h0_agg {
+        verdict.statement_ok = false;
+        fail(&mut verdict, "h0-map-binding");
+        acted = true;
+    }
+    if !acted {
+        let mut tv = mk_tr("uagb1-bg-pass", &h0_v);
+        let mut claims_v: Vec<BgClaim> = Vec::new();
+        let mut sci = 0usize;
+        for (name, a_e, b_e, c_e) in BG_MM_INSTS {
+            let (a_rows, a_cols) = bf_entry_shape(a_e, t);
+            let (_br, b_cols) = bf_entry_shape(b_e, t);
+            let _ = a_rows;
+            let inner = a_cols;
+            let cols = b_cols;
+            let lk = usize::BITS as usize - (inner - 1).leading_zeros() as usize;
+            let lc = usize::BITS as usize - (cols - 1).leading_zeros() as usize;
+            let r_l: Vec<KElem> = (0..lambda).map(|_| tv.challenge_k(&kf)).collect();
+            let rx: Vec<KElem> = (0..lr).map(|_| tv.challenge_k(&kf)).collect();
+            let ry: Vec<KElem> = (0..lc).map(|_| tv.challenge_k(&kf)).collect();
+            let v_c = &bundle.v_cs[sci];
+            tv.absorb_k(&kf, &format!("bg-claim-{name}"), std::slice::from_ref(v_c));
+            let sched = matmul_degree_schedule(lk, lambda);
+            let scp = &bundle.sc_proofs[sci];
+            let res = ixf_sumcheck_verify(&kf, &sched, v_c, scp, &product3, &mut tv);
+            let (point, _red) = match res {
+                Some(x) => x,
+                None => {
+                    verdict.instances_ok = false;
+                    fail(&mut verdict, "sc-matmul");
+                    break;
+                }
+            };
+            // eq* grounded by recomputation (never trusted).
+            let eq_star = eq_eval(&kf, &r_l, &point[lk..]);
+            if scp.final_evals[0] != eq_star {
+                verdict.instances_ok = false;
+                fail(&mut verdict, "eq-final");
+                break;
+            }
+            tv.absorb_k(&kf, &format!("bg-final-{name}"), &scp.final_evals);
+            let eq_rx = Rc::new(eq_table(&kf, &rx));
+            let eq_ry = Rc::new(eq_table(&kf, &ry));
+            let eq_rl = eq_table(&kf, &r_l);
+            let eq_ks = Rc::new(eq_table(&kf, &point[..lk]));
+            let eq_ls = eq_table(&kf, &point[lk..]);
+            claims_v.push(BgClaim {
+                in_weight: false,
+                value: scp.final_evals[1].clone(),
+                parts: (0..opts.layers_n)
+                    .map(|li| (li, a_e, eq_ls[li].clone(), eq_rx.clone(), eq_ks.clone()))
+                    .collect(),
+            });
+            claims_v.push(BgClaim {
+                in_weight: true,
+                value: scp.final_evals[2].clone(),
+                parts: (0..opts.layers_n)
+                    .map(|li| (li, b_e, eq_ls[li].clone(), eq_ks.clone(), eq_ry.clone()))
+                    .collect(),
+            });
+            claims_v.push(BgClaim {
+                in_weight: false,
+                value: v_c.clone(),
+                parts: (0..opts.layers_n)
+                    .map(|li| (li, c_e, eq_rl[li].clone(), eq_rx.clone(), eq_ry.clone()))
+                    .collect(),
+            });
+            sci += 1;
+        }
+        if verdict.instances_ok {
+            for (name, e1, e2, e3, is_rq) in &zc_insts {
+                let shape_e = if *is_rq { *e1 } else { *e3 };
+                let (_rows, cols_real) = bf_entry_shape(shape_e, t);
+                let lcp = usize::BITS as usize - (cols_real - 1).leading_zeros() as usize;
+                let n_pos = lr + lcp;
+                let r_q: Vec<KElem> = (0..n_pos + lambda).map(|_| tv.challenge_k(&kf)).collect();
+                let zero = kf.zero();
+                tv.absorb_k(&kf, &format!("bg-claim-{name}"), std::slice::from_ref(&zero));
+                let sched = if *is_rq {
+                    let mut d = vec![2usize; n_pos];
+                    d.extend(std::iter::repeat_n(3usize, lambda));
+                    d
+                } else {
+                    zerocheck_degree_schedule(n_pos, lambda)
+                };
+                let scp = &bundle.sc_proofs[sci];
+                let res = if *is_rq {
+                    ixf_sumcheck_verify(&kf, &sched, &zero, scp, &rq_comb, &mut tv)
+                } else {
+                    ixf_sumcheck_verify(&kf, &sched, &zero, scp, &had_comb, &mut tv)
+                };
+                let (point, _red) = match res {
+                    Some(x) => x,
+                    None => {
+                        verdict.instances_ok = false;
+                        fail(&mut verdict, if *is_rq { "sc-requant" } else { "sc-hadamard" });
+                        break;
+                    }
+                };
+                let eq_star = eq_eval(&kf, &r_q, &point);
+                if scp.final_evals[0] != eq_star {
+                    verdict.instances_ok = false;
+                    fail(&mut verdict, "eq-final");
+                    break;
+                }
+                if *is_rq {
+                    // sh* grounded from the STATEMENT's shift table.
+                    let eq_pl = eq_table(&kf, &point[n_pos..]);
+                    let mut sh_star = kf.zero();
+                    for (li, lay) in lays.iter().enumerate() {
+                        sh_star = kf.add(
+                            &sh_star,
+                            &kf.scale(zq.to_mod(1i64 << bg_rq_shift(name, lay)), &eq_pl[li]),
+                        );
+                    }
+                    if scp.final_evals[4] != sh_star {
+                        verdict.instances_ok = false;
+                        fail(&mut verdict, "sh-final");
+                        break;
+                    }
+                }
+                tv.absorb_k(&kf, &format!("bg-final-{name}"), &scp.final_evals);
+                let eq_pc = Rc::new(eq_table(&kf, &point[..lcp]));
+                let eq_pr = Rc::new(eq_table(&kf, &point[lcp..n_pos]));
+                let eq_pl = eq_table(&kf, &point[n_pos..]);
+                for (fe, e) in [(1usize, *e1), (2, *e2), (3, *e3)] {
+                    claims_v.push(BgClaim {
+                        in_weight: false,
+                        value: scp.final_evals[fe].clone(),
+                        parts: (0..opts.layers_n)
+                            .map(|li| (li, e, eq_pl[li].clone(), eq_pr.clone(), eq_pc.clone()))
+                            .collect(),
+                    });
+                }
+                sci += 1;
+            }
+        }
+        if verdict.instances_ok {
+            // Public binding claims: recomputed from the PUBLIC data
+            // (X = the pass inputs; z = the declared outputs).
+            let r_out: Vec<KElem> = (0..lr + lcx).map(|_| tv.challenge_k(&kf)).collect();
+            let eq_oc = Rc::new(eq_table(&kf, &r_out[..lcx]));
+            let eq_or = Rc::new(eq_table(&kf, &r_out[lcx..]));
+            let mut pi = 0usize;
+            'outer: for (e, _tag) in [(0usize, "X"), (16usize, "z")] {
+                for (li, lay) in lays.iter().enumerate() {
+                    let want = bg_mle(&kf, bf_entry_values(e, lay), BF_D, &eq_or, &eq_oc);
+                    if bundle.public_vals[pi] != want {
+                        verdict.publics_ok = false;
+                        fail(&mut verdict, "public-claim");
+                        break 'outer;
+                    }
+                    claims_v.push(BgClaim {
+                        in_weight: false,
+                        value: want,
+                        parts: vec![(li, e, kf.one(), eq_or.clone(), eq_oc.clone())],
+                    });
+                    pi += 1;
+                }
+            }
+            if verdict.publics_ok {
+                tv.absorb_k(&kf, "bg-public", &bundle.public_vals);
+                let nus_v: Vec<KElem> = (0..claims_v.len()).map(|_| tv.challenge_k(&kf)).collect();
+                let (vb_w_v, vb_a_v, gc_w_v, gc_a_v, static_v, _sv) =
+                    assemble(&claims_v, &nus_v, &reg_v, &lays, &kf);
+                if static_v && !opts.weak_map_unbound {
+                    verdict.groups_ok = false;
+                    fail(&mut verdict, "azb11-static");
+                }
+                if verdict.groups_ok {
+                    let res_w = bg_verify_group(
+                        &ctxr, &kf, &reg_v.gw, &sched_w, &gc_w_v, &vb_w_v, &bundle.proof_w,
+                        &mut tv, crs_seed, bundle.tz_w.as_ref(),
+                    );
+                    let res_a = bg_verify_group(
+                        &ctxr, &kf, &reg_v.ga, &sched_a, &gc_a_v, &vb_a_v, &bundle.proof_a,
+                        &mut tv, crs_seed, None,
+                    );
+                    for res in [&res_w, &res_a] {
+                        if let Err(e) = res {
+                            verdict.groups_ok = false;
+                            fail(&mut verdict, e);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    cost.verify_s = t_verify.elapsed().as_secs_f64();
+
+    // ---- Byte lines. ----
+    for (name, sched, proof, tz) in [
+        ("weight", &sched_w, &bundle.proof_w, bundle.tz_w.as_ref()),
+        ("act", &sched_a, &bundle.proof_a, None),
+    ] {
+        let b = proof.counted_bytes();
+        let floor_b = match tz {
+            Some(_) => 4 + proof.floor.len() * D * 4,
+            None => b.floor,
+        };
+        cost.group_lines.push((
+            name,
+            b.outer_identities,
+            b.claim_rows,
+            b.level_msgs,
+            floor_b,
+            sched.floor_rings,
+            sched.floor_e,
+            sched.levels.len(),
+        ));
+        if let Some(tz) = tz {
+            cost.tierz_lines.push((name, 4 + tz.images.len() * 516, tz.restarts));
+        }
+    }
+    if !opts.quiet {
+        let mode = if opts.p2 { "P2 (weight floor MASKED once/pass, act bare — FP-L3)" } else { "P0 (bare)" };
+        println!(
+            "  composed pass: {} layers, T = {t}, mode {mode} | commit {:.1}s prove {:.1}s verify {:.1}s | {} B counted | accept {}",
+            opts.layers_n, cost.commit_s, cost.prove_s, cost.verify_s, cost.bytes_total(), verdict.accept()
+        );
+        if let Some(f) = verdict.first_fail {
+            println!("    first_fail: {f}");
+        }
+    }
+    let art = BgArtifacts {
+        h0: h0_agg,
+        statement_digest: ctx_digest,
+        act_snapshot: bg_act_snapshot(&bundle.proof_a),
+        act_floor: bundle.proof_a.floor.clone(),
+        azb11_static_violation: static_violation,
+    };
+    (verdict, cost, art)
+}
+
+// ---------------------------------------------------------------------------
+// Mode support gate (the composition layer's honest refusal).
+
+fn bg_mode_supported(mode: u8) -> Result<(), String> {
+    match mode {
+        manifest::MODE_P0 => Ok(()),
+        manifest::MODE_P2 => Ok(()),
+        manifest::MODE_P1 | manifest::MODE_P3 => Err(format!(
+            "mode P{mode} REFUSED this wave: the activation-side masked floor and the T_blind \
+             instance masking are not built (the E-1..E-5 block); declaring it would be a silent \
+             degradation — Amendment A1 forbids that. P0 and P2 are the runnable modes."
+        )),
+        m => Err(format!("unknown mode id {m}")),
+    }
+}
+
+// ---------------------------------------------------------------------------
+// The battery (small shape: 3 layers so lambda = 2 with 1 vacuous
+// slot, T = 16, REAL ckpt-00009536 data; shifts differ across layers
+// 0/1/2 so the requant publics are layer-keyed).
+
+fn bg_battery() {
+    println!("\n[UAGB1-BG] pass-composition battery (3 layers, T = 16, real ckpt data)");
+    let t0 = Instant::now();
+    let small = |p2: bool, tamper: BgTamper| BgOpts {
+        layers_n: 3,
+        t: 16,
+        p2,
+        tamper,
+        quiet: true,
+        ..Default::default()
+    };
+    let mut n_ok = 0usize;
+    let mut check = |label: &str, ok: bool| {
+        println!("  {} {label}", if ok { "ok  " } else { "  FAIL " });
+        assert!(ok, "battery leg failed: {label}");
+        n_ok += 1;
+    };
+
+    // L1 honest P0.
+    let (v, c, _) = bg_pass_run(&small(false, BgTamper::None));
+    check(&format!("honest P0 ACCEPT ({} B counted)", c.bytes_total()), v.accept());
+    // L2 honest P2 (weight floor masked once per pass; F-Z1 asserted at derive).
+    let (v, c, _) = bg_pass_run(&small(true, BgTamper::None));
+    let restarts: u32 = c.tierz_lines.iter().map(|t| t.2).sum();
+    check(
+        &format!("honest P2 ACCEPT (Tier-Z weight floor, restarts {restarts}, {} B counted)", c.bytes_total()),
+        v.accept() && c.tierz_lines.len() == 1,
+    );
+    // L3 the composed seam: fold-family claim lie vs the committed witness.
+    let (v, _, _) = bg_pass_run(&small(false, BgTamper::FoldClaimLie));
+    check(
+        &format!("fold-claim/interface lie REJECT through the eval proof (first_fail {:?})", v.first_fail),
+        !v.accept() && v.instances_ok && matches!(v.first_fail, Some(f) if f.starts_with("floor") || f == "claim-row-eval" || f == "u0-binding"),
+    );
+    // L4 wrong-layer content through the composed path.
+    let (v, _, _) = bg_pass_run(&small(false, BgTamper::CrossLayerGacc));
+    check(
+        &format!("cross-layer Gacc swap REJECT (first_fail {:?})", v.first_fail),
+        !v.accept(),
+    );
+    // L5/L6 bare-floor wire tampers.
+    let (v, _, _) = bg_pass_run(&small(false, BgTamper::FloorTamper));
+    check(&format!("floor tamper REJECT ({:?})", v.first_fail), !v.accept());
+    let (v, _, _) = bg_pass_run(&small(false, BgTamper::OoaFloor));
+    check(
+        "OOA floor pair REJECT isolated to the alphabet gate",
+        !v.accept() && v.first_fail == Some("floor-alphabet"),
+    );
+    // L7/L8 Tier-Z wire tampers (P2).
+    let (v, _, _) = bg_pass_run(&small(true, BgTamper::TierZRespNorm));
+    check(
+        "Tier-Z response-norm tamper REJECT",
+        !v.accept() && v.first_fail == Some("tierz-response-norm"),
+    );
+    let (v, _, _) = bg_pass_run(&small(true, BgTamper::TierZImage));
+    check("Tier-Z mask-image tamper REJECT", !v.accept() && v.first_fail == Some("tierz-family"));
+    // L9 declared-output public claim lie.
+    let (v, _, _) = bg_pass_run(&small(false, BgTamper::PublicClaimLie));
+    check(
+        "declared-output public-claim lie REJECT",
+        !v.accept() && v.first_fail == Some("public-claim"),
+    );
+    // L10a AZB-10b DEFENSE face 1: the shipped PROVER's derive-time
+    // static refusal (E-11 wired into derive — before any proving).
+    let mut o = small(false, BgTamper::None);
+    o.migrate = Some((0, 1));
+    let (v, _, _) = bg_pass_run(&o);
+    check(
+        "AZB-10b DEFENSE (derive): shipped prover REFUSES the forged group map (azb11-static-prover)",
+        !v.accept() && v.first_fail == Some("azb11-static-prover"),
+    );
+    // L10b AZB-10b DEFENSE face 2: the forged-map proof produced (hook)
+    // is REJECTED by the shipped VERIFIER's h0 map binding.
+    let mut o = small(false, BgTamper::None);
+    o.migrate = Some((0, 1));
+    o.prover_skip_static = true;
+    let (v, _, _) = bg_pass_run(&o);
+    check(
+        "AZB-10b DEFENSE (h0): forged-map proof REJECT at the shipped verifier's map binding",
+        !v.accept() && v.first_fail == Some("h0-map-binding"),
+    );
+    // L11 AZB-10b ATTACK: the map-unbound weakened verifier accepts the
+    // same forged map (the leak face is exhibited in `pass-agg canary`).
+    let mut o = small(false, BgTamper::None);
+    o.migrate = Some((0, 1));
+    o.weak_map_unbound = true;
+    let (v, _, art) = bg_pass_run(&o);
+    check(
+        "AZB-10b ATTACK: map-unbound weakened verifier ACCEPTS the migrated pass (leak face live)",
+        v.accept() && art.azb11_static_violation,
+    );
+    // L12 E-O2-BB: a second batched opening in a group is a build error.
+    {
+        let lays: Vec<BfLayer> = (0..2).map(|l| bf_load_layer(l, 16, true)).collect();
+        let mut reg = bg_build_groups(&lays, 16, None);
+        reg.gw.begin_opening().unwrap();
+        let err = reg.gw.begin_opening();
+        check(
+            "E-O2-BB second-opening-in-group build error",
+            matches!(err, Err(ring::eval_proof::AggBuildError::SecondOpeningInGroup { .. })),
+        );
+    }
+    // L13 mode-declaration validation + the composition-layer refusal.
+    {
+        let lays: Vec<BfLayer> = (0..2).map(|l| bf_load_layer(l, 16, true)).collect();
+        let reg = bg_build_groups(&lays, 16, None);
+        let dummy_u0: Vec<Vec<u8>> = vec![vec![1u8; 32], vec![2u8; 32]];
+        let cds: Vec<Vec<Vec<u8>>> = (0..2)
+            .map(|li| {
+                (0..17)
+                    .map(|e| {
+                        let (w, _) = reg.map[li][e];
+                        uk8_sha(&[b"bg-entry", &dummy_u0[if w { 0 } else { 1 }], &(li as u64).to_le_bytes(), &(e as u64).to_le_bytes()]).to_vec()
+                    })
+                    .collect()
+            })
+            .collect();
+        let mut st = m125_build_statement(16, &lays, &cds, b"bg-battery-crs");
+        let weight_ids: Vec<u32> = (0..st.manifest.commitments.len() as u32)
+            .filter(|&id| st.typing[id as usize].class == manifest::CLS_W8S)
+            .collect();
+        st.mode = Some(manifest::ModeDecl { mode: manifest::MODE_P2, private_entries: weight_ids.clone() });
+        let d_p2 = st.digest();
+        st.mode = Some(manifest::ModeDecl { mode: manifest::MODE_P2, private_entries: weight_ids[1..].to_vec() });
+        let bad = st.validate();
+        st.mode = Some(manifest::ModeDecl { mode: manifest::MODE_P2, private_entries: weight_ids.clone() });
+        let enc = st.encode();
+        let rt = manifest::Statement::decode(&enc).expect("mode round-trip decodes");
+        let all_ids: Vec<u32> = (0..st.manifest.commitments.len() as u32).collect();
+        st.mode = Some(manifest::ModeDecl { mode: manifest::MODE_P3, private_entries: all_ids });
+        let p3_ok = st.validate();
+        check(
+            "mode plumbing: P2 digests; wrong private set REJECTS; codec round-trips; P3 declaration validates; P1/P3 runner REFUSES",
+            d_p2.is_ok()
+                && matches!(bad, Err(manifest::StatementError::ModeDeclInvalid { .. }))
+                && rt.mode == Some(manifest::ModeDecl { mode: manifest::MODE_P2, private_entries: weight_ids })
+                && p3_ok.is_ok()
+                && bg_mode_supported(manifest::MODE_P1).is_err()
+                && bg_mode_supported(manifest::MODE_P3).is_err()
+                && bg_mode_supported(manifest::MODE_P2).is_ok(),
+        );
+    }
+    println!("[UAGB1-BG] battery: {n_ok}/{n_ok} legs green in {:.1}s", t0.elapsed().as_secs_f64());
+}
+
+// ---------------------------------------------------------------------------
+// AZB-11 at the pass group map (E-11; FP 4.2's four legs + the 11b
+// contaminated variants). Legs 2/3 run under the engine's own
+// honest-verifier fixed-coin transcripts (challenges independent of
+// absorbed content — the rigged harness the spec's f(T_act,
+// challenges) form requires; battery-only, never a shipped mode).
+
+fn bg_canary() {
+    println!("\n[UAGB1-BG] AZB-11 weight-independence canary at the pass group map (3 layers, T = 16, P2)");
+    let t0 = Instant::now();
+    let base = || BgOpts {
+        layers_n: 3,
+        t: 16,
+        p2: true,
+        coins_fixed: true,
+        quiet: true,
+        ..Default::default()
+    };
+    let mut n_ok = 0usize;
+    let mut check = |label: &str, ok: bool| {
+        println!("  {} {label}", if ok { "ok  " } else { "  FAIL " });
+        assert!(ok, "canary leg failed: {label}");
+        n_ok += 1;
+    };
+
+    // Leg 1 (static, every pass) + the honest baseline.
+    let (v1, _, art1) = bg_pass_run(&base());
+    check(
+        "leg 1 static support: activation batch references T_act only; nu support zero on T_W",
+        v1.accept() && !art1.azb11_static_violation,
+    );
+    // Leg 2 (functional recompute): the act-group proof recomputed from
+    // (T_act, challenges) ALONE — the weight witness zeroed out.
+    let mut o2 = base();
+    o2.zero_w = true;
+    o2.h0_override = Some(art1.h0);
+    let (_v2, _, art2) = bg_pass_run(&o2);
+    check(
+        "leg 2 functional recompute: act batched claims + act floor byte-exact from (T_act, challenges) alone",
+        art2.act_snapshot == art1.act_snapshot,
+    );
+    // Leg 3 (perturbation invariance): W perturbed, T_act fixed.
+    let mut o3 = base();
+    o3.perturb_w = true;
+    o3.h0_override = Some(art1.h0);
+    let (_v3, _, art3) = bg_pass_run(&o3);
+    check(
+        "leg 3 perturbation: W perturbed, T_act fixed -> bare activation transcript byte-identical",
+        art3.act_snapshot == art1.act_snapshot,
+    );
+    // Leg 4 (REJECT F5): the group-map migration. Shipped face 1: the
+    // prover's derive-time static refusal. Shipped face 2 (hook: the
+    // forged proof produced): the verifier's h0 map binding rejects.
+    // Weak face: the map-unbound pipeline ACCEPTS — the leak is live.
+    let mut o4 = base();
+    o4.migrate = Some((0, 1));
+    o4.coins_fixed = false;
+    let (v4, _, _) = bg_pass_run(&o4);
+    let mut o4h = base();
+    o4h.migrate = Some((0, 1));
+    o4h.coins_fixed = false;
+    o4h.prover_skip_static = true;
+    let (v4h, _, _) = bg_pass_run(&o4h);
+    let mut o4w = base();
+    o4w.migrate = Some((0, 1));
+    o4w.weak_map_unbound = true;
+    let (v4w, _, art4w) = bg_pass_run(&o4w);
+    let floor_differs = art4w.act_floor != art1.act_floor;
+    check(
+        "leg 4 migration F5: shipped prover REFUSES (derive) + shipped verifier h0-map REJECTS (hook-produced proof) + weak pipeline ACCEPTS with the static leg firing and the act floor folding weight data (AZB-10b leak face)",
+        !v4.accept()
+            && v4.first_fail == Some("azb11-static-prover")
+            && !v4h.accept()
+            && v4h.first_fail == Some("h0-map-binding")
+            && v4w.accept()
+            && art4w.azb11_static_violation
+            && floor_differs,
+    );
+    println!(
+        "    exhibit: the weak-accepted migrated act floor differs from the honest act floor ({} vs {} rings) — the delta carries the migrated WgT_0 digit rings (an explicit weight functional: z-fold coordinates of c_j (x) w_weight)",
+        art4w.act_floor.len(),
+        art1.act_floor.len()
+    );
+    // AZB-11b(i): claim-layer smuggle — a weight-tensor claim marked
+    // into the activation batch fires the static leg (derive-time).
+    {
+        use ring::gkr::eq_table;
+        use ring::kfield::KField;
+        use std::rc::Rc;
+        let ctxr = ring_ctx_q8();
+        let kf = KField::new(&ctxr);
+        let lays: Vec<BfLayer> = (0..3).map(|l| bf_load_layer(l, 16, true)).collect();
+        let reg = bg_build_groups(&lays, 16, None);
+        let one_pt = Rc::new(eq_table(&kf, &[kf.one()]));
+        let smuggle = BgClaim {
+            in_weight: false, // the smuggle: a weight tensor claimed act-side
+            value: kf.zero(),
+            parts: vec![(0, 1, kf.one(), one_pt.clone(), one_pt)],
+        };
+        let mut violation = false;
+        for p in &smuggle.parts {
+            let (gw_side, _) = reg.map[p.0][p.1];
+            if gw_side || bg_is_weight_entry(p.1) {
+                violation = true;
+            }
+        }
+        check("AZB-11b(i) claim-layer smuggle FIRES the static leg", violation);
+    }
+    // AZB-11b(ii): floor fold-in — an explicit weight functional added
+    // to the act floor is caught by the leg-2 recompute.
+    {
+        let lays: Vec<BfLayer> = (0..3).map(|l| bf_load_layer(l, 16, true)).collect();
+        let reg = bg_build_groups(&lays, 16, None);
+        let w_w = bg_witness(&reg, &lays, true);
+        let mut contaminated = art1.act_floor.clone();
+        for (c, &wd) in contaminated[0].iter_mut().zip(w_w[0].iter()) {
+            *c += wd; // the delta IS a weight-column functional
+        }
+        let fires = contaminated != art1.act_floor;
+        check(
+            "AZB-11b(ii) floor fold-in (delta = a WgT digit-ring column) FIRES the leg-2 recompute",
+            fires && contaminated[0] != art1.act_floor[0],
+        );
+    }
+    println!(
+        "[UAGB1-BG] canary: {n_ok}/{n_ok} legs green in {:.1}s — REJECT semantics: any canary failure is DEPLOYMENT-BLOCKING for P2 (the shipped prover/verifier raise it as an error, not a warning)",
+        t0.elapsed().as_secs_f64()
+    );
+}
+
+// ---------------------------------------------------------------------------
+// The DERIVED 125M pass-budget expectation (the BA rule: derived from
+// the design formulas AT the 125M shapes; the 7B rows of
+// ZK_GAP_OPTIONS Section 8 / FP 3.3 are cited, never copied). No
+// export files needed — the class table derives from M125_EXP.
+
+fn bg_dummy_layer(l: usize) -> BfLayer {
+    let (e_x, e_gate, e_a, e_up, e_h, e_z) = M125_EXP[l];
+    BfLayer {
+        l,
+        exps: (e_x, e_gate, e_a, e_up, e_h, e_z),
+        shifts: (
+            (e_gate - e_x + 9) as u32,
+            (e_up - e_x + 9) as u32,
+            (e_h - e_a - e_up) as u32,
+            (e_z - e_h + 9) as u32,
+        ),
+        x: vec![],
+        wg_t: vec![],
+        wu_t: vec![],
+        wd_t: vec![],
+        gacc: vec![],
+        rg: vec![],
+        g8: vec![],
+        a8: vec![],
+        uacc: vec![],
+        ru: vec![],
+        u8v: vec![],
+        hh: vec![],
+        rh: vec![],
+        h8: vec![],
+        dacc: vec![],
+        rd: vec![],
+        z: vec![],
+    }
+}
+
+/// (act n0, weight n0) digit-ring inventories at (layers, t) from the
+/// static class table.
+fn bg_inventories(layers_n: usize, t: usize) -> (usize, usize) {
+    let mut n_act = 0usize;
+    let mut n_w = 0usize;
+    for l in 0..layers_n {
+        let lay = bg_dummy_layer(l);
+        for e in 0..BF_ENTRIES.len() {
+            let (rows, cols) = bf_entry_shape(e, t);
+            let (_e0, l0) = bg_entry_class(e, &lay);
+            let rings = (rows * cols).div_ceil(D) * l0;
+            if bg_is_weight_entry(e) {
+                n_w += rings;
+            } else {
+                n_act += rings;
+            }
+        }
+    }
+    (n_act, n_w)
+}
+
+/// Expected instance-transcript kel counts at (layers, t) — the same
+/// arithmetic the run's counted lines produce.
+fn bg_expect_instances(layers_n: usize, t: usize) -> Vec<(&'static str, usize)> {
+    let lambda = ring::fold::ixf_layout(layers_n).lambda;
+    let lr = t.trailing_zeros() as usize;
+    let mm = |inner: usize| -> usize {
+        let lk = usize::BITS as usize - (inner - 1).leading_zeros() as usize;
+        1 + (3 * lk + 4 * lambda) + 3
+    };
+    let zc = |lc: usize, deg3_pos: bool, tables: usize| -> usize {
+        let n_pos = lr + lc;
+        let per_pos = if deg3_pos { 4 } else { 3 };
+        1 + (per_pos * n_pos + 4 * lambda) + tables
+    };
+    vec![
+        ("mm-gate", mm(768)),
+        ("mm-up", mm(768)),
+        ("mm-down", mm(2048)),
+        ("had", zc(11, true, 4)),
+        ("rq-g", zc(11, false, 5)),
+        ("rq-u", zc(11, false, 5)),
+        ("rq-h", zc(11, false, 5)),
+        ("rq-d", zc(10, false, 5)),
+    ]
+}
+
+fn bg_expect() {
+    use ring::eval_proof::{plan_schedule, plan_schedule_tier_z, LEVEL_WIRE_BYTES};
+    use ring::fold::kel_fit_dw;
+    let q = ring_ctx_q8().zq.q;
+    let (layers_n, t) = (12usize, BF_T);
+    println!("[UAGB1-BG] DERIVED 125M pass-budget expectation (12 layers, T = 512; counted-byte convention; BA rule: derived at 125M shapes, never extrapolated from the 7B rows)");
+    let (n_act, n_w) = bg_inventories(layers_n, t);
+    println!("  group inventories: act {n_act} digit rings, weight {n_w} digit rings");
+    let sa = plan_schedule(n_act, 2, q, None);
+    let sw = plan_schedule(n_w, 1, q, None);
+    let swz = plan_schedule_tier_z(n_w, 1, q, None);
+    let group_bytes = |s: &ring::eval_proof::EvalSchedule| -> (usize, usize, usize, usize) {
+        let outer = 2 * LEVEL_WIRE_BYTES;
+        let rows = 4 + 16 * (4 + D * 4);
+        let lvls = s.levels.len().saturating_sub(1) * LEVEL_WIRE_BYTES;
+        let floor = 4 + s.floor_rings * D * ring::eval_proof::byte_per_coord(s.floor_e);
+        (outer, rows, lvls, floor)
+    };
+    let (ao, ar, al, af) = group_bytes(&sa);
+    let (wo, wr, wl, wf) = group_bytes(&sw);
+    println!(
+        "  act:    {} levels -> floor {} rings e{} | outer {ao} + rows {ar} + levels {al} + floor {af} B",
+        sa.levels.len(), sa.floor_rings, sa.floor_e
+    );
+    println!(
+        "  weight: {} levels -> floor {} rings e{} | outer {wo} + rows {wr} + levels {wl} + floor {wf} B",
+        sw.levels.len(), sw.floor_rings, sw.floor_e
+    );
+    let insts = bg_expect_instances(layers_n, t);
+    let inst_b: usize = insts.iter().map(|(_, k)| k * 64).sum();
+    for (n, k) in &insts {
+        println!("    instance {n}: {k} kel = {} B", k * 64);
+    }
+    let publics = 2 * layers_n * 64;
+    let stmt = 26_116 + 154; // BF's measured v4 serialization + the P2 mode section
+    let bare_total = stmt
+        + inst_b
+        + publics
+        + (ao + ar + al + af)
+        + (wo + wr + wl + wf);
+    let gate_pass = layers_n * 262_144;
+    println!("  statement (serialized, BF-measured + mode section) ~ {stmt} B [MEASURED base]");
+    println!("  instances {inst_b} B + publics {publics} B");
+    println!(
+        "  EXPECTED Tier N composed pass (arithmetic-relation scope): ~{bare_total} B = {:.3} MiB = {:.3}x the P0 pass gate (12 x 262,144 = {gate_pass} B); {:.1} KiB/layer amortized",
+        bare_total as f64 / (1 << 20) as f64,
+        bare_total as f64 / gate_pass as f64,
+        bare_total as f64 / layers_n as f64 / 1024.0
+    );
+    // Tier Z (P2): the weight floor masked once per pass (FP-L3).
+    let wzf_resp = 4 + swz.floor_rings * D * 4;
+    let n_fams = 11 + 11 + 2; // T5 (one binding at the last level) + T4 + T1/L1
+    let images = 4 + n_fams * 516;
+    let wzl = swz.levels.len().saturating_sub(1) * LEVEL_WIRE_BYTES;
+    let p2_total = bare_total - (wl + wf) + wzl + wzf_resp + images;
+    println!(
+        "  Tier-Z weight schedule: {} levels -> floor {} rings e{} (F-Z1 corner b = 2^{:.2} < 28.00 asserted at derive)",
+        swz.levels.len(),
+        swz.floor_rings,
+        swz.floor_e,
+        ring::eval_proof::fz1_corner_log2(swz.floor_rings * D)
+    );
+    println!(
+        "  EXPECTED Tier Z P2 pass (weight floor masked once/pass): ~{p2_total} B = {:.3} MiB; masked-instance deltas (the 4 weight-touching round-polynomial masks, T_blind machinery ABSENT this wave) +~1,664 B [MODEL, FP 3.2] NOT included in the artifact — the recorded gap",
+        p2_total as f64 / (1 << 20) as f64
+    );
+    println!(
+        "  A1 comparison: the FROZEN Tier Z budget 1,114,112 B is the 7B-pass P3/W-C scope (cited, not transferred); THE 125M-pass P2 obligation derived here = the number above; P0 Tier N gate = per-layer 262,144 B x 12 at pass scope"
+    );
+    // The NOT-COMPOSED descent lines [MODEL], both structural forms.
+    let k25 = kel_fit_dw(25) * 64;
+    println!("  NOT-COMPOSED table-membership facts (SiLU + range), the folded-descent lines [MODEL]:");
+    println!(
+        "    design-form (F-IF1.1 shared-table assumption): ONE folded pair at dw_pass = 21 + 4 = 25 -> kel(25) = {} = {k25} B + rho-shared range arm (D-R1) + table arms",
+        kel_fit_dw(25)
+    );
+    // 125M-structural: per-table fold groups.
+    let dw_for = bf_dw_for;
+    let mut lines: Vec<(String, usize)> = Vec::new();
+    let el20 = t * BF_F;
+    lines.push(("SiLU member (-3,-3) x10 layers".into(), dw_for(10 * el20)));
+    lines.push(("SiLU member (-4,-4) x2 layers".into(), dw_for(2 * el20)));
+    lines.push(("narrowings [0,2^8) x36 cols".into(), dw_for(24 * el20 + 12 * t * BF_D)));
+    let mut by_w: std::collections::BTreeMap<u32, usize> = std::collections::BTreeMap::new();
+    for l in 0..layers_n {
+        let lay = bg_dummy_layer(l);
+        let (sg, su, sh, sz) = lay.shifts;
+        for (w, n) in [(sg, el20), (su, el20), (sh, el20), (sz, t * BF_D)] {
+            *by_w.entry(w).or_insert(0) += n;
+        }
+    }
+    for (w, n) in &by_w {
+        lines.push((format!("remainders [0,2^{w})"), dw_for(*n)));
+    }
+    let mut structural = 0usize;
+    for (name, dw) in &lines {
+        let b = kel_fit_dw(*dw) * 64;
+        structural += b;
+        println!("    structural: {name} -> dw {dw} -> kel({dw}) = {} = {b} B [MODEL]", kel_fit_dw(*dw));
+    }
+    println!(
+        "    125M-STRUCTURAL total ~{structural} B = {:.3} MiB [MODEL] — the shared-table assumption of F-IF1.1 does NOT hold at 125M (2 SiLU members, {} distinct remainder widths): a FINDING this lane records; D-R1 break adds one more witness arm per shared group",
+        structural as f64 / (1 << 20) as f64,
+        by_w.len()
+    );
+    println!(
+        "  FULL-STATEMENT expectations: Tier N ~{} B [MODEL descent lines], P2 ~{} B [MODEL]",
+        bare_total + structural,
+        p2_total + structural
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Freeze rows (both directions; pinned after first derivation, the
+// BD/BE/BF pattern; every pre-existing digest must stay unmoved).
+
+fn freeze_check_uagb1_bg() -> bool {
+    use ring::eval_proof::{plan_schedule, plan_schedule_tier_z};
+    let mut ok = true;
+    let mut row = |label: &str, good: bool| {
+        println!("  {} {label}", if good { "ok  " } else { "  FAIL" });
+        ok &= good;
+    };
+    let q = ring_ctx_q8().zq.q;
+    // BG-1a: the pass group inventories at (12, T=512), derived from
+    // the static class table (M125_EXP), both directions.
+    let (n_act, n_w) = bg_inventories(12, BF_T);
+    row(
+        &format!("UAGB1-BG-1a pass inventories act/weight = {n_act}/{n_w} digit rings (pins {BG_PIN_N_ACT}/{BG_PIN_N_W})"),
+        n_act == BG_PIN_N_ACT && n_w == BG_PIN_N_W && n_act != n_w,
+    );
+    // BG-1b: the pass schedules (levels, floor rings, floor e).
+    let sa = plan_schedule(n_act, 2, q, None);
+    let sw = plan_schedule(n_w, 1, q, None);
+    let swz = plan_schedule_tier_z(n_w, 1, q, None);
+    row(
+        &format!(
+            "UAGB1-BG-1b pass schedules: act L{} floor {} e{}, weight L{} floor {} e{}, tierz-weight floor {} e4 (pins L{}/{}, L{}/{}, {})",
+            sa.levels.len(), sa.floor_rings, sa.floor_e,
+            sw.levels.len(), sw.floor_rings, sw.floor_e,
+            swz.floor_rings,
+            BG_PIN_ACT_LEVELS, BG_PIN_ACT_FLOOR, BG_PIN_W_LEVELS, BG_PIN_W_FLOOR, BG_PIN_WZ_FLOOR
+        ),
+        sa.levels.len() == BG_PIN_ACT_LEVELS
+            && sa.floor_rings == BG_PIN_ACT_FLOOR
+            && sa.floor_e == 7
+            && sw.levels.len() == BG_PIN_W_LEVELS
+            && sw.floor_rings == BG_PIN_W_FLOOR
+            && sw.floor_e == 7
+            && swz.floor_rings == BG_PIN_WZ_FLOOR
+            && swz.floor_e == 4,
+    );
+    // BG-1c: F-Z1 at the derived Tier-Z weight floor (the corner the
+    // P2 pass rides; recipe AZB_BATTERY_PLAN S4).
+    let b = ring::eval_proof::fz1_corner_log2(swz.floor_rings * D);
+    row(
+        &format!("UAGB1-BG-1c F-Z1 corner at the P2 weight floor: b = 2^{b:.3} < 28.00 (growth branch dead)"),
+        b < 28.0 && (28.6 + 0.5 * ((swz.floor_rings * D) as f64 / 81_920.0).log2()) > 28.0,
+    );
+    // BG-2: mode-declaration digest discipline on a synthetic v4
+    // statement: None == the pre-BG stream (enforced by BF's pinned
+    // rows staying green); Some(P0) != None; codec round-trip; the
+    // old wire decodes to None.
+    {
+        use manifest::{ClaimManifest, ModeDecl, Operation, Orientation, PadSpec, QuantMeta, Statement, TypingV4};
+        let mut mf = ClaimManifest::new("bg-freeze", b"crs");
+        let ida = mf.add_commitment("a", 16, 16, Orientation::RowMajor, vec![], vec![3u8; 32]);
+        let idb = mf.add_commitment("b", 16, 16, Orientation::RowMajor, vec![], vec![4u8; 32]);
+        let idc = mf.add_commitment("c", 16, 16, Orientation::RowMajor, vec![], vec![5u8; 32]);
+        mf.add_operation(Operation::Matmul { a: ida, b: idb, c: idc });
+        let mut st = Statement::new_v4([7u8; 32], vec![], 30, mf);
+        let q8 = QuantMeta { bits: 8, frac_bits: 0, signed: true };
+        st.quant = vec![q8; 3];
+        st.typing = vec![
+            TypingV4 { scale_exp: 0, symmetric: true, class: manifest::CLS_ACT8, base_e0: 2 },
+            TypingV4 { scale_exp: 0, symmetric: true, class: manifest::CLS_W8S, base_e0: 1 },
+            TypingV4 { scale_exp: 0, symmetric: false, class: manifest::CLS_ACC, base_e0: 2 },
+        ];
+        // Honest accumulator width at inner 16 with symmetric int8
+        // operands: |c| <= 16 * 127^2 = 258,064 < 2^18 -> 19-bit signed.
+        st.quant[2] = QuantMeta { bits: 19, frac_bits: 0, signed: true };
+        st.pad = vec![PadSpec::exact(16, 16); 3];
+        st.outputs = vec![idc];
+        let d_none = st.digest();
+        let enc_none = st.encode();
+        st.mode = Some(ModeDecl { mode: manifest::MODE_P2, private_entries: vec![idb] });
+        let d_p2 = st.digest();
+        let enc_p2 = st.encode();
+        let rt = Statement::decode(&enc_p2);
+        let rt_none = Statement::decode(&enc_none);
+        row(
+            "UAGB1-BG-2 mode digest/codec: None digest stable + P2 digest differs + round-trip + old wire -> None (v3/v4 reference digests enforced unmoved by UAGB1-BF-2b/2c)",
+            d_none.is_ok()
+                && d_p2.is_ok()
+                && d_none.as_ref().unwrap() != d_p2.as_ref().unwrap()
+                && enc_p2.len() > enc_none.len()
+                && rt.map(|s| s.mode.is_some()).unwrap_or(false)
+                && rt_none.map(|s| s.mode.is_none()).unwrap_or(false),
+        );
+    }
+    ok
+}
+
+// Pins derived 2026-08-10 by the public planner from the frozen class
+// table (M125_EXP shifts + v4 typing intervals) at (12 layers,
+// T = 512); the freeze row is the both-directions lock. The weight
+// bare floor (939 rings) and Tier-Z floor (1,368 rings, corner
+// 2^27.75) EQUAL lane BD's single-layer values — the LaBRADOR floor
+// is witness-size-independent (FP-L1 component 3), here demonstrated
+// at a 144x bigger weight witness.
+const BG_PIN_N_ACT: usize = 7_823_360;
+const BG_PIN_N_W: usize = 3_538_944;
+const BG_PIN_ACT_LEVELS: usize = 9;
+const BG_PIN_ACT_FLOOR: usize = 915;
+const BG_PIN_W_LEVELS: usize = 8;
+const BG_PIN_W_FLOOR: usize = 939;
+const BG_PIN_WZ_FLOOR: usize = 1_368;
+
+// ---------------------------------------------------------------------------
+// Subcommand face.
+
+fn bg_main(args: &[String]) {
+    let sub = args.first().map(String::as_str);
+    match sub {
+        Some("expect") => bg_expect(),
+        Some("battery") => bg_battery(),
+        Some("canary") => bg_canary(),
+        Some("statement") => {
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(12);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
+            let reg = bg_build_groups(&lays, t, None);
+            println!(
+                "[UAGB1-BG] composed pass statement ({layers_n} layers, T = {t}): act group {} tensors / {} digit rings, weight group {} tensors / {} digit rings",
+                reg.ga.tensors.len(), reg.ga.n_digit_rings, reg.gw.tensors.len(), reg.gw.n_digit_rings
+            );
+        }
+        Some("prove") => {
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(12);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            let mode = args.get(3).map(String::as_str).unwrap_or("p0");
+            let p2 = match mode {
+                "p0" => false,
+                "p2" => true,
+                "p1" | "p3" => {
+                    let m = if mode == "p1" { manifest::MODE_P1 } else { manifest::MODE_P3 };
+                    panic!("{}", bg_mode_supported(m).unwrap_err());
+                }
+                m => panic!("unknown mode {m} (p0|p2)"),
+            };
+            println!(
+                "[UAGB1-BG] composed pass prove: {layers_n} layers, T = {t}, mode {} — scope: arithmetic relations (3 folded matmuls + Hadamard + 4 requant) + X/z public binding; table-membership facts NOT composed (see pass-agg expect)",
+                if p2 { "P2" } else { "P0" }
+            );
+            let opts = BgOpts { layers_n, t, p2, ..Default::default() };
+            let (v, c, art) = bg_pass_run(&opts);
+            println!("  statement digest {}", hex_full(&art.statement_digest));
+            println!("  byte lines (counted-not-serialized):");
+            println!("    statement (serialized, real): {}", c.bytes_statement);
+            for l in &c.inst_lines {
+                println!("    instance {}: {} kel = {} B", l.name, l.kel, l.kel * 64);
+            }
+            println!("    public binding claims: {}", c.bytes_public_claims);
+            for g in &c.group_lines {
+                println!(
+                    "    [{}] outer {} + rows {} + levels {} + floor {} (floor {} rings e{}, {} levels)",
+                    g.0, g.1, g.2, g.3, g.4, g.5, g.6, g.7
+                );
+            }
+            for tz in &c.tierz_lines {
+                println!("    [{}] tier-z mask images {} B, sampler restarts {}", tz.0, tz.1, tz.2);
+            }
+            println!("  TOTAL {} B | accept {}", c.bytes_total(), v.accept());
+        }
+        _ => println!("pass-agg statement|expect|prove [layers t p0|p2]|battery|canary"),
     }
 }

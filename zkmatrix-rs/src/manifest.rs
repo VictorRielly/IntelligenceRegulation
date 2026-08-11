@@ -634,6 +634,30 @@ pub struct TypingV4 {
     pub base_e0: u32,
 }
 
+/// [UAGB1-BG] The per-deployment privacy-mode declaration (TARGET_
+/// CONTRACT Amendment A1 / ZK_GAP_OPTIONS Section 6): the declared
+/// private set is a first-class statement field, never a silent
+/// default. mode: 0 = P0 (nothing private), 1 = P1 (inputs/acts
+/// private), 2 = P2 (weights private — the accumulation-critical
+/// class), 3 = P3 (both). `private_entries` lists the declared-private
+/// commitment entry ids (sorted, deduplicated). ADDITIVE discipline:
+/// a statement with `mode == None` digests AND serializes byte-
+/// identically to a pre-BG statement (enforced by freeze rows
+/// UAGB1-BG-1*); when Some, digest and wire carry a trailing tagged
+/// section. Declaration-consistency rules live in validate(); WHICH
+/// modes a prover can actually run is the composition layer's gate
+/// (wave 3: P0 and P2 only — P1/P3 refuse loudly there).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ModeDecl {
+    pub mode: u8,
+    pub private_entries: Vec<u32>,
+}
+
+pub const MODE_P0: u8 = 0;
+pub const MODE_P1: u8 = 1;
+pub const MODE_P2: u8 = 2;
+pub const MODE_P3: u8 = 3;
+
 /// The frozen v4 class registry (E-O1-BB; ids are wire values and MUST
 /// NOT be renumbered). Sources: AGGREGATION_ENCODING_DESIGN 8.1 frozen
 /// value-width classes + adopted digit bases (weight e0 = 1 sign-binary
@@ -728,6 +752,10 @@ pub struct Statement {
     /// [UAGB1-BF] v4 table family (empty and forbidden for v3; every
     /// entry must equal a `v4_table_registry()` member exactly).
     pub tables: Vec<TableSpec>,
+    /// [UAGB1-BG] Optional per-deployment privacy-mode declaration
+    /// (Amendment A1). None = no declaration — digest and wire bytes
+    /// are byte-identical to the pre-BG statement (additive-only).
+    pub mode: Option<ModeDecl>,
 }
 
 /// Structured validation errors. `op` fields are indices into
@@ -833,6 +861,12 @@ pub enum StatementError {
     /// [UAGB1-BF] An operation is not admissible under the statement's
     /// version (LookupAt/RangeLookup in v3; plain Lookup in v4).
     VersionedOperation { op: usize },
+    /// [UAGB1-BG] The privacy-mode declaration is inconsistent; `rule`
+    /// names the violated rule (bad mode id, v3 statement, unsorted or
+    /// unknown ids, or a mode/private-set mismatch: P0 = empty, P1 =
+    /// nonempty excluding every weight-class entry, P2 = exactly the
+    /// weight-class entries, P3 = every entry).
+    ModeDeclInvalid { rule: &'static str },
 }
 
 impl std::fmt::Display for StatementError {
@@ -936,6 +970,9 @@ impl std::fmt::Display for StatementError {
             }
             StatementError::TableNotFrozen { index } => {
                 write!(f, "tables[{index}] equals no frozen registry member")
+            }
+            StatementError::ModeDeclInvalid { rule } => {
+                write!(f, "privacy-mode declaration invalid: {rule}")
             }
             StatementError::VersionedOperation { op } => {
                 write!(f, "operation {op} is not admissible under this statement version")
@@ -1092,6 +1129,11 @@ impl<'a> ByteReader<'a> {
     }
     fn remaining(&self) -> usize {
         self.buf.len() - self.pos
+    }
+    /// [UAGB1-BG] Non-consuming look at the next byte (the optional
+    /// trailing mode-declaration section's tag gate).
+    fn peek_u8(&self) -> Option<u8> {
+        self.buf.get(self.pos).copied()
     }
     fn take(&mut self, n: usize) -> Result<&'a [u8], DecodeError> {
         if n > self.remaining() {
@@ -1302,6 +1344,7 @@ impl Statement {
             outputs: Vec::new(),
             typing: Vec::new(),
             tables: Vec::new(),
+            mode: None,
         }
     }
 
@@ -1327,6 +1370,7 @@ impl Statement {
             outputs: Vec::new(),
             typing: Vec::new(),
             tables,
+            mode: None,
         }
     }
 
@@ -1968,6 +2012,66 @@ impl Statement {
                 return Err(E::UnconsumedEntry { id: id as u32 });
             }
         }
+        // --- [UAGB1-BG] Privacy-mode declaration (Amendment A1). The
+        // --- declaration is DECLARATION-consistent here; which modes a
+        // --- prover can run is the composition layer's gate. ---------------
+        if let Some(m) = &self.mode {
+            if m.mode > MODE_P3 {
+                return Err(E::ModeDeclInvalid { rule: "mode id outside P0..P3" });
+            }
+            if !v4 {
+                return Err(E::ModeDeclInvalid {
+                    rule: "mode declaration requires v4 typed entries",
+                });
+            }
+            if !m.private_entries.windows(2).all(|w| w[0] < w[1]) {
+                return Err(E::ModeDeclInvalid {
+                    rule: "private set must be sorted and duplicate-free",
+                });
+            }
+            if m.private_entries.iter().any(|&id| id as usize >= entries.len()) {
+                return Err(E::ModeDeclInvalid { rule: "private set names a nonexistent id" });
+            }
+            let weight_ids: Vec<u32> = (0..entries.len() as u32)
+                .filter(|&id| self.typing[id as usize].class == CLS_W8S)
+                .collect();
+            match m.mode {
+                MODE_P0 => {
+                    if !m.private_entries.is_empty() {
+                        return Err(E::ModeDeclInvalid { rule: "P0 declares a nonempty private set" });
+                    }
+                }
+                MODE_P1 => {
+                    if m.private_entries.is_empty() {
+                        return Err(E::ModeDeclInvalid { rule: "P1 declares an empty private set" });
+                    }
+                    if m.private_entries.iter().any(|id| weight_ids.contains(id)) {
+                        return Err(E::ModeDeclInvalid {
+                            rule: "P1 private set includes a weight-class entry (that is P2/P3)",
+                        });
+                    }
+                }
+                MODE_P2 => {
+                    // The accumulation-critical class: EXACTLY the weight
+                    // entries (A1: any mode with private weights masks
+                    // every weight-touching proof, every pass).
+                    if m.private_entries != weight_ids {
+                        return Err(E::ModeDeclInvalid {
+                            rule: "P2 private set must be exactly the weight-class entries",
+                        });
+                    }
+                }
+                _ => {
+                    // P3: everything committed is private.
+                    let all: Vec<u32> = (0..entries.len() as u32).collect();
+                    if m.private_entries != all {
+                        return Err(E::ModeDeclInvalid {
+                            rule: "P3 private set must be every entry",
+                        });
+                    }
+                }
+            }
+        }
         Ok(())
     }
 
@@ -2053,6 +2157,17 @@ impl Statement {
                 w.quant(&spec.output);
                 w.i64(spec.domain_min);
                 w.i64(spec.domain_max);
+            }
+        }
+        // [UAGB1-BG] Trailing mode-declaration section, present ONLY
+        // when declared: mode-less statements' wire bytes (cv1 AND cv2)
+        // are unchanged — additive-only discipline.
+        if let Some(m) = &self.mode {
+            w.u8(0x4D); // 'M' section tag
+            w.u8(m.mode);
+            w.u32(m.private_entries.len() as u32);
+            for id in &m.private_entries {
+                w.u32(*id);
             }
         }
         w.into_vec()
@@ -2168,6 +2283,24 @@ impl Statement {
                 });
             }
         }
+        // [UAGB1-BG] Optional trailing mode-declaration section,
+        // parsed ONLY when the section tag 0x4D opens it (a mode
+        // section is at least tag + mode + u32 count = 6 bytes).
+        // Absent = None (the pre-BG wire); any OTHER trailing content
+        // still rejects below as TrailingBytes — the pre-BG negative
+        // vectors keep their exact errors.
+        let mode = if r.remaining() >= 6 && r.peek_u8() == Some(0x4D) {
+            let _tag = r.u8()?;
+            let mode = r.u8()?;
+            let n_ids = r.len(MAX_ENTRIES)?;
+            let mut private_entries = Vec::with_capacity(n_ids);
+            for _ in 0..n_ids {
+                private_entries.push(r.u32()?);
+            }
+            Some(ModeDecl { mode, private_entries })
+        } else {
+            None
+        };
         r.finish()?; // reject trailing bytes
         let st = Statement {
             header: StatementHeader { version, model_digest, table, modulus_bits },
@@ -2182,6 +2315,7 @@ impl Statement {
             outputs,
             typing,
             tables,
+            mode,
         };
         // A decoded statement must be a VALID statement — the fresh verifier
         // never trusts a wire statement's structure.
@@ -2249,6 +2383,17 @@ impl Statement {
             }
         }
         hasher.update(self.manifest.digest());
+        // [UAGB1-BG] Privacy-mode declaration: absorbed ONLY when
+        // declared — a mode-less statement's digest is byte-identical
+        // to the pre-BG stream (freeze rows UAGB1-BG-1*).
+        if let Some(m) = &self.mode {
+            absorb_bytes(&mut hasher, b"uagb1-mode-decl");
+            hasher.update([m.mode]);
+            hasher.update((m.private_entries.len() as u64).to_le_bytes());
+            for id in &m.private_entries {
+                hasher.update(id.to_le_bytes());
+            }
+        }
         Ok(hasher.finalize().into())
     }
 }
