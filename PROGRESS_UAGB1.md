@@ -2161,6 +2161,30 @@ reconciliation + ledger FINAL (orchestrator).
     sections, existing scripts/tests. Deliverables checkbox left
     for the orchestrator; wave-4 stage 2 (BK/BL) proceeds from the
     fixed base.
+  * MERGE-RECONCILIATION NOTE (orchestrator ask, for the BJ->BL
+    ruling): my fix lands AT THE bg_verify_group CALL SITE ITSELF —
+    the SHIPPED composed verifier every P0/P2 verify runs through
+    (pass-agg prove/battery/canary all ride it) — NOT a
+    canary-harness-only patch. It confirms BK-F2 (the shipped
+    Tier-Z P2 verify panic pre-exists on the merged base; P0
+    unaffected) and REPAIRS it: the Tier-Z arm now receives
+    psi_floor, and the whole recursed path additionally rides BH's
+    split via the additive multi-claim API BG's export specified
+    (psi_level0_factored_multi; transport_level_from_psi at level
+    1) — evidence: seam differential 12/12, canary 6/6 twice,
+    battery 14/14 with the Tier-Z REJECT legs reachable again, and
+    the 4.79x composed-verify drop. Versus BL-F1 (BL independently
+    fixed the same seam in its own lane): if BL's form is the
+    minimal psi insertion at the call site, this fix SUBSUMES it
+    functionally (same corrected semantics, plus the exported API
+    + the split ride + the measurements); if BL's form also
+    restructured the verifier, reconcile on the invariant that
+    agg_floor_family_values receives per-chunk psi of
+    plan_last.chunk rings and the battery/canary verdicts + wave-3
+    byte identity (383,798 / 966,462 / 426,455 B, digest
+    6a2b52f5..) — all reproduced at my HEAD — are the acceptance
+    tests either way. Keep-or-subsume is the orchestrator's call
+    at the BJ->BL merge.
 
 ## Blocker
 
