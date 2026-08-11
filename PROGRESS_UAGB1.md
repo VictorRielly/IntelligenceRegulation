@@ -2020,7 +2020,98 @@ recipe.
 
 ## Agent BL status (wt-uagb1-bl)
 
-- (lane launches here)
+- 2026-08-10 PLAN COMMIT (skeleton-commit-first; read phase COMPLETE:
+  ledger wave-3 close + wave-4 zones; UAGB1_PASS_AGG_REPORT (the P2
+  residual: weight-touching round polynomials unmasked, T_blind
+  absent = E-1..E-5, ~1,664 B [MODEL] = FP 3.2's 4 x 416 B);
+  AGGREGATION_ZK_DESIGN 2.2-2.4/3.2 (AZ-L1a mask counting n_g =
+  1 + sum d_t, AZ-L1b, AZ-L2a/b selector-extension pads + unit-weight
+  claim segment), FP 2.2 (A5-A8 hash edges)/3.2 (mask wire deltas);
+  AZB_BATTERY_PLAN S3 E-1..E-9 specs; engine: the [UAGB1-BG] composed
+  path end to end (bg_pass_run claim layer -> bg_prove/verify_group),
+  pass_agg.rs GroupClaims (tensor_idx-generic — carries blind claims
+  unchanged), fold.rs public sumcheck API + sumcheck.rs public
+  round_poly/fold/lagrange_eval, digits CLASS_Q31C, kfield
+  lane_split/lane_merge, eval_proof plan_schedule/force_levels).
+- LEAK INVENTORY at the composed P2 path (what T_blind must cover;
+  act side public in P2 by declaration): (1) the 3 matmul instances'
+  ROUND POLYNOMIALS (functions of the weight tables); (2) the
+  weight-side TERMINALS b* (raw folded-weight MLE values); (3) the
+  weight-group CLAIM ROWS b_rows — ct is public by design (= v_batch)
+  but the 16 x 127 non-ct coordinates are weight functionals (the
+  AZ-L2b batch-value face BG's label subsumed under E-blocks).
+- DESIGN TRANSCRIPTION (the plan; masked sumcheck = Libra
+  Construction-1 univariate-sum masks per AZ-L1a; pads per AZ-L2a;
+  claim segment per AZ-L2b; T_blind commitment = CLASS_Q31C tensors
+  APPENDED TO THE WEIGHT GROUP pre-h0 — one u_0 covers T_W ++
+  T_blind, so the E-3 "T_blind digest inside h0" edge is realized at
+  the u_0/descent face with ZERO extra identity bytes; deviation from
+  the design's third-outer-identity shape recorded): per matmul
+  instance a mask tensor (n_g x 16 Z_q coords, n_g = 2*lk + 3*lambda
+  + 4 incl. the +1 extension round), one pad ring (1 x 128), plus ONE
+  claim-segment tensor (16 x 128) per weight group entering b_rows
+  DIAGONALLY at unit weight. Instance FS order: v_c -> G pin -> rho
+  -> masked rounds (product part via house round_poly arithmetic +
+  rho * additive mask part) -> finals -> g_open; extension bit = top
+  variable, sched [2;lk]++[3;lambda]++[2], b* pad summand ext* *
+  eq_ks[0] * <beta, eq_ry[..128]> (guards asserted, restarts logged);
+  masked initial claim v_c + rho*G; end check combine(finals) +
+  rho*g_open; g_open/pad/segment ride GroupClaims into the ONE
+  weight-group batched opening (E-O2-BB intact), grounded by the
+  Tier-Z-masked descent (mask material NEVER in a bare floor — the
+  act floor stays blind-free, AZB-11 invariant preserved).
+- DERIVED SURCHARGE (counted convention): per masked instance G 64 +
+  g_open 64 + ext round 192 = 320 B; x3 + segment value 64 =
+  **1,024 B** vs BG's ~1,664 B [MODEL] (the model priced a 4th
+  masked instance — the CR-L4 terminal batch sumcheck — which the
+  engine composed path replaced by direct nu-RLC; its face here is
+  the 64 B claim segment). Committed-only (zero wire): 544 blind
+  digit rings at 125M (3x96 + 256) on 3,538,944 — floors expected
+  UNCHANGED by BG-F4's regrowth law, verified at derive.
+- PLAN: (D1) src/ring/t_blind.rs — MaskSpec (draw/commit/G/round
+  contribs/eval/kernel), masked scheduled sumcheck prove/verify
+  (house transcript discipline, own labels), pad/segment builders,
+  freshness registry (witness digest, T_blind digest — E-5), rank
+  certificates (AZ-L1a per instance, AZ-L2a pad diagonal, segment
+  diagonal, E-8 block-triangular composition), slot tools via
+  lane_split. (D2) surgical mode-gated hooks in the [UAGB1-BG]
+  composed path, every touch marked [UAGB1-BL], all defaults
+  preserving byte-identical P0/noblind behavior (bg_battery/
+  bg_canary untouched and must stay green); BgOpts.t_blind +
+  battery-only hooks (h0_salt, stop_after_claims, tblind_unbound,
+  nu_early, rho_early, pad_late, reuse, slot_shared, rig_weights);
+  BgClaim.blind_parts; BgBundle.tbl wire face; assemble carries the
+  unit-weight segment; `pass-agg prove ... p2` flips t_blind ON
+  (single marked line — P2 carries the surcharge; noblind P2 remains
+  the battery-internal regression config). (D3) [UAGB1-BL] section +
+  ONE dispatch arm `t-blind` (expect | prove | battery); AZB legs:
+  E-1 (rigged sparse weights, claims-only multi-proof collection,
+  exact recovery at the predicted count, rank growth law), E-2
+  (blind-on coset + 2 planted wrong tensors explained; derive-time
+  AZ-L1a/L1b-sequential/L2a counting canaries in the shipped blind
+  path), E-3 (unbound-hook swap ACCEPTS / shipped REJECTS at the
+  u_0-descent face — engine realization of the h0 digest edge,
+  documented), E-4 (pad-late, nu-early, rho-early F5 pairs), E-5
+  (shared-blind differencing recovery at the predicted count vs
+  fresh-blind stuck + shipped derive-time reuse REFUSAL), E-7(ii)
+  (toy 1-level floor accumulation rank law via a direct LevelPlan
+  harness) + E-7(iii) (toy-scale simulator match for the components
+  this lane adds; commitments documented computational), E-8
+  (block-triangular conditional-rank certificate at derive,
+  deployment-blocking), E-9 (slot-shared segment hook leaks
+  slot-differences of b_rows / shipped ring-granular draw certified
+  per-slot). Freeze rows UAGB1-BL-1a.. (blind inventories, schedule
+  vs BG pins, derived surcharge, exposure/dim counts) both
+  directions. Gates: build; freeze-check (pre-existing digests
+  unmoved); suite; P0 differential (P0 3/16 counted bytes == BG's
+  383,798 + structural no-blind assert); P2-blind 3/16 accept=true;
+  full-pass single-shot in background if wall-clock permits
+  [MAC-BOX, NOISY-SHARED — three siblings run].
+- WILL NOT DO: eval_proof.rs, lookup.rs, fold.rs, gkr_masked.rs,
+  manifest.rs, wire.rs edits; bg_battery/bg_canary/canary-harness
+  edits (BJ's stage); act-side masks (P1/P3 stay refused, refusal
+  text updated to name only the remaining gap); descent-fold work
+  (BK); push.
 
 ## Blocker
 
