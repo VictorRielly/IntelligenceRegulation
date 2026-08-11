@@ -2156,17 +2156,24 @@ recipe.
     round-mask wiring does not need; its +576 B is in the derived-full
     total, not on the wire this wave. Honest label carried in the
     refusal text (P1/P3 now name only the ACT-side mask as absent).
-  * FINDING BL-F1 (R-BG1-class, fixed in the composed verifier): BD's
-    Tier-Z masked-floor VERIFIER passed raw phi_cur (r x chunk) as the
-    L1-family psi vs the prover's compute_psi-folded (chunk); coincide
-    only at last-level r = 1 (every shipped pass schedule). The blind
-    tensors enlarge SMALL-shape n0 to r = 6 and surfaced it (960 vs
-    160 panic — the same assert/shape class as R-BG1's "972 vs 162" =
-    6x162). Fixed by mirroring the prover (compute_psi) in
-    bg_verify_group's Tier-Z branch, behavior-identical at r = 1
-    (P2-noblind = 966,462 B, unchanged). Full 12-layer pass keeps
-    r = 1 (BL-1d). BJ owns R-BG1 — orchestrator reconciles at BJ ->
-    BL merge (one marked block, keep-or-subsume).
+  * FINDING BL-F1 (the R-BG1 seam's SECOND face, fixed in the composed
+    verifier): the BH merge hoisted the Tier-Z L1 psi fold to callers
+    (parameter contract raw phi -> FOLDED compute_psi; "values
+    unchanged" = the prover); BG's composed VERIFIER call site stayed
+    on the old contract at merged HEAD. At last-level r > 1 it panics
+    the length assert (R-BG1's exact "972 vs 162" = 6x162 signature —
+    the canary was just the first P2 verify to run); at r = 1 the
+    assert passes but the verifier's L1 functional (raw phi) differs
+    from the prover's images (phi (x) c_0) — an honest P2 proof would
+    REJECT at tierz-family (arithmetic consequence; empirical 12/512
+    confirmation = BJ's composed-verify re-measure, the post-merge P2
+    verify having never been re-exercised — the suite smoke is
+    P0-only). FIX: compute_psi in bg_verify_group's Tier-Z branch (one
+    marked block) — anchors: pre-fix P2+blind 2/16 panics (960 vs
+    160); post-fix P2-noblind 3/16 ACCEPTS at BG's exact in-lane bytes
+    (966,462 B) = BG's pre-merge prover/verifier consistency restored.
+    BJ owns R-BG1 — orchestrator reconciles at BJ -> BL merge
+    (keep-or-subsume).
   * E-BLOCK DISPOSITION: E-1/E-2/E-3/E-4/E-5/E-7(ii,iii)/E-8/E-9 wired
     as executable certificate legs (t-blind battery). E-6/E-7(i)/E-10/
     E-11 remain BD/BG's landed legs (consumed, not re-claimed).

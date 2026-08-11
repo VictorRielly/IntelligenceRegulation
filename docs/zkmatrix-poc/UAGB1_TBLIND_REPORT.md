@@ -285,33 +285,43 @@ the entire delta).
   1,019,211 + 448 = **1,019,659 B**; honest fallback per the brief if
   wall-clock does not permit completion inside the lane.
 
-### 6.1 Finding BL-F1 (a BD Tier-Z verifier assumption the blind exposed)
+### 6.1 Finding BL-F1 (the composed P2 verifier's stale psi contract — the R-BG1 seam's second face)
 
-BD's Tier-Z masked-floor VERIFIER (`bg_verify_group`, the
-`agg_floor_family_values` call) passed the raw `phi_cur` (length
-r x chunk) as the L1-family `psi`, whereas the PROVER
-(`agg_tier_z_mask_floor`) folds it via `compute_psi(phi, chunk,
-prev_c)` (length chunk). The two coincide only when the last
-schedule level has r = 1 — true for every shipped pass schedule, so
-P2-noblind was always green. The T_blind tensors enlarge a SMALL-
-shape weight group's n0 enough to move the last level to r = 6,
-which surfaced the mismatch as a psi-length panic (960 vs 160). The
-one-line fix mirrors the prover in the verifier (fold via
-`compute_psi`); it is behavior-identical at r = 1 (P2-noblind
-regression re-run = 966,462 B accept, Section 6). The full 12-layer
-pass schedule keeps r = 1 at the last level regardless of the blind
-(BL-1d), so the shipped pass path was never affected.
+The BH merge hoisted the Tier-Z L1-family psi fold out of
+`agg_floor_family_values` to its CALLERS (the [UAGB1-BH] note in
+that function: the prover now computes `psi =
+compute_psi(phi, chunk, cs)` once per group, "values unchanged" —
+for the PROVER). The parameter contract changed from raw phi
+(r x chunk) to FOLDED psi (chunk). BG's composed VERIFIER
+(`bg_verify_group`, Tier-Z branch) was written against the old
+contract and still passed raw `phi_cur` at merged HEAD. Consequences
+at the merged base, BEFORE this lane:
 
-**R-BG1 connection (flagged for the BJ merge seam, NOT claimed as
-its fix):** R-BG1's recorded crash is the SAME assert at the same
-line class ("psi seam ... left 972 right 162" = 6 x 162 — the 3/16
-P2 weight-group last level r = 6, chunk = 162). The canary's P2
-verifies at merged HEAD hit exactly this raw-phi-vs-folded-psi
-mismatch. My fix removes that crash site in `bg_verify_group`'s
-Tier-Z branch; lane BJ owns R-BG1 (the eval_proof multi-claim API +
-the canary call sites) — the orchestrator should reconcile the two
-at the BJ -> BL merge (my change is one marked block, safe to keep
-or subsume).
+- last level r > 1: the psi length assert panics — this is exactly
+  R-BG1's recorded signature ("left 972 right 162" = 6 x 162, the
+  3/16 P2 weight group), first seen in the canary because that is
+  what ran P2 verifies at merged HEAD;
+- last level r = 1: the assert passes but the verifier's L1
+  functional uses raw phi where the prover's images use
+  phi (x) c_0 (compute_psi at r = 1 multiplies by the quinary
+  challenge) — the functionals differ unless c_0 = 1, so an honest
+  P2 proof would be REJECTED at tierz-family. Stated as the
+  arithmetic consequence; the empirical 12/512 confirmation belongs
+  to BJ's composed-verify re-measure item (the post-merge P2 verify
+  had not been re-exercised — the suite's composed smoke is
+  P0-only).
+
+The fix (this lane, one marked block): fold via `compute_psi` in the
+verifier, restoring the prover's contract at ANY r. Empirical
+anchors: (i) the pre-fix P2+blind 2/16 run panicked at the assert
+(960 vs 160 — the r > 1 face, surfaced by the blind rings enlarging
+the small-shape schedule); (ii) the post-fix P2-noblind 3/16 run
+ACCEPTS at exactly BG's in-lane pinned bytes (966,462 B) — the
+prover/verifier consistency of BG's pre-merge lane is restored at
+the merged base. Lane BJ owns R-BG1 (the eval_proof multi-claim API
++ the canary call sites); the orchestrator should reconcile at the
+BJ -> BL merge — this fix is the composed-path call-site half,
+keep-or-subsume.
 
 ## 7. Freeze rows and reproduction
 
