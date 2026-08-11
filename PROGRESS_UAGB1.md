@@ -2166,12 +2166,23 @@ recipe.
     ClaimKernelCtx BG specified is what the pins want — built AROUND
     it in pass_agg::GroupClaims (streaming kw_value_row), migratable
     verbatim when BJ lands it (non-blocking).
+  * BATTERY **5/5 GREEN** (1,806.7 s [MAC-BOX, NOISY-SHARED], 3
+    layers T=16 real data): honest-p0 ACCEPT (985,142 B); off-table
+    REJECT isolated at pair-cross-check:rem-w10 (the LogUp gate);
+    wrong-table REJECT at ct-row-gate (the statement-side fold);
+    cross-table m-swap REJECT at floor-target (the act floor chain);
+    mask-order A6 binding leg both directions (SHIPPED h0 moves with
+    u_0(T_act), WEAK h0 invariant — the FP-L2 edge). **Finding
+    BK-F3:** the concrete adaptive blinder forge was attempted but
+    NOT exhibited (rejected under both orders — the harness did not
+    reproduce the masked-tree root arithmetic); the binding property
+    IS demonstrated; honest scope stated in the report.
   * GATES: build green; freeze-check exit 0 (pre-existing digests
     UNMOVED, new rows UAGB1-BK-1/2/3 both directions); **full suite
     62/62 OK (748.7 s) from the worktree root** [MAC-BOX,
     NOISY-SHARED]; report docs/zkmatrix-poc/UAGB1_TABLE_DESCENT_
-    REPORT.md. Battery verdicts + the measured 12x512 numbers follow
-    the backgrounded runs (recorded below when landed).
+    REPORT.md. The measured 12x512 full-statement number follows the
+    backgrounded run (recorded below when landed).
 
 ## Agent BL status (wt-uagb1-bl)
 

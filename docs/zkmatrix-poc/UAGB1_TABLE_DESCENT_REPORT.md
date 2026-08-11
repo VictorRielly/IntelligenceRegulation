@@ -377,9 +377,9 @@ buildable shape) and the derived full-statement lines (~1.440 MiB
 Tier N / ~2.005 MiB P2, honestly ~9% above the [MODEL] lines with a
 named cause); E-O3-BB dispositioned CLOSED via the measured split;
 freeze rows UAGB1-BK-1..3; small-shape composed P0 accept measured;
-battery = 4 soundness legs green (honest ACCEPT, off-table /
-wrong-table / cross-table REJECT at their isolated gates) + the
-deterministic A6 binding leg. Findings: BK-F2 (R-BG1's blast radius —
+battery **5/5 GREEN** (honest ACCEPT; off-table / wrong-table /
+cross-table REJECT at their exact pre-registered isolated gates; the
+deterministic A6 binding leg both directions). Findings: BK-F2 (R-BG1's blast radius —
 the shipped Tier-Z P2 verify panics at last-level r>1 on the merged
 base, BJ's zone, pre-existing), BK-F3 (the concrete adaptive
 mask-order forge not exhibited; the binding property is). Full suite
