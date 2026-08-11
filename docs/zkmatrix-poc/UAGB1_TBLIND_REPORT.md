@@ -256,8 +256,18 @@ the entire delta).
   pinned battery value**, confirming the BL-F1 Tier-Z verifier fix is
   behavior-identical at r = 1 [commit 33.7 s / prove 335.3 s / verify
   80.4 s].
-- **Full suite + `pass-agg battery`**: run at HEAD (results in the
-  ledger row).
+- **Full suite (worktree root)**: **67 tests OK in 1,013.9 s**
+  [MAC-BOX, NOISY-SHARED] — includes the new tests/test_uagb1_tblind.py
+  module and the Rust self-test battery.
+- **`pass-agg battery` at HEAD**: running at close (result recorded in
+  the ledger row when it lands; note the battery's P2 legs ride the
+  BL-F1-fixed verifier — at the merged-HEAD base its honest-P2 leg
+  would hit the R-BG1-class assert).
+- **Full-pass 12/512 P2+T_blind single-shot**: launched in background
+  [NOISY-SHARED — sibling lanes run heavy jobs incl. a 12-layer pass];
+  the derived expectation is exact (BL-1d: schedules unmoved) =
+  1,019,211 + 448 = **1,019,659 B**; honest fallback per the brief if
+  wall-clock does not permit completion inside the lane.
 
 ### 6.1 Finding BL-F1 (a BD Tier-Z verifier assumption the blind exposed)
 
