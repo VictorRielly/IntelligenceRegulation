@@ -181,7 +181,23 @@ specify. The battery leg ids below are the `t-blind battery` prints.
 |---|---|
 | E-1 (AZB-1) | **WIRED (leg L3)** — the permanent pre-fix regression: with terminals UNBLINDED, the solver recovers a dim-6 rigged secret at EXACTLY 6 proofs, rank growing by exactly 1/proof (never faster), recovery not-before. The unblinded config = the pre-BL P2 path, kept as `p2-noblind`. |
 | E-2 (AZB-2) | **WIRED (legs L4 + L5)** — (i) blinded non-recovery: a fresh pad unknown per proof keeps the augmented system rank = #proofs with the secret block FREE (the full-coset face); (ii) the AZ-L1a counting canary: the round-mask coefficient-to-exposure map computed by finite differences at a real schedule has FULL COLUMN RANK 16*n_g (240 = 240 at the L5 shape). The composed instances draw sequential challenges (the block-diagonal case of AZ-L1b — stated, easier than the shared-challenge form). |
-| E-3 (AZB-3) | **WIRED (leg L7), both directions** — the adaptive forged pin G' = G + (v_c − v_false)/rho ACCEPTS an arbitrary false claim when rho is drawn without G (unbound hook) and REJECTS shipped (rho = H(.., G) is a fixed point the attacker cannot solve). In-path, G is additionally grounded against the CO
+| E-3 (AZB-3) | **WIRED (leg L7), both directions** — the adaptive forged pin G' = G + (v_c − v_false)/rho ACCEPTS an arbitrary false claim when rho is drawn without G (unbound hook) and REJECTS shipped (rho = H(.., G) is a fixed point the attacker cannot solve). In-path, G is additionally grounded against the COMMITTED mask (the hypersum-kernel claim through the weight-group opening) — defense in depth beyond the ordering edge. |
+| E-4 (AZB-4) | **WIRED (leg L8)** — the terminal is grounded to the committed (padded) weight table: a post-hoc terminal lie fails the MLE grounding in the shipped order; only a pad edit committed BEFORE the challenges could move it (which is exactly what the pre-h0 commitment forbids). The rho-before-G face is L7's pair; the nu-ordering edge stays covered by the composed path's CRB-N5 discipline (nus drawn after all terminals absorbed — unchanged from BG). |
+| E-5 (AZB-5) | **WIRED (leg L9), both directions** — the derive-time registry REFUSES a repeated (witness digest, T_blind digest) pair loudly (F-Z3 error semantics); the shared-pad differencing face is exhibited (pad cancels in transcript differences leaving a nonzero witness functional — the half-rate leak class). In-path the registry is keyed on the drawn blind values; battery fixed-coin runs bypass by design. |
+| E-6, E-7(i), E-10, E-11 | landed by BD/BG (waves 2-3) — consumed unchanged, not re-claimed. The AZB-11 canary invariant is structurally preserved: blind tensors live in the WEIGHT group only; the act floor stays blind-free. |
+| E-7(ii) | **WIRED (leg L4)** — the accumulation rank law at rigged toy scale: the unblinded system's rank grows by exactly the per-proof equation count to recovery at the threshold (L3), and the blinded system's augmented rank = #proofs with the secret free (L4) — the two sides of the law. |
+| E-7(iii) | **WIRED (leg L11)** — simulator surjectivity: exposure dims (320) >= coefficient dims (16*n_g = 240) with the L5 full-rank map, so the witness-free simulator can hit any consistent exposure vector; a fresh mask yields a distinct accepting transcript (the uniform sample). Commitments (u_0/u_i) are computational (MLWE class) — simulated, never statistically tested; recorded, see BL-F2. |
+| E-8 (AZ-O2) | **WIRED (legs L5 + L6)** — the joint-blinding certificate, block-composed: [rounds x mask] full column rank 16*n_g (L5); [terminal x pad] nonzero image (L6); the in-path segment block is diagonal-unit on b_rows by the conj-packing arithmetic (Section 2.3); off-blocks zero by construction (the segment feeds no round table; the mask feeds no terminal). FAIL semantics: the battery asserts — a failed certificate is deployment-blocking (F-Z3). |
+| E-9 (AZB-9) | **WIRED (leg L10), both directions, real partially-split GF(q^16)** — ring-granular blinds give 8 independent CRT-slot images (rank 8 via lane_split); the slot-shared rigged draw collapses to rank 1 — the per-slot leak exhibited. The shipped segment/pad sampler draws all 128 coordinates fresh (ring granularity, AZ-R1). |
+
+Findings attached to the table: **BL-F2** — the engine's u_0/u_i
+commitments are deterministic Ajtai images WITHOUT the design's
+ternary hiding tails (PARAMS 2.2/2.5), engine-wide since BD (every
+landed wave shares it). Binding is unaffected; strict commitment
+HIDING rests on witness entropy rather than MLWE randomness until
+tails land. Adjacent to but distinct from this lane's
+round-polynomial scope (eval_proof.rs is BJ's zone this stage);
+recorded for FINAL, not built here.
 
 ## 5. What landed in-path, and what is certified but pending
 
