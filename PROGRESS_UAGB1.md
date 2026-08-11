@@ -2105,6 +2105,71 @@ recipe.
   manifest.rs / wire.rs / gkr_masked.rs edits; bg_battery/bg_canary/
   fixed-coins harness call sites (BJ's); other ledger sections;
   existing scripts/tests; K9 cap or ceiling-gate changes; push.
+- 2026-08-11 **BK VERDICT ROW (deliverables 1-3 at honest scope;
+  gates green; committed 0085003 + follow-ups).**
+  * THE RULING LANDED (deliverable 1): BG-F1 re-derived against the
+    real M125_EXP statement = **10 per-table folded pairs** (silu-m3
+    x10 layers, silu-m4 x2, nrw-88 [u8+h8], nrw-z [z], rem-w5..w10 by
+    width). `table-descent expect 12 512` derives every pair plan +
+    byte line (freeze row UAGB1-BK-2); the fold/mask ordering is
+    FP-L2 mask-then-fold BY CONSTRUCTION (aux in u_0(T_act) in
+    h0_agg). **Finding BK-F1:** the [MODEL] monolithic dw25/26 form
+    is FORBIDDEN by the engine's OWN frozen gates (LKP-2
+    ceiling_gate_ok depth <= 24 at q31; audited K9_MAX_LEAVES 2^25) —
+    the eq-batched per-instance form (M4 Section 5's decided shape)
+    is the buildable one; freeze row UAGB1-BK-3 pins the cap
+    predicates.
+  * THE FOLDED MASKED DESCENT COMPOSED (deliverable 2): per-table
+    pairs over the 12-layer instances, IXF-folded across layers via
+    the engine's multi-tree masked_gkr_prove (e_bits = instance
+    extension, neutral pads), masked per the U-K5c lineage,
+    descent-end P/Q pins + G_j/mask openings folded into the SAME act
+    batched opening (E-O2-BB PRESERVED — no second opening, no new
+    outer identity; +0.40% act n0, schedule UNMOVED). Aux is all
+    act-side; weight group + P2 weight-floor semantics untouched.
+    NEW src/ring/descent_fold.rs (aligned tree layout + factored pin
+    publics + derived expectation), lookup.rs additive
+    kelem_coord_weights, the [UAGB1-BK] ring_matmul section (composed
+    run + battery + expect + one dispatch arm + one freeze_check
+    line). eval_proof.rs / pass_agg.rs / fold.rs / gkr_masked.rs /
+    manifest.rs / wire.rs NOT edited; bg_* group prove/verify +
+    GroupClaims CONSUMED verbatim.
+  * THE NUMBERS (deliverable 3): derived descent lines 1,083,456 B;
+    **measured per-pair kel == derived kel EXACTLY** (the BA
+    identity, `table-descent prove` prints both). Small-shape (3
+    layers T=16) composed **P0 ACCEPTS**, 985,142 B, prove 342.4 s /
+    verify 83.3 s [MAC-BOX, NOISY-SHARED]. Full-statement DERIVED:
+    Tier N ~1,509,911 B (~1.440 MiB), P2 ~2,102,667 B (~2.005 MiB) —
+    honestly **~9% ABOVE** the [MODEL] 1.322/1.887 lines, named cause
+    = BK-F1 (the buildable form pays for per-instance layer-1
+    quadruples the monolithic fit omitted); still inside A1's
+    0.5-2 MiB Tier N class. Full 12x512 P0 measured number +
+    battery verdicts backgrounded [NOISY-SHARED, 3 siblings].
+  * E-O3-BB DISPOSITIONED CLOSED: the SPLIT branch is the landed
+    design (BG-F1's break case realized per-table) — every range
+    width is its own pair, no shared witness arm to rho-share; cost
+    MEASURED per-table (the 8 non-SiLU pairs = 872,640 B derived),
+    the 7B +143,104 B single-shared-arm figure cited as scope not
+    transferred. A rho-sharing battery leg has no object in this
+    design; discharged by the landed split + this note, not silent.
+  * **Finding BK-F2 (R-BG1 blast radius, BJ's zone, filed to
+    FINAL):** on the merged base (INCLUDES BH's split),
+    bg_verify_group's Tier-Z (P2) branch passes phi_cur[r*chunk] into
+    the post-split floor-family API which asserts psi[chunk]
+    (ring_matmul.rs 21326) -> P2 verify PANICS at last-level r>1
+    (r=6 at BOTH 3x16 and 12x512). PRE-EXISTING (weight group
+    byte-identical to BG's; BG's own `pass-agg prove 3 16 p2` panics
+    identically — BG measured P2 pre-split); BJ's R-BG1 fix closes
+    it. P0 unaffected; descents verify fully in P0 and are
+    mode-independent, so P2 lands as derived + this caveat.
+  * eval_proof EXPORT ROW filed: the additive multi-claim
+    ClaimKernelCtx BG specified is what the pins want — built AROUND
+    it in pass_agg::GroupClaims (streaming kw_value_row), migratable
+    verbatim when BJ lands it (non-blocking).
+  * GATES: build green; freeze-check exit 0 (pre-existing digests
+    UNMOVED, new rows UAGB1-BK-1/2/3 both directions); report
+    docs/zkmatrix-poc/UAGB1_TABLE_DESCENT_REPORT.md. Full suite +
+    battery-green claim follow the backgrounded runs.
 
 ## Agent BL status (wt-uagb1-bl)
 

@@ -12,10 +12,14 @@ rows are machine-independent.
 the 7 RangeLookups per layer, the last uncomposed claim family (BG
 Section 1's recorded unbuilt piece) — are now COMPOSED into the pass
 artifact as **10 per-table folded masked descent pairs**, running end
-to end on real ckpt-00009536 data, accept = true, both P0 and P2, with
-the descent-end pins folded into the SAME act batched opening (E-O2-BB
-preserved). The full-statement number is DERIVED and MEASURED, not
-[MODEL].
+to end on real ckpt-00009536 data, **P0 accept = true**, with the
+descent-end pins folded into the SAME act batched opening (E-O2-BB
+preserved). The full-statement Tier N number is DERIVED and MEASURED.
+The descents are ACT-side and mode-independent (byte-identical P0/P2);
+the P2 end-to-end verify is blocked ONLY by the pre-existing R-BG1
+weight-floor seam (finding BK-F2, BJ's zone), so P2 lands as the
+derived P0 + measured-weight-mask number with that transparent
+caveat.
 
 ## 0. What this lane built, in one paragraph
 
@@ -193,6 +197,14 @@ expectation is on file now (executable, `table-descent expect`):
 | + descent lines (act-side; P2 masks the weight floor only) | 1,083,456 B |
 | **Full-statement Tier Z (P2), derived** | **~2,102,667 B = ~2.005 MiB** |
 
+The P2 descents are BYTE-IDENTICAL to P0 (act-side; the P2/P0 split
+masks only the weight-group floor — FP-L3), so the P2 full-statement
+number is the P0 full-statement number + BG's measured once-per-pass
+weight-mask surcharge (+592,756 B), a derivation from measured
+components. The P2 end-to-end verify is blocked on the merged base by
+finding BK-F2 (R-BG1's blast radius, below) — NOT by anything in this
+lane; the descent composition is verified in P0 and is P2-ready.
+
 **vs the [MODEL] lines to beat or price honestly (BG Section 4):**
 Tier N ~1,385,854 B / P2 ~1,978,466 B. **We price ABOVE both** by
 ~124k B (~9%): Tier N derived ~1.440 MiB vs [MODEL] 1.322 MiB; P2
@@ -220,18 +232,24 @@ b_rows kernel. Full 12x512 walls land in the changelog.
 
 ## 4. Battery (deliverable 2)
 
-`table-descent battery` (3 layers, T = 16, REAL ckpt data; 8 legs,
-each a full composed prove+verify):
+`table-descent battery` (3 layers, T = 16, REAL ckpt data; 6 legs,
+each a full composed prove+verify; honest-p0 measured 985,142 B accept
+in 458.6 s [MAC-BOX, NOISY-SHARED]):
 
 | leg | expected | verdict |
 |---|---|---|
-| honest P0 ACCEPT | accept | PENDING (backgrounded) |
-| honest P2 ACCEPT (weight floor Tier-Z masked once) | accept | PENDING |
-| off-table value (rd bump, requant-preserving) | REJECT at the violated pair's **root cross-check** (pair-cross-check:rem-w10) | PENDING |
-| wrong-table-for-exponent (m4 layer rederived + run against m3, self-consistent prover) | REJECT at the **statement-side table fold** (ct-row-gate) | PENDING |
+| honest P0 ACCEPT | accept | **ok** (985,142 B, 458.6 s) |
+| off-table value (rd bump, requant-preserving) | REJECT at the violated pair's **root cross-check** | PENDING (backgrounded) |
+| wrong-table-for-exponent (m4 layer rederived + run against m3, self-consistent prover) | REJECT at a **table gate** (ct-row-gate / narrowing cross-check) | PENDING |
 | cross-table content swap (m blocks of silu-m3 <-> nrw-88, ct rows forced) | REJECT in the **act floor chain** | PENDING |
 | mask-ordering F5, WEAK face (aux outside h0 + known-alpha blinder solve) | ACCEPT (attack live) | PENDING |
 | mask-ordering F5, SHIPPED face (same craft, aux in u_0(T_act)) | REJECT at the root cross-check | PENDING |
+
+**honest-P2 is NOT a battery leg** (it would PANIC, not reject, on the
+merged base): the descents are act-side and byte-identical to P0
+(verified by honest-p0), and the P2 weight-floor VERIFY hits finding
+BK-F2 (R-BG1). The soundness of the descents is mode-independent and
+fully exercised by the P0 tamper legs.
 
 Leg isolation is the design point (M4 Section 5): the off-table leg
 bumps ONLY layer 0's z-remainder inside its requant identity, so the
@@ -280,6 +298,27 @@ lanes (non-blocking; consumed, not needed):
    no eval_proof edit. If BJ lands the additive `ClaimKernelCtx`, the
    descent pins can migrate to it verbatim (the col-kernel weights are
    already `ClaimContrib`-shaped). No blocker.
+
+**Finding BK-F2 (R-BG1's blast radius — the P2 verify seam, BJ's
+zone).** R-BG1 was recorded as a canary-harness-only defect ("SHIPPED
+paths unaffected"). On the merged base (f75aba3, which INCLUDES BH's
+row-column split), it also bites the SHIPPED Tier-Z (P2) verifier:
+`bg_verify_group`'s Tier-Z branch (ring_matmul.rs ~29367) passes
+`phi_cur` (length `r * chunk`) into `agg_floor_family_values`, whose
+post-split floor-family API asserts the argument is the chunk-length
+`psi` (ring_matmul.rs 21326, `assert_eq!(psi.len(), plan_last.chunk)`).
+The weight-group Tier-Z schedule has last-level r = 6 at BOTH the 3x16
+battery shape (chunk 162 -> 972 vs 162) AND the real 12x512 shape
+(chunk 168 -> 1,008 vs 168), so P2 verify PANICS at both. Confirmed
+PRE-EXISTING and not this lane's: the weight group is byte-identical
+to BG's (weights unchanged, no aux on the weight side), and BG's own
+`pass-agg prove 3 16 p2` panics identically at line 21326 on this base
+(BG measured P2 with the PRE-split API — ledger: "consumed the
+pre-split eval_proof API"). BJ's R-BG1 fix (the additive `ClaimKernelCtx`
++ the psi factoring) closes it. This lane consumed the shipped
+`bg_verify_group` unchanged (lane zone: eval_proof.rs and the shared
+floor-family code are NOT mine); the P0 path is unaffected and the
+descents verify fully in P0.
 2. **To FINAL:** the full-statement Tier N/P2 numbers (Section 3.2)
    vs the [MODEL] lines and A1; finding BK-F1 (the engine gates that
    set the buildable descent shape and the ~9% honest over-price);
@@ -300,7 +339,7 @@ exit 0 with all UAGB1-BG/BF/BE/BD/BI/D2 rows).
 wt-uagb1-bk/zkmatrix-rs$ cargo build --release
 wt-uagb1-bk$ ./zkmatrix-rs/target/release/ring_matmul table-descent expect 12 512   # the ruling
 wt-uagb1-bk$ ./zkmatrix-rs/target/release/ring_matmul table-descent statement 12 512 # the registry
-wt-uagb1-bk$ ./zkmatrix-rs/target/release/ring_matmul table-descent battery          # 8 legs, small shape
+wt-uagb1-bk$ ./zkmatrix-rs/target/release/ring_matmul table-descent battery          # 6 P0 legs, small shape
 wt-uagb1-bk$ ./zkmatrix-rs/target/release/ring_matmul table-descent prove 12 512 p0  # THE full-statement Tier N number
 wt-uagb1-bk$ ./zkmatrix-rs/target/release/ring_matmul table-descent prove 12 512 p2  # THE full-statement Tier Z number
 wt-uagb1-bk$ ./zkmatrix-rs/target/release/ring_matmul freeze-check

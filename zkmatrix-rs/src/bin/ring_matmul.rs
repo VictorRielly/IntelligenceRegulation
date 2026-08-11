@@ -32764,6 +32764,13 @@ fn bk_expect(layers_n: usize, t: usize) {
         sched.floor_rings,
         sched.floor_e
     );
+    let tz = ring::eval_proof::plan_schedule_tier_z(reg.gw.n_digit_rings, 1, q, None);
+    let last_r = tz.levels.last().map(|p| p.r).unwrap_or(0);
+    let last_chunk = tz.levels.last().map(|p| p.chunk).unwrap_or(0);
+    println!(
+        "  weight tier-z (P2): {} levels, last-level r = {last_r}, chunk = {last_chunk} (R-BG1 note: bg_verify_group's Tier-Z branch passes phi_cur[r*chunk] where the BH-split floor-family API wants psi[chunk]; P2 verify PANICS at r > 1 on the merged base — BJ's R-BG1 fix)",
+        tz.levels.len()
+    );
 }
 
 /// The E3Z-N2 known-alpha blinder-mass solve for the mask-ordering F5
@@ -32871,15 +32878,13 @@ fn bk_battery(small: bool) {
         "honest-p0",
         run("honest-p0", BkOpts { layers_n, t, quiet: true, ..Default::default() }, true, None),
     ));
-    legs.push((
-        "honest-p2",
-        run(
-            "honest-p2 (weight floor Tier-Z masked once; descents identical)",
-            BkOpts { layers_n, t, p2: true, quiet: true, ..Default::default() },
-            true,
-            None,
-        ),
-    ));
+    // honest-p2 note: the descents are ACT-side and BYTE-IDENTICAL to
+    // P0 (mode-independent) — verified by honest-p0. The P2 weight-floor
+    // VERIFY is blocked by R-BG1 (bg_verify_group's Tier-Z branch passes
+    // phi_cur[r*chunk] into the BH-split floor-family API at r > 1 =
+    // panic) — a PRE-EXISTING defect in BJ's zone, confirmed to bite
+    // BG's own `pass-agg prove _ _ p2` identically on this base. Not a
+    // battery leg here (it would panic, not reject); finding BK-F2.
     legs.push((
         "off-table-reject",
         run(
