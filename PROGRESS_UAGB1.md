@@ -1929,9 +1929,40 @@ assert can see wire data.
     5 ms end to end, so the calibration row measures spawn+noise
     floor (0.003-0.004 s), useful exactly as intended.
 
+## Wave 3 close (orchestrator, 2026-08-10)
+
+ALL THREE LANES LANDED AND MERGED (BH 876f952, BI dd1ed9a, BG
+402da1d). Headlines: pass-level Tier N 426,455 B = 0.407 MiB
+(0.1356x gate; U-AG4's 0.3-0.5 MiB [MODEL] class now MEASURED);
+Tier Z P2 1,019,211 B = 0.972 MiB; verifier kernel wall 3.2x down
+(nothing O(N_limb) left); wire format landed, counted convention
+proven honest (< 0.2% on A1 lines); AZB-11 6/6 + AZB-10b in-lane.
+Suite 62/62 at the final merge; freeze-check green throughout,
+pre-existing digests never moved.
+
+**R-BG1 (OPEN, the one merge-seam defect):** BG's canary
+fixed-coins recompute harness feeds multi-tensor concatenated psi
+(len 972 = 6x162) into the BH-factored per-chunk API
+(ring_matmul.rs:21318 assert, left 972 right 162) — the exact
+ClaimKernelCtx one-kernel-per-tensor limit BG's report exported
+against BH's zone. SHIPPED paths unaffected (suite green; composed
+prove/verify green; canary was 6/6 in-lane pre-BH). Fix = the
+additive multi-claim API BG specified; first item of the next
+session, before any new lane.
+
+WAVE 4 / FINAL QUEUE: R-BG1 fix + canary re-run green at merged
+HEAD; composed-verify re-measure under BH's split (955 s expected
+~3x down); BF-F3 m125 rig wiring (~10-12% pass prove); folded
+masked descent for table-membership facts (BG-F1 shared-table
+break: 9 per-table pairs, the full-statement Tier N ~1.39 MiB
+[MODEL] line); T_blind (E-1..E-5) for the P2 round-poly residual;
+p50/p95 quiesced pass per MEASUREMENT_PROTOCOL.md; A1 condition
+reconciliation + ledger FINAL.
+
 ## Blocker
 
-(none so far)
+(none blocking — R-BG1 is an open defect in a battery harness,
+dispositioned above)
 
 ## Log
 
