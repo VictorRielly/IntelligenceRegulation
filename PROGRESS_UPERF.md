@@ -86,7 +86,39 @@ items B-D1..B-D3 (PROGRESS.md) still open — the oldest unclaimed
 
 ## Agent PD status (wt-uperf-pd)
 
-- (lane launches here)
+- PLAN (2026-08-11, committed before work). Deliverables:
+  docs/zkmatrix-poc/ATTENTION_INTEGER_SPEC.md (NEW),
+  scripts/attention_spec_spike.py (NEW, stdlib+numpy), one dated
+  additive note in TRANSFORMER_PROOF_PLAN.md Section 2, this ledger
+  section. Design decisions the spike must machine-check: (1)
+  softmax exp via the HOUSE LOOKUP CLASS at a 256-row per-(eS, d_h)
+  table family (silu-int8-table-v2 family precedent); range
+  reduction stated exactly as: proven power-of-two requant of raw
+  scores to the calibrated int8 grid, then EXACT row-max
+  subtraction — dominance = the [0, 2^8) range fact on d = m - s,
+  attainment = a binary argmax selector (RangeLookup w1 +
+  row-sum-1 thin sumcheck + z o d = 0 zero-check); (2) causal mask
+  by public-weight derivation of the masked score read sM (no
+  masked-leaf machinery; d in [0,254] structural, full-rectangle
+  lookup); (3) BOTH normalizations (softmax row-normalize, RMSNorm)
+  as floor-division relation facts — deg-3 zero-check with
+  broadcast divisor + two-sided remainder range facts — the
+  reciprocal-class fact in the range/lookup vocabulary, no
+  floating-point escape; (4) RMSNorm sqrt as the isqrt fact pair
+  D^2 <= SS + Ceps < (D+1)^2 (two range facts + one self-Hadamard);
+  the rsqrt TABLE alternative REJECTED with the
+  mantissa-normalization variable-shift arithmetic recorded; (5)
+  RoPE via frozen PUBLIC cos/sin integer tables + the bit-flip MLE
+  read (degree-2, non-interleaved mlx convention); (6) GQA via
+  public head-map weights on the K/V side; (7) embedding: public-
+  input form = public-selector matmul claim; private-input form =
+  the one OPEN gadget, priced honestly (AZ-T1 style); unembedding =
+  standard matmul (tied Emb reused), last-position variant priced.
+  No new claim family for P0/P2 modes. Costs [MODEL] derived per
+  layer + per pass at 125M and 7B/8B, anchored on M125_PASS_REPORT
+  measured lines and the F-IF1/kel byte model. Gates: spike seeded
+  + green < 10 min; python suite green from worktree root; no Rust
+  files touched; no push.
 
 ## Blocker
 
