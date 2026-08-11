@@ -24245,6 +24245,36 @@ fn m125_pass_battery(t: usize, smoke_only: bool) {
             && v.roots_ok.iter().enumerate().all(|(i, &b)| b || i == 6)
             && v.sum_gate_ok,
     );
+    // [UAGB1-BJ, BF-F3 wiring acceptance] the split map must be
+    // NON-IDENTITY at this shape (else the leg is vacuous), and a
+    // verifier assuming the pre-lift contiguous layout must REJECT.
+    {
+        use ring::gkr_masked::witness_leaf_positions;
+        let n_el = t * BF_F;
+        let nw = 1usize << bf_dw_for(n_el);
+        let pos = witness_leaf_positions(n_el, nw);
+        assert_true(
+            &format!(
+                "wrong-map leg precondition: witness_leaf_positions is NON-IDENTITY at n_el = {n_el}, dw = {} ({} leaves in the right half)",
+                bf_dw_for(n_el),
+                pos.iter().enumerate().filter(|&(j, &p)| p != j).count()
+            ),
+            pos.iter().enumerate().any(|(j, &p)| p != j),
+        );
+    }
+    let mut layers = load();
+    let (v, _) = bf_layer_run(t, &mut layers, 0, BfTamper::WrongMap, true);
+    assert_true(
+        &format!(
+            "WRONG MAP (honest proof on split trees; verifier leaf pins under the CONTIGUOUS pre-lift assumption) REJECT in the wave rounds — witness_leaf_positions is load-bearing at the rig (statement ok {}, roots {:?}, first bad wave {:?})",
+            v.statement_ok, v.roots_ok, v.first_bad_wave
+        ),
+        !v.accept()
+            && v.statement_ok
+            && v.matmul_ok.iter().all(|&b| b)
+            && v.roots_ok.iter().all(|&b| b)
+            && !(v.sum_gate_ok && v.waves_ok),
+    );
     println!("
 [UAGB1-BF] pass battery passed in {:.1}s", t0.elapsed().as_secs_f64());
 }
@@ -24637,9 +24667,16 @@ fn m125_build_statement(
 
 /// Smallest tree depth whose witness data block (first half minus the 4
 /// blinder positions) holds n elements.
+/// The witness tree depth for `n` honest leaves. [UAGB1-BJ wave 4,
+/// BF-F3 wiring per UAGB1_VERIFIER_REPORT 2.4]: capacity is the
+/// split-fill n_leaves - 8 (`witness_leaf_positions`, the [UAGB1-BH]
+/// lift of the 2^(d-1) - 4 blinder-free-front constraint), so the
+/// 2^20-class pass columns ride depth-21 trees instead of the
+/// dummy-padded depth 22 (BF-F3's ~2x tree work removed) and the nd
+/// columns ride 19 instead of 20.
 fn bf_dw_for(n: usize) -> usize {
     let mut d = 4usize;
-    while (1usize << (d - 1)) - 4 < n {
+    while (1usize << d) - 8 < n {
         d += 1;
     }
     d
@@ -24868,6 +24905,12 @@ enum BfTamper {
     /// identity preserved (rd += 2^s, z -= 1): ONLY the rd range
     /// instance's root cross-check can see it.
     RangeViolation,
+    /// [UAGB1-BJ, BF-F3 wiring] Honest proof on SPLIT witness trees;
+    /// the VERIFIER's leaf pins computed under the pre-lift CONTIGUOUS
+    /// assumption (identity map) — the `witness_leaf_positions` map is
+    /// load-bearing: the psi'd claims fail in the wave rounds (the
+    /// bh-verifier wrong-map leg, at the rig).
+    WrongMap,
 }
 
 struct BfVerdict {
@@ -24966,7 +25009,7 @@ fn bf_layer_run(
         BlinderSet, DescentEnd, MaskSet, MaskedDescentProof, blinded_table_tree,
         blinded_witness_tree, blinder_positions, draw_masks, g_hypersum_weights, g_open_weights,
         masked_gkr_prove, masked_gkr_verify, masked_pass_bytes, r_open_weights,
-        table_row_positions, zero_masks,
+        table_row_positions, witness_leaf_positions, zero_masks,
     };
     use ring::kfield::{K_DEG, KElem, KField};
     use ring::lookup::{
@@ -25016,7 +25059,9 @@ fn bf_layer_run(
             layers[li].rd[idx] += 1i64 << sh_z;
             layers[li].z[idx] -= 1;
         }
-        BfTamper::None => {}
+        // WrongMap is a VERIFIER-side hook (leaf-pin position map);
+        // the witness is honest.
+        BfTamper::None | BfTamper::WrongMap => {}
     }
 
     // ---- Commit pass: every layer's entries (digests for the pass
@@ -25468,12 +25513,17 @@ fn bf_layer_run(
     // The four aggregate leaf pins of one instance: wp/wq/tp/tq. The
     // verifier's copy folds the STATEMENT's table values (fused for the
     // silu member, identity j for range tables) — the wrong-table leg's
-    // reject point.
+    // reject point. [UAGB1-BJ, BF-F3 wiring] witness-side weights ride
+    // the PUBLIC split map `witness_leaf_positions` (the trees already
+    // do, inside blinded_witness_tree); `wrong_map` (battery hook,
+    // WrongMap leg) recomputes them under the pre-lift contiguous
+    // assumption — the acceptance test that the map is load-bearing.
     let leaf_pins = |inst: &BfInst,
                      tab_k: &[KElem],
                      endw: &DescentEnd,
                      endt: &DescentEnd,
-                     alpha: &KElem|
+                     alpha: &KElem,
+                     wrong_map: bool|
      -> Vec<PinnedValue> {
         let (er, ec) = bf_entry_shape(inst.entry, t);
         let n_el = er * ec;
@@ -25484,9 +25534,14 @@ fn bf_layer_run(
         let bpw = blinder_positions(nw);
         let bpt = blinder_positions(nt);
         let tpos = table_row_positions(inst.t_rows, nt);
+        let wpos: Vec<usize> = if wrong_map {
+            (0..n_el).collect() // the pre-lift contiguous assumption
+        } else {
+            witness_leaf_positions(n_el, nw)
+        };
         let eqw: Vec<KElem> = bpw.iter().map(|&p| lw[p].clone()).collect();
         let eqt: Vec<KElem> = bpt.iter().map(|&p| lt[p].clone()).collect();
-        let hw = (0..n_el).fold(zero.clone(), |a, i| kf.add(&a, &lw[i]));
+        let hw = (0..n_el).fold(zero.clone(), |a, i| kf.add(&a, &lw[wpos[i]]));
         let ht = (0..inst.t_rows).fold(zero.clone(), |a, j| kf.add(&a, &lt[tpos[j]]));
         let sum_eqw = eqw.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
         let sum_eqt = eqt.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
@@ -25513,14 +25568,15 @@ fn bf_layer_run(
                 z.clone(), eqw[2].clone(), z.clone(), eqw[3].clone(),
             ],
         }];
-        // -sum lw * value over the committed primary column...
+        // -sum lw * value over the committed primary column (element i
+        // sits at witness leaf wpos[i] — the split map)...
         for g in 0..ml.entry_cms[inst.entry] {
             let lo = g * per;
             let n_c = (n_el - lo).min(per);
             wq_terms.push(PinTerm::Scalar {
                 commit: ml.entry_base[inst.entry] + g,
                 coeff0: 0,
-                weights: (0..n_c).map(|i| kf.neg(&lw[lo + i])).collect(),
+                weights: (0..n_c).map(|i| kf.neg(&lw[wpos[lo + i]])).collect(),
             });
         }
         // ... minus Y * the pair column (silu), both dense.
@@ -25532,7 +25588,7 @@ fn bf_layer_run(
                     commit: ml.entry_base[pe] + g,
                     coeff0: 0,
                     weights: (0..n_c)
-                        .map(|i| kf.neg(&ring::lookup::mul_y(&kf, &lw[lo + i])))
+                        .map(|i| kf.neg(&ring::lookup::mul_y(&kf, &lw[wpos[lo + i]])))
                         .collect(),
                 });
             }
@@ -25604,8 +25660,9 @@ fn bf_layer_run(
         pins.extend(descent_pins(inst.base_tm, &shell_t, &pt, &endt, inst.dt));
         // The PROVER folds its own table (the WrongTable arm folds the
         // wrong member so its pins are self-consistent; the verifier's
-        // fold below is what rejects).
-        pins.extend(leaf_pins(inst, &mat.tab_k, &endw, &endt, &alpha));
+        // fold below is what rejects). Prover pins always ride the
+        // honest split map.
+        pins.extend(leaf_pins(inst, &mat.tab_k, &endw, &endt, &alpha, false));
         cost.bytes_descents += masked_pass_bytes(inst.dw, inst.dt, 0, 1);
         inst_proofs.push((pw, pt));
         mat.w_col = Vec::new(); // drop the fused column early
@@ -25852,7 +25909,14 @@ fn bf_layer_run(
                 pins_v.extend(descent_pins(inst.base_tm, &shell_t, pt, &et, inst.dt));
                 // The verifier folds the STATEMENT's table — the
                 // wrong-table reject point.
-                pins_v.extend(leaf_pins(inst, &stmt_tab_k(inst), &ew, &et, &alpha));
+                pins_v.extend(leaf_pins(
+                    inst,
+                    &stmt_tab_k(inst),
+                    &ew,
+                    &et,
+                    &alpha,
+                    tamper == BfTamper::WrongMap, // [UAGB1-BJ] the wrong-map leg
+                ));
             }
             _ => {
                 verdict.roots_ok[ii] = false;
