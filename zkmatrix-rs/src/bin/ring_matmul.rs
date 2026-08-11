@@ -5059,6 +5059,7 @@ fn freeze_check() {
     all_ok &= freeze_check_uagb1_bi(); // [UAGB1-BI] wire-format stability row
     all_ok &= freeze_check_uagb1_bg();
     all_ok &= freeze_check_uagb1_bl(); // [UAGB1-BL] T_blind rows (n_g, surcharge, masked sumcheck)
+    all_ok &= freeze_check_uagb1_bk(); // [UAGB1-BK] table-descent pair inventory + audited-cap gates
 
     if all_ok {
         println!("freeze-check passed");
@@ -6398,6 +6399,13 @@ fn main() {
             bg_main(&args[1..]);
         }
         Some("t-blind") => bl_main(&args[1..]), // [UAGB1-BL] T_blind (P2 round-poly masking)
+        Some("table-descent") => {
+            // [UAGB1-BK] wave 4: the folded masked descent for the
+            // table-membership facts (SiLU + range) composed into the
+            // pass artifact — the last uncomposed claim family. See
+            // the [UAGB1-BK] section.
+            bk_main(&args[1..]);
+        }
         Some("matmul-statement") => {
             // `matmul-statement battery` = the adversarial battery at
             // 128x768x256; `matmul-statement <rows> <inner> <cols>` =
@@ -32222,5 +32230,2086 @@ fn bl_main(args: &[String]) {
         Some("expect") => bl_expect(),
         Some("battery") => bl_battery(),
         _ => println!("t-blind expect|battery"),
+    }
+}
+
+// ---------------------------------------------------------------------------
+// [UAGB1-BK] U-AG-B1 wave 4, lane BK: THE FOLDED MASKED DESCENT for the
+// table-membership facts (SiLU LookupAt + RangeLookups) — the last
+// uncomposed claim family — composed into the pass artifact.
+//
+// SHAPE (the deliverable-1 ruling; see UAGB1_TABLE_DESCENT_REPORT.md):
+// per-TABLE fold pairs derived from the REAL statement (BG-F1 verified
+// against M125_EXP: 2 SiLU members, the [0,2^8) narrowing family, 6
+// remainder widths), each pair realized in M4_LOOKUP_DESIGN Section 5's
+// DECIDED form — per-instance trees at a shared depth, eq-batched into
+// ONE masked witness descent + ONE masked table descent by the engine's
+// multi-tree masked_gkr_prove (e_bits = the IXF instance extension,
+// pads = neutral trees). The monolithic concatenated tree the [MODEL]
+// kel-fit priced (dw 25/26) is FORBIDDEN by the engine's own frozen
+// gates (LKP-2 ceiling_gate_ok caps one instance at depth <= 24 at q31;
+// the audited K9_MAX_LEAVES = 2^25 packed-table cap) — finding BK-F1.
+//
+// COMPOSITION: per-pair aux material (m columns per tree, blinder
+// columns, witness/table mask coefficients) enters T_act as ADDITIVE
+// tensors — bound by the SAME u_0(T_act) outer identity inside h0_agg,
+// so every mask/blinder/m commitment precedes every challenge (FP-L2
+// mask-then-fold BY CONSTRUCTION; the U-K5c h0_lkp discipline at pass
+// scope). The descents run as instances on the rolling pass transcript;
+// the descent-end aggregate P/Q pins and every mask opening land as
+// claims in the SAME act batched opening (E-O2-BB: still exactly one
+// opening per group; the claims fold into the existing 16 b_rows).
+// Aligned leaf layout (ring::descent_fold) keeps every pin weight in
+// the product-form ClaimContrib shape. bg_* prove/verify group code is
+// CONSUMED, never edited; eval_proof.rs / pass_agg.rs / gkr_masked.rs
+// untouched (lane zones).
+//
+// Subcommands: `table-descent statement|expect|prove [layers t p0|p2]|
+// battery [small]`. Freeze rows: freeze_check_uagb1_bk().
+
+/// The pair id space (fixed order; pairs with no members at a shape are
+/// skipped deterministically).
+const BK_PAIR_IDS: [&str; 10] = [
+    "silu-m3", "silu-m4", "nrw-88", "nrw-z", "rem-w5", "rem-w6", "rem-w7", "rem-w8", "rem-w9",
+    "rem-w10",
+];
+const BK_AUX_M: [&str; 10] = [
+    "bk-m-silu-m3", "bk-m-silu-m4", "bk-m-nrw-88", "bk-m-nrw-z", "bk-m-rem-w5", "bk-m-rem-w6",
+    "bk-m-rem-w7", "bk-m-rem-w8", "bk-m-rem-w9", "bk-m-rem-w10",
+];
+const BK_AUX_BL: [&str; 10] = [
+    "bk-bl-silu-m3", "bk-bl-silu-m4", "bk-bl-nrw-88", "bk-bl-nrw-z", "bk-bl-rem-w5",
+    "bk-bl-rem-w6", "bk-bl-rem-w7", "bk-bl-rem-w8", "bk-bl-rem-w9", "bk-bl-rem-w10",
+];
+const BK_AUX_WM: [&str; 10] = [
+    "bk-wm-silu-m3", "bk-wm-silu-m4", "bk-wm-nrw-88", "bk-wm-nrw-z", "bk-wm-rem-w5",
+    "bk-wm-rem-w6", "bk-wm-rem-w7", "bk-wm-rem-w8", "bk-wm-rem-w9", "bk-wm-rem-w10",
+];
+const BK_AUX_TM: [&str; 10] = [
+    "bk-tm-silu-m3", "bk-tm-silu-m4", "bk-tm-nrw-88", "bk-tm-nrw-z", "bk-tm-rem-w5",
+    "bk-tm-rem-w6", "bk-tm-rem-w7", "bk-tm-rem-w8", "bk-tm-rem-w9", "bk-tm-rem-w10",
+];
+
+/// One member column of a pair: (layer, primary entry role, optional
+/// pair entry role (SiLU image), code offset).
+#[derive(Clone, Copy, Debug)]
+struct BkMember {
+    li: usize,
+    entry: usize,
+    pair_entry: Option<usize>,
+    offset: i64,
+    shape: ring::descent_fold::MemberShape,
+}
+
+/// One per-table fold pair, derived from the statement data.
+struct BkPairSpec {
+    pid: usize,
+    t_rows: usize,
+    dt: usize,
+    /// SiLU family member (the statement's table for every member
+    /// layer of this pair) — None for range tables.
+    silu: Option<(i32, i32)>,
+    members: Vec<BkMember>,
+    plan: ring::descent_fold::PairTreePlan,
+}
+
+impl BkPairSpec {
+    fn name(&self) -> &'static str {
+        BK_PAIR_IDS[self.pid]
+    }
+    /// Statement-side fused table rows (what the VERIFIER folds).
+    fn table_k(&self, kf: &ring::kfield::KField) -> Vec<ring::kfield::KElem> {
+        use ring::lookup::{fuse_pair, silu_v2_member, silu_v2_rows};
+        let zq = &kf.zq;
+        if let Some((eg, ea)) = self.silu {
+            let (bytes, _) = silu_v2_member(eg, ea).expect("frozen member");
+            silu_v2_rows(bytes)
+                .iter()
+                .map(|&(v, s)| fuse_pair(kf, zq.to_mod(v), zq.to_mod(s)))
+                .collect()
+        } else {
+            (0..self.t_rows as u64).map(|j| kf.embed(j)).collect()
+        }
+    }
+}
+
+/// Derive the pair inventory from the layer table (shifts + family
+/// exponents are STATEMENT data — the verifier derives the identical
+/// inventory; nothing here reads the witness).
+fn bk_pair_specs(lays: &[BfLayer], t: usize) -> Vec<BkPairSpec> {
+    use ring::descent_fold::{pair_depth, plan_pair_trees, MemberShape};
+    let nf_shape = MemberShape { rows: t, cols: BF_F };
+    let nd_shape = MemberShape { rows: t, cols: BF_D };
+    // Collect member lists per pair id.
+    let mut members: Vec<Vec<BkMember>> = vec![Vec::new(); BK_PAIR_IDS.len()];
+    let mut silu_of: Vec<Option<(i32, i32)>> = vec![None; BK_PAIR_IDS.len()];
+    let trows: [usize; 10] = [256, 256, 256, 256, 32, 64, 128, 256, 512, 1024];
+    for (li, lay) in lays.iter().enumerate() {
+        let (_, e_gate, e_a, ..) = lay.exps;
+        let (sh_g, sh_u, sh_h, sh_z) = lay.shifts;
+        // SiLU pair by family member.
+        let pid = if e_gate == -3 { 0 } else { 1 };
+        silu_of[pid] = Some((e_gate, e_a));
+        members[pid].push(BkMember { li, entry: 6, pair_entry: Some(7), offset: 0, shape: nf_shape });
+        // Narrowing facts: u8 + h8 (nf) and z (nd), all against [0,256).
+        for e in [10usize, 13] {
+            members[2].push(BkMember { li, entry: e, pair_entry: None, offset: 128, shape: nf_shape });
+        }
+        members[3].push(BkMember { li, entry: 16, pair_entry: None, offset: 128, shape: nd_shape });
+        // Remainder facts by width.
+        for (e, w, sh) in [
+            (5usize, sh_g, nf_shape),
+            (9, sh_u, nf_shape),
+            (12, sh_h, nf_shape),
+            (15, sh_z, nd_shape),
+        ] {
+            assert!((5..=10).contains(&w), "remainder width {w} outside the derived band");
+            let pid = 4 + (w as usize - 5);
+            members[pid].push(BkMember { li, entry: e, pair_entry: None, offset: 0, shape: sh });
+        }
+    }
+    let mut out = Vec::new();
+    for pid in 0..BK_PAIR_IDS.len() {
+        if members[pid].is_empty() {
+            continue;
+        }
+        let shapes: Vec<MemberShape> = members[pid].iter().map(|m| m.shape).collect();
+        let depth = pair_depth(&shapes);
+        let plan = plan_pair_trees(&shapes, depth);
+        let t_rows = trows[pid];
+        out.push(BkPairSpec {
+            pid,
+            t_rows,
+            dt: (t_rows.trailing_zeros() as usize) + 1,
+            silu: silu_of[pid].filter(|_| pid <= 1),
+            members: members[pid].clone(),
+            plan,
+        });
+    }
+    out
+}
+
+/// The BK registry: BG's W-C two-group layout with the pairs' aux
+/// tensors APPENDED to the activation group. `aux_base[p]` = the act
+/// tensor indices of pair p's (m, blinder, wmask, tmask) tensors.
+struct BkRegistry {
+    gw: ring::eval_proof::AggGroup,
+    ga: ring::eval_proof::AggGroup,
+    /// (layer, entry role) -> (in_weight_group, tensor index).
+    map: Vec<[(bool, usize); 17]>,
+    aux_base: Vec<[usize; 4]>,
+    /// Per pair: (m cols, blinder K-elems, wmask K-elems (padded),
+    /// tmask K-elems (padded)) — the aux value-layout row.
+    aux_shape: Vec<[usize; 4]>,
+    l0_q: usize,
+}
+
+fn bk_pad_to(n: usize, m: usize) -> usize {
+    n.div_ceil(m) * m
+}
+
+fn bk_build_groups(lays: &[BfLayer], t: usize, specs: &[BkPairSpec], q: u64) -> BkRegistry {
+    use ring::gkr_masked::mask_coeff_counts;
+    let mut gw = ring::eval_proof::AggGroup::new("weight");
+    let mut ga = ring::eval_proof::AggGroup::new("act");
+    let mut map = vec![[(false, 0usize); 17]; lays.len()];
+    for (li, lay) in lays.iter().enumerate() {
+        for e in 0..BF_ENTRIES.len() {
+            let (rows, cols) = bf_entry_shape(e, t);
+            let (e0, l0) = bg_entry_class(e, lay);
+            let to_weight = bg_is_weight_entry(e);
+            let g = if to_weight { &mut gw } else { &mut ga };
+            map[li][e] = (to_weight, g.tensors.len());
+            g.add_tensor(BF_ENTRIES[e], rows, cols, e0, l0);
+        }
+    }
+    // Aux tensors: appended AFTER the pass tensors, pair-major.
+    let l0_q = ring::digits::derive_l0(-((q / 2) as i64), (q / 2) as i64, 2);
+    let mut aux_base = Vec::with_capacity(specs.len());
+    let mut aux_shape = Vec::with_capacity(specs.len());
+    for sp in specs {
+        let plan = &sp.plan;
+        let m_cols = bk_pad_to(plan.n_real * sp.t_rows, D);
+        // Multiplicity bound: the largest per-tree multiset.
+        let mut tree_used = vec![0usize; plan.n_real];
+        for b in &plan.blocks {
+            tree_used[b.tree] += sp.members[b.member].shape.n_el();
+        }
+        let max_used = tree_used.iter().copied().max().unwrap();
+        let l0_m = ring::digits::derive_l0(0, max_used as i64, 2);
+        let (gw_c, rw_c) = mask_coeff_counts(plan.depth, plan.e_bits);
+        let (gt_c, rt_c) = mask_coeff_counts(sp.dt, plan.e_bits);
+        let bl_kel = plan.n_real * 16;
+        let wm_kel = bk_pad_to(gw_c + rw_c, 8);
+        let tm_kel = bk_pad_to(gt_c + rt_c, 8);
+        let base = [
+            ga.tensors.len(),
+            ga.tensors.len() + 1,
+            ga.tensors.len() + 2,
+            ga.tensors.len() + 3,
+        ];
+        ga.add_tensor(BK_AUX_M[sp.pid], 1, m_cols, 2, l0_m);
+        ga.add_tensor(BK_AUX_BL[sp.pid], bl_kel, ring::kfield::K_DEG, 2, l0_q);
+        ga.add_tensor(BK_AUX_WM[sp.pid], wm_kel, ring::kfield::K_DEG, 2, l0_q);
+        ga.add_tensor(BK_AUX_TM[sp.pid], tm_kel, ring::kfield::K_DEG, 2, l0_q);
+        aux_base.push(base);
+        aux_shape.push([m_cols, bl_kel, wm_kel, tm_kel]);
+    }
+    BkRegistry { gw, ga, map, aux_base, aux_shape, l0_q }
+}
+
+/// The canonical BK group/segment map bytes (statement-derived; bound
+/// inside h0 — the AZB-10b edge extended over the aux inventory).
+fn bk_map_bytes(reg: &BkRegistry) -> Vec<u8> {
+    let mut b: Vec<u8> = b"uagb1-bk-group-map-v1".to_vec();
+    for (gname, g) in [("weight", &reg.gw), ("act", &reg.ga)] {
+        b.extend(gname.as_bytes());
+        b.extend((g.tensors.len() as u64).to_le_bytes());
+        for t in &g.tensors {
+            b.extend(t.name.as_bytes());
+            for v in [t.rows, t.cols, t.e0 as usize, t.l0, t.digit_ring_base] {
+                b.extend((v as u64).to_le_bytes());
+            }
+        }
+    }
+    b
+}
+
+/// Per-pair prover-side aux material (small: counts, blinders, masks —
+/// the trees are built lazily at descent time).
+struct BkAuxMat {
+    /// Per real tree: multiplicity counts (t_rows each).
+    m_counts: Vec<Vec<i64>>,
+    bl_w: Vec<ring::gkr_masked::BlinderSet>,
+    bl_t: Vec<ring::gkr_masked::BlinderSet>,
+    masks_w: Option<ring::gkr_masked::MaskSet>,
+    masks_t: Option<ring::gkr_masked::MaskSet>,
+    /// Flattened committed aux VALUES (m || bl coords || wm coords ||
+    /// tm coords), each padded to its registered tensor size.
+    vals_m: Vec<i64>,
+    vals_bl: Vec<i64>,
+    vals_wm: Vec<i64>,
+    vals_tm: Vec<i64>,
+}
+
+/// The witness code of element f of a member (integer, pre-embedding):
+/// primary value + offset (ranges) — the SiLU member is keyed by the
+/// (x, y) residue pair instead (see bk_m_counts).
+fn bk_member_vals<'a>(m: &BkMember, lays: &'a [BfLayer]) -> (&'a [i64], Option<&'a [i64]>) {
+    let prim = bf_entry_values(m.entry, &lays[m.li]);
+    let pair = m.pair_entry.map(|pe| bf_entry_values(pe, &lays[m.li]));
+    (prim, pair)
+}
+
+/// Per-tree multiplicity counts of one pair (exact multiset counting
+/// on integer codes; SiLU counts exact (x, y) PAIR matches so a
+/// tampered image column honestly fails the identity).
+fn bk_m_counts(sp: &BkPairSpec, lays: &[BfLayer], zq: &ring::Zq) -> Vec<Vec<i64>> {
+    use std::collections::HashMap;
+    let plan = &sp.plan;
+    let mut out = vec![vec![0i64; sp.t_rows]; plan.n_real];
+    if let Some((eg, ea)) = sp.silu {
+        use ring::lookup::{silu_v2_member, silu_v2_rows};
+        let (bytes, _) = silu_v2_member(eg, ea).expect("frozen member");
+        let rows = silu_v2_rows(bytes);
+        let idx: HashMap<(u64, u64), usize> = rows
+            .iter()
+            .enumerate()
+            .map(|(j, &(v, s))| ((zq.to_mod(v), zq.to_mod(s)), j))
+            .collect();
+        for b in &plan.blocks {
+            let m = &sp.members[b.member];
+            let (prim, pair) = bk_member_vals(m, lays);
+            let pair = pair.expect("silu member has an image column");
+            for (x, y) in prim.iter().zip(pair.iter()) {
+                if let Some(&j) = idx.get(&(zq.to_mod(*x), zq.to_mod(*y))) {
+                    out[b.tree][j] += 1;
+                }
+            }
+        }
+    } else {
+        for b in &plan.blocks {
+            let m = &sp.members[b.member];
+            let (prim, _) = bk_member_vals(m, lays);
+            for &v in prim {
+                let code = v + m.offset;
+                if (0..sp.t_rows as i64).contains(&code) {
+                    out[b.tree][code as usize] += 1;
+                }
+            }
+        }
+    }
+    out
+}
+
+/// Build one pair's aux material (masks/blinders drawn fresh from the
+/// session rng — committed before any challenge via u_0(T_act)).
+fn bk_build_aux(
+    sp: &BkPairSpec,
+    lays: &[BfLayer],
+    reg: &BkRegistry,
+    pi: usize,
+    kf: &ring::kfield::KField,
+    rng: &mut ring::ProverRng,
+) -> BkAuxMat {
+    use ring::gkr_masked::{draw_masks, BlinderSet};
+    use ring::kfield::K_DEG;
+    let zq = &kf.zq;
+    let plan = &sp.plan;
+    let m_counts = bk_m_counts(sp, lays, zq);
+    let mut bl_w = Vec::with_capacity(plan.n_real);
+    let mut bl_t = Vec::with_capacity(plan.n_real);
+    for _ in 0..plan.n_real {
+        let bw = BlinderSet::draw(kf, rng);
+        let mut bt = BlinderSet::draw(kf, rng);
+        bt.solve_mass(kf, &bw.mass(kf));
+        bl_w.push(bw);
+        bl_t.push(bt);
+    }
+    let masks_w = draw_masks(kf, rng, plan.depth, plan.e_bits);
+    let masks_t = draw_masks(kf, rng, sp.dt, plan.e_bits);
+    // Committed value vectors (centered coordinates for K data).
+    let [m_cols, bl_kel, wm_kel, tm_kel] = reg.aux_shape[pi];
+    let mut vals_m = vec![0i64; m_cols];
+    for (i, mc) in m_counts.iter().enumerate() {
+        vals_m[i * sp.t_rows..(i + 1) * sp.t_rows].copy_from_slice(mc);
+    }
+    let flat_k = |kelems: &[ring::kfield::KElem], n_kel: usize| -> Vec<i64> {
+        let mut v = vec![0i64; n_kel * K_DEG];
+        for (e, k) in kelems.iter().enumerate() {
+            for c in 0..K_DEG {
+                v[e * K_DEG + c] = zq.center(k[c]);
+            }
+        }
+        v
+    };
+    let blinder_kelems: Vec<ring::kfield::KElem> = {
+        let mut v = Vec::with_capacity(plan.n_real * 16);
+        for i in 0..plan.n_real {
+            for b in [&bl_w[i].tl, &bl_w[i].tr, &bl_w[i].f0, &bl_w[i].f1, &bl_t[i].tl,
+                &bl_t[i].tr, &bl_t[i].f0, &bl_t[i].f1]
+            {
+                v.push(b.a.clone());
+                v.push(b.u.clone());
+            }
+        }
+        v
+    };
+    let vals_bl = flat_k(&blinder_kelems, bl_kel);
+    let vals_wm = flat_k(&masks_w.flatten(), wm_kel);
+    let vals_tm = flat_k(&masks_t.flatten(), tm_kel);
+    BkAuxMat {
+        m_counts,
+        bl_w,
+        bl_t,
+        masks_w: Some(masks_w),
+        masks_t: Some(masks_t),
+        vals_m,
+        vals_bl,
+        vals_wm,
+        vals_tm,
+    }
+}
+
+/// The full act-group digit witness: pass tensors in registry order,
+/// then every pair's aux values.
+fn bk_witness_act(
+    reg: &BkRegistry,
+    lays: &[BfLayer],
+    aux: &[BkAuxMat],
+) -> Vec<Vec<i64>> {
+    let mut vals: Vec<&[i64]> = Vec::with_capacity(reg.ga.tensors.len());
+    for (li, lay) in lays.iter().enumerate() {
+        for e in 0..BF_ENTRIES.len() {
+            let (w, _) = reg.map[li][e];
+            if !w {
+                vals.push(bf_entry_values(e, lay));
+            }
+        }
+    }
+    for a in aux {
+        vals.push(&a.vals_m);
+        vals.push(&a.vals_bl);
+        vals.push(&a.vals_wm);
+        vals.push(&a.vals_tm);
+    }
+    agg_digit_witness(&reg.ga, &vals)
+}
+
+fn bk_witness_weight(reg: &BkRegistry, lays: &[BfLayer]) -> Vec<Vec<i64>> {
+    let mut vals: Vec<&[i64]> = Vec::with_capacity(reg.gw.tensors.len());
+    for (li, lay) in lays.iter().enumerate() {
+        for e in 0..BF_ENTRIES.len() {
+            let (w, _) = reg.map[li][e];
+            if w {
+                vals.push(bf_entry_values(e, lay));
+            }
+        }
+    }
+    agg_digit_witness(&reg.gw, &vals)
+}
+
+// ---------------------------------------------------------------------------
+// The BK claim layer: direct-tensor-index claims (instance-layer claims
+// translate (layer, entry) through the map; descent claims address the
+// aux tensors directly).
+
+struct BkClaim {
+    in_weight: bool,
+    value: ring::kfield::KElem,
+    /// (tensor index in the claim's group, scale, row kernel, col
+    /// kernel) — the product-form ClaimContrib shape.
+    parts: Vec<(usize, ring::kfield::KElem, std::rc::Rc<Vec<ring::kfield::KElem>>, std::rc::Rc<Vec<ring::kfield::KElem>>)>,
+}
+
+/// One pair's descent proofs + endpoints (the prover's record; the
+/// verifier re-derives its own endpoints from the shipped proofs).
+struct BkPairTranscript {
+    alpha: ring::kfield::KElem,
+    pw: ring::gkr_masked::MaskedDescentProof,
+    endw: ring::gkr_masked::DescentEnd,
+    pt: ring::gkr_masked::MaskedDescentProof,
+    endt: ring::gkr_masked::DescentEnd,
+}
+
+/// The claim builder's borrowed view (shared verbatim by prover and
+/// verifier — the verifier passes the SHIPPED proofs with ITS OWN
+/// re-derived endpoints and alpha).
+struct BkPairView<'a> {
+    alpha: &'a ring::kfield::KElem,
+    pw: &'a ring::gkr_masked::MaskedDescentProof,
+    endw: &'a ring::gkr_masked::DescentEnd,
+    pt: &'a ring::gkr_masked::MaskedDescentProof,
+    endt: &'a ring::gkr_masked::DescentEnd,
+}
+
+/// Measured transcript K-elements of one masked descent proof (the
+/// counted-not-serialized wire face of the pair).
+fn bk_proof_kel(p: &ring::gkr_masked::MaskedDescentProof) -> usize {
+    let mut kel = 4 * p.layer1.len();
+    for l in &p.layers {
+        kel += 1; // g_sum
+        kel += l.rounds.iter().map(|r| r.len()).sum::<usize>();
+        kel += 4; // boundary
+        kel += 1; // open_g
+        if l.open_r.is_some() {
+            kel += 2;
+        }
+    }
+    kel
+}
+
+/// The K-element row kernel [Y^0 .. Y^15] shared by every claim over a
+/// coordinate-committed K tensor (rows = K-elements, cols = K_DEG).
+fn bk_ypow_col(kf: &ring::kfield::KField) -> std::rc::Rc<Vec<ring::kfield::KElem>> {
+    use ring::kfield::K_DEG;
+    let mut v = Vec::with_capacity(K_DEG);
+    let mut cur = kf.one();
+    for _ in 0..K_DEG {
+        v.push(cur.clone());
+        cur = ring::lookup::mul_y(kf, &cur);
+    }
+    std::rc::Rc::new(v)
+}
+
+/// The mask-opening + aggregate-leaf claims of ONE pair, built from the
+/// descent transcripts and the STATEMENT publics — shared verbatim by
+/// prover and verifier (the verifier's copy consumes the shipped proof
+/// values; the batched opening grounds them against the commitments).
+#[allow(clippy::too_many_arguments)]
+fn bk_pair_claims(
+    kf: &ring::kfield::KField,
+    sp: &BkPairSpec,
+    reg: &BkRegistry,
+    pi: usize,
+    tp: &BkPairView,
+    ypow: &std::rc::Rc<Vec<ring::kfield::KElem>>,
+    claims: &mut Vec<BkClaim>,
+) {
+    use ring::descent_fold::{block_prefix, point_weight};
+    use ring::gkr::eq_table;
+    use ring::gkr_masked::{
+        blinder_positions, g_hypersum_weights, g_open_weights, mask_coeff_counts, r_open_weights,
+        table_row_positions, zero_masks,
+    };
+    use ring::kfield::K_DEG;
+    use std::rc::Rc;
+    let zq = &kf.zq;
+    let one = kf.one();
+    let zero = kf.zero();
+    let plan = &sp.plan;
+    let [ti_m, ti_bl, ti_wm, ti_tm] = reg.aux_base[pi];
+    let one_row = Rc::new(vec![one.clone()]);
+
+    // ---- Mask-opening claims (per side, per layer): the K-elem
+    // ---- weights land as row kernels over the mask tensor's K-elem
+    // ---- rows with the shared Y-power col kernel.
+    let mask_claims = |ti: usize,
+                       n_kel_pad: usize,
+                       depth: usize,
+                       proof: &ring::gkr_masked::MaskedDescentProof,
+                       end: &ring::gkr_masked::DescentEnd,
+                       claims: &mut Vec<BkClaim>| {
+        let shell = zero_masks(kf, depth, plan.e_bits);
+        for j in 1..depth {
+            let lp = &proof.layers[j - 1];
+            let gm = &shell.g[j - 1];
+            let g_off = shell.g_offset(j);
+            let put = |weights: Vec<ring::kfield::KElem>, off: usize, value: ring::kfield::KElem,
+                       claims: &mut Vec<BkClaim>| {
+                let mut row = vec![zero.clone(); n_kel_pad];
+                row[off..off + weights.len()].clone_from_slice(&weights);
+                claims.push(BkClaim {
+                    in_weight: false,
+                    value,
+                    parts: vec![(ti, one.clone(), Rc::new(row), ypow.clone())],
+                });
+            };
+            put(g_hypersum_weights(kf, gm), g_off, lp.g_sum.clone(), claims);
+            let (open_pt, mu_prev, c_w) = &end.layer_pts[j - 1];
+            put(g_open_weights(kf, gm, open_pt), g_off, lp.open_g.clone(), claims);
+            if j >= 2 {
+                let (orp, orq) = lp.open_r.clone().expect("interior layer opens Rp/Rq");
+                let rw = r_open_weights(kf, mu_prev, c_w);
+                let r_off = shell.r_offset(j);
+                put(rw.clone(), r_off, orp, claims);
+                put(rw, r_off + 6, orq, claims);
+            }
+        }
+        let _ = mask_coeff_counts;
+    };
+    let [_, _, wm_kel, tm_kel] = reg.aux_shape[pi];
+    mask_claims(ti_wm, wm_kel, plan.depth, tp.pw, tp.endw, claims);
+    mask_claims(ti_tm, tm_kel, sp.dt, tp.pt, tp.endt, claims);
+
+    // ---- Witness-side publics at z*_w. ----
+    let (zw_tree, zw_inst) = tp.endw.zstar.split_at(plan.depth);
+    let inst_tab_w = eq_table(kf, zw_inst);
+    // Per distinct member shape: eq tables over (cols_pad | rows) bits.
+    let mut shape_tabs: Vec<((usize, usize), Rc<Vec<ring::kfield::KElem>>, Rc<Vec<ring::kfield::KElem>>, ring::kfield::KElem, ring::kfield::KElem)> = Vec::new();
+    for m in &sp.members {
+        let key = (m.shape.rows, m.shape.cols);
+        if shape_tabs.iter().any(|s| s.0 == key) {
+            continue;
+        }
+        let lcp = m.shape.cols_pad().trailing_zeros() as usize;
+        let lr = m.shape.rows.trailing_zeros() as usize;
+        let cols_tab = eq_table(kf, &zw_tree[0..lcp]);
+        let rows_tab = eq_table(kf, &zw_tree[lcp..lcp + lr]);
+        let col_sum = cols_tab.iter().take(m.shape.cols).fold(kf.zero(), |a, e| kf.add(&a, e));
+        let row_sum = rows_tab.iter().fold(kf.zero(), |a, e| kf.add(&a, e));
+        shape_tabs.push((
+            key,
+            Rc::new(rows_tab),
+            Rc::new(cols_tab.into_iter().take(m.shape.cols).collect()),
+            row_sum,
+            col_sum,
+        ));
+    }
+    let shape_of = |m: &BkMember| shape_tabs.iter().find(|s| s.0 == (m.shape.rows, m.shape.cols)).unwrap();
+    // Block scales + H.
+    let mut h_w = kf.zero();
+    let mut block_scale = vec![kf.zero(); sp.members.len()];
+    for b in &plan.blocks {
+        let m = &sp.members[b.member];
+        let pre = block_prefix(kf, zw_tree, b.base, m.shape.block_pow());
+        let scale = kf.mul(&inst_tab_w[b.tree], &pre);
+        let (_, _, _, rsum, csum) = shape_of(m);
+        h_w = kf.add(&h_w, &kf.mul(&kf.mul(&scale, rsum), csum));
+        block_scale[b.member] = scale;
+    }
+    let bp_w = blinder_positions(1usize << plan.depth);
+    let bl_w_weights: Vec<[ring::kfield::KElem; 4]> = (0..plan.n_real)
+        .map(|i| {
+            let mut out = [kf.zero(), kf.zero(), kf.zero(), kf.zero()];
+            for (k, &pos) in bp_w.iter().enumerate() {
+                out[k] = kf.mul(&inst_tab_w[i], &point_weight(kf, zw_tree, pos));
+            }
+            out
+        })
+        .collect();
+    let sum_blw = bl_w_weights
+        .iter()
+        .flat_map(|a| a.iter())
+        .fold(kf.zero(), |a, e| kf.add(&a, e));
+    let d_w = kf.sub(&kf.sub(&one, &h_w), &sum_blw);
+
+    // Blinder-row kernels: the a-slots / u-slots of the wit and tab
+    // halves. Layout per real tree: [w.tl.a, w.tl.u, w.tr.a, w.tr.u,
+    // w.f0.a, w.f0.u, w.f1.a, w.f1.u, then the 8 tab slots].
+    let bl_rows = reg.aux_shape[pi][1];
+    let bl_row = |tab_side: bool, u_side: bool, weights: &[[ring::kfield::KElem; 4]]| -> Rc<Vec<ring::kfield::KElem>> {
+        let mut row = vec![kf.zero(); bl_rows];
+        for (i, w4) in weights.iter().enumerate() {
+            for (k, w) in w4.iter().enumerate() {
+                let slot = i * 16 + usize::from(tab_side) * 8 + 2 * k + usize::from(u_side);
+                row[slot] = w.clone();
+            }
+        }
+        Rc::new(row)
+    };
+
+    // wp: p_w(z*) = H + [blinder-a functional].
+    claims.push(BkClaim {
+        in_weight: false,
+        value: kf.sub(&tp.endw.p_claim, &h_w),
+        parts: vec![(ti_bl, one.clone(), bl_row(false, false, &bl_w_weights), ypow.clone())],
+    });
+    // wq: q_w(z*) = alpha H - [committed columns] - offset H + D + [blinder-u].
+    let mut wq_value = kf.sub(&kf.sub(&tp.endw.q_claim, &kf.mul(tp.alpha, &h_w)), &d_w);
+    let mut wq_parts: Vec<(usize, ring::kfield::KElem, Rc<Vec<ring::kfield::KElem>>, Rc<Vec<ring::kfield::KElem>>)> =
+        vec![(ti_bl, one.clone(), bl_row(false, true, &bl_w_weights), ypow.clone())];
+    for (mi, m) in sp.members.iter().enumerate() {
+        let (_, rows_tab, cols_tab, _, _) = shape_of(m);
+        let (_, ti_prim) = reg.map[m.li][m.entry];
+        wq_parts.push((ti_prim, kf.neg(&block_scale[mi]), rows_tab.clone(), cols_tab.clone()));
+        if let Some(pe) = m.pair_entry {
+            let (_, ti_pair) = reg.map[m.li][pe];
+            wq_parts.push((
+                ti_pair,
+                kf.neg(&ring::lookup::mul_y(kf, &block_scale[mi])),
+                rows_tab.clone(),
+                cols_tab.clone(),
+            ));
+        }
+        if m.offset != 0 {
+            let (_, _, _, rsum, csum) = shape_of(m);
+            let hc = kf.mul(&kf.mul(&block_scale[mi], rsum), csum);
+            wq_value = kf.add(&wq_value, &kf.scale(zq.to_mod(m.offset), &hc));
+        }
+    }
+    claims.push(BkClaim { in_weight: false, value: wq_value, parts: wq_parts });
+
+    // ---- Table-side publics at z*_t (STATEMENT table values — the
+    // ---- wrong-table reject face lives exactly here). ----
+    let table_k = sp.table_k(kf);
+    let (zt_tree, zt_inst) = tp.endt.zstar.split_at(sp.dt);
+    let inst_tab_t = eq_table(kf, zt_inst);
+    let nt = 1usize << sp.dt;
+    let tpos = table_row_positions(sp.t_rows, nt);
+    let tree_tab_t = eq_table(kf, zt_tree);
+    let row_w: Vec<ring::kfield::KElem> = tpos.iter().map(|&p| tree_tab_t[p].clone()).collect();
+    let mut row_sum = kf.zero();
+    let mut row_fold = kf.zero();
+    for (w, t) in row_w.iter().zip(table_k.iter()) {
+        row_sum = kf.add(&row_sum, w);
+        row_fold = kf.add(&row_fold, &kf.mul(w, t));
+    }
+    let bp_t = blinder_positions(nt);
+    let bl_t_weights: Vec<[ring::kfield::KElem; 4]> = (0..plan.n_real)
+        .map(|i| {
+            let mut out = [kf.zero(), kf.zero(), kf.zero(), kf.zero()];
+            for (k, &pos) in bp_t.iter().enumerate() {
+                out[k] = kf.mul(&inst_tab_t[i], &tree_tab_t[pos]);
+            }
+            out
+        })
+        .collect();
+    let inst_sum_t =
+        (0..plan.n_real).fold(kf.zero(), |a, i| kf.add(&a, &inst_tab_t[i]));
+    let h_t = kf.mul(&inst_sum_t, &row_sum);
+    let f_t = kf.mul(&inst_sum_t, &row_fold);
+    let sum_blt = bl_t_weights
+        .iter()
+        .flat_map(|a| a.iter())
+        .fold(kf.zero(), |a, e| kf.add(&a, e));
+    let d_t = kf.sub(&kf.sub(&one, &h_t), &sum_blt);
+
+    // tp: p_t(z*) = [m functional] + [blinder-a functional].
+    let m_cols = reg.aux_shape[pi][0];
+    let mut m_col = vec![kf.zero(); m_cols];
+    for i in 0..plan.n_real {
+        for (j, w) in row_w.iter().enumerate() {
+            m_col[i * sp.t_rows + j] = kf.mul(&inst_tab_t[i], w);
+        }
+    }
+    claims.push(BkClaim {
+        in_weight: false,
+        value: tp.endt.p_claim.clone(),
+        parts: vec![
+            (ti_m, one.clone(), one_row.clone(), Rc::new(m_col)),
+            (ti_bl, one.clone(), bl_row(true, false, &bl_t_weights), ypow.clone()),
+        ],
+    });
+    // tq: q_t(z*) = alpha H_t - fused-row fold + D_t + [blinder-u].
+    let tq_value = kf.add(
+        &kf.sub(&kf.sub(&tp.endt.q_claim, &kf.mul(tp.alpha, &h_t)), &d_t),
+        &f_t,
+    );
+    claims.push(BkClaim {
+        in_weight: false,
+        value: tq_value,
+        parts: vec![(ti_bl, one, bl_row(true, true, &bl_t_weights), ypow.clone())],
+    });
+}
+
+// ---------------------------------------------------------------------------
+// The full-statement composed run (BG's composed pass + the 10 descent
+// pairs).
+
+#[derive(Clone, Copy, PartialEq)]
+enum BkTamper {
+    None,
+    /// Off-table value: rd[i] += 2^sh_z, z[i] -= 1 at layer 0 (requant
+    /// identity preserved; the remainder leaves its table) — REJECT
+    /// must land at the rem pair's root cross-check, everything else
+    /// intact (leg isolation, the BF RangeViolation shape folded).
+    RangeViolation,
+    /// Wrong-table-for-exponent, fully self-consistent prover: the
+    /// singleton silu-m4 layer's chain is rederived with the m3 table
+    /// and the PROVER runs its m4 pair against m3 rows (witness, m,
+    /// trees, claims all consistent) — the verifier's STATEMENT-side
+    /// table fold is what rejects (ct-row-gate).
+    WrongTable,
+    /// Cross-table content swap: the committed m blocks of silu-m3 and
+    /// nrw-88 are exchanged (descents honest, ct rows forced — the BD
+    /// WrongC pattern); REJECT lands in the act group's floor chain.
+    CrossPairMSwap,
+}
+
+struct BkOpts {
+    layers_n: usize,
+    t: usize,
+    p2: bool,
+    tamper: BkTamper,
+    /// F5 weak hook (the FP-L2/A6 alpha edge): h0 EXCLUDES u_0(T_act),
+    /// so every descent alpha is predictable before the aux material
+    /// is fixed. Battery-only; never a shipped mode.
+    weak_alpha: bool,
+    quiet: bool,
+}
+
+impl Default for BkOpts {
+    fn default() -> BkOpts {
+        BkOpts {
+            layers_n: 12,
+            t: BF_T,
+            p2: false,
+            tamper: BkTamper::None,
+            weak_alpha: false,
+            quiet: false,
+        }
+    }
+}
+
+struct BkVerdict {
+    statement_ok: bool,
+    publics_ok: bool,
+    instances_ok: bool,
+    pairs_ok: bool,
+    groups_ok: bool,
+    first_fail: Option<String>,
+}
+
+impl BkVerdict {
+    fn accept(&self) -> bool {
+        self.statement_ok && self.publics_ok && self.instances_ok && self.pairs_ok && self.groups_ok
+    }
+}
+
+#[derive(Default)]
+struct BkCost {
+    commit_s: f64,
+    prove_s: f64,
+    verify_s: f64,
+    bytes_statement: usize,
+    inst_lines: Vec<BgInstLine>,
+    bytes_public_claims: usize,
+    /// (pair, witness-descent kel, table-descent kel, derived kel).
+    pair_lines: Vec<(String, usize, usize, usize)>,
+    group_lines: Vec<(&'static str, usize, usize, usize, usize, usize, u32, usize)>,
+    tierz_lines: Vec<(&'static str, usize, u32)>,
+}
+
+impl BkCost {
+    fn bytes_instances(&self) -> usize {
+        self.inst_lines.iter().map(|l| l.kel * 64).sum()
+    }
+    fn bytes_pairs(&self) -> usize {
+        self.pair_lines.iter().map(|l| (l.1 + l.2) * 64).sum()
+    }
+    fn bytes_total(&self) -> usize {
+        self.bytes_statement
+            + self.bytes_instances()
+            + self.bytes_public_claims
+            + self.bytes_pairs()
+            + self.group_lines.iter().map(|g| g.1 + g.2 + g.3 + g.4).sum::<usize>()
+            + self.tierz_lines.iter().map(|t| t.1).sum::<usize>()
+    }
+}
+
+struct BkArtifacts {
+    h0: [u8; 32],
+    statement_digest: [u8; 32],
+    /// Per composed pair (spec order): the descent alpha (the F5 probe
+    /// face records it; battery-only consumption).
+    pair_alphas: Vec<ring::kfield::KElem>,
+}
+
+/// The off-table range-violation tamper (requant-preserving): bump
+/// layer-0's z-remainder into the COMMITTABLE-BUT-OFF-TABLE gap
+/// [2^sh_z, representable_max(e0=2, l0)] and drop z by 1 so the requant
+/// identity dacc = 2^sh_z z + rd is preserved. The value stays inside
+/// the committed Rd tensor's digit class (decomposition succeeds) yet
+/// leaves the [0, 2^sh_z) table — the range LOOKUP is the sole gate
+/// (leg isolation, M4 Section 5). Returns the chosen index.
+fn bk_range_violation(lays: &mut [BfLayer]) -> usize {
+    let sh_z = lays[0].shifts.3;
+    let (_, l0) = bg_entry_class(15, &lays[0]);
+    let hi = ring::digits::representable(2, l0).1 as i64;
+    let bump = 1i64 << sh_z;
+    let max_orig = hi - bump;
+    assert!(max_orig >= 0, "no committable off-table gap for width {sh_z}");
+    let idx = (0..lays[0].rd.len())
+        .find(|&i| {
+            lays[0].rd[i] >= 0 && lays[0].rd[i] <= max_orig && lays[0].z[i] > -100 && lays[0].z[i] < 100
+        })
+        .expect("a committable off-table position exists at layer 0");
+    lays[0].rd[idx] += bump;
+    lays[0].z[idx] -= 1;
+    idx
+}
+
+/// The PROVER's silu member for a pair (the WrongTable arm overrides
+/// the singleton m4 pair to the m3 rows; every honest path returns the
+/// statement member).
+fn bk_prover_silu(sp: &BkPairSpec, opts: &BkOpts) -> Option<(i32, i32)> {
+    match (opts.tamper, sp.pid) {
+        (BkTamper::WrongTable, 1) => Some((-3, -3)),
+        _ => sp.silu,
+    }
+}
+
+/// Fused table rows for an explicit member choice (prover side of the
+/// WrongTable arm; identical to BkPairSpec::table_k for honest runs).
+fn bk_table_for(
+    kf: &ring::kfield::KField,
+    sp: &BkPairSpec,
+    silu: Option<(i32, i32)>,
+) -> Vec<ring::kfield::KElem> {
+    use ring::lookup::{fuse_pair, silu_v2_member, silu_v2_rows};
+    let zq = &kf.zq;
+    if let Some((eg, ea)) = silu {
+        let (bytes, _) = silu_v2_member(eg, ea).expect("frozen member");
+        silu_v2_rows(bytes)
+            .iter()
+            .map(|&(v, s)| fuse_pair(kf, zq.to_mod(v), zq.to_mod(s)))
+            .collect()
+    } else {
+        (0..sp.t_rows as u64).map(|j| kf.embed(j)).collect()
+    }
+}
+
+/// Per-tree fused witness slot columns of one pair (prover side; the
+/// override member governs the SiLU fusion for the WrongTable arm
+/// because the tampered chain was rederived against it).
+fn bk_tree_slots(
+    kf: &ring::kfield::KField,
+    sp: &BkPairSpec,
+    lays: &[BfLayer],
+    tree: usize,
+) -> Vec<(ring::descent_fold::MemberShape, usize, Vec<ring::kfield::KElem>)> {
+    use ring::lookup::fuse_pair;
+    let zq = &kf.zq;
+    let mut out = Vec::new();
+    for b in sp.plan.blocks.iter().filter(|b| b.tree == tree) {
+        let m = &sp.members[b.member];
+        let (prim, pair) = bk_member_vals(m, lays);
+        let col: Vec<ring::kfield::KElem> = if let Some(pv) = pair {
+            prim.iter().zip(pv.iter()).map(|(&x, &y)| fuse_pair(kf, zq.to_mod(x), zq.to_mod(y))).collect()
+        } else {
+            prim.iter().map(|&x| kf.embed(zq.to_mod(x + m.offset))).collect()
+        };
+        out.push((m.shape, b.base, col));
+    }
+    out
+}
+
+#[allow(clippy::too_many_arguments)]
+fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
+    use ring::descent_fold::{aligned_witness_tree, neutral_tree, tree_ceiling_ok};
+    use ring::fold::{
+        expand_layer_table, ixf_layout, ixf_sumcheck_prove, ixf_sumcheck_verify,
+        matmul_degree_schedule, zerocheck_degree_schedule,
+    };
+    use ring::gkr::{eq_eval, eq_table, root_cross_check};
+    use ring::gkr_masked::{
+        blinded_table_tree, masked_gkr_prove, masked_gkr_verify, zero_masks,
+    };
+    use ring::kfield::{KElem, KField};
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use ring::sumcheck::LkpTranscript;
+    use std::rc::Rc;
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let zq = ctxr.zq;
+    let q = zq.q;
+    let t = opts.t;
+    let il = ixf_layout(opts.layers_n);
+    let lambda = il.lambda;
+    let mut verdict = BkVerdict {
+        statement_ok: true,
+        publics_ok: true,
+        instances_ok: true,
+        pairs_ok: true,
+        groups_ok: true,
+        first_fail: None,
+    };
+    let mut cost = BkCost::default();
+    let mut fail = |v: &mut BkVerdict, what: String| {
+        if v.first_fail.is_none() {
+            v.first_fail = Some(what);
+        }
+    };
+
+    // ---- Witness: the REAL ckpt-00009536 layers (+ tamper arms). ----
+    let mut lays: Vec<BfLayer> = (0..opts.layers_n).map(|l| bf_load_layer(l, t, true)).collect();
+    match opts.tamper {
+        BkTamper::RangeViolation => {
+            bk_range_violation(&mut lays);
+        }
+        BkTamper::WrongTable => {
+            // The singleton m4 layer's chain rederived against m3 —
+            // the prover's pair material follows (bk_prover_silu).
+            let li = lays
+                .iter()
+                .position(|l| l.exps.1 == -4)
+                .expect("battery shape carries an m4 layer");
+            bf_derive_chain(&mut lays[li], t, Some((-3, -3)));
+        }
+        _ => {}
+    }
+
+    // ---- Pair specs, registry, schedules, aux, witnesses. ----
+    let t_commit = Instant::now();
+    let specs = bk_pair_specs(&lays, t);
+    if opts.tamper == BkTamper::WrongTable {
+        let m4 = specs.iter().find(|s| s.pid == 1).expect("m4 pair present");
+        assert_eq!(m4.members.len(), 1, "WrongTable leg needs the singleton m4 pair");
+    }
+    let mut reg = bk_build_groups(&lays, t, &specs, q);
+    reg.gw.begin_opening().expect("first weight-group opening (E-O2-BB)");
+    reg.ga.begin_opening().expect("first act-group opening (E-O2-BB)");
+    let mut aux_rng = ring::ProverRng::from_test_seed(
+        "uagb1-bk-session",
+        &[(opts.layers_n as u64).to_le_bytes(), (t as u64).to_le_bytes()].concat(),
+    );
+    let mut aux: Vec<BkAuxMat> = Vec::with_capacity(specs.len());
+    for (pi, sp) in specs.iter().enumerate() {
+        let prover_silu = bk_prover_silu(sp, opts);
+        let sp_for_counts = if prover_silu == sp.silu {
+            None
+        } else {
+            Some(BkPairSpec {
+                pid: sp.pid,
+                t_rows: sp.t_rows,
+                dt: sp.dt,
+                silu: prover_silu,
+                members: sp.members.clone(),
+                plan: sp.plan.clone(),
+            })
+        };
+        let a = match &sp_for_counts {
+            Some(s) => bk_build_aux(s, &lays, &reg, pi, &kf, &mut aux_rng),
+            None => bk_build_aux(sp, &lays, &reg, pi, &kf, &mut aux_rng),
+        };
+        aux.push(a);
+    }
+    if opts.tamper == BkTamper::CrossPairMSwap {
+        let pa = specs.iter().position(|s| s.pid == 0).expect("silu-m3 present");
+        let pb = specs.iter().position(|s| s.pid == 2).expect("nrw-88 present");
+        let (lo, hi) = if pa < pb { (pa, pb) } else { (pb, pa) };
+        let (left, right) = aux.split_at_mut(hi);
+        let a = &mut left[lo].vals_m;
+        let b = &mut right[0].vals_m;
+        let n = 256usize.min(a.len()).min(b.len());
+        for i in 0..n {
+            std::mem::swap(&mut a[i], &mut b[i]);
+        }
+    }
+    // Ceiling gates (LKP-2 at the per-tree multiset).
+    for sp in &specs {
+        let mut used = vec![0usize; sp.plan.n_real];
+        for b in &sp.plan.blocks {
+            used[b.tree] += sp.members[b.member].shape.n_el();
+        }
+        for &u in &used {
+            assert!(tree_ceiling_ok(u, q), "LKP-2 ceiling at pair {}", sp.name());
+        }
+    }
+    let (sched_w, sched_a) = if opts.p2 {
+        (
+            ring::eval_proof::plan_schedule_tier_z(reg.gw.n_digit_rings, 1, q, None),
+            ring::eval_proof::plan_schedule(reg.ga.n_digit_rings, 2, q, None),
+        )
+    } else {
+        (
+            ring::eval_proof::plan_schedule(reg.gw.n_digit_rings, 1, q, None),
+            ring::eval_proof::plan_schedule(reg.ga.n_digit_rings, 2, q, None),
+        )
+    };
+    let mut w0_w = bk_witness_weight(&reg, &lays);
+    let mut w0_a = bk_witness_act(&reg, &lays, &aux);
+    let crs_seed = 0xB6_C0DEu64;
+    let pre_w = bg_precommit(&ctxr, &reg.gw, &sched_w, &mut w0_w, crs_seed);
+    let pre_a = bg_precommit(&ctxr, &reg.ga, &sched_a, &mut w0_a, crs_seed);
+
+    // ---- Statement (v4 + mode) and h0 (map + BOTH u_0s inside —
+    // ---- FP-L2 mask-then-fold: every aux commitment precedes every
+    // ---- challenge through u_0(T_act)). ----
+    let u0_digests: Vec<Vec<u8>> = [&pre_w.u0, &pre_a.u0]
+        .iter()
+        .map(|u| uk8_sha(&[b"bk-u0", &polys_bytes(u)]).to_vec())
+        .collect();
+    let commit_digests: Vec<Vec<Vec<u8>>> = (0..opts.layers_n)
+        .map(|li| {
+            (0..BF_ENTRIES.len())
+                .map(|e| {
+                    let (w, _) = reg.map[li][e];
+                    uk8_sha(&[
+                        b"bk-entry",
+                        &u0_digests[if w { 0 } else { 1 }],
+                        &(li as u64).to_le_bytes(),
+                        &(e as u64).to_le_bytes(),
+                    ])
+                    .to_vec()
+                })
+                .collect()
+        })
+        .collect();
+    let mut statement = m125_build_statement(t, &lays, &commit_digests, b"bk-agg-crs-v1");
+    let weight_ids: Vec<u32> = (0..statement.manifest.commitments.len() as u32)
+        .filter(|&id| statement.typing[id as usize].class == manifest::CLS_W8S)
+        .collect();
+    statement.mode = Some(if opts.p2 {
+        manifest::ModeDecl { mode: manifest::MODE_P2, private_entries: weight_ids }
+    } else {
+        manifest::ModeDecl { mode: manifest::MODE_P0, private_entries: Vec::new() }
+    });
+    let ctx_digest = match statement.validate() {
+        Ok(()) => statement.digest().expect("prover statement digests"),
+        Err(e) => panic!("prover statement invalid: {e}"),
+    };
+    cost.bytes_statement = statement.encode().len();
+    let map_bytes = bk_map_bytes(&reg);
+    let h0 = if opts.weak_alpha {
+        // WEAK HOOK (battery): u_0(T_act) — and with it every aux
+        // commitment — left OUT of h0: the descent alphas become
+        // predictable before the blinders are fixed (the A6-class
+        // ordering break; the shipped order below is the F5 partner).
+        uk8_sha(&[b"uagb1-bk-h0", &ctx_digest, &map_bytes, &polys_bytes(&pre_w.u0)])
+    } else {
+        uk8_sha(&[
+            b"uagb1-bk-h0",
+            &ctx_digest,
+            &map_bytes,
+            &polys_bytes(&pre_w.u0),
+            &polys_bytes(&pre_a.u0),
+        ])
+    };
+    cost.commit_s = t_commit.elapsed().as_secs_f64();
+
+    // ---- PROVER: one rolling transcript — the BG instance layer,
+    // ---- then the 10 descent pairs, then publics. ----
+    let t_prove = Instant::now();
+    let mut tr = LkpTranscript::new("uagb1-bk-pass", &h0);
+    let product3 = |kf: &KField, v: &[KElem]| kf.mul(&kf.mul(&v[0], &v[1]), &v[2]);
+    let had_comb =
+        |kf: &KField, v: &[KElem]| kf.mul(&v[0], &kf.sub(&kf.mul(&v[1], &v[2]), &v[3]));
+    let rq_comb = |kf: &KField, v: &[KElem]| {
+        kf.mul(&v[0], &kf.sub(&kf.sub(&v[1], &kf.mul(&v[4], &v[2])), &v[3]))
+    };
+    let lr = t.trailing_zeros() as usize;
+    let mut claims: Vec<BkClaim> = Vec::new();
+    let mut v_cs: Vec<KElem> = Vec::new();
+    let mut sc_proofs: Vec<ring::sumcheck::SumcheckProof> = Vec::new();
+    let to_parts = |parts: Vec<(usize, usize, KElem, Rc<Vec<KElem>>, Rc<Vec<KElem>>)>,
+                    reg: &BkRegistry|
+     -> Vec<(usize, KElem, Rc<Vec<KElem>>, Rc<Vec<KElem>>)> {
+        parts
+            .into_iter()
+            .map(|(li, e, s, r, c)| {
+                let (_, ti) = reg.map[li][e];
+                (ti, s, r, c)
+            })
+            .collect()
+    };
+
+    for (name, a_e, b_e, c_e) in BG_MM_INSTS {
+        let (a_rows, a_cols) = bf_entry_shape(a_e, t);
+        let (_b_rows, b_cols) = bf_entry_shape(b_e, t);
+        let inner = a_cols;
+        let cols = b_cols;
+        let lk = usize::BITS as usize - (inner - 1).leading_zeros() as usize;
+        let lc = usize::BITS as usize - (cols - 1).leading_zeros() as usize;
+        let nk = 1usize << lk;
+        let r_l: Vec<KElem> = (0..lambda).map(|_| tr.challenge_k(&kf)).collect();
+        let rx: Vec<KElem> = (0..lr).map(|_| tr.challenge_k(&kf)).collect();
+        let ry: Vec<KElem> = (0..lc).map(|_| tr.challenge_k(&kf)).collect();
+        let eq_rl = eq_table(&kf, &r_l);
+        let eq_rx = Rc::new(eq_table(&kf, &rx));
+        let eq_ry = Rc::new(eq_table(&kf, &ry));
+        let mut ta = vec![kf.zero(); il.slots * nk];
+        let mut tb = vec![kf.zero(); il.slots * nk];
+        for (li, lay) in lays.iter().enumerate() {
+            let av = bf_entry_values(a_e, lay);
+            for i in 0..a_rows {
+                let w = &eq_rx[i];
+                if kf.is_zero(w) {
+                    continue;
+                }
+                for k in 0..inner {
+                    let v = av[i * inner + k];
+                    if v != 0 {
+                        let s = &mut ta[li * nk + k];
+                        *s = kf.add(s, &kf.scale(zq.to_mod(v), w));
+                    }
+                }
+            }
+            let bv = bf_entry_values(b_e, lay);
+            for k in 0..inner {
+                let row = &bv[k * cols..(k + 1) * cols];
+                let mut acc = kf.zero();
+                for (j, &v) in row.iter().enumerate() {
+                    if v != 0 {
+                        acc = kf.add(&acc, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+                    }
+                }
+                tb[li * nk + k] = acc;
+            }
+        }
+        let v_c = {
+            let mut s = kf.zero();
+            for (li, lay) in lays.iter().enumerate() {
+                let m = bg_mle(&kf, bf_entry_values(c_e, lay), cols, &eq_rx, &eq_ry);
+                s = kf.add(&s, &kf.mul(&eq_rl[li], &m));
+            }
+            s
+        };
+        tr.absorb_k(&kf, &format!("bk-claim-{name}"), std::slice::from_ref(&v_c));
+        let eq_exp = expand_layer_table(&kf, &eq_rl, nk);
+        let sched = matmul_degree_schedule(lk, lambda);
+        let (scp, point) =
+            ixf_sumcheck_prove(&kf, vec![eq_exp, ta, tb], &sched, &product3, &mut tr);
+        tr.absorb_k(&kf, &format!("bk-final-{name}"), &scp.final_evals);
+        cost.inst_lines.push(BgInstLine {
+            name,
+            kel: 1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len(),
+        });
+        let k_star = &point[..lk];
+        let l_star = &point[lk..];
+        let eq_ks = Rc::new(eq_table(&kf, k_star));
+        let eq_ls = eq_table(&kf, l_star);
+        claims.push(BkClaim {
+            in_weight: false,
+            value: scp.final_evals[1].clone(),
+            parts: to_parts(
+                (0..opts.layers_n)
+                    .map(|li| (li, a_e, eq_ls[li].clone(), eq_rx.clone(), eq_ks.clone()))
+                    .collect(),
+                &reg,
+            ),
+        });
+        claims.push(BkClaim {
+            in_weight: true,
+            value: scp.final_evals[2].clone(),
+            parts: to_parts(
+                (0..opts.layers_n)
+                    .map(|li| (li, b_e, eq_ls[li].clone(), eq_ks.clone(), eq_ry.clone()))
+                    .collect(),
+                &reg,
+            ),
+        });
+        claims.push(BkClaim {
+            in_weight: false,
+            value: v_c.clone(),
+            parts: to_parts(
+                (0..opts.layers_n)
+                    .map(|li| (li, c_e, eq_rl[li].clone(), eq_rx.clone(), eq_ry.clone()))
+                    .collect(),
+                &reg,
+            ),
+        });
+        v_cs.push(v_c);
+        sc_proofs.push(scp);
+    }
+
+    let zc_insts: Vec<(&'static str, usize, usize, usize, bool)> = {
+        let mut v = vec![("had", 7usize, 10usize, 11usize, false)];
+        for (name, acc_e, y_e, r_e) in BG_RQ_INSTS {
+            v.push((name, acc_e, y_e, r_e, true));
+        }
+        v
+    };
+    for (name, e1, e2, e3, is_rq) in &zc_insts {
+        let shape_e = if *is_rq { *e1 } else { *e3 };
+        let (_rows, cols_real) = bf_entry_shape(shape_e, t);
+        let lcp = usize::BITS as usize - (cols_real - 1).leading_zeros() as usize;
+        let cols_pad = 1usize << lcp;
+        let n_pos = lr + lcp;
+        let r_q: Vec<KElem> = (0..n_pos + lambda).map(|_| tr.challenge_k(&kf)).collect();
+        let eq_full = eq_table(&kf, &r_q);
+        let t1 = bg_stack_table(&kf, &lays, *e1, il.slots, n_pos, cols_real, cols_pad);
+        let t2 = bg_stack_table(&kf, &lays, *e2, il.slots, n_pos, cols_real, cols_pad);
+        let t3 = bg_stack_table(&kf, &lays, *e3, il.slots, n_pos, cols_real, cols_pad);
+        let zero = kf.zero();
+        tr.absorb_k(&kf, &format!("bk-claim-{name}"), std::slice::from_ref(&zero));
+        let sched = if *is_rq {
+            let mut d = vec![2usize; n_pos];
+            d.extend(std::iter::repeat_n(3usize, lambda));
+            d
+        } else {
+            zerocheck_degree_schedule(n_pos, lambda)
+        };
+        let (scp, point) = if *is_rq {
+            let sh_layer: Vec<KElem> = (0..il.slots)
+                .map(|li| {
+                    if li < opts.layers_n {
+                        kf.scale(zq.to_mod(1i64 << bg_rq_shift(name, &lays[li])), &kf.one())
+                    } else {
+                        kf.zero()
+                    }
+                })
+                .collect();
+            let sh_exp = expand_layer_table(&kf, &sh_layer, 1 << n_pos);
+            ixf_sumcheck_prove(&kf, vec![eq_full, t1, t2, t3, sh_exp], &sched, &rq_comb, &mut tr)
+        } else {
+            ixf_sumcheck_prove(&kf, vec![eq_full, t1, t2, t3], &sched, &had_comb, &mut tr)
+        };
+        tr.absorb_k(&kf, &format!("bk-final-{name}"), &scp.final_evals);
+        cost.inst_lines.push(BgInstLine {
+            name,
+            kel: 1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len(),
+        });
+        let p_col = &point[..lcp];
+        let p_row = &point[lcp..n_pos];
+        let p_lay = &point[n_pos..];
+        let eq_pc = Rc::new(eq_table(&kf, p_col));
+        let eq_pr = Rc::new(eq_table(&kf, p_row));
+        let eq_pl = eq_table(&kf, p_lay);
+        for (fe, e) in [(1usize, *e1), (2, *e2), (3, *e3)] {
+            claims.push(BkClaim {
+                in_weight: false,
+                value: scp.final_evals[fe].clone(),
+                parts: to_parts(
+                    (0..opts.layers_n)
+                        .map(|li| (li, e, eq_pl[li].clone(), eq_pr.clone(), eq_pc.clone()))
+                        .collect(),
+                    &reg,
+                ),
+            });
+        }
+        sc_proofs.push(scp);
+    }
+
+    // ---- THE DESCENT PHASE: the 10 per-table folded pairs. ----
+    let ypow = bk_ypow_col(&kf);
+    let mut pair_transcripts: Vec<BkPairTranscript> = Vec::with_capacity(specs.len());
+    let mut pair_alphas: Vec<KElem> = Vec::with_capacity(specs.len());
+    for (pi, sp) in specs.iter().enumerate() {
+        let plan = &sp.plan;
+        let alpha = tr.challenge_k(&kf);
+        pair_alphas.push(alpha.clone());
+        // Witness trees (real, then neutral pads).
+        let mut wtrees: Vec<ring::gkr::FracTree> = Vec::with_capacity(plan.l);
+        for i in 0..plan.n_real {
+            let slots = bk_tree_slots(&kf, sp, &lays, i);
+            let slot_refs: Vec<(ring::descent_fold::MemberShape, usize, &[KElem])> =
+                slots.iter().map(|(s, b, c)| (*s, *b, c.as_slice())).collect();
+            wtrees.push(aligned_witness_tree(&kf, &alpha, &slot_refs, plan.depth, &aux[pi].bl_w[i]));
+        }
+        for _ in plan.n_real..plan.l {
+            wtrees.push(neutral_tree(&kf, plan.depth));
+        }
+        let masks_w = aux[pi].masks_w.take().expect("witness masks drawn once");
+        let (pw, endw) = masked_gkr_prove(&kf, &wtrees, masks_w, &mut tr);
+        drop(wtrees);
+        // Table trees (the PROVER's table — statement member on every
+        // honest path; the WrongTable arm runs its own).
+        let tab_k = bk_table_for(&kf, sp, bk_prover_silu(sp, opts));
+        let mut ttrees: Vec<ring::gkr::FracTree> = Vec::with_capacity(plan.l);
+        for i in 0..plan.n_real {
+            let m_k: Vec<KElem> =
+                aux[pi].m_counts[i].iter().map(|&c| kf.embed(zq.to_mod(c))).collect();
+            ttrees.push(blinded_table_tree(&kf, &alpha, &tab_k, &m_k, sp.dt, &aux[pi].bl_t[i]));
+        }
+        for _ in plan.n_real..plan.l {
+            ttrees.push(neutral_tree(&kf, sp.dt));
+        }
+        let masks_t = aux[pi].masks_t.take().expect("table masks drawn once");
+        let (pt, endt) = masked_gkr_prove(&kf, &ttrees, masks_t, &mut tr);
+        drop(ttrees);
+        cost.pair_lines.push((
+            sp.name().to_string(),
+            bk_proof_kel(&pw),
+            bk_proof_kel(&pt),
+            ring::descent_fold::pair_expected_bytes(plan.depth, sp.dt, plan.e_bits, plan.l) / 64,
+        ));
+        let tpx = BkPairTranscript { alpha, pw, endw, pt, endt };
+        {
+            let view = BkPairView {
+                alpha: &tpx.alpha,
+                pw: &tpx.pw,
+                endw: &tpx.endw,
+                pt: &tpx.pt,
+                endt: &tpx.endt,
+            };
+            bk_pair_claims(&kf, sp, &reg, pi, &view, &ypow, &mut claims);
+        }
+        // Prover-side self-check mirror of the wrong-table face: on
+        // honest paths the shared claim builder used the statement
+        // table (bk_pair_claims folds sp.table_k) — the WrongTable arm
+        // rebuilds its own claims below.
+        if bk_prover_silu(sp, opts) != sp.silu {
+            // Replace the pair's tq claim (the last pushed) with the
+            // prover's-table version so the tampered prover is fully
+            // self-consistent (the leg's semantics).
+            let n = claims.len();
+            let tq = &mut claims[n - 1];
+            let table_p = bk_table_for(&kf, sp, bk_prover_silu(sp, opts));
+            let table_s = sp.table_k(&kf);
+            // tq_value shifts by inst_sum * sum_j row_w (table_p - table_s).
+            let (zt_tree, zt_inst) = tpx.endt.zstar.split_at(sp.dt);
+            let inst_tab_t = eq_table(&kf, zt_inst);
+            let inst_sum =
+                (0..plan.n_real).fold(kf.zero(), |a, i| kf.add(&a, &inst_tab_t[i]));
+            let nt = 1usize << sp.dt;
+            let tpos = ring::gkr_masked::table_row_positions(sp.t_rows, nt);
+            let tree_tab = eq_table(&kf, zt_tree);
+            let mut dfold = kf.zero();
+            for (j, &p) in tpos.iter().enumerate() {
+                let d = kf.sub(&table_p[j], &table_s[j]);
+                dfold = kf.add(&dfold, &kf.mul(&tree_tab[p], &d));
+            }
+            tq.value = kf.add(&tq.value, &kf.mul(&inst_sum, &dfold));
+        }
+        pair_transcripts.push(tpx);
+    }
+
+    // ---- Public binding claims (X_l + declared z_l). ----
+    let lcx = 10usize;
+    let r_out: Vec<KElem> = (0..lr + lcx).map(|_| tr.challenge_k(&kf)).collect();
+    let eq_oc = Rc::new(eq_table(&kf, &r_out[..lcx]));
+    let eq_or = Rc::new(eq_table(&kf, &r_out[lcx..]));
+    let mut public_vals: Vec<KElem> = Vec::new();
+    for (e, _tag) in [(0usize, "X"), (16usize, "z")] {
+        for (li, lay) in lays.iter().enumerate() {
+            let v = bg_mle(&kf, bf_entry_values(e, lay), BF_D, &eq_or, &eq_oc);
+            public_vals.push(v.clone());
+            claims.push(BkClaim {
+                in_weight: false,
+                value: v,
+                parts: to_parts(vec![(li, e, kf.one(), eq_or.clone(), eq_oc.clone())], &reg),
+            });
+        }
+    }
+    tr.absorb_k(&kf, "bk-public", &public_vals);
+    cost.bytes_public_claims = 64 * public_vals.len();
+
+    // ---- nu per claim (CRB-N5: after every terminal absorbed),
+    // ---- assembly, group eval proofs. ----
+    let assemble = |claims: &[BkClaim], nus: &[KElem], reg: &BkRegistry, kf: &KField|
+     -> (KElem, KElem, GroupClaims, GroupClaims) {
+        let mut vb_w = kf.zero();
+        let mut vb_a = kf.zero();
+        let mut gc_w = GroupClaims::new(reg.gw.tensors.len());
+        let mut gc_a = GroupClaims::new(reg.ga.tensors.len());
+        for (claim, nu) in claims.iter().zip(nus.iter()) {
+            if claim.in_weight {
+                vb_w = kf.add(&vb_w, &kf.mul(nu, &claim.value));
+            } else {
+                vb_a = kf.add(&vb_a, &kf.mul(nu, &claim.value));
+            }
+            for (ti, scale, row, col) in &claim.parts {
+                let contrib = ClaimContrib {
+                    tensor_idx: *ti,
+                    scale: kf.mul(nu, scale),
+                    row: row.clone(),
+                    col: col.clone(),
+                };
+                if claim.in_weight {
+                    gc_w.push(contrib);
+                } else {
+                    gc_a.push(contrib);
+                }
+            }
+        }
+        (vb_w, vb_a, gc_w, gc_a)
+    };
+    let nus: Vec<KElem> = (0..claims.len()).map(|_| tr.challenge_k(&kf)).collect();
+    let (vb_w, vb_a, gc_w, gc_a) = assemble(&claims, &nus, &reg, &kf);
+    let mut mask_rng = ring::ProverRng::from_test_seed("uagb1-bk-tz", &[0xB7]);
+    let lie_act = opts.tamper == BkTamper::CrossPairMSwap;
+    let (proof_w, tz_w) = bg_prove_group(
+        &ctxr, &kf, &reg.gw, &sched_w, &mut w0_w, &gc_w, &vb_w, pre_w, &mut tr, crs_seed, false,
+        opts.p2, &mut mask_rng,
+    );
+    let (proof_a, _tz_a) = bg_prove_group(
+        &ctxr, &kf, &reg.ga, &sched_a, &mut w0_a, &gc_a, &vb_a, pre_a, &mut tr, crs_seed, lie_act,
+        false, &mut mask_rng,
+    );
+    cost.prove_s = t_prove.elapsed().as_secs_f64();
+    let bundle_v_cs = v_cs;
+
+    // ---- VERIFIER (fresh transcript, own claim layer, statement-
+    // ---- derived pair inventory + tables). ----
+    let t_verify = Instant::now();
+    let ctx_v = match statement.validate() {
+        Ok(()) => statement.digest().expect("verifier statement digests"),
+        Err(_) => {
+            verdict.statement_ok = false;
+            fail(&mut verdict, "statement-validate".to_string());
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (verdict, cost, BkArtifacts { h0, statement_digest: ctx_digest, pair_alphas });
+        }
+    };
+    let reg_v = bk_build_groups(&lays, t, &specs, q);
+    let h0_v = if opts.weak_alpha {
+        uk8_sha(&[b"uagb1-bk-h0", &ctx_v, &bk_map_bytes(&reg_v), &polys_bytes(&proof_w.u0)])
+    } else {
+        uk8_sha(&[
+            b"uagb1-bk-h0",
+            &ctx_v,
+            &bk_map_bytes(&reg_v),
+            &polys_bytes(&proof_w.u0),
+            &polys_bytes(&proof_a.u0),
+        ])
+    };
+    if h0_v != h0 {
+        verdict.statement_ok = false;
+        fail(&mut verdict, "h0-map-binding".to_string());
+    }
+    if verdict.statement_ok {
+        let mut tv = LkpTranscript::new("uagb1-bk-pass", &h0_v);
+        let mut claims_v: Vec<BkClaim> = Vec::new();
+        let mut sci = 0usize;
+        'verify: {
+            for (name, a_e, b_e, c_e) in BG_MM_INSTS {
+                let (_ar, a_cols) = bf_entry_shape(a_e, t);
+                let (_br, b_cols) = bf_entry_shape(b_e, t);
+                let inner = a_cols;
+                let cols = b_cols;
+                let lk = usize::BITS as usize - (inner - 1).leading_zeros() as usize;
+                let lc = usize::BITS as usize - (cols - 1).leading_zeros() as usize;
+                let r_l: Vec<KElem> = (0..lambda).map(|_| tv.challenge_k(&kf)).collect();
+                let rx: Vec<KElem> = (0..lr).map(|_| tv.challenge_k(&kf)).collect();
+                let ry: Vec<KElem> = (0..lc).map(|_| tv.challenge_k(&kf)).collect();
+                let v_c = &bundle_v_cs[sci];
+                tv.absorb_k(&kf, &format!("bk-claim-{name}"), std::slice::from_ref(v_c));
+                let sched = matmul_degree_schedule(lk, lambda);
+                let scp = &sc_proofs[sci];
+                let res = ixf_sumcheck_verify(&kf, &sched, v_c, scp, &product3, &mut tv);
+                let Some((point, _red)) = res else {
+                    verdict.instances_ok = false;
+                    fail(&mut verdict, "sc-matmul".to_string());
+                    break 'verify;
+                };
+                let eq_star = eq_eval(&kf, &r_l, &point[lk..]);
+                if scp.final_evals[0] != eq_star {
+                    verdict.instances_ok = false;
+                    fail(&mut verdict, "eq-final".to_string());
+                    break 'verify;
+                }
+                tv.absorb_k(&kf, &format!("bk-final-{name}"), &scp.final_evals);
+                let eq_rx = Rc::new(eq_table(&kf, &rx));
+                let eq_ry = Rc::new(eq_table(&kf, &ry));
+                let eq_rl = eq_table(&kf, &r_l);
+                let eq_ks = Rc::new(eq_table(&kf, &point[..lk]));
+                let eq_ls = eq_table(&kf, &point[lk..]);
+                claims_v.push(BkClaim {
+                    in_weight: false,
+                    value: scp.final_evals[1].clone(),
+                    parts: to_parts(
+                        (0..opts.layers_n)
+                            .map(|li| (li, a_e, eq_ls[li].clone(), eq_rx.clone(), eq_ks.clone()))
+                            .collect(),
+                        &reg_v,
+                    ),
+                });
+                claims_v.push(BkClaim {
+                    in_weight: true,
+                    value: scp.final_evals[2].clone(),
+                    parts: to_parts(
+                        (0..opts.layers_n)
+                            .map(|li| (li, b_e, eq_ls[li].clone(), eq_ks.clone(), eq_ry.clone()))
+                            .collect(),
+                        &reg_v,
+                    ),
+                });
+                claims_v.push(BkClaim {
+                    in_weight: false,
+                    value: v_c.clone(),
+                    parts: to_parts(
+                        (0..opts.layers_n)
+                            .map(|li| (li, c_e, eq_rl[li].clone(), eq_rx.clone(), eq_ry.clone()))
+                            .collect(),
+                        &reg_v,
+                    ),
+                });
+                sci += 1;
+            }
+            for (name, e1, e2, e3, is_rq) in &zc_insts {
+                let shape_e = if *is_rq { *e1 } else { *e3 };
+                let (_rows, cols_real) = bf_entry_shape(shape_e, t);
+                let lcp = usize::BITS as usize - (cols_real - 1).leading_zeros() as usize;
+                let n_pos = lr + lcp;
+                let r_q: Vec<KElem> = (0..n_pos + lambda).map(|_| tv.challenge_k(&kf)).collect();
+                let zero = kf.zero();
+                tv.absorb_k(&kf, &format!("bk-claim-{name}"), std::slice::from_ref(&zero));
+                let sched = if *is_rq {
+                    let mut d = vec![2usize; n_pos];
+                    d.extend(std::iter::repeat_n(3usize, lambda));
+                    d
+                } else {
+                    zerocheck_degree_schedule(n_pos, lambda)
+                };
+                let scp = &sc_proofs[sci];
+                let res = if *is_rq {
+                    ixf_sumcheck_verify(&kf, &sched, &zero, scp, &rq_comb, &mut tv)
+                } else {
+                    ixf_sumcheck_verify(&kf, &sched, &zero, scp, &had_comb, &mut tv)
+                };
+                let Some((point, _red)) = res else {
+                    verdict.instances_ok = false;
+                    fail(&mut verdict, if *is_rq { "sc-requant".to_string() } else { "sc-hadamard".to_string() });
+                    break 'verify;
+                };
+                let eq_star = eq_eval(&kf, &r_q, &point);
+                if scp.final_evals[0] != eq_star {
+                    verdict.instances_ok = false;
+                    fail(&mut verdict, "eq-final".to_string());
+                    break 'verify;
+                }
+                if *is_rq {
+                    let eq_pl = eq_table(&kf, &point[n_pos..]);
+                    let mut sh_star = kf.zero();
+                    for (li, lay) in lays.iter().enumerate() {
+                        sh_star = kf.add(
+                            &sh_star,
+                            &kf.scale(zq.to_mod(1i64 << bg_rq_shift(name, lay)), &eq_pl[li]),
+                        );
+                    }
+                    if scp.final_evals[4] != sh_star {
+                        verdict.instances_ok = false;
+                        fail(&mut verdict, "sh-final".to_string());
+                        break 'verify;
+                    }
+                }
+                tv.absorb_k(&kf, &format!("bk-final-{name}"), &scp.final_evals);
+                let eq_pc = Rc::new(eq_table(&kf, &point[..lcp]));
+                let eq_pr = Rc::new(eq_table(&kf, &point[lcp..n_pos]));
+                let eq_pl = eq_table(&kf, &point[n_pos..]);
+                for (fe, e) in [(1usize, *e1), (2, *e2), (3, *e3)] {
+                    claims_v.push(BkClaim {
+                        in_weight: false,
+                        value: scp.final_evals[fe].clone(),
+                        parts: to_parts(
+                            (0..opts.layers_n)
+                                .map(|li| (li, e, eq_pl[li].clone(), eq_pr.clone(), eq_pc.clone()))
+                                .collect(),
+                            &reg_v,
+                        ),
+                    });
+                }
+                sci += 1;
+            }
+            // Descent pairs: verify each masked descent on the rolling
+            // transcript, run the per-instance root cross-checks, and
+            // rebuild the pair claims from the SHIPPED proof + the
+            // STATEMENT publics.
+            for (pi, sp) in specs.iter().enumerate() {
+                let plan = &sp.plan;
+                let alpha_v = tv.challenge_k(&kf);
+                let ptx = &pair_transcripts[pi];
+                let shell_w = zero_masks(&kf, plan.depth, plan.e_bits);
+                let Some((roots_w, endw_v)) =
+                    masked_gkr_verify(&kf, plan.l, plan.depth, &shell_w, &ptx.pw, &mut tv, false)
+                else {
+                    verdict.pairs_ok = false;
+                    fail(&mut verdict, format!("pair-descent-w:{}", sp.name()));
+                    break 'verify;
+                };
+                let shell_t = zero_masks(&kf, sp.dt, plan.e_bits);
+                let Some((roots_t, endt_v)) =
+                    masked_gkr_verify(&kf, plan.l, sp.dt, &shell_t, &ptx.pt, &mut tv, false)
+                else {
+                    verdict.pairs_ok = false;
+                    fail(&mut verdict, format!("pair-descent-t:{}", sp.name()));
+                    break 'verify;
+                };
+                let mut cross_ok = true;
+                for i in 0..plan.n_real {
+                    cross_ok &= root_cross_check(&kf, &roots_w[i], &roots_t[i]);
+                }
+                for i in plan.n_real..plan.l {
+                    for p in [&ptx.pw.layer1[i], &ptx.pt.layer1[i]] {
+                        cross_ok &= kf.is_zero(&p[0])
+                            && kf.is_zero(&p[1])
+                            && p[2] == kf.one()
+                            && p[3] == kf.one();
+                    }
+                }
+                if !cross_ok {
+                    verdict.pairs_ok = false;
+                    fail(&mut verdict, format!("pair-cross-check:{}", sp.name()));
+                    break 'verify;
+                }
+                let view = BkPairView {
+                    alpha: &alpha_v,
+                    pw: &ptx.pw,
+                    endw: &endw_v,
+                    pt: &ptx.pt,
+                    endt: &endt_v,
+                };
+                bk_pair_claims(&kf, sp, &reg_v, pi, &view, &ypow, &mut claims_v);
+            }
+            // Public binding claims.
+            let r_out: Vec<KElem> = (0..lr + lcx).map(|_| tv.challenge_k(&kf)).collect();
+            let eq_oc = Rc::new(eq_table(&kf, &r_out[..lcx]));
+            let eq_or = Rc::new(eq_table(&kf, &r_out[lcx..]));
+            let mut pi_c = 0usize;
+            for (e, _tag) in [(0usize, "X"), (16usize, "z")] {
+                for (li, lay) in lays.iter().enumerate() {
+                    let want = bg_mle(&kf, bf_entry_values(e, lay), BF_D, &eq_or, &eq_oc);
+                    if public_vals[pi_c] != want {
+                        verdict.publics_ok = false;
+                        fail(&mut verdict, "public-claim".to_string());
+                        break 'verify;
+                    }
+                    claims_v.push(BkClaim {
+                        in_weight: false,
+                        value: want,
+                        parts: to_parts(
+                            vec![(li, e, kf.one(), eq_or.clone(), eq_oc.clone())],
+                            &reg_v,
+                        ),
+                    });
+                    pi_c += 1;
+                }
+            }
+            tv.absorb_k(&kf, "bk-public", &public_vals);
+            let nus_v: Vec<KElem> = (0..claims_v.len()).map(|_| tv.challenge_k(&kf)).collect();
+            let (vb_w_v, vb_a_v, gc_w_v, gc_a_v) = assemble(&claims_v, &nus_v, &reg_v, &kf);
+            let res_w = bg_verify_group(
+                &ctxr, &kf, &reg_v.gw, &sched_w, &gc_w_v, &vb_w_v, &proof_w, &mut tv, crs_seed,
+                tz_w.as_ref(),
+            );
+            let res_a = bg_verify_group(
+                &ctxr, &kf, &reg_v.ga, &sched_a, &gc_a_v, &vb_a_v, &proof_a, &mut tv, crs_seed,
+                None,
+            );
+            for res in [&res_w, &res_a] {
+                if let Err(e) = res {
+                    verdict.groups_ok = false;
+                    fail(&mut verdict, (*e).to_string());
+                }
+            }
+        }
+    }
+    cost.verify_s = t_verify.elapsed().as_secs_f64();
+
+    // ---- Byte lines. ----
+    for (name, sched, proof, tz) in [
+        ("weight", &sched_w, &proof_w, tz_w.as_ref()),
+        ("act", &sched_a, &proof_a, None),
+    ] {
+        let b = proof.counted_bytes();
+        let floor_b = match tz {
+            Some(_) => 4 + proof.floor.len() * D * 4,
+            None => b.floor,
+        };
+        cost.group_lines.push((
+            name,
+            b.outer_identities,
+            b.claim_rows,
+            b.level_msgs,
+            floor_b,
+            sched.floor_rings,
+            sched.floor_e,
+            sched.levels.len(),
+        ));
+        if let Some(tz) = tz {
+            cost.tierz_lines.push((name, 4 + tz.images.len() * 516, tz.restarts));
+        }
+    }
+    if !opts.quiet {
+        let mode = if opts.p2 {
+            "P2 (weight floor MASKED once/pass, act bare — FP-L3)"
+        } else {
+            "P0 (bare)"
+        };
+        println!(
+            "  full-statement composed pass: {} layers, T = {t}, mode {mode} | commit {:.1}s prove {:.1}s verify {:.1}s | {} B counted | accept {}",
+            opts.layers_n, cost.commit_s, cost.prove_s, cost.verify_s, cost.bytes_total(), verdict.accept()
+        );
+        if let Some(f) = &verdict.first_fail {
+            println!("    first_fail: {f}");
+        }
+    }
+    (verdict, cost, BkArtifacts { h0, statement_digest: ctx_digest, pair_alphas })
+}
+
+// ---------------------------------------------------------------------------
+// [UAGB1-BK] Derived expectation, battery, freeze rows, dispatch.
+
+/// The derived per-pair descent rows at a shape (the BA rule: every
+/// number from the engine's own structural counters at the real
+/// statement's inventory — never the [MODEL] kel fit).
+fn bk_expect_rows(layers_n: usize, t: usize) -> Vec<(String, usize, usize, usize, usize, usize, usize)> {
+    let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
+    let specs = bk_pair_specs(&lays, t);
+    specs
+        .iter()
+        .map(|sp| {
+            let p = &sp.plan;
+            let bytes = ring::descent_fold::pair_expected_bytes(p.depth, sp.dt, p.e_bits, p.l);
+            (sp.name().to_string(), p.depth, sp.dt, p.l, p.n_real, sp.members.len(), bytes)
+        })
+        .collect()
+}
+
+fn bk_expect(layers_n: usize, t: usize) {
+    println!(
+        "[UAGB1-BK] derived descent-pair expectation, {layers_n} layers, T = {t} (engine counters: plan_pair_trees + masked_transcript_totals; the kel-fit [MODEL] lines cited for comparison only)"
+    );
+    let rows = bk_expect_rows(layers_n, t);
+    let mut total = 0usize;
+    for (name, depth, dt, l, n_real, members, bytes) in &rows {
+        println!(
+            "  {name:>8}: {members:2} member cols -> {n_real:2} trees (l = {l:2}, pads {}) depth {depth} / dt {dt} -> {bytes} B",
+            l - n_real
+        );
+        total += bytes;
+    }
+    println!("  TOTAL descent lines (derived): {total} B = {:.3} MiB", total as f64 / (1024.0 * 1024.0));
+    if layers_n == 12 && t == BF_T {
+        println!("  vs BG-F1 [MODEL] kel-fit line: 959,232 B (the monolithic dw25/26 form both engine gates FORBID — LKP-2 ceiling depth <= 24 at q31, K9 packed-table cap 2^25; finding BK-F1)");
+        println!("  composed baselines (BG, measured): Tier N 426,455 B / Tier Z P2 1,019,211 B");
+        println!("  full-statement expectations: Tier N ~{} B / P2 ~{} B (+ eval-proof aux deltas, measured by `table-descent prove`)", 426_455usize + total, 1_019_211usize + total);
+        println!("  [MODEL] full-statement lines being priced: Tier N ~1,385,854 B / P2 ~1,978,466 B");
+    }
+    let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
+    let specs = bk_pair_specs(&lays, t);
+    let q = ring_ctx_q8().zq.q;
+    let reg = bk_build_groups(&lays, t, &specs, q);
+    let n_aux: usize = reg.aux_base.iter().flatten().map(|&ti| reg.ga.tensors[ti].n_digit_rings()).sum();
+    let sched = ring::eval_proof::plan_schedule(reg.ga.n_digit_rings, 2, q, None);
+    println!(
+        "  act group: {} tensors ({} aux), n0 = {} digit rings (aux {} = {:.2}%), schedule {} levels -> floor {} rings e{}",
+        reg.ga.tensors.len(),
+        reg.aux_base.len() * 4,
+        reg.ga.n_digit_rings,
+        n_aux,
+        100.0 * n_aux as f64 / reg.ga.n_digit_rings as f64,
+        sched.levels.len(),
+        sched.floor_rings,
+        sched.floor_e
+    );
+    let tz = ring::eval_proof::plan_schedule_tier_z(reg.gw.n_digit_rings, 1, q, None);
+    let last_r = tz.levels.last().map(|p| p.r).unwrap_or(0);
+    let last_chunk = tz.levels.last().map(|p| p.chunk).unwrap_or(0);
+    println!(
+        "  weight tier-z (P2): {} levels, last-level r = {last_r}, chunk = {last_chunk} (R-BG1 note: bg_verify_group's Tier-Z branch passes phi_cur[r*chunk] where the BH-split floor-family API wants psi[chunk]; P2 verify PANICS at r > 1 on the merged base — BJ's R-BG1 fix)",
+        tz.levels.len()
+    );
+}
+
+/// The FP-L2 / A6 ordering edge, demonstrated deterministically at the
+/// binding level (the property the mask-then-fold defense RESTS on):
+/// every descent challenge is FS-derived from h0, and h0 binds
+/// u_0(T_act) — the outer identity over the ACT group, which contains
+/// EVERY per-pair mask/blinder/multiplicity commitment. So under the
+/// SHIPPED order a change to the aux commitment MOVES h0 (hence every
+/// alpha) — the prover cannot commit aux adaptively after seeing the
+/// challenge. Under the WEAK order (u_0(T_act) omitted from h0 — the
+/// A6 violation) h0 is INVARIANT to the aux commitment: the challenge
+/// is predictable before the masks/blinders are fixed, which is the
+/// adaptive-forge surface. This check runs the real commit setup (no
+/// prove) and asserts BOTH directions. Returns true iff both hold.
+fn bk_h0_binding(layers_n: usize, t: usize) -> bool {
+    use ring::kfield::KField;
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let q = ctxr.zq.q;
+    let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
+    let specs = bk_pair_specs(&lays, t);
+    let mut reg = bk_build_groups(&lays, t, &specs, q);
+    reg.gw.begin_opening().expect("weight opening");
+    reg.ga.begin_opening().expect("act opening");
+    let mut aux_rng = ring::ProverRng::from_test_seed(
+        "uagb1-bk-session",
+        &[(layers_n as u64).to_le_bytes(), (t as u64).to_le_bytes()].concat(),
+    );
+    let aux: Vec<BkAuxMat> = specs
+        .iter()
+        .enumerate()
+        .map(|(pi, sp)| bk_build_aux(sp, &lays, &reg, pi, &kf, &mut aux_rng))
+        .collect();
+    let mut w0_w = bk_witness_weight(&reg, &lays);
+    let mut w0_a = bk_witness_act(&reg, &lays, &aux);
+    let sched_w = ring::eval_proof::plan_schedule(reg.gw.n_digit_rings, 1, q, None);
+    let sched_a = ring::eval_proof::plan_schedule(reg.ga.n_digit_rings, 2, q, None);
+    let crs_seed = 0xB6_C0DEu64;
+    let pre_w = bg_precommit(&ctxr, &reg.gw, &sched_w, &mut w0_w, crs_seed);
+    let pre_a = bg_precommit(&ctxr, &reg.ga, &sched_a, &mut w0_a, crs_seed);
+    let u0_digests: Vec<Vec<u8>> = [&pre_w.u0, &pre_a.u0]
+        .iter()
+        .map(|u| uk8_sha(&[b"bk-u0", &polys_bytes(u)]).to_vec())
+        .collect();
+    let commit_digests: Vec<Vec<Vec<u8>>> = (0..layers_n)
+        .map(|li| {
+            (0..BF_ENTRIES.len())
+                .map(|e| {
+                    let (w, _) = reg.map[li][e];
+                    uk8_sha(&[b"bk-entry", &u0_digests[if w { 0 } else { 1 }],
+                        &(li as u64).to_le_bytes(), &(e as u64).to_le_bytes()]).to_vec()
+                })
+                .collect()
+        })
+        .collect();
+    let mut statement = m125_build_statement(t, &lays, &commit_digests, b"bk-agg-crs-v1");
+    statement.mode = Some(manifest::ModeDecl { mode: manifest::MODE_P0, private_entries: Vec::new() });
+    let ctx = statement.digest().expect("statement digests");
+    let map = bk_map_bytes(&reg);
+    // Perturb the ACT outer identity (the aux commitment).
+    let mut u0_a_pert = pre_a.u0.clone();
+    u0_a_pert[0][0] = ctxr.zq.add(u0_a_pert[0][0], 1);
+    let shipped = |ua: &[Poly]| uk8_sha(&[b"uagb1-bk-h0", &ctx, &map, &polys_bytes(&pre_w.u0), &polys_bytes(ua)]);
+    let weak = |_ua: &[Poly]| uk8_sha(&[b"uagb1-bk-h0", &ctx, &map, &polys_bytes(&pre_w.u0)]);
+    let shipped_moves = shipped(&pre_a.u0) != shipped(&u0_a_pert);
+    let weak_invariant = weak(&pre_a.u0) == weak(&u0_a_pert);
+    println!(
+        "  [{}] mask-order A6 (FP-L2): SHIPPED h0 moves with u_0(T_act) = {shipped_moves} (defense); WEAK h0 invariant to it = {weak_invariant} (attack surface)",
+        if shipped_moves && weak_invariant { "ok" } else { "FAIL" }
+    );
+    shipped_moves && weak_invariant
+}
+
+fn bk_battery(small: bool) {
+    let t0 = Instant::now();
+    let _ = small; // one operating point (3 layers, T = 16) this wave
+    let (layers_n, t) = (3usize, 16usize);
+    println!("[UAGB1-BK] table-descent battery ({layers_n} layers, T = {t}, REAL ckpt data)");
+    let mut legs: Vec<(&str, bool)> = Vec::new();
+    let run = |name: &str, opts: BkOpts, want_accept: bool, want_fail: Option<&[&str]>| -> bool {
+        let tl = Instant::now();
+        let (v, c, _art) = bk_pass_run(&opts);
+        let ok = if want_accept {
+            v.accept()
+        } else {
+            !v.accept()
+                && want_fail.is_none_or(|wf| {
+                    v.first_fail
+                        .as_deref()
+                        .map(|f| wf.iter().any(|w| f == *w || f.starts_with(w)))
+                        .unwrap_or(false)
+                })
+        };
+        println!(
+            "  [{}] {name}: accept {} first_fail {:?} ({} B, {:.1}s)",
+            if ok { "ok" } else { "FAIL" },
+            v.accept(),
+            v.first_fail,
+            c.bytes_total(),
+            tl.elapsed().as_secs_f64()
+        );
+        ok
+    };
+    legs.push((
+        "honest-p0",
+        run("honest-p0", BkOpts { layers_n, t, quiet: true, ..Default::default() }, true, None),
+    ));
+    // honest-p2 note: the descents are ACT-side and BYTE-IDENTICAL to
+    // P0 (mode-independent) — verified by honest-p0. The P2 weight-floor
+    // VERIFY is blocked by R-BG1 (bg_verify_group's Tier-Z branch passes
+    // phi_cur[r*chunk] into the BH-split floor-family API at r > 1 =
+    // panic) — a PRE-EXISTING defect in BJ's zone, confirmed to bite
+    // BG's own `pass-agg prove _ _ p2` identically on this base. Not a
+    // battery leg here (it would panic, not reject); finding BK-F2.
+    legs.push((
+        "off-table-reject",
+        run(
+            "off-table value REJECT at the violated pair's root cross-check",
+            BkOpts { layers_n, t, tamper: BkTamper::RangeViolation, quiet: true, ..Default::default() },
+            false,
+            Some(&["pair-cross-check:rem-w10"]),
+        ),
+    ));
+    legs.push((
+        "wrong-table-reject",
+        run(
+            "wrong-table-for-exponent REJECT at the statement-side table fold",
+            BkOpts { layers_n, t, tamper: BkTamper::WrongTable, quiet: true, ..Default::default() },
+            false,
+            Some(&["ct-row-gate"]),
+        ),
+    ));
+    legs.push((
+        "cross-table-swap-reject",
+        run(
+            "cross-table m-block swap REJECT in the act floor chain",
+            BkOpts { layers_n, t, tamper: BkTamper::CrossPairMSwap, quiet: true, ..Default::default() },
+            false,
+            Some(&["floor-target", "floor-claim-transport", "claim-row-eval", "floor-fold-consistency", "ct-row-gate"]),
+        ),
+    ));
+    // The FP-L2 / A6 ordering edge (mask-then-fold), demonstrated
+    // deterministically at the binding level — the property the
+    // defense rests on (fast; no prove). The concrete adaptive
+    // blinder-forge is NOT exhibited (the masked-tree root arithmetic
+    // was not reproduced in the harness); the binding both directions
+    // IS. Finding BK-F3.
+    legs.push(("mask-order-A6-binding", bk_h0_binding(layers_n, t)));
+    let ok = legs.iter().filter(|l| l.1).count();
+    println!(
+        "[UAGB1-BK] battery: {ok}/{} legs OK in {:.1}s{}",
+        legs.len(),
+        t0.elapsed().as_secs_f64(),
+        if ok == legs.len() { "" } else { " — FAILURES ABOVE" }
+    );
+    assert_eq!(ok, legs.len(), "battery failures");
+}
+
+/// UAGB1-BK freeze rows: the pair inventory + plans + the audited-cap
+/// gates, derived both directions (derivation recomputed live, frozen
+/// values asserted; any drift is loud).
+fn freeze_check_uagb1_bk() -> bool {
+    let mut ok = true;
+    let mut check = |name: &str, got: &str, want: &str| {
+        let pass = got == want;
+        if !pass {
+            println!("  FREEZE VIOLATION {name}: got {got} want {want}");
+        }
+        ok &= pass;
+    };
+    // BK-1: the 125M remainder-width inventory derived from M125_EXP
+    // (the BG-F1 verification row: per layer "g u h z.").
+    let mut widths = String::new();
+    for &(e_x, e_gate, e_a, e_up, e_h, e_z) in M125_EXP.iter() {
+        let sh_g = (e_gate - e_x + 9) as u32;
+        let sh_u = (e_up - e_x + 9) as u32;
+        let sh_h = (e_h - e_a - e_up) as u32;
+        let sh_z = (e_z - e_h + 9) as u32;
+        widths.push_str(&format!("{sh_g}{sh_u}{sh_h}{sh_z}."));
+    }
+    check(
+        "UAGB1-BK-1 (125M remainder widths g/u/h/z per layer)",
+        &widths,
+        "99610.7878.8978.8769.77610.8857.8866.8857.8867.8867.8959.89510.",
+    );
+    // BK-2: the 125M pair plans + derived kel bytes (engine counters:
+    // plan_pair_trees + masked_transcript_totals).
+    let rows = bk_expect_rows(12, BF_T);
+    let got: String = rows
+        .iter()
+        .map(|(n, d, dt, l, nr, m, b)| format!("{n}:{d}/{dt}/{l}/{nr}/{m}/{b};"))
+        .collect();
+    check(
+        "UAGB1-BK-2 (125M pair plans name:depth/dt/l/trees/members/bytes)",
+        &got,
+        "silu-m3:22/9/8/5/10/118336;silu-m4:22/9/1/1/2/92480;nrw-88:22/9/16/12/24/129856;\
+         nrw-z:21/9/8/6/12/111360;rem-w5:22/6/2/2/4/91776;rem-w6:22/7/4/3/7/102336;\
+         rem-w7:22/8/4/3/10/105472;rem-w8:22/9/8/8/17/118336;rem-w9:22/10/4/3/7/112512;\
+         rem-w10:21/11/2/2/3/100992;",
+    );
+    // BK-3: the audited caps that FORBID the monolithic [MODEL] form
+    // (finding BK-F1) — pinned so a silent cap change is loud.
+    let q = ring_ctx_q8().zq.q;
+    let mono = !ring::gkr::ceiling_gate_ok(1u64 << 25, q)
+        && !ring::gkr::ceiling_gate_ok(1u64 << 26, q)
+        && ring::gkr::ceiling_gate_ok(1u64 << 24, q)
+        && ring::kfield::K9_MAX_LEAVES == (1usize << 25);
+    check(
+        "UAGB1-BK-3 (monolithic dw25/26 forbidden; dw24 clears; K9 cap 2^25)",
+        &format!("{mono}"),
+        "true",
+    );
+    if ok {
+        println!("  freeze_check_uagb1_bk: all rows stable");
+    }
+    ok
+}
+
+fn bk_main(args: &[String]) {
+    let sub = args.first().map(String::as_str);
+    match sub {
+        Some("expect") => {
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(12);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            bk_expect(layers_n, t);
+        }
+        Some("statement") => {
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(12);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
+            let specs = bk_pair_specs(&lays, t);
+            let reg = bk_build_groups(&lays, t, &specs, ring_ctx_q8().zq.q);
+            println!(
+                "[UAGB1-BK] full-statement registry ({layers_n} layers, T = {t}): act {} tensors / {} digit rings (incl. {} aux), weight {} / {}",
+                reg.ga.tensors.len(),
+                reg.ga.n_digit_rings,
+                reg.aux_base.len() * 4,
+                reg.gw.tensors.len(),
+                reg.gw.n_digit_rings
+            );
+            for sp in &specs {
+                println!(
+                    "  pair {:>8}: {} members, {} trees (l = {}), depth {} / dt {}",
+                    sp.name(),
+                    sp.members.len(),
+                    sp.plan.n_real,
+                    sp.plan.l,
+                    sp.plan.depth,
+                    sp.dt
+                );
+            }
+        }
+        Some("prove") => {
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(12);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            let mode = args.get(3).map(String::as_str).unwrap_or("p0");
+            let p2 = match mode {
+                "p0" => false,
+                "p2" => true,
+                "p1" | "p3" => {
+                    let m = if mode == "p1" { manifest::MODE_P1 } else { manifest::MODE_P3 };
+                    panic!("{}", bg_mode_supported(m).unwrap_err());
+                }
+                m => panic!("unknown mode {m} (p0|p2)"),
+            };
+            println!(
+                "[UAGB1-BK] FULL-STATEMENT composed pass prove: {layers_n} layers, T = {t}, mode {} — scope: arithmetic relations + X/z binding + THE TABLE-MEMBERSHIP FACTS (SiLU + range, folded masked descents — the last uncomposed family)",
+                if p2 { "P2" } else { "P0" }
+            );
+            let opts = BkOpts { layers_n, t, p2, ..Default::default() };
+            let (v, c, art) = bk_pass_run(&opts);
+            println!("  statement digest {}", hex_full(&art.statement_digest));
+            println!("  byte lines (counted-not-serialized):");
+            println!("    statement (serialized, real): {}", c.bytes_statement);
+            for l in &c.inst_lines {
+                println!("    instance {}: {} kel = {} B", l.name, l.kel, l.kel * 64);
+            }
+            println!("    public binding claims: {}", c.bytes_public_claims);
+            for (name, kw, kt, dk) in &c.pair_lines {
+                println!(
+                    "    descent pair {name}: wit {kw} + tab {kt} kel = {} B (derived {} B)",
+                    (kw + kt) * 64,
+                    dk * 64
+                );
+            }
+            println!("    descent pairs TOTAL: {} B", c.bytes_pairs());
+            for g in &c.group_lines {
+                println!(
+                    "    [{}] outer {} + rows {} + levels {} + floor {} (floor {} rings e{}, {} levels)",
+                    g.0, g.1, g.2, g.3, g.4, g.5, g.6, g.7
+                );
+            }
+            for tz in &c.tierz_lines {
+                println!("    [{}] tier-z mask images {} B, sampler restarts {}", tz.0, tz.1, tz.2);
+            }
+            println!("  TOTAL {} B | accept {}", c.bytes_total(), v.accept());
+        }
+        Some("battery") => bk_battery(args.get(1).map(String::as_str) == Some("small")),
+        _ => println!("table-descent expect|statement|prove [layers t p0|p2]|battery [small]"),
     }
 }

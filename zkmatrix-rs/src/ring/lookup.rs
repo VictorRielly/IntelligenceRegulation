@@ -433,6 +433,27 @@ pub fn slot_pin_weights(
     out
 }
 
+/// [UAGB1-BK, additive] Expand per-K-ELEMENT weights into per-BASE-
+/// COORDINATE K weights: committed K-elements stored as 16 consecutive
+/// base coefficients (coordinate j of element e at flat index
+/// e * K_DEG + j) satisfy sum_e w_e * elem_e = sum_{e,j} (w_e * Y^j) *
+/// coeff_{e,j} — so a K-linear pin over committed K-elements is an
+/// ordinary K-weighted claim over the flattened coordinate VALUES (the
+/// composed batched-opening claim convention, `pass_agg::ClaimContrib`
+/// col-kernel shape). This is `k_weight_coords`' transpose read,
+/// packaged for the claim layer.
+pub fn kelem_coord_weights(kf: &KField, weights: &[KElem]) -> Vec<KElem> {
+    let mut out = Vec::with_capacity(weights.len() * K_DEG);
+    for w in weights {
+        let mut cur = w.clone();
+        for _ in 0..K_DEG {
+            out.push(cur.clone());
+            cur = mul_y(kf, &cur);
+        }
+    }
+    out
+}
+
 /// psi for the pin batch: `copies` x (pins * K_DEG) randomizer rows,
 /// drawn from transcript state that already binds every pinned value.
 pub fn derive_pin_psi(state: &[u8; 32], copies: usize, rows: usize, q: u64) -> Vec<Vec<u64>> {
