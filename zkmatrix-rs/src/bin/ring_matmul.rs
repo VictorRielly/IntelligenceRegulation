@@ -6264,7 +6264,7 @@ fn self_test_pi2_ce() {
 }
 
 fn usage() {
-    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory | uagb1-digit-battery | matmul-statement [battery | <rows> <inner> <cols>] | statement-125m | agg-matmul [battery | <rows> <inner> <cols>] | agg-kel [dw ..] | bh-verifier [battery | kernel [rows inner cols] | gkr [log2_els]] | ixf-fold [battery | norm | bytes | matmul <layers> <rows> <inner> <cols> | zerocheck <layers> <rows> <cols>] | m125-pass <v4-battery|digests|statement|prove <layer>|battery [small|smoke]>");
+    eprintln!("usage: ring_matmul self-test | chain-demo <n0> <n1> <n2> <n3> | freeze-check | gate-spike | link-demo | m5-bench [rows inner cols [reps]] | lookup-bench [log2_n] | ffn-chain [n_blocks | battery | layer <log2_el> [range] | layer battery] | us1-verify <file> | statement-inventory | uagb1-digit-battery | matmul-statement [battery | <rows> <inner> <cols>] | statement-125m | agg-matmul [battery | <rows> <inner> <cols>] | agg-kel [dw ..] | bh-verifier [battery | kernel [rows inner cols] | gkr [log2_els]] | ixf-fold [battery | norm | bytes | matmul <layers> <rows> <inner> <cols> | zerocheck <layers> <rows> <cols>] | m125-pass <v4-battery|digests|statement|prove <layer>|battery [small|smoke]> | uk9-bench [log2_n] [scalar|bulk|stream|prims]");
     eprintln!();
     eprintln!("  ffn-chain [n_blocks | battery] is the LEGACY q46 block chain: its range");
     eprintln!("  grounding uses the ARP legacy range arm (rejection clipping ~2^-4.75 at");
@@ -6315,6 +6315,13 @@ fn main() {
             let n_log2 = args.get(1).map(|s| s.parse().expect("log2 N")).unwrap_or(18);
             assert!((8..=22).contains(&n_log2), "lookup-bench log2 N in 8..=22");
             lookup_bench(n_log2);
+        }
+        // [U-PERF-PA] U-K9 close-out bench arm (B-D3 instrumentation).
+        Some("uk9-bench") => {
+            let n_log2 = args.get(1).map(|s| s.parse().expect("log2 N")).unwrap_or(18);
+            assert!((8..=23).contains(&n_log2), "uk9-bench log2 N in 8..=23");
+            let mode = args.get(2).map(String::as_str).unwrap_or("bulk");
+            uperf_pa_uk9_bench(n_log2, mode);
         }
         Some("ffn-chain") => {
             // U-K8: the committed FFN-gate chain — `ffn-chain battery`
@@ -34312,4 +34319,139 @@ fn bk_main(args: &[String]) {
         Some("battery") => bk_battery(args.get(1).map(String::as_str) == Some("small")),
         _ => println!("table-descent expect|statement|prove [layers t p0|p2]|battery [small]"),
     }
+}
+
+// ===========================================================================
+// [U-PERF-PA] (U-PERF tranche, 2026-08-11): the U-K9 close-out bench arm —
+// B-D3 instrumentation. `uk9-bench <log2_n> <mode>` replicates the
+// lookup-bench workload EXACTLY (same seeds, same shape; lookup-bench itself
+// is untouched as the yardstick) with the arithmetic mode selectable:
+//
+//   scalar — KField::harness_scalar: the shipped differential oracle = the
+//            pre-U-K9 boxed/scalar code path (the honest "before").
+//   bulk   — KField::new: the landed bulk-kernel path (base behavior).
+//   stream — bulk + the streamed leaf builder (B-D2; no boxed leaf vectors).
+//   prims  — attribution microbenches (K-mult rates by discipline).
+//
+// Cross-mode bit-identity evidence: the root/transcript digest printed at
+// the end is the same for every mode (the [U-K9] battery proves identity;
+// this prints it per run so logs can be diffed). Peak RSS is measured
+// externally (/usr/bin/time -l on macOS, -v on Linux).
+
+fn uperf_pa_uk9_digest(kf: &ring::kfield::KField, roots: &[[ring::kfield::KElem; 2]], state: &[u8; 32]) -> String {
+    use sha2::{Digest, Sha256};
+    let mut h = Sha256::new();
+    for r in roots {
+        for e in r {
+            h.update(kf.bytes(e));
+        }
+    }
+    h.update(state);
+    let d: [u8; 32] = h.finalize().into();
+    d.iter().take(8).map(|b| format!("{b:02x}")).collect()
+}
+
+fn uperf_pa_uk9_bench(n_log2: usize, mode: &str) {
+    use ring::gkr::{absorb_roots, build_tree, gkr_prove, gkr_verify, root_cross_check};
+    use ring::kfield::{KElem, KField};
+    use ring::lookup::{
+        fuse_pair, fused_silu_table, mle_weights_block, silu_int8_table, table_spec_digest,
+    };
+    use ring::sumcheck::{LkpTranscript, mle_eval};
+    let n = 1usize << n_log2;
+    let ctx = ring_ctx_q8();
+    let kf = match mode {
+        "scalar" => KField::harness_scalar(&ctx),
+        "bulk" | "stream" => KField::new(&ctx),
+        "prims" => return uperf_pa_uk9_prims(),
+        other => panic!("uk9-bench mode {other:?} not in scalar|bulk|stream|prims"),
+    };
+    println!(
+        "[U-PERF-PA] uk9-bench: N = 2^{n_log2} = {n} int8 SiLU lookups, one instance, 1T, mode {mode}"
+    );
+    let zq = ctx.zq;
+    let rows = silu_int8_table();
+    let spec_dg = table_spec_digest(&rows);
+    let tab_fused = fused_silu_table(&kf, &rows);
+    let mut rng = 0x5eed_0808u64;
+    let xs: Vec<i64> = (0..n).map(|_| rng_below(&mut rng, 256) as i64 - 128).collect();
+    let t0 = Instant::now();
+    let w: Vec<KElem> = xs
+        .iter()
+        .map(|&x| {
+            let y = rows[(x + 128) as usize].1;
+            fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y))
+        })
+        .collect();
+    let mut m_counts = vec![0u64; 256];
+    for &x in &xs {
+        m_counts[(x + 128) as usize] += 1;
+    }
+    let m_k: Vec<KElem> = m_counts.iter().map(|&c| kf.embed(c)).collect();
+    let fuse_s = t0.elapsed().as_secs_f64();
+    let mut tr = LkpTranscript::new("uk8-bench", &spec_dg);
+    let alpha = tr.challenge_k(&kf);
+    let t1 = Instant::now();
+    // stream mode switches to the B-D2 streamed builder once it lands (S2);
+    // until then it is an alias of bulk and says so.
+    if mode == "stream" {
+        println!("  [stream mode: S2 builder not landed yet — running the boxed-leaf path]");
+    }
+    let wtree = build_tree(
+        &kf,
+        vec![kf.one(); n],
+        w.iter().map(|wi| kf.sub(&alpha, wi)).collect(),
+    );
+    let ttree = build_tree(&kf, m_k, tab_fused.iter().map(|t| kf.sub(&alpha, t)).collect());
+    let tree_s = t1.elapsed().as_secs_f64();
+    let (wr, trr) = (wtree.root(), ttree.root());
+    assert!(root_cross_check(&kf, &wr, &trr), "bench witness must be honest");
+    let t2 = Instant::now();
+    absorb_roots(&kf, &[wr.clone()], &mut tr);
+    let (pw_proof, _, _, _) = gkr_prove(&kf, &[wtree], &mut tr);
+    absorb_roots(&kf, &[trr.clone()], &mut tr);
+    let (pt_proof, _, _, _) = gkr_prove(&kf, &[ttree], &mut tr);
+    let prove_s = t2.elapsed().as_secs_f64();
+    let id_dg = uperf_pa_uk9_digest(&kf, &[wr.clone(), trr.clone()], &tr.state());
+    let t3 = Instant::now();
+    let mut tv = LkpTranscript::new("uk8-bench", &spec_dg);
+    let av = tv.challenge_k(&kf);
+    assert_eq!(av, alpha);
+    absorb_roots(&kf, &[wr.clone()], &mut tv);
+    let (zw, pw, qw) = gkr_verify(&kf, &[wr], n_log2, &pw_proof, &mut tv).expect("w descent");
+    absorb_roots(&kf, &[trr.clone()], &mut tv);
+    let (zt, _pm, qt) = gkr_verify(&kf, &[trr], 8, &pt_proof, &mut tv).expect("t descent");
+    let ground_w = kf.sub(&alpha, &mle_eval(&kf, &w, &zw));
+    assert!(pw == kf.one() && qw == ground_w, "leaf grounding");
+    assert_eq!(qt, kf.sub(&alpha, &mle_eval(&kf, &tab_fused, &zt)));
+    let verify_s = t3.elapsed().as_secs_f64();
+    let t4 = Instant::now();
+    let lb = 16.min(n_log2);
+    let mut row0 = vec![0u64; n];
+    for b in 0..(n >> lb) {
+        let blk = mle_weights_block(&kf, &zw, b, lb);
+        for (j, e) in blk.iter().enumerate() {
+            row0[(b << lb) + j] = e[0];
+        }
+    }
+    let weights_s = t4.elapsed().as_secs_f64();
+    std::hint::black_box(&row0);
+    let prover_s = fuse_s + tree_s + prove_s;
+    println!(
+        "  fuse+histogram {fuse_s:.3}s | trees {tree_s:.3}s | descents {prove_s:.3}s | verify {verify_s:.3}s | E4 weight stream {weights_s:.3}s"
+    );
+    println!(
+        "  prover lookup total (fuse+trees+descents) = {prover_s:.3}s 1T = {:.0} ns/el | incl. verify {:.0} ns/el",
+        prover_s / n as f64 * 1e9,
+        (prover_s + verify_s) / n as f64 * 1e9
+    );
+    println!(
+        "uk9-bench done (mode {mode}, N = {n}): root+transcript digest {id_dg} [MAC-BOX 1T; unmasked lookup-core microbenchmark, scope = lookup-bench's]"
+    );
+}
+
+/// [U-PERF-PA] prims mode: the B-D3 attribution microbenches (see
+/// U_PERF_KERNEL_REPORT.md). Placeholder until the S1 harness lands.
+fn uperf_pa_uk9_prims() {
+    println!("[U-PERF-PA] uk9-bench prims: attribution harness lands with S1");
 }
