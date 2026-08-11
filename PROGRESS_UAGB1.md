@@ -2059,6 +2059,29 @@ reconciliation + ledger FINAL (orchestrator).
   wire.rs edits; p3_dw (the U-K5c us1 path with serialized frozen
   fixtures); restructuring BH's factored functions or BD's call
   sites; other ledger sections; existing scripts/tests; push.
+- 2026-08-11 MID-LANE STATUS: R-BG1 REPRODUCED at the merged base
+  exactly as pinned (assert 972 vs 162, bg_pass_run ->
+  bg_verify_group -> agg_floor_family_values:21318, backtrace on
+  file) then FIXED (D1 landed, commit d4c7dd4): eval_proof.rs
+  additive MultiClaimKernel + psi_level0_factored_multi +
+  phi0_reference_multi; bg_verify_group on BD's post-BH factored
+  shape; NEW `pass-agg seam` differential 12/12 (46.3 s) — the
+  factored-multi Psi_0 == compute_psi(bg_kernel_pass phi) on REAL
+  groups (act 42 kernels / weight 9, e0=1) + misaligned generic
+  branch + per-ring oracle + non-vacuity. GATE MET: `pass-agg
+  canary` 6/6 GREEN at the fixed HEAD, 1,621.9 s [MAC-BOX,
+  NOISY-SHARED], AZB-10b exhibit intact (936 vs 921). D3 LANDED
+  (commit 46652b4): bf_dw_for -> capacity n-8 (T=512 dw 22->21 x6,
+  20->19 x2), leaf_pins on witness_leaf_positions, WrongMap
+  acceptance leg REJECTS in the wave rounds w/ non-identity
+  precondition — m125-pass battery small 8/8 (558.2 s,
+  NOISY-SHARED); derived [MODEL] line movement recorded (structural
+  959,232 -> 898,496 B; full-statement Tier N 1,385,854 ->
+  1,325,118 B). IN FLIGHT: quiet sequential measurement phase
+  (m125 smoke + prove-0 before/after; then the composed 12-layer
+  P0 re-measure); then pass-agg battery + canary re-run at final
+  HEAD + suite + freeze-check; addenda drafted in both reports
+  (measured tables pending).
 
 ## Blocker
 

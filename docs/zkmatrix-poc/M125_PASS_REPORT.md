@@ -357,7 +357,61 @@ BD lands]. Tier N is NOT met and NOT claimed.
 UAGB1-BF-1a..1d (the family), UAGB1-BF-2a..2c (v4/v3 digest
 stability) — every pre-existing row green and unmoved.
 
+## 9. Wave-4 addendum (2026-08-11, lane BJ): BF-F3 closed at the rig — the split-fill capacity wired in
+
+Finding BF-F3 (Section 7: witness blocks capped at 2^(d-1) - 4, so
+2^20-element tensors rode dummy-padded dw = 22 at ~2x tree work)
+was lifted by lane BH in wave 3 (`gkr_masked::witness_leaf_positions`,
+capacity n - 8, measured 2.03x at the standalone `bh-verifier gkr`
+rig) and exported to this rig as wiring
+(UAGB1_VERIFIER_REPORT.md Section 2.4). Landed here:
+
+- **`bf_dw_for`** derives depth against the split-fill capacity
+  n - 8 (was: the blinder-free front 2^(d-1) - 4). At T = 512 the
+  six nf-class instances (silu, rng-rg/ru/u8/rh/h8; 2^20 elements)
+  drop dw 22 -> 21 and the two nd-class instances (rng-rd/z;
+  393,216 elements) drop 20 -> 19. At the battery scale (T = 16):
+  17 -> 16 and 15 -> 14.
+- **`leaf_pins`** (the four aggregate leaf pins wp/wq/tp/tq, shared
+  by prover and verifier): the witness-side weights move from the
+  contiguous assumption to the PUBLIC map — `hw` and the
+  primary/pair committed-column weights index `lw` at
+  `witness_leaf_positions(n_el, 2^dw)`; the dummy-mass complement
+  `ddw` and the blinder terms are unchanged in form. The trees
+  already rode the map inside `blinded_witness_tree` (BH's change);
+  the root cross-checks are position-invariant (fraction-tree sums),
+  which is why ONLY the pin layer could see the map.
+- **Acceptance (the exported test): the WRONG-MAP battery leg** —
+  `BfTamper::WrongMap`: honest proof on split trees, the VERIFIER's
+  leaf pins recomputed under the pre-lift contiguous assumption ->
+  **REJECT in the wave rounds** with statement/matmuls/roots all
+  green (the position map is load-bearing at the rig), plus a
+  precondition leg asserting the map is NON-IDENTITY at the battery
+  shape (4 right-half leaves at n_el = 32,768, dw = 16).
+  **`m125-pass battery small`: 8/8 green, 558.2 s** [MAC-BOX,
+  NOISY-SHARED — the AZB-11 canary overlapped] — all six
+  pre-existing legs keep their exact reject surfaces on split trees.
+
+**Measured effect** [MAC-BOX, non-reference, QUIET, single-shot;
+BEFORE = the pre-wiring binary (this HEAD minus the D3 commit),
+AFTER = this HEAD, same box, back to back]:
+
+<!-- BJ-D3-TABLE -->
+
+**Derived-line movement (recorded, not hidden):** `pass-agg
+expect`'s 125M-STRUCTURAL [MODEL] descent lines ride `bf_dw_for`;
+every structural dw drops by 1: total 959,232 -> 898,496 B (0.915
+-> 0.857 MiB); full-statement expectations Tier N 1,385,854 ->
+1,325,118 B, P2 1,978,466 -> 1,917,730 B (UAGB1_PASS_AGG_REPORT.md
+Section 9.5 carries the same note; wave-4 stage 2 targets the
+updated lines). No freeze row pins these; every pre-existing
+freeze digest is unmoved at this HEAD.
+
 ---
+
+*Changelog: 2026-08-11 — wave-4 addendum (lane BJ): BF-F3 wired
+into the rig (split-fill depths + mapped leaf pins; wrong-map leg
+8/8; measured effect + derived-line movement in Section 9).*
 
 *Changelog: 2026-08-10 — first edition (U-AG-B1 wave 2, lane BF):
 the per-scale SiLU table family frozen (two members, (-4,-4) == v1
