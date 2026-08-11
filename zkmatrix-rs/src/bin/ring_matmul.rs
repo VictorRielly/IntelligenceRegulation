@@ -29198,9 +29198,31 @@ fn bg_prove_group(
     )
 }
 
+/// [UAGB1-BJ, R-BG1] GroupClaims -> the eval_proof ADDITIVE
+/// multi-claim kernel set (the landed API of BG's wave-3 export; Rc
+/// clones only — no kernel data is copied).
+fn bg_multi_kernels(
+    claims: &ring::pass_agg::GroupClaims,
+) -> Vec<ring::eval_proof::MultiClaimKernel> {
+    let mut out = Vec::new();
+    for contribs in claims.per_tensor.iter() {
+        for c in contribs {
+            out.push(ring::eval_proof::MultiClaimKernel {
+                tensor_idx: c.tensor_idx,
+                scale: c.scale.clone(),
+                row_kernel: c.row.clone(),
+                col_kernel: c.col.clone(),
+            });
+        }
+    }
+    out
+}
+
 /// The per-group composed verifier (BD's agg_verify_group generalized
 /// to the multi-claim kernel; the recursed floor checks and the
 /// Tier-Z sigma branch follow BD's shipped forms exactly).
+/// [UAGB1-BJ] The recursed path rides the BH row-column split through
+/// `psi_level0_factored_multi` (R-BG1 fix — the floor consumes psi).
 #[allow(clippy::too_many_arguments)]
 fn bg_verify_group(
     ctxr: &RingCtx,
@@ -29216,7 +29238,8 @@ fn bg_verify_group(
 ) -> Result<(), &'static str> {
     use ring::eval_proof::{
         compute_cpairs, compute_psi, expand_level_matrix, matvec_modq_small, recompose_rings,
-        transport_level, transport_rows, NextLayout, OuterBinding, KAPPA_AGG,
+        transport_level, transport_level_from_psi, transport_rows, NextLayout, OuterBinding,
+        KAPPA_AGG,
     };
     use ring::kfield::K_DEG;
     let zq = &ctxr.zq;
@@ -29236,7 +29259,6 @@ fn bg_verify_group(
     for (a, b) in alphas0.iter().zip(proof.b_rows.iter()) {
         h_cur = poly_add(zq, &h_cur, &ring_mul_split_kara_fast(ctxr, a, b));
     }
-    let (_, mut phi_cur) = bg_kernel_pass(ctxr, kf, group, claims, None, Some(&alphas0));
 
     if sched.levels.is_empty() {
         if proof.floor.len() != n0 || !proof.level_us.is_empty() || !proof.ugh0.is_empty() {
@@ -29281,6 +29303,19 @@ fn bg_verify_group(
     }
     ring::eval_proof::absorb_polys(tr, &format!("bg-ugh0-{}", group.name), &proof.ugh0);
     let (c0, _) = agg_draw_cs(tr, &format!("bg-c0-{}", group.name), plan0.r);
+    // [UAGB1-BJ, R-BG1] the composed verifier rides BH's row-column
+    // split through the ADDITIVE multi-claim entry point: Psi_0
+    // factored from the multi-claim kernel set (never materializing
+    // Phi_0 — the wave-3 bg_kernel_pass alpha pass is gone from the
+    // recursed verify), transported from Psi at level 1, and the
+    // FLOOR consumes psi (per-chunk, plan_last.chunk rings) — the
+    // exact contract of the BH-factored agg_floor_family_values the
+    // pre-fix code fed a phi-shaped array (r x chunk, the canary's
+    // 972 = 6 x 162 assert).
+    let psi0 = ring::eval_proof::psi_level0_factored_multi(
+        ctxr, kf, group, &bg_multi_kernels(claims), &alphas0, &c0, plan0.chunk,
+    );
+    let mut phi_cur: Vec<Poly> = Vec::new();
     let mut prev_a_mat = expand_level_matrix(seed, group.name, 0, "A", KAPPA_AGG, plan0.chunk, q);
     let mut prev_bindings_data: Vec<(Vec<Poly>, usize, usize, Vec<Poly>)> = vec![
         (
@@ -29307,10 +29342,20 @@ fn bg_verify_group(
                 .iter()
                 .map(|(bm, cb, cl, u)| OuterBinding { b_mat: bm, col_base: *cb, cols: *cl, u })
                 .collect();
-            transport_level(
-                ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings, &prev_c,
-                &alphas,
-            )
+            // [UAGB1-BJ] level 1 consumes the factored Psi_0 directly
+            // (BD's post-BH shape); deeper levels transport the small
+            // materialized phi.
+            if li == 1 {
+                transport_level_from_psi(
+                    ctxr, &psi0, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings,
+                    &prev_c, &alphas,
+                )
+            } else {
+                transport_level(
+                    ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings,
+                    &prev_c, &alphas,
+                )
+            }
         };
         phi_cur = lt.phi_next;
         h_cur = lt.h_next;
@@ -29337,7 +29382,14 @@ fn bg_verify_group(
     if proof.floor.len() != layout.n_total || proof.floor.len() != sched.floor_rings {
         return Err("wire-shape");
     }
-    phi_cur.resize(plan_last.r * plan_last.chunk, poly_zero());
+    // [UAGB1-BJ] the floor L1 Psi: for one-level schedules this IS the
+    // factored multi-claim Psi_0 (same plan/challenges); deeper
+    // schedules fold the small transported phi (BD's post-BH shape).
+    let psi_floor = if sched.levels.len() == 1 {
+        psi0
+    } else {
+        compute_psi(ctxr, &phi_cur, plan_last.chunk, &prev_c)
+    };
     if let Some(tz) = tier_z {
         let coords = proof.floor.len() * D;
         let bound = ring::eval_proof::tier_z_response_bound(coords);
@@ -29354,9 +29406,11 @@ fn bg_verify_group(
         }
         let st = uk8_sha(&[b"agg-tz", group.name.as_bytes(), &tr.state(), &polys_bytes(&tz.images)]);
         let (c_fl, _) = ring::eval_proof::draw_quinary_capped(&st, "agg-tz-c", 0);
+        // R-BG1 FIX: psi (per-chunk), not phi — the BH-factored
+        // agg_floor_family_values contract.
         let vals = agg_floor_family_values(
             ctxr, &tz.response, plan_last, &layout, &prev_bindings_data, &prev_a_mat, &prev_c,
-            &phi_cur,
+            &psi_floor,
         );
         let mut targets: Vec<Poly> = Vec::with_capacity(n_fams);
         for (_, _, _, u) in &prev_bindings_data {
@@ -29428,9 +29482,8 @@ fn bg_verify_group(
     if poly_from_small(zq, &t1) != h_cur {
         return Err("floor-target");
     }
-    let psi = compute_psi(ctxr, &phi_cur, plan_last.chunk, &prev_c);
     let mut lhs = poly_zero();
-    for (p, zs) in psi.iter().zip(z_rec.iter()) {
+    for (p, zs) in psi_floor.iter().zip(z_rec.iter()) {
         lhs = poly_add(zq, &lhs, &ring_mul_split_kara_fast(ctxr, p, &poly_from_small(zq, zs)));
     }
     let cpairs = compute_cpairs(zq, &prev_c);
@@ -30320,6 +30373,126 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
 }
 
 // ---------------------------------------------------------------------------
+// [UAGB1-BJ] `pass-agg seam` — the R-BG1 seam differential: the
+// additive multi-claim factored Psi_0 (`psi_level0_factored_multi`)
+// == compute_psi over the multi-claim phi materialization
+// (`bg_kernel_pass`, lane BG's landed reference semantics) on the
+// REAL pass groups with genuinely multi-contribution claim sets, and
+// on a MISALIGNED-cols synthetic group (the generic branch, with the
+// eval_proof per-ring oracle tied in); one scale perturbation shows
+// the equality is not vacuous. Fixed-seed challenges; ~seconds-to-
+// minutes, suite-independent.
+
+fn bg_seam() {
+    use ring::eval_proof::{plan_schedule, psi_level0_factored_multi};
+    use ring::gkr::eq_table;
+    use ring::kfield::{KField, K_DEG};
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use std::rc::Rc;
+    println!("\n[UAGB1-BJ] R-BG1 psi-seam differential (additive multi-claim factored Psi_0)");
+    let t0 = Instant::now();
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let q = ctxr.zq.q;
+    let mut n_ok = 0usize;
+    let mut check = |label: &str, ok: bool| {
+        println!("  {} {label}", if ok { "ok  " } else { "  FAIL " });
+        assert!(ok, "seam leg failed: {label}");
+        n_ok += 1;
+    };
+    // Multi-claim set: 3 contribs per tensor (distinct scales and
+    // product points — the additive semantics have to matter).
+    let build_claims = |group: &ring::eval_proof::AggGroup, tag: &str| -> GroupClaims {
+        let mut rd = XofReader::new("bj-seam-claims", &[tag.as_bytes()]);
+        let mut claims = GroupClaims::new(group.tensors.len());
+        for (ti, t) in group.tensors.iter().enumerate() {
+            let lrow = usize::BITS as usize - (t.rows - 1).leading_zeros() as usize;
+            let lcol = usize::BITS as usize - (t.cols - 1).leading_zeros() as usize;
+            for _ in 0..3 {
+                let pr: Vec<ring::kfield::KElem> =
+                    (0..lrow.max(1)).map(|_| kf.uniform(&mut rd)).collect();
+                let pc: Vec<ring::kfield::KElem> =
+                    (0..lcol.max(1)).map(|_| kf.uniform(&mut rd)).collect();
+                claims.push(ClaimContrib {
+                    tensor_idx: ti,
+                    scale: kf.uniform(&mut rd),
+                    row: Rc::new(eq_table(&kf, &pr)),
+                    col: Rc::new(eq_table(&kf, &pc)),
+                });
+            }
+        }
+        claims
+    };
+    let mut leg = |group: &ring::eval_proof::AggGroup,
+                   e0: u32,
+                   what: &str,
+                   oracle: bool,
+                   force_levels: Option<usize>| {
+        let sched = plan_schedule(group.n_digit_rings, e0, q, force_levels);
+        assert!(!sched.levels.is_empty(), "seam leg needs a recursed schedule");
+        let plan0 = &sched.levels[0];
+        let claims = build_claims(group, what);
+        let mut st = [0u8; 32];
+        st[..8].copy_from_slice(&(group.n_digit_rings as u64).to_le_bytes());
+        let alphas: Vec<Poly> = (0..K_DEG)
+            .map(|i| ring::eval_proof::draw_alpha(&st, "bj-alpha", i as u64, q))
+            .collect();
+        let cs: Vec<Vec<i64>> = (0..plan0.r)
+            .map(|j| ring::eval_proof::draw_quinary_capped(&st, "bj-c", j as u64).0)
+            .collect();
+        let (_, phi_ref) = bg_kernel_pass(&ctxr, &kf, group, &claims, None, Some(&alphas));
+        let psi_ref = ring::eval_proof::compute_psi(&ctxr, &phi_ref, plan0.chunk, &cs);
+        let mut kernels = bg_multi_kernels(&claims);
+        let psi_fac =
+            psi_level0_factored_multi(&ctxr, &kf, group, &kernels, &alphas, &cs, plan0.chunk);
+        let aligned = group.tensors.iter().all(|t| t.cols % D == 0);
+        check(
+            &format!(
+                "psi differential [{what}]: factored-multi == compute_psi(bg_kernel_pass phi) (n0 {}, chunk {}, r {}, {} kernels, {})",
+                group.n_digit_rings,
+                plan0.chunk,
+                plan0.r,
+                kernels.len(),
+                if aligned { "aligned" } else { "MISALIGNED cols -> generic branch" }
+            ),
+            psi_fac == psi_ref,
+        );
+        if oracle {
+            let phi_lib =
+                ring::eval_proof::phi0_reference_multi(&ctxr, &kf, group, &kernels, &alphas);
+            check(
+                &format!("phi0 oracle [{what}]: eval_proof per-ring multi == bg_kernel_pass"),
+                phi_lib == phi_ref,
+            );
+        }
+        // Non-vacuity: one perturbed contribution scale must move Psi.
+        kernels[0].scale = kf.add(&kernels[0].scale, &kf.one());
+        let psi_bad =
+            psi_level0_factored_multi(&ctxr, &kf, group, &kernels, &alphas, &cs, plan0.chunk);
+        check(&format!("perturbed scale moves Psi [{what}]"), psi_bad != psi_ref);
+    };
+    // REAL pass groups (1 layer, T = 16 — the weight group is
+    // T-independent, e0 = 1 sign-binary radix path; the act group
+    // carries the mixed-l0 tensors).
+    let lays: Vec<BfLayer> = (0..1).map(|l| bf_load_layer(l, 16, true)).collect();
+    let reg = bg_build_groups(&lays, 16, None);
+    leg(&reg.ga, 2, "real-act", false, None);
+    leg(&reg.gw, 1, "real-weight", false, None);
+    // MISALIGNED synthetic shape (cols % 128 != 0 on the A tensor —
+    // the generic branch) with the per-ring oracle tied in; forced
+    // 2-level and 1-level schedules (the BH battery discipline for
+    // small shapes).
+    let (gw_s, ga_s, _) = agg_build_groups(64, 96, 128);
+    leg(&gw_s, 1, "synthetic-weight-64x96 L2", true, Some(2));
+    leg(&ga_s, 2, "synthetic-act-96x128 L2", true, Some(2));
+    leg(&gw_s, 1, "synthetic-weight-64x96 L1", false, Some(1));
+    println!(
+        "[UAGB1-BJ] seam differential: {n_ok}/{n_ok} legs green in {:.1}s",
+        t0.elapsed().as_secs_f64()
+    );
+}
+
+// ---------------------------------------------------------------------------
 // Mode support gate (the composition layer's honest refusal).
 
 fn bg_mode_supported(mode: u8) -> Result<(), String> {
@@ -30926,6 +31099,7 @@ fn bg_main(args: &[String]) {
         Some("expect") => bg_expect(),
         Some("battery") => bg_battery(),
         Some("canary") => bg_canary(),
+        Some("seam") => bg_seam(), // [UAGB1-BJ] R-BG1 psi-seam differential
         Some("statement") => {
             let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(12);
             let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
@@ -30973,6 +31147,6 @@ fn bg_main(args: &[String]) {
             }
             println!("  TOTAL {} B | accept {}", c.bytes_total(), v.accept());
         }
-        _ => println!("pass-agg statement|expect|prove [layers t p0|p2]|battery|canary"),
+        _ => println!("pass-agg statement|expect|prove [layers t p0|p2]|battery|canary|seam"),
     }
 }
