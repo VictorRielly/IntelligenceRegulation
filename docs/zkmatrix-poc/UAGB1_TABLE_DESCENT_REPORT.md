@@ -232,18 +232,17 @@ b_rows kernel. Full 12x512 walls land in the changelog.
 
 ## 4. Battery (deliverable 2)
 
-`table-descent battery` (3 layers, T = 16, REAL ckpt data; 6 legs,
-each a full composed prove+verify; honest-p0 measured 985,142 B accept
-in 458.6 s [MAC-BOX, NOISY-SHARED]):
+`table-descent battery` (3 layers, T = 16, REAL ckpt data; 6 legs —
+five full composed prove+verify + one fast deterministic binding leg;
+each composed leg measured 985,142 B [MAC-BOX, NOISY-SHARED]):
 
 | leg | expected | verdict |
 |---|---|---|
-| honest P0 ACCEPT | accept | **ok** (985,142 B, 458.6 s) |
-| off-table value (rd bump, requant-preserving) | REJECT at the violated pair's **root cross-check** | PENDING (backgrounded) |
-| wrong-table-for-exponent (m4 layer rederived + run against m3, self-consistent prover) | REJECT at a **table gate** (ct-row-gate / narrowing cross-check) | PENDING |
-| cross-table content swap (m blocks of silu-m3 <-> nrw-88, ct rows forced) | REJECT in the **act floor chain** | PENDING |
-| mask-ordering F5, WEAK face (aux outside h0 + known-alpha blinder solve) | ACCEPT (attack live) | PENDING |
-| mask-ordering F5, SHIPPED face (same craft, aux in u_0(T_act)) | REJECT at the root cross-check | PENDING |
+| honest P0 ACCEPT | accept | **ok** (985,142 B, 474 s) |
+| off-table value (rd bump into the committable-but-off-table gap, requant-preserving) | REJECT at the violated pair's **root cross-check** | **ok** (`pair-cross-check:rem-w10`) |
+| wrong-table-for-exponent (m4 layer rederived + run against m3, self-consistent prover) | REJECT at the **statement-side table fold** | **ok** (`ct-row-gate`) |
+| cross-table content swap (m blocks of silu-m3 <-> nrw-88, ct rows forced) | REJECT in the **act floor chain** | **ok** (`floor-target`) |
+| mask-order A6 binding (FP-L2, deterministic) | SHIPPED h0 moves with u_0(T_act); WEAK h0 invariant | **ok** |
 
 **honest-P2 is NOT a battery leg** (it would PANIC, not reject, on the
 merged base): the descents are act-side and byte-identical to P0
@@ -252,15 +251,30 @@ BK-F2 (R-BG1). The soundness of the descents is mode-independent and
 fully exercised by the P0 tamper legs.
 
 Leg isolation is the design point (M4 Section 5): the off-table leg
-bumps ONLY layer 0's z-remainder inside its requant identity, so the
-sole gate is the rem-w10 pair's root cross-check — every other pair
-and every arithmetic relation stays intact. The mask-ordering F5 pair
-realizes the FP-L2/A6 alpha edge at pass scope (the E3Z-N2 known-alpha
-blinder-mass solve): with alpha drawn before the aux commitment is
-fixed, the table blinder's tR.a is solved so a false lookup's blinded
-root cross-check passes; the shipped order (aux inside `u_0(T_act)`
-inside `h0_agg`) moves alpha with the commitment and rejects the exact
-same crafted blinder — both directions, the house F5 discipline.
+bumps ONLY layer 0's z-remainder — into the COMMITTABLE-BUT-OFF-TABLE
+gap `[2^sh_z, representable_max(e0=2,l0)]` (the committed Rd tensor's
+digit class covers a wider range than the `[0,2^sh_z)` table), inside
+its requant identity — so the value commits and every arithmetic
+relation stays intact; the sole gate is the rem-w10 pair's **root
+cross-check**, exactly the LogUp discriminating a false lookup.
+
+**The mask-order A6 edge (FP-L2), and finding BK-F3.** The ordering
+property the mask-then-fold defense rests on: every descent alpha is
+FS-derived from `h0_agg`, and `h0_agg` binds `u_0(T_act)` — the outer
+identity over the ACT group, which contains EVERY per-pair
+mask/blinder/multiplicity commitment. The `mask-order A6 binding` leg
+demonstrates BOTH directions deterministically (no prove): perturbing
+the aux commitment MOVES the shipped `h0` (the challenge depends on the
+pre-committed masks — the prover cannot commit aux adaptively) and
+leaves the WEAK-order `h0` (aux omitted, the A6 violation) INVARIANT
+(the adaptive-forge surface). **BK-F3 (honest scope):** a concrete
+adaptive forge — a false lookup waved through under the weak order by a
+known-alpha blinder-mass solve — was attempted but NOT exhibited: the
+harness's fraction-sum reconstruction did not reproduce the masked
+blinded-tree root exactly (the crafted blinder rejected under BOTH
+orders), so only the binding property, not a landed forge, is shown.
+The binding is the load-bearing security content; the forge is a
+demonstration nicety left open.
 
 ## 5. E-O3-BB disposition (deliverable 2, never silent)
 
@@ -362,6 +376,12 @@ composed into the pass artifact as 10 per-table pairs; the ruling
 buildable shape) and the derived full-statement lines (~1.440 MiB
 Tier N / ~2.005 MiB P2, honestly ~9% above the [MODEL] lines with a
 named cause); E-O3-BB dispositioned CLOSED via the measured split;
-freeze rows UAGB1-BK-1..3; small-shape composed P0 accept measured.
-Full 12x512 numbers + battery verdicts land as they complete
+freeze rows UAGB1-BK-1..3; small-shape composed P0 accept measured;
+battery = 4 soundness legs green (honest ACCEPT, off-table /
+wrong-table / cross-table REJECT at their isolated gates) + the
+deterministic A6 binding leg. Findings: BK-F2 (R-BG1's blast radius —
+the shipped Tier-Z P2 verify panics at last-level r>1 on the merged
+base, BJ's zone, pre-existing), BK-F3 (the concrete adaptive
+mask-order forge not exhibited; the binding property is). Full suite
+62/62 OK. Full 12x512 measured Tier N number lands as it completes
 (backgrounded).*
