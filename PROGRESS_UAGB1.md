@@ -2016,7 +2016,95 @@ recipe.
 
 ## Agent BK status (wt-uagb1-bk)
 
-- (lane launches here)
+- 2026-08-10 PLAN COMMIT (before any code; read phase COMPLETE: ledger
+  wave-3 close + wave-4 zones; UAGB1_PASS_AGG_REPORT (BG-F1 9-pair
+  [MODEL] inventory, Section 4 descent lines, 7.1 E-O3-BB transfer);
+  FP-L2/A5-A8 + F-Z3 in AGGREGATION_FOLD_PRIVACY_PRICING; M4_LOOKUP_
+  DESIGN Sections 4-5 (characteristic ceiling + the per-layer-instance
+  batching DECISION); M4_LOOKUP_ZK_DESIGN 3.1-3.4 (U-K5c masks/
+  blinders/pins); D-R1 in AGGREGATION_ENCODING_DESIGN 8.3; engine:
+  gkr_masked.rs (masked_gkr_prove/verify multi-tree eq-batching,
+  inst-major joint index CONFIRMED at masked_rounds_scalar), lookup.rs
+  pins, fold.rs, eval_proof.rs public API, pass_agg.rs GroupClaims,
+  bf_* chain/instances, bg_* composed run end to end).
+- **TWO ENGINE GATES BIND THE DESIGN (pre-registered as findings):**
+  (1) LKP-2 ceiling `ceiling_gate_ok(n*64 < q)` caps any one LogUp
+  instance at depth <= 24 at q31; (2) the AUDITED K9 packed-table cap
+  `K9_MAX_LEAVES = 2^25` (raisable only with a new integer-bound
+  proof — not this lane). BG-F1's [MODEL] kel-fit lines priced
+  MONOLITHIC depth-25/26 folded trees — both gates FORBID that form
+  (silu-m3 dw25, narrowing dw26, rem-w8 dw25). The buildable folded
+  form is M4 Section 5's OWN decided shape: per-instance trees at a
+  shared depth, eq-batched into ONE masked descent via the engine's
+  multi-tree masked_gkr_prove (e_bits = instance vars = the IXF index
+  extension at the descent; pads = neutral trees, 12->16-class per
+  F-IF1). Per-instance m columns keep the ceiling per-layer-class;
+  per-instance root cross-checks keep isolation.
+- **THE RULING (deliverable 1, derived from the real statement —
+  M125_EXP shifts, never the [MODEL] table):** widths per (layer,
+  edge): g: w7 x2, w8 x9, w9 x1; u: w7 x2, w8 x6, w9 x4; h: w5 x4,
+  w6 x6, w7 x2; z(nd): w6 x1, w7 x4, w8 x2, w9 x2, w10 x3. Pair
+  inventory = **10 per-table folded pairs** (BG-F1's 9 re-derived:
+  the narrowing family needs TWO pairs under the memory/gate
+  discipline): silu-m3 (10 cols, l=8), silu-m4 (2, l=1), nrw-88
+  (u8+h8, 24 cols, l=16), nrw-z (12 nd, l=2), rem-w5 (l=2), rem-w6
+  (l=4), rem-w7 (l=4), rem-w8 (l=8), rem-w9 (l=4), rem-w10 (l=1) —
+  UNIFORM tree depth 22 (dual-nf / multi-nd packing, both halves,
+  aligned power-of-2 blocks so every leaf pin is product-form), table
+  depth w+1 (silu/narrow 9). Derived transcript expectation (engine
+  counter masked_transcript_totals, BA rule): **~16,727 kel =
+  1,070,528 B** descent lines — ~12% ABOVE BG's [MODEL] 959,232 B
+  (the kel fit underpriced instance quadruples + the depth caps);
+  full-statement expectations land ~1.43-1.46 MiB Tier N /
+  ~2.05-2.08 MiB P2 vs the [MODEL] 1.39/1.98 — priced honestly,
+  exact rows from the derive at build.
+- COMPOSITION (deliverable 2): aux material (per-pair m columns,
+  blinder columns, witness/table mask coords) = ~40 ADDITIVE act-
+  group tensors (~35k digit rings, +0.45% act n0) — inside u_0(T_act)
+  hence inside h0_agg BEFORE every challenge = FP-L2 mask-then-fold
+  BY CONSTRUCTION; descents run as instances on the rolling pass
+  transcript after rq-d; descent-end P/Q pins + G_j/mask openings
+  land as GroupClaims contributions into the SAME act batched opening
+  (E-O2-BB: still exactly one opening per group; claims fold into the
+  existing 16 b_rows — zero wire growth there). P2 untouched on the
+  weight side (aux is all act-side; AZB-11 static-support semantics
+  preserved). My own composed-run fn in a NEW [UAGB1-BK] ring_matmul
+  section (mirrors bg_pass_run's claim layer; REUSES bg_precommit/
+  bg_prove_group/bg_verify_group/bg_mle/bg_stack_table verbatim as
+  callees — bg_* code, eval_proof.rs, pass_agg.rs, gkr_masked.rs,
+  canary harness NOT edited); NEW src/ring/descent_fold.rs (aligned
+  leaf layout, tree planning/build, pin-weight builders, derived
+  expectations); lookup.rs ADDITIVE helpers (K-elem coordinate
+  weights); subcommand `table-descent expect|prove|battery`; one
+  dispatch arm + one freeze_check_uagb1_bk() call line (the
+  established per-lane seam).
+- BATTERY PLAN: honest ACCEPT small shape (3 layers T=16, all 10
+  pairs live) P0 + P2; off-table value (remainder bump, the BF
+  RangeViolation shape) REJECT isolated at the pair's root
+  cross-check; wrong-table-for-exponent (consistent m3<->m4 swap)
+  REJECT at the verifier's statement-side table fold; cross-table
+  content swap (m/tree swapped between two pairs, self-consistent
+  descents) REJECT at the committed-column pins; mask-ordering F5
+  pair on the alpha edge (weak transcript seeded pre-u_0(T_act):
+  post-alpha crafted m ACCEPTS under the weak verifier — attack
+  live; shipped h0 order REJECTS the same craft); per-instance
+  Q != 0 + cross-check + ceiling asserts standing. E-O3-BB: THE
+  SPLIT IS THE LANDED DESIGN (BG-F1 break case realized per-table) —
+  disposition = split branch, priced by the measured per-pair rows
+  (the 7B +143,104 B figure cited as scope, not transferred); a
+  rho-sharing battery leg has no shared-arm object in this design —
+  recorded loud, not silent.
+- MEASUREMENT (deliverable 3): full 12x512 P0 + P2 composed runs
+  incl. descents [MAC-BOX, NOISY-SHARED — BJ/BL/PV-S2 run
+  concurrently]; per-pair measured kel vs derived vs [MODEL]; totals
+  vs 426,455/1,019,211 composed baselines and vs the [MODEL]
+  full-statement lines; prove/verify wall deltas. Honest-fallback
+  ladder: ruling+expect -> small-shape composed accept -> full-shape
+  measured -> battery; largest green scope reported if a wall lands.
+- WILL NOT DO: eval_proof.rs / pass_agg.rs / fold.rs internals /
+  manifest.rs / wire.rs / gkr_masked.rs edits; bg_battery/bg_canary/
+  fixed-coins harness call sites (BJ's); other ledger sections;
+  existing scripts/tests; K9 cap or ceiling-gate changes; push.
 
 ## Agent BL status (wt-uagb1-bl)
 
