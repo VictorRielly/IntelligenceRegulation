@@ -2134,17 +2134,23 @@ recipe.
     line). eval_proof.rs / pass_agg.rs / fold.rs / gkr_masked.rs /
     manifest.rs / wire.rs NOT edited; bg_* group prove/verify +
     GroupClaims CONSUMED verbatim.
-  * THE NUMBERS (deliverable 3): derived descent lines 1,083,456 B;
-    **measured per-pair kel == derived kel EXACTLY** (the BA
-    identity, `table-descent prove` prints both). Small-shape (3
-    layers T=16) composed **P0 ACCEPTS**, 985,142 B, prove 342.4 s /
-    verify 83.3 s [MAC-BOX, NOISY-SHARED]. Full-statement DERIVED:
-    Tier N ~1,509,911 B (~1.440 MiB), P2 ~2,102,667 B (~2.005 MiB) —
-    honestly **~9% ABOVE** the [MODEL] 1.322/1.887 lines, named cause
-    = BK-F1 (the buildable form pays for per-instance layer-1
-    quadruples the monolithic fit omitted); still inside A1's
-    0.5-2 MiB Tier N class. Full 12x512 P0 measured number +
-    battery verdicts backgrounded [NOISY-SHARED, 3 siblings].
+  * THE NUMBERS (deliverable 3): **THE FULL-STATEMENT TIER N PASS IS
+    MEASURED — 12 layers, T = 512, real ckpt data, accept = true:
+    1,509,911 B = 1.440 MiB = 0.48x the P0 pass gate (2.08x UNDER;
+    125,826 B/layer amortized), and measured == derived TO THE BYTE**
+    (every pair kel line exact; the act schedule + floor UNMOVED by
+    the 31,116 aux digit rings — 915 rings e7 / 9 levels, BG's exact
+    line; weight group byte-identical). Walls [MAC-BOX,
+    NOISY-SHARED]: commit 384.9 s / prove 4,811.0 s / verify 990.7 s
+    = +15% prove / +3.7% verify over BG's composed-scope run for all
+    10 pairs. vs the [MODEL] lines: Tier N 1,509,911 vs ~1,385,854
+    (+9.0%), P2 derived-from-measured 2,102,667 (= P0 + BG's
+    measured 592,756 weight-mask surcharge) vs ~1,978,466 (+6.3%) —
+    priced honestly ABOVE both, named cause = BK-F1 (the buildable
+    eq-batched form pays per-instance layer-1 quadruples the
+    monolithic kel fit omitted; the monolithic form is gate-
+    forbidden). Small-shape composed P0: 985,142 B accept
+    (342-475 s).
   * E-O3-BB DISPOSITIONED CLOSED: the SPLIT branch is the landed
     design (BG-F1's break case realized per-table) — every range
     width is its own pair, no shared witness arm to rho-share; cost

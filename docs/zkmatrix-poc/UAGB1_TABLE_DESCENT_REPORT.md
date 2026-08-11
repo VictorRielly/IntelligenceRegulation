@@ -14,7 +14,9 @@ Section 1's recorded unbuilt piece) — are now COMPOSED into the pass
 artifact as **10 per-table folded masked descent pairs**, running end
 to end on real ckpt-00009536 data, **P0 accept = true**, with the
 descent-end pins folded into the SAME act batched opening (E-O2-BB
-preserved). The full-statement Tier N number is DERIVED and MEASURED.
+preserved). The full-statement Tier N number is MEASURED: **1,509,911 B =
+1.440 MiB = 0.48x the P0 pass gate**, equal to its derivation to the
+byte.
 The descents are ACT-side and mode-independent (byte-identical P0/P2);
 the P2 end-to-end verify is blocked ONLY by the pre-existing R-BG1
 weight-floor seam (finding BK-F2, BJ's zone), so P2 lands as the
@@ -180,19 +182,39 @@ shape (9 pairs; rem-w5 absent — layer 0's g/u/h widths differ):
 Derived-vs-measured agreement to the K-element. The counted convention
 has no slack — the derivation IS the artifact (BG-F2 at descent scope).
 
-### 3.2 The full-statement composed number (12 layers, T = 512)
+### 3.2 The full-statement composed number (12 layers, T = 512) — MEASURED
 
-**MEASUREMENT PENDING** — the full 12-layer P0/P2 runs are the
-load-bearing numbers; they are backgrounded (each ~1.5-2 h prove on
-this box) and land in the changelog when complete. The DERIVED
-expectation is on file now (executable, `table-descent expect`):
+**The full-statement Tier N pass, 12 layers, T = 512, real
+ckpt-00009536 data, one shot, end to end: accept = true.**
+
+| component | measured B |
+|---|---:|
+| statement + folded instances + public claims (BG's composed layer, byte-identical) | 63,367 |
+| descent pairs (10, per-pair lines each == derived) | 1,083,456 |
+| [weight] outer 11,360 + rows 8,260 + levels 39,760 + floor 120,196 (939 rings e7, 8 levels) | 179,576 |
+| [act] outer 11,360 + rows 8,260 + levels 45,440 + floor 117,124 (915 rings e7, 9 levels) | 182,184 |
+| **TOTAL (counted-not-serialized)** | **1,509,911 = 1.440 MiB** |
+
+**Verdicts of the number:**
+
+- vs the DERIVED expectation (1,509,911 B): **measured == derived to
+  the byte** — every pair's kel line exact, the act group's schedule
+  and floor UNMOVED by the 31,116 aux digit rings (915 rings e7, 9
+  levels — BG's exact line), the weight group byte-identical to BG.
+  The derivation IS the artifact (BG-F2 extended to the descent
+  layer).
+- vs the Tier N P0 pass gate (3,145,728 B): **0.48x — the FULL
+  statement (arithmetic + binding + every table-membership fact) is
+  2.08x UNDER the gate; 125,826 B/layer amortized.**
+- vs BG's composed-scope pass (426,455 B): +1,083,456 B — the honest
+  price of the last claim family, now measured.
 
 | line | value |
 |---|---:|
 | BG composed Tier N (P0, measured) | 426,455 B |
-| + descent lines (derived, 10 pairs) | 1,083,456 B |
-| + act eval-proof aux delta (schedule unmoved; +0.40% n0) | measured |
-| **Full-statement Tier N (P0), derived** | **~1,509,911 B = ~1.440 MiB** |
+| + descent lines (measured == derived, 10 pairs) | 1,083,456 B |
+| + act eval-proof aux delta (MEASURED ZERO — schedule + floor unmoved) | 0 |
+| **Full-statement Tier N (P0), MEASURED** | **1,509,911 B = 1.440 MiB** |
 | BG composed Tier Z (P2, measured) | 1,019,211 B |
 | + descent lines (act-side; P2 masks the weight floor only) | 1,083,456 B |
 | **Full-statement Tier Z (P2), derived** | **~2,102,667 B = ~2.005 MiB** |
@@ -222,13 +244,18 @@ A1 frozen 1,114,112 B is the 7B-P3 scope, cited not transferred).
 
 ### 3.3 Walls [MAC-BOX, NOISY-SHARED]
 
+Full 12x512 P0 (one shot, siblings BJ/BL/PV-S2 running concurrently):
+**commit 384.9 s, prove 4,811.0 s (80.2 min), verify 990.7 s
+(16.5 min)**, peak RSS observed ~47 GiB during the descent phase
+(nrw-88's 16-tree batch), settling to ~24 GiB before the eval-proof
+phase. vs BG's composed-scope run (380.1 / 4,178.1 / 955.2 s): the 10
+descent pairs (20 masked descents, 61 real + 11 pad trees) cost
+**+633 s prove (+15%) and +36 s verify (+3.7%)** — the tree builds +
+joint sumchecks dominate the delta; the claim-layer growth (the pins
+fold into the same 16 b_rows) is nearly free on the verify side.
+
 Small-shape (3 layers, T=16) composed P0: commit 34.5 s, prove
-342.4 s, verify 83.3 s, 985,142 B, accept true. The descent phase adds
-9 masked descent PAIRS (18 masked descents) to BG's 8 arithmetic
-instances — the prover-time delta is the masked GKR tree builds
-(Theta(sum 2^depth) over the trees) plus the pin-weight assembly; the
-verifier-time delta is the 18 masked_gkr_verify passes + the enlarged
-b_rows kernel. Full 12x512 walls land in the changelog.
+342.4 s, verify 83.3 s, 985,142 B, accept true.
 
 ## 4. Battery (deliverable 2)
 
@@ -383,5 +410,7 @@ deterministic A6 binding leg both directions). Findings: BK-F2 (R-BG1's blast ra
 the shipped Tier-Z P2 verify panics at last-level r>1 on the merged
 base, BJ's zone, pre-existing), BK-F3 (the concrete adaptive
 mask-order forge not exhibited; the binding property is). Full suite
-62/62 OK. Full 12x512 measured Tier N number lands as it completes
-(backgrounded).*
+62/62 OK. THE MEASURED FULL-STATEMENT NUMBER: 12x512 P0 = 1,509,911 B
+= 1.440 MiB, accept true, measured == derived to the byte (act
+schedule/floor unmoved by the aux; commit 384.9 s / prove 4,811.0 s /
+verify 990.7 s [MAC-BOX, NOISY-SHARED]).*
