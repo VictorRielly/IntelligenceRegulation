@@ -392,9 +392,12 @@ rig) and exported to this rig as wiring
   NOISY-SHARED — the AZB-11 canary overlapped] — all six
   pre-existing legs keep their exact reject surfaces on split trees.
 
-**Measured effect** [MAC-BOX, non-reference, QUIET, single-shot;
-BEFORE = the pre-wiring binary (this HEAD minus the D3 commit),
-AFTER = this HEAD, same box, back to back]:
+**Measured effect** [MAC-BOX, non-reference, single-shot; BEFORE =
+the pre-wiring binary (this HEAD minus the D3 commit), AFTER = this
+HEAD, same box, back to back. BEFORE ran quiet; the AFTER
+layer-prove's last ~3 min overlapped wave-4 stage-2 lane BK's
+launch on this box — user/real ratios stayed ~99% CPU on both runs
+(369.4/372.3 s vs 328.4/330.7 s), so the comparison stands]:
 
 | measurement (layer 0, T = 512 unless noted) | BEFORE | AFTER | effect |
 |---|---:|---:|---:|

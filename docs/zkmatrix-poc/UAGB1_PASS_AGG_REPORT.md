@@ -525,7 +525,9 @@ Wave 3 measured the composed P0 pass verify at 955.2 s PRE-split
 via its own kernel pass, the O(n_0)-class wall BH removed for BD's
 path). At this HEAD the composed verifier rides the split through
 the multi-claim entry point. Re-measured, single-shot honest, same
-machine [MAC-BOX, non-reference, QUIET — nothing else running],
+machine [MAC-BOX, non-reference, NOISY-SHARED — wave-4 stage-2
+lanes BK/BL launched on this box mid-run and their batteries
+overlapped; the wave-3 baseline carried the same class of label],
 fresh full prove in the same invocation (the BG rig has no
 serialized-artifact re-verify path; the artifact is re-proven and
 re-verified in one `pass-agg prove 12 512 p0` run):
