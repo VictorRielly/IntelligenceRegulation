@@ -6391,6 +6391,8 @@ fn main() {
         // weights: `m125-pass v4-battery | statement | prove <layer..> |
         // battery [small]` — see the [UAGB1-BF] section.
         Some("m125-pass") => m125_pass_main(&args[1..]),
+        // [UPERF-PC] U-PERF lane PC profile/differential harness (additive).
+        Some("uperf-pc") => uperf_pc_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -34312,4 +34314,119 @@ fn bk_main(args: &[String]) {
         Some("battery") => bk_battery(args.get(1).map(String::as_str) == Some("small")),
         _ => println!("table-descent expect|statement|prove [layers t p0|p2]|battery [small]"),
     }
+}
+
+// ===========================================================================
+// [UPERF-PC] U-PERF lane PC (wave/opening overhead): profile + differential
+// harness arms. ADDITIVE section — no shipped path changes here; the
+// counters/digest live in ring/ct_engine.rs::prof (observation only).
+// Commands:
+//   uperf-pc wave-profile [layer] [t] [nodigest]  — one m125 layer prove
+//     through the REAL bf_layer_run path with the wave-phase attribution
+//     table and (default) the wave-transcript differential digest at the
+//     rig's fixed test seeds.
+//   uperf-pc pass-profile [layers] [t]  — the composed pass prove
+//     (bg_pass_run, P0) with the eval-proof phase attribution.
+//   uperf-pc diff-battery  — small-shape differential battery for the
+//     lane's transcript-preserving optimizations (byte equality of both
+//     implementations per optimization; grows as optimizations land).
+
+fn uperf_pc_wave_profile(li: usize, t: usize, digest: bool) {
+    use ring::ct_engine::prof;
+    println!(
+        "[UPERF-PC] wave-profile: m125 layer {li} at T = {t} (fixed test seeds; digest {})",
+        if digest { "ON" } else { "off" }
+    );
+    let mut layers: Vec<BfLayer> = (0..12).map(|l| bf_load_layer(l, t, true)).collect();
+    prof::reset();
+    prof::enable(true, digest);
+    let t0 = Instant::now();
+    let (verdict, cost) = bf_layer_run(t, &mut layers, li, BfTamper::None, false);
+    let wall = t0.elapsed().as_secs_f64();
+    prof::enable(false, false);
+    let dg = prof::digest_take();
+    println!("[UPERF-PC] accept = {} | wall {wall:.1}s", verdict.accept());
+    println!(
+        "[UPERF-PC] cost rows: commit {:.1}s prove {:.1}s (mm {:.1} had {:.1} req {:.1} lkp {:.1} pinclaims {:.1} waves {:.1}) verify {:.1}s",
+        cost.commit_s, cost.prove_s, cost.matmul_s, cost.had_s, cost.req_s, cost.lkp_s,
+        cost.pinclaims_s, cost.waves_s, cost.verify_s
+    );
+    println!("[UPERF-PC] phase attribution (process-global; prove+verify calls both counted):");
+    let mut attributed = 0.0;
+    for (name, secs, calls) in prof::report() {
+        if calls == 0 && secs == 0.0 {
+            continue;
+        }
+        // ct.* phases inside prove_ct_round accumulate over ALL rounds
+        // (127 waves + closing) and over the verifier's ct_h0 calls.
+        if name != "ct.prove-total" {
+            if name.starts_with("ct.") && !name.contains("attempts") && name != "ct.h0-hash" && name != "ct.masked-splitter" {
+                attributed += secs;
+            }
+        }
+        println!("    {name:<24} {secs:>9.2}s  x{calls}");
+    }
+    let total = prof::report().iter().find(|r| r.0 == "ct.prove-total").map(|r| r.1).unwrap_or(0.0);
+    println!(
+        "    {:<24} {:>9.2}s  (ct.prove-total minus in-loop phases: digest+alloc+glue)",
+        "ct.unattributed",
+        (total - attributed).max(0.0)
+    );
+    if let Some(d) = dg {
+        println!("[UPERF-PC] WAVE-TRANSCRIPT DIGEST {}", hex_full(&d));
+    }
+}
+
+fn uperf_pc_pass_profile(layers_n: usize, t: usize) {
+    use ring::ct_engine::prof;
+    println!("[UPERF-PC] pass-profile: composed pass prove, {layers_n} layers, T = {t}, P0");
+    prof::reset();
+    prof::enable(true, false);
+    let t0 = Instant::now();
+    let opts = BgOpts { layers_n, t, ..Default::default() };
+    let (v, c, art) = bg_pass_run(&opts);
+    let wall = t0.elapsed().as_secs_f64();
+    prof::enable(false, false);
+    println!(
+        "[UPERF-PC] accept = {} | wall {wall:.1}s | statement digest {}",
+        v.accept(),
+        hex_full(&art.statement_digest)
+    );
+    let _ = c;
+    println!("[UPERF-PC] eval-proof phase attribution (prove + verify both counted):");
+    for (name, secs, calls) in prof::report() {
+        if calls == 0 && secs == 0.0 {
+            continue;
+        }
+        println!("    {name:<24} {secs:>9.2}s  x{calls}");
+    }
+}
+
+fn uperf_pc_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("wave-profile") => {
+            let li: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(2);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            let digest = args.get(3).map(String::as_str) != Some("nodigest");
+            assert!(li < 12, "layer in 0..12");
+            uperf_pc_wave_profile(li, t, digest);
+        }
+        Some("pass-profile") => {
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(12);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            uperf_pc_pass_profile(layers_n, t);
+        }
+        Some("diff-battery") => uperf_pc_diff_battery(),
+        _ => println!("uperf-pc wave-profile [layer] [t] [nodigest] | pass-profile [layers] [t] | diff-battery"),
+    }
+}
+
+/// [UPERF-PC] Differential battery: every lane optimization must hold
+/// byte equality against its reference implementation on adversarially
+/// shaped small inputs. Legs are added as optimizations land.
+fn uperf_pc_diff_battery() {
+    let t0 = Instant::now();
+    println!("[UPERF-PC] differential battery");
+    // (legs land with the optimizations)
+    println!("[UPERF-PC] differential battery passed in {:.2}s", t0.elapsed().as_secs_f64());
 }
