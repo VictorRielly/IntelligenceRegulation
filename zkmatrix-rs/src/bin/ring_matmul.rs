@@ -31802,6 +31802,30 @@ struct BkArtifacts {
     pair_alphas: Vec<ring::kfield::KElem>,
 }
 
+/// The off-table range-violation tamper (requant-preserving): bump
+/// layer-0's z-remainder into the COMMITTABLE-BUT-OFF-TABLE gap
+/// [2^sh_z, representable_max(e0=2, l0)] and drop z by 1 so the requant
+/// identity dacc = 2^sh_z z + rd is preserved. The value stays inside
+/// the committed Rd tensor's digit class (decomposition succeeds) yet
+/// leaves the [0, 2^sh_z) table — the range LOOKUP is the sole gate
+/// (leg isolation, M4 Section 5). Returns the chosen index.
+fn bk_range_violation(lays: &mut [BfLayer]) -> usize {
+    let sh_z = lays[0].shifts.3;
+    let (_, l0) = bg_entry_class(15, &lays[0]);
+    let hi = ring::digits::representable(2, l0).1 as i64;
+    let bump = 1i64 << sh_z;
+    let max_orig = hi - bump;
+    assert!(max_orig >= 0, "no committable off-table gap for width {sh_z}");
+    let idx = (0..lays[0].rd.len())
+        .find(|&i| {
+            lays[0].rd[i] >= 0 && lays[0].rd[i] <= max_orig && lays[0].z[i] > -100 && lays[0].z[i] < 100
+        })
+        .expect("a committable off-table position exists at layer 0");
+    lays[0].rd[idx] += bump;
+    lays[0].z[idx] -= 1;
+    idx
+}
+
 /// The PROVER's silu member for a pair (the WrongTable arm overrides
 /// the singleton m4 pair to the m3 rows; every honest path returns the
 /// statement member).
@@ -31898,10 +31922,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     let mut lays: Vec<BfLayer> = (0..opts.layers_n).map(|l| bf_load_layer(l, t, true)).collect();
     match opts.tamper {
         BkTamper::RangeViolation => {
-            let sh_z = lays[0].shifts.3;
-            let idx = lays[0].z.iter().position(|&v| v > -100 && v < 100).unwrap();
-            lays[0].rd[idx] += 1i64 << sh_z;
-            lays[0].z[idx] -= 1;
+            bk_range_violation(&mut lays);
         }
         BkTamper::WrongTable => {
             // The singleton m4 layer's chain rederived against m3 —
@@ -32789,9 +32810,7 @@ fn bk_craft_blinder(
     // Reproduce the tampered witness + the deterministic aux draws.
     let mut lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
     let sh_z = lays[0].shifts.3;
-    let idx = lays[0].z.iter().position(|&v| v > -100 && v < 100).unwrap();
-    lays[0].rd[idx] += 1i64 << sh_z;
-    lays[0].z[idx] -= 1;
+    bk_range_violation(&mut lays);
     let specs = bk_pair_specs(&lays, t);
     let reg = bk_build_groups(&lays, t, &specs, zq.q);
     let mut aux_rng = ring::ProverRng::from_test_seed(
