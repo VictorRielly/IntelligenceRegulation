@@ -151,15 +151,36 @@ reconciliation pass on a quiet machine after merge.
         exact-formula windows, plus the behavioral gates (joint Q4.2b
         expects < 3 attempts per 4-unit round and beats the superseded
         per-unit product). See PROGRESS_UR.md S4.
-- [ ] B-D1 Lane-packed bulk slot arithmetic (the U-K1 8-lane adapter) through the
+- [x] B-D1 Lane-packed bulk slot arithmetic (the U-K1 8-lane adapter) through the
       A1 kernel class + lazy reduction in round_poly/build_tree/fuse/descent hot
       loops. Differential battery: bulk path bit-identical to scalar path;
       LKP-5/6/7 freeze digests MUST NOT move.
-- [ ] B-D2 H-03 memory refactor: KElem inline [u64;16]/SoA, streamed layer
+      DONE 2026-08-11/12 (U-PERF lane PA, merged b09c080; report
+      docs/zkmatrix-poc/U_PERF_KERNEL_REPORT.md). Measured [MAC-BOX 1T] on the
+      uk9-bench yardstick at 2^18: scalar 8,965 -> bulk 2,284 (3.93x) -> stream
+      2,221 ns/el (4.04x); rate scale-stable (2,154/2,161 ns/el at 2^20/2^22).
+      Differential floor MET: root+transcript digest 979e4d82b4db7f6d identical
+      across all modes; freeze-check green, every pre-existing digest unmoved.
+- [x] B-D2 H-03 memory refactor: KElem inline [u64;16]/SoA, streamed layer
       construction; RSS measured at 2^20/2^22/2^23; CLI cap lifted to what fits.
-- [ ] B-D3 Measured kernel report (U_K9_KERNEL_REPORT.md): us/el before/after at
+      DONE 2026-08-11/12 with TWO recorded deviations: (a) KElem stays Vec<u64> —
+      an inline [u64;16] is not source-compatible with ring_matmul's ...to_vec()
+      call sites, so SoA was delivered in the layer tables where it pays; (b) 2^23
+      NOT re-measured and the CLI cap NOT lifted — this box has 256 GB, so neither
+      would say anything about the 15 GB deployment wall, whose arithmetic stands
+      as recorded. Measured: peak RSS 0.64 GiB at 2^20 (vs the ~1.5 GiB recorded
+      for that shape pre-U-K9, cross-machine so indicative only), 2.54 GiB at 2^22.
+- [x] B-D3 Measured kernel report (U_K9_KERNEL_REPORT.md): us/el before/after at
       2^18/2^20 (lookup-bench unchanged as the yardstick), reduction-discipline
       vs lane-occupancy attribution, honest [NOISY-SHARED] marks.
+      DONE 2026-08-12 as docs/zkmatrix-poc/U_PERF_KERNEL_REPORT.md (filename
+      changed with the U-PERF lane; this item is answered by that file). Carries
+      the attribution (layout/lanes 1.55x x reduction-discipline 1.44x = 2.23x on
+      the primitive, 103.2 ns/K-mult packed lazy) AND the load-bearing negative
+      finding PA-F1: the 4.04x does NOT transfer to the m125 rig — its masked
+      descent phase is unchanged (35.1 -> 35.2 s) and layer prove is neutral
+      (A/B at 323aa59: 328 s vs 328 s wall). No end-to-end claim may cite the
+      4.04x; at the 125M layer, waves are 80% of prove and remain the real target.
 - [ ] C-D1 tests/test_zk_lattice.py tamper flake fixed without weakening the
       test's meaning; demonstrated stable over many repeats.
 - [ ] FINAL (orchestrator): merges, suite green, quiesced re-measurement,

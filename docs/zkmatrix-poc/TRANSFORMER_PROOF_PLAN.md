@@ -209,6 +209,35 @@ range-lookup rung, replacing bit planes with the same lookup
 machinery); its U-R tranche is open with S0 (multi-wave claim
 splitting) landed — ledger PROGRESS_UR.md.
 
+### Addition 2026-08-12 — the attention half now has an integer spec
+
+This taxonomy's attention rows (softmax, normalization, RoPE,
+residual, embedding) were written when no integer specification for
+them existed — the gap TARGET_CONTRACT.md Section 1 declares. That
+gap is now closed on paper: **docs/zkmatrix-poc/ATTENTION_INTEGER_
+SPEC.md** (U-PERF lane PD, 2026-08-11) specifies each of them at the
+frugal-lm 125M shapes against the calibration study's real ranges,
+with 7B/8B rows derived alongside [MODEL], and
+scripts/attention_spec_spike.py machine-checks it (18/18: 734 range
+facts, 522 identities, determinism and swept-input audits).
+
+Taxonomy consequences, stated here so this document is not read as
+current on its own: softmax lands in Class 3 via the EXISTING
+lookup family (range-reduced exp on a per-scale table, the
+silu-int8-table-v2 family precedent) plus an exact row-max
+subtraction (Class 2 range facts + a binary argmax selector);
+BOTH normalizations — softmax's row-normalize and RMSNorm — are
+floor-division RELATION facts (degree-3 zero-check with broadcast
+divisor + two-sided remainder range facts), NOT reciprocal
+evaluations, so no new gadget class is introduced; RoPE is a
+public-table Class 0/1 rotation; GQA head sharing is a public map.
+The honest limitation the spec carries forward: the division
+relation gives row mass in a proven interval, not exact
+row-stochasticity (measured [282, 512] against 2^9 at the spike's
+shapes) — any downstream argument must consume the interval, not
+assume a probability vector. Costs, risks and the build-round
+obligation list are in the spec; nothing in it is built.
+
 ## 3. Batching architecture: one simultaneous proof
 
 The whole forward pass becomes a claim DAG over one global commitment
