@@ -124,8 +124,9 @@ impl LkpTranscript {
 pub fn fold(kf: &KField, table: &[KElem], r: &KElem) -> Vec<KElem> {
     assert!(table.len() >= 2 && table.len() % 2 == 0);
     if kf.kern.is_some() && table.len() >= 32 {
-        let t = super::kfield::KTab::from_kelems(table);
-        return kf.kt_fold(&t, r).to_kelems();
+        let mut t = super::kfield::KTab::from_kelems(table);
+        kf.kt_fold_inplace(&mut t, r);
+        return t.to_kelems();
     }
     (0..table.len() / 2)
         .map(|i| {
@@ -150,6 +151,30 @@ pub fn mle_eval(kf: &KField, table: &[KElem], point: &[KElem]) -> KElem {
         cur = fold(kf, &cur, r);
     }
     cur.remove(0)
+}
+
+/// [U-PERF-PA] B-D2 streamed MLE evaluation: the table is generated per
+/// index by the closure and packed directly — no boxed table vector
+/// (64 B/element packed vs ~170 B/element boxed, and the pack is the
+/// only allocation; folds run in place). Bit-identical to mle_eval on
+/// the same value sequence; the scalar oracle (and sub-block sizes)
+/// falls back to the boxed path, identically.
+pub fn mle_eval_stream(
+    kf: &KField,
+    n: usize,
+    point: &[KElem],
+    mut f: impl FnMut(usize) -> KElem,
+) -> KElem {
+    assert_eq!(n, 1 << point.len());
+    if kf.kern.is_some() && n >= 32 {
+        let mut t = super::kfield::KTab::zeroed(n);
+        for i in 0..n {
+            t.set(i, &f(i));
+        }
+        return kf.kt_mle_eval(t, point);
+    }
+    let table: Vec<KElem> = (0..n).map(f).collect();
+    mle_eval(kf, &table, point)
 }
 
 /// One round's polynomial for the relation sum_b combine(T_1(X, b), ..,

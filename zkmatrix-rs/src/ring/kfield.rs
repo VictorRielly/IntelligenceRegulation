@@ -523,19 +523,24 @@ fn tree_step_body(kern: &KKern, cp: &[u32], cq: &[u32], np: &mut [u32], nq: &mut
     }
 }
 
-/// Fold full blocks: out[i] = T[2i] + r (T[2i+1] - T[2i]).
+/// Fold full blocks IN PLACE: T'[m] = T[2m] + r (T[2m+1] - T[2m]) at
+/// block granularity — output block m is written after its source blocks
+/// (2m, 2m+1) are staged on the stack, and m <= 2m keeps every unread
+/// source block ahead of the write cursor (forward-safe). [U-PERF-PA]
+/// residue rebase (uk9-residue-2026-07-12): the out-of-place original
+/// allocated + memset a fresh table per fold — one per table per
+/// sumcheck round in the descent hot loops.
 #[inline(always)]
-fn fold_body(kern: &KKern, src: &[u32], r: &[u32; K_DEG], dst: &mut [u32], nblk: usize) {
+fn fold_body(kern: &KKern, d_io: &mut [u32], r: &[u32; K_DEG], nblk: usize) {
     let src_words = nblk.checked_mul(2 * KBLK).expect("K9 fold input size overflow");
-    let dst_words = nblk.checked_mul(KBLK).expect("K9 fold output size overflow");
-    assert!(src.len() >= src_words && dst.len() >= dst_words, "K9 fold layout");
+    assert!(d_io.len() >= src_words, "K9 fold layout");
     let q32 = kern.q as u32;
     let mut t0 = [0u32; KBLK];
     let mut t1 = [0u32; KBLK];
     let mut d = [0u32; KBLK];
     let mut out = [0u32; KBLK];
     for m in 0..nblk {
-        deint_pair(src, m, &mut t0, &mut t1);
+        deint_pair(d_io, m, &mut t0, &mut t1);
         for x in 0..KBLK {
             d[x] = subm32(t1[x], t0[x], q32);
         }
@@ -546,7 +551,40 @@ fn fold_body(kern: &KKern, src: &[u32], r: &[u32; K_DEG], dst: &mut [u32], nblk:
         for x in 0..KBLK {
             out[x] = addm32(t0[x], out[x], q32);
         }
-        dst[m * KBLK..(m + 1) * KBLK].copy_from_slice(&out);
+        d_io[m * KBLK..(m + 1) * KBLK].copy_from_slice(&out);
+    }
+}
+
+/// One eq-table doubling step IN PLACE over full blocks: for each block
+/// m of the current half, block m becomes a * zbar and block m + half
+/// becomes a * z, with the operand block a staged on the stack before
+/// either store. [U-PERF-PA] residue rebase: the out-of-place original
+/// allocated a fresh double-size table per variable (~2x the final size
+/// in cumulative churn per eq build).
+#[inline(always)]
+fn eq_double_body(
+    kern: &KKern,
+    d_io: &mut [u32],
+    half_nblk: usize,
+    zbar: &[u32; K_DEG],
+    z: &[u32; K_DEG],
+) {
+    let words = half_nblk.checked_mul(2 * KBLK).expect("K9 eq-double size overflow");
+    assert!(d_io.len() >= words, "K9 eq-double layout");
+    let mut a = [0u32; KBLK];
+    let mut out = [0u32; KBLK];
+    for m in 0..half_nblk {
+        a.copy_from_slice(&d_io[m * KBLK..(m + 1) * KBLK]);
+        let mut lo = [0u64; 31 * KL];
+        let mut hi = [0u64; 31 * KL];
+        mac_block_fixed(&a, zbar, &mut lo, &mut hi);
+        red_block(kern, &lo, &hi, &mut out);
+        d_io[m * KBLK..(m + 1) * KBLK].copy_from_slice(&out);
+        let mut lo = [0u64; 31 * KL];
+        let mut hi = [0u64; 31 * KL];
+        mac_block_fixed(&a, z, &mut lo, &mut hi);
+        red_block(kern, &lo, &hi, &mut out);
+        d_io[(m + half_nblk) * KBLK..(m + half_nblk + 1) * KBLK].copy_from_slice(&out);
     }
 }
 
@@ -740,7 +778,9 @@ macro_rules! k9_kernel {
 k9_kernel!(k9_tree_step, k9_tree_step_avx2, tree_step_body,
     (kern: &KKern, cp: &[u32], cq: &[u32], np: &mut [u32], nq: &mut [u32], nblk: usize));
 k9_kernel!(k9_fold_blocks, k9_fold_blocks_avx2, fold_body,
-    (kern: &KKern, src: &[u32], r: &[u32; K_DEG], dst: &mut [u32], nblk: usize));
+    (kern: &KKern, d_io: &mut [u32], r: &[u32; K_DEG], nblk: usize));
+k9_kernel!(k9_eq_double_blocks, k9_eq_double_blocks_avx2, eq_double_body,
+    (kern: &KKern, d_io: &mut [u32], half_nblk: usize, zbar: &[u32; K_DEG], z: &[u32; K_DEG]));
 k9_kernel!(k9_mul_fixed_blocks, k9_mul_fixed_blocks_avx2, mul_fixed_body,
     (kern: &KKern, src: &[u32], r: &[u32; K_DEG], dst: &mut [u32], nblk: usize));
 k9_kernel!(k9_mul_elem_blocks, k9_mul_elem_blocks_avx2, mul_elem_body,
@@ -755,23 +795,27 @@ k9_kernel!(k9_round_g_blocks, k9_round_g_blocks_avx2, round_g_body,
 // --- table-level operations (bulk when full blocks exist, scalar tails) ---
 
 impl KField {
-    /// Fold a packed table: out[i] = T[2i] + r (T[2i+1] - T[2i]). Halves.
-    /// Requires kern; sizes below a full block fall back to scalar ops
-    /// (identical values).
-    pub(crate) fn kt_fold(&self, t: &KTab, r: &KElem) -> KTab {
-        let kern = self.kern.as_ref().expect("kt_fold requires the bulk kernel");
+    /// Fold a packed table IN PLACE: T'[i] = T[2i] + r (T[2i+1] - T[2i]).
+    /// Halves t (capacity retained — no allocation, no memset on the hot
+    /// path). Requires kern; sizes below a full block fall back to scalar
+    /// ops staged through a fresh small table (cold path; preserves the
+    /// trailing-lane zero-padding invariant). [U-PERF-PA] residue rebase.
+    pub(crate) fn kt_fold_inplace(&self, t: &mut KTab, r: &KElem) {
+        let kern = self.kern.as_ref().expect("kt_fold_inplace requires the bulk kernel");
         let n_out = t.n / 2;
-        let mut out = KTab::zeroed(n_out);
         if n_out >= KL {
             debug_assert_eq!(n_out % KL, 0, "power-of-two tables only");
-            k9_fold_blocks(kern, &t.d, &kop(r), &mut out.d, n_out / KL);
+            k9_fold_blocks(kern, &mut t.d, &kop(r), n_out / KL);
+            t.n = n_out;
+            t.d.truncate(n_out.div_ceil(KL) * KBLK);
         } else {
+            let mut out = KTab::zeroed(n_out);
             for i in 0..n_out {
                 let (a, b) = (t.get(2 * i), t.get(2 * i + 1));
                 out.set(i, &self.add(&a, &self.mul(r, &self.sub(&b, &a))));
             }
+            *t = out;
         }
-        out
     }
 
     /// Elementwise fixed-operand product: out[i] = t[i] * r.
@@ -793,47 +837,41 @@ impl KField {
     }
 
     /// The packed eq table over a point (little-endian, same convention as
-    /// gkr::eq_table): doubles per variable; bulk once both halves are
-    /// full blocks.
+    /// gkr::eq_table), built IN PLACE: ONE final-size allocation, then a
+    /// doubling step per variable inside it (scalar staging below a full
+    /// block, the eq-double kernel above). [U-PERF-PA] residue rebase: the
+    /// out-of-place original allocated a fresh double-size table per
+    /// variable (~2x the final size in cumulative churn per eq build —
+    /// once per descent LAYER in the hot loops).
     pub(crate) fn kt_eq_table(&self, z: &[KElem]) -> KTab {
         let kern = self.kern.as_ref().expect("kt_eq_table requires the bulk kernel");
         assert!(z.len() <= K9_MAX_LEAVES.trailing_zeros() as usize, "K9 eq table cap exceeded");
-        let mut small: Vec<KElem> = vec![self.one()];
-        let mut vi = 0;
-        while vi < z.len() && small.len() < KL {
-            let zv = &z[vi];
+        let mut t = KTab::zeroed(1usize << z.len());
+        t.set(0, &self.one());
+        let mut half = 1usize;
+        for zv in z {
             let zbar = self.sub(&self.one(), zv);
-            let mut nt = Vec::with_capacity(small.len() * 2);
-            for e in &small {
-                nt.push(self.mul(e, &zbar));
+            if half >= KL {
+                k9_eq_double_blocks(kern, &mut t.d, half / KL, &kop(&zbar), &kop(zv));
+            } else {
+                for i in 0..half {
+                    let a = t.get(i);
+                    t.set(i + half, &self.mul(&a, zv));
+                    t.set(i, &self.mul(&a, &zbar));
+                }
             }
-            for e in &small {
-                nt.push(self.mul(e, zv));
-            }
-            small = nt;
-            vi += 1;
+            half *= 2;
         }
-        let mut cur = KTab::from_kelems(&small);
-        while vi < z.len() {
-            let zv = &z[vi];
-            let zbar = self.sub(&self.one(), zv);
-            let half = cur.n;
-            let nblk = half / KL;
-            let mut next = KTab::zeroed(half * 2);
-            k9_mul_fixed_blocks(kern, &cur.d, &kop(&zbar), &mut next.d[..nblk * KBLK], nblk);
-            k9_mul_fixed_blocks(kern, &cur.d, &kop(zv), &mut next.d[nblk * KBLK..], nblk);
-            cur = next;
-            vi += 1;
-        }
-        cur
+        t
     }
 
     /// Bulk MLE evaluation of a packed table at a point (fold order =
-    /// variable 0 first, exactly sumcheck::mle_eval).
+    /// variable 0 first, exactly sumcheck::mle_eval). Folds in place —
+    /// the pack is the only allocation.
     pub(crate) fn kt_mle_eval(&self, mut t: KTab, point: &[KElem]) -> KElem {
         assert_eq!(t.n, 1 << point.len());
         for r in point {
-            t = self.kt_fold(&t, r);
+            self.kt_fold_inplace(&mut t, r);
         }
         t.get(0)
     }
@@ -904,22 +942,136 @@ pub fn harness_bulk_mul_fixed_portable(
 }
 
 /// Battery-only forced-portable packed fold, including its deinterleave
-/// boundary. Input length must be even, as in the protocol fold.
+/// boundary and (post-residue) the IN-PLACE aliasing discipline: the
+/// full blocks are folded inside the staged source buffer exactly as the
+/// protocol path does. Input length must be even, as in the protocol
+/// fold.
 pub fn harness_fold_portable(kf: &KField, v: &[KElem], r: &KElem) -> Vec<KElem> {
     assert!(!v.is_empty() && v.len() % 2 == 0, "portable fold input");
     let kern = kf.kern.as_ref().expect("portable packed harness needs K9 kernel");
-    let t = KTab::from_kelems(v);
+    let mut t = KTab::from_kelems(v);
     let n_out = v.len() / 2;
-    let mut out = KTab::zeroed(n_out);
     let nblk = n_out / KL;
     if nblk > 0 {
-        fold_body(kern, &t.d, &kop(r), &mut out.d[..nblk * KBLK], nblk);
+        fold_body(kern, &mut t.d, &kop(r), nblk);
     }
+    let mut out = KTab::zeroed(n_out);
+    out.d[..nblk * KBLK].copy_from_slice(&t.d[..nblk * KBLK]);
+    // The scalar tail reads its source pairs at element indices >=
+    // 2*nblk*KL — beyond the region the in-place fold wrote, so they are
+    // still the original values.
     for i in nblk * KL..n_out {
         let (a, b) = (t.get(2 * i), t.get(2 * i + 1));
         out.set(i, &kf.add(&a, &kf.mul(r, &kf.sub(&b, &a))));
     }
     out.to_kelems()
+}
+
+/// Battery-only forced-portable packed eq-table build (the in-place
+/// doubling path without AVX2 dispatch), for the [U-K9] boundary legs.
+pub fn harness_eq_table_portable(kf: &KField, z: &[KElem]) -> Vec<KElem> {
+    let kern = kf.kern.as_ref().expect("portable packed harness needs K9 kernel");
+    assert!(z.len() <= K9_MAX_LEAVES.trailing_zeros() as usize);
+    let mut t = KTab::zeroed(1usize << z.len());
+    t.set(0, &kf.one());
+    let mut half = 1usize;
+    for zv in z {
+        let zbar = kf.sub(&kf.one(), zv);
+        if half >= KL {
+            eq_double_body(kern, &mut t.d, half / KL, &kop(&zbar), &kop(zv));
+        } else {
+            for i in 0..half {
+                let a = t.get(i);
+                t.set(i + half, &kf.mul(&a, zv));
+                t.set(i, &kf.mul(&a, &zbar));
+            }
+        }
+        half *= 2;
+    }
+    t.to_kelems()
+}
+
+// ---------------------------------------------------------------------------
+// [U-PERF-PA] B-D3 attribution harnesses (battery/bench-only, no protocol
+// use): the same elementwise product on the same SoA layout with the
+// arithmetic DISCIPLINE selectable, so the kernel speedup can be split
+// into its two claimed sources (M4 Section 7' priced "reduction
+// discipline" and "8x lane occupancy" separately):
+//
+//   scalar oracle      — boxed slot_mul_g per element: u128 wide
+//                        accumulation, TWO u128 `%` per output
+//                        coefficient, a fresh Vec per product.
+//   packed "eager"     — slot_mul_g's EXACT discipline (u128 wide, `%`
+//                        per output) transplanted onto the lane-blocked
+//                        SoA layout with no allocation: isolates the
+//                        LAYOUT/LANE-OCCUPANCY share.
+//   packed lazy (ship) — split u64 planes + ONE division-free
+//                        special-form reduction per output coefficient:
+//                        the additional factor isolates the
+//                        REDUCTION/ARITHMETIC-DISCIPLINE share.
+//
+// All three produce bit-identical values (asserted in the battery).
+
+/// slot_mul_g's discipline on the packed layout (see above). Not a
+/// protocol kernel — attribution harness only.
+fn mul_elem_eager_body(kern: &KKern, a: &[u32], b: &[u32], dst: &mut [u32], nblk: usize) {
+    let words = nblk.checked_mul(KBLK).expect("K9 eager-mul size overflow");
+    assert!(a.len() >= words && b.len() >= words && dst.len() >= words, "K9 eager-mul layout");
+    let q = kern.q as u128;
+    let s = kern.s;
+    let zq_mul = |x: u64, y: u64| -> u64 { (x as u128 * y as u128 % q) as u64 };
+    let zq_add = |x: u64, y: u64| -> u64 {
+        let v = x + y;
+        if v >= kern.q { v - kern.q } else { v }
+    };
+    let mut wide = [0u128; 31 * KL];
+    for m in 0..nblk {
+        let ab = &a[m * KBLK..(m + 1) * KBLK];
+        let bb = &b[m * KBLK..(m + 1) * KBLK];
+        wide.fill(0);
+        for i in 0..K_DEG {
+            for j in 0..K_DEG {
+                let t = i + j;
+                for l in 0..KL {
+                    wide[t * KL + l] += ab[i * KL + l] as u128 * bb[j * KL + l] as u128;
+                }
+            }
+        }
+        for t in 0..K_DEG {
+            for l in 0..KL {
+                let lo = (wide[t * KL + l] % q) as u64;
+                let hi = if t + K_DEG < 31 { (wide[(t + K_DEG) * KL + l] % q) as u64 } else { 0 };
+                dst[m * KBLK + t * KL + l] = zq_add(lo, zq_mul(s, hi)) as u32;
+            }
+        }
+    }
+}
+
+/// Apply the packed elementwise product `reps` times (out feeds the next
+/// rep) with the discipline selectable; packs once so the per-rep cost
+/// is the kernel body alone. Values are discipline-independent.
+pub fn harness_mul_elem_reps(
+    kf: &KField,
+    a: &[KElem],
+    b: &[KElem],
+    reps: usize,
+    eager: bool,
+) -> Vec<KElem> {
+    assert!(reps >= 1 && a.len() == b.len() && a.len() % KL == 0, "attribution harness shape");
+    let kern = kf.kern.as_ref().expect("packed harness needs K9 kernel");
+    let nblk = a.len() / KL;
+    let mut cur = KTab::from_kelems(a);
+    let tb = KTab::from_kelems(b);
+    let mut out = KTab::zeroed(a.len());
+    for _ in 0..reps {
+        if eager {
+            mul_elem_eager_body(kern, &cur.d, &tb.d, &mut out.d, nblk);
+        } else {
+            k9_mul_elem_blocks(kern, &cur.d, &tb.d, &mut out.d, nblk);
+        }
+        std::mem::swap(&mut cur, &mut out);
+    }
+    cur.to_kelems()
 }
 
 /// LKP-5: the digest freezing the slot-field constants — q, k,

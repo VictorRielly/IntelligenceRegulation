@@ -34352,12 +34352,14 @@ fn uperf_pa_uk9_digest(kf: &ring::kfield::KField, roots: &[[ring::kfield::KElem;
 }
 
 fn uperf_pa_uk9_bench(n_log2: usize, mode: &str) {
-    use ring::gkr::{absorb_roots, build_tree, gkr_prove, gkr_verify, root_cross_check};
+    use ring::gkr::{
+        absorb_roots, build_tree, build_tree_stream, gkr_prove, gkr_verify, root_cross_check,
+    };
     use ring::kfield::{KElem, KField};
     use ring::lookup::{
         fuse_pair, fused_silu_table, mle_weights_block, silu_int8_table, table_spec_digest,
     };
-    use ring::sumcheck::{LkpTranscript, mle_eval};
+    use ring::sumcheck::{LkpTranscript, mle_eval, mle_eval_stream};
     let n = 1usize << n_log2;
     let ctx = ring_ctx_q8();
     let kf = match mode {
@@ -34375,14 +34377,25 @@ fn uperf_pa_uk9_bench(n_log2: usize, mode: &str) {
     let tab_fused = fused_silu_table(&kf, &rows);
     let mut rng = 0x5eed_0808u64;
     let xs: Vec<i64> = (0..n).map(|_| rng_below(&mut rng, 256) as i64 - 128).collect();
+    let stream = mode == "stream";
     let t0 = Instant::now();
-    let w: Vec<KElem> = xs
-        .iter()
-        .map(|&x| {
-            let y = rows[(x + 128) as usize].1;
-            fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y))
-        })
-        .collect();
+    // Boxed modes materialize the fused column here (the lookup-bench
+    // phase split); stream mode fuses inside the tree build and the
+    // grounding stream — the fused column NEVER exists as a vector, so
+    // its cost moves into the trees/verify phases (per-element totals
+    // stay comparable).
+    let w: Option<Vec<KElem>> = if stream {
+        None
+    } else {
+        Some(
+            xs.iter()
+                .map(|&x| {
+                    let y = rows[(x + 128) as usize].1;
+                    fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y))
+                })
+                .collect(),
+        )
+    };
     let mut m_counts = vec![0u64; 256];
     for &x in &xs {
         m_counts[(x + 128) as usize] += 1;
@@ -34392,17 +34405,26 @@ fn uperf_pa_uk9_bench(n_log2: usize, mode: &str) {
     let mut tr = LkpTranscript::new("uk8-bench", &spec_dg);
     let alpha = tr.challenge_k(&kf);
     let t1 = Instant::now();
-    // stream mode switches to the B-D2 streamed builder once it lands (S2);
-    // until then it is an alias of bulk and says so.
-    if mode == "stream" {
-        println!("  [stream mode: S2 builder not landed yet — running the boxed-leaf path]");
-    }
-    let wtree = build_tree(
-        &kf,
-        vec![kf.one(); n],
-        w.iter().map(|wi| kf.sub(&alpha, wi)).collect(),
-    );
-    let ttree = build_tree(&kf, m_k, tab_fused.iter().map(|t| kf.sub(&alpha, t)).collect());
+    let (wtree, ttree) = if stream {
+        let wt = build_tree_stream(&kf, n, |i| {
+            let x = xs[i];
+            let y = rows[(x + 128) as usize].1;
+            let wi = fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y));
+            (kf.one(), kf.sub(&alpha, &wi))
+        });
+        let tt =
+            build_tree_stream(&kf, 256, |j| (m_k[j].clone(), kf.sub(&alpha, &tab_fused[j])));
+        (wt, tt)
+    } else {
+        let wt = build_tree(
+            &kf,
+            vec![kf.one(); n],
+            w.as_ref().unwrap().iter().map(|wi| kf.sub(&alpha, wi)).collect(),
+        );
+        let tt =
+            build_tree(&kf, m_k, tab_fused.iter().map(|t| kf.sub(&alpha, t)).collect());
+        (wt, tt)
+    };
     let tree_s = t1.elapsed().as_secs_f64();
     let (wr, trr) = (wtree.root(), ttree.root());
     assert!(root_cross_check(&kf, &wr, &trr), "bench witness must be honest");
@@ -34421,7 +34443,18 @@ fn uperf_pa_uk9_bench(n_log2: usize, mode: &str) {
     let (zw, pw, qw) = gkr_verify(&kf, &[wr], n_log2, &pw_proof, &mut tv).expect("w descent");
     absorb_roots(&kf, &[trr.clone()], &mut tv);
     let (zt, _pm, qt) = gkr_verify(&kf, &[trr], 8, &pt_proof, &mut tv).expect("t descent");
-    let ground_w = kf.sub(&alpha, &mle_eval(&kf, &w, &zw));
+    let ground_w = if let Some(wv) = &w {
+        kf.sub(&alpha, &mle_eval(&kf, wv, &zw))
+    } else {
+        kf.sub(
+            &alpha,
+            &mle_eval_stream(&kf, n, &zw, |i| {
+                let x = xs[i];
+                let y = rows[(x + 128) as usize].1;
+                fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y))
+            }),
+        )
+    };
     assert!(pw == kf.one() && qw == ground_w, "leaf grounding");
     assert_eq!(qt, kf.sub(&alpha, &mle_eval(&kf, &tab_fused, &zt)));
     let verify_s = t3.elapsed().as_secs_f64();
@@ -34450,8 +34483,52 @@ fn uperf_pa_uk9_bench(n_log2: usize, mode: &str) {
     );
 }
 
-/// [U-PERF-PA] prims mode: the B-D3 attribution microbenches (see
-/// U_PERF_KERNEL_REPORT.md). Placeholder until the S1 harness lands.
+/// [U-PERF-PA] prims mode: the B-D3 attribution microbenches. Three
+/// disciplines for the same elementwise K-product chain (values asserted
+/// identical, so every leg does the same work):
+///   scalar oracle  — boxed slot_mul_g (u128 wide + 2 u128 `%` per output
+///                    coefficient + a Vec per product);
+///   packed eager   — slot_mul_g's discipline on the lane-blocked SoA
+///                    layout, no allocation (isolates LAYOUT/LANES);
+///   packed lazy    — the shipped kernel: split u64 planes + division-free
+///                    reduction (the additional factor isolates the
+///                    REDUCTION/ARITHMETIC discipline).
+/// Rates are min-of-3 timed passes per leg, 1T.
 fn uperf_pa_uk9_prims() {
-    println!("[U-PERF-PA] uk9-bench prims: attribution harness lands with S1");
+    use ring::kfield::{KElem, KField, harness_mul_elem_reps};
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let kfo = KField::harness_scalar(&ctx);
+    let n = 1usize << 12;
+    let reps = 48usize;
+    let total = (n * reps) as f64;
+    let mut xr = XofReader::new("uperf-pa-prims", &[b"seed-1"]);
+    let a: Vec<KElem> = (0..n).map(|_| kf.uniform(&mut xr)).collect();
+    let b: Vec<KElem> = (0..n).map(|_| kf.uniform(&mut xr)).collect();
+    println!("[U-PERF-PA] uk9-bench prims: K-mult disciplines, {n} elements x {reps} chained reps, 1T, min of 3");
+    let time3 = |f: &dyn Fn() -> Vec<KElem>| -> (f64, Vec<KElem>) {
+        let mut best = f64::MAX;
+        let mut out = Vec::new();
+        for _ in 0..3 {
+            let t = Instant::now();
+            out = f();
+            best = best.min(t.elapsed().as_secs_f64());
+        }
+        (best, out)
+    };
+    let (t_scalar, v_scalar) = time3(&|| {
+        let mut cur = a.clone();
+        for _ in 0..reps {
+            cur = cur.iter().zip(b.iter()).map(|(x, y)| kfo.mul(x, y)).collect();
+        }
+        cur
+    });
+    let (t_eager, v_eager) = time3(&|| harness_mul_elem_reps(&kf, &a, &b, reps, true));
+    let (t_lazy, v_lazy) = time3(&|| harness_mul_elem_reps(&kf, &a, &b, reps, false));
+    assert!(v_scalar == v_eager && v_scalar == v_lazy, "attribution legs disagree");
+    let ns = |t: f64| t / total * 1e9;
+    println!("  scalar oracle (boxed slot_mul_g):   {:7.1} ns/K-mult", ns(t_scalar));
+    println!("  packed eager (SoA, `%` discipline): {:7.1} ns/K-mult  -> layout/lanes factor {:.2}x", ns(t_eager), t_scalar / t_eager);
+    println!("  packed lazy (shipped kernel):       {:7.1} ns/K-mult  -> reduction-discipline factor {:.2}x (total {:.2}x)", ns(t_lazy), t_eager / t_lazy, t_scalar / t_lazy);
+    println!("uk9-bench prims done [MAC-BOX 1T; NEON autovectorization — the AVX2 arm is x86-only]");
 }
