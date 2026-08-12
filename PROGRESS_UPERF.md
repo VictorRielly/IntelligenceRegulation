@@ -294,3 +294,37 @@ RESUMPTION QUEUE (unchanged in priority): PC's four optimizations
 (the 68.8%), PB's Metal kernel, PA's remaining width/threading
 axes, then the U-AG-B1 FINAL (quiesced p50/p95 + A1
 reconciliation + BL-F2 ruling + the [MODEL]-line reconcile).
+
+## PA reality check (orchestrator, 2026-08-12) — the 4x does NOT transfer
+
+Measured immediately after the PA merge, and it corrects the lane's
+own framing. Method note first, because it produced a false alarm:
+an initial reading of "328 s vs the 250.4 s baseline" looked like a
+31% REGRESSION; it was an orchestrator error comparing WALL time
+against BJ's PROVE-PHASE number (BJ's own table records both:
+prove 250.4 s, wall 330.7 s). An A/B at 323aa59 (pre-PA) vs HEAD
+settled it: 328 s vs 328 s wall — PA is exactly NEUTRAL here.
+
+The phase timers at HEAD reproduce BJ's baseline to the tenth:
+prove 250.7 s (BJ 250.4), lkp 35.2 s (35.1), waves 199.8 s (199.5),
+16,551 data cms / 904 pins (identical). So:
+
+**FINDING PA-F1 (load-bearing for the next round): the U-K9 4.04x
+is real on the uk9-bench/lookup-bench yardstick and does NOT reach
+the m125 rig's masked-descent path.** The rig's lkp phase is
+unchanged (35.1 -> 35.2 s). The bench replicates lookup-bench's
+workload, which evidently enters the K-arithmetic through different
+call sites than the rig's masked descents (BF-F3 had already halved
+that phase, 69.9 -> 35.1 s, by cutting tree work, not K-mult rate).
+Two consequences: (a) NO end-to-end speed claim may cite the 4.04x
+— the honest statement is "4.04x on the lookup-core microbenchmark,
+0% on the 125M layer prove"; (b) the next round's first kernel task
+is to find and convert the rig's actual descent call sites, which
+is a strictly larger prize than the bench suggested, since the
+descents are 14% of layer prove and the WAVES are 80% (199.8 s) —
+lane PC's untouched territory remains the real target.
+
+The lane's own numbers stand as measured; only the inference from
+them is corrected here. B-D1/B-D2 land as engine capability with a
+green differential floor; B-D3's report should carry this section's
+transfer result before PROGRESS.md's U-K9 items are ticked closed.
