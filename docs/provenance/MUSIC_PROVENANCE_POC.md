@@ -287,8 +287,11 @@ Build plan:
 
 - PV-S1 (DONE 2026-08-07): statement-class spike, 7/7 —
   `scripts/music_provenance_spike.py`.
-- PV-S2: WAV I/O + session evidence objects + block-chained Pi1 at
-  song scale; measure prove/verify at reference params.
+- PV-S2 (DONE 2026-08-11): song-scale spike, 17/17 — real 4 x 61.44 s
+  WAV session, one-object session evidence + transparency-log stand-in,
+  60 block-chained Pi1 proofs with published-master opening (toy whole
+  song 5.2 min pure Python), reference-params block measured; Section 9,
+  `scripts/music_provenance_spike2.py`, `results/pv_s2_session/`.
 - PV-S3: replay-pair data collection protocol + classifier v0
   training runs in frugal-lm (new `configs/audio-detector-*.yaml`
   family there); the evaluation report.
@@ -312,3 +315,160 @@ Build plan:
   reviewable screen on the analog hole. That combination is honest,
   buildable, and — via 5.4 — feeds the ZK-of-LLM PoC its first real
   deployed model.
+
+## 9. PV-S2 results (2026-08-11) — the song-scale spike
+
+`scripts/music_provenance_spike2.py`, 17/17 OK, full run 5.2 min pure
+Python [MAC-BOX]; fast additive tests in
+`tests/test_music_provenance2.py` (13, toy shapes, ~3 s). Artifacts in
+`results/pv_s2_session/`: the WAVs are .gitignored, and
+`manifest.json` + `digests.txt` + `session_log.jsonl` +
+`reference_timing.json` are the committed export (the m125_ffn_export
+precedent).
+
+### 9.1 What ran
+
+- **Real WAV I/O.** A synthetic 4-take session (61.44 s per take,
+  16 kHz mono int16, seeded stems: lead/bass/pad/percussion) written
+  to and re-read from actual PCM WAV files via the stdlib `wave`
+  module; the published master is a real WAV of the exact integer
+  mixdown `master = [3,2,1,2] x takes` (peak 31454 < 2^15 by headroom
+  budget — no clip, no dither; requantization stays a future
+  range-class gadget).
+- **Session evidence objects** (the Section 2 upgrades, now built):
+  per-take frame hash-chain + HMAC device tag as in PV-S1, with the
+  device tag now signing (take chain digest || session digest || take
+  meta) — the session-level cross-commitment. The session verifies as
+  ONE evidence object or not at all: a flipped sample, a forged tag,
+  and a take spliced in from another session all REJECT (three
+  distinct legs). A transparency-log stand-in (`session_log.jsonl`)
+  anchors the session digest and the final proof-chain digest with
+  timestamps; an unanchored digest is detectable.
+- **Block-chained Pi1 at song scale.** The mixdown statement is proven
+  over the full song as 60 Pi1 instances of 16384 columns
+  (rows=1, inner=4), toy class q = 2^61-1, r = 4. Binding rule:
+  chain_0 = H(session digest, gains, n_blocks, cols);
+  seed_k = H(chain_{k-1}, k); block k is committed and proven under
+  the CRS expanded from seed_k; chain_k = H(chain_{k-1}, k, stmt_k).
+  Pi1's statement hash binds the CRS hash, so position and history are
+  inside the proof itself: a block presented at the wrong position is
+  verified under a CRS it was not proven under and Pi1 REJECTS (leg
+  green); re-chaining after a reorder changes every later CRS seed and
+  cannot be re-proven without the witnesses. chain_0 roots the proof
+  chain in the LAYER-1 session digest — capture evidence and edit
+  proof are one chained object.
+- **Published-master binding.** The master is public, so the C
+  commitment randomness tau_C is published and the verifier re-commits
+  the published WAV's samples against T_C (a full public opening of C;
+  B stays hidden, tau_C is independent randomness and leaks nothing).
+  This closes the "committed C vs published file" gap PV-S1 left open.
+  One flipped sample in the published master WAV REJECTS exactly its
+  block (opening mismatch at the flipped column; other blocks stay
+  clean); the honest-prover-false-statement leg and the wrong-gains
+  leg also REJECT, as in PV-S1.
+- **Parameter-set note.** `toy_params_rect`'s completeness gate
+  includes C2 for Pi2 — a protocol this spike never runs — which caps
+  cols at 8192 under q = 2^61-1; the spike builds the identical toy
+  recipe directly and gates on C0 + C2_pi1 (the constraints Pi1
+  actually uses), giving 16384-col blocks. Stated in the spike
+  docstring.
+
+### 9.2 Measured numbers [MAC-BOX, pure Python, single core]
+
+Toy class (60 blocks x 16384 cols, r = 4, whole 61.44 s song):
+
+| phase | whole song | per block (mean) |
+|---|---|---|
+| commit (B+C, prover) | 129.5 s | 2.16 s |
+| prove (Pi1, r=4) | 53.8 s | 0.90 s |
+| verify (Pi1) | 31.7 s | 0.53 s |
+| opening pass (master vs T_C) | 63.6 s | 1.06 s |
+
+Bytes per block [TOY-SHAPE accounting, 8 B/int]: proof 4,256 B;
+commitments T_B + T_C 5.24 MB (655,360 ints — 20 ints per sample);
+published tau_C 262 KB packed at 2 bit/trit. Per-block toy soundness
+2^-28; NO concrete lattice hardness at toy dims.
+
+Reference class (reference_params_pi1 constants q = 2^54-33, b = 8,
+r = 37, N = 6656, k = 1728 at the block's rectangular shape — the
+report's worked set B; C0/C1/C2/C3/C4 all hold at cols <= 1024, and C3
+FAILS by cols = 2048, so the reference block width is capped at 1024
+columns = 64 ms of audio; the song is then 960 chained blocks):
+
+| cols | CRS | commit | prove | verify | opening |
+|---|---|---|---|---|---|
+| 256 (sub-block) | REFNUM_CRS256 s | REFNUM_C256 s | REFNUM_P256 s | REFNUM_V256 s | REFNUM_O256 s |
+| 1024 (full reference block) | REFNUM_CRS1024 s | REFNUM_C1024 s | REFNUM_P1024 s | REFNUM_V1024 s | REFNUM_O1024 s |
+
+Both widths ACCEPT with the opening clean. Proof bytes at cols = 1024:
+492,765 ints ~= 3.94 MB at 8 B/int; commitments 2 x 1024 x 1732 ints
+~= 28.4 MB — i.e. ~1732 ints ~= 13.9 KB of commitment PER SAMPLE at
+the flat per-sample-column shape (see 9.3). Whole-song extrapolation
+[MODEL, linear fit on the two measured widths x 960 blocks]:
+REFNUM_SONG_TOTAL h total (prove REFNUM_SONG_PROVE h, verify
+REFNUM_SONG_VERIFY h) — pure Python is a correctness oracle at
+reference params, not a deployment path; the Rust engine's rect matmul
+statement (TARGET_CONTRACT Section 5) is where these numbers become
+real.
+
+### 9.3 What PV-S3 (and the later rounds) need next
+
+1. **PV-S3 proper (the classifier, per the build plan):** the capture
+   rig is ready to LABEL replay-pair data — a session directory with
+   evidence objects, manifest and digests is exactly the label format
+   Section 5.2's tranche-1 collection needs. The one missing piece is
+   real capture input (microphone in) in place of `synth_takes`; the
+   evidence path is input-agnostic.
+2. **Statement-design exports** (PV-S4 / engine rounds, priced by this
+   spike's numbers):
+   - the flat per-sample-column shape costs (k + n) commitment ints
+     per sample — 20 at toy, 1732 at reference dims. Folding time
+     into the row dimension (columns of P samples per take,
+     inner = 4P) amortizes k across P samples (~k/P + 8 ints/sample)
+     and is the shape the engine's rectangular matmul should price;
+   - C3 caps reference blocks at 1024 columns, so a song is ~960
+     chained proofs — the U-AG folding/aggregation machinery is the
+     pressure release, and the chain rule here (CRS-seed chaining) is
+     compatible with proof-level aggregation over the links;
+   - the capture-digest <-> committed-columns ZK link is still
+     by-construction (the demo prover uses the same samples for both
+     layers); proving that equality without revealing takes is the
+     next statement-design item;
+   - fades/gain automation = the Hadamard-class gadget, the first
+     edit-family extension beyond constant-gain mixdown.
+3. **PV-2 exit residue:** verification runs in-process here; the
+   independent-verifier CLI of the PV-2 exit criterion needs the block
+   records persisted (proof + commitments + tau_C per block — ~5.5 MB
+   per toy block, dominated by commitments), which is a serialization
+   task, not a protocol one.
+4. **Unchanged honest residuals:** device attestation SIMULATED (HMAC
+   stand-in for a secure element + PKI); the analog hole untouched by
+   construction (layer 3's job); estimator validation of the reference
+   class still required before any deployment security claim
+   (zk_lattice docstring).
+
+### PV-S2 finding: the toy-parameter completeness tail at song scale
+
+Recorded 2026-08-12 (orchestrator, continuing the lane). The
+song-scale run exposed a defect invisible at PV-S1's single-block
+scale: a whole-song run REJECTED one honest block, and an identical
+re-run passed all 60. The prover draws its masks from `secrets`
+(unseeded), so honest-proof acceptance is probabilistic per
+repetition; the whole-song check is a conjunction over
+n_blocks x r = 60 x 4 = 240 repetitions, so even a per-repetition
+tail of ~0.4% makes a whole-song false rejection more likely than
+not over repeated runs. This is the SAME class as the pinned-entropy
+flake fixed in tests/test_zk_lattice.py (and again at the U-AG-B1
+wave-4 close), now amplified by conjunction.
+
+It is a COMPLETENESS issue, never a soundness one: the failure mode
+is an honest proof being rejected, and the fix direction is stated
+rather than assumed — the prover's rejection loop should additionally
+enforce the VERIFIER's norm bound (`bound1_sq`), which is a different
+gate from the sampler's Lemma-6.3 criterion, so that an honest
+transcript can never be handed to a verifier that will reject it.
+Until that lands, song-scale runs carry the tail honestly: the
+spike's failing check now names the rejected block indices
+(previously it reported only "not all blocks accepted"), and no
+whole-song ACCEPT should be read as evidence that the tail is
+absent. Queued as PV-S3's first item alongside the classifier work.

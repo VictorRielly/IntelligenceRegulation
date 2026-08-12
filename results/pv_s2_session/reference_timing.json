@@ -1,0 +1,24 @@
+{
+ "spike": "PV-S2 --reference",
+ "generated": "2026-08-11T07:42:34.756112+00:00",
+ "params_class": "reference_params_pi1 constants at rect block shape: q=2^54-33 b=8 r=37 N=6656 k=1728 rows=1 inner=4",
+ "session_digest": "36fbc4821a96c8d5d107106172fc0d71654f9ab4344217009aeab1a43fcfa7ad",
+ "runs": [
+  {
+   "cols": 256,
+   "seconds_of_audio": 0.016,
+   "crs_seconds": 1.62,
+   "commit_seconds": 254.68,
+   "prove_seconds": 388.31,
+   "verify_seconds": 54.47,
+   "opening_seconds": 129.44,
+   "proof_ints": 492729,
+   "proof_bytes_8B_int": 3941832,
+   "commitment_ints": 886784,
+   "commitment_bytes_8B_int": 7094272,
+   "accepted": true
+  }
+ ],
+ "extrapolation": {},
+ "banner": "C1-C4 design models hold at cols<=1024 (C3 caps the block width); estimator validation still required (zk_lattice docstring). Times are [MAC-BOX] pure Python."
+}
