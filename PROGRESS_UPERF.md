@@ -236,3 +236,61 @@ items B-D1..B-D3 (PROGRESS.md) still open — the oldest unclaimed
   four lanes launching in worktrees. Competitive context recorded
   (Attestable watch item) — pressure, not panic: differential
   discipline unchanged, honesty rules unchanged.
+
+## Round status (orchestrator, 2026-08-12) — lanes ended early, work salvaged
+
+All four U-PERF lane agents terminated mid-flight on a model usage
+limit (not a technical failure). Every lane's committed work was
+surveyed, verified, and merged by the orchestrator; the uncommitted
+work in PA/PD/PV-S2 was verified and committed on their behalf.
+What LANDED vs what remains:
+
+- **PA (kernel) — LANDED, U-K9 CLOSES.** Lane-packed bulk slot
+  arithmetic + lazy reduction + streamed leaves across
+  kfield/sumcheck/gkr/gkr_masked. MEASURED on the uk9-bench
+  yardstick (2^18 int8 SiLU lookups, 1T [MAC-BOX]): scalar 8,965
+  ns/el -> bulk 2,284 (3.93x) -> stream 2,221 (4.04x); primitive
+  attribution layout/lanes 1.55x x reduction-discipline 1.44x =
+  2.23x (packed lazy 103.2 ns/K-mult). DIFFERENTIAL FLOOR MET:
+  root+transcript digest 979e4d82b4db7f6d IDENTICAL across all four
+  modes; freeze-check green; every pre-existing digest unmoved.
+  PROGRESS.md B-D1/B-D2/B-D3 are answerable from this lane's report.
+  NOTE the honest gap vs the ladder's model: 2.2 us/el is 4x off
+  the 10.8 baseline but still ~2-4x above the 0.5-1 us/el
+  kernel-grade [MODEL] target — the remaining factor is the
+  AVX2/NEON-width and multithreading axes, neither claimed here.
+- **PD (attention integer spec) — LANDED.**
+  ATTENTION_INTEGER_SPEC.md + attention_spec_spike.py 18/18 (734
+  range facts, 522 identities, 100 s, seeded): softmax with exact
+  row-max + range-reduced exp on the lookup family + division-
+  relation normalization (declared honestly as NOT exact
+  row-stochasticity — row mass in [282, 512] against 2^9),
+  RMSNorm isqrt, public-table RoPE, GQA public map, residual and
+  embedding. The contract's declared 8B gap now has a written,
+  machine-checked integer specification at 125M shapes.
+- **PC (wave/opening) — SKELETON ONLY.** Profile counters +
+  differential-digest hooks (observation-only, off by default) and
+  the harness arms landed; NONE of the four planned optimizations
+  (O1 CRS memo / O2 h-garbage / O3 matvec NTT / O4 alloc
+  discipline) were reached. The 68.8% wave share is UNTOUCHED —
+  this is the round's largest unclaimed CPU factor and the first
+  item of any resumption.
+- **PB (GPU) — PLAN ONLY, NOT MERGED.** The plan commit (A1
+  batch-NTT commit kernel on Metal, feature-gated gpu-metal
+  default-OFF, differential battery vs A1CommitKernel) and dirty
+  Cargo plumbing remain on branch uperf-pb; no kernel was written.
+  The GPU rung stays entirely unbuilt and every GPU row in the
+  cost docs stays [ASSUMED].
+
+Also landed this session: PV-S2 (music pillar, song-scale
+block-chained Pi1 over a real 60-block WAV session; whole-song
+prove 54.6 s / verify 30.7 s [MAC-BOX]) with a genuine finding —
+the toy-parameter COMPLETENESS tail becomes visible at song scale
+(one honest block rejected in one run; identical re-run all-60
+green; unseeded prover masks over a 240-repetition conjunction),
+recorded with its fix direction in MUSIC_PROVENANCE_POC.md.
+
+RESUMPTION QUEUE (unchanged in priority): PC's four optimizations
+(the 68.8%), PB's Metal kernel, PA's remaining width/threading
+axes, then the U-AG-B1 FINAL (quiesced p50/p95 + A1
+reconciliation + BL-F2 ruling + the [MODEL]-line reconcile).
