@@ -74,7 +74,44 @@ items B-D1..B-D3 (PROGRESS.md) still open — the oldest unclaimed
 
 ## Agent PA status (wt-uperf-pa)
 
-- (lane launches here)
+- PLAN (2026-08-11, lane open at c081212). Situation read: U-K9's
+  kernel layer ALREADY landed at ecd2482 (KKern/KTab lane-packed u32
+  SoA + lazy reduction; gkr/sumcheck/gkr_masked bulk dispatch; [U-K9]
+  differential battery; 12.48 -> 5.21 us/el on the then-shared x86
+  box) — but the tranche never closed: the in-place fold/eq-double
+  residue (uk9-residue-2026-07-12.patch, no longer applies — kfield
+  gained layout asserts in c377d0d) was never landed, B-D2's RSS
+  table and streamed-leaf construction never happened, no kernel
+  report exists, PROGRESS.md B-D1..D3 still open. Lane plan:
+  * S0 skeleton: [U-PERF-PA] marked bench arm `uk9-bench
+    <log2_n> [scalar|bulk|stream]` in ring_matmul.rs replicating
+    lookup-bench's exact workload (same seeds/shape; lookup-bench
+    itself UNTOUCHED as the yardstick) + peak-RSS readout; baseline
+    sweep on THIS box (M3 Ultra, portable kernel path — AVX2 arm is
+    dead code here; all numbers [MAC-BOX], 1T).
+  * S1 (B-D1 finish): rebase the residue onto current kfield.rs —
+    in-place packed fold (kt_fold allocation-free) + in-place eq
+    doubling; call sites layer_sumcheck_bulk/masked_rounds_bulk/
+    kt_mle_eval/kt_eq_table; battery legs extended; freeze-check +
+    [U-K9] battery green at every step.
+  * S2 (B-D2): streamed leaf construction — additive builder in
+    gkr.rs packing leaves straight into KTab (no boxed leaf vectors),
+    battery leg bulk==stream bit-identical; KElem stays Vec<u64> per
+    the recorded U-K9 ledger decision (ring_matmul binds ...to_vec()
+    — an inline [u64;16] KElem is not source-compatible; SoA is
+    delivered where it matters, in the layers). RSS measured at
+    2^20/2^22 (+2^23 headroom probe; this box is 256 GB — the 15 GB
+    deployment wall is reported as arithmetic, not re-measured).
+  * S3 (B-D3): U_PERF_KERNEL_REPORT.md — us/el scalar-oracle vs
+    base-bulk vs HEAD at lookup-bench shapes, m125 layer prove
+    before/after at the same layer, composed-pass point if wall-clock
+    permits; attribution lazy-reduction/lane-occupancy vs
+    layout/allocation; honest [MAC-BOX]/[NOISY-SHARED] flags.
+  * Gates before exit: freeze-check, self-test suite,
+    uagb1-digit-battery, matmul-statement battery, ixf-fold battery
+    at HEAD, differential arms green. Differential floor: bulk paths
+    bit-identical to the scalar oracle; EVERY pre-existing freeze
+    digest unmoved.
 
 ## Agent PB status (wt-uperf-pb)
 

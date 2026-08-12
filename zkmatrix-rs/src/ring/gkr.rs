@@ -129,13 +129,56 @@ pub fn build_tree(kf: &KField, leaf_p: Vec<KElem>, leaf_q: Vec<KElem>) -> FracTr
     if kf.kern.is_none() {
         return build_tree_boxed(kf, leaf_p, leaf_q);
     }
-    let kern = kf.kern.as_ref().unwrap();
     // Pack and DROP the boxed leaves one side at a time (H-03: the boxed
     // form is ~2.7x the packed size; never hold both sides twice).
     let leaf_p_t = KTab::from_kelems(&leaf_p);
     drop(leaf_p);
     let leaf_q_t = KTab::from_kelems(&leaf_q);
     drop(leaf_q);
+    build_tree_packed(kf, leaf_p_t, leaf_q_t)
+}
+
+/// [U-PERF-PA] B-D2 streamed builder: leaves are generated per index by
+/// the closure and packed DIRECTLY into the leaf tables — no boxed leaf
+/// vector ever exists (the boxed pair is ~2 x 170 B/element of transient
+/// build-time heap; the packed pair is 2 x 64 B and IS the tree's own
+/// leaf storage). Bit-identical to build_tree on the same leaf sequence;
+/// the scalar-oracle field (and any non-qualifying modulus) falls back
+/// to the boxed builder, identically.
+pub fn build_tree_stream(
+    kf: &KField,
+    n: usize,
+    mut leaf: impl FnMut(usize) -> (KElem, KElem),
+) -> FracTree {
+    assert!(n.is_power_of_two());
+    if kf.kern.is_none() {
+        let mut lp = Vec::with_capacity(n);
+        let mut lq = Vec::with_capacity(n);
+        for i in 0..n {
+            let (p, q) = leaf(i);
+            lp.push(p);
+            lq.push(q);
+        }
+        return build_tree_boxed(kf, lp, lq);
+    }
+    assert!(
+        super::kfield::k9_capacity_ok(n),
+        "K9 projective tree exceeds the audited packed-table cap"
+    );
+    let mut leaf_p_t = KTab::zeroed(n);
+    let mut leaf_q_t = KTab::zeroed(n);
+    for i in 0..n {
+        let (p, q) = leaf(i);
+        leaf_p_t.set(i, &p);
+        leaf_q_t.set(i, &q);
+    }
+    build_tree_packed(kf, leaf_p_t, leaf_q_t)
+}
+
+/// The packed bottom-up build over already-packed leaf tables (shared by
+/// build_tree and build_tree_stream).
+fn build_tree_packed(kf: &KField, leaf_p_t: KTab, leaf_q_t: KTab) -> FracTree {
+    let kern = kf.kern.as_ref().expect("packed tree build requires the bulk kernel");
     let mut lp = vec![leaf_p_t];
     let mut lq = vec![leaf_q_t];
     while lp.last().unwrap().n > 1 {
@@ -409,12 +452,12 @@ fn layer_sumcheck_bulk(
         tr.absorb_k(kf, "round-poly", &g);
         let r = tr.challenge_k(kf);
         c_run = lagrange_eval(kf, &g, &r);
-        eq = kf.kt_fold(&eq, &r);
-        p0 = kf.kt_fold(&p0, &r);
-        p1 = kf.kt_fold(&p1, &r);
-        q0 = kf.kt_fold(&q0, &r);
-        q1 = kf.kt_fold(&q1, &r);
-        ql = kf.kt_fold(&ql, &r);
+        kf.kt_fold_inplace(&mut eq, &r);
+        kf.kt_fold_inplace(&mut p0, &r);
+        kf.kt_fold_inplace(&mut p1, &r);
+        kf.kt_fold_inplace(&mut q0, &r);
+        kf.kt_fold_inplace(&mut q1, &r);
+        kf.kt_fold_inplace(&mut ql, &r);
         rounds.push(g);
         point.push(r);
     }

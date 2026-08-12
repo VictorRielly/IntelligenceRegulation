@@ -733,12 +733,12 @@ fn masked_rounds_bulk(
         let r = tr.challenge_k(kf);
         c_run = lagrange_eval(kf, &evals, &r);
         if t < n_bvars {
-            eq_cur = kf.kt_fold(&eq_cur, &r);
-            p0c = kf.kt_fold(&p0c, &r);
-            p1c = kf.kt_fold(&p1c, &r);
-            q0c = kf.kt_fold(&q0c, &r);
-            q1c = kf.kt_fold(&q1c, &r);
-            ql = kf.kt_fold(&ql, &r);
+            kf.kt_fold_inplace(&mut eq_cur, &r);
+            kf.kt_fold_inplace(&mut p0c, &r);
+            kf.kt_fold_inplace(&mut p1c, &r);
+            kf.kt_fold_inplace(&mut q0c, &r);
+            kf.kt_fold_inplace(&mut q1c, &r);
+            kf.kt_fold_inplace(&mut ql, &r);
             if t == 0 && lay.child_masked {
                 let zz = kf.mul(&r, &kf.sub(&kf.one(), &r));
                 let cq0 = kf.mul(&zz, &lay.spq[0]);
