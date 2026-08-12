@@ -1,0 +1,115 @@
+{
+ "spike": "PV-S2",
+ "generated": "2026-08-12T16:21:33.588266+00:00",
+ "seed": 20260810,
+ "session": {
+  "id": "PV-S2-SESSION-01",
+  "device": "SIM-MIC-01",
+  "sr": 16000,
+  "n_takes": 4,
+  "n_samples": 983040
+ },
+ "session_digest": "36fbc4821a96c8d5d107106172fc0d71654f9ab4344217009aeab1a43fcfa7ad",
+ "gains": [
+  3,
+  2,
+  1,
+  2
+ ],
+ "takes": [
+  {
+   "file": "take0.wav",
+   "sha256": "c37c5b0a4e55cb31954d9cfcde6d355d516aebd9ed03c945b47e45f07556f5cd",
+   "meta": {
+    "take": 0,
+    "device": "SIM-MIC-01",
+    "session": "PV-S2-SESSION-01",
+    "t_start": "2026-08-10T09:00:00Z",
+    "sr": 16000,
+    "n_samples": 983040,
+    "format": "pcm_s16le"
+   },
+   "chain": "d4beb75e0c942b3e2a8c2862942a506e2eb4a6f4fa3365954f53e4bd82f4ef73",
+   "tag": "28b6535b29d3bb4834fdb69238ee245d39db99cdd42668a76a1bfe1aa97dc2d6"
+  },
+  {
+   "file": "take1.wav",
+   "sha256": "d27b397501bb7205b7d380e2e508cdbec102943918273ab0bf28b75c9868579e",
+   "meta": {
+    "take": 1,
+    "device": "SIM-MIC-01",
+    "session": "PV-S2-SESSION-01",
+    "t_start": "2026-08-10T09:01:00Z",
+    "sr": 16000,
+    "n_samples": 983040,
+    "format": "pcm_s16le"
+   },
+   "chain": "bc27cd4a3590b33d5f6d4db1fe96be5b3ae18e98184005d19767be73f83a1c9a",
+   "tag": "8cc782de631ca27b5d422b8fe486dd9132c353d102bc3dc97d4964d3b4800504"
+  },
+  {
+   "file": "take2.wav",
+   "sha256": "1cc8d06f82becff0de329eb5164e8ffcdf5f2a6250e90c9c064404493079cb24",
+   "meta": {
+    "take": 2,
+    "device": "SIM-MIC-01",
+    "session": "PV-S2-SESSION-01",
+    "t_start": "2026-08-10T09:02:00Z",
+    "sr": 16000,
+    "n_samples": 983040,
+    "format": "pcm_s16le"
+   },
+   "chain": "3c7856fdc9bfb45b3d38d8527d38c831304495c1e5602593f25464cb280e0fae",
+   "tag": "28cf62494b051ffcd5353e4f55e95e28c4ee33aa4373e5a07cfc10765e2c43b5"
+  },
+  {
+   "file": "take3.wav",
+   "sha256": "c7124f2cef11fc8c6728a53863fa4456ce6685d22573b6669bbb2d9d43fa7ffb",
+   "meta": {
+    "take": 3,
+    "device": "SIM-MIC-01",
+    "session": "PV-S2-SESSION-01",
+    "t_start": "2026-08-10T09:03:00Z",
+    "sr": 16000,
+    "n_samples": 983040,
+    "format": "pcm_s16le"
+   },
+   "chain": "1fde6f0414ed4ec5068d4fd9e8a1be778141fe61ae46470bd17396cfcde4ac27",
+   "tag": "199c456275993d5600085ac14edf2257666bbc3fa4e7d30fd69a28fa0f490dc1"
+  }
+ ],
+ "master": {
+  "file": "master.wav",
+  "sha256": "455f65f62206ea0376ff2d241995c6019aa15b791bbc14e78fd80be22afabb4f",
+  "peak": 31454
+ },
+ "proof": {
+  "params": "toy-class rect(1,4,16384) r=4 q=2^61-1 (toy_params_rect recipe, Pi1-only completeness gate)",
+  "binding_rule": "chain_0=H(session_digest,gains,n_blocks,cols); seed_k=H(chain_{k-1},k); CRS_k=ExpandCRS(seed_k); chain_k=H(chain_{k-1},k,stmt_k)",
+  "n_blocks": 60,
+  "cols_per_block": 16384,
+  "chain_0": "2d55984a08597873e66eda17a29bd8fe2affd4a4ad634ad11e684773337a0eb2",
+  "chain_final": "54efa6545b6d5feb4a0a25b9c020e24f15c81d4faad2ce0145f7638e9b133ca7",
+  "proof_bytes_per_block": 4256,
+  "commitment_bytes_per_block": 5242880,
+  "timing_seconds_mac_box": {
+   "whole_song": {
+    "commit": 127.13,
+    "prove": 54.58,
+    "verify": 30.7,
+    "open": 61.86
+   },
+   "per_block_mean": {
+    "commit": 2.119,
+    "prove": 0.91,
+    "verify": 0.512,
+    "open": 1.031
+   }
+  }
+ },
+ "security": [
+  "toy params: NO concrete lattice hardness; per-block FS soundness ~2^-28",
+  "device attestation SIMULATED (HMAC stand-in)",
+  "reference-class measurement: reference_timing.json"
+ ]
+}
