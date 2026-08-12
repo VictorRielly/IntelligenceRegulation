@@ -332,6 +332,7 @@ pub fn ct_h0(
     t2s: &[Vec<Poly>],
     ajtai: &[&AjtaiCommit],
 ) -> [u8; 32] {
+    let _t = prof::timer(prof::CT_H0); // [UPERF-PC] observation only
     let mut hasher = Sha256::new();
     hasher.update(b"route-r-ct-stmt-v1");
     hasher.update(crs.q.to_le_bytes());
@@ -648,6 +649,8 @@ pub fn prove_ct_round_tq(
     g_base: usize,
     rng: &mut dyn super::RngSource,
 ) -> (CtRoundProof, usize) {
+    let _t_total = prof::timer(prof::CT_TOTAL); // [UPERF-PC] observation only
+    let t_setup = prof::timer(prof::CT_SETUP);
     let zq = &ring.zq;
     let shape = crs.shape;
     let msg_r = shape.msg_r;
@@ -663,6 +666,8 @@ pub fn prove_ct_round_tq(
         let (gi, _) = g_slot_of(n_gslots - 1, msg_r, g_base);
         assert!(gi < all_x.len(), "g-groups must cover the R1 pad slots (sample_g_masks)");
     }
+    drop(t_setup);
+    let t_reveal = prof::timer(prof::CT_REVEAL);
     // Reveals: h_l = g_l + f_l(witness).
     let h: Vec<Poly> = claims
         .iter()
@@ -691,6 +696,7 @@ pub fn prove_ct_round_tq(
             poly_add(zq, &poly_add(zq, &q, &lin), &all_x[gi][gs])
         })
         .collect();
+    drop(t_reveal);
 
     // Digit decomposition of the wide randomness + digit statements
     // (witness data — computed once, outside the rejection loop).
@@ -707,7 +713,9 @@ pub fn prove_ct_round_tq(
     let mut attempts = 0usize;
     loop {
         attempts += 1;
+        prof::bump(prof::CT_ATTEMPTS);
         // Masks.
+        let t_gauss = prof::timer(prof::CT_GAUSS);
         let ys: Vec<Vec<Vec<i64>>> = (0..plain.len())
             .map(|_| (0..shape.n_r).map(|_| gaussian_ivec(rng, D, rp.sigma)).collect())
             .collect();
@@ -730,7 +738,9 @@ pub fn prove_ct_round_tq(
                     .collect()
             })
             .collect();
+        drop(t_gauss);
         // First messages: A1-side images.
+        let t_w1 = prof::timer(prof::CT_W1);
         let w1: Vec<Vec<Poly>> = ys.iter().map(|y| a1_matvec(path, crs, MatvecKind::Mask, y)).collect();
         let w1_ajtai: Vec<Vec<Poly>> = ajtai
             .iter()
@@ -745,8 +755,10 @@ pub fn prove_ct_round_tq(
             .iter()
             .map(|yd| yd.iter().map(|yj| a1_matvec(path, crs, MatvecKind::Mask, yj)).collect())
             .collect();
+        drop(t_w1);
         // Message-side mask images: per plain commitment A2 y; per digit
         // commitment the 2^(ej)-weighted digit-mask sum.
+        let t_a2y = prof::timer(prof::CT_A2Y);
         let a2y_plain: Vec<Vec<Poly>> =
             ys.iter().map(|y| a2_matvec(path, crs, MatvecKind::Mask, y)).collect();
         let a2y_dig: Vec<Vec<Poly>> = y_digs
@@ -758,6 +770,8 @@ pub fn prove_ct_round_tq(
             })
             .collect();
         let a2y: Vec<Vec<Poly>> = a2y_plain.into_iter().chain(a2y_dig).collect();
+        drop(t_a2y);
+        let t_wclaim = prof::timer(prof::CT_WCLAIM);
         let w_claim: Vec<Poly> = claims
             .iter()
             .enumerate()
@@ -836,6 +850,7 @@ pub fn prove_ct_round_tq(
                 &poly_conj(zq, &all_x[wi][wv]),
             ));
         }
+        drop(t_wclaim);
 
         let head = CtRoundProof {
             h: h.clone(),
@@ -857,8 +872,12 @@ pub fn prove_ct_round_tq(
             w1_digits,
             z_digits: Vec::new(),
         };
-        let c = ct_challenge(h0, &head);
+        let c = {
+            let _t = prof::timer(prof::CT_CHAL);
+            ct_challenge(h0, &head)
+        };
 
+        let t_resp = prof::timer(prof::CT_RESP);
         // Responses + rejection: three bundles (plain rho + Ajtai rho;
         // Ajtai s; digit) accepted independently — the repetition rate is
         // the product of the M's (the joint-scaling rework is the Q4
@@ -934,30 +953,33 @@ pub fn prove_ct_round_tq(
         if !digits.is_empty() {
             parts.push((&fz_d, &fv_d, dp.unwrap().sigma));
         }
-        if super::joint_rejection_accept(rng, &parts, super::joint_log_m_alpha12(parts.len())) {
-            return (
-                CtRoundProof {
-                    h: head.h,
-                    w1: head.w1,
-                    w1_ajtai: head.w1_ajtai,
-                    w_claim: head.w_claim,
-                    w_ring: head.w_ring,
-                    h_quad: head.h_quad,
-                    gq: head.gq,
-                    w_quad: head.w_quad,
-                    gr: head.gr,
-                    w_qring: head.w_qring,
-                    gtq: head.gtq,
-                    w_tq: head.w_tq,
-                    z,
-                    z_rho_ajtai,
-                    z_s_ajtai,
-                    t1_digits: head.t1_digits,
-                    w1_digits: head.w1_digits,
-                    z_digits,
-                },
-                attempts,
-            );
+        let accepted =
+            super::joint_rejection_accept(rng, &parts, super::joint_log_m_alpha12(parts.len()));
+        drop(parts);
+        drop(t_resp);
+        if accepted {
+            let proof = CtRoundProof {
+                h: head.h,
+                w1: head.w1,
+                w1_ajtai: head.w1_ajtai,
+                w_claim: head.w_claim,
+                w_ring: head.w_ring,
+                h_quad: head.h_quad,
+                gq: head.gq,
+                w_quad: head.w_quad,
+                gr: head.gr,
+                w_qring: head.w_qring,
+                gtq: head.gtq,
+                w_tq: head.w_tq,
+                z,
+                z_rho_ajtai,
+                z_s_ajtai,
+                t1_digits: head.t1_digits,
+                w1_digits: head.w1_digits,
+                z_digits,
+            };
+            prof_digest_ct_proof(&proof); // [UPERF-PC] differential digest hook
+            return (proof, attempts);
         }
     }
 }
@@ -2226,6 +2248,7 @@ pub fn split_claims_prover_masked(
     layout: &WavePadLayout,
     pads: WavePads,
 ) -> Result<(Vec<Vec<CtClaim>>, Vec<Vec<(usize, i64)>>), WaveError> {
+    let _t = prof::timer(prof::CT_SPLIT); // [UPERF-PC] observation only
     if claims.len() != layout.n_claims || pads.values.len() != layout.n_claims {
         return Err(WaveError::PadLayoutMismatch);
     }
@@ -2273,6 +2296,14 @@ pub fn split_claims_prover_masked(
             per_wave[w].push(share);
         }
         reveals.push(rv);
+    }
+    if prof::digest_on() {
+        // [UPERF-PC] differential digest: the masked reveal wires.
+        let flat: Vec<i64> = reveals
+            .iter()
+            .flat_map(|rv| rv.iter().flat_map(|&(w, s)| [w as i64, s]))
+            .collect();
+        prof::digest_i64s("split-reveals", &flat);
     }
     Ok((per_wave, reveals))
 }
@@ -2431,6 +2462,241 @@ pub fn closing_round_claims(zq: &super::Zq, layout: &WavePadLayout) -> Vec<CtCla
             CtClaim { msg_coeffs, ajtai_coeffs: vec![], scalar: 0 }
         })
         .collect()
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF-PC] Phase profiling + differential-digest instrumentation (U-PERF
+// lane PC). Counters are process-global atomics, OFF by default; when off,
+// the only cost on any hot path is one relaxed bool load. NOTHING here
+// touches a transcript, an rng stream, or a hash: timers observe, the
+// digest accumulator hashes bytes the protocol already produced (enabled
+// only by the uperf-pc harness for the differential gate). Consumers:
+// the [UPERF-PC] bench arm in ring_matmul.rs.
+
+pub mod prof {
+    use sha2::{Digest, Sha256};
+    use std::sync::Mutex;
+    use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+    use std::time::Instant;
+
+    pub const CT_SETUP: usize = 0; // prove_ct_round entry: all_x clone + digit decomp
+    pub const CT_REVEAL: usize = 1; // reveals h / h_quad
+    pub const CT_GAUSS: usize = 2; // per-attempt Gaussian mask sampling
+    pub const CT_W1: usize = 3; // per-attempt A1-side mask images
+    pub const CT_A2Y: usize = 4; // per-attempt A2-side mask images
+    pub const CT_WCLAIM: usize = 5; // per-attempt claim/ring/quad mask combos
+    pub const CT_CHAL: usize = 6; // per-attempt challenge hash
+    pub const CT_RESP: usize = 7; // per-attempt centers + z + norms + rejection
+    pub const CT_TOTAL: usize = 8; // prove_ct_round total
+    pub const CT_H0: usize = 9; // ct_h0 statement hashing
+    pub const CT_SPLIT: usize = 10; // masked splitter (prover side)
+    pub const EP_CRS: usize = 11; // expand_level_matrix (XOF expansion, cache miss)
+    pub const EP_MATVEC: usize = 12; // matvec_modq_small
+    pub const EP_IP: usize = 13; // ring_ip_modq_small
+    pub const EP_PSI: usize = 14; // compute_psi
+    pub const EP_TRANSPORT: usize = 15; // transport_level_from_psi
+    pub const EP_PSI0F: usize = 16; // psi_level0_factored[_multi]
+    pub const CT_ATTEMPTS: usize = 17; // rejection-loop attempts (count only)
+    pub const EP_LEVELH: usize = 18; // level_h_pairs (h cross-garbage)
+    pub const EP_CRS_HIT: usize = 19; // expand_level_matrix cache hits (count only)
+    pub const N_PHASES: usize = 20;
+
+    pub const NAMES: [&str; N_PHASES] = [
+        "ct.setup(clone+digits)",
+        "ct.reveals",
+        "ct.mask-sampling",
+        "ct.a1-matvec(w1)",
+        "ct.a2-matvec(a2y)",
+        "ct.claim-combos",
+        "ct.challenge-hash",
+        "ct.centers+z+reject",
+        "ct.prove-total",
+        "ct.h0-hash",
+        "ct.masked-splitter",
+        "ep.crs-expand",
+        "ep.matvec",
+        "ep.ring-ip",
+        "ep.compute-psi",
+        "ep.transport",
+        "ep.psi0-factored",
+        "ct.attempts",
+        "ep.level-h-pairs",
+        "ep.crs-cache-hit",
+    ];
+
+    static ENABLED: AtomicBool = AtomicBool::new(false);
+    static DIGEST_ON: AtomicBool = AtomicBool::new(false);
+    static NS: [AtomicU64; N_PHASES] = [const { AtomicU64::new(0) }; N_PHASES];
+    static CALLS: [AtomicU64; N_PHASES] = [const { AtomicU64::new(0) }; N_PHASES];
+    static DIGEST: Mutex<Option<Sha256>> = Mutex::new(None);
+
+    /// Turn phase timing / the differential digest on or off.
+    pub fn enable(profile: bool, digest: bool) {
+        ENABLED.store(profile, Ordering::Relaxed);
+        DIGEST_ON.store(digest, Ordering::Relaxed);
+        if digest {
+            *DIGEST.lock().unwrap() = Some(Sha256::new_with_prefix(b"uperf-pc-diff-v1"));
+        }
+    }
+
+    #[inline(always)]
+    pub fn on() -> bool {
+        ENABLED.load(Ordering::Relaxed)
+    }
+
+    /// Scope guard: times its lifetime into `phase` (and bumps the call
+    /// count) when profiling is on; a no-op otherwise.
+    pub struct Timer {
+        phase: usize,
+        start: Option<Instant>,
+    }
+
+    #[inline(always)]
+    pub fn timer(phase: usize) -> Timer {
+        if on() {
+            CALLS[phase].fetch_add(1, Ordering::Relaxed);
+            Timer { phase, start: Some(Instant::now()) }
+        } else {
+            Timer { phase, start: None }
+        }
+    }
+
+    impl Drop for Timer {
+        fn drop(&mut self) {
+            if let Some(t0) = self.start {
+                NS[self.phase].fetch_add(t0.elapsed().as_nanos() as u64, Ordering::Relaxed);
+            }
+        }
+    }
+
+    /// Count-only bump (attempts, cache hits).
+    #[inline(always)]
+    pub fn bump(phase: usize) {
+        if on() {
+            CALLS[phase].fetch_add(1, Ordering::Relaxed);
+        }
+    }
+
+    pub fn reset() {
+        for i in 0..N_PHASES {
+            NS[i].store(0, Ordering::Relaxed);
+            CALLS[i].store(0, Ordering::Relaxed);
+        }
+    }
+
+    /// (name, seconds, calls) per phase, in phase order.
+    pub fn report() -> Vec<(&'static str, f64, u64)> {
+        (0..N_PHASES)
+            .map(|i| {
+                (
+                    NAMES[i],
+                    NS[i].load(Ordering::Relaxed) as f64 / 1e9,
+                    CALLS[i].load(Ordering::Relaxed),
+                )
+            })
+            .collect()
+    }
+
+    #[inline(always)]
+    pub fn digest_on() -> bool {
+        DIGEST_ON.load(Ordering::Relaxed)
+    }
+
+    /// Absorb labeled bytes into the differential digest (when enabled).
+    pub fn digest_absorb(label: &str, bytes: &[u8]) {
+        if !digest_on() {
+            return;
+        }
+        let mut g = DIGEST.lock().unwrap();
+        if let Some(h) = g.as_mut() {
+            h.update((label.len() as u64).to_le_bytes());
+            h.update(label.as_bytes());
+            h.update((bytes.len() as u64).to_le_bytes());
+            h.update(bytes);
+        }
+    }
+
+    /// Absorb an i64 slice (le bytes) into the differential digest.
+    pub fn digest_i64s(label: &str, v: &[i64]) {
+        if !digest_on() {
+            return;
+        }
+        let mut out = Vec::with_capacity(v.len() * 8);
+        for &x in v {
+            out.extend_from_slice(&x.to_le_bytes());
+        }
+        digest_absorb(label, &out);
+    }
+
+    /// Take the accumulated differential digest (resets the accumulator).
+    pub fn digest_take() -> Option<[u8; 32]> {
+        let mut g = DIGEST.lock().unwrap();
+        g.take().map(|h| h.finalize().into())
+    }
+}
+
+/// [UPERF-PC] Absorb a full CtRoundProof into the differential digest —
+/// every wire field in declaration order (attempts are not wire and are
+/// pinned indirectly: z depends on the accepted attempt's masks).
+pub fn prof_digest_ct_proof(proof: &CtRoundProof) {
+    if !prof::digest_on() {
+        return;
+    }
+    let pb = |label: &str, polys: &[Poly]| prof::digest_absorb(label, &polys_bytes(polys));
+    pb("h", &proof.h);
+    for w in &proof.w1 {
+        pb("w1", w);
+    }
+    for w in &proof.w1_ajtai {
+        pb("w1a", w);
+    }
+    pb("w_claim", &proof.w_claim);
+    pb("w_ring", &proof.w_ring);
+    pb("h_quad", &proof.h_quad);
+    for g in &proof.gq {
+        pb("gq", g.as_slice());
+    }
+    pb("w_quad", &proof.w_quad);
+    for g in &proof.gr {
+        pb("gr", g.as_slice());
+    }
+    pb("w_qring", &proof.w_qring);
+    for g in &proof.gtq {
+        pb("gtq", g.as_slice());
+    }
+    pb("w_tq", &proof.w_tq);
+    for zi in &proof.z {
+        for zn in zi {
+            prof::digest_i64s("z", zn);
+        }
+    }
+    for zi in &proof.z_rho_ajtai {
+        for zn in zi {
+            prof::digest_i64s("zra", zn);
+        }
+    }
+    for zi in &proof.z_s_ajtai {
+        for zn in zi {
+            prof::digest_i64s("zsa", zn);
+        }
+    }
+    for td in &proof.t1_digits {
+        for t in td {
+            pb("t1d", t);
+        }
+    }
+    for wd in &proof.w1_digits {
+        for w in wd {
+            pb("w1d", w);
+        }
+    }
+    for zd in &proof.z_digits {
+        for zj in zd {
+            for zn in zj {
+                prof::digest_i64s("zd", zn);
+            }
+        }
+    }
 }
 
 /// Policy dispatch, verifier side.

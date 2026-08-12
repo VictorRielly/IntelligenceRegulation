@@ -119,7 +119,76 @@ items B-D1..B-D3 (PROGRESS.md) still open — the oldest unclaimed
 
 ## Agent PC status (wt-uperf-pc)
 
-- (lane launches here)
+- 2026-08-11 PLAN COMMIT (lane open at c081212, branch uperf-pc).
+  Scope check done: read PROGRESS_UPERF (PERF RULE internalized:
+  differential bit-identical bytes + digests + verdicts is the
+  acceptance floor; transcript-CHANGING candidates go to the R-row
+  appendix, not the build), UAGB1_PASS_AGG_REPORT (BG-F3 wall),
+  UAGB1_AGG_STACK/VERIFIER reports (BD/BH structure + the 1.03 s
+  CRS residual), RANGE_AGGREGATION_DESIGN Phase 5, M125_PASS_REPORT
+  Section 5 (the 68.8% = 2,251.8 s of 3,275.1 s 12-layer prove,
+  127 masked wave ct-rounds/layer at ~131 commitments), and both
+  owned files end to end (ct_engine.rs 2459 ln, eval_proof.rs
+  1434 ln) plus the callers (bf_layer_run wave loop, bg_prove_group
+  / bg_level_h / bg_kernel_pass, bg_verify_group) and the kernel
+  substrate (aux_ntt_core capacity discipline, mod.rs primitives).
+- PLAN, in order, honest-fallback at every step:
+  1. PROFILE FIRST (deliverable 1): env-gated (ZK_UPERF_PROF=1)
+     phase accumulators INSIDE prove_ct_round (mask sampling /
+     A1-A2 matvecs / claim combos / challenge hashing / center+
+     rejection bookkeeping / attempt count) and inside
+     eval_proof.rs (expand_level_matrix, matvec_modq_small,
+     ring_ip_modq_small) — counters only, zero transcript effect,
+     off by default. Plus a marked [UPERF-PC] bench arm in
+     ring_matmul.rs: `uperf-pc wave-profile <layer> [t]` running
+     the m125 layer prove path with the attribution printout and a
+     WAVE-TRANSCRIPT SHA-256 (all CtRoundProof bytes, fixed test
+     seeds) as the differential digest. Baseline table at T=512
+     layer 2 (the report row) + small-T iteration shape; composed
+     scope attributed via the same in-eval_proof counters under
+     `pass-agg prove`-shaped small runs + BG-F3 arithmetic.
+  2. Optimizations by measured share, TRANSCRIPT-PRESERVING only,
+     each landing with its own differential check at fixed seeds
+     (bytes SHA equal, digests unmoved, verdicts equal):
+     O1 expand_level_matrix memo cache (eval_proof internal;
+        values byte-identical by construction — kills the 1.03 s
+        BH residual class + double re-expansions in verify);
+     O2 the Theta(n_0*r) h cross-garbage restructure (the BG-F3
+        wall): batch single-prime NTT MAC — phi slices transformed
+        once (in place, exactly restored), w slices streamed, pair
+        accumulation pointwise in Z_p under the aux capacity
+        contract (chunk*D*(q/2)*2^(e-1) checked at runtime via
+        aux::capacity, kara fallback if it ever fails), one
+        inverse transform per pair — exact mod-q regrouping,
+        values bit-identical; new eval_proof API + minimal marked
+        call-site switch in bg_level_h (both call sites);
+     O3 matvec_modq_small same-class NTT MAC internal (the
+        that/u_i matvec share, ~kappa*n_0 kara-muls at pass
+        scope);
+     O4 prove_ct_round allocation/borrow work: drop the all_x
+        clone, reuse attempt buffers, alloc-free combo
+        accumulators, flat-norm without re-materialization —
+        RNG-ORDER-PRESERVING (the draw sequence is the
+        transcript);
+     O5 wave-caller clone removals via additive _ref variants
+        only if measured to matter.
+  3. Walls / cross-zone findings (measured, FILED not built):
+     gaussian_ivec economics (~10% proposal acceptance x 2 u64
+     draws/proposal — any sampler change moves proof bytes at
+     fixed seeds => R-row), XofReader per-8-byte alloc (mod.rs,
+     off-zone), a1/a2 mask-matvec shared column transforms
+     (commit.rs/aux off-zone), 1T thread model kept (recorded
+     [MAC-BOX ~1T] baseline — no new parallelism).
+  4. Gates at HEAD: build, freeze-check, full suite, agg-matmul
+     battery, ixf-fold battery, my differential battery; then
+     U_PERF_WAVE_REPORT.md (attribution, before/after, cumulative,
+     R-row appendix, digest evidence) + this section updated.
+  Files touched: ct_engine.rs + eval_proof.rs internals (public
+  API source-compatible), marked [UPERF-PC] section in
+  ring_matmul.rs, U_PERF_WAVE_REPORT.md, this section. NOT
+  touching: kfield/sumcheck/gkr/gkr_masked (PA), lookup/digits/
+  fold/pass_agg/t_blind/descent_fold/manifest/wire, other ledger
+  sections.
 
 ## Agent PD status (wt-uperf-pd)
 

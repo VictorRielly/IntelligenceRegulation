@@ -64,6 +64,7 @@
 // Phi_0 (its h-garbage consumes phi chunk slices); the prover-side
 // constant is a separate item.
 
+use super::ct_engine::prof; // [UPERF-PC] phase counters (observation only)
 use super::digits::{gamma_max_exact, OP_CONC};
 use super::kfield::{KElem, KField, K_DEG};
 use super::sumcheck::LkpTranscript;
@@ -579,6 +580,7 @@ pub fn pair_index(r: usize, j: usize, k: usize) -> usize {
 // without wire cost).
 
 pub fn expand_level_matrix(seed: u64, group: &str, level: usize, which: &str, rows: usize, cols: usize, q: u64) -> Vec<Poly> {
+    let _t = prof::timer(prof::EP_CRS); // [UPERF-PC] observation only
     let mut rd = XofReader::new(
         "agg-level-crs",
         &[
@@ -596,6 +598,7 @@ pub fn expand_level_matrix(seed: u64, group: &str, level: usize, which: &str, ro
 /// t = M s over R_q: rows x cols mod-q matrix times a small (digit)
 /// ring column vector.
 pub fn matvec_modq_small(ctx: &RingCtx, m: &[Poly], rows: usize, cols: usize, s: &[Vec<i64>]) -> Vec<Poly> {
+    let _t = prof::timer(prof::EP_MATVEC); // [UPERF-PC] observation only
     assert_eq!(s.len(), cols);
     assert_eq!(m.len(), rows * cols);
     let zq = &ctx.zq;
@@ -617,6 +620,7 @@ pub fn matvec_modq_small(ctx: &RingCtx, m: &[Poly], rows: usize, cols: usize, s:
 /// <phi, s> = sum_u phi_u * s_u over R_q (mod-q functional times small
 /// witness slice).
 pub fn ring_ip_modq_small(ctx: &RingCtx, phi: &[Poly], s: &[Vec<i64>]) -> Poly {
+    let _t = prof::timer(prof::EP_IP); // [UPERF-PC] observation only
     assert_eq!(phi.len(), s.len());
     let zq = &ctx.zq;
     let mut acc = poly_zero();
@@ -731,6 +735,7 @@ pub fn transport_level_from_psi(
     c: &[Vec<i64>],     // r quinary fold challenges
     alphas: &[Poly],    // transport_rows(bindings.len()) aggregation challenges
 ) -> LevelTransport {
+    let _t = prof::timer(prof::EP_TRANSPORT); // [UPERF-PC] observation only
     let zq = &ctx.zq;
     assert_eq!(psi.len(), plan.chunk);
     let n_rows = transport_rows(bindings.len());
@@ -810,6 +815,7 @@ pub fn transport_level_from_psi(
 /// (tail chunks zero-padded) — the c-weighted fold of the aggregated
 /// functional's chunk slices.
 pub fn compute_psi(ctx: &RingCtx, phi: &[Poly], chunk: usize, c: &[Vec<i64>]) -> Vec<Poly> {
+    let _t = prof::timer(prof::EP_PSI); // [UPERF-PC] observation only
     let zq = &ctx.zq;
     (0..chunk)
         .map(|u| {
@@ -1070,6 +1076,7 @@ pub fn psi_level0_factored(
     c: &[Vec<i64>],
     chunk: usize,
 ) -> Vec<Poly> {
+    let _t = prof::timer(prof::EP_PSI0F); // [UPERF-PC] observation only
     assert_eq!(alphas.len(), K_DEG);
     let zq = &ctx.zq;
     let r = c.len();
@@ -1290,6 +1297,7 @@ pub fn psi_level0_factored_multi(
     c: &[Vec<i64>],
     chunk: usize,
 ) -> Vec<Poly> {
+    let _t = prof::timer(prof::EP_PSI0F); // [UPERF-PC] observation only
     assert_eq!(alphas.len(), K_DEG);
     let zq = &ctx.zq;
     let r = c.len();
