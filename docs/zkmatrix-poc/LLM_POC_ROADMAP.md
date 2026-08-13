@@ -33,9 +33,10 @@ property Victor made non-negotiable. Proposed definition:
 
 Scope honesty, carried on every artifact: FFN pass only — attention,
 softmax, RMSNorm, RoPE, residual, embedding are NOT in the statement
-(not yet integer-specified; TARGET_CONTRACT Section 1). The PoC
-proves the pass the design trench priced, on a real model, at real
-weights — no more, and labeled as such.
+(integer spec CLOSED 2026-08-11, ATTENTION_INTEGER_SPEC.md; engine
+wiring is CONTINUATION.md Phase 4). The PoC proves the pass the
+design trench priced, on a real model, at real weights — no more,
+and labeled as such.
 
 Why the 125M rung first (PROGRESS_UAG4.md FINAL item 5): real trained
 weights exist locally (frugal-lm, MLX, Mac Studio); the shapes are
@@ -143,22 +144,37 @@ reconciliation before any ladder-grade number.
 
 ## 4. After B1 — the remaining ladder to the contract headline
 
-In contract order, none of it PoC-blocking:
+Superseded in **order** by docs/zkmatrix-poc/CONTINUATION.md
+(2026-08-13): the 125M FFN pass exists; the remaining work is the
+prove/verify clocks, then attention-in-engine, then 7B/8B. Items
+below remain the destination list. Do not reorder past CONTINUATION
+Phase 0 (PC waves).
 
-1. Attention/softmax/RMSNorm/RoPE integer specifications (the
-   contract's declared 8B gap) — design round of its own; softmax is
-   the hard row (no frozen integer spec exists).
-2. The 7B-surrogate full-shape pass at reference dims (the frozen
+1. Wave/opening CPU (U-PERF PC O1-O4) — 69-80% of 125M prove and
+   the eval-proof files that dominate the 199.6 s verify. This is
+   now first, not "none of it PoC-blocking": Section 1(b) (verify
+   <= 2 s) rides this lane.
+2. Attention/softmax/RMSNorm/RoPE in the **engine** — the integer
+   specification CLOSED 2026-08-11 (ATTENTION_INTEGER_SPEC.md +
+   spike 18/18). The remaining work is U-AT-B1 build, after the
+   125M clocks move. TARGET_CONTRACT Section 1's "no frozen integer
+   specification" sentence is stale; "not implemented" still holds.
+3. The 7B-surrogate full-shape pass at reference dims (the frozen
    TARGET_CONTRACT boundary), then the 8B target with F-O4's
    relaxed-e0 line adopted first.
-3. The GPU rung — no kernel exists; every GPU number is [ASSUMED];
+4. The GPU rung — no kernel exists; every GPU number is [ASSUMED];
    the 5-15 s headline is CONDITIONAL on it (codex-gpu-readiness
-   verdict: GO on prototyping, NO-GO on claims).
-4. The q46 range wall (96% of chain prove time today): the
+   verdict: GO on prototyping, NO-GO on claims). CONTINUATION Phase 3.
+5. The q46 range wall (96% of the old chain-demo prove time): the
    RANGE_AGGREGATION_DESIGN Phase-5 range-lookup rung is the priced
-   lever.
-5. External estimator re-validation at any parameter move (house
+   lever — second-order on the composed 125M pass, where waves not
+   q46 dominate.
+6. External estimator re-validation at any parameter move (house
    rule; ESTIMATOR_NOTE.md).
+
+Channel: stay on the lattice line. Other proving stacks are a
+fallback only if the contract clocks remain unreachable after
+CONTINUATION Phases 0-3 are measured (Victor, console 2026-08-13).
 
 ## 5. Risks, ranked (what would move the schedule)
 

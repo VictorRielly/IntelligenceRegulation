@@ -295,6 +295,24 @@ RESUMPTION QUEUE (unchanged in priority): PC's four optimizations
 axes, then the U-AG-B1 FINAL (quiesced p50/p95 + A1
 reconciliation + BL-F2 ruling + the [MODEL]-line reconcile).
 
+## 2026-08-13 console — lattice-first continuation (Phase 0 opened)
+
+Authority: Victor, console 2026-08-13 ("push the suggestions so they
+are documented ... continuing with our approach. If we find our
+efficiency targets are unreachable, then we might consider trying
+other channels"). Standing plan: docs/zkmatrix-poc/CONTINUATION.md.
+Binding channel decision: stay on the house lattice line; hash-STARK
+/ DeepProve / zkGPT wrappers are a fallback only after Phases 0-3
+are measured and the TARGET_CONTRACT clocks are still unreachable.
+PC is the next (and only) active lane — one at a time, A/B on the
+125M rig, no new design trench.
+
+O1 (CRS memo on `expand_level_matrix`) lands with this continuation
+commit: values byte-identical to the uncached expansion by
+construction; `uperf-pc diff-battery` grows its first leg. O2-O4
+remain the rest of Phase 0. No 125M wall-clock claim is made for O1
+until a quiesced `wave-profile` / `pass-profile` A/B exists.
+
 ## PA reality check (orchestrator, 2026-08-12) — the 4x does NOT transfer
 
 Measured immediately after the PA merge, and it corrects the lane's

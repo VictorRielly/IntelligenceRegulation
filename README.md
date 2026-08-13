@@ -26,6 +26,7 @@ Please reach out if you have further ideas on how we can make this work. victorr
 
 ## Project Plans
 
+- [Continuation: fast, lightweight proofs](docs/zkmatrix-poc/CONTINUATION.md): standing queue after U-AG-B1 wave 4 / U-PERF — lattice-first, PC waves next, other channels only if the contract clocks prove unreachable.
 - [ZK-of-LLM PoC roadmap](docs/zkmatrix-poc/LLM_POC_ROADMAP.md): the consolidated path from the closed aggregation design trench to a proven 32-layer-class FFN pass on a real model (frugal-lm 125M first rung); frames the U-AG-B1 build round ([ledger](PROGRESS_UAGB1.md)).
 - [Music provenance PoC](docs/provenance/MUSIC_PROVENANCE_POC.md): proving music is man-made — attested capture, ZK edit chain (mixdown as committed matmul; spike `scripts/music_provenance_spike.py` 7/7), and the honest limits of the analog-hole classifier screen.
 - [zkMatrix proof-of-concept plan](docs/zkmatrix-poc/README.md): roadmap for proving a small Transformer-like feed-forward with committed matrix multiplication proofs and explicit nonlinear constraints.

@@ -18,9 +18,12 @@ where a budget is not yet met (or not yet measurable) it says so.
   dimension 128) with rotary position embeddings (RoPE) and softmax;
   RMSNorm twice per layer; residual additions; embedding/unembedding at
   a ~128k vocabulary. **None of these are implemented in the proof
-  system today** — softmax/normalization do not even have a frozen
-  integer specification yet. Any latency number quoted before they
-  exist is a number for the FFN surrogate only and must say so.
+  system today.** [AMENDED 2026-08-13: the integer specification
+  CLOSED 2026-08-11 — ATTENTION_INTEGER_SPEC.md + spike 18/18.
+  The remaining gap is engine wiring (CONTINUATION.md Phase 4),
+  not the absence of a spec.] Any latency number quoted before
+  they exist in the engine is a number for the FFN surrogate only
+  and must say so.
 - **Model identity:** the proof statement (manifest.rs `Statement` v2)
   carries a model identity digest — a hash of the architecture
   descriptor, the quantization spec below, every weight commitment, and

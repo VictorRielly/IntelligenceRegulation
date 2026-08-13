@@ -34643,8 +34643,41 @@ fn uperf_pc_main(args: &[String]) {
 /// byte equality against its reference implementation on adversarially
 /// shaped small inputs. Legs are added as optimizations land.
 fn uperf_pc_diff_battery() {
+    use ring::eval_proof::{
+        clear_crs_cache, expand_level_matrix, expand_level_matrix_raw, KAPPA_AGG,
+    };
     let t0 = Instant::now();
     println!("[UPERF-PC] differential battery");
-    // (legs land with the optimizations)
-    println!("[UPERF-PC] differential battery passed in {:.2}s", t0.elapsed().as_secs_f64());
+
+    // O1 — CRS memo: cached expansion == raw XOF, then a second cached
+    // call hits and still matches. Shapes cover A (kappa x chunk) and
+    // B (kappa x (t+h)-class) at two q's so the keying is not a single
+    // operating-point accident.
+    clear_crs_cache();
+    let q = ring::Q8;
+    for (seed, group, level, which, rows, cols, qk) in [
+        (0xA1u64, "W", 0usize, "A", KAPPA_AGG, 8usize, q),
+        (0xA1u64, "W", 0usize, "A", KAPPA_AGG, 8usize, q), // hit
+        (0xA1u64, "act", 1usize, "Bu", KAPPA_AGG, 17usize, q),
+        (0xB2u64, "W", 2usize, "Bh", KAPPA_AGG, 4usize, ring::Q8_46),
+    ] {
+        let raw = expand_level_matrix_raw(seed, group, level, which, rows, cols, qk);
+        let memo = expand_level_matrix(seed, group, level, which, rows, cols, qk);
+        assert_eq!(
+            raw, memo,
+            "O1 CRS memo != raw (group {group} level {level} which {which} q {qk})"
+        );
+        assert_eq!(raw.len(), rows * cols);
+        assert!(raw.iter().all(|p| p.len() == ring::D));
+    }
+    // Distinct keys must not alias: same seed/which but different group.
+    let a = expand_level_matrix_raw(7, "W", 0, "A", KAPPA_AGG, 3, q);
+    let b = expand_level_matrix_raw(7, "act", 0, "A", KAPPA_AGG, 3, q);
+    assert_ne!(a, b, "O1 CRS keying collapsed W vs act");
+    println!("[UPERF-PC] O1 CRS memo: 4/4 byte-identical + group-key separation");
+
+    println!(
+        "[UPERF-PC] differential battery passed in {:.2}s",
+        t0.elapsed().as_secs_f64()
+    );
 }

@@ -72,6 +72,8 @@ use super::{
     poly_add, poly_from_small, poly_mul_small, poly_zero, ring_mul_split_kara_fast, Poly, RingCtx,
     XofReader, Zq, D,
 };
+use std::collections::HashMap;
+use std::sync::{Arc, LazyLock, Mutex};
 
 /// s * p over R_q (argument-order shim over the house poly_scale).
 fn scale(zq: &Zq, p: &Poly, s: u64) -> Poly {
@@ -578,9 +580,42 @@ pub fn pair_index(r: usize, j: usize, k: usize) -> usize {
 // matrix is kappa x chunk, the B_i outer matrix is kappa x (t+h) —
 // both derived from (seed, group, level) so prover and verifier agree
 // without wire cost).
+//
+// [UPERF-PC O1] Memoized: prove-then-verify of the same group reuses
+// the XOF image. Values are byte-identical to the uncached expansion
+// (`expand_level_matrix_raw`). The cache is process-global and does
+// not touch the transcript.
 
-pub fn expand_level_matrix(seed: u64, group: &str, level: usize, which: &str, rows: usize, cols: usize, q: u64) -> Vec<Poly> {
-    let _t = prof::timer(prof::EP_CRS); // [UPERF-PC] observation only
+#[derive(Clone, Eq, PartialEq, Hash)]
+struct CrsKey {
+    seed: u64,
+    group: String,
+    level: u64,
+    which: String,
+    rows: u64,
+    cols: u64,
+    q: u64,
+}
+
+static CRS_CACHE: LazyLock<Mutex<HashMap<CrsKey, Arc<Vec<Poly>>>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
+
+/// Drop cached CRS matrices (tests / differential battery).
+pub fn clear_crs_cache() {
+    CRS_CACHE.lock().expect("crs cache").clear();
+}
+
+/// Uncached XOF expansion — the O1 oracle. Public so `uperf-pc
+/// diff-battery` can assert byte identity against the memoized path.
+pub fn expand_level_matrix_raw(
+    seed: u64,
+    group: &str,
+    level: usize,
+    which: &str,
+    rows: usize,
+    cols: usize,
+    q: u64,
+) -> Vec<Poly> {
     let mut rd = XofReader::new(
         "agg-level-crs",
         &[
@@ -592,7 +627,43 @@ pub fn expand_level_matrix(seed: u64, group: &str, level: usize, which: &str, ro
             &(cols as u64).to_le_bytes(),
         ],
     );
-    (0..rows * cols).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect()
+    (0..rows * cols)
+        .map(|_| (0..D).map(|_| rd.next_field(q)).collect())
+        .collect()
+}
+
+pub fn expand_level_matrix(
+    seed: u64,
+    group: &str,
+    level: usize,
+    which: &str,
+    rows: usize,
+    cols: usize,
+    q: u64,
+) -> Vec<Poly> {
+    let key = CrsKey {
+        seed,
+        group: group.to_string(),
+        level: level as u64,
+        which: which.to_string(),
+        rows: rows as u64,
+        cols: cols as u64,
+        q,
+    };
+    {
+        let cache = CRS_CACHE.lock().expect("crs cache");
+        if let Some(hit) = cache.get(&key) {
+            prof::bump(prof::EP_CRS_HIT);
+            return hit.as_ref().clone();
+        }
+    }
+    let _t = prof::timer(prof::EP_CRS); // miss: time the XOF
+    let v = expand_level_matrix_raw(seed, group, level, which, rows, cols, q);
+    CRS_CACHE
+        .lock()
+        .expect("crs cache")
+        .insert(key, Arc::new(v.clone()));
+    v
 }
 
 /// t = M s over R_q: rows x cols mod-q matrix times a small (digit)

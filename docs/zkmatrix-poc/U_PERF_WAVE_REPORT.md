@@ -1,6 +1,7 @@
 # [UPERF-PC] U-PERF lane PC — wave/opening overhead (the 68.8%)
 
-Status: SKELETON (plan committed; profile-first in progress).
+Status: Phase 0 in progress (O1 CRS memo landed 2026-08-13; O2-O4
+open). Standing queue: CONTINUATION.md.
 Branch uperf-pc at base c081212. All timings [MAC-BOX ~1T,
 NOISY-SHARED] unless marked. PERF RULE: every optimization here is
 differential — bit-identical transcript bytes, unmoved freeze
@@ -28,10 +29,29 @@ table for the composed scope via `uperf-pc pass-profile`.)
 
 ## 3. Optimizations (each with its differential check)
 
-(to land in measured-share order: O1 CRS expansion
-caching/bulk-XOF, O2 h cross-garbage NTT-MAC restructure, O3
-matvec_modq_small NTT-MAC, O4 prove_ct_round allocation/borrow
-discipline. Per-optimization before/after + digest evidence here.)
+Land in measured-share order. Transcript-preserving only.
+
+### O1 — CRS memo (`expand_level_matrix`) — LANDED 2026-08-13
+
+`eval_proof::expand_level_matrix` memoizes by
+`(seed, group, level, which, rows, cols, q)`. Hits return a clone
+of the cached polynomials; misses run the original XOF expansion
+and store it. Prove-then-verify of the same group therefore pays
+the seed-XOF once per unique CRS matrix (the 1.03 s BH residual
+class + double re-expansions). Values are byte-identical to
+`expand_level_matrix_raw` (the uncached oracle) — asserted by
+`uperf-pc diff-battery` leg O1. Cache is process-global;
+`clear_crs_cache` exists for tests. No transcript bytes change:
+the CRS is deterministic from public (seed, labels, shapes).
+
+Wall-clock on the 125M rig is NOT claimed here. Measure with
+`uperf-pc pass-profile` on a quiesced box (ep.crs-expand vs
+ep.crs-cache-hit).
+
+### O2-O4 — NOT LANDED
+
+O2 h-garbage NTT-MAC, O3 matvec_modq_small NTT-MAC, O4
+prove_ct_round alloc/borrow. See CONTINUATION.md Phase 0.
 
 ## 4. Cumulative results
 
