@@ -468,7 +468,131 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent F status (wt-uperf2-f)
 
-- (lane launches here)
+- 2026-08-17 PLAN COMMIT (lane F, branch uperf2-f at f512ba1; report:
+  docs/zkmatrix-poc/U_PERF2_MEMORY_REPORT.md). Files: eval_proof.rs
+  (whole file), the bin's bg_*/bk_* composed-pass plumbing
+  (bg_witness / bk_witness_*, bg_precommit, bg_prove_group,
+  bg_verify_group, bg_matvec_chunks, bg_level_h, bg_fold, bk_pass_run's
+  witness plumbing), a `// [UPERF2-F]` bin section with `uperf-f
+  {diff-battery, rss}` (registered in `main` next to uperf-e), the
+  report, this section. Baseline binary at f512ba1 preserved
+  (scratchpad/ring_matmul_base_f512ba1) for the freeze/rig baselines.
+  Plan, in order:
+  0. MEASURE: `[UPERF2-F] RSS <tag> hwm/rss` rows (VmHWM + VmRSS from
+     /proc/self/status, printed only when the prof timers are on) at the
+     pass's phase boundaries — bk_pass_run: layers loaded, aux built,
+     witness built, precommit, commit end, claim-layer end, each descent
+     pair, before/after each group eval proof, verify per group;
+     bg_prove_group: rows pass, phi pass, level-0 h, level-0 fold (w0
+     freed), each deeper level. Baseline attribution at 3x16 (1T) and
+     12x64 (8T, flock, >= 13 GB free) BEFORE any structural change.
+  1. w0 COMPACT: `ring::eval_proof::DigitCols` (flat `Vec<i8>`, n x D
+     digits; every level-0 alphabet is |w| <= 64 — asserted at the
+     writer) + the `SmallRings` trait over `[Vec<i64>]` AND `[i8]` (per
+     ring `ring(u, buf) -> &[i64]`, `max_abs`, `is_zero`, `sub`) so the
+     kernels lift per ring from either store with identical arithmetic:
+     `ntt_gemm_modq_small` / `matvec_modq_small_multi` / `level_h_pairs`
+     / `fold_chunks_ntt` / `kernel_pass_factored` (rows pass) get `_gen`
+     bodies (the old names stay as `[Vec<i64>]` wrappers for the
+     batteries + the synthetic agg_* rig). `agg_digit_witness_cols`
+     (threaded, same `digits_into`) feeds bg_witness / bk_witness_*;
+     bg_precommit / bg_prove_group take `&mut DigitCols`; deeper levels'
+     witnesses (`w_cur`, that/hhat, floor) stay `Vec<Vec<i64>>`.
+  2. PHI NEVER MATERIALIZED at level 0: `Phi0Source` (per tensor:
+     aligned -> `PhiFactored` value rings x radix per limb; small-cols ->
+     the hoisted-kw phi rings materialized per tensor (they are tiny);
+     no kernel -> zero) with `fill(v0, n, out)`, consumed per u-block by
+     `level_h_pairs_with` (block GEMMs accumulated mod q — bit-identical
+     to the single-window kernel because every flush is an exact
+     integer partial reduced mod q); the level-1 transport from
+     `psi_level0_factored_multi` via `transport_level_from_psi` (what
+     bg_verify_group does). `phi_cur` for level 0 never allocated on the
+     fast path; `oracle_mode()` keeps the materialized path (phi pass ->
+     bg_level_h -> transport_level).
+  3. Dead data: `expand_level_matrix_arc` (the memo hands out `Arc`
+     handles; the bg_*/bk_* callers hold Arcs — no clones), a
+     `ZK_CRS_MEMO=0` knob (no memo insert; each expansion freed with its
+     last handle), and — if the attribution says it matters — the act
+     group's w0 regenerated after the descents instead of held.
+  4. `uperf-f diff-battery`: DigitCols kernels == boxed kernels
+     (gemm / matvec-multi / level-h / fold / kernel-pass rows) at both
+     moduli; Phi0Source::materialize == the phi pass; fill windows ==
+     slices; level_h_pairs_with == level_h_pairs at ragged blocks;
+     the E2E three-way (boxed-fast == cols-fast == cols-oracle, all
+     verify); ZK_THREADS 1/2/7. Gates at HEAD: uperf-pc diff-battery
+     (E2E), agg-matmul, bh-verifier, uperf-a/c/d/e batteries,
+     freeze-check 98 rows == baseline, self-test, pass-agg battery
+     (real data, once at close, flock), table-descent battery small,
+     the REAL 3x16 rig at 1T/8T and the REAL 12x64 rig at 8T (digests
+     identical, `/usr/bin/time` maxrss rows).
+  5. Report: RSS attribution before/after per phase (3x16, 12x64, and
+     12x128 / 12x256 if they fit under ~13 GB), timing rows, what is
+     left for 12x512 on 15 GB.
+- 2026-08-17 CLOSE (lane F; commits 5bbcf9f skeleton + RSS rows,
+  7067dca w0 compact, ddadc48 phi never materialized + CRS Arcs, 369e423
+  dead-data levers, + the report/ledger commit; report:
+  docs/zkmatrix-poc/U_PERF2_MEMORY_REPORT.md). ALL ITEMS LANDED, every
+  digest identical on every run [all walls WSL NOISY-SHARED — lane G ran
+  throughout; RSS rows are load-independent]:
+  - THE ATTRIBUTION (item 0, `[UPERF2-F] RSS` rows): the 12x64 8T rig
+    peaked at 11.9 GB inside the weight group's level 1 = layers 0.6 GB
+    + BOXED w0 of both groups 4.6 GB (weight 3.54M digit rings x ~1,064
+    B) + the CRS memo AND its clones 1.8 GB + the descents' leftovers ~1
+    GB + the weight group's MATERIALIZED Phi_0 3.5 GB — and `w0.clear()`
+    did not lower the resident set (glibc keeps the freed 1 KiB chunks).
+  - (1) `eval_proof::DigitCols` (flat i8, one allocation, 128 B/ring)
+    behind the `SmallRings` trait over `[Vec<i64>]` AND `[i8]`; the
+    kernels (`ntt_gemm_modq_small`, `matvec_modq_small_multi[_ref]`,
+    `level_h_pairs[_ref]`, `fold_chunks_ntt[_ref]`, `kernel_pass_factored`)
+    got `*_gen` bodies with the old names as boxed wrappers (no
+    battery / oracle / agg-rig path changed); `agg_digit_witness_cols`
+    feeds bg_witness / bk_witness_*; bg_precommit / bg_prove_group take
+    `&mut DigitCols`. (2) `Phi0Source` (the O5 factored form per tensor)
+    + `level_h_pairs_with` (per-u-block GEMM, exact block partials
+    summed mod q — bit-identical to the single-window kernel) + the
+    level-1 transport from `psi_level0_factored_multi` (bg_verify_group's
+    form) — `phi_cur` for level 0 never allocated; `oracle_mode()` keeps
+    the materialized path. (3) `expand_level_matrix_arc` (Arc handles,
+    no clones; `ZK_CRS_MEMO=0`). (4) `malloc_trim(0)` at the phase
+    boundaries (Linux-only; `ZK_MALLOC_TRIM=0`), `ZK_W0_REGEN=1` (free
+    the i8 witnesses through the claim layer + descents, rebuild before
+    the groups; opt-in, +0.35 s at 12x64 8T).
+  - RESULTS (digests identical on every run): 3x16 peak **2.86 -> 0.94
+    GB** at 1T (8T 1.03 GB), wall neutral by same-state A/B (base 28.5 /
+    28.7 s vs 28.7 / 30.2 s); 12x64 8T peak **12.2 -> 4.55 GB** (default)
+    / **3.99 GB** (`ZK_W0_REGEN=1`), wall 45.5 -> 42.4 s (the flat digit
+    witness: commit 7.6 -> 5.4 s); **12x128 8T (first time on this box):
+    7.44 GB peak, accept, 66.2 s** (statement 4a3af8c3.., 1,372,775 B,
+    EVAL-PROOF 742d88e1.. — the reference for the shape). The 12x64 peak
+    is now the nrw-88 descent pair's own transient (2.2-2.5 GB at depth
+    19, 4.9 GB at depth 20 measured; ~20-24 GB at the 12x512 depth 22)
+    on a ~1.5-2 GB floor — 12x256 (~14 GB [MODEL]) not attempted; for
+    12x512 on 15 GB the pair's footprint must come down ~2x (lane G's
+    file); everything else of the pass fits under ~7-9 GB [MODEL].
+  - Gates at HEAD (final binary): `uperf-f diff-battery` 40/40 at 1/2/7T
+    (digest 77583bed..); `uperf-pc diff-battery` E2E 1T + 7T; `uperf-a
+    descent-battery` 18/18 1T + 7T (f936ff79..); `uperf-c` 1T + 7T;
+    `uperf-d` 30/30 1T + 7T (46471467.. unchanged); `uperf-e` (59117121..
+    unchanged); bh-verifier; agg-matmul; self-test (rows identical to
+    the merge-DE capture); freeze-check 98 rows identical to the
+    pre-change capture; `pass-agg battery` 14/14, `table-descent battery
+    small` 5/5, `t-blind battery` 11/11 (real data); the REAL 3x16 rig at
+    1T and 8T (93a98700.., 985,142 B, 0ae9cdae..) after every step, ONCE
+    under `ZK_UPERF_ORACLE=1` at 1T (597.3 s, same digests, accept), and
+    the REAL 12x64 rig at 8T (80763ea5.., 63f4a3a4..) on five knob
+    variants.
+  - Merge notes for the orchestrator: (a) the ONE edit outside the
+    lane's files is a one-line witness-store change in
+    `uperf_pc_diff_e2e` (`DigitCols::from_vecs(&w0)` — the E2E leg now
+    runs bg_prove_group on the flat store); (b) `bg_fold` keeps its
+    boxed signature (uperf-c's leg calls it) with `bg_fold_gen` as the
+    body; (c) `malloc_trim` is a `cfg(target_os = "linux")` extern (a
+    no-op on the Mac).
+  - Left (report Section 6): the descent pair's footprint (lane G — the
+    ONLY 12x512 blocker), flat CRS matrices (boxed rings never leave the
+    arena without the trim; ~1.9 GB memo at 12x512), `BfLayer` as i64
+    (1.5 GB at 12x512), a per-group PHI_vr cache as a knob (time-vs-1 GB),
+    `ZK_W0_REGEN` as the default after T1.
 
 ## Agent G status (wt-uperf2-g)
 
