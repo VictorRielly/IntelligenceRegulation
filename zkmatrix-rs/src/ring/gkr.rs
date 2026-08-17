@@ -258,6 +258,186 @@ pub fn build_tree_sparse(
     build_tree_packed(kf, leaf_p_t, leaf_q_t)
 }
 
+/// [UPERF2-E] Fill a zeroed packed table with n copies of `e` — the
+/// same bytes as `KTab::filled(n, e)` (blockwise pattern; the partial
+/// last block by `set`), written in parallel chunks of whole blocks at
+/// ZK_THREADS > 1 (positional, no reduction — identical for any thread
+/// count).
+fn ktab_fill_par(t: &mut KTab, e: &KElem) {
+    let n = t.n;
+    if n == 0 {
+        return;
+    }
+    let nblk = n / KL;
+    let mut blk = [0u32; super::kfield::KBLK];
+    for j in 0..super::kfield::K_DEG {
+        debug_assert!(e[j] < (1 << 31), "packed KTab expects canonical q31-class values");
+        for l in 0..KL {
+            blk[j * KL + l] = e[j] as u32;
+        }
+    }
+    let full_words = nblk * super::kfield::KBLK;
+    if super::kfield::k9_threads() <= 1 || nblk < 64 {
+        for m in 0..nblk {
+            t.d[m * super::kfield::KBLK..(m + 1) * super::kfield::KBLK].copy_from_slice(&blk);
+        }
+    } else {
+        let d = &mut t.d[..full_words];
+        super::kfield::k9_pooled_pub(|| {
+            use rayon::prelude::*;
+            d.par_chunks_mut(2048 * super::kfield::KBLK).for_each(|c| {
+                for cb in c.chunks_exact_mut(super::kfield::KBLK) {
+                    cb.copy_from_slice(&blk);
+                }
+            });
+        });
+    }
+    for i in nblk * KL..n {
+        t.set(i, e);
+    }
+}
+
+/// [UPERF2-E] One aligned member block of a witness tree (the
+/// `descent_fold::aligned_leaf` placement): `rows` x `cols` fused values,
+/// element f = r*cols + c at leaf `base + r*cols_pad + c`; the leaf is
+/// (1, alpha - value(f)).
+pub struct AlignedBlock<'a> {
+    pub base: usize,
+    pub rows: usize,
+    pub cols: usize,
+    pub cols_pad: usize,
+    /// The fused witness value of element f (row-major). Called once per
+    /// element, from several threads on the fast path.
+    pub value: &'a (dyn Fn(usize) -> KElem + Sync),
+}
+
+/// [UPERF2-E] Build the aligned blinded witness tree of 2^depth leaves:
+/// (1, alpha - value) at the member-block leaves, the blinders (a, u) at
+/// their positions, the neutral (0, 1) everywhere else. Fast packed path:
+/// the packed leaf tables are filled positionally and IN PARALLEL per
+/// member block over row chunks (a row chunk is a contiguous range of
+/// whole KL-lane blocks whenever `base` and `cols_pad` are multiples of
+/// KL — the pair planner's aligned bases and power-of-two strides — else
+/// that block is written serially), the values generated on the fly: no
+/// boxed leaf vector and no boxed member column ever exists (the callers'
+/// `bk_tree_slots` materialization and the sparse builder's serial entry
+/// loop are both gone). Scalar-oracle field / `oracle_mode()`: the boxed
+/// leaves are materialized in the same layout and `build_tree` runs — the
+/// pre-change body. Bit-identical trees (same leaf values, same packed
+/// encoding; asserted by `uperf-a descent-battery` three ways).
+pub fn build_aligned_witness_tree(
+    kf: &KField,
+    alpha: &KElem,
+    depth: usize,
+    blocks: &[AlignedBlock],
+    blinders: &[(usize, KElem, KElem)],
+) -> FracTree {
+    let n = 1usize << depth;
+    for b in blocks {
+        assert!(b.cols <= b.cols_pad && b.base + b.rows * b.cols_pad <= n, "aligned block outside the tree");
+    }
+    if kf.kern.is_none() || super::eval_proof::oracle_mode() {
+        let mut p = vec![kf.zero(); n];
+        let mut q = vec![kf.one(); n];
+        for b in blocks {
+            for r in 0..b.rows {
+                for c in 0..b.cols {
+                    let i = b.base + r * b.cols_pad + c;
+                    p[i] = kf.one();
+                    q[i] = kf.sub(alpha, &(b.value)(r * b.cols + c));
+                }
+            }
+        }
+        for (i, a, u) in blinders {
+            p[*i] = a.clone();
+            q[*i] = u.clone();
+        }
+        return build_tree(kf, p, q);
+    }
+    assert!(
+        super::kfield::k9_capacity_ok(n),
+        "K9 projective tree exceeds the audited packed-table cap"
+    );
+    let _t = prof::timer(prof::A_TREE_PACK);
+    let one = kf.one();
+    // p defaults to the zero element: the calloc'd zeroed table IS that
+    // fill (no page is touched here; the tree step faults them in, in
+    // parallel). q defaults to one: written blockwise in parallel (the
+    // page-fault + memset of a 64 MB depth-20 table was ~35 ms serial —
+    // the dominant "pack" cost once the leaf loop is streamed).
+    let mut leaf_p_t = KTab::zeroed(n);
+    let mut leaf_q_t = KTab::zeroed(n);
+    ktab_fill_par(&mut leaf_q_t, &one);
+    let one_u32: [u32; super::kfield::K_DEG] = {
+        let mut o = [0u32; super::kfield::K_DEG];
+        o[0] = 1;
+        o
+    };
+    // Write element `li` (relative to a slice starting at a block
+    // boundary) into a packed slice.
+    #[inline(always)]
+    fn put(d: &mut [u32], li: usize, e: &[u32; super::kfield::K_DEG]) {
+        let base = (li / KL) * super::kfield::KBLK + (li % KL);
+        for j in 0..super::kfield::K_DEG {
+            d[base + j * KL] = e[j];
+        }
+    }
+    let to_u32 = |e: &KElem| -> [u32; super::kfield::K_DEG] {
+        let mut o = [0u32; super::kfield::K_DEG];
+        for j in 0..super::kfield::K_DEG {
+            debug_assert!(e[j] < (1 << 31));
+            o[j] = e[j] as u32;
+        }
+        o
+    };
+    let threads = super::kfield::k9_threads();
+    for b in blocks {
+        let aligned = b.base % KL == 0 && b.cols_pad % KL == 0;
+        if !aligned || threads <= 1 || b.rows == 1 {
+            // Serial positional writes (identical values).
+            for r in 0..b.rows {
+                for c in 0..b.cols {
+                    let i = b.base + r * b.cols_pad + c;
+                    let qv = to_u32(&kf.sub(alpha, &(b.value)(r * b.cols + c)));
+                    put(&mut leaf_p_t.d, i, &one_u32);
+                    put(&mut leaf_q_t.d, i, &qv);
+                }
+            }
+            continue;
+        }
+        // Row chunks of ~4096 leaves: whole KL-blocks each.
+        let chunk_rows = (4096 / b.cols_pad).max(1);
+        let words_per_row = b.cols_pad / KL * super::kfield::KBLK;
+        let (w0, w1) = (b.base / KL * super::kfield::KBLK, (b.base + b.rows * b.cols_pad) / KL * super::kfield::KBLK);
+        let (pd, qd) = (&mut leaf_p_t.d[w0..w1], &mut leaf_q_t.d[w0..w1]);
+        let (rows, cols, cols_pad, value) = (b.rows, b.cols, b.cols_pad, b.value);
+        super::kfield::k9_pooled_pub(|| {
+            use rayon::prelude::*;
+            pd.par_chunks_mut(chunk_rows * words_per_row)
+                .zip(qd.par_chunks_mut(chunk_rows * words_per_row))
+                .enumerate()
+                .for_each(|(ci, (pc, qc))| {
+                    let r0 = ci * chunk_rows;
+                    let r1 = (r0 + chunk_rows).min(rows);
+                    for r in r0..r1 {
+                        for c in 0..cols {
+                            let li = (r - r0) * cols_pad + c;
+                            let qv = to_u32(&kf.sub(alpha, &value(r * cols + c)));
+                            put(pc, li, &one_u32);
+                            put(qc, li, &qv);
+                        }
+                    }
+                });
+        });
+    }
+    for (i, a, u) in blinders {
+        leaf_p_t.set(*i, a);
+        leaf_q_t.set(*i, u);
+    }
+    drop(_t);
+    build_tree_packed(kf, leaf_p_t, leaf_q_t)
+}
+
 /// [U-PERF-PA] B-D2 streamed builder: leaves are generated per index by
 /// the closure and packed DIRECTLY into the leaf tables — no boxed leaf
 /// vector ever exists (the boxed pair is ~2 x 170 B/element of transient

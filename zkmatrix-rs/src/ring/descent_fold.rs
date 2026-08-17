@@ -158,6 +158,9 @@ pub fn aligned_leaf(base: usize, cols: usize, cols_pad: usize, f: usize) -> usiz
 /// Build one blinded ALIGNED witness tree: fused member columns at
 /// their aligned blocks, dummies (0, 1) elsewhere, the pair's blinder
 /// set at the frozen positions. `slots` = (shape, base, fused column).
+/// [UPERF2-E] rides `aligned_witness_tree_fn` (the streamed, threaded
+/// packed builder) with the columns read in place; the scalar-oracle
+/// field and `oracle_mode()` take the pre-change boxed body inside it.
 pub fn aligned_witness_tree(
     kf: &KField,
     alpha: &KElem,
@@ -165,46 +168,51 @@ pub fn aligned_witness_tree(
     depth: usize,
     bl: &BlinderSet,
 ) -> FracTree {
-    let n = 1usize << depth;
     for (shape, _, col) in slots {
         assert_eq!(col.len(), shape.n_el());
     }
-    if kf.kern.is_some() && !super::eval_proof::oracle_mode() {
-        // [UPERF2-E] lane A's sparse packed builder: the aligned member
-        // entries and the blinders go straight into the packed leaf
-        // tables — the boxed 2 x 2^depth Vec<u64> pair (~1.4 GB of
-        // transient churn and ~1 s of malloc/free per depth-22 tree)
-        // never exists. Same leaf sequence as the boxed path below
-        // (member blocks never overlap each other or a blinder position:
-        // plan_pair_trees asserts both), so the tree is bit-identical.
-        let (zero, one) = (kf.zero(), kf.one());
-        let one_ref = &one;
-        let members = slots.iter().flat_map(move |(shape, base, col)| {
-            let cp = shape.cols_pad();
-            let (cols, base) = (shape.cols, *base);
-            col.iter()
-                .enumerate()
-                .map(move |(f, w)| (aligned_leaf(base, cols, cp, f), one_ref.clone(), kf.sub(alpha, w)))
-        });
-        let blp = blinder_positions(n);
-        let blinders = [&bl.tl, &bl.tr, &bl.f0, &bl.f1]
-            .into_iter()
-            .enumerate()
-            .map(|(k, b)| (blp[k], b.a.clone(), b.u.clone()));
-        return super::gkr::build_tree_sparse(kf, n, (&zero, &one), members.chain(blinders));
-    }
-    let mut p = vec![kf.zero(); n];
-    let mut q = vec![kf.one(); n];
-    for (shape, base, col) in slots {
-        let cp = shape.cols_pad();
-        for (f, w) in col.iter().enumerate() {
-            let i = aligned_leaf(*base, shape.cols, cp, f);
-            p[i] = kf.one();
-            q[i] = kf.sub(alpha, w);
-        }
-    }
-    super::gkr_masked::install_blinders(kf, &mut p, &mut q, bl);
-    super::gkr::build_tree(kf, p, q)
+    let fns: Vec<Box<dyn Fn(usize) -> KElem + Sync + '_>> =
+        slots.iter().map(|(_, _, col)| Box::new(move |f: usize| col[f].clone()) as Box<dyn Fn(usize) -> KElem + Sync>).collect();
+    let slot_fns: Vec<(MemberShape, usize, &(dyn Fn(usize) -> KElem + Sync))> =
+        slots.iter().zip(fns.iter()).map(|((s, b, _), f)| (*s, *b, f.as_ref())).collect();
+    aligned_witness_tree_fn(kf, alpha, &slot_fns, depth, bl)
+}
+
+/// [UPERF2-E] The STREAMED aligned witness tree: `slots` = (shape, base,
+/// value(f)) with value(f) the fused K-value of member element f (row-
+/// major) — generated on the fly by `gkr::build_aligned_witness_tree`'s
+/// threaded positional fill, so neither a boxed leaf vector nor a boxed
+/// member column is ever materialized (the callers pass closures over
+/// their integer layer data). Same leaf sequence as the boxed body (member
+/// blocks never overlap each other or a blinder position: plan_pair_trees
+/// asserts both) — bit-identical trees; under the scalar field /
+/// `oracle_mode()` the builder materializes the boxed leaves and runs
+/// `build_tree`, the pre-change body.
+pub fn aligned_witness_tree_fn(
+    kf: &KField,
+    alpha: &KElem,
+    slots: &[(MemberShape, usize, &(dyn Fn(usize) -> KElem + Sync))],
+    depth: usize,
+    bl: &BlinderSet,
+) -> FracTree {
+    let n = 1usize << depth;
+    let blocks: Vec<super::gkr::AlignedBlock> = slots
+        .iter()
+        .map(|(shape, base, value)| super::gkr::AlignedBlock {
+            base: *base,
+            rows: shape.rows,
+            cols: shape.cols,
+            cols_pad: shape.cols_pad(),
+            value: *value,
+        })
+        .collect();
+    let blp = blinder_positions(n);
+    let blinders: Vec<(usize, KElem, KElem)> = [&bl.tl, &bl.tr, &bl.f0, &bl.f1]
+        .into_iter()
+        .enumerate()
+        .map(|(k, b)| (blp[k], b.a.clone(), b.u.clone()))
+        .collect();
+    super::gkr::build_aligned_witness_tree(kf, alpha, depth, &blocks, &blinders)
 }
 
 /// A neutral pad tree: all-dummy (0, 1) leaves, no blinders (a pad

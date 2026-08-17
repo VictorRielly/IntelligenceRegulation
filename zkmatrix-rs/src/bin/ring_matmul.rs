@@ -33154,9 +33154,38 @@ fn bk_tree_slots(
     out
 }
 
+/// [UPERF2-E] The streamed form of `bk_tree_slots`: per member block a
+/// closure that fuses element f on demand (SiLU pair -> fuse_pair, range
+/// member -> embed(prim + offset)) — consumed by
+/// `descent_fold::aligned_witness_tree_fn`, whose threaded packed fill
+/// calls it per leaf; no boxed member column is materialized. Same values
+/// as `bk_tree_slots` element for element.
+fn bk_tree_slot_fns<'a>(
+    kf: &'a ring::kfield::KField,
+    sp: &BkPairSpec,
+    lays: &'a [BfLayer],
+    tree: usize,
+) -> Vec<(ring::descent_fold::MemberShape, usize, Box<dyn Fn(usize) -> ring::kfield::KElem + Sync + 'a>)> {
+    use ring::lookup::fuse_pair;
+    let zq = &kf.zq;
+    let mut out: Vec<(ring::descent_fold::MemberShape, usize, Box<dyn Fn(usize) -> ring::kfield::KElem + Sync + 'a>)> = Vec::new();
+    for b in sp.plan.blocks.iter().filter(|b| b.tree == tree) {
+        let m = &sp.members[b.member];
+        let (prim, pair) = bk_member_vals(m, lays);
+        let offset = m.offset;
+        let f: Box<dyn Fn(usize) -> ring::kfield::KElem + Sync + 'a> = if let Some(pv) = pair {
+            Box::new(move |f: usize| fuse_pair(kf, zq.to_mod(prim[f]), zq.to_mod(pv[f])))
+        } else {
+            Box::new(move |f: usize| kf.embed(zq.to_mod(prim[f] + offset)))
+        };
+        out.push((m.shape, b.base, f));
+    }
+    out
+}
+
 #[allow(clippy::too_many_arguments)]
 fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
-    use ring::descent_fold::{aligned_witness_tree, neutral_tree, tree_ceiling_ok};
+    use ring::descent_fold::{aligned_witness_tree, aligned_witness_tree_fn, neutral_tree, tree_ceiling_ok};
     use ring::fold::{
         expand_layer_table, ixf_layout, ixf_sumcheck_prove, ixf_sumcheck_verify,
         matmul_degree_schedule, zerocheck_degree_schedule,
@@ -33547,13 +33576,29 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         let prof_trees = ring::ct_engine::prof::timer(ring::ct_engine::prof::BK_TREES); // observation only
         let mut wtrees: Vec<ring::gkr::FracTree> = Vec::with_capacity(plan.l);
         for i in 0..plan.n_real {
+            // [UPERF2-E] streamed member values (bk_tree_slot_fns) into the
+            // threaded packed builder — the boxed slot columns of
+            // `bk_tree_slots` (kept for the WrongTable self-check paths and
+            // the batteries) are not materialized here.
+            if ring::eval_proof::oracle_mode() {
+                // ZK_UPERF_ORACLE=1: the pre-change caller (materialized
+                // slot columns + aligned_witness_tree's boxed body).
+                let prof_slots = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_TREE_SLOTS); // [UPERF2-E] observation only
+                let slots = bk_tree_slots(&kf, sp, &lays, i);
+                let slot_refs: Vec<(ring::descent_fold::MemberShape, usize, &[KElem])> =
+                    slots.iter().map(|(s, b, c)| (*s, *b, c.as_slice())).collect();
+                drop(prof_slots);
+                let _prof_wit = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_TREE_WIT); // [UPERF2-E] observation only
+                wtrees.push(aligned_witness_tree(&kf, &alpha, &slot_refs, plan.depth, &aux[pi].bl_w[i]));
+                continue;
+            }
             let prof_slots = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_TREE_SLOTS); // [UPERF2-E] observation only
-            let slots = bk_tree_slots(&kf, sp, &lays, i);
-            let slot_refs: Vec<(ring::descent_fold::MemberShape, usize, &[KElem])> =
-                slots.iter().map(|(s, b, c)| (*s, *b, c.as_slice())).collect();
+            let slot_fns = bk_tree_slot_fns(&kf, sp, &lays, i);
+            let slot_refs: Vec<(ring::descent_fold::MemberShape, usize, &(dyn Fn(usize) -> KElem + Sync))> =
+                slot_fns.iter().map(|(s, b, f)| (*s, *b, f.as_ref())).collect();
             drop(prof_slots);
             let _prof_wit = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_TREE_WIT); // [UPERF2-E] observation only
-            wtrees.push(aligned_witness_tree(&kf, &alpha, &slot_refs, plan.depth, &aux[pi].bl_w[i]));
+            wtrees.push(aligned_witness_tree_fn(&kf, &alpha, &slot_refs, plan.depth, &aux[pi].bl_w[i]));
         }
         {
             let _prof_wit = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_TREE_WIT); // [UPERF2-E] observation only
