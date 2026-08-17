@@ -6400,6 +6400,8 @@ fn main() {
         Some("m125-pass") => m125_pass_main(&args[1..]),
         // [UPERF-PC] U-PERF lane PC profile/differential harness (additive).
         Some("uperf-pc") => uperf_pc_main(&args[1..]),
+        // [UPERF2-A] U-PERF2 lane A descent bench/battery harness (additive).
+        Some("uperf-a") => uperf_a_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -35253,4 +35255,37 @@ fn uperf_pc_diff_o2_o3() -> (usize, usize) {
         }
     }
     (legs_h, legs_m)
+}
+
+// ===========================================================================
+// [UPERF2-A] U-PERF2 lane A (the descents): synthetic descent bench at
+// real depth + the transcript-identity battery for the lane's
+// optimizations in gkr/gkr_masked/kfield. ADDITIVE section — no shipped
+// path is changed here. Commands:
+//   uperf-a descent-bench <depth> <l> [n_real] [dt]  — mirror bk_pass_run's
+//     descent phase on synthetic packed trees at fixed seeds; wall +
+//     phase attribution + `[UPERF2-A] DESCENT DIGEST` + peak RSS.
+//   uperf-a descent-battery  — fixed-seed proofs at small shapes, boxed
+//     scalar oracle == bulk-ref (oracle_mode) == bulk-fast, all verify.
+
+fn uperf_a_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("descent-bench") => {
+            let depth: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(16);
+            let l: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(4);
+            let n_real: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(l.max(1) - (l >= 2) as usize);
+            let dt: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(9);
+            uperf_a_descent_bench(depth, l, n_real, dt);
+        }
+        Some("descent-battery") => uperf_a_descent_battery(),
+        _ => println!("uperf-a descent-bench <depth> <l> [n_real] [dt] | descent-battery"),
+    }
+}
+
+fn uperf_a_descent_bench(depth: usize, l: usize, n_real: usize, dt: usize) {
+    println!("[UPERF2-A] descent-bench stub: depth {depth} l {l} n_real {n_real} dt {dt} (not implemented yet)");
+}
+
+fn uperf_a_descent_battery() {
+    println!("[UPERF2-A] descent-battery stub (not implemented yet)");
 }

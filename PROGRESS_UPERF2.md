@@ -201,7 +201,43 @@ order; run anything needing the export.
 
 ## Agent A status (wt-uperf2-a)
 
-- (lane launches here)
+PLAN (skeleton commit, 2026-08-17). Files: gkr_masked.rs / gkr.rs /
+kfield.rs / sumcheck.rs (internals), a `// [UPERF2-A]` bin section
+with `uperf-a {descent-bench, descent-battery}`, prof ids appended to
+ct_engine::prof (`a.*`), docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md.
+Baseline capture taken BEFORE any code change: freeze-check from the
+main worktree's binary built at 213dfa2 (code-identical to c46483a) —
+98 `ok` rows then the expected BF panic
+(scratchpad/a_freeze_baseline.txt).
+
+1. Bench arm `uperf-a descent-bench <depth> <l> [n_real] [dt]`: mirrors
+   bk_pass_run's descent phase (aligned_witness_tree with two synthetic
+   members per real tree at bases 0 and n/2, neutral pads to l,
+   draw_masks at fixed test seeds, masked_gkr_prove witness side, then
+   the table side at dt with blinded_table_tree, masked_gkr_verify both
+   with pins) and prints wall + prof attribution (a.tree-pack,
+   a.tree-step, a.eq-table, a.extract, a.round-g, a.fold, a.scalar-tail,
+   a.layer-glue) + `[UPERF2-A] DESCENT DIGEST` (SHA-256 over both proofs
+   + both DescentEnds) + peak RSS (VmHWM).
+2. Optimizations (each behind `oracle_mode()` with the pre-change body
+   kept as `*_ref`): (a) drop the P0 work table — carry PL := p0 +
+   lambda*q0 (wire = PL*Q1 + P1*Q0: 3 MACs -> 2 per node before the eq
+   MAC; boundary p0 = PL - lambda*Q0 at the end; 5 folds per round
+   instead of 6); (b) deterministic ZK_THREADS over block ranges in the
+   round kernel (per-chunk lazy accumulators summed in index order — an
+   exact-integer sum, so identical for any T), the folds (out-of-place
+   into a per-layer scratch that is swapped in — the in-place fold's
+   aliasing forbids a naive split), eq-table doubling, extract, tree
+   steps; (c) block-copy extract; streamed pack in blinded_* builders.
+3. `uperf-a descent-battery`: depths 4/8/12, l 1/2/8 with pads, masked
+   AND zero masks; boxed-scalar oracle (KField::harness_scalar) ==
+   bulk-ref (set_oracle_mode(true)) == bulk-fast, every proof verifies;
+   prints a battery digest to compare across ZK_THREADS 1/2/7 runs.
+4. Gates at HEAD: self-test, bh-verifier battery, uperf-pc diff-battery,
+   freeze-check 98 rows == baseline.
+5. Report + this section.
+
+STATUS: (updated as steps land)
 
 ## Agent C status (wt-uperf2-c)
 
