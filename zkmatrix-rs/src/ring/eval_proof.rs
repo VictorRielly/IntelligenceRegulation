@@ -1878,6 +1878,7 @@ fn psi_level0_multi_impl(
             // code recomputed 256 K-mults x 16 kara-muls PER DIGIT RING
             // (l0 = 16 limbs for the q-range aux tensors: 137 of the 142 s
             // verify at 3x16). Under `pre_o5` (oracle) the reference runs.
+            let _te = prof::timer(prof::E_PSI0_SMALL); // [UPERF2-E] observation only
             if pre_o5 {
                 for rel in 0..t.n_digit_rings() {
                     let v = t.digit_ring_base + rel;
@@ -1895,9 +1896,11 @@ fn psi_level0_multi_impl(
             let radixes: Vec<u64> =
                 (0..t.l0).map(|l| zq.to_mod(1i64 << (t.e0 as usize * l))).collect();
             let n_vr = t.n_value_rings();
-            let ks = kers_sync(&kers);
+            // [UPERF2-E] hoisted K-weight rows (see kw_hoist); the
+            // pre-change per-value-ring body is `kw_row_sync`.
+            let ks = kw_hoist(kf, t, &kers);
             let contrib_of = |vr: usize| -> Vec<(usize, Poly)> {
-                let kw = kw_row_sync(kf, t, &ks, vr);
+                let kw = kw_row_hoisted(kf, &ks, vr);
                 let mut out = Vec::with_capacity(t.l0);
                 if kw.iter().all(|k| kf.is_zero(k)) {
                     return out;
@@ -2339,6 +2342,10 @@ fn kers_sync(kers: &[&MultiClaimKernel]) -> Vec<KerSync> {
 }
 
 /// `kw_row_multi` over the Sync copies (identical arithmetic).
+/// [UPERF2-E] This was the per-value-ring body of both generic
+/// (misaligned) branches before the hoisted form below replaced it;
+/// kept verbatim as the pre-change reference (`kw_value_row_sync_ref`
+/// exposes it to the `uperf-e diff-battery`).
 fn kw_row_sync(kf: &KField, t: &AggTensor, kers: &[KerSync], vr: usize) -> Vec<KElem> {
     let mut out = vec![kf.zero(); D];
     let n = t.n_values();
@@ -2352,6 +2359,93 @@ fn kw_row_sync(kf: &KField, t: &AggTensor, kers: &[KerSync], vr: usize) -> Vec<K
         }
     }
     out
+}
+
+/// [UPERF2-E] The HOISTED K-weight row of a misaligned tensor (the BK
+/// aux tensors: cols = 16, ~4 x depth mask-opening kernels per tensor
+/// whose row kernels are nonzero on ONE coefficient block each). Per
+/// kernel, once: scol[c] = scale *_K col[c] (cols K-mults) and the
+/// nonzero row-kernel bounds [lo, hi). Per value ring: one K-mult per
+/// (kernel, c1) whose row factor is nonzero — instead of two K-mults per
+/// (kernel, c1) for every kernel (`kw_row_sync`: 128 x n_kernels x 2 per
+/// value ring; 7.3 s of the 3x16 prove's kernel passes and 3.5 s of its
+/// verify sat here). Identical values: K is a field, so
+/// scale *_K (row *_K col) = row *_K (scale *_K col) with canonical
+/// coordinates, and every skipped term is an exact zero (0 *_K x = 0,
+/// o + 0 = o); the per-c1 sums run in the same kernel order.
+struct KwHoistKer {
+    scol: Vec<KElem>,
+    row: Vec<KElem>,
+    lo: usize,
+    hi: usize,
+}
+
+struct KwHoist {
+    cols: usize,
+    n_values: usize,
+    kers: Vec<KwHoistKer>,
+}
+
+fn kw_hoist(kf: &KField, t: &AggTensor, kers: &[&MultiClaimKernel]) -> KwHoist {
+    let cols = t.cols;
+    let n_values = t.n_values();
+    let n_rows_used = if cols == 0 { 0 } else { n_values.div_ceil(cols) };
+    let kers = kers
+        .iter()
+        .map(|k| {
+            let scol: Vec<KElem> = (0..cols.min(k.col_kernel.len())).map(|c| kf.mul(&k.scale, &k.col_kernel[c])).collect();
+            let row: Vec<KElem> = (*k.row_kernel).clone();
+            let used = n_rows_used.min(row.len());
+            let lo = (0..used).find(|&r| !kf.is_zero(&row[r])).unwrap_or(used);
+            let hi = (lo..used).rev().find(|&r| !kf.is_zero(&row[r])).map(|r| r + 1).unwrap_or(lo);
+            KwHoistKer { scol, row, lo, hi }
+        })
+        .collect();
+    KwHoist { cols, n_values, kers }
+}
+
+fn kw_row_hoisted(kf: &KField, h: &KwHoist, vr: usize) -> Vec<KElem> {
+    let mut out = vec![kf.zero(); D];
+    let f0 = vr * D;
+    if f0 >= h.n_values || h.cols == 0 {
+        return out;
+    }
+    let f1 = (f0 + D).min(h.n_values);
+    for ker in &h.kers {
+        // rows [lo, hi) <=> f in [lo*cols, hi*cols); intersect with [f0, f1).
+        let (a, b) = (f0.max(ker.lo * h.cols), f1.min(ker.hi * h.cols));
+        if a >= b {
+            continue;
+        }
+        for f in a..b {
+            let rk = &ker.row[f / h.cols];
+            if rk.iter().all(|&x| x == 0) {
+                continue;
+            }
+            let c1 = f - f0;
+            out[c1] = kf.add(&out[c1], &kf.mul(rk, &ker.scol[f % h.cols]));
+        }
+    }
+    out
+}
+
+/// [UPERF2-E] Battery entry: the pre-change generic K-weight row of value
+/// ring `vr` of tensor `t` under `kers` (`kw_row_sync` verbatim).
+pub fn kw_value_row_sync_ref(kf: &KField, t: &AggTensor, kers: &[&MultiClaimKernel], vr: usize) -> Vec<KElem> {
+    let ks = kers_sync(kers);
+    kw_row_sync(kf, t, &ks, vr)
+}
+
+/// [UPERF2-E] Battery entry: the hoisted K-weight row (what both generic
+/// branches now run per value ring).
+pub fn kw_value_row_hoisted(kf: &KField, t: &AggTensor, kers: &[&MultiClaimKernel], vr: usize) -> Vec<KElem> {
+    let h = kw_hoist(kf, t, kers);
+    kw_row_hoisted(kf, &h, vr)
+}
+
+/// [UPERF2-E] Battery entry: the per-ring reference row (`kw_row_multi`).
+pub fn kw_value_row_ref(kf: &KField, t: &AggTensor, kers: &[&MultiClaimKernel], vr: usize) -> Vec<KElem> {
+    kw_row_multi(kf, t, kers, vr)
 }
 
 /// conj-packed claim-row polys of one digit ring from its value-row
@@ -2443,7 +2537,11 @@ pub fn kernel_pass_factored(
             // against the radix-1 bpolys. Identical mod q to the per-limb
             // reference above (radix is a scalar), 16x fewer ring-mults
             // and K-mults at l0 = 16.
-            let ks = kers_sync(&kers);
+            let _te = prof::timer(prof::E_KPASS_SMALL); // [UPERF2-E] observation only
+            // [UPERF2-E] the hoisted K-weight rows (kw_hoist / kw_row_hoisted:
+            // scaled col kernels + nonzero row bounds once per kernel);
+            // the pre-change per-value-ring body is `kw_row_sync`.
+            let ks = kw_hoist(kf, t, &kers);
             let mut vr0 = 0;
             const VR_BLOCK_M: usize = 1024;
             while vr0 < n_vr {
@@ -2451,7 +2549,7 @@ pub fn kernel_pass_factored(
                 if phi_mode {
                     let alphas = alphas.unwrap();
                     let one_vr = |vr: usize| -> Vec<Poly> {
-                        let kw = kw_row_sync(kf, t, &ks, vr);
+                        let kw = kw_row_hoisted(kf, &ks, vr);
                         if kw.iter().all(|k| kf.is_zero(k)) {
                             return vec![poly_zero(); t.l0];
                         }
@@ -2490,7 +2588,7 @@ pub fn kernel_pass_factored(
                         if !any {
                             return None;
                         }
-                        let kw = kw_row_sync(kf, t, &ks, vr);
+                        let kw = kw_row_hoisted(kf, &ks, vr);
                         if kw.iter().all(|k| kf.is_zero(k)) {
                             return None;
                         }

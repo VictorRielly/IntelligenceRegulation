@@ -2520,7 +2520,18 @@ pub mod prof {
     pub const A_SCALAR_TAIL: usize = 37; // sub-block scalar rounds + w-round
     pub const A_GKR_PROVE: usize = 38; // masked_gkr_prove total
     pub const A_GKR_VERIFY: usize = 39; // masked_gkr_verify total
-    pub const N_PHASES: usize = 40;
+    // [UPERF2-E] descent callers / descent verify / small-cols aux (observation only)
+    pub const E_TREE_SLOTS: usize = 40; // bk_tree_slots: member column materialization (prover)
+    pub const E_TREE_WIT: usize = 41; // aligned_witness_tree + neutral pads (prover)
+    pub const E_TREE_TAB: usize = 42; // table trees: m_k + blinded_table_tree + pads (prover)
+    pub const E_VERIFY_SHELLS: usize = 43; // verifier: zero_masks shells per pair
+    pub const E_VERIFY_CROSS: usize = 44; // verifier: root cross-checks per pair
+    pub const E_CLAIMS_MASK: usize = 45; // bk_pair_claims: mask-opening claims (both sides)
+    pub const E_CLAIMS_WIT: usize = 46; // bk_pair_claims: witness-side publics (eq tables, prefixes, blinder rows)
+    pub const E_CLAIMS_TAB: usize = 47; // bk_pair_claims: table-side publics
+    pub const E_KPASS_SMALL: usize = 48; // kernel_pass_factored: misaligned (small-cols) tensors, both passes
+    pub const E_PSI0_SMALL: usize = 49; // psi_level0_factored_multi: misaligned (small-cols) tensors
+    pub const N_PHASES: usize = 50;
 
     pub const NAMES: [&str; N_PHASES] = [
         "ct.setup(clone+digits)",
@@ -2563,6 +2574,16 @@ pub mod prof {
         "a.scalar-tail",
         "a.gkr-prove",
         "a.gkr-verify",
+        "e.tree-slots",
+        "e.tree-witness",
+        "e.tree-table",
+        "e.verify-shells",
+        "e.verify-cross",
+        "e.claims-mask",
+        "e.claims-witness",
+        "e.claims-table",
+        "e.kpass-smallcols",
+        "e.psi0-smallcols",
     ];
 
     static ENABLED: AtomicBool = AtomicBool::new(false);

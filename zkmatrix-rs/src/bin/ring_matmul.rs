@@ -32803,10 +32803,13 @@ fn bk_pair_claims(
         let _ = mask_coeff_counts;
     };
     let [_, _, wm_kel, tm_kel] = reg.aux_shape[pi];
+    let prof_mask = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_CLAIMS_MASK); // [UPERF2-E] observation only
     mask_claims(ti_wm, wm_kel, plan.depth, tp.pw, tp.endw, claims);
     mask_claims(ti_tm, tm_kel, sp.dt, tp.pt, tp.endt, claims);
+    drop(prof_mask);
 
     // ---- Witness-side publics at z*_w. ----
+    let prof_wit = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_CLAIMS_WIT); // [UPERF2-E] observation only
     let (zw_tree, zw_inst) = tp.endw.zstar.split_at(plan.depth);
     let inst_tab_w = eq_table(kf, zw_inst);
     // Per distinct member shape: eq tables over (cols_pad | rows) bits.
@@ -32903,9 +32906,11 @@ fn bk_pair_claims(
         }
     }
     claims.push(BkClaim { in_weight: false, value: wq_value, parts: wq_parts });
+    drop(prof_wit);
 
     // ---- Table-side publics at z*_t (STATEMENT table values — the
     // ---- wrong-table reject face lives exactly here). ----
+    let _prof_tab = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_CLAIMS_TAB); // [UPERF2-E] observation only
     let table_k = sp.table_k(kf);
     let (zt_tree, zt_inst) = tp.endt.zstar.split_at(sp.dt);
     let inst_tab_t = eq_table(kf, zt_inst);
@@ -33542,13 +33547,19 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         let prof_trees = ring::ct_engine::prof::timer(ring::ct_engine::prof::BK_TREES); // observation only
         let mut wtrees: Vec<ring::gkr::FracTree> = Vec::with_capacity(plan.l);
         for i in 0..plan.n_real {
+            let prof_slots = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_TREE_SLOTS); // [UPERF2-E] observation only
             let slots = bk_tree_slots(&kf, sp, &lays, i);
             let slot_refs: Vec<(ring::descent_fold::MemberShape, usize, &[KElem])> =
                 slots.iter().map(|(s, b, c)| (*s, *b, c.as_slice())).collect();
+            drop(prof_slots);
+            let _prof_wit = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_TREE_WIT); // [UPERF2-E] observation only
             wtrees.push(aligned_witness_tree(&kf, &alpha, &slot_refs, plan.depth, &aux[pi].bl_w[i]));
         }
-        for _ in plan.n_real..plan.l {
-            wtrees.push(neutral_tree(&kf, plan.depth));
+        {
+            let _prof_wit = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_TREE_WIT); // [UPERF2-E] observation only
+            for _ in plan.n_real..plan.l {
+                wtrees.push(neutral_tree(&kf, plan.depth));
+            }
         }
         let masks_w = aux[pi].masks_w.take().expect("witness masks drawn once");
         drop(prof_trees);
@@ -33559,6 +33570,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         // Table trees (the PROVER's table — statement member on every
         // honest path; the WrongTable arm runs its own).
         let prof_trees = ring::ct_engine::prof::timer(ring::ct_engine::prof::BK_TREES); // observation only
+        let prof_tab = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_TREE_TAB); // [UPERF2-E] observation only
         let tab_k = bk_table_for(&kf, sp, bk_prover_silu(sp, opts));
         let mut ttrees: Vec<ring::gkr::FracTree> = Vec::with_capacity(plan.l);
         for i in 0..plan.n_real {
@@ -33569,6 +33581,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         for _ in plan.n_real..plan.l {
             ttrees.push(neutral_tree(&kf, sp.dt));
         }
+        drop(prof_tab);
         let masks_t = aux[pi].masks_t.take().expect("table masks drawn once");
         drop(prof_trees);
         let prof_gkr = ring::ct_engine::prof::timer(ring::ct_engine::prof::BK_GKR); // observation only
@@ -33857,7 +33870,9 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
                 let plan = &sp.plan;
                 let alpha_v = tv.challenge_k(&kf);
                 let ptx = &pair_transcripts[pi];
+                let prof_shell = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_VERIFY_SHELLS); // [UPERF2-E] observation only
                 let shell_w = zero_masks(&kf, plan.depth, plan.e_bits);
+                drop(prof_shell);
                 let Some((roots_w, endw_v)) =
                     masked_gkr_verify(&kf, plan.l, plan.depth, &shell_w, &ptx.pw, &mut tv, false)
                 else {
@@ -33865,7 +33880,9 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
                     fail(&mut verdict, format!("pair-descent-w:{}", sp.name()));
                     break 'verify;
                 };
+                let prof_shell = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_VERIFY_SHELLS); // [UPERF2-E] observation only
                 let shell_t = zero_masks(&kf, sp.dt, plan.e_bits);
+                drop(prof_shell);
                 let Some((roots_t, endt_v)) =
                     masked_gkr_verify(&kf, plan.l, sp.dt, &shell_t, &ptx.pt, &mut tv, false)
                 else {
@@ -33873,6 +33890,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
                     fail(&mut verdict, format!("pair-descent-t:{}", sp.name()));
                     break 'verify;
                 };
+                let prof_cross = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_VERIFY_CROSS); // [UPERF2-E] observation only
                 let mut cross_ok = true;
                 for i in 0..plan.n_real {
                     cross_ok &= root_cross_check(&kf, &roots_w[i], &roots_t[i]);
@@ -33885,6 +33903,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
                             && p[3] == kf.one();
                     }
                 }
+                drop(prof_cross);
                 if !cross_ok {
                     verdict.pairs_ok = false;
                     fail(&mut verdict, format!("pair-cross-check:{}", sp.name()));

@@ -166,10 +166,36 @@ pub fn aligned_witness_tree(
     bl: &BlinderSet,
 ) -> FracTree {
     let n = 1usize << depth;
+    for (shape, _, col) in slots {
+        assert_eq!(col.len(), shape.n_el());
+    }
+    if kf.kern.is_some() && !super::eval_proof::oracle_mode() {
+        // [UPERF2-E] lane A's sparse packed builder: the aligned member
+        // entries and the blinders go straight into the packed leaf
+        // tables — the boxed 2 x 2^depth Vec<u64> pair (~1.4 GB of
+        // transient churn and ~1 s of malloc/free per depth-22 tree)
+        // never exists. Same leaf sequence as the boxed path below
+        // (member blocks never overlap each other or a blinder position:
+        // plan_pair_trees asserts both), so the tree is bit-identical.
+        let (zero, one) = (kf.zero(), kf.one());
+        let one_ref = &one;
+        let members = slots.iter().flat_map(move |(shape, base, col)| {
+            let cp = shape.cols_pad();
+            let (cols, base) = (shape.cols, *base);
+            col.iter()
+                .enumerate()
+                .map(move |(f, w)| (aligned_leaf(base, cols, cp, f), one_ref.clone(), kf.sub(alpha, w)))
+        });
+        let blp = blinder_positions(n);
+        let blinders = [&bl.tl, &bl.tr, &bl.f0, &bl.f1]
+            .into_iter()
+            .enumerate()
+            .map(|(k, b)| (blp[k], b.a.clone(), b.u.clone()));
+        return super::gkr::build_tree_sparse(kf, n, (&zero, &one), members.chain(blinders));
+    }
     let mut p = vec![kf.zero(); n];
     let mut q = vec![kf.one(); n];
     for (shape, base, col) in slots {
-        assert_eq!(col.len(), shape.n_el());
         let cp = shape.cols_pad();
         for (f, w) in col.iter().enumerate() {
             let i = aligned_leaf(*base, shape.cols, cp, f);
@@ -183,10 +209,13 @@ pub fn aligned_witness_tree(
 
 /// A neutral pad tree: all-dummy (0, 1) leaves, no blinders (a pad
 /// slot carries no witness and no randomizable layer-1 values — its
-/// derived root is the public (0, 1)).
+/// derived root is the public (0, 1)). [UPERF2-E] delegates to lane A's
+/// `gkr::build_neutral_tree`: the compact `FracTree::Neutral` on the
+/// fast packed path (no allocation), the materialized boxed leaves +
+/// `build_tree` for the scalar-oracle field and under `oracle_mode()` —
+/// bit-identical trees either way.
 pub fn neutral_tree(kf: &KField, depth: usize) -> FracTree {
-    let n = 1usize << depth;
-    super::gkr::build_tree(kf, vec![kf.zero(); n], vec![kf.one(); n])
+    super::gkr::build_neutral_tree(kf, depth)
 }
 
 // ---------------------------------------------------------------------------
