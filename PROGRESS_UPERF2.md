@@ -205,7 +205,50 @@ order; run anything needing the export.
 
 ## Agent C status (wt-uperf2-c)
 
-- (lane launches here)
+- 2026-08-17 PLAN COMMIT (lane C, branch uperf2-c at c46483a). Method
+  for every item: exact-integer NTT-domain evaluation over Goldilocks
+  (aux_ntt_core), the pre-change body kept as `*_ref`, `oracle_mode()`
+  honored, threads over independent outputs with a fixed reduction
+  order — the PERF RULE unchanged. Item plan:
+  - T7 `fold_chunks_ntt(cs, w_slices, chunk)`: c_j (|c| <= 2) and w
+    (|w| <= 2^(e-1) <= 64) lifted to Z_p, c transformed once, each w
+    once, r-term pointwise MAC per output, one inverse per z_u,
+    `center_from_p` -> the exact i64 fold. Capacity is checked from the
+    DATA bounds (r * D * cmax * wmax <= (p-1)/2; the composed pass sits
+    at ~2^21 vs 2^63) and falls back to the `poly_mul_small` loop
+    (`fold_chunks_ref`) otherwise. Callers `bg_fold` / `agg_fold` keep
+    the `representable` assert and the digit split (now per-ring
+    parallel via `decompose_polys_small`).
+  - T3b `transport_level_from_psi`: three exact mod-q regroupings
+    (radix scaling and the small-operand product commute with the
+    alpha product; each next-witness ring is a scalar multiple of a
+    per-SOURCE ring), so the general x general work collapses to two
+    GEMV-shaped contractions — S[src] = a_l1 * psi[src] + sum_kap
+    a_t4[kap] * A[kap][src] (chunk outputs x 12 terms) and T5[pos] =
+    sum_kap2 a_t5[bi][kap2] * B_bi[kap2][pos] (t+h outputs x 11
+    terms) — evaluated by a NEW `ntt_combine_general` kernel: both
+    operands limb-split at `limb_bits(q)` (lo/hi/lo+hi transforms —
+    the `A1LimbCommitKernel` contract), the alphas transformed once,
+    3 Karatsuba sub-products accumulated in-domain (capacity asserted
+    exactly for the term count; n <= 1024 at q46, 2^24 at q31), 3
+    inverses per output, exact recompose mod q. The small-operand
+    products (a_t4[kap] * c_j, a_l1 * cpair) ride `ntt_gemm_modq_small`;
+    T1 is a scalar scale. Assembly per u is a fixed-order mod-q sum.
+    Body kept as `transport_level_from_psi_ref`; threads over output
+    blocks; battery leg at Q8 and Q8_46 with zero rings and every
+    Z/T/H boundary of `NextLayout` (1 and 2 bindings).
+  - `compute_psi`: per-u direct NTT accumulate (c_k transformed once,
+    r phi rings per output, one inverse), windowed by
+    `ntt_window_terms(q, 2)` with the ref as the over-capacity
+    fallback; threads over u-blocks. `decompose_polys_modq/_small`
+    parallel helpers for the `bg_matvec_chunks` / `bg_level_h` /
+    `bg_fold` (and agg_*) digit splits.
+  - Harness: `ring_matmul uperf-c diff-battery | bench [r] [chunk]`
+    in a `// [UPERF2-C]` bin section; report
+    docs/zkmatrix-poc/U_PERF2_EVALPROOF_REPORT.md.
+  - Baseline capture BEFORE any code change: freeze-check's 98 `ok`
+    rows from the untouched build (scratchpad), compared after each
+    step.
 
 ## Log
 
