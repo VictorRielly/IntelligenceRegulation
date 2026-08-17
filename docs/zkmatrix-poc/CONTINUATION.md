@@ -86,6 +86,14 @@ side trench during Phase 0.
 Local untracked `ComputationMonitor/zkgpt_poc/` is not on this path
 and must not be merged as a substitute engine.
 
+Victor, console 2026-08-17: the named alternative, if the clocks stay
+out of reach after Phases 0-3, is Attestable's approach — a MIX of
+floating-point and integer ZKPs, exploiting that GPUs are far better at
+floats (AGGREGATION_LITERATURE.md 2026-08-11 watch item: Gemma-4-31B
+at 53-77 tok/s on one H100, vendor-claimed, no paper/code). Explore it
+then, not now; the lattice line's integer-exact/post-quantum story is
+the reason it stays first.
+
 ## 4. Sequence (do not reorder)
 
 Phase 0 — U-PERF PC (NEXT). Profile `uperf-pc wave-profile` /
