@@ -882,29 +882,38 @@ fn masked_rounds_bulk(
             full
         }
     };
-    let (mut pl, mut p1c, mut q0c, mut q1c) = {
-        let _t = prof::timer(prof::A_EXTRACT);
-        let (mut p0c, p1c, q0c, q1c) = extract_children_par(trees, j, !skip);
-        // PL = p0 + lambda*q0, in place on the extracted p0 (real ranges).
-        if !skip {
-            kf.kt_mul_fixed_add_inplace(&mut p0c, &q0c, lay.lambda);
-        } else {
-            let nblk = per / KL;
-            for &e in &real {
-                let w0 = e * nblk * super::kfield::KBLK;
-                super::kfield::k9_mul_fixed_add_par(kern, &mut p0c.d[w0..w0 + nblk * super::kfield::KBLK], &q0c.d[w0..w0 + nblk * super::kfield::KBLK], &kop(lay.lambda), nblk);
-            }
-        }
-        (p0c, p1c, q0c, q1c)
-    };
-    debug_assert_eq!(eq_cur.n, pl.n);
+    // [UPERF2-G] FUSION. The five work tables are folded INSIDE the next
+    // round's kernel pass (`kfield::k9_fused_round_par`, FUSE_FOLD) and the
+    // extraction of layer j+1 into (PL, p1, q0, q1) is fused into rounds 0
+    // and 1 (FUSE_EXTRACT / FUSE_EXTRACT_FOLD: the tree layer is read
+    // directly; the first materialized work tables are state 1). A round's
+    // fold is therefore PENDING until the next round consumes it — or is
+    // FLUSHED (applied eagerly, exactly lane A's fold + add-constants) when
+    // the next round cannot fuse it: the scalar tail, the w-round, the pad
+    // materialization. With the knob off every fold is flushed right after
+    // its challenge (lane A's HEAD path). Values are identical either way:
+    // each stored element is the canonical result of the same field
+    // expression and the node planes are exact integer sums of the same
+    // terms.
+    let fuse = super::kfield::k9_fuse_enabled();
+    // The extract may be fused when every state-1 pair-block (32 state-0
+    // elements) lies inside one instance's slice and any pads are skipped
+    // (their slices are never touched); otherwise (tiny layers) the tables
+    // are extracted eagerly.
+    let fuse_extract = fuse && super::kfield::k9_fuse_extract_enabled() && per >= 4 * KL && (pads.is_empty() || skip);
+    let mut tabs: Option<(super::kfield::KTab, super::kfield::KTab, super::kfield::KTab, super::kfield::KTab)> = None;
+    let mut pending: Option<PendingFold> = None;
+    let mut scratch: Vec<u32> = Vec::new();
+    if !fuse_extract {
+        flush_state(kf, kern, trees, j, skip, per, &real, lay.lambda, &mut tabs, &mut eq_cur, &mut scratch, &mut pending);
+    }
+    let lambda_k = kop(lay.lambda);
     let degs = sc_degrees(n_bvars, lay.child_masked);
     let mut rounds: Vec<Vec<KElem>> = Vec::with_capacity(n_bvars + 1);
     let mut rs: Vec<KElem> = Vec::with_capacity(n_bvars + 1);
     let mut g_prefix = lay.gm.a0.clone();
     let g_tail = g_tail_ones(kf, lay.gm);
     let mut corr_prefix = kf.one();
-    let mut scratch: Vec<u32> = Vec::new();
     // Pad bookkeeping: the pad slices' constant table values (p0, p1,
     // q0, q1), the bound-prefix eq factor F_t, and S_pad = sum_pads E(e).
     let mut pad_vals = [kf.zero(), kf.zero(), kf.one(), kf.one()];
@@ -917,13 +926,47 @@ fn masked_rounds_bulk(
     };
     for t in 0..=n_bvars {
         let d = degs[t];
-        // Per-instance size at this round (b-rounds only), and whether the
-        // pad slices are still being skipped.
+        // Elements at state t, per-instance size at this round (b-rounds
+        // only), and whether the pad slices are still being skipped.
+        let n_t = size >> t;
         let per_t = if t < j { per >> t } else { 1 };
         let skipping = skip && t < j && per_t >= 2 * KL;
-        if !materialized && !skipping {
+        let need_mat = !materialized && !skipping;
+        let bulk = t < n_bvars && n_t >= 2 * KL;
+        // The kernel's block ranges (state-t blocks of the current tables).
+        let ranges_blk: Vec<(usize, usize)> = if skipping {
+            let nb = per_t / KL;
+            real.iter().map(|&e| (e * nb, (e + 1) * nb)).collect()
+        } else {
+            vec![(0, n_t / KL)]
+        };
+        // The fused mode this round can take (None = plain kernel on
+        // materialized state-t tables, or not a bulk round).
+        let mut fuse_mode: Option<u8> = if !bulk {
+            None
+        } else if tabs.is_none() {
+            if t == 0 {
+                Some(super::kfield::FUSE_EXTRACT)
+            } else if t == 1 && pending.is_some() {
+                Some(super::kfield::FUSE_EXTRACT_FOLD)
+            } else {
+                None
+            }
+        } else if pending.is_some() {
+            Some(super::kfield::FUSE_FOLD)
+        } else {
+            None
+        };
+        if need_mat || fuse_mode.is_none() {
+            // Eager path: the tables are brought to state t now (the
+            // pending fold is consumed), so this round's kernel is plain.
+            flush_state(kf, kern, trees, j, skip, per, &real, lay.lambda, &mut tabs, &mut eq_cur, &mut scratch, &mut pending);
+            fuse_mode = None;
+        }
+        if need_mat {
             // Materialize the pad slices (per_t elements each, per_t < 16):
             // eq = F_t * eq(zeta[t..j], b) * E(e); tables = the constants.
+            let (pl, p1c, q0c, q1c) = tabs.as_mut().expect("flushed");
             let small: Vec<KElem> = eq_table(kf, &zeta[t..j]);
             debug_assert_eq!(small.len(), per_t);
             let plv = kf.add(&pad_vals[0], &kf.mul(lay.lambda, &pad_vals[2]));
@@ -940,16 +983,10 @@ fn masked_rounds_bulk(
             }
             materialized = true;
         }
-        // The kernel's block ranges (source blocks of the current tables).
-        let ranges_blk: Vec<(usize, usize)> = if skipping {
-            let nb = per_t / KL;
-            real.iter().map(|&e| (e * nb, (e + 1) * nb)).collect()
-        } else {
-            vec![(0, eq_cur.n / KL)]
-        };
         let evals: Vec<KElem> = if t == n_bvars {
             let _t = prof::timer(prof::A_SCALAR_TAIL);
-            let p0 = p0_of(&pl, &q0c, 0);
+            let (pl, p1c, q0c, q1c) = tabs.as_ref().expect("flushed");
+            let p0 = p0_of(pl, q0c, 0);
             masked_w_round_evals(
                 kf,
                 d,
@@ -963,7 +1000,7 @@ fn masked_rounds_bulk(
                 &corr_prefix,
                 &g_prefix,
             )
-        } else if eq_cur.n >= 2 * KL {
+        } else if bulk {
             let masked_now = t == 0 && lay.child_masked;
             let nodes: Vec<u64> = (0..=d as u64).filter(|&x| x != 1).collect();
             // Per node: the child-mask add-constants (p0, p1, q0, q1) — zero
@@ -1006,21 +1043,109 @@ fn masked_rounds_bulk(
             let mut acc_hi = vec![0u64; nodes.len() * 31 * KL];
             {
                 let _t = prof::timer(prof::A_ROUND_G);
-                for &(lo, hi) in &ranges_blk {
-                    let (w0, w1) = (lo * super::kfield::KBLK, hi * super::kfield::KBLK);
-                    k9_round_g5_par(
-                        kern,
-                        &eq_cur.d[w0..w1],
-                        &pl.d[w0..w1],
-                        &p1c.d[w0..w1],
-                        &q0c.d[w0..w1],
-                        &q1c.d[w0..w1],
-                        (hi - lo) / 2,
-                        &nodes,
-                        consts.as_deref(),
-                        &mut acc_lo,
-                        &mut acc_hi,
-                    );
+                match fuse_mode {
+                    None => {
+                        let (pl, p1c, q0c, q1c) = tabs.as_ref().expect("flushed");
+                        for &(lo, hi) in &ranges_blk {
+                            let (w0, w1) = (lo * super::kfield::KBLK, hi * super::kfield::KBLK);
+                            k9_round_g5_par(
+                                kern,
+                                &eq_cur.d[w0..w1],
+                                &pl.d[w0..w1],
+                                &p1c.d[w0..w1],
+                                &q0c.d[w0..w1],
+                                &q1c.d[w0..w1],
+                                (hi - lo) / 2,
+                                &nodes,
+                                consts.as_deref(),
+                                &mut acc_lo,
+                                &mut acc_hi,
+                            );
+                        }
+                    }
+                    Some(mode) => {
+                        use super::kfield::{FUSE_EXTRACT, FUSE_EXTRACT_FOLD, FUSE_FOLD, FusedLayer, FusedPlan, KTab};
+                        let n_pairs = n_t / (2 * KL);
+                        // Live state-t pair-block ranges (+ the tree layers
+                        // per range for the extract modes).
+                        let (pranges, layers): (Vec<(usize, usize)>, Vec<FusedLayer>) = if mode == FUSE_FOLD {
+                            (ranges_blk.iter().map(|&(lo, hi)| (lo / 2, hi / 2)).collect(), Vec::new())
+                        } else {
+                            let ppe = per_t / (2 * KL);
+                            let all: Vec<usize> = (0..l).collect();
+                            let live: &[usize] = if skip { &real } else { &all };
+                            (
+                                live.iter().map(|&e| (e * ppe, (e + 1) * ppe)).collect(),
+                                live.iter()
+                                    .map(|&e| FusedLayer {
+                                        p: &trees[e].p_layer(j + 1).d,
+                                        q: &trees[e].q_layer(j + 1).d,
+                                        first_pair: e * ppe,
+                                    })
+                                    .collect(),
+                            )
+                        };
+                        let (r_prev, fold_consts) = match &pending {
+                            Some(p) => (
+                                kop(&p.r),
+                                p.consts.as_ref().map(|c| {
+                                    if mode == FUSE_FOLD {
+                                        [kop(&kf.add(&c[0], &kf.mul(lay.lambda, &c[2]))), kop(&c[1]), kop(&c[2]), kop(&c[3])]
+                                    } else {
+                                        [kop(&c[0]), kop(&c[1]), kop(&c[2]), kop(&c[3])]
+                                    }
+                                }),
+                            ),
+                            None => ([0u32; super::kfield::K_DEG], None),
+                        };
+                        if mode == FUSE_EXTRACT_FOLD {
+                            tabs = Some((KTab::zeroed(n_t), KTab::zeroed(n_t), KTab::zeroed(n_t), KTab::zeroed(n_t)));
+                        }
+                        let plan = FusedPlan { mode, ranges: &pranges, layers: &layers, r_prev, lambda: lambda_k, fold_consts };
+                        match tabs.as_mut() {
+                            Some((pl, p1c, q0c, q1c)) => {
+                                super::kfield::k9_fused_round_par(
+                                    kern,
+                                    &plan,
+                                    n_pairs,
+                                    &mut eq_cur.d,
+                                    [&mut pl.d, &mut p1c.d, &mut q0c.d, &mut q1c.d],
+                                    &nodes,
+                                    consts.as_deref(),
+                                    &mut acc_lo,
+                                    &mut acc_hi,
+                                    &mut scratch,
+                                );
+                                if mode == FUSE_FOLD {
+                                    for tb in [pl, p1c, q0c, q1c] {
+                                        tb.n = n_t;
+                                        tb.d.truncate(n_t / KL * super::kfield::KBLK);
+                                    }
+                                }
+                            }
+                            None => {
+                                debug_assert_eq!(mode, FUSE_EXTRACT);
+                                super::kfield::k9_fused_round_par(
+                                    kern,
+                                    &plan,
+                                    n_pairs,
+                                    &mut eq_cur.d,
+                                    [Default::default(), Default::default(), Default::default(), Default::default()],
+                                    &nodes,
+                                    consts.as_deref(),
+                                    &mut acc_lo,
+                                    &mut acc_hi,
+                                    &mut scratch,
+                                );
+                            }
+                        }
+                        if mode != FUSE_EXTRACT {
+                            // The pending fold is consumed: every table is at state t.
+                            eq_cur.n = n_t;
+                            eq_cur.d.truncate(n_t / KL * super::kfield::KBLK);
+                            pending = None;
+                        }
+                    }
                 }
             }
             let mut evals = vec![kf.zero(); d + 1];
@@ -1061,7 +1186,8 @@ fn masked_rounds_bulk(
         } else {
             let _t = prof::timer(prof::A_SCALAR_TAIL);
             debug_assert!(materialized);
-            let p0k: Vec<KElem> = (0..pl.n).map(|i| p0_of(&pl, &q0c, i)).collect();
+            let (pl, p1c, q0c, q1c) = tabs.as_ref().expect("flushed");
+            let p0k: Vec<KElem> = (0..pl.n).map(|i| p0_of(pl, q0c, i)).collect();
             masked_b_round_evals(
                 kf,
                 d,
@@ -1082,50 +1208,31 @@ fn masked_rounds_bulk(
         let r = tr.challenge_k(kf);
         c_run = lagrange_eval(kf, &evals, &r);
         if t < n_bvars {
-            let _tf = prof::timer(prof::A_FOLD);
-            if skipping {
-                kf.kt_fold_par_ranges(&mut eq_cur, &mut scratch, &r, &ranges_blk);
-                kf.kt_fold_par_ranges(&mut pl, &mut scratch, &r, &ranges_blk);
-                kf.kt_fold_par_ranges(&mut p1c, &mut scratch, &r, &ranges_blk);
-                kf.kt_fold_par_ranges(&mut q0c, &mut scratch, &r, &ranges_blk);
-                kf.kt_fold_par_ranges(&mut q1c, &mut scratch, &r, &ranges_blk);
-            } else {
-                kf.kt_fold_par(&mut eq_cur, &mut scratch, &r);
-                kf.kt_fold_par(&mut pl, &mut scratch, &r);
-                kf.kt_fold_par(&mut p1c, &mut scratch, &r);
-                kf.kt_fold_par(&mut q0c, &mut scratch, &r);
-                kf.kt_fold_par(&mut q1c, &mut scratch, &r);
-            }
-            if t == 0 && lay.child_masked {
+            // The fold of round t is PENDING (consumed by round t+1's fused
+            // kernel, or flushed); with the knob off it is applied now.
+            let consts = if t == 0 && lay.child_masked {
                 let zz = kf.mul(&r, &kf.sub(&kf.one(), &r));
-                let cp0 = kf.mul(&zz, &lay.spp[0]);
-                let cp1 = kf.mul(&zz, &lay.spp[1]);
-                let cq0 = kf.mul(&zz, &lay.spq[0]);
-                let cq1 = kf.mul(&zz, &lay.spq[1]);
-                let cpl = kf.add(&cp0, &kf.mul(lay.lambda, &cq0));
-                if skipping {
-                    // Real ranges of the FOLDED tables: half the source blocks.
-                    let nb = per_t / 2 / KL;
-                    for &e in &real {
-                        let (w0, w1) = (e * nb * super::kfield::KBLK, (e + 1) * nb * super::kfield::KBLK);
-                        super::kfield::k9_addc_par(kern, &mut pl.d[w0..w1], &kop(&cpl), nb);
-                        super::kfield::k9_addc_par(kern, &mut p1c.d[w0..w1], &kop(&cp1), nb);
-                        super::kfield::k9_addc_par(kern, &mut q0c.d[w0..w1], &kop(&cq0), nb);
-                        super::kfield::k9_addc_par(kern, &mut q1c.d[w0..w1], &kop(&cq1), nb);
-                    }
-                } else {
-                    kf.kt_addc(&mut pl, &cpl);
-                    kf.kt_addc(&mut p1c, &cp1);
-                    kf.kt_addc(&mut q0c, &cq0);
-                    kf.kt_addc(&mut q1c, &cq1);
-                }
+                Some([
+                    kf.mul(&zz, &lay.spp[0]),
+                    kf.mul(&zz, &lay.spp[1]),
+                    kf.mul(&zz, &lay.spq[0]),
+                    kf.mul(&zz, &lay.spq[1]),
+                ])
+            } else {
+                None
+            };
+            if let Some(c) = &consts {
                 // The pad slices shift by the same constants.
                 pad_vals = [
-                    kf.add(&pad_vals[0], &cp0),
-                    kf.add(&pad_vals[1], &cp1),
-                    kf.add(&pad_vals[2], &cq0),
-                    kf.add(&pad_vals[3], &cq1),
+                    kf.add(&pad_vals[0], &c[0]),
+                    kf.add(&pad_vals[1], &c[1]),
+                    kf.add(&pad_vals[2], &c[2]),
+                    kf.add(&pad_vals[3], &c[3]),
                 ];
+            }
+            pending = Some(PendingFold { r: r.clone(), consts, ranges: ranges_blk, skipping });
+            if !fuse {
+                flush_state(kf, kern, trees, j, skip, per, &real, lay.lambda, &mut tabs, &mut eq_cur, &mut scratch, &mut pending);
             }
             if t < j {
                 // F_{t+1} = F_t * eq(zeta_t, r_t).
@@ -1147,8 +1254,93 @@ fn masked_rounds_bulk(
         rounds.push(evals);
         rs.push(r);
     }
-    let boundary = [p0_of(&pl, &q0c, 0), p1c.get(0), q0c.get(0), q1c.get(0)];
+    let (pl, p1c, q0c, q1c) = tabs.as_ref().expect("flushed");
+    let boundary = [p0_of(pl, q0c, 0), p1c.get(0), q0c.get(0), q1c.get(0)];
     (rounds, rs, boundary)
+}
+
+/// [UPERF2-G] A round's fold awaiting the next round's fused kernel: the
+/// challenge, the masked t == 0 add-constants [c_p0, c_p1, c_q0, c_q1] (if
+/// any), and the source (state-t) block ranges / skipping flag of the round
+/// that produced it.
+struct PendingFold {
+    r: KElem,
+    consts: Option<[KElem; 4]>,
+    ranges: Vec<(usize, usize)>,
+    skipping: bool,
+}
+
+/// [UPERF2-G] Bring the work tables to the current state EAGERLY: extract
+/// layer j+1 into (PL, p1, q0, q1) if they do not exist yet (lane A's
+/// threaded block-copy extract + PL := p0 + lambda q0), then apply the
+/// pending fold (lane A's out-of-place threaded folds + the masked
+/// add-constants over the real ranges) — the pre-fusion path, byte for byte.
+#[allow(clippy::too_many_arguments)]
+fn flush_state(
+    kf: &KField,
+    kern: &super::kfield::KKern,
+    trees: &[FracTree],
+    j: usize,
+    skip: bool,
+    per: usize,
+    real: &[usize],
+    lambda: &KElem,
+    tabs: &mut Option<(super::kfield::KTab, super::kfield::KTab, super::kfield::KTab, super::kfield::KTab)>,
+    eq_cur: &mut super::kfield::KTab,
+    scratch: &mut Vec<u32>,
+    pending: &mut Option<PendingFold>,
+) {
+    if tabs.is_none() {
+        let _t = prof::timer(prof::A_EXTRACT);
+        let (mut p0c, p1c, q0c, q1c) = extract_children_par(trees, j, !skip);
+        // PL = p0 + lambda*q0, in place on the extracted p0 (real ranges).
+        if !skip {
+            kf.kt_mul_fixed_add_inplace(&mut p0c, &q0c, lambda);
+        } else {
+            let nblk = per / KL;
+            for &e in real {
+                let w0 = e * nblk * super::kfield::KBLK;
+                super::kfield::k9_mul_fixed_add_par(kern, &mut p0c.d[w0..w0 + nblk * super::kfield::KBLK], &q0c.d[w0..w0 + nblk * super::kfield::KBLK], &kop(lambda), nblk);
+            }
+        }
+        *tabs = Some((p0c, p1c, q0c, q1c));
+    }
+    if let Some(p) = pending.take() {
+        let _tf = prof::timer(prof::A_FOLD);
+        let (pl, p1c, q0c, q1c) = tabs.as_mut().expect("extracted");
+        if p.skipping {
+            kf.kt_fold_par_ranges(eq_cur, scratch, &p.r, &p.ranges);
+            kf.kt_fold_par_ranges(pl, scratch, &p.r, &p.ranges);
+            kf.kt_fold_par_ranges(p1c, scratch, &p.r, &p.ranges);
+            kf.kt_fold_par_ranges(q0c, scratch, &p.r, &p.ranges);
+            kf.kt_fold_par_ranges(q1c, scratch, &p.r, &p.ranges);
+        } else {
+            kf.kt_fold_par(eq_cur, scratch, &p.r);
+            kf.kt_fold_par(pl, scratch, &p.r);
+            kf.kt_fold_par(p1c, scratch, &p.r);
+            kf.kt_fold_par(q0c, scratch, &p.r);
+            kf.kt_fold_par(q1c, scratch, &p.r);
+        }
+        if let Some(c) = &p.consts {
+            let cpl = kf.add(&c[0], &kf.mul(lambda, &c[2]));
+            if p.skipping {
+                // Real ranges of the FOLDED tables: half the source blocks.
+                for &(lo, hi) in &p.ranges {
+                    let (w0, w1) = ((lo / 2) * super::kfield::KBLK, (hi / 2) * super::kfield::KBLK);
+                    let nb = (hi - lo) / 2;
+                    super::kfield::k9_addc_par(kern, &mut pl.d[w0..w1], &kop(&cpl), nb);
+                    super::kfield::k9_addc_par(kern, &mut p1c.d[w0..w1], &kop(&c[1]), nb);
+                    super::kfield::k9_addc_par(kern, &mut q0c.d[w0..w1], &kop(&c[2]), nb);
+                    super::kfield::k9_addc_par(kern, &mut q1c.d[w0..w1], &kop(&c[3]), nb);
+                }
+            } else {
+                kf.kt_addc(pl, &cpl);
+                kf.kt_addc(p1c, &c[1]);
+                kf.kt_addc(q0c, &c[2]);
+                kf.kt_addc(q1c, &c[3]);
+            }
+        }
+    }
 }
 
 /// Prove the masked descent for L same-shape trees (blinder-extended
