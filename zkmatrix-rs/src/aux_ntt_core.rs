@@ -200,6 +200,105 @@ pub fn ntt_inv(a: &mut [u64; D], t: &NttTables) {
     }
 }
 
+// ---------------------------------------------------------------------------
+// [UPERF2-C] Branchless Goldilocks arithmetic and the SAME transforms on
+// it. Identical VALUES to canon_p / add_p / sub_p / reduce128 / mul_p /
+// ntt_fwd / ntt_inv above (asserted by `ring_matmul uperf-c diff-battery`
+// on random rings and planted extremes) — a pure code-generation change:
+// the data-dependent `if` selects of the forms above compile to
+// mispredicted branches inside the butterfly loops (measured 4.35 us per
+// length-128 forward transform on the WSL box, ~40 cycles per butterfly);
+// the mask forms below and the bounds-check-free butterfly iteration
+// bring the transform to the sub-microsecond class the NTT-domain
+// kernels were costed at. Every eval_proof.rs kernel rides these.
+
+/// == add_p (a, b < p): the u128 sum with one compare-based conditional
+/// subtract (no carry-flag selects — those compile to branches here).
+#[inline(always)]
+pub fn gl_add(a: u64, b: u64) -> u64 {
+    let s = a as u128 + b as u128;
+    let s = if s >= P as u128 { s - P as u128 } else { s };
+    s as u64
+}
+
+/// == sub_p (a, b < p): a + (p - b), then the same conditional subtract.
+#[inline(always)]
+pub fn gl_sub(a: u64, b: u64) -> u64 {
+    let s = a as u128 + (P - b) as u128;
+    let s = if s >= P as u128 { s - P as u128 } else { s };
+    s as u64
+}
+
+/// == reduce128: x = lo + 2^64 hi, hi = 2^32 hi_hi + hi_lo, 2^64 = EPS
+/// and 2^96 = -1 (mod p), so x = lo + EPS*hi_lo + (p - hi_hi) — three
+/// non-negative terms each < 2^64 summed in u128 (< 3p + 2^32), then two
+/// compare-based conditional subtracts (2p, then p) canonicalize.
+#[inline(always)]
+pub fn gl_reduce128(x: u128) -> u64 {
+    let lo = x as u64;
+    let hi = (x >> 64) as u64;
+    let hi_lo = hi & EPS;
+    let hi_hi = hi >> 32;
+    let r = lo as u128 + (hi_lo * EPS) as u128 + (P - hi_hi) as u128;
+    let r = if r >= 2 * P as u128 { r - 2 * P as u128 } else { r };
+    let r = if r >= P as u128 { r - P as u128 } else { r };
+    r as u64
+}
+
+/// == mul_p.
+#[inline(always)]
+pub fn gl_mul(a: u64, b: u64) -> u64 {
+    gl_reduce128(a as u128 * b as u128)
+}
+
+/// == ntt_fwd (same butterflies, same twiddle order, same output order),
+/// on the branchless ops with bounds-check-free half-block iteration.
+pub fn ntt_fwd_fast(a: &mut [u64; D], t: &NttTables) {
+    let mut len = D;
+    let mut m = 1;
+    while m < D {
+        len >>= 1;
+        for i in 0..m {
+            let s = t.psi_brv[m + i];
+            let j1 = 2 * i * len;
+            let (lo, hi) = a[j1..j1 + 2 * len].split_at_mut(len);
+            for (u, v) in lo.iter_mut().zip(hi.iter_mut()) {
+                let x = *u;
+                let y = gl_mul(*v, s);
+                *u = gl_add(x, y);
+                *v = gl_sub(x, y);
+            }
+        }
+        m <<= 1;
+    }
+}
+
+/// == ntt_inv (same butterflies, same twiddle order, same final scale).
+pub fn ntt_inv_fast(a: &mut [u64; D], t: &NttTables) {
+    let mut len = 1;
+    let mut m = D;
+    while m > 1 {
+        let h = m >> 1;
+        let mut j1 = 0;
+        for i in 0..h {
+            let s = t.ipsi_brv[h + i];
+            let (lo, hi) = a[j1..j1 + 2 * len].split_at_mut(len);
+            for (u, v) in lo.iter_mut().zip(hi.iter_mut()) {
+                let x = *u;
+                let y = *v;
+                *u = gl_add(x, y);
+                *v = gl_mul(gl_sub(x, y), s);
+            }
+            j1 += 2 * len;
+        }
+        len <<= 1;
+        m = h;
+    }
+    for x in a.iter_mut() {
+        *x = gl_mul(*x, t.n_inv);
+    }
+}
+
 /// Negacyclic product over Z_p via NTT (the A1 primitive).
 pub fn negacyclic_mul_p(a: &[u64; D], b: &[u64; D], t: &NttTables) -> [u64; D] {
     let mut fa = *a;

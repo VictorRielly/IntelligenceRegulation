@@ -291,7 +291,103 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent C status (wt-uperf2-c)
 
-- (lane launches here)
+- 2026-08-17 PLAN COMMIT (lane C, branch uperf2-c at c46483a). Method
+  for every item: exact-integer NTT-domain evaluation over Goldilocks
+  (aux_ntt_core), the pre-change body kept as `*_ref`, `oracle_mode()`
+  honored, threads over independent outputs with a fixed reduction
+  order — the PERF RULE unchanged. Item plan:
+  - T7 `fold_chunks_ntt(cs, w_slices, chunk)`: c_j (|c| <= 2) and w
+    (|w| <= 2^(e-1) <= 64) lifted to Z_p, c transformed once, each w
+    once, r-term pointwise MAC per output, one inverse per z_u,
+    `center_from_p` -> the exact i64 fold. Capacity is checked from the
+    DATA bounds (r * D * cmax * wmax <= (p-1)/2; the composed pass sits
+    at ~2^21 vs 2^63) and falls back to the `poly_mul_small` loop
+    (`fold_chunks_ref`) otherwise. Callers `bg_fold` / `agg_fold` keep
+    the `representable` assert and the digit split (now per-ring
+    parallel via `decompose_polys_small`).
+  - T3b `transport_level_from_psi`: three exact mod-q regroupings
+    (radix scaling and the small-operand product commute with the
+    alpha product; each next-witness ring is a scalar multiple of a
+    per-SOURCE ring), so the general x general work collapses to two
+    GEMV-shaped contractions — S[src] = a_l1 * psi[src] + sum_kap
+    a_t4[kap] * A[kap][src] (chunk outputs x 12 terms) and T5[pos] =
+    sum_kap2 a_t5[bi][kap2] * B_bi[kap2][pos] (t+h outputs x 11
+    terms) — evaluated by a NEW `ntt_combine_general` kernel: both
+    operands limb-split at `limb_bits(q)` (lo/hi/lo+hi transforms —
+    the `A1LimbCommitKernel` contract), the alphas transformed once,
+    3 Karatsuba sub-products accumulated in-domain (capacity asserted
+    exactly for the term count; n <= 1024 at q46, 2^24 at q31), 3
+    inverses per output, exact recompose mod q. The small-operand
+    products (a_t4[kap] * c_j, a_l1 * cpair) ride `ntt_gemm_modq_small`;
+    T1 is a scalar scale. Assembly per u is a fixed-order mod-q sum.
+    Body kept as `transport_level_from_psi_ref`; threads over output
+    blocks; battery leg at Q8 and Q8_46 with zero rings and every
+    Z/T/H boundary of `NextLayout` (1 and 2 bindings).
+  - `compute_psi`: per-u direct NTT accumulate (c_k transformed once,
+    r phi rings per output, one inverse), windowed by
+    `ntt_window_terms(q, 2)` with the ref as the over-capacity
+    fallback; threads over u-blocks. `decompose_polys_modq/_small`
+    parallel helpers for the `bg_matvec_chunks` / `bg_level_h` /
+    `bg_fold` (and agg_*) digit splits.
+  - Harness: `ring_matmul uperf-c diff-battery | bench [r] [chunk]`
+    in a `// [UPERF2-C]` bin section; report
+    docs/zkmatrix-poc/U_PERF2_EVALPROOF_REPORT.md.
+  - Baseline capture BEFORE any code change: freeze-check's 98 `ok`
+    rows from the untouched build (scratchpad), compared after each
+    step.
+- 2026-08-17 CLOSE (lane C; commits ed5b3b0 plan, b707af1 kernels,
+  fa3340f transform, + the report commit; report:
+  docs/zkmatrix-poc/U_PERF2_EVALPROOF_REPORT.md). ALL FIVE DELIVERABLES
+  LANDED, plus one finding that changes the round's arithmetic:
+  - FINDING (load-bearing for every NTT-domain kernel, Phase 0
+    included): the length-128 Goldilocks transform cost 4.35 us fwd /
+    5.24 us inv on this box, not the ~0.35 us the Phase-0 note costed
+    it at — the carry/borrow selects of `add_p`/`reduce128` compile to
+    mispredicted branches inside the butterflies (~40 cycles each). A
+    kernel that transforms an operand ONCE therefore could not beat
+    schoolbook (7.7 us) or Karatsuba (4.1 us): the first bench of T7 /
+    psi / combine measured 1.8x / 1.0x / 0.8x. Fix (additive in
+    aux_ntt_core.rs): `gl_add/gl_sub/gl_reduce128/gl_mul` on u128 sums
+    with compare-based conditional subtracts (the only form LLVM keeps
+    branchless here) and `ntt_fwd_fast/ntt_inv_fast` — IDENTICAL
+    VALUES (battery leg on planted extremes + random, 504 rings) —
+    1.50 us / 2.07 us. Every eval_proof.rs kernel, `ntt_gemm_modq_small`
+    included, rides them; O2/O3/O5/E2E re-verified byte-identical.
+    Shoup twiddles tried and dropped (no gain); SIMD is the next step.
+  - T7 `fold_chunks_ntt` (+ `fold_chunks_ref`) in bg_fold/agg_fold:
+    [WSL 1T NOISY-SHARED] 64x8192: 2.20 / 1.55 us per (c x w) product
+    at e = 2 / 5 vs 9.65 / 10.07 oracle = 4.4x / 6.5x; 8T 0.56 / 0.39.
+  - T3b `ntt_combine_general` (+ `_ref`; one-sided limb regime at q31,
+    two-sided Karatsuba at q46, exact capacity, oracle fallback) and
+    `transport_level_from_psi_fast` (+ `transport_level_from_psi_ref`;
+    S / T5 / a_t4*c_j / a_l1*cpair once each, fixed-order mod-q
+    assembly): transport level 18.6 us per next-witness ring vs 63.3 =
+    3.4x at 1T (16.3 vs 70.7 = 4.3x at 16x2048); 8T 4.2 us. combine 12
+    terms 2.45 vs 4.92 us per general product = 2.0x.
+  - `compute_psi_ntt` (+ `compute_psi_ref`): 1.75 vs 5.18 us per term
+    = 3.0x; 8T 0.32. `decompose_polys_modq/_small` parallel splits in
+    the six bg_/agg_ call sites.
+  - Phase-0 kernels on the fast transform: level-h 0.183 us/product
+    (was 0.238) 1T, 0.033 at 8T; matvec 0.277 (was 0.64) 1T, 0.098 at 8T.
+  - Gates at HEAD: `uperf-c diff-battery` (GL primitives; T7 34/34; T3b
+    combine 14/14 + transport 40/40 phi_next AND h_next incl. both
+    binding forms, every Z/T/H boundary, both moduli, `transport_level`
+    flip; psi 11/11; splits 12/12) at ZK_THREADS 1/2/7 x3;
+    `uperf-pc diff-battery` O1 4/4 O2 35/35 O3 63/63 O5 12/12 E2E 2/2
+    at ZK_THREADS 1/2/7; `agg-matmul battery` 120.7 s green;
+    `bh-verifier battery` green; freeze-check 98 `ok` rows identical to
+    the pre-change capture (the trailing panic is now "layer 0 X export
+    digest mismatch" because a `results/m125_ffn_export/` dir appeared
+    in the main checkout during the session — orchestrator, see the
+    report's Section 6).
+  - Projection [MODEL]: the touched terms of the 125M 1T prove (fold
+    ~40-60 s, prover psi ~35-45 s, transport ~10-25 s per side) go to
+    ~25 s total at 1T and scale per output with ZK_THREADS; TASK_BOARD
+    T1's one-binary A/B remains the honest test.
+  - Left: SIMD Goldilocks butterfly (3-4x on every kernel here); a
+    31-bit-prime NTT for the small x small fold only (~15x on T7); a
+    per-level transformed-A cache shared by matvec and transport (1.3
+    GB at level 0 — a T9 memory-diet trade). Details in the report.
 
 ## Log
 

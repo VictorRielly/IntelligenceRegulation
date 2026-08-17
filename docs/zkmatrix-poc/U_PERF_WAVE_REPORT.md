@@ -215,7 +215,14 @@ concurrently)]:
 |---|---:|---:|---:|---:|---|---:|
 | fast, before the misaligned-path fix (d3ec01f^) | 8.3 s | 55.9 s | **142.4 s** | 206.8 s | 0ae9cdae… | 2.9 GiB |
 | fast, after the fix (d3ec01f) | 7.4 s | 54.1 s | **10.4 s** | 72.0 s | 0ae9cdae… (identical) | 2.9 GiB |
-| `ZK_UPERF_ORACLE=1` (the pre-Phase-0 arithmetic) | ORACLE_3X16_ROW |
+| `ZK_UPERF_ORACLE=1` (the pre-Phase-0 arithmetic; run after the fix, same binary) | **44.3 s** | **478.6 s** | **159.7 s** | **682.8 s** | 0ae9cdae… (identical) | 2.9 GiB |
+
+**The first real-data A/B: 682.8 s -> 72.0 s end to end at 1 thread
+(9.5x): commit 6.0x, prove 8.8x, verify 15.4x — statement digest,
+counted bytes (985,142 B), verdict and EVAL-PROOF DIGEST identical.**
+Oracle-run phase table for the record: level-h 261.7 s, kernel passes
+78.6 + 104.0 s, matvec 48.2 s, psi0-factored 154.0 s, transport 9.8 s,
+fold 9.9 s, commit 44.3 s.
 
 FINDING (real data, first profile): the verifier spent 137 of 142 s in
 `ep.psi0-factored` — the BK aux tensors (`bk-bl/wm/tm-*`, cols = 16)

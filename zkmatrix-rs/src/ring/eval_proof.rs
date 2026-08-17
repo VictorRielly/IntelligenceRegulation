@@ -864,7 +864,7 @@ pub fn ntt_window_terms(q: u64, s_max: u128) -> usize {
 /// note above. `a[ia].len() == b[ib].len() == len` for every slice.
 pub fn ntt_gemm_modq_small(ctx: &RingCtx, a: &[&[Poly]], b: &[&[Vec<i64>]], len: usize) -> Vec<Poly> {
     use super::aux::{
-        balanced_mod_q, center_from_p, lift_to_p, mod_q_centered, ntt_fwd, ntt_inv, reduce128, EPS,
+        balanced_mod_q, center_from_p, gl_reduce128, lift_to_p, mod_q_centered, ntt_fwd_fast, ntt_inv_fast, EPS,
     };
     let zq = &ctx.zq;
     let q = zq.q;
@@ -954,7 +954,7 @@ pub fn ntt_gemm_modq_small(ctx: &RingCtx, a: &[&[Poly]], b: &[&[Vec<i64>]], len:
                             out[i] = lift_to_p(ring[i]);
                         }
                     }
-                    ntt_fwd(out, t);
+                    ntt_fwd_fast(out, t); // [UPERF2-C] branchless transform, identical values
                 };
                 if threads() > 1 {
                     fa_rings.par_iter_mut().enumerate().for_each(|(slot, o)| work(slot, o));
@@ -1023,9 +1023,9 @@ pub fn ntt_gemm_modq_small(ctx: &RingCtx, a: &[&[Poly]], b: &[&[Vec<i64>]], len:
                 let mut v = [0u64; D];
                 for tt in 0..D {
                     let idx = (tt * na + ia) * nb + ib;
-                    v[tt] = reduce128(acc_lo[idx] + EPS as u128 * acc_hi[idx]);
+                    v[tt] = gl_reduce128(acc_lo[idx] + EPS as u128 * acc_hi[idx]);
                 }
-                ntt_inv(&mut v, t);
+                ntt_inv_fast(&mut v, t); // [UPERF2-C]
                 for tt in 0..D {
                     let c = mod_q_centered(center_from_p(v[tt]), q);
                     o[tt] = zq.add(o[tt], c);
@@ -1180,6 +1180,12 @@ pub fn transport_level(
 /// transport ONLY through Psi, so a caller holding the factored Psi_0
 /// (`psi_level0_factored`) never materializes Phi_0. Values are
 /// identical to `transport_level` by construction.
+///
+/// [UPERF2-C T3b] The body is now `transport_level_from_psi_fast` (the
+/// general x general products in the limb-split Goldilocks NTT domain,
+/// see the [UPERF2-C] section); `transport_level_from_psi_ref` is the
+/// pre-change body, bit-identical (diff-battery leg `uperf-c`), and
+/// `ZK_UPERF_ORACLE=1` routes here at runtime.
 #[allow(clippy::too_many_arguments)]
 pub fn transport_level_from_psi(
     ctx: &RingCtx,
@@ -1193,6 +1199,27 @@ pub fn transport_level_from_psi(
     alphas: &[Poly],    // transport_rows(bindings.len()) aggregation challenges
 ) -> LevelTransport {
     let _t = prof::timer(prof::EP_TRANSPORT); // [UPERF-PC] observation only
+    if oracle_mode() {
+        return transport_level_from_psi_ref(ctx, psi, h_target, plan, layout, a_mat, bindings, c, alphas);
+    }
+    transport_level_from_psi_fast(ctx, psi, h_target, plan, layout, a_mat, bindings, c, alphas)
+}
+
+/// The pre-[UPERF2-C] body of `transport_level_from_psi` (per next-
+/// witness ring, Karatsuba ring products against the radix-scaled
+/// operands) — the T3b oracle; battery use and `ZK_UPERF_ORACLE=1`.
+#[allow(clippy::too_many_arguments)]
+pub fn transport_level_from_psi_ref(
+    ctx: &RingCtx,
+    psi: &[Poly],
+    h_target: &Poly,
+    plan: &LevelPlan,
+    layout: &NextLayout,
+    a_mat: &[Poly],
+    bindings: &[OuterBinding],
+    c: &[Vec<i64>],
+    alphas: &[Poly],
+) -> LevelTransport {
     let zq = &ctx.zq;
     assert_eq!(psi.len(), plan.chunk);
     let n_rows = transport_rows(bindings.len());
@@ -1270,9 +1297,21 @@ pub fn transport_level_from_psi(
 
 /// Psi over the chunk-position space: Psi_u = sum_k c_k phi[k*chunk+u]
 /// (tail chunks zero-padded) — the c-weighted fold of the aggregated
-/// functional's chunk slices.
+/// functional's chunk slices. [UPERF2-C] NTT-domain body
+/// (`compute_psi_ntt`, threads over u); `compute_psi_ref` is the
+/// Karatsuba oracle it is bit-identical to; `ZK_UPERF_ORACLE=1` routes
+/// to the oracle.
 pub fn compute_psi(ctx: &RingCtx, phi: &[Poly], chunk: usize, c: &[Vec<i64>]) -> Vec<Poly> {
     let _t = prof::timer(prof::EP_PSI); // [UPERF-PC] observation only
+    if oracle_mode() {
+        return compute_psi_ref(ctx, phi, chunk, c);
+    }
+    compute_psi_ntt(ctx, phi, chunk, c)
+}
+
+/// The pre-[UPERF2-C] body of `compute_psi` (one Karatsuba product per
+/// (k, u) term) — the oracle; battery use and `ZK_UPERF_ORACLE=1`.
+pub fn compute_psi_ref(ctx: &RingCtx, phi: &[Poly], chunk: usize, c: &[Vec<i64>]) -> Vec<Poly> {
     let zq = &ctx.zq;
     (0..chunk)
         .map(|u| {
@@ -2632,4 +2671,523 @@ pub fn kernel_pass_factored(
 /// Absorb a poly list into the transcript (canonical bytes).
 pub fn absorb_polys(tr: &mut LkpTranscript, label: &str, polys: &[Poly]) {
     tr.absorb(label, &super::polys_bytes(polys));
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-C] The eval-proof leftovers (U-PERF2 lane C): the quinary fold
+// (T7), the transport levels' general x general products (T3b), the
+// prover's compute_psi, and the per-ring digit splits — the last hot
+// loops of the composed eval proof still written on `poly_mul_small` /
+// `ring_mul_split_kara_fast`. Same discipline as Phase 0: exact-integer
+// evaluation in the Goldilocks NTT domain (aux_ntt_core), the pre-change
+// body kept as `*_ref`, `oracle_mode()` honored at every entry point,
+// threads only over INDEPENDENT outputs (rayon's indexed collect keeps
+// output order; every output is computed whole by one thread from the
+// same term list), so every result is bit-identical for any ZK_THREADS.
+//
+// The exact identities each item relies on (all sum regroupings in the
+// exact integers or in Z_q — the wire cannot move):
+//
+//   T7   z_u = sum_j c_j (x) w_{j,u}  over Z (negacyclic; |c| <= 2,
+//        |w| <= 2^(e-1) <= 64): every coefficient of the true integer
+//        result is bounded by r * D * cmax * wmax (<= 2^21 in the composed
+//        pass; checked exactly against (p-1)/2 from the DATA bounds — the
+//        oracle runs when it does not fit), so its image mod p determines
+//        it and `center_from_p` recovers it exactly.
+//   T3b  in Z_q, with radix a scalar and c_j small:
+//          a * (radix * X)        = radix * (a * X)
+//          a * (-radix * c_j)     = (-radix) * (a * c_j)
+//          a * (const radix)      = radix * a
+//        so a next-witness ring is a scalar multiple of a per-SOURCE ring:
+//          Z-ring (src, limb) = radix_limb * S[src],
+//            S[src]  = a_l1 * psi[src] + sum_kap a_t4[kap] * A[kap][src]
+//          T-ring (j, kap, limb) = (-radix_limb) * (a_t4[kap] * c_j)
+//                                  + T5[pos]
+//          H-ring (pair, limb)   = [j = k] radix_limb * a_t1
+//                                  + (-radix_limb) * (a_l1 * cpair[pair])
+//                                  + T5[pos]
+//          T5[pos] = sum_kap2 a_t5[bi][kap2] * B_bi[kap2][pos - col_base]
+//        S and T5 are GEMV-shaped contractions of a few FIXED alphas
+//        against GENERAL mod-q operands: `ntt_combine_general` (below)
+//        evaluates them in the NTT domain under the limb-split contract
+//        (both limbs bounded, sub-products exact by capacity, recompose
+//        mod q — the `A1LimbCommitKernel` precedent). The two small-
+//        operand product families ride `ntt_gemm_modq_small`.
+//   psi  Psi_u = sum_k c_k * phi[k*chunk + u]: small x general, r terms —
+//        the single-prime window (`ntt_window_terms(q, |c|max)`) covers
+//        r <= 64 at both moduli with the oracle as the over-capacity
+//        fallback.
+
+/// Ordered parallel map: out[u] = f(u) for u in 0..n on the kernel pool
+/// when threads() > 1 (rayon's indexed collect preserves order), inline
+/// otherwise. Every f(u) is independent exact work — identical for any
+/// ZK_THREADS.
+fn map_ordered<T: Send>(n: usize, f: impl Fn(usize) -> T + Sync + Send) -> Vec<T> {
+    if threads() > 1 {
+        pooled(|| {
+            use rayon::prelude::*;
+            (0..n).into_par_iter().map(f).collect()
+        })
+    } else {
+        (0..n).map(f).collect()
+    }
+}
+
+/// s * p over R_q, exact (== `poly_scale`): the u64 product path when q
+/// < 2^32 (x, s < q so x*s < 2^64), the u128 path otherwise.
+fn scale_exact(zq: &Zq, p: &[u64], s: u64) -> Poly {
+    let q = zq.q;
+    if q < (1u64 << 32) {
+        p.iter().map(|&x| (x * s) % q).collect()
+    } else {
+        p.iter().map(|&x| ((x as u128 * s as u128) % q as u128) as u64).collect()
+    }
+}
+
+/// Forward transform of a SMALL integer ring (|v| < p/2).
+#[inline]
+fn fwd_small(ring: &[i64], t: &super::aux::NttTables) -> [u64; D] {
+    let mut f = [0u64; D];
+    for i in 0..D {
+        f[i] = super::aux::lift_to_p(ring[i]);
+    }
+    super::aux::ntt_fwd_fast(&mut f, t);
+    f
+}
+
+/// Forward transform of a mod-q ring through its balanced representative.
+#[inline]
+fn fwd_modq(ring: &[u64], q: u64, t: &super::aux::NttTables) -> [u64; D] {
+    let mut f = [0u64; D];
+    for i in 0..D {
+        f[i] = super::aux::lift_to_p(super::aux::balanced_mod_q(ring[i], q));
+    }
+    super::aux::ntt_fwd_fast(&mut f, t);
+    f
+}
+
+/// Limb-split forward transforms of a mod-q ring at limb base l:
+/// [lo, hi, lo + hi] (the mid transform by linearity, in-domain).
+#[inline]
+fn fwd_modq_limbs(ring: &[u64], q: u64, l: u32, t: &super::aux::NttTables) -> [[u64; D]; 3] {
+    use super::aux::{balanced_mod_q, gl_add, lift_to_p, ntt_fwd_fast, split_limbs};
+    let mut lo = [0u64; D];
+    let mut hi = [0u64; D];
+    let mut mid = [0u64; D];
+    for i in 0..D {
+        let (lv, hv) = split_limbs(balanced_mod_q(ring[i], q), l);
+        lo[i] = lift_to_p(lv);
+        hi[i] = lift_to_p(hv);
+    }
+    ntt_fwd_fast(&mut lo, t);
+    ntt_fwd_fast(&mut hi, t);
+    for i in 0..D {
+        mid[i] = gl_add(lo[i], hi[i]);
+    }
+    [lo, hi, mid]
+}
+
+/// Split-halves MAC of one NTT-domain product into (lo, hi) u128
+/// accumulators (the A1 discipline; exact for < 2^31 terms).
+#[inline(always)]
+fn mac_split(acc_lo: &mut [u128; D], acc_hi: &mut [u128; D], a: &[u64; D], b: &[u64; D]) {
+    for k in 0..D {
+        let prod = a[k] as u128 * b[k] as u128;
+        acc_lo[k] += prod as u64 as u128;
+        acc_hi[k] += (prod >> 64) as u128;
+    }
+}
+
+/// Leave the NTT domain: the exact Z_p image of the accumulated sum
+/// (standard order).
+#[inline]
+fn flush_split(acc_lo: &[u128; D], acc_hi: &[u128; D], t: &super::aux::NttTables) -> [u64; D] {
+    use super::aux::{gl_reduce128, ntt_inv_fast, EPS};
+    let mut v = [0u64; D];
+    for k in 0..D {
+        v[k] = gl_reduce128(acc_lo[k] + EPS as u128 * acc_hi[k]);
+    }
+    ntt_inv_fast(&mut v, t);
+    v
+}
+
+// ---- T7: the quinary fold. ----
+
+/// [UPERF2-C T7] The exact i64 fold z_u = sum_j c_j * w[j][u] over Z
+/// (negacyclic) for u in 0..chunk — the level fold of `bg_fold` /
+/// `agg_fold` — in the Goldilocks NTT domain: c transformed once, each w
+/// ring once, r-term pointwise MAC, one inverse and `center_from_p` per
+/// output. Capacity r * D * cmax * wmax <= (p-1)/2 is checked EXACTLY
+/// from the data bounds; otherwise (never in the composed pass: quinary
+/// c, |w| <= 64) the oracle `fold_chunks_ref` runs. Threads over u.
+/// Bit-identical to the oracle (uperf-c diff-battery leg T7).
+pub fn fold_chunks_ntt(cs: &[Vec<i64>], w: &[&[Vec<i64>]], chunk: usize) -> Vec<Vec<i64>> {
+    use super::aux::{capacity, center_from_p};
+    let r = cs.len();
+    assert_eq!(w.len(), r, "one w slice per fold challenge");
+    for s in w {
+        assert_eq!(s.len(), chunk, "w slice length");
+    }
+    if oracle_mode() {
+        return fold_chunks_ref(cs, w, chunk);
+    }
+    if r == 0 || chunk == 0 {
+        return vec![vec![0i64; D]; chunk];
+    }
+    let cmax: u128 = cs.iter().flat_map(|c| c.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0);
+    let wmax: u128 = w
+        .iter()
+        .flat_map(|s| s.iter())
+        .flat_map(|ring| ring.iter())
+        .map(|&x| x.unsigned_abs() as u128)
+        .max()
+        .unwrap_or(0);
+    // (bounds beyond 2^48 are outside every designed regime — quinary c,
+    // digits |w| <= 64 — and could overflow the u128 capacity product:
+    // straight to the oracle)
+    if cmax >= (1u128 << 48) || wmax >= (1u128 << 48) {
+        return fold_chunks_ref(cs, w, chunk);
+    }
+    let (fits, _) = capacity(r as u128, cmax.max(1), wmax.max(1));
+    if !fits {
+        return fold_chunks_ref(cs, w, chunk);
+    }
+    let t = &*NTT;
+    let c_hat: Vec<[u64; D]> = cs.iter().map(|c| fwd_small(c, t)).collect();
+    let one = |u: usize| -> Vec<i64> {
+        let mut acc_lo = [0u128; D];
+        let mut acc_hi = [0u128; D];
+        let mut any = false;
+        for j in 0..r {
+            let ring = &w[j][u];
+            if ring.iter().all(|&x| x == 0) {
+                continue;
+            }
+            any = true;
+            let f = fwd_small(ring, t);
+            mac_split(&mut acc_lo, &mut acc_hi, &f, &c_hat[j]);
+        }
+        if !any {
+            return vec![0i64; D];
+        }
+        let v = flush_split(&acc_lo, &acc_hi, t);
+        v.iter().map(|&x| center_from_p(x) as i64).collect()
+    };
+    map_ordered(chunk, one)
+}
+
+/// The pre-[UPERF2-C] fold loop (`poly_mul_small` per (j, u) term,
+/// exact i64 accumulation) — the T7 oracle.
+pub fn fold_chunks_ref(cs: &[Vec<i64>], w: &[&[Vec<i64>]], chunk: usize) -> Vec<Vec<i64>> {
+    let r = cs.len();
+    assert_eq!(w.len(), r);
+    (0..chunk)
+        .map(|u| {
+            let mut z = vec![0i64; D];
+            for (j, c) in cs.iter().enumerate() {
+                let prod = poly_mul_small(c, &w[j][u]);
+                for (a, p) in z.iter_mut().zip(prod.iter()) {
+                    *a += p;
+                }
+            }
+            z
+        })
+        .collect()
+}
+
+// ---- The parallel digit splits. ----
+
+/// `decompose_poly_modq` over a list of rings, ring order preserved (the
+/// flat limb-major-per-ring output the callers `extend` into), computed
+/// in parallel per ring when threads() > 1. Identical to the serial loop.
+pub fn decompose_polys_modq(zq: &Zq, polys: &[Poly], e: u32, l: usize) -> Vec<Vec<i64>> {
+    let per: Vec<Vec<Vec<i64>>> = map_ordered(polys.len(), |i| decompose_poly_modq(zq, &polys[i], e, l));
+    let mut out = Vec::with_capacity(polys.len() * l);
+    for d in per {
+        out.extend(d);
+    }
+    out
+}
+
+/// `decompose_poly_small` over a list of small rings, ring order
+/// preserved, in parallel per ring when threads() > 1.
+pub fn decompose_polys_small(polys: &[Vec<i64>], e: u32, l: usize) -> Vec<Vec<i64>> {
+    let per: Vec<Vec<Vec<i64>>> = map_ordered(polys.len(), |i| decompose_poly_small(&polys[i], e, l));
+    let mut out = Vec::with_capacity(polys.len() * l);
+    for d in per {
+        out.extend(d);
+    }
+    out
+}
+
+// ---- compute_psi. ----
+
+/// [UPERF2-C] NTT-domain `compute_psi`: c_k transformed once, per output
+/// u the r in-range phi rings transformed once and MAC'd against c-hat,
+/// one inverse; exact by the single-prime window (r <= window(q, |c|max);
+/// the oracle runs otherwise). Threads over u.
+pub fn compute_psi_ntt(ctx: &RingCtx, phi: &[Poly], chunk: usize, c: &[Vec<i64>]) -> Vec<Poly> {
+    use super::aux::{center_from_p, mod_q_centered};
+    let q = ctx.zq.q;
+    let r = c.len();
+    if r == 0 || chunk == 0 {
+        return vec![poly_zero(); chunk];
+    }
+    let s_max: u128 = c.iter().flat_map(|ck| ck.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0);
+    let window = ntt_window_terms(q, s_max);
+    if window < r {
+        return compute_psi_ref(ctx, phi, chunk, c);
+    }
+    let t = &*NTT;
+    let c_hat: Vec<[u64; D]> = c.iter().map(|ck| fwd_small(ck, t)).collect();
+    let one = |u: usize| -> Poly {
+        let mut acc_lo = [0u128; D];
+        let mut acc_hi = [0u128; D];
+        let mut any = false;
+        for k in 0..r {
+            let idx = k * chunk + u;
+            if idx >= phi.len() {
+                break;
+            }
+            let ring = &phi[idx];
+            if ring.iter().all(|&x| x == 0) {
+                continue;
+            }
+            any = true;
+            let f = fwd_modq(ring, q, t);
+            mac_split(&mut acc_lo, &mut acc_hi, &f, &c_hat[k]);
+        }
+        if !any {
+            return poly_zero();
+        }
+        let v = flush_split(&acc_lo, &acc_hi, t);
+        v.iter().map(|&x| mod_q_centered(center_from_p(x), q)).collect()
+    };
+    map_ordered(chunk, one)
+}
+
+// ---- T3b: the transport's general x general contractions. ----
+
+/// [UPERF2-C T3b] out[u] = sum_i alphas[i] * ops[i][u] over R_q for u in
+/// 0..m — n FIXED mod-q rings against n slices of m GENERAL mod-q rings,
+/// in the limb-split NTT domain. Two exact regimes, chosen by the
+/// capacity contract for the term count n (never by data):
+///   ONE-SIDED (fits at q31 for n <= 2048): only the alphas are split,
+///     a = a1 2^L + a0 (balanced limbs at L = limb_bits(q)); per operand
+///     ONE forward transform; two in-domain accumulations a0*b, a1*b
+///     (each exact: n * D * limb * (q-1)/2 <= (p-1)/2); two inverses;
+///     out = V0 + 2^L V1 mod q.
+///   TWO-SIDED (fits at q46 for n <= 1024): both split, 3 Karatsuba
+///     sub-products (P0, P2, PM = (a0+a1)(b0+b1); the mid transform by
+///     linearity), 3 inverses, out = P0 + 2^L (PM - P0 - P2) + 2^2L P2
+///     mod q — the `A1LimbCommitKernel` contract.
+/// If neither fits the oracle `ntt_combine_general_ref` runs. Threads
+/// over u. Bit-identical to the oracle (uperf-c diff-battery leg T3b).
+pub fn ntt_combine_general(ctx: &RingCtx, alphas: &[Poly], ops: &[&[Poly]], m: usize) -> Vec<Poly> {
+    use super::aux::{capacity, center_from_p, limb_bits, mod_q_centered, mul_q};
+    let q = ctx.zq.q;
+    let n = alphas.len();
+    assert_eq!(ops.len(), n, "one operand slice per alpha");
+    for o in ops {
+        assert_eq!(o.len(), m, "operand slice length");
+    }
+    if oracle_mode() || n == 0 || m == 0 {
+        return ntt_combine_general_ref(ctx, alphas, ops, m);
+    }
+    let l = limb_bits(q);
+    let a_lo = 1u128 << (l - 1);
+    let a_hi = (((q as u128 - 1) / 2 + a_lo) >> l) + 1;
+    let half_q = ((q - 1) / 2) as u128;
+    let one_sided = capacity(n as u128, a_lo.max(a_hi), half_q).0;
+    let two_sided = capacity(n as u128, a_lo + a_hi, a_lo + a_hi).0;
+    if !one_sided && !two_sided {
+        return ntt_combine_general_ref(ctx, alphas, ops, m);
+    }
+    let t = &*NTT;
+    let a_hat: Vec<[[u64; D]; 3]> = alphas.iter().map(|a| fwd_modq_limbs(a, q, l, t)).collect();
+    let two_l = (1u64 << l) % q;
+    let two_2l = mul_q(two_l, two_l, q);
+    let one = |u: usize| -> Poly {
+        let mut acc_lo = [[0u128; D]; 3];
+        let mut acc_hi = [[0u128; D]; 3];
+        let mut any = false;
+        for i in 0..n {
+            let ring = &ops[i][u];
+            if ring.iter().all(|&x| x == 0) {
+                continue;
+            }
+            any = true;
+            if one_sided {
+                let f = fwd_modq(ring, q, t);
+                mac_split(&mut acc_lo[0], &mut acc_hi[0], &a_hat[i][0], &f);
+                mac_split(&mut acc_lo[1], &mut acc_hi[1], &a_hat[i][1], &f);
+            } else {
+                let oh = fwd_modq_limbs(ring, q, l, t);
+                for s in 0..3 {
+                    mac_split(&mut acc_lo[s], &mut acc_hi[s], &a_hat[i][s], &oh[s]);
+                }
+            }
+        }
+        if !any {
+            return poly_zero();
+        }
+        let p0 = flush_split(&acc_lo[0], &acc_hi[0], t);
+        let p1 = flush_split(&acc_lo[1], &acc_hi[1], t);
+        let mut out = poly_zero();
+        if one_sided {
+            for k in 0..D {
+                let v0 = mod_q_centered(center_from_p(p0[k]), q);
+                let v1 = mod_q_centered(center_from_p(p1[k]), q);
+                out[k] = (v0 + mul_q(two_l, v1, q)) % q;
+            }
+        } else {
+            let pm = flush_split(&acc_lo[2], &acc_hi[2], t);
+            for k in 0..D {
+                let v0 = mod_q_centered(center_from_p(p0[k]), q);
+                let v2 = mod_q_centered(center_from_p(p1[k]), q);
+                let vm = mod_q_centered(center_from_p(pm[k]), q);
+                let mid = (vm + 2 * q - v0 - v2) % q;
+                out[k] = (v0 + mul_q(two_l, mid, q) + mul_q(two_2l, v2, q)) % q;
+            }
+        }
+        out
+    };
+    map_ordered(m, one)
+}
+
+/// The Karatsuba oracle of `ntt_combine_general` (per output, n ring
+/// products summed in alpha order).
+pub fn ntt_combine_general_ref(ctx: &RingCtx, alphas: &[Poly], ops: &[&[Poly]], m: usize) -> Vec<Poly> {
+    let zq = &ctx.zq;
+    assert_eq!(ops.len(), alphas.len());
+    (0..m)
+        .map(|u| {
+            let mut acc = poly_zero();
+            for (a, o) in alphas.iter().zip(ops.iter()) {
+                acc = poly_add(zq, &acc, &ring_mul_split_kara_fast(ctx, a, &o[u]));
+            }
+            acc
+        })
+        .collect()
+}
+
+/// [UPERF2-C T3b] The fast body of `transport_level_from_psi` — the
+/// regrouped form of the module note above: the per-source rings S (Z
+/// family), T5 (T and H families), a_t4[kap] * c_j (T family's T4 term)
+/// and a_l1 * cpair (H family's L1 term) are computed ONCE each in the
+/// NTT domain, then every next-witness ring is assembled as a fixed-
+/// order mod-q sum of scalar multiples (radix and sign). h_next is the
+/// reference sum (1 + kappa * n_bindings products — negligible).
+#[allow(clippy::too_many_arguments)]
+pub fn transport_level_from_psi_fast(
+    ctx: &RingCtx,
+    psi: &[Poly],
+    h_target: &Poly,
+    plan: &LevelPlan,
+    layout: &NextLayout,
+    a_mat: &[Poly],
+    bindings: &[OuterBinding],
+    c: &[Vec<i64>],
+    alphas: &[Poly],
+) -> LevelTransport {
+    let zq = &ctx.zq;
+    let chunk = plan.chunk;
+    let r = c.len();
+    assert_eq!(psi.len(), chunk);
+    assert!(a_mat.len() >= KAPPA_AGG * chunk, "A_i is kappa x chunk");
+    let n_rows = transport_rows(bindings.len());
+    assert_eq!(alphas.len(), n_rows);
+    let (a_t1, a_l1) = (&alphas[0], &alphas[1]);
+    let a_t4 = &alphas[2..2 + KAPPA_AGG];
+    let a_t5 = &alphas[2 + KAPPA_AGG..];
+    for b in bindings {
+        assert!(b.b_mat.len() >= KAPPA_AGG * b.cols, "B is kappa x cols");
+    }
+    // (i) S[src] = a_l1 * psi[src] + sum_kap a_t4[kap] * A[kap][src].
+    let s_rings: Vec<Poly> = {
+        let mut al: Vec<Poly> = Vec::with_capacity(1 + KAPPA_AGG);
+        al.push(a_l1.clone());
+        al.extend(a_t4.iter().cloned());
+        let mut ops: Vec<&[Poly]> = Vec::with_capacity(1 + KAPPA_AGG);
+        ops.push(psi);
+        for kap in 0..KAPPA_AGG {
+            ops.push(&a_mat[kap * chunk..(kap + 1) * chunk]);
+        }
+        ntt_combine_general(ctx, &al, &ops, chunk)
+    };
+    // (ii) T5_bi[rel] = sum_kap2 a_t5[bi][kap2] * B_bi[kap2][rel].
+    let t5_rings: Vec<Vec<Poly>> = bindings
+        .iter()
+        .enumerate()
+        .map(|(bi, b)| {
+            let al = &a_t5[bi * KAPPA_AGG..(bi + 1) * KAPPA_AGG];
+            let ops: Vec<&[Poly]> = (0..KAPPA_AGG).map(|k2| &b.b_mat[k2 * b.cols..(k2 + 1) * b.cols]).collect();
+            ntt_combine_general(ctx, al, &ops, b.cols)
+        })
+        .collect();
+    // (iii) P[kap * r + j] = a_t4[kap] * c_j (small operand).
+    let p_rings: Vec<Poly> = {
+        let a: Vec<&[Poly]> = a_t4.iter().map(std::slice::from_ref).collect();
+        let b: Vec<&[Vec<i64>]> = c.iter().map(std::slice::from_ref).collect();
+        ntt_gemm_modq_small(ctx, &a, &b, 1)
+    };
+    // (iv) Q[pair] = a_l1 * cpair[pair], cpair = c_j (x) c_k over Z (small).
+    let cp_small: Vec<Vec<i64>> = {
+        let mut v = Vec::with_capacity(r * (r + 1) / 2);
+        for j in 0..r {
+            for k in j..r {
+                v.push(poly_mul_small(&c[j], &c[k]));
+            }
+        }
+        v
+    };
+    let q_rings: Vec<Poly> = {
+        let b: Vec<&[Vec<i64>]> = cp_small.iter().map(std::slice::from_ref).collect();
+        ntt_gemm_modq_small(ctx, &[std::slice::from_ref(a_l1)], &b, 1)
+    };
+    // (v) Assemble every next-witness ring (fixed order: family term(s),
+    // then the bindings in order — a mod-q sum, so identical to the
+    // oracle's per-term accumulation).
+    let t5_at = |pos: usize, acc: &mut Poly| {
+        for (bi, b) in bindings.iter().enumerate() {
+            if pos >= b.col_base && pos < b.col_base + b.cols {
+                *acc = poly_add(zq, acc, &t5_rings[bi][pos - b.col_base]);
+            }
+        }
+    };
+    let e_next = plan.e_next as usize;
+    let one = |u: usize| -> Poly {
+        let (fam, src, limb) = layout.locate(u);
+        match fam {
+            Fam::Z => {
+                let radix = zq.to_mod(1i64 << (e_next * limb));
+                scale_exact(zq, &s_rings[src], radix)
+            }
+            Fam::T => {
+                let (j, kap) = (src / KAPPA_AGG, src % KAPPA_AGG);
+                let radix = 1i64 << (e_next * limb);
+                let mut acc = scale_exact(zq, &p_rings[kap * r + j], zq.to_mod(-radix));
+                t5_at(u - layout.t_base, &mut acc);
+                acc
+            }
+            Fam::H => {
+                let radix_u = zq.to_mod(1i64 << (e_next * limb));
+                let (j, k) = pair_from_index(plan.r, src);
+                let mut acc = if j == k { scale_exact(zq, a_t1, radix_u) } else { poly_zero() };
+                acc = poly_add(zq, &acc, &scale_exact(zq, &q_rings[src], zq.neg(radix_u)));
+                t5_at(u - layout.t_base, &mut acc);
+                acc
+            }
+        }
+    };
+    let phi_next: Vec<Poly> = map_ordered(layout.n_total, one);
+    // Aggregated target: alpha_T1 * H_i + sum over bindings alpha_T5 * u.
+    let mut h_next = ring_mul_split_kara_fast(ctx, a_t1, h_target);
+    for (bi, b) in bindings.iter().enumerate() {
+        for (kap, uk) in b.u.iter().enumerate() {
+            let ak = &a_t5[bi * KAPPA_AGG + kap];
+            h_next = poly_add(zq, &h_next, &ring_mul_split_kara_fast(ctx, ak, uk));
+        }
+    }
+    LevelTransport { phi_next, h_next }
 }
