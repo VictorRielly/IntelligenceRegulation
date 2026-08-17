@@ -55,9 +55,15 @@ import numpy as np
 # --------------------------------------------------------------------------
 
 ROOT = Path(__file__).resolve().parents[1]
-FRUGAL = Path("/Users/victorrielly/frugal-lm")
-CKPT = FRUGAL / "runs" / "125m-baseline" / "ckpt-00009536" / "model.safetensors"
-VAL_SHARD = FRUGAL / "data" / "fineweb-edu-val" / "shard-00000.npy"
+# Paths are overridable by environment (2026-08-17, for the WSL box where
+# the checkpoint arrived as a tarball at /home/victor/models/...); the
+# defaults are the Mac's frugal-lm checkout and stay authoritative.
+import os  # noqa: E402
+FRUGAL = Path(os.environ.get("M125_FRUGAL", "/Users/victorrielly/frugal-lm"))
+CKPT = Path(os.environ.get(
+    "M125_CKPT", str(FRUGAL / "runs" / "125m-baseline" / "ckpt-00009536" / "model.safetensors")))
+VAL_SHARD = Path(os.environ.get(
+    "M125_VAL_SHARD", str(FRUGAL / "data" / "fineweb-edu-val" / "shard-00000.npy")))
 OUT_JSON = ROOT / "results" / "m125_int8_calibration.json"
 
 SEED = 1337

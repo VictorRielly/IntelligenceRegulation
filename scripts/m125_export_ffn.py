@@ -136,6 +136,28 @@ def main():
         manifest["layers"].append(row)
     print("36 weight tensors exported (int8 @ 2^-9, transposed to matmul layout)")
 
+    # --- weights-only mode (2026-08-17): validate the checkpoint against
+    # --- the COMMITTED manifest's weight digests and stop before the X
+    # --- walk (which needs the val shard + mlx). Used on the WSL box.
+    if "--weights-only" in sys.argv:
+        prev = json.loads((OUT_DIR / "manifest.json").read_text()) \
+            if (OUT_DIR / "manifest.json").exists() else None
+        if prev is None:
+            print("weights-only: no committed manifest to compare against")
+            return
+        bad = 0
+        for li in range(cal.N_LAYERS):
+            for name in ("WgT", "WuT", "WdT"):
+                want = prev["layers"][li]["digests"][name]
+                got = manifest["layers"][li]["digests"][name]
+                if want != got:
+                    bad += 1
+                    print("  layer %2d %s: DIGEST MISMATCH %s != %s" % (li, name, got[:16], want[:16]))
+        print("weights-only: %d/36 weight digests match the committed manifest"
+              % (36 - bad))
+        assert bad == 0, "checkpoint is not the frozen ckpt-00009536 export"
+        return
+
     # --- X per layer: one held-out sequence through the QUANTIZED
     # --- end-to-end walk (BC's variant A construction — each layer's X
     # --- is the int8 model's own mlp_norm output; attention/norms fp32
