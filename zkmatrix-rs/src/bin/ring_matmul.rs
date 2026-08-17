@@ -37685,7 +37685,7 @@ fn uperf_g_bench(depth: usize, l: usize, n_real: usize, dt: usize) {
         }
         let (nb, held_mb, hits, grows, misses) = ring::kfield::k9_arena_stats();
         println!(
-            "    arena: {nb} pooled buffers, {held_mb} MiB held; takes served {hits} (grown {grows}), fresh {misses}; process minor faults so far {}",
+            "    arena: {nb} pooled buffers, {held_mb} MiB held; takes served {hits} (of which by a larger buffer {grows}), fresh {misses}; process minor faults so far {}",
             uperf_g_minflt()
         );
         println!("[UPERF2-G] DESCENT DIGEST {}", hex_full(&out.digest));

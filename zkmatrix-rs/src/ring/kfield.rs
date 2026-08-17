@@ -2651,8 +2651,8 @@ pub fn k9_arena_clear() {
     drop(bufs);
 }
 
-/// (pooled buffers, held MiB, takes served from the pool, of which grown,
-/// fresh allocations) — observation only.
+/// (pooled buffers, held MiB, takes served from the pool, of which by a
+/// larger-than-requested buffer, fresh allocations) — observation only.
 pub fn k9_arena_stats() -> (usize, usize, u64, u64, u64) {
     use std::sync::atomic::Ordering::Relaxed;
     let a = K9_ARENA.lock().expect("K9 arena lock");
