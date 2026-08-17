@@ -749,28 +749,69 @@ mod gl_avx2 {
         }
     }
 
-    /// The DIT butterfly with a +-2^k twiddle: y = v 2^k, then
-    /// (u + y, u - y), or (u - y, u + y) for the negative sign.
+    /// The DIT butterfly with a +2^k twiddle: y = v 2^k, (u + y, u - y).
+    /// (A -2^k twiddle is the same pair stored swapped — the stage loop
+    /// swaps the store offsets per group.)
     #[inline(always)]
     unsafe fn dit_pow2(u: __m256i, v: __m256i, w: Pw, k: K) -> (__m256i, __m256i) {
         unsafe {
-            let mut w0 = w;
-            w0.neg = false;
-            let y = mul_pow2(v, w0, k);
-            let (s, d) = (add(u, y, k), sub(u, y, k));
-            if w.neg { (d, s) } else { (s, d) }
+            let y = mul_pow2(v, w, k);
+            (add(u, y, k), sub(u, y, k))
         }
     }
 
-    /// The GS butterfly with a +-2^k twiddle: (u + v, (u - v) 2^k), the
-    /// negative sign as (v - u) 2^k.
+    /// The GS butterfly with a +2^k twiddle: (u + v, (u - v) 2^k). (A
+    /// -2^k twiddle is the same butterfly on the swapped operands: (v + u,
+    /// (v - u) 2^k) — the stage loop swaps the load offsets per group.)
     #[inline(always)]
     unsafe fn gs_pow2(u: __m256i, v: __m256i, w: Pw, k: K) -> (__m256i, __m256i) {
+        unsafe { (add(u, v, k), mul_pow2(sub(u, v, k), w, k)) }
+    }
+
+    /// One forward outer stage: M groups of len = D / 2M, twiddle
+    /// psi_brv[M + i] = +-2^k (the same (m, i, j) order as ntt_fwd_fast,
+    /// four j at a time). Const M so the j loop has a fixed trip count.
+    #[inline(always)]
+    unsafe fn fwd_stage<const M: usize>(p: *mut u64, t: &NttTables, k: K) {
+        let len = D / (2 * M);
         unsafe {
-            let mut w0 = w;
-            w0.neg = false;
-            let d = if w.neg { sub(v, u, k) } else { sub(u, v, k) };
-            (add(u, v, k), mul_pow2(d, w0, k))
+            for i in 0..M {
+                let f = t.psi_pw2[M + i];
+                let mut w = pw(f);
+                w.neg = false;
+                let (os, od) = if f.neg { (len, 0) } else { (0, len) };
+                let j1 = 2 * i * len;
+                let mut j = j1;
+                while j < j1 + len {
+                    let (s, d) = dit_pow2(ld(p, j), ld(p, j + len), w, k);
+                    st(p, j + os, s);
+                    st(p, j + od, d);
+                    j += 4;
+                }
+            }
+        }
+    }
+
+    /// One inverse outer stage: H groups of len = D / 2H, twiddle
+    /// ipsi_brv[H + i] = +-2^k (the same (h, i, j) order as ntt_inv_fast).
+    #[inline(always)]
+    unsafe fn inv_stage<const H: usize>(p: *mut u64, t: &NttTables, k: K) {
+        let len = D / (2 * H);
+        unsafe {
+            for i in 0..H {
+                let f = t.ipsi_pw2[H + i];
+                let mut w = pw(f);
+                w.neg = false;
+                let (ou, ov) = if f.neg { (len, 0) } else { (0, len) };
+                let j1 = 2 * i * len;
+                let mut j = j1;
+                while j < j1 + len {
+                    let (s, d) = gs_pow2(ld(p, j + ou), ld(p, j + ov), w, k);
+                    st(p, j, s);
+                    st(p, j + len, d);
+                    j += 4;
+                }
+            }
         }
     }
 
@@ -780,25 +821,12 @@ mod gl_avx2 {
         unsafe {
             let k = consts();
             let p = a.as_mut_ptr();
-            // Stages m = 1..16 (len = 64..4): the same (m, i, j) order as
-            // ntt_fwd_fast, four j at a time, one +-2^k twiddle per group.
-            let mut m = 1usize;
-            let mut len = D;
-            while m <= 16 {
-                len >>= 1;
-                for i in 0..m {
-                    let w = pw(t.psi_pw2[m + i]);
-                    let j1 = 2 * i * len;
-                    let mut j = j1;
-                    while j < j1 + len {
-                        let (u, v) = dit_pow2(ld(p, j), ld(p, j + len), w, k);
-                        st(p, j, u);
-                        st(p, j + len, v);
-                        j += 4;
-                    }
-                }
-                m <<= 1;
-            }
+            // Stages m = 1..16 (len = 64..4): +-2^k twiddles.
+            fwd_stage::<1>(p, t, k);
+            fwd_stage::<2>(p, t, k);
+            fwd_stage::<4>(p, t, k);
+            fwd_stage::<8>(p, t, k);
+            fwd_stage::<16>(p, t, k);
             // Stages m = 32 (len 2) and m = 64 (len 1), chained on the lane
             // split of a[8k..8k+8] = vectors (x, y):
             //   m = 32 pairs (a[8k+j], a[8k+2+j]) with s_2k and
@@ -850,25 +878,12 @@ mod gl_avx2 {
                 st(p, 8 * kk, _mm256_permute2x128_si256::<0x20>(u2, v2)); // (a0, a1, a2, a3)
                 st(p, 8 * kk + 4, _mm256_permute2x128_si256::<0x31>(u2, v2)); // (a4 .. a7)
             }
-            // Stages len = 4..64 (h = 16..1): whole-vector butterflies, one
-            // +-2^k twiddle per (h, i) group, the same order as ntt_inv_fast.
-            let mut len = 4usize;
-            let mut h = 16usize;
-            while h >= 1 {
-                for i in 0..h {
-                    let w = pw(t.ipsi_pw2[h + i]);
-                    let j1 = 2 * i * len;
-                    let mut j = j1;
-                    while j < j1 + len {
-                        let (u, v) = gs_pow2(ld(p, j), ld(p, j + len), w, k);
-                        st(p, j, u);
-                        st(p, j + len, v);
-                        j += 4;
-                    }
-                }
-                len <<= 1;
-                h >>= 1;
-            }
+            // Stages len = 4..64 (h = 16..1): +-2^k twiddles.
+            inv_stage::<16>(p, t, k);
+            inv_stage::<8>(p, t, k);
+            inv_stage::<4>(p, t, k);
+            inv_stage::<2>(p, t, k);
+            inv_stage::<1>(p, t, k);
             // Final scale by 1/n = -2^89.
             let w = pw(t.n_inv_pw2);
             let mut j = 0;
