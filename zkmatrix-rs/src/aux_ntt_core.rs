@@ -119,6 +119,13 @@ pub struct NttTables {
     psi_brv: [u64; D],  // psi^bitrev7(i)
     ipsi_brv: [u64; D], // psi^{-bitrev7(i)}
     n_inv: u64,
+    // [UPERF2-I] SIMD-layout copies of the m = 32 stage twiddles (the
+    // 4-lane split of `ntt_fwd_avx2` / `ntt_inv_avx2` pairs lanes
+    // (0,1) and (2,3) of consecutive vectors, so its twiddle vector for
+    // vectors (2k, 2k+1) is (s_2k, s_2k, s_2k+1, s_2k+1) with s_i =
+    // psi_brv[32 + i]): psi_l2[4k..4k+4]. Same values, no new constants.
+    psi_l2: [u64; 64],
+    ipsi_l2: [u64; 64],
 }
 
 pub fn bitrev7(mut i: u32) -> u32 {
@@ -151,7 +158,16 @@ pub fn build_tables() -> NttTables {
         psi_brv[i] = fwd[bitrev7(i as u32) as usize];
         ipsi_brv[i] = bwd[bitrev7(i as u32) as usize];
     }
-    NttTables { psi_brv, ipsi_brv, n_inv: inv_p(D as u64) }
+    // [UPERF2-I] the 4-lane layout of the m = 32 stage twiddles.
+    let mut psi_l2 = [0u64; 64];
+    let mut ipsi_l2 = [0u64; 64];
+    for k in 0..16 {
+        for j in 0..4 {
+            psi_l2[4 * k + j] = psi_brv[32 + 2 * k + j / 2];
+            ipsi_l2[4 * k + j] = ipsi_brv[32 + 2 * k + j / 2];
+        }
+    }
+    NttTables { psi_brv, ipsi_brv, n_inv: inv_p(D as u64), psi_l2, ipsi_l2 }
 }
 
 /// Forward negacyclic NTT, in place. Input standard order, output
@@ -296,6 +312,564 @@ pub fn ntt_inv_fast(a: &mut [u64; D], t: &NttTables) {
     }
     for x in a.iter_mut() {
         *x = gl_mul(*x, t.n_inv);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-I] SIMD transforms: the SAME DIT forward / GS inverse (same
+// butterflies, same twiddle order, same output order, same final 1/n
+// scale) on 4 x u64 AVX2 lanes (x86_64, runtime-detected) or 2 x u64 NEON
+// lanes (aarch64, [UNTESTED-NEON] — written to mirror the AVX2 body, not
+// run here). Every vector op yields the CANONICAL value in [0, p) of the
+// same field expression the scalar `gl_*` op computes (the u64 x u64
+// product from four 32 x 32 partial products, then `lo + EPS*hi_lo -
+// hi_hi` mod p with compare-based conditional subtracts), so the
+// transforms' outputs are identical to `ntt_fwd_fast` / `ntt_inv_fast`
+// by the uniqueness of canonical representatives — asserted by
+// `ring_matmul uperf-i battery` (planted extremes + random rings, fwd,
+// inv, round trip). Safety: the only `unsafe` is the SIMD intrinsics
+// themselves — loads/stores at fixed in-bounds offsets of a `[u64; 128]`,
+// and the AVX2 entry points are reached only after
+// `is_x86_feature_detected!("avx2")`. `ZK_NTT_SIMD=0` forces the scalar
+// body in `ntt_fwd_best` / `ntt_inv_best` (the one-binary A/B knob).
+
+/// True when the box has the SIMD body and `ZK_NTT_SIMD` is not "0"
+/// (read once).
+pub fn simd_ntt_enabled() -> bool {
+    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ON.get_or_init(|| {
+        let knob = std::env::var("ZK_NTT_SIMD").map(|v| v != "0").unwrap_or(true);
+        knob && simd_ntt_available()
+    })
+}
+
+/// Whether this box can run the SIMD body at all (independent of the knob).
+pub fn simd_ntt_available() -> bool {
+    #[cfg(target_arch = "x86_64")]
+    {
+        std::arch::is_x86_feature_detected!("avx2")
+    }
+    #[cfg(target_arch = "aarch64")]
+    {
+        true
+    }
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    {
+        false
+    }
+}
+
+/// The SIMD body's name for reports: "avx2" | "neon" | "scalar".
+pub fn simd_ntt_label() -> &'static str {
+    if !simd_ntt_available() {
+        return "scalar";
+    }
+    #[cfg(target_arch = "x86_64")]
+    {
+        "avx2"
+    }
+    #[cfg(target_arch = "aarch64")]
+    {
+        "neon"
+    }
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    {
+        "scalar"
+    }
+}
+
+/// The transform every eval_proof.rs kernel calls: the SIMD body when
+/// available and enabled, else `ntt_fwd_fast` (identical values).
+#[inline]
+pub fn ntt_fwd_best(a: &mut [u64; D], t: &NttTables) {
+    if simd_ntt_enabled() {
+        ntt_fwd_simd(a, t);
+    } else {
+        ntt_fwd_fast(a, t);
+    }
+}
+
+/// == ntt_inv_fast, dispatched like `ntt_fwd_best`.
+#[inline]
+pub fn ntt_inv_best(a: &mut [u64; D], t: &NttTables) {
+    if simd_ntt_enabled() {
+        ntt_inv_simd(a, t);
+    } else {
+        ntt_inv_fast(a, t);
+    }
+}
+
+/// The SIMD forward body directly (battery / bench). Falls back to the
+/// scalar body only where no SIMD body exists for the architecture.
+#[inline]
+pub fn ntt_fwd_simd(a: &mut [u64; D], t: &NttTables) {
+    #[cfg(target_arch = "x86_64")]
+    {
+        // SAFETY: AVX2 is present (checked by the caller through
+        // `simd_ntt_available`; asserted again here — the check is a
+        // cached load); the body indexes a fixed [u64; 128].
+        assert!(std::arch::is_x86_feature_detected!("avx2"), "ntt_fwd_simd: no AVX2");
+        unsafe { gl_avx2::ntt_fwd(a, t) }
+    }
+    #[cfg(target_arch = "aarch64")]
+    {
+        // SAFETY: NEON is the aarch64 baseline; fixed [u64; 128].
+        unsafe { gl_neon::ntt_fwd(a, t) }
+    }
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    {
+        ntt_fwd_fast(a, t)
+    }
+}
+
+/// The SIMD inverse body directly (battery / bench).
+#[inline]
+pub fn ntt_inv_simd(a: &mut [u64; D], t: &NttTables) {
+    #[cfg(target_arch = "x86_64")]
+    {
+        assert!(std::arch::is_x86_feature_detected!("avx2"), "ntt_inv_simd: no AVX2");
+        unsafe { gl_avx2::ntt_inv(a, t) }
+    }
+    #[cfg(target_arch = "aarch64")]
+    {
+        unsafe { gl_neon::ntt_inv(a, t) }
+    }
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    {
+        ntt_inv_fast(a, t)
+    }
+}
+
+/// [UPERF2-I] AVX2 body: 4 x u64 lanes. Stages with len >= 4 are
+/// whole-vector butterflies with one broadcast twiddle per (stage,
+/// group); the two stages with len < 4 (forward m = 32, 64; inverse
+/// len = 1, 2) run chained on a lane split of each 8-element block
+/// (permute2x128 / unpack in, the reverse out) with contiguous twiddle
+/// loads (`psi_l2` / `ipsi_l2` for the len-2 stage, `psi_brv[64..]` /
+/// `ipsi_brv[64..]` for the len-1 stage).
+#[cfg(target_arch = "x86_64")]
+mod gl_avx2 {
+    use super::{NttTables, D, EPS, P};
+    use core::arch::x86_64::*;
+
+    const SIGN: u64 = 1 << 63;
+
+    /// Lane constants (broadcast once per transform).
+    #[derive(Clone, Copy)]
+    struct K {
+        p: __m256i,
+        eps: __m256i,  // EPS = 2^32 - 1: the reduction constant AND the low-32 mask
+        sign: __m256i, // 2^63: unsigned compare = signed compare of sign-flipped values
+        pm1s: __m256i, // (p - 1) ^ SIGN
+    }
+
+    #[inline(always)]
+    unsafe fn consts() -> K {
+        unsafe {
+            K {
+                p: _mm256_set1_epi64x(P as i64),
+                eps: _mm256_set1_epi64x(EPS as i64),
+                sign: _mm256_set1_epi64x(SIGN as i64),
+                pm1s: _mm256_set1_epi64x(((P - 1) ^ SIGN) as i64),
+            }
+        }
+    }
+
+    /// A twiddle operand: the lanes' twiddles and their high 32-bit
+    /// halves (`_mm256_mul_epu32` reads the low halves itself).
+    #[derive(Clone, Copy)]
+    struct Tw {
+        w: __m256i,
+        w_hi: __m256i,
+    }
+
+    #[inline(always)]
+    unsafe fn tw_splat(w: u64) -> Tw {
+        unsafe { Tw { w: _mm256_set1_epi64x(w as i64), w_hi: _mm256_set1_epi64x((w >> 32) as i64) } }
+    }
+
+    #[inline(always)]
+    unsafe fn tw_load(p: *const u64) -> Tw {
+        unsafe {
+            let w = _mm256_loadu_si256(p as *const __m256i);
+            Tw { w, w_hi: _mm256_srli_epi64::<32>(w) }
+        }
+    }
+
+    #[inline(always)]
+    unsafe fn ld(a: *const u64, i: usize) -> __m256i {
+        unsafe { _mm256_loadu_si256(a.add(i) as *const __m256i) }
+    }
+
+    #[inline(always)]
+    unsafe fn st(a: *mut u64, i: usize, v: __m256i) {
+        unsafe { _mm256_storeu_si256(a.add(i) as *mut __m256i, v) }
+    }
+
+    /// == gl_add: (a + b) mod p canonical for a, b < p. a + b >= p iff
+    /// a > (p - 1) - b (no wrap: b < p); the unsigned compare is the
+    /// signed compare of the sign-flipped values, and
+    /// ((p - 1) - b) ^ SIGN == ((p - 1) ^ SIGN) - b (mod 2^64) because
+    /// x ^ SIGN == x + 2^63 (mod 2^64). Then a + b - p (mod 2^64) is the
+    /// exact canonical value when a + b >= p (it lies in [0, p)).
+    #[inline(always)]
+    unsafe fn add(a: __m256i, b: __m256i, k: K) -> __m256i {
+        unsafe {
+            let ge = _mm256_cmpgt_epi64(_mm256_xor_si256(a, k.sign), _mm256_sub_epi64(k.pm1s, b));
+            _mm256_sub_epi64(_mm256_add_epi64(a, b), _mm256_and_si256(ge, k.p))
+        }
+    }
+
+    /// == gl_sub: (a - b) mod p canonical for a, b < p: a - b, plus p on
+    /// borrow (b > a), all mod 2^64 (a - b + p lies in (0, p) then).
+    #[inline(always)]
+    unsafe fn sub(a: __m256i, b: __m256i, k: K) -> __m256i {
+        unsafe {
+            let br = _mm256_cmpgt_epi64(_mm256_xor_si256(b, k.sign), _mm256_xor_si256(a, k.sign));
+            _mm256_add_epi64(_mm256_sub_epi64(a, b), _mm256_and_si256(br, k.p))
+        }
+    }
+
+    /// == gl_mul: a * w mod p canonical for a, w < p.
+    #[inline(always)]
+    unsafe fn mul(a: __m256i, t: Tw, k: K) -> __m256i {
+        unsafe {
+            // 64 x 64 -> 128 from four 32 x 32 partial products
+            // (a = a1 2^32 + a0, w = w1 2^32 + w0):
+            //   x = a0 w0 + 2^32 (a0 w1 + a1 w0) + 2^64 a1 w1,
+            // carried in 32-bit columns; every intermediate < 2^64
+            // (partial products <= (2^32 - 1)^2, column carries < 2^32).
+            let a_hi = _mm256_srli_epi64::<32>(a);
+            let ll = _mm256_mul_epu32(a, t.w);
+            let lh = _mm256_mul_epu32(a, t.w_hi);
+            let hl = _mm256_mul_epu32(a_hi, t.w);
+            let hh = _mm256_mul_epu32(a_hi, t.w_hi);
+            let t0 = _mm256_add_epi64(hl, _mm256_srli_epi64::<32>(ll));
+            let t1 = _mm256_add_epi64(lh, _mm256_and_si256(t0, k.eps));
+            let hi = _mm256_add_epi64(_mm256_add_epi64(hh, _mm256_srli_epi64::<32>(t0)), _mm256_srli_epi64::<32>(t1));
+            let lo = _mm256_blend_epi32::<0xAA>(ll, _mm256_slli_epi64::<32>(t1));
+            // == gl_reduce128: x = lo + 2^64 hi == lo + EPS hi_lo - hi_hi
+            // (mod p) with 2^64 == EPS and 2^96 == -1; each term brought
+            // to canonical form: c = lo mod p (lo < 2^64 < 2p: one
+            // conditional subtract), e = EPS hi_lo (< p: hi_lo < 2^32),
+            // hi_hi < 2^32 < p; then r = ((c + e) mod p - hi_hi) mod p.
+            let hi_hi = _mm256_srli_epi64::<32>(hi);
+            let e = _mm256_mul_epu32(hi, k.eps);
+            let c_ge = _mm256_cmpgt_epi64(_mm256_xor_si256(lo, k.sign), k.pm1s);
+            let c = _mm256_sub_epi64(lo, _mm256_and_si256(c_ge, k.p));
+            sub(add(c, e, k), hi_hi, k)
+        }
+    }
+
+    /// The DIT butterfly: (u + v w, u - v w).
+    #[inline(always)]
+    unsafe fn dit(u: __m256i, v: __m256i, t: Tw, k: K) -> (__m256i, __m256i) {
+        unsafe {
+            let y = mul(v, t, k);
+            (add(u, y, k), sub(u, y, k))
+        }
+    }
+
+    /// The GS butterfly: (u + v, (u - v) w).
+    #[inline(always)]
+    unsafe fn gs(u: __m256i, v: __m256i, t: Tw, k: K) -> (__m256i, __m256i) {
+        unsafe { (add(u, v, k), mul(sub(u, v, k), t, k)) }
+    }
+
+    /// == ntt_fwd_fast on AVX2 (caller guarantees AVX2 is present).
+    #[target_feature(enable = "avx2")]
+    pub unsafe fn ntt_fwd(a: &mut [u64; D], t: &NttTables) {
+        unsafe {
+            let k = consts();
+            let p = a.as_mut_ptr();
+            // Stages m = 1..16 (len = 64..4): the same (m, i, j) order as
+            // ntt_fwd_fast, four j at a time, one broadcast twiddle per group.
+            let mut m = 1usize;
+            let mut len = D;
+            while m <= 16 {
+                len >>= 1;
+                for i in 0..m {
+                    let tw = tw_splat(t.psi_brv[m + i]);
+                    let j1 = 2 * i * len;
+                    let mut j = j1;
+                    while j < j1 + len {
+                        let (u, v) = dit(ld(p, j), ld(p, j + len), tw, k);
+                        st(p, j, u);
+                        st(p, j + len, v);
+                        j += 4;
+                    }
+                }
+                m <<= 1;
+            }
+            // Stages m = 32 (len 2) and m = 64 (len 1), chained on the lane
+            // split of a[8k..8k+8] = vectors (x, y):
+            //   m = 32 pairs (a[8k+j], a[8k+2+j]) with s_2k and
+            //              (a[8k+4+j], a[8k+6+j]) with s_2k+1, j < 2;
+            //   m = 64 pairs (a[8k+2i], a[8k+2i+1]) with s'_4k+i, i < 4.
+            for kk in 0..16 {
+                let x = ld(p, 8 * kk);
+                let y = ld(p, 8 * kk + 4);
+                let u = _mm256_permute2x128_si256::<0x20>(x, y); // (a0, a1, a4, a5)
+                let v = _mm256_permute2x128_si256::<0x31>(x, y); // (a2, a3, a6, a7)
+                let tw = tw_load(t.psi_l2.as_ptr().add(4 * kk)); // (s_2k, s_2k, s_2k+1, s_2k+1)
+                let (u, v) = dit(u, v, tw, k);
+                let u2 = _mm256_unpacklo_epi64(u, v); // (a0, a2, a4, a6)
+                let v2 = _mm256_unpackhi_epi64(u, v); // (a1, a3, a5, a7)
+                let tw = tw_load(t.psi_brv.as_ptr().add(64 + 4 * kk)); // (s'_4k .. s'_4k+3)
+                let (u2, v2) = dit(u2, v2, tw, k);
+                let lo = _mm256_unpacklo_epi64(u2, v2); // (a0, a1, a4, a5)
+                let hi = _mm256_unpackhi_epi64(u2, v2); // (a2, a3, a6, a7)
+                st(p, 8 * kk, _mm256_permute2x128_si256::<0x20>(lo, hi));
+                st(p, 8 * kk + 4, _mm256_permute2x128_si256::<0x31>(lo, hi));
+            }
+        }
+    }
+
+    /// == ntt_inv_fast on AVX2 (caller guarantees AVX2 is present).
+    #[target_feature(enable = "avx2")]
+    pub unsafe fn ntt_inv(a: &mut [u64; D], t: &NttTables) {
+        unsafe {
+            let k = consts();
+            let p = a.as_mut_ptr();
+            // Stages len = 1 (h = 64) and len = 2 (h = 32), chained on the
+            // same lane split of a[8k..8k+8]:
+            //   len 1 pairs (a[8k+2i], a[8k+2i+1]) with s'_4k+i (ipsi_brv[64 + 4k + i]);
+            //   len 2 pairs (a[8k+j], a[8k+2+j]) with s_2k and
+            //               (a[8k+4+j], a[8k+6+j]) with s_2k+1 (ipsi_brv[32 + ..]).
+            for kk in 0..16 {
+                let x = ld(p, 8 * kk);
+                let y = ld(p, 8 * kk + 4);
+                let lo = _mm256_permute2x128_si256::<0x20>(x, y); // (a0, a1, a4, a5)
+                let hi = _mm256_permute2x128_si256::<0x31>(x, y); // (a2, a3, a6, a7)
+                let u = _mm256_unpacklo_epi64(lo, hi); // (a0, a2, a4, a6)
+                let v = _mm256_unpackhi_epi64(lo, hi); // (a1, a3, a5, a7)
+                let tw = tw_load(t.ipsi_brv.as_ptr().add(64 + 4 * kk));
+                let (u, v) = gs(u, v, tw, k);
+                let u2 = _mm256_unpacklo_epi64(u, v); // (a0, a1, a4, a5)
+                let v2 = _mm256_unpackhi_epi64(u, v); // (a2, a3, a6, a7)
+                let tw = tw_load(t.ipsi_l2.as_ptr().add(4 * kk)); // (s_2k, s_2k, s_2k+1, s_2k+1)
+                let (u2, v2) = gs(u2, v2, tw, k);
+                st(p, 8 * kk, _mm256_permute2x128_si256::<0x20>(u2, v2)); // (a0, a1, a2, a3)
+                st(p, 8 * kk + 4, _mm256_permute2x128_si256::<0x31>(u2, v2)); // (a4 .. a7)
+            }
+            // Stages len = 4..64 (h = 16..1): whole-vector butterflies, one
+            // broadcast twiddle per (h, i) group, the same order as ntt_inv_fast.
+            let mut len = 4usize;
+            let mut h = 16usize;
+            while h >= 1 {
+                for i in 0..h {
+                    let tw = tw_splat(t.ipsi_brv[h + i]);
+                    let j1 = 2 * i * len;
+                    let mut j = j1;
+                    while j < j1 + len {
+                        let (u, v) = gs(ld(p, j), ld(p, j + len), tw, k);
+                        st(p, j, u);
+                        st(p, j + len, v);
+                        j += 4;
+                    }
+                }
+                len <<= 1;
+                h >>= 1;
+            }
+            // Final scale by 1/n.
+            let tw = tw_splat(t.n_inv);
+            let mut j = 0;
+            while j < D {
+                st(p, j, mul(ld(p, j), tw, k));
+                j += 4;
+            }
+        }
+    }
+}
+
+/// [UPERF2-I] NEON body: 2 x u64 lanes, the AVX2 body's mirror
+/// ([UNTESTED-NEON]: written for the Mac, compiled out on x86; the same
+/// canonical arithmetic — `vcgtq_u64` gives the unsigned compares
+/// directly, `vmull_u32` the 32 x 32 partial products, `vsliq_n_u64` the
+/// low-word assembly). Stages with len >= 2 are whole-vector butterflies
+/// with one broadcast twiddle per group; the len-1 stage (forward m = 64,
+/// inverse h = 64) runs on a zip split of each 4-element block with
+/// contiguous twiddle loads.
+#[cfg(target_arch = "aarch64")]
+mod gl_neon {
+    use super::{NttTables, D, EPS, P};
+    use core::arch::aarch64::*;
+
+    #[derive(Clone, Copy)]
+    struct K {
+        p: uint64x2_t,
+        pm1: uint64x2_t,
+        eps: uint64x2_t,
+        eps32: uint32x2_t,
+    }
+
+    #[inline(always)]
+    unsafe fn consts() -> K {
+        unsafe { K { p: vdupq_n_u64(P), pm1: vdupq_n_u64(P - 1), eps: vdupq_n_u64(EPS), eps32: vdup_n_u32(EPS as u32) } }
+    }
+
+    /// A twiddle operand: low and high 32-bit halves per lane.
+    #[derive(Clone, Copy)]
+    struct Tw {
+        lo: uint32x2_t,
+        hi: uint32x2_t,
+    }
+
+    #[inline(always)]
+    unsafe fn tw_splat(w: u64) -> Tw {
+        unsafe { Tw { lo: vdup_n_u32(w as u32), hi: vdup_n_u32((w >> 32) as u32) } }
+    }
+
+    #[inline(always)]
+    unsafe fn tw_load(p: *const u64) -> Tw {
+        unsafe {
+            let w = vld1q_u64(p);
+            Tw { lo: vmovn_u64(w), hi: vshrn_n_u64::<32>(w) }
+        }
+    }
+
+    #[inline(always)]
+    unsafe fn ld(a: *const u64, i: usize) -> uint64x2_t {
+        unsafe { vld1q_u64(a.add(i)) }
+    }
+
+    #[inline(always)]
+    unsafe fn st(a: *mut u64, i: usize, v: uint64x2_t) {
+        unsafe { vst1q_u64(a.add(i), v) }
+    }
+
+    /// == gl_add (a, b < p): a + b - p when a > (p - 1) - b, else a + b.
+    #[inline(always)]
+    unsafe fn add(a: uint64x2_t, b: uint64x2_t, k: K) -> uint64x2_t {
+        unsafe {
+            let ge = vcgtq_u64(a, vsubq_u64(k.pm1, b));
+            vsubq_u64(vaddq_u64(a, b), vandq_u64(ge, k.p))
+        }
+    }
+
+    /// == gl_sub (a, b < p): a - b, plus p on borrow.
+    #[inline(always)]
+    unsafe fn sub(a: uint64x2_t, b: uint64x2_t, k: K) -> uint64x2_t {
+        unsafe {
+            let br = vcgtq_u64(b, a);
+            vaddq_u64(vsubq_u64(a, b), vandq_u64(br, k.p))
+        }
+    }
+
+    /// == gl_mul (a, w < p): the same 32-bit-column product and canonical
+    /// reduction as the AVX2 body.
+    #[inline(always)]
+    unsafe fn mul(a: uint64x2_t, t: Tw, k: K) -> uint64x2_t {
+        unsafe {
+            let a_lo = vmovn_u64(a);
+            let a_hi = vshrn_n_u64::<32>(a);
+            let ll = vmull_u32(a_lo, t.lo);
+            let lh = vmull_u32(a_lo, t.hi);
+            let hl = vmull_u32(a_hi, t.lo);
+            let hh = vmull_u32(a_hi, t.hi);
+            let t0 = vaddq_u64(hl, vshrq_n_u64::<32>(ll));
+            let t1 = vaddq_u64(lh, vandq_u64(t0, k.eps));
+            let hi = vaddq_u64(vaddq_u64(hh, vshrq_n_u64::<32>(t0)), vshrq_n_u64::<32>(t1));
+            let lo = vsliq_n_u64::<32>(ll, t1); // (ll & 0xFFFFFFFF) | (t1 << 32)
+            let hi_hi = vshrq_n_u64::<32>(hi);
+            let e = vmull_u32(vmovn_u64(hi), k.eps32); // hi_lo * EPS < p
+            let c = vsubq_u64(lo, vandq_u64(vcgtq_u64(lo, k.pm1), k.p)); // lo mod p
+            sub(add(c, e, k), hi_hi, k)
+        }
+    }
+
+    #[inline(always)]
+    unsafe fn dit(u: uint64x2_t, v: uint64x2_t, t: Tw, k: K) -> (uint64x2_t, uint64x2_t) {
+        unsafe {
+            let y = mul(v, t, k);
+            (add(u, y, k), sub(u, y, k))
+        }
+    }
+
+    #[inline(always)]
+    unsafe fn gs(u: uint64x2_t, v: uint64x2_t, t: Tw, k: K) -> (uint64x2_t, uint64x2_t) {
+        unsafe { (add(u, v, k), mul(sub(u, v, k), t, k)) }
+    }
+
+    /// == ntt_fwd_fast on NEON.
+    pub unsafe fn ntt_fwd(a: &mut [u64; D], t: &NttTables) {
+        unsafe {
+            let k = consts();
+            let p = a.as_mut_ptr();
+            // Stages m = 1..32 (len = 64..2): whole-vector butterflies.
+            let mut m = 1usize;
+            let mut len = D;
+            while m <= 32 {
+                len >>= 1;
+                for i in 0..m {
+                    let tw = tw_splat(t.psi_brv[m + i]);
+                    let j1 = 2 * i * len;
+                    let mut j = j1;
+                    while j < j1 + len {
+                        let (u, v) = dit(ld(p, j), ld(p, j + len), tw, k);
+                        st(p, j, u);
+                        st(p, j + len, v);
+                        j += 2;
+                    }
+                }
+                m <<= 1;
+            }
+            // Stage m = 64 (len 1): pairs (a[4k+2i], a[4k+2i+1]), i < 2,
+            // twiddles psi_brv[64 + 2k + i], on the zip split of a[4k..4k+4].
+            for kk in 0..32 {
+                let x = ld(p, 4 * kk);
+                let y = ld(p, 4 * kk + 2);
+                let u = vzip1q_u64(x, y); // (a0, a2)
+                let v = vzip2q_u64(x, y); // (a1, a3)
+                let tw = tw_load(t.psi_brv.as_ptr().add(64 + 2 * kk));
+                let (u, v) = dit(u, v, tw, k);
+                st(p, 4 * kk, vzip1q_u64(u, v)); // (a0, a1)
+                st(p, 4 * kk + 2, vzip2q_u64(u, v)); // (a2, a3)
+            }
+        }
+    }
+
+    /// == ntt_inv_fast on NEON.
+    pub unsafe fn ntt_inv(a: &mut [u64; D], t: &NttTables) {
+        unsafe {
+            let k = consts();
+            let p = a.as_mut_ptr();
+            // Stage len = 1 (h = 64): the zip split, twiddles ipsi_brv[64 + 2k + i].
+            for kk in 0..32 {
+                let x = ld(p, 4 * kk);
+                let y = ld(p, 4 * kk + 2);
+                let u = vzip1q_u64(x, y); // (a0, a2)
+                let v = vzip2q_u64(x, y); // (a1, a3)
+                let tw = tw_load(t.ipsi_brv.as_ptr().add(64 + 2 * kk));
+                let (u, v) = gs(u, v, tw, k);
+                st(p, 4 * kk, vzip1q_u64(u, v));
+                st(p, 4 * kk + 2, vzip2q_u64(u, v));
+            }
+            // Stages len = 2..64 (h = 32..1): whole-vector butterflies.
+            let mut len = 2usize;
+            let mut h = 32usize;
+            while h >= 1 {
+                for i in 0..h {
+                    let tw = tw_splat(t.ipsi_brv[h + i]);
+                    let j1 = 2 * i * len;
+                    let mut j = j1;
+                    while j < j1 + len {
+                        let (u, v) = gs(ld(p, j), ld(p, j + len), tw, k);
+                        st(p, j, u);
+                        st(p, j + len, v);
+                        j += 2;
+                    }
+                }
+                len <<= 1;
+                h >>= 1;
+            }
+            let tw = tw_splat(t.n_inv);
+            let mut j = 0;
+            while j < D {
+                st(p, j, mul(ld(p, j), tw, k));
+                j += 2;
+            }
+        }
     }
 }
 

@@ -6412,6 +6412,8 @@ fn main() {
         Some("uperf-f") => uperf_f_main(&args[1..]),
         // [UPERF2-G] U-PERF2 lane G (descents round 2: fold/extract fusion, arena, threads) battery + bench.
         Some("uperf-g") => uperf_g_main(&args[1..]),
+        // [UPERF2-I] U-PERF2 lane I (SIMD Goldilocks NTT) battery + bench.
+        Some("uperf-i") => uperf_i_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -38319,4 +38321,248 @@ fn uperf_g_bench(depth: usize, l: usize, n_real: usize, dt: usize) {
     k9_set_fuse_off(false);
     assert_eq!(digests[0], digests[1], "[UPERF2-G] bench: fused digest != unfused");
     println!("[UPERF2-G] bench: fused == unfused digest");
+}
+
+// [UPERF2-I] U-PERF2 lane I — SIMD Goldilocks NTT: the length-128
+// negacyclic transform every NTT-domain kernel of eval_proof.rs pays
+// (level-h, matvec, fold, psi, transport, kernel passes), vectorized on
+// 4 x u64 AVX2 lanes (aux_ntt_core.rs `gl_avx2`; NEON mirror for the
+// Mac, [UNTESTED-NEON]) with values IDENTICAL to `ntt_fwd_fast` /
+// `ntt_inv_fast` (every vector op canonical). Dispatch `ntt_fwd_best` /
+// `ntt_inv_best` (`ZK_NTT_SIMD=0` forces the scalar body — the
+// one-binary A/B). ADDITIVE section. Commands:
+//   uperf-i battery — fwd/inv identity SIMD == scalar on planted extremes
+//     (unit vectors x extreme values at every position, all-constant
+//     rings, EPS multiples, mixed extremes) + 4096 random rings, round
+//     trips both ways, the `_best` dispatch; run at ZK_THREADS 1.
+//   uperf-i bench [n] — us per transform scalar vs SIMD on n rings
+//     (default 1e5), best of 3, outputs asserted equal.
+
+fn uperf_i_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("battery") => uperf_i_battery(),
+        Some("bench") => {
+            let n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(100_000);
+            uperf_i_bench(n);
+        }
+        _ => println!("uperf-i battery | bench [n]"),
+    }
+}
+
+/// [UPERF2-I] The battery's ring set: planted extremes + random.
+fn uperf_i_rings(n_random: usize) -> Vec<[u64; D]> {
+    use ring::aux::{EPS, P};
+    let mut rd = XofReader::new("uperf-i-battery", &[&(n_random as u64).to_le_bytes()]);
+    // Extreme values: the reduction boundaries of every vector op.
+    let ext: Vec<u64> = vec![
+        0,
+        1,
+        2,
+        EPS - 1,
+        EPS,
+        EPS + 1,
+        2 * EPS,
+        3 * EPS,
+        EPS * EPS,
+        (1u64 << 32) + 1,
+        (1u64 << 33) - 1,
+        1u64 << 33,
+        (1u64 << 63) - 1,
+        1u64 << 63,
+        (1u64 << 63) + 1,
+        P / 2 - 1,
+        P / 2,
+        P / 2 + 1,
+        P - EPS - 1,
+        P - EPS,
+        P - EPS + 1,
+        P - 3,
+        P - 2,
+        P - 1,
+    ];
+    let mut rings: Vec<[u64; D]> = Vec::new();
+    // All-constant rings.
+    for &v in &ext {
+        rings.push([v; D]);
+    }
+    // Unit vectors x extreme values at every position (each twiddle path
+    // sees each extreme alone).
+    for pos in 0..D {
+        for &v in &[1u64, EPS, 1u64 << 63, P - 1, P / 2 + 1, EPS * EPS] {
+            let mut a = [0u64; D];
+            a[pos] = v;
+            rings.push(a);
+        }
+    }
+    // Two-hot rings and alternating patterns.
+    for (i, &v) in ext.iter().enumerate() {
+        let mut a = [0u64; D];
+        a[i % D] = v;
+        a[(i * 37 + 5) % D] = ext[(i + 7) % ext.len()];
+        rings.push(a);
+        let mut b = [0u64; D];
+        for (j, x) in b.iter_mut().enumerate() {
+            *x = if j % 2 == 0 { v } else { P - 1 - v };
+        }
+        rings.push(b);
+    }
+    // Mixed extremes (every coefficient drawn from the extreme set).
+    for _ in 0..256 {
+        let mut a = [0u64; D];
+        for x in a.iter_mut() {
+            *x = ext[(rd.next_u64() as usize) % ext.len()];
+        }
+        rings.push(a);
+    }
+    // Random rings, uniform in [0, p).
+    for _ in 0..n_random {
+        let mut a = [0u64; D];
+        for x in a.iter_mut() {
+            *x = rd.next_field(P);
+        }
+        rings.push(a);
+    }
+    rings
+}
+
+/// [UPERF2-I] `uperf-i battery`: SIMD == scalar, every ring, every way.
+fn uperf_i_battery() {
+    use ring::aux::{
+        ntt_fwd, ntt_fwd_best, ntt_fwd_fast, ntt_fwd_simd, ntt_inv, ntt_inv_best, ntt_inv_fast, ntt_inv_simd,
+        simd_ntt_available, simd_ntt_enabled, simd_ntt_label,
+    };
+    let t0 = Instant::now();
+    println!(
+        "[UPERF2-I] battery: SIMD body = {} (available {}, enabled {}; ZK_NTT_SIMD={:?}), ZK_THREADS {}",
+        simd_ntt_label(),
+        simd_ntt_available(),
+        simd_ntt_enabled(),
+        std::env::var("ZK_NTT_SIMD").ok(),
+        ring::eval_proof::threads()
+    );
+    if !simd_ntt_available() {
+        println!("[UPERF2-I] WARNING: no SIMD body on this box — the identity legs below compare the scalar body to itself (VACUOUS)");
+    }
+    let t = aux::build_tables();
+    let rings = uperf_i_rings(4096);
+    let mut n_fwd = 0usize;
+    let mut n_inv = 0usize;
+    let mut n_rt = 0usize;
+    for (idx, a) in rings.iter().enumerate() {
+        // Forward: simd == fast (== the original ntt_fwd on a sample).
+        let (mut f_fast, mut f_simd) = (*a, *a);
+        ntt_fwd_fast(&mut f_fast, &t);
+        ntt_fwd_simd(&mut f_simd, &t);
+        if f_fast != f_simd {
+            let bad = (0..D).find(|&i| f_fast[i] != f_simd[i]).unwrap();
+            panic!(
+                "[UPERF2-I] fwd MISMATCH ring {idx} coeff {bad}: fast {} simd {} (input[0..4] {:?})",
+                f_fast[bad],
+                f_simd[bad],
+                &a[..4]
+            );
+        }
+        if idx % 97 == 0 {
+            let mut f0 = *a;
+            ntt_fwd(&mut f0, &t);
+            assert_eq!(f0, f_fast, "[UPERF2-I] fwd_fast != ntt_fwd at ring {idx}");
+        }
+        n_fwd += 1;
+        // Inverse on the raw ring (any input is a valid bit-reversed vector).
+        let (mut i_fast, mut i_simd) = (*a, *a);
+        ntt_inv_fast(&mut i_fast, &t);
+        ntt_inv_simd(&mut i_simd, &t);
+        if i_fast != i_simd {
+            let bad = (0..D).find(|&i| i_fast[i] != i_simd[i]).unwrap();
+            panic!(
+                "[UPERF2-I] inv MISMATCH ring {idx} coeff {bad}: fast {} simd {} (input[0..4] {:?})",
+                i_fast[bad],
+                i_simd[bad],
+                &a[..4]
+            );
+        }
+        if idx % 97 == 0 {
+            let mut i0 = *a;
+            ntt_inv(&mut i0, &t);
+            assert_eq!(i0, i_fast, "[UPERF2-I] inv_fast != ntt_inv at ring {idx}");
+        }
+        n_inv += 1;
+        // Round trips: simd o simd, fast o simd, simd o fast.
+        let mut r1 = f_simd;
+        ntt_inv_simd(&mut r1, &t);
+        assert_eq!(&r1, a, "[UPERF2-I] round trip simd(fwd) -> simd(inv) at ring {idx}");
+        let mut r2 = f_simd;
+        ntt_inv_fast(&mut r2, &t);
+        assert_eq!(&r2, a, "[UPERF2-I] round trip simd(fwd) -> fast(inv) at ring {idx}");
+        let mut r3 = f_fast;
+        ntt_inv_simd(&mut r3, &t);
+        assert_eq!(&r3, a, "[UPERF2-I] round trip fast(fwd) -> simd(inv) at ring {idx}");
+        n_rt += 1;
+        // The dispatch used by eval_proof.rs.
+        if idx % 13 == 0 {
+            let (mut b1, mut b2) = (*a, *a);
+            ntt_fwd_best(&mut b1, &t);
+            assert_eq!(b1, f_fast, "[UPERF2-I] fwd_best != fwd_fast at ring {idx}");
+            ntt_inv_best(&mut b2, &t);
+            assert_eq!(b2, i_fast, "[UPERF2-I] inv_best != inv_fast at ring {idx}");
+        }
+    }
+    println!(
+        "[UPERF2-I] battery passed: {} rings ({} planted/extreme + 4096 random): fwd simd == fast {n_fwd}, inv simd == fast {n_inv}, round trips x3 {n_rt}, _best dispatch == fast; {:.2}s",
+        rings.len(),
+        rings.len() - 4096,
+        t0.elapsed().as_secs_f64()
+    );
+}
+
+/// [UPERF2-I] `uperf-i bench [n]`: us per transform, scalar vs SIMD.
+fn uperf_i_bench(n: usize) {
+    use ring::aux::{ntt_fwd_fast, ntt_fwd_simd, ntt_inv_fast, ntt_inv_simd, simd_ntt_available, simd_ntt_label, P};
+    let t = aux::build_tables();
+    let mut rd = XofReader::new("uperf-i-bench", &[&(n as u64).to_le_bytes()]);
+    println!(
+        "[UPERF2-I] bench: {n} rings, 1T, SIMD body {} (available {}) [{}]",
+        simd_ntt_label(),
+        simd_ntt_available(),
+        std::env::consts::OS
+    );
+    let rings: Vec<[u64; D]> = (0..n)
+        .map(|_| {
+            let mut a = [0u64; D];
+            for x in a.iter_mut() {
+                *x = rd.next_field(P);
+            }
+            a
+        })
+        .collect();
+    let time = |f: &dyn Fn(&mut [u64; D]), src: &Vec<[u64; D]>| -> (f64, Vec<[u64; D]>) {
+        let mut best = f64::MAX;
+        let mut out = src.clone();
+        for _ in 0..3 {
+            out.copy_from_slice(src);
+            let t0 = Instant::now();
+            for a in out.iter_mut() {
+                f(a);
+            }
+            std::hint::black_box(&out);
+            best = best.min(t0.elapsed().as_secs_f64());
+        }
+        (best * 1e6 / n as f64, out)
+    };
+    let (us_ff, f_fast) = time(&|a| ntt_fwd_fast(a, &t), &rings);
+    let (us_fs, f_simd) = time(&|a| ntt_fwd_simd(a, &t), &rings);
+    assert_eq!(f_fast, f_simd, "[UPERF2-I] bench: fwd simd != fast");
+    let (us_if, i_fast) = time(&|a| ntt_inv_fast(a, &t), &f_fast);
+    let (us_is, i_simd) = time(&|a| ntt_inv_simd(a, &t), &f_fast);
+    assert_eq!(i_fast, i_simd, "[UPERF2-I] bench: inv simd != fast");
+    assert_eq!(i_fast, rings, "[UPERF2-I] bench: round trip");
+    println!("  ntt_fwd_fast (scalar) : {us_ff:.3} us/ring");
+    println!("  ntt_fwd_simd ({:<6}) : {us_fs:.3} us/ring  ({:.2}x)", simd_ntt_label(), us_ff / us_fs);
+    println!("  ntt_inv_fast (scalar) : {us_if:.3} us/ring");
+    println!("  ntt_inv_simd ({:<6}) : {us_is:.3} us/ring  ({:.2}x)", simd_ntt_label(), us_if / us_is);
+    println!(
+        "[UPERF2-I] bench: fwd {:.2}x, inv {:.2}x (best of 3 over {n} rings; outputs identical)",
+        us_ff / us_fs,
+        us_if / us_is
+    );
 }
