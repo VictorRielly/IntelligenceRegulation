@@ -282,6 +282,100 @@ skip zero K-coordinates; measure first (kernel passes 10.9 s of the
 digests are the gate; also `uperf-a descent-battery` 18/18 and
 `uperf-pc diff-battery` (E2E) must stay green.
 
+## Round 4 (2026-08-17): lanes F and G
+
+State at 4dcaea6 (A/C/D/E merged): REAL 3x16 rig 1T 30.6 s / 8T 9.9 s
+(vs oracle 682.8 s); REAL 12x64 rig at 8T: 46.0 s wall (commit 8.3 /
+prove 33.6 / verify 3.6), **peak RSS 12.2 GB** — the 12x512 rig
+(~40 GB) still cannot run on this 15 GB box. Phase rows at 12x64 8T:
+descents 12.1 s (a.round-g 4.2, a.fold 3.8, a.tree-step 1.4,
+a.extract 1.3, a.eq-table 0.9, e.tree-witness 1.8), level-h 8.3,
+precommit-u0 5.5 (level-0 A matvecs), matvec 4.3, kernel passes 4.1,
+digit witness 2.7, fold 2.3, psi0 2.4, crs 2.0, claim layer 3.2.
+Gate for round 4: the REAL 3x16 rig at ZK_THREADS 1 and 8 (accept,
+statement digest 93a98700…, 985,142 B, EVAL-PROOF DIGEST 0ae9cdae…)
+AND the REAL 12x64 rig at 8T (accept, statement digest 80763ea5…,
+EVAL-PROOF DIGEST 63f4a3a4…, `/usr/bin/time -f "maxrss %M KB"` for the
+RSS row) — the 12x64 run needs ~12 GB: ALWAYS under the flock, and
+NEVER concurrently with anything else heavy (check `free -g`; if less
+than 13 GB is available, wait). Worktrees `/home/victor/wt-uperf2-f`
+(uperf2-f) and `/home/victor/wt-uperf2-g` (uperf2-g) at 4dcaea6 (+ this
+ledger commit).
+
+### Lane F — MEMORY DIET (wt-uperf2-f) — the 12x512 rig on the 15 GB reference box
+
+OWNS: `zkmatrix-rs/src/ring/eval_proof.rs` (whole file — no other lane
+touches it this round), the bin's `bg_*` / `bk_*` composed-pass
+plumbing (bg_witness, agg_digit_witness's OUTPUT type/consumers,
+bg_precommit, bg_prove_group, bg_verify_group, bg_matvec_chunks,
+bg_level_h, bg_fold, bk_pass_run's witness plumbing; the agg_* synthetic
+rig may keep Vec<Vec<i64>> through an adapter), a `// [UPERF2-F]` bin
+section + `uperf-f`, NEW `docs/zkmatrix-poc/U_PERF2_MEMORY_REPORT.md`,
+"Agent F status".
+GOAL, in order: (0) MEASURE FIRST: instrument peak RSS per phase on the
+12x64 rig (a `[UPERF2-F] RSS` print of /proc/self/status VmHWM at the
+phase boundaries — commit end, claim layer end, each descent pair,
+before/after each group eval proof, verify) so the report has a
+memory attribution table; the round-3 model says: w0 for BOTH groups
+as Vec<Vec<i64>> (~1 KiB + heap header per digit ring: ~12 GB at
+12x512, both groups alive through the descent phase), phi_cur (n_0
+rings, ~8 GB act at 12x512), the descent pair's packed trees (~12 GB
+for nrw-88 at depth 22), the claim-layer packed tables (~5.5 GB after
+lane D). (1) w0 COMPACT: the level-0 digit witness as a flat
+`Vec<i8>` (every digit alphabet is |w| <= 64) behind a small view type
+(`DigitCols { data: Vec<i8>, n }` with `ring(i) -> &[i8]` and a
+`to_i64_ring` scratch helper); consumers convert per ring inside their
+kernels (the NTT kernels lift per ring anyway; `poly_from_small`,
+`bg_fold`/`fold_chunks_ntt`, `bg_matvec_chunks`, `bg_level_h`,
+`kernel_pass_factored`'s rows pass, `bg_precommit`, the floor/response
+paths). Keep the deeper levels' witnesses (`w_cur`, zhat/that/hhat,
+small) as they are if simpler. (2) phi NEVER MATERIALIZED at level 0:
+`level_h_pairs_with(ctx, phi_block: impl Fn(j, u0, &mut [Poly]) + Sync,
+w_slices, chunk)` fed per u-block from `PhiFactored::value_ring` (per
+digit ring v = j*chunk + u locate (tensor, vr, limb) — consecutive u
+are consecutive v — one PHI_vr per value ring cached across its l0
+limbs, radix per limb; the same arithmetic as the phi pass, so no
+extra cost) and the level-1 transport from
+`psi_level0_factored_multi(...)` via `transport_level_from_psi` —
+EXACTLY what `bg_verify_group` already does (byte-identical by the
+seam differential); `phi_cur` for level 0 is never allocated. (3)
+Drop what is dead: free the act group's w0 view of anything not needed
+across the descent phase if the attribution says it matters; the
+CRS matrices' memo clones (return Arc, no clone). (4) Report the
+before/after RSS table (3x16, 12x64, and — if it now fits under ~13
+GB — 12x128 / 12x256; do NOT attempt 12x512 unless the model says it
+fits with margin) + the timing rows (must not regress; digests
+identical) + what is left for 12x512 on 15 GB. Oracle: `oracle_mode()`
+keeps the old materialized paths where the change is a routing; the
+w0 type change is structural (no oracle) — its gate is the rig digests
++ `uperf-pc diff-battery` (E2E) + `agg-matmul battery` + `pass-agg
+battery` (real data, ~14 legs; run ONCE at close under the flock) +
+`table-descent battery small`.
+
+### Lane G — DESCENTS, ROUND 2 (wt-uperf2-g)
+
+OWNS: `zkmatrix-rs/src/ring/gkr_masked.rs`, `gkr.rs`, `kfield.rs`
+(lanes A/D/E merged — extend), `descent_fold.rs`, a `// [UPERF2-G]` bin
+section + `uperf-g`, NEW `docs/zkmatrix-poc/U_PERF2_DESCENT3_REPORT.md`,
+"Agent G status". Do NOT touch eval_proof.rs, fold.rs, sumcheck.rs,
+commit.rs, the bg_*/bk_* plumbing (lane F), other bin sections.
+GOAL (U_PERF2_DESCENT_REPORT.md Section 7 + U_PERF2_DESCENT2_REPORT.md
+"left"): (1) fold-into-next-round fusion in the packed descent kernel
+(-40% table traffic on the memory-bound share) and extract fusion into
+round 0; (2) a per-pair table arena (reuse the leaf/layer allocations
+across pairs — the page-fault + memset cost lane E measured);
+(3) thread scaling of a.round-g / a.fold / a.tree-step past the ~4x
+saturation on this box if there is a deterministic split that helps
+(chunk sizes, per-thread affinity to blocks); (4) the descent VERIFY
+side is fine (E-F1) — leave it. Gate: `uperf-a descent-battery` 18/18
+identical at 1/2/7T + `uperf-a descent-bench 20 8 5 9` before/after
+(digest 47a58a27 identical) + `uperf-pc diff-battery` + freeze rows +
+the REAL 3x16 rig at 1T/8T + the REAL 12x64 rig at 8T (digests above;
+flock; not concurrently with lane F's 12x64 runs — coordinate through
+the flock only) + `self-test` at close. Report: per-item before/after
+[WSL 1T|8T labels], depth-20 bench + rig rows, projection to depth 22
+x 16.
+
 ## Agent A status (wt-uperf2-a)
 
 PLAN (skeleton commit, 2026-08-17). Files: gkr_masked.rs / gkr.rs /
@@ -371,6 +465,14 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
   masked_gkr_verify (3-5 ms per pair here) — it sits in the claim
   builders around it.
 - Every number [WSL-BOX NOISY-SHARED] (lane C built/ran throughout).
+
+## Agent F status (wt-uperf2-f)
+
+- (lane launches here)
+
+## Agent G status (wt-uperf2-g)
+
+- (lane launches here)
 
 ## Agent D status (wt-uperf2-d)
 
