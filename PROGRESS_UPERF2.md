@@ -199,6 +199,89 @@ order; run anything needing the export.
   sidecar) from the Mac to the same path on this box — it unblocks the
   3x16 rigs, freeze-check's BF rows, and the commit-phase profile here.
 
+## Round 3 (2026-08-17): lanes D and E — REAL-DATA GATE
+
+New standing rule for round 3: besides the unit legs, every lane's
+acceptance includes the REAL 3x16 full-statement rig on this box:
+`M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl
+flock -w 7200 /tmp/zk-heavy.lock <your binary> uperf-pc full-profile 3 16`
+must print `accept = true`, statement digest
+`93a987002a7c4b60c3dfbfc62b7a4f0e5957d8ae2039014ff241e323285fb790`,
+counted bytes 985,142 B and EVAL-PROOF DIGEST
+`0ae9cdae66607239a80cc1f1dea36248370edadbe85214144aee7a5250d975be` at
+ZK_THREADS 1 and 8, fast AND `ZK_UPERF_ORACLE=1` (the oracle run takes
+~11 min: run it ONCE at your close). Peak RSS ~3 GB — always under the
+flock. Baseline at a450b1f: 1T commit 4.2 / prove 32.1 / verify 7.3 /
+wall 43.7 s; 8T 2.6 / 12.0 / 1.9 / 16.6 s [WSL QUIET].
+Worktrees: `/home/victor/wt-uperf2-d` (branch uperf2-d) and
+`/home/victor/wt-uperf2-e` (branch uperf2-e), both at a450b1f (+ this
+ledger commit). Everything in "Standing rules" above still binds
+(the box facts now read: the checkpoint, shard and the local export ARE
+here; the frozen export's X files are not).
+
+### Lane D — CLAIM LAYER + COMMIT PHASE (wt-uperf2-d)
+
+OWNS: `zkmatrix-rs/src/ring/fold.rs` (ixf sumchecks), `zkmatrix-rs/src/ring/sumcheck.rs`,
+`zkmatrix-rs/src/ring/commit.rs` (the A1 commit kernels' callers),
+`zkmatrix-rs/src/ring/kfield.rs` (bulk kernels; lane A's additions are
+merged — extend, do not rewrite), the bin's commit-phase functions
+(`bf_load_layer` and the chain derivation helpers `bf_*` it calls,
+`agg_digit_witness`, `bg_witness`, `bg_build_groups`, `bk_build_groups`
+INTERNALS, the entry-commitment/statement builders they call) and the
+claim-layer region of `bg_pass_run`/`bk_pass_run` (the ixf instance
+loops), a NEW `// [UPERF2-D]` bin section with subcommand `uperf-d`,
+NEW `docs/zkmatrix-poc/U_PERF2_CLAIMCOMMIT_REPORT.md`, "Agent D status".
+GOAL (in this order): (1) profile first — add observation-only
+`prof::timer` phases (append ids `d.*` to ct_engine::prof) inside the
+commit phase (chain derivation per layer, digit witnesses, entry
+commitments, statement digests) and the claim layer (per ixf instance:
+table expansion, sumcheck rounds, finals); run the 3x16 rig for the
+table. (2) Deterministic ZK_THREADS in the claim layer's sumcheck
+rounds (fixed reduction order; sumcheck.rs/fold.rs — the K-field bulk
+kernels of kfield.rs are the substrate) and in the commit phase (chain
+derivation matmuls: blocked i64 GEMM + threads; digit witnesses per
+ring; entry commitments per column). Oracle: the current code under
+`oracle_mode()`; the rig's digests are the gate. (3) Churn: KElem
+clone/allocation churn in the sumcheck round loops if the profile says
+so. Report + ledger section. Expected shares at 12x512 [MODEL]: claim
+layer ~100 s serial, commit ~150-385 s serial — the two largest
+remaining SERIAL terms after lanes A/C.
+
+### Lane E — DESCENT CALLERS + DESCENT VERIFY + SMALL-COLS AUX (wt-uperf2-e)
+
+OWNS: `zkmatrix-rs/src/ring/descent_fold.rs`, `zkmatrix-rs/src/ring/gkr.rs`,
+`zkmatrix-rs/src/ring/gkr_masked.rs` (lane A's work is merged — extend),
+the bin's BK descent-phase functions (`aligned_witness_tree`,
+`neutral_tree` callers, `bk_tree_slots`, `bk_table_for`, `bk_pair_claims`,
+the pair VERIFY loop in `bk_pass_run`'s verifier and its helpers), the
+two GENERIC (misaligned) branches in eval_proof.rs ONLY
+(`kernel_pass_factored`'s `if t.cols % D != 0` block and
+`psi_level0_multi_impl`'s `if !aligned` block — nothing else in that
+file), a NEW `// [UPERF2-E]` bin section with subcommand `uperf-e`,
+NEW `docs/zkmatrix-poc/U_PERF2_DESCENT2_REPORT.md`, "Agent E status".
+GOAL (in this order): (1) wire lane A's drop-ins (`gkr::build_tree_sparse`,
+`gkr::build_neutral_tree`, the deferred boxed-leaf drop) into the
+callers so no boxed leaf vectors are built for the descent trees
+(U_PERF2_DESCENT_REPORT.md Section 7 says how; ~1.2 s of 5.4 s per pair
+at 8T on the depth-20 bench). (2) Attribute the descent VERIFY: add
+`prof::timer` phases (`e.*`) around the verifier's pair loop (table
+rebuilds, eq tables, root cross-checks, leaf pins, masked_gkr_verify)
+and run the 3x16 rig + `uperf-a descent-bench 20 8`; the rig's "36 s
+descents verify" at 12x512 is NOT in masked_gkr_verify (3-5 ms/pair) —
+find where it is and fix what is transcript-neutral (threads,
+churn, cached tables). (3) The BK aux tensors have cols = 16 and
+q-range coefficients (l0 = 16 limbs): a `small_cols` fast path in the
+two generic branches — per value ring the K-weight row is 8 rows x 16
+cols, so kw(vr, c1) = sum_c sr_c[8vr + c1/16] *_K col_c[c1 % 16]:
+precompute per kernel the 16 (col) x 16 (d1) K-basis products once,
+then per value ring 8 x 16 x n_k scalar-x-ring MACs against 16 x 8
+cached rings (the aligned path's G/CQ0 trick with rows-inside-the-ring)
+— OR, simpler and enough: hoist `kw` per value ring (already done) and
+skip zero K-coordinates; measure first (kernel passes 10.9 s of the
+32.1 s 3x16 prove are this). Oracle: `oracle_mode()` routes; the rig
+digests are the gate; also `uperf-a descent-battery` 18/18 and
+`uperf-pc diff-battery` (E2E) must stay green.
+
 ## Agent A status (wt-uperf2-a)
 
 PLAN (skeleton commit, 2026-08-17). Files: gkr_masked.rs / gkr.rs /
@@ -288,6 +371,14 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
   masked_gkr_verify (3-5 ms per pair here) — it sits in the claim
   builders around it.
 - Every number [WSL-BOX NOISY-SHARED] (lane C built/ran throughout).
+
+## Agent D status (wt-uperf2-d)
+
+- (lane launches here)
+
+## Agent E status (wt-uperf2-e)
+
+- (lane launches here)
 
 ## Agent C status (wt-uperf2-c)
 
@@ -389,8 +480,42 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
     per-level transformed-A cache shared by matvec and transport (1.3
     GB at level 0 — a T9 memory-diet trade). Details in the report.
 
+## Orchestrator status (2026-08-17, after lanes A + C)
+
+- Both lanes LANDED and MERGED (00b0288 A, a450b1f A+C) with the merge
+  gate green at HEAD (uperf-pc diff-battery incl. E2E, uperf-a
+  descent-battery 18/18, uperf-c diff-battery, all at 1T and 7T;
+  freeze rows identical; agg-matmul + bh-verifier batteries;
+  self-test). Lane reports: U_PERF2_DESCENT_REPORT.md,
+  U_PERF2_EVALPROOF_REPORT.md.
+- REAL DATA ARRIVED on this box (checkpoint tarball + val shard, Victor
+  2026-08-17): the local re-export `results/m125_ffn_export_wsl/`
+  (36/36 weights byte-identical to the Mac export; X differs by mlx
+  CPU-vs-Metal rounding; 0 range violations) makes the 3x16
+  full-statement rig runnable here (`M125_EXPORT_DIR=...`). FIRST
+  REAL-DATA A/B (`uperf-pc full-profile 3 16`, WSL 1T): oracle 682.8 s
+  (44.3 / 478.6 / 159.7) -> Phase 0 72.0 s -> lanes A+C **43.7 s**
+  (4.2 / 32.1 / 7.3) — **15.6x at 1T; 16.6 s at ZK_THREADS=8 (41x),
+  verify 1.9 s** — statement digest, bytes, verdict, EVAL-PROOF DIGEST
+  identical throughout (U_PERF_WAVE_REPORT.md 4.2). Also found and
+  fixed on the way (d3ec01f): the verifier's psi generic branch on the
+  misaligned BK aux tensors recomputed per DIGIT ring (137 of 142 s
+  verify at 3x16 -> 10.4 s), byte-identical.
+- What the 3x16 table says is next (1T, after A+C): kernel passes 10.9 s
+  (misaligned aux tensors' K-weight rows dominate at small T), level-h
+  8.1, psi0 5.6 (verify), commit 4.2, claim layer 3.2 (SERIAL — the
+  ixf sumchecks), matvec 3.0, transport 2.7, descents 3.2 (tiny at
+  T = 16; ~300 s-class at 12x512 after lane A's 2x). Round 3 lanes: D
+  (claim layer + commit phase threading/churn) and E (descent callers
+  wired to lane A's drop-ins + the descent VERIFY attribution + the
+  small-cols aux tensors) — both now gated on the REAL 3x16 rig
+  (digest identity + accept) besides their unit legs.
+
 ## Log
 
 - 2026-08-17: tranche opened at 9d76046; lanes A (descents) and C
   (eval-proof leftovers) launched in worktrees; Attestable float/int
   fallback recorded per Victor.
+- 2026-08-17 (later): real data on the box; A + C merged; the 3x16
+  real-data A/B recorded (15.6x at 1T, 41x at 8T); round-3 lanes D/E
+  briefed below.

@@ -217,9 +217,19 @@ concurrently)]:
 | fast, after the fix (d3ec01f) | 7.4 s | 54.1 s | **10.4 s** | 72.0 s | 0ae9cdae… (identical) | 2.9 GiB |
 | `ZK_UPERF_ORACLE=1` (the pre-Phase-0 arithmetic; run after the fix, same binary) | **44.3 s** | **478.6 s** | **159.7 s** | **682.8 s** | 0ae9cdae… (identical) | 2.9 GiB |
 
-**The first real-data A/B: 682.8 s -> 72.0 s end to end at 1 thread
-(9.5x): commit 6.0x, prove 8.8x, verify 15.4x — statement digest,
-counted bytes (985,142 B), verdict and EVAL-PROOF DIGEST identical.**
+| U-PERF2 lanes A + C merged (a450b1f), fast, 1T [QUIET] | 4.2 s | 32.1 s | 7.3 s | **43.7 s** | 0ae9cdae… (identical) | 2.9 GiB |
+| same, `ZK_THREADS=8` [QUIET] | 2.6 s | 12.0 s | **1.9 s** | **16.6 s** | 0ae9cdae… (identical) | 3.0 GiB |
+
+**The first real-data A/B: 682.8 s -> 72.0 s (Phase 0) -> 43.7 s
+(round 2) end to end at 1 thread — 15.6x — and 16.6 s at 8 threads
+(41x); statement digest, counted bytes (985,142 B), verdict and
+EVAL-PROOF DIGEST identical on every row.** At 8T the verify is 1.9 s
+at THIS shape (3 layers x 16 tokens; the contract's 12x512 shape and
+its 1T wording are a different question — TASK_BOARD T11(a')).
+Round-2 1T table: level-h 8.1, kernel passes 5.9 + 5.0 (dominated by
+the misaligned BK aux tensors' K-weight rows at this small T), psi0
+5.6 (verify), commit 4.2, claim layer 3.2 (serial), matvec 3.0,
+transport 2.7, descents 3.2 (tiny at T = 16), fold 1.4.
 Oracle-run phase table for the record: level-h 261.7 s, kernel passes
 78.6 + 104.0 s, matvec 48.2 s, psi0-factored 154.0 s, transport 9.8 s,
 fold 9.9 s, commit 44.3 s.
