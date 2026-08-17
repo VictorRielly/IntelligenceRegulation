@@ -35419,11 +35419,14 @@ fn uperf_a_descent_pair(
     let alpha = tr.challenge_k(kf);
     // ---- witness side ----
     let t0 = Instant::now();
+    let mut leafgen_s = 0.0; // synthetic leaf generation (bench artifact, excluded from trees_s)
     let bl_w: Vec<BlinderSet> = (0..n_real).map(|_| BlinderSet::draw(kf, &mut rng)).collect();
     let mut wtrees: Vec<ring::gkr::FracTree> = Vec::with_capacity(l);
     for i in 0..n_real {
+        let tg = Instant::now();
         let col_a: Vec<KElem> = (0..shape.n_el()).map(|_| kf.uniform(&mut rd)).collect();
         let col_b: Vec<KElem> = (0..shape.n_el()).map(|_| kf.uniform(&mut rd)).collect();
+        leafgen_s += tg.elapsed().as_secs_f64();
         let slots: Vec<(ring::descent_fold::MemberShape, usize, &[KElem])> =
             vec![(shape, 0, col_a.as_slice()), (shape, n / 2, col_b.as_slice())];
         wtrees.push(aligned_witness_tree(kf, &alpha, &slots, depth, &bl_w[i]));
@@ -35433,7 +35436,7 @@ fn uperf_a_descent_pair(
     }
     let masks_w = if zero_mask { zero_masks(kf, depth, e_bits) } else { draw_masks(kf, &mut rng, depth, e_bits) };
     let masks_w_v = masks_w.harness_clone();
-    let trees_s = t0.elapsed().as_secs_f64();
+    let trees_s = t0.elapsed().as_secs_f64() - leafgen_s;
     let t1 = Instant::now();
     let (pw, endw) = masked_gkr_prove(kf, &wtrees, masks_w, &mut tr);
     let mut prove_s = t1.elapsed().as_secs_f64();
@@ -35511,7 +35514,7 @@ fn uperf_a_descent_bench(depth: usize, l: usize, n_real: usize, dt: usize, with_
     let wall = t0.elapsed().as_secs_f64();
     prof::enable(false, false);
     println!(
-        "[UPERF2-A] wall {wall:.2}s | trees {:.2}s | masked_gkr_prove {:.2}s ({:.1} ns per witness leaf element) | verify {:.2}s (verified {}) | proof {} K-elements | peak RSS {:.0} MiB",
+        "[UPERF2-A] wall {wall:.2}s (incl. synthetic leaf generation) | trees {:.2}s | masked_gkr_prove {:.2}s ({:.1} ns per witness leaf element) | verify {:.2}s (verified {}) | proof {} K-elements | peak RSS {:.0} MiB",
         out.trees_s,
         out.prove_s,
         out.prove_s * 1e9 / leaves,
@@ -35560,13 +35563,16 @@ fn uperf_a_descent_battery() {
         ring::eval_proof::threads()
     );
     // (depth, l, n_real, dt)
-    let shapes: [(usize, usize, usize, usize); 6] = [
+    let shapes: [(usize, usize, usize, usize); 9] = [
         (4, 1, 1, 4),
         (8, 2, 1, 6),
         (8, 2, 2, 7),
         (12, 8, 5, 9),
         (12, 2, 2, 8),
         (10, 4, 3, 6),
+        (13, 8, 3, 8),
+        (14, 4, 3, 9),
+        (12, 16, 12, 9),
     ];
     let mut all = sha2::Sha256::new();
     let mut legs = 0usize;

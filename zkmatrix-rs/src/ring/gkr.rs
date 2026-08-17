@@ -65,6 +65,13 @@ pub struct FracTree {
 enum TreeRepr {
     Packed { lp: Vec<KTab>, lq: Vec<KTab> },
     Boxed { lp: Vec<Vec<KElem>>, lq: Vec<Vec<KElem>> },
+    /// [UPERF2-A] The all-neutral tree (every leaf (0, 1) — the
+    /// `neutral_tree` pads): every layer is (0, 1) too, so nothing is
+    /// stored. Produced by build_tree/build_tree_sparse on the fast
+    /// packed path; every accessor answers as the materialized tree
+    /// would, and the bulk descents skip its slices analytically
+    /// (gkr_masked). ~1 GB of packed layers per depth-22 pad saved.
+    Neutral { depth: usize },
 }
 
 impl FracTree {
@@ -72,6 +79,7 @@ impl FracTree {
         match &self.repr {
             TreeRepr::Packed { lp, .. } => lp.len() - 1,
             TreeRepr::Boxed { lp, .. } => lp.len() - 1,
+            TreeRepr::Neutral { depth } => *depth,
         }
     }
 
@@ -84,6 +92,10 @@ impl FracTree {
         match &self.repr {
             TreeRepr::Packed { lp, .. } => lp[layer].get(i),
             TreeRepr::Boxed { lp, .. } => lp[layer][i].clone(),
+            TreeRepr::Neutral { depth } => {
+                debug_assert!(layer <= *depth && i < (1usize << layer));
+                vec![0u64; super::kfield::K_DEG]
+            }
         }
     }
 
@@ -91,15 +103,23 @@ impl FracTree {
         match &self.repr {
             TreeRepr::Packed { lq, .. } => lq[layer].get(i),
             TreeRepr::Boxed { lq, .. } => lq[layer][i].clone(),
+            TreeRepr::Neutral { depth } => {
+                debug_assert!(layer <= *depth && i < (1usize << layer));
+                let mut e = vec![0u64; super::kfield::K_DEG];
+                e[0] = 1;
+                e
+            }
         }
     }
 
     /// Packed layer views (bulk descent paths; panics on boxed trees —
-    /// the dispatchers never mix modes).
+    /// the dispatchers never mix modes — and on neutral trees, whose
+    /// callers test `is_neutral` first).
     pub(crate) fn p_layer(&self, layer: usize) -> &KTab {
         match &self.repr {
             TreeRepr::Packed { lp, .. } => &lp[layer],
             TreeRepr::Boxed { .. } => panic!("packed layer view on a boxed tree"),
+            TreeRepr::Neutral { .. } => panic!("packed layer view on a neutral tree"),
         }
     }
 
@@ -107,12 +127,24 @@ impl FracTree {
         match &self.repr {
             TreeRepr::Packed { lq, .. } => &lq[layer],
             TreeRepr::Boxed { .. } => panic!("packed layer view on a boxed tree"),
+            TreeRepr::Neutral { .. } => panic!("packed layer view on a neutral tree"),
         }
     }
 
+    /// Bulk-path eligible: packed layers or the (implicitly packed)
+    /// neutral tree.
     pub(crate) fn is_packed(&self) -> bool {
-        matches!(self.repr, TreeRepr::Packed { .. })
+        matches!(self.repr, TreeRepr::Packed { .. } | TreeRepr::Neutral { .. })
     }
+
+    pub(crate) fn is_neutral(&self) -> bool {
+        matches!(self.repr, TreeRepr::Neutral { .. })
+    }
+}
+
+/// [UPERF2-A] Is (p, q) the neutral leaf (0, 1)?
+fn leaf_is_neutral(p: &KElem, q: &KElem) -> bool {
+    p.iter().all(|&x| x == 0) && q[0] == 1 && q[1..].iter().all(|&x| x == 0)
 }
 
 /// Build the tree bottom-up. leaf_p/leaf_q length must be a power of 2
@@ -130,10 +162,15 @@ pub fn build_tree(kf: &KField, leaf_p: Vec<KElem>, leaf_q: Vec<KElem>) -> FracTr
     if kf.kern.is_none() {
         return build_tree_boxed(kf, leaf_p, leaf_q);
     }
+    let oracle = super::eval_proof::oracle_mode();
+    // [UPERF2-A] the all-neutral tree (a `neutral_tree` pad) is not
+    // materialized on the fast path: every layer would be (0, 1).
+    if !oracle && leaf_p.iter().zip(leaf_q.iter()).all(|(p, q)| leaf_is_neutral(p, q)) {
+        return FracTree { repr: TreeRepr::Neutral { depth: n.trailing_zeros() as usize } };
+    }
     // Pack and DROP the boxed leaves one side at a time (H-03: the boxed
     // form is ~2.7x the packed size; never hold both sides twice).
     // [UPERF2-A] the pack is threaded (positional) on the fast path.
-    let oracle = super::eval_proof::oracle_mode();
     let pack = |v: &[KElem]| -> KTab {
         let _t = prof::timer(prof::A_TREE_PACK);
         if oracle { KTab::from_kelems(v) } else { super::kfield::k9_pack_par(v) }
@@ -172,6 +209,10 @@ pub fn build_tree_sparse(
         super::kfield::k9_capacity_ok(n),
         "K9 projective tree exceeds the audited packed-table cap"
     );
+    let mut entries = entries.into_iter().peekable();
+    if entries.peek().is_none() && leaf_is_neutral(default.0, default.1) && !super::eval_proof::oracle_mode() {
+        return FracTree { repr: TreeRepr::Neutral { depth: n.trailing_zeros() as usize } };
+    }
     let _t = prof::timer(prof::A_TREE_PACK);
     let mut leaf_p_t = KTab::filled(n, default.0);
     let mut leaf_q_t = KTab::filled(n, default.1);
@@ -434,8 +475,19 @@ pub(crate) fn extract_children(trees: &[FracTree], k: usize) -> (KTab, KTab, KTa
     let mut p1 = KTab::zeroed(size);
     let mut q0 = KTab::zeroed(size);
     let mut q1 = KTab::zeroed(size);
+    let one = {
+        let mut e = vec![0u64; super::kfield::K_DEG];
+        e[0] = 1;
+        e
+    };
     for idx in 0..size {
         let (e, b) = (idx >> k, idx & mask);
+        if trees[e].is_neutral() {
+            // (p, q) = (0, 1) at every child: p0/p1 stay zero.
+            q0.set(idx, &one);
+            q1.set(idx, &one);
+            continue;
+        }
         let (sp, sq) = (trees[e].p_layer(k + 1), trees[e].q_layer(k + 1));
         p0.copy_elem(idx, sp, 2 * b);
         p1.copy_elem(idx, sp, 2 * b + 1);
@@ -451,7 +503,11 @@ pub(crate) fn extract_children(trees: &[FracTree], k: usize) -> (KTab, KTab, KTa
 /// blocks 2m, 2m+1 of the tree's layer k+1) and a deterministic thread
 /// split over (tree, block-chunk). Identical tables to extract_children;
 /// the sub-block sizes take the element path.
-pub(crate) fn extract_children_par(trees: &[FracTree], k: usize) -> (KTab, KTab, KTab, KTab) {
+pub(crate) fn extract_children_par(
+    trees: &[FracTree],
+    k: usize,
+    fill_neutral: bool,
+) -> (KTab, KTab, KTab, KTab) {
     if (1usize << k) < KL {
         return extract_children(trees, k);
     }
@@ -462,9 +518,29 @@ pub(crate) fn extract_children_par(trees: &[FracTree], k: usize) -> (KTab, KTab,
     let mut p1 = KTab::zeroed(size);
     let mut q0 = KTab::zeroed(size);
     let mut q1 = KTab::zeroed(size);
+    // Neutral instances: p0/p1 are already zero; q0/q1 = 1 over the
+    // slice when the caller wants them materialized (the pad-skipping
+    // descent leaves them untouched — never read — so the zero pages of
+    // the fresh tables stay unmapped).
+    let one_blk: [u32; super::kfield::KBLK] = {
+        let mut b = [0u32; super::kfield::KBLK];
+        for l in 0..KL {
+            b[l] = 1;
+        }
+        b
+    };
     let job = |e: usize, m0: usize, p0c: &mut [u32], p1c: &mut [u32], q0c: &mut [u32], q1c: &mut [u32]| {
-        let (sp, sq) = (trees[e].p_layer(k + 1), trees[e].q_layer(k + 1));
         let n = p0c.len() / super::kfield::KBLK;
+        if trees[e].is_neutral() {
+            if fill_neutral {
+                for i in 0..n {
+                    q0c[i * super::kfield::KBLK..(i + 1) * super::kfield::KBLK].copy_from_slice(&one_blk);
+                    q1c[i * super::kfield::KBLK..(i + 1) * super::kfield::KBLK].copy_from_slice(&one_blk);
+                }
+            }
+            return;
+        }
+        let (sp, sq) = (trees[e].p_layer(k + 1), trees[e].q_layer(k + 1));
         super::kfield::k9_deint_blocks(&sp.d, m0, n, p0c, p1c);
         super::kfield::k9_deint_blocks(&sq.d, m0, n, q0c, q1c);
     };

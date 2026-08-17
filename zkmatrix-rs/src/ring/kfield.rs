@@ -1117,6 +1117,23 @@ pub(crate) fn k9_fold_oop_par(kern: &KKern, src: &[u32], dst: &mut [u32], r: &[u
     });
 }
 
+/// Threaded fixed-operand product dst[i] = src[i] * r over full blocks.
+pub(crate) fn k9_mul_fixed_par(kern: &KKern, src: &[u32], r: &[u32; K_DEG], dst: &mut [u32], nblk: usize) {
+    if k9_threads() <= 1 || nblk <= K9_CHUNK_BLK {
+        return k9_mul_fixed_blocks(kern, src, r, dst, nblk);
+    }
+    let kern = *kern;
+    let r = *r;
+    let src = &src[..nblk * KBLK];
+    let dst = &mut dst[..nblk * KBLK];
+    k9_pooled(|| {
+        use rayon::prelude::*;
+        dst.par_chunks_mut(K9_CHUNK_BLK * KBLK)
+            .zip(src.par_chunks(K9_CHUNK_BLK * KBLK))
+            .for_each(|(dc, sc)| k9_mul_fixed_blocks(&kern, sc, &r, dc, dc.len() / KBLK));
+    });
+}
+
 /// Threaded in-place a[i] += b[i]*r over full blocks.
 pub(crate) fn k9_mul_fixed_add_par(kern: &KKern, a_io: &mut [u32], b: &[u32], r: &[u32; K_DEG], nblk: usize) {
     if k9_threads() <= 1 || nblk <= K9_CHUNK_BLK {
@@ -1300,6 +1317,31 @@ impl KField {
             }
             *t = out;
         }
+    }
+
+    /// [UPERF2-A] Ranged variant of kt_fold_par: only the SOURCE block
+    /// ranges in `ranges_blk` (each [lo, hi) with lo, hi even, block
+    /// units of the current table) are folded — output blocks [lo/2,
+    /// hi/2) of the halved table; every other output block is left as it
+    /// was in the scratch (never read by the caller: the pad-skipping
+    /// descent). Requires t.n/2 >= KL and every range within the table.
+    pub(crate) fn kt_fold_par_ranges(&self, t: &mut KTab, scratch: &mut Vec<u32>, r: &KElem, ranges_blk: &[(usize, usize)]) {
+        let kern = self.kern.as_ref().expect("kt_fold_par_ranges requires the bulk kernel");
+        let n_out = t.n / 2;
+        assert!(n_out >= KL && n_out % KL == 0, "ranged fold needs full output blocks");
+        let nblk_out = n_out / KL;
+        if scratch.len() < nblk_out * KBLK {
+            scratch.resize(nblk_out * KBLK, 0);
+        }
+        let rk = kop(r);
+        for &(lo, hi) in ranges_blk {
+            debug_assert!(lo % 2 == 0 && hi % 2 == 0 && lo < hi && hi <= 2 * nblk_out);
+            let n = (hi - lo) / 2;
+            k9_fold_oop_par(kern, &t.d[lo * KBLK..hi * KBLK], &mut scratch[(lo / 2) * KBLK..(hi / 2) * KBLK], &rk, n);
+        }
+        std::mem::swap(&mut t.d, scratch);
+        t.n = n_out;
+        t.d.truncate(nblk_out * KBLK);
     }
 
     /// [UPERF2-A] The threaded eq-table build (same in-place doubling,
