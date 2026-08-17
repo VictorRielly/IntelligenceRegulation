@@ -456,6 +456,21 @@ verifier back to the oracles at runtime (the one-binary A/B).
   shares; the verifier's 199.6 s loses its ~70 s psi term to ~10-15 s.
   Verify <= 2 s at 1T is NOT reachable on the O(n_value_rings)
   verifier — the sublinear route is TASK_BOARD T11(a') (an R-row).
+- Later the same day (commits 31e8840, 213dfa2): `uperf-pc
+  full-profile` (the FULL-STATEMENT bk rig with the phase table +
+  EVAL-PROOF DIGEST — the PoC number) and observation-only region
+  counters (bg.commit-phase / bg.claim-layer / bk.descent-trees /
+  bk.descent-gkr) so T1's table covers the whole prove; and the E2E
+  synthetic differential in the battery: the whole bg_prove_group +
+  bg_verify_group on a mixed-tensor group with a forced 2-level
+  schedule, proven under oracle AND fast routing in one process —
+  GroupEvalProofs field-identical, both verify, cross-verify green.
+  That is the strongest on-box evidence that the Mac's EVAL-PROOF
+  DIGEST will match. Everything pushed to main and
+  perf/zk-batch-optimizations. Memory note: the eval-proof phase's
+  RSS is dominated by phi (~8 GiB act) + w0 (~12 GiB both groups),
+  but the pass PEAK (47 GiB) is the descent phase's tree batches — a
+  15 GB-box diet must address the descents, not only phi (T9 updated).
 
 ## PA reality check (orchestrator, 2026-08-12) — the 4x does NOT transfer
 

@@ -53,6 +53,7 @@ If you are Grok/Cursor: start at Section 3, take the first task marked
 | frugal-lm ckpt + `results/m125_ffn_export/*.bin` | YES | **NO** |
 | composed pass 12x512 (RSS 41-47 GiB) | runs | **cannot run** |
 | `freeze-check` | full, exit 0 required | first 98 rows green, then panics at the UAGB1-BF rows (missing export) — EXPECTED here |
+| python suite | all green required | 77 pass, 2 skip, and EXACTLY these 4 fail for the same missing-export reason (freeze-check SIGABRT / layer00_X.bin): `test_ring_freeze_check`, `test_freeze_rows_uagb1_bf`, `test_pass_smoke_real_data`, `test_freeze_rows` (tblind) — measured 2026-08-17 at 213dfa2, 469 s. Any OTHER failure is real. |
 | `uperf-pc diff-battery`, `agg-matmul ...`, `bh-verifier ...`, `agg-kel`, unit rigs | run | run |
 | build | `cargo build --release` in `zkmatrix-rs/` | same (plain `cargo`; the rustup proxy is ahead of snap on PATH) |
 | timing status | frugal-lm F2 training may be running (check `top`) -> label NOISY-SHARED | usually quiet; is the TARGET_CONTRACT "CPU reference machine" |
@@ -320,9 +321,15 @@ ACCEPT/RECORD: as T2 (leg `O6 transport: N/N byte-identical`).
 ---
 
 ### T9 — memory diet for the 15 GB reference box  `OPEN`  WHO: ANY (c: Claude preferred)  KIND: CODE
-The composed pass peaks at 41-47 GiB (phi materialized as n_0 x Poly =
-11.4M x 1 KiB alone is 11 GiB; w0 as Vec<Vec<i64>> another 11 GiB with
-per-ring heap headers). Transcript-neutral steps:
+The composed pass peaks at 41-47 GiB. Where it goes: the eval-proof
+phase holds phi (n_0 x Poly: ~8 GiB for the act group) + w0 for both
+groups (~12 GiB as Vec<Vec<i64>> with per-ring heap headers); but the
+PASS PEAK (47 GiB, UAGB1_TABLE_DESCENT_REPORT 3.3) is the DESCENT
+phase's tree batches ("nrw-88's 16-tree batch") — so a 15 GB-box diet
+needs the descent trees streamed/batched smaller (BK/PA zone; T1's
+`/usr/bin/time -l` RSS + the bk.descent-* rows tell how much) AS WELL
+AS the two items below. Transcript-neutral steps on the eval-proof
+side:
 (c) FIRST (biggest, mechanical after T5/T8b): never materialize phi
 at level 0. In `bg_prove_group`: (1) replace the level-1
 `transport_level(ctx, &phi_cur, ...)` by
@@ -398,13 +405,17 @@ GEMMs and the A1 commit kernel are the two kernels to port first.
 - 2026-08-17: board opened by Claude after the status recalculation
   (PROGRESS_UPERF.md 2026-08-17 section). T2 started by Claude on the
   WSL box; T1 is the first MAC task.
-- 2026-08-17 (later): T2, T3, T5, T8b LANDED on the WSL box with
-  their battery legs (`uperf-pc diff-battery`: O1 4/4, O2 35/35, O3
-  63/63, O5 12/12), freeze-check rows identical to the pre-change
-  baseline, `agg-matmul battery` + `bh-verifier battery` green.
-  Kernel benches [WSL 1T]: level-h 21.8x, matvec 8.0x, kernel passes
-  42.6x / 51.5x, all byte-identical. NEXT for the MAC (Grok): T1 is
-  now BOTH the baseline AND the after-number — run `pass-profile 3
-  16` and `12 512` at the commit BEFORE these kernels (348edea, or
-  de4da64) for the baseline digest + wall, then at HEAD; the digests
-  MUST match; record both walls (T4).
+- 2026-08-17 (later): T2, T3, T5, T8b, T6(kernels) LANDED on the WSL
+  box with their battery legs (`uperf-pc diff-battery`: O1 4/4, O2
+  35/35, O3 63/63, O5 12/12, E2E 2/2 — the last is the whole
+  bg_prove_group + bg_verify_group on a synthetic mixed-tensor group
+  with a forced 2-level schedule, proven under oracle AND fast routing
+  in one process: proofs field-identical, both verify), freeze-check
+  rows identical to the pre-change baseline, `agg-matmul battery` +
+  `bh-verifier battery` green (also at ZK_THREADS=7). Kernel benches
+  [WSL 1T]: level-h 21.8x, matvec 8.0x, kernel passes 42.6x / 51.5x,
+  all byte-identical; 20T level-h 6.6x more. Commits 353a75d, 31e8840,
+  213dfa2 (pushed to main + perf/zk-batch-optimizations).
+  NEXT for the MAC (Grok): T1 — one binary, `ZK_UPERF_ORACLE=1` for the
+  before, plain for the after; `full-profile 3 16` first (digests must
+  match), then `12 512`.
