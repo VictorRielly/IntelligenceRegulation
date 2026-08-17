@@ -6400,6 +6400,8 @@ fn main() {
         Some("m125-pass") => m125_pass_main(&args[1..]),
         // [UPERF-PC] U-PERF lane PC profile/differential harness (additive).
         Some("uperf-pc") => uperf_pc_main(&args[1..]),
+        // [UPERF2-C] U-PERF2 lane C (eval-proof leftovers) battery + benches.
+        Some("uperf-c") => uperf_c_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -20047,17 +20049,16 @@ fn agg_level_t(
     e_t: u32,
     l_t: usize,
 ) -> (Vec<Vec<Poly>>, Vec<Vec<i64>>) {
-    use ring::eval_proof::{decompose_poly_modq, matvec_modq_small_multi, KAPPA_AGG};
+    use ring::eval_proof::{decompose_polys_modq, matvec_modq_small_multi, KAPPA_AGG};
     let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_MATVEC_CHUNKS);
     let zq = &ctx.zq;
     // [UPERF-PC O3] one A, all r chunk slices: A transformed once.
     let s_list: Vec<&[Vec<i64>]> = chunks.iter().map(|s| s.as_slice()).collect();
     let t_polys: Vec<Vec<Poly>> = matvec_modq_small_multi(ctx, a_mat, KAPPA_AGG, plan.chunk, &s_list);
+    // [UPERF2-C] digit split per ring in parallel (order preserved).
     let mut that = Vec::with_capacity(plan.r * KAPPA_AGG * l_t);
     for tj in &t_polys {
-        for tk in tj {
-            that.extend(decompose_poly_modq(zq, tk, e_t, l_t));
-        }
+        that.extend(decompose_polys_modq(zq, tj, e_t, l_t));
     }
     (t_polys, that)
 }
@@ -20071,7 +20072,7 @@ fn agg_level_h(
     chunks: &[Vec<Vec<i64>>],
     plan: &ring::eval_proof::LevelPlan,
 ) -> (Vec<Poly>, Vec<Vec<i64>>) {
-    use ring::eval_proof::{decompose_poly_modq, level_h_pairs};
+    use ring::eval_proof::{decompose_polys_modq, level_h_pairs};
     let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_LEVELH);
     let zq = &ctx.zq;
     let r = plan.r;
@@ -20086,38 +20087,32 @@ fn agg_level_h(
     let w_sl: Vec<&[Vec<i64>]> = chunks.iter().map(|c| c.as_slice()).collect();
     let h_polys = level_h_pairs(ctx, &phi_sl, &w_sl, plan.chunk);
     debug_assert_eq!(h_polys.len(), plan.n_pairs);
-    let mut hhat = Vec::with_capacity(plan.n_pairs * plan.l_h);
-    for h in &h_polys {
-        hhat.extend(decompose_poly_modq(zq, h, plan.e_next, plan.l_h));
-    }
+    // [UPERF2-C] digit split per ring in parallel (order preserved).
+    let hhat = decompose_polys_modq(zq, &h_polys, plan.e_next, plan.l_h);
     (h_polys, hhat)
 }
 
 /// The fold z_u = sum_j c_j * s_j[u] (exact i64 negacyclic), digit-
 /// decomposed at the next base into l_z limbs per z-ring.
+/// [UPERF2-C T7] the fold rides `fold_chunks_ntt` (oracle
+/// `fold_chunks_ref` = the `poly_mul_small` loop); assert + split kept.
 fn agg_fold(chunks: &[Vec<Vec<i64>>], cs: &[Vec<i64>], plan: &ring::eval_proof::LevelPlan) -> Vec<Vec<i64>> {
-    use ring::eval_proof::decompose_poly_small;
-    let mut zhat = Vec::with_capacity(plan.chunk * plan.l_z);
-    for u in 0..plan.chunk {
-        let mut z = vec![0i64; D];
-        for (j, c) in cs.iter().enumerate() {
-            let prod = poly_mul_small(c, &chunks[j][u]);
-            for (a, p) in z.iter_mut().zip(prod.iter()) {
-                *a += p;
-            }
-        }
-        // Restart-discipline assert: the honest fold must fit the
-        // public limb budget (concentration bound + 2 bits headroom).
-        let (lo, hi) = ring::digits::representable(plan.e_next, plan.l_z);
-        for &zc in &z {
+    use ring::eval_proof::{decompose_polys_small, fold_chunks_ntt};
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_FOLD); // observation only
+    let w_sl: Vec<&[Vec<i64>]> = chunks.iter().map(|c| c.as_slice()).collect();
+    let z_all = fold_chunks_ntt(cs, &w_sl, plan.chunk);
+    // Restart-discipline assert: the honest fold must fit the
+    // public limb budget (concentration bound + 2 bits headroom).
+    let (lo, hi) = ring::digits::representable(plan.e_next, plan.l_z);
+    for z in &z_all {
+        for &zc in z {
             assert!(
                 (zc as i128) >= lo && (zc as i128) <= hi,
                 "honest fold exceeded the public l_z budget (restart discipline)"
             );
         }
-        zhat.extend(decompose_poly_small(&z, plan.e_next, plan.l_z));
     }
-    zhat
+    decompose_polys_small(&z_all, plan.e_next, plan.l_z)
 }
 
 /// Per-tensor value-weight tables: vw[t][f] = row_kernel[f / cols] *
@@ -29109,17 +29104,16 @@ fn bg_matvec_chunks(
     e_t: u32,
     l_t: usize,
 ) -> (Vec<Vec<Poly>>, Vec<Vec<i64>>) {
-    use ring::eval_proof::{decompose_poly_modq, matvec_modq_small_multi, KAPPA_AGG};
+    use ring::eval_proof::{decompose_polys_modq, matvec_modq_small_multi, KAPPA_AGG};
     let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_MATVEC_CHUNKS);
     let zq = &ctxr.zq;
     // [UPERF-PC O3] one A, all r chunk slices: A transformed once.
     let s_list: Vec<&[Vec<i64>]> = (0..r).map(|j| &w[j * chunk..(j + 1) * chunk]).collect();
     let t_polys: Vec<Vec<Poly>> = matvec_modq_small_multi(ctxr, a_mat, KAPPA_AGG, chunk, &s_list);
+    // [UPERF2-C] digit split per ring in parallel (order preserved).
     let mut that = Vec::with_capacity(r * KAPPA_AGG * l_t);
     for tj in &t_polys {
-        for tk in tj {
-            that.extend(decompose_poly_modq(zq, tk, e_t, l_t));
-        }
+        that.extend(decompose_polys_modq(zq, tj, e_t, l_t));
     }
     (t_polys, that)
 }
@@ -29152,7 +29146,7 @@ fn bg_level_h(
     w: &[Vec<i64>],
     plan: &ring::eval_proof::LevelPlan,
 ) -> (Vec<Poly>, Vec<Vec<i64>>) {
-    use ring::eval_proof::{decompose_poly_modq, level_h_pairs};
+    use ring::eval_proof::{decompose_polys_modq, level_h_pairs};
     let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_LEVELH);
     let zq = &ctxr.zq;
     let r = plan.r;
@@ -29164,36 +29158,32 @@ fn bg_level_h(
     let w_sl: Vec<&[Vec<i64>]> = (0..r).map(|k| &w[k * c..(k + 1) * c]).collect();
     let h_polys = level_h_pairs(ctxr, &phi_sl, &w_sl, c);
     debug_assert_eq!(h_polys.len(), plan.n_pairs);
-    let mut hhat = Vec::with_capacity(plan.n_pairs * plan.l_h);
-    for h in &h_polys {
-        hhat.extend(decompose_poly_modq(zq, h, plan.e_next, plan.l_h));
-    }
+    // [UPERF2-C] digit split per ring in parallel (order preserved).
+    let hhat = decompose_polys_modq(zq, &h_polys, plan.e_next, plan.l_h);
     (h_polys, hhat)
 }
 
 /// Quinary fold over padded slices.
+/// [UPERF2-C T7] the exact i64 fold rides `fold_chunks_ntt` (bit-identical
+/// to the `poly_mul_small` loop, `fold_chunks_ref` — its oracle; uperf-c
+/// diff-battery leg T7); the `representable` assert and the digit split
+/// are unchanged (the split per-ring parallel via `decompose_polys_small`).
 fn bg_fold(w: &[Vec<i64>], cs: &[Vec<i64>], plan: &ring::eval_proof::LevelPlan) -> Vec<Vec<i64>> {
-    use ring::eval_proof::decompose_poly_small;
+    use ring::eval_proof::{decompose_polys_small, fold_chunks_ntt};
     let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_FOLD); // observation only
-    let mut zhat = Vec::with_capacity(plan.chunk * plan.l_z);
-    for u in 0..plan.chunk {
-        let mut z = vec![0i64; D];
-        for (j, c) in cs.iter().enumerate() {
-            let prod = poly_mul_small(c, &w[j * plan.chunk + u]);
-            for (a, p) in z.iter_mut().zip(prod.iter()) {
-                *a += p;
-            }
-        }
-        let (lo, hi) = ring::digits::representable(plan.e_next, plan.l_z);
-        for &zc in &z {
+    assert!(w.len() >= cs.len() * plan.chunk, "bg_fold: slices not padded to r*chunk");
+    let w_sl: Vec<&[Vec<i64>]> = (0..cs.len()).map(|j| &w[j * plan.chunk..(j + 1) * plan.chunk]).collect();
+    let z_all = fold_chunks_ntt(cs, &w_sl, plan.chunk);
+    let (lo, hi) = ring::digits::representable(plan.e_next, plan.l_z);
+    for z in &z_all {
+        for &zc in z {
             assert!(
                 (zc as i128) >= lo && (zc as i128) <= hi,
                 "honest fold exceeded the public l_z budget (restart discipline)"
             );
         }
-        zhat.extend(decompose_poly_small(&z, plan.e_next, plan.l_z));
     }
-    zhat
+    decompose_polys_small(&z_all, plan.e_next, plan.l_z)
 }
 
 /// The generalized (multi-claim) claim-row + phi passes: for each
@@ -35253,4 +35243,432 @@ fn uperf_pc_diff_o2_o3() -> (usize, usize) {
         }
     }
     (legs_h, legs_m)
+}
+
+// ===========================================================================
+// [UPERF2-C] U-PERF2 lane C — eval-proof leftovers: the quinary fold (T7),
+// the transport levels' general x general products (T3b), compute_psi and
+// the per-ring digit splits (ring/eval_proof.rs, `[UPERF2-C]` section).
+// `uperf-c diff-battery` is the differential floor of the lane (every
+// leg is byte equality against the retained oracle at both house
+// moduli, plus the caller-level flip under `set_oracle_mode`);
+// `uperf-c bench` the kernel microbenches with the oracle timed alongside.
+// Additive: nothing above this line is edited by the lane except the
+// call-site switches in bg_fold/agg_fold/bg_matvec_chunks/agg_level_t/
+// bg_level_h/agg_level_h and the `Some("uperf-c")` arm in `main`.
+
+fn uperf_c_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("diff-battery") => uperf_c_diff_battery(),
+        Some("bench") => {
+            let r: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(16);
+            let chunk: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(2048);
+            let with_ref = args.get(3).map(String::as_str) != Some("noref");
+            uperf_c_bench(r, chunk, with_ref);
+        }
+        _ => println!("uperf-c diff-battery | bench [r] [chunk] [noref]"),
+    }
+}
+
+/// Adversarial mod-q ring for the lane's legs: uniform with planted
+/// extremes (0, 1, q-1, q/2, q/2+1); optionally all-zero.
+fn uperf_c_rand_modq(rd: &mut XofReader, q: u64, zero_ring: bool) -> Poly {
+    if zero_ring {
+        return poly_zero();
+    }
+    let mut p: Poly = (0..D).map(|_| rd.next_field(q)).collect();
+    for (i, v) in [0u64, 1, q - 1, q / 2, q / 2 + 1].iter().enumerate() {
+        let pos = (rd.next_u64() as usize) % D;
+        if (i + rd.next_u64() as usize) % 3 != 1 {
+            p[pos] = *v;
+        }
+    }
+    p
+}
+
+/// Digit ring in the balanced alphabet of base e (|w| <= 2^(e-1)) with
+/// planted +-max; optionally all-zero.
+fn uperf_c_rand_digits(rd: &mut XofReader, e: u32, zero_ring: bool) -> Vec<i64> {
+    if zero_ring {
+        return vec![0i64; D];
+    }
+    let (lo, hi) = ring::digits::alphabet(e);
+    let span = (hi - lo + 1) as u64;
+    let mut v: Vec<i64> = (0..D).map(|_| lo + rd.next_field(span) as i64).collect();
+    let pos = (rd.next_u64() as usize) % D;
+    v[pos] = lo;
+    let pos = (rd.next_u64() as usize) % D;
+    v[pos] = hi;
+    v
+}
+
+/// [UPERF2-C] The differential battery of the lane. Legs:
+///   T7   fold_chunks_ntt == fold_chunks_ref (digit alphabets e = 1..7,
+///        zero rings / zero slices, r up to 64, the >2^48 fallback), and
+///        bg_fold under fast vs oracle routing (the caller incl. split);
+///   T3b  ntt_combine_general == _ref (both regimes at both moduli, the
+///        over-capacity fallback), transport_level_from_psi_fast == _ref
+///        (phi_next AND h_next byte-identical) on schedule-derived
+///        plans (every Z/T/H boundary of NextLayout, 1 and 2 bindings,
+///        zero rings, both moduli), and transport_level (compute_psi +
+///        transport) fast vs oracle routing;
+///   psi  compute_psi_ntt == compute_psi_ref (tail chunks, zero rings,
+///        the over-capacity fallback, both moduli);
+///   split decompose_polys_modq/_small == the serial loops.
+/// Panics on the first mismatch. Run at ZK_THREADS 1/2/7.
+fn uperf_c_diff_battery() {
+    use ring::eval_proof::{
+        compute_psi, compute_psi_ntt, compute_psi_ref, decompose_poly_modq, decompose_poly_small,
+        decompose_polys_modq, decompose_polys_small, fold_chunks_ntt, fold_chunks_ref,
+        ntt_combine_general, ntt_combine_general_ref, plan_schedule, set_oracle_mode, transport_level,
+        transport_level_from_psi_fast, transport_level_from_psi_ref, transport_rows, NextLayout,
+        OuterBinding, KAPPA_AGG,
+    };
+    let t0 = Instant::now();
+    println!("[UPERF2-C] differential battery");
+    if ring::eval_proof::oracle_mode() {
+        println!("[UPERF2-C] WARNING: ZK_UPERF_ORACLE=1 is set — the fast paths route to their oracles; the kernel legs below are VACUOUS");
+    }
+    println!("[UPERF2-C] ZK_THREADS = {}", ring::eval_proof::threads());
+    let ctx31 = ring_ctx_q8();
+    let ctx46 = ring::ring_ctx(ring::Q8_46, ring::ETA8_46, 8);
+
+    // ---- T7: the fold kernel. ----
+    let mut n_fold = 0usize;
+    for (r, chunk) in [(1usize, 1usize), (2, 5), (3, 64), (7, 33), (16, 17), (64, 9)] {
+        for e in [1u32, 2, 3, 5, 7] {
+            let mut rd = XofReader::new("uperf-c-t7", &[&(r as u64).to_le_bytes(), &(chunk as u64).to_le_bytes(), &e.to_le_bytes()]);
+            let cs: Vec<Vec<i64>> = (0..r).map(|_| rd.next_challenge()).collect();
+            let ws: Vec<Vec<Vec<i64>>> = (0..r)
+                .map(|j| (0..chunk).map(|u| uperf_c_rand_digits(&mut rd, e, (r > 2 && j == 1) || (u + j) % 13 == 5)).collect())
+                .collect();
+            let w_sl: Vec<&[Vec<i64>]> = ws.iter().map(|w| w.as_slice()).collect();
+            let got = fold_chunks_ntt(&cs, &w_sl, chunk);
+            let want = fold_chunks_ref(&cs, &w_sl, chunk);
+            assert_eq!(got, want, "T7 fold mismatch at r {r} chunk {chunk} e {e}");
+            assert_eq!(got.len(), chunk);
+            n_fold += 1;
+        }
+    }
+    // The over-capacity fallback (|w| >= 2^48 -> the oracle body).
+    {
+        let mut rd = XofReader::new("uperf-c-t7-big", &[]);
+        let cs: Vec<Vec<i64>> = (0..3).map(|_| rd.next_challenge()).collect();
+        let ws: Vec<Vec<Vec<i64>>> = (0..3)
+            .map(|_| (0..4).map(|_| (0..D).map(|_| rd.next_field(1 << 51) as i64 - (1i64 << 50)).collect()).collect())
+            .collect();
+        let w_sl: Vec<&[Vec<i64>]> = ws.iter().map(|w| w.as_slice()).collect();
+        assert_eq!(fold_chunks_ntt(&cs, &w_sl, 4), fold_chunks_ref(&cs, &w_sl, 4), "T7 fallback");
+        n_fold += 1;
+    }
+    // The callers: bg_fold (fast) == bg_fold (oracle) on schedule-derived plans.
+    for (n0, e0) in [(300usize, 2u32), (2048, 1), (5000, 3)] {
+        let sched = plan_schedule(n0, e0, ring::Q8, Some(1));
+        let plan = &sched.levels[0];
+        let mut rd = XofReader::new("uperf-c-t7-bg", &[&(n0 as u64).to_le_bytes()]);
+        let cs: Vec<Vec<i64>> = (0..plan.r).map(|_| rd.next_challenge()).collect();
+        let w: Vec<Vec<i64>> = (0..plan.r * plan.chunk).map(|u| uperf_c_rand_digits(&mut rd, e0, u % 11 == 4)).collect();
+        set_oracle_mode(false);
+        let fast = bg_fold(&w, &cs, plan);
+        set_oracle_mode(true);
+        let orc = bg_fold(&w, &cs, plan);
+        set_oracle_mode(false);
+        assert_eq!(fast, orc, "T7 bg_fold fast != oracle at n0 {n0}");
+        assert_eq!(fast.len(), plan.chunk * plan.l_z);
+        n_fold += 1;
+    }
+    println!("[UPERF2-C] T7 fold: {n_fold}/{n_fold} byte-identical (e = 1..7, zero rings/slices, r <= 64, fallback, bg_fold flip)");
+
+    // ---- T3b: ntt_combine_general (both regimes, both moduli, fallback). ----
+    let mut n_comb = 0usize;
+    for (qn, ctx) in [("q31", &ctx31), ("q46", &ctx46)] {
+        let q = ctx.zq.q;
+        for (n, m) in [(1usize, 1usize), (1, 7), (11, 5), (12, 64), (33, 3), (2100, 2), (1100, 1)] {
+            let mut rd = XofReader::new("uperf-c-t3b-comb", &[qn.as_bytes(), &(n as u64).to_le_bytes(), &(m as u64).to_le_bytes()]);
+            let alphas: Vec<Poly> = (0..n).map(|i| uperf_c_rand_modq(&mut rd, q, n > 3 && i == 2)).collect();
+            let ops: Vec<Vec<Poly>> = (0..n)
+                .map(|i| (0..m).map(|u| uperf_c_rand_modq(&mut rd, q, (u + i) % 5 == 3)).collect())
+                .collect();
+            let ops_sl: Vec<&[Poly]> = ops.iter().map(|o| o.as_slice()).collect();
+            let got = ntt_combine_general(ctx, &alphas, &ops_sl, m);
+            let want = ntt_combine_general_ref(ctx, &alphas, &ops_sl, m);
+            assert_eq!(got, want, "T3b ntt_combine_general mismatch at {qn} n {n} m {m}");
+            n_comb += 1;
+        }
+    }
+    println!("[UPERF2-C] T3b combine: {n_comb}/{n_comb} byte-identical (one-sided + two-sided regimes, over-capacity fallback, q31 + q46)");
+
+    // ---- T3b: the transport level. ----
+    let mut n_tr = 0usize;
+    for (qn, ctx) in [("q31", &ctx31), ("q46", &ctx46)] {
+        let q = ctx.zq.q;
+        for (n0, e0) in [(64usize, 2u32), (300, 2), (2048, 1), (5000, 3), (900, 7)] {
+            let sched = plan_schedule(n0, e0, q, Some(1));
+            let plan = &sched.levels[0];
+            let layout = NextLayout::new(plan);
+            let (r, chunk) = (plan.r, plan.chunk);
+            let t_len = layout.h_base - layout.t_base;
+            let h_len = layout.n_total - layout.h_base;
+            for n_bind in [2usize, 1] {
+                let mut rd = XofReader::new(
+                    "uperf-c-t3b-tr",
+                    &[qn.as_bytes(), &(n0 as u64).to_le_bytes(), &(n_bind as u64).to_le_bytes()],
+                );
+                let psi: Vec<Poly> = (0..chunk).map(|u| uperf_c_rand_modq(&mut rd, q, u % 7 == 2)).collect();
+                let h_target = uperf_c_rand_modq(&mut rd, q, false);
+                let a_mat: Vec<Poly> = (0..KAPPA_AGG * chunk).map(|i| uperf_c_rand_modq(&mut rd, q, i % 17 == 9)).collect();
+                let cs: Vec<Vec<i64>> = (0..r).map(|_| rd.next_challenge()).collect();
+                // Bindings: level-0 form (Bu over t-hat, Bh over h-hat) or the
+                // deeper combined form (one B over t-hat || h-hat).
+                let spans: Vec<(usize, usize)> = if n_bind == 2 { vec![(0, t_len), (t_len, h_len)] } else { vec![(0, t_len + h_len)] };
+                let bdata: Vec<(Vec<Poly>, usize, usize, Vec<Poly>)> = spans
+                    .iter()
+                    .map(|&(cb, cl)| {
+                        let bm: Vec<Poly> = (0..KAPPA_AGG * cl).map(|i| uperf_c_rand_modq(&mut rd, q, i % 13 == 6)).collect();
+                        let u: Vec<Poly> = (0..KAPPA_AGG).map(|_| uperf_c_rand_modq(&mut rd, q, false)).collect();
+                        (bm, cb, cl, u)
+                    })
+                    .collect();
+                let bindings: Vec<OuterBinding> = bdata
+                    .iter()
+                    .map(|(bm, cb, cl, u)| OuterBinding { b_mat: bm, col_base: *cb, cols: *cl, u })
+                    .collect();
+                let n_rows = transport_rows(n_bind);
+                let alphas: Vec<Poly> = (0..n_rows).map(|i| uperf_c_rand_modq(&mut rd, q, i == 5)).collect();
+                let fast = transport_level_from_psi_fast(ctx, &psi, &h_target, plan, &layout, &a_mat, &bindings, &cs, &alphas);
+                let want = transport_level_from_psi_ref(ctx, &psi, &h_target, plan, &layout, &a_mat, &bindings, &cs, &alphas);
+                assert_eq!(fast.phi_next.len(), layout.n_total);
+                for u in 0..layout.n_total {
+                    assert_eq!(
+                        fast.phi_next[u], want.phi_next[u],
+                        "T3b transport phi_next mismatch at {qn} n0 {n0} bindings {n_bind} u {u} ({:?})",
+                        layout.locate(u)
+                    );
+                }
+                assert_eq!(fast.h_next, want.h_next, "T3b transport h_next mismatch at {qn} n0 {n0} bindings {n_bind}");
+                n_tr += 1;
+                // The caller-level flip: transport_level (compute_psi + transport)
+                // under fast vs oracle routing on a phi with a ragged tail.
+                let n_phi = r * chunk - (chunk / 3);
+                let phi: Vec<Poly> = (0..n_phi).map(|i| uperf_c_rand_modq(&mut rd, q, i % 9 == 1)).collect();
+                set_oracle_mode(false);
+                let lf = transport_level(ctx, &phi, &h_target, plan, &layout, &a_mat, &bindings, &cs, &alphas);
+                set_oracle_mode(true);
+                let lo = transport_level(ctx, &phi, &h_target, plan, &layout, &a_mat, &bindings, &cs, &alphas);
+                set_oracle_mode(false);
+                assert_eq!(lf.phi_next, lo.phi_next, "T3b transport_level flip phi_next at {qn} n0 {n0} bindings {n_bind}");
+                assert_eq!(lf.h_next, lo.h_next, "T3b transport_level flip h_next at {qn} n0 {n0} bindings {n_bind}");
+                n_tr += 1;
+            }
+        }
+    }
+    println!("[UPERF2-C] T3b transport: {n_tr}/{n_tr} byte-identical (phi_next + h_next; Z/T/H boundaries, 1 + 2 bindings, zero rings, transport_level flip; q31 + q46)");
+
+    // ---- compute_psi. ----
+    let mut n_psi = 0usize;
+    for (qn, ctx) in [("q31", &ctx31), ("q46", &ctx46)] {
+        let q = ctx.zq.q;
+        for (r, chunk, tail) in [(1usize, 1usize, 0usize), (2, 7, 3), (5, 64, 0), (16, 33, 20), (64, 9, 8)] {
+            let mut rd = XofReader::new("uperf-c-psi", &[qn.as_bytes(), &(r as u64).to_le_bytes(), &(chunk as u64).to_le_bytes()]);
+            let cs: Vec<Vec<i64>> = (0..r).map(|_| rd.next_challenge()).collect();
+            let phi: Vec<Poly> = (0..r * chunk - tail).map(|i| uperf_c_rand_modq(&mut rd, q, i % 11 == 3)).collect();
+            let got = compute_psi_ntt(ctx, &phi, chunk, &cs);
+            let want = compute_psi_ref(ctx, &phi, chunk, &cs);
+            assert_eq!(got, want, "psi mismatch at {qn} r {r} chunk {chunk} tail {tail}");
+            assert_eq!(compute_psi(ctx, &phi, chunk, &cs), want, "psi dispatcher at {qn} r {r} chunk {chunk}");
+            n_psi += 1;
+        }
+        // Over-capacity c (|c| = 2^40 at q46 -> window 0 -> the oracle body).
+        if q > (1u64 << 40) {
+            let mut rd = XofReader::new("uperf-c-psi-big", &[]);
+            let cs: Vec<Vec<i64>> = (0..3).map(|_| (0..D).map(|_| (rd.next_field(1 << 41) as i64) - (1i64 << 40)).collect()).collect();
+            let phi: Vec<Poly> = (0..3 * 5).map(|i| uperf_c_rand_modq(&mut rd, q, i % 4 == 1)).collect();
+            assert_eq!(compute_psi_ntt(ctx, &phi, 5, &cs), compute_psi_ref(ctx, &phi, 5, &cs), "psi fallback at {qn}");
+            n_psi += 1;
+        }
+    }
+    println!("[UPERF2-C] compute_psi: {n_psi}/{n_psi} byte-identical (tail chunks, zero rings, r <= 64, fallback; q31 + q46)");
+
+    // ---- The parallel digit splits. ----
+    let mut n_split = 0usize;
+    for (qn, ctx) in [("q31", &ctx31), ("q46", &ctx46)] {
+        let q = ctx.zq.q;
+        let zq = &ctx.zq;
+        for (e, n) in [(2u32, 37usize), (5, 130), (7, 1), (7, 300)] {
+            // The limb count that covers the centered range at this (q, e)
+            // — the schedule's l_t derivation.
+            let l = ring::digits::derive_l0(-((q / 2) as i64), (q / 2) as i64, e);
+            let mut rd = XofReader::new("uperf-c-split", &[qn.as_bytes(), &e.to_le_bytes(), &(l as u64).to_le_bytes()]);
+            let polys: Vec<Poly> = (0..n).map(|i| uperf_c_rand_modq(&mut rd, q, i % 10 == 7)).collect();
+            let got = decompose_polys_modq(zq, &polys, e, l);
+            let mut want = Vec::new();
+            for p in &polys {
+                want.extend(decompose_poly_modq(zq, p, e, l));
+            }
+            assert_eq!(got, want, "split modq mismatch at {qn} e {e} l {l}");
+            n_split += 1;
+        }
+    }
+    for (e, l, n) in [(2u32, 3usize, 37usize), (5, 3, 130), (7, 2, 1), (4, 4, 300)] {
+        let mut rd = XofReader::new("uperf-c-split-small", &[&e.to_le_bytes(), &(l as u64).to_le_bytes()]);
+        let (lo, hi) = ring::digits::representable(e, l);
+        let span = (hi - lo + 1) as u64;
+        let polys: Vec<Vec<i64>> = (0..n)
+            .map(|i| if i % 10 == 7 { vec![0i64; D] } else { (0..D).map(|_| (lo + rd.next_field(span) as i128) as i64).collect() })
+            .collect();
+        let got = decompose_polys_small(&polys, e, l);
+        let mut want = Vec::new();
+        for p in &polys {
+            want.extend(decompose_poly_small(p, e, l));
+        }
+        assert_eq!(got, want, "split small mismatch at e {e} l {l}");
+        n_split += 1;
+    }
+    println!("[UPERF2-C] digit splits: {n_split}/{n_split} identical to the serial loops (modq q31 + q46, small)");
+
+    println!("[UPERF2-C] differential battery passed in {:.2}s", t0.elapsed().as_secs_f64());
+}
+
+/// [UPERF2-C] Kernel microbenches at (r, chunk) with the oracle timed
+/// alongside (byte equality asserted when it runs): the fold (level-0
+/// like e = 2 digits and interior e = 5 digits), compute_psi, the
+/// general x general combine (n = 12 terms) and the whole transport level
+/// on a schedule-like plan. Reports us per unit; label the run
+/// [WSL-BOX <n>T QUIET|NOISY-SHARED] by hand.
+fn uperf_c_bench(r: usize, chunk: usize, with_ref: bool) {
+    use ring::eval_proof::{
+        compute_psi_ntt, compute_psi_ref, fold_chunks_ntt, fold_chunks_ref, ntt_combine_general,
+        ntt_combine_general_ref, transport_level_from_psi_fast, transport_level_from_psi_ref, transport_rows,
+        LevelPlan, NextLayout, OuterBinding, KAPPA_AGG,
+    };
+    let ctx = ring_ctx_q8();
+    let q = ctx.zq.q;
+    let nt = ring::eval_proof::threads();
+    println!("[UPERF2-C] bench: r = {r}, chunk = {chunk} (r*chunk = {}), q31, ZK_THREADS = {nt} [{}]", r * chunk, std::env::consts::OS);
+    let mut rd = XofReader::new("uperf-c-bench", &[&(r as u64).to_le_bytes(), &(chunk as u64).to_le_bytes()]);
+    let cs: Vec<Vec<i64>> = (0..r).map(|_| rd.next_challenge()).collect();
+    // ---- T7 fold at e = 2 (level 0) and e = 5 (interior). ----
+    for e in [2u32, 5] {
+        let ws: Vec<Vec<Vec<i64>>> = (0..r)
+            .map(|_| (0..chunk).map(|u| uperf_c_rand_digits(&mut rd, e, u % 11 == 6)).collect())
+            .collect();
+        let w_sl: Vec<&[Vec<i64>]> = ws.iter().map(|w| w.as_slice()).collect();
+        let n_prod = (r * chunk) as f64;
+        let t0 = Instant::now();
+        let z = fold_chunks_ntt(&cs, &w_sl, chunk);
+        let s_ntt = t0.elapsed().as_secs_f64();
+        println!("  fold e={e} NTT     : {s_ntt:>8.3}s  = {:.3} us/(c x w) product", s_ntt * 1e6 / n_prod);
+        if with_ref {
+            let t0 = Instant::now();
+            let zr = fold_chunks_ref(&cs, &w_sl, chunk);
+            let s_ref = t0.elapsed().as_secs_f64();
+            assert_eq!(z, zr, "bench: fold NTT != oracle");
+            println!(
+                "  fold e={e} ref     : {s_ref:>8.3}s  = {:.3} us/product  -> speedup {:.1}x (byte-identical)",
+                s_ref * 1e6 / n_prod,
+                s_ref / s_ntt
+            );
+        }
+    }
+    // ---- compute_psi: r x chunk general phi (ragged tail). ----
+    {
+        let phi: Vec<Poly> = (0..r * chunk - chunk / 4).map(|i| uperf_c_rand_modq(&mut rd, q, i % 13 == 4)).collect();
+        let n_prod = phi.len() as f64;
+        let t0 = Instant::now();
+        let p = compute_psi_ntt(&ctx, &phi, chunk, &cs);
+        let s_ntt = t0.elapsed().as_secs_f64();
+        println!("  psi NTT           : {s_ntt:>8.3}s  = {:.3} us/(c x phi) term", s_ntt * 1e6 / n_prod);
+        if with_ref {
+            let t0 = Instant::now();
+            let pr = compute_psi_ref(&ctx, &phi, chunk, &cs);
+            let s_ref = t0.elapsed().as_secs_f64();
+            assert_eq!(p, pr, "bench: psi NTT != oracle");
+            println!(
+                "  psi ref           : {s_ref:>8.3}s  = {:.3} us/term  -> speedup {:.1}x (byte-identical)",
+                s_ref * 1e6 / n_prod,
+                s_ref / s_ntt
+            );
+        }
+    }
+    // ---- ntt_combine_general: 12 alphas x chunk operands (the S contraction). ----
+    {
+        let n = 1 + KAPPA_AGG;
+        let alphas: Vec<Poly> = (0..n).map(|_| uperf_c_rand_modq(&mut rd, q, false)).collect();
+        let ops: Vec<Vec<Poly>> = (0..n).map(|_| (0..chunk).map(|u| uperf_c_rand_modq(&mut rd, q, u % 19 == 8)).collect()).collect();
+        let ops_sl: Vec<&[Poly]> = ops.iter().map(|o| o.as_slice()).collect();
+        let n_prod = (n * chunk) as f64;
+        let t0 = Instant::now();
+        let s = ntt_combine_general(&ctx, &alphas, &ops_sl, chunk);
+        let s_ntt = t0.elapsed().as_secs_f64();
+        println!("  combine(12) NTT   : {s_ntt:>8.3}s  = {:.3} us/general product ({:.2} us/output)", s_ntt * 1e6 / n_prod, s_ntt * 1e6 / chunk as f64);
+        if with_ref {
+            let t0 = Instant::now();
+            let sr = ntt_combine_general_ref(&ctx, &alphas, &ops_sl, chunk);
+            let s_ref = t0.elapsed().as_secs_f64();
+            assert_eq!(s, sr, "bench: combine NTT != oracle");
+            println!(
+                "  combine(12) kara  : {s_ref:>8.3}s  = {:.3} us/product  -> speedup {:.1}x (byte-identical)",
+                s_ref * 1e6 / n_prod,
+                s_ref / s_ntt
+            );
+        }
+    }
+    // ---- The whole transport level on a schedule-like plan (chunk, r; e_next 5, l_z 3, l_t = l_h = 7 — the 125M level-0 shape class). ----
+    {
+        let e_next = 5u32;
+        let (l_z, l_t) = (3usize, 7usize);
+        let n_pairs = r * (r + 1) / 2;
+        let plan = LevelPlan {
+            n_in: r * chunk,
+            e_in: 2,
+            r,
+            chunk,
+            e_next,
+            l_z,
+            l_t,
+            l_h: l_t,
+            n_pairs,
+            n_out: chunk * l_z + r * KAPPA_AGG * l_t + n_pairs * l_t,
+        };
+        let layout = NextLayout::new(&plan);
+        let t_len = layout.h_base - layout.t_base;
+        let h_len = layout.n_total - layout.h_base;
+        let psi: Vec<Poly> = (0..chunk).map(|u| uperf_c_rand_modq(&mut rd, q, u % 23 == 5)).collect();
+        let h_target = uperf_c_rand_modq(&mut rd, q, false);
+        let a_mat: Vec<Poly> = (0..KAPPA_AGG * chunk).map(|_| uperf_c_rand_modq(&mut rd, q, false)).collect();
+        let bdata: Vec<(Vec<Poly>, usize, usize, Vec<Poly>)> = [(0usize, t_len), (t_len, h_len)]
+            .iter()
+            .map(|&(cb, cl)| {
+                let bm: Vec<Poly> = (0..KAPPA_AGG * cl).map(|_| uperf_c_rand_modq(&mut rd, q, false)).collect();
+                let u: Vec<Poly> = (0..KAPPA_AGG).map(|_| uperf_c_rand_modq(&mut rd, q, false)).collect();
+                (bm, cb, cl, u)
+            })
+            .collect();
+        let bindings: Vec<OuterBinding> =
+            bdata.iter().map(|(bm, cb, cl, u)| OuterBinding { b_mat: bm, col_base: *cb, cols: *cl, u }).collect();
+        let alphas: Vec<Poly> = (0..transport_rows(2)).map(|_| uperf_c_rand_modq(&mut rd, q, false)).collect();
+        // General products the oracle performs: Z 12 per ring, T 1 + 11, H (1) + 1 + 11.
+        let n_gen = (chunk * l_z * 12 + t_len * 12 + h_len * 12) as f64;
+        let t0 = Instant::now();
+        let lf = transport_level_from_psi_fast(&ctx, &psi, &h_target, &plan, &layout, &a_mat, &bindings, &cs, &alphas);
+        let s_fast = t0.elapsed().as_secs_f64();
+        println!(
+            "  transport fast    : {s_fast:>8.3}s  = {:.3} us/next-witness ring ({} rings; {:.3} us per oracle-equivalent product)",
+            s_fast * 1e6 / layout.n_total as f64,
+            layout.n_total,
+            s_fast * 1e6 / n_gen
+        );
+        if with_ref {
+            let t0 = Instant::now();
+            let lr = transport_level_from_psi_ref(&ctx, &psi, &h_target, &plan, &layout, &a_mat, &bindings, &cs, &alphas);
+            let s_ref = t0.elapsed().as_secs_f64();
+            assert_eq!(lf.phi_next, lr.phi_next, "bench: transport fast != ref (phi_next)");
+            assert_eq!(lf.h_next, lr.h_next, "bench: transport fast != ref (h_next)");
+            println!(
+                "  transport ref     : {s_ref:>8.3}s  = {:.3} us/next-witness ring  -> speedup {:.1}x (byte-identical)",
+                s_ref * 1e6 / layout.n_total as f64,
+                s_ref / s_fast
+            );
+        }
+    }
 }
