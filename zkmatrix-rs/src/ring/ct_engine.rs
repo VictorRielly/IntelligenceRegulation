@@ -2510,7 +2510,17 @@ pub mod prof {
     pub const BG_CLAIM_LAYER: usize = 28; // bg/bk pass: prover claim layer (ixf sumchecks + assemblies)
     pub const BK_TREES: usize = 29; // bk descent phase: witness/table tree builds
     pub const BK_GKR: usize = 30; // bk descent phase: masked_gkr_prove calls
-    pub const N_PHASES: usize = 31;
+    // [UPERF2-A] descent internals (observation only; gkr/gkr_masked/kfield)
+    pub const A_TREE_PACK: usize = 31; // build_tree: boxed leaves -> packed leaf tables
+    pub const A_TREE_STEP: usize = 32; // build_tree_packed: the layer steps
+    pub const A_EQ_TABLE: usize = 33; // kt_eq_table per descent layer
+    pub const A_EXTRACT: usize = 34; // extract_children + the lambda*q0 (or PL) table
+    pub const A_ROUND_G: usize = 35; // the bulk round-poly kernel (all rounds)
+    pub const A_FOLD: usize = 36; // the per-round table folds (all tables)
+    pub const A_SCALAR_TAIL: usize = 37; // sub-block scalar rounds + w-round
+    pub const A_GKR_PROVE: usize = 38; // masked_gkr_prove total
+    pub const A_GKR_VERIFY: usize = 39; // masked_gkr_verify total
+    pub const N_PHASES: usize = 40;
 
     pub const NAMES: [&str; N_PHASES] = [
         "ct.setup(clone+digits)",
@@ -2544,6 +2554,15 @@ pub mod prof {
         "bg.claim-layer",
         "bk.descent-trees",
         "bk.descent-gkr",
+        "a.tree-pack",
+        "a.tree-step",
+        "a.eq-table",
+        "a.extract",
+        "a.round-g",
+        "a.fold",
+        "a.scalar-tail",
+        "a.gkr-prove",
+        "a.gkr-verify",
     ];
 
     static ENABLED: AtomicBool = AtomicBool::new(false);

@@ -34,8 +34,9 @@
 // multilinear machinery; the g-mask and the correction term are summed
 // in closed form per round (g_hypersum style).
 
-use super::gkr::{FracTree, eq_eval, eq_table, extract_children};
-use super::kfield::{KElem, KField, KL, k9_addc_blocks, k9_round_g_blocks, kop};
+use super::ct_engine::prof;
+use super::gkr::{FracTree, eq_eval, eq_table, extract_children, extract_children_par};
+use super::kfield::{KElem, KField, KL, k9_addc_blocks, k9_round_g5_par, k9_round_g_blocks, kop};
 use super::sumcheck::{LkpTranscript, lagrange_eval};
 use super::{ProverRng, rng_below};
 
@@ -616,7 +617,11 @@ fn masked_rounds_scalar(
 /// the same O(1) scalar arithmetic as the oracle path; g(1) is produced
 /// through the round identity g(0) + g(1) = C. Values are bit-identical
 /// to masked_rounds_scalar.
-fn masked_rounds_bulk(
+///
+/// [UPERF2-A] This is the PRE-CHANGE body (the differential oracle of the
+/// fast rounds below; `ZK_UPERF_ORACLE=1` routes here). Only the
+/// observation-only prof timers were added.
+fn masked_rounds_bulk_ref(
     kf: &KField,
     trees: &[FracTree],
     zeta: &[KElem],
@@ -627,10 +632,17 @@ fn masked_rounds_bulk(
     let kern = kf.kern.as_ref().expect("bulk masked layer requires the kernel");
     let j = lay.j;
     let n_bvars = zeta.len();
-    let mut eq_cur = kf.kt_eq_table(zeta);
-    let (mut p0c, mut p1c, mut q0c, mut q1c) = extract_children(trees, j);
+    let mut eq_cur = {
+        let _t = prof::timer(prof::A_EQ_TABLE);
+        kf.kt_eq_table(zeta)
+    };
+    let (mut p0c, mut p1c, mut q0c, mut q1c, mut ql) = {
+        let _t = prof::timer(prof::A_EXTRACT);
+        let (p0c, p1c, q0c, q1c) = extract_children(trees, j);
+        let ql = kf.kt_mul_fixed(&q0c, lay.lambda);
+        (p0c, p1c, q0c, q1c, ql)
+    };
     debug_assert_eq!(eq_cur.n, p0c.n);
-    let mut ql = kf.kt_mul_fixed(&q0c, lay.lambda);
     let degs = sc_degrees(n_bvars, lay.child_masked);
     let mut rounds: Vec<Vec<KElem>> = Vec::with_capacity(n_bvars + 1);
     let mut rs: Vec<KElem> = Vec::with_capacity(n_bvars + 1);
@@ -640,6 +652,7 @@ fn masked_rounds_bulk(
     for t in 0..=n_bvars {
         let d = degs[t];
         let evals: Vec<KElem> = if t == n_bvars {
+            let _t = prof::timer(prof::A_SCALAR_TAIL);
             masked_w_round_evals(
                 kf,
                 d,
@@ -680,20 +693,23 @@ fn masked_rounds_bulk(
             };
             let mut acc_lo = vec![0u64; nodes.len() * 31 * KL];
             let mut acc_hi = vec![0u64; nodes.len() * 31 * KL];
-            k9_round_g_blocks(
-                kern,
-                &eq_cur.d,
-                &p0c.d,
-                &p1c.d,
-                &q0c.d,
-                &q1c.d,
-                &ql.d,
-                eq_cur.n / 2 / KL,
-                &nodes,
-                consts.as_deref(),
-                &mut acc_lo,
-                &mut acc_hi,
-            );
+            {
+                let _t = prof::timer(prof::A_ROUND_G);
+                k9_round_g_blocks(
+                    kern,
+                    &eq_cur.d,
+                    &p0c.d,
+                    &p1c.d,
+                    &q0c.d,
+                    &q1c.d,
+                    &ql.d,
+                    eq_cur.n / 2 / KL,
+                    &nodes,
+                    consts.as_deref(),
+                    &mut acc_lo,
+                    &mut acc_hi,
+                );
+            }
             let mut evals = vec![kf.zero(); d + 1];
             for (ni, &x) in nodes.iter().enumerate() {
                 let xk = kf.embed(x);
@@ -713,6 +729,7 @@ fn masked_rounds_bulk(
             evals
         } else {
             // Sub-block tail rounds: scalar body on extracted tables.
+            let _t = prof::timer(prof::A_SCALAR_TAIL);
             masked_b_round_evals(
                 kf,
                 d,
@@ -733,6 +750,7 @@ fn masked_rounds_bulk(
         let r = tr.challenge_k(kf);
         c_run = lagrange_eval(kf, &evals, &r);
         if t < n_bvars {
+            let _tf = prof::timer(prof::A_FOLD);
             kf.kt_fold_inplace(&mut eq_cur, &r);
             kf.kt_fold_inplace(&mut p0c, &r);
             kf.kt_fold_inplace(&mut p1c, &r);
@@ -779,6 +797,360 @@ fn masked_rounds_bulk(
     (rounds, rs, boundary)
 }
 
+/// [UPERF2-A] The fast bulk rounds loop — bit-identical transcript to
+/// `masked_rounds_bulk_ref` (which `oracle_mode()` routes to):
+///
+///   * FIVE work tables instead of six: PL := p0 + lambda*q0 replaces
+///     both p0 and ql = lambda*q0. Every extrapolated node sees PL(x) =
+///     P0(x) + lambda Q0(x) (linearity of the extrapolation, the fold and
+///     the masked add-constants), so wire = PL Q1 + P1 Q0 is the same
+///     field element as P0 Q1 + P1 Q0 + lambda Q0 Q1 — one MAC fewer per
+///     node in the round kernel, one fold fewer per round, one table less
+///     of memory. p0 is recovered where it is needed (boundary, scalar
+///     tail, w-round) as PL - lambda Q0, exactly.
+///   * Deterministic ZK_THREADS splits: the eq build, the extraction, the
+///     round kernel (per-chunk lazy planes summed in index order — exact
+///     integers), the folds (out-of-place into a per-layer scratch that
+///     is swapped in), the masked add-constants.
+///   * NEUTRAL PADS ARE NOT COMPUTED: a `neutral_tree` instance's slice
+///     of every table is (0, 0, 1, 1) — a constant across the slice at
+///     every b-round (folding a constant slice yields the constant, the
+///     masked add-constants shift it uniformly), so its share of every
+///     round-poly node is a closed form: sum over the pad's remaining
+///     hypercube of EQ(x, i) * wire_pad(x) = wire_pad(x) * F_t *
+///     eq(zeta_t, x) * E(e), with F_t = prod_{s<t} eq(zeta_s, r_s) (the
+///     bound prefix every eq entry carries), eq(z, x) = (1-z)(1-x) + z x
+///     (the extrapolated current variable; the free suffix sums to 1)
+///     and E(e) = prod_u eq(zeta_{j+u}, e_u) (the instance coordinates).
+///     The kernels run over the REAL instances' block ranges only; the
+///     pad slices are materialized once the per-instance size drops
+///     below two blocks (tiny) and the plain path finishes the layer.
+///     The eq table is built as (b-part table) x E(e) per real slice
+///     instead of the joint doubling — the same field elements
+///     (associativity), pads skipped.
+///
+/// The analytic mask/correction terms, the round identity for g(1), the
+/// absorb order and every challenge are the reference path's.
+fn masked_rounds_bulk(
+    kf: &KField,
+    trees: &[FracTree],
+    zeta: &[KElem],
+    lay: &MaskedLayerCtx,
+    mut c_run: KElem,
+    tr: &mut LkpTranscript,
+) -> (Vec<Vec<KElem>>, Vec<KElem>, [KElem; 4]) {
+    if super::eval_proof::oracle_mode() {
+        return masked_rounds_bulk_ref(kf, trees, zeta, lay, c_run, tr);
+    }
+    let kern = kf.kern.as_ref().expect("bulk masked layer requires the kernel");
+    let j = lay.j;
+    let n_bvars = zeta.len();
+    let l = trees.len();
+    let e_bits = n_bvars - j;
+    debug_assert_eq!(1usize << e_bits, l);
+    let per = 1usize << j; // per-instance elements at round 0
+    let size = l << j;
+    let real: Vec<usize> = (0..l).filter(|&e| !trees[e].is_neutral()).collect();
+    let pads: Vec<usize> = (0..l).filter(|&e| trees[e].is_neutral()).collect();
+    // Pad skipping needs whole pair-blocks per instance; below that the
+    // pads are simply materialized (tiny layers, tiny tails).
+    let skip = !pads.is_empty() && per >= 2 * KL;
+    let eq_z = |z: &KElem, bit: bool| -> KElem { if bit { z.clone() } else { kf.sub(&kf.one(), z) } };
+    // E(e) = prod_u eq(zeta_{j+u}, e_u).
+    let e_of = |e: usize| -> KElem {
+        let mut acc = kf.one();
+        for u in 0..e_bits {
+            acc = kf.mul(&acc, &eq_z(&zeta[j + u], (e >> u) & 1 == 1));
+        }
+        acc
+    };
+    let mut eq_cur = {
+        let _t = prof::timer(prof::A_EQ_TABLE);
+        if e_bits == 0 || per < KL {
+            kf.kt_eq_table_par(zeta)
+        } else {
+            // b-part table x E(e) per real slice.
+            let eqb = kf.kt_eq_table_par(&zeta[..j]);
+            let mut full = super::kfield::KTab::zeroed(size);
+            let nblk = per / KL;
+            let all: Vec<usize> = (0..l).collect();
+            for &e in if skip { &real } else { &all } {
+                let ee = e_of(e);
+                let w0 = e * nblk * super::kfield::KBLK;
+                super::kfield::k9_mul_fixed_par(kern, &eqb.d, &kop(&ee), &mut full.d[w0..w0 + nblk * super::kfield::KBLK], nblk);
+            }
+            full
+        }
+    };
+    let (mut pl, mut p1c, mut q0c, mut q1c) = {
+        let _t = prof::timer(prof::A_EXTRACT);
+        let (mut p0c, p1c, q0c, q1c) = extract_children_par(trees, j, !skip);
+        // PL = p0 + lambda*q0, in place on the extracted p0 (real ranges).
+        if !skip {
+            kf.kt_mul_fixed_add_inplace(&mut p0c, &q0c, lay.lambda);
+        } else {
+            let nblk = per / KL;
+            for &e in &real {
+                let w0 = e * nblk * super::kfield::KBLK;
+                super::kfield::k9_mul_fixed_add_par(kern, &mut p0c.d[w0..w0 + nblk * super::kfield::KBLK], &q0c.d[w0..w0 + nblk * super::kfield::KBLK], &kop(lay.lambda), nblk);
+            }
+        }
+        (p0c, p1c, q0c, q1c)
+    };
+    debug_assert_eq!(eq_cur.n, pl.n);
+    let degs = sc_degrees(n_bvars, lay.child_masked);
+    let mut rounds: Vec<Vec<KElem>> = Vec::with_capacity(n_bvars + 1);
+    let mut rs: Vec<KElem> = Vec::with_capacity(n_bvars + 1);
+    let mut g_prefix = lay.gm.a0.clone();
+    let g_tail = g_tail_ones(kf, lay.gm);
+    let mut corr_prefix = kf.one();
+    let mut scratch: Vec<u32> = Vec::new();
+    // Pad bookkeeping: the pad slices' constant table values (p0, p1,
+    // q0, q1), the bound-prefix eq factor F_t, and S_pad = sum_pads E(e).
+    let mut pad_vals = [kf.zero(), kf.zero(), kf.one(), kf.one()];
+    let mut f_t = kf.one();
+    let s_pad = pads.iter().fold(kf.zero(), |acc, &e| kf.add(&acc, &e_of(e)));
+    let mut materialized = !skip;
+    // p0 = PL - lambda*Q0 (exact), element i.
+    let p0_of = |pl: &super::kfield::KTab, q0: &super::kfield::KTab, i: usize| -> KElem {
+        kf.sub(&pl.get(i), &kf.mul(lay.lambda, &q0.get(i)))
+    };
+    for t in 0..=n_bvars {
+        let d = degs[t];
+        // Per-instance size at this round (b-rounds only), and whether the
+        // pad slices are still being skipped.
+        let per_t = if t < j { per >> t } else { 1 };
+        let skipping = skip && t < j && per_t >= 2 * KL;
+        if !materialized && !skipping {
+            // Materialize the pad slices (per_t elements each, per_t < 16):
+            // eq = F_t * eq(zeta[t..j], b) * E(e); tables = the constants.
+            let small: Vec<KElem> = eq_table(kf, &zeta[t..j]);
+            debug_assert_eq!(small.len(), per_t);
+            let plv = kf.add(&pad_vals[0], &kf.mul(lay.lambda, &pad_vals[2]));
+            for &e in &pads {
+                let ee = kf.mul(&f_t, &e_of(e));
+                for b in 0..per_t {
+                    let i = e * per_t + b;
+                    eq_cur.set(i, &kf.mul(&ee, &small[b]));
+                    pl.set(i, &plv);
+                    p1c.set(i, &pad_vals[1]);
+                    q0c.set(i, &pad_vals[2]);
+                    q1c.set(i, &pad_vals[3]);
+                }
+            }
+            materialized = true;
+        }
+        // The kernel's block ranges (source blocks of the current tables).
+        let ranges_blk: Vec<(usize, usize)> = if skipping {
+            let nb = per_t / KL;
+            real.iter().map(|&e| (e * nb, (e + 1) * nb)).collect()
+        } else {
+            vec![(0, eq_cur.n / KL)]
+        };
+        let evals: Vec<KElem> = if t == n_bvars {
+            let _t = prof::timer(prof::A_SCALAR_TAIL);
+            let p0 = p0_of(&pl, &q0c, 0);
+            masked_w_round_evals(
+                kf,
+                d,
+                t,
+                lay,
+                &p0,
+                &p1c.get(0),
+                &q0c.get(0),
+                &q1c.get(0),
+                &eq_cur.get(0),
+                &corr_prefix,
+                &g_prefix,
+            )
+        } else if eq_cur.n >= 2 * KL {
+            let masked_now = t == 0 && lay.child_masked;
+            let nodes: Vec<u64> = (0..=d as u64).filter(|&x| x != 1).collect();
+            // Per node: the child-mask add-constants (p0, p1, q0, q1) — zero
+            // unless masked_now.
+            let node_consts: Vec<[KElem; 4]> = nodes
+                .iter()
+                .map(|&x| {
+                    if masked_now {
+                        let xk = kf.embed(x);
+                        let zz = kf.mul(&xk, &kf.sub(&kf.one(), &xk));
+                        [
+                            kf.mul(&zz, &lay.spp[0]),
+                            kf.mul(&zz, &lay.spp[1]),
+                            kf.mul(&zz, &lay.spq[0]),
+                            kf.mul(&zz, &lay.spq[1]),
+                        ]
+                    } else {
+                        [kf.zero(), kf.zero(), kf.zero(), kf.zero()]
+                    }
+                })
+                .collect();
+            let consts: Option<Vec<[[u32; super::kfield::K_DEG]; 4]>> = if masked_now {
+                Some(
+                    node_consts
+                        .iter()
+                        .map(|c| {
+                            [
+                                kop(&kf.add(&c[0], &kf.mul(lay.lambda, &c[2]))),
+                                kop(&c[1]),
+                                kop(&c[2]),
+                                kop(&c[3]),
+                            ]
+                        })
+                        .collect(),
+                )
+            } else {
+                None
+            };
+            let mut acc_lo = vec![0u64; nodes.len() * 31 * KL];
+            let mut acc_hi = vec![0u64; nodes.len() * 31 * KL];
+            {
+                let _t = prof::timer(prof::A_ROUND_G);
+                for &(lo, hi) in &ranges_blk {
+                    let (w0, w1) = (lo * super::kfield::KBLK, hi * super::kfield::KBLK);
+                    k9_round_g5_par(
+                        kern,
+                        &eq_cur.d[w0..w1],
+                        &pl.d[w0..w1],
+                        &p1c.d[w0..w1],
+                        &q0c.d[w0..w1],
+                        &q1c.d[w0..w1],
+                        (hi - lo) / 2,
+                        &nodes,
+                        consts.as_deref(),
+                        &mut acc_lo,
+                        &mut acc_hi,
+                    );
+                }
+            }
+            let mut evals = vec![kf.zero(); d + 1];
+            for (ni, &x) in nodes.iter().enumerate() {
+                let xk = kf.embed(x);
+                let mut acc = kf.kt_round_g_finalize(
+                    &acc_lo[ni * 31 * KL..(ni + 1) * 31 * KL],
+                    &acc_hi[ni * 31 * KL..(ni + 1) * 31 * KL],
+                );
+                if skipping {
+                    // The pads' closed form: wire_pad(x) * F_t * eq(zeta_t, x) * S_pad.
+                    let c = &node_consts[ni];
+                    let vp0 = kf.add(&pad_vals[0], &c[0]);
+                    let vp1 = kf.add(&pad_vals[1], &c[1]);
+                    let vq0 = kf.add(&pad_vals[2], &c[2]);
+                    let vq1 = kf.add(&pad_vals[3], &c[3]);
+                    let wire = kf.add(
+                        &kf.add(&kf.mul(&vp0, &vq1), &kf.mul(&vp1, &vq0)),
+                        &kf.mul(lay.lambda, &kf.mul(&vq0, &vq1)),
+                    );
+                    let eqx = kf.add(
+                        &kf.mul(&kf.sub(&kf.one(), &zeta[t]), &kf.sub(&kf.one(), &xk)),
+                        &kf.mul(&zeta[t], &xk),
+                    );
+                    let pad_term = kf.mul(&wire, &kf.mul(&f_t, &kf.mul(&eqx, &s_pad)));
+                    acc = kf.add(&acc, &pad_term);
+                }
+                if let Some(cc) = lay.corr {
+                    let fx = kf.mul(&corr_prefix, &kf.sub(&kf.one(), &xk));
+                    acc = kf.add(&acc, &kf.mul(&fx, &kf.mul(&cc.e, &cc.cv0_plus_cv1)));
+                }
+                let gv = g_round_eval(kf, lay.gm, &g_prefix, t, &xk, &g_tail[t]);
+                acc = kf.add(&acc, &kf.mul(lay.nu, &gv));
+                evals[x as usize] = acc;
+            }
+            evals[1] = kf.sub(&c_run, &evals[0]);
+            evals
+        } else {
+            let _t = prof::timer(prof::A_SCALAR_TAIL);
+            debug_assert!(materialized);
+            let p0k: Vec<KElem> = (0..pl.n).map(|i| p0_of(&pl, &q0c, i)).collect();
+            masked_b_round_evals(
+                kf,
+                d,
+                t,
+                lay,
+                &eq_cur.to_kelems(),
+                &p0k,
+                &p1c.to_kelems(),
+                &q0c.to_kelems(),
+                &q1c.to_kelems(),
+                &corr_prefix,
+                &g_prefix,
+                &g_tail[t],
+            )
+        };
+        debug_assert_eq!(kf.add(&evals[0], &evals[1]), c_run, "honest fast round broke");
+        tr.absorb_k(kf, "mgkr-round", &evals);
+        let r = tr.challenge_k(kf);
+        c_run = lagrange_eval(kf, &evals, &r);
+        if t < n_bvars {
+            let _tf = prof::timer(prof::A_FOLD);
+            if skipping {
+                kf.kt_fold_par_ranges(&mut eq_cur, &mut scratch, &r, &ranges_blk);
+                kf.kt_fold_par_ranges(&mut pl, &mut scratch, &r, &ranges_blk);
+                kf.kt_fold_par_ranges(&mut p1c, &mut scratch, &r, &ranges_blk);
+                kf.kt_fold_par_ranges(&mut q0c, &mut scratch, &r, &ranges_blk);
+                kf.kt_fold_par_ranges(&mut q1c, &mut scratch, &r, &ranges_blk);
+            } else {
+                kf.kt_fold_par(&mut eq_cur, &mut scratch, &r);
+                kf.kt_fold_par(&mut pl, &mut scratch, &r);
+                kf.kt_fold_par(&mut p1c, &mut scratch, &r);
+                kf.kt_fold_par(&mut q0c, &mut scratch, &r);
+                kf.kt_fold_par(&mut q1c, &mut scratch, &r);
+            }
+            if t == 0 && lay.child_masked {
+                let zz = kf.mul(&r, &kf.sub(&kf.one(), &r));
+                let cp0 = kf.mul(&zz, &lay.spp[0]);
+                let cp1 = kf.mul(&zz, &lay.spp[1]);
+                let cq0 = kf.mul(&zz, &lay.spq[0]);
+                let cq1 = kf.mul(&zz, &lay.spq[1]);
+                let cpl = kf.add(&cp0, &kf.mul(lay.lambda, &cq0));
+                if skipping {
+                    // Real ranges of the FOLDED tables: half the source blocks.
+                    let nb = per_t / 2 / KL;
+                    for &e in &real {
+                        let (w0, w1) = (e * nb * super::kfield::KBLK, (e + 1) * nb * super::kfield::KBLK);
+                        super::kfield::k9_addc_par(kern, &mut pl.d[w0..w1], &kop(&cpl), nb);
+                        super::kfield::k9_addc_par(kern, &mut p1c.d[w0..w1], &kop(&cp1), nb);
+                        super::kfield::k9_addc_par(kern, &mut q0c.d[w0..w1], &kop(&cq0), nb);
+                        super::kfield::k9_addc_par(kern, &mut q1c.d[w0..w1], &kop(&cq1), nb);
+                    }
+                } else {
+                    kf.kt_addc(&mut pl, &cpl);
+                    kf.kt_addc(&mut p1c, &cp1);
+                    kf.kt_addc(&mut q0c, &cq0);
+                    kf.kt_addc(&mut q1c, &cq1);
+                }
+                // The pad slices shift by the same constants.
+                pad_vals = [
+                    kf.add(&pad_vals[0], &cp0),
+                    kf.add(&pad_vals[1], &cp1),
+                    kf.add(&pad_vals[2], &cq0),
+                    kf.add(&pad_vals[3], &cq1),
+                ];
+            }
+            if t < j {
+                // F_{t+1} = F_t * eq(zeta_t, r_t).
+                let eqr = kf.add(
+                    &kf.mul(&kf.sub(&kf.one(), &zeta[t]), &kf.sub(&kf.one(), &r)),
+                    &kf.mul(&zeta[t], &r),
+                );
+                f_t = kf.mul(&f_t, &eqr);
+            }
+            let mut gt_r = kf.zero();
+            let mut xp = r.clone();
+            for a in &lay.gm.uni[t] {
+                gt_r = kf.add(&gt_r, &kf.mul(a, &xp));
+                xp = kf.mul(&xp, &r);
+            }
+            g_prefix = kf.add(&g_prefix, &gt_r);
+            corr_prefix = kf.mul(&corr_prefix, &kf.sub(&kf.one(), &r));
+        }
+        rounds.push(evals);
+        rs.push(r);
+    }
+    let boundary = [p0_of(&pl, &q0c, 0), p1c.get(0), q0c.get(0), q1c.get(0)];
+    (rounds, rs, boundary)
+}
+
 /// Prove the masked descent for L same-shape trees (blinder-extended
 /// leaves included by the caller). The transcript must already bind
 /// the mask commitments (before alpha, upstream) and everything the
@@ -798,6 +1170,7 @@ pub fn masked_gkr_prove(
     // compile error, so there is no runtime flag to bypass by
     // reconstruction. Per-session freshness rests on the OS-entropy
     // `ProverRng` that drew the coefficients.
+    let _tp = prof::timer(prof::A_GKR_PROVE); // observation only
     let masks = &masks;
     let l = trees.len();
     assert!(l.is_power_of_two());
@@ -950,6 +1323,7 @@ pub fn masked_gkr_verify(
     tr: &mut LkpTranscript,
     pin: bool,
 ) -> Option<(Vec<[KElem; 2]>, DescentEnd)> {
+    let _tv = prof::timer(prof::A_GKR_VERIFY); // observation only
     if !l.is_power_of_two() || proof.layer1.len() != l || proof.layers.len() != depth - 1 {
         return None;
     }
@@ -1186,6 +1560,18 @@ pub fn blinded_witness_tree(
         let blp = blinder_positions(n);
         pos.iter().all(|p| !blp.contains(p))
     });
+    if kf.kern.is_some() && !super::eval_proof::oracle_mode() {
+        // [UPERF2-A] sparse packed build: the same leaf sequence without
+        // the boxed 2 x 2^depth Vec<u64> pair (bit-identical tree).
+        let (zero, one) = (kf.zero(), kf.one());
+        let honest = w_fused.iter().zip(pos.iter()).map(|(w, &i)| (i, one.clone(), kf.sub(alpha, w)));
+        let blp = blinder_positions(n);
+        let blinders = [&bl.tl, &bl.tr, &bl.f0, &bl.f1]
+            .into_iter()
+            .enumerate()
+            .map(|(k, b)| (blp[k], b.a.clone(), b.u.clone()));
+        return super::gkr::build_tree_sparse(kf, n, (&zero, &one), honest.chain(blinders));
+    }
     let mut p = vec![kf.zero(); n];
     let mut q = vec![kf.one(); n];
     for (w, &i) in w_fused.iter().zip(pos.iter()) {
@@ -1227,6 +1613,17 @@ pub fn blinded_table_tree(
         pos.iter().all(|p| *p < n && !blp.contains(p)),
         "table rows would collide with a blinder position"
     );
+    if kf.kern.is_some() && !super::eval_proof::oracle_mode() {
+        // [UPERF2-A] sparse packed build (bit-identical tree; see
+        // blinded_witness_tree).
+        let (zero, one) = (kf.zero(), kf.one());
+        let rows = tab_fused.iter().enumerate().map(|(j, t)| (pos[j], m[j].clone(), kf.sub(alpha, t)));
+        let blinders = [&bl.tl, &bl.tr, &bl.f0, &bl.f1]
+            .into_iter()
+            .enumerate()
+            .map(|(k, b)| (blp[k], b.a.clone(), b.u.clone()));
+        return super::gkr::build_tree_sparse(kf, n, (&zero, &one), rows.chain(blinders));
+    }
     let mut p = vec![kf.zero(); n];
     let mut q = vec![kf.one(); n];
     for (j, t) in tab_fused.iter().enumerate() {
