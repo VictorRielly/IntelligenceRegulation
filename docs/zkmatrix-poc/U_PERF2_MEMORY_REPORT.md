@@ -225,7 +225,11 @@ the claim layer's packed tables ~5.8 GB (transient), the nrw-88 pair
   statement digest 93a987002a7c4b60c3dfbfc62b7a4f0e5957d8ae2039014ff241e323285fb790,
   985,142 B, EVAL-PROOF DIGEST 0ae9cdae66607239a80cc1f1dea36248370edadbe85214144aee7a5250d975be
   at ZK_THREADS 1 and 8 after EVERY step (item 1, item 2, item 3, the
-  levers; 12 runs); `uperf-pc full-profile 12 64` at ZK_THREADS 8 —
+  levers; 12 runs) AND under `ZK_UPERF_ORACLE=1` at 1T with the final
+  binary (every lane's oracle incl. this lane's materialized-phi branch
+  and the boxed-reference digit witness packed into the flat store:
+  accept, same digests, 597.3 s = 41.2 / 414.8 / 141.2, peak 1,640 MiB —
+  the oracle path materializes Phi_0); `uperf-pc full-profile 12 64` at ZK_THREADS 8 —
   accept = true, statement digest 80763ea537e77cd9cb5c538397af2622044447d654b8e9a34cae3ccad8f3f115,
   1,308,775 B, EVAL-PROOF DIGEST 63f4a3a4320a47260ab8ae3d52cfa3656b626fc367af671c6c317300454dec89
   on all five variants (items 1-3; + regen; + regen + no-memo; + trim; the

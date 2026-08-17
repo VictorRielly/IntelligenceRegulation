@@ -577,7 +577,8 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
     the merge-DE capture); freeze-check 98 rows identical to the
     pre-change capture; `pass-agg battery` 14/14, `table-descent battery
     small` 5/5, `t-blind battery` 11/11 (real data); the REAL 3x16 rig at
-    1T and 8T (93a98700.., 985,142 B, 0ae9cdae..) after every step and
+    1T and 8T (93a98700.., 985,142 B, 0ae9cdae..) after every step, ONCE
+    under `ZK_UPERF_ORACLE=1` at 1T (597.3 s, same digests, accept), and
     the REAL 12x64 rig at 8T (80763ea5.., 63f4a3a4..) on five knob
     variants.
   - Merge notes for the orchestrator: (a) the ONE edit outside the
