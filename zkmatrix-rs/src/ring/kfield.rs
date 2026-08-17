@@ -1878,6 +1878,28 @@ pub fn harness_mul_elem_reps(
     cur.to_kelems()
 }
 
+// ---------------------------------------------------------------------------
+// [UPERF2-G] Fusion knob: the fused descent kernels (fold-into-next-round +
+// extract-into-round-0) are ON by default; `ZK_UPERF_G_NOFUSE=1` (or the
+// in-process `k9_set_fuse_off(true)`) runs the same rounds loop with every
+// fold applied eagerly — lane A's HEAD kernel loop — for the one-binary
+// A/B. `oracle_mode()` still routes to the pre-change `_ref` bodies.
+
+static K9_FUSE_OFF: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+static K9_FUSE_ENV_OFF: std::sync::LazyLock<bool> =
+    std::sync::LazyLock::new(|| std::env::var("ZK_UPERF_G_NOFUSE").map(|v| v == "1").unwrap_or(false));
+
+/// Are the fused descent kernels enabled?
+pub fn k9_fuse_enabled() -> bool {
+    !*K9_FUSE_ENV_OFF && !K9_FUSE_OFF.load(std::sync::atomic::Ordering::Relaxed)
+}
+
+/// Battery/bench: disable (true) / re-enable (false) the fused kernels in
+/// process; the env override wins when set.
+pub fn k9_set_fuse_off(off: bool) {
+    K9_FUSE_OFF.store(off, std::sync::atomic::Ordering::Relaxed);
+}
+
 /// LKP-5: the digest freezing the slot-field constants — q, k,
 /// slot_deg and every slot root. Any parameter move that changes the
 /// field the lookup transcript lives in must trip this row.

@@ -472,7 +472,39 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent G status (wt-uperf2-g)
 
-- (lane launches here)
+- 2026-08-17 PLAN COMMIT (lane G, branch uperf2-g at f512ba1). Files:
+  gkr_masked.rs / gkr.rs / kfield.rs / descent_fold.rs (extend), a
+  `// [UPERF2-G]` bin section with `uperf-g {descent-battery, bench}`,
+  docs/zkmatrix-poc/U_PERF2_DESCENT3_REPORT.md. Baselines captured
+  BEFORE any code change from the untouched build (scratchpad
+  g_freeze_baseline.txt: 98 `ok` rows identical to lane F's capture;
+  `uperf-a descent-bench 20 8 5 9`: 1T prove 8.12 s (round-g 3.66, fold
+  2.54, extract 1.22, eq 0.67), trees 1.63 s; 8T prove 2.24 s (round-g
+  0.93, fold 0.89, extract 0.21, eq 0.19), trees 0.39 s, DESCENT DIGEST
+  47a58a27..; descent-battery 18/18, BATTERY DIGEST f936ff79..). Plan,
+  in order:
+  1. Fold-into-next-round fusion in the packed descent kernel: round
+     t+1's kernel folds the five state-t tables on the fly (state t+1
+     written IN PLACE with a rung-ordered schedule — output pair-block
+     range [A, 2A) reads [4A, 8A) and writes [2A, 4A), so rungs run
+     smallest-first, each fully parallel; a 64-pair-block prefix goes
+     through a tiny scratch) — 1.5 x table bytes per round instead of
+     2.5 x, no S/2 fold scratch. Extract fusion: rounds 0 and 1 read the
+     tree layer j+1 directly (deinterleave + PL = p0 + lambda q0 on the
+     fly), the first materialized work tables are state 1 (memory 5.5 S
+     -> 3 S per layer). Same canonical arithmetic per element, exact
+     integer node planes -> transcript-identical; `masked_rounds_bulk_ref`
+     stays the oracle; `ZK_UPERF_G_NOFUSE=1` (and an in-process flag)
+     runs the same loop with eager folds (lane A's HEAD path) for A/B.
+  2. Table arena: KTab buffers of the work tables / tree layers recycled
+     through a per-thread-safe free list (no fresh calloc + page faults
+     + memset per tree/layer), measured on the bench + rigs.
+  3. Thread scaling of round-g/fold/tree-step: chunk sizes, job
+     granularity, false sharing of the per-chunk planes.
+  4. `uperf-g descent-battery` (scalar == ref == fast-nofuse == fast-fused,
+     verified, at 1/2/7T) + report + gates (uperf-a descent-battery,
+     descent-bench digest, uperf-pc diff-battery, freeze rows, self-test,
+     the REAL 3x16 rig 1T/8T + 12x64 8T).
 
 ## Agent D status (wt-uperf2-d)
 

@@ -6408,6 +6408,8 @@ fn main() {
         Some("uperf-d") => uperf_d_main(&args[1..]),
         // [UPERF2-E] U-PERF2 lane E (descent callers / descent verify / small-cols aux) battery + bench.
         Some("uperf-e") => uperf_e_main(&args[1..]),
+        // [UPERF2-G] U-PERF2 lane G (descents round 2: fold/extract fusion, arena, threads) battery + bench.
+        Some("uperf-g") => uperf_g_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -37533,4 +37535,146 @@ fn uperf_e_bench(rows: usize, cols: usize, n_k: usize) {
         s_fast * 1e6 / n0 as f64,
         s_orc / s_fast
     );
+}
+
+// [UPERF2-G] U-PERF2 lane G — descents, round 2: fold-into-next-round +
+// extract fusion in the packed masked-descent kernel (kfield.rs
+// `k9_fused_round_par`, gkr_masked.rs `masked_rounds_bulk`), the packed
+// table arena (kfield.rs `KTab` recycling), thread-scaling knobs. ADDITIVE
+// section — no shipped path is changed here. Commands:
+//   uperf-g descent-battery — lane A's fixed-seed descent pairs proven FOUR
+//     ways in one process: boxed scalar oracle == bulk-ref (oracle_mode) ==
+//     bulk-fast with fusion OFF (lane A's HEAD kernel loop) == bulk-fast
+//     with fusion ON; every proof verified; a BATTERY DIGEST for the
+//     ZK_THREADS 1/2/7 comparison.
+//   uperf-g bench <depth> <l> [n_real] [dt] — the depth-20 descent bench with
+//     fusion OFF then ON in one process (the one-binary A/B of item 1).
+
+fn uperf_g_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("descent-battery") => uperf_g_descent_battery(),
+        Some("bench") => {
+            let depth: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(16);
+            let l: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(4);
+            let n_real: usize = args
+                .get(3)
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(if l >= 2 { l - 1 } else { 1 });
+            let dt: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(9);
+            uperf_g_bench(depth, l, n_real, dt);
+        }
+        _ => println!("uperf-g descent-battery | bench <depth> <l> [n_real] [dt]"),
+    }
+}
+
+/// [UPERF2-G] `uperf-g descent-battery`: lane A's shapes, four ways
+/// (scalar oracle, bulk-ref, fast-nofuse, fast-fused), all verified.
+fn uperf_g_descent_battery() {
+    use ring::eval_proof::set_oracle_mode;
+    use ring::kfield::{KField, k9_set_fuse_off};
+    use sha2::Digest;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let kfo = KField::harness_scalar(&ctx);
+    println!(
+        "[UPERF2-G] descent-battery: scalar-boxed oracle == bulk-ref (oracle_mode) == bulk-fast NOFUSE == bulk-fast FUSED, all verified with pins; ZK_THREADS {}",
+        ring::eval_proof::threads()
+    );
+    let shapes: [(usize, usize, usize, usize); 11] = [
+        (4, 1, 1, 4),
+        (8, 2, 1, 6),
+        (8, 2, 2, 7),
+        (12, 8, 5, 9),
+        (12, 2, 2, 8),
+        (10, 4, 3, 6),
+        (13, 8, 3, 8),
+        (14, 4, 3, 9),
+        (12, 16, 12, 9),
+        (15, 2, 2, 5),
+        (11, 16, 9, 10),
+    ];
+    let mut all = sha2::Sha256::new();
+    let mut legs = 0usize;
+    for (depth, l, n_real, dt) in shapes {
+        for zero_mask in [false, true] {
+            let seed = 0xB0u8 ^ (depth as u8) ^ ((l as u8) << 4) ^ (zero_mask as u8);
+            let scalar = uperf_a_descent_pair(&kfo, depth, l, n_real, dt, zero_mask, seed, true);
+            set_oracle_mode(true);
+            let bref = uperf_a_descent_pair(&kf, depth, l, n_real, dt, zero_mask, seed, true);
+            set_oracle_mode(false);
+            k9_set_fuse_off(true);
+            let nofuse = uperf_a_descent_pair(&kf, depth, l, n_real, dt, zero_mask, seed, true);
+            k9_set_fuse_off(false);
+            let fused = uperf_a_descent_pair(&kf, depth, l, n_real, dt, zero_mask, seed, true);
+            let same = scalar.digest == bref.digest && bref.digest == nofuse.digest && nofuse.digest == fused.digest;
+            let ok = same && scalar.verified && bref.verified && nofuse.verified && fused.verified;
+            println!(
+                "  {} depth {depth:>2} x l {l:>2} (n_real {n_real:>2}, dt {dt}, {}masks): scalar {} | ref {} | nofuse {} | fused {} | verified {}/{}/{}/{} | nofuse {:.3}s fused {:.3}s",
+                if ok { "ok  " } else { "FAIL" },
+                if zero_mask { "zero " } else { "" },
+                &hex_full(&scalar.digest)[..12],
+                &hex_full(&bref.digest)[..12],
+                &hex_full(&nofuse.digest)[..12],
+                &hex_full(&fused.digest)[..12],
+                scalar.verified,
+                bref.verified,
+                nofuse.verified,
+                fused.verified,
+                nofuse.prove_s,
+                fused.prove_s
+            );
+            assert!(ok, "[UPERF2-G] descent-battery FAILED at depth {depth} l {l} zero_mask {zero_mask}");
+            all.update(fused.digest);
+            legs += 1;
+        }
+    }
+    let d: [u8; 32] = all.finalize().into();
+    println!("[UPERF2-G] descent-battery: {legs}/{legs} legs identical (four ways) and verified");
+    println!("[UPERF2-G] BATTERY DIGEST {}", hex_full(&d));
+}
+
+/// [UPERF2-G] `uperf-g bench <depth> <l> [n_real] [dt]`: the descent bench
+/// with fusion OFF then ON, same process, digests compared.
+fn uperf_g_bench(depth: usize, l: usize, n_real: usize, dt: usize) {
+    use ring::ct_engine::prof;
+    use ring::kfield::{KField, k9_set_fuse_off};
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let leaves = (l as f64) * (1u64 << depth) as f64;
+    println!(
+        "[UPERF2-G] bench: depth {depth} x l {l} (n_real {n_real}, pads {}), table dt {dt}, {:.1}M witness leaf elements; ZK_THREADS {} | oracle {}",
+        l - n_real,
+        leaves / 1e6,
+        ring::eval_proof::threads(),
+        ring::eval_proof::oracle_mode()
+    );
+    let mut digests = Vec::new();
+    for fuse in [false, true] {
+        k9_set_fuse_off(!fuse);
+        prof::reset();
+        prof::enable(true, false);
+        let t0 = Instant::now();
+        let out = uperf_a_descent_pair(&kf, depth, l, n_real, dt, false, 0xA1, true);
+        let wall = t0.elapsed().as_secs_f64();
+        prof::enable(false, false);
+        println!(
+            "[UPERF2-G] fusion {}: wall {wall:.2}s | trees {:.2}s | masked_gkr_prove {:.2}s ({:.1} ns per witness leaf element) | verified {} | peak RSS {:.0} MiB",
+            if fuse { "ON " } else { "OFF" },
+            out.trees_s,
+            out.prove_s,
+            out.prove_s * 1e9 / leaves,
+            out.verified,
+            uperf_a_peak_rss_mib()
+        );
+        for (name, secs, calls) in prof::report() {
+            if name.starts_with("a.") && (calls > 0 || secs > 0.0) {
+                println!("    {name:<20} {secs:>9.3}s  x{calls}");
+            }
+        }
+        println!("[UPERF2-G] DESCENT DIGEST {}", hex_full(&out.digest));
+        digests.push(out.digest);
+    }
+    k9_set_fuse_off(false);
+    assert_eq!(digests[0], digests[1], "[UPERF2-G] bench: fused digest != unfused");
+    println!("[UPERF2-G] bench: fused == unfused digest");
 }
