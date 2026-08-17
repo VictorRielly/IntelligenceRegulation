@@ -237,7 +237,57 @@ main worktree's binary built at 213dfa2 (code-identical to c46483a) —
    freeze-check 98 rows == baseline.
 5. Report + this section.
 
-STATUS: (updated as steps land)
+STATUS (2026-08-17, HEAD of uperf2-a; report:
+docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
+
+- LANDED, all transcript-identical (descent digest 47a58a27..dafefb at
+  depth 20 x 8 identical oracle vs fast and at ZK_THREADS
+  1/2/4/6/8/12/16/22; battery 18/18 three-way identical at 1/2/7):
+  1. `uperf-a descent-bench` (bk_pass_run's descent phase mirrored:
+     aligned_witness_tree x n_real + neutral_tree pads + masks +
+     masked_gkr_prove + the table side + verify with pins; a.* prof
+     phases; DESCENT DIGEST; peak RSS) and `uperf-a descent-battery`.
+  2. (a) five-table round kernel PL := p0 + lambda*q0 (`round_g5_body`)
+     + block-copy extract: depth 20 x 8 prove 15.72 -> 12.82 s [WSL 1T
+     NOISY-SHARED] (round-g -18%, fold -20%, extract -26%).
+  3. (b) deterministic ZK_THREADS over block ranges in every packed
+     descent kernel (round kernel: per-chunk exact-integer lazy planes
+     summed in index order; out-of-place scratch folds; eq doubling;
+     extract; tree steps; pack): 12.82 -> 3.37 s at 8T; saturates at
+     ~4x by 6-8 threads on this hybrid WSL box (round-g 4.0x, fold
+     2.7x) — the Mac's ~9x is the expectation (T1 must measure).
+  4. (c) neutral pads never materialized nor computed:
+     `FracTree::Neutral` (from build_tree/build_tree_sparse; every
+     accessor answers as the full tree), kernels over the real
+     instances' block ranges, the pads' round share in closed form
+     (wire_pad(x) * F_t * eq(zeta_t, x) * sum_pads E(e)), pads
+     materialized once per-instance size < 2 blocks; eq table as
+     b-part x E(e) per real slice. 12.82 -> 7.59 s at 1T (2.07x vs the
+     pre-change), 2.2-2.4 s at 8T (6.6-7.2x); bench peak RSS 3,589 ->
+     2,419 MiB (T9: at the rig -11 GB of pad layers and ~-3 GB of
+     untouched work-table pages at the peak pair).
+  5. (d) sparse packed builders for blinded_witness_tree /
+     blinded_table_tree; deferred boxed-leaf drop in build_tree at
+     threads > 1; `gkr::build_neutral_tree` + `gkr::build_tree_sparse`
+     offered as drop-ins for descent_fold.rs (not this lane's file).
+  6. Gates at HEAD: self-test green, bh-verifier battery green,
+     uperf-pc diff-battery green (O1/O2/O3/O5/E2E), freeze-check 98
+     rows identical to the pre-change capture (then the expected BF
+     panic).
+- Extrapolation (linear in real leaf elements, box rates): the rig's
+  witness-descent prove ~409 s pre-change -> ~249 s (1T) -> ~71 s (8T
+  on this box) — the rig itself does not fit here (depth 22 x 16 =
+  16 GB of trees + 12 GB of tables on the pre-change path).
+- NOT landed / left: the caller-side boxed-leaf churn of
+  aligned_witness_tree/neutral_tree in descent_fold.rs (now the largest
+  term of the pair at 8T: trees 1.5 of 4.8 s wall at depth 20 x 8 —
+  drop-ins provided, one-line change for the file's owner); the
+  fold-into-next-round fusion (-40% table traffic on the memory-bound
+  share; design note in the report); extract fusion into round 0
+  (~12% at 1T); the "36 s descents verify" of the rig is NOT in
+  masked_gkr_verify (3-5 ms per pair here) — it sits in the claim
+  builders around it.
+- Every number [WSL-BOX NOISY-SHARED] (lane C built/ran throughout).
 
 ## Agent C status (wt-uperf2-c)
 

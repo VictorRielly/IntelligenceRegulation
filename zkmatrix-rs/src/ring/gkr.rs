@@ -170,16 +170,50 @@ pub fn build_tree(kf: &KField, leaf_p: Vec<KElem>, leaf_q: Vec<KElem>) -> FracTr
     }
     // Pack and DROP the boxed leaves one side at a time (H-03: the boxed
     // form is ~2.7x the packed size; never hold both sides twice).
-    // [UPERF2-A] the pack is threaded (positional) on the fast path.
+    // [UPERF2-A] the pack is threaded (positional) on the fast path, and
+    // with ZK_THREADS > 1 the 2^depth small frees of each boxed side run
+    // on a detached thread, off the build's critical path (values are
+    // untouched; at 1 thread the drop stays inline).
     let pack = |v: &[KElem]| -> KTab {
         let _t = prof::timer(prof::A_TREE_PACK);
         if oracle { KTab::from_kelems(v) } else { super::kfield::k9_pack_par(v) }
     };
     let leaf_p_t = pack(&leaf_p);
-    drop(leaf_p);
+    drop_boxed_leaves(leaf_p, oracle);
     let leaf_q_t = pack(&leaf_q);
-    drop(leaf_q);
+    drop_boxed_leaves(leaf_q, oracle);
     build_tree_packed(kf, leaf_p_t, leaf_q_t)
+}
+
+/// [UPERF2-A] Drop a boxed leaf vector: inline (the pre-change
+/// behavior) at ZK_THREADS 1 or under the oracle routing, on a detached
+/// thread otherwise (2^22 frees are ~0.3 s at rig depth, per side).
+fn drop_boxed_leaves(v: Vec<KElem>, oracle: bool) {
+    if oracle || super::kfield::k9_threads() <= 1 {
+        drop(v);
+    } else {
+        std::thread::spawn(move || drop(v));
+    }
+}
+
+/// [UPERF2-A] The compact all-neutral tree of `depth` (every leaf (0, 1)):
+/// no layer is materialized on the packed path — the fast descents skip
+/// its instance slices analytically — and the scalar-oracle field gets
+/// the boxed tree, so this is a drop-in for `descent_fold::neutral_tree`
+/// (which allocates 2 x 2^depth boxed leaves before build_tree detects
+/// the same thing). Bit-identical trees either way.
+pub fn build_neutral_tree(kf: &KField, depth: usize) -> FracTree {
+    let n = 1usize << depth;
+    if kf.kern.is_none() || super::eval_proof::oracle_mode() {
+        let one = {
+            let mut e = vec![0u64; super::kfield::K_DEG];
+            e[0] = 1;
+            e
+        };
+        return build_tree(kf, vec![vec![0u64; super::kfield::K_DEG]; n], vec![one; n]);
+    }
+    assert!(super::kfield::k9_capacity_ok(n), "K9 projective tree exceeds the audited packed-table cap");
+    FracTree { repr: TreeRepr::Neutral { depth } }
 }
 
 /// [UPERF2-A] Build a packed tree from a DEFAULT leaf pair plus sparse
