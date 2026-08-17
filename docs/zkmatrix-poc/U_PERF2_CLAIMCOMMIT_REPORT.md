@@ -1,7 +1,7 @@
 # U-PERF2 lane D — the claim layer (packed ixf sumcheck prover) + the commit phase (chain GEMM, digit witnesses, instance tables)
 
 Status: CLOSED 2026-08-17 (all five deliverables landed; commits 2da5dd4,
-7df526b, e2f349c + the report/ledger commit on uperf2-d). Written by lane
+7df526b, e2f349c, 07b5817, 762c301 on uperf2-d). Written by lane
 D of the U-PERF2 round 3 (ledger: PROGRESS_UPERF2.md "Lane D — CLAIM
 LAYER + COMMIT PHASE" + "Agent D status"). Worktree /home/victor/
 wt-uperf2-d, branch uperf2-d, opened at d3a4602. Box: the WSL box (Intel
