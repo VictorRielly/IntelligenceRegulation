@@ -35266,8 +35266,105 @@ fn uperf_c_main(args: &[String]) {
             let with_ref = args.get(3).map(String::as_str) != Some("noref");
             uperf_c_bench(r, chunk, with_ref);
         }
-        _ => println!("uperf-c diff-battery | bench [r] [chunk] [noref]"),
+        Some("ntt-bench") => {
+            let n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(200_000);
+            uperf_c_ntt_bench(n);
+        }
+        _ => println!("uperf-c diff-battery | bench [r] [chunk] [noref] | ntt-bench [n]"),
     }
+}
+
+/// [UPERF2-C] The primitive costs the lane's kernels are built on: one
+/// length-128 Goldilocks forward / inverse transform, one 128-coefficient
+/// split-halves MAC, one `poly_mul_small`, one `ring_mul_split_kara_fast`
+/// (general x general and general x small) — us each, 1T, on n rings.
+fn uperf_c_ntt_bench(n: usize) {
+    use ring::aux::{lift_to_p, ntt_fwd, ntt_inv};
+    let ctx = ring_ctx_q8();
+    let q = ctx.zq.q;
+    let zq = &ctx.zq;
+    let t = aux::build_tables();
+    let mut rd = XofReader::new("uperf-c-nttbench", &[&(n as u64).to_le_bytes()]);
+    println!("[UPERF2-C] ntt-bench: {n} rings, q31, 1T [{}]", std::env::consts::OS);
+    let rings: Vec<[u64; D]> = (0..n)
+        .map(|_| {
+            let mut a = [0u64; D];
+            for x in a.iter_mut() {
+                *x = lift_to_p(rd.next_field(q) as i64 - (q / 2) as i64);
+            }
+            a
+        })
+        .collect();
+    let mut work = rings.clone();
+    let t0 = Instant::now();
+    for a in work.iter_mut() {
+        ntt_fwd(a, &t);
+    }
+    let s = t0.elapsed().as_secs_f64();
+    println!("  ntt_fwd            : {:.3} us/ring", s * 1e6 / n as f64);
+    // The branchless transform: identical values, then its own timing.
+    let mut work2 = rings.clone();
+    let t0 = Instant::now();
+    for a in work2.iter_mut() {
+        ring::aux::ntt_fwd_fast(a, &t);
+    }
+    let s = t0.elapsed().as_secs_f64();
+    println!("  ntt_fwd_fast       : {:.3} us/ring", s * 1e6 / n as f64);
+    assert_eq!(work2, work, "ntt_fwd_fast != ntt_fwd");
+    let t0 = Instant::now();
+    for a in work.iter_mut() {
+        ntt_inv(a, &t);
+    }
+    let s = t0.elapsed().as_secs_f64();
+    println!("  ntt_inv            : {:.3} us/ring", s * 1e6 / n as f64);
+    assert_eq!(work, rings, "ntt round trip");
+    let t0 = Instant::now();
+    for a in work2.iter_mut() {
+        ring::aux::ntt_inv_fast(a, &t);
+    }
+    let s = t0.elapsed().as_secs_f64();
+    println!("  ntt_inv_fast       : {:.3} us/ring", s * 1e6 / n as f64);
+    assert_eq!(work2, rings, "ntt_inv_fast round trip");
+    // Split-halves MAC of n rings against one fixed ring.
+    let mut acc_lo = [0u128; D];
+    let mut acc_hi = [0u128; D];
+    let t0 = Instant::now();
+    for a in &rings {
+        for k in 0..D {
+            let prod = a[k] as u128 * rings[0][k] as u128;
+            acc_lo[k] += prod as u64 as u128;
+            acc_hi[k] += (prod >> 64) as u128;
+        }
+    }
+    let s = t0.elapsed().as_secs_f64();
+    println!("  mac(128, split)    : {:.3} us/ring  (checksum {})", s * 1e6 / n as f64, acc_lo[7].wrapping_add(acc_hi[9]) as u64 % 1000);
+    // poly_mul_small on quinary x digits.
+    let m = n.min(20_000);
+    let cs: Vec<Vec<i64>> = (0..m).map(|_| rd.next_challenge()).collect();
+    let ws: Vec<Vec<i64>> = (0..m).map(|_| uperf_c_rand_digits(&mut rd, 5, false)).collect();
+    let t0 = Instant::now();
+    let mut chk = 0i64;
+    for i in 0..m {
+        chk = chk.wrapping_add(poly_mul_small(&cs[i], &ws[i])[3]);
+    }
+    let s = t0.elapsed().as_secs_f64();
+    println!("  poly_mul_small     : {:.3} us/product ({m} products; checksum {chk})", s * 1e6 / m as f64);
+    // Karatsuba general x general and general x small.
+    let gs: Vec<Poly> = (0..m).map(|_| uperf_c_rand_modq(&mut rd, q, false)).collect();
+    let t0 = Instant::now();
+    let mut chk = 0u64;
+    for i in 0..m {
+        chk = chk.wrapping_add(ring_mul_split_kara_fast(&ctx, &gs[i], &gs[(i + 1) % m])[5]);
+    }
+    let s = t0.elapsed().as_secs_f64();
+    println!("  kara general x gen : {:.3} us/product (checksum {chk})", s * 1e6 / m as f64);
+    let t0 = Instant::now();
+    let mut chk = 0u64;
+    for i in 0..m {
+        chk = chk.wrapping_add(ring_mul_split_kara_fast(&ctx, &gs[i], &poly_from_small(zq, &cs[i]))[5]);
+    }
+    let s = t0.elapsed().as_secs_f64();
+    println!("  kara general x small: {:.3} us/product (checksum {chk})", s * 1e6 / m as f64);
 }
 
 /// Adversarial mod-q ring for the lane's legs: uniform with planted
@@ -35332,6 +35429,58 @@ fn uperf_c_diff_battery() {
     println!("[UPERF2-C] ZK_THREADS = {}", ring::eval_proof::threads());
     let ctx31 = ring_ctx_q8();
     let ctx46 = ring::ring_ctx(ring::Q8_46, ring::ETA8_46, 8);
+
+    // ---- The branchless Goldilocks primitives == the originals (values). ----
+    {
+        use ring::aux::{add_p, gl_add, gl_mul, gl_reduce128, gl_sub, mul_p, ntt_fwd, ntt_fwd_fast, ntt_inv, ntt_inv_fast, reduce128, sub_p, EPS, P};
+        let mut rd = XofReader::new("uperf-c-gl", &[]);
+        let plant: [u64; 12] = [0, 1, 2, EPS - 1, EPS, EPS + 1, 1 << 32, 1 << 63, P - 2, P - 1, P / 2, P / 2 + 1];
+        let mut vals: Vec<u64> = plant.to_vec();
+        for _ in 0..2000 {
+            vals.push(rd.next_field(P));
+        }
+        for &a in &vals {
+            for &b in plant.iter().chain(vals.iter().step_by(97)) {
+                assert_eq!(gl_add(a, b), add_p(a, b), "gl_add {a} {b}");
+                assert_eq!(gl_sub(a, b), sub_p(a, b), "gl_sub {a} {b}");
+                assert_eq!(gl_mul(a, b), mul_p(a, b), "gl_mul {a} {b}");
+            }
+        }
+        // reduce128 on planted extremes of both halves and random u128s.
+        let halves: [u64; 8] = [0, 1, EPS, EPS + 1, 1 << 32, u64::MAX - 1, u64::MAX, P];
+        for &lo in &halves {
+            for &hi in &halves {
+                let x = (hi as u128) << 64 | lo as u128;
+                assert_eq!(gl_reduce128(x), reduce128(x), "gl_reduce128 {x}");
+            }
+        }
+        for _ in 0..20000 {
+            let x = (rd.next_u64() as u128) << 64 | rd.next_u64() as u128;
+            assert_eq!(gl_reduce128(x), reduce128(x), "gl_reduce128 {x}");
+        }
+        let t = aux::build_tables();
+        let mut rings: Vec<[u64; D]> = vec![[0u64; D], [P - 1; D], [1; D], [EPS; D]];
+        for _ in 0..500 {
+            let mut a = [0u64; D];
+            for x in a.iter_mut() {
+                *x = rd.next_field(P);
+            }
+            rings.push(a);
+        }
+        for a in &rings {
+            let (mut f1, mut f2) = (*a, *a);
+            ntt_fwd(&mut f1, &t);
+            ntt_fwd_fast(&mut f2, &t);
+            assert_eq!(f1, f2, "ntt_fwd_fast != ntt_fwd");
+            let (mut i1, mut i2) = (*a, *a);
+            ntt_inv(&mut i1, &t);
+            ntt_inv_fast(&mut i2, &t);
+            assert_eq!(i1, i2, "ntt_inv_fast != ntt_inv");
+            ntt_inv_fast(&mut f2, &t);
+            assert_eq!(&f2, a, "fast round trip");
+        }
+        println!("[UPERF2-C] GL primitives: gl_add/sub/mul/reduce128 == add_p/sub_p/mul_p/reduce128 (planted extremes + random), ntt_fwd_fast/ntt_inv_fast == ntt_fwd/ntt_inv ({} rings incl. extremes)", rings.len());
+    }
 
     // ---- T7: the fold kernel. ----
     let mut n_fold = 0usize;

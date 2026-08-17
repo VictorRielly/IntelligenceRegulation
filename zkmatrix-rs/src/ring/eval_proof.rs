@@ -864,7 +864,7 @@ pub fn ntt_window_terms(q: u64, s_max: u128) -> usize {
 /// note above. `a[ia].len() == b[ib].len() == len` for every slice.
 pub fn ntt_gemm_modq_small(ctx: &RingCtx, a: &[&[Poly]], b: &[&[Vec<i64>]], len: usize) -> Vec<Poly> {
     use super::aux::{
-        balanced_mod_q, center_from_p, lift_to_p, mod_q_centered, ntt_fwd, ntt_inv, reduce128, EPS,
+        balanced_mod_q, center_from_p, gl_reduce128, lift_to_p, mod_q_centered, ntt_fwd_fast, ntt_inv_fast, EPS,
     };
     let zq = &ctx.zq;
     let q = zq.q;
@@ -954,7 +954,7 @@ pub fn ntt_gemm_modq_small(ctx: &RingCtx, a: &[&[Poly]], b: &[&[Vec<i64>]], len:
                             out[i] = lift_to_p(ring[i]);
                         }
                     }
-                    ntt_fwd(out, t);
+                    ntt_fwd_fast(out, t); // [UPERF2-C] branchless transform, identical values
                 };
                 if threads() > 1 {
                     fa_rings.par_iter_mut().enumerate().for_each(|(slot, o)| work(slot, o));
@@ -1023,9 +1023,9 @@ pub fn ntt_gemm_modq_small(ctx: &RingCtx, a: &[&[Poly]], b: &[&[Vec<i64>]], len:
                 let mut v = [0u64; D];
                 for tt in 0..D {
                     let idx = (tt * na + ia) * nb + ib;
-                    v[tt] = reduce128(acc_lo[idx] + EPS as u128 * acc_hi[idx]);
+                    v[tt] = gl_reduce128(acc_lo[idx] + EPS as u128 * acc_hi[idx]);
                 }
-                ntt_inv(&mut v, t);
+                ntt_inv_fast(&mut v, t); // [UPERF2-C]
                 for tt in 0..D {
                     let c = mod_q_centered(center_from_p(v[tt]), q);
                     o[tt] = zq.add(o[tt], c);
@@ -2576,7 +2576,7 @@ fn fwd_small(ring: &[i64], t: &super::aux::NttTables) -> [u64; D] {
     for i in 0..D {
         f[i] = super::aux::lift_to_p(ring[i]);
     }
-    super::aux::ntt_fwd(&mut f, t);
+    super::aux::ntt_fwd_fast(&mut f, t);
     f
 }
 
@@ -2587,7 +2587,7 @@ fn fwd_modq(ring: &[u64], q: u64, t: &super::aux::NttTables) -> [u64; D] {
     for i in 0..D {
         f[i] = super::aux::lift_to_p(super::aux::balanced_mod_q(ring[i], q));
     }
-    super::aux::ntt_fwd(&mut f, t);
+    super::aux::ntt_fwd_fast(&mut f, t);
     f
 }
 
@@ -2595,7 +2595,7 @@ fn fwd_modq(ring: &[u64], q: u64, t: &super::aux::NttTables) -> [u64; D] {
 /// [lo, hi, lo + hi] (the mid transform by linearity, in-domain).
 #[inline]
 fn fwd_modq_limbs(ring: &[u64], q: u64, l: u32, t: &super::aux::NttTables) -> [[u64; D]; 3] {
-    use super::aux::{add_p, balanced_mod_q, lift_to_p, ntt_fwd, split_limbs};
+    use super::aux::{balanced_mod_q, gl_add, lift_to_p, ntt_fwd_fast, split_limbs};
     let mut lo = [0u64; D];
     let mut hi = [0u64; D];
     let mut mid = [0u64; D];
@@ -2604,10 +2604,10 @@ fn fwd_modq_limbs(ring: &[u64], q: u64, l: u32, t: &super::aux::NttTables) -> [[
         lo[i] = lift_to_p(lv);
         hi[i] = lift_to_p(hv);
     }
-    ntt_fwd(&mut lo, t);
-    ntt_fwd(&mut hi, t);
+    ntt_fwd_fast(&mut lo, t);
+    ntt_fwd_fast(&mut hi, t);
     for i in 0..D {
-        mid[i] = add_p(lo[i], hi[i]);
+        mid[i] = gl_add(lo[i], hi[i]);
     }
     [lo, hi, mid]
 }
@@ -2627,12 +2627,12 @@ fn mac_split(acc_lo: &mut [u128; D], acc_hi: &mut [u128; D], a: &[u64; D], b: &[
 /// (standard order).
 #[inline]
 fn flush_split(acc_lo: &[u128; D], acc_hi: &[u128; D], t: &super::aux::NttTables) -> [u64; D] {
-    use super::aux::{ntt_inv, reduce128, EPS};
+    use super::aux::{gl_reduce128, ntt_inv_fast, EPS};
     let mut v = [0u64; D];
     for k in 0..D {
-        v[k] = reduce128(acc_lo[k] + EPS as u128 * acc_hi[k]);
+        v[k] = gl_reduce128(acc_lo[k] + EPS as u128 * acc_hi[k]);
     }
-    ntt_inv(&mut v, t);
+    ntt_inv_fast(&mut v, t);
     v
 }
 
