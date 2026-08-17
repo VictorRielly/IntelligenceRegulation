@@ -2443,6 +2443,14 @@ pub fn kw_value_row_hoisted(kf: &KField, t: &AggTensor, kers: &[&MultiClaimKerne
     kw_row_hoisted(kf, &h, vr)
 }
 
+/// [UPERF2-E] Bench entry: every value ring's hoisted K-weight row with ONE
+/// hoist per tensor (what the branches do); the per-call entry above
+/// rebuilds the hoist per value ring.
+pub fn kw_value_rows_hoisted_all(kf: &KField, t: &AggTensor, kers: &[&MultiClaimKernel]) -> Vec<Vec<KElem>> {
+    let h = kw_hoist(kf, t, kers);
+    (0..t.n_value_rings()).map(|vr| kw_row_hoisted(kf, &h, vr)).collect()
+}
+
 /// [UPERF2-E] Battery entry: the per-ring reference row (`kw_row_multi`).
 pub fn kw_value_row_ref(kf: &KField, t: &AggTensor, kers: &[&MultiClaimKernel], vr: usize) -> Vec<KElem> {
     kw_row_multi(kf, t, kers, vr)

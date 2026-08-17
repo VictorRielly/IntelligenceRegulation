@@ -36227,12 +36227,263 @@ fn uperf_e_main(args: &[String]) {
     }
 }
 
-/// [UPERF2-E] (stub — filled by the lane's item 3)
-fn uperf_e_diff_battery() {
-    println!("[UPERF2-E] diff-battery: not yet wired");
+/// [UPERF2-E] One synthetic small-cols group at fixed seeds — the BK aux
+/// tensor class (cols = 16, e0 = 2, l0 = 16; the ypow col kernel; ~4 x
+/// depth mask-opening kernels whose row kernels are nonzero on ONE
+/// block each) plus dense/odd shapes. Returns (group, claims, witness
+/// digits, alphas).
+struct UperfESynth {
+    g: ring::eval_proof::AggGroup,
+    claims: ring::pass_agg::GroupClaims,
+    w0: Vec<Vec<i64>>,
+    alphas: Vec<Poly>,
 }
 
-/// [UPERF2-E] (stub — filled by the lane's item 3)
+fn uperf_e_synth(kf: &ring::kfield::KField, seed: u64, shapes: &[(&'static str, usize, usize, u32, usize, usize, bool)]) -> UperfESynth {
+    // shapes: (name, rows, cols, e0, l0, n_kernels, block_rows)
+    use ring::eval_proof::AggGroup;
+    use ring::kfield::{KElem, K_DEG};
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use std::rc::Rc;
+    let zq = &kf.zq;
+    let q = zq.q;
+    let mut rd = XofReader::new("uperf2-e-synth", &[&seed.to_le_bytes()]);
+    let mut g = AggGroup::new("uperf2-e");
+    for &(name, rows, cols, e0, l0, _, _) in shapes {
+        g.add_tensor(name, rows, cols, e0, l0);
+    }
+    let n_t = g.tensors.len();
+    let ypow: Rc<Vec<KElem>> = {
+        let mut v = Vec::with_capacity(K_DEG);
+        let mut cur = kf.one();
+        for _ in 0..K_DEG {
+            v.push(cur.clone());
+            cur = ring::lookup::mul_y(kf, &cur);
+        }
+        Rc::new(v)
+    };
+    let mut claims = GroupClaims::new(n_t);
+    for (ti, &(_, rows, cols, _, _, n_k, block_rows)) in shapes.iter().enumerate() {
+        for k in 0..n_k {
+            let scale = if k % 7 == 6 { kf.zero() } else { kf.uniform(&mut rd) };
+            let row: Vec<KElem> = if block_rows {
+                // one contiguous nonzero block of 1..40 rows at a random
+                // offset (the mask-opening kernels' shape), zeros elsewhere
+                let len = 1 + rd.next_field(40) as usize;
+                let len = len.min(rows);
+                let lo = rd.next_field((rows - len + 1) as u64) as usize;
+                (0..rows).map(|r| if r >= lo && r < lo + len { kf.uniform(&mut rd) } else { kf.zero() }).collect()
+            } else {
+                (0..rows).map(|r| if r % 5 == 3 { kf.zero() } else { kf.uniform(&mut rd) }).collect()
+            };
+            let col: Rc<Vec<KElem>> = if cols == K_DEG && k % 3 != 2 {
+                ypow.clone()
+            } else {
+                Rc::new((0..cols).map(|_| kf.uniform(&mut rd)).collect())
+            };
+            claims.push(ClaimContrib { tensor_idx: ti, scale, row: Rc::new(row), col });
+        }
+    }
+    let mut w0: Vec<Vec<i64>> = Vec::with_capacity(g.n_digit_rings);
+    for t in &g.tensors {
+        let (lo, hi) = ring::digits::alphabet(t.e0);
+        let span = (hi - lo + 1) as u64;
+        for u in 0..t.n_digit_rings() {
+            if u % 9 == 4 {
+                w0.push(vec![0i64; D]);
+            } else {
+                w0.push((0..D).map(|_| lo + rd.next_field(span) as i64).collect());
+            }
+        }
+    }
+    let alphas: Vec<Poly> = (0..K_DEG).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
+    UperfESynth { g, claims, w0, alphas }
+}
+
+/// [UPERF2-E] `uperf-e diff-battery`: the hoisted small-cols K-weight rows
+/// vs the two references, per value ring (kw_value_row_ref == the
+/// pre-change generic body kw_value_row_sync_ref == kw_value_row_hoisted),
+/// then the whole passes: kernel_pass_factored fast == oracle_mode
+/// (per-digit-ring reference) == bg_kernel_pass (the bin's oracle), rows
+/// + phi, and the verifier's psi_level0_factored_multi fast ==
+/// compute_psi(phi0_reference_multi) == pre_o5, at two chunk splits; q31
+/// (three seeds) + q46 (one seed). Prints a battery digest for cross-
+/// ZK_THREADS comparison.
+fn uperf_e_diff_battery() {
+    use ring::eval_proof::{
+        kernel_pass_factored, kw_value_row_hoisted, kw_value_row_ref, kw_value_row_sync_ref, set_oracle_mode,
+    };
+    use ring::kfield::KField;
+    use sha2::Digest;
+    if ring::eval_proof::oracle_mode() {
+        println!("[UPERF2-E] WARNING: ZK_UPERF_ORACLE=1 is set — the fast legs below are VACUOUS; unset it for a real battery run");
+    }
+    println!("[UPERF2-E] diff-battery: hoisted small-cols K-weight rows + kernel passes + psi0 vs the references; ZK_THREADS {}", ring::eval_proof::threads());
+    // (name, rows, cols, e0, l0, n_kernels, block_rows)
+    let shapes: [(&'static str, usize, usize, u32, usize, usize, bool); 6] = [
+        ("wm-like-16", 528, 16, 2, 16, 40, true),
+        ("bl-like-16", 96, 16, 2, 16, 4, false),
+        ("dense-8", 208, 8, 2, 3, 3, false),
+        ("odd-24", 16, 24, 1, 2, 2, true),
+        ("dense-96", 64, 96, 2, 2, 2, false),
+        ("no-kernel-16", 40, 16, 2, 16, 0, false),
+    ];
+    let mut all = sha2::Sha256::new();
+    let mut legs_kw = 0usize;
+    let mut legs_pass = 0usize;
+    let mut legs_psi = 0usize;
+    let t0 = Instant::now();
+    for (qn, ctx) in [("q31", ring_ctx_q8()), ("q46", ring::ring_ctx(ring::Q8_46, ring::ETA8_46, 8))] {
+        let kf = KField::new(&ctx);
+        for seed in [0xE1u64, 0xE2, 0xE3] {
+            if qn == "q46" && seed != 0xE1 {
+                continue;
+            }
+            let syn = uperf_e_synth(&kf, seed, &shapes);
+            let kernels = bg_multi_kernels(&syn.claims);
+            // Per value ring K-weight rows, three ways.
+            for (ti, t) in syn.g.tensors.iter().enumerate() {
+                let kers: Vec<&ring::eval_proof::MultiClaimKernel> = kernels.iter().filter(|k| k.tensor_idx == ti).collect();
+                for vr in 0..t.n_value_rings() {
+                    let a = kw_value_row_ref(&kf, t, &kers, vr);
+                    let b = kw_value_row_sync_ref(&kf, t, &kers, vr);
+                    let c = kw_value_row_hoisted(&kf, t, &kers, vr);
+                    assert_eq!(a, b, "kw ref != sync_ref at {qn} seed {seed:#x} tensor {} vr {vr}", t.name);
+                    assert_eq!(a, c, "kw ref != hoisted at {qn} seed {seed:#x} tensor {} vr {vr}", t.name);
+                    for e in &c {
+                        for &x in e {
+                            all.update(x.to_le_bytes());
+                        }
+                    }
+                }
+                legs_kw += 1;
+            }
+            // Kernel passes: fast vs oracle_mode (per-digit-ring reference) vs bg_kernel_pass.
+            set_oracle_mode(false);
+            let (rows_fast, _) = kernel_pass_factored(&ctx, &kf, &syn.g, &kernels, Some(&syn.w0), None);
+            let (_, phi_fast) = kernel_pass_factored(&ctx, &kf, &syn.g, &kernels, None, Some(&syn.alphas));
+            set_oracle_mode(true);
+            let (rows_orc, _) = kernel_pass_factored(&ctx, &kf, &syn.g, &kernels, Some(&syn.w0), None);
+            let (_, phi_orc) = kernel_pass_factored(&ctx, &kf, &syn.g, &kernels, None, Some(&syn.alphas));
+            set_oracle_mode(false);
+            let (rows_bin, _) = bg_kernel_pass(&ctx, &kf, &syn.g, &syn.claims, Some(&syn.w0), None);
+            let (_, phi_bin) = bg_kernel_pass(&ctx, &kf, &syn.g, &syn.claims, None, Some(&syn.alphas));
+            assert_eq!(rows_fast, rows_orc, "rows pass fast != oracle at {qn} seed {seed:#x}");
+            assert_eq!(rows_fast, rows_bin, "rows pass fast != bg_kernel_pass at {qn} seed {seed:#x}");
+            assert_eq!(phi_fast, phi_orc, "phi pass fast != oracle at {qn} seed {seed:#x}");
+            assert_eq!(phi_fast, phi_bin, "phi pass fast != bg_kernel_pass at {qn} seed {seed:#x}");
+            for p in rows_fast.iter().chain(phi_fast.iter()) {
+                for &x in p {
+                    all.update(x.to_le_bytes());
+                }
+            }
+            legs_pass += 2;
+            // Verifier psi0: fast == compute_psi(reference Phi_0) == pre_o5.
+            let n0 = syn.g.n_digit_rings;
+            let mut rd = XofReader::new("uperf2-e-cs", &[qn.as_bytes(), &seed.to_le_bytes()]);
+            let phi_ref = ring::eval_proof::phi0_reference_multi(&ctx, &kf, &syn.g, &kernels, &syn.alphas);
+            for chunk in [n0.div_ceil(5), 41usize] {
+                let r = n0.div_ceil(chunk);
+                let cs: Vec<Vec<i64>> = (0..r).map(|_| rd.next_challenge()).collect();
+                let phi_pad = {
+                    let mut p = phi_ref.clone();
+                    p.resize(r * chunk, poly_zero());
+                    p
+                };
+                let want = ring::eval_proof::compute_psi(&ctx, &phi_pad, chunk, &cs);
+                let got = ring::eval_proof::psi_level0_factored_multi(&ctx, &kf, &syn.g, &kernels, &syn.alphas, &cs, chunk);
+                assert_eq!(got, want, "psi0 fast != compute_psi(reference) at {qn} seed {seed:#x} chunk {chunk}");
+                let pre = ring::eval_proof::psi_level0_factored_multi_pre_o5(&ctx, &kf, &syn.g, &kernels, &syn.alphas, &cs, chunk);
+                assert_eq!(pre, want, "psi0 pre_o5 != compute_psi(reference) at {qn} seed {seed:#x} chunk {chunk}");
+                for p in &got {
+                    for &x in p {
+                        all.update(x.to_le_bytes());
+                    }
+                }
+                legs_psi += 1;
+            }
+            println!("  ok   {qn} seed {seed:#x}: {} tensors x kw rows, rows+phi passes (fast == oracle == bg_kernel_pass), psi0 at 2 chunk splits", syn.g.tensors.len());
+        }
+    }
+    let d: [u8; 32] = all.finalize().into();
+    println!(
+        "[UPERF2-E] diff-battery: kw-row tensors {legs_kw}/{legs_kw}, kernel passes {legs_pass}/{legs_pass}, psi0 {legs_psi}/{legs_psi} byte-identical in {:.1}s",
+        t0.elapsed().as_secs_f64()
+    );
+    println!("[UPERF2-E] BATTERY DIGEST {}", hex_full(&d));
+}
+
+/// [UPERF2-E] `uperf-e bench [rows] [cols] [n_kernels]`: one small-cols
+/// tensor (e0 = 2, l0 = 16, block-row kernels on the ypow col) — the
+/// per-value-ring K-weight row three ways, then kernel_pass_factored
+/// rows/phi and psi0 fast vs `ZK_UPERF_ORACLE`-style oracle routing
+/// (set_oracle_mode in-process), byte-identical asserted.
 fn uperf_e_bench(rows: usize, cols: usize, n_k: usize) {
-    println!("[UPERF2-E] bench {rows}x{cols} x {n_k} kernels: not yet wired");
+    use ring::eval_proof::{
+        kernel_pass_factored, kw_value_row_hoisted, kw_value_row_ref, kw_value_row_sync_ref, set_oracle_mode,
+    };
+    use ring::kfield::KField;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let shapes = [("bench", rows, cols, 2u32, 16usize, n_k, true)];
+    let syn = uperf_e_synth(&kf, 0xEB, &shapes);
+    let kernels = bg_multi_kernels(&syn.claims);
+    let t = &syn.g.tensors[0];
+    let kers: Vec<&ring::eval_proof::MultiClaimKernel> = kernels.iter().collect();
+    let n_vr = t.n_value_rings();
+    println!(
+        "[UPERF2-E] bench: tensor {rows} x {cols} (e0 2, l0 16: {} value rings, {} digit rings), {n_k} block-row kernels; ZK_THREADS {}",
+        n_vr,
+        t.n_digit_rings(),
+        ring::eval_proof::threads()
+    );
+    let time_kw = |name: &str, f: &dyn Fn(usize) -> Vec<ring::kfield::KElem>| -> Vec<Vec<ring::kfield::KElem>> {
+        let t0 = Instant::now();
+        let out: Vec<_> = (0..n_vr).map(f).collect();
+        let s = t0.elapsed().as_secs_f64();
+        println!("  kw rows {name:<10}: {s:>8.3}s = {:.1} us per value ring", s * 1e6 / n_vr as f64);
+        out
+    };
+    let a = time_kw("ref", &|vr| kw_value_row_ref(&kf, t, &kers, vr));
+    let b = time_kw("sync_ref", &|vr| kw_value_row_sync_ref(&kf, t, &kers, vr));
+    let t0 = Instant::now();
+    let c = ring::eval_proof::kw_value_rows_hoisted_all(&kf, t, &kers);
+    let s = t0.elapsed().as_secs_f64();
+    println!("  kw rows {:<10}: {s:>8.3}s = {:.1} us per value ring (one hoist per tensor, as the branches run it)", "hoisted", s * 1e6 / n_vr as f64);
+    let c1 = kw_value_row_hoisted(&kf, t, &kers, n_vr / 2);
+    assert!(a == b && b == c && c[n_vr / 2] == c1, "bench: kw rows differ");
+    for (name, w0, al) in [("rows", Some(syn.w0.as_slice()), None), ("phi", None, Some(syn.alphas.as_slice()))] {
+        set_oracle_mode(false);
+        let t0 = Instant::now();
+        let fast = kernel_pass_factored(&ctx, &kf, &syn.g, &kernels, w0, al);
+        let s_fast = t0.elapsed().as_secs_f64();
+        set_oracle_mode(true);
+        let t0 = Instant::now();
+        let orc = kernel_pass_factored(&ctx, &kf, &syn.g, &kernels, w0, al);
+        let s_orc = t0.elapsed().as_secs_f64();
+        set_oracle_mode(false);
+        assert_eq!(fast, orc, "bench: {name} pass fast != oracle");
+        println!(
+            "  kernel pass {name:<5}: fast {s_fast:>8.3}s ({:.1} us per digit ring) | oracle {s_orc:>8.3}s -> {:.1}x (byte-identical)",
+            s_fast * 1e6 / t.n_digit_rings() as f64,
+            s_orc / s_fast
+        );
+    }
+    let n0 = syn.g.n_digit_rings;
+    let chunk = n0.div_ceil(4);
+    let r = n0.div_ceil(chunk);
+    let mut rd = XofReader::new("uperf2-e-bench-cs", &[]);
+    let cs: Vec<Vec<i64>> = (0..r).map(|_| rd.next_challenge()).collect();
+    let t0 = Instant::now();
+    let got = ring::eval_proof::psi_level0_factored_multi(&ctx, &kf, &syn.g, &kernels, &syn.alphas, &cs, chunk);
+    let s_fast = t0.elapsed().as_secs_f64();
+    let t0 = Instant::now();
+    let pre = ring::eval_proof::psi_level0_factored_multi_pre_o5(&ctx, &kf, &syn.g, &kernels, &syn.alphas, &cs, chunk);
+    let s_orc = t0.elapsed().as_secs_f64();
+    assert_eq!(got, pre, "bench: psi0 fast != pre_o5");
+    println!(
+        "  psi0 (verify)    : fast {s_fast:>8.3}s ({:.1} us per digit ring) | pre-O5 oracle {s_orc:>8.3}s -> {:.1}x (byte-identical)",
+        s_fast * 1e6 / n0 as f64,
+        s_orc / s_fast
+    );
 }
