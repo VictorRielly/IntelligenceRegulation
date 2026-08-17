@@ -2395,7 +2395,10 @@ fn kw_hoist(kf: &KField, t: &AggTensor, kers: &[&MultiClaimKernel]) -> KwHoist {
         .map(|k| {
             let scol: Vec<KElem> = (0..cols.min(k.col_kernel.len())).map(|c| kf.mul(&k.scale, &k.col_kernel[c])).collect();
             let row: Vec<KElem> = (*k.row_kernel).clone();
-            let used = n_rows_used.min(row.len());
+            // Rows [0, n_rows_used) are the ones the reference indexes
+            // (row_kernel[f / cols] for every f < n_values) — a short row
+            // kernel panics here as it would there.
+            let used = n_rows_used;
             let lo = (0..used).find(|&r| !kf.is_zero(&row[r])).unwrap_or(used);
             let hi = (lo..used).rev().find(|&r| !kf.is_zero(&row[r])).map(|r| r + 1).unwrap_or(lo);
             KwHoistKer { scol, row, lo, hi }
