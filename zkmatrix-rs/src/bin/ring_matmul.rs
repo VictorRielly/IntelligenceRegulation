@@ -6404,6 +6404,8 @@ fn main() {
         Some("uperf-a") => uperf_a_main(&args[1..]),
         // [UPERF2-C] U-PERF2 lane C (eval-proof leftovers) battery + benches.
         Some("uperf-c") => uperf_c_main(&args[1..]),
+        // [UPERF2-E] U-PERF2 lane E (descent callers / descent verify / small-cols aux) battery + bench.
+        Some("uperf-e") => uperf_e_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -36181,4 +36183,37 @@ fn uperf_c_bench(r: usize, chunk: usize, with_ref: bool) {
             );
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-E] U-PERF2 lane E — descent-tree callers on lane A's drop-ins,
+// the descent VERIFY attribution, and the small-cols (cols | D) K-basis
+// fast path of the two generic claim-kernel branches (kernel_pass_factored
+// / psi_level0_factored_multi). ADDITIVE section. Commands:
+//   uperf-e diff-battery   — small-cols kernel passes + psi0 fast vs the
+//     generic reference on random small-cols tensors (byte-identical).
+//   uperf-e bench [rows] [cols] [n_kernels]  — the same shapes timed,
+//     oracle vs fast.
+
+fn uperf_e_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("diff-battery") => uperf_e_diff_battery(),
+        Some("bench") => {
+            let rows: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(1024);
+            let cols: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(16);
+            let n_k: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(48);
+            uperf_e_bench(rows, cols, n_k);
+        }
+        _ => println!("uperf-e diff-battery | bench [rows] [cols] [n_kernels]"),
+    }
+}
+
+/// [UPERF2-E] (stub — filled by the lane's item 3)
+fn uperf_e_diff_battery() {
+    println!("[UPERF2-E] diff-battery: not yet wired");
+}
+
+/// [UPERF2-E] (stub — filled by the lane's item 3)
+fn uperf_e_bench(rows: usize, cols: usize, n_k: usize) {
+    println!("[UPERF2-E] bench {rows}x{cols} x {n_k} kernels: not yet wired");
 }

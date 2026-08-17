@@ -378,7 +378,48 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent E status (wt-uperf2-e)
 
-- (lane launches here)
+- 2026-08-17 PLAN COMMIT (lane E, branch uperf2-e at d3a4602). Files:
+  descent_fold.rs / gkr.rs / gkr_masked.rs, the bin's BK descent-phase
+  functions + the pair VERIFY loop, the two generic (misaligned)
+  branches of eval_proof.rs, a `// [UPERF2-E]` bin section with
+  `uperf-e {bench, diff-battery}`, prof ids `e.*` appended to
+  ct_engine::prof, docs/zkmatrix-poc/U_PERF2_DESCENT2_REPORT.md.
+  Baseline capture BEFORE any code change: freeze-check from the
+  untouched build at d3a4602 — 98 `ok` rows then the expected BF panic
+  (scratchpad/e_freeze_baseline.txt). Plan, in order:
+  1. Wire lane A's drop-ins: `aligned_witness_tree` ->
+     `gkr::build_tree_sparse` (aligned member entries + blinders as
+     (index, p, q); same leaf sequence, bit-identical tree; the boxed
+     2 x 2^depth leaf pair never exists), `neutral_tree` ->
+     `gkr::build_neutral_tree`; the scalar oracle field and
+     `oracle_mode()` keep the boxed builders. Measure with `uperf-a
+     descent-bench 20 8` and the 3x16 rig.
+  2. Descent VERIFY attribution: `e.*` timers around the verifier's pair
+     loop (zero_masks shells, masked_gkr_verify, root cross-checks,
+     bk_pair_claims split into mask claims / witness publics / table
+     publics) + the misaligned kernel-pass and psi0 branches; run the
+     rig; fix what is transcript-neutral.
+  3. Small-cols K-basis fast path (`SmallColsFactored`, additive) for
+     tensors with cols | D (the BK aux tensors, cols = 16): per kernel
+     the hoisted row factors sr = scale *_K row, the conj-packed
+     coordinate slices CQ0 of the (zero-padded) col kernel and the
+     alpha-contracted G[d1] rings once; per value ring PHI_vr =
+     sum_rr X^{-rr*cols} * sum_k sum_d1 sr_k[rows_per_vr*vr+rr][d1] *
+     G_k[d1] (u128 lazy MACs, one reduction, negacyclic rotation per
+     row-in-ring; zero row factors skipped) and for the rows pass
+     T_k[d1] = sum_(vr,rr) sr_k[..][d1] * X^{-rr*cols} V_vr then
+     b_rows[cd] += sum_d1 sigma * CQ0_k[(cd-d1) mod 16] * T_k[d1] — the
+     O5 identities with rows-inside-the-ring. Same code serves the
+     verifier's psi generic branch. Oracle: the current generic branch
+     under `oracle_mode()`; `uperf-e diff-battery` = per-tensor
+     kernel_pass_factored / psi_level0_factored_multi against the
+     reference on random small-cols tensors (cols 16 and 8, l0 16,
+     sparse block rows) at ZK_THREADS 1/2/7 + the rig digests.
+  4. Gates: `uperf-a descent-battery` 18/18, `uperf-pc diff-battery`
+     (E2E) at 1T/7T, freeze-check 98 rows == baseline, `self-test`, the
+     3x16 rig at ZK_THREADS 1 and 8 fast + ONE oracle run (digest
+     93a98700.., 985,142 B, EVAL-PROOF DIGEST 0ae9cdae.., accept).
+  5. Report + this section.
 
 ## Agent C status (wt-uperf2-c)
 
