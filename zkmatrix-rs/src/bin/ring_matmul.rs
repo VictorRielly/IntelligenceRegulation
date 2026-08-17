@@ -29883,6 +29883,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
 
     // ---- Registry, schedules, witnesses, pre-commits. ----
     let t_commit = Instant::now();
+    let prof_commit = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_COMMIT); // observation only
     let mut reg = bg_build_groups(&lays, t, opts.migrate);
     // [UAGB1-BL] append the T_blind tensors to the weight group and draw
     // the masks/segment BEFORE precommit (so u_0 covers them — the E-3
@@ -29976,9 +29977,11 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
         }
     });
     cost.commit_s = t_commit.elapsed().as_secs_f64();
+    drop(prof_commit);
 
     // ---- Prover claim layer (folded instances on ONE transcript). ----
     let t_prove = Instant::now();
+    let prof_claims = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_CLAIM_LAYER); // observation only
     let mk_tr = |domain: &str, seed: &[u8]| -> LkpTranscript {
         if opts.coins_fixed {
             LkpTranscript::fixed_coins(domain, seed)
@@ -30408,6 +30411,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
     }
 
     // ---- Group eval proofs (weight first, then act). ----
+    drop(prof_claims);
     let mut mask_rng = ring::ProverRng::from_test_seed("uagb1-bg-tz", &[0xB6]);
     let lie_act = matches!(opts.tamper, BgTamper::FoldClaimLie | BgTamper::CrossLayerGacc);
     let (proof_w, tz_w) = bg_prove_group(
@@ -33199,6 +33203,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
 
     // ---- Pair specs, registry, schedules, aux, witnesses. ----
     let t_commit = Instant::now();
+    let prof_commit = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_COMMIT); // observation only
     let specs = bk_pair_specs(&lays, t);
     if opts.tamper == BkTamper::WrongTable {
         let m4 = specs.iter().find(|s| s.pid == 1).expect("m4 pair present");
@@ -33325,10 +33330,12 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         ])
     };
     cost.commit_s = t_commit.elapsed().as_secs_f64();
+    drop(prof_commit);
 
     // ---- PROVER: one rolling transcript — the BG instance layer,
     // ---- then the 10 descent pairs, then publics. ----
     let t_prove = Instant::now();
+    let prof_claims = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_CLAIM_LAYER); // observation only
     let mut tr = LkpTranscript::new("uagb1-bk-pass", &h0);
     let product3 = |kf: &KField, v: &[KElem]| kf.mul(&kf.mul(&v[0], &v[1]), &v[2]);
     let had_comb =
@@ -33519,6 +33526,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         sc_proofs.push(scp);
     }
 
+    drop(prof_claims);
     // ---- THE DESCENT PHASE: the 10 per-table folded pairs. ----
     let ypow = bk_ypow_col(&kf);
     let mut pair_transcripts: Vec<BkPairTranscript> = Vec::with_capacity(specs.len());
@@ -33528,6 +33536,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         let alpha = tr.challenge_k(&kf);
         pair_alphas.push(alpha.clone());
         // Witness trees (real, then neutral pads).
+        let prof_trees = ring::ct_engine::prof::timer(ring::ct_engine::prof::BK_TREES); // observation only
         let mut wtrees: Vec<ring::gkr::FracTree> = Vec::with_capacity(plan.l);
         for i in 0..plan.n_real {
             let slots = bk_tree_slots(&kf, sp, &lays, i);
@@ -33539,10 +33548,14 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
             wtrees.push(neutral_tree(&kf, plan.depth));
         }
         let masks_w = aux[pi].masks_w.take().expect("witness masks drawn once");
+        drop(prof_trees);
+        let prof_gkr = ring::ct_engine::prof::timer(ring::ct_engine::prof::BK_GKR); // observation only
         let (pw, endw) = masked_gkr_prove(&kf, &wtrees, masks_w, &mut tr);
+        drop(prof_gkr);
         drop(wtrees);
         // Table trees (the PROVER's table — statement member on every
         // honest path; the WrongTable arm runs its own).
+        let prof_trees = ring::ct_engine::prof::timer(ring::ct_engine::prof::BK_TREES); // observation only
         let tab_k = bk_table_for(&kf, sp, bk_prover_silu(sp, opts));
         let mut ttrees: Vec<ring::gkr::FracTree> = Vec::with_capacity(plan.l);
         for i in 0..plan.n_real {
@@ -33554,7 +33567,10 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
             ttrees.push(neutral_tree(&kf, sp.dt));
         }
         let masks_t = aux[pi].masks_t.take().expect("table masks drawn once");
+        drop(prof_trees);
+        let prof_gkr = ring::ct_engine::prof::timer(ring::ct_engine::prof::BK_GKR); // observation only
         let (pt, endt) = masked_gkr_prove(&kf, &ttrees, masks_t, &mut tr);
+        drop(prof_gkr);
         drop(ttrees);
         cost.pair_lines.push((
             sp.name().to_string(),
@@ -34615,12 +34631,14 @@ fn uperf_pc_pass_profile(layers_n: usize, t: usize) {
     prof::enable(false, false);
     let dg = prof::digest_take();
     println!(
-        "[UPERF-PC] accept = {} | wall {wall:.1}s | commit {:.1}s prove {:.1}s verify {:.1}s | statement digest {}",
+        "[UPERF-PC] accept = {} | wall {wall:.1}s | commit {:.1}s prove {:.1}s verify {:.1}s | statement digest {} | ZK_THREADS {} | oracle {}",
         v.accept(),
         c.commit_s,
         c.prove_s,
         c.verify_s,
-        hex_full(&art.statement_digest)
+        hex_full(&art.statement_digest),
+        ring::eval_proof::threads(),
+        ring::eval_proof::oracle_mode()
     );
     println!("[UPERF-PC] phase attribution (process-global; bg.prove-group / bg.verify-group are per-group totals, ep.* are shared by prover and verifier):");
     for (name, secs, calls) in prof::report() {
@@ -34636,8 +34654,53 @@ fn uperf_pc_pass_profile(layers_n: usize, t: usize) {
     }
 }
 
+/// [UPERF-PC] The FULL-STATEMENT profile (BK rig: BG's instance layer +
+/// the 10 folded descent pairs + the group eval proofs — the PoC number)
+/// with the same phase table and EVAL-PROOF DIGEST as `pass-profile`.
+fn uperf_pc_full_profile(layers_n: usize, t: usize, p2: bool) {
+    use ring::ct_engine::prof;
+    println!(
+        "[UPERF-PC] full-profile: FULL-STATEMENT composed pass prove+verify (table-descent rig), {layers_n} layers, T = {t}, {}",
+        if p2 { "P2" } else { "P0" }
+    );
+    prof::reset();
+    prof::enable(true, true);
+    let t0 = Instant::now();
+    let opts = BkOpts { layers_n, t, p2, ..Default::default() };
+    let (v, c, art) = bk_pass_run(&opts);
+    let wall = t0.elapsed().as_secs_f64();
+    prof::enable(false, false);
+    let dg = prof::digest_take();
+    println!(
+        "[UPERF-PC] accept = {} | wall {wall:.1}s | commit {:.1}s prove {:.1}s verify {:.1}s | statement digest {} | ZK_THREADS {} | oracle {}",
+        v.accept(),
+        c.commit_s,
+        c.prove_s,
+        c.verify_s,
+        hex_full(&art.statement_digest),
+        ring::eval_proof::threads(),
+        ring::eval_proof::oracle_mode()
+    );
+    println!("[UPERF-PC] phase attribution (process-global; bg.*/bk.* are region totals, ep.* are shared by prover and verifier):");
+    for (name, secs, calls) in prof::report() {
+        if calls == 0 && secs == 0.0 {
+            continue;
+        }
+        println!("    {name:<24} {secs:>9.2}s  x{calls}");
+    }
+    if let Some(d) = dg {
+        println!("[UPERF-PC] EVAL-PROOF DIGEST {}", hex_full(&d));
+    }
+}
+
 fn uperf_pc_main(args: &[String]) {
     match args.first().map(String::as_str) {
+        Some("full-profile") => {
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(12);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            let p2 = args.get(3).map(String::as_str) == Some("p2");
+            uperf_pc_full_profile(layers_n, t, p2);
+        }
         Some("wave-profile") => {
             let li: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(2);
             let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
@@ -34664,7 +34727,7 @@ fn uperf_pc_main(args: &[String]) {
             uperf_pc_kpass_bench(rows, cols, with_ref);
         }
         _ => println!(
-            "uperf-pc wave-profile [layer] [t] [nodigest] | pass-profile [layers] [t] | diff-battery | kernel-bench [r] [chunk] [noref] | kpass-bench [rows] [cols] [noref]"
+            "uperf-pc full-profile [layers] [t] [p2] | pass-profile [layers] [t] | wave-profile [layer] [t] [nodigest] | diff-battery | kernel-bench [r] [chunk] [noref] | kpass-bench [rows] [cols] [noref]"
         ),
     }
 }

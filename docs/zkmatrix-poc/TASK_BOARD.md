@@ -71,8 +71,9 @@ zkmatrix-rs/target/release/ring_matmul freeze-check            # exit 0, no FAIL
 zkmatrix-rs/target/release/ring_matmul uperf-pc diff-battery   # every optimization's byte-equality leg
 python3 -m unittest discover -s tests                          # suite (~15-20 min MAC; export-dependent tests skip on WSL)
 # profiles (MAC only; minutes to ~1.5 h)
-zkmatrix-rs/target/release/ring_matmul uperf-pc pass-profile 3 16      # fast yardstick (~6-8 min): attribution + EVAL-PROOF DIGEST
-zkmatrix-rs/target/release/ring_matmul uperf-pc pass-profile 12 512    # the real thing (~80 min prove + verify)
+zkmatrix-rs/target/release/ring_matmul uperf-pc full-profile 3 16      # fast yardstick (~6-8 min): FULL-STATEMENT attribution + EVAL-PROOF DIGEST
+zkmatrix-rs/target/release/ring_matmul uperf-pc full-profile 12 512    # the real thing (~80 min prove + verify before the kernels)
+zkmatrix-rs/target/release/ring_matmul uperf-pc pass-profile 12 512    # composed scope only (no table descents; BG rig)
 zkmatrix-rs/target/release/ring_matmul pass-agg prove 12 512 p0        # composed-scope prove+verify (BG rig)
 zkmatrix-rs/target/release/ring_matmul table-descent prove 12 512 p0   # FULL-STATEMENT prove+verify (BK rig, the PoC number)
 zkmatrix-rs/target/release/ring_matmul pass-agg battery                # 14 legs, ~70 min [MAC]
@@ -128,19 +129,24 @@ WHY: nobody has run the composed-pass profile; every share above is
 BG-F3 arithmetic. This gives the measured before/after tables AND the
 digest identity for O2/O3/O5/T8b (which landed 2026-08-17 on the WSL
 box with battery legs only). ONE binary, two env settings (2.3).
-STEPS:
+STEPS (`full-profile` = the FULL-STATEMENT rig incl. the 10 descent
+pairs — the PoC number, ~80 min before; `pass-profile` = the composed
+scope without table descents — use it only if full-profile cannot run):
 1. `git pull`; `cargo build --release` (in zkmatrix-rs/); `mkdir -p results/uperf`.
 2. Fast yardstick, BEFORE then AFTER (each ~5-10 min):
-   `ZK_UPERF_ORACLE=1 /usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-pc pass-profile 3 16 > results/uperf/pp_3x16_oracle.txt 2>&1`
-   `/usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-pc pass-profile 3 16 > results/uperf/pp_3x16_fast.txt 2>&1`
+   `ZK_UPERF_ORACLE=1 /usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-pc full-profile 3 16 > results/uperf/fp_3x16_oracle.txt 2>&1`
+   `/usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-pc full-profile 3 16 > results/uperf/fp_3x16_fast.txt 2>&1`
    The two `EVAL-PROOF DIGEST` lines MUST be identical. If not: STOP,
    record, do nothing else (that is a bug report, not a fix).
 3. The real thing, AFTER first (so the useful number exists early),
-   then BEFORE (~80-90 min; peak RSS ~41 GiB; nothing else heavy):
-   `/usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-pc pass-profile 12 512 > results/uperf/pp_12x512_fast.txt 2>&1`
-   `ZK_UPERF_ORACLE=1 /usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-pc pass-profile 12 512 > results/uperf/pp_12x512_oracle.txt 2>&1`
-4. Optional NT row: `ZK_THREADS=8 ... pass-profile 12 512` (digest
-   identical; record as a separate NT row).
+   then BEFORE (~80-90 min; peak RSS ~47 GiB; nothing else heavy):
+   `/usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-pc full-profile 12 512 > results/uperf/fp_12x512_fast.txt 2>&1`
+   `ZK_UPERF_ORACLE=1 /usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-pc full-profile 12 512 > results/uperf/fp_12x512_oracle.txt 2>&1`
+4. Optional NT row: `ZK_THREADS=8 ... full-profile 12 512` (digest
+   identical; record as a separate NT row). The phase table's
+   `bk.descent-trees` / `bk.descent-gkr` / `bg.commit-phase` /
+   `bg.claim-layer` / `bg.prove-group` / `bg.verify-group` rows are the
+   next round's priority order.
 5. Copy the phase tables (the `ep.*` / `bg.*` rows), `accept`, walls
    (commit/prove/verify), and the digests into U_PERF_WAVE_REPORT.md
    Section 4.2 (before/after per shape) and Section 4 of THIS file.

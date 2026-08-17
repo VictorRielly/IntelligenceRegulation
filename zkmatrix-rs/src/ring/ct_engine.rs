@@ -2506,7 +2506,11 @@ pub mod prof {
     pub const BG_LEVELH: usize = 24; // bg_level_h / agg_level_h wall (incl. digit split of h)
     pub const BG_PROVE_GROUP: usize = 25; // bg_prove_group total (per group)
     pub const BG_VERIFY_GROUP: usize = 26; // bg_verify_group total (per group)
-    pub const N_PHASES: usize = 27;
+    pub const BG_COMMIT: usize = 27; // bg/bk pass: the commit phase (chains, digits, u_0s, statement)
+    pub const BG_CLAIM_LAYER: usize = 28; // bg/bk pass: prover claim layer (ixf sumchecks + assemblies)
+    pub const BK_TREES: usize = 29; // bk descent phase: witness/table tree builds
+    pub const BK_GKR: usize = 30; // bk descent phase: masked_gkr_prove calls
+    pub const N_PHASES: usize = 31;
 
     pub const NAMES: [&str; N_PHASES] = [
         "ct.setup(clone+digits)",
@@ -2536,6 +2540,10 @@ pub mod prof {
         "bg.level-h",
         "bg.prove-group",
         "bg.verify-group",
+        "bg.commit-phase",
+        "bg.claim-layer",
+        "bk.descent-trees",
+        "bk.descent-gkr",
     ];
 
     static ENABLED: AtomicBool = AtomicBool::new(false);
