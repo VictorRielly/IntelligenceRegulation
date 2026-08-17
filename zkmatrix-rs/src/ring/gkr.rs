@@ -38,6 +38,7 @@
 // side p-claim = MLE(multiplicities) and q-claim is verifier-
 // computable from the public fused table.
 
+use super::ct_engine::prof;
 use super::kfield::{KElem, KField, KL, KTab, k9_tree_step};
 use super::sumcheck::{
     LkpTranscript, SumcheckProof, lagrange_eval, mle_eval, round_poly, sumcheck_prove,
@@ -131,10 +132,54 @@ pub fn build_tree(kf: &KField, leaf_p: Vec<KElem>, leaf_q: Vec<KElem>) -> FracTr
     }
     // Pack and DROP the boxed leaves one side at a time (H-03: the boxed
     // form is ~2.7x the packed size; never hold both sides twice).
-    let leaf_p_t = KTab::from_kelems(&leaf_p);
+    // [UPERF2-A] the pack is threaded (positional) on the fast path.
+    let oracle = super::eval_proof::oracle_mode();
+    let pack = |v: &[KElem]| -> KTab {
+        let _t = prof::timer(prof::A_TREE_PACK);
+        if oracle { KTab::from_kelems(v) } else { super::kfield::k9_pack_par(v) }
+    };
+    let leaf_p_t = pack(&leaf_p);
     drop(leaf_p);
-    let leaf_q_t = KTab::from_kelems(&leaf_q);
+    let leaf_q_t = pack(&leaf_q);
     drop(leaf_q);
+    build_tree_packed(kf, leaf_p_t, leaf_q_t)
+}
+
+/// [UPERF2-A] Build a packed tree from a DEFAULT leaf pair plus sparse
+/// overrides — no boxed leaf vector is ever allocated (the boxed pair of
+/// a depth-22 tree is 2 x 4M heap Vecs, ~1.4 GB of transient churn and
+/// ~1 s of malloc/free per tree). `entries` are (index, p, q) in any
+/// order (last write wins); the leaf sequence is the same as build_tree
+/// on the materialized vector, so the tree is bit-identical. The scalar
+/// oracle field materializes and takes the boxed builder.
+pub fn build_tree_sparse(
+    kf: &KField,
+    n: usize,
+    default: (&KElem, &KElem),
+    entries: impl IntoIterator<Item = (usize, KElem, KElem)>,
+) -> FracTree {
+    assert!(n.is_power_of_two());
+    if kf.kern.is_none() {
+        let mut lp = vec![default.0.clone(); n];
+        let mut lq = vec![default.1.clone(); n];
+        for (i, p, q) in entries {
+            lp[i] = p;
+            lq[i] = q;
+        }
+        return build_tree_boxed(kf, lp, lq);
+    }
+    assert!(
+        super::kfield::k9_capacity_ok(n),
+        "K9 projective tree exceeds the audited packed-table cap"
+    );
+    let _t = prof::timer(prof::A_TREE_PACK);
+    let mut leaf_p_t = KTab::filled(n, default.0);
+    let mut leaf_q_t = KTab::filled(n, default.1);
+    for (i, p, q) in entries {
+        leaf_p_t.set(i, &p);
+        leaf_q_t.set(i, &q);
+    }
+    drop(_t);
     build_tree_packed(kf, leaf_p_t, leaf_q_t)
 }
 
@@ -176,9 +221,14 @@ pub fn build_tree_stream(
 }
 
 /// The packed bottom-up build over already-packed leaf tables (shared by
-/// build_tree and build_tree_stream).
+/// build_tree and build_tree_stream). [UPERF2-A] the layer steps are
+/// threaded over independent output block ranges on the fast path
+/// (`k9_tree_step_par`; positional, no reduction — bit-identical);
+/// `oracle_mode()` routes to the serial step.
 fn build_tree_packed(kf: &KField, leaf_p_t: KTab, leaf_q_t: KTab) -> FracTree {
     let kern = kf.kern.as_ref().expect("packed tree build requires the bulk kernel");
+    let _t = prof::timer(prof::A_TREE_STEP);
+    let oracle = super::eval_proof::oracle_mode();
     let mut lp = vec![leaf_p_t];
     let mut lq = vec![leaf_q_t];
     while lp.last().unwrap().n > 1 {
@@ -187,7 +237,11 @@ fn build_tree_packed(kf: &KField, leaf_p_t: KTab, leaf_q_t: KTab) -> FracTree {
         let mut np = KTab::zeroed(half);
         let mut nq = KTab::zeroed(half);
         if half >= KL {
-            k9_tree_step(kern, &cp.d, &cq.d, &mut np.d, &mut nq.d, half / KL);
+            if oracle {
+                k9_tree_step(kern, &cp.d, &cq.d, &mut np.d, &mut nq.d, half / KL);
+            } else {
+                super::kfield::k9_tree_step_par(kern, &cp.d, &cq.d, &mut np.d, &mut nq.d, half / KL);
+            }
         } else {
             for i in 0..half {
                 let (pl, pr) = (cp.get(2 * i), cp.get(2 * i + 1));
@@ -388,6 +442,60 @@ pub(crate) fn extract_children(trees: &[FracTree], k: usize) -> (KTab, KTab, KTa
         q0.copy_elem(idx, sq, 2 * b);
         q1.copy_elem(idx, sq, 2 * b + 1);
     }
+    (p0, p1, q0, q1)
+}
+
+/// [UPERF2-A] extract_children with block-granular deinterleave (each
+/// tree's child layer maps to a contiguous, block-aligned output range
+/// once 2^k >= KL: output block m of tree e is the deinterleave of source
+/// blocks 2m, 2m+1 of the tree's layer k+1) and a deterministic thread
+/// split over (tree, block-chunk). Identical tables to extract_children;
+/// the sub-block sizes take the element path.
+pub(crate) fn extract_children_par(trees: &[FracTree], k: usize) -> (KTab, KTab, KTab, KTab) {
+    if (1usize << k) < KL {
+        return extract_children(trees, k);
+    }
+    let l = trees.len();
+    let size = l << k;
+    let per_tree_blk = (1usize << k) / KL;
+    let mut p0 = KTab::zeroed(size);
+    let mut p1 = KTab::zeroed(size);
+    let mut q0 = KTab::zeroed(size);
+    let mut q1 = KTab::zeroed(size);
+    let job = |e: usize, m0: usize, p0c: &mut [u32], p1c: &mut [u32], q0c: &mut [u32], q1c: &mut [u32]| {
+        let (sp, sq) = (trees[e].p_layer(k + 1), trees[e].q_layer(k + 1));
+        let n = p0c.len() / super::kfield::KBLK;
+        super::kfield::k9_deint_blocks(&sp.d, m0, n, p0c, p1c);
+        super::kfield::k9_deint_blocks(&sq.d, m0, n, q0c, q1c);
+    };
+    let ch = super::kfield::k9_extract_chunk_blk().min(per_tree_blk).max(1);
+    let words = ch * super::kfield::KBLK;
+    if super::kfield::k9_threads() <= 1 {
+        for e in 0..l {
+            let base = e * per_tree_blk * super::kfield::KBLK;
+            for m0 in (0..per_tree_blk).step_by(ch) {
+                let n = ch.min(per_tree_blk - m0);
+                let (w0, w1) = (base + m0 * super::kfield::KBLK, base + (m0 + n) * super::kfield::KBLK);
+                job(e, m0, &mut p0.d[w0..w1], &mut p1.d[w0..w1], &mut q0.d[w0..w1], &mut q1.d[w0..w1]);
+            }
+        }
+        return (p0, p1, q0, q1);
+    }
+    super::kfield::k9_pooled_pub(|| {
+        use rayon::prelude::*;
+        p0.d.par_chunks_mut(words)
+            .zip(p1.d.par_chunks_mut(words))
+            .zip(q0.d.par_chunks_mut(words))
+            .zip(q1.d.par_chunks_mut(words))
+            .enumerate()
+            .for_each(|(c, (((p0c, p1c), q0c), q1c))| {
+                // chunk c covers global blocks [c*ch, c*ch + n): tree e = block / per_tree_blk
+                let g0 = c * ch;
+                let e = g0 / per_tree_blk;
+                let m0 = g0 % per_tree_blk;
+                job(e, m0, p0c, p1c, q0c, q1c);
+            });
+    });
     (p0, p1, q0, q1)
 }
 

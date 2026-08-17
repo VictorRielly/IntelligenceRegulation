@@ -35273,19 +35273,331 @@ fn uperf_a_main(args: &[String]) {
         Some("descent-bench") => {
             let depth: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(16);
             let l: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(4);
-            let n_real: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(l.max(1) - (l >= 2) as usize);
+            let n_real: usize = args
+                .get(3)
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(if l >= 2 { l - 1 } else { 1 });
             let dt: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(9);
-            uperf_a_descent_bench(depth, l, n_real, dt);
+            let with_verify = args.get(5).map(String::as_str) != Some("noverify");
+            uperf_a_descent_bench(depth, l, n_real, dt, with_verify);
         }
         Some("descent-battery") => uperf_a_descent_battery(),
-        _ => println!("uperf-a descent-bench <depth> <l> [n_real] [dt] | descent-battery"),
+        _ => println!("uperf-a descent-bench <depth> <l> [n_real] [dt] [noverify] | descent-battery"),
     }
 }
 
-fn uperf_a_descent_bench(depth: usize, l: usize, n_real: usize, dt: usize) {
-    println!("[UPERF2-A] descent-bench stub: depth {depth} l {l} n_real {n_real} dt {dt} (not implemented yet)");
+/// [UPERF2-A] Peak resident set of this process (VmHWM, MiB) from
+/// /proc/self/status — the T9 memory note of the bench.
+fn uperf_a_peak_rss_mib() -> f64 {
+    std::fs::read_to_string("/proc/self/status")
+        .ok()
+        .and_then(|s| {
+            s.lines().find(|l| l.starts_with("VmHWM:")).and_then(|l| {
+                l.split_whitespace().nth(1).and_then(|v| v.parse::<f64>().ok()).map(|kb| kb / 1024.0)
+            })
+        })
+        .unwrap_or(0.0)
 }
 
+/// [UPERF2-A] SHA-256 over a masked descent proof + its DescentEnd (the
+/// per-descent digest; every K-element as the transcript's LE bytes,
+/// vectors length-prefixed).
+fn uperf_a_descent_digest(
+    kf: &ring::kfield::KField,
+    proof: &ring::gkr_masked::MaskedDescentProof,
+    end: &ring::gkr_masked::DescentEnd,
+    h: &mut sha2::Sha256,
+) {
+    use sha2::Digest;
+    fn k(kf: &ring::kfield::KField, e: &ring::kfield::KElem, h: &mut sha2::Sha256) {
+        h.update(kf.bytes(e));
+    }
+    fn kv(kf: &ring::kfield::KField, v: &[ring::kfield::KElem], h: &mut sha2::Sha256) {
+        h.update((v.len() as u64).to_le_bytes());
+        for e in v {
+            h.update(kf.bytes(e));
+        }
+    }
+    h.update(b"uperf2-a-descent-v1");
+    h.update((proof.layer1.len() as u64).to_le_bytes());
+    for q in &proof.layer1 {
+        for e in q {
+            k(kf, e, h);
+        }
+    }
+    h.update((proof.layers.len() as u64).to_le_bytes());
+    for l in &proof.layers {
+        k(kf, &l.g_sum, h);
+        h.update((l.rounds.len() as u64).to_le_bytes());
+        for r in &l.rounds {
+            kv(kf, r, h);
+        }
+        for e in &l.boundary {
+            k(kf, e, h);
+        }
+        k(kf, &l.open_g, h);
+        match &l.open_r {
+            Some((a, b)) => {
+                h.update([1u8]);
+                k(kf, a, h);
+                k(kf, b, h);
+            }
+            None => h.update([0u8]),
+        }
+    }
+    kv(kf, &end.zstar, h);
+    k(kf, &end.p_claim, h);
+    k(kf, &end.q_claim, h);
+    h.update((end.layer_pts.len() as u64).to_le_bytes());
+    for (pt, z1, cw) in &end.layer_pts {
+        kv(kf, pt, h);
+        k(kf, z1, h);
+        k(kf, cw, h);
+    }
+}
+
+/// [UPERF2-A] The synthetic member shape of a real witness tree at
+/// `depth`: two members per tree (one per half, the rig's aligned-block
+/// discipline: footprint 2^(depth-2) each at bases 0 and n/2), rows x cols
+/// with cols_pad a power of two — 768-wide (pad 1024) once the footprint
+/// allows, a single 3/4-filled row below that.
+fn uperf_a_member_shape(depth: usize) -> ring::descent_fold::MemberShape {
+    assert!(depth >= 4, "descent bench needs depth >= 4");
+    let fp = 1usize << (depth - 2);
+    if fp >= 1024 {
+        ring::descent_fold::MemberShape { rows: fp / 1024, cols: 768 }
+    } else {
+        ring::descent_fold::MemberShape { rows: 1, cols: 3 * fp / 4 }
+    }
+}
+
+/// [UPERF2-A] One synthetic descent PAIR at fixed seeds — the exact call
+/// sequence of bk_pass_run's descent phase for one pair: alpha from the
+/// transcript, n_real aligned blinded witness trees (two random members
+/// each) + neutral pads to l, draw_masks (fixed test seed), masked
+/// witness descent, then the table side (blinded_table_tree at dt with
+/// 2^(dt-1) fused rows and multiplicities + pads), masked table descent;
+/// optionally both verified with pins on fresh transcripts. Returns
+/// (digest over both proofs + ends, wall of trees, wall of proves, wall of
+/// verifies, both verified).
+struct UperfADescentOut {
+    digest: [u8; 32],
+    trees_s: f64,
+    prove_s: f64,
+    verify_s: f64,
+    verified: bool,
+    proof_kel: usize,
+}
+
+fn uperf_a_descent_pair(
+    kf: &ring::kfield::KField,
+    depth: usize,
+    l: usize,
+    n_real: usize,
+    dt: usize,
+    zero_mask: bool,
+    seed: u8,
+    with_verify: bool,
+) -> UperfADescentOut {
+    use ring::descent_fold::{aligned_witness_tree, neutral_tree};
+    use ring::gkr_masked::{
+        BlinderSet, blinded_table_tree, draw_masks, masked_gkr_prove, masked_gkr_verify, zero_masks,
+    };
+    use ring::kfield::KElem;
+    use ring::sumcheck::LkpTranscript;
+    use sha2::Digest;
+    assert!(l.is_power_of_two() && n_real >= 1 && n_real <= l);
+    let e_bits = l.trailing_zeros() as usize;
+    let n = 1usize << depth;
+    let shape = uperf_a_member_shape(depth);
+    let mut rd = XofReader::new(
+        "uperf2-a-leaves",
+        &[&[seed], &(depth as u64).to_le_bytes(), &(l as u64).to_le_bytes(), &(n_real as u64).to_le_bytes()],
+    );
+    let mut rng = ring::ProverRng::from_test_seed("uperf2-a-masks", &[seed, depth as u8, l as u8]);
+    let mut tr = LkpTranscript::new("uperf2-a-descent", &[seed; 32]);
+    let alpha = tr.challenge_k(kf);
+    // ---- witness side ----
+    let t0 = Instant::now();
+    let bl_w: Vec<BlinderSet> = (0..n_real).map(|_| BlinderSet::draw(kf, &mut rng)).collect();
+    let mut wtrees: Vec<ring::gkr::FracTree> = Vec::with_capacity(l);
+    for i in 0..n_real {
+        let col_a: Vec<KElem> = (0..shape.n_el()).map(|_| kf.uniform(&mut rd)).collect();
+        let col_b: Vec<KElem> = (0..shape.n_el()).map(|_| kf.uniform(&mut rd)).collect();
+        let slots: Vec<(ring::descent_fold::MemberShape, usize, &[KElem])> =
+            vec![(shape, 0, col_a.as_slice()), (shape, n / 2, col_b.as_slice())];
+        wtrees.push(aligned_witness_tree(kf, &alpha, &slots, depth, &bl_w[i]));
+    }
+    for _ in n_real..l {
+        wtrees.push(neutral_tree(kf, depth));
+    }
+    let masks_w = if zero_mask { zero_masks(kf, depth, e_bits) } else { draw_masks(kf, &mut rng, depth, e_bits) };
+    let masks_w_v = masks_w.harness_clone();
+    let trees_s = t0.elapsed().as_secs_f64();
+    let t1 = Instant::now();
+    let (pw, endw) = masked_gkr_prove(kf, &wtrees, masks_w, &mut tr);
+    let mut prove_s = t1.elapsed().as_secs_f64();
+    drop(wtrees);
+    // ---- table side ----
+    let t2 = Instant::now();
+    let t_rows = 1usize << (dt - 1);
+    let tab: Vec<KElem> = (0..t_rows).map(|_| kf.uniform(&mut rd)).collect();
+    let bl_t: Vec<BlinderSet> = (0..n_real).map(|_| BlinderSet::draw(kf, &mut rng)).collect();
+    let mut ttrees: Vec<ring::gkr::FracTree> = Vec::with_capacity(l);
+    for i in 0..n_real {
+        let m: Vec<KElem> = (0..t_rows).map(|_| kf.embed(rd.next_field(1 << 20))).collect();
+        ttrees.push(blinded_table_tree(kf, &alpha, &tab, &m, dt, &bl_t[i]));
+    }
+    for _ in n_real..l {
+        ttrees.push(neutral_tree(kf, dt));
+    }
+    let masks_t = if zero_mask { zero_masks(kf, dt, e_bits) } else { draw_masks(kf, &mut rng, dt, e_bits) };
+    let masks_t_v = masks_t.harness_clone();
+    let trees_s = trees_s + t2.elapsed().as_secs_f64();
+    let t3 = Instant::now();
+    let (pt, endt) = masked_gkr_prove(kf, &ttrees, masks_t, &mut tr);
+    prove_s += t3.elapsed().as_secs_f64();
+    drop(ttrees);
+    // ---- verify (fresh transcript, same absorb sequence) ----
+    let t4 = Instant::now();
+    let verified = if with_verify {
+        let mut tv = LkpTranscript::new("uperf2-a-descent", &[seed; 32]);
+        let alpha_v = tv.challenge_k(kf);
+        let ok_w = masked_gkr_verify(kf, l, depth, &masks_w_v, &pw, &mut tv, true)
+            .map(|(_, ev)| ev.zstar == endw.zstar && ev.p_claim == endw.p_claim && ev.q_claim == endw.q_claim)
+            .unwrap_or(false);
+        let ok_t = masked_gkr_verify(kf, l, dt, &masks_t_v, &pt, &mut tv, true)
+            .map(|(_, ev)| ev.zstar == endt.zstar && ev.p_claim == endt.p_claim && ev.q_claim == endt.q_claim)
+            .unwrap_or(false);
+        alpha_v == alpha && ok_w && ok_t && tv.state() == tr.state()
+    } else {
+        false
+    };
+    let verify_s = t4.elapsed().as_secs_f64();
+    let mut h = sha2::Sha256::new();
+    uperf_a_descent_digest(kf, &pw, &endw, &mut h);
+    uperf_a_descent_digest(kf, &pt, &endt, &mut h);
+    h.update(tr.state());
+    let digest: [u8; 32] = h.finalize().into();
+    UperfADescentOut {
+        digest,
+        trees_s,
+        prove_s,
+        verify_s,
+        verified,
+        proof_kel: bk_proof_kel(&pw) + bk_proof_kel(&pt),
+    }
+}
+
+/// [UPERF2-A] `uperf-a descent-bench <depth> <l> [n_real] [dt] [noverify]`.
+fn uperf_a_descent_bench(depth: usize, l: usize, n_real: usize, dt: usize, with_verify: bool) {
+    use ring::ct_engine::prof;
+    use ring::kfield::KField;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let leaves = (l as f64) * (1u64 << depth) as f64;
+    println!(
+        "[UPERF2-A] descent-bench: depth {depth} x l {l} (n_real {n_real}, pads {}), table dt {dt}, {:.1}M witness leaf elements; ZK_THREADS {} | oracle {} | verify {}",
+        l - n_real,
+        leaves / 1e6,
+        ring::eval_proof::threads(),
+        ring::eval_proof::oracle_mode(),
+        with_verify
+    );
+    prof::reset();
+    prof::enable(true, false);
+    let t0 = Instant::now();
+    let out = uperf_a_descent_pair(&kf, depth, l, n_real, dt, false, 0xA1, with_verify);
+    let wall = t0.elapsed().as_secs_f64();
+    prof::enable(false, false);
+    println!(
+        "[UPERF2-A] wall {wall:.2}s | trees {:.2}s | masked_gkr_prove {:.2}s ({:.1} ns per witness leaf element) | verify {:.2}s (verified {}) | proof {} K-elements | peak RSS {:.0} MiB",
+        out.trees_s,
+        out.prove_s,
+        out.prove_s * 1e9 / leaves,
+        out.verify_s,
+        out.verified,
+        out.proof_kel,
+        uperf_a_peak_rss_mib()
+    );
+    println!("[UPERF2-A] phase attribution (process-global, observation only; a.* are this lane's timers, both sides of the pair):");
+    let mut inner = 0.0;
+    for (name, secs, calls) in prof::report() {
+        if calls == 0 && secs == 0.0 {
+            continue;
+        }
+        if name.starts_with("a.") && name != "a.gkr-prove" && name != "a.gkr-verify" && name != "a.tree-pack" && name != "a.tree-step" {
+            inner += secs;
+        }
+        println!("    {name:<20} {secs:>9.3}s  x{calls}");
+    }
+    let prove_total = prof::report().iter().find(|r| r.0 == "a.gkr-prove").map(|r| r.1).unwrap_or(0.0);
+    println!(
+        "    {:<20} {:>9.3}s  (a.gkr-prove minus eq/extract/round-g/fold/scalar-tail: layer glue, transcript, mask evals, allocation)",
+        "a.glue",
+        (prove_total - inner).max(0.0)
+    );
+    println!("[UPERF2-A] DESCENT DIGEST {}", hex_full(&out.digest));
+}
+
+/// [UPERF2-A] `uperf-a descent-battery`: fixed-seed descent pairs at small
+/// shapes (with pads, masked AND zero masks), proven THREE ways in one
+/// process — the boxed scalar oracle field (KField::harness_scalar, the
+/// U-K9 oracle), the packed field under `set_oracle_mode(true)` (the
+/// pre-change bulk path), and the packed field on the fast path — every
+/// digest identical, every proof verified with pins. Prints one
+/// `[UPERF2-A] BATTERY DIGEST` over all shapes so three runs at
+/// ZK_THREADS 1/2/7 can be compared byte-for-byte.
 fn uperf_a_descent_battery() {
-    println!("[UPERF2-A] descent-battery stub (not implemented yet)");
+    use ring::eval_proof::set_oracle_mode;
+    use ring::kfield::KField;
+    use sha2::Digest;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let kfo = KField::harness_scalar(&ctx);
+    println!(
+        "[UPERF2-A] descent-battery: scalar-boxed oracle == bulk-ref (oracle_mode) == bulk-fast, all verified with pins; ZK_THREADS {}",
+        ring::eval_proof::threads()
+    );
+    // (depth, l, n_real, dt)
+    let shapes: [(usize, usize, usize, usize); 6] = [
+        (4, 1, 1, 4),
+        (8, 2, 1, 6),
+        (8, 2, 2, 7),
+        (12, 8, 5, 9),
+        (12, 2, 2, 8),
+        (10, 4, 3, 6),
+    ];
+    let mut all = sha2::Sha256::new();
+    let mut legs = 0usize;
+    for (depth, l, n_real, dt) in shapes {
+        for zero_mask in [false, true] {
+            let seed = 0xA0u8 ^ (depth as u8) ^ ((l as u8) << 4) ^ (zero_mask as u8);
+            let scalar = uperf_a_descent_pair(&kfo, depth, l, n_real, dt, zero_mask, seed, true);
+            set_oracle_mode(true);
+            let bref = uperf_a_descent_pair(&kf, depth, l, n_real, dt, zero_mask, seed, true);
+            set_oracle_mode(false);
+            let fast = uperf_a_descent_pair(&kf, depth, l, n_real, dt, zero_mask, seed, true);
+            let same = scalar.digest == bref.digest && bref.digest == fast.digest;
+            let ok = same && scalar.verified && bref.verified && fast.verified;
+            println!(
+                "  {} depth {depth:>2} x l {l} (n_real {n_real}, dt {dt}, {}masks): scalar {} | ref {} | fast {} | verified {}/{}/{} | fast prove {:.3}s",
+                if ok { "ok  " } else { "FAIL" },
+                if zero_mask { "zero " } else { "" },
+                &hex_full(&scalar.digest)[..12],
+                &hex_full(&bref.digest)[..12],
+                &hex_full(&fast.digest)[..12],
+                scalar.verified,
+                bref.verified,
+                fast.verified,
+                fast.prove_s
+            );
+            assert!(ok, "[UPERF2-A] descent-battery FAILED at depth {depth} l {l} zero_mask {zero_mask}");
+            all.update(fast.digest);
+            legs += 1;
+        }
+    }
+    let d: [u8; 32] = all.finalize().into();
+    println!("[UPERF2-A] descent-battery: {legs}/{legs} legs identical and verified");
+    println!("[UPERF2-A] BATTERY DIGEST {}", hex_full(&d));
 }

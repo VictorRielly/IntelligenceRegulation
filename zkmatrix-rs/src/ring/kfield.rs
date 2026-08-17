@@ -336,6 +336,33 @@ impl KTab {
         t
     }
 
+    /// [UPERF2-A] A table of n copies of one element (the neutral / dummy
+    /// leaf fill), written blockwise; trailing lanes of a partial last
+    /// block stay zero. Same contents as from_kelems(&vec![e; n]).
+    pub(crate) fn filled(n: usize, e: &KElem) -> KTab {
+        let mut t = KTab::zeroed(n);
+        if n == 0 {
+            return t;
+        }
+        let nblk = n / KL;
+        if nblk > 0 {
+            let mut blk = [0u32; KBLK];
+            for j in 0..K_DEG {
+                debug_assert!(e[j] < (1 << 31), "packed KTab expects canonical q31-class values");
+                for l in 0..KL {
+                    blk[j * KL + l] = e[j] as u32;
+                }
+            }
+            for m in 0..nblk {
+                t.d[m * KBLK..(m + 1) * KBLK].copy_from_slice(&blk);
+            }
+        }
+        for i in nblk * KL..n {
+            t.set(i, e);
+        }
+        t
+    }
+
     #[inline]
     pub(crate) fn get(&self, i: usize) -> KElem {
         debug_assert!(i < self.n);
@@ -755,6 +782,202 @@ fn round_g_body(
     }
 }
 
+// --- [UPERF2-A] additional kernel bodies (the fast masked-descent path) ---
+
+/// Out-of-place fold over full blocks: dst[m] = src[2m] + r (src[2m+1] -
+/// src[2m]) at block granularity — the same arithmetic as `fold_body`
+/// on separate source/destination buffers, so block ranges can be split
+/// across threads (the in-place fold's forward-safe aliasing forbids a
+/// naive range split: a later chunk's writes land on an earlier chunk's
+/// unread sources). Values are identical to `fold_body`.
+#[inline(always)]
+fn fold_oop_body(kern: &KKern, src: &[u32], dst: &mut [u32], r: &[u32; K_DEG], nblk: usize) {
+    let src_words = nblk.checked_mul(2 * KBLK).expect("K9 fold input size overflow");
+    let dst_words = nblk.checked_mul(KBLK).expect("K9 fold output size overflow");
+    assert!(src.len() >= src_words && dst.len() >= dst_words, "K9 oop-fold layout");
+    let q32 = kern.q as u32;
+    let mut t0 = [0u32; KBLK];
+    let mut t1 = [0u32; KBLK];
+    let mut d = [0u32; KBLK];
+    let mut out = [0u32; KBLK];
+    for m in 0..nblk {
+        deint_pair(src, m, &mut t0, &mut t1);
+        for x in 0..KBLK {
+            d[x] = subm32(t1[x], t0[x], q32);
+        }
+        let mut lo = [0u64; 31 * KL];
+        let mut hi = [0u64; 31 * KL];
+        mac_block_fixed(&d, r, &mut lo, &mut hi);
+        red_block(kern, &lo, &hi, &mut out);
+        for x in 0..KBLK {
+            out[x] = addm32(t0[x], out[x], q32);
+        }
+        dst[m * KBLK..(m + 1) * KBLK].copy_from_slice(&out);
+    }
+}
+
+/// In-place fixed-operand multiply-add over full blocks: a[i] += b[i] * r
+/// (the PL := p0 + lambda*q0 table of the fast round kernel, built on top
+/// of the extracted p0 blocks).
+#[inline(always)]
+fn mul_fixed_add_body(kern: &KKern, a_io: &mut [u32], b: &[u32], r: &[u32; K_DEG], nblk: usize) {
+    let words = nblk.checked_mul(KBLK).expect("K9 fixed-mul-add size overflow");
+    assert!(a_io.len() >= words && b.len() >= words, "K9 fixed-mul-add layout");
+    let q32 = kern.q as u32;
+    let mut out = [0u32; KBLK];
+    for m in 0..nblk {
+        let bb: &[u32; KBLK] = b[m * KBLK..(m + 1) * KBLK].try_into().unwrap();
+        let mut lo = [0u64; 31 * KL];
+        let mut hi = [0u64; 31 * KL];
+        mac_block_fixed(bb, r, &mut lo, &mut hi);
+        red_block(kern, &lo, &hi, &mut out);
+        let ab = &mut a_io[m * KBLK..(m + 1) * KBLK];
+        for x in 0..KBLK {
+            ab[x] = addm32(ab[x], out[x], q32);
+        }
+    }
+}
+
+/// The eq-table doubling step on SPLIT halves: for each block m of the
+/// current half, lo[m] (= a) becomes a * zbar and up[m] becomes a * z.
+/// Identical values to `eq_double_body`; the split lets the two output
+/// regions be chunked in lock-step across threads.
+#[inline(always)]
+fn eq_double_split_body(
+    kern: &KKern,
+    lo_io: &mut [u32],
+    up: &mut [u32],
+    nblk: usize,
+    zbar: &[u32; K_DEG],
+    z: &[u32; K_DEG],
+) {
+    let words = nblk.checked_mul(KBLK).expect("K9 eq-double size overflow");
+    assert!(lo_io.len() >= words && up.len() >= words, "K9 eq-double split layout");
+    let mut a = [0u32; KBLK];
+    let mut out = [0u32; KBLK];
+    for m in 0..nblk {
+        a.copy_from_slice(&lo_io[m * KBLK..(m + 1) * KBLK]);
+        let mut lo = [0u64; 31 * KL];
+        let mut hi = [0u64; 31 * KL];
+        mac_block_fixed(&a, zbar, &mut lo, &mut hi);
+        red_block(kern, &lo, &hi, &mut out);
+        lo_io[m * KBLK..(m + 1) * KBLK].copy_from_slice(&out);
+        let mut lo = [0u64; 31 * KL];
+        let mut hi = [0u64; 31 * KL];
+        mac_block_fixed(&a, z, &mut lo, &mut hi);
+        red_block(kern, &lo, &hi, &mut out);
+        up[m * KBLK..(m + 1) * KBLK].copy_from_slice(&out);
+    }
+}
+
+/// The FIVE-table round-polynomial kernel: the same node sums as
+/// `round_g_body` with the p0 and ql = lambda*q0 tables REPLACED by one
+/// table PL := p0 + lambda*q0, so the wire is TWO products
+///     wire(x, i) = PL Q1 + P1 Q0   (== P0 Q1 + P1 Q0 + lambda Q0 Q1)
+/// before the eq MAC (three MACs and one reduction per node instead of
+/// four and one). Everything else — extrapolation by successive modular
+/// adds, the deferred reduction, the persistent lazy node accumulators —
+/// is `round_g_body`'s. Field values are identical because PL(x) =
+/// P0(x) + lambda Q0(x) holds at every extrapolated x (linearity), so
+/// each node's canonical sum is the same field element. `consts` (masked
+/// t == 0): per node add-constants for [pl, p1, q0, q1].
+#[inline(always)]
+#[allow(clippy::too_many_arguments)]
+fn round_g5_body(
+    kern: &KKern,
+    eq: &[u32],
+    pl: &[u32],
+    p1: &[u32],
+    q0: &[u32],
+    q1: &[u32],
+    nblk_pairs: usize,
+    nodes: &[u64],
+    consts: Option<&[[[u32; K_DEG]; 4]]>,
+    acc_lo: &mut [u64],
+    acc_hi: &mut [u64],
+) {
+    let pair_terms = nblk_pairs.checked_mul(KL).expect("K9 round term-count overflow");
+    assert!(pair_terms <= K9_MAX_PAIR_TERMS, "K9 lazy-accumulator cap exceeded");
+    let src_words = nblk_pairs
+        .checked_mul(2 * KBLK)
+        .expect("K9 round input size overflow");
+    assert!(
+        [eq, pl, p1, q0, q1].iter().all(|table| table.len() >= src_words),
+        "K9 round5 input layout"
+    );
+    let acc_words = nodes
+        .len()
+        .checked_mul(31 * KL)
+        .expect("K9 round accumulator size overflow");
+    assert!(acc_lo.len() >= acc_words && acc_hi.len() >= acc_words, "K9 round accumulator layout");
+    if let Some(cs) = consts {
+        assert_eq!(cs.len(), nodes.len(), "K9 round5 constant layout");
+    }
+    let q32 = kern.q as u32;
+    let mut e0 = [[0u32; KBLK]; 5];
+    let mut e1 = [[0u32; KBLK]; 5];
+    let mut dd = [[0u32; KBLK]; 5];
+    let mut cur = [[0u32; KBLK]; 5];
+    let mut op = [[0u32; KBLK]; 4];
+    let mut tred = [0u32; KBLK];
+    for m in 0..nblk_pairs {
+        let srcs = [eq, pl, p1, q0, q1];
+        for (k, s) in srcs.iter().enumerate() {
+            let (a, b) = (&mut e0[k], &mut e1[k]);
+            deint_pair(s, m, a, b);
+            for x in 0..KBLK {
+                dd[k][x] = subm32(e1[k][x], e0[k][x], q32);
+            }
+            cur[k] = e1[k];
+        }
+        let mut prev_x = 1u64;
+        for (ni, &x) in nodes.iter().enumerate() {
+            let tabs: [&[u32; KBLK]; 5] = if x == 0 {
+                [&e0[0], &e0[1], &e0[2], &e0[3], &e0[4]]
+            } else {
+                while prev_x < x {
+                    for k in 0..5 {
+                        for xx in 0..KBLK {
+                            cur[k][xx] = addm32(cur[k][xx], dd[k][xx], q32);
+                        }
+                    }
+                    prev_x += 1;
+                }
+                [&cur[0], &cur[1], &cur[2], &cur[3], &cur[4]]
+            };
+            let use_ops = if let Some(cs) = consts {
+                let c = &cs[ni];
+                for k in 0..4 {
+                    for j in 0..K_DEG {
+                        for l in 0..KL {
+                            op[k][j * KL + l] = addm32(tabs[k + 1][j * KL + l], c[k][j], q32);
+                        }
+                    }
+                }
+                true
+            } else {
+                false
+            };
+            let (vpl, vp1, vq0, vq1) = if use_ops {
+                (&op[0], &op[1], &op[2], &op[3])
+            } else {
+                (tabs[1], tabs[2], tabs[3], tabs[4])
+            };
+            // wire = PL Q1 + P1 Q0: 2 MACs, one reduction
+            let mut lo = [0u64; 31 * KL];
+            let mut hi = [0u64; 31 * KL];
+            mac_block(vpl, vq1, &mut lo, &mut hi);
+            mac_block(vp1, vq0, &mut lo, &mut hi);
+            red_block(kern, &lo, &hi, &mut tred);
+            let alo: &mut [u64; 31 * KL] =
+                (&mut acc_lo[ni * 31 * KL..(ni + 1) * 31 * KL]).try_into().unwrap();
+            let ahi: &mut [u64; 31 * KL] =
+                (&mut acc_hi[ni * 31 * KL..(ni + 1) * 31 * KL]).try_into().unwrap();
+            mac_block(tabs[0], &tred, alo, ahi);
+        }
+    }
+}
+
 // --- dispatch: AVX2 instantiation when available, portable otherwise ---
 
 macro_rules! k9_kernel {
@@ -791,6 +1014,348 @@ k9_kernel!(k9_round_g_blocks, k9_round_g_blocks_avx2, round_g_body,
     (kern: &KKern, eq: &[u32], p0: &[u32], p1: &[u32], q0: &[u32], q1: &[u32], ql: &[u32],
      nblk_pairs: usize, nodes: &[u64], consts: Option<&[[[u32; K_DEG]; 5]]>,
      acc_lo: &mut [u64], acc_hi: &mut [u64]));
+// [UPERF2-A] fast-path bodies
+k9_kernel!(k9_fold_oop_blocks, k9_fold_oop_blocks_avx2, fold_oop_body,
+    (kern: &KKern, src: &[u32], dst: &mut [u32], r: &[u32; K_DEG], nblk: usize));
+k9_kernel!(k9_mul_fixed_add_blocks, k9_mul_fixed_add_blocks_avx2, mul_fixed_add_body,
+    (kern: &KKern, a_io: &mut [u32], b: &[u32], r: &[u32; K_DEG], nblk: usize));
+k9_kernel!(k9_eq_double_split_blocks, k9_eq_double_split_blocks_avx2, eq_double_split_body,
+    (kern: &KKern, lo_io: &mut [u32], up: &mut [u32], nblk: usize, zbar: &[u32; K_DEG], z: &[u32; K_DEG]));
+k9_kernel!(k9_round_g5_blocks, k9_round_g5_blocks_avx2, round_g5_body,
+    (kern: &KKern, eq: &[u32], pl: &[u32], p1: &[u32], q0: &[u32], q1: &[u32],
+     nblk_pairs: usize, nodes: &[u64], consts: Option<&[[[u32; K_DEG]; 4]]>,
+     acc_lo: &mut [u64], acc_hi: &mut [u64]));
+
+// ---------------------------------------------------------------------------
+// [UPERF2-A] Deterministic ZK_THREADS parallelism over the packed kernels.
+//
+// Every split below is over INDEPENDENT block ranges of exact-integer
+// work: elementwise kernels (fold, fixed-operand MAC, eq doubling, tree
+// steps, broadcast add) write disjoint output blocks — no reduction at
+// all — and the round-polynomial kernel accumulates per-chunk lazy planes
+// that are summed in index order at the end. Those planes are exact
+// non-negative integer sums bounded by the serial total (which the
+// K9_MAX_PAIR_TERMS cap keeps < 2^64), so partial sums cannot overflow and
+// integer addition is associative: the result is BIT-IDENTICAL for any
+// ZK_THREADS and any chunking. Threads come from
+// `eval_proof::threads()` (ZK_THREADS, default 1); at 1 the bodies run
+// inline with no pool involvement.
+
+static K9_POOL: std::sync::LazyLock<rayon::ThreadPool> = std::sync::LazyLock::new(|| {
+    rayon::ThreadPoolBuilder::new()
+        .num_threads(super::eval_proof::threads())
+        .build()
+        .expect("ZK_THREADS K9 pool")
+});
+
+#[inline(always)]
+pub(crate) fn k9_threads() -> usize {
+    super::eval_proof::threads()
+}
+
+fn k9_pooled<R: Send>(f: impl FnOnce() -> R + Send) -> R {
+    if k9_threads() > 1 { K9_POOL.install(f) } else { f() }
+}
+
+/// The pool wrapper for the sibling modules' own splits (gkr.rs's
+/// extract; same pool, same threads()).
+pub(crate) fn k9_pooled_pub<R: Send>(f: impl FnOnce() -> R + Send) -> R {
+    k9_pooled(f)
+}
+
+pub(crate) fn k9_extract_chunk_blk() -> usize {
+    K9_CHUNK_BLK
+}
+
+/// Deinterleave n consecutive block pairs of `src` starting at pair index
+/// m0 into t0_out (even elements) / t1_out (odd elements), block i of the
+/// outputs from source blocks 2(m0+i), 2(m0+i)+1 — the extract_children
+/// copy at block granularity (no per-element get/set).
+pub(crate) fn k9_deint_blocks(src: &[u32], m0: usize, n: usize, t0_out: &mut [u32], t1_out: &mut [u32]) {
+    assert!(t0_out.len() >= n * KBLK && t1_out.len() >= n * KBLK, "K9 deint output layout");
+    assert!(src.len() >= 2 * (m0 + n) * KBLK, "K9 deint input layout");
+    let mut a = [0u32; KBLK];
+    let mut b = [0u32; KBLK];
+    for i in 0..n {
+        deint_pair(src, m0 + i, &mut a, &mut b);
+        t0_out[i * KBLK..(i + 1) * KBLK].copy_from_slice(&a);
+        t1_out[i * KBLK..(i + 1) * KBLK].copy_from_slice(&b);
+    }
+}
+
+/// Blocks per parallel chunk for elementwise kernels (positional output;
+/// any value is identical): 256 blocks = 128 KiB of u32 words per table
+/// operand — a few cache-resident lane blocks per work item.
+const K9_CHUNK_BLK: usize = 256;
+
+/// Number of pair-block chunks for the round kernel: enough for load
+/// balance, few enough that the per-chunk accumulators stay small.
+fn k9_round_chunks(nblk_pairs: usize) -> usize {
+    let t = k9_threads();
+    if t <= 1 || nblk_pairs < 2 * K9_CHUNK_BLK {
+        return 1;
+    }
+    (t * 8).min(nblk_pairs.div_ceil(K9_CHUNK_BLK)).max(1)
+}
+
+/// Threaded out-of-place fold: dst[m] over the block range, chunked.
+pub(crate) fn k9_fold_oop_par(kern: &KKern, src: &[u32], dst: &mut [u32], r: &[u32; K_DEG], nblk: usize) {
+    if k9_threads() <= 1 || nblk <= K9_CHUNK_BLK {
+        return k9_fold_oop_blocks(kern, src, dst, r, nblk);
+    }
+    let kern = *kern;
+    let r = *r;
+    let dst = &mut dst[..nblk * KBLK];
+    let src = &src[..2 * nblk * KBLK];
+    k9_pooled(|| {
+        use rayon::prelude::*;
+        dst.par_chunks_mut(K9_CHUNK_BLK * KBLK).enumerate().for_each(|(c, dchunk)| {
+            let m0 = c * K9_CHUNK_BLK;
+            let n = dchunk.len() / KBLK;
+            k9_fold_oop_blocks(&kern, &src[2 * m0 * KBLK..2 * (m0 + n) * KBLK], dchunk, &r, n);
+        });
+    });
+}
+
+/// Threaded in-place a[i] += b[i]*r over full blocks.
+pub(crate) fn k9_mul_fixed_add_par(kern: &KKern, a_io: &mut [u32], b: &[u32], r: &[u32; K_DEG], nblk: usize) {
+    if k9_threads() <= 1 || nblk <= K9_CHUNK_BLK {
+        return k9_mul_fixed_add_blocks(kern, a_io, b, r, nblk);
+    }
+    let kern = *kern;
+    let r = *r;
+    let a_io = &mut a_io[..nblk * KBLK];
+    let b = &b[..nblk * KBLK];
+    k9_pooled(|| {
+        use rayon::prelude::*;
+        a_io.par_chunks_mut(K9_CHUNK_BLK * KBLK)
+            .zip(b.par_chunks(K9_CHUNK_BLK * KBLK))
+            .for_each(|(ac, bc)| k9_mul_fixed_add_blocks(&kern, ac, bc, &r, ac.len() / KBLK));
+    });
+}
+
+/// Threaded broadcast add over full blocks (in place).
+pub(crate) fn k9_addc_par(kern: &KKern, t: &mut [u32], c: &[u32; K_DEG], nblk: usize) {
+    if k9_threads() <= 1 || nblk <= K9_CHUNK_BLK {
+        return k9_addc_blocks(kern, t, c, nblk);
+    }
+    let kern = *kern;
+    let c = *c;
+    let t = &mut t[..nblk * KBLK];
+    k9_pooled(|| {
+        use rayon::prelude::*;
+        t.par_chunks_mut(K9_CHUNK_BLK * KBLK).for_each(|tc| k9_addc_blocks(&kern, tc, &c, tc.len() / KBLK));
+    });
+}
+
+/// Threaded eq doubling in place: the table's current half (half_nblk
+/// full blocks) is split from its mirror and both are chunked in
+/// lock-step.
+pub(crate) fn k9_eq_double_par(kern: &KKern, d_io: &mut [u32], half_nblk: usize, zbar: &[u32; K_DEG], z: &[u32; K_DEG]) {
+    if k9_threads() <= 1 || half_nblk <= K9_CHUNK_BLK {
+        return k9_eq_double_blocks(kern, d_io, half_nblk, zbar, z);
+    }
+    let kern = *kern;
+    let (zbar, z) = (*zbar, *z);
+    let (lo, up) = d_io[..2 * half_nblk * KBLK].split_at_mut(half_nblk * KBLK);
+    k9_pooled(|| {
+        use rayon::prelude::*;
+        lo.par_chunks_mut(K9_CHUNK_BLK * KBLK)
+            .zip(up.par_chunks_mut(K9_CHUNK_BLK * KBLK))
+            .for_each(|(lc, uc)| k9_eq_double_split_blocks(&kern, lc, uc, lc.len() / KBLK, &zbar, &z));
+    });
+}
+
+/// Threaded projective-tree layer step: output blocks are independent.
+pub(crate) fn k9_tree_step_par(kern: &KKern, cp: &[u32], cq: &[u32], np: &mut [u32], nq: &mut [u32], nblk: usize) {
+    if k9_threads() <= 1 || nblk <= K9_CHUNK_BLK {
+        return k9_tree_step(kern, cp, cq, np, nq, nblk);
+    }
+    let kern = *kern;
+    let (cp, cq) = (&cp[..2 * nblk * KBLK], &cq[..2 * nblk * KBLK]);
+    let (np, nq) = (&mut np[..nblk * KBLK], &mut nq[..nblk * KBLK]);
+    k9_pooled(|| {
+        use rayon::prelude::*;
+        np.par_chunks_mut(K9_CHUNK_BLK * KBLK)
+            .zip(nq.par_chunks_mut(K9_CHUNK_BLK * KBLK))
+            .enumerate()
+            .for_each(|(c, (npc, nqc))| {
+                let m0 = c * K9_CHUNK_BLK;
+                let n = npc.len() / KBLK;
+                k9_tree_step(&kern, &cp[2 * m0 * KBLK..2 * (m0 + n) * KBLK], &cq[2 * m0 * KBLK..2 * (m0 + n) * KBLK], npc, nqc, n);
+            });
+    });
+}
+
+/// Threaded five-table round kernel: per-chunk lazy planes summed in
+/// index order into acc_lo/acc_hi (exact integer sums — identical for any
+/// chunking, see the section note).
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn k9_round_g5_par(
+    kern: &KKern,
+    eq: &[u32],
+    pl: &[u32],
+    p1: &[u32],
+    q0: &[u32],
+    q1: &[u32],
+    nblk_pairs: usize,
+    nodes: &[u64],
+    consts: Option<&[[[u32; K_DEG]; 4]]>,
+    acc_lo: &mut [u64],
+    acc_hi: &mut [u64],
+) {
+    let n_chunks = k9_round_chunks(nblk_pairs);
+    if n_chunks <= 1 {
+        return k9_round_g5_blocks(kern, eq, pl, p1, q0, q1, nblk_pairs, nodes, consts, acc_lo, acc_hi);
+    }
+    let per = nblk_pairs.div_ceil(n_chunks);
+    let acc_words = nodes.len() * 31 * KL;
+    let kern = *kern;
+    let partials: Vec<(Vec<u64>, Vec<u64>)> = k9_pooled(|| {
+        use rayon::prelude::*;
+        (0..n_chunks)
+            .into_par_iter()
+            .map(|c| {
+                let m0 = (c * per).min(nblk_pairs);
+                let m1 = ((c + 1) * per).min(nblk_pairs);
+                let mut lo = vec![0u64; acc_words];
+                let mut hi = vec![0u64; acc_words];
+                if m1 > m0 {
+                    let (w0, w1) = (2 * m0 * KBLK, 2 * m1 * KBLK);
+                    k9_round_g5_blocks(
+                        &kern, &eq[w0..w1], &pl[w0..w1], &p1[w0..w1], &q0[w0..w1], &q1[w0..w1], m1 - m0, nodes,
+                        consts, &mut lo, &mut hi,
+                    );
+                }
+                (lo, hi)
+            })
+            .collect()
+    });
+    for (lo, hi) in &partials {
+        for i in 0..acc_words {
+            acc_lo[i] += lo[i];
+            acc_hi[i] += hi[i];
+        }
+    }
+}
+
+/// Threaded pack of boxed K-elements into a fresh table (positional).
+pub(crate) fn k9_pack_par(v: &[KElem]) -> KTab {
+    let mut t = KTab::zeroed(v.len());
+    let nblk = v.len() / KL;
+    if k9_threads() <= 1 || nblk <= K9_CHUNK_BLK {
+        for (i, e) in v.iter().enumerate() {
+            t.set(i, e);
+        }
+        return t;
+    }
+    let full = nblk * KBLK;
+    {
+        let d = &mut t.d[..full];
+        k9_pooled(|| {
+            use rayon::prelude::*;
+            d.par_chunks_mut(K9_CHUNK_BLK * KBLK).enumerate().for_each(|(c, dc)| {
+                let i0 = c * K9_CHUNK_BLK * KL;
+                let n = dc.len() / KBLK * KL;
+                for i in 0..n {
+                    let e = &v[i0 + i];
+                    let base = (i / KL) * KBLK + (i % KL);
+                    for j in 0..K_DEG {
+                        debug_assert!(e[j] < (1 << 31));
+                        dc[base + j * KL] = e[j] as u32;
+                    }
+                }
+            });
+        });
+    }
+    for i in nblk * KL..v.len() {
+        t.set(i, &v[i]);
+    }
+    t
+}
+
+impl KField {
+    /// [UPERF2-A] Fold a packed table via an out-of-place threaded fold
+    /// into `scratch` (grown once, then swapped in — no allocation after
+    /// the first round of a layer). Identical values to `kt_fold_inplace`.
+    /// Sizes below a full output block take the scalar staging path.
+    pub(crate) fn kt_fold_par(&self, t: &mut KTab, scratch: &mut Vec<u32>, r: &KElem) {
+        let kern = self.kern.as_ref().expect("kt_fold_par requires the bulk kernel");
+        let n_out = t.n / 2;
+        if n_out >= KL {
+            debug_assert_eq!(n_out % KL, 0, "power-of-two tables only");
+            let nblk = n_out / KL;
+            if scratch.len() < nblk * KBLK {
+                scratch.resize(nblk * KBLK, 0);
+            }
+            k9_fold_oop_par(kern, &t.d, scratch, &kop(r), nblk);
+            std::mem::swap(&mut t.d, scratch);
+            t.n = n_out;
+            t.d.truncate(nblk * KBLK);
+        } else {
+            let mut out = KTab::zeroed(n_out);
+            for i in 0..n_out {
+                let (a, b) = (t.get(2 * i), t.get(2 * i + 1));
+                out.set(i, &self.add(&a, &self.mul(r, &self.sub(&b, &a))));
+            }
+            *t = out;
+        }
+    }
+
+    /// [UPERF2-A] The threaded eq-table build (same in-place doubling,
+    /// the doubling step chunked across threads); `kt_eq_table_ref` is
+    /// the pre-change body. Identical values.
+    pub(crate) fn kt_eq_table_par(&self, z: &[KElem]) -> KTab {
+        let kern = self.kern.as_ref().expect("kt_eq_table requires the bulk kernel");
+        assert!(z.len() <= K9_MAX_LEAVES.trailing_zeros() as usize, "K9 eq table cap exceeded");
+        let mut t = KTab::zeroed(1usize << z.len());
+        t.set(0, &self.one());
+        let mut half = 1usize;
+        for zv in z {
+            let zbar = self.sub(&self.one(), zv);
+            if half >= KL {
+                k9_eq_double_par(kern, &mut t.d, half / KL, &kop(&zbar), &kop(zv));
+            } else {
+                for i in 0..half {
+                    let a = t.get(i);
+                    t.set(i + half, &self.mul(&a, zv));
+                    t.set(i, &self.mul(&a, &zbar));
+                }
+            }
+            half *= 2;
+        }
+        t
+    }
+
+    /// [UPERF2-A] In-place a[i] += b[i]*r over two same-size packed tables
+    /// (threaded; scalar tail below a full block).
+    pub(crate) fn kt_mul_fixed_add_inplace(&self, a: &mut KTab, b: &KTab, r: &KElem) {
+        let kern = self.kern.as_ref().expect("kt_mul_fixed_add_inplace requires the bulk kernel");
+        assert_eq!(a.n, b.n);
+        let nblk = a.n / KL;
+        if nblk > 0 {
+            k9_mul_fixed_add_par(kern, &mut a.d, &b.d, &kop(r), nblk);
+        }
+        for i in nblk * KL..a.n {
+            let v = self.add(&a.get(i), &self.mul(&b.get(i), r));
+            a.set(i, &v);
+        }
+    }
+
+    /// [UPERF2-A] Broadcast add t[i] += c over a packed table (threaded
+    /// full blocks; scalar tail).
+    pub(crate) fn kt_addc(&self, t: &mut KTab, c: &KElem) {
+        let kern = self.kern.as_ref().expect("kt_addc requires the bulk kernel");
+        let nblk = t.n / KL;
+        if nblk > 0 {
+            k9_addc_par(kern, &mut t.d, &kop(c), nblk);
+        }
+        for i in nblk * KL..t.n {
+            let v = self.add(&t.get(i), c);
+            t.set(i, &v);
+        }
+    }
+}
 
 // --- table-level operations (bulk when full blocks exist, scalar tails) ---
 
