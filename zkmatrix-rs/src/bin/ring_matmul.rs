@@ -20014,12 +20014,44 @@ fn agg_digit_witness_ref(g: &ring::eval_proof::AggGroup, values: &[&[i64]]) -> V
 /// exactly one thread from the same per-value decomposition — identical
 /// for any thread count. The digit rows are allocated once up front (as
 /// before); oracle-routed under `ZK_UPERF_ORACLE=1`.
+/// [UPERF2-D] `ring::digits::exact_digit_decompose` written INTO a slice
+/// (no per-value allocation): sign-binary at e0 == 1, else the balanced
+/// `digit_decompose` loop — verbatim the frozen semantics (the battery
+/// pins the rows against the allocating original at both classes).
+#[inline(always)]
+fn digits_into(x: i64, e0: u32, out: &mut [i64]) {
+    let l = out.len();
+    if e0 == 1 {
+        let s = x.signum();
+        let a = x.unsigned_abs();
+        assert!(a < (1u64 << l), "sign-binary range exhausted for {x}");
+        for (j, o) in out.iter_mut().enumerate() {
+            *o = s * (((a >> j) & 1) as i64);
+        }
+    } else {
+        let base = 1i64 << e0;
+        let half = base >> 1;
+        let mut rem = x;
+        for o in out.iter_mut() {
+            let mut d = rem % base;
+            if d >= half {
+                d -= base;
+            }
+            if d < -half {
+                d += base;
+            }
+            *o = d;
+            rem = (rem - d) / base;
+        }
+        assert!(rem == 0, "digit range exhausted for {x}");
+    }
+}
+
 fn agg_digit_witness(g: &ring::eval_proof::AggGroup, values: &[&[i64]]) -> Vec<Vec<i64>> {
     use rayon::prelude::*;
-    use ring::digits::exact_digit_decompose;
     use ring::fold::{ixf_pooled, ixf_threads};
     let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::D_DIGITS); // [UPERF2-D] observation only
-    if ring::eval_proof::oracle_mode() || ixf_threads() <= 1 {
+    if ring::eval_proof::oracle_mode() {
         return agg_digit_witness_ref(g, values);
     }
     let mut w = vec![vec![0i64; D]; g.n_digit_rings];
@@ -20029,24 +20061,34 @@ fn agg_digit_witness(g: &ring::eval_proof::AggGroup, values: &[&[i64]]) -> Vec<V
         let l0 = t.l0;
         let e0 = t.e0;
         let rows = &mut w[t.digit_ring_base..t.digit_ring_base + nvr * l0];
-        // 8 value rings per work item (l0 x 8 digit rows), independent outputs.
-        ixf_pooled(|| {
-            rows.par_chunks_mut(l0 * 8).enumerate().for_each(|(ci, chunk)| {
-                let vr0 = ci * 8;
-                for (i, vrows) in chunk.chunks_mut(l0).enumerate() {
-                    let vr = vr0 + i;
-                    for c1 in 0..D {
-                        let f = vr * D + c1;
-                        if f < vals.len() {
-                            let digs = exact_digit_decompose(vals[f], e0, l0);
-                            for (l, d) in digs.into_iter().enumerate() {
-                                vrows[l][c1] = d;
-                            }
+        // 8 value rings per work item (l0 x 8 digit rows), independent
+        // outputs; the digits of one value land in a stack buffer, then
+        // scatter to the l0 rows (no allocation per value).
+        let work = |ci: usize, chunk: &mut [Vec<i64>]| {
+            let vr0 = ci * 8;
+            let mut digs = vec![0i64; l0];
+            for (i, vrows) in chunk.chunks_mut(l0).enumerate() {
+                let vr = vr0 + i;
+                for c1 in 0..D {
+                    let f = vr * D + c1;
+                    if f < vals.len() {
+                        digits_into(vals[f], e0, &mut digs);
+                        for (l, &d) in digs.iter().enumerate() {
+                            vrows[l][c1] = d;
                         }
                     }
                 }
+            }
+        };
+        if ixf_threads() > 1 && nvr >= 16 {
+            ixf_pooled(|| {
+                rows.par_chunks_mut(l0 * 8).enumerate().for_each(|(ci, chunk)| work(ci, chunk));
             });
-        });
+        } else {
+            for (ci, chunk) in rows.chunks_mut(l0 * 8).enumerate() {
+                work(ci, chunk);
+            }
+        }
     }
     w
 }
@@ -36604,7 +36646,80 @@ fn uperf_d_main(args: &[String]) {
             let with_ref = args.get(3).map(String::as_str) != Some("noref");
             uperf_d_bench(n, kind, with_ref);
         }
-        _ => println!("uperf-d diff-battery | bench [n_log2] [prod3|had|rq] [noref]"),
+        Some("gemm-bench") => {
+            let t: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(512);
+            let with_ref = args.get(2).map(String::as_str) != Some("noref");
+            uperf_d_gemm_bench(t, with_ref);
+        }
+        _ => println!("uperf-d diff-battery | bench [n_log2] [prod3|had|rq] [noref] | gemm-bench [t] [noref]"),
+    }
+}
+
+/// The chain GEMM at the pass shape (t x 768 x 2048 gate/up + t x 2048 x
+/// 768 down — one layer's three matmuls) fast vs the i-k-j oracle, plus the
+/// digit witness of a weight-class tensor, byte equality asserted.
+fn uperf_d_gemm_bench(t: usize, with_ref: bool) {
+    println!(
+        "[UPERF2-D] gemm-bench: one layer's chain GEMMs at T = {t} (768 x 2048 x2 + 2048 x 768; ZK_THREADS {}, oracle env {})",
+        ring::eval_proof::threads(),
+        ring::eval_proof::oracle_mode()
+    );
+    let mut rd = ring::XofReader::new("uperf2-d-gemm", &[&(t as u64).to_le_bytes()]);
+    let mut small = |n: usize| -> Vec<i64> { (0..n).map(|_| (rd.next_u64() % 255) as i64 - 127).collect() };
+    let x = small(t * BF_D);
+    let wg = small(BF_D * BF_F);
+    let wu = small(BF_D * BF_F);
+    let h8 = small(t * BF_F);
+    let wd = small(BF_F * BF_D);
+    let macs = (2 * t * BF_D * BF_F + t * BF_F * BF_D) as f64;
+    let t0 = Instant::now();
+    let g = bf_matmul_i64(&x, &wg, t, BF_D, BF_F);
+    let s_g = t0.elapsed().as_secs_f64();
+    let u = bf_matmul_i64(&x, &wu, t, BF_D, BF_F);
+    let s_u = t0.elapsed().as_secs_f64() - s_g;
+    let d = bf_matmul_i64(&h8, &wd, t, BF_F, BF_D);
+    let s_fast = t0.elapsed().as_secs_f64();
+    println!(
+        "  chain GEMM fast : {s_fast:>8.3}s  = {:.2} GMAC/s (gate {s_g:.3} up {s_u:.3} down {:.3})",
+        macs / s_fast / 1e9,
+        s_fast - s_g - s_u
+    );
+    if with_ref {
+        let t0 = Instant::now();
+        let gr = bf_matmul_i64_ref(&x, &wg, t, BF_D, BF_F);
+        let ur = bf_matmul_i64_ref(&x, &wu, t, BF_D, BF_F);
+        let dr = bf_matmul_i64_ref(&h8, &wd, t, BF_F, BF_D);
+        let s_ref = t0.elapsed().as_secs_f64();
+        assert!(g == gr && u == ur && d == dr, "gemm-bench: fast != ref");
+        println!(
+            "  chain GEMM ref  : {s_ref:>8.3}s  = {:.2} GMAC/s -> speedup {:.1}x (byte-identical)",
+            macs / s_ref / 1e9,
+            s_ref / s_fast
+        );
+    }
+    // the digit witness of one weight tensor + one act-class tensor
+    {
+        use ring::digits::{derive_l0, CLASS_W8S};
+        let mut g = ring::eval_proof::AggGroup::new("d-gemm-bench");
+        g.add_tensor("WgT", BF_D, BF_F, CLASS_W8S.e0, CLASS_W8S.l0);
+        g.add_tensor("Gacc", t, BF_F, 2, derive_l0(-(1 << 24), (1 << 24) - 1, 2));
+        let gacc: Vec<i64> = (0..t * BF_F).map(|i| ((i as i64 * 7919) % 30000) - 15000).collect();
+        let vals: Vec<&[i64]> = vec![&wg, &gacc];
+        let t0 = Instant::now();
+        let w = agg_digit_witness(&g, &vals);
+        let s_fast = t0.elapsed().as_secs_f64();
+        println!(
+            "  digit witness fast: {s_fast:>8.3}s for {} digit rings ({:.1} ns per value)",
+            w.len(),
+            s_fast * 1e9 / (wg.len() + gacc.len()) as f64
+        );
+        if with_ref {
+            let t0 = Instant::now();
+            let wr = agg_digit_witness_ref(&g, &vals);
+            let s_ref = t0.elapsed().as_secs_f64();
+            assert!(w == wr, "gemm-bench: digit witness fast != ref");
+            println!("  digit witness ref : {s_ref:>8.3}s -> speedup {:.1}x (byte-identical)", s_ref / s_fast);
+        }
     }
 }
 
@@ -37025,9 +37140,10 @@ fn uperf_d_bench(n_log2: usize, kind: ring::fold::IxfCombine, with_ref: bool) {
     let pairs_total: f64 = (0..n_log2).map(|t| (1usize << (n_log2 - 1 - t)) as f64).sum();
     ring::ct_engine::prof::reset();
     ring::ct_engine::prof::enable(true, false);
+    let tabs_fast = tabs.clone();
     let t0 = Instant::now();
     let mut tr_f = LkpTranscript::new("uperf2-d-bench", &[1]);
-    let (pf, ptf) = ixf_sumcheck_prove_kind(&kf, tabs.clone(), &degrees, kind, &mut tr_f);
+    let (pf, ptf) = ixf_sumcheck_prove_kind(&kf, tabs_fast, &degrees, kind, &mut tr_f);
     let s_fast = t0.elapsed().as_secs_f64();
     ring::ct_engine::prof::enable(false, false);
     println!(
