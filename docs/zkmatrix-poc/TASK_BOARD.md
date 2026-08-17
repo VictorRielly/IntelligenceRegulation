@@ -423,7 +423,13 @@ at 1T (15.6x) -> 16.6 s at 8T (41x), verify 1.9 s at 8T, every digest
 identical** (U_PERF_WAVE_REPORT.md 4.2). Round 3 lanes **D** (claim
 layer + commit phase threading) and **E** (descent callers on lane
 A's drop-ins, descent VERIFY attribution, small-cols aux tensors) are
-running now with the real 3x16 rig as their gate.
+LANDED and MERGED too (4dcaea6): claim layer 3.5x/11x, chain GEMM
+10x, tree callers streamed, small-cols aux K-rows 42x, parallel CRS
+XOF; real-data batteries green. **3x16 now: 30.6 s at 1T (22x), 9.9 s
+at 8T (69x); 12x64 at 8T: 46.0 s, 12.2 GiB RSS.** Round 4 lanes **F**
+(memory diet — w0 compact, phi never materialized; the 12x512 rig on
+the 15 GB box) and **G** (descents round 2: fold/extract fusion,
+arena, thread scaling) are running.
 
 **Grok (Mac): T1 is STILL the most valuable single task and now has
 much more to show** — same recipe (2.3): `uperf-pc full-profile 12

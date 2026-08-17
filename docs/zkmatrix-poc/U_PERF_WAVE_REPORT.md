@@ -219,6 +219,19 @@ concurrently)]:
 
 | U-PERF2 lanes A + C merged (a450b1f), fast, 1T [QUIET] | 4.2 s | 32.1 s | 7.3 s | **43.7 s** | 0ae9cdae… (identical) | 2.9 GiB |
 | same, `ZK_THREADS=8` [QUIET] | 2.6 s | 12.0 s | **1.9 s** | **16.6 s** | 0ae9cdae… (identical) | 3.0 GiB |
+| + lanes D + E + parallel CRS XOF (4dcaea6), fast, 1T [QUIET] | 4.1 s | 22.7 s | 3.6 s | **30.6 s** | 0ae9cdae… (identical) | 2.9 GiB |
+| same, `ZK_THREADS=8` [QUIET] | 1.6 s | 6.9 s | **1.3 s** | **9.9 s** | 0ae9cdae… (identical) | 3.0 GiB |
+| same, `ZK_THREADS=16` [QUIET] | 1.6 s | 6.8 s | 1.4 s | 10.0 s (saturated on this hybrid box) | 0ae9cdae… (identical) | — |
+| **12 layers x T=64** (4dcaea6), `ZK_THREADS=8` [QUIET] | 8.3 s | 33.6 s | 3.6 s | **46.0 s** | 63f4a3a4… (statement 80763ea5…) | **12.2 GiB** |
+
+Round 3 (lanes D + E): claim layer 3.17 -> 0.91 s at 1T (11x at 8T),
+chain GEMM 10x, digit witness threaded, tree callers streamed, the
+small-cols aux K-rows 42x, the CRS XOF block-parallel — real-data
+batteries green (pass-agg 14/14, table-descent 5/5 in 108 s, t-blind
+11/11). Cumulative at 3x16: **682.8 s -> 30.6 s at 1T (22x), 9.9 s at
+8T (69x)**. The 12x64 row is the first 12-layer run on this box; its
+12.2 GiB RSS says the 12x512 rig (~40 GiB) needs the memory diet
+(round-4 lane F) before it can run on the 15 GB reference box.
 
 **The first real-data A/B: 682.8 s -> 72.0 s (Phase 0) -> 43.7 s
 (round 2) end to end at 1 thread — 15.6x — and 16.6 s at 8 threads
