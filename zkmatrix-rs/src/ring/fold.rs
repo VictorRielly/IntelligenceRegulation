@@ -150,6 +150,310 @@ pub fn ixf_sumcheck_prove(
     (SumcheckProof { rounds, final_evals }, point)
 }
 
+// ---------------------------------------------------------------------------
+// [UPERF2-D] The claim layer's fixed combine shapes + the packed prover.
+//
+// The pass claim layer (bg_pass_run / bk_pass_run) drives every ixf
+// instance with one of three combine closures; naming the shape lets the
+// prover run the rounds on kfield.rs's lane-packed bulk kernel
+// (`kt_ixf_round_poly`, deterministic ZK_THREADS chunks) and fold the
+// packed tables in place (`kt_fold_par`), instead of the boxed scalar
+// `round_poly` + `fold` loop (which allocates ~80 KElems per pair per
+// round). Same field values by exact K arithmetic (the shape's `eval`
+// IS the closure the callers used; the [UPERF2-D] battery pins the
+// three shapes oracle vs fast at ZK_THREADS 1/2/7); the transcript
+// sees identical bytes. `ixf_sumcheck_prove` (the scalar path) stays
+// the oracle: `ZK_UPERF_ORACLE=1`, a non-kernel modulus, or a table
+// below two pair-blocks route there.
+
+/// The claim layer's combine shapes (v0 is always the eq factor).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum IxfCombine {
+    /// v0 * v1 * v2 — the joint matmul (eq * A * B).
+    Prod3,
+    /// v0 * (v1 * v2 - v3) — the Hadamard zero-check.
+    Had,
+    /// v0 * ((v1 - v4 * v2) - v3) — the requant zero-check.
+    Rq,
+}
+
+impl IxfCombine {
+    /// The scalar closure of the shape (verbatim the pass callers').
+    pub fn eval(&self, kf: &KField, v: &[KElem]) -> KElem {
+        match self {
+            IxfCombine::Prod3 => kf.mul(&kf.mul(&v[0], &v[1]), &v[2]),
+            IxfCombine::Had => kf.mul(&v[0], &kf.sub(&kf.mul(&v[1], &v[2]), &v[3])),
+            IxfCombine::Rq => kf.mul(&v[0], &kf.sub(&kf.sub(&v[1], &kf.mul(&v[4], &v[2])), &v[3])),
+        }
+    }
+
+    pub fn n_tables(&self) -> usize {
+        match self {
+            IxfCombine::Prod3 => 3,
+            IxfCombine::Had => 4,
+            IxfCombine::Rq => 5,
+        }
+    }
+
+    fn kernel_id(&self) -> u8 {
+        match self {
+            IxfCombine::Prod3 => super::kfield::IXF_KIND_PROD3,
+            IxfCombine::Had => super::kfield::IXF_KIND_HAD,
+            IxfCombine::Rq => super::kfield::IXF_KIND_RQ,
+        }
+    }
+}
+
+/// Smallest table (elements) the packed prover takes; below it (or under
+/// the oracle) the scalar path runs.
+const IXF_PACKED_MIN: usize = 64;
+
+/// The kernel thread pool for the claim layer's own splits (the bin's
+/// table builders): `ZK_THREADS` from `eval_proof::threads()`, inline at 1.
+pub fn ixf_pooled<R: Send>(f: impl FnOnce() -> R + Send) -> R {
+    super::kfield::k9_pooled_pub(f)
+}
+
+pub fn ixf_threads() -> usize {
+    super::eval_proof::threads()
+}
+
+/// The oracle body of `ixf_sumcheck_prove_kind` — verbatim the pre-change
+/// scalar prover with the shape's closure.
+pub fn ixf_sumcheck_prove_kind_ref(
+    kf: &KField,
+    tables: Vec<Vec<KElem>>,
+    degrees: &[usize],
+    kind: IxfCombine,
+    tr: &mut LkpTranscript,
+) -> (SumcheckProof, Vec<KElem>) {
+    ixf_sumcheck_prove(kf, tables, degrees, &|kf: &KField, v: &[KElem]| kind.eval(kf, v), tr)
+}
+
+/// `ixf_sumcheck_prove` for a named combine shape: the packed bulk prover
+/// when the kernel is live (identical transcript bytes), the scalar
+/// oracle otherwise or under `ZK_UPERF_ORACLE=1`.
+pub fn ixf_sumcheck_prove_kind(
+    kf: &KField,
+    tables: Vec<Vec<KElem>>,
+    degrees: &[usize],
+    kind: IxfCombine,
+    tr: &mut LkpTranscript,
+) -> (SumcheckProof, Vec<KElem>) {
+    assert_eq!(tables.len(), kind.n_tables(), "ixf: table count vs combine shape");
+    if super::eval_proof::oracle_mode() || kf.kern.is_none() || tables[0].len() < IXF_PACKED_MIN {
+        return ixf_sumcheck_prove_kind_ref(kf, tables, degrees, kind, tr);
+    }
+    let n = tables[0].len().trailing_zeros() as usize;
+    assert_eq!(degrees.len(), n, "degree schedule covers every variable");
+    assert!(tables.iter().all(|t| t.len() == 1 << n));
+    let packed: Vec<super::kfield::KTab> = {
+        let _t = super::ct_engine::prof::timer(super::ct_engine::prof::D_CL_PACK); // observation only
+        let mut p = Vec::with_capacity(tables.len());
+        for t in tables {
+            p.push(kf.kt_pack(&t));
+            // the boxed table is dropped here, one at a time (peak = boxed + one packed)
+        }
+        p
+    };
+    ixf_sumcheck_prove_packed(kf, packed, degrees, kind, tr)
+}
+
+/// [UPERF2-D] A factor table in the bulk layout, built DIRECTLY packed by
+/// the claim layer's table builders (64 B per element, one allocation)
+/// instead of as a boxed `Vec<KElem>` (~170 B per element, one heap
+/// object each) that the prover would then pack. Available only when the
+/// bulk kernel is live (`IxfTable::available(kf)`); the callers keep the
+/// boxed builders as the oracle path.
+pub struct IxfTable(pub(crate) super::kfield::KTab);
+
+impl IxfTable {
+    /// True iff packed tables can be built for this field (the kernel gate
+    /// AND not the oracle routing).
+    pub fn available(kf: &KField) -> bool {
+        kf.kern.is_some() && !super::eval_proof::oracle_mode()
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.n
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.n == 0
+    }
+
+    /// n zero elements.
+    pub fn zeros(n: usize) -> IxfTable {
+        IxfTable(super::kfield::KTab::zeroed(n))
+    }
+
+    pub fn from_kelems(kf: &KField, v: &[KElem]) -> IxfTable {
+        IxfTable(kf.kt_pack(v))
+    }
+
+    pub fn get(&self, i: usize) -> KElem {
+        self.0.get(i)
+    }
+
+    pub fn to_kelems(&self) -> Vec<KElem> {
+        self.0.to_kelems()
+    }
+
+    /// The packed eq table over a point (threaded doubling; the same
+    /// values as `gkr::eq_table`).
+    pub fn eq(kf: &KField, point: &[KElem]) -> IxfTable {
+        IxfTable(kf.kt_eq_table_par(point))
+    }
+
+    /// `expand_layer_table` packed: out[l * nb + b] = layer_tab[l].
+    pub fn layer_expand(layer_tab: &[KElem], nb: usize) -> IxfTable {
+        use super::kfield::{KBLK, KL};
+        let n = layer_tab.len() * nb;
+        let mut t = super::kfield::KTab::zeroed(n);
+        if nb % KL == 0 {
+            for (l, v) in layer_tab.iter().enumerate() {
+                let seg = super::kfield::KTab::filled(nb, v);
+                let (b0, b1) = ((l * nb / KL) * KBLK, ((l + 1) * nb / KL) * KBLK);
+                t.d[b0..b1].copy_from_slice(&seg.d[..b1 - b0]);
+            }
+        } else {
+            for (l, v) in layer_tab.iter().enumerate() {
+                for b in 0..nb {
+                    t.set(l * nb + b, v);
+                }
+            }
+        }
+        IxfTable(t)
+    }
+
+    /// A table of BASE-FIELD scalars (K-elements with only coordinate 0
+    /// set — the stacked witness tables `kf.scale(v, one)` = embed(v)):
+    /// element i = embed(f(i)) with f returning a CANONICAL residue in
+    /// [0, q). Filled per whole-block chunk on the ZK_THREADS pool
+    /// (positional; identical for any thread count).
+    pub fn scalar_table(kf: &KField, n: usize, f: impl Fn(usize) -> u64 + Sync) -> IxfTable {
+        use super::kfield::{KBLK, KL};
+        let q = kf.zq.q;
+        let mut t = super::kfield::KTab::zeroed(n);
+        let nblk = n / KL;
+        let full = nblk * KBLK;
+        {
+            let d = &mut t.d[..full];
+            let chunk_blk = 512usize;
+            let fill = |c: usize, dc: &mut [u32]| {
+                let i0 = c * chunk_blk * KL;
+                let nb = dc.len() / KBLK;
+                for b in 0..nb {
+                    for l in 0..KL {
+                        let v = f(i0 + b * KL + l);
+                        debug_assert!(v < q, "scalar_table expects canonical residues");
+                        dc[b * KBLK + l] = v as u32; // coefficient 0 of lane l
+                    }
+                }
+            };
+            if super::kfield::k9_threads() > 1 && nblk > chunk_blk {
+                super::kfield::k9_pooled_pub(|| {
+                    use rayon::prelude::*;
+                    d.par_chunks_mut(chunk_blk * KBLK).enumerate().for_each(|(c, dc)| fill(c, dc));
+                });
+            } else {
+                for (c, dc) in d.chunks_mut(chunk_blk * KBLK).enumerate() {
+                    fill(c, dc);
+                }
+            }
+        }
+        for i in nblk * KL..n {
+            let mut e = kf.zero();
+            e[0] = f(i);
+            t.set(i, &e);
+        }
+        IxfTable(t)
+    }
+}
+
+/// `ixf_sumcheck_prove_kind` on tables built directly packed (`IxfTable`).
+pub fn ixf_sumcheck_prove_tables(
+    kf: &KField,
+    tables: Vec<IxfTable>,
+    degrees: &[usize],
+    kind: IxfCombine,
+    tr: &mut LkpTranscript,
+) -> (SumcheckProof, Vec<KElem>) {
+    assert_eq!(tables.len(), kind.n_tables(), "ixf: table count vs combine shape");
+    if super::eval_proof::oracle_mode() || tables[0].len() < IXF_PACKED_MIN {
+        // The scalar path (a caller that built packed tables under the
+        // oracle routing, or a tiny instance): unpack and run the oracle.
+        let boxed: Vec<Vec<KElem>> = tables.iter().map(|t| t.to_kelems()).collect();
+        return ixf_sumcheck_prove_kind_ref(kf, boxed, degrees, kind, tr);
+    }
+    ixf_sumcheck_prove_packed(kf, tables.into_iter().map(|t| t.0).collect(), degrees, kind, tr)
+}
+
+/// The packed prover proper (tables already in the bulk layout — the
+/// callers that build packed tables directly enter here). Rounds run
+/// on the bulk kernel while every table holds >= 2 pair-blocks; the
+/// remaining rounds finish on the boxed scalar path (identical values).
+pub(crate) fn ixf_sumcheck_prove_packed(
+    kf: &KField,
+    mut packed: Vec<super::kfield::KTab>,
+    degrees: &[usize],
+    kind: IxfCombine,
+    tr: &mut LkpTranscript,
+) -> (SumcheckProof, Vec<KElem>) {
+    use super::ct_engine::prof;
+    let n = packed[0].n.trailing_zeros() as usize;
+    assert_eq!(degrees.len(), n, "degree schedule covers every variable");
+    assert!(packed.iter().all(|t| t.n == 1 << n));
+    let kid = kind.kernel_id();
+    let mut rounds = Vec::with_capacity(n);
+    let mut point = Vec::with_capacity(n);
+    let mut scratch: Vec<Vec<u32>> = (0..packed.len()).map(|_| Vec::new()).collect();
+    let mut t_idx = 0usize;
+    while t_idx < n && packed[0].n >= 2 * super::kfield::KL {
+        let deg = degrees[t_idx];
+        let g = {
+            let _t = prof::timer(prof::D_CL_ROUNDS); // observation only
+            let views: Vec<&super::kfield::KTab> = packed.iter().collect();
+            kf.kt_ixf_round_poly(&views, deg, kid)
+        };
+        tr.absorb_k(kf, "ixf-round-poly", &g);
+        let r = tr.challenge_k(kf);
+        {
+            let _t = prof::timer(prof::D_CL_FOLDS); // observation only
+            for (p, s) in packed.iter_mut().zip(scratch.iter_mut()) {
+                kf.kt_fold_par(p, s, &r);
+                // Memory: the out-of-place fold leaves the OLD full-size
+                // buffer as the scratch; keep only what the next round's
+                // output needs (a shrinking realloc — no copy for large
+                // chunks) so a table never holds more than 1.5x its size.
+                let next_words = (p.n / 2 / super::kfield::KL) * super::kfield::KBLK;
+                s.truncate(next_words);
+                s.shrink_to_fit();
+                p.d.shrink_to_fit();
+            }
+        }
+        rounds.push(g);
+        point.push(r);
+        t_idx += 1;
+    }
+    // Scalar tail (tables below two pair-blocks): the boxed path, verbatim.
+    let mut tables: Vec<Vec<KElem>> = packed.iter().map(|p| p.to_kelems()).collect();
+    drop(packed);
+    let combine = |kf: &KField, v: &[KElem]| kind.eval(kf, v);
+    while t_idx < n {
+        let deg = degrees[t_idx];
+        let g = round_poly(kf, &tables, deg, &combine);
+        tr.absorb_k(kf, "ixf-round-poly", &g);
+        let r = tr.challenge_k(kf);
+        tables = tables.iter().map(|t| fold(kf, t, &r)).collect();
+        rounds.push(g);
+        point.push(r);
+        t_idx += 1;
+    }
+    let final_evals: Vec<KElem> = tables.into_iter().map(|mut t| t.remove(0)).collect();
+    (SumcheckProof { rounds, final_evals }, point)
+}
+
 /// Verify the scheduled round chain. Returns (final point, reduced
 /// claim) — the CALLER must still ground proof.final_evals (publicly
 /// recomputable factors checked directly; committed factors through
