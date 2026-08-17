@@ -6406,6 +6406,8 @@ fn main() {
         Some("uperf-c") => uperf_c_main(&args[1..]),
         // [UPERF2-D] U-PERF2 lane D (claim layer + commit phase) battery + bench.
         Some("uperf-d") => uperf_d_main(&args[1..]),
+        // [UPERF2-E] U-PERF2 lane E (descent callers / descent verify / small-cols aux) battery + bench.
+        Some("uperf-e") => uperf_e_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -33242,10 +33244,13 @@ fn bk_pair_claims(
         let _ = mask_coeff_counts;
     };
     let [_, _, wm_kel, tm_kel] = reg.aux_shape[pi];
+    let prof_mask = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_CLAIMS_MASK); // [UPERF2-E] observation only
     mask_claims(ti_wm, wm_kel, plan.depth, tp.pw, tp.endw, claims);
     mask_claims(ti_tm, tm_kel, sp.dt, tp.pt, tp.endt, claims);
+    drop(prof_mask);
 
     // ---- Witness-side publics at z*_w. ----
+    let prof_wit = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_CLAIMS_WIT); // [UPERF2-E] observation only
     let (zw_tree, zw_inst) = tp.endw.zstar.split_at(plan.depth);
     let inst_tab_w = eq_table(kf, zw_inst);
     // Per distinct member shape: eq tables over (cols_pad | rows) bits.
@@ -33342,9 +33347,11 @@ fn bk_pair_claims(
         }
     }
     claims.push(BkClaim { in_weight: false, value: wq_value, parts: wq_parts });
+    drop(prof_wit);
 
     // ---- Table-side publics at z*_t (STATEMENT table values — the
     // ---- wrong-table reject face lives exactly here). ----
+    let _prof_tab = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_CLAIMS_TAB); // [UPERF2-E] observation only
     let table_k = sp.table_k(kf);
     let (zt_tree, zt_inst) = tp.endt.zstar.split_at(sp.dt);
     let inst_tab_t = eq_table(kf, zt_inst);
@@ -33588,9 +33595,38 @@ fn bk_tree_slots(
     out
 }
 
+/// [UPERF2-E] The streamed form of `bk_tree_slots`: per member block a
+/// closure that fuses element f on demand (SiLU pair -> fuse_pair, range
+/// member -> embed(prim + offset)) — consumed by
+/// `descent_fold::aligned_witness_tree_fn`, whose threaded packed fill
+/// calls it per leaf; no boxed member column is materialized. Same values
+/// as `bk_tree_slots` element for element.
+fn bk_tree_slot_fns<'a>(
+    kf: &'a ring::kfield::KField,
+    sp: &BkPairSpec,
+    lays: &'a [BfLayer],
+    tree: usize,
+) -> Vec<(ring::descent_fold::MemberShape, usize, Box<dyn Fn(usize) -> ring::kfield::KElem + Sync + 'a>)> {
+    use ring::lookup::fuse_pair;
+    let zq = &kf.zq;
+    let mut out: Vec<(ring::descent_fold::MemberShape, usize, Box<dyn Fn(usize) -> ring::kfield::KElem + Sync + 'a>)> = Vec::new();
+    for b in sp.plan.blocks.iter().filter(|b| b.tree == tree) {
+        let m = &sp.members[b.member];
+        let (prim, pair) = bk_member_vals(m, lays);
+        let offset = m.offset;
+        let f: Box<dyn Fn(usize) -> ring::kfield::KElem + Sync + 'a> = if let Some(pv) = pair {
+            Box::new(move |f: usize| fuse_pair(kf, zq.to_mod(prim[f]), zq.to_mod(pv[f])))
+        } else {
+            Box::new(move |f: usize| kf.embed(zq.to_mod(prim[f] + offset)))
+        };
+        out.push((m.shape, b.base, f));
+    }
+    out
+}
+
 #[allow(clippy::too_many_arguments)]
 fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
-    use ring::descent_fold::{aligned_witness_tree, neutral_tree, tree_ceiling_ok};
+    use ring::descent_fold::{aligned_witness_tree, aligned_witness_tree_fn, neutral_tree, tree_ceiling_ok};
     use ring::fold::{
         expand_layer_table, ixf_layout, ixf_sumcheck_prove_kind, ixf_sumcheck_verify,
         matmul_degree_schedule, zerocheck_degree_schedule, IxfCombine,
@@ -33971,13 +34007,35 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         let prof_trees = ring::ct_engine::prof::timer(ring::ct_engine::prof::BK_TREES); // observation only
         let mut wtrees: Vec<ring::gkr::FracTree> = Vec::with_capacity(plan.l);
         for i in 0..plan.n_real {
-            let slots = bk_tree_slots(&kf, sp, &lays, i);
-            let slot_refs: Vec<(ring::descent_fold::MemberShape, usize, &[KElem])> =
-                slots.iter().map(|(s, b, c)| (*s, *b, c.as_slice())).collect();
-            wtrees.push(aligned_witness_tree(&kf, &alpha, &slot_refs, plan.depth, &aux[pi].bl_w[i]));
+            // [UPERF2-E] streamed member values (bk_tree_slot_fns) into the
+            // threaded packed builder — the boxed slot columns of
+            // `bk_tree_slots` (kept for the WrongTable self-check paths and
+            // the batteries) are not materialized here.
+            if ring::eval_proof::oracle_mode() {
+                // ZK_UPERF_ORACLE=1: the pre-change caller (materialized
+                // slot columns + aligned_witness_tree's boxed body).
+                let prof_slots = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_TREE_SLOTS); // [UPERF2-E] observation only
+                let slots = bk_tree_slots(&kf, sp, &lays, i);
+                let slot_refs: Vec<(ring::descent_fold::MemberShape, usize, &[KElem])> =
+                    slots.iter().map(|(s, b, c)| (*s, *b, c.as_slice())).collect();
+                drop(prof_slots);
+                let _prof_wit = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_TREE_WIT); // [UPERF2-E] observation only
+                wtrees.push(aligned_witness_tree(&kf, &alpha, &slot_refs, plan.depth, &aux[pi].bl_w[i]));
+                continue;
+            }
+            let prof_slots = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_TREE_SLOTS); // [UPERF2-E] observation only
+            let slot_fns = bk_tree_slot_fns(&kf, sp, &lays, i);
+            let slot_refs: Vec<(ring::descent_fold::MemberShape, usize, &(dyn Fn(usize) -> KElem + Sync))> =
+                slot_fns.iter().map(|(s, b, f)| (*s, *b, f.as_ref())).collect();
+            drop(prof_slots);
+            let _prof_wit = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_TREE_WIT); // [UPERF2-E] observation only
+            wtrees.push(aligned_witness_tree_fn(&kf, &alpha, &slot_refs, plan.depth, &aux[pi].bl_w[i]));
         }
-        for _ in plan.n_real..plan.l {
-            wtrees.push(neutral_tree(&kf, plan.depth));
+        {
+            let _prof_wit = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_TREE_WIT); // [UPERF2-E] observation only
+            for _ in plan.n_real..plan.l {
+                wtrees.push(neutral_tree(&kf, plan.depth));
+            }
         }
         let masks_w = aux[pi].masks_w.take().expect("witness masks drawn once");
         drop(prof_trees);
@@ -33988,6 +34046,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         // Table trees (the PROVER's table — statement member on every
         // honest path; the WrongTable arm runs its own).
         let prof_trees = ring::ct_engine::prof::timer(ring::ct_engine::prof::BK_TREES); // observation only
+        let prof_tab = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_TREE_TAB); // [UPERF2-E] observation only
         let tab_k = bk_table_for(&kf, sp, bk_prover_silu(sp, opts));
         let mut ttrees: Vec<ring::gkr::FracTree> = Vec::with_capacity(plan.l);
         for i in 0..plan.n_real {
@@ -33998,6 +34057,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         for _ in plan.n_real..plan.l {
             ttrees.push(neutral_tree(&kf, sp.dt));
         }
+        drop(prof_tab);
         let masks_t = aux[pi].masks_t.take().expect("table masks drawn once");
         drop(prof_trees);
         let prof_gkr = ring::ct_engine::prof::timer(ring::ct_engine::prof::BK_GKR); // observation only
@@ -34286,7 +34346,9 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
                 let plan = &sp.plan;
                 let alpha_v = tv.challenge_k(&kf);
                 let ptx = &pair_transcripts[pi];
+                let prof_shell = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_VERIFY_SHELLS); // [UPERF2-E] observation only
                 let shell_w = zero_masks(&kf, plan.depth, plan.e_bits);
+                drop(prof_shell);
                 let Some((roots_w, endw_v)) =
                     masked_gkr_verify(&kf, plan.l, plan.depth, &shell_w, &ptx.pw, &mut tv, false)
                 else {
@@ -34294,7 +34356,9 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
                     fail(&mut verdict, format!("pair-descent-w:{}", sp.name()));
                     break 'verify;
                 };
+                let prof_shell = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_VERIFY_SHELLS); // [UPERF2-E] observation only
                 let shell_t = zero_masks(&kf, sp.dt, plan.e_bits);
+                drop(prof_shell);
                 let Some((roots_t, endt_v)) =
                     masked_gkr_verify(&kf, plan.l, sp.dt, &shell_t, &ptx.pt, &mut tv, false)
                 else {
@@ -34302,6 +34366,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
                     fail(&mut verdict, format!("pair-descent-t:{}", sp.name()));
                     break 'verify;
                 };
+                let prof_cross = ring::ct_engine::prof::timer(ring::ct_engine::prof::E_VERIFY_CROSS); // [UPERF2-E] observation only
                 let mut cross_ok = true;
                 for i in 0..plan.n_real {
                     cross_ok &= root_cross_check(&kf, &roots_w[i], &roots_t[i]);
@@ -34314,6 +34379,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
                             && p[3] == kf.one();
                     }
                 }
+                drop(prof_cross);
                 if !cross_ok {
                     verdict.pairs_ok = false;
                     fail(&mut verdict, format!("pair-cross-check:{}", sp.name()));
@@ -37183,4 +37249,288 @@ fn uperf_d_bench(n_log2: usize, kind: ring::fold::IxfCombine, with_ref: bool) {
             s_ref / s_fast
         );
     }
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-E] U-PERF2 lane E — descent-tree callers on lane A's drop-ins,
+// the descent VERIFY attribution, and the small-cols (cols | D) K-basis
+// fast path of the two generic claim-kernel branches (kernel_pass_factored
+// / psi_level0_factored_multi). ADDITIVE section. Commands:
+//   uperf-e diff-battery   — small-cols kernel passes + psi0 fast vs the
+//     generic reference on random small-cols tensors (byte-identical).
+//   uperf-e bench [rows] [cols] [n_kernels]  — the same shapes timed,
+//     oracle vs fast.
+
+fn uperf_e_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("diff-battery") => uperf_e_diff_battery(),
+        Some("bench") => {
+            let rows: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(1024);
+            let cols: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(16);
+            let n_k: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(48);
+            uperf_e_bench(rows, cols, n_k);
+        }
+        _ => println!("uperf-e diff-battery | bench [rows] [cols] [n_kernels]"),
+    }
+}
+
+/// [UPERF2-E] One synthetic small-cols group at fixed seeds — the BK aux
+/// tensor class (cols = 16, e0 = 2, l0 = 16; the ypow col kernel; ~4 x
+/// depth mask-opening kernels whose row kernels are nonzero on ONE
+/// block each) plus dense/odd shapes. Returns (group, claims, witness
+/// digits, alphas).
+struct UperfESynth {
+    g: ring::eval_proof::AggGroup,
+    claims: ring::pass_agg::GroupClaims,
+    w0: Vec<Vec<i64>>,
+    alphas: Vec<Poly>,
+}
+
+fn uperf_e_synth(kf: &ring::kfield::KField, seed: u64, shapes: &[(&'static str, usize, usize, u32, usize, usize, bool)]) -> UperfESynth {
+    // shapes: (name, rows, cols, e0, l0, n_kernels, block_rows)
+    use ring::eval_proof::AggGroup;
+    use ring::kfield::{KElem, K_DEG};
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use std::rc::Rc;
+    let zq = &kf.zq;
+    let q = zq.q;
+    let mut rd = XofReader::new("uperf2-e-synth", &[&seed.to_le_bytes()]);
+    let mut g = AggGroup::new("uperf2-e");
+    for &(name, rows, cols, e0, l0, _, _) in shapes {
+        g.add_tensor(name, rows, cols, e0, l0);
+    }
+    let n_t = g.tensors.len();
+    let ypow: Rc<Vec<KElem>> = {
+        let mut v = Vec::with_capacity(K_DEG);
+        let mut cur = kf.one();
+        for _ in 0..K_DEG {
+            v.push(cur.clone());
+            cur = ring::lookup::mul_y(kf, &cur);
+        }
+        Rc::new(v)
+    };
+    let mut claims = GroupClaims::new(n_t);
+    for (ti, &(_, rows, cols, _, _, n_k, block_rows)) in shapes.iter().enumerate() {
+        for k in 0..n_k {
+            let scale = if k % 7 == 6 { kf.zero() } else { kf.uniform(&mut rd) };
+            let row: Vec<KElem> = if block_rows {
+                // one contiguous nonzero block of 1..40 rows at a random
+                // offset (the mask-opening kernels' shape), zeros elsewhere
+                let len = 1 + rd.next_field(40) as usize;
+                let len = len.min(rows);
+                let lo = rd.next_field((rows - len + 1) as u64) as usize;
+                (0..rows).map(|r| if r >= lo && r < lo + len { kf.uniform(&mut rd) } else { kf.zero() }).collect()
+            } else {
+                (0..rows).map(|r| if r % 5 == 3 { kf.zero() } else { kf.uniform(&mut rd) }).collect()
+            };
+            let col: Rc<Vec<KElem>> = if cols == K_DEG && k % 3 != 2 {
+                ypow.clone()
+            } else {
+                Rc::new((0..cols).map(|_| kf.uniform(&mut rd)).collect())
+            };
+            claims.push(ClaimContrib { tensor_idx: ti, scale, row: Rc::new(row), col });
+        }
+    }
+    let mut w0: Vec<Vec<i64>> = Vec::with_capacity(g.n_digit_rings);
+    for t in &g.tensors {
+        let (lo, hi) = ring::digits::alphabet(t.e0);
+        let span = (hi - lo + 1) as u64;
+        for u in 0..t.n_digit_rings() {
+            if u % 9 == 4 {
+                w0.push(vec![0i64; D]);
+            } else {
+                w0.push((0..D).map(|_| lo + rd.next_field(span) as i64).collect());
+            }
+        }
+    }
+    let alphas: Vec<Poly> = (0..K_DEG).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
+    UperfESynth { g, claims, w0, alphas }
+}
+
+/// [UPERF2-E] `uperf-e diff-battery`: the hoisted small-cols K-weight rows
+/// vs the two references, per value ring (kw_value_row_ref == the
+/// pre-change generic body kw_value_row_sync_ref == kw_value_row_hoisted),
+/// then the whole passes: kernel_pass_factored fast == oracle_mode
+/// (per-digit-ring reference) == bg_kernel_pass (the bin's oracle), rows
+/// + phi, and the verifier's psi_level0_factored_multi fast ==
+/// compute_psi(phi0_reference_multi) == pre_o5, at two chunk splits; q31
+/// (three seeds) + q46 (one seed). Prints a battery digest for cross-
+/// ZK_THREADS comparison.
+fn uperf_e_diff_battery() {
+    use ring::eval_proof::{
+        kernel_pass_factored, kw_value_row_hoisted, kw_value_row_ref, kw_value_row_sync_ref, set_oracle_mode,
+    };
+    use ring::kfield::KField;
+    use sha2::Digest;
+    if ring::eval_proof::oracle_mode() {
+        println!("[UPERF2-E] WARNING: ZK_UPERF_ORACLE=1 is set — the fast legs below are VACUOUS; unset it for a real battery run");
+    }
+    println!("[UPERF2-E] diff-battery: hoisted small-cols K-weight rows + kernel passes + psi0 vs the references; ZK_THREADS {}", ring::eval_proof::threads());
+    // (name, rows, cols, e0, l0, n_kernels, block_rows)
+    let shapes: [(&'static str, usize, usize, u32, usize, usize, bool); 6] = [
+        ("wm-like-16", 528, 16, 2, 16, 40, true),
+        ("bl-like-16", 96, 16, 2, 16, 4, false),
+        ("dense-8", 208, 8, 2, 3, 3, false),
+        ("odd-24", 16, 24, 1, 2, 2, true),
+        ("dense-96", 64, 96, 2, 2, 2, false),
+        ("no-kernel-16", 40, 16, 2, 16, 0, false),
+    ];
+    let mut all = sha2::Sha256::new();
+    let mut legs_kw = 0usize;
+    let mut legs_pass = 0usize;
+    let mut legs_psi = 0usize;
+    let t0 = Instant::now();
+    for (qn, ctx) in [("q31", ring_ctx_q8()), ("q46", ring::ring_ctx(ring::Q8_46, ring::ETA8_46, 8))] {
+        let kf = KField::new(&ctx);
+        for seed in [0xE1u64, 0xE2, 0xE3] {
+            if qn == "q46" && seed != 0xE1 {
+                continue;
+            }
+            let syn = uperf_e_synth(&kf, seed, &shapes);
+            let kernels = bg_multi_kernels(&syn.claims);
+            // Per value ring K-weight rows, three ways.
+            for (ti, t) in syn.g.tensors.iter().enumerate() {
+                let kers: Vec<&ring::eval_proof::MultiClaimKernel> = kernels.iter().filter(|k| k.tensor_idx == ti).collect();
+                for vr in 0..t.n_value_rings() {
+                    let a = kw_value_row_ref(&kf, t, &kers, vr);
+                    let b = kw_value_row_sync_ref(&kf, t, &kers, vr);
+                    let c = kw_value_row_hoisted(&kf, t, &kers, vr);
+                    assert_eq!(a, b, "kw ref != sync_ref at {qn} seed {seed:#x} tensor {} vr {vr}", t.name);
+                    assert_eq!(a, c, "kw ref != hoisted at {qn} seed {seed:#x} tensor {} vr {vr}", t.name);
+                    for e in &c {
+                        for &x in e {
+                            all.update(x.to_le_bytes());
+                        }
+                    }
+                }
+                legs_kw += 1;
+            }
+            // Kernel passes: fast vs oracle_mode (per-digit-ring reference) vs bg_kernel_pass.
+            set_oracle_mode(false);
+            let (rows_fast, _) = kernel_pass_factored(&ctx, &kf, &syn.g, &kernels, Some(&syn.w0), None);
+            let (_, phi_fast) = kernel_pass_factored(&ctx, &kf, &syn.g, &kernels, None, Some(&syn.alphas));
+            set_oracle_mode(true);
+            let (rows_orc, _) = kernel_pass_factored(&ctx, &kf, &syn.g, &kernels, Some(&syn.w0), None);
+            let (_, phi_orc) = kernel_pass_factored(&ctx, &kf, &syn.g, &kernels, None, Some(&syn.alphas));
+            set_oracle_mode(false);
+            let (rows_bin, _) = bg_kernel_pass(&ctx, &kf, &syn.g, &syn.claims, Some(&syn.w0), None);
+            let (_, phi_bin) = bg_kernel_pass(&ctx, &kf, &syn.g, &syn.claims, None, Some(&syn.alphas));
+            assert_eq!(rows_fast, rows_orc, "rows pass fast != oracle at {qn} seed {seed:#x}");
+            assert_eq!(rows_fast, rows_bin, "rows pass fast != bg_kernel_pass at {qn} seed {seed:#x}");
+            assert_eq!(phi_fast, phi_orc, "phi pass fast != oracle at {qn} seed {seed:#x}");
+            assert_eq!(phi_fast, phi_bin, "phi pass fast != bg_kernel_pass at {qn} seed {seed:#x}");
+            for p in rows_fast.iter().chain(phi_fast.iter()) {
+                for &x in p {
+                    all.update(x.to_le_bytes());
+                }
+            }
+            legs_pass += 2;
+            // Verifier psi0: fast == compute_psi(reference Phi_0) == pre_o5.
+            let n0 = syn.g.n_digit_rings;
+            let mut rd = XofReader::new("uperf2-e-cs", &[qn.as_bytes(), &seed.to_le_bytes()]);
+            let phi_ref = ring::eval_proof::phi0_reference_multi(&ctx, &kf, &syn.g, &kernels, &syn.alphas);
+            for chunk in [n0.div_ceil(5), 41usize] {
+                let r = n0.div_ceil(chunk);
+                let cs: Vec<Vec<i64>> = (0..r).map(|_| rd.next_challenge()).collect();
+                let phi_pad = {
+                    let mut p = phi_ref.clone();
+                    p.resize(r * chunk, poly_zero());
+                    p
+                };
+                let want = ring::eval_proof::compute_psi(&ctx, &phi_pad, chunk, &cs);
+                let got = ring::eval_proof::psi_level0_factored_multi(&ctx, &kf, &syn.g, &kernels, &syn.alphas, &cs, chunk);
+                assert_eq!(got, want, "psi0 fast != compute_psi(reference) at {qn} seed {seed:#x} chunk {chunk}");
+                let pre = ring::eval_proof::psi_level0_factored_multi_pre_o5(&ctx, &kf, &syn.g, &kernels, &syn.alphas, &cs, chunk);
+                assert_eq!(pre, want, "psi0 pre_o5 != compute_psi(reference) at {qn} seed {seed:#x} chunk {chunk}");
+                for p in &got {
+                    for &x in p {
+                        all.update(x.to_le_bytes());
+                    }
+                }
+                legs_psi += 1;
+            }
+            println!("  ok   {qn} seed {seed:#x}: {} tensors x kw rows, rows+phi passes (fast == oracle == bg_kernel_pass), psi0 at 2 chunk splits", syn.g.tensors.len());
+        }
+    }
+    let d: [u8; 32] = all.finalize().into();
+    println!(
+        "[UPERF2-E] diff-battery: kw-row tensors {legs_kw}/{legs_kw}, kernel passes {legs_pass}/{legs_pass}, psi0 {legs_psi}/{legs_psi} byte-identical in {:.1}s",
+        t0.elapsed().as_secs_f64()
+    );
+    println!("[UPERF2-E] BATTERY DIGEST {}", hex_full(&d));
+}
+
+/// [UPERF2-E] `uperf-e bench [rows] [cols] [n_kernels]`: one small-cols
+/// tensor (e0 = 2, l0 = 16, block-row kernels on the ypow col) — the
+/// per-value-ring K-weight row three ways, then kernel_pass_factored
+/// rows/phi and psi0 fast vs `ZK_UPERF_ORACLE`-style oracle routing
+/// (set_oracle_mode in-process), byte-identical asserted.
+fn uperf_e_bench(rows: usize, cols: usize, n_k: usize) {
+    use ring::eval_proof::{
+        kernel_pass_factored, kw_value_row_hoisted, kw_value_row_ref, kw_value_row_sync_ref, set_oracle_mode,
+    };
+    use ring::kfield::KField;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let shapes = [("bench", rows, cols, 2u32, 16usize, n_k, true)];
+    let syn = uperf_e_synth(&kf, 0xEB, &shapes);
+    let kernels = bg_multi_kernels(&syn.claims);
+    let t = &syn.g.tensors[0];
+    let kers: Vec<&ring::eval_proof::MultiClaimKernel> = kernels.iter().collect();
+    let n_vr = t.n_value_rings();
+    println!(
+        "[UPERF2-E] bench: tensor {rows} x {cols} (e0 2, l0 16: {} value rings, {} digit rings), {n_k} block-row kernels; ZK_THREADS {}",
+        n_vr,
+        t.n_digit_rings(),
+        ring::eval_proof::threads()
+    );
+    let time_kw = |name: &str, f: &dyn Fn(usize) -> Vec<ring::kfield::KElem>| -> Vec<Vec<ring::kfield::KElem>> {
+        let t0 = Instant::now();
+        let out: Vec<_> = (0..n_vr).map(f).collect();
+        let s = t0.elapsed().as_secs_f64();
+        println!("  kw rows {name:<10}: {s:>8.3}s = {:.1} us per value ring", s * 1e6 / n_vr as f64);
+        out
+    };
+    let a = time_kw("ref", &|vr| kw_value_row_ref(&kf, t, &kers, vr));
+    let b = time_kw("sync_ref", &|vr| kw_value_row_sync_ref(&kf, t, &kers, vr));
+    let t0 = Instant::now();
+    let c = ring::eval_proof::kw_value_rows_hoisted_all(&kf, t, &kers);
+    let s = t0.elapsed().as_secs_f64();
+    println!("  kw rows {:<10}: {s:>8.3}s = {:.1} us per value ring (one hoist per tensor, as the branches run it)", "hoisted", s * 1e6 / n_vr as f64);
+    let c1 = kw_value_row_hoisted(&kf, t, &kers, n_vr / 2);
+    assert!(a == b && b == c && c[n_vr / 2] == c1, "bench: kw rows differ");
+    for (name, w0, al) in [("rows", Some(syn.w0.as_slice()), None), ("phi", None, Some(syn.alphas.as_slice()))] {
+        set_oracle_mode(false);
+        let t0 = Instant::now();
+        let fast = kernel_pass_factored(&ctx, &kf, &syn.g, &kernels, w0, al);
+        let s_fast = t0.elapsed().as_secs_f64();
+        set_oracle_mode(true);
+        let t0 = Instant::now();
+        let orc = kernel_pass_factored(&ctx, &kf, &syn.g, &kernels, w0, al);
+        let s_orc = t0.elapsed().as_secs_f64();
+        set_oracle_mode(false);
+        assert_eq!(fast, orc, "bench: {name} pass fast != oracle");
+        println!(
+            "  kernel pass {name:<5}: fast {s_fast:>8.3}s ({:.1} us per digit ring) | oracle {s_orc:>8.3}s -> {:.1}x (byte-identical)",
+            s_fast * 1e6 / t.n_digit_rings() as f64,
+            s_orc / s_fast
+        );
+    }
+    let n0 = syn.g.n_digit_rings;
+    let chunk = n0.div_ceil(4);
+    let r = n0.div_ceil(chunk);
+    let mut rd = XofReader::new("uperf2-e-bench-cs", &[]);
+    let cs: Vec<Vec<i64>> = (0..r).map(|_| rd.next_challenge()).collect();
+    let t0 = Instant::now();
+    let got = ring::eval_proof::psi_level0_factored_multi(&ctx, &kf, &syn.g, &kernels, &syn.alphas, &cs, chunk);
+    let s_fast = t0.elapsed().as_secs_f64();
+    let t0 = Instant::now();
+    let pre = ring::eval_proof::psi_level0_factored_multi_pre_o5(&ctx, &kf, &syn.g, &kernels, &syn.alphas, &cs, chunk);
+    let s_orc = t0.elapsed().as_secs_f64();
+    assert_eq!(got, pre, "bench: psi0 fast != pre_o5");
+    println!(
+        "  psi0 (verify)    : fast {s_fast:>8.3}s ({:.1} us per digit ring) | pre-O5 oracle {s_orc:>8.3}s -> {:.1}x (byte-identical)",
+        s_fast * 1e6 / n0 as f64,
+        s_orc / s_fast
+    );
 }

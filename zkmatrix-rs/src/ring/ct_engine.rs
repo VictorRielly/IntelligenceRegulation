@@ -2532,7 +2532,18 @@ pub mod prof {
     pub const D_CL_FOLDS: usize = 48; // claim layer: ixf sumcheck table folds (all rounds)
     pub const D_CL_FINALS: usize = 49; // claim layer: post-sumcheck claim assembly (eq tables at the point, parts)
     pub const D_CL_PACK: usize = 50; // claim layer: packing boxed tables into the bulk layout (fast path)
-    pub const N_PHASES: usize = 51;
+    // [UPERF2-E] descent callers / descent verify / small-cols aux (observation only)
+    pub const E_TREE_SLOTS: usize = 51; // bk_tree_slots: member column materialization (prover)
+    pub const E_TREE_WIT: usize = 52; // aligned_witness_tree + neutral pads (prover)
+    pub const E_TREE_TAB: usize = 53; // table trees: m_k + blinded_table_tree + pads (prover)
+    pub const E_VERIFY_SHELLS: usize = 54; // verifier: zero_masks shells per pair
+    pub const E_VERIFY_CROSS: usize = 55; // verifier: root cross-checks per pair
+    pub const E_CLAIMS_MASK: usize = 56; // bk_pair_claims: mask-opening claims (both sides)
+    pub const E_CLAIMS_WIT: usize = 57; // bk_pair_claims: witness-side publics (eq tables, prefixes, blinder rows)
+    pub const E_CLAIMS_TAB: usize = 58; // bk_pair_claims: table-side publics
+    pub const E_KPASS_SMALL: usize = 59; // kernel_pass_factored: misaligned (small-cols) tensors, both passes
+    pub const E_PSI0_SMALL: usize = 60; // psi_level0_factored_multi: misaligned (small-cols) tensors
+    pub const N_PHASES: usize = 61;
 
     pub const NAMES: [&str; N_PHASES] = [
         "ct.setup(clone+digits)",
@@ -2586,6 +2597,16 @@ pub mod prof {
         "d.cl-folds",
         "d.cl-finals",
         "d.cl-pack",
+        "e.tree-slots",
+        "e.tree-witness",
+        "e.tree-table",
+        "e.verify-shells",
+        "e.verify-cross",
+        "e.claims-mask",
+        "e.claims-witness",
+        "e.claims-table",
+        "e.kpass-smallcols",
+        "e.psi0-smallcols",
     ];
 
     static ENABLED: AtomicBool = AtomicBool::new(false);
