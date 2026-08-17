@@ -37633,6 +37633,18 @@ fn uperf_g_descent_battery() {
     println!("[UPERF2-G] BATTERY DIGEST {}", hex_full(&d));
 }
 
+/// [UPERF2-G] Minor page faults of this process so far (/proc/self/stat
+/// field 10) — the arena's instrument.
+fn uperf_g_minflt() -> u64 {
+    std::fs::read_to_string("/proc/self/stat")
+        .ok()
+        .and_then(|s| {
+            let rest = s.rsplit(") ").next()?.to_string();
+            rest.split_whitespace().nth(7).and_then(|v| v.parse::<u64>().ok())
+        })
+        .unwrap_or(0)
+}
+
 /// [UPERF2-G] `uperf-g bench <depth> <l> [n_real] [dt]`: the descent bench
 /// with fusion OFF then ON, same process, digests compared.
 fn uperf_g_bench(depth: usize, l: usize, n_real: usize, dt: usize) {
@@ -37671,6 +37683,11 @@ fn uperf_g_bench(depth: usize, l: usize, n_real: usize, dt: usize) {
                 println!("    {name:<20} {secs:>9.3}s  x{calls}");
             }
         }
+        let (nb, held_mb, hits, grows, misses) = ring::kfield::k9_arena_stats();
+        println!(
+            "    arena: {nb} pooled buffers, {held_mb} MiB held; takes served {hits} (grown {grows}), fresh {misses}; process minor faults so far {}",
+            uperf_g_minflt()
+        );
         println!("[UPERF2-G] DESCENT DIGEST {}", hex_full(&out.digest));
         digests.push(out.digest);
     }

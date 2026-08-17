@@ -313,19 +313,41 @@ impl KKern {
 
 /// A lane-blocked packed table of n canonical K-elements (layout in the
 /// module header). Trailing lanes of the last block are zero padding.
+/// [UPERF2-G] Large buffers are recycled through the table arena
+/// (`k9_arena_*`): `zeroed` hands back an all-zero table either way (a
+/// recycled buffer is memset), `recycled` may hand back a DIRTY buffer
+/// (callers that overwrite every element they will ever read); `Drop`
+/// returns the buffer to the arena.
 pub(crate) struct KTab {
     pub n: usize,
     pub d: Vec<u32>,
 }
 
+impl Drop for KTab {
+    fn drop(&mut self) {
+        k9_arena_give(std::mem::take(&mut self.d));
+    }
+}
+
 impl KTab {
-    pub(crate) fn zeroed(n: usize) -> KTab {
+    fn words_for(n: usize) -> usize {
         assert!(n <= K9_MAX_LEAVES, "K9 packed-table cap exceeded");
-        let words = n
-            .div_ceil(KL)
-            .checked_mul(KBLK)
-            .expect("K9 packed-table allocation overflow");
-        KTab { n, d: vec![0u32; words] }
+        n.div_ceil(KL).checked_mul(KBLK).expect("K9 packed-table allocation overflow")
+    }
+
+    pub(crate) fn zeroed(n: usize) -> KTab {
+        let words = KTab::words_for(n);
+        KTab { n, d: k9_arena_take(words, true) }
+    }
+
+    /// [UPERF2-G] A table whose contents are UNSPECIFIED (possibly a
+    /// recycled buffer's old values): for callers that write every element
+    /// they will read (fold outputs, eq tables, tree layers, the fused
+    /// descent's state-1 tables). Trailing-lane zero padding is NOT
+    /// guaranteed — full-block sizes only on the packed paths.
+    pub(crate) fn recycled(n: usize) -> KTab {
+        let words = KTab::words_for(n);
+        KTab { n, d: k9_arena_take(words, false) }
     }
 
     pub(crate) fn from_kelems(v: &[KElem]) -> KTab {
@@ -2103,7 +2125,8 @@ impl KField {
     pub(crate) fn kt_eq_table_par(&self, z: &[KElem]) -> KTab {
         let kern = self.kern.as_ref().expect("kt_eq_table requires the bulk kernel");
         assert!(z.len() <= K9_MAX_LEAVES.trailing_zeros() as usize, "K9 eq table cap exceeded");
-        let mut t = KTab::zeroed(1usize << z.len());
+        // [UPERF2-G] every entry is written by the doubling (recycled buffer).
+        let mut t = KTab::recycled(1usize << z.len());
         t.set(0, &self.one());
         let mut half = 1usize;
         for zv in z {
@@ -2206,7 +2229,8 @@ impl KField {
     pub(crate) fn kt_eq_table(&self, z: &[KElem]) -> KTab {
         let kern = self.kern.as_ref().expect("kt_eq_table requires the bulk kernel");
         assert!(z.len() <= K9_MAX_LEAVES.trailing_zeros() as usize, "K9 eq table cap exceeded");
-        let mut t = KTab::zeroed(1usize << z.len());
+        // [UPERF2-G] every entry is written by the doubling (recycled buffer).
+        let mut t = KTab::recycled(1usize << z.len());
         t.set(0, &self.one());
         let mut half = 1usize;
         for zv in z {
@@ -2432,6 +2456,140 @@ pub fn harness_mul_elem_reps(
         std::mem::swap(&mut cur, &mut out);
     }
     cur.to_kelems()
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-G] The packed-table ARENA (OPT-IN, `ZK_K9_ARENA_MB=<cap>`;
+// default 0 = off): recycled u32 buffers for the large KTabs (tree
+// leaf/layer tables, the descent's work tables, eq tables), so a table
+// does not pay the page faults of a fresh calloc on first touch. Policy:
+// LIFO free list of buffers >= 256 KB, capped at the given MiB of held
+// capacity (oldest evicted); a take is served by the smallest pooled buffer
+// within 2x of the request (a bigger one would keep its extra pages
+// resident under a small table; no realloc growth — glibc copies heap
+// chunks), else fresh. `zero = true` memsets a recycled buffer. Allocation
+// plumbing only — no value changes. MEASURED ON THIS BOX (report item 2):
+// after lane E's calloc-p / parallel-q fill the faults are ~5% of the 8T
+// bench's CPU and the pool did not pay for itself (size classes double per
+// layer, so within a side nothing fits; across sides the held set costs
+// RSS: +0.5 GB peak, prove +10%) — left as an experiment for a box with
+// memory to spare plus a `k9_arena_clear()` call from the pass driver
+// after the descent phase (the held buffers are resident RSS until then).
+
+struct K9Arena {
+    bufs: Vec<Vec<u32>>,
+    held: usize,
+}
+
+static K9_ARENA: std::sync::Mutex<K9Arena> = std::sync::Mutex::new(K9Arena { bufs: Vec::new(), held: 0 });
+static K9_ARENA_CAP: std::sync::LazyLock<usize> = std::sync::LazyLock::new(|| {
+    let mb = std::env::var("ZK_K9_ARENA_MB").ok().and_then(|v| v.parse::<usize>().ok()).unwrap_or(0);
+    mb << 18 // words: 1 MiB = 2^18 u32
+});
+/// Buffers below this are never pooled (256 KB).
+const K9_ARENA_MIN_WORDS: usize = 1 << 16;
+static K9_ARENA_HITS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+static K9_ARENA_GROWS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+static K9_ARENA_MISSES: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+/// A buffer of exactly `words` u32 (all zero when `zero`), recycled when
+/// the arena has one.
+pub(crate) fn k9_arena_take(words: usize, zero: bool) -> Vec<u32> {
+    use std::sync::atomic::Ordering::Relaxed;
+    if words < K9_ARENA_MIN_WORDS || *K9_ARENA_CAP == 0 {
+        return k9_fresh_words(words);
+    }
+    let taken: Option<Vec<u32>> = {
+        let mut a = K9_ARENA.lock().expect("K9 arena lock");
+        // Best fit within 2x of the request (a bigger buffer would keep its
+        // extra pages resident under a small table); no growth (a realloc
+        // of a heap chunk copies).
+        let mut best: Option<usize> = None;
+        for (i, b) in a.bufs.iter().enumerate() {
+            if b.capacity() >= words && b.capacity() <= 2 * words && best.is_none_or(|j| b.capacity() < a.bufs[j].capacity()) {
+                best = Some(i);
+            }
+        }
+        if best.is_some_and(|i| a.bufs[i].capacity() > words) {
+            K9_ARENA_GROWS.fetch_add(1, Relaxed); // (counted: served by a larger buffer)
+        }
+        best.map(|i| {
+            let b = a.bufs.remove(i);
+            a.held -= b.capacity();
+            b
+        })
+    };
+    match taken {
+        Some(mut b) => {
+            K9_ARENA_HITS.fetch_add(1, Relaxed);
+            if zero {
+                b.clear();
+                if b.capacity() < words {
+                    b.reserve_exact(words);
+                }
+                b.resize(words, 0);
+            } else if b.len() >= words {
+                b.truncate(words);
+            } else {
+                if b.capacity() < words {
+                    b.reserve_exact(words - b.len());
+                }
+                b.resize(words, 0);
+            }
+            b
+        }
+        None => {
+            K9_ARENA_MISSES.fetch_add(1, Relaxed);
+            k9_fresh_words(words)
+        }
+    }
+}
+
+/// A fresh zeroed buffer (calloc: zero pages, faulted in on first touch).
+/// Probed and NOT adopted: MADV_HUGEPAGE on the 2 MiB-aligned interior cut
+/// the bench's minor faults 9x (1.32M -> 142K) with no measurable wall
+/// change at 8T or 1T on this box (the report, item 2) — the FFI was
+/// removed again.
+fn k9_fresh_words(words: usize) -> Vec<u32> {
+    vec![0u32; words]
+}
+
+/// Return a buffer to the arena (dropped when small, or when the arena is
+/// disabled; the oldest pooled buffers are evicted past the cap).
+pub(crate) fn k9_arena_give(v: Vec<u32>) {
+    if v.capacity() < K9_ARENA_MIN_WORDS || *K9_ARENA_CAP == 0 {
+        return;
+    }
+    let mut evicted: Vec<Vec<u32>> = Vec::new();
+    {
+        let mut a = K9_ARENA.lock().expect("K9 arena lock");
+        a.held += v.capacity();
+        a.bufs.push(v);
+        while a.held > *K9_ARENA_CAP && !a.bufs.is_empty() {
+            let b = a.bufs.remove(0);
+            a.held -= b.capacity();
+            evicted.push(b);
+        }
+    }
+    drop(evicted); // munmap outside the lock
+}
+
+/// Release every pooled buffer (RSS drops to the live set).
+pub fn k9_arena_clear() {
+    let bufs = {
+        let mut a = K9_ARENA.lock().expect("K9 arena lock");
+        a.held = 0;
+        std::mem::take(&mut a.bufs)
+    };
+    drop(bufs);
+}
+
+/// (pooled buffers, held MiB, takes served from the pool, of which grown,
+/// fresh allocations) — observation only.
+pub fn k9_arena_stats() -> (usize, usize, u64, u64, u64) {
+    use std::sync::atomic::Ordering::Relaxed;
+    let a = K9_ARENA.lock().expect("K9 arena lock");
+    (a.bufs.len(), a.held >> 18, K9_ARENA_HITS.load(Relaxed), K9_ARENA_GROWS.load(Relaxed), K9_ARENA_MISSES.load(Relaxed))
 }
 
 // ---------------------------------------------------------------------------

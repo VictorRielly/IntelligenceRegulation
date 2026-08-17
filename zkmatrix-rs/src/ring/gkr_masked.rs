@@ -871,7 +871,8 @@ fn masked_rounds_bulk(
         } else {
             // b-part table x E(e) per real slice.
             let eqb = kf.kt_eq_table_par(&zeta[..j]);
-            let mut full = super::kfield::KTab::zeroed(size);
+            // [UPERF2-G] real slices written below, pad slices never read (recycled buffer).
+            let mut full = super::kfield::KTab::recycled(size);
             let nblk = per / KL;
             let all: Vec<usize> = (0..l).collect();
             for &e in if skip { &real } else { &all } {
@@ -1099,7 +1100,9 @@ fn masked_rounds_bulk(
                             None => ([0u32; super::kfield::K_DEG], None),
                         };
                         if mode == FUSE_EXTRACT_FOLD {
-                            tabs = Some((KTab::zeroed(n_t), KTab::zeroed(n_t), KTab::zeroed(n_t), KTab::zeroed(n_t)));
+                            // Fresh state-1 tables (arena-recycled: the live ranges are
+                            // written by the kernel, pad slices are never read).
+                            tabs = Some((KTab::recycled(n_t), KTab::recycled(n_t), KTab::recycled(n_t), KTab::recycled(n_t)));
                         }
                         let plan = FusedPlan { mode, ranges: &pranges, layers: &layers, r_prev, lambda: lambda_k, fold_consts };
                         match tabs.as_mut() {
