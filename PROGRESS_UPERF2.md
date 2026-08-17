@@ -468,7 +468,66 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent F status (wt-uperf2-f)
 
-- (lane launches here)
+- 2026-08-17 PLAN COMMIT (lane F, branch uperf2-f at f512ba1; report:
+  docs/zkmatrix-poc/U_PERF2_MEMORY_REPORT.md). Files: eval_proof.rs
+  (whole file), the bin's bg_*/bk_* composed-pass plumbing
+  (bg_witness / bk_witness_*, bg_precommit, bg_prove_group,
+  bg_verify_group, bg_matvec_chunks, bg_level_h, bg_fold, bk_pass_run's
+  witness plumbing), a `// [UPERF2-F]` bin section with `uperf-f
+  {diff-battery, rss}` (registered in `main` next to uperf-e), the
+  report, this section. Baseline binary at f512ba1 preserved
+  (scratchpad/ring_matmul_base_f512ba1) for the freeze/rig baselines.
+  Plan, in order:
+  0. MEASURE: `[UPERF2-F] RSS <tag> hwm/rss` rows (VmHWM + VmRSS from
+     /proc/self/status, printed only when the prof timers are on) at the
+     pass's phase boundaries — bk_pass_run: layers loaded, aux built,
+     witness built, precommit, commit end, claim-layer end, each descent
+     pair, before/after each group eval proof, verify per group;
+     bg_prove_group: rows pass, phi pass, level-0 h, level-0 fold (w0
+     freed), each deeper level. Baseline attribution at 3x16 (1T) and
+     12x64 (8T, flock, >= 13 GB free) BEFORE any structural change.
+  1. w0 COMPACT: `ring::eval_proof::DigitCols` (flat `Vec<i8>`, n x D
+     digits; every level-0 alphabet is |w| <= 64 — asserted at the
+     writer) + the `SmallRings` trait over `[Vec<i64>]` AND `[i8]` (per
+     ring `ring(u, buf) -> &[i64]`, `max_abs`, `is_zero`, `sub`) so the
+     kernels lift per ring from either store with identical arithmetic:
+     `ntt_gemm_modq_small` / `matvec_modq_small_multi` / `level_h_pairs`
+     / `fold_chunks_ntt` / `kernel_pass_factored` (rows pass) get `_gen`
+     bodies (the old names stay as `[Vec<i64>]` wrappers for the
+     batteries + the synthetic agg_* rig). `agg_digit_witness_cols`
+     (threaded, same `digits_into`) feeds bg_witness / bk_witness_*;
+     bg_precommit / bg_prove_group take `&mut DigitCols`; deeper levels'
+     witnesses (`w_cur`, that/hhat, floor) stay `Vec<Vec<i64>>`.
+  2. PHI NEVER MATERIALIZED at level 0: `Phi0Source` (per tensor:
+     aligned -> `PhiFactored` value rings x radix per limb; small-cols ->
+     the hoisted-kw phi rings materialized per tensor (they are tiny);
+     no kernel -> zero) with `fill(v0, n, out)`, consumed per u-block by
+     `level_h_pairs_with` (block GEMMs accumulated mod q — bit-identical
+     to the single-window kernel because every flush is an exact
+     integer partial reduced mod q); the level-1 transport from
+     `psi_level0_factored_multi` via `transport_level_from_psi` (what
+     bg_verify_group does). `phi_cur` for level 0 never allocated on the
+     fast path; `oracle_mode()` keeps the materialized path (phi pass ->
+     bg_level_h -> transport_level).
+  3. Dead data: `expand_level_matrix_arc` (the memo hands out `Arc`
+     handles; the bg_*/bk_* callers hold Arcs — no clones), a
+     `ZK_CRS_MEMO=0` knob (no memo insert; each expansion freed with its
+     last handle), and — if the attribution says it matters — the act
+     group's w0 regenerated after the descents instead of held.
+  4. `uperf-f diff-battery`: DigitCols kernels == boxed kernels
+     (gemm / matvec-multi / level-h / fold / kernel-pass rows) at both
+     moduli; Phi0Source::materialize == the phi pass; fill windows ==
+     slices; level_h_pairs_with == level_h_pairs at ragged blocks;
+     the E2E three-way (boxed-fast == cols-fast == cols-oracle, all
+     verify); ZK_THREADS 1/2/7. Gates at HEAD: uperf-pc diff-battery
+     (E2E), agg-matmul, bh-verifier, uperf-a/c/d/e batteries,
+     freeze-check 98 rows == baseline, self-test, pass-agg battery
+     (real data, once at close, flock), table-descent battery small,
+     the REAL 3x16 rig at 1T/8T and the REAL 12x64 rig at 8T (digests
+     identical, `/usr/bin/time` maxrss rows).
+  5. Report: RSS attribution before/after per phase (3x16, 12x64, and
+     12x128 / 12x256 if they fit under ~13 GB), timing rows, what is
+     left for 12x512 on 15 GB.
 
 ## Agent G status (wt-uperf2-g)
 

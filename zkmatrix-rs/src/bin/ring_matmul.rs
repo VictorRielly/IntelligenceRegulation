@@ -6408,6 +6408,8 @@ fn main() {
         Some("uperf-d") => uperf_d_main(&args[1..]),
         // [UPERF2-E] U-PERF2 lane E (descent callers / descent verify / small-cols aux) battery + bench.
         Some("uperf-e") => uperf_e_main(&args[1..]),
+        // [UPERF2-F] U-PERF2 lane F (memory diet) battery + RSS probe.
+        Some("uperf-f") => uperf_f_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -29465,6 +29467,7 @@ fn bg_prove_group(
     let mk = bg_multi_kernels(claims);
     let (mut b_rows, _) =
         ring::eval_proof::kernel_pass_factored(ctxr, kf, group, &mk, Some(&w0[..n0]), None);
+    uf_rss(&format!("bg.{}.rows-pass", group.name)); // [UPERF2-F] observation only
     for (c, row) in b_rows.iter_mut().enumerate() {
         if lie_ct_rows {
             row[0] = v_batch[c];
@@ -29482,6 +29485,7 @@ fn bg_prove_group(
     }
     let (_, mut phi_cur) =
         ring::eval_proof::kernel_pass_factored(ctxr, kf, group, &mk, None, Some(&alphas0));
+    uf_rss(&format!("bg.{}.phi-pass", group.name)); // [UPERF2-F] observation only
 
     let BgPre { u0, that0, a0_mat, b0u_mat, r0, chunk0, e_t0, l_t0 } = pre;
     let mut tcap_attempts: Vec<u32> = Vec::new();
@@ -29507,6 +29511,7 @@ fn bg_prove_group(
     assert_eq!((r0, chunk0, e_t0, l_t0), (plan0.r, plan0.chunk, plan0.e_next, plan0.l_t));
     phi_cur.resize(r0 * chunk0, poly_zero());
     let (_h0p, hhat0) = bg_level_h(ctxr, &phi_cur, w0, plan0);
+    uf_rss(&format!("bg.{}.level0-h", group.name)); // [UPERF2-F] observation only
     let b0h_mat = expand_level_matrix(seed, group.name, 0, "Bh", KAPPA_AGG, hhat0.len(), q);
     let ugh0 = matvec_modq_small(ctxr, &b0h_mat, KAPPA_AGG, hhat0.len(), &hhat0);
     ring::eval_proof::absorb_polys(tr, &format!("bg-ugh0-{}", group.name), &ugh0);
@@ -29519,6 +29524,7 @@ fn bg_prove_group(
     w0.clear();
     w0.shrink_to_fit();
     phi_cur.truncate(n0);
+    uf_rss(&format!("bg.{}.level0-fold", group.name)); // [UPERF2-F] observation only
 
     let mut prev_a_mat = a0_mat;
     let mut prev_bindings_data: Vec<(Vec<Poly>, usize, usize, Vec<Poly>)> = vec![
@@ -29570,6 +29576,7 @@ fn bg_prove_group(
         prev_bindings_data = vec![(b_mat, 0, th_len, u_i)];
         prev_c = cs;
         w_cur = w_next;
+        uf_rss(&format!("bg.{}.level{li}", group.name)); // [UPERF2-F] observation only
     }
     assert_eq!(w_cur.len(), sched.floor_rings, "floor size mismatch vs schedule");
     let (floor, tz) = if tier_z {
@@ -33679,6 +33686,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         }
         _ => {}
     }
+    uf_rss("bk.layers-loaded"); // [UPERF2-F] observation only
 
     // ---- Pair specs, registry, schedules, aux, witnesses. ----
     let t_commit = Instant::now();
@@ -33753,11 +33761,14 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
             ring::eval_proof::plan_schedule(reg.ga.n_digit_rings, 2, q, None),
         )
     };
+    uf_rss("bk.aux-built"); // [UPERF2-F] observation only
     let mut w0_w = bk_witness_weight(&reg, &lays);
     let mut w0_a = bk_witness_act(&reg, &lays, &aux);
+    uf_rss("bk.witness-built"); // [UPERF2-F] observation only
     let crs_seed = 0xB6_C0DEu64;
     let pre_w = bg_precommit(&ctxr, &reg.gw, &sched_w, &mut w0_w, crs_seed);
     let pre_a = bg_precommit(&ctxr, &reg.ga, &sched_a, &mut w0_a, crs_seed);
+    uf_rss("bk.precommit"); // [UPERF2-F] observation only
 
     // ---- Statement (v4 + mode) and h0 (map + BOTH u_0s inside —
     // ---- FP-L2 mask-then-fold: every aux commitment precedes every
@@ -33816,6 +33827,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     drop(prof_stmt);
     cost.commit_s = t_commit.elapsed().as_secs_f64();
     drop(prof_commit);
+    uf_rss("bk.commit-end"); // [UPERF2-F] observation only
 
     // ---- PROVER: one rolling transcript — the BG instance layer,
     // ---- then the 10 descent pairs, then publics. ----
@@ -33995,6 +34007,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     }
 
     drop(prof_claims);
+    uf_rss("bk.claim-layer-end"); // [UPERF2-F] observation only
     // ---- THE DESCENT PHASE: the 10 per-table folded pairs. ----
     let ypow = bk_ypow_col(&kf);
     let mut pair_transcripts: Vec<BkPairTranscript> = Vec::with_capacity(specs.len());
@@ -34109,6 +34122,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
             tq.value = kf.add(&tq.value, &kf.mul(&inst_sum, &dfold));
         }
         pair_transcripts.push(tpx);
+        uf_rss(&format!("bk.pair-{}", sp.name())); // [UPERF2-F] observation only
     }
 
     // ---- Public binding claims (X_l + declared z_l). ----
@@ -34165,14 +34179,17 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     let (vb_w, vb_a, gc_w, gc_a) = assemble(&claims, &nus, &reg, &kf);
     let mut mask_rng = ring::ProverRng::from_test_seed("uagb1-bk-tz", &[0xB7]);
     let lie_act = opts.tamper == BkTamper::CrossPairMSwap;
+    uf_rss("bk.groups-start"); // [UPERF2-F] observation only
     let (proof_w, tz_w) = bg_prove_group(
         &ctxr, &kf, &reg.gw, &sched_w, &mut w0_w, &gc_w, &vb_w, pre_w, &mut tr, crs_seed, false,
         opts.p2, &mut mask_rng,
     );
+    uf_rss("bk.prove-weight-end"); // [UPERF2-F] observation only
     let (proof_a, _tz_a) = bg_prove_group(
         &ctxr, &kf, &reg.ga, &sched_a, &mut w0_a, &gc_a, &vb_a, pre_a, &mut tr, crs_seed, lie_act,
         false, &mut mask_rng,
     );
+    uf_rss("bk.prove-act-end"); // [UPERF2-F] observation only
     cost.prove_s = t_prove.elapsed().as_secs_f64();
     let bundle_v_cs = v_cs;
 
@@ -34421,14 +34438,17 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
             tv.absorb_k(&kf, "bk-public", &public_vals);
             let nus_v: Vec<KElem> = (0..claims_v.len()).map(|_| tv.challenge_k(&kf)).collect();
             let (vb_w_v, vb_a_v, gc_w_v, gc_a_v) = assemble(&claims_v, &nus_v, &reg_v, &kf);
+            uf_rss("bk.verify-groups-start"); // [UPERF2-F] observation only
             let res_w = bg_verify_group(
                 &ctxr, &kf, &reg_v.gw, &sched_w, &gc_w_v, &vb_w_v, &proof_w, &mut tv, crs_seed,
                 tz_w.as_ref(),
             );
+            uf_rss("bk.verify-weight-end"); // [UPERF2-F] observation only
             let res_a = bg_verify_group(
                 &ctxr, &kf, &reg_v.ga, &sched_a, &gc_a_v, &vb_a_v, &proof_a, &mut tv, crs_seed,
                 None,
             );
+            uf_rss("bk.verify-act-end"); // [UPERF2-F] observation only
             for res in [&res_w, &res_a] {
                 if let Err(e) = res {
                     verdict.groups_ok = false;
@@ -37533,4 +37553,64 @@ fn uperf_e_bench(rows: usize, cols: usize, n_k: usize) {
         s_fast * 1e6 / n0 as f64,
         s_orc / s_fast
     );
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-F] U-PERF2 lane F — MEMORY DIET: the 12x512 rig on the 15 GB
+// reference box. (0) an RSS attribution at the pass's phase boundaries
+// (`[UPERF2-F] RSS <tag>` rows: VmHWM / VmRSS from /proc/self/status when
+// profiling is on — observation only); (1) the level-0 digit witness as a
+// flat i8 store (`ring::eval_proof::DigitCols`) consumed per ring inside
+// the kernels through the `SmallRings` trait; (2) the level-0 aggregated
+// functional Phi_0 never materialized (`Phi0Source` fed per u-block into
+// `level_h_pairs_with`; the level-1 transport from the factored Psi_0 —
+// what `bg_verify_group` already does); (3) CRS memo handles as `Arc`
+// (no clones). ADDITIVE section: `uperf-f {diff-battery, rss}` — the
+// differential legs of the structural changes (DigitCols kernels ==
+// the boxed kernels; Phi0Source == the materialized phi pass;
+// level_h_pairs_with == level_h_pairs; the E2E three-way) and the RSS
+// probe. Report: docs/zkmatrix-poc/U_PERF2_MEMORY_REPORT.md.
+
+/// [UPERF2-F] (VmHWM, VmRSS) in KiB from /proc/self/status (0, 0 if
+/// unavailable).
+fn uf_rss_kb() -> (usize, usize) {
+    let s = std::fs::read_to_string("/proc/self/status").unwrap_or_default();
+    let get = |key: &str| -> usize {
+        s.lines()
+            .find(|l| l.starts_with(key))
+            .and_then(|l| l.split_whitespace().nth(1).and_then(|v| v.parse().ok()))
+            .unwrap_or(0)
+    };
+    (get("VmHWM:"), get("VmRSS:"))
+}
+
+/// [UPERF2-F] One RSS attribution row (observation only; printed only when
+/// the prof timers are on, i.e. under the `uperf-pc *-profile` arms):
+/// `[UPERF2-F] RSS <tag> hwm <MiB> rss <MiB>`.
+fn uf_rss(tag: &str) {
+    if !ring::ct_engine::prof::on() {
+        return;
+    }
+    let (hwm, rss) = uf_rss_kb();
+    println!("[UPERF2-F] RSS {tag:<28} hwm {:>8.0} MiB  rss {:>8.0} MiB", hwm as f64 / 1024.0, rss as f64 / 1024.0);
+}
+
+fn uperf_f_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("rss") => {
+            let (hwm, rss) = uf_rss_kb();
+            println!("[UPERF2-F] rss probe: hwm {hwm} KiB rss {rss} KiB");
+        }
+        Some("diff-battery") => uperf_f_diff_battery(),
+        _ => println!("uperf-f diff-battery | rss"),
+    }
+}
+
+/// [UPERF2-F] The lane's differential battery (grows as items land):
+/// DigitCols kernels == boxed kernels, Phi0Source == the phi pass,
+/// level_h_pairs_with == level_h_pairs, the E2E three-way.
+fn uperf_f_diff_battery() {
+    let t0 = Instant::now();
+    println!("[UPERF2-F] diff-battery: (skeleton — legs land with the items)");
+    println!("[UPERF2-F] differential battery passed in {:.2}s", t0.elapsed().as_secs_f64());
 }
