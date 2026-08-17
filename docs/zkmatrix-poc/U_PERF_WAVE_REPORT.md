@@ -223,6 +223,10 @@ concurrently)]:
 | same, `ZK_THREADS=8` [QUIET] | 1.6 s | 6.9 s | **1.3 s** | **9.9 s** | 0ae9cdae… (identical) | 3.0 GiB |
 | same, `ZK_THREADS=16` [QUIET] | 1.6 s | 6.8 s | 1.4 s | 10.0 s (saturated on this hybrid box) | 0ae9cdae… (identical) | — |
 | **12 layers x T=64** (4dcaea6), `ZK_THREADS=8` [QUIET] | 8.3 s | 33.6 s | 3.6 s | **46.0 s** | 63f4a3a4… (statement 80763ea5…) | **12.2 GiB** |
+| + lanes F (memory diet) + G (descents round 2) (d38e9ce), 3x16, 1T [QUIET] | 3.4 s | 21.6 s | 3.5 s | **28.6 s** | 0ae9cdae… (identical) | **0.96 GiB** |
+| same, 3x16, `ZK_THREADS=8` | 1.4 s | 6.7 s | 1.2 s | **9.4 s** | 0ae9cdae… (identical) | 1.0 GiB |
+| same, 12x64, `ZK_THREADS=8` | 5.3 s | 32.2 s | 3.4 s | **41.3 s** | 63f4a3a4… (identical) | **4.0 GiB** |
+| same, **12x128**, `ZK_THREADS=8` (first time on this box) | 6.3 s | 47.3 s | 4.1 s | **58.3 s** | 742d88e1… (statement 4a3af8c3…, 1,372,775 B) | **6.4 GiB** |
 
 Round 3 (lanes D + E): claim layer 3.17 -> 0.91 s at 1T (11x at 8T),
 chain GEMM 10x, digit witness threaded, tree callers streamed, the

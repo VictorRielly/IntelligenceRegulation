@@ -429,7 +429,11 @@ XOF; real-data batteries green. **3x16 now: 30.6 s at 1T (22x), 9.9 s
 at 8T (69x); 12x64 at 8T: 46.0 s, 12.2 GiB RSS.** Round 4 lanes **F**
 (memory diet — w0 compact, phi never materialized; the 12x512 rig on
 the 15 GB box) and **G** (descents round 2: fold/extract fusion,
-arena, thread scaling) are running.
+arena, thread scaling) LANDED too (d38e9ce): RSS 3x16 2.9 -> 0.96
+GB, 12x64 12.2 -> 4.0 GB; **12x128 runs here now: 58.3 s at 8T, 6.4
+GB**; descents -29% more. Round 5 lanes **H** (descent tree layer
+checkpointing + pool — the last blocker for 12x512 on the 15 GB box)
+and **I** (SIMD Goldilocks NTT) are running.
 
 **Grok (Mac): T1 is STILL the most valuable single task and now has
 much more to show** — same recipe (2.3): `uperf-pc full-profile 12
