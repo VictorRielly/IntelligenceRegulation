@@ -1,0 +1,438 @@
+{
+ "checkpoint": "/home/victor/models/125m-best-adamw-val3.0816/model.safetensors",
+ "seed": 1337,
+ "semantics": "TARGET_CONTRACT S2 floor requant (variant A); int8 symmetric [-127,127]; silu-int8-table-v2 family",
+ "shapes": {
+  "X": [
+   512,
+   768
+  ],
+  "WgT": [
+   768,
+   2048
+  ],
+  "WuT": [
+   768,
+   2048
+  ],
+  "WdT": [
+   2048,
+   768
+  ]
+ },
+ "tables": {
+  "-3,-3": "bdf8bc7129dc6ec8b002af51fd4dbef3d7c1240f65c4da01ce2db2a7c9bb6c50",
+  "-4,-4": "063993481a8fc0087014b25357a22b95d88bda649cc6997e2fe27c5bacd17ada"
+ },
+ "layers": [
+  {
+   "layer": 0,
+   "eX": -3,
+   "eGate": -3,
+   "eA": -3,
+   "eUp": -3,
+   "eH": 0,
+   "eZ": 1,
+   "eW": -9,
+   "files": {
+    "WgT": "layer00_WgT.bin",
+    "WuT": "layer00_WuT.bin",
+    "WdT": "layer00_WdT.bin",
+    "X": "layer00_X.bin"
+   },
+   "digests": {
+    "WgT": "809fb5e0cd36ab2fb52bf26fe8e9f5c8bafd12a79da5b557efb96ce7788cda82",
+    "WuT": "a6af65c64d4b512a5d93d01f74fbbf3e58fc1db58034c3950373f002a1ec706e",
+    "WdT": "0ab7c51af47ed0eaf55ba770636c16fd98c2547729e319e79ed7e4df44b0d49b",
+    "X": "1011fe6fcd3f6064c3f8fc02653e0e58d743527ea3a63ce8b761218ff8948e25",
+    "z": "3cff4aa0a12b899ea30d747c9549cfb046d01a006864e3ac528e8e5179031360"
+   },
+   "shifts": {
+    "g": 9,
+    "u": 9,
+    "h": 6,
+    "z": 10
+   },
+   "acc_max": {
+    "gateup": 39258,
+    "down": 27911,
+    "had": 1596
+   }
+  },
+  {
+   "layer": 1,
+   "eX": -2,
+   "eGate": -4,
+   "eA": -4,
+   "eUp": -3,
+   "eH": 0,
+   "eZ": -1,
+   "eW": -9,
+   "files": {
+    "WgT": "layer01_WgT.bin",
+    "WuT": "layer01_WuT.bin",
+    "WdT": "layer01_WdT.bin",
+    "X": "layer01_X.bin"
+   },
+   "digests": {
+    "WgT": "e60f7475a85c9c5e3e7f1010ae449e176e7b712fd39b36f5edf03086cd4f0e90",
+    "WuT": "19e4cd7b3be1e47f60b566b64bd9896f8a467faf3ffa66157ed0511b88164f29",
+    "WdT": "bedd6ef696cd747745f1d630d5e52e3e9ad35d8d3fb940caa314a5abedc016da",
+    "X": "8b995f3ca586c293b79f46b8a1663c3faa5b602a51145fc150dee79de0bbd0dd",
+    "z": "234a13a5ebc2b136c55439230fa21c6352872c0ebeadf00fb39e245d28ac0715"
+   },
+   "shifts": {
+    "g": 7,
+    "u": 8,
+    "h": 7,
+    "z": 8
+   },
+   "acc_max": {
+    "gateup": 16206,
+    "down": 7722,
+    "had": 2142
+   }
+  },
+  {
+   "layer": 2,
+   "eX": -2,
+   "eGate": -3,
+   "eA": -3,
+   "eUp": -2,
+   "eH": 2,
+   "eZ": 1,
+   "eW": -9,
+   "files": {
+    "WgT": "layer02_WgT.bin",
+    "WuT": "layer02_WuT.bin",
+    "WdT": "layer02_WdT.bin",
+    "X": "layer02_X.bin"
+   },
+   "digests": {
+    "WgT": "bb70d328cb419302b6e3964025e14f9ee2d5e9822485fee9e7caa7f8c6882888",
+    "WuT": "e90595a2696294f8a92c6de611693d90e71a48941876cc1095cf716e262eb4eb",
+    "WdT": "dbf64f394b227ad6f545158cab1a5dc02527d60e48989b83e48b14085807b758",
+    "X": "36ae34c1bf084809feaec77293b51f256948976ad264b477d8c6263ca90bb990",
+    "z": "78fb12397bf94eb0bddf261c6d027161a5f81a8cc752a92602de441fe8b5e8c4"
+   },
+   "shifts": {
+    "g": 8,
+    "u": 9,
+    "h": 7,
+    "z": 8
+   },
+   "acc_max": {
+    "gateup": 17398,
+    "down": 13584,
+    "had": 520
+   }
+  },
+  {
+   "layer": 3,
+   "eX": -2,
+   "eGate": -3,
+   "eA": -3,
+   "eUp": -4,
+   "eH": -1,
+   "eZ": -1,
+   "eW": -9,
+   "files": {
+    "WgT": "layer03_WgT.bin",
+    "WuT": "layer03_WuT.bin",
+    "WdT": "layer03_WdT.bin",
+    "X": "layer03_X.bin"
+   },
+   "digests": {
+    "WgT": "a35b3aaa2d0a1169d8518cba3b93068816cda5493af359f323d8bf3a19c69867",
+    "WuT": "dd5320276ee3e84ad6feec119d1eb7aacbd720d5bf4497c54120eeef8458743a",
+    "WdT": "bff7847ddb45673f991cd28caa69cbc937763b978f177d93cf389537d18a3301",
+    "X": "cfff721539bbd23108807fa60ecb0da544e4ea3bab3c2dd22c3022488a47118c",
+    "z": "37e88a6c161df04782b3498aad06b2fc808f5fe955be2aaa50892f338b975acd"
+   },
+   "shifts": {
+    "g": 8,
+    "u": 7,
+    "h": 6,
+    "z": 9
+   },
+   "acc_max": {
+    "gateup": 11710,
+    "down": 13896,
+    "had": 2072
+   }
+  },
+  {
+   "layer": 4,
+   "eX": -2,
+   "eGate": -4,
+   "eA": -4,
+   "eUp": -4,
+   "eH": -2,
+   "eZ": -1,
+   "eW": -9,
+   "files": {
+    "WgT": "layer04_WgT.bin",
+    "WuT": "layer04_WuT.bin",
+    "WdT": "layer04_WdT.bin",
+    "X": "layer04_X.bin"
+   },
+   "digests": {
+    "WgT": "536a9332685e6726036061fdd83d1cad458a10ee41c47e464e2daed3914a5905",
+    "WuT": "c75e71e6625458477a2d21371bed29a548705ac92ec329d541008f420361b3c9",
+    "WdT": "6fa899698a358bc45c3c01ef4165cc01ff206153a674db8147535ae5aa77a4dd",
+    "X": "89cea5d9b3e5981dd8dff56fc2ce0addc1e9965ce60f4d875d487a15e77fde2d",
+    "z": "bc6848589562febc584477193fc74e712ba40b04fed753b3f61703516c772569"
+   },
+   "shifts": {
+    "g": 7,
+    "u": 7,
+    "h": 6,
+    "z": 10
+   },
+   "acc_max": {
+    "gateup": 11867,
+    "down": 19798,
+    "had": 3300
+   }
+  },
+  {
+   "layer": 5,
+   "eX": -2,
+   "eGate": -3,
+   "eA": -3,
+   "eUp": -3,
+   "eH": -1,
+   "eZ": -3,
+   "eW": -9,
+   "files": {
+    "WgT": "layer05_WgT.bin",
+    "WuT": "layer05_WuT.bin",
+    "WdT": "layer05_WdT.bin",
+    "X": "layer05_X.bin"
+   },
+   "digests": {
+    "WgT": "7b9baadfc1a83d442ece1708a9aa0b915ac77d5142e97ceb8e7cadf3afa403d5",
+    "WuT": "bcf075df4c5f582583154a118bf57198ead534f1f636e2e4b40aef1790a98af4",
+    "WdT": "d912ec1ee57ff835592d2cdcc3dc8f75d1f48205c87d8886bf4170a9de13f228",
+    "X": "7f9d0c5c0a168fd2258dc7d29b79fc9a892d8cd1bbc249484c9afa016939d69a",
+    "z": "aa3f1d5289ee4b7b3c6b9b1c652f764cfb7fa739fd407c44503b62f0eee3bf9f"
+   },
+   "shifts": {
+    "g": 8,
+    "u": 8,
+    "h": 5,
+    "z": 7
+   },
+   "acc_max": {
+    "gateup": 11974,
+    "down": 11156,
+    "had": 864
+   }
+  },
+  {
+   "layer": 6,
+   "eX": -2,
+   "eGate": -3,
+   "eA": -3,
+   "eUp": -3,
+   "eH": 0,
+   "eZ": -3,
+   "eW": -9,
+   "files": {
+    "WgT": "layer06_WgT.bin",
+    "WuT": "layer06_WuT.bin",
+    "WdT": "layer06_WdT.bin",
+    "X": "layer06_X.bin"
+   },
+   "digests": {
+    "WgT": "30d691b37ceb32685e8ac9fe2b54c389e1fb3c7b4315aaf9db68f31429aabb47",
+    "WuT": "670959b14eea54a557875825a3c059ae6c3bfd54931345e8fe33bf6b25e8cfde",
+    "WdT": "7a6386e4289eef2f6ba75280f680369f6b29114fe01ba0679e4ad437af6ca49e",
+    "X": "becb11a10064245b7809ffeeff87e914a32d54f6c99d797336393babde706f37",
+    "z": "34e996522ed84f0ae6086f2ee59c6fde4e8c16db88811af6e4841c578be7b152"
+   },
+   "shifts": {
+    "g": 8,
+    "u": 8,
+    "h": 6,
+    "z": 6
+   },
+   "acc_max": {
+    "gateup": 12179,
+    "down": 5554,
+    "had": 1178
+   }
+  },
+  {
+   "layer": 7,
+   "eX": -2,
+   "eGate": -3,
+   "eA": -3,
+   "eUp": -3,
+   "eH": -1,
+   "eZ": -3,
+   "eW": -9,
+   "files": {
+    "WgT": "layer07_WgT.bin",
+    "WuT": "layer07_WuT.bin",
+    "WdT": "layer07_WdT.bin",
+    "X": "layer07_X.bin"
+   },
+   "digests": {
+    "WgT": "b33aaabc6e4d980f2a2053f749c3ba0f6115b1d996380176998f3e8534ca2f60",
+    "WuT": "b427dff557ae93685807fc36e0c90fa544d6139124e4f34978995ce8a9045823",
+    "WdT": "0e6629c31c6589ca78d755ffe5b08a64b436b7b63ddd0cea8fa2ad137c7ef286",
+    "X": "cb81c807d2ca4fe590bbd2aa9a9fc9b9f86cb6fdf1a8703f47dd821b20dd1b58",
+    "z": "f6d9ca73a44f321fd84cfa0902a2961d177b85229e6ada28a066a5364244b2d3"
+   },
+   "shifts": {
+    "g": 8,
+    "u": 8,
+    "h": 5,
+    "z": 7
+   },
+   "acc_max": {
+    "gateup": 12509,
+    "down": 8402,
+    "had": 925
+   }
+  },
+  {
+   "layer": 8,
+   "eX": -2,
+   "eGate": -3,
+   "eA": -3,
+   "eUp": -3,
+   "eH": 0,
+   "eZ": -2,
+   "eW": -9,
+   "files": {
+    "WgT": "layer08_WgT.bin",
+    "WuT": "layer08_WuT.bin",
+    "WdT": "layer08_WdT.bin",
+    "X": "layer08_X.bin"
+   },
+   "digests": {
+    "WgT": "17762a76852408d8b374a74cdf0486bff14d75a504ac1ea8851ef2fb4149d356",
+    "WuT": "26c4f2113b19803e1addf725501695f2ac4abad3bb27c55262f3a002713a4261",
+    "WdT": "c4ba391a08c28c4e631302266238dffe878717064501b685c9b84ead2e8980ca",
+    "X": "ae01b4f4829a8fbe7d9042887e849886265c70862efef89eb16ac0995c326625",
+    "z": "7589552a91e6dabfb375fe42d51834de1c70ebcb7efb69c4c4b07436734832e3"
+   },
+   "shifts": {
+    "g": 8,
+    "u": 8,
+    "h": 6,
+    "z": 7
+   },
+   "acc_max": {
+    "gateup": 11727,
+    "down": 4416,
+    "had": 868
+   }
+  },
+  {
+   "layer": 9,
+   "eX": -2,
+   "eGate": -3,
+   "eA": -3,
+   "eUp": -3,
+   "eH": 0,
+   "eZ": -2,
+   "eW": -9,
+   "files": {
+    "WgT": "layer09_WgT.bin",
+    "WuT": "layer09_WuT.bin",
+    "WdT": "layer09_WdT.bin",
+    "X": "layer09_X.bin"
+   },
+   "digests": {
+    "WgT": "26d1ae9bd20692b8cab93e1f6497a2c50cb6d97f44f95d63d7ffaed006705acf",
+    "WuT": "f9621d2ffcfdf12e709c3efca609657b109c4bb4aa646359dcf6d92a8528a053",
+    "WdT": "5ad88dd22ac5dd0fb49c3da792b7e2ac4d0d721977a8494f47e36e4d2f515ca0",
+    "X": "25b88f8d694e7e30960ae731d3490b445d8691efe5c3a1aafa458ca0ee971c3d",
+    "z": "6325892d446d1bdf848c58b0d167c1b648b7918409163c8d6e161edc508cd6a4"
+   },
+   "shifts": {
+    "g": 8,
+    "u": 8,
+    "h": 6,
+    "z": 7
+   },
+   "acc_max": {
+    "gateup": 12589,
+    "down": 4439,
+    "had": 920
+   }
+  },
+  {
+   "layer": 10,
+   "eX": -2,
+   "eGate": -3,
+   "eA": -3,
+   "eUp": -2,
+   "eH": 0,
+   "eZ": 0,
+   "eW": -9,
+   "files": {
+    "WgT": "layer10_WgT.bin",
+    "WuT": "layer10_WuT.bin",
+    "WdT": "layer10_WdT.bin",
+    "X": "layer10_X.bin"
+   },
+   "digests": {
+    "WgT": "d48617ab6d186664170b3f8cfeb7bd560ffa92262e02eb12ca9811210d086a60",
+    "WuT": "e2f1165662dd06ffc1c70feb5f2125912925cac6337c5b335251e837da3b4839",
+    "WdT": "cefe13072da16a9a28b50b4933db2ab451f1347ccb5f7e7a59f9a18964381c52",
+    "X": "c61383b732e11a2f48d575b8c0c15f9441e1b595ef3f2985c844a33870ded235",
+    "z": "1d045f1097611b499aa498aee502150cf0de44a5412d6b9099822a0c10b4ffc4"
+   },
+   "shifts": {
+    "g": 8,
+    "u": 9,
+    "h": 5,
+    "z": 9
+   },
+   "acc_max": {
+    "gateup": 11564,
+    "down": 15674,
+    "had": 528
+   }
+  },
+  {
+   "layer": 11,
+   "eX": -2,
+   "eGate": -3,
+   "eA": -3,
+   "eUp": -2,
+   "eH": 0,
+   "eZ": 1,
+   "eW": -9,
+   "files": {
+    "WgT": "layer11_WgT.bin",
+    "WuT": "layer11_WuT.bin",
+    "WdT": "layer11_WdT.bin",
+    "X": "layer11_X.bin"
+   },
+   "digests": {
+    "WgT": "fc0a5bb922c610ba04f29bbf919e738a5de085cc8720220ed3fef5821f3331dc",
+    "WuT": "dfafcc4ef14aeb2d2b1715562b59f73ed5591632918cb43dc88d8f0c37784419",
+    "WdT": "a41b1c9bb8074b4e31680e5b40a35c5d990b8a03605c3f1e81a4e2eee49f7bc2",
+    "X": "e7031ac328f387105fb58c21f5bed3faa6d6395dbb46ffedd5b5b99e8910d65f",
+    "z": "8193e4cafb0f245d066b2e752a951ffd1c66c768312f6c24b6c9c4a19c8e45ad"
+   },
+   "shifts": {
+    "g": 8,
+    "u": 9,
+    "h": 5,
+    "z": 10
+   },
+   "acc_max": {
+    "gateup": 15377,
+    "down": 34571,
+    "had": 528
+   }
+  }
+ ],
+ "range_violations": 0
+}

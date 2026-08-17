@@ -42,6 +42,11 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import m125_int8_calibration as cal  # noqa: E402  (BC's primitives)
 
 OUT_DIR = ROOT / "results" / "m125_ffn_export"
+# `--out <dir>` (2026-08-17): write a VARIANT export elsewhere (the WSL
+# box's re-export; see M125_EXPORT_DIR in the Rust loader) so the frozen
+# committed manifest/sidecar are never overwritten by a re-run.
+if "--out" in sys.argv:
+    OUT_DIR = Path(sys.argv[sys.argv.index("--out") + 1]).resolve()
 CAL_JSON = ROOT / "results" / "m125_int8_calibration.json"
 
 # The frozen v2 family digests (ring/lookup.rs UAGB1-BF-1a pins).
@@ -140,8 +145,8 @@ def main():
     # --- the COMMITTED manifest's weight digests and stop before the X
     # --- walk (which needs the val shard + mlx). Used on the WSL box.
     if "--weights-only" in sys.argv:
-        prev = json.loads((OUT_DIR / "manifest.json").read_text()) \
-            if (OUT_DIR / "manifest.json").exists() else None
+        committed = ROOT / "results" / "m125_ffn_export" / "manifest.json"
+        prev = json.loads(committed.read_text()) if committed.exists() else None
         if prev is None:
             print("weights-only: no committed manifest to compare against")
             return

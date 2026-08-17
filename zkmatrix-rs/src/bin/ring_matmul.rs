@@ -24327,6 +24327,15 @@ const BF_EXPORT_DIR: &str = "results/m125_ffn_export";
 /// The export directory, resolved from either the repo root or
 /// zkmatrix-rs/ (both are working directories in practice).
 fn bf_export_path() -> std::path::PathBuf {
+    // `M125_EXPORT_DIR` (2026-08-17): an alternate export directory —
+    // e.g. results/m125_ffn_export_wsl/, the WSL box's own re-export of
+    // the SAME checkpoint + window (valid witness, 0 violations) whose X
+    // digests differ from the Mac's by mlx CPU-vs-Metal rounding; the
+    // frozen (committed) sidecar/digests stay authoritative for
+    // freeze-check, which does not set the variable.
+    if let Ok(dir) = std::env::var("M125_EXPORT_DIR") {
+        return std::path::PathBuf::from(dir);
+    }
     let a = std::path::PathBuf::from(BF_EXPORT_DIR);
     if a.exists() { a } else { std::path::PathBuf::from("..").join(BF_EXPORT_DIR) }
 }
