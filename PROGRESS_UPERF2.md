@@ -422,12 +422,16 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
   5. Report + this section.
 - 2026-08-17 CLOSE (lane E; commits ebb1e25 plan, efc039f items 1-3,
   6300f2d battery/bench, a2bbc12 streamed builder, 5852892 sparse fill,
-  + the report commit; report: docs/zkmatrix-poc/U_PERF2_DESCENT2_REPORT.md).
-  ALL FIVE DELIVERABLES LANDED, every change transcript-identical (the
-  3x16 REAL-DATA rig: accept, statement digest 93a98700.., 985,142 B,
-  EVAL-PROOF DIGEST 0ae9cdae.. at ZK_THREADS 1 and 8 fast and under
-  ZK_UPERF_ORACLE=1 at close; descent-battery 18/18 at 1/2/7; uperf-pc
-  diff-battery E2E at 1/7T; freeze rows identical; self-test at close):
+  f00dab1 report, cb4ee59 final; report:
+  docs/zkmatrix-poc/U_PERF2_DESCENT2_REPORT.md). ALL FIVE DELIVERABLES
+  LANDED, every change transcript-identical (the 3x16 REAL-DATA rig at
+  close: accept, statement digest 93a98700.., 985,142 B, EVAL-PROOF
+  DIGEST 0ae9cdae.. at ZK_THREADS 1 [35.2 s wall: 5.2 / 26.4 / 3.5] and
+  8 [14.3 s: 2.5 / 10.4 / 1.3] fast, and under ZK_UPERF_ORACLE=1 at 1T
+  [656.4 s]; self-test passed 241.6 s; descent-battery 18/18 at 1/2/7;
+  uperf-pc diff-battery E2E at 1/7T; freeze rows identical; all
+  [WSL NOISY-SHARED]). Merge note: prof ids 40-49 (`e.*`) collide with
+  lane D's `d.*` append — renumber one block + its NAMES slice.
   1. Descent-tree callers: `descent_fold::aligned_witness_tree` ->
      `gkr::build_tree_sparse` first, then one step further — a NEW
      streamed, threaded packed builder `gkr::build_aligned_witness_tree`

@@ -254,9 +254,29 @@ The 3x16 rig (1T, [WSL NOISY-SHARED]; digests identical on every line):
   `ZK_UPERF_ORACLE=1` at 1T at close (Section 4.1).
 - `self-test` at close (Section 4.1).
 
-### 4.1 Close runs
+### 4.1 Close runs (final binary at cb4ee59) [WSL-BOX NOISY-SHARED, load 1.2-2.6]
 
-(filled at close)
+| run | result |
+|---|---|
+| rig 3x16 fast, ZK_THREADS 1 | accept, digest 93a98700.., 985,142 B, EVAL-PROOF 0ae9cdae..; wall **35.2 s** (commit 5.2 / prove 26.4 / verify 3.5); e.kpass-smallcols 0.33 s, e.psi0-smallcols 0.18 s, pair-loop verify 0.04 s |
+| rig 3x16 fast, ZK_THREADS 8 | same digests; wall **14.3 s** (2.5 / 10.4 / 1.3) |
+| rig 3x16 `ZK_UPERF_ORACLE=1`, ZK_THREADS 1 (every fast path routed to its oracle, incl. this lane's boxed builders and the pre-change caller) | same digests, accept; wall 656.4 s (53.5 / 465.2 / 137.5) — the ledger's earlier oracle run was 682.8 s |
+| `self-test` | passed, 241.6 s (328 ok rows) |
+| `uperf-a descent-battery` at 1T (and 2T/7T earlier at HEAD-1) | 18/18, BATTERY DIGEST f936ff79.. |
+| `uperf-pc diff-battery` at 1T (7T at HEAD-1) | O1 4/4 O2 35/35 O3 63/63 O5 12/12 E2E 2/2 |
+| `uperf-e diff-battery` at 7T (1T/2T at HEAD-2) | 24/24 + 8/8 + 8/8, BATTERY DIGEST 59117121.. |
+| freeze-check | 98 `ok` rows, pre-panic text identical to the d3a4602 capture |
+
+Ledger baseline (a450b1f, [WSL QUIET]): 1T 4.2 / 32.1 / 7.3 / 43.7 s;
+8T 2.6 / 12.0 / 1.9 / 16.6 s. Lane E at close: 1T 5.2 / 26.4 / 3.5 /
+**35.2 s** (verify -52%), 8T 2.5 / 10.4 / 1.3 / **14.3 s** — under a
+busier box (the commit column is lane D's territory and moved with the
+load, not with this lane's code).
+
+Merge note for the orchestrator: `ct_engine::prof` ids 40-49 (`e.*`) are
+appended where lane D appends its `d.*` ids; the ids are only used through
+the constants, so renumbering one lane's block (and its `NAMES` slice) is
+the whole conflict.
 
 ## 5. Projected 12x512 deltas [MODEL — from the 3x16 ratios and the depth-20 bench; not a rig number]
 
