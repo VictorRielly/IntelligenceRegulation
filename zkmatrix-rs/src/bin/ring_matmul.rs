@@ -30465,7 +30465,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
     let mut blind_gopen: Vec<KElem> = Vec::new(); // [UAGB1-BL] shipped mask openings
 
     for (inst_i, &(name, a_e, b_e, c_e)) in BG_MM_INSTS.iter().enumerate() {
-        let (a_rows, a_cols) = bf_entry_shape(a_e, t); // (t, inner)
+        let (_a_rows, a_cols) = bf_entry_shape(a_e, t); // (t, inner)
         let (_b_rows, b_cols) = bf_entry_shape(b_e, t); // (inner, cols)
         let inner = a_cols;
         let cols = b_cols;
@@ -30482,7 +30482,6 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
         // Reduced tables over (inner-low, layer-high). [UPERF2-D] threaded
         // builder; the serial loop is its oracle (bg_mm_tables_ref).
         let (mut ta, tb) = bg_mm_tables(&kf, &lays, a_e, b_e, t, il.slots, nk, &eq_rx, &eq_ry);
-        let _ = a_rows;
         if opts.tamper == BgTamper::FoldClaimLie && name == "mm-gate" {
             ta[0] = kf.add(&ta[0], &kf.one());
         }
