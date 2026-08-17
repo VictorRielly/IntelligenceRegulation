@@ -547,7 +547,35 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent H status (wt-uperf2-h)
 
-- (lane launches here)
+- 2026-08-17 PLAN COMMIT (lane H, branch uperf2-h at d38e9ce; report:
+  docs/zkmatrix-poc/U_PERF2_DESCENT4_REPORT.md). Files: gkr.rs /
+  gkr_masked.rs / kfield.rs / descent_fold.rs (extend), the bin's
+  bk_pass_run DESCENT PHASE loop only, a `// [UPERF2-H]` bin section
+  with `uperf-h {battery, bench}`, the report, this section. Baselines
+  captured BEFORE any code change from the untouched d38e9ce build
+  (scratchpad ring_matmul_base_d38e9ce): freeze-check 98 `ok` rows
+  (h_freeze_baseline.txt = lane I's capture); `uperf-a descent-bench 20
+  8 5 9` 8T: prove 1.67 s, trees 0.41 s, peak RSS 1,558 MiB, digest
+  47a58a27.. [WSL 8T QUIET]. THE MODEL (report Section 0): the descent
+  reads each layer once, top-down, so the pair's peak is at the bottom
+  rounds — layer depth-1 + the last rounds' work tables + THE LEAVES;
+  the brief's checkpoint model (leaves x (1 + 2^-c + ..)) forgets the
+  transient recompute of layer depth-1 and the work tables: checkpointing
+  alone lands ~3.6-3.9U (U = the pair's leaf table, 3.2 GB at 12x512) =
+  ~12 GB — not enough. Plan, in order: (1) RELEASE consumed layers as the
+  descent passes them (per-layer RwLock store; `FracTree::layer(k)` /
+  `release_layer(k)`) + CHECKPOINTS (`ZK_K9_CHECKPOINT`, default 2 = every
+  gap is one layer, recomputed by one threaded tree step from the
+  checkpoint below; 0 = keep all) -> 3.625U; (2) COMPACT LEAVES for the
+  aligned witness trees (the leaves are (0,1) / (1, alpha - v) with v on
+  K-coords 0..1 / 4 blinders: 8 B per leaf instead of 128 B, expanded
+  chunkwise into cache-resident scratch for the tree step and the fused
+  extract rounds; `ZK_K9_COMPACT_LEAVES`) -> 1.75U = 5.6 GB at the 12x512
+  pair [MODEL] -> the whole pass ~8-10 GB on this box; (3) `uperf-h
+  battery` (2-coord shapes, knob variants == today's path, at 1/2/7T) +
+  `uperf-h bench`; (4) rigs 3x16 / 12x64 / 12x128 + the 12x512 run if
+  the calibrated model says < ~13 GB; (5) the same-size tree pool only if
+  it lowers a rig peak; (6) report + this section.
 
 ## Agent I status (wt-uperf2-i)
 
