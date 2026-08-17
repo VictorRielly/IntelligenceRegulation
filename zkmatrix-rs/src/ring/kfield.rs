@@ -1079,8 +1079,14 @@ pub(crate) const FUSE_EXTRACT_FOLD: u8 = 2; // round 1: eq (state 0) + the tree 
 /// The sources of one fused job (a contiguous run of `n` output pair-blocks).
 pub(crate) struct FusedSrc<'a> {
     pub mode: u8,
-    /// eq: 4n blocks (FOLD / EXTRACT_FOLD: state t-1) or 2n blocks (EXTRACT: state t).
+    /// eq: 4n blocks (FOLD / EXTRACT_FOLD: state t-1) or 2n blocks (EXTRACT:
+    /// state t). For the extract modes this is the instance-local slice of
+    /// the b-part eq table (eq(zeta_b, b)); `eq_scale` = E(e) multiplies
+    /// each block on the fly (None: the slice is the eq itself) — the same
+    /// mul_fixed arithmetic the eager path used to materialize the joint
+    /// table, so the same canonical values.
     pub eq: &'a [u32],
+    pub eq_scale: Option<[u32; K_DEG]>,
     /// FOLD: pl, p1, q0, q1 at state t-1 (4n blocks each). EXTRACT*: t[0] =
     /// the instance's p layer, t[1] = its q layer (4n / 8n blocks); t[2],
     /// t[3] unused (empty).
@@ -1151,6 +1157,15 @@ fn fold_pair_blocks(
             }
         }
     }
+}
+
+/// out = a * r on one lane block — `mul_fixed_body`'s per-block arithmetic.
+#[inline(always)]
+fn mul_fixed_block(kern: &KKern, a: &[u32; KBLK], r: &[u32; K_DEG], out: &mut [u32; KBLK]) {
+    let mut lo = [0u64; 31 * KL];
+    let mut hi = [0u64; 31 * KL];
+    mac_block_fixed(a, r, &mut lo, &mut hi);
+    red_block(kern, &lo, &hi, out);
 }
 
 /// PL block = p0 + lambda * q0 on lane blocks — `mul_fixed_add_body`'s
@@ -1240,7 +1255,14 @@ fn fused_round_body(
                 }
             }
             FUSE_EXTRACT => {
-                deint_pair(s.eq, m, &mut e0[0], &mut e1[0]);
+                match s.eq_scale.as_ref() {
+                    None => deint_pair(s.eq, m, &mut e0[0], &mut e1[0]),
+                    Some(sc) => {
+                        mul_fixed_block(kern, blk(s.eq, 2 * m), sc, &mut ba);
+                        mul_fixed_block(kern, blk(s.eq, 2 * m + 1), sc, &mut bb);
+                        deint_blocks(&ba, &bb, &mut e0[0], &mut e1[0]);
+                    }
+                }
                 // tree layer blocks 4m..4m+4: (p0, p1) state-0 blocks 2m, 2m+1
                 deint_pair(s.t[0], 2 * m, &mut x0[0], &mut x1[0]);
                 deint_pair(s.t[0], 2 * m + 1, &mut x0[1], &mut x1[1]);
@@ -1254,9 +1276,20 @@ fn fused_round_body(
                 deint_blocks(&y1[0], &y1[1], &mut e0[4], &mut e1[4]);
             }
             _ => {
-                // eq: state-0 blocks 4m..4m+4 -> state-1 blocks 2m, 2m+1
-                fold_pair_blocks(kern, blk(s.eq, 4 * m), blk(s.eq, 4 * m + 1), &s.r_prev, None, &mut ba);
-                fold_pair_blocks(kern, blk(s.eq, 4 * m + 2), blk(s.eq, 4 * m + 3), &s.r_prev, None, &mut bb);
+                // eq: state-0 blocks 4m..4m+4 (b-part x E(e) on the fly) -> state-1 blocks 2m, 2m+1
+                match s.eq_scale.as_ref() {
+                    None => {
+                        fold_pair_blocks(kern, blk(s.eq, 4 * m), blk(s.eq, 4 * m + 1), &s.r_prev, None, &mut ba);
+                        fold_pair_blocks(kern, blk(s.eq, 4 * m + 2), blk(s.eq, 4 * m + 3), &s.r_prev, None, &mut bb);
+                    }
+                    Some(sc) => {
+                        for i in 0..4 {
+                            mul_fixed_block(kern, blk(s.eq, 4 * m + i), sc, &mut fa[i]);
+                        }
+                        fold_pair_blocks(kern, &fa[0], &fa[1], &s.r_prev, None, &mut ba);
+                        fold_pair_blocks(kern, &fa[2], &fa[3], &s.r_prev, None, &mut bb);
+                    }
+                }
                 put_blk(d.eq, 2 * m, &ba);
                 put_blk(d.eq, 2 * m + 1, &bb);
                 deint_blocks(&ba, &bb, &mut e0[0], &mut e1[0]);
@@ -1350,12 +1383,15 @@ k9_kernel!(k9_fused_round_blocks, k9_fused_round_blocks_avx2, fused_round_body,
 // ---------------------------------------------------------------------------
 // [UPERF2-G] The fused-round driver: rung schedule + jobs + planes.
 
-/// One instance's tree layer j+1 for the extract modes.
+/// One instance's tree layer j+1 for the extract modes, and its eq factor.
 pub(crate) struct FusedLayer<'a> {
     pub p: &'a [u32],
     pub q: &'a [u32],
     /// The instance's first state-t output pair-block (global index).
     pub first_pair: usize,
+    /// E(e): the eq blocks of this instance are the b-part table's blocks
+    /// times E(e) (None: times one — the b-part table IS the eq).
+    pub ee: Option<[u32; K_DEG]>,
 }
 
 /// The plan of one fused round.
@@ -1419,18 +1455,23 @@ struct FusedJob<'a> {
 }
 
 /// The fused round over the whole table (state-t pair-blocks 0..n_pairs;
-/// the plan's live ranges only): rung schedule for the in-place writes,
-/// deterministic per-job planes summed into acc_lo/acc_hi (exact
-/// integers — identical for any thread count / job partition). `eq` and
-/// `tabs` (pl, p1, q0, q1) are the WHOLE table buffers: state t-1 for
-/// FUSE_FOLD (all five), state 0 eq + fresh state-1 tabs for
-/// FUSE_EXTRACT_FOLD, state-0 eq for FUSE_EXTRACT (tabs unused).
+/// the plan's live ranges only): deterministic per-job planes summed into
+/// acc_lo/acc_hi (exact integers — identical for any thread count / job
+/// partition). Buffers (whole tables):
+///   FUSE_FOLD: `eq_inplace` + `tabs` = the five state-(t-1) tables, folded
+///     IN PLACE to state t (the rung schedule + scratch prefix);
+///   FUSE_EXTRACT: `eq_src` = the b-part eq table (per-instance E(e) in the
+///     plan's layers), no writes;
+///   FUSE_EXTRACT_FOLD: `eq_src` as above, `eq_dst` + `tabs` = the FRESH
+///     state-1 tables (written, no aliasing: one parallel pass).
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn k9_fused_round_par(
     kern: &KKern,
     plan: &FusedPlan,
     n_pairs: usize,
-    eq: &mut [u32],
+    eq_inplace: &mut [u32],
+    eq_src: &[u32],
+    eq_dst: &mut [u32],
     tabs: [&mut [u32]; 4],
     nodes: &[u64],
     node_consts: Option<&[[[u32; K_DEG]; 4]]>,
@@ -1440,14 +1481,16 @@ pub(crate) fn k9_fused_round_par(
 ) {
     let acc_words = nodes.len() * 31 * KL;
     assert!(acc_lo.len() >= acc_words && acc_hi.len() >= acc_words, "K9 fused accumulator layout");
+    let inplace = plan.mode == FUSE_FOLD;
     let writes = plan.mode != FUSE_EXTRACT;
-    let extract = plan.mode != FUSE_FOLD;
-    if extract {
+    if !inplace {
         assert_eq!(plan.layers.len(), plan.ranges.len(), "K9 fused extract: one layer per live range");
     }
-    // Rungs (a, b, via_scratch) over the output pair-blocks [0, n_pairs).
+    // Rungs (a, b, via_scratch) over the output pair-blocks [0, n_pairs):
+    // the in-place fold needs the schedule; the fresh-table modes are one
+    // parallel pass.
     let mut rungs: Vec<(usize, usize, bool)> = Vec::new();
-    if !writes {
+    if !inplace {
         rungs.push((0, n_pairs, false));
     } else {
         let a0 = K9_FUSE_PREFIX_PAIRS.min(n_pairs);
@@ -1497,19 +1540,21 @@ pub(crate) fn k9_fused_round_par(
         // pair-block; a shared boundary line would ping-pong between cores).
         let slot = 2 * acc_words + K9_PLANE_PAD;
         let mut planes = vec![0u64; nj * slot];
-        // Split the in-place buffers: writes land in [.., 2 rb) blocks, reads
-        // come from [4 ra, ..) = [2 rb, ..) blocks (rungs) or the whole
-        // buffer read-only (prefix / no-write rung).
-        let read_base = if writes { 4 * ra } else { 2 * ra };
-        let (eq_w, eq_r): (&mut [u32], &[u32]) = if writes && !via_scratch {
-            let (w_, r_) = eq.split_at_mut(2 * rb * KBLK);
+        // In-place mode: writes land in [.., 2 rb) blocks, reads come from
+        // [4 ra, ..) = [2 rb, ..) blocks (rungs) or the whole buffer
+        // read-only (the scratch prefix).
+        let read_base = 4 * ra;
+        let (eq_w, eq_r): (&mut [u32], &[u32]) = if inplace && !via_scratch {
+            let (w_, r_) = eq_inplace.split_at_mut(2 * rb * KBLK);
             (w_, &r_[..])
+        } else if inplace {
+            (Default::default(), &eq_inplace[..])
         } else {
-            (Default::default(), &eq[..])
+            (Default::default(), Default::default())
         };
         let mut tab_w: Vec<&mut [u32]> = Vec::with_capacity(4);
         let mut tab_r: Vec<&[u32]> = Vec::with_capacity(4);
-        if plan.mode == FUSE_FOLD {
+        if inplace {
             for t in tabs.iter_mut() {
                 if via_scratch {
                     tab_w.push(Default::default());
@@ -1520,14 +1565,9 @@ pub(crate) fn k9_fused_round_par(
                     tab_r.push(&r_[..]);
                 }
             }
-        } else if plan.mode == FUSE_EXTRACT_FOLD {
+        } else if writes {
             for t in tabs.iter_mut() {
-                if via_scratch {
-                    tab_w.push(Default::default());
-                } else {
-                    let (w_, _) = t.split_at_mut(2 * rb * KBLK);
-                    tab_w.push(w_);
-                }
+                tab_w.push(&mut t[..]);
                 tab_r.push(Default::default());
             }
         } else {
@@ -1536,7 +1576,8 @@ pub(crate) fn k9_fused_round_par(
                 tab_r.push(Default::default());
             }
         }
-        // Destination pieces per job: from the scratch (prefix) or the write regions.
+        // Destination pieces per job: the scratch (prefix), the write
+        // regions (in-place rungs), or the fresh tables (extract-fold).
         let a0_blk = if via_scratch { 2 * rb } else { 0 };
         let (mut eq_pieces, mut tab_pieces): (Vec<&mut [u32]>, Vec<Vec<&mut [u32]>>) = if !writes {
             ((0..nj).map(|_| Default::default()).collect(), (0..4).map(|_| (0..nj).map(|_| Default::default()).collect()).collect())
@@ -1545,8 +1586,12 @@ pub(crate) fn k9_fused_round_par(
             let eqp = k9_carve(regions.remove(0), 0, &write_pieces);
             let tp: Vec<Vec<&mut [u32]>> = regions.into_iter().map(|r| k9_carve(r, 0, &write_pieces)).collect();
             (eqp, tp)
-        } else {
+        } else if inplace {
             let eqp = k9_carve(eq_w, 0, &write_pieces);
+            let tp: Vec<Vec<&mut [u32]>> = tab_w.into_iter().map(|w_| k9_carve(w_, 0, &write_pieces)).collect();
+            (eqp, tp)
+        } else {
+            let eqp = k9_carve(&mut eq_dst[..], 0, &write_pieces);
             let tp: Vec<Vec<&mut [u32]>> = tab_w.into_iter().map(|w_| k9_carve(w_, 0, &write_pieces)).collect();
             (eqp, tp)
         };
@@ -1557,18 +1602,21 @@ pub(crate) fn k9_fused_round_par(
             tab_pieces.drain(..).map(|v| v.into_iter()).collect();
         for (ji, &(a, b, ri)) in jobs.iter().enumerate() {
             let n = b - a;
-            let src_eq: &[u32] = if writes {
-                &eq_r[(4 * a - read_base) * KBLK..(4 * b - read_base) * KBLK]
-            } else {
-                &eq_r[(2 * a - read_base) * KBLK..(2 * b - read_base) * KBLK]
-            };
-            let src_t: [&[u32]; 4] = if plan.mode == FUSE_FOLD {
-                std::array::from_fn(|k| &tab_r[k][(4 * a - read_base) * KBLK..(4 * b - read_base) * KBLK])
+            let (src_eq, eq_scale, src_t): (&[u32], Option<[u32; K_DEG]>, [&[u32]; 4]) = if inplace {
+                (
+                    &eq_r[(4 * a - read_base) * KBLK..(4 * b - read_base) * KBLK],
+                    None,
+                    std::array::from_fn(|k| &tab_r[k][(4 * a - read_base) * KBLK..(4 * b - read_base) * KBLK]),
+                )
             } else {
                 let lay = &plan.layers[ri];
                 let la = a - lay.first_pair;
-                let f = if plan.mode == FUSE_EXTRACT { 4 } else { 8 };
-                [&lay.p[f * la * KBLK..f * (la + n) * KBLK], &lay.q[f * la * KBLK..f * (la + n) * KBLK], Default::default(), Default::default()]
+                let (f, fe) = if plan.mode == FUSE_EXTRACT { (4, 2) } else { (8, 4) };
+                (
+                    &eq_src[fe * la * KBLK..fe * (la + n) * KBLK],
+                    lay.ee,
+                    [&lay.p[f * la * KBLK..f * (la + n) * KBLK], &lay.q[f * la * KBLK..f * (la + n) * KBLK], Default::default(), Default::default()],
+                )
             };
             let dst_eq = std::mem::take(&mut eq_pieces[ji]);
             let dst_t: [&mut [u32]; 4] = std::array::from_fn(|k| tab_iters[k].next().unwrap());
@@ -1577,6 +1625,7 @@ pub(crate) fn k9_fused_round_par(
                 src: FusedSrc {
                     mode: plan.mode,
                     eq: src_eq,
+                    eq_scale,
                     t: src_t,
                     r_prev: plan.r_prev,
                     lambda: plan.lambda,
@@ -1613,7 +1662,7 @@ pub(crate) fn k9_fused_round_par(
         // Prefix: copy the folded pieces from the scratch into the tables.
         if via_scratch {
             for &(lo, hi) in &write_pieces {
-                eq[lo * KBLK..hi * KBLK].copy_from_slice(&scratch[lo * KBLK..hi * KBLK]);
+                eq_inplace[lo * KBLK..hi * KBLK].copy_from_slice(&scratch[lo * KBLK..hi * KBLK]);
                 for k in 0..4 {
                     tabs[k][lo * KBLK..hi * KBLK].copy_from_slice(&scratch[((k + 1) * a0_blk + lo) * KBLK..((k + 1) * a0_blk + hi) * KBLK]);
                 }
