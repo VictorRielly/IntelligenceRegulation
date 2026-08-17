@@ -20097,6 +20097,61 @@ fn agg_digit_witness(g: &ring::eval_proof::AggGroup, values: &[&[i64]]) -> Vec<V
     w
 }
 
+/// [UPERF2-F] `agg_digit_witness` written into the flat i8 store
+/// (`ring::eval_proof::DigitCols`, one allocation of n_digit_rings x D
+/// bytes) — the same `digits_into` decomposition, the same per-value-ring
+/// split over the pool (a value ring's l0 digit rows are the contiguous
+/// byte range [(base + vr*l0)*D, (base + (vr+1)*l0)*D) written by exactly
+/// one thread), every digit range-checked into i8 (the designed alphabets
+/// are |w| <= 64). Value-identical to `agg_digit_witness` (the lane's
+/// battery pins `DigitCols == Vec<Vec<i64>>` on mixed groups); the oracle
+/// route builds the boxed reference and packs it.
+fn agg_digit_witness_cols(g: &ring::eval_proof::AggGroup, values: &[&[i64]]) -> ring::eval_proof::DigitCols {
+    use rayon::prelude::*;
+    use ring::eval_proof::DigitCols;
+    use ring::fold::{ixf_pooled, ixf_threads};
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::D_DIGITS); // [UPERF2-D] observation only
+    if ring::eval_proof::oracle_mode() {
+        return DigitCols::from_vecs(&agg_digit_witness_ref(g, values));
+    }
+    let mut w = DigitCols::zeros(g.n_digit_rings);
+    for (t, vals) in g.tensors.iter().zip(values.iter()) {
+        assert_eq!(t.n_values(), vals.len());
+        let nvr = t.n_value_rings();
+        let l0 = t.l0;
+        let e0 = t.e0;
+        let rows: &mut [i8] = &mut w.rings_mut()[t.digit_ring_base * D..(t.digit_ring_base + nvr * l0) * D];
+        // 8 value rings per work item (l0 x 8 digit rows = l0 * 8 * D bytes).
+        let work = |ci: usize, chunk: &mut [i8]| {
+            let vr0 = ci * 8;
+            let mut digs = vec![0i64; l0];
+            for (i, vrows) in chunk.chunks_mut(l0 * D).enumerate() {
+                let vr = vr0 + i;
+                for c1 in 0..D {
+                    let f = vr * D + c1;
+                    if f < vals.len() {
+                        digits_into(vals[f], e0, &mut digs);
+                        for (l, &d) in digs.iter().enumerate() {
+                            vrows[l * D + c1] =
+                                i8::try_from(d).unwrap_or_else(|_| panic!("digit {d} outside i8 (tensor {})", t.name));
+                        }
+                    }
+                }
+            }
+        };
+        if ixf_threads() > 1 && nvr >= 16 {
+            ixf_pooled(|| {
+                rows.par_chunks_mut(l0 * 8 * D).enumerate().for_each(|(ci, chunk)| work(ci, chunk));
+            });
+        } else {
+            for (ci, chunk) in rows.chunks_mut(l0 * 8 * D).enumerate() {
+                work(ci, chunk);
+            }
+        }
+    }
+    w
+}
+
 /// Deterministic transcript-derived alphas (full-entropy R_q — the
 /// R-EB3 K-draw class, row EB3-kdraw), then a ratchet tick.
 fn agg_draw_alphas(tr: &mut ring::sumcheck::LkpTranscript, label: &str, n: usize, q: u64) -> Vec<Poly> {
@@ -29083,7 +29138,9 @@ fn bg_map_bytes(reg: &BgRegistry) -> Vec<u8> {
 }
 
 /// The group digit witness in registry order.
-fn bg_witness(reg: &BgRegistry, lays: &[BfLayer], weight_side: bool) -> Vec<Vec<i64>> {
+/// [UPERF2-F] as the flat i8 store (`DigitCols`) — one allocation instead
+/// of one 1 KiB heap block per digit ring.
+fn bg_witness(reg: &BgRegistry, lays: &[BfLayer], weight_side: bool) -> ring::eval_proof::DigitCols {
     let g = if weight_side { &reg.gw } else { &reg.ga };
     let mut vals: Vec<&[i64]> = Vec::with_capacity(g.tensors.len());
     for (li, lay) in lays.iter().enumerate() {
@@ -29104,7 +29161,7 @@ fn bg_witness(reg: &BgRegistry, lays: &[BfLayer], weight_side: bool) -> Vec<Vec<
             }
         }
     }
-    agg_digit_witness(g, &vals)
+    agg_digit_witness_cols(g, &vals)
 }
 
 // ---------------------------------------------------------------------------
@@ -29278,21 +29335,23 @@ struct BgPre {
     l_t0: usize,
 }
 
-fn bg_matvec_chunks(
+/// [UPERF2-F] generic over the witness store (`SmallRings`: the flat i8
+/// level-0 witness or the boxed deeper-level witnesses).
+fn bg_matvec_chunks<B: ring::eval_proof::SmallRings + ?Sized>(
     ctxr: &RingCtx,
-    w: &[Vec<i64>],
+    w: &B,
     r: usize,
     chunk: usize,
     a_mat: &[Poly],
     e_t: u32,
     l_t: usize,
 ) -> (Vec<Vec<Poly>>, Vec<Vec<i64>>) {
-    use ring::eval_proof::{decompose_polys_modq, matvec_modq_small_multi, KAPPA_AGG};
+    use ring::eval_proof::{decompose_polys_modq, matvec_modq_small_multi_gen, KAPPA_AGG};
     let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_MATVEC_CHUNKS);
     let zq = &ctxr.zq;
     // [UPERF-PC O3] one A, all r chunk slices: A transformed once.
-    let s_list: Vec<&[Vec<i64>]> = (0..r).map(|j| &w[j * chunk..(j + 1) * chunk]).collect();
-    let t_polys: Vec<Vec<Poly>> = matvec_modq_small_multi(ctxr, a_mat, KAPPA_AGG, chunk, &s_list);
+    let s_list: Vec<&B> = (0..r).map(|j| w.sub(j * chunk, (j + 1) * chunk)).collect();
+    let t_polys: Vec<Vec<Poly>> = matvec_modq_small_multi_gen(ctxr, a_mat, KAPPA_AGG, chunk, &s_list);
     // [UPERF2-C] digit split per ring in parallel (order preserved).
     let mut that = Vec::with_capacity(r * KAPPA_AGG * l_t);
     for tj in &t_polys {
@@ -29305,7 +29364,7 @@ fn bg_precommit(
     ctxr: &RingCtx,
     group: &ring::eval_proof::AggGroup,
     sched: &ring::eval_proof::EvalSchedule,
-    w0: &mut Vec<Vec<i64>>,
+    w0: &mut ring::eval_proof::DigitCols, // [UPERF2-F] the flat i8 level-0 witness
     seed: u64,
 ) -> BgPre {
     use ring::eval_proof::{expand_level_matrix, matvec_modq_small, KAPPA_AGG};
@@ -29315,32 +29374,33 @@ fn bg_precommit(
         Some(p0) => (p0.r, p0.chunk, p0.e_next, p0.l_t),
         None => (1, group.n_digit_rings, AGG_E_DEG, agg_l_t_deg(q)),
     };
-    w0.resize(r0 * chunk0, vec![0i64; D]);
+    w0.resize(r0 * chunk0);
     let a0_mat = expand_level_matrix(seed, group.name, 0, "A", KAPPA_AGG, chunk0, q);
-    let (_t0, that0) = bg_matvec_chunks(ctxr, w0, r0, chunk0, &a0_mat, e_t0, l_t0);
+    let (_t0, that0) = bg_matvec_chunks(ctxr, w0.rings(), r0, chunk0, &a0_mat, e_t0, l_t0);
     let b0u_mat = expand_level_matrix(seed, group.name, 0, "Bu", KAPPA_AGG, that0.len(), q);
     let u0 = matvec_modq_small(ctxr, &b0u_mat, KAPPA_AGG, that0.len(), &that0);
     BgPre { u0, that0, a0_mat, b0u_mat, r0, chunk0, e_t0, l_t0 }
 }
 
 /// h cross-garbage over padded slices (phi padded by the caller).
-fn bg_level_h(
+/// [UPERF2-F] generic over the witness store (`SmallRings`).
+fn bg_level_h<B: ring::eval_proof::SmallRings + ?Sized>(
     ctxr: &RingCtx,
     phi: &[Poly],
-    w: &[Vec<i64>],
+    w: &B,
     plan: &ring::eval_proof::LevelPlan,
 ) -> (Vec<Poly>, Vec<Vec<i64>>) {
-    use ring::eval_proof::{decompose_polys_modq, level_h_pairs};
+    use ring::eval_proof::{decompose_polys_modq, level_h_pairs_gen};
     let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_LEVELH);
     let zq = &ctxr.zq;
     let r = plan.r;
     let c = plan.chunk;
     // [UPERF-PC O2] NTT-domain h pairs (bit-identical to the kara loop;
     // r x chunk slices of phi and w — both padded to r*c by the caller).
-    assert!(phi.len() >= r * c && w.len() >= r * c, "bg_level_h: slices not padded to r*chunk");
+    assert!(phi.len() >= r * c && w.n_rings() >= r * c, "bg_level_h: slices not padded to r*chunk");
     let phi_sl: Vec<&[Poly]> = (0..r).map(|j| &phi[j * c..(j + 1) * c]).collect();
-    let w_sl: Vec<&[Vec<i64>]> = (0..r).map(|k| &w[k * c..(k + 1) * c]).collect();
-    let h_polys = level_h_pairs(ctxr, &phi_sl, &w_sl, c);
+    let w_sl: Vec<&B> = (0..r).map(|k| w.sub(k * c, (k + 1) * c)).collect();
+    let h_polys = level_h_pairs_gen(ctxr, &phi_sl, &w_sl, c);
     debug_assert_eq!(h_polys.len(), plan.n_pairs);
     // [UPERF2-C] digit split per ring in parallel (order preserved).
     let hhat = decompose_polys_modq(zq, &h_polys, plan.e_next, plan.l_h);
@@ -29353,11 +29413,17 @@ fn bg_level_h(
 /// diff-battery leg T7); the `representable` assert and the digit split
 /// are unchanged (the split per-ring parallel via `decompose_polys_small`).
 fn bg_fold(w: &[Vec<i64>], cs: &[Vec<i64>], plan: &ring::eval_proof::LevelPlan) -> Vec<Vec<i64>> {
-    use ring::eval_proof::{decompose_polys_small, fold_chunks_ntt};
+    bg_fold_gen(w, cs, plan)
+}
+
+/// [UPERF2-F] `bg_fold` generic over the witness store (`SmallRings`: the
+/// flat i8 level-0 witness or the boxed deeper-level witnesses) — the body.
+fn bg_fold_gen<B: ring::eval_proof::SmallRings + ?Sized>(w: &B, cs: &[Vec<i64>], plan: &ring::eval_proof::LevelPlan) -> Vec<Vec<i64>> {
+    use ring::eval_proof::{decompose_polys_small, fold_chunks_ntt_gen};
     let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_FOLD); // observation only
-    assert!(w.len() >= cs.len() * plan.chunk, "bg_fold: slices not padded to r*chunk");
-    let w_sl: Vec<&[Vec<i64>]> = (0..cs.len()).map(|j| &w[j * plan.chunk..(j + 1) * plan.chunk]).collect();
-    let z_all = fold_chunks_ntt(cs, &w_sl, plan.chunk);
+    assert!(w.n_rings() >= cs.len() * plan.chunk, "bg_fold: slices not padded to r*chunk");
+    let w_sl: Vec<&B> = (0..cs.len()).map(|j| w.sub(j * plan.chunk, (j + 1) * plan.chunk)).collect();
+    let z_all = fold_chunks_ntt_gen(cs, &w_sl, plan.chunk);
     let (lo, hi) = ring::digits::representable(plan.e_next, plan.l_z);
     for z in &z_all {
         for &zc in z {
@@ -29441,7 +29507,7 @@ fn bg_prove_group(
     kf: &ring::kfield::KField,
     group: &ring::eval_proof::AggGroup,
     sched: &ring::eval_proof::EvalSchedule,
-    w0: &mut Vec<Vec<i64>>,
+    w0: &mut ring::eval_proof::DigitCols, // [UPERF2-F] the flat i8 level-0 witness (padded by bg_precommit)
     claims: &ring::pass_agg::GroupClaims,
     v_batch: &ring::kfield::KElem,
     pre: BgPre,
@@ -29466,7 +29532,7 @@ fn bg_prove_group(
     // bg_kernel_pass, the retained oracle — diff-battery leg O5).
     let mk = bg_multi_kernels(claims);
     let (mut b_rows, _) =
-        ring::eval_proof::kernel_pass_factored(ctxr, kf, group, &mk, Some(&w0[..n0]), None);
+        ring::eval_proof::kernel_pass_factored_gen(ctxr, kf, group, &mk, Some(&w0.rings()[..n0 * D]), None);
     uf_rss(&format!("bg.{}.rows-pass", group.name)); // [UPERF2-F] observation only
     for (c, row) in b_rows.iter_mut().enumerate() {
         if lie_ct_rows {
@@ -29498,7 +29564,7 @@ fn bg_prove_group(
             ugh0: Vec::new(),
             b_rows,
             level_us: Vec::new(),
-            floor: w0.clone(),
+            floor: w0.to_vecs(),
             floor_e: sched.floor_e,
             tcap_attempts,
         };
@@ -29510,14 +29576,14 @@ fn bg_prove_group(
     let plan0 = &sched.levels[0];
     assert_eq!((r0, chunk0, e_t0, l_t0), (plan0.r, plan0.chunk, plan0.e_next, plan0.l_t));
     phi_cur.resize(r0 * chunk0, poly_zero());
-    let (_h0p, hhat0) = bg_level_h(ctxr, &phi_cur, w0, plan0);
+    let (_h0p, hhat0) = bg_level_h(ctxr, &phi_cur, w0.rings(), plan0);
     uf_rss(&format!("bg.{}.level0-h", group.name)); // [UPERF2-F] observation only
     let b0h_mat = expand_level_matrix(seed, group.name, 0, "Bh", KAPPA_AGG, hhat0.len(), q);
     let ugh0 = matvec_modq_small(ctxr, &b0h_mat, KAPPA_AGG, hhat0.len(), &hhat0);
     ring::eval_proof::absorb_polys(tr, &format!("bg-ugh0-{}", group.name), &ugh0);
     let (c0, att0) = agg_draw_cs(tr, &format!("bg-c0-{}", group.name), plan0.r);
     tcap_attempts.extend(att0);
-    let zhat0 = bg_fold(w0, &c0, plan0);
+    let zhat0 = bg_fold_gen(w0.rings(), &c0, plan0);
     let mut w_cur: Vec<Vec<i64>> = zhat0;
     w_cur.extend(that0.iter().cloned());
     w_cur.extend(hhat0.iter().cloned());
@@ -29556,8 +29622,8 @@ fn bg_prove_group(
         w_cur.resize(plan.r * plan.chunk, vec![0i64; D]);
         phi_cur.resize(plan.r * plan.chunk, poly_zero());
         let a_mat = expand_level_matrix(seed, group.name, li, "A", KAPPA_AGG, plan.chunk, q);
-        let (_tp, that) = bg_matvec_chunks(ctxr, &w_cur, plan.r, plan.chunk, &a_mat, plan.e_next, plan.l_t);
-        let (_hp, hhat) = bg_level_h(ctxr, &phi_cur, &w_cur, plan);
+        let (_tp, that) = bg_matvec_chunks(ctxr, &w_cur[..], plan.r, plan.chunk, &a_mat, plan.e_next, plan.l_t);
+        let (_hp, hhat) = bg_level_h(ctxr, &phi_cur, &w_cur[..], plan);
         let th_len = that.len() + hhat.len();
         let b_mat = expand_level_matrix(seed, group.name, li, "B", KAPPA_AGG, th_len, q);
         let mut th: Vec<Vec<i64>> = that.clone();
@@ -29566,7 +29632,7 @@ fn bg_prove_group(
         ring::eval_proof::absorb_polys(tr, &format!("bg-u{li}-{}", group.name), &u_i);
         let (cs, atts) = agg_draw_cs(tr, &format!("bg-c{li}-{}", group.name), plan.r);
         tcap_attempts.extend(atts);
-        let zhat = bg_fold(&w_cur, &cs, plan);
+        let zhat = bg_fold_gen(&w_cur[..], &cs, plan);
         let mut w_next = zhat;
         w_next.extend(that.iter().cloned());
         w_next.extend(hhat.iter().cloned());
@@ -31664,7 +31730,7 @@ fn bg_canary() {
         let reg = bg_build_groups(&lays, 16, None);
         let w_w = bg_witness(&reg, &lays, true);
         let mut contaminated = art1.act_floor.clone();
-        for (c, &wd) in contaminated[0].iter_mut().zip(w_w[0].iter()) {
+        for (c, &wd) in contaminated[0].iter_mut().zip(w_w.ring_i64(0).iter()) {
             *c += wd; // the delta IS a weight-column functional
         }
         let fires = contaminated != art1.act_floor;
@@ -33089,7 +33155,7 @@ fn bk_witness_act(
     reg: &BkRegistry,
     lays: &[BfLayer],
     aux: &[BkAuxMat],
-) -> Vec<Vec<i64>> {
+) -> ring::eval_proof::DigitCols {
     let mut vals: Vec<&[i64]> = Vec::with_capacity(reg.ga.tensors.len());
     for (li, lay) in lays.iter().enumerate() {
         for e in 0..BF_ENTRIES.len() {
@@ -33105,10 +33171,10 @@ fn bk_witness_act(
         vals.push(&a.vals_wm);
         vals.push(&a.vals_tm);
     }
-    agg_digit_witness(&reg.ga, &vals)
+    agg_digit_witness_cols(&reg.ga, &vals) // [UPERF2-F] flat i8 store
 }
 
-fn bk_witness_weight(reg: &BkRegistry, lays: &[BfLayer]) -> Vec<Vec<i64>> {
+fn bk_witness_weight(reg: &BkRegistry, lays: &[BfLayer]) -> ring::eval_proof::DigitCols {
     let mut vals: Vec<&[i64]> = Vec::with_capacity(reg.gw.tensors.len());
     for (li, lay) in lays.iter().enumerate() {
         for e in 0..BF_ENTRIES.len() {
@@ -33118,7 +33184,7 @@ fn bk_witness_weight(reg: &BkRegistry, lays: &[BfLayer]) -> Vec<Vec<i64>> {
             }
         }
     }
-    agg_digit_witness(&reg.gw, &vals)
+    agg_digit_witness_cols(&reg.gw, &vals) // [UPERF2-F] flat i8 store
 }
 
 // ---------------------------------------------------------------------------
@@ -35515,7 +35581,7 @@ fn uperf_pc_diff_e2e() -> usize {
     let seed = 0xE2E_5EEDu64;
     let run = |oracle: bool| -> (ring::eval_proof::GroupEvalProof, bool) {
         set_oracle_mode(oracle);
-        let mut w = w0.clone();
+        let mut w = ring::eval_proof::DigitCols::from_vecs(&w0); // [UPERF2-F] the flat i8 store bg_prove_group takes
         let pre = bg_precommit(&ctx, &g, &sched, &mut w, seed);
         let mut tr = LkpTranscript::new("uperf-pc-e2e", &[0x5Eu8; 32]);
         let mut rng = ring::ProverRng::from_test_seed("uperf-pc-e2e-rng", &[0xE2]);
@@ -37607,10 +37673,182 @@ fn uperf_f_main(args: &[String]) {
 }
 
 /// [UPERF2-F] The lane's differential battery (grows as items land):
-/// DigitCols kernels == boxed kernels, Phi0Source == the phi pass,
-/// level_h_pairs_with == level_h_pairs, the E2E three-way.
+/// (1) the kernels over the flat i8 store == over the boxed store, fast
+/// AND the `_ref` oracles, both moduli (gemm, matvec-multi, level-h, fold,
+/// kernel-pass rows); (2) `agg_digit_witness_cols == agg_digit_witness`
+/// on a mixed group; (3) Phi0Source == the phi pass, fill windows ==
+/// slices, level_h_pairs_with == level_h_pairs (item 2, when landed).
+/// Every leg is checked at the ZK_THREADS the process runs with; a
+/// BATTERY DIGEST (SHA-256 over the fast-path outputs) is printed so
+/// runs at ZK_THREADS 1/2/7 can be compared.
 fn uperf_f_diff_battery() {
+    use ring::eval_proof::{
+        fold_chunks_ntt, fold_chunks_ntt_gen, fold_chunks_ref, fold_chunks_ref_gen, kernel_pass_factored,
+        kernel_pass_factored_gen, level_h_pairs, level_h_pairs_gen, level_h_pairs_ref, level_h_pairs_ref_gen,
+        matvec_modq_small_multi, matvec_modq_small_multi_gen, matvec_modq_small_ref, matvec_modq_small_ref_gen,
+        ntt_gemm_modq_small, ntt_gemm_modq_small_gen, set_oracle_mode, AggGroup, DigitCols, KAPPA_AGG,
+    };
+    use ring::kfield::{KElem, KField, K_DEG};
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use sha2::{Digest, Sha256};
+    use std::rc::Rc;
     let t0 = Instant::now();
-    println!("[UPERF2-F] diff-battery: (skeleton — legs land with the items)");
-    println!("[UPERF2-F] differential battery passed in {:.2}s", t0.elapsed().as_secs_f64());
+    println!(
+        "[UPERF2-F] diff-battery: flat-i8 (DigitCols) kernels vs boxed kernels, ZK_THREADS {}",
+        ring::eval_proof::threads()
+    );
+    let mut battery = Sha256::new();
+    let mut legs = 0usize;
+    let mut fails = 0usize;
+    let mut check = |name: &str, ok: bool| {
+        legs += 1;
+        if !ok {
+            fails += 1;
+        }
+        println!("  {} {name}", if ok { "ok  " } else { "FAIL" });
+    };
+    let absorb_polys = |h: &mut Sha256, v: &[Poly]| {
+        for p in v {
+            for &x in p {
+                h.update(x.to_le_bytes());
+            }
+        }
+    };
+    let absorb_i64s = |h: &mut Sha256, v: &[Vec<i64>]| {
+        for p in v {
+            for &x in p {
+                h.update(x.to_le_bytes());
+            }
+        }
+    };
+    // ---- (1) kernels over both stores at both moduli. ----
+    for (qi, ctx) in [ring_ctx_q8(), ring::ring_ctx(ring::Q8_46, ring::ETA8_46, 8)].iter().enumerate() {
+        let q = ctx.zq.q;
+        let mut rd = XofReader::new("uperf2-f-kernels", &[&[qi as u8]]);
+        for &(r, chunk, e) in &[(3usize, 17usize, 2u32), (5, 64, 7), (2, 130, 1)] {
+            let (lo, hi) = ring::digits::alphabet(e);
+            let span = (hi - lo + 1) as u64;
+            let n = r * chunk;
+            let w: Vec<Vec<i64>> = (0..n)
+                .map(|u| {
+                    if u % 7 == 3 { vec![0i64; D] } else { (0..D).map(|_| lo + rd.next_field(span) as i64).collect() }
+                })
+                .collect();
+            let cols = DigitCols::from_vecs(&w);
+            check(&format!("q{qi} r{r} chunk{chunk} e{e}: DigitCols round trip"), cols.to_vecs() == w && cols == w);
+            let phi: Vec<Poly> = (0..n).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
+            let a_mat: Vec<Poly> = (0..KAPPA_AGG * chunk).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
+            let cs: Vec<Vec<i64>> = (0..r).map(|_| (0..D).map(|_| rd.next_field(5) as i64 - 2).collect()).collect();
+            let phi_sl: Vec<&[Poly]> = (0..r).map(|j| &phi[j * chunk..(j + 1) * chunk]).collect();
+            let w_sl: Vec<&[Vec<i64>]> = (0..r).map(|k| &w[k * chunk..(k + 1) * chunk]).collect();
+            let c_sl: Vec<&[i8]> = (0..r).map(|k| &cols.rings()[k * chunk * D..(k + 1) * chunk * D]).collect();
+            // gemm
+            let g_v = ntt_gemm_modq_small(ctx, &phi_sl, &w_sl, chunk);
+            let g_c = ntt_gemm_modq_small_gen(ctx, &phi_sl, &c_sl, chunk);
+            check(&format!("q{qi} r{r} chunk{chunk} e{e}: ntt_gemm boxed == i8"), g_v == g_c);
+            absorb_polys(&mut battery, &g_c);
+            // level-h fast + ref
+            let h_v = level_h_pairs(ctx, &phi_sl, &w_sl, chunk);
+            let h_c = level_h_pairs_gen(ctx, &phi_sl, &c_sl, chunk);
+            let h_rv = level_h_pairs_ref(ctx, &phi_sl, &w_sl, chunk);
+            let h_rc = level_h_pairs_ref_gen(ctx, &phi_sl, &c_sl, chunk);
+            check(&format!("q{qi} r{r} chunk{chunk} e{e}: level_h boxed == i8 == ref boxed == ref i8"), h_v == h_c && h_v == h_rv && h_v == h_rc);
+            absorb_polys(&mut battery, &h_c);
+            // matvec multi fast + ref
+            let m_v = matvec_modq_small_multi(ctx, &a_mat, KAPPA_AGG, chunk, &w_sl);
+            let m_c = matvec_modq_small_multi_gen(ctx, &a_mat, KAPPA_AGG, chunk, &c_sl);
+            let m_rv: Vec<Vec<Poly>> = w_sl.iter().map(|s| matvec_modq_small_ref(ctx, &a_mat, KAPPA_AGG, chunk, s)).collect();
+            let m_rc: Vec<Vec<Poly>> = c_sl.iter().map(|s| matvec_modq_small_ref_gen(ctx, &a_mat, KAPPA_AGG, chunk, *s)).collect();
+            check(&format!("q{qi} r{r} chunk{chunk} e{e}: matvec_multi boxed == i8 == ref boxed == ref i8"), m_v == m_c && m_v == m_rv && m_v == m_rc);
+            for m in &m_c {
+                absorb_polys(&mut battery, m);
+            }
+            // fold fast + ref
+            let f_v = fold_chunks_ntt(&cs, &w_sl, chunk);
+            let f_c = fold_chunks_ntt_gen(&cs, &c_sl, chunk);
+            let f_rv = fold_chunks_ref(&cs, &w_sl, chunk);
+            let f_rc = fold_chunks_ref_gen(&cs, &c_sl, chunk);
+            check(&format!("q{qi} r{r} chunk{chunk} e{e}: fold boxed == i8 == ref boxed == ref i8"), f_v == f_c && f_v == f_rv && f_v == f_rc);
+            absorb_i64s(&mut battery, &f_c);
+        }
+    }
+    // ---- (2) kernel-pass rows over both stores (fast + the oracle flip)
+    // on a mixed synthetic group (aligned nb 1 / 2, sign-binary, a
+    // misaligned tensor, a no-kernel tensor, shared col kernels) + the
+    // digit witness builders. ----
+    {
+        let ctx = ring_ctx_q8();
+        let kf = KField::new(&ctx);
+        let q = ctx.zq.q;
+        let mut rd = XofReader::new("uperf2-f-kpass", &[&[0xF1u8]]);
+        let mut g = AggGroup::new("f-kpass");
+        g.add_tensor("A", 8, 256, 2, 5);
+        g.add_tensor("B", 6, 128, 1, 8);
+        g.add_tensor("C", 16, 96, 2, 3); // misaligned
+        g.add_tensor("D", 4, 128, 2, 3); // no kernel
+        g.add_tensor("E", 24, 128, 2, 13); // l0 13 (the acc class)
+        let n_t = g.tensors.len();
+        let rand_kvec = |rd: &mut XofReader, n: usize| -> Rc<Vec<KElem>> { Rc::new((0..n).map(|_| kf.uniform(rd)).collect()) };
+        let col256 = rand_kvec(&mut rd, 256);
+        let col128 = rand_kvec(&mut rd, 128);
+        let mut claims = GroupClaims::new(n_t);
+        claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, 8), col: col256.clone() });
+        claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, 8), col: col256.clone() });
+        claims.push(ClaimContrib { tensor_idx: 1, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, 6), col: col128.clone() });
+        claims.push(ClaimContrib { tensor_idx: 2, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, 16), col: rand_kvec(&mut rd, 96) });
+        claims.push(ClaimContrib { tensor_idx: 4, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, 24), col: col128.clone() });
+        claims.push(ClaimContrib { tensor_idx: 4, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, 24), col: rand_kvec(&mut rd, 128) });
+        let mut w0: Vec<Vec<i64>> = Vec::with_capacity(g.n_digit_rings);
+        for t in &g.tensors {
+            let (lo, hi) = ring::digits::alphabet(t.e0);
+            let span = (hi - lo + 1) as u64;
+            for u in 0..t.n_digit_rings() {
+                if u % 11 == 6 {
+                    w0.push(vec![0i64; D]);
+                } else {
+                    w0.push((0..D).map(|_| lo + rd.next_field(span) as i64).collect());
+                }
+            }
+        }
+        let cols = DigitCols::from_vecs(&w0);
+        let mk = bg_multi_kernels(&claims);
+        let (rows_v, _) = kernel_pass_factored(&ctx, &kf, &g, &mk, Some(&w0), None);
+        let (rows_c, _) = kernel_pass_factored_gen(&ctx, &kf, &g, &mk, Some(cols.rings()), None);
+        set_oracle_mode(true);
+        let (rows_ov, _) = kernel_pass_factored(&ctx, &kf, &g, &mk, Some(&w0), None);
+        let (rows_oc, _) = kernel_pass_factored_gen(&ctx, &kf, &g, &mk, Some(cols.rings()), None);
+        set_oracle_mode(false);
+        check("kernel-pass rows: boxed == i8 (fast) == boxed == i8 (oracle flip)", rows_v == rows_c && rows_v == rows_ov && rows_v == rows_oc);
+        absorb_polys(&mut battery, &rows_c);
+        let alphas: Vec<Poly> = (0..K_DEG).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
+        let (_, phi_v) = kernel_pass_factored(&ctx, &kf, &g, &mk, None, Some(&alphas));
+        absorb_polys(&mut battery, &phi_v);
+        // digit witness builders: cols == boxed on real-class values.
+        {
+            use ring::digits::{derive_l0, CLASS_W8S};
+            let mut gd = AggGroup::new("f-digits");
+            gd.add_tensor("X", 8, BF_D, 2, derive_l0(-127, 127, 2));
+            gd.add_tensor("W", 16, BF_F, CLASS_W8S.e0, CLASS_W8S.l0);
+            gd.add_tensor("Acc", 8, 256, 2, derive_l0(-(1 << 24), (1 << 24) - 1, 2));
+            gd.add_tensor("Q", 3, 128, 2, 16); // the q-range aux class (l0 16)
+            let vals: Vec<Vec<i64>> = vec![
+                (0..8 * BF_D).map(|_| rd.next_field(255) as i64 - 127).collect(),
+                (0..16 * BF_F).map(|_| rd.next_field(255) as i64 - 127).collect(),
+                (0..8 * 256).map(|_| rd.next_field(1 << 25) as i64 - (1 << 24)).collect(),
+                (0..3 * 128).map(|_| bl_center(rd.next_field(q), q)).collect(),
+            ];
+            let refs: Vec<&[i64]> = vals.iter().map(|v| v.as_slice()).collect();
+            let boxed = agg_digit_witness(&gd, &refs);
+            let flat = agg_digit_witness_cols(&gd, &refs);
+            let reference = agg_digit_witness_ref(&gd, &refs);
+            check(&format!("agg_digit_witness_cols == agg_digit_witness == ref ({} digit rings)", flat.len()), flat == boxed && flat == reference);
+            absorb_i64s(&mut battery, &flat.to_vecs());
+        }
+    }
+    let dg: [u8; 32] = battery.finalize().into();
+    println!("[UPERF2-F] BATTERY DIGEST {}", hex_full(&dg));
+    if fails > 0 {
+        panic!("[UPERF2-F] diff-battery: {fails}/{legs} legs FAILED");
+    }
+    println!("[UPERF2-F] differential battery passed: {legs}/{legs} legs in {:.2}s", t0.elapsed().as_secs_f64());
 }

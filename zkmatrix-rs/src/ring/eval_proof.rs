@@ -779,16 +779,28 @@ pub fn matvec_modq_small_multi(
     cols: usize,
     s_list: &[&[Vec<i64>]],
 ) -> Vec<Vec<Poly>> {
+    matvec_modq_small_multi_gen::<[Vec<i64>]>(ctx, m, rows, cols, s_list)
+}
+
+/// [UPERF2-F] `matvec_modq_small_multi` over either small-ring store
+/// (`SmallRings`): the body; identical values on both.
+pub fn matvec_modq_small_multi_gen<B: SmallRings + ?Sized>(
+    ctx: &RingCtx,
+    m: &[Poly],
+    rows: usize,
+    cols: usize,
+    s_list: &[&B],
+) -> Vec<Vec<Poly>> {
     let _t = prof::timer(prof::EP_MATVEC); // [UPERF-PC] observation only
     assert_eq!(m.len(), rows * cols);
     for s in s_list {
-        assert_eq!(s.len(), cols);
+        assert_eq!(s.n_rings(), cols);
     }
     if oracle_mode() {
-        return s_list.iter().map(|s| matvec_modq_small_ref(ctx, m, rows, cols, s)).collect();
+        return s_list.iter().map(|s| matvec_modq_small_ref_gen(ctx, m, rows, cols, *s)).collect();
     }
     let a: Vec<&[Poly]> = (0..rows).map(|r| &m[r * cols..(r + 1) * cols]).collect();
-    let flat = ntt_gemm_modq_small(ctx, &a, s_list, cols); // [row][i]
+    let flat = ntt_gemm_modq_small_gen(ctx, &a, s_list, cols); // [row][i]
     let n_s = s_list.len();
     (0..n_s)
         .map(|i| (0..rows).map(|row| flat[row * n_s + i].clone()).collect())
@@ -798,13 +810,26 @@ pub fn matvec_modq_small_multi(
 /// The Karatsuba oracle for `matvec_modq_small` (the pre-O3 body; battery
 /// use only — every call site rides the NTT-domain body).
 pub fn matvec_modq_small_ref(ctx: &RingCtx, m: &[Poly], rows: usize, cols: usize, s: &[Vec<i64>]) -> Vec<Poly> {
-    assert_eq!(s.len(), cols);
+    matvec_modq_small_ref_gen::<[Vec<i64>]>(ctx, m, rows, cols, s)
+}
+
+/// [UPERF2-F] `matvec_modq_small_ref` over either small-ring store.
+pub fn matvec_modq_small_ref_gen<B: SmallRings + ?Sized>(
+    ctx: &RingCtx,
+    m: &[Poly],
+    rows: usize,
+    cols: usize,
+    s: &B,
+) -> Vec<Poly> {
+    assert_eq!(s.n_rings(), cols);
     assert_eq!(m.len(), rows * cols);
     let zq = &ctx.zq;
+    let mut buf = [0i64; D];
     (0..rows)
         .map(|r| {
             let mut acc = poly_zero();
-            for (c, sc) in s.iter().enumerate() {
+            for c in 0..cols {
+                let sc = s.ring(c, &mut buf);
                 if sc.iter().all(|&x| x == 0) {
                     continue;
                 }
@@ -831,10 +856,17 @@ pub fn ring_ip_modq_small(ctx: &RingCtx, phi: &[Poly], s: &[Vec<i64>]) -> Poly {
 
 /// The Karatsuba oracle for `ring_ip_modq_small` (battery use only).
 pub fn ring_ip_modq_small_ref(ctx: &RingCtx, phi: &[Poly], s: &[Vec<i64>]) -> Poly {
-    assert_eq!(phi.len(), s.len());
+    ring_ip_modq_small_ref_gen::<[Vec<i64>]>(ctx, phi, s)
+}
+
+/// [UPERF2-F] `ring_ip_modq_small_ref` over either small-ring store.
+pub fn ring_ip_modq_small_ref_gen<B: SmallRings + ?Sized>(ctx: &RingCtx, phi: &[Poly], s: &B) -> Poly {
+    assert_eq!(phi.len(), s.n_rings());
     let zq = &ctx.zq;
     let mut acc = poly_zero();
-    for (p, sc) in phi.iter().zip(s.iter()) {
+    let mut buf = [0i64; D];
+    for (u, p) in phi.iter().enumerate() {
+        let sc = s.ring(u, &mut buf);
         if sc.iter().all(|&x| x == 0) {
             continue;
         }
@@ -949,6 +981,14 @@ pub fn ntt_window_terms(q: u64, s_max: u128) -> usize {
 /// out[ia * nb + ib] = sum_u a[ia][u] * b[ib][u] over R_q — see the module
 /// note above. `a[ia].len() == b[ib].len() == len` for every slice.
 pub fn ntt_gemm_modq_small(ctx: &RingCtx, a: &[&[Poly]], b: &[&[Vec<i64>]], len: usize) -> Vec<Poly> {
+    ntt_gemm_modq_small_gen::<[Vec<i64>]>(ctx, a, b, len)
+}
+
+/// [UPERF2-F] The kernel body over either small-ring store
+/// (`SmallRings`: boxed `[Vec<i64>]` or the flat i8 `DigitCols` view).
+/// Every small ring is lifted per ring exactly as before (`lift_to_p` of
+/// the same i64 coefficients), so the values are identical on both.
+pub fn ntt_gemm_modq_small_gen<B: SmallRings + ?Sized>(ctx: &RingCtx, a: &[&[Poly]], b: &[&B], len: usize) -> Vec<Poly> {
     use super::aux::{
         balanced_mod_q, center_from_p, gl_reduce128, lift_to_p, mod_q_centered, ntt_fwd_fast, ntt_inv_fast, EPS,
     };
@@ -959,7 +999,7 @@ pub fn ntt_gemm_modq_small(ctx: &RingCtx, a: &[&[Poly]], b: &[&[Vec<i64>]], len:
         assert_eq!(s.len(), len, "a slice length");
     }
     for s in b {
-        assert_eq!(s.len(), len, "b slice length");
+        assert_eq!(s.n_rings(), len, "b slice length");
     }
     let mut out = vec![poly_zero(); na * nb];
     if na == 0 || nb == 0 || len == 0 {
@@ -967,19 +1007,13 @@ pub fn ntt_gemm_modq_small(ctx: &RingCtx, a: &[&[Poly]], b: &[&[Vec<i64>]], len:
     }
     // Operand bound of the small side (exact, from the data — the
     // window is then a function of (q, s_max, len) only).
-    let s_max: u128 = b
-        .iter()
-        .flat_map(|s| s.iter())
-        .flat_map(|ring| ring.iter())
-        .map(|&x| x.unsigned_abs() as u128)
-        .max()
-        .unwrap_or(0);
+    let s_max: u128 = b.iter().map(|s| s.max_abs()).max().unwrap_or(0);
     let window = ntt_window_terms(q, s_max);
     if window == 0 {
         // Over capacity for the single-prime contract: exact oracle.
         for (ia, sa) in a.iter().enumerate() {
             for (ib, sb) in b.iter().enumerate() {
-                out[ia * nb + ib] = ring_ip_modq_small_ref(ctx, sa, sb);
+                out[ia * nb + ib] = ring_ip_modq_small_ref_gen(ctx, sa, *sb);
             }
         }
         return out;
@@ -1031,7 +1065,8 @@ pub fn ntt_gemm_modq_small(ctx: &RingCtx, a: &[&[Poly]], b: &[&[Vec<i64>]], len:
                             out[i] = lift_to_p(balanced_mod_q(ring[i], q));
                         }
                     } else {
-                        let ring = &b[idx][ub0 + ub];
+                        let mut buf = [0i64; D]; // [UPERF2-F] per-ring lift from either store
+                        let ring = b[idx].ring(ub0 + ub, &mut buf);
                         if ring.iter().all(|&x| x == 0) {
                             *out = [0u64; D];
                             return;
@@ -1135,14 +1170,24 @@ pub fn ntt_gemm_modq_small(ctx: &RingCtx, a: &[&[Poly]], b: &[&[Vec<i64>]], len:
 /// rings. One `ntt_gemm_modq_small` call (r x r outputs), bit-identical to
 /// `level_h_pairs_ref`.
 pub fn level_h_pairs(ctx: &RingCtx, phi: &[&[Poly]], w: &[&[Vec<i64>]], chunk: usize) -> Vec<Poly> {
+    level_h_pairs_gen::<[Vec<i64>]>(ctx, phi, w, chunk)
+}
+
+/// [UPERF2-F] `level_h_pairs` over either small-ring store (the body).
+pub fn level_h_pairs_gen<B: SmallRings + ?Sized>(ctx: &RingCtx, phi: &[&[Poly]], w: &[&B], chunk: usize) -> Vec<Poly> {
     let _t = prof::timer(prof::EP_LEVELH); // [UPERF-PC] observation only
     let r = phi.len();
     assert_eq!(w.len(), r, "phi/w slice counts");
     if oracle_mode() {
-        return level_h_pairs_ref(ctx, phi, w, chunk);
+        return level_h_pairs_ref_gen(ctx, phi, w, chunk);
     }
-    let zq = &ctx.zq;
-    let g = ntt_gemm_modq_small(ctx, phi, w, chunk); // g[j*r + k] = <phi_j, w_k>
+    let g = ntt_gemm_modq_small_gen(ctx, phi, w, chunk); // g[j*r + k] = <phi_j, w_k>
+    level_h_from_g(&ctx.zq, &g, r)
+}
+
+/// h pairs from the r x r inner-product table: h_jj = g_jj, h_jk =
+/// g_jk + g_kj (j < k), pair order.
+fn level_h_from_g(zq: &Zq, g: &[Poly], r: usize) -> Vec<Poly> {
     let mut h = Vec::with_capacity(r * (r + 1) / 2);
     for j in 0..r {
         for k in j..r {
@@ -1159,17 +1204,22 @@ pub fn level_h_pairs(ctx: &RingCtx, phi: &[&[Poly]], w: &[&[Vec<i64>]], chunk: u
 /// The Karatsuba oracle for `level_h_pairs` (the pre-O2 loop; battery
 /// use only).
 pub fn level_h_pairs_ref(ctx: &RingCtx, phi: &[&[Poly]], w: &[&[Vec<i64>]], chunk: usize) -> Vec<Poly> {
+    level_h_pairs_ref_gen::<[Vec<i64>]>(ctx, phi, w, chunk)
+}
+
+/// [UPERF2-F] `level_h_pairs_ref` over either small-ring store.
+pub fn level_h_pairs_ref_gen<B: SmallRings + ?Sized>(ctx: &RingCtx, phi: &[&[Poly]], w: &[&B], chunk: usize) -> Vec<Poly> {
     let r = phi.len();
     assert_eq!(w.len(), r);
     let zq = &ctx.zq;
     let mut h = Vec::with_capacity(r * (r + 1) / 2);
     for j in 0..r {
         assert_eq!(phi[j].len(), chunk);
-        assert_eq!(w[j].len(), chunk);
+        assert_eq!(w[j].n_rings(), chunk);
         for k in j..r {
-            let mut hp = ring_ip_modq_small_ref(ctx, phi[j], w[k]);
+            let mut hp = ring_ip_modq_small_ref_gen(ctx, phi[j], w[k]);
             if j != k {
-                hp = poly_add(zq, &hp, &ring_ip_modq_small_ref(ctx, phi[k], w[j]));
+                hp = poly_add(zq, &hp, &ring_ip_modq_small_ref_gen(ctx, phi[k], w[j]));
             }
             h.push(hp);
         }
@@ -2570,6 +2620,19 @@ pub fn kernel_pass_factored(
     w0: Option<&[Vec<i64>]>,
     alphas: Option<&[Poly]>,
 ) -> (Vec<Poly>, Vec<Poly>) {
+    kernel_pass_factored_gen::<[Vec<i64>]>(ctx, kf, group, kernels, w0, alphas)
+}
+
+/// [UPERF2-F] `kernel_pass_factored` over either small-ring store for the
+/// rows pass's witness (the body; the phi pass does not read w0).
+pub fn kernel_pass_factored_gen<B: SmallRings + ?Sized>(
+    ctx: &RingCtx,
+    kf: &KField,
+    group: &AggGroup,
+    kernels: &[MultiClaimKernel],
+    w0: Option<&B>,
+    alphas: Option<&[Poly]>,
+) -> (Vec<Poly>, Vec<Poly>) {
     let _t = prof::timer(if alphas.is_some() { prof::BG_KPHI } else { prof::BG_KROWS });
     let zq = &ctx.zq;
     let q = zq.q;
@@ -2612,7 +2675,8 @@ pub fn kernel_pass_factored(
                             phi.push(acc);
                         }
                     } else {
-                        let w = &w0.expect("witness for the rows pass")[u];
+                        let mut buf = [0i64; D];
+                        let w = w0.expect("witness for the rows pass").ring(u, &mut buf);
                         if kw_zero || w.iter().all(|&x| x == 0) {
                             continue;
                         }
@@ -2673,8 +2737,9 @@ pub fn kernel_pass_factored(
                         // V_vr = sum_limb radix_limb * w — exact, then mod q.
                         let mut v_ring = vec![0i128; D];
                         let mut any = false;
+                        let mut buf = [0i64; D];
                         for (limb, &radix) in radixes.iter().enumerate() {
-                            let w = &w0[t.digit_ring_base + vr * t.l0 + limb];
+                            let w = w0.ring(t.digit_ring_base + vr * t.l0 + limb, &mut buf);
                             for j in 0..D {
                                 if w[j] != 0 {
                                     any = true;
@@ -2749,13 +2814,14 @@ pub fn kernel_pass_factored(
             let range_work = |lo: usize, hi: usize| -> Vec<u128> {
                 let mut tacc = vec![0u128; flat];
                 let mut v_ring = vec![0i128; D];
+                let mut buf = [0i64; D];
                 for vr in lo..hi {
                     let (row, cb) = (vr / nb, vr % nb);
                     // V_vr = sum_limb radix_limb * w — exact, then mod q.
                     v_ring.iter_mut().for_each(|x| *x = 0);
                     let mut any = false;
                     for (limb, &radix) in radixes.iter().enumerate() {
-                        let w = &w0[t.digit_ring_base + vr * t.l0 + limb];
+                        let w = w0.ring(t.digit_ring_base + vr * t.l0 + limb, &mut buf);
                         for j in 0..D {
                             if w[j] != 0 {
                                 any = true;
@@ -3017,35 +3083,34 @@ fn flush_split(acc_lo: &[u128; D], acc_hi: &[u128; D], t: &super::aux::NttTables
 /// c, |w| <= 64) the oracle `fold_chunks_ref` runs. Threads over u.
 /// Bit-identical to the oracle (uperf-c diff-battery leg T7).
 pub fn fold_chunks_ntt(cs: &[Vec<i64>], w: &[&[Vec<i64>]], chunk: usize) -> Vec<Vec<i64>> {
+    fold_chunks_ntt_gen::<[Vec<i64>]>(cs, w, chunk)
+}
+
+/// [UPERF2-F] `fold_chunks_ntt` over either small-ring store (the body).
+pub fn fold_chunks_ntt_gen<B: SmallRings + ?Sized>(cs: &[Vec<i64>], w: &[&B], chunk: usize) -> Vec<Vec<i64>> {
     use super::aux::{capacity, center_from_p};
     let r = cs.len();
     assert_eq!(w.len(), r, "one w slice per fold challenge");
     for s in w {
-        assert_eq!(s.len(), chunk, "w slice length");
+        assert_eq!(s.n_rings(), chunk, "w slice length");
     }
     if oracle_mode() {
-        return fold_chunks_ref(cs, w, chunk);
+        return fold_chunks_ref_gen(cs, w, chunk);
     }
     if r == 0 || chunk == 0 {
         return vec![vec![0i64; D]; chunk];
     }
     let cmax: u128 = cs.iter().flat_map(|c| c.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0);
-    let wmax: u128 = w
-        .iter()
-        .flat_map(|s| s.iter())
-        .flat_map(|ring| ring.iter())
-        .map(|&x| x.unsigned_abs() as u128)
-        .max()
-        .unwrap_or(0);
+    let wmax: u128 = w.iter().map(|s| s.max_abs()).max().unwrap_or(0);
     // (bounds beyond 2^48 are outside every designed regime — quinary c,
     // digits |w| <= 64 — and could overflow the u128 capacity product:
     // straight to the oracle)
     if cmax >= (1u128 << 48) || wmax >= (1u128 << 48) {
-        return fold_chunks_ref(cs, w, chunk);
+        return fold_chunks_ref_gen(cs, w, chunk);
     }
     let (fits, _) = capacity(r as u128, cmax.max(1), wmax.max(1));
     if !fits {
-        return fold_chunks_ref(cs, w, chunk);
+        return fold_chunks_ref_gen(cs, w, chunk);
     }
     let t = &*NTT;
     let c_hat: Vec<[u64; D]> = cs.iter().map(|c| fwd_small(c, t)).collect();
@@ -3053,8 +3118,9 @@ pub fn fold_chunks_ntt(cs: &[Vec<i64>], w: &[&[Vec<i64>]], chunk: usize) -> Vec<
         let mut acc_lo = [0u128; D];
         let mut acc_hi = [0u128; D];
         let mut any = false;
+        let mut buf = [0i64; D];
         for j in 0..r {
-            let ring = &w[j][u];
+            let ring = w[j].ring(u, &mut buf);
             if ring.iter().all(|&x| x == 0) {
                 continue;
             }
@@ -3074,13 +3140,19 @@ pub fn fold_chunks_ntt(cs: &[Vec<i64>], w: &[&[Vec<i64>]], chunk: usize) -> Vec<
 /// The pre-[UPERF2-C] fold loop (`poly_mul_small` per (j, u) term,
 /// exact i64 accumulation) — the T7 oracle.
 pub fn fold_chunks_ref(cs: &[Vec<i64>], w: &[&[Vec<i64>]], chunk: usize) -> Vec<Vec<i64>> {
+    fold_chunks_ref_gen::<[Vec<i64>]>(cs, w, chunk)
+}
+
+/// [UPERF2-F] `fold_chunks_ref` over either small-ring store.
+pub fn fold_chunks_ref_gen<B: SmallRings + ?Sized>(cs: &[Vec<i64>], w: &[&B], chunk: usize) -> Vec<Vec<i64>> {
     let r = cs.len();
     assert_eq!(w.len(), r);
+    let mut buf = [0i64; D];
     (0..chunk)
         .map(|u| {
             let mut z = vec![0i64; D];
             for (j, c) in cs.iter().enumerate() {
-                let prod = poly_mul_small(c, &w[j][u]);
+                let prod = poly_mul_small(c, w[j].ring(u, &mut buf));
                 for (a, p) in z.iter_mut().zip(prod.iter()) {
                     *a += p;
                 }
@@ -3385,4 +3457,186 @@ pub fn transport_level_from_psi_fast(
         }
     }
     LevelTransport { phi_next, h_next }
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-F] MEMORY DIET (U-PERF2 lane F): the level-0 digit witness as a
+// flat i8 store, consumed per ring inside the kernels.
+//
+// The composed pass's level-0 witness is millions of digit rings (12x512:
+// ~7.6M act + ~3.5M weight rings). As `Vec<Vec<i64>>` every ring is a
+// 1 KiB heap block plus header (~1,064 B): ~12 GB for both groups, alive
+// from the commit phase through the descents to the group eval proofs —
+// and, because glibc keeps freed 1 KiB chunks in its arena, `w0.clear()`
+// does not even lower the resident set afterwards. Every level-0 digit
+// alphabet is |w| <= 64 (row EB4-emax caps e at 7; the class table's e0
+// is 1 or 2), so one byte per digit is exact: `DigitCols` holds n x D
+// bytes in ONE allocation (an mmap'd block that returns to the OS on
+// drop) — 128 B per ring, 8.3x smaller.
+//
+// The kernels do not care where the small operand lives — every one of
+// them lifts the ring to Z_p (or to R_q via `poly_from_small`) per ring
+// anyway. `SmallRings` is that per-ring lift as a trait over BOTH stores:
+// the boxed `[Vec<i64>]` (the historical form — the deeper levels'
+// witnesses, the floors, the batteries, the synthetic agg_* rig) and the
+// flat `[i8]` (n * D bytes; `DigitCols::rings()`). A kernel body written
+// once over `B: SmallRings + ?Sized` computes IDENTICAL values on either
+// store (the same i64 coefficients reach the same arithmetic); the
+// pre-change entry points keep their names as `[Vec<i64>]` wrappers, so
+// no battery, oracle or rig code path changes its bytes. This is a
+// STRUCTURAL change (a storage type has no arithmetic oracle) — its gate
+// is the rig digests, the E2E leg and `uperf-f diff-battery` (both
+// stores through every kernel, byte-identical).
+
+/// A slice of small (digit) rings — n rings of D coefficients — behind
+/// either store. `ring(u, buf)` yields ring u as i64 coefficients: a
+/// borrow of the storage when it is i64 already, else widened into `buf`.
+pub trait SmallRings: Sync {
+    /// Number of rings in the slice.
+    fn n_rings(&self) -> usize;
+    /// Ring u as i64 coefficients (length D).
+    fn ring<'a>(&'a self, u: usize, buf: &'a mut [i64; D]) -> &'a [i64];
+    /// max |coefficient| over the whole slice (0 when empty).
+    fn max_abs(&self) -> u128;
+    /// true if ring u is all zeros.
+    fn is_zero(&self, u: usize) -> bool;
+    /// The sub-slice of rings [lo, hi).
+    fn sub(&self, lo: usize, hi: usize) -> &Self;
+}
+
+impl SmallRings for [Vec<i64>] {
+    #[inline(always)]
+    fn n_rings(&self) -> usize {
+        self.len()
+    }
+    #[inline(always)]
+    fn ring<'a>(&'a self, u: usize, _buf: &'a mut [i64; D]) -> &'a [i64] {
+        self[u].as_slice()
+    }
+    fn max_abs(&self) -> u128 {
+        self.iter().flat_map(|r| r.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0)
+    }
+    #[inline(always)]
+    fn is_zero(&self, u: usize) -> bool {
+        self[u].iter().all(|&x| x == 0)
+    }
+    #[inline(always)]
+    fn sub(&self, lo: usize, hi: usize) -> &Self {
+        &self[lo..hi]
+    }
+}
+
+impl SmallRings for [i8] {
+    #[inline(always)]
+    fn n_rings(&self) -> usize {
+        self.len() / D
+    }
+    #[inline(always)]
+    fn ring<'a>(&'a self, u: usize, buf: &'a mut [i64; D]) -> &'a [i64] {
+        let s = &self[u * D..(u + 1) * D];
+        for i in 0..D {
+            buf[i] = s[i] as i64;
+        }
+        &buf[..]
+    }
+    fn max_abs(&self) -> u128 {
+        self.iter().map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0)
+    }
+    #[inline(always)]
+    fn is_zero(&self, u: usize) -> bool {
+        self[u * D..(u + 1) * D].iter().all(|&x| x == 0)
+    }
+    #[inline(always)]
+    fn sub(&self, lo: usize, hi: usize) -> &Self {
+        &self[lo * D..hi * D]
+    }
+}
+
+/// The flat i8 digit store: n rings x D digits in one allocation. Ring
+/// u = bytes [u*D, (u+1)*D). `rings()` is the `SmallRings` view every
+/// kernel consumes; `sub`-slices are plain byte sub-slices.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct DigitCols {
+    data: Vec<i8>,
+}
+
+impl DigitCols {
+    /// n zero rings.
+    pub fn zeros(n: usize) -> DigitCols {
+        DigitCols { data: vec![0i8; n * D] }
+    }
+    /// From boxed rings (every coefficient must fit an i8 — asserted).
+    pub fn from_vecs(v: &[Vec<i64>]) -> DigitCols {
+        let mut d = DigitCols::zeros(v.len());
+        for (u, r) in v.iter().enumerate() {
+            d.set_ring(u, r);
+        }
+        d
+    }
+    /// To boxed rings (adapters / the degenerate no-level floor).
+    pub fn to_vecs(&self) -> Vec<Vec<i64>> {
+        (0..self.len()).map(|u| self.ring_i64(u)).collect()
+    }
+    /// Number of rings.
+    pub fn len(&self) -> usize {
+        self.data.len() / D
+    }
+    pub fn is_empty(&self) -> bool {
+        self.data.is_empty()
+    }
+    /// The flat `SmallRings` view (all rings).
+    #[inline(always)]
+    pub fn rings(&self) -> &[i8] {
+        &self.data
+    }
+    pub fn rings_mut(&mut self) -> &mut [i8] {
+        &mut self.data
+    }
+    /// Ring u as bytes.
+    #[inline(always)]
+    pub fn ring(&self, u: usize) -> &[i8] {
+        &self.data[u * D..(u + 1) * D]
+    }
+    pub fn ring_mut(&mut self, u: usize) -> &mut [i8] {
+        &mut self.data[u * D..(u + 1) * D]
+    }
+    /// Ring u widened to i64.
+    pub fn ring_i64(&self, u: usize) -> Vec<i64> {
+        self.ring(u).iter().map(|&x| x as i64).collect()
+    }
+    /// Write ring u from i64 coefficients (|x| <= 127 asserted; the
+    /// designed alphabets are |w| <= 64).
+    pub fn set_ring(&mut self, u: usize, r: &[i64]) {
+        assert_eq!(r.len(), D, "DigitCols::set_ring: ring length");
+        for (o, &x) in self.ring_mut(u).iter_mut().zip(r.iter()) {
+            *o = i8::try_from(x).unwrap_or_else(|_| panic!("DigitCols: digit {x} outside i8"));
+        }
+    }
+    /// Zero-pad or truncate to n rings.
+    pub fn resize(&mut self, n: usize) {
+        self.data.resize(n * D, 0);
+    }
+    pub fn truncate(&mut self, n: usize) {
+        self.data.truncate(n * D);
+    }
+    pub fn clear(&mut self) {
+        self.data.clear();
+    }
+    pub fn shrink_to_fit(&mut self) {
+        self.data.shrink_to_fit();
+    }
+    /// Heap bytes held (capacity).
+    pub fn heap_bytes(&self) -> usize {
+        self.data.capacity()
+    }
+}
+
+/// `DigitCols == Vec<Vec<i64>>` by value (the batteries compare stores).
+impl PartialEq<Vec<Vec<i64>>> for DigitCols {
+    fn eq(&self, other: &Vec<Vec<i64>>) -> bool {
+        self.len() == other.len()
+            && (0..self.len()).all(|u| {
+                other[u].len() == D && self.ring(u).iter().zip(other[u].iter()).all(|(&a, &b)| a as i64 == b)
+            })
+    }
 }
