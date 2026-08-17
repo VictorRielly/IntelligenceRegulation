@@ -420,6 +420,62 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
      3x16 rig at ZK_THREADS 1 and 8 fast + ONE oracle run (digest
      93a98700.., 985,142 B, EVAL-PROOF DIGEST 0ae9cdae.., accept).
   5. Report + this section.
+- 2026-08-17 CLOSE (lane E; commits ebb1e25 plan, efc039f items 1-3,
+  6300f2d battery/bench, a2bbc12 streamed builder, 5852892 sparse fill,
+  + the report commit; report: docs/zkmatrix-poc/U_PERF2_DESCENT2_REPORT.md).
+  ALL FIVE DELIVERABLES LANDED, every change transcript-identical (the
+  3x16 REAL-DATA rig: accept, statement digest 93a98700.., 985,142 B,
+  EVAL-PROOF DIGEST 0ae9cdae.. at ZK_THREADS 1 and 8 fast and under
+  ZK_UPERF_ORACLE=1 at close; descent-battery 18/18 at 1/2/7; uperf-pc
+  diff-battery E2E at 1/7T; freeze rows identical; self-test at close):
+  1. Descent-tree callers: `descent_fold::aligned_witness_tree` ->
+     `gkr::build_tree_sparse` first, then one step further — a NEW
+     streamed, threaded packed builder `gkr::build_aligned_witness_tree`
+     (member values generated on the fly by closures over the bin's
+     integer layer data, positional fill per member over row chunks of
+     whole KL-blocks, q table filled blockwise in parallel, p table
+     calloc-zero) behind `descent_fold::aligned_witness_tree_fn`; the
+     bin's `bk_tree_slot_fns` closures replace the boxed member columns
+     of `bk_tree_slots`; `neutral_tree` -> `gkr::build_neutral_tree`.
+     Scalar field / `oracle_mode()` keep the boxed bodies (and the
+     pre-change caller). `uperf-a descent-bench 20 8 5 9` trees 1.68 ->
+     0.69 -> **0.40 s at 8T** (a.tree-pack 0.44 -> 0.05; 1T 2.68 ->
+     ~1.7 s), digest 47a58a27 identical [WSL NOISY-SHARED]. Finding:
+     after the drop-ins the pack was the page-faulting + memset of the
+     two fresh 64 MB leaf tables (35-50 ms per depth-20 tree), not the
+     leaves (5-12 ms) — hence the calloc-p / parallel-q fill.
+  2. Descent VERIFY attribution (`e.*` prof ids 40-49): FINDING E-F1 —
+     on the 3x16 rig the verifier's whole pair loop (mask shells,
+     masked_gkr_verify, root cross-checks, bk_pair_claims) is **0.06 s**;
+     the "descents verify" is the misaligned aux tensors' K-weight rows
+     inside bg.verify-group (`psi0` generic branch 3.51 s of the 6.9 s
+     verify) and the same rows in the prover's kernel passes (7.33 s of
+     31.9 s). Every pair-loop piece is O(depth) K-work — < 1 s at 12x512
+     [MODEL]; nothing there needed a change.
+  3. Small-cols aux tensors: hoisted K-weight rows in both generic
+     branches (`kw_hoist` / `kw_row_hoisted`: scale *_K col once per
+     kernel + nonzero row bounds; one K-mult per nonzero (kernel, c1);
+     field associativity + exact zero skips = bit-identical; `kw_row_sync`
+     kept as the pre-change body, the per-digit-ring reference under
+     `oracle_mode()`): kw row 4,489 -> 106 us per value ring (42x; bench
+     1040x16 x 80 kernels), rig 1T e.kpass-smallcols **7.33 -> 0.38 s**,
+     e.psi0-smallcols **3.51 -> 0.19 s** — **wall 43.3 -> 36.3 s (prove
+     31.9 -> 27.5, verify 6.9 -> 3.7)**; 8T 16.6 -> 15.7 s (verify 1.9 ->
+     1.3) [WSL NOISY-SHARED]. The brief's K-basis form was worked out and
+     NOT built: its per-kernel setup (256 ring products x ~80 kernels x
+     27 tensors) exceeds the hoisted form's whole remaining 0.57 s — the
+     mask kernels' rows are sparse blocks, which the hoist exploits.
+  4. `uperf-e diff-battery` (24 tensors' rows three-way, 8 kernel passes
+     fast == oracle == bg_kernel_pass, 8 psi0 legs; q31 x3 + q46) BATTERY
+     DIGEST 59117121 identical at ZK_THREADS 1/2/7; `uperf-e bench`.
+  5. Report + this section. Projection [MODEL]: the small-cols term at
+     12x512 ~27 s -> ~1.5 s at 1T (prove ~1.0, verify ~0.5); the tree
+     callers' churn ~1 min -> ~7 s 1T / ~1.5 s 8T (the phase is now the
+     threaded tree steps in kfield.rs). Left: fold/extract fusion in the
+     descent kernels (kfield.rs — lane D's file this round; the
+     gkr_masked callers are ready), a leaf-table arena for the remaining
+     page-fault cost, the K-basis form only for dense-row small-cols
+     tensors.
 
 ## Agent C status (wt-uperf2-c)
 
