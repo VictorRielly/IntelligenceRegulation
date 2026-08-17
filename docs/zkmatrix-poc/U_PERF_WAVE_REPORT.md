@@ -200,10 +200,40 @@ prove should land in the ~1,300-1,600 s class on the Mac at 1T
 (~3x), with the descents + commit now the largest remaining shares.
 T4 measures; T6 (threads) and the descent/commit items follow.
 
-### 4.2 Composed-pass A/B (TASK_BOARD T4) — pending
+### 4.2 Composed-pass A/B on REAL data — the 3x16 full-statement rig on the WSL box (2026-08-17)
 
-(m125 3x16 and 12x512 before/after with the EVAL-PROOF DIGEST; the
-honest wall-clock deltas at the same box state.)
+The 125M checkpoint + val shard reached the WSL box on 2026-08-17; the
+local re-export `results/m125_ffn_export_wsl/` (same ckpt-00009536 +
+window; X differs from the Mac's by mlx CPU-vs-Metal rounding; 0 range
+violations — a valid witness of the same statement class, NOT the
+frozen digests) lets the 3-layer x T=16 FULL-STATEMENT rig
+(`uperf-pc full-profile 3 16`, BK's table-descent rig) run here.
+[WSL-BOX 1T, wsl-export, NOISY-SHARED (two agent lanes building/running
+concurrently)]:
+
+| run | commit | prove | verify | wall | EVAL-PROOF DIGEST | peak RSS |
+|---|---:|---:|---:|---:|---|---:|
+| fast, before the misaligned-path fix (d3ec01f^) | 8.3 s | 55.9 s | **142.4 s** | 206.8 s | 0ae9cdae… | 2.9 GiB |
+| fast, after the fix (d3ec01f) | 7.4 s | 54.1 s | **10.4 s** | 72.0 s | 0ae9cdae… (identical) | 2.9 GiB |
+| `ZK_UPERF_ORACLE=1` (the pre-Phase-0 arithmetic) | ORACLE_3X16_ROW |
+
+FINDING (real data, first profile): the verifier spent 137 of 142 s in
+`ep.psi0-factored` — the BK aux tensors (`bk-bl/wm/tm-*`, cols = 16)
+are MISALIGNED, so they took the generic per-ring branch, which
+recomputed the K-weight row (256 K-mults per kernel) and 16 kara-muls
+PER DIGIT RING — and those tensors carry q-range coefficients with
+l0 = 16 limbs. Per-value-ring restructuring (kw once, radix-1
+products once, radix scale per limb; the rows pass against the
+recomposed value ring) is byte-identical (digest unchanged, battery
+green) and cut the verify 13.7x. The prover's misaligned path got the
+same treatment (55.9 -> 54.1 s at this shape).
+
+Phase table after the fix (fast, 1T): level-h 14.4 s (weight group,
+n_0 = 885K rings at T = 16 — the weights do not shrink with T), fold
+8.7, transport 8.6 (both sides), matvec 7.9, kernel rows/phi 6.0/5.1,
+compute-psi 5.6, psi0-factored 5.4 (verify), crs-expand 2.4, commit
+7.4, claim layer 3.1, descents 3.7 (tiny at T = 16). The 12x512 shape
+still needs the Mac (RSS 41-47 GiB) — TASK_BOARD T1.
 
 ## 5. Walls and cross-zone findings (filed, not built)
 
