@@ -250,12 +250,15 @@ pub fn build_tree_sparse(
     let _t = prof::timer(prof::A_TREE_PACK);
     // [UPERF2-E] zero defaults stay calloc-untouched, nonzero defaults are
     // filled blockwise in parallel (same bytes as KTab::filled).
-    let mut leaf_p_t = KTab::zeroed(n);
-    let mut leaf_q_t = KTab::zeroed(n);
-    if !default.0.iter().all(|&x| x == 0) {
+    // [UPERF2-G] a nonzero default is fully written (recycled buffer ok);
+    // a zero default IS the zeroed table.
+    let (p_zero, q_zero) = (default.0.iter().all(|&x| x == 0), default.1.iter().all(|&x| x == 0));
+    let mut leaf_p_t = if p_zero { KTab::zeroed(n) } else { KTab::recycled(n) };
+    let mut leaf_q_t = if q_zero { KTab::zeroed(n) } else { KTab::recycled(n) };
+    if !p_zero {
         ktab_fill_par(&mut leaf_p_t, default.0);
     }
-    if !default.1.iter().all(|&x| x == 0) {
+    if !q_zero {
         ktab_fill_par(&mut leaf_q_t, default.1);
     }
     for (i, p, q) in entries {
@@ -373,8 +376,10 @@ pub fn build_aligned_witness_tree(
     // parallel). q defaults to one: written blockwise in parallel (the
     // page-fault + memset of a 64 MB depth-20 table was ~35 ms serial —
     // the dominant "pack" cost once the leaf loop is streamed).
+    // [UPERF2-G] q is fully written by the fill: a recycled buffer serves;
+    // p relies on the zero fill (the neutral leaves).
     let mut leaf_p_t = KTab::zeroed(n);
-    let mut leaf_q_t = KTab::zeroed(n);
+    let mut leaf_q_t = KTab::recycled(n);
     ktab_fill_par(&mut leaf_q_t, &one);
     let one_u32: [u32; super::kfield::K_DEG] = {
         let mut o = [0u32; super::kfield::K_DEG];
@@ -497,8 +502,9 @@ fn build_tree_packed(kf: &KField, leaf_p_t: KTab, leaf_q_t: KTab) -> FracTree {
     while lp.last().unwrap().n > 1 {
         let (cp, cq) = (lp.last().unwrap(), lq.last().unwrap());
         let half = cp.n / 2;
-        let mut np = KTab::zeroed(half);
-        let mut nq = KTab::zeroed(half);
+        // [UPERF2-G] every element is written by the step (recycled buffers).
+        let mut np = KTab::recycled(half);
+        let mut nq = KTab::recycled(half);
         if half >= KL {
             if oracle {
                 k9_tree_step(kern, &cp.d, &cq.d, &mut np.d, &mut nq.d, half / KL);

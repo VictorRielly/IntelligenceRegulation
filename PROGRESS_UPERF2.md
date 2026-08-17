@@ -376,6 +376,85 @@ the flock only) + `self-test` at close. Report: per-item before/after
 [WSL 1T|8T labels], depth-20 bench + rig rows, projection to depth 22
 x 16.
 
+## Round 5 (2026-08-17): lanes H and I
+
+State after lanes F + G (merged): REAL 3x16 1T ~28 s @ 0.96 GB, 8T ~9.3
+s @ 1.0 GB; REAL 12x64 8T ~43 s @ 4.65 GB; 12x128 8T 66 s @ 7.4 GB
+(lane F's run). What still keeps 12x512 (~the PoC shape) off this 15 GB
+box: the largest descent pair (nrw-88: 12 real trees at depth 22) —
+its packed trees (leaves + all layers = 2 x leaves x 64 B x 2 tables:
+~12 GB) plus the fused kernel's work tables (~3.8 GB, lane G) on a
+~1.5-2 GB floor. Round 5: H attacks exactly that; I attacks the
+transform cost every NTT kernel pays. Both gated on the REAL rigs (3x16
+at 1T/8T; 12x64 and 12x128 at 8T — digests: 3x16 statement 93a98700…
+/ EVAL 0ae9cdae…; 12x64 80763ea5… / 63f4a3a4…; 12x128 4a3af8c3… /
+742d88e1…, 1,372,775 B) plus the batteries. Worktrees
+`/home/victor/wt-uperf2-h` (uperf2-h) and `/home/victor/wt-uperf2-i`
+(uperf2-i). The 12x128 run needs ~7.5 GB: flock + `free -g` >= 9 GB.
+
+### Lane H — DESCENT TREE MEMORY: layer checkpointing + tree pool (wt-uperf2-h)
+
+OWNS: `zkmatrix-rs/src/ring/gkr.rs`, `gkr_masked.rs`, `kfield.rs`
+(descent-side kernels; lanes A/D/E/G merged — extend), `descent_fold.rs`,
+the bin's `bk_pass_run` DESCENT PHASE region only (the per-pair loop:
+tree build calls, masked_gkr_prove calls, drops) plus a `// [UPERF2-H]`
+section + `uperf-h`, NEW `docs/zkmatrix-poc/U_PERF2_DESCENT4_REPORT.md`,
+"Agent H status".
+GOAL: make the depth-22 x 12-real-tree pair fit in ~6-8 GB total
+without changing a byte. (1) LAYER CHECKPOINTING in the packed
+FracTree: keep the leaves and every c-th layer (c = 3 or 4 —
+memory ~ leaves x (1 + 2^-c + ...) instead of 2 x leaves) and
+recompute the intermediate layers from the checkpoint below when a
+round needs them (the descent walks layers top-down; a layer is
+needed for its round and the round below it; each intermediate layer
+gets rebuilt at most once per pair from the next checkpoint down —
+about one extra tree-build's worth of K-work per pair, on the
+threaded tree-step kernels). Bit-identical by construction (same
+fractional sums in the same order — assert it: `uperf-a
+descent-battery` 18/18 + `uperf-g descent-battery` 22/22 + the
+DESCENT DIGEST 47a58a27… of `uperf-a descent-bench 20 8 5 9`). Make c
+a knob (`ZK_K9_CHECKPOINT`, default = the value that fits 12x512 with
+margin; 0 = keep every layer = today). (2) A same-size TREE POOL across
+a pair's trees and across pairs + a release hook (lane G measured a
+generic arena NEGATIVE — do the narrow thing: reuse the leaf/layer
+tables of equal size, no size classes) — only if it lowers peak RSS
+on the 12x64/12x128 rigs (measure with `/usr/bin/time -f "maxrss %M
+KB"`; lane F's `[UPERF2-F] RSS` rows show the per-phase peak). (3)
+Then, if the model says the 12x512 pass fits under ~13 GB: run it ONCE
+here (`ZK_THREADS=8`, flock, `free -g` first, nothing else running) —
+that is the PoC number on the reference box; record everything
+(accept, statement digest, bytes, EVAL-PROOF DIGEST, walls, RSS) in
+your report and the ledger. If it does not fit, say by how much and
+what is left. Gate: the batteries above at ZK_THREADS 1/2/7,
+`uperf-pc diff-battery` (E2E), freeze rows, `self-test`, REAL 3x16
+1T/8T + 12x64 8T + 12x128 8T digests identical.
+
+### Lane I — SIMD Goldilocks NTT (wt-uperf2-i)
+
+OWNS: `zkmatrix-rs/src/aux_ntt_core.rs` (additive: new `ntt_fwd_simd` /
+`ntt_inv_simd` + the pointwise helpers, dispatch by
+`is_x86_feature_detected!("avx2")` / `cfg(target_arch = "aarch64")`
+NEON, scalar `ntt_fwd_fast` stays the reference), the ONE-line call
+sites in `eval_proof.rs` where `ntt_fwd_fast`/`ntt_inv_fast` are called
+(a `ntt_fwd_best`/`ntt_inv_best` indirection — no other edits there),
+a `// [UPERF2-I]` bin section + `uperf-i`, NEW
+`docs/zkmatrix-poc/U_PERF2_SIMD_REPORT.md`, "Agent I status".
+GOAL: lane C measured the length-128 Goldilocks transform at 1.50 us
+fwd / 2.07 us inv (branchless scalar); the transforms are ~30-40% of
+level-h / matvec / fold / psi / transport at 8T. Vectorize the
+butterfly stages (4-lane u64 with AVX2 on this box: mul via 32x32
+partial products or the u128 emulation, add/sub with the branchless
+reduce; NEON on the Mac — write it, cannot be run here, mark
+[UNTESTED-NEON] and gate it behind cfg so the Mac build still
+compiles), keeping the values IDENTICAL (battery: random + planted
+extremes + 4096 rings fwd/inv vs the scalar transform, and every
+existing battery). Then measure `uperf-pc kernel-bench 64 8192` and
+`kpass-bench`, `uperf-c bench` before/after and the REAL 3x16 / 12x64
+rigs. If AVX2 buys < 1.3x on the transform, say so and stop early with
+the finding. Gate: `uperf-i battery` (transform identity), `uperf-pc
+diff-battery` (E2E), `uperf-c diff-battery`, `uperf-f diff-battery`,
+freeze rows, `self-test`, the REAL rig digests at 1T/8T.
+
 ## Agent A status (wt-uperf2-a)
 
 PLAN (skeleton commit, 2026-08-17). Files: gkr_masked.rs / gkr.rs /
@@ -465,6 +544,14 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
   masked_gkr_verify (3-5 ms per pair here) — it sits in the claim
   builders around it.
 - Every number [WSL-BOX NOISY-SHARED] (lane C built/ran throughout).
+
+## Agent H status (wt-uperf2-h)
+
+- (lane launches here)
+
+## Agent I status (wt-uperf2-i)
+
+- (lane launches here)
 
 ## Agent F status (wt-uperf2-f)
 
@@ -596,7 +683,105 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent G status (wt-uperf2-g)
 
-- (lane launches here)
+- 2026-08-17 PLAN COMMIT (lane G, branch uperf2-g at f512ba1). Files:
+  gkr_masked.rs / gkr.rs / kfield.rs / descent_fold.rs (extend), a
+  `// [UPERF2-G]` bin section with `uperf-g {descent-battery, bench}`,
+  docs/zkmatrix-poc/U_PERF2_DESCENT3_REPORT.md. Baselines captured
+  BEFORE any code change from the untouched build (scratchpad
+  g_freeze_baseline.txt: 98 `ok` rows identical to lane F's capture;
+  `uperf-a descent-bench 20 8 5 9`: 1T prove 8.12 s (round-g 3.66, fold
+  2.54, extract 1.22, eq 0.67), trees 1.63 s; 8T prove 2.24 s (round-g
+  0.93, fold 0.89, extract 0.21, eq 0.19), trees 0.39 s, DESCENT DIGEST
+  47a58a27..; descent-battery 18/18, BATTERY DIGEST f936ff79..). Plan,
+  in order:
+  1. Fold-into-next-round fusion in the packed descent kernel: round
+     t+1's kernel folds the five state-t tables on the fly (state t+1
+     written IN PLACE with a rung-ordered schedule — output pair-block
+     range [A, 2A) reads [4A, 8A) and writes [2A, 4A), so rungs run
+     smallest-first, each fully parallel; a 64-pair-block prefix goes
+     through a tiny scratch) — 1.5 x table bytes per round instead of
+     2.5 x, no S/2 fold scratch. Extract fusion: rounds 0 and 1 read the
+     tree layer j+1 directly (deinterleave + PL = p0 + lambda q0 on the
+     fly), the first materialized work tables are state 1 (memory 5.5 S
+     -> 3 S per layer). Same canonical arithmetic per element, exact
+     integer node planes -> transcript-identical; `masked_rounds_bulk_ref`
+     stays the oracle; `ZK_UPERF_G_NOFUSE=1` (and an in-process flag)
+     runs the same loop with eager folds (lane A's HEAD path) for A/B.
+  2. Table arena: KTab buffers of the work tables / tree layers recycled
+     through a per-thread-safe free list (no fresh calloc + page faults
+     + memset per tree/layer), measured on the bench + rigs.
+  3. Thread scaling of round-g/fold/tree-step: chunk sizes, job
+     granularity, false sharing of the per-chunk planes.
+  4. `uperf-g descent-battery` (scalar == ref == fast-nofuse == fast-fused,
+     verified, at 1/2/7T) + report + gates (uperf-a descent-battery,
+     descent-bench digest, uperf-pc diff-battery, freeze rows, self-test,
+     the REAL 3x16 rig 1T/8T + 12x64 8T).
+- 2026-08-17 CLOSE (lane G; commits cb2b97f plan, 501d76e fold + extract
+  fusion, 977f19e arena (opt-in), 9bc7cc0 thread items, 756ae7f eq
+  fusion, + the report/ledger commit; report:
+  docs/zkmatrix-poc/U_PERF2_DESCENT3_REPORT.md). Every number
+  [WSL NOISY-SHARED] — lane F built and ran its rigs throughout (load
+  0.7-3.8); the fusion OFF/ON pairs are same-process (`uperf-g bench`).
+  - ITEM 1 LANDED (transcript-identical, `masked_rounds_bulk_ref` the
+    oracle under `oracle_mode()`; `ZK_UPERF_G_NOFUSE=1` = lane A's HEAD
+    loop, `ZK_UPERF_G_NOXFUSE=1` = fold fusion only): the packed descent
+    kernel folds round t's five tables INSIDE round t+1's pass, in place
+    (kfield.rs `fused_round_body` FUSE_FOLD / FUSE_EXTRACT /
+    FUSE_EXTRACT_FOLD sharing `round_g5_body`'s node loop, now
+    `round_g5_pair`; driver `k9_fused_round_par` with the RUNG schedule —
+    pair-block range [A, 2A) reads [4A, 8A) and writes [2A, 4A), so a
+    64-pair-block prefix goes through a tiny scratch and the rungs run
+    smallest-first, each fully parallel over per-job exact-integer planes
+    in 128 B-padded slots); rounds 0 and 1 read the tree layer j+1 and the
+    b-part eq table directly (extract deinterleave, PL = p0 + lambda q0
+    and eq = eq_b(b) x E(e) on the fly), so a layer's first materialized
+    tables are state 1; gkr_masked.rs `masked_rounds_bulk` is a
+    pending-fold / flush loop (`flush_state` = lane A's eager eq build /
+    extract / folds / add-constants, verbatim, for the tail, the w-round
+    and the pad materialization). Traffic ~37 S -> ~18 S per layer,
+    work-table footprint 5.5 S -> 2.5 S. Depth 20 x 8 bench
+    (`uperf-g bench 20 8 5 9`, digest 47a58a27 on every line):
+    `masked_gkr_prove` 8T **2.15-2.33 -> 1.66-1.78 s (ratio 0.72-0.80)**,
+    1T ratio 0.85-0.92 (one run 1.06 under load), peak RSS **2,087 ->
+    1,557 MiB**; REAL 3x16 rig 8T bk.descent-gkr 1.19 -> 0.88 s (wall
+    9.5 -> 9.3), 1T 2.36 -> 2.26 (29.0 -> 28.7); REAL 12x64 rig 8T
+    bk.descent-gkr **10.3 -> 7.36 s (-29%)**, wall 46.0 -> 42.3-44.1 s,
+    maxrss 12.19 GB (the process peak is not in the descent phase).
+  - ITEM 2 BUILT, MEASURED NEGATIVE, OPT-IN: the packed-table arena
+    (`impl Drop for KTab` -> `k9_arena_give`, `KTab::zeroed` /
+    `KTab::recycled` via `k9_arena_take`, LIFO pool capped by
+    `ZK_K9_ARENA_MB`, default 0 = off; `k9_arena_clear/stats` public). On
+    the depth-20 bench a 1 GB pool cut minor faults only 14-20% and cost
+    +0.5-0.7 GB peak / +10% prove (size classes double per layer, glibc
+    realloc copies heap chunks, the held set is RSS); a THP MADV_HUGEPAGE
+    probe cut faults 9x (1.32M -> 142K) with no wall change and was
+    removed. After lane E's calloc trick the faults are ~5% of the descent
+    CPU here (probe: 512 MB first touch 135 ms 1T / 30-46 ms 8T). What
+    would pay: a same-size tree-buffer pool across pairs + a release call
+    from the pass driver after the descent phase (bk_pass_run, lane F's
+    file) — recorded, not built.
+  - ITEM 3: the fused kernel scales further than lane A's — prove 1T
+    7.07 / 2T 4.29 / 4T 2.51 / 6T 1.89 / 8T 1.68 / 12T 1.58 / 16T 1.47 s
+    (round-g 6.37 -> 1.28 = 5.0x at 16T; lane A saturated at 3.2x); the
+    residual vs the ideal (~4.5x at 6T / ~5.4x at 8T / ~7x at 16T on this
+    turbo-1T / all-core / E-core topology) is the box, not the split;
+    plane-slot padding (hygiene) and `ZK_K9_JOBS_PER_THREAD` (2/4/8/16
+    within 4-9%; default 8) landed; affinity not attempted (FFI).
+  - Gates at HEAD: `uperf-g descent-battery` 22/22 four-way (scalar ==
+    ref == fast-nofuse == fast-fused, verified) BATTERY DIGEST 6d6a3f6b..
+    at ZK_THREADS 1/2/7 (+ arena on); `uperf-a descent-battery` 18/18
+    f936ff79.. at 1/2/7; descent-bench digest 47a58a27 at 1T/8T;
+    `uperf-pc diff-battery` E2E at 1T/7T; freeze-check 98 `ok` rows
+    identical to the pre-change capture; REAL 3x16 at 1T and 8T (accept,
+    93a98700.., 985,142 B, 0ae9cdae..) and 12x64 at 8T (accept,
+    80763ea5.., 63f4a3a4..); `self-test` passed (234.0 s); the 3x16 `ZK_UPERF_ORACLE=1` 1T
+    run at close: accept, same digests, wall 602.2 s (44.7 / 417.9 / 139.3).
+  - Projection [MODEL]: the rig's witness-descent prove ~249 -> ~215-230 s
+    at 1T, ~71 -> ~52-57 s at 8T on this box (~46 s at 16T); the peak
+    pair's work tables ~8.3 -> ~3.8 GB touched (descent-phase peak ~21 ->
+    ~16 GB with the trees). Left: the Mac's scaling (T1), the same-size
+    tree pool + release hook, the b-part eq doubling (0.06 s at 8T), the
+    GPU rung (the fused kernel is the natural first descent GPU kernel).
 
 ## Agent D status (wt-uperf2-d)
 
