@@ -1376,6 +1376,20 @@ pub(crate) struct FusedPlan<'a> {
 const K9_FUSE_PREFIX_PAIRS: usize = 64;
 /// Smallest parallel job (pair-blocks).
 const K9_FUSE_MIN_JOB_PAIRS: usize = 8;
+/// u64 words of padding between consecutive jobs' plane slots (128 B: two
+/// cache lines, enough for any 16 B-aligned base).
+const K9_PLANE_PAD: usize = 16;
+
+/// Jobs per thread per rung (`ZK_K9_JOBS_PER_THREAD`, default 8): more,
+/// smaller jobs shorten the barrier tail on a hybrid box (an E-core's job
+/// takes ~2x a P-core's); fewer, larger jobs cost less setup. Any value is
+/// bit-identical (exact-integer planes).
+fn k9_fuse_jobs_per_thread() -> usize {
+    static V: std::sync::LazyLock<usize> = std::sync::LazyLock::new(|| {
+        std::env::var("ZK_K9_JOBS_PER_THREAD").ok().and_then(|v| v.parse::<usize>().ok()).filter(|&n| n >= 1).unwrap_or(8)
+    });
+    *V
+}
 
 /// Carve `buf` (whose first block is table block `base_blk`) into the
 /// sorted, disjoint block ranges `pieces` — disjoint &mut views for the
@@ -1465,7 +1479,7 @@ pub(crate) fn k9_fused_round_par(
             continue;
         }
         let total: usize = live.iter().map(|&(a, b, _)| b - a).sum();
-        let jobs_target = if threads <= 1 { 1 } else { (threads * 4).min(total / K9_FUSE_MIN_JOB_PAIRS).max(1) };
+        let jobs_target = if threads <= 1 { 1 } else { (threads * k9_fuse_jobs_per_thread()).min(total / K9_FUSE_MIN_JOB_PAIRS).max(1) };
         let w = total.div_ceil(jobs_target).max(1);
         let mut jobs: Vec<(usize, usize, usize)> = Vec::new();
         for &(a, b, ri) in &live {
@@ -1478,7 +1492,11 @@ pub(crate) fn k9_fused_round_par(
         }
         let nj = jobs.len();
         let write_pieces: Vec<(usize, usize)> = jobs.iter().map(|&(a, b, _)| (2 * a, 2 * b)).collect();
-        let mut planes = vec![0u64; nj * 2 * acc_words];
+        // Per-job plane slots padded by 128 B so no two jobs' persistent
+        // accumulators share a cache line (the planes are written on every
+        // pair-block; a shared boundary line would ping-pong between cores).
+        let slot = 2 * acc_words + K9_PLANE_PAD;
+        let mut planes = vec![0u64; nj * slot];
         // Split the in-place buffers: writes land in [.., 2 rb) blocks, reads
         // come from [4 ra, ..) = [2 rb, ..) blocks (rungs) or the whole
         // buffer read-only (prefix / no-write rung).
@@ -1532,7 +1550,7 @@ pub(crate) fn k9_fused_round_par(
             let tp: Vec<Vec<&mut [u32]>> = tab_w.into_iter().map(|w_| k9_carve(w_, 0, &write_pieces)).collect();
             (eqp, tp)
         };
-        let mut plane_chunks: Vec<&mut [u64]> = planes.chunks_mut(2 * acc_words).collect();
+        let mut plane_chunks: Vec<&mut [u64]> = planes.chunks_mut(slot).map(|c| &mut c[..2 * acc_words]).collect();
         // Assemble the jobs (in order; the &mut pieces are moved in).
         let mut job_list: Vec<FusedJob> = Vec::with_capacity(nj);
         let mut tab_iters: Vec<std::vec::IntoIter<&mut [u32]>> =
@@ -1586,7 +1604,7 @@ pub(crate) fn k9_fused_round_par(
         }
         drop(job_list);
         // Sum the planes (exact integers; any order).
-        for c in planes.chunks(2 * acc_words) {
+        for c in planes.chunks(slot) {
             for i in 0..acc_words {
                 acc_lo[i] += c[i];
                 acc_hi[i] += c[acc_words + i];
