@@ -32,4 +32,5 @@ class UPerfPc(unittest.TestCase):
         self.assertIn("O2 level-h: 35/35 byte-identical", p.stdout)
         self.assertIn("O3 matvec: 63/63 byte-identical", p.stdout)
         self.assertIn("O5 kernel-pass: 12/12 byte-identical", p.stdout)
+        self.assertIn("E2E bg_prove_group/verify: 2/2 proofs identical", p.stdout)
         self.assertIn("differential battery passed", p.stdout)

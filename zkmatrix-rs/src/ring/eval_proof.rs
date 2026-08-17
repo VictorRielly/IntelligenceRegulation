@@ -795,12 +795,20 @@ static NTT: LazyLock<super::aux::NttTables> = LazyLock::new(super::aux::build_ta
 /// its pre-optimization oracle at runtime — the one-binary A/B: the
 /// EVAL-PROOF DIGEST must be identical with and without it, and the
 /// walls give the before/after at the same box state. Read once.
-static ORACLE_MODE: LazyLock<bool> =
-    LazyLock::new(|| std::env::var("ZK_UPERF_ORACLE").map(|v| v == "1").unwrap_or(false));
+static ORACLE_MODE: LazyLock<std::sync::atomic::AtomicBool> = LazyLock::new(|| {
+    std::sync::atomic::AtomicBool::new(std::env::var("ZK_UPERF_ORACLE").map(|v| v == "1").unwrap_or(false))
+});
 
 #[inline(always)]
 pub fn oracle_mode() -> bool {
-    *ORACLE_MODE
+    ORACLE_MODE.load(std::sync::atomic::Ordering::Relaxed)
+}
+
+/// Harness-only: flip the oracle routing at runtime (the in-process
+/// end-to-end differential in `uperf-pc diff-battery` proves the same
+/// group under both routings; production never calls this).
+pub fn set_oracle_mode(on: bool) {
+    ORACLE_MODE.store(on, std::sync::atomic::Ordering::Relaxed);
 }
 
 /// [UPERF-PC T6] `ZK_THREADS=n` (default 1 — the ledger's 1T baseline

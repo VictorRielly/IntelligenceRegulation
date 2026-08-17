@@ -34909,11 +34909,110 @@ fn uperf_pc_diff_battery() {
     println!("[UPERF-PC] O3 matvec: {n3}/{n3} byte-identical (single, multi, ring-ip; q31 + q46)");
     let n5 = uperf_pc_diff_o5();
     println!("[UPERF-PC] O5 kernel-pass: {n5}/{n5} byte-identical (rows + phi + verifier psi0-factored-multi; aligned/misaligned/no-kernel tensors, shared col kernels, q31 + q46)");
+    // E2E — the whole bg_prove_group / bg_verify_group on a synthetic
+    // multi-tensor group under BOTH routings (oracle vs fast, flipped
+    // in-process): proofs field-identical, both verify.
+    if !ring::eval_proof::oracle_mode() {
+        let ne = uperf_pc_diff_e2e();
+        println!("[UPERF-PC] E2E bg_prove_group/verify: {ne}/{ne} proofs identical oracle vs fast + accept (2-level schedule, mixed tensors)");
+    }
 
     println!(
         "[UPERF-PC] differential battery passed in {:.2}s",
         t0.elapsed().as_secs_f64()
     );
+}
+
+/// [UPERF-PC] End-to-end differential of the composed group eval proof
+/// on a synthetic group (mixed aligned/misaligned tensors, several
+/// kernels, shared col kernels, a FORCED 2-level schedule so level-0
+/// h/matvec/kernel passes AND the transport/fold levels run): the same
+/// (group, claims, witness, seeds) proven under ZK_UPERF_ORACLE routing
+/// and under the fast routing (flipped in-process via
+/// `set_oracle_mode`) must give FIELD-IDENTICAL GroupEvalProofs, and
+/// both must verify. This is the on-box stand-in for the rig's
+/// EVAL-PROOF DIGEST identity (TASK_BOARD T1). Returns legs passed.
+fn uperf_pc_diff_e2e() -> usize {
+    use ring::eval_proof::{kernel_pass_factored, plan_schedule, set_oracle_mode, AggGroup};
+    use ring::kfield::{KElem, KField, K_DEG};
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use ring::sumcheck::LkpTranscript;
+    use std::rc::Rc;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let q = ctx.zq.q;
+    let mut rd = XofReader::new("uperf-pc-e2e", &[&[0xE2u8]]);
+    // Group: ~40K digit rings (a 2-level schedule at q31 when forced).
+    let mut g = AggGroup::new("e2e");
+    g.add_tensor("A", 64, 2048, 2, 5); // 1024 value rings x 5 = 5120
+    g.add_tensor("B", 32, 768, 1, 8); // 192 x 8 = 1536
+    g.add_tensor("C", 64, 96, 2, 2); // misaligned: 48 x 2 = 96
+    g.add_tensor("D", 8, 384, 2, 3); // no kernel: 24 x 3 = 72
+    g.add_tensor("E", 512, 768, 2, 5); // 3072 x 5 = 15360
+    let n_t = g.tensors.len();
+    let rand_kvec = |rd: &mut XofReader, n: usize| -> Rc<Vec<KElem>> { Rc::new((0..n).map(|_| kf.uniform(rd)).collect()) };
+    let col2048 = rand_kvec(&mut rd, 2048);
+    let col768 = rand_kvec(&mut rd, 768);
+    let mut claims = GroupClaims::new(n_t);
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, 64), col: col2048.clone() });
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, 64), col: col2048.clone() });
+    claims.push(ClaimContrib { tensor_idx: 1, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, 32), col: col768.clone() });
+    claims.push(ClaimContrib { tensor_idx: 2, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, 64), col: rand_kvec(&mut rd, 96) });
+    claims.push(ClaimContrib { tensor_idx: 4, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, 512), col: col768.clone() });
+    claims.push(ClaimContrib { tensor_idx: 4, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, 512), col: rand_kvec(&mut rd, 768) });
+    let mut w0: Vec<Vec<i64>> = Vec::with_capacity(g.n_digit_rings);
+    for t in &g.tensors {
+        let (lo, hi) = ring::digits::alphabet(t.e0);
+        let span = (hi - lo + 1) as u64;
+        for u in 0..t.n_digit_rings() {
+            if u % 11 == 6 {
+                w0.push(vec![0i64; D]);
+            } else {
+                w0.push((0..D).map(|_| lo + rd.next_field(span) as i64).collect());
+            }
+        }
+    }
+    let n0 = g.n_digit_rings;
+    // The batched claim value = the honest claim rows' constant terms.
+    let mk = bg_multi_kernels(&claims);
+    let (rows, _) = kernel_pass_factored(&ctx, &kf, &g, &mk, Some(&w0), None);
+    let v_batch: KElem = (0..K_DEG).map(|c| rows[c][0]).collect();
+    let sched = plan_schedule(n0, 2, q, Some(2));
+    assert_eq!(sched.levels.len(), 2, "e2e: forced 2-level schedule");
+    g.begin_opening().expect("e2e opening");
+    let seed = 0xE2E_5EEDu64;
+    let run = |oracle: bool| -> (ring::eval_proof::GroupEvalProof, bool) {
+        set_oracle_mode(oracle);
+        let mut w = w0.clone();
+        let pre = bg_precommit(&ctx, &g, &sched, &mut w, seed);
+        let mut tr = LkpTranscript::new("uperf-pc-e2e", &[0x5Eu8; 32]);
+        let mut rng = ring::ProverRng::from_test_seed("uperf-pc-e2e-rng", &[0xE2]);
+        let (proof, _) = bg_prove_group(
+            &ctx, &kf, &g, &sched, &mut w, &claims, &v_batch, pre, &mut tr, seed, false, false, &mut rng,
+        );
+        let mut trv = LkpTranscript::new("uperf-pc-e2e", &[0x5Eu8; 32]);
+        let ok = bg_verify_group(&ctx, &kf, &g, &sched, &claims, &v_batch, &proof, &mut trv, seed, None).is_ok();
+        set_oracle_mode(false);
+        (proof, ok)
+    };
+    let (p_fast, ok_fast) = run(false);
+    let (p_orc, ok_orc) = run(true);
+    assert!(ok_fast, "e2e: fast-path proof did not verify");
+    assert!(ok_orc, "e2e: oracle-path proof did not verify");
+    assert_eq!(p_fast.b_rows, p_orc.b_rows, "e2e: b_rows differ");
+    assert_eq!(p_fast.u0, p_orc.u0, "e2e: u0 differ");
+    assert_eq!(p_fast.ugh0, p_orc.ugh0, "e2e: ugh0 differ");
+    assert_eq!(p_fast.level_us, p_orc.level_us, "e2e: level_us differ");
+    assert_eq!(p_fast.floor, p_orc.floor, "e2e: floor differs");
+    assert_eq!(p_fast.floor_e, p_orc.floor_e);
+    assert_eq!(p_fast.tcap_attempts, p_orc.tcap_attempts);
+    // Cross-check: a fast proof must verify under oracle routing and vice versa.
+    set_oracle_mode(true);
+    let mut trv = LkpTranscript::new("uperf-pc-e2e", &[0x5Eu8; 32]);
+    let cross = bg_verify_group(&ctx, &kf, &g, &sched, &claims, &v_batch, &p_fast, &mut trv, seed, None).is_ok();
+    set_oracle_mode(false);
+    assert!(cross, "e2e: fast proof rejected by the oracle verifier");
+    2
 }
 
 /// [UPERF-PC O5] The factored claim-kernel passes vs the oracle
