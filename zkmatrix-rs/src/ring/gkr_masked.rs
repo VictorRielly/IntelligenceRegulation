@@ -905,8 +905,20 @@ fn masked_rounds_bulk(
     let mut tabs: Option<(super::kfield::KTab, super::kfield::KTab, super::kfield::KTab, super::kfield::KTab)> = None;
     let mut pending: Option<PendingFold> = None;
     let mut scratch: Vec<u32> = Vec::new();
+    // [UPERF2-H] The trees' layer j+1, obtained ONCE (a stored layer, a
+    // recomputed checkpoint gap, or the compact leaves) and read by the
+    // fused rounds 0/1 or the eager extract; released — handles dropped,
+    // the stored layer given back — as soon as the state-1 tables exist.
+    let mut lay_src: Vec<Option<super::gkr::LayerSrc>> =
+        (0..l).map(|e| if trees[e].is_neutral() { None } else { Some(trees[e].layer(j + 1)) }).collect();
     if !fuse_extract {
-        flush_state(kf, kern, trees, j, zeta, e_bits, &eq_src, lay.lambda, &mut tabs, &mut eq_cur, &mut scratch, &mut pending);
+        flush_state(kf, kern, trees, &lay_src, j, zeta, e_bits, &eq_src, lay.lambda, &mut tabs, &mut eq_cur, &mut scratch, &mut pending);
+        if tabs.is_some() {
+            lay_src.clear();
+            for &e in &real {
+                trees[e].release_layer(j + 1);
+            }
+        }
     }
     let lambda_k = kop(lay.lambda);
     let degs = sc_degrees(n_bvars, lay.child_masked);
@@ -961,8 +973,14 @@ fn masked_rounds_bulk(
         if need_mat || fuse_mode.is_none() {
             // Eager path: the tables are brought to state t now (the
             // pending fold is consumed), so this round's kernel is plain.
-            flush_state(kf, kern, trees, j, zeta, e_bits, &eq_src, lay.lambda, &mut tabs, &mut eq_cur, &mut scratch, &mut pending);
+            flush_state(kf, kern, trees, &lay_src, j, zeta, e_bits, &eq_src, lay.lambda, &mut tabs, &mut eq_cur, &mut scratch, &mut pending);
             fuse_mode = None;
+            if tabs.is_some() && !lay_src.is_empty() {
+                lay_src.clear();
+                for &e in &real {
+                    trees[e].release_layer(j + 1);
+                }
+            }
         }
         if need_mat {
             // Materialize the pad slices (per_t elements each, per_t < 16):
@@ -1083,8 +1101,7 @@ fn masked_rounds_bulk(
                                 live.iter().map(|&e| (e * ppe, (e + 1) * ppe)).collect(),
                                 live.iter()
                                     .map(|&e| FusedLayer {
-                                        p: &trees[e].p_layer(j + 1).d,
-                                        q: &trees[e].q_layer(j + 1).d,
+                                        src: lay_src[e].as_ref().expect("real tree layer handle").blk_src(),
                                         first_pair: e * ppe,
                                         ee: if ee_all[e] == one_k { None } else { Some(kop(&ee_all[e])) },
                                     })
@@ -1177,6 +1194,14 @@ fn masked_rounds_bulk(
                     }
                 }
             }
+            // [UPERF2-H] the tree layer is consumed once the state-1 tables
+            // exist (round 1's extract-fold): give it back now.
+            if tabs.is_some() && !lay_src.is_empty() {
+                lay_src.clear();
+                for &e in &real {
+                    trees[e].release_layer(j + 1);
+                }
+            }
             let mut evals = vec![kf.zero(); d + 1];
             for (ni, &x) in nodes.iter().enumerate() {
                 let xk = kf.embed(x);
@@ -1262,7 +1287,7 @@ fn masked_rounds_bulk(
             }
             pending = Some(PendingFold { r: r.clone(), consts, ranges: ranges_blk, skipping });
             if !fuse {
-                flush_state(kf, kern, trees, j, zeta, e_bits, &eq_src, lay.lambda, &mut tabs, &mut eq_cur, &mut scratch, &mut pending);
+                flush_state(kf, kern, trees, &lay_src, j, zeta, e_bits, &eq_src, lay.lambda, &mut tabs, &mut eq_cur, &mut scratch, &mut pending);
             }
             if t < j {
                 // F_{t+1} = F_t * eq(zeta_t, r_t).
@@ -1365,6 +1390,7 @@ fn flush_state(
     kf: &KField,
     kern: &super::kfield::KKern,
     trees: &[FracTree],
+    lay_src: &[Option<super::gkr::LayerSrc>],
     j: usize,
     zeta: &[KElem],
     e_bits: usize,
@@ -1381,7 +1407,10 @@ fn flush_state(
     }
     if tabs.is_none() {
         let _t = prof::timer(prof::A_EXTRACT);
-        let (mut p0c, p1c, q0c, q1c) = extract_children_par(trees, j, !skip);
+        // [UPERF2-H] the layer handles are alive until the extract (the
+        // caller releases them right after).
+        assert_eq!(lay_src.len(), trees.len(), "flush: the tree layer handles were released before the extract");
+        let (mut p0c, p1c, q0c, q1c) = extract_children_par(trees, lay_src, j, !skip);
         // PL = p0 + lambda*q0, in place on the extracted p0 (real ranges).
         if !skip {
             kf.kt_mul_fixed_add_inplace(&mut p0c, &q0c, lambda);
