@@ -21505,13 +21505,33 @@ fn agg_tier_z_mask_floor(
     group_name: &str,
     rng: &mut ring::ProverRng,
 ) -> TierZFloor {
-    let coords = w_floor.len() * D;
-    let sigma = ring::eval_proof::tier_z_sigma(coords);
-    let bound = ring::eval_proof::tier_z_response_bound(coords);
     // [UAGB1-BH] the last level's Psi is challenge-fixed at this
     // point — compute it once, not once per restart attempt (values
     // identical; the L1 family consumes psi only).
     let psi = ring::eval_proof::compute_psi(ctxr, phi, plan_last.chunk, cs);
+    agg_tier_z_mask_floor_psi(ctxr, w_floor, plan_last, layout, bindings, a_mat, cs, &psi, tr, group_name, rng)
+}
+
+/// [UPERF2-F] `agg_tier_z_mask_floor` with the last level's Psi supplied
+/// (the body after `compute_psi`; the one-level Tier-Z floor of the fast
+/// path passes the factored Psi_0 here instead of materializing Phi_0).
+#[allow(clippy::too_many_arguments)]
+fn agg_tier_z_mask_floor_psi(
+    ctxr: &RingCtx,
+    w_floor: &[Vec<i64>],
+    plan_last: &ring::eval_proof::LevelPlan,
+    layout: &ring::eval_proof::NextLayout,
+    bindings: &[(Vec<Poly>, usize, usize, Vec<Poly>)],
+    a_mat: &[Poly],
+    cs: &[Vec<i64>],
+    psi: &[Poly],
+    tr: &mut ring::sumcheck::LkpTranscript,
+    group_name: &str,
+    rng: &mut ring::ProverRng,
+) -> TierZFloor {
+    let coords = w_floor.len() * D;
+    let sigma = ring::eval_proof::tier_z_sigma(coords);
+    let bound = ring::eval_proof::tier_z_response_bound(coords);
     // FS-with-aborts: the challenge derives from (pre-mask transcript
     // state, images); failed attempts never touch the transcript.
     let pre_state = tr.state();
@@ -21523,7 +21543,7 @@ fn agg_tier_z_mask_floor(
             (0..w_floor.len()).map(|_| gaussian_ivec(rng, D, sigma as u64)).collect();
         // Mask images of every family (sent BEFORE the challenge).
         let images =
-            agg_floor_family_values(ctxr, &y, plan_last, layout, bindings, a_mat, cs, &psi);
+            agg_floor_family_values(ctxr, &y, plan_last, layout, bindings, a_mat, cs, psi);
         let st = uk8_sha(&[b"agg-tz", group_name.as_bytes(), &pre_state, &polys_bytes(&images)]);
         let (c_fl, _) = ring::eval_proof::draw_quinary_capped(&st, "agg-tz-c", 0);
         // Response z' = y + c_fl (x) w.
@@ -29327,8 +29347,8 @@ fn bg_act_snapshot(p: &ring::eval_proof::GroupEvalProof) -> Vec<u8> {
 struct BgPre {
     u0: Vec<Poly>,
     that0: Vec<Vec<i64>>,
-    a0_mat: Vec<Poly>,
-    b0u_mat: Vec<Poly>,
+    a0_mat: std::sync::Arc<Vec<Poly>>,  // [UPERF2-F] the CRS memo's handle (no clone)
+    b0u_mat: std::sync::Arc<Vec<Poly>>, // [UPERF2-F]
     r0: usize,
     chunk0: usize,
     e_t0: u32,
@@ -29367,7 +29387,7 @@ fn bg_precommit(
     w0: &mut ring::eval_proof::DigitCols, // [UPERF2-F] the flat i8 level-0 witness
     seed: u64,
 ) -> BgPre {
-    use ring::eval_proof::{expand_level_matrix, matvec_modq_small, KAPPA_AGG};
+    use ring::eval_proof::{expand_level_matrix_arc, matvec_modq_small, KAPPA_AGG};
     let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::D_PRECOMMIT); // [UPERF2-D] observation only
     let q = ctxr.zq.q;
     let (r0, chunk0, e_t0, l_t0) = match sched.levels.first() {
@@ -29375,9 +29395,9 @@ fn bg_precommit(
         None => (1, group.n_digit_rings, AGG_E_DEG, agg_l_t_deg(q)),
     };
     w0.resize(r0 * chunk0);
-    let a0_mat = expand_level_matrix(seed, group.name, 0, "A", KAPPA_AGG, chunk0, q);
+    let a0_mat = expand_level_matrix_arc(seed, group.name, 0, "A", KAPPA_AGG, chunk0, q); // [UPERF2-F] Arc handle
     let (_t0, that0) = bg_matvec_chunks(ctxr, w0.rings(), r0, chunk0, &a0_mat, e_t0, l_t0);
-    let b0u_mat = expand_level_matrix(seed, group.name, 0, "Bu", KAPPA_AGG, that0.len(), q);
+    let b0u_mat = expand_level_matrix_arc(seed, group.name, 0, "Bu", KAPPA_AGG, that0.len(), q);
     let u0 = matvec_modq_small(ctxr, &b0u_mat, KAPPA_AGG, that0.len(), &that0);
     BgPre { u0, that0, a0_mat, b0u_mat, r0, chunk0, e_t0, l_t0 }
 }
@@ -29403,6 +29423,28 @@ fn bg_level_h<B: ring::eval_proof::SmallRings + ?Sized>(
     let h_polys = level_h_pairs_gen(ctxr, &phi_sl, &w_sl, c);
     debug_assert_eq!(h_polys.len(), plan.n_pairs);
     // [UPERF2-C] digit split per ring in parallel (order preserved).
+    let hhat = decompose_polys_modq(zq, &h_polys, plan.e_next, plan.l_h);
+    (h_polys, hhat)
+}
+
+/// [UPERF2-F] `bg_level_h` with the level-0 phi supplied per u-block by a
+/// `Phi0Source` (never materialized): same outputs as `bg_level_h(ctxr,
+/// &phi_materialized_padded, w, plan)`.
+fn bg_level_h_src<B: ring::eval_proof::SmallRings + ?Sized>(
+    ctxr: &RingCtx,
+    src: &ring::eval_proof::Phi0Source,
+    w: &B,
+    plan: &ring::eval_proof::LevelPlan,
+) -> (Vec<Poly>, Vec<Vec<i64>>) {
+    use ring::eval_proof::{decompose_polys_modq, level_h_pairs_with};
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_LEVELH);
+    let zq = &ctxr.zq;
+    let r = plan.r;
+    let c = plan.chunk;
+    assert!(w.n_rings() >= r * c, "bg_level_h_src: witness not padded to r*chunk");
+    let w_sl: Vec<&B> = (0..r).map(|k| w.sub(k * c, (k + 1) * c)).collect();
+    let h_polys = level_h_pairs_with(ctxr, src, &w_sl, c);
+    debug_assert_eq!(h_polys.len(), plan.n_pairs);
     let hhat = decompose_polys_modq(zq, &h_polys, plan.e_next, plan.l_h);
     (h_polys, hhat)
 }
@@ -29518,10 +29560,11 @@ fn bg_prove_group(
     rng: &mut ring::ProverRng,
 ) -> (ring::eval_proof::GroupEvalProof, Option<TierZFloor>) {
     use ring::eval_proof::{
-        expand_level_matrix, matvec_modq_small, transport_level, transport_rows, NextLayout,
-        OuterBinding, KAPPA_AGG,
+        expand_level_matrix_arc, matvec_modq_small, transport_level, transport_level_from_psi, transport_rows,
+        NextLayout, OuterBinding, KAPPA_AGG,
     };
     use ring::kfield::K_DEG;
+    use std::sync::Arc;
     let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_PROVE_GROUP); // observation only
     let zq = &ctxr.zq;
     let q = zq.q;
@@ -29549,8 +29592,21 @@ fn bg_prove_group(
     for (a, b) in alphas0.iter().zip(b_rows.iter()) {
         h_cur = poly_add(zq, &h_cur, &ring_mul_split_kara_fast(ctxr, a, b));
     }
-    let (_, mut phi_cur) =
-        ring::eval_proof::kernel_pass_factored(ctxr, kf, group, &mk, None, Some(&alphas0));
+    // [UPERF2-F] Phi_0 is NEVER materialized on the fast path: the level-0
+    // h pairs read it per u-block from the factored `Phi0Source`, and the
+    // level-1 transport consumes the factored Psi_0 (what bg_verify_group
+    // does). `ZK_UPERF_ORACLE=1` keeps the materialized phi pass ->
+    // bg_level_h -> transport_level(compute_psi) path.
+    let phi_src: Option<ring::eval_proof::Phi0Source> = if ring::eval_proof::oracle_mode() {
+        None
+    } else {
+        Some(ring::eval_proof::Phi0Source::new(ctxr, kf, group, &mk, &alphas0))
+    };
+    let mut phi_cur: Vec<Poly> = if phi_src.is_some() {
+        Vec::new()
+    } else {
+        ring::eval_proof::kernel_pass_factored(ctxr, kf, group, &mk, None, Some(&alphas0)).1
+    };
     uf_rss(&format!("bg.{}.phi-pass", group.name)); // [UPERF2-F] observation only
 
     let BgPre { u0, that0, a0_mat, b0u_mat, r0, chunk0, e_t0, l_t0 } = pre;
@@ -29575,10 +29631,14 @@ fn bg_prove_group(
     // ---- Level 0. ----
     let plan0 = &sched.levels[0];
     assert_eq!((r0, chunk0, e_t0, l_t0), (plan0.r, plan0.chunk, plan0.e_next, plan0.l_t));
-    phi_cur.resize(r0 * chunk0, poly_zero());
-    let (_h0p, hhat0) = bg_level_h(ctxr, &phi_cur, w0.rings(), plan0);
+    let (_h0p, hhat0) = if let Some(src) = &phi_src {
+        bg_level_h_src(ctxr, src, w0.rings(), plan0) // [UPERF2-F] phi per u-block, never materialized
+    } else {
+        phi_cur.resize(r0 * chunk0, poly_zero());
+        bg_level_h(ctxr, &phi_cur, w0.rings(), plan0)
+    };
     uf_rss(&format!("bg.{}.level0-h", group.name)); // [UPERF2-F] observation only
-    let b0h_mat = expand_level_matrix(seed, group.name, 0, "Bh", KAPPA_AGG, hhat0.len(), q);
+    let b0h_mat = expand_level_matrix_arc(seed, group.name, 0, "Bh", KAPPA_AGG, hhat0.len(), q);
     let ugh0 = matvec_modq_small(ctxr, &b0h_mat, KAPPA_AGG, hhat0.len(), &hhat0);
     ring::eval_proof::absorb_polys(tr, &format!("bg-ugh0-{}", group.name), &ugh0);
     let (c0, att0) = agg_draw_cs(tr, &format!("bg-c0-{}", group.name), plan0.r);
@@ -29590,10 +29650,15 @@ fn bg_prove_group(
     w0.clear();
     w0.shrink_to_fit();
     phi_cur.truncate(n0);
+    // [UPERF2-F] the factored source has served the level-0 h pairs; the
+    // level-1 transport (and a one-level Tier-Z floor) take the factored
+    // Psi_0 instead — drop the source's tables now.
+    let phi0_factored = phi_src.is_some();
+    drop(phi_src);
     uf_rss(&format!("bg.{}.level0-fold", group.name)); // [UPERF2-F] observation only
 
-    let mut prev_a_mat = a0_mat;
-    let mut prev_bindings_data: Vec<(Vec<Poly>, usize, usize, Vec<Poly>)> = vec![
+    let mut prev_a_mat: Arc<Vec<Poly>> = a0_mat;
+    let mut prev_bindings_data: Vec<(Arc<Vec<Poly>>, usize, usize, Vec<Poly>)> = vec![
         (b0u_mat, 0, that0.len(), u0.clone()),
         (b0h_mat, that0.len(), hhat0.len(), ugh0.clone()),
     ];
@@ -29609,23 +29674,36 @@ fn bg_prove_group(
         let lt = {
             let bindings: Vec<OuterBinding> = prev_bindings_data
                 .iter()
-                .map(|(bm, cb, cl, u)| OuterBinding { b_mat: bm, col_base: *cb, cols: *cl, u })
+                .map(|(bm, cb, cl, u)| OuterBinding { b_mat: bm.as_slice(), col_base: *cb, cols: *cl, u })
                 .collect();
-            transport_level(
-                ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings, &prev_c,
-                &alphas,
-            )
+            if li == 1 && phi0_factored {
+                // [UPERF2-F] level 1 consumes the factored Psi_0 directly
+                // (bg_verify_group's form; == compute_psi(Phi_0) by the O5
+                // battery leg) — Phi_0 is never materialized.
+                let psi0 = ring::eval_proof::psi_level0_factored_multi(
+                    ctxr, kf, group, &mk, &alphas0, &prev_c, plan_prev.chunk,
+                );
+                transport_level_from_psi(
+                    ctxr, &psi0, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings, &prev_c,
+                    &alphas,
+                )
+            } else {
+                transport_level(
+                    ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings, &prev_c,
+                    &alphas,
+                )
+            }
         };
         phi_cur = lt.phi_next;
         h_cur = lt.h_next;
         let plan = &sched.levels[li];
         w_cur.resize(plan.r * plan.chunk, vec![0i64; D]);
         phi_cur.resize(plan.r * plan.chunk, poly_zero());
-        let a_mat = expand_level_matrix(seed, group.name, li, "A", KAPPA_AGG, plan.chunk, q);
+        let a_mat = expand_level_matrix_arc(seed, group.name, li, "A", KAPPA_AGG, plan.chunk, q);
         let (_tp, that) = bg_matvec_chunks(ctxr, &w_cur[..], plan.r, plan.chunk, &a_mat, plan.e_next, plan.l_t);
         let (_hp, hhat) = bg_level_h(ctxr, &phi_cur, &w_cur[..], plan);
         let th_len = that.len() + hhat.len();
-        let b_mat = expand_level_matrix(seed, group.name, li, "B", KAPPA_AGG, th_len, q);
+        let b_mat = expand_level_matrix_arc(seed, group.name, li, "B", KAPPA_AGG, th_len, q);
         let mut th: Vec<Vec<i64>> = that.clone();
         th.extend(hhat.iter().cloned());
         let u_i = matvec_modq_small(ctxr, &b_mat, KAPPA_AGG, th_len, &th);
@@ -29648,11 +29726,27 @@ fn bg_prove_group(
     let (floor, tz) = if tier_z {
         let plan_last = sched.levels.last().unwrap();
         let layout_last = NextLayout::new(plan_last);
-        phi_cur.resize(plan_last.r * plan_last.chunk, poly_zero());
-        let tzf = agg_tier_z_mask_floor(
-            ctxr, &w_cur, plan_last, &layout_last, &prev_bindings_data, &prev_a_mat, &prev_c,
-            &phi_cur, tr, group.name, rng,
-        );
+        // [UPERF2-F] the last level's (small) bindings as owned matrices for
+        // the agg_* Tier-Z helpers (their signature; a few MB at the floor).
+        let prev_bindings_data: Vec<(Vec<Poly>, usize, usize, Vec<Poly>)> =
+            prev_bindings_data.iter().map(|(bm, cb, cl, u)| ((**bm).clone(), *cb, *cl, u.clone())).collect();
+        let tzf = if sched.levels.len() == 1 && phi0_factored {
+            // [UPERF2-F] one-level Tier-Z: the floor's Psi is the factored
+            // Psi_0 (compute_psi(Phi_0) never runs on a materialized Phi_0).
+            let psi0 = ring::eval_proof::psi_level0_factored_multi(
+                ctxr, kf, group, &mk, &alphas0, &prev_c, plan_last.chunk,
+            );
+            agg_tier_z_mask_floor_psi(
+                ctxr, &w_cur, plan_last, &layout_last, &prev_bindings_data, &prev_a_mat, &prev_c,
+                &psi0, tr, group.name, rng,
+            )
+        } else {
+            phi_cur.resize(plan_last.r * plan_last.chunk, poly_zero());
+            agg_tier_z_mask_floor(
+                ctxr, &w_cur, plan_last, &layout_last, &prev_bindings_data, &prev_a_mat, &prev_c,
+                &phi_cur, tr, group.name, rng,
+            )
+        };
         (tzf.response.clone(), Some(tzf))
     } else {
         (w_cur, None)
@@ -29709,11 +29803,12 @@ fn bg_verify_group(
     tier_z: Option<&TierZFloor>,
 ) -> Result<(), &'static str> {
     use ring::eval_proof::{
-        compute_cpairs, compute_psi, expand_level_matrix, matvec_modq_small, recompose_rings,
-        transport_level, transport_level_from_psi, transport_rows, NextLayout, OuterBinding,
+        compute_cpairs, compute_psi, expand_level_matrix, expand_level_matrix_arc, matvec_modq_small,
+        recompose_rings, transport_level, transport_level_from_psi, transport_rows, NextLayout, OuterBinding,
         KAPPA_AGG,
     };
     use ring::kfield::K_DEG;
+    use std::sync::Arc;
     let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_VERIFY_GROUP); // observation only
     let zq = &ctxr.zq;
     let q = zq.q;
@@ -29791,16 +29886,17 @@ fn bg_verify_group(
         ctxr, kf, group, &bg_multi_kernels(claims), &alphas0, &c0, plan0.chunk,
     );
     let mut phi_cur: Vec<Poly> = Vec::new();
-    let mut prev_a_mat = expand_level_matrix(seed, group.name, 0, "A", KAPPA_AGG, plan0.chunk, q);
-    let mut prev_bindings_data: Vec<(Vec<Poly>, usize, usize, Vec<Poly>)> = vec![
+    // [UPERF2-F] CRS handles from the memo (Arc, no clones).
+    let mut prev_a_mat: Arc<Vec<Poly>> = expand_level_matrix_arc(seed, group.name, 0, "A", KAPPA_AGG, plan0.chunk, q);
+    let mut prev_bindings_data: Vec<(Arc<Vec<Poly>>, usize, usize, Vec<Poly>)> = vec![
         (
-            expand_level_matrix(seed, group.name, 0, "Bu", KAPPA_AGG, that0_len, q),
+            expand_level_matrix_arc(seed, group.name, 0, "Bu", KAPPA_AGG, that0_len, q),
             0,
             that0_len,
             proof.u0.clone(),
         ),
         (
-            expand_level_matrix(seed, group.name, 0, "Bh", KAPPA_AGG, hh0_len, q),
+            expand_level_matrix_arc(seed, group.name, 0, "Bh", KAPPA_AGG, hh0_len, q),
             that0_len,
             hh0_len,
             proof.ugh0.clone(),
@@ -29815,7 +29911,7 @@ fn bg_verify_group(
         let lt = {
             let bindings: Vec<OuterBinding> = prev_bindings_data
                 .iter()
-                .map(|(bm, cb, cl, u)| OuterBinding { b_mat: bm, col_base: *cb, cols: *cl, u })
+                .map(|(bm, cb, cl, u)| OuterBinding { b_mat: bm.as_slice(), col_base: *cb, cols: *cl, u })
                 .collect();
             // [UAGB1-BJ] level 1 consumes the factored Psi_0 directly
             // (BD's post-BH shape); deeper levels transport the small
@@ -29842,9 +29938,9 @@ fn bg_verify_group(
         }
         ring::eval_proof::absorb_polys(tr, &format!("bg-u{li}-{}", group.name), u_i);
         let (cs, _) = agg_draw_cs(tr, &format!("bg-c{li}-{}", group.name), plan.r);
-        prev_a_mat = expand_level_matrix(seed, group.name, li, "A", KAPPA_AGG, plan.chunk, q);
+        prev_a_mat = expand_level_matrix_arc(seed, group.name, li, "A", KAPPA_AGG, plan.chunk, q);
         prev_bindings_data = vec![(
-            expand_level_matrix(seed, group.name, li, "B", KAPPA_AGG, th_len, q),
+            expand_level_matrix_arc(seed, group.name, li, "B", KAPPA_AGG, th_len, q),
             0,
             th_len,
             u_i.clone(),
@@ -29857,6 +29953,10 @@ fn bg_verify_group(
     if proof.floor.len() != layout.n_total || proof.floor.len() != sched.floor_rings {
         return Err("wire-shape");
     }
+    // [UPERF2-F] the last level's (small) bindings as owned matrices for
+    // the agg_* floor helpers (their signature).
+    let prev_bindings_data: Vec<(Vec<Poly>, usize, usize, Vec<Poly>)> =
+        prev_bindings_data.iter().map(|(bm, cb, cl, u)| ((**bm).clone(), *cb, *cl, u.clone())).collect();
     // [UAGB1-BJ] the floor L1 Psi: for one-level schedules this IS the
     // factored multi-claim Psi_0 (same plan/challenges); deeper
     // schedules fold the small transported phi (BD's post-BH shape).
@@ -37668,8 +37768,104 @@ fn uperf_f_main(args: &[String]) {
             println!("[UPERF2-F] rss probe: hwm {hwm} KiB rss {rss} KiB");
         }
         Some("diff-battery") => uperf_f_diff_battery(),
-        _ => println!("uperf-f diff-battery | rss"),
+        Some("bench") => {
+            let rows: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(1024);
+            let cols: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(2048);
+            let r: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(16);
+            uperf_f_bench(rows, cols, r);
+        }
+        _ => println!("uperf-f diff-battery | bench [rows] [cols] [r] | rss"),
     }
+}
+
+/// [UPERF2-F] Level-0 phi bench: one aligned tensor rows x cols (e0 2,
+/// l0 5) with 3 contributions; the MATERIALIZED route (phi pass ->
+/// level_h_pairs -> compute_psi) vs the FACTORED route (Phi0Source ->
+/// level_h_pairs_with -> psi_level0_factored_multi), byte equality
+/// asserted, walls + peak RSS reported.
+fn uperf_f_bench(rows: usize, cols: usize, r: usize) {
+    use ring::eval_proof::{
+        compute_psi, kernel_pass_factored, level_h_pairs_with, psi_level0_factored_multi, AggGroup, DigitCols,
+        Phi0Source,
+    };
+    use ring::kfield::{KElem, KField, K_DEG};
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use std::rc::Rc;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let q = ctx.zq.q;
+    let zq = &ctx.zq;
+    let mut rd = XofReader::new("uperf2-f-bench", &[&(rows as u64).to_le_bytes(), &(cols as u64).to_le_bytes()]);
+    let mut g = AggGroup::new("f-bench");
+    g.add_tensor("T", rows, cols, 2, 5);
+    let n0 = g.n_digit_rings;
+    let chunk = n0.div_ceil(r);
+    println!(
+        "[UPERF2-F] bench: tensor {rows}x{cols} (e0 2, l0 5: {} value rings, {n0} digit rings), 3 contributions, r {r} chunk {chunk}, ZK_THREADS {}",
+        g.tensors[0].n_value_rings(),
+        ring::eval_proof::threads()
+    );
+    let rand_kvec = |rd: &mut XofReader, n: usize| -> Rc<Vec<KElem>> { Rc::new((0..n).map(|_| kf.uniform(rd)).collect()) };
+    let col_shared = rand_kvec(&mut rd, cols);
+    let mut claims = GroupClaims::new(1);
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: col_shared.clone() });
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: col_shared.clone() });
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: rand_kvec(&mut rd, cols) });
+    let (lo, hi) = ring::digits::alphabet(2);
+    let span = (hi - lo + 1) as u64;
+    let mut w = DigitCols::zeros(r * chunk);
+    let mut tmp = vec![0i64; D];
+    for u in 0..n0 {
+        for x in tmp.iter_mut() {
+            *x = lo + rd.next_field(span) as i64;
+        }
+        w.set_ring(u, &tmp);
+    }
+    let alphas: Vec<Poly> = (0..K_DEG).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
+    let cs: Vec<Vec<i64>> = (0..r).map(|_| (0..D).map(|_| rd.next_field(5) as i64 - 2).collect()).collect();
+    let mk = bg_multi_kernels(&claims);
+    let w_sl: Vec<&[i8]> = (0..r).map(|k| &w.rings()[k * chunk * D..(k + 1) * chunk * D]).collect();
+    // Materialized route.
+    let (h0, _) = uf_rss_kb();
+    let t0 = Instant::now();
+    let (_, mut phi) = kernel_pass_factored(&ctx, &kf, &g, &mk, None, Some(&alphas));
+    let s_phi = t0.elapsed().as_secs_f64();
+    phi.resize(r * chunk, poly_zero());
+    let phi_sl: Vec<&[Poly]> = (0..r).map(|j| &phi[j * chunk..(j + 1) * chunk]).collect();
+    let t0 = Instant::now();
+    let h_m = ring::eval_proof::level_h_pairs_gen(&ctx, &phi_sl, &w_sl, chunk);
+    let s_h = t0.elapsed().as_secs_f64();
+    let t0 = Instant::now();
+    let psi_m = compute_psi(&ctx, &phi, chunk, &cs);
+    let s_psi = t0.elapsed().as_secs_f64();
+    let (h1, _) = uf_rss_kb();
+    println!(
+        "  materialized: phi pass {s_phi:.3}s + level-h {s_h:.3}s + compute_psi {s_psi:.3}s = {:.3}s  (VmHWM +{} MiB)",
+        s_phi + s_h + s_psi,
+        (h1 - h0) / 1024
+    );
+    drop(phi_sl);
+    drop(phi);
+    // Factored route.
+    let t0 = Instant::now();
+    let src = Phi0Source::new(&ctx, &kf, &g, &mk, &alphas);
+    let s_src = t0.elapsed().as_secs_f64();
+    let t0 = Instant::now();
+    let h_f = level_h_pairs_with(&ctx, &src, &w_sl, chunk);
+    let s_hf = t0.elapsed().as_secs_f64();
+    let t0 = Instant::now();
+    let psi_f = psi_level0_factored_multi(&ctx, &kf, &g, &mk, &alphas, &cs, chunk);
+    let s_psif = t0.elapsed().as_secs_f64();
+    let (h2, _) = uf_rss_kb();
+    println!(
+        "  factored    : Phi0Source {s_src:.3}s + level-h-with {s_hf:.3}s + psi0-factored {s_psif:.3}s = {:.3}s  (VmHWM +{} MiB over the materialized route's peak)",
+        s_src + s_hf + s_psif,
+        (h2 - h1) / 1024
+    );
+    assert_eq!(h_m, h_f, "bench: level-h factored != materialized");
+    assert_eq!(psi_m, psi_f, "bench: psi factored != materialized");
+    println!("  byte-identical (h pairs, psi); level_h_pairs 1T-equivalent products: {}", r * r * chunk);
+    let _ = zq;
 }
 
 /// [UPERF2-F] The lane's differential battery (grows as items land):
@@ -37823,6 +38019,60 @@ fn uperf_f_diff_battery() {
         let alphas: Vec<Poly> = (0..K_DEG).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
         let (_, phi_v) = kernel_pass_factored(&ctx, &kf, &g, &mk, None, Some(&alphas));
         absorb_polys(&mut battery, &phi_v);
+        // ---- (3) Phi_0 never materialized: the factored source == the phi
+        // pass (fast AND the per-digit-ring oracle), windows == slices,
+        // level_h_pairs_with (ragged blocks, both stores) == level_h_pairs
+        // on the materialized padded phi, factored Psi_0 == compute_psi. ----
+        {
+            use ring::eval_proof::{compute_psi, level_h_pairs_with_block, psi_level0_factored_multi, Phi0Source};
+            let zq = &ctx.zq;
+            let src = Phi0Source::new(&ctx, &kf, &g, &mk, &alphas);
+            let mat = src.materialize(zq);
+            set_oracle_mode(true);
+            let (_, phi_o) = kernel_pass_factored(&ctx, &kf, &g, &mk, None, Some(&alphas));
+            set_oracle_mode(false);
+            check("Phi0Source::materialize == phi pass (fast) == phi pass (oracle flip)", mat == phi_v && mat == phi_o);
+            let n0 = g.n_digit_rings;
+            let mut wins_ok = true;
+            for &(v0, n) in &[(0usize, 1usize), (0, n0), (79, 3), (75, 60), (100, 250), (n0 - 5, 20), (n0, 7), (n0 + 3, 4), (5, 0)] {
+                let mut out = vec![poly_zero(); n];
+                src.fill(zq, v0, n, &mut out);
+                for i in 0..n {
+                    let want = if v0 + i < n0 { mat[v0 + i].clone() } else { poly_zero() };
+                    if out[i] != want {
+                        wins_ok = false;
+                    }
+                }
+            }
+            check("Phi0Source::fill windows == materialized slices (+ zero pad past the group)", wins_ok);
+            for &r in &[3usize, 5, 8] {
+                let chunk = n0.div_ceil(r);
+                let mut phi_pad = mat.clone();
+                phi_pad.resize(r * chunk, poly_zero());
+                let mut w_pad = w0.clone();
+                w_pad.resize(r * chunk, vec![0i64; D]);
+                let cols_pad = DigitCols::from_vecs(&w_pad);
+                let phi_sl: Vec<&[Poly]> = (0..r).map(|j| &phi_pad[j * chunk..(j + 1) * chunk]).collect();
+                let w_sl: Vec<&[Vec<i64>]> = (0..r).map(|k| &w_pad[k * chunk..(k + 1) * chunk]).collect();
+                let c_sl: Vec<&[i8]> = (0..r).map(|k| &cols_pad.rings()[k * chunk * D..(k + 1) * chunk * D]).collect();
+                let want = level_h_pairs(&ctx, &phi_sl, &w_sl, chunk);
+                let mut ok = true;
+                for &block in &[7usize, 64, 1024] {
+                    let got_v = level_h_pairs_with_block(&ctx, &src, &w_sl, chunk, block);
+                    let got_c = level_h_pairs_with_block(&ctx, &src, &c_sl, chunk, block);
+                    if got_v != want || got_c != want {
+                        ok = false;
+                    }
+                }
+                check(&format!("level_h_pairs_with (blocks 7/64/1024, boxed + i8) == level_h_pairs at r {r} chunk {chunk}"), ok);
+                absorb_polys(&mut battery, &want);
+                let cs: Vec<Vec<i64>> = (0..r).map(|_| (0..D).map(|_| rd.next_field(5) as i64 - 2).collect()).collect();
+                let psi_f = psi_level0_factored_multi(&ctx, &kf, &g, &mk, &alphas, &cs, chunk);
+                let psi_m = compute_psi(&ctx, &phi_pad, chunk, &cs);
+                check(&format!("factored Psi_0 == compute_psi(materialized Phi_0) at r {r}"), psi_f == psi_m);
+                absorb_polys(&mut battery, &psi_f);
+            }
+        }
         // digit witness builders: cols == boxed on real-class values.
         {
             use ring::digits::{derive_l0, CLASS_W8S};

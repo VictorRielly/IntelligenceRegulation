@@ -723,6 +723,29 @@ pub fn expand_level_matrix(
     cols: usize,
     q: u64,
 ) -> Vec<Poly> {
+    expand_level_matrix_arc(seed, group, level, which, rows, cols, q).as_ref().clone()
+}
+
+/// [UPERF2-F] `ZK_CRS_MEMO=0` turns the process-global CRS memo OFF: every
+/// expansion is computed on demand and freed with its last handle (the
+/// values are the same expansion; only residency changes). Default ON
+/// (prove-then-verify in one process reuses the level-0 matrices).
+static CRS_MEMO: LazyLock<bool> =
+    LazyLock::new(|| std::env::var("ZK_CRS_MEMO").map(|v| v != "0").unwrap_or(true));
+
+/// [UPERF2-F] `expand_level_matrix` handing out the memo's `Arc` handle
+/// (no clone: the level-0 A matrices are ~1 GB each at 12x512, and the
+/// memo + the clone were two copies). Values identical to
+/// `expand_level_matrix` (which is this plus a clone).
+pub fn expand_level_matrix_arc(
+    seed: u64,
+    group: &str,
+    level: usize,
+    which: &str,
+    rows: usize,
+    cols: usize,
+    q: u64,
+) -> Arc<Vec<Poly>> {
     let key = CrsKey {
         seed,
         group: group.to_string(),
@@ -736,7 +759,7 @@ pub fn expand_level_matrix(
         let cache = CRS_CACHE.lock().expect("crs cache");
         if let Some(hit) = cache.get(&key) {
             prof::bump(prof::EP_CRS_HIT);
-            return hit.as_ref().clone();
+            return hit.clone();
         }
     }
     let _t = prof::timer(prof::EP_CRS); // miss: time the XOF
@@ -745,11 +768,11 @@ pub fn expand_level_matrix(
     } else {
         expand_level_matrix_par(seed, group, level, which, rows, cols, q)
     };
-    CRS_CACHE
-        .lock()
-        .expect("crs cache")
-        .insert(key, Arc::new(v.clone()));
-    v
+    let a = Arc::new(v);
+    if *CRS_MEMO {
+        CRS_CACHE.lock().expect("crs cache").insert(key, a.clone());
+    }
+    a
 }
 
 /// t = M s over R_q: rows x cols mod-q matrix times a small (digit)
@@ -2703,35 +2726,17 @@ pub fn kernel_pass_factored_gen<B: SmallRings + ?Sized>(
             // scaled col kernels + nonzero row bounds once per kernel);
             // the pre-change per-value-ring body is `kw_row_sync`.
             let ks = kw_hoist(kf, t, &kers);
+            if phi_mode {
+                // [UPERF2-F] the per-tensor phi rings of a small-cols tensor
+                // (the same body, shared with `Phi0Source`).
+                phi.extend(phi_small_cols_tensor(ctx, kf, t, &ks, alphas.unwrap(), &radixes));
+                continue;
+            }
             let mut vr0 = 0;
             const VR_BLOCK_M: usize = 1024;
             while vr0 < n_vr {
                 let vr1 = (vr0 + VR_BLOCK_M).min(n_vr);
-                if phi_mode {
-                    let alphas = alphas.unwrap();
-                    let one_vr = |vr: usize| -> Vec<Poly> {
-                        let kw = kw_row_hoisted(kf, &ks, vr);
-                        if kw.iter().all(|k| kf.is_zero(k)) {
-                            return vec![poly_zero(); t.l0];
-                        }
-                        let bp = bpolys_from_kw_local(zq, &kw, 1);
-                        let mut ph = poly_zero();
-                        for (a, b) in alphas.iter().zip(bp.iter()) {
-                            if b.iter().all(|&x| x == 0) {
-                                continue;
-                            }
-                            ph = poly_add(zq, &ph, &ring_mul_split_kara_fast(ctx, a, b));
-                        }
-                        radixes.iter().map(|&rx| super::poly_scale(zq, rx, &ph)).collect()
-                    };
-                    let blocks: Vec<Vec<Poly>> = pooled(|| {
-                        use rayon::prelude::*;
-                        if threads() > 1 { (vr0..vr1).into_par_iter().map(one_vr).collect() } else { (vr0..vr1).map(one_vr).collect() }
-                    });
-                    for limbs in blocks {
-                        phi.extend(limbs);
-                    }
-                } else {
+                {
                     let w0 = w0.expect("witness for the rows pass");
                     let one_vr = |vr: usize| -> Option<Vec<Poly>> {
                         // V_vr = sum_limb radix_limb * w — exact, then mod q.
@@ -3639,4 +3644,250 @@ impl PartialEq<Vec<Vec<i64>>> for DigitCols {
                 other[u].len() == D && self.ring(u).iter().zip(other[u].iter()).all(|(&a, &b)| a as i64 == b)
             })
     }
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-F] Phi_0 NEVER MATERIALIZED at level 0.
+//
+// The prover's level-0 aggregated functional Phi_0 (n_0 mod-q rings — at
+// 12x512 ~7.6M act rings = ~8 GB boxed) was materialized by the phi pass
+// (`kernel_pass_factored(.., Some(alphas0))`) and consumed by exactly two
+// things: the level-0 h cross-garbage (`bg_level_h` -> `level_h_pairs`,
+// r x r inner products of phi chunk slices against w chunk slices) and
+// the level-1 transport (which consumes Phi_0 ONLY through Psi_0 =
+// compute_psi(Phi_0, chunk_0, c_0)). Both are served here without the
+// object:
+//   * `Phi0Source` is the FACTORED functional (per aligned tensor the O5
+//     `PhiFactored` value rings x the limb radix; per small-cols tensor
+//     its few phi rings kept; zero for kernel-less tensors) with a
+//     `fill(v0, n, out)` that produces any window of consecutive digit
+//     rings — one PHI_vr per value ring cached across its l0 limbs, the
+//     same arithmetic (`poly_scale(radix, PhiFactored::value_ring)`) as
+//     the phi pass, so the fill IS the phi pass restricted to a window;
+//   * `level_h_pairs_with` feeds the r slices' windows into the NTT-domain
+//     GEMM per u-block and accumulates the r x r table mod q. Every
+//     block's GEMM output is an EXACT integer partial sum reduced mod q
+//     (the kernel's own capacity contract per window), and mod-q addition
+//     of true partial sums is the true total mod q — so the table is
+//     bit-identical to the single-call `level_h_pairs` on the materialized
+//     phi (the kernel already does this across its capacity windows);
+//   * the level-1 transport takes `psi_level0_factored_multi(..)` through
+//     `transport_level_from_psi` — exactly what `bg_verify_group` does
+//     (Psi_0 factored == compute_psi(Phi_0) by the O5 battery leg).
+// The materialized path stays reachable under `oracle_mode()`.
+
+/// The phi rings of one SMALL-COLS (misaligned) tensor under its kernels:
+/// per value ring the hoisted K-weight row once, PHI at radix 1, then
+/// radix_limb * PHI per limb — `kernel_pass_factored`'s misaligned phi
+/// branch, in (vr, limb) order (t.n_digit_rings() rings).
+fn phi_small_cols_tensor(
+    ctx: &RingCtx,
+    kf: &KField,
+    t: &AggTensor,
+    ks: &KwHoist,
+    alphas: &[Poly],
+    radixes: &[u64],
+) -> Vec<Poly> {
+    let zq = &ctx.zq;
+    let n_vr = t.n_value_rings();
+    let mut phi: Vec<Poly> = Vec::with_capacity(t.n_digit_rings());
+    let one_vr = |vr: usize| -> Vec<Poly> {
+        let kw = kw_row_hoisted(kf, ks, vr);
+        if kw.iter().all(|k| kf.is_zero(k)) {
+            return vec![poly_zero(); t.l0];
+        }
+        let bp = bpolys_from_kw_local(zq, &kw, 1);
+        let mut ph = poly_zero();
+        for (a, b) in alphas.iter().zip(bp.iter()) {
+            if b.iter().all(|&x| x == 0) {
+                continue;
+            }
+            ph = poly_add(zq, &ph, &ring_mul_split_kara_fast(ctx, a, b));
+        }
+        radixes.iter().map(|&rx| super::poly_scale(zq, rx, &ph)).collect()
+    };
+    const VR_BLOCK_M: usize = 1024;
+    let mut vr0 = 0;
+    while vr0 < n_vr {
+        let vr1 = (vr0 + VR_BLOCK_M).min(n_vr);
+        let blocks: Vec<Vec<Poly>> = pooled(|| {
+            use rayon::prelude::*;
+            if threads() > 1 { (vr0..vr1).into_par_iter().map(one_vr).collect() } else { (vr0..vr1).map(one_vr).collect() }
+        });
+        for limbs in blocks {
+            phi.extend(limbs);
+        }
+        vr0 = vr1;
+    }
+    phi
+}
+
+/// One tensor's share of the factored Phi_0.
+enum Phi0Tensor {
+    /// No kernel touches the tensor: zero rings.
+    Zero,
+    /// Aligned (cols % D == 0): PhiFactored value rings x limb radix.
+    Aligned { pf: PhiFactored, radixes: Vec<u64>, l0: usize },
+    /// Small-cols (misaligned): the tensor's phi rings, materialized
+    /// (these tensors are the BK aux tensors — a few hundred value rings).
+    Small { rings: Vec<Poly> },
+}
+
+/// The level-0 aggregated functional as a SOURCE of windows (see the
+/// section note). Built once per group from the multi-claim kernels and
+/// the 16 level-0 alphas; `fill` produces Phi_0[v0 .. v0 + n] for any
+/// window (zero beyond the group's digit rings — the chunk-grid pad).
+pub struct Phi0Source {
+    n_digit_rings: usize,
+    /// per tensor: (digit_ring_base, n_digit_rings, form)
+    tensors: Vec<(usize, usize, Phi0Tensor)>,
+}
+
+impl Phi0Source {
+    pub fn new(ctx: &RingCtx, kf: &KField, group: &AggGroup, kernels: &[MultiClaimKernel], alphas: &[Poly]) -> Phi0Source {
+        let _t = prof::timer(prof::BG_KPHI); // [UPERF-PC] observation only (the phi pass's slot)
+        assert_eq!(alphas.len(), K_DEG);
+        let zq = &ctx.zq;
+        let mut cache = ColBlockCache::new();
+        let mut tensors = Vec::with_capacity(group.tensors.len());
+        for (ti, t) in group.tensors.iter().enumerate() {
+            let kers: Vec<&MultiClaimKernel> = kernels.iter().filter(|k| k.tensor_idx == ti).collect();
+            let n = t.n_digit_rings();
+            if kers.is_empty() {
+                tensors.push((t.digit_ring_base, n, Phi0Tensor::Zero));
+                continue;
+            }
+            let radixes: Vec<u64> = (0..t.l0).map(|l| zq.to_mod(1i64 << (t.e0 as usize * l))).collect();
+            if t.cols % D != 0 {
+                let _te = prof::timer(prof::E_KPASS_SMALL); // [UPERF2-E] observation only
+                let ks = kw_hoist(kf, t, &kers);
+                let rings = phi_small_cols_tensor(ctx, kf, t, &ks, alphas, &radixes);
+                tensors.push((t.digit_ring_base, n, Phi0Tensor::Small { rings }));
+                continue;
+            }
+            let nb = t.cols / D;
+            let pf = PhiFactored::new(ctx, kf, &kers, nb, alphas, &mut cache);
+            tensors.push((t.digit_ring_base, n, Phi0Tensor::Aligned { pf, radixes, l0: t.l0 }));
+        }
+        Phi0Source { n_digit_rings: group.n_digit_rings, tensors }
+    }
+
+    pub fn n_digit_rings(&self) -> usize {
+        self.n_digit_rings
+    }
+
+    /// out[i] = Phi_0[v0 + i] for i in 0..n (zero rings past the group).
+    /// One PHI_vr per value ring touched, scaled per limb — the phi pass
+    /// on the window.
+    pub fn fill(&self, zq: &Zq, v0: usize, n: usize, out: &mut [Poly]) {
+        assert!(out.len() >= n);
+        let v1 = v0 + n;
+        // Tensors are contiguous and sorted by digit_ring_base.
+        for (base, cnt, form) in &self.tensors {
+            let (lo, hi) = ((*base).max(v0), (base + cnt).min(v1));
+            if lo >= hi {
+                continue;
+            }
+            match form {
+                Phi0Tensor::Zero => {
+                    for v in lo..hi {
+                        out[v - v0] = poly_zero();
+                    }
+                }
+                Phi0Tensor::Small { rings } => {
+                    for v in lo..hi {
+                        out[v - v0] = rings[v - base].clone();
+                    }
+                }
+                Phi0Tensor::Aligned { pf, radixes, l0 } => {
+                    let (rel_lo, rel_hi) = (lo - base, hi - base);
+                    let mut vr = rel_lo / l0;
+                    while vr * l0 < rel_hi {
+                        let phi_vr = pf.value_ring(vr);
+                        let a = rel_lo.max(vr * l0);
+                        let b = rel_hi.min((vr + 1) * l0);
+                        for rel in a..b {
+                            out[base + rel - v0] = super::poly_scale(zq, radixes[rel - vr * l0], &phi_vr);
+                        }
+                        vr += 1;
+                    }
+                }
+            }
+        }
+        // Past the group: the chunk-grid pad is zero.
+        let tail0 = self.n_digit_rings.max(v0).min(v1);
+        for v in tail0..v1 {
+            out[v - v0] = poly_zero();
+        }
+    }
+
+    /// The whole functional (battery use — must equal the phi pass).
+    pub fn materialize(&self, zq: &Zq) -> Vec<Poly> {
+        let mut out = vec![poly_zero(); self.n_digit_rings];
+        self.fill(zq, 0, self.n_digit_rings, &mut out);
+        out
+    }
+}
+
+/// u-block of `level_h_pairs_with` (positions per block; r x block rings
+/// of phi are alive at a time — 64 MB at r = 64).
+pub const LEVELH_BLOCK: usize = 1024;
+
+/// [UPERF2-F] `level_h_pairs` with the phi slices supplied per u-block by
+/// a `Phi0Source` (slice j = digit rings [j*chunk, (j+1)*chunk)); the
+/// r x r inner-product table accumulates mod q over the blocks (exact
+/// partial sums, see the section note) — bit-identical to
+/// `level_h_pairs(materialized slices, w, chunk)`. Threads: the fill is
+/// parallel over slices j, the GEMM over positions (the kernel's own
+/// split); every value is exact-integer work with a fixed reduction
+/// order, identical for any ZK_THREADS.
+pub fn level_h_pairs_with<B: SmallRings + ?Sized>(ctx: &RingCtx, src: &Phi0Source, w: &[&B], chunk: usize) -> Vec<Poly> {
+    level_h_pairs_with_block(ctx, src, w, chunk, LEVELH_BLOCK)
+}
+
+/// The block-size-parameterized body (the battery drives ragged blocks).
+pub fn level_h_pairs_with_block<B: SmallRings + ?Sized>(
+    ctx: &RingCtx,
+    src: &Phi0Source,
+    w: &[&B],
+    chunk: usize,
+    block: usize,
+) -> Vec<Poly> {
+    let _t = prof::timer(prof::EP_LEVELH); // [UPERF-PC] observation only
+    let zq = &ctx.zq;
+    let r = w.len();
+    for s in w {
+        assert_eq!(s.n_rings(), chunk, "w slice length");
+    }
+    assert!(block >= 1);
+    let mut g = vec![poly_zero(); r * r];
+    if r == 0 || chunk == 0 {
+        return level_h_from_g(zq, &g, r);
+    }
+    let mut phi_buf: Vec<Poly> = vec![poly_zero(); r * block];
+    let mut u0 = 0usize;
+    while u0 < chunk {
+        let n = block.min(chunk - u0);
+        // Fill slice j's window [u0, u0 + n) = digit rings j*chunk + u0 ..
+        // (parallel over slices; each slice's window is one thread's own).
+        {
+            let fill = |j: usize, buf: &mut [Poly]| src.fill(zq, j * chunk + u0, n, &mut buf[..n]);
+            if threads() > 1 {
+                pooled(|| {
+                    use rayon::prelude::*;
+                    phi_buf.par_chunks_mut(block).enumerate().for_each(|(j, buf)| fill(j, buf));
+                });
+            } else {
+                phi_buf.chunks_mut(block).enumerate().for_each(|(j, buf)| fill(j, buf));
+            }
+        }
+        let phi_sl: Vec<&[Poly]> = (0..r).map(|j| &phi_buf[j * block..j * block + n]).collect();
+        let w_sl: Vec<&B> = (0..r).map(|k| w[k].sub(u0, u0 + n)).collect();
+        let gb = ntt_gemm_modq_small_gen(ctx, &phi_sl, &w_sl, n);
+        for (gi, gbi) in g.iter_mut().zip(gb.iter()) {
+            *gi = poly_add(zq, gi, gbi);
+        }
+        u0 += n;
+    }
+    level_h_from_g(zq, &g, r)
 }
