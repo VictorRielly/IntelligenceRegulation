@@ -29655,6 +29655,7 @@ fn bg_prove_group(
     // Psi_0 instead — drop the source's tables now.
     let phi0_factored = phi_src.is_some();
     drop(phi_src);
+    uf_trim();
     uf_rss(&format!("bg.{}.level0-fold", group.name)); // [UPERF2-F] observation only
 
     let mut prev_a_mat: Arc<Vec<Poly>> = a0_mat;
@@ -33934,7 +33935,22 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     let crs_seed = 0xB6_C0DEu64;
     let pre_w = bg_precommit(&ctxr, &reg.gw, &sched_w, &mut w0_w, crs_seed);
     let pre_a = bg_precommit(&ctxr, &reg.ga, &sched_a, &mut w0_a, crs_seed);
+    uf_trim(); // [UPERF2-F] return the pre-commit's freed arena pages
     uf_rss("bk.precommit"); // [UPERF2-F] observation only
+    // [UPERF2-F] `ZK_W0_REGEN=1`: the level-0 digit witnesses are not needed
+    // between the pre-commit and the group eval proofs (claim layer +
+    // descents) — free them now and rebuild them (the same deterministic
+    // decomposition of the same layer / aux values, re-padded to the
+    // chunk grid) right before the groups. Trades one digit-witness pass
+    // for their residency through the pass's peak phase. Default off.
+    let w0_regen = std::env::var("ZK_W0_REGEN").map(|v| v == "1").unwrap_or(false);
+    let (w0_grid_w, w0_grid_a) = (w0_w.len(), w0_a.len());
+    if w0_regen {
+        w0_w = ring::eval_proof::DigitCols::zeros(0);
+        w0_a = ring::eval_proof::DigitCols::zeros(0);
+        uf_trim();
+        uf_rss("bk.w0-freed"); // [UPERF2-F] observation only
+    }
 
     // ---- Statement (v4 + mode) and h0 (map + BOTH u_0s inside —
     // ---- FP-L2 mask-then-fold: every aux commitment precedes every
@@ -34173,6 +34189,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     }
 
     drop(prof_claims);
+    uf_trim(); // [UPERF2-F] the claim layer's boxed leftovers
     uf_rss("bk.claim-layer-end"); // [UPERF2-F] observation only
     // ---- THE DESCENT PHASE: the 10 per-table folded pairs. ----
     let ypow = bk_ypow_col(&kf);
@@ -34288,6 +34305,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
             tq.value = kf.add(&tq.value, &kf.mul(&inst_sum, &dfold));
         }
         pair_transcripts.push(tpx);
+        uf_trim(); // [UPERF2-F] the pair's freed tables / boxed leftovers
         uf_rss(&format!("bk.pair-{}", sp.name())); // [UPERF2-F] observation only
     }
 
@@ -34345,16 +34363,27 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     let (vb_w, vb_a, gc_w, gc_a) = assemble(&claims, &nus, &reg, &kf);
     let mut mask_rng = ring::ProverRng::from_test_seed("uagb1-bk-tz", &[0xB7]);
     let lie_act = opts.tamper == BkTamper::CrossPairMSwap;
+    if w0_regen {
+        // [UPERF2-F] rebuild the witnesses freed after the pre-commit.
+        w0_w = bk_witness_weight(&reg, &lays);
+        w0_a = bk_witness_act(&reg, &lays, &aux);
+        w0_w.resize(w0_grid_w);
+        w0_a.resize(w0_grid_a);
+        uf_rss("bk.w0-rebuilt"); // [UPERF2-F] observation only
+    }
+    uf_trim();
     uf_rss("bk.groups-start"); // [UPERF2-F] observation only
     let (proof_w, tz_w) = bg_prove_group(
         &ctxr, &kf, &reg.gw, &sched_w, &mut w0_w, &gc_w, &vb_w, pre_w, &mut tr, crs_seed, false,
         opts.p2, &mut mask_rng,
     );
+    uf_trim();
     uf_rss("bk.prove-weight-end"); // [UPERF2-F] observation only
     let (proof_a, _tz_a) = bg_prove_group(
         &ctxr, &kf, &reg.ga, &sched_a, &mut w0_a, &gc_a, &vb_a, pre_a, &mut tr, crs_seed, lie_act,
         false, &mut mask_rng,
     );
+    uf_trim();
     uf_rss("bk.prove-act-end"); // [UPERF2-F] observation only
     cost.prove_s = t_prove.elapsed().as_secs_f64();
     let bundle_v_cs = v_cs;
@@ -37760,6 +37789,34 @@ fn uf_rss(tag: &str) {
     let (hwm, rss) = uf_rss_kb();
     println!("[UPERF2-F] RSS {tag:<28} hwm {:>8.0} MiB  rss {:>8.0} MiB", hwm as f64 / 1024.0, rss as f64 / 1024.0);
 }
+
+/// [UPERF2-F] Return glibc's free arena pages to the OS at a phase
+/// boundary. The composed pass frees millions of ~1 KiB boxed rings
+/// (level-0 phi / CRS matrices / deeper witnesses) that glibc keeps in
+/// its arena — the process's VmRSS never falls after `drop`, and the
+/// large mmap'd tables of the next phase cannot reuse those chunks.
+/// `malloc_trim(0)` walks the arenas and MADV_DONTNEEDs whole free pages
+/// (glibc >= 2.8) — values untouched, milliseconds. Linux/glibc only (a
+/// no-op elsewhere; the Mac's allocator has no equivalent and returns
+/// large frees on its own). `ZK_MALLOC_TRIM=0` disables it.
+#[cfg(target_os = "linux")]
+fn uf_trim() {
+    unsafe extern "C" {
+        fn malloc_trim(pad: usize) -> i32;
+    }
+    static ON: std::sync::LazyLock<bool> =
+        std::sync::LazyLock::new(|| std::env::var("ZK_MALLOC_TRIM").map(|v| v != "0").unwrap_or(true));
+    if *ON {
+        // SAFETY: glibc's malloc_trim takes a pad in bytes and touches only
+        // the allocator's own free lists; no Rust object is affected.
+        unsafe {
+            malloc_trim(0);
+        }
+    }
+}
+
+#[cfg(not(target_os = "linux"))]
+fn uf_trim() {}
 
 fn uperf_f_main(args: &[String]) {
     match args.first().map(String::as_str) {
