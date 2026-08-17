@@ -1830,18 +1830,86 @@ fn psi_level0_multi_impl(
             continue;
         }
         if !aligned {
-            // Generic branch (misaligned cols): per-ring reference
-            // values of the SUMMED weight, folded directly.
-            for rel in 0..t.n_digit_rings() {
-                let v = t.digit_ring_base + rel;
-                let (k, u) = (v / chunk, v % chunk);
-                debug_assert!(k < r);
-                let ph = phi0_ring_multi(ctx, kf, group, kernels, alphas, v);
-                if ph.iter().all(|&x| x == 0) {
-                    continue;
+            // Generic branch (misaligned cols — the BK aux tensors have
+            // cols = 16): per VALUE ring the K-weight row once, PHI once
+            // (radix 1), then per limb radix * (c_k * PHI) with the c_k
+            // product cached per k-run. Identical values to the per-digit
+            // -ring reference `phi0_ring_multi` (radix is a scalar; the
+            // K-weight row does not depend on the limb) — the pre-fix
+            // code recomputed 256 K-mults x 16 kara-muls PER DIGIT RING
+            // (l0 = 16 limbs for the q-range aux tensors: 137 of the 142 s
+            // verify at 3x16). Under `pre_o5` (oracle) the reference runs.
+            if pre_o5 {
+                for rel in 0..t.n_digit_rings() {
+                    let v = t.digit_ring_base + rel;
+                    let (k, u) = (v / chunk, v % chunk);
+                    debug_assert!(k < r);
+                    let ph = phi0_ring_multi(ctx, kf, group, kernels, alphas, v);
+                    if ph.iter().all(|&x| x == 0) {
+                        continue;
+                    }
+                    let m = ring_mul_split_kara_fast(ctx, &ph, &c_polys[k]);
+                    psi[u] = poly_add(zq, &psi[u], &m);
                 }
-                let m = ring_mul_split_kara_fast(ctx, &ph, &c_polys[k]);
-                psi[u] = poly_add(zq, &psi[u], &m);
+                continue;
+            }
+            let radixes: Vec<u64> =
+                (0..t.l0).map(|l| zq.to_mod(1i64 << (t.e0 as usize * l))).collect();
+            let n_vr = t.n_value_rings();
+            let ks = kers_sync(&kers);
+            let contrib_of = |vr: usize| -> Vec<(usize, Poly)> {
+                let kw = kw_row_sync(kf, t, &ks, vr);
+                let mut out = Vec::with_capacity(t.l0);
+                if kw.iter().all(|k| kf.is_zero(k)) {
+                    return out;
+                }
+                // PHI at radix 1: sum_cd alpha_cd * bp_cd(kw).
+                let bp = bpolys_from_kw_local(zq, &kw, 1);
+                let mut ph = poly_zero();
+                for (a, b) in alphas.iter().zip(bp.iter()) {
+                    if b.iter().all(|&x| x == 0) {
+                        continue;
+                    }
+                    ph = poly_add(zq, &ph, &ring_mul_split_kara_fast(ctx, a, b));
+                }
+                if ph.iter().all(|&x| x == 0) {
+                    return out;
+                }
+                let mut cached: Option<(usize, Poly)> = None;
+                for limb in 0..t.l0 {
+                    let v = t.digit_ring_base + vr * t.l0 + limb;
+                    let (k, u) = (v / chunk, v % chunk);
+                    debug_assert!(k < r);
+                    let s = match &cached {
+                        Some((ck, s)) if *ck == k => s.clone(),
+                        _ => {
+                            let s = ring_mul_split_kara_fast(ctx, &ph, &c_polys[k]);
+                            cached = Some((k, s.clone()));
+                            s
+                        }
+                    };
+                    out.push((u, super::poly_scale(zq, radixes[limb], &s)));
+                }
+                out
+            };
+            const VR_BLOCK_G: usize = 1024;
+            let mut vr0 = 0;
+            while vr0 < n_vr {
+                let vr1 = (vr0 + VR_BLOCK_G).min(n_vr);
+                let blocks: Vec<Vec<(usize, Poly)>> = pooled(|| {
+                    use rayon::prelude::*;
+                    if threads() > 1 {
+                        (vr0..vr1).into_par_iter().map(contrib_of).collect()
+                    } else {
+                        (vr0..vr1).map(contrib_of).collect()
+                    }
+                });
+                for b in &blocks {
+                    for (u, p) in b {
+                        psi[*u] = poly_add(zq, &psi[*u], p);
+                    }
+                }
+                vr0 = vr1;
             }
             continue;
         }
@@ -2217,6 +2285,36 @@ fn kw_row_multi(kf: &KField, t: &AggTensor, kers: &[&MultiClaimKernel], vr: usiz
     out
 }
 
+/// A Send/Sync copy of one kernel (Rc -> owned) so the generic
+/// (misaligned-tensor) per-value-ring work can run on the thread pool.
+struct KerSync {
+    scale: KElem,
+    row: Vec<KElem>,
+    col: Vec<KElem>,
+}
+
+fn kers_sync(kers: &[&MultiClaimKernel]) -> Vec<KerSync> {
+    kers.iter()
+        .map(|k| KerSync { scale: k.scale.clone(), row: (*k.row_kernel).clone(), col: (*k.col_kernel).clone() })
+        .collect()
+}
+
+/// `kw_row_multi` over the Sync copies (identical arithmetic).
+fn kw_row_sync(kf: &KField, t: &AggTensor, kers: &[KerSync], vr: usize) -> Vec<KElem> {
+    let mut out = vec![kf.zero(); D];
+    let n = t.n_values();
+    for ker in kers {
+        for (c1, o) in out.iter_mut().enumerate() {
+            let f = vr * D + c1;
+            if f < n {
+                let w = kf.mul(&ker.row[f / t.cols], &ker.col[f % t.cols]);
+                *o = kf.add(o, &kf.mul(&ker.scale, &w));
+            }
+        }
+    }
+    out
+}
+
 /// conj-packed claim-row polys of one digit ring from its value-row
 /// K-weights (radix-scaled) — `pass_agg::bpolys_from_kw` verbatim.
 fn bpolys_from_kw_local(zq: &Zq, kw: &[KElem], radix: u64) -> Vec<Poly> {
@@ -2263,10 +2361,10 @@ pub fn kernel_pass_factored(
             continue;
         }
         let radixes: Vec<u64> = (0..t.l0).map(|l| zq.to_mod(1i64 << (t.e0 as usize * l))).collect();
-        if t.cols % D != 0 || oracle_mode() {
-            // Misaligned (rare; synthetic shapes) — or ZK_UPERF_ORACLE=1:
-            // the per-ring reference (kw row + bpolys + Karatsuba, the
-            // pre-O5 `bg_kernel_pass` arithmetic).
+        if oracle_mode() {
+            // ZK_UPERF_ORACLE=1: the per-DIGIT-ring reference (kw row +
+            // bpolys + Karatsuba per limb, the pre-O5 `bg_kernel_pass`
+            // arithmetic).
             for vr in 0..n_vr {
                 let kw = kw_row_multi(kf, t, &kers, vr);
                 let kw_zero = kw.iter().all(|k| kf.is_zero(k));
@@ -2295,6 +2393,83 @@ pub fn kernel_pass_factored(
                         }
                     }
                 }
+            }
+            continue;
+        }
+        if t.cols % D != 0 {
+            // Misaligned (the BK aux tensors, cols = 16): per VALUE ring
+            // the K-weight row once and the radix-1 products once —
+            // phi_(vr,limb) = radix_limb * PHI_vr, and the rows pass uses
+            // the value ring recomposed mod q (sum_limb radix_limb * w)
+            // against the radix-1 bpolys. Identical mod q to the per-limb
+            // reference above (radix is a scalar), 16x fewer ring-mults
+            // and K-mults at l0 = 16.
+            let ks = kers_sync(&kers);
+            let mut vr0 = 0;
+            const VR_BLOCK_M: usize = 1024;
+            while vr0 < n_vr {
+                let vr1 = (vr0 + VR_BLOCK_M).min(n_vr);
+                if phi_mode {
+                    let alphas = alphas.unwrap();
+                    let one_vr = |vr: usize| -> Vec<Poly> {
+                        let kw = kw_row_sync(kf, t, &ks, vr);
+                        if kw.iter().all(|k| kf.is_zero(k)) {
+                            return vec![poly_zero(); t.l0];
+                        }
+                        let bp = bpolys_from_kw_local(zq, &kw, 1);
+                        let mut ph = poly_zero();
+                        for (a, b) in alphas.iter().zip(bp.iter()) {
+                            if b.iter().all(|&x| x == 0) {
+                                continue;
+                            }
+                            ph = poly_add(zq, &ph, &ring_mul_split_kara_fast(ctx, a, b));
+                        }
+                        radixes.iter().map(|&rx| super::poly_scale(zq, rx, &ph)).collect()
+                    };
+                    let blocks: Vec<Vec<Poly>> = pooled(|| {
+                        use rayon::prelude::*;
+                        if threads() > 1 { (vr0..vr1).into_par_iter().map(one_vr).collect() } else { (vr0..vr1).map(one_vr).collect() }
+                    });
+                    for limbs in blocks {
+                        phi.extend(limbs);
+                    }
+                } else {
+                    let w0 = w0.expect("witness for the rows pass");
+                    let one_vr = |vr: usize| -> Option<Vec<Poly>> {
+                        // V_vr = sum_limb radix_limb * w — exact, then mod q.
+                        let mut v_ring = vec![0i128; D];
+                        let mut any = false;
+                        for (limb, &radix) in radixes.iter().enumerate() {
+                            let w = &w0[t.digit_ring_base + vr * t.l0 + limb];
+                            for j in 0..D {
+                                if w[j] != 0 {
+                                    any = true;
+                                    v_ring[j] += radix as i128 * w[j] as i128;
+                                }
+                            }
+                        }
+                        if !any {
+                            return None;
+                        }
+                        let kw = kw_row_sync(kf, t, &ks, vr);
+                        if kw.iter().all(|k| kf.is_zero(k)) {
+                            return None;
+                        }
+                        let v_modq: Poly = v_ring.iter().map(|&x| super::aux::mod_q_i128(x, q)).collect();
+                        let bp = bpolys_from_kw_local(zq, &kw, 1);
+                        Some(bp.iter().map(|b| ring_mul_split_kara_fast(ctx, b, &v_modq)).collect())
+                    };
+                    let blocks: Vec<Option<Vec<Poly>>> = pooled(|| {
+                        use rayon::prelude::*;
+                        if threads() > 1 { (vr0..vr1).into_par_iter().map(one_vr).collect() } else { (vr0..vr1).map(one_vr).collect() }
+                    });
+                    for rows in blocks.into_iter().flatten() {
+                        for (c, row) in b_rows.iter_mut().enumerate() {
+                            *row = poly_add(zq, row, &rows[c]);
+                        }
+                    }
+                }
+                vr0 = vr1;
             }
             continue;
         }

@@ -50,8 +50,8 @@ If you are Grok/Cursor: start at Section 3, take the first task marked
 | | MAC-BOX (M3 Ultra) | WSL-BOX (Intel Core Ultra 9 185H) |
 |---|---|---|
 | RAM | 256 GB | 15 GB |
-| frugal-lm ckpt + `results/m125_ffn_export/*.bin` | YES | **NO** |
-| composed pass 12x512 (RSS 41-47 GiB) | runs | **cannot run** |
+| frugal-lm ckpt + `results/m125_ffn_export/*.bin` | YES | ckpt YES (tarball, 2026-08-17); the frozen export's 36 weights YES (byte-identical), its 12 X files **NO** (Mac Metal rounding) — instead the local re-export `results/m125_ffn_export_wsl/` (valid witness, X differs) via `M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl` |
+| composed pass 12x512 (RSS 41-47 GiB) | runs | **cannot run** (RAM); 3x16 and per-layer T=16 rigs RUN with `M125_EXPORT_DIR` set |
 | `freeze-check` | full, exit 0 required | first 98 rows green, then panics at the UAGB1-BF rows (missing export) — EXPECTED here |
 | python suite | all green required | 77 pass, 2 skip, and EXACTLY these 4 fail for the same missing-export reason (freeze-check SIGABRT / layer00_X.bin): `test_ring_freeze_check`, `test_freeze_rows_uagb1_bf`, `test_pass_smoke_real_data`, `test_freeze_rows` (tblind) — measured 2026-08-17 at 213dfa2, 469 s. Any OTHER failure is real. |
 | `uperf-pc diff-battery`, `agg-matmul ...`, `bh-verifier ...`, `agg-kel`, unit rigs | run | run |
@@ -360,11 +360,15 @@ box becomes runnable.
 
 ---
 
-### T10 — copy the m125 export to the WSL box  `OPEN`  WHO: Victor  KIND: RUN
-`results/m125_ffn_export/*.bin` (+ the calibration sidecar it reads)
-from the Mac to the same path on the WSL box (rsync/scp; ~50 MB
-class). Unblocks freeze-check's BF rows, the 3x16 yardstick, and T9
-on the reference box.
+### T10 — copy the m125 export to the WSL box  `MOSTLY DONE 2026-08-17`  WHO: Victor  KIND: RUN
+DONE: Victor delivered the checkpoint tarball + the val shard; the WSL
+box re-exported everything (`results/m125_ffn_export_wsl/`, 36/36
+weights byte-identical, X differs by mlx CPU-vs-Metal rounding, 0
+range violations) — the 3x16 / T=16 rigs run here with
+`M125_EXPORT_DIR` set. REMAINING (small): the Mac's 12
+`results/m125_ffn_export/layerXX_X.bin` files (~4.7 MB) copied to the
+same path here would make freeze-check's UAGB1-BF rows and the frozen
+statement digest reproducible on this box too.
 
 ---
 
