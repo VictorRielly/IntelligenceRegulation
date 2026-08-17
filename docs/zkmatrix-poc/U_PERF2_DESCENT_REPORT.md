@@ -30,8 +30,10 @@ shape this box admits (depth 20 x 8 instances, 5 real + 3 pads, 8.4M
 witness leaf elements) `masked_gkr_prove` goes **15.72 s -> 7.59 s at
 1T (2.07x) -> 2.2-2.4 s at 8T (6.6-7.2x)** with the descent digest
 identical at every step and every thread count, and the bench's peak RSS
-falls 3.6 GB -> 2.4 GB [WSL-BOX NOISY-SHARED]. The whole tree build +
-prove wall of the pair goes 20.5 s -> 10.9 s (1T) -> 4.8 s (8T). The
+falls 3.6 GB -> 2.4 GB [WSL-BOX NOISY-SHARED; a back-to-back repeat at
+HEAD under a busier box gave 18.16 -> 9.66 -> 2.51 s, the same ratios].
+The whole tree-build + prove wall of the pair goes 23.2 s -> 13.4 s (1T)
+-> 5.4 s (8T) in that repeat. The
 rig's shape (depth 21-22 x up to 16, ~218M leaf elements by the pair
 table) does NOT fit this box; extrapolating linearly in real leaf
 elements the rig's witness-descent prove is ~410 s -> ~250 s (1T) ->
@@ -78,9 +80,14 @@ pre-change path (one-binary A/B).
 | a.eq-table (joint doubling per layer) | 1.45 | 9% |
 | a.scalar-tail + glue (sub-block rounds, w-rounds, transcript, masks) | 0.01 | < 0.1% |
 | **masked_gkr_prove** (witness + table side) | **15.72** | 100% (1,874 ns per leaf element) |
-| trees (aligned/neutral/table builds; of which pack 0.47 + steps 2.00) | 4.73 (incl. ~1.7 s of synthetic leaf generation in this first version of the bench) | |
+| trees (aligned/neutral/table builds: pack 0.44 + steps 2.19 + the callers' boxed-leaf alloc/fill/drop ~1.3) | 3.92 (repeat at HEAD, leaf generation excluded) | |
 | masked_gkr_verify (both sides) | 0.004 | |
-| wall | 20.47 | |
+| wall (trees + prove + verify) | 20.47 | |
+
+Repeat of the same run at HEAD under a busier box (load 2.4-2.9, lane
+C's heavy legs): prove 18.16 s (round-g 8.60, fold 5.59, extract 2.23,
+eq 1.72) — the +15% is the noise band of this shared box; every ratio
+below reproduces within it.
 
 Peak RSS 3,589 MiB: 8 packed trees at depth 20 (256 MB each incl. the
 pads) + six work tables of 4M elements (256 MB each) at the last layer +
@@ -101,6 +108,7 @@ every line; the battery (Section 6) proves the identity three ways.
 | (b) deterministic ZK_THREADS splits (round kernel per-chunk planes, scratch folds, eq doubling, extract, tree steps, pack) | 1T 12.82 | 8T 3.37 | 3.8x (a+b: 4.7x) | digest identical at 1/2/4/6/8/12/16/22 threads |
 | (c) neutral pads skipped analytically (`FracTree::Neutral`, real-range kernels, closed-form pad term, eq as b-part x E(e) per real slice) | 1T 12.82 / 8T 3.37 | 1T 7.59 / 8T 2.17-2.38 | 1.69x / 1.5x (a+b+c: 2.07x at 1T, 6.6-7.2x at 8T) | digest identical; peak RSS 3,589 -> 2,419 MiB |
 | (d) sparse packed builders for `blinded_witness_tree`/`blinded_table_tree` (no boxed leaf pair) + deferred boxed-leaf drop in `build_tree` at threads > 1 | trees 8T 1.69 | trees 8T 1.54 | — | tree phase; the rig's witness trees come from `aligned_witness_tree` (not this lane's file — Section 7) |
+| ALL, one binary at HEAD, back-to-back under the busier box (load 2.4-2.9) | prove 18.16 / trees 3.92 / wall 23.2 (oracle 1T) | prove 9.66 / trees 2.68 / wall 13.4 (fast 1T); prove 2.51 / trees 1.68 / wall 5.4 (fast 8T) | 1.88x at 1T, 7.2x at 8T (wall 1.7x / 4.3x) | digest 47a58a27..dafefb on all three |
 
 Smaller shapes, prove seconds [WSL-BOX NOISY-SHARED], digests identical:
 depth 18 x 4 (3 real): oracle 1.83 -> fast 1T 1.08 -> 8T ~0.30;
