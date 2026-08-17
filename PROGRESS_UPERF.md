@@ -313,6 +313,105 @@ construction; `uperf-pc diff-battery` grows its first leg. O2-O4
 remain the rest of Phase 0. No 125M wall-clock claim is made for O1
 until a quiesced `wave-profile` / `pass-profile` A/B exists.
 
+## 2026-08-17 status recalculation (orchestrator, after the Grok/Cursor interval)
+
+Context: between 2026-08-13 and 2026-08-17 the project was driven by
+Grok (via Cursor, on the Mac) while Claude was unavailable. Victor's
+report on return: "Grok was unable to improve the latency; according
+to Grok we require 1.5 hours to prove a 125M feedforward, ridiculously
+far from 5-15 s for 8B." This section recalculates the status from the
+repo, not from memory. Everything below was re-verified at 348edea on
+the WSL box (build green with plain `cargo build --release` — the
+rustup proxy is ahead of snap on PATH now; `uperf-pc diff-battery`
+green; freeze-check runs its first 98 rows green and then panics at
+the UAGB1-BF rows because this box has NO m125 export — see "box
+facts" in TASK_BOARD.md; that is expected here, not a regression).
+
+**What landed in the interval (commit 348edea, "U-PERF PC: freeze the
+2026-08-13 lattice-first continuation and land O1 CRS memo"):**
+CONTINUATION.md (the standing queue; Victor's lattice-first channel
+decision), TARGET_CONTRACT/ROADMAP/README cross-references, and O1 —
+`eval_proof::expand_level_matrix` memoized (process-global
+HashMap<CrsKey, Arc<Vec<Poly>>>; hits return a clone; the uncached
+oracle `expand_level_matrix_raw` kept public; `uperf-pc diff-battery`
+leg O1 4/4 + group-key separation; tests/test_uperf_pc.py). Correct,
+differential, small. Honest sizing: the memo saves one seed-XOF
+expansion (~1 s at pass scale) per CRS matrix re-expanded in the SAME
+process (prove-then-verify), i.e. a few seconds of a ~4,800 s prove —
+< 0.1%. It also pins each level-0 A matrix (11 x chunk_0 x 1 KiB ~
+0.6 GB per group at 125M) in RSS for the process lifetime and clones
+it on every hit. Not wrong, but not a lever; the lever items O2-O4
+were not attempted. Nothing regressed.
+
+**Where "1.5 hours" comes from.** It is the frozen full-statement
+number: `table-descent` 12x512 P0 — commit 384.9 s / prove 4,811.0 s
+(80.2 min) / verify 990.7 s pre-BH-split, ~236 s post-split [MAC-BOX
+1T, NOISY-SHARED] (UAGB1_TABLE_DESCENT_REPORT 3.3 + BJ's re-measure).
+On the slower Intel reference box at 1T, 1.3-1.5x that is what one
+should expect. Grok measured (or read) exactly what the ledger already
+said. Two facts to keep in view: (i) the composed pass peaks at 41-47
+GiB RSS — it CANNOT run on the 15 GB "CPU reference machine" of
+TARGET_CONTRACT Section 4 at all today (a memory-diet item is now on
+the board); (ii) no number of any kind has moved since wave 4.
+
+**Path correction (load-bearing for Phase 0).** The composed pass
+(`bg_pass_run`, the PoC deliverable) NEVER calls `prove_ct_round`: the
+ct-round WAVE path (ct_engine.rs; the m125 per-layer rig; the
+`wave-profile` arm; O4) is the LEGACY per-layer opening whose 7.38 GiB
+artifact the aggregation stack replaced. Its "80% waves" share is a
+share of a path that is no longer on the deliverable. What the
+composed prove actually spends (BG-F3 arithmetic, to be confirmed by
+`pass-profile`): `bg_prove_group` x2 ~4,000 of the 4,811 s (~83%):
+level-0 h cross-garbage `bg_level_h` Theta(n_0*r) at r = 64 (act n_0 =
+7,823,360 rings, weight 3,538,944 — freeze row UAGB1-BG-1a — i.e. ~500M
++ ~227M `ring_ip_modq_small` ring-mults), the two claim-kernel passes
+`bg_kernel_pass` (16 ring-mults per digit ring x 11.4M rings x 2 =
+~365M), the level-0 A matvecs (`bg_matvec_chunks`, kappa x n_0 =
+~125M), then the descents (~630 s), claim-layer sumchecks and the
+transport levels (small). EVERY one of those hot loops is written on
+`ring_mul_split_kara_fast` (2 crt splits + 8 Karatsuba slot products +
+merge + ~11 heap allocations per call, ~2 us) while the commit path
+already has the A1 NTT-domain kernels (aux_ntt_core: transform once,
+pointwise MAC with split-halves lazy accumulation, one inverse per
+output — ~0.1-0.2 us per ring-MAC amortized). Same arithmetic class,
+10-20x apart. That is the whole of Phase 0: O2 (h-garbage) and O3
+(matvecs) as NTT-domain rewrites in eval_proof.rs, plus the kernel
+passes as integer GEMMs; O4 and `wave-profile` are demoted to a
+secondary rig. Verify (199.6 s composed / ~236 s full-statement,
+contract <= 2 s) rides the same files.
+
+**The gap, in numbers (honest).** The 5-15 s @ 8B headline was ALWAYS a
+[MODEL] ladder (LLM_SCALE_ESTIMATE Section 3): commit kernel 117 ns/el
+MEASURED x 9x threads MEASURED x 20x GPU [ASSUMED], with the claim/
+opening layer assumed cheap. The build round then MEASURED that at
+125M the opening layer is ~11x the commit — the ladder's silent
+assumption failed on that axis, and that is what makes today's number
+look absurd against the headline. Scaling: the 8B FFN witness is
+~100x the 125M weights and ~19x the activations (32 layers of
+512x4096x14336 vs 12 of 512x768x2048), so ~30-100x the 125M work; at
+today's rate 4,800 s -> 40-130 h at 1T. To 15 s needs 10^4-3x10^4.
+Multipliers on the table: NTT-domain rewrite of the 83% (10-20x on
+that share -> ~4-6x overall), threads (8.7-9.1x MEASURED on the
+reference box for the commit kernel; the u-major loops below are
+exact-integer accumulations, so they parallelize bit-identically),
+GPU (20x [ASSUMED] over 22T for NTT/GEMM-class work) => ~10^3 class.
+The remaining ~10-30x is covered by NO measured or assumed line today;
+it has to come from the algorithmic items now on the board (prover-
+side rank-1 Phi_0 — never materialize phi, the r-cap bytes-for-time
+trade as an R-row, GEMM-class kernel passes) or the headline is missed
+by that factor. Plain statement for the ledger: after Phases 0-3 the
+honest expectation is "8B FFN in minutes on one consumer GPU"; 5-15 s
+additionally requires those items to land and measure. CONTINUATION
+Section 3's fallback rule already covers the other outcome.
+
+**Board.** docs/zkmatrix-poc/TASK_BOARD.md is the standing queue of
+small, self-checking tasks (each with files, exact commands, and a
+byte-identity acceptance) so any agent — Grok/Cursor on the Mac
+included — can advance the clocks without reopening design. Split:
+kernels + differential legs are written where the code can be
+verified (this box builds and runs the synthetic rigs); the 125M
+A/Bs, freeze-check, suite and batteries run on the Mac.
+
 ## PA reality check (orchestrator, 2026-08-12) — the 4x does NOT transfer
 
 Measured immediately after the PA merge, and it corrects the lane's

@@ -1,5 +1,11 @@
 # IntelligenceRegulation — project instructions
 
+**Any agent working on the proof clocks (Claude, Grok/Cursor, human):
+start at `docs/zkmatrix-poc/TASK_BOARD.md`** — the ordered queue of
+small, self-checking tasks with exact commands and byte-identity
+acceptance. Ledger: `PROGRESS_UPERF.md`; phase plan:
+`docs/zkmatrix-poc/CONTINUATION.md`.
+
 Victor approves permission prompts over Telegram, one text per prompt. Every
 avoidable prompt is a real interruption. **Shape commands to match the
 allowlist in `.claude/settings.local.json`**; the rules below exist for that

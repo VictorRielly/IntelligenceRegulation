@@ -15,6 +15,9 @@ Companions: TARGET_CONTRACT.md (+ Amendment A1), LLM_POC_ROADMAP.md,
 PROGRESS_UPERF.md, PROGRESS_UAGB1.md wave-4 close, M125_PASS_REPORT.md,
 U_PERF_WAVE_REPORT.md, ATTENTION_INTEGER_SPEC.md,
 AGGREGATION_LITERATURE.md addendum 2026-08-11 (Attestable watch).
+**Executable queue: TASK_BOARD.md** (2026-08-17) — small, self-checking
+tasks with exact commands and byte-identity acceptance; any agent
+starts there.
 
 ## 1. What is already true (do not reopen)
 
@@ -137,3 +140,20 @@ numbers need a quiesced box; design and correctness work do not.
   opened. O1 CRS memo landed with the continuation commit
   (expand_level_matrix process-global cache; diff-battery leg O1).
   O2-O4 remain.
+- 2026-08-17 (Claude, status recalculation — PROGRESS_UPERF.md
+  "2026-08-17" section): PATH CORRECTION for Phase 0. The composed
+  pass (`bg_pass_run`, the deliverable) never calls `prove_ct_round`;
+  the ct-round wave path (ct_engine.rs, `wave-profile`, O4) is the
+  legacy per-layer opening the aggregation stack replaced. The
+  composed prove is ~83% `bg_prove_group` (level-0 h cross-garbage
+  Theta(n_0*r), the two claim-kernel passes, the A matvecs), all on
+  the ~2 us `ring_mul_split_kara_fast` primitive while the A1
+  NTT-domain kernels already exist in aux_ntt_core. Phase 0 is
+  therefore O2 + O3 + the kernel passes as integer GEMMs in
+  eval_proof.rs/bg_*, measured by `pass-profile` (with the new
+  EVAL-PROOF DIGEST as the differential gate); O4/wave-profile are a
+  secondary rig. The executable queue of small tasks is
+  TASK_BOARD.md (Section 4 of this page stays the phase order).
+  Honest expectation restated: after Phases 0-3, "8B FFN in minutes
+  on one GPU"; the 5-15 s line additionally needs TASK_BOARD T11's
+  design items — see the ledger's gap arithmetic.
