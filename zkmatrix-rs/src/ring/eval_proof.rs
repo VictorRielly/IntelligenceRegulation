@@ -667,9 +667,51 @@ pub fn expand_level_matrix(
 }
 
 /// t = M s over R_q: rows x cols mod-q matrix times a small (digit)
-/// ring column vector.
+/// ring column vector. [UPERF-PC O3] NTT-domain body (`ntt_gemm_modq_small`
+/// with one small vector); `matvec_modq_small_ref` is the Karatsuba
+/// oracle it is bit-identical to (diff-battery leg O3).
 pub fn matvec_modq_small(ctx: &RingCtx, m: &[Poly], rows: usize, cols: usize, s: &[Vec<i64>]) -> Vec<Poly> {
     let _t = prof::timer(prof::EP_MATVEC); // [UPERF-PC] observation only
+    assert_eq!(s.len(), cols);
+    assert_eq!(m.len(), rows * cols);
+    if oracle_mode() {
+        return matvec_modq_small_ref(ctx, m, rows, cols, s);
+    }
+    let a: Vec<&[Poly]> = (0..rows).map(|r| &m[r * cols..(r + 1) * cols]).collect();
+    ntt_gemm_modq_small(ctx, &a, &[s], cols)
+}
+
+/// One mod-q matrix against MANY small vectors (the level matvecs
+/// `A x w_j` for all r chunk slices j): M is transformed once and every
+/// small ring once. Returns `out[i][row]` = (M s_i)[row], i.e. one
+/// rows-vector per input vector, in input order. Bit-identical to
+/// calling `matvec_modq_small` per vector.
+pub fn matvec_modq_small_multi(
+    ctx: &RingCtx,
+    m: &[Poly],
+    rows: usize,
+    cols: usize,
+    s_list: &[&[Vec<i64>]],
+) -> Vec<Vec<Poly>> {
+    let _t = prof::timer(prof::EP_MATVEC); // [UPERF-PC] observation only
+    assert_eq!(m.len(), rows * cols);
+    for s in s_list {
+        assert_eq!(s.len(), cols);
+    }
+    if oracle_mode() {
+        return s_list.iter().map(|s| matvec_modq_small_ref(ctx, m, rows, cols, s)).collect();
+    }
+    let a: Vec<&[Poly]> = (0..rows).map(|r| &m[r * cols..(r + 1) * cols]).collect();
+    let flat = ntt_gemm_modq_small(ctx, &a, s_list, cols); // [row][i]
+    let n_s = s_list.len();
+    (0..n_s)
+        .map(|i| (0..rows).map(|row| flat[row * n_s + i].clone()).collect())
+        .collect()
+}
+
+/// The Karatsuba oracle for `matvec_modq_small` (the pre-O3 body; battery
+/// use only — every call site rides the NTT-domain body).
+pub fn matvec_modq_small_ref(ctx: &RingCtx, m: &[Poly], rows: usize, cols: usize, s: &[Vec<i64>]) -> Vec<Poly> {
     assert_eq!(s.len(), cols);
     assert_eq!(m.len(), rows * cols);
     let zq = &ctx.zq;
@@ -689,9 +731,20 @@ pub fn matvec_modq_small(ctx: &RingCtx, m: &[Poly], rows: usize, cols: usize, s:
 }
 
 /// <phi, s> = sum_u phi_u * s_u over R_q (mod-q functional times small
-/// witness slice).
+/// witness slice). [UPERF-PC O3] NTT-domain body; `ring_ip_modq_small_ref`
+/// is the oracle.
 pub fn ring_ip_modq_small(ctx: &RingCtx, phi: &[Poly], s: &[Vec<i64>]) -> Poly {
     let _t = prof::timer(prof::EP_IP); // [UPERF-PC] observation only
+    assert_eq!(phi.len(), s.len());
+    if oracle_mode() {
+        return ring_ip_modq_small_ref(ctx, phi, s);
+    }
+    let mut out = ntt_gemm_modq_small(ctx, &[phi], &[s], phi.len());
+    out.pop().expect("one output")
+}
+
+/// The Karatsuba oracle for `ring_ip_modq_small` (battery use only).
+pub fn ring_ip_modq_small_ref(ctx: &RingCtx, phi: &[Poly], s: &[Vec<i64>]) -> Poly {
     assert_eq!(phi.len(), s.len());
     let zq = &ctx.zq;
     let mut acc = poly_zero();
@@ -703,6 +756,331 @@ pub fn ring_ip_modq_small(ctx: &RingCtx, phi: &[Poly], s: &[Vec<i64>]) -> Poly {
         acc = poly_add(zq, &acc, &m);
     }
     acc
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF-PC O2/O3] The NTT-domain multiply-accumulate kernel.
+//
+// Every hot loop of the composed prover's eval proof (the level h
+// cross-garbage, the A / B outer matvecs, ring inner products) is a
+// contraction of MOD-q rings against SMALL rings:
+//
+//     out[ia][ib] = sum_{u < len} a[ia][u] * b[ib][u]        over R_q,
+//
+// a = na slices of len mod-q rings, b = nb slices of len small rings
+// (|coeff| <= s_max). Evaluated as D = 128 independent (na x len) x
+// (len x nb) integer GEMMs in the Goldilocks NTT domain (aux_ntt_core):
+// every ring is transformed exactly ONCE, products accumulate with the A1
+// split-halves discipline (low/high u128 halves, no per-product
+// reduction), and the accumulation leaves the NTT domain once per
+// (output, window). A window is the largest run of terms that keeps the
+// exact-integer contract  n * D * (q-1)/2 * s_max <= (p-1)/2
+// (`aux::max_n_acc`) — every recovered coefficient is then the TRUE
+// integer of the partial sum, reduced mod q and added; the result is
+// BIT-IDENTICAL to the Karatsuba oracles above. Windows are fixed by
+// (q, s_max, len) — never by thread count or data order — so a later
+// parallel split (TASK_BOARD T6) cannot move a byte. If even one product
+// exceeds capacity (s_max too large for q) the kernel falls back to the
+// oracle rather than limb-split; the composed pass never hits that
+// (digits |w| <= 64 at q31: windows of 2^20 terms).
+//
+// Cost model at 125M level 0 (act group, r = 64, chunk 122K): 2 * n_0
+// forward transforms (~0.35 us each) + r^2 * chunk * D = 64G split-halves
+// MACs, vs 500M Karatsuba ring-mults (~2 us each, ~11 allocations each).
+
+static NTT: LazyLock<super::aux::NttTables> = LazyLock::new(super::aux::build_tables);
+
+/// [UPERF-PC] `ZK_UPERF_ORACLE=1` routes every Phase-0 kernel entry
+/// point (matvec / ring-ip / level-h / kernel passes / factored psi) to
+/// its pre-optimization oracle at runtime — the one-binary A/B: the
+/// EVAL-PROOF DIGEST must be identical with and without it, and the
+/// walls give the before/after at the same box state. Read once.
+static ORACLE_MODE: LazyLock<bool> =
+    LazyLock::new(|| std::env::var("ZK_UPERF_ORACLE").map(|v| v == "1").unwrap_or(false));
+
+#[inline(always)]
+pub fn oracle_mode() -> bool {
+    *ORACLE_MODE
+}
+
+/// [UPERF-PC T6] `ZK_THREADS=n` (default 1 — the ledger's 1T baseline
+/// convention) sizes the kernel thread pool. Every parallel split below
+/// is over INDEPENDENT exact-integer work (coefficient positions t of
+/// the NTT-domain GEMM; value rings of the factored passes) with a fixed
+/// serial reduction order, so the result is bit-identical for any n.
+static THREADS: LazyLock<usize> = LazyLock::new(|| {
+    std::env::var("ZK_THREADS").ok().and_then(|v| v.parse::<usize>().ok()).filter(|&n| n >= 1).unwrap_or(1)
+});
+
+pub fn threads() -> usize {
+    *THREADS
+}
+
+static POOL: LazyLock<rayon::ThreadPool> = LazyLock::new(|| {
+    rayon::ThreadPoolBuilder::new().num_threads(threads()).build().expect("ZK_THREADS pool")
+});
+
+/// Run `f` on the kernel pool when threads() > 1, inline otherwise.
+fn pooled<R: Send>(f: impl FnOnce() -> R + Send) -> R {
+    if threads() > 1 { POOL.install(f) } else { f() }
+}
+
+/// Positions per u-block: the transformed block (na + nb) * B rings x 1 KiB
+/// must stay cache-resident next to the accumulators.
+const GEMM_BLOCK: usize = 64;
+
+/// sum_i a[i]*b[i] as (low-halves sum, high-halves sum) — the A1
+/// split-halves accumulator (each product's u64 halves summed in
+/// separate u128s; exact for < 2^31 terms). Measured ~1.6 ns/term on
+/// the WSL box; 2- and 4-chain unrolls were not faster (register
+/// pressure), so the plain loop stays.
+#[inline(always)]
+fn dot_split_halves(a: &[u64], b: &[u64]) -> (u128, u128) {
+    let (mut lo, mut hi) = (0u128, 0u128);
+    for (&av, &bv) in a.iter().zip(b.iter()) {
+        let prod = av as u128 * bv as u128;
+        lo += prod as u64 as u128;
+        hi += (prod >> 64) as u128;
+    }
+    (lo, hi)
+}
+
+/// The largest number of (mod-q ring) x (small ring, |coeff| <= s_max)
+/// products that may accumulate in Z_p before an exact recovery; 0 = a
+/// single product does not fit (the caller falls back to the oracle).
+pub fn ntt_window_terms(q: u64, s_max: u128) -> usize {
+    super::aux::max_n_acc(((q - 1) / 2) as u128, s_max.max(1)).min(1 << 31) as usize
+}
+
+/// out[ia * nb + ib] = sum_u a[ia][u] * b[ib][u] over R_q — see the module
+/// note above. `a[ia].len() == b[ib].len() == len` for every slice.
+pub fn ntt_gemm_modq_small(ctx: &RingCtx, a: &[&[Poly]], b: &[&[Vec<i64>]], len: usize) -> Vec<Poly> {
+    use super::aux::{
+        balanced_mod_q, center_from_p, lift_to_p, mod_q_centered, ntt_fwd, ntt_inv, reduce128, EPS,
+    };
+    let zq = &ctx.zq;
+    let q = zq.q;
+    let (na, nb) = (a.len(), b.len());
+    for s in a {
+        assert_eq!(s.len(), len, "a slice length");
+    }
+    for s in b {
+        assert_eq!(s.len(), len, "b slice length");
+    }
+    let mut out = vec![poly_zero(); na * nb];
+    if na == 0 || nb == 0 || len == 0 {
+        return out;
+    }
+    // Operand bound of the small side (exact, from the data — the
+    // window is then a function of (q, s_max, len) only).
+    let s_max: u128 = b
+        .iter()
+        .flat_map(|s| s.iter())
+        .flat_map(|ring| ring.iter())
+        .map(|&x| x.unsigned_abs() as u128)
+        .max()
+        .unwrap_or(0);
+    let window = ntt_window_terms(q, s_max);
+    if window == 0 {
+        // Over capacity for the single-prime contract: exact oracle.
+        for (ia, sa) in a.iter().enumerate() {
+            for (ib, sb) in b.iter().enumerate() {
+                out[ia * nb + ib] = ring_ip_modq_small_ref(ctx, sa, sb);
+            }
+        }
+        return out;
+    }
+    let t = &*NTT;
+    let bsz = GEMM_BLOCK.min(len).min(window);
+    // With threads, a larger u-block amortizes the fork/join per block
+    // (each block is a fixed unit of work; results are block-order
+    // independent because the accumulators are exact integers).
+    let bsz = if threads() > 1 { (bsz * 4).min(len).min(window) } else { bsz };
+    // NTT-domain blocks, both ub-contiguous so the (t, ia, ib) cell is a
+    // dot product over two contiguous streams with register accumulators:
+    // a_blk[(t*na + ia)*bsz + ub], b_blk[(t*nb + ib)*bsz + ub].
+    let mut a_blk = vec![0u64; D * na * bsz];
+    let mut b_blk = vec![0u64; D * nb * bsz];
+    // Split-halves accumulators: [(t*na + ia)*nb + ib].
+    let mut acc_lo = vec![0u128; D * na * nb];
+    let mut acc_hi = vec![0u128; D * na * nb];
+    // Per-ring forward transforms of one block (computed in parallel,
+    // then scattered into the t-major blocks serially).
+    let mut fa_rings: Vec<[u64; D]> = vec![[0u64; D]; (na + nb) * bsz];
+    let mut u0 = 0usize;
+    pooled(|| {
+        use rayon::prelude::*;
+        while u0 < len {
+            // One capacity window: [u0, u1).
+            let u1 = (u0 + window).min(len);
+            acc_lo.iter_mut().for_each(|x| *x = 0);
+            acc_hi.iter_mut().for_each(|x| *x = 0);
+            let mut ub0 = u0;
+            while ub0 < u1 {
+                let nb_u = bsz.min(u1 - ub0);
+                // Forward transforms: a rings (mod q -> balanced -> Z_p),
+                // then b rings (small -> Z_p); slot (ia*bsz + ub) / ((na + ib)*bsz + ub).
+                let n_a = na * bsz;
+                let work = |slot: usize, out: &mut [u64; D]| {
+                    let (is_b, sl) = if slot < n_a { (false, slot) } else { (true, slot - n_a) };
+                    let (idx, ub) = (sl / bsz, sl % bsz);
+                    if ub >= nb_u {
+                        return; // beyond the block's tail; never read
+                    }
+                    if !is_b {
+                        let ring = &a[idx][ub0 + ub];
+                        if ring.iter().all(|&x| x == 0) {
+                            *out = [0u64; D];
+                            return;
+                        }
+                        for i in 0..D {
+                            out[i] = lift_to_p(balanced_mod_q(ring[i], q));
+                        }
+                    } else {
+                        let ring = &b[idx][ub0 + ub];
+                        if ring.iter().all(|&x| x == 0) {
+                            *out = [0u64; D];
+                            return;
+                        }
+                        for i in 0..D {
+                            out[i] = lift_to_p(ring[i]);
+                        }
+                    }
+                    ntt_fwd(out, t);
+                };
+                if threads() > 1 {
+                    fa_rings.par_iter_mut().enumerate().for_each(|(slot, o)| work(slot, o));
+                } else {
+                    fa_rings.iter_mut().enumerate().for_each(|(slot, o)| work(slot, o));
+                }
+                // Scatter into the t-major blocks (per-t chunks; O(rings x D)).
+                let fa_ref = &fa_rings;
+                let scat_a = |tt: usize, chunk: &mut [u64]| {
+                    for ia in 0..na {
+                        for ub in 0..nb_u {
+                            chunk[ia * bsz + ub] = fa_ref[ia * bsz + ub][tt];
+                        }
+                    }
+                };
+                let scat_b = |tt: usize, chunk: &mut [u64]| {
+                    for ib in 0..nb {
+                        for ub in 0..nb_u {
+                            chunk[ib * bsz + ub] = fa_ref[(na + ib) * bsz + ub][tt];
+                        }
+                    }
+                };
+                if threads() > 1 {
+                    a_blk.par_chunks_mut(na * bsz).enumerate().for_each(|(tt, c)| scat_a(tt, c));
+                    b_blk.par_chunks_mut(nb * bsz).enumerate().for_each(|(tt, c)| scat_b(tt, c));
+                } else {
+                    a_blk.chunks_mut(na * bsz).enumerate().for_each(|(tt, c)| scat_a(tt, c));
+                    b_blk.chunks_mut(nb * bsz).enumerate().for_each(|(tt, c)| scat_b(tt, c));
+                }
+                // D independent GEMMs: acc[t][ia][ib] += sum_ub a[t][ia][ub] * b[t][ib][ub]
+                // — each cell a dot product over two contiguous streams,
+                // accumulated in registers (split halves), stored once.
+                // Threads split the t range (per-t accumulator chunks).
+                let a_blk = &a_blk;
+                let b_blk = &b_blk;
+                let cell = |tt: usize, acc_l: &mut [u128], acc_h: &mut [u128]| {
+                    for ia in 0..na {
+                        let arow = &a_blk[(tt * na + ia) * bsz..(tt * na + ia) * bsz + nb_u];
+                        for ib in 0..nb {
+                            let brow = &b_blk[(tt * nb + ib) * bsz..(tt * nb + ib) * bsz + nb_u];
+                            let (lo, hi) = dot_split_halves(arow, brow);
+                            acc_l[ia * nb + ib] += lo;
+                            acc_h[ia * nb + ib] += hi;
+                        }
+                    }
+                };
+                if threads() > 1 {
+                    acc_lo
+                        .par_chunks_mut(na * nb)
+                        .zip(acc_hi.par_chunks_mut(na * nb))
+                        .enumerate()
+                        .for_each(|(tt, (al, ah))| cell(tt, al, ah));
+                } else {
+                    for (tt, (al, ah)) in acc_lo.chunks_mut(na * nb).zip(acc_hi.chunks_mut(na * nb)).enumerate() {
+                        cell(tt, al, ah);
+                    }
+                }
+                ub0 += nb_u;
+            }
+            // Leave the NTT domain once per output for this window: exact
+            // integer recovery (capacity contract), reduce mod q, add.
+            let acc_lo = &acc_lo;
+            let acc_hi = &acc_hi;
+            let flush = |o_idx: usize, o: &mut Poly| {
+                let (ia, ib) = (o_idx / nb, o_idx % nb);
+                let mut v = [0u64; D];
+                for tt in 0..D {
+                    let idx = (tt * na + ia) * nb + ib;
+                    v[tt] = reduce128(acc_lo[idx] + EPS as u128 * acc_hi[idx]);
+                }
+                ntt_inv(&mut v, t);
+                for tt in 0..D {
+                    let c = mod_q_centered(center_from_p(v[tt]), q);
+                    o[tt] = zq.add(o[tt], c);
+                }
+            };
+            if threads() > 1 {
+                out.par_iter_mut().enumerate().for_each(|(i, o)| flush(i, o));
+            } else {
+                out.iter_mut().enumerate().for_each(|(i, o)| flush(i, o));
+            }
+            u0 = u1;
+        }
+    });
+    out
+}
+
+/// [UPERF-PC O2] The h cross-garbage of one level, pair order (j <= k):
+/// h_jj = <phi_j, w_j>, h_jk = <phi_j, w_k> + <phi_k, w_j>. `phi` = r
+/// slices of `chunk` mod-q rings (the aggregated functional's chunk
+/// slices, zero-padded by the caller), `w` = r slices of `chunk` small
+/// rings. One `ntt_gemm_modq_small` call (r x r outputs), bit-identical to
+/// `level_h_pairs_ref`.
+pub fn level_h_pairs(ctx: &RingCtx, phi: &[&[Poly]], w: &[&[Vec<i64>]], chunk: usize) -> Vec<Poly> {
+    let _t = prof::timer(prof::EP_LEVELH); // [UPERF-PC] observation only
+    let r = phi.len();
+    assert_eq!(w.len(), r, "phi/w slice counts");
+    if oracle_mode() {
+        return level_h_pairs_ref(ctx, phi, w, chunk);
+    }
+    let zq = &ctx.zq;
+    let g = ntt_gemm_modq_small(ctx, phi, w, chunk); // g[j*r + k] = <phi_j, w_k>
+    let mut h = Vec::with_capacity(r * (r + 1) / 2);
+    for j in 0..r {
+        for k in j..r {
+            if j == k {
+                h.push(g[j * r + j].clone());
+            } else {
+                h.push(poly_add(zq, &g[j * r + k], &g[k * r + j]));
+            }
+        }
+    }
+    h
+}
+
+/// The Karatsuba oracle for `level_h_pairs` (the pre-O2 loop; battery
+/// use only).
+pub fn level_h_pairs_ref(ctx: &RingCtx, phi: &[&[Poly]], w: &[&[Vec<i64>]], chunk: usize) -> Vec<Poly> {
+    let r = phi.len();
+    assert_eq!(w.len(), r);
+    let zq = &ctx.zq;
+    let mut h = Vec::with_capacity(r * (r + 1) / 2);
+    for j in 0..r {
+        assert_eq!(phi[j].len(), chunk);
+        assert_eq!(w[j].len(), chunk);
+        for k in j..r {
+            let mut hp = ring_ip_modq_small_ref(ctx, phi[j], w[k]);
+            if j != k {
+                hp = poly_add(zq, &hp, &ring_ip_modq_small_ref(ctx, phi[k], w[j]));
+            }
+            h.push(hp);
+        }
+    }
+    h
 }
 
 /// Centered digit decomposition of a mod-q polynomial at base e, l
@@ -949,6 +1327,33 @@ pub struct GroupEvalProof {
     /// T_cap resample attempts per fold draw (diagnostics; FS counter
     /// is deterministic, no wire).
     pub tcap_attempts: Vec<u32>,
+}
+
+/// [UPERF-PC] Absorb a GroupEvalProof's wire fields (declaration order)
+/// into the differential digest — the composed-pass EVAL-PROOF DIGEST
+/// printed by `uperf-pc pass-profile`. No-op unless the digest is on.
+pub fn prof_digest_group_eval_proof(label: &str, proof: &GroupEvalProof) {
+    if !prof::digest_on() {
+        return;
+    }
+    let pb = |what: &str, polys: &[Poly]| {
+        prof::digest_absorb(&format!("{label}.{what}"), &super::polys_bytes(polys))
+    };
+    pb("u0", &proof.u0);
+    pb("ugh0", &proof.ugh0);
+    pb("b_rows", &proof.b_rows);
+    for (i, u) in proof.level_us.iter().enumerate() {
+        pb(&format!("u{}", i + 1), u);
+    }
+    for ring in &proof.floor {
+        prof::digest_i64s(&format!("{label}.floor"), ring);
+    }
+    prof::digest_absorb(&format!("{label}.floor_e"), &proof.floor_e.to_le_bytes());
+    let mut att = Vec::with_capacity(proof.tcap_attempts.len() * 4);
+    for a in &proof.tcap_attempts {
+        att.extend(a.to_le_bytes());
+    }
+    prof::digest_absorb(&format!("{label}.tcap"), &att);
 }
 
 impl GroupEvalProof {
@@ -1368,20 +1773,41 @@ pub fn psi_level0_factored_multi(
     c: &[Vec<i64>],
     chunk: usize,
 ) -> Vec<Poly> {
+    psi_level0_multi_impl(ctx, kf, group, kernels, alphas, c, chunk, oracle_mode())
+}
+
+/// The pre-O5 form of `psi_level0_factored_multi` (BJ's beta x conjQ
+/// aligned branch), callable directly for the battery / A/B.
+pub fn psi_level0_factored_multi_pre_o5(
+    ctx: &RingCtx,
+    kf: &KField,
+    group: &AggGroup,
+    kernels: &[MultiClaimKernel],
+    alphas: &[Poly],
+    c: &[Vec<i64>],
+    chunk: usize,
+) -> Vec<Poly> {
+    psi_level0_multi_impl(ctx, kf, group, kernels, alphas, c, chunk, true)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn psi_level0_multi_impl(
+    ctx: &RingCtx,
+    kf: &KField,
+    group: &AggGroup,
+    kernels: &[MultiClaimKernel],
+    alphas: &[Poly],
+    c: &[Vec<i64>],
+    chunk: usize,
+    pre_o5: bool,
+) -> Vec<Poly> {
     let _t = prof::timer(prof::EP_PSI0F); // [UPERF-PC] observation only
     assert_eq!(alphas.len(), K_DEG);
     let zq = &ctx.zq;
     let r = c.len();
     let c_polys: Vec<Poly> = c.iter().map(|ck| poly_from_small(zq, ck)).collect();
     let mut psi = vec![poly_zero(); chunk];
-    // Coordinate basis powers Y^d (shared across tensors/kernels).
-    let ybasis: Vec<KElem> = (0..K_DEG)
-        .map(|d| {
-            let mut e = kf.zero();
-            e[d] = 1;
-            e
-        })
-        .collect();
+    let mut cache = ColBlockCache::new(); // [UPERF-PC O5] per-(col kernel, cb) G blocks
     for (ti, t) in group.tensors.iter().enumerate() {
         let kers: Vec<&MultiClaimKernel> =
             kernels.iter().filter(|k| k.tensor_idx == ti).collect();
@@ -1389,6 +1815,12 @@ pub fn psi_level0_factored_multi(
             continue; // zero contribution (matches the additive weight)
         }
         let aligned = t.cols % D == 0;
+        if aligned && pre_o5 {
+            // ZK_UPERF_ORACLE=1 (or the explicit pre-O5 entry): BJ's
+            // beta x conjQ per value ring — the honest verifier "before".
+            psi_level0_aligned_pre_o5(ctx, kf, t, &kers, alphas, &c_polys, chunk, &mut psi);
+            continue;
+        }
         if !aligned {
             // Generic branch (misaligned cols): per-ring reference
             // values of the SUMMED weight, folded directly.
@@ -1406,89 +1838,154 @@ pub fn psi_level0_factored_multi(
             continue;
         }
         let nb = t.cols / D;
-        // conjQ per KERNEL: conj-packed d-coordinate slices of the
-        // kernel's col-kernel blocks (kernels carry distinct col
-        // factors; contributions add only after the beta contraction).
-        let conjq: Vec<Vec<Vec<Poly>>> = kers
+        let radixes: Vec<u64> =
+            (0..t.l0).map(|l| zq.to_mod(1i64 << (t.e0 as usize * l))).collect();
+        // [UPERF-PC O5] the factored form (PhiFactored: PHI_vr from the
+        // hoisted row factors against the cached alpha-contracted col
+        // blocks — no per-row K-mults, no per-value-ring ring-mults);
+        // exactly the pre-O5 beta x conjQ value (bit-identical, asserted
+        // by the diff-battery leg O5 against compute_psi(phi0_reference_multi)).
+        let pf = PhiFactored::new(ctx, kf, &kers, nb, alphas, &mut cache);
+        let n_vr = t.rows * nb;
+        // Per value ring: RQ, then its l0 digit rings' contributions
+        // (u, radix_limb * (c_k * RQ)) with the c_k product cached per
+        // k-run — computed in parallel per value-ring block, folded
+        // into psi serially in (vr, limb) order.
+        let contrib_of = |vr: usize| -> Vec<(usize, Poly)> {
+            let rq = pf.value_ring(vr);
+            let mut out = Vec::with_capacity(t.l0);
+            let mut cached: Option<(usize, Poly)> = None;
+            for limb in 0..t.l0 {
+                let v = t.digit_ring_base + vr * t.l0 + limb;
+                let (k, u) = (v / chunk, v % chunk);
+                debug_assert!(k < r);
+                let s = match &cached {
+                    Some((ck, s)) if *ck == k => s.clone(),
+                    _ => {
+                        let s = ring_mul_split_kara_fast(ctx, &rq, &c_polys[k]);
+                        cached = Some((k, s.clone()));
+                        s
+                    }
+                };
+                out.push((u, super::poly_scale(zq, radixes[limb], &s)));
+            }
+            out
+        };
+        const VR_BLOCK: usize = 4096;
+        let mut vr0 = 0;
+        while vr0 < n_vr {
+            let vr1 = (vr0 + VR_BLOCK).min(n_vr);
+            let blocks: Vec<Vec<(usize, Poly)>> = pooled(|| {
+                use rayon::prelude::*;
+                if threads() > 1 {
+                    (vr0..vr1).into_par_iter().map(contrib_of).collect()
+                } else {
+                    (vr0..vr1).map(contrib_of).collect()
+                }
+            });
+            for b in &blocks {
+                for (u, p) in b {
+                    psi[*u] = poly_add(zq, &psi[*u], p);
+                }
+            }
+            vr0 = vr1;
+        }
+    }
+    psi
+}
+
+/// The pre-O5 aligned branch of `psi_level0_factored_multi` (BJ's form:
+/// per row beta[d] = sum_cd (scale *_K row *_K Y^d)[cd] alpha_cd, per
+/// value ring RQ = sum over kernels of sum_d beta[d] * conjQ[cb][d]),
+/// kept verbatim as the `ZK_UPERF_ORACLE=1` path — the honest verifier
+/// "before" for the one-binary A/B. Adds into `psi`.
+#[allow(clippy::too_many_arguments)]
+fn psi_level0_aligned_pre_o5(
+    ctx: &RingCtx,
+    kf: &KField,
+    t: &AggTensor,
+    kers: &[&MultiClaimKernel],
+    alphas: &[Poly],
+    c_polys: &[Poly],
+    chunk: usize,
+    psi: &mut [Poly],
+) {
+    let zq = &ctx.zq;
+    let r = c_polys.len();
+    let ybasis: Vec<KElem> = (0..K_DEG)
+        .map(|d| {
+            let mut e = kf.zero();
+            e[d] = 1;
+            e
+        })
+        .collect();
+    let nb = t.cols / D;
+    let conjq: Vec<Vec<Vec<Poly>>> = kers
+        .iter()
+        .map(|ker| {
+            (0..nb)
+                .map(|cb| {
+                    (0..K_DEG)
+                        .map(|d| {
+                            let mut base = poly_zero();
+                            for c1 in 0..D {
+                                base[c1] = ker.col_kernel[cb * D + c1][d];
+                            }
+                            conj_poly(zq, &base)
+                        })
+                        .collect()
+                })
+                .collect()
+        })
+        .collect();
+    let radixes: Vec<u64> = (0..t.l0).map(|l| zq.to_mod(1i64 << (t.e0 as usize * l))).collect();
+    for row in 0..t.rows {
+        let betas: Vec<Vec<Poly>> = kers
             .iter()
             .map(|ker| {
-                (0..nb)
-                    .map(|cb| {
-                        (0..K_DEG)
-                            .map(|d| {
-                                let mut base = poly_zero();
-                                for c1 in 0..D {
-                                    base[c1] = ker.col_kernel[cb * D + c1][d];
-                                }
-                                conj_poly(zq, &base)
-                            })
-                            .collect()
+                let rk_eff = kf.mul(&ker.scale, &ker.row_kernel[row]);
+                (0..K_DEG)
+                    .map(|d| {
+                        let l_col = kf.mul(&rk_eff, &ybasis[d]);
+                        let mut acc = poly_zero();
+                        for (cd, a) in alphas.iter().enumerate() {
+                            if l_col[cd] != 0 {
+                                acc = poly_add(zq, &acc, &super::poly_scale(zq, l_col[cd], a));
+                            }
+                        }
+                        acc
                     })
                     .collect()
             })
             .collect();
-        let radixes: Vec<u64> =
-            (0..t.l0).map(|l| zq.to_mod(1i64 << (t.e0 as usize * l))).collect();
-        for row in 0..t.rows {
-            // Per kernel: the scale folds into the row factor
-            // (rk_eff = scale *_K row_kernel[row]) — exact in K.
-            let betas: Vec<Vec<Poly>> = kers
-                .iter()
-                .map(|ker| {
-                    let rk_eff = kf.mul(&ker.scale, &ker.row_kernel[row]);
-                    (0..K_DEG)
-                        .map(|d| {
-                            let l_col = kf.mul(&rk_eff, &ybasis[d]);
-                            let mut acc = poly_zero();
-                            for (cd, a) in alphas.iter().enumerate() {
-                                if l_col[cd] != 0 {
-                                    acc = poly_add(zq, &acc, &super::poly_scale(zq, l_col[cd], a));
-                                }
-                            }
-                            acc
-                        })
-                        .collect()
-                })
-                .collect();
-            for cb in 0..nb {
-                let vr = row * nb + cb;
-                // RQ = sum over kernels of sum_d beta[d] * conjQ[cb][d]
-                // — the ADDITIVE Phi_0 of this value ring's limb 0
-                // (radix folded in below).
-                let mut rq = poly_zero();
-                for (ki, beta) in betas.iter().enumerate() {
-                    for d in 0..K_DEG {
-                        if beta[d].iter().all(|&x| x == 0) {
-                            continue;
-                        }
-                        rq = poly_add(
-                            zq,
-                            &rq,
-                            &ring_mul_split_kara_fast(ctx, &beta[d], &conjq[ki][cb][d]),
-                        );
+        for cb in 0..nb {
+            let vr = row * nb + cb;
+            let mut rq = poly_zero();
+            for (ki, beta) in betas.iter().enumerate() {
+                for d in 0..K_DEG {
+                    if beta[d].iter().all(|&x| x == 0) {
+                        continue;
                     }
+                    rq = poly_add(zq, &rq, &ring_mul_split_kara_fast(ctx, &beta[d], &conjq[ki][cb][d]));
                 }
-                // The l0 digit rings of this value ring: fold by the
-                // chunk split with a lazily-cached c_k * RQ product.
-                let mut cached: Option<(usize, Poly)> = None;
-                for limb in 0..t.l0 {
-                    let v = t.digit_ring_base + vr * t.l0 + limb;
-                    let (k, u) = (v / chunk, v % chunk);
-                    debug_assert!(k < r);
-                    let s = match &cached {
-                        Some((ck, s)) if *ck == k => s.clone(),
-                        _ => {
-                            let s = ring_mul_split_kara_fast(ctx, &rq, &c_polys[k]);
-                            cached = Some((k, s.clone()));
-                            s
-                        }
-                    };
-                    psi[u] = poly_add(zq, &psi[u], &super::poly_scale(zq, radixes[limb], &s));
-                }
+            }
+            let mut cached: Option<(usize, Poly)> = None;
+            for limb in 0..t.l0 {
+                let v = t.digit_ring_base + vr * t.l0 + limb;
+                let (k, u) = (v / chunk, v % chunk);
+                debug_assert!(k < r);
+                let s = match &cached {
+                    Some((ck, s)) if *ck == k => s.clone(),
+                    _ => {
+                        let s = ring_mul_split_kara_fast(ctx, &rq, &c_polys[k]);
+                        cached = Some((k, s.clone()));
+                        s
+                    }
+                };
+                psi[u] = poly_add(zq, &psi[u], &super::poly_scale(zq, radixes[limb], &s));
             }
         }
     }
-    psi
 }
 
 /// [UAGB1-BJ] Reference Phi_0 materialization under the additive
@@ -1505,6 +2002,448 @@ pub fn phi0_reference_multi(
     (0..group.n_digit_rings)
         .map(|u| phi0_ring_multi(ctx, kf, group, kernels, alphas, u))
         .collect()
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF-PC O5] The prover's two claim-kernel passes, FACTORED
+// (TASK_BOARD T5). The oracle is the bin's `bg_kernel_pass`: per digit
+// ring u = (value ring vr, limb) it builds the K-weight row
+// kw_u[c1] = sum_c scale_c *_K row_c[f/cols] *_K col_c[f%cols]
+// (f = vr*D + c1; ~128 x n_contrib x 2 K-mults per value ring), then
+// bp_u[cd] = radix_u * conj(sum_{c1} kw_u[c1][cd] X^{c1}) and
+//   rows pass:  b_rows[cd] += bp_u[cd] * w_u            (16 ring-mults / ring)
+//   phi  pass:  phi_u       = sum_cd alpha_cd * bp_u[cd] (16 ring-mults / ring).
+//
+// Everything below re-associates the SAME mod-q / K-field sums (K is a
+// field, conj is a Z_q-linear ring automorphism, radix is a scalar), so
+// the outputs are bit-identical by construction — asserted by the
+// diff-battery leg "O5 kernel-pass" against the oracle. For a tensor
+// with cols % D == 0 (every 125M tensor) a value ring vr = (row, cb)
+// never straddles rows, and with K-bilinearity
+//     kf.mul(a, b)[cd] = sum_{d1} a[d1] * (Y^{d1} *_K b)[cd]
+// and the hoist sr_c[row] = scale_c *_K row_c[row]:
+//
+//   PHI_vr := sum_cd alpha_cd * conj(sum_{c1} kw(vr,c1)[cd] X^{c1})
+//           = sum_c sum_{d1} sr_c[row][d1] * G_c[cb][d1],
+//   G_c[cb][d1] = sum_{c1} conj(X^{c1}) * sum_cd (Y^{d1} *_K col_c[cb*D+c1])[cd] * alpha_cd,
+//   phi_u = radix_limb * PHI_vr;
+//
+//   b_rows[cd] = sum_c sum_cb sum_{d1} CQ_c[cb][d1][cd] * T_c[d1][cb],
+//   CQ_c[cb][d1][cd] = conj(sum_{c1} (Y^{d1} *_K col_c[cb*D+c1])[cd] X^{c1}),
+//   T_c[d1][cb]      = sum_row sr_c[row][d1] * V_(row,cb),
+//   V_vr             = sum_limb radix_limb * w_(vr,limb)   (the value ring, mod q).
+//
+// G / CQ depend only on (col kernel, cb, d1[, cd]) and are cached by
+// the col kernel's Rc identity — the folded IXF claims share col
+// kernels across the 12 layers' tensors — so the per-value-ring work is
+// 16 x n_contrib scalar-x-ring MACs (u128 lazy, one reduction), no
+// K-mults, no ring-mults. Misaligned tensors (cols % D != 0) and the
+// no-kernel case ride the per-ring reference below.
+
+/// One kernel's hoisted row factors: sr[row] = scale *_K row_kernel[row].
+fn kernel_row_factors(kf: &KField, ker: &MultiClaimKernel) -> Vec<KElem> {
+    ker.row_kernel.iter().map(|rk| kf.mul(&ker.scale, rk)).collect()
+}
+
+/// CQ0[e] = conj(sum_{c1} col[cb*D + c1][e] X^{c1}) — the conj-packed
+/// coordinate slices of one column block (16 rings; the verifier's
+/// `conjq`). Because Y^{d1} *_K col only SHIFTS coordinates in
+/// K = Z_q[Y]/(Y^16 - s) — (Y^{d1} col)[cd] = col[cd - d1] for cd >= d1,
+/// s * col[cd - d1 + 16] otherwise — every (Y^{d1} col)-derived slice
+/// is a scaled copy of a CQ0 entry: CQ[d1][cd] = sigma(cd, d1) *
+/// CQ0[(cd - d1) mod 16] with sigma = s if cd < d1 else 1.
+fn cq0_block(zq: &Zq, col: &[KElem], cb: usize) -> Vec<Poly> {
+    (0..K_DEG)
+        .map(|e| {
+            let mut base = poly_zero();
+            for c1 in 0..D {
+                base[c1] = col[cb * D + c1][e];
+            }
+            conj_poly(zq, &base)
+        })
+        .collect()
+}
+
+/// G[d1] = sum_e CQ0[e] * A_{d1}[e] with A_{d1}[e] = sigma(e, d1) *
+/// alpha_{(e + d1) mod 16}, sigma = s if e + d1 >= 16 else 1 — i.e.
+/// sum_{c1} conj(X^{c1}) * sum_cd (Y^{d1} *_K col[c1])[cd] * alpha_cd,
+/// the alpha-contracted conj-packed col block (16 rings; 256 ring
+/// products per block, cached per col kernel).
+fn g_block(ctx: &RingCtx, s: u64, cq0: &[Poly], alphas: &[Poly]) -> Vec<Poly> {
+    let zq = &ctx.zq;
+    // P[e][f] = CQ0[e] * alpha_f (mod q rings; 256 products, parallel over e).
+    let row_of = |c: &Poly| -> Vec<Poly> {
+        alphas
+            .iter()
+            .map(|a| {
+                if c.iter().all(|&x| x == 0) || a.iter().all(|&x| x == 0) {
+                    poly_zero()
+                } else {
+                    ring_mul_split_kara_fast(ctx, c, a)
+                }
+            })
+            .collect()
+    };
+    let prods: Vec<Vec<Poly>> = pooled(|| {
+        use rayon::prelude::*;
+        if threads() > 1 { cq0.par_iter().map(row_of).collect() } else { cq0.iter().map(row_of).collect() }
+    });
+    (0..K_DEG)
+        .map(|d1| {
+            let mut g = poly_zero();
+            for e in 0..K_DEG {
+                let f = (e + d1) % K_DEG;
+                let term = if e + d1 >= K_DEG { super::poly_scale(zq, s, &prods[e][f]) } else { prods[e][f].clone() };
+                g = poly_add(zq, &g, &term);
+            }
+            g
+        })
+        .collect()
+}
+
+/// Per-(col kernel, cb) cache of the derived blocks, keyed by the col
+/// kernel's Rc identity (the IXF-folded claims share col kernels across
+/// the 12 layers' tensors).
+struct ColBlockCache {
+    cq0: HashMap<(usize, usize), Arc<Vec<Poly>>>,
+    g: HashMap<(usize, usize), Arc<Vec<Poly>>>,
+}
+
+impl ColBlockCache {
+    fn new() -> Self {
+        ColBlockCache { cq0: HashMap::new(), g: HashMap::new() }
+    }
+    fn key(ker: &MultiClaimKernel, cb: usize) -> (usize, usize) {
+        (std::rc::Rc::as_ptr(&ker.col_kernel) as *const u8 as usize, cb)
+    }
+    fn cq0(&mut self, zq: &Zq, ker: &MultiClaimKernel, cb: usize) -> Arc<Vec<Poly>> {
+        let k = Self::key(ker, cb);
+        if let Some(v) = self.cq0.get(&k) {
+            return v.clone();
+        }
+        let v = Arc::new(cq0_block(zq, &ker.col_kernel, cb));
+        self.cq0.insert(k, v.clone());
+        v
+    }
+    fn g(&mut self, ctx: &RingCtx, s: u64, ker: &MultiClaimKernel, cb: usize, alphas: &[Poly]) -> Arc<Vec<Poly>> {
+        let k = Self::key(ker, cb);
+        if let Some(v) = self.g.get(&k) {
+            return v.clone();
+        }
+        let cq0 = self.cq0(&ctx.zq, ker, cb);
+        let v = Arc::new(g_block(ctx, s, &cq0, alphas));
+        self.g.insert(k, v.clone());
+        v
+    }
+}
+
+/// The factored level-0 functional of ONE aligned tensor, radix-free:
+/// PHI_vr = sum_c sum_{d1} sr_c[row][d1] * G_c[cb][d1] for value ring
+/// vr = (row, cb). Shared by the prover's phi pass and the verifier's
+/// `psi_level0_factored_multi`.
+struct PhiFactored {
+    q: u64,
+    nb: usize,
+    srs: Vec<Vec<KElem>>,                    // [kernel][row] hoisted row factors
+    gs: Vec<Vec<Arc<Vec<Poly>>>>,     // [kernel][cb] -> 16 G rings
+}
+
+impl PhiFactored {
+    fn new(
+        ctx: &RingCtx,
+        kf: &KField,
+        kers: &[&MultiClaimKernel],
+        nb: usize,
+        alphas: &[Poly],
+        cache: &mut ColBlockCache,
+    ) -> Self {
+        let srs = kers.iter().map(|k| kernel_row_factors(kf, k)).collect();
+        let gs = kers
+            .iter()
+            .map(|k| (0..nb).map(|cb| cache.g(ctx, kf.s, k, cb, alphas)).collect())
+            .collect();
+        PhiFactored { q: ctx.zq.q, nb, srs, gs }
+    }
+
+    /// PHI of value ring vr (mod q; 16 x n_kernels scalar-x-ring MACs).
+    fn value_ring(&self, vr: usize) -> Poly {
+        let (row, cb) = (vr / self.nb, vr % self.nb);
+        let mut acc = [0u128; D];
+        for (ki, sr) in self.srs.iter().enumerate() {
+            let g = &self.gs[ki][cb];
+            let s_row = &sr[row];
+            for d1 in 0..K_DEG {
+                let s = s_row[d1];
+                if s == 0 {
+                    continue;
+                }
+                let s = s as u128;
+                let gp = &g[d1];
+                for j in 0..D {
+                    acc[j] += s * gp[j] as u128; // < 2^62 per term, <= 2^12 terms
+                }
+            }
+        }
+        let q = self.q as u128;
+        acc.iter().map(|&x| (x % q) as u64).collect()
+    }
+}
+
+/// The per-ring reference K-weight row of value ring vr under the
+/// additive multi-claim weight (radix-free): kw[c1] = sum over kernels
+/// of scale *_K row[f/cols] *_K col[f%cols], f = vr*D + c1 (zero past
+/// the tensor tail) — the bin's `GroupClaims::kw_value_row` over
+/// MultiClaimKernel; the misaligned-tensor path.
+fn kw_row_multi(kf: &KField, t: &AggTensor, kers: &[&MultiClaimKernel], vr: usize) -> Vec<KElem> {
+    let mut out = vec![kf.zero(); D];
+    let n = t.n_values();
+    for ker in kers {
+        for (c1, o) in out.iter_mut().enumerate() {
+            let f = vr * D + c1;
+            if f < n {
+                let w = kf.mul(&ker.row_kernel[f / t.cols], &ker.col_kernel[f % t.cols]);
+                *o = kf.add(o, &kf.mul(&ker.scale, &w));
+            }
+        }
+    }
+    out
+}
+
+/// conj-packed claim-row polys of one digit ring from its value-row
+/// K-weights (radix-scaled) — `pass_agg::bpolys_from_kw` verbatim.
+fn bpolys_from_kw_local(zq: &Zq, kw: &[KElem], radix: u64) -> Vec<Poly> {
+    let mut rows = vec![poly_zero(); K_DEG];
+    for (c1, w) in kw.iter().enumerate() {
+        for (cd, row) in rows.iter_mut().enumerate() {
+            row[c1] = zq.mul(radix, w[cd]);
+        }
+    }
+    rows.iter().map(|r| conj_poly(zq, r)).collect()
+}
+
+/// [UPERF-PC O5] The factored claim-kernel pass — the drop-in for the
+/// bin's `bg_kernel_pass` (same contract): `w0 = Some(witness)` runs the
+/// ROWS pass (returns b_rows, 16 rings), `alphas = Some(alphas0)` runs
+/// the PHI pass (returns the aggregated per-digit-ring functional,
+/// group.n_digit_rings rings). Bit-identical to the oracle.
+pub fn kernel_pass_factored(
+    ctx: &RingCtx,
+    kf: &KField,
+    group: &AggGroup,
+    kernels: &[MultiClaimKernel],
+    w0: Option<&[Vec<i64>]>,
+    alphas: Option<&[Poly]>,
+) -> (Vec<Poly>, Vec<Poly>) {
+    let _t = prof::timer(if alphas.is_some() { prof::BG_KPHI } else { prof::BG_KROWS });
+    let zq = &ctx.zq;
+    let q = zq.q;
+    let phi_mode = alphas.is_some();
+    if let Some(a) = alphas {
+        assert_eq!(a.len(), K_DEG);
+    }
+    let mut b_rows = vec![poly_zero(); K_DEG];
+    let mut phi: Vec<Poly> = if phi_mode { Vec::with_capacity(group.n_digit_rings) } else { Vec::new() };
+    let mut cache = ColBlockCache::new();
+    for (ti, t) in group.tensors.iter().enumerate() {
+        let kers: Vec<&MultiClaimKernel> = kernels.iter().filter(|k| k.tensor_idx == ti).collect();
+        let n_vr = t.n_value_rings();
+        if kers.is_empty() {
+            // Zero weight: phi rings zero, no row contribution.
+            if phi_mode {
+                phi.extend(std::iter::repeat_n(poly_zero(), t.n_digit_rings()));
+            }
+            continue;
+        }
+        let radixes: Vec<u64> = (0..t.l0).map(|l| zq.to_mod(1i64 << (t.e0 as usize * l))).collect();
+        if t.cols % D != 0 || oracle_mode() {
+            // Misaligned (rare; synthetic shapes) — or ZK_UPERF_ORACLE=1:
+            // the per-ring reference (kw row + bpolys + Karatsuba, the
+            // pre-O5 `bg_kernel_pass` arithmetic).
+            for vr in 0..n_vr {
+                let kw = kw_row_multi(kf, t, &kers, vr);
+                let kw_zero = kw.iter().all(|k| kf.is_zero(k));
+                for limb in 0..t.l0 {
+                    let u = t.digit_ring_base + vr * t.l0 + limb;
+                    if phi_mode {
+                        if kw_zero {
+                            phi.push(poly_zero());
+                        } else {
+                            let bp = bpolys_from_kw_local(zq, &kw, radixes[limb]);
+                            let mut acc = poly_zero();
+                            for (a, b) in alphas.unwrap().iter().zip(bp.iter()) {
+                                acc = poly_add(zq, &acc, &ring_mul_split_kara_fast(ctx, a, b));
+                            }
+                            phi.push(acc);
+                        }
+                    } else {
+                        let w = &w0.expect("witness for the rows pass")[u];
+                        if kw_zero || w.iter().all(|&x| x == 0) {
+                            continue;
+                        }
+                        let bp = bpolys_from_kw_local(zq, &kw, radixes[limb]);
+                        let wsm = poly_from_small(zq, w);
+                        for (c, row) in b_rows.iter_mut().enumerate() {
+                            *row = poly_add(zq, row, &ring_mul_split_kara_fast(ctx, &bp[c], &wsm));
+                        }
+                    }
+                }
+            }
+            continue;
+        }
+        // ---- Aligned fast path. ----
+        let nb = t.cols / D;
+        debug_assert_eq!(n_vr, t.rows * nb);
+        let srs: Vec<Vec<KElem>> = kers.iter().map(|k| kernel_row_factors(kf, k)).collect();
+        if phi_mode {
+            let alphas = alphas.unwrap();
+            let pf = PhiFactored::new(ctx, kf, &kers, nb, alphas, &mut cache);
+            // Value rings in blocks (parallel map inside a block, serial
+            // radix scaling/push in vr order — bit-identical for any
+            // thread count).
+            const VR_BLOCK: usize = 4096;
+            let mut vr0 = 0;
+            while vr0 < n_vr {
+                let vr1 = (vr0 + VR_BLOCK).min(n_vr);
+                let scaled = |vr: usize| -> Vec<Poly> {
+                    let phi_vr = pf.value_ring(vr);
+                    radixes.iter().map(|&radix| super::poly_scale(zq, radix, &phi_vr)).collect()
+                };
+                let phis: Vec<Vec<Poly>> = pooled(|| {
+                    use rayon::prelude::*;
+                    if threads() > 1 {
+                        (vr0..vr1).into_par_iter().map(scaled).collect()
+                    } else {
+                        (vr0..vr1).map(scaled).collect()
+                    }
+                });
+                for limbs in phis {
+                    phi.extend(limbs);
+                }
+                vr0 = vr1;
+            }
+        } else {
+            let w0 = w0.expect("witness for the rows pass");
+            // T[ki][d1][cb] accumulators (u128 lazy over rows) — per
+            // thread-range partials summed in range order (exact
+            // integers: any split gives the same sums).
+            let n_k = kers.len();
+            let flat = n_k * K_DEG * nb * D;
+            let tidx = |ki: usize, d1: usize, cb: usize| ((ki * K_DEG + d1) * nb + cb) * D;
+            let range_work = |lo: usize, hi: usize| -> Vec<u128> {
+                let mut tacc = vec![0u128; flat];
+                let mut v_ring = vec![0i128; D];
+                for vr in lo..hi {
+                    let (row, cb) = (vr / nb, vr % nb);
+                    // V_vr = sum_limb radix_limb * w — exact, then mod q.
+                    v_ring.iter_mut().for_each(|x| *x = 0);
+                    let mut any = false;
+                    for (limb, &radix) in radixes.iter().enumerate() {
+                        let w = &w0[t.digit_ring_base + vr * t.l0 + limb];
+                        for j in 0..D {
+                            if w[j] != 0 {
+                                any = true;
+                                v_ring[j] += radix as i128 * w[j] as i128;
+                            }
+                        }
+                    }
+                    if !any {
+                        continue;
+                    }
+                    let v_modq: Vec<u64> = v_ring.iter().map(|&x| super::aux::mod_q_i128(x, q)).collect();
+                    for (ki, sr) in srs.iter().enumerate() {
+                        let s_row = &sr[row];
+                        for d1 in 0..K_DEG {
+                            let s = s_row[d1];
+                            if s == 0 {
+                                continue;
+                            }
+                            let s = s as u128;
+                            let base = tidx(ki, d1, cb);
+                            let ta = &mut tacc[base..base + D];
+                            for j in 0..D {
+                                ta[j] += s * v_modq[j] as u128; // < 2^62 per term, <= 2^11 rows
+                            }
+                        }
+                    }
+                }
+                tacc
+            };
+            let tacc: Vec<u128> = if threads() > 1 && n_vr >= 2 * threads() {
+                let nt = threads();
+                let per = n_vr.div_ceil(nt);
+                let partials: Vec<Vec<u128>> = pooled(|| {
+                    use rayon::prelude::*;
+                    (0..nt)
+                        .into_par_iter()
+                        .map(|i| range_work((i * per).min(n_vr), ((i + 1) * per).min(n_vr)))
+                        .collect()
+                });
+                let mut tot = vec![0u128; flat];
+                for p in &partials {
+                    for (a, b) in tot.iter_mut().zip(p.iter()) {
+                        *a += b;
+                    }
+                }
+                tot
+            } else {
+                range_work(0, n_vr)
+            };
+            // b_rows[cd] += sum_ki sum_cb sum_d1 CQ[ki][cb][d1][cd] * T[ki][d1][cb],
+            // CQ[d1][cd] = sigma(cd, d1) * CQ0[(cd - d1) mod 16] (sigma = s
+            // if cd < d1): 16 x 16 ring products per (kernel, cb) block —
+            // computed per block (in parallel), summed into b_rows in
+            // block order.
+            let s = kf.s;
+            let cq0s: Vec<Vec<Arc<Vec<Poly>>>> =
+                kers.iter().map(|k| (0..nb).map(|cb| cache.cq0(zq, k, cb)).collect()).collect();
+            let tacc = &tacc;
+            let block_rows = |bi: usize| -> Vec<Poly> {
+                let (ki, cb) = (bi / nb, bi % nb);
+                let cq0 = &cq0s[ki][cb];
+                let mut rows = vec![poly_zero(); K_DEG];
+                for d1 in 0..K_DEG {
+                    let base = tidx(ki, d1, cb);
+                    let t_ring: Poly = tacc[base..base + D].iter().map(|&x| (x % q as u128) as u64).collect();
+                    if t_ring.iter().all(|&x| x == 0) {
+                        continue;
+                    }
+                    // prods[e] = CQ0[e] * T (16 ring products), then
+                    // rows[cd] += sigma * prods[(cd - d1) mod 16].
+                    let prods: Vec<Poly> = cq0
+                        .iter()
+                        .map(|c| {
+                            if c.iter().all(|&x| x == 0) {
+                                poly_zero()
+                            } else {
+                                ring_mul_split_kara_fast(ctx, c, &t_ring)
+                            }
+                        })
+                        .collect();
+                    for cd in 0..K_DEG {
+                        let e = (cd + K_DEG - d1) % K_DEG;
+                        let term = if cd < d1 { super::poly_scale(zq, s, &prods[e]) } else { prods[e].clone() };
+                        rows[cd] = poly_add(zq, &rows[cd], &term);
+                    }
+                }
+                rows
+            };
+            let n_blocks = n_k * nb;
+            let per_block: Vec<Vec<Poly>> = pooled(|| {
+                use rayon::prelude::*;
+                if threads() > 1 {
+                    (0..n_blocks).into_par_iter().map(block_rows).collect()
+                } else {
+                    (0..n_blocks).map(block_rows).collect()
+                }
+            });
+            for rows in &per_block {
+                for cd in 0..K_DEG {
+                    b_rows[cd] = poly_add(zq, &b_rows[cd], &rows[cd]);
+                }
+            }
+        }
+    }
+    (b_rows, phi)
 }
 
 /// Absorb a poly list into the transcript (canonical bytes).

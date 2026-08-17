@@ -20047,12 +20047,12 @@ fn agg_level_t(
     e_t: u32,
     l_t: usize,
 ) -> (Vec<Vec<Poly>>, Vec<Vec<i64>>) {
-    use ring::eval_proof::{decompose_poly_modq, matvec_modq_small, KAPPA_AGG};
+    use ring::eval_proof::{decompose_poly_modq, matvec_modq_small_multi, KAPPA_AGG};
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_MATVEC_CHUNKS);
     let zq = &ctx.zq;
-    let t_polys: Vec<Vec<Poly>> = chunks
-        .iter()
-        .map(|s| matvec_modq_small(ctx, a_mat, KAPPA_AGG, plan.chunk, s))
-        .collect();
+    // [UPERF-PC O3] one A, all r chunk slices: A transformed once.
+    let s_list: Vec<&[Vec<i64>]> = chunks.iter().map(|s| s.as_slice()).collect();
+    let t_polys: Vec<Vec<Poly>> = matvec_modq_small_multi(ctx, a_mat, KAPPA_AGG, plan.chunk, &s_list);
     let mut that = Vec::with_capacity(plan.r * KAPPA_AGG * l_t);
     for tj in &t_polys {
         for tk in tj {
@@ -20071,7 +20071,8 @@ fn agg_level_h(
     chunks: &[Vec<Vec<i64>>],
     plan: &ring::eval_proof::LevelPlan,
 ) -> (Vec<Poly>, Vec<Vec<i64>>) {
-    use ring::eval_proof::{decompose_poly_modq, ring_ip_modq_small};
+    use ring::eval_proof::{decompose_poly_modq, level_h_pairs};
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_LEVELH);
     let zq = &ctx.zq;
     let r = plan.r;
     let phi_chunk = |j: usize| -> Vec<Poly> {
@@ -20080,16 +20081,11 @@ fn agg_level_h(
             .collect()
     };
     let phis: Vec<Vec<Poly>> = (0..r).map(phi_chunk).collect();
-    let mut h_polys = Vec::with_capacity(plan.n_pairs);
-    for j in 0..r {
-        for k in j..r {
-            let mut h = ring_ip_modq_small(ctx, &phis[j], &chunks[k]);
-            if j != k {
-                h = poly_add(zq, &h, &ring_ip_modq_small(ctx, &phis[k], &chunks[j]));
-            }
-            h_polys.push(h);
-        }
-    }
+    // [UPERF-PC O2] NTT-domain h pairs (bit-identical to the kara loop).
+    let phi_sl: Vec<&[Poly]> = phis.iter().map(|p| p.as_slice()).collect();
+    let w_sl: Vec<&[Vec<i64>]> = chunks.iter().map(|c| c.as_slice()).collect();
+    let h_polys = level_h_pairs(ctx, &phi_sl, &w_sl, plan.chunk);
+    debug_assert_eq!(h_polys.len(), plan.n_pairs);
     let mut hhat = Vec::with_capacity(plan.n_pairs * plan.l_h);
     for h in &h_polys {
         hhat.extend(decompose_poly_modq(zq, h, plan.e_next, plan.l_h));
@@ -29113,11 +29109,12 @@ fn bg_matvec_chunks(
     e_t: u32,
     l_t: usize,
 ) -> (Vec<Vec<Poly>>, Vec<Vec<i64>>) {
-    use ring::eval_proof::{decompose_poly_modq, matvec_modq_small, KAPPA_AGG};
+    use ring::eval_proof::{decompose_poly_modq, matvec_modq_small_multi, KAPPA_AGG};
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_MATVEC_CHUNKS);
     let zq = &ctxr.zq;
-    let t_polys: Vec<Vec<Poly>> = (0..r)
-        .map(|j| matvec_modq_small(ctxr, a_mat, KAPPA_AGG, chunk, &w[j * chunk..(j + 1) * chunk]))
-        .collect();
+    // [UPERF-PC O3] one A, all r chunk slices: A transformed once.
+    let s_list: Vec<&[Vec<i64>]> = (0..r).map(|j| &w[j * chunk..(j + 1) * chunk]).collect();
+    let t_polys: Vec<Vec<Poly>> = matvec_modq_small_multi(ctxr, a_mat, KAPPA_AGG, chunk, &s_list);
     let mut that = Vec::with_capacity(r * KAPPA_AGG * l_t);
     for tj in &t_polys {
         for tk in tj {
@@ -29155,21 +29152,18 @@ fn bg_level_h(
     w: &[Vec<i64>],
     plan: &ring::eval_proof::LevelPlan,
 ) -> (Vec<Poly>, Vec<Vec<i64>>) {
-    use ring::eval_proof::{decompose_poly_modq, ring_ip_modq_small};
+    use ring::eval_proof::{decompose_poly_modq, level_h_pairs};
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_LEVELH);
     let zq = &ctxr.zq;
     let r = plan.r;
     let c = plan.chunk;
-    let mut h_polys = Vec::with_capacity(plan.n_pairs);
-    for j in 0..r {
-        for k in j..r {
-            let mut h = ring_ip_modq_small(ctxr, &phi[j * c..(j + 1) * c], &w[k * c..(k + 1) * c]);
-            if j != k {
-                let h2 = ring_ip_modq_small(ctxr, &phi[k * c..(k + 1) * c], &w[j * c..(j + 1) * c]);
-                h = poly_add(zq, &h, &h2);
-            }
-            h_polys.push(h);
-        }
-    }
+    // [UPERF-PC O2] NTT-domain h pairs (bit-identical to the kara loop;
+    // r x chunk slices of phi and w — both padded to r*c by the caller).
+    assert!(phi.len() >= r * c && w.len() >= r * c, "bg_level_h: slices not padded to r*chunk");
+    let phi_sl: Vec<&[Poly]> = (0..r).map(|j| &phi[j * c..(j + 1) * c]).collect();
+    let w_sl: Vec<&[Vec<i64>]> = (0..r).map(|k| &w[k * c..(k + 1) * c]).collect();
+    let h_polys = level_h_pairs(ctxr, &phi_sl, &w_sl, c);
+    debug_assert_eq!(h_polys.len(), plan.n_pairs);
     let mut hhat = Vec::with_capacity(plan.n_pairs * plan.l_h);
     for h in &h_polys {
         hhat.extend(decompose_poly_modq(zq, h, plan.e_next, plan.l_h));
@@ -29180,6 +29174,7 @@ fn bg_level_h(
 /// Quinary fold over padded slices.
 fn bg_fold(w: &[Vec<i64>], cs: &[Vec<i64>], plan: &ring::eval_proof::LevelPlan) -> Vec<Vec<i64>> {
     use ring::eval_proof::decompose_poly_small;
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_FOLD); // observation only
     let mut zhat = Vec::with_capacity(plan.chunk * plan.l_z);
     for u in 0..plan.chunk {
         let mut z = vec![0i64; D];
@@ -29216,6 +29211,12 @@ fn bg_kernel_pass(
     phi_alphas: Option<&[Poly]>,
 ) -> (Vec<Poly>, Vec<Poly>) {
     use ring::kfield::K_DEG;
+    // [UPERF-PC] observation only: rows pass vs phi pass attribution.
+    let _t = ring::ct_engine::prof::timer(if phi_alphas.is_some() {
+        ring::ct_engine::prof::BG_KPHI
+    } else {
+        ring::ct_engine::prof::BG_KROWS
+    });
     let zq = &ctxr.zq;
     let mut b_rows = vec![poly_zero(); K_DEG];
     let mut phi: Vec<Poly> = if phi_alphas.is_some() {
@@ -29281,12 +29282,17 @@ fn bg_prove_group(
         OuterBinding, KAPPA_AGG,
     };
     use ring::kfield::K_DEG;
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_PROVE_GROUP); // observation only
     let zq = &ctxr.zq;
     let q = zq.q;
     let n0 = group.n_digit_rings;
 
     // ---- Claim rows (pass 1). ----
-    let (mut b_rows, _) = bg_kernel_pass(ctxr, kf, group, claims, Some(&w0[..n0]), None);
+    // [UPERF-PC O5] factored kernel passes (bit-identical to
+    // bg_kernel_pass, the retained oracle — diff-battery leg O5).
+    let mk = bg_multi_kernels(claims);
+    let (mut b_rows, _) =
+        ring::eval_proof::kernel_pass_factored(ctxr, kf, group, &mk, Some(&w0[..n0]), None);
     for (c, row) in b_rows.iter_mut().enumerate() {
         if lie_ct_rows {
             row[0] = v_batch[c];
@@ -29302,7 +29308,8 @@ fn bg_prove_group(
     for (a, b) in alphas0.iter().zip(b_rows.iter()) {
         h_cur = poly_add(zq, &h_cur, &ring_mul_split_kara_fast(ctxr, a, b));
     }
-    let (_, mut phi_cur) = bg_kernel_pass(ctxr, kf, group, claims, None, Some(&alphas0));
+    let (_, mut phi_cur) =
+        ring::eval_proof::kernel_pass_factored(ctxr, kf, group, &mk, None, Some(&alphas0));
 
     let BgPre { u0, that0, a0_mat, b0u_mat, r0, chunk0, e_t0, l_t0 } = pre;
     let mut tcap_attempts: Vec<u32> = Vec::new();
@@ -29310,18 +29317,17 @@ fn bg_prove_group(
     if sched.levels.is_empty() {
         assert!(!tier_z, "Tier-Z needs a recursed schedule");
         w0.truncate(n0);
-        return (
-            ring::eval_proof::GroupEvalProof {
-                u0,
-                ugh0: Vec::new(),
-                b_rows,
-                level_us: Vec::new(),
-                floor: w0.clone(),
-                floor_e: sched.floor_e,
-                tcap_attempts,
-            },
-            None,
-        );
+        let proof = ring::eval_proof::GroupEvalProof {
+            u0,
+            ugh0: Vec::new(),
+            b_rows,
+            level_us: Vec::new(),
+            floor: w0.clone(),
+            floor_e: sched.floor_e,
+            tcap_attempts,
+        };
+        ring::eval_proof::prof_digest_group_eval_proof(group.name, &proof); // [UPERF-PC] observation only
+        return (proof, None);
     }
 
     // ---- Level 0. ----
@@ -29406,18 +29412,17 @@ fn bg_prove_group(
     } else {
         (w_cur, None)
     };
-    (
-        ring::eval_proof::GroupEvalProof {
-            u0,
-            ugh0,
-            b_rows,
-            level_us,
-            floor,
-            floor_e: sched.floor_e,
-            tcap_attempts,
-        },
-        tz,
-    )
+    let proof = ring::eval_proof::GroupEvalProof {
+        u0,
+        ugh0,
+        b_rows,
+        level_us,
+        floor,
+        floor_e: sched.floor_e,
+        tcap_attempts,
+    };
+    ring::eval_proof::prof_digest_group_eval_proof(group.name, &proof); // [UPERF-PC] observation only
+    (proof, tz)
 }
 
 /// [UAGB1-BJ, R-BG1] GroupClaims -> the eval_proof ADDITIVE
@@ -29464,6 +29469,7 @@ fn bg_verify_group(
         KAPPA_AGG,
     };
     use ring::kfield::K_DEG;
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_VERIFY_GROUP); // observation only
     let zq = &ctxr.zq;
     let q = zq.q;
     let n0 = group.n_digit_rings;
@@ -29496,7 +29502,9 @@ fn bg_verify_group(
                 }
             }
         }
-        let (rows_eval, _) = bg_kernel_pass(ctxr, kf, group, claims, Some(&proof.floor), None);
+        let (rows_eval, _) = ring::eval_proof::kernel_pass_factored(
+            ctxr, kf, group, &bg_multi_kernels(claims), Some(&proof.floor), None,
+        ); // [UPERF-PC O5]
         for (re, rw) in rows_eval.iter().zip(proof.b_rows.iter()) {
             if re != rw {
                 return Err("claim-row-eval");
@@ -34597,26 +34605,34 @@ fn uperf_pc_wave_profile(li: usize, t: usize, digest: bool) {
 
 fn uperf_pc_pass_profile(layers_n: usize, t: usize) {
     use ring::ct_engine::prof;
-    println!("[UPERF-PC] pass-profile: composed pass prove, {layers_n} layers, T = {t}, P0");
+    println!("[UPERF-PC] pass-profile: composed pass prove+verify, {layers_n} layers, T = {t}, P0");
     prof::reset();
-    prof::enable(true, false);
+    prof::enable(true, true); // phase timers + the EVAL-PROOF DIGEST
     let t0 = Instant::now();
     let opts = BgOpts { layers_n, t, ..Default::default() };
     let (v, c, art) = bg_pass_run(&opts);
     let wall = t0.elapsed().as_secs_f64();
     prof::enable(false, false);
+    let dg = prof::digest_take();
     println!(
-        "[UPERF-PC] accept = {} | wall {wall:.1}s | statement digest {}",
+        "[UPERF-PC] accept = {} | wall {wall:.1}s | commit {:.1}s prove {:.1}s verify {:.1}s | statement digest {}",
         v.accept(),
+        c.commit_s,
+        c.prove_s,
+        c.verify_s,
         hex_full(&art.statement_digest)
     );
-    let _ = c;
-    println!("[UPERF-PC] eval-proof phase attribution (prove + verify both counted):");
+    println!("[UPERF-PC] phase attribution (process-global; bg.prove-group / bg.verify-group are per-group totals, ep.* are shared by prover and verifier):");
     for (name, secs, calls) in prof::report() {
         if calls == 0 && secs == 0.0 {
             continue;
         }
         println!("    {name:<24} {secs:>9.2}s  x{calls}");
+    }
+    if let Some(d) = dg {
+        // The composed-pass differential gate (TASK_BOARD.md Section 2.3):
+        // both groups' GroupEvalProof wire fields, weight then act.
+        println!("[UPERF-PC] EVAL-PROOF DIGEST {}", hex_full(&d));
     }
 }
 
@@ -34635,7 +34651,149 @@ fn uperf_pc_main(args: &[String]) {
             uperf_pc_pass_profile(layers_n, t);
         }
         Some("diff-battery") => uperf_pc_diff_battery(),
-        _ => println!("uperf-pc wave-profile [layer] [t] [nodigest] | pass-profile [layers] [t] | diff-battery"),
+        Some("kernel-bench") => {
+            let r: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(16);
+            let chunk: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(1024);
+            let with_ref = args.get(3).map(String::as_str) != Some("noref");
+            uperf_pc_kernel_bench(r, chunk, with_ref);
+        }
+        Some("kpass-bench") => {
+            let rows: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(64);
+            let cols: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(2048);
+            let with_ref = args.get(3).map(String::as_str) != Some("noref");
+            uperf_pc_kpass_bench(rows, cols, with_ref);
+        }
+        _ => println!(
+            "uperf-pc wave-profile [layer] [t] [nodigest] | pass-profile [layers] [t] | diff-battery | kernel-bench [r] [chunk] [noref] | kpass-bench [rows] [cols] [noref]"
+        ),
+    }
+}
+
+/// [UPERF-PC O5] Claim-kernel pass microbench: one aligned tensor
+/// rows x cols (e0 = 2, l0 = 5 — the act int8 class) with three
+/// contributions (two sharing a col kernel), rows pass + phi pass,
+/// factored vs the oracle `bg_kernel_pass` (byte equality asserted when
+/// the oracle runs).
+fn uperf_pc_kpass_bench(rows: usize, cols: usize, with_ref: bool) {
+    use ring::eval_proof::{kernel_pass_factored, AggGroup};
+    use ring::kfield::{KElem, KField, K_DEG};
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use std::rc::Rc;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let q = ctx.zq.q;
+    let mut rd = XofReader::new("uperf-pc-kpbench", &[&(rows as u64).to_le_bytes(), &(cols as u64).to_le_bytes()]);
+    let mut g = AggGroup::new("kpb");
+    g.add_tensor("T", rows, cols, 2, 5);
+    let n_dr = g.n_digit_rings;
+    println!(
+        "[UPERF-PC] kpass-bench: tensor {rows}x{cols} (e0 2, l0 5: {} value rings, {n_dr} digit rings), 3 contributions, q31, 1T [{}]",
+        g.tensors[0].n_value_rings(),
+        std::env::consts::OS
+    );
+    let rand_kvec = |rd: &mut XofReader, n: usize| -> Rc<Vec<KElem>> { Rc::new((0..n).map(|_| kf.uniform(rd)).collect()) };
+    let col_shared = rand_kvec(&mut rd, cols);
+    let mut claims = GroupClaims::new(1);
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: col_shared.clone() });
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: col_shared.clone() });
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: rand_kvec(&mut rd, cols) });
+    let (lo, hi) = ring::digits::alphabet(2);
+    let span = (hi - lo + 1) as u64;
+    let w0: Vec<Vec<i64>> = (0..n_dr).map(|_| (0..D).map(|_| lo + rd.next_field(span) as i64).collect()).collect();
+    let alphas: Vec<Poly> = (0..K_DEG).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
+    let kernels = bg_multi_kernels(&claims);
+    let t0 = Instant::now();
+    let (rows_fac, _) = kernel_pass_factored(&ctx, &kf, &g, &kernels, Some(&w0), None);
+    let s_rows = t0.elapsed().as_secs_f64();
+    let t0 = Instant::now();
+    let (_, phi_fac) = kernel_pass_factored(&ctx, &kf, &g, &kernels, None, Some(&alphas));
+    let s_phi = t0.elapsed().as_secs_f64();
+    println!(
+        "  factored: rows pass {s_rows:.3}s ({:.2} us/digit ring), phi pass {s_phi:.3}s ({:.2} us/digit ring)",
+        s_rows * 1e6 / n_dr as f64,
+        s_phi * 1e6 / n_dr as f64
+    );
+    if with_ref {
+        let t0 = Instant::now();
+        let (rows_ref, _) = bg_kernel_pass(&ctx, &kf, &g, &claims, Some(&w0), None);
+        let s_rows_r = t0.elapsed().as_secs_f64();
+        let t0 = Instant::now();
+        let (_, phi_ref) = bg_kernel_pass(&ctx, &kf, &g, &claims, None, Some(&alphas));
+        let s_phi_r = t0.elapsed().as_secs_f64();
+        assert_eq!(rows_fac, rows_ref, "kpass-bench: rows mismatch");
+        assert_eq!(phi_fac, phi_ref, "kpass-bench: phi mismatch");
+        println!(
+            "  oracle  : rows pass {s_rows_r:.3}s ({:.2} us/digit ring), phi pass {s_phi_r:.3}s ({:.2} us/digit ring) -> speedups {:.1}x / {:.1}x (byte-identical)",
+            s_rows_r * 1e6 / n_dr as f64,
+            s_phi_r * 1e6 / n_dr as f64,
+            s_rows_r / s_rows,
+            s_phi_r / s_phi
+        );
+    }
+}
+
+/// [UPERF-PC] Kernel-class microbench: the level-0 h cross-garbage and
+/// the A matvec at (r, chunk) — NTT-domain kernel vs the Karatsuba
+/// oracle (byte equality asserted when the oracle runs). Synthetic
+/// operands: uniform mod-q phi / A, digits |w| <= 2 (the act-group e0 = 2
+/// alphabet). Reports us per (ring x ring) product on each path.
+fn uperf_pc_kernel_bench(r: usize, chunk: usize, with_ref: bool) {
+    use ring::eval_proof::{
+        level_h_pairs, level_h_pairs_ref, matvec_modq_small_multi, matvec_modq_small_ref, KAPPA_AGG,
+    };
+    let ctx = ring_ctx_q8();
+    let q = ctx.zq.q;
+    let mut rd = XofReader::new("uperf-pc-kbench", &[&(r as u64).to_le_bytes(), &(chunk as u64).to_le_bytes()]);
+    println!(
+        "[UPERF-PC] kernel-bench: r = {r}, chunk = {chunk} (n_0 = {}), q31, 1T [{}]",
+        r * chunk,
+        std::env::consts::OS
+    );
+    let phi: Vec<Poly> = (0..r * chunk).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
+    let w: Vec<Vec<i64>> = (0..r * chunk)
+        .map(|_| (0..D).map(|_| rd.next_field(5) as i64 - 2).collect())
+        .collect();
+    let a_mat: Vec<Poly> = (0..KAPPA_AGG * chunk).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
+    let phi_sl: Vec<&[Poly]> = (0..r).map(|j| &phi[j * chunk..(j + 1) * chunk]).collect();
+    let w_sl: Vec<&[Vec<i64>]> = (0..r).map(|k| &w[k * chunk..(k + 1) * chunk]).collect();
+    // level h: r^2 * chunk ring products.
+    let n_prod_h = (r * r * chunk) as f64;
+    let t0 = Instant::now();
+    let h_ntt = level_h_pairs(&ctx, &phi_sl, &w_sl, chunk);
+    let s_ntt = t0.elapsed().as_secs_f64();
+    println!(
+        "  level-h NTT   : {s_ntt:>8.3}s  = {:.3} us/product  ({} pairs)",
+        s_ntt * 1e6 / n_prod_h,
+        h_ntt.len()
+    );
+    if with_ref {
+        let t0 = Instant::now();
+        let h_ref = level_h_pairs_ref(&ctx, &phi_sl, &w_sl, chunk);
+        let s_ref = t0.elapsed().as_secs_f64();
+        assert_eq!(h_ntt, h_ref, "kernel-bench: level-h NTT != oracle");
+        println!(
+            "  level-h kara  : {s_ref:>8.3}s  = {:.3} us/product  -> speedup {:.1}x (byte-identical)",
+            s_ref * 1e6 / n_prod_h,
+            s_ref / s_ntt
+        );
+    }
+    // A matvec for all r slices: kappa * r * chunk ring products.
+    let n_prod_m = (KAPPA_AGG * r * chunk) as f64;
+    let t0 = Instant::now();
+    let t_ntt = matvec_modq_small_multi(&ctx, &a_mat, KAPPA_AGG, chunk, &w_sl);
+    let s_ntt = t0.elapsed().as_secs_f64();
+    println!("  matvec  NTT   : {s_ntt:>8.3}s  = {:.3} us/product", s_ntt * 1e6 / n_prod_m);
+    if with_ref {
+        let t0 = Instant::now();
+        let t_ref: Vec<Vec<Poly>> =
+            w_sl.iter().map(|s| matvec_modq_small_ref(&ctx, &a_mat, KAPPA_AGG, chunk, s)).collect();
+        let s_ref = t0.elapsed().as_secs_f64();
+        assert_eq!(t_ntt, t_ref, "kernel-bench: matvec NTT != oracle");
+        println!(
+            "  matvec  kara  : {s_ref:>8.3}s  = {:.3} us/product  -> speedup {:.1}x (byte-identical)",
+            s_ref * 1e6 / n_prod_m,
+            s_ref / s_ntt
+        );
     }
 }
 
@@ -34648,6 +34806,10 @@ fn uperf_pc_diff_battery() {
     };
     let t0 = Instant::now();
     println!("[UPERF-PC] differential battery");
+    if ring::eval_proof::oracle_mode() {
+        println!("[UPERF-PC] WARNING: ZK_UPERF_ORACLE=1 is set — every fast path is routed to its oracle, so the O2/O3/O5 legs below are VACUOUS; unset it for a real battery run");
+    }
+    println!("[UPERF-PC] ZK_THREADS = {}", ring::eval_proof::threads());
 
     // O1 — CRS memo: cached expansion == raw XOF, then a second cached
     // call hits and still matches. Shapes cover A (kappa x chunk) and
@@ -34676,8 +34838,257 @@ fn uperf_pc_diff_battery() {
     assert_ne!(a, b, "O1 CRS keying collapsed W vs act");
     println!("[UPERF-PC] O1 CRS memo: 4/4 byte-identical + group-key separation");
 
+    // O2 / O3 — the NTT-domain kernel vs the Karatsuba oracles, on
+    // adversarial small shapes at BOTH house moduli. Every leg is byte
+    // equality of the mod-q output vectors.
+    let (n2, n3) = uperf_pc_diff_o2_o3();
+    println!("[UPERF-PC] O2 level-h: {n2}/{n2} byte-identical (q31 + q46, windows crossing, fallback)");
+    println!("[UPERF-PC] O3 matvec: {n3}/{n3} byte-identical (single, multi, ring-ip; q31 + q46)");
+    let n5 = uperf_pc_diff_o5();
+    println!("[UPERF-PC] O5 kernel-pass: {n5}/{n5} byte-identical (rows + phi + verifier psi0-factored-multi; aligned/misaligned/no-kernel tensors, shared col kernels, q31 + q46)");
+
     println!(
         "[UPERF-PC] differential battery passed in {:.2}s",
         t0.elapsed().as_secs_f64()
     );
+}
+
+/// [UPERF-PC O5] The factored claim-kernel passes vs the oracle
+/// `bg_kernel_pass` on synthetic groups: aligned tensors (nb = 1 and 2,
+/// e0 = 1 / 2 with l0 = 2 / 3), a MISALIGNED tensor (64 x 96 — the
+/// reference path), a tensor with NO kernel (zero path), several
+/// kernels per tensor, and col kernels SHARED across tensors (the
+/// Rc-keyed cache). Both passes, at q31; also q46 for one seed. Returns
+/// legs passed; panics on the first byte mismatch.
+fn uperf_pc_diff_o5() -> usize {
+    use ring::eval_proof::{kernel_pass_factored, AggGroup, KAPPA_AGG};
+    use ring::kfield::{KElem, KField, K_DEG};
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use std::rc::Rc;
+    let _ = KAPPA_AGG;
+    let mut legs = 0usize;
+    for (qn, ctx) in [("q31", ring_ctx_q8()), ("q46", ring::ring_ctx(ring::Q8_46, ring::ETA8_46, 8))] {
+        let kf = KField::new(&ctx);
+        let zq = &ctx.zq;
+        let q = zq.q;
+        for seed in [0x51u64, 0x52] {
+            if qn == "q46" && seed != 0x51 {
+                continue;
+            }
+            let mut rd = XofReader::new("uperf-pc-o5", &[qn.as_bytes(), &seed.to_le_bytes()]);
+            let mut g = AggGroup::new("o5");
+            g.add_tensor("A-aligned-nb2", 4, 256, 2, 3);
+            g.add_tensor("B-aligned-nb1", 8, 128, 1, 2);
+            g.add_tensor("C-misaligned", 64, 96, 2, 2);
+            g.add_tensor("D-no-kernel", 3, 384, 2, 2);
+            g.add_tensor("E-aligned-nb3", 2, 384, 3, 2);
+            let n_t = g.tensors.len();
+            let rand_k = |rd: &mut XofReader| -> KElem { kf.uniform(rd) };
+            let rand_kvec = |rd: &mut XofReader, n: usize| -> Rc<Vec<KElem>> {
+                Rc::new((0..n).map(|_| kf.uniform(rd)).collect())
+            };
+            // Shared col kernels: one of length 256 (A and E's cb 0..1
+            // reuse it — E has cols 384 so needs 384; give E its own
+            // 384 and let A share a second contribution's col with a
+            // third contribution on A itself), one of length 128 (B).
+            let col256_shared = rand_kvec(&mut rd, 256);
+            let col128_shared = rand_kvec(&mut rd, 128);
+            let mut claims = GroupClaims::new(n_t);
+            // Tensor 0 (A): three contributions, two sharing col256_shared.
+            claims.push(ClaimContrib { tensor_idx: 0, scale: rand_k(&mut rd), row: rand_kvec(&mut rd, 4), col: col256_shared.clone() });
+            claims.push(ClaimContrib { tensor_idx: 0, scale: rand_k(&mut rd), row: rand_kvec(&mut rd, 4), col: col256_shared.clone() });
+            claims.push(ClaimContrib { tensor_idx: 0, scale: rand_k(&mut rd), row: rand_kvec(&mut rd, 4), col: rand_kvec(&mut rd, 256) });
+            // Tensor 1 (B): two contributions, one with a zero scale.
+            claims.push(ClaimContrib { tensor_idx: 1, scale: rand_k(&mut rd), row: rand_kvec(&mut rd, 8), col: col128_shared.clone() });
+            claims.push(ClaimContrib { tensor_idx: 1, scale: kf.zero(), row: rand_kvec(&mut rd, 8), col: col128_shared.clone() });
+            // Tensor 2 (C, misaligned): two contributions.
+            claims.push(ClaimContrib { tensor_idx: 2, scale: rand_k(&mut rd), row: rand_kvec(&mut rd, 64), col: rand_kvec(&mut rd, 96) });
+            claims.push(ClaimContrib { tensor_idx: 2, scale: rand_k(&mut rd), row: rand_kvec(&mut rd, 64), col: rand_kvec(&mut rd, 96) });
+            // Tensor 3 (D): none. Tensor 4 (E): one.
+            claims.push(ClaimContrib { tensor_idx: 4, scale: rand_k(&mut rd), row: rand_kvec(&mut rd, 2), col: rand_kvec(&mut rd, 384) });
+            // Witness digits in each tensor's alphabet (with zero rings).
+            let mut w0: Vec<Vec<i64>> = Vec::with_capacity(g.n_digit_rings);
+            for t in &g.tensors {
+                let (lo, hi) = ring::digits::alphabet(t.e0);
+                let span = (hi - lo + 1) as u64;
+                for u in 0..t.n_digit_rings() {
+                    if u % 9 == 4 {
+                        w0.push(vec![0i64; D]);
+                    } else {
+                        w0.push((0..D).map(|_| lo + rd.next_field(span) as i64).collect());
+                    }
+                }
+            }
+            assert_eq!(w0.len(), g.n_digit_rings);
+            let alphas: Vec<Poly> = (0..K_DEG).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
+            let kernels = bg_multi_kernels(&claims);
+            // Rows pass.
+            let (rows_ref, _) = bg_kernel_pass(&ctx, &kf, &g, &claims, Some(&w0), None);
+            let (rows_fac, _) = kernel_pass_factored(&ctx, &kf, &g, &kernels, Some(&w0), None);
+            assert_eq!(rows_fac, rows_ref, "O5 rows pass mismatch at {qn} seed {seed:#x}");
+            legs += 1;
+            // Phi pass.
+            let (_, phi_ref) = bg_kernel_pass(&ctx, &kf, &g, &claims, None, Some(&alphas));
+            let (_, phi_fac) = kernel_pass_factored(&ctx, &kf, &g, &kernels, None, Some(&alphas));
+            assert_eq!(phi_fac.len(), phi_ref.len());
+            for (u, (a, b)) in phi_fac.iter().zip(phi_ref.iter()).enumerate() {
+                assert_eq!(a, b, "O5 phi pass mismatch at {qn} seed {seed:#x} digit ring {u}");
+            }
+            legs += 1;
+            // The verifier's factored Psi_0 (T8b: PhiFactored inside
+            // psi_level0_factored_multi) == compute_psi(reference Phi_0)
+            // at two chunk splits (one aligned to nothing, one exact).
+            let n0 = g.n_digit_rings;
+            for chunk in [n0.div_ceil(5), 37usize] {
+                let r = n0.div_ceil(chunk);
+                let cs: Vec<Vec<i64>> = (0..r).map(|_| rd.next_challenge()).collect();
+                let phi_pad = {
+                    let mut p = ring::eval_proof::phi0_reference_multi(&ctx, &kf, &g, &kernels, &alphas);
+                    p.resize(r * chunk, poly_zero());
+                    p
+                };
+                let want = ring::eval_proof::compute_psi(&ctx, &phi_pad, chunk, &cs);
+                let got = ring::eval_proof::psi_level0_factored_multi(&ctx, &kf, &g, &kernels, &alphas, &cs, chunk);
+                assert_eq!(got, want, "O5 psi0-factored-multi mismatch at {qn} seed {seed:#x} chunk {chunk}");
+                let pre = ring::eval_proof::psi_level0_factored_multi_pre_o5(&ctx, &kf, &g, &kernels, &alphas, &cs, chunk);
+                assert_eq!(pre, want, "O5 psi0 pre-O5 oracle path mismatch at {qn} seed {seed:#x} chunk {chunk}");
+                legs += 1;
+            }
+        }
+    }
+    legs
+}
+
+/// [UPERF-PC O2/O3] The kernel legs. Returns (level-h legs, matvec legs)
+/// passed; panics on the first byte mismatch.
+fn uperf_pc_diff_o2_o3() -> (usize, usize) {
+    use ring::eval_proof::{
+        level_h_pairs, level_h_pairs_ref, matvec_modq_small, matvec_modq_small_multi,
+        matvec_modq_small_ref, ntt_gemm_modq_small, ntt_window_terms, ring_ip_modq_small,
+        ring_ip_modq_small_ref,
+    };
+    // Adversarial mod-q ring: mostly uniform, with planted extremes
+    // (0, 1, q-1, q/2, q/2+1) and occasional all-zero rings.
+    fn rand_modq_ring(rd: &mut XofReader, q: u64, zero_ring: bool) -> Poly {
+        if zero_ring {
+            return poly_zero();
+        }
+        let mut p: Poly = (0..D).map(|_| rd.next_field(q)).collect();
+        let plant = [0u64, 1, q - 1, q / 2, q / 2 + 1];
+        for (i, v) in plant.iter().enumerate() {
+            let pos = (rd.next_u64() as usize) % D;
+            if i % 2 == 0 {
+                p[pos] = *v;
+            }
+        }
+        p
+    }
+    // Adversarial small ring: uniform in [-s_max, s_max] with planted
+    // +-s_max and zeros; optionally all-zero.
+    fn rand_small_ring(rd: &mut XofReader, s_max: i64, zero_ring: bool) -> Vec<i64> {
+        if zero_ring || s_max == 0 {
+            return vec![0i64; D];
+        }
+        let span = (2 * s_max + 1) as u64;
+        let mut v: Vec<i64> = (0..D).map(|_| rd.next_field(span) as i64 - s_max).collect();
+        let pos = (rd.next_u64() as usize) % D;
+        v[pos] = s_max;
+        let pos = (rd.next_u64() as usize) % D;
+        v[pos] = -s_max;
+        v
+    }
+    let ctx31 = ring_ctx_q8();
+    let ctx46 = ring::ring_ctx(ring::Q8_46, ring::ETA8_46, 8);
+    let mut legs_h = 0usize;
+    let mut legs_m = 0usize;
+    // (q label, ctx, s_max list): s_max values chosen so that windows are
+    // huge (digits), cross the input length (q46 s_max 64 -> 32-term
+    // windows; q31 s_max 2^20 -> 64-term windows), and exceed capacity
+    // (q46 s_max 2^40 -> fallback to the oracle).
+    let regimes: [(&str, &RingCtx, &[i64]); 2] = [
+        ("q31", &ctx31, &[1, 2, 64, 1 << 20]),
+        ("q46", &ctx46, &[1, 64, 1 << 40]),
+    ];
+    for (qn, ctx, smaxes) in regimes.iter() {
+        let q = ctx.zq.q;
+        for &s_max in smaxes.iter() {
+            let window = ntt_window_terms(q, s_max as u128);
+            // Level-h shapes: (r, chunk).
+            for (r, chunk) in [(1usize, 1usize), (2, 7), (3, 64), (5, 33), (8, 257)] {
+                let mut rd = XofReader::new(
+                    "uperf-pc-o2",
+                    &[qn.as_bytes(), &s_max.to_le_bytes(), &(r as u64).to_le_bytes(), &(chunk as u64).to_le_bytes()],
+                );
+                let phis: Vec<Vec<Poly>> = (0..r)
+                    .map(|j| {
+                        (0..chunk)
+                            .map(|u| rand_modq_ring(&mut rd, q, (u + j) % 11 == 3))
+                            .collect()
+                    })
+                    .collect();
+                let ws: Vec<Vec<Vec<i64>>> = (0..r)
+                    .map(|k| {
+                        // slice k == 1 all-zero (when r > 1); other rings zero at a stride.
+                        (0..chunk)
+                            .map(|u| rand_small_ring(&mut rd, s_max, k == 1 || (u + k) % 13 == 5))
+                            .collect()
+                    })
+                    .collect();
+                let phi_sl: Vec<&[Poly]> = phis.iter().map(|p| p.as_slice()).collect();
+                let w_sl: Vec<&[Vec<i64>]> = ws.iter().map(|w| w.as_slice()).collect();
+                let got = level_h_pairs(ctx, &phi_sl, &w_sl, chunk);
+                let want = level_h_pairs_ref(ctx, &phi_sl, &w_sl, chunk);
+                assert_eq!(
+                    got, want,
+                    "O2 level-h mismatch at {qn} s_max {s_max} (window {window}) r {r} chunk {chunk}"
+                );
+                assert_eq!(got.len(), r * (r + 1) / 2);
+                legs_h += 1;
+                // The raw kernel on the same data, transposed roles
+                // (na = r phi slices, nb = r w slices): out[j][k] == <phi_j, w_k>.
+                let g = ntt_gemm_modq_small(ctx, &phi_sl, &w_sl, chunk);
+                for j in 0..r {
+                    for k in 0..r {
+                        let want = ring_ip_modq_small_ref(ctx, &phis[j], &ws[k]);
+                        assert_eq!(g[j * r + k], want, "O2 gemm cell ({j},{k}) at {qn} s_max {s_max}");
+                    }
+                }
+                // ring_ip_modq_small (NTT body) vs its oracle.
+                for j in 0..r {
+                    assert_eq!(
+                        ring_ip_modq_small(ctx, &phis[j], &ws[j]),
+                        ring_ip_modq_small_ref(ctx, &phis[j], &ws[j]),
+                        "O3 ring-ip mismatch at {qn} s_max {s_max} r {r} chunk {chunk} j {j}"
+                    );
+                }
+                legs_m += 1;
+            }
+            // Matvec shapes: (rows, cols, n_vectors).
+            for (rows, cols, nv) in [(1usize, 1usize, 1usize), (11, 5, 3), (3, 64, 1), (11, 301, 4)] {
+                let mut rd = XofReader::new(
+                    "uperf-pc-o3",
+                    &[qn.as_bytes(), &s_max.to_le_bytes(), &(rows as u64).to_le_bytes(), &(cols as u64).to_le_bytes()],
+                );
+                let m: Vec<Poly> =
+                    (0..rows * cols).map(|i| rand_modq_ring(&mut rd, q, i % 17 == 9)).collect();
+                let vecs: Vec<Vec<Vec<i64>>> = (0..nv)
+                    .map(|i| (0..cols).map(|u| rand_small_ring(&mut rd, s_max, (u + i) % 7 == 2)).collect())
+                    .collect();
+                for v in &vecs {
+                    let got = matvec_modq_small(ctx, &m, rows, cols, v);
+                    let want = matvec_modq_small_ref(ctx, &m, rows, cols, v);
+                    assert_eq!(got, want, "O3 matvec mismatch at {qn} s_max {s_max} {rows}x{cols}");
+                }
+                let v_sl: Vec<&[Vec<i64>]> = vecs.iter().map(|v| v.as_slice()).collect();
+                let multi = matvec_modq_small_multi(ctx, &m, rows, cols, &v_sl);
+                assert_eq!(multi.len(), nv);
+                for (i, v) in vecs.iter().enumerate() {
+                    let want = matvec_modq_small_ref(ctx, &m, rows, cols, v);
+                    assert_eq!(multi[i], want, "O3 matvec-multi mismatch at {qn} s_max {s_max} {rows}x{cols} vec {i}");
+                }
+                legs_m += 1;
+            }
+        }
+    }
+    (legs_h, legs_m)
 }

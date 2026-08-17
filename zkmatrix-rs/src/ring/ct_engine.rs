@@ -2499,7 +2499,14 @@ pub mod prof {
     pub const CT_ATTEMPTS: usize = 17; // rejection-loop attempts (count only)
     pub const EP_LEVELH: usize = 18; // level_h_pairs (h cross-garbage)
     pub const EP_CRS_HIT: usize = 19; // expand_level_matrix cache hits (count only)
-    pub const N_PHASES: usize = 20;
+    pub const BG_KROWS: usize = 20; // bg_kernel_pass rows pass (claim rows b_rows)
+    pub const BG_KPHI: usize = 21; // bg_kernel_pass phi pass (aggregated functional)
+    pub const BG_FOLD: usize = 22; // bg_fold / agg_fold (quinary fold + digit split)
+    pub const BG_MATVEC_CHUNKS: usize = 23; // bg_matvec_chunks (A x w_j for all j + digit split)
+    pub const BG_LEVELH: usize = 24; // bg_level_h / agg_level_h wall (incl. digit split of h)
+    pub const BG_PROVE_GROUP: usize = 25; // bg_prove_group total (per group)
+    pub const BG_VERIFY_GROUP: usize = 26; // bg_verify_group total (per group)
+    pub const N_PHASES: usize = 27;
 
     pub const NAMES: [&str; N_PHASES] = [
         "ct.setup(clone+digits)",
@@ -2522,6 +2529,13 @@ pub mod prof {
         "ct.attempts",
         "ep.level-h-pairs",
         "ep.crs-cache-hit",
+        "bg.kernel-rows",
+        "bg.kernel-phi",
+        "bg.fold",
+        "bg.matvec-chunks",
+        "bg.level-h",
+        "bg.prove-group",
+        "bg.verify-group",
     ];
 
     static ENABLED: AtomicBool = AtomicBool::new(false);

@@ -84,15 +84,28 @@ zkmatrix-rs/target/release/ring_matmul bh-verifier battery             # BH diff
 Wrap long runs in `/usr/bin/time -v` (Linux) or `/usr/bin/time -l`
 (macOS) so wall + peak RSS land in the record.
 
-### 2.3 The EVAL-PROOF DIGEST (the composed-pass differential gate)
+### 2.3 The EVAL-PROOF DIGEST (the composed-pass differential gate) and the two env knobs
 
 `uperf-pc pass-profile <layers> <t>` prints
 `[UPERF-PC] EVAL-PROOF DIGEST <hex>` = SHA-256 over both groups'
 GroupEvalProof wire fields (b_rows, u0, ugh0, level_us, floor,
 tcap_attempts) in order. It must be IDENTICAL at the same
 (layers, t, mode) before and after any Phase-0 change. Baselines are
-recorded in Section 4 as they are measured (T1). If a task lands
-without a baseline digest for its shape, run T1 first.
+recorded in Section 4 as they are measured (T1).
+
+Two environment knobs make every A/B a ONE-BINARY affair:
+
+- `ZK_UPERF_ORACLE=1` routes every Phase-0 kernel entry point
+  (matvec / ring-ip / level-h / the claim-kernel passes / the
+  verifier's factored psi) to its pre-optimization oracle at runtime.
+  Same binary, same box, same shape: run once with it (the "before")
+  and once without (the "after"); the digests must be identical and
+  the walls are the A/B.
+- `ZK_THREADS=n` (default 1 = the ledger's 1T convention) sizes the
+  kernel thread pool; every parallel split is over independent
+  exact-integer work with a fixed reduction order, so the digest is
+  identical for any n (the battery asserts it at 1/2/7). Record NT
+  numbers as a separate row, never in place of the 1T number.
 
 ## 3. The queue (ordered; take the first OPEN task your box can do)
 
@@ -110,27 +123,46 @@ every PUSH from the MAC: full suite green.
 
 ---
 
-### T1 — pass-profile BASELINE (attribution table + digest)  `OPEN`  WHO: MAC  KIND: RUN
+### T1 — pass-profile BASELINE + AFTER (attribution table + digest)  `OPEN`  WHO: MAC  KIND: RUN
 WHY: nobody has run the composed-pass profile; every share above is
-BG-F3 arithmetic. This gives the measured table AND the digest every
-later task is checked against.
+BG-F3 arithmetic. This gives the measured before/after tables AND the
+digest identity for O2/O3/O5/T8b (which landed 2026-08-17 on the WSL
+box with battery legs only). ONE binary, two env settings (2.3).
 STEPS:
-1. `git pull`; `cargo build --release` (in zkmatrix-rs/).
-2. `/usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-pc pass-profile 3 16 > results/uperf/pass_profile_3x16_<commit>.txt 2>&1`
-3. `/usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-pc pass-profile 12 512 > results/uperf/pass_profile_12x512_<commit>.txt 2>&1`
-   (about 80-90 min prove + verify; peak RSS ~41 GiB; run when nothing else heavy runs).
-4. Copy the phase table (the `ep.*` / `bg.*` rows), `accept`, wall, and
-   the `EVAL-PROOF DIGEST` line into U_PERF_WAVE_REPORT.md Section 2 (a
-   table per shape) and the digest into Section 4 of THIS file.
-ACCEPT: `accept = true` at both shapes; the 12x512 statement digest
-equals the frozen `76dbf2040409333e` prefix printed by the rig.
-RECORD: U_PERF_WAVE_REPORT.md Section 2; TASK_BOARD Section 4.
-NOTE: `results/uperf/` is a new directory; add a `.gitignore` with
-`*.txt` if the files are large, and paste the tables into the report.
+1. `git pull`; `cargo build --release` (in zkmatrix-rs/); `mkdir -p results/uperf`.
+2. Fast yardstick, BEFORE then AFTER (each ~5-10 min):
+   `ZK_UPERF_ORACLE=1 /usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-pc pass-profile 3 16 > results/uperf/pp_3x16_oracle.txt 2>&1`
+   `/usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-pc pass-profile 3 16 > results/uperf/pp_3x16_fast.txt 2>&1`
+   The two `EVAL-PROOF DIGEST` lines MUST be identical. If not: STOP,
+   record, do nothing else (that is a bug report, not a fix).
+3. The real thing, AFTER first (so the useful number exists early),
+   then BEFORE (~80-90 min; peak RSS ~41 GiB; nothing else heavy):
+   `/usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-pc pass-profile 12 512 > results/uperf/pp_12x512_fast.txt 2>&1`
+   `ZK_UPERF_ORACLE=1 /usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-pc pass-profile 12 512 > results/uperf/pp_12x512_oracle.txt 2>&1`
+4. Optional NT row: `ZK_THREADS=8 ... pass-profile 12 512` (digest
+   identical; record as a separate NT row).
+5. Copy the phase tables (the `ep.*` / `bg.*` rows), `accept`, walls
+   (commit/prove/verify), and the digests into U_PERF_WAVE_REPORT.md
+   Section 4.2 (before/after per shape) and Section 4 of THIS file.
+ACCEPT: `accept = true` everywhere; digests identical oracle vs fast
+(and vs NT); the 12x512 statement digest equals the frozen
+`76dbf2040409333e` prefix printed by the rig.
+RECORD: U_PERF_WAVE_REPORT.md Section 4.2; TASK_BOARD Section 4;
+PROGRESS_UPERF.md log line ("T1/T4 measured: ...").
+NOTE: `results/uperf/` is new; add a `.gitignore` with `*.txt` if the
+files are large, and paste the tables into the report.
 
 ---
 
-### T2 — the h cross-garbage in the NTT domain (O2)  `IN PROGRESS (Claude, 2026-08-17)`  WHO: ANY  KIND: CODE
+### T2 — the h cross-garbage in the NTT domain (O2)  `LANDED 2026-08-17 (Claude, WSL) — rig A/B = T4`  WHO: ANY  KIND: CODE
+DONE: `eval_proof::level_h_pairs` + `ntt_gemm_modq_small` + oracle
+`level_h_pairs_ref`; `bg_level_h` / `agg_level_h` switched; battery
+leg "O2 level-h" 35/35; freeze-check rows identical to the pre-change
+baseline; `agg-matmul battery` 22/22 + passed; `bh-verifier battery`
+passed. Kernel-bench [WSL-BOX 1T QUIET] `uperf-pc kernel-bench 64
+2048`: 0.245 us/product NTT vs ~5.0 us/product kara (r=16 oracle run)
+=> ~20x on the level-0 term on this box (Section 4 of
+U_PERF_WAVE_REPORT.md). Remaining for T4: the 12x512 digest + wall.
 WHY: the largest term of the composed prove (~500M + ~227M ring-mults at
 125M, ~2 us each on `ring_ip_modq_small`). Same arithmetic, ~15-25x.
 WHAT: `eval_proof::level_h_pairs(ctx, phi_slices, w_slices) -> Vec<Poly>`
@@ -152,7 +184,12 @@ RECORD: U_PERF_WAVE_REPORT.md Section 3 (O2), this row.
 
 ---
 
-### T3 — matvecs in the NTT domain (O3)  `OPEN (Claude next; ANY may take if Claude is absent)`  WHO: ANY  KIND: CODE
+### T3 — matvecs in the NTT domain (O3)  `LANDED 2026-08-17 (Claude, WSL) — rig A/B = T4`  WHO: ANY  KIND: CODE
+DONE: `matvec_modq_small` (all call sites, prover + verifier) and
+`ring_ip_modq_small` ride the kernel; new `matvec_modq_small_multi`
+in `bg_matvec_chunks` / `agg_level_t`; oracles `*_ref`; battery leg
+"O3 matvec" 63/63; same transcript gates as T2. Kernel-bench: 0.65
+us/product NTT vs ~5.3 us kara [WSL-BOX 1T].
 WHAT: `eval_proof::matvec_modq_small_multi(ctx, m, rows, cols, s_list)
 -> Vec<Vec<Poly>>` (one M, many small vectors; M transformed once per
 call, u-major accumulation into rows x len(s_list) accumulators);
@@ -166,57 +203,76 @@ ACCEPT/RECORD: as T2 (leg `O3 matvec: N/N byte-identical`).
 
 ---
 
-### T4 — A/B after T2+T3 on the rig  `OPEN (after T2, T3)`  WHO: MAC  KIND: RUN
-STEPS: build; `uperf-pc pass-profile 3 16` -> digest MUST equal the T1
-baseline (else STOP, report, revert); `freeze-check` exit 0; `pass-agg
-seam`; `agg-matmul battery`; then `uperf-pc pass-profile 12 512`
-(digest == baseline; wall + phase table); then `table-descent prove 12
-512 p0` for the full-statement wall. Suite before push.
-RECORD: U_PERF_WAVE_REPORT.md Section 4 (before/after table with
-labels), PROGRESS_UPERF.md log line, this row.
+### T4 — the rest of the rig gates after T1  `OPEN (after T1)`  WHO: MAC  KIND: RUN
+STEPS (all at HEAD, fast path): `freeze-check` exit 0 (full, incl. the
+BF rows); `pass-agg seam` 12/12; `pass-agg battery` 14/14 (~70 min);
+`table-descent prove 12 512 p0` for the full-statement wall (also once
+with `ZK_UPERF_ORACLE=1` if time permits — the two `accept`/bytes
+lines must match); the python suite green before any push.
+RECORD: U_PERF_WAVE_REPORT.md Section 4.2, PROGRESS_UPERF.md log line,
+this row.
 
 ---
 
-### T5 — the two claim-kernel passes as integer GEMMs  `OPEN`  WHO: ANY (Claude preferred)  KIND: CODE
-WHY: `bg_kernel_pass` (bin ~29210) does 16 `ring_mul_split_kara_fast`
-per digit ring, twice (rows pass, phi pass): ~365M ring-mults at 125M
-(~30% of the composed prove).
-WHAT (exact identities, both passes):
-- rows pass: `b_rows[c] = sum_u bp_u[c] * w_u` with
-  `bp_u[c] = radix_u * conj(row_c(kw_u))`, `row_c(kw_u)[c1] =
-  kw_u[c1][c]`. Since conj is linear over monomials:
-  `b_rows[c] = sum_{c1} conj(X^{c1}) * S[c1][c]`,
-  `S[c1][c] = sum_u (radix_u * kw_u[c1][c]) * w_u` — 256 accumulator
-  rings, each an exact i128 (fits: |term| < 2^31 * 2^6, n_0 < 2^24)
-  scalar x small-ring MAC; reduce mod q once at the end; then 256
-  monomial-conj rotations (`conj_poly` of `X^{c1} * S`).
-- phi pass: `phi_u = radix_u * sum_{c1} conj(X^{c1}) * beta_u[c1]`,
-  `beta_u[c1] = sum_c kw_u[c1][c] * alpha_c` — precompute the 256
-  rings `R[c1][c] = conj(X^{c1}) * alpha_c` ONCE (mod q), then
-  `phi_u = radix_u * sum_{c1,c} kw_u[c1][c] * R[c1][c]` — a 256-scalar
-  x 256-ring dot with u128 lazy accumulation, one mod-q reduction per
-  ring.
-Both are `n_0 x 256 x 128` integer MACs. Reference oracle = the
-current loop; battery leg on synthetic groups (use the `bh-verifier`
-group builders) at two shapes; byte identity of `b_rows` and `phi`.
-ACCEPT/RECORD: as T2 (leg `O5 kernel-pass: 2/2 byte-identical`).
+### T5 — the two claim-kernel passes, factored (rows pass + phi pass)  `LANDED 2026-08-17 (Claude, WSL) — rig A/B = T4`  WHO: Claude preferred (ANY with care)  KIND: CODE
+DONE: `eval_proof::kernel_pass_factored` (+ `ColBlockCache`, `cq0_block`,
+`g_block`), wired at the prover's two passes and the verifier's
+non-recursed rows_eval; `bg_kernel_pass` kept as the oracle; battery
+leg "O5 kernel-pass" 6/6; kpass-bench 512x2048: rows 42.6x, phi 51.5x
+[WSL 1T]. Details: U_PERF_WAVE_REPORT.md Section 3 (O5). The text
+below is the derivation as built (kept for the record).
+WHY: `bg_kernel_pass` (bin ~29210) is the second-largest prover term:
+per DIGIT ring it calls `claims.kw_value_row` (per value ring: 128 x
+n_contrib x 2 K-field mults — likely the hidden cost) and then 16
+`ring_mul_split_kara_fast`; twice (rows pass, then phi pass): ~365M
+ring-mults + ~1.4G K-mults at 125M.
+WHAT (exact identities; everything below is a re-association of the
+same mod-q sums, so byte identity is by construction; the current
+`bg_kernel_pass` is the oracle). Notation: tensor with `rows x cols`,
+`cols % 128 == 0` (all 125M tensors; else fall back to the oracle
+path), value ring vr = (row, cb) with cb = column block, digit ring u =
+(vr, limb), radix_u = 2^(e0*limb); K-field bilinearity:
+`kf.mul(x, y)[d] = sum_{d1} x[d1] * (Y^{d1} * y)[d]`; contributions
+`c` = (scale_c, row_c[.], col_c[.]) with kw_u[c1] = sum_c
+kf.mul(scale_c*row_c[row], col_c[cb*128 + c1]).
+- Hoist: `sr_c[row] = kf.mul(scale_c, row_c[row])` once per (c, row).
+- phi pass: for each (c, cb, d1) precompute the mod-q RING
+  `G_c[cb][d1] = sum_{c1} conj(X^{c1}) * ( sum_d (Y^{d1} * col_c[cb*128+c1])[d] * alpha_d )`
+  (n_contrib x nb x 16 rings per tensor — trivial). Then for every
+  value ring: `PHI_vr = sum_c sum_{d1} sr_c[row][d1] * G_c[cb][d1]`
+  (16 x n_contrib scalar-x-ring MACs with u128 lazy accumulation, one
+  mod-q reduce), and `phi_u = radix_limb * PHI_vr` per limb. This is
+  the verifier's `psi_level0_factored` trick on the prover side.
+- rows pass: `V_vr = sum_limb radix_limb * w_(vr,limb)` (the value
+  ring recomposed mod q — small rings x radix, exact); then per
+  (c, d1): `T_c[d1][cb] += sr_c[row][d1] * V_vr` over rows (scalar x
+  ring MACs, u128 lazy); finally
+  `b_rows[d] = sum_c sum_{d1} sum_{c1} conj(X^{c1}) * sum_cb (Y^{d1} * col_c[cb*128+c1])[d] * T_c[d1][cb]`
+  (n_contrib x 16 x 128 x nb scalar-x-ring MACs — trivial).
+Both passes become O(n_value_rings x 16 x n_contrib) scalar-ring MACs
+(~6G mult-adds at 125M, seconds) with NO per-ring K-mults and NO ring
+mults. Keep the misaligned/absent-kernel path on the oracle.
+Battery leg: synthetic groups (the `bh-verifier` builders + the real
+`bg_build_groups` on the 3x16 shape on the MAC), byte identity of
+`b_rows` and of every `phi` ring against the oracle.
+ACCEPT/RECORD: as T2 (leg `O5 kernel-pass: N/N byte-identical`).
 
 ---
 
-### T6 — multithread the u-major loops (rayon, deterministic)  `OPEN (after T2/T3/T5)`  WHO: ANY  KIND: CODE
-RECIPE: rayon is already a dependency. Parallelize ONLY loops whose
-per-thread state is an exact-integer accumulator with FIXED window
-boundaries (T2: split the D coefficient positions across threads —
-each thread owns a t-range of accumulators, no sharing; T3/T5: split
-the u range into fixed blocks with per-block partial sums, then reduce
-the partials in index order). Because the accumulation is exact
-integer arithmetic, the result is bit-identical for any thread count.
-Env knob `ZK_THREADS` (default 1 — the ledger baseline stays 1T; the
-A/B row states NT). Battery: run every leg with ZK_THREADS in {1,2,7};
-digests identical.
-ACCEPT: legs identical at 1/2/7 threads; pass-profile digest ==
-baseline at ZK_THREADS=22 [MAC]; the 1T number unchanged.
-RECORD: U_PERF_WAVE_REPORT.md Section 4 (a 1T vs NT row).
+### T6 — multithread the kernels (rayon, deterministic)  `LANDED for the Phase-0 kernels 2026-08-17 (Claude, WSL); the rest OPEN`  WHO: ANY  KIND: CODE
+DONE: `ZK_THREADS=n` pool in eval_proof.rs; the NTT GEMM (transforms
+per ring, the D coefficient positions of the accumulate, the scatter,
+the flush), the factored phi pass (value-ring blocks), the rows pass
+(per-range partial T sums reduced in order + per-(kernel, cb) block
+products) and the verifier's factored psi (value-ring blocks) all
+split over independent exact-integer work. Battery identical at
+ZK_THREADS 1/2/7. Kernel-bench 64x8192 [WSL]: level-h 7.6 s (1T) ->
+1.24 s (20T) = 6.6x on this hybrid 6P+8E box; kpass-bench 512x2048:
+rows 2.55 -> 0.74 us/digit ring, phi 2.39 -> 0.91 at 7T (fixed
+per-tensor precomputes bound the gain at this size).
+OPEN (same recipe): `bg_fold`/`agg_fold` (T7), the transport levels
+(T3b), the descents (PA/BK zone — see T11), commit's chain derivation.
+RECORD: U_PERF_WAVE_REPORT.md Section 4 (a 1T vs NT row from T1 step 4).
 
 ---
 
@@ -230,28 +286,62 @@ Oracle = current loop; battery leg; ACCEPT/RECORD as T2.
 ---
 
 ### T8 — verifier attribution toward the <= 2 s line  `OPEN`  WHO: MAC  KIND: RUN
-`pass-profile` counts prove AND verify calls together; add a
-`[UPERF-PC] verify-only` printout (split the counters: reset after
-prove) and record the verifier's ep.* table at 3x16 and 12x512. The
-199.6 s composed verify has an O(n_0)-class term somewhere
-(`psi_level0_factored_multi`?); the table says where. DESIGN follow-up
-(Claude): make the verifier's level-0 work O(chunk_0 + floor), not
-O(n_0).
+`pass-profile` now prints `bg.verify-group` (per-group verifier total)
+next to the shared `ep.*` counters; T1's table gives the split. Known
+O(n_0)-class verifier terms to expect: `psi_level0_factored_multi`
+(per VALUE ring: 16 kara ring-mults beta x conjq + 1 per digit-ring
+chunk change — ~24M + ~10M ring-mults at 125M, i.e. ~70 s of the
+199.6 s) and `transport_level` at level 1 (~12 kara ring-mults per
+next-witness ring, ~750K rings per group, prover AND verifier).
 RECORD: U_PERF_WAVE_REPORT.md Section 2 (verify table).
+
+### T8b — the verifier's `psi_level0_factored_multi`, factored  `LANDED 2026-08-17 (Claude, WSL)`  WHO: ANY  KIND: CODE
+DONE: the aligned branch now uses `PhiFactored` (T5's machinery: no
+per-row K-mults / per-value-ring beta x conjQ ring-mults; one
+c_k x PHI ring-mult per (value ring, k-run) remains) — battery leg
+inside "O5 kernel-pass" (== compute_psi(phi0_reference_multi) at two
+chunk splits, both moduli). Rig verify A/B rides T4.
+
+### T3b — `transport_level_from_psi` in the NTT domain  `OPEN`  WHO: ANY  KIND: CODE
+General x general operands: the 12-24 alphas are fixed rings
+(transform once); per next-witness ring the operands are psi[src] /
+a_mat[.][src] scaled by radix (mod q). Needs the limb-split contract
+(aux `A1LimbCommitKernel` pattern, or `ring_mul_q_limbsplit`'s exact
+recompose) — ~12 general ring-mults per ring today, ~750K rings per
+group at level 1, prover AND verifier. Oracle: the current function.
+ACCEPT/RECORD: as T2 (leg `O6 transport: N/N byte-identical`).
 
 ---
 
-### T9 — memory diet for the 15 GB reference box  `OPEN`  WHO: ANY  KIND: CODE
+### T9 — memory diet for the 15 GB reference box  `OPEN`  WHO: ANY (c: Claude preferred)  KIND: CODE
 The composed pass peaks at 41-47 GiB (phi materialized as n_0 x Poly =
 11.4M x 1 KiB alone is 11 GiB; w0 as Vec<Vec<i64>> another 11 GiB with
-per-ring heap headers). Steps that are transcript-neutral: (a) store
-small witnesses as `Vec<i8>`/`Vec<i16>` flat arrays with a slice view
-(digits are |w| <= 64); (b) drop `phi_cur` slices as level 0 consumes
-them; (c) after T5, never materialize phi at all for level 0 (compute
-phî on the fly per u-block from kw). Target: 12x512 P0 under 14 GiB so
-the TARGET_CONTRACT reference box can run it. Measure with
-`/usr/bin/time -v` (Linux) — this is a WSL-verifiable target once the
-export is copied over (T10).
+per-ring heap headers). Transcript-neutral steps:
+(c) FIRST (biggest, mechanical after T5/T8b): never materialize phi
+at level 0. In `bg_prove_group`: (1) replace the level-1
+`transport_level(ctx, &phi_cur, ...)` by
+`transport_level_from_psi(ctx, &psi0, ...)` with `psi0 =
+psi_level0_factored_multi(ctx, kf, group, &mk, &alphas0, &c0,
+plan0.chunk)` — EXACTLY what `bg_verify_group` already does at level
+1 (the `pass-agg seam` differential is the proof it is
+compute_psi(phi_cur) bit for bit); (2) feed `bg_level_h` at level 0
+from a phi PROVIDER instead of `phi_cur`: add
+`level_h_pairs_with(ctx, phi_block: impl Fn(j, u0, &mut [Poly]),
+w_slices, chunk)` whose a-side rings are produced per u-block by
+`PhiFactored::value_ring` (per digit ring v = j*chunk + u: locate
+(tensor, vr, limb) — consecutive u are consecutive v, so one PHI_vr
+per value ring per pass, cached across the l0 limbs; radix scale per
+limb) — the same arithmetic as the phi pass, no extra cost, and the
+12 GiB `phi_cur` is never allocated (`phi_cur.truncate(n0)` and the
+level-1 `phi_cur.resize` go away; deeper levels keep their small
+materialized phi). Battery: the O5 leg's groups through the provider
+vs `level_h_pairs` on the materialized phi.
+(a) then w0 as a flat `Vec<i8>` (digits |w| <= 64) with slice views
+at the consumers (matvec / level-h / fold / floor) — invasive, second.
+(b) drop slices as level 0 consumes them.
+Target: 12x512 P0 under 14 GiB so the TARGET_CONTRACT reference box
+can run it. Measure with `/usr/bin/time -v` (Linux) — WSL-verifiable
+once the export is copied over (T10).
 RECORD: PROGRESS_UPERF.md log; TARGET_CONTRACT note if the reference
 box becomes runnable.
 
@@ -266,10 +356,24 @@ on the reference box.
 ---
 
 ### T11 — DESIGN items (not for a mechanical agent)  `OPEN`  WHO: Claude/Victor  KIND: DESIGN
-(a) Prover-side rank-1 Phi_0: the verifier already never materializes
-Phi_0 (`psi_level0_factored_multi`); after T5 the prover's phi pass is
-a GEMM against the K-weight matrix; the next step is to feed
-`level_h_pairs` from the factored kernels directly (never build phi).
+(a) Prover-side rank-structured Phi_0: after T5 the prover's phi pass
+is `PHI_vr = sum_{c,d1} sr_c[row][d1] * G_c[cb][d1]` per value ring
+(16 x n_contrib scalars against 16 cached rings per (col kernel,
+cb)); the next step is to feed `level_h_pairs` per u-block from that
+form (never materialize the 11 GiB phi) — memory item T9(c).
+(a') THE VERIFIER <= 2 s LINE (PoC-complete criterion 1(b)): after
+T8b the verifier's level-0 work is still O(n_value_rings) (~1.4M x
+6K scalar MACs ~ 14 s [WSL 1T], ~7 s [MAC]) — NOT <= 2 s
+single-threaded on this design. Sublinear route (derived 2026-08-17,
+not built): if the level-0 chunk is a multiple of every tensor's
+nb x l0, then (cb, limb) is a function of the chunk position u alone
+and psi[u] = sum_j G[cb(u)][j] * radix_limb(u) * S[u'][j] with
+S[u'][j] = sum_k c_k * sr[k*R + u'][j] (R = chunk / (nb*l0)) —
+O(chunk x 16 n_contrib) ring products instead of O(n_0): a ~64x (r)
+reduction of the dominant verifier term. It CONSTRAINS THE PLANNER
+(chunk alignment => schedule bytes move) — an R-row for Victor's
+ruling, and the item PoC-complete 1(b) actually rides. Threads
+(T6) get the current form to ~1 s but the contract says 1T.
 (b) R-row: the planner's r = 64 cap trades bytes for the Theta(n_0*r)
 garbage; at r = 32 the h term halves and the artifact grows (derive
 the bytes; the P0 artifact sits at 0.48x its gate). Transcript-
@@ -288,3 +392,13 @@ GEMMs and the A1 commit kernel are the two kernels to port first.
 - 2026-08-17: board opened by Claude after the status recalculation
   (PROGRESS_UPERF.md 2026-08-17 section). T2 started by Claude on the
   WSL box; T1 is the first MAC task.
+- 2026-08-17 (later): T2, T3, T5, T8b LANDED on the WSL box with
+  their battery legs (`uperf-pc diff-battery`: O1 4/4, O2 35/35, O3
+  63/63, O5 12/12), freeze-check rows identical to the pre-change
+  baseline, `agg-matmul battery` + `bh-verifier battery` green.
+  Kernel benches [WSL 1T]: level-h 21.8x, matvec 8.0x, kernel passes
+  42.6x / 51.5x, all byte-identical. NEXT for the MAC (Grok): T1 is
+  now BOTH the baseline AND the after-number — run `pass-profile 3
+  16` and `12 512` at the commit BEFORE these kernels (348edea, or
+  de4da64) for the baseline digest + wall, then at HEAD; the digests
+  MUST match; record both walls (T4).

@@ -22,9 +22,14 @@ def run(args, timeout):
 @unittest.skipUnless(os.path.exists(BIN), "ring_matmul release binary not built")
 class UPerfPc(unittest.TestCase):
     def test_diff_battery(self):
-        """O1 CRS memo is byte-identical to the uncached XOF; group
-        keys do not alias. Further legs land with O2-O4."""
-        p = run(["uperf-pc", "diff-battery"], timeout=60)
+        """O1 CRS memo is byte-identical to the uncached XOF; O2/O3 (the
+        NTT-domain level-h / matvec kernel) and O5 (the factored claim-
+        kernel passes + the verifier's factored psi) hold byte identity
+        against their Karatsuba / per-ring oracles at both moduli."""
+        p = run(["uperf-pc", "diff-battery"], timeout=300)
         self.assertEqual(p.returncode, 0, (p.stdout or "")[-3000:] + (p.stderr or "")[-3000:])
         self.assertIn("O1 CRS memo: 4/4 byte-identical", p.stdout)
+        self.assertIn("O2 level-h: 35/35 byte-identical", p.stdout)
+        self.assertIn("O3 matvec: 63/63 byte-identical", p.stdout)
+        self.assertIn("O5 kernel-pass: 12/12 byte-identical", p.stdout)
         self.assertIn("differential battery passed", p.stdout)

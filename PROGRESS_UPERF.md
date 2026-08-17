@@ -412,6 +412,51 @@ kernels + differential legs are written where the code can be
 verified (this box builds and runs the synthetic rigs); the 125M
 A/Bs, freeze-check, suite and batteries run on the Mac.
 
+## 2026-08-17 Phase 0 kernels LANDED on the WSL box (O2, O3, O5, T8b) — rig A/B pending on the Mac
+
+Same day as the recalculation. All in eval_proof.rs + the bg_*/agg_*/
+uperf_pc_* bin sections; every entry point keeps its pre-change body as
+a `*_ref` oracle and `ZK_UPERF_ORACLE=1` routes the whole prover/
+verifier back to the oracles at runtime (the one-binary A/B).
+
+- O2 `level_h_pairs` + O3 `matvec_modq_small[_multi]` /
+  `ring_ip_modq_small` on the shared `ntt_gemm_modq_small` kernel
+  (Goldilocks NTT domain, A1 split-halves accumulation, exact-integer
+  capacity windows from `aux::max_n_acc`, oracle fallback over
+  capacity). Battery legs 35/35 + 63/63 at q31 AND q46 incl. window
+  crossings and the fallback. `uperf-pc kernel-bench 64 8192` [WSL 1T
+  QUIET]: level-h 0.238 vs 5.20 us/product = **21.8x**, matvec 0.64
+  vs 5.17 = **8.0x**, byte-identical.
+- O5 `kernel_pass_factored` (the prover's rows + phi passes) — the
+  K-bilinear/conj-linear re-association (ledger of identities in the
+  eval_proof.rs module note + TASK_BOARD T5): per value ring 16 x
+  n_contrib scalar-x-ring MACs against 16 cached rings per (col
+  kernel, cb), no per-ring K-mults or ring-mults; misaligned tensors
+  ride the per-ring reference. `uperf-pc kpass-bench 512 2048` [WSL
+  1T]: rows 3.15 vs 134.0 us/digit ring (**42.6x**), phi 2.66 vs
+  137.3 (**51.5x**). FINDING: the oracle's per-digit-ring cost is
+  dominated by `kw_value_row`'s per-value K-field weight rows (128 x
+  n_contrib x 2 K-mults), not by its 16 ring-mults — the two passes
+  were ~1/3 of the composed prove (~1,250 s of 4,178 s on the Mac by
+  the same rate), a term BG-F3 under-counted.
+- T8b: the verifier's `psi_level0_factored_multi` aligned branch now
+  runs on the same `PhiFactored` (one c_k x PHI ring-mult per (value
+  ring, k-run) remains). Battery leg == compute_psi(reference Phi_0)
+  at two chunk splits, both moduli.
+- Gates on this box: `uperf-pc diff-battery` O1 4/4 O2 35/35 O3 63/63
+  O5 12/12; freeze-check's 98 rows identical to the pre-change
+  baseline (then the expected BF panic — no export here); `agg-matmul
+  battery` green; `bh-verifier battery` green; tests/test_uperf_pc.py
+  updated. NOT run here (needs the Mac): pass-agg seam/battery, the
+  suite's export-dependent tests, and the 12x512 A/B — TASK_BOARD T1/T4
+  (now a one-binary A/B via `ZK_UPERF_ORACLE=1`).
+- Projection [MODEL, from the benches; not a rig number]: the 4,811 s
+  full-statement prove -> the ~1,300-1,600 s class on the Mac at 1T,
+  with the descents (~630 s) and commit (~385 s) the largest remaining
+  shares; the verifier's 199.6 s loses its ~70 s psi term to ~10-15 s.
+  Verify <= 2 s at 1T is NOT reachable on the O(n_value_rings)
+  verifier — the sublinear route is TASK_BOARD T11(a') (an R-row).
+
 ## PA reality check (orchestrator, 2026-08-12) — the 4x does NOT transfer
 
 Measured immediately after the PA merge, and it corrects the lane's
