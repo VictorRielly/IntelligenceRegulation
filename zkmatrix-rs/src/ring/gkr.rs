@@ -248,8 +248,16 @@ pub fn build_tree_sparse(
         return FracTree { repr: TreeRepr::Neutral { depth: n.trailing_zeros() as usize } };
     }
     let _t = prof::timer(prof::A_TREE_PACK);
-    let mut leaf_p_t = KTab::filled(n, default.0);
-    let mut leaf_q_t = KTab::filled(n, default.1);
+    // [UPERF2-E] zero defaults stay calloc-untouched, nonzero defaults are
+    // filled blockwise in parallel (same bytes as KTab::filled).
+    let mut leaf_p_t = KTab::zeroed(n);
+    let mut leaf_q_t = KTab::zeroed(n);
+    if !default.0.iter().all(|&x| x == 0) {
+        ktab_fill_par(&mut leaf_p_t, default.0);
+    }
+    if !default.1.iter().all(|&x| x == 0) {
+        ktab_fill_par(&mut leaf_q_t, default.1);
+    }
     for (i, p, q) in entries {
         leaf_p_t.set(i, &p);
         leaf_q_t.set(i, &q);
