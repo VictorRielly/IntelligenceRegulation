@@ -1291,6 +1291,203 @@ pub(crate) fn k9_pack_par(v: &[KElem]) -> KTab {
     t
 }
 
+// ---------------------------------------------------------------------------
+// [UPERF2-D] The claim layer's ixf sumcheck round kernel on packed tables.
+//
+// The claim layer's folded instances (fold.rs `ixf_sumcheck_prove`) sum,
+// over the unbound hypercube, ONE of three fixed combine shapes of the
+// linearly extrapolated factor tables:
+//     Prod3: v0 * v1 * v2                    (joint matmul: eq * A * B)
+//     Had:   v0 * (v1 * v2 - v3)             (Hadamard zero-check)
+//     Rq:    v0 * ((v1 - v4 * v2) - v3)      (requant zero-check)
+// where v0 is always the eq factor. Per pair-block and node x the kernel
+// forms the inner product (one MAC + one deferred reduction), the modular
+// differences, then MACs eq * inner into a persistent per-node lazy plane
+// accumulator (NO reduction) — exactly `round_g5_body`'s discipline. All
+// deg + 1 nodes 0..=deg are evaluated (the ixf wire ships every node;
+// no g(1) identity). Extrapolation to node x >= 2 is by successive
+// modular adds of the pair difference from the x = 1 operand, so every
+// operand stays canonical u32. Values are the same field elements the
+// scalar `round_poly` + closure computes (exact K arithmetic; the
+// battery pins it), and the per-chunk planes are exact non-negative
+// integer sums bounded by the serial total (< 2^57 under the
+// K9_MAX_PAIR_TERMS cap), so any thread chunking is bit-identical.
+
+/// The three combine shapes (kernel ids). fold.rs's `IxfCombine` maps to these.
+pub(crate) const IXF_KIND_PROD3: u8 = 0;
+pub(crate) const IXF_KIND_HAD: u8 = 1;
+pub(crate) const IXF_KIND_RQ: u8 = 2;
+
+/// Factor-table count of a kind.
+pub(crate) fn ixf_kind_tables(kind: u8) -> usize {
+    match kind {
+        IXF_KIND_PROD3 => 3,
+        IXF_KIND_HAD => 4,
+        IXF_KIND_RQ => 5,
+        _ => panic!("unknown ixf kind"),
+    }
+}
+
+/// The round kernel body over full pair-blocks: tabs[k] are the packed
+/// factor tables (>= 2 * nblk_pairs blocks each), nodes 0..=deg, acc_lo /
+/// acc_hi are (deg + 1) x 31 x KL persistent planes.
+#[inline(always)]
+fn ixf_round_body(
+    kern: &KKern,
+    kind: u8,
+    tabs: &[&[u32]],
+    nblk_pairs: usize,
+    deg: usize,
+    acc_lo: &mut [u64],
+    acc_hi: &mut [u64],
+) {
+    let nt = ixf_kind_tables(kind);
+    assert_eq!(tabs.len(), nt, "ixf round: table count vs kind");
+    let pair_terms = nblk_pairs.checked_mul(KL).expect("ixf round term-count overflow");
+    assert!(pair_terms <= K9_MAX_PAIR_TERMS, "K9 lazy-accumulator cap exceeded");
+    let src_words = nblk_pairs.checked_mul(2 * KBLK).expect("ixf round input size overflow");
+    assert!(tabs.iter().all(|t| t.len() >= src_words), "ixf round input layout");
+    let acc_words = (deg + 1).checked_mul(31 * KL).expect("ixf round accumulator size overflow");
+    assert!(acc_lo.len() >= acc_words && acc_hi.len() >= acc_words, "ixf round accumulator layout");
+    let q32 = kern.q as u32;
+    let mut e0 = [[0u32; KBLK]; 5];
+    let mut e1 = [[0u32; KBLK]; 5];
+    let mut dd = [[0u32; KBLK]; 5];
+    let mut cur = [[0u32; KBLK]; 5];
+    let mut inner = [0u32; KBLK];
+    for m in 0..nblk_pairs {
+        for k in 0..nt {
+            let (a, b) = (&mut e0[k], &mut e1[k]);
+            deint_pair(tabs[k], m, a, b);
+            for x in 0..KBLK {
+                dd[k][x] = subm32(e1[k][x], e0[k][x], q32);
+            }
+            cur[k] = e1[k];
+        }
+        let mut prev_x = 1usize;
+        for x in 0..=deg {
+            let v: [&[u32; KBLK]; 5] = if x == 0 {
+                [&e0[0], &e0[1], &e0[2], &e0[3], &e0[4]]
+            } else if x == 1 {
+                [&e1[0], &e1[1], &e1[2], &e1[3], &e1[4]]
+            } else {
+                while prev_x < x {
+                    for k in 0..nt {
+                        for xx in 0..KBLK {
+                            cur[k][xx] = addm32(cur[k][xx], dd[k][xx], q32);
+                        }
+                    }
+                    prev_x += 1;
+                }
+                [&cur[0], &cur[1], &cur[2], &cur[3], &cur[4]]
+            };
+            // the inner factor: one MAC + one reduction, then modular adds
+            let mut lo = [0u64; 31 * KL];
+            let mut hi = [0u64; 31 * KL];
+            match kind {
+                IXF_KIND_PROD3 => {
+                    mac_block(v[1], v[2], &mut lo, &mut hi);
+                    red_block(kern, &lo, &hi, &mut inner);
+                }
+                IXF_KIND_HAD => {
+                    mac_block(v[1], v[2], &mut lo, &mut hi);
+                    red_block(kern, &lo, &hi, &mut inner);
+                    for i in 0..KBLK {
+                        inner[i] = subm32(inner[i], v[3][i], q32);
+                    }
+                }
+                _ => {
+                    mac_block(v[4], v[2], &mut lo, &mut hi);
+                    red_block(kern, &lo, &hi, &mut inner);
+                    for i in 0..KBLK {
+                        inner[i] = subm32(subm32(v[1][i], inner[i], q32), v[3][i], q32);
+                    }
+                }
+            }
+            // eq * inner into the persistent node accumulator (NO reduction)
+            let alo: &mut [u64; 31 * KL] = (&mut acc_lo[x * 31 * KL..(x + 1) * 31 * KL]).try_into().unwrap();
+            let ahi: &mut [u64; 31 * KL] = (&mut acc_hi[x * 31 * KL..(x + 1) * 31 * KL]).try_into().unwrap();
+            mac_block(v[0], &inner, alo, ahi);
+        }
+    }
+}
+
+k9_kernel!(k9_ixf_round_blocks, k9_ixf_round_blocks_avx2, ixf_round_body,
+    (kern: &KKern, kind: u8, tabs: &[&[u32]], nblk_pairs: usize, deg: usize,
+     acc_lo: &mut [u64], acc_hi: &mut [u64]));
+
+/// Threaded ixf round kernel: per-chunk lazy planes summed in index order
+/// into acc_lo/acc_hi (exact integer sums — identical for any chunking).
+pub(crate) fn k9_ixf_round_par(
+    kern: &KKern,
+    kind: u8,
+    tabs: &[&[u32]],
+    nblk_pairs: usize,
+    deg: usize,
+    acc_lo: &mut [u64],
+    acc_hi: &mut [u64],
+) {
+    let n_chunks = k9_round_chunks(nblk_pairs);
+    if n_chunks <= 1 {
+        return k9_ixf_round_blocks(kern, kind, tabs, nblk_pairs, deg, acc_lo, acc_hi);
+    }
+    let per = nblk_pairs.div_ceil(n_chunks);
+    let acc_words = (deg + 1) * 31 * KL;
+    let kern = *kern;
+    let partials: Vec<(Vec<u64>, Vec<u64>)> = k9_pooled(|| {
+        use rayon::prelude::*;
+        (0..n_chunks)
+            .into_par_iter()
+            .map(|c| {
+                let m0 = (c * per).min(nblk_pairs);
+                let m1 = ((c + 1) * per).min(nblk_pairs);
+                let mut lo = vec![0u64; acc_words];
+                let mut hi = vec![0u64; acc_words];
+                if m1 > m0 {
+                    let (w0, w1) = (2 * m0 * KBLK, 2 * m1 * KBLK);
+                    let sub: Vec<&[u32]> = tabs.iter().map(|t| &t[w0..w1]).collect();
+                    k9_ixf_round_blocks(&kern, kind, &sub, m1 - m0, deg, &mut lo, &mut hi);
+                }
+                (lo, hi)
+            })
+            .collect()
+    });
+    for (lo, hi) in &partials {
+        for i in 0..acc_words {
+            acc_lo[i] += lo[i];
+            acc_hi[i] += hi[i];
+        }
+    }
+}
+
+impl KField {
+    /// [UPERF2-D] One ixf sumcheck round polynomial (evaluations at nodes
+    /// 0..=deg) over packed factor tables of `kind`'s shape, all of the
+    /// same power-of-two size >= 2 * KL (full pair-blocks only — the
+    /// caller finishes smaller tables on the scalar path). Threaded via
+    /// `k9_ixf_round_par`; each node finalized exactly (u128).
+    pub(crate) fn kt_ixf_round_poly(&self, tabs: &[&KTab], deg: usize, kind: u8) -> Vec<KElem> {
+        let kern = self.kern.as_ref().expect("kt_ixf_round_poly requires the bulk kernel");
+        let n = tabs[0].n;
+        assert!(n >= 2 * KL && n % (2 * KL) == 0, "ixf round: full pair-blocks only");
+        assert!(tabs.iter().all(|t| t.n == n), "ixf round: table sizes");
+        let nblk_pairs = n / (2 * KL);
+        let acc_words = (deg + 1) * 31 * KL;
+        let mut acc_lo = vec![0u64; acc_words];
+        let mut acc_hi = vec![0u64; acc_words];
+        let views: Vec<&[u32]> = tabs.iter().map(|t| t.d.as_slice()).collect();
+        k9_ixf_round_par(kern, kind, &views, nblk_pairs, deg, &mut acc_lo, &mut acc_hi);
+        (0..=deg)
+            .map(|x| self.kt_round_g_finalize(&acc_lo[x * 31 * KL..(x + 1) * 31 * KL], &acc_hi[x * 31 * KL..(x + 1) * 31 * KL]))
+            .collect()
+    }
+
+    /// [UPERF2-D] Threaded pack of boxed K-elements (positional).
+    pub(crate) fn kt_pack(&self, v: &[KElem]) -> KTab {
+        k9_pack_par(v)
+    }
+}
+
 impl KField {
     /// [UPERF2-A] Fold a packed table via an out-of-place threaded fold
     /// into `scratch` (grown once, then swapped in — no allocation after

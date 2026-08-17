@@ -6404,6 +6404,8 @@ fn main() {
         Some("uperf-a") => uperf_a_main(&args[1..]),
         // [UPERF2-C] U-PERF2 lane C (eval-proof leftovers) battery + benches.
         Some("uperf-c") => uperf_c_main(&args[1..]),
+        // [UPERF2-D] U-PERF2 lane D (claim layer + commit phase) battery + bench.
+        Some("uperf-d") => uperf_d_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -19985,7 +19987,8 @@ fn agg_group_descriptor(g: &ring::eval_proof::AggGroup, wrong_class: bool) -> ma
 
 /// The exact-digit level-0 witness of a group: digit rings laid out
 /// value-ring-major, limb-minor (ring u = tensor base + vr*l0 + limb).
-fn agg_digit_witness(g: &ring::eval_proof::AggGroup, values: &[&[i64]]) -> Vec<Vec<i64>> {
+/// The serial digit witness — THE ORACLE of `agg_digit_witness`.
+fn agg_digit_witness_ref(g: &ring::eval_proof::AggGroup, values: &[&[i64]]) -> Vec<Vec<i64>> {
     use ring::digits::exact_digit_decompose;
     let mut w = vec![vec![0i64; D]; g.n_digit_rings];
     for (t, vals) in g.tensors.iter().zip(values.iter()) {
@@ -20001,6 +20004,49 @@ fn agg_digit_witness(g: &ring::eval_proof::AggGroup, values: &[&[i64]]) -> Vec<V
                 }
             }
         }
+    }
+    w
+}
+
+/// [UPERF2-D] `agg_digit_witness_ref` with each tensor's value rings split
+/// across the ZK_THREADS pool: a value ring's l0 digit rings are a
+/// contiguous, disjoint slice of w (rows base + vr*l0 .. + l0), written by
+/// exactly one thread from the same per-value decomposition — identical
+/// for any thread count. The digit rows are allocated once up front (as
+/// before); oracle-routed under `ZK_UPERF_ORACLE=1`.
+fn agg_digit_witness(g: &ring::eval_proof::AggGroup, values: &[&[i64]]) -> Vec<Vec<i64>> {
+    use rayon::prelude::*;
+    use ring::digits::exact_digit_decompose;
+    use ring::fold::{ixf_pooled, ixf_threads};
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::D_DIGITS); // [UPERF2-D] observation only
+    if ring::eval_proof::oracle_mode() || ixf_threads() <= 1 {
+        return agg_digit_witness_ref(g, values);
+    }
+    let mut w = vec![vec![0i64; D]; g.n_digit_rings];
+    for (t, vals) in g.tensors.iter().zip(values.iter()) {
+        assert_eq!(t.n_values(), vals.len());
+        let nvr = t.n_value_rings();
+        let l0 = t.l0;
+        let e0 = t.e0;
+        let rows = &mut w[t.digit_ring_base..t.digit_ring_base + nvr * l0];
+        // 8 value rings per work item (l0 x 8 digit rows), independent outputs.
+        ixf_pooled(|| {
+            rows.par_chunks_mut(l0 * 8).enumerate().for_each(|(ci, chunk)| {
+                let vr0 = ci * 8;
+                for (i, vrows) in chunk.chunks_mut(l0).enumerate() {
+                    let vr = vr0 + i;
+                    for c1 in 0..D {
+                        let f = vr * D + c1;
+                        if f < vals.len() {
+                            let digs = exact_digit_decompose(vals[f], e0, l0);
+                            for (l, d) in digs.into_iter().enumerate() {
+                                vrows[l][c1] = d;
+                            }
+                        }
+                    }
+                }
+            });
+        });
     }
     w
 }
@@ -24479,27 +24525,107 @@ fn bf_load_layer(l: usize, t_rows: usize, quiet: bool) -> BfLayer {
 /// arithmetic, floor semantics, the layer's family table — or an
 /// override member for the wrong-table battery arm). No range asserts
 /// here: tampered chains ride as-is and the PROOF is what rejects.
-fn bf_derive_chain(lay: &mut BfLayer, t_rows: usize, table_override: Option<(i32, i32)>) {
-    use ring::lookup::silu_v2_member;
-    let (sh_g, sh_u, sh_h, sh_z) = lay.shifts;
-    let (eg, ea) = table_override.unwrap_or((lay.exps.1, lay.exps.2));
-    let matmul = |a: &[i64], b_t: &[i64], rows: usize, inner: usize, cols: usize| -> Vec<i64> {
-        let mut c = vec![0i64; rows * cols];
-        for i in 0..rows {
-            for k in 0..inner {
-                let av = a[i * inner + k];
-                if av == 0 {
-                    continue;
-                }
-                let brow = &b_t[k * cols..(k + 1) * cols];
-                let crow = &mut c[i * cols..(i + 1) * cols];
-                for (cv, &bv) in crow.iter_mut().zip(brow.iter()) {
-                    *cv += av * bv;
-                }
+/// The chain's exact integer GEMM c[i][j] = sum_k a[i][k] * b_t[k][j]
+/// (row-major a rows x inner, b_t inner x cols) — the serial i-k-j loop
+/// bf_derive_chain ran inline. THE ORACLE of `bf_matmul_i64`.
+fn bf_matmul_i64_ref(a: &[i64], b_t: &[i64], rows: usize, inner: usize, cols: usize) -> Vec<i64> {
+    let mut c = vec![0i64; rows * cols];
+    for i in 0..rows {
+        for k in 0..inner {
+            let av = a[i * inner + k];
+            if av == 0 {
+                continue;
+            }
+            let brow = &b_t[k * cols..(k + 1) * cols];
+            let crow = &mut c[i * cols..(i + 1) * cols];
+            for (cv, &bv) in crow.iter_mut().zip(brow.iter()) {
+                *cv += av * bv;
             }
         }
-        c
-    };
+    }
+    c
+}
+
+/// [UPERF2-D] `bf_matmul_i64_ref` as a row-blocked GEMM on the ZK_THREADS
+/// pool: when every |a|, |b| <= 127 and inner * 127^2 < 2^31 (the chain's
+/// int8 x int8 products at inner <= 2048) the block accumulates in i32
+/// (the exact sum fits; AVX2 vpmulld/vpaddd autovectorize it) and widens
+/// once; otherwise the i64 loop runs per row block. Row blocks of RB rows
+/// share one streamed pass over b_t (RB x fewer B reads than the i-k-j
+/// loop). Every output row is one thread's own exact-integer sum over the
+/// same k order — bit-identical for any thread count and block size (and
+/// integer addition is associative besides). Oracle-routed under
+/// `ZK_UPERF_ORACLE=1`.
+fn bf_matmul_i64(a: &[i64], b_t: &[i64], rows: usize, inner: usize, cols: usize) -> Vec<i64> {
+    use rayon::prelude::*;
+    use ring::fold::ixf_pooled;
+    if ring::eval_proof::oracle_mode() {
+        return bf_matmul_i64_ref(a, b_t, rows, inner, cols);
+    }
+    assert_eq!(a.len(), rows * inner);
+    assert_eq!(b_t.len(), inner * cols);
+    let small = |v: &[i64]| v.iter().all(|&x| (-127..=127).contains(&x));
+    let i32_ok = inner as u64 * 127 * 127 < (1u64 << 31) && small(a) && small(b_t);
+    const RB: usize = 16;
+    let mut c = vec![0i64; rows * cols];
+    if i32_ok {
+        let a32: Vec<i32> = a.iter().map(|&x| x as i32).collect();
+        let b32: Vec<i32> = b_t.iter().map(|&x| x as i32).collect();
+        ixf_pooled(|| {
+            c.par_chunks_mut(RB * cols).enumerate().for_each(|(blk, cblk)| {
+                let i0 = blk * RB;
+                let nr = cblk.len() / cols;
+                let mut acc = vec![0i32; nr * cols];
+                for k in 0..inner {
+                    let brow = &b32[k * cols..(k + 1) * cols];
+                    for ii in 0..nr {
+                        let av = a32[(i0 + ii) * inner + k];
+                        if av == 0 {
+                            continue;
+                        }
+                        let crow = &mut acc[ii * cols..(ii + 1) * cols];
+                        for (cv, &bv) in crow.iter_mut().zip(brow.iter()) {
+                            *cv += av * bv;
+                        }
+                    }
+                }
+                for (dst, &v) in cblk.iter_mut().zip(acc.iter()) {
+                    *dst = v as i64;
+                }
+            });
+        });
+    } else {
+        ixf_pooled(|| {
+            c.par_chunks_mut(RB * cols).enumerate().for_each(|(blk, cblk)| {
+                let i0 = blk * RB;
+                let nr = cblk.len() / cols;
+                for k in 0..inner {
+                    let brow = &b_t[k * cols..(k + 1) * cols];
+                    for ii in 0..nr {
+                        let av = a[(i0 + ii) * inner + k];
+                        if av == 0 {
+                            continue;
+                        }
+                        let crow = &mut cblk[ii * cols..(ii + 1) * cols];
+                        for (cv, &bv) in crow.iter_mut().zip(brow.iter()) {
+                            *cv += av * bv;
+                        }
+                    }
+                }
+            });
+        });
+    }
+    c
+}
+
+fn bf_derive_chain(lay: &mut BfLayer, t_rows: usize, table_override: Option<(i32, i32)>) {
+    use ring::lookup::silu_v2_member;
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::D_CHAIN); // [UPERF2-D] observation only
+    let (sh_g, sh_u, sh_h, sh_z) = lay.shifts;
+    let (eg, ea) = table_override.unwrap_or((lay.exps.1, lay.exps.2));
+    // [UPERF2-D] the row-blocked threaded GEMM (bf_matmul_i64_ref is its
+    // oracle — the loop that ran inline here).
+    let matmul = bf_matmul_i64;
     lay.gacc = matmul(&lay.x, &lay.wg_t, t_rows, BF_D, BF_F);
     lay.uacc = matmul(&lay.x, &lay.wu_t, t_rows, BF_D, BF_F);
     let (g8, rg) = bf_floor_requant(&lay.gacc, sh_g);
@@ -29137,6 +29263,7 @@ fn bg_precommit(
     seed: u64,
 ) -> BgPre {
     use ring::eval_proof::{expand_level_matrix, matvec_modq_small, KAPPA_AGG};
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::D_PRECOMMIT); // [UPERF2-D] observation only
     let q = ctxr.zq.q;
     let (r0, chunk0, e_t0, l_t0) = match sched.levels.first() {
         Some(p0) => (p0.r, p0.chunk, p0.e_next, p0.l_t),
@@ -29788,6 +29915,143 @@ fn bg_stack_table(
     tab
 }
 
+/// [UPERF2-D] The joint matmul instance's reduced tables over (inner-low,
+/// layer-high): ta[li*nk + k] = sum_i eq_rx[i] * A_li[i][k] and
+/// tb[li*nk + k] = sum_j B_li[k][j] * eq_ry[j] (zeros skipped) — the
+/// serial loop the pass claim layer ran inline. THE ORACLE of
+/// `bg_mm_tables`.
+#[allow(clippy::too_many_arguments)]
+fn bg_mm_tables_ref(
+    kf: &ring::kfield::KField,
+    lays: &[BfLayer],
+    a_e: usize,
+    b_e: usize,
+    t: usize,
+    slots: usize,
+    nk: usize,
+    eq_rx: &[ring::kfield::KElem],
+    eq_ry: &[ring::kfield::KElem],
+) -> (Vec<ring::kfield::KElem>, Vec<ring::kfield::KElem>) {
+    let zq = &kf.zq;
+    let (a_rows, a_cols) = bf_entry_shape(a_e, t);
+    let (_b_rows, b_cols) = bf_entry_shape(b_e, t);
+    let inner = a_cols;
+    let cols = b_cols;
+    let mut ta = vec![kf.zero(); slots * nk];
+    let mut tb = vec![kf.zero(); slots * nk];
+    for (li, lay) in lays.iter().enumerate() {
+        let av = bf_entry_values(a_e, lay);
+        for i in 0..a_rows {
+            let w = &eq_rx[i];
+            if kf.is_zero(w) {
+                continue;
+            }
+            for k in 0..inner {
+                let v = av[i * inner + k];
+                if v != 0 {
+                    let s = &mut ta[li * nk + k];
+                    *s = kf.add(s, &kf.scale(zq.to_mod(v), w));
+                }
+            }
+        }
+        let bv = bf_entry_values(b_e, lay);
+        for k in 0..inner {
+            let row = &bv[k * cols..(k + 1) * cols];
+            let mut acc = kf.zero();
+            for (j, &v) in row.iter().enumerate() {
+                if v != 0 {
+                    acc = kf.add(&acc, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+                }
+            }
+            tb[li * nk + k] = acc;
+        }
+    }
+    (ta, tb)
+}
+
+/// [UPERF2-D] `bg_mm_tables_ref` with the outputs computed per
+/// (layer, inner-index) block on the ZK_THREADS pool: every output element
+/// is one thread's own accumulation over the SAME term sequence in the
+/// SAME order as the serial loop (ta over i ascending, tb over j
+/// ascending), so the values are identical for any thread count (and
+/// K addition is exact modular arithmetic besides). Oracle-routed under
+/// `ZK_UPERF_ORACLE=1`; inline (no pool) at ZK_THREADS 1.
+#[allow(clippy::too_many_arguments)]
+fn bg_mm_tables(
+    kf: &ring::kfield::KField,
+    lays: &[BfLayer],
+    a_e: usize,
+    b_e: usize,
+    t: usize,
+    slots: usize,
+    nk: usize,
+    eq_rx: &[ring::kfield::KElem],
+    eq_ry: &[ring::kfield::KElem],
+) -> (Vec<ring::kfield::KElem>, Vec<ring::kfield::KElem>) {
+    use rayon::prelude::*;
+    use ring::fold::{ixf_pooled, ixf_threads};
+    if ring::eval_proof::oracle_mode() || ixf_threads() <= 1 {
+        return bg_mm_tables_ref(kf, lays, a_e, b_e, t, slots, nk, eq_rx, eq_ry);
+    }
+    let zq = &kf.zq;
+    let (a_rows, a_cols) = bf_entry_shape(a_e, t);
+    let (_b_rows, b_cols) = bf_entry_shape(b_e, t);
+    let inner = a_cols;
+    let cols = b_cols;
+    let mut ta = vec![kf.zero(); slots * nk];
+    let mut tb = vec![kf.zero(); slots * nk];
+    // Block size: divides nk (a power of two >= 64), so a block never
+    // straddles two layers.
+    let blk = 64usize.min(nk);
+    ixf_pooled(|| {
+        ta.par_chunks_mut(blk).enumerate().for_each(|(c, out)| {
+            let base = c * blk;
+            let li = base / nk;
+            let k0 = base % nk;
+            if li >= lays.len() || k0 >= inner {
+                return;
+            }
+            let av = bf_entry_values(a_e, &lays[li]);
+            let k1 = (k0 + out.len()).min(inner);
+            for i in 0..a_rows {
+                let w = &eq_rx[i];
+                if kf.is_zero(w) {
+                    continue;
+                }
+                let row = &av[i * inner..(i + 1) * inner];
+                for k in k0..k1 {
+                    let v = row[k];
+                    if v != 0 {
+                        let s = &mut out[k - k0];
+                        *s = kf.add(s, &kf.scale(zq.to_mod(v), w));
+                    }
+                }
+            }
+        });
+        tb.par_chunks_mut(blk).enumerate().for_each(|(c, out)| {
+            let base = c * blk;
+            let li = base / nk;
+            let k0 = base % nk;
+            if li >= lays.len() || k0 >= inner {
+                return;
+            }
+            let bv = bf_entry_values(b_e, &lays[li]);
+            let k1 = (k0 + out.len()).min(inner);
+            for k in k0..k1 {
+                let row = &bv[k * cols..(k + 1) * cols];
+                let mut acc = kf.zero();
+                for (j, &v) in row.iter().enumerate() {
+                    if v != 0 {
+                        acc = kf.add(&acc, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+                    }
+                }
+                out[k - k0] = acc;
+            }
+        });
+    });
+    (ta, tb)
+}
+
 /// The bundle the verifier consumes (single-process wire face; the
 /// counted-byte convention is the artifact size, audit M-05 wire
 /// format = lane BI).
@@ -29833,9 +30097,10 @@ fn bg_rq_shift(name: &str, lay: &BfLayer) -> u32 {
 #[allow(clippy::too_many_arguments)]
 fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
     use ring::fold::{
-        expand_layer_table, ixf_layout, ixf_sumcheck_prove, ixf_sumcheck_verify,
-        matmul_degree_schedule, zerocheck_degree_schedule,
+        expand_layer_table, ixf_layout, ixf_sumcheck_prove_kind, ixf_sumcheck_verify,
+        matmul_degree_schedule, zerocheck_degree_schedule, IxfCombine,
     };
+    use ring::ct_engine::prof as dprof; // [UPERF2-D] observation-only phase timers
     use ring::gkr::{eq_eval, eq_table};
     use ring::kfield::{KElem, KField, K_DEG};
     use ring::pass_agg::{ClaimContrib, GroupClaims};
@@ -29929,6 +30194,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
     let pre_a = bg_precommit(&ctxr, &reg.ga, &sched_a, &mut w0_a, crs_seed);
 
     // ---- Statement (v4 + mode declaration) and h0_agg. ----
+    let prof_stmt = dprof::timer(dprof::D_STATEMENT); // [UPERF2-D] observation only
     let u0_digests: Vec<Vec<u8>> = [&pre_w.u0, &pre_a.u0]
         .iter()
         .map(|u| uk8_sha(&[b"bg-u0", &polys_bytes(u)]).to_vec())
@@ -29977,6 +30243,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
             ])
         }
     });
+    drop(prof_stmt);
     cost.commit_s = t_commit.elapsed().as_secs_f64();
     drop(prof_commit);
 
@@ -30015,39 +30282,14 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
         let r_l: Vec<KElem> = (0..lambda).map(|_| tr.challenge_k(&kf)).collect();
         let rx: Vec<KElem> = (0..lr).map(|_| tr.challenge_k(&kf)).collect();
         let ry: Vec<KElem> = (0..lc).map(|_| tr.challenge_k(&kf)).collect();
+        let prof_tabs = dprof::timer(dprof::D_CL_TABLES); // [UPERF2-D] observation only
         let eq_rl = eq_table(&kf, &r_l);
         let eq_rx = Rc::new(eq_table(&kf, &rx));
         let eq_ry = Rc::new(eq_table(&kf, &ry));
-        // Reduced tables over (inner-low, layer-high).
-        let mut ta = vec![kf.zero(); il.slots * nk];
-        let mut tb = vec![kf.zero(); il.slots * nk];
-        for (li, lay) in lays.iter().enumerate() {
-            let av = bf_entry_values(a_e, lay);
-            for i in 0..a_rows {
-                let w = &eq_rx[i];
-                if kf.is_zero(w) {
-                    continue;
-                }
-                for k in 0..inner {
-                    let v = av[i * inner + k];
-                    if v != 0 {
-                        let s = &mut ta[li * nk + k];
-                        *s = kf.add(s, &kf.scale(zq.to_mod(v), w));
-                    }
-                }
-            }
-            let bv = bf_entry_values(b_e, lay);
-            for k in 0..inner {
-                let row = &bv[k * cols..(k + 1) * cols];
-                let mut acc = kf.zero();
-                for (j, &v) in row.iter().enumerate() {
-                    if v != 0 {
-                        acc = kf.add(&acc, &kf.scale(zq.to_mod(v), &eq_ry[j]));
-                    }
-                }
-                tb[li * nk + k] = acc;
-            }
-        }
+        // Reduced tables over (inner-low, layer-high). [UPERF2-D] threaded
+        // builder; the serial loop is its oracle (bg_mm_tables_ref).
+        let (mut ta, tb) = bg_mm_tables(&kf, &lays, a_e, b_e, t, il.slots, nk, &eq_rx, &eq_ry);
+        let _ = a_rows;
         if opts.tamper == BgTamper::FoldClaimLie && name == "mm-gate" {
             ta[0] = kf.add(&ta[0], &kf.one());
         }
@@ -30085,6 +30327,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
         tr.absorb_k(&kf, &format!("bg-claim-{name}"), std::slice::from_ref(&v_c));
         let eq_exp = expand_layer_table(&kf, &eq_rl, nk);
         let sched = matmul_degree_schedule(lk, lambda);
+        drop(prof_tabs);
         // [UAGB1-BL] T_blind: mask the ROUND POLYNOMIALS. The mask is
         // pre-drawn and committed in the weight group (reg.blind). G is
         // pinned BEFORE rho (E-3/E-4(iii) FS edge); the round polys ship
@@ -30102,7 +30345,10 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
             let gopen = mask.open(&kf, &point);
             (scp, point, Some(g), Some(gopen))
         } else {
-            let (scp, point) = ixf_sumcheck_prove(&kf, vec![eq_exp, ta, tb], &sched, &product3, &mut tr);
+            // [UPERF2-D] the packed bulk prover for the named shape
+            // (oracle: the scalar `ixf_sumcheck_prove` with product3).
+            let (scp, point) =
+                ixf_sumcheck_prove_kind(&kf, vec![eq_exp, ta, tb], &sched, IxfCombine::Prod3, &mut tr);
             (scp, point, None, None)
         };
         tr.absorb_k(&kf, &format!("bg-final-{name}"), &scp.final_evals);
@@ -30113,6 +30359,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
             name,
             kel: 1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len(),
         });
+        let _prof_fin = dprof::timer(dprof::D_CL_FINALS); // [UPERF2-D] observation only (to the loop end)
         let k_star = &point[..lk];
         let l_star = &point[lk..];
         let eq_ks = Rc::new(eq_table(&kf, k_star));
@@ -30203,6 +30450,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
         let cols_pad = 1usize << lcp;
         let n_pos = lr + lcp;
         let r_q: Vec<KElem> = (0..n_pos + lambda).map(|_| tr.challenge_k(&kf)).collect();
+        let prof_tabs = dprof::timer(dprof::D_CL_TABLES); // [UPERF2-D] observation only
         let eq_full = eq_table(&kf, &r_q);
         let t1 = bg_stack_table(&kf, &lays, *e1, il.slots, n_pos, cols_real, cols_pad);
         let t2 = bg_stack_table(&kf, &lays, *e2, il.slots, n_pos, cols_real, cols_pad);
@@ -30216,6 +30464,8 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
         } else {
             zerocheck_degree_schedule(n_pos, lambda)
         };
+        // [UPERF2-D] the packed bulk prover per shape (oracle: the scalar
+        // `ixf_sumcheck_prove` with rq_comb / had_comb).
         let (scp, point) = if *is_rq {
             let sh_layer: Vec<KElem> = (0..il.slots)
                 .map(|li| {
@@ -30227,15 +30477,18 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
                 })
                 .collect();
             let sh_exp = expand_layer_table(&kf, &sh_layer, 1 << n_pos);
-            ixf_sumcheck_prove(&kf, vec![eq_full, t1, t2, t3, sh_exp], &sched, &rq_comb, &mut tr)
+            drop(prof_tabs);
+            ixf_sumcheck_prove_kind(&kf, vec![eq_full, t1, t2, t3, sh_exp], &sched, IxfCombine::Rq, &mut tr)
         } else {
-            ixf_sumcheck_prove(&kf, vec![eq_full, t1, t2, t3], &sched, &had_comb, &mut tr)
+            drop(prof_tabs);
+            ixf_sumcheck_prove_kind(&kf, vec![eq_full, t1, t2, t3], &sched, IxfCombine::Had, &mut tr)
         };
         tr.absorb_k(&kf, &format!("bg-final-{name}"), &scp.final_evals);
         cost.inst_lines.push(BgInstLine {
             name,
             kel: 1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len(),
         });
+        let _prof_fin = dprof::timer(dprof::D_CL_FINALS); // [UPERF2-D] observation only (to the loop end)
         let p_col = &point[..lcp];
         let p_row = &point[lcp..n_pos];
         let p_lay = &point[n_pos..];
@@ -33151,9 +33404,10 @@ fn bk_tree_slots(
 fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     use ring::descent_fold::{aligned_witness_tree, neutral_tree, tree_ceiling_ok};
     use ring::fold::{
-        expand_layer_table, ixf_layout, ixf_sumcheck_prove, ixf_sumcheck_verify,
-        matmul_degree_schedule, zerocheck_degree_schedule,
+        expand_layer_table, ixf_layout, ixf_sumcheck_prove_kind, ixf_sumcheck_verify,
+        matmul_degree_schedule, zerocheck_degree_schedule, IxfCombine,
     };
+    use ring::ct_engine::prof as dprof; // [UPERF2-D] observation-only phase timers
     use ring::gkr::{eq_eval, eq_table, root_cross_check};
     use ring::gkr_masked::{
         blinded_table_tree, masked_gkr_prove, masked_gkr_verify, zero_masks,
@@ -33205,6 +33459,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     // ---- Pair specs, registry, schedules, aux, witnesses. ----
     let t_commit = Instant::now();
     let prof_commit = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_COMMIT); // observation only
+    let prof_groups = dprof::timer(dprof::D_GROUPS); // [UPERF2-D] observation only
     let specs = bk_pair_specs(&lays, t);
     if opts.tamper == BkTamper::WrongTable {
         let m4 = specs.iter().find(|s| s.pid == 1).expect("m4 pair present");
@@ -33213,11 +33468,13 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     let mut reg = bk_build_groups(&lays, t, &specs, q);
     reg.gw.begin_opening().expect("first weight-group opening (E-O2-BB)");
     reg.ga.begin_opening().expect("first act-group opening (E-O2-BB)");
+    drop(prof_groups);
     let mut aux_rng = ring::ProverRng::from_test_seed(
         "uagb1-bk-session",
         &[(opts.layers_n as u64).to_le_bytes(), (t as u64).to_le_bytes()].concat(),
     );
     let mut aux: Vec<BkAuxMat> = Vec::with_capacity(specs.len());
+    let prof_aux = dprof::timer(dprof::D_AUX); // [UPERF2-D] observation only
     for (pi, sp) in specs.iter().enumerate() {
         let prover_silu = bk_prover_silu(sp, opts);
         let sp_for_counts = if prover_silu == sp.silu {
@@ -33238,6 +33495,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         };
         aux.push(a);
     }
+    drop(prof_aux);
     if opts.tamper == BkTamper::CrossPairMSwap {
         let pa = specs.iter().position(|s| s.pid == 0).expect("silu-m3 present");
         let pb = specs.iter().position(|s| s.pid == 2).expect("nrw-88 present");
@@ -33280,6 +33538,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     // ---- Statement (v4 + mode) and h0 (map + BOTH u_0s inside —
     // ---- FP-L2 mask-then-fold: every aux commitment precedes every
     // ---- challenge through u_0(T_act)). ----
+    let prof_stmt = dprof::timer(dprof::D_STATEMENT); // [UPERF2-D] observation only
     let u0_digests: Vec<Vec<u8>> = [&pre_w.u0, &pre_a.u0]
         .iter()
         .map(|u| uk8_sha(&[b"bk-u0", &polys_bytes(u)]).to_vec())
@@ -33330,6 +33589,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
             &polys_bytes(&pre_a.u0),
         ])
     };
+    drop(prof_stmt);
     cost.commit_s = t_commit.elapsed().as_secs_f64();
     drop(prof_commit);
 
@@ -33361,7 +33621,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     };
 
     for (name, a_e, b_e, c_e) in BG_MM_INSTS {
-        let (a_rows, a_cols) = bf_entry_shape(a_e, t);
+        let (_a_rows, a_cols) = bf_entry_shape(a_e, t);
         let (_b_rows, b_cols) = bf_entry_shape(b_e, t);
         let inner = a_cols;
         let cols = b_cols;
@@ -33371,38 +33631,13 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         let r_l: Vec<KElem> = (0..lambda).map(|_| tr.challenge_k(&kf)).collect();
         let rx: Vec<KElem> = (0..lr).map(|_| tr.challenge_k(&kf)).collect();
         let ry: Vec<KElem> = (0..lc).map(|_| tr.challenge_k(&kf)).collect();
+        let prof_tabs = dprof::timer(dprof::D_CL_TABLES); // [UPERF2-D] observation only
         let eq_rl = eq_table(&kf, &r_l);
         let eq_rx = Rc::new(eq_table(&kf, &rx));
         let eq_ry = Rc::new(eq_table(&kf, &ry));
-        let mut ta = vec![kf.zero(); il.slots * nk];
-        let mut tb = vec![kf.zero(); il.slots * nk];
-        for (li, lay) in lays.iter().enumerate() {
-            let av = bf_entry_values(a_e, lay);
-            for i in 0..a_rows {
-                let w = &eq_rx[i];
-                if kf.is_zero(w) {
-                    continue;
-                }
-                for k in 0..inner {
-                    let v = av[i * inner + k];
-                    if v != 0 {
-                        let s = &mut ta[li * nk + k];
-                        *s = kf.add(s, &kf.scale(zq.to_mod(v), w));
-                    }
-                }
-            }
-            let bv = bf_entry_values(b_e, lay);
-            for k in 0..inner {
-                let row = &bv[k * cols..(k + 1) * cols];
-                let mut acc = kf.zero();
-                for (j, &v) in row.iter().enumerate() {
-                    if v != 0 {
-                        acc = kf.add(&acc, &kf.scale(zq.to_mod(v), &eq_ry[j]));
-                    }
-                }
-                tb[li * nk + k] = acc;
-            }
-        }
+        // [UPERF2-D] the reduced A/B tables (threaded builder; the serial
+        // loop is its oracle — bg_mm_tables_ref).
+        let (ta, tb) = bg_mm_tables(&kf, &lays, a_e, b_e, t, il.slots, nk, &eq_rx, &eq_ry);
         let v_c = {
             let mut s = kf.zero();
             for (li, lay) in lays.iter().enumerate() {
@@ -33414,13 +33649,17 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         tr.absorb_k(&kf, &format!("bk-claim-{name}"), std::slice::from_ref(&v_c));
         let eq_exp = expand_layer_table(&kf, &eq_rl, nk);
         let sched = matmul_degree_schedule(lk, lambda);
+        drop(prof_tabs);
+        // [UPERF2-D] the packed bulk prover for the named shape (oracle:
+        // the scalar `ixf_sumcheck_prove` with the same closure).
         let (scp, point) =
-            ixf_sumcheck_prove(&kf, vec![eq_exp, ta, tb], &sched, &product3, &mut tr);
+            ixf_sumcheck_prove_kind(&kf, vec![eq_exp, ta, tb], &sched, IxfCombine::Prod3, &mut tr);
         tr.absorb_k(&kf, &format!("bk-final-{name}"), &scp.final_evals);
         cost.inst_lines.push(BgInstLine {
             name,
             kel: 1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len(),
         });
+        let prof_fin = dprof::timer(dprof::D_CL_FINALS); // [UPERF2-D] observation only
         let k_star = &point[..lk];
         let l_star = &point[lk..];
         let eq_ks = Rc::new(eq_table(&kf, k_star));
@@ -33457,6 +33696,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         });
         v_cs.push(v_c);
         sc_proofs.push(scp);
+        drop(prof_fin);
     }
 
     let zc_insts: Vec<(&'static str, usize, usize, usize, bool)> = {
@@ -33473,6 +33713,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         let cols_pad = 1usize << lcp;
         let n_pos = lr + lcp;
         let r_q: Vec<KElem> = (0..n_pos + lambda).map(|_| tr.challenge_k(&kf)).collect();
+        let prof_tabs = dprof::timer(dprof::D_CL_TABLES); // [UPERF2-D] observation only
         let eq_full = eq_table(&kf, &r_q);
         let t1 = bg_stack_table(&kf, &lays, *e1, il.slots, n_pos, cols_real, cols_pad);
         let t2 = bg_stack_table(&kf, &lays, *e2, il.slots, n_pos, cols_real, cols_pad);
@@ -33497,15 +33738,18 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
                 })
                 .collect();
             let sh_exp = expand_layer_table(&kf, &sh_layer, 1 << n_pos);
-            ixf_sumcheck_prove(&kf, vec![eq_full, t1, t2, t3, sh_exp], &sched, &rq_comb, &mut tr)
+            drop(prof_tabs);
+            ixf_sumcheck_prove_kind(&kf, vec![eq_full, t1, t2, t3, sh_exp], &sched, IxfCombine::Rq, &mut tr)
         } else {
-            ixf_sumcheck_prove(&kf, vec![eq_full, t1, t2, t3], &sched, &had_comb, &mut tr)
+            drop(prof_tabs);
+            ixf_sumcheck_prove_kind(&kf, vec![eq_full, t1, t2, t3], &sched, IxfCombine::Had, &mut tr)
         };
         tr.absorb_k(&kf, &format!("bk-final-{name}"), &scp.final_evals);
         cost.inst_lines.push(BgInstLine {
             name,
             kel: 1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len(),
         });
+        let prof_fin = dprof::timer(dprof::D_CL_FINALS); // [UPERF2-D] observation only
         let p_col = &point[..lcp];
         let p_row = &point[lcp..n_pos];
         let p_lay = &point[n_pos..];
@@ -33525,6 +33769,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
             });
         }
         sc_proofs.push(scp);
+        drop(prof_fin);
     }
 
     drop(prof_claims);
@@ -36180,5 +36425,418 @@ fn uperf_c_bench(r: usize, chunk: usize, with_ref: bool) {
                 s_ref / s_fast
             );
         }
+    }
+}
+
+// ===========================================================================
+// [UPERF2-D] U-PERF2 lane D — the claim layer (the packed bulk ixf sumcheck
+// prover, fold.rs `ixf_sumcheck_prove_kind` on kfield.rs's
+// `k9_ixf_round_par` / `kt_fold_par`) + the commit phase (threaded chain
+// derivation, digit witnesses, matmul-instance table builders). ADDITIVE
+// section: the harness only. Commands:
+//   uperf-d diff-battery — fixed-seed ixf instances of the three claim-layer
+//     shapes (Prod3 / Had / Rq) at several sizes, dense AND sparse (stacked-
+//     table-like) tables with a real eq factor: the scalar oracle
+//     (`ixf_sumcheck_prove` with the pass closures) == `_kind_ref` ==
+//     packed fast == fast under the in-process `set_oracle_mode` flip —
+//     rounds / finals / point / transcript state byte-identical, every
+//     proof verifies; then bg_mm_tables ref == fast on synthetic layers,
+//     agg_digit_witness ref == fast, the chain GEMM ref == fast. Prints a
+//     BATTERY DIGEST to compare across ZK_THREADS 1/2/7 runs.
+//   uperf-d bench [n_log2] [kind] [noref] — the packed prover vs the scalar
+//     oracle on random tables of 2^n elements (byte equality asserted).
+
+fn uperf_d_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("diff-battery") => uperf_d_diff_battery(),
+        Some("bench") => {
+            let n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(17);
+            let kind = match args.get(2).map(String::as_str) {
+                Some("prod3") => ring::fold::IxfCombine::Prod3,
+                Some("had") => ring::fold::IxfCombine::Had,
+                _ => ring::fold::IxfCombine::Rq,
+            };
+            let with_ref = args.get(3).map(String::as_str) != Some("noref");
+            uperf_d_bench(n, kind, with_ref);
+        }
+        _ => println!("uperf-d diff-battery | bench [n_log2] [prod3|had|rq] [noref]"),
+    }
+}
+
+/// The pass claim layer's closures, verbatim (bg_pass_run / bk_pass_run) —
+/// the battery proves `IxfCombine::eval` and the packed kernel agree with
+/// THESE, not with themselves.
+fn uperf_d_pass_closure(kind: ring::fold::IxfCombine) -> Box<dyn Fn(&ring::kfield::KField, &[ring::kfield::KElem]) -> ring::kfield::KElem> {
+    use ring::fold::IxfCombine;
+    use ring::kfield::{KElem, KField};
+    match kind {
+        IxfCombine::Prod3 => Box::new(|kf: &KField, v: &[KElem]| kf.mul(&kf.mul(&v[0], &v[1]), &v[2])),
+        IxfCombine::Had => Box::new(|kf: &KField, v: &[KElem]| kf.mul(&v[0], &kf.sub(&kf.mul(&v[1], &v[2]), &v[3]))),
+        IxfCombine::Rq => Box::new(|kf: &KField, v: &[KElem]| {
+            kf.mul(&v[0], &kf.sub(&kf.sub(&v[1], &kf.mul(&v[4], &v[2])), &v[3]))
+        }),
+    }
+}
+
+/// Fixed-seed factor tables for one ixf instance: table 0 = a real eq
+/// table over a drawn point (the claim layer's shape); the others uniform
+/// K (dense) or small-integer embeds with ~90% zeros (sparse — the
+/// stacked zero-check tables' shape), the last Rq table a layer-constant
+/// expansion (the sh~ table).
+fn uperf_d_tables(
+    kf: &ring::kfield::KField,
+    kind: ring::fold::IxfCombine,
+    n_log2: usize,
+    sparse: bool,
+    seed: u64,
+) -> Vec<Vec<ring::kfield::KElem>> {
+    use ring::fold::IxfCombine;
+    let n = 1usize << n_log2;
+    let mut rd = ring::XofReader::new("uperf2-d-tables", &[&seed.to_le_bytes(), &[n_log2 as u8, sparse as u8]]);
+    // Prod3 (the joint matmul) carries eq over the LAYER variables only,
+    // expanded over the inner positions (constant within every inner pair
+    // — what its [2; lk] ++ [3; lambda] schedule assumes); the zero-checks
+    // carry eq over every variable.
+    let lambda = 2usize.min(n_log2);
+    let point: Vec<ring::kfield::KElem> = (0..n_log2).map(|_| kf.uniform(&mut rd)).collect();
+    let mut tabs = if kind == IxfCombine::Prod3 {
+        let eq_l = ring::gkr::eq_table(kf, &point[n_log2 - lambda..]);
+        vec![ring::fold::expand_layer_table(kf, &eq_l, n >> lambda)]
+    } else {
+        vec![ring::gkr::eq_table(kf, &point)]
+    };
+    let nt = kind.n_tables();
+    for ti in 1..nt {
+        if kind == IxfCombine::Rq && ti == 4 {
+            // sh~: constant per layer slot (top 2 variables), zero pads
+            let nb = n / 4;
+            let mut t = Vec::with_capacity(n);
+            for l in 0..4 {
+                let v = if l < 3 { kf.embed(1u64 << (2 + l)) } else { kf.zero() };
+                for _ in 0..nb {
+                    t.push(v.clone());
+                }
+            }
+            tabs.push(t);
+            continue;
+        }
+        let t: Vec<ring::kfield::KElem> = (0..n)
+            .map(|_| {
+                if sparse {
+                    let x = rd.next_u64();
+                    if x % 10 < 9 {
+                        kf.zero()
+                    } else {
+                        let v = ((x >> 8) % 255) as i64 - 127;
+                        kf.embed(kf.zq.to_mod(v))
+                    }
+                } else {
+                    kf.uniform(&mut rd)
+                }
+            })
+            .collect();
+        tabs.push(t);
+    }
+    tabs
+}
+
+fn uperf_d_degrees(kind: ring::fold::IxfCombine, n_log2: usize) -> Vec<usize> {
+    use ring::fold::IxfCombine;
+    let lambda = 2usize.min(n_log2);
+    match kind {
+        IxfCombine::Prod3 => ring::fold::matmul_degree_schedule(n_log2 - lambda, lambda),
+        IxfCombine::Had => ring::fold::zerocheck_degree_schedule(n_log2 - lambda, lambda),
+        IxfCombine::Rq => {
+            let mut d = vec![2usize; n_log2 - lambda];
+            d.extend(std::iter::repeat_n(3usize, lambda));
+            d
+        }
+    }
+}
+
+/// SHA-256 over a sumcheck proof + point + transcript state.
+fn uperf_d_proof_digest(
+    kf: &ring::kfield::KField,
+    p: &ring::sumcheck::SumcheckProof,
+    point: &[ring::kfield::KElem],
+    state: &[u8; 32],
+) -> [u8; 32] {
+    use sha2::{Digest, Sha256};
+    let mut h = Sha256::new();
+    h.update(b"uperf2-d-proof-v1");
+    h.update((p.rounds.len() as u64).to_le_bytes());
+    for r in &p.rounds {
+        h.update((r.len() as u64).to_le_bytes());
+        for e in r {
+            h.update(kf.bytes(e));
+        }
+    }
+    h.update((p.final_evals.len() as u64).to_le_bytes());
+    for e in &p.final_evals {
+        h.update(kf.bytes(e));
+    }
+    for e in point {
+        h.update(kf.bytes(e));
+    }
+    h.update(state);
+    h.finalize().into()
+}
+
+fn uperf_d_diff_battery() {
+    use ring::fold::{ixf_sumcheck_prove, ixf_sumcheck_prove_kind, ixf_sumcheck_prove_kind_ref, ixf_sumcheck_verify, IxfCombine};
+    use ring::kfield::{KElem, KField};
+    use ring::sumcheck::LkpTranscript;
+    use sha2::{Digest, Sha256};
+    println!(
+        "[UPERF2-D] diff-battery: packed ixf prover vs the scalar oracle (ZK_THREADS {}, oracle env {})",
+        ring::eval_proof::threads(),
+        ring::eval_proof::oracle_mode()
+    );
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let mut battery = Sha256::new_with_prefix(b"uperf2-d-battery-v1");
+    let mut legs = 0usize;
+    let mut fails = 0usize;
+    let shapes: [(IxfCombine, usize); 9] = [
+        (IxfCombine::Prod3, 4),
+        (IxfCombine::Prod3, 7),
+        (IxfCombine::Prod3, 12),
+        (IxfCombine::Had, 5),
+        (IxfCombine::Had, 9),
+        (IxfCombine::Had, 13),
+        (IxfCombine::Rq, 6),
+        (IxfCombine::Rq, 10),
+        (IxfCombine::Rq, 14),
+    ];
+    let t0 = Instant::now();
+    for (si, &(kind, n_log2)) in shapes.iter().enumerate() {
+        for sparse in [false, true] {
+            let tabs = uperf_d_tables(&kf, kind, n_log2, sparse, 0xD0 + si as u64);
+            let degrees = uperf_d_degrees(kind, n_log2);
+            let closure = uperf_d_pass_closure(kind);
+            // the claimed sum (the verifier's claim), by the pass closure
+            let claimed = {
+                let mut s = kf.zero();
+                let mut vals = vec![kf.zero(); tabs.len()];
+                for i in 0..tabs[0].len() {
+                    for (t, tab) in tabs.iter().enumerate() {
+                        vals[t] = tab[i].clone();
+                    }
+                    s = kf.add(&s, &closure(&kf, &vals));
+                }
+                s
+            };
+            let seed = [0xD1u8, si as u8, sparse as u8];
+            // (a) the oracle: the pre-change scalar prover with the pass closure
+            let mut tr_a = LkpTranscript::new("uperf2-d-ixf", &seed);
+            let (pa, pt_a) = ixf_sumcheck_prove(&kf, tabs.clone(), &degrees, &*closure, &mut tr_a);
+            let da = uperf_d_proof_digest(&kf, &pa, &pt_a, &tr_a.state());
+            // (b) the kind's ref body
+            let mut tr_b = LkpTranscript::new("uperf2-d-ixf", &seed);
+            let (pb, pt_b) = ixf_sumcheck_prove_kind_ref(&kf, tabs.clone(), &degrees, kind, &mut tr_b);
+            let db = uperf_d_proof_digest(&kf, &pb, &pt_b, &tr_b.state());
+            // (c) the packed fast path (as routed by the env)
+            let mut tr_c = LkpTranscript::new("uperf2-d-ixf", &seed);
+            let (pc, pt_c) = ixf_sumcheck_prove_kind(&kf, tabs.clone(), &degrees, kind, &mut tr_c);
+            let dc = uperf_d_proof_digest(&kf, &pc, &pt_c, &tr_c.state());
+            // (d) the in-process oracle flip (fast -> oracle -> restore)
+            let was = ring::eval_proof::oracle_mode();
+            ring::eval_proof::set_oracle_mode(!was);
+            let mut tr_d = LkpTranscript::new("uperf2-d-ixf", &seed);
+            let (pd, pt_d) = ixf_sumcheck_prove_kind(&kf, tabs.clone(), &degrees, kind, &mut tr_d);
+            ring::eval_proof::set_oracle_mode(was);
+            let dd = uperf_d_proof_digest(&kf, &pd, &pt_d, &tr_d.state());
+            // verify (c) against the claim on a fresh transcript
+            let mut tv = LkpTranscript::new("uperf2-d-ixf", &seed);
+            let ver = ixf_sumcheck_verify(&kf, &degrees, &claimed, &pc, &*closure, &mut tv);
+            let ver_ok = match &ver {
+                Some((pt, _)) => *pt == pt_c && tv.state() == tr_c.state(),
+                None => false,
+            };
+            let ok = da == db && db == dc && dc == dd && ver_ok;
+            legs += 1;
+            if !ok {
+                fails += 1;
+            }
+            battery.update(dc);
+            println!(
+                "  {} {:?} n=2^{n_log2} {:<6} oracle==ref {} ref==fast {} fast==flip {} verify {}",
+                if ok { "ok  " } else { "FAIL" },
+                kind,
+                if sparse { "sparse" } else { "dense" },
+                da == db,
+                db == dc,
+                dc == dd,
+                ver_ok
+            );
+        }
+    }
+    // bg_mm_tables: synthetic layers, ref == fast (the threaded builder).
+    {
+        let t = 8usize;
+        let mut rd = ring::XofReader::new("uperf2-d-layers", &[b"mm"]);
+        let mut small = |n: usize| -> Vec<i64> { (0..n).map(|_| (rd.next_u64() % 255) as i64 - 127).collect() };
+        let mk = |small: &mut dyn FnMut(usize) -> Vec<i64>, l: usize| BfLayer {
+            l,
+            exps: (0, 0, 0, 0, 0, 0),
+            shifts: (0, 0, 0, 0),
+            x: small(t * BF_D),
+            wg_t: small(BF_D * BF_F),
+            wu_t: small(BF_D * BF_F),
+            wd_t: small(BF_F * BF_D),
+            gacc: vec![],
+            rg: vec![],
+            g8: vec![],
+            a8: vec![],
+            uacc: vec![],
+            ru: vec![],
+            u8v: vec![],
+            hh: vec![],
+            rh: vec![],
+            h8: small(t * BF_F),
+            dacc: vec![],
+            rd: vec![],
+            z: vec![],
+        };
+        let lays = vec![mk(&mut small, 0), mk(&mut small, 1), mk(&mut small, 2)];
+        let il = ring::fold::ixf_layout(lays.len());
+        let lr = t.trailing_zeros() as usize;
+        for (name, a_e, b_e, _c_e) in BG_MM_INSTS {
+            let (_a_rows, a_cols) = bf_entry_shape(a_e, t);
+            let (_b_rows, b_cols) = bf_entry_shape(b_e, t);
+            let lk = usize::BITS as usize - (a_cols - 1).leading_zeros() as usize;
+            let lc = usize::BITS as usize - (b_cols - 1).leading_zeros() as usize;
+            let nk = 1usize << lk;
+            let mut rd2 = ring::XofReader::new("uperf2-d-mm-points", &[name.as_bytes()]);
+            let rx: Vec<KElem> = (0..lr).map(|_| kf.uniform(&mut rd2)).collect();
+            let ry: Vec<KElem> = (0..lc).map(|_| kf.uniform(&mut rd2)).collect();
+            let eq_rx = ring::gkr::eq_table(&kf, &rx);
+            let eq_ry = ring::gkr::eq_table(&kf, &ry);
+            let (ta_r, tb_r) = bg_mm_tables_ref(&kf, &lays, a_e, b_e, t, il.slots, nk, &eq_rx, &eq_ry);
+            let (ta_f, tb_f) = bg_mm_tables(&kf, &lays, a_e, b_e, t, il.slots, nk, &eq_rx, &eq_ry);
+            let ok = ta_r == ta_f && tb_r == tb_f;
+            legs += 1;
+            if !ok {
+                fails += 1;
+            }
+            let mut h = Sha256::new();
+            for e in ta_f.iter().chain(tb_f.iter()) {
+                h.update(kf.bytes(e));
+            }
+            battery.update(h.finalize());
+            println!("  {} bg_mm_tables {name} ref == fast ({} elements)", if ok { "ok  " } else { "FAIL" }, ta_f.len());
+        }
+        // the chain GEMM ref == fast on the synthetic layers
+        for lay in &lays {
+            let (g_ref, g_fast) = (
+                bf_matmul_i64_ref(&lay.x, &lay.wg_t, t, BF_D, BF_F),
+                bf_matmul_i64(&lay.x, &lay.wg_t, t, BF_D, BF_F),
+            );
+            let (d_ref, d_fast) = (
+                bf_matmul_i64_ref(&lay.h8, &lay.wd_t, t, BF_F, BF_D),
+                bf_matmul_i64(&lay.h8, &lay.wd_t, t, BF_F, BF_D),
+            );
+            let ok = g_ref == g_fast && d_ref == d_fast;
+            legs += 1;
+            if !ok {
+                fails += 1;
+            }
+            ring::ct_engine::prof::digest_i64s("uperf2-d-gemm", &g_fast);
+            let mut h = Sha256::new();
+            for &v in g_fast.iter().chain(d_fast.iter()) {
+                h.update(v.to_le_bytes());
+            }
+            battery.update(h.finalize());
+            println!("  {} chain GEMM layer {} ref == fast (t {t}: {}x{}x{} + {}x{}x{})", if ok { "ok  " } else { "FAIL" }, lay.l, t, BF_D, BF_F, t, BF_F, BF_D);
+        }
+        // agg_digit_witness ref == fast on a small mixed group
+        {
+            use ring::digits::{derive_l0, CLASS_W8S};
+            let mut g = ring::eval_proof::AggGroup::new("d-battery");
+            g.add_tensor("X", t, BF_D, 2, derive_l0(-127, 127, 2));
+            g.add_tensor("W", 64, BF_F, CLASS_W8S.e0, CLASS_W8S.l0);
+            g.add_tensor("Acc", t, 256, 2, derive_l0(-15000, 15000, 2));
+            let vals: Vec<Vec<i64>> = vec![
+                small(t * BF_D),
+                small(64 * BF_F),
+                (0..t * 256).map(|i| ((i as i64 * 7919) % 30000) - 15000).collect(),
+            ];
+            let refs: Vec<&[i64]> = vals.iter().map(|v| v.as_slice()).collect();
+            let w_ref = agg_digit_witness_ref(&g, &refs);
+            let w_fast = agg_digit_witness(&g, &refs);
+            let ok = w_ref == w_fast;
+            legs += 1;
+            if !ok {
+                fails += 1;
+            }
+            let mut h = Sha256::new();
+            for r in &w_fast {
+                for &v in r {
+                    h.update(v.to_le_bytes());
+                }
+            }
+            battery.update(h.finalize());
+            println!("  {} agg_digit_witness ref == fast ({} digit rings)", if ok { "ok  " } else { "FAIL" }, w_fast.len());
+        }
+    }
+    let dg: [u8; 32] = battery.finalize().into();
+    println!(
+        "[UPERF2-D] diff-battery: {}/{} legs ok in {:.1}s | BATTERY DIGEST {}",
+        legs - fails,
+        legs,
+        t0.elapsed().as_secs_f64(),
+        hex_full(&dg)
+    );
+    if fails > 0 {
+        std::process::exit(1);
+    }
+}
+
+fn uperf_d_bench(n_log2: usize, kind: ring::fold::IxfCombine, with_ref: bool) {
+    use ring::fold::{ixf_sumcheck_prove_kind, ixf_sumcheck_prove_kind_ref};
+    use ring::kfield::KField;
+    use ring::sumcheck::LkpTranscript;
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    println!(
+        "[UPERF2-D] bench: {:?} at 2^{n_log2} elements x {} tables (ZK_THREADS {}, oracle env {})",
+        kind,
+        kind.n_tables(),
+        ring::eval_proof::threads(),
+        ring::eval_proof::oracle_mode()
+    );
+    let tabs = uperf_d_tables(&kf, kind, n_log2, true, 0xBE);
+    let degrees = uperf_d_degrees(kind, n_log2);
+    let pairs_total: f64 = (0..n_log2).map(|t| (1usize << (n_log2 - 1 - t)) as f64).sum();
+    ring::ct_engine::prof::reset();
+    ring::ct_engine::prof::enable(true, false);
+    let t0 = Instant::now();
+    let mut tr_f = LkpTranscript::new("uperf2-d-bench", &[1]);
+    let (pf, ptf) = ixf_sumcheck_prove_kind(&kf, tabs.clone(), &degrees, kind, &mut tr_f);
+    let s_fast = t0.elapsed().as_secs_f64();
+    ring::ct_engine::prof::enable(false, false);
+    println!(
+        "  packed fast : {s_fast:>8.3}s  = {:.1} ns per pair-round (all rounds), {:.1} ns per element",
+        s_fast * 1e9 / pairs_total,
+        s_fast * 1e9 / (1usize << n_log2) as f64
+    );
+    for (name, secs, calls) in ring::ct_engine::prof::report() {
+        if calls > 0 && name.starts_with("d.cl-") {
+            println!("    {name:<16} {secs:>8.3}s x{calls}");
+        }
+    }
+    if with_ref {
+        let t0 = Instant::now();
+        let mut tr_r = LkpTranscript::new("uperf2-d-bench", &[1]);
+        let (pr, ptr) = ixf_sumcheck_prove_kind_ref(&kf, tabs, &degrees, kind, &mut tr_r);
+        let s_ref = t0.elapsed().as_secs_f64();
+        let df = uperf_d_proof_digest(&kf, &pf, &ptf, &tr_f.state());
+        let dr = uperf_d_proof_digest(&kf, &pr, &ptr, &tr_r.state());
+        assert_eq!(df, dr, "bench: packed prover != scalar oracle");
+        println!(
+            "  scalar ref  : {s_ref:>8.3}s  = {:.1} ns per pair-round -> speedup {:.1}x (byte-identical)",
+            s_ref * 1e9 / pairs_total,
+            s_ref / s_fast
+        );
     }
 }

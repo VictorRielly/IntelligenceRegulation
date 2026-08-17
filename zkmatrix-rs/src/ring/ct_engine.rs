@@ -2520,7 +2520,19 @@ pub mod prof {
     pub const A_SCALAR_TAIL: usize = 37; // sub-block scalar rounds + w-round
     pub const A_GKR_PROVE: usize = 38; // masked_gkr_prove total
     pub const A_GKR_VERIFY: usize = 39; // masked_gkr_verify total
-    pub const N_PHASES: usize = 40;
+    // [UPERF2-D] commit-phase + claim-layer internals (observation only; bin + fold.rs)
+    pub const D_CHAIN: usize = 40; // bf_derive_chain: the per-layer witness chain (3 i64 GEMMs + requant)
+    pub const D_DIGITS: usize = 41; // agg_digit_witness: exact digit decomposition per group
+    pub const D_PRECOMMIT: usize = 42; // bg_precommit: level-0 A matvec chunks + Bu (u_0 per group)
+    pub const D_STATEMENT: usize = 43; // statement build/validate/digest + entry digests + h0
+    pub const D_AUX: usize = 44; // bk_build_aux: multiplicity counts, blinders, masks, aux values
+    pub const D_GROUPS: usize = 45; // bk_pair_specs + bk_build_groups + schedules
+    pub const D_CL_TABLES: usize = 46; // claim layer: instance table builds (ta/tb, stacked tables, eq tables, expand)
+    pub const D_CL_ROUNDS: usize = 47; // claim layer: ixf sumcheck round polynomials (all rounds)
+    pub const D_CL_FOLDS: usize = 48; // claim layer: ixf sumcheck table folds (all rounds)
+    pub const D_CL_FINALS: usize = 49; // claim layer: post-sumcheck claim assembly (eq tables at the point, parts)
+    pub const D_CL_PACK: usize = 50; // claim layer: packing boxed tables into the bulk layout (fast path)
+    pub const N_PHASES: usize = 51;
 
     pub const NAMES: [&str; N_PHASES] = [
         "ct.setup(clone+digits)",
@@ -2563,6 +2575,17 @@ pub mod prof {
         "a.scalar-tail",
         "a.gkr-prove",
         "a.gkr-verify",
+        "d.chain-derive",
+        "d.digit-witness",
+        "d.precommit-u0",
+        "d.statement",
+        "d.aux-build",
+        "d.groups",
+        "d.cl-tables",
+        "d.cl-rounds",
+        "d.cl-folds",
+        "d.cl-finals",
+        "d.cl-pack",
     ];
 
     static ENABLED: AtomicBool = AtomicBool::new(false);

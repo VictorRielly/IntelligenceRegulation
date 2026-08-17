@@ -374,7 +374,35 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent D status (wt-uperf2-d)
 
-- (lane launches here)
+- 2026-08-17 PLAN + FIRST LANDING (lane D, branch uperf2-d from d3a4602;
+  report: docs/zkmatrix-poc/U_PERF2_CLAIMCOMMIT_REPORT.md). Baselines
+  captured BEFORE any code change: freeze-check 98 `ok` rows
+  (scratchpad/d_freeze_baseline.txt) and the 3x16 rig at 1T (accept
+  true, statement 93a98700.., 985,142 B, EVAL-PROOF DIGEST 0ae9cdae..;
+  commit 4.0 / prove 32.2 / verify 6.9 / wall 43.3 s [WSL 1T]).
+  Method: the PERF RULE — every changed entry point keeps its body as
+  `*_ref`, honors `oracle_mode()`, threads over independent exact work.
+  Items: (1) `d.*` prof phases (ct_engine::prof ids 40-50: chain,
+  digits, precommit, statement, aux, groups; cl-tables/rounds/folds/
+  finals/pack). (2) The claim layer's ixf sumcheck on the K9 packed
+  substrate: `fold.rs::IxfCombine {Prod3, Had, Rq}` names the three
+  pass combine shapes; `ixf_sumcheck_prove_kind` packs the boxed tables
+  once and runs every round on a NEW lane-blocked round kernel
+  (`kfield.rs::ixf_round_body` — one MAC + one deferred reduction for
+  the inner factor, modular differences, eq MAC into per-node lazy
+  planes; all deg+1 nodes; per-chunk planes summed in index order =
+  deterministic ZK_THREADS) with `kt_fold_par` in-place threaded folds,
+  finishing the last rounds (< 2 pair-blocks) on the boxed scalar
+  path; the scalar `ixf_sumcheck_prove` is the oracle (`_kind_ref`).
+  (3) Commit phase: `bf_matmul_i64` (row-blocked GEMM, i32 accumulation
+  when the int8 x int8 bound fits, threads over row blocks; oracle the
+  inline i-k-j loop), `agg_digit_witness` threaded per value ring,
+  `bg_mm_tables` (matmul-instance ta/tb) threaded per (layer, k) block.
+  (4) `uperf-d diff-battery` 25/25 (three shapes x 3 sizes x dense/
+  sparse: oracle == ref == fast == in-process flip, every proof
+  verifies; bg_mm_tables / chain GEMM / digit witness ref == fast),
+  BATTERY DIGEST 1d08e03f.. identical at ZK_THREADS 1/2/7 and under
+  ZK_UPERF_ORACLE=1. Rig gate + report: next.
 
 ## Agent E status (wt-uperf2-e)
 
