@@ -35331,7 +35331,21 @@ fn uperf_pc_diff_battery() {
     let a = expand_level_matrix_raw(7, "W", 0, "A", KAPPA_AGG, 3, q);
     let b = expand_level_matrix_raw(7, "act", 0, "A", KAPPA_AGG, 3, q);
     assert_ne!(a, b, "O1 CRS keying collapsed W vs act");
-    println!("[UPERF-PC] O1 CRS memo: 4/4 byte-identical + group-key separation");
+    // Block-parallel XOF (expand_level_matrix_par) == the serial XofReader
+    // stream, at both moduli and shapes that cross many SHA-256 blocks.
+    let mut n_par = 0;
+    for (seed, group, level, which, rows, cols, qk) in [
+        (0xC1u64, "act", 0usize, "A", KAPPA_AGG, 257usize, q),
+        (0xC2u64, "W", 3usize, "Bh", KAPPA_AGG, 33usize, ring::Q8_46),
+        (0xC3u64, "act", 1usize, "Bu", 1usize, 1usize, q),
+        (0xC4u64, "W", 0usize, "A", KAPPA_AGG, 1024usize, q),
+    ] {
+        let raw = expand_level_matrix_raw(seed, group, level, which, rows, cols, qk);
+        let par = ring::eval_proof::expand_level_matrix_par(seed, group, level, which, rows, cols, qk);
+        assert_eq!(raw, par, "O1 CRS par XOF != serial (group {group} level {level} which {which} q {qk} {rows}x{cols})");
+        n_par += 1;
+    }
+    println!("[UPERF-PC] O1 CRS memo: 4/4 byte-identical + group-key separation + block-parallel XOF {n_par}/{n_par}");
 
     // O2 / O3 — the NTT-domain kernel vs the Karatsuba oracles, on
     // adversarial small shapes at BOTH house moduli. Every leg is byte

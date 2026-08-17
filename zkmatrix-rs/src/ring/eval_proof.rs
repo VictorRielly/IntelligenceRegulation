@@ -632,6 +632,88 @@ pub fn expand_level_matrix_raw(
         .collect()
 }
 
+/// [U-PERF2 orchestrator, 2026-08-17] The SAME XOF stream as
+/// `expand_level_matrix_raw`, generated block-parallel: XofReader's
+/// stream is SHA-256 counter mode (block i = SHA256(key || i_le), 32 B
+/// each, consumed byte-sequentially by `next_field`'s rejection sampler),
+/// so the blocks can be produced on the pool and walked in order —
+/// byte-identical output by construction (asserted by the O1 battery
+/// leg raw == par at both moduli). The CRS expansion was ~17% of the
+/// 8-thread 3x16 wall (one serial SHA-256 stream per matrix).
+pub fn expand_level_matrix_par(
+    seed: u64,
+    group: &str,
+    level: usize,
+    which: &str,
+    rows: usize,
+    cols: usize,
+    q: u64,
+) -> Vec<Poly> {
+    use sha2::{Digest, Sha256};
+    // The key exactly as XofReader::new derives it.
+    let items: [&[u8]; 6] = [
+        &seed.to_le_bytes(),
+        group.as_bytes(),
+        &(level as u64).to_le_bytes(),
+        which.as_bytes(),
+        &(rows as u64).to_le_bytes(),
+        &(cols as u64).to_le_bytes(),
+    ];
+    let mut hasher = Sha256::new();
+    hasher.update(b"route-r-v1");
+    hasher.update("agg-level-crs".as_bytes());
+    for item in items {
+        hasher.update((item.len() as u64).to_le_bytes());
+        hasher.update(item);
+    }
+    let key: [u8; 32] = hasher.finalize().into();
+    let n_el = rows * cols * D;
+    // Rejection sampling accepts all but ~q/2^bits of the draws; 8 bytes
+    // per accepted element plus a small margin, extended on demand.
+    let mut n_blocks = ((n_el as u128 * 8 * 1002 / 1000) / 32) as usize + 16;
+    let gen_blocks = |lo: usize, hi: usize| -> Vec<u8> {
+        let mk = |i: usize| -> [u8; 32] {
+            let mut h = Sha256::new();
+            h.update(key);
+            h.update((i as u64).to_le_bytes());
+            h.finalize().into()
+        };
+        let blocks: Vec<[u8; 32]> = pooled(|| {
+            use rayon::prelude::*;
+            if threads() > 1 { (lo..hi).into_par_iter().map(mk).collect() } else { (lo..hi).map(mk).collect() }
+        });
+        let mut out = Vec::with_capacity((hi - lo) * 32);
+        for b in blocks {
+            out.extend_from_slice(&b);
+        }
+        out
+    };
+    let mut stream = gen_blocks(0, n_blocks);
+    let shift = q.leading_zeros();
+    let mut pos = 0usize;
+    let mut out: Vec<Poly> = Vec::with_capacity(rows * cols);
+    for _ in 0..rows * cols {
+        let mut p = poly_zero();
+        for c in p.iter_mut() {
+            loop {
+                if pos + 8 > stream.len() {
+                    let more = gen_blocks(n_blocks, n_blocks + 1024);
+                    n_blocks += 1024;
+                    stream.extend_from_slice(&more);
+                }
+                let v = u64::from_le_bytes(stream[pos..pos + 8].try_into().unwrap()) >> shift;
+                pos += 8;
+                if v < q {
+                    *c = v;
+                    break;
+                }
+            }
+        }
+        out.push(p);
+    }
+    out
+}
+
 pub fn expand_level_matrix(
     seed: u64,
     group: &str,
@@ -658,7 +740,11 @@ pub fn expand_level_matrix(
         }
     }
     let _t = prof::timer(prof::EP_CRS); // miss: time the XOF
-    let v = expand_level_matrix_raw(seed, group, level, which, rows, cols, q);
+    let v = if oracle_mode() {
+        expand_level_matrix_raw(seed, group, level, which, rows, cols, q)
+    } else {
+        expand_level_matrix_par(seed, group, level, which, rows, cols, q)
+    };
     CRS_CACHE
         .lock()
         .expect("crs cache")
