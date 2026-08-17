@@ -409,19 +409,29 @@ GEMMs and the A1 commit kernel are the two kernels to port first.
 |---|---|---|---|---|---|---|---|
 | (T1 fills this) | | | | | | | |
 
-## 4b. Round 2 (U-PERF2, opened 2026-08-17 — PROGRESS_UPERF2.md)
+## 4b. Round 2 + 3 (U-PERF2, 2026-08-17 — PROGRESS_UPERF2.md)
 
-Two Claude agent lanes are running on the WSL box in worktrees:
-**A** = descents (synthetic bench at real depth, attribution,
-deterministic threads + churn in gkr_masked/gkr/kfield/sumcheck) and
-**C** = eval-proof leftovers (fold NTT, transport limb-split NTT,
-compute_psi, digit-split threads in eval_proof.rs). Their results
-merge into main with the merge gate (PROGRESS_UPERF2 "Orchestrator").
-Grok's queue is unchanged: **T1 on the Mac is still the most valuable
-single task** (nobody has measured the rig since the kernels landed);
-after T1, the `bk.descent-*` / `bg.commit-phase` / `bg.claim-layer`
-rows decide what lane A/C's successors do. Victor's ask that unblocks
-this box: T10 (copy the m125 export here).
+Round 2 LANDED and MERGED (a450b1f): **A** = descents (pads never
+materialized, five-table round kernel, deterministic threads: prove
+2.07x at 1T, 6.6-7.2x at 8T on the depth-20 bench, RSS -33%) and **C**
+= eval-proof leftovers (fold NTT 4-6x, transport 3.4x, psi 3x, and the
+FINDING that the Goldilocks NTT was branchy — branchless primitives
+1.5/2.07 us per transform now carry every kernel). Real data reached
+the WSL box (checkpoint + val shard -> `results/m125_ffn_export_wsl/`),
+so the 3x16 full-statement rig runs here: **oracle 682.8 s -> 43.7 s
+at 1T (15.6x) -> 16.6 s at 8T (41x), verify 1.9 s at 8T, every digest
+identical** (U_PERF_WAVE_REPORT.md 4.2). Round 3 lanes **D** (claim
+layer + commit phase threading) and **E** (descent callers on lane
+A's drop-ins, descent VERIFY attribution, small-cols aux tensors) are
+running now with the real 3x16 rig as their gate.
+
+**Grok (Mac): T1 is STILL the most valuable single task and now has
+much more to show** — same recipe (2.3): `uperf-pc full-profile 12
+512` fast at ZK_THREADS 1 and 8 (and 16), then ONE `ZK_UPERF_ORACLE=1`
+run; digests must match; record walls + the phase table (the
+`a.*`/`bk.*`/`bg.*`/`ep.*` rows are the next round's priority order).
+Peak RSS should be lower than 47 GiB now (lane A: -11 GB of pad
+layers) — record `/usr/bin/time -l`'s number.
 
 ## 5. Log (append-only, newest last)
 
