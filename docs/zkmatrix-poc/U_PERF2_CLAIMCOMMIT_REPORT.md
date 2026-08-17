@@ -37,9 +37,10 @@ scalar prover stays reachable as the oracle. The commit phase got a
 row-blocked i32-accumulated threaded chain GEMM (10x at 1T), a threaded
 no-alloc digit witness, and lazy-accumulated threaded matmul-instance
 table builders. On the REAL 3x16 rig the claim layer goes **3.17 s ->
-1.02 s at 1T (3.1x) -> 0.31 s at 8T (10x)** with the statement digest
-93a98700.., 985,142 B, accept = true and the EVAL-PROOF DIGEST 0ae9cdae..
-identical on every run (1T, 8T, fast, oracle); the projected 12x512 claim
+0.91 s at 1T (3.5x) -> 0.29 s at 8T (11x)** (8T wall 16.6 -> 13.4 s)
+with the statement digest 93a98700.., 985,142 B, accept = true and the
+EVAL-PROOF DIGEST 0ae9cdae.. identical on every run (1T, 8T, fast, and
+the 610 s all-oracle run); the projected 12x512 claim
 layer is ~250-360 s serial [MODEL, the boxed path] -> ~75 s at 1T /
 ~20 s at 8T on this box's rates, and its peak memory ~14-19 GB of boxed
 tables -> ~5.5 GB packed. What did not land: an eq-fold identity and the
@@ -155,12 +156,18 @@ paths otherwise):
   — identical on every run of every landing step: 1T fast (x4 runs
   across the three code steps), 8T fast, and ZK_UPERF_ORACLE=1 (Section
   5's table).
-- Gates at HEAD on this box: `uperf-pc diff-battery` green at 1T and 7T
-  (O1 4/4, O2 35/35, O3 63/63, O5 12/12, E2E 2/2); `uperf-a
-  descent-battery` 18/18 at 1T and 7T (BATTERY DIGEST f936ff79..
-  unchanged); `uperf-c diff-battery` green at 1T and 7T; `self-test`
+- Gates at HEAD (the final binary) on this box: `uperf-pc diff-battery`
+  green at 1T and 7T (O1 4/4, O2 35/35, O3 63/63, O5 12/12, E2E 2/2);
+  `uperf-a descent-battery` 18/18 at 1T and 7T (BATTERY DIGEST
+  f936ff79.. unchanged); `uperf-c diff-battery` green at 1T and 7T;
+  `self-test` green (262.6 s); `bh-verifier battery` green; `agg-matmul
+  battery` green (141 s; it rides `agg_digit_witness`); `pass-agg
+  battery` 14/14 green (REAL 3x16 data: honest P0/P2 + every tamper arm
+  through the packed claim layer, 82 s at 8T); `table-descent battery
+  small` 5/5 green (real data, 45.5 s at 8T); `t-blind battery` 11/11
   green; freeze-check 98 `ok` rows identical to the pre-change capture
-  (then the expected export panic).
+  (the full pre-panic text identical; only the panic's source line
+  number moved because code was added above it).
 
 ## 5. Before / after — the 3x16 rig (`uperf-pc full-profile 3 16`)
 
@@ -172,14 +179,17 @@ paths otherwise):
 | 7df526b + packed builders | 1T | NOISY-SHARED | 5.0 / 33.8 / 7.6 / 46.6 | 1.64 | 1.05 / 0.30 / 0.29 / 0.00 | 0.92 | identical |
 | 7df526b + lazy ta/tb/mle | 1T | NOISY-SHARED | 5.1 / 35.1 / 8.0 / 48.4 | **1.02** | 0.44 / 0.29 / 0.29 / 0.00 | 0.82 | identical |
 | e2f349c (HEAD) | 8T | NOISY-SHARED | 2.7 / 9.7 / 2.1 / 14.7 | **0.31** | 0.11 / 0.09 / 0.10 / 0.00 | 0.44 | identical |
-| e2f349c (HEAD) | 1T | FINAL-1T | FINAL | | | | identical |
-| e2f349c (HEAD) | 8T | FINAL-8T | FINAL | | | | identical |
-| e2f349c (HEAD), ZK_UPERF_ORACLE=1 | 1T | FINAL-ORACLE | FINAL | | | | identical |
+| HEAD (final binary) | 1T | NOISY-SHARED (load 3.3, lane E compiling) | 4.4 / 31.5 / 7.9 / 44.0 | **0.91** | 0.36 / 0.27 / 0.27 / 0.00 | 0.46 | identical |
+| HEAD (final binary) | 8T | NOISY-SHARED | 2.4 / 8.9 / 1.9 / **13.4** | **0.29** | 0.10 / 0.08 / 0.10 / 0.00 | 0.36 | identical |
+| HEAD (final binary), ZK_UPERF_ORACLE=1 (every lane's oracle) | 1T | NOISY-SHARED | 45.1 / 424.8 / 140.4 / 610.4 | 3.53 (the boxed scalar path) | 1.10 / — / — / — | 0.61 | identical |
 
-The three NOISY-SHARED 1T rows carry lane E's concurrent load (their
+The NOISY-SHARED 1T rows carry lane E's concurrent load (their
 precommit / verify / descent columns move by 15-20% with no code change
 in those paths); the claim-layer column is the lane's own term and its
-sub-timers reproduce to +-0.01 s across the runs.
+sub-timers reproduce to +-0.03 s across the runs. Net at HEAD vs the
+pre-change binary: claim layer 3.17 -> 0.91 s at 1T (3.5x) and 0.29 s at
+8T (11x); the digit witness 0.68 -> 0.46 s at 1T (allocation-free) /
+0.36 s at 8T; the 8T wall 16.6 (ledger) -> 13.4 s.
 
 Per item (unit benches, byte equality asserted in the same run):
 
@@ -236,8 +246,10 @@ tables with layers (x4) at fixed weight shapes:
   (8T); precommit-u0 (lane C's kernels, threaded) unchanged here — its
   CRS expansion (`ep.crs-expand`, serial XOF) is the commit phase's
   largest fixed term now (2.6 s at 3x16 for prover + verifier; the
-  level-0 A matrices scale with n_digit_rings/r0 — several seconds to
-  tens of seconds at 12x512).
+  level-0 A matrices scale with n_digit_rings/r0: at 12x512 the act
+  group's A_0 is ~11 x 122K rings = ~170M field draws, ~4 s of XOF at
+  this box's SHA rate, the weight group's ~2 s — ~6-8 s serial per
+  process [MODEL]).
 Sum on the touched terms: ~330 s -> ~80 s at 1T [MODEL], scaling with
 ZK_THREADS; TASK_BOARD T1's one-binary A/B is the honest test.
 

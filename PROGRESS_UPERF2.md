@@ -403,6 +403,58 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
   verifies; bg_mm_tables / chain GEMM / digit witness ref == fast),
   BATTERY DIGEST 1d08e03f.. identical at ZK_THREADS 1/2/7 and under
   ZK_UPERF_ORACLE=1. Rig gate + report: next.
+- 2026-08-17 CLOSE (lane D; commits 2da5dd4 packed prover, 7df526b
+  packed builders + lazy tables, e2f349c digits/gemm-bench, 07b5817
+  report + this section; report:
+  docs/zkmatrix-poc/U_PERF2_CLAIMCOMMIT_REPORT.md). ALL FIVE
+  DELIVERABLES LANDED:
+  - THE REAL-DATA GATE holds on every run: `uperf-pc full-profile 3 16`
+    accept = true, statement 93a98700.., 985,142 B, EVAL-PROOF DIGEST
+    0ae9cdae.. at 1T and 8T fast AND the 610 s all-oracle run
+    (`ZK_UPERF_ORACLE=1`; Section 5 of the report lists every run).
+    Claim layer 3x16: **3.17 s -> 0.91 s at 1T (3.5x) -> 0.29 s at 8T
+    (11x)**; final binary 1T commit 4.4 / prove 31.5 / verify 7.9 /
+    wall 44.0 s, 8T 2.4 / 8.9 / 1.9 / **13.4 s** (ledger 8T row 16.6)
+    [WSL NOISY-SHARED throughout — the d.* sub-timers reproduce to
+    +-0.03 s across runs].
+  - Items (each with a `*_ref` oracle + `oracle_mode()`): (1) the
+    packed ixf sumcheck prover — `IxfCombine {Prod3, Had, Rq}`,
+    `ixf_sumcheck_prove_kind/_tables/_packed`, kernel `ixf_round_body`
+    + `k9_ixf_round_par` (deterministic chunk planes), `kt_fold_par`
+    folds with scratch shrink; (2) `IxfTable` — the zero-check tables
+    built DIRECTLY packed (eq / scalar_table per block / layer_expand;
+    64 B per element, one allocation) via `bg_zc_prove` (boxed builders
+    + scalar prover as its oracle); (3) `bg_mm_tables` / `bg_mle` with
+    lazy exact u128 accumulation (`kacc_*`) + threads; (4)
+    `bf_matmul_i64` row-blocked i32 GEMM (10.0x at 1T, 26 GMAC/s,
+    byte-identical) + `agg_digit_witness` threaded and allocation-free
+    (`digits_into`); (5) `d.*` prof phases 40-50; `uperf-d
+    diff-battery | bench | gemm-bench`.
+  - Gates at HEAD (final binary): `uperf-d diff-battery` 30/30 at 1/2/7
+    + oracle env (BATTERY DIGEST 46471467.. identical); `uperf-pc
+    diff-battery` (E2E) 1T + 7T; `uperf-a descent-battery` 18/18 1T +
+    7T (digest f936ff79.. unchanged); `uperf-c diff-battery` 1T + 7T;
+    `self-test`; `bh-verifier battery`; `agg-matmul battery`;
+    `pass-agg battery` 14/14 (REAL 3x16 data, all tamper arms);
+    `table-descent battery small` and `t-blind battery` (real data);
+    freeze-check 98 `ok` rows identical to the pre-change capture (only
+    the panic's source-line number differs — code was added above it).
+  - Projection [MODEL]: the 12x512 claim layer ~320 s serial on the
+    boxed path (the brief's "~100 s" undercounted the round loop) ->
+    ~75 s at 1T / ~20 s at 8T here (~8-10 s at the Mac's expected
+    scaling), peak memory ~14-19 GB of boxed tables -> ~5.5 GB packed;
+    chain GEMMs ~11 s -> ~1 s; digit witness ~10 s -> ~4 s (1T).
+  - Left (report Section 8): `expand_level_matrix`'s serial CRS XOF
+    (2.6 s = 18% of the 8T rig wall; eval_proof.rs, one counter-mode
+    stream — not splittable transcript-neutrally; cache across processes
+    or accept); the eq-fold identity + per-slot shift broadcast (~10-15%
+    of the packed sumcheck, 1 GB at 12x512); the g(1) identity (~17% of
+    round work; left out to keep tamper-arm transcripts oracle-
+    identical); T_blind's masked matmul prover (t_blind.rs, small
+    tables). Box note: pool threads land on E-cores under WSL2 (the
+    inline 1T GEMM on a boosted P-core equals the 8T pool run; the
+    standalone probe of the same loop scales 4x) — a box property, the
+    Mac's cores are the expectation (T1).
 
 ## Agent E status (wt-uperf2-e)
 
