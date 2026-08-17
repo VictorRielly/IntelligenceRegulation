@@ -374,19 +374,24 @@ is `PHI_vr = sum_{c,d1} sr_c[row][d1] * G_c[cb][d1]` per value ring
 (16 x n_contrib scalars against 16 cached rings per (col kernel,
 cb)); the next step is to feed `level_h_pairs` per u-block from that
 form (never materialize the 11 GiB phi) — memory item T9(c).
-(a') THE VERIFIER <= 2 s LINE (PoC-complete criterion 1(b)): after
-T8b the verifier's level-0 work is still O(n_value_rings) (~1.4M x
-6K scalar MACs ~ 14 s [WSL 1T], ~7 s [MAC]) — NOT <= 2 s
-single-threaded on this design. Sublinear route (derived 2026-08-17,
-not built): if the level-0 chunk is a multiple of every tensor's
-nb x l0, then (cb, limb) is a function of the chunk position u alone
-and psi[u] = sum_j G[cb(u)][j] * radix_limb(u) * S[u'][j] with
-S[u'][j] = sum_k c_k * sr[k*R + u'][j] (R = chunk / (nb*l0)) —
-O(chunk x 16 n_contrib) ring products instead of O(n_0): a ~64x (r)
-reduction of the dominant verifier term. It CONSTRAINS THE PLANNER
-(chunk alignment => schedule bytes move) — an R-row for Victor's
-ruling, and the item PoC-complete 1(b) actually rides. Threads
-(T6) get the current form to ~1 s but the contract says 1T.
+(a') THE VERIFIER <= 2 s LINE (PoC-complete criterion 1(b)) — memo
+2026-08-17 (orchestrator), supersedes the "chunk alignment" sketch:
+after T8b the verifier's level-0 work is O(n_value_rings x 16 x
+n_contrib) scalar MACs (~8.6G at 125M: ~14 s [WSL 1T], ~7 s [MAC 1T])
+plus the transport levels (~25 s -> lane C), the descent verifies
+(~36 s -> lane A) and small terms; the 1T verify after this round
+lands in the ~40-60 s class, NOT <= 2 s. The chunk-alignment idea is
+WITHDRAWN: at the 125M point every tensor (~41K digit rings) is
+SMALLER than the level-0 chunk (~122K), so each chunk position u is
+folded across ~r different tensors — the fold cannot be pushed
+through the row structure and the "S[u'][j]" reuse has size ~1. A
+verifier sublinear in n_value_rings needs a PROTOCOL change (a
+polylog-verifier opening layer, or the prover supplying Psi_0 with
+its own checkable proof) — design-trench work, not an R-row. The
+practical route to a 2 s-class verify is `ZK_THREADS` on the
+reference box (22 threads: ~2-4 s projected) — which requires
+relaxing TARGET_CONTRACT's "single-threaded" wording to "single
+machine, N threads stated" (Victor's ruling; an amendment, not code).
 (b) R-row: the planner's r = 64 cap trades bytes for the Theta(n_0*r)
 garbage; at r = 32 the h term halves and the artifact grows (derive
 the bytes; the P0 artifact sits at 0.48x its gate). Transcript-
@@ -399,6 +404,20 @@ GEMMs and the A1 commit kernel are the two kernels to port first.
 | date | box/label | shape | command | EVAL-PROOF DIGEST | prove s | verify s | commit |
 |---|---|---|---|---|---|---|---|
 | (T1 fills this) | | | | | | | |
+
+## 4b. Round 2 (U-PERF2, opened 2026-08-17 — PROGRESS_UPERF2.md)
+
+Two Claude agent lanes are running on the WSL box in worktrees:
+**A** = descents (synthetic bench at real depth, attribution,
+deterministic threads + churn in gkr_masked/gkr/kfield/sumcheck) and
+**C** = eval-proof leftovers (fold NTT, transport limb-split NTT,
+compute_psi, digit-split threads in eval_proof.rs). Their results
+merge into main with the merge gate (PROGRESS_UPERF2 "Orchestrator").
+Grok's queue is unchanged: **T1 on the Mac is still the most valuable
+single task** (nobody has measured the rig since the kernels landed);
+after T1, the `bk.descent-*` / `bg.commit-phase` / `bg.claim-layer`
+rows decide what lane A/C's successors do. Victor's ask that unblocks
+this box: T10 (copy the m125 export here).
 
 ## 5. Log (append-only, newest last)
 
