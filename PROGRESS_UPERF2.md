@@ -551,7 +551,26 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent I status (wt-uperf2-i)
 
-- (lane launches here)
+- 2026-08-17 PLAN COMMIT (lane I, branch uperf2-i from d38e9ce; report:
+  docs/zkmatrix-poc/U_PERF2_SIMD_REPORT.md). Box facts checked: AVX2 +
+  BMI2 + ADX, NO AVX-512/IFMA (`/proc/cpuinfo`) — the SIMD path is 4 x
+  u64 AVX2 (u64 x u64 via four `_mm256_mul_epu32` partial products,
+  Goldilocks reduce with compare-based conditional subtracts, every op
+  canonical so the values are identical by construction); NEON mirror
+  behind `cfg(target_arch = "aarch64")` [UNTESTED-NEON]. Baseline
+  captured BEFORE any code change from the d38e9ce build:
+  freeze-check 98 `ok` rows == the orchestrator's merge-G capture
+  (scratchpad/i_freeze_baseline.txt), binary saved as
+  scratchpad/ring_matmul_base for the before/after benches. Files:
+  aux_ntt_core.rs (additive: `ntt_fwd_avx2/inv`, `ntt_fwd_best/inv`
+  dispatch with `ZK_NTT_SIMD=0` forcing scalar, SIMD-layout twiddle
+  tables inside `NttTables`), the 7 `_fast` call lines in
+  eval_proof.rs -> `_best`, a `// [UPERF2-I]` bin section with `uperf-i
+  {battery, bench}`, the report, this section.
+  Steps: (1) AVX2 fwd/inv + dispatch + battery; (2) call-line switch +
+  batteries/freeze; (3) benches + REAL rigs 3x16 1T/8T + 12x64 8T;
+  (4) NEON mirror; (5) report. Stop rule: < 1.3x on the transform ->
+  record the finding and stop.
 
 ## Agent F status (wt-uperf2-f)
 
