@@ -182,3 +182,18 @@ that would de-risk the top candidate. Plain narrative, labelled
 numbers, ~300-600 lines.
 
 ## Agent status sections (lanes append below; do not edit each other's)
+
+## Agent S status (wt-uperf3-s)
+
+- 2026-08-18 SKELETON: worktree fast-forwarded to d1d1963 (the ledger
+  commit lives on perf/zk-batch-optimizations, not on `main`); report
+  skeleton docs/zkmatrix-poc/U_PERF3_SPIKE_REPORT.md; plan: (1)
+  zkmatrix-rs/src/ring/zc_range.rs (NEW) — sub-extension E_c = GF(q^c)
+  arithmetic inside K (c in {4, 8, 16}, coordinates at stride 16/c), the
+  lane-packed booleanity + recomposition zero-check prover/verifier (S1
+  b), the LogUp-as-one-sumcheck with committed h on the frozen packed
+  Had kernel (S2 b), structural K-mult counters for the masked descent
+  (S1/S2 a); (2) bin `// [UPERF3-S]` section + `uperf-s` dispatch
+  (`uperf-s s1|s2|battery|count`); (3) freeze-check capture BEFORE any
+  edit; (4) measurements 1T/8T; (5) report + this status. Status: IN
+  PROGRESS.
