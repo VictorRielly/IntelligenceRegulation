@@ -237,8 +237,13 @@ concurrently)]:
 | + lane K (GPU rung step 1: `ntt_gemm_modq_small` on the RTX 4070 Laptop, `--features gpu-cuda`, `ZK_GPU=1`) (c210ea9), 12x512, 8T + GPU | **5.4 s** | **70.6 s** | 7.4 s | **85.0 s** | 4c259008… (identical) | 11.2 GiB |
 | same binary, 3x16 8T + GPU / 12x128 8T + GPU | 0.9 / 2.8 s | 4.2 / 26.6 s | 1.2 / 3.6 s | **6.3 s / 33.6 s** | identical | 1.2 / 4.4 GiB |
 
+| + lane M (psi0 AVX2 + NTT accumulation, rows pass AVX2, CRS v2, max_abs scan) (100a41c), 12x512, 8T, CPU only | 9.6 s | **82.7 s** | **2.7 s** | **96.7 s** | 4c259008… (identical) | 11.0 GiB |
+| same binary, 3x16 1T / 8T ; 12x128 8T (CPU only) | 3.2 / 1.1 / 4.6 s | 15.0 / 4.8 / 28.9 s | **1.8 / 0.6 / 1.5 s** | **20.1 / 6.6 / 35.6 s** | identical | 0.96 / 0.97 / 4.16 GiB |
+
 **The PoC shape now runs on the TARGET_CONTRACT reference machine —
-85 s with its (50-70 W laptop) GPU, 107 s CPU-only at 8 threads.**
+85 s with its (50-70 W laptop) GPU (before lane M), 96.7 s CPU-only at 8
+threads (after lane M; the GPU+M combination is measured with lane L).
+The verifier is at 2.7 s (8T) at 12x512 and 0.6 s at 3x16.**
 The frozen [MAC-BOX 1T] full-statement line was commit 384.9 / prove
 4,811.0 / verify ~236 s at 41-47 GiB (UAGB1_TABLE_DESCENT_REPORT 3.3
 + BJ's re-measure); the counted bytes agree to the byte (1,509,911 B).
