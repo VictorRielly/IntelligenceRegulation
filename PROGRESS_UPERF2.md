@@ -604,13 +604,15 @@ NOISY-SHARED] — lane H ran throughout):
      1.44x, transport 1.51x, combine 1.61x, fold e=5 1.57x, psi 1.27x,
      level-h 1.15x (MAC-bound at r = 64), kernel passes ~1.0x (they
      hardly transform); at 8T 1.2-2.0x on the same rows.
-  5. REAL 3x16 [1T]: 34.5 s (`ZK_NTT_SIMD=0`) -> 25.6 s (SIMD), prove
-     26.3 -> 19.4 s (level-h 9.96 -> 7.45, matvec 3.87 -> 2.15,
-     transport 3.74 -> 1.79, fold 1.96 -> 0.87 s); [8T] 9.8 -> 9.2 s
-     (prove 7.1 -> 6.6); REAL 12x64 [8T] 41.0 s @ 4.06 GB (the ledger's
-     41.3 s — the 8T composed pass has moved to the phases that do not
-     transform); statement 93a98700… / EVAL 0ae9cdae… and 80763ea5… /
-     63f4a3a4… identical on every row.
+  5. REAL 3x16 [1T], one binary, both orders: scalar (`ZK_NTT_SIMD=0`)
+     32.9-34.5 s -> SIMD 25.6-27.1 s (~1.25x; prove 25.2-26.3 -> 19.4-
+     20.9 s: level-h 9.96-10.31 -> 7.45-7.95, matvec 3.51-3.87 ->
+     2.15-2.38, transport 2.86-3.74 -> 1.79-1.82, fold 1.69-1.96 ->
+     0.87-0.94 s); [8T] 9.8 -> 9.2 s (prove 7.1 -> 6.6); REAL 12x64 [8T]
+     43.1 -> 41.0 s @ 4.06 GB (~1.05x: at 8T the composed pass is
+     dominated by the phases that do not transform); statement 93a98700…
+     / EVAL 0ae9cdae… and 80763ea5… / 63f4a3a4… identical on every row,
+     accept true.
   6. Gates at HEAD: uperf-i battery, uperf-pc diff-battery 1T/7T (E2E),
      uperf-c 1T/7T, uperf-f 1T/2T, freeze-check 98 rows == the
      pre-change capture, self-test 290 s.

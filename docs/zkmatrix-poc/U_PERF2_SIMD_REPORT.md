@@ -242,9 +242,41 @@ move 1.15-1.6x each, i.e. a 3x16 prove of ~6.7 s at 8T should lose ~1
 s and a 12x64 prove of ~33 s ~4-5 s — the rig rows below are the
 measurement, not this estimate.
 
-### 4.4 REAL rigs (`uperf-pc full-profile`, the local m125 re-export, flock-serialized) [WSL-BOX NOISY-SHARED]
+### 4.4 REAL rigs (`uperf-pc full-profile`, the local m125 re-export, flock-serialized) [WSL-BOX NOISY-SHARED, load 3-5]
 
-(filled from scratchpad/i_rigs_s2.txt)
+One binary; `ZK_NTT_SIMD=0` = the scalar transform, default = AVX2. The
+3x16 1T pair was run twice in opposite orders (SIMD-then-scalar, then
+scalar-then-SIMD) because the box was loaded; both orders agree.
+
+| rig | transform | wall | commit / prove / verify | level-h | matvec (ep) | transport | fold | psi0-fact. | kernel rows | peak RSS | digests |
+|---|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---|
+| 3x16, 1T (run 1) | AVX2 | **25.6 s** | 2.7 / 19.4 / 3.4 | 7.45 | 2.15 | 1.79 | 0.87 | 4.28 | 2.44 | 0.96 GB | 93a98700… / 0ae9cdae… |
+| 3x16, 1T (run 1) | scalar | 34.5 s | 3.9 / 26.3 / 4.2 | 9.96 | 3.87 | 3.74 | 1.96 | 4.56 | 3.11 | 0.96 GB | identical |
+| 3x16, 1T (run 2) | scalar | 32.9 s | 3.6 / 25.2 / 4.0 | 10.31 | 3.51 | 2.86 | 1.69 | 4.43 | 2.80 | 0.96 GB | identical |
+| 3x16, 1T (run 2) | AVX2 | **27.1 s** | 2.9 / 20.9 / 3.2 | 7.95 | 2.38 | 1.82 | 0.94 | 4.28 | 2.56 | 0.96 GB | identical |
+| 3x16, 8T | AVX2 | **9.2 s** | 1.3 / 6.6 / 1.2 | 2.07 | 1.06 | 0.57 | 0.44 | 1.48 | 0.59 | 1.04 GB | identical |
+| 3x16, 8T | scalar | 9.8 s | 1.4 / 7.1 / 1.2 | 2.26 | 1.19 | 0.74 | 0.57 | 1.46 | 0.59 | 1.03 GB | identical |
+| 12x64, 8T | AVX2 | **41.0 s** | 5.3 / 31.8 / 3.4 | 8.94 | 3.94 | 1.19 | 1.91 | 5.08 | 2.25 | 4.06 GB | 80763ea5… / 63f4a3a4… |
+| 12x64, 8T | scalar | 43.1 s | 5.6 / 33.6 / 3.5 | 9.96 | 4.36 | 1.68 | 2.34 | 4.86 | 2.27 | 4.04 GB | identical |
+
+(level-h = `ep.level-h-pairs`; the phase columns are process-global
+prof totals in seconds; "identical" = statement digest 93a98700… /
+EVAL-PROOF DIGEST 0ae9cdae… for 3x16 and 80763ea5… / 63f4a3a4… for
+12x64, `accept = true`, 985,142 B counted at 3x16 — the ledger's
+values on every row.)
+
+Reading: at 1T the composed 3x16 pass drops from 32.9-34.5 s to
+25.6-27.1 s (~1.25x end to end; prove 25.2-26.3 -> 19.4-20.9 s), with
+level-h -25%, matvec -35-45%, transport -35-50%, fold -45-55%,
+kernel-rows -10%; the phases that do not transform (psi0-factored,
+descents, commit, claim layer) are unchanged. At 8T the transform share
+of the composed pass is small (the 8T pass is dominated by the descents,
+commit and psi0 phases, and level-h/matvec are MAC/memory-bound there):
+3x16 9.8 -> 9.2 s, 12x64 43.1 -> 41.0 s (~1.05x; the ledger's quiet
+lane-G number for 12x64 8T was 41.3 s — this box was loaded for both of
+these rows). The Mac's 1T full-statement prove is where the transform
+share is largest (lane C's 30-40% of level-h/matvec/fold/psi/transport);
+its NEON body is untested (Section 5).
 
 ## 5. What is left / honest state
 
