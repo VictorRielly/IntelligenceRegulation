@@ -121,7 +121,50 @@ const FUNCS: &[&str] = &[
     "k_extract_fold_m",
     "k_extract_fold_cl_m",
     "k_eq_outer",
+    // [UPERF2-P] variant 1 of the fused rounds (the node loop distributed, NN unrolled).
+    "k_fold_round_m1",
+    "k_extract_round_m1",
+    "k_extract_round_cl_m1",
+    "k_extract_fold_m1",
+    "k_extract_fold_cl_m1",
 ];
+
+/// [UPERF2-P] The fused-round kernel variant (`ZK_GPU_K9_KVAR`: 0 = lane L's
+/// bodies behind the one-launch wrapper — the default; 1 = the distributed
+/// node loop with the node count unrolled — MEASURED slower: FOLD 6.9 vs 6.1
+/// ms at 2^15 pair-blocks, EXTRACT 19.2 vs 13.7 ms, the extra K-mult per
+/// node costs its share and the occupancy stays 8 warps/SM; kept for the
+/// record). Every variant computes the same canonical node sums
+/// (kernels_k9.cu, the variant's header); the battery compares them.
+static KVAR_OVERRIDE: AtomicU64 = AtomicU64::new(u64::MAX);
+fn kvar() -> u32 {
+    let o = KVAR_OVERRIDE.load(Ordering::Relaxed);
+    if o != u64::MAX {
+        return o as u32;
+    }
+    static V: OnceLock<u32> = OnceLock::new();
+    *V.get_or_init(|| env_usize("ZK_GPU_K9_KVAR", 0) as u32)
+}
+/// Harness knob: the kernel variant (None = the env / default).
+pub fn k9_set_kvar(v: Option<u32>) {
+    KVAR_OVERRIDE.store(v.map(|x| x as u64).unwrap_or(u64::MAX), Ordering::Relaxed);
+}
+/// The kernel name for a one-launch round: `base` = the variant-0 name
+/// (".._m"); variant 1 exists for nn in {3, 5}.
+fn kname(base: &'static str, nn: usize) -> &'static str {
+    if kvar() == 1 && (nn == 3 || nn == 5) {
+        match base {
+            "k_fold_round_m" => "k_fold_round_m1",
+            "k_extract_round_m" => "k_extract_round_m1",
+            "k_extract_round_cl_m" => "k_extract_round_cl_m1",
+            "k_extract_fold_m" => "k_extract_fold_m1",
+            "k_extract_fold_cl_m" => "k_extract_fold_cl_m1",
+            _ => base,
+        }
+    } else {
+        base
+    }
+}
 
 // [UPERF2-P] One live range's descriptor of a one-launch round (== struct K9R
 // in kernels_k9.cu): the five input / output pointers (FOLD; EXTRACT_FOLD
@@ -1855,12 +1898,15 @@ impl K9 {
                     pr.prm = prm_base;
                     let nr = rtab.len() as u32;
                     let part = self.partial.ptr;
-                    let name = match (mode == FUSE_EXTRACT, all_packed) {
-                        (true, true) => "k_extract_round_m",
-                        (true, false) => "k_extract_round_cl_m",
-                        (false, true) => "k_extract_fold_m",
-                        (false, false) => "k_extract_fold_cl_m",
-                    };
+                    let name = kname(
+                        match (mode == FUSE_EXTRACT, all_packed) {
+                            (true, true) => "k_extract_round_m",
+                            (true, false) => "k_extract_round_cl_m",
+                            (false, true) => "k_extract_fold_m",
+                            (false, false) => "k_extract_fold_cl_m",
+                        },
+                        nn,
+                    );
                     let mut args: [*mut c_void; 5] = [
                         &pr as *const _ as *mut _,
                         &rptr as *const _ as *mut _,
@@ -2049,7 +2095,7 @@ impl K9 {
                         &total as *const _ as *mut _,
                         &part as *const _ as *mut _,
                     ];
-                    self.launch("k_fold_round_m", grid_for(total as usize, TK9), TK9, &mut args)?;
+                    self.launch(kname("k_fold_round_m", nn), grid_for(total as usize, TK9), TK9, &mut args)?;
                     P_LAUNCHES.fetch_add(1, Ordering::Relaxed);
                     P_ROUNDS_MULTI.fetch_add(1, Ordering::Relaxed);
                     self.deposit_partial(kern.q, nn, acc_lo)?;
@@ -3431,4 +3477,134 @@ pub fn k9_eq_fetch(id: u64) -> Option<Vec<u32>> {
     let _ = k.dev.bind_to_thread();
     k.download_words(ptr, &mut out).ok()?;
     Some(out)
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-P] THE K-MULT PROBE (analysis only, `uperf-p kprobe`): a separate
+// tiny module (its own NVRTC compile — seconds, not the K9 module's minutes)
+// measuring the register-only throughput of the K-field product as the
+// round kernels compute it (the same kmac/kred chain, copied), at a chosen
+// number of independent chains per thread (ILP) and blocks per SM
+// (occupancy). It tells whether the round kernels sit at the arithmetic's
+// own ceiling on this part or below it (memory / structure).
+const KPROBE_SRC: &str = r#"
+typedef unsigned long long u64;
+typedef unsigned int u32;
+#define KDEG 16
+#define M32 0xFFFFFFFFULL
+#define M31 0x7FFFFFFFULL
+__device__ __forceinline__ u64 madw(u32 a, u32 b, u64 c) { u64 r; asm("mad.wide.u32 %0, %1, %2, %3;" : "=l"(r) : "r"(a), "r"(b), "l"(c)); return r; }
+__device__ __forceinline__ u64 fold31(u64 v, u32 c31) { return madw(c31, (u32)(v >> 31), v & M31); }
+__device__ __forceinline__ u32 canon1(u64 v, u32 q) { u32 r = (u32)v; u32 r2 = r - q; return (r < q) ? r : r2; }
+__device__ __forceinline__ void kmac(const u32* a, const u32* b, u64* acc, u32 c32) {
+#pragma unroll
+    for (int t = 0; t < 31; t++) {
+        const int i0 = (t < 15) ? 0 : (t - 15);
+        const int i1 = (t < 15) ? t : 15;
+        u64 s = 0; int cnt = 0;
+#pragma unroll
+        for (int i = i0; i <= i1; i++) {
+            s = madw(a[i], b[t - i], s); cnt++;
+            if (cnt == 4) { acc[t] += madw(c32, (u32)(s >> 32), s & M32); s = 0; cnt = 0; }
+        }
+        if (cnt) acc[t] += madw(c32, (u32)(s >> 32), s & M32);
+    }
+}
+__device__ __forceinline__ void kred(const u64* acc, u32* out, u32 q, u32 s, u32 c31) {
+    u32 h[15];
+#pragma unroll
+    for (int t = 0; t < 15; t++) h[t] = canon1(fold31(acc[t + 16], c31), q);
+#pragma unroll
+    for (int t = 0; t < 16; t++) { u64 v = (t < 15) ? madw(s, h[t], acc[t]) : acc[t]; v = fold31(v, c31); v = fold31(v, c31); out[t] = canon1(v, q); }
+}
+__device__ __forceinline__ void kmul(const u32* a, const u32* b, u32* out, u32 q, u32 s, u32 c31, u32 c32) {
+    u64 acc[31];
+#pragma unroll
+    for (int t = 0; t < 31; t++) acc[t] = 0;
+    kmac(a, b, acc, c32);
+    kred(acc, out, q, s, c31);
+}
+// mode 0: one dependent chain per thread (a = a * b); mode 1: two chains;
+// mode 2: four chains. `iters` products per chain. The result is folded into
+// out[thread] so nothing is dead.
+template <int CH>
+__device__ __forceinline__ void probe_body(u32 q, u32 s, u32 c31, u32 c32, u32 iters, u32* out) {
+    const u32 tid = blockIdx.x * blockDim.x + threadIdx.x;
+    u32 a[CH][KDEG], b[KDEG];
+#pragma unroll
+    for (int j = 0; j < KDEG; j++) { b[j] = (tid * 2654435761u + j * 40503u) % q; }
+#pragma unroll
+    for (int c = 0; c < CH; c++)
+#pragma unroll
+        for (int j = 0; j < KDEG; j++) a[c][j] = (tid * 97u + c * 131u + j * 7u + 1u) % q;
+    for (u32 it = 0; it < iters; it++) {
+#pragma unroll
+        for (int c = 0; c < CH; c++) {
+            u32 o[KDEG];
+            kmul(a[c], b, o, q, s, c31, c32);
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) a[c][j] = o[j];
+        }
+    }
+    u32 acc = 0;
+#pragma unroll
+    for (int c = 0; c < CH; c++)
+#pragma unroll
+        for (int j = 0; j < KDEG; j++) acc ^= a[c][j];
+    out[tid] = acc;
+}
+extern "C" __global__ void k_probe1(u32 q, u32 s, u32 c31, u32 c32, u32 iters, u32* out) { probe_body<1>(q, s, c31, c32, iters, out); }
+extern "C" __global__ void k_probe2(u32 q, u32 s, u32 c31, u32 c32, u32 iters, u32* out) { probe_body<2>(q, s, c31, c32, iters, out); }
+extern "C" __global__ void k_probe4(u32 q, u32 s, u32 c31, u32 c32, u32 iters, u32* out) { probe_body<4>(q, s, c31, c32, iters, out); }
+"#;
+
+/// Run the probe: (chains, blocks_per_sm, threads_per_block, iters) ->
+/// (kernel seconds, K-mults per second, occupancy blocks/SM the driver
+/// reports for that block size).
+pub fn k9_kprobe(kern: &KKern, chains: u32, blocks_per_sm: u32, tpb: u32, iters: u32) -> Result<(f64, f64, u32), String> {
+    let dev = device_handle().ok_or_else(|| "no device".to_string())?;
+    dev.bind_to_thread().map_err(|e| format!("bind: {e}"))?;
+    static LOADED: OnceLock<Result<(), String>> = OnceLock::new();
+    let r = LOADED.get_or_init(|| {
+        let major = dev.attribute(sys::CUdevice_attribute::CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR).map_err(|e| e.to_string())?;
+        let minor = dev.attribute(sys::CUdevice_attribute::CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR).map_err(|e| e.to_string())?;
+        let opts = CompileOptions { arch: arch_str((major, minor)), ..Default::default() };
+        let ptx = compile_ptx_with_opts(KPROBE_SRC, opts).map_err(|e| format!("NVRTC (probe): {e}"))?;
+        dev.load_ptx(ptx, "zkgpu_k9probe", &["k_probe1", "k_probe2", "k_probe4"]).map_err(|e| format!("load (probe): {e}"))
+    });
+    r.clone()?;
+    let name = match chains {
+        1 => "k_probe1",
+        2 => "k_probe2",
+        _ => "k_probe4",
+    };
+    let f = dev.get_func("zkgpu_k9probe", name).ok_or_else(|| "probe fn".to_string())?;
+    let sms = dev.attribute(sys::CUdevice_attribute::CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT).map_err(|e| e.to_string())? as u32;
+    let occ = f.occupancy_max_active_blocks_per_multiprocessor(tpb, 0, None).unwrap_or(0);
+    let grid = sms * blocks_per_sm;
+    let mut out = DevBuf::empty();
+    out.grow((grid * tpb) as usize * 4)?;
+    let (q, s, c31, c32) = (kern.q as u32, kern.s as u32, kern.c31 as u32, kern.c32 as u32);
+    let stream = dev.fork_default_stream().map_err(|e| e.to_string())?;
+    let launch = |iters: u32| -> Result<f64, String> {
+        let cfg = LaunchConfig { grid_dim: (grid, 1, 1), block_dim: (tpb, 1, 1), shared_mem_bytes: 0 };
+        let optr = out.ptr;
+        let mut args: [*mut c_void; 6] = [
+            &q as *const _ as *mut _,
+            &s as *const _ as *mut _,
+            &c31 as *const _ as *mut _,
+            &c32 as *const _ as *mut _,
+            &iters as *const _ as *mut _,
+            &optr as *const _ as *mut _,
+        ];
+        unsafe { cu::stream::synchronize(stream.stream) }.map_err(|e| e.to_string())?;
+        let t0 = Instant::now();
+        unsafe { f.clone().launch_on_stream(&stream, cfg, &mut args[..]) }.map_err(|e| format!("launch probe: {e}"))?;
+        unsafe { cu::stream::synchronize(stream.stream) }.map_err(|e| e.to_string())?;
+        Ok(t0.elapsed().as_secs_f64())
+    };
+    let _ = launch(1)?; // warm (JIT)
+    let secs = launch(iters)?;
+    let kmuls = (grid * tpb) as f64 * iters as f64 * chains as f64;
+    Ok((secs, kmuls / secs, occ))
 }

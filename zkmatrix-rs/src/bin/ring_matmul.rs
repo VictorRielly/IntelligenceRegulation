@@ -41424,7 +41424,11 @@ fn uperf_p_main(args: &[String]) {
             let dt: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(9);
             uperf_p_bench(depth, l, n_real, dt);
         }
-        _ => println!("uperf-p battery [seed] | bench <depth> <l> [n_real] [dt]"),
+        Some("kprobe") => {
+            let iters: u32 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(256);
+            uperf_p_kprobe(iters);
+        }
+        _ => println!("uperf-p battery [seed] | bench <depth> <l> [n_real] [dt] | kprobe [iters]"),
     }
 }
 
@@ -41473,7 +41477,7 @@ fn uperf_p_bench(depth: usize, l: usize, n_real: usize, dt: usize) {
     let kf = KField::new(&ctx);
     let leaves = (l as f64) * (1u64 << depth) as f64;
     println!(
-        "[UPERF2-P] bench: depth {depth} x l {l} (n_real {n_real}, pads {}), table dt {dt}, {:.1}M witness leaf elements; ZK_THREADS {} | {} | {} | knobs: MULTI {} EQ_DEV {} POOL {} WARM {}",
+        "[UPERF2-P] bench: depth {depth} x l {l} (n_real {n_real}, pads {}), table dt {dt}, {:.1}M witness leaf elements; ZK_THREADS {} | {} | {} | knobs: MULTI {} EQ_DEV {} SLAB_MB {} WARM {} KVAR {}",
         l - n_real,
         leaves / 1e6,
         ring::eval_proof::threads(),
@@ -41481,8 +41485,9 @@ fn uperf_p_bench(depth: usize, l: usize, n_real: usize, dt: usize) {
         ring::gpu::k9_label(),
         std::env::var("ZK_GPU_K9_MULTI").unwrap_or_else(|_| "1".into()),
         std::env::var("ZK_GPU_K9_EQ_DEV").unwrap_or_else(|_| "1".into()),
-        std::env::var("ZK_GPU_K9_POOL").unwrap_or_else(|_| "1".into()),
+        std::env::var("ZK_GPU_K9_SLAB_MB").unwrap_or_else(|_| "256".into()),
         std::env::var("ZK_GPU_K9_WARM").unwrap_or_else(|_| "0".into()),
+        std::env::var("ZK_GPU_K9_KVAR").unwrap_or_else(|_| "0".into()),
     );
     prof::reset();
     prof::enable(true, false);
@@ -41554,8 +41559,9 @@ fn uperf_p_battery(seed: u64) {
                     ring::gpu::set_bypass(true);
                     let (n_cpu, s_cpu) = uperf_l_run_layer(&kf, &lay, seed, true);
                     ring::gpu::set_bypass(false);
-                    for &multi in &[false, true] {
+                    for &(multi, kv) in &[(false, 0u32), (true, 0), (true, 1)] {
                         ring::gpu::k9_set_multi(Some(multi));
+                        ring::gpu::k9_set_kvar(Some(kv));
                         let p0 = ring::gpu::k9p_stats();
                         let k0 = ring::gpu::k9_stats().rounds;
                         let (n_gpu, s_gpu) = uperf_l_run_layer(&kf, &lay, seed, true);
@@ -41563,7 +41569,7 @@ fn uperf_p_battery(seed: u64) {
                         let p1 = ring::gpu::k9p_stats();
                         assert_eq!(n_cpu.len(), n_gpu.len(), "round count");
                         for (r, (a, b)) in n_cpu.iter().zip(n_gpu.iter()).enumerate() {
-                            assert_eq!(a, b, "[UPERF2-P] fused round nodes mismatch: shape {si} (per {per}, inst {n_inst}, pads {n_pads}, compact {compact}, masked {masked}) pattern {pattern} eager {eager} multi {multi} round {r}");
+                            assert_eq!(a, b, "[UPERF2-P] fused round nodes mismatch: shape {si} (per {per}, inst {n_inst}, pads {n_pads}, compact {compact}, masked {masked}) pattern {pattern} eager {eager} multi {multi} kvar {kv} round {r}");
                             for e in a {
                                 for &x in e {
                                     h.update(x.to_le_bytes());
@@ -41578,7 +41584,7 @@ fn uperf_p_battery(seed: u64) {
                             }
                             assert_eq!(s_cpu[r].len(), s_gpu[r].len());
                             for (i, (x, y)) in s_cpu[r].iter().zip(s_gpu[r].iter()).enumerate() {
-                                assert_eq!(x, y, "[UPERF2-P] fused round TABLE mismatch: shape {si} pattern {pattern} eager {eager} multi {multi} round {r} word {i}");
+                                assert_eq!(x, y, "[UPERF2-P] fused round TABLE mismatch: shape {si} pattern {pattern} eager {eager} multi {multi} kvar {kv} round {r} word {i}");
                             }
                             cells += s_cpu[r].len();
                             for &x in &s_cpu[r] {
@@ -41595,9 +41601,10 @@ fn uperf_p_battery(seed: u64) {
                     }
                 }
             }
-            println!("  ok   fused layer chain: per {per} x {n_inst} inst (pads {n_pads}, compact {compact}, masked {masked}), eager + lazy, per-range + one-launch, 3 patterns");
+            println!("  ok   fused layer chain: per {per} x {n_inst} inst (pads {n_pads}, compact {compact}, masked {masked}), eager + lazy, per-range + one-launch (kernel variants 0 and 1), 3 patterns");
         }
         ring::gpu::k9_set_multi(None);
+        ring::gpu::k9_set_kvar(None);
         ring::gpu::k9_set_eager(false);
         ring::gpu::k9_set_cold_ok(false);
         ring::gpu::k9_set_min_pairs(0);
@@ -41642,17 +41649,19 @@ fn uperf_p_battery(seed: u64) {
             ring::gpu::set_bypass(false);
             ok &= base.verified;
             digests.push(base.digest);
-            for &(multi, eqd) in &[(true, true), (false, true), (true, false), (false, false)] {
+            for &(multi, eqd, kv) in &[(true, true, 1u32), (true, true, 0), (false, true, 0), (true, false, 1), (false, false, 0)] {
                 ring::gpu::k9_set_multi(Some(multi));
                 ring::gpu::k9_set_eq_dev(Some(eqd));
+                ring::gpu::k9_set_kvar(Some(kv));
                 let o = uperf_a_descent_pair(&kf, depth, l, n_real, dt, zero_mask, sd, true);
                 ok &= o.verified && o.digest == base.digest;
                 digests.push(o.digest);
             }
             ring::gpu::k9_set_multi(None);
             ring::gpu::k9_set_eq_dev(None);
+            ring::gpu::k9_set_kvar(None);
             println!(
-                "  {} depth {depth:>2} x l {l} (n_real {n_real}, dt {dt}, {}masks): bypass {} | multi+eq {} | split+eq {} | multi+host {} | split+host {} | verified {}",
+                "  {} depth {depth:>2} x l {l} (n_real {n_real}, dt {dt}, {}masks): bypass {} | multi+eq v1 {} | multi+eq v0 {} | split+eq {} | multi+host v1 {} | split+host {} | verified {}",
                 if ok { "ok  " } else { "FAIL" },
                 if zero_mask { "zero " } else { "" },
                 &hex_full(&digests[0])[..12],
@@ -41660,6 +41669,7 @@ fn uperf_p_battery(seed: u64) {
                 &hex_full(&digests[2])[..12],
                 &hex_full(&digests[3])[..12],
                 &hex_full(&digests[4])[..12],
+                &hex_full(&digests[5])[..12],
                 ok
             );
             assert!(ok, "[UPERF2-P] descent leg FAILED at depth {depth} l {l} zero_mask {zero_mask}");
@@ -41670,8 +41680,34 @@ fn uperf_p_battery(seed: u64) {
     let d: [u8; 32] = h.finalize().into();
     println!("  {}", uperf_p_stats_line());
     println!(
-        "[UPERF2-P] battery passed: {legs} legs ({cells} table words compared cell by cell; every descent digest identical under 5 variants and verified); BATTERY DIGEST {}; {:.2}s",
+        "[UPERF2-P] battery passed: {legs} legs ({cells} table words compared cell by cell; every descent digest identical under 6 variants and verified); BATTERY DIGEST {}; {:.2}s",
         hex_full(&d),
         t0.elapsed().as_secs_f64()
     );
+}
+
+/// [UPERF2-P] `uperf-p kprobe [iters]`: the register-only K-mult throughput
+/// (the round kernels' arithmetic, nothing else) at 1/2/4 independent
+/// chains per thread and 2/4/8 blocks of 64 threads per SM.
+fn uperf_p_kprobe(iters: u32) {
+    let ctx = ring_ctx_q8();
+    let kf = ring::kfield::KField::new(&ctx);
+    let kern = *kf.kern.as_ref().expect("K9 kernel");
+    println!("[UPERF2-P] kprobe: {} | iters {iters} per chain (kmul = the round kernels' schoolbook + burst folds + reduction, registers only)", ring::gpu::label());
+    for &tpb in &[64u32, 128] {
+        for &bps in &[1u32, 2, 4, 8, 16] {
+            for &ch in &[1u32, 2, 4] {
+                match ring::gpu::k9_kprobe(&kern, ch, bps, tpb, iters) {
+                    Ok((secs, rate, occ)) => println!(
+                        "  tpb {tpb:>3} blocks/SM {bps:>2} chains {ch}: {:.2} ms, {:.1} G kmul/s ({:.2} ns per kmul per SM), driver occupancy {occ} blk/SM ({} warps)",
+                        secs * 1e3,
+                        rate / 1e9,
+                        36.0 * 1e9 / rate,
+                        occ * tpb / 32
+                    ),
+                    Err(e) => println!("  probe failed: {e}"),
+                }
+            }
+        }
+    }
 }
