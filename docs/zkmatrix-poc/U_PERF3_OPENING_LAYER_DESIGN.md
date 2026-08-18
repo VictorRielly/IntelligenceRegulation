@@ -1,7 +1,10 @@
 # U-PERF3 — batched opening layer over the committed digits (design memo, no code)
 
-Status: SKELETON — sections are filled in commit by commit; a section
-headed "(pending)" has not been written yet.
+Status: DESIGN MEMO (2026-08-18, orchestrator/Claude, no code). The
+first deliverable the decision memo asks of route (1): the descent
+rounds/pairs counted before and after, the transcript change priced, and
+the factor modelled with its assumptions. No engine file is touched; the
+one new measurement is the spike in Section 5.3/6.1.
 
 Scope: route 1 of the 2026-08-18 decision memo in `PROGRESS_UPERF2.md`
 (the lattice-line protocol change after the kernel curve flattened at
@@ -473,8 +476,256 @@ Greyhound-class (family (c), out of scope here) plus the desktop board.
   the T11 a' protocol answer. This is the only path to <= 2 s at 1T
   without a contract amendment, and it needs the new soundness proof.
 
-## 4. Transcript / freeze consequences (pending)
+## 4. Transcript / freeze consequences
 
-## 5. Honest risks and unknowns (pending)
+This is a **transcript-changing** design — the artifact bytes and the
+EVAL-PROOF digest MOVE. Under the repo's rule (CONTINUATION.md Section 5,
+"a speedup that moves a freeze digest is a bug") that means it is NOT a
+kernel-round lane; it ships only on Victor's ruling with the freeze rows
+re-pinned. What moves, what stays bit-identical, and what the migration
+battery must show:
 
-## 6. Staged plan (pending)
+### 4.1 Freeze rows that move
+
+- **Retired:** the descent freeze rows — UAGB1-BK-1 (the 125M remainder-
+  width inventory), UAGB1-BK-2 (the 10 pair plans depth/dt/l/trees), and
+  the relevance of UAGB1-BK-3 (the caps `ceiling_gate_ok(2^25)` /
+  `K9_MAX_LEAVES`) to the range facts — the range facts no longer
+  descend, so those gates no longer bound them. Keep BK-3 pinned for the
+  SiLU LogUp (which still lives in K and still respects a characteristic
+  bound), and record BK-1/BK-2 as HISTORICAL.
+- **New, to pin:** the aggregate-sumcheck instance schedule (the
+  ordered list of `F_k` and their `eq(rho_k, .)` kernels), the RLC
+  challenge derivation and its FS order (a domain-separation string),
+  the range-booleanity degrees per digit class (2 for bit planes, 4 for
+  base-4), the SiLU LogUp helper layout (h/m columns), and — if adopted
+  — the R-row `r` value and the supplied-`Psi_0` sumcheck shape.
+- **Re-pinned unchanged in NUMBER, moved in derivation:** the two-group
+  schedule (act 9 levels/915 floor, weight 8 levels/939 floor) if `r`
+  stays 64; if `r` drops to 32 (T11 b) the level and floor rows move and
+  must be re-derived by the public planner (freeze rows UAGB1-BG-1a/1b
+  style, both directions).
+
+### 4.2 What stays bit-identical (the migration battery's identity legs)
+
+The eight arithmetic instances' summands (`IxfCombine::eval`), the
+commit phase (digit witness, `u_0` matvecs, chain GEMM), the CRS bytes
+(the SHA-NI core is the freeze), and the two-group eval-proof machinery
+BELOW the level-0 claim assembly are unchanged in semantics. The battery
+must show the arithmetic instances and the commit/CRS bytes bit-identical
+to the pre-change capture at fixed seeds (the U-PERF differential
+discipline: `*_ref` oracles behind a knob, digests compared).
+
+### 4.3 The new differential gates (where semantics change)
+
+- **Range -> booleanity:** an off-range value that today REJECTS at the
+  RangeLookup root cross-check (BK Section 4's off-table leg, the
+  `[2^sh_z, representable_max]` gap) must REJECT at the booleanity
+  zero-check, with the first-fail string recorded. The tamper battery
+  from UAGB1_TABLE_DESCENT_REPORT.md Section 4 (off-table, wrong-table,
+  cross-table) is re-run against the new gates; each REJECT must land at
+  a named, pre-registered gate.
+- **SiLU tree -> LogUp-sumcheck:** an off-table value REJECTS at the `h`
+  well-formedness or the sum-equality (not the descent root); a
+  wrong-table-for-exponent REJECTS at the table-side fold. A
+  differential leg proves the sumcheck-form claims equal the descent-form
+  claims at fixed seeds on a synthetic column (the oracle = the current
+  descent).
+- **Aggregate RLC:** a tampered instance claim (self-consistent
+  sumcheck, ct-forced b_rows — the BD WrongC pattern) must still REJECT
+  at the eval-proof floor, as it does today (pass-agg battery leg).
+- **The rigs:** the REAL 3x16 / 12x128 / 12x512 rigs must `accept` with
+  the NEW digests recorded (the digests change by design); an A/B at
+  8T and 1T; and the artifact-byte reduction (1.51 MB -> ~0.5 MB
+  [MODEL]) measured, not projected.
+
+### 4.4 Audit obligations (codex-audit-* conventions)
+
+An auditor must be able to re-derive, from the statement and the public
+planner alone: the aggregate-sumcheck instance list and its FS order;
+the RLC beta derivation; the range-booleanity degrees per committed digit
+class and their U-L link to the q31 values; the LogUp-h identity and the
+256-row table digest binding; and (Stage B) the supplied-`Psi_0`
+sumcheck's soundness reduction. These are exactly the U-AG2 obligations
+O-3 (claim-class reduction: every ct-engine claim class re-expressed as
+MLE-evaluation claims), O-5 (verifier model to R2), and O-7 (knowledge-
+error and extraction, the recursive-FS PSS pattern) from
+AGGREGATION_LITERATURE.md Section 8.1 — this design is the first concrete
+consumer of that obligation sheet on the lattice line.
+
+## 5. Honest risks and unknowns
+
+### 5.1 What could make the factor smaller than modelled
+
+- **The eval proof is the floor, and Stage A does not touch it.** ~12.3
+  s of the 15.5 s prove is prove-group + commit + CRS + transport, all
+  unchanged by Stage A. So Stage A is capped at ~1.5x no matter how well
+  the descents collapse. Everything above ~1.5x rides Stage B's
+  eval-proof restructuring, which is the riskiest part.
+- **The level-0 h-garbage may not drop with `r`.** `bg.level-h` (1.87 s)
+  is DEVICE-bound in K's GEMM (~10 ms/64x64x1024 stage,
+  U_PERF2_EVALPROOF3_REPORT.md Section 5), not obviously Theta(r) once
+  the GEMM tiles are fixed; halving `r` may cut fewer than half the
+  stages, and it costs bytes. The one-point batching's real effect on
+  the level-0 schedule is unmeasured.
+- **The base-field win may be smaller than "K-mult vs base-mult".** The
+  aggregate sumcheck does more MACs per element than the descent (degree-4
+  evals over the full hypercube, eq folding), so the ~100-360x per-mult
+  ratio is diluted; the honest lever is "range facts leave K entirely",
+  not "every op gets 100x cheaper". The spike measures the true ratio.
+- **The SiLU LogUp-sumcheck commits `h`** (12 columns, T x f each) into
+  the ACT group — it grows n_0 and the eval proof slightly; if the
+  committed-h cost exceeds the tree-descent saving on the SiLU columns
+  the swap is a wash there (only the range facts are an unambiguous win).
+
+### 5.2 What needs a proof (before it can ship)
+
+- **The supplied-`Psi_0` sumcheck** (the verifier's <= 2 s / 1T route):
+  genuinely new crypto — a sumcheck that binds the prover's `Psi_0` to
+  the committed digits, with extraction and recursive-FS composition
+  (O-7). Until proven, the verifier stays O(n_value_rings) and <= 2 s at
+  1T needs the contract wording amendment, not the protocol.
+- **The aggregate knowledge error** to the R5 line (2^-128 / 2^-220):
+  ~50 rounds at degree 4 with challenges in GF(q^c); the c that closes
+  the bound must be derived and the ZK simulator (O-4) re-done for the
+  aggregate sumcheck.
+- **The range-as-booleanity claim-class reduction** (O-3): the RangeLookup
+  soundness argument is replaced by booleanity + U-L link — a lemma swap
+  that the standing independent review (REMEDIATION_PLAN Phase 2.5) must
+  sign off, because it is the soundness of "uncalibrated models cannot be
+  proven".
+
+### 5.3 What needs a measurement first — the spike
+
+The biggest single [ASSUMED] is 5.1's "range facts collapse from ~5.2 s
+of K-field descent to ~0.4 s of base-field booleanity". A 1-2 day spike,
+no engine change, on synthetic shapes, de-risks it:
+
+- **Spike S1 (range).** On a synthetic 2^20-element remainder column at a
+  representative width (w=8): build (a) the current masked descent pair
+  (the `uperf-a descent-bench` shape) and (b) a base-field booleanity
+  zero-check over the same committed bit planes folded into a synthetic
+  aggregate sumcheck; count K-mults vs base-field MACs, round-polys, and
+  transcript bytes; measure the wall ratio at 1T/8T. Acceptance: the
+  base-field path is >= 5x cheaper in K-mult-equivalents and the round
+  count collapses ~10x. This measures the exponent lever directly.
+- **Spike S2 (SiLU LogUp-sumcheck).** One SiLU column at 2^20: the
+  descent-form claims vs the LogUp-as-sumcheck claims (committed h),
+  byte-identical at fixed seeds (the descent as oracle); measure the
+  round-poly count and the committed-h overhead. Acceptance: claims
+  equal, rounds ~log N, h overhead < the tree saving.
+- **Spike S3 (one-point / R-row, optional).** On the existing 3x16 rig,
+  re-derive the level-0 schedule at r=32 with one-point batching and
+  measure whether `bg.level-h` + `bg.kernel-rows` actually drop — this is
+  the Stage-B gating measurement and can reuse the built eval proof.
+
+S1 and S2 are the gate to the design freeze; S3 gates Stage B.
+
+### 5.4 Unknowns carried explicitly
+
+- Whether the full-transformer (attention) statement changes the balance
+  — attention adds more matmul/zero-check than lookup, so the descents'
+  share shrinks at 8B and this design's relative win shrinks with it
+  (still positive, smaller).
+- The desktop-board 4-6x [MODEL] multiplier is unmeasured (the Metal/M3
+  or CUDA-desktop port, decision-memo route 3) — every 8B wall here
+  carries it.
+- Memory: the design REMOVES the descent phase's tree peak (5.6 GB pair,
+  lane H) — a memory win for the 15 GB box — but the aggregate sumcheck
+  holds the digit witness resident (already does); net peak should fall,
+  unmeasured.
+
+## 6. A staged plan
+
+### 6.1 The spike (1-2 days, no engine change, no ruling needed)
+
+Spikes S1 (range -> booleanity) and S2 (SiLU -> LogUp-sumcheck) from
+Section 5.3, as `uperf-*`-style benches on synthetic 2^20 shapes with
+the current descent as the differential oracle. Deliverable: the
+measured K-mult / base-field-MAC / round-poly / byte counts before and
+after, the wall ratios at 1T/8T, and a go/no-go on the ~5x range lever.
+This is the "counted rounds/pairs before and after" the decision memo
+asks for as route (1)'s first deliverable, now with a measurement behind
+the [MODEL].
+
+### 6.2 The design freeze — Victor's ruling items (explicit)
+
+1. **Transcript change approved?** The EVAL-PROOF digest moves; freeze
+   rows UAGB1-BK-1/2 retire and new aggregate-sumcheck rows are pinned.
+   This is a deliberate freeze break (CONTINUATION.md Section 5), not a
+   bug — it needs the ruling before any build lane opens.
+2. **Range facts: table-membership LogUp -> bit-plane booleanity?** The
+   soundness story stays "range facts fail by design / uncalibrated
+   models cannot be proven", but via booleanity + U-L recomposition
+   instead of a 2^w-row LogUp. This is a claim-class change (O-3) the
+   independent review must accept.
+3. **The verifier route (T11 a'):** the supplied-`Psi_0` polylog verifier
+   (new crypto, R5 review, the only path to <= 2 s at 1T) vs the
+   `ZK_THREADS` "single machine, N threads stated" contract wording
+   amendment (no new crypto, meets <= 2 s at 8-22 threads today). Pick
+   one; they are not exclusive but the build cost differs by a tranche.
+4. **The R-row `r` value (T11 b):** r=64 (bytes-optimal, current) vs r=32
+   (halves the h-garbage, grows the artifact) — priced by S3; the
+   artifact already has headroom (0.48x its gate, and this design shrinks
+   it 3x), so r=32 is affordable if S3 shows the level-0 term drops.
+
+### 6.3 The build tranche (lanes, files, gates)
+
+Sibling worktrees, strict file-lane ownership (the tranche protocol),
+each lane keeping its `*_ref` oracle behind a knob and its differential
+battery. Order: Stage A first (lanes 1-2, the measurable ~1.5x), then
+Stage B (lanes 3-4) gated on S3 and ruling 3/4.
+
+- **Lane 1 — the aggregate sumcheck + LogUp-sumcheck.** OWNS a new
+  opening-driver module + `fold.rs` (the RLC aggregate over the two
+  groups' hypercubes) and `gkr_masked.rs` (the masking of the aggregate
+  and of `h`). Builds `h`/`m` commitment, the well-formedness + sum-
+  equality identities, and the batched-instance summand. Oracle: the
+  current claim-layer + descent path. Battery: S2's differential legs +
+  the SiLU tamper legs; digests vs the descent oracle at fixed seeds.
+- **Lane 2 — range as booleanity.** OWNS `bg_zc_prove` and the range
+  instances in the bin's claim-layer region; folds the booleanity
+  zero-checks into the aggregate. Oracle: the current RangeLookup
+  descents. Battery: S1's differential legs + BK Section 4's off-table /
+  wrong-table / cross-table tamper legs re-pointed at the booleanity
+  gates, each REJECT at a named gate.
+- **Lane 3 (Stage B) — the eval-proof one-point batching + R-row.** OWNS
+  `eval_proof.rs` (the level-0 claim assembly, the `r` planner, the
+  rank-structured `Phi_0` feed — the T9(c) / T11 a machinery). Oracle:
+  the current per-instance opening. Battery: the pass-agg seam
+  differential (Psi_0 == compute_psi(phi) bit for bit) at r=64 and r=32.
+- **Lane 4 (Stage B) — the supplied-`Psi_0` verifier sumcheck.** OWNS the
+  verifier's level-0 path + its soundness note (O-5/O-7). Battery: the
+  new sumcheck's soundness legs (a forged `Psi_0` REJECTS) + the 1T
+  verify measurement.
+
+Gates for every lane (the repo's differential discipline): the `*_ref`
+oracle behind `ZK_UPERF_ORACLE=1` / a per-item knob; the differential
+battery bit-identical at ZK_THREADS 1/2/7 where semantics are unchanged;
+the new differential gates (Section 4.3) where they change; `freeze-check`
+re-pinned (the new rows derived both directions); the REAL 3x16 / 12x128
+/ 12x512 rigs `accept` with the new digests recorded and an 8T/1T A/B;
+`self-test` / `agg-matmul` / `bh-verifier` / `pass-agg` green. The
+acceptance number for the tranche is the measured 12x512 wall (Stage A:
+~15.5 s target; Stage B: ~11-12 s + the 1T verify), byte count, and
+digests — measured on a quiesced box, not projected.
+
+### 6.4 Sequencing against the roadmap
+
+This sits at CONTINUATION.md's fallback juncture (Phases 0-3 measured,
+the residual is protocol-shape not kernel). It is route (1) of the
+decision memo; it runs BEFORE any move to the float/int-mix channel
+(route 2) and composes with the desktop-board measurement (route 3). It
+does not touch the attention/8B wiring (Phase 4-5) — those multiply the
+statement and should land on the post-U-PERF3 base, not the current one.
+
+---
+
+*Author's note on labels: every seconds figure in Sections 1 and the
+"built" columns is [MEASURED] from `fp_12x512_PQ_gpu_r1.txt`; every
+structural count is [COUNTED] from `table-descent expect 12 512` or the
+source; every "after" figure is [MODEL] from the measured per-phase
+shares and the counted round/K-mult ratios, and the single biggest one
+(the range base-field collapse) is gated by spike S1 before the design
+freeze. No number here is a new measurement; the spike is where the
+first new measurement is taken.*
