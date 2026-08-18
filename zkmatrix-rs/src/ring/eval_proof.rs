@@ -688,7 +688,38 @@ fn crs_key(seed: u64, group: &str, level: usize, which: &str, rows: usize, cols:
 
 /// SHA-256 counter-mode blocks [lo, hi) of `key` written straight into a
 /// byte buffer, block-parallel (each 32-B block = SHA256(key || i_le)).
+/// [UPERF2-Q] The blocks come from the multi-buffer SHA-NI core
+/// (`crs_sha_ni::blocks_into`, four interleaved single-block compressions
+/// with the key's first eight message words folded into a precomputed
+/// state — the same SHA-256 function, asserted against the `sha2` crate
+/// in `uperf-q battery` and by the CRS bytes themselves) when the CPU
+/// has SHA-NI and `ZK_CRSNI` != 0; the `sha2` crate otherwise (the
+/// pre-change body, `crs_blocks_into_ref`).
 fn crs_blocks_into(key: &[u8; 32], lo: usize, hi: usize, out: &mut [u8]) {
+    assert_eq!(out.len(), (hi - lo) * 32);
+    #[cfg(target_arch = "x86_64")]
+    if crs_sha_ni_enabled() {
+        const CH: usize = 4096; // blocks per parallel unit
+        if threads() > 1 && hi - lo >= 2 * CH {
+            pooled(|| {
+                use rayon::prelude::*;
+                out.par_chunks_mut(CH * 32).enumerate().for_each(|(ci, chunk)| {
+                    let l = lo + ci * CH;
+                    // SAFETY: the `sha` / `sse4.1` / `ssse3` features were detected at dispatch.
+                    unsafe { crs_sha_ni::blocks_into(key, l, l + chunk.len() / 32, chunk) };
+                });
+            });
+        } else {
+            unsafe { crs_sha_ni::blocks_into(key, lo, hi, out) };
+        }
+        return;
+    }
+    crs_blocks_into_ref(key, lo, hi, out);
+}
+
+/// The pre-[UPERF2-Q] body (the `sha2` crate per block) — the SHA-NI
+/// core's oracle (`ZK_CRSNI=0`, non-x86, no SHA-NI).
+pub fn crs_blocks_into_ref(key: &[u8; 32], lo: usize, hi: usize, out: &mut [u8]) {
     use sha2::{Digest, Sha256};
     assert_eq!(out.len(), (hi - lo) * 32);
     let mk = |i: usize, dst: &mut [u8]| {
@@ -711,6 +742,208 @@ fn crs_blocks_into(key: &[u8; 32], lo: usize, hi: usize, out: &mut [u8]) {
     } else {
         for (k, dst) in out.chunks_mut(32).enumerate() {
             mk(lo + k, dst);
+        }
+    }
+}
+
+/// [UPERF2-Q] Battery entry: the SHA-NI blocks (when available) — `None`
+/// when the core is not available on this CPU / build.
+pub fn crs_blocks_into_ni(key: &[u8; 32], lo: usize, hi: usize, out: &mut [u8]) -> bool {
+    #[cfg(target_arch = "x86_64")]
+    if crs_sha_ni_available() {
+        assert_eq!(out.len(), (hi - lo) * 32);
+        unsafe { crs_sha_ni::blocks_into(key, lo, hi, out) };
+        return true;
+    }
+    let _ = (key, lo, hi, out);
+    false
+}
+
+/// [UPERF2-Q] SHA-NI present on this CPU (runtime detection).
+#[cfg(target_arch = "x86_64")]
+pub fn crs_sha_ni_available() -> bool {
+    static V: LazyLock<bool> = LazyLock::new(|| {
+        std::arch::is_x86_feature_detected!("sha") && std::arch::is_x86_feature_detected!("sse4.1") && std::arch::is_x86_feature_detected!("ssse3")
+    });
+    *V
+}
+#[cfg(not(target_arch = "x86_64"))]
+pub fn crs_sha_ni_available() -> bool {
+    false
+}
+
+/// [UPERF2-Q] `ZK_CRSNI=0` keeps the `sha2` crate path (read once).
+#[cfg(target_arch = "x86_64")]
+fn crs_sha_ni_enabled() -> bool {
+    static V: LazyLock<bool> = LazyLock::new(|| std::env::var("ZK_CRSNI").map(|v| v != "0").unwrap_or(true) && crs_sha_ni_available());
+    *V
+}
+
+/// [UPERF2-Q] The multi-buffer SHA-NI core for the CRS counter-mode blocks.
+/// Every block hashes ONE 64-byte message block: key (32 B) || i as u64 LE
+/// (8 B) || 0x80 || 15 x 0x00 || the bit length 320 as u64 BE. Its 16
+/// big-endian message words are W0..7 = the key (constant), W8/W9 = the
+/// counter's two little-endian halves byte-swapped, W10 = 0x80000000,
+/// W11..14 = 0, W15 = 320. Rounds 0..7 depend only on W0..7: the state
+/// after them is computed once per call from the IV; every block then runs
+/// rounds 8..63 from that state (the schedule still uses W0..3 as its
+/// first quads, unchanged). LANES blocks are compressed in lock-step
+/// (independent instruction chains hide the `sha256rnds2` latency). The
+/// round structure is the standard SHA-NI transform (the `sha2` crate's
+/// x86 body): identical values by the definition of SHA-256; asserted
+/// against `sha2` in the battery.
+#[cfg(target_arch = "x86_64")]
+mod crs_sha_ni {
+    use std::arch::x86_64::*;
+
+    const K: [u32; 64] = [
+        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+        0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+        0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+        0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+        0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+        0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+    ];
+    const IV: [u32; 8] = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
+    const LANES: usize = 4;
+
+    #[inline(always)]
+    unsafe fn kv(i: usize) -> __m128i {
+        _mm_set_epi32(K[4 * i + 3] as i32, K[4 * i + 2] as i32, K[4 * i + 1] as i32, K[4 * i] as i32)
+    }
+
+    /// Four rounds on (abef, cdgh) with the message quad `w` (already
+    /// scheduled) and the constants of quad i.
+    #[inline(always)]
+    unsafe fn rounds4(abef: &mut __m128i, cdgh: &mut __m128i, w: __m128i, i: usize) {
+        let t1 = _mm_add_epi32(w, kv(i));
+        *cdgh = _mm_sha256rnds2_epu32(*cdgh, *abef, t1);
+        let t2 = _mm_shuffle_epi32(t1, 0x0E);
+        *abef = _mm_sha256rnds2_epu32(*abef, *cdgh, t2);
+    }
+
+    #[inline(always)]
+    unsafe fn schedule(v0: __m128i, v1: __m128i, v2: __m128i, v3: __m128i) -> __m128i {
+        let t1 = _mm_sha256msg1_epu32(v0, v1);
+        let t2 = _mm_alignr_epi8(v3, v2, 4);
+        let t3 = _mm_add_epi32(t1, t2);
+        _mm_sha256msg2_epu32(t3, v3)
+    }
+
+    /// One block's rounds 8..63 from the precomputed state (after rounds 0..7),
+    /// for LANES blocks in lock-step. `w0`, `w1` = the key quads (constant),
+    /// `w2[l]` = the counter quad of lane l, `w3` = the length quad. Returns
+    /// (abef, cdgh) after the final feed-forward with the IV.
+    #[inline(always)]
+    unsafe fn compress_lanes(abef8: __m128i, cdgh8: __m128i, w0: __m128i, w1: __m128i, w2: [__m128i; LANES], w3: __m128i, iv_abef: __m128i, iv_cdgh: __m128i, out: &mut [[__m128i; 2]; LANES]) {
+        let mut abef = [abef8; LANES];
+        let mut cdgh = [cdgh8; LANES];
+        let mut a0 = [w0; LANES];
+        let mut a1 = [w1; LANES];
+        let mut a2 = w2;
+        let mut a3 = [w3; LANES];
+        let mut a4 = [_mm_setzero_si128(); LANES];
+        for l in 0..LANES {
+            rounds4(&mut abef[l], &mut cdgh[l], a2[l], 2);
+        }
+        for l in 0..LANES {
+            rounds4(&mut abef[l], &mut cdgh[l], a3[l], 3);
+        }
+        macro_rules! sched_rounds {
+            ($p0:ident, $p1:ident, $p2:ident, $p3:ident, $p4:ident, $i:expr) => {{
+                for l in 0..LANES {
+                    $p4[l] = schedule($p0[l], $p1[l], $p2[l], $p3[l]);
+                }
+                for l in 0..LANES {
+                    rounds4(&mut abef[l], &mut cdgh[l], $p4[l], $i);
+                }
+            }};
+        }
+        sched_rounds!(a0, a1, a2, a3, a4, 4);
+        sched_rounds!(a1, a2, a3, a4, a0, 5);
+        sched_rounds!(a2, a3, a4, a0, a1, 6);
+        sched_rounds!(a3, a4, a0, a1, a2, 7);
+        sched_rounds!(a4, a0, a1, a2, a3, 8);
+        sched_rounds!(a0, a1, a2, a3, a4, 9);
+        sched_rounds!(a1, a2, a3, a4, a0, 10);
+        sched_rounds!(a2, a3, a4, a0, a1, 11);
+        sched_rounds!(a3, a4, a0, a1, a2, 12);
+        sched_rounds!(a4, a0, a1, a2, a3, 13);
+        sched_rounds!(a0, a1, a2, a3, a4, 14);
+        sched_rounds!(a1, a2, a3, a4, a0, 15);
+        for l in 0..LANES {
+            out[l][0] = _mm_add_epi32(abef[l], iv_abef);
+            out[l][1] = _mm_add_epi32(cdgh[l], iv_cdgh);
+        }
+    }
+
+    /// The counter quad of block i: W8 = bswap(i_lo), W9 = bswap(i_hi), W10 = 0x80000000, W11 = 0.
+    #[inline(always)]
+    unsafe fn w2_of(i: u64) -> __m128i {
+        _mm_set_epi32(0, 0x8000_0000u32 as i32, ((i >> 32) as u32).swap_bytes() as i32, (i as u32).swap_bytes() as i32)
+    }
+
+    /// Store the digest of (abef, cdgh) as 32 big-endian bytes.
+    #[inline(always)]
+    unsafe fn store_digest(abef: __m128i, cdgh: __m128i, dst: &mut [u8]) {
+        let feba = _mm_shuffle_epi32(abef, 0x1B);
+        let dchg = _mm_shuffle_epi32(cdgh, 0xB1);
+        let dcba = _mm_blend_epi16(feba, dchg, 0xF0);
+        let hgef = _mm_alignr_epi8(dchg, feba, 8);
+        let mask = _mm_set_epi64x(0x0C0D_0E0F_0809_0A0Bu64 as i64, 0x0405_0607_0001_0203u64 as i64);
+        let d0 = _mm_shuffle_epi8(dcba, mask);
+        let d1 = _mm_shuffle_epi8(hgef, mask);
+        _mm_storeu_si128(dst.as_mut_ptr() as *mut __m128i, d0);
+        _mm_storeu_si128(dst.as_mut_ptr().add(16) as *mut __m128i, d1);
+    }
+
+    /// Blocks [lo, hi) of `key` into `out` (32 B each).
+    #[target_feature(enable = "sha,sse2,ssse3,sse4.1")]
+    pub unsafe fn blocks_into(key: &[u8; 32], lo: usize, hi: usize, out: &mut [u8]) {
+        debug_assert_eq!(out.len(), (hi - lo) * 32);
+        let mask = _mm_set_epi64x(0x0C0D_0E0F_0809_0A0Bu64 as i64, 0x0405_0607_0001_0203u64 as i64);
+        // The IV as (abef, cdgh).
+        let dcba = _mm_loadu_si128(IV.as_ptr() as *const __m128i);
+        let efgh = _mm_loadu_si128(IV.as_ptr().add(4) as *const __m128i);
+        let cdab = _mm_shuffle_epi32(dcba, 0xB1);
+        let efgh = _mm_shuffle_epi32(efgh, 0x1B);
+        let iv_abef = _mm_alignr_epi8(cdab, efgh, 8);
+        let iv_cdgh = _mm_blend_epi16(efgh, cdab, 0xF0);
+        // The key quads (constant) and the length quad.
+        let w0 = _mm_shuffle_epi8(_mm_loadu_si128(key.as_ptr() as *const __m128i), mask);
+        let w1 = _mm_shuffle_epi8(_mm_loadu_si128(key.as_ptr().add(16) as *const __m128i), mask);
+        let w3 = _mm_set_epi32(320, 0, 0, 0);
+        // Rounds 0..7 once (they read only W0..7).
+        let mut abef8 = iv_abef;
+        let mut cdgh8 = iv_cdgh;
+        rounds4(&mut abef8, &mut cdgh8, w0, 0);
+        rounds4(&mut abef8, &mut cdgh8, w1, 1);
+        let mut res = [[_mm_setzero_si128(); 2]; LANES];
+        let n = hi - lo;
+        let mut k = 0usize;
+        while k + LANES <= n {
+            let mut w2 = [_mm_setzero_si128(); LANES];
+            for l in 0..LANES {
+                w2[l] = w2_of((lo + k + l) as u64);
+            }
+            compress_lanes(abef8, cdgh8, w0, w1, w2, w3, iv_abef, iv_cdgh, &mut res);
+            for l in 0..LANES {
+                store_digest(res[l][0], res[l][1], &mut out[(k + l) * 32..(k + l + 1) * 32]);
+            }
+            k += LANES;
+        }
+        if k < n {
+            // The tail: pad the lanes with repeats of the last index (their
+            // outputs are dropped).
+            let mut w2 = [_mm_setzero_si128(); LANES];
+            for l in 0..LANES {
+                let i = (lo + (k + l).min(n - 1)) as u64;
+                w2[l] = w2_of(i);
+            }
+            compress_lanes(abef8, cdgh8, w0, w1, w2, w3, iv_abef, iv_cdgh, &mut res);
+            for l in 0..(n - k) {
+                store_digest(res[l][0], res[l][1], &mut out[(k + l) * 32..(k + l + 1) * 32]);
+            }
         }
     }
 }
@@ -813,7 +1046,12 @@ pub fn expand_level_matrix_par_v2(
     const WB: usize = 8192;
     let round_up = |b: usize| -> usize { b.div_ceil(WB / 4) * (WB / 4) };
     let mut n_blocks = round_up(((n_el as u128 * 8 * 1002 / 1000) / 32) as usize + 16);
-    let mut stream: Vec<u8> = Vec::new();
+    // [UPERF2-Q] the stream buffer is a process-wide scratch (taken here,
+    // returned below): its pages stay mapped between calls, and the bytes
+    // are never zeroed — every byte of [have*32, n_blocks*32) is written by
+    // `crs_blocks_into` before the counters or the walk read it.
+    let mut stream: Vec<u8> = std::mem::take(&mut *CRS_SCRATCH.lock().expect("crs scratch"));
+    stream.clear();
     let mut counts: Vec<usize> = Vec::new(); // accepted words per word block (WB words = 256 SHA blocks)
     let accepted = |w: &[u8]| -> bool { (u64::from_le_bytes(w.try_into().unwrap()) >> shift) < q };
     let mut prefix: Vec<usize> = vec![0];
@@ -822,7 +1060,12 @@ pub fn expand_level_matrix_par_v2(
         let have = stream.len() / 32;
         {
             let _tb = prof::timer(prof::M_CRS_BLOCKS); // [UPERF2-M] observation only
-            stream.resize(n_blocks * 32, 0);
+            let new_len = n_blocks * 32;
+            stream.reserve(new_len - stream.len());
+            // SAFETY: u8 has no invalid bit patterns and the whole range
+            // [have*32, new_len) is overwritten by `crs_blocks_into` below
+            // before any read (its length assert covers exactly that range).
+            unsafe { stream.set_len(new_len) };
             crs_blocks_into(&key, have, n_blocks, &mut stream[have * 32..n_blocks * 32]);
         }
         let _tw = prof::timer(prof::M_CRS_WALK); // [UPERF2-M] observation only
@@ -847,7 +1090,8 @@ pub fn expand_level_matrix_par_v2(
     // Poly ranges per thread; each walks its own words from the located start.
     let n_ranges = if threads() > 1 { (threads() * 4).min(n_polys).max(1) } else { 1 };
     let per = n_polys.div_ceil(n_ranges);
-    let stream = &stream;
+    let stream_owned = stream;
+    let stream = &stream_owned;
     let prefix = &prefix;
     let parts: Vec<Vec<Poly>> = map_ordered_min(n_ranges, 2, |ri| {
         let p0 = ri * per;
@@ -897,8 +1141,23 @@ pub fn expand_level_matrix_par_v2(
     for part in parts {
         out.extend(part);
     }
+    // [UPERF2-Q] return the scratch (keep up to CRS_SCRATCH_KEEP bytes
+    // resident; the level-0 A streams of the 12x512 rig are bigger and are
+    // used once per process — freed).
+    {
+        let mut stream = stream_owned;
+        stream.clear();
+        if stream.capacity() > CRS_SCRATCH_KEEP {
+            stream = Vec::new();
+        }
+        *CRS_SCRATCH.lock().expect("crs scratch") = stream;
+    }
     out
 }
+
+/// [UPERF2-Q] The CRS stream scratch (see `expand_level_matrix_par_v2`).
+static CRS_SCRATCH: Mutex<Vec<u8>> = Mutex::new(Vec::new());
+const CRS_SCRATCH_KEEP: usize = 512 << 20;
 
 pub fn expand_level_matrix(
     seed: u64,

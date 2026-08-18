@@ -41578,6 +41578,43 @@ fn uperf_q_battery() {
         }
         check(&format!("Phi0Source::fill_pool_u32 (pool ring x radix mod q) == fill on 11 windows ({n_pool} pool rings)"), ok);
     }
+    // ---- (A2) the CRS SHA-NI core == the `sha2` crate: random keys, ranges
+    // crossing the 4-lane groups (lengths 1..9, 4095, 4097), counters
+    // beyond 2^32 (the high word), and the block-parallel dispatch.
+    {
+        use ring::eval_proof::{crs_blocks_into_ni, crs_blocks_into_ref, crs_sha_ni_available};
+        if crs_sha_ni_available() {
+            let mut ok = true;
+            let mut n_blocks = 0usize;
+            let mut keys: Vec<[u8; 32]> = Vec::new();
+            for _ in 0..3 {
+                let mut k = [0u8; 32];
+                for b in k.iter_mut() {
+                    *b = rd.next_u64() as u8;
+                }
+                keys.push(k);
+            }
+            keys.push([0u8; 32]);
+            keys.push([0xFFu8; 32]);
+            for key in &keys {
+                for &(lo, n) in &[(0usize, 1usize), (0, 2), (0, 3), (0, 4), (0, 5), (7, 9), (0, 4095), (1, 4097), (0, 8192 * 2 + 3), (1usize << 32, 6), ((1usize << 32) - 3, 7), (0x1234_5678_9abc, 5)] {
+                    let mut a = vec![0u8; n * 32];
+                    let mut b = vec![0u8; n * 32];
+                    let did = crs_blocks_into_ni(key, lo, lo + n, &mut a);
+                    crs_blocks_into_ref(key, lo, lo + n, &mut b);
+                    if !did || a != b {
+                        ok = false;
+                        println!("  FAIL sha-ni blocks: lo {lo} n {n}");
+                    }
+                    n_blocks += n;
+                    battery.update(&a[..32.min(a.len())]);
+                }
+            }
+            check(&format!("CRS SHA-NI 4-lane core == sha2 crate on {n_blocks} blocks (5 keys x 12 ranges incl. counters >= 2^32, tails 1..3)"), ok);
+        } else {
+            println!("  (CRS SHA-NI core unavailable on this CPU — the sha2 path runs; nothing to compare)");
+        }
+    }
     // ---- (B) the session == the CPU body (bypassed) cell by cell.
     if have_gpu {
         let mut sessions = 0u64;
