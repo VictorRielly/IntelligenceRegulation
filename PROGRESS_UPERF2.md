@@ -792,7 +792,37 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent L status (wt-uperf2-l)
 
-- (lane launches here)
+- 2026-08-17 PLAN COMMIT (lane L, branch uperf2-l at f821485; report:
+  docs/zkmatrix-poc/U_PERF2_GPU2_REPORT.md). Files: `zkmatrix-rs/src/ring/
+  gpu/{mod.rs, cuda.rs}` (extend K's plumbing), NEW `gpu/k9.rs` + NEW
+  `gpu/kernels_k9.cu` (the K-field lane kernels on the device), ONE additive
+  hook line at the top of `k9_fused_round_par` / `k9_ixf_round_par` /
+  `KField::kt_fold_par` / `k9_tree_climb_par` in kfield.rs (nothing else
+  there), a `// [UPERF2-L]` bin section with `uperf-l {battery, bench}`,
+  the report, this section. Baseline: the untouched f821485 build (default
+  and GPU feature) — every lane battery + the descent digest 47a58a27..
+  captured before any change.
+  PLAN, in order: (1) the fused masked-descent round (all three modes)
+  with a per-layer DEVICE-RESIDENT chain: the layer (packed live blocks,
+  or the compact leaves re-encoded 8 B/leaf + exceptions and expanded on
+  the device) + the b-part eq table uploaded once per layer (pinned,
+  pipelined), rounds 0/1 read them on the device, round 1 writes the
+  state-1 tables on the device (live ranges only), rounds >= 2 fold on the
+  device (out-of-place ping-pong, one launch per live range), the node
+  values come back per round (per-term canonical reduction — the same
+  field elements the CPU's exact planes finalize to; the identity argument
+  in the report), the host tables are written ONCE at the handover (the
+  last GPU round, predicted from the plan: out pairs < MIN, or the pad
+  materialization ahead) — the chain's successor call is guaranteed by
+  `masked_rounds_bulk`'s control flow (report Section 2); (2) the ixf round
+  + fold chain (eager D2H of every fold — the host stays coherent — the
+  resident copy saves the re-upload); (3) the tree climb (compute on the
+  device, eager D2H; the resident output feeds round 0 of the next layer
+  when the plan presents the same buffers). Gates: `uperf-l battery`
+  (kernel-level cell-by-cell on random tables + planted extremes at
+  ZK_THREADS 1/7), the existing batteries under ZK_GPU=1, the descent
+  digest, the rigs with ZK_GPU=1 (digests identical), the default build
+  unchanged.
 
 ## Agent M status (wt-uperf2-m)
 
