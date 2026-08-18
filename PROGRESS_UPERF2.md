@@ -1023,23 +1023,56 @@ freeze-check with the wsl export — 98 `ok` rows + BF/BK rows +
    34.1), RSS 6.70 GB, digests identical** [WSL-BOX 8T, load 1.5-2.7 —
    NOISY-SHARED-ish].
 
-- DONE: items 1-4 LANDED (level-h session; combine family = fold /
-  psi0 / transport S,T5 / compute_psi; chain GEMM + max_abs bounds;
-  CRS SHA-NI + scratch). Batteries green in both builds at every step;
-  rig digests identical at every step.
-- NEXT (in order of gain/effort): the digit witness on the device
-  (d.digit-witness 1.27 s: per-value exact digit decomposition into the
-  i8 store), the rows pass's T rings on the device (q.rows-t 1.18 s of
-  bg.kernel-rows 1.89 — a GEMM-shaped MAC), `kernel_row_factors`
-  memo/vectorization (m.phi-setup 0.72 s is mostly it; the G blocks are
-  0.08), the GEMM kernel (level-h 1.9 s, device-bound at ~48% of its
-  instruction ceiling), the deeper-level session overheads (transport
-  tr-s 0.74 = ~0.37 level-0 + ~0.37 of 26 small sessions).
-- DECISIONS: the GEMM kernel itself is left for last (O's <= 0.5 s
-  estimate stands; the CPU-side blocks were bigger and are now mostly
-  moved). The stream scratch keeps <= 512 MB resident (the 12x512
-  level-0 A streams, 0.6 / 1.35 GB, are freed after use — RSS peak
-  unchanged at 6.70 GB).
+5. DIGITS + REQUANT BY MASK/SHIFT, ROW-FACTOR MEMO (1c8f4c5, 6a4c700):
+   the balanced digit d == rem (mod 2^e0) in [-half, half) is unique, so
+   `((rem + half) & mask) - half` with the exact carry `>> e0` replaces
+   the two libdivs per digit (bin `digits_into` + eval_proof
+   `digits_into_local`; `digits_into_div` / `exact_digit_decompose` /
+   `decompose_poly_*_ref` are the oracles); `bf_floor_requant` by `>>`
+   / `&` (`bf_floor_requant_div` the oracle); `kernel_row_factors`
+   memoized per `MultiClaimKernel` (a new `OnceCell` field, keyed by
+   (q, s)). uperf-q legs (10204 digit values on every class + range
+   ends; 5632 requant values incl. i64 extremes), uperf-d/c/f/pc green.
+   d.digit-witness 1.13 -> 0.53, m.phi-setup 0.85 -> 0.26.
+
+**LANDED (2026-08-18). Final binary 6a4c700 (+ the report / ledger
+commits). 12x512 8T+GPU: 34.1 -> 25.0 s = commit 2.5 / prove 19.3 /
+verify 1.8, RSS 6.70 GB (unchanged); the brief's four blocks 22.1 ->
+12.3 s (prove-group 12.30 -> 7.02: level-h 4.61 -> 1.83, psi0 2.65 ->
+1.58, fold 1.89 -> 0.84, matvec-chunks 1.50 -> 0.79, kernel-phi 0.39 ->
+0.16, kernel-rows 1.77 -> 1.79 untouched; commit 5.02 -> 2.55; CRS 2.76
+-> 1.28; transport 1.95 -> 1.36; verify-group 2.43 -> 1.61) [WSL-BOX
+8T, load ~2.4 NOISY-SHARED-ish]. CPU-only 12x512 86.1 -> 81.2 s (7.2 /
+69.7 / 2.6, 11.0 GB) [NOISY]. 12x128 15.6 -> 12.2 s (RSS 3.5 -> 3.9
+GB: the <= 512 MB CRS scratch + pinned staging), 3x16 4.3 -> 3.6 s.
+Digests identical on every row and at every landing step. Gates:
+uperf-q 101/101 (GPU, 1/2/7T + MIN_MACS=0, one digest 0df38648..) and
+4/4 (default, c2f4ed16..); uperf-pc both builds 1T/7T; uperf-c/e/f/m
+(incl. every knob off + ZK_CRSNI=0)/i/d both builds; uperf-k; uperf-o/
+n/a/g/h/j under ZK_GPU=1 (ledger digests); freeze-check 98 ok rows +
+BF/BK + passed, IDENTICAL to the pre-change capture; agg-matmul,
+bh-verifier, self-test (247.7 s) passed. Report: docs/zkmatrix-poc/
+U_PERF2_EVALPROOF3_REPORT.md.**
+
+- DONE: items 1-5 LANDED; every gate green.
+- LEFT (report Section 5, with hook shapes): the rows pass's T rings on
+  the device (q.rows-t 1.15 s: one batched u32 GEMM per group with the
+  fold reduction, ~0.7 s [ASSUMED]); K's GEMM kernel (level-h device-
+  bound, ~0.5 s at 1.5x); the psi0 pool fill (host PHI MAC); the CRS
+  poly walk (~0.7 s of allocations; a flat CRS storage).
+- DECISIONS: `CRS_SCRATCH_KEEP` = 512 MB (12x512 peak unchanged; the
+  smaller rigs +0.2-0.4 GB — flip to 256 MB to trade ~0.2-0.3 s of
+  faults); the device init (~0.5 s) now shows in d.chain-derive (the
+  first device call moved from precommit) — a wash for the wall.
+- FOR THE MERGE: files touched are exactly the plan's (eval_proof.rs,
+  gpu/cuda.rs, gpu/kernels.cu, gpu/mod.rs [Q block], ct_engine.rs [Q
+  ids 80-88], the bin's commit / prove-group regions + the Q section +
+  the dispatch line, this ledger, the report); commit.rs and
+  aux_ntt_core.rs untouched; no new crate / feature; two struct
+  additions (`Gpu` fields in cuda.rs; `MultiClaimKernel::row_factors`
+  — its only constructor `bg_multi_kernels` sets it); new knobs
+  ZK_GPU_LH / ZK_GPU_LH_BLOCK / ZK_GPU_CB / ZK_GPU_CB_BLOCK / ZK_GPU_MM
+  / ZK_CRSNI (all default ON = the fast paths).
 
 ## Agent A status (wt-uperf2-a)
 
