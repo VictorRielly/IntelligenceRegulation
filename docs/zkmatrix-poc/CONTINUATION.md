@@ -175,6 +175,16 @@ numbers need a quiesced box; design and correctness work do not.
   ~11 GB, bit-identical to the first run of the day.** Verify is 2.6 s
   at 8T (0.5 s at 3x16). Remaining structural items are listed in
   PROGRESS_UPERF2.md ("after round 7").
+- 2026-08-18 (round 8): the descent tree lives on the device end to end
+  (N) and the claim layer's zero-check tables are built on the device
+  and folded on a device-resident chain (O); the GEMM u32-limb idea
+  was measured and refuted. **12x512: 34.1 s with the reference box's
+  laptop GPU (commit 5.0 / prove 24.9 / verify 2.6), 86.1 s CPU-only,
+  8 threads, 6.7 GB peak, bit-identical.** Round 9 (P: descent kernels
+  + per-round floor; Q: prove-group / commit / CRS / transport) is
+  launched; PROGRESS_UPERF2.md "after round 8" has the attribution and
+  the honest position (minutes on a desktop GPU for the current
+  protocol; 5-15 s needs T11 or the float/int-mix route).
 - 2026-08-17 (Claude, status recalculation — PROGRESS_UPERF.md
   "2026-08-17" section): PATH CORRECTION for Phase 0. The composed
   pass (`bg_pass_run`, the deliverable) never calls `prove_ct_round`;

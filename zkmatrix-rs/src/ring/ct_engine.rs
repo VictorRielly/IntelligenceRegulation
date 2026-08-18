@@ -2553,7 +2553,31 @@ pub mod prof {
     pub const M_TR_ASM: usize = 67; // transport_level_from_psi_fast: the next-witness assembly (scale + T5 adds) — inside ep.transport
     pub const M_TR_PQ: usize = 68; // transport_level_from_psi_fast: the small-operand products a_t4 c_j / a_l1 cpair — inside ep.transport
     pub const M_TR_T5: usize = 69; // transport_level_from_psi_fast: the T5 binding contractions — inside ep.transport
-    pub const N_PHASES: usize = 70;
+    // [UPERF2 round 9] ids 70-79 are RESERVED for lane P (descent kernels; rename
+    // `P_RESERVED_7x` / "p.reserved-7x" in place), 80-89 for lane Q (prove-group /
+    // commit / CRS / transport; `Q_RESERVED_8x` / "q.reserved-8x"). Zero rows do not
+    // print. Keep N_PHASES = 90 — both lanes edit only their own lines.
+    pub const P_RESERVED_70: usize = 70;
+    pub const P_RESERVED_71: usize = 71;
+    pub const P_RESERVED_72: usize = 72;
+    pub const P_RESERVED_73: usize = 73;
+    pub const P_RESERVED_74: usize = 74;
+    pub const P_RESERVED_75: usize = 75;
+    pub const P_RESERVED_76: usize = 76;
+    pub const P_RESERVED_77: usize = 77;
+    pub const P_RESERVED_78: usize = 78;
+    pub const P_RESERVED_79: usize = 79;
+    pub const Q_RESERVED_80: usize = 80;
+    pub const Q_RESERVED_81: usize = 81;
+    pub const Q_RESERVED_82: usize = 82;
+    pub const Q_RESERVED_83: usize = 83;
+    pub const Q_RESERVED_84: usize = 84;
+    pub const Q_RESERVED_85: usize = 85;
+    pub const Q_RESERVED_86: usize = 86;
+    pub const Q_RESERVED_87: usize = 87;
+    pub const Q_RESERVED_88: usize = 88;
+    pub const Q_RESERVED_89: usize = 89;
+    pub const N_PHASES: usize = 90;
 
     pub const NAMES: [&str; N_PHASES] = [
         "ct.setup(clone+digits)",
@@ -2626,6 +2650,26 @@ pub mod prof {
         "m.tr-asm",
         "m.tr-pq",
         "m.tr-t5",
+        "p.reserved-70",
+        "p.reserved-71",
+        "p.reserved-72",
+        "p.reserved-73",
+        "p.reserved-74",
+        "p.reserved-75",
+        "p.reserved-76",
+        "p.reserved-77",
+        "p.reserved-78",
+        "p.reserved-79",
+        "q.reserved-80",
+        "q.reserved-81",
+        "q.reserved-82",
+        "q.reserved-83",
+        "q.reserved-84",
+        "q.reserved-85",
+        "q.reserved-86",
+        "q.reserved-87",
+        "q.reserved-88",
+        "q.reserved-89",
     ];
 
     static ENABLED: AtomicBool = AtomicBool::new(false);

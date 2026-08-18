@@ -803,6 +803,140 @@ sums (exact integers). (3) Leftovers if time: CRS blocks on the device
 row transforms; precommit's transforms. Report before/after per item,
 rig rows, what is left.
 
+## Orchestrator status (2026-08-18, after round 8 — N + O) — 34.1 s, 6.7 GB
+
+- Lanes N (GPU step 3: the descent tree built, kept and read on the
+  device — compact leaves up once, checkpointed layers resident, gap
+  layers climbed on the device inside the hooks, no host copy of a
+  big layer; small additive contract change in kfield/gkr; 30-leg
+  cell-by-cell battery) and O (claim-layer-scoped table POOL on both
+  paths; on the GPU the five stacked zero-check instances are BUILT ON
+  THE DEVICE from the compact operands — eq as eqL x eqH, the requant
+  shift as a per-slot scalar, 300 MB uploaded instead of 4-5 GB — and
+  run on a device-resident ixf chain, released at the claim layer's
+  end; the GEMM u32-limb form MEASURED and refuted on this part:
+  `mad.wide.u32` at half the IMAD rate) MERGED (109b879, 96bac25),
+  gates green in both builds (uperf-o 20/20 with 40 device instances /
+  0 declined, uperf-n, uperf-l 310 legs, k, pc, d, a, g, h, j, m under
+  ZK_GPU=1; freeze rows identical; agg-matmul / bh / self-test).
+- **12x512 full statement on the reference box, ZK_THREADS=8 + the
+  RTX 4070 Laptop (`ZK_GPU=1`): 34.1 s = commit 5.0 + prove 24.9 +
+  verify 2.6 (was 60.2); peak RSS 6.7 GB (was 11.2 — the trees and the
+  claim-layer tables no longer live on the host); CPU-only 86.1 s
+  (8.9 / 72.9 / 2.6, 11.1 GB — the pool alone); 1,509,911 B; every
+  digest identical (statement 2f8a92f8… / EVAL 4c259008…).** 3x16
+  8T+GPU 4.3 s (verify 0.5), 12x128 15.6 s (3.5 GB). N alone measured
+  52.0 s (noisy, O active), O alone 46.6 s; together 34.1 s QUIET.
+  Same-box oracle A/B at 3x16: 682.8 s -> 4.3 s (~160x). Since the
+  status recalculation of 2026-08-17 (155.6 s at 8T CPU on this box)
+  the PoC shape is 4.6x faster on the same machine, byte-identical.
+- 12x512 8T+GPU attribution at 34.1 s (`fp_12x512_NO_gpu.txt`):
+  **prove-group 12.3** (level-h 4.6 — O's finding: host pack /
+  transfer / phi fill, the MAC is within 2x of its instruction floor;
+  psi0-factored 2.7 = m.psi0-ntt 1.7 + phi-setup; fold 1.9 = m.fold-ntt
+  1.1; kernel-rows 1.8; matvec-chunks 1.5; kernel-phi 0.4);
+  **descents 10.8** (a.round-g 7.1 = ~5.2 s of kernels at ~16% of the
+  part's peak, register-bound + ~1.8 s of eq uploads / parameter syncs
+  / node readbacks, a ~0.2 ms floor per round x 1,233 rounds;
+  a.tree-step 1.9 = the 45 device builds at 42-45 ms per depth-22
+  tree; a.tree-pack 0.7 host compact fill; a.eq-table 0.7 host build);
+  **commit 5.0** (precommit-u0 3.5, chain-derive 1.3, digit-witness
+  1.1); **CRS 2.8** (m.crs-blocks 1.9 = SHA-256 block generation);
+  verify 2.6; transport 2.0 (m.tr-s 1.2); claim layer 1.7 (cl-rounds
+  0.8, cl-tables 0.3, opens ~0.5). VRAM: N's store holds up to ~6.8
+  GB during the descents (0.3 GB headroom on this 8 GB part), O's
+  chain 4.06 GB during the claim layer — different phases, released
+  at each phase's end; a concurrent GPU user makes a layer decline to
+  the CPU path (correct, slower) — rigs under the flock only.
+- Honest position against TARGET_CONTRACT (unchanged in kind): 34 s is
+  a 12-layer x 512-token slice of the 125M FFN on a 55-70 W laptop
+  part; the 8B contract shape is ~64x the work, a <= 450 W desktop
+  board is ~4-6x this part [MODEL] — "minutes on one GPU" is now the
+  honest projection for the current protocol; the 5-15 s line still
+  needs the protocol-level items (TASK_BOARD T11) or the
+  float/int-mix route (Attestable, CONTINUATION.md), not more kernel
+  work. Kernel work still pays: every second here is ~64/5 s there.
+- Round 9 (below): P = the descent kernels + the per-round floor
+  (descents 10.8 -> <= 6 s [ASSUMED]); Q = the prover's CPU-side blocks
+  (prove-group + commit + CRS + transport, 22 s -> ~13 s [ASSUMED]:
+  the level-h host side, the remaining prove-group contractions
+  through the device GEMM, precommit-u0, SHA-256 batching, transport).
+  Verify (2.6 s at 8T) is left where it is: <= 2 s at ONE thread is
+  T11(a') — a protocol / contract-wording question for Victor.
+
+## Round 9 (2026-08-18): lanes P (GPU step 4: descent kernels + round floor) and Q (prove-group / commit / CRS / transport)
+
+State at 96bac25: 12x512 8T+GPU 34.1 s (attribution above). Worktrees
+`/home/victor/wt-uperf2-p` (uperf2-p) and `/home/victor/wt-uperf2-q`
+(uperf2-q). Gate = both builds' batteries (default unchanged; GPU:
+uperf-o/n/l/k/pc/a/g/d/h/j/m under ZK_GPU=1), freeze rows, self-test,
+the REAL rigs with the GPU build (3x16 8T, 12x128 8T, ONE 12x512 8T)
+digests identical: 3x16 93a98700… / 0ae9cdae…; 12x128 4a3af8c3… /
+742d88e1…; 12x512 2f8a92f8… / 4c259008…. GPU build recipe as in round
+7. `ct_engine::prof` ids 70-79 are RESERVED for P and 80-89 for Q
+(rename the `P_RESERVED_7x` / `Q_RESERVED_8x` constants and their
+NAMES rows in place; N_PHASES stays 90 — no merge conflict). Rigs under
+the flock only (`flock -w 7200 /tmp/zk-heavy.lock`); batteries are
+small; do not run two 12x512 rigs at once (15 GB host, 8 GB VRAM).
+
+### Lane P — GPU step 4: the descent kernels + the per-round floor (wt-uperf2-p)
+
+OWNS: `zkmatrix-rs/src/ring/gpu/k9.rs` + `kernels_k9.cu` (L/N's —
+extend), `gkr.rs`, `gkr_masked.rs`, `kfield.rs` (the descent hooks,
+the eq-table build, the tree build's host side), a `// [UPERF2-P]`
+bin section + `uperf-p`, NEW `docs/zkmatrix-poc/U_PERF2_GPU4_REPORT.md`,
+"Agent P status", prof ids 70-79. In `gpu/mod.rs` add ONLY new lines
+inside a `// [UPERF2-P]` block (Q edits the same file for the GEMM).
+GOAL, in order (12x512 8T+GPU numbers): (1) `a.round-g` 7.1 s: the
+fused round kernels are ~5.2 s at ~16% of the part's peak,
+register-bound (L's Section 5.2: the matrix form of the fixed K-field
+multiplies [lane J's form], halved burst folds, a 2-thread coefficient
+split, ~1.5-2x [ASSUMED]) + ~1.8 s of per-round overheads (the eq
+b-part upload per layer, parameter syncs, node readbacks — a ~0.2 ms
+floor x 1,233 rounds: build the eq b-part on the device from zeta,
+batch the parameter uploads, one sync per round, async round-poly
+readback). (2) `a.tree-step` 1.9 s: `k_tree_step[_cl]` at 42-45 ms
+per depth-22 tree — per-warp coefficient split or the matrix form.
+(3) `a.eq-table` 0.7 s + `a.tree-pack` 0.7 s on the host: the eq table
+on the device (removes the CPU build and the per-layer upload), the
+compact fill threaded/overlapped. Bit-identical: `uperf-l` 310 legs
+cell by cell, `uperf-n` 30 legs, `uperf-a`/`g`/`h`/`j` under ZK_GPU=1,
+the rig digests. Report before/after per item, the kernel's % of peak
+before/after, rig rows, VRAM peaks, what is left.
+
+### Lane Q — the prover's CPU-side blocks: prove-group + commit + CRS + transport (wt-uperf2-q)
+
+OWNS: `zkmatrix-rs/src/ring/eval_proof.rs` (whole file), `commit.rs`,
+`aux_ntt_core.rs`, `gpu/mod.rs` + `gpu/cuda.rs` + `gpu/kernels.cu`
+(K's GEMM — extend; N/O did not change it; in `gpu/mod.rs` add ONLY
+new lines inside a `// [UPERF2-Q]` block), the bin's commit /
+prove-group regions (`bg_precommit`, digit witness, chain derive,
+`bg_prove_group` callers), a `// [UPERF2-Q]` bin section + `uperf-q`,
+NEW `docs/zkmatrix-poc/U_PERF2_EVALPROOF3_REPORT.md`, "Agent Q
+status", prof ids 80-89.
+GOAL, in order (12x512 8T+GPU numbers): (1) `bg.prove-group` 12.3 s:
+`bg.level-h` 4.6 — O's finding: host pack / transfer / phi fill bound,
+NOT the MAC (K's report §5 + O's §2.3): fuse the host phi fill into
+the device pack, double-buffer the tile uploads against compute
+(streams), keep a recurring packed operand resident across the 17
+calls if one recurs [check first]; then route the other prove-group
+contractions of the same "small ring x mod-q" family through the
+device GEMM hook (`ntt_gemm_modq_small` is the model): `bg.kernel-rows`
+1.8, `bg.matvec-chunks` 1.5 (`matvec_modq_small[_multi]`),
+`bg.kernel-phi` 0.4; `ep.psi0-factored` 2.7 (m.psi0-ntt 1.7 — the
+u-major NTT accumulation on the device or a better CPU form),
+`bg.fold` 1.9 (m.fold-ntt 1.1). (2) `bg.commit-phase` 5.0:
+`d.precommit-u0` 3.5 (level-0 A matvec chunks + Bu — the same GEMM
+family; share the w transforms with level-h if RAM allows),
+`d.chain-derive` 1.3, `d.digit-witness` 1.1. (3) `ep.crs-expand` 2.8:
+`m.crs-blocks` 1.9 = SHA-256 block generation — batched SHA-NI
+(multi-buffer) or the device, IDENTICAL BYTES (the CRS bytes are the
+freeze). (4) `ep.transport` 2.0 (m.tr-s 1.2). Every entry point keeps
+its `*_ref` oracle behind `ZK_UPERF_ORACLE=1`; `uperf-pc diff-battery`
+(both builds), `uperf-c/e/f/m/i`, `uperf-k` under ZK_GPU=1, freeze
+rows, the rig digests. Report before/after per item, rig rows, what
+is left.
+
 ## Agent A status (wt-uperf2-a)
 
 PLAN (skeleton commit, 2026-08-17). Files: gkr_masked.rs / gkr.rs /

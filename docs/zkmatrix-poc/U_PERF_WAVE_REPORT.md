@@ -243,9 +243,26 @@ concurrently)]:
 | + lane L (GPU step 2: fused descent round + ixf round/fold on the device) with M (f90a438), 12x512, 8T + GPU | **4.9 s** | **50.9 s** | **2.6 s** | **60.2 s** | 4c259008… (identical) | 11.2 GiB |
 | same binary, 3x16 8T+GPU / 12x128 8T+GPU | 0.8 / 2.5 s | 3.1 / 16.8 s | **0.5 / 1.4 s** | **4.5 s / 21.3 s** | identical | 1.3 / 4.2 GiB |
 
-**The PoC shape now runs on the TARGET_CONTRACT reference machine in
+| + lane N alone (GPU step 3: the descent tree device-resident end to end) (109b879), 12x512, 8T + GPU [NOISY, lane O active] | 5.0 s | 42.2 s | 3.0 s | **52.0 s** | 4c259008… (identical) | 11.2 GiB |
+| + lane O alone (claim-layer table pool + device-built zero-check tables + device ixf chain) (uperf2-o 41eb013), 12x512, 8T + GPU | 4.7 s | 37.5 s | 2.6 s | **46.6 s** | 4c259008… (identical) | 9.3 GiB |
+| **+ N and O together (96bac25), 12x512, 8T + GPU, QUIET** | **5.0 s** | **24.9 s** | **2.6 s** | **34.1 s** | 4c259008… (identical, statement 2f8a92f8…, 1,509,911 B) | **6.7 GiB** |
+| same binary, 12x512, 8T, CPU only (default build; O's pool is the only change on this path) | 8.9 s | 72.9 s | 2.6 s | **86.1 s** | identical | 11.1 GiB |
+| same binary, 3x16 8T+GPU / 12x128 8T+GPU | 0.9 / 2.6 s | 2.8 / 11.0 s | 0.5 / 1.4 s | **4.3 s / 15.6 s** | identical | 1.3 / 3.5 GiB |
+
+**After round 8 the PoC shape runs on the reference machine in 34.1 s
+with its laptop GPU (86.1 s CPU-only), 8 threads, 6.7 GB peak; verify
+2.6 s.** 12x512 8T+GPU attribution at 34.1 s: prove-group 12.3
+(level-h 4.6 — host pack / phi fill bound, the MAC is not the limit
+[lane O measured]; psi0-factored 2.7; fold 1.9; kernel-rows 1.8;
+matvec-chunks 1.5), descents 10.8 (a.round-g 7.1 = ~5.2 s of kernels
+at ~16% of the part's peak + ~1.8 s of per-round syncs/eq uploads;
+a.tree-step 1.9; tree-pack 0.7; eq-table 0.7), commit 5.0
+(precommit-u0 3.5, chain-derive 1.3, digit-witness 1.1), CRS 2.8
+(SHA-256 blocks 1.9), verify 2.6, transport 2.0, claim layer 1.7.
+
+**Before round 8 (round 7 state, kept for the record):** the PoC shape ran in
 60.2 s with its (55-70 W laptop) GPU, 96.7 s CPU-only, at 8 threads;
-verify 2.6 s (0.5 s at 3x16).** 12x512 8T+GPU attribution: descents
+verify 2.6 s (0.5 s at 3x16). 12x512 8T+GPU attribution: descents
 22.6 s (a.round-g 12.0 — now upload-bound, a.tree-step 8.5, trees
 6.2), claim layer 15.5 (cl-rounds 5.3, cl-folds 5.2, cl-tables 4.9 —
 host page management + 2-2.5 GB uploads per instance), prove-group

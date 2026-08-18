@@ -446,10 +446,19 @@ via WSL2, bit-identical, 8-10x on the ported GEMM)** — **12x512 now
 106.8 s CPU-only / 85.0 s with the GPU at 8 threads** (report 4.2).
 Round 7 LANDED (100a41c, f90a438): psi0 + leftovers (M) and the descent
 round / ixf on the device (L) — **12x512: 96.7 s CPU-only / 60.2 s
-with the GPU at 8 threads; verify 2.6 s; 3x16 4.5 s.** Next round
-(designed, PROGRESS_UPERF2 "after round 7"): the descent tree
-device-resident end to end, the claim-layer table pool + device
-tables, the GEMM u32-limb form.
+with the GPU at 8 threads; verify 2.6 s; 3x16 4.5 s.**
+Round 8 LANDED (109b879, 96bac25): the descent tree device-resident
+end to end (N) and the claim layer's table pool + device-built
+zero-check tables on a device-resident chain (O; the GEMM u32-limb
+form was measured and refuted) — **12x512: 34.1 s with the GPU at 8
+threads (commit 5.0 / prove 24.9 / verify 2.6), peak RSS 6.7 GB; 86.1
+s CPU-only; 12x128 15.6 s; 3x16 4.3 s; every digest identical.**
+Round 9 (PROGRESS_UPERF2 "Round 9"): P = the descent kernels + the
+per-round floor; Q = prove-group / commit / CRS / transport.
+Honest position: 34 s is a 12x512 slice of the 125M FFN on a laptop
+GPU; the 8B contract shape is ~64x the work on a ~4-6x part [MODEL] —
+"minutes on one desktop GPU" is the honest projection for this
+protocol; 5-15 s needs T11's design items or the float/int-mix route.
 
 **Grok (Mac): T1 is STILL valuable (the [MAC-BOX] convention numbers,
 its better thread scaling: 1/8/16 threads + one oracle run) and now has
@@ -479,3 +488,9 @@ layers) — record `/usr/bin/time -l`'s number.
   NEXT for the MAC (Grok): T1 — one binary, `ZK_UPERF_ORACLE=1` for the
   before, plain for the after; `full-profile 3 16` first (digests must
   match), then `12 512`.
+- 2026-08-18 (Claude, WSL): rounds 4-8 of U-PERF2 landed (see 4b) — the
+  PoC shape 12x512 is 34.1 s with the reference box's laptop GPU at 8
+  threads (155.6 s at the status recalculation), 6.7 GB, byte-identical.
+  Round 9 launched (P descent kernels, Q prove-group/commit/CRS/
+  transport). Grok/Mac: T1 stands (`uperf-pc full-profile 12 512` at
+  ZK_THREADS 1/8/16 + one `ZK_UPERF_ORACLE=1` run, digests must match).
