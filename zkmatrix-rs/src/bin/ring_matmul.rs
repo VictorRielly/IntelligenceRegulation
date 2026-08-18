@@ -6428,6 +6428,8 @@ fn main() {
         Some("uperf-n") => uperf_n_main(&args[1..]),
         // [UPERF2-O] U-PERF2 lane O (claim-layer table pool, device-built ixf tables, GEMM u32-limb) battery + bench.
         Some("uperf-o") => uperf_o_main(&args[1..]),
+        // [UPERF2-P] U-PERF2 lane P (GPU step 4: the descent kernels + the per-round floor) battery + bench.
+        Some("uperf-p") => uperf_p_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -40079,7 +40081,7 @@ fn uperf_l_run_layer(kf: &ring::kfield::KField, lay: &UperfLLayer, seed: u64, sn
                 })
                 .collect()
         };
-        let plan = FusedPlan { mode, ranges: &pranges, layers: &layers, r_prev: kop(&r_prev), lambda: lambda_k, fold_consts: fc };
+        let plan = FusedPlan { mode, ranges: &pranges, layers: &layers, r_prev: kop(&r_prev), lambda: lambda_k, fold_consts: fc, eq_tab: None }; // [UPERF2-P] eq_tab: the host words go in as before
         match mode {
             FUSE_EXTRACT => {
                 ring::kfield::k9_fused_round_par(kern, &plan, n_pairs, &mut [], &lay.eqb.d, &mut [], [&mut [], &mut [], &mut [], &mut []], &nodes, consts.as_deref(), &mut lo, &mut hi, &mut scratch);
@@ -41386,4 +41388,290 @@ fn uperf_o_battery(seed: u64) {
     if fails > 0 {
         std::process::exit(1);
     }
+}
+
+// [UPERF2-P] U-PERF2 lane P — THE GPU RUNG, step 4: the descent kernels + the
+// per-round floor (gpu/k9.rs + kernels_k9.cu; the eq b-part built on the
+// device (kfield::EqTab), one launch per fused round over a device range
+// table, the tree store's buffer pool + warm allocations). ADDITIVE section.
+// Commands:
+//   uperf-p battery [seed]  — cell by cell: (1) lane L's fused layer chains
+//                             (incl. 12-instance shapes with pads — the rig's
+//                             ranges) CPU (bypassed) == GPU one-launch-per-
+//                             range (ZK_GPU_K9_MULTI=0's kernels) == GPU one
+//                             launch per round; (2) the device eq b-part ==
+//                             the host doubling; (3) descent pairs with pads
+//                             under {multi on/off} x {device eq on/off}:
+//                             digests identical, verified.
+//   uperf-p bench <depth> <l> [n_real] [dt]
+//                           — lane H's descent pair once with the current
+//                             env knobs + the k9 / k9p attribution (A/B via
+//                             ZK_GPU_K9_MULTI / ZK_GPU_K9_EQ_DEV /
+//                             ZK_GPU_K9_POOL / ZK_GPU_K9_WARM).
+// Without `--features gpu-cuda` (or without ZK_GPU=1) the arms report the
+// state; the battery's descent legs still run (CPU == CPU).
+
+fn uperf_p_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("battery") => {
+            let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(0x9a1e);
+            uperf_p_battery(seed);
+        }
+        Some("bench") => {
+            let depth: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(20);
+            let l: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(8);
+            let n_real: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(l);
+            let dt: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(9);
+            uperf_p_bench(depth, l, n_real, dt);
+        }
+        _ => println!("uperf-p battery [seed] | bench <depth> <l> [n_real] [dt]"),
+    }
+}
+
+/// [UPERF2-P] The k9 + k9p attribution line.
+fn uperf_p_stats_line() -> String {
+    let s = ring::gpu::k9_stats();
+    let p = ring::gpu::k9p_stats();
+    format!(
+        "k9: rounds {} (declined {}), in-hook {:.3}s = kernel+sync {:.3} + upload {:.3} + handover {:.3}; layer uploads {} / hits {} / resident {} / dev climbs {} ({:.3}s); tree builds {} ({:.3}s: alloc {:.3}, upload {:.3}, down {:.3}), held peak {:.2} GB; h2d {:.0} MB | k9p: rounds one-launch {} / per-range {} (launches {}); eq builds {} ({:.3}s), binds {}, host images {}; pool hits {} / misses {} / trims {}, alloc+warm {:.3}s",
+        s.rounds,
+        s.declined,
+        s.secs_round,
+        s.secs_kernel,
+        s.secs_upload,
+        s.secs_handover,
+        s.layer_uploads,
+        s.layer_hits,
+        s.layer_resident,
+        s.dev_climbs,
+        s.secs_dev_climb,
+        s.tree_builds,
+        s.secs_tree_build,
+        p.secs_tb_alloc,
+        p.secs_tb_upload,
+        p.secs_tb_down,
+        s.held_peak as f64 / 1e9,
+        s.bytes_h2d as f64 / 1e6,
+        p.rounds_multi,
+        p.rounds_split,
+        p.launches,
+        p.eq_builds,
+        p.secs_eq_build,
+        p.eq_binds,
+        p.eq_host,
+        p.pool_hits,
+        p.pool_misses,
+        p.pool_trims,
+        p.secs_alloc
+    )
+}
+
+fn uperf_p_bench(depth: usize, l: usize, n_real: usize, dt: usize) {
+    use ring::ct_engine::prof;
+    use ring::kfield::KField;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let leaves = (l as f64) * (1u64 << depth) as f64;
+    println!(
+        "[UPERF2-P] bench: depth {depth} x l {l} (n_real {n_real}, pads {}), table dt {dt}, {:.1}M witness leaf elements; ZK_THREADS {} | {} | {} | knobs: MULTI {} EQ_DEV {} POOL {} WARM {}",
+        l - n_real,
+        leaves / 1e6,
+        ring::eval_proof::threads(),
+        ring::gpu::label(),
+        ring::gpu::k9_label(),
+        std::env::var("ZK_GPU_K9_MULTI").unwrap_or_else(|_| "1".into()),
+        std::env::var("ZK_GPU_K9_EQ_DEV").unwrap_or_else(|_| "1".into()),
+        std::env::var("ZK_GPU_K9_POOL").unwrap_or_else(|_| "1".into()),
+        std::env::var("ZK_GPU_K9_WARM").unwrap_or_else(|_| "0".into()),
+    );
+    prof::reset();
+    prof::enable(true, false);
+    ring::gpu::k9_stats_reset();
+    ring::gpu::k9p_stats_reset();
+    let t0 = Instant::now();
+    let mut tb = 0usize;
+    let out = uperf_h_descent_pair(&kf, depth, l, n_real, dt, false, 0xA1, true, &mut tb);
+    let wall = t0.elapsed().as_secs_f64();
+    prof::enable(false, false);
+    println!(
+        "[UPERF2-P] wall {wall:.2}s (incl. synthetic leaf generation) | trees {:.2}s | masked_gkr_prove {:.2}s ({:.1} ns per witness leaf element) | verify {:.2}s (verified {}) | peak RSS {:.0} MiB",
+        out.trees_s,
+        out.prove_s,
+        out.prove_s * 1e9 / leaves,
+        out.verify_s,
+        out.verified,
+        uperf_a_peak_rss_mib()
+    );
+    for (name, secs, calls) in prof::report() {
+        if name.starts_with("a.") && (calls > 0 || secs > 0.0) {
+            println!("    {name:<20} {secs:>9.3}s  x{calls}");
+        }
+    }
+    println!("  {}", uperf_p_stats_line());
+    println!("[UPERF2-P] DESCENT DIGEST {}", hex_full(&out.digest));
+}
+
+fn uperf_p_battery(seed: u64) {
+    use ring::kfield::{KField, KL};
+    use sha2::Digest;
+    let t0 = Instant::now();
+    println!("[UPERF2-P] battery: {} | {}", ring::gpu::label(), ring::gpu::k9_label());
+    println!("[UPERF2-P] ZK_THREADS = {}", ring::eval_proof::threads());
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let q = kf.zq.q;
+    let live = ring::gpu::enabled();
+    let mut legs = 0usize;
+    let mut cells = 0usize;
+    let mut h = sha2::Sha256::new();
+    if live {
+        ring::gpu::k9_set_min_pairs(1);
+        ring::gpu::k9_set_cold_ok(true);
+        // ---- 1. The fused layer chains: CPU == GPU per-range launches == GPU one launch.
+        // (per, n_inst, n_pads, compact, masked) — lane L's shapes + the rig's 16-slot layouts.
+        let shapes: [(usize, usize, usize, bool, bool); 12] = [
+            (32, 1, 0, false, true),
+            (64, 2, 0, false, true),
+            (128, 4, 1, false, false),
+            (128, 16, 4, false, true),
+            (256, 16, 4, true, true),
+            (256, 4, 1, true, true),
+            (512, 16, 4, false, false),
+            (512, 16, 4, true, true),
+            (1024, 2, 0, true, true),
+            (1024, 16, 4, false, true),
+            (2048, 4, 2, true, false),
+            (4096, 2, 0, false, true),
+        ];
+        for (si, &(per, n_inst, n_pads, compact, masked)) in shapes.iter().enumerate() {
+            for pattern in 0..3u8 {
+                if pattern > 0 && per > 512 {
+                    continue;
+                }
+                let lay = uperf_l_layer(&kf, per, n_inst, n_pads, compact, masked, seed ^ (si as u64) << 8 ^ pattern as u64, pattern);
+                for &eager in &[true, false] {
+                    ring::gpu::k9_set_eager(eager);
+                    ring::gpu::set_bypass(true);
+                    let (n_cpu, s_cpu) = uperf_l_run_layer(&kf, &lay, seed, true);
+                    ring::gpu::set_bypass(false);
+                    for &multi in &[false, true] {
+                        ring::gpu::k9_set_multi(Some(multi));
+                        let p0 = ring::gpu::k9p_stats();
+                        let k0 = ring::gpu::k9_stats().rounds;
+                        let (n_gpu, s_gpu) = uperf_l_run_layer(&kf, &lay, seed, true);
+                        let used = ring::gpu::k9_stats().rounds - k0;
+                        let p1 = ring::gpu::k9p_stats();
+                        assert_eq!(n_cpu.len(), n_gpu.len(), "round count");
+                        for (r, (a, b)) in n_cpu.iter().zip(n_gpu.iter()).enumerate() {
+                            assert_eq!(a, b, "[UPERF2-P] fused round nodes mismatch: shape {si} (per {per}, inst {n_inst}, pads {n_pads}, compact {compact}, masked {masked}) pattern {pattern} eager {eager} multi {multi} round {r}");
+                            for e in a {
+                                for &x in e {
+                                    h.update(x.to_le_bytes());
+                                }
+                            }
+                        }
+                        let n_snap = s_cpu.len();
+                        assert_eq!(n_snap, s_gpu.len());
+                        for r in 0..n_snap {
+                            if !eager && r + 1 < n_snap {
+                                continue;
+                            }
+                            assert_eq!(s_cpu[r].len(), s_gpu[r].len());
+                            for (i, (x, y)) in s_cpu[r].iter().zip(s_gpu[r].iter()).enumerate() {
+                                assert_eq!(x, y, "[UPERF2-P] fused round TABLE mismatch: shape {si} pattern {pattern} eager {eager} multi {multi} round {r} word {i}");
+                            }
+                            cells += s_cpu[r].len();
+                            for &x in &s_cpu[r] {
+                                h.update(x.to_le_bytes());
+                            }
+                        }
+                        assert!(used >= 1, "[UPERF2-P] the GPU took no round at shape {si} (per {per})");
+                        if multi {
+                            assert!(p1.rounds_multi > p0.rounds_multi, "[UPERF2-P] no one-launch round at shape {si}");
+                        } else {
+                            assert!(p1.rounds_split > p0.rounds_split, "[UPERF2-P] no per-range round at shape {si}");
+                        }
+                        legs += 1;
+                    }
+                }
+            }
+            println!("  ok   fused layer chain: per {per} x {n_inst} inst (pads {n_pads}, compact {compact}, masked {masked}), eager + lazy, per-range + one-launch, 3 patterns");
+        }
+        ring::gpu::k9_set_multi(None);
+        ring::gpu::k9_set_eager(false);
+        ring::gpu::k9_set_cold_ok(false);
+        ring::gpu::k9_set_min_pairs(0);
+        // ---- 2. The device eq b-part == the host doubling, cell by cell.
+        let mut st = seed ^ 0xe9;
+        for &j in &[10usize, 11, 13, 16, 18, 20] {
+            let zeta: Vec<ring::kfield::KElem> = (0..j).map(|_| uperf_l_kelem(q, &mut st)).collect();
+            let host = kf.kt_eq_table_par(&zeta);
+            let t = ring::kfield::EqTab::new(&kf, &zeta);
+            let id = t.dev().expect("the device eq build declined (budget?)");
+            let dev = ring::gpu::k9_eq_fetch(id).expect("the device eq is not resident");
+            let words = (1usize << j) / KL * ring::kfield::KBLK;
+            assert_eq!(dev.len(), words);
+            for (i, (x, y)) in host.d[..words].iter().zip(dev.iter()).enumerate() {
+                assert_eq!(x, y, "[UPERF2-P] device eq mismatch at j {j} word {i}");
+            }
+            // The handle's host image is the same table.
+            assert!(!t.host_built());
+            assert_eq!(&t.host().d[..words], &host.d[..words]);
+            cells += words;
+            for &x in &dev {
+                h.update(x.to_le_bytes());
+            }
+            legs += 1;
+            drop(t);
+            assert!(ring::gpu::k9_eq_fetch(id).is_none(), "the dropped eq is still resident");
+        }
+        println!("  ok   device eq b-part: j 10/11/13/16/18/20 == the host doubling (and the handle's host image)");
+    } else {
+        println!("[UPERF2-P] battery: the GPU path is not live (build without gpu-cuda, or ZK_GPU unset) — the kernel legs are skipped; the descent legs compare the CPU path with itself");
+    }
+    // ---- 3. Descent pairs (pads, masks) under the knobs: every digest identical and verified.
+    // (depth, l, n_real, dt)
+    let shapes: [(usize, usize, usize, usize); 4] = [(13, 8, 5, 9), (14, 16, 12, 9), (15, 4, 3, 8), (16, 16, 12, 9)];
+    for (depth, l, n_real, dt) in shapes {
+        for zero_mask in [false, true] {
+            let sd = 0xB0u8 ^ (depth as u8) ^ ((l as u8) << 3) ^ (zero_mask as u8);
+            let mut digests: Vec<[u8; 32]> = Vec::new();
+            let mut ok = true;
+            ring::gpu::set_bypass(true);
+            let base = uperf_a_descent_pair(&kf, depth, l, n_real, dt, zero_mask, sd, true);
+            ring::gpu::set_bypass(false);
+            ok &= base.verified;
+            digests.push(base.digest);
+            for &(multi, eqd) in &[(true, true), (false, true), (true, false), (false, false)] {
+                ring::gpu::k9_set_multi(Some(multi));
+                ring::gpu::k9_set_eq_dev(Some(eqd));
+                let o = uperf_a_descent_pair(&kf, depth, l, n_real, dt, zero_mask, sd, true);
+                ok &= o.verified && o.digest == base.digest;
+                digests.push(o.digest);
+            }
+            ring::gpu::k9_set_multi(None);
+            ring::gpu::k9_set_eq_dev(None);
+            println!(
+                "  {} depth {depth:>2} x l {l} (n_real {n_real}, dt {dt}, {}masks): bypass {} | multi+eq {} | split+eq {} | multi+host {} | split+host {} | verified {}",
+                if ok { "ok  " } else { "FAIL" },
+                if zero_mask { "zero " } else { "" },
+                &hex_full(&digests[0])[..12],
+                &hex_full(&digests[1])[..12],
+                &hex_full(&digests[2])[..12],
+                &hex_full(&digests[3])[..12],
+                &hex_full(&digests[4])[..12],
+                ok
+            );
+            assert!(ok, "[UPERF2-P] descent leg FAILED at depth {depth} l {l} zero_mask {zero_mask}");
+            h.update(base.digest);
+            legs += 1;
+        }
+    }
+    let d: [u8; 32] = h.finalize().into();
+    println!("  {}", uperf_p_stats_line());
+    println!(
+        "[UPERF2-P] battery passed: {legs} legs ({cells} table words compared cell by cell; every descent digest identical under 5 variants and verified); BATTERY DIGEST {}; {:.2}s",
+        hex_full(&d),
+        t0.elapsed().as_secs_f64()
+    );
 }

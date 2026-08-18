@@ -114,7 +114,154 @@ const FUNCS: &[&str] = &[
     "k_tree_step",
     "k_tree_step_cl",
     "k_ixf_round",
+    // [UPERF2-P] one launch per round over a device range table; the eq built on the device.
+    "k_fold_round_m",
+    "k_extract_round_m",
+    "k_extract_round_cl_m",
+    "k_extract_fold_m",
+    "k_extract_fold_cl_m",
+    "k_eq_outer",
 ];
+
+// [UPERF2-P] One live range's descriptor of a one-launch round (== struct K9R
+// in kernels_k9.cu): the five input / output pointers (FOLD; EXTRACT_FOLD
+// outputs), or the layer source (packed: in0 = p, in1 = q; compact: in0 =
+// words, in1 = alpha, in2 = exceptions) + eq pointer of the extract modes,
+// the thread prefix, the parameter slot, the flags.
+#[repr(C)]
+#[derive(Clone, Copy, Default)]
+struct K9Range {
+    ins: [u64; 5],
+    outs: [u64; 5],
+    eq: u64,
+    t0: u32,
+    n: u32,
+    slot: u32,
+    flags: u32,
+    n_exc: u32,
+    e_base: u32,
+    pad0: u32,
+    pad1: u32,
+}
+const K9R_HAS_EE: u32 = 1;
+/// The range table's device/pinned slot after the parameter slots.
+const K9R_BYTES: usize = std::mem::size_of::<K9Range>();
+
+/// [UPERF2-P] Knobs (none changes a value): `ZK_GPU_K9_MULTI=0` -> one launch
+/// per live range (lane L's kernels; the one-binary A/B of the one-launch
+/// round), `ZK_GPU_K9_EQ_DEV=0` -> the eq b-part built on the host and
+/// uploaded (lane L's path), `ZK_GPU_K9_POOL=0` -> no device buffer pool
+/// (cuMemAlloc/cuMemFree per tree layer, lane N's path), `ZK_GPU_K9_WARM=1`
+/// -> memset every freshly allocated device buffer once (MEASURED a net
+/// loss on this box — the fill engine pays the cold pages slower than the
+/// kernels' own first touch; default OFF, kept for the record).
+fn multi_launch() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("ZK_GPU_K9_MULTI").map(|v| v != "0").unwrap_or(true))
+}
+fn eq_dev_enabled() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("ZK_GPU_K9_EQ_DEV").map(|v| v != "0").unwrap_or(true))
+}
+fn pool_enabled() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("ZK_GPU_K9_POOL").map(|v| v != "0").unwrap_or(true))
+}
+fn warm_enabled() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("ZK_GPU_K9_WARM").map(|v| v == "1").unwrap_or(false))
+}
+static MULTI_OVERRIDE: AtomicU64 = AtomicU64::new(0); // 0 = env, 1 = on, 2 = off
+fn multi() -> bool {
+    match MULTI_OVERRIDE.load(Ordering::Relaxed) {
+        1 => true,
+        2 => false,
+        _ => multi_launch(),
+    }
+}
+/// Harness knob: the one-launch round on/off (None = the env / default).
+pub fn k9_set_multi(on: Option<bool>) {
+    MULTI_OVERRIDE.store(match on { Some(true) => 1, Some(false) => 2, None => 0 }, Ordering::Relaxed);
+}
+static EQDEV_OVERRIDE: AtomicU64 = AtomicU64::new(0);
+fn eq_dev() -> bool {
+    match EQDEV_OVERRIDE.load(Ordering::Relaxed) {
+        1 => true,
+        2 => false,
+        _ => eq_dev_enabled(),
+    }
+}
+/// Harness knob: the device eq build on/off (None = the env / default).
+pub fn k9_set_eq_dev(on: Option<bool>) {
+    EQDEV_OVERRIDE.store(match on { Some(true) => 1, Some(false) => 2, None => 0 }, Ordering::Relaxed);
+}
+
+/// [UPERF2-P] Stats of this lane's changes (separate from `K9Stats`).
+#[derive(Clone, Debug, Default)]
+pub struct K9PStats {
+    /// Rounds run as ONE launch over the range table / as one launch per range.
+    pub rounds_multi: u64,
+    pub rounds_split: u64,
+    /// Kernel launches of the fused rounds.
+    pub launches: u64,
+    /// Device eq builds / binds of a device eq / host materializations of a device eq.
+    pub eq_builds: u64,
+    pub eq_binds: u64,
+    pub eq_host: u64,
+    pub secs_eq_build: f64,
+    /// Device buffer pool: hits / misses (cuMemAlloc) / buffers trimmed (cuMemFree).
+    pub pool_hits: u64,
+    pub pool_misses: u64,
+    pub pool_trims: u64,
+    /// Seconds inside cuMemAlloc / the warming memsets (enqueue side).
+    pub secs_alloc: f64,
+    /// Inside the tree builds: leaf upload / steps (enqueue) / the top download.
+    pub secs_tb_upload: f64,
+    pub secs_tb_alloc: f64,
+    pub secs_tb_down: f64,
+}
+static P_ROUNDS_MULTI: AtomicU64 = AtomicU64::new(0);
+static P_ROUNDS_SPLIT: AtomicU64 = AtomicU64::new(0);
+static P_LAUNCHES: AtomicU64 = AtomicU64::new(0);
+static P_EQ_BUILDS: AtomicU64 = AtomicU64::new(0);
+static P_EQ_BINDS: AtomicU64 = AtomicU64::new(0);
+static P_EQ_HOST: AtomicU64 = AtomicU64::new(0);
+static P_EQ_BUILD_US: AtomicU64 = AtomicU64::new(0);
+static P_POOL_HITS: AtomicU64 = AtomicU64::new(0);
+static P_POOL_MISSES: AtomicU64 = AtomicU64::new(0);
+static P_POOL_TRIMS: AtomicU64 = AtomicU64::new(0);
+static P_ALLOC_US: AtomicU64 = AtomicU64::new(0);
+static P_TB_UPLOAD_US: AtomicU64 = AtomicU64::new(0);
+static P_TB_ALLOC_US: AtomicU64 = AtomicU64::new(0);
+static P_TB_DOWN_US: AtomicU64 = AtomicU64::new(0);
+
+pub fn k9p_stats() -> K9PStats {
+    let us = |s: &AtomicU64| s.load(Ordering::Relaxed) as f64 * 1e-6;
+    K9PStats {
+        rounds_multi: P_ROUNDS_MULTI.load(Ordering::Relaxed),
+        rounds_split: P_ROUNDS_SPLIT.load(Ordering::Relaxed),
+        launches: P_LAUNCHES.load(Ordering::Relaxed),
+        eq_builds: P_EQ_BUILDS.load(Ordering::Relaxed),
+        eq_binds: P_EQ_BINDS.load(Ordering::Relaxed),
+        eq_host: P_EQ_HOST.load(Ordering::Relaxed),
+        secs_eq_build: us(&P_EQ_BUILD_US),
+        pool_hits: P_POOL_HITS.load(Ordering::Relaxed),
+        pool_misses: P_POOL_MISSES.load(Ordering::Relaxed),
+        pool_trims: P_POOL_TRIMS.load(Ordering::Relaxed),
+        secs_alloc: us(&P_ALLOC_US),
+        secs_tb_upload: us(&P_TB_UPLOAD_US),
+        secs_tb_alloc: us(&P_TB_ALLOC_US),
+        secs_tb_down: us(&P_TB_DOWN_US),
+    }
+}
+pub fn k9p_stats_reset() {
+    for s in [
+        &P_ROUNDS_MULTI, &P_ROUNDS_SPLIT, &P_LAUNCHES, &P_EQ_BUILDS, &P_EQ_BINDS, &P_EQ_HOST, &P_EQ_BUILD_US, &P_POOL_HITS, &P_POOL_MISSES,
+        &P_POOL_TRIMS, &P_ALLOC_US, &P_TB_UPLOAD_US, &P_TB_ALLOC_US, &P_TB_DOWN_US,
+    ] {
+        s.store(0, Ordering::Relaxed);
+    }
+}
 /// Threads per block of the round kernels (== TK9 in kernels_k9.cu).
 const TK9: u32 = 64;
 /// Threads per block of the elementwise kernels.
@@ -553,6 +700,13 @@ struct K9 {
     budget: usize,
     held: usize,
     last_kernel_ms: f64,
+    // [UPERF2-P] The free list of the tree store's buffers (exact sizes: the
+    // layer sizes recur across trees), counted in `held`, trimmed on demand;
+    // the device eq b-part (built into `eqb`: id and elements); the eq ids.
+    pool: Vec<DevBuf>,
+    pool_bytes: usize,
+    eq_id: Option<(u64, usize)>,
+    next_eq: u64,
 }
 
 unsafe impl Send for K9 {}
@@ -637,10 +791,12 @@ fn init_k9() -> Result<K9, String> {
     partial.grow(5 * 16 * 8)?;
     let mut partial_h = HostPinned::empty();
     partial_h.grow(5 * 16 * 8)?;
+    // [UPERF2-P] the parameter slots + the range table of a one-launch round
+    // share one pinned/device pair (one copy per round).
     let mut prm_d = DevBuf::empty();
-    prm_d.grow(PRM_SLOTS * PRM_WORDS * 4)?;
+    prm_d.grow(PRM_SLOTS * PRM_WORDS * 4 + PRM_SLOTS * K9R_BYTES)?;
     let mut prm_h = HostPinned::empty();
-    prm_h.grow(PRM_SLOTS * PRM_WORDS * 4)?;
+    prm_h.grow(PRM_SLOTS * PRM_WORDS * 4 + PRM_SLOTS * K9R_BYTES)?;
     let (free, total) = cu::mem_get_info().map_err(|e| format!("cuMemGetInfo: {e}"))?;
     let budget = {
         let mb = env_usize("ZK_GPU_K9_BUDGET_MB", 0);
@@ -694,6 +850,10 @@ fn init_k9() -> Result<K9, String> {
         budget,
         held: 0,
         last_kernel_ms: 0.0,
+        pool: Vec::new(),
+        pool_bytes: 0,
+        eq_id: None,
+        next_eq: 1,
     })
 }
 
@@ -772,6 +932,10 @@ impl K9 {
             return Ok(());
         }
         let need = bytes - cur;
+        // [UPERF2-P] the pooled (free) buffers go first, then the idle families.
+        if self.held + need > self.budget {
+            self.pool_trim(self.held + need - self.budget);
+        }
         if self.held + need > self.budget {
             self.release_idle(which);
         }
@@ -784,13 +948,61 @@ impl K9 {
             ));
         }
         self.sync_all()?;
+        let ta = Instant::now();
         let b = self.sel(which);
         let old = b.bytes;
         b.grow(bytes)?;
         let new = b.bytes;
+        let ptr = b.ptr;
         self.held = self.held + new - old;
         note_peak(&S_HELD_PEAK, self.held);
+        P_POOL_MISSES.fetch_add(1, Ordering::Relaxed);
+        self.warm(ptr, new)?;
+        add_us(&P_ALLOC_US, ta.elapsed().as_secs_f64());
         Ok(())
+    }
+
+    /// [UPERF2-P] Touch a freshly allocated device buffer once (a memset on
+    /// the compute stream): the first access to fresh pages by a kernel was
+    /// measured 2-10x slower than the second on this box (lane L's finding),
+    /// and the fill engine pays that once at its own rate. Values: none (the
+    /// bytes are written by the kernels before they are read).
+    fn warm(&self, ptr: sys::CUdeviceptr, bytes: usize) -> Result<(), String> {
+        if !warm_enabled() || bytes == 0 || ptr == 0 {
+            return Ok(());
+        }
+        // Synchronous: the copy stream may DMA into this buffer right after
+        // (uploads are not ordered against the compute stream).
+        unsafe { cu::memset_d8_async(ptr, 0, bytes, self.sk.stream) }.map_err(|e| format!("memset (warm): {e}"))?;
+        unsafe { cu::stream::synchronize(self.sk.stream) }.map_err(|e| format!("sync sk (warm): {e}"))
+    }
+
+    /// [UPERF2-P] Free pooled buffers (largest first) until `bytes` are
+    /// given back or the pool is empty.
+    fn pool_trim(&mut self, bytes: usize) {
+        if self.pool.is_empty() {
+            return;
+        }
+        let _ = self.sync_all();
+        self.pool.sort_by_key(|b| b.bytes);
+        let mut freed = 0usize;
+        while freed < bytes {
+            let Some(mut b) = self.pool.pop() else { break };
+            freed += b.bytes;
+            self.pool_bytes -= b.bytes;
+            b.free();
+            P_POOL_TRIMS.fetch_add(1, Ordering::Relaxed);
+        }
+        self.held -= freed;
+        if verbose() && freed > 0 {
+            eprintln!("[UPERF2-P] k9: trimmed {:.2} GB of pooled device buffers", freed as f64 / 1e9);
+        }
+    }
+
+    /// [UPERF2-P] Free the whole pool.
+    fn pool_clear(&mut self) {
+        let bytes = self.pool_bytes;
+        self.pool_trim(bytes + 1);
     }
 
     /// Free the idle families' buffers (never a family whose chain is alive;
@@ -798,6 +1010,8 @@ impl K9 {
     /// is idle too, i.e. a descent's layer/state buffers between layers).
     fn release_idle(&mut self, which: DevSel) {
         let _ = self.sync_all();
+        // [UPERF2-P] the pool first (free buffers cost nothing to give back).
+        self.pool_clear();
         let fam = match which {
             DevSel::St(_) | DevSel::LayP | DevSel::LayQ | DevSel::ClW | DevSel::ClMeta | DevSel::Eqb | DevSel::ClimbScr(_) => 0,
             DevSel::Ixf(..) => 1,
@@ -815,6 +1029,15 @@ impl K9 {
                 b.free();
             }
             self.layer = None;
+            self.eq_id = None;
+        } else if matches!(which, DevSel::St(_)) && self.layer.is_none() {
+            // [UPERF2-P] the state buffers grow while the layer buffers are
+            // idle (kept lazily after round 1): those go back first.
+            let [c0, c1] = &mut self.climb_scr;
+            for b in [&mut self.lay_p, &mut self.lay_q, &mut self.cl_w, &mut self.cl_meta, c0, c1] {
+                freed += b.bytes;
+                b.free();
+            }
         }
         if fam != 1 && self.ixf.is_none() {
             for t in self.ixf_t.iter_mut() {
@@ -835,18 +1058,23 @@ impl K9 {
         }
     }
 
-    /// Free the layer buffers (round 1 consumed them; the next layer grows
-    /// them again — VRAM for the state tables of the big layers).
+    /// Round 1 consumed the layer buffers: the binding is dropped; the
+    /// buffers are KEPT (warm) and given back only when a state buffer or a
+    /// store allocation needs the room (`release_idle` / `pool_trim` /
+    /// `release_idle_all`) — [UPERF2-P] the lazy release (lane N freed them
+    /// here; a fresh allocation per layer paid the cold pages every time).
     /// [UPERF2-N] the climb scratch goes with them.
     fn release_layer_bufs(&mut self) {
         let _ = self.sync_all();
-        let mut freed = 0usize;
-        let [c0, c1] = &mut self.climb_scr;
-        for b in [&mut self.lay_p, &mut self.lay_q, &mut self.cl_w, &mut self.cl_meta, c0, c1] {
-            freed += b.bytes;
-            b.free();
+        if !pool_enabled() {
+            let mut freed = 0usize;
+            let [c0, c1] = &mut self.climb_scr;
+            for b in [&mut self.lay_p, &mut self.lay_q, &mut self.cl_w, &mut self.cl_meta, c0, c1] {
+                freed += b.bytes;
+                b.free();
+            }
+            self.held -= freed;
         }
-        self.held -= freed;
         self.layer = None;
     }
 
@@ -876,6 +1104,7 @@ impl K9 {
     /// is never released here.
     fn release_idle_all(&mut self) {
         let _ = self.sync_all();
+        self.pool_clear();
         let mut freed = 0usize;
         if self.chain.is_none() {
             for b in self.st.iter_mut() {
@@ -888,6 +1117,7 @@ impl K9 {
                 b.free();
             }
             self.layer = None;
+            self.eq_id = None;
         }
         if self.ixf.is_none() {
             for t in self.ixf_t.iter_mut() {
@@ -927,10 +1157,16 @@ impl K9 {
         for b in self.tree_src.iter_mut().chain(self.tree_out.iter_mut()).chain(self.climb_scr.iter_mut()) {
             b.free();
         }
+        for b in self.pool.iter_mut() {
+            b.free();
+        }
+        self.pool.clear();
+        self.pool_bytes = 0;
         self.held = self.tree_bytes;
         self.chain = None;
         self.layer = None;
         self.ixf = None;
+        self.eq_id = None;
     }
 
     /// Upload `src` (host words) to device address `dst` through the pinned
@@ -1043,16 +1279,32 @@ impl K9 {
     /// stream, before the launches that read them); returns the device
     /// address of slot 0.
     fn upload_prm(&mut self, slots: &[Prm]) -> Result<u64, String> {
+        self.upload_prm_ranges(slots, &[]).map(|(p, _)| p)
+    }
+
+    /// [UPERF2-P] The parameter slots + the range table of a one-launch
+    /// round in ONE copy; returns (slot 0's device address, the range
+    /// table's device address).
+    fn upload_prm_ranges(&mut self, slots: &[Prm], ranges: &[K9Range]) -> Result<(u64, u64), String> {
         assert!(slots.len() <= PRM_SLOTS, "K9 gpu: too many parameter slots ({} ranges)", slots.len());
+        assert!(ranges.len() <= PRM_SLOTS, "K9 gpu: too many ranges ({})", ranges.len());
         // The previous round's launches must be done with the staging.
         unsafe { cu::stream::synchronize(self.sk.stream) }.map_err(|e| format!("sync sk: {e}"))?;
-        let h = self.prm_h.slice_mut::<u32>(slots.len() * PRM_WORDS);
+        // Layout: the used slots, then the range table right after them (one
+        // contiguous copy per round).
+        let prm_words = slots.len() * PRM_WORDS;
+        let rw = K9R_BYTES / 4;
+        let words = prm_words + ranges.len() * rw;
+        let h = self.prm_h.slice_mut::<u32>(words);
         for (i, p) in slots.iter().enumerate() {
             h[i * PRM_WORDS..(i + 1) * PRM_WORDS].copy_from_slice(&p.0);
         }
-        unsafe { cu::memcpy_htod_async(self.prm_d.ptr, self.prm_h.slice::<u32>(slots.len() * PRM_WORDS), self.sk.stream) }
-            .map_err(|e| format!("h2d prm: {e}"))?;
-        Ok(self.prm_d.ptr)
+        for (i, r) in ranges.iter().enumerate() {
+            let src: &[u32] = unsafe { std::slice::from_raw_parts(r as *const K9Range as *const u32, rw) };
+            h[prm_words + i * rw..prm_words + (i + 1) * rw].copy_from_slice(src);
+        }
+        unsafe { cu::memcpy_htod_async(self.prm_d.ptr, self.prm_h.slice::<u32>(words), self.sk.stream) }.map_err(|e| format!("h2d prm: {e}"))?;
+        Ok((self.prm_d.ptr, self.prm_d.ptr + (prm_words * 4) as u64))
     }
 
     fn zero_partial(&self) -> Result<(), String> {
@@ -1331,7 +1583,21 @@ impl K9 {
                 assert_eq!(plan.layers.len(), ranges.len(), "K9 gpu: one layer per live range");
                 // (1) The layer + eq on the device: reuse round 0's when the tag matches.
                 let ids: Vec<(LayerId, usize)> = plan.layers.iter().map(|l| (layer_id(&l.src), l.first_pair)).collect();
-                let eq_id = (eq_src.as_ptr() as usize, eq_src.len());
+                // [UPERF2-P] the eq's identity: the resident device table's id,
+                // else the host words (the caller's, or the handle's image).
+                let eq_id = match plan.eq_tab.and_then(|t| t.dev().map(|id| (id, t.n()))) {
+                    Some((id, n)) if self.eq_id == Some((id, n)) => (usize::MAX - id as usize, n),
+                    _ => {
+                        let w: &[u32] = if !eq_src.is_empty() {
+                            eq_src
+                        } else if let Some(t) = plan.eq_tab {
+                            &t.host().d
+                        } else {
+                            eq_src
+                        };
+                        (w.as_ptr() as usize, w.len())
+                    }
+                };
                 let hit = match &self.layer {
                     Some(l) => {
                         mode == FUSE_EXTRACT_FOLD
@@ -1382,12 +1648,89 @@ impl K9 {
                         q
                     })
                     .collect();
+                // [UPERF2-P] ONE launch over the range table when every range's
+                // layer source has the same kind (a mixed set — never produced
+                // by the descent — takes lane L's launch per range).
+                let (all_packed, all_compact) = {
+                    let layer = self.layer.as_ref().unwrap();
+                    (
+                        layer.devs.iter().all(|d| matches!(d, LayerDev::Packed { .. })),
+                        layer.devs.iter().all(|d| matches!(d, LayerDev::Compact { .. })),
+                    )
+                };
+                if multi() && (all_packed || all_compact) {
+                    let mut rtab: Vec<K9Range> = Vec::with_capacity(ranges.len());
+                    let mut t0 = 0u32;
+                    {
+                        let layer = self.layer.as_ref().unwrap();
+                        for (ri, &(a, b)) in ranges.iter().enumerate() {
+                            let n = 8 * (b - a);
+                            let la = a - plan.layers[ri].first_pair;
+                            let reg = regions[ri];
+                            let mut r = K9Range { t0, n: n as u32, slot: ri as u32, ..Default::default() };
+                            if plan.layers[ri].ee.is_some() {
+                                r.flags |= K9R_HAS_EE;
+                            }
+                            r.eq = self.eqb.ptr + ((fe_blk * la) * KBLK * 4) as u64;
+                            if mode == FUSE_EXTRACT_FOLD {
+                                r.outs = std::array::from_fn(|k| self.st[buf].ptr + (((k * tab_blk) + reg.blk0) * KBLK * 4) as u64);
+                            }
+                            match &layer.devs[ri] {
+                                LayerDev::Packed { p: p_ptr, q: q_ptr } => {
+                                    r.ins[0] = p_ptr + (f_blk * la * KBLK * 4) as u64;
+                                    r.ins[1] = q_ptr + (f_blk * la * KBLK * 4) as u64;
+                                }
+                                LayerDev::Compact { w: w_ptr, meta, n_exc } => {
+                                    r.ins[0] = *w_ptr;
+                                    r.ins[1] = *meta;
+                                    r.ins[2] = *meta + (K_DEG * 4) as u64;
+                                    r.n_exc = *n_exc as u32;
+                                    r.e_base = (f_blk * la * KL) as u32;
+                                }
+                            }
+                            rtab.push(r);
+                            t0 += n as u32;
+                        }
+                    }
+                    let total = t0;
+                    let (prm_base, rptr) = self.upload_prm_ranges(&slots, &rtab)?;
+                    self.zero_partial()?;
+                    if profile() {
+                        self.sync_all()?;
+                    }
+                    let tk = Instant::now();
+                    let mut pr = p;
+                    pr.prm = prm_base;
+                    let nr = rtab.len() as u32;
+                    let part = self.partial.ptr;
+                    let name = match (mode == FUSE_EXTRACT, all_packed) {
+                        (true, true) => "k_extract_round_m",
+                        (true, false) => "k_extract_round_cl_m",
+                        (false, true) => "k_extract_fold_m",
+                        (false, false) => "k_extract_fold_cl_m",
+                    };
+                    let mut args: [*mut c_void; 5] = [
+                        &pr as *const _ as *mut _,
+                        &rptr as *const _ as *mut _,
+                        &nr as *const _ as *mut _,
+                        &total as *const _ as *mut _,
+                        &part as *const _ as *mut _,
+                    ];
+                    self.launch(name, grid_for(total as usize, TK9), TK9, &mut args)?;
+                    P_LAUNCHES.fetch_add(1, Ordering::Relaxed);
+                    P_ROUNDS_MULTI.fetch_add(1, Ordering::Relaxed);
+                    self.deposit_partial(kern.q, nn, acc_lo)?;
+                    self.last_kernel_ms = tk.elapsed().as_secs_f64() * 1e3;
+                    add_us(&S_KERNEL_US, tk.elapsed().as_secs_f64());
+                } else {
                 let prm_base = self.upload_prm(&slots)?;
                 self.zero_partial()?;
                 if profile() {
                     self.sync_all()?;
                 }
                 let tk = Instant::now();
+                P_ROUNDS_SPLIT.fetch_add(1, Ordering::Relaxed);
+                P_LAUNCHES.fetch_add(ranges.len() as u64, Ordering::Relaxed);
                 let layer = self.layer.as_ref().unwrap();
                 for (ri, &(a, b)) in ranges.iter().enumerate() {
                     let n = 8 * (b - a);
@@ -1480,6 +1823,7 @@ impl K9 {
                 self.deposit_partial(kern.q, nn, acc_lo)?;
                 self.last_kernel_ms = tk.elapsed().as_secs_f64() * 1e3;
                 add_us(&S_KERNEL_US, tk.elapsed().as_secs_f64());
+                } // [UPERF2-P] end of lane L's launch-per-range path
                 if mode == FUSE_EXTRACT {
                     // Keep the layer for round 1; nothing written.
                     if let Some(l) = self.layer.as_mut() {
@@ -1521,6 +1865,43 @@ impl K9 {
                     self.abort_to_host(eq_inplace, tabs)?;
                     return Ok(false);
                 }
+                let in_ranges = self.chain.as_ref().unwrap().ranges.clone();
+                if multi() {
+                    // [UPERF2-P] ONE launch over the range table.
+                    let mut rtab: Vec<K9Range> = Vec::with_capacity(ranges.len());
+                    let mut t0 = 0u32;
+                    for (ri, &(a, b)) in ranges.iter().enumerate() {
+                        let n = 8 * (b - a);
+                        let in_blk0 = input_offset(&in_ranges, &in_regions, 2 * a, 2 * b);
+                        let ins: [u64; 5] = std::array::from_fn(|k| self.st[in_buf].ptr + (((k * in_tab_blk) + in_blk0) * KBLK * 4) as u64);
+                        let outs: [u64; 5] = std::array::from_fn(|k| self.st[out_buf].ptr + (((k * tab_blk) + regions[ri].blk0) * KBLK * 4) as u64);
+                        rtab.push(K9Range { ins, outs, t0, n: n as u32, slot: 0, ..Default::default() });
+                        t0 += n as u32;
+                    }
+                    let total = t0;
+                    let (prm_base, rptr) = self.upload_prm_ranges(std::slice::from_ref(&prm0), &rtab)?;
+                    p.prm = prm_base;
+                    self.zero_partial()?;
+                    if profile() {
+                        self.sync_all()?;
+                    }
+                    let tk = Instant::now();
+                    let nr = rtab.len() as u32;
+                    let part = self.partial.ptr;
+                    let mut args: [*mut c_void; 5] = [
+                        &p as *const _ as *mut _,
+                        &rptr as *const _ as *mut _,
+                        &nr as *const _ as *mut _,
+                        &total as *const _ as *mut _,
+                        &part as *const _ as *mut _,
+                    ];
+                    self.launch("k_fold_round_m", grid_for(total as usize, TK9), TK9, &mut args)?;
+                    P_LAUNCHES.fetch_add(1, Ordering::Relaxed);
+                    P_ROUNDS_MULTI.fetch_add(1, Ordering::Relaxed);
+                    self.deposit_partial(kern.q, nn, acc_lo)?;
+                    self.last_kernel_ms = tk.elapsed().as_secs_f64() * 1e3;
+                    add_us(&S_KERNEL_US, tk.elapsed().as_secs_f64());
+                } else {
                 let prm_base = self.upload_prm(std::slice::from_ref(&prm0))?;
                 p.prm = prm_base;
                 self.zero_partial()?;
@@ -1528,7 +1909,8 @@ impl K9 {
                     self.sync_all()?;
                 }
                 let tk = Instant::now();
-                let in_ranges = self.chain.as_ref().unwrap().ranges.clone();
+                P_ROUNDS_SPLIT.fetch_add(1, Ordering::Relaxed);
+                P_LAUNCHES.fetch_add(ranges.len() as u64, Ordering::Relaxed);
                 for (ri, &(a, b)) in ranges.iter().enumerate() {
                     let n = 8 * (b - a);
                     let n_u = n as u32;
@@ -1562,6 +1944,7 @@ impl K9 {
                 self.deposit_partial(kern.q, nn, acc_lo)?;
                 self.last_kernel_ms = tk.elapsed().as_secs_f64() * 1e3;
                 add_us(&S_KERNEL_US, tk.elapsed().as_secs_f64());
+                } // [UPERF2-P] end of lane L's launch-per-range path
                 let ptrs = self.chain.as_ref().unwrap().ptrs;
                 self.chain = Some(Chain { ptrs, out_pairs: n_pairs, ranges: ranges.clone(), regions, tab_blk, buf: out_buf });
                 if handover {
@@ -1658,7 +2041,28 @@ impl K9 {
             }
         }
         add_us(&S_ENCODE_US, te.elapsed().as_secs_f64());
-        let eq_bytes = eq_src.len() * 4;
+        // [UPERF2-P] the eq: a device-built table (the plan's handle) is bound
+        // IN PLACE when its id is the resident one; otherwise the host words
+        // (the caller's, or the handle's image materialized once) go up.
+        let eq_dev_hit = |k: &K9| -> bool {
+            match plan.eq_tab.and_then(|t| t.dev().map(|id| (id, t.n()))) {
+                Some((id, n)) => k.eq_id == Some((id, n)),
+                None => false,
+            }
+        };
+        fn eq_host_words<'p>(plan: &FusedPlan<'p>, eq_src: &'p [u32]) -> &'p [u32] {
+            if !eq_src.is_empty() {
+                eq_src
+            } else if let Some(t) = plan.eq_tab {
+                if !t.host_built() {
+                    P_EQ_HOST.fetch_add(1, Ordering::Relaxed);
+                }
+                &t.host().d
+            } else {
+                eq_src
+            }
+        }
+        let mut eq_bytes = if eq_dev_hit(self) { 0 } else { eq_host_words(plan, eq_src).len() * 4 };
         // Budget (the state-1 tables come on top: 5 x the LIVE state-1 blocks,
         // and their ping-pong half for state 2).
         let need = 2 * packed_blk * KBLK * 4 + cl_words * 4 + cl_meta_w * 4 + eq_bytes + 2 * scr_bytes;
@@ -1670,6 +2074,15 @@ impl K9 {
         let want = more + st1.saturating_sub(self.st[0].bytes) + st2.saturating_sub(self.st[1].bytes);
         if self.held + want > self.budget {
             self.release_idle(DevSel::LayP);
+            // The release may have taken the device eq with it: the host words
+            // go up instead (accounted now).
+            if eq_bytes == 0 && !eq_dev_hit(self) {
+                eq_bytes = eq_host_words(plan, eq_src).len() * 4;
+                let want2 = want + eq_bytes.saturating_sub(self.eqb.bytes);
+                if self.held + want2 > self.budget {
+                    return Ok(false);
+                }
+            }
         }
         if self.held + want > self.budget {
             if verbose() {
@@ -1683,11 +2096,25 @@ impl K9 {
             }
             return Ok(false);
         }
+        // The eq buffer first (a release inside its grow would free the layer
+        // buffers, which are grown after it), then the layer buffers; the
+        // device eq's binding is re-checked after every grow (a release
+        // inside a grow — never after the pre-check above — would have taken
+        // it: decline then, never read a freed table).
+        let eq_hit = eq_dev_hit(self);
+        if !eq_hit {
+            self.grow_dev(DevSel::Eqb, eq_bytes)?;
+        }
         self.grow_dev(DevSel::LayP, packed_blk * KBLK * 4)?;
         self.grow_dev(DevSel::LayQ, packed_blk * KBLK * 4)?;
         self.grow_dev(DevSel::ClW, cl_words * 4)?;
         self.grow_dev(DevSel::ClMeta, cl_meta_w * 4)?;
-        self.grow_dev(DevSel::Eqb, eq_bytes)?;
+        if eq_hit && !eq_dev_hit(self) {
+            if verbose() {
+                eprintln!("[UPERF2-P] k9: the device eq was released while the layer buffers grew — round declined");
+            }
+            return Ok(false);
+        }
         if scr_bytes > 0 {
             // Each scratch buffer holds BOTH tables of one intermediate level
             // (the levels ping-pong between the two).
@@ -1696,7 +2123,15 @@ impl K9 {
         }
         // Uploads (copy stream) and climbs (compute stream).
         let mut pp = 0usize;
-        self.upload_words(self.eqb.ptr, eq_src, &mut pp)?;
+        let eq_key: (usize, usize) = if eq_hit {
+            P_EQ_BINDS.fetch_add(1, Ordering::Relaxed);
+            let (id, n) = self.eq_id.unwrap();
+            (usize::MAX - id as usize, n)
+        } else {
+            let w = eq_host_words(plan, eq_src);
+            self.upload_words(self.eqb.ptr, w, &mut pp)?;
+            (w.as_ptr() as usize, w.len())
+        };
         let mut devs: Vec<LayerDev> = Vec::with_capacity(ranges.len());
         let mut pblk = 0usize;
         let mut woff = 0usize;
@@ -1752,7 +2187,7 @@ impl K9 {
             S_DEV_CLIMBS.fetch_add(n_climb, Ordering::Relaxed);
         }
         S_LAYER_RESIDENT.fetch_add(n_res, Ordering::Relaxed);
-        self.layer = Some(LayerRes { n_pairs, ranges: ranges.to_vec(), ids: ids.to_vec(), devs, eq: (eq_src.as_ptr() as usize, eq_src.len()) });
+        self.layer = Some(LayerRes { n_pairs, ranges: ranges.to_vec(), ids: ids.to_vec(), devs, eq: eq_key });
         Ok(true)
     }
 
@@ -2355,12 +2790,29 @@ pub fn k9_tree_bytes(tree: u64) -> usize {
 
 impl K9 {
     /// Allocate a store buffer within the budget (idle families released
-    /// first). Counted in `held` and `tree_bytes`.
+    /// first). Counted in `held` and `tree_bytes`. [UPERF2-P] the pool's
+    /// free list is consulted first (an exact size match: the layer sizes
+    /// recur across the trees of a pass — a warm buffer, no cuMemAlloc); on
+    /// a miss the pool is trimmed before the idle families are released.
     fn tree_alloc(&mut self, bytes: usize) -> Result<DevBuf, String> {
-        if self.held + bytes > self.budget {
+        let want = bytes.max(256);
+        if pool_enabled() {
+            if let Some(i) = self.pool.iter().position(|b| b.bytes == want) {
+                let b = self.pool.swap_remove(i);
+                self.pool_bytes -= b.bytes;
+                self.tree_bytes += b.bytes;
+                P_POOL_HITS.fetch_add(1, Ordering::Relaxed);
+                note_peak(&S_TREE_BYTES_PEAK, self.tree_bytes);
+                return Ok(b);
+            }
+        }
+        if self.held + want > self.budget {
+            self.pool_trim(self.held + want - self.budget);
+        }
+        if self.held + want > self.budget {
             self.release_idle_all();
         }
-        if self.held + bytes > self.budget {
+        if self.held + want > self.budget {
             return Err(format!(
                 "K9 VRAM budget (tree store): need {:.2} GB more (held {:.2} GB, budget {:.2} GB)",
                 bytes as f64 / 1e9,
@@ -2368,20 +2820,31 @@ impl K9 {
                 self.budget as f64 / 1e9
             ));
         }
+        let ta = Instant::now();
         let mut b = DevBuf::empty();
         b.grow(bytes)?;
         self.held += b.bytes;
         self.tree_bytes += b.bytes;
         note_peak(&S_HELD_PEAK, self.held);
         note_peak(&S_TREE_BYTES_PEAK, self.tree_bytes);
+        P_POOL_MISSES.fetch_add(1, Ordering::Relaxed);
+        self.warm(b.ptr, b.bytes)?;
+        add_us(&P_ALLOC_US, ta.elapsed().as_secs_f64());
+        add_us(&P_TB_ALLOC_US, ta.elapsed().as_secs_f64());
         Ok(b)
     }
 
-    /// Free a store buffer (the caller has synchronized).
+    /// Free a store buffer (the caller has synchronized). [UPERF2-P] into
+    /// the pool (still counted in `held`; trimmed on demand).
     fn tree_free(&mut self, mut b: DevBuf) {
-        self.held -= b.bytes;
         self.tree_bytes -= b.bytes;
-        b.free();
+        if pool_enabled() && b.bytes > 0 {
+            self.pool_bytes += b.bytes;
+            self.pool.push(b);
+        } else {
+            self.held -= b.bytes;
+            b.free();
+        }
     }
 
     /// One tree step on the device: parents [0, n) from the children of a
@@ -2520,6 +2983,7 @@ impl K9 {
     fn tree_build_into(&mut self, kern: &KKern, leaves: &TreeLeaves, depth: usize, top_k: usize, keep: &dyn Fn(usize) -> bool, t: &mut DevTree) -> Result<(KTab, KTab), String> {
         let n = 1usize << depth;
         let mut pp = 0usize;
+        let tu = Instant::now();
         // The leaves go up.
         match leaves {
             TreeLeaves::Packed { p, q, n: np } => {
@@ -2547,6 +3011,7 @@ impl K9 {
             }
         }
         self.compute_after_copies()?;
+        add_us(&P_TB_UPLOAD_US, tu.elapsed().as_secs_f64());
         let mut p = K9Params::new(kern);
         p.prm = self.upload_prm(std::slice::from_ref(&Prm::new()))?;
         // Bottom-up: layers depth-1 .. top_k on the device; the source of
@@ -2575,11 +3040,13 @@ impl K9 {
         let mut tp = KTab::recycled(n_top);
         let mut tq = KTab::recycled(n_top);
         {
+            let td = Instant::now();
             let (bp, bq) = t.layers[top_k].as_ref().expect("top layer");
             let (pp_, qp_) = (bp.ptr, bq.ptr);
             let words = n_top / KL * KBLK;
             self.download_words(pp_, &mut tp.d[..words])?;
             self.download_words(qp_, &mut tq.d[..words])?;
+            add_us(&P_TB_DOWN_US, td.elapsed().as_secs_f64());
         }
         if !keep(top_k) {
             self.sync_all()?;
@@ -2731,4 +3198,140 @@ impl K9 {
             self.tree_free(m);
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-P] THE EQ B-PART ON THE DEVICE (the hook of kfield::EqTab::new).
+// eq over zeta[..j] (2^j entries) = lo[i mod 2^lb] x hi[i >> lb] with lo =
+// the eq table over zeta[..lb] and hi = the eq table over zeta[lb..] (both
+// tiny, built on the host by `kt_eq_table_par`, uploaded once), one product
+// kernel — the same canonical field product as the doubling's (a product of
+// the same factors; canonical representatives are unique), so the same bytes
+// as the host table. The table lives in `eqb` (grow-only; ONE resident eq at
+// a time — the descent builds one per layer, the fused rounds 0/1 of that
+// layer read it, `EqTab`'s drop releases the id); the host image is never
+// downloaded — a CPU reader rebuilds it (`EqTab::host`).
+
+/// Build the eq b-part on the device: `Some(id)` = resident (bound by the
+/// fused rounds through the plan's `eq_tab`); `None` = declined (not live,
+/// knob off, budget) — the host build runs.
+pub fn k9_eq_build(kf: &KField, zeta: &[KElem]) -> Option<u64> {
+    if !live() || !eq_dev() {
+        return None;
+    }
+    let kern = kf.kern.as_ref()?;
+    let kk = k9s()?;
+    let mut k = kk.lock().unwrap();
+    let t0 = Instant::now();
+    match k.eq_build(kf, kern, zeta) {
+        Ok(Some(id)) => {
+            P_EQ_BUILDS.fetch_add(1, Ordering::Relaxed);
+            add_us(&P_EQ_BUILD_US, t0.elapsed().as_secs_f64());
+            if verbose() {
+                eprintln!("[UPERF2-P] k9 eq build: id {id} 2^{} entries in {:.2} ms", zeta.len(), t0.elapsed().as_secs_f64() * 1e3);
+            }
+            Some(id)
+        }
+        Ok(None) => None,
+        Err(e) => {
+            if !WARNED.swap(true, Ordering::Relaxed) {
+                eprintln!("[UPERF2-P] gpu k9 eq build failed ({e}); this and later K-field calls fall back to the CPU bodies");
+            }
+            k.release_all();
+            DISABLED.store(true, Ordering::Relaxed);
+            None
+        }
+    }
+}
+
+/// The eq table's handle is gone: forget the id (the buffer stays, grow-only).
+pub fn k9_eq_drop(id: u64) {
+    let Some(kk) = k9s() else { return };
+    let mut k = kk.lock().unwrap();
+    if k.eq_id.map(|(i, _)| i) == Some(id) {
+        k.eq_id = None;
+    }
+}
+
+impl K9 {
+    fn eq_build(&mut self, kf: &KField, kern: &KKern, zeta: &[KElem]) -> Result<Option<u64>, String> {
+        let j = zeta.len();
+        let n = 1usize << j;
+        // The split: lo gets the low half of the variables (>= 3 bits so
+        // that both halves are whole packed blocks).
+        let lb = (j / 2).max(3);
+        let hb = j - lb;
+        if hb < 3 {
+            return Ok(None);
+        }
+        self.dev.bind_to_thread().map_err(|e| format!("bind: {e}"))?;
+        let bytes = n / KL * KBLK * 4;
+        // A resident eq (an earlier layer's) is superseded: the id changes.
+        self.eq_id = None;
+        // Budget: the table + the two halves' staging is inside `eqb` growth
+        // (the halves go through the pinned staging into the tail of the
+        // state buffer? no — into `eqb` itself: [table | lo | hi]).
+        let lo_words = (1usize << lb) / KL * KBLK;
+        let hi_words = (1usize << hb) / KL * KBLK;
+        let total = bytes + (lo_words + hi_words) * 4;
+        if self.eqb.bytes < total && self.held + (total - self.eqb.bytes) > self.budget {
+            self.pool_trim(self.held + (total - self.eqb.bytes) - self.budget);
+        }
+        if self.eqb.bytes < total && self.held + (total - self.eqb.bytes) > self.budget {
+            // Do not release the idle families for an eq (the layer that
+            // follows decides that); decline to the host build.
+            return Ok(None);
+        }
+        self.grow_dev(DevSel::Eqb, total)?;
+        // The halves on the host (canonical products), then up.
+        let lo = kf.kt_eq_table_par(&zeta[..lb]);
+        let hi = kf.kt_eq_table_par(&zeta[lb..]);
+        debug_assert_eq!(lo.d.len(), lo_words);
+        debug_assert_eq!(hi.d.len(), hi_words);
+        let lo_ptr = self.eqb.ptr + bytes as u64;
+        let hi_ptr = lo_ptr + (lo_words * 4) as u64;
+        let mut pp = 0usize;
+        self.upload_words(lo_ptr, &lo.d[..lo_words], &mut pp)?;
+        self.upload_words(hi_ptr, &hi.d[..hi_words], &mut pp)?;
+        self.compute_after_copies()?;
+        let mut p = K9Params::new(kern);
+        p.prm = self.upload_prm(std::slice::from_ref(&Prm::new()))?;
+        let out = self.eqb.ptr;
+        let n_u = n as u32;
+        let lb_u = lb as u32;
+        let mut args: [*mut c_void; 6] = [
+            &p as *const _ as *mut _,
+            &lo_ptr as *const _ as *mut _,
+            &hi_ptr as *const _ as *mut _,
+            &out as *const _ as *mut _,
+            &n_u as *const _ as *mut _,
+            &lb_u as *const _ as *mut _,
+        ];
+        self.launch("k_eq_outer", grid_for(n, TEL), TEL, &mut args)?;
+        if profile() {
+            self.sync_all()?;
+        }
+        let id = self.next_eq;
+        self.next_eq += 1;
+        self.eq_id = Some((id, n));
+        Ok(Some(id))
+    }
+}
+
+/// Harness accessor: the resident device eq table's words (a download), if
+/// `id` is the resident one. Not used by the prover (the host image is
+/// rebuilt, never downloaded).
+pub fn k9_eq_fetch(id: u64) -> Option<Vec<u32>> {
+    let kk = k9s()?;
+    let mut k = kk.lock().unwrap();
+    let (cur, n) = k.eq_id?;
+    if cur != id {
+        return None;
+    }
+    let words = n / KL * KBLK;
+    let mut out = vec![0u32; words];
+    let ptr = k.eqb.ptr;
+    let _ = k.dev.bind_to_thread();
+    k.download_words(ptr, &mut out).ok()?;
+    Some(out)
 }

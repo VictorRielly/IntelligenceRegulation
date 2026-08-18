@@ -1445,6 +1445,71 @@ pub(crate) struct FusedPlan<'a> {
     pub r_prev: [u32; K_DEG],
     pub lambda: [u32; K_DEG],
     pub fold_consts: Option<[[u32; K_DEG]; 4]>,
+    /// [UPERF2-P] The b-part eq table of the extract modes as a handle: when
+    /// set, `eq_src` may be EMPTY — the device hook binds the device-built
+    /// table in place, and a CPU reader (the hook declined) materializes the
+    /// host words through the handle (`EqTab::host`).
+    pub eq_tab: Option<&'a EqTab<'a>>,
+}
+
+/// [UPERF2-P] The eq b-part table of one descent layer (eq over zeta[..j],
+/// 2^j entries): built ON THE DEVICE when the GPU is live
+/// (`gpu::k9_eq_build`: two small host halves, one product kernel — the
+/// same canonical field products as `kt_eq_table_par`'s doubling, so the
+/// same bytes), the host image materialized ONCE on demand for CPU readers
+/// (`host`: the CPU build — identical values by construction; no download
+/// needed). Without the device, `new` builds the host table eagerly (lane
+/// G's path). Dropping the handle drops the device table.
+pub(crate) struct EqTab<'a> {
+    kf: &'a KField,
+    zeta: Vec<KElem>,
+    /// The device table's id (None: host only).
+    dev: Option<u64>,
+    n: usize,
+    host: std::sync::OnceLock<KTab>,
+}
+
+/// Smallest eq table (log2 entries) built on the device (below it the host
+/// build is microseconds and the round is below the device minimum anyway).
+const K9_EQ_DEV_MIN_BITS: usize = 10;
+
+impl<'a> EqTab<'a> {
+    pub(crate) fn new(kf: &'a KField, zeta: &[KElem]) -> EqTab<'a> {
+        let n = 1usize << zeta.len();
+        let dev = if zeta.len() >= K9_EQ_DEV_MIN_BITS && kf.kern.is_some() && !super::eval_proof::oracle_mode() { super::gpu::k9_eq_build(kf, zeta) } else { None };
+        let t = EqTab { kf, zeta: zeta.to_vec(), dev, n, host: std::sync::OnceLock::new() };
+        if t.dev.is_none() {
+            let _ = t.host();
+        }
+        t
+    }
+
+    /// The device table's id, if the table lives on the device.
+    pub(crate) fn dev(&self) -> Option<u64> {
+        self.dev
+    }
+
+    pub(crate) fn n(&self) -> usize {
+        self.n
+    }
+
+    /// The host image (built once — the same canonical products).
+    pub(crate) fn host(&self) -> &KTab {
+        self.host.get_or_init(|| self.kf.kt_eq_table_par(&self.zeta))
+    }
+
+    /// Has the host image been built?
+    pub(crate) fn host_built(&self) -> bool {
+        self.host.get().is_some()
+    }
+}
+
+impl Drop for EqTab<'_> {
+    fn drop(&mut self) {
+        if let Some(id) = self.dev.take() {
+            super::gpu::k9_eq_drop(id);
+        }
+    }
 }
 
 /// The prefix [0, A0) of the in-place rung schedule goes through the
@@ -1530,6 +1595,13 @@ pub(crate) fn k9_fused_round_par(
     scratch: &mut Vec<u32>,
 ) {
     let tabs = match super::gpu::k9_fused_round(kern, plan, n_pairs, eq_inplace, eq_src, eq_dst, tabs, nodes, node_consts, acc_lo, acc_hi) { Ok(()) => return, Err(t) => t }; // [UPERF2-L] the GPU hook (declined = the CPU body below)
+    // [UPERF2-P] the b-part eq of the extract modes through its handle when
+    // the caller passed none (a device-built table: the host image is
+    // materialized once here — the same canonical products).
+    let eq_src: &[u32] = match plan.eq_tab {
+        Some(t) if plan.mode != FUSE_FOLD && eq_src.is_empty() => &t.host().d,
+        _ => eq_src,
+    };
     let acc_words = nodes.len() * 31 * KL;
     assert!(acc_lo.len() >= acc_words && acc_hi.len() >= acc_words, "K9 fused accumulator layout");
     let inplace = plan.mode == FUSE_FOLD;
