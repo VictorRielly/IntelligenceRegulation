@@ -227,6 +227,27 @@ concurrently)]:
 | same, 3x16, `ZK_THREADS=8` | 1.4 s | 6.7 s | 1.2 s | **9.4 s** | 0ae9cdae… (identical) | 1.0 GiB |
 | same, 12x64, `ZK_THREADS=8` | 5.3 s | 32.2 s | 3.4 s | **41.3 s** | 63f4a3a4… (identical) | **4.0 GiB** |
 | same, **12x128**, `ZK_THREADS=8` (first time on this box) | 6.3 s | 47.3 s | 4.1 s | **58.3 s** | 742d88e1… (statement 4a3af8c3…, 1,372,775 B) | **6.4 GiB** |
+| + lanes I (SIMD NTT) + H (descent tree memory) (96559ee), 3x16, 1T | 2.8 s | 19.0 s | 3.1 s | **25.0 s** | 0ae9cdae… (identical) | 0.96 GiB |
+| same, 3x16, `ZK_THREADS=8` | 1.2 s | 6.1 s | 1.1 s | **8.5 s** | 0ae9cdae… (identical) | 1.0 GiB |
+| same, 12x128, `ZK_THREADS=8` | 5.8 s | 44.9 s | 3.8 s | 55.1 s | 742d88e1… (identical) | 4.15 GiB |
+| same, 12x256, `ZK_THREADS=8` (lane H's run) | — | — | — | 95.9 s | 97a59ac3… (statement 889c0f12…, 1,439,719 B) | 6.6 GiB |
+| **same, 12x512 — THE PoC SHAPE, `ZK_THREADS=8`, QUIET, the 15 GB reference box** | **11.7 s** | **134.9 s** | **7.3 s** | **155.6 s** | 4c259008… (statement 2f8a92f8…, **1,509,911 B**) | **10.98 GiB** |
+
+**The PoC shape now runs on the TARGET_CONTRACT reference machine.**
+The frozen [MAC-BOX 1T] full-statement line was commit 384.9 / prove
+4,811.0 / verify ~236 s at 41-47 GiB (UAGB1_TABLE_DESCENT_REPORT 3.3
++ BJ's re-measure); the counted bytes agree to the byte (1,509,911 B).
+Cross-box and cross-thread-count, so not a strict A/B — the strict
+same-box A/B is the 3x16 oracle row (682.8 s -> 25.0 s 1T -> 8.5 s 8T).
+12x512 8T attribution: descents 72 s (a.round-g 52.5, a.tree-step 15.7,
+trees 10.6), prove-group 38.7 (level-h 22.2, matvec 7.8, fold 3.7,
+kernel-rows 3.4), claim layer 23.9 (folds 10.5, rounds 6.9, tables
+6.6), commit 11.7 (precommit-u0 10.1), verify 7.3 (psi0 ~6), CRS 3.4,
+transport 2.2.
+
+### 4.3 p50 / p95 at 12x512, 8T, 20 warm runs (TARGET_CONTRACT statistic) — in flight
+
+P95_SERIES_PLACEHOLDER
 
 Round 3 (lanes D + E): claim layer 3.17 -> 0.91 s at 1T (11x at 8T),
 chain GEMM 10x, digit witness threaded, tree callers streamed, the

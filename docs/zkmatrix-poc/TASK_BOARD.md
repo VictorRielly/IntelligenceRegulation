@@ -433,9 +433,16 @@ arena, thread scaling) LANDED too (d38e9ce): RSS 3x16 2.9 -> 0.96
 GB, 12x64 12.2 -> 4.0 GB; **12x128 runs here now: 58.3 s at 8T, 6.4
 GB**; descents -29% more. Round 5 lanes **H** (descent tree layer
 checkpointing + pool — the last blocker for 12x512 on the 15 GB box)
-and **I** (SIMD Goldilocks NTT) are running.
+and **I** (SIMD Goldilocks NTT) LANDED too (a087a7d, 96559ee): SIMD
+transform 2.2-3x; descent trees checkpointed/released/compact — and
+**THE PoC SHAPE RAN ON THE 15 GB REFERENCE BOX: 12x512 full statement,
+8 threads, 155.6 s wall (commit 11.7 / prove 134.9 / verify 7.3), 1.51
+MB artifact, 10.98 GB RSS, accept** (U_PERF_WAVE_REPORT.md 4.2). 3x16:
+25.0 s at 1T / 8.5 s at 8T (80x vs the same-box oracle). A 20-run
+p50/p95 series at 12x512 is in flight (4.3).
 
-**Grok (Mac): T1 is STILL the most valuable single task and now has
+**Grok (Mac): T1 is STILL valuable (the [MAC-BOX] convention numbers,
+its better thread scaling: 1/8/16 threads + one oracle run) and now has
 much more to show** — same recipe (2.3): `uperf-pc full-profile 12
 512` fast at ZK_THREADS 1 and 8 (and 16), then ONE `ZK_UPERF_ORACLE=1`
 run; digests must match; record walls + the phase table (the

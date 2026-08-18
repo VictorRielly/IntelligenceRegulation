@@ -455,6 +455,53 @@ the finding. Gate: `uperf-i battery` (transform identity), `uperf-pc
 diff-battery` (E2E), `uperf-c diff-battery`, `uperf-f diff-battery`,
 freeze rows, `self-test`, the REAL rig digests at 1T/8T.
 
+## Orchestrator status (2026-08-17, after rounds 4 + 5) — THE PoC SHAPE RUNS ON THE REFERENCE BOX
+
+- Lanes F, G, I, H all LANDED and MERGED (33dd896, d38e9ce, a087a7d,
+  96559ee), each with the merge gate green (every lane battery at 1T
+  and 7T, freeze rows identical, agg-matmul + bh-verifier + self-test,
+  the REAL rigs' digests). Reports: U_PERF2_MEMORY_REPORT.md,
+  U_PERF2_DESCENT3_REPORT.md, U_PERF2_SIMD_REPORT.md,
+  U_PERF2_DESCENT4_REPORT.md.
+- **THE NUMBER (2026-08-17, commit 96559ee, this box = the TARGET_CONTRACT
+  CPU reference machine, Intel Core Ultra 9 185H / 15 GB, ZK_THREADS=8,
+  QUIET, wsl-export):** `uperf-pc full-profile 12 512` — the
+  FULL-STATEMENT 12-layer x 512-token 125M FFN pass (BK's table-descent
+  rig, P0): **accept = true, wall 155.6 s = commit 11.7 s + prove 134.9 s
+  + verify 7.3 s, 1,509,911 B counted (= the frozen full-statement byte
+  count to the byte), peak RSS 10.98 GB**; statement digest
+  2f8a92f853c1813b4d87e30dc9a43a9cb65b0e009c994fffa67e14a6132b81ab (the
+  wsl-export witness; the Mac's frozen 76dbf204… differs only by the X
+  files' Metal-vs-CPU rounding), EVAL-PROOF DIGEST 4c259008c8e0cac2…
+  (identical to lane H's two runs at 166.4 / 178.3 s). Cross-box
+  reference: the ledger's frozen [MAC-BOX 1T] full-statement line was
+  commit 384.9 / prove 4,811.0 / verify ~236 s at 41-47 GiB. The
+  same-box, same-witness A/B (3x16, `ZK_UPERF_ORACLE=1`) is 682.8 s ->
+  25.0 s at 1T (27x) -> 8.5 s at 8T (80x). Also on this box: 12x256 8T
+  95.9 s @ 6.6 GB (lane H), 12x128 8T 55.1 s @ 4.15 GB.
+- 12x512 8T attribution (rows >= 1 s): descents 72 s (bk.descent-gkr
+  61.4: a.round-g 52.5, a.tree-step 15.7; bk.descent-trees 10.6 /
+  e.tree-witness 10.6), bg.prove-group 38.7 (level-h 22.2, matvec-
+  chunks 7.8, fold 3.7, kernel-rows 3.4), claim layer 23.9 (cl-folds
+  10.5, cl-rounds 6.9, cl-tables 6.6), commit 11.7 (precommit-u0 10.1),
+  verify 7.3 (psi0-factored ~6), crs 3.4, transport 2.2.
+- What this means for the phase plan (CONTINUATION.md): Phase 0 and
+  Phase 1's "125M composed prove in minutes" are MET on the reference
+  box (2.6 min at 8T); the artifact size was already in gate; the
+  verify line (<= 2 s, 1T) is NOT met (7.3 s at 8T; ~25 s-class at 1T
+  by the 3x16 ratio) — TASK_BOARD T11(a'): a wording amendment (N
+  threads stated) or a protocol change. Phase 2 (PoC close: p50/p95
+  over >= 20 warm runs, AZB canary, A1 reconciliation) is now
+  runnable HERE; a 20-run p50/p95 series at 12x512 8T is in flight
+  (U_PERF_WAVE_REPORT.md 4.3 when done). Phase 3 (GPU): the fused
+  descent kernel (a.round-g 52 s) and the NTT-domain GEMM (level-h 22
+  s) are the first two kernels to port.
+- Orchestrator note (lane I): our `--manifest-path` builds ignore
+  `zkmatrix-rs/.cargo/config.toml` (`target-cpu=native`) — every number
+  above is a BASELINE x86-64 build with runtime AVX2 dispatch only in
+  the NTT; a native-build A/B is queued (repo-root .cargo config if it
+  buys anything).
+
 ## Agent A status (wt-uperf2-a)
 
 PLAN (skeleton commit, 2026-08-17). Files: gkr_masked.rs / gkr.rs /

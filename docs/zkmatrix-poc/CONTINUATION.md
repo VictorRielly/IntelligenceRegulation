@@ -148,6 +148,18 @@ numbers need a quiesced box; design and correctness work do not.
   opened. O1 CRS memo landed with the continuation commit
   (expand_level_matrix process-global cache; diff-battery leg O1).
   O2-O4 remain.
+- 2026-08-17 (later — U-PERF2 rounds 1-5, PROGRESS_UPERF2.md): Phase 0
+  and Phase 1 ("125M composed prove in minutes") are MET on the
+  TARGET_CONTRACT reference box (Intel Core Ultra 9 185H, 15 GB): the
+  FULL-STATEMENT 12x512 pass proves in **155.6 s at 8 threads (commit
+  11.7 / prove 134.9 / verify 7.3), 10.98 GB, 1,509,911 B** — from the
+  frozen [MAC 1T] 4,811 s prove / ~236 s verify / 41-47 GiB. Every
+  optimization is bit-identical to its oracle (batteries + the real
+  rigs' digests). Size was already in gate. NOT met: verify <= 2 s at
+  ONE thread (7.3 s at 8T; TASK_BOARD T11(a') — wording amendment or a
+  protocol change). Phase 2 (PoC close: p50/p95, canary, A1
+  reconciliation) is now runnable on this box; Phase 3 (GPU): port the
+  fused descent kernel and the NTT-domain GEMM first.
 - 2026-08-17 (Claude, status recalculation — PROGRESS_UPERF.md
   "2026-08-17" section): PATH CORRECTION for Phase 0. The composed
   pass (`bg_pass_run`, the deliverable) never calls `prove_ct_round`;
