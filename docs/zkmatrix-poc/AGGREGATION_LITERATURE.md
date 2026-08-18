@@ -1294,3 +1294,50 @@ different, stricter guarantee class; (2) 100-bit target vs our
 a paper/code drop (O-9 discipline); their per-token framing vs our
 per-pass framing needs a conversion note before any comparison
 row is written.
+
+### Conversion note 2026-08-18 — per-token (Attestable) vs per-pass (ours), in proven matmul MACs [MODEL on both sides; their inputs VENDOR-CLAIMED]
+
+Common yardstick: proven int8 matmul MACs per second of prover wall
+(both systems quantize the matmuls to integers; the nonlinears differ
+in kind and are ignored here — that flatters neither side by more than
+the ~1.5x their overhead note implies).
+
+- Attestable, claimed: Gemma-4-31B at 53 tok/s (batch 1, 16K ctx, one
+  H100). One decoded token costs ~1 MAC per weight = ~3.1e10 MACs (the
+  16K-context attention adds ~10%); 53 tok/s => **~1.6e12 proven
+  MAC/s on one H100** [EXTERNAL, VENDOR-CLAIMED, UNVERIFIED; the
+  prefill reading of "53 tok/s" gives the same rate].
+- Ours, measured (U_PERF_WAVE_REPORT 4.2, 2026-08-18): the 12x512 slice
+  of the 125M FFN = 12 layers x 3 matmuls x 512 x 768 x 2048 = 2.9e10
+  MACs in 34.1 s wall (24.9 s prove) on the WSL box, 8 threads + an
+  RTX 4070 Laptop (55-70 W) => **8.5e8 MAC/s wall (1.2e9 prove-only)**
+  [MEASURED, WSL-BOX 8T QUIET, bit-identical to the frozen digests].
+- The TARGET_CONTRACT line: 32 layers x 3 x 512 x 4096 x 14336 = 2.9e12
+  MACs in 5-15 s => **1.9e11-5.8e11 MAC/s** required (plus attention
+  etc., not in the engine).
+
+Ratios [MODEL]: Attestable's claimed rate sits ~3-8x ABOVE the
+contract line (their statement is bigger than the contract's — a full
+model, not an FFN). Ours today sits ~230-680x BELOW the contract line
+on this laptop part; a <= 450 W desktop board is ~4-6x this part on
+this workload (cores 3-4x, bandwidth ~10x — the pass is partly
+link-bound; ~half the wall is still 8 CPU threads), so ~40-170x below
+the line on the contract's class of hardware. Against Attestable's
+claim we are ~1,900x lower raw and, hardware-normalized (H100 vs the
+4070 Laptop, 5-15x on this mix), **~130-400x lower algorithmically**.
+The whole difference is in what is proven per MAC: our pass carries
+the exact-integer range facts, the masked lookup transcript, the
+lattice commitments/opens with their descents (PROGRESS_UPERF2 "after
+round 8": prove-group 12.3 s + descents 10.8 s + commit 5.0 s of the
+34.1 s), while a hash-based GKR/STARK line proves the same matmul with
+a sumcheck whose prover is O(N) field ops on a small field. This is
+the number the CONTINUATION.md Section 3 fallback rule needs when
+Phases 0-3 are judged: kernel rounds have taken the same shape 155.6
+-> 34.1 s in two days (byte-identical) and round 9 is in flight;
+each remaining round buys 1.3-1.8x, and 40-170x is not a kernel gap.
+The protocol-level items that could move the exponent — a sumcheck-
+class opening layer over the committed matmul (T11 (a')-type, keeps
+the lattice commitment; the descents/opens are the majority of the
+pass), the r-cap R-row (T11 (b)) — are the lattice line's answer; the
+float/int-mix route (Attestable's) is the other channel. Both need
+Victor's ruling after round 9's numbers, not before.
