@@ -1028,6 +1028,15 @@ pub fn ntt_gemm_modq_small_gen<B: SmallRings + ?Sized>(ctx: &RingCtx, a: &[&[Pol
     if na == 0 || nb == 0 || len == 0 {
         return out;
     }
+    // [UPERF2-K] THE GPU HOOK (the only one in this file): with the
+    // `gpu-cuda` feature, `ZK_GPU=1` and a live device, the CUDA port
+    // computes the same exact-integer windows (bit-identical output; the
+    // body below is its oracle). `None` = declined -> the body runs.
+    if super::gpu::enabled() {
+        if let Some(gout) = super::gpu::ntt_gemm_modq_small(ctx, a, b, len) {
+            return gout;
+        }
+    }
     // Operand bound of the small side (exact, from the data — the
     // window is then a function of (q, s_max, len) only).
     let s_max: u128 = b.iter().map(|s| s.max_abs()).max().unwrap_or(0);

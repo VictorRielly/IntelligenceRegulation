@@ -31,3 +31,4 @@ zk_matrix_fast/zk_matrix_fast
 __pycache__/
 *.pyc
 .claude/
+zkmatrix-rs/target-gpu/

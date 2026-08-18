@@ -11,6 +11,15 @@ edition = "2024"
 # path from the object.
 default = ["harness"]
 harness = []
+# [UPERF2-K] The GPU rung (CONTINUATION Phase 3): CUDA via cudarc (driver
+# API + NVRTC runtime compilation of the kernel sources in src/ring/gpu/).
+# Default OFF — the default build and the Mac build do not depend on
+# cudarc; with the feature on, the GPU path is still runtime-gated by
+# `ZK_GPU=1` and falls back to the CPU kernels when no device initializes.
+# Build: `cargo build --release --features gpu-cuda` with
+# CUDA_ROOT/LD_LIBRARY_PATH pointing at the driver + NVRTC libraries
+# (this box: /home/victor/cuda-root, see PROGRESS_UPERF2.md round 6).
+gpu-cuda = ["dep:cudarc"]
 
 [dependencies]
 blstrs = "0.7"
@@ -19,6 +28,8 @@ group = "0.13"
 pairing = "0.23"
 rayon = "1.11"
 sha2 = "0.10"
+# [UPERF2-K] optional, only with `--features gpu-cuda` (see above).
+cudarc = { version = "0.13", default-features = false, features = ["driver", "nvrtc", "cuda-12040", "dynamic-linking", "std"], optional = true }
 
 [profile.release]
 codegen-units = 1
