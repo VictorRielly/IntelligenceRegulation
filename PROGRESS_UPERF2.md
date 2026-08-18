@@ -937,6 +937,29 @@ its `*_ref` oracle behind `ZK_UPERF_ORACLE=1`; `uperf-pc diff-battery`
 rows, the rig digests. Report before/after per item, rig rows, what
 is left.
 
+## Agent Q status (wt-uperf2-q)
+
+PLAN (skeleton commit, 2026-08-18). Files: eval_proof.rs (level-h
+session hook + `Phi0Source::fill_u32` + the combine-kernel hooks, each
+with its `_ref` / oracle routing), gpu/cuda.rs + gpu/kernels.cu (the
+level-h streaming session on K's GEMM, the combine kernel), gpu/mod.rs
+(a `// [UPERF2-Q]` block: re-exports + stub), the bin's commit /
+prove-group regions, a `// [UPERF2-Q]` bin section with `uperf-q
+{battery, bench ...}`, ct_engine::prof ids 80-89 renamed in place,
+docs/zkmatrix-poc/U_PERF2_EVALPROOF3_REPORT.md. Order (the brief's):
+(1) level-h host side -> device session; (2) the other small-ring
+contractions (fold / transport S,T5 / compute_psi / psi0-ntt) through
+a device combine kernel; (3) commit phase (precommit-u0 attribution
+first, chain-derive, digit-witness); (4) CRS SHA-NI 4-way + stream
+buffer reuse; (5) transport. Every item: before/after with the same
+command, battery leg at 1/2/7T, commit.
+
+- DONE: skeleton (report Sections 0-5 outlined; this section).
+- NEXT: freeze-check baseline capture on the untouched build; Q prof
+  ids; level-h attribution (fill vs GEMM vs flush at 12x512); the
+  session.
+- DECISIONS: none yet.
+
 ## Agent A status (wt-uperf2-a)
 
 PLAN (skeleton commit, 2026-08-17). Files: gkr_masked.rs / gkr.rs /
