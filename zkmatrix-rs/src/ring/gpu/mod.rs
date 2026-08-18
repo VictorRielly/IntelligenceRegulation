@@ -57,7 +57,7 @@ pub use k9::{k9_fused_round, k9_ixf_round, k9_label, k9_set_cold_ok, k9_set_eage
 mod ixf;
 #[cfg(feature = "gpu-cuda")]
 pub use ixf::{
-    ixf_label, ixf_release, ixf_set_bypass, ixf_set_min_pairs, ixf_stats, ixf_stats_reset, ixf_zc_abort, ixf_zc_fold, ixf_zc_handover, ixf_zc_open,
+    ixf_label, ixf_release, ixf_set_bypass, ixf_set_low_bits, ixf_set_min_pairs, ixf_stats, ixf_stats_reset, ixf_zc_abort, ixf_zc_fold, ixf_zc_handover, ixf_zc_open,
     ixf_zc_round, IxfDevChain, IxfStats,
 };
 
@@ -217,6 +217,7 @@ mod stub {
     pub fn ixf_release() {}
     pub fn ixf_set_bypass(_on: bool) {}
     pub fn ixf_set_min_pairs(_p: usize) {}
+    pub fn ixf_set_low_bits(_b: usize) {}
     pub fn ixf_label() -> String {
         "ixf: off (built without --features gpu-cuda)".to_string()
     }

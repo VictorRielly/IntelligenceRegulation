@@ -57,9 +57,18 @@ fn stg_bytes() -> usize {
     env_usize("ZK_GPU_IXF_STG_MB", 32) << 20
 }
 /// The eq low group (variables) — eqL has 2^lowbits elements at most.
+static LOW_BITS_OVERRIDE: AtomicU64 = AtomicU64::new(0);
 fn low_bits() -> usize {
+    let o = LOW_BITS_OVERRIDE.load(Ordering::Relaxed) as usize;
+    if o > 0 {
+        return o;
+    }
     static V: OnceLock<usize> = OnceLock::new();
     *V.get_or_init(|| env_usize("ZK_GPU_IXF_LOWBITS", 12).clamp(1, 16))
+}
+/// Harness knob: the eq low group size in variables (0 = env/default).
+pub fn ixf_set_low_bits(b: usize) {
+    LOW_BITS_OVERRIDE.store(b as u64, Ordering::Relaxed);
 }
 static MIN_PAIRS_OVERRIDE: AtomicU64 = AtomicU64::new(0);
 fn min_pairs() -> usize {

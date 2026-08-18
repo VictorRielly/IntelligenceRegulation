@@ -40796,6 +40796,214 @@ fn uperf_o_bench(layers: usize, t: usize, reps: usize) {
     }
 }
 
-fn uperf_o_battery(_seed: u64) {
-    println!("[UPERF2-O] battery: (skeleton — nothing landed yet)");
+/// [UPERF2-O] The battery: stacked zero-check instances from their compact
+/// operands at many shapes and value patterns — the boxed scalar ORACLE
+/// (`ixf_sumcheck_prove_kind_ref` on the tables the pooled host builders
+/// materialize) == the host packed path (device bypassed) == the DEVICE
+/// path (tables built on the device; when the build offers it) — proof +
+/// point + transcript-state digests, three ways; the device legs also at
+/// min_pairs 1 (every round the device can take, incl. the small-eq / layer-
+/// table modes) and a small eq low group. Prints a BATTERY DIGEST to
+/// compare across ZK_THREADS runs.
+fn uperf_o_battery(seed: u64) {
+    use ring::fold::{ixf_sumcheck_prove_kind_ref, ixf_sumcheck_prove_zc, zerocheck_degree_schedule, IxfCombine, IxfZcSpec};
+    use ring::kfield::{KElem, KField};
+    use ring::sumcheck::LkpTranscript;
+    use sha2::{Digest, Sha256};
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let q = kf.zq.q;
+    let dev = ring::gpu::enabled();
+    println!(
+        "[UPERF2-O] battery: zero-check instances oracle == host packed == device (ZK_THREADS {}, oracle env {}; {}; {})",
+        ring::eval_proof::threads(),
+        ring::eval_proof::oracle_mode(),
+        ring::gpu::label(),
+        ring::gpu::ixf_label()
+    );
+    // (layers, rows t, cols_real, pattern): pattern 0 small ints, 1 wide
+    // (|v| up to 2^40, incl. multiples of q and -q), 2 all zero, 3 mixed with
+    // exact q-1 / -(q-1) / q / -q / 0 planted.
+    let shapes: Vec<(usize, usize, usize, u8)> = vec![
+        (1, 8, 2048, 0),
+        (2, 8, 768, 1),
+        (3, 16, 2048, 3),
+        (3, 8, 100, 1),
+        (5, 8, 5, 0),
+        (4, 32, 768, 2),
+        (12, 8, 2048, 3),
+        (12, 16, 768, 0),
+        (16, 8, 100, 1),
+        (7, 64, 128, 3),
+    ];
+    let mut battery = Sha256::new_with_prefix(b"uperf2-o-battery-v1");
+    let (mut legs, mut fails) = (0usize, 0usize);
+    let t0 = Instant::now();
+    let mut st = seed ^ 0x0a5e_0a5e_0a5e_0a5e;
+    for (si, &(layers, t, cols_real, pattern)) in shapes.iter().enumerate() {
+        for kind in [IxfCombine::Had, IxfCombine::Rq] {
+            let il = ring::fold::ixf_layout(layers);
+            let lr = t.trailing_zeros() as usize;
+            let lcp = usize::BITS as usize - (cols_real - 1).leading_zeros() as usize;
+            let cols_pad = 1usize << lcp;
+            let n_pos = lr + lcp;
+            let n_vars = n_pos + il.lambda;
+            // the three tables' layers (rows = t for every layer; layer 0 of
+            // shape si gets a short last row block on pattern 3? no: rows fixed)
+            let mut tens: Vec<Vec<Vec<i64>>> = Vec::new(); // [table][layer][t*cols_real]
+            for _k in 0..3 {
+                let mut per: Vec<Vec<i64>> = Vec::new();
+                for _li in 0..layers {
+                    let v: Vec<i64> = (0..t * cols_real)
+                        .map(|_| {
+                            let r = ring::splitmix64(&mut st);
+                            match pattern {
+                                0 => (r % 255) as i64 - 127,
+                                1 => {
+                                    let m = (r >> 8) % 6;
+                                    match m {
+                                        0 => (r % (1u64 << 41)) as i64 - (1i64 << 40),
+                                        1 => -(q as i64),
+                                        2 => q as i64 * ((r >> 20) % 5) as i64,
+                                        _ => (r % (1u64 << 30)) as i64 - (1i64 << 29),
+                                    }
+                                }
+                                2 => 0,
+                                _ => match (r >> 8) % 8 {
+                                    0 => q as i64 - 1,
+                                    1 => -(q as i64 - 1),
+                                    2 => q as i64,
+                                    3 => -(q as i64),
+                                    4 => 0,
+                                    5 => (q as i64) / 2 + 1,
+                                    _ => (r % 255) as i64 - 127,
+                                },
+                            }
+                        })
+                        .collect();
+                    per.push(v);
+                }
+                tens.push(per);
+            }
+            let point: Vec<KElem> = (0..n_vars).map(|_| uperf_l_kelem(q, &mut st)).collect();
+            let sh_layer: Vec<KElem> = if kind == IxfCombine::Rq {
+                (0..il.slots).map(|li| if li < layers { kf.embed(1u64 << (3 + (li % 9))) } else { kf.zero() }).collect()
+            } else {
+                Vec::new()
+            };
+            let sched = if kind == IxfCombine::Rq {
+                let mut d = vec![2usize; n_pos];
+                d.extend(std::iter::repeat_n(3usize, il.lambda));
+                d
+            } else {
+                zerocheck_degree_schedule(n_pos, il.lambda)
+            };
+            let spec = IxfZcSpec {
+                kind,
+                point: &point,
+                layers: [
+                    tens[0].iter().map(|v| v.as_slice()).collect(),
+                    tens[1].iter().map(|v| v.as_slice()).collect(),
+                    tens[2].iter().map(|v| v.as_slice()).collect(),
+                ],
+                cols_real,
+                cols_pad,
+                n_pos,
+                lambda: il.lambda,
+                slots: il.slots,
+                sh_layer: &sh_layer,
+            };
+            let tag = format!("o-{si}-{}", kind.n_tables());
+            // (a) the oracle: the BOXED builders (gkr::eq_table, the stacked
+            // loop as bg_stack_table writes it, expand_layer_table) on the
+            // scalar prover — independent of fold.rs's builders
+            let mut tr_a = LkpTranscript::new("uperf2-o-zc", tag.as_bytes());
+            let boxed: Vec<Vec<KElem>> = {
+                let np = 1usize << n_pos;
+                let mut tabs = vec![ring::gkr::eq_table(&kf, &point)];
+                for k in 0..3 {
+                    let mut tab = vec![kf.zero(); il.slots * np];
+                    for (li, vals) in tens[k].iter().enumerate() {
+                        for i in 0..t {
+                            for j in 0..cols_real {
+                                let v = vals[i * cols_real + j];
+                                if v != 0 {
+                                    tab[li * np + i * cols_pad + j] = kf.scale(kf.zq.to_mod(v), &kf.one());
+                                }
+                            }
+                        }
+                    }
+                    tabs.push(tab);
+                }
+                if kind == IxfCombine::Rq {
+                    tabs.push(ring::fold::expand_layer_table(&kf, &sh_layer, np));
+                }
+                tabs
+            };
+            let (pa, pt_a) = ixf_sumcheck_prove_kind_ref(&kf, boxed, &sched, kind, &mut tr_a);
+            let da = uperf_d_proof_digest(&kf, &pa, &pt_a, &tr_a.state());
+            // (b) the host packed path (device bypassed), pool on
+            ring::gpu::ixf_set_bypass(true);
+            let mut tr_b = LkpTranscript::new("uperf2-o-zc", tag.as_bytes());
+            let (pb, pt_b) = {
+                let _scope = ring::fold::IxfPoolScope::open();
+                ixf_sumcheck_prove_zc(&kf, &spec, &sched, &mut tr_b)
+            };
+            ring::gpu::ixf_set_bypass(false);
+            let db = uperf_d_proof_digest(&kf, &pb, &pt_b, &tr_b.state());
+            // (c) the device path at the default knobs; (d) at min_pairs 1 + low bits 3
+            let (dc, dd) = if dev {
+                let mut tr_c = LkpTranscript::new("uperf2-o-zc", tag.as_bytes());
+                let (pc, pt_c) = {
+                    let _scope = ring::fold::IxfPoolScope::open();
+                    ixf_sumcheck_prove_zc(&kf, &spec, &sched, &mut tr_c)
+                };
+                let dc = uperf_d_proof_digest(&kf, &pc, &pt_c, &tr_c.state());
+                ring::gpu::ixf_set_min_pairs(1);
+                ring::gpu::ixf_set_low_bits(3);
+                let mut tr_d = LkpTranscript::new("uperf2-o-zc", tag.as_bytes());
+                let (pd, pt_d) = {
+                    let _scope = ring::fold::IxfPoolScope::open();
+                    ixf_sumcheck_prove_zc(&kf, &spec, &sched, &mut tr_d)
+                };
+                ring::gpu::ixf_set_min_pairs(0);
+                ring::gpu::ixf_set_low_bits(0);
+                let dd = uperf_d_proof_digest(&kf, &pd, &pt_d, &tr_d.state());
+                (dc, dd)
+            } else {
+                (da, da)
+            };
+            let ok = da == db && db == dc && dc == dd;
+            legs += 1;
+            if !ok {
+                fails += 1;
+            }
+            battery.update(da);
+            println!(
+                "  {} {:?} layers {layers} t {t} cols {cols_real} pat {pattern} (n 2^{n_vars}, n_pos {n_pos}, lambda {}): oracle==host {} host==device {} device==device(min1,low3) {}",
+                if ok { "ok  " } else { "FAIL" },
+                kind,
+                il.lambda,
+                da == db,
+                db == dc,
+                dc == dd
+            );
+        }
+    }
+    let dg: [u8; 32] = battery.finalize().into();
+    let st = ring::gpu::ixf_stats();
+    println!(
+        "[UPERF2-O] battery: {}/{} legs ok in {:.1}s | device instances {} (declined {}), rounds {}, folds {} | BATTERY DIGEST {}",
+        legs - fails,
+        legs,
+        t0.elapsed().as_secs_f64(),
+        st.instances,
+        st.declined,
+        st.rounds,
+        st.folds,
+        hex_full(&dg)
+    );
+    if fails > 0 {
+        std::process::exit(1);
+    }
 }
