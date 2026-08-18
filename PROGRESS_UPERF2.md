@@ -739,6 +739,70 @@ per-item before/after, rig rows, what is left.
   descents/claim layer are link-bound here, so the desktop factor is
   NOT a simple multiple; measure, do not extrapolate.
 
+## Round 8 (2026-08-17): lanes N (device-resident descent tree) and O (claim layer + GEMM + leftovers on the device)
+
+State at 6427c5b: 12x512 8T+GPU 60.2 s (attribution in the status
+above). Worktrees `/home/victor/wt-uperf2-n` (uperf2-n) and
+`/home/victor/wt-uperf2-o` (uperf2-o). Gate = both builds' batteries
+(default unchanged; GPU: uperf-k/l/pc/a/g/d/h/j/m under ZK_GPU=1),
+freeze rows, self-test, the REAL rigs with the GPU build (3x16 8T,
+12x128 8T, ONE 12x512 8T) digests identical: 3x16 93a98700… /
+0ae9cdae…; 12x128 4a3af8c3… / 742d88e1…; 12x512 2f8a92f8… /
+4c259008…. GPU build recipe as in round 7 (CUDA_ROOT/LD_LIBRARY_PATH,
+CARGO_TARGET_DIR=<worktree>/zkmatrix-rs/target-gpu, --features
+gpu-cuda, ZK_GPU=1). VRAM 8 GB is shared by both lanes' runs — rigs
+under the flock only; batteries are small.
+
+### Lane N — the descent tree DEVICE-RESIDENT end to end (wt-uperf2-n)
+
+OWNS: `zkmatrix-rs/src/ring/gpu/` (extend L's k9.rs / kernels_k9.cu),
+`gkr.rs` + `gkr_masked.rs` + `kfield.rs` for the SMALL contract change
+L designed (U_PERF2_GPU2_REPORT.md "what did not land": build the tree
+from the compact leaves ON THE DEVICE, keep the checkpointed layers
+device-resident and recompute intermediate layers on the device
+(lane H's checkpoint discipline), so no per-layer upload happens and
+the CPU tree-step/tree-build phases disappear on the GPU path; the CPU
+path stays exactly today's), `descent_fold.rs`/bk callers only if a
+signature needs it, a `// [UPERF2-N]` bin section + `uperf-n`, NEW
+`docs/zkmatrix-poc/U_PERF2_GPU3_REPORT.md`, "Agent N status".
+GOAL: 12x512 8T+GPU descents 22.6 s (a.round-g 12.0 mostly uploads,
+a.tree-step 8.5, trees 6.2, ~6.6 s uploads/encodes) -> the kernels'
+own ~5 s + the leaf uploads. Bit-identical (the same fractional sums;
+`uperf-a` 18/18, `uperf-g` 22/22, `uperf-h` 24x8, `uperf-l` 310 legs
+under ZK_GPU=1; the descent-bench digest 47a58a27…). Also the tree
+step's D2H (why L left it off) becomes moot when nothing comes back
+but node values. VRAM budget: the biggest pair (depth 22, 12 real
+trees) — leaves compact (8 B/leaf) + checkpointed layers; stream by
+tree if needed. Report the descent phase before/after at 12x128 and
+12x512, VRAM peak, what is left.
+
+### Lane O — claim layer pool + device ixf tables + GEMM u32-limb + leftovers (wt-uperf2-o)
+
+OWNS: `zkmatrix-rs/src/ring/fold.rs`, `sumcheck.rs`, the claim-layer
+region of `bg_pass_run`/`bk_pass_run` and lane D's `bg_zc_prove`/table
+builders in the bin, `gpu/cuda.rs` GEMM kernel + `kernels.cu` (lane
+K's GEMM — the u32-limb formulation, coordinate with N through the
+flock only; N owns k9.rs/kernels_k9.cu), `eval_proof.rs` ONLY for the
+GEMM hook's block/tile parameters if needed, a `// [UPERF2-O]` bin
+section + `uperf-o`, NEW `docs/zkmatrix-poc/U_PERF2_CLAIM2_REPORT.md`,
+"Agent O status".
+GOAL, in order: (1) the claim layer 15.5 s at 12x512 8T+GPU: L's
+finding — host page management of the fresh 512 MB packed tables per
+instance (cl-tables 4.9, part of cl-folds/rounds) + the 2-2.5 GB
+uploads per big instance: a same-size table POOL across the 8
+instances (allocate once, reuse; the packed layout is fixed by lane D)
+and build/expand the ixf tables ON THE DEVICE from the compact
+operands (the tables are products/expansions of small integer data —
+`IxfTable`: eq / scalar_table / layer_expand) so only the small inputs
+go up; bit-identical (`uperf-d` 30/30, `uperf-j`, `uperf-l` ixf legs
+under ZK_GPU=1; the E2E leg; the rig digests). (2) The level-h GEMM
+(4.7 s): the u32-limb formulation of the split-halves MAC on the device
+(K's report §5: ~30% of IMAD peak today; ~2.5-3x [ASSUMED]) — identical
+sums (exact integers). (3) Leftovers if time: CRS blocks on the device
+(SHA-256 in CUDA, identical bytes) or batched SHA-NI; the transport's
+row transforms; precommit's transforms. Report before/after per item,
+rig rows, what is left.
+
 ## Agent A status (wt-uperf2-a)
 
 PLAN (skeleton commit, 2026-08-17). Files: gkr_masked.rs / gkr.rs /
@@ -828,6 +892,14 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
   masked_gkr_verify (3-5 ms per pair here) — it sits in the claim
   builders around it.
 - Every number [WSL-BOX NOISY-SHARED] (lane C built/ran throughout).
+
+## Agent N status (wt-uperf2-n)
+
+- (lane launches here)
+
+## Agent O status (wt-uperf2-o)
+
+- (lane launches here)
 
 ## Agent L status (wt-uperf2-l)
 
