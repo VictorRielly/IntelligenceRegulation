@@ -937,6 +937,42 @@ its `*_ref` oracle behind `ZK_UPERF_ORACLE=1`; `uperf-pc diff-battery`
 rows, the rig digests. Report before/after per item, rig rows, what
 is left.
 
+## Agent P status (wt-uperf2-p)
+
+STATE: IN PROGRESS (skeleton commit, 2026-08-18). Report:
+docs/zkmatrix-poc/U_PERF2_GPU4_REPORT.md. Files (per the brief):
+gpu/k9.rs, gpu/kernels_k9.cu, gkr.rs, gkr_masked.rs, kfield.rs, the
+`// [UPERF2-P]` bin section + `uperf-p`, ct_engine prof ids 70-79,
+gpu/mod.rs `// [UPERF2-P]` blocks only.
+
+PLAN (in GOAL order; every step = a kernel/host variant + its battery
+leg + one commit; the previous bodies stay reachable by env knob):
+1. Instrument first: `uperf-p kbench` (the fused round kernels in
+   isolation at several shapes, the per-round floor split into its API
+   calls, the tree build split into alloc / upload / steps / download),
+   so that every before/after below is the same command.
+2. The per-round floor (a.round-g's ~1.8 s of non-kernel time): the eq
+   b-part built ON THE DEVICE from zeta (no host build, no upload; the
+   host table lazily materialized only for CPU readers — the same
+   canonical products in any order); one launch per round over a device
+   range table instead of one per live range; the parameter vectors by
+   value; fewer syncs.
+3. The kernels (~5.2 s at ~16% of peak): variants gated by `uperf-p
+   battery` cell by cell — node loops fully unrolled by a template on the
+   node count (registers instead of local memory), the matrix form of
+   the fixed multiplies (lane J's R matrix, no h-step) with R in the
+   constant bank, halved burst folds, and — if the register wall holds —
+   the 2-thread coefficient split.
+4. a.tree-step (45 device builds at 42-45 ms): a size-class pool of the
+   store's layer buffers (no cuMemAlloc/Free + cold pages per tree),
+   then the step kernel itself.
+5. a.tree-pack (host compact fill) threaded/overlapped if time allows.
+
+DONE: skeleton (report + this section).
+NEXT: build the GPU binary at HEAD, take the baselines (kbench + the
+three rigs are the ledger's), then step 2.
+DECISIONS: none yet.
+
 ## Agent A status (wt-uperf2-a)
 
 PLAN (skeleton commit, 2026-08-17). Files: gkr_masked.rs / gkr.rs /
