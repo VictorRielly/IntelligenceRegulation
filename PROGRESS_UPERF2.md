@@ -990,15 +990,56 @@ freeze-check with the wsl export — 98 `ok` rows + BF/BK rows +
    prove-group 12.30 -> 9.61** [WSL-BOX 8T QUIET-ish, load ~1.5-3, lane
    P idle-ish].
 
-- DONE: item 1 (level-h session) LANDED; batteries green; rigs identical.
-- NEXT: the "combine" family on the device (ONE kernel: few fixed small
-  rings x many streamed rings -> per-position inverse; sources: the
-  Phi0Source pool (psi0), the small w store (fold, exact i64 out), mod-q
-  slices (transport S/T5, compute_psi)); then CRS SHA-NI; then the
-  commit phase (precommit-u0 attribution, chain-derive, digit-witness).
-- DECISIONS: the GEMM kernel itself (7 ms of the 10 ms stage, ~48% of
-  its instruction ceiling per lane O) is left for later — O's estimate
-  of <= 0.5 s at the rig stands; the CPU-side blocks are bigger.
+2. THE COMBINE SESSION (c0835db): ONE device kernel (`k_combine`: K
+   fixed small rings x K streamed slices -> split-halves cells per (t,
+   position), `k_flush_reduce` + `k_ntt_inv` (mode 1 mod-q / new mode 2
+   exact i64) per stage) behind hooks in `fold_chunks_ntt_gen` (small w
+   slices, exact i64), `psi_level0_multi_impl` (Phi_0 streamed from the
+   `Phi0Source` pool — the same fill as the level-h session, `k_ntt_fwd_
+   pool` layout 1), `ntt_combine_general`'s one-sided regime (the two
+   alpha limb rows, `k_limb_recombine` = V0 + 2^L V1 mod q on the device
+   — the transport's S / T5), `compute_psi_ntt` (ragged mod-q slices).
+   The CPU loops stay the oracles (`ZK_GPU_CB=0` / `set_cb_session`,
+   `ZK_GPU_CB_BLOCK`). `uperf-q battery` 97/97 at 1/2/7T (483481f2..),
+   uperf-pc/c/m/f green under ZK_GPU=1 MIN_MACS=0. 12x512 (NOISY):
+   psi0 2.62 -> 1.85, fold 1.85 -> 1.41, transport 1.90 -> 1.44, verify
+   2.6 -> 1.8; wall 30.8 s.
+3. CHAIN GEMM ON THE DEVICE (68c11e6): `k_gemm_i8` (exact int8 x int8 ->
+   i32) behind `bf_matmul_i64` (ZK_GPU_MM=0 A/B; uperf-q leg + uperf-d
+   30/30 46471467.. under the GPU) — the one-time device init (~0.5 s)
+   now lands in d.chain-derive instead of precommit (a wash). Plus the
+   flat i8 store's bound 127 in place of the whole-store `max_abs`
+   scans (fold wmax; K's per-call s_max when the call fits the
+   127-window): ep.matvec 1.61 -> 0.85, bg.fold 1.33 -> 0.82. 12x512
+   28.5 s.
+4. CRS SHA-NI (51f7366): a hand-written 4-lane SHA-NI core (std::arch,
+   NO new crate; the constant key quads' rounds 0-7 precomputed per
+   call; runtime-detected; `ZK_CRSNI=0` = the sha2 path =
+   `crs_blocks_into_ref`, the oracle) + the stream buffer as an unzeroed
+   process scratch (kept up to 512 MB). uperf-q leg (123105 blocks ==
+   sha2 incl. counters >= 2^32), uperf-m 37d6a49b.. (v2 == v1 == raw),
+   uperf-pc O1. m.crs-blocks 1.75 -> 0.55 s; ep.crs-expand 2.57 -> 1.46;
+   **12x512 8T+GPU 27.8 s = commit 3.5 / prove 20.7 / verify 1.9 (from
+   34.1), RSS 6.70 GB, digests identical** [WSL-BOX 8T, load 1.5-2.7 —
+   NOISY-SHARED-ish].
+
+- DONE: items 1-4 LANDED (level-h session; combine family = fold /
+  psi0 / transport S,T5 / compute_psi; chain GEMM + max_abs bounds;
+  CRS SHA-NI + scratch). Batteries green in both builds at every step;
+  rig digests identical at every step.
+- NEXT (in order of gain/effort): the digit witness on the device
+  (d.digit-witness 1.27 s: per-value exact digit decomposition into the
+  i8 store), the rows pass's T rings on the device (q.rows-t 1.18 s of
+  bg.kernel-rows 1.89 — a GEMM-shaped MAC), `kernel_row_factors`
+  memo/vectorization (m.phi-setup 0.72 s is mostly it; the G blocks are
+  0.08), the GEMM kernel (level-h 1.9 s, device-bound at ~48% of its
+  instruction ceiling), the deeper-level session overheads (transport
+  tr-s 0.74 = ~0.37 level-0 + ~0.37 of 26 small sessions).
+- DECISIONS: the GEMM kernel itself is left for last (O's <= 0.5 s
+  estimate stands; the CPU-side blocks were bigger and are now mostly
+  moved). The stream scratch keeps <= 512 MB resident (the 12x512
+  level-0 A streams, 0.6 / 1.35 GB, are freed after use — RSS peak
+  unchanged at 6.70 GB).
 
 ## Agent A status (wt-uperf2-a)
 
