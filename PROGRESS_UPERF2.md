@@ -939,58 +939,86 @@ is left.
 
 ## Agent P status (wt-uperf2-p)
 
-STATE: IN PROGRESS (skeleton commit, 2026-08-18). Report:
-docs/zkmatrix-poc/U_PERF2_GPU4_REPORT.md. Files (per the brief):
-gpu/k9.rs, gpu/kernels_k9.cu, gkr.rs, gkr_masked.rs, kfield.rs, the
-`// [UPERF2-P]` bin section + `uperf-p`, ct_engine prof ids 70-79,
-gpu/mod.rs `// [UPERF2-P]` blocks only.
+STATE: LANDED (2026-08-18; HEAD of uperf2-p). Report:
+docs/zkmatrix-poc/U_PERF2_GPU4_REPORT.md (Section 0 = the paragraph, 4 =
+the tables, 5 = what is left). Files: gpu/k9.rs, gpu/kernels_k9.cu,
+gpu/mod.rs (`// [UPERF2-P]` blocks), kfield.rs, gkr_masked.rs, the
+`// [UPERF2-P]` bin section + `uperf-p` (`battery | bench | kprobe`); ONE
+line in lane L's `uperf_l_run_layer` (`eq_tab: None` in its `FusedPlan {
+.. }` literal — the plan grew a field; merge-safe, lane Q does not touch
+it). NOT touched: ct_engine.rs (prof ids 70-79 stay reserved — the lane's
+attribution lives in `K9PStats`), gkr.rs (nothing needed), cuda.rs.
 
-PLAN (in GOAL order; every step = a kernel/host variant + its battery
-leg + one commit; the previous bodies stay reachable by env knob):
-1. Instrument first: `uperf-p kbench` (the fused round kernels in
-   isolation at several shapes, the per-round floor split into its API
-   calls, the tree build split into alloc / upload / steps / download),
-   so that every before/after below is the same command.
-2. The per-round floor (a.round-g's ~1.8 s of non-kernel time): the eq
-   b-part built ON THE DEVICE from zeta (no host build, no upload; the
-   host table lazily materialized only for CPU readers — the same
-   canonical products in any order); one launch per round over a device
-   range table instead of one per live range; the parameter vectors by
-   value; fewer syncs.
-3. The kernels (~5.2 s at ~16% of peak): variants gated by `uperf-p
-   battery` cell by cell — node loops fully unrolled by a template on the
-   node count (registers instead of local memory), the matrix form of
-   the fixed multiplies (lane J's R matrix, no h-step) with R in the
-   constant bank, halved burst folds, and — if the register wall holds —
-   the 2-thread coefficient split.
-4. a.tree-step (45 device builds at 42-45 ms): a size-class pool of the
-   store's layer buffers (no cuMemAlloc/Free + cold pages per tree),
-   then the step kernel itself.
-5. a.tree-pack (host compact fill) threaded/overlapped if time allows.
+RESULT — 12x512 8T+GPU (`uperf-pc full-profile 12 512`, wsl export,
+flock, final HEAD binary): **34.1 -> 30.1 s** (commit 5.1 / prove 20.7 /
+verify 2.8), peak RSS 6.70 GB, statement 2f8a92f8.. / EVAL 4c259008.. /
+1,509,911 B, accept [WSL-BOX 8T NOISY-SHARED — lane Q active, load 1.3-3;
+the untouched phases within +5% of the QUIET baseline capture]. The
+descent phase **10.8 -> 6.4 s**: bk.descent-trees 2.63 -> 1.53 (a.tree-
+step 1.91 -> 0.82, a.tree-pack 0.72 -> 0.71), bk.descent-gkr 8.13 -> 4.88
+(a.round-g 7.14 -> 4.60, a.eq-table 0.67 -> 0.08). 12x128 15.6 -> 14.5 s
+(4a3af8c3.. / 742d88e1..); 3x16 4.6 s (93a98700.. / 0ae9cdae..). Pair
+shape `uperf-p bench 22 16 12 9`: a.round-g 2.34 -> 1.29 s, a.tree-step
+1.44 -> 0.30 s, digest b527b531.. (N's).
 
-DONE (97725ef): one launch per fused round over a device range table
-(`k_*_m` kernels; `ZK_GPU_K9_MULTI=0` = lane L's launch per range), the
-eq b-part built on the device (`kfield::EqTab` handle in `FusedPlan.eq_tab`;
-`k_eq_outer` = lo x hi of two host-built halves — the same canonical
-products; host image lazy for CPU readers; `ZK_GPU_K9_EQ_DEV=0` = host
-build), the tree store's buffer pool (exact-size free list, budget-trimmed;
-`ZK_GPU_K9_POOL=0`) + lazy layer-buffer release; `ZK_GPU_K9_WARM=1`
-(memset fresh buffers) MEASURED a net loss (kept off). `uperf-p battery`
-126 legs (35.2M words) green at 7T; 3x16 and 12x512 rig digests identical.
-12x512 8T+GPU: 34.1 -> 32.2 s [WSL-BOX 8T, load ~2, NOISY?] — descents
-10.8 -> 8.7 s (a.round-g 7.14 -> 6.64, a.tree-step 1.91 -> 1.09,
-a.eq-table 0.67 -> 0.10, bk.descent-trees 2.63 -> 1.78).
-FINDING (12x512 verbose): the round-0 hooks of the biggest layers spend
-100-250 ms outside the kernels (cuMemAlloc/Free of multi-GB buffers as
-the budget forces releases + regrowth) and the kernels then run on cold
-pages (~2x); ~1.4 s non-kernel + ~1 s cold inside 6.3 s in-hook.
-NEXT: a slab/buddy allocator in k9.rs so bytes change roles (tree layer
--> climbed layer -> state chunks) with no new allocations after warm-up
-(per-(range, table) state chunks — the range table already carries
-per-range pointers), then the kernels.
-DECISIONS: one line added to lane L's harness literal (`eq_tab: None`
-in `uperf_l_run_layer`'s `FusedPlan { .. }`) — the plan grew a field;
-flagged for the orchestrator (merge-safe: lane Q does not touch it).
+WHAT LANDED (defaults on; every knob is the one-binary A/B): (1) ONE launch
+per fused round over a device range table (`K9Range`/`k_*_m`; `ZK_GPU_K9_
+MULTI=0` = L's launch per piece) — a 12-range round's floor 2 ms -> 0.25
+ms; (2) the eq b-part built ON THE DEVICE (`kfield::EqTab` handle in
+`FusedPlan.eq_tab`, `k_eq_outer` = lo x hi of two host-built halves = the
+same canonical products; host image lazy, never downloaded; `ZK_GPU_K9_
+EQ_DEV=0` = host build + upload); (3) a slab/buddy device allocator (256
+MiB slabs, per-piece state chunks, the tree store / layer bindings / eq /
+chain own chunks; `ZK_GPU_K9_SLAB_MB=0` = one cuMemAlloc per chunk = lane
+N's pattern) — the biggest round-0 hooks spent 100-250 ms in cuMemAlloc /
+Free (50-100 ms per GB on this WSL2 box) and their kernels ran 2.2-2.4x
+slower on fresh pages; now 25 slabs at the first big pair, 0 trims, 0
+declines at the 6.83 GB budget, warm after; the 45 tree builds 42-45 ->
+17 ms average.
+
+WHAT DID NOT WORK (measured, kept behind knobs): the memset warm-up of
+fresh buffers (`ZK_GPU_K9_WARM=1`: the fill engine pays the cold pages
+slower than the kernels' first touch, net -0.2 s); the exact-size pool
+alone (its budget trims re-created the churn); kernel variant 1 (`ZK_GPU_
+K9_KVAR=1`: the node loop distributed over the wire's two products and
+unrolled by the node count — registers instead of local arrays: FOLD 6.9
+vs 6.1 ms, EXTRACT 19.2 vs 13.7 ms at 2^15 pair-blocks; the extra K-mult
+per node costs its share and the occupancy stays 8 warps/SM).
+
+FINDING (the kernels' real position): `uperf-p kprobe` — a standalone
+module — puts the REGISTER-ONLY K-mult (the round kernels' schoolbook +
+burst folds + reduction) at 1.7 G kmul/s on this part (21 ns per kmul per
+SM, 16 warps/SM; more ILP per thread does not help); the round kernels run
+at 70-88% of that at the rig's shapes (FOLD 1.19, EXTRACT 1.38, masked
+EXTRACT 1.49 G kmul/s) — lane L's "16% of peak" was against a nominal
+instruction rate and at a small grid. What is left in the kernels is the
+ARITHMETIC per K-mult (the matrix form of the fixed multiplies ~5%, a lazy
+double-product reduction ~2.6%, a tensor-core limb formulation = research),
+at ~10 min of NVRTC + JIT per source change of the K9 module (464 + 99 s
+measured) — not done.
+
+GATE (HEAD, GPU build under ZK_GPU=1 unless stated): `uperf-p battery` 182
+legs at ZK_THREADS 1/2/7 (41.7M words cell by cell; L's layer chains at
+the rig's 16-slot layouts CPU == per-piece == one-launch v0 == v1; the
+device eq == the host doubling; descent pairs under 6 knob combinations
+verified) BATTERY DIGEST 43fa6363..; uperf-l 310 legs cc4f8c1c..; uperf-n
+8c3f8ca1..; uperf-h b1e78285..; uperf-a f936ff79..; uperf-g 6d6a3f6b..;
+uperf-j 45dba7c7..; uperf-pc diff-battery passed (7T); freeze-check exit
+0 (98 rows + BF/BK stable, wsl export); the default build: uperf-a/g/h/j/n
+identical digests, uperf-p's descent legs 0ce14f3c.. (not live); the three
+rigs' digests identical (four 12x512 runs during the session, all
+identical). VRAM peak: 25 slabs = 6.7 GB at the biggest pair (budget 6.83
+GB at the rig — lane K's GEMM context first).
+
+RESUMPTION POINTS (report Section 5): (a) the descent is 6.4 s
+[NOISY-SHARED] vs the round's <= 6 s [ASSUMED] — a QUIET run would read
+~6.2; (b) the kernels' arithmetic (Section 5.2 of the report; each
+iteration ~10 min compile); (c) pre-allocating the slabs at K9 init
+(the first pass through each size is still cold, ~0.5 s once per process
+[MODEL]) — must be sized against lane O's ixf.rs peak (4 GB, same VRAM,
+sequential phases); (d) a.tree-pack 0.71 s (the aligned witness's value
+closures over the threaded compact fill; overlapping it with the previous
+tree's asynchronous device build is a change in the bin's tree loop).
 
 ## Agent A status (wt-uperf2-a)
 

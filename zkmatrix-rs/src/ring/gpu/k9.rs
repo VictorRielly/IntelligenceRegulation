@@ -3340,9 +3340,9 @@ impl K9 {
 // tiny, built on the host by `kt_eq_table_par`, uploaded once), one product
 // kernel — the same canonical field product as the doubling's (a product of
 // the same factors; canonical representatives are unique), so the same bytes
-// as the host table. The table lives in `eqb` (grow-only; ONE resident eq at
+// as the host table. The table is a chunk of the buddy (ONE resident eq at
 // a time — the descent builds one per layer, the fused rounds 0/1 of that
-// layer read it, `EqTab`'s drop releases the id); the host image is never
+// layer bind it in place, `EqTab`'s drop frees it); the host image is never
 // downloaded — a CPU reader rebuilds it (`EqTab::host`).
 
 /// Build the eq b-part on the device: `Some(id)` = resident (bound by the
