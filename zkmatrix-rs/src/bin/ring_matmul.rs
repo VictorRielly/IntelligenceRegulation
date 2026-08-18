@@ -6416,6 +6416,8 @@ fn main() {
         Some("uperf-i") => uperf_i_main(&args[1..]),
         // [UPERF2-H] U-PERF2 lane H (descent tree memory: layer release + checkpoints + compact leaves) battery + bench.
         Some("uperf-h") => uperf_h_main(&args[1..]),
+        // [UPERF2-J] U-PERF2 lane J (AVX2 K-field lane kernels) battery + bench.
+        Some("uperf-j") => uperf_j_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -38871,4 +38873,105 @@ fn uperf_h_bench(depth: usize, l: usize, n_real: usize, dt: usize) {
         }
     }
     println!("[UPERF2-H] DESCENT DIGEST {}", hex_full(&out.digest));
+}
+
+// [UPERF2-J] U-PERF2 lane J — AVX2 in the packed K-field lane kernels
+// (kfield.rs: the descent round / fold / tree-step / eq kernels of lanes
+// A/G/H and the ixf round kernel of lane D). Hand-written AVX2 bodies with
+// values IDENTICAL to today's auto-vectorized bodies (every reduced value
+// canonical, the persistent node planes the same exact integers per lane
+// word); runtime `is_x86_feature_detected!("avx2")` + `ZK_KSIMD=0` (the
+// scalar bodies — the one-binary A/B). ADDITIVE section. Commands:
+//   uperf-j bench [nblk_pairs] [reps] — ns per pair-block / per block for
+//     each kernel body, scalar (today's) vs AVX2, outputs asserted equal.
+//   uperf-j battery — kernel by kernel, random + planted extremes,
+//     scalar == AVX2 bit-for-bit (values, planes, finalized nodes).
+
+fn uperf_j_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("bench") => {
+            let nblk: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(2048);
+            let reps: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(3);
+            uperf_j_bench(nblk, reps);
+        }
+        Some("battery") => uperf_j_battery(),
+        _ => println!("uperf-j bench [nblk_pairs] [reps] | battery"),
+    }
+}
+
+/// [UPERF2-J] `uperf-j bench [nblk] [reps]`: ns per unit for every kernel,
+/// variant 0 (portable body) / 1 (today's dispatch) / 2 (hand AVX2 when
+/// built), digests asserted equal across variants.
+fn uperf_j_bench(nblk: usize, reps: usize) {
+    use ring::kfield::{J_KERNELS, harness_j_run, j_avx2_available};
+    let ctx = ring_ctx_q8();
+    let kf = ring::kfield::KField::new(&ctx);
+    let hand = j_avx2_available();
+    println!(
+        "[UPERF2-J] bench: {nblk} blocks (pair-blocks for the pair kernels), best of {reps}, 1T; variants: 0 portable body, 1 today's dispatch (auto-vectorized AVX2), 2 hand AVX2 ({}); ZK_KSIMD={:?}",
+        if hand { "available" } else { "NOT built" },
+        std::env::var("ZK_KSIMD").ok()
+    );
+    println!("  {:<8} {:>12} {:>12} {:>12} {:>8} {:>8}   {}", "kernel", "v0 ns/unit", "v1 ns/unit", "v2 ns/unit", "v1/v2", "v0/v2", "digests");
+    for &k in J_KERNELS {
+        let r0 = harness_j_run(&kf, k, 0, nblk, reps, 0x1234, 0);
+        let r1 = harness_j_run(&kf, k, 1, nblk, reps, 0x1234, 0);
+        assert_eq!(r0.digest, r1.digest, "[UPERF2-J] {k}: portable != today's dispatch");
+        let ns0 = r0.secs * 1e9 / r0.units as f64;
+        let ns1 = r1.secs * 1e9 / r1.units as f64;
+        if hand {
+            let r2 = harness_j_run(&kf, k, 2, nblk, reps, 0x1234, 0);
+            let same = r2.digest == r0.digest;
+            let ns2 = r2.secs * 1e9 / r2.units as f64;
+            println!(
+                "  {:<8} {:>12.1} {:>12.1} {:>12.1} {:>7.2}x {:>7.2}x   {}",
+                k, ns0, ns1, ns2, ns1 / ns2, ns0 / ns2,
+                if same { "identical" } else { "MISMATCH" }
+            );
+            assert!(same, "[UPERF2-J] {k}: hand AVX2 != portable");
+        } else {
+            println!("  {:<8} {:>12.1} {:>12.1} {:>12} {:>8} {:>8}   {}", k, ns0, ns1, "-", "-", "-", "v0 == v1");
+        }
+    }
+}
+
+/// [UPERF2-J] `uperf-j battery`: every kernel x patterns x seeds x sizes,
+/// variant 0 == 1 == 2 (digests over outputs, exact plane integers W per
+/// lane word, finalized nodes).
+fn uperf_j_battery() {
+    use ring::kfield::{J_KERNELS, harness_j_run, j_avx2_available};
+    let t0 = Instant::now();
+    let ctx = ring_ctx_q8();
+    let kf = ring::kfield::KField::new(&ctx);
+    let hand = j_avx2_available();
+    println!(
+        "[UPERF2-J] battery: hand AVX2 {}; ZK_KSIMD={:?}; ZK_THREADS {}",
+        if hand { "available (3-way: portable == today == hand)" } else { "NOT built (2-way: portable == today)" },
+        std::env::var("ZK_KSIMD").ok(),
+        ring::eval_proof::threads()
+    );
+    let mut legs = 0usize;
+    let mut h = sha2::Sha256::new();
+    use sha2::Digest;
+    for &k in J_KERNELS {
+        for pattern in 0..5u8 {
+            for (si, &seed) in [0xA5A5u64, 0x0F0F, 0x7777].iter().enumerate() {
+                for &nblk in &[1usize, 2, 3, 8, 17, 64] {
+                    if si > 0 && nblk > 8 { continue; }
+                    let r0 = harness_j_run(&kf, k, 0, nblk, 1, seed, pattern);
+                    let r1 = harness_j_run(&kf, k, 1, nblk, 1, seed, pattern);
+                    assert_eq!(r0.digest, r1.digest, "[UPERF2-J] {k} pattern {pattern} seed {seed:x} nblk {nblk}: portable != today's dispatch");
+                    if hand {
+                        let r2 = harness_j_run(&kf, k, 2, nblk, 1, seed, pattern);
+                        assert_eq!(r0.digest, r2.digest, "[UPERF2-J] {k} pattern {pattern} seed {seed:x} nblk {nblk}: hand AVX2 != portable");
+                    }
+                    h.update(r0.digest);
+                    legs += 1;
+                }
+            }
+        }
+        println!("  ok   {k}");
+    }
+    let d: [u8; 32] = h.finalize().into();
+    println!("[UPERF2-J] battery passed: {legs} legs x {} variants; BATTERY DIGEST {}; {:.2}s", if hand { 3 } else { 2 }, hex_full(&d), t0.elapsed().as_secs_f64());
 }
