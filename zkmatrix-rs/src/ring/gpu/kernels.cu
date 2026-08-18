@@ -165,7 +165,10 @@ extern "C" __global__ void k_ntt_fwd(const void* src, int fmt, u64 q, int n_slot
 // lift_modq / DIT stages / transposed store as k_ntt_fwd (copied verbatim —
 // K's kernel is untouched).
 
-extern "C" __global__ void k_ntt_fwd_pool(const u32* pool, const u32* desc, int n_pos, int na, u64 q, u64* dst, const u64* psi_brv) {
+// `layout` 0: slot = ub * na + ia (the GEMM's [t][ub][ia] store — the level-h
+// session); 1: slot = ia * n_pos + ub (the [t][ia][ub] store the combine
+// kernel streams). The descriptor index is ia * n_pos + ub either way.
+extern "C" __global__ void k_ntt_fwd_pool(const u32* pool, const u32* desc, int n_pos, int na, u64 q, u64* dst, const u64* psi_brv, int layout) {
     __shared__ u64 sh[R_FWD * RS_FWD];
     __shared__ u64 tw[D_RING];
     const int slot0 = blockIdx.x * R_FWD;
@@ -176,7 +179,9 @@ extern "C" __global__ void k_ntt_fwd_pool(const u32* pool, const u32* desc, int 
         int slot = slot0 + r;
         u64 v = 0;
         if (slot < n_slots) {
-            int ub = slot / na, ia = slot - ub * na;
+            int ub, ia;
+            if (layout == 0) { ub = slot / na; ia = slot - ub * na; }
+            else { ia = slot / n_pos; ub = slot - ia * n_pos; }
             const u32* d = desc + 2 * ((size_t)ia * n_pos + ub);
             u64 x = ((u64)pool[(size_t)d[0] * D_RING + c] * (u64)d[1]) % q;
             v = lift_modq(x, q);
@@ -374,6 +379,11 @@ extern "C" __global__ void k_ntt_inv(u64* V, int n_slots, const u64* ipsi_brv, u
         size_t g = (size_t)slot * D_RING + c;
         if (mode == 0) {
             out[g] = v;
+        } else if (mode == 2) {
+            // [UPERF2-Q] the exact centered integer (center_from_p as i64:
+            // the fold's outputs are |z| < 2^63 by the capacity contract).
+            i64 s = (v > (P_GL >> 1)) ? -(i64)(P_GL - v) : (i64)v;
+            ((i64*)out)[g] = s;
         } else {
             // center_from_p: (-(p-1)/2, (p-1)/2]; mod_q_centered; zq.add.
             u64 mag; int neg;
@@ -385,6 +395,68 @@ extern "C" __global__ void k_ntt_inv(u64* V, int n_slots, const u64* ipsi_brv, u
             out[g] = o;
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-Q] THE COMBINE KERNEL: out[o][ub] = sum_k C[o][k] (.) B[k][ub] in
+// the NTT domain, per t — K fixed rings against K streamed slices, split-
+// halves accumulation (K's ACC128 pairs, exact for < 2^31 terms), one cell
+// per (t, o, ub) into acc[((t * n_out + o) * n + ub) * 4] = (lo, carry_lo,
+// hi, carry_hi) — the layout k_flush_reduce reads with ks = 1, na = n_out *
+// n, nb = 1 (cell = o * n + ub). B_t[t][k][ub] (the streamed operand's
+// [t][slice][position] store: threads over ub read contiguously), C_t[t][o
+// * K + k] (broadcast). Serves the quinary fold (K = r, C = c, exact i64
+// out), the factored psi (C = c, B = the level-0 functional from the pool),
+// the transport's limb-split combines (n_out = 2: C = the alpha limbs a0 /
+// a1, B = the general operands) and compute_psi.
+
+#define CB_MAX_OUT 2
+
+extern "C" __global__ void k_combine(const u64* __restrict__ B, const u64* __restrict__ C, int n, int K, int n_out, u64* acc) {
+    const int ub = blockIdx.x * blockDim.x + threadIdx.x;
+    const int t = blockIdx.y;
+    if (ub >= n) return;
+    u64 lo[CB_MAX_OUT], hi[CB_MAX_OUT];
+    u32 clo[CB_MAX_OUT], chi[CB_MAX_OUT];
+#pragma unroll
+    for (int o = 0; o < CB_MAX_OUT; ++o) { lo[o] = 0; hi[o] = 0; clo[o] = 0; chi[o] = 0; }
+    const u64* Bp = B + (size_t)t * K * n + ub;
+    const u64* Cp = C + (size_t)t * n_out * K;
+    for (int k = 0; k < K; ++k) {
+        u64 b = Bp[(size_t)k * n];
+#pragma unroll
+        for (int o = 0; o < CB_MAX_OUT; ++o) {
+            if (o < n_out) {
+                u64 c = Cp[o * K + k];
+                u64 pl = b * c;
+                u64 ph = __umul64hi(b, c);
+                ACC128(lo[o], clo[o], pl);
+                ACC128(hi[o], chi[o], ph);
+            }
+        }
+    }
+#pragma unroll
+    for (int o = 0; o < CB_MAX_OUT; ++o) {
+        if (o < n_out) {
+            size_t idx = (((size_t)t * n_out + o) * n + ub) * 4;
+            acc[idx] = lo[o];
+            acc[idx + 1] = (u64)clo[o];
+            acc[idx + 2] = hi[o];
+            acc[idx + 3] = (u64)chi[o];
+        }
+    }
+}
+
+// [UPERF2-Q] The one-sided limb recombination of `ntt_combine_general`:
+// out0[i] = (v0 + (two_l * v1) % q) % q with v0 = out0[i], v1 = out1[i] in
+// [0, q) (two_l = 2^L mod q < 2^32: the product fits u64) — the host's
+// `(v0 + mul_q(two_l, v1, q)) % q` on the same integers.
+extern "C" __global__ void k_limb_recombine(u64* out0, const u64* out1, u64 two_l, u64 q, int n_elems) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i >= n_elems) return;
+    u64 v0 = out0[i], v1 = out1[i];
+    u64 m = (two_l * v1) % q;
+    out0[i] = (v0 + m) % q;
 }
 
 // ---------------------------------------------------------------------------

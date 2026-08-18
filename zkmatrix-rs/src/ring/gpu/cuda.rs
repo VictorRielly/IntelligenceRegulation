@@ -34,6 +34,8 @@ const FUNCS: &[&str] = &[
     "k_ntt_inv",
     "k_imad_probe",
     "k_ntt_fwd_pool", // [UPERF2-Q]
+    "k_combine",      // [UPERF2-Q]
+    "k_limb_recombine", // [UPERF2-Q]
 ];
 /// Rings per block of the transform kernels (default; `ZK_GPU_RFWD` overrides,
 /// passed to NVRTC as -DR_FWD) and threads per transform block (`ZK_GPU_TFWD`).
@@ -191,6 +193,12 @@ struct Gpu {
     // session uses for the value-ring pool).
     desc: [DevBuf; 2],
     st_desc: [HostPinned; 2],
+    // [UPERF2-Q] the combine session's fixed rings (source + transformed)
+    // and its whole-call output.
+    c_src: DevBuf,
+    c_t: DevBuf,
+    st_c: HostPinned,
+    cout: DevBuf,
 }
 
 // The driver handles are thread-agnostic (the context is bound per thread
@@ -362,6 +370,10 @@ fn init_gpu() -> Result<Gpu, String> {
         st_out: HostPinned::empty(),
         desc: [DevBuf::empty(), DevBuf::empty()],
         st_desc: [HostPinned::empty(), HostPinned::empty()],
+        c_src: DevBuf::empty(),
+        c_t: DevBuf::empty(),
+        st_c: HostPinned::empty(),
+        cout: DevBuf::empty(),
     })
 }
 
@@ -732,6 +744,10 @@ impl Gpu {
         for h in self.st_desc.iter_mut() {
             h.free();
         }
+        self.c_src.free();
+        self.c_t.free();
+        self.st_c.free();
+        self.cout.free();
     }
 
     fn gemm<B: SmallRings + ?Sized>(
@@ -1416,7 +1432,7 @@ impl Gpu {
             let n_slots_b = n * nb;
             let cfg_a = LaunchConfig { grid_dim: (n_slots_a.div_ceil(r_fwd()) as u32, 1, 1), block_dim: (t_fwd(), 1, 1), shared_mem_bytes: 0 };
             let cfg_b = LaunchConfig { grid_dim: (n_slots_b.div_ceil(r_fwd()) as u32, 1, 1), block_dim: (t_fwd(), 1, 1), shared_mem_bytes: 0 };
-            unsafe { f_pool.clone().launch_on_stream(&self.sk, cfg_a, (self.src_a[pp].ptr, self.desc[pp].ptr, n as i32, na as i32, q, self.a_t.ptr, self.psi.ptr)) }
+            unsafe { f_pool.clone().launch_on_stream(&self.sk, cfg_a, (self.src_a[pp].ptr, self.desc[pp].ptr, n as i32, na as i32, q, self.a_t.ptr, self.psi.ptr, 0i32)) }
                 .map_err(|e| format!("fwd pool: {e}"))?;
             unsafe { f_fwd.clone().launch_on_stream(&self.sk, cfg_b, (self.src_b[pp].ptr, b_fmt, q, n_slots_b as i32, self.b_t.ptr, self.psi.ptr)) }
                 .map_err(|e| format!("fwd b: {e}"))?;
@@ -1483,5 +1499,512 @@ impl Gpu {
             );
         }
         Ok(out)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-Q] THE COMBINE SESSION: out[o][u] = sum_k C[o][k] (x) B[k][u] over
+// u in 0..chunk — K FIXED small rings against K STREAMED slices, one inverse
+// per output — the "few fixed x many streamed" family of eval_proof.rs:
+//   * the quinary fold `fold_chunks_ntt_gen` (C = c_j, B = the w slices
+//     (i8 / i64), exact i64 outputs);
+//   * the factored level-0 psi `psi_level0_factored_multi` (C = c_k, B =
+//     Phi_0[k*chunk + u] from the `Phi0Source` pool, mod-q outputs);
+//   * `ntt_combine_general`'s one-sided regime (C = the alpha limbs a0 / a1
+//     as two output rows, B = the general mod-q operands (u32), out = V0 +
+//     2^L V1 mod q — the transport's S / T5 contractions);
+//   * `compute_psi_ntt` (C = c_k, B = the materialized phi slices, ragged).
+// Per stage of n positions: the host packs the stage's B rings (pool +
+// descriptors, or [k][ub] flat) into pinned staging, the device transforms
+// them ([t][k][ub] store), `k_combine` accumulates the split-halves cells,
+// `k_flush_reduce` + `k_ntt_inv` (mode 1 mod-q / mode 2 exact i64) write the
+// stage's outputs in place in a device output buffer; the whole result comes
+// back once. Bit-identity: the same exact-integer products under the caller's
+// capacity contract (K terms; the caller checked it), K's canonical
+// arithmetic, the same recovery (center -> mod q, or center -> i64); the
+// limb recombination is the host's on the same integers. Every CPU body
+// stays the oracle (declined / bypassed / oracle mode / default build).
+
+/// The streamed operand of a combine session.
+pub enum CombineSrc<'a, B: SmallRings + ?Sized> {
+    /// Phi_0[k*chunk + u] from the pool (`Phi0Source::fill_pool_u32`).
+    Pool(&'a Phi0Source),
+    /// K slices of `chunk` small rings (the fold's w).
+    Small(&'a [&'a B]),
+    /// K slices of <= `chunk` mod-q rings each (shorter = zero-padded).
+    ModQ(&'a [&'a [Poly]]),
+}
+
+/// The output form.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum CombineOut {
+    /// mod-q rings (center -> mod q; with `two_l` the two output rows are
+    /// recombined as V0 + 2^L V1 mod q into ONE row).
+    ModQ { two_l: Option<u64> },
+    /// exact centered integers (the fold).
+    ExactI64,
+}
+
+/// [UPERF2-Q] Combine-session stats (observation only).
+#[derive(Clone, Debug, Default)]
+pub struct CbStats {
+    pub sessions: u64,
+    pub declined: u64,
+    pub stages: u64,
+    pub bytes_h2d: u64,
+    pub secs_fill: f64,
+    pub secs_wait: f64,
+    pub secs_total: f64,
+}
+
+static CB_SESSIONS: AtomicU64 = AtomicU64::new(0);
+static CB_DECLINED: AtomicU64 = AtomicU64::new(0);
+static CB_STAGES: AtomicU64 = AtomicU64::new(0);
+static CB_BYTES: AtomicU64 = AtomicU64::new(0);
+static CB_FILL_US: AtomicU64 = AtomicU64::new(0);
+static CB_WAIT_US: AtomicU64 = AtomicU64::new(0);
+static CB_TOTAL_US: AtomicU64 = AtomicU64::new(0);
+
+pub fn cb_stats() -> CbStats {
+    let us = |s: &AtomicU64| s.load(Ordering::Relaxed) as f64 * 1e-6;
+    CbStats {
+        sessions: CB_SESSIONS.load(Ordering::Relaxed),
+        declined: CB_DECLINED.load(Ordering::Relaxed),
+        stages: CB_STAGES.load(Ordering::Relaxed),
+        bytes_h2d: CB_BYTES.load(Ordering::Relaxed),
+        secs_fill: us(&CB_FILL_US),
+        secs_wait: us(&CB_WAIT_US),
+        secs_total: us(&CB_TOTAL_US),
+    }
+}
+
+pub fn cb_stats_reset() {
+    for s in [&CB_SESSIONS, &CB_DECLINED, &CB_STAGES, &CB_BYTES, &CB_FILL_US, &CB_WAIT_US, &CB_TOTAL_US] {
+        s.store(0, Ordering::Relaxed);
+    }
+}
+
+/// `ZK_GPU_CB=0` turns the combine sessions off (the CPU bodies run — the
+/// one-binary A/B); the harness knob `set_cb_session` overrides.
+static CB_OFF: AtomicBool = AtomicBool::new(false);
+static CB_OFF_SET: AtomicBool = AtomicBool::new(false);
+
+pub fn set_cb_session(on: bool) {
+    CB_OFF.store(!on, Ordering::Relaxed);
+    CB_OFF_SET.store(true, Ordering::Relaxed);
+}
+
+fn cb_session_on() -> bool {
+    if CB_OFF_SET.load(Ordering::Relaxed) {
+        return !CB_OFF.load(Ordering::Relaxed);
+    }
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("ZK_GPU_CB").map(|v| v != "0").unwrap_or(true))
+}
+
+/// `ZK_GPU_CB_BLOCK`: positions per combine stage (default 2048); the
+/// harness override (`set_cb_block`) wins.
+static CB_BLOCK: AtomicU64 = AtomicU64::new(0);
+
+pub fn set_cb_block(n: usize) {
+    CB_BLOCK.store(n as u64, Ordering::Relaxed);
+}
+
+fn cb_block() -> usize {
+    let o = CB_BLOCK.load(Ordering::Relaxed) as usize;
+    if o > 0 {
+        return o;
+    }
+    static V: OnceLock<usize> = OnceLock::new();
+    *V.get_or_init(|| env_usize("ZK_GPU_CB_BLOCK", 2048).max(1))
+}
+
+/// Would a combine session of this shape run (device up, q < 2^32, session
+/// on, above the minimum work)? Callers that must build an operand first
+/// (the psi0's `Phi0Source`) ask before building.
+pub fn combine_accepts(q: u64, k: usize, chunk: usize, n_out: usize) -> bool {
+    if gpu().is_none() || q >= (1u64 << 32) || k == 0 || chunk == 0 || n_out == 0 || n_out > 2 || !cb_session_on() {
+        return false;
+    }
+    let macs = (D as u128) * (k as u128) * (chunk as u128) * (n_out as u128);
+    macs >= min_macs()
+}
+
+/// The result of a combine session.
+pub enum CombineResult {
+    ModQ(Vec<Poly>),
+    I64(Vec<Vec<i64>>),
+}
+
+/// The hook's entry: `Some(result)` computed on the device (bit-identical to
+/// the CPU body), `None` = declined. `c` = n_out * K small rings, row-major
+/// (row o = c[o*K .. (o+1)*K]); every |c| and the operand bound must satisfy
+/// the caller's exact-integer contract for K terms (the CPU body's own
+/// check — the session does not re-derive it). `q` = the modulus (the
+/// mod-q sources / outputs; 0 for the exact small fold, where it is
+/// unused). `force` ignores the minimum work (the battery).
+#[allow(clippy::too_many_arguments)]
+pub fn combine_stream<B: SmallRings + ?Sized>(
+    q: u64,
+    c: &[Vec<i64>],
+    src: CombineSrc<'_, B>,
+    k: usize,
+    chunk: usize,
+    n_out: usize,
+    out: CombineOut,
+    force: bool,
+) -> Option<CombineResult> {
+    let g = gpu()?;
+    if k == 0 || chunk == 0 || n_out == 0 || n_out > 2 || c.len() != n_out * k {
+        return None;
+    }
+    if q >= (1u64 << 32) {
+        CB_DECLINED.fetch_add(1, Ordering::Relaxed);
+        return None;
+    }
+    if !force && !combine_accepts(q, k, chunk, n_out) {
+        CB_DECLINED.fetch_add(1, Ordering::Relaxed);
+        return None;
+    }
+    let t0 = Instant::now();
+    let mut st = g.lock().unwrap();
+    match st.combine(q, c, src, k, chunk, n_out, out) {
+        Ok(r) => {
+            CB_SESSIONS.fetch_add(1, Ordering::Relaxed);
+            add_us(&CB_TOTAL_US, t0.elapsed().as_secs_f64());
+            Some(r)
+        }
+        Err(e) => {
+            if !WARNED.swap(true, Ordering::Relaxed) {
+                eprintln!("[UPERF2-Q] gpu combine session failed ({e}); this and later calls fall back to the CPU body");
+            }
+            st.release_all();
+            super::k9::assert_no_chain("combine session failure bypass");
+            BYPASS.store(true, Ordering::Relaxed);
+            None
+        }
+    }
+}
+
+impl Gpu {
+    /// The session body (see the section note).
+    #[allow(clippy::too_many_arguments)]
+    fn combine<B: SmallRings + ?Sized>(
+        &mut self,
+        q: u64,
+        c: &[Vec<i64>],
+        src: CombineSrc<'_, B>,
+        k: usize,
+        chunk: usize,
+        n_out: usize,
+        out_mode: CombineOut,
+    ) -> Result<CombineResult, String> {
+        let dev = self.dev.clone();
+        dev.bind_to_thread().map_err(|e| format!("bind_to_thread: {e}"))?;
+        let zq_v = super::super::Zq { q: q.max(1) }; // the pool fill's modulus (q > 0 whenever a pool source is used)
+        let zq = &zq_v;
+        let n_blk = cb_block().min(chunk).max(1);
+        // The streamed operand's staging format.
+        let (is_pool, b_fmt, b_elt): (bool, i32, usize) = match &src {
+            CombineSrc::Pool(_) => (true, -1, 0),
+            CombineSrc::Small(w) => {
+                let all_i8 = w.iter().all(|s| s.as_i8().is_some());
+                if all_i8 || w.iter().map(|s| s.max_abs()).max().unwrap_or(0) <= 127 {
+                    (false, 2, 1)
+                } else {
+                    (false, 3, 8)
+                }
+            }
+            CombineSrc::ModQ(_) => (false, 0, 4), // q < 2^32: u32
+        };
+        // Buffer sizes.
+        let n_c = n_out * k;
+        let sz_c_src = n_c * D * 8;
+        let sz_c_t = n_c * D * 8;
+        let sz_pool = (1 + k * n_blk) * D * 4;
+        let sz_desc = k * n_blk * 8;
+        let sz_src_b = if is_pool { 0 } else { k * n_blk * D * b_elt };
+        let sz_b_t = k * n_blk * D * 8;
+        let sz_acc = D * n_out * n_blk * 32;
+        let sz_v = n_out * n_blk * D * 8;
+        let sz_cout = n_out * chunk * D * 8;
+        let grow = self.c_src.needs(sz_c_src)
+            || self.c_t.needs(sz_c_t)
+            || self.st_c.needs(sz_c_src)
+            || (is_pool && (self.src_a.iter().any(|d| d.needs(sz_pool)) || self.st_a.iter().any(|h| h.needs(sz_pool))))
+            || (is_pool && (self.desc.iter().any(|d| d.needs(sz_desc)) || self.st_desc.iter().any(|h| h.needs(sz_desc))))
+            || (!is_pool && (self.src_b.iter().any(|d| d.needs(sz_src_b)) || self.st_b.iter().any(|h| h.needs(sz_src_b))))
+            || self.b_t.needs(sz_b_t)
+            || self.acc.needs(sz_acc)
+            || self.v.needs(sz_v)
+            || self.cout.needs(sz_cout);
+        if grow {
+            self.sync_all()?;
+            self.c_src.grow(sz_c_src)?;
+            self.c_t.grow(sz_c_t)?;
+            self.st_c.grow(sz_c_src)?;
+            if is_pool {
+                for d in self.src_a.iter_mut() {
+                    d.grow(sz_pool)?;
+                }
+                for h in self.st_a.iter_mut() {
+                    h.grow(sz_pool)?;
+                }
+                for d in self.desc.iter_mut() {
+                    d.grow(sz_desc)?;
+                }
+                for h in self.st_desc.iter_mut() {
+                    h.grow(sz_desc)?;
+                }
+            } else {
+                for d in self.src_b.iter_mut() {
+                    d.grow(sz_src_b)?;
+                }
+                for h in self.st_b.iter_mut() {
+                    h.grow(sz_src_b)?;
+                }
+            }
+            self.b_t.grow(sz_b_t)?;
+            self.acc.grow(sz_acc)?;
+            self.v.grow(sz_v)?;
+            self.cout.grow(sz_cout)?;
+        }
+        let f_pool = dev.get_func(MODULE, "k_ntt_fwd_pool").ok_or("k_ntt_fwd_pool missing")?;
+        let f_fwd = dev.get_func(MODULE, "k_ntt_fwd").ok_or("k_ntt_fwd missing")?;
+        let f_cb = dev.get_func(MODULE, "k_combine").ok_or("k_combine missing")?;
+        let f_flush = dev.get_func(MODULE, "k_flush_reduce").ok_or("k_flush_reduce missing")?;
+        let f_inv = dev.get_func(MODULE, "k_ntt_inv").ok_or("k_ntt_inv missing")?;
+        let f_rec = dev.get_func(MODULE, "k_limb_recombine").ok_or("k_limb_recombine missing")?;
+        let sk = self.sk.stream;
+        let sc = self.sc.stream;
+        let sync_sk = || unsafe { cu::stream::synchronize(sk) }.map_err(|e| format!("sync sk: {e}"));
+        let (mut secs_fill, mut secs_wait) = (0.0f64, 0.0f64);
+        let mut bytes_h2d = 0u64;
+        let mut stages = 0u64;
+        // ---- the fixed rings: i64 -> device -> transformed once ([t][slot]).
+        {
+            let stc = self.st_c.slice_mut::<i64>(n_c * D);
+            for (i, ring) in c.iter().enumerate() {
+                assert_eq!(ring.len(), D, "combine: c ring length");
+                stc[i * D..(i + 1) * D].copy_from_slice(ring);
+            }
+            unsafe { cu::memcpy_htod_async(self.c_src.ptr, self.st_c.slice::<u8>(sz_c_src), sk) }.map_err(|e| format!("h2d c: {e}"))?;
+            let cfg = LaunchConfig { grid_dim: (n_c.div_ceil(r_fwd()) as u32, 1, 1), block_dim: (t_fwd(), 1, 1), shared_mem_bytes: 0 };
+            unsafe { f_fwd.clone().launch_on_stream(&self.sk, cfg, (self.c_src.ptr, 3i32, q, n_c as i32, self.c_t.ptr, self.psi.ptr)) }
+                .map_err(|e| format!("fwd c: {e}"))?;
+            bytes_h2d += sz_c_src as u64;
+        }
+        // Zero the output (mode 1 accumulates into it; mode 2 overwrites).
+        unsafe { cu::memset_d8_async(self.cout.ptr, 0, sz_cout, sk) }.map_err(|e| format!("memset cout: {e}"))?;
+        let inv_mode: i32 = match out_mode {
+            CombineOut::ModQ { .. } => 1,
+            CombineOut::ExactI64 => 2,
+        };
+        let mut blk = 0usize;
+        let mut u0 = 0usize;
+        while u0 < chunk {
+            let n = n_blk.min(chunk - u0);
+            let pp = blk % 2;
+            // ---- staging[pp] free.
+            let tw = Instant::now();
+            unsafe { cu::event::synchronize(self.ev_h2d[pp]) }.map_err(|e| format!("event sync h2d: {e}"))?;
+            secs_wait += tw.elapsed().as_secs_f64();
+            // ---- host: pack the stage's B rings.
+            let tf = Instant::now();
+            let _tq = prof::timer(prof::Q_CB_FILL);
+            let mut pool_bytes = 0usize;
+            let mut desc_bytes = 0usize;
+            let n_bs = n * k * D;
+            match &src {
+                CombineSrc::Pool(ps) => {
+                    let counts: Vec<usize> = (0..k).map(|j| ps.pool_count(j * chunk + u0, n)).collect();
+                    let mut bases: Vec<usize> = Vec::with_capacity(k);
+                    let mut tot = 1usize;
+                    for cnt in &counts {
+                        bases.push(tot);
+                        tot += cnt;
+                    }
+                    pool_bytes = tot * D * 4;
+                    desc_bytes = k * n * 8;
+                    let pool_all: &mut [u32] = self.st_a[pp].slice_mut::<u32>(tot * D);
+                    let (zero_seg, mut rest) = pool_all.split_at_mut(D);
+                    zero_seg.fill(0);
+                    let mut segs: Vec<&mut [u32]> = Vec::with_capacity(k);
+                    for cnt in &counts {
+                        let (s, r2) = rest.split_at_mut(cnt * D);
+                        segs.push(s);
+                        rest = r2;
+                    }
+                    let desc_all: &mut [[u32; 2]] = self.st_desc[pp].slice_mut::<[u32; 2]>(k * n);
+                    let bases_r = &bases;
+                    let fill_j = |j: usize, seg: &mut [u32], dj: &mut [[u32; 2]]| {
+                        let _ = ps.fill_pool_u32(zq, j * chunk + u0, n, bases_r[j] as u32, 0, seg, dj);
+                    };
+                    if threads() > 1 {
+                        POOL.install(|| {
+                            use rayon::prelude::*;
+                            segs.into_par_iter().zip(desc_all.par_chunks_mut(n)).enumerate().for_each(|(j, (seg, dj))| fill_j(j, seg, dj));
+                        });
+                    } else {
+                        for (j, (seg, dj)) in segs.into_iter().zip(desc_all.chunks_mut(n)).enumerate() {
+                            fill_j(j, seg, dj);
+                        }
+                    }
+                }
+                CombineSrc::Small(w) => {
+                    let st_b = &mut self.st_b[pp];
+                    let per_k = n * D;
+                    if b_fmt == 2 {
+                        let do_k = |j: usize, dst: &mut [i8]| {
+                            if let Some(raw) = w[j].as_i8() {
+                                dst.copy_from_slice(&raw[u0 * D..(u0 + n) * D]);
+                            } else {
+                                let mut buf = [0i64; D];
+                                for ub in 0..n {
+                                    let ring = w[j].ring(u0 + ub, &mut buf);
+                                    let d = &mut dst[ub * D..(ub + 1) * D];
+                                    for cc in 0..D {
+                                        d[cc] = ring[cc] as i8;
+                                    }
+                                }
+                            }
+                        };
+                        if threads() > 1 {
+                            POOL.install(|| {
+                                use rayon::prelude::*;
+                                st_b.slice_mut::<i8>(n_bs).par_chunks_mut(per_k).enumerate().for_each(|(j, d)| do_k(j, d));
+                            });
+                        } else {
+                            st_b.slice_mut::<i8>(n_bs).chunks_mut(per_k).enumerate().for_each(|(j, d)| do_k(j, d));
+                        }
+                    } else {
+                        let do_k = |j: usize, dst: &mut [i64]| {
+                            let mut buf = [0i64; D];
+                            for ub in 0..n {
+                                let ring = w[j].ring(u0 + ub, &mut buf);
+                                dst[ub * D..(ub + 1) * D].copy_from_slice(ring);
+                            }
+                        };
+                        if threads() > 1 {
+                            POOL.install(|| {
+                                use rayon::prelude::*;
+                                st_b.slice_mut::<i64>(n_bs).par_chunks_mut(per_k).enumerate().for_each(|(j, d)| do_k(j, d));
+                            });
+                        } else {
+                            st_b.slice_mut::<i64>(n_bs).chunks_mut(per_k).enumerate().for_each(|(j, d)| do_k(j, d));
+                        }
+                    }
+                }
+                CombineSrc::ModQ(ops) => {
+                    let st_b = &mut self.st_b[pp];
+                    let per_k = n * D;
+                    let do_k = |j: usize, dst: &mut [u32]| {
+                        let sl = ops[j];
+                        for ub in 0..n {
+                            let d = &mut dst[ub * D..(ub + 1) * D];
+                            let u = u0 + ub;
+                            if u < sl.len() {
+                                let ring = &sl[u];
+                                for cc in 0..D {
+                                    d[cc] = ring[cc] as u32;
+                                }
+                            } else {
+                                d.fill(0);
+                            }
+                        }
+                    };
+                    if threads() > 1 {
+                        POOL.install(|| {
+                            use rayon::prelude::*;
+                            st_b.slice_mut::<u32>(n_bs).par_chunks_mut(per_k).enumerate().for_each(|(j, d)| do_k(j, d));
+                        });
+                    } else {
+                        st_b.slice_mut::<u32>(n_bs).chunks_mut(per_k).enumerate().for_each(|(j, d)| do_k(j, d));
+                    }
+                }
+            }
+            drop(_tq);
+            secs_fill += tf.elapsed().as_secs_f64();
+            // ---- upload (after the transforms that last read src[pp]).
+            unsafe { cu::stream::wait_event(sc, self.ev_fwd[pp], sys::CUevent_wait_flags::CU_EVENT_WAIT_DEFAULT) }
+                .map_err(|e| format!("wait fwd: {e}"))?;
+            if is_pool {
+                unsafe { cu::memcpy_htod_async(self.src_a[pp].ptr, self.st_a[pp].slice::<u8>(pool_bytes), sc) }.map_err(|e| format!("h2d pool: {e}"))?;
+                unsafe { cu::memcpy_htod_async(self.desc[pp].ptr, self.st_desc[pp].slice::<u8>(desc_bytes), sc) }.map_err(|e| format!("h2d desc: {e}"))?;
+                bytes_h2d += (pool_bytes + desc_bytes) as u64;
+            } else {
+                unsafe { cu::memcpy_htod_async(self.src_b[pp].ptr, self.st_b[pp].slice::<u8>(n_bs * b_elt), sc) }.map_err(|e| format!("h2d b: {e}"))?;
+                bytes_h2d += (n_bs * b_elt) as u64;
+            }
+            unsafe { cu::event::record(self.ev_h2d[pp], sc) }.map_err(|e| format!("record h2d: {e}"))?;
+            // ---- transforms ([t][k][ub] store) on the compute stream.
+            unsafe { cu::stream::wait_event(sk, self.ev_h2d[pp], sys::CUevent_wait_flags::CU_EVENT_WAIT_DEFAULT) }
+                .map_err(|e| format!("wait h2d: {e}"))?;
+            let n_slots = n * k;
+            let cfg_f = LaunchConfig { grid_dim: (n_slots.div_ceil(r_fwd()) as u32, 1, 1), block_dim: (t_fwd(), 1, 1), shared_mem_bytes: 0 };
+            if is_pool {
+                unsafe { f_pool.clone().launch_on_stream(&self.sk, cfg_f, (self.src_a[pp].ptr, self.desc[pp].ptr, n as i32, k as i32, q, self.b_t.ptr, self.psi.ptr, 1i32)) }
+                    .map_err(|e| format!("fwd pool: {e}"))?;
+            } else {
+                unsafe { f_fwd.clone().launch_on_stream(&self.sk, cfg_f, (self.src_b[pp].ptr, b_fmt, q, n_slots as i32, self.b_t.ptr, self.psi.ptr)) }
+                    .map_err(|e| format!("fwd b: {e}"))?;
+            }
+            unsafe { cu::event::record(self.ev_fwd[pp], sk) }.map_err(|e| format!("record fwd: {e}"))?;
+            // ---- combine -> flush -> inverse into the output rows.
+            let cfg_c = LaunchConfig { grid_dim: (n.div_ceil(256) as u32, D as u32, 1), block_dim: (256, 1, 1), shared_mem_bytes: 0 };
+            unsafe { f_cb.clone().launch_on_stream(&self.sk, cfg_c, (self.b_t.ptr, self.c_t.ptr, n as i32, k as i32, n_out as i32, self.acc.ptr)) }
+                .map_err(|e| format!("combine: {e}"))?;
+            let cells = n_out * n;
+            let cfg_fl = LaunchConfig { grid_dim: (cells as u32, 1, 1), block_dim: (D as u32, 1, 1), shared_mem_bytes: 0 };
+            unsafe { f_flush.clone().launch_on_stream(&self.sk, cfg_fl, (self.acc.ptr, 1i32, cells as i32, 1i32, self.v.ptr)) }
+                .map_err(|e| format!("flush: {e}"))?;
+            let cfg_i = LaunchConfig { grid_dim: (n.div_ceil(r_fwd()) as u32, 1, 1), block_dim: (t_fwd(), 1, 1), shared_mem_bytes: 0 };
+            let n_inv = self.n_inv;
+            for o in 0..n_out {
+                let v_ptr = self.v.ptr + (o * n * D * 8) as u64;
+                let out_ptr = self.cout.ptr + ((o * chunk + u0) * D * 8) as u64;
+                unsafe { f_inv.clone().launch_on_stream(&self.sk, cfg_i, (v_ptr, n as i32, self.ipsi.ptr, n_inv, inv_mode, q, out_ptr)) }
+                    .map_err(|e| format!("inv: {e}"))?;
+            }
+            u0 += n;
+            blk += 1;
+            stages += 1;
+        }
+        // ---- the limb recombination (n_out = 2, mod q).
+        if let CombineOut::ModQ { two_l: Some(two_l) } = out_mode {
+            assert_eq!(n_out, 2, "combine: two_l needs two output rows");
+            let n_elems = chunk * D;
+            let cfg_r = LaunchConfig { grid_dim: (n_elems.div_ceil(256) as u32, 1, 1), block_dim: (256, 1, 1), shared_mem_bytes: 0 };
+            let out1 = self.cout.ptr + (chunk * D * 8) as u64;
+            unsafe { f_rec.clone().launch_on_stream(&self.sk, cfg_r, (self.cout.ptr, out1, two_l, q, n_elems as i32)) }
+                .map_err(|e| format!("recombine: {e}"))?;
+        }
+        // ---- drain + the result (one row of chunk rings; pageable copy).
+        let tw = Instant::now();
+        {
+            let _tq = prof::timer(prof::Q_CB_WAIT);
+            sync_sk()?;
+        }
+        secs_wait += tw.elapsed().as_secs_f64();
+        let mut flat: Vec<u64> = vec![0u64; chunk * D];
+        unsafe { cu::memcpy_dtoh_sync(&mut flat, self.cout.ptr) }.map_err(|e| format!("d2h out: {e}"))?;
+        let res = match out_mode {
+            CombineOut::ExactI64 => CombineResult::I64((0..chunk).map(|u| flat[u * D..(u + 1) * D].iter().map(|&x| x as i64).collect()).collect()),
+            CombineOut::ModQ { .. } => CombineResult::ModQ((0..chunk).map(|u| flat[u * D..(u + 1) * D].to_vec()).collect()),
+        };
+        CB_STAGES.fetch_add(stages, Ordering::Relaxed);
+        CB_BYTES.fetch_add(bytes_h2d, Ordering::Relaxed);
+        add_us(&CB_FILL_US, secs_fill);
+        add_us(&CB_WAIT_US, secs_wait);
+        if verbose() {
+            eprintln!(
+                "[UPERF2-Q] combine session K {k} chunk {chunk} n_out {n_out} ({}; stage {n_blk}, b_fmt {b_fmt}): {stages} stages, fill {:.1} ms, wait {:.1} ms, h2d {:.0} MB",
+                if is_pool { "pool" } else { "flat" },
+                secs_fill * 1e3,
+                secs_wait * 1e3,
+                bytes_h2d as f64 / 1e6
+            );
+        }
+        Ok(res)
     }
 }

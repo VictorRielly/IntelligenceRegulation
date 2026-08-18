@@ -2571,8 +2571,8 @@ pub mod prof {
     pub const Q_LH_WAIT: usize = 81; // [UPERF2-Q] gpu level-h session: host blocked on the device (staging reuse + the drain)
     pub const Q_LH_STREAM: usize = 82; // [UPERF2-Q] gpu level-h session wall (the whole level's r x r table on the device)
     pub const Q_LH_SMAX: usize = 83; // [UPERF2-Q] gpu level-h session: the level's s_max scan of the witness store
-    pub const Q_RESERVED_84: usize = 84;
-    pub const Q_RESERVED_85: usize = 85;
+    pub const Q_CB_FILL: usize = 84; // [UPERF2-Q] gpu combine session (fold / psi0 / transport combines): host pack per stage
+    pub const Q_CB_WAIT: usize = 85; // [UPERF2-Q] gpu combine session: the drain
     pub const Q_RESERVED_86: usize = 86;
     pub const Q_RESERVED_87: usize = 87;
     pub const Q_RESERVED_88: usize = 88;
@@ -2664,8 +2664,8 @@ pub mod prof {
         "q.lh-wait",
         "q.lh-stream",
         "q.lh-smax",
-        "q.reserved-84",
-        "q.reserved-85",
+        "q.cb-fill",
+        "q.cb-wait",
         "q.reserved-86",
         "q.reserved-87",
         "q.reserved-88",

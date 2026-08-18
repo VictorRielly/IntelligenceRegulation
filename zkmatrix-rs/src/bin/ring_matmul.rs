@@ -41658,7 +41658,147 @@ fn uperf_q_battery() {
             absorb_polys(&mut battery, &want);
         }
     }
-    let _ = mat;
+    // ---- (E)-(H) the combine family: the fold (exact i64), the factored
+    // psi0 (pool source), the transport's one-sided combine (two limb rows +
+    // recombine), compute_psi (ragged mod-q slices) — session (forced) vs
+    // the CPU bodies (bypassed); then the hooks GPU-live vs bypassed.
+    if have_gpu {
+        use ring::eval_proof::{compute_psi, fold_chunks_ntt_gen, ntt_combine_general, psi_level0_factored_multi};
+        use ring::gpu::{combine_stream, CombineOut, CombineResult, CombineSrc};
+        let mut cb_sessions = 0u64;
+        for &r in &[3usize, 8, 17, 64] {
+            let chunk = n0.div_ceil(r);
+            let mut w_pad = w0.clone();
+            w_pad.resize(r * chunk, vec![0i64; D]);
+            let cols_pad = DigitCols::from_vecs(&w_pad);
+            let w_sl: Vec<&[Vec<i64>]> = (0..r).map(|k| &w_pad[k * chunk..(k + 1) * chunk]).collect();
+            let c_sl: Vec<&[i8]> = (0..r).map(|k| &cols_pad.rings()[k * chunk * D..(k + 1) * chunk * D]).collect();
+            let cs: Vec<Vec<i64>> = (0..r)
+                .map(|_| {
+                    let mut v: Vec<i64> = (0..D).map(|_| rd.next_field(5) as i64 - 2).collect();
+                    v[(rd.next_u64() as usize) % D] = 2;
+                    v[(rd.next_u64() as usize) % D] = -2;
+                    v
+                })
+                .collect();
+            // a boxed |w| = 300 store (the i64 format; capacity r x D x 2 x 300 fits)
+            let w_big: Vec<Vec<i64>> = (0..r * chunk)
+                .map(|u| if u % 9 == 4 { vec![0i64; D] } else { (0..D).map(|_| rd.next_field(601) as i64 - 300).collect() })
+                .collect();
+            let b_sl: Vec<&[Vec<i64>]> = (0..r).map(|k| &w_big[k * chunk..(k + 1) * chunk]).collect();
+            for &stage in &[0usize, 7, 500] {
+                ring::gpu::set_cb_block(stage);
+                // (E) the fold
+                ring::gpu::set_bypass(true);
+                let want_c = fold_chunks_ntt_gen(&cs, &c_sl, chunk);
+                let want_v = fold_chunks_ntt_gen(&cs, &w_sl, chunk);
+                let want_b = fold_chunks_ntt_gen(&cs, &b_sl, chunk);
+                ring::gpu::set_bypass(false);
+                let s0 = ring::gpu::cb_stats().sessions;
+                let got_c = match combine_stream::<[i8]>(0, &cs, CombineSrc::Small(&c_sl), r, chunk, 1, CombineOut::ExactI64, true) {
+                    Some(CombineResult::I64(z)) => Some(z),
+                    _ => None,
+                };
+                let got_v = match combine_stream::<[Vec<i64>]>(0, &cs, CombineSrc::Small(&w_sl), r, chunk, 1, CombineOut::ExactI64, true) {
+                    Some(CombineResult::I64(z)) => Some(z),
+                    _ => None,
+                };
+                let got_b = match combine_stream::<[Vec<i64>]>(0, &cs, CombineSrc::Small(&b_sl), r, chunk, 1, CombineOut::ExactI64, true) {
+                    Some(CombineResult::I64(z)) => Some(z),
+                    _ => None,
+                };
+                let ok = got_c.as_ref() == Some(&want_c) && got_v.as_ref() == Some(&want_v) && got_b.as_ref() == Some(&want_b) && want_c == want_v;
+                check(&format!("fold session == CPU body: r {r} chunk {chunk} stage {stage} (i8, boxed, boxed |w| 300)"), ok);
+                for z in &want_c {
+                    for &x in z {
+                        battery.update(x.to_le_bytes());
+                    }
+                }
+                // (F) the factored psi0 through the pool
+                ring::gpu::set_bypass(true);
+                let want_p = psi_level0_factored_multi(&ctx, &kf, &g, &mk, &alphas, &cs, chunk);
+                ring::gpu::set_bypass(false);
+                let mut mat_pad = mat.clone();
+                mat_pad.resize(r * chunk, poly_zero());
+                let want_cp = {
+                    ring::gpu::set_bypass(true);
+                    let v = compute_psi(&ctx, &mat_pad, chunk, &cs);
+                    ring::gpu::set_bypass(false);
+                    v
+                };
+                let got_p = match combine_stream::<[i8]>(q, &cs, CombineSrc::Pool(&src), r, chunk, 1, CombineOut::ModQ { two_l: None }, true) {
+                    Some(CombineResult::ModQ(p)) => Some(p),
+                    _ => None,
+                };
+                check(&format!("psi0 session (pool) == psi_level0_factored_multi == compute_psi(Phi_0): r {r} chunk {chunk} stage {stage}"), got_p.as_ref() == Some(&want_p) && want_p == want_cp);
+                absorb_polys(&mut battery, &want_p);
+                // (G) compute_psi with ragged phi (the materialized Phi_0, r*chunk - tail rings)
+                let ragged: Vec<Poly> = mat_pad[..r * chunk - (chunk / 3).min(r * chunk - 1)].to_vec();
+                ring::gpu::set_bypass(true);
+                let want_r = compute_psi(&ctx, &ragged, chunk, &cs);
+                ring::gpu::set_bypass(false);
+                let ops_r: Vec<&[Poly]> = (0..r).map(|k| &ragged[(k * chunk).min(ragged.len())..((k + 1) * chunk).min(ragged.len())]).collect();
+                let got_r = match combine_stream::<[i8]>(q, &cs, CombineSrc::ModQ(&ops_r), r, chunk, 1, CombineOut::ModQ { two_l: None }, true) {
+                    Some(CombineResult::ModQ(p)) => Some(p),
+                    _ => None,
+                };
+                check(&format!("compute_psi session (ragged mod-q slices) == CPU body: r {r} chunk {chunk} stage {stage}"), got_r.as_ref() == Some(&want_r));
+                absorb_polys(&mut battery, &want_r);
+                // (H) the transport's one-sided combine: 12 general alphas x 12 operand slices of m rings
+                let n_al = 12usize;
+                let m = chunk;
+                let al: Vec<Poly> = (0..n_al).map(|_| uperf_k_rand_modq_ring(&mut rd, q, false)).collect();
+                let ops_store: Vec<Vec<Poly>> = (0..n_al).map(|i| (0..m).map(|u| uperf_k_rand_modq_ring(&mut rd, q, (u + i) % 11 == 3)).collect()).collect();
+                let ops: Vec<&[Poly]> = ops_store.iter().map(|v| v.as_slice()).collect();
+                ring::gpu::set_bypass(true);
+                let want_t = ntt_combine_general(&ctx, &al, &ops, m);
+                ring::gpu::set_bypass(false);
+                let l = aux::limb_bits(q);
+                let two_l = (1u64 << l) % q;
+                let mut cl: Vec<Vec<i64>> = Vec::with_capacity(2 * n_al);
+                for lim in 0..2 {
+                    for a in al.iter() {
+                        cl.push(
+                            (0..D)
+                                .map(|i| {
+                                    let (lo, hi) = aux::split_limbs(aux::balanced_mod_q(a[i], q), l);
+                                    if lim == 0 { lo } else { hi }
+                                })
+                                .collect(),
+                        );
+                    }
+                }
+                let got_t = match combine_stream::<[i8]>(q, &cl, CombineSrc::ModQ(&ops), n_al, m, 2, CombineOut::ModQ { two_l: Some(two_l) }, true) {
+                    Some(CombineResult::ModQ(p)) => Some(p),
+                    _ => None,
+                };
+                check(&format!("transport combine session (2 limb rows + recombine) == ntt_combine_general: n 12 m {m} stage {stage}"), got_t.as_ref() == Some(&want_t));
+                absorb_polys(&mut battery, &want_t);
+                cb_sessions += ring::gpu::cb_stats().sessions - s0;
+            }
+            ring::gpu::set_cb_block(0);
+        }
+        println!("[UPERF2-Q] (E)-(H): {cb_sessions} combine sessions ran (stages {})", ring::gpu::cb_stats().stages);
+        // the hooks GPU-live vs bypassed (min_macs in force; engaged reported)
+        {
+            let r = 8usize;
+            let chunk = n0.div_ceil(r);
+            let mut w_pad = w0.clone();
+            w_pad.resize(r * chunk, vec![0i64; D]);
+            let cols_pad = DigitCols::from_vecs(&w_pad);
+            let c_sl: Vec<&[i8]> = (0..r).map(|k| &cols_pad.rings()[k * chunk * D..(k + 1) * chunk * D]).collect();
+            let cs: Vec<Vec<i64>> = (0..r).map(|_| (0..D).map(|_| rd.next_field(5) as i64 - 2).collect()).collect();
+            let s0 = ring::gpu::cb_stats().sessions;
+            let f_live = fold_chunks_ntt_gen(&cs, &c_sl, chunk);
+            let p_live = psi_level0_factored_multi(&ctx, &kf, &g, &mk, &alphas, &cs, chunk);
+            let engaged = ring::gpu::cb_stats().sessions - s0;
+            ring::gpu::set_bypass(true);
+            let f_want = fold_chunks_ntt_gen(&cs, &c_sl, chunk);
+            let p_want = psi_level0_factored_multi(&ctx, &kf, &g, &mk, &alphas, &cs, chunk);
+            ring::gpu::set_bypass(false);
+            check(&format!("hooks fold_chunks_ntt + psi_level0_factored_multi GPU-live ({engaged} sessions engaged; ZK_GPU={}) == bypassed at r {r} chunk {chunk}", if ring::gpu::enabled() { "1" } else { "unset" }), f_live == f_want && p_live == p_want);
+        }
+    }
     let dg: [u8; 32] = battery.finalize().into();
     println!(
         "[UPERF2-Q] battery: {}/{} legs ok in {:.1}s | BATTERY DIGEST {}",

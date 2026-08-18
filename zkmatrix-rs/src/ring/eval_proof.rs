@@ -2272,11 +2272,34 @@ fn psi_level0_multi_impl(
     assert_eq!(alphas.len(), K_DEG);
     let zq = &ctx.zq;
     let r = c.len();
+    let cmax: u128 = c.iter().flat_map(|ck| ck.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0);
+    // [UPERF2-Q] THE DEVICE COMBINE HOOK: Psi_u = sum_k c_k (x) Phi_0[k*chunk
+    // + u] with Phi_0 streamed from the factored source's pool (one value
+    // ring per value ring, the limb radix applied on the device) — the exact
+    // r-term contract (|c| <= cmax, |Phi_0| <= (q-1)/2: r <= the window), K's
+    // canonical arithmetic, center -> mod q: the value `compute_psi(Phi_0)`
+    // and this function's bodies below both compute (F's / M's battery
+    // legs). Declines (q >= 2^32, small shapes, session off, oracle mode)
+    // run the bodies below — the oracle.
+    if !pre_o5 && r > 0 && chunk > 0 && super::gpu::enabled() && ntt_window_terms(zq.q, cmax) >= r && super::gpu::combine_accepts(zq.q, r, chunk, 1) {
+        let src = Phi0Source::new_for(ctx, kf, group, kernels, alphas, false);
+        if let Some(super::gpu::CombineResult::ModQ(psi)) = super::gpu::combine_stream::<[i8]>(
+            zq.q,
+            c,
+            super::gpu::CombineSrc::Pool(&src),
+            r,
+            chunk,
+            1,
+            super::gpu::CombineOut::ModQ { two_l: None },
+            false,
+        ) {
+            return psi;
+        }
+    }
     let c_polys: Vec<Poly> = c.iter().map(|ck| poly_from_small(zq, ck)).collect();
     let mut psi = vec![poly_zero(); chunk];
     let mut cache = ColBlockCache::new(); // [UPERF-PC O5] per-(col kernel, cb) G blocks
     let mut ntt_tensors: Vec<PsiAlignedTensor> = Vec::new(); // [UPERF2-M]
-    let cmax: u128 = c.iter().flat_map(|ck| ck.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0);
     for (ti, t) in group.tensors.iter().enumerate() {
         let kers: Vec<&MultiClaimKernel> =
             kernels.iter().filter(|k| k.tensor_idx == ti).collect();
@@ -4457,6 +4480,16 @@ pub fn fold_chunks_ntt_gen<B: SmallRings + ?Sized>(cs: &[Vec<i64>], w: &[&B], ch
         return fold_chunks_ref_gen(cs, w, chunk);
     }
     let _tm = prof::timer(prof::M_FOLD_NTT); // [UPERF2-M] observation only
+    // [UPERF2-Q] THE DEVICE COMBINE HOOK: the same r exact products per
+    // output (K's canonical arithmetic, the exact centered recovery) — the
+    // loop below is its oracle (declined / bypassed / default build).
+    if super::gpu::enabled() {
+        if let Some(super::gpu::CombineResult::I64(z)) =
+            super::gpu::combine_stream::<B>(0, cs, super::gpu::CombineSrc::Small(w), r, chunk, 1, super::gpu::CombineOut::ExactI64, false)
+        {
+            return z;
+        }
+    }
     let t = &*NTT;
     let c_hat: Vec<[u64; D]> = cs.iter().map(|c| fwd_small(c, t)).collect();
     let one = |u: usize| -> Vec<i64> {
@@ -4549,6 +4582,29 @@ pub fn compute_psi_ntt(ctx: &RingCtx, phi: &[Poly], chunk: usize, c: &[Vec<i64>]
     if window < r {
         return compute_psi_ref(ctx, phi, chunk, c);
     }
+    // [UPERF2-Q] THE DEVICE COMBINE HOOK (the phi slices, ragged tail
+    // zero-padded by the pack; the loop below is its oracle).
+    if super::gpu::enabled() && super::gpu::combine_accepts(q, r, chunk, 1) {
+        let ops: Vec<&[Poly]> = (0..r)
+            .map(|k| {
+                let lo = (k * chunk).min(phi.len());
+                let hi = ((k + 1) * chunk).min(phi.len());
+                &phi[lo..hi]
+            })
+            .collect();
+        if let Some(super::gpu::CombineResult::ModQ(o)) = super::gpu::combine_stream::<[i8]>(
+            q,
+            c,
+            super::gpu::CombineSrc::ModQ(&ops),
+            r,
+            chunk,
+            1,
+            super::gpu::CombineOut::ModQ { two_l: None },
+            false,
+        ) {
+            return o;
+        }
+    }
     let t = &*NTT;
     let c_hat: Vec<[u64; D]> = c.iter().map(|ck| fwd_small(ck, t)).collect();
     let one = |u: usize| -> Poly {
@@ -4613,9 +4669,41 @@ pub fn ntt_combine_general(ctx: &RingCtx, alphas: &[Poly], ops: &[&[Poly]], m: u
     if !one_sided && !two_sided {
         return ntt_combine_general_ref(ctx, alphas, ops, m);
     }
+    let two_l = (1u64 << l) % q;
+    // [UPERF2-Q] THE DEVICE COMBINE HOOK (the one-sided regime): the two
+    // alpha limb rows (`split_limbs` of the balanced alphas, as `fwd_modq_
+    // limbs` lifts them) against the operands, out = V0 + 2^L V1 mod q on
+    // the device — the same exact integers; the loop below is its oracle.
+    if one_sided && super::gpu::enabled() && super::gpu::combine_accepts(q, n, m, 2) {
+        use super::aux::{balanced_mod_q, split_limbs};
+        let mut cl: Vec<Vec<i64>> = Vec::with_capacity(2 * n);
+        for lim in 0..2 {
+            for a in alphas.iter() {
+                cl.push(
+                    (0..D)
+                        .map(|i| {
+                            let (lo, hi) = split_limbs(balanced_mod_q(a[i], q), l);
+                            if lim == 0 { lo } else { hi }
+                        })
+                        .collect(),
+                );
+            }
+        }
+        if let Some(super::gpu::CombineResult::ModQ(o)) = super::gpu::combine_stream::<[i8]>(
+            q,
+            &cl,
+            super::gpu::CombineSrc::ModQ(ops),
+            n,
+            m,
+            2,
+            super::gpu::CombineOut::ModQ { two_l: Some(two_l) },
+            false,
+        ) {
+            return o;
+        }
+    }
     let t = &*NTT;
     let a_hat: Vec<[[u64; D]; 3]> = alphas.iter().map(|a| fwd_modq_limbs(a, q, l, t)).collect();
-    let two_l = (1u64 << l) % q;
     let two_2l = mul_q(two_l, two_l, q);
     let one = |u: usize| -> Poly {
         let mut acc = [NttAcc::new(); 3]; // [UPERF2-M]
@@ -5269,7 +5357,13 @@ pub struct Phi0Source {
 
 impl Phi0Source {
     pub fn new(ctx: &RingCtx, kf: &KField, group: &AggGroup, kernels: &[MultiClaimKernel], alphas: &[Poly]) -> Phi0Source {
-        let _t = prof::timer(prof::BG_KPHI); // [UPERF-PC] observation only (the phi pass's slot)
+        Self::new_for(ctx, kf, group, kernels, alphas, true)
+    }
+
+    /// [UPERF2-Q] The body; `timed` = false leaves the phi pass's timer
+    /// slot alone (the device psi0 builds a source inside ep.psi0-factored).
+    pub fn new_for(ctx: &RingCtx, kf: &KField, group: &AggGroup, kernels: &[MultiClaimKernel], alphas: &[Poly], timed: bool) -> Phi0Source {
+        let _t = if timed { Some(prof::timer(prof::BG_KPHI)) } else { None }; // [UPERF-PC] observation only (the phi pass's slot)
         assert_eq!(alphas.len(), K_DEG);
         let zq = &ctx.zq;
         let mut cache = ColBlockCache::new();

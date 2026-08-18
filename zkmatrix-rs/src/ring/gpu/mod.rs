@@ -72,6 +72,11 @@ pub use ixf::{
 // `eval_proof::level_h_pairs_with_block`.
 #[cfg(feature = "gpu-cuda")]
 pub use cuda::{level_h_stream, level_h_stream_force, lh_stats, lh_stats_reset, set_lh_block, set_lh_session, LhStats};
+// [UPERF2-Q] The combine session (cuda.rs): few fixed small rings x many
+// streamed slices -> one inverse per output (the fold, the factored psi,
+// the transport's limb-split combines, compute_psi).
+#[cfg(feature = "gpu-cuda")]
+pub use cuda::{cb_stats, cb_stats_reset, combine_accepts, combine_stream, set_cb_block, set_cb_session, CbStats, CombineOut, CombineResult, CombineSrc};
 
 // ---------------------------------------------------------------------------
 // The stub (default build): the hook compiles to a constant-false test.
@@ -316,6 +321,54 @@ mod stub {
     pub fn lh_stats_reset() {}
     pub fn set_lh_block(_n: usize) {}
     pub fn set_lh_session(_on: bool) {}
+    // ---- [UPERF2-Q] the combine session (never live without the feature).
+    pub enum CombineSrc<'a, B: SmallRings + ?Sized> {
+        Pool(&'a Phi0Source),
+        Small(&'a [&'a B]),
+        ModQ(&'a [&'a [Poly]]),
+    }
+    #[derive(Clone, Copy, PartialEq, Eq)]
+    pub enum CombineOut {
+        ModQ { two_l: Option<u64> },
+        ExactI64,
+    }
+    pub enum CombineResult {
+        ModQ(Vec<Poly>),
+        I64(Vec<Vec<i64>>),
+    }
+    pub fn combine_accepts(_q: u64, _k: usize, _chunk: usize, _n_out: usize) -> bool {
+        false
+    }
+    #[allow(clippy::too_many_arguments)]
+    pub fn combine_stream<B: SmallRings + ?Sized>(
+        _q: u64,
+        _c: &[Vec<i64>],
+        _src: CombineSrc<'_, B>,
+        _k: usize,
+        _chunk: usize,
+        _n_out: usize,
+        _out: CombineOut,
+        _force: bool,
+    ) -> Option<CombineResult> {
+        None
+    }
+    /// Mirrors `cuda::CbStats` (all zero without the feature).
+    #[derive(Clone, Debug, Default)]
+    pub struct CbStats {
+        pub sessions: u64,
+        pub declined: u64,
+        pub stages: u64,
+        pub bytes_h2d: u64,
+        pub secs_fill: f64,
+        pub secs_wait: f64,
+        pub secs_total: f64,
+    }
+    pub fn cb_stats() -> CbStats {
+        CbStats::default()
+    }
+    pub fn cb_stats_reset() {}
+    pub fn set_cb_session(_on: bool) {}
+    pub fn set_cb_block(_n: usize) {}
 }
 
 #[cfg(not(feature = "gpu-cuda"))]
