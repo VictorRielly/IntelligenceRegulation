@@ -208,6 +208,178 @@ impl IxfCombine {
 /// the oracle) the scalar path runs.
 const IXF_PACKED_MIN: usize = 64;
 
+// ---------------------------------------------------------------------------
+// [UPERF2-O] The claim layer's TABLE POOL.
+//
+// Lane L's finding at 12x512 (U_PERF2_GPU2_REPORT.md Section 5.3): with the
+// folds' arithmetic at 0.04 s on the device, `d.cl-folds` was still ~5 s and
+// `d.cl-tables` ~5 s — the packed factor tables (4-5 x 1 GB per zero-check
+// instance, 5 instances) are freshly calloc'd (first-touch faults inside the
+// builders) and given back (the shrink's mremap + the drop's munmap inside
+// the fold loop) every instance: ~25 GB of pages faulted in and freed. The
+// pool below keeps the FULL-SIZE buffers of one instance for the next: the
+// builders (`IxfTable::eq / scalar_table / layer_expand`) and the packed
+// prover's fold scratch take from it, and the prover returns its buffers
+// (never shrunk while the pool is open) at the end. Allocation plumbing
+// only: every stored value and every proof byte is unchanged; the pass
+// drivers open a scope around the claim layer (`IxfPoolScope::open`) and
+// the held pages are released when it closes (before the descent phase,
+// whose peak the box's RAM is sized to). Peak held = (nt + 1) x the biggest
+// table (the prover keeps ONE rotating scratch for all its tables) — at
+// 12x512 6 x 1 GB, against today's 5.5 x 1 GB peak inside the biggest
+// instance. Outside a scope the pool is off (buffers are freed as before).
+
+struct IxfPool {
+    on: bool,
+    bufs: Vec<Vec<u32>>,
+}
+
+static IXF_POOL: std::sync::Mutex<IxfPool> = std::sync::Mutex::new(IxfPool { on: false, bufs: Vec::new() });
+static IXF_POOL_HITS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+static IXF_POOL_MISSES: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+static IXF_POOL_HELD_PEAK: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+/// Buffers below this are never pooled (1 MiB of u32).
+const IXF_POOL_MIN_WORDS: usize = 1 << 18;
+
+/// The scope guard: the pool is ON while a scope is open; closing the LAST
+/// scope releases every held buffer. `ZK_IXF_POOL=0` keeps it off (the
+/// one-binary A/B — memory plumbing, no value changes).
+pub struct IxfPoolScope {
+    was_on: bool,
+}
+
+impl IxfPoolScope {
+    pub fn open() -> IxfPoolScope {
+        let enabled = std::env::var("ZK_IXF_POOL").map(|v| v != "0").unwrap_or(true);
+        let mut p = IXF_POOL.lock().expect("ixf pool lock");
+        let was_on = p.on;
+        if enabled {
+            p.on = true;
+        }
+        IxfPoolScope { was_on }
+    }
+}
+
+impl Drop for IxfPoolScope {
+    fn drop(&mut self) {
+        if !self.was_on {
+            ixf_pool_clear();
+            IXF_POOL.lock().expect("ixf pool lock").on = false;
+        }
+    }
+}
+
+/// True while a scope is open (the builders write EVERY word of a pooled
+/// buffer they hand out — a pooled buffer is dirty).
+pub fn ixf_pool_on() -> bool {
+    IXF_POOL.lock().expect("ixf pool lock").on
+}
+
+/// A buffer of at least `words` u32 (len == words; CONTENTS UNSPECIFIED)
+/// from the pool when it is open and has one (best fit: the smallest held
+/// buffer of capacity >= words), else a fresh zeroed allocation (calloc:
+/// zero pages faulted in on first touch — today's behavior).
+pub(crate) fn ixf_pool_take(words: usize) -> Vec<u32> {
+    use std::sync::atomic::Ordering::Relaxed;
+    let taken: Option<Vec<u32>> = {
+        let mut p = IXF_POOL.lock().expect("ixf pool lock");
+        if !p.on || words < IXF_POOL_MIN_WORDS {
+            None
+        } else {
+            let mut best: Option<usize> = None;
+            for (i, b) in p.bufs.iter().enumerate() {
+                if b.capacity() >= words && best.is_none_or(|j| b.capacity() < p.bufs[j].capacity()) {
+                    best = Some(i);
+                }
+            }
+            best.map(|i| p.bufs.swap_remove(i))
+        }
+    };
+    match taken {
+        Some(mut b) => {
+            IXF_POOL_HITS.fetch_add(1, Relaxed);
+            // No memset. INVARIANT: every buffer that enters the pool was
+            // born as `vec![0u32; n]` (len == capacity, fully initialized:
+            // this module's takes, kfield's `k9_fresh_words` / arena, the
+            // fold's `resize` from empty, k9.rs's handover `vec![0u32; ..]`)
+            // and has only been truncated / swapped / written / resized
+            // WITHIN its capacity since (takes are served at capacity >=
+            // words, so no caller's `resize` reallocates), so [0, capacity)
+            // is initialized memory and `set_len` is sound. The callers
+            // write every word they read anyway.
+            if b.len() != words {
+                // SAFETY: see the invariant above (u32 is Copy; the bytes in
+                // [len, words) were initialized when the buffer was born and
+                // are never de-initialized by truncate).
+                unsafe { b.set_len(words) };
+            }
+            b
+        }
+        None => {
+            if IXF_POOL.lock().expect("ixf pool lock").on && words >= IXF_POOL_MIN_WORDS {
+                IXF_POOL_MISSES.fetch_add(1, Relaxed);
+            }
+            vec![0u32; words]
+        }
+    }
+}
+
+/// Return a buffer to the pool (kept at its capacity when the pool is open
+/// and the buffer is large; dropped otherwise).
+pub(crate) fn ixf_pool_give(v: Vec<u32>) {
+    use std::sync::atomic::Ordering::Relaxed;
+    if v.capacity() < IXF_POOL_MIN_WORDS {
+        return;
+    }
+    let mut p = IXF_POOL.lock().expect("ixf pool lock");
+    if !p.on {
+        drop(p);
+        drop(v);
+        return;
+    }
+    p.bufs.push(v);
+    let held: usize = p.bufs.iter().map(|b| b.capacity()).sum();
+    IXF_POOL_HELD_PEAK.fetch_max(held as u64, Relaxed);
+}
+
+/// Release every held buffer (RSS drops to the live set).
+pub fn ixf_pool_clear() {
+    let bufs = std::mem::take(&mut IXF_POOL.lock().expect("ixf pool lock").bufs);
+    drop(bufs);
+}
+
+/// (buffers held now, MiB held now, peak MiB held, takes served from the
+/// pool, takes that allocated fresh while the pool was open) — observation
+/// only.
+pub fn ixf_pool_stats() -> (usize, usize, usize, u64, u64) {
+    use std::sync::atomic::Ordering::Relaxed;
+    let p = IXF_POOL.lock().expect("ixf pool lock");
+    let held: usize = p.bufs.iter().map(|b| b.capacity()).sum();
+    (p.bufs.len(), held >> 18, IXF_POOL_HELD_PEAK.load(Relaxed) as usize >> 18, IXF_POOL_HITS.load(Relaxed), IXF_POOL_MISSES.load(Relaxed))
+}
+
+/// A `KTab` of n elements over a pooled (dirty) or fresh (zero) buffer of
+/// exactly the packed size. Callers write every element they will read;
+/// when n is not a multiple of KL the last block is zeroed here so the
+/// trailing-lane padding invariant holds either way.
+pub(crate) fn ixf_ktab_take(n: usize) -> super::kfield::KTab {
+    use super::kfield::{KBLK, KL};
+    let words = n.div_ceil(KL) * KBLK;
+    let mut d = ixf_pool_take(words);
+    if n % KL != 0 && words >= KBLK {
+        for w in &mut d[words - KBLK..] {
+            *w = 0;
+        }
+    }
+    super::kfield::KTab { n, d }
+}
+
+/// Hand a `KTab`'s buffer back to the pool (the KTab's own Drop would give
+/// it to kfield's arena, which is off by default and drops it).
+pub(crate) fn ixf_ktab_give(mut t: super::kfield::KTab) {
+    ixf_pool_give(std::mem::take(&mut t.d));
+}
+
 /// The kernel thread pool for the claim layer's own splits (the bin's
 /// table builders): `ZK_THREADS` from `eval_proof::threads()`, inline at 1.
 pub fn ixf_pooled<R: Send>(f: impl FnOnce() -> R + Send) -> R {
@@ -300,21 +472,55 @@ impl IxfTable {
     }
 
     /// The packed eq table over a point (threaded doubling; the same
-    /// values as `gkr::eq_table`).
+    /// values as `gkr::eq_table`). [UPERF2-O] Built into a pooled buffer
+    /// when the claim layer's pool is open (every entry is written by the
+    /// doubling; kfield's `kt_eq_table_par` body, verbatim, over that
+    /// buffer); the kfield builder otherwise.
     pub fn eq(kf: &KField, point: &[KElem]) -> IxfTable {
-        IxfTable(kf.kt_eq_table_par(point))
+        use super::kfield::{kop, k9_eq_double_par, KL, K9_MAX_LEAVES};
+        if !ixf_pool_on() {
+            return IxfTable(kf.kt_eq_table_par(point));
+        }
+        let kern = kf.kern.as_ref().expect("IxfTable::eq requires the bulk kernel");
+        assert!(point.len() <= K9_MAX_LEAVES.trailing_zeros() as usize, "K9 eq table cap exceeded");
+        let mut t = ixf_ktab_take(1usize << point.len());
+        t.set(0, &kf.one());
+        let mut half = 1usize;
+        for zv in point {
+            let zbar = kf.sub(&kf.one(), zv);
+            if half >= KL {
+                k9_eq_double_par(kern, &mut t.d, half / KL, &kop(&zbar), &kop(zv));
+            } else {
+                for i in 0..half {
+                    let a = t.get(i);
+                    t.set(i + half, &kf.mul(&a, zv));
+                    t.set(i, &kf.mul(&a, &zbar));
+                }
+            }
+            half *= 2;
+        }
+        IxfTable(t)
     }
 
     /// `expand_layer_table` packed: out[l * nb + b] = layer_tab[l].
+    /// [UPERF2-O] Every element written (pooled buffer safe).
     pub fn layer_expand(layer_tab: &[KElem], nb: usize) -> IxfTable {
-        use super::kfield::{KBLK, KL};
+        use super::kfield::{KBLK, KL, K_DEG};
         let n = layer_tab.len() * nb;
-        let mut t = super::kfield::KTab::zeroed(n);
+        let mut t = ixf_ktab_take(n);
         if nb % KL == 0 {
             for (l, v) in layer_tab.iter().enumerate() {
-                let seg = super::kfield::KTab::filled(nb, v);
+                let mut blk = [0u32; KBLK];
+                for j in 0..K_DEG {
+                    debug_assert!(v[j] < (1 << 31), "packed KTab expects canonical q31-class values");
+                    for la in 0..KL {
+                        blk[j * KL + la] = v[j] as u32;
+                    }
+                }
                 let (b0, b1) = ((l * nb / KL) * KBLK, ((l + 1) * nb / KL) * KBLK);
-                t.d[b0..b1].copy_from_slice(&seg.d[..b1 - b0]);
+                for m in (b0..b1).step_by(KBLK) {
+                    t.d[m..m + KBLK].copy_from_slice(&blk);
+                }
             }
         } else {
             for (l, v) in layer_tab.iter().enumerate() {
@@ -330,11 +536,13 @@ impl IxfTable {
     /// set — the stacked witness tables `kf.scale(v, one)` = embed(v)):
     /// element i = embed(f(i)) with f returning a CANONICAL residue in
     /// [0, q). Filled per whole-block chunk on the ZK_THREADS pool
-    /// (positional; identical for any thread count).
+    /// (positional; identical for any thread count). [UPERF2-O] Every
+    /// word of a block is written (coefficients 1..15 zero) so a pooled
+    /// (dirty) buffer is safe.
     pub fn scalar_table(kf: &KField, n: usize, f: impl Fn(usize) -> u64 + Sync) -> IxfTable {
         use super::kfield::{KBLK, KL};
         let q = kf.zq.q;
-        let mut t = super::kfield::KTab::zeroed(n);
+        let mut t = ixf_ktab_take(n);
         let nblk = n / KL;
         let full = nblk * KBLK;
         {
@@ -344,10 +552,14 @@ impl IxfTable {
                 let i0 = c * chunk_blk * KL;
                 let nb = dc.len() / KBLK;
                 for b in 0..nb {
+                    let blk = &mut dc[b * KBLK..(b + 1) * KBLK];
                     for l in 0..KL {
                         let v = f(i0 + b * KL + l);
                         debug_assert!(v < q, "scalar_table expects canonical residues");
-                        dc[b * KBLK + l] = v as u32; // coefficient 0 of lane l
+                        blk[l] = v as u32; // coefficient 0 of lane l
+                    }
+                    for w in &mut blk[KL..] {
+                        *w = 0; // coefficients 1..15 of every lane
                     }
                 }
             };
@@ -407,7 +619,15 @@ pub(crate) fn ixf_sumcheck_prove_packed(
     let kid = kind.kernel_id();
     let mut rounds = Vec::with_capacity(n);
     let mut point = Vec::with_capacity(n);
-    let mut scratch: Vec<Vec<u32>> = (0..packed.len()).map(|_| Vec::new()).collect();
+    // [UPERF2-O] ONE rotating fold scratch for every table (the out-of-place
+    // fold swaps the old table buffer in as the next table's scratch), from
+    // the claim layer's pool when it is open (a full-size buffer, kept at
+    // full size — no shrink, no fault, no munmap per round; returned at the
+    // end) — else a fresh buffer sized by the first fold and shrunk after
+    // each round's folds to what the next round needs (lane D's discipline:
+    // a table never holds > 1.5x its size; peak = nt tables + one half).
+    let pooled = ixf_pool_on();
+    let mut scratch: Vec<u32> = if pooled { ixf_pool_take(packed[0].d.len()) } else { Vec::new() };
     let mut t_idx = 0usize;
     while t_idx < n && packed[0].n >= 2 * super::kfield::KL {
         let deg = degrees[t_idx];
@@ -420,16 +640,18 @@ pub(crate) fn ixf_sumcheck_prove_packed(
         let r = tr.challenge_k(kf);
         {
             let _t = prof::timer(prof::D_CL_FOLDS); // observation only
-            for (p, s) in packed.iter_mut().zip(scratch.iter_mut()) {
-                kf.kt_fold_par(p, s, &r);
-                // Memory: the out-of-place fold leaves the OLD full-size
-                // buffer as the scratch; keep only what the next round's
-                // output needs (a shrinking realloc — no copy for large
-                // chunks) so a table never holds more than 1.5x its size.
-                let next_words = (p.n / 2 / super::kfield::KL) * super::kfield::KBLK;
-                s.truncate(next_words);
-                s.shrink_to_fit();
-                p.d.shrink_to_fit();
+            for p in packed.iter_mut() {
+                kf.kt_fold_par(p, &mut scratch, &r);
+            }
+            if !pooled {
+                // Memory: keep only what the next round's folds need (a
+                // shrinking realloc — no copy for large chunks).
+                let next_words = (packed[0].n / 2 / super::kfield::KL) * super::kfield::KBLK;
+                scratch.truncate(next_words);
+                scratch.shrink_to_fit();
+                for p in packed.iter_mut() {
+                    p.d.shrink_to_fit();
+                }
             }
         }
         rounds.push(g);
@@ -438,7 +660,10 @@ pub(crate) fn ixf_sumcheck_prove_packed(
     }
     // Scalar tail (tables below two pair-blocks): the boxed path, verbatim.
     let mut tables: Vec<Vec<KElem>> = packed.iter().map(|p| p.to_kelems()).collect();
-    drop(packed);
+    for p in packed {
+        ixf_ktab_give(p); // [UPERF2-O] back to the pool (dropped when it is off)
+    }
+    ixf_pool_give(scratch);
     let combine = |kf: &KField, v: &[KElem]| kind.eval(kf, v);
     while t_idx < n {
         let deg = degrees[t_idx];

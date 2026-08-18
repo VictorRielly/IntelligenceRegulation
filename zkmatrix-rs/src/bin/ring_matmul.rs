@@ -30826,6 +30826,9 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
         }
         v
     };
+    // [UPERF2-O] the packed tables' pool across the zero-check instances
+    // (allocation plumbing only; released at the end of the loop).
+    let ixf_pool_scope = ring::fold::IxfPoolScope::open();
     for (name, e1, e2, e3, is_rq) in &zc_insts {
         // Position space of the acc/product tensor (cols zero-extended).
         let shape_e = if *is_rq { *e1 } else { *e3 };
@@ -30887,6 +30890,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
         }
         sc_proofs.push(scp);
     }
+    drop(ixf_pool_scope); // [UPERF2-O] release the pooled tables
 
     // Public binding claims: X_l + declared z_l at a shared point.
     let lcx = 10usize; // 768 -> 1024 column space
@@ -34140,6 +34144,9 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         }
         v
     };
+    // [UPERF2-O] the packed tables' pool across the zero-check instances
+    // (allocation plumbing only; released at the end of the loop).
+    let ixf_pool_scope = ring::fold::IxfPoolScope::open();
     for (name, e1, e2, e3, is_rq) in &zc_insts {
         let shape_e = if *is_rq { *e1 } else { *e3 };
         let (_rows, cols_real) = bf_entry_shape(shape_e, t);
@@ -34203,6 +34210,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         sc_proofs.push(scp);
         drop(prof_fin);
     }
+    drop(ixf_pool_scope); // [UPERF2-O] release the pooled tables
 
     drop(prof_claims);
     uf_trim(); // [UPERF2-F] the claim layer's boxed leftovers
@@ -40594,8 +40602,12 @@ fn uperf_l_dbench(depth: usize, l: usize, n_real: usize, dt: usize) {
 //                            host builders + the CPU prover, cell by cell
 //                            and proof by proof (GPU build, ZK_GPU=1); the
 //                            pool on/off proofs byte-identical (any build).
-//   uperf-o bench [n_log2] [kind] — one zero-check-shaped instance: pool
-//                            off / on / device (whatever the build offers).
+//   uperf-o bench [layers] [t] [reps] — the pass claim layer's five
+//                            zero-check instances (bg_zc_prove on synthetic
+//                            layers of the pass shape) run as a sequence,
+//                            pool OFF then pool ON (then the device path when
+//                            the build offers it), proofs asserted identical;
+//                            d.cl-* attribution, pool stats, peak RSS.
 // Without `--features gpu-cuda` (or without ZK_GPU=1) the device arms
 // report the state and run the host legs only.
 
@@ -40606,21 +40618,158 @@ fn uperf_o_main(args: &[String]) {
             uperf_o_battery(seed);
         }
         Some("bench") => {
-            let n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(20);
-            let kind = match args.get(2).map(String::as_str) {
-                Some("had") => ring::fold::IxfCombine::Had,
-                _ => ring::fold::IxfCombine::Rq,
-            };
-            uperf_o_bench(n, kind);
+            let layers: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(3);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(32);
+            let reps: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(1);
+            uperf_o_bench(layers, t, reps);
         }
-        _ => println!("uperf-o battery [seed] | bench [n_log2] [had|rq]"),
+        _ => println!("uperf-o battery [seed] | bench [layers] [t] [reps]"),
+    }
+}
+
+/// [UPERF2-O] Synthetic layers of the pass shape (uperf-d's maker, at any
+/// layer count / t): every chain field filled with small random values of
+/// the right shape (NOT a valid chain — provers are compared, not verdicts).
+fn uperf_o_layers(n_layers: usize, t: usize, seed: u64) -> Vec<BfLayer> {
+    let mut rd = ring::XofReader::new("uperf2-o-layers", &[&seed.to_le_bytes(), &(t as u64).to_le_bytes()]);
+    let mut small = |n: usize| -> Vec<i64> { (0..n).map(|_| (rd.next_u64() % 255) as i64 - 127).collect() };
+    let mut out = Vec::with_capacity(n_layers);
+    for l in 0..n_layers {
+        let wide = |small: &mut dyn FnMut(usize) -> Vec<i64>, n: usize, m: i64| -> Vec<i64> { small(n).iter().map(|&v| v * m).collect() };
+        let lay = BfLayer {
+            l,
+            exps: (0, 0, 0, 0, 0, 0),
+            shifts: (7, 6, 5, 8),
+            x: small(t * BF_D),
+            wg_t: small(BF_D * BF_F),
+            wu_t: small(BF_D * BF_F),
+            wd_t: small(BF_F * BF_D),
+            gacc: wide(&mut small, t * BF_F, 211),
+            rg: small(t * BF_F).iter().map(|v| v.rem_euclid(128)).collect(),
+            g8: small(t * BF_F),
+            a8: small(t * BF_F),
+            uacc: wide(&mut small, t * BF_F, 173),
+            ru: small(t * BF_F).iter().map(|v| v.rem_euclid(64)).collect(),
+            u8v: small(t * BF_F),
+            hh: wide(&mut small, t * BF_F, 97),
+            rh: small(t * BF_F).iter().map(|v| v.rem_euclid(32)).collect(),
+            h8: small(t * BF_F),
+            dacc: wide(&mut small, t * BF_D, 251),
+            rd: small(t * BF_D).iter().map(|v| v.rem_euclid(256)).collect(),
+            z: small(t * BF_D),
+        };
+        out.push(lay);
+    }
+    out
+}
+
+/// [UPERF2-O] The five zero-check instances of the pass claim layer on the
+/// given layers, in the pass order, on ONE transcript (as bk_pass_run):
+/// returns the SHA-256 over every proof + point + the transcript state,
+/// and the wall seconds.
+fn uperf_o_zc_sequence(kf: &ring::kfield::KField, lays: &[BfLayer], t: usize, tag: &str) -> ([u8; 32], f64) {
+    use ring::fold::{ixf_layout, zerocheck_degree_schedule};
+    use ring::kfield::KElem;
+    use ring::sumcheck::LkpTranscript;
+    use sha2::{Digest, Sha256};
+    let il = ixf_layout(lays.len());
+    let lr = t.trailing_zeros() as usize;
+    let mut insts: Vec<(&str, usize, usize, usize, bool)> = vec![("had", 7, 10, 11, false)];
+    for (name, a, b, c) in BG_RQ_INSTS {
+        insts.push((name, a, b, c, true));
+    }
+    let mut tr = LkpTranscript::new("uperf2-o-zc", tag.as_bytes());
+    let mut h = Sha256::new_with_prefix(b"uperf2-o-zc-seq-v1");
+    let t0 = Instant::now();
+    for (name, e1, e2, e3, is_rq) in insts {
+        let shape_e = if is_rq { e1 } else { e3 };
+        let (_rows, cols_real) = bf_entry_shape(shape_e, t);
+        let lcp = usize::BITS as usize - (cols_real - 1).leading_zeros() as usize;
+        let cols_pad = 1usize << lcp;
+        let n_pos = lr + lcp;
+        let r_q: Vec<KElem> = (0..n_pos + il.lambda).map(|_| tr.challenge_k(kf)).collect();
+        let sched = if is_rq {
+            let mut d = vec![2usize; n_pos];
+            d.extend(std::iter::repeat_n(3usize, il.lambda));
+            d
+        } else {
+            zerocheck_degree_schedule(n_pos, il.lambda)
+        };
+        let sh_layer: Vec<KElem> = if is_rq {
+            (0..il.slots).map(|li| if li < lays.len() { kf.embed(1u64 << bg_rq_shift(name, &lays[li])) } else { kf.zero() }).collect()
+        } else {
+            Vec::new()
+        };
+        let (p, pt) = bg_zc_prove(kf, lays, [e1, e2, e3], is_rq, &sh_layer, &r_q, il.slots, n_pos, cols_real, cols_pad, &sched, &mut tr);
+        tr.absorb_k(kf, &format!("o-final-{name}"), &p.final_evals);
+        h.update(uperf_d_proof_digest(kf, &p, &pt, &tr.state()));
+    }
+    (h.finalize().into(), t0.elapsed().as_secs_f64())
+}
+
+fn uperf_o_cl_prof() -> String {
+    let mut parts: Vec<String> = Vec::new();
+    for (name, secs, calls) in ring::ct_engine::prof::report() {
+        if calls > 0 && name.starts_with("d.cl-") {
+            parts.push(format!("{name} {secs:.3}s x{calls}"));
+        }
+    }
+    parts.join(" | ")
+}
+
+fn uperf_o_bench(layers: usize, t: usize, reps: usize) {
+    use ring::kfield::KField;
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let lr = t.trailing_zeros() as usize;
+    let il = ring::fold::ixf_layout(layers);
+    println!(
+        "[UPERF2-O] bench: the claim layer's 5 zero-check instances at {layers} layers x T = {t} (tables 2^{} elements = {} MiB packed each; ZK_THREADS {}, oracle env {}, gpu {})",
+        lr + 11 + il.lambda,
+        (1usize << (lr + 11 + il.lambda)) * 64 >> 20,
+        ring::eval_proof::threads(),
+        ring::eval_proof::oracle_mode(),
+        ring::gpu::label()
+    );
+    let lays = uperf_o_layers(layers, t, 0x0bef);
+    let (hwm0, _) = uf_rss_kb();
+    println!("  layers built: RSS {} MiB", hwm0 >> 10);
+    let mut first: Option<[u8; 32]> = None;
+    let mut check = |label: &str, d: [u8; 32], secs: f64, prof: String| {
+        let (hwm, rss) = uf_rss_kb();
+        let same = first.is_none_or(|f| f == d);
+        if first.is_none() {
+            first = Some(d);
+        }
+        let (nb, held, peak, hits, misses) = ring::fold::ixf_pool_stats();
+        println!(
+            "  {label:<22} {secs:>8.3}s | {prof} | pool held {nb} bufs {held} MiB (peak {peak} MiB, hits {hits}, misses {misses}) | RSS hwm {} MiB now {} MiB | digest {} {}",
+            hwm >> 10,
+            rss >> 10,
+            hex_full(&d),
+            if same { "same" } else { "MISMATCH" }
+        );
+        assert!(same, "[UPERF2-O] bench: proofs differ between passes");
+    };
+    for rep in 0..reps {
+        // pool OFF (today's allocation pattern: no scope open)
+        ring::ct_engine::prof::reset();
+        ring::ct_engine::prof::enable(true, false);
+        let (d, s) = uperf_o_zc_sequence(&kf, &lays, t, "seq");
+        ring::ct_engine::prof::enable(false, false);
+        check(&format!("pool off (rep {rep})"), d, s, uperf_o_cl_prof());
+        // pool ON (a scope around the sequence, as the pass drivers open)
+        ring::ct_engine::prof::reset();
+        ring::ct_engine::prof::enable(true, false);
+        let (d, s) = {
+            let _scope = ring::fold::IxfPoolScope::open();
+            uperf_o_zc_sequence(&kf, &lays, t, "seq")
+        };
+        ring::ct_engine::prof::enable(false, false);
+        check(&format!("pool on (rep {rep})"), d, s, uperf_o_cl_prof());
     }
 }
 
 fn uperf_o_battery(_seed: u64) {
     println!("[UPERF2-O] battery: (skeleton — nothing landed yet)");
-}
-
-fn uperf_o_bench(_n_log2: usize, _kind: ring::fold::IxfCombine) {
-    println!("[UPERF2-O] bench: (skeleton — nothing landed yet)");
 }
