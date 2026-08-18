@@ -182,3 +182,18 @@ that would de-risk the top candidate. Plain narrative, labelled
 numbers, ~300-600 lines.
 
 ## Agent status sections (lanes append below; do not edit each other's)
+
+## Agent R status (wt-uperf3-r)
+
+STATE: OPEN (2026-08-18) — skeleton committed. Memo:
+docs/zkmatrix-poc/U_PERF3_MVP8B_SCALING.md (sections 0-5 land one
+commit each); scripts: scripts/m8b_int8_calibration.py +
+scripts/m8b_export_ffn.py (NEW files; the m125 scripts are imported,
+never edited). Nothing outside the lane's ownership is written.
+
+DONE: (nothing yet beyond the skeleton)
+NEXT: section 1 (counted sizes), section 2 (what breaks), section 3
+(memory/time per box), section 4 (data + scripts, tested on the 125M
+path here), section 5 (plan + Grok RUN task), section 0 last.
+DECISIONS NEEDED FROM VICTOR: recorded at close (checkpoint/license,
+the Mac run, disk).
