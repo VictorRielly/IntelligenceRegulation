@@ -51,6 +51,15 @@ pub use cuda::{
 };
 #[cfg(feature = "gpu-cuda")]
 pub use k9::{k9_fused_round, k9_ixf_round, k9_label, k9_set_cold_ok, k9_set_eager, k9_set_min_pairs, k9_set_tree, k9_stats, k9_stats_reset, k9_tree_climb, kt_fold, K9Stats};
+// [UPERF2-O] The GPU rung, step 3: the claim layer's zero-check tables built
+// on the device + the device-resident ixf chain — see ixf.rs / kernels_ixf.cu.
+#[cfg(feature = "gpu-cuda")]
+mod ixf;
+#[cfg(feature = "gpu-cuda")]
+pub use ixf::{
+    ixf_label, ixf_release, ixf_set_bypass, ixf_set_min_pairs, ixf_stats, ixf_stats_reset, ixf_zc_abort, ixf_zc_fold, ixf_zc_handover, ixf_zc_open,
+    ixf_zc_round, IxfDevChain, IxfStats,
+};
 
 // ---------------------------------------------------------------------------
 // The stub (default build): the hook compiles to a constant-false test.
@@ -179,6 +188,58 @@ mod stub {
         K9Stats::default()
     }
     pub fn k9_stats_reset() {}
+
+    // ---- [UPERF2-O] the device-built zero-check tables + chain (never live without the feature).
+    use super::super::fold::IxfZcSpec;
+    /// The device chain handle (never constructed without the feature).
+    pub struct IxfDevChain {
+        pub n: usize,
+        pub t: usize,
+    }
+    impl IxfDevChain {
+        pub fn device_next(&self) -> bool {
+            false
+        }
+    }
+    pub fn ixf_zc_open(_kf: &KField, _spec: &IxfZcSpec) -> Option<IxfDevChain> {
+        None
+    }
+    pub fn ixf_zc_round(_kf: &KField, _ch: &mut IxfDevChain, _deg: usize) -> Result<Vec<KElem>, String> {
+        Err("built without --features gpu-cuda".to_string())
+    }
+    pub fn ixf_zc_fold(_kf: &KField, _ch: &mut IxfDevChain, _r: &KElem) -> Result<(), String> {
+        Err("built without --features gpu-cuda".to_string())
+    }
+    pub fn ixf_zc_handover(_kf: &KField, _ch: IxfDevChain) -> Result<Vec<KTab>, String> {
+        Err("built without --features gpu-cuda".to_string())
+    }
+    pub fn ixf_zc_abort(_ch: IxfDevChain) {}
+    pub fn ixf_release() {}
+    pub fn ixf_set_bypass(_on: bool) {}
+    pub fn ixf_set_min_pairs(_p: usize) {}
+    pub fn ixf_label() -> String {
+        "ixf: off (built without --features gpu-cuda)".to_string()
+    }
+    /// Mirrors `ixf::IxfStats` (all zero without the feature).
+    #[derive(Clone, Debug, Default)]
+    pub struct IxfStats {
+        pub instances: u64,
+        pub declined: u64,
+        pub rounds: u64,
+        pub folds: u64,
+        pub bytes_h2d: u64,
+        pub secs_open: f64,
+        pub secs_upload: f64,
+        pub secs_build: f64,
+        pub secs_round: f64,
+        pub secs_fold: f64,
+        pub secs_handover: f64,
+        pub secs_host_small: f64,
+    }
+    pub fn ixf_stats() -> IxfStats {
+        IxfStats::default()
+    }
+    pub fn ixf_stats_reset() {}
 }
 
 #[cfg(not(feature = "gpu-cuda"))]

@@ -265,6 +265,9 @@ impl Drop for IxfPoolScope {
         if !self.was_on {
             ixf_pool_clear();
             IXF_POOL.lock().expect("ixf pool lock").on = false;
+            // [UPERF2-O] the device-side counterpart: the zero-check tables'
+            // VRAM goes back too (the descents' chains want it next).
+            super::gpu::ixf_release();
         }
     }
 }
@@ -601,24 +604,213 @@ pub fn ixf_sumcheck_prove_tables(
     ixf_sumcheck_prove_packed(kf, tables.into_iter().map(|t| t.0).collect(), degrees, kind, tr)
 }
 
+// ---------------------------------------------------------------------------
+// [UPERF2-O] The stacked zero-check instance from its COMPACT operands.
+//
+// `bg_zc_prove` (the bin) describes an instance by what the tables are made
+// of — the eq point, the three witness tensors per layer with the index law
+// (layer-high, then row, then padded column), the 16-slot shift table — and
+// this entry decides where the tables get built: on the DEVICE (gpu/ixf.rs:
+// the tables never exist on the host; the eq and shift factors are never
+// materialized at all; the rounds and folds run there until the tables are
+// small, then the CPU loop finishes on the handed-over packed tables), or
+// on the HOST (the pooled `IxfTable` builders + the packed prover — lane D's
+// path with the pool). Same values, same transcript bytes: the device's
+// node values are the canonical sums the CPU planes finalize to (lane L's
+// argument), the folded tables are the canonical representatives of the
+// same field expressions, and the eq / shift factors are the same
+// multilinear functions read off a product form (kernels_ixf.cu header).
+// A device failure mid-instance rebuilds the tables on the host from the
+// same operands and re-folds them with the challenges already drawn.
+
+/// The compact operands of one stacked zero-check instance (Had or Rq).
+pub struct IxfZcSpec<'a> {
+    pub kind: IxfCombine,
+    /// The eq factor's point: n_pos + lambda K-elements (variable 0 first).
+    pub point: &'a [KElem],
+    /// Per stacked table (tables 1..3 of the shape), the layers' value
+    /// slices (row-major, rows x cols_real; the layer count = the real layers).
+    pub layers: [Vec<&'a [i64]>; 3],
+    pub cols_real: usize,
+    pub cols_pad: usize,
+    /// Position variables (np = 2^n_pos = rows_pad x cols_pad) and layer variables.
+    pub n_pos: usize,
+    pub lambda: usize,
+    /// 2^lambda.
+    pub slots: usize,
+    /// Rq only: the per-slot shift scalars (embed(2^shift), zero for pads) — `slots` elements.
+    pub sh_layer: &'a [KElem],
+}
+
+impl IxfZcSpec<'_> {
+    /// The kernel's kind id (1 had, 2 rq).
+    pub fn kind_id(&self) -> u8 {
+        match self.kind {
+            IxfCombine::Had => 1,
+            IxfCombine::Rq => 2,
+            IxfCombine::Prod3 => unreachable!("zero-check instances are Had or Rq"),
+        }
+    }
+
+    fn n_vars(&self) -> usize {
+        self.n_pos + self.lambda
+    }
+
+    /// The host builders (pooled): [eq, t1, t2, t3, (sh)] as packed tables —
+    /// exactly what bg_zc_prove's fast path built.
+    pub fn build_host(&self, kf: &KField) -> Vec<IxfTable> {
+        let np = 1usize << self.n_pos;
+        let n = self.slots * np;
+        let zq = kf.zq;
+        let eq_full = IxfTable::eq(kf, self.point);
+        let stacked = |k: usize| -> IxfTable {
+            let vals = &self.layers[k];
+            let rows: Vec<usize> = vals.iter().map(|v| v.len() / self.cols_real).collect();
+            IxfTable::scalar_table(kf, n, |idx| {
+                let li = idx / np;
+                if li >= vals.len() {
+                    return 0;
+                }
+                let pos = idx % np;
+                let (i, j) = (pos / self.cols_pad, pos % self.cols_pad);
+                if j >= self.cols_real || i >= rows[li] {
+                    return 0;
+                }
+                zq.to_mod(vals[li][i * self.cols_real + j])
+            })
+        };
+        let t1 = stacked(0);
+        let t2 = stacked(1);
+        let t3 = stacked(2);
+        let mut tabs = vec![eq_full, t1, t2, t3];
+        if self.kind == IxfCombine::Rq {
+            tabs.push(IxfTable::layer_expand(self.sh_layer, np));
+        }
+        tabs
+    }
+}
+
+/// `ixf_sumcheck_prove_tables` for a zero-check instance given by its
+/// compact operands: the device path when live (see the module note),
+/// else the pooled host builders + the packed prover.
+pub fn ixf_sumcheck_prove_zc(kf: &KField, spec: &IxfZcSpec, degrees: &[usize], tr: &mut LkpTranscript) -> (SumcheckProof, Vec<KElem>) {
+    use super::ct_engine::prof;
+    let n = spec.n_vars();
+    assert_eq!(degrees.len(), n, "degree schedule covers every variable");
+    let kind = spec.kind;
+    // ---- the device path
+    if super::gpu::enabled() && !super::eval_proof::oracle_mode() && kf.kern.is_some() {
+        if let Some(mut ch) = super::gpu::ixf_zc_open(kf, spec) {
+            let mut rounds: Vec<Vec<KElem>> = Vec::with_capacity(n);
+            let mut point: Vec<KElem> = Vec::with_capacity(n);
+            let mut t_idx = 0usize;
+            let mut failed: Option<String> = None;
+            while t_idx < n && ch.device_next() {
+                let deg = degrees[t_idx];
+                let g = {
+                    let _t = prof::timer(prof::D_CL_ROUNDS); // observation only
+                    match super::gpu::ixf_zc_round(kf, &mut ch, deg) {
+                        Ok(g) => g,
+                        Err(e) => {
+                            failed = Some(e);
+                            break;
+                        }
+                    }
+                };
+                tr.absorb_k(kf, "ixf-round-poly", &g);
+                let r = tr.challenge_k(kf);
+                {
+                    let _t = prof::timer(prof::D_CL_FOLDS); // observation only
+                    if let Err(e) = super::gpu::ixf_zc_fold(kf, &mut ch, &r) {
+                        // the round is absorbed and r drawn: the host rebuild
+                        // must fold by r too
+                        rounds.push(g);
+                        point.push(r);
+                        t_idx += 1;
+                        failed = Some(e);
+                        break;
+                    }
+                }
+                rounds.push(g);
+                point.push(r);
+                t_idx += 1;
+            }
+            let packed: Vec<super::kfield::KTab> = match failed {
+                None => {
+                    let _t = prof::timer(prof::D_CL_TABLES); // observation only
+                    match super::gpu::ixf_zc_handover(kf, ch) {
+                        Ok(p) => p,
+                        Err(e) => {
+                            eprintln!("[UPERF2-O] ixf handover failed ({e}); rebuilding this instance on the host");
+                            ixf_zc_host_rebuild(kf, spec, &point)
+                        }
+                    }
+                }
+                Some(_) => {
+                    // the device chain is closed by the failure path; rebuild
+                    // + re-fold with the challenges drawn so far
+                    ixf_zc_host_rebuild(kf, spec, &point)
+                }
+            };
+            return ixf_sumcheck_prove_packed_from(kf, packed, degrees, kind, tr, t_idx, rounds, point);
+        }
+    }
+    // ---- the host path (pooled builders)
+    let tabs = {
+        let _t = prof::timer(prof::D_CL_TABLES); // observation only
+        spec.build_host(kf)
+    };
+    ixf_sumcheck_prove_tables(kf, tabs, degrees, kind, tr)
+}
+
+/// The host tables of the instance folded by the challenges drawn so far
+/// (deterministic — the device failure fallback).
+fn ixf_zc_host_rebuild(kf: &KField, spec: &IxfZcSpec, point: &[KElem]) -> Vec<super::kfield::KTab> {
+    let mut packed: Vec<super::kfield::KTab> = spec.build_host(kf).into_iter().map(|t| t.0).collect();
+    let mut scratch: Vec<u32> = Vec::new();
+    for r in point {
+        for p in packed.iter_mut() {
+            kf.kt_fold_par(p, &mut scratch, r);
+        }
+    }
+    ixf_pool_give(scratch);
+    packed
+}
+
 /// The packed prover proper (tables already in the bulk layout — the
 /// callers that build packed tables directly enter here). Rounds run
 /// on the bulk kernel while every table holds >= 2 pair-blocks; the
 /// remaining rounds finish on the boxed scalar path (identical values).
 pub(crate) fn ixf_sumcheck_prove_packed(
     kf: &KField,
-    mut packed: Vec<super::kfield::KTab>,
+    packed: Vec<super::kfield::KTab>,
     degrees: &[usize],
     kind: IxfCombine,
     tr: &mut LkpTranscript,
 ) -> (SumcheckProof, Vec<KElem>) {
-    use super::ct_engine::prof;
     let n = packed[0].n.trailing_zeros() as usize;
-    assert_eq!(degrees.len(), n, "degree schedule covers every variable");
-    assert!(packed.iter().all(|t| t.n == 1 << n));
+    ixf_sumcheck_prove_packed_from(kf, packed, degrees, kind, tr, 0, Vec::with_capacity(n), Vec::with_capacity(n))
+}
+
+/// [UPERF2-O] The packed prover from round `t_idx` on (the first `t_idx`
+/// rounds already absorbed / drawn — `rounds` / `point` hold them; the
+/// tables are the folded ones of size 2^(n - t_idx)).
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn ixf_sumcheck_prove_packed_from(
+    kf: &KField,
+    mut packed: Vec<super::kfield::KTab>,
+    degrees: &[usize],
+    kind: IxfCombine,
+    tr: &mut LkpTranscript,
+    mut t_idx: usize,
+    mut rounds: Vec<Vec<KElem>>,
+    mut point: Vec<KElem>,
+) -> (SumcheckProof, Vec<KElem>) {
+    use super::ct_engine::prof;
+    let n = degrees.len();
+    assert!(packed.iter().all(|t| t.n == 1 << (n - t_idx)), "ixf packed: table sizes vs the round index");
+    assert_eq!(packed.len(), kind.n_tables(), "ixf: table count vs combine shape");
     let kid = kind.kernel_id();
-    let mut rounds = Vec::with_capacity(n);
-    let mut point = Vec::with_capacity(n);
     // [UPERF2-O] ONE rotating fold scratch for every table (the out-of-place
     // fold swaps the old table buffer in as the next table's scratch), from
     // the claim layer's pool when it is open (a full-size buffer, kept at
@@ -628,7 +820,6 @@ pub(crate) fn ixf_sumcheck_prove_packed(
     // a table never holds > 1.5x its size; peak = nt tables + one half).
     let pooled = ixf_pool_on();
     let mut scratch: Vec<u32> = if pooled { ixf_pool_take(packed[0].d.len()) } else { Vec::new() };
-    let mut t_idx = 0usize;
     while t_idx < n && packed[0].n >= 2 * super::kfield::KL {
         let deg = degrees[t_idx];
         let g = {

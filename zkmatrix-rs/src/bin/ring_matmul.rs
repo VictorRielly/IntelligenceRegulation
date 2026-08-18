@@ -30237,38 +30237,32 @@ fn bg_zc_prove(
     tr: &mut ring::sumcheck::LkpTranscript,
 ) -> (ring::sumcheck::SumcheckProof, Vec<ring::kfield::KElem>) {
     use ring::ct_engine::prof as dprof;
-    use ring::fold::{expand_layer_table, ixf_sumcheck_prove_kind, ixf_sumcheck_prove_tables, IxfCombine, IxfTable};
+    use ring::fold::{expand_layer_table, ixf_sumcheck_prove_kind, ixf_sumcheck_prove_zc, IxfCombine, IxfTable, IxfZcSpec};
     let kind = if is_rq { IxfCombine::Rq } else { IxfCombine::Had };
     let np = 1usize << n_pos;
     if IxfTable::available(kf) {
-        let prof_tabs = dprof::timer(dprof::D_CL_TABLES); // observation only
-        let zq = kf.zq;
-        let eq_full = IxfTable::eq(kf, r_q);
-        let stacked = |e: usize| -> IxfTable {
-            let vals: Vec<&[i64]> = lays.iter().map(|lay| bf_entry_values(e, lay)).collect();
-            let rows: Vec<usize> = vals.iter().map(|v| v.len() / cols_real).collect();
-            IxfTable::scalar_table(kf, slots * np, |idx| {
-                let li = idx / np;
-                if li >= vals.len() {
-                    return 0;
-                }
-                let pos = idx % np;
-                let (i, j) = (pos / cols_pad, pos % cols_pad);
-                if j >= cols_real || i >= rows[li] {
-                    return 0;
-                }
-                zq.to_mod(vals[li][i * cols_real + j])
-            })
+        // [UPERF2-O] the instance by its COMPACT operands: fold.rs builds the
+        // packed tables on the device (GPU build, ZK_GPU=1) or on the host
+        // (the pooled builders — lane D's fast path verbatim: eq over r_q,
+        // embed(to_mod(v)) at (layer, row, padded col), the shift expansion).
+        let lambda = slots.trailing_zeros() as usize;
+        assert_eq!(1usize << lambda, slots, "zc: slots is a power of two");
+        let spec = IxfZcSpec {
+            kind,
+            point: r_q,
+            layers: [
+                lays.iter().map(|lay| bf_entry_values(entries[0], lay)).collect(),
+                lays.iter().map(|lay| bf_entry_values(entries[1], lay)).collect(),
+                lays.iter().map(|lay| bf_entry_values(entries[2], lay)).collect(),
+            ],
+            cols_real,
+            cols_pad,
+            n_pos,
+            lambda,
+            slots,
+            sh_layer,
         };
-        let t1 = stacked(entries[0]);
-        let t2 = stacked(entries[1]);
-        let t3 = stacked(entries[2]);
-        let mut tabs = vec![eq_full, t1, t2, t3];
-        if is_rq {
-            tabs.push(IxfTable::layer_expand(sh_layer, np));
-        }
-        drop(prof_tabs);
-        ixf_sumcheck_prove_tables(kf, tabs, sched, kind, tr)
+        ixf_sumcheck_prove_zc(kf, &spec, sched, tr)
     } else {
         let prof_tabs = dprof::timer(dprof::D_CL_TABLES); // observation only
         let eq_full = ring::gkr::eq_table(kf, r_q);
@@ -40751,14 +40745,16 @@ fn uperf_o_bench(layers: usize, t: usize, reps: usize) {
         );
         assert!(same, "[UPERF2-O] bench: proofs differ between passes");
     };
+    let dev_live = ring::gpu::enabled();
     for rep in 0..reps {
-        // pool OFF (today's allocation pattern: no scope open)
+        // host, pool OFF (lane D's allocation pattern: no scope open; the device bypassed)
+        ring::gpu::ixf_set_bypass(true);
         ring::ct_engine::prof::reset();
         ring::ct_engine::prof::enable(true, false);
         let (d, s) = uperf_o_zc_sequence(&kf, &lays, t, "seq");
         ring::ct_engine::prof::enable(false, false);
-        check(&format!("pool off (rep {rep})"), d, s, uperf_o_cl_prof());
-        // pool ON (a scope around the sequence, as the pass drivers open)
+        check(&format!("host, pool off (rep {rep})"), d, s, uperf_o_cl_prof());
+        // host, pool ON (a scope around the sequence, as the pass drivers open)
         ring::ct_engine::prof::reset();
         ring::ct_engine::prof::enable(true, false);
         let (d, s) = {
@@ -40766,7 +40762,37 @@ fn uperf_o_bench(layers: usize, t: usize, reps: usize) {
             uperf_o_zc_sequence(&kf, &lays, t, "seq")
         };
         ring::ct_engine::prof::enable(false, false);
-        check(&format!("pool on (rep {rep})"), d, s, uperf_o_cl_prof());
+        check(&format!("host, pool on (rep {rep})"), d, s, uperf_o_cl_prof());
+        ring::gpu::ixf_set_bypass(false);
+        // the device path (tables built on the device; the pool scope open as in the pass)
+        if dev_live {
+            ring::gpu::ixf_stats_reset();
+            ring::ct_engine::prof::reset();
+            ring::ct_engine::prof::enable(true, false);
+            let (d, s) = {
+                let _scope = ring::fold::IxfPoolScope::open();
+                uperf_o_zc_sequence(&kf, &lays, t, "seq")
+            };
+            ring::ct_engine::prof::enable(false, false);
+            check(&format!("device (rep {rep})"), d, s, uperf_o_cl_prof());
+            let st = ring::gpu::ixf_stats();
+            println!(
+                "    ixf: instances {} (declined {}), rounds {}, folds {}, h2d {:.0} MB; open {:.3}s (upload {:.3} + build {:.3}), rounds {:.3}s, folds {:.3}s (host small tables {:.3}s), handover {:.3}s | {}",
+                st.instances,
+                st.declined,
+                st.rounds,
+                st.folds,
+                st.bytes_h2d as f64 / 1e6,
+                st.secs_open,
+                st.secs_upload,
+                st.secs_build,
+                st.secs_round,
+                st.secs_fold,
+                st.secs_host_small,
+                st.secs_handover,
+                ring::gpu::ixf_label()
+            );
+        }
     }
 }
 
