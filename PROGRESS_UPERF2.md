@@ -691,7 +691,40 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent K status (wt-uperf2-k)
 
-- (lane launches here)
+- 2026-08-17 PLAN COMMIT (lane K, branch uperf2-k at bd5e0dd; report:
+  docs/zkmatrix-poc/U_PERF2_GPU_REPORT.md — written as the CONTINUATION
+  Phase-3 GPU rung report). Files: `zkmatrix-rs/Cargo.toml` (feature
+  `gpu-cuda`, optional cudarc), NEW `zkmatrix-rs/src/ring/gpu/{mod.rs,
+  cuda.rs, kernels.cu}`, `pub mod gpu` in ring/mod.rs, ONE hook at the top
+  of `eval_proof::ntt_gemm_modq_small_gen`, a `// [UPERF2-K]` bin section
+  with `uperf-k {probe, battery, bench}`, the report, this section.
+  Baseline: the untouched bd5e0dd default build kept as
+  scratchpad/ring_matmul_base_bd5e0dd. Box facts re-measured: RTX 4070
+  Laptop, 8,188 MiB, sm_89, 36 SMs, driver 566.14 / CUDA 12.7; power
+  limits default 55 W / current 68.82 W / max 105 W (nvidia-smi).
+  PLAN, in order: (1) plumbing — device + NVRTC compile-once singleton,
+  `enabled()` = feature AND `ZK_GPU=1` AND device, `uperf-k probe`
+  reproducing the mulmod result; the default build unchanged (stub
+  `enabled() -> false`). (2) the port of `ntt_gemm_modq_small`: forward
+  length-128 NTTs of the a rings (u32-packed mod-q when q < 2^32, lifted
+  on the device: balanced mod q -> Z_p) and b rings (i8 when s_max <= 127,
+  else i64; lifted on the device) in shared memory with the transposed
+  [t][ub][idx] store; the D = 128 batched (na x n) x (n x nb) GEMMs as
+  64 x 64 output tiles x split-K with per-cell split-halves accumulation
+  as TWO 128-bit integers (u64 lane + carry count each — the same
+  integers `dot_split_halves` sums); the flush = the same
+  `gl_reduce128(acc_lo + EPS*acc_hi)` on the same u128, inverse NTT,
+  center, mod q, add; window boundaries = the CPU's
+  `ntt_window_terms(q, s_max)`; u-blocks sized to a device budget
+  (default 512 MB) so 8 GB VRAM streams any len; results copied back
+  once. Battery `uperf-k battery` (transforms on planted extremes +
+  random; the GEMM cell-by-cell GPU vs CPU at q31/q46, s_max
+  1/2/64/2^20/2^40, shapes crossing tiles/u-blocks/windows, zero rings,
+  the i8 store, the over-capacity decline) + `uperf-pc diff-battery`
+  under ZK_GPU=1. (3) measure kernel-bench 64x8192 CPU 8T vs GPU, the
+  REAL 3x16 / 12x128 rigs (digests identical), ONE 12x512 8T+GPU run
+  under the flock. (4) if time: the descent round kernel, same one-hook
+  discipline.
 
 ## Agent H status (wt-uperf2-h)
 

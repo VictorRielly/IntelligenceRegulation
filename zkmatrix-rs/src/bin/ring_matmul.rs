@@ -6416,6 +6416,8 @@ fn main() {
         Some("uperf-i") => uperf_i_main(&args[1..]),
         // [UPERF2-H] U-PERF2 lane H (descent tree memory: layer release + checkpoints + compact leaves) battery + bench.
         Some("uperf-h") => uperf_h_main(&args[1..]),
+        // [UPERF2-K] U-PERF2 lane K (the GPU rung: CUDA/NVRTC ports, feature gpu-cuda) probe + battery + bench.
+        Some("uperf-k") => uperf_k_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -38871,4 +38873,310 @@ fn uperf_h_bench(depth: usize, l: usize, n_real: usize, dt: usize) {
         }
     }
     println!("[UPERF2-H] DESCENT DIGEST {}", hex_full(&out.digest));
+}
+
+// ===========================================================================
+// [UPERF2-K] U-PERF2 lane K — THE GPU RUNG, step 1 (CONTINUATION Phase 3):
+// feature-gated CUDA (cudarc + NVRTC) ports of the NTT-domain kernels,
+// bit-identical to the CPU bodies. ADDITIVE section. Commands:
+//   uperf-k probe            — device + the Goldilocks mulmod probe (0
+//                              mismatches vs the CPU, G mulmod/s).
+//   uperf-k battery          — the transforms and `ntt_gemm_modq_small`
+//                              cell-by-cell GPU vs CPU: both moduli, random +
+//                              planted extremes + zero rings + window and
+//                              u-block crossings + tile crossings + the
+//                              over-capacity decline.
+//   uperf-k bench <na> <nb> <len> [reps]
+//                            — one GEMM shape, GPU (forced) vs CPU at the
+//                              current ZK_THREADS, with the pack / h2d / gpu
+//                              attribution.
+// Without `--features gpu-cuda` every arm reports the stub state.
+
+fn uperf_k_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("probe") => uperf_k_probe(),
+        Some("battery") => uperf_k_battery(),
+        Some("bench") => {
+            let na: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(64);
+            let nb: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(64);
+            let len: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(1024);
+            let reps: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(3);
+            uperf_k_bench(na, nb, len, reps);
+        }
+        _ => println!("uperf-k probe | battery | bench <na> <nb> <len> [reps]"),
+    }
+}
+
+fn uperf_k_probe() {
+    println!("[UPERF2-K] {}", ring::gpu::label());
+    match ring::gpu::probe() {
+        Ok(r) => println!(
+            "[UPERF2-K] probe: {} — mulmod {} mismatches of {} (100 launches x 2^20); {:.2} G mulmod/s",
+            r.device, r.mismatches, r.n, r.gmul_per_s
+        ),
+        Err(e) => println!("[UPERF2-K] probe unavailable: {e}"),
+    }
+}
+
+/// [UPERF2-K] Adversarial mod-q ring (as the O2 leg): uniform with planted
+/// extremes (0, 1, q-1, q/2, q/2+1) at random positions; optionally zero.
+fn uperf_k_rand_modq_ring(rd: &mut XofReader, q: u64, zero_ring: bool) -> Poly {
+    if zero_ring {
+        return poly_zero();
+    }
+    let mut p: Poly = (0..D).map(|_| rd.next_field(q)).collect();
+    let plant = [0u64, 1, q - 1, q / 2, q / 2 + 1];
+    for (i, v) in plant.iter().enumerate() {
+        let pos = (rd.next_u64() as usize) % D;
+        if i % 2 == 0 || (rd.next_u64() & 1) == 1 {
+            p[pos] = *v;
+        }
+    }
+    p
+}
+
+/// [UPERF2-K] Adversarial small ring: uniform in [-s_max, s_max] with
+/// planted +-s_max and zeros; optionally all-zero.
+fn uperf_k_rand_small_ring(rd: &mut XofReader, s_max: i64, zero_ring: bool) -> Vec<i64> {
+    if zero_ring || s_max == 0 {
+        return vec![0i64; D];
+    }
+    let span = (2 * s_max + 1) as u64;
+    let mut v: Vec<i64> = (0..D).map(|_| rd.next_field(span) as i64 - s_max).collect();
+    let pos = (rd.next_u64() as usize) % D;
+    v[pos] = s_max;
+    let pos = (rd.next_u64() as usize) % D;
+    v[pos] = -s_max;
+    let pos = (rd.next_u64() as usize) % D;
+    v[pos] = 0;
+    v
+}
+
+fn uperf_k_battery() {
+    use ring::eval_proof::{ntt_gemm_modq_small, ntt_window_terms};
+    let t0 = Instant::now();
+    println!("[UPERF2-K] battery: {}", ring::gpu::label());
+    println!("[UPERF2-K] ZK_THREADS = {}", ring::eval_proof::threads());
+    if ring::gpu::probe().is_err() {
+        println!("[UPERF2-K] battery: no GPU available in this build/box — nothing to compare (the CPU path is unchanged)");
+        return;
+    }
+    // ---- 1. The transforms: GPU fwd/inv == ntt_fwd_best/ntt_inv_best on
+    // planted extremes + random rings.
+    let tables = aux::build_tables();
+    let mut rings: Vec<[u64; D]> = Vec::new();
+    let extremes = [0u64, 1, 2, aux::P - 1, aux::P - 2, aux::P / 2, aux::P / 2 + 1, aux::EPS, aux::EPS + 1, 1u64 << 32, (1u64 << 32) - 1, 1u64 << 63, aux::P - (1u64 << 32)];
+    for &e in extremes.iter() {
+        rings.push([e; D]);
+        for pos in [0usize, 1, 63, 64, 127] {
+            let mut r = [0u64; D];
+            r[pos] = e;
+            rings.push(r);
+        }
+    }
+    let mut rd = XofReader::new("uperf-k-ntt", &[&[0xACu8]]);
+    for _ in 0..3000 {
+        let mut r = [0u64; D];
+        for x in r.iter_mut() {
+            *x = rd.next_field(aux::P);
+        }
+        rings.push(r);
+    }
+    let n_rings = rings.len();
+    let fwd_gpu = ring::gpu::ntt_batch(&rings, false).expect("gpu fwd batch");
+    let inv_gpu = ring::gpu::ntt_batch(&rings, true).expect("gpu inv batch");
+    for (i, r) in rings.iter().enumerate() {
+        let mut f = *r;
+        aux::ntt_fwd_best(&mut f, &tables);
+        assert_eq!(fwd_gpu[i], f, "fwd mismatch on ring {i}");
+        let mut g = *r;
+        aux::ntt_inv_best(&mut g, &tables);
+        assert_eq!(inv_gpu[i], g, "inv mismatch on ring {i}");
+    }
+    println!("[UPERF2-K] transforms: {n_rings} rings (78 planted extremes + 3000 random): fwd == CPU, inv == CPU");
+
+    // ---- 2. The GEMM cell-by-cell: both moduli, s_max regimes (u32/u64 a
+    // formats, i8/i64 b formats, 64-term and 32-term windows, over
+    // capacity), shapes crossing the 64 x 64 tiles and the u-blocks.
+    let ctx31 = ring_ctx_q8();
+    let ctx46 = ring::ring_ctx(ring::Q8_46, ring::ETA8_46, 8);
+    let regimes: [(&str, &RingCtx, &[i64]); 2] = [("q31", &ctx31, &[1, 2, 64, 1 << 20]), ("q46", &ctx46, &[1, 64, 1 << 40])];
+    let shapes: [(usize, usize, usize); 14] = [
+        (1, 1, 1),
+        (2, 7, 7),
+        (3, 64, 64),
+        (5, 33, 33),
+        (8, 257, 257),
+        (11, 3, 5),
+        (3, 1, 64),
+        (11, 4, 301),
+        (65, 70, 100),
+        (64, 64, 1024),
+        (11, 64, 2048),
+        (130, 3, 50),
+        (1, 129, 40),
+        (17, 17, 4100),
+    ];
+    let mut legs = 0usize;
+    let mut declined = 0usize;
+    let mut cells = 0usize;
+    for (qn, ctx, smaxes) in regimes.iter() {
+        let q = ctx.zq.q;
+        for &s_max in smaxes.iter() {
+            let window = ntt_window_terms(q, s_max as u128);
+            for &(na, nb, len) in shapes.iter() {
+                // Big shapes only at the small alphabets (time).
+                if na * nb * len > 200_000 && s_max > 64 {
+                    continue;
+                }
+                for &tiny_blocks in [false, true].iter() {
+                    if tiny_blocks && (len < 8 || na * nb * len > 300_000) {
+                        continue;
+                    }
+                    let mut rd = XofReader::new(
+                        "uperf-k-gemm",
+                        &[qn.as_bytes(), &s_max.to_le_bytes(), &(na as u64).to_le_bytes(), &(nb as u64).to_le_bytes(), &(len as u64).to_le_bytes()],
+                    );
+                    let a_rings: Vec<Vec<Poly>> =
+                        (0..na).map(|ia| (0..len).map(|u| uperf_k_rand_modq_ring(&mut rd, q, (u + ia) % 11 == 3)).collect()).collect();
+                    let b_rings: Vec<Vec<Vec<i64>>> = (0..nb)
+                        .map(|ib| (0..len).map(|u| uperf_k_rand_small_ring(&mut rd, s_max, (nb > 1 && ib == 1) || (u + ib) % 13 == 5)).collect())
+                        .collect();
+                    let a_sl: Vec<&[Poly]> = a_rings.iter().map(|v| v.as_slice()).collect();
+                    let b_sl: Vec<&[Vec<i64>]> = b_rings.iter().map(|v| v.as_slice()).collect();
+                    ring::gpu::set_block_mb(if tiny_blocks { 1 } else { 0 });
+                    // CPU oracle (the body, GPU bypassed).
+                    ring::gpu::set_bypass(true);
+                    let want = ntt_gemm_modq_small(ctx, &a_sl, &b_sl, len);
+                    ring::gpu::set_bypass(false);
+                    // GPU, forced (no minimum-work decline).
+                    let got = ring::gpu::ntt_gemm_modq_small_force(ctx, &a_sl, &b_sl, len);
+                    match got {
+                        Some(g) => {
+                            assert!(window > 0, "GPU accepted an over-capacity shape at {qn} s_max {s_max}");
+                            assert_eq!(g.len(), want.len());
+                            for (i, (x, y)) in g.iter().zip(want.iter()).enumerate() {
+                                assert_eq!(
+                                    x, y,
+                                    "GEMM cell {i} (ia {}, ib {}) mismatch at {qn} s_max {s_max} shape {na}x{nb}x{len} window {window} tiny_blocks {tiny_blocks}",
+                                    i / nb,
+                                    i % nb
+                                );
+                            }
+                            cells += g.len();
+                            legs += 1;
+                        }
+                        None => {
+                            assert!(window == 0, "GPU declined a forced in-capacity shape at {qn} s_max {s_max} shape {na}x{nb}x{len}");
+                            declined += 1;
+                        }
+                    }
+                    // Also the DigitCols (flat i8) store when it fits.
+                    if s_max <= 127 && !tiny_blocks {
+                        let cols: Vec<ring::eval_proof::DigitCols> = b_rings.iter().map(|v| ring::eval_proof::DigitCols::from_vecs(v)).collect();
+                        let b_i8: Vec<&[i8]> = cols.iter().map(|c| c.rings()).collect();
+                        let got8 = ring::gpu::ntt_gemm_modq_small_force(ctx, &a_sl, &b_i8, len).expect("GPU declined the i8 store");
+                        assert_eq!(got8, want, "GEMM i8-store mismatch at {qn} s_max {s_max} shape {na}x{nb}x{len}");
+                        legs += 1;
+                    }
+                }
+            }
+        }
+    }
+    ring::gpu::set_block_mb(0);
+    println!("[UPERF2-K] gemm: {legs} legs byte-identical GPU vs CPU ({cells} output rings compared; both moduli; s_max 1/2/64/2^20 at q31, 1/64 at q46; {declined} over-capacity legs declined by both)");
+    // ---- 3. Through the hook: level-h and matvec entry points with the
+    // GPU live (ZK_GPU=1 needed) vs bypassed.
+    if ring::gpu::enabled() {
+        use ring::eval_proof::{level_h_pairs, matvec_modq_small_multi};
+        let mut hook_legs = 0usize;
+        for (qn, ctx, smaxes) in regimes.iter() {
+            let q = ctx.zq.q;
+            let s_max = smaxes[0].max(2);
+            for (r, chunk) in [(3usize, 700usize), (8, 1500)] {
+                let mut rd = XofReader::new("uperf-k-hook", &[qn.as_bytes(), &(r as u64).to_le_bytes(), &(chunk as u64).to_le_bytes()]);
+                let phis: Vec<Vec<Poly>> = (0..r).map(|j| (0..chunk).map(|u| uperf_k_rand_modq_ring(&mut rd, q, (u + j) % 11 == 3)).collect()).collect();
+                let ws: Vec<Vec<Vec<i64>>> =
+                    (0..r).map(|k| (0..chunk).map(|u| uperf_k_rand_small_ring(&mut rd, s_max, (u + k) % 13 == 5)).collect()).collect();
+                let phi_sl: Vec<&[Poly]> = phis.iter().map(|p| p.as_slice()).collect();
+                let w_sl: Vec<&[Vec<i64>]> = ws.iter().map(|w| w.as_slice()).collect();
+                let stats0 = ring::gpu::stats().calls;
+                let got = level_h_pairs(ctx, &phi_sl, &w_sl, chunk);
+                let used = ring::gpu::stats().calls > stats0;
+                ring::gpu::set_bypass(true);
+                let want = level_h_pairs(ctx, &phi_sl, &w_sl, chunk);
+                ring::gpu::set_bypass(false);
+                assert_eq!(got, want, "hook level-h mismatch at {qn} r {r} chunk {chunk}");
+                let m: Vec<Poly> = (0..ring::eval_proof::KAPPA_AGG * chunk).map(|i| uperf_k_rand_modq_ring(&mut rd, q, i % 17 == 9)).collect();
+                let got_m = matvec_modq_small_multi(ctx, &m, ring::eval_proof::KAPPA_AGG, chunk, &w_sl);
+                ring::gpu::set_bypass(true);
+                let want_m = matvec_modq_small_multi(ctx, &m, ring::eval_proof::KAPPA_AGG, chunk, &w_sl);
+                ring::gpu::set_bypass(false);
+                assert_eq!(got_m, want_m, "hook matvec mismatch at {qn} r {r} chunk {chunk}");
+                hook_legs += 2;
+                let _ = used;
+            }
+        }
+        println!("[UPERF2-K] hook: {hook_legs} level-h/matvec legs identical GPU-live vs bypassed (min_macs threshold in force: {} GPU calls, {} declined)", ring::gpu::stats().calls, ring::gpu::stats().declined);
+    } else {
+        println!("[UPERF2-K] hook legs skipped (ZK_GPU=1 not set) — run `ZK_GPU=1 ... uperf-k battery` and `ZK_GPU=1 ... uperf-pc diff-battery` for the hook");
+    }
+    println!("[UPERF2-K] battery passed in {:.2}s", t0.elapsed().as_secs_f64());
+}
+
+fn uperf_k_bench(na: usize, nb: usize, len: usize, reps: usize) {
+    use ring::eval_proof::ntt_gemm_modq_small;
+    let ctx = ring_ctx_q8();
+    let q = ctx.zq.q;
+    println!("[UPERF2-K] bench: {}", ring::gpu::label());
+    println!(
+        "[UPERF2-K] bench: na {na} x nb {nb} x len {len} at q31, digits |w| <= 2 ({:.2} G D-domain MACs), ZK_THREADS {} [{}]",
+        (D * na * nb * len) as f64 / 1e9,
+        ring::eval_proof::threads(),
+        std::env::consts::OS
+    );
+    let mut rd = XofReader::new("uperf-k-bench", &[&(na as u64).to_le_bytes(), &(nb as u64).to_le_bytes(), &(len as u64).to_le_bytes()]);
+    let a_rings: Vec<Vec<Poly>> = (0..na).map(|_| (0..len).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect()).collect();
+    let b_rings: Vec<Vec<Vec<i64>>> =
+        (0..nb).map(|_| (0..len).map(|_| (0..D).map(|_| rd.next_field(5) as i64 - 2).collect()).collect()).collect();
+    let a_sl: Vec<&[Poly]> = a_rings.iter().map(|v| v.as_slice()).collect();
+    let b_sl: Vec<&[Vec<i64>]> = b_rings.iter().map(|v| v.as_slice()).collect();
+    let macs = (D * na * nb * len) as f64;
+    // CPU (bypassed).
+    ring::gpu::set_bypass(true);
+    let mut best_cpu = f64::MAX;
+    let mut want = Vec::new();
+    for _ in 0..reps {
+        let t0 = Instant::now();
+        want = ntt_gemm_modq_small(&ctx, &a_sl, &b_sl, len);
+        best_cpu = best_cpu.min(t0.elapsed().as_secs_f64());
+    }
+    ring::gpu::set_bypass(false);
+    println!("  CPU  : best of {reps}: {:.1} ms = {:.2} G MAC/s", best_cpu * 1e3, macs / best_cpu / 1e9);
+    if ring::gpu::probe().is_err() {
+        println!("  GPU  : unavailable ({})", ring::gpu::label());
+        return;
+    }
+    // Warm-up (NVRTC compile + first allocations), then timed reps.
+    let _ = ring::gpu::ntt_gemm_modq_small_force(&ctx, &a_sl, &b_sl, len);
+    ring::gpu::stats_reset();
+    let mut best_gpu = f64::MAX;
+    for _ in 0..reps {
+        let t0 = Instant::now();
+        let got = ring::gpu::ntt_gemm_modq_small_force(&ctx, &a_sl, &b_sl, len).expect("GPU declined");
+        best_gpu = best_gpu.min(t0.elapsed().as_secs_f64());
+        assert_eq!(got, want, "bench: GPU != CPU");
+    }
+    let s = ring::gpu::stats();
+    println!(
+        "  GPU  : best of {reps}: {:.1} ms = {:.2} G MAC/s (byte-identical) -> {:.1}x vs CPU at ZK_THREADS {}; per call avg: pack {:.1} ms, h2d {:.1} ms ({:.0} MB), gpu {:.1} ms",
+        best_gpu * 1e3,
+        macs / best_gpu / 1e9,
+        best_cpu / best_gpu,
+        ring::eval_proof::threads(),
+        s.secs_pack * 1e3 / reps as f64,
+        s.secs_h2d * 1e3 / reps as f64,
+        s.bytes_h2d as f64 / 1e6 / reps as f64,
+        s.secs_gpu * 1e3 / reps as f64
+    );
 }
