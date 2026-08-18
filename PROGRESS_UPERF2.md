@@ -492,8 +492,10 @@ freeze rows, `self-test`, the REAL rig digests at 1T/8T.
   by the 3x16 ratio) — TASK_BOARD T11(a'): a wording amendment (N
   threads stated) or a protocol change. Phase 2 (PoC close: p50/p95
   over >= 20 warm runs, AZB canary, A1 reconciliation) is now
-  runnable HERE; a 20-run p50/p95 series at 12x512 8T is in flight
-  (U_PERF_WAVE_REPORT.md 4.3 when done). Phase 3 (GPU): the fused
+  runnable HERE; the 20-run p50/p95 series at 12x512 8T is DONE
+  (U_PERF_WAVE_REPORT.md 4.3): **wall p50 153.1 s / p95 155.9 s, prove
+  p50 132.8 / p95 135.5, verify p50 7.3 / p95 7.4, commit 11.2 / 11.4;
+  20/20 accept, one digest, +-1.5% spread.** Phase 3 (GPU): the fused
   descent kernel (a.round-g 52 s) and the NTT-domain GEMM (level-h 22
   s) are the first two kernels to port.
 - Orchestrator note (lane I): our `--manifest-path` builds ignore
