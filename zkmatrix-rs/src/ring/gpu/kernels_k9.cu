@@ -51,24 +51,32 @@ typedef unsigned int u32;
 #endif
 #define SH_WORDS (5 * 2 * KDEG)
 
-// Kernel parameters (by value; == k9.rs K9Params, #[repr(C)]).
+// Kernel parameters (by value; == k9.rs K9Params, #[repr(C)]) — scalars
+// only; the constant vectors of a round live in the device buffer `prm`
+// (== k9.rs K9Prm layout, u32 words):
+//   PRM_NODES  [8]        the x values (nn used)
+//   PRM_R      [16]       the fold challenge r (r_prev of the fused modes)
+//   PRM_LAMBDA [16]       PL = p0 + lambda q0
+//   PRM_EE     [16]       E(e) (extract modes)
+//   PRM_FC     [4][16]    fold add-constants (pl/p0, p1, q0, q1)
+//   PRM_NC     [5][4][16] node add-constants [node][pl, p1, q0, q1]
 struct K9P {
     u32 q, s, c31, c32;
     u32 nn;            // nodes evaluated
-    u32 nodes[5];      // the x values (0, 2, 3, ..)
     u32 has_fc;        // fold add-constants present
     u32 has_nc;        // node add-constants present
     u32 has_ee;        // eq scale E(e) present (extract modes)
-    u32 mode;          // 0 fold, 1 extract, 2 extract-fold (informational)
     u32 kind;          // ixf kind (0 prod3, 1 had, 2 rq)
     u32 deg;           // ixf degree
-    u32 pad0, pad1;
-    u32 r[KDEG];       // the pending fold challenge r_prev (fold modes) / the fold r
-    u32 lambda[KDEG];  // PL = p0 + lambda q0
-    u32 ee[KDEG];      // E(e)
-    u32 fc[4][KDEG];   // fold add-constants
-    u32 nc[5][4][KDEG];// node add-constants [node][pl,p1,q0,q1]
+    const u32* prm;    // the constant vectors (device)
 };
+#define PRM_NODES 0
+#define PRM_R 8
+#define PRM_LAMBDA 24
+#define PRM_EE 40
+#define PRM_FC 56
+#define PRM_NC 120
+#define PRM_WORDS 440
 
 // ---------------------------------------------------------------------------
 // Lane-scalar primitives (== kfield.rs addm32 / subm32 / fold31 / canon).
@@ -83,8 +91,21 @@ __device__ __forceinline__ u32 subm(u32 a, u32 b, u32 q) {
     u32 e = d + q;
     return (a >= b) ? d : e;
 }
+// 32 x 32 -> 64 products as ONE instruction each (the compiler emitted
+// 64 x 64 `mul.lo.s64` sequences for the (u64)a * (u64)b idiom).
+__device__ __forceinline__ u64 mulw(u32 a, u32 b) {
+    u64 r;
+    asm("mul.wide.u32 %0, %1, %2;" : "=l"(r) : "r"(a), "r"(b));
+    return r;
+}
+__device__ __forceinline__ u64 madw(u32 a, u32 b, u64 c) {
+    u64 r;
+    asm("mad.wide.u32 %0, %1, %2, %3;" : "=l"(r) : "r"(a), "r"(b), "l"(c));
+    return r;
+}
+// v < 2^63: v >> 31 < 2^32.
 __device__ __forceinline__ u64 fold31(u64 v, u32 c31) {
-    return (v & M31) + (u64)c31 * (v >> 31);
+    return madw(c31, (u32)(v >> 31), v & M31);
 }
 // v < 2q (and < 2^32): one conditional subtraction.
 __device__ __forceinline__ u32 canon1(u64 v, u32 q) {
@@ -103,15 +124,15 @@ __device__ __forceinline__ void kmac(const u32* a, const u32* b, u64* acc, u32 c
         int cnt = 0;
 #pragma unroll
         for (int i = i0; i <= i1; i++) {
-            s += (u64)a[i] * (u64)b[t - i];
+            s = madw(a[i], b[t - i], s);
             cnt++;
             if (cnt == 4) {
-                acc[t] += (s & M32) + (u64)c32 * (s >> 32);
+                acc[t] += madw(c32, (u32)(s >> 32), s & M32);
                 s = 0;
                 cnt = 0;
             }
         }
-        if (cnt) acc[t] += (s & M32) + (u64)c32 * (s >> 32);
+        if (cnt) acc[t] += madw(c32, (u32)(s >> 32), s & M32);
     }
 }
 
@@ -122,7 +143,7 @@ __device__ __forceinline__ void kred(const u64* acc, u32* out, u32 q, u32 s, u32
     for (int t = 0; t < 15; t++) h[t] = canon1(fold31(acc[t + 16], c31), q);
 #pragma unroll
     for (int t = 0; t < 16; t++) {
-        u64 v = acc[t] + ((t < 15) ? (u64)s * (u64)h[t] : 0ULL);
+        u64 v = (t < 15) ? madw(s, h[t], acc[t]) : acc[t];
         v = fold31(v, c31);
         v = fold31(v, c31);
         out[t] = canon1(v, q);
@@ -200,61 +221,79 @@ __device__ __forceinline__ void cl_get(const CLSrc& c, u32 E, u32* p, u32* q) {
 }
 
 // ---------------------------------------------------------------------------
-// The node loop of one element pair (== round_g5_pair per lane): the five
-// tables' (e1, dd) sit in shared memory (SoA by thread); nodes x != 1:
-// x == 0 -> e0 = e1 - dd, x >= 2 -> e1 + (x-1) dd by successive adds (the
-// same canonical values as the CPU's running extrapolation); the masked
-// add-constants; wire = PL Q1 + P1 Q0 (one reduction); term = eq x wire
-// (canonical); accn[node] += term (mod q).
-
-#define SH_AT(k, w, j) sh[(((k) * 2 + (w)) * KDEG + (j)) * TK9 + threadIdx.x]
-
-__device__ __forceinline__ void node_val(const u32* sh, int k, u32 x, u32* v, u32 q) {
+// The node values of one table at node x from the pair (e0, e1) — the CPU's
+// running extrapolation: x == 0 -> e0; x >= 2 -> e1 + (x-1) dd by successive
+// modular adds, dd = e1 - e0 (the same canonical values).
+__device__ __forceinline__ void nodev(const u32* e0, const u32* e1, u32 x, u32* v, u32 q) {
     if (x == 0) {
 #pragma unroll
-        for (int j = 0; j < KDEG; j++) v[j] = subm(SH_AT(k, 0, j), SH_AT(k, 1, j), q);
+        for (int j = 0; j < KDEG; j++) v[j] = e0[j];
     } else {
+        // x - 1 successive adds of dd (x <= 5): branch once on x, straight-line per coefficient.
+        const u32 steps = x - 1;
 #pragma unroll
         for (int j = 0; j < KDEG; j++) {
-            u32 e1 = SH_AT(k, 0, j), dd = SH_AT(k, 1, j);
-            u32 c = e1;
-            for (u32 xx = 1; xx < x; xx++) c = addm(c, dd, q);
+            u32 dd = subm(e1[j], e0[j], q);
+            u32 c = e1[j];
+            c = addm(c, dd, q);                    // >= 1 step (x >= 2)
+            if (steps >= 2) c = addm(c, dd, q);
+            if (steps >= 3) c = addm(c, dd, q);
+            if (steps >= 4) c = addm(c, dd, q);
             v[j] = c;
         }
     }
 }
 
-__device__ __forceinline__ void node_loop(const u32* sh, const K9P& P, u32 accn[5][KDEG]) {
+// The node loop of one element pair, REGISTER-RESIDENT (no shared state):
+// the wire PL Q1 + P1 Q0 is formed as addm(red(PL Q1), red(P1 Q0)) — the
+// same canonical value as the CPU's single reduction of the summed planes
+// (reduction commutes with addition; canonical representatives are unique)
+// — in three passes over table PAIRS so that only two tables' (e0, e1) are
+// live at a time: pass A (PL, Q1) -> w[x] = red(PL(x) Q1(x)); pass B (P1,
+// Q0) -> w[x] += red(P1(x) Q0(x)); pass C (EQ) -> accn[x] += red(EQ(x) w[x]).
+// The masked add-constants (round 0) come from prm.
+
+__device__ __forceinline__ void pass_a(const K9P& P, const u32* ple0, const u32* ple1, const u32* q1e0, const u32* q1e1, u32 w[5][KDEG]) {
 #pragma unroll 1
     for (int ni = 0; ni < (int)P.nn; ni++) {
-        const u32 x = P.nodes[ni];
-        u32 pl[KDEG], q1[KDEG];
-        u64 acc[31];
-#pragma unroll
-        for (int t = 0; t < 31; t++) acc[t] = 0;
-        node_val(sh, 1, x, pl, P.q);
-        node_val(sh, 4, x, q1, P.q);
+        const u32 x = P.prm[PRM_NODES + ni];
+        u32 a[KDEG], b[KDEG];
+        nodev(ple0, ple1, x, a, P.q);
+        nodev(q1e0, q1e1, x, b, P.q);
         if (P.has_nc) {
+            const u32* nc = P.prm + PRM_NC + ni * 4 * KDEG;
 #pragma unroll
-            for (int j = 0; j < KDEG; j++) { pl[j] = addm(pl[j], P.nc[ni][0][j], P.q); q1[j] = addm(q1[j], P.nc[ni][3][j], P.q); }
+            for (int j = 0; j < KDEG; j++) { a[j] = addm(a[j], nc[0 * KDEG + j], P.q); b[j] = addm(b[j], nc[3 * KDEG + j], P.q); }
         }
-        kmac(pl, q1, acc, P.c32);
-        u32 p1[KDEG], q0[KDEG];
-        node_val(sh, 2, x, p1, P.q);
-        node_val(sh, 3, x, q0, P.q);
+        kmul(a, b, w[ni], P);
+    }
+}
+__device__ __forceinline__ void pass_b(const K9P& P, const u32* p1e0, const u32* p1e1, const u32* q0e0, const u32* q0e1, u32 w[5][KDEG]) {
+#pragma unroll 1
+    for (int ni = 0; ni < (int)P.nn; ni++) {
+        const u32 x = P.prm[PRM_NODES + ni];
+        u32 a[KDEG], b[KDEG], m[KDEG];
+        nodev(p1e0, p1e1, x, a, P.q);
+        nodev(q0e0, q0e1, x, b, P.q);
         if (P.has_nc) {
+            const u32* nc = P.prm + PRM_NC + ni * 4 * KDEG;
 #pragma unroll
-            for (int j = 0; j < KDEG; j++) { p1[j] = addm(p1[j], P.nc[ni][1][j], P.q); q0[j] = addm(q0[j], P.nc[ni][2][j], P.q); }
+            for (int j = 0; j < KDEG; j++) { a[j] = addm(a[j], nc[1 * KDEG + j], P.q); b[j] = addm(b[j], nc[2 * KDEG + j], P.q); }
         }
-        kmac(p1, q0, acc, P.c32);
-        u32 w[KDEG];
-        kred(acc, w, P.q, P.s, P.c31);
-        u32 eq[KDEG];
-        node_val(sh, 0, x, eq, P.q);
-        u32 tm[KDEG];
-        kmul(eq, w, tm, P);
+        kmul(a, b, m, P);
 #pragma unroll
-        for (int t = 0; t < KDEG; t++) accn[ni][t] = addm(accn[ni][t], tm[t], P.q);
+        for (int j = 0; j < KDEG; j++) w[ni][j] = addm(w[ni][j], m[j], P.q);
+    }
+}
+__device__ __forceinline__ void pass_c(const K9P& P, const u32* eqe0, const u32* eqe1, u32 w[5][KDEG], u32 accn[5][KDEG]) {
+#pragma unroll 1
+    for (int ni = 0; ni < (int)P.nn; ni++) {
+        const u32 x = P.prm[PRM_NODES + ni];
+        u32 a[KDEG], m[KDEG];
+        nodev(eqe0, eqe1, x, a, P.q);
+        kmul(a, w[ni], m, P);
+#pragma unroll
+        for (int j = 0; j < KDEG; j++) accn[ni][j] = addm(accn[ni][j], m[j], P.q);
     }
 }
 
@@ -285,13 +324,26 @@ __device__ __forceinline__ void reduce_nodes(u32 accn[5][KDEG], u32 nn, u64* par
     }
 }
 
-// Put (e1, dd) of table k for this thread into shared from (e0, e1).
-__device__ __forceinline__ void put_state(u32* sh, int k, const u32* e0, const u32* e1, u32 q) {
-#pragma unroll
-    for (int j = 0; j < KDEG; j++) {
-        SH_AT(k, 0, j) = e1[j];
-        SH_AT(k, 1, j) = subm(e1[j], e0[j], q);
+#define ZERO_ACC(A)                                          \
+    _Pragma("unroll") for (int ni = 0; ni < 5; ni++)         \
+    _Pragma("unroll") for (int t = 0; t < KDEG; t++) A[ni][t] = 0;
+
+// Fold one table's four source lanes (elements 4i..4i+3: block ib, half ih)
+// into (e0, e1) [+ store to out block ob slot oh].
+#define LOAD4(IN, ib, ih, s0, s1, s2, s3)                                   \
+    _Pragma("unroll") for (int j = 0; j < KDEG; j++) {                      \
+        uint4 v = ld4(IN, ib, ih, j);                                       \
+        s0[j] = v.x; s1[j] = v.y; s2[j] = v.z; s3[j] = v.w;                 \
     }
+#define STORE2(OUT, ob, oh, e0, e1) \
+    _Pragma("unroll") for (int j = 0; j < KDEG; j++) st2(OUT, ob, oh, j, e0[j], e1[j]);
+
+__device__ __forceinline__ void fold_tab(const K9P& P, const u32* in, u32 ib, u32 ih, const u32* rr, const u32* c, u32* out, u32 ob, u32 oh, u32* e0, u32* e1) {
+    u32 s0[KDEG], s1[KDEG], s2[KDEG], s3[KDEG];
+    LOAD4(in, ib, ih, s0, s1, s2, s3)
+    kfold(s0, s1, rr, c, e0, P);
+    kfold(s2, s3, rr, c, e1, P);
+    STORE2(out, ob, oh, e0, e1)
 }
 
 // ---------------------------------------------------------------------------
@@ -303,34 +355,33 @@ __device__ __forceinline__ void put_state(u32* sh, int k, const u32* e0, const u
 
 extern "C" __global__ void k_fold_round(K9P P, const u32* in0, const u32* in1, const u32* in2, const u32* in3, const u32* in4,
                                         u32* out0, u32* out1, u32* out2, u32* out3, u32* out4, u32 n, u64* partial) {
-    __shared__ u32 sh[SH_WORDS * TK9];
     u32 accn[5][KDEG];
+    ZERO_ACC(accn)
+    u32 rr[KDEG];
 #pragma unroll
-    for (int ni = 0; ni < 5; ni++)
-#pragma unroll
-        for (int t = 0; t < KDEG; t++) accn[ni][t] = 0;
-    const u32* ins[5] = {in0, in1, in2, in3, in4};
-    u32* outs[5] = {out0, out1, out2, out3, out4};
+    for (int j = 0; j < KDEG; j++) rr[j] = P.prm[PRM_R + j];
+    const u32* fc = P.has_fc ? (P.prm + PRM_FC) : (const u32*)0;
     for (u32 i = blockIdx.x * TK9 + threadIdx.x; i < n; i += gridDim.x * TK9) {
         const u32 ib = i >> 1, ih = i & 1;    // source block, half
         const u32 ob = i >> 2, oh = i & 3;    // dest block, pair slot
-#pragma unroll 1
-        for (int k = 0; k < 5; k++) {
-            u32 s0[KDEG], s1[KDEG], s2[KDEG], s3[KDEG];
-#pragma unroll
-            for (int j = 0; j < KDEG; j++) {
-                uint4 v = ld4(ins[k], ib, ih, j);
-                s0[j] = v.x; s1[j] = v.y; s2[j] = v.z; s3[j] = v.w;
-            }
-            const u32* c = (P.has_fc && k > 0) ? P.fc[k - 1] : (const u32*)0;
-            u32 e0[KDEG], e1[KDEG];
-            kfold(s0, s1, P.r, c, e0, P);
-            kfold(s2, s3, P.r, c, e1, P);
-#pragma unroll
-            for (int j = 0; j < KDEG; j++) st2(outs[k], ob, oh, j, e0[j], e1[j]);
-            put_state(sh, k, e0, e1, P.q);
+        u32 w[5][KDEG];
+        {
+            u32 ae0[KDEG], ae1[KDEG], be0[KDEG], be1[KDEG];
+            fold_tab(P, in1, ib, ih, rr, fc ? fc + 0 * KDEG : (const u32*)0, out1, ob, oh, ae0, ae1); // PL
+            fold_tab(P, in4, ib, ih, rr, fc ? fc + 3 * KDEG : (const u32*)0, out4, ob, oh, be0, be1); // Q1
+            pass_a(P, ae0, ae1, be0, be1, w);
         }
-        node_loop(sh, P, accn);
+        {
+            u32 ae0[KDEG], ae1[KDEG], be0[KDEG], be1[KDEG];
+            fold_tab(P, in2, ib, ih, rr, fc ? fc + 1 * KDEG : (const u32*)0, out2, ob, oh, ae0, ae1); // P1
+            fold_tab(P, in3, ib, ih, rr, fc ? fc + 2 * KDEG : (const u32*)0, out3, ob, oh, be0, be1); // Q0
+            pass_b(P, ae0, ae1, be0, be1, w);
+        }
+        {
+            u32 ae0[KDEG], ae1[KDEG];
+            fold_tab(P, in0, ib, ih, rr, (const u32*)0, out0, ob, oh, ae0, ae1); // EQ
+            pass_c(P, ae0, ae1, w, accn);
+        }
     }
     reduce_nodes(accn, P.nn, partial, P.q);
 }
@@ -343,31 +394,61 @@ extern "C" __global__ void k_fold_round(K9P P, const u32* in0, const u32* in1, c
 // Thread = state-0 pair i: layer elements 4i..4i+3 (p0[2i] = L[4i], p1[2i]
 // = L[4i+1], p0[2i+1] = L[4i+2], p1[2i+1] = L[4i+3]); eq elements 2i, 2i+1.
 
+// The (x0e0, x0e1, x1e0, x1e1) of one layer table for state-0 pair i.
+template <bool COMPACT>
+__device__ __forceinline__ void layer4(const u32* L, const CLSrc& cl, bool want_q, u32 e_base, u32 i, u32* x0e0, u32* x1e0, u32* x0e1, u32* x1e1) {
+    if (COMPACT) {
+        u32 dump[KDEG];
+        if (want_q) {
+            cl_get(cl, e_base + 4 * i + 0, dump, x0e0);
+            cl_get(cl, e_base + 4 * i + 1, dump, x1e0);
+            cl_get(cl, e_base + 4 * i + 2, dump, x0e1);
+            cl_get(cl, e_base + 4 * i + 3, dump, x1e1);
+        } else {
+            cl_get(cl, e_base + 4 * i + 0, x0e0, dump);
+            cl_get(cl, e_base + 4 * i + 1, x1e0, dump);
+            cl_get(cl, e_base + 4 * i + 2, x0e1, dump);
+            cl_get(cl, e_base + 4 * i + 3, x1e1, dump);
+        }
+    } else {
+        LOAD4(L, i >> 1, i & 1, x0e0, x1e0, x0e1, x1e1)
+    }
+}
+
 template <bool COMPACT>
 __device__ __forceinline__ void extract_round_body(const K9P& P, const u32* pp, const u32* qq, CLSrc cl, u32 e_base,
                                                    const u32* eqb, u32 n, u64* partial) {
-    __shared__ u32 sh[SH_WORDS * TK9];
     u32 accn[5][KDEG];
+    ZERO_ACC(accn)
+    u32 lam[KDEG], ee[KDEG];
 #pragma unroll
-    for (int ni = 0; ni < 5; ni++)
-#pragma unroll
-        for (int t = 0; t < KDEG; t++) accn[ni][t] = 0;
+    for (int j = 0; j < KDEG; j++) { lam[j] = P.prm[PRM_LAMBDA + j]; ee[j] = P.prm[PRM_EE + j]; }
     for (u32 i = blockIdx.x * TK9 + threadIdx.x; i < n; i += gridDim.x * TK9) {
-        u32 pv[4][KDEG], qv[4][KDEG];
-        if (COMPACT) {
+        u32 w[5][KDEG];
+        u32 q0e0[KDEG], q0e1[KDEG];
+        {
+            // Q: q0 (lanes 0, 2), q1 (lanes 1, 3); P: p0 -> PL = p0 + lambda q0.
+            u32 q1e0[KDEG], q1e1[KDEG];
+            layer4<COMPACT>(qq, cl, true, e_base, i, q0e0, q1e0, q0e1, q1e1);
+            u32 ple0[KDEG], ple1[KDEG];
+            {
+                u32 p0e0[KDEG], p0e1[KDEG], d0[KDEG], d1[KDEG];
+                layer4<COMPACT>(pp, cl, false, e_base, i, p0e0, d0, p0e1, d1);
+                u32 m[KDEG];
+                kmul(q0e0, lam, m, P);
 #pragma unroll
-            for (int u = 0; u < 4; u++) cl_get(cl, e_base + 4 * i + u, pv[u], qv[u]);
-        } else {
-            const u32 lb = i >> 1, lh = i & 1;
+                for (int j = 0; j < KDEG; j++) ple0[j] = addm(p0e0[j], m[j], P.q);
+                kmul(q0e1, lam, m, P);
 #pragma unroll
-            for (int j = 0; j < KDEG; j++) {
-                uint4 a = ld4(pp, lb, lh, j);
-                uint4 b = ld4(qq, lb, lh, j);
-                pv[0][j] = a.x; pv[1][j] = a.y; pv[2][j] = a.z; pv[3][j] = a.w;
-                qv[0][j] = b.x; qv[1][j] = b.y; qv[2][j] = b.z; qv[3][j] = b.w;
+                for (int j = 0; j < KDEG; j++) ple1[j] = addm(p0e1[j], m[j], P.q);
             }
+            pass_a(P, ple0, ple1, q1e0, q1e1, w);
         }
-        // eq: elements 2i, 2i+1 of eqb (block i/4, slot i&3), times E(e).
+        {
+            u32 p1e0[KDEG], p1e1[KDEG], d0[KDEG], d1[KDEG];
+            layer4<COMPACT>(pp, cl, false, e_base, i, d0, p1e0, d1, p1e1);
+            pass_b(P, p1e0, p1e1, q0e0, q0e1, w);
+        }
         {
             u32 a0[KDEG], a1[KDEG];
 #pragma unroll
@@ -377,26 +458,13 @@ __device__ __forceinline__ void extract_round_body(const K9P& P, const u32* pp, 
             }
             if (P.has_ee) {
                 u32 b0[KDEG], b1[KDEG];
-                kmul(a0, P.ee, b0, P);
-                kmul(a1, P.ee, b1, P);
-                put_state(sh, 0, b0, b1, P.q);
+                kmul(a0, ee, b0, P);
+                kmul(a1, ee, b1, P);
+                pass_c(P, b0, b1, w, accn);
             } else {
-                put_state(sh, 0, a0, a1, P.q);
+                pass_c(P, a0, a1, w, accn);
             }
         }
-        // PL = p0 + lambda q0 at state 0: pl[2i] from (pv[0], qv[0]), pl[2i+1] from (pv[2], qv[2]).
-        {
-            u32 m0[KDEG], m1[KDEG];
-            kmul(qv[0], P.lambda, m0, P);
-            kmul(qv[2], P.lambda, m1, P);
-#pragma unroll
-            for (int j = 0; j < KDEG; j++) { m0[j] = addm(pv[0][j], m0[j], P.q); m1[j] = addm(pv[2][j], m1[j], P.q); }
-            put_state(sh, 1, m0, m1, P.q);
-        }
-        put_state(sh, 2, pv[1], pv[3], P.q); // p1
-        put_state(sh, 3, qv[0], qv[2], P.q); // q0
-        put_state(sh, 4, qv[1], qv[3], P.q); // q1
-        node_loop(sh, P, accn);
     }
     reduce_nodes(accn, P.nn, partial, P.q);
 }
@@ -419,99 +487,102 @@ extern "C" __global__ void k_extract_round_cl(K9P P, const u32* w, const u32* al
 // 8i..8i+7 (block i): p0 state-0 = L[8i], L[8i+2], L[8i+4], L[8i+6]; p1 =
 // the odd ones; eq state-0 elements 4i..4i+3.
 
+// One layer table's (x0 or x1) folded pair for state-1 pair i: x0 = the even
+// layer lanes of block i (0, 2 | 4, 6), x1 = the odd ones (1, 3 | 5, 7).
+template <bool COMPACT>
+__device__ __forceinline__ void layer_fold(const K9P& P, const u32* L, const CLSrc& cl, bool want_q, u32 e_base, u32 i, bool odd,
+                                           const u32* rr, const u32* c, u32* e0, u32* e1) {
+    u32 s0[KDEG], s1[KDEG], s2[KDEG], s3[KDEG];
+    if (COMPACT) {
+        u32 dump[KDEG];
+        const u32 b = e_base + 8 * i + (odd ? 1 : 0);
+        if (want_q) {
+            cl_get(cl, b + 0, dump, s0);
+            cl_get(cl, b + 2, dump, s1);
+            cl_get(cl, b + 4, dump, s2);
+            cl_get(cl, b + 6, dump, s3);
+        } else {
+            cl_get(cl, b + 0, s0, dump);
+            cl_get(cl, b + 2, s1, dump);
+            cl_get(cl, b + 4, s2, dump);
+            cl_get(cl, b + 6, s3, dump);
+        }
+    } else {
+#pragma unroll
+        for (int j = 0; j < KDEG; j++) {
+            uint4 a = ld4(L, i, 0, j);
+            uint4 b = ld4(L, i, 1, j);
+            if (odd) { s0[j] = a.y; s1[j] = a.w; s2[j] = b.y; s3[j] = b.w; }
+            else     { s0[j] = a.x; s1[j] = a.z; s2[j] = b.x; s3[j] = b.z; }
+        }
+    }
+    kfold(s0, s1, rr, c, e0, P);
+    kfold(s2, s3, rr, c, e1, P);
+}
+
 template <bool COMPACT>
 __device__ __forceinline__ void extract_fold_body(const K9P& P, const u32* pp, const u32* qq, CLSrc cl, u32 e_base, const u32* eqb,
                                                   u32* out0, u32* out1, u32* out2, u32* out3, u32* out4, u32 n, u64* partial) {
-    __shared__ u32 sh[SH_WORDS * TK9];
     u32 accn[5][KDEG];
+    ZERO_ACC(accn)
+    u32 rr[KDEG], lam[KDEG], ee[KDEG];
 #pragma unroll
-    for (int ni = 0; ni < 5; ni++)
-#pragma unroll
-        for (int t = 0; t < KDEG; t++) accn[ni][t] = 0;
+    for (int j = 0; j < KDEG; j++) { rr[j] = P.prm[PRM_R + j]; lam[j] = P.prm[PRM_LAMBDA + j]; ee[j] = P.prm[PRM_EE + j]; }
+    const u32* fc = P.has_fc ? (P.prm + PRM_FC) : (const u32*)0;
+    const u32* c_p0 = fc ? fc + 0 * KDEG : (const u32*)0;
+    const u32* c_p1 = fc ? fc + 1 * KDEG : (const u32*)0;
+    const u32* c_q0 = fc ? fc + 2 * KDEG : (const u32*)0;
+    const u32* c_q1 = fc ? fc + 3 * KDEG : (const u32*)0;
     for (u32 i = blockIdx.x * TK9 + threadIdx.x; i < n; i += gridDim.x * TK9) {
         const u32 ob = i >> 2, oh = i & 3;
-        // eq: state-0 elements 4i..4i+3 -> fold -> x E(e).
+        u32 w[5][KDEG];
+        u32 q0e0[KDEG], q0e1[KDEG];
         {
-            u32 s0[KDEG], s1[KDEG], s2[KDEG], s3[KDEG];
+            // q0 (-> table 3), q1 (-> table 4), p0 -> PL (-> table 1).
+            layer_fold<COMPACT>(P, qq, cl, true, e_base, i, false, rr, c_q0, q0e0, q0e1);
+            STORE2(out3, ob, oh, q0e0, q0e1)
+            u32 q1e0[KDEG], q1e1[KDEG];
+            layer_fold<COMPACT>(P, qq, cl, true, e_base, i, true, rr, c_q1, q1e0, q1e1);
+            STORE2(out4, ob, oh, q1e0, q1e1)
+            u32 ple0[KDEG], ple1[KDEG];
+            {
+                u32 p0e0[KDEG], p0e1[KDEG];
+                layer_fold<COMPACT>(P, pp, cl, false, e_base, i, false, rr, c_p0, p0e0, p0e1);
+                u32 m[KDEG];
+                kmul(q0e0, lam, m, P);
 #pragma unroll
-            for (int j = 0; j < KDEG; j++) {
-                uint4 v = ld4(eqb, i >> 1, i & 1, j);
-                s0[j] = v.x; s1[j] = v.y; s2[j] = v.z; s3[j] = v.w;
+                for (int j = 0; j < KDEG; j++) ple0[j] = addm(p0e0[j], m[j], P.q);
+                kmul(q0e1, lam, m, P);
+#pragma unroll
+                for (int j = 0; j < KDEG; j++) ple1[j] = addm(p0e1[j], m[j], P.q);
             }
+            STORE2(out1, ob, oh, ple0, ple1)
+            pass_a(P, ple0, ple1, q1e0, q1e1, w);
+        }
+        {
+            u32 p1e0[KDEG], p1e1[KDEG];
+            layer_fold<COMPACT>(P, pp, cl, false, e_base, i, true, rr, c_p1, p1e0, p1e1);
+            STORE2(out2, ob, oh, p1e0, p1e1)
+            pass_b(P, p1e0, p1e1, q0e0, q0e1, w);
+        }
+        {
+            // eq: state-0 elements 4i..4i+3 -> fold -> x E(e) -> table 0.
+            u32 s0[KDEG], s1[KDEG], s2[KDEG], s3[KDEG];
+            LOAD4(eqb, i >> 1, i & 1, s0, s1, s2, s3)
             u32 f0[KDEG], f1[KDEG];
-            kfold(s0, s1, P.r, 0, f0, P);
-            kfold(s2, s3, P.r, 0, f1, P);
+            kfold(s0, s1, rr, (const u32*)0, f0, P);
+            kfold(s2, s3, rr, (const u32*)0, f1, P);
             if (P.has_ee) {
                 u32 g0[KDEG], g1[KDEG];
-                kmul(f0, P.ee, g0, P);
-                kmul(f1, P.ee, g1, P);
-#pragma unroll
-                for (int j = 0; j < KDEG; j++) st2(out0, ob, oh, j, g0[j], g1[j]);
-                put_state(sh, 0, g0, g1, P.q);
+                kmul(f0, ee, g0, P);
+                kmul(f1, ee, g1, P);
+                STORE2(out0, ob, oh, g0, g1)
+                pass_c(P, g0, g1, w, accn);
             } else {
-#pragma unroll
-                for (int j = 0; j < KDEG; j++) st2(out0, ob, oh, j, f0[j], f1[j]);
-                put_state(sh, 0, f0, f1, P.q);
+                STORE2(out0, ob, oh, f0, f1)
+                pass_c(P, f0, f1, w, accn);
             }
         }
-        // p0/p1 (from the p layer) and q0/q1 (from the q layer), folded.
-        u32 p0e0[KDEG], p0e1[KDEG], q0e0[KDEG], q0e1[KDEG];
-#pragma unroll 1
-        for (int which = 0; which < 2; which++) {
-            u32 lv[8][KDEG];
-            if (COMPACT) {
-                u32 dump[KDEG];
-#pragma unroll
-                for (int u = 0; u < 8; u++) {
-                    if (which == 0) cl_get(cl, e_base + 8 * i + u, lv[u], dump);
-                    else cl_get(cl, e_base + 8 * i + u, dump, lv[u]);
-                }
-            } else {
-                const u32* L = which == 0 ? pp : qq;
-#pragma unroll
-                for (int j = 0; j < KDEG; j++) {
-                    uint4 a = ld4(L, i, 0, j);
-                    uint4 b = ld4(L, i, 1, j);
-                    lv[0][j] = a.x; lv[1][j] = a.y; lv[2][j] = a.z; lv[3][j] = a.w;
-                    lv[4][j] = b.x; lv[5][j] = b.y; lv[6][j] = b.z; lv[7][j] = b.w;
-                }
-            }
-            const u32* c0 = P.has_fc ? P.fc[which == 0 ? 0 : 2] : (const u32*)0; // p0 / q0
-            const u32* c1 = P.has_fc ? P.fc[which == 0 ? 1 : 3] : (const u32*)0; // p1 / q1
-            u32 a0[KDEG], a1[KDEG], b0[KDEG], b1[KDEG];
-            kfold(lv[0], lv[2], P.r, c0, a0, P);  // x0 state-1 element 2i
-            kfold(lv[4], lv[6], P.r, c0, a1, P);  // x0 state-1 element 2i+1
-            kfold(lv[1], lv[3], P.r, c1, b0, P);  // x1
-            kfold(lv[5], lv[7], P.r, c1, b1, P);
-            if (which == 0) {
-#pragma unroll
-                for (int j = 0; j < KDEG; j++) { p0e0[j] = a0[j]; p0e1[j] = a1[j]; }
-                // p1 -> table 2 (out2)
-#pragma unroll
-                for (int j = 0; j < KDEG; j++) st2(out2, ob, oh, j, b0[j], b1[j]);
-                put_state(sh, 2, b0, b1, P.q);
-            } else {
-#pragma unroll
-                for (int j = 0; j < KDEG; j++) { q0e0[j] = a0[j]; q0e1[j] = a1[j]; }
-                // q0 -> table 3, q1 -> table 4
-#pragma unroll
-                for (int j = 0; j < KDEG; j++) { st2(out3, ob, oh, j, a0[j], a1[j]); st2(out4, ob, oh, j, b0[j], b1[j]); }
-                put_state(sh, 3, a0, a1, P.q);
-                put_state(sh, 4, b0, b1, P.q);
-            }
-        }
-        // PL_1 = p0_1 + lambda q0_1 -> table 1.
-        {
-            u32 m0[KDEG], m1[KDEG];
-            kmul(q0e0, P.lambda, m0, P);
-            kmul(q0e1, P.lambda, m1, P);
-#pragma unroll
-            for (int j = 0; j < KDEG; j++) { m0[j] = addm(p0e0[j], m0[j], P.q); m1[j] = addm(p0e1[j], m1[j], P.q); }
-#pragma unroll
-            for (int j = 0; j < KDEG; j++) st2(out1, ob, oh, j, m0[j], m1[j]);
-            put_state(sh, 1, m0, m1, P.q);
-        }
-        node_loop(sh, P, accn);
     }
     reduce_nodes(accn, P.nn, partial, P.q);
 }
@@ -532,6 +603,9 @@ extern "C" __global__ void k_extract_fold_cl(K9P P, const u32* w, const u32* alp
 // Thread = one output element i (in block i/4, slot i&3; out block i/8, lane i&7).
 
 extern "C" __global__ void k_fold_table(K9P P, const u32* in, u32* out, u32 n) {
+    u32 rr[KDEG];
+#pragma unroll
+    for (int j = 0; j < KDEG; j++) rr[j] = P.prm[PRM_R + j];
     for (u32 i = blockIdx.x * blockDim.x + threadIdx.x; i < n; i += gridDim.x * blockDim.x) {
         u32 t0[KDEG], t1[KDEG];
 #pragma unroll
@@ -540,7 +614,7 @@ extern "C" __global__ void k_fold_table(K9P P, const u32* in, u32* out, u32 n) {
             t0[j] = v.x; t1[j] = v.y;
         }
         u32 o[KDEG];
-        kfold(t0, t1, P.r, 0, o, P);
+        kfold(t0, t1, rr, 0, o, P);
         u32* dst = out + (size_t)(i >> 3) * KBLK + (i & 7);
 #pragma unroll
         for (int j = 0; j < KDEG; j++) dst[j * KL] = o[j];
@@ -599,6 +673,35 @@ extern "C" __global__ void k_tree_step_cl(K9P P, const u32* w, const u32* alpha,
         u32* dq = nq + (size_t)(e >> 3) * KBLK + (e & 7);
 #pragma unroll
         for (int j = 0; j < KDEG; j++) dq[j * KL] = o[j];
+    }
+}
+
+// ---------------------------------------------------------------------------
+// The shared-state helpers of the ixf round kernel (the five tables' (e1,
+// dd) per thread, SoA by thread — the ixf inner factors touch up to five
+// tables at every node, which the register budget does not hold).
+#define SH_AT(k, w, j) sh[(((k) * 2 + (w)) * KDEG + (j)) * TK9 + threadIdx.x]
+
+__device__ __forceinline__ void node_val(const u32* sh, int k, u32 x, u32* v, u32 q) {
+    if (x == 0) {
+#pragma unroll
+        for (int j = 0; j < KDEG; j++) v[j] = subm(SH_AT(k, 0, j), SH_AT(k, 1, j), q);
+    } else {
+#pragma unroll
+        for (int j = 0; j < KDEG; j++) {
+            u32 e1 = SH_AT(k, 0, j), dd = SH_AT(k, 1, j);
+            u32 c = e1;
+            for (u32 xx = 1; xx < x; xx++) c = addm(c, dd, q);
+            v[j] = c;
+        }
+    }
+}
+
+__device__ __forceinline__ void put_state(u32* sh, int k, const u32* e0, const u32* e1, u32 q) {
+#pragma unroll
+    for (int j = 0; j < KDEG; j++) {
+        SH_AT(k, 0, j) = e1[j];
+        SH_AT(k, 1, j) = subm(e1[j], e0[j], q);
     }
 }
 

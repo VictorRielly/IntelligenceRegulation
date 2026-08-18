@@ -105,7 +105,8 @@ const CL_MAX_EXC: usize = 1 << 14;
 const CL_CHUNK_BLK: usize = 256;
 
 // ---------------------------------------------------------------------------
-// Kernel parameters (== struct K9P in kernels_k9.cu).
+// Kernel parameters (== struct K9P in kernels_k9.cu): scalars + the device
+// pointer of the round's constant vectors (== the PRM_* layout there).
 
 #[repr(C)]
 #[derive(Clone, Copy)]
@@ -115,21 +116,23 @@ struct K9Params {
     c31: u32,
     c32: u32,
     nn: u32,
-    nodes: [u32; 5],
     has_fc: u32,
     has_nc: u32,
     has_ee: u32,
-    mode: u32,
     kind: u32,
     deg: u32,
-    pad0: u32,
-    pad1: u32,
-    r: [u32; K_DEG],
-    lambda: [u32; K_DEG],
-    ee: [u32; K_DEG],
-    fc: [[u32; K_DEG]; 4],
-    nc: [[[u32; K_DEG]; 4]; 5],
+    prm: u64,
 }
+
+const PRM_NODES: usize = 0;
+const PRM_R: usize = 8;
+const PRM_LAMBDA: usize = 24;
+const PRM_EE: usize = 40;
+const PRM_FC: usize = 56;
+const PRM_NC: usize = 120;
+const PRM_WORDS: usize = 440;
+/// Per-range parameter slots per round (extract modes: E(e) differs per range).
+const PRM_SLOTS: usize = 64;
 
 impl K9Params {
     fn new(kern: &KKern) -> K9Params {
@@ -139,20 +142,42 @@ impl K9Params {
             c31: kern.c31 as u32,
             c32: kern.c32 as u32,
             nn: 0,
-            nodes: [0; 5],
             has_fc: 0,
             has_nc: 0,
             has_ee: 0,
-            mode: 0,
             kind: 0,
             deg: 0,
-            pad0: 0,
-            pad1: 0,
-            r: [0; K_DEG],
-            lambda: [0; K_DEG],
-            ee: [0; K_DEG],
-            fc: [[0; K_DEG]; 4],
-            nc: [[[0; K_DEG]; 4]; 5],
+            prm: 0,
+        }
+    }
+}
+
+/// The host image of one round's constant vectors.
+#[derive(Clone)]
+struct Prm([u32; PRM_WORDS]);
+
+impl Prm {
+    fn new() -> Prm {
+        Prm([0u32; PRM_WORDS])
+    }
+    fn set_nodes(&mut self, nodes: &[u64]) {
+        for (i, &x) in nodes.iter().enumerate() {
+            self.0[PRM_NODES + i] = x as u32;
+        }
+    }
+    fn set_vec(&mut self, at: usize, v: &[u32; K_DEG]) {
+        self.0[at..at + K_DEG].copy_from_slice(v);
+    }
+    fn set_fc(&mut self, fc: &[[u32; K_DEG]; 4]) {
+        for k in 0..4 {
+            self.set_vec(PRM_FC + k * K_DEG, &fc[k]);
+        }
+    }
+    fn set_nc(&mut self, nc: &[[[u32; K_DEG]; 4]]) {
+        for (ni, c) in nc.iter().enumerate() {
+            for k in 0..4 {
+                self.set_vec(PRM_NC + (ni * 4 + k) * K_DEG, &c[k]);
+            }
         }
     }
 }
@@ -194,6 +219,27 @@ pub fn k9_set_eager(on: bool) {
 static WARNED: AtomicBool = AtomicBool::new(false);
 static DISABLED: AtomicBool = AtomicBool::new(false);
 static COLD_OK: AtomicBool = AtomicBool::new(false);
+fn profile() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| env_flag("ZK_GPU_PROFILE"))
+}
+static TREE_OVERRIDE: AtomicU64 = AtomicU64::new(0); // 0 = env, 1 = on, 2 = off
+/// The tree climb on the device: OFF by default (measured: the eager copy
+/// of the output layer to the host over PCIe costs what the CPU step
+/// costs — U_PERF2_GPU2_REPORT.md Section 4); `ZK_GPU_K9_TREE=1` enables it.
+fn tree_enabled() -> bool {
+    match TREE_OVERRIDE.load(Ordering::Relaxed) {
+        1 => return true,
+        2 => return false,
+        _ => {}
+    }
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| env_flag("ZK_GPU_K9_TREE"))
+}
+/// Harness knob: the tree climb on the device on/off (None = the env / default).
+pub fn k9_set_tree(on: Option<bool>) {
+    TREE_OVERRIDE.store(match on { Some(true) => 1, Some(false) => 2, None => 0 }, Ordering::Relaxed);
+}
 /// Harness knob: let a FUSE_FOLD round that starts without a resident chain
 /// upload its input state (the battery drives single rounds; the production
 /// path declines such rounds — an upload per round is PCIe-bound).
@@ -362,6 +408,8 @@ struct K9 {
     eqb: DevBuf,
     partial: DevBuf,
     partial_h: HostPinned,
+    prm_d: DevBuf,
+    prm_h: HostPinned,
     chain: Option<Chain>,
     layer: Option<LayerRes>,
     // Ixf.
@@ -373,6 +421,7 @@ struct K9 {
     // Budget.
     budget: usize,
     held: usize,
+    last_kernel_ms: f64,
 }
 
 unsafe impl Send for K9 {}
@@ -454,6 +503,10 @@ fn init_k9() -> Result<K9, String> {
     partial.grow(5 * 16 * 8)?;
     let mut partial_h = HostPinned::empty();
     partial_h.grow(5 * 16 * 8)?;
+    let mut prm_d = DevBuf::empty();
+    prm_d.grow(PRM_SLOTS * PRM_WORDS * 4)?;
+    let mut prm_h = HostPinned::empty();
+    prm_h.grow(PRM_SLOTS * PRM_WORDS * 4)?;
     let (free, total) = cu::mem_get_info().map_err(|e| format!("cuMemGetInfo: {e}"))?;
     let budget = {
         let mb = env_usize("ZK_GPU_K9_BUDGET_MB", 0);
@@ -468,6 +521,14 @@ fn init_k9() -> Result<K9, String> {
             budget as f64 / 1e9,
             min_pairs()
         );
+        let occ: Vec<String> = FUNCS
+            .iter()
+            .map(|name| {
+                let b = f.get(name).map(|fun| fun.occupancy_max_active_blocks_per_multiprocessor(TK9, 0, None).unwrap_or(0)).unwrap_or(0);
+                format!("{name}: {b} blk/SM ({} warps)", b * TK9 / 32)
+            })
+            .collect();
+        eprintln!("[UPERF2-L] k9 occupancy at {TK9} threads/block: {}", occ.join("; "));
     }
     Ok(K9 {
         dev,
@@ -484,6 +545,8 @@ fn init_k9() -> Result<K9, String> {
         eqb: DevBuf::empty(),
         partial,
         partial_h,
+        prm_d,
+        prm_h,
         chain: None,
         layer: None,
         ixf_t: Vec::new(),
@@ -492,6 +555,7 @@ fn init_k9() -> Result<K9, String> {
         tree_out: [DevBuf::empty(), DevBuf::empty()],
         budget,
         held: 0,
+        last_kernel_ms: 0.0,
     })
 }
 
@@ -723,6 +787,22 @@ impl K9 {
         let f = self.f.get(name).ok_or_else(|| format!("{name} missing"))?.clone();
         let cfg = LaunchConfig { grid_dim: (grid.max(1), 1, 1), block_dim: (block, 1, 1), shared_mem_bytes: 0 };
         unsafe { f.launch_on_stream(&self.sk, cfg, args) }.map_err(|e| format!("launch {name}: {e}"))
+    }
+
+    /// Upload the round's parameter slots (stream-ordered on the compute
+    /// stream, before the launches that read them); returns the device
+    /// address of slot 0.
+    fn upload_prm(&mut self, slots: &[Prm]) -> Result<u64, String> {
+        assert!(slots.len() <= PRM_SLOTS, "K9 gpu: too many parameter slots ({} ranges)", slots.len());
+        // The previous round's launches must be done with the staging.
+        unsafe { cu::stream::synchronize(self.sk.stream) }.map_err(|e| format!("sync sk: {e}"))?;
+        let h = self.prm_h.slice_mut::<u32>(slots.len() * PRM_WORDS);
+        for (i, p) in slots.iter().enumerate() {
+            h[i * PRM_WORDS..(i + 1) * PRM_WORDS].copy_from_slice(&p.0);
+        }
+        unsafe { cu::memcpy_htod_async(self.prm_d.ptr, self.prm_h.slice::<u32>(slots.len() * PRM_WORDS), self.sk.stream) }
+            .map_err(|e| format!("h2d prm: {e}"))?;
+        Ok(self.prm_d.ptr)
     }
 
     fn zero_partial(&self) -> Result<(), String> {
@@ -1030,25 +1110,22 @@ impl K9 {
         if self.chain.is_none() && n_pairs < min_pairs() {
             return Ok(false);
         }
-        // ---- Parameters.
+        // ---- Parameters (the scalars by value; the vectors in a device slot
+        // per range).
         let mut p = K9Params::new(kern);
         p.nn = nn as u32;
-        for (i, &x) in nodes.iter().enumerate() {
-            p.nodes[i] = x as u32;
-        }
-        p.mode = mode as u32;
-        p.r = plan.r_prev;
-        p.lambda = plan.lambda;
+        let mut prm0 = Prm::new();
+        prm0.set_nodes(nodes);
+        prm0.set_vec(PRM_R, &plan.r_prev);
+        prm0.set_vec(PRM_LAMBDA, &plan.lambda);
         if let Some(fc) = plan.fold_consts.as_ref() {
             p.has_fc = 1;
-            p.fc = *fc;
+            prm0.set_fc(fc);
         }
         if let Some(nc) = node_consts {
             assert_eq!(nc.len(), nn);
             p.has_nc = 1;
-            for (i, c) in nc.iter().enumerate() {
-                p.nc[i] = *c;
-            }
+            prm0.set_nc(nc);
         }
         // ---- Handover decision (this round's output is the successor's
         // input): the successor is hooked and taken by us iff its output
@@ -1066,7 +1143,8 @@ impl K9 {
                     Some(l) => {
                         mode == FUSE_EXTRACT_FOLD
                             && l.n_pairs == 2 * n_pairs
-                            && l.ids == ids
+                            && l.ids.len() == ids.len()
+                            && l.ids.iter().zip(ids.iter()).all(|((id0, fp0), (id1, fp1))| id0 == id1 && *fp0 == 2 * fp1)
                             && l.eq == eq_id
                             && l.ranges.len() == ranges.len()
                             && l.ranges.iter().zip(ranges.iter()).all(|(&(a2, b2), &(a, b))| a2 == 2 * a && b2 == 2 * b)
@@ -1100,16 +1178,31 @@ impl K9 {
                     }
                 }
                 self.compute_after_copies()?;
+                let slots: Vec<Prm> = plan
+                    .layers
+                    .iter()
+                    .map(|l| {
+                        let mut q = prm0.clone();
+                        if let Some(ee) = l.ee {
+                            q.set_vec(PRM_EE, &ee);
+                        }
+                        q
+                    })
+                    .collect();
+                let prm_base = self.upload_prm(&slots)?;
                 self.zero_partial()?;
+                if profile() {
+                    self.sync_all()?;
+                }
                 let tk = Instant::now();
                 let layer = self.layer.as_ref().unwrap();
                 for (ri, &(a, b)) in ranges.iter().enumerate() {
                     let n = 8 * (b - a);
                     let la = a - plan.layers[ri].first_pair;
                     let mut pr = p;
-                    if let Some(ee) = plan.layers[ri].ee {
+                    pr.prm = prm_base + (ri * PRM_WORDS * 4) as u64;
+                    if plan.layers[ri].ee.is_some() {
                         pr.has_ee = 1;
-                        pr.ee = ee;
                     }
                     let eq_ptr = self.eqb.ptr + ((fe_blk * la) * KBLK * 4) as u64;
                     let n_u = n as u32;
@@ -1123,7 +1216,6 @@ impl K9 {
                             let qq = self.lay_q.ptr + ((q_blk0 + f_blk * la) * KBLK * 4) as u64;
                             if mode == FUSE_EXTRACT {
                                 let name = "k_extract_round";
-                                pr.nn = nn as u32;
                                 let mut args: [*mut c_void; 6] = [
                                     &pr as *const _ as *mut _,
                                     &pp as *const _ as *mut _,
@@ -1193,6 +1285,7 @@ impl K9 {
                     }
                 }
                 self.deposit_partial(kern.q, nn, acc_lo)?;
+                self.last_kernel_ms = tk.elapsed().as_secs_f64() * 1e3;
                 add_us(&S_KERNEL_US, tk.elapsed().as_secs_f64());
                 if mode == FUSE_EXTRACT {
                     // Keep the layer for round 1; nothing written.
@@ -1233,7 +1326,12 @@ impl K9 {
                     self.abort_to_host(eq_inplace, tabs)?;
                     return Ok(false);
                 }
+                let prm_base = self.upload_prm(std::slice::from_ref(&prm0))?;
+                p.prm = prm_base;
                 self.zero_partial()?;
+                if profile() {
+                    self.sync_all()?;
+                }
                 let tk = Instant::now();
                 let in_ranges = self.chain.as_ref().unwrap().ranges.clone();
                 for (ri, &(a, b)) in ranges.iter().enumerate() {
@@ -1267,6 +1365,7 @@ impl K9 {
                     self.launch(name, grid, TK9, &mut args)?;
                 }
                 self.deposit_partial(kern.q, nn, acc_lo)?;
+                self.last_kernel_ms = tk.elapsed().as_secs_f64() * 1e3;
                 add_us(&S_KERNEL_US, tk.elapsed().as_secs_f64());
                 let ptrs = self.chain.as_ref().unwrap().ptrs;
                 self.chain = Some(Chain { ptrs, out_pairs: n_pairs, ranges: ranges.clone(), regions, tab_blk, buf: out_buf });
@@ -1282,13 +1381,14 @@ impl K9 {
         }
         if verbose() {
             eprintln!(
-                "[UPERF2-L] k9 round mode {} n_pairs {} ranges {} nn {} handover {} : {:.2} ms",
+                "[UPERF2-L] k9 round mode {} n_pairs {} ranges {} nn {} handover {} : {:.2} ms (kernel+sync {:.2} ms)",
                 mode,
                 n_pairs,
                 ranges.len(),
                 nn,
                 handover,
-                t0.elapsed().as_secs_f64() * 1e3
+                t0.elapsed().as_secs_f64() * 1e3,
+                self.last_kernel_ms
             );
         }
         Ok(true)
@@ -1566,6 +1666,7 @@ impl K9 {
         let mut p = K9Params::new(kern);
         p.kind = kind as u32;
         p.deg = deg as u32;
+        p.prm = self.upload_prm(std::slice::from_ref(&Prm::new()))?;
         self.zero_partial()?;
         let tk = Instant::now();
         let n_pairs = nblk_pairs * KL;
@@ -1624,7 +1725,9 @@ impl K9 {
         let out_bytes = nblk * KBLK * 4;
         self.grow_dev(DevSel::Ixf(k, out_buf), out_bytes)?;
         let mut p = K9Params::new(kern);
-        p.r = super::super::kfield::kop(r);
+        let mut prm0 = Prm::new();
+        prm0.set_vec(PRM_R, &super::super::kfield::kop(r));
+        p.prm = self.upload_prm(std::slice::from_ref(&prm0))?;
         let src = self.ixf_t[k][in_buf].ptr;
         let dst = self.ixf_t[k][out_buf].ptr;
         let n_u = n_out as u32;
@@ -1650,7 +1753,7 @@ impl K9 {
 // The tree step (the hook of kfield::k9_tree_climb_par).
 
 pub fn k9_tree_climb(kern: &KKern, src: &BlkSrc, levels: usize, np: &mut [u32], nq: &mut [u32], out_nblk: usize) -> Option<()> {
-    if !live() {
+    if !live() || !tree_enabled() {
         return None;
     }
     let kk = k9s()?;
@@ -1696,6 +1799,7 @@ impl K9 {
             return Ok(false);
         }
         let mut p = K9Params::new(kern);
+        p.prm = self.upload_prm(std::slice::from_ref(&Prm::new()))?;
         let mut pp = 0usize;
         // Level 1: from the source.
         let (mut cur_p, mut cur_q, mut cur_buf): (u64, u64, usize);
@@ -1797,7 +1901,7 @@ impl K9 {
         self.download_words(cur_p, &mut np[..out_words])?;
         self.download_words(cur_q, &mut nq[..out_words])?;
         add_us(&S_CLIMB_D2H_US, td.elapsed().as_secs_f64());
-        let _ = (p, cur_buf);
+        let _ = cur_buf;
         Ok(true)
     }
 }

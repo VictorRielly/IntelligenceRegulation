@@ -50,7 +50,7 @@ pub use cuda::{
     stats_reset, GpuStats, ProbeReport,
 };
 #[cfg(feature = "gpu-cuda")]
-pub use k9::{k9_fused_round, k9_ixf_round, k9_label, k9_set_cold_ok, k9_set_eager, k9_set_min_pairs, k9_stats, k9_stats_reset, k9_tree_climb, kt_fold, K9Stats};
+pub use k9::{k9_fused_round, k9_ixf_round, k9_label, k9_set_cold_ok, k9_set_eager, k9_set_min_pairs, k9_set_tree, k9_stats, k9_stats_reset, k9_tree_climb, kt_fold, K9Stats};
 
 // ---------------------------------------------------------------------------
 // The stub (default build): the hook compiles to a constant-false test.
@@ -147,6 +147,7 @@ mod stub {
     pub fn k9_set_min_pairs(_p: usize) {}
     pub fn k9_set_eager(_on: bool) {}
     pub fn k9_set_cold_ok(_on: bool) {}
+    pub fn k9_set_tree(_on: Option<bool>) {}
     pub fn k9_label() -> String {
         "k9: off (built without --features gpu-cuda)".to_string()
     }

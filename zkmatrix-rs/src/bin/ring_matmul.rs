@@ -39759,7 +39759,9 @@ fn uperf_l_battery(seed: u64) {
         println!("  ok   ixf chain: kind {kind_id} ({nt} tables), degrees 2/3/4, n 2^5..2^13, rounds + folds");
     }
     // ---- 3. The tree step (climb): packed sources at levels 1 and 2, the
-    // compact leaves at level 1.
+    // compact leaves at level 1 (the device path is off by default — on
+    // for these legs).
+    ring::gpu::k9_set_tree(Some(true));
     for &(out_nblk, levels, compact) in &[(4usize, 1usize, false), (64, 1, false), (64, 2, false), (512, 1, false), (128, 3, false), (64, 1, true), (1024, 1, true), (4096, 1, false)] {
         for pattern in 0..3u8 {
             if pattern > 0 && out_nblk >= 4096 {
@@ -39826,6 +39828,7 @@ fn uperf_l_battery(seed: u64) {
         }
     }
     println!("  ok   tree step: levels 1/2/3 packed, level 1 compact");
+    ring::gpu::k9_set_tree(None);
     ring::gpu::k9_set_cold_ok(false);
     ring::gpu::k9_set_min_pairs(0);
     let d: [u8; 32] = h.finalize().into();
@@ -39949,6 +39952,7 @@ fn uperf_l_bench(lp: usize, reps: usize) {
         );
     }
     // The tree step (one level) from a packed layer of 2 x 2^lp elements and from compact leaves.
+    ring::gpu::k9_set_tree(Some(true));
     for &compact in &[false, true] {
         let src_n = 2 * per;
         let out_nblk = per / KL;
@@ -40004,6 +40008,7 @@ fn uperf_l_bench(lp: usize, reps: usize) {
             s.bytes_d2h as f64 / 1e6 / r
         );
     }
+    ring::gpu::k9_set_tree(None);
     ring::gpu::k9_set_cold_ok(false);
     ring::gpu::k9_set_min_pairs(0);
 }
