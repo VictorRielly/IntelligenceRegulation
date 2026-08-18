@@ -39326,15 +39326,275 @@ fn uperf_m_main(args: &[String]) {
     }
 }
 
-/// [UPERF2-M] The lane's differential battery (grows as items land).
-fn uperf_m_battery() {
-    println!("[UPERF2-M] battery: (no legs yet — skeleton)");
+/// [UPERF2-M] A synthetic multi-tensor group for the psi0 legs: aligned
+/// tensors at several (e0, l0) classes (incl. the window-1 / multi-window
+/// / over-capacity radix classes), a misaligned tensor, a kernel-less
+/// tensor; kernels with shared col kernels; the K-weight alphas.
+fn uperf_m_psi_group(
+    kf: &ring::kfield::KField,
+    q: u64,
+    rd: &mut XofReader,
+    shape: usize,
+) -> (ring::eval_proof::AggGroup, ring::pass_agg::GroupClaims, Vec<Poly>) {
+    use ring::eval_proof::AggGroup;
+    use ring::kfield::{KElem, K_DEG};
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use std::rc::Rc;
+    let mut g = AggGroup::new("m-psi");
+    match shape {
+        0 => {
+            // The O5-leg mix + the act/weight radix classes.
+            g.add_tensor("A-act-e2l5", 6, 256, 2, 5);
+            g.add_tensor("B-w-e1l8", 4, 128, 1, 8);
+            g.add_tensor("C-mis", 64, 96, 2, 2);
+            g.add_tensor("D-none", 3, 384, 2, 2);
+            g.add_tensor("E-nb3", 3, 384, 3, 2);
+        }
+        1 => {
+            // Window 1 at q31 (e0 5, l0 6: R_max 2^25, cmax 2 -> one term
+            // per flush for the whole set) next to a normal tensor.
+            g.add_tensor("A-e5l6", 3, 256, 5, 6);
+            g.add_tensor("B-act", 4, 128, 2, 5);
+        }
+        2 => {
+            // Over capacity (e0 7, l0 6: R_max 2^35 -> window 0): the set
+            // falls back to today's body.
+            g.add_tensor("A-e7l6", 3, 256, 7, 6);
+            g.add_tensor("B-act", 4, 128, 2, 5);
+        }
+        3 => {
+            // Beyond the radix cap (e0 2, l0 21 -> 40 bits): today's body
+            // for that tensor, the NTT for the other — the mixed case.
+            g.add_tensor("A-e2l21", 2, 128, 2, 21);
+            g.add_tensor("B-act", 4, 128, 2, 5);
+        }
+        _ => {
+            // q46-oriented: e0 3, l0 4 (R_max 2^9 -> window 64/... at q46 =
+            // 2^63/(2^7 2^45 2^10) = 2 -> multi-window) + a small tensor.
+            g.add_tensor("A-e3l4", 4, 256, 3, 4);
+            g.add_tensor("B-e2l3", 4, 128, 2, 3);
+        }
+    }
+    let n_t = g.tensors.len();
+    let rand_kvec = |rd: &mut XofReader, n: usize| -> Rc<Vec<KElem>> { Rc::new((0..n).map(|_| kf.uniform(rd)).collect()) };
+    let mut claims = GroupClaims::new(n_t);
+    let mut shared: std::collections::HashMap<usize, Rc<Vec<KElem>>> = std::collections::HashMap::new();
+    for (ti, t) in g.tensors.iter().enumerate() {
+        if t.name == "D-none" {
+            continue;
+        }
+        let n_k = if ti % 2 == 0 { 3 } else { 2 };
+        for kk in 0..n_k {
+            let col = if kk < 2 {
+                shared.entry(t.cols).or_insert_with(|| rand_kvec(rd, t.cols)).clone()
+            } else {
+                rand_kvec(rd, t.cols)
+            };
+            let scale = if kk == 1 && ti == 1 { kf.zero() } else { kf.uniform(rd) };
+            claims.push(ClaimContrib { tensor_idx: ti, scale, row: rand_kvec(rd, t.rows), col });
+        }
+    }
+    let alphas: Vec<Poly> = (0..K_DEG).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
+    (g, claims, alphas)
 }
 
-/// [UPERF2-M] Kernel bench: psi0-factored-multi (fast vs today's body vs
-/// the reference) on one aligned tensor rows x cols with r chunk slices.
+/// [UPERF2-M] The lane's differential battery: (A) the AVX2 PHI MAC vs
+/// the scalar u128 body on planted extremes + random term lists (q31; q46
+/// declines); (B) psi0-factored-multi with the NTT accumulation == today's
+/// aligned body == compute_psi(reference Phi_0), on mixed groups at both
+/// moduli, chunk splits crossing blocks / tensors / windows, the window-1,
+/// multi-window, over-capacity and radix-cap shapes, and the SIMD MAC on
+/// AND off. Prints a BATTERY DIGEST over the fast outputs (compare across
+/// ZK_THREADS 1/2/7 and ZK_PSISIMD 0/1).
+fn uperf_m_battery() {
+    use ring::eval_proof::{psi_mac_mod_q_scalar, psi_mac_mod_q_simd, set_psi0_ntt, set_psi_simd};
+    use ring::kfield::KField;
+    use sha2::{Digest, Sha256};
+    let t0 = Instant::now();
+    println!(
+        "[UPERF2-M] battery: ZK_THREADS {}, psi-simd {} (available {}), psi0-ntt {}",
+        ring::eval_proof::threads(),
+        ring::eval_proof::psi_simd_enabled(),
+        ring::eval_proof::psi_simd_available(),
+        ring::eval_proof::psi0_ntt_enabled()
+    );
+    let mut battery = Sha256::new();
+    let mut absorb = |label: &str, polys: &[Poly]| {
+        battery.update(label.as_bytes());
+        battery.update(polys_bytes(polys));
+    };
+    // (A) the MAC.
+    let mut n_a = 0usize;
+    for (qn, q) in [("q31", ring::Q8), ("q46", ring::Q8_46)] {
+        let mut rd = XofReader::new("uperf-m-mac", &[qn.as_bytes()]);
+        for &n in &[0usize, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17, 33, 48, 100, 257, 1000] {
+            for planted in 0..4 {
+                let (ss, gs): (Vec<u64>, Vec<Vec<u64>>) = (0..n)
+                    .map(|i| {
+                        let s = match planted {
+                            0 => rd.next_field(q),
+                            1 => q - 1,
+                            2 => if i % 3 == 0 { 0 } else { q - 1 },
+                            _ => rd.next_field(q),
+                        };
+                        let g: Vec<u64> = (0..D)
+                            .map(|j| match planted {
+                                0 => rd.next_field(q),
+                                1 => q - 1,
+                                2 => if j % 5 == 1 { 0 } else { q - 1 },
+                                _ => if i % 2 == 0 { q - 1 } else { rd.next_field(q) },
+                            })
+                            .collect();
+                        (s, g)
+                    })
+                    .unzip();
+                let refs: Vec<&[u64]> = gs.iter().map(|g| g.as_slice()).collect();
+                let want = psi_mac_mod_q_scalar(&ss, &refs, q);
+                let got = psi_mac_mod_q_simd(&ss, &refs, q);
+                if qn == "q46" {
+                    assert!(got.is_none(), "MAC: the AVX2 body must decline q46");
+                } else if ring::eval_proof::psi_simd_available() {
+                    let got = got.expect("MAC: the AVX2 body must accept q31 on this box");
+                    assert_eq!(got, want, "MAC mismatch at {qn} n {n} planted {planted}");
+                }
+                absorb("mac", &[want.to_vec()]);
+                n_a += 1;
+            }
+        }
+    }
+    println!("[UPERF2-M] (A) PHI MAC avx2 == scalar: {n_a} term lists (q31 asserted; q46 declined)");
+    // (B) psi0-factored-multi.
+    let mut n_b = 0usize;
+    let simd_states: Vec<bool> = if ring::eval_proof::psi_simd_available() { vec![true, false] } else { vec![false] };
+    for (qn, ctx) in [("q31", ring_ctx_q8()), ("q46", ring::ring_ctx(ring::Q8_46, ring::ETA8_46, 8))] {
+        let kf = KField::new(&ctx);
+        let q = ctx.zq.q;
+        for shape in 0..5usize {
+            let mut rd = XofReader::new("uperf-m-psi", &[qn.as_bytes(), &(shape as u64).to_le_bytes()]);
+            let (g, claims, alphas) = uperf_m_psi_group(&kf, q, &mut rd, shape);
+            let kernels = bg_multi_kernels(&claims);
+            let n0 = g.n_digit_rings;
+            let phi_ref = ring::eval_proof::phi0_reference_multi(&ctx, &kf, &g, &kernels, &alphas);
+            for chunk in [n0.div_ceil(5), 37usize, n0, n0.div_ceil(3) + 1, 300usize] {
+                let r = n0.div_ceil(chunk);
+                let cs: Vec<Vec<i64>> = (0..r).map(|_| rd.next_challenge()).collect();
+                let mut phi_pad = phi_ref.clone();
+                phi_pad.resize(r * chunk, poly_zero());
+                let want = ring::eval_proof::compute_psi(&ctx, &phi_pad, chunk, &cs);
+                for &simd in &simd_states {
+                    set_psi_simd(simd);
+                    set_psi0_ntt(true);
+                    let got = ring::eval_proof::psi_level0_factored_multi(&ctx, &kf, &g, &kernels, &alphas, &cs, chunk);
+                    assert_eq!(got, want, "psi0 NTT mismatch at {qn} shape {shape} chunk {chunk} simd {simd}");
+                    set_psi0_ntt(false);
+                    let today = ring::eval_proof::psi_level0_factored_multi(&ctx, &kf, &g, &kernels, &alphas, &cs, chunk);
+                    assert_eq!(today, want, "psi0 today-body mismatch at {qn} shape {shape} chunk {chunk} simd {simd}");
+                    n_b += 2;
+                }
+                set_psi0_ntt(true);
+                set_psi_simd(true);
+                absorb("psi0", &want);
+            }
+        }
+    }
+    println!("[UPERF2-M] (B) psi0-factored-multi NTT == today == compute_psi(reference): {n_b} legs (5 shapes x 5 splits x q31/q46 x simd on/off)");
+    let dg: [u8; 32] = battery.finalize().into();
+    println!("[UPERF2-M] BATTERY DIGEST {}", hex_full(&dg));
+    println!("[UPERF2-M] battery passed in {:.2}s", t0.elapsed().as_secs_f64());
+}
+
+/// [UPERF2-M] Kernel bench: psi0-factored-multi on one aligned tensor
+/// rows x cols (e0 2, l0 5, 3 contributions) with r chunk slices — the
+/// NTT accumulation vs today's body, each with the AVX2 MAC on and off;
+/// plus the raw value_ring MAC rate. Byte equality asserted.
 fn uperf_m_bench(rows: usize, cols: usize, r: usize) {
-    println!("[UPERF2-M] bench {rows}x{cols} r {r}: (skeleton)");
+    use ring::eval_proof::{psi_level0_factored_multi, set_psi0_ntt, set_psi_simd, AggGroup};
+    use ring::kfield::{KElem, KField, K_DEG};
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use std::rc::Rc;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let q = ctx.zq.q;
+    let mut rd = XofReader::new("uperf-m-bench", &[&(rows as u64).to_le_bytes(), &(cols as u64).to_le_bytes()]);
+    let mut g = AggGroup::new("m-bench");
+    g.add_tensor("T", rows, cols, 2, 5);
+    let n0 = g.n_digit_rings;
+    let chunk = n0.div_ceil(r);
+    let n_vr = g.tensors[0].n_value_rings();
+    println!(
+        "[UPERF2-M] bench: tensor {rows}x{cols} (e0 2, l0 5: {n_vr} value rings, {n0} digit rings), 3 contributions, r {r} chunk {chunk}, ZK_THREADS {}, avx2 {}",
+        ring::eval_proof::threads(),
+        ring::eval_proof::psi_simd_available()
+    );
+    let rand_kvec = |rd: &mut XofReader, n: usize| -> Rc<Vec<KElem>> { Rc::new((0..n).map(|_| kf.uniform(rd)).collect()) };
+    let col_shared = rand_kvec(&mut rd, cols);
+    let mut claims = GroupClaims::new(1);
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: col_shared.clone() });
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: col_shared.clone() });
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: rand_kvec(&mut rd, cols) });
+    let alphas: Vec<Poly> = (0..K_DEG).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
+    let cs: Vec<Vec<i64>> = (0..r).map(|_| (0..D).map(|_| rd.next_field(5) as i64 - 2).collect()).collect();
+    let mk = bg_multi_kernels(&claims);
+    let mut results: Vec<(String, f64, Vec<Poly>)> = Vec::new();
+    for (ntt, simd) in [(true, true), (true, false), (false, true), (false, false)] {
+        if simd && !ring::eval_proof::psi_simd_available() {
+            continue;
+        }
+        set_psi0_ntt(ntt);
+        set_psi_simd(simd);
+        ring::ct_engine::prof::reset();
+        ring::ct_engine::prof::enable(true, false);
+        let t0 = Instant::now();
+        let psi = psi_level0_factored_multi(&ctx, &kf, &g, &mk, &alphas, &cs, chunk);
+        let s = t0.elapsed().as_secs_f64();
+        ring::ct_engine::prof::enable(false, false);
+        let s_ntt = ring::ct_engine::prof::report().iter().find(|r| r.0 == "m.psi0-ntt").map(|r| r.1).unwrap_or(0.0);
+        let label = format!("{} + {}", if ntt { "NTT-accum" } else { "today-kara" }, if simd { "avx2-mac" } else { "scalar-mac" });
+        println!(
+            "  {label:<26}: {s:>8.3}s = {:.2} us/digit ring, {:.2} us/value ring{}",
+            s * 1e6 / n0 as f64,
+            s * 1e6 / n_vr as f64,
+            if ntt { format!(" (accumulation {s_ntt:.3}s = {:.2} us/value ring; the rest = PhiFactored setup: G blocks)", s_ntt * 1e6 / n_vr as f64) } else { String::new() }
+        );
+        results.push((label, s, psi));
+    }
+    set_psi0_ntt(true);
+    set_psi_simd(true);
+    for w in results.windows(2) {
+        assert_eq!(w[0].2, w[1].2, "bench: {} != {}", w[0].0, w[1].0);
+    }
+    if results.len() >= 2 {
+        let base = results.last().unwrap().1;
+        println!("  byte-identical on every path; speedup fast vs today+scalar {:.1}x", base / results[0].1);
+    }
+    // The raw MAC rate (one value ring's term list of 48 terms).
+    {
+        use ring::eval_proof::{psi_mac_mod_q_scalar, psi_mac_mod_q_simd};
+        let n_terms = 48;
+        let ss: Vec<u64> = (0..n_terms).map(|_| rd.next_field(q)).collect();
+        let gs: Vec<Vec<u64>> = (0..n_terms).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
+        let refs: Vec<&[u64]> = gs.iter().map(|g| g.as_slice()).collect();
+        let reps = 20000;
+        let t0 = Instant::now();
+        let mut acc = 0u64;
+        for _ in 0..reps {
+            acc ^= psi_mac_mod_q_scalar(&ss, &refs, q)[7];
+        }
+        let s_sc = t0.elapsed().as_secs_f64();
+        let t0 = Instant::now();
+        for _ in 0..reps {
+            if let Some(o) = psi_mac_mod_q_simd(&ss, &refs, q) {
+                acc ^= o[7];
+            }
+        }
+        let s_si = t0.elapsed().as_secs_f64();
+        println!(
+            "  raw MAC (48 terms x 128 lanes): scalar u128 {:.2} us, avx2 {:.2} us -> {:.1}x  (xor {acc:#x})",
+            s_sc * 1e6 / reps as f64,
+            s_si * 1e6 / reps as f64,
+            s_sc / s_si
+        );
+    }
 }
 
 /// [UPERF2-M] SHA-256 block throughput (the CRS XOF's unit): is SHA-NI

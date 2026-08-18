@@ -2543,7 +2543,12 @@ pub mod prof {
     pub const E_CLAIMS_TAB: usize = 58; // bk_pair_claims: table-side publics
     pub const E_KPASS_SMALL: usize = 59; // kernel_pass_factored: misaligned (small-cols) tensors, both passes
     pub const E_PSI0_SMALL: usize = 60; // psi_level0_factored_multi: misaligned (small-cols) tensors
-    pub const N_PHASES: usize = 61;
+    // [UPERF2-M] eval-proof leftovers 2 (observation only; eval_proof.rs)
+    pub const M_PSI0_NTT: usize = 61; // psi_level0_factored_multi: the u-major NTT accumulation (aligned tensors)
+    pub const M_FOLD_NTT: usize = 62; // fold_chunks_ntt body (inside bg.fold; the rest is the digit split + asserts)
+    pub const M_CRS_BLOCKS: usize = 63; // expand_level_matrix_par: the SHA-256 block generation
+    pub const M_CRS_WALK: usize = 64; // expand_level_matrix_par: the rejection walk into polys
+    pub const N_PHASES: usize = 65;
 
     pub const NAMES: [&str; N_PHASES] = [
         "ct.setup(clone+digits)",
@@ -2607,6 +2612,10 @@ pub mod prof {
         "e.claims-table",
         "e.kpass-smallcols",
         "e.psi0-smallcols",
+        "m.psi0-ntt",
+        "m.fold-ntt",
+        "m.crs-blocks",
+        "m.crs-walk",
     ];
 
     static ENABLED: AtomicBool = AtomicBool::new(false);

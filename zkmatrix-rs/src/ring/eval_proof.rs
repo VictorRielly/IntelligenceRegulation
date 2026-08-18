@@ -688,7 +688,11 @@ pub fn expand_level_matrix_par(
         }
         out
     };
-    let mut stream = gen_blocks(0, n_blocks);
+    let mut stream = {
+        let _tb = prof::timer(prof::M_CRS_BLOCKS); // [UPERF2-M] observation only
+        gen_blocks(0, n_blocks)
+    };
+    let _tw = prof::timer(prof::M_CRS_WALK); // [UPERF2-M] observation only
     let shift = q.leading_zeros();
     let mut pos = 0usize;
     let mut out: Vec<Poly> = Vec::with_capacity(rows * cols);
@@ -2023,6 +2027,7 @@ fn psi_level0_multi_impl(
     let c_polys: Vec<Poly> = c.iter().map(|ck| poly_from_small(zq, ck)).collect();
     let mut psi = vec![poly_zero(); chunk];
     let mut cache = ColBlockCache::new(); // [UPERF-PC O5] per-(col kernel, cb) G blocks
+    let mut ntt_tensors: Vec<PsiAlignedTensor> = Vec::new(); // [UPERF2-M]
     for (ti, t) in group.tensors.iter().enumerate() {
         let kers: Vec<&MultiClaimKernel> =
             kernels.iter().filter(|k| k.tensor_idx == ti).collect();
@@ -2124,60 +2129,245 @@ fn psi_level0_multi_impl(
             continue;
         }
         let nb = t.cols / D;
-        let radixes: Vec<u64> =
-            (0..t.l0).map(|l| zq.to_mod(1i64 << (t.e0 as usize * l))).collect();
         // [UPERF-PC O5] the factored form (PhiFactored: PHI_vr from the
         // hoisted row factors against the cached alpha-contracted col
         // blocks — no per-row K-mults, no per-value-ring ring-mults);
         // exactly the pre-O5 beta x conjQ value (bit-identical, asserted
         // by the diff-battery leg O5 against compute_psi(phi0_reference_multi)).
         let pf = PhiFactored::new(ctx, kf, &kers, nb, alphas, &mut cache);
-        let n_vr = t.rows * nb;
-        // Per value ring: RQ, then its l0 digit rings' contributions
-        // (u, radix_limb * (c_k * RQ)) with the c_k product cached per
-        // k-run — computed in parallel per value-ring block, folded
-        // into psi serially in (vr, limb) order.
-        let contrib_of = |vr: usize| -> Vec<(usize, Poly)> {
-            let rq = pf.value_ring(vr);
-            let mut out = Vec::with_capacity(t.l0);
-            let mut cached: Option<(usize, Poly)> = None;
-            for limb in 0..t.l0 {
-                let v = t.digit_ring_base + vr * t.l0 + limb;
-                let (k, u) = (v / chunk, v % chunk);
-                debug_assert!(k < r);
-                let s = match &cached {
-                    Some((ck, s)) if *ck == k => s.clone(),
-                    _ => {
-                        let s = ring_mul_split_kara_fast(ctx, &rq, &c_polys[k]);
-                        cached = Some((k, s.clone()));
-                        s
-                    }
-                };
-                out.push((u, super::poly_scale(zq, radixes[limb], &s)));
+        // [UPERF2-M] the u-major NTT-domain accumulation takes every
+        // aligned tensor whose integer radix fits the capacity analysis;
+        // the rest (and `ZK_PSI0NTT=0`) ride today's body below.
+        if psi0_ntt_enabled() && psi_ntt_tensor_fits(t) {
+            ntt_tensors.push(PsiAlignedTensor { t: t.clone(), pf });
+            continue;
+        }
+        psi_level0_aligned_today(ctx, t, &pf, &c_polys, chunk, &mut psi);
+    }
+    if !ntt_tensors.is_empty() {
+        let _tn = prof::timer(prof::M_PSI0_NTT); // [UPERF2-M] observation only
+        if !psi_level0_aligned_ntt(ctx, &ntt_tensors, c, chunk, &mut psi) {
+            // Over capacity for the single-prime contract at this (q, c,
+            // radix) — today's body per tensor (identical values).
+            for at in &ntt_tensors {
+                psi_level0_aligned_today(ctx, &at.t, &at.pf, &c_polys, chunk, &mut psi);
             }
-            out
-        };
-        const VR_BLOCK: usize = 4096;
-        let mut vr0 = 0;
-        while vr0 < n_vr {
-            let vr1 = (vr0 + VR_BLOCK).min(n_vr);
-            let blocks: Vec<Vec<(usize, Poly)>> = pooled(|| {
-                use rayon::prelude::*;
-                if threads() > 1 {
-                    (vr0..vr1).into_par_iter().map(contrib_of).collect()
-                } else {
-                    (vr0..vr1).map(contrib_of).collect()
-                }
-            });
-            for b in &blocks {
-                for (u, p) in b {
-                    psi[*u] = poly_add(zq, &psi[*u], p);
-                }
-            }
-            vr0 = vr1;
         }
     }
     psi
+}
+
+/// The pre-[UPERF2-M] aligned fast body of `psi_level0_factored_multi`
+/// (O5's form): per value ring RQ = PHI_vr, then its l0 digit rings'
+/// contributions radix_limb * (c_k * RQ) with the c_k product cached per
+/// k-run — computed in parallel per value-ring block, folded into psi
+/// serially in (vr, limb) order. Kept verbatim as the NTT body's oracle
+/// (`ZK_PSI0NTT=0`) and the over-capacity fallback. Adds into `psi`.
+fn psi_level0_aligned_today(
+    ctx: &RingCtx,
+    t: &AggTensor,
+    pf: &PhiFactored,
+    c_polys: &[Poly],
+    chunk: usize,
+    psi: &mut [Poly],
+) {
+    let zq = &ctx.zq;
+    let r = c_polys.len();
+    let nb = t.cols / D;
+    let radixes: Vec<u64> = (0..t.l0).map(|l| zq.to_mod(1i64 << (t.e0 as usize * l))).collect();
+    let n_vr = t.rows * nb;
+    let contrib_of = |vr: usize| -> Vec<(usize, Poly)> {
+        let rq = pf.value_ring(vr);
+        let mut out = Vec::with_capacity(t.l0);
+        let mut cached: Option<(usize, Poly)> = None;
+        for limb in 0..t.l0 {
+            let v = t.digit_ring_base + vr * t.l0 + limb;
+            let (k, u) = (v / chunk, v % chunk);
+            debug_assert!(k < r);
+            let s = match &cached {
+                Some((ck, s)) if *ck == k => s.clone(),
+                _ => {
+                    let s = ring_mul_split_kara_fast(ctx, &rq, &c_polys[k]);
+                    cached = Some((k, s.clone()));
+                    s
+                }
+            };
+            out.push((u, super::poly_scale(zq, radixes[limb], &s)));
+        }
+        out
+    };
+    const VR_BLOCK: usize = 4096;
+    let mut vr0 = 0;
+    while vr0 < n_vr {
+        let vr1 = (vr0 + VR_BLOCK).min(n_vr);
+        let blocks: Vec<Vec<(usize, Poly)>> = pooled(|| {
+            use rayon::prelude::*;
+            if threads() > 1 {
+                (vr0..vr1).into_par_iter().map(contrib_of).collect()
+            } else {
+                (vr0..vr1).map(contrib_of).collect()
+            }
+        });
+        for b in &blocks {
+            for (u, p) in b {
+                psi[*u] = poly_add(zq, &psi[*u], p);
+            }
+        }
+        vr0 = vr1;
+    }
+}
+
+/// [UPERF2-M] One aligned tensor queued for the u-major NTT accumulation.
+struct PsiAlignedTensor {
+    t: AggTensor,
+    pf: PhiFactored,
+}
+
+/// The integer radix cap of the NTT accumulation: 2^(e0*(l0-1)) < 2^40
+/// keeps (R c) an i64 small ring and the capacity product in u128 range.
+const PSI_NTT_RADIX_BITS_MAX: usize = 40;
+
+/// Positions per u-block of the NTT accumulation (planes 2 x 2 KiB per u:
+/// 1 MB per block, L2-resident next to the c-hat table).
+pub const PSI_NTT_UBLOCK: usize = 256;
+
+fn psi_ntt_tensor_fits(t: &AggTensor) -> bool {
+    t.cols % D == 0 && t.l0 >= 1 && (t.e0 as usize) * (t.l0 - 1) < PSI_NTT_RADIX_BITS_MAX
+}
+
+/// [UPERF2-M] The u-major NTT-domain accumulation of the aligned tensors'
+/// share of Psi_0 (see the section note): per u-block, per k, the digit
+/// rings [k*chunk + u0, k*chunk + u1) walk the tensors, PHI-hat once per
+/// value ring, split-halves MAC of PHI-hat x (R c_k)-hat into the block's
+/// planes, flush at the window and at the end. Adds into `psi`. Returns
+/// false (nothing added) when the capacity contract cannot be met.
+fn psi_level0_aligned_ntt(
+    ctx: &RingCtx,
+    tensors: &[PsiAlignedTensor],
+    c: &[Vec<i64>],
+    chunk: usize,
+    psi: &mut [Poly],
+) -> bool {
+    use super::aux::{balanced_mod_q, center_from_p, lift_to_p, mod_q_centered, ntt_fwd_best};
+    let zq = &ctx.zq;
+    let q = zq.q;
+    let r = c.len();
+    if r == 0 || chunk == 0 || tensors.is_empty() {
+        return true;
+    }
+    assert!(psi.len() >= chunk);
+    // The integer radixes: per tensor per limb -> an index into the
+    // distinct-radix table.
+    let mut radix_vals: Vec<u128> = Vec::new();
+    let mut radix_idx: Vec<Vec<usize>> = Vec::with_capacity(tensors.len());
+    for at in tensors {
+        let t = &at.t;
+        let mut idx = Vec::with_capacity(t.l0);
+        for limb in 0..t.l0 {
+            let rv = 1u128 << (t.e0 as usize * limb);
+            let i = match radix_vals.iter().position(|&x| x == rv) {
+                Some(i) => i,
+                None => {
+                    radix_vals.push(rv);
+                    radix_vals.len() - 1
+                }
+            };
+            idx.push(i);
+        }
+        radix_idx.push(idx);
+    }
+    let radix_max = radix_vals.iter().copied().max().unwrap_or(1);
+    let cmax: u128 = c.iter().flat_map(|ck| ck.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0);
+    let window = ntt_window_terms(q, cmax * radix_max);
+    if window == 0 {
+        return false;
+    }
+    let t = &*NTT;
+    // (R c_k)-hat for every (radix, k).
+    let n_rad = radix_vals.len();
+    let c_hat: Vec<[u64; D]> = (0..n_rad * r)
+        .map(|i| {
+            let (ri, k) = (i / r, i % r);
+            let rv = radix_vals[ri] as i64; // < 2^40
+            let ck: Vec<i64> = c[k].iter().map(|&x| x * rv).collect();
+            fwd_small(&ck, t)
+        })
+        .collect();
+    let block = PSI_NTT_UBLOCK;
+    let one_block = |bi: usize, psi_blk: &mut [Poly]| {
+        let u0 = bi * block;
+        let n = psi_blk.len();
+        let mut acc_lo: Vec<[u128; D]> = vec![[0u128; D]; n];
+        let mut acc_hi: Vec<[u128; D]> = vec![[0u128; D]; n];
+        let mut cnt = vec![0usize; n];
+        let mut phi_hat = [0u64; D];
+        let flush = |i: usize, acc_lo: &mut [[u128; D]], acc_hi: &mut [[u128; D]], cnt: &mut [usize], psi_blk: &mut [Poly]| {
+            let v = flush_split(&acc_lo[i], &acc_hi[i], t);
+            let o = &mut psi_blk[i];
+            for tt in 0..D {
+                let cq = mod_q_centered(center_from_p(v[tt]), q);
+                o[tt] = zq.add(o[tt], cq);
+            }
+            acc_lo[i] = [0u128; D];
+            acc_hi[i] = [0u128; D];
+            cnt[i] = 0;
+        };
+        for k in 0..r {
+            let v_lo = k * chunk + u0;
+            let v_hi = v_lo + n;
+            for (ti, at) in tensors.iter().enumerate() {
+                let tt = &at.t;
+                let base = tt.digit_ring_base;
+                let (lo, hi) = (base.max(v_lo), (base + tt.n_digit_rings()).min(v_hi));
+                if lo >= hi {
+                    continue;
+                }
+                let l0 = tt.l0;
+                let (rel_lo, rel_hi) = (lo - base, hi - base);
+                let ridx = &radix_idx[ti];
+                let mut vr = rel_lo / l0;
+                while vr * l0 < rel_hi {
+                    at.pf.value_ring_into(vr, &mut phi_hat);
+                    let zero = phi_hat.iter().all(|&x| x == 0);
+                    if !zero {
+                        for j in 0..D {
+                            phi_hat[j] = lift_to_p(balanced_mod_q(phi_hat[j], q));
+                        }
+                        ntt_fwd_best(&mut phi_hat, t);
+                    }
+                    let a = rel_lo.max(vr * l0);
+                    let b = rel_hi.min((vr + 1) * l0);
+                    for rel in a..b {
+                        let limb = rel - vr * l0;
+                        let i = base + rel - v_lo;
+                        if !zero {
+                            mac_split(&mut acc_lo[i], &mut acc_hi[i], &phi_hat, &c_hat[ridx[limb] * r + k]);
+                        }
+                        cnt[i] += 1;
+                        if cnt[i] == window {
+                            flush(i, &mut acc_lo, &mut acc_hi, &mut cnt, psi_blk);
+                        }
+                    }
+                    vr += 1;
+                }
+            }
+        }
+        for i in 0..n {
+            if cnt[i] > 0 {
+                flush(i, &mut acc_lo, &mut acc_hi, &mut cnt, psi_blk);
+            }
+        }
+    };
+    let psi = &mut psi[..chunk];
+    if threads() > 1 {
+        pooled(|| {
+            use rayon::prelude::*;
+            psi.par_chunks_mut(block).enumerate().for_each(|(bi, blk)| one_block(bi, blk));
+        });
+    } else {
+        psi.chunks_mut(block).enumerate().for_each(|(bi, blk)| one_block(bi, blk));
+    }
+    true
 }
 
 /// The pre-O5 aligned branch of `psi_level0_factored_multi` (BJ's form:
@@ -2432,6 +2622,9 @@ struct PhiFactored {
     nb: usize,
     srs: Vec<Vec<KElem>>,                    // [kernel][row] hoisted row factors
     gs: Vec<Vec<Arc<Vec<Poly>>>>,     // [kernel][cb] -> 16 G rings
+    /// [UPERF2-M] the AVX2 MAC's modulus constants when the SIMD body
+    /// applies to this q (see `psi_mac_simd_params`); None = scalar body.
+    simd: Option<PsiMacParams>,
 }
 
 impl PhiFactored {
@@ -2448,11 +2641,37 @@ impl PhiFactored {
             .iter()
             .map(|k| (0..nb).map(|cb| cache.g(ctx, kf.s, k, cb, alphas)).collect())
             .collect();
-        PhiFactored { q: ctx.zq.q, nb, srs, gs }
+        let simd = if psi_simd_enabled() { psi_mac_simd_params(ctx.zq.q) } else { None };
+        PhiFactored { q: ctx.zq.q, nb, srs, gs, simd }
     }
 
     /// PHI of value ring vr (mod q; 16 x n_kernels scalar-x-ring MACs).
     fn value_ring(&self, vr: usize) -> Poly {
+        let mut out = [0u64; D];
+        self.value_ring_into(vr, &mut out);
+        out.to_vec()
+    }
+
+    /// [UPERF2-M] `value_ring` into a stack buffer: the AVX2 MAC body when
+    /// `simd` is set (canonical residues of the SAME exact sum — see the
+    /// [UPERF2-M] section note), else the pre-change scalar u128 body
+    /// (`value_ring_scalar_into`).
+    #[inline]
+    fn value_ring_into(&self, vr: usize, out: &mut [u64; D]) {
+        #[cfg(target_arch = "x86_64")]
+        if let Some(p) = &self.simd {
+            // SAFETY: `simd` is Some only when AVX2 was detected (the
+            // psi_simd_enabled() gate) and the modulus meets the bounds
+            // the body relies on (psi_mac_simd_params).
+            unsafe { self.value_ring_avx2(vr, p, out) };
+            return;
+        }
+        self.value_ring_scalar_into(vr, out);
+    }
+
+    /// The pre-[UPERF2-M] body verbatim (u128 lazy MACs, `% q`): the
+    /// SIMD body's oracle (`ZK_PSISIMD=0` routes here).
+    fn value_ring_scalar_into(&self, vr: usize, out: &mut [u64; D]) {
         let (row, cb) = (vr / self.nb, vr % self.nb);
         let mut acc = [0u128; D];
         for (ki, sr) in self.srs.iter().enumerate() {
@@ -2471,7 +2690,336 @@ impl PhiFactored {
             }
         }
         let q = self.q as u128;
-        acc.iter().map(|&x| (x % q) as u64).collect()
+        for j in 0..D {
+            out[j] = (acc[j] % q) as u64;
+        }
+    }
+
+    /// [UPERF2-M] The AVX2 body: `vpmuludq` u32 x u32 -> u64 exact products
+    /// (s, g < q < 2^31) in bursts of 4 (< 2^64), each burst folded by
+    /// 2^32 == c32 (mod q) into ONE u64 plane, then the fold-by-2^31 ==
+    /// c31 reduction to the canonical residue — `psi_mac_avx2` on the
+    /// (s, G ring) term list of the value ring.
+    #[cfg(target_arch = "x86_64")]
+    #[target_feature(enable = "avx2")]
+    unsafe fn value_ring_avx2(&self, vr: usize, p: &PsiMacParams, out: &mut [u64; D]) {
+        let (row, cb) = (vr / self.nb, vr % self.nb);
+        // The term list (s != 0) — n_kernels x 16 at most; a stack list
+        // for up to 16 kernels, a Vec beyond.
+        const STACK_TERMS: usize = 16 * K_DEG;
+        let n_max = self.srs.len() * K_DEG;
+        let mut ss_st = [0u64; STACK_TERMS];
+        let mut gg_st = [std::ptr::null::<u64>(); STACK_TERMS];
+        let mut ss_v: Vec<u64> = Vec::new();
+        let mut gg_v: Vec<*const u64> = Vec::new();
+        let on_stack = n_max <= STACK_TERMS;
+        if !on_stack {
+            ss_v.reserve(n_max);
+            gg_v.reserve(n_max);
+        }
+        let mut n = 0usize;
+        for (ki, sr) in self.srs.iter().enumerate() {
+            let g = &self.gs[ki][cb];
+            let s_row = &sr[row];
+            for d1 in 0..K_DEG {
+                let s = s_row[d1];
+                if s == 0 {
+                    continue;
+                }
+                if on_stack {
+                    ss_st[n] = s;
+                    gg_st[n] = g[d1].as_ptr();
+                } else {
+                    ss_v.push(s);
+                    gg_v.push(g[d1].as_ptr());
+                }
+                n += 1;
+            }
+        }
+        if n > PSI_MAC_MAX_TERMS {
+            // Beyond the analyzed bound (never in the designed shapes):
+            // the scalar body.
+            self.value_ring_scalar_into(vr, out);
+            return;
+        }
+        if on_stack {
+            unsafe { psi_avx2::mac_mod_q(&ss_st[..n], &gg_st[..n], p, out) };
+        } else {
+            unsafe { psi_avx2::mac_mod_q(&ss_v, &gg_v, p, out) };
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-M] The level-0 factored psi (U-PERF2 lane M): (a) the PHI MAC
+// loop of `PhiFactored::value_ring` on AVX2 lanes and (b) the per-digit-
+// ring `c_k * PHI` products of `psi_level0_factored_multi` as u-major
+// NTT-domain accumulation. Both are DIFFERENTIAL: (a)'s oracle is the
+// scalar u128 body (`ZK_PSISIMD=0`), (b)'s oracles are today's aligned
+// body (`ZK_PSI0NTT=0`) and the pre-O5 kara form (`ZK_UPERF_ORACLE=1`).
+//
+// (a) WHY THE BYTES CANNOT MOVE. The scalar body computes, per
+// coefficient j, the exact integer S_j = sum_t s_t * g_t[j] in u128 and
+// returns S_j mod q (canonical). The AVX2 body computes canonical
+// residues of the SAME S_j by exact-mod-q arithmetic on u64 lanes:
+//   * s_t, g_t[j] < q < 2^31, so `vpmuludq` (low 32 bits x low 32 bits)
+//     is the exact product P < 2^62, and a burst of <= 4 products is
+//     exact in u64 (4 (q-1)^2 < 2^64);
+//   * a burst B is folded as B' = (B mod 2^32) + c32 * (B >> 32) with
+//     c32 = 2^32 mod q — B' == B (mod q) exactly (2^32 == c32), and B' <
+//     2^32 + c32 * 2^32; the u64 plane sums the B' of all bursts:
+//     acc_j == S_j (mod q), acc_j < n_bursts * 2^32 (1 + c32) < 2^63
+//     for c32 < 2^16 and n_terms <= 2^16 (both asserted at dispatch);
+//   * the finalize folds acc by 2^31 == c31 (c31 = 2^31 - q; q in
+//     (2^30, 2^31)) twice — x -> (x mod 2^31) + c31 (x >> 31), each ==
+//     x (mod q), the first from < 2^63 to < 2^31 + c31 2^32 < 2^41 (c31
+//     < 2^10), the second to < 2^31 + c31 2^10 < 2q — then one
+//     conditional subtract of q lands the CANONICAL residue.
+// Canonical residues of equal integers are equal, hence identical bytes;
+// `uperf-m battery` asserts it on planted extremes (all-(q-1) operands,
+// term counts across every burst tail) and random term lists. The body
+// runs only when q is in the analyzed class (2^30 < q < 2^31, c32 < 2^16,
+// c31 < 2^10 — the house q31 = 2^31 - 399: c32 = 798, c31 = 399), AVX2 is
+// detected and `ZK_PSISIMD` != 0; otherwise the scalar body runs
+// (q46 always takes the scalar body — its operands do not fit u32 lanes).
+//
+// (b) WHY THE BYTES CANNOT MOVE. Today's aligned body adds, per digit
+// ring v = (vr, limb) of an aligned tensor, radix_limb * (c_k * PHI_vr)
+// mod q into psi[u], u = v mod chunk, k = v / chunk, radix_limb =
+// 2^(e0*limb) mod q. Over the exact integers, with PHI in balanced form
+// (|PHI| <= (q-1)/2), c quinary (|c| <= cmax) and the INTEGER radix
+// R = 2^(e0*limb): every coefficient of (R c_k) (x) PHI is bounded by
+// D * (q-1)/2 * cmax * R, and a sum of n such terms by n times that;
+// n <= window := ntt_window_terms(q, cmax * R_max) keeps it under (p-1)/2,
+// so its Goldilocks image (the split-halves NTT-domain accumulation, one
+// forward transform of PHI per value ring, the (R c_k) transforms
+// precomputed) determines the true integer, `center_from_p` recovers it,
+// and reducing it mod q gives the residue of that partial sum; the mod-q
+// sum of the partials over the fixed window schedule (terms counted per
+// u in k order; flush at `window`, then at the end) is the residue of the
+// whole aligned sum — the same integer today's body reduces term by term
+// (radix_limb == R mod q). psi[u]'s other contributions (small-cols and
+// generic tensors: today's bodies, unchanged) add their canonical residues
+// into the same slot; mod-q addition is associative and commutative, so
+// the final canonical psi[u] is identical. Threads: the u range is split
+// into blocks, every block computed whole from the same term list — the
+// window schedule depends on (u, k) only, never on the block or thread.
+// Over capacity (window == 0, or an integer radix >= 2^40 — never in the
+// designed shapes: e0 <= 2, l0 <= 8 for the aligned 125M tensors) the
+// tensor rides today's body.
+
+/// [UPERF2-M] `ZK_PSISIMD=0` forces the scalar PHI MAC (default: AVX2 when
+/// detected). Read once; harness override via `set_psi_simd`.
+static PSI_SIMD: LazyLock<std::sync::atomic::AtomicBool> = LazyLock::new(|| {
+    let knob = std::env::var("ZK_PSISIMD").map(|v| v != "0").unwrap_or(true);
+    std::sync::atomic::AtomicBool::new(knob && psi_simd_available())
+});
+
+/// Whether the box has the AVX2 PHI MAC body.
+pub fn psi_simd_available() -> bool {
+    #[cfg(target_arch = "x86_64")]
+    {
+        std::arch::is_x86_feature_detected!("avx2")
+    }
+    #[cfg(not(target_arch = "x86_64"))]
+    {
+        false
+    }
+}
+
+#[inline(always)]
+pub fn psi_simd_enabled() -> bool {
+    PSI_SIMD.load(std::sync::atomic::Ordering::Relaxed)
+}
+
+/// Harness-only: flip the PHI MAC body at runtime (bench / battery A/B;
+/// the AVX2 body is only ever taken when the box has it).
+pub fn set_psi_simd(on: bool) {
+    PSI_SIMD.store(on && psi_simd_available(), std::sync::atomic::Ordering::Relaxed);
+}
+
+/// [UPERF2-M] `ZK_PSI0NTT=0` keeps today's aligned psi0 body (kara per
+/// value ring); default: the u-major NTT-domain accumulation. Harness
+/// override via `set_psi0_ntt`.
+static PSI0_NTT: LazyLock<std::sync::atomic::AtomicBool> = LazyLock::new(|| {
+    std::sync::atomic::AtomicBool::new(std::env::var("ZK_PSI0NTT").map(|v| v != "0").unwrap_or(true))
+});
+
+#[inline(always)]
+pub fn psi0_ntt_enabled() -> bool {
+    PSI0_NTT.load(std::sync::atomic::Ordering::Relaxed)
+}
+
+/// Harness-only: flip the psi0 NTT routing at runtime (battery A/B).
+pub fn set_psi0_ntt(on: bool) {
+    PSI0_NTT.store(on, std::sync::atomic::Ordering::Relaxed);
+}
+
+/// The largest term count (nonzero (kernel, d1) pairs of one value ring)
+/// the AVX2 MAC's plane bound covers (n_bursts * 2^32 (1 + c32) < 2^63 at
+/// c32 < 2^16); beyond it the scalar body runs.
+pub const PSI_MAC_MAX_TERMS: usize = 1 << 16;
+
+/// [UPERF2-M] Modulus constants of the AVX2 PHI MAC.
+#[derive(Clone, Copy, Debug)]
+pub struct PsiMacParams {
+    pub q: u64,
+    /// 2^32 mod q (< 2^16 required).
+    pub c32: u64,
+    /// 2^31 - q (q in (2^30, 2^31); < 2^10 required).
+    pub c31: u64,
+}
+
+/// The AVX2 MAC's modulus class: 2^30 < q < 2^31, c32 = 2^32 mod q < 2^16,
+/// c31 = 2^31 - q < 2^10 (the house q31 qualifies; q46 does not).
+pub fn psi_mac_simd_params(q: u64) -> Option<PsiMacParams> {
+    if q <= (1u64 << 30) || q >= (1u64 << 31) {
+        return None;
+    }
+    let c32 = (1u64 << 32) % q;
+    let c31 = (1u64 << 31) - q;
+    if c32 >= (1u64 << 16) || c31 >= (1u64 << 10) {
+        return None;
+    }
+    Some(PsiMacParams { q, c32, c31 })
+}
+
+/// [UPERF2-M] Battery/bench entry: out[j] = (sum_t s[t] * g[t][j]) mod q by
+/// the AVX2 body (None when the body does not apply to this box / q /
+/// term count).
+pub fn psi_mac_mod_q_simd(s: &[u64], g: &[&[u64]], q: u64) -> Option<[u64; D]> {
+    assert_eq!(s.len(), g.len());
+    if !psi_simd_available() || s.len() > PSI_MAC_MAX_TERMS {
+        return None;
+    }
+    let p = psi_mac_simd_params(q)?;
+    for (&sv, gv) in s.iter().zip(g.iter()) {
+        assert!(sv < q, "psi_mac: s out of range");
+        assert_eq!(gv.len(), D);
+        debug_assert!(gv.iter().all(|&x| x < q), "psi_mac: g out of range");
+    }
+    #[cfg(target_arch = "x86_64")]
+    {
+        let ptrs: Vec<*const u64> = g.iter().map(|r| r.as_ptr()).collect();
+        let mut out = [0u64; D];
+        // SAFETY: AVX2 detected (psi_simd_available); every g[t] has D
+        // lanes (asserted); the params bound the lane arithmetic (the
+        // battery feeds canonical operands; the callers' G rings are
+        // canonical by construction).
+        unsafe { psi_avx2::mac_mod_q(s, &ptrs, &p, &mut out) };
+        Some(out)
+    }
+    #[cfg(not(target_arch = "x86_64"))]
+    {
+        None
+    }
+}
+
+/// [UPERF2-M] Battery/bench entry: the scalar u128 body on the same term list.
+pub fn psi_mac_mod_q_scalar(s: &[u64], g: &[&[u64]], q: u64) -> [u64; D] {
+    assert_eq!(s.len(), g.len());
+    let mut acc = [0u128; D];
+    for (&sv, gv) in s.iter().zip(g.iter()) {
+        let sv = sv as u128;
+        for j in 0..D {
+            acc[j] += sv * gv[j] as u128;
+        }
+    }
+    let mut out = [0u64; D];
+    for j in 0..D {
+        out[j] = (acc[j] % q as u128) as u64;
+    }
+    out
+}
+
+#[cfg(target_arch = "x86_64")]
+mod psi_avx2 {
+    use super::{PsiMacParams, D};
+    use core::arch::x86_64::*;
+
+    /// `vpmuludq` as one opaque instruction (lane I's finding: through the
+    /// intrinsic LLVM re-lowers the loop-invariant broadcast operand as a
+    /// 64-bit multiply idiom).
+    #[target_feature(enable = "avx2")]
+    #[inline]
+    unsafe fn mul32(a: __m256i, b: __m256i) -> __m256i {
+        let r: __m256i;
+        unsafe {
+            core::arch::asm!(
+                "vpmuludq {r}, {a}, {b}",
+                r = lateout(ymm_reg) r,
+                a = in(ymm_reg) a,
+                b = in(ymm_reg) b,
+                options(pure, nomem, nostack, preserves_flags)
+            );
+        }
+        r
+    }
+
+    /// acc[o + 4i ..] += (b_i mod 2^32) + c32 * (b_i >> 32) for the 8
+    /// burst vectors of one 32-lane quarter.
+    #[target_feature(enable = "avx2")]
+    #[inline]
+    unsafe fn fold_burst(acc: *mut u64, b: &[__m256i; 8], m32: __m256i, c32v: __m256i) {
+        unsafe {
+            for i in 0..8 {
+                let lo = _mm256_and_si256(b[i], m32);
+                let hi = _mm256_srli_epi64::<32>(b[i]);
+                let f = _mm256_add_epi64(lo, mul32(c32v, hi));
+                let p = acc.add(4 * i) as *mut __m256i;
+                _mm256_storeu_si256(p, _mm256_add_epi64(_mm256_loadu_si256(p), f));
+            }
+        }
+    }
+
+    /// out[j] = (sum_t s[t] * g[t][j]) mod q, canonical — see the section
+    /// note for the bounds. `g[t]` points at D canonical u64 lanes.
+    #[target_feature(enable = "avx2")]
+    pub unsafe fn mac_mod_q(s: &[u64], g: &[*const u64], p: &PsiMacParams, out: &mut [u64; D]) {
+        unsafe {
+            let n = s.len();
+            let mut acc = [0u64; D];
+            let m32 = _mm256_set1_epi64x(0xFFFF_FFFFu64 as i64);
+            let c32v = _mm256_set1_epi64x(p.c32 as i64);
+            let zero = _mm256_setzero_si256();
+            for quarter in 0..4 {
+                let o = quarter * 32;
+                let mut b = [zero; 8];
+                let mut cnt = 0usize;
+                for t in 0..n {
+                    let sv = _mm256_set1_epi64x(s[t] as i64);
+                    let gp = g[t].add(o);
+                    for i in 0..8 {
+                        let gv = _mm256_loadu_si256(gp.add(4 * i) as *const __m256i);
+                        b[i] = _mm256_add_epi64(b[i], mul32(sv, gv));
+                    }
+                    cnt += 1;
+                    if cnt == 4 {
+                        fold_burst(acc.as_mut_ptr().add(o), &b, m32, c32v);
+                        b = [zero; 8];
+                        cnt = 0;
+                    }
+                }
+                if cnt > 0 {
+                    fold_burst(acc.as_mut_ptr().add(o), &b, m32, c32v);
+                }
+            }
+            // Finalize: fold by 2^31 == c31 twice, then one conditional
+            // subtract -> canonical.
+            let m31 = _mm256_set1_epi64x(0x7FFF_FFFFu64 as i64);
+            let c31v = _mm256_set1_epi64x(p.c31 as i64);
+            let qm1 = _mm256_set1_epi64x((p.q - 1) as i64);
+            let qv = _mm256_set1_epi64x(p.q as i64);
+            for j in (0..D).step_by(4) {
+                let x = _mm256_loadu_si256(acc.as_ptr().add(j) as *const __m256i);
+                let x = _mm256_add_epi64(_mm256_and_si256(x, m31), mul32(c31v, _mm256_srli_epi64::<31>(x)));
+                let x = _mm256_add_epi64(_mm256_and_si256(x, m31), mul32(c31v, _mm256_srli_epi64::<31>(x)));
+                // x < 2q < 2^32: signed compare is exact.
+                let ge = _mm256_cmpgt_epi64(x, qm1);
+                let x = _mm256_sub_epi64(x, _mm256_and_si256(ge, qv));
+                _mm256_storeu_si256(out.as_mut_ptr().add(j) as *mut __m256i, x);
+            }
+        }
     }
 }
 
@@ -3126,6 +3674,7 @@ pub fn fold_chunks_ntt_gen<B: SmallRings + ?Sized>(cs: &[Vec<i64>], w: &[&B], ch
     if !fits {
         return fold_chunks_ref_gen(cs, w, chunk);
     }
+    let _tm = prof::timer(prof::M_FOLD_NTT); // [UPERF2-M] observation only
     let t = &*NTT;
     let c_hat: Vec<[u64; D]> = cs.iter().map(|c| fwd_small(c, t)).collect();
     let one = |u: usize| -> Vec<i64> {
