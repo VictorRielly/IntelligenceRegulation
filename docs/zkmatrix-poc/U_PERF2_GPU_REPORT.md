@@ -42,12 +42,12 @@ Measured on THIS box at 8 threads: the kernel itself 8-10x over the 8T CPU
 body (64x64x1024: 142 -> 17 ms; 64x64x8192: 964 -> 102 ms; 11x64x8192:
 494 -> 48 ms), the composed passes 3x16 9.2 -> 7.3 s, 12x128 58.0 -> 45.0 s
 (level-h 10.3 -> 3.0 s, matvec 4.4 -> 1.1 s, commit 6.3 -> 2.9 s), and
-THE PoC SHAPE 12x512 8T: **141.5 s = commit 5.5 + prove 126.8 + verify 7.5
-(accept, digests identical, 10.9 GB) vs the ledger's quiet 155.6 s** —
-level-h 22.2 -> 6.3 s, matvec 7.8 -> 1.7 s, commit 11.7 -> 5.5 s, in a
-run whose untouched phases were 5-10% slower than the quiet reference
-(NOISY-SHARED; ~135 s [MODEL] quiet). What the GPU does not touch is now
-the wall: the descents
+THE PoC SHAPE 12x512 8T: **134.9 s = commit 5.6 + prove 119.9 + verify 7.6
+(accept, digests identical, 10.9 GB) vs the ledger's quiet 155.6 s (p50
+153.1) — -13% from the one ported kernel** (level-h 22.2 -> 5.9 s,
+matvec 7.8 -> 1.7 s, commit 11.7 -> 5.6 s; two runs, 141.5 s under a
+concurrent lane and 134.9 s quiet-start, both digest-identical). What
+the GPU does not touch is now the wall: the descents
 (a.round-g) and the claim layer — the next kernel (step 4 of the brief,
 not reached this round; design note in Section 5). The 4070 Laptop is a
 55-70 W mobile part: the factor is a lower bound for the contract's desktop
@@ -255,25 +255,25 @@ layer.
 | | commit | prove | verify | wall | peak RSS | digests |
 |---|---:|---:|---:|---:|---:|---|
 | ledger reference (96559ee, QUIET; the 20-run series: p50 153.1 / p95 155.9 s) | 11.7 s | 134.9 s | 7.3 s | 155.6 s | 10.98 GB | 2f8a92f8… / 4c259008… / 1,509,911 B |
-| `ZK_GPU=1`, this run (194 device calls, 10.6 GB uploaded; lane J active, load ~5) | **5.5 s** | **126.8 s** | 7.5 s | **141.5 s** | 10,929 MiB | **identical** (accept) |
+| `ZK_GPU=1`, run 1 (194 device calls, 10.6 GB uploaded; lane J's rig concurrent at the start, load 4.5-5) | 5.5 s | 126.8 s | 7.5 s | 141.5 s | 10,929 MiB | identical (accept) |
+| `ZK_GPU=1`, run 2 (quiet start, load 1.4; lane J started work near the end) | **5.6 s** | **119.9 s** | 7.6 s | **134.9 s** | 10,934 MiB | **identical** (accept) |
 
-Phase attribution of the GPU run vs the ledger's quiet 12x512 8T
-attribution: level-h 22.2 -> **6.3 s** (174 calls of 64x64x1024: 3.3 s
+Phase attribution vs the ledger's quiet 12x512 8T attribution (run 2 /
+run 1): level-h 22.2 -> **5.9 / 6.3 s** (174 calls of 64x64x1024: 3.3 s
 inside the device path = 19 ms per call; the remainder is the host-side
 phi fill of `level_h_pairs_with_block` and the s_max scans), matvec 7.8
--> **1.7 s**, commit 11.7 -> **5.5 s** (the precommit-u0 matvecs),
-prove-group 38.7 -> 23.4 s. The phases the GPU does not touch ran 5-10%
-SLOWER than the quiet reference in this shared run (descents 72 -> 76.9 s
-= bk.descent-gkr 65.5 + trees 11.4, a.round-g 52.5 -> 55.7; claim layer
-23.9 -> 26.2; psi0-factored 12.2 s across prover + verifier) — the box
-was not quiet (lane J's rig ran concurrently outside the flock's window
-at the start; load average 4.5-5). Net: -14.1 s (-9%) on the wall in a
-noisy run; summing the GPU-touched phase deltas (-28.2 s) against the
-quiet reference gives ~135 s [MODEL from the phase sums — a QUIET
-ZK_GPU=1 run is queued behind the merge; do not cite 135 s as measured].
-What is now the wall: descents ~72-77 s (a.round-g 52-56 + tree-step
-16-17 + trees 11), the claim layer 24-26 s (cl-folds 11.5, cl-rounds 7.5,
-cl-tables 7.2), psi0-factored, fold 4.0, CRS 3.5, kernel-rows 3.5.
+-> **1.7 s**, commit 11.7 -> **5.6 / 5.5 s** (the precommit-u0 matvecs),
+prove-group 38.7 -> 22.8 / 23.4 s. Run 2's untouched phases MATCH the
+quiet reference (descents 72.8 s = bk.descent-gkr 62.0 + trees 10.8,
+a.round-g 53.1 vs 52.5; claim layer 24.1 vs 23.9), so 134.9 s is the
+clean number: **-20.7 s (-13%) on the PoC-shape wall from the one ported
+kernel** (155.6 -> 134.9; vs the 20-run p50 153.1: -12%). Run 1's
+untouched phases ran 5-10% slower (descents 76.9, claim 26.2) under
+lane J's concurrent rig — the -14.1 s of that run understates the
+kernel's effect. What is now the wall: descents ~73 s (a.round-g 53 +
+tree-step 16 + trees 11), the claim layer 24 s (cl-folds 11.5, cl-rounds
+7.5, cl-tables 7.2), psi0-factored 12.2 s (prover + verifier), fold 4.0,
+CRS 3.4, kernel-rows 3.5.
 
 ### 4.5 What the factor means, and does not
 

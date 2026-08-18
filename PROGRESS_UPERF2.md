@@ -765,18 +765,19 @@ rung report, hardware/watts/flags stated):
      3x16 8T 9.2 -> 7.3 s (level-h 2.03 -> 0.48 s), REAL 12x128 8T 58.0
      -> 45.0 s (commit 6.3 -> 2.9, prove 47.3 -> 37.8; level-h 10.33 ->
      3.00, matvec 4.38 -> 1.12; RSS 4,100 -> 4,263 MiB), and THE PoC
-     SHAPE 12x512 8T (ONE run, flock, wsl-export): **141.5 s = commit 5.5
-     + prove 126.8 + verify 7.5, accept, statement 2f8a92f8… / EVAL
-     4c259008… / 1,509,911 B identical, peak RSS 10,929 MiB** vs the
-     ledger's quiet 155.6 s (p50 153.1): level-h 22.2 -> 6.3 s, matvec
-     7.8 -> 1.7 s, commit 11.7 -> 5.5 s (194 device calls, 10.6 GB
-     uploaded, 4.4 s inside the device path); the untouched phases ran
-     5-10% slower than the quiet reference in this shared run (descents
-     72 -> 77 s, claim layer 23.9 -> 26.2) — ~135 s [MODEL from the phase
-     sums] for a quiet GPU run; a QUIET measurement is queued.
+     SHAPE 12x512 8T (two runs, flock, wsl-export): **134.9 s = commit
+     5.6 + prove 119.9 + verify 7.6 (quiet-start run; 141.5 s = 5.5 /
+     126.8 / 7.5 in the run lane J's rig overlapped), accept, statement
+     2f8a92f8… / EVAL 4c259008… / 1,509,911 B identical in both, peak RSS
+     10,934 / 10,929 MiB** vs the ledger's quiet 155.6 s (p50 153.1):
+     level-h 22.2 -> 5.9 s, matvec 7.8 -> 1.7 s, commit 11.7 -> 5.6 s
+     (194 device calls, 10.6 GB uploaded, 4.4 s inside the device path);
+     the quiet run's untouched phases match the reference (descents 72.8,
+     a.round-g 53.1, claim layer 24.1), so -20.7 s (-13%) is the ported
+     kernel's effect on the PoC wall.
   4. Honest factor: 8-10x over the 8T CPU on the ported kernel on THIS
      box (a 55-70 W mobile part; power limits per nvidia-smi 55 W default
-     / 68.82 W current / 105 W max); -9% on the composed 12x512 wall
+     / 68.82 W current / 105 W max); -13% on the composed 12x512 wall
      because the kernel's share was ~27 s of 155. The desktop-board line
      stays [MODEL] in the report (Section 4.5), no claim.
 - NOT landed / left: (4) the descent round kernel (`k9_fused_round_par`;
