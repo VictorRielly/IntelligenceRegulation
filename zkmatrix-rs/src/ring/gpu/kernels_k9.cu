@@ -767,3 +767,4 @@ extern "C" __global__ void k_ixf_round(K9P P, const u32* t0, const u32* t1, cons
     }
     reduce_nodes(accn, (u32)nd, partial, P.q);
 }
+

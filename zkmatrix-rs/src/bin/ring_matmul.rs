@@ -39729,21 +39729,32 @@ fn uperf_l_battery(seed: u64) {
                     let mut tc = mk(0x100);
                     let (pc, sc) = run(&mut tc);
                     ring::gpu::set_bypass(false);
-                    let mut tg = mk(0x100);
-                    let k0 = ring::gpu::k9_stats().ixf_rounds;
-                    let (pg, sg) = run(&mut tg);
-                    let used = ring::gpu::k9_stats().ixf_rounds - k0;
-                    assert_eq!(pc, pg, "[UPERF2-L] ixf round polys mismatch: kind {kind_id} deg {deg} n 2^{lg} pattern {pattern}");
-                    assert_eq!(sc.len(), sg.len());
-                    for (r, (a, b)) in sc.iter().zip(sg.iter()).enumerate() {
-                        for (i, (x, y)) in a.iter().zip(b.iter()).enumerate() {
-                            assert_eq!(x, y, "[UPERF2-L] ixf FOLD table mismatch: kind {kind_id} deg {deg} n 2^{lg} pattern {pattern} round {r} word {i}");
+                    for &eager in &[true, false] {
+                        // Eager: every fold's table on the host; lazy: only the
+                        // handover (the last folds) is guaranteed on the host.
+                        ring::gpu::k9_set_eager(eager);
+                        let mut tg = mk(0x100);
+                        let k0 = ring::gpu::k9_stats().ixf_rounds;
+                        let (pg, sg) = run(&mut tg);
+                        let used = ring::gpu::k9_stats().ixf_rounds - k0;
+                        assert_eq!(pc, pg, "[UPERF2-L] ixf round polys mismatch: kind {kind_id} deg {deg} n 2^{lg} pattern {pattern} eager {eager}");
+                        assert_eq!(sc.len(), sg.len());
+                        for (r, (a, b)) in sc.iter().zip(sg.iter()).enumerate() {
+                            if !eager && r + 1 < sc.len() {
+                                continue;
+                            }
+                            for (i, (x, y)) in a.iter().zip(b.iter()).enumerate() {
+                                assert_eq!(x, y, "[UPERF2-L] ixf FOLD table mismatch: kind {kind_id} deg {deg} n 2^{lg} pattern {pattern} eager {eager} round {r} word {i}");
+                            }
+                            cells += a.len();
+                            for &x in a {
+                                h.update(x.to_le_bytes());
+                            }
                         }
-                        cells += a.len();
-                        for &x in a {
-                            h.update(x.to_le_bytes());
-                        }
+                        assert!(used >= 1, "[UPERF2-L] the GPU took no ixf round at n 2^{lg}");
+                        legs += 1;
                     }
+                    ring::gpu::k9_set_eager(false);
                     for p in &pc {
                         for e in p {
                             for &x in e {
@@ -39751,8 +39762,6 @@ fn uperf_l_battery(seed: u64) {
                             }
                         }
                     }
-                    assert!(used >= 1, "[UPERF2-L] the GPU took no ixf round at n 2^{lg}");
-                    legs += 1;
                 }
             }
         }

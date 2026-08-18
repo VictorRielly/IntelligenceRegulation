@@ -388,8 +388,11 @@ struct IxfChain {
     /// round(t+1) is expected with n/2 elements.
     folded: usize,
     /// The scratch pointers the folds handed the tables (the expected
-    /// pointers at round t+1; a mismatch = miss, re-upload).
+    /// pointers at round t+1; informational — the sequence decides).
     next_ptrs: Vec<usize>,
+    /// True once a fold left its output device-only (the host copy is
+    /// stale until the handover).
+    lazy: bool,
 }
 
 struct K9 {
@@ -486,7 +489,10 @@ fn init_k9() -> Result<K9, String> {
             ptx
         }
     };
+    let secs_ptx = t0.elapsed().as_secs_f64();
+    let t1 = Instant::now();
     dev.load_ptx(ptx, MODULE, FUNCS).map_err(|e| format!("cuModuleLoadData (k9): {e}"))?;
+    let secs_load = t1.elapsed().as_secs_f64();
     let mut f = std::collections::HashMap::new();
     for &name in FUNCS {
         f.insert(name, dev.get_func(MODULE, name).ok_or_else(|| format!("{name} missing"))?);
@@ -514,8 +520,8 @@ fn init_k9() -> Result<K9, String> {
     };
     if verbose() {
         eprintln!(
-            "[UPERF2-L] k9 init: NVRTC compile {:.2}s; VRAM free {:.2} / {:.2} GB; K9 budget {:.2} GB; min_pairs {}",
-            t0.elapsed().as_secs_f64(),
+            "[UPERF2-L] k9 init: PTX (NVRTC or the disk cache) {secs_ptx:.2}s + module load (driver JIT or its cache) {secs_load:.2}s + setup {:.2}s; VRAM free {:.2} / {:.2} GB; K9 budget {:.2} GB; min_pairs {}",
+            t0.elapsed().as_secs_f64() - secs_ptx - secs_load,
             free as f64 / 1e9,
             total as f64 / 1e9,
             budget as f64 / 1e9,
@@ -1578,6 +1584,9 @@ pub fn k9_ixf_round(kern: &KKern, kind: u8, tabs: &[&[u32]], nblk_pairs: usize, 
         Ok(true) => {
             S_IXF_ROUNDS.fetch_add(1, Ordering::Relaxed);
             add_us(&S_IXF_US, t0.elapsed().as_secs_f64());
+            if verbose() {
+                eprintln!("[UPERF2-L] k9 ixf round kind {kind} nt {} n_pairs {nblk_pairs} deg {deg}: {:.2} ms (kernel+sync {:.2} ms)", tabs.len(), t0.elapsed().as_secs_f64() * 1e3, k.last_kernel_ms);
+            }
             Some(())
         }
         Ok(false) => None,
@@ -1604,6 +1613,9 @@ pub fn kt_fold(kf: &KField, t: &mut KTab, scratch: &mut Vec<u32>, r: &KElem) -> 
         Ok(true) => {
             S_IXF_FOLDS.fetch_add(1, Ordering::Relaxed);
             add_us(&S_IXF_US, t0.elapsed().as_secs_f64());
+            if verbose() {
+                eprintln!("[UPERF2-L] k9 ixf fold n_out {}: {:.2} ms", t.n, t0.elapsed().as_secs_f64() * 1e3);
+            }
             Some(())
         }
         Ok(false) => None,
@@ -1630,10 +1642,31 @@ impl K9 {
         let n = nblk_pairs * 2 * KL; // elements per table
         let words = nblk_pairs * 2 * KBLK;
         // Resident? The expected chain: the previous round's nt folds done,
-        // this round's tables at the folds' output pointers with n = prev/2.
+        // this round's tables with n = prev/2 — the SEQUENCE identifies the
+        // successor (fold.rs `ixf_sumcheck_prove_packed` is one sequential
+        // loop on one transcript; nothing else calls these hooks in between).
+        // Under the lazy protocol the host copies of a live chain are STALE,
+        // so a chain that is alive but not the expected successor is a
+        // protocol violation (fail loudly), never a re-upload.
         let ptrs: Vec<usize> = tabs.iter().map(|t| t.as_ptr() as usize).collect();
         let hit = match &self.ixf {
-            Some(c) => c.kind == kind && c.nt == nt && c.folded == nt && c.n == 2 * n && c.next_ptrs == ptrs,
+            Some(c) => {
+                let seq_ok = c.kind == kind && c.nt == nt && c.folded == nt && c.n == 2 * n;
+                if !seq_ok {
+                    if c.lazy {
+                        panic!(
+                            "[UPERF2-L] K-field ixf chain broken: expected round(t+1) kind {} nt {} n {} after {} folds, got kind {kind} nt {nt} n {n} (folded {})",
+                            c.kind, c.nt, c.n / 2, c.nt, c.folded
+                        );
+                    }
+                    false
+                } else {
+                    if c.next_ptrs != ptrs && verbose() {
+                        eprintln!("[UPERF2-L] k9 ixf: the folded tables moved on the host (shrink_to_fit) — the sequence identifies them; continuing on the device");
+                    }
+                    true
+                }
+            }
             None => false,
         };
         let bufs: Vec<usize> = if hit {
@@ -1686,8 +1719,9 @@ impl K9 {
         ];
         self.launch(name, grid_for(n_pairs, TK9), TK9, &mut args)?;
         self.deposit_partial(kern.q, deg + 1, acc_lo)?;
+        self.last_kernel_ms = tk.elapsed().as_secs_f64() * 1e3;
         add_us(&S_KERNEL_US, tk.elapsed().as_secs_f64());
-        self.ixf = Some(IxfChain { kind, nt, ptrs, n, buf: bufs, folded: 0, next_ptrs: vec![0; nt] });
+        self.ixf = Some(IxfChain { kind, nt, ptrs, n, buf: bufs, folded: 0, next_ptrs: vec![0; nt], lazy: false });
         Ok(true)
     }
 
@@ -1709,15 +1743,15 @@ impl K9 {
             _ => None,
         };
         let Some(k) = idx else {
-            // Not the expected fold: the ixf chain (if any) is broken; a
-            // cold fold is PCIe-bound — decline.
+            // Not the expected fold: a cold fold is PCIe-bound — decline. A
+            // LAZY chain alive here would mean the host copies are stale
+            // while an unexpected caller folds a table: protocol violation.
+            if let Some(c) = &self.ixf {
+                assert!(!c.lazy, "[UPERF2-L] K-field ixf chain broken: an unexpected fold (table {:#x}, n {}) while the chain holds device-only state", ptr, t.n);
+            }
             self.ixf = None;
             return Ok(false);
         };
-        if nblk / 2 < 1 {
-            self.ixf = None;
-            return Ok(false);
-        }
         self.dev.bind_to_thread().map_err(|e| format!("bind: {e}"))?;
         let c = self.ixf.as_ref().unwrap();
         let in_buf = c.buf[k];
@@ -1733,11 +1767,30 @@ impl K9 {
         let n_u = n_out as u32;
         let mut args: [*mut c_void; 4] = [&p as *const _ as *mut _, &src as *const _ as *mut _, &dst as *const _ as *mut _, &n_u as *const _ as *mut _];
         self.launch("k_fold_table", grid_for(n_out, TEL), TEL, &mut args)?;
-        // Eager: the folded table into `scratch` (grown as kt_fold_par does), then swap.
-        if scratch.len() < nblk * KBLK {
-            scratch.resize(nblk * KBLK, 0);
+        if profile() {
+            self.sync_all()?;
         }
-        self.download_words(dst, &mut scratch[..nblk * KBLK])?;
+        // The folded table's host buffer is `scratch` (grown as kt_fold_par
+        // does), swapped in. HANDOVER RULE: the output is copied to the host
+        // when the successor round would not be taken by the device (its
+        // n_pairs below the minimum — the CPU round / the scalar tail read
+        // the host) or under the eager knob; otherwise it stays device-only
+        // (the successor round is guaranteed by the loop: `while packed[0].n
+        // >= 2 KL` re-checked right after these folds).
+        if scratch.len() < nblk * KBLK {
+            if scratch.is_empty() {
+                // calloc: zero pages faulted in only where touched (the lazy
+                // path never touches them; the CPU's `resize` would memset
+                // the whole buffer — 20 ms per 64 MB on this box).
+                *scratch = vec![0u32; nblk * KBLK];
+            } else {
+                scratch.resize(nblk * KBLK, 0);
+            }
+        }
+        let succ_taken = n_out / (2 * KL) >= min_pairs();
+        if !succ_taken || eager() {
+            self.download_words(dst, &mut scratch[..nblk * KBLK])?;
+        }
         std::mem::swap(&mut t.d, scratch);
         t.n = n_out;
         t.d.truncate(nblk * KBLK);
@@ -1745,6 +1798,13 @@ impl K9 {
         c.buf[k] = out_buf;
         c.next_ptrs[k] = t.d.as_ptr() as usize;
         c.folded += 1;
+        if succ_taken && !eager() {
+            c.lazy = true;
+        }
+        if !succ_taken && c.folded == c.nt {
+            // Every table handed over: the chain ends here.
+            self.ixf = None;
+        }
         Ok(true)
     }
 }
