@@ -796,7 +796,45 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent M status (wt-uperf2-m)
 
-- (lane launches here)
+PLAN (skeleton commit, 2026-08-17). Files: `zkmatrix-rs/src/ring/eval_proof.rs`
+(the psi machinery: `PhiFactored`, `psi_level0_multi_impl`, the rows-pass
+MAC loop, `expand_level_matrix_par`'s stream walk), a `// [UPERF2-M]` bin
+section with `uperf-m {battery, bench, sha-bench}`, NEW
+docs/zkmatrix-poc/U_PERF2_EVALPROOF2_REPORT.md. Baseline capture BEFORE
+any code change: freeze-check from the f821485 build — 98 `ok` rows then
+the expected BF panic (scratchpad/m_freeze_baseline_raw.txt); the 3x16
+1T/8T and 12x128 8T rigs with attribution from the same binary.
+
+1. `ep.psi0-factored` (11.9 s / 4 calls at 12x512 8T+GPU): (a) the PHI
+   MAC loop of `PhiFactored::value_ring` on AVX2 (`vpmuludq` u32 x u32
+   -> u64 exact products in bursts of 4, folded by 2^32 == c32 (mod q)
+   into ONE u64 plane, Barrett `mod q` finalize — the canonical residue
+   of the same exact sum; scalar = today's u128 body; `ZK_PSISIMD=0`);
+   (b) the per-digit-ring `c_k * PHI` Karatsuba + poly_scale + poly_add
+   replaced by u-major NTT-domain accumulation: per u-block, per k, the
+   digit rings [k*chunk + u0, k*chunk + u1) walk the aligned tensors,
+   PHI-hat once per value ring, split-halves MAC of PHI-hat x (radix *
+   c_k)-hat (radix the small INTEGER 2^(e0*limb), c quinary) into the
+   block's planes, exact-integer window `ntt_window_terms(q, cmax *
+   radix_max)`, one inverse per u — bit-identical (exact integers, fixed
+   k order); the small-cols/generic branches unchanged (they add their
+   canonical residues into the same psi[u]); today's body under
+   `oracle_mode()`.
+2. `bg.kernel-rows` (the T accumulators: the same `vpmuludq` treatment,
+   the V ring recomposition without i128 rem), `bg.fold` (attribute
+   first), `ep.crs-expand` (SHA-NI check + the serial rejection walk
+   made parallel by accepted-word prefix counts, byte-identical),
+   `ep.transport`, `d.precommit-u0` (measure/report), the verifier's
+   7.2 s (attribute).
+3. `uperf-m battery`: every replaced body vs its oracle (value_ring SIMD
+   vs scalar on planted extremes + random; psi0-factored-multi vs
+   compute_psi(reference Phi_0) at two chunk splits + q46 windows; rows
+   pass vs oracle; CRS par vs raw) + `uperf-m bench`.
+4. Gates at HEAD: `uperf-pc diff-battery` 1T/7T, `uperf-c`/`uperf-f`
+   batteries, freeze-check 98 rows == baseline, `self-test`, the rigs.
+5. Report + this section.
+
+STATUS: (in progress)
 
 ## Agent J status (wt-uperf2-j)
 

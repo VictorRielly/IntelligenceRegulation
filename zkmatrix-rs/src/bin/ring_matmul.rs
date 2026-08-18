@@ -6420,6 +6420,8 @@ fn main() {
         Some("uperf-j") => uperf_j_main(&args[1..]),
         // [UPERF2-K] U-PERF2 lane K (the GPU rung: CUDA/NVRTC ports, feature gpu-cuda) probe + battery + bench.
         Some("uperf-k") => uperf_k_main(&args[1..]),
+        // [UPERF2-M] U-PERF2 lane M (psi0-factored SIMD + NTT accumulation, eval-proof leftovers 2) battery + bench.
+        Some("uperf-m") => uperf_m_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -39296,5 +39298,64 @@ fn uperf_k_bench(na: usize, nb: usize, len: usize, reps: usize) {
         } else {
             String::new()
         }
+    );
+}
+
+// [UPERF2-M] U-PERF2 lane M — eval-proof leftovers 2: the level-0
+// factored psi (`psi_level0_factored_multi`: the PHI MAC loop on AVX2 +
+// the per-digit-ring c_k * PHI products as NTT-domain accumulation), the
+// rows-pass MAC loop, the CRS stream walk, and the attribution of the
+// remaining eval-proof terms (fold, transport, precommit, verifier).
+// ADDITIVE section: `uperf-m {battery, bench, sha-bench}`. Report:
+// docs/zkmatrix-poc/U_PERF2_EVALPROOF2_REPORT.md.
+
+fn uperf_m_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("battery") => uperf_m_battery(),
+        Some("bench") => {
+            let rows: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(1024);
+            let cols: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(2048);
+            let r: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(16);
+            uperf_m_bench(rows, cols, r);
+        }
+        Some("sha-bench") => {
+            let n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(1 << 20);
+            uperf_m_sha_bench(n);
+        }
+        _ => println!("uperf-m battery | bench [rows] [cols] [r] | sha-bench [n_blocks]"),
+    }
+}
+
+/// [UPERF2-M] The lane's differential battery (grows as items land).
+fn uperf_m_battery() {
+    println!("[UPERF2-M] battery: (no legs yet — skeleton)");
+}
+
+/// [UPERF2-M] Kernel bench: psi0-factored-multi (fast vs today's body vs
+/// the reference) on one aligned tensor rows x cols with r chunk slices.
+fn uperf_m_bench(rows: usize, cols: usize, r: usize) {
+    println!("[UPERF2-M] bench {rows}x{cols} r {r}: (skeleton)");
+}
+
+/// [UPERF2-M] SHA-256 block throughput (the CRS XOF's unit): is SHA-NI
+/// in use? Reports blocks/s and ns/block for `n` blocks of key || i.
+fn uperf_m_sha_bench(n: usize) {
+    use sha2::{Digest, Sha256};
+    let key = [0x5Au8; 32];
+    let t0 = Instant::now();
+    let mut acc = 0u64;
+    for i in 0..n {
+        let mut h = Sha256::new();
+        h.update(key);
+        h.update((i as u64).to_le_bytes());
+        let d: [u8; 32] = h.finalize().into();
+        acc ^= u64::from_le_bytes(d[..8].try_into().unwrap());
+    }
+    let s = t0.elapsed().as_secs_f64();
+    println!(
+        "[UPERF2-M] sha-bench: {n} blocks (40 B input each) in {s:.3}s = {:.1} ns/block, {:.1} M blocks/s (1T; xor {acc:#x}); sha_ni cpu flag: {}",
+        s * 1e9 / n as f64,
+        n as f64 / s / 1e6,
+        std::arch::is_x86_feature_detected!("sha")
     );
 }
