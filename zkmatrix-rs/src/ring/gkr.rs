@@ -92,15 +92,35 @@ struct PackedTree {
     compact: Option<CompactLeaves>,
     /// The bulk kernel context (for the on-demand recompute).
     kern: super::kfield::KKern,
+    /// [UPERF2-N] The device tree store's id when the BIG layers (>
+    /// K9_SMALL_LAYER_N elements) live on the device: the leaves (compact
+    /// words, or the packed leaf tables) and the checkpointed layers are
+    /// resident there, gap layers are climbed there on demand, and NO host
+    /// copy of a big layer exists unless a CPU reader materialized it
+    /// (`ensure_host`). The small top layers are stored here as always.
+    dev: Option<u64>,
+}
+
+impl Drop for PackedTree {
+    fn drop(&mut self) {
+        if let Some(id) = self.dev.take() {
+            super::gpu::k9_tree_drop(id);
+        }
+    }
 }
 
 /// [UPERF2-H] One tree layer as the descent reads it: a stored layer (a
 /// read guard on the store), a recomputed gap layer (owned), or the
 /// compact leaves. `blk_src()` is the kernels' view.
+/// [UPERF2-N] `Device`: a device tree's big layer — a descriptor the fused
+/// rounds hand to the GPU hook (read in place / climbed there); CPU readers
+/// materialize it once per handle into `host` (or read the compact leaves'
+/// host copy when it is the leaf layer).
 pub(crate) enum LayerSrc<'a> {
     Stored(std::sync::RwLockReadGuard<'a, Option<(KTab, KTab)>>),
     Owned(KTab, KTab),
     Compact(&'a CompactLeaves),
+    Device { dev: super::kfield::DevLayer, host: std::sync::OnceLock<(KTab, KTab)>, compact: Option<&'a CompactLeaves> },
 }
 
 impl<'a> LayerSrc<'a> {
@@ -112,10 +132,12 @@ impl<'a> LayerSrc<'a> {
             }
             LayerSrc::Owned(p, q) => BlkSrc::Packed { p: &p.d, q: &q.d },
             LayerSrc::Compact(c) => BlkSrc::Compact(c),
+            LayerSrc::Device { dev, host, compact } => BlkSrc::Device { dev: *dev, host, compact: *compact },
         }
     }
 
     /// The (p, q) tables when the layer is packed (None: compact leaves).
+    /// [UPERF2-N] a device layer is materialized on the host here (once).
     pub(crate) fn tabs(&self) -> Option<(&KTab, &KTab)> {
         match self {
             LayerSrc::Stored(g) => {
@@ -124,6 +146,14 @@ impl<'a> LayerSrc<'a> {
             }
             LayerSrc::Owned(p, q) => Some((p, q)),
             LayerSrc::Compact(_) => None,
+            LayerSrc::Device { compact: Some(_), .. } => None,
+            LayerSrc::Device { dev, host, .. } => {
+                let (p, q) = host.get_or_init(|| {
+                    super::gpu::k9_tree_fetch(*dev)
+                        .unwrap_or_else(|| panic!("[UPERF2-N] device tree {} layer {} cannot be materialized on the host", dev.tree, dev.k))
+                });
+                Some((p, q))
+            }
         }
     }
 
@@ -132,6 +162,7 @@ impl<'a> LayerSrc<'a> {
             LayerSrc::Stored(g) => g.as_ref().expect("stored layer").0.n,
             LayerSrc::Owned(p, _) => p.n,
             LayerSrc::Compact(c) => c.n,
+            LayerSrc::Device { dev, .. } => dev.n,
         }
     }
 
@@ -145,6 +176,12 @@ impl<'a> LayerSrc<'a> {
 }
 
 impl PackedTree {
+    /// [UPERF2-N] Is layer k one the device store answers (a big layer of a
+    /// device tree that no CPU reader has materialized into the host store)?
+    fn on_device(&self, k: usize) -> bool {
+        self.dev.is_some() && (1usize << k) > super::kfield::K9_SMALL_LAYER_N
+    }
+
     fn layer(&self, k: usize) -> LayerSrc<'_> {
         assert!(k <= self.depth, "layer index");
         {
@@ -152,6 +189,17 @@ impl PackedTree {
             if g.is_some() {
                 return LayerSrc::Stored(g);
             }
+        }
+        // [UPERF2-N] a device tree's big layer: the descriptor (the fused
+        // rounds read it in place on the device; a CPU reader materializes it
+        // through the handle — the compact leaves' host copy directly).
+        if self.on_device(k) {
+            let compact = if k == self.depth { self.compact.as_ref() } else { None };
+            return LayerSrc::Device {
+                dev: super::kfield::DevLayer { tree: self.dev.unwrap(), k, n: 1usize << k },
+                host: std::sync::OnceLock::new(),
+                compact,
+            };
         }
         if k == self.depth {
             if let Some(c) = &self.compact {
@@ -185,12 +233,39 @@ impl PackedTree {
     /// at the peak — the bottom rounds' peak sits at layer depth-1 — and
     /// keeping them makes a second descent over the same tree possible:
     /// every released layer is then recomputed from them, slowly).
+    /// [UPERF2-N] a device tree's resident checkpoint goes back the same
+    /// way (`k9_tree_release`; a later read climbs it from below).
     fn release(&self, k: usize) {
         if k >= self.depth || (1usize << k) <= super::kfield::K9_SMALL_LAYER_N {
             return;
         }
+        {
+            let mut g = self.layers[k].write().expect("tree layer lock");
+            *g = None;
+        }
+        if let Some(id) = self.dev {
+            super::gpu::k9_tree_release(id, k);
+        }
+    }
+
+    /// [UPERF2-N] Bring a device tree's big layer k into the HOST store
+    /// (for the element readers — `p_elem/q_elem` on the ref/scalar/harness
+    /// paths — so that they do not materialize the layer per element). A
+    /// compact leaf layer needs nothing (its host copy is read directly).
+    fn ensure_host(&self, k: usize) {
+        if !self.on_device(k) || (k == self.depth && self.compact.is_some()) {
+            return;
+        }
+        if self.layers[k].read().expect("tree layer lock").is_some() {
+            return;
+        }
         let mut g = self.layers[k].write().expect("tree layer lock");
-        *g = None;
+        if g.is_none() {
+            let dev = super::kfield::DevLayer { tree: self.dev.unwrap(), k, n: 1usize << k };
+            let (p, q) = super::gpu::k9_tree_fetch(dev)
+                .unwrap_or_else(|| panic!("[UPERF2-N] device tree {} layer {} cannot be materialized on the host", dev.tree, dev.k));
+            *g = Some((p, q));
+        }
     }
 
     /// Bytes of packed layers currently stored (+ the compact leaves).
@@ -202,6 +277,11 @@ impl PackedTree {
             }
         }
         b + self.compact.as_ref().map(|c| c.bytes()).unwrap_or(0)
+    }
+
+    /// [UPERF2-N] Device bytes held by this tree's store entry (0 = host tree).
+    fn device_bytes(&self) -> usize {
+        self.dev.map(super::gpu::k9_tree_bytes).unwrap_or(0)
     }
 }
 
@@ -218,10 +298,14 @@ impl FracTree {
         [self.p_elem(0, 0), self.q_elem(0, 0)]
     }
 
-    /// Scalar element access (any representation).
+    /// Scalar element access (any representation). [UPERF2-N] a device
+    /// tree's big layer is brought into the host store first (once).
     pub(crate) fn p_elem(&self, layer: usize, i: usize) -> KElem {
         match &self.repr {
-            TreeRepr::Packed(t) => t.layer(layer).get_p(i),
+            TreeRepr::Packed(t) => {
+                t.ensure_host(layer);
+                t.layer(layer).get_p(i)
+            }
             TreeRepr::Boxed { lp, .. } => lp[layer][i].clone(),
             TreeRepr::Neutral { depth } => {
                 debug_assert!(layer <= *depth && i < (1usize << layer));
@@ -232,7 +316,10 @@ impl FracTree {
 
     pub(crate) fn q_elem(&self, layer: usize, i: usize) -> KElem {
         match &self.repr {
-            TreeRepr::Packed(t) => t.layer(layer).get_q(i),
+            TreeRepr::Packed(t) => {
+                t.ensure_host(layer);
+                t.layer(layer).get_q(i)
+            }
             TreeRepr::Boxed { lq, .. } => lq[layer][i].clone(),
             TreeRepr::Neutral { depth } => {
                 debug_assert!(layer <= *depth && i < (1usize << layer));
@@ -270,13 +357,60 @@ impl FracTree {
         }
     }
 
-    /// [UPERF2-H] Bytes of packed layers currently held by this tree
-    /// (observation only; boxed trees report 0).
+    /// [UPERF2-H] Bytes of packed layers currently held by this tree ON THE
+    /// HOST (observation only; boxed trees report 0).
     pub fn resident_bytes(&self) -> usize {
         match &self.repr {
             TreeRepr::Packed(t) => t.resident_bytes(),
             _ => 0,
         }
+    }
+
+    /// [UPERF2-N] Bytes of this tree held ON THE DEVICE (0 = a host tree).
+    pub fn device_bytes(&self) -> usize {
+        match &self.repr {
+            TreeRepr::Packed(t) => t.device_bytes(),
+            _ => 0,
+        }
+    }
+
+    /// [UPERF2-N] Is this a packed tree whose big layers live on the device?
+    pub fn is_device_resident(&self) -> bool {
+        matches!(&self.repr, TreeRepr::Packed(t) if t.dev.is_some())
+    }
+
+    /// [UPERF2-N] Harness accessor: the packed words (p, q) of layer k of a
+    /// packed tree, materialized through the same handles the descent uses
+    /// (a device layer is fetched / climbed on the device; compact leaves are
+    /// expanded) — for the cell-by-cell battery. Boxed / neutral trees:
+    /// element by element.
+    pub fn harness_layer_words(&self, k: usize) -> (Vec<u32>, Vec<u32>) {
+        assert!(k <= self.depth());
+        let n = 1usize << k;
+        if let TreeRepr::Packed(t) = &self.repr {
+            let lay = t.layer(k);
+            let src = lay.blk_src();
+            let mut scratch = super::kfield::ExpandScratch::default();
+            if n >= KL {
+                let nblk = n / KL;
+                let (p, q) = src.blocks(0, nblk, &mut scratch);
+                return (p[..nblk * super::kfield::KBLK].to_vec(), q[..nblk * super::kfield::KBLK].to_vec());
+            }
+            let mut tp = KTab::zeroed(n);
+            let mut tq = KTab::zeroed(n);
+            for i in 0..n {
+                tp.set(i, &src.get_p(i));
+                tq.set(i, &src.get_q(i));
+            }
+            return (tp.d.clone(), tq.d.clone());
+        }
+        let mut tp = KTab::zeroed(n);
+        let mut tq = KTab::zeroed(n);
+        for i in 0..n {
+            tp.set(i, &self.p_elem(k, i));
+            tq.set(i, &self.q_elem(k, i));
+        }
+        (tp.d.clone(), tq.d.clone())
     }
 
     /// Bulk-path eligible: packed layers or the (implicitly packed)
@@ -759,7 +893,31 @@ fn build_tree_from(kf: &KField, leaves: LeafStore) -> FracTree {
         LeafStore::Packed(p, q) => (Some((p, q)), None),
         LeafStore::Compact(c) => (None, Some(c)),
     };
-    for k in (0..depth).rev() {
+    // [UPERF2-N] THE DEVICE BUILD: the leaves go up once, the big layers are
+    // computed and kept (per the checkpoint policy) on the device, and the
+    // smallest big layer comes back so that the loop below builds the small
+    // top layers exactly as before from it (`start_k`). No host copy of a
+    // big layer is kept (the compact leaves' host copy stays — CPU readers
+    // read it directly; packed leaves' host copy is dropped with `cur`).
+    // Declined (feature/knob off, oracle, shape, VRAM): the CPU build below.
+    let mut dev: Option<u64> = None;
+    let mut start_k = depth;
+    if !oracle && super::gpu::enabled() && n > super::kfield::K9_SMALL_LAYER_N {
+        let src = match (&cur, &compact) {
+            (Some((p, q)), _) => super::kfield::TreeLeaves::Packed { p: &p.d, q: &q.d, n },
+            (None, Some(c)) => super::kfield::TreeLeaves::Compact(c),
+            _ => unreachable!("leaves"),
+        };
+        if let Some(b) = super::gpu::k9_tree_build(kern, &src, depth) {
+            dev = Some(b.id);
+            start_k = b.top_k;
+            cur = Some((b.top_p, b.top_q));
+        }
+    }
+    // The host store keeps: the CPU policy's layers (a host tree), or the
+    // small top layers only (a device tree — the loop starts at start_k).
+    let keep_h = |k: usize| -> bool { if dev.is_some() { k < start_k } else { keep(k) } };
+    for k in (0..start_k).rev() {
         let half = 1usize << k;
         // [UPERF2-G] every element is written by the step (recycled buffers).
         let mut np = KTab::recycled(half);
@@ -783,14 +941,14 @@ fn build_tree_from(kf: &KField, leaves: LeafStore) -> FracTree {
         }
         // Layer k+1 is complete below layer k: store it or drop it.
         if let Some(pq) = cur.take() {
-            if keep(k + 1) {
+            if keep_h(k + 1) {
                 *layers[k + 1].get_mut().expect("tree layer lock") = Some(pq);
             }
         }
         cur = Some((np, nq));
     }
     *layers[0].get_mut().expect("tree layer lock") = cur;
-    FracTree { repr: TreeRepr::Packed(PackedTree { depth, layers, compact, kern: *kern }) }
+    FracTree { repr: TreeRepr::Packed(PackedTree { depth, layers, compact, kern: *kern, dev }) }
 }
 
 /// The original boxed builder — the scalar oracle path, unchanged math.

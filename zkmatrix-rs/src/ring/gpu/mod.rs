@@ -51,6 +51,11 @@ pub use cuda::{
 };
 #[cfg(feature = "gpu-cuda")]
 pub use k9::{k9_fused_round, k9_ixf_round, k9_label, k9_set_cold_ok, k9_set_eager, k9_set_min_pairs, k9_set_tree, k9_stats, k9_stats_reset, k9_tree_climb, kt_fold, K9Stats};
+// [UPERF2-N] The device tree store (k9.rs): the descent tree built and kept
+// on the device, read in place by the fused rounds, materialized on demand
+// for CPU readers.
+#[cfg(feature = "gpu-cuda")]
+pub use k9::{k9_set_tree_store, k9_tree_build, k9_tree_bytes, k9_tree_drop, k9_tree_fetch, k9_tree_release};
 
 // ---------------------------------------------------------------------------
 // The stub (default build): the hook compiles to a constant-false test.
@@ -117,7 +122,23 @@ mod stub {
     pub fn stats_reset() {}
 
     // ---- [UPERF2-L] the K-field kernels' hooks (never live without the feature).
-    use super::super::kfield::{BlkSrc, FusedPlan, KElem, KField, KKern, KTab, K_DEG};
+    use super::super::kfield::{BlkSrc, DevLayer, DevTreeBuilt, FusedPlan, KElem, KField, KKern, KTab, TreeLeaves, K_DEG};
+
+    // ---- [UPERF2-N] the device tree store (never live without the feature).
+    /// The device build: `None` = the CPU build runs.
+    pub fn k9_tree_build(_kern: &KKern, _leaves: &TreeLeaves, _depth: usize) -> Option<DevTreeBuilt> {
+        None
+    }
+    /// Never called without the feature (no device tree exists).
+    pub fn k9_tree_fetch(_dev: DevLayer) -> Option<(KTab, KTab)> {
+        None
+    }
+    pub fn k9_tree_release(_tree: u64, _k: usize) {}
+    pub fn k9_tree_drop(_tree: u64) {}
+    pub fn k9_tree_bytes(_tree: u64) -> usize {
+        0
+    }
+    pub fn k9_set_tree_store(_on: Option<bool>) {}
     /// The fused descent round: `Err(tabs)` = the CPU body runs.
     #[allow(clippy::too_many_arguments)]
     pub fn k9_fused_round<'a>(
@@ -174,6 +195,18 @@ mod stub {
         pub secs_kernel: f64,
         pub secs_up_memcpy: f64,
         pub secs_up_wait: f64,
+        // [UPERF2-N]
+        pub tree_builds: u64,
+        pub tree_declined: u64,
+        pub secs_tree_build: f64,
+        pub bytes_tree_leaves: u64,
+        pub layer_resident: u64,
+        pub dev_climbs: u64,
+        pub secs_dev_climb: f64,
+        pub tree_fetches: u64,
+        pub secs_tree_fetch: f64,
+        pub tree_bytes_peak: u64,
+        pub held_peak: u64,
     }
     pub fn k9_stats() -> K9Stats {
         K9Stats::default()

@@ -1664,19 +1664,23 @@ pub(crate) fn k9_fused_round_par(
                 let lay = &plan.layers[ri];
                 let la = a - lay.first_pair;
                 let (f, fe) = if plan.mode == FUSE_EXTRACT { (4, 2) } else { (8, 4) };
-                match &lay.src {
-                    BlkSrc::Packed { p, q } => (
+                // [UPERF2-N] a device layer reaches the CPU body only when the
+                // hook declined: its compact leaves are read directly, else its
+                // host image (materialized once per handle).
+                match (lay.src.compact(), lay.src.host_tabs()) {
+                    (Some(c), _) => (
+                        &eq_src[fe * la * KBLK..fe * (la + n) * KBLK],
+                        lay.ee,
+                        [Default::default(), Default::default(), Default::default(), Default::default()],
+                        Some((c, f * la, f, fe)),
+                    ),
+                    (None, Some((p, q))) => (
                         &eq_src[fe * la * KBLK..fe * (la + n) * KBLK],
                         lay.ee,
                         [&p[f * la * KBLK..f * (la + n) * KBLK], &q[f * la * KBLK..f * (la + n) * KBLK], Default::default(), Default::default()],
                         None,
                     ),
-                    BlkSrc::Compact(c) => (
-                        &eq_src[fe * la * KBLK..fe * (la + n) * KBLK],
-                        lay.ee,
-                        [Default::default(), Default::default(), Default::default(), Default::default()],
-                        Some((*c, f * la, f, fe)),
-                    ),
+                    (None, None) => unreachable!("a layer source is packed, compact or a device layer"),
                 }
             };
             let dst_eq = std::mem::take(&mut eq_pieces[ji]);
@@ -2908,6 +2912,22 @@ impl CompactLeaves {
         self.exc.len()
     }
 
+    /// [UPERF2-N] The word pairs (2 per leaf; the device store uploads them
+    /// as they are — the same encoding lane L's device decode reads).
+    pub(crate) fn words(&self) -> &[u32] {
+        &self.w
+    }
+
+    /// [UPERF2-N] alpha's canonical coordinates (the decode's tail 2..).
+    pub(crate) fn alpha_words(&self) -> &[u32; K_DEG] {
+        &self.alpha
+    }
+
+    /// [UPERF2-N] The exceptions (index, p, q), sorted by index.
+    pub(crate) fn exceptions(&self) -> &[(usize, [u32; K_DEG], [u32; K_DEG])] {
+        &self.exc
+    }
+
     /// Bytes held (the word pairs + the exceptions).
     pub(crate) fn bytes(&self) -> usize {
         self.w.len() * 4 + self.exc.len() * (8 + 8 * K_DEG)
@@ -2995,11 +3015,47 @@ impl CompactLeaves {
     }
 }
 
+/// [UPERF2-N] A layer of a DEVICE-RESIDENT tree (the GPU tree store of
+/// gpu/k9.rs): the store's tree id, the layer index and its element count.
+/// A descriptor only — the device path reads the layer in place (a resident
+/// checkpoint, the compact leaves, or a device climb from the nearest
+/// resident layer below); CPU readers materialize it once through
+/// `BlkSrc::Device`'s host cell (`gpu::k9_tree_fetch`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct DevLayer {
+    pub tree: u64,
+    pub k: usize,
+    pub n: usize,
+}
+
+/// [UPERF2-N] The leaves a device tree build starts from (the packed leaf
+/// tables, or the compact leaves — uploaded once as their words).
+pub(crate) enum TreeLeaves<'a> {
+    Packed { p: &'a [u32], q: &'a [u32], n: usize },
+    Compact(&'a CompactLeaves),
+}
+
+/// [UPERF2-N] What the device tree build hands back: the store's tree id and
+/// the SMALLEST BIG layer (index `top_k`, 2^top_k > K9_SMALL_LAYER_N >=
+/// 2^(top_k-1)) downloaded once, from which the host loop builds the small
+/// top layers exactly as before.
+pub(crate) struct DevTreeBuilt {
+    pub id: u64,
+    pub top_k: usize,
+    pub top_p: KTab,
+    pub top_q: KTab,
+}
+
 /// A read source of packed (p, q) blocks: a stored/owned packed layer, or
 /// the compact leaves expanded on demand.
 pub(crate) enum BlkSrc<'a> {
     Packed { p: &'a [u32], q: &'a [u32] },
     Compact(&'a CompactLeaves),
+    /// [UPERF2-N] a device-resident layer; `host` caches the packed tables
+    /// materialized for CPU readers (`get_p/get_q/blocks/host_tabs`), and
+    /// `compact` is the host copy of the compact leaves when the layer is
+    /// the leaf layer (read directly — no download).
+    Device { dev: DevLayer, host: &'a std::sync::OnceLock<(KTab, KTab)>, compact: Option<&'a CompactLeaves> },
 }
 
 /// Expansion scratch of `BlkSrc::blocks` (grown as needed, reused).
@@ -3016,10 +3072,43 @@ fn packed_get(d: &[u32], i: usize) -> KElem {
 }
 
 impl<'a> BlkSrc<'a> {
+    /// [UPERF2-N] The host image of a device layer (materialized once per
+    /// handle: a download of a resident layer, or a device climb + download;
+    /// panics if the tree is gone — a protocol violation, never a value
+    /// change). Packed sources return their own slices; the compact leaves
+    /// have no packed image (None).
+    pub(crate) fn host_tabs(&self) -> Option<(&'a [u32], &'a [u32])> {
+        match self {
+            BlkSrc::Packed { p, q } => Some((p, q)),
+            BlkSrc::Compact(_) => None,
+            BlkSrc::Device { compact: Some(_), .. } => None,
+            BlkSrc::Device { dev, host, .. } => {
+                let (p, q) = host.get_or_init(|| {
+                    super::gpu::k9_tree_fetch(*dev)
+                        .unwrap_or_else(|| panic!("[UPERF2-N] device tree {} layer {} cannot be materialized on the host", dev.tree, dev.k))
+                });
+                Some((&p.d, &q.d))
+            }
+        }
+    }
+
+    /// [UPERF2-N] The compact leaves behind this source, if any.
+    pub(crate) fn compact(&self) -> Option<&'a CompactLeaves> {
+        match self {
+            BlkSrc::Compact(c) => Some(c),
+            BlkSrc::Device { compact, .. } => *compact,
+            BlkSrc::Packed { .. } => None,
+        }
+    }
+
     pub(crate) fn get_p(&self, i: usize) -> KElem {
         match self {
             BlkSrc::Packed { p, .. } => packed_get(p, i),
             BlkSrc::Compact(c) => c.get_p(i),
+            BlkSrc::Device { .. } => match self.compact() {
+                Some(c) => c.get_p(i),
+                None => packed_get(self.host_tabs().expect("device layer image").0, i),
+            },
         }
     }
 
@@ -3027,23 +3116,37 @@ impl<'a> BlkSrc<'a> {
         match self {
             BlkSrc::Packed { q, .. } => packed_get(q, i),
             BlkSrc::Compact(c) => c.get_q(i),
+            BlkSrc::Device { .. } => match self.compact() {
+                Some(c) => c.get_q(i),
+                None => packed_get(self.host_tabs().expect("device layer image").1, i),
+            },
         }
     }
 
     /// The blocks [blk0, blk0 + nblk) of p and q: sub-slices of a packed
     /// source, or the compact leaves expanded into `scratch`.
+    /// [UPERF2-N] a device layer: its compact leaves (expanded), or its host
+    /// image (materialized once).
     pub(crate) fn blocks<'s>(&'s self, blk0: usize, nblk: usize, scratch: &'s mut ExpandScratch) -> (&'s [u32], &'s [u32]) {
+        let expand = |c: &CompactLeaves, scratch: &'s mut ExpandScratch| -> (&'s [u32], &'s [u32]) {
+            let words = nblk * KBLK;
+            if scratch.p.len() < words {
+                scratch.p.resize(words, 0);
+                scratch.q.resize(words, 0);
+            }
+            c.expand_blocks(blk0, nblk, &mut scratch.p, &mut scratch.q);
+            (&scratch.p[..words], &scratch.q[..words])
+        };
         match self {
             BlkSrc::Packed { p, q } => (&p[blk0 * KBLK..(blk0 + nblk) * KBLK], &q[blk0 * KBLK..(blk0 + nblk) * KBLK]),
-            BlkSrc::Compact(c) => {
-                let words = nblk * KBLK;
-                if scratch.p.len() < words {
-                    scratch.p.resize(words, 0);
-                    scratch.q.resize(words, 0);
+            BlkSrc::Compact(c) => expand(c, scratch),
+            BlkSrc::Device { .. } => match self.compact() {
+                Some(c) => expand(c, scratch),
+                None => {
+                    let (p, q) = self.host_tabs().expect("device layer image");
+                    (&p[blk0 * KBLK..(blk0 + nblk) * KBLK], &q[blk0 * KBLK..(blk0 + nblk) * KBLK])
                 }
-                c.expand_blocks(blk0, nblk, &mut scratch.p, &mut scratch.q);
-                (&scratch.p[..words], &scratch.q[..words])
-            }
+            },
         }
     }
 }

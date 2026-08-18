@@ -66,10 +66,32 @@
 // chains may hold; default = free VRAM at first use minus 512 MB),
 // ZK_GPU_K9_EAGER=1 (write every round's state back to the host — the
 // battery's cell-by-cell mode; slower), ZK_GPU_VERBOSE=1 (a line per call).
+//
+// [UPERF2-N] THE DEVICE TREE STORE (k9_tree_build / k9_tree_fetch /
+// k9_tree_release / k9_tree_drop; gkr.rs `build_tree_from` + `FracTree::
+// layer`): a packed descent tree whose BIG layers (> K9_SMALL_LAYER_N
+// elements) live on the device — the leaves go up ONCE (the compact words
+// as they are, or the packed leaf tables), the bottom-up steps run here
+// (`k_tree_step[_cl]`), the checkpointed layers (stride max(ZK_K9_CHECKPOINT,
+// 2)) stay RESIDENT, the gap layers are freed as soon as the layer above
+// exists, and the smallest big layer is downloaded once so the host loop
+// builds the small top layers as before. The descent's fused rounds 0/1
+// then present `BlkSrc::Device` layers: a resident checkpoint or the compact
+// leaves are read IN PLACE, a gap layer is CLIMBED here from the nearest
+// resident layer below into the layer buffers (freed after round 1) — no
+// per-layer upload, no host layer store. `release_layer(k)` frees the
+// resident checkpoint (lane H's top-down discipline; the leaves are never
+// released), `Drop` frees the tree. Any CPU reader of a device layer
+// (fusion off, a declined hook, the ref/scalar paths, the harness) gets the
+// layer materialized on demand (`k9_tree_fetch`: a download, or a climb +
+// download) — the same integers, so the same tree on every path. The store's
+// bytes count in the VRAM budget and are never released by `release_idle`.
+// Knob: ZK_GPU_K9_TREE_STORE=0 (the A/B; the CPU build + L's uploads).
 
 use super::super::eval_proof::{oracle_mode, threads};
 use super::super::kfield::{
-    BlkSrc, CompactLeaves, FusedPlan, KElem, KField, KKern, KTab, FUSE_EXTRACT, FUSE_EXTRACT_FOLD, FUSE_FOLD, KBLK, KL, K_DEG,
+    BlkSrc, CompactLeaves, DevLayer, DevTreeBuilt, FusedPlan, KElem, KField, KKern, KTab, TreeLeaves, FUSE_EXTRACT, FUSE_EXTRACT_FOLD, FUSE_FOLD, KBLK,
+    KL, K9_SMALL_LAYER_N, K_DEG,
 };
 use super::cuda::{device_handle, env_flag, env_usize, verbose, DevBuf, HostPinned, POOL};
 use cudarc::driver::result as cu;
@@ -104,10 +126,9 @@ fn stg_bytes() -> usize {
     static V: OnceLock<usize> = OnceLock::new();
     *V.get_or_init(|| env_usize("ZK_GPU_K9_STG_MB", 32).max(1) << 20)
 }
-/// Largest exception list the compact re-encoding accepts per instance.
+/// Largest exception list the compact leaves may carry to the device per
+/// instance (the device decode scans it per element).
 const CL_MAX_EXC: usize = 1 << 14;
-/// Blocks per re-encoding chunk (128 KB of scratch per table per thread).
-const CL_CHUNK_BLK: usize = 256;
 
 // ---------------------------------------------------------------------------
 // Kernel parameters (== struct K9P in kernels_k9.cu): scalars + the device
@@ -275,6 +296,27 @@ pub struct K9Stats {
     /// Inside the uploads: host memcpy into pinned staging / waits for the DMA.
     pub secs_up_memcpy: f64,
     pub secs_up_wait: f64,
+    // [UPERF2-N] the device tree store.
+    /// Trees built on the device / declined (budget, shape).
+    pub tree_builds: u64,
+    pub tree_declined: u64,
+    /// Seconds inside the device builds (leaf upload + steps + the top download).
+    pub secs_tree_build: f64,
+    /// Bytes of leaves uploaded by the builds.
+    pub bytes_tree_leaves: u64,
+    /// Fused-round layer bindings that read a resident layer / the compact
+    /// leaves IN PLACE (no upload, no climb).
+    pub layer_resident: u64,
+    /// Gap layers climbed on the device inside the fused-round binding.
+    pub dev_climbs: u64,
+    pub secs_dev_climb: f64,
+    /// Host materializations of device layers (CPU readers; a download or a
+    /// climb + download) and their seconds.
+    pub tree_fetches: u64,
+    pub secs_tree_fetch: f64,
+    /// Peak device bytes held by the store / by all K9 buffers.
+    pub tree_bytes_peak: u64,
+    pub held_peak: u64,
 }
 static S_ROUNDS: AtomicU64 = AtomicU64::new(0);
 static S_DECLINED: AtomicU64 = AtomicU64::new(0);
@@ -296,9 +338,25 @@ static S_CLIMB_D2H_US: AtomicU64 = AtomicU64::new(0);
 static S_KERNEL_US: AtomicU64 = AtomicU64::new(0);
 static S_UPWAIT_US: AtomicU64 = AtomicU64::new(0);
 static S_UPMEMCPY_US: AtomicU64 = AtomicU64::new(0);
+// [UPERF2-N]
+static S_TREE_BUILDS: AtomicU64 = AtomicU64::new(0);
+static S_TREE_DECLINED: AtomicU64 = AtomicU64::new(0);
+static S_TREE_BUILD_US: AtomicU64 = AtomicU64::new(0);
+static S_TREE_LEAF_BYTES: AtomicU64 = AtomicU64::new(0);
+static S_LAYER_RESIDENT: AtomicU64 = AtomicU64::new(0);
+static S_DEV_CLIMBS: AtomicU64 = AtomicU64::new(0);
+static S_DEV_CLIMB_US: AtomicU64 = AtomicU64::new(0);
+static S_TREE_FETCHES: AtomicU64 = AtomicU64::new(0);
+static S_TREE_FETCH_US: AtomicU64 = AtomicU64::new(0);
+static S_TREE_BYTES_PEAK: AtomicU64 = AtomicU64::new(0);
+static S_HELD_PEAK: AtomicU64 = AtomicU64::new(0);
 
 fn add_us(s: &AtomicU64, secs: f64) {
     s.fetch_add((secs * 1e6) as u64, Ordering::Relaxed);
+}
+
+fn note_peak(s: &AtomicU64, v: usize) {
+    s.fetch_max(v as u64, Ordering::Relaxed);
 }
 
 pub fn k9_stats() -> K9Stats {
@@ -324,6 +382,17 @@ pub fn k9_stats() -> K9Stats {
         secs_kernel: us(&S_KERNEL_US),
         secs_up_memcpy: us(&S_UPMEMCPY_US),
         secs_up_wait: us(&S_UPWAIT_US),
+        tree_builds: S_TREE_BUILDS.load(Ordering::Relaxed),
+        tree_declined: S_TREE_DECLINED.load(Ordering::Relaxed),
+        secs_tree_build: us(&S_TREE_BUILD_US),
+        bytes_tree_leaves: S_TREE_LEAF_BYTES.load(Ordering::Relaxed),
+        layer_resident: S_LAYER_RESIDENT.load(Ordering::Relaxed),
+        dev_climbs: S_DEV_CLIMBS.load(Ordering::Relaxed),
+        secs_dev_climb: us(&S_DEV_CLIMB_US),
+        tree_fetches: S_TREE_FETCHES.load(Ordering::Relaxed),
+        secs_tree_fetch: us(&S_TREE_FETCH_US),
+        tree_bytes_peak: S_TREE_BYTES_PEAK.load(Ordering::Relaxed),
+        held_peak: S_HELD_PEAK.load(Ordering::Relaxed),
     }
 }
 
@@ -331,9 +400,29 @@ pub fn k9_stats_reset() {
     for s in [
         &S_ROUNDS, &S_DECLINED, &S_LAYER_UP, &S_LAYER_HIT, &S_H2D, &S_D2H, &S_ROUND_US, &S_UPLOAD_US, &S_ENCODE_US, &S_HANDOVER_US, &S_IXF_ROUNDS,
         &S_IXF_FOLDS, &S_IXF_HITS, &S_IXF_US, &S_CLIMBS, &S_CLIMB_US, &S_CLIMB_D2H_US, &S_KERNEL_US, &S_UPWAIT_US, &S_UPMEMCPY_US,
+        &S_TREE_BUILDS, &S_TREE_DECLINED, &S_TREE_BUILD_US, &S_TREE_LEAF_BYTES, &S_LAYER_RESIDENT, &S_DEV_CLIMBS, &S_DEV_CLIMB_US, &S_TREE_FETCHES,
+        &S_TREE_FETCH_US, &S_TREE_BYTES_PEAK, &S_HELD_PEAK,
     ] {
         s.store(0, Ordering::Relaxed);
     }
+}
+
+// [UPERF2-N] The device tree store knob: `ZK_GPU_K9_TREE_STORE=0` keeps the
+// trees on the host (the CPU build + lane L's per-layer uploads — the A/B);
+// `k9_set_tree_store` is the harness override.
+static TREE_STORE_OVERRIDE: AtomicU64 = AtomicU64::new(0); // 0 = env, 1 = on, 2 = off
+fn tree_store_enabled() -> bool {
+    match TREE_STORE_OVERRIDE.load(Ordering::Relaxed) {
+        1 => return true,
+        2 => return false,
+        _ => {}
+    }
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("ZK_GPU_K9_TREE_STORE").map(|v| v != "0").unwrap_or(true))
+}
+/// Harness knob: the device tree store on/off (None = the env / default).
+pub fn k9_set_tree_store(on: Option<bool>) {
+    TREE_STORE_OVERRIDE.store(match on { Some(true) => 1, Some(false) => 2, None => 0 }, Ordering::Relaxed);
 }
 
 // ---------------------------------------------------------------------------
@@ -362,10 +451,14 @@ struct Chain {
     buf: usize,
 }
 
-/// One instance's layer on the device (round 0 -> round 1).
+/// One instance's layer on the device (round 0 -> round 1): absolute device
+/// pointers of the instance's layer block 0 (an upload into the layer
+/// buffers, a device climb into them, or — [UPERF2-N] — a resident layer /
+/// the compact leaves of the tree store read in place).
 enum LayerDev {
-    Packed { p_blk0: usize, q_blk0: usize, n_blk: usize },
-    Compact { w_off: usize, meta_off: usize, n_exc: usize, n_leaves: usize },
+    Packed { p: u64, q: u64 },
+    /// `meta` = alpha[16] then n_exc x (idx, p[16], q[16]).
+    Compact { w: u64, meta: u64, n_exc: usize },
 }
 
 /// The identity of an instance's layer as the plan presents it.
@@ -373,6 +466,23 @@ enum LayerDev {
 enum LayerId {
     Packed { p: usize, q: usize, p_len: usize, q_len: usize },
     Compact { c: usize, n: usize },
+    /// [UPERF2-N] a device tree's layer.
+    Device { tree: u64, k: usize },
+}
+
+/// [UPERF2-N] One tree of the device store.
+struct DevTree {
+    depth: usize,
+    /// The bulk kernel context (the K9P scalars of its steps).
+    kern: KKern,
+    /// Resident packed layers (p, q) by index — the checkpoints among the
+    /// big layers, and the packed leaves at `depth` when not compact.
+    layers: Vec<Option<(DevBuf, DevBuf)>>,
+    /// The compact leaves: (words: 2 per leaf, meta: alpha[16] + the
+    /// exceptions x 33 words, n_exc).
+    compact: Option<(DevBuf, DevBuf, usize)>,
+    /// Device bytes held by this tree.
+    bytes: usize,
 }
 
 struct LayerRes {
@@ -433,6 +543,12 @@ struct K9 {
     // Tree.
     tree_src: [DevBuf; 2],
     tree_out: [DevBuf; 2],
+    // [UPERF2-N] The device tree store + the intermediate-level scratch of
+    // the in-hook climbs (descent family: freed with the layer buffers).
+    trees: std::collections::HashMap<u64, DevTree>,
+    next_tree: u64,
+    tree_bytes: usize,
+    climb_scr: [DevBuf; 2],
     // Budget.
     budget: usize,
     held: usize,
@@ -571,6 +687,10 @@ fn init_k9() -> Result<K9, String> {
         ixf: None,
         tree_src: [DevBuf::empty(), DevBuf::empty()],
         tree_out: [DevBuf::empty(), DevBuf::empty()],
+        trees: std::collections::HashMap::new(),
+        next_tree: 1,
+        tree_bytes: 0,
+        climb_scr: [DevBuf::empty(), DevBuf::empty()],
         budget,
         held: 0,
         last_kernel_ms: 0.0,
@@ -607,11 +727,14 @@ pub fn k9_label() -> String {
         Some(k) => {
             let k = k.lock().unwrap();
             format!(
-                "k9: on — K-field kernels on the device (budget {:.2} GB, held {:.2} GB, min_pairs {}, eager {})",
+                "k9: on — K-field kernels on the device (budget {:.2} GB, held {:.2} GB, min_pairs {}, eager {}; tree store {} — {} trees, {:.2} GB)",
                 k.budget as f64 / 1e9,
                 k.held as f64 / 1e9,
                 min_pairs(),
-                eager()
+                eager(),
+                if tree_store_enabled() { "on" } else { "off" },
+                k.trees.len(),
+                k.tree_bytes as f64 / 1e9
             )
         }
         None => format!("k9: FAILED to initialize ({})", INIT_ERR.lock().unwrap().clone().unwrap_or_default()),
@@ -666,6 +789,7 @@ impl K9 {
         b.grow(bytes)?;
         let new = b.bytes;
         self.held = self.held + new - old;
+        note_peak(&S_HELD_PEAK, self.held);
         Ok(())
     }
 
@@ -675,17 +799,18 @@ impl K9 {
     fn release_idle(&mut self, which: DevSel) {
         let _ = self.sync_all();
         let fam = match which {
-            DevSel::St(_) | DevSel::LayP | DevSel::LayQ | DevSel::ClW | DevSel::ClMeta | DevSel::Eqb => 0,
+            DevSel::St(_) | DevSel::LayP | DevSel::LayQ | DevSel::ClW | DevSel::ClMeta | DevSel::Eqb | DevSel::ClimbScr(_) => 0,
             DevSel::Ixf(..) => 1,
             DevSel::TreeSrc(_) | DevSel::TreeOut(_) => 2,
         };
         let mut freed = 0usize;
-        if (fam != 0 || matches!(which, DevSel::LayP | DevSel::LayQ | DevSel::ClW | DevSel::ClMeta | DevSel::Eqb)) && self.chain.is_none() {
+        if (fam != 0 || matches!(which, DevSel::LayP | DevSel::LayQ | DevSel::ClW | DevSel::ClMeta | DevSel::Eqb | DevSel::ClimbScr(_))) && self.chain.is_none() {
             for b in self.st.iter_mut() {
                 freed += b.bytes;
                 b.free();
             }
-            for b in [&mut self.lay_p, &mut self.lay_q, &mut self.cl_w, &mut self.cl_meta, &mut self.eqb] {
+            let [c0, c1] = &mut self.climb_scr;
+            for b in [&mut self.lay_p, &mut self.lay_q, &mut self.cl_w, &mut self.cl_meta, &mut self.eqb, c0, c1] {
                 freed += b.bytes;
                 b.free();
             }
@@ -712,10 +837,12 @@ impl K9 {
 
     /// Free the layer buffers (round 1 consumed them; the next layer grows
     /// them again — VRAM for the state tables of the big layers).
+    /// [UPERF2-N] the climb scratch goes with them.
     fn release_layer_bufs(&mut self) {
         let _ = self.sync_all();
         let mut freed = 0usize;
-        for b in [&mut self.lay_p, &mut self.lay_q, &mut self.cl_w, &mut self.cl_meta] {
+        let [c0, c1] = &mut self.climb_scr;
+        for b in [&mut self.lay_p, &mut self.lay_q, &mut self.cl_w, &mut self.cl_meta, c0, c1] {
             freed += b.bytes;
             b.free();
         }
@@ -739,9 +866,50 @@ impl K9 {
             }
             DevSel::TreeSrc(i) => &mut self.tree_src[i],
             DevSel::TreeOut(i) => &mut self.tree_out[i],
+            DevSel::ClimbScr(i) => &mut self.climb_scr[i],
         }
     }
 
+    /// [UPERF2-N] Free every idle family (a tree build / a fetch needs the
+    /// room): the descent's buffers when no chain is alive, the ixf tables
+    /// when no ixf chain is alive, the climb scratch. The tree store itself
+    /// is never released here.
+    fn release_idle_all(&mut self) {
+        let _ = self.sync_all();
+        let mut freed = 0usize;
+        if self.chain.is_none() {
+            for b in self.st.iter_mut() {
+                freed += b.bytes;
+                b.free();
+            }
+            let [c0, c1] = &mut self.climb_scr;
+            for b in [&mut self.lay_p, &mut self.lay_q, &mut self.cl_w, &mut self.cl_meta, &mut self.eqb, c0, c1] {
+                freed += b.bytes;
+                b.free();
+            }
+            self.layer = None;
+        }
+        if self.ixf.is_none() {
+            for t in self.ixf_t.iter_mut() {
+                freed += t[0].bytes + t[1].bytes;
+                t[0].free();
+                t[1].free();
+            }
+        }
+        for b in self.tree_src.iter_mut().chain(self.tree_out.iter_mut()) {
+            freed += b.bytes;
+            b.free();
+        }
+        self.held -= freed;
+        if verbose() && freed > 0 {
+            eprintln!("[UPERF2-N] k9: released {:.2} GB of idle device buffers for the tree store", freed as f64 / 1e9);
+        }
+    }
+
+    /// The device error path: every K-field chain buffer goes back and the
+    /// chains are dropped. [UPERF2-N] the TREE STORE STAYS — its layers are
+    /// the only copy of the big layers of the trees the host still holds,
+    /// and `k9_tree_fetch` (a plain download) must keep answering.
     fn release_all(&mut self) {
         let _ = self.sync_all();
         for b in self.st.iter_mut() {
@@ -756,10 +924,10 @@ impl K9 {
             t[0].free();
             t[1].free();
         }
-        for b in self.tree_src.iter_mut().chain(self.tree_out.iter_mut()) {
+        for b in self.tree_src.iter_mut().chain(self.tree_out.iter_mut()).chain(self.climb_scr.iter_mut()) {
             b.free();
         }
-        self.held = 0;
+        self.held = self.tree_bytes;
         self.chain = None;
         self.layer = None;
         self.ixf = None;
@@ -917,6 +1085,8 @@ enum DevSel {
     Ixf(usize, usize),
     TreeSrc(usize),
     TreeOut(usize),
+    /// [UPERF2-N] the in-hook climb's intermediate-level scratch (descent family).
+    ClimbScr(usize),
 }
 
 /// Grid size for a grid-stride kernel over `n` items with `block` threads.
@@ -926,112 +1096,42 @@ fn grid_for(n: usize, block: u32) -> u32 {
 }
 
 // ---------------------------------------------------------------------------
-// The compact leaves: re-encoding from `expand_blocks` (the words are private
-// to kfield.rs; the encoding is derived from the exact packed blocks the
-// CPU kernels read, so the device expansion — the same decode + the
-// exception override — yields the same blocks). Words: 2 per leaf (q0, q1 |
-// MEMBER); meta: alpha[16] then n_exc x (idx, p[16], q[16]).
+// The compact leaves on the device. [UPERF2-N] the words go up AS THEY ARE
+// (`CompactLeaves::words`: 2 per leaf — q0, q1 | MEMBER; a zero pair = the
+// (0, 1) dummy), alpha's coordinates and the exception list (idx, p[16],
+// q[16]) sorted — the device decode + the exception override (`cl_get`,
+// kernels_k9.cu) is `CompactLeaves::expand_blocks` per element, so the
+// same packed blocks reach the same kernels. (Lane L re-derived this
+// encoding from `expand_blocks` at ~24 ms per 4M leaves; with the accessors
+// it is a memcpy into the pinned staging.) Meta: alpha[16] then n_exc x 33.
 
-struct ClEncoded {
-    words: Vec<u32>,
+struct ClEncoded<'a> {
+    words: &'a [u32],
     alpha: [u32; K_DEG],
     exc: Vec<u32>, // n_exc x 33
     n_exc: usize,
 }
 
-fn cl_encode(c: &CompactLeaves) -> Option<ClEncoded> {
-    let n = c.n;
-    let nblk = n / KL;
-    // Alpha: probe the first blocks for a member-looking leaf; take the most
-    // frequent tail among the first 2 blocks (>= 16 leaves).
-    let mut alpha = [0u32; K_DEG];
-    let mut have_alpha = false;
-    {
-        let probe_blk = nblk.min(2);
-        let mut sp = vec![0u32; probe_blk * KBLK];
-        let mut sq = vec![0u32; probe_blk * KBLK];
-        c.expand_blocks(0, probe_blk, &mut sp, &mut sq);
-        let mut cands: Vec<([u32; K_DEG], usize)> = Vec::new();
-        for b in 0..probe_blk {
-            for l in 0..KL {
-                let base = b * KBLK + l;
-                let member = sp[base] == 1 && (1..K_DEG).all(|j| sp[base + j * KL] == 0);
-                if member {
-                    let mut tail = [0u32; K_DEG];
-                    for j in 2..K_DEG {
-                        tail[j] = sq[base + j * KL];
-                    }
-                    if let Some(e) = cands.iter_mut().find(|e| e.0 == tail) {
-                        e.1 += 1;
-                    } else {
-                        cands.push((tail, 1));
-                    }
-                }
-            }
-        }
-        if let Some(best) = cands.iter().max_by_key(|e| e.1) {
-            alpha = best.0;
-            have_alpha = true;
-        }
-    }
-    let n_chunks = nblk.div_ceil(CL_CHUNK_BLK);
-    let encode_chunk = |ci: usize| -> (Vec<u32>, Vec<u32>) {
-        let b0 = ci * CL_CHUNK_BLK;
-        let nb = CL_CHUNK_BLK.min(nblk - b0);
-        let mut sp = vec![0u32; nb * KBLK];
-        let mut sq = vec![0u32; nb * KBLK];
-        c.expand_blocks(b0, nb, &mut sp, &mut sq);
-        let mut words = vec![0u32; 2 * nb * KL];
-        let mut exc: Vec<u32> = Vec::new();
-        for b in 0..nb {
-            for l in 0..KL {
-                let base = b * KBLK + l;
-                let i = b * KL + l;
-                let p_is_one = sp[base] == 1 && (1..K_DEG).all(|j| sp[base + j * KL] == 0);
-                let p_is_zero = (0..K_DEG).all(|j| sp[base + j * KL] == 0);
-                let q_is_one = sq[base] == 1 && (1..K_DEG).all(|j| sq[base + j * KL] == 0);
-                let q0 = sq[base];
-                let q1 = sq[base + KL];
-                if p_is_zero && q_is_one {
-                    words[2 * i] = 0;
-                    words[2 * i + 1] = 0;
-                } else if have_alpha && p_is_one && q0 < (1 << 31) && q1 < (1 << 31) && (2..K_DEG).all(|j| sq[base + j * KL] == alpha[j]) {
-                    words[2 * i] = q0;
-                    words[2 * i + 1] = q1 | (1 << 31);
-                } else {
-                    // Exception: index (absolute), p, q. The words stay 0 (dummy);
-                    // the device applies the exception after the decode.
-                    exc.push(((b0 + b) * KL + l) as u32);
-                    for j in 0..K_DEG {
-                        exc.push(sp[base + j * KL]);
-                    }
-                    for j in 0..K_DEG {
-                        exc.push(sq[base + j * KL]);
-                    }
-                }
-            }
-        }
-        (words, exc)
-    };
-    let parts: Vec<(Vec<u32>, Vec<u32>)> = if threads() > 1 && n_chunks > 1 {
-        POOL.install(|| {
-            use rayon::prelude::*;
-            (0..n_chunks).into_par_iter().map(encode_chunk).collect()
-        })
-    } else {
-        (0..n_chunks).map(encode_chunk).collect()
-    };
-    let mut words = Vec::with_capacity(2 * n);
-    let mut exc = Vec::new();
-    for (w, e) in parts {
-        words.extend_from_slice(&w);
-        exc.extend_from_slice(&e);
-    }
-    let n_exc = exc.len() / 33;
-    if n_exc > CL_MAX_EXC {
+fn cl_encode(c: &CompactLeaves) -> Option<ClEncoded<'_>> {
+    let ex = c.exceptions();
+    if ex.len() > CL_MAX_EXC {
         return None;
     }
-    Some(ClEncoded { words, alpha, exc, n_exc })
+    let mut exc: Vec<u32> = Vec::with_capacity(33 * ex.len());
+    for (i, p, q) in ex {
+        exc.push(*i as u32);
+        exc.extend_from_slice(p);
+        exc.extend_from_slice(q);
+    }
+    Some(ClEncoded { words: c.words(), alpha: *c.alpha_words(), exc, n_exc: ex.len() })
+}
+
+/// The meta words of the compact leaves (alpha then the exceptions).
+fn cl_meta(e: &ClEncoded) -> Vec<u32> {
+    let mut meta: Vec<u32> = Vec::with_capacity(K_DEG + e.exc.len());
+    meta.extend_from_slice(&e.alpha);
+    meta.extend_from_slice(&e.exc);
+    meta
 }
 
 // ---------------------------------------------------------------------------
@@ -1041,6 +1141,7 @@ fn layer_id(src: &BlkSrc) -> LayerId {
     match src {
         BlkSrc::Packed { p, q } => LayerId::Packed { p: p.as_ptr() as usize, q: q.as_ptr() as usize, p_len: p.len(), q_len: q.len() },
         BlkSrc::Compact(c) => LayerId::Compact { c: (*c) as *const CompactLeaves as usize, n: c.n },
+        BlkSrc::Device { dev, .. } => LayerId::Device { tree: dev.tree, k: dev.k },
     }
 }
 
@@ -1293,9 +1394,9 @@ impl K9 {
                     let reg = regions[ri];
                     let outs: [u64; 5] = std::array::from_fn(|k| self.st[buf].ptr + (((k * tab_blk) + reg.blk0) * KBLK * 4) as u64);
                     match &layer.devs[ri] {
-                        LayerDev::Packed { p_blk0, q_blk0, .. } => {
-                            let pp = self.lay_p.ptr + ((p_blk0 + f_blk * la) * KBLK * 4) as u64;
-                            let qq = self.lay_q.ptr + ((q_blk0 + f_blk * la) * KBLK * 4) as u64;
+                        LayerDev::Packed { p: p_ptr, q: q_ptr } => {
+                            let pp = p_ptr + (f_blk * la * KBLK * 4) as u64;
+                            let qq = q_ptr + (f_blk * la * KBLK * 4) as u64;
                             if mode == FUSE_EXTRACT {
                                 let name = "k_extract_round";
                                 let mut args: [*mut c_void; 6] = [
@@ -1324,9 +1425,9 @@ impl K9 {
                                 self.launch("k_extract_fold", grid, TK9, &mut args)?;
                             }
                         }
-                        LayerDev::Compact { w_off, meta_off, n_exc, .. } => {
-                            let w = self.cl_w.ptr + (w_off * 4) as u64;
-                            let alpha = self.cl_meta.ptr + (meta_off * 4) as u64;
+                        LayerDev::Compact { w: w_ptr, meta, n_exc } => {
+                            let w = *w_ptr;
+                            let alpha = *meta;
                             let exc = alpha + (K_DEG * 4) as u64;
                             let n_exc_u = *n_exc as u32;
                             let e_base = (f_blk * la * KL) as u32;
@@ -1478,16 +1579,27 @@ impl K9 {
         Ok(true)
     }
 
-    /// Upload the plan's layers (packed live blocks or the re-encoded
-    /// compact leaves) and the eq table; sets `self.layer`. `Ok(false)` =
-    /// declined (budget / encoding limits).
+    /// Bind the plan's layers on the device — upload the packed live blocks
+    /// / the compact leaves' words, or [UPERF2-N] take a device tree's
+    /// layer in place (a resident checkpoint, the compact leaves) or CLIMB
+    /// its gap layer here into the layer buffers — and upload the eq table;
+    /// sets `self.layer`. `Ok(false)` = declined (budget / encoding limits).
     fn upload_layer(&mut self, plan: &FusedPlan, n_pairs: usize, ranges: &[(usize, usize)], eq_src: &[u32], ids: &[(LayerId, usize)]) -> Result<bool, String> {
         let f_blk = if plan.mode == FUSE_EXTRACT { 4usize } else { 8 };
         // Sizes.
         let mut packed_blk = 0usize;
         let mut cl_words = 0usize;
-        let mut cl_meta = 0usize;
+        let mut cl_meta_w = 0usize;
+        let mut scr_bytes = 0usize;
         let mut encoded: Vec<Option<ClEncoded>> = Vec::with_capacity(ranges.len());
+        // [UPERF2-N] per range: the device tree binding (resident pointers,
+        // or a climb plan: (nearest resident source layer, whole-layer blocks)).
+        enum DevBind {
+            None,
+            InPlace(LayerDev),
+            Climb { src_k: usize, nblk: usize },
+        }
+        let mut binds: Vec<DevBind> = Vec::with_capacity(ranges.len());
         let te = Instant::now();
         for (ri, &(a, b)) in ranges.iter().enumerate() {
             let n = b - a;
@@ -1497,14 +1609,40 @@ impl K9 {
                     assert!(p.len() >= f_blk * (la + n) * KBLK && q.len() >= f_blk * (la + n) * KBLK, "K9 gpu: layer slice");
                     packed_blk += f_blk * (la + n);
                     encoded.push(None);
+                    binds.push(DevBind::None);
                 }
                 BlkSrc::Compact(c) => {
                     let Some(e) = cl_encode(c) else {
                         return Ok(false);
                     };
                     cl_words += e.words.len();
-                    cl_meta += K_DEG + e.exc.len();
+                    cl_meta_w += K_DEG + e.exc.len();
                     encoded.push(Some(e));
+                    binds.push(DevBind::None);
+                }
+                BlkSrc::Device { dev, .. } => {
+                    encoded.push(None);
+                    let Some(t) = self.trees.get(&dev.tree) else {
+                        panic!("[UPERF2-N] device tree {} is gone while its layer {} is being read (protocol violation)", dev.tree, dev.k);
+                    };
+                    let k = dev.k;
+                    if let Some((p, q)) = &t.layers[k] {
+                        binds.push(DevBind::InPlace(LayerDev::Packed { p: p.ptr, q: q.ptr }));
+                    } else if k == t.depth {
+                        let (w, m, n_exc) = t.compact.as_ref().expect("a device tree keeps its leaves");
+                        binds.push(DevBind::InPlace(LayerDev::Compact { w: w.ptr, meta: m.ptr, n_exc: *n_exc }));
+                    } else {
+                        let src_k = (k + 1..=t.depth).find(|&kk| t.layers[kk].is_some() || (kk == t.depth && t.compact.is_some())).expect("a device tree keeps its leaves");
+                        let nblk = (1usize << k) / KL;
+                        let la = a - plan.layers[ri].first_pair;
+                        assert!(f_blk * (la + n) <= nblk, "K9 gpu: device layer range");
+                        packed_blk += nblk;
+                        // Intermediate levels (src_k - k >= 2): the largest is layer k+1.
+                        if src_k - k >= 2 {
+                            scr_bytes = scr_bytes.max(2 * (1usize << (k + 1)) / KL * KBLK * 4);
+                        }
+                        binds.push(DevBind::Climb { src_k, nblk });
+                    }
                 }
             }
         }
@@ -1512,12 +1650,12 @@ impl K9 {
         let eq_bytes = eq_src.len() * 4;
         // Budget (the state-1 tables come on top: 5 x the LIVE state-1 blocks,
         // and their ping-pong half for state 2).
-        let need = 2 * packed_blk * KBLK * 4 + cl_words * 4 + cl_meta * 4 + eq_bytes;
+        let need = 2 * packed_blk * KBLK * 4 + cl_words * 4 + cl_meta_w * 4 + eq_bytes + scr_bytes;
         let live_pairs: usize = ranges.iter().map(|&(a, b)| b - a).sum();
         let st1_pairs = if plan.mode == FUSE_EXTRACT { live_pairs / 2 } else { live_pairs };
         let st1 = 5 * st1_pairs * 2 * KBLK * 4;
         let st2 = st1 / 2;
-        let more = need.saturating_sub(self.lay_p.bytes + self.lay_q.bytes + self.cl_w.bytes + self.cl_meta.bytes + self.eqb.bytes);
+        let more = need.saturating_sub(self.lay_p.bytes + self.lay_q.bytes + self.cl_w.bytes + self.cl_meta.bytes + self.eqb.bytes + self.climb_scr[0].bytes);
         let want = more + st1.saturating_sub(self.st[0].bytes) + st2.saturating_sub(self.st[1].bytes);
         if self.held + want > self.budget {
             self.release_idle(DevSel::LayP);
@@ -1537,39 +1675,70 @@ impl K9 {
         self.grow_dev(DevSel::LayP, packed_blk * KBLK * 4)?;
         self.grow_dev(DevSel::LayQ, packed_blk * KBLK * 4)?;
         self.grow_dev(DevSel::ClW, cl_words * 4)?;
-        self.grow_dev(DevSel::ClMeta, cl_meta * 4)?;
+        self.grow_dev(DevSel::ClMeta, cl_meta_w * 4)?;
         self.grow_dev(DevSel::Eqb, eq_bytes)?;
-        // Uploads.
+        if scr_bytes > 0 {
+            self.grow_dev(DevSel::ClimbScr(0), scr_bytes / 2)?;
+            self.grow_dev(DevSel::ClimbScr(1), scr_bytes / 2)?;
+        }
+        // Uploads (copy stream) and climbs (compute stream).
         let mut pp = 0usize;
         self.upload_words(self.eqb.ptr, eq_src, &mut pp)?;
         let mut devs: Vec<LayerDev> = Vec::with_capacity(ranges.len());
         let mut pblk = 0usize;
         let mut woff = 0usize;
         let mut moff = 0usize;
+        let mut n_res = 0u64;
+        let mut n_climb = 0u64;
+        let tc = Instant::now();
         for (ri, &(a, b)) in ranges.iter().enumerate() {
             let n = b - a;
             match &plan.layers[ri].src {
                 BlkSrc::Packed { p, q } => {
                     let la = a - plan.layers[ri].first_pair;
                     let nb = f_blk * (la + n);
-                    self.upload_words(self.lay_p.ptr + (pblk * KBLK * 4) as u64, &p[..nb * KBLK], &mut pp)?;
-                    self.upload_words(self.lay_q.ptr + (pblk * KBLK * 4) as u64, &q[..nb * KBLK], &mut pp)?;
-                    devs.push(LayerDev::Packed { p_blk0: pblk, q_blk0: pblk, n_blk: nb });
+                    let dp = self.lay_p.ptr + (pblk * KBLK * 4) as u64;
+                    let dq = self.lay_q.ptr + (pblk * KBLK * 4) as u64;
+                    self.upload_words(dp, &p[..nb * KBLK], &mut pp)?;
+                    self.upload_words(dq, &q[..nb * KBLK], &mut pp)?;
+                    devs.push(LayerDev::Packed { p: dp, q: dq });
                     pblk += nb;
                 }
                 BlkSrc::Compact(_) => {
                     let e = encoded[ri].as_ref().unwrap();
-                    self.upload_words(self.cl_w.ptr + (woff * 4) as u64, &e.words, &mut pp)?;
-                    let mut meta: Vec<u32> = Vec::with_capacity(K_DEG + e.exc.len());
-                    meta.extend_from_slice(&e.alpha);
-                    meta.extend_from_slice(&e.exc);
-                    self.upload_words(self.cl_meta.ptr + (moff * 4) as u64, &meta, &mut pp)?;
-                    devs.push(LayerDev::Compact { w_off: woff, meta_off: moff, n_exc: e.n_exc, n_leaves: e.words.len() / 2 });
+                    let w = self.cl_w.ptr + (woff * 4) as u64;
+                    let m = self.cl_meta.ptr + (moff * 4) as u64;
+                    self.upload_words(w, e.words, &mut pp)?;
+                    let meta = cl_meta(e);
+                    self.upload_words(m, &meta, &mut pp)?;
+                    devs.push(LayerDev::Compact { w, meta: m, n_exc: e.n_exc });
                     woff += e.words.len();
                     moff += meta.len();
                 }
+                BlkSrc::Device { dev, .. } => match std::mem::replace(&mut binds[ri], DevBind::None) {
+                    DevBind::InPlace(ld) => {
+                        n_res += 1;
+                        devs.push(ld);
+                    }
+                    DevBind::Climb { src_k, nblk } => {
+                        let dp = self.lay_p.ptr + (pblk * KBLK * 4) as u64;
+                        let dq = self.lay_q.ptr + (pblk * KBLK * 4) as u64;
+                        self.climb_layer(dev.tree, dev.k, src_k, dp, dq)?;
+                        n_climb += 1;
+                        devs.push(LayerDev::Packed { p: dp, q: dq });
+                        pblk += nblk;
+                    }
+                    DevBind::None => unreachable!(),
+                },
             }
         }
+        if n_climb > 0 {
+            // The climbs' outputs are read by this round's kernels on the same
+            // stream (ordered); the timing here is enqueue-side only.
+            add_us(&S_DEV_CLIMB_US, tc.elapsed().as_secs_f64());
+            S_DEV_CLIMBS.fetch_add(n_climb, Ordering::Relaxed);
+        }
+        S_LAYER_RESIDENT.fetch_add(n_res, Ordering::Relaxed);
         self.layer = Some(LayerRes { n_pairs, ranges: ranges.to_vec(), ids: ids.to_vec(), devs, eq: (eq_src.as_ptr() as usize, eq_src.len()) });
         Ok(true)
     }
@@ -1946,6 +2115,9 @@ impl K9 {
         let src_bytes = match src {
             BlkSrc::Packed { .. } => 2 * src_nblk * KBLK * 4,
             BlkSrc::Compact(c) => 2 * c.n * 4 + (K_DEG + 33 * 64) * 4,
+            // [UPERF2-N] a device layer never reaches this hook on the fast path
+            // (the tree store answers it in place); the CPU climb materializes.
+            BlkSrc::Device { .. } => return Ok(false),
         };
         let inter_bytes = if levels > 1 { 2 * (out_nblk << (levels - 1)) * KBLK * 4 } else { 0 };
         let need = src_bytes + 2 * out_words * 4 + inter_bytes;
@@ -1995,12 +2167,10 @@ impl K9 {
                     return Ok(false);
                 };
                 add_us(&S_ENCODE_US, te.elapsed().as_secs_f64());
-                let mut meta: Vec<u32> = Vec::with_capacity(K_DEG + e.exc.len());
-                meta.extend_from_slice(&e.alpha);
-                meta.extend_from_slice(&e.exc);
+                let meta = cl_meta(&e);
                 self.grow_dev(DevSel::TreeSrc(0), e.words.len() * 4)?;
                 self.grow_dev(DevSel::TreeSrc(1), meta.len() * 4)?;
-                self.upload_words(self.tree_src[0].ptr, &e.words, &mut pp)?;
+                self.upload_words(self.tree_src[0].ptr, e.words, &mut pp)?;
                 self.upload_words(self.tree_src[1].ptr, &meta, &mut pp)?;
                 self.compute_after_copies()?;
                 let w = self.tree_src[0].ptr;
@@ -2027,6 +2197,7 @@ impl K9 {
                 cur_q = dq;
                 cur_buf = 0;
             }
+            BlkSrc::Device { .. } => unreachable!("declined above"),
         }
         // Further levels.
         for _lev in 2..=levels {
@@ -2058,5 +2229,490 @@ impl K9 {
         add_us(&S_CLIMB_D2H_US, td.elapsed().as_secs_f64());
         let _ = cur_buf;
         Ok(true)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-N] THE DEVICE TREE STORE (the hooks of gkr.rs `build_tree_from`,
+// `PackedTree::layer` / `release` / `Drop`, and `BlkSrc::host_tabs`).
+
+/// The smallest BIG layer index: 2^top_k > K9_SMALL_LAYER_N (the small top
+/// layers are the host's; the descent reads them element by element).
+fn tree_top_k() -> usize {
+    K9_SMALL_LAYER_N.trailing_zeros() as usize + 1
+}
+
+/// The device store's checkpoint stride: `ZK_K9_CHECKPOINT` when >= 2, else
+/// 2 (a "keep every layer" request cannot be honored in VRAM at the rig's
+/// depths; the values do not depend on the policy).
+fn tree_stride() -> usize {
+    super::super::kfield::k9_checkpoint_stride().max(2)
+}
+
+/// Build the tree on the device: `Some(built)` = the store holds it (its
+/// big layers per the checkpoint policy, the leaves) and `built.top_*` is
+/// the smallest big layer downloaded for the host's small top layers; `None`
+/// = declined (feature/knob off, oracle, shape, VRAM) — the CPU build runs.
+pub fn k9_tree_build(kern: &KKern, leaves: &TreeLeaves, depth: usize) -> Option<DevTreeBuilt> {
+    if !live() || !tree_store_enabled() {
+        return None;
+    }
+    let kk = k9s()?;
+    let mut k = kk.lock().unwrap();
+    let t0 = Instant::now();
+    match k.tree_build(kern, leaves, depth) {
+        Ok(Some(b)) => {
+            S_TREE_BUILDS.fetch_add(1, Ordering::Relaxed);
+            add_us(&S_TREE_BUILD_US, t0.elapsed().as_secs_f64());
+            if verbose() {
+                eprintln!(
+                    "[UPERF2-N] k9 tree build: id {} depth {depth} in {:.2} ms; store {} trees {:.2} GB; held {:.2} GB",
+                    b.id,
+                    t0.elapsed().as_secs_f64() * 1e3,
+                    k.trees.len(),
+                    k.tree_bytes as f64 / 1e9,
+                    k.held as f64 / 1e9
+                );
+            }
+            Some(b)
+        }
+        Ok(None) => {
+            S_TREE_DECLINED.fetch_add(1, Ordering::Relaxed);
+            None
+        }
+        Err(e) => {
+            // A device error: nothing of this tree is kept (the CPU builds it);
+            // the K-field kernels fall back from here on.
+            if !WARNED.swap(true, Ordering::Relaxed) {
+                eprintln!("[UPERF2-N] gpu k9 tree build failed ({e}); this and later K-field calls fall back to the CPU bodies");
+            }
+            k.release_all();
+            DISABLED.store(true, Ordering::Relaxed);
+            None
+        }
+    }
+}
+
+/// Materialize layer k of a device tree on the host (a download of a
+/// resident layer, or a device climb + download). Independent of `live()`:
+/// the store is the only copy of the big layers, and every CPU reader —
+/// fusion off, a declined hook, the oracle routing, the bypass, the harness
+/// — must keep reading. `None` = no such tree.
+pub fn k9_tree_fetch(dev: DevLayer) -> Option<(KTab, KTab)> {
+    let kk = k9s()?;
+    let mut k = kk.lock().unwrap();
+    if !k.trees.contains_key(&dev.tree) {
+        return None;
+    }
+    let t0 = Instant::now();
+    match k.tree_fetch(dev.tree, dev.k) {
+        Ok(r) => {
+            S_TREE_FETCHES.fetch_add(1, Ordering::Relaxed);
+            add_us(&S_TREE_FETCH_US, t0.elapsed().as_secs_f64());
+            if verbose() {
+                eprintln!("[UPERF2-N] k9 tree fetch: tree {} layer {} ({} elements) to the host in {:.2} ms", dev.tree, dev.k, dev.n, t0.elapsed().as_secs_f64() * 1e3);
+            }
+            Some(r)
+        }
+        Err(e) => panic!("[UPERF2-N] device tree {} layer {} could not be materialized ({e}); the host has no copy", dev.tree, dev.k),
+    }
+}
+
+/// Release the resident copy of layer k (lane H's discipline: consumed
+/// layers go back top-down; the leaves stay). No-op for gap layers.
+pub fn k9_tree_release(tree: u64, k: usize) {
+    let Some(kk) = k9s() else { return };
+    let mut s = kk.lock().unwrap();
+    s.tree_release(tree, k);
+}
+
+/// Drop a device tree (the FracTree is gone).
+pub fn k9_tree_drop(tree: u64) {
+    let Some(kk) = k9s() else { return };
+    let mut s = kk.lock().unwrap();
+    s.tree_drop(tree);
+}
+
+/// Device bytes held by a tree (0 if unknown).
+pub fn k9_tree_bytes(tree: u64) -> usize {
+    let Some(kk) = k9s() else { return 0 };
+    let s = kk.lock().unwrap();
+    s.trees.get(&tree).map(|t| t.bytes).unwrap_or(0)
+}
+
+impl K9 {
+    /// Allocate a store buffer within the budget (idle families released
+    /// first). Counted in `held` and `tree_bytes`.
+    fn tree_alloc(&mut self, bytes: usize) -> Result<DevBuf, String> {
+        if self.held + bytes > self.budget {
+            self.release_idle_all();
+        }
+        if self.held + bytes > self.budget {
+            return Err(format!(
+                "K9 VRAM budget (tree store): need {:.2} GB more (held {:.2} GB, budget {:.2} GB)",
+                bytes as f64 / 1e9,
+                self.held as f64 / 1e9,
+                self.budget as f64 / 1e9
+            ));
+        }
+        let mut b = DevBuf::empty();
+        b.grow(bytes)?;
+        self.held += b.bytes;
+        self.tree_bytes += b.bytes;
+        note_peak(&S_HELD_PEAK, self.held);
+        note_peak(&S_TREE_BYTES_PEAK, self.tree_bytes);
+        Ok(b)
+    }
+
+    /// Free a store buffer (the caller has synchronized).
+    fn tree_free(&mut self, mut b: DevBuf) {
+        self.held -= b.bytes;
+        self.tree_bytes -= b.bytes;
+        b.free();
+    }
+
+    /// One tree step on the device: parents [0, n) from the children of a
+    /// resident packed layer (`src = Ok((cp, cq))`) or of the compact leaves
+    /// (`src = Err((w, meta, n_exc))`), written to (dp, dq).
+    #[allow(clippy::type_complexity)]
+    fn dev_step(&mut self, p: &K9Params, src: Result<(u64, u64), (u64, u64, usize)>, dp: u64, dq: u64, n: usize) -> Result<(), String> {
+        let n_u = n as u32;
+        match src {
+            Ok((cp, cq)) => {
+                let mut args: [*mut c_void; 6] = [
+                    p as *const _ as *mut _,
+                    &cp as *const _ as *mut _,
+                    &cq as *const _ as *mut _,
+                    &dp as *const _ as *mut _,
+                    &dq as *const _ as *mut _,
+                    &n_u as *const _ as *mut _,
+                ];
+                self.launch("k_tree_step", grid_for(n, TEL), TEL, &mut args)
+            }
+            Err((w, meta, n_exc)) => {
+                let alpha = meta;
+                let exc = meta + (K_DEG * 4) as u64;
+                let n_exc_u = n_exc as u32;
+                let e_base = 0u32;
+                let mut args: [*mut c_void; 9] = [
+                    p as *const _ as *mut _,
+                    &w as *const _ as *mut _,
+                    &alpha as *const _ as *mut _,
+                    &exc as *const _ as *mut _,
+                    &n_exc_u as *const _ as *mut _,
+                    &e_base as *const _ as *mut _,
+                    &dp as *const _ as *mut _,
+                    &dq as *const _ as *mut _,
+                    &n_u as *const _ as *mut _,
+                ];
+                self.launch("k_tree_step_cl", grid_for(n, TEL), TEL, &mut args)
+            }
+        }
+    }
+
+    /// The source of a step above layer `kk` of a tree: its resident packed
+    /// layer, or the compact leaves when `kk` is the leaf layer.
+    #[allow(clippy::type_complexity)]
+    fn tree_src_of(&self, tree: u64, kk: usize) -> Result<Result<(u64, u64), (u64, u64, usize)>, String> {
+        let t = self.trees.get(&tree).ok_or_else(|| format!("device tree {tree} is gone"))?;
+        if let Some((p, q)) = &t.layers[kk] {
+            return Ok(Ok((p.ptr, q.ptr)));
+        }
+        if kk == t.depth {
+            if let Some((w, m, n_exc)) = &t.compact {
+                return Ok(Err((w.ptr, m.ptr, *n_exc)));
+            }
+        }
+        Err(format!("device tree {tree}: layer {kk} is not resident"))
+    }
+
+    /// The device build (see `k9_tree_build`). The transient of the build
+    /// is one layer pair beyond the resident set; the small top layers are
+    /// the host's (`top_k` downloaded, the host loop continues).
+    fn tree_build(&mut self, kern: &KKern, leaves: &TreeLeaves, depth: usize) -> Result<Option<DevTreeBuilt>, String> {
+        let top_k = tree_top_k();
+        if depth <= top_k {
+            return Ok(None);
+        }
+        let n = 1usize << depth;
+        let stride = tree_stride();
+        let keep = |k: usize| -> bool { k == depth || (depth - k) % stride == 0 };
+        // Budget estimate: the leaves + the kept layers + the transient pair.
+        let leaf_bytes = match leaves {
+            TreeLeaves::Packed { .. } => 2 * n / KL * KBLK * 4,
+            TreeLeaves::Compact(c) => {
+                if c.exceptions().len() > CL_MAX_EXC {
+                    return Ok(None);
+                }
+                c.words().len() * 4 + (K_DEG + 33 * c.exceptions().len()) * 4
+            }
+        };
+        let mut need = leaf_bytes;
+        for k in top_k..depth {
+            if keep(k) {
+                need += 2 * (1usize << k) / KL * KBLK * 4;
+            }
+        }
+        need += 2 * (1usize << (depth - 1)) / KL * KBLK * 4 + 2 * (1usize << (depth - 2)) / KL * KBLK * 4;
+        if self.held + need > self.budget {
+            self.release_idle_all();
+        }
+        if self.held + need > self.budget {
+            if verbose() {
+                eprintln!(
+                    "[UPERF2-N] k9: tree build declined — VRAM budget (need {:.2} GB, held {:.2}, budget {:.2})",
+                    need as f64 / 1e9,
+                    self.held as f64 / 1e9,
+                    self.budget as f64 / 1e9
+                );
+            }
+            return Ok(None);
+        }
+        self.dev.bind_to_thread().map_err(|e| format!("bind: {e}"))?;
+        // A fresh tree entry; on any error below its buffers are freed.
+        let id = self.next_tree;
+        self.next_tree += 1;
+        let mut t = DevTree { depth, kern: *kern, layers: (0..=depth).map(|_| None).collect(), compact: None, bytes: 0 };
+        let r = self.tree_build_into(kern, leaves, depth, top_k, &keep, &mut t);
+        match r {
+            Ok(built) => {
+                self.trees.insert(id, t);
+                Ok(Some(DevTreeBuilt { id, top_k, top_p: built.0, top_q: built.1 }))
+            }
+            Err(e) => {
+                let _ = self.sync_all();
+                for l in t.layers.iter_mut() {
+                    if let Some((p, q)) = l.take() {
+                        self.tree_free(p);
+                        self.tree_free(q);
+                    }
+                }
+                if let Some((w, m, _)) = t.compact.take() {
+                    self.tree_free(w);
+                    self.tree_free(m);
+                }
+                // A budget shortfall mid-build is a decline, not a device error.
+                if e.starts_with("K9 VRAM budget") {
+                    if verbose() {
+                        eprintln!("[UPERF2-N] k9: tree build declined mid-way ({e})");
+                    }
+                    Ok(None)
+                } else {
+                    Err(e)
+                }
+            }
+        }
+    }
+
+    fn tree_build_into(&mut self, kern: &KKern, leaves: &TreeLeaves, depth: usize, top_k: usize, keep: &dyn Fn(usize) -> bool, t: &mut DevTree) -> Result<(KTab, KTab), String> {
+        let n = 1usize << depth;
+        let mut pp = 0usize;
+        // The leaves go up.
+        match leaves {
+            TreeLeaves::Packed { p, q, n: np } => {
+                assert_eq!(*np, n);
+                let bytes = n / KL * KBLK * 4;
+                let bp = self.tree_alloc(bytes)?;
+                let bq = self.tree_alloc(bytes)?;
+                self.upload_words(bp.ptr, &p[..n / KL * KBLK], &mut pp)?;
+                self.upload_words(bq.ptr, &q[..n / KL * KBLK], &mut pp)?;
+                S_TREE_LEAF_BYTES.fetch_add(2 * bytes as u64, Ordering::Relaxed);
+                t.bytes += bp.bytes + bq.bytes;
+                t.layers[depth] = Some((bp, bq));
+            }
+            TreeLeaves::Compact(c) => {
+                assert_eq!(c.n, n);
+                let e = cl_encode(c).ok_or_else(|| "compact leaves: too many exceptions".to_string())?;
+                let meta = cl_meta(&e);
+                let bw = self.tree_alloc(e.words.len() * 4)?;
+                let bm = self.tree_alloc(meta.len() * 4)?;
+                self.upload_words(bw.ptr, e.words, &mut pp)?;
+                self.upload_words(bm.ptr, &meta, &mut pp)?;
+                S_TREE_LEAF_BYTES.fetch_add(((e.words.len() + meta.len()) * 4) as u64, Ordering::Relaxed);
+                t.bytes += bw.bytes + bm.bytes;
+                t.compact = Some((bw, bm, e.n_exc));
+            }
+        }
+        self.compute_after_copies()?;
+        let mut p = K9Params::new(kern);
+        p.prm = self.upload_prm(std::slice::from_ref(&Prm::new()))?;
+        // Bottom-up: layers depth-1 .. top_k on the device; the source of
+        // layer k is layer k+1 (resident until layer k exists, then freed
+        // unless kept).
+        for k in (top_k..depth).rev() {
+            let half = 1usize << k;
+            let bytes = half / KL * KBLK * 4;
+            let np = self.tree_alloc(bytes)?;
+            let nq = self.tree_alloc(bytes)?;
+            let src = self.tree_src_of_local(t, k + 1)?;
+            self.dev_step(&p, src, np.ptr, nq.ptr, half)?;
+            t.bytes += np.bytes + nq.bytes;
+            t.layers[k] = Some((np, nq));
+            if k + 1 < depth && !keep(k + 1) {
+                self.sync_all()?;
+                if let Some((op, oq)) = t.layers[k + 1].take() {
+                    t.bytes -= op.bytes + oq.bytes;
+                    self.tree_free(op);
+                    self.tree_free(oq);
+                }
+            }
+        }
+        // The smallest big layer to the host (the host loop builds the top).
+        let n_top = 1usize << top_k;
+        let mut tp = KTab::recycled(n_top);
+        let mut tq = KTab::recycled(n_top);
+        {
+            let (bp, bq) = t.layers[top_k].as_ref().expect("top layer");
+            let (pp_, qp_) = (bp.ptr, bq.ptr);
+            let words = n_top / KL * KBLK;
+            self.download_words(pp_, &mut tp.d[..words])?;
+            self.download_words(qp_, &mut tq.d[..words])?;
+        }
+        if !keep(top_k) {
+            self.sync_all()?;
+            if let Some((op, oq)) = t.layers[top_k].take() {
+                t.bytes -= op.bytes + oq.bytes;
+                self.tree_free(op);
+                self.tree_free(oq);
+            }
+        }
+        Ok((tp, tq))
+    }
+
+    /// `tree_src_of` for a tree not yet registered (the build).
+    #[allow(clippy::type_complexity)]
+    fn tree_src_of_local(&self, t: &DevTree, kk: usize) -> Result<Result<(u64, u64), (u64, u64, usize)>, String> {
+        if let Some((p, q)) = &t.layers[kk] {
+            return Ok(Ok((p.ptr, q.ptr)));
+        }
+        if kk == t.depth {
+            if let Some((w, m, n_exc)) = &t.compact {
+                return Ok(Err((w.ptr, m.ptr, *n_exc)));
+            }
+        }
+        Err(format!("device tree (building): layer {kk} is not resident"))
+    }
+
+    /// Climb layer `k` of `tree` from its resident layer `src_k` (> k; the
+    /// compact leaves when src_k is the leaf layer) into (dp, dq) — the
+    /// whole layer, 2^k elements — with the intermediate levels through the
+    /// climb scratch (grown by the caller). Stream-ordered on the compute
+    /// stream; nothing is synchronized here.
+    fn climb_layer(&mut self, tree: u64, k: usize, src_k: usize, dp: u64, dq: u64) -> Result<(), String> {
+        // The K9P scalars are the tree's kernel constants recorded at build
+        // time (the tree steps read no parameter vector; prm is a valid,
+        // unread pointer).
+        let kern = self.trees.get(&tree).ok_or_else(|| format!("device tree {tree} is gone"))?.kern;
+        let mut p = K9Params::new(&kern);
+        p.prm = self.prm_d.ptr;
+        let levels = src_k - k;
+        assert!(levels >= 1);
+        let mut src = self.tree_src_of(tree, src_k)?;
+        // Levels src_k-1 .. k+1 into the scratch (ping-pong), the last into (dp, dq).
+        let mut cur = 0usize;
+        for lev in 1..=levels {
+            let out_k = src_k - lev;
+            let m = 1usize << out_k;
+            let (op, oq) = if lev == levels {
+                (dp, dq)
+            } else {
+                let bytes = m / KL * KBLK * 4;
+                assert!(self.climb_scr[cur].bytes >= 2 * bytes, "K9 gpu: climb scratch");
+                let base = self.climb_scr[cur].ptr;
+                (base, base + bytes as u64)
+            };
+            self.dev_step(&p, src, op, oq, m)?;
+            src = Ok((op, oq));
+            cur ^= 1;
+        }
+        Ok(())
+    }
+
+    /// Materialize layer k of a tree on the host.
+    fn tree_fetch(&mut self, tree: u64, k: usize) -> Result<(KTab, KTab), String> {
+        self.dev.bind_to_thread().map_err(|e| format!("bind: {e}"))?;
+        let (depth, resident, compact) = {
+            let t = self.trees.get(&tree).ok_or_else(|| format!("device tree {tree} is gone"))?;
+            (t.depth, t.layers[k].as_ref().map(|(p, q)| (p.ptr, q.ptr)), t.compact.is_some())
+        };
+        let n = 1usize << k;
+        let words = n / KL * KBLK;
+        let mut tp = KTab::recycled(n);
+        let mut tq = KTab::recycled(n);
+        if let Some((pp_, qp_)) = resident {
+            self.download_words(pp_, &mut tp.d[..words])?;
+            self.download_words(qp_, &mut tq.d[..words])?;
+            return Ok((tp, tq));
+        }
+        if k == depth {
+            // The compact leaves: expanded on the host by the caller (never
+            // fetched); a packed leaf layer is resident by construction.
+            return Err(if compact { "the compact leaves are read on the host".to_string() } else { "the leaves are not resident".to_string() });
+        }
+        // A gap layer: climb into the layer buffers (the LayerRes that may
+        // reference them is dropped — the next round re-binds), then download.
+        let src_k = {
+            let t = self.trees.get(&tree).unwrap();
+            (k + 1..=depth).find(|&kk| t.layers[kk].is_some() || (kk == depth && t.compact.is_some())).ok_or_else(|| "no resident layer below".to_string())?
+        };
+        let bytes = words * 4;
+        let scr = if src_k - k >= 2 { 2 * (1usize << (k + 1)) / KL * KBLK * 4 } else { 0 };
+        self.layer = None;
+        self.grow_dev(DevSel::LayP, bytes)?;
+        self.grow_dev(DevSel::LayQ, bytes)?;
+        if scr > 0 {
+            self.grow_dev(DevSel::ClimbScr(0), scr / 2)?;
+            self.grow_dev(DevSel::ClimbScr(1), scr / 2)?;
+        }
+        let (dp, dq) = (self.lay_p.ptr, self.lay_q.ptr);
+        self.climb_layer(tree, k, src_k, dp, dq)?;
+        S_DEV_CLIMBS.fetch_add(1, Ordering::Relaxed);
+        self.download_words(dp, &mut tp.d[..words])?;
+        self.download_words(dq, &mut tq.d[..words])?;
+        Ok((tp, tq))
+    }
+
+    fn tree_release(&mut self, tree: u64, k: usize) {
+        let Some(t) = self.trees.get_mut(&tree) else { return };
+        if k >= t.depth {
+            return;
+        }
+        if t.layers[k].is_none() {
+            return;
+        }
+        // A LayerRes pointing into it must not survive.
+        if let Some(l) = &self.layer {
+            if l.ids.iter().any(|(id, _)| matches!(id, LayerId::Device { tree: tt, k: kk } if *tt == tree && *kk == k)) {
+                let _ = self.sync_all();
+                self.layer = None;
+            }
+        }
+        let _ = self.sync_all();
+        let t = self.trees.get_mut(&tree).unwrap();
+        if let Some((p, q)) = t.layers[k].take() {
+            t.bytes -= p.bytes + q.bytes;
+            self.tree_free(p);
+            self.tree_free(q);
+        }
+    }
+
+    fn tree_drop(&mut self, tree: u64) {
+        let Some(mut t) = self.trees.remove(&tree) else { return };
+        if let Some(l) = &self.layer {
+            if l.ids.iter().any(|(id, _)| matches!(id, LayerId::Device { tree: tt, .. } if *tt == tree)) {
+                self.layer = None;
+            }
+        }
+        let _ = self.sync_all();
+        for l in t.layers.iter_mut() {
+            if let Some((p, q)) = l.take() {
+                self.tree_free(p);
+                self.tree_free(q);
+            }
+        }
+        if let Some((w, m, _)) = t.compact.take() {
+            self.tree_free(w);
+            self.tree_free(m);
+        }
     }
 }
