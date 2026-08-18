@@ -576,6 +576,41 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
   `uperf-h bench`; (4) rigs 3x16 / 12x64 / 12x128 + the 12x512 run if
   the calibrated model says < ~13 GB; (5) the same-size tree pool only if
   it lowers a rig peak; (6) report + this section.
+- 2026-08-17 INTERIM (commit fd646f1 — items 1-3 landed; the 12x512 pass
+  RAN on this box, twice, digests identical): (1)+(2) the packed tree's
+  per-layer `RwLock` store + `FracTree::layer/release_layer`, the
+  checkpointed build (`ZK_K9_CHECKPOINT` default 2, `k9_tree_climb_par`
+  recompute), the COMPACT LEAVES of the aligned witness trees
+  (`kfield::CompactLeaves`, `ZK_K9_COMPACT_LEAVES`), the release from
+  `masked_rounds_bulk` (`ZK_K9_TREE_RELEASE`); (3) `uperf-h battery` 24
+  legs x 8 ways (scalar oracle == pre-change layout == c2/c3/c4 x compact
+  x release, fused + fusion off) identical + verified at ZK_THREADS 1/2/7
+  (BATTERY DIGEST b1e78285..); `uperf-a` 18/18 (f936ff79..) + `uperf-g`
+  22/22 (6d6a3f6b..) at 1/2/7T; a-bench 47a58a27.. identical at c 0/2/3/4
+  (peak 1,558 -> 1,162 / 1,100 / 1,098 / 1,055 MiB); `uperf-h bench 20 8 5
+  9` (2-coord values, digest 0bf9d7a3.. on every variant): peak **1,557 ->
+  665 MiB** at 8T (release alone 1,162; + compact 733; + c=2 665; c=4 635),
+  prove 1.75 -> 1.97 s (the c=2 recompute; c=0 1.74 s). REAL rigs [WSL 8T
+  NOISY-SHARED, lane I active], digests identical to the ledger: 3x16 8T
+  9.8 s @ 1,033 MB; 12x64 8T 43.8 s @ **2,948 MB** (was 4,034; the nrw-88
+  pair transient 1.9 -> 0.8 GB); 12x128 8T 59.7 s @ **4,153 MB** (was
+  6.4-7.4 GB; pair 4.9 -> 1.5 GB); **12x256 8T (FIRST on this box):
+  accept, statement 889c0f12.., 1,439,719 B, EVAL 97a59ac3.., 95.9 s
+  (8.4 / 80.8 / 5.7) @ 6,608 MB** (claim-layer transient 2.8 GB, pair 3.0
+  GB); **12x512 8T (THE PoC SHAPE, FIRST on this box): accept, statement
+  digest 2f8a92f853c1813b4d87e30dc9a43a9cb65b0e009c994fffa67e14a6132b81ab,
+  1,509,911 B counted, EVAL-PROOF DIGEST
+  4c259008c8e0cac2cf654471d37f937c4d1fd3dea51730520aa4256782ddf9dd, wall
+  166.4 s (commit 13.4 / prove 142.6 / verify 8.7) @ maxrss 10,945 MB
+  (default knobs; the peak is now lane D's CLAIM LAYER, 5.65 GB transient
+  on a 5.0 GB floor; the nrw-88 pair 5.6 GB = the model's 1.75U exactly);
+  with `ZK_W0_REGEN=1`: same digests, 178.3 s @ 9,535 MB**. Phase rows at
+  12x512 8T: bk.descent-gkr 61.4 (a.round-g 52.3, a.tree-step 15.9 incl.
+  the recompute), bk.descent-trees 10.8, bg.level-h 25.6, bg.claim-layer
+  25.4 (d.cl-folds 11.3, d.cl-rounds 7.3, d.cl-tables 6.9), d.precommit-u0
+  11.6, bg.matvec-chunks 9.4, ep.psi0-factored 12.8, bg.fold 5.0. Freeze
+  98 rows identical; uperf-pc diff-battery E2E 1T green. Left in this
+  session: 3x16 1T, self-test, the tree-pool decision, report.
 
 ## Agent I status (wt-uperf2-i)
 
