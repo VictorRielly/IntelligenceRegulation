@@ -182,3 +182,19 @@ that would de-risk the top candidate. Plain narrative, labelled
 numbers, ~300-600 lines.
 
 ## Agent status sections (lanes append below; do not edit each other's)
+
+## Agent T status (wt-uperf3-t)
+
+STATE: IN PROGRESS (skeleton committed 2026-08-18). Deliverable:
+docs/zkmatrix-poc/U_PERF3_HEADLINE_ROUTES.md (sections 0-5). Progress
+is tracked by section commits on branch uperf3-t; this block is
+rewritten at LANDED with the section-0 paragraph, the ranked list and
+the spike.
+
+- [x] skeleton (headings, scope, labels)
+- [ ] Section 1 — the built pass in the family map + what scales x100
+- [ ] Section 2 — candidates (i)-(v)+ with count tables
+- [ ] Section 3 — compositions and the honest reach
+- [ ] Section 4 — recommendation + the one spike
+- [ ] Section 5 — references
+- [ ] Section 0 — the paragraph (written last)
