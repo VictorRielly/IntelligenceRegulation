@@ -401,8 +401,14 @@ pub fn ixf_label() -> String {
 /// K9 chains want the VRAM). No chain may be open.
 pub fn ixf_release() {
     if let Some(Some(m)) = IXFS.get() {
-        let mut s = m.lock().unwrap();
-        assert!(s.chain.is_none(), "[UPERF2-O] ixf_release while a device chain is open");
+        // (called from a scope guard's Drop: never turn an unwinding panic
+        // into an abort — on a panic just drop the chain state)
+        let Ok(mut s) = m.lock() else { return };
+        if std::thread::panicking() {
+            s.chain = None;
+        } else {
+            assert!(s.chain.is_none(), "[UPERF2-O] ixf_release while a device chain is open");
+        }
         s.release_big();
     }
 }
