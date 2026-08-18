@@ -793,6 +793,12 @@ fn crs_sha_ni_enabled() -> bool {
 /// x86 body): identical values by the definition of SHA-256; asserted
 /// against `sha2` in the battery.
 #[cfg(target_arch = "x86_64")]
+// The bodies below are `unsafe fn`s made of intrinsics; every call site is
+// gated by the runtime SHA/SSSE3/SSE4.1 detection in `crs_sha_ni_available()`. The
+// edition-2024 lint wants an `unsafe {}` block around each intrinsic call
+// inside an `unsafe fn` (warn-only); allowed here rather than wrapping ~30
+// calls — no value change (U-PERF2 orchestrator, 2026-08-18).
+#[allow(unsafe_op_in_unsafe_fn)]
 mod crs_sha_ni {
     use std::arch::x86_64::*;
 

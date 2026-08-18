@@ -1013,10 +1013,11 @@ is left.
 - Build notes for whoever comes next: (1) the first process on a new
   `kernels_k9.cu` pays NVRTC ~460 s + JIT ~100 s once (then cached) —
   precompiling the .cu to PTX/cubin at build time is a small item;
-  (2) `eval_proof.rs:812` emits `warning[E0133]` (an `_mm_set_epi32`
-  call inside a `#[target_feature]` fn wants an `unsafe` block) — a
-  future hard error on newer toolchains; wrap it (lane Q's SHA-NI
-  core; trivial, no value change).
+  (2) lane Q's SHA-NI core emitted ~30 `warning[E0133]` lines (the
+  edition-2024 `unsafe_op_in_unsafe_fn` lint on intrinsic calls inside
+  `unsafe fn` bodies; warn-only) — silenced with
+  `#[allow(unsafe_op_in_unsafe_fn)]` on the module (no value change;
+  uperf-q / uperf-m batteries re-run green), commit after f01a066.
 
 ## Decision memo (orchestrator, 2026-08-18) — the three routes after the kernel phase
 
