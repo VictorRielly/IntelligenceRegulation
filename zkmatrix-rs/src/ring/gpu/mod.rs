@@ -172,6 +172,8 @@ mod stub {
         pub secs_climb: f64,
         pub secs_climb_d2h: f64,
         pub secs_kernel: f64,
+        pub secs_up_memcpy: f64,
+        pub secs_up_wait: f64,
     }
     pub fn k9_stats() -> K9Stats {
         K9Stats::default()

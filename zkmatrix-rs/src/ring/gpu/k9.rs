@@ -97,8 +97,13 @@ const FUNCS: &[&str] = &[
 const TK9: u32 = 64;
 /// Threads per block of the elementwise kernels.
 const TEL: u32 = 128;
-/// Pinned staging per buffer (bytes) for the pipelined uploads / downloads.
-const STG_BYTES: usize = 32 << 20;
+/// Pinned staging per buffer (bytes) for the pipelined uploads / downloads
+/// (`ZK_GPU_K9_STG_MB`, default 32; two buffers ping-pong — measured 4..128
+/// MB within the box's noise, the DMA runs at 5-9 GB/s either way).
+fn stg_bytes() -> usize {
+    static V: OnceLock<usize> = OnceLock::new();
+    *V.get_or_init(|| env_usize("ZK_GPU_K9_STG_MB", 32).max(1) << 20)
+}
 /// Largest exception list the compact re-encoding accepts per instance.
 const CL_MAX_EXC: usize = 1 << 14;
 /// Blocks per re-encoding chunk (128 KB of scratch per table per thread).
@@ -267,6 +272,9 @@ pub struct K9Stats {
     pub secs_climb: f64,
     pub secs_climb_d2h: f64,
     pub secs_kernel: f64,
+    /// Inside the uploads: host memcpy into pinned staging / waits for the DMA.
+    pub secs_up_memcpy: f64,
+    pub secs_up_wait: f64,
 }
 static S_ROUNDS: AtomicU64 = AtomicU64::new(0);
 static S_DECLINED: AtomicU64 = AtomicU64::new(0);
@@ -286,6 +294,8 @@ static S_CLIMBS: AtomicU64 = AtomicU64::new(0);
 static S_CLIMB_US: AtomicU64 = AtomicU64::new(0);
 static S_CLIMB_D2H_US: AtomicU64 = AtomicU64::new(0);
 static S_KERNEL_US: AtomicU64 = AtomicU64::new(0);
+static S_UPWAIT_US: AtomicU64 = AtomicU64::new(0);
+static S_UPMEMCPY_US: AtomicU64 = AtomicU64::new(0);
 
 fn add_us(s: &AtomicU64, secs: f64) {
     s.fetch_add((secs * 1e6) as u64, Ordering::Relaxed);
@@ -312,13 +322,15 @@ pub fn k9_stats() -> K9Stats {
         secs_climb: us(&S_CLIMB_US),
         secs_climb_d2h: us(&S_CLIMB_D2H_US),
         secs_kernel: us(&S_KERNEL_US),
+        secs_up_memcpy: us(&S_UPMEMCPY_US),
+        secs_up_wait: us(&S_UPWAIT_US),
     }
 }
 
 pub fn k9_stats_reset() {
     for s in [
         &S_ROUNDS, &S_DECLINED, &S_LAYER_UP, &S_LAYER_HIT, &S_H2D, &S_D2H, &S_ROUND_US, &S_UPLOAD_US, &S_ENCODE_US, &S_HANDOVER_US, &S_IXF_ROUNDS,
-        &S_IXF_FOLDS, &S_IXF_HITS, &S_IXF_US, &S_CLIMBS, &S_CLIMB_US, &S_CLIMB_D2H_US, &S_KERNEL_US,
+        &S_IXF_FOLDS, &S_IXF_HITS, &S_IXF_US, &S_CLIMBS, &S_CLIMB_US, &S_CLIMB_D2H_US, &S_KERNEL_US, &S_UPWAIT_US, &S_UPMEMCPY_US,
     ] {
         s.store(0, Ordering::Relaxed);
     }
@@ -503,7 +515,7 @@ fn init_k9() -> Result<K9, String> {
     let ev = [mk_ev()?, mk_ev()?];
     let mut stg = [HostPinned::empty(), HostPinned::empty()];
     for s in stg.iter_mut() {
-        s.grow(STG_BYTES)?;
+        s.grow(stg_bytes())?;
     }
     let mut partial = DevBuf::empty();
     partial.grow(5 * 16 * 8)?;
@@ -516,7 +528,7 @@ fn init_k9() -> Result<K9, String> {
     let (free, total) = cu::mem_get_info().map_err(|e| format!("cuMemGetInfo: {e}"))?;
     let budget = {
         let mb = env_usize("ZK_GPU_K9_BUDGET_MB", 0);
-        if mb > 0 { mb << 20 } else { free.saturating_sub(512 << 20) }
+        if mb > 0 { mb << 20 } else { free.saturating_sub(256 << 20) }
     };
     if verbose() {
         eprintln!(
@@ -627,13 +639,19 @@ impl K9 {
     }
 
     /// Grow a device buffer within the budget (synchronizes first when it
-    /// must reallocate).
+    /// must reallocate). When the budget is short, the buffers of the OTHER
+    /// families (the descent's, the ixf's, the tree's — only one is active
+    /// at a time; a family with a live chain is never released) are given
+    /// back first.
     fn grow_dev(&mut self, which: DevSel, bytes: usize) -> Result<(), String> {
         let cur = self.sel(which).bytes;
         if bytes <= cur {
             return Ok(());
         }
         let need = bytes - cur;
+        if self.held + need > self.budget {
+            self.release_idle(which);
+        }
         if self.held + need > self.budget {
             return Err(format!(
                 "K9 VRAM budget: need {:.2} GB more (held {:.2} GB, budget {:.2} GB)",
@@ -649,6 +667,60 @@ impl K9 {
         let new = b.bytes;
         self.held = self.held + new - old;
         Ok(())
+    }
+
+    /// Free the idle families' buffers (never a family whose chain is alive;
+    /// `which` = the buffer about to grow — its own family is kept unless it
+    /// is idle too, i.e. a descent's layer/state buffers between layers).
+    fn release_idle(&mut self, which: DevSel) {
+        let _ = self.sync_all();
+        let fam = match which {
+            DevSel::St(_) | DevSel::LayP | DevSel::LayQ | DevSel::ClW | DevSel::ClMeta | DevSel::Eqb => 0,
+            DevSel::Ixf(..) => 1,
+            DevSel::TreeSrc(_) | DevSel::TreeOut(_) => 2,
+        };
+        let mut freed = 0usize;
+        if (fam != 0 || matches!(which, DevSel::LayP | DevSel::LayQ | DevSel::ClW | DevSel::ClMeta | DevSel::Eqb)) && self.chain.is_none() {
+            for b in self.st.iter_mut() {
+                freed += b.bytes;
+                b.free();
+            }
+            for b in [&mut self.lay_p, &mut self.lay_q, &mut self.cl_w, &mut self.cl_meta, &mut self.eqb] {
+                freed += b.bytes;
+                b.free();
+            }
+            self.layer = None;
+        }
+        if fam != 1 && self.ixf.is_none() {
+            for t in self.ixf_t.iter_mut() {
+                freed += t[0].bytes + t[1].bytes;
+                t[0].free();
+                t[1].free();
+            }
+        }
+        if fam != 2 {
+            for b in self.tree_src.iter_mut().chain(self.tree_out.iter_mut()) {
+                freed += b.bytes;
+                b.free();
+            }
+        }
+        self.held -= freed;
+        if verbose() && freed > 0 {
+            eprintln!("[UPERF2-L] k9: released {:.2} GB of idle device buffers", freed as f64 / 1e9);
+        }
+    }
+
+    /// Free the layer buffers (round 1 consumed them; the next layer grows
+    /// them again — VRAM for the state tables of the big layers).
+    fn release_layer_bufs(&mut self) {
+        let _ = self.sync_all();
+        let mut freed = 0usize;
+        for b in [&mut self.lay_p, &mut self.lay_q, &mut self.cl_w, &mut self.cl_meta] {
+            freed += b.bytes;
+            b.free();
+        }
+        self.held -= freed;
+        self.layer = None;
     }
 
     fn sel(&mut self, which: DevSel) -> &mut DevBuf {
@@ -699,12 +771,15 @@ impl K9 {
     /// chunk's DMA has been ENQUEUED (not completed): the caller records /
     /// waits on the copy stream before reading on the compute stream.
     fn upload_words(&mut self, dst: sys::CUdeviceptr, src: &[u32], pp: &mut usize) -> Result<(), String> {
-        let per = STG_BYTES / 4;
+        let per = stg_bytes() / 4;
         let mut off = 0usize;
         while off < src.len() {
             let n = per.min(src.len() - off);
             let i = *pp & 1;
+            let tw = Instant::now();
             unsafe { cu::event::synchronize(self.ev[i]) }.map_err(|e| format!("event sync: {e}"))?;
+            add_us(&S_UPWAIT_US, tw.elapsed().as_secs_f64());
+            let tm = Instant::now();
             {
                 let dstw = self.stg[i].slice_mut::<u32>(n);
                 let s = &src[off..off + n];
@@ -717,6 +792,7 @@ impl K9 {
                     dstw.copy_from_slice(s);
                 }
             }
+            add_us(&S_UPMEMCPY_US, tm.elapsed().as_secs_f64());
             unsafe { cu::memcpy_htod_async(dst + (off * 4) as u64, self.stg[i].slice::<u32>(n), self.sc.stream) }
                 .map_err(|e| format!("h2d: {e}"))?;
             unsafe { cu::event::record(self.ev[i], self.sc.stream) }.map_err(|e| format!("record: {e}"))?;
@@ -742,7 +818,7 @@ impl K9 {
     /// pageable) synchronously through the pinned staging (parallel copy
     /// out of pinned).
     fn download_words(&mut self, src: sys::CUdeviceptr, dst: &mut [u32]) -> Result<(), String> {
-        let per = STG_BYTES / 4;
+        let per = stg_bytes() / 4;
         let mut off = 0usize;
         // Everything the compute stream produced must be complete.
         unsafe { cu::stream::synchronize(self.sk.stream) }.map_err(|e| format!("sync sk: {e}"))?;
@@ -1301,7 +1377,9 @@ impl K9 {
                     }
                 } else {
                     // The layer is consumed; the state-1 tables are resident.
-                    self.layer = None;
+                    // Its buffers go back (the big layers need the VRAM for
+                    // the state tables' ping-pong).
+                    self.release_layer_bufs();
                     let ptrs = [eq_dst.as_ptr() as usize, tabs[0].as_ptr() as usize, tabs[1].as_ptr() as usize, tabs[2].as_ptr() as usize, tabs[3].as_ptr() as usize];
                     self.chain = Some(Chain { ptrs, out_pairs: n_pairs, ranges: ranges.clone(), regions, tab_blk, buf });
                     if handover {
@@ -1432,11 +1510,19 @@ impl K9 {
         }
         add_us(&S_ENCODE_US, te.elapsed().as_secs_f64());
         let eq_bytes = eq_src.len() * 4;
-        // Budget (the state-1 tables come on top: 5 x 2 x n_pairs blocks).
+        // Budget (the state-1 tables come on top: 5 x the LIVE state-1 blocks,
+        // and their ping-pong half for state 2).
         let need = 2 * packed_blk * KBLK * 4 + cl_words * 4 + cl_meta * 4 + eq_bytes;
-        let st1 = if plan.mode == FUSE_EXTRACT { 5 * (n_pairs / 2) * 2 * KBLK * 4 } else { 5 * n_pairs * 2 * KBLK * 4 };
+        let live_pairs: usize = ranges.iter().map(|&(a, b)| b - a).sum();
+        let st1_pairs = if plan.mode == FUSE_EXTRACT { live_pairs / 2 } else { live_pairs };
+        let st1 = 5 * st1_pairs * 2 * KBLK * 4;
+        let st2 = st1 / 2;
         let more = need.saturating_sub(self.lay_p.bytes + self.lay_q.bytes + self.cl_w.bytes + self.cl_meta.bytes + self.eqb.bytes);
-        if self.held + more + st1.saturating_sub(self.st[0].bytes) > self.budget {
+        let want = more + st1.saturating_sub(self.st[0].bytes) + st2.saturating_sub(self.st[1].bytes);
+        if self.held + want > self.budget {
+            self.release_idle(DevSel::LayP);
+        }
+        if self.held + want > self.budget {
             if verbose() {
                 eprintln!(
                     "[UPERF2-L] k9: layer declined — VRAM budget (need {:.2} GB layer + {:.2} GB state, held {:.2}, budget {:.2})",
@@ -1614,7 +1700,7 @@ pub fn kt_fold(kf: &KField, t: &mut KTab, scratch: &mut Vec<u32>, r: &KElem) -> 
             S_IXF_FOLDS.fetch_add(1, Ordering::Relaxed);
             add_us(&S_IXF_US, t0.elapsed().as_secs_f64());
             if verbose() {
-                eprintln!("[UPERF2-L] k9 ixf fold n_out {}: {:.2} ms", t.n, t0.elapsed().as_secs_f64() * 1e3);
+                eprintln!("[UPERF2-L] k9 ixf fold n_out {}: {:.2} ms (t.d len {} cap {}, scratch len {} cap {})", t.n, t0.elapsed().as_secs_f64() * 1e3, t.d.len(), t.d.capacity(), scratch.len(), scratch.capacity());
             }
             Some(())
         }
@@ -1777,23 +1863,32 @@ impl K9 {
         // the host) or under the eager knob; otherwise it stays device-only
         // (the successor round is guaranteed by the loop: `while packed[0].n
         // >= 2 KL` re-checked right after these folds).
-        if scratch.len() < nblk * KBLK {
-            if scratch.is_empty() {
-                // calloc: zero pages faulted in only where touched (the lazy
-                // path never touches them; the CPU's `resize` would memset
-                // the whole buffer — 20 ms per 64 MB on this box).
-                *scratch = vec![0u32; nblk * KBLK];
-            } else {
-                scratch.resize(nblk * KBLK, 0);
-            }
-        }
         let succ_taken = n_out / (2 * KL) >= min_pairs();
         if !succ_taken || eager() {
+            // Handover / eager: the folded table lands in `scratch`, swapped
+            // in exactly as kt_fold_par does.
+            if scratch.len() < nblk * KBLK {
+                if scratch.is_empty() {
+                    // calloc: zero pages faulted in only where written (the
+                    // CPU's `resize` would memset the whole buffer).
+                    *scratch = vec![0u32; nblk * KBLK];
+                } else {
+                    scratch.resize(nblk * KBLK, 0);
+                }
+            }
             self.download_words(dst, &mut scratch[..nblk * KBLK])?;
+            std::mem::swap(&mut t.d, scratch);
+            t.n = n_out;
+            t.d.truncate(nblk * KBLK);
+        } else {
+            // Lazy: the host buffer keeps its (now stale) full length — the
+            // caller's truncate/shrink_to_fit of the scratch and the table
+            // then cost nothing (the CPU path's shrink of a 256 MB table is
+            // an mremap that frees pages: ~5 ms per table per round at the
+            // rig, most of lane D's `d.cl-folds`); the next round reads the
+            // device copy; the handover writes the right length.
+            t.n = n_out;
         }
-        std::mem::swap(&mut t.d, scratch);
-        t.n = n_out;
-        t.d.truncate(nblk * KBLK);
         let c = self.ixf.as_mut().unwrap();
         c.buf[k] = out_buf;
         c.next_ptrs[k] = t.d.as_ptr() as usize;

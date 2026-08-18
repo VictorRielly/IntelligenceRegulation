@@ -39898,7 +39898,7 @@ fn uperf_l_bench(lp: usize, reps: usize) {
         let s = ring::gpu::k9_stats();
         let r = reps as f64;
         println!(
-            "  layer chain ({}): CPU {:.1} ms -> GPU {:.1} ms ({:.1}x); GPU per chain: rounds {:.0}, kernel {:.1} ms, upload {:.1} ms (encode {:.1}), handover {:.1} ms, h2d {:.0} MB, d2h {:.1} MB",
+            "  layer chain ({}): CPU {:.1} ms -> GPU {:.1} ms ({:.1}x); GPU per chain: rounds {:.0}, kernel {:.1} ms, upload {:.1} ms (encode {:.1}, memcpy-to-pinned {:.1}, dma-wait {:.1}), handover {:.1} ms, h2d {:.0} MB, d2h {:.1} MB",
             if compact { "compact leaves" } else { "packed layer" },
             cpu * 1e3,
             gpu * 1e3,
@@ -39907,6 +39907,8 @@ fn uperf_l_bench(lp: usize, reps: usize) {
             s.secs_kernel * 1e3 / r,
             s.secs_upload * 1e3 / r,
             s.secs_encode * 1e3 / r,
+            s.secs_up_memcpy * 1e3 / r,
+            s.secs_up_wait * 1e3 / r,
             s.secs_handover * 1e3 / r,
             s.bytes_h2d as f64 / 1e6 / r,
             s.bytes_d2h as f64 / 1e6 / r
@@ -40048,7 +40050,7 @@ fn uperf_l_dbench(depth: usize, l: usize, n_real: usize, dt: usize) {
     let s = ring::gpu::k9_stats();
     println!("  CPU: prove {:.2}s trees {:.2}s wall {:.2}s | GPU: prove {:.2}s trees {:.2}s wall {:.2}s | digest {} {}", a.prove_s, a.trees_s, w_cpu, b.prove_s, b.trees_s, w_gpu, hex_full(&a.digest), if a.digest == b.digest { "IDENTICAL" } else { "MISMATCH" });
     println!(
-        "  k9: rounds {} (declined {}), layer uploads {} / hits {}, h2d {:.0} MB, d2h {:.0} MB; in-hook {:.2}s = kernel {:.2} + upload {:.2} (encode {:.2}) + handover {:.2}; climbs {} ({:.2}s, d2h {:.2}s); ixf rounds {} folds {}",
+        "  k9: rounds {} (declined {}), layer uploads {} / hits {}, h2d {:.0} MB, d2h {:.0} MB; in-hook {:.2}s = kernel {:.2} + upload {:.2} (encode {:.2}; memcpy-to-pinned {:.2}, dma-wait {:.2}) + handover {:.2}; climbs {} ({:.2}s, d2h {:.2}s); ixf rounds {} folds {}",
         s.rounds,
         s.declined,
         s.layer_uploads,
@@ -40059,6 +40061,8 @@ fn uperf_l_dbench(depth: usize, l: usize, n_real: usize, dt: usize) {
         s.secs_kernel,
         s.secs_upload,
         s.secs_encode,
+        s.secs_up_memcpy,
+        s.secs_up_wait,
         s.secs_handover,
         s.climbs,
         s.secs_climb,
