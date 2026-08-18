@@ -1348,35 +1348,73 @@ macro_rules! k9_kernel {
     };
 }
 
-k9_kernel!(k9_tree_step, k9_tree_step_avx2, tree_step_body,
+/// [UPERF2-J] The same dispatch with a hand-written AVX2 body in front:
+/// `k9_hand_avx2_enabled()` (AVX2 detected and `ZK_KSIMD` != "0") routes to
+/// `$hand`, else today's auto-vectorized instantiation, else the portable
+/// body. Values identical on all three (module note above `k9_avx2`).
+macro_rules! k9_kernel_h {
+    ($pub_name:ident, $avx_name:ident, $body:ident, $hand:path, $auto_name:ident, ($($arg:ident : $ty:ty),*)) => {
+        #[cfg(target_arch = "x86_64")]
+        #[target_feature(enable = "avx2")]
+        unsafe fn $avx_name($($arg: $ty),*) {
+            $body($($arg),*)
+        }
+        /// [UPERF2-J] Today's path only (auto-vectorized AVX2 when detected,
+        /// else portable) — the harness's variant 1; never the hand body.
+        #[allow(dead_code)]
+        pub(crate) fn $auto_name($($arg: $ty),*) {
+            #[cfg(target_arch = "x86_64")]
+            if std::arch::is_x86_feature_detected!("avx2") {
+                return unsafe { $avx_name($($arg),*) };
+            }
+            #[allow(unreachable_code)]
+            $body($($arg),*)
+        }
+        pub(crate) fn $pub_name($($arg: $ty),*) {
+            #[cfg(target_arch = "x86_64")]
+            {
+                if k9_hand_avx2_enabled() {
+                    return unsafe { $hand($($arg),*) };
+                }
+                if std::arch::is_x86_feature_detected!("avx2") {
+                    return unsafe { $avx_name($($arg),*) };
+                }
+            }
+            #[allow(unreachable_code)]
+            $body($($arg),*)
+        }
+    };
+}
+
+k9_kernel_h!(k9_tree_step, k9_tree_step_avx2, tree_step_body, k9_avx2::tree_step, k9_tree_step_auto,
     (kern: &KKern, cp: &[u32], cq: &[u32], np: &mut [u32], nq: &mut [u32], nblk: usize));
-k9_kernel!(k9_fold_blocks, k9_fold_blocks_avx2, fold_body,
+k9_kernel_h!(k9_fold_blocks, k9_fold_blocks_avx2, fold_body, k9_avx2::fold_inplace, k9_fold_blocks_auto,
     (kern: &KKern, d_io: &mut [u32], r: &[u32; K_DEG], nblk: usize));
-k9_kernel!(k9_eq_double_blocks, k9_eq_double_blocks_avx2, eq_double_body,
+k9_kernel_h!(k9_eq_double_blocks, k9_eq_double_blocks_avx2, eq_double_body, k9_avx2::eq_double, k9_eq_double_blocks_auto,
     (kern: &KKern, d_io: &mut [u32], half_nblk: usize, zbar: &[u32; K_DEG], z: &[u32; K_DEG]));
-k9_kernel!(k9_mul_fixed_blocks, k9_mul_fixed_blocks_avx2, mul_fixed_body,
+k9_kernel_h!(k9_mul_fixed_blocks, k9_mul_fixed_blocks_avx2, mul_fixed_body, k9_avx2::mul_fixed, k9_mul_fixed_blocks_auto,
     (kern: &KKern, src: &[u32], r: &[u32; K_DEG], dst: &mut [u32], nblk: usize));
-k9_kernel!(k9_mul_elem_blocks, k9_mul_elem_blocks_avx2, mul_elem_body,
+k9_kernel_h!(k9_mul_elem_blocks, k9_mul_elem_blocks_avx2, mul_elem_body, k9_avx2::mul_elem, k9_mul_elem_blocks_auto,
     (kern: &KKern, a: &[u32], b: &[u32], dst: &mut [u32], nblk: usize));
-k9_kernel!(k9_addc_blocks, k9_addc_blocks_avx2, addc_body,
+k9_kernel_h!(k9_addc_blocks, k9_addc_blocks_avx2, addc_body, k9_avx2::addc, k9_addc_blocks_auto,
     (kern: &KKern, t: &mut [u32], c: &[u32; K_DEG], nblk: usize));
 k9_kernel!(k9_round_g_blocks, k9_round_g_blocks_avx2, round_g_body,
     (kern: &KKern, eq: &[u32], p0: &[u32], p1: &[u32], q0: &[u32], q1: &[u32], ql: &[u32],
      nblk_pairs: usize, nodes: &[u64], consts: Option<&[[[u32; K_DEG]; 5]]>,
      acc_lo: &mut [u64], acc_hi: &mut [u64]));
 // [UPERF2-A] fast-path bodies
-k9_kernel!(k9_fold_oop_blocks, k9_fold_oop_blocks_avx2, fold_oop_body,
+k9_kernel_h!(k9_fold_oop_blocks, k9_fold_oop_blocks_avx2, fold_oop_body, k9_avx2::fold_oop, k9_fold_oop_blocks_auto,
     (kern: &KKern, src: &[u32], dst: &mut [u32], r: &[u32; K_DEG], nblk: usize));
-k9_kernel!(k9_mul_fixed_add_blocks, k9_mul_fixed_add_blocks_avx2, mul_fixed_add_body,
+k9_kernel_h!(k9_mul_fixed_add_blocks, k9_mul_fixed_add_blocks_avx2, mul_fixed_add_body, k9_avx2::mul_fixed_add, k9_mul_fixed_add_blocks_auto,
     (kern: &KKern, a_io: &mut [u32], b: &[u32], r: &[u32; K_DEG], nblk: usize));
-k9_kernel!(k9_eq_double_split_blocks, k9_eq_double_split_blocks_avx2, eq_double_split_body,
+k9_kernel_h!(k9_eq_double_split_blocks, k9_eq_double_split_blocks_avx2, eq_double_split_body, k9_avx2::eq_double_split, k9_eq_double_split_blocks_auto,
     (kern: &KKern, lo_io: &mut [u32], up: &mut [u32], nblk: usize, zbar: &[u32; K_DEG], z: &[u32; K_DEG]));
-k9_kernel!(k9_round_g5_blocks, k9_round_g5_blocks_avx2, round_g5_body,
+k9_kernel_h!(k9_round_g5_blocks, k9_round_g5_blocks_avx2, round_g5_body, k9_avx2::round_g5, k9_round_g5_blocks_auto,
     (kern: &KKern, eq: &[u32], pl: &[u32], p1: &[u32], q0: &[u32], q1: &[u32],
      nblk_pairs: usize, nodes: &[u64], consts: Option<&[[[u32; K_DEG]; 4]]>,
      acc_lo: &mut [u64], acc_hi: &mut [u64]));
 // [UPERF2-G] fused descent round bodies
-k9_kernel!(k9_fused_round_blocks, k9_fused_round_blocks_avx2, fused_round_body,
+k9_kernel_h!(k9_fused_round_blocks, k9_fused_round_blocks_avx2, fused_round_body, k9_avx2::fused_round, k9_fused_round_blocks_auto,
     (kern: &KKern, s: &FusedSrc, d: &mut FusedDst, n: usize, nodes: &[u64],
      node_consts: Option<&[[[u32; K_DEG]; 4]]>, acc_lo: &mut [u64], acc_hi: &mut [u64]));
 
@@ -2118,7 +2156,7 @@ fn ixf_round_body(
     }
 }
 
-k9_kernel!(k9_ixf_round_blocks, k9_ixf_round_blocks_avx2, ixf_round_body,
+k9_kernel_h!(k9_ixf_round_blocks, k9_ixf_round_blocks_avx2, ixf_round_body, k9_avx2::ixf_round, k9_ixf_round_blocks_auto,
     (kern: &KKern, kind: u8, tabs: &[&[u32]], nblk_pairs: usize, deg: usize,
      acc_lo: &mut [u64], acc_hi: &mut [u64]));
 
@@ -3115,3 +3153,1709 @@ pub fn slot_field_digest(ctx: &RingCtx) -> [u8; 32] {
     }
     hasher.finalize().into()
 }
+
+// ---------------------------------------------------------------------------
+// [UPERF2-J] Hand-written AVX2 bodies for the packed lane kernels.
+//
+// WHY: the auto-vectorized instantiations above (`k9_kernel!` under
+// `#[target_feature(enable = "avx2")]`) keep the 31 x 8 lo/hi planes in
+// memory — every (i, j) coefficient product is 2 `vpmuludq` + 2 masks + 2
+// shifts + 4 load-add-store round trips (~18 uops, 4 stores) — and their
+// reductions carry LLVM's three-`vpmuludq` 64-bit multiply idiom plus a
+// scalar gather for the Y^16 = s fold-in. Measured (`uperf-j bench`, this
+// box, 1T): ~700 ns per 16x16 lane MAC block, ~10 us per fused-round
+// pair-block.
+//
+// WHAT (values IDENTICAL to the scalar bodies — see "identity" below):
+//   * The AVX2 unit is a ROW of a lane block (8 u32 = one __m256i). Its
+//     four u64 lanes hold the u32 pairs (lane 2k, lane 2k+1); `vpmuludq`
+//     multiplies the low u32 of each u64 lane, so the row itself is the
+//     "even set" operand and the row shifted right by 32 is the "odd set"
+//     — 8 lane products in two multiplies, no zero-extension, no shuffle.
+//   * The (2m, 2m+1) block pair of a table deinterleaves into its (even,
+//     odd) elements by two `vshufps` per row, in the WORKING lane order
+//     (pair-lanes 0,1,4,5,2,3,6,7 — an involution of the standard order,
+//     undone by one `vpermq` where a block is stored). Lanes are
+//     independent K-values, so any consistent order is exact; every store
+//     lands each lane at its standard position.
+//   * Multiplication is the 16x16 schoolbook (256 coefficient products,
+//     each < 2^62), OUTPUT-STATIONARY: for output t the products a_i b_j
+//     (i + j = t) are summed in BURSTS of <= 4 (exact in u64: 4 (q-1)^2 <
+//     2^64), and each burst s is folded once by 2^32 == c32 into a single
+//     u64 accumulator: acc += (s & m32) + c32 (s >> 32) (< 799 x 2^32 per
+//     burst). Two block products into one accumulator (the wire, the tree
+//     step's np) are <= 8 bursts per t: acc < 2^45; one is <= 4: acc <
+//     2^44. Registers only; the operand rows stream from L1.
+//   * A FIXED operand r (folds, eq doubling, PL, elementwise fixed
+//     products) is its 16x16 canonical matrix R[t][j] = r_{t-j} (j <= t)
+//     or s r_{16+t-j} mod q (j > t) — the Y^16 = s fold-in precomputed —
+//     so out_t == sum_j d_j R[t][j] needs no h-step at all.
+//   * Reductions land the CANONICAL representative in [0, q) of every
+//     coefficient: fold31(v) = (v & m31) + c31 (v >> 31) (== v mod q; needs
+//     v < 2^63 so that v >> 31 fits the multiplier), and canon1(v) = min(v,
+//     v - q) on the u32 lanes for v < 2q. Fixed class: acc < 2^44 ->
+//     fold31 -> < 2^31 + 399 x 2^13 < 2q -> canon1. Two-product class with
+//     the h-step: h = canon1(fold31(acc_{t+16})) (acc < 2^46 -> < 2^31 +
+//     399 x 2^15 < 2q); v = acc_t + s h < 2^46 + 2^62 < 2^63; fold31 -> <
+//     2^31 + 399 x 2^32 < 2^41; fold31 -> < 2^31 + 399 x 2^10 < 2q; canon1.
+//   * The persistent round-poly PLANES (acc_lo / acc_hi, summed across
+//     chunks and finalized in u128 by `kt_round_g_finalize`) keep the
+//     scalar layout (lo[t*KL + l], hi[t*KL + l], standard lane order): the
+//     eq x wire products are summed in bursts of <= 4 (exact), and each
+//     burst adds (s & m32) to lo and (s >> 32) to hi. The (lo, hi) SPLIT
+//     of a lane word therefore differs from the scalar path's per-product
+//     split, but the exact integer W = lo + 2^32 hi per lane word is THE
+//     SAME (it is the sum of the same products), the cross-chunk sums add
+//     the same W's, and the finalize consumes only W (asserted by `uperf-j
+//     battery` per lane word and on the finalized nodes). Bounds: per pair
+//     term <= 4 bursts per plane word, each < 2^32 to lo and < 2^32 to hi;
+//     at K9_MAX_PAIR_TERMS = 2^24 pair terms: < 2^58 each — no overflow.
+//
+// IDENTITY (why the bytes are the same): every value a kernel STORES is
+// the canonical representative of the same field expression the scalar
+// body stores (fold: t0 + r (t1 - t0) [+ c]; PL: p0 + lambda q0; tree:
+// pL qR + pR qL and qL qR; eq: a zbar, a z; wire: PL Q1 + P1 Q0; the ixf
+// inner factors), computed by exact integer arithmetic and reduced to
+// [0, q) — and canonical representatives are unique. The planes are the
+// same exact integers per lane word. Hence identical bytes on every
+// path, at every thread count (the chunking is the driver's, unchanged).
+//
+// DISPATCH: `k9_hand_avx2_enabled()` = `is_x86_feature_detected!("avx2")`
+// && ZK_KSIMD != "0" (read once); the `k9_kernel!` entry points route to
+// these bodies when it holds and to today's bodies otherwise — the
+// one-binary A/B. `asm!("vpmuludq")` as in lane I (LLVM re-lowers the
+// intrinsic for loop-invariant broadcast operands).
+
+#[cfg(target_arch = "x86_64")]
+pub(crate) mod k9_avx2 {
+    use super::{
+        FUSE_EXTRACT, FUSE_EXTRACT_FOLD, FUSE_FOLD, FusedDst, FusedSrc, IXF_KIND_HAD, IXF_KIND_PROD3, K_DEG, KBLK, KKern, KL,
+        ixf_kind_tables,
+    };
+    use std::arch::x86_64::*;
+
+    /// One lane block as 16 rows (coefficient-major, 8 lanes per row).
+    pub(crate) type Blk = [__m256i; 16];
+    /// 31 output-coefficient accumulators x (even set, odd set).
+    type Acc31 = [[__m256i; 2]; 31];
+    /// 16 accumulators (the fixed-operand class).
+    type Acc16 = [[__m256i; 2]; 16];
+
+    /// The kernel constants in vector form.
+    #[derive(Clone, Copy)]
+    pub(crate) struct C {
+        q8: __m256i,  // q in every u32 lane
+        m32: __m256i, // 2^32 - 1 in every u64 lane
+        m31: __m256i, // 2^31 - 1 in every u64 lane
+        c31: __m256i, // c31 = 2^31 mod q in the low half of every u64 lane
+        c32: __m256i, // c32 = 2^32 mod q
+        s: __m256i,   // s = the binomial root, low halves
+    }
+
+    #[inline(always)]
+    pub(crate) fn consts(k: &KKern) -> C {
+        unsafe {
+            C {
+                q8: _mm256_set1_epi32(k.q as u32 as i32),
+                m32: _mm256_set1_epi64x(0xFFFF_FFFF),
+                m31: _mm256_set1_epi64x(0x7FFF_FFFF),
+                c31: _mm256_set1_epi64x(k.c31 as i64),
+                c32: _mm256_set1_epi64x(k.c32 as i64),
+                s: _mm256_set1_epi64x(k.s as i64),
+            }
+        }
+    }
+
+    /// `vpmuludq` as ONE opaque instruction (see lane I's note in
+    /// aux_ntt_core.rs: through the intrinsic LLVM re-lowers loop-invariant
+    /// operands as a 64-bit multiply idiom).
+    #[target_feature(enable = "avx2")]
+    #[inline]
+    unsafe fn mul32(a: __m256i, b: __m256i) -> __m256i {
+        let r: __m256i;
+        unsafe {
+            core::arch::asm!(
+                "vpmuludq {r}, {a}, {b}",
+                r = lateout(ymm_reg) r,
+                a = in(ymm_reg) a,
+                b = in(ymm_reg) b,
+                options(pure, nomem, nostack, preserves_flags)
+            );
+        }
+        r
+    }
+
+    #[inline(always)]
+    unsafe fn ld(p: *const u32) -> __m256i {
+        unsafe { _mm256_loadu_si256(p as *const __m256i) }
+    }
+    #[inline(always)]
+    unsafe fn st(p: *mut u32, v: __m256i) {
+        unsafe { _mm256_storeu_si256(p as *mut __m256i, v) }
+    }
+    #[inline(always)]
+    unsafe fn ld64(p: *const u64) -> __m256i {
+        unsafe { _mm256_loadu_si256(p as *const __m256i) }
+    }
+    #[inline(always)]
+    unsafe fn st64(p: *mut u64, v: __m256i) {
+        unsafe { _mm256_storeu_si256(p as *mut __m256i, v) }
+    }
+    #[inline(always)]
+    fn zero() -> __m256i {
+        unsafe { _mm256_setzero_si256() }
+    }
+    #[inline(always)]
+    fn add64(a: __m256i, b: __m256i) -> __m256i {
+        unsafe { _mm256_add_epi64(a, b) }
+    }
+    #[inline(always)]
+    fn srl32(a: __m256i) -> __m256i {
+        unsafe { _mm256_srli_epi64::<32>(a) }
+    }
+    #[inline(always)]
+    fn sll32(a: __m256i) -> __m256i {
+        unsafe { _mm256_slli_epi64::<32>(a) }
+    }
+    #[inline(always)]
+    fn and(a: __m256i, b: __m256i) -> __m256i {
+        unsafe { _mm256_and_si256(a, b) }
+    }
+    #[inline(always)]
+    fn or(a: __m256i, b: __m256i) -> __m256i {
+        unsafe { _mm256_or_si256(a, b) }
+    }
+    /// (a + b) mod q on 8 canonical u32 lanes (== addm32 per lane).
+    #[inline(always)]
+    fn addm8(a: __m256i, b: __m256i, c: &C) -> __m256i {
+        unsafe {
+            let s = _mm256_add_epi32(a, b);
+            _mm256_min_epu32(s, _mm256_sub_epi32(s, c.q8))
+        }
+    }
+    /// (a - b) mod q on 8 canonical u32 lanes (== subm32 per lane).
+    #[inline(always)]
+    fn subm8(a: __m256i, b: __m256i, c: &C) -> __m256i {
+        unsafe {
+            let d = _mm256_sub_epi32(a, b);
+            _mm256_min_epu32(d, _mm256_add_epi32(d, c.q8))
+        }
+    }
+    /// canon1: v -> v mod q for u64 lanes holding v < 2q in the low half
+    /// (high half 0): min(v, v - q) on the u32 lanes (== the first, and
+    /// here only effective, conditional subtraction of `canon32`).
+    #[inline(always)]
+    fn canon1(v: __m256i, c: &C) -> __m256i {
+        unsafe { _mm256_min_epu32(v, _mm256_sub_epi32(v, c.q8)) }
+    }
+    /// fold31: (v & m31) + c31 (v >> 31) == v (mod q), exact for v < 2^63.
+    #[inline(always)]
+    unsafe fn fold31(v: __m256i, c: &C) -> __m256i {
+        unsafe { add64(and(v, c.m31), mul32(c.c31, _mm256_srli_epi64::<31>(v))) }
+    }
+    /// One burst fold: acc + (s & m32) + c32 (s >> 32) == acc + s (mod q).
+    #[inline(always)]
+    unsafe fn fold_burst(acc: __m256i, s: __m256i, c: &C) -> __m256i {
+        unsafe { add64(add64(acc, and(s, c.m32)), mul32(c.c32, srl32(s))) }
+    }
+    /// Working-order deinterleave of a block-pair row: t0 = the even
+    /// elements, t1 = the odd, both as (pair-lanes 0,1,4,5,2,3,6,7).
+    #[inline(always)]
+    fn deint_row(x: __m256i, y: __m256i) -> (__m256i, __m256i) {
+        unsafe {
+            let xf = _mm256_castsi256_ps(x);
+            let yf = _mm256_castsi256_ps(y);
+            (
+                _mm256_castps_si256(_mm256_shuffle_ps::<0x88>(xf, yf)),
+                _mm256_castps_si256(_mm256_shuffle_ps::<0xDD>(xf, yf)),
+            )
+        }
+    }
+    /// Working order <-> standard order (an involution: swap the middle
+    /// two 64-bit lanes).
+    #[inline(always)]
+    fn unperm(w: __m256i) -> __m256i {
+        unsafe { _mm256_permute4x64_epi64::<0xD8>(w) }
+    }
+    #[inline(always)]
+    fn bcast(x: u32) -> __m256i {
+        unsafe { _mm256_set1_epi32(x as i32) }
+    }
+
+    #[inline(always)]
+    unsafe fn load_blk(p: *const u32) -> Blk {
+        let mut b: Blk = [zero(); 16];
+        for j in 0..K_DEG {
+            b[j] = unsafe { ld(p.add(j * KL)) };
+        }
+        b
+    }
+    #[inline(always)]
+    unsafe fn store_blk(p: *mut u32, b: &Blk) {
+        for j in 0..K_DEG {
+            unsafe { st(p.add(j * KL), b[j]) };
+        }
+    }
+    #[inline(always)]
+    fn store_blk_std(p: *mut u32, b: &Blk) {
+        for j in 0..K_DEG {
+            unsafe { st(p.add(j * KL), unperm(b[j])) };
+        }
+    }
+    #[inline(always)]
+    fn unperm_blk(b: &Blk) -> Blk {
+        let mut o: Blk = [zero(); 16];
+        for j in 0..K_DEG {
+            o[j] = unperm(b[j]);
+        }
+        o
+    }
+    /// The odd-set operand form of a block (rows shifted right by 32).
+    #[inline(always)]
+    fn oform(b: &Blk) -> Blk {
+        let mut o: Blk = [zero(); 16];
+        for j in 0..K_DEG {
+            o[j] = srl32(b[j]);
+        }
+        o
+    }
+    #[inline(always)]
+    fn deint_blk(x: &Blk, y: &Blk) -> (Blk, Blk) {
+        let mut t0: Blk = [zero(); 16];
+        let mut t1: Blk = [zero(); 16];
+        for j in 0..K_DEG {
+            let (a, b) = deint_row(x[j], y[j]);
+            t0[j] = a;
+            t1[j] = b;
+        }
+        (t0, t1)
+    }
+    #[inline(always)]
+    fn addm_blk(a: &Blk, b: &Blk, c: &C) -> Blk {
+        let mut o: Blk = [zero(); 16];
+        for j in 0..K_DEG {
+            o[j] = addm8(a[j], b[j], c);
+        }
+        o
+    }
+    #[inline(always)]
+    fn subm_blk(a: &Blk, b: &Blk, c: &C) -> Blk {
+        let mut o: Blk = [zero(); 16];
+        for j in 0..K_DEG {
+            o[j] = subm8(a[j], b[j], c);
+        }
+        o
+    }
+    #[inline(always)]
+    fn addc_blk(a: &Blk, k: &[u32; K_DEG], c: &C) -> Blk {
+        let mut o: Blk = [zero(); 16];
+        for j in 0..K_DEG {
+            o[j] = addm8(a[j], bcast(k[j]), c);
+        }
+        o
+    }
+
+    /// The 16x16 canonical matrix of a fixed operand: out_t = sum_j d_j
+    /// R[t][j] with R[t][j] = r_{t-j} (j <= t), s r_{16+t-j} mod q (j > t).
+    pub(crate) struct RMat {
+        m: [[u32; K_DEG]; K_DEG],
+    }
+    impl RMat {
+        pub(crate) fn new(k: &KKern, r: &[u32; K_DEG]) -> RMat {
+            let q = k.q as u128;
+            let s = k.s as u128;
+            let mut m = [[0u32; K_DEG]; K_DEG];
+            for (t, row) in m.iter_mut().enumerate() {
+                for (j, e) in row.iter_mut().enumerate() {
+                    *e = if j <= t { r[t - j] } else { ((s * r[16 + t - j] as u128) % q) as u32 };
+                }
+            }
+            RMat { m }
+        }
+    }
+
+    /// One output diagonal t of the 16x16 product: acc[T] += sum_{i+j=T}
+    /// a_i b_j (both sets), bursts of <= 4 — every bound a compile-time
+    /// constant of T (straight-line code after monomorphization).
+    #[inline(always)]
+    unsafe fn diag<const T: usize>(a: &Blk, ao: &Blk, b: &Blk, bo: &Blk, c: &C, acc: &mut Acc31) {
+        unsafe {
+            let i_lo: usize = if T >= 15 { T - 15 } else { 0 };
+            let i_hi: usize = if T < 15 { T } else { 15 };
+            let n: usize = i_hi + 1 - i_lo;
+            let full: usize = n / 4;
+            let rem: usize = n % 4;
+            let mut ae = acc[T][0];
+            let mut ao_ = acc[T][1];
+            let mut i = i_lo;
+            for _ in 0..full {
+                let j = T - i;
+                let mut se = mul32(a[i], b[j]);
+                let mut so = mul32(ao[i], bo[j]);
+                se = add64(se, mul32(a[i + 1], b[j - 1]));
+                so = add64(so, mul32(ao[i + 1], bo[j - 1]));
+                se = add64(se, mul32(a[i + 2], b[j - 2]));
+                so = add64(so, mul32(ao[i + 2], bo[j - 2]));
+                se = add64(se, mul32(a[i + 3], b[j - 3]));
+                so = add64(so, mul32(ao[i + 3], bo[j - 3]));
+                ae = fold_burst(ae, se, c);
+                ao_ = fold_burst(ao_, so, c);
+                i += 4;
+            }
+            if rem > 0 {
+                let j = T - i;
+                let mut se = mul32(a[i], b[j]);
+                let mut so = mul32(ao[i], bo[j]);
+                if rem > 1 {
+                    se = add64(se, mul32(a[i + 1], b[j - 1]));
+                    so = add64(so, mul32(ao[i + 1], bo[j - 1]));
+                }
+                if rem > 2 {
+                    se = add64(se, mul32(a[i + 2], b[j - 2]));
+                    so = add64(so, mul32(ao[i + 2], bo[j - 2]));
+                }
+                ae = fold_burst(ae, se, c);
+                ao_ = fold_burst(ao_, so, c);
+            }
+            acc[T][0] = ae;
+            acc[T][1] = ao_;
+        }
+    }
+
+    macro_rules! diags {
+        ($a:ident, $ao:ident, $b:ident, $bo:ident, $c:ident, $acc:ident; $($t:literal),*) => {
+            $( diag::<$t>($a, $ao, $b, $bo, $c, $acc); )*
+        };
+    }
+
+    /// acc[t] += sum_{i+j=t} a_i b_j (both sets), bursts of <= 4.
+    #[inline(always)]
+    unsafe fn mul_vv_acc(a: &Blk, ao: &Blk, b: &Blk, bo: &Blk, c: &C, acc: &mut Acc31) {
+        unsafe {
+            diags!(a, ao, b, bo, c, acc; 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30);
+        }
+    }
+
+    /// acc[t] += sum_j d_j R[t][j] (both sets), bursts of 4.
+    #[inline(always)]
+    unsafe fn mul_fix_acc(d: &Blk, dl: &Blk, rm: &RMat, c: &C, acc: &mut Acc16) {
+        unsafe {
+            for t in 0..K_DEG {
+                let row = &rm.m[t];
+                let mut ae = acc[t][0];
+                let mut ao_ = acc[t][1];
+                let mut j = 0;
+                while j < K_DEG {
+                    let r0 = bcast(row[j]);
+                    let mut se = mul32(d[j], r0);
+                    let mut so = mul32(dl[j], r0);
+                    for k in 1..4 {
+                        let rk = bcast(row[j + k]);
+                        se = add64(se, mul32(d[j + k], rk));
+                        so = add64(so, mul32(dl[j + k], rk));
+                    }
+                    ae = fold_burst(ae, se, c);
+                    ao_ = fold_burst(ao_, so, c);
+                    j += 4;
+                }
+                acc[t][0] = ae;
+                acc[t][1] = ao_;
+            }
+        }
+    }
+
+    #[inline(always)]
+    fn acc31_zero() -> Acc31 {
+        [[zero(); 2]; 31]
+    }
+    #[inline(always)]
+    fn acc16_zero() -> Acc16 {
+        [[zero(); 2]; 16]
+    }
+
+    /// The two-block-product class reduction (with the Y^16 = s h-step):
+    /// canonical rows in the operands' lane order. acc < 2^46 per lane.
+    #[inline(always)]
+    unsafe fn red_wire(acc: &Acc31, c: &C) -> Blk {
+        unsafe {
+            let mut out: Blk = [zero(); 16];
+            for t in 0..K_DEG - 1 {
+                let he = canon1(fold31(acc[t + 16][0], c), c);
+                let ho = canon1(fold31(acc[t + 16][1], c), c);
+                let ve = add64(acc[t][0], mul32(c.s, he));
+                let vo = add64(acc[t][1], mul32(c.s, ho));
+                let re = canon1(fold31(fold31(ve, c), c), c);
+                let ro = canon1(fold31(fold31(vo, c), c), c);
+                out[t] = or(re, sll32(ro));
+            }
+            let re = canon1(fold31(acc[15][0], c), c);
+            let ro = canon1(fold31(acc[15][1], c), c);
+            out[15] = or(re, sll32(ro));
+            out
+        }
+    }
+
+    /// The fixed-operand class reduction: acc < 2^44 per lane.
+    #[inline(always)]
+    unsafe fn red_fix(acc: &Acc16, c: &C) -> Blk {
+        unsafe {
+            let mut out: Blk = [zero(); 16];
+            for t in 0..K_DEG {
+                let re = canon1(fold31(acc[t][0], c), c);
+                let ro = canon1(fold31(acc[t][1], c), c);
+                out[t] = or(re, sll32(ro));
+            }
+            out
+        }
+    }
+
+    /// out = d * r for a block (rows in any consistent order).
+    #[inline(always)]
+    unsafe fn mul_fix_blk(d: &Blk, rm: &RMat, c: &C) -> Blk {
+        unsafe {
+            let dl = oform(d);
+            let mut acc = acc16_zero();
+            mul_fix_acc(d, &dl, rm, c, &mut acc);
+            red_fix(&acc, c)
+        }
+    }
+
+    /// out = a * b for a block.
+    #[inline(always)]
+    unsafe fn mul_vv_blk(a: &Blk, b: &Blk, c: &C) -> Blk {
+        unsafe {
+            let ao = oform(a);
+            let bo = oform(b);
+            let mut acc = acc31_zero();
+            mul_vv_acc(a, &ao, b, &bo, c, &mut acc);
+            red_wire(&acc, c)
+        }
+    }
+
+    /// The fold of the standard-order block pair (x = 2m, y = 2m+1): out =
+    /// t0 + r (t1 - t0) [+ k], WORKING order.
+    #[inline(always)]
+    unsafe fn fold_pair(x: &Blk, y: &Blk, rm: &RMat, k: Option<&[u32; K_DEG]>, c: &C) -> Blk {
+        unsafe {
+            let (t0, t1) = deint_blk(x, y);
+            let d = subm_blk(&t1, &t0, c);
+            let prod = mul_fix_blk(&d, rm, c);
+            let out = addm_blk(&t0, &prod, c);
+            match k {
+                Some(k) => addc_blk(&out, k, c),
+                None => out,
+            }
+        }
+    }
+
+    /// One output diagonal t of eq x w into the persistent planes of one
+    /// node (standard lane order): bursts of <= 4 per set, each split into
+    /// lo (s & m32) and hi (s >> 32) — the same W per lane word. `perm`:
+    /// true when the operand rows are in the WORKING order (even set =
+    /// pair-lanes 0,4,2,6 / odd set = 1,5,3,7: unpacklo/hi land the
+    /// standard order), false for STANDARD-order rows (even = 0,2,4,6 / odd
+    /// = 1,3,5,7: unpack then swap the 128-bit halves).
+    #[inline(always)]
+    unsafe fn pdiag<const T: usize, const PERM: bool>(eq: &Blk, eqo: &Blk, w: &Blk, wo: &Blk, c: &C, lo: *mut u64, hi: *mut u64) {
+        unsafe {
+            let i_lo: usize = if T >= 15 { T - 15 } else { 0 };
+            let i_hi: usize = if T < 15 { T } else { 15 };
+            let n: usize = i_hi + 1 - i_lo;
+            let full: usize = n / 4;
+            let rem: usize = n % 4;
+            let mut lo_e = zero();
+            let mut hi_e = zero();
+            let mut lo_o = zero();
+            let mut hi_o = zero();
+            let mut i = i_lo;
+            for _ in 0..full {
+                let j = T - i;
+                let mut se = mul32(eq[i], w[j]);
+                let mut so = mul32(eqo[i], wo[j]);
+                se = add64(se, mul32(eq[i + 1], w[j - 1]));
+                so = add64(so, mul32(eqo[i + 1], wo[j - 1]));
+                se = add64(se, mul32(eq[i + 2], w[j - 2]));
+                so = add64(so, mul32(eqo[i + 2], wo[j - 2]));
+                se = add64(se, mul32(eq[i + 3], w[j - 3]));
+                so = add64(so, mul32(eqo[i + 3], wo[j - 3]));
+                lo_e = add64(lo_e, and(se, c.m32));
+                hi_e = add64(hi_e, srl32(se));
+                lo_o = add64(lo_o, and(so, c.m32));
+                hi_o = add64(hi_o, srl32(so));
+                i += 4;
+            }
+            if rem > 0 {
+                let j = T - i;
+                let mut se = mul32(eq[i], w[j]);
+                let mut so = mul32(eqo[i], wo[j]);
+                if rem > 1 {
+                    se = add64(se, mul32(eq[i + 1], w[j - 1]));
+                    so = add64(so, mul32(eqo[i + 1], wo[j - 1]));
+                }
+                if rem > 2 {
+                    se = add64(se, mul32(eq[i + 2], w[j - 2]));
+                    so = add64(so, mul32(eqo[i + 2], wo[j - 2]));
+                }
+                lo_e = add64(lo_e, and(se, c.m32));
+                hi_e = add64(hi_e, srl32(se));
+                lo_o = add64(lo_o, and(so, c.m32));
+                hi_o = add64(hi_o, srl32(so));
+            }
+            let (la, lb, ha, hb) = if PERM {
+                (
+                    _mm256_unpacklo_epi64(lo_e, lo_o),
+                    _mm256_unpackhi_epi64(lo_e, lo_o),
+                    _mm256_unpacklo_epi64(hi_e, hi_o),
+                    _mm256_unpackhi_epi64(hi_e, hi_o),
+                )
+            } else {
+                let l01 = _mm256_unpacklo_epi64(lo_e, lo_o); // (E0,O0,E2,O2)
+                let l23 = _mm256_unpackhi_epi64(lo_e, lo_o); // (E1,O1,E3,O3)
+                let h01 = _mm256_unpacklo_epi64(hi_e, hi_o);
+                let h23 = _mm256_unpackhi_epi64(hi_e, hi_o);
+                (
+                    _mm256_permute2x128_si256::<0x20>(l01, l23), // (E0,O0,E1,O1)
+                    _mm256_permute2x128_si256::<0x31>(l01, l23), // (E2,O2,E3,O3)
+                    _mm256_permute2x128_si256::<0x20>(h01, h23),
+                    _mm256_permute2x128_si256::<0x31>(h01, h23),
+                )
+            };
+            let p_lo = lo.add(T * KL);
+            let p_hi = hi.add(T * KL);
+            st64(p_lo, add64(ld64(p_lo), la));
+            st64(p_lo.add(4), add64(ld64(p_lo.add(4)), lb));
+            st64(p_hi, add64(ld64(p_hi), ha));
+            st64(p_hi.add(4), add64(ld64(p_hi.add(4)), hb));
+        }
+    }
+
+    macro_rules! pdiags {
+        ($perm:literal; $eq:ident, $eqo:ident, $w:ident, $wo:ident, $c:ident, $lo:ident, $hi:ident; $($t:literal),*) => {
+            $( pdiag::<$t, $perm>($eq, $eqo, $w, $wo, $c, $lo, $hi); )*
+        };
+    }
+
+    /// eq x w into the persistent planes of one node (working-order rows).
+    #[inline(always)]
+    unsafe fn plane_mac(eq: &Blk, eqo: &Blk, w: &Blk, wo: &Blk, c: &C, lo: *mut u64, hi: *mut u64) {
+        unsafe {
+            pdiags!(true; eq, eqo, w, wo, c, lo, hi; 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30);
+        }
+    }
+
+    // ----- the kernels -----
+
+    /// mul_fixed_body: dst[i] = src[i] * r over full blocks.
+    #[target_feature(enable = "avx2")]
+    pub(crate) unsafe fn mul_fixed(kern: &KKern, src: &[u32], r: &[u32; K_DEG], dst: &mut [u32], nblk: usize) {
+        let words = nblk.checked_mul(KBLK).expect("K9 fixed-mul size overflow");
+        assert!(src.len() >= words && dst.len() >= words, "K9 fixed-mul layout");
+        let c = consts(kern);
+        let rm = RMat::new(kern, r);
+        unsafe {
+            for m in 0..nblk {
+                let a = load_blk(src.as_ptr().add(m * KBLK));
+                let o = mul_fix_blk(&a, &rm, &c);
+                store_blk(dst.as_mut_ptr().add(m * KBLK), &o);
+            }
+        }
+    }
+
+    /// mul_fixed_add_body: a_io[i] += b[i] * r.
+    #[target_feature(enable = "avx2")]
+    pub(crate) unsafe fn mul_fixed_add(kern: &KKern, a_io: &mut [u32], b: &[u32], r: &[u32; K_DEG], nblk: usize) {
+        let words = nblk.checked_mul(KBLK).expect("K9 fixed-mul-add size overflow");
+        assert!(a_io.len() >= words && b.len() >= words, "K9 fixed-mul-add layout");
+        let c = consts(kern);
+        let rm = RMat::new(kern, r);
+        unsafe {
+            for m in 0..nblk {
+                let bb = load_blk(b.as_ptr().add(m * KBLK));
+                let prod = mul_fix_blk(&bb, &rm, &c);
+                let ab = load_blk(a_io.as_ptr().add(m * KBLK));
+                let o = addm_blk(&ab, &prod, &c);
+                store_blk(a_io.as_mut_ptr().add(m * KBLK), &o);
+            }
+        }
+    }
+
+    /// mul_elem_body: dst[i] = a[i] * b[i].
+    #[target_feature(enable = "avx2")]
+    pub(crate) unsafe fn mul_elem(kern: &KKern, a: &[u32], b: &[u32], dst: &mut [u32], nblk: usize) {
+        let words = nblk.checked_mul(KBLK).expect("K9 element-mul size overflow");
+        assert!(a.len() >= words && b.len() >= words && dst.len() >= words, "K9 element-mul layout");
+        let c = consts(kern);
+        unsafe {
+            for m in 0..nblk {
+                let ab = load_blk(a.as_ptr().add(m * KBLK));
+                let bb = load_blk(b.as_ptr().add(m * KBLK));
+                let o = mul_vv_blk(&ab, &bb, &c);
+                store_blk(dst.as_mut_ptr().add(m * KBLK), &o);
+            }
+        }
+    }
+
+    /// addc_body: t[i] += k.
+    #[target_feature(enable = "avx2")]
+    pub(crate) unsafe fn addc(kern: &KKern, t: &mut [u32], k: &[u32; K_DEG], nblk: usize) {
+        let words = nblk.checked_mul(KBLK).expect("K9 add size overflow");
+        assert!(t.len() >= words, "K9 add layout");
+        let c = consts(kern);
+        unsafe {
+            for m in 0..nblk {
+                let p = t.as_mut_ptr().add(m * KBLK);
+                for j in 0..K_DEG {
+                    st(p.add(j * KL), addm8(ld(p.add(j * KL)), bcast(k[j]), &c));
+                }
+            }
+        }
+    }
+
+    /// fold_oop_body: dst[m] = fold of src blocks (2m, 2m+1).
+    #[target_feature(enable = "avx2")]
+    pub(crate) unsafe fn fold_oop(kern: &KKern, src: &[u32], dst: &mut [u32], r: &[u32; K_DEG], nblk: usize) {
+        let src_words = nblk.checked_mul(2 * KBLK).expect("K9 fold input size overflow");
+        let dst_words = nblk.checked_mul(KBLK).expect("K9 fold output size overflow");
+        assert!(src.len() >= src_words && dst.len() >= dst_words, "K9 oop-fold layout");
+        let c = consts(kern);
+        let rm = RMat::new(kern, r);
+        unsafe {
+            for m in 0..nblk {
+                let x = load_blk(src.as_ptr().add(2 * m * KBLK));
+                let y = load_blk(src.as_ptr().add((2 * m + 1) * KBLK));
+                let o = fold_pair(&x, &y, &rm, None, &c);
+                store_blk_std(dst.as_mut_ptr().add(m * KBLK), &o);
+            }
+        }
+    }
+
+    /// fold_body: the IN-PLACE forward-safe fold (output block m written
+    /// after its sources 2m, 2m+1 are loaded; m <= 2m).
+    #[target_feature(enable = "avx2")]
+    pub(crate) unsafe fn fold_inplace(kern: &KKern, d_io: &mut [u32], r: &[u32; K_DEG], nblk: usize) {
+        let src_words = nblk.checked_mul(2 * KBLK).expect("K9 fold input size overflow");
+        assert!(d_io.len() >= src_words, "K9 fold layout");
+        let c = consts(kern);
+        let rm = RMat::new(kern, r);
+        unsafe {
+            for m in 0..nblk {
+                let x = load_blk(d_io.as_ptr().add(2 * m * KBLK));
+                let y = load_blk(d_io.as_ptr().add((2 * m + 1) * KBLK));
+                let o = fold_pair(&x, &y, &rm, None, &c);
+                store_blk_std(d_io.as_mut_ptr().add(m * KBLK), &o);
+            }
+        }
+    }
+
+    /// eq_double_body (in place, one buffer): block m -> a zbar, block
+    /// m + half -> a z.
+    #[target_feature(enable = "avx2")]
+    pub(crate) unsafe fn eq_double(kern: &KKern, d_io: &mut [u32], half_nblk: usize, zbar: &[u32; K_DEG], z: &[u32; K_DEG]) {
+        let words = half_nblk.checked_mul(2 * KBLK).expect("K9 eq-double size overflow");
+        assert!(d_io.len() >= words, "K9 eq-double layout");
+        let c = consts(kern);
+        let rzb = RMat::new(kern, zbar);
+        let rz = RMat::new(kern, z);
+        unsafe {
+            for m in 0..half_nblk {
+                let a = load_blk(d_io.as_ptr().add(m * KBLK));
+                let o0 = mul_fix_blk(&a, &rzb, &c);
+                store_blk(d_io.as_mut_ptr().add(m * KBLK), &o0);
+                let o1 = mul_fix_blk(&a, &rz, &c);
+                store_blk(d_io.as_mut_ptr().add((m + half_nblk) * KBLK), &o1);
+            }
+        }
+    }
+
+    /// eq_double_split_body: lo_io[m] -> a zbar, up[m] -> a z.
+    #[target_feature(enable = "avx2")]
+    pub(crate) unsafe fn eq_double_split(kern: &KKern, lo_io: &mut [u32], up: &mut [u32], nblk: usize, zbar: &[u32; K_DEG], z: &[u32; K_DEG]) {
+        let words = nblk.checked_mul(KBLK).expect("K9 eq-double size overflow");
+        assert!(lo_io.len() >= words && up.len() >= words, "K9 eq-double split layout");
+        let c = consts(kern);
+        let rzb = RMat::new(kern, zbar);
+        let rz = RMat::new(kern, z);
+        unsafe {
+            for m in 0..nblk {
+                let a = load_blk(lo_io.as_ptr().add(m * KBLK));
+                let o0 = mul_fix_blk(&a, &rzb, &c);
+                store_blk(lo_io.as_mut_ptr().add(m * KBLK), &o0);
+                let o1 = mul_fix_blk(&a, &rz, &c);
+                store_blk(up.as_mut_ptr().add(m * KBLK), &o1);
+            }
+        }
+    }
+
+    /// tree_step_body: np = pL qR + pR qL, nq = qL qR over full blocks.
+    #[target_feature(enable = "avx2")]
+    pub(crate) unsafe fn tree_step(kern: &KKern, cp: &[u32], cq: &[u32], np: &mut [u32], nq: &mut [u32], nblk: usize) {
+        let src_words = nblk.checked_mul(2 * KBLK).expect("K9 tree input size overflow");
+        let dst_words = nblk.checked_mul(KBLK).expect("K9 tree output size overflow");
+        assert!(cp.len() >= src_words && cq.len() >= src_words, "K9 tree input layout");
+        assert!(np.len() >= dst_words && nq.len() >= dst_words, "K9 tree output layout");
+        let c = consts(kern);
+        unsafe {
+            for m in 0..nblk {
+                let px = load_blk(cp.as_ptr().add(2 * m * KBLK));
+                let py = load_blk(cp.as_ptr().add((2 * m + 1) * KBLK));
+                let qx = load_blk(cq.as_ptr().add(2 * m * KBLK));
+                let qy = load_blk(cq.as_ptr().add((2 * m + 1) * KBLK));
+                let (pl, pr) = deint_blk(&px, &py);
+                let (ql, qr) = deint_blk(&qx, &qy);
+                let plo = oform(&pl);
+                let pro = oform(&pr);
+                let qlo = oform(&ql);
+                let qro = oform(&qr);
+                let mut acc = acc31_zero();
+                mul_vv_acc(&pl, &plo, &qr, &qro, &c, &mut acc);
+                mul_vv_acc(&pr, &pro, &ql, &qlo, &c, &mut acc);
+                let onp = red_wire(&acc, &c);
+                store_blk_std(np.as_mut_ptr().add(m * KBLK), &onp);
+                let mut acc = acc31_zero();
+                mul_vv_acc(&ql, &qlo, &qr, &qro, &c, &mut acc);
+                let onq = red_wire(&acc, &c);
+                store_blk_std(nq.as_mut_ptr().add(m * KBLK), &onq);
+            }
+        }
+    }
+
+    /// The five-table node loop for ONE pair-block whose (even, odd)
+    /// working-order blocks are e0 / e1 (== round_g5_pair).
+    #[inline(always)]
+    unsafe fn g5_pair(
+        e0: &[Blk; 5],
+        e1: &[Blk; 5],
+        nodes: &[u64],
+        consts: Option<&[[[u32; K_DEG]; 4]]>,
+        acc_lo: *mut u64,
+        acc_hi: *mut u64,
+        c: &C,
+    ) {
+        unsafe {
+            let mut dd: [Blk; 5] = [[zero(); 16]; 5];
+            let mut cur: [Blk; 5] = [[zero(); 16]; 5];
+            for k in 0..5 {
+                dd[k] = subm_blk(&e1[k], &e0[k], c);
+                cur[k] = e1[k];
+            }
+            let mut prev_x = 1u64;
+            for (ni, &x) in nodes.iter().enumerate() {
+                let tabs: &[Blk; 5] = if x == 0 {
+                    e0
+                } else {
+                    while prev_x < x {
+                        for k in 0..5 {
+                            cur[k] = addm_blk(&cur[k], &dd[k], c);
+                        }
+                        prev_x += 1;
+                    }
+                    &cur
+                };
+                let (vpl, vp1, vq0, vq1): (Blk, Blk, Blk, Blk) = match consts {
+                    Some(cs) => {
+                        let cc = &cs[ni];
+                        (addc_blk(&tabs[1], &cc[0], c), addc_blk(&tabs[2], &cc[1], c), addc_blk(&tabs[3], &cc[2], c), addc_blk(&tabs[4], &cc[3], c))
+                    }
+                    None => (tabs[1], tabs[2], tabs[3], tabs[4]),
+                };
+                // wire = PL Q1 + P1 Q0
+                let mut acc = acc31_zero();
+                mul_vv_acc(&vpl, &oform(&vpl), &vq1, &oform(&vq1), c, &mut acc);
+                mul_vv_acc(&vp1, &oform(&vp1), &vq0, &oform(&vq0), c, &mut acc);
+                let w = red_wire(&acc, c);
+                let wo = oform(&w);
+                let eqo = oform(&tabs[0]);
+                plane_mac(&tabs[0], &eqo, &w, &wo, c, acc_lo.add(ni * 31 * KL), acc_hi.add(ni * 31 * KL));
+            }
+        }
+    }
+
+    fn check_planes(nodes: &[u64], acc_lo: &[u64], acc_hi: &[u64]) {
+        let acc_words = nodes.len().checked_mul(31 * KL).expect("K9 round accumulator size overflow");
+        assert!(acc_lo.len() >= acc_words && acc_hi.len() >= acc_words, "K9 round accumulator layout");
+    }
+
+    /// round_g5_body.
+    #[target_feature(enable = "avx2")]
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) unsafe fn round_g5(
+        kern: &KKern,
+        eq: &[u32],
+        pl: &[u32],
+        p1: &[u32],
+        q0: &[u32],
+        q1: &[u32],
+        nblk_pairs: usize,
+        nodes: &[u64],
+        consts: Option<&[[[u32; K_DEG]; 4]]>,
+        acc_lo: &mut [u64],
+        acc_hi: &mut [u64],
+    ) {
+        let pair_terms = nblk_pairs.checked_mul(KL).expect("K9 round term-count overflow");
+        assert!(pair_terms <= super::K9_MAX_PAIR_TERMS, "K9 lazy-accumulator cap exceeded");
+        let src_words = nblk_pairs.checked_mul(2 * KBLK).expect("K9 round input size overflow");
+        assert!([eq, pl, p1, q0, q1].iter().all(|table| table.len() >= src_words), "K9 round5 input layout");
+        check_planes(nodes, acc_lo, acc_hi);
+        if let Some(cs) = consts {
+            assert_eq!(cs.len(), nodes.len(), "K9 round5 constant layout");
+        }
+        let c = consts_of(kern);
+        let srcs = [eq, pl, p1, q0, q1];
+        unsafe {
+            for m in 0..nblk_pairs {
+                let mut e0: [Blk; 5] = [[zero(); 16]; 5];
+                let mut e1: [Blk; 5] = [[zero(); 16]; 5];
+                for k in 0..5 {
+                    let x = load_blk(srcs[k].as_ptr().add(2 * m * KBLK));
+                    let y = load_blk(srcs[k].as_ptr().add((2 * m + 1) * KBLK));
+                    let (a, b) = deint_blk(&x, &y);
+                    e0[k] = a;
+                    e1[k] = b;
+                }
+                g5_pair(&e0, &e1, nodes, consts, acc_lo.as_mut_ptr(), acc_hi.as_mut_ptr(), &c);
+            }
+        }
+    }
+
+    #[inline(always)]
+    fn consts_of(kern: &KKern) -> C {
+        consts(kern)
+    }
+
+    /// The fused round kernel (== fused_round_body).
+    #[target_feature(enable = "avx2")]
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) unsafe fn fused_round(
+        kern: &KKern,
+        s: &FusedSrc,
+        d: &mut FusedDst,
+        n: usize,
+        nodes: &[u64],
+        node_consts: Option<&[[[u32; K_DEG]; 4]]>,
+        acc_lo: &mut [u64],
+        acc_hi: &mut [u64],
+    ) {
+        let pair_terms = n.checked_mul(KL).expect("K9 fused round term-count overflow");
+        assert!(pair_terms <= super::K9_MAX_PAIR_TERMS, "K9 lazy-accumulator cap exceeded");
+        check_planes(nodes, acc_lo, acc_hi);
+        if let Some(cs) = node_consts {
+            assert_eq!(cs.len(), nodes.len(), "K9 fused round constant layout");
+        }
+        let (w2, w4, w8) = (2 * n * KBLK, 4 * n * KBLK, 8 * n * KBLK);
+        match s.mode {
+            FUSE_FOLD => {
+                assert!(s.eq.len() >= w4 && s.t.iter().all(|t| t.len() >= w4), "K9 fused fold source layout");
+                assert!(d.eq.len() >= w2 && d.t.iter().all(|t| t.len() >= w2), "K9 fused fold dest layout");
+            }
+            FUSE_EXTRACT => {
+                assert!(s.eq.len() >= w2 && s.t[0].len() >= w4 && s.t[1].len() >= w4, "K9 fused extract source layout");
+            }
+            FUSE_EXTRACT_FOLD => {
+                assert!(s.eq.len() >= w4 && s.t[0].len() >= w8 && s.t[1].len() >= w8, "K9 fused extract-fold source layout");
+                assert!(d.eq.len() >= w2 && d.t.iter().all(|t| t.len() >= w2), "K9 fused extract-fold dest layout");
+            }
+            _ => panic!("K9 fused round: unknown mode"),
+        }
+        let c = consts(kern);
+        let rprev = RMat::new(kern, &s.r_prev);
+        let rlam = RMat::new(kern, &s.lambda);
+        let rsc = s.eq_scale.as_ref().map(|sc| RMat::new(kern, sc));
+        let alo = acc_lo.as_mut_ptr();
+        let ahi = acc_hi.as_mut_ptr();
+        unsafe {
+            for m in 0..n {
+                let mut e0: [Blk; 5] = [[zero(); 16]; 5];
+                let mut e1: [Blk; 5] = [[zero(); 16]; 5];
+                match s.mode {
+                    FUSE_FOLD => {
+                        for k in 0..5 {
+                            let src: &[u32] = if k == 0 { s.eq } else { s.t[k - 1] };
+                            let kc = if k == 0 { None } else { s.fold_consts.as_ref().map(|fc| &fc[k - 1]) };
+                            let sp = src.as_ptr();
+                            let x0 = load_blk(sp.add(4 * m * KBLK));
+                            let x1 = load_blk(sp.add((4 * m + 1) * KBLK));
+                            let x2 = load_blk(sp.add((4 * m + 2) * KBLK));
+                            let x3 = load_blk(sp.add((4 * m + 3) * KBLK));
+                            let ba = unperm_blk(&fold_pair(&x0, &x1, &rprev, kc, &c));
+                            let bb = unperm_blk(&fold_pair(&x2, &x3, &rprev, kc, &c));
+                            let dp: *mut u32 = if k == 0 { d.eq.as_mut_ptr() } else { d.t[k - 1].as_mut_ptr() };
+                            store_blk(dp.add(2 * m * KBLK), &ba);
+                            store_blk(dp.add((2 * m + 1) * KBLK), &bb);
+                            let (a, b) = deint_blk(&ba, &bb);
+                            e0[k] = a;
+                            e1[k] = b;
+                        }
+                    }
+                    FUSE_EXTRACT => {
+                        let ep = s.eq.as_ptr();
+                        let ea = load_blk(ep.add(2 * m * KBLK));
+                        let eb = load_blk(ep.add((2 * m + 1) * KBLK));
+                        let (a, b) = match rsc.as_ref() {
+                            None => deint_blk(&ea, &eb),
+                            Some(rs) => deint_blk(&mul_fix_blk(&ea, rs, &c), &mul_fix_blk(&eb, rs, &c)),
+                        };
+                        e0[0] = a;
+                        e1[0] = b;
+                        // tree layer blocks 4m..4m+4 -> the state-0 blocks 2m, 2m+1 of
+                        // p0/p1 (x0/x1) and q0/q1 (y0/y1), standard order
+                        let pp = s.t[0].as_ptr();
+                        let qp = s.t[1].as_ptr();
+                        let mut x0: [Blk; 2] = [[zero(); 16]; 2];
+                        let mut x1: [Blk; 2] = [[zero(); 16]; 2];
+                        let mut y0: [Blk; 2] = [[zero(); 16]; 2];
+                        let mut y1: [Blk; 2] = [[zero(); 16]; 2];
+                        for i in 0..2 {
+                            let (a, b) = deint_blk(&load_blk(pp.add((4 * m + 2 * i) * KBLK)), &load_blk(pp.add((4 * m + 2 * i + 1) * KBLK)));
+                            x0[i] = unperm_blk(&a);
+                            x1[i] = unperm_blk(&b);
+                            let (a, b) = deint_blk(&load_blk(qp.add((4 * m + 2 * i) * KBLK)), &load_blk(qp.add((4 * m + 2 * i + 1) * KBLK)));
+                            y0[i] = unperm_blk(&a);
+                            y1[i] = unperm_blk(&b);
+                        }
+                        let ba = addm_blk(&x0[0], &mul_fix_blk(&y0[0], &rlam, &c), &c);
+                        let bb = addm_blk(&x0[1], &mul_fix_blk(&y0[1], &rlam, &c), &c);
+                        let (a, b) = deint_blk(&ba, &bb);
+                        e0[1] = a;
+                        e1[1] = b;
+                        let (a, b) = deint_blk(&x1[0], &x1[1]);
+                        e0[2] = a;
+                        e1[2] = b;
+                        let (a, b) = deint_blk(&y0[0], &y0[1]);
+                        e0[3] = a;
+                        e1[3] = b;
+                        let (a, b) = deint_blk(&y1[0], &y1[1]);
+                        e0[4] = a;
+                        e1[4] = b;
+                    }
+                    _ => {
+                        // eq: state-0 blocks 4m..4m+4 (b-part x E(e)) -> state-1 blocks 2m, 2m+1
+                        let ep = s.eq.as_ptr();
+                        let (ba, bb) = match rsc.as_ref() {
+                            None => (
+                                fold_pair(&load_blk(ep.add(4 * m * KBLK)), &load_blk(ep.add((4 * m + 1) * KBLK)), &rprev, None, &c),
+                                fold_pair(&load_blk(ep.add((4 * m + 2) * KBLK)), &load_blk(ep.add((4 * m + 3) * KBLK)), &rprev, None, &c),
+                            ),
+                            Some(rs) => {
+                                let f0 = mul_fix_blk(&load_blk(ep.add(4 * m * KBLK)), rs, &c);
+                                let f1 = mul_fix_blk(&load_blk(ep.add((4 * m + 1) * KBLK)), rs, &c);
+                                let f2 = mul_fix_blk(&load_blk(ep.add((4 * m + 2) * KBLK)), rs, &c);
+                                let f3 = mul_fix_blk(&load_blk(ep.add((4 * m + 3) * KBLK)), rs, &c);
+                                (fold_pair(&f0, &f1, &rprev, None, &c), fold_pair(&f2, &f3, &rprev, None, &c))
+                            }
+                        };
+                        let ba = unperm_blk(&ba);
+                        let bb = unperm_blk(&bb);
+                        store_blk(d.eq.as_mut_ptr().add(2 * m * KBLK), &ba);
+                        store_blk(d.eq.as_mut_ptr().add((2 * m + 1) * KBLK), &bb);
+                        let (a, b) = deint_blk(&ba, &bb);
+                        e0[0] = a;
+                        e1[0] = b;
+                        // tree layer blocks 8m..8m+8 -> state-0 blocks 4m..4m+4 of
+                        // p0/p1 (x0/x1) and q0/q1 (y0/y1), standard order
+                        let pp = s.t[0].as_ptr();
+                        let qp = s.t[1].as_ptr();
+                        let mut x0: [Blk; 4] = [[zero(); 16]; 4];
+                        let mut x1: [Blk; 4] = [[zero(); 16]; 4];
+                        let mut y0: [Blk; 4] = [[zero(); 16]; 4];
+                        let mut y1: [Blk; 4] = [[zero(); 16]; 4];
+                        for i in 0..4 {
+                            let (a, b) = deint_blk(&load_blk(pp.add((8 * m + 2 * i) * KBLK)), &load_blk(pp.add((8 * m + 2 * i + 1) * KBLK)));
+                            x0[i] = unperm_blk(&a);
+                            x1[i] = unperm_blk(&b);
+                            let (a, b) = deint_blk(&load_blk(qp.add((8 * m + 2 * i) * KBLK)), &load_blk(qp.add((8 * m + 2 * i + 1) * KBLK)));
+                            y0[i] = unperm_blk(&a);
+                            y1[i] = unperm_blk(&b);
+                        }
+                        let (cp0, cp1, cq0, cq1) = match s.fold_consts.as_ref() {
+                            Some(fc) => (Some(&fc[0]), Some(&fc[1]), Some(&fc[2]), Some(&fc[3])),
+                            None => (None, None, None, None),
+                        };
+                        // state-1 blocks (a = 2m, b = 2m+1) of p0, p1, q0, q1 (shifted), working order
+                        let fa0 = fold_pair(&x0[0], &x0[1], &rprev, cp0, &c);
+                        let fb0 = fold_pair(&x0[2], &x0[3], &rprev, cp0, &c);
+                        let fa1 = fold_pair(&x1[0], &x1[1], &rprev, cp1, &c);
+                        let fb1 = fold_pair(&x1[2], &x1[3], &rprev, cp1, &c);
+                        let fa2 = fold_pair(&y0[0], &y0[1], &rprev, cq0, &c);
+                        let fb2 = fold_pair(&y0[2], &y0[3], &rprev, cq0, &c);
+                        let fa3 = fold_pair(&y1[0], &y1[1], &rprev, cq1, &c);
+                        let fb3 = fold_pair(&y1[2], &y1[3], &rprev, cq1, &c);
+                        // PL = p0 + lambda q0 at state 1 (elementwise: working order in, working order out)
+                        let pa = unperm_blk(&addm_blk(&fa0, &mul_fix_blk(&fa2, &rlam, &c), &c));
+                        let pb = unperm_blk(&addm_blk(&fb0, &mul_fix_blk(&fb2, &rlam, &c), &c));
+                        store_blk(d.t[0].as_mut_ptr().add(2 * m * KBLK), &pa);
+                        store_blk(d.t[0].as_mut_ptr().add((2 * m + 1) * KBLK), &pb);
+                        let (a, b) = deint_blk(&pa, &pb);
+                        e0[1] = a;
+                        e1[1] = b;
+                        let fa = [fa1, fa2, fa3];
+                        let fb = [fb1, fb2, fb3];
+                        for k in 1..4 {
+                            let sa = unperm_blk(&fa[k - 1]);
+                            let sb = unperm_blk(&fb[k - 1]);
+                            store_blk(d.t[k].as_mut_ptr().add(2 * m * KBLK), &sa);
+                            store_blk(d.t[k].as_mut_ptr().add((2 * m + 1) * KBLK), &sb);
+                            let (a, b) = deint_blk(&sa, &sb);
+                            e0[k + 1] = a;
+                            e1[k + 1] = b;
+                        }
+                    }
+                }
+                g5_pair(&e0, &e1, nodes, node_consts, alo, ahi, &c);
+            }
+        }
+    }
+
+    /// ixf_round_body.
+    #[target_feature(enable = "avx2")]
+    pub(crate) unsafe fn ixf_round(kern: &KKern, kind: u8, tabs: &[&[u32]], nblk_pairs: usize, deg: usize, acc_lo: &mut [u64], acc_hi: &mut [u64]) {
+        let nt = ixf_kind_tables(kind);
+        assert_eq!(tabs.len(), nt, "ixf round: table count vs kind");
+        let pair_terms = nblk_pairs.checked_mul(KL).expect("ixf round term-count overflow");
+        assert!(pair_terms <= super::K9_MAX_PAIR_TERMS, "K9 lazy-accumulator cap exceeded");
+        let src_words = nblk_pairs.checked_mul(2 * KBLK).expect("ixf round input size overflow");
+        assert!(tabs.iter().all(|t| t.len() >= src_words), "ixf round input layout");
+        let acc_words = (deg + 1).checked_mul(31 * KL).expect("ixf round accumulator size overflow");
+        assert!(acc_lo.len() >= acc_words && acc_hi.len() >= acc_words, "ixf round accumulator layout");
+        let c = consts(kern);
+        let alo = acc_lo.as_mut_ptr();
+        let ahi = acc_hi.as_mut_ptr();
+        unsafe {
+            for m in 0..nblk_pairs {
+                let mut e0: [Blk; 5] = [[zero(); 16]; 5];
+                let mut e1: [Blk; 5] = [[zero(); 16]; 5];
+                let mut dd: [Blk; 5] = [[zero(); 16]; 5];
+                let mut cur: [Blk; 5] = [[zero(); 16]; 5];
+                for k in 0..nt {
+                    let x = load_blk(tabs[k].as_ptr().add(2 * m * KBLK));
+                    let y = load_blk(tabs[k].as_ptr().add((2 * m + 1) * KBLK));
+                    let (a, b) = deint_blk(&x, &y);
+                    e0[k] = a;
+                    e1[k] = b;
+                    dd[k] = subm_blk(&b, &a, &c);
+                    cur[k] = b;
+                }
+                let mut prev_x = 1usize;
+                for x in 0..=deg {
+                    let v: &[Blk; 5] = if x == 0 {
+                        &e0
+                    } else if x == 1 {
+                        &e1
+                    } else {
+                        while prev_x < x {
+                            for k in 0..nt {
+                                cur[k] = addm_blk(&cur[k], &dd[k], &c);
+                            }
+                            prev_x += 1;
+                        }
+                        &cur
+                    };
+                    let inner: Blk = match kind {
+                        IXF_KIND_PROD3 => mul_vv_blk(&v[1], &v[2], &c),
+                        IXF_KIND_HAD => subm_blk(&mul_vv_blk(&v[1], &v[2], &c), &v[3], &c),
+                        _ => subm_blk(&subm_blk(&v[1], &mul_vv_blk(&v[4], &v[2], &c), &c), &v[3], &c),
+                    };
+                    let io = oform(&inner);
+                    let eo = oform(&v[0]);
+                    plane_mac(&v[0], &eo, &inner, &io, &c, alo.add(x * 31 * KL), ahi.add(x * 31 * KL));
+                }
+            }
+        }
+    }
+
+    // ----- harness primitives (uperf-j bench "mac" / "red") -----
+
+    /// One 16x16 lane MAC of standard-order blocks into the scalar-layout
+    /// planes (the same W per lane word as `mac_block`).
+    #[target_feature(enable = "avx2")]
+    pub(crate) unsafe fn mac_block_planes(kern: &KKern, a: &[u32; KBLK], b: &[u32; KBLK], lo: &mut [u64; 31 * KL], hi: &mut [u64; 31 * KL]) {
+        let c = consts(kern);
+        unsafe {
+            let ab = load_blk(a.as_ptr());
+            let bb = load_blk(b.as_ptr());
+            let ao = oform(&ab);
+            let bo = oform(&bb);
+            let (abr, aor, bbr, bor, cr) = (&ab, &ao, &bb, &bo, &c);
+            let plo = lo.as_mut_ptr();
+            let phi = hi.as_mut_ptr();
+            pdiags!(false; abr, aor, bbr, bor, cr, plo, phi; 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30);
+        }
+    }
+
+    /// The reduction of scalar-layout planes of the two-product class (the
+    /// harness "red" leg): planes -> Rep-A accumulators (lo + c32 hi_lo +
+    /// c64 hi_hi, exact and < 2^44 for lo, hi < 2^38) -> red_wire.
+    #[target_feature(enable = "avx2")]
+    pub(crate) unsafe fn red_block_planes(kern: &KKern, lo: &[u64; 31 * KL], hi: &[u64; 31 * KL], out: &mut [u32; KBLK]) {
+        let c = consts(kern);
+        let c64 = _mm256_set1_epi64x((((1u128 << 64) % kern.q as u128) as u64) as i64);
+        unsafe {
+            let mut acc = acc31_zero();
+            for t in 0..31 {
+                // standard-order lane words: (l0..l3), (l4..l7); the even set of
+                // a standard row is (l0,l2,l4,l6) = the low halves... but here
+                // the planes are u64 per lane, so re-pack: E = (w0,w2,w4,w6),
+                // O = (w1,w3,w5,w7) as u64 lanes.
+                let a = ld64(lo.as_ptr().add(t * KL));
+                let b = ld64(lo.as_ptr().add(t * KL + 4));
+                let lo_e = _mm256_permute4x64_epi64::<0xD8>(_mm256_unpacklo_epi64(a, b)); // (w0,w4,w2,w6)->? see below
+                let lo_o = _mm256_permute4x64_epi64::<0xD8>(_mm256_unpackhi_epi64(a, b));
+                let a = ld64(hi.as_ptr().add(t * KL));
+                let b = ld64(hi.as_ptr().add(t * KL + 4));
+                let hi_e = _mm256_permute4x64_epi64::<0xD8>(_mm256_unpacklo_epi64(a, b));
+                let hi_o = _mm256_permute4x64_epi64::<0xD8>(_mm256_unpackhi_epi64(a, b));
+                // unpacklo(a, b) = (w0, w4, w2, w6); permute 0xD8 -> (w0, w2, w4, w6) = E; likewise O.
+                let re = add64(add64(lo_e, mul32(c.c32, and(hi_e, c.m32))), mul32(c64, srl32(hi_e)));
+                let ro = add64(add64(lo_o, mul32(c.c32, and(hi_o, c.m32))), mul32(c64, srl32(hi_o)));
+                acc[t] = [re, ro];
+            }
+            let o = red_wire(&acc, &c);
+            store_blk(out.as_mut_ptr(), &o);
+        }
+    }
+}
+
+/// [UPERF2-J] Are the hand-written AVX2 bodies in use? `is_x86_feature_
+/// detected!("avx2")` && `ZK_KSIMD` != "0" (read once). `ZK_KSIMD=0` is the
+/// one-binary A/B: today's bodies everywhere.
+pub fn k9_hand_avx2_enabled() -> bool {
+    #[cfg(target_arch = "x86_64")]
+    {
+        static ON: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| {
+            std::arch::is_x86_feature_detected!("avx2") && std::env::var("ZK_KSIMD").map(|v| v != "0").unwrap_or(true)
+        });
+        *ON
+    }
+    #[cfg(not(target_arch = "x86_64"))]
+    {
+        false
+    }
+}
+
+/// [UPERF2-J] The label of the K-field kernel body in use.
+pub fn k9_kernel_label() -> &'static str {
+    if k9_hand_avx2_enabled() {
+        "avx2-hand"
+    } else {
+        #[cfg(target_arch = "x86_64")]
+        {
+            if std::arch::is_x86_feature_detected!("avx2") {
+                return "avx2-auto";
+            }
+        }
+        "portable"
+    }
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-J] Kernel-level microbench + battery harness for the packed lane
+// kernels: every kernel body of this file run on synthetic packed tables
+// under a selectable VARIANT — 0 = the portable body (no target feature),
+// 1 = today's dispatch (`k9_*`: the auto-vectorized AVX2 instantiation when
+// the box has AVX2), 2 = the hand-written AVX2 bodies (`k9_avx2`, when
+// available) — returning the seconds of the best of `reps` passes and a
+// SHA-256 digest of everything the kernel produced (output tables; for the
+// round kernels the persistent planes as the exact integer W = lo + 2^32 hi
+// per lane word — the quantity the finalize consumes — plus the finalized
+// nodes). Bench/battery only; no protocol use.
+
+/// The kernels the harness knows.
+pub const J_KERNELS: &[&str] = &[
+    "mac", "red", "mulfix", "mulelem", "fold", "eqdbl", "tree", "g5", "g5m", "fused", "fusedm", "fusedx", "fusede",
+    "ixf-rq", "ixf-p3", "ixf-had",
+];
+
+/// One harness run.
+pub struct JRun {
+    /// Best-of-reps seconds for one full pass over the tables.
+    pub secs: f64,
+    /// Work units of one pass (blocks or pair-blocks — see `J_KERNELS`).
+    pub units: usize,
+    pub digest: [u8; 32],
+}
+
+/// Synthetic canonical u32 words: `pattern` 0 = uniform in [0, q); 1 =
+/// planted extremes (0, 1, q-1, q-2, 2^30, 2^30+1, q-2^30, ...) mixed with
+/// uniform; 2 = all q-1 (the maximal product sums); 3 = per-lane extremes
+/// (lane l of every row takes the l-th extreme); 4 = uniform with 1/8 of
+/// the words zero.
+fn j_words(q: u64, n: usize, seed: u64, pattern: u8) -> Vec<u32> {
+    let mut st = seed ^ 0x5eed_0000_1234_abcd;
+    let ext: [u64; 12] = [0, 1, 2, q - 1, q - 2, q - 3, 1 << 30, (1 << 30) + 1, q - (1 << 30), q / 2, q / 2 + 1, (1 << 30) - 1];
+    (0..n)
+        .map(|i| {
+            let r = super::splitmix64(&mut st);
+            let v = match pattern {
+                0 => r % q,
+                1 => {
+                    if r & 3 == 0 { ext[(r >> 8) as usize % ext.len()] } else { r % q }
+                }
+                2 => q - 1,
+                3 => ext[(i % KL) % ext.len()],
+                _ => {
+                    if r & 7 == 0 { 0 } else { r % q }
+                }
+            };
+            v as u32
+        })
+        .collect()
+}
+
+fn j_digest_words(h: &mut Sha256, w: &[u32]) {
+    for &x in w {
+        h.update(x.to_le_bytes());
+    }
+}
+
+/// The exact plane integers W = lo + 2^32 hi per lane word (u128 LE) —
+/// the finalize's input; identical for any burst decomposition.
+fn j_digest_planes(h: &mut Sha256, lo: &[u64], hi: &[u64]) {
+    for (l, hh) in lo.iter().zip(hi.iter()) {
+        let w = *l as u128 + ((*hh as u128) << 32);
+        h.update(w.to_le_bytes());
+    }
+}
+
+/// Run kernel `kernel` under `variant` on `nblk` blocks (pair-blocks for
+/// the pair kernels) of synthetic data. Panics on an unknown kernel or an
+/// unavailable variant.
+#[allow(clippy::too_many_arguments)]
+pub fn harness_j_run(kf: &KField, kernel: &str, variant: u8, nblk: usize, reps: usize, seed: u64, pattern: u8) -> JRun {
+    let kern = kf.kern.as_ref().expect("uperf-j harness needs the K9 kernel (q31 class)");
+    let q = kern.q;
+    assert!(nblk >= 1 && reps >= 1);
+    if variant == 2 {
+        assert!(j_avx2_available(), "variant 2 (hand AVX2) is not available on this box / build");
+    }
+    let mut h = Sha256::new();
+    h.update(b"uperf2-j-harness-v1");
+    h.update(kernel.as_bytes());
+    h.update(nblk.to_le_bytes());
+    let mut best = f64::MAX;
+    let time = |f: &mut dyn FnMut()| -> f64 {
+        let mut b = f64::MAX;
+        for _ in 0..reps {
+            let t0 = std::time::Instant::now();
+            f();
+            b = b.min(t0.elapsed().as_secs_f64());
+        }
+        b
+    };
+    let r_k = j_words(q, K_DEG, seed ^ 0x11, pattern);
+    let r: [u32; K_DEG] = r_k[..].try_into().unwrap();
+    let z_k = j_words(q, K_DEG, seed ^ 0x22, pattern);
+    let z: [u32; K_DEG] = z_k[..].try_into().unwrap();
+    let zbar: [u32; K_DEG] = std::array::from_fn(|j| subm32(1, z[j], q as u32));
+    let units;
+    match kernel {
+        "mac" => {
+            // One 16x16 lane MAC per block into fresh planes (no reduction).
+            let a = j_words(q, nblk * KBLK, seed ^ 1, pattern);
+            let b = j_words(q, nblk * KBLK, seed ^ 2, pattern);
+            let mut sink = vec![0u64; 2 * 31 * KL];
+            let mut run = |v: u8, reset: bool| {
+                if reset {
+                    sink.fill(0);
+                }
+                let mut lo = [0u64; 31 * KL];
+                let mut hi = [0u64; 31 * KL];
+                for m in 0..nblk {
+                    lo.fill(0);
+                    hi.fill(0);
+                    let ab: &[u32; KBLK] = a[m * KBLK..(m + 1) * KBLK].try_into().unwrap();
+                    let bb: &[u32; KBLK] = b[m * KBLK..(m + 1) * KBLK].try_into().unwrap();
+                    match v {
+                        0 => mac_block(ab, bb, &mut lo, &mut hi),
+                        1 => j_mac_block_avx2auto(ab, bb, &mut lo, &mut hi),
+                        _ => j_mac_block_hand(kern, ab, bb, &mut lo, &mut hi),
+                    }
+                    // fold the planes into the sink (exact integers per word)
+                    for i in 0..31 * KL {
+                        sink[i] = sink[i].wrapping_add(lo[i]);
+                        sink[31 * KL + i] = sink[31 * KL + i].wrapping_add(hi[i]);
+                    }
+                    std::hint::black_box(&lo);
+                }
+            };
+            best = best.min(time(&mut || run(variant, false)));
+            run(variant, true);
+            // digest: W per word (the sink holds sums of lo / hi over blocks: W_total)
+            j_digest_planes(&mut h, &sink[..31 * KL], &sink[31 * KL..]);
+            units = nblk;
+        }
+        "red" => {
+            // The deferred reduction of two-MAC planes (the wire class), cycling
+            // over 8 cache-resident plane sets.
+            let a = j_words(q, 8 * KBLK, seed ^ 1, pattern);
+            let b = j_words(q, 8 * KBLK, seed ^ 2, pattern);
+            let c = j_words(q, 8 * KBLK, seed ^ 3, pattern);
+            let mut planes: Vec<([u64; 31 * KL], [u64; 31 * KL])> = Vec::new();
+            for m in 0..8 {
+                let mut lo = [0u64; 31 * KL];
+                let mut hi = [0u64; 31 * KL];
+                let ab: &[u32; KBLK] = a[m * KBLK..(m + 1) * KBLK].try_into().unwrap();
+                let bb: &[u32; KBLK] = b[m * KBLK..(m + 1) * KBLK].try_into().unwrap();
+                let cb: &[u32; KBLK] = c[m * KBLK..(m + 1) * KBLK].try_into().unwrap();
+                mac_block(ab, bb, &mut lo, &mut hi);
+                mac_block(cb, ab, &mut lo, &mut hi);
+                planes.push((lo, hi));
+            }
+            let mut out = vec![0u32; KBLK];
+            let mut acc = vec![0u32; KBLK];
+            let mut run = |v: u8, reset: bool| {
+                if reset {
+                    acc.fill(0);
+                }
+                let ob: &mut [u32; KBLK] = (&mut out[..]).try_into().unwrap();
+                for m in 0..nblk {
+                    let (lo, hi) = &planes[m % 8];
+                    match v {
+                        0 => red_block(kern, lo, hi, ob),
+                        1 => j_red_block_avx2auto(kern, lo, hi, ob),
+                        _ => j_red_block_hand(kern, lo, hi, ob),
+                    }
+                    for i in 0..KBLK {
+                        acc[i] ^= ob[i].rotate_left((m % 31) as u32);
+                    }
+                }
+            };
+            best = best.min(time(&mut || run(variant, false)));
+            run(variant, true);
+            j_digest_words(&mut h, &acc);
+            units = nblk;
+        }
+        "mulfix" | "mulelem" => {
+            let a = j_words(q, nblk * KBLK, seed ^ 1, pattern);
+            let b = j_words(q, nblk * KBLK, seed ^ 2, pattern);
+            let mut dst = vec![0u32; nblk * KBLK];
+            let elem = kernel == "mulelem";
+            let mut run = |v: u8| match (v, elem) {
+                (0, false) => mul_fixed_body(kern, &a, &r, &mut dst, nblk),
+                (1, false) => k9_mul_fixed_blocks_auto(kern, &a, &r, &mut dst, nblk),
+                (_, false) => j_mul_fixed_hand(kern, &a, &r, &mut dst, nblk),
+                (0, true) => mul_elem_body(kern, &a, &b, &mut dst, nblk),
+                (1, true) => k9_mul_elem_blocks_auto(kern, &a, &b, &mut dst, nblk),
+                (_, true) => j_mul_elem_hand(kern, &a, &b, &mut dst, nblk),
+            };
+            best = best.min(time(&mut || run(variant)));
+            j_digest_words(&mut h, &dst);
+            units = nblk;
+        }
+        "fold" => {
+            let src = j_words(q, 2 * nblk * KBLK, seed ^ 1, pattern);
+            let mut dst = vec![0u32; nblk * KBLK];
+            let mut run = |v: u8| match v {
+                0 => fold_oop_body(kern, &src, &mut dst, &r, nblk),
+                1 => k9_fold_oop_blocks_auto(kern, &src, &mut dst, &r, nblk),
+                _ => j_fold_oop_hand(kern, &src, &mut dst, &r, nblk),
+            };
+            best = best.min(time(&mut || run(variant)));
+            j_digest_words(&mut h, &dst);
+            units = nblk;
+        }
+        "eqdbl" => {
+            let init = j_words(q, nblk * KBLK, seed ^ 1, pattern);
+            let mut d = vec![0u32; 2 * nblk * KBLK];
+            let mut run = |v: u8| {
+                d[..nblk * KBLK].copy_from_slice(&init);
+                match v {
+                    0 => eq_double_body(kern, &mut d, nblk, &zbar, &z),
+                    1 => k9_eq_double_blocks_auto(kern, &mut d, nblk, &zbar, &z),
+                    _ => j_eq_double_hand(kern, &mut d, nblk, &zbar, &z),
+                }
+            };
+            best = best.min(time(&mut || run(variant)));
+            j_digest_words(&mut h, &d);
+            units = nblk;
+        }
+        "tree" => {
+            let cp = j_words(q, 2 * nblk * KBLK, seed ^ 1, pattern);
+            let cq = j_words(q, 2 * nblk * KBLK, seed ^ 2, pattern);
+            let mut np = vec![0u32; nblk * KBLK];
+            let mut nq = vec![0u32; nblk * KBLK];
+            let mut run = |v: u8| match v {
+                0 => tree_step_body(kern, &cp, &cq, &mut np, &mut nq, nblk),
+                1 => k9_tree_step_auto(kern, &cp, &cq, &mut np, &mut nq, nblk),
+                _ => j_tree_step_hand(kern, &cp, &cq, &mut np, &mut nq, nblk),
+            };
+            best = best.min(time(&mut || run(variant)));
+            j_digest_words(&mut h, &np);
+            j_digest_words(&mut h, &nq);
+            units = nblk;
+        }
+        "g5" | "g5m" => {
+            let tabs: Vec<Vec<u32>> = (0..5).map(|k| j_words(q, 2 * nblk * KBLK, seed ^ (10 + k as u64), pattern)).collect();
+            let nodes = [0u64, 2, 3];
+            let consts_v: Vec<[[u32; K_DEG]; 4]> = (0..3)
+                .map(|ni| {
+                    let w = j_words(q, 4 * K_DEG, seed ^ (100 + ni as u64), pattern);
+                    std::array::from_fn(|k| w[k * K_DEG..(k + 1) * K_DEG].try_into().unwrap())
+                })
+                .collect();
+            let consts: Option<&[[[u32; K_DEG]; 4]]> = if kernel == "g5m" { Some(&consts_v) } else { None };
+            let acc_words = nodes.len() * 31 * KL;
+            let mut lo = vec![0u64; acc_words];
+            let mut hi = vec![0u64; acc_words];
+            let mut run = |v: u8| {
+                lo.fill(0);
+                hi.fill(0);
+                match v {
+                    0 => round_g5_body(kern, &tabs[0], &tabs[1], &tabs[2], &tabs[3], &tabs[4], nblk, &nodes, consts, &mut lo, &mut hi),
+                    1 => k9_round_g5_blocks_auto(kern, &tabs[0], &tabs[1], &tabs[2], &tabs[3], &tabs[4], nblk, &nodes, consts, &mut lo, &mut hi),
+                    _ => j_round_g5_hand(kern, &tabs[0], &tabs[1], &tabs[2], &tabs[3], &tabs[4], nblk, &nodes, consts, &mut lo, &mut hi),
+                }
+            };
+            best = best.min(time(&mut || run(variant)));
+            j_digest_planes(&mut h, &lo, &hi);
+            for ni in 0..nodes.len() {
+                let e = kf.kt_round_g_finalize(&lo[ni * 31 * KL..(ni + 1) * 31 * KL], &hi[ni * 31 * KL..(ni + 1) * 31 * KL]);
+                h.update(kf.bytes(&e));
+            }
+            units = nblk;
+        }
+        "fused" | "fusedm" | "fusedx" | "fusede" => {
+            let masked = kernel == "fusedm";
+            let mode = match kernel {
+                "fusedx" => FUSE_EXTRACT_FOLD,
+                "fusede" => FUSE_EXTRACT,
+                _ => FUSE_FOLD,
+            };
+            let n = nblk;
+            let nodes = [0u64, 2, 3];
+            let consts_v: Vec<[[u32; K_DEG]; 4]> = (0..3)
+                .map(|ni| {
+                    let w = j_words(q, 4 * K_DEG, seed ^ (100 + ni as u64), pattern);
+                    std::array::from_fn(|k| w[k * K_DEG..(k + 1) * K_DEG].try_into().unwrap())
+                })
+                .collect();
+            let fc_w = j_words(q, 4 * K_DEG, seed ^ 200, pattern);
+            let fold_consts: [[u32; K_DEG]; 4] = std::array::from_fn(|k| fc_w[k * K_DEG..(k + 1) * K_DEG].try_into().unwrap());
+            let lam_w = j_words(q, K_DEG, seed ^ 300, pattern);
+            let lambda: [u32; K_DEG] = lam_w[..].try_into().unwrap();
+            let sc_w = j_words(q, K_DEG, seed ^ 400, pattern);
+            let eq_scale: [u32; K_DEG] = sc_w[..].try_into().unwrap();
+            let (eq_blks, t_blks) = match mode {
+                FUSE_FOLD => (4 * n, 4 * n),
+                FUSE_EXTRACT => (2 * n, 4 * n),
+                _ => (4 * n, 8 * n),
+            };
+            let eq_src = j_words(q, eq_blks * KBLK, seed ^ 500, pattern);
+            let t_src: Vec<Vec<u32>> = (0..4).map(|k| j_words(q, t_blks * KBLK, seed ^ (600 + k as u64), pattern)).collect();
+            let writes = mode != FUSE_EXTRACT;
+            let mut eq_dst = vec![0u32; if writes { 2 * n * KBLK } else { 0 }];
+            let mut t_dst: Vec<Vec<u32>> = (0..4).map(|_| vec![0u32; if writes { 2 * n * KBLK } else { 0 }]).collect();
+            let acc_words = nodes.len() * 31 * KL;
+            let mut lo = vec![0u64; acc_words];
+            let mut hi = vec![0u64; acc_words];
+            let mut run = |v: u8| {
+                lo.fill(0);
+                hi.fill(0);
+                let src = FusedSrc {
+                    mode,
+                    eq: &eq_src,
+                    eq_scale: if mode == FUSE_FOLD { None } else { Some(eq_scale) },
+                    t: if mode == FUSE_FOLD {
+                        [&t_src[0], &t_src[1], &t_src[2], &t_src[3]]
+                    } else {
+                        [&t_src[0], &t_src[1], Default::default(), Default::default()]
+                    },
+                    r_prev: r,
+                    lambda,
+                    fold_consts: if masked || mode == FUSE_EXTRACT_FOLD { Some(fold_consts) } else { None },
+                };
+                let [d0, d1, d2, d3] = &mut t_dst[..] else { unreachable!() };
+                let mut dst = FusedDst { eq: &mut eq_dst, t: [d0, d1, d2, d3] };
+                let nc: Option<&[[[u32; K_DEG]; 4]]> = if masked { Some(&consts_v) } else { None };
+                match v {
+                    0 => fused_round_body(kern, &src, &mut dst, n, &nodes, nc, &mut lo, &mut hi),
+                    1 => k9_fused_round_blocks_auto(kern, &src, &mut dst, n, &nodes, nc, &mut lo, &mut hi),
+                    _ => j_fused_round_hand(kern, &src, &mut dst, n, &nodes, nc, &mut lo, &mut hi),
+                }
+            };
+            best = best.min(time(&mut || run(variant)));
+            j_digest_words(&mut h, &eq_dst);
+            for t in &t_dst {
+                j_digest_words(&mut h, t);
+            }
+            j_digest_planes(&mut h, &lo, &hi);
+            for ni in 0..nodes.len() {
+                let e = kf.kt_round_g_finalize(&lo[ni * 31 * KL..(ni + 1) * 31 * KL], &hi[ni * 31 * KL..(ni + 1) * 31 * KL]);
+                h.update(kf.bytes(&e));
+            }
+            units = nblk;
+        }
+        "ixf-rq" | "ixf-p3" | "ixf-had" => {
+            let kind = match kernel {
+                "ixf-rq" => IXF_KIND_RQ,
+                "ixf-p3" => IXF_KIND_PROD3,
+                _ => IXF_KIND_HAD,
+            };
+            let nt = ixf_kind_tables(kind);
+            let deg = 3usize;
+            let tabs: Vec<Vec<u32>> = (0..nt).map(|k| j_words(q, 2 * nblk * KBLK, seed ^ (10 + k as u64), pattern)).collect();
+            let views: Vec<&[u32]> = tabs.iter().map(|t| t.as_slice()).collect();
+            let acc_words = (deg + 1) * 31 * KL;
+            let mut lo = vec![0u64; acc_words];
+            let mut hi = vec![0u64; acc_words];
+            let mut run = |v: u8| {
+                lo.fill(0);
+                hi.fill(0);
+                match v {
+                    0 => ixf_round_body(kern, kind, &views, nblk, deg, &mut lo, &mut hi),
+                    1 => k9_ixf_round_blocks_auto(kern, kind, &views, nblk, deg, &mut lo, &mut hi),
+                    _ => j_ixf_round_hand(kern, kind, &views, nblk, deg, &mut lo, &mut hi),
+                }
+            };
+            best = best.min(time(&mut || run(variant)));
+            j_digest_planes(&mut h, &lo, &hi);
+            for x in 0..=deg {
+                let e = kf.kt_round_g_finalize(&lo[x * 31 * KL..(x + 1) * 31 * KL], &hi[x * 31 * KL..(x + 1) * 31 * KL]);
+                h.update(kf.bytes(&e));
+            }
+            units = nblk;
+        }
+        _ => panic!("uperf-j: unknown kernel {kernel}"),
+    }
+    JRun { secs: best, units, digest: h.finalize().into() }
+}
+
+/// Is the hand-written AVX2 body set (variant 2) usable here? (The CPU
+/// has AVX2; independent of ZK_KSIMD — the harness names its variant.)
+pub fn j_avx2_available() -> bool {
+    #[cfg(target_arch = "x86_64")]
+    {
+        std::arch::is_x86_feature_detected!("avx2")
+    }
+    #[cfg(not(target_arch = "x86_64"))]
+    {
+        false
+    }
+}
+
+// --- variant-1 wrappers: the auto-vectorized AVX2 instantiation of the two
+// primitive bodies (today's shipped code, isolated for the microbench) ---
+
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "avx2")]
+unsafe fn j_mac_block_avx2_tf(a: &[u32; KBLK], b: &[u32; KBLK], lo: &mut [u64; 31 * KL], hi: &mut [u64; 31 * KL]) {
+    mac_block(a, b, lo, hi)
+}
+
+fn j_mac_block_avx2auto(a: &[u32; KBLK], b: &[u32; KBLK], lo: &mut [u64; 31 * KL], hi: &mut [u64; 31 * KL]) {
+    #[cfg(target_arch = "x86_64")]
+    if std::arch::is_x86_feature_detected!("avx2") {
+        return unsafe { j_mac_block_avx2_tf(a, b, lo, hi) };
+    }
+    #[allow(unreachable_code)]
+    mac_block(a, b, lo, hi)
+}
+
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "avx2")]
+unsafe fn j_red_block_avx2_tf(kern: &KKern, lo: &[u64; 31 * KL], hi: &[u64; 31 * KL], out: &mut [u32; KBLK]) {
+    red_block(kern, lo, hi, out)
+}
+
+fn j_red_block_avx2auto(kern: &KKern, lo: &[u64; 31 * KL], hi: &[u64; 31 * KL], out: &mut [u32; KBLK]) {
+    #[cfg(target_arch = "x86_64")]
+    if std::arch::is_x86_feature_detected!("avx2") {
+        return unsafe { j_red_block_avx2_tf(kern, lo, hi, out) };
+    }
+    #[allow(unreachable_code)]
+    red_block(kern, lo, hi, out)
+}
+
+// --- variant-2 entry points: the hand-written AVX2 bodies (`k9_avx2`),
+// reached only after `j_avx2_available()`.
+
+#[cfg(target_arch = "x86_64")]
+fn j_mac_block_hand(kern: &KKern, a: &[u32; KBLK], b: &[u32; KBLK], lo: &mut [u64; 31 * KL], hi: &mut [u64; 31 * KL]) {
+    unsafe { k9_avx2::mac_block_planes(kern, a, b, lo, hi) }
+}
+#[cfg(target_arch = "x86_64")]
+fn j_red_block_hand(kern: &KKern, lo: &[u64; 31 * KL], hi: &[u64; 31 * KL], out: &mut [u32; KBLK]) {
+    unsafe { k9_avx2::red_block_planes(kern, lo, hi, out) }
+}
+#[cfg(target_arch = "x86_64")]
+fn j_mul_fixed_hand(kern: &KKern, src: &[u32], r: &[u32; K_DEG], dst: &mut [u32], nblk: usize) {
+    unsafe { k9_avx2::mul_fixed(kern, src, r, dst, nblk) }
+}
+#[cfg(target_arch = "x86_64")]
+fn j_mul_elem_hand(kern: &KKern, a: &[u32], b: &[u32], dst: &mut [u32], nblk: usize) {
+    unsafe { k9_avx2::mul_elem(kern, a, b, dst, nblk) }
+}
+#[cfg(target_arch = "x86_64")]
+fn j_fold_oop_hand(kern: &KKern, src: &[u32], dst: &mut [u32], r: &[u32; K_DEG], nblk: usize) {
+    unsafe { k9_avx2::fold_oop(kern, src, dst, r, nblk) }
+}
+#[cfg(target_arch = "x86_64")]
+fn j_eq_double_hand(kern: &KKern, d_io: &mut [u32], half_nblk: usize, zbar: &[u32; K_DEG], z: &[u32; K_DEG]) {
+    unsafe { k9_avx2::eq_double(kern, d_io, half_nblk, zbar, z) }
+}
+#[cfg(target_arch = "x86_64")]
+fn j_tree_step_hand(kern: &KKern, cp: &[u32], cq: &[u32], np: &mut [u32], nq: &mut [u32], nblk: usize) {
+    unsafe { k9_avx2::tree_step(kern, cp, cq, np, nq, nblk) }
+}
+#[cfg(target_arch = "x86_64")]
+#[allow(clippy::too_many_arguments)]
+fn j_round_g5_hand(
+    kern: &KKern,
+    eq: &[u32],
+    pl: &[u32],
+    p1: &[u32],
+    q0: &[u32],
+    q1: &[u32],
+    nblk_pairs: usize,
+    nodes: &[u64],
+    consts: Option<&[[[u32; K_DEG]; 4]]>,
+    acc_lo: &mut [u64],
+    acc_hi: &mut [u64],
+) {
+    unsafe { k9_avx2::round_g5(kern, eq, pl, p1, q0, q1, nblk_pairs, nodes, consts, acc_lo, acc_hi) }
+}
+#[cfg(target_arch = "x86_64")]
+#[allow(clippy::too_many_arguments)]
+fn j_fused_round_hand(
+    kern: &KKern,
+    s: &FusedSrc,
+    d: &mut FusedDst,
+    n: usize,
+    nodes: &[u64],
+    node_consts: Option<&[[[u32; K_DEG]; 4]]>,
+    acc_lo: &mut [u64],
+    acc_hi: &mut [u64],
+) {
+    unsafe { k9_avx2::fused_round(kern, s, d, n, nodes, node_consts, acc_lo, acc_hi) }
+}
+#[cfg(target_arch = "x86_64")]
+fn j_ixf_round_hand(kern: &KKern, kind: u8, tabs: &[&[u32]], nblk_pairs: usize, deg: usize, acc_lo: &mut [u64], acc_hi: &mut [u64]) {
+    unsafe { k9_avx2::ixf_round(kern, kind, tabs, nblk_pairs, deg, acc_lo, acc_hi) }
+}
+
+#[cfg(not(target_arch = "x86_64"))]
+mod j_no_hand {
+    // No hand-written body on this architecture: the harness never reaches
+    // variant 2 (`j_avx2_available()` is false).
+    use super::*;
+    #[allow(unused_variables)]
+    pub(super) fn j_mac_block_hand(kern: &KKern, a: &[u32; KBLK], b: &[u32; KBLK], lo: &mut [u64; 31 * KL], hi: &mut [u64; 31 * KL]) { unreachable!() }
+    #[allow(unused_variables)]
+    pub(super) fn j_red_block_hand(kern: &KKern, lo: &[u64; 31 * KL], hi: &[u64; 31 * KL], out: &mut [u32; KBLK]) { unreachable!() }
+    #[allow(unused_variables)]
+    pub(super) fn j_mul_fixed_hand(kern: &KKern, src: &[u32], r: &[u32; K_DEG], dst: &mut [u32], nblk: usize) { unreachable!() }
+    #[allow(unused_variables)]
+    pub(super) fn j_mul_elem_hand(kern: &KKern, a: &[u32], b: &[u32], dst: &mut [u32], nblk: usize) { unreachable!() }
+    #[allow(unused_variables)]
+    pub(super) fn j_fold_oop_hand(kern: &KKern, src: &[u32], dst: &mut [u32], r: &[u32; K_DEG], nblk: usize) { unreachable!() }
+    #[allow(unused_variables)]
+    pub(super) fn j_eq_double_hand(kern: &KKern, d_io: &mut [u32], half_nblk: usize, zbar: &[u32; K_DEG], z: &[u32; K_DEG]) { unreachable!() }
+    #[allow(unused_variables)]
+    pub(super) fn j_tree_step_hand(kern: &KKern, cp: &[u32], cq: &[u32], np: &mut [u32], nq: &mut [u32], nblk: usize) { unreachable!() }
+    #[allow(unused_variables, clippy::too_many_arguments)]
+    pub(super) fn j_round_g5_hand(kern: &KKern, eq: &[u32], pl: &[u32], p1: &[u32], q0: &[u32], q1: &[u32], nblk_pairs: usize, nodes: &[u64], consts: Option<&[[[u32; K_DEG]; 4]]>, acc_lo: &mut [u64], acc_hi: &mut [u64]) { unreachable!() }
+    #[allow(unused_variables, clippy::too_many_arguments)]
+    pub(super) fn j_fused_round_hand(kern: &KKern, s: &FusedSrc, d: &mut FusedDst, n: usize, nodes: &[u64], node_consts: Option<&[[[u32; K_DEG]; 4]]>, acc_lo: &mut [u64], acc_hi: &mut [u64]) { unreachable!() }
+    #[allow(unused_variables)]
+    pub(super) fn j_ixf_round_hand(kern: &KKern, kind: u8, tabs: &[&[u32]], nblk_pairs: usize, deg: usize, acc_lo: &mut [u64], acc_hi: &mut [u64]) { unreachable!() }
+}
+#[cfg(not(target_arch = "x86_64"))]
+use j_no_hand::*;

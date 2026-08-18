@@ -38899,10 +38899,79 @@ fn uperf_j_main(args: &[String]) {
     }
 }
 
-fn uperf_j_bench(_nblk: usize, _reps: usize) {
-    println!("[UPERF2-J] bench: (skeleton)");
+/// [UPERF2-J] `uperf-j bench [nblk] [reps]`: ns per unit for every kernel,
+/// variant 0 (portable body) / 1 (today's dispatch) / 2 (hand AVX2 when
+/// built), digests asserted equal across variants.
+fn uperf_j_bench(nblk: usize, reps: usize) {
+    use ring::kfield::{J_KERNELS, harness_j_run, j_avx2_available};
+    let ctx = ring_ctx_q8();
+    let kf = ring::kfield::KField::new(&ctx);
+    let hand = j_avx2_available();
+    println!(
+        "[UPERF2-J] bench: {nblk} blocks (pair-blocks for the pair kernels), best of {reps}, 1T; variants: 0 portable body, 1 today's dispatch (auto-vectorized AVX2), 2 hand AVX2 ({}); ZK_KSIMD={:?}",
+        if hand { "available" } else { "NOT built" },
+        std::env::var("ZK_KSIMD").ok()
+    );
+    println!("  {:<8} {:>12} {:>12} {:>12} {:>8} {:>8}   {}", "kernel", "v0 ns/unit", "v1 ns/unit", "v2 ns/unit", "v1/v2", "v0/v2", "digests");
+    for &k in J_KERNELS {
+        let r0 = harness_j_run(&kf, k, 0, nblk, reps, 0x1234, 0);
+        let r1 = harness_j_run(&kf, k, 1, nblk, reps, 0x1234, 0);
+        assert_eq!(r0.digest, r1.digest, "[UPERF2-J] {k}: portable != today's dispatch");
+        let ns0 = r0.secs * 1e9 / r0.units as f64;
+        let ns1 = r1.secs * 1e9 / r1.units as f64;
+        if hand {
+            let r2 = harness_j_run(&kf, k, 2, nblk, reps, 0x1234, 0);
+            let same = r2.digest == r0.digest;
+            let ns2 = r2.secs * 1e9 / r2.units as f64;
+            println!(
+                "  {:<8} {:>12.1} {:>12.1} {:>12.1} {:>7.2}x {:>7.2}x   {}",
+                k, ns0, ns1, ns2, ns1 / ns2, ns0 / ns2,
+                if same { "identical" } else { "MISMATCH" }
+            );
+            assert!(same, "[UPERF2-J] {k}: hand AVX2 != portable");
+        } else {
+            println!("  {:<8} {:>12.1} {:>12.1} {:>12} {:>8} {:>8}   {}", k, ns0, ns1, "-", "-", "-", "v0 == v1");
+        }
+    }
 }
 
+/// [UPERF2-J] `uperf-j battery`: every kernel x patterns x seeds x sizes,
+/// variant 0 == 1 == 2 (digests over outputs, exact plane integers W per
+/// lane word, finalized nodes).
 fn uperf_j_battery() {
-    println!("[UPERF2-J] battery: (skeleton)");
+    use ring::kfield::{J_KERNELS, harness_j_run, j_avx2_available};
+    let t0 = Instant::now();
+    let ctx = ring_ctx_q8();
+    let kf = ring::kfield::KField::new(&ctx);
+    let hand = j_avx2_available();
+    println!(
+        "[UPERF2-J] battery: hand AVX2 {}; ZK_KSIMD={:?}; ZK_THREADS {}",
+        if hand { "available (3-way: portable == today == hand)" } else { "NOT built (2-way: portable == today)" },
+        std::env::var("ZK_KSIMD").ok(),
+        ring::eval_proof::threads()
+    );
+    let mut legs = 0usize;
+    let mut h = sha2::Sha256::new();
+    use sha2::Digest;
+    for &k in J_KERNELS {
+        for pattern in 0..5u8 {
+            for (si, &seed) in [0xA5A5u64, 0x0F0F, 0x7777].iter().enumerate() {
+                for &nblk in &[1usize, 2, 3, 8, 17, 64] {
+                    if si > 0 && nblk > 8 { continue; }
+                    let r0 = harness_j_run(&kf, k, 0, nblk, 1, seed, pattern);
+                    let r1 = harness_j_run(&kf, k, 1, nblk, 1, seed, pattern);
+                    assert_eq!(r0.digest, r1.digest, "[UPERF2-J] {k} pattern {pattern} seed {seed:x} nblk {nblk}: portable != today's dispatch");
+                    if hand {
+                        let r2 = harness_j_run(&kf, k, 2, nblk, 1, seed, pattern);
+                        assert_eq!(r0.digest, r2.digest, "[UPERF2-J] {k} pattern {pattern} seed {seed:x} nblk {nblk}: hand AVX2 != portable");
+                    }
+                    h.update(r0.digest);
+                    legs += 1;
+                }
+            }
+        }
+        println!("  ok   {k}");
+    }
+    let d: [u8; 32] = h.finalize().into();
+    println!("[UPERF2-J] battery passed: {legs} legs x {} variants; BATTERY DIGEST {}; {:.2}s", if hand { 3 } else { 2 }, hex_full(&d), t0.elapsed().as_secs_f64());
 }
