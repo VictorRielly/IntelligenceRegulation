@@ -333,3 +333,93 @@ extern "C" __global__ void k_ntt_inv(u64* V, int n_slots, const u64* ipsi_brv, u
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// [UPERF2-O] Instruction-throughput probe (analysis only; `uperf-o probe`):
+// per thread `iters` steps over 8 independent accumulator chains of
+//   mode 0: 32 x 32 -> 32 IMAD (u32 mad)            [the IMAD peak reference]
+//   mode 1: 32 x 32 -> 64 mad.wide.u32              [the K-field kernels' MAC]
+//   mode 2: 64 x 64 -> 128 (mul.lo.u64 + mul.hi.u64) + the two ACC128 chains
+//           [lane K's GEMM inner MAC]
+//   mode 3: three 21-bit limbs: 9 mad.wide.u32 into 5 diagonals
+//           [the u32-limb GEMM MAC of K's Section 5]
+// The result is folded into out[] so nothing is optimized away.
+
+extern "C" __global__ void k_imad_probe(u64* out, int iters, int mode) {
+    const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    u32 a = 0x9E3779B9u ^ (u32)tid, b = 0x7F4A7C15u + (u32)tid;
+    u64 A = ((u64)a << 32) | b, B = ((u64)b << 32) | a;
+    if (mode == 0) {
+        u32 c[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+        for (int i = 0; i < iters; i++) {
+            u32 x = a + (u32)i;
+#pragma unroll
+            for (int k = 0; k < 8; k++) c[k] = x * (b ^ (u32)k) + c[k];
+        }
+        u32 r = 0;
+#pragma unroll
+        for (int k = 0; k < 8; k++) r ^= c[k];
+        out[tid] = r;
+    } else if (mode == 1) {
+        u64 c[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+        for (int i = 0; i < iters; i++) {
+            u32 x = a + (u32)i;
+#pragma unroll
+            for (int k = 0; k < 8; k++) {
+                u32 y = b ^ (u32)k;
+                asm("mad.wide.u32 %0, %1, %2, %0;" : "+l"(c[k]) : "r"(x), "r"(y));
+            }
+        }
+        u64 r = 0;
+#pragma unroll
+        for (int k = 0; k < 8; k++) r ^= c[k];
+        out[tid] = r;
+    } else if (mode == 2) {
+        u64 lo[4] = {1, 2, 3, 4}, hi[4] = {5, 6, 7, 8};
+        u32 clo[4] = {0, 0, 0, 0}, chi[4] = {0, 0, 0, 0};
+        for (int i = 0; i < iters; i++) {
+            u64 x = A + (u64)i;
+#pragma unroll
+            for (int j = 0; j < 4; j++) {
+                u64 y = B ^ (u64)(j + 1);
+                u64 pl = x * y;
+                u64 ph = __umul64hi(x, y);
+                ACC128(lo[j], clo[j], pl);
+                ACC128(hi[j], chi[j], ph);
+            }
+        }
+        out[tid] = lo[0] ^ lo[1] ^ lo[2] ^ lo[3] ^ hi[0] ^ hi[1] ^ hi[2] ^ hi[3] ^ clo[0] ^ chi[3];
+    } else {
+        // 3-limb (21 / 21 / 22 bits) products into 5 diagonals, 4 chains
+        // (the operand split shared across the chains, as in a tile).
+        u64 d[4][5];
+#pragma unroll
+        for (int c = 0; c < 4; c++)
+#pragma unroll
+            for (int k = 0; k < 5; k++) d[c][k] = k + 1;
+        for (int i = 0; i < iters; i++) {
+            u64 x = A + (u64)i;
+            u32 x0 = (u32)(x & 0x1FFFFF), x1 = (u32)((x >> 21) & 0x1FFFFF), x2 = (u32)(x >> 42);
+#pragma unroll
+            for (int c = 0; c < 4; c++) {
+                u64 y = B ^ (u64)(c + 1);
+                u32 y0 = (u32)(y & 0x1FFFFF), y1 = (u32)((y >> 21) & 0x1FFFFF), y2 = (u32)(y >> 42);
+                asm("mad.wide.u32 %0, %1, %2, %0;" : "+l"(d[c][0]) : "r"(x0), "r"(y0));
+                asm("mad.wide.u32 %0, %1, %2, %0;" : "+l"(d[c][1]) : "r"(x0), "r"(y1));
+                asm("mad.wide.u32 %0, %1, %2, %0;" : "+l"(d[c][1]) : "r"(x1), "r"(y0));
+                asm("mad.wide.u32 %0, %1, %2, %0;" : "+l"(d[c][2]) : "r"(x0), "r"(y2));
+                asm("mad.wide.u32 %0, %1, %2, %0;" : "+l"(d[c][2]) : "r"(x1), "r"(y1));
+                asm("mad.wide.u32 %0, %1, %2, %0;" : "+l"(d[c][2]) : "r"(x2), "r"(y0));
+                asm("mad.wide.u32 %0, %1, %2, %0;" : "+l"(d[c][3]) : "r"(x1), "r"(y2));
+                asm("mad.wide.u32 %0, %1, %2, %0;" : "+l"(d[c][3]) : "r"(x2), "r"(y1));
+                asm("mad.wide.u32 %0, %1, %2, %0;" : "+l"(d[c][4]) : "r"(x2), "r"(y2));
+            }
+        }
+        u64 r = 0;
+#pragma unroll
+        for (int c = 0; c < 4; c++)
+#pragma unroll
+            for (int k = 0; k < 5; k++) r ^= d[c][k];
+        out[tid] = r;
+    }
+}

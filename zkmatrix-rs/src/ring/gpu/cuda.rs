@@ -25,7 +25,7 @@ use std::time::Instant;
 
 const KSRC: &str = include_str!("kernels.cu");
 const MODULE: &str = "zkgpu";
-const FUNCS: &[&str] = &["k_mulmod_probe", "k_ntt_fwd", "k_gemm_split", "k_gemm_split_m16", "k_flush_reduce", "k_ntt_inv"];
+const FUNCS: &[&str] = &["k_mulmod_probe", "k_ntt_fwd", "k_gemm_split", "k_gemm_split_m16", "k_flush_reduce", "k_ntt_inv", "k_imad_probe"];
 /// Rings per block of the transform kernels (default; `ZK_GPU_RFWD` overrides,
 /// passed to NVRTC as -DR_FWD) and threads per transform block (`ZK_GPU_TFWD`).
 const R_FWD: usize = 32;
@@ -525,6 +525,38 @@ pub fn probe() -> Result<ProbeReport, String> {
         }
     }
     Ok(ProbeReport { device: g.name.clone(), mismatches: bad, n, gmul_per_s: 100.0 * n as f64 / dt / 1e9 })
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-O] The instruction-throughput probe (analysis only): G MAC-class
+// operations per second per mode (see kernels.cu k_imad_probe): 0 IMAD32,
+// 1 mad.wide.u32, 2 lane K's 64x64->128 + ACC128 pair, 3 the 3-limb 9 x
+// mad.wide MAC. `iters` steps per thread over `blocks` x 256 threads.
+
+pub fn imad_probe(mode: i32, iters: i32, blocks: u32) -> Result<f64, String> {
+    let g = gpu().ok_or_else(|| INIT_ERR.lock().unwrap().clone().unwrap_or_else(|| "no device".to_string()))?;
+    let g = g.lock().unwrap();
+    let dev = &g.dev;
+    let f = dev.get_func(MODULE, "k_imad_probe").ok_or("k_imad_probe missing")?;
+    let n = blocks as usize * 256;
+    let mut dout = dev.alloc_zeros::<u64>(n).map_err(|e| e.to_string())?;
+    let cfg = LaunchConfig { grid_dim: (blocks, 1, 1), block_dim: (256, 1, 1), shared_mem_bytes: 0 };
+    // warm (clock ramp + JIT)
+    unsafe { f.clone().launch(cfg, (&mut dout, iters, mode)) }.map_err(|e| e.to_string())?;
+    dev.synchronize().map_err(|e| e.to_string())?;
+    let reps = 5;
+    let t0 = Instant::now();
+    for _ in 0..reps {
+        unsafe { f.clone().launch(cfg, (&mut dout, iters, mode)) }.map_err(|e| e.to_string())?;
+    }
+    dev.synchronize().map_err(|e| e.to_string())?;
+    let dt = t0.elapsed().as_secs_f64();
+    // MAC-class operations per step: mode 0/1: 8, mode 2: 4 (64x64 products), mode 3: 4 (3-limb products)
+    let per_step = match mode {
+        0 | 1 => 8.0,
+        _ => 4.0,
+    };
+    Ok(reps as f64 * n as f64 * iters as f64 * per_step / dt / 1e9)
 }
 
 // ---------------------------------------------------------------------------
