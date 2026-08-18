@@ -317,6 +317,24 @@ CONTINUATION Phase 2 asked for, on the CPU reference machine, at 8
 threads (the 1T convention number for this shape is not measured:
 ~10-12 min class by the 3x16 ratio; ask before spending it).
 
+**Re-measured 2026-08-18 after round 9 (main 6eededa), same command
+with `ZK_GPU=1` (the RTX 4070 Laptop) [WSL-BOX 8T QUIET, one design
+agent reading files concurrently]:** 20/20 accept, ONE EVAL-PROOF
+DIGEST (4c259008…) and ONE statement digest (2f8a92f8…) across all
+runs:
+
+| statistic | wall | commit | prove | verify |
+|---|---:|---:|---:|---:|
+| min | 20.7 s | — | — | 1.70 s |
+| **p50** | **20.9 s** | 2.6 s | **15.3 s** | **1.70 s** |
+| **p95** | **21.1 s** | — | — | **1.80 s** |
+| max | 21.7 s | — | — | — |
+
+Spread ±2.4% (one 21.7 s outlier); p50 153.1 -> 20.9 s (7.3x) on the
+same machine with its laptop GPU, byte-identical. Verify p95 1.80 s at
+8 threads — under the contract's 2 s line at 8T (the 1T number is
+T11 a').
+
 Round 3 (lanes D + E): claim layer 3.17 -> 0.91 s at 1T (11x at 8T),
 chain GEMM 10x, digit witness threaded, tree callers streamed, the
 small-cols aux K-rows 42x, the CRS XOF block-parallel — real-data

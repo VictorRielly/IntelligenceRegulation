@@ -967,6 +967,8 @@ is left.
   digest identical (statement 2f8a92f8… / EVAL 4c259008…).** 12x128
   8T+GPU 10.5 s (3.9 GB), 3x16 3.4 s (verify 0.5). P alone 30.1
   [NOISY], Q alone 25.0 [NOISY], together 21.0 QUIET (from 34.1).
+  20-run series (report 4.3): p50 20.9 / p95 21.1 s, verify p50 1.70
+  / p95 1.80 s, 20/20 accept, one digest — the contract's statistic.
   Since the 2026-08-17 status recalculation (155.6 s at 8T CPU on this
   box; 4,811 s prove at 1T on the Mac before the tranche) the PoC
   shape is 7.4x faster on the same machine, byte-identical; the
