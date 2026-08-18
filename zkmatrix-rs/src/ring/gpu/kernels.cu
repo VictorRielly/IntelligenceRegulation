@@ -90,8 +90,13 @@ extern "C" __global__ void k_mulmod_probe(const u64* a, const u64* b, u64* out, 
 // slot = ub * n_rings + idx this is exactly the [t][ub][idx] layout the GEMM
 // tiles read contiguously.
 
+#ifndef R_FWD
 #define R_FWD 32
+#endif
 #define RS_FWD 129   // padded row stride (bank-conflict relief on the transposed store)
+#ifndef T_FWD
+#define T_FWD 256    // threads per transform block
+#endif
 
 __device__ __forceinline__ u64 lift_modq(u64 x, u64 q) {
     // balanced_mod_q: v = x > q/2 ? x - q : x ; lift_to_p: v >= 0 ? v : p - |v|
@@ -168,75 +173,78 @@ extern "C" __global__ void k_ntt_fwd(const void* src, int fmt, u64 q, int n_slot
 // one carry-chained pair (add.cc / addc) instead of a compare + add.
 #define ACC128(lo, c, x) asm volatile("{\n\tadd.cc.u64 %0, %0, %2;\n\taddc.u32 %1, %1, 0;\n\t}" : "+l"(lo), "+r"(c) : "l"(x))
 
+// The body is a macro over RI = rows per thread (RI = 4 -> a 64-row tile,
+// RI = 1 -> a 16-row tile for the skinny matvec shapes na <= 16); the
+// column side is always 64 (4 per thread).
+#define GEMM_BODY(RI)                                                                                                   \
+    __shared__ u64 As[KB_G][16 * RI];                                                                                   \
+    __shared__ u64 Bs[KB_G][TN_G];                                                                                      \
+    const int TM = 16 * RI;                                                                                             \
+    const int t = blockIdx.z / ks;                                                                                      \
+    const int s = blockIdx.z - t * ks;                                                                                  \
+    const int k0 = s * k_per_split;                                                                                     \
+    int k1 = k0 + k_per_split;                                                                                          \
+    if (k1 > n_k) k1 = n_k;                                                                                             \
+    const int ia0 = blockIdx.y * TM;                                                                                    \
+    const int ib0 = blockIdx.x * TN_G;                                                                                  \
+    const int tx = threadIdx.x, ty = threadIdx.y;                                                                       \
+    const int tid = ty * 16 + tx;                                                                                       \
+    const u64* Ap = A + (size_t)t * n_k * na;                                                                           \
+    const u64* Bp = B + (size_t)t * n_k * nb;                                                                           \
+    u64 lo[RI][4], hi[RI][4];                                                                                           \
+    u32 clo[RI][4], chi[RI][4];                                                                                         \
+    _Pragma("unroll") for (int i = 0; i < RI; ++i)                                                                      \
+        _Pragma("unroll") for (int j = 0; j < 4; ++j) { lo[i][j] = 0; hi[i][j] = 0; clo[i][j] = 0; chi[i][j] = 0; }   \
+    for (int kb = k0; kb < k1; kb += KB_G) {                                                                            \
+        for (int e = tid; e < KB_G * TM; e += 256) {                                                                    \
+            int kk = e / TM, i = e - kk * TM;                                                                           \
+            int k = kb + kk, ia = ia0 + i;                                                                              \
+            As[kk][i] = (k < k1 && ia < na) ? Ap[(size_t)k * na + ia] : 0ULL;                                           \
+        }                                                                                                               \
+        for (int e = tid; e < KB_G * TN_G; e += 256) {                                                                  \
+            int kk = e / TN_G, j = e - kk * TN_G;                                                                       \
+            int k = kb + kk, ib = ib0 + j;                                                                              \
+            Bs[kk][j] = (k < k1 && ib < nb) ? Bp[(size_t)k * nb + ib] : 0ULL;                                           \
+        }                                                                                                               \
+        __syncthreads();                                                                                                \
+        _Pragma("unroll 4") for (int kk = 0; kk < KB_G; ++kk) {                                                         \
+            u64 av[RI], bv[4];                                                                                          \
+            _Pragma("unroll") for (int i = 0; i < RI; ++i) av[i] = As[kk][ty + 16 * i];                                 \
+            _Pragma("unroll") for (int j = 0; j < 4; ++j) bv[j] = Bs[kk][tx + 16 * j];                                  \
+            _Pragma("unroll") for (int i = 0; i < RI; ++i) {                                                            \
+                _Pragma("unroll") for (int j = 0; j < 4; ++j) {                                                         \
+                    u64 pl = av[i] * bv[j];                                                                             \
+                    u64 ph = __umul64hi(av[i], bv[j]);                                                                  \
+                    ACC128(lo[i][j], clo[i][j], pl);                                                                    \
+                    ACC128(hi[i][j], chi[i][j], ph);                                                                    \
+                }                                                                                                       \
+            }                                                                                                           \
+        }                                                                                                               \
+        __syncthreads();                                                                                                \
+    }                                                                                                                   \
+    _Pragma("unroll") for (int i = 0; i < RI; ++i) {                                                                    \
+        int ia = ia0 + ty + 16 * i;                                                                                     \
+        if (ia >= na) continue;                                                                                         \
+        _Pragma("unroll") for (int j = 0; j < 4; ++j) {                                                                 \
+            int ib = ib0 + tx + 16 * j;                                                                                 \
+            if (ib >= nb) continue;                                                                                     \
+            size_t c = ((((size_t)s * D_RING + t) * na + ia) * nb + ib) * 4;                                            \
+            u64 l0 = acc[c], l1 = acc[c + 1], h0 = acc[c + 2], h1 = acc[c + 3];                                         \
+            u64 nl = l0 + lo[i][j]; l1 += (nl < l0) + (u64)clo[i][j];                                                   \
+            u64 nh = h0 + hi[i][j]; h1 += (nh < h0) + (u64)chi[i][j];                                                   \
+            acc[c] = nl; acc[c + 1] = l1; acc[c + 2] = nh; acc[c + 3] = h1;                                             \
+        }                                                                                                               \
+    }
+
+// 64 x 64 tile (RI = 4).
 extern "C" __global__ void k_gemm_split(const u64* __restrict__ A, const u64* __restrict__ B, u64* acc, int na, int nb, int n_k, int ks, int k_per_split) {
-    __shared__ u64 As[KB_G][TM_G];
-    __shared__ u64 Bs[KB_G][TN_G];
-    const int t = blockIdx.z / ks;
-    const int s = blockIdx.z - t * ks;
-    const int k0 = s * k_per_split;
-    int k1 = k0 + k_per_split;
-    if (k1 > n_k) k1 = n_k;
-    const int ia0 = blockIdx.y * TM_G;
-    const int ib0 = blockIdx.x * TN_G;
-    const int tx = threadIdx.x, ty = threadIdx.y;
-    const int tid = ty * 16 + tx;
-    const u64* Ap = A + (size_t)t * n_k * na;
-    const u64* Bp = B + (size_t)t * n_k * nb;
-    u64 lo[4][4], hi[4][4];
-    u32 clo[4][4], chi[4][4];
-#pragma unroll
-    for (int i = 0; i < 4; ++i)
-#pragma unroll
-        for (int j = 0; j < 4; ++j) { lo[i][j] = 0; hi[i][j] = 0; clo[i][j] = 0; chi[i][j] = 0; }
-    for (int kb = k0; kb < k1; kb += KB_G) {
-        // Stage the k-major tiles (rows past na / nb and k past k1 are zero).
-        for (int e = tid; e < KB_G * TM_G; e += 256) {
-            int kk = e / TM_G, i = e - kk * TM_G;
-            int k = kb + kk, ia = ia0 + i;
-            As[kk][i] = (k < k1 && ia < na) ? Ap[(size_t)k * na + ia] : 0ULL;
-        }
-        for (int e = tid; e < KB_G * TN_G; e += 256) {
-            int kk = e / TN_G, j = e - kk * TN_G;
-            int k = kb + kk, ib = ib0 + j;
-            Bs[kk][j] = (k < k1 && ib < nb) ? Bp[(size_t)k * nb + ib] : 0ULL;
-        }
-        __syncthreads();
-#pragma unroll 4
-        for (int kk = 0; kk < KB_G; ++kk) {
-            u64 av[4], bv[4];
-#pragma unroll
-            for (int i = 0; i < 4; ++i) av[i] = As[kk][ty + 16 * i];
-#pragma unroll
-            for (int j = 0; j < 4; ++j) bv[j] = Bs[kk][tx + 16 * j];
-#pragma unroll
-            for (int i = 0; i < 4; ++i) {
-#pragma unroll
-                for (int j = 0; j < 4; ++j) {
-                    u64 pl = av[i] * bv[j];
-                    u64 ph = __umul64hi(av[i], bv[j]);
-                    ACC128(lo[i][j], clo[i][j], pl);
-                    ACC128(hi[i][j], chi[i][j], ph);
-                }
-            }
-        }
-        __syncthreads();
-    }
-    // Accumulate into this split's cells (owned by this block alone).
-#pragma unroll
-    for (int i = 0; i < 4; ++i) {
-        int ia = ia0 + ty + 16 * i;
-        if (ia >= na) continue;
-#pragma unroll
-        for (int j = 0; j < 4; ++j) {
-            int ib = ib0 + tx + 16 * j;
-            if (ib >= nb) continue;
-            size_t c = ((((size_t)s * D_RING + t) * na + ia) * nb + ib) * 4;
-            u64 l0 = acc[c], l1 = acc[c + 1], h0 = acc[c + 2], h1 = acc[c + 3];
-            u64 nl = l0 + lo[i][j]; l1 += (nl < l0) + (u64)clo[i][j];
-            u64 nh = h0 + hi[i][j]; h1 += (nh < h0) + (u64)chi[i][j];
-            acc[c] = nl; acc[c + 1] = l1; acc[c + 2] = nh; acc[c + 3] = h1;
-        }
-    }
+    GEMM_BODY(4)
+}
+
+// 16 x 64 tile (RI = 1): the skinny shapes (na <= 16, e.g. the KAPPA_AGG = 11
+// matvec rows) — no idle rows.
+extern "C" __global__ void k_gemm_split_m16(const u64* __restrict__ A, const u64* __restrict__ B, u64* acc, int na, int nb, int n_k, int ks, int k_per_split) {
+    GEMM_BODY(1)
 }
 
 // ---------------------------------------------------------------------------

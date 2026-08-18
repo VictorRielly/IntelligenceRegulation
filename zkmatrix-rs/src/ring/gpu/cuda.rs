@@ -25,9 +25,19 @@ use std::time::Instant;
 
 const KSRC: &str = include_str!("kernels.cu");
 const MODULE: &str = "zkgpu";
-const FUNCS: &[&str] = &["k_mulmod_probe", "k_ntt_fwd", "k_gemm_split", "k_flush_reduce", "k_ntt_inv"];
-/// Rings per block of the transform kernels (== R_FWD in kernels.cu).
+const FUNCS: &[&str] = &["k_mulmod_probe", "k_ntt_fwd", "k_gemm_split", "k_gemm_split_m16", "k_flush_reduce", "k_ntt_inv"];
+/// Rings per block of the transform kernels (default; `ZK_GPU_RFWD` overrides,
+/// passed to NVRTC as -DR_FWD) and threads per transform block (`ZK_GPU_TFWD`).
 const R_FWD: usize = 32;
+const T_FWD: usize = 256;
+fn r_fwd() -> usize {
+    static V: OnceLock<usize> = OnceLock::new();
+    *V.get_or_init(|| env_usize("ZK_GPU_RFWD", R_FWD).max(1))
+}
+fn t_fwd() -> u32 {
+    static V: OnceLock<usize> = OnceLock::new();
+    *V.get_or_init(|| env_usize("ZK_GPU_TFWD", T_FWD).max(32)) as u32
+}
 /// GEMM tile (== TM_G / TN_G / KB_G in kernels.cu).
 const TM_G: usize = 64;
 const TN_G: usize = 64;
@@ -262,8 +272,15 @@ fn init_gpu() -> Result<Gpu, String> {
     // generic default otherwise / on failure).
     let t0 = Instant::now();
     let maxrreg = env_usize("ZK_GPU_MAXRREG", 0);
+    let r_fwd = env_usize("ZK_GPU_RFWD", R_FWD);
+    let t_fwd = env_usize("ZK_GPU_TFWD", T_FWD);
     let compile = |arch: Option<&'static str>| {
-        let opts = CompileOptions { arch, maxrregcount: if maxrreg > 0 { Some(maxrreg) } else { None }, ..Default::default() };
+        let opts = CompileOptions {
+            arch,
+            maxrregcount: if maxrreg > 0 { Some(maxrreg) } else { None },
+            options: vec![format!("-DR_FWD={r_fwd}"), format!("-DT_FWD={t_fwd}")],
+            ..Default::default()
+        };
         compile_ptx_with_opts(KSRC, opts)
     };
     let ptx = match compile(arch_str((major, minor))) {
@@ -513,8 +530,8 @@ pub fn ntt_batch(rings: &[[u64; D]], inverse: bool) -> Result<Vec<[u64; D]>, Str
     let dev = g.dev.clone();
     let mut src = dev.htod_sync_copy(&flat).map_err(|e| e.to_string())?;
     let mut dst = dev.alloc_zeros::<u64>(n * D).map_err(|e| e.to_string())?;
-    let blocks = n.div_ceil(R_FWD) as u32;
-    let cfg = LaunchConfig { grid_dim: (blocks, 1, 1), block_dim: (256, 1, 1), shared_mem_bytes: 0 };
+    let blocks = n.div_ceil(r_fwd()) as u32;
+    let cfg = LaunchConfig { grid_dim: (blocks, 1, 1), block_dim: (t_fwd(), 1, 1), shared_mem_bytes: 0 };
     let mut out = vec![[0u64; D]; n];
     if !inverse {
         let f = dev.get_func(MODULE, "k_ntt_fwd").ok_or("k_ntt_fwd missing")?;
@@ -674,7 +691,9 @@ impl Gpu {
         }
         // Split-K count: enough blocks to fill the device (target 512), the
         // accumulator capped at 256 MB.
-        let tiles_m = na.div_ceil(TM_G);
+        // The 16-row GEMM tile for skinny shapes (na <= 16), the 64-row tile otherwise.
+        let tm = if na <= 16 { 16 } else { TM_G };
+        let tiles_m = na.div_ceil(tm);
         let tiles_n = nb.div_ceil(TN_G);
         let base_blocks = D * tiles_m * tiles_n;
         let acc_cell_bytes = D * na * nb * 32;
@@ -720,7 +739,11 @@ impl Gpu {
             self.st_out.grow(sz_out)?;
         }
         let f_fwd = dev.get_func(MODULE, "k_ntt_fwd").ok_or("k_ntt_fwd missing")?;
-        let f_gemm = dev.get_func(MODULE, "k_gemm_split").ok_or("k_gemm_split missing")?;
+        let f_gemm = if tm == 16 {
+            dev.get_func(MODULE, "k_gemm_split_m16").ok_or("k_gemm_split_m16 missing")?
+        } else {
+            dev.get_func(MODULE, "k_gemm_split").ok_or("k_gemm_split missing")?
+        };
         let f_flush = dev.get_func(MODULE, "k_flush_reduce").ok_or("k_flush_reduce missing")?;
         let f_inv = dev.get_func(MODULE, "k_ntt_inv").ok_or("k_ntt_inv missing")?;
         let sk = self.sk.stream;
@@ -833,8 +856,8 @@ impl Gpu {
                 let tk = Instant::now();
                 let n_slots_a = n * na;
                 let n_slots_b = n * nb;
-                let cfg_a = LaunchConfig { grid_dim: (n_slots_a.div_ceil(R_FWD) as u32, 1, 1), block_dim: (256, 1, 1), shared_mem_bytes: 0 };
-                let cfg_b = LaunchConfig { grid_dim: (n_slots_b.div_ceil(R_FWD) as u32, 1, 1), block_dim: (256, 1, 1), shared_mem_bytes: 0 };
+                let cfg_a = LaunchConfig { grid_dim: (n_slots_a.div_ceil(r_fwd()) as u32, 1, 1), block_dim: (t_fwd(), 1, 1), shared_mem_bytes: 0 };
+                let cfg_b = LaunchConfig { grid_dim: (n_slots_b.div_ceil(r_fwd()) as u32, 1, 1), block_dim: (t_fwd(), 1, 1), shared_mem_bytes: 0 };
                 unsafe { f_fwd.clone().launch_on_stream(&self.sk, cfg_a, (self.src_a[pp].ptr, a_fmt, q, n_slots_a as i32, self.a_t.ptr, self.psi.ptr)) }
                     .map_err(|e| format!("fwd a: {e}"))?;
                 unsafe { f_fwd.clone().launch_on_stream(&self.sk, cfg_b, (self.src_b[pp].ptr, b_fmt, q, n_slots_b as i32, self.b_t.ptr, self.psi.ptr)) }
@@ -874,7 +897,7 @@ impl Gpu {
             let cfg_f = LaunchConfig { grid_dim: (cells as u32, 1, 1), block_dim: (D as u32, 1, 1), shared_mem_bytes: 0 };
             unsafe { f_flush.clone().launch_on_stream(&self.sk, cfg_f, (self.acc.ptr, ks as i32, na as i32, nb as i32, self.v.ptr)) }
                 .map_err(|e| format!("flush: {e}"))?;
-            let cfg_i = LaunchConfig { grid_dim: (cells.div_ceil(R_FWD) as u32, 1, 1), block_dim: (256, 1, 1), shared_mem_bytes: 0 };
+            let cfg_i = LaunchConfig { grid_dim: (cells.div_ceil(r_fwd()) as u32, 1, 1), block_dim: (t_fwd(), 1, 1), shared_mem_bytes: 0 };
             let n_inv = self.n_inv;
             unsafe { f_inv.clone().launch_on_stream(&self.sk, cfg_i, (self.v.ptr, cells as i32, self.ipsi.ptr, n_inv, 1i32, q, self.out.ptr)) }
                 .map_err(|e| format!("inv: {e}"))?;
