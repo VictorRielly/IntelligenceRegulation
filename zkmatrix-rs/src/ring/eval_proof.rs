@@ -3167,7 +3167,10 @@ impl PhiFactored {
     ) -> Self {
         let _t = prof::timer(prof::M_PHI_SETUP); // [UPERF2-M] observation only
         let srs = kers.iter().map(|k| kernel_row_factors(kf, k)).collect();
-        cache.g_prepare(ctx, kf.s, kers, nb, alphas); // [UPERF2-M] block-parallel build
+        {
+            let _tg = prof::timer(prof::Q_PHI_GBLOCKS); // [UPERF2-Q] observation only: the G blocks' share of phi-setup
+            cache.g_prepare(ctx, kf.s, kers, nb, alphas); // [UPERF2-M] block-parallel build
+        }
         let gs = kers
             .iter()
             .map(|k| (0..nb).map(|cb| cache.g(ctx, kf.s, k, cb, alphas)).collect())
@@ -3979,6 +3982,7 @@ pub fn kernel_pass_factored_gen<B: SmallRings + ?Sized>(
             // T rings as the u128 body (`rows_t_rings_u128`, the pre-change
             // path, verbatim). Both return the reduced T rings [ki][d1][cb].
             let simd_p = if psi_simd_enabled() && t.rows < (1usize << 20) { psi_mac_simd_params(q) } else { None };
+            let _tt = prof::timer(prof::Q_ROWS_T); // [UPERF2-Q] observation only: the T rings' share of the rows pass
             let t_rings: Vec<Poly> = match simd_p {
                 Some(p) => rows_t_rings_avx2(w0, t, &radixes, &srs, nb, n_vr, &p),
                 None => {
@@ -4007,6 +4011,7 @@ pub fn kernel_pass_factored_gen<B: SmallRings + ?Sized>(
                         .collect()
                 }
             };
+            drop(_tt);
             // b_rows[cd] += sum_ki sum_cb sum_d1 CQ[ki][cb][d1][cd] * T[ki][d1][cb],
             // CQ[d1][cd] = sigma(cd, d1) * CQ0[(cd - d1) mod 16] (sigma = s
             // if cd < d1): 16 x 16 ring products per (kernel, cb) block —
@@ -4468,7 +4473,10 @@ pub fn fold_chunks_ntt_gen<B: SmallRings + ?Sized>(cs: &[Vec<i64>], w: &[&B], ch
         return vec![vec![0i64; D]; chunk];
     }
     let cmax: u128 = cs.iter().flat_map(|c| c.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0);
-    let wmax: u128 = w.iter().map(|s| s.max_abs()).max().unwrap_or(0);
+    // [UPERF2-Q] the flat i8 store is |w| <= 127 by construction: the bound
+    // stands in for the scan of the whole store (it only feeds the capacity
+    // check; the designed regimes fit at 127 exactly as at the true max).
+    let wmax: u128 = if w.iter().all(|s| s.as_i8().is_some()) { 127 } else { w.iter().map(|s| s.max_abs()).max().unwrap_or(0) };
     // (bounds beyond 2^48 are outside every designed regime — quinary c,
     // digits |w| <= 64 — and could overflow the u128 capacity product:
     // straight to the oracle)

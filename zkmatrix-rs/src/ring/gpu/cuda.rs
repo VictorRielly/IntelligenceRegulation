@@ -36,6 +36,7 @@ const FUNCS: &[&str] = &[
     "k_ntt_fwd_pool", // [UPERF2-Q]
     "k_combine",      // [UPERF2-Q]
     "k_limb_recombine", // [UPERF2-Q]
+    "k_gemm_i8",      // [UPERF2-Q]
 ];
 /// Rings per block of the transform kernels (default; `ZK_GPU_RFWD` overrides,
 /// passed to NVRTC as -DR_FWD) and threads per transform block (`ZK_GPU_TFWD`).
@@ -660,7 +661,14 @@ fn ntt_gemm_impl<B: SmallRings + ?Sized>(ctx: &RingCtx, a: &[&[Poly]], b: &[&B],
     // The operand bound (exact, from the data — the same value the CPU
     // body's `max_abs` scan yields; here per ring over (slice, ring-range)
     // tasks so the pool shares it evenly).
-    let s_max: u128 = {
+    // [UPERF2-Q] the flat i8 store is |w| <= 127 by construction: when the
+    // whole call fits the 127-window, the bound stands in for the scan (any
+    // bound >= the true max keeps the exact-integer contract; the flush
+    // partition does not move a value; the i8 format is chosen either way).
+    let all_i8 = b.iter().all(|s| s.as_i8().is_some());
+    let s_max: u128 = if all_i8 && ntt_window_terms(q, 127) >= len {
+        127
+    } else {
         const RING_TASK: usize = 512;
         let tasks_per_slice = len.div_ceil(RING_TASK);
         let scan = |task: usize| -> u64 {
@@ -2006,5 +2014,130 @@ impl Gpu {
             );
         }
         Ok(res)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-Q] THE CHAIN GEMM ON THE DEVICE: `bf_matmul_i64`'s int8 x int8 ->
+// i32 case (the commit phase's 3 GEMMs per layer: X @ WgT, X @ WuT, h8 @
+// WdT at T x 768 x 2048) — exact integer sums, so any implementation is
+// bit-identical; the CPU row-blocked loop is the oracle.
+
+static MM_CALLS: AtomicU64 = AtomicU64::new(0);
+static MM_TOTAL_US: AtomicU64 = AtomicU64::new(0);
+
+/// (calls, seconds) of the device chain GEMM (observation only).
+pub fn mm_stats() -> (u64, f64) {
+    (MM_CALLS.load(Ordering::Relaxed), MM_TOTAL_US.load(Ordering::Relaxed) as f64 * 1e-6)
+}
+
+/// `ZK_GPU_MM=0` keeps the chain GEMM on the CPU (the one-binary A/B).
+fn mm_on() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("ZK_GPU_MM").map(|v| v != "0").unwrap_or(true))
+}
+
+/// C[i][j] = sum_k a[i*inner + k] * b_t[k*cols + j] as i64, on the device,
+/// when every |a|, |b| <= 127 and inner * 127^2 < 2^31 (the caller's
+/// `i32_ok`); `None` = declined (the CPU body runs).
+pub fn matmul_i8(a: &[i64], b_t: &[i64], rows: usize, inner: usize, cols: usize) -> Option<Vec<i64>> {
+    let g = gpu()?;
+    if !mm_on() || rows == 0 || inner == 0 || cols == 0 {
+        return None;
+    }
+    if (rows as u128) * (inner as u128) * (cols as u128) < min_macs() {
+        return None;
+    }
+    let t0 = Instant::now();
+    let mut st = g.lock().unwrap();
+    match st.matmul_i8(a, b_t, rows, inner, cols) {
+        Ok(c) => {
+            MM_CALLS.fetch_add(1, Ordering::Relaxed);
+            add_us(&MM_TOTAL_US, t0.elapsed().as_secs_f64());
+            Some(c)
+        }
+        Err(e) => {
+            if !WARNED.swap(true, Ordering::Relaxed) {
+                eprintln!("[UPERF2-Q] gpu chain gemm failed ({e}); this and later calls fall back to the CPU body");
+            }
+            st.release_all();
+            super::k9::assert_no_chain("chain gemm failure bypass");
+            BYPASS.store(true, Ordering::Relaxed);
+            None
+        }
+    }
+}
+
+impl Gpu {
+    fn matmul_i8(&mut self, a: &[i64], b_t: &[i64], rows: usize, inner: usize, cols: usize) -> Result<Vec<i64>, String> {
+        let dev = self.dev.clone();
+        dev.bind_to_thread().map_err(|e| format!("bind_to_thread: {e}"))?;
+        assert_eq!(a.len(), rows * inner);
+        assert_eq!(b_t.len(), inner * cols);
+        let sz_a = rows * inner;
+        let sz_b = inner * cols;
+        let sz_c = rows * cols * 4;
+        // Staging / device: reuse the GEMM's src_a[0] / src_b[0] / out and st_a[0] / st_b[0] / st_out.
+        let grow = self.src_a[0].needs(sz_a) || self.src_b[0].needs(sz_b) || self.out.needs(sz_c) || self.st_a[0].needs(sz_a) || self.st_b[0].needs(sz_b) || self.st_out.needs(sz_c);
+        if grow {
+            self.sync_all()?;
+            self.src_a[0].grow(sz_a)?;
+            self.src_b[0].grow(sz_b)?;
+            self.out.grow(sz_c)?;
+            self.st_a[0].grow(sz_a)?;
+            self.st_b[0].grow(sz_b)?;
+            self.st_out.grow(sz_c)?;
+        }
+        let f = dev.get_func(MODULE, "k_gemm_i8").ok_or("k_gemm_i8 missing")?;
+        let sk = self.sk.stream;
+        let t0 = Instant::now();
+        // The staging buffers may still be read by an in-flight upload of a
+        // previous session (ping-pong 0): wait for the copy stream.
+        unsafe { cu::stream::synchronize(self.sc.stream) }.map_err(|e| format!("sync sc: {e}"))?;
+        unsafe { cu::event::synchronize(self.ev_h2d[0]) }.map_err(|e| format!("event sync: {e}"))?;
+        let t_sync = t0.elapsed().as_secs_f64();
+        {
+            let sa = self.st_a[0].slice_mut::<i8>(sz_a);
+            let sb = self.st_b[0].slice_mut::<i8>(sz_b);
+            let pack = |src: &[i64], dst: &mut [i8]| {
+                if threads() > 1 && src.len() >= 1 << 16 {
+                    POOL.install(|| {
+                        use rayon::prelude::*;
+                        dst.par_chunks_mut(1 << 14).zip(src.par_chunks(1 << 14)).for_each(|(d, s)| {
+                            for (x, &v) in d.iter_mut().zip(s.iter()) {
+                                *x = v as i8;
+                            }
+                        });
+                    });
+                } else {
+                    for (x, &v) in dst.iter_mut().zip(src.iter()) {
+                        *x = v as i8;
+                    }
+                }
+            };
+            pack(a, sa);
+            pack(b_t, sb);
+        }
+        let t_pack = t0.elapsed().as_secs_f64() - t_sync;
+        unsafe { cu::memcpy_htod_async(self.src_a[0].ptr, self.st_a[0].slice::<u8>(sz_a), sk) }.map_err(|e| format!("h2d a: {e}"))?;
+        unsafe { cu::memcpy_htod_async(self.src_b[0].ptr, self.st_b[0].slice::<u8>(sz_b), sk) }.map_err(|e| format!("h2d b: {e}"))?;
+        let cfg = LaunchConfig { grid_dim: (cols.div_ceil(64) as u32, rows.div_ceil(64) as u32, 1), block_dim: (16, 16, 1), shared_mem_bytes: 0 };
+        unsafe { f.launch_on_stream(&self.sk, cfg, (self.src_a[0].ptr, self.src_b[0].ptr, self.out.ptr, rows as i32, inner as i32, cols as i32)) }
+            .map_err(|e| format!("gemm i8: {e}"))?;
+        unsafe { cu::stream::synchronize(sk) }.map_err(|e| format!("sync sk: {e}"))?;
+        let t_dev = t0.elapsed().as_secs_f64() - t_sync - t_pack;
+        let flat: &mut [i32] = self.st_out.slice_mut::<i32>(rows * cols);
+        unsafe { cu::memcpy_dtoh_sync(flat, self.out.ptr) }.map_err(|e| format!("d2h c: {e}"))?;
+        let out: Vec<i64> = flat.iter().map(|&x| x as i64).collect();
+        if verbose() {
+            eprintln!(
+                "[UPERF2-Q] chain gemm {rows}x{inner}x{cols}: sync {:.1} ms, pack {:.1} ms, h2d+kernel {:.1} ms, d2h+widen {:.1} ms",
+                t_sync * 1e3,
+                t_pack * 1e3,
+                t_dev * 1e3,
+                (t0.elapsed().as_secs_f64() - t_sync - t_pack - t_dev) * 1e3
+            );
+        }
+        Ok(out)
     }
 }

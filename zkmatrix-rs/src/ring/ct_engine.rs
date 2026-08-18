@@ -2573,9 +2573,9 @@ pub mod prof {
     pub const Q_LH_SMAX: usize = 83; // [UPERF2-Q] gpu level-h session: the level's s_max scan of the witness store
     pub const Q_CB_FILL: usize = 84; // [UPERF2-Q] gpu combine session (fold / psi0 / transport combines): host pack per stage
     pub const Q_CB_WAIT: usize = 85; // [UPERF2-Q] gpu combine session: the drain
-    pub const Q_RESERVED_86: usize = 86;
-    pub const Q_RESERVED_87: usize = 87;
-    pub const Q_RESERVED_88: usize = 88;
+    pub const Q_PHI_GBLOCKS: usize = 86; // [UPERF2-Q] PhiFactored::new: the G blocks (inside m.phi-setup)
+    pub const Q_FOLD_SPLIT: usize = 87; // [UPERF2-Q] bg_fold: the digit split + range assert after the fold (inside bg.fold, outside m.fold-ntt)
+    pub const Q_ROWS_T: usize = 88; // [UPERF2-Q] rows pass: the T rings (value-ring recompose + K-weight MAC) — inside bg.kernel-rows
     pub const Q_RESERVED_89: usize = 89;
     pub const N_PHASES: usize = 90;
 
@@ -2666,9 +2666,9 @@ pub mod prof {
         "q.lh-smax",
         "q.cb-fill",
         "q.cb-wait",
-        "q.reserved-86",
-        "q.reserved-87",
-        "q.reserved-88",
+        "q.phi-gblocks",
+        "q.fold-split",
+        "q.rows-t",
         "q.reserved-89",
     ];
 

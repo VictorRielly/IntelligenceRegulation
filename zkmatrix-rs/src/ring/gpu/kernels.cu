@@ -447,6 +447,66 @@ extern "C" __global__ void k_combine(const u64* __restrict__ B, const u64* __res
     }
 }
 
+// [UPERF2-Q] The commit phase's chain GEMM (`bf_matmul_i64`): C[i][j] =
+// sum_k A[i][k] * B_T[k][j] over exact int8 x int8 products accumulated in
+// i32 (the caller checked inner * 127^2 < 2^31 and |a|, |b| <= 127) — 64 x
+// 64 tiles, 16 x 16 threads with 4 x 4 register cells, 32-deep K tiles of i8
+// in shared memory. Integer addition is associative: any tiling gives the
+// same exact sums (bit-identical to the CPU loops).
+
+#define TI8 64
+#define KI8 32
+
+extern "C" __global__ void k_gemm_i8(const signed char* __restrict__ A, const signed char* __restrict__ B, int* C, int rows, int inner, int cols) {
+    __shared__ int As[KI8][TI8];
+    __shared__ int Bs[KI8][TI8];
+    const int i0 = blockIdx.y * TI8, j0 = blockIdx.x * TI8;
+    const int tx = threadIdx.x, ty = threadIdx.y;
+    const int tid = ty * 16 + tx;
+    int acc[4][4];
+#pragma unroll
+    for (int a = 0; a < 4; ++a)
+#pragma unroll
+        for (int b = 0; b < 4; ++b) acc[a][b] = 0;
+    for (int k0 = 0; k0 < inner; k0 += KI8) {
+        for (int e = tid; e < KI8 * TI8; e += 256) {
+            int kk = e / TI8, i = e - kk * TI8;
+            int k = k0 + kk, ii = i0 + i;
+            As[kk][i] = (k < inner && ii < rows) ? (int)A[(size_t)ii * inner + k] : 0;
+        }
+        for (int e = tid; e < KI8 * TI8; e += 256) {
+            int kk = e / TI8, j = e - kk * TI8;
+            int k = k0 + kk, jj = j0 + j;
+            Bs[kk][j] = (k < inner && jj < cols) ? (int)B[(size_t)k * cols + jj] : 0;
+        }
+        __syncthreads();
+#pragma unroll 8
+        for (int kk = 0; kk < KI8; ++kk) {
+            int av[4], bv[4];
+#pragma unroll
+            for (int a = 0; a < 4; ++a) av[a] = As[kk][ty + 16 * a];
+#pragma unroll
+            for (int b = 0; b < 4; ++b) bv[b] = Bs[kk][tx + 16 * b];
+#pragma unroll
+            for (int a = 0; a < 4; ++a)
+#pragma unroll
+                for (int b = 0; b < 4; ++b) acc[a][b] += av[a] * bv[b];
+        }
+        __syncthreads();
+    }
+#pragma unroll
+    for (int a = 0; a < 4; ++a) {
+        int ii = i0 + ty + 16 * a;
+        if (ii >= rows) continue;
+#pragma unroll
+        for (int b = 0; b < 4; ++b) {
+            int jj = j0 + tx + 16 * b;
+            if (jj >= cols) continue;
+            C[(size_t)ii * cols + jj] = acc[a][b];
+        }
+    }
+}
+
 // [UPERF2-Q] The one-sided limb recombination of `ntt_combine_general`:
 // out0[i] = (v0 + (two_l * v1) % q) % q with v0 = out0[i], v1 = out1[i] in
 // [0, q) (two_l = 2^L mod q < 2^32: the product fits u64) — the host's

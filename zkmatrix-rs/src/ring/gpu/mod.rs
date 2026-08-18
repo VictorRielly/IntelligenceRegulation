@@ -77,6 +77,9 @@ pub use cuda::{level_h_stream, level_h_stream_force, lh_stats, lh_stats_reset, s
 // the transport's limb-split combines, compute_psi).
 #[cfg(feature = "gpu-cuda")]
 pub use cuda::{cb_stats, cb_stats_reset, combine_accepts, combine_stream, set_cb_block, set_cb_session, CbStats, CombineOut, CombineResult, CombineSrc};
+// [UPERF2-Q] The commit phase's chain GEMM (int8 x int8 -> i32, exact) on the device.
+#[cfg(feature = "gpu-cuda")]
+pub use cuda::{matmul_i8, mm_stats};
 
 // ---------------------------------------------------------------------------
 // The stub (default build): the hook compiles to a constant-false test.
@@ -369,6 +372,13 @@ mod stub {
     pub fn cb_stats_reset() {}
     pub fn set_cb_session(_on: bool) {}
     pub fn set_cb_block(_n: usize) {}
+    /// The chain GEMM: `None` = the CPU body runs.
+    pub fn matmul_i8(_a: &[i64], _b_t: &[i64], _rows: usize, _inner: usize, _cols: usize) -> Option<Vec<i64>> {
+        None
+    }
+    pub fn mm_stats() -> (u64, f64) {
+        (0, 0.0)
+    }
 }
 
 #[cfg(not(feature = "gpu-cuda"))]

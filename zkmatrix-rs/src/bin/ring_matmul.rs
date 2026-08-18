@@ -24707,6 +24707,13 @@ fn bf_matmul_i64(a: &[i64], b_t: &[i64], rows: usize, inner: usize, cols: usize)
     assert_eq!(b_t.len(), inner * cols);
     let small = |v: &[i64]| v.iter().all(|&x| (-127..=127).contains(&x));
     let i32_ok = inner as u64 * 127 * 127 < (1u64 << 31) && small(a) && small(b_t);
+    // [UPERF2-Q] the device int8 GEMM (exact i32 sums — bit-identical; the
+    // row-blocked loop below is its oracle; ZK_GPU_MM=0 keeps it here).
+    if i32_ok && ring::gpu::enabled() {
+        if let Some(c) = ring::gpu::matmul_i8(a, b_t, rows, inner, cols) {
+            return c;
+        }
+    }
     const RB: usize = 16;
     let mut c = vec![0i64; rows * cols];
     if i32_ok {
@@ -29486,6 +29493,7 @@ fn bg_fold_gen<B: ring::eval_proof::SmallRings + ?Sized>(w: &B, cs: &[Vec<i64>],
     assert!(w.n_rings() >= cs.len() * plan.chunk, "bg_fold: slices not padded to r*chunk");
     let w_sl: Vec<&B> = (0..cs.len()).map(|j| w.sub(j * plan.chunk, (j + 1) * plan.chunk)).collect();
     let z_all = fold_chunks_ntt_gen(cs, &w_sl, plan.chunk);
+    let _ts = ring::ct_engine::prof::timer(ring::ct_engine::prof::Q_FOLD_SPLIT); // [UPERF2-Q] observation only
     let (lo, hi) = ring::digits::representable(plan.e_next, plan.l_z);
     for z in &z_all {
         for &zc in z {
@@ -41798,6 +41806,42 @@ fn uperf_q_battery() {
             ring::gpu::set_bypass(false);
             check(&format!("hooks fold_chunks_ntt + psi_level0_factored_multi GPU-live ({engaged} sessions engaged; ZK_GPU={}) == bypassed at r {r} chunk {chunk}", if ring::gpu::enabled() { "1" } else { "unset" }), f_live == f_want && p_live == p_want);
         }
+    }
+    // ---- (I) the chain GEMM on the device (int8 x int8 -> i32, exact):
+    // `bf_matmul_i64` GPU-live vs `bf_matmul_i64_ref` on ragged shapes with
+    // planted +-127 and zero rows/cols; a > 127 case declines to the CPU.
+    if have_gpu && ring::gpu::enabled() {
+        let mut ok = true;
+        let mut engaged = 0u64;
+        for &(rows, inner, cols, big) in &[(100usize, 300usize, 200usize, false), (64, 2048, 64, false), (130, 768, 2048, false), (512, 768, 2048, false), (17, 2048, 768, false), (100, 300, 200, true)] {
+            let lim: i64 = if big { 300 } else { 127 };
+            let mut a: Vec<i64> = (0..rows * inner).map(|_| rd.next_field((2 * lim + 1) as u64) as i64 - lim).collect();
+            let mut b: Vec<i64> = (0..inner * cols).map(|_| rd.next_field((2 * lim + 1) as u64) as i64 - lim).collect();
+            let (la, lb) = (a.len(), b.len());
+            for _ in 0..8 {
+                let (i1, i2, i3, i4) = ((rd.next_u64() as usize) % la, (rd.next_u64() as usize) % la, (rd.next_u64() as usize) % lb, (rd.next_u64() as usize) % lb);
+                a[i1] = lim;
+                a[i2] = -lim;
+                b[i3] = lim;
+                b[i4] = -lim;
+            }
+            for k in 0..inner {
+                a[3 * inner + k] = 0; // a zero row
+            }
+            let (m0, _) = ring::gpu::mm_stats();
+            let got = bf_matmul_i64(&a, &b, rows, inner, cols);
+            let (m1, _) = ring::gpu::mm_stats();
+            engaged += m1 - m0;
+            let want = bf_matmul_i64_ref(&a, &b, rows, inner, cols);
+            if got != want {
+                ok = false;
+                println!("  FAIL chain gemm {rows}x{inner}x{cols} big {big}");
+            }
+            for &x in want.iter().take(64) {
+                battery.update(x.to_le_bytes());
+            }
+        }
+        check(&format!("chain gemm bf_matmul_i64 GPU-live ({engaged} device calls of 5 eligible) == bf_matmul_i64_ref on 6 shapes"), ok);
     }
     let dg: [u8; 32] = battery.finalize().into();
     println!(
