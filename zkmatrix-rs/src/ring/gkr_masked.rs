@@ -890,9 +890,12 @@ fn masked_rounds_bulk(
     // The b-part eq table eq_b (2^j entries) and E(e) per instance — the
     // joint eq is eq_b(b) x E(e); `eq_src` is what the flush / the fused
     // extract rounds read.
-    let (eqb, ee_all): (Option<super::kfield::KTab>, Vec<KElem>) = if fuse_extract {
+    // [UPERF2-P] the b-part table as a handle: built on the device when the
+    // GPU is live (the host image materialized only for CPU readers), else
+    // the host build as before.
+    let (eqb, ee_all): (Option<super::kfield::EqTab>, Vec<KElem>) = if fuse_extract {
         let _t = prof::timer(prof::A_EQ_TABLE);
-        (Some(kf.kt_eq_table_par(&zeta[..j])), (0..l).map(&e_of).collect())
+        (Some(super::kfield::EqTab::new(kf, &zeta[..j])), (0..l).map(&e_of).collect())
     } else {
         (None, Vec::new())
     };
@@ -1121,9 +1124,12 @@ fn masked_rounds_bulk(
                             ),
                             None => ([0u32; super::kfield::K_DEG], None),
                         };
-                        let plan = FusedPlan { mode, ranges: &pranges, layers: &layers, r_prev, lambda: lambda_k, fold_consts };
+                        // [UPERF2-P] the eq b-part goes in as its handle (the
+                        // device hook binds the device table in place; a CPU
+                        // reader materializes the host image once).
+                        let plan = FusedPlan { mode, ranges: &pranges, layers: &layers, r_prev, lambda: lambda_k, fold_consts, eq_tab: eqb.as_ref() };
                         let empty_eqb = KTab::zeroed(0);
-                        let eqb_ref: &KTab = eqb.as_ref().unwrap_or(&empty_eqb);
+                        let eqb_ref: &KTab = &empty_eqb;
                         match mode {
                             FUSE_FOLD => {
                                 let (pl, p1c, q0c, q1c) = tabs.as_mut().expect("extracted");
@@ -1329,7 +1335,8 @@ struct PendingFold {
 struct EqSrc<'a> {
     /// The b-part table (2^j entries) when the fused extract is on (None:
     /// the joint table is built by `build_eq_table` from zeta directly).
-    eqb: Option<&'a super::kfield::KTab>,
+    /// [UPERF2-P] a handle: its host image is materialized on first use.
+    eqb: Option<&'a super::kfield::EqTab<'a>>,
     /// E(e) per instance (empty when eqb is None).
     ee: &'a [KElem],
     size: usize,
@@ -1350,7 +1357,7 @@ fn build_eq_table(kf: &KField, kern: &super::kfield::KKern, zeta: &[KElem], j: u
     }
     let eqb_own;
     let eqb: &super::kfield::KTab = match src.eqb {
-        Some(t) => t,
+        Some(t) => t.host(),
         None => {
             eqb_own = kf.kt_eq_table_par(&zeta[..j]);
             &eqb_own

@@ -70,6 +70,35 @@ struct K9P {
     u32 deg;           // ixf degree
     const u32* prm;    // the constant vectors (device)
 };
+
+// [UPERF2-P] One launch per round: the live ranges' descriptors (== k9.rs
+// K9Range, #[repr(C)]) in device memory; the grid strides over the SUM of
+// the ranges' threads and a thread finds its range by a linear scan (the
+// descriptors are few and cached). Per range: the five input / output
+// table pointers (FOLD; EXTRACT_FOLD outputs), or the layer source (packed:
+// pp = in0, qq = in1; compact: w = in0, alpha = in1, exc = in2, n_exc,
+// e_base) and the eq pointer (extract modes), the parameter slot (E(e)
+// differs per range) and the flags.
+struct K9R {
+    u64 in0, in1, in2, in3, in4;
+    u64 out0, out1, out2, out3, out4;
+    u64 eq;
+    u32 t0;        // first global thread of this range (prefix sum)
+    u32 n;         // threads of this range
+    u32 slot;      // parameter slot index (x PRM_WORDS)
+    u32 flags;     // bit 0: has_ee
+    u32 n_exc;
+    u32 e_base;
+    u32 pad0, pad1;
+};
+#define K9R_HAS_EE 1u
+
+// The range of global thread g (nr >= 1; g < R[nr-1].t0 + R[nr-1].n).
+__device__ __forceinline__ int find_range(const K9R* R, u32 nr, u32 g) {
+    int r = 0;
+    while (r + 1 < (int)nr && g >= R[r + 1].t0) r++;
+    return r;
+}
 #define PRM_NODES 0
 #define PRM_R 8
 #define PRM_LAMBDA 24
@@ -353,6 +382,32 @@ __device__ __forceinline__ void fold_tab(const K9P& P, const u32* in, u32 ib, u3
 // over the launch's n pairs. in_k / out_k are the launch's (range's) first
 // blocks; the five tables: eq, pl, p1, q0, q1.
 
+// The body of one state-t element pair i (== one iteration of k_fold_round's loop).
+__device__ __forceinline__ void fold_round_pair(const K9P& P, const u32* in0, const u32* in1, const u32* in2, const u32* in3, const u32* in4,
+                                                u32* out0, u32* out1, u32* out2, u32* out3, u32* out4, u32 i, const u32* rr, const u32* fc,
+                                                u32 accn[5][KDEG]) {
+    const u32 ib = i >> 1, ih = i & 1;    // source block, half
+    const u32 ob = i >> 2, oh = i & 3;    // dest block, pair slot
+    u32 w[5][KDEG];
+    {
+        u32 ae0[KDEG], ae1[KDEG], be0[KDEG], be1[KDEG];
+        fold_tab(P, in1, ib, ih, rr, fc ? fc + 0 * KDEG : (const u32*)0, out1, ob, oh, ae0, ae1); // PL
+        fold_tab(P, in4, ib, ih, rr, fc ? fc + 3 * KDEG : (const u32*)0, out4, ob, oh, be0, be1); // Q1
+        pass_a(P, ae0, ae1, be0, be1, w);
+    }
+    {
+        u32 ae0[KDEG], ae1[KDEG], be0[KDEG], be1[KDEG];
+        fold_tab(P, in2, ib, ih, rr, fc ? fc + 1 * KDEG : (const u32*)0, out2, ob, oh, ae0, ae1); // P1
+        fold_tab(P, in3, ib, ih, rr, fc ? fc + 2 * KDEG : (const u32*)0, out3, ob, oh, be0, be1); // Q0
+        pass_b(P, ae0, ae1, be0, be1, w);
+    }
+    {
+        u32 ae0[KDEG], ae1[KDEG];
+        fold_tab(P, in0, ib, ih, rr, (const u32*)0, out0, ob, oh, ae0, ae1); // EQ
+        pass_c(P, ae0, ae1, w, accn);
+    }
+}
+
 extern "C" __global__ void k_fold_round(K9P P, const u32* in0, const u32* in1, const u32* in2, const u32* in3, const u32* in4,
                                         u32* out0, u32* out1, u32* out2, u32* out3, u32* out4, u32 n, u64* partial) {
     u32 accn[5][KDEG];
@@ -362,26 +417,28 @@ extern "C" __global__ void k_fold_round(K9P P, const u32* in0, const u32* in1, c
     for (int j = 0; j < KDEG; j++) rr[j] = P.prm[PRM_R + j];
     const u32* fc = P.has_fc ? (P.prm + PRM_FC) : (const u32*)0;
     for (u32 i = blockIdx.x * TK9 + threadIdx.x; i < n; i += gridDim.x * TK9) {
-        const u32 ib = i >> 1, ih = i & 1;    // source block, half
-        const u32 ob = i >> 2, oh = i & 3;    // dest block, pair slot
-        u32 w[5][KDEG];
-        {
-            u32 ae0[KDEG], ae1[KDEG], be0[KDEG], be1[KDEG];
-            fold_tab(P, in1, ib, ih, rr, fc ? fc + 0 * KDEG : (const u32*)0, out1, ob, oh, ae0, ae1); // PL
-            fold_tab(P, in4, ib, ih, rr, fc ? fc + 3 * KDEG : (const u32*)0, out4, ob, oh, be0, be1); // Q1
-            pass_a(P, ae0, ae1, be0, be1, w);
-        }
-        {
-            u32 ae0[KDEG], ae1[KDEG], be0[KDEG], be1[KDEG];
-            fold_tab(P, in2, ib, ih, rr, fc ? fc + 1 * KDEG : (const u32*)0, out2, ob, oh, ae0, ae1); // P1
-            fold_tab(P, in3, ib, ih, rr, fc ? fc + 2 * KDEG : (const u32*)0, out3, ob, oh, be0, be1); // Q0
-            pass_b(P, ae0, ae1, be0, be1, w);
-        }
-        {
-            u32 ae0[KDEG], ae1[KDEG];
-            fold_tab(P, in0, ib, ih, rr, (const u32*)0, out0, ob, oh, ae0, ae1); // EQ
-            pass_c(P, ae0, ae1, w, accn);
-        }
+        fold_round_pair(P, in0, in1, in2, in3, in4, out0, out1, out2, out3, out4, i, rr, fc, accn);
+    }
+    reduce_nodes(accn, P.nn, partial, P.q);
+}
+
+// [UPERF2-P] FUSE_FOLD over every live range in ONE launch (the range
+// descriptors R[0..nr), `total` = the sum of their threads). Same body per
+// pair, same node sums (the block sums add into the same partials — modular
+// addition in any order).
+extern "C" __global__ void k_fold_round_m(K9P P, const K9R* R, u32 nr, u32 total, u64* partial) {
+    u32 accn[5][KDEG];
+    ZERO_ACC(accn)
+    u32 rr[KDEG];
+#pragma unroll
+    for (int j = 0; j < KDEG; j++) rr[j] = P.prm[PRM_R + j];
+    const u32* fc = P.has_fc ? (P.prm + PRM_FC) : (const u32*)0;
+    for (u32 g = blockIdx.x * TK9 + threadIdx.x; g < total; g += gridDim.x * TK9) {
+        const int r = find_range(R, nr, g);
+        const K9R d = R[r];
+        const u32 i = g - d.t0;
+        fold_round_pair(P, (const u32*)d.in0, (const u32*)d.in1, (const u32*)d.in2, (const u32*)d.in3, (const u32*)d.in4,
+                        (u32*)d.out0, (u32*)d.out1, (u32*)d.out2, (u32*)d.out3, (u32*)d.out4, i, rr, fc, accn);
     }
     reduce_nodes(accn, P.nn, partial, P.q);
 }
@@ -415,6 +472,53 @@ __device__ __forceinline__ void layer4(const u32* L, const CLSrc& cl, bool want_
     }
 }
 
+// The body of one state-0 pair i (== one iteration of the extract round's loop).
+template <bool COMPACT>
+__device__ __forceinline__ void extract_round_pair(const K9P& P, const u32* pp, const u32* qq, const CLSrc& cl, u32 e_base,
+                                                   const u32* eqb, u32 i, const u32* lam, const u32* ee, bool has_ee, u32 accn[5][KDEG]) {
+    u32 w[5][KDEG];
+    u32 q0e0[KDEG], q0e1[KDEG];
+    {
+        // Q: q0 (lanes 0, 2), q1 (lanes 1, 3); P: p0 -> PL = p0 + lambda q0.
+        u32 q1e0[KDEG], q1e1[KDEG];
+        layer4<COMPACT>(qq, cl, true, e_base, i, q0e0, q1e0, q0e1, q1e1);
+        u32 ple0[KDEG], ple1[KDEG];
+        {
+            u32 p0e0[KDEG], p0e1[KDEG], d0[KDEG], d1[KDEG];
+            layer4<COMPACT>(pp, cl, false, e_base, i, p0e0, d0, p0e1, d1);
+            u32 m[KDEG];
+            kmul(q0e0, lam, m, P);
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) ple0[j] = addm(p0e0[j], m[j], P.q);
+            kmul(q0e1, lam, m, P);
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) ple1[j] = addm(p0e1[j], m[j], P.q);
+        }
+        pass_a(P, ple0, ple1, q1e0, q1e1, w);
+    }
+    {
+        u32 p1e0[KDEG], p1e1[KDEG], d0[KDEG], d1[KDEG];
+        layer4<COMPACT>(pp, cl, false, e_base, i, d0, p1e0, d1, p1e1);
+        pass_b(P, p1e0, p1e1, q0e0, q0e1, w);
+    }
+    {
+        u32 a0[KDEG], a1[KDEG];
+#pragma unroll
+        for (int j = 0; j < KDEG; j++) {
+            uint2 v = ld2(eqb, i >> 2, i & 3, j);
+            a0[j] = v.x; a1[j] = v.y;
+        }
+        if (has_ee) {
+            u32 b0[KDEG], b1[KDEG];
+            kmul(a0, ee, b0, P);
+            kmul(a1, ee, b1, P);
+            pass_c(P, b0, b1, w, accn);
+        } else {
+            pass_c(P, a0, a1, w, accn);
+        }
+    }
+}
+
 template <bool COMPACT>
 __device__ __forceinline__ void extract_round_body(const K9P& P, const u32* pp, const u32* qq, CLSrc cl, u32 e_base,
                                                    const u32* eqb, u32 n, u64* partial) {
@@ -424,47 +528,7 @@ __device__ __forceinline__ void extract_round_body(const K9P& P, const u32* pp, 
 #pragma unroll
     for (int j = 0; j < KDEG; j++) { lam[j] = P.prm[PRM_LAMBDA + j]; ee[j] = P.prm[PRM_EE + j]; }
     for (u32 i = blockIdx.x * TK9 + threadIdx.x; i < n; i += gridDim.x * TK9) {
-        u32 w[5][KDEG];
-        u32 q0e0[KDEG], q0e1[KDEG];
-        {
-            // Q: q0 (lanes 0, 2), q1 (lanes 1, 3); P: p0 -> PL = p0 + lambda q0.
-            u32 q1e0[KDEG], q1e1[KDEG];
-            layer4<COMPACT>(qq, cl, true, e_base, i, q0e0, q1e0, q0e1, q1e1);
-            u32 ple0[KDEG], ple1[KDEG];
-            {
-                u32 p0e0[KDEG], p0e1[KDEG], d0[KDEG], d1[KDEG];
-                layer4<COMPACT>(pp, cl, false, e_base, i, p0e0, d0, p0e1, d1);
-                u32 m[KDEG];
-                kmul(q0e0, lam, m, P);
-#pragma unroll
-                for (int j = 0; j < KDEG; j++) ple0[j] = addm(p0e0[j], m[j], P.q);
-                kmul(q0e1, lam, m, P);
-#pragma unroll
-                for (int j = 0; j < KDEG; j++) ple1[j] = addm(p0e1[j], m[j], P.q);
-            }
-            pass_a(P, ple0, ple1, q1e0, q1e1, w);
-        }
-        {
-            u32 p1e0[KDEG], p1e1[KDEG], d0[KDEG], d1[KDEG];
-            layer4<COMPACT>(pp, cl, false, e_base, i, d0, p1e0, d1, p1e1);
-            pass_b(P, p1e0, p1e1, q0e0, q0e1, w);
-        }
-        {
-            u32 a0[KDEG], a1[KDEG];
-#pragma unroll
-            for (int j = 0; j < KDEG; j++) {
-                uint2 v = ld2(eqb, i >> 2, i & 3, j);
-                a0[j] = v.x; a1[j] = v.y;
-            }
-            if (P.has_ee) {
-                u32 b0[KDEG], b1[KDEG];
-                kmul(a0, ee, b0, P);
-                kmul(a1, ee, b1, P);
-                pass_c(P, b0, b1, w, accn);
-            } else {
-                pass_c(P, a0, a1, w, accn);
-            }
-        }
+        extract_round_pair<COMPACT>(P, pp, qq, cl, e_base, eqb, i, lam, ee, P.has_ee != 0, accn);
     }
     reduce_nodes(accn, P.nn, partial, P.q);
 }
@@ -477,6 +541,39 @@ extern "C" __global__ void k_extract_round_cl(K9P P, const u32* w, const u32* al
                                               const u32* eqb, u32 n, u64* partial) {
     CLSrc cl = {w, alpha, exc, n_exc};
     extract_round_body<true>(P, 0, 0, cl, e_base, eqb, n, partial);
+}
+
+// [UPERF2-P] FUSE_EXTRACT over every live range in ONE launch: per range the
+// layer source (packed: in0 = pp, in1 = qq; compact: in0 = w, in1 = alpha,
+// in2 = exc, n_exc, e_base), the eq pointer, and the parameter slot (E(e)).
+template <bool COMPACT>
+__device__ __forceinline__ void extract_round_multi(const K9P& P, const K9R* R, u32 nr, u32 total, u64* partial) {
+    u32 accn[5][KDEG];
+    ZERO_ACC(accn)
+    u32 lam[KDEG], ee[KDEG];
+#pragma unroll
+    for (int j = 0; j < KDEG; j++) { lam[j] = P.prm[PRM_LAMBDA + j]; ee[j] = 0; }
+    int cur = -1;
+    for (u32 g = blockIdx.x * TK9 + threadIdx.x; g < total; g += gridDim.x * TK9) {
+        const int r = find_range(R, nr, g);
+        const K9R d = R[r];
+        if (r != cur) {
+            cur = r;
+            const u32* pe = P.prm + (size_t)d.slot * PRM_WORDS + PRM_EE;
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) ee[j] = pe[j];
+        }
+        const u32 i = g - d.t0;
+        CLSrc cl = {(const u32*)d.in0, (const u32*)d.in1, (const u32*)d.in2, d.n_exc};
+        extract_round_pair<COMPACT>(P, (const u32*)d.in0, (const u32*)d.in1, cl, d.e_base, (const u32*)d.eq, i, lam, ee, (d.flags & K9R_HAS_EE) != 0, accn);
+    }
+    reduce_nodes(accn, P.nn, partial, P.q);
+}
+extern "C" __global__ void k_extract_round_m(K9P P, const K9R* R, u32 nr, u32 total, u64* partial) {
+    extract_round_multi<false>(P, R, nr, total, partial);
+}
+extern "C" __global__ void k_extract_round_cl_m(K9P P, const K9R* R, u32 nr, u32 total, u64* partial) {
+    extract_round_multi<true>(P, R, nr, total, partial);
 }
 
 // ---------------------------------------------------------------------------
@@ -520,6 +617,66 @@ __device__ __forceinline__ void layer_fold(const K9P& P, const u32* L, const CLS
     kfold(s2, s3, rr, c, e1, P);
 }
 
+// The body of one state-1 pair i (== one iteration of the extract-fold round's loop).
+template <bool COMPACT>
+__device__ __forceinline__ void extract_fold_pair(const K9P& P, const u32* pp, const u32* qq, const CLSrc& cl, u32 e_base, const u32* eqb,
+                                                  u32* out0, u32* out1, u32* out2, u32* out3, u32* out4, u32 i,
+                                                  const u32* rr, const u32* lam, const u32* ee, bool has_ee, const u32* fc, u32 accn[5][KDEG]) {
+    const u32* c_p0 = fc ? fc + 0 * KDEG : (const u32*)0;
+    const u32* c_p1 = fc ? fc + 1 * KDEG : (const u32*)0;
+    const u32* c_q0 = fc ? fc + 2 * KDEG : (const u32*)0;
+    const u32* c_q1 = fc ? fc + 3 * KDEG : (const u32*)0;
+    const u32 ob = i >> 2, oh = i & 3;
+    u32 w[5][KDEG];
+    u32 q0e0[KDEG], q0e1[KDEG];
+    {
+        // q0 (-> table 3), q1 (-> table 4), p0 -> PL (-> table 1).
+        layer_fold<COMPACT>(P, qq, cl, true, e_base, i, false, rr, c_q0, q0e0, q0e1);
+        STORE2(out3, ob, oh, q0e0, q0e1)
+        u32 q1e0[KDEG], q1e1[KDEG];
+        layer_fold<COMPACT>(P, qq, cl, true, e_base, i, true, rr, c_q1, q1e0, q1e1);
+        STORE2(out4, ob, oh, q1e0, q1e1)
+        u32 ple0[KDEG], ple1[KDEG];
+        {
+            u32 p0e0[KDEG], p0e1[KDEG];
+            layer_fold<COMPACT>(P, pp, cl, false, e_base, i, false, rr, c_p0, p0e0, p0e1);
+            u32 m[KDEG];
+            kmul(q0e0, lam, m, P);
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) ple0[j] = addm(p0e0[j], m[j], P.q);
+            kmul(q0e1, lam, m, P);
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) ple1[j] = addm(p0e1[j], m[j], P.q);
+        }
+        STORE2(out1, ob, oh, ple0, ple1)
+        pass_a(P, ple0, ple1, q1e0, q1e1, w);
+    }
+    {
+        u32 p1e0[KDEG], p1e1[KDEG];
+        layer_fold<COMPACT>(P, pp, cl, false, e_base, i, true, rr, c_p1, p1e0, p1e1);
+        STORE2(out2, ob, oh, p1e0, p1e1)
+        pass_b(P, p1e0, p1e1, q0e0, q0e1, w);
+    }
+    {
+        // eq: state-0 elements 4i..4i+3 -> fold -> x E(e) -> table 0.
+        u32 s0[KDEG], s1[KDEG], s2[KDEG], s3[KDEG];
+        LOAD4(eqb, i >> 1, i & 1, s0, s1, s2, s3)
+        u32 f0[KDEG], f1[KDEG];
+        kfold(s0, s1, rr, (const u32*)0, f0, P);
+        kfold(s2, s3, rr, (const u32*)0, f1, P);
+        if (has_ee) {
+            u32 g0[KDEG], g1[KDEG];
+            kmul(f0, ee, g0, P);
+            kmul(f1, ee, g1, P);
+            STORE2(out0, ob, oh, g0, g1)
+            pass_c(P, g0, g1, w, accn);
+        } else {
+            STORE2(out0, ob, oh, f0, f1)
+            pass_c(P, f0, f1, w, accn);
+        }
+    }
+}
+
 template <bool COMPACT>
 __device__ __forceinline__ void extract_fold_body(const K9P& P, const u32* pp, const u32* qq, CLSrc cl, u32 e_base, const u32* eqb,
                                                   u32* out0, u32* out1, u32* out2, u32* out3, u32* out4, u32 n, u64* partial) {
@@ -529,60 +686,8 @@ __device__ __forceinline__ void extract_fold_body(const K9P& P, const u32* pp, c
 #pragma unroll
     for (int j = 0; j < KDEG; j++) { rr[j] = P.prm[PRM_R + j]; lam[j] = P.prm[PRM_LAMBDA + j]; ee[j] = P.prm[PRM_EE + j]; }
     const u32* fc = P.has_fc ? (P.prm + PRM_FC) : (const u32*)0;
-    const u32* c_p0 = fc ? fc + 0 * KDEG : (const u32*)0;
-    const u32* c_p1 = fc ? fc + 1 * KDEG : (const u32*)0;
-    const u32* c_q0 = fc ? fc + 2 * KDEG : (const u32*)0;
-    const u32* c_q1 = fc ? fc + 3 * KDEG : (const u32*)0;
     for (u32 i = blockIdx.x * TK9 + threadIdx.x; i < n; i += gridDim.x * TK9) {
-        const u32 ob = i >> 2, oh = i & 3;
-        u32 w[5][KDEG];
-        u32 q0e0[KDEG], q0e1[KDEG];
-        {
-            // q0 (-> table 3), q1 (-> table 4), p0 -> PL (-> table 1).
-            layer_fold<COMPACT>(P, qq, cl, true, e_base, i, false, rr, c_q0, q0e0, q0e1);
-            STORE2(out3, ob, oh, q0e0, q0e1)
-            u32 q1e0[KDEG], q1e1[KDEG];
-            layer_fold<COMPACT>(P, qq, cl, true, e_base, i, true, rr, c_q1, q1e0, q1e1);
-            STORE2(out4, ob, oh, q1e0, q1e1)
-            u32 ple0[KDEG], ple1[KDEG];
-            {
-                u32 p0e0[KDEG], p0e1[KDEG];
-                layer_fold<COMPACT>(P, pp, cl, false, e_base, i, false, rr, c_p0, p0e0, p0e1);
-                u32 m[KDEG];
-                kmul(q0e0, lam, m, P);
-#pragma unroll
-                for (int j = 0; j < KDEG; j++) ple0[j] = addm(p0e0[j], m[j], P.q);
-                kmul(q0e1, lam, m, P);
-#pragma unroll
-                for (int j = 0; j < KDEG; j++) ple1[j] = addm(p0e1[j], m[j], P.q);
-            }
-            STORE2(out1, ob, oh, ple0, ple1)
-            pass_a(P, ple0, ple1, q1e0, q1e1, w);
-        }
-        {
-            u32 p1e0[KDEG], p1e1[KDEG];
-            layer_fold<COMPACT>(P, pp, cl, false, e_base, i, true, rr, c_p1, p1e0, p1e1);
-            STORE2(out2, ob, oh, p1e0, p1e1)
-            pass_b(P, p1e0, p1e1, q0e0, q0e1, w);
-        }
-        {
-            // eq: state-0 elements 4i..4i+3 -> fold -> x E(e) -> table 0.
-            u32 s0[KDEG], s1[KDEG], s2[KDEG], s3[KDEG];
-            LOAD4(eqb, i >> 1, i & 1, s0, s1, s2, s3)
-            u32 f0[KDEG], f1[KDEG];
-            kfold(s0, s1, rr, (const u32*)0, f0, P);
-            kfold(s2, s3, rr, (const u32*)0, f1, P);
-            if (P.has_ee) {
-                u32 g0[KDEG], g1[KDEG];
-                kmul(f0, ee, g0, P);
-                kmul(f1, ee, g1, P);
-                STORE2(out0, ob, oh, g0, g1)
-                pass_c(P, g0, g1, w, accn);
-            } else {
-                STORE2(out0, ob, oh, f0, f1)
-                pass_c(P, f0, f1, w, accn);
-            }
-        }
+        extract_fold_pair<COMPACT>(P, pp, qq, cl, e_base, eqb, out0, out1, out2, out3, out4, i, rr, lam, ee, P.has_ee != 0, fc, accn);
     }
     reduce_nodes(accn, P.nn, partial, P.q);
 }
@@ -596,6 +701,65 @@ extern "C" __global__ void k_extract_fold_cl(K9P P, const u32* w, const u32* alp
                                              u32* out0, u32* out1, u32* out2, u32* out3, u32* out4, u32 n, u64* partial) {
     CLSrc cl = {w, alpha, exc, n_exc};
     extract_fold_body<true>(P, 0, 0, cl, e_base, eqb, out0, out1, out2, out3, out4, n, partial);
+}
+
+// [UPERF2-P] FUSE_EXTRACT_FOLD over every live range in ONE launch (per range:
+// the layer source as for the extract round, the eq pointer, the five
+// state-1 output pointers, the parameter slot).
+template <bool COMPACT>
+__device__ __forceinline__ void extract_fold_multi(const K9P& P, const K9R* R, u32 nr, u32 total, u64* partial) {
+    u32 accn[5][KDEG];
+    ZERO_ACC(accn)
+    u32 rr[KDEG], lam[KDEG], ee[KDEG];
+#pragma unroll
+    for (int j = 0; j < KDEG; j++) { rr[j] = P.prm[PRM_R + j]; lam[j] = P.prm[PRM_LAMBDA + j]; ee[j] = 0; }
+    const u32* fc = P.has_fc ? (P.prm + PRM_FC) : (const u32*)0;
+    int cur = -1;
+    for (u32 g = blockIdx.x * TK9 + threadIdx.x; g < total; g += gridDim.x * TK9) {
+        const int r = find_range(R, nr, g);
+        const K9R d = R[r];
+        if (r != cur) {
+            cur = r;
+            const u32* pe = P.prm + (size_t)d.slot * PRM_WORDS + PRM_EE;
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) ee[j] = pe[j];
+        }
+        const u32 i = g - d.t0;
+        CLSrc cl = {(const u32*)d.in0, (const u32*)d.in1, (const u32*)d.in2, d.n_exc};
+        extract_fold_pair<COMPACT>(P, (const u32*)d.in0, (const u32*)d.in1, cl, d.e_base, (const u32*)d.eq,
+                                   (u32*)d.out0, (u32*)d.out1, (u32*)d.out2, (u32*)d.out3, (u32*)d.out4, i,
+                                   rr, lam, ee, (d.flags & K9R_HAS_EE) != 0, fc, accn);
+    }
+    reduce_nodes(accn, P.nn, partial, P.q);
+}
+extern "C" __global__ void k_extract_fold_m(K9P P, const K9R* R, u32 nr, u32 total, u64* partial) {
+    extract_fold_multi<false>(P, R, nr, total, partial);
+}
+extern "C" __global__ void k_extract_fold_cl_m(K9P P, const K9R* R, u32 nr, u32 total, u64* partial) {
+    extract_fold_multi<true>(P, R, nr, total, partial);
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-P] The eq b-part table built ON THE DEVICE: eq[i] = lo[i mod 2^lbits]
+// x hi[i >> lbits] over the two small host-built halves (the eq tables over
+// zeta[..lbits] and zeta[lbits..]) — the same canonical field product as the
+// CPU's doubling (a product of the same factors; canonical representatives
+// are unique), so identical bytes. Thread = one output element.
+extern "C" __global__ void k_eq_outer(K9P P, const u32* lo, const u32* hi, u32* out, u32 n, u32 lbits) {
+    const u32 lmask = (1u << lbits) - 1u;
+    for (u32 e = blockIdx.x * blockDim.x + threadIdx.x; e < n; e += gridDim.x * blockDim.x) {
+        const u32 el = e & lmask, eh = e >> lbits;
+        u32 a[KDEG], b[KDEG];
+        const u32* pa = lo + (size_t)(el >> 3) * KBLK + (el & 7);
+        const u32* pb = hi + (size_t)(eh >> 3) * KBLK + (eh & 7);
+#pragma unroll
+        for (int j = 0; j < KDEG; j++) { a[j] = pa[j * KL]; b[j] = pb[j * KL]; }
+        u32 o[KDEG];
+        kmul(a, b, o, P);
+        u32* dst = out + (size_t)(e >> 3) * KBLK + (e & 7);
+#pragma unroll
+        for (int j = 0; j < KDEG; j++) dst[j * KL] = o[j];
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -768,3 +932,289 @@ extern "C" __global__ void k_ixf_round(K9P P, const u32* t0, const u32* t1, cons
     reduce_nodes(accn, (u32)nd, partial, P.q);
 }
 
+
+// ---------------------------------------------------------------------------
+// [UPERF2-P] VARIANT 1 of the fused rounds (`ZK_GPU_K9_KVAR=1`; the host
+// picks `k_*_m1` for nn in {3, 5}, else the kernels above): the node loop
+// DISTRIBUTED over the wire's two products —
+//   accn[x] += red(EQ(x) red(PL(x) Q1(x))) + red(EQ(x) red(P1(x) Q0(x)))
+// — the same field element as red(EQ(x) (PL Q1 + P1 Q0)) (distributivity;
+// canonical representatives are unique; the node sum is a sum mod q of the
+// same terms), at one more K-mult per node, so that (a) no w[node] stays
+// live across the passes and (b) the node loops unroll (NN is a template):
+// the per-pair state is registers only (lane L's kernels keep w[5][16] and
+// accn[5][16] indexed by a runtime node — local memory).
+
+// The block reduction with the node count a compile-time constant (the
+// per-node accumulators stay registers).
+template <int NN>
+__device__ __forceinline__ void reduce_nodes_t(u32 accn[5][KDEG], u64* partial, u32 q) {
+    __shared__ u32 red[5 * KDEG][TK9 / 32];
+    const int lane = threadIdx.x & 31, wid = threadIdx.x >> 5;
+#pragma unroll
+    for (int ni = 0; ni < NN; ni++) {
+#pragma unroll
+        for (int t = 0; t < KDEG; t++) {
+            u32 v = accn[ni][t];
+#pragma unroll
+            for (int o = 16; o > 0; o >>= 1) {
+                u32 u = __shfl_down_sync(0xffffffffu, v, o);
+                v = addm(v, u, q);
+            }
+            if (lane == 0) red[ni * KDEG + t][wid] = v;
+        }
+    }
+    __syncthreads();
+    for (int idx = threadIdx.x; idx < NN * KDEG; idx += TK9) {
+        u32 v = red[idx][0];
+#pragma unroll
+        for (int w = 1; w < TK9 / 32; w++) v = addm(v, red[idx][w], q);
+        atomicAdd(partial + idx, (u64)v);
+    }
+}
+
+template <int NN>
+__device__ __forceinline__ void node_terms(const K9P& P, const u32* xs, const u32* eqe0, const u32* eqe1,
+                                           const u32* ae0, const u32* ae1, const u32* be0, const u32* be1,
+                                           int ca, int cb, u32 accn[5][KDEG]) {
+#pragma unroll
+    for (int ni = 0; ni < NN; ni++) {
+        const u32 x = xs[ni];
+        u32 a[KDEG], b[KDEG], m[KDEG];
+        nodev(ae0, ae1, x, a, P.q);
+        nodev(be0, be1, x, b, P.q);
+        if (P.has_nc) {
+            const u32* nc = P.prm + PRM_NC + ni * 4 * KDEG;
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) { a[j] = addm(a[j], nc[ca * KDEG + j], P.q); b[j] = addm(b[j], nc[cb * KDEG + j], P.q); }
+        }
+        kmul(a, b, m, P);
+        u32 e[KDEG], t[KDEG];
+        nodev(eqe0, eqe1, x, e, P.q);
+        kmul(e, m, t, P);
+#pragma unroll
+        for (int j = 0; j < KDEG; j++) accn[ni][j] = addm(accn[ni][j], t[j], P.q);
+    }
+}
+
+// FOLD, one pair: EQ first (kept), then (PL, Q1), then (P1, Q0).
+template <int NN>
+__device__ __forceinline__ void fold_round_pair_v1(const K9P& P, const u32* xs, const u32* in0, const u32* in1, const u32* in2, const u32* in3, const u32* in4,
+                                                   u32* out0, u32* out1, u32* out2, u32* out3, u32* out4, u32 i, const u32* rr, const u32* fc,
+                                                   u32 accn[5][KDEG]) {
+    const u32 ib = i >> 1, ih = i & 1;
+    const u32 ob = i >> 2, oh = i & 3;
+    u32 qe0[KDEG], qe1[KDEG];
+    fold_tab(P, in0, ib, ih, rr, (const u32*)0, out0, ob, oh, qe0, qe1); // EQ
+    {
+        u32 ae0[KDEG], ae1[KDEG], be0[KDEG], be1[KDEG];
+        fold_tab(P, in1, ib, ih, rr, fc ? fc + 0 * KDEG : (const u32*)0, out1, ob, oh, ae0, ae1); // PL
+        fold_tab(P, in4, ib, ih, rr, fc ? fc + 3 * KDEG : (const u32*)0, out4, ob, oh, be0, be1); // Q1
+        node_terms<NN>(P, xs, qe0, qe1, ae0, ae1, be0, be1, 0, 3, accn);
+    }
+    {
+        u32 ae0[KDEG], ae1[KDEG], be0[KDEG], be1[KDEG];
+        fold_tab(P, in2, ib, ih, rr, fc ? fc + 1 * KDEG : (const u32*)0, out2, ob, oh, ae0, ae1); // P1
+        fold_tab(P, in3, ib, ih, rr, fc ? fc + 2 * KDEG : (const u32*)0, out3, ob, oh, be0, be1); // Q0
+        node_terms<NN>(P, xs, qe0, qe1, ae0, ae1, be0, be1, 1, 2, accn);
+    }
+}
+
+template <int NN>
+__device__ __forceinline__ void fold_round_multi_v1(const K9P& P, const K9R* R, u32 nr, u32 total, u64* partial) {
+    u32 accn[5][KDEG];
+    ZERO_ACC(accn)
+    u32 rr[KDEG], xs[5];
+#pragma unroll
+    for (int j = 0; j < KDEG; j++) rr[j] = P.prm[PRM_R + j];
+#pragma unroll
+    for (int j = 0; j < 5; j++) xs[j] = P.prm[PRM_NODES + j];
+    const u32* fc = P.has_fc ? (P.prm + PRM_FC) : (const u32*)0;
+    for (u32 g = blockIdx.x * TK9 + threadIdx.x; g < total; g += gridDim.x * TK9) {
+        const int r = find_range(R, nr, g);
+        const K9R d = R[r];
+        const u32 i = g - d.t0;
+        fold_round_pair_v1<NN>(P, xs, (const u32*)d.in0, (const u32*)d.in1, (const u32*)d.in2, (const u32*)d.in3, (const u32*)d.in4,
+                               (u32*)d.out0, (u32*)d.out1, (u32*)d.out2, (u32*)d.out3, (u32*)d.out4, i, rr, fc, accn);
+    }
+    reduce_nodes_t<NN>(accn, partial, P.q);
+}
+extern "C" __global__ void k_fold_round_m1(K9P P, const K9R* R, u32 nr, u32 total, u64* partial) {
+    if (P.nn == 3) fold_round_multi_v1<3>(P, R, nr, total, partial);
+    else if (P.nn == 5) fold_round_multi_v1<5>(P, R, nr, total, partial);
+}
+
+// EXTRACT (round 0), one state-0 pair: eq = eqb [x E(e)] first; the layer's
+// q (q0, q1) once, p twice (p0 -> PL with q0; p1 later).
+template <bool COMPACT, int NN>
+__device__ __forceinline__ void extract_round_pair_v1(const K9P& P, const u32* xs, const u32* pp, const u32* qq, const CLSrc& cl, u32 e_base,
+                                                      const u32* eqb, u32 i, const u32* lam, const u32* ee, bool has_ee, u32 accn[5][KDEG]) {
+    u32 qe0[KDEG], qe1[KDEG];
+    {
+        u32 a0[KDEG], a1[KDEG];
+#pragma unroll
+        for (int j = 0; j < KDEG; j++) {
+            uint2 v = ld2(eqb, i >> 2, i & 3, j);
+            a0[j] = v.x; a1[j] = v.y;
+        }
+        if (has_ee) {
+            kmul(a0, ee, qe0, P);
+            kmul(a1, ee, qe1, P);
+        } else {
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) { qe0[j] = a0[j]; qe1[j] = a1[j]; }
+        }
+    }
+    u32 q0e0[KDEG], q0e1[KDEG];
+    {
+        u32 q1e0[KDEG], q1e1[KDEG];
+        layer4<COMPACT>(qq, cl, true, e_base, i, q0e0, q1e0, q0e1, q1e1);
+        u32 ple0[KDEG], ple1[KDEG];
+        {
+            u32 p0e0[KDEG], p0e1[KDEG], d0[KDEG], d1[KDEG];
+            layer4<COMPACT>(pp, cl, false, e_base, i, p0e0, d0, p0e1, d1);
+            u32 m[KDEG];
+            kmul(q0e0, lam, m, P);
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) ple0[j] = addm(p0e0[j], m[j], P.q);
+            kmul(q0e1, lam, m, P);
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) ple1[j] = addm(p0e1[j], m[j], P.q);
+        }
+        node_terms<NN>(P, xs, qe0, qe1, ple0, ple1, q1e0, q1e1, 0, 3, accn);
+    }
+    {
+        u32 p1e0[KDEG], p1e1[KDEG], d0[KDEG], d1[KDEG];
+        layer4<COMPACT>(pp, cl, false, e_base, i, d0, p1e0, d1, p1e1);
+        node_terms<NN>(P, xs, qe0, qe1, p1e0, p1e1, q0e0, q0e1, 1, 2, accn);
+    }
+}
+
+template <bool COMPACT, int NN>
+__device__ __forceinline__ void extract_round_multi_v1(const K9P& P, const K9R* R, u32 nr, u32 total, u64* partial) {
+    u32 accn[5][KDEG];
+    ZERO_ACC(accn)
+    u32 lam[KDEG], ee[KDEG], xs[5];
+#pragma unroll
+    for (int j = 0; j < KDEG; j++) { lam[j] = P.prm[PRM_LAMBDA + j]; ee[j] = 0; }
+#pragma unroll
+    for (int j = 0; j < 5; j++) xs[j] = P.prm[PRM_NODES + j];
+    int cur = -1;
+    for (u32 g = blockIdx.x * TK9 + threadIdx.x; g < total; g += gridDim.x * TK9) {
+        const int r = find_range(R, nr, g);
+        const K9R d = R[r];
+        if (r != cur) {
+            cur = r;
+            const u32* pe = P.prm + (size_t)d.slot * PRM_WORDS + PRM_EE;
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) ee[j] = pe[j];
+        }
+        const u32 i = g - d.t0;
+        CLSrc cl = {(const u32*)d.in0, (const u32*)d.in1, (const u32*)d.in2, d.n_exc};
+        extract_round_pair_v1<COMPACT, NN>(P, xs, (const u32*)d.in0, (const u32*)d.in1, cl, d.e_base, (const u32*)d.eq, i, lam, ee, (d.flags & K9R_HAS_EE) != 0, accn);
+    }
+    reduce_nodes_t<NN>(accn, partial, P.q);
+}
+extern "C" __global__ void k_extract_round_m1(K9P P, const K9R* R, u32 nr, u32 total, u64* partial) {
+    if (P.nn == 3) extract_round_multi_v1<false, 3>(P, R, nr, total, partial);
+    else if (P.nn == 5) extract_round_multi_v1<false, 5>(P, R, nr, total, partial);
+}
+extern "C" __global__ void k_extract_round_cl_m1(K9P P, const K9R* R, u32 nr, u32 total, u64* partial) {
+    if (P.nn == 3) extract_round_multi_v1<true, 3>(P, R, nr, total, partial);
+    else if (P.nn == 5) extract_round_multi_v1<true, 5>(P, R, nr, total, partial);
+}
+
+// EXTRACT_FOLD (round 1), one state-1 pair: eq = fold(eqb) [x E(e)] first
+// (-> table 0), then q0 (-> 3), q1 (-> 4), p0 -> PL (-> 1), node terms,
+// then p1 (-> 2), node terms.
+template <bool COMPACT, int NN>
+__device__ __forceinline__ void extract_fold_pair_v1(const K9P& P, const u32* xs, const u32* pp, const u32* qq, const CLSrc& cl, u32 e_base, const u32* eqb,
+                                                     u32* out0, u32* out1, u32* out2, u32* out3, u32* out4, u32 i,
+                                                     const u32* rr, const u32* lam, const u32* ee, bool has_ee, const u32* fc, u32 accn[5][KDEG]) {
+    const u32* c_p0 = fc ? fc + 0 * KDEG : (const u32*)0;
+    const u32* c_p1 = fc ? fc + 1 * KDEG : (const u32*)0;
+    const u32* c_q0 = fc ? fc + 2 * KDEG : (const u32*)0;
+    const u32* c_q1 = fc ? fc + 3 * KDEG : (const u32*)0;
+    const u32 ob = i >> 2, oh = i & 3;
+    u32 qe0[KDEG], qe1[KDEG];
+    {
+        u32 s0[KDEG], s1[KDEG], s2[KDEG], s3[KDEG];
+        LOAD4(eqb, i >> 1, i & 1, s0, s1, s2, s3)
+        u32 f0[KDEG], f1[KDEG];
+        kfold(s0, s1, rr, (const u32*)0, f0, P);
+        kfold(s2, s3, rr, (const u32*)0, f1, P);
+        if (has_ee) {
+            kmul(f0, ee, qe0, P);
+            kmul(f1, ee, qe1, P);
+        } else {
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) { qe0[j] = f0[j]; qe1[j] = f1[j]; }
+        }
+        STORE2(out0, ob, oh, qe0, qe1)
+    }
+    u32 q0e0[KDEG], q0e1[KDEG];
+    {
+        layer_fold<COMPACT>(P, qq, cl, true, e_base, i, false, rr, c_q0, q0e0, q0e1);
+        STORE2(out3, ob, oh, q0e0, q0e1)
+        u32 q1e0[KDEG], q1e1[KDEG];
+        layer_fold<COMPACT>(P, qq, cl, true, e_base, i, true, rr, c_q1, q1e0, q1e1);
+        STORE2(out4, ob, oh, q1e0, q1e1)
+        u32 ple0[KDEG], ple1[KDEG];
+        {
+            u32 p0e0[KDEG], p0e1[KDEG];
+            layer_fold<COMPACT>(P, pp, cl, false, e_base, i, false, rr, c_p0, p0e0, p0e1);
+            u32 m[KDEG];
+            kmul(q0e0, lam, m, P);
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) ple0[j] = addm(p0e0[j], m[j], P.q);
+            kmul(q0e1, lam, m, P);
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) ple1[j] = addm(p0e1[j], m[j], P.q);
+        }
+        STORE2(out1, ob, oh, ple0, ple1)
+        node_terms<NN>(P, xs, qe0, qe1, ple0, ple1, q1e0, q1e1, 0, 3, accn);
+    }
+    {
+        u32 p1e0[KDEG], p1e1[KDEG];
+        layer_fold<COMPACT>(P, pp, cl, false, e_base, i, true, rr, c_p1, p1e0, p1e1);
+        STORE2(out2, ob, oh, p1e0, p1e1)
+        node_terms<NN>(P, xs, qe0, qe1, p1e0, p1e1, q0e0, q0e1, 1, 2, accn);
+    }
+}
+
+template <bool COMPACT, int NN>
+__device__ __forceinline__ void extract_fold_multi_v1(const K9P& P, const K9R* R, u32 nr, u32 total, u64* partial) {
+    u32 accn[5][KDEG];
+    ZERO_ACC(accn)
+    u32 rr[KDEG], lam[KDEG], ee[KDEG], xs[5];
+#pragma unroll
+    for (int j = 0; j < KDEG; j++) { rr[j] = P.prm[PRM_R + j]; lam[j] = P.prm[PRM_LAMBDA + j]; ee[j] = 0; }
+#pragma unroll
+    for (int j = 0; j < 5; j++) xs[j] = P.prm[PRM_NODES + j];
+    const u32* fc = P.has_fc ? (P.prm + PRM_FC) : (const u32*)0;
+    int cur = -1;
+    for (u32 g = blockIdx.x * TK9 + threadIdx.x; g < total; g += gridDim.x * TK9) {
+        const int r = find_range(R, nr, g);
+        const K9R d = R[r];
+        if (r != cur) {
+            cur = r;
+            const u32* pe = P.prm + (size_t)d.slot * PRM_WORDS + PRM_EE;
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) ee[j] = pe[j];
+        }
+        const u32 i = g - d.t0;
+        CLSrc cl = {(const u32*)d.in0, (const u32*)d.in1, (const u32*)d.in2, d.n_exc};
+        extract_fold_pair_v1<COMPACT, NN>(P, xs, (const u32*)d.in0, (const u32*)d.in1, cl, d.e_base, (const u32*)d.eq,
+                                          (u32*)d.out0, (u32*)d.out1, (u32*)d.out2, (u32*)d.out3, (u32*)d.out4, i,
+                                          rr, lam, ee, (d.flags & K9R_HAS_EE) != 0, fc, accn);
+    }
+    reduce_nodes_t<NN>(accn, partial, P.q);
+}
+extern "C" __global__ void k_extract_fold_m1(K9P P, const K9R* R, u32 nr, u32 total, u64* partial) {
+    if (P.nn == 3) extract_fold_multi_v1<false, 3>(P, R, nr, total, partial);
+    else if (P.nn == 5) extract_fold_multi_v1<false, 5>(P, R, nr, total, partial);
+}
+extern "C" __global__ void k_extract_fold_cl_m1(K9P P, const K9R* R, u32 nr, u32 total, u64* partial) {
+    if (P.nn == 3) extract_fold_multi_v1<true, 3>(P, R, nr, total, partial);
+    else if (P.nn == 5) extract_fold_multi_v1<true, 5>(P, R, nr, total, partial);
+}

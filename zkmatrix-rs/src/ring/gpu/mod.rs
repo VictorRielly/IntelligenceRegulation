@@ -56,6 +56,11 @@ pub use k9::{k9_fused_round, k9_ixf_round, k9_label, k9_set_cold_ok, k9_set_eage
 // for CPU readers.
 #[cfg(feature = "gpu-cuda")]
 pub use k9::{k9_set_tree_store, k9_tree_build, k9_tree_bytes, k9_tree_drop, k9_tree_fetch, k9_tree_release};
+// [UPERF2-P] The GPU rung, step 4 (k9.rs): the eq b-part built on the device,
+// one launch per fused round, the store's buffer pool + warm allocations,
+// this lane's stats and knobs.
+#[cfg(feature = "gpu-cuda")]
+pub use k9::{k9_eq_build, k9_eq_drop, k9_eq_fetch, k9_kprobe, k9_set_eq_dev, k9_set_kvar, k9_set_multi, k9p_stats, k9p_stats_reset, K9PStats};
 // [UPERF2-O] The GPU rung, step 3: the claim layer's zero-check tables built
 // on the device + the device-resident ixf chain — see ixf.rs / kernels_ixf.cu.
 #[cfg(feature = "gpu-cuda")]
@@ -225,6 +230,44 @@ mod stub {
         K9Stats::default()
     }
     pub fn k9_stats_reset() {}
+
+    // ---- [UPERF2-P] the device eq build / one-launch rounds / pool (never live without the feature).
+    /// The device eq b-part build: `None` = the host build runs.
+    pub fn k9_eq_build(_kf: &KField, _zeta: &[KElem]) -> Option<u64> {
+        None
+    }
+    pub fn k9_eq_drop(_id: u64) {}
+    pub fn k9_eq_fetch(_id: u64) -> Option<Vec<u32>> {
+        None
+    }
+    pub fn k9_set_multi(_on: Option<bool>) {}
+    pub fn k9_set_eq_dev(_on: Option<bool>) {}
+    pub fn k9_set_kvar(_v: Option<u32>) {}
+    pub fn k9_kprobe(_kern: &KKern, _chains: u32, _blocks_per_sm: u32, _tpb: u32, _iters: u32) -> Result<(f64, f64, u32), String> {
+        Err("built without --features gpu-cuda".to_string())
+    }
+    /// Mirrors `k9::K9PStats` (all zero without the feature).
+    #[derive(Clone, Debug, Default)]
+    pub struct K9PStats {
+        pub rounds_multi: u64,
+        pub rounds_split: u64,
+        pub launches: u64,
+        pub eq_builds: u64,
+        pub eq_binds: u64,
+        pub eq_host: u64,
+        pub secs_eq_build: f64,
+        pub pool_hits: u64,
+        pub pool_misses: u64,
+        pub pool_trims: u64,
+        pub secs_alloc: f64,
+        pub secs_tb_upload: f64,
+        pub secs_tb_alloc: f64,
+        pub secs_tb_down: f64,
+    }
+    pub fn k9p_stats() -> K9PStats {
+        K9PStats::default()
+    }
+    pub fn k9p_stats_reset() {}
 
     // ---- [UPERF2-O] the device-built zero-check tables + chain (never live without the feature).
     use super::super::fold::IxfZcSpec;

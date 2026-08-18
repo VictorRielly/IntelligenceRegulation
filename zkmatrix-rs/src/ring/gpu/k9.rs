@@ -114,7 +114,197 @@ const FUNCS: &[&str] = &[
     "k_tree_step",
     "k_tree_step_cl",
     "k_ixf_round",
+    // [UPERF2-P] one launch per round over a device range table; the eq built on the device.
+    "k_fold_round_m",
+    "k_extract_round_m",
+    "k_extract_round_cl_m",
+    "k_extract_fold_m",
+    "k_extract_fold_cl_m",
+    "k_eq_outer",
+    // [UPERF2-P] variant 1 of the fused rounds (the node loop distributed, NN unrolled).
+    "k_fold_round_m1",
+    "k_extract_round_m1",
+    "k_extract_round_cl_m1",
+    "k_extract_fold_m1",
+    "k_extract_fold_cl_m1",
 ];
+
+/// [UPERF2-P] The fused-round kernel variant (`ZK_GPU_K9_KVAR`: 0 = lane L's
+/// bodies behind the one-launch wrapper — the default; 1 = the distributed
+/// node loop with the node count unrolled — MEASURED slower: FOLD 6.9 vs 6.1
+/// ms at 2^15 pair-blocks, EXTRACT 19.2 vs 13.7 ms, the extra K-mult per
+/// node costs its share and the occupancy stays 8 warps/SM; kept for the
+/// record). Every variant computes the same canonical node sums
+/// (kernels_k9.cu, the variant's header); the battery compares them.
+static KVAR_OVERRIDE: AtomicU64 = AtomicU64::new(u64::MAX);
+fn kvar() -> u32 {
+    let o = KVAR_OVERRIDE.load(Ordering::Relaxed);
+    if o != u64::MAX {
+        return o as u32;
+    }
+    static V: OnceLock<u32> = OnceLock::new();
+    *V.get_or_init(|| env_usize("ZK_GPU_K9_KVAR", 0) as u32)
+}
+/// Harness knob: the kernel variant (None = the env / default).
+pub fn k9_set_kvar(v: Option<u32>) {
+    KVAR_OVERRIDE.store(v.map(|x| x as u64).unwrap_or(u64::MAX), Ordering::Relaxed);
+}
+/// The kernel name for a one-launch round: `base` = the variant-0 name
+/// (".._m"); variant 1 exists for nn in {3, 5}.
+fn kname(base: &'static str, nn: usize) -> &'static str {
+    if kvar() == 1 && (nn == 3 || nn == 5) {
+        match base {
+            "k_fold_round_m" => "k_fold_round_m1",
+            "k_extract_round_m" => "k_extract_round_m1",
+            "k_extract_round_cl_m" => "k_extract_round_cl_m1",
+            "k_extract_fold_m" => "k_extract_fold_m1",
+            "k_extract_fold_cl_m" => "k_extract_fold_cl_m1",
+            _ => base,
+        }
+    } else {
+        base
+    }
+}
+
+// [UPERF2-P] One live range's descriptor of a one-launch round (== struct K9R
+// in kernels_k9.cu): the five input / output pointers (FOLD; EXTRACT_FOLD
+// outputs), or the layer source (packed: in0 = p, in1 = q; compact: in0 =
+// words, in1 = alpha, in2 = exceptions) + eq pointer of the extract modes,
+// the thread prefix, the parameter slot, the flags.
+#[repr(C)]
+#[derive(Clone, Copy, Default)]
+struct K9Range {
+    ins: [u64; 5],
+    outs: [u64; 5],
+    eq: u64,
+    t0: u32,
+    n: u32,
+    slot: u32,
+    flags: u32,
+    n_exc: u32,
+    e_base: u32,
+    pad0: u32,
+    pad1: u32,
+}
+const K9R_HAS_EE: u32 = 1;
+/// The range table's device/pinned slot after the parameter slots.
+const K9R_BYTES: usize = std::mem::size_of::<K9Range>();
+
+/// [UPERF2-P] Knobs (none changes a value): `ZK_GPU_K9_MULTI=0` -> one launch
+/// per live range (lane L's kernels; the one-binary A/B of the one-launch
+/// round), `ZK_GPU_K9_EQ_DEV=0` -> the eq b-part built on the host and
+/// uploaded (lane L's path), `ZK_GPU_K9_POOL=0` -> no device buffer pool
+/// (cuMemAlloc/cuMemFree per tree layer, lane N's path), `ZK_GPU_K9_WARM=1`
+/// -> memset every freshly allocated device buffer once (MEASURED a net
+/// loss on this box — the fill engine pays the cold pages slower than the
+/// kernels' own first touch; default OFF, kept for the record).
+fn multi_launch() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("ZK_GPU_K9_MULTI").map(|v| v != "0").unwrap_or(true))
+}
+fn eq_dev_enabled() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("ZK_GPU_K9_EQ_DEV").map(|v| v != "0").unwrap_or(true))
+}
+fn pool_enabled() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("ZK_GPU_K9_POOL").map(|v| v != "0").unwrap_or(true))
+}
+fn warm_enabled() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("ZK_GPU_K9_WARM").map(|v| v == "1").unwrap_or(false))
+}
+static MULTI_OVERRIDE: AtomicU64 = AtomicU64::new(0); // 0 = env, 1 = on, 2 = off
+fn multi() -> bool {
+    match MULTI_OVERRIDE.load(Ordering::Relaxed) {
+        1 => true,
+        2 => false,
+        _ => multi_launch(),
+    }
+}
+/// Harness knob: the one-launch round on/off (None = the env / default).
+pub fn k9_set_multi(on: Option<bool>) {
+    MULTI_OVERRIDE.store(match on { Some(true) => 1, Some(false) => 2, None => 0 }, Ordering::Relaxed);
+}
+static EQDEV_OVERRIDE: AtomicU64 = AtomicU64::new(0);
+fn eq_dev() -> bool {
+    match EQDEV_OVERRIDE.load(Ordering::Relaxed) {
+        1 => true,
+        2 => false,
+        _ => eq_dev_enabled(),
+    }
+}
+/// Harness knob: the device eq build on/off (None = the env / default).
+pub fn k9_set_eq_dev(on: Option<bool>) {
+    EQDEV_OVERRIDE.store(match on { Some(true) => 1, Some(false) => 2, None => 0 }, Ordering::Relaxed);
+}
+
+/// [UPERF2-P] Stats of this lane's changes (separate from `K9Stats`).
+#[derive(Clone, Debug, Default)]
+pub struct K9PStats {
+    /// Rounds run as ONE launch over the range table / as one launch per range.
+    pub rounds_multi: u64,
+    pub rounds_split: u64,
+    /// Kernel launches of the fused rounds.
+    pub launches: u64,
+    /// Device eq builds / binds of a device eq / host materializations of a device eq.
+    pub eq_builds: u64,
+    pub eq_binds: u64,
+    pub eq_host: u64,
+    pub secs_eq_build: f64,
+    /// Device buffer pool: hits / misses (cuMemAlloc) / buffers trimmed (cuMemFree).
+    pub pool_hits: u64,
+    pub pool_misses: u64,
+    pub pool_trims: u64,
+    /// Seconds inside cuMemAlloc / the warming memsets (enqueue side).
+    pub secs_alloc: f64,
+    /// Inside the tree builds: leaf upload / steps (enqueue) / the top download.
+    pub secs_tb_upload: f64,
+    pub secs_tb_alloc: f64,
+    pub secs_tb_down: f64,
+}
+static P_ROUNDS_MULTI: AtomicU64 = AtomicU64::new(0);
+static P_ROUNDS_SPLIT: AtomicU64 = AtomicU64::new(0);
+static P_LAUNCHES: AtomicU64 = AtomicU64::new(0);
+static P_EQ_BUILDS: AtomicU64 = AtomicU64::new(0);
+static P_EQ_BINDS: AtomicU64 = AtomicU64::new(0);
+static P_EQ_HOST: AtomicU64 = AtomicU64::new(0);
+static P_EQ_BUILD_US: AtomicU64 = AtomicU64::new(0);
+static P_POOL_HITS: AtomicU64 = AtomicU64::new(0);
+static P_POOL_MISSES: AtomicU64 = AtomicU64::new(0);
+static P_POOL_TRIMS: AtomicU64 = AtomicU64::new(0);
+static P_ALLOC_US: AtomicU64 = AtomicU64::new(0);
+static P_TB_UPLOAD_US: AtomicU64 = AtomicU64::new(0);
+static P_TB_ALLOC_US: AtomicU64 = AtomicU64::new(0);
+static P_TB_DOWN_US: AtomicU64 = AtomicU64::new(0);
+
+pub fn k9p_stats() -> K9PStats {
+    let us = |s: &AtomicU64| s.load(Ordering::Relaxed) as f64 * 1e-6;
+    K9PStats {
+        rounds_multi: P_ROUNDS_MULTI.load(Ordering::Relaxed),
+        rounds_split: P_ROUNDS_SPLIT.load(Ordering::Relaxed),
+        launches: P_LAUNCHES.load(Ordering::Relaxed),
+        eq_builds: P_EQ_BUILDS.load(Ordering::Relaxed),
+        eq_binds: P_EQ_BINDS.load(Ordering::Relaxed),
+        eq_host: P_EQ_HOST.load(Ordering::Relaxed),
+        secs_eq_build: us(&P_EQ_BUILD_US),
+        pool_hits: P_POOL_HITS.load(Ordering::Relaxed),
+        pool_misses: P_POOL_MISSES.load(Ordering::Relaxed),
+        pool_trims: P_POOL_TRIMS.load(Ordering::Relaxed),
+        secs_alloc: us(&P_ALLOC_US),
+        secs_tb_upload: us(&P_TB_UPLOAD_US),
+        secs_tb_alloc: us(&P_TB_ALLOC_US),
+        secs_tb_down: us(&P_TB_DOWN_US),
+    }
+}
+pub fn k9p_stats_reset() {
+    for s in [
+        &P_ROUNDS_MULTI, &P_ROUNDS_SPLIT, &P_LAUNCHES, &P_EQ_BUILDS, &P_EQ_BINDS, &P_EQ_HOST, &P_EQ_BUILD_US, &P_POOL_HITS, &P_POOL_MISSES,
+        &P_POOL_TRIMS, &P_ALLOC_US, &P_TB_UPLOAD_US, &P_TB_ALLOC_US, &P_TB_DOWN_US,
+    ] {
+        s.store(0, Ordering::Relaxed);
+    }
+}
 /// Threads per block of the round kernels (== TK9 in kernels_k9.cu).
 const TK9: u32 = 64;
 /// Threads per block of the elementwise kernels.
@@ -428,12 +618,196 @@ pub fn k9_set_tree_store(on: Option<bool>) {
 // ---------------------------------------------------------------------------
 // State
 
-/// One live range's placement in the device layout of a state: `blk0` =
-/// its first device block (per table), `n_blk` = its blocks.
+// ---------------------------------------------------------------------------
+// [UPERF2-P] THE DEVICE MEMORY: a buddy allocator over fixed-size slabs.
+//
+// Every K-field buffer of the descents and the tree store — a state table
+// of one live range, a climbed layer of one tree, a store checkpoint, the
+// compact leaves, the eq table, the climb scratch — is a power-of-two
+// number of bytes (per-instance sizes are 2^k elements x 64 B). They are
+// carved out of 256 MiB slabs (cuMemAlloc'd once, kept for the process,
+// trimmed only when the budget needs it) by a buddy allocator, so that
+// bytes change roles — a released checkpoint becomes a climbed layer,
+// becomes a state chunk of the next layer, becomes a leaf layer of the
+// next pair's trees — WITHOUT a new allocation: measured on this box
+// (WSL2), cuMemAlloc of multi-GB buffers costs ~50-100 ms per GB and a
+// kernel's first touch of fresh pages runs 2-10x slower (lane L's finding);
+// with the slabs both are paid once per process. States are laid out per
+// PIECE (a live range, split at 2^16 pair-blocks = 64 MiB per table): the
+// one-launch round's range table carries the pieces' pointers, so nothing
+// needs to be contiguous across ranges. `ZK_GPU_K9_SLAB_MB=0` = one
+// cuMemAlloc per chunk (the A/B; lane N's allocation pattern).
+
+const SLAB_MIN_BITS: u32 = 16; // 64 KiB granularity
+/// Largest piece of a state (pair-blocks): 2^16 pair-blocks = 2^17 blocks x
+/// 512 B = 64 MiB per table.
+const MAX_PIECE_PAIRS: usize = 1 << 16;
+
+fn slab_bits() -> u32 {
+    static V: OnceLock<u32> = OnceLock::new();
+    *V.get_or_init(|| {
+        let mb = env_usize("ZK_GPU_K9_SLAB_MB", 256);
+        if mb == 0 { 0 } else { (mb << 20).next_power_of_two().trailing_zeros().max(SLAB_MIN_BITS + 1) }
+    })
+}
+
+/// A device allocation handed out by the buddy (or a dedicated buffer).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct Chunk {
+    ptr: u64,
+    bytes: usize,
+}
+impl Chunk {
+    const NONE: Chunk = Chunk { ptr: 0, bytes: 0 };
+    fn is_none(&self) -> bool {
+        self.bytes == 0
+    }
+}
+
+struct Buddy {
+    /// 0 = no slabs (every chunk a dedicated cuMemAlloc).
+    slab_bits: u32,
+    slabs: Vec<DevBuf>,
+    /// Free blocks by level (level l = 2^(SLAB_MIN_BITS + l) bytes): their addresses.
+    free: Vec<std::collections::BTreeSet<u64>>,
+    /// Dedicated buffers (requests above a slab, or slab_bits == 0), by address.
+    dedicated: std::collections::HashMap<u64, DevBuf>,
+    /// Bytes handed out (chunks) / bytes allocated from the driver (slabs + dedicated).
+    live: usize,
+    total: usize,
+}
+
+impl Buddy {
+    fn new(slab_bits: u32) -> Buddy {
+        let levels = if slab_bits == 0 { 0 } else { (slab_bits - SLAB_MIN_BITS + 1) as usize };
+        Buddy { slab_bits, slabs: Vec::new(), free: (0..levels).map(|_| std::collections::BTreeSet::new()).collect(), dedicated: std::collections::HashMap::new(), live: 0, total: 0 }
+    }
+    /// The level of a request (its size rounded up to a power of two >= 64 KiB).
+    fn level_of(bytes: usize) -> u32 {
+        let b = bytes.max(1usize << SLAB_MIN_BITS).next_power_of_two();
+        b.trailing_zeros() - SLAB_MIN_BITS
+    }
+    fn size_of_level(l: u32) -> usize {
+        1usize << (SLAB_MIN_BITS + l)
+    }
+    /// Does the request fit a slab?
+    fn slab_fits(&self, bytes: usize) -> bool {
+        self.slab_bits > 0 && Self::level_of(bytes) + SLAB_MIN_BITS <= self.slab_bits
+    }
+    /// The base of the slab containing `addr`.
+    fn slab_base(&self, addr: u64) -> u64 {
+        let sz = 1u64 << self.slab_bits;
+        for s in &self.slabs {
+            if addr >= s.ptr && addr < s.ptr + sz {
+                return s.ptr;
+            }
+        }
+        panic!("[UPERF2-P] k9 buddy: address {addr:#x} is in no slab");
+    }
+    /// A block from the free lists (splitting a bigger one), or None.
+    fn try_alloc(&mut self, bytes: usize) -> Option<Chunk> {
+        if !self.slab_fits(bytes) {
+            return None;
+        }
+        let l = Self::level_of(bytes);
+        let mut lv = l;
+        while (lv as usize) < self.free.len() && self.free[lv as usize].is_empty() {
+            lv += 1;
+        }
+        if lv as usize >= self.free.len() {
+            return None;
+        }
+        let addr = *self.free[lv as usize].iter().next().unwrap();
+        self.free[lv as usize].remove(&addr);
+        // Split down to l: the upper halves go back as free blocks.
+        while lv > l {
+            lv -= 1;
+            let half = Self::size_of_level(lv) as u64;
+            self.free[lv as usize].insert(addr + half);
+        }
+        let bytes = Self::size_of_level(l);
+        self.live += bytes;
+        Some(Chunk { ptr: addr, bytes })
+    }
+    /// Give a chunk back (merging with its buddy while that is free).
+    fn free(&mut self, c: Chunk) {
+        if c.is_none() {
+            return;
+        }
+        if let Some(mut b) = self.dedicated.remove(&c.ptr) {
+            self.total -= b.bytes;
+            self.live -= c.bytes;
+            b.free();
+            return;
+        }
+        let base = self.slab_base(c.ptr);
+        let mut l = Self::level_of(c.bytes);
+        let mut addr = c.ptr;
+        let top = self.free.len() as u32 - 1;
+        while l < top {
+            let size = Self::size_of_level(l) as u64;
+            let rel = addr - base;
+            let buddy = base + (rel ^ size);
+            if self.free[l as usize].remove(&buddy) {
+                addr = addr.min(buddy);
+                l += 1;
+            } else {
+                break;
+            }
+        }
+        self.free[l as usize].insert(addr);
+        self.live -= c.bytes;
+    }
+    /// A fresh slab (cuMemAlloc'd by the caller) joins the free list whole.
+    fn add_slab(&mut self, b: DevBuf) {
+        let top = self.free.len() - 1;
+        self.free[top].insert(b.ptr);
+        self.total += b.bytes;
+        self.slabs.push(b);
+    }
+    /// A dedicated buffer (above the slab size, or without slabs).
+    fn add_dedicated(&mut self, b: DevBuf) -> Chunk {
+        let c = Chunk { ptr: b.ptr, bytes: b.bytes };
+        self.total += b.bytes;
+        self.live += b.bytes;
+        self.dedicated.insert(b.ptr, b);
+        c
+    }
+    /// Free the slabs that are entirely free; returns the bytes given back.
+    fn trim_free_slabs(&mut self) -> usize {
+        if self.slab_bits == 0 {
+            return 0;
+        }
+        let top = self.free.len() - 1;
+        let mut freed = 0usize;
+        let mut i = 0;
+        while i < self.slabs.len() {
+            let ptr = self.slabs[i].ptr;
+            if self.free[top].remove(&ptr) {
+                let mut b = self.slabs.swap_remove(i);
+                freed += b.bytes;
+                self.total -= b.bytes;
+                b.free();
+            } else {
+                i += 1;
+            }
+        }
+        freed
+    }
+    fn slab_bytes(&self) -> usize {
+        1usize << self.slab_bits
+    }
+}
+
+/// One piece of a device-resident state: the pair-blocks [a, b) of the
+/// state (within one live range), the five tables' chunks (2 (b - a) blocks
+/// each), and the range it belongs to.
 #[derive(Clone, Copy, Debug)]
-struct Region {
-    blk0: usize,
-    n_blk: usize,
+struct Piece {
+    a: usize,
+    b: usize,
+    ri: usize,
+    ch: [Chunk; 5],
 }
 
 /// The descent chain: state t of one layer, device-resident.
@@ -444,11 +818,29 @@ struct Chain {
     out_pairs: usize,
     /// The live pair-block ranges of state t.
     ranges: Vec<(usize, usize)>,
-    /// The device layout: region per range; per-table stride (blocks).
-    regions: Vec<Region>,
-    tab_blk: usize,
-    /// Which ping-pong buffer holds state t.
-    buf: usize,
+    /// The device layout: the pieces (in order, partitioning the ranges).
+    pieces: Vec<Piece>,
+}
+
+/// Split the live ranges into pieces of at most MAX_PIECE_PAIRS pair-blocks
+/// (chunks not yet allocated).
+fn pieces_of(ranges: &[(usize, usize)]) -> Vec<Piece> {
+    let mut v = Vec::new();
+    for (ri, &(a, b)) in ranges.iter().enumerate() {
+        let mut x = a;
+        while x < b {
+            let y = (x + MAX_PIECE_PAIRS).min(b);
+            v.push(Piece { a: x, b: y, ri, ch: [Chunk::NONE; 5] });
+            x = y;
+        }
+    }
+    v
+}
+
+/// The device address of table k at pair-block `x` of a state (x within a piece).
+fn piece_ptr(p: &Piece, k: usize, x: usize) -> u64 {
+    debug_assert!(x >= p.a && x <= p.b);
+    p.ch[k].ptr + (2 * (x - p.a) * KBLK * 4) as u64
 }
 
 /// One instance's layer on the device (round 0 -> round 1): absolute device
@@ -477,10 +869,11 @@ struct DevTree {
     kern: KKern,
     /// Resident packed layers (p, q) by index — the checkpoints among the
     /// big layers, and the packed leaves at `depth` when not compact.
-    layers: Vec<Option<(DevBuf, DevBuf)>>,
+    /// [UPERF2-P] chunks of the buddy.
+    layers: Vec<Option<(Chunk, Chunk)>>,
     /// The compact leaves: (words: 2 per leaf, meta: alpha[16] + the
     /// exceptions x 33 words, n_exc).
-    compact: Option<(DevBuf, DevBuf, usize)>,
+    compact: Option<(Chunk, Chunk, usize)>,
     /// Device bytes held by this tree.
     bytes: usize,
 }
@@ -493,6 +886,20 @@ struct LayerRes {
     devs: Vec<LayerDev>,
     /// The eq table (ptr, len).
     eq: (usize, usize),
+    /// [UPERF2-P] The device address of the eq's element 0 (the resident
+    /// device eq, or the uploaded host words).
+    eq_up: u64,
+    /// [UPERF2-P] The chunks this binding owns (uploaded packed layers,
+    /// compact words + meta, climbed layers, the climb scratch): freed when
+    /// the binding is dropped (after round 1, or on a re-bind).
+    owned: Vec<Chunk>,
+}
+
+/// [UPERF2-P] The resident device eq b-part: its id, elements, chunk.
+struct EqRes {
+    id: u64,
+    n: usize,
+    ch: Chunk,
 }
 
 /// The ixf chain (fold.rs): the tables' host pointers at the last round,
@@ -524,13 +931,8 @@ struct K9 {
     ev: [sys::CUevent; 2],
     f: std::collections::HashMap<&'static str, CudaFunction>,
     stg: [HostPinned; 2],
-    // Descent.
-    st: [DevBuf; 2],
-    lay_p: DevBuf,
-    lay_q: DevBuf,
-    cl_w: DevBuf,
-    cl_meta: DevBuf,
-    eqb: DevBuf,
+    // Descent. [UPERF2-P] the state / layer / eq buffers are chunks of `mem`
+    // owned by the chain / the layer binding / the eq (below).
     partial: DevBuf,
     partial_h: HostPinned,
     prm_d: DevBuf,
@@ -540,19 +942,22 @@ struct K9 {
     // Ixf.
     ixf_t: Vec<[DevBuf; 2]>,
     ixf: Option<IxfChain>,
-    // Tree.
+    // Tree (lane L's device climb, off by default).
     tree_src: [DevBuf; 2],
     tree_out: [DevBuf; 2],
-    // [UPERF2-N] The device tree store + the intermediate-level scratch of
-    // the in-hook climbs (descent family: freed with the layer buffers).
+    // [UPERF2-N] The device tree store.
     trees: std::collections::HashMap<u64, DevTree>,
     next_tree: u64,
     tree_bytes: usize,
-    climb_scr: [DevBuf; 2],
-    // Budget.
+    // Budget: `held` = the dedicated DevBufs above (partial, prm, ixf, tree
+    // src/out); the slabs are `mem.total`; `used()` is their sum.
     budget: usize,
     held: usize,
     last_kernel_ms: f64,
+    // [UPERF2-P] The buddy allocator (slabs), the resident device eq, the eq ids.
+    mem: Buddy,
+    eq: Option<EqRes>,
+    next_eq: u64,
 }
 
 unsafe impl Send for K9 {}
@@ -637,10 +1042,12 @@ fn init_k9() -> Result<K9, String> {
     partial.grow(5 * 16 * 8)?;
     let mut partial_h = HostPinned::empty();
     partial_h.grow(5 * 16 * 8)?;
+    // [UPERF2-P] the parameter slots + the range table of a one-launch round
+    // share one pinned/device pair (one copy per round).
     let mut prm_d = DevBuf::empty();
-    prm_d.grow(PRM_SLOTS * PRM_WORDS * 4)?;
+    prm_d.grow(PRM_SLOTS * PRM_WORDS * 4 + PRM_SLOTS * K9R_BYTES)?;
     let mut prm_h = HostPinned::empty();
-    prm_h.grow(PRM_SLOTS * PRM_WORDS * 4)?;
+    prm_h.grow(PRM_SLOTS * PRM_WORDS * 4 + PRM_SLOTS * K9R_BYTES)?;
     let (free, total) = cu::mem_get_info().map_err(|e| format!("cuMemGetInfo: {e}"))?;
     let budget = {
         let mb = env_usize("ZK_GPU_K9_BUDGET_MB", 0);
@@ -671,12 +1078,6 @@ fn init_k9() -> Result<K9, String> {
         ev,
         f,
         stg,
-        st: [DevBuf::empty(), DevBuf::empty()],
-        lay_p: DevBuf::empty(),
-        lay_q: DevBuf::empty(),
-        cl_w: DevBuf::empty(),
-        cl_meta: DevBuf::empty(),
-        eqb: DevBuf::empty(),
         partial,
         partial_h,
         prm_d,
@@ -690,10 +1091,12 @@ fn init_k9() -> Result<K9, String> {
         trees: std::collections::HashMap::new(),
         next_tree: 1,
         tree_bytes: 0,
-        climb_scr: [DevBuf::empty(), DevBuf::empty()],
         budget,
         held: 0,
         last_kernel_ms: 0.0,
+        mem: Buddy::new(slab_bits()),
+        eq: None,
+        next_eq: 1,
     })
 }
 
@@ -727,9 +1130,9 @@ pub fn k9_label() -> String {
         Some(k) => {
             let k = k.lock().unwrap();
             format!(
-                "k9: on — K-field kernels on the device (budget {:.2} GB, held {:.2} GB, min_pairs {}, eager {}; tree store {} — {} trees, {:.2} GB)",
+                "k9: on — K-field kernels on the device (budget {:.2} GB, used {:.2} GB, min_pairs {}, eager {}; tree store {} — {} trees, {:.2} GB)",
                 k.budget as f64 / 1e9,
-                k.held as f64 / 1e9,
+                k.used() as f64 / 1e9,
                 min_pairs(),
                 eager(),
                 if tree_store_enabled() { "on" } else { "off" },
@@ -761,134 +1164,107 @@ impl K9 {
         Ok(())
     }
 
-    /// Grow a device buffer within the budget (synchronizes first when it
-    /// must reallocate). When the budget is short, the buffers of the OTHER
-    /// families (the descent's, the ixf's, the tree's — only one is active
-    /// at a time; a family with a live chain is never released) are given
-    /// back first.
+    /// The device bytes in use: the dedicated buffers + the slabs.
+    fn used(&self) -> usize {
+        self.held + self.mem.total
+    }
+
+    /// Grow one of the remaining dedicated buffers (lane L's ixf tables and
+    /// device-climb buffers) within the budget (synchronizes first when it
+    /// must reallocate); when the budget is short the idle families go back
+    /// first.
     fn grow_dev(&mut self, which: DevSel, bytes: usize) -> Result<(), String> {
         let cur = self.sel(which).bytes;
         if bytes <= cur {
             return Ok(());
         }
         let need = bytes - cur;
-        if self.held + need > self.budget {
-            self.release_idle(which);
+        if self.used() + need > self.budget {
+            self.make_room(need);
         }
-        if self.held + need > self.budget {
+        if self.used() + need > self.budget {
             return Err(format!(
-                "K9 VRAM budget: need {:.2} GB more (held {:.2} GB, budget {:.2} GB)",
+                "K9 VRAM budget: need {:.2} GB more (used {:.2} GB, budget {:.2} GB)",
                 need as f64 / 1e9,
-                self.held as f64 / 1e9,
+                self.used() as f64 / 1e9,
                 self.budget as f64 / 1e9
             ));
         }
         self.sync_all()?;
+        let ta = Instant::now();
         let b = self.sel(which);
         let old = b.bytes;
         b.grow(bytes)?;
         let new = b.bytes;
         self.held = self.held + new - old;
-        note_peak(&S_HELD_PEAK, self.held);
+        note_peak(&S_HELD_PEAK, self.used());
+        add_us(&P_ALLOC_US, ta.elapsed().as_secs_f64());
         Ok(())
     }
 
-    /// Free the idle families' buffers (never a family whose chain is alive;
-    /// `which` = the buffer about to grow — its own family is kept unless it
-    /// is idle too, i.e. a descent's layer/state buffers between layers).
-    fn release_idle(&mut self, which: DevSel) {
-        let _ = self.sync_all();
-        let fam = match which {
-            DevSel::St(_) | DevSel::LayP | DevSel::LayQ | DevSel::ClW | DevSel::ClMeta | DevSel::Eqb | DevSel::ClimbScr(_) => 0,
-            DevSel::Ixf(..) => 1,
-            DevSel::TreeSrc(_) | DevSel::TreeOut(_) => 2,
+    /// [UPERF2-P] A chunk of device memory (a power of two >= 64 KiB) from
+    /// the buddy: a free block, else a fresh slab within the budget, else
+    /// after the idle families are given back; `Err("K9 VRAM budget ..")`
+    /// when nothing fits (the callers decline — never a value change).
+    fn alloc(&mut self, bytes: usize) -> Result<Chunk, String> {
+        if let Some(c) = self.mem.try_alloc(bytes) {
+            P_POOL_HITS.fetch_add(1, Ordering::Relaxed);
+            return Ok(c);
+        }
+        // A new slab (or a dedicated buffer when the request exceeds a slab
+        // / no slabs are configured).
+        let want = if self.mem.slab_fits(bytes) { self.mem.slab_bytes() } else { bytes.max(1usize << SLAB_MIN_BITS).next_power_of_two() };
+        if self.used() + want > self.budget {
+            self.make_room(want);
+            // The idle families may have returned chunks: try again first.
+            if let Some(c) = self.mem.try_alloc(bytes) {
+                return Ok(c);
+            }
+        }
+        if self.used() + want > self.budget {
+            return Err(format!(
+                "K9 VRAM budget: need {:.2} GB more (used {:.2} GB of which slabs {:.2}, live {:.2}; budget {:.2} GB)",
+                want as f64 / 1e9,
+                self.used() as f64 / 1e9,
+                self.mem.total as f64 / 1e9,
+                self.mem.live as f64 / 1e9,
+                self.budget as f64 / 1e9
+            ));
+        }
+        let ta = Instant::now();
+        let mut b = DevBuf::empty();
+        b.grow(want)?;
+        P_POOL_MISSES.fetch_add(1, Ordering::Relaxed);
+        let c = if self.mem.slab_fits(bytes) {
+            self.mem.add_slab(b);
+            self.mem.try_alloc(bytes).expect("a fresh slab satisfies the request")
+        } else {
+            self.mem.add_dedicated(b)
         };
-        let mut freed = 0usize;
-        if (fam != 0 || matches!(which, DevSel::LayP | DevSel::LayQ | DevSel::ClW | DevSel::ClMeta | DevSel::Eqb | DevSel::ClimbScr(_))) && self.chain.is_none() {
-            for b in self.st.iter_mut() {
-                freed += b.bytes;
-                b.free();
-            }
-            let [c0, c1] = &mut self.climb_scr;
-            for b in [&mut self.lay_p, &mut self.lay_q, &mut self.cl_w, &mut self.cl_meta, &mut self.eqb, c0, c1] {
-                freed += b.bytes;
-                b.free();
-            }
-            self.layer = None;
+        if warm_enabled() {
+            self.warm(c.ptr, c.bytes)?;
         }
-        if fam != 1 && self.ixf.is_none() {
-            for t in self.ixf_t.iter_mut() {
-                freed += t[0].bytes + t[1].bytes;
-                t[0].free();
-                t[1].free();
-            }
-        }
-        if fam != 2 {
-            for b in self.tree_src.iter_mut().chain(self.tree_out.iter_mut()) {
-                freed += b.bytes;
-                b.free();
-            }
-        }
-        self.held -= freed;
-        if verbose() && freed > 0 {
-            eprintln!("[UPERF2-L] k9: released {:.2} GB of idle device buffers", freed as f64 / 1e9);
+        add_us(&P_ALLOC_US, ta.elapsed().as_secs_f64());
+        note_peak(&S_HELD_PEAK, self.used());
+        Ok(c)
+    }
+
+    /// Give a chunk back to the buddy (the caller has synchronized the
+    /// streams that could still touch it — every round ends with a sync).
+    fn free(&mut self, c: Chunk) {
+        if !c.is_none() {
+            self.mem.free(c);
         }
     }
 
-    /// Free the layer buffers (round 1 consumed them; the next layer grows
-    /// them again — VRAM for the state tables of the big layers).
-    /// [UPERF2-N] the climb scratch goes with them.
-    fn release_layer_bufs(&mut self) {
+    /// Free the idle families' dedicated buffers and the free slabs so that
+    /// `bytes` more may be allocated: lane L's ixf tables (no ixf chain
+    /// alive), the device-climb buffers, then the wholly free slabs. The
+    /// descent's chain / layer binding / eq and the tree store are never
+    /// taken here.
+    fn make_room(&mut self, bytes: usize) {
         let _ = self.sync_all();
         let mut freed = 0usize;
-        let [c0, c1] = &mut self.climb_scr;
-        for b in [&mut self.lay_p, &mut self.lay_q, &mut self.cl_w, &mut self.cl_meta, c0, c1] {
-            freed += b.bytes;
-            b.free();
-        }
-        self.held -= freed;
-        self.layer = None;
-    }
-
-    fn sel(&mut self, which: DevSel) -> &mut DevBuf {
-        match which {
-            DevSel::St(i) => &mut self.st[i],
-            DevSel::LayP => &mut self.lay_p,
-            DevSel::LayQ => &mut self.lay_q,
-            DevSel::ClW => &mut self.cl_w,
-            DevSel::ClMeta => &mut self.cl_meta,
-            DevSel::Eqb => &mut self.eqb,
-            DevSel::Ixf(k, i) => {
-                while self.ixf_t.len() <= k {
-                    self.ixf_t.push([DevBuf::empty(), DevBuf::empty()]);
-                }
-                &mut self.ixf_t[k][i]
-            }
-            DevSel::TreeSrc(i) => &mut self.tree_src[i],
-            DevSel::TreeOut(i) => &mut self.tree_out[i],
-            DevSel::ClimbScr(i) => &mut self.climb_scr[i],
-        }
-    }
-
-    /// [UPERF2-N] Free every idle family (a tree build / a fetch needs the
-    /// room): the descent's buffers when no chain is alive, the ixf tables
-    /// when no ixf chain is alive, the climb scratch. The tree store itself
-    /// is never released here.
-    fn release_idle_all(&mut self) {
-        let _ = self.sync_all();
-        let mut freed = 0usize;
-        if self.chain.is_none() {
-            for b in self.st.iter_mut() {
-                freed += b.bytes;
-                b.free();
-            }
-            let [c0, c1] = &mut self.climb_scr;
-            for b in [&mut self.lay_p, &mut self.lay_q, &mut self.cl_w, &mut self.cl_meta, &mut self.eqb, c0, c1] {
-                freed += b.bytes;
-                b.free();
-            }
-            self.layer = None;
-        }
         if self.ixf.is_none() {
             for t in self.ixf_t.iter_mut() {
                 freed += t[0].bytes + t[1].bytes;
@@ -901,8 +1277,71 @@ impl K9 {
             b.free();
         }
         self.held -= freed;
+        if self.used() + bytes > self.budget {
+            let t = self.mem.trim_free_slabs();
+            if t > 0 {
+                P_POOL_TRIMS.fetch_add(1, Ordering::Relaxed);
+            }
+            freed += t;
+        }
         if verbose() && freed > 0 {
-            eprintln!("[UPERF2-N] k9: released {:.2} GB of idle device buffers for the tree store", freed as f64 / 1e9);
+            eprintln!("[UPERF2-P] k9: gave back {:.2} GB of idle device buffers / free slabs", freed as f64 / 1e9);
+        }
+    }
+
+    /// [UPERF2-P] Touch a freshly allocated device buffer once (a memset on
+    /// the compute stream, synchronous): MEASURED a net loss on this box —
+    /// off by default (`ZK_GPU_K9_WARM=1`).
+    fn warm(&self, ptr: sys::CUdeviceptr, bytes: usize) -> Result<(), String> {
+        if bytes == 0 || ptr == 0 {
+            return Ok(());
+        }
+        unsafe { cu::memset_d8_async(ptr, 0, bytes, self.sk.stream) }.map_err(|e| format!("memset (warm): {e}"))?;
+        unsafe { cu::stream::synchronize(self.sk.stream) }.map_err(|e| format!("sync sk (warm): {e}"))
+    }
+
+    /// The layer binding is consumed (round 1 ran, or a re-bind): its chunks
+    /// go back to the buddy (after a sync — the kernels that read them are
+    /// done at every round's end; the climb scratch too).
+    fn release_layer_bufs(&mut self) {
+        if let Some(l) = self.layer.take() {
+            let _ = self.sync_all();
+            for c in l.owned {
+                self.free(c);
+            }
+        }
+    }
+
+    /// Drop the chain's state chunks (the chain ended or aborted).
+    fn release_chain(&mut self) {
+        if let Some(ch) = self.chain.take() {
+            let _ = self.sync_all();
+            for p in ch.pieces {
+                for c in p.ch {
+                    self.free(c);
+                }
+            }
+        }
+    }
+
+    /// Drop the resident device eq (its handle is gone or superseded).
+    fn release_eq(&mut self) {
+        if let Some(e) = self.eq.take() {
+            let _ = self.sync_all();
+            self.free(e.ch);
+        }
+    }
+
+    fn sel(&mut self, which: DevSel) -> &mut DevBuf {
+        match which {
+            DevSel::Ixf(k, i) => {
+                while self.ixf_t.len() <= k {
+                    self.ixf_t.push([DevBuf::empty(), DevBuf::empty()]);
+                }
+                &mut self.ixf_t[k][i]
+            }
+            DevSel::TreeSrc(i) => &mut self.tree_src[i],
+            DevSel::TreeOut(i) => &mut self.tree_out[i],
         }
     }
 
@@ -912,25 +1351,19 @@ impl K9 {
     /// and `k9_tree_fetch` (a plain download) must keep answering.
     fn release_all(&mut self) {
         let _ = self.sync_all();
-        for b in self.st.iter_mut() {
-            b.free();
-        }
-        self.lay_p.free();
-        self.lay_q.free();
-        self.cl_w.free();
-        self.cl_meta.free();
-        self.eqb.free();
+        self.release_chain();
+        self.release_layer_bufs();
+        self.release_eq();
         for t in self.ixf_t.iter_mut() {
             t[0].free();
             t[1].free();
         }
-        for b in self.tree_src.iter_mut().chain(self.tree_out.iter_mut()).chain(self.climb_scr.iter_mut()) {
+        for b in self.tree_src.iter_mut().chain(self.tree_out.iter_mut()) {
             b.free();
         }
-        self.held = self.tree_bytes;
-        self.chain = None;
-        self.layer = None;
+        self.held = 0;
         self.ixf = None;
+        let _ = self.mem.trim_free_slabs();
     }
 
     /// Upload `src` (host words) to device address `dst` through the pinned
@@ -1043,16 +1476,32 @@ impl K9 {
     /// stream, before the launches that read them); returns the device
     /// address of slot 0.
     fn upload_prm(&mut self, slots: &[Prm]) -> Result<u64, String> {
+        self.upload_prm_ranges(slots, &[]).map(|(p, _)| p)
+    }
+
+    /// [UPERF2-P] The parameter slots + the range table of a one-launch
+    /// round in ONE copy; returns (slot 0's device address, the range
+    /// table's device address).
+    fn upload_prm_ranges(&mut self, slots: &[Prm], ranges: &[K9Range]) -> Result<(u64, u64), String> {
         assert!(slots.len() <= PRM_SLOTS, "K9 gpu: too many parameter slots ({} ranges)", slots.len());
+        assert!(ranges.len() <= PRM_SLOTS, "K9 gpu: too many ranges ({})", ranges.len());
         // The previous round's launches must be done with the staging.
         unsafe { cu::stream::synchronize(self.sk.stream) }.map_err(|e| format!("sync sk: {e}"))?;
-        let h = self.prm_h.slice_mut::<u32>(slots.len() * PRM_WORDS);
+        // Layout: the used slots, then the range table right after them (one
+        // contiguous copy per round).
+        let prm_words = slots.len() * PRM_WORDS;
+        let rw = K9R_BYTES / 4;
+        let words = prm_words + ranges.len() * rw;
+        let h = self.prm_h.slice_mut::<u32>(words);
         for (i, p) in slots.iter().enumerate() {
             h[i * PRM_WORDS..(i + 1) * PRM_WORDS].copy_from_slice(&p.0);
         }
-        unsafe { cu::memcpy_htod_async(self.prm_d.ptr, self.prm_h.slice::<u32>(slots.len() * PRM_WORDS), self.sk.stream) }
-            .map_err(|e| format!("h2d prm: {e}"))?;
-        Ok(self.prm_d.ptr)
+        for (i, r) in ranges.iter().enumerate() {
+            let src: &[u32] = unsafe { std::slice::from_raw_parts(r as *const K9Range as *const u32, rw) };
+            h[prm_words + i * rw..prm_words + (i + 1) * rw].copy_from_slice(src);
+        }
+        unsafe { cu::memcpy_htod_async(self.prm_d.ptr, self.prm_h.slice::<u32>(words), self.sk.stream) }.map_err(|e| format!("h2d prm: {e}"))?;
+        Ok((self.prm_d.ptr, self.prm_d.ptr + (prm_words * 4) as u64))
     }
 
     fn zero_partial(&self) -> Result<(), String> {
@@ -1074,19 +1523,13 @@ impl K9 {
     }
 }
 
+/// The remaining dedicated buffers (lane L's ixf tables and device-climb
+/// buffers); [UPERF2-P] everything else is a chunk of the buddy.
 #[derive(Clone, Copy)]
 enum DevSel {
-    St(usize),
-    LayP,
-    LayQ,
-    ClW,
-    ClMeta,
-    Eqb,
     Ixf(usize, usize),
     TreeSrc(usize),
     TreeOut(usize),
-    /// [UPERF2-N] the in-hook climb's intermediate-level scratch (descent family).
-    ClimbScr(usize),
 }
 
 /// [UPERF2-N] Is the current thread a rayon worker (of ANY pool)? A staging
@@ -1278,25 +1721,25 @@ impl K9 {
                 return Ok(false);
             }
             let prev: Vec<(usize, usize)> = ranges.iter().map(|&(a, b)| (2 * a, 2 * b)).collect();
-            let (regions, tab_blk) = layout(&prev);
-            let bytes = 5 * tab_blk * KBLK * 4;
-            if let Err(e) = self.grow_dev(DevSel::St(0), bytes) {
-                if verbose() {
-                    eprintln!("[UPERF2-L] k9: cold fold declined ({e})");
+            let pieces = match self.alloc_state(&prev) {
+                Ok(p) => p,
+                Err(e) => {
+                    if verbose() {
+                        eprintln!("[UPERF2-L] k9: cold fold declined ({e})");
+                    }
+                    return Ok(false);
                 }
-                return Ok(false);
-            }
+            };
             let mut pp = 0usize;
-            for (ri, &(a, b)) in prev.iter().enumerate() {
+            for pc in &pieces {
                 for k in 0..5 {
-                    let src: &[u32] = if k == 0 { &eq_inplace[2 * a * KBLK..2 * b * KBLK] } else { &tabs[k - 1][2 * a * KBLK..2 * b * KBLK] };
-                    let dst = self.st[0].ptr + (((k * tab_blk) + regions[ri].blk0) * KBLK * 4) as u64;
-                    self.upload_words(dst, src, &mut pp)?;
+                    let src: &[u32] = if k == 0 { &eq_inplace[2 * pc.a * KBLK..2 * pc.b * KBLK] } else { &tabs[k - 1][2 * pc.a * KBLK..2 * pc.b * KBLK] };
+                    self.upload_words(pc.ch[k].ptr, src, &mut pp)?;
                 }
             }
             self.compute_after_copies()?;
             let ptrs = [eq_inplace.as_ptr() as usize, tabs[0].as_ptr() as usize, tabs[1].as_ptr() as usize, tabs[2].as_ptr() as usize, tabs[3].as_ptr() as usize];
-            self.chain = Some(Chain { ptrs, out_pairs: 2 * n_pairs, ranges: prev, regions, tab_blk, buf: 0 });
+            self.chain = Some(Chain { ptrs, out_pairs: 2 * n_pairs, ranges: prev, pieces });
         }
         // ---- Size gate (only when no chain is alive: a live chain is
         // continued down to its handover).
@@ -1331,7 +1774,21 @@ impl K9 {
                 assert_eq!(plan.layers.len(), ranges.len(), "K9 gpu: one layer per live range");
                 // (1) The layer + eq on the device: reuse round 0's when the tag matches.
                 let ids: Vec<(LayerId, usize)> = plan.layers.iter().map(|l| (layer_id(&l.src), l.first_pair)).collect();
-                let eq_id = (eq_src.as_ptr() as usize, eq_src.len());
+                // [UPERF2-P] the eq's identity: the resident device table's id,
+                // else the host words (the caller's, or the handle's image).
+                let eq_id = match plan.eq_tab.and_then(|t| t.dev().map(|id| (id, t.n()))) {
+                    Some((id, n)) if self.eq.as_ref().map(|e| (e.id, e.n)) == Some((id, n)) => (usize::MAX - id as usize, n),
+                    _ => {
+                        let w: &[u32] = if !eq_src.is_empty() {
+                            eq_src
+                        } else if let Some(t) = plan.eq_tab {
+                            &t.host().d
+                        } else {
+                            eq_src
+                        };
+                        (w.as_ptr() as usize, w.len())
+                    }
+                };
                 let hit = match &self.layer {
                     Some(l) => {
                         mode == FUSE_EXTRACT_FOLD
@@ -1347,7 +1804,7 @@ impl K9 {
                 if hit {
                     S_LAYER_HIT.fetch_add(1, Ordering::Relaxed);
                 } else {
-                    self.layer = None;
+                    self.release_layer_bufs();
                     let tu = Instant::now();
                     if !self.upload_layer(plan, n_pairs, &ranges, eq_src, &ids)? {
                         return Ok(false);
@@ -1355,21 +1812,23 @@ impl K9 {
                     add_us(&S_UPLOAD_US, tu.elapsed().as_secs_f64());
                     S_LAYER_UP.fetch_add(1, Ordering::Relaxed);
                 }
-                // (2) The state-1 output buffer (EXTRACT_FOLD).
+                // (2) The state-1 output pieces (EXTRACT_FOLD).
                 let f_blk = if mode == FUSE_EXTRACT { 4usize } else { 8 };
                 let fe_blk = if mode == FUSE_EXTRACT { 2usize } else { 4 };
-                let (regions, tab_blk) = layout(&ranges);
-                let buf = 0usize;
-                if mode == FUSE_EXTRACT_FOLD {
-                    let bytes = 5 * tab_blk * KBLK * 4;
-                    if let Err(e) = self.grow_dev(DevSel::St(buf), bytes) {
-                        if verbose() {
-                            eprintln!("[UPERF2-L] k9: extract-fold declined ({e})");
+                let out_pieces: Vec<Piece> = if mode == FUSE_EXTRACT_FOLD {
+                    match self.alloc_state(&ranges) {
+                        Ok(p) => p,
+                        Err(e) => {
+                            if verbose() {
+                                eprintln!("[UPERF2-L] k9: extract-fold declined ({e})");
+                            }
+                            self.release_layer_bufs();
+                            return Ok(false);
                         }
-                        self.layer = None;
-                        return Ok(false);
                     }
-                }
+                } else {
+                    pieces_of(&ranges)
+                };
                 self.compute_after_copies()?;
                 let slots: Vec<Prm> = plan
                     .layers
@@ -1382,33 +1841,108 @@ impl K9 {
                         q
                     })
                     .collect();
-                let prm_base = self.upload_prm(&slots)?;
-                self.zero_partial()?;
-                if profile() {
-                    self.sync_all()?;
-                }
-                let tk = Instant::now();
-                let layer = self.layer.as_ref().unwrap();
-                for (ri, &(a, b)) in ranges.iter().enumerate() {
-                    let n = 8 * (b - a);
-                    let la = a - plan.layers[ri].first_pair;
-                    let mut pr = p;
-                    pr.prm = prm_base + (ri * PRM_WORDS * 4) as u64;
-                    if plan.layers[ri].ee.is_some() {
-                        pr.has_ee = 1;
+                // The launch pieces: per output piece, the layer / eq pointers
+                // at the piece's first pair-block (`la` = its offset in the
+                // instance), the state-1 output pointers, the range's slot.
+                let (all_packed, all_compact) = {
+                    let layer = self.layer.as_ref().unwrap();
+                    (
+                        layer.devs.iter().all(|d| matches!(d, LayerDev::Packed { .. })),
+                        layer.devs.iter().all(|d| matches!(d, LayerDev::Compact { .. })),
+                    )
+                };
+                let eq_base = self.eq_ptr_for(plan, eq_src);
+                let mut rtab: Vec<K9Range> = Vec::with_capacity(out_pieces.len());
+                let mut t0c = 0u32;
+                {
+                    let layer = self.layer.as_ref().unwrap();
+                    for pc in &out_pieces {
+                        let ri = pc.ri;
+                        let n = 8 * (pc.b - pc.a);
+                        let la = pc.a - plan.layers[ri].first_pair;
+                        let mut r = K9Range { t0: t0c, n: n as u32, slot: ri as u32, ..Default::default() };
+                        if plan.layers[ri].ee.is_some() {
+                            r.flags |= K9R_HAS_EE;
+                        }
+                        r.eq = eq_base + ((fe_blk * la) * KBLK * 4) as u64;
+                        if mode == FUSE_EXTRACT_FOLD {
+                            r.outs = std::array::from_fn(|k| pc.ch[k].ptr);
+                        }
+                        match &layer.devs[ri] {
+                            LayerDev::Packed { p: p_ptr, q: q_ptr } => {
+                                r.ins[0] = p_ptr + (f_blk * la * KBLK * 4) as u64;
+                                r.ins[1] = q_ptr + (f_blk * la * KBLK * 4) as u64;
+                            }
+                            LayerDev::Compact { w: w_ptr, meta, n_exc } => {
+                                r.ins[0] = *w_ptr;
+                                r.ins[1] = *meta;
+                                r.ins[2] = *meta + (K_DEG * 4) as u64;
+                                r.n_exc = *n_exc as u32;
+                                r.e_base = (f_blk * la * KL) as u32;
+                            }
+                        }
+                        rtab.push(r);
+                        t0c += n as u32;
                     }
-                    let eq_ptr = self.eqb.ptr + ((fe_blk * la) * KBLK * 4) as u64;
-                    let n_u = n as u32;
+                }
+                let total = t0c;
+                if multi() && (all_packed || all_compact) {
+                    // [UPERF2-P] ONE launch over the range table.
+                    let (prm_base, rptr) = self.upload_prm_ranges(&slots, &rtab)?;
+                    self.zero_partial()?;
+                    if profile() {
+                        self.sync_all()?;
+                    }
+                    let tk = Instant::now();
+                    let mut pr = p;
+                    pr.prm = prm_base;
+                    let nr = rtab.len() as u32;
                     let part = self.partial.ptr;
-                    let grid = grid_for(n, TK9);
-                    let reg = regions[ri];
-                    let outs: [u64; 5] = std::array::from_fn(|k| self.st[buf].ptr + (((k * tab_blk) + reg.blk0) * KBLK * 4) as u64);
-                    match &layer.devs[ri] {
-                        LayerDev::Packed { p: p_ptr, q: q_ptr } => {
-                            let pp = p_ptr + (f_blk * la * KBLK * 4) as u64;
-                            let qq = q_ptr + (f_blk * la * KBLK * 4) as u64;
+                    let name = kname(
+                        match (mode == FUSE_EXTRACT, all_packed) {
+                            (true, true) => "k_extract_round_m",
+                            (true, false) => "k_extract_round_cl_m",
+                            (false, true) => "k_extract_fold_m",
+                            (false, false) => "k_extract_fold_cl_m",
+                        },
+                        nn,
+                    );
+                    let mut args: [*mut c_void; 5] = [
+                        &pr as *const _ as *mut _,
+                        &rptr as *const _ as *mut _,
+                        &nr as *const _ as *mut _,
+                        &total as *const _ as *mut _,
+                        &part as *const _ as *mut _,
+                    ];
+                    self.launch(name, grid_for(total as usize, TK9), TK9, &mut args)?;
+                    P_LAUNCHES.fetch_add(1, Ordering::Relaxed);
+                    P_ROUNDS_MULTI.fetch_add(1, Ordering::Relaxed);
+                    self.deposit_partial(kern.q, nn, acc_lo)?;
+                    self.last_kernel_ms = tk.elapsed().as_secs_f64() * 1e3;
+                    add_us(&S_KERNEL_US, tk.elapsed().as_secs_f64());
+                } else {
+                    // Lane L's kernels: one launch per piece.
+                    let prm_base = self.upload_prm(&slots)?;
+                    self.zero_partial()?;
+                    if profile() {
+                        self.sync_all()?;
+                    }
+                    let tk = Instant::now();
+                    P_ROUNDS_SPLIT.fetch_add(1, Ordering::Relaxed);
+                    P_LAUNCHES.fetch_add(rtab.len() as u64, Ordering::Relaxed);
+                    let part = self.partial.ptr;
+                    for r in &rtab {
+                        let mut pr = p;
+                        pr.prm = prm_base + (r.slot as usize * PRM_WORDS * 4) as u64;
+                        if r.flags & K9R_HAS_EE != 0 {
+                            pr.has_ee = 1;
+                        }
+                        let n_u = r.n;
+                        let grid = grid_for(r.n as usize, TK9);
+                        let compact = !all_packed;
+                        if !compact {
+                            let (pp, qq, eq_ptr) = (r.ins[0], r.ins[1], r.eq);
                             if mode == FUSE_EXTRACT {
-                                let name = "k_extract_round";
                                 let mut args: [*mut c_void; 6] = [
                                     &pr as *const _ as *mut _,
                                     &pp as *const _ as *mut _,
@@ -1417,8 +1951,9 @@ impl K9 {
                                     &n_u as *const _ as *mut _,
                                     &part as *const _ as *mut _,
                                 ];
-                                self.launch(name, grid, TK9, &mut args)?;
+                                self.launch("k_extract_round", grid, TK9, &mut args)?;
                             } else {
+                                let outs = r.outs;
                                 let mut args: [*mut c_void; 11] = [
                                     &pr as *const _ as *mut _,
                                     &pp as *const _ as *mut _,
@@ -1434,15 +1969,11 @@ impl K9 {
                                 ];
                                 self.launch("k_extract_fold", grid, TK9, &mut args)?;
                             }
-                        }
-                        LayerDev::Compact { w: w_ptr, meta, n_exc } => {
-                            let w = *w_ptr;
-                            let alpha = *meta;
-                            let exc = alpha + (K_DEG * 4) as u64;
-                            let n_exc_u = *n_exc as u32;
-                            let e_base = (f_blk * la * KL) as u32;
+                        } else {
+                            let (w, alpha, exc, eq_ptr) = (r.ins[0], r.ins[1], r.ins[2], r.eq);
+                            let n_exc_u = r.n_exc;
+                            let e_base = r.e_base;
                             if mode == FUSE_EXTRACT {
-                                let name = "k_extract_round_cl";
                                 let mut args: [*mut c_void; 9] = [
                                     &pr as *const _ as *mut _,
                                     &w as *const _ as *mut _,
@@ -1454,8 +1985,9 @@ impl K9 {
                                     &n_u as *const _ as *mut _,
                                     &part as *const _ as *mut _,
                                 ];
-                                self.launch(name, grid, TK9, &mut args)?;
+                                self.launch("k_extract_round_cl", grid, TK9, &mut args)?;
                             } else {
+                                let outs = r.outs;
                                 let mut args: [*mut c_void; 14] = [
                                     &pr as *const _ as *mut _,
                                     &w as *const _ as *mut _,
@@ -1476,10 +2008,10 @@ impl K9 {
                             }
                         }
                     }
+                    self.deposit_partial(kern.q, nn, acc_lo)?;
+                    self.last_kernel_ms = tk.elapsed().as_secs_f64() * 1e3;
+                    add_us(&S_KERNEL_US, tk.elapsed().as_secs_f64());
                 }
-                self.deposit_partial(kern.q, nn, acc_lo)?;
-                self.last_kernel_ms = tk.elapsed().as_secs_f64() * 1e3;
-                add_us(&S_KERNEL_US, tk.elapsed().as_secs_f64());
                 if mode == FUSE_EXTRACT {
                     // Keep the layer for round 1; nothing written.
                     if let Some(l) = self.layer.as_mut() {
@@ -1488,88 +2020,133 @@ impl K9 {
                     }
                 } else {
                     // The layer is consumed; the state-1 tables are resident.
-                    // Its buffers go back (the big layers need the VRAM for
-                    // the state tables' ping-pong).
+                    // Its chunks go back to the buddy.
                     self.release_layer_bufs();
                     let ptrs = [eq_dst.as_ptr() as usize, tabs[0].as_ptr() as usize, tabs[1].as_ptr() as usize, tabs[2].as_ptr() as usize, tabs[3].as_ptr() as usize];
-                    self.chain = Some(Chain { ptrs, out_pairs: n_pairs, ranges: ranges.clone(), regions, tab_blk, buf });
+                    self.chain = Some(Chain { ptrs, out_pairs: n_pairs, ranges: ranges.clone(), pieces: out_pieces });
                     if handover {
                         let th = Instant::now();
                         self.handover_to_host(eq_dst, tabs)?;
                         add_us(&S_HANDOVER_US, th.elapsed().as_secs_f64());
                         if !succ_taken {
-                            self.chain = None;
+                            self.release_chain();
                         }
                     }
                 }
             }
             _ => {
-                // FUSE_FOLD on the resident state.
-                let (regions, tab_blk) = layout(&ranges);
-                let ch = self.chain.as_ref().unwrap();
-                let in_buf = ch.buf;
-                let out_buf = in_buf ^ 1;
-                let in_regions = ch.regions.clone();
-                let in_tab_blk = ch.tab_blk;
-                let bytes = 5 * tab_blk * KBLK * 4;
-                if let Err(e) = self.grow_dev(DevSel::St(out_buf), bytes) {
-                    // Cannot continue on the device: write the current state
-                    // back (the CPU takes over from a coherent host).
-                    if verbose() {
-                        eprintln!("[UPERF2-L] k9: fold round declined ({e}); handing the state to the host");
+                // FUSE_FOLD on the resident state: state t-1 (the chain's
+                // pieces) -> state t (fresh pieces); the input of an output
+                // piece [a, b) is the previous state's pair-blocks [2a, 2b),
+                // which may span several previous pieces (a launch piece per
+                // intersection).
+                let out_pieces = match self.alloc_state(&ranges) {
+                    Ok(p) => p,
+                    Err(e) => {
+                        // Cannot continue on the device: write the current state
+                        // back (the CPU takes over from a coherent host).
+                        if verbose() {
+                            eprintln!("[UPERF2-L] k9: fold round declined ({e}); handing the state to the host");
+                        }
+                        self.abort_to_host(eq_inplace, tabs)?;
+                        return Ok(false);
                     }
-                    self.abort_to_host(eq_inplace, tabs)?;
-                    return Ok(false);
+                };
+                let in_pieces = self.chain.as_ref().unwrap().pieces.clone();
+                let mut rtab: Vec<K9Range> = Vec::new();
+                let mut t0c = 0u32;
+                for oc in &out_pieces {
+                    let (ia, ib) = (2 * oc.a, 2 * oc.b);
+                    let mut cur = ia;
+                    for ic in &in_pieces {
+                        if ic.b <= ia || ic.a >= ib {
+                            continue;
+                        }
+                        let (xa, xb) = (ic.a.max(ia), ic.b.min(ib));
+                        assert!(xa == cur, "K9 gpu: the input pair-blocks [{ia}, {ib}) are not covered contiguously by the previous pieces");
+                        // Output pair-blocks of this intersection: [xa/2, xb/2).
+                        let (oa, ob) = (xa / 2, xb / 2);
+                        assert!(xa % 2 == 0 && xb % 2 == 0, "K9 gpu: piece boundaries at odd pair-blocks");
+                        let ins: [u64; 5] = std::array::from_fn(|k| piece_ptr(ic, k, xa));
+                        let outs: [u64; 5] = std::array::from_fn(|k| piece_ptr(oc, k, oa));
+                        let n = 8 * (ob - oa);
+                        rtab.push(K9Range { ins, outs, t0: t0c, n: n as u32, slot: 0, ..Default::default() });
+                        t0c += n as u32;
+                        cur = xb;
+                    }
+                    assert!(cur == ib, "K9 gpu: the input pair-blocks [{ia}, {ib}) exceed the previous pieces");
                 }
-                let prm_base = self.upload_prm(std::slice::from_ref(&prm0))?;
-                p.prm = prm_base;
-                self.zero_partial()?;
-                if profile() {
-                    self.sync_all()?;
-                }
-                let tk = Instant::now();
-                let in_ranges = self.chain.as_ref().unwrap().ranges.clone();
-                for (ri, &(a, b)) in ranges.iter().enumerate() {
-                    let n = 8 * (b - a);
-                    let n_u = n as u32;
+                let total = t0c;
+                if multi() {
+                    // [UPERF2-P] ONE launch over the range table.
+                    let (prm_base, rptr) = self.upload_prm_ranges(std::slice::from_ref(&prm0), &rtab)?;
+                    p.prm = prm_base;
+                    self.zero_partial()?;
+                    if profile() {
+                        self.sync_all()?;
+                    }
+                    let tk = Instant::now();
+                    let nr = rtab.len() as u32;
                     let part = self.partial.ptr;
-                    let grid = grid_for(n, TK9);
-                    // The input blocks of the output pair-blocks [a, b): the
-                    // previous state's pair-blocks [2a, 2b) — contiguous in the
-                    // device layout when consecutive previous ranges cover them
-                    // without a gap (asserted).
-                    let in_blk0 = input_offset(&in_ranges, &in_regions, 2 * a, 2 * b);
-                    let ins: [u64; 5] = std::array::from_fn(|k| self.st[in_buf].ptr + (((k * in_tab_blk) + in_blk0) * KBLK * 4) as u64);
-                    let outs: [u64; 5] = std::array::from_fn(|k| self.st[out_buf].ptr + (((k * tab_blk) + regions[ri].blk0) * KBLK * 4) as u64);
-                    let name = "k_fold_round";
-                    let mut args: [*mut c_void; 13] = [
+                    let mut args: [*mut c_void; 5] = [
                         &p as *const _ as *mut _,
-                        &ins[0] as *const _ as *mut _,
-                        &ins[1] as *const _ as *mut _,
-                        &ins[2] as *const _ as *mut _,
-                        &ins[3] as *const _ as *mut _,
-                        &ins[4] as *const _ as *mut _,
-                        &outs[0] as *const _ as *mut _,
-                        &outs[1] as *const _ as *mut _,
-                        &outs[2] as *const _ as *mut _,
-                        &outs[3] as *const _ as *mut _,
-                        &outs[4] as *const _ as *mut _,
-                        &n_u as *const _ as *mut _,
+                        &rptr as *const _ as *mut _,
+                        &nr as *const _ as *mut _,
+                        &total as *const _ as *mut _,
                         &part as *const _ as *mut _,
                     ];
-                    self.launch(name, grid, TK9, &mut args)?;
+                    self.launch(kname("k_fold_round_m", nn), grid_for(total as usize, TK9), TK9, &mut args)?;
+                    P_LAUNCHES.fetch_add(1, Ordering::Relaxed);
+                    P_ROUNDS_MULTI.fetch_add(1, Ordering::Relaxed);
+                    self.deposit_partial(kern.q, nn, acc_lo)?;
+                    self.last_kernel_ms = tk.elapsed().as_secs_f64() * 1e3;
+                    add_us(&S_KERNEL_US, tk.elapsed().as_secs_f64());
+                } else {
+                    let prm_base = self.upload_prm(std::slice::from_ref(&prm0))?;
+                    p.prm = prm_base;
+                    self.zero_partial()?;
+                    if profile() {
+                        self.sync_all()?;
+                    }
+                    let tk = Instant::now();
+                    P_ROUNDS_SPLIT.fetch_add(1, Ordering::Relaxed);
+                    P_LAUNCHES.fetch_add(rtab.len() as u64, Ordering::Relaxed);
+                    let part = self.partial.ptr;
+                    for r in &rtab {
+                        let n_u = r.n;
+                        let grid = grid_for(r.n as usize, TK9);
+                        let (ins, outs) = (r.ins, r.outs);
+                        let mut args: [*mut c_void; 13] = [
+                            &p as *const _ as *mut _,
+                            &ins[0] as *const _ as *mut _,
+                            &ins[1] as *const _ as *mut _,
+                            &ins[2] as *const _ as *mut _,
+                            &ins[3] as *const _ as *mut _,
+                            &ins[4] as *const _ as *mut _,
+                            &outs[0] as *const _ as *mut _,
+                            &outs[1] as *const _ as *mut _,
+                            &outs[2] as *const _ as *mut _,
+                            &outs[3] as *const _ as *mut _,
+                            &outs[4] as *const _ as *mut _,
+                            &n_u as *const _ as *mut _,
+                            &part as *const _ as *mut _,
+                        ];
+                        self.launch("k_fold_round", grid, TK9, &mut args)?;
+                    }
+                    self.deposit_partial(kern.q, nn, acc_lo)?;
+                    self.last_kernel_ms = tk.elapsed().as_secs_f64() * 1e3;
+                    add_us(&S_KERNEL_US, tk.elapsed().as_secs_f64());
                 }
-                self.deposit_partial(kern.q, nn, acc_lo)?;
-                self.last_kernel_ms = tk.elapsed().as_secs_f64() * 1e3;
-                add_us(&S_KERNEL_US, tk.elapsed().as_secs_f64());
+                // State t-1 is consumed (the round is complete: deposit synced).
                 let ptrs = self.chain.as_ref().unwrap().ptrs;
-                self.chain = Some(Chain { ptrs, out_pairs: n_pairs, ranges: ranges.clone(), regions, tab_blk, buf: out_buf });
+                self.release_chain();
+                self.chain = Some(Chain { ptrs, out_pairs: n_pairs, ranges: ranges.clone(), pieces: out_pieces });
                 if handover {
                     let th = Instant::now();
                     self.handover_to_host(eq_inplace, tabs)?;
                     add_us(&S_HANDOVER_US, th.elapsed().as_secs_f64());
                     if !succ_taken {
-                        self.chain = None;
+                        self.release_chain();
                     }
                 }
             }
@@ -1589,27 +2166,51 @@ impl K9 {
         Ok(true)
     }
 
+    /// [UPERF2-P] Allocate the pieces of a state over `ranges` (5 chunks per
+    /// piece); on a shortfall everything allocated so far goes back.
+    fn alloc_state(&mut self, ranges: &[(usize, usize)]) -> Result<Vec<Piece>, String> {
+        let mut pieces = pieces_of(ranges);
+        for i in 0..pieces.len() {
+            let bytes = 2 * (pieces[i].b - pieces[i].a) * KBLK * 4;
+            for k in 0..5 {
+                match self.alloc(bytes) {
+                    Ok(c) => pieces[i].ch[k] = c,
+                    Err(e) => {
+                        for pc in &pieces {
+                            for c in pc.ch {
+                                self.free(c);
+                            }
+                        }
+                        return Err(e);
+                    }
+                }
+            }
+        }
+        Ok(pieces)
+    }
+
+    /// The device address of the eq b-part's element 0 as bound for this
+    /// round (the resident device eq, or the uploaded host words).
+    fn eq_ptr_for(&self, _plan: &FusedPlan, _eq_src: &[u32]) -> u64 {
+        self.layer.as_ref().expect("a bound layer").eq_up
+    }
+
     /// Bind the plan's layers on the device — upload the packed live blocks
     /// / the compact leaves' words, or [UPERF2-N] take a device tree's
     /// layer in place (a resident checkpoint, the compact leaves) or CLIMB
-    /// its gap layer here into the layer buffers — and upload the eq table;
-    /// sets `self.layer`. `Ok(false)` = declined (budget / encoding limits).
+    /// its gap layer here into fresh chunks — and bind or upload the eq
+    /// table; sets `self.layer`. `Ok(false)` = declined (budget / encoding
+    /// limits; nothing stays allocated).
     fn upload_layer(&mut self, plan: &FusedPlan, n_pairs: usize, ranges: &[(usize, usize)], eq_src: &[u32], ids: &[(LayerId, usize)]) -> Result<bool, String> {
         let f_blk = if plan.mode == FUSE_EXTRACT { 4usize } else { 8 };
-        // Sizes.
-        let mut packed_blk = 0usize;
-        let mut cl_words = 0usize;
-        let mut cl_meta_w = 0usize;
-        let mut scr_bytes = 0usize;
-        let mut encoded: Vec<Option<ClEncoded>> = Vec::with_capacity(ranges.len());
-        // [UPERF2-N] per range: the device tree binding (resident pointers,
-        // or a climb plan: (nearest resident source layer, whole-layer blocks)).
-        enum DevBind {
-            None,
+        // Per range: what to do.
+        enum Bind<'e> {
+            Upload { nb: usize },
+            Compact(ClEncoded<'e>),
             InPlace(LayerDev),
             Climb { src_k: usize, nblk: usize },
         }
-        let mut binds: Vec<DevBind> = Vec::with_capacity(ranges.len());
+        let mut binds: Vec<Bind> = Vec::with_capacity(ranges.len());
         let te = Instant::now();
         for (ri, &(a, b)) in ranges.iter().enumerate() {
             let n = b - a;
@@ -1617,132 +2218,164 @@ impl K9 {
                 BlkSrc::Packed { p, q } => {
                     let la = a - plan.layers[ri].first_pair;
                     assert!(p.len() >= f_blk * (la + n) * KBLK && q.len() >= f_blk * (la + n) * KBLK, "K9 gpu: layer slice");
-                    packed_blk += f_blk * (la + n);
-                    encoded.push(None);
-                    binds.push(DevBind::None);
+                    binds.push(Bind::Upload { nb: f_blk * (la + n) });
                 }
                 BlkSrc::Compact(c) => {
                     let Some(e) = cl_encode(c) else {
                         return Ok(false);
                     };
-                    cl_words += e.words.len();
-                    cl_meta_w += K_DEG + e.exc.len();
-                    encoded.push(Some(e));
-                    binds.push(DevBind::None);
+                    binds.push(Bind::Compact(e));
                 }
                 BlkSrc::Device { dev, .. } => {
-                    encoded.push(None);
                     let Some(t) = self.trees.get(&dev.tree) else {
                         panic!("[UPERF2-N] device tree {} is gone while its layer {} is being read (protocol violation)", dev.tree, dev.k);
                     };
                     let k = dev.k;
                     if let Some((p, q)) = &t.layers[k] {
-                        binds.push(DevBind::InPlace(LayerDev::Packed { p: p.ptr, q: q.ptr }));
+                        binds.push(Bind::InPlace(LayerDev::Packed { p: p.ptr, q: q.ptr }));
                     } else if k == t.depth {
                         let (w, m, n_exc) = t.compact.as_ref().expect("a device tree keeps its leaves");
-                        binds.push(DevBind::InPlace(LayerDev::Compact { w: w.ptr, meta: m.ptr, n_exc: *n_exc }));
+                        binds.push(Bind::InPlace(LayerDev::Compact { w: w.ptr, meta: m.ptr, n_exc: *n_exc }));
                     } else {
                         let src_k = (k + 1..=t.depth).find(|&kk| t.layers[kk].is_some() || (kk == t.depth && t.compact.is_some())).expect("a device tree keeps its leaves");
                         let nblk = (1usize << k) / KL;
                         let la = a - plan.layers[ri].first_pair;
                         assert!(f_blk * (la + n) <= nblk, "K9 gpu: device layer range");
-                        packed_blk += nblk;
-                        // Intermediate levels (src_k - k >= 2): the largest is layer src_k-1
-                        // (each scratch buffer holds both tables of one level).
-                        if src_k - k >= 2 {
-                            scr_bytes = scr_bytes.max(2 * (1usize << (src_k - 1)) / KL * KBLK * 4);
-                        }
-                        binds.push(DevBind::Climb { src_k, nblk });
+                        binds.push(Bind::Climb { src_k, nblk });
                     }
                 }
             }
         }
         add_us(&S_ENCODE_US, te.elapsed().as_secs_f64());
-        let eq_bytes = eq_src.len() * 4;
-        // Budget (the state-1 tables come on top: 5 x the LIVE state-1 blocks,
-        // and their ping-pong half for state 2).
-        let need = 2 * packed_blk * KBLK * 4 + cl_words * 4 + cl_meta_w * 4 + eq_bytes + 2 * scr_bytes;
-        let live_pairs: usize = ranges.iter().map(|&(a, b)| b - a).sum();
-        let st1_pairs = if plan.mode == FUSE_EXTRACT { live_pairs / 2 } else { live_pairs };
-        let st1 = 5 * st1_pairs * 2 * KBLK * 4;
-        let st2 = st1 / 2;
-        let more = need.saturating_sub(self.lay_p.bytes + self.lay_q.bytes + self.cl_w.bytes + self.cl_meta.bytes + self.eqb.bytes + self.climb_scr[0].bytes + self.climb_scr[1].bytes);
-        let want = more + st1.saturating_sub(self.st[0].bytes) + st2.saturating_sub(self.st[1].bytes);
-        if self.held + want > self.budget {
-            self.release_idle(DevSel::LayP);
-        }
-        if self.held + want > self.budget {
-            if verbose() {
-                eprintln!(
-                    "[UPERF2-L] k9: layer declined — VRAM budget (need {:.2} GB layer + {:.2} GB state, held {:.2}, budget {:.2})",
-                    need as f64 / 1e9,
-                    st1 as f64 / 1e9,
-                    self.held as f64 / 1e9,
-                    self.budget as f64 / 1e9
-                );
+        // [UPERF2-P] the eq: a device-built table (the plan's handle) is bound
+        // IN PLACE when its id is the resident one; otherwise the host words
+        // (the caller's, or the handle's image materialized once) go up.
+        let eq_hit = match plan.eq_tab.and_then(|t| t.dev().map(|id| (id, t.n()))) {
+            Some((id, n)) => self.eq.as_ref().map(|e| (e.id, e.n)) == Some((id, n)),
+            None => false,
+        };
+        fn eq_host_words<'p>(plan: &FusedPlan<'p>, eq_src: &'p [u32]) -> &'p [u32] {
+            if !eq_src.is_empty() {
+                eq_src
+            } else if let Some(t) = plan.eq_tab {
+                if !t.host_built() {
+                    P_EQ_HOST.fetch_add(1, Ordering::Relaxed);
+                }
+                &t.host().d
+            } else {
+                eq_src
             }
-            return Ok(false);
         }
-        self.grow_dev(DevSel::LayP, packed_blk * KBLK * 4)?;
-        self.grow_dev(DevSel::LayQ, packed_blk * KBLK * 4)?;
-        self.grow_dev(DevSel::ClW, cl_words * 4)?;
-        self.grow_dev(DevSel::ClMeta, cl_meta_w * 4)?;
-        self.grow_dev(DevSel::Eqb, eq_bytes)?;
-        if scr_bytes > 0 {
-            // Each scratch buffer holds BOTH tables of one intermediate level
-            // (the levels ping-pong between the two).
-            self.grow_dev(DevSel::ClimbScr(0), scr_bytes)?;
-            self.grow_dev(DevSel::ClimbScr(1), scr_bytes)?;
+        // Allocate: everything this binding owns (freed together on decline).
+        let mut owned: Vec<Chunk> = Vec::new();
+        let alloc_or_decline = |k: &mut K9, bytes: usize, owned: &mut Vec<Chunk>| -> Result<Option<Chunk>, String> {
+            match k.alloc(bytes) {
+                Ok(c) => {
+                    owned.push(c);
+                    Ok(Some(c))
+                }
+                Err(e) => {
+                    if e.starts_with("K9 VRAM budget") {
+                        if verbose() {
+                            eprintln!("[UPERF2-L] k9: layer declined — {e}");
+                        }
+                        Ok(None)
+                    } else {
+                        Err(e)
+                    }
+                }
+            }
+        };
+        macro_rules! take {
+            ($e:expr) => {
+                match $e {
+                    Ok(Some(c)) => c,
+                    Ok(None) => {
+                        for c in owned {
+                            self.free(c);
+                        }
+                        return Ok(false);
+                    }
+                    Err(e) => return Err(e),
+                }
+            };
         }
-        // Uploads (copy stream) and climbs (compute stream).
         let mut pp = 0usize;
-        self.upload_words(self.eqb.ptr, eq_src, &mut pp)?;
+        // The eq first (a device eq is bound; else the host words go up).
+        let (eq_key, eq_up): ((usize, usize), u64) = if eq_hit {
+            P_EQ_BINDS.fetch_add(1, Ordering::Relaxed);
+            let e = self.eq.as_ref().unwrap();
+            ((usize::MAX - e.id as usize, e.n), e.ch.ptr)
+        } else {
+            let w = eq_host_words(plan, eq_src);
+            let c = take!(alloc_or_decline(self, w.len() * 4, &mut owned));
+            self.upload_words(c.ptr, w, &mut pp)?;
+            ((w.as_ptr() as usize, w.len()), c.ptr)
+        };
         let mut devs: Vec<LayerDev> = Vec::with_capacity(ranges.len());
-        let mut pblk = 0usize;
-        let mut woff = 0usize;
-        let mut moff = 0usize;
         let mut n_res = 0u64;
         let mut n_climb = 0u64;
         let tc = Instant::now();
+        // The climb scratch (two chunks per intermediate level size; the
+        // levels ping-pong), sized by the largest climb.
+        let mut scr: [Chunk; 2] = [Chunk::NONE; 2];
+        let mut scr_bytes = 0usize;
+        for (ri, b) in binds.iter().enumerate() {
+            if let Bind::Climb { src_k, .. } = b {
+                if let BlkSrc::Device { dev, .. } = &plan.layers[ri].src {
+                    if src_k - dev.k >= 2 {
+                        scr_bytes = scr_bytes.max(2 * (1usize << (src_k - 1)) / KL * KBLK * 4);
+                    }
+                }
+            }
+        }
+        if scr_bytes > 0 {
+            scr[0] = take!(alloc_or_decline(self, scr_bytes, &mut owned));
+            scr[1] = take!(alloc_or_decline(self, scr_bytes, &mut owned));
+        }
         for (ri, &(a, b)) in ranges.iter().enumerate() {
             let n = b - a;
-            match &plan.layers[ri].src {
-                BlkSrc::Packed { p, q } => {
-                    let la = a - plan.layers[ri].first_pair;
-                    let nb = f_blk * (la + n);
-                    let dp = self.lay_p.ptr + (pblk * KBLK * 4) as u64;
-                    let dq = self.lay_q.ptr + (pblk * KBLK * 4) as u64;
-                    self.upload_words(dp, &p[..nb * KBLK], &mut pp)?;
-                    self.upload_words(dq, &q[..nb * KBLK], &mut pp)?;
-                    devs.push(LayerDev::Packed { p: dp, q: dq });
-                    pblk += nb;
+            match &binds[ri] {
+                Bind::Upload { nb } => {
+                    let (p, q) = match &plan.layers[ri].src {
+                        BlkSrc::Packed { p, q } => (p, q),
+                        _ => unreachable!(),
+                    };
+                    let bytes = nb * KBLK * 4;
+                    let cp = take!(alloc_or_decline(self, bytes, &mut owned));
+                    let cq = take!(alloc_or_decline(self, bytes, &mut owned));
+                    self.upload_words(cp.ptr, &p[..nb * KBLK], &mut pp)?;
+                    self.upload_words(cq.ptr, &q[..nb * KBLK], &mut pp)?;
+                    devs.push(LayerDev::Packed { p: cp.ptr, q: cq.ptr });
                 }
-                BlkSrc::Compact(_) => {
-                    let e = encoded[ri].as_ref().unwrap();
-                    let w = self.cl_w.ptr + (woff * 4) as u64;
-                    let m = self.cl_meta.ptr + (moff * 4) as u64;
-                    self.upload_words(w, e.words, &mut pp)?;
+                Bind::Compact(e) => {
                     let meta = cl_meta(e);
-                    self.upload_words(m, &meta, &mut pp)?;
-                    devs.push(LayerDev::Compact { w, meta: m, n_exc: e.n_exc });
-                    woff += e.words.len();
-                    moff += meta.len();
+                    let cw = take!(alloc_or_decline(self, e.words.len() * 4, &mut owned));
+                    let cm = take!(alloc_or_decline(self, meta.len() * 4, &mut owned));
+                    self.upload_words(cw.ptr, e.words, &mut pp)?;
+                    self.upload_words(cm.ptr, &meta, &mut pp)?;
+                    devs.push(LayerDev::Compact { w: cw.ptr, meta: cm.ptr, n_exc: e.n_exc });
                 }
-                BlkSrc::Device { dev, .. } => match std::mem::replace(&mut binds[ri], DevBind::None) {
-                    DevBind::InPlace(ld) => {
-                        n_res += 1;
-                        devs.push(ld);
-                    }
-                    DevBind::Climb { src_k, nblk } => {
-                        let dp = self.lay_p.ptr + (pblk * KBLK * 4) as u64;
-                        let dq = self.lay_q.ptr + (pblk * KBLK * 4) as u64;
-                        self.climb_layer(dev.tree, dev.k, src_k, dp, dq)?;
-                        n_climb += 1;
-                        devs.push(LayerDev::Packed { p: dp, q: dq });
-                        pblk += nblk;
-                    }
-                    DevBind::None => unreachable!(),
-                },
+                Bind::InPlace(ld) => {
+                    n_res += 1;
+                    devs.push(match ld {
+                        LayerDev::Packed { p, q } => LayerDev::Packed { p: *p, q: *q },
+                        LayerDev::Compact { w, meta, n_exc } => LayerDev::Compact { w: *w, meta: *meta, n_exc: *n_exc },
+                    });
+                }
+                Bind::Climb { src_k, nblk } => {
+                    let dev = match &plan.layers[ri].src {
+                        BlkSrc::Device { dev, .. } => *dev,
+                        _ => unreachable!(),
+                    };
+                    let bytes = nblk * KBLK * 4;
+                    let cp = take!(alloc_or_decline(self, bytes, &mut owned));
+                    let cq = take!(alloc_or_decline(self, bytes, &mut owned));
+                    self.climb_layer(dev.tree, dev.k, *src_k, cp.ptr, cq.ptr, &scr)?;
+                    n_climb += 1;
+                    devs.push(LayerDev::Packed { p: cp.ptr, q: cq.ptr });
+                    let _ = n;
+                }
             }
         }
         if n_climb > 0 {
@@ -1752,29 +2385,22 @@ impl K9 {
             S_DEV_CLIMBS.fetch_add(n_climb, Ordering::Relaxed);
         }
         S_LAYER_RESIDENT.fetch_add(n_res, Ordering::Relaxed);
-        self.layer = Some(LayerRes { n_pairs, ranges: ranges.to_vec(), ids: ids.to_vec(), devs, eq: (eq_src.as_ptr() as usize, eq_src.len()) });
+        self.layer = Some(LayerRes { n_pairs, ranges: ranges.to_vec(), ids: ids.to_vec(), devs, eq: eq_key, eq_up, owned });
         Ok(true)
     }
 
-    /// Copy the resident state's live regions into the host buffers where
-    /// the CPU path would have left them (blocks [2a, 2b) per range).
+    /// Copy the resident state's live pieces into the host buffers where
+    /// the CPU path would have left them (blocks [2a, 2b) per piece).
     fn handover_to_host(&mut self, eq: &mut [u32], tabs: &mut [&mut [u32]; 4]) -> Result<(), String> {
-        let ch = self.chain.as_ref().unwrap();
-        let regions = ch.regions.clone();
-        let ranges = ch.ranges.clone();
-        let tab_blk = ch.tab_blk;
-        let buf = ch.buf;
+        let pieces = self.chain.as_ref().unwrap().pieces.clone();
         unsafe { cu::stream::synchronize(self.sk.stream) }.map_err(|e| format!("sync sk: {e}"))?;
-        for (ri, &(a, b)) in ranges.iter().enumerate() {
-            let reg = regions[ri];
+        for pc in &pieces {
             for k in 0..5 {
-                let src = self.st[buf].ptr + (((k * tab_blk) + reg.blk0) * KBLK * 4) as u64;
-                let words = reg.n_blk * KBLK;
-                debug_assert_eq!(words, 2 * (b - a) * KBLK);
+                let words = 2 * (pc.b - pc.a) * KBLK;
                 let dst_all: &mut [u32] = if k == 0 { &mut *eq } else { &mut *tabs[k - 1] };
-                assert!(2 * b * KBLK <= dst_all.len(), "K9 gpu: handover destination too small");
-                let dst = &mut dst_all[2 * a * KBLK..2 * a * KBLK + words];
-                self.download_words(src, dst)?;
+                assert!(2 * pc.b * KBLK <= dst_all.len(), "K9 gpu: handover destination too small");
+                let dst = &mut dst_all[2 * pc.a * KBLK..2 * pc.a * KBLK + words];
+                self.download_words(pc.ch[k].ptr, dst)?;
             }
         }
         Ok(())
@@ -1785,7 +2411,7 @@ impl K9 {
     fn abort_to_host(&mut self, eq: &mut [u32], tabs: &mut [&mut [u32]; 4]) -> Result<(), String> {
         if self.chain.is_some() {
             self.handover_to_host(eq, tabs)?;
-            self.chain = None;
+            self.release_chain();
         }
         Ok(())
     }
@@ -1801,41 +2427,6 @@ fn ranges_union_is(ranges: &[(usize, usize)], n: usize) -> bool {
         cur = b;
     }
     cur == n
-}
-
-/// The device block offset (per table) of the previous state's pair-block
-/// `a0`, and the assertion that [a0, b0) is covered by consecutive previous
-/// ranges with no gap (their regions are adjacent in the layout).
-fn input_offset(prev_ranges: &[(usize, usize)], prev_regions: &[Region], a0: usize, b0: usize) -> usize {
-    let mut cur = a0;
-    let mut off: Option<usize> = None;
-    for (r, &(a, b)) in prev_ranges.iter().enumerate() {
-        if b <= a0 || a >= b0 {
-            continue;
-        }
-        if off.is_none() {
-            assert!(a <= a0, "K9 gpu: the input pair-blocks [{a0}, {b0}) start before the previous ranges {prev_ranges:?}");
-            off = Some(prev_regions[r].blk0 + 2 * (a0 - a));
-        } else {
-            assert!(a == cur, "K9 gpu: the input pair-blocks [{a0}, {b0}) are not covered contiguously by the previous ranges {prev_ranges:?}");
-        }
-        cur = b;
-    }
-    assert!(cur >= b0, "K9 gpu: the input pair-blocks [{a0}, {b0}) exceed the previous ranges {prev_ranges:?}");
-    off.expect("K9 gpu: no previous range covers the input")
-}
-
-/// The device layout of a state: regions per range (contiguous, in order),
-/// per-table stride in blocks.
-fn layout(ranges: &[(usize, usize)]) -> (Vec<Region>, usize) {
-    let mut regions = Vec::with_capacity(ranges.len());
-    let mut off = 0usize;
-    for &(a, b) in ranges {
-        let n_blk = 2 * (b - a);
-        regions.push(Region { blk0: off, n_blk });
-        off += n_blk;
-    }
-    (regions, off)
 }
 
 // ---------------------------------------------------------------------------
@@ -2354,34 +2945,22 @@ pub fn k9_tree_bytes(tree: u64) -> usize {
 }
 
 impl K9 {
-    /// Allocate a store buffer within the budget (idle families released
-    /// first). Counted in `held` and `tree_bytes`.
-    fn tree_alloc(&mut self, bytes: usize) -> Result<DevBuf, String> {
-        if self.held + bytes > self.budget {
-            self.release_idle_all();
-        }
-        if self.held + bytes > self.budget {
-            return Err(format!(
-                "K9 VRAM budget (tree store): need {:.2} GB more (held {:.2} GB, budget {:.2} GB)",
-                bytes as f64 / 1e9,
-                self.held as f64 / 1e9,
-                self.budget as f64 / 1e9
-            ));
-        }
-        let mut b = DevBuf::empty();
-        b.grow(bytes)?;
-        self.held += b.bytes;
-        self.tree_bytes += b.bytes;
-        note_peak(&S_HELD_PEAK, self.held);
+    /// Allocate a store buffer: [UPERF2-P] a chunk of the buddy (the layer
+    /// sizes recur across the trees of a pass — warm bytes, no cuMemAlloc
+    /// after the slabs exist). Counted in `tree_bytes`.
+    fn tree_alloc(&mut self, bytes: usize) -> Result<Chunk, String> {
+        let ta = Instant::now();
+        let c = self.alloc(bytes).map_err(|e| e.replace("K9 VRAM budget", "K9 VRAM budget (tree store)"))?;
+        self.tree_bytes += c.bytes;
         note_peak(&S_TREE_BYTES_PEAK, self.tree_bytes);
-        Ok(b)
+        add_us(&P_TB_ALLOC_US, ta.elapsed().as_secs_f64());
+        Ok(c)
     }
 
-    /// Free a store buffer (the caller has synchronized).
-    fn tree_free(&mut self, mut b: DevBuf) {
-        self.held -= b.bytes;
-        self.tree_bytes -= b.bytes;
-        b.free();
+    /// Free a store buffer (the caller has synchronized): back to the buddy.
+    fn tree_free(&mut self, c: Chunk) {
+        self.tree_bytes -= c.bytes;
+        self.free(c);
     }
 
     /// One tree step on the device: parents [0, n) from the children of a
@@ -2467,15 +3046,21 @@ impl K9 {
             }
         }
         need += 2 * (1usize << (depth - 1)) / KL * KBLK * 4 + 2 * (1usize << (depth - 2)) / KL * KBLK * 4;
-        if self.held + need > self.budget {
-            self.release_idle_all();
+        // [UPERF2-P] the free bytes of the buddy count (a released
+        // checkpoint of the previous pair, a dead state): the estimate is
+        // against used - free + need.
+        let free_now = self.mem.total - self.mem.live;
+        if self.used() + need.saturating_sub(free_now) > self.budget {
+            self.make_room(need.saturating_sub(free_now));
         }
-        if self.held + need > self.budget {
+        let free_now = self.mem.total - self.mem.live;
+        if self.used() + need.saturating_sub(free_now) > self.budget {
             if verbose() {
                 eprintln!(
-                    "[UPERF2-N] k9: tree build declined — VRAM budget (need {:.2} GB, held {:.2}, budget {:.2})",
+                    "[UPERF2-N] k9: tree build declined — VRAM budget (need {:.2} GB, used {:.2} (free in slabs {:.2}), budget {:.2})",
                     need as f64 / 1e9,
-                    self.held as f64 / 1e9,
+                    self.used() as f64 / 1e9,
+                    free_now as f64 / 1e9,
                     self.budget as f64 / 1e9
                 );
             }
@@ -2520,6 +3105,7 @@ impl K9 {
     fn tree_build_into(&mut self, kern: &KKern, leaves: &TreeLeaves, depth: usize, top_k: usize, keep: &dyn Fn(usize) -> bool, t: &mut DevTree) -> Result<(KTab, KTab), String> {
         let n = 1usize << depth;
         let mut pp = 0usize;
+        let tu = Instant::now();
         // The leaves go up.
         match leaves {
             TreeLeaves::Packed { p, q, n: np } => {
@@ -2547,6 +3133,7 @@ impl K9 {
             }
         }
         self.compute_after_copies()?;
+        add_us(&P_TB_UPLOAD_US, tu.elapsed().as_secs_f64());
         let mut p = K9Params::new(kern);
         p.prm = self.upload_prm(std::slice::from_ref(&Prm::new()))?;
         // Bottom-up: layers depth-1 .. top_k on the device; the source of
@@ -2575,11 +3162,13 @@ impl K9 {
         let mut tp = KTab::recycled(n_top);
         let mut tq = KTab::recycled(n_top);
         {
+            let td = Instant::now();
             let (bp, bq) = t.layers[top_k].as_ref().expect("top layer");
             let (pp_, qp_) = (bp.ptr, bq.ptr);
             let words = n_top / KL * KBLK;
             self.download_words(pp_, &mut tp.d[..words])?;
             self.download_words(qp_, &mut tq.d[..words])?;
+            add_us(&P_TB_DOWN_US, td.elapsed().as_secs_f64());
         }
         if !keep(top_k) {
             self.sync_all()?;
@@ -2611,7 +3200,7 @@ impl K9 {
     /// whole layer, 2^k elements — with the intermediate levels through the
     /// climb scratch (grown by the caller). Stream-ordered on the compute
     /// stream; nothing is synchronized here.
-    fn climb_layer(&mut self, tree: u64, k: usize, src_k: usize, dp: u64, dq: u64) -> Result<(), String> {
+    fn climb_layer(&mut self, tree: u64, k: usize, src_k: usize, dp: u64, dq: u64, scr: &[Chunk; 2]) -> Result<(), String> {
         // The K9P scalars are the tree's kernel constants recorded at build
         // time (the tree steps read no parameter vector; prm is a valid,
         // unread pointer).
@@ -2630,8 +3219,8 @@ impl K9 {
                 (dp, dq)
             } else {
                 let bytes = m / KL * KBLK * 4;
-                assert!(self.climb_scr[cur].bytes >= 2 * bytes, "K9 gpu: climb scratch");
-                let base = self.climb_scr[cur].ptr;
+                assert!(scr[cur].bytes >= 2 * bytes, "K9 gpu: climb scratch");
+                let base = scr[cur].ptr;
                 (base, base + bytes as u64)
             };
             self.dev_step(&p, src, op, oq, m)?;
@@ -2669,19 +3258,33 @@ impl K9 {
             (k + 1..=depth).find(|&kk| t.layers[kk].is_some() || (kk == depth && t.compact.is_some())).ok_or_else(|| "no resident layer below".to_string())?
         };
         let bytes = words * 4;
-        let scr = if src_k - k >= 2 { 2 * (1usize << (src_k - 1)) / KL * KBLK * 4 } else { 0 };
-        self.layer = None;
-        self.grow_dev(DevSel::LayP, bytes)?;
-        self.grow_dev(DevSel::LayQ, bytes)?;
-        if scr > 0 {
-            self.grow_dev(DevSel::ClimbScr(0), scr)?;
-            self.grow_dev(DevSel::ClimbScr(1), scr)?;
+        let scr_bytes = if src_k - k >= 2 { 2 * (1usize << (src_k - 1)) / KL * KBLK * 4 } else { 0 };
+        // [UPERF2-P] fresh chunks for the target + the scratch, freed after
+        // the download (the layer binding, if any, keeps its own chunks).
+        let mut tmp: Vec<Chunk> = Vec::new();
+        let r = (|| -> Result<(), String> {
+            let cp = self.alloc(bytes)?;
+            tmp.push(cp);
+            let cq = self.alloc(bytes)?;
+            tmp.push(cq);
+            let mut scr = [Chunk::NONE; 2];
+            if scr_bytes > 0 {
+                scr[0] = self.alloc(scr_bytes)?;
+                tmp.push(scr[0]);
+                scr[1] = self.alloc(scr_bytes)?;
+                tmp.push(scr[1]);
+            }
+            self.climb_layer(tree, k, src_k, cp.ptr, cq.ptr, &scr)?;
+            S_DEV_CLIMBS.fetch_add(1, Ordering::Relaxed);
+            self.download_words(cp.ptr, &mut tp.d[..words])?;
+            self.download_words(cq.ptr, &mut tq.d[..words])?;
+            Ok(())
+        })();
+        let _ = self.sync_all();
+        for c in tmp {
+            self.free(c);
         }
-        let (dp, dq) = (self.lay_p.ptr, self.lay_q.ptr);
-        self.climb_layer(tree, k, src_k, dp, dq)?;
-        S_DEV_CLIMBS.fetch_add(1, Ordering::Relaxed);
-        self.download_words(dp, &mut tp.d[..words])?;
-        self.download_words(dq, &mut tq.d[..words])?;
+        r?;
         Ok((tp, tq))
     }
 
@@ -2696,11 +3299,9 @@ impl K9 {
         // Any thread may release / drop (a FracTree drop): bind the context.
         let _ = self.dev.bind_to_thread();
         // A LayerRes pointing into it must not survive.
-        if let Some(l) = &self.layer {
-            if l.ids.iter().any(|(id, _)| matches!(id, LayerId::Device { tree: tt, k: kk } if *tt == tree && *kk == k)) {
-                let _ = self.sync_all();
-                self.layer = None;
-            }
+        let drop_binding = self.layer.as_ref().is_some_and(|l| l.ids.iter().any(|(id, _)| matches!(id, LayerId::Device { tree: tt, k: kk } if *tt == tree && *kk == k)));
+        if drop_binding {
+            self.release_layer_bufs();
         }
         let _ = self.sync_all();
         let t = self.trees.get_mut(&tree).unwrap();
@@ -2714,10 +3315,9 @@ impl K9 {
     fn tree_drop(&mut self, tree: u64) {
         let Some(mut t) = self.trees.remove(&tree) else { return };
         let _ = self.dev.bind_to_thread();
-        if let Some(l) = &self.layer {
-            if l.ids.iter().any(|(id, _)| matches!(id, LayerId::Device { tree: tt, .. } if *tt == tree)) {
-                self.layer = None;
-            }
+        let drop_binding = self.layer.as_ref().is_some_and(|l| l.ids.iter().any(|(id, _)| matches!(id, LayerId::Device { tree: tt, .. } if *tt == tree)));
+        if drop_binding {
+            self.release_layer_bufs();
         }
         let _ = self.sync_all();
         for l in t.layers.iter_mut() {
@@ -2731,4 +3331,280 @@ impl K9 {
             self.tree_free(m);
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-P] THE EQ B-PART ON THE DEVICE (the hook of kfield::EqTab::new).
+// eq over zeta[..j] (2^j entries) = lo[i mod 2^lb] x hi[i >> lb] with lo =
+// the eq table over zeta[..lb] and hi = the eq table over zeta[lb..] (both
+// tiny, built on the host by `kt_eq_table_par`, uploaded once), one product
+// kernel — the same canonical field product as the doubling's (a product of
+// the same factors; canonical representatives are unique), so the same bytes
+// as the host table. The table is a chunk of the buddy (ONE resident eq at
+// a time — the descent builds one per layer, the fused rounds 0/1 of that
+// layer bind it in place, `EqTab`'s drop frees it); the host image is never
+// downloaded — a CPU reader rebuilds it (`EqTab::host`).
+
+/// Build the eq b-part on the device: `Some(id)` = resident (bound by the
+/// fused rounds through the plan's `eq_tab`); `None` = declined (not live,
+/// knob off, budget) — the host build runs.
+pub fn k9_eq_build(kf: &KField, zeta: &[KElem]) -> Option<u64> {
+    if !live() || !eq_dev() {
+        return None;
+    }
+    let kern = kf.kern.as_ref()?;
+    let kk = k9s()?;
+    let mut k = kk.lock().unwrap();
+    let t0 = Instant::now();
+    match k.eq_build(kf, kern, zeta) {
+        Ok(Some(id)) => {
+            P_EQ_BUILDS.fetch_add(1, Ordering::Relaxed);
+            add_us(&P_EQ_BUILD_US, t0.elapsed().as_secs_f64());
+            if verbose() {
+                eprintln!("[UPERF2-P] k9 eq build: id {id} 2^{} entries in {:.2} ms", zeta.len(), t0.elapsed().as_secs_f64() * 1e3);
+            }
+            Some(id)
+        }
+        Ok(None) => None,
+        Err(e) => {
+            if !WARNED.swap(true, Ordering::Relaxed) {
+                eprintln!("[UPERF2-P] gpu k9 eq build failed ({e}); this and later K-field calls fall back to the CPU bodies");
+            }
+            k.release_all();
+            DISABLED.store(true, Ordering::Relaxed);
+            None
+        }
+    }
+}
+
+/// The eq table's handle is gone: its chunk goes back.
+pub fn k9_eq_drop(id: u64) {
+    let Some(kk) = k9s() else { return };
+    let mut k = kk.lock().unwrap();
+    if k.eq.as_ref().map(|e| e.id) == Some(id) {
+        let _ = k.dev.bind_to_thread();
+        k.release_eq();
+    }
+}
+
+impl K9 {
+    fn eq_build(&mut self, kf: &KField, kern: &KKern, zeta: &[KElem]) -> Result<Option<u64>, String> {
+        let j = zeta.len();
+        let n = 1usize << j;
+        // The split: lo gets the low half of the variables (>= 3 bits so
+        // that both halves are whole packed blocks).
+        let lb = (j / 2).max(3);
+        let hb = j - lb;
+        if hb < 3 {
+            return Ok(None);
+        }
+        self.dev.bind_to_thread().map_err(|e| format!("bind: {e}"))?;
+        // A resident eq (an earlier layer's) is superseded.
+        self.release_eq();
+        let bytes = n / KL * KBLK * 4;
+        let lo_words = (1usize << lb) / KL * KBLK;
+        let hi_words = (1usize << hb) / KL * KBLK;
+        // The table + the two halves (transient): declined on a shortfall
+        // (the host build runs) — never a device error.
+        let mut tmp: Vec<Chunk> = Vec::new();
+        let (ct, cl, ch) = match (|| -> Result<(Chunk, Chunk, Chunk), String> {
+            let ct = self.alloc(bytes)?;
+            tmp.push(ct);
+            let cl = self.alloc(lo_words * 4)?;
+            tmp.push(cl);
+            let ch = self.alloc(hi_words * 4)?;
+            tmp.push(ch);
+            Ok((ct, cl, ch))
+        })() {
+            Ok(v) => v,
+            Err(e) => {
+                for c in tmp {
+                    self.free(c);
+                }
+                if e.starts_with("K9 VRAM budget") {
+                    return Ok(None);
+                }
+                return Err(e);
+            }
+        };
+        // The halves on the host (canonical products), then up.
+        let lo = kf.kt_eq_table_par(&zeta[..lb]);
+        let hi = kf.kt_eq_table_par(&zeta[lb..]);
+        debug_assert_eq!(lo.d.len(), lo_words);
+        debug_assert_eq!(hi.d.len(), hi_words);
+        let mut pp = 0usize;
+        self.upload_words(cl.ptr, &lo.d[..lo_words], &mut pp)?;
+        self.upload_words(ch.ptr, &hi.d[..hi_words], &mut pp)?;
+        self.compute_after_copies()?;
+        let mut p = K9Params::new(kern);
+        p.prm = self.upload_prm(std::slice::from_ref(&Prm::new()))?;
+        let (lo_ptr, hi_ptr, out) = (cl.ptr, ch.ptr, ct.ptr);
+        let n_u = n as u32;
+        let lb_u = lb as u32;
+        let mut args: [*mut c_void; 6] = [
+            &p as *const _ as *mut _,
+            &lo_ptr as *const _ as *mut _,
+            &hi_ptr as *const _ as *mut _,
+            &out as *const _ as *mut _,
+            &n_u as *const _ as *mut _,
+            &lb_u as *const _ as *mut _,
+        ];
+        self.launch("k_eq_outer", grid_for(n, TEL), TEL, &mut args)?;
+        // The halves are consumed once the kernel is done (a sync; the
+        // build is once per layer).
+        unsafe { cu::stream::synchronize(self.sk.stream) }.map_err(|e| format!("sync sk: {e}"))?;
+        self.free(cl);
+        self.free(ch);
+        let id = self.next_eq;
+        self.next_eq += 1;
+        self.eq = Some(EqRes { id, n, ch: ct });
+        Ok(Some(id))
+    }
+}
+
+/// Harness accessor: the resident device eq table's words (a download), if
+/// `id` is the resident one. Not used by the prover (the host image is
+/// rebuilt, never downloaded).
+pub fn k9_eq_fetch(id: u64) -> Option<Vec<u32>> {
+    let kk = k9s()?;
+    let mut k = kk.lock().unwrap();
+    let (cur, n, ptr) = k.eq.as_ref().map(|e| (e.id, e.n, e.ch.ptr))?;
+    if cur != id {
+        return None;
+    }
+    let words = n / KL * KBLK;
+    let mut out = vec![0u32; words];
+    let _ = k.dev.bind_to_thread();
+    k.download_words(ptr, &mut out).ok()?;
+    Some(out)
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-P] THE K-MULT PROBE (analysis only, `uperf-p kprobe`): a separate
+// tiny module (its own NVRTC compile — seconds, not the K9 module's minutes)
+// measuring the register-only throughput of the K-field product as the
+// round kernels compute it (the same kmac/kred chain, copied), at a chosen
+// number of independent chains per thread (ILP) and blocks per SM
+// (occupancy). It tells whether the round kernels sit at the arithmetic's
+// own ceiling on this part or below it (memory / structure).
+const KPROBE_SRC: &str = r#"
+typedef unsigned long long u64;
+typedef unsigned int u32;
+#define KDEG 16
+#define M32 0xFFFFFFFFULL
+#define M31 0x7FFFFFFFULL
+__device__ __forceinline__ u64 madw(u32 a, u32 b, u64 c) { u64 r; asm("mad.wide.u32 %0, %1, %2, %3;" : "=l"(r) : "r"(a), "r"(b), "l"(c)); return r; }
+__device__ __forceinline__ u64 fold31(u64 v, u32 c31) { return madw(c31, (u32)(v >> 31), v & M31); }
+__device__ __forceinline__ u32 canon1(u64 v, u32 q) { u32 r = (u32)v; u32 r2 = r - q; return (r < q) ? r : r2; }
+__device__ __forceinline__ void kmac(const u32* a, const u32* b, u64* acc, u32 c32) {
+#pragma unroll
+    for (int t = 0; t < 31; t++) {
+        const int i0 = (t < 15) ? 0 : (t - 15);
+        const int i1 = (t < 15) ? t : 15;
+        u64 s = 0; int cnt = 0;
+#pragma unroll
+        for (int i = i0; i <= i1; i++) {
+            s = madw(a[i], b[t - i], s); cnt++;
+            if (cnt == 4) { acc[t] += madw(c32, (u32)(s >> 32), s & M32); s = 0; cnt = 0; }
+        }
+        if (cnt) acc[t] += madw(c32, (u32)(s >> 32), s & M32);
+    }
+}
+__device__ __forceinline__ void kred(const u64* acc, u32* out, u32 q, u32 s, u32 c31) {
+    u32 h[15];
+#pragma unroll
+    for (int t = 0; t < 15; t++) h[t] = canon1(fold31(acc[t + 16], c31), q);
+#pragma unroll
+    for (int t = 0; t < 16; t++) { u64 v = (t < 15) ? madw(s, h[t], acc[t]) : acc[t]; v = fold31(v, c31); v = fold31(v, c31); out[t] = canon1(v, q); }
+}
+__device__ __forceinline__ void kmul(const u32* a, const u32* b, u32* out, u32 q, u32 s, u32 c31, u32 c32) {
+    u64 acc[31];
+#pragma unroll
+    for (int t = 0; t < 31; t++) acc[t] = 0;
+    kmac(a, b, acc, c32);
+    kred(acc, out, q, s, c31);
+}
+// mode 0: one dependent chain per thread (a = a * b); mode 1: two chains;
+// mode 2: four chains. `iters` products per chain. The result is folded into
+// out[thread] so nothing is dead.
+template <int CH>
+__device__ __forceinline__ void probe_body(u32 q, u32 s, u32 c31, u32 c32, u32 iters, u32* out) {
+    const u32 tid = blockIdx.x * blockDim.x + threadIdx.x;
+    u32 a[CH][KDEG], b[KDEG];
+#pragma unroll
+    for (int j = 0; j < KDEG; j++) { b[j] = (tid * 2654435761u + j * 40503u) % q; }
+#pragma unroll
+    for (int c = 0; c < CH; c++)
+#pragma unroll
+        for (int j = 0; j < KDEG; j++) a[c][j] = (tid * 97u + c * 131u + j * 7u + 1u) % q;
+    for (u32 it = 0; it < iters; it++) {
+#pragma unroll
+        for (int c = 0; c < CH; c++) {
+            u32 o[KDEG];
+            kmul(a[c], b, o, q, s, c31, c32);
+#pragma unroll
+            for (int j = 0; j < KDEG; j++) a[c][j] = o[j];
+        }
+    }
+    u32 acc = 0;
+#pragma unroll
+    for (int c = 0; c < CH; c++)
+#pragma unroll
+        for (int j = 0; j < KDEG; j++) acc ^= a[c][j];
+    out[tid] = acc;
+}
+extern "C" __global__ void k_probe1(u32 q, u32 s, u32 c31, u32 c32, u32 iters, u32* out) { probe_body<1>(q, s, c31, c32, iters, out); }
+extern "C" __global__ void k_probe2(u32 q, u32 s, u32 c31, u32 c32, u32 iters, u32* out) { probe_body<2>(q, s, c31, c32, iters, out); }
+extern "C" __global__ void k_probe4(u32 q, u32 s, u32 c31, u32 c32, u32 iters, u32* out) { probe_body<4>(q, s, c31, c32, iters, out); }
+"#;
+
+/// Run the probe: (chains, blocks_per_sm, threads_per_block, iters) ->
+/// (kernel seconds, K-mults per second, occupancy blocks/SM the driver
+/// reports for that block size).
+pub fn k9_kprobe(kern: &KKern, chains: u32, blocks_per_sm: u32, tpb: u32, iters: u32) -> Result<(f64, f64, u32), String> {
+    let dev = device_handle().ok_or_else(|| "no device".to_string())?;
+    dev.bind_to_thread().map_err(|e| format!("bind: {e}"))?;
+    static LOADED: OnceLock<Result<(), String>> = OnceLock::new();
+    let r = LOADED.get_or_init(|| {
+        let major = dev.attribute(sys::CUdevice_attribute::CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR).map_err(|e| e.to_string())?;
+        let minor = dev.attribute(sys::CUdevice_attribute::CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR).map_err(|e| e.to_string())?;
+        let opts = CompileOptions { arch: arch_str((major, minor)), ..Default::default() };
+        let ptx = compile_ptx_with_opts(KPROBE_SRC, opts).map_err(|e| format!("NVRTC (probe): {e}"))?;
+        dev.load_ptx(ptx, "zkgpu_k9probe", &["k_probe1", "k_probe2", "k_probe4"]).map_err(|e| format!("load (probe): {e}"))
+    });
+    r.clone()?;
+    let name = match chains {
+        1 => "k_probe1",
+        2 => "k_probe2",
+        _ => "k_probe4",
+    };
+    let f = dev.get_func("zkgpu_k9probe", name).ok_or_else(|| "probe fn".to_string())?;
+    let sms = dev.attribute(sys::CUdevice_attribute::CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT).map_err(|e| e.to_string())? as u32;
+    let occ = f.occupancy_max_active_blocks_per_multiprocessor(tpb, 0, None).unwrap_or(0);
+    let grid = sms * blocks_per_sm;
+    let mut out = DevBuf::empty();
+    out.grow((grid * tpb) as usize * 4)?;
+    let (q, s, c31, c32) = (kern.q as u32, kern.s as u32, kern.c31 as u32, kern.c32 as u32);
+    let stream = dev.fork_default_stream().map_err(|e| e.to_string())?;
+    let launch = |iters: u32| -> Result<f64, String> {
+        let cfg = LaunchConfig { grid_dim: (grid, 1, 1), block_dim: (tpb, 1, 1), shared_mem_bytes: 0 };
+        let optr = out.ptr;
+        let mut args: [*mut c_void; 6] = [
+            &q as *const _ as *mut _,
+            &s as *const _ as *mut _,
+            &c31 as *const _ as *mut _,
+            &c32 as *const _ as *mut _,
+            &iters as *const _ as *mut _,
+            &optr as *const _ as *mut _,
+        ];
+        unsafe { cu::stream::synchronize(stream.stream) }.map_err(|e| e.to_string())?;
+        let t0 = Instant::now();
+        unsafe { f.clone().launch_on_stream(&stream, cfg, &mut args[..]) }.map_err(|e| format!("launch probe: {e}"))?;
+        unsafe { cu::stream::synchronize(stream.stream) }.map_err(|e| e.to_string())?;
+        Ok(t0.elapsed().as_secs_f64())
+    };
+    let _ = launch(1)?; // warm (JIT)
+    let secs = launch(iters)?;
+    let kmuls = (grid * tpb) as f64 * iters as f64 * chains as f64;
+    Ok((secs, kmuls / secs, occ))
 }
