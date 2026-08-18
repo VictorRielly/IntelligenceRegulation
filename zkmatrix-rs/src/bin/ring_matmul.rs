@@ -39316,7 +39316,8 @@ fn uperf_m_main(args: &[String]) {
             let rows: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(1024);
             let cols: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(2048);
             let r: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(16);
-            uperf_m_bench(rows, cols, r);
+            let n_t: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(1);
+            uperf_m_bench(rows, cols, r, n_t);
         }
         Some("sha-bench") => {
             let n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(1 << 20);
@@ -39367,10 +39368,18 @@ fn uperf_m_psi_group(
             g.add_tensor("B-act", 4, 128, 2, 5);
         }
         3 => {
-            // Beyond the radix cap (e0 2, l0 21 -> 40 bits): today's body
-            // for that tensor, the NTT for the other — the mixed case.
+            // 40 radix bits (e0 2, l0 21): the PHI-side split (S = 15) at
+            // q31, today's body at q46 (its cap is 2^10) — the mixed case.
             g.add_tensor("A-e2l21", 2, 128, 2, 21);
             g.add_tensor("B-act", 4, 128, 2, 5);
+        }
+        5 => {
+            // The 125M accumulator class (e0 2, l0 16: R up to 2^30 > the
+            // q31 cap 2^25 -> the PHI-side split S = 5 for limbs 13..15)
+            // next to the act class.
+            g.add_tensor("A-e2l16", 3, 256, 2, 16);
+            g.add_tensor("B-act", 4, 128, 2, 5);
+            g.add_tensor("C-w-e1l8", 4, 128, 1, 8);
         }
         _ => {
             // q46-oriented: e0 3, l0 4 (R_max 2^9 -> window 64/... at q46 =
@@ -39473,7 +39482,7 @@ fn uperf_m_battery() {
     for (qn, ctx) in [("q31", ring_ctx_q8()), ("q46", ring::ring_ctx(ring::Q8_46, ring::ETA8_46, 8))] {
         let kf = KField::new(&ctx);
         let q = ctx.zq.q;
-        for shape in 0..5usize {
+        for shape in 0..6usize {
             let mut rd = XofReader::new("uperf-m-psi", &[qn.as_bytes(), &(shape as u64).to_le_bytes()]);
             let (g, claims, alphas) = uperf_m_psi_group(&kf, q, &mut rd, shape);
             let kernels = bg_multi_kernels(&claims);
@@ -39501,7 +39510,7 @@ fn uperf_m_battery() {
             }
         }
     }
-    println!("[UPERF2-M] (B) psi0-factored-multi NTT == today == compute_psi(reference): {n_b} legs (5 shapes x 5 splits x q31/q46 x simd on/off)");
+    println!("[UPERF2-M] (B) psi0-factored-multi NTT == today == compute_psi(reference): {n_b} legs (6 shapes x 5 splits x q31/q46 x simd on/off)");
     // (C) the pool combine (G blocks): ntt_combine_pool == the Karatsuba
     // reference on the materialized table; g_block_pool == g_block_ref.
     let mut n_c = 0usize;
@@ -39644,7 +39653,7 @@ fn uperf_m_battery() {
 /// rows x cols (e0 2, l0 5, 3 contributions) with r chunk slices — the
 /// NTT accumulation vs today's body, each with the AVX2 MAC on and off;
 /// plus the raw value_ring MAC rate. Byte equality asserted.
-fn uperf_m_bench(rows: usize, cols: usize, r: usize) {
+fn uperf_m_bench(rows: usize, cols: usize, r: usize, n_t: usize) {
     use ring::eval_proof::{psi_level0_factored_multi, set_psi0_ntt, set_psi_simd, AggGroup};
     use ring::kfield::{KElem, KField, K_DEG};
     use ring::pass_agg::{ClaimContrib, GroupClaims};
@@ -39654,21 +39663,26 @@ fn uperf_m_bench(rows: usize, cols: usize, r: usize) {
     let q = ctx.zq.q;
     let mut rd = XofReader::new("uperf-m-bench", &[&(rows as u64).to_le_bytes(), &(cols as u64).to_le_bytes()]);
     let mut g = AggGroup::new("m-bench");
-    g.add_tensor("T", rows, cols, 2, 5);
+    for _ in 0..n_t.max(1) {
+        g.add_tensor("T", rows, cols, 2, 5);
+    }
     let n0 = g.n_digit_rings;
     let chunk = n0.div_ceil(r);
-    let n_vr = g.tensors[0].n_value_rings();
+    let n_vr: usize = g.tensors.iter().map(|t| t.n_value_rings()).sum();
     println!(
-        "[UPERF2-M] bench: tensor {rows}x{cols} (e0 2, l0 5: {n_vr} value rings, {n0} digit rings), 3 contributions, r {r} chunk {chunk}, ZK_THREADS {}, avx2 {}",
+        "[UPERF2-M] bench: {} tensor(s) {rows}x{cols} (e0 2, l0 5: {n_vr} value rings, {n0} digit rings), 3 contributions each (2 sharing a col kernel across the tensors), r {r} chunk {chunk}, ZK_THREADS {}, avx2 {}",
+        n_t.max(1),
         ring::eval_proof::threads(),
         ring::eval_proof::psi_simd_available()
     );
     let rand_kvec = |rd: &mut XofReader, n: usize| -> Rc<Vec<KElem>> { Rc::new((0..n).map(|_| kf.uniform(rd)).collect()) };
     let col_shared = rand_kvec(&mut rd, cols);
-    let mut claims = GroupClaims::new(1);
-    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: col_shared.clone() });
-    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: col_shared.clone() });
-    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: rand_kvec(&mut rd, cols) });
+    let mut claims = GroupClaims::new(n_t.max(1));
+    for ti in 0..n_t.max(1) {
+        claims.push(ClaimContrib { tensor_idx: ti, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: col_shared.clone() });
+        claims.push(ClaimContrib { tensor_idx: ti, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: col_shared.clone() });
+        claims.push(ClaimContrib { tensor_idx: ti, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: rand_kvec(&mut rd, cols) });
+    }
     let alphas: Vec<Poly> = (0..K_DEG).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
     let cs: Vec<Vec<i64>> = (0..r).map(|_| (0..D).map(|_| rd.next_field(5) as i64 - 2).collect()).collect();
     let mk = bg_multi_kernels(&claims);

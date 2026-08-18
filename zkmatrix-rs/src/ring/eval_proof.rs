@@ -2276,6 +2276,7 @@ fn psi_level0_multi_impl(
     let mut psi = vec![poly_zero(); chunk];
     let mut cache = ColBlockCache::new(); // [UPERF-PC O5] per-(col kernel, cb) G blocks
     let mut ntt_tensors: Vec<PsiAlignedTensor> = Vec::new(); // [UPERF2-M]
+    let cmax: u128 = c.iter().flat_map(|ck| ck.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0);
     for (ti, t) in group.tensors.iter().enumerate() {
         let kers: Vec<&MultiClaimKernel> =
             kernels.iter().filter(|k| k.tensor_idx == ti).collect();
@@ -2386,7 +2387,7 @@ fn psi_level0_multi_impl(
         // [UPERF2-M] the u-major NTT-domain accumulation takes every
         // aligned tensor whose integer radix fits the capacity analysis;
         // the rest (and `ZK_PSI0NTT=0`) ride today's body below.
-        if psi0_ntt_enabled() && psi_ntt_tensor_fits(t) {
+        if psi0_ntt_enabled() && psi_ntt_tensor_fits(t, zq, cmax) {
             ntt_tensors.push(PsiAlignedTensor { t: t.clone(), pf });
             continue;
         }
@@ -2398,11 +2399,16 @@ fn psi_level0_multi_impl(
             let n_vr: usize = ntt_tensors.iter().map(|a| a.t.n_value_rings()).sum();
             let n_dr: usize = ntt_tensors.iter().map(|a| a.t.n_digit_rings()).sum();
             let n_terms: usize = ntt_tensors.iter().map(|a| a.pf.srs.len() * K_DEG * a.t.n_value_rings()).sum();
+            let mut classes: Vec<(u32, usize)> = ntt_tensors.iter().map(|a| (a.t.e0, a.t.l0)).collect();
+            classes.sort();
+            classes.dedup();
+            let n_today = group.tensors.iter().filter(|t| t.cols % D == 0 && !psi_ntt_tensor_fits(t, zq, cmax) && kernels.iter().any(|k| k.tensor_idx == group.tensors.iter().position(|x| std::ptr::eq(x, *t)).unwrap())).count();
             eprintln!(
-                "[UPERF2-M debug] psi0 NTT: {} aligned tensors, {n_vr} value rings, {n_dr} digit rings, r {r}, chunk {chunk}, avg kernels/tensor {:.1}, avg MAC terms/value ring {:.1}",
+                "[UPERF2-M debug] psi0 NTT: {} aligned tensors, {n_vr} value rings, {n_dr} digit rings, r {r}, chunk {chunk}, avg kernels/tensor {:.1}, avg MAC terms/value ring {:.1}; (e0, l0) classes {:?}; aligned tensors on today's body {n_today}",
                 ntt_tensors.len(),
                 ntt_tensors.iter().map(|a| a.pf.srs.len()).sum::<usize>() as f64 / ntt_tensors.len() as f64,
-                n_terms as f64 / n_vr.max(1) as f64
+                n_terms as f64 / n_vr.max(1) as f64,
+                classes
             );
         }
         if !psi_level0_aligned_ntt(ctx, &ntt_tensors, c, chunk, &mut psi) {
@@ -2482,18 +2488,71 @@ struct PsiAlignedTensor {
     pf: PhiFactored,
 }
 
-/// The integer radix cap of the NTT accumulation: 2^(e0*(l0-1)) < 2^40
-/// keeps (R c) an i64 small ring and the capacity product in u128 range.
-const PSI_NTT_RADIX_BITS_MAX: usize = 40;
 
 /// Positions per u-block of the NTT accumulation (one `NttAcc` per u: 1 KiB
 /// canonical on x86_64 / 4 KiB split-halves elsewhere; the block's planes
 /// stay L2-resident next to the c-hat table; the value ring straddling a
 /// block edge is recomputed once per (k, block) — l0/block of the work).
-pub const PSI_NTT_UBLOCK: usize = 256;
+pub const PSI_NTT_UBLOCK: usize = 2048;
 
-fn psi_ntt_tensor_fits(t: &AggTensor) -> bool {
-    t.cols % D == 0 && t.l0 >= 1 && (t.e0 as usize) * (t.l0 - 1) < PSI_NTT_RADIX_BITS_MAX
+/// `ZK_PSI0BLOCK=<n>` overrides the u-block (any value gives the same
+/// psi; the knob is for the locality A/B — the G rings of the (k, block)
+/// segment's tensor are reloaded per segment, the block's accumulators
+/// stay cache-resident). Read once.
+static PSI0_BLOCK: LazyLock<usize> = LazyLock::new(|| {
+    std::env::var("ZK_PSI0BLOCK").ok().and_then(|v| v.parse::<usize>().ok()).filter(|&n| n >= 1).unwrap_or(PSI_NTT_UBLOCK)
+});
+
+/// The radix split of one tensor for the NTT accumulation: a limb with
+/// integer radix R = 2^(e0 limb) <= cap (cap = the exact window in R = 1
+/// units, `ntt_window_terms(q, cmax)`) charges R on the c side; a limb
+/// with R > cap is split R = 2^S * R_lo with the FIXED per-tensor shift S =
+/// e0 (l0-1) - floor(log2 cap): the 2^S goes to the PHI side as PHI' =
+/// 2^S PHI mod q (balanced like PHI, one more transform per value ring)
+/// and R_lo = 2^(e0 limb - S) <= cap stays on the c side — every term is
+/// (R_lo c_k) (x) PHI' with |PHI'| <= (q-1)/2, == R c_k PHI (mod q).
+/// Eligible iff aligned and every hi limb has e0 limb >= S, i.e. e0 (l0-1)
+/// <= 2 floor(log2 cap) + 1 (q31, cap 2^25: up to 51 radix bits — every
+/// 125M class; q46, cap 2^10: up to 21 bits — the (2, 16) class rides
+/// today's body there).
+struct PsiRadixSplit {
+    /// per limb: (R_lo as the integer on the c side, uses the 2^S PHI side)
+    limbs: Vec<(u128, bool)>,
+    /// 2^S mod q (S > 0 iff any limb uses the PHI side)
+    hi_modq: u64,
+    any_hi: bool,
+}
+
+fn psi_ntt_radix_split(t: &AggTensor, zq: &Zq, cap: u128) -> Option<PsiRadixSplit> {
+    if t.cols % D != 0 || t.l0 < 1 || cap == 0 {
+        return None;
+    }
+    let log2cap = 127 - cap.leading_zeros() as usize; // floor(log2 cap)
+    let maxbits = (t.e0 as usize) * (t.l0 - 1);
+    if maxbits > 2 * log2cap + 1 || maxbits >= 62 {
+        return None;
+    }
+    let s = maxbits.saturating_sub(log2cap);
+    let mut limbs = Vec::with_capacity(t.l0);
+    let mut any_hi = false;
+    for limb in 0..t.l0 {
+        let bits = (t.e0 as usize) * limb;
+        if bits <= log2cap {
+            limbs.push((1u128 << bits, false));
+        } else {
+            debug_assert!(bits >= s && bits - s <= log2cap);
+            limbs.push((1u128 << (bits - s), true));
+            any_hi = true;
+        }
+    }
+    let hi_modq = if any_hi { zq.to_mod(1i64 << s) } else { 1 };
+    Some(PsiRadixSplit { limbs, hi_modq, any_hi })
+}
+
+/// A tensor rides the NTT accumulation iff `psi_ntt_radix_split` exists.
+fn psi_ntt_tensor_fits(t: &AggTensor, zq: &Zq, cmax: u128) -> bool {
+    let cap = ntt_window_terms(zq.q, cmax.max(1)) as u128;
+    psi_ntt_radix_split(t, zq, cap).is_some()
 }
 
 /// [UPERF2-M] The u-major NTT-domain accumulation of the aligned tensors'
@@ -2517,15 +2576,27 @@ fn psi_level0_aligned_ntt(
         return true;
     }
     assert!(psi.len() >= chunk);
-    // The integer radixes: per tensor per limb -> an index into the
+    let cmax: u128 = c.iter().flat_map(|ck| ck.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0);
+    // The exact window in units of an R = 1 term: a term of c-side radix
+    // R_lo charges R_lo units; a u is flushed BEFORE a term that would push
+    // its load past `cap` (every queued tensor's R_lo <= cap by the radix
+    // split, so a term always fits after a flush).
+    let cap: u128 = ntt_window_terms(q, cmax.max(1)) as u128;
+    if cap == 0 {
+        return false;
+    }
+    // The radix split per tensor; the c-side radixes -> an index into the
     // distinct-radix table.
     let mut radix_vals: Vec<u128> = Vec::new();
-    let mut radix_idx: Vec<Vec<usize>> = Vec::with_capacity(tensors.len());
+    let mut radix_idx: Vec<Vec<(usize, bool)>> = Vec::with_capacity(tensors.len());
+    let mut splits: Vec<PsiRadixSplit> = Vec::with_capacity(tensors.len());
     for at in tensors {
-        let t = &at.t;
-        let mut idx = Vec::with_capacity(t.l0);
-        for limb in 0..t.l0 {
-            let rv = 1u128 << (t.e0 as usize * limb);
+        let Some(sp) = psi_ntt_radix_split(&at.t, zq, cap) else {
+            return false;
+        };
+        let mut idx = Vec::with_capacity(at.t.l0);
+        for &(rv, hi) in &sp.limbs {
+            debug_assert!(rv <= cap);
             let i = match radix_vals.iter().position(|&x| x == rv) {
                 Some(i) => i,
                 None => {
@@ -2533,35 +2604,33 @@ fn psi_level0_aligned_ntt(
                     radix_vals.len() - 1
                 }
             };
-            idx.push(i);
+            idx.push((i, hi));
         }
         radix_idx.push(idx);
+        splits.push(sp);
     }
-    let radix_max = radix_vals.iter().copied().max().unwrap_or(1);
-    let cmax: u128 = c.iter().flat_map(|ck| ck.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0);
-    let window = ntt_window_terms(q, cmax * radix_max);
-    if window == 0 {
-        return false;
-    }
+    let qf = QFold::new(q);
     let t = &*NTT;
     // (R c_k)-hat for every (radix, k).
     let n_rad = radix_vals.len();
     let c_hat: Vec<[u64; D]> = (0..n_rad * r)
         .map(|i| {
             let (ri, k) = (i / r, i % r);
-            let rv = radix_vals[ri] as i64; // < 2^40
+            let rv = radix_vals[ri] as i64; // <= cap < 2^32
             let ck: Vec<i64> = c[k].iter().map(|&x| x * rv).collect();
             fwd_small(&ck, t)
         })
         .collect();
-    let block = PSI_NTT_UBLOCK;
+    let block = *PSI0_BLOCK;
     let one_block = |bi: usize, psi_blk: &mut [Poly]| {
         let u0 = bi * block;
         let n = psi_blk.len();
         let mut acc: Vec<NttAcc> = vec![NttAcc::new(); n];
-        let mut cnt = vec![0usize; n];
+        let mut load = vec![0u128; n];
+        let mut phi_can = [0u64; D];
         let mut phi_hat = [0u64; D];
-        let flush = |i: usize, acc: &mut [NttAcc], cnt: &mut [usize], psi_blk: &mut [Poly]| {
+        let mut phi_hi_hat = [0u64; D];
+        let flush = |i: usize, acc: &mut [NttAcc], load: &mut [u128], psi_blk: &mut [Poly]| {
             let v = acc[i].flush(t);
             let o = &mut psi_blk[i];
             for tt in 0..D {
@@ -2569,7 +2638,7 @@ fn psi_level0_aligned_ntt(
                 o[tt] = zq.add(o[tt], cq);
             }
             acc[i].reset();
-            cnt[i] = 0;
+            load[i] = 0;
         };
         for k in 0..r {
             let v_lo = k * chunk + u0;
@@ -2584,36 +2653,47 @@ fn psi_level0_aligned_ntt(
                 let l0 = tt.l0;
                 let (rel_lo, rel_hi) = (lo - base, hi - base);
                 let ridx = &radix_idx[ti];
+                let sp = &splits[ti];
                 let mut vr = rel_lo / l0;
                 while vr * l0 < rel_hi {
-                    at.pf.value_ring_into(vr, &mut phi_hat);
-                    let zero = phi_hat.iter().all(|&x| x == 0);
+                    at.pf.value_ring_into(vr, &mut phi_can);
+                    let zero = phi_can.iter().all(|&x| x == 0);
                     if !zero {
                         for j in 0..D {
-                            phi_hat[j] = lift_to_p(balanced_mod_q(phi_hat[j], q));
+                            phi_hat[j] = lift_to_p(balanced_mod_q(phi_can[j], q));
                         }
                         ntt_fwd_best(&mut phi_hat, t);
+                        if sp.any_hi {
+                            // PHI' = 2^S PHI mod q (canonical, then balanced).
+                            for j in 0..D {
+                                phi_hi_hat[j] = lift_to_p(balanced_mod_q(qf.mulmod(sp.hi_modq, phi_can[j]), q));
+                            }
+                            ntt_fwd_best(&mut phi_hi_hat, t);
+                        }
                     }
                     let a = rel_lo.max(vr * l0);
                     let b = rel_hi.min((vr + 1) * l0);
                     for rel in a..b {
                         let limb = rel - vr * l0;
                         let i = base + rel - v_lo;
+                        let (ri, hi_side) = ridx[limb];
+                        let rv = radix_vals[ri];
+                        if load[i] + rv > cap {
+                            flush(i, &mut acc, &mut load, psi_blk);
+                        }
                         if !zero {
-                            acc[i].mac(&phi_hat, &c_hat[ridx[limb] * r + k]);
+                            let ph = if hi_side { &phi_hi_hat } else { &phi_hat };
+                            acc[i].mac(ph, &c_hat[ri * r + k]);
                         }
-                        cnt[i] += 1;
-                        if cnt[i] == window {
-                            flush(i, &mut acc, &mut cnt, psi_blk);
-                        }
+                        load[i] += rv;
                     }
                     vr += 1;
                 }
             }
         }
         for i in 0..n {
-            if cnt[i] > 0 {
-                flush(i, &mut acc, &mut cnt, psi_blk);
+            if load[i] > 0 {
+                flush(i, &mut acc, &mut load, psi_blk);
             }
         }
     };
@@ -3875,7 +3955,7 @@ pub fn kernel_pass_factored_gen<B: SmallRings + ?Sized>(
             // the V ring reduced by the fold (`QFold`) — the same canonical
             // T rings as the u128 body (`rows_t_rings_u128`, the pre-change
             // path, verbatim). Both return the reduced T rings [ki][d1][cb].
-            let simd_p = if psi_simd_enabled() { psi_mac_simd_params(q) } else { None };
+            let simd_p = if psi_simd_enabled() && t.rows < (1usize << 20) { psi_mac_simd_params(q) } else { None };
             let t_rings: Vec<Poly> = match simd_p {
                 Some(p) => rows_t_rings_avx2(w0, t, &radixes, &srs, nb, n_vr, &p),
                 None => {
@@ -3975,7 +4055,8 @@ fn rows_t_rings_avx2<B: SmallRings + ?Sized>(
     let q = p.q;
     let qf = QFold::new(q);
     let tidx = |ki: usize, d1: usize, cb: usize| ((ki * K_DEG + d1) * nb + cb) * D;
-    let rows_ok = t.rows < (1usize << 20);
+    // (the caller guarantees t.rows < 2^20: the plane bound rows * 2^32 (1 + c32) < 2^63)
+    assert!(t.rows < (1usize << 20), "rows_t_rings_avx2: rows bound");
     let range_work = |lo: usize, hi: usize| -> Vec<u64> {
         let mut tacc = vec![0u64; flat];
         let mut v_ring = [0i128; D];
@@ -4026,7 +4107,7 @@ fn rows_t_rings_avx2<B: SmallRings + ?Sized>(
         }
         tacc
     };
-    let tacc: Vec<u64> = if threads() > 1 && n_vr >= 2 * threads() && rows_ok {
+    let tacc: Vec<u64> = if threads() > 1 && n_vr >= 2 * threads() {
         let nt = threads();
         let per = n_vr.div_ceil(nt);
         let partials: Vec<Vec<u64>> = pooled(|| {
