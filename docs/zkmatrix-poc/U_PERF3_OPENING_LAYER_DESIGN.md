@@ -387,7 +387,91 @@ into the ACT b_rows exactly as the descent pins do today
   descent — a re-derivation on built masked-sumcheck machinery, not a new
   primitive.
 
-## 3. Counts after, side by side (pending)
+## 3. The counts AFTER, side by side with 1
+
+### 3.1 Structural counts
+
+| quantity | built (Section 1) | after (design) | note |
+|---|---:|---:|---|
+| descent pairs / masked descents | 10 / 20 | 0 | replaced |
+| real witness trees built | 45 | 0 | no tree phase |
+| round-polynomials (descents) | 2,367 | 0 | |
+| aggregate sumcheck rounds | (in 8 ixf) | ~50 | ~23 act + ~22 weight + tails + SiLU table side |
+| K-mults (range facts) | ~4.5e9 (GF(q^16)) | ~0 | -> base-field booleanity |
+| K-mults (SiLU lookup) | ~1.0e9 (tree) | ~1.0e9 (sumcheck) | same total, ~log N round-polys |
+| base-field MACs (aggregate) | (claim layer) | ~O(n_0 x deg) ~ few e9 | one wide pass, q31 |
+| committed aux (act) | 40 tensors (masks/trees) | 12 h + 12 m-cols | fewer |
+| eval proofs (openings) | 2 (one/group) | 2 | E-O2-BB preserved |
+| level-0 h-garbage | Theta(n_0 x 64) | Theta(n_0 x 32) [T11 b] | one-point batching lets r drop |
+| level-0 verifier | O(n_value_rings) | O(log n_0) [Stage B] | supplied-Psi_0 |
+| transcript bytes | 1,509,911 | **~500,000** [MODEL] | descents 1.08 MB -> ~tens of KB |
+
+Transcript-after composition [MODEL]: statement + 8 instances + public
+claims 63,367; aggregate sumcheck round polys ~50 x (deg+1) x 64 B ~
+16 KB; SiLU LogUp (h/m claims + table sumcheck) ~30-60 KB; range
+booleanity folds into the instance kel (~few KB); weight + act groups
+~180 KB each (unchanged, or smaller with r=32). Total ~**0.5 MB**, from
+1.51 MB — a 3x artifact shrink that also relieves the P2 Tier-Z pressure
+(the descents were ~1.08 MB of the ~2.0 MB P2 pass, over the 2 MiB band
+edge; UAGB1_TABLE_DESCENT_REPORT.md Section 3.2).
+
+### 3.2 Prover cost model, 12x512 [MODEL, from the measured per-phase shares]
+
+| phase | built [MEASURED] | Stage A [MODEL] | Stage B [MODEL] |
+|---|---:|---:|---:|
+| descents | 6.5 | ~1.2 | ~1.2 |
+| — range facts | ~5.2 (K-field) | ~0.4 (base-field booleanity, in aggregate) | ~0.4 |
+| — SiLU lookup | ~1.3 (tree) | ~0.6 (LogUp-sumcheck) + h commit | ~0.6 |
+| — trees | 1.6 | 0 (no trees) | 0 |
+| claim layer + aggregate | 1.75 | ~2.0 (one wide pass/group) | ~2.0 |
+| eval proof (prove-group) | 7.1 | 7.1 (unchanged) | ~4.0 (r=32 + one-point) |
+| commit | 2.5 | 2.5 | 2.5 |
+| CRS | 1.3 | 1.3 | 1.3 |
+| transport | 1.4 | 1.4 | ~1.0 |
+| **prove wall** | **15.5** | **~10.5 (1.5x)** | **~7.5-8 (2.0x)** |
+| **pass wall** | **21.0** | **~15.5** | **~11-12** |
+
+Stage A is dominated by the unchanged eval proof (7.1 s prove-group +
+2.5 commit + 1.3 CRS + 1.4 transport = ~12.3 s floor); the descents'
+~5 s is the whole realistic Stage-A saving, hence ~1.5x. Stage B's
+further factor is entirely the eval-proof level-0 term dropping under the
+R-row + one-point batching + rank-structured `Phi_0` — the biggest
+[ASSUMED] (Section 5), because that term is device-bound today
+(bg.level-h is ~10 ms/stage in the GEMM, U_PERF2_EVALPROOF3_REPORT.md
+Section 5) and may not move with `r`.
+
+### 3.3 Prover cost model, 8B x 512 on a desktop board [MODEL]
+
+Chain the ratios: 12x512 built = 21.0 s -> 8B FFN ~100x MACs but the
+eval-proof/commit scale ~20-64x and descents ~19x; the decision memo's
+built projection is **2-8 min** on a <= 450 W desktop board (4-6x this
+laptop part). Applying Stage A (~1.5x) -> **~1.3-5 min**; Stage B
+(~2.0x) -> **~1-4 min**; with the full-transformer attention multiplier
+(~3.5x/layer) these grow but the descents' share shrinks (attention adds
+more matmul/zero-check than lookup). This lands in the **~15-160 s class
+the decision memo names for route (1) + a desktop board**, NOT the
+5-15 s headline; that needs the eval-proof opening itself to go
+Greyhound-class (family (c), out of scope here) plus the desktop board.
+
+### 3.4 Verifier cost model, single thread [MODEL]
+
+- **Built:** ~1.7 s at 8T on the rig; at 1T ~10 s (12x512), dominated by
+  the level-0 O(n_value_rings) `psi_level0_factored_multi` (~8.6G scalar
+  MACs -> ~14 s [WSL 1T] at the 125M composed scope, T11 a'/T8b) plus
+  transport + the descent verifies.
+- **Stage A:** the descent verifies vanish (no descents; the range
+  booleanity + SiLU sum-equality are O(rounds) checks the aggregate
+  verifier already does) — the descent-verify term (~0.06 s pair loop
+  today, but the aux tensors' level-0 rows were the real cost, E-F1)
+  goes; but the eval-proof level-0 term stays O(n_value_rings), so 1T
+  verify is ~8-10 s — **still not <= 2 s at 1T**. The honest interim is
+  the `ZK_THREADS` route (the contract wording amendment "single machine,
+  N threads stated") which meets <= 2 s at 8-22 threads today.
+- **Stage B (supplied-`Psi_0`):** the level-0 work becomes O(log n_0)
+  rounds + one opening; the verifier is then polylog + the eval-proof's
+  own O(sqrt N)-class levels -> **~1-2 s at 1T reachable** [MODEL],
+  the T11 a' protocol answer. This is the only path to <= 2 s at 1T
+  without a contract amendment, and it needs the new soundness proof.
 
 ## 4. Transcript / freeze consequences (pending)
 
