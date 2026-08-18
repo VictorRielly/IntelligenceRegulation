@@ -834,7 +834,55 @@ the expected BF panic (scratchpad/m_freeze_baseline_raw.txt); the 3x16
    batteries, freeze-check 98 rows == baseline, `self-test`, the rigs.
 5. Report + this section.
 
-STATUS: (in progress)
+STATUS (2026-08-17, HEAD of uperf2-m; report:
+docs/zkmatrix-poc/U_PERF2_EVALPROOF2_REPORT.md; every number [WSL-BOX
+NOISY-SHARED — lane L built/ran alongside]; digests identical on every
+rig row; all gates green at HEAD: uperf-m battery 1T/2T/7T + every knob
+off = one digest 37d6a49b.., uperf-pc diff-battery 1T/7T (O1/O2/O3/O5/E2E),
+uperf-c 1T/7T, uperf-f 1T/2T, uperf-i, freeze-check 98 rows identical to
+the f821485 capture, self-test 238 s):
+
+- LANDED (eval_proof.rs; aux_ntt_core.rs additive; prof ids m.*; bin
+  `uperf-m {battery, bench, sha-bench, crs-bench}`), each with its
+  pre-change body reachable and a battery leg:
+  1. psi0-factored: (a) the PHI MAC on AVX2 (`vpmuludq` bursts of 4
+     folded by 2^32 == c32 into one u64 plane, fold-by-2^31 finalize —
+     canonical residues of the same exact sums; `ZK_PSISIMD=0` = the u128
+     body; raw 48-term MAC 4.07 -> 0.58 us); (b) the per-digit-ring
+     kara/scale/add replaced by u-major NTT-domain accumulation (PHI-hat
+     once per value ring, (R c_k)-hat with the INTEGER radix, one lane-MAC
+     per digit ring, exact window charged per term, one inverse per u;
+     `ZK_PSI0NTT=0` = today's body; per-tensor eligibility with a PHI-side
+     radix split for the (2, 14)/(2, 16)-class limbs — the finding: with a
+     set-wide window all 178 act tensors of the 12-layer rigs silently
+     ran today's body); (c) the G blocks through a pooled NTT combine,
+     built block-parallel (`ZK_GBLOCKNTT=0`); (d) `NttAcc`: canonical Z_p
+     lane accumulator on AVX2 in every NTT-domain kernel of the file
+     (`ZK_NTTMAC=0`; split-halves body kept for non-x86); (e) fold-reduced
+     K-mult/mulmod at the hoisted row/col factors and bpolys,
+     allocation-free digit splits, small maps inline. Bench 512x2048:
+     11.9 -> 3.4 us/value ring; kpass rows 2.87 -> 0.86 us/digit ring,
+     phi 2.37 -> 0.90.
+  2. bg.kernel-rows: the T planes on AVX2 (products folded per row) + the
+     block CQ0 x T products through the pooled combine; ep.crs-expand: SHA
+     blocks straight into the stream + the rejection walk parallel by
+     accepted-word prefix counts (`ZK_CRSPAR2=0`; SHA-NI confirmed in use:
+     35 ns/block); ep.transport: the 2,000 small single products off the
+     len-1 GEMM; `SmallRings::max_abs` parallel (a serial whole-store scan
+     sat in every fold/matvec/GEMM call: bg.fold 2.03 -> 1.08, matvec
+     4.11 -> 3.21, precommit 5.09 -> 3.89 at 12x128 8T).
+  3. REAL rigs (Section 5): 3x16 1T 23.0 -> 17.4 s / 8T 8.1 -> 6.3 s;
+     12x128 8T 43.8 -> 36.1 s (psi0-factored 5.78 -> 1.26, kernel-rows
+     2.39 -> 1.10, verify 3.7 -> 1.5); **12x512 8T CPU-only 106.8 ->
+     96.7 s (commit 9.6 / prove 82.7 / verify 2.7 — the verifier from 7.4
+     s; psi0-factored 2.82 s from 11.9; kernel-rows 2.04, fold 2.03, crs
+     2.69, transport 2.05; peak RSS 10.96 GB)**; digests identical.
+- NOT done / left (report Section 6): the psi0 accumulation itself
+  (transform-bound now); the CPU GEMM (level-h 21.6 s at 12x512 CPU-only,
+  the largest CPU-only term — the GPU build's kernel; not this lane's
+  item); the transport's A/B row transforms both sides; the level >= 1
+  boxed witnesses; the GPU build was NOT built here (the 12x512 row is
+  CPU-only; the touched terms are CPU-side in both builds).
 
 ## Agent J status (wt-uperf2-j)
 
