@@ -245,9 +245,25 @@ kernel-rows 3.4), claim layer 23.9 (folds 10.5, rounds 6.9, tables
 6.6), commit 11.7 (precommit-u0 10.1), verify 7.3 (psi0 ~6), CRS 3.4,
 transport 2.2.
 
-### 4.3 p50 / p95 at 12x512, 8T, 20 warm runs (TARGET_CONTRACT statistic) — in flight
+### 4.3 p50 / p95 at 12x512, 8T, 20 warm runs (the TARGET_CONTRACT statistic) — MEASURED 2026-08-17
 
-P95_SERIES_PLACEHOLDER
+`for i in 1..20: ZK_THREADS=8 uperf-pc full-profile 12 512` on the
+reference box at commit 96559ee [WSL-BOX 8T; runs 1-2 overlapped a
+short compile, otherwise idle; wsl-export]; 20/20 accept, ONE
+EVAL-PROOF DIGEST (4c259008…) across all runs, 1,509,911 B every run:
+
+| statistic | wall | commit | prove | verify |
+|---|---:|---:|---:|---:|
+| min | 151.6 s | 11.0 s | 131.5 s | 7.0 s |
+| **p50** | **153.1 s** | 11.2 s | **132.8 s** | **7.3 s** |
+| **p95** | **155.9 s** | 11.4 s | **135.5 s** | **7.4 s** |
+| max | 156.1 s | 11.5 s | 135.8 s | 7.4 s |
+
+Spread ±1.5% — the box is a stable reference. Cold start (first run
+after build) was 155.6 s (4.2 above). This is the PoC-close statistic
+CONTINUATION Phase 2 asked for, on the CPU reference machine, at 8
+threads (the 1T convention number for this shape is not measured:
+~10-12 min class by the 3x16 ratio; ask before spending it).
 
 Round 3 (lanes D + E): claim layer 3.17 -> 0.91 s at 1T (11x at 8T),
 chain GEMM 10x, digit witness threaded, tree callers streamed, the
