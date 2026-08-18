@@ -439,7 +439,11 @@ transform 2.2-3x; descent trees checkpointed/released/compact — and
 8 threads, 155.6 s wall (commit 11.7 / prove 134.9 / verify 7.3), 1.51
 MB artifact, 10.98 GB RSS, accept** (U_PERF_WAVE_REPORT.md 4.2). 3x16:
 25.0 s at 1T / 8.5 s at 8T (80x vs the same-box oracle). A 20-run
-p50/p95 series at 12x512 is in flight (4.3).
+p50/p95 series at 12x512 DONE (4.3: p50 153.1 / p95 155.9 s at 8T).
+Round 6 LANDED (34a8eb8, c210ea9): AVX2 K-field kernels (J) and **the
+GPU rung step 1 (K: `--features gpu-cuda`, `ZK_GPU=1`, RTX 4070 Laptop
+via WSL2, bit-identical, 8-10x on the ported GEMM)** — **12x512 now
+106.8 s CPU-only / 85.0 s with the GPU at 8 threads** (report 4.2).
 
 **Grok (Mac): T1 is STILL valuable (the [MAC-BOX] convention numbers,
 its better thread scaling: 1/8/16 threads + one oracle run) and now has

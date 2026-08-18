@@ -160,6 +160,14 @@ numbers need a quiesced box; design and correctness work do not.
   protocol change). Phase 2 (PoC close: p50/p95, canary, A1
   reconciliation) is now runnable on this box; Phase 3 (GPU): port the
   fused descent kernel and the NTT-domain GEMM first.
+- 2026-08-17 (later still — round 6): Phase 3 (GPU) has STARTED on the
+  reference box's own RTX 4070 Laptop (WSL2, cudarc + NVRTC, feature
+  `gpu-cuda`, `ZK_GPU=1`): the level-h/matvec GEMM kernel is on the
+  device bit-identically (8-10x on the kernel); with lane J's AVX2
+  K-field kernels the 12x512 pass is **106.8 s CPU-only / 85.0 s with
+  the GPU at 8 threads** (U_PERF2_GPU_REPORT.md; a 55-70 W mobile part
+  — the <= 450 W desktop line stays [MODEL]). Next: the descent round /
+  ixf / tree-step kernels on the device.
 - 2026-08-17 (Claude, status recalculation — PROGRESS_UPERF.md
   "2026-08-17" section): PATH CORRECTION for Phase 0. The composed
   pass (`bg_pass_run`, the deliverable) never calls `prove_ct_round`;

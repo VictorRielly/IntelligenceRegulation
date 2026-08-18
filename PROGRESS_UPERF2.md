@@ -597,6 +597,33 @@ to the contract's <= 450 W desktop board beyond a clearly-labeled
 green without the feature), the feature build's batteries under
 ZK_GPU=1, rig digests identical, freeze rows, self-test.
 
+## Orchestrator status (2026-08-17, after round 6 — J + K)
+
+- Lane J (AVX2 in the packed K-field lane kernels: fused round 2.6-2.9x,
+  tree step 2.6-3x, ixf round 2.5-2.8x, folds 3.6-4.3x; 1,120 x 3
+  battery legs; NO NEON mirror — the Mac keeps the auto-vectorized
+  bodies) and lane K (THE GPU RUNG step 1: feature `gpu-cuda`, default
+  OFF; cudarc + NVRTC on the RTX 4070 Laptop; `ntt_gemm_modq_small`
+  ported through one hook, bit-identical, 8-10x on the kernel;
+  U_PERF2_GPU_REPORT.md = the CONTINUATION Phase-3 report) MERGED
+  (34a8eb8, c210ea9), gates green (default build unchanged; the GPU
+  build's probe/battery/diff-battery on device).
+- **12x512 full statement on the reference box, ZK_THREADS=8:
+  CPU-only 106.8 s (commit 11.3 / prove 86.5 / verify 7.4); with the
+  GPU (`ZK_GPU=1`) 85.0 s (5.4 / 70.6 / 7.4); 1,509,911 B; ~11 GB;
+  digests identical to every earlier run.** From 155.6 s at the start
+  of round 6, 682.8 -> 6.3 s at 3x16 8T+GPU vs the same-box oracle.
+- 12x512 8T+GPU attribution: descents 33 s (a.round-g 22.3, a.tree-step
+  7.9, trees 5.9), prove-group 22.0 (ep.psi0-factored 11.9 across its
+  4 calls — the level-1 transport psi + the verifier's; level-h 5.9,
+  fold 3.7, kernel-rows 3.3), claim layer 15.3 (cl-folds 6.7,
+  cl-tables 5.0, cl-rounds 3.5), verify 7.2, commit 5.4, CRS 3.3.
+  Round 7 follows that order: the K-field lane kernels (descent round,
+  ixf round/fold, tree step) on the GPU; psi0-factored + the small
+  eval-proof leftovers on the CPU/GPU.
+- Build hygiene finding: `target-cpu=native` was 3-4x SLOWER here and
+  cwd-dependent; removed (cf8cdaf) — one build everywhere.
+
 ## Agent A status (wt-uperf2-a)
 
 PLAN (skeleton commit, 2026-08-17). Files: gkr_masked.rs / gkr.rs /

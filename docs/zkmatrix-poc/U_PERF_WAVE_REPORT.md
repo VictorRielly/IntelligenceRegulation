@@ -233,7 +233,12 @@ concurrently)]:
 | same, 12x256, `ZK_THREADS=8` (lane H's run) | — | — | — | 95.9 s | 97a59ac3… (statement 889c0f12…, 1,439,719 B) | 6.6 GiB |
 | **same, 12x512 — THE PoC SHAPE, `ZK_THREADS=8`, QUIET, the 15 GB reference box** | **11.7 s** | **134.9 s** | **7.3 s** | **155.6 s** | 4c259008… (statement 2f8a92f8…, **1,509,911 B**) | **10.98 GiB** |
 
-**The PoC shape now runs on the TARGET_CONTRACT reference machine.**
+| + lane J (AVX2 K-field lane kernels) (34a8eb8), 12x512, `ZK_THREADS=8`, CPU only | 11.3 s | **86.5 s** | 7.4 s | **106.8 s** | 4c259008… (identical) | 10.9 GiB |
+| + lane K (GPU rung step 1: `ntt_gemm_modq_small` on the RTX 4070 Laptop, `--features gpu-cuda`, `ZK_GPU=1`) (c210ea9), 12x512, 8T + GPU | **5.4 s** | **70.6 s** | 7.4 s | **85.0 s** | 4c259008… (identical) | 11.2 GiB |
+| same binary, 3x16 8T + GPU / 12x128 8T + GPU | 0.9 / 2.8 s | 4.2 / 26.6 s | 1.2 / 3.6 s | **6.3 s / 33.6 s** | identical | 1.2 / 4.4 GiB |
+
+**The PoC shape now runs on the TARGET_CONTRACT reference machine —
+85 s with its (50-70 W laptop) GPU, 107 s CPU-only at 8 threads.**
 The frozen [MAC-BOX 1T] full-statement line was commit 384.9 / prove
 4,811.0 / verify ~236 s at 41-47 GiB (UAGB1_TABLE_DESCENT_REPORT 3.3
 + BJ's re-measure); the counted bytes agree to the byte (1,509,911 B).
