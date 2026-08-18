@@ -39322,7 +39322,11 @@ fn uperf_m_main(args: &[String]) {
             let n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(1 << 20);
             uperf_m_sha_bench(n);
         }
-        _ => println!("uperf-m battery | bench [rows] [cols] [r] | sha-bench [n_blocks]"),
+        Some("crs-bench") => {
+            let cols: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(20000);
+            uperf_m_crs_bench(cols);
+        }
+        _ => println!("uperf-m battery | bench [rows] [cols] [r] | sha-bench [n_blocks] | crs-bench [cols]"),
     }
 }
 
@@ -39613,6 +39617,24 @@ fn uperf_m_battery() {
         }
     }
     println!("[UPERF2-M] (E) kmul_fast == kf.mul + mulmod_fold == zq.mul (40 cases x q31/q46, extremes) + digit splits == ref (8 (e, l) classes): {n_e} legs");
+    // (F) the CRS expansion v2 (parallel walk by accepted-word prefix
+    // counts) == v1 (serial walk) == raw (XofReader), at the house moduli
+    // and at a rejection-heavy modulus (2^30 + 1: half the words rejected —
+    // the skip/extension paths), shapes crossing many word blocks/ranges.
+    let mut n_f = 0usize;
+    for (qk, qn) in [(ring::Q8, "q31"), (ring::Q8_46, "q46"), ((1u64 << 30) + 1, "q30+1")] {
+        for (rows, cols) in [(11usize, 1000usize), (3, 17), (1, 1), (11, 3000), (2, 129)] {
+            let seed = 0xF0u64 + rows as u64;
+            let raw = ring::eval_proof::expand_level_matrix_raw(seed, "m", 1, "A", rows, cols, qk);
+            let v1 = ring::eval_proof::expand_level_matrix_par_v1(seed, "m", 1, "A", rows, cols, qk);
+            let v2 = ring::eval_proof::expand_level_matrix_par_v2(seed, "m", 1, "A", rows, cols, qk);
+            assert_eq!(v1, raw, "CRS v1 != raw at {qn} {rows}x{cols}");
+            assert_eq!(v2, raw, "CRS v2 != raw at {qn} {rows}x{cols}");
+            absorb("crs", &v2);
+            n_f += 1;
+        }
+    }
+    println!("[UPERF2-M] (F) CRS expansion v2 == v1 == raw: {n_f} matrices (q31, q46, the rejection-heavy 2^30 + 1; 1x1 .. 11x3000)");
     let dg: [u8; 32] = battery.finalize().into();
     println!("[UPERF2-M] BATTERY DIGEST {}", hex_full(&dg));
     println!("[UPERF2-M] battery passed in {:.2}s", t0.elapsed().as_secs_f64());
@@ -39708,6 +39730,41 @@ fn uperf_m_bench(rows: usize, cols: usize, r: usize) {
             s_sc * 1e6 / reps as f64,
             s_si * 1e6 / reps as f64,
             s_sc / s_si
+        );
+    }
+}
+
+/// [UPERF2-M] CRS expansion bench: one kappa x cols level matrix (11 x cols
+/// polys) through v1 (serial walk) and v2 (parallel walk) at the process's
+/// ZK_THREADS, with the blocks / walk split from the prof counters.
+fn uperf_m_crs_bench(cols: usize) {
+    use ring::ct_engine::prof;
+    let rows = ring::eval_proof::KAPPA_AGG;
+    let n_el = rows * cols * D;
+    println!(
+        "[UPERF2-M] crs-bench: {rows} x {cols} polys = {n_el} elements ({:.1} MB), q31, ZK_THREADS {}",
+        n_el as f64 * 8.0 / 1e6,
+        ring::eval_proof::threads()
+    );
+    for (name, v2) in [("v1 (serial walk)", false), ("v2 (parallel walk)", true)] {
+        prof::reset();
+        prof::enable(true, false);
+        let t0 = Instant::now();
+        let m = if v2 {
+            ring::eval_proof::expand_level_matrix_par_v2(0xC5, "bench", 0, "A", rows, cols, ring::Q8)
+        } else {
+            ring::eval_proof::expand_level_matrix_par_v1(0xC5, "bench", 0, "A", rows, cols, ring::Q8)
+        };
+        let s = t0.elapsed().as_secs_f64();
+        prof::enable(false, false);
+        let rep = prof::report();
+        let blk = rep.iter().find(|r| r.0 == "m.crs-blocks").map(|r| r.1).unwrap_or(0.0);
+        let wlk = rep.iter().find(|r| r.0 == "m.crs-walk").map(|r| r.1).unwrap_or(0.0);
+        println!(
+            "  {name:<20}: {s:.3}s = blocks {blk:.3}s ({:.1} ns/block at this thread count) + walk {wlk:.3}s ({:.2} ns/element); {} polys",
+            blk * 1e9 / (n_el as f64 / 4.0),
+            wlk * 1e9 / n_el as f64,
+            m.len()
         );
     }
 }

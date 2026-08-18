@@ -649,8 +649,25 @@ pub fn expand_level_matrix_par(
     cols: usize,
     q: u64,
 ) -> Vec<Poly> {
+    if !crs_par2_enabled() {
+        return expand_level_matrix_par_v1(seed, group, level, which, rows, cols, q);
+    }
+    expand_level_matrix_par_v2(seed, group, level, which, rows, cols, q)
+}
+
+/// [UPERF2-M] `ZK_CRSPAR2=0` keeps the round-4 block-parallel body with the
+/// serial rejection walk (`expand_level_matrix_par_v1`). Read once.
+static CRS_PAR2: LazyLock<bool> =
+    LazyLock::new(|| std::env::var("ZK_CRSPAR2").map(|v| v != "0").unwrap_or(true));
+
+#[inline(always)]
+fn crs_par2_enabled() -> bool {
+    *CRS_PAR2
+}
+
+/// The XofReader key of the level CRS ("agg-level-crs" over the six items).
+fn crs_key(seed: u64, group: &str, level: usize, which: &str, rows: usize, cols: usize) -> [u8; 32] {
     use sha2::{Digest, Sha256};
-    // The key exactly as XofReader::new derives it.
     let items: [&[u8]; 6] = [
         &seed.to_le_bytes(),
         group.as_bytes(),
@@ -666,7 +683,51 @@ pub fn expand_level_matrix_par(
         hasher.update((item.len() as u64).to_le_bytes());
         hasher.update(item);
     }
-    let key: [u8; 32] = hasher.finalize().into();
+    hasher.finalize().into()
+}
+
+/// SHA-256 counter-mode blocks [lo, hi) of `key` written straight into a
+/// byte buffer, block-parallel (each 32-B block = SHA256(key || i_le)).
+fn crs_blocks_into(key: &[u8; 32], lo: usize, hi: usize, out: &mut [u8]) {
+    use sha2::{Digest, Sha256};
+    assert_eq!(out.len(), (hi - lo) * 32);
+    let mk = |i: usize, dst: &mut [u8]| {
+        let mut h = Sha256::new();
+        h.update(key);
+        h.update((i as u64).to_le_bytes());
+        let d: [u8; 32] = h.finalize().into();
+        dst.copy_from_slice(&d);
+    };
+    const CH: usize = 4096; // blocks per parallel unit
+    if threads() > 1 && hi - lo >= 2 * CH {
+        pooled(|| {
+            use rayon::prelude::*;
+            out.par_chunks_mut(CH * 32).enumerate().for_each(|(ci, chunk)| {
+                for (k, dst) in chunk.chunks_mut(32).enumerate() {
+                    mk(lo + ci * CH + k, dst);
+                }
+            });
+        });
+    } else {
+        for (k, dst) in out.chunks_mut(32).enumerate() {
+            mk(lo + k, dst);
+        }
+    }
+}
+
+/// The round-4 body (block-parallel SHA-256, serial rejection walk) —
+/// the pre-[UPERF2-M] `expand_level_matrix_par`, kept as the v2 oracle.
+pub fn expand_level_matrix_par_v1(
+    seed: u64,
+    group: &str,
+    level: usize,
+    which: &str,
+    rows: usize,
+    cols: usize,
+    q: u64,
+) -> Vec<Poly> {
+    use sha2::{Digest, Sha256};
+    let key = crs_key(seed, group, level, which, rows, cols);
     let n_el = rows * cols * D;
     // Rejection sampling accepts all but ~q/2^bits of the draws; 8 bytes
     // per accepted element plus a small margin, extended on demand.
@@ -714,6 +775,127 @@ pub fn expand_level_matrix_par(
             }
         }
         out.push(p);
+    }
+    out
+}
+
+/// [UPERF2-M] The same stream, both halves parallel: the SHA-256 blocks
+/// written straight into the stream buffer (no per-block Vec, no serial
+/// copy), and the rejection walk split by ACCEPTED-WORD PREFIX COUNTS —
+/// the sampler consumes the stream in 8-byte words (pos advances by 8
+/// always), word w is accepted iff (word >> shift) < q, and element i is
+/// the i-th accepted word; a first pass counts the accepted words per
+/// word block in parallel, the prefix sums locate the first word of every
+/// thread's poly range, and each range walks its own words in order —
+/// byte-identical to the serial walk by construction (the O1 battery leg
+/// asserts raw == v1 == v2 at both moduli). Should the accepted count
+/// fall short (rejections beyond the 0.2% margin — never at the house
+/// moduli), the stream is extended in the same counter order.
+pub fn expand_level_matrix_par_v2(
+    seed: u64,
+    group: &str,
+    level: usize,
+    which: &str,
+    rows: usize,
+    cols: usize,
+    q: u64,
+) -> Vec<Poly> {
+    let key = crs_key(seed, group, level, which, rows, cols);
+    let n_polys = rows * cols;
+    let n_el = n_polys * D;
+    if n_el == 0 {
+        return Vec::new();
+    }
+    let shift = q.leading_zeros();
+    // Words per count block; the SHA block count is kept a multiple of
+    // WB / 4 so every counted word block is whole (an extension never
+    // lengthens an already-counted block).
+    const WB: usize = 8192;
+    let round_up = |b: usize| -> usize { b.div_ceil(WB / 4) * (WB / 4) };
+    let mut n_blocks = round_up(((n_el as u128 * 8 * 1002 / 1000) / 32) as usize + 16);
+    let mut stream: Vec<u8> = Vec::new();
+    let mut counts: Vec<usize> = Vec::new(); // accepted words per word block (WB words = 256 SHA blocks)
+    let accepted = |w: &[u8]| -> bool { (u64::from_le_bytes(w.try_into().unwrap()) >> shift) < q };
+    let mut prefix: Vec<usize> = vec![0];
+    loop {
+        // (Re)generate the missing SHA blocks and count their words.
+        let have = stream.len() / 32;
+        {
+            let _tb = prof::timer(prof::M_CRS_BLOCKS); // [UPERF2-M] observation only
+            stream.resize(n_blocks * 32, 0);
+            crs_blocks_into(&key, have, n_blocks, &mut stream[have * 32..n_blocks * 32]);
+        }
+        let _tw = prof::timer(prof::M_CRS_WALK); // [UPERF2-M] observation only
+        let n_words = stream.len() / 8;
+        let n_wblocks = n_words.div_ceil(WB);
+        let first_new = counts.len();
+        let new_counts: Vec<usize> = map_ordered_min(n_wblocks - first_new, 2, |i| {
+            let b = first_new + i;
+            let (w0, w1) = (b * WB, ((b + 1) * WB).min(n_words));
+            stream[w0 * 8..w1 * 8].chunks_exact(8).filter(|w| accepted(w)).count()
+        });
+        counts.extend(new_counts);
+        for i in first_new..counts.len() {
+            let last = *prefix.last().unwrap();
+            prefix.push(last + counts[i]);
+        }
+        if *prefix.last().unwrap() >= n_el {
+            break;
+        }
+        n_blocks = round_up(n_blocks + 1024.max(n_blocks / 64));
+    }
+    // Poly ranges per thread; each walks its own words from the located start.
+    let n_ranges = if threads() > 1 { (threads() * 4).min(n_polys).max(1) } else { 1 };
+    let per = n_polys.div_ceil(n_ranges);
+    let stream = &stream;
+    let prefix = &prefix;
+    let parts: Vec<Vec<Poly>> = map_ordered_min(n_ranges, 2, |ri| {
+        let p0 = ri * per;
+        let p1 = ((ri + 1) * per).min(n_polys);
+        if p0 >= p1 {
+            return Vec::new();
+        }
+        let e0 = p0 * D; // first accepted-word index of this range
+        // The word block holding accepted index e0: prefix[b] <= e0 < prefix[b+1].
+        let b = match prefix.binary_search(&e0) {
+            Ok(i) => {
+                // several blocks may share the prefix (empty blocks): the LAST with prefix == e0
+                let mut j = i;
+                while j + 1 < prefix.len() - 1 && prefix[j + 1] == e0 {
+                    j += 1;
+                }
+                j
+            }
+            Err(i) => i - 1,
+        };
+        let mut skip = e0 - prefix[b];
+        let mut w = b * WB;
+        let n_words = stream.len() / 8;
+        let mut out: Vec<Poly> = Vec::with_capacity(p1 - p0);
+        for _ in p0..p1 {
+            let mut p = poly_zero();
+            for c in p.iter_mut() {
+                loop {
+                    assert!(w < n_words, "crs walk overran the stream");
+                    let word = &stream[w * 8..w * 8 + 8];
+                    w += 1;
+                    if accepted(word) {
+                        if skip > 0 {
+                            skip -= 1;
+                            continue;
+                        }
+                        *c = u64::from_le_bytes(word.try_into().unwrap()) >> shift;
+                        break;
+                    }
+                }
+            }
+            out.push(p);
+        }
+        out
+    });
+    let mut out: Vec<Poly> = Vec::with_capacity(n_polys);
+    for part in parts {
+        out.extend(part);
     }
     out
 }
@@ -3207,6 +3389,27 @@ mod psi_avx2 {
         }
     }
 
+    /// ta[j] += (s * v[j] mod 2^32) + c32 * ((s * v[j]) >> 32) for j in
+    /// 0..D (== ta[j] + s * v[j] mod q; s, v[j] < q < 2^31): the rows-pass
+    /// T-plane MAC. `ta` points at D u64 lanes.
+    #[target_feature(enable = "avx2")]
+    pub unsafe fn mac_fold_row(ta: *mut u64, s: u64, v: &[u64; D], p: &PsiMacParams) {
+        unsafe {
+            let m32 = _mm256_set1_epi64x(0xFFFF_FFFFu64 as i64);
+            let c32v = _mm256_set1_epi64x(p.c32 as i64);
+            let sv = _mm256_set1_epi64x(s as i64);
+            let pv = v.as_ptr();
+            let mut j = 0;
+            while j < D {
+                let prod = mul32(sv, _mm256_loadu_si256(pv.add(j) as *const __m256i));
+                let f = _mm256_add_epi64(_mm256_and_si256(prod, m32), mul32(c32v, _mm256_srli_epi64::<32>(prod)));
+                let pt = ta.add(j) as *mut __m256i;
+                _mm256_storeu_si256(pt, _mm256_add_epi64(_mm256_loadu_si256(pt), f));
+                j += 4;
+            }
+        }
+    }
+
     /// out[j] = (sum_t s[t] * g[t][j]) mod q, canonical — see the section
     /// note for the bounds. `g[t]` points at D canonical u64 lanes.
     #[target_feature(enable = "avx2")]
@@ -3655,64 +3858,69 @@ pub fn kernel_pass_factored_gen<B: SmallRings + ?Sized>(
                 }
                 tacc
             };
-            let tacc: Vec<u128> = if threads() > 1 && n_vr >= 2 * threads() {
-                let nt = threads();
-                let per = n_vr.div_ceil(nt);
-                let partials: Vec<Vec<u128>> = pooled(|| {
-                    use rayon::prelude::*;
-                    (0..nt)
-                        .into_par_iter()
-                        .map(|i| range_work((i * per).min(n_vr), ((i + 1) * per).min(n_vr)))
+            // [UPERF2-M] the AVX2 rows MAC when the modulus is in the u32-lane
+            // class (q31; `psi_mac_simd_params`) and `ZK_PSISIMD` != 0: the
+            // T planes are u64 with every product folded by 2^32 == c32 and
+            // the V ring reduced by the fold (`QFold`) — the same canonical
+            // T rings as the u128 body (`rows_t_rings_u128`, the pre-change
+            // path, verbatim). Both return the reduced T rings [ki][d1][cb].
+            let simd_p = if psi_simd_enabled() { psi_mac_simd_params(q) } else { None };
+            let t_rings: Vec<Poly> = match simd_p {
+                Some(p) => rows_t_rings_avx2(w0, t, &radixes, &srs, nb, n_vr, &p),
+                None => {
+                    let tacc: Vec<u128> = if threads() > 1 && n_vr >= 2 * threads() {
+                        let nt = threads();
+                        let per = n_vr.div_ceil(nt);
+                        let partials: Vec<Vec<u128>> = pooled(|| {
+                            use rayon::prelude::*;
+                            (0..nt)
+                                .into_par_iter()
+                                .map(|i| range_work((i * per).min(n_vr), ((i + 1) * per).min(n_vr)))
+                                .collect()
+                        });
+                        let mut tot = vec![0u128; flat];
+                        for p in &partials {
+                            for (a, b) in tot.iter_mut().zip(p.iter()) {
+                                *a += b;
+                            }
+                        }
+                        tot
+                    } else {
+                        range_work(0, n_vr)
+                    };
+                    (0..n_k * K_DEG * nb)
+                        .map(|i| tacc[i * D..(i + 1) * D].iter().map(|&x| (x % q as u128) as u64).collect())
                         .collect()
-                });
-                let mut tot = vec![0u128; flat];
-                for p in &partials {
-                    for (a, b) in tot.iter_mut().zip(p.iter()) {
-                        *a += b;
-                    }
                 }
-                tot
-            } else {
-                range_work(0, n_vr)
             };
             // b_rows[cd] += sum_ki sum_cb sum_d1 CQ[ki][cb][d1][cd] * T[ki][d1][cb],
             // CQ[d1][cd] = sigma(cd, d1) * CQ0[(cd - d1) mod 16] (sigma = s
             // if cd < d1): 16 x 16 ring products per (kernel, cb) block —
             // computed per block (in parallel), summed into b_rows in
-            // block order.
+            // block order. [UPERF2-M] the 256 products of a block ride
+            // `ntt_combine_pool` (alphas = the 16 T rings, pool = CQ0 and
+            // s * CQ0, idx(d1, cd) = (cd - d1) mod 16 [+ 16 when cd < d1]) —
+            // the same mod-q sum of the same products (`rows_block_ref` is
+            // the pre-change body; `ZK_GBLOCKNTT=0` selects it).
             let s = kf.s;
             let cq0s: Vec<Vec<Arc<Vec<Poly>>>> =
                 kers.iter().map(|k| (0..nb).map(|cb| cache.cq0(zq, k, cb)).collect()).collect();
-            let tacc = &tacc;
+            let t_rings = &t_rings;
             let block_rows = |bi: usize| -> Vec<Poly> {
                 let (ki, cb) = (bi / nb, bi % nb);
                 let cq0 = &cq0s[ki][cb];
-                let mut rows = vec![poly_zero(); K_DEG];
-                for d1 in 0..K_DEG {
-                    let base = tidx(ki, d1, cb);
-                    let t_ring: Poly = tacc[base..base + D].iter().map(|&x| (x % q as u128) as u64).collect();
-                    if t_ring.iter().all(|&x| x == 0) {
-                        continue;
-                    }
-                    // prods[e] = CQ0[e] * T (16 ring products), then
-                    // rows[cd] += sigma * prods[(cd - d1) mod 16].
-                    let prods: Vec<Poly> = cq0
-                        .iter()
-                        .map(|c| {
-                            if c.iter().all(|&x| x == 0) {
-                                poly_zero()
-                            } else {
-                                ring_mul_split_kara_fast(ctx, c, &t_ring)
-                            }
-                        })
-                        .collect();
-                    for cd in 0..K_DEG {
-                        let e = (cd + K_DEG - d1) % K_DEG;
-                        let term = if cd < d1 { super::poly_scale(zq, s, &prods[e]) } else { prods[e].clone() };
-                        rows[cd] = poly_add(zq, &rows[cd], &term);
-                    }
+                let t_blk: Vec<Poly> = (0..K_DEG).map(|d1| t_rings[(ki * K_DEG + d1) * nb + cb].clone()).collect();
+                if t_blk.iter().all(|r| r.iter().all(|&x| x == 0)) {
+                    return vec![poly_zero(); K_DEG];
                 }
-                rows
+                if !gblock_ntt_enabled() {
+                    return rows_block_ref(ctx, s, cq0, &t_blk);
+                }
+                let mut pool: Vec<Poly> = Vec::with_capacity(2 * K_DEG);
+                pool.extend(cq0.iter().cloned());
+                pool.extend(cq0.iter().map(|c| super::poly_scale(zq, s, c)));
+                let idx = |d1: usize, cd: usize| -> usize { (cd + K_DEG - d1) % K_DEG + if cd < d1 { K_DEG } else { 0 } };
+                ntt_combine_pool_impl(ctx, &t_blk, &pool, &idx, K_DEG, false)
             };
             let n_blocks = n_k * nb;
             let per_block: Vec<Vec<Poly>> = pooled(|| {
@@ -3731,6 +3939,124 @@ pub fn kernel_pass_factored_gen<B: SmallRings + ?Sized>(
         }
     }
     (b_rows, phi)
+}
+
+/// [UPERF2-M] The rows pass's T rings on AVX2 lanes: T[ki][d1][cb] =
+/// sum_row s_ki[row][d1] * V_(row,cb) mod q, canonical, with V the value
+/// ring recomposed mod q from its digit rings — the u64 planes hold every
+/// product folded by 2^32 == c32 (`psi_avx2::mac_fold_row`), the thread
+/// partials add up (bounded: rows * 2^32 (1 + c32) < 2^63 for rows < 2^20)
+/// and `QFold::reduce` lands the canonical residue = the u128 body's
+/// `(x % q)` of the same exact sum. V is reduced by the fold from its exact
+/// i128 recomposition (i64 fast path when it fits) — == `mod_q_i128`.
+#[allow(clippy::too_many_arguments)]
+fn rows_t_rings_avx2<B: SmallRings + ?Sized>(
+    w0: &B,
+    t: &AggTensor,
+    radixes: &[u64],
+    srs: &[Vec<KElem>],
+    nb: usize,
+    n_vr: usize,
+    p: &PsiMacParams,
+) -> Vec<Poly> {
+    let n_k = srs.len();
+    let flat = n_k * K_DEG * nb * D;
+    let q = p.q;
+    let qf = QFold::new(q);
+    let tidx = |ki: usize, d1: usize, cb: usize| ((ki * K_DEG + d1) * nb + cb) * D;
+    let rows_ok = t.rows < (1usize << 20);
+    let range_work = |lo: usize, hi: usize| -> Vec<u64> {
+        let mut tacc = vec![0u64; flat];
+        let mut v_ring = [0i128; D];
+        let mut vq = [0u64; D];
+        let mut buf = [0i64; D];
+        for vr in lo..hi {
+            let (row, cb) = (vr / nb, vr % nb);
+            v_ring.iter_mut().for_each(|x| *x = 0);
+            let mut any = false;
+            for (limb, &radix) in radixes.iter().enumerate() {
+                let w = w0.ring(t.digit_ring_base + vr * t.l0 + limb, &mut buf);
+                for j in 0..D {
+                    if w[j] != 0 {
+                        any = true;
+                        v_ring[j] += radix as i128 * w[j] as i128;
+                    }
+                }
+            }
+            if !any {
+                continue;
+            }
+            for j in 0..D {
+                let x = v_ring[j];
+                vq[j] = if x.unsigned_abs() < (1u128 << 62) {
+                    if x >= 0 {
+                        qf.reduce(x as u128)
+                    } else {
+                        let r = qf.reduce(x.unsigned_abs());
+                        if r == 0 { 0 } else { q - r }
+                    }
+                } else {
+                    super::aux::mod_q_i128(x, q)
+                };
+            }
+            for (ki, sr) in srs.iter().enumerate() {
+                let s_row = &sr[row];
+                for d1 in 0..K_DEG {
+                    let sv = s_row[d1];
+                    if sv == 0 {
+                        continue;
+                    }
+                    let base = tidx(ki, d1, cb);
+                    // SAFETY: AVX2 detected (the params exist only then);
+                    // tacc[base .. base + D] and vq are D lanes.
+                    unsafe { psi_avx2::mac_fold_row(tacc.as_mut_ptr().add(base), sv, &vq, p) };
+                }
+            }
+        }
+        tacc
+    };
+    let tacc: Vec<u64> = if threads() > 1 && n_vr >= 2 * threads() && rows_ok {
+        let nt = threads();
+        let per = n_vr.div_ceil(nt);
+        let partials: Vec<Vec<u64>> = pooled(|| {
+            use rayon::prelude::*;
+            (0..nt).into_par_iter().map(|i| range_work((i * per).min(n_vr), ((i + 1) * per).min(n_vr))).collect()
+        });
+        let mut tot = vec![0u64; flat];
+        for pt in &partials {
+            for (a, b) in tot.iter_mut().zip(pt.iter()) {
+                *a += b;
+            }
+        }
+        tot
+    } else {
+        range_work(0, n_vr)
+    };
+    (0..n_k * K_DEG * nb).map(|i| tacc[i * D..(i + 1) * D].iter().map(|&x| qf.reduce(x as u128)).collect()).collect()
+}
+
+/// The pre-[UPERF2-M] per-block body of the rows pass: prods[e] = CQ0[e] *
+/// T[d1] (16 Karatsuba products per d1), rows[cd] += sigma * prods[(cd -
+/// d1) mod 16] — the pool combine's oracle (`ZK_GBLOCKNTT=0`).
+fn rows_block_ref(ctx: &RingCtx, s: u64, cq0: &[Poly], t_blk: &[Poly]) -> Vec<Poly> {
+    let zq = &ctx.zq;
+    let mut rows = vec![poly_zero(); K_DEG];
+    for d1 in 0..K_DEG {
+        let t_ring = &t_blk[d1];
+        if t_ring.iter().all(|&x| x == 0) {
+            continue;
+        }
+        let prods: Vec<Poly> = cq0
+            .iter()
+            .map(|c| if c.iter().all(|&x| x == 0) { poly_zero() } else { ring_mul_split_kara_fast(ctx, c, t_ring) })
+            .collect();
+        for cd in 0..K_DEG {
+            let e = (cd + K_DEG - d1) % K_DEG;
+            let term = if cd < d1 { super::poly_scale(zq, s, &prods[e]) } else { prods[e].clone() };
+            rows[cd] = poly_add(zq, &rows[cd], &term);
+        }
+    }
+    rows
 }
 
 /// Absorb a poly list into the transcript (canonical bytes).
