@@ -123,12 +123,17 @@ extern "C" __global__ void k_ntt_fwd(const void* src, int fmt, u64 q, int n_slot
         sh[r * RS_FWD + c] = v;
     }
     __syncthreads();
-    // Seven DIT stages.
-    for (int m = 1, len = D_RING >> 1; m < D_RING; m <<= 1, len >>= 1) {
+    // Seven DIT stages: stage s has m = 2^s groups of len = 2^(6-s)
+    // butterflies (shifts, not divisions — the loop variable is a power of 2).
+#pragma unroll 1
+    for (int st = 0; st < 7; ++st) {
+        const int m = 1 << st;
+        const int lg = 6 - st;
+        const int len = 1 << lg;
         for (int k = threadIdx.x; k < R_FWD * (D_RING >> 1); k += blockDim.x) {
             int r = k >> 6, b = k & 63;
-            int i = b / len, jj = b - i * len;
-            int j = r * RS_FWD + 2 * i * len + jj;
+            int i = b >> lg, jj = b & (len - 1);
+            int j = r * RS_FWD + ((i * len) << 1) + jj;
             u64 s = tw[m + i];
             u64 u = sh[j];
             u64 v = gl_mul(sh[j + len], s);
@@ -157,7 +162,11 @@ extern "C" __global__ void k_ntt_fwd(const void* src, int fmt, u64 q, int n_slot
 
 #define TM_G 64
 #define TN_G 64
-#define KB_G 16
+#define KB_G 32
+
+// 128-bit accumulate of a 64-bit addend: acc (u64 lane) + carry count (u32),
+// one carry-chained pair (add.cc / addc) instead of a compare + add.
+#define ACC128(lo, c, x) asm volatile("{\n\tadd.cc.u64 %0, %0, %2;\n\taddc.u32 %1, %1, 0;\n\t}" : "+l"(lo), "+r"(c) : "l"(x))
 
 extern "C" __global__ void k_gemm_split(const u64* __restrict__ A, const u64* __restrict__ B, u64* acc, int na, int nb, int n_k, int ks, int k_per_split) {
     __shared__ u64 As[KB_G][TM_G];
@@ -205,8 +214,8 @@ extern "C" __global__ void k_gemm_split(const u64* __restrict__ A, const u64* __
                 for (int j = 0; j < 4; ++j) {
                     u64 pl = av[i] * bv[j];
                     u64 ph = __umul64hi(av[i], bv[j]);
-                    lo[i][j] += pl; clo[i][j] += (lo[i][j] < pl);
-                    hi[i][j] += ph; chi[i][j] += (hi[i][j] < ph);
+                    ACC128(lo[i][j], clo[i][j], pl);
+                    ACC128(hi[i][j], chi[i][j], ph);
                 }
             }
         }
@@ -278,12 +287,16 @@ extern "C" __global__ void k_ntt_inv(u64* V, int n_slots, const u64* ipsi_brv, u
         sh[r * RS_FWD + c] = (slot < n_slots) ? V[(size_t)slot * D_RING + c] : 0ULL;
     }
     __syncthreads();
-    for (int len = 1, m = D_RING; m > 1; len <<= 1, m >>= 1) {
-        int h = m >> 1;
+    // Seven GS stages: stage st has len = 2^st, h = 64 >> st groups.
+#pragma unroll 1
+    for (int st = 0; st < 7; ++st) {
+        const int lg = st;
+        const int len = 1 << lg;
+        const int h = (D_RING >> 1) >> st;
         for (int k = threadIdx.x; k < R_FWD * (D_RING >> 1); k += blockDim.x) {
             int r = k >> 6, b = k & 63;
-            int i = b / len, jj = b - i * len;
-            int j = r * RS_FWD + 2 * i * len + jj;
+            int i = b >> lg, jj = b & (len - 1);
+            int j = r * RS_FWD + ((i * len) << 1) + jj;
             u64 s = tw[h + i];
             u64 u = sh[j];
             u64 v = sh[j + len];

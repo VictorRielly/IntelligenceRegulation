@@ -39168,15 +39168,30 @@ fn uperf_k_bench(na: usize, nb: usize, len: usize, reps: usize) {
         assert_eq!(got, want, "bench: GPU != CPU");
     }
     let s = ring::gpu::stats();
+    let r = reps as f64;
     println!(
-        "  GPU  : best of {reps}: {:.1} ms = {:.2} G MAC/s (byte-identical) -> {:.1}x vs CPU at ZK_THREADS {}; per call avg: pack {:.1} ms, h2d {:.1} ms ({:.0} MB), gpu {:.1} ms",
+        "  GPU  : best of {reps}: {:.1} ms = {:.2} G MAC/s (byte-identical) -> {:.1}x vs CPU at ZK_THREADS {}; per call avg: total {:.1} ms = s_max {:.1} + pack {:.1} (overlapped) + wait {:.1} + d2h {:.1} ms; h2d {:.0} MB{}",
         best_gpu * 1e3,
         macs / best_gpu / 1e9,
         best_cpu / best_gpu,
         ring::eval_proof::threads(),
-        s.secs_pack * 1e3 / reps as f64,
-        s.secs_h2d * 1e3 / reps as f64,
-        s.bytes_h2d as f64 / 1e6 / reps as f64,
-        s.secs_gpu * 1e3 / reps as f64
+        s.secs_total * 1e3 / r,
+        s.secs_smax * 1e3 / r,
+        s.secs_pack * 1e3 / r,
+        s.secs_wait * 1e3 / r,
+        s.secs_d2h * 1e3 / r,
+        s.bytes_h2d as f64 / 1e6 / r,
+        if s.secs_k_fwd + s.secs_k_gemm + s.secs_k_flush > 0.0 {
+            format!(
+                "; [ZK_GPU_PROFILE] h2d {:.1} ms; kernels: fwd {:.1} ms, gemm {:.1} ms ({:.1} G MAC/s), flush {:.1} ms",
+                s.secs_k_h2d * 1e3 / r,
+                s.secs_k_fwd * 1e3 / r,
+                s.secs_k_gemm * 1e3 / r,
+                macs / (s.secs_k_gemm / r) / 1e9,
+                s.secs_k_flush * 1e3 / r
+            )
+        } else {
+            String::new()
+        }
     );
 }
