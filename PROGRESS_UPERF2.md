@@ -850,12 +850,14 @@ rig rows, what is left.
   the CPU path (correct, slower) — rigs under the flock only.
 - Honest position against TARGET_CONTRACT (unchanged in kind): 34 s is
   a 12-layer x 512-token slice of the 125M FFN on a 55-70 W laptop
-  part; the 8B contract shape is ~64x the work, a <= 450 W desktop
-  board is ~4-6x this part [MODEL] — "minutes on one GPU" is now the
-  honest projection for the current protocol; the 5-15 s line still
+  part; the 8B contract shape is ~30-100x the work (PROGRESS_UPERF.md
+  gap arithmetic: weights ~100x, activations ~19x), a <= 450 W desktop
+  board is ~4-6x this part [MODEL] — 34 s x 30-100 / 4-6 = ~3-14 min:
+  "minutes on one GPU" is now the honest projection for the current
+  protocol; the 5-15 s line still
   needs the protocol-level items (TASK_BOARD T11) or the
   float/int-mix route (Attestable, CONTINUATION.md), not more kernel
-  work. Kernel work still pays: every second here is ~64/5 s there.
+  work. Kernel work still pays: every second here is ~6-25 s there.
 - Round 9 (below): P = the descent kernels + the per-round floor
   (descents 10.8 -> <= 6 s [ASSUMED]); Q = the prover's CPU-side blocks
   (prove-group + commit + CRS + transport, 22 s -> ~13 s [ASSUMED]:

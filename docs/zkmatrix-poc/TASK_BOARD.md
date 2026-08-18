@@ -456,9 +456,9 @@ s CPU-only; 12x128 15.6 s; 3x16 4.3 s; every digest identical.**
 Round 9 (PROGRESS_UPERF2 "Round 9"): P = the descent kernels + the
 per-round floor; Q = prove-group / commit / CRS / transport.
 Honest position: 34 s is a 12x512 slice of the 125M FFN on a laptop
-GPU; the 8B contract shape is ~64x the work on a ~4-6x part [MODEL] —
-"minutes on one desktop GPU" is the honest projection for this
-protocol; 5-15 s needs T11's design items or the float/int-mix route.
+GPU; the 8B contract shape is ~30-100x the work on a ~4-6x part [MODEL]
+(3-14 min) — "minutes on one desktop GPU" is the honest projection for
+this protocol; 5-15 s needs T11's design items or the float/int-mix route.
 
 **Grok (Mac): T1 is STILL valuable (the [MAC-BOX] convention numbers,
 its better thread scaling: 1/8/16 threads + one oracle run) and now has
