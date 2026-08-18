@@ -6424,6 +6424,8 @@ fn main() {
         Some("uperf-m") => uperf_m_main(&args[1..]),
         // [UPERF2-L] U-PERF2 lane L (GPU step 2: the K-field lane kernels on the device) battery + bench.
         Some("uperf-l") => uperf_l_main(&args[1..]),
+        // [UPERF2-O] U-PERF2 lane O (claim-layer table pool, device-built ixf tables, GEMM u32-limb) battery + bench.
+        Some("uperf-o") => uperf_o_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -40580,4 +40582,45 @@ fn uperf_l_dbench(depth: usize, l: usize, n_real: usize, dt: usize) {
     println!("  CPU phases: {}", cpu_prof.join(" | "));
     println!("  GPU phases: {}", gpu_prof.join(" | "));
     assert_eq!(a.digest, b.digest, "[UPERF2-L] dbench: GPU digest != CPU digest");
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-O] U-PERF2 lane O — the claim layer, round 2: the packed ixf
+// tables' POOL across the instances (fold.rs `IxfPoolScope`), the ixf
+// tables BUILT ON THE DEVICE from the compact operands + the device-resident
+// ixf chain (ring/gpu/ixf.rs + kernels_ixf.cu, this lane's own module),
+// the GEMM's u32-limb MAC (kernels.cu). ADDITIVE section. Commands:
+//   uperf-o battery [seed] — the device-built tables + device chain vs the
+//                            host builders + the CPU prover, cell by cell
+//                            and proof by proof (GPU build, ZK_GPU=1); the
+//                            pool on/off proofs byte-identical (any build).
+//   uperf-o bench [n_log2] [kind] — one zero-check-shaped instance: pool
+//                            off / on / device (whatever the build offers).
+// Without `--features gpu-cuda` (or without ZK_GPU=1) the device arms
+// report the state and run the host legs only.
+
+fn uperf_o_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("battery") => {
+            let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(0x0a5e);
+            uperf_o_battery(seed);
+        }
+        Some("bench") => {
+            let n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(20);
+            let kind = match args.get(2).map(String::as_str) {
+                Some("had") => ring::fold::IxfCombine::Had,
+                _ => ring::fold::IxfCombine::Rq,
+            };
+            uperf_o_bench(n, kind);
+        }
+        _ => println!("uperf-o battery [seed] | bench [n_log2] [had|rq]"),
+    }
+}
+
+fn uperf_o_battery(_seed: u64) {
+    println!("[UPERF2-O] battery: (skeleton — nothing landed yet)");
+}
+
+fn uperf_o_bench(_n_log2: usize, _kind: ring::fold::IxfCombine) {
+    println!("[UPERF2-O] bench: (skeleton — nothing landed yet)");
 }

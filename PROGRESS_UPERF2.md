@@ -899,7 +899,59 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent O status (wt-uperf2-o)
 
-- (lane launches here)
+PLAN (skeleton commit, 2026-08-17; branch uperf2-o from 50aea3e; report:
+docs/zkmatrix-poc/U_PERF2_CLAIM2_REPORT.md). Files: `fold.rs` (the claim
+layer's table POOL + the device-table entry point), `sumcheck.rs`
+(untouched unless needed), the claim-layer region of `bg_pass_run` /
+`bk_pass_run` + `bg_zc_prove` in the bin, NEW `gpu/ixf.rs` +
+`gpu/kernels_ixf.cu` (the device-built ixf tables and the device-resident
+ixf chain — this lane's own module; k9.rs / kernels_k9.cu are lane N's and
+stay untouched), `gpu/cuda.rs` + `gpu/kernels.cu` (the GEMM's u32-limb
+form), `gpu/mod.rs` (one `mod ixf;` + re-exports + the stub), a
+`// [UPERF2-O]` bin section with `uperf-o {battery, bench}`. Baseline
+capture BEFORE any code change (the 50aea3e default binary saved as
+scratchpad/ring_matmul_base_50aea3e): freeze-check with the wsl export —
+98 `ok` rows + the BF/BK rows + "freeze-check passed"
+(scratchpad/o_freeze_baseline.txt).
+
+1. TABLE POOL (fold.rs, both builds): a claim-layer-scoped free list of
+   full-size packed buffers (`IxfPoolScope`, opened by the pass drivers
+   around the claim layer, cleared at its end): `IxfTable::eq /
+   scalar_table / layer_expand` and the fold scratch take from it, the
+   packed prover returns its (never shrunk) buffers to it — no fresh
+   512 MB-1 GB calloc + first-touch faults + munmap per table per
+   instance; the packed layout and every value unchanged (allocation
+   plumbing only).
+2. DEVICE-BUILT IXF TABLES + device-resident chain (GPU build,
+   `ZK_GPU=1`; `ZK_GPU_IXF=0` = the one-binary A/B): `bg_zc_prove` hands
+   fold.rs the COMPACT operands (the eq point, the per-layer i64 tensors
+   with their (rows, cols_real, cols_pad, np, slots) index law, the
+   16-slot layer table); the device builds the three stacked tables from
+   the tensors (embed(v mod q), one u32 store per element), never
+   materializes the eq factor (eq_t[i] = eqL_t[i & m] x eqH[i >> ..] with
+   two <= 4096-element halves — the eq-fold identity, exact by
+   multilinearity; the low half folded on the host per round) nor the
+   requant shift table (per-slot broadcast while position variables
+   remain; the 16-element layer table afterwards), runs the round kernel
+   + the folds on the device (rotating scratch: nt + 1 buffers), returns
+   only the node values per round (canonical sums, reduced mod q — lane
+   L's argument), and hands the small tail back to the host loop
+   (below the k9 minimum, the CPU rounds and the scalar tail run as
+   today). Uploads per big instance: 3 x (12 x 2^20 x 8 B) instead of
+   4-5 x 1 GB. Values: every stored coefficient the canonical
+   representative of the same field expression; batteries + rig digests.
+3. GEMM u32-limb MAC (cuda.rs / kernels.cu; K's report Section 5): the
+   Goldilocks operands split into limbs, `mad.wide.u32` partial products
+   summed in u64 lanes, the SAME 128-bit split-halves integers recovered
+   before the flush (identical exact sums) — measured with `uperf-k
+   bench` and the rigs; `uperf-k battery` is the gate.
+4. Leftovers if time: CRS SHA-256 blocks / transport transforms /
+   precommit transforms.
+5. Gates: default build uperf-pc/d/j/c/f/m/a/g/h/i + freeze rows (98
+   identical + BF rows) + self-test; GPU build uperf-k/l/pc/d/j/m under
+   ZK_GPU=1; the rigs 3x16 / 12x128 / 12x512 8T+GPU digests identical.
+
+STATUS: (in progress — see the report)
 
 ## Agent L status (wt-uperf2-l)
 
