@@ -39498,6 +39498,121 @@ fn uperf_m_battery() {
         }
     }
     println!("[UPERF2-M] (B) psi0-factored-multi NTT == today == compute_psi(reference): {n_b} legs (5 shapes x 5 splits x q31/q46 x simd on/off)");
+    // (C) the pool combine (G blocks): ntt_combine_pool == the Karatsuba
+    // reference on the materialized table; g_block_pool == g_block_ref.
+    let mut n_c = 0usize;
+    for (qn, ctx) in [("q31", ring_ctx_q8()), ("q46", ring::ring_ctx(ring::Q8_46, ring::ETA8_46, 8))] {
+        let kf = KField::new(&ctx);
+        let q = ctx.zq.q;
+        let zq = &ctx.zq;
+        let mut rd = XofReader::new("uperf-m-pool", &[qn.as_bytes()]);
+        let rand_ring = |rd: &mut XofReader, zero: bool| -> Poly {
+            if zero { poly_zero() } else { (0..D).map(|_| rd.next_field(q)).collect() }
+        };
+        for (n, np, m) in [(16usize, 32usize, 16usize), (3, 5, 7), (1, 1, 1), (12, 4, 40), (2100, 9, 3), (1100, 6, 2)] {
+            let alphas: Vec<Poly> = (0..n).map(|i| rand_ring(&mut rd, i % 7 == 3)).collect();
+            let pool: Vec<Poly> = (0..np).map(|i| rand_ring(&mut rd, i % 5 == 4)).collect();
+            let table: Vec<Vec<usize>> = (0..n).map(|_| (0..m).map(|_| rd.next_field(np as u64) as usize).collect()).collect();
+            let idx = |i: usize, u: usize| -> usize { table[i][u] };
+            let got = ring::eval_proof::ntt_combine_pool(&ctx, &alphas, &pool, &idx, m);
+            let ops_store: Vec<Vec<Poly>> = (0..n).map(|i| (0..m).map(|u| pool[idx(i, u)].clone()).collect()).collect();
+            let ops: Vec<&[Poly]> = ops_store.iter().map(|v| v.as_slice()).collect();
+            let want = ring::eval_proof::ntt_combine_general_ref(&ctx, &alphas, &ops, m);
+            assert_eq!(got, want, "combine-pool mismatch at {qn} n {n} np {np} m {m}");
+            absorb("pool", &got);
+            n_c += 1;
+        }
+        // G blocks: random col kernel block + alphas (with zero rings), s = kf.s.
+        for seed in 0..3u64 {
+            let cq0: Vec<Poly> = (0..16).map(|i| rand_ring(&mut rd, seed == 1 && i % 4 == 2)).collect();
+            let alphas: Vec<Poly> = (0..16).map(|i| rand_ring(&mut rd, seed == 2 && i == 5)).collect();
+            let got = ring::eval_proof::g_block_pool(&ctx, kf.s, &cq0, &alphas);
+            let want = ring::eval_proof::g_block_ref(&ctx, kf.s, &cq0, &alphas);
+            assert_eq!(got, want, "g_block pool != ref at {qn} seed {seed}");
+            absorb("gblock", &got);
+            n_c += 1;
+        }
+        let _ = zq;
+    }
+    println!("[UPERF2-M] (C) ntt_combine_pool == kara reference (6 shapes incl. the two-sided-at-q31 n = 2100 and fallback n = 1100) + g_block pool == ref (3 seeds): {n_c} legs, q31 + q46");
+    // (D) the canonical Z_p lane MAC (the NttAcc body on x86_64): AVX2 ==
+    // scalar on planted extremes (p-1, 0, EPS, 2^32, 2^63 lanes) + random,
+    // accumulated over many terms.
+    let mut n_d = 0usize;
+    #[cfg(target_arch = "x86_64")]
+    if ring::aux::simd_ntt_available() {
+        use ring::aux::{gl_mac_lanes_avx2, gl_mac_lanes_scalar, EPS, P};
+        let mut rd = XofReader::new("uperf-m-lanemac", &[b"x"]);
+        let extremes: [u64; 8] = [0, 1, P - 1, EPS, 1u64 << 32, 1u64 << 63, P - EPS, (P - 1) / 2];
+        let mut rand_p = |rd: &mut XofReader| -> u64 { rd.next_field(P) };
+        for case in 0..12usize {
+            let n_terms = [1usize, 2, 3, 17, 64, 200, 1, 5, 64, 300, 1000, 4096][case];
+            let mut acc_a = [0u64; D];
+            let mut acc_s = [0u64; D];
+            if case >= 6 {
+                // Nonzero start (a partial accumulation) — planted.
+                for j in 0..D {
+                    acc_a[j] = extremes[(j + case) % 8];
+                }
+                acc_s = acc_a;
+            }
+            for tt in 0..n_terms {
+                let a: [u64; D] = std::array::from_fn(|j| if case % 3 == 0 { extremes[(j + tt) % 8] } else if case % 3 == 1 { P - 1 } else { rand_p(&mut rd) });
+                let b: [u64; D] = std::array::from_fn(|j| if case % 3 == 0 { extremes[(j * 3 + tt) % 8] } else if case % 3 == 1 && tt % 2 == 0 { P - 1 } else { rand_p(&mut rd) });
+                gl_mac_lanes_avx2(&mut acc_a, &a, &b);
+                gl_mac_lanes_scalar(&mut acc_s, &a, &b);
+                assert_eq!(acc_a, acc_s, "lane MAC avx2 != scalar at case {case} term {tt}");
+            }
+            absorb("lanemac", &[acc_s.to_vec()]);
+            n_d += 1;
+        }
+    }
+    println!("[UPERF2-M] (D) canonical Z_p lane MAC avx2 == scalar: {n_d} accumulations (planted extremes + random, up to 4096 terms)");
+    // (E) the fold-reduced K-mult / mulmod == kf.mul / zq.mul; the
+    // allocation-free digit splits == the pre-change bodies.
+    let mut n_e = 0usize;
+    for (qn, ctx) in [("q31", ring_ctx_q8()), ("q46", ring::ring_ctx(ring::Q8_46, ring::ETA8_46, 8))] {
+        let kf = KField::new(&ctx);
+        let zq = &ctx.zq;
+        let q = zq.q;
+        let mut rd = XofReader::new("uperf-m-kmul", &[qn.as_bytes()]);
+        let ext = [0u64, 1, q - 1, q / 2, (q - 1) / 2 + 1, 2, q - 2];
+        for case in 0..40usize {
+            let a: ring::kfield::KElem = (0..16).map(|i| if case < 8 { ext[(i + case) % ext.len()] } else { rd.next_field(q) }).collect();
+            let b: ring::kfield::KElem = (0..16).map(|i| if case < 8 { ext[(i * 5 + case) % ext.len()] } else if case < 16 { q - 1 } else { rd.next_field(q) }).collect();
+            let got = ring::eval_proof::kmul_fast_pub(&kf, &a, &b);
+            let want = kf.mul(&a, &b);
+            assert_eq!(got, want, "kmul_fast != kf.mul at {qn} case {case}");
+            for (&x, &y) in a.iter().zip(b.iter()) {
+                assert_eq!(ring::eval_proof::mulmod_fold_pub(q, x, y), zq.mul(x, y), "mulmod_fold != zq.mul at {qn}");
+            }
+            absorb("kmul", &[got.clone()]);
+            n_e += 1;
+        }
+        // Digit splits.
+        for (e, l) in [(1u32, 4usize), (2, 5), (2, 8), (3, 4), (5, 6), (7, 6), (2, 16), (4, 8)] {
+            let (lo, hi) = ring::digits::representable(e.max(2), l);
+            let span = (hi - lo + 1).min(1i128 << 62) as u64;
+            let small: Vec<i64> = (0..D).map(|j| if j == 0 { lo as i64 } else if j == 1 { hi as i64 } else if j == 2 { 0 } else { (lo + rd.next_field(span) as i128) as i64 }).collect();
+            let a = ring::eval_proof::decompose_poly_small(&small, e, l);
+            let b = ring::eval_proof::decompose_poly_small_ref(&small, e, l);
+            assert_eq!(a, b, "decompose_poly_small != ref at e {e} l {l}");
+            // mod-q: only limb counts that carry the centered range.
+            let (qlo, qhi) = ((q as i128 - 1) / -2, (q as i128 - 1) / 2);
+            if lo <= qlo && qhi <= hi {
+                let p: Poly = (0..D).map(|j| if j == 0 { 0 } else if j == 1 { q - 1 } else if j == 2 { (q - 1) / 2 } else { rd.next_field(q) }).collect();
+                let a = ring::eval_proof::decompose_poly_modq(zq, &p, e, l);
+                let b = ring::eval_proof::decompose_poly_modq_ref(zq, &p, e, l);
+                assert_eq!(a, b, "decompose_poly_modq != ref at e {e} l {l}");
+                let au: Vec<Poly> = a.iter().map(|r| r.iter().map(|&x| x as u64).collect()).collect();
+                absorb("digits-q", &au);
+            }
+            let au: Vec<Poly> = a.iter().map(|r| r.iter().map(|&x| x as u64).collect()).collect();
+            absorb("digits", &au);
+            n_e += 1;
+        }
+    }
+    println!("[UPERF2-M] (E) kmul_fast == kf.mul + mulmod_fold == zq.mul (40 cases x q31/q46, extremes) + digit splits == ref (8 (e, l) classes): {n_e} legs");
     let dg: [u8; 32] = battery.finalize().into();
     println!("[UPERF2-M] BATTERY DIGEST {}", hex_full(&dg));
     println!("[UPERF2-M] battery passed in {:.2}s", t0.elapsed().as_secs_f64());

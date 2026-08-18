@@ -893,6 +893,46 @@ mod gl_avx2 {
             }
         }
     }
+
+    /// [UPERF2-M] acc[j] = (acc[j] + a[j] * b[j]) mod p, canonical, for
+    /// j in 0..D — the NTT-domain multiply-accumulate of the eval-proof
+    /// kernels on the same `mul` / `add` (a, b, acc canonical).
+    #[target_feature(enable = "avx2")]
+    pub unsafe fn mac(acc: &mut [u64; D], a: &[u64; D], b: &[u64; D]) {
+        unsafe {
+            let k = consts();
+            let pa = a.as_ptr();
+            let pb = b.as_ptr();
+            let pc = acc.as_mut_ptr();
+            let mut j = 0;
+            while j < D {
+                let prod = mul(ld(pa, j), tw_load(pb.add(j)), k);
+                st(pc, j, add(ld(pc, j), prod, k));
+                j += 4;
+            }
+        }
+    }
+}
+
+/// [UPERF2-M] Canonical NTT-domain MAC on AVX2 lanes: acc[j] = (acc[j] +
+/// a[j] * b[j]) mod p for j in 0..D (every operand and result canonical
+/// in [0, p) — the same field elements the scalar `gl_add(acc, gl_mul(a,
+/// b))` returns). The caller guarantees AVX2 (`simd_ntt_available()`).
+#[cfg(target_arch = "x86_64")]
+#[inline]
+pub fn gl_mac_lanes_avx2(acc: &mut [u64; D], a: &[u64; D], b: &[u64; D]) {
+    debug_assert!(std::arch::is_x86_feature_detected!("avx2"));
+    // SAFETY: AVX2 present per the caller's contract; three fixed
+    // [u64; 128] arrays, in-bounds loads/stores at offsets 0..128 step 4.
+    unsafe { gl_avx2::mac(acc, a, b) }
+}
+
+/// [UPERF2-M] The scalar body of the canonical MAC (== the AVX2 lanes).
+#[inline]
+pub fn gl_mac_lanes_scalar(acc: &mut [u64; D], a: &[u64; D], b: &[u64; D]) {
+    for j in 0..D {
+        acc[j] = gl_add(acc[j], gl_mul(a[j], b[j]));
+    }
 }
 
 /// [UPERF2-I] NEON body: 2 x u64 lanes, the AVX2 body's mirror

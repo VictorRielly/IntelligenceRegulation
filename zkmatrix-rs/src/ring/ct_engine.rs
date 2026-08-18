@@ -2548,7 +2548,8 @@ pub mod prof {
     pub const M_FOLD_NTT: usize = 62; // fold_chunks_ntt body (inside bg.fold; the rest is the digit split + asserts)
     pub const M_CRS_BLOCKS: usize = 63; // expand_level_matrix_par: the SHA-256 block generation
     pub const M_CRS_WALK: usize = 64; // expand_level_matrix_par: the rejection walk into polys
-    pub const N_PHASES: usize = 65;
+    pub const M_PHI_SETUP: usize = 65; // PhiFactored::new (row factors + the alpha-contracted G blocks) — inside psi0-factored / kernel-phi
+    pub const N_PHASES: usize = 66;
 
     pub const NAMES: [&str; N_PHASES] = [
         "ct.setup(clone+digits)",
@@ -2616,6 +2617,7 @@ pub mod prof {
         "m.fold-ntt",
         "m.crs-blocks",
         "m.crs-walk",
+        "m.phi-setup",
     ];
 
     static ENABLED: AtomicBool = AtomicBool::new(false);
