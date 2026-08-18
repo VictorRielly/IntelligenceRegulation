@@ -55,7 +55,7 @@ If you are Grok/Cursor: start at Section 3, take the first task marked
 | `freeze-check` | full, exit 0 required | first 98 rows green, then panics at the UAGB1-BF rows (missing export) — EXPECTED here |
 | python suite | all green required | 77 pass, 2 skip, and EXACTLY these 4 fail for the same missing-export reason (freeze-check SIGABRT / layer00_X.bin): `test_ring_freeze_check`, `test_freeze_rows_uagb1_bf`, `test_pass_smoke_real_data`, `test_freeze_rows` (tblind) — measured 2026-08-17 at 213dfa2, 469 s. Any OTHER failure is real. |
 | `uperf-pc diff-battery`, `agg-matmul ...`, `bh-verifier ...`, `agg-kel`, unit rigs | run | run |
-| build | `cargo build --release` in `zkmatrix-rs/` | same (plain `cargo`; the rustup proxy is ahead of snap on PATH) |
+| build | `cargo build --release` in `zkmatrix-rs/` (or `--manifest-path` from the root — the two are now the SAME build: `zkmatrix-rs/.cargo/config.toml` no longer sets `target-cpu=native`, which was measured 3-4x SLOWER on the WSL box and applied only cwd-dependently) | same (plain `cargo`; the rustup proxy is ahead of snap on PATH) |
 | timing status | frugal-lm F2 training may be running (check `top`) -> label NOISY-SHARED | usually quiet; is the TARGET_CONTRACT "CPU reference machine" |
 
 So: code + function-level batteries can be written and verified on
