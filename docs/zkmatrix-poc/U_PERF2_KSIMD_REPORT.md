@@ -290,7 +290,45 @@ diagonals per operand load + no block copies in the node loop 2.6-2.9x.
 
 (the h-bench and the thread ladder: Section 4.3)
 
-### 4.3 (to be filled: h-bench, thread ladder, uperf-d bench)
+### 4.3 Thread ladder, the h-bench, the packed sumcheck bench [WSL-BOX NOISY-SHARED]
+
+`uperf-a descent-bench 20 8 5 9 noverify`, `masked_gkr_prove` seconds
+(a.round-g / a.tree-step), DESCENT DIGEST 47a58a27.. on every cell:
+
+| ZK_THREADS | 1 | 2 | 4 | 8 | 16 |
+|---|---:|---:|---:|---:|---:|
+| hand AVX2: prove | 3.68 | 2.20 | 1.27 | 0.98 | 0.95 |
+| hand: a.round-g / a.tree-step | 3.14 / 1.01 | 1.85 / 0.60 | 1.03 / 0.34 | 0.77 / 0.26 | 0.74 / 0.25 |
+| today (`ZK_KSIMD=0`): prove | 8.83 | | | 1.93 | |
+| today: a.round-g / a.tree-step | 7.50 / 2.53 | | | 1.57 / 0.50 | |
+| ratio today / hand | 2.4x | | | 2.0x | |
+
+The hand kernel scales 3.75x to 8 threads and 3.9x to 16 (today's
+4.6x at 8T, lane G's 5.0x at 16T): the same work now moves 2.4x more
+table bytes per second, and the descent's traffic (15 KB per pair-block
+per fused round, ~30 GB/s at 8 threads at the new speed) meets this
+box's memory system before its cores run out — the E-cores past 6-8
+threads add little either way. That is the reading of every 8T ratio in
+this report being ~2.0-2.2x against 2.5-3x at 1T.
+
+`uperf-h bench 20 8 5 9` (lane H's bench: 2-coordinate member values ->
+COMPACT leaves + the c = 2 recompute — the rig's tree shape), 8T, DESCENT
+DIGEST 0bf9d7a3.. both: `masked_gkr_prove` 2.04 -> 1.02 s (2.0x),
+a.round-g 1.68 -> 0.78 (2.15x), a.tree-step 0.49 -> 0.25 (1.95x —
+includes the scalar compact-leaf expansion), trees 0.38 -> 0.23, peak RSS
+665 -> 666 MiB.
+
+`uperf-d bench 17 rq` (lane D's packed ixf sumcheck, Rq at 2^17 x 5
+tables): 1T 950 -> 675 ns per pair-round (d.cl-rounds 0.049 -> 0.038 s,
+d.cl-folds 0.052 -> 0.025 s), 8T 454 -> 346 (rounds 0.015 -> 0.009,
+folds 0.022 -> 0.012). The 1T rounds gain (1.3x) is well below the
+cache-resident ixf microbench (2.7x): the bench's five 8 MB tables
+stream from DRAM at 1T (5 KB per pair-block per round) and the round
+kernel's five deinterleaved streams sit at ~2.3 us per pair-block on
+memory latency; on the rig the claim layer's rounds moved 2.0x at 8T
+(Section 6) — its tables are 128 MB each there and 8 threads hide the
+latency. The pack (`kt_pack`, boxed -> packed) is unchanged (memory-
+bound copies).
 
 ## 5. Differential evidence + gates (all at HEAD of uperf2-j)
 
@@ -324,9 +362,11 @@ diagonals per operand load + no block copies in the node loop 2.6-2.9x.
 - `uperf-j battery`, `uperf-a descent-battery` (7T) re-run on the final
   binary after the oracle-mode gate: 45dba7c7.. / f936ff79.. unchanged.
 
-### 5.2 self-test + the d/h benches (final HEAD binary)
+### 5.2 self-test (final HEAD binary)
 
-(filled at close)
+`self-test` (ZK_THREADS 1): passed in 254.6 s (exit 0; the [U-K9] battery
+included — the boxed scalar oracle vs the packed field now exercises the
+hand bodies). The d/h benches: Section 4.3.
 
 ## 6. The REAL rigs (`uperf-pc full-profile`, `M125_EXPORT_DIR=results/m125_ffn_export_wsl`, flock-serialized with lane K's runs; one binary, `ZK_KSIMD=0` = today's bodies) [WSL-BOX NOISY-SHARED, load 2.5-4 (lane K's rigs/builds between the flock'd runs)]
 

@@ -784,11 +784,21 @@ docs/zkmatrix-poc/U_PERF2_KSIMD_REPORT.md):
   (6d6a3f6b..), `uperf-d` 30/30 (46471467..), `uperf-h` 24/24 x 8 ways
   (b1e78285..), `uperf-j` 1,120 x 3 — each at ZK_THREADS 1, 2, 7 with
   and without ZK_KSIMD=0 (30 battery runs, every digest the ledger's);
-  `uperf-pc diff-battery` 1T/7T (with the hand bodies OFF under the
-  in-process oracle flip, so its fast-vs-oracle legs are also hand vs
-  today); freeze-check 98 `ok` rows identical to the pre-change capture;
-  `self-test`; the rig digests (3x16 93a98700.. / 0ae9cdae.. at 1T and
-  8T; 12x128 4a3af8c3.. / 742d88e1..; 12x512 2f8a92f8.. / 4c259008..).
+  `uperf-pc diff-battery` 1T/7T passed (with the hand bodies OFF under
+  the in-process oracle flip, so its fast-vs-oracle legs are also hand
+  vs today, E2E proofs byte-identical); freeze-check 98 `ok` rows
+  identical to the pre-change capture AND, run with M125_EXPORT_DIR set
+  to the local wsl re-export, the UAGB1-BF/BK real-data rows ran and
+  passed too ("freeze-check passed"); `self-test` passed (254.6 s); the
+  rig digests (3x16 93a98700.. / 0ae9cdae.. at 1T and 8T; 12x128
+  4a3af8c3.. / 742d88e1..; 12x512 2f8a92f8.. / 4c259008..). Also:
+  `uperf-h bench 20 8 5 9` (compact leaves, c=2) 8T prove 2.04 -> 1.02 s
+  (round-g 1.68 -> 0.78, tree-step 0.49 -> 0.25; digest 0bf9d7a3..
+  both); `uperf-d bench 17 rq` 1T 950 -> 675 ns per pair-round (rounds
+  0.049 -> 0.038 s, folds 0.052 -> 0.025), 8T 454 -> 346; thread ladder
+  (descent bench, hand): prove 3.68 / 2.20 / 1.27 / 0.98 / 0.95 s at
+  1/2/4/8/16T (today 8.83 / 1.93 at 1/8T) — the hand kernel scales
+  3.75x to 8T (today 4.6x): memory-side saturation, report 4.3.
 - NOT landed / left: a NEON mirror (the body set is ~900 lines and no
   aarch64 target is installed here — an untested mirror of that size in
   the hot path is not "cheap"; the report gives the 1:1 mapping; the Mac
