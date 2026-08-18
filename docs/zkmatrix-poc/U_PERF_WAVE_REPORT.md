@@ -240,10 +240,17 @@ concurrently)]:
 | + lane M (psi0 AVX2 + NTT accumulation, rows pass AVX2, CRS v2, max_abs scan) (100a41c), 12x512, 8T, CPU only | 9.6 s | **82.7 s** | **2.7 s** | **96.7 s** | 4c259008… (identical) | 11.0 GiB |
 | same binary, 3x16 1T / 8T ; 12x128 8T (CPU only) | 3.2 / 1.1 / 4.6 s | 15.0 / 4.8 / 28.9 s | **1.8 / 0.6 / 1.5 s** | **20.1 / 6.6 / 35.6 s** | identical | 0.96 / 0.97 / 4.16 GiB |
 
-**The PoC shape now runs on the TARGET_CONTRACT reference machine —
-85 s with its (50-70 W laptop) GPU (before lane M), 96.7 s CPU-only at 8
-threads (after lane M; the GPU+M combination is measured with lane L).
-The verifier is at 2.7 s (8T) at 12x512 and 0.6 s at 3x16.**
+| + lane L (GPU step 2: fused descent round + ixf round/fold on the device) with M (f90a438), 12x512, 8T + GPU | **4.9 s** | **50.9 s** | **2.6 s** | **60.2 s** | 4c259008… (identical) | 11.2 GiB |
+| same binary, 3x16 8T+GPU / 12x128 8T+GPU | 0.8 / 2.5 s | 3.1 / 16.8 s | **0.5 / 1.4 s** | **4.5 s / 21.3 s** | identical | 1.3 / 4.2 GiB |
+
+**The PoC shape now runs on the TARGET_CONTRACT reference machine in
+60.2 s with its (55-70 W laptop) GPU, 96.7 s CPU-only, at 8 threads;
+verify 2.6 s (0.5 s at 3x16).** 12x512 8T+GPU attribution: descents
+22.6 s (a.round-g 12.0 — now upload-bound, a.tree-step 8.5, trees
+6.2), claim layer 15.5 (cl-rounds 5.3, cl-folds 5.2, cl-tables 4.9 —
+host page management + 2-2.5 GB uploads per instance), prove-group
+12.7 (level-h 4.7, psi0 2.7, fold 1.9, kernel-rows 1.9), commit 4.9
+(precommit-u0 3.2), CRS 2.7, transport 2.0, verify 2.4.
 The frozen [MAC-BOX 1T] full-statement line was commit 384.9 / prove
 4,811.0 / verify ~236 s at 41-47 GiB (UAGB1_TABLE_DESCENT_REPORT 3.3
 + BJ's re-measure); the counted bytes agree to the byte (1,509,911 B).

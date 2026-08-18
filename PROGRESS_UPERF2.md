@@ -700,6 +700,45 @@ rows, self-test, the rigs (3x16 1T/8T, 12x128 8T, ONE 12x512 8T with
 the GPU build if you can, else CPU-only) digests identical. Report:
 per-item before/after, rig rows, what is left.
 
+## Orchestrator status (2026-08-17, after round 7 — L + M) — 60.2 s
+
+- Lanes M (psi0-factored AVX2 + NTT-domain accumulation, rows-pass
+  AVX2, CRS v2, `max_abs` scan, transport small products; verify 7.4 ->
+  2.7 s) and L (GPU step 2: the fused masked-descent round and the ixf
+  round + fold on the device through one hook each, device-resident
+  layer chains, 310-leg cell-by-cell battery; the tree step ported but
+  OFF by default — the D2H link makes it 0.3-0.5x) MERGED (100a41c,
+  f90a438), gates green in both builds.
+- **12x512 full statement on the reference box, ZK_THREADS=8 + the
+  RTX 4070 Laptop (`ZK_GPU=1`): 60.2 s = commit 4.9 + prove 50.9 +
+  verify 2.6; CPU-only 96.7 s (9.6 / 82.7 / 2.7); 1,509,911 B; ~11 GB;
+  every digest identical to the first run of the day.** 3x16 8T+GPU
+  4.5 s (verify 0.5 s), 12x128 21.3 s. Same-box oracle A/B at 3x16:
+  682.8 s -> 4.5 s (150x); cross-box vs the frozen [MAC 1T] full
+  statement (~5,430 s wall): ~90x.
+- 12x512 8T+GPU attribution: descents 22.6 s (a.round-g 12.0 — L's
+  finding: the WSL2 pinned-H2D link at 5-9 GB/s and the first-touch
+  penalty of freshly DMA'd pages, ~6.6 s uploads/encodes of the 12 s;
+  a.tree-step 8.5, trees 6.2), claim layer 15.5 (host page management
+  of the fresh 512 MB tables per instance + 2-2.5 GB uploads: cl-rounds
+  5.3, cl-folds 5.2, cl-tables 4.9), prove-group 12.7 (level-h GEMM 4.7
+  at ~30% of the part's IMAD peak, psi0 2.7, fold 1.9, kernel-rows
+  1.9), commit 4.9 (precommit-u0 3.2), CRS 2.7, transport 2.0, verify
+  2.4.
+- What round 8 would be (structural, designed by L/M, not built): (1)
+  the descent tree DEVICE-RESIDENT end to end (build from the compact
+  leaves on the device, checkpointed layers recomputed on the device,
+  no per-layer uploads — kills ~6.6 s uploads + most of tree-step 8.5 +
+  trees 6.2), a small contract change in kfield/gkr; (2) the claim
+  layer's table pool + device-built ixf tables (-8 s class); (3) the
+  GEMM's u32-limb formulation (~2.5-3x on the kernel [ASSUMED]); (4)
+  the CPU-side leftovers (CRS on device or SHA-NI batching, transport
+  transforms cached, precommit's w transforms shared with level-h if
+  RAM allows). Honest outlook: this laptop part is 55-70 W; a desktop
+  <= 450 W board has ~4-6x its bandwidth/throughput [MODEL] — the
+  descents/claim layer are link-bound here, so the desktop factor is
+  NOT a simple multiple; measure, do not extrapolate.
+
 ## Agent A status (wt-uperf2-a)
 
 PLAN (skeleton commit, 2026-08-17). Files: gkr_masked.rs / gkr.rs /

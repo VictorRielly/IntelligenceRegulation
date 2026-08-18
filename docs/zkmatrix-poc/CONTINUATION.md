@@ -168,6 +168,13 @@ numbers need a quiesced box; design and correctness work do not.
   the GPU at 8 threads** (U_PERF2_GPU_REPORT.md; a 55-70 W mobile part
   — the <= 450 W desktop line stays [MODEL]). Next: the descent round /
   ixf / tree-step kernels on the device.
+- 2026-08-17 (round 7): the descent round + ixf kernels are on the
+  device too; the level-0 psi and the rest of the eval proof were
+  vectorized — **12x512: 60.2 s with the reference box's laptop GPU
+  (commit 4.9 / prove 50.9 / verify 2.6), 96.7 s CPU-only, 8 threads,
+  ~11 GB, bit-identical to the first run of the day.** Verify is 2.6 s
+  at 8T (0.5 s at 3x16). Remaining structural items are listed in
+  PROGRESS_UPERF2.md ("after round 7").
 - 2026-08-17 (Claude, status recalculation — PROGRESS_UPERF.md
   "2026-08-17" section): PATH CORRECTION for Phase 0. The composed
   pass (`bg_pass_run`, the deliverable) never calls `prove_ct_round`;

@@ -444,6 +444,12 @@ Round 6 LANDED (34a8eb8, c210ea9): AVX2 K-field kernels (J) and **the
 GPU rung step 1 (K: `--features gpu-cuda`, `ZK_GPU=1`, RTX 4070 Laptop
 via WSL2, bit-identical, 8-10x on the ported GEMM)** — **12x512 now
 106.8 s CPU-only / 85.0 s with the GPU at 8 threads** (report 4.2).
+Round 7 LANDED (100a41c, f90a438): psi0 + leftovers (M) and the descent
+round / ixf on the device (L) — **12x512: 96.7 s CPU-only / 60.2 s
+with the GPU at 8 threads; verify 2.6 s; 3x16 4.5 s.** Next round
+(designed, PROGRESS_UPERF2 "after round 7"): the descent tree
+device-resident end to end, the claim-layer table pool + device
+tables, the GEMM u32-limb form.
 
 **Grok (Mac): T1 is STILL valuable (the [MAC-BOX] convention numbers,
 its better thread scaling: 1/8/16 threads + one oracle run) and now has
