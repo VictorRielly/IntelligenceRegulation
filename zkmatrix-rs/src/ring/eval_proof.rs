@@ -5001,6 +5001,13 @@ pub trait SmallRings: Sync {
     fn is_zero(&self, u: usize) -> bool;
     /// The sub-slice of rings [lo, hi).
     fn sub(&self, lo: usize, hi: usize) -> &Self;
+    /// [UPERF2-Q] The flat i8 bytes when the store IS the flat store
+    /// (n_rings * D bytes, ring u at [u*D, (u+1)*D)); None for the boxed
+    /// store. A pack fast path only — the values are the same i64s
+    /// `ring()` yields.
+    fn as_i8(&self) -> Option<&[i8]> {
+        None
+    }
 }
 
 impl SmallRings for [Vec<i64>] {
@@ -5067,6 +5074,10 @@ impl SmallRings for [i8] {
     #[inline(always)]
     fn sub(&self, lo: usize, hi: usize) -> &Self {
         &self[lo * D..hi * D]
+    }
+    #[inline(always)]
+    fn as_i8(&self) -> Option<&[i8]> {
+        Some(self) // [UPERF2-Q]
     }
 }
 
@@ -5340,6 +5351,101 @@ impl Phi0Source {
         self.fill(zq, 0, self.n_digit_rings, &mut out);
         out
     }
+
+    // [UPERF2-Q] The window as a POOL of source rings + per-ring
+    // descriptors — the device level-h session's a-operand form: Phi_0[v]
+    // = radix * pool ring (mod q), so the session uploads one u32 ring per
+    // VALUE ring touched (not one per digit ring) and applies the limb
+    // radix on the device before the lift (`k_ntt_fwd_pool`). The
+    // consumer's `(pool * radix) % q` is the canonical residue
+    // `poly_scale(radix, value_ring)` writes in `fill` — the same value.
+
+    /// [UPERF2-Q] The number of pool rings the window [v0, v0 + n) needs:
+    /// one per aligned value ring touched, one per small-cols digit ring;
+    /// zero rings and the pad past the group share the caller's zero
+    /// slot. Layout-only (no arithmetic).
+    pub fn pool_count(&self, v0: usize, n: usize) -> usize {
+        let v1 = v0 + n;
+        let mut cnt = 0usize;
+        for (base, c, form) in &self.tensors {
+            let (lo, hi) = ((*base).max(v0), (base + c).min(v1));
+            if lo >= hi {
+                continue;
+            }
+            match form {
+                Phi0Tensor::Zero => {}
+                Phi0Tensor::Small { .. } => cnt += hi - lo,
+                Phi0Tensor::Aligned { l0, .. } => {
+                    let (rel_lo, rel_hi) = (lo - base, hi - base);
+                    cnt += (rel_hi - 1) / l0 - rel_lo / l0 + 1;
+                }
+            }
+        }
+        cnt
+    }
+
+    /// [UPERF2-Q] Write the window [v0, v0 + n): `pool[i*D..(i+1)*D]` =
+    /// pool ring i (u32 mod-q; `pool_count(v0, n)` of them, in window
+    /// order) and `desc[j] = [pool_base + i, radix]` for j in 0..n such that
+    /// Phi_0[v0 + j] == radix * pool ring i (mod q); zero rings / the pad
+    /// get `[zero_slot, 0]`. Requires q < 2^32. Returns the pool rings
+    /// written. Aligned tensors: one `value_ring` per value ring (the
+    /// same MAC `fill` runs), radix = the limb's `radixes[l]`; small-cols
+    /// tensors: the materialized ring, radix 1.
+    pub fn fill_pool_u32(&self, zq: &Zq, v0: usize, n: usize, pool_base: u32, zero_slot: u32, pool: &mut [u32], desc: &mut [[u32; 2]]) -> usize {
+        assert!(zq.q < (1u64 << 32), "fill_pool_u32: q must fit u32");
+        assert!(desc.len() >= n);
+        let v1 = v0 + n;
+        let mut k = 0usize; // pool rings written
+        for (base, cnt, form) in &self.tensors {
+            let (lo, hi) = ((*base).max(v0), (base + cnt).min(v1));
+            if lo >= hi {
+                continue;
+            }
+            match form {
+                Phi0Tensor::Zero => {
+                    for v in lo..hi {
+                        desc[v - v0] = [zero_slot, 0];
+                    }
+                }
+                Phi0Tensor::Small { rings } => {
+                    for v in lo..hi {
+                        let ring = &rings[v - base];
+                        let dst = &mut pool[k * D..(k + 1) * D];
+                        for c in 0..D {
+                            dst[c] = ring[c] as u32;
+                        }
+                        desc[v - v0] = [pool_base + k as u32, 1];
+                        k += 1;
+                    }
+                }
+                Phi0Tensor::Aligned { pf, radixes, l0 } => {
+                    let (rel_lo, rel_hi) = (lo - base, hi - base);
+                    let mut vr = rel_lo / l0;
+                    let mut buf = [0u64; D];
+                    while vr * l0 < rel_hi {
+                        pf.value_ring_into(vr, &mut buf);
+                        let dst = &mut pool[k * D..(k + 1) * D];
+                        for c in 0..D {
+                            dst[c] = buf[c] as u32;
+                        }
+                        let a = rel_lo.max(vr * l0);
+                        let b = rel_hi.min((vr + 1) * l0);
+                        for rel in a..b {
+                            desc[base + rel - v0] = [pool_base + k as u32, radixes[rel - vr * l0] as u32];
+                        }
+                        k += 1;
+                        vr += 1;
+                    }
+                }
+            }
+        }
+        let tail0 = self.n_digit_rings.max(v0).min(v1);
+        for v in tail0..v1 {
+            desc[v - v0] = [zero_slot, 0];
+        }
+        k
+    }
 }
 
 /// u-block of `level_h_pairs_with` (positions per block; r x block rings
@@ -5376,6 +5482,19 @@ pub fn level_h_pairs_with_block<B: SmallRings + ?Sized>(
     let mut g = vec![poly_zero(); r * r];
     if r == 0 || chunk == 0 {
         return level_h_from_g(zq, &g, r);
+    }
+    // [UPERF2-Q] THE DEVICE SESSION HOOK: with the `gpu-cuda` feature,
+    // `ZK_GPU=1` and a live device, the r x r table is accumulated ON THE
+    // DEVICE across the level's u-blocks (`gpu::level_h_stream`: the phi
+    // window as a value-ring pool + limb radix expanded on the device, w
+    // packed i8, the split-halves accumulator resident, one flush per
+    // exact-integer window) — bit-identical to the loop below, which is
+    // its oracle (declined / bypassed / `ZK_UPERF_ORACLE=1` / default
+    // build). See gpu/cuda.rs `level_h`.
+    if !oracle_mode() && super::gpu::enabled() {
+        if let Some(gd) = super::gpu::level_h_stream(ctx, src, w, chunk, block) {
+            return level_h_from_g(zq, &gd, r);
+        }
     }
     let mut phi_buf: Vec<Poly> = vec![poly_zero(); r * block];
     let mut u0 = 0usize;

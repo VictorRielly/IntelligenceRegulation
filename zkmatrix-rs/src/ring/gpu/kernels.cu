@@ -156,6 +156,59 @@ extern "C" __global__ void k_ntt_fwd(const void* src, int fmt, u64 q, int n_slot
 }
 
 // ---------------------------------------------------------------------------
+// [UPERF2-Q] The forward transform of a POOLED a-operand (the level-h
+// session): slot = ub * na + ia (the GEMM's [t][ub][ia] store, as k_ntt_fwd),
+// its ring = radix * pool[idx] (mod q) with (idx, radix) = desc[ia * n_pos +
+// ub] — the limb radix of the factored level-0 functional applied on the
+// device (`(pool * radix) % q` = the canonical residue `poly_scale` yields;
+// pool, radix < q < 2^32 so the product is exact in u64), then the same
+// lift_modq / DIT stages / transposed store as k_ntt_fwd (copied verbatim —
+// K's kernel is untouched).
+
+extern "C" __global__ void k_ntt_fwd_pool(const u32* pool, const u32* desc, int n_pos, int na, u64 q, u64* dst, const u64* psi_brv) {
+    __shared__ u64 sh[R_FWD * RS_FWD];
+    __shared__ u64 tw[D_RING];
+    const int slot0 = blockIdx.x * R_FWD;
+    const int n_slots = n_pos * na;
+    for (int i = threadIdx.x; i < D_RING; i += blockDim.x) tw[i] = psi_brv[i];
+    for (int e = threadIdx.x; e < R_FWD * D_RING; e += blockDim.x) {
+        int r = e / D_RING, c = e % D_RING;
+        int slot = slot0 + r;
+        u64 v = 0;
+        if (slot < n_slots) {
+            int ub = slot / na, ia = slot - ub * na;
+            const u32* d = desc + 2 * ((size_t)ia * n_pos + ub);
+            u64 x = ((u64)pool[(size_t)d[0] * D_RING + c] * (u64)d[1]) % q;
+            v = lift_modq(x, q);
+        }
+        sh[r * RS_FWD + c] = v;
+    }
+    __syncthreads();
+#pragma unroll 1
+    for (int st = 0; st < 7; ++st) {
+        const int m = 1 << st;
+        const int lg = 6 - st;
+        const int len = 1 << lg;
+        for (int k = threadIdx.x; k < R_FWD * (D_RING >> 1); k += blockDim.x) {
+            int r = k >> 6, b = k & 63;
+            int i = b >> lg, jj = b & (len - 1);
+            int j = r * RS_FWD + ((i * len) << 1) + jj;
+            u64 s = tw[m + i];
+            u64 u = sh[j];
+            u64 v = gl_mul(sh[j + len], s);
+            sh[j] = gl_add(u, v);
+            sh[j + len] = gl_sub(u, v);
+        }
+        __syncthreads();
+    }
+    for (int e = threadIdx.x; e < R_FWD * D_RING; e += blockDim.x) {
+        int t = e / R_FWD, r = e - t * R_FWD;
+        int slot = slot0 + r;
+        if (slot < n_slots) dst[(size_t)t * n_slots + slot] = sh[r * RS_FWD + t];
+    }
+}
+
+// ---------------------------------------------------------------------------
 // The D = 128 batched GEMMs with split-halves accumulation.
 //   A_t[t][k][ia] (na per k, n_k positions), B_t[t][k][ib]
 //   acc[((s*D + t)*na + ia)*nb + ib][4] += (lo, carry_lo, hi, carry_hi) over
