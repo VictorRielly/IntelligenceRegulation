@@ -716,7 +716,94 @@ rows then the expected BF panic (scratchpad/j_freeze_baseline.txt).
    rows, self-test, the REAL rigs (3x16 1T/8T, 12x128 8T, one 12x512 8T).
 4. Report + this section.
 
-STATUS: (in flight)
+STATUS (2026-08-17, HEAD of uperf2-j; report:
+docs/zkmatrix-poc/U_PERF2_KSIMD_REPORT.md):
+
+- LANDED, values identical (every battery digest unchanged, the rig
+  digests exact; `ZK_KSIMD=0` = today's bodies, the one-binary A/B):
+  1. `kfield::k9_avx2` — hand-written AVX2 bodies for every packed lane
+     kernel: the fused descent round (all three modes), the five-table
+     node loop, the folds (in place and out of place), the tree step,
+     the eq doubling, the fixed / elementwise products, the broadcast
+     add, lane D's ixf round. Design: the u64-lane pairs of a row are
+     the AVX2 unit (row = even set, row >> 32 = odd set — `vpmuludq`
+     reads the low u32 of each 64-bit lane), the (2m, 2m+1) block pair
+     deinterleaves by two `vshufps` per row into a working lane order
+     (an involution of the standard order; one `vpermq` at every store),
+     the 16x16 schoolbook is output-stationary in registers (bursts of
+     <= 4 products < 2^62 summed exactly in u64, each folded once by
+     2^32 == c32 into one u64 accumulator < 2^45; two adjacent output
+     diagonals share the operand loads), a fixed operand is its 16x16
+     canonical matrix (Y^16 = s folded in — no h-step), reductions =
+     fold31 (+ fold31) + one conditional subtraction, every stored
+     value the canonical representative of the same field expression
+     the scalar body stores; the persistent planes keep the scalar
+     layout with the SAME exact integer W = lo + 2^32 hi per lane word
+     (the burst split differs; the finalize consumes only W).
+     `asm!("vpmuludq")` (lane I's finding), `is_x86_feature_
+     detected!("avx2")`, `ZK_KSIMD=0`, and OFF under `oracle_mode()`
+     (ZK_UPERF_ORACLE=1 stays a complete oracle). Dispatch macro
+     `k9_kernel_h!` in front of today's dispatch on 12 entry points; the
+     threaded drivers / rung schedule / plane summation untouched; no
+     call-site change was needed in gkr_masked/gkr/fold/sumcheck.
+  2. `uperf-j bench` (16 kernels x 3 variants on the same tables, one
+     binary, digests asserted equal) and `uperf-j battery` (1,120 legs x
+     3 variants: 5 value patterns incl. planted extremes x 3 seeds x 6
+     sizes per kernel; digests over outputs, planes as W per lane word,
+     finalized nodes; BATTERY DIGEST 45dba7c7..).
+  3. Numbers [WSL, 1T, NOISY-SHARED (lane K), one binary]: fused round
+     9.4-11.2 -> 3.2 us per pair-block cache-resident / 4.2 us
+     DRAM-streamed (2.6-2.9x), round-1 extract-fold 2.7-2.9x, round-0
+     2.6-2.7x, node loop 2.5x, tree step 2.6-3.0x, ixf round 2.5-2.8x,
+     fold / fixed product 3.6-4.3x, eq doubling 3.7x. `uperf-a
+     descent-bench 20 8 5 9`: masked_gkr_prove 9.39 -> 3.54 s at 1T
+     (2.65x; a.round-g 8.27 -> 3.04, a.tree-step 2.21 -> 1.01), 2.03 ->
+     0.99 s at 8T (2.05x), DESCENT DIGEST 47a58a27.. on every run.
+  4. REAL rigs (one binary, `ZK_KSIMD=0` vs default, flock-serialized
+     with lane K, [WSL NOISY-SHARED]; every digest the ledger's): 3x16
+     1T 25.7 -> 23.5 s (bk.descent-gkr 2.62 -> 1.06, a.round-g 2.05 ->
+     0.82, a.tree-step 0.73 -> 0.27, claim layer 0.83 -> 0.47:
+     cl-rounds 0.25 -> 0.12, cl-folds 0.24 -> 0.07); 3x16 8T 8.6 ->
+     8.1 s (descent-gkr 0.97 -> 0.59, claim 0.30 -> 0.17); **12x128 8T
+     55.0 -> 43.2 s** (commit 5.7 / prove 44.9 -> 33.2 / verify 3.7;
+     bk.descent-gkr 15.70 -> 7.81 (2.0x): a.round-g 13.32 -> 6.38,
+     a.tree-step 4.34 -> 2.59; bk.descent-trees 2.98 -> 1.93; claim
+     layer 6.03 -> 3.67: cl-rounds 1.74 -> 0.87, cl-folds 2.67 -> 1.64,
+     cl-tables 1.60 -> 1.15; maxrss 4.20 GB both); **12x512 8T (THE PoC
+     SHAPE, ONE run, lane K compiling alongside): accept, statement
+     digest 2f8a92f8.., EVAL-PROOF DIGEST 4c259008.., wall 155.6 (ledger
+     row) / 153.1 (p50 of 20) -> 112.6 s (commit 11.1 / prove 134.9 ->
+     92.4 / verify 7.4), maxrss 11.00 GB; bk.descent-gkr 61.4 -> 29.86
+     (a.round-g 52.5 -> 24.07, a.tree-step 15.7 -> 9.06),
+     bk.descent-trees 10.6 -> 6.79, bg.claim-layer 23.9-25.4 -> 15.21
+     (cl-rounds 6.9-7.3 -> 3.44, cl-folds 10.5-11.3 -> 6.81, cl-tables
+     6.6-6.9 -> 4.95); level-h 23.3, commit 11.1, verify 7.4 unchanged.
+     New attribution (>= 1 s): prove 92.4 = group proofs 40.2 + descents
+     36.7 + claim layer 15.2.**
+- Gates at HEAD: `uperf-a` 18/18 (f936ff79..), `uperf-g` 22/22
+  (6d6a3f6b..), `uperf-d` 30/30 (46471467..), `uperf-h` 24/24 x 8 ways
+  (b1e78285..), `uperf-j` 1,120 x 3 — each at ZK_THREADS 1, 2, 7 with
+  and without ZK_KSIMD=0 (30 battery runs, every digest the ledger's);
+  `uperf-pc diff-battery` 1T/7T (with the hand bodies OFF under the
+  in-process oracle flip, so its fast-vs-oracle legs are also hand vs
+  today); freeze-check 98 `ok` rows identical to the pre-change capture;
+  `self-test`; the rig digests (3x16 93a98700.. / 0ae9cdae.. at 1T and
+  8T; 12x128 4a3af8c3.. / 742d88e1..; 12x512 2f8a92f8.. / 4c259008..).
+- NOT landed / left: a NEON mirror (the body set is ~900 lines and no
+  aarch64 target is installed here — an untested mirror of that size in
+  the hot path is not "cheap"; the report gives the 1:1 mapping; the Mac
+  keeps today's auto-vectorized bodies); Karatsuba on the variable x
+  variable product (~14% fewer uops on the wire / tree step, ~5% of the
+  fused round — the fixed multiply does NOT benefit: the matrix form's
+  h-step-free reduction beats the 64 saved products); the compact-leaf
+  expansion (scalar, ~7% of a.tree-step); the six-table oracle body
+  `round_g_body` (kept on the old dispatch by design). At 8T the ratios
+  (2.0-2.1x on the descents) are below the 1T ones (2.5-2.9x): the fused
+  round streams 15 KB per pair-block and 8 threads at the new speed
+  pull ~30 GB/s (plus the hybrid cores) — the descents are now closer
+  to the memory system than to the ALUs on this box.
+- Every number [WSL-BOX NOISY-SHARED] (lane K built/ran throughout;
+  heavy runs serialized through /tmp/zk-heavy.lock).
 
 ## Agent K status (wt-uperf2-k)
 

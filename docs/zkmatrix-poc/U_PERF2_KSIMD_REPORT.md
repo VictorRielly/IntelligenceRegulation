@@ -43,9 +43,17 @@ per pair-block (2.3-2.9x), the round-1 extract-fold 2.6-2.9x, the tree
 step 2.6-3.0x, the ixf round 2.5-2.8x, the fold and fixed product 3.6-4.3x;
 lane A's depth-20 x 8 descent bench: `masked_gkr_prove` 9.39 -> 3.54 s at
 1T (2.65x; a.round-g 8.27 -> 3.04, a.tree-step 2.21 -> 1.01) and 2.03 ->
-0.99 s at 8T (2.05x), DESCENT DIGEST 47a58a27.. on every run. REAL rigs:
-Section 6. Dispatch: `is_x86_feature_detected!("avx2")` and `ZK_KSIMD`
-!= "0" (the one-binary A/B; `asm!("vpmuludq")` as lane I did). What did
+0.99 s at 8T (2.05x), DESCENT DIGEST 47a58a27.. on every run. REAL rigs
+(one binary, `ZK_KSIMD=0` vs default, digests exact on every row): 3x16
+1T 25.7 -> 23.5 s, 8T 8.6 -> 8.1 s; **12x128 8T 55.0 -> 43.2 s**
+(descent-gkr 15.7 -> 7.8, claim layer 6.0 -> 3.7); **12x512 8T — THE
+PoC SHAPE — 155.6 s (ledger; p50 153.1) -> 112.6 s: commit 11.1 / prove
+134.9 -> 92.4 / verify 7.4, 11.0 GB, statement 2f8a92f8.. / EVAL-PROOF
+4c259008..** (descents 72 -> 36.7 s: a.round-g 52.5 -> 24.1, a.tree-step
+15.7 -> 9.1, trees 10.6 -> 6.8; claim layer 24-25 -> 15.2 s; the group
+proofs, commit and verify unchanged). Dispatch: `is_x86_feature_
+detected!("avx2")` and `ZK_KSIMD` != "0", off under `oracle_mode()` (the
+one-binary A/B; `asm!("vpmuludq")` as lane I did). What did
 NOT land: a NEON mirror (the body set is ~900 lines; an untested mirror
 of that size in the hot path is not "cheap" — Section 7 gives the 1:1
 mapping), Karatsuba on the variable x variable product (~15% of the
@@ -299,7 +307,26 @@ diagonals per operand load + no block copies in the node loop 2.6-2.9x.
 | `self-test` | (Section 5.1) |
 | REAL rigs | Section 6: statement / EVAL-PROOF digests identical to the ledger's on every run |
 
-### 5.1 (to be filled at close: diff-battery, freeze rows, self-test)
+### 5.1 The rest of the gate (final HEAD binary)
+
+- `uperf-pc diff-battery` at ZK_THREADS 1 and 7: passed (O1/O2/O3/O5/E2E;
+  15.8 / 15.9 s). Note that with the hand bodies OFF under the in-process
+  `set_oracle_mode(true)` flip, its "fast vs oracle" legs are ALSO hand
+  vs today's bodies end to end (the E2E leg proves the same group both
+  ways and compares the proofs byte for byte).
+- freeze-check: 98 `ok` rows identical to the pre-change capture (the
+  bd5e0dd build, scratchpad j_freeze_baseline.txt); and — run with
+  `M125_EXPORT_DIR` set to the local wsl re-export — the UAGB1-BF/BK
+  real-data rows ALSO ran and passed ("freeze_check_uagb1_bk: all rows
+  stable", "freeze-check passed"), which the standing rule does not even
+  ask for on this box.
+- `self-test`: (Section 5.2)
+- `uperf-j battery`, `uperf-a descent-battery` (7T) re-run on the final
+  binary after the oracle-mode gate: 45dba7c7.. / f936ff79.. unchanged.
+
+### 5.2 self-test + the d/h benches (final HEAD binary)
+
+(filled at close)
 
 ## 6. The REAL rigs (`uperf-pc full-profile`, `M125_EXPORT_DIR=results/m125_ffn_export_wsl`, flock-serialized with lane K's runs; one binary, `ZK_KSIMD=0` = today's bodies) [WSL-BOX NOISY-SHARED, load 2.5-4 (lane K's rigs/builds between the flock'd runs)]
 
@@ -311,12 +338,36 @@ Digests on EVERY row: 3x16 statement 93a987002a7c4b60c3dfbfc62b7a4f0e5957d8ae203
 | 3x16, 1T | **hand AVX2** | **23.5 s** (2.7 / 17.7 / 3.0) | **1.06** (2.5x) | **0.82** (2.5x) | **0.27** (2.7x) | **0.47** (1.8x) | 0.28 / **0.12** (2.1x) / **0.07** (3.4x) | 961 MB |
 | 3x16, 8T | today | 8.6 s (1.2 / 6.2 / 1.1) | 0.97 | 0.70 | 0.20 | 0.30 | 0.10 / 0.08 / 0.11 | 1,037 MB |
 | 3x16, 8T | **hand AVX2** | **8.1 s** (1.1 / 5.8 / 1.1) | **0.59** (1.6x) | **0.42** (1.7x) | **0.11** (1.8x) | **0.17** (1.8x) | 0.08 / 0.04 / 0.05 | 1,037 MB |
-| 12x128, 8T | today | (12x128 rows) | | | | | | |
-| 12x128, 8T | **hand AVX2** | | | | | | | |
+| 12x128, 8T | today | 55.0 s (5.7 / 44.9 / 3.8) | 15.70 (+ trees 2.98) | 13.32 | 4.34 | 6.03 | 1.60 / 1.74 / 2.67 | 4,198 MB |
+| 12x128, 8T | **hand AVX2** | **43.2 s** (5.7 / 33.2 / 3.7) | **7.81** (2.0x; trees 1.93) | **6.38** (2.1x) | **2.59** (1.7x) | **3.67** (1.6x) | 1.15 / **0.87** (2.0x) / **1.64** (1.6x) | 4,198 MB |
 | 12x512, 8T | ledger row (96559ee, 8T QUIET) / p50 of 20 runs at bd5e0dd | 155.6 s (11.7 / 134.9 / 7.3) / 153.1 (11.2 / 132.8 / 7.3) | 61.4 | 52.5 | 15.7 | 23.9 (25.4 with the d.* rows) | 6.6 / 6.9 / 10.5 | 10.98 GB |
-| 12x512, 8T | **hand AVX2** (ONE run) | (12x512 row) | | | | | | |
+| 12x512, 8T | **hand AVX2** (ONE run; lane K compiling alongside) | **112.6 s** (11.1 / **92.4** / 7.4) | **29.86** (2.06x; trees 6.79) | **24.07** (2.18x) | **9.06** (1.7x) | **15.21** (1.6x) | 4.95 / **3.44** (2.0x) / **6.81** (1.6x) | 11.00 GB |
 
-Reading: (to be filled)
+The other 12x512 rows (hand): bg.prove-group 40.22 (level-h 23.27,
+matvec-chunks 7.41, fold 3.87, kernel-rows 3.55 — the group proofs are
+untouched by this lane and reproduce the ledger's 38.7 / 22.2 / 7.8 /
+3.7 / 3.4 within the noise), bg.commit-phase 11.09 (precommit-u0 9.51),
+bg.verify-group 7.18, ep.psi0-factored 11.95, e.tree-witness 6.78.
+
+Reading: on THE PoC SHAPE the full-statement pass goes **155.6 s -> 112.6
+s (-28%; prove 134.9 -> 92.4 s, -31%)** with the same 11.0 GB peak and
+the same digests: the descents 72 -> 36.7 s (bk.descent-gkr 61.4 ->
+29.9 = a.round-g 52.5 -> 24.1 + a.tree-step 15.7 -> 9.1; bk.descent-trees
+10.6 -> 6.8), the claim layer 23.9-25.4 -> 15.2 s (cl-rounds 2.0x,
+cl-folds 1.6x, cl-tables 1.4x — the tables are `kt_eq_table_par` +
+scalar/`kt_pack` builds, only their eq part is this lane's), everything
+else unchanged. The 8T ratios (round-g 2.2x, tree step 1.7x, cl-folds
+1.6x) are below the 1T kernel ratios (2.6-3x, 4x on the folds): with
+the arithmetic 2.5-3x faster, the descents' 15 KB per pair-block and the
+claim layer's folds (memory-bound already at lane D's measurement) run
+into this box's memory system at 8 threads — the next lever on the
+descents is traffic (fewer table bytes per round), not arithmetic. The
+new attribution at 12x512 8T (rows >= 1 s): prove 92.4 = group proofs
+40.2 (level-h 23.3, matvec 7.4, fold 3.9, rows 3.6) + descents 36.7
+(round-g 24.1, tree-step 9.1, trees 6.8) + claim layer 15.2 (folds 6.8,
+tables 5.0, rounds 3.4); commit 11.1 (precommit-u0 9.5); verify 7.4
+(psi0-factored ~6). The GPU rung's first two kernels are now the
+level-h GEMM (23 s) and the fused descent round (24 s), in that order.
 
 ## 7. What is left / honest state
 
