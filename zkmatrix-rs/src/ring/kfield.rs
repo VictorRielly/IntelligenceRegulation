@@ -1529,6 +1529,7 @@ pub(crate) fn k9_fused_round_par(
     acc_hi: &mut [u64],
     scratch: &mut Vec<u32>,
 ) {
+    let tabs = match super::gpu::k9_fused_round(kern, plan, n_pairs, eq_inplace, eq_src, eq_dst, tabs, nodes, node_consts, acc_lo, acc_hi) { Ok(()) => return, Err(t) => t }; // [UPERF2-L] the GPU hook (declined = the CPU body below)
     let acc_words = nodes.len() * 31 * KL;
     assert!(acc_lo.len() >= acc_words && acc_hi.len() >= acc_words, "K9 fused accumulator layout");
     let inplace = plan.mode == FUSE_FOLD;
@@ -2171,6 +2172,7 @@ pub(crate) fn k9_ixf_round_par(
     acc_lo: &mut [u64],
     acc_hi: &mut [u64],
 ) {
+    if super::gpu::enabled() { if super::gpu::k9_ixf_round(kern, kind, tabs, nblk_pairs, deg, acc_lo, acc_hi).is_some() { return; } } // [UPERF2-L] the GPU hook
     let n_chunks = k9_round_chunks(nblk_pairs);
     if n_chunks <= 1 {
         return k9_ixf_round_blocks(kern, kind, tabs, nblk_pairs, deg, acc_lo, acc_hi);
@@ -2238,6 +2240,7 @@ impl KField {
     /// the first round of a layer). Identical values to `kt_fold_inplace`.
     /// Sizes below a full output block take the scalar staging path.
     pub(crate) fn kt_fold_par(&self, t: &mut KTab, scratch: &mut Vec<u32>, r: &KElem) {
+        if super::gpu::enabled() { if super::gpu::kt_fold(self, t, scratch, r).is_some() { return; } } // [UPERF2-L] the GPU hook
         let kern = self.kern.as_ref().expect("kt_fold_par requires the bulk kernel");
         let n_out = t.n / 2;
         if n_out >= KL {
@@ -3056,6 +3059,7 @@ const K9_CLIMB_CHUNK_BLK: usize = 64;
 /// the same source blocks the layered build reads — the same integers.
 /// levels == 1 over a packed source is the build's own threaded step.
 pub(crate) fn k9_tree_climb_par(kern: &KKern, src: &BlkSrc, levels: usize, np: &mut [u32], nq: &mut [u32], out_nblk: usize) {
+    if super::gpu::enabled() { if super::gpu::k9_tree_climb(kern, src, levels, np, nq, out_nblk).is_some() { return; } } // [UPERF2-L] the GPU hook
     assert!(levels >= 1, "tree climb: at least one level");
     if levels == 1 {
         if let BlkSrc::Packed { p, q } = src {

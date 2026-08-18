@@ -51,21 +51,22 @@ const MIN_UBLK: usize = 64;
 // Raw buffers
 
 /// A device allocation (cuMemAlloc), grown on demand; freed on drop.
-struct DevBuf {
-    ptr: sys::CUdeviceptr,
-    bytes: usize,
+/// [UPERF2-L] shared with k9.rs (pub(super)).
+pub(super) struct DevBuf {
+    pub(super) ptr: sys::CUdeviceptr,
+    pub(super) bytes: usize,
 }
 
 impl DevBuf {
-    fn empty() -> Self {
+    pub(super) fn empty() -> Self {
         DevBuf { ptr: 0, bytes: 0 }
     }
-    fn needs(&self, bytes: usize) -> bool {
+    pub(super) fn needs(&self, bytes: usize) -> bool {
         bytes > self.bytes
     }
     /// Grow to at least `bytes` (the caller has synchronized every stream
     /// that could still touch the old allocation).
-    fn grow(&mut self, bytes: usize) -> Result<(), String> {
+    pub(super) fn grow(&mut self, bytes: usize) -> Result<(), String> {
         if !self.needs(bytes) {
             return Ok(());
         }
@@ -76,7 +77,7 @@ impl DevBuf {
         self.bytes = want;
         Ok(())
     }
-    fn free(&mut self) {
+    pub(super) fn free(&mut self) {
         if self.ptr != 0 {
             let _ = unsafe { cu::free_sync(self.ptr) };
             self.ptr = 0;
@@ -92,19 +93,20 @@ impl Drop for DevBuf {
 }
 
 /// Page-locked host staging (cuMemHostAlloc), grown on demand.
-struct HostPinned {
-    ptr: *mut u8,
-    bytes: usize,
+/// [UPERF2-L] shared with k9.rs (pub(super)).
+pub(super) struct HostPinned {
+    pub(super) ptr: *mut u8,
+    pub(super) bytes: usize,
 }
 
 impl HostPinned {
-    fn empty() -> Self {
+    pub(super) fn empty() -> Self {
         HostPinned { ptr: std::ptr::null_mut(), bytes: 0 }
     }
-    fn needs(&self, bytes: usize) -> bool {
+    pub(super) fn needs(&self, bytes: usize) -> bool {
         bytes > self.bytes
     }
-    fn grow(&mut self, bytes: usize) -> Result<(), String> {
+    pub(super) fn grow(&mut self, bytes: usize) -> Result<(), String> {
         if !self.needs(bytes) {
             return Ok(());
         }
@@ -115,7 +117,7 @@ impl HostPinned {
         self.bytes = want;
         Ok(())
     }
-    fn free(&mut self) {
+    pub(super) fn free(&mut self) {
         if !self.ptr.is_null() {
             let _ = unsafe { cu::free_host(self.ptr as *mut _) };
             self.ptr = std::ptr::null_mut();
@@ -123,11 +125,11 @@ impl HostPinned {
         }
     }
     /// The first `n` elements as a typed slice (n * size_of::<T>() <= bytes).
-    fn slice_mut<T>(&mut self, n: usize) -> &mut [T] {
+    pub(super) fn slice_mut<T>(&mut self, n: usize) -> &mut [T] {
         assert!(n * std::mem::size_of::<T>() <= self.bytes);
         unsafe { std::slice::from_raw_parts_mut(self.ptr as *mut T, n) }
     }
-    fn slice<T>(&self, n: usize) -> &[T] {
+    pub(super) fn slice<T>(&self, n: usize) -> &[T] {
         assert!(n * std::mem::size_of::<T>() <= self.bytes);
         unsafe { std::slice::from_raw_parts(self.ptr as *const T, n) }
     }
@@ -202,15 +204,16 @@ fn block_budget_bytes() -> usize {
 
 /// The kernel-pool of this module (the same `ZK_THREADS` size as
 /// eval_proof's; only host-side packing rides it — values are unaffected).
-static POOL: LazyLock<rayon::ThreadPool> = LazyLock::new(|| {
+/// [UPERF2-L] shared with k9.rs.
+pub(super) static POOL: LazyLock<rayon::ThreadPool> = LazyLock::new(|| {
     rayon::ThreadPoolBuilder::new().num_threads(threads()).build().expect("ZK_THREADS pool (gpu)")
 });
 
-fn env_flag(name: &str) -> bool {
+pub(super) fn env_flag(name: &str) -> bool {
     std::env::var(name).map(|v| v == "1").unwrap_or(false)
 }
 
-fn env_usize(name: &str, default: usize) -> usize {
+pub(super) fn env_usize(name: &str, default: usize) -> usize {
     std::env::var(name).ok().and_then(|v| v.parse::<usize>().ok()).unwrap_or(default)
 }
 
@@ -220,9 +223,15 @@ fn requested() -> bool {
     *ON.get_or_init(|| env_flag("ZK_GPU"))
 }
 
-fn verbose() -> bool {
+pub(super) fn verbose() -> bool {
     static V: OnceLock<bool> = OnceLock::new();
     *V.get_or_init(|| env_flag("ZK_GPU_VERBOSE"))
+}
+
+/// [UPERF2-L] The device handle for the K-field kernels (k9.rs): the same
+/// context as the GEMM's; None when the device failed to initialize.
+pub(super) fn device_handle() -> Option<Arc<CudaDevice>> {
+    gpu().map(|g| g.lock().unwrap().dev.clone())
 }
 
 /// `ZK_GPU_PROFILE=1`: synchronize after every kernel and attribute per
@@ -364,8 +373,13 @@ pub fn enabled() -> bool {
 }
 
 /// Harness knob: force the CPU path regardless of `ZK_GPU` (the battery's
-/// A/B inside one process).
+/// A/B inside one process). [UPERF2-L] Turning the bypass ON while a
+/// K-field descent chain holds device-resident state (k9.rs) is a protocol
+/// violation (the host tables would be read stale): asserted.
 pub fn set_bypass(on: bool) {
+    if on {
+        super::k9::assert_no_chain("set_bypass(true)");
+    }
     BYPASS.store(on, Ordering::Relaxed);
 }
 
@@ -632,8 +646,11 @@ fn ntt_gemm_impl<B: SmallRings + ?Sized>(ctx: &RingCtx, a: &[&[Poly]], b: &[&B],
                 eprintln!("[UPERF2-K] gpu ntt_gemm failed ({e}); this and later calls fall back to the CPU body");
             }
             // Release device scratch (an OOM leaves it best dropped) and
-            // route every later call to the CPU.
+            // route every later call to the CPU. [UPERF2-L] a K-field chain
+            // cannot be alive here (no GEMM runs inside a descent layer);
+            // asserted rather than assumed.
             st.release_all();
+            super::k9::assert_no_chain("gemm failure bypass");
             BYPASS.store(true, Ordering::Relaxed);
             None
         }

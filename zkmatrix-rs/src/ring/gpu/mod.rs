@@ -39,12 +39,18 @@
 
 #[cfg(feature = "gpu-cuda")]
 mod cuda;
+// [UPERF2-L] The GPU rung, step 2: the K-field lane kernels (descent round,
+// ixf round + fold, tree step) on the device — see k9.rs / kernels_k9.cu.
+#[cfg(feature = "gpu-cuda")]
+mod k9;
 
 #[cfg(feature = "gpu-cuda")]
 pub use cuda::{
     enabled, label, ntt_batch, ntt_gemm_modq_small, ntt_gemm_modq_small_force, probe, set_block_mb, set_bypass, stats,
     stats_reset, GpuStats, ProbeReport,
 };
+#[cfg(feature = "gpu-cuda")]
+pub use k9::{k9_fused_round, k9_ixf_round, k9_label, k9_set_cold_ok, k9_set_eager, k9_set_min_pairs, k9_stats, k9_stats_reset, k9_tree_climb, kt_fold, K9Stats};
 
 // ---------------------------------------------------------------------------
 // The stub (default build): the hook compiles to a constant-false test.
@@ -109,6 +115,67 @@ mod stub {
         GpuStats::default()
     }
     pub fn stats_reset() {}
+
+    // ---- [UPERF2-L] the K-field kernels' hooks (never live without the feature).
+    use super::super::kfield::{BlkSrc, FusedPlan, KElem, KField, KKern, KTab, K_DEG};
+    /// The fused descent round: `Err(tabs)` = the CPU body runs.
+    #[allow(clippy::too_many_arguments)]
+    pub fn k9_fused_round<'a>(
+        _kern: &KKern,
+        _plan: &FusedPlan,
+        _n_pairs: usize,
+        _eq_inplace: &mut [u32],
+        _eq_src: &[u32],
+        _eq_dst: &mut [u32],
+        tabs: [&'a mut [u32]; 4],
+        _nodes: &[u64],
+        _node_consts: Option<&[[[u32; K_DEG]; 4]]>,
+        _acc_lo: &mut [u64],
+        _acc_hi: &mut [u64],
+    ) -> Result<(), [&'a mut [u32]; 4]> {
+        Err(tabs)
+    }
+    pub fn k9_ixf_round(_kern: &KKern, _kind: u8, _tabs: &[&[u32]], _nblk_pairs: usize, _deg: usize, _acc_lo: &mut [u64], _acc_hi: &mut [u64]) -> Option<()> {
+        None
+    }
+    pub fn kt_fold(_kf: &KField, _t: &mut KTab, _scratch: &mut Vec<u32>, _r: &KElem) -> Option<()> {
+        None
+    }
+    pub fn k9_tree_climb(_kern: &KKern, _src: &BlkSrc, _levels: usize, _np: &mut [u32], _nq: &mut [u32], _out_nblk: usize) -> Option<()> {
+        None
+    }
+    pub fn k9_set_min_pairs(_p: usize) {}
+    pub fn k9_set_eager(_on: bool) {}
+    pub fn k9_set_cold_ok(_on: bool) {}
+    pub fn k9_label() -> String {
+        "k9: off (built without --features gpu-cuda)".to_string()
+    }
+    /// Mirrors `k9::K9Stats` (all zero without the feature).
+    #[derive(Clone, Debug, Default)]
+    pub struct K9Stats {
+        pub rounds: u64,
+        pub declined: u64,
+        pub layer_uploads: u64,
+        pub layer_hits: u64,
+        pub bytes_h2d: u64,
+        pub bytes_d2h: u64,
+        pub secs_round: f64,
+        pub secs_upload: f64,
+        pub secs_encode: f64,
+        pub secs_handover: f64,
+        pub ixf_rounds: u64,
+        pub ixf_folds: u64,
+        pub ixf_hits: u64,
+        pub secs_ixf: f64,
+        pub climbs: u64,
+        pub secs_climb: f64,
+        pub secs_climb_d2h: f64,
+        pub secs_kernel: f64,
+    }
+    pub fn k9_stats() -> K9Stats {
+        K9Stats::default()
+    }
+    pub fn k9_stats_reset() {}
 }
 
 #[cfg(not(feature = "gpu-cuda"))]
