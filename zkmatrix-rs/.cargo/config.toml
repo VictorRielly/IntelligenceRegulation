@@ -1,2 +1,13 @@
+# 2026-08-17 (U-PERF2 orchestrator): the previous `target-cpu=native`
+# rustflags are REMOVED. Finding on the WSL reference box (Intel Core
+# Ultra 9 185H): a native build ran the 3x16 full-statement rig 3-4x
+# SLOWER than the baseline x86-64 build (94.5 vs 29.1 s wall; commit
+# 30.8 vs 3.4 s, prove 61.0 vs 22.1 s; identical digests, batteries
+# green) — an LLVM autovectorization pathology, not investigated. Worse,
+# the flag only applied when cargo ran with cwd = zkmatrix-rs/ (the
+# python suite's builds) and NOT for `--manifest-path` builds from the
+# repo root, so the shared target/ flipped between two binaries. One
+# flag set for every invocation now: none. SIMD is runtime-dispatched
+# where it matters (aux_ntt_core: is_x86_feature_detected!("avx2")).
 [build]
-rustflags = ["-C", "target-cpu=native"]
+rustflags = []
