@@ -687,7 +687,36 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent J status (wt-uperf2-j)
 
-- (lane launches here)
+PLAN (skeleton commit, 2026-08-17). Files: kfield.rs (the AVX2 bodies +
+harness fns), a `// [UPERF2-J]` bin section with `uperf-j {bench,
+battery}`, docs/zkmatrix-poc/U_PERF2_KSIMD_REPORT.md. Baseline capture
+BEFORE any code change: freeze-check from the bd5e0dd build — 98 `ok`
+rows then the expected BF panic (scratchpad/j_freeze_baseline.txt).
+
+1. `uperf-j bench`: per-kernel microbench of the packed lane kernels as
+   compiled today (auto-vectorized under `#[target_feature(avx2)]`):
+   mac_block / red_block / mul_fixed / fold / tree step / node loop /
+   fused FOLD round / ixf round, ns per pair-block; + the disassembly
+   census (the current (i,j) MAC iteration is ~18 uops with 4 stores:
+   memory-resident planes; the reduction carries LLVM's 3-`vpmuludq`
+   64-bit multiply idiom and a scalar gather for the h-term).
+2. Design: u64-lane pairs of a row as the AVX2 unit (even form = the
+   row, odd form = row >> 32), working lane order via `vshufps` from the
+   (2m, 2m+1) block pair, output-stationary register accumulation
+   (bursts of <= 4 products < 2^62 summed exactly in u64, folded once by
+   2^32 == c32 into one u64 accumulator < 2^46), hand-written canonical
+   reductions; the fixed-operand multiply as the 16x16 canonical matrix
+   of the fixed element (no h-step); the persistent node planes keep the
+   scalar lo/hi layout with the same exact integer per lane word.
+   `asm!("vpmuludq")`, runtime `is_x86_feature_detected!("avx2")`,
+   `ZK_KSIMD=0` = today's bodies.
+3. `uperf-j battery` (kernel by kernel, random + planted extremes,
+   scalar == AVX2 bit-for-bit) + every existing battery at 1/2/7T with
+   and without ZK_KSIMD=0, the descent digest, diff-battery, freeze
+   rows, self-test, the REAL rigs (3x16 1T/8T, 12x128 8T, one 12x512 8T).
+4. Report + this section.
+
+STATUS: (in flight)
 
 ## Agent K status (wt-uperf2-k)
 

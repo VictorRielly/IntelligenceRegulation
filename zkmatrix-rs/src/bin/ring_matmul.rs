@@ -6416,6 +6416,8 @@ fn main() {
         Some("uperf-i") => uperf_i_main(&args[1..]),
         // [UPERF2-H] U-PERF2 lane H (descent tree memory: layer release + checkpoints + compact leaves) battery + bench.
         Some("uperf-h") => uperf_h_main(&args[1..]),
+        // [UPERF2-J] U-PERF2 lane J (AVX2 K-field lane kernels) battery + bench.
+        Some("uperf-j") => uperf_j_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -38871,4 +38873,36 @@ fn uperf_h_bench(depth: usize, l: usize, n_real: usize, dt: usize) {
         }
     }
     println!("[UPERF2-H] DESCENT DIGEST {}", hex_full(&out.digest));
+}
+
+// [UPERF2-J] U-PERF2 lane J — AVX2 in the packed K-field lane kernels
+// (kfield.rs: the descent round / fold / tree-step / eq kernels of lanes
+// A/G/H and the ixf round kernel of lane D). Hand-written AVX2 bodies with
+// values IDENTICAL to today's auto-vectorized bodies (every reduced value
+// canonical, the persistent node planes the same exact integers per lane
+// word); runtime `is_x86_feature_detected!("avx2")` + `ZK_KSIMD=0` (the
+// scalar bodies — the one-binary A/B). ADDITIVE section. Commands:
+//   uperf-j bench [nblk_pairs] [reps] — ns per pair-block / per block for
+//     each kernel body, scalar (today's) vs AVX2, outputs asserted equal.
+//   uperf-j battery — kernel by kernel, random + planted extremes,
+//     scalar == AVX2 bit-for-bit (values, planes, finalized nodes).
+
+fn uperf_j_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("bench") => {
+            let nblk: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(2048);
+            let reps: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(3);
+            uperf_j_bench(nblk, reps);
+        }
+        Some("battery") => uperf_j_battery(),
+        _ => println!("uperf-j bench [nblk_pairs] [reps] | battery"),
+    }
+}
+
+fn uperf_j_bench(_nblk: usize, _reps: usize) {
+    println!("[UPERF2-J] bench: (skeleton)");
+}
+
+fn uperf_j_battery() {
+    println!("[UPERF2-J] battery: (skeleton)");
 }
