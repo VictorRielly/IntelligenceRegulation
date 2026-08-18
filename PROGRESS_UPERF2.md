@@ -547,7 +547,152 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent H status (wt-uperf2-h)
 
-- (lane launches here)
+- 2026-08-17 PLAN COMMIT (lane H, branch uperf2-h at d38e9ce; report:
+  docs/zkmatrix-poc/U_PERF2_DESCENT4_REPORT.md). Files: gkr.rs /
+  gkr_masked.rs / kfield.rs / descent_fold.rs (extend), the bin's
+  bk_pass_run DESCENT PHASE loop only, a `// [UPERF2-H]` bin section
+  with `uperf-h {battery, bench}`, the report, this section. Baselines
+  captured BEFORE any code change from the untouched d38e9ce build
+  (scratchpad ring_matmul_base_d38e9ce): freeze-check 98 `ok` rows
+  (h_freeze_baseline.txt = lane I's capture); `uperf-a descent-bench 20
+  8 5 9` 8T: prove 1.67 s, trees 0.41 s, peak RSS 1,558 MiB, digest
+  47a58a27.. [WSL 8T QUIET]. THE MODEL (report Section 0): the descent
+  reads each layer once, top-down, so the pair's peak is at the bottom
+  rounds — layer depth-1 + the last rounds' work tables + THE LEAVES;
+  the brief's checkpoint model (leaves x (1 + 2^-c + ..)) forgets the
+  transient recompute of layer depth-1 and the work tables: checkpointing
+  alone lands ~3.6-3.9U (U = the pair's leaf table, 3.2 GB at 12x512) =
+  ~12 GB — not enough. Plan, in order: (1) RELEASE consumed layers as the
+  descent passes them (per-layer RwLock store; `FracTree::layer(k)` /
+  `release_layer(k)`) + CHECKPOINTS (`ZK_K9_CHECKPOINT`, default 2 = every
+  gap is one layer, recomputed by one threaded tree step from the
+  checkpoint below; 0 = keep all) -> 3.625U; (2) COMPACT LEAVES for the
+  aligned witness trees (the leaves are (0,1) / (1, alpha - v) with v on
+  K-coords 0..1 / 4 blinders: 8 B per leaf instead of 128 B, expanded
+  chunkwise into cache-resident scratch for the tree step and the fused
+  extract rounds; `ZK_K9_COMPACT_LEAVES`) -> 1.75U = 5.6 GB at the 12x512
+  pair [MODEL] -> the whole pass ~8-10 GB on this box; (3) `uperf-h
+  battery` (2-coord shapes, knob variants == today's path, at 1/2/7T) +
+  `uperf-h bench`; (4) rigs 3x16 / 12x64 / 12x128 + the 12x512 run if
+  the calibrated model says < ~13 GB; (5) the same-size tree pool only if
+  it lowers a rig peak; (6) report + this section.
+- 2026-08-17 INTERIM (commit fd646f1 — items 1-3 landed; the 12x512 pass
+  RAN on this box, twice, digests identical): (1)+(2) the packed tree's
+  per-layer `RwLock` store + `FracTree::layer/release_layer`, the
+  checkpointed build (`ZK_K9_CHECKPOINT` default 2, `k9_tree_climb_par`
+  recompute), the COMPACT LEAVES of the aligned witness trees
+  (`kfield::CompactLeaves`, `ZK_K9_COMPACT_LEAVES`), the release from
+  `masked_rounds_bulk` (`ZK_K9_TREE_RELEASE`); (3) `uperf-h battery` 24
+  legs x 8 ways (scalar oracle == pre-change layout == c2/c3/c4 x compact
+  x release, fused + fusion off) identical + verified at ZK_THREADS 1/2/7
+  (BATTERY DIGEST b1e78285..); `uperf-a` 18/18 (f936ff79..) + `uperf-g`
+  22/22 (6d6a3f6b..) at 1/2/7T; a-bench 47a58a27.. identical at c 0/2/3/4
+  (peak 1,558 -> 1,162 / 1,100 / 1,098 / 1,055 MiB); `uperf-h bench 20 8 5
+  9` (2-coord values, digest 0bf9d7a3.. on every variant): peak **1,557 ->
+  665 MiB** at 8T (release alone 1,162; + compact 733; + c=2 665; c=4 635),
+  prove 1.75 -> 1.97 s (the c=2 recompute; c=0 1.74 s). REAL rigs [WSL 8T
+  NOISY-SHARED, lane I active], digests identical to the ledger: 3x16 8T
+  9.8 s @ 1,033 MB; 12x64 8T 43.8 s @ **2,948 MB** (was 4,034; the nrw-88
+  pair transient 1.9 -> 0.8 GB); 12x128 8T 59.7 s @ **4,153 MB** (was
+  6.4-7.4 GB; pair 4.9 -> 1.5 GB); **12x256 8T (FIRST on this box):
+  accept, statement 889c0f12.., 1,439,719 B, EVAL 97a59ac3.., 95.9 s
+  (8.4 / 80.8 / 5.7) @ 6,608 MB** (claim-layer transient 2.8 GB, pair 3.0
+  GB); **12x512 8T (THE PoC SHAPE, FIRST on this box): accept, statement
+  digest 2f8a92f853c1813b4d87e30dc9a43a9cb65b0e009c994fffa67e14a6132b81ab,
+  1,509,911 B counted, EVAL-PROOF DIGEST
+  4c259008c8e0cac2cf654471d37f937c4d1fd3dea51730520aa4256782ddf9dd, wall
+  166.4 s (commit 13.4 / prove 142.6 / verify 8.7) @ maxrss 10,945 MB
+  (default knobs; the peak is now lane D's CLAIM LAYER, 5.65 GB transient
+  on a 5.0 GB floor; the nrw-88 pair 5.6 GB = the model's 1.75U exactly);
+  with `ZK_W0_REGEN=1`: same digests, 178.3 s @ 9,535 MB**. Phase rows at
+  12x512 8T: bk.descent-gkr 61.4 (a.round-g 52.3, a.tree-step 15.9 incl.
+  the recompute), bk.descent-trees 10.8, bg.level-h 25.6, bg.claim-layer
+  25.4 (d.cl-folds 11.3, d.cl-rounds 7.3, d.cl-tables 6.9), d.precommit-u0
+  11.6, bg.matvec-chunks 9.4, ep.psi0-factored 12.8, bg.fold 5.0. Freeze
+  98 rows identical; uperf-pc diff-battery E2E 1T green. Left in this
+  session: 3x16 1T, self-test, the tree-pool decision, report.
+- 2026-08-17 CLOSE (lane H; commits 50d87ca plan, fd646f1 items 1-3,
+  9466dfb interim ledger, 08b0262 leaves-never-released + report, + this
+  commit; report: docs/zkmatrix-poc/U_PERF2_DESCENT4_REPORT.md). Every
+  number [WSL NOISY-SHARED — lane I active throughout, load 1-7] except
+  the QUIET baseline benches; the RSS rows are load-independent.
+  - LANDED (bit-identical on every path, asserted 8 ways): (1) the packed
+    tree's per-layer `RwLock` store — the fast masked descent obtains
+    layer j+1 once and RELEASES it as soon as its state-1 tables exist
+    (`FracTree::layer` / `release_layer`; `ZK_K9_TREE_RELEASE`); (2) the
+    CHECKPOINTED build (`ZK_K9_CHECKPOINT`, default 2: leaves + every 2nd
+    layer + the small top layers stored, gaps recomputed by the chunked,
+    positional `k9_tree_climb_par` — one threaded tree step per gap; 0 =
+    every layer, the pre-change layout; always 0 under `oracle_mode()`);
+    (3) COMPACT LEAVES for the aligned witness trees (`kfield::CompactLeaves`:
+    2 x u32 per leaf — q's K-coordinates 0..1 + the member flag, alpha's
+    tail, blinders as exceptions; the rig's fuse_pair / embed values —
+    expanded chunkwise into cache-resident scratch as the exact packed
+    blocks for the tree step, the fused extract rounds (per-job
+    sub-chunks) and the eager extract; `ZK_K9_COMPACT_LEAVES`; general
+    values fall back to the packed leaves); (4) `uperf-h {battery,
+    bench}`. NOT built, decided negative with a measurement: the
+    same-size tree pool (lane G's arena on the new bench: +70 / +600 MiB
+    peak at 256 MB / 1 GB pools, prove within noise; a pool cannot lower a
+    peak and the descent is no longer the pass's peak).
+  - THE MODEL that decided it (report Section 1): the pair's peak is at
+    the bottom rounds — layer depth-1 + the last rounds' work tables + the
+    leaves — so checkpointing alone lands ~3.6-3.9U (U = one packed leaf
+    table of the pair's real trees; 3.2 GB at 12x512), release 3.625U, and
+    the compact leaves are what take it to **1.75U** (measured exactly:
+    the nrw-88 pair 1.5 GB at 12x128 (model 1.4), 3.0 at 12x256 (2.8),
+    5.6 at 12x512 (5.6)).
+  - RESULTS: `uperf-h bench 20 8 5 9` 8T peak **1,557 -> 665 MiB** (release
+    alone 1,162; + compact 733; + c=2 665; c=4 635), prove 1.75 -> 1.97 s
+    (the recompute; c=0 1.74); a-bench 47a58a27.. identical, peak 1,558 ->
+    1,100 (c=2). REAL rigs (digests identical to the ledger on every run):
+    3x16 8T 9.8 s @ 1.03 GB (1T same-state A/B base 34.9 vs HEAD 34.5 s —
+    neutral); 12x64 8T 43.8 s @ **2.95 GB** (was 4.03; pair transient 1.9
+    -> 0.8 GB; bk.descent-gkr 7.87 -> 8.89 = the recompute, bk.descent-
+    trees 2.57 -> 1.73 = the compact fill); 12x128 8T 59.7 s @ **4.15 GB**
+    (was 6.4-7.4; pair 4.9 -> 1.5 GB); **12x256 8T FIRST on this box:
+    accept, statement 889c0f12.., 1,439,719 B, EVAL 97a59ac3.., 95.9 s
+    (8.4 / 80.8 / 5.7) @ 6.6 GB**; **12x512 8T — THE PoC SHAPE ON THE
+    REFERENCE BOX, FIRST TIME: accept, statement digest
+    2f8a92f853c1813b4d87e30dc9a43a9cb65b0e009c994fffa67e14a6132b81ab,
+    1,509,911 B counted, EVAL-PROOF DIGEST
+    4c259008c8e0cac2cf654471d37f937c4d1fd3dea51730520aa4256782ddf9dd, wall
+    166.4 s (commit 13.4 / prove 142.6 / verify 8.7) @ maxrss 10,945 MB
+    default knobs; with `ZK_W0_REGEN=1` 178.3 s @ 9,535 MB, same digests**
+    — the pass's peak is now lane D's CLAIM LAYER (5.65 GB transient on a
+    5.0 GB floor; bk.claim-layer-end hwm 10,689 MiB), the nrw-88 pair (5.6
+    GB) fits under it. 12x512 phase rows (8T): bk.descent-gkr 61.4
+    (a.round-g 52.3, a.tree-step 15.9 incl. the recompute ~6-7 [MODEL]),
+    bk.descent-trees 10.8, bg.prove-group 44.7 (bg.level-h 25.6, bg.matvec-
+    chunks 9.4, bg.fold 5.0), bg.claim-layer 25.4 (d.cl-folds 11.3,
+    d.cl-rounds 7.3, d.cl-tables 6.9), bg.commit-phase 13.4 (d.precommit-u0
+    11.6), ep.psi0-factored 12.8, verify 8.7 (bg.verify-group 8.5).
+  - Gates at HEAD: `uperf-h battery` 24 legs x 8 ways (scalar oracle ==
+    pre-change layout == c2 == c3 == c4 == c0+compact+release == c2 alone
+    == c2 fusion-OFF) identical + verified, BATTERY DIGEST b1e78285.. at
+    ZK_THREADS 1/2/7; `uperf-a descent-battery` 18/18 f936ff79.. and
+    `uperf-g descent-battery` 22/22 6d6a3f6b.. at 1/2/7T; a-bench
+    47a58a27.. at c 0/2/3/4; `uperf-pc diff-battery` E2E 1T + 7T;
+    freeze-check 98 rows identical to the pre-change capture; `self-test`
+    passed 259.0 s (328 ok rows); `table-descent battery small` 5/5,
+    `pass-agg battery` 14/14 (real data); REAL 3x16 1T + 8T, 12x64 8T,
+    12x128 8T digests identical; 12x256 and 12x512 twice each, identical.
+  - Merge notes: files touched = gkr.rs / gkr_masked.rs / kfield.rs (lane
+    files), the `uperf-h` arm in `main` + the appended `// [UPERF2-H]`
+    section (bk_pass_run's loop needed NO change — the release happens
+    inside masked_gkr_prove); no transcript / mask / wire / RNG change;
+    `FracTree::p_layer/q_layer` are gone (replaced by `layer(k) ->
+    LayerSrc`; `extract_children_par` takes the caller's handles); the
+    Mac / a time-first box can set `ZK_K9_CHECKPOINT=0` (+0.37U of pair
+    peak, no recompute).
+  - Left (report Section 7): the pass's peak is now the CLAIM LAYER (lane
+    D's packed tables, 5.65 GB transient at 12x512 -> 10.7 GB); then the
+    floor (lays i64 1.5 GB, w0 i8 1.4 GB, CRS memo 1.9 GB — lane F's list);
+    the recompute could be halved (checkpoints at depth-1, depth-3, ..)
+    for +0.18U — not needed while the pair is not the peak; the Mac (T1)
+    remains unmeasured; the 3x16 1T wall is NOISY here (34-35 s under
+    load 3.5-6 vs the 28.6 s quiet merge row; the same-state A/B is
+    neutral).
 
 ## Agent I status (wt-uperf2-i)
 

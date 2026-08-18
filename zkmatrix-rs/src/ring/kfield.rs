@@ -1384,9 +1384,11 @@ k9_kernel!(k9_fused_round_blocks, k9_fused_round_blocks_avx2, fused_round_body,
 // [UPERF2-G] The fused-round driver: rung schedule + jobs + planes.
 
 /// One instance's tree layer j+1 for the extract modes, and its eq factor.
+/// [UPERF2-H] the layer is a `BlkSrc`: a packed layer's slices, or the
+/// compact leaves (expanded per job sub-chunk into scratch — the same
+/// bytes, so the same values).
 pub(crate) struct FusedLayer<'a> {
-    pub p: &'a [u32],
-    pub q: &'a [u32],
+    pub src: BlkSrc<'a>,
     /// The instance's first state-t output pair-block (global index).
     pub first_pair: usize,
     /// E(e): the eq blocks of this instance are the b-part table's blocks
@@ -1452,7 +1454,17 @@ struct FusedJob<'a> {
     n: usize,
     lo: &'a mut [u64],
     hi: &'a mut [u64],
+    /// [UPERF2-H] extract modes over compact leaves: (the leaves, the
+    /// leaf block of this job's first pair-block, layer blocks per
+    /// pair-block f, eq blocks per pair-block fe); `src.t` is then empty
+    /// and the run expands sub-chunks of pair-blocks into scratch.
+    compact: Option<(&'a CompactLeaves, usize, usize, usize)>,
 }
+
+/// Pair-blocks per expansion sub-chunk of a compact-leaves job (f = 8
+/// layer blocks each at round 1: 128 KB of scratch per table — cache
+/// resident). Any value is bit-identical (per-pair-block state only).
+const K9_COMPACT_SUB_PAIRS: usize = 32;
 
 /// The fused round over the whole table (state-t pair-blocks 0..n_pairs;
 /// the plan's live ranges only): deterministic per-job planes summed into
@@ -1602,21 +1614,31 @@ pub(crate) fn k9_fused_round_par(
             tab_pieces.drain(..).map(|v| v.into_iter()).collect();
         for (ji, &(a, b, ri)) in jobs.iter().enumerate() {
             let n = b - a;
-            let (src_eq, eq_scale, src_t): (&[u32], Option<[u32; K_DEG]>, [&[u32]; 4]) = if inplace {
+            let (src_eq, eq_scale, src_t, compact): (&[u32], Option<[u32; K_DEG]>, [&[u32]; 4], Option<(&CompactLeaves, usize, usize, usize)>) = if inplace {
                 (
                     &eq_r[(4 * a - read_base) * KBLK..(4 * b - read_base) * KBLK],
                     None,
                     std::array::from_fn(|k| &tab_r[k][(4 * a - read_base) * KBLK..(4 * b - read_base) * KBLK]),
+                    None,
                 )
             } else {
                 let lay = &plan.layers[ri];
                 let la = a - lay.first_pair;
                 let (f, fe) = if plan.mode == FUSE_EXTRACT { (4, 2) } else { (8, 4) };
-                (
-                    &eq_src[fe * la * KBLK..fe * (la + n) * KBLK],
-                    lay.ee,
-                    [&lay.p[f * la * KBLK..f * (la + n) * KBLK], &lay.q[f * la * KBLK..f * (la + n) * KBLK], Default::default(), Default::default()],
-                )
+                match &lay.src {
+                    BlkSrc::Packed { p, q } => (
+                        &eq_src[fe * la * KBLK..fe * (la + n) * KBLK],
+                        lay.ee,
+                        [&p[f * la * KBLK..f * (la + n) * KBLK], &q[f * la * KBLK..f * (la + n) * KBLK], Default::default(), Default::default()],
+                        None,
+                    ),
+                    BlkSrc::Compact(c) => (
+                        &eq_src[fe * la * KBLK..fe * (la + n) * KBLK],
+                        lay.ee,
+                        [Default::default(), Default::default(), Default::default(), Default::default()],
+                        Some((*c, f * la, f, fe)),
+                    ),
+                }
             };
             let dst_eq = std::mem::take(&mut eq_pieces[ji]);
             let dst_t: [&mut [u32]; 4] = std::array::from_fn(|k| tab_iters[k].next().unwrap());
@@ -1635,11 +1657,50 @@ pub(crate) fn k9_fused_round_par(
                 n,
                 lo,
                 hi,
+                compact,
             });
         }
         let kern_c = *kern;
         let run = |job: &mut FusedJob| {
-            k9_fused_round_blocks(&kern_c, &job.src, &mut job.dst, job.n, nodes, node_consts, job.lo, job.hi);
+            match job.compact {
+                None => k9_fused_round_blocks(&kern_c, &job.src, &mut job.dst, job.n, nodes, node_consts, job.lo, job.hi),
+                Some((c, blk0, f, fe)) => {
+                    // [UPERF2-H] compact leaves: expand sub-chunks of pair-blocks
+                    // into scratch and run the same kernel per sub-chunk (the
+                    // planes accumulate exact integers; the state is per
+                    // pair-block — any sub-chunking is bit-identical).
+                    let sub = K9_COMPACT_SUB_PAIRS;
+                    let mut sp = vec![0u32; f * sub * KBLK];
+                    let mut sq = vec![0u32; f * sub * KBLK];
+                    let writes = !job.dst.eq.is_empty();
+                    let [d0, d1, d2, d3] = &mut job.dst.t;
+                    let mut s = 0usize;
+                    while s < job.n {
+                        let m = sub.min(job.n - s);
+                        c.expand_blocks(blk0 + f * s, f * m, &mut sp, &mut sq);
+                        let src = FusedSrc {
+                            mode: job.src.mode,
+                            eq: &job.src.eq[fe * s * KBLK..fe * (s + m) * KBLK],
+                            eq_scale: job.src.eq_scale,
+                            t: [&sp[..f * m * KBLK], &sq[..f * m * KBLK], Default::default(), Default::default()],
+                            r_prev: job.src.r_prev,
+                            lambda: job.src.lambda,
+                            fold_consts: job.src.fold_consts,
+                        };
+                        let (w0, w1) = (2 * s * KBLK, 2 * (s + m) * KBLK);
+                        let mut dst = if writes {
+                            FusedDst {
+                                eq: &mut job.dst.eq[w0..w1],
+                                t: [&mut d0[w0..w1], &mut d1[w0..w1], &mut d2[w0..w1], &mut d3[w0..w1]],
+                            }
+                        } else {
+                            FusedDst { eq: Default::default(), t: [Default::default(), Default::default(), Default::default(), Default::default()] }
+                        };
+                        k9_fused_round_blocks(&kern_c, &src, &mut dst, m, nodes, node_consts, job.lo, job.hi);
+                        s += m;
+                    }
+                }
+            }
         };
         if threads <= 1 || nj <= 1 {
             for job in job_list.iter_mut() {
@@ -2657,6 +2718,355 @@ pub fn k9_arena_stats() -> (usize, usize, u64, u64, u64) {
     use std::sync::atomic::Ordering::Relaxed;
     let a = K9_ARENA.lock().expect("K9 arena lock");
     (a.bufs.len(), a.held >> 18, K9_ARENA_HITS.load(Relaxed), K9_ARENA_GROWS.load(Relaxed), K9_ARENA_MISSES.load(Relaxed))
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF2-H] Descent tree memory: the knobs, the COMPACT LEAVES of the
+// aligned witness trees, block sources, and the multi-level tree climb.
+//
+// The masked descent reads every tree layer ONCE, top-down (round j reads
+// layer j+1 through the fused rounds 0/1 or the eager extract; nothing
+// reads it again), so a packed tree does not have to keep its layers
+// resident for the whole descent: (1) a layer is RELEASED by the descent
+// once its round has its state-1 tables (gkr.rs `FracTree::release_layer`
+// — the store is per-layer `RwLock<Option<..>>`, the descent holds only
+// `&[FracTree]`); (2) the build keeps the leaves, every c-th layer above
+// them and the small top layers, and a gap layer is RECOMPUTED from the
+// nearest stored layer below when its round asks for it
+// (`k9_tree_climb_par`: chunked, positional, the block-local `tree_step_body`
+// arithmetic level by level through per-chunk scratch — the same integers
+// the build stored); (3) the aligned witness tree's leaves are (0, 1)
+// dummies, (1, alpha - v) members with v on K-coordinates 0..1 only
+// (`lookup::fuse_pair` / `KField::embed`), and four blinders — stored as
+// two u32 per leaf (`CompactLeaves`, 8 B instead of 128 B for p + q) and
+// EXPANDED chunkwise into cache-resident scratch, exactly the packed blocks
+// `KTab::set` would have written, wherever a kernel reads the leaf layer
+// (the tree step, the fused extract rounds, the eager extract). Values are
+// bit-identical by construction on every path; the batteries assert it.
+
+/// Layers of at most this many elements are always stored (never a
+/// checkpoint gap, never released): the roots, the layer-1 quadruples and
+/// the scalar-tail layers read element by element.
+pub(crate) const K9_SMALL_LAYER_N: usize = 1 << 12;
+
+static K9_CKPT_OVERRIDE: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
+static K9_CKPT_ENV: std::sync::LazyLock<usize> = std::sync::LazyLock::new(|| {
+    std::env::var("ZK_K9_CHECKPOINT").ok().and_then(|v| v.parse::<usize>().ok()).unwrap_or(2)
+});
+
+/// The checkpoint stride c of the packed tree build (`ZK_K9_CHECKPOINT`,
+/// default 2): layers depth, depth-c, depth-2c, .. and the small top layers
+/// are stored, the others recomputed on demand; 0 (or 1) = every layer
+/// stored (the pre-change layout). Always 0 under `oracle_mode()`.
+pub fn k9_checkpoint_stride() -> usize {
+    if super::eval_proof::oracle_mode() {
+        return 0;
+    }
+    let o = K9_CKPT_OVERRIDE.load(std::sync::atomic::Ordering::Relaxed);
+    let c = if o == usize::MAX { *K9_CKPT_ENV } else { o };
+    if c <= 1 { 0 } else { c }
+}
+
+/// Battery/bench: override the checkpoint stride in process (None = back
+/// to the env / default).
+pub fn k9_set_checkpoint_stride(c: Option<usize>) {
+    K9_CKPT_OVERRIDE.store(c.unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
+}
+
+/// Tri-state in-process override over an env default (0 = env, 1 = off,
+/// 2 = on).
+fn k9_knob(over: &std::sync::atomic::AtomicU8, env: &std::sync::LazyLock<bool>) -> bool {
+    match over.load(std::sync::atomic::Ordering::Relaxed) {
+        1 => false,
+        2 => true,
+        _ => **env,
+    }
+}
+
+fn k9_set_knob(over: &std::sync::atomic::AtomicU8, v: Option<bool>) {
+    over.store(match v { None => 0, Some(false) => 1, Some(true) => 2 }, std::sync::atomic::Ordering::Relaxed);
+}
+
+static K9_RELEASE_OVERRIDE: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+static K9_RELEASE_ENV: std::sync::LazyLock<bool> =
+    std::sync::LazyLock::new(|| std::env::var("ZK_K9_TREE_RELEASE").map(|v| v != "0").unwrap_or(true));
+
+/// Does the fast masked descent release each tree layer once its round has
+/// consumed it (`ZK_K9_TREE_RELEASE`, default on; off under `oracle_mode()`)?
+pub fn k9_tree_release_enabled() -> bool {
+    !super::eval_proof::oracle_mode() && k9_knob(&K9_RELEASE_OVERRIDE, &K9_RELEASE_ENV)
+}
+
+pub fn k9_set_tree_release(v: Option<bool>) {
+    k9_set_knob(&K9_RELEASE_OVERRIDE, v);
+}
+
+static K9_COMPACT_OVERRIDE: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+static K9_COMPACT_ENV: std::sync::LazyLock<bool> =
+    std::sync::LazyLock::new(|| std::env::var("ZK_K9_COMPACT_LEAVES").map(|v| v != "0").unwrap_or(true));
+
+/// Are the aligned witness trees' leaves stored compact
+/// (`ZK_K9_COMPACT_LEAVES`, default on; off under `oracle_mode()`)?
+pub fn k9_compact_leaves_enabled() -> bool {
+    !super::eval_proof::oracle_mode() && k9_knob(&K9_COMPACT_OVERRIDE, &K9_COMPACT_ENV)
+}
+
+pub fn k9_set_compact_leaves(v: Option<bool>) {
+    k9_set_knob(&K9_COMPACT_OVERRIDE, v);
+}
+
+/// The member flag bit of a compact leaf's second word (canonical values
+/// are < 2^31, so bit 31 is free).
+const K9_CL_MEMBER: u32 = 1 << 31;
+
+/// The compact leaf layer of an aligned witness tree: leaf i is the dummy
+/// (0, 1) when its word pair is zero, the member (1, alpha - v) with the
+/// pair (q0, q1 | MEMBER) = the canonical K-coordinates 0 and 1 of q and
+/// q's coordinates 2.. equal to alpha's, or an exception (index, p, q) —
+/// the blinders (and anything else the builder cannot express). `n` is a
+/// multiple of KL. `expand_blocks` writes the exact packed blocks
+/// (`KTab::set`'s layout) of any block range.
+pub(crate) struct CompactLeaves {
+    pub n: usize,
+    w: Vec<u32>,
+    alpha: [u32; K_DEG],
+    exc: Vec<(usize, [u32; K_DEG], [u32; K_DEG])>,
+}
+
+impl CompactLeaves {
+    pub(crate) fn new(n: usize, alpha: &KElem) -> CompactLeaves {
+        assert!(n % KL == 0 && n > 0, "compact leaves need whole lane blocks");
+        CompactLeaves { n, w: vec![0u32; 2 * n], alpha: kop(alpha), exc: Vec::new() }
+    }
+
+    /// The word pairs (2 per leaf) for the builder's parallel fill.
+    pub(crate) fn words_mut(&mut self) -> &mut [u32] {
+        &mut self.w
+    }
+
+    /// Write member leaf i's pair (q0, q1) into a words slice whose first
+    /// word is leaf `base`'s.
+    #[inline(always)]
+    pub(crate) fn put_member(words: &mut [u32], base: usize, i: usize, q0: u32, q1: u32) {
+        debug_assert!(q0 < K9_CL_MEMBER && q1 < K9_CL_MEMBER);
+        words[2 * (i - base)] = q0;
+        words[2 * (i - base) + 1] = q1 | K9_CL_MEMBER;
+    }
+
+    /// An exception (index, p, q): overrides whatever the pair encodes.
+    pub(crate) fn add_exception(&mut self, i: usize, p: &KElem, q: &KElem) {
+        assert!(i < self.n);
+        let (pp, qq) = (kop(p), kop(q));
+        match self.exc.binary_search_by_key(&i, |e| e.0) {
+            Ok(k) => self.exc[k] = (i, pp, qq),
+            Err(k) => self.exc.insert(k, (i, pp, qq)),
+        }
+    }
+
+    pub(crate) fn n_exceptions(&self) -> usize {
+        self.exc.len()
+    }
+
+    /// Bytes held (the word pairs + the exceptions).
+    pub(crate) fn bytes(&self) -> usize {
+        self.w.len() * 4 + self.exc.len() * (8 + 8 * K_DEG)
+    }
+
+    #[inline(always)]
+    fn decode(&self, i: usize) -> ([u32; K_DEG], [u32; K_DEG]) {
+        let (w0, w1) = (self.w[2 * i], self.w[2 * i + 1]);
+        let mut p = [0u32; K_DEG];
+        let mut q = [0u32; K_DEG];
+        if w1 & K9_CL_MEMBER != 0 {
+            p[0] = 1;
+            q = self.alpha;
+            q[0] = w0;
+            q[1] = w1 & !K9_CL_MEMBER;
+        } else {
+            q[0] = 1;
+        }
+        (p, q)
+    }
+
+    fn get_pair(&self, i: usize) -> ([u32; K_DEG], [u32; K_DEG]) {
+        debug_assert!(i < self.n);
+        if let Ok(k) = self.exc.binary_search_by_key(&i, |e| e.0) {
+            return (self.exc[k].1, self.exc[k].2);
+        }
+        self.decode(i)
+    }
+
+    pub(crate) fn get_p(&self, i: usize) -> KElem {
+        self.get_pair(i).0.iter().map(|&x| x as u64).collect()
+    }
+
+    pub(crate) fn get_q(&self, i: usize) -> KElem {
+        self.get_pair(i).1.iter().map(|&x| x as u64).collect()
+    }
+
+    /// Expand leaf blocks [blk0, blk0 + nblk) into p_out / q_out (nblk * KBLK
+    /// words each): the bytes `KTab::set` writes for the same elements.
+    pub(crate) fn expand_blocks(&self, blk0: usize, nblk: usize, p_out: &mut [u32], q_out: &mut [u32]) {
+        assert!((blk0 + nblk) * KL <= self.n, "compact leaves: block range");
+        assert!(p_out.len() >= nblk * KBLK && q_out.len() >= nblk * KBLK, "compact leaves: output layout");
+        for b in 0..nblk {
+            let pb = &mut p_out[b * KBLK..(b + 1) * KBLK];
+            let qb = &mut q_out[b * KBLK..(b + 1) * KBLK];
+            let i0 = (blk0 + b) * KL;
+            let ws = &self.w[2 * i0..2 * (i0 + KL)];
+            for l in 0..KL {
+                let (w0, w1) = (ws[2 * l], ws[2 * l + 1]);
+                let m = w1 & K9_CL_MEMBER != 0;
+                pb[l] = m as u32;
+                for j in 1..K_DEG {
+                    pb[j * KL + l] = 0;
+                }
+                if m {
+                    qb[l] = w0;
+                    qb[KL + l] = w1 & !K9_CL_MEMBER;
+                    for j in 2..K_DEG {
+                        qb[j * KL + l] = self.alpha[j];
+                    }
+                } else {
+                    qb[l] = 1;
+                    for j in 1..K_DEG {
+                        qb[j * KL + l] = 0;
+                    }
+                }
+            }
+        }
+        // Exceptions inside the range override.
+        if !self.exc.is_empty() {
+            let (i_lo, i_hi) = (blk0 * KL, (blk0 + nblk) * KL);
+            let k0 = self.exc.partition_point(|e| e.0 < i_lo);
+            for e in &self.exc[k0..] {
+                if e.0 >= i_hi {
+                    break;
+                }
+                let li = e.0 - i_lo;
+                let base = (li / KL) * KBLK + (li % KL);
+                for j in 0..K_DEG {
+                    p_out[base + j * KL] = e.1[j];
+                    q_out[base + j * KL] = e.2[j];
+                }
+            }
+        }
+    }
+}
+
+/// A read source of packed (p, q) blocks: a stored/owned packed layer, or
+/// the compact leaves expanded on demand.
+pub(crate) enum BlkSrc<'a> {
+    Packed { p: &'a [u32], q: &'a [u32] },
+    Compact(&'a CompactLeaves),
+}
+
+/// Expansion scratch of `BlkSrc::blocks` (grown as needed, reused).
+#[derive(Default)]
+pub(crate) struct ExpandScratch {
+    p: Vec<u32>,
+    q: Vec<u32>,
+}
+
+#[inline(always)]
+fn packed_get(d: &[u32], i: usize) -> KElem {
+    let base = (i / KL) * KBLK + (i % KL);
+    (0..K_DEG).map(|j| d[base + j * KL] as u64).collect()
+}
+
+impl<'a> BlkSrc<'a> {
+    pub(crate) fn get_p(&self, i: usize) -> KElem {
+        match self {
+            BlkSrc::Packed { p, .. } => packed_get(p, i),
+            BlkSrc::Compact(c) => c.get_p(i),
+        }
+    }
+
+    pub(crate) fn get_q(&self, i: usize) -> KElem {
+        match self {
+            BlkSrc::Packed { q, .. } => packed_get(q, i),
+            BlkSrc::Compact(c) => c.get_q(i),
+        }
+    }
+
+    /// The blocks [blk0, blk0 + nblk) of p and q: sub-slices of a packed
+    /// source, or the compact leaves expanded into `scratch`.
+    pub(crate) fn blocks<'s>(&'s self, blk0: usize, nblk: usize, scratch: &'s mut ExpandScratch) -> (&'s [u32], &'s [u32]) {
+        match self {
+            BlkSrc::Packed { p, q } => (&p[blk0 * KBLK..(blk0 + nblk) * KBLK], &q[blk0 * KBLK..(blk0 + nblk) * KBLK]),
+            BlkSrc::Compact(c) => {
+                let words = nblk * KBLK;
+                if scratch.p.len() < words {
+                    scratch.p.resize(words, 0);
+                    scratch.q.resize(words, 0);
+                }
+                c.expand_blocks(blk0, nblk, &mut scratch.p, &mut scratch.q);
+                (&scratch.p[..words], &scratch.q[..words])
+            }
+        }
+    }
+}
+
+/// Output blocks per parallel chunk of the climb (the source of a chunk is
+/// this << levels blocks per table; positional, any value identical).
+const K9_CLIMB_CHUNK_BLK: usize = 64;
+
+/// The tree layer `levels` above `src`: output blocks [0, out_nblk) from
+/// source blocks [0, out_nblk << levels), the intermediate levels computed
+/// per chunk through scratch (never materialized whole). Every output block
+/// is `tree_step_body`'s block-local arithmetic applied level by level to
+/// the same source blocks the layered build reads — the same integers.
+/// levels == 1 over a packed source is the build's own threaded step.
+pub(crate) fn k9_tree_climb_par(kern: &KKern, src: &BlkSrc, levels: usize, np: &mut [u32], nq: &mut [u32], out_nblk: usize) {
+    assert!(levels >= 1, "tree climb: at least one level");
+    if levels == 1 {
+        if let BlkSrc::Packed { p, q } = src {
+            return k9_tree_step_par(kern, p, q, np, nq, out_nblk);
+        }
+    }
+    let (np, nq) = (&mut np[..out_nblk * KBLK], &mut nq[..out_nblk * KBLK]);
+    let kern = *kern;
+    let job = |c0: usize, npc: &mut [u32], nqc: &mut [u32]| {
+        let n = npc.len() / KBLK;
+        let mut scratch = ExpandScratch::default();
+        let (sp, sq) = src.blocks(c0 << levels, n << levels, &mut scratch);
+        if levels == 1 {
+            k9_tree_step(&kern, sp, sq, npc, nqc, n);
+            return;
+        }
+        // Ping-pong scratch for the intermediate levels.
+        let top = (n << (levels - 1)) * KBLK;
+        let mut bufs = [(vec![0u32; top], vec![0u32; top]), (vec![0u32; top], vec![0u32; top])];
+        let mut cur = 0usize;
+        {
+            let m = n << (levels - 1);
+            let (a_p, a_q) = &mut bufs[cur];
+            k9_tree_step(&kern, sp, sq, &mut a_p[..m * KBLK], &mut a_q[..m * KBLK], m);
+        }
+        for lev in 2..levels {
+            let m = n << (levels - lev);
+            let (lo, hi) = bufs.split_at_mut(1);
+            let (from, to) = if cur == 0 { (&lo[0], &mut hi[0]) } else { (&hi[0], &mut lo[0]) };
+            k9_tree_step(&kern, &from.0[..2 * m * KBLK], &from.1[..2 * m * KBLK], &mut to.0[..m * KBLK], &mut to.1[..m * KBLK], m);
+            cur ^= 1;
+        }
+        let (fp, fq) = &bufs[cur];
+        k9_tree_step(&kern, &fp[..2 * n * KBLK], &fq[..2 * n * KBLK], npc, nqc, n);
+    };
+    let ch = K9_CLIMB_CHUNK_BLK;
+    if k9_threads() <= 1 || out_nblk <= ch {
+        for c0 in (0..out_nblk).step_by(ch) {
+            let n = ch.min(out_nblk - c0);
+            job(c0, &mut np[c0 * KBLK..(c0 + n) * KBLK], &mut nq[c0 * KBLK..(c0 + n) * KBLK]);
+        }
+        return;
+    }
+    k9_pooled(|| {
+        use rayon::prelude::*;
+        np.par_chunks_mut(ch * KBLK).zip(nq.par_chunks_mut(ch * KBLK)).enumerate().for_each(|(c, (npc, nqc))| {
+            job(c * ch, npc, nqc);
+        });
+    });
 }
 
 // ---------------------------------------------------------------------------

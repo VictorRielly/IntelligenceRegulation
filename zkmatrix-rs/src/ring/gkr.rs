@@ -39,7 +39,7 @@
 // computable from the public fused table.
 
 use super::ct_engine::prof;
-use super::kfield::{KElem, KField, KL, KTab, k9_tree_step};
+use super::kfield::{BlkSrc, CompactLeaves, KElem, KField, KL, KTab, k9_tree_step};
 use super::sumcheck::{
     LkpTranscript, SumcheckProof, lagrange_eval, mle_eval, round_poly, sumcheck_prove,
     sumcheck_verify,
@@ -58,12 +58,18 @@ use super::sumcheck::{
 /// the kernel-grade bulk paths. The scalar-oracle field
 /// (KField::harness_scalar) and non-qualifying moduli keep the original
 /// boxed layout and scalar arithmetic, bit-identically.
+///
+/// [UPERF2-H] The packed tree's layers live in a per-layer store that the
+/// descent can give back as it consumes them (`release_layer`), gap layers
+/// of the checkpointed build are recomputed on demand (`layer`), and the
+/// aligned witness trees keep their leaves COMPACT (kfield::CompactLeaves).
+/// Values are the same fractional sums in the same order on every path.
 pub struct FracTree {
     repr: TreeRepr,
 }
 
 enum TreeRepr {
-    Packed { lp: Vec<KTab>, lq: Vec<KTab> },
+    Packed(PackedTree),
     Boxed { lp: Vec<Vec<KElem>>, lq: Vec<Vec<KElem>> },
     /// [UPERF2-A] The all-neutral tree (every leaf (0, 1) — the
     /// `neutral_tree` pads): every layer is (0, 1) too, so nothing is
@@ -74,10 +80,135 @@ enum TreeRepr {
     Neutral { depth: usize },
 }
 
+/// [UPERF2-H] The packed tree's layer store.
+struct PackedTree {
+    depth: usize,
+    /// layers[k] = the stored (p, q) tables of layer k; None = a checkpoint
+    /// gap of the build (recomputed on demand from the nearest stored layer
+    /// below) or a layer the descent released. Layer `depth` (the leaves)
+    /// is None when `compact` holds them.
+    layers: Vec<std::sync::RwLock<Option<(KTab, KTab)>>>,
+    /// The compact leaves of an aligned witness tree.
+    compact: Option<CompactLeaves>,
+    /// The bulk kernel context (for the on-demand recompute).
+    kern: super::kfield::KKern,
+}
+
+/// [UPERF2-H] One tree layer as the descent reads it: a stored layer (a
+/// read guard on the store), a recomputed gap layer (owned), or the
+/// compact leaves. `blk_src()` is the kernels' view.
+pub(crate) enum LayerSrc<'a> {
+    Stored(std::sync::RwLockReadGuard<'a, Option<(KTab, KTab)>>),
+    Owned(KTab, KTab),
+    Compact(&'a CompactLeaves),
+}
+
+impl<'a> LayerSrc<'a> {
+    pub(crate) fn blk_src(&self) -> BlkSrc<'_> {
+        match self {
+            LayerSrc::Stored(g) => {
+                let (p, q) = g.as_ref().expect("stored layer");
+                BlkSrc::Packed { p: &p.d, q: &q.d }
+            }
+            LayerSrc::Owned(p, q) => BlkSrc::Packed { p: &p.d, q: &q.d },
+            LayerSrc::Compact(c) => BlkSrc::Compact(c),
+        }
+    }
+
+    /// The (p, q) tables when the layer is packed (None: compact leaves).
+    pub(crate) fn tabs(&self) -> Option<(&KTab, &KTab)> {
+        match self {
+            LayerSrc::Stored(g) => {
+                let (p, q) = g.as_ref().expect("stored layer");
+                Some((p, q))
+            }
+            LayerSrc::Owned(p, q) => Some((p, q)),
+            LayerSrc::Compact(_) => None,
+        }
+    }
+
+    pub(crate) fn n(&self) -> usize {
+        match self {
+            LayerSrc::Stored(g) => g.as_ref().expect("stored layer").0.n,
+            LayerSrc::Owned(p, _) => p.n,
+            LayerSrc::Compact(c) => c.n,
+        }
+    }
+
+    pub(crate) fn get_p(&self, i: usize) -> KElem {
+        self.blk_src().get_p(i)
+    }
+
+    pub(crate) fn get_q(&self, i: usize) -> KElem {
+        self.blk_src().get_q(i)
+    }
+}
+
+impl PackedTree {
+    fn layer(&self, k: usize) -> LayerSrc<'_> {
+        assert!(k <= self.depth, "layer index");
+        {
+            let g = self.layers[k].read().expect("tree layer lock");
+            if g.is_some() {
+                return LayerSrc::Stored(g);
+            }
+        }
+        if k == self.depth {
+            if let Some(c) = &self.compact {
+                return LayerSrc::Compact(c);
+            }
+            panic!("the leaves of the packed tree were released");
+        }
+        // A gap (or a released layer with a stored layer below it):
+        // recompute from the nearest stored layer below.
+        let n = 1usize << k;
+        assert!(n >= KL, "recompute of a sub-block layer (small layers are always stored)");
+        for kk in k + 1..=self.depth {
+            let g = self.layers[kk].read().expect("tree layer lock");
+            let src: Option<BlkSrc> = match g.as_ref() {
+                Some((p, q)) => Some(BlkSrc::Packed { p: &p.d, q: &q.d }),
+                None if kk == self.depth => self.compact.as_ref().map(BlkSrc::Compact),
+                None => None,
+            };
+            if let Some(src) = src {
+                let _t = prof::timer(prof::A_TREE_STEP);
+                let mut np = KTab::recycled(n);
+                let mut nq = KTab::recycled(n);
+                super::kfield::k9_tree_climb_par(&self.kern, &src, kk - k, &mut np.d, &mut nq.d, n / KL);
+                return LayerSrc::Owned(np, nq);
+            }
+        }
+        panic!("layer {k} of the packed tree is not stored and nothing below it is stored (the leaves are always kept — this cannot happen)");
+    }
+
+    /// Release layer k. The leaves are never released (they cost nothing
+    /// at the peak — the bottom rounds' peak sits at layer depth-1 — and
+    /// keeping them makes a second descent over the same tree possible:
+    /// every released layer is then recomputed from them, slowly).
+    fn release(&self, k: usize) {
+        if k >= self.depth || (1usize << k) <= super::kfield::K9_SMALL_LAYER_N {
+            return;
+        }
+        let mut g = self.layers[k].write().expect("tree layer lock");
+        *g = None;
+    }
+
+    /// Bytes of packed layers currently stored (+ the compact leaves).
+    fn resident_bytes(&self) -> usize {
+        let mut b = 0usize;
+        for l in &self.layers {
+            if let Some((p, q)) = l.read().expect("tree layer lock").as_ref() {
+                b += (p.d.len() + q.d.len()) * 4;
+            }
+        }
+        b + self.compact.as_ref().map(|c| c.bytes()).unwrap_or(0)
+    }
+}
+
 impl FracTree {
     pub fn depth(&self) -> usize {
         match &self.repr {
-            TreeRepr::Packed { lp, .. } => lp.len() - 1,
+            TreeRepr::Packed(t) => t.depth,
             TreeRepr::Boxed { lp, .. } => lp.len() - 1,
             TreeRepr::Neutral { depth } => *depth,
         }
@@ -90,7 +221,7 @@ impl FracTree {
     /// Scalar element access (any representation).
     pub(crate) fn p_elem(&self, layer: usize, i: usize) -> KElem {
         match &self.repr {
-            TreeRepr::Packed { lp, .. } => lp[layer].get(i),
+            TreeRepr::Packed(t) => t.layer(layer).get_p(i),
             TreeRepr::Boxed { lp, .. } => lp[layer][i].clone(),
             TreeRepr::Neutral { depth } => {
                 debug_assert!(layer <= *depth && i < (1usize << layer));
@@ -101,7 +232,7 @@ impl FracTree {
 
     pub(crate) fn q_elem(&self, layer: usize, i: usize) -> KElem {
         match &self.repr {
-            TreeRepr::Packed { lq, .. } => lq[layer].get(i),
+            TreeRepr::Packed(t) => t.layer(layer).get_q(i),
             TreeRepr::Boxed { lq, .. } => lq[layer][i].clone(),
             TreeRepr::Neutral { depth } => {
                 debug_assert!(layer <= *depth && i < (1usize << layer));
@@ -112,29 +243,46 @@ impl FracTree {
         }
     }
 
-    /// Packed layer views (bulk descent paths; panics on boxed trees —
-    /// the dispatchers never mix modes — and on neutral trees, whose
-    /// callers test `is_neutral` first).
-    pub(crate) fn p_layer(&self, layer: usize) -> &KTab {
+    /// [UPERF2-H] Layer k of a packed tree for the bulk descent paths (a
+    /// stored layer, a recomputed gap, or the compact leaves — see
+    /// `LayerSrc`); panics on boxed trees (the dispatchers never mix modes)
+    /// and on neutral trees (their callers test `is_neutral` first).
+    pub(crate) fn layer(&self, k: usize) -> LayerSrc<'_> {
         match &self.repr {
-            TreeRepr::Packed { lp, .. } => &lp[layer],
+            TreeRepr::Packed(t) => t.layer(k),
             TreeRepr::Boxed { .. } => panic!("packed layer view on a boxed tree"),
             TreeRepr::Neutral { .. } => panic!("packed layer view on a neutral tree"),
         }
     }
 
-    pub(crate) fn q_layer(&self, layer: usize) -> &KTab {
+    /// [UPERF2-H] Give layer k back once the descent has consumed it (the
+    /// fast paths call this after their round's state-1 tables exist).
+    /// Small layers, boxed and neutral trees: no-op; the knob
+    /// `ZK_K9_TREE_RELEASE=0` and `oracle_mode()` disable it. A layer read
+    /// after its release is recomputed from below when a stored layer
+    /// exists there (correct, slow) and panics otherwise.
+    pub(crate) fn release_layer(&self, k: usize) {
+        if !super::kfield::k9_tree_release_enabled() {
+            return;
+        }
+        if let TreeRepr::Packed(t) = &self.repr {
+            t.release(k);
+        }
+    }
+
+    /// [UPERF2-H] Bytes of packed layers currently held by this tree
+    /// (observation only; boxed trees report 0).
+    pub fn resident_bytes(&self) -> usize {
         match &self.repr {
-            TreeRepr::Packed { lq, .. } => &lq[layer],
-            TreeRepr::Boxed { .. } => panic!("packed layer view on a boxed tree"),
-            TreeRepr::Neutral { .. } => panic!("packed layer view on a neutral tree"),
+            TreeRepr::Packed(t) => t.resident_bytes(),
+            _ => 0,
         }
     }
 
     /// Bulk-path eligible: packed layers or the (implicitly packed)
     /// neutral tree.
     pub(crate) fn is_packed(&self) -> bool {
-        matches!(self.repr, TreeRepr::Packed { .. } | TreeRepr::Neutral { .. })
+        matches!(self.repr, TreeRepr::Packed(_) | TreeRepr::Neutral { .. })
     }
 
     pub(crate) fn is_neutral(&self) -> bool {
@@ -369,6 +517,18 @@ pub fn build_aligned_witness_tree(
         super::kfield::k9_capacity_ok(n),
         "K9 projective tree exceeds the audited packed-table cap"
     );
+    // [UPERF2-H] COMPACT LEAVES: when every member value lives on the
+    // K-coordinates 0..1 (the rig's fuse_pair / embed values — probed on
+    // each block's first element, then asserted on every element by the
+    // fill, with the packed builder as the fallback), the leaves are stored
+    // as two u32 per leaf and expanded on demand — the same packed blocks.
+    if n >= 2 * KL && super::kfield::k9_compact_leaves_enabled() && blocks.iter().all(|b| {
+        b.rows * b.cols == 0 || (b.value)(0)[2..].iter().all(|&x| x == 0)
+    }) {
+        if let Some(cl) = build_compact_leaves(kf, alpha, n, blocks, blinders) {
+            return build_tree_from(kf, LeafStore::Compact(cl));
+        }
+    }
     let _t = prof::timer(prof::A_TREE_PACK);
     let one = kf.one();
     // p defaults to the zero element: the calloc'd zeroed table IS that
@@ -451,6 +611,75 @@ pub fn build_aligned_witness_tree(
     build_tree_packed(kf, leaf_p_t, leaf_q_t)
 }
 
+/// [UPERF2-H] The compact leaves of an aligned witness tree: member leaf
+/// (base + r*cols_pad + c) = (1, alpha - value(r*cols + c)) stored as the
+/// canonical coordinates 0..1 of alpha - value (`Zq::sub` per coordinate,
+/// exactly `KField::sub`'s arithmetic; the tail is alpha's because value's
+/// tail is zero), dummies as zero pairs, blinders as exceptions. Filled in
+/// parallel per member block over row chunks (disjoint word ranges — no
+/// reduction). Returns None if some value has a nonzero tail after all
+/// (the caller falls back to the packed leaves; the values are re-read
+/// from the closures, which are pure).
+fn build_compact_leaves(
+    kf: &KField,
+    alpha: &KElem,
+    n: usize,
+    blocks: &[AlignedBlock],
+    blinders: &[(usize, KElem, KElem)],
+) -> Option<CompactLeaves> {
+    let _t = prof::timer(prof::A_TREE_PACK);
+    let zq = &kf.zq;
+    let mut cl = CompactLeaves::new(n, alpha);
+    let (a0, a1) = (alpha[0], alpha[1]);
+    let bad = std::sync::atomic::AtomicBool::new(false);
+    let threads = super::kfield::k9_threads();
+    for b in blocks {
+        if b.rows * b.cols == 0 {
+            continue;
+        }
+        let span = b.rows * b.cols_pad;
+        let words = &mut cl.words_mut()[2 * b.base..2 * (b.base + span)];
+        let (rows, cols, cols_pad, value, base) = (b.rows, b.cols, b.cols_pad, b.value, b.base);
+        let fill_rows = |r0: usize, r1: usize, wc: &mut [u32]| {
+            // wc's first word is leaf (base + r0*cols_pad)'s.
+            let lbase = base + r0 * cols_pad;
+            for r in r0..r1 {
+                for c in 0..cols {
+                    let v = value(r * cols + c);
+                    if v[2..].iter().any(|&x| x != 0) {
+                        bad.store(true, std::sync::atomic::Ordering::Relaxed);
+                        return;
+                    }
+                    let q0 = zq.sub(a0, v[0]);
+                    let q1 = zq.sub(a1, v[1]);
+                    debug_assert!(q0 < (1 << 31) && q1 < (1 << 31));
+                    CompactLeaves::put_member(wc, lbase, base + r * cols_pad + c, q0 as u32, q1 as u32);
+                }
+            }
+        };
+        let chunk_rows = (4096 / cols_pad).max(1);
+        if threads <= 1 || rows <= chunk_rows {
+            fill_rows(0, rows, words);
+        } else {
+            super::kfield::k9_pooled_pub(|| {
+                use rayon::prelude::*;
+                words.par_chunks_mut(2 * chunk_rows * cols_pad).enumerate().for_each(|(ci, wc)| {
+                    let r0 = ci * chunk_rows;
+                    let r1 = (r0 + chunk_rows).min(rows);
+                    fill_rows(r0, r1, wc);
+                });
+            });
+        }
+        if bad.load(std::sync::atomic::Ordering::Relaxed) {
+            return None;
+        }
+    }
+    for (i, a, u) in blinders {
+        cl.add_exception(*i, a, u);
+    }
+    Some(cl)
+}
+
 /// [U-PERF-PA] B-D2 streamed builder: leaves are generated per index by
 /// the closure and packed DIRECTLY into the leaf tables — no boxed leaf
 /// vector ever exists (the boxed pair is ~2 x 170 B/element of transient
@@ -488,43 +717,80 @@ pub fn build_tree_stream(
     build_tree_packed(kf, leaf_p_t, leaf_q_t)
 }
 
+/// [UPERF2-H] The leaves a packed build starts from.
+pub(crate) enum LeafStore {
+    Packed(KTab, KTab),
+    Compact(CompactLeaves),
+}
+
 /// The packed bottom-up build over already-packed leaf tables (shared by
 /// build_tree and build_tree_stream). [UPERF2-A] the layer steps are
 /// threaded over independent output block ranges on the fast path
 /// (`k9_tree_step_par`; positional, no reduction — bit-identical);
 /// `oracle_mode()` routes to the serial step.
 fn build_tree_packed(kf: &KField, leaf_p_t: KTab, leaf_q_t: KTab) -> FracTree {
+    build_tree_from(kf, LeafStore::Packed(leaf_p_t, leaf_q_t))
+}
+
+/// [UPERF2-H] The packed bottom-up build with the checkpoint policy: every
+/// layer is computed from the one below it exactly as before (the threaded
+/// step, or the serial step under `oracle_mode()`; compact leaves are
+/// expanded chunkwise into the step by `k9_tree_climb_par`), but only the
+/// leaves, the layers depth - m*c (c = `k9_checkpoint_stride()`, 0 = all)
+/// and the small top layers are STORED; the others are dropped as soon as
+/// the layer above them exists and are recomputed on demand by
+/// `FracTree::layer` — the same values, so the same tree.
+fn build_tree_from(kf: &KField, leaves: LeafStore) -> FracTree {
     let kern = kf.kern.as_ref().expect("packed tree build requires the bulk kernel");
     let _t = prof::timer(prof::A_TREE_STEP);
     let oracle = super::eval_proof::oracle_mode();
-    let mut lp = vec![leaf_p_t];
-    let mut lq = vec![leaf_q_t];
-    while lp.last().unwrap().n > 1 {
-        let (cp, cq) = (lp.last().unwrap(), lq.last().unwrap());
-        let half = cp.n / 2;
+    let n = match &leaves {
+        LeafStore::Packed(p, _) => p.n,
+        LeafStore::Compact(c) => c.n,
+    };
+    assert!(n.is_power_of_two());
+    let depth = n.trailing_zeros() as usize;
+    let stride = super::kfield::k9_checkpoint_stride();
+    let keep = |k: usize| -> bool {
+        k == depth || (1usize << k) <= super::kfield::K9_SMALL_LAYER_N || stride == 0 || (depth - k) % stride == 0
+    };
+    let mut layers: Vec<std::sync::RwLock<Option<(KTab, KTab)>>> = (0..=depth).map(|_| std::sync::RwLock::new(None)).collect();
+    let (mut cur, compact): (Option<(KTab, KTab)>, Option<CompactLeaves>) = match leaves {
+        LeafStore::Packed(p, q) => (Some((p, q)), None),
+        LeafStore::Compact(c) => (None, Some(c)),
+    };
+    for k in (0..depth).rev() {
+        let half = 1usize << k;
         // [UPERF2-G] every element is written by the step (recycled buffers).
         let mut np = KTab::recycled(half);
         let mut nq = KTab::recycled(half);
+        let src: BlkSrc = match &cur {
+            Some((p, q)) => BlkSrc::Packed { p: &p.d, q: &q.d },
+            None => BlkSrc::Compact(compact.as_ref().expect("leaves")),
+        };
         if half >= KL {
-            if oracle {
-                k9_tree_step(kern, &cp.d, &cq.d, &mut np.d, &mut nq.d, half / KL);
-            } else {
-                super::kfield::k9_tree_step_par(kern, &cp.d, &cq.d, &mut np.d, &mut nq.d, half / KL);
+            match (&src, oracle) {
+                (BlkSrc::Packed { p, q }, true) => k9_tree_step(kern, p, q, &mut np.d, &mut nq.d, half / KL),
+                _ => super::kfield::k9_tree_climb_par(kern, &src, 1, &mut np.d, &mut nq.d, half / KL),
             }
         } else {
             for i in 0..half {
-                let (pl, pr) = (cp.get(2 * i), cp.get(2 * i + 1));
-                let (ql, qr) = (cq.get(2 * i), cq.get(2 * i + 1));
+                let (pl, pr) = (src.get_p(2 * i), src.get_p(2 * i + 1));
+                let (ql, qr) = (src.get_q(2 * i), src.get_q(2 * i + 1));
                 np.set(i, &kf.add(&kf.mul(&pl, &qr), &kf.mul(&pr, &ql)));
                 nq.set(i, &kf.mul(&ql, &qr));
             }
         }
-        lp.push(np);
-        lq.push(nq);
+        // Layer k+1 is complete below layer k: store it or drop it.
+        if let Some(pq) = cur.take() {
+            if keep(k + 1) {
+                *layers[k + 1].get_mut().expect("tree layer lock") = Some(pq);
+            }
+        }
+        cur = Some((np, nq));
     }
-    lp.reverse();
-    lq.reverse();
-    FracTree { repr: TreeRepr::Packed { lp, lq } }
+    *layers[0].get_mut().expect("tree layer lock") = cur;
+    FracTree { repr: TreeRepr::Packed(PackedTree { depth, layers, compact, kern: *kern }) }
 }
 
 /// The original boxed builder — the scalar oracle path, unchanged math.
@@ -708,19 +974,34 @@ pub(crate) fn extract_children(trees: &[FracTree], k: usize) -> (KTab, KTab, KTa
         e[0] = 1;
         e
     };
+    // [UPERF2-H] one layer handle per real tree for the loop.
+    let lays: Vec<Option<LayerSrc>> =
+        trees.iter().map(|t| if t.is_neutral() { None } else { Some(t.layer(k + 1)) }).collect();
     for idx in 0..size {
         let (e, b) = (idx >> k, idx & mask);
-        if trees[e].is_neutral() {
-            // (p, q) = (0, 1) at every child: p0/p1 stay zero.
-            q0.set(idx, &one);
-            q1.set(idx, &one);
-            continue;
+        let lay = match &lays[e] {
+            None => {
+                // (p, q) = (0, 1) at every child: p0/p1 stay zero.
+                q0.set(idx, &one);
+                q1.set(idx, &one);
+                continue;
+            }
+            Some(l) => l,
+        };
+        match lay.tabs() {
+            Some((sp, sq)) => {
+                p0.copy_elem(idx, sp, 2 * b);
+                p1.copy_elem(idx, sp, 2 * b + 1);
+                q0.copy_elem(idx, sq, 2 * b);
+                q1.copy_elem(idx, sq, 2 * b + 1);
+            }
+            None => {
+                p0.set(idx, &lay.get_p(2 * b));
+                p1.set(idx, &lay.get_p(2 * b + 1));
+                q0.set(idx, &lay.get_q(2 * b));
+                q1.set(idx, &lay.get_q(2 * b + 1));
+            }
         }
-        let (sp, sq) = (trees[e].p_layer(k + 1), trees[e].q_layer(k + 1));
-        p0.copy_elem(idx, sp, 2 * b);
-        p1.copy_elem(idx, sp, 2 * b + 1);
-        q0.copy_elem(idx, sq, 2 * b);
-        q1.copy_elem(idx, sq, 2 * b + 1);
     }
     (p0, p1, q0, q1)
 }
@@ -731,8 +1012,13 @@ pub(crate) fn extract_children(trees: &[FracTree], k: usize) -> (KTab, KTab, KTa
 /// blocks 2m, 2m+1 of the tree's layer k+1) and a deterministic thread
 /// split over (tree, block-chunk). Identical tables to extract_children;
 /// the sub-block sizes take the element path.
+/// [UPERF2-H] reads the trees' layer k+1 through the caller's handles
+/// (`lays[e]`, None for a neutral tree — the descent obtains them once per
+/// layer and releases the layer afterwards); compact leaves are expanded
+/// per chunk into scratch — the same blocks.
 pub(crate) fn extract_children_par(
     trees: &[FracTree],
+    lays: &[Option<LayerSrc>],
     k: usize,
     fill_neutral: bool,
 ) -> (KTab, KTab, KTab, KTab) {
@@ -740,6 +1026,7 @@ pub(crate) fn extract_children_par(
         return extract_children(trees, k);
     }
     let l = trees.len();
+    assert_eq!(lays.len(), l, "extract: one layer handle per tree");
     let size = l << k;
     let per_tree_blk = (1usize << k) / KL;
     let mut p0 = KTab::zeroed(size);
@@ -759,18 +1046,23 @@ pub(crate) fn extract_children_par(
     };
     let job = |e: usize, m0: usize, p0c: &mut [u32], p1c: &mut [u32], q0c: &mut [u32], q1c: &mut [u32]| {
         let n = p0c.len() / super::kfield::KBLK;
-        if trees[e].is_neutral() {
-            if fill_neutral {
-                for i in 0..n {
-                    q0c[i * super::kfield::KBLK..(i + 1) * super::kfield::KBLK].copy_from_slice(&one_blk);
-                    q1c[i * super::kfield::KBLK..(i + 1) * super::kfield::KBLK].copy_from_slice(&one_blk);
+        let lay = match &lays[e] {
+            None => {
+                if fill_neutral {
+                    for i in 0..n {
+                        q0c[i * super::kfield::KBLK..(i + 1) * super::kfield::KBLK].copy_from_slice(&one_blk);
+                        q1c[i * super::kfield::KBLK..(i + 1) * super::kfield::KBLK].copy_from_slice(&one_blk);
+                    }
                 }
+                return;
             }
-            return;
-        }
-        let (sp, sq) = (trees[e].p_layer(k + 1), trees[e].q_layer(k + 1));
-        super::kfield::k9_deint_blocks(&sp.d, m0, n, p0c, p1c);
-        super::kfield::k9_deint_blocks(&sq.d, m0, n, q0c, q1c);
+            Some(l) => l,
+        };
+        let src = lay.blk_src();
+        let mut scratch = super::kfield::ExpandScratch::default();
+        let (sp, sq) = src.blocks(2 * m0, 2 * n, &mut scratch);
+        super::kfield::k9_deint_blocks(sp, 0, n, p0c, p1c);
+        super::kfield::k9_deint_blocks(sq, 0, n, q0c, q1c);
     };
     let ch = super::kfield::k9_extract_chunk_blk().min(per_tree_blk).max(1);
     let words = ch * super::kfield::KBLK;
