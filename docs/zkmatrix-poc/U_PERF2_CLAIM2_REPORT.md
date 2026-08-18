@@ -42,11 +42,13 @@ packed == device == device at min_pairs 1 / low bits 3, planted q-1 / -q /
 wide values, ZK_THREADS 1/2/7, digest b67af1aa..), `uperf-d` 30/30
 (46471467.. unchanged) under ZK_GPU=1, `uperf-pc diff-battery`, and the
 REAL rigs' digests. **THE PoC SHAPE 12x512 8T+GPU: 60.2 s -> 46.6 s (commit
-4.7 / prove 37.5 / verify 2.6), the claim layer 15.5 -> 2.0 s, peak RSS 11.2
+4.7 / prove 37.5 / verify 2.6; 49.0 s on a noisier re-run at HEAD with every
+untouched phase +5-10%), the claim layer 15.5 -> 2.0 -> 1.7 s, peak RSS 11.2
 -> 9.3 GB, statement 2f8a92f8.. / EVAL 4c259008.. / 1,509,911 B identical,
-accept**; 12x128 8T+GPU 25.5 -> 19.1 s (claim layer 2.61 -> 0.73 s); the CPU
-path's zero-check sequence at the 12x128 shape 2.67 -> 2.03 s from the pool
-alone (8T, proofs identical). The GEMM's u32-limb MAC (item 2, lane K's
+accept**; 12x128 8T+GPU 25.5 -> 19.1-19.9 s (claim layer 2.61 -> 0.67 s);
+CPU-only 12x512 8T (the pool alone) 96.7 -> 92.0 s (claim layer 15.9 ->
+9.5 s: cl-tables 5.0 -> 3.0, cl-folds 6.8 -> 2.6), the CPU path's zero-check
+sequence at the 12x128 shape 2.67 -> 2.03 s (8T, proofs identical). The GEMM's u32-limb MAC (item 2, lane K's
 "~2.5-3x [ASSUMED]") was MEASURED and refuted on this part: `mad.wide.u32`
 issues at half the IMAD rate (746 vs 1,631 G/s) and the 3-limb 9-product
 MAC runs at 111 G MAC/s against K's 64x64->128 + ACC128 form at 156 G
@@ -196,11 +198,20 @@ finding is the deliverable (it also prices lane L's / N's kernels: their
 | `uperf-d diff-battery` (both builds; GPU under ZK_GPU=1 — its zero-check legs go through the device path) | 30/30, 46471467.. (lane D's value) at 1/2/7T |
 | `uperf-o bench 12 128` (the 5 zero-check instances of the pass claim layer on synthetic layers, one transcript) | proofs identical: host pool off == host pool on == device (digest 4f68023a..) |
 | the REAL rigs (Section 4.3) | 3x16 93a98700.. / 0ae9cdae.. / 985,142 B; 12x128 4a3af8c3.. / 742d88e1.. / 1,372,775 B; 12x512 2f8a92f8.. / 4c259008.. / 1,509,911 B — all accept, identical |
-| the rest of the gate | (Section 3.1, filled at close) |
+| default build (HEAD): `uperf-o battery` 1T/7T (20/20, b67af1aa.. — the device legs report the stub), `uperf-d` 1T/7T (30/30), `uperf-pc diff-battery`, `uperf-j` (45dba7c7..), `uperf-c`, `uperf-f` (40/40, 77583bed..), `uperf-m` (37d6a49b..), `uperf-a` (f936ff79..), `uperf-g` (6d6a3f6b..), `uperf-h` (b1e78285..), `uperf-i`, `freeze-check` (98 `ok` rows + the BF/BK rows, "freeze-check passed"; the full text identical to the 50aea3e capture), `self-test` (1T, 253.9 s) | all green |
+| GPU build (HEAD, `ZK_GPU=1`): `uperf-o` + `uperf-d` at ZK_THREADS 1/2/7, `uperf-k battery` (185 legs + hook), `uperf-l battery` (310 legs, cc4f8c1c..), `uperf-j`, `uperf-m`, `uperf-pc diff-battery` at 1T and 7T | all green |
 
-### 3.1 The rest of the gate
+### 3.1 Notes on the gate
 
-(filled at close)
+- The GPU build's `uperf-pc diff-battery` E2E leg (bg_pass_run at a
+  synthetic shape, proofs byte-compared against the in-process oracle
+  flip) drives the device zero-check path (tables >= 2^15 elements).
+- `uperf-o battery`'s device legs at `min_pairs 1 / low bits 3` take every
+  round the device can (down to 16 elements), so the G-table eq mode, the
+  L_t layer-table shift mode and the handover at every size are compared
+  against the oracle; the default knobs are compared too.
+- The freeze rows: the pre-change capture (scratchpad/o_freeze_baseline.txt,
+  the 50aea3e default binary) and HEAD's are identical text.
 
 ## 4. Measurements
 
@@ -222,7 +233,8 @@ finding is the deliverable (it also prices lane L's / N's kernels: their
 | the same on the GPU build (lane L's k9 chain for the rounds), host path | 2.48 s | 2.09 s (pool) | identical |
 | the device path, the same sequence (GPU build, ZK_GPU=1) | 2.48 s (L's chain: 1 GB uploads per instance) | **0.385 s** (opens 0.125 = upload 0.09 + build 0.03; rounds 0.22; folds 0.004; handover 0.001) | identical (4f68023a..) |
 | the round kernel, had at 2^21 pairs (4 nodes) / rq (3 nodes) | L's k_ixf_round 54 / 48 ms (kernel only) | 23.6 / 13.5 ms (TOX 32, the shift as a scalar product) | — |
-| the 12x512 claim layer, 8T+GPU | 15.5 s (cl-tables 4.9 / rounds 5.3 / folds 5.2) | **1.98 s** at 41eb013 (cl-rounds 1.13, opens 0.49, tables 0.30) — before the TOX-32 / scalar-shift tuning (~-30% on the rounds expected; the final rig row in 4.3) | digests identical |
+| the 12x512 claim layer, 8T+GPU | 15.5 s (cl-tables 4.9 / rounds 5.3 / folds 5.2) | **1.98 s** at 41eb013 (cl-rounds 1.13, opens 0.49, tables 0.30) -> **1.72 s** at HEAD (rounds 0.83 after the TOX-32 / scalar-shift tuning) | digests identical |
+| the 12x512 claim layer, CPU-only 8T (the pool alone) | 15.9 s (5.0 / 3.4 / 6.8) | **9.53 s** (3.02 / 3.78 / 2.61) | digests identical |
 | the GEMM u32-limb MAC | 156.5 G MAC/s (K's form, probe) | 111.2 G MAC/s (u32-limb, probe) — NOT built | Section 2.3 |
 
 ### 4.3 The rigs (`uperf-pc full-profile`, ZK_THREADS 8, `ZK_GPU=1`, wsl export, flock) [WSL-BOX 8T NOISY-SHARED unless noted]
@@ -231,12 +243,13 @@ finding is the deliverable (it also prices lane L's / N's kernels: their
 |---|---|---|---|---:|---|
 | 12x512 | 50aea3e baseline (the ledger's round-7 row) | 4.9 / 50.9 / 2.6 / **60.2 s** | 15.5 (4.9 / 5.3 / 5.2) | 11.2 GB | 2f8a92f8.. / 4c259008.. / 1,509,911 B |
 | 12x512 | 41eb013 (pool + device zc tables) | 4.7 / 37.5 / 2.6 / **46.6 s** | **1.98** (0.30 / 1.13 / 0.01; opens 0.49 inside) | **9.30 GB** | identical, accept |
-| 12x512 | HEAD (final) | (filled at close) | | | |
+| 12x512 | HEAD 7799655 (final; TOX 32 + scalar shift; load 4.3 — every untouched phase +5-10% vs the row above) | 5.3 / 39.2 / 2.8 / 49.0 s | **1.72** (0.33 / 0.83 / 0.02) | 9.34 GB | identical, accept |
+| 12x512 CPU-only (default build, HEAD; the pool alone) | vs the ledger's CPU-only 96.7 s (9.6 / 82.7 / 2.7; claim 15.9 = cl-tables 5.0 / rounds 3.4 / folds 6.8 per lane L's CPU row) | 9.6 / 77.6 / 2.8 / **92.0 s** | **9.53** (3.02 / 3.78 / 2.61) | 11.0 GB (10,689 MiB hwm at the claim layer's end) | identical, accept |
 | 12x128 | 50aea3e baseline (this session) | 2.5 / 20.3 / 2.0 / 25.5 s | 2.61 (1.13 / 1.26 / 0.21) | 4,084 MiB at claim-layer end | 4a3af8c3.. / 742d88e1.. / 1,372,775 B |
 | 12x128 | 41eb013 | 2.5 / 14.6 / 1.4 / 19.1 s | **0.73** (0.20 / 0.35 / 0.01) | 3,062 MiB at claim-layer end | identical, accept |
-| 12x128 | HEAD (final) | (filled at close) | | | |
+| 12x128 | HEAD (final) | 2.8 / 15.1 / 1.5 / 19.9 s | **0.67** (0.20 / 0.28 / 0.01) | 3.99 GB | identical, accept |
 | 3x16 | 41eb013 | 0.8 / 2.8 / 0.5 / 4.3 s | 0.16 | — | 93a98700.. / 0ae9cdae.. / 985,142 B, accept |
-| 3x16 | HEAD (final) | (filled at close) | | | |
+| 3x16 | HEAD (final) | 0.9 / 3.1 / 0.6 / 4.7 s | 0.17 | — | identical, accept |
 
 12x512 attribution at 41eb013 (8T+GPU): descents 22.9 (bk.descent-gkr
 16.7 = a.round-g 12.1 + a.tree-step 8.6 inside; trees 6.2 — lane N's),
@@ -272,8 +285,8 @@ VRAM held 4.06 GB during the claim layer, released at its end.
 
 1. LANDED: the pool (both builds), the device-built zero-check tables +
    device chain (GPU build), the batteries, the probe finding; the 12x512
-   rig 60.2 -> 46.6 s (before the final kernel tuning; the final row in
-   4.3).
+   rig 60.2 -> 46.6 s (49.0 s on the noisier final re-run; claim layer
+   1.72 s), CPU-only 96.7 -> 92.0 s.
 2. The GEMM u32-limb formulation: measured slower than the current MAC on
    this part — not built (Section 2.3). What would still move the level-h
    phase (4.6 s at 12x512): fusing the host phi fill into the device pack

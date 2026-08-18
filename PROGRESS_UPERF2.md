@@ -975,11 +975,13 @@ docs/zkmatrix-poc/U_PERF2_CLAIM2_REPORT.md):
      VRAM (4.06 GB at 12x512, released at the claim layer's end), the
      < 512-element tail handed to the CPU loop; a device error rebuilds
      on the host and re-folds by the drawn challenges. **12x512 8T+GPU:
-     60.2 -> 46.6 s (commit 4.7 / prove 37.5 / verify 2.6), the claim layer
-     15.5 -> 2.0 s, peak RSS 11.2 -> 9.3 GB, 2f8a92f8.. / 4c259008.. /
-     1,509,911 B, accept** (at 41eb013; the final HEAD row in the report);
-     12x128 8T+GPU 25.5 -> 19.1 s (claim 2.61 -> 0.73); 3x16 unchanged
-     within noise (claim 0.35 -> 0.16), all digests identical.
+     60.2 -> 46.6 s (commit 4.7 / prove 37.5 / verify 2.6; 49.0 s on the
+     noisier HEAD re-run, every untouched phase +5-10%), the claim layer
+     15.5 -> 2.0 -> 1.7 s, peak RSS 11.2 -> 9.3 GB, 2f8a92f8.. /
+     4c259008.. / 1,509,911 B, accept**; CPU-only 12x512 8T (the pool
+     alone) 96.7 -> 92.0 s (claim 15.9 -> 9.5); 12x128 8T+GPU 25.5 ->
+     19.1-19.9 s (claim 2.61 -> 0.67); 3x16 unchanged within noise (claim
+     0.35 -> 0.17), all digests identical.
   3. The round kernel: TOX 32 (shared-limited occupancy 6 -> 7 warps/SM),
      the shift as a 16-product scalar chain — had 29 -> 24 ms, rq 24 ->
      13.5 ms per 2^21 pairs (lane L's k_ixf_round: 54 / 48). Tried and
