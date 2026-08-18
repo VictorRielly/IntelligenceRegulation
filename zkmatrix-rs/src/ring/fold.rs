@@ -224,10 +224,12 @@ const IXF_PACKED_MIN: usize = 64;
 // only: every stored value and every proof byte is unchanged; the pass
 // drivers open a scope around the claim layer (`IxfPoolScope::open`) and
 // the held pages are released when it closes (before the descent phase,
-// whose peak the box's RAM is sized to). Peak held = (nt + 1) x the biggest
-// table (the prover keeps ONE rotating scratch for all its tables) — at
-// 12x512 6 x 1 GB, against today's 5.5 x 1 GB peak inside the biggest
-// instance. Outside a scope the pool is off (buffers are freed as before).
+// whose peak the box's RAM is sized to). Peak held = (nt + 1/2) x the
+// biggest table (the prover keeps ONE half-size rotating scratch for all its
+// tables; the full-size buffers rotate through the scratch role) — at
+// 12x512 5.5 x 1 GB, exactly lane D's peak inside the biggest instance, now
+// held across the instances instead of re-faulted. Outside a scope the pool
+// is off (buffers are freed as before).
 
 struct IxfPool {
     on: bool,
@@ -813,13 +815,14 @@ pub(crate) fn ixf_sumcheck_prove_packed_from(
     let kid = kind.kernel_id();
     // [UPERF2-O] ONE rotating fold scratch for every table (the out-of-place
     // fold swaps the old table buffer in as the next table's scratch), from
-    // the claim layer's pool when it is open (a full-size buffer, kept at
-    // full size — no shrink, no fault, no munmap per round; returned at the
-    // end) — else a fresh buffer sized by the first fold and shrunk after
-    // each round's folds to what the next round needs (lane D's discipline:
-    // a table never holds > 1.5x its size; peak = nt tables + one half).
+    // the claim layer's pool when it is open (a HALF-size buffer — the
+    // biggest fold output; the full-size table buffers rotate through the
+    // scratch role, none is ever shrunk: no fault, no munmap per round;
+    // everything returned at the end; peak = nt tables + one half, lane D's
+    // figure) — else a fresh buffer sized by the first fold and shrunk after
+    // each round's folds to what the next round needs (lane D's discipline).
     let pooled = ixf_pool_on();
-    let mut scratch: Vec<u32> = if pooled { ixf_pool_take(packed[0].d.len()) } else { Vec::new() };
+    let mut scratch: Vec<u32> = if pooled { ixf_pool_take(packed[0].d.len() / 2) } else { Vec::new() };
     while t_idx < n && packed[0].n >= 2 * super::kfield::KL {
         let deg = degrees[t_idx];
         let g = {
