@@ -40744,10 +40744,7 @@ fn uperf_n_battery(seed: u64) {
         ring::gpu::k9_set_tree_store(Some(false));
         let t_cpu = uperf_n_tree(&kf, depth, seed, general, sparse);
         ring::gpu::k9_set_tree_store(Some(true));
-        let trace = std::env::var("ZK_N_TRACE").is_ok();
-        if trace { eprintln!("[N-TRACE] building device tree depth {depth}"); }
         let t_dev = uperf_n_tree(&kf, depth, seed, general, sparse);
-        if trace { eprintln!("[N-TRACE] built"); }
         let expect_dev = live && depth >= 14;
         assert_eq!(t_dev.is_device_resident(), expect_dev, "[UPERF2-N] tree at depth {depth}: device residency {} expected {}", t_dev.is_device_resident(), expect_dev);
         assert!(!t_cpu.is_device_resident());
@@ -40755,12 +40752,9 @@ fn uperf_n_battery(seed: u64) {
             ring::gpu::set_bypass(true);
         }
         assert_eq!(t_cpu.root(), t_dev.root(), "[UPERF2-N] root mismatch at depth {depth}");
-        if trace { eprintln!("[N-TRACE] roots ok"); }
         for k in (0..=depth).rev() {
             let (pc, qc) = t_cpu.harness_layer_words(k);
-            if trace { eprintln!("[N-TRACE] cpu layer {k} read"); }
             let (pd, qd) = t_dev.harness_layer_words(k);
-            if trace { eprintln!("[N-TRACE] dev layer {k} read"); }
             assert_eq!(pc.len(), pd.len());
             for (i, (x, y)) in pc.iter().zip(pd.iter()).enumerate() {
                 assert_eq!(x, y, "[UPERF2-N] tree p mismatch: depth {depth} general {general} sparse {sparse} ckpt {ckpt} bypass {bypass} layer {k} word {i}");

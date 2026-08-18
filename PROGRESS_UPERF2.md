@@ -945,6 +945,84 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
   budget with the release discipline on; a shortfall declines to the CPU
   path (never a value change).
 
+STATUS (2026-08-18, HEAD of uperf2-n; report:
+docs/zkmatrix-poc/U_PERF2_GPU3_REPORT.md; commits 5c128fe plan, 12a3daf the
+store, ed327d0 the battery + two protocol fixes, e056516 the scratch fix,
++ the close commit):
+
+- LANDED — the descent tree DEVICE-RESIDENT end to end (every value
+  identical):
+  1. `gpu/k9.rs` (`[UPERF2-N]`): the device tree store — `build_tree_from`
+     hands the leaves to `k9_tree_build`: the compact words go up as they
+     are (a memcpy through the new `CompactLeaves::{words, alpha_words,
+     exceptions}` accessors — the same encoding L's `cl_get` decodes; L's
+     ~24 ms/4M-leaf re-encoding is gone), the bottom-up steps run on the
+     device (L's `k_tree_step[_cl]`), the checkpointed layers (stride
+     max(ZK_K9_CHECKPOINT, 2)) stay resident, gap layers are freed as soon
+     as the layer above exists, the smallest big layer (8192 elements, 2
+     MB) is downloaded once and the host loop builds the small top layers
+     as before; NO host copy of a big layer. `FracTree::layer(k)` answers
+     `LayerSrc::Device` (a descriptor) for a device tree's big layers; the
+     fused rounds carry `BlkSrc::Device` into `k9_fused_round`, whose
+     binding reads a resident checkpoint / the compact leaves IN PLACE or
+     CLIMBS a gap layer on the device from the nearest resident layer
+     below into L's layer buffers (freed after round 1) — no per-layer
+     upload, no host layer store, no CPU tree step on the GPU path;
+     `release_layer(k)` frees the device checkpoint (lane H's top-down
+     discipline), `Drop` frees the tree; every CPU reader (fusion off, a
+     declined hook, oracle/bypass, `p_elem/q_elem`, the harness)
+     materializes a device layer on demand (`k9_tree_fetch`: a download or
+     a device climb + download; the compact leaves' host copy read
+     directly). gkr_masked.rs unchanged; kernels_k9.cu unchanged. Knob:
+     `ZK_GPU_K9_TREE_STORE=0` (A/B). Two protocol fixes the batteries
+     found: the staging memcpy stays serial inside a rayon worker (a nested
+     `POOL.install` from a worker of another pool steals its own pool's jobs
+     and re-enters the K9 mutex / a layer once-cell — a deadlock under
+     fusion-off), release/drop bind the CUDA context.
+  2. `uperf-n battery` (30 legs: the device build vs the CPU tree cell by
+     cell — 55.1M words over every layer of 12 tree shapes at depths 13-18,
+     compact leaves with exceptions, packed / sparse general trees, strides
+     2/3/4, reads under the GPU bypass; 18 descent legs — lane H's 2-coord
+     pairs and lane A's packed pairs — store OFF == ON under {default,
+     fusion off, every hook declined, stride 3, release off}, all verified;
+     BATTERY DIGEST 8c3f8ca1.. at 1/2/7T and on the default build);
+     `uperf-n bench` (store OFF vs ON in one process + the k9 attribution:
+     builds, climbs, in-place bindings, fetches, VRAM peaks).
+  3. Numbers [WSL-BOX 8T NOISY-SHARED, lane O active; one run each]:
+     **12x512 8T+GPU (THE PoC SHAPE, flock, wsl export): 60.2 -> 52.0 s
+     (commit 5.0 / prove 42.2 / verify 3.0), accept, statement 2f8a92f8.. /
+     EVAL 4c259008.. / 1,509,911 B identical, maxrss 11.2 GB (the claim
+     layer's peak — unchanged); the descent phase 22.6 -> 11.2 s:
+     bk.descent-trees 6.2 -> 2.80 (a.tree-step 2.12 = 45 device builds at
+     42-105 ms), bk.descent-gkr 16.4 -> 8.43 (a.round-g 12.0 -> 7.34: 1,233
+     device rounds, 7.04 s in the hooks = kernels+sync 5.24 + 1.80 of eq
+     uploads / param syncs / readbacks; no decline, no host fetch)**; 12x128
+     21.2 -> 19.9 s (descents 7.2 -> 4.2); 3x16 4.7 s (neutral); the pair
+     shape `uperf-h bench 22 16 12 9`: prove 4.16 -> 2.43 s, trees 2.21 ->
+     1.38, h2d 7.1 GB -> 0.69, **peak RSS 4,212 -> 664 MiB**, VRAM store
+     peak 2.77 GB / K9 held peak 6.82 GB (model 6.5; no decline); `uperf-h
+     bench 20 8 5 9` prove 0.72 -> 0.42 s at 665 -> 297 MiB; a-bench prove
+     0.77 -> 0.42 s at 1,100 -> 365 MiB.
+  4. Gates at HEAD (the GPU build, ZK_GPU=1): `uperf-n` 30 legs 8c3f8ca1..,
+     `uperf-a` 18/18 f936ff79.., `uperf-g` 22/22 6d6a3f6b.., `uperf-h` 24x8
+     b1e78285.., `uperf-l` 310 legs cc4f8c1c.. — each at ZK_THREADS 1/2/7;
+     descent-bench 47a58a27.., h-bench 0bf9d7a3.., l-dbench identical;
+     `uperf-pc diff-battery` 1T/7T passed; freeze-check (GPU build, wsl
+     export) 98 `ok` rows identical to the pre-change capture + the BF/BK
+     rows passed (exit 0); `self-test` (GPU, 1T) passed 240.6 s / 328 rows;
+     the rigs' digests (3x16, 12x128, 12x512) identical; the DEFAULT build:
+     builds, `uperf-a` f936ff79.., `uperf-h` b1e78285.., `uperf-n`
+     8c3f8ca1.. (CPU path vs itself), freeze 98 rows identical.
+- NOT landed / left (report Section 5): the round kernels themselves (5.2
+  s at 12x512, ~16% of peak — L's Section 5.2), the eq table build/upload
+  (~1.8 s of syncs/uploads + 1.6 s host build), the tree-step kernel (~2 s
+  per pass), the ~0.3 GB VRAM headroom at 12x512 on this part (a streamed
+  recompute of layer 21 would give 3.2 GB back for ~0.2 s), c = 0/1 stays
+  host-only, a device error with live device trees is fatal for their
+  readers (loud), CUDA-only.
+- Every number [WSL-BOX NOISY-SHARED] (lane O built/ran throughout; my
+  batteries overlapped the small rigs; heavy runs under /tmp/zk-heavy.lock).
+
 ## Agent O status (wt-uperf2-o)
 
 - (lane launches here)
