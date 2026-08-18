@@ -572,6 +572,55 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
   (4) NEON mirror; (5) report. Stop rule: < 1.3x on the transform ->
   record the finding and stop.
 
+STATUS (2026-08-17, HEAD of uperf2-i; report:
+docs/zkmatrix-poc/U_PERF2_SIMD_REPORT.md; every number [WSL-BOX
+NOISY-SHARED] — lane H ran throughout):
+
+- LANDED, values identical (uperf-i battery: 5,192 rings incl. 1,096
+  planted extremes, fwd/inv/round trips/`_best`; freeze 98 rows
+  identical; every battery green; rig digests exact):
+  1. `gl_avx2` in aux_ntt_core.rs: the same DIT/GS length-128 transform
+     on 4 x u64 AVX2 lanes, every op canonical (u64 x u64 from four
+     `vpmuludq` partial products, `lo + EPS*hi_lo - hi_hi` with
+     compare-based conditional subtracts) — 1.64x / 1.61x as a naive
+     port; + an opaque `asm!("vpmuludq")` (LLVM re-lowered the intrinsic
+     as a 64-bit multiply idiom for loop-invariant twiddles: 6-8 wasted
+     ops per butterfly) -> 1.91x / 2.04x; + signed power-of-two twiddles
+     for the five outer stages and 1/n (2 has order 192 in Z_p*, so
+     every 64th-root-and-below twiddle is +-2^k: shifts + the same
+     reduction, sign as a store/load offset swap; only the two innermost
+     stages pay the general product) -> fwd 1.00-1.04 -> 0.41-0.46 us
+     (2.2-2.5x), inv 1.20-1.26 -> 0.42-0.44 us (2.7-3.0x) [1T, best of 3
+     x 3 repeats].
+  2. `ntt_fwd_best` / `ntt_inv_best` dispatch (`is_x86_feature_detected!
+     ("avx2")` AND `ZK_NTT_SIMD` != 0, else the scalar `_fast`) at the 7
+     call lines of eval_proof.rs (nothing else there); `uperf-i battery
+     | bench`.
+  3. NEON mirror behind `cfg(target_arch = "aarch64")` [UNTESTED-NEON —
+     no aarch64 std installed here; every intrinsic signature checked
+     against the toolchain stdarch source; on the Mac run `uperf-i
+     battery` FIRST; `ZK_NTT_SIMD=0` is the one-env-var fallback].
+  4. Kernel benches, one binary (`ZK_NTT_SIMD=0` vs default), 1T: matvec
+     1.44x, transport 1.51x, combine 1.61x, fold e=5 1.57x, psi 1.27x,
+     level-h 1.15x (MAC-bound at r = 64), kernel passes ~1.0x (they
+     hardly transform); at 8T 1.2-2.0x on the same rows.
+  5. REAL 3x16 [1T]: 34.5 s (`ZK_NTT_SIMD=0`) -> 25.6 s (SIMD), prove
+     26.3 -> 19.4 s (level-h 9.96 -> 7.45, matvec 3.87 -> 2.15,
+     transport 3.74 -> 1.79, fold 1.96 -> 0.87 s); [8T] 9.8 -> 9.2 s
+     (prove 7.1 -> 6.6); REAL 12x64 [8T] 41.0 s @ 4.06 GB (the ledger's
+     41.3 s — the 8T composed pass has moved to the phases that do not
+     transform); statement 93a98700… / EVAL 0ae9cdae… and 80763ea5… /
+     63f4a3a4… identical on every row.
+  6. Gates at HEAD: uperf-i battery, uperf-pc diff-battery 1T/7T (E2E),
+     uperf-c 1T/7T, uperf-f 1T/2T, freeze-check 98 rows == the
+     pre-change capture, self-test 290 s.
+- FINDING for the orchestrator: cargo does not read
+  `zkmatrix-rs/.cargo/config.toml` (`target-cpu=native`) when invoked
+  from the repo root with `--manifest-path` — every lane's build is a
+  baseline x86-64 build; runtime detection is what gates SIMD here.
+- Not done: the sign-flipped-representation trick (~8%), the mid-class
+  2^k multiply shortcut (~3%), any AVX-512 path (no IFMA on this box).
+
 ## Agent F status (wt-uperf2-f)
 
 - 2026-08-17 PLAN COMMIT (lane F, branch uperf2-f at f512ba1; report:
