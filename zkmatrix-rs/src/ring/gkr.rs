@@ -178,11 +178,15 @@ impl PackedTree {
                 return LayerSrc::Owned(np, nq);
             }
         }
-        panic!("layer {k} of the packed tree was released and nothing below it is stored");
+        panic!("layer {k} of the packed tree is not stored and nothing below it is stored (the leaves are always kept — this cannot happen)");
     }
 
+    /// Release layer k. The leaves are never released (they cost nothing
+    /// at the peak — the bottom rounds' peak sits at layer depth-1 — and
+    /// keeping them makes a second descent over the same tree possible:
+    /// every released layer is then recomputed from them, slowly).
     fn release(&self, k: usize) {
-        if k > self.depth || (1usize << k) <= super::kfield::K9_SMALL_LAYER_N {
+        if k >= self.depth || (1usize << k) <= super::kfield::K9_SMALL_LAYER_N {
             return;
         }
         let mut g = self.layers[k].write().expect("tree layer lock");
