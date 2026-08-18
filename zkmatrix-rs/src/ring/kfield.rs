@@ -3522,9 +3522,72 @@ pub(crate) mod k9_avx2 {
         }
     }
 
-    macro_rules! diags {
+    /// Two adjacent output diagonals (T, T+1) with the operand rows a_i /
+    /// ao_i loaded ONCE for both (i-major over the union range, bursts of
+    /// <= 4 products per diagonal — every bound a constant of T). Each
+    /// diagonal gets at most one extra (partial) burst versus `diag`, so a
+    /// block product adds <= 5 bursts per t and the wire's two products <=
+    /// 10: acc < 10 x 799 x 2^32 < 2^46 still.
+    #[inline(always)]
+    unsafe fn diag2<const T: usize>(a: &Blk, ao: &Blk, b: &Blk, bo: &Blk, c: &C, acc: &mut Acc31) {
+        unsafe {
+            let lo0: usize = if T >= 15 { T - 15 } else { 0 };
+            let hi0: usize = if T < 15 { T } else { 15 };
+            let lo1: usize = if T + 1 >= 15 { T + 1 - 15 } else { 0 };
+            let hi1: usize = if T + 1 < 15 { T + 1 } else { 15 };
+            let lo: usize = if lo0 < lo1 { lo0 } else { lo1 };
+            let hi: usize = if hi0 > hi1 { hi0 } else { hi1 };
+            let n_iter: usize = (hi - lo + 4) / 4;
+            let mut a0 = acc[T][0];
+            let mut a1 = acc[T][1];
+            let mut b0 = acc[T + 1][0];
+            let mut b1 = acc[T + 1][1];
+            for it in 0..n_iter {
+                let i0 = lo + 4 * it;
+                let mut se0 = zero();
+                let mut so0 = zero();
+                let mut se1 = zero();
+                let mut so1 = zero();
+                let mut any0 = false;
+                let mut any1 = false;
+                for k in 0..4 {
+                    let i = i0 + k;
+                    if i <= hi {
+                        let ai = a[i];
+                        let aoi = ao[i];
+                        if i >= lo0 && i <= hi0 {
+                            let j = T - i;
+                            se0 = add64(se0, mul32(ai, b[j]));
+                            so0 = add64(so0, mul32(aoi, bo[j]));
+                            any0 = true;
+                        }
+                        if i >= lo1 && i <= hi1 {
+                            let j = T + 1 - i;
+                            se1 = add64(se1, mul32(ai, b[j]));
+                            so1 = add64(so1, mul32(aoi, bo[j]));
+                            any1 = true;
+                        }
+                    }
+                }
+                if any0 {
+                    a0 = fold_burst(a0, se0, c);
+                    a1 = fold_burst(a1, so0, c);
+                }
+                if any1 {
+                    b0 = fold_burst(b0, se1, c);
+                    b1 = fold_burst(b1, so1, c);
+                }
+            }
+            acc[T][0] = a0;
+            acc[T][1] = a1;
+            acc[T + 1][0] = b0;
+            acc[T + 1][1] = b1;
+        }
+    }
+
+    macro_rules! diags2 {
         ($a:ident, $ao:ident, $b:ident, $bo:ident, $c:ident, $acc:ident; $($t:literal),*) => {
-            $( diag::<$t>($a, $ao, $b, $bo, $c, $acc); )*
+            $( diag2::<$t>($a, $ao, $b, $bo, $c, $acc); )*
         };
     }
 
@@ -3532,7 +3595,8 @@ pub(crate) mod k9_avx2 {
     #[inline(always)]
     unsafe fn mul_vv_acc(a: &Blk, ao: &Blk, b: &Blk, bo: &Blk, c: &C, acc: &mut Acc31) {
         unsafe {
-            diags!(a, ao, b, bo, c, acc; 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30);
+            diags2!(a, ao, b, bo, c, acc; 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28);
+            diag::<30>(a, ao, b, bo, c, acc);
         }
     }
 
@@ -3951,17 +4015,22 @@ pub(crate) mod k9_avx2 {
                     }
                     &cur
                 };
-                let (vpl, vp1, vq0, vq1): (Blk, Blk, Blk, Blk) = match consts {
+                let (spl, sp1, sq0, sq1): (Blk, Blk, Blk, Blk);
+                let (vpl, vp1, vq0, vq1): (&Blk, &Blk, &Blk, &Blk) = match consts {
                     Some(cs) => {
                         let cc = &cs[ni];
-                        (addc_blk(&tabs[1], &cc[0], c), addc_blk(&tabs[2], &cc[1], c), addc_blk(&tabs[3], &cc[2], c), addc_blk(&tabs[4], &cc[3], c))
+                        spl = addc_blk(&tabs[1], &cc[0], c);
+                        sp1 = addc_blk(&tabs[2], &cc[1], c);
+                        sq0 = addc_blk(&tabs[3], &cc[2], c);
+                        sq1 = addc_blk(&tabs[4], &cc[3], c);
+                        (&spl, &sp1, &sq0, &sq1)
                     }
-                    None => (tabs[1], tabs[2], tabs[3], tabs[4]),
+                    None => (&tabs[1], &tabs[2], &tabs[3], &tabs[4]),
                 };
                 // wire = PL Q1 + P1 Q0
                 let mut acc = acc31_zero();
-                mul_vv_acc(&vpl, &oform(&vpl), &vq1, &oform(&vq1), c, &mut acc);
-                mul_vv_acc(&vp1, &oform(&vp1), &vq0, &oform(&vq0), c, &mut acc);
+                mul_vv_acc(vpl, &oform(vpl), vq1, &oform(vq1), c, &mut acc);
+                mul_vv_acc(vp1, &oform(vp1), vq0, &oform(vq0), c, &mut acc);
                 let w = red_wire(&acc, c);
                 let wo = oform(&w);
                 let eqo = oform(&tabs[0]);
