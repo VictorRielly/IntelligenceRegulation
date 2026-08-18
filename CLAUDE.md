@@ -3,8 +3,11 @@
 **Any agent working on the proof clocks (Claude, Grok/Cursor, human):
 start at `docs/zkmatrix-poc/TASK_BOARD.md`** — the ordered queue of
 small, self-checking tasks with exact commands and byte-identity
-acceptance. Ledger: `PROGRESS_UPERF.md`; phase plan:
-`docs/zkmatrix-poc/CONTINUATION.md`.
+acceptance. Ledgers: `PROGRESS_UPERF3.md` (current: the 8B MVP on the
+lattice line, opened 2026-08-18), `PROGRESS_UPERF2.md` (rounds 1-9),
+`PROGRESS_UPERF.md` (Phase 0); phase plan:
+`docs/zkmatrix-poc/CONTINUATION.md`; the two proving channels side by
+side: `docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md`.
 
 Victor approves permission prompts over Telegram, one text per prompt. Every
 avoidable prompt is a real interruption. **Shape commands to match the

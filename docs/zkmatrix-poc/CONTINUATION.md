@@ -94,6 +94,29 @@ at 53-77 tok/s on one H100, vendor-claimed, no paper/code). Explore it
 then, not now; the lattice line's integer-exact/post-quantum story is
 the reason it stays first.
 
+**Ruling of record (Victor, console 2026-08-18) — the fallback rule
+was invoked and answered.** Phases 0-3 are measured (12x512 slice of
+the 125M FFN in 21.0 s on the reference box with its laptop GPU,
+byte-identical; the kernel curve has flattened; the counted route-1
+protocol change buys <= ~2.5x; the 5-15 s headline is ~25-100x [MODEL]
+away on desktop hardware). Victor: "Let's continue with (1), and see if
+we can be more creative and find a solution anyway ... fully explore
+this option first and ... have a complete product with this option
+before moving to the second option. We can separate the options and
+document them ... it's more important that we have a complete example
+of an 8B parameter proof as an MVP even if the proof currently takes
+1-3 minutes." Consequences: (1) the lattice line stays THE channel;
+(2) the deliverable is MVP-1 = the contract's FFN statement at the 8B
+shape (32 x 512 x 4096 x 14336, real int8 weights) proved and verified
+end to end on hardware we own, minutes accepted, then MVP-2 = the full
+layer (Phase 4); (3) the route-1 protocol work (spike S1/S2 -> Stage A
+-> Stage B) runs alongside because it shrinks clock, memory and
+artifact together; (4) a design lane searches for the headline within
+the lattice line (U_PERF3_HEADLINE_ROUTES.md); (5) the float/int-mix
+channel is documented, not started: docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md
+records both channels and where each is preferable. Ledger:
+PROGRESS_UPERF3.md.
+
 ## 4. Sequence (do not reorder)
 
 Phase 0 — U-PERF PC (NEXT). Profile `uperf-pc wave-profile` /
@@ -199,6 +222,12 @@ numbers need a quiesced box; design and correctness work do not.
   out the three routes (lattice-line protocol change T11 / the
   hash-based float-mix channel as a comparison prototype / a Metal
   port for the M3 Ultra as the named GPU) for Victor's ruling.
+- 2026-08-18 (ruling): Victor chose route (1) — the lattice line to a
+  complete 8B FFN MVP (minutes accepted), route-1 protocol work
+  alongside, the creative search for the headline within the line, the
+  float/int-mix channel documented separately (PROVING_CHANNEL_OPTIONS.md).
+  Tranche U-PERF3 opened (PROGRESS_UPERF3.md): lanes R (8B scaling +
+  MVP plan + export scripts), S (spike S1/S2), T (headline routes).
 - 2026-08-17 (Claude, status recalculation — PROGRESS_UPERF.md
   "2026-08-17" section): PATH CORRECTION for Phase 0. The composed
   pass (`bg_pass_run`, the deliverable) never calls `prove_ct_round`;

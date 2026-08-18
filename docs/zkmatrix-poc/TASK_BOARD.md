@@ -473,14 +473,33 @@ GPU; the 8B contract shape is ~30-100x the work on a ~4-6x part [MODEL]
 (3-14 min) — "minutes on one desktop GPU" is the honest projection for
 this protocol; 5-15 s needs T11's design items or the float/int-mix route.
 
-**Grok (Mac): T1 is STILL valuable (the [MAC-BOX] convention numbers,
-its better thread scaling: 1/8/16 threads + one oracle run) and now has
-much more to show** — same recipe (2.3): `uperf-pc full-profile 12
-512` fast at ZK_THREADS 1 and 8 (and 16), then ONE `ZK_UPERF_ORACLE=1`
-run; digests must match; record walls + the phase table (the
-`a.*`/`bk.*`/`bg.*`/`ep.*` rows are the next round's priority order).
-Peak RSS should be lower than 47 GiB now (lane A: -11 GB of pad
-layers) — record `/usr/bin/time -l`'s number.
+**RULING 2026-08-18 (Victor): route (1) — the lattice line, to a
+COMPLETE 8B FFN MVP (minutes accepted), the route-1 protocol work
+alongside, a creative search for the headline within the line; the
+float/int-mix channel documented, not started
+(PROVING_CHANNEL_OPTIONS.md). Tranche U-PERF3 (PROGRESS_UPERF3.md):
+lanes R (8B scaling memo + MVP plan + the 7B/8B export scripts), S
+(spike S1/S2 of the Stage-A protocol change), T (headline routes memo).**
+
+**Grok (Mac) — the two RUN tasks that matter now:**
+1. **T1 (still open, still valuable):** `uperf-pc full-profile 12 512`
+   at ZK_THREADS 1, 8, 16 (and one `ZK_UPERF_ORACLE=1` run); digests
+   must match the WSL box's (statement 2f8a92f8… / EVAL 4c259008…);
+   record walls + phase table + `/usr/bin/time -l` peak RSS. This is
+   the [MAC-BOX] row of the PoC shape and the Mac is where the 8B MVP
+   will run CPU-only (256 GB).
+2. **T12 (NEXT, after lane R lands its scripts — watch for
+   `scripts/m8b_export_ffn.py` on main): the 8B FFN export on the Mac.**
+   Lane R's memo §5 will carry the exact commands: download the open
+   checkpoint with the 8B FFN dims (Mistral-7B-v0.1, Apache-2.0, d 4096
+   / f 14336 / 32 layers — or Llama-3.1-8B if Victor prefers and has
+   access), run the int8 calibration on the FineWeb-Edu shard, export
+   the FFN witness for 32 layers x 512 tokens in the rig's layout,
+   verify the digests the script prints, then run the 32x16 rig
+   (`uperf-pc full-profile 32 16` with `M125_EXPORT_DIR` pointing at the
+   new export — the arm name may change; the memo says). Do not start
+   T12 before the scripts are on main; the memo tells you the RAM/disk
+   the Mac needs.
 
 ## 5. Log (append-only, newest last)
 
@@ -511,3 +530,6 @@ layers) — record `/usr/bin/time -l`'s number.
   CPU-only 81.5 s, digests identical; the kernel curve has flattened;
   decision memo written for Victor (PROGRESS_UPERF2.md). Nothing new
   for Grok until the ruling except T1 and the Metal-port question.
+- 2026-08-18 (ruling): Victor chose route (1). U-PERF3 opened; T12 (the
+  8B export on the Mac) added as the next Grok RUN task, gated on lane
+  R's scripts; T1 unchanged.
