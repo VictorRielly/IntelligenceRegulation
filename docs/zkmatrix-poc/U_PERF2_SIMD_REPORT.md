@@ -191,7 +191,7 @@ fixed-size tables; the AVX2 entry points are `#[target_feature(enable
 | `uperf-c diff-battery` 1T / 7T | passed |
 | `uperf-f diff-battery` 1T / 2T | 40/40 legs |
 | freeze-check | 98 `ok` rows identical to the pre-change capture from the d38e9ce build (scratchpad/i_freeze_baseline.txt == the orchestrator's merge-G capture), then the expected BF panic |
-| `self-test` | passed in 290 s |
+| `self-test` | passed in 290 s (after the call-line switch) and 254.8 s (final HEAD binary); the same 61 intentional fail/panic lines as the merge-G baseline log |
 | REAL rigs | Section 4.4: statement / EVAL-PROOF digests identical to the ledger's (3x16 93a98700… / 0ae9cdae…; 12x64 80763ea5… / 63f4a3a4…), SIMD on and `ZK_NTT_SIMD=0` |
 
 ## 4. Measurements
@@ -293,13 +293,19 @@ its NEON body is untested (Section 5).
   the battery fails, `ZK_NTT_SIMD=0` restores the scalar body everywhere
   (one env var, no rebuild) — the dispatch defaults to NEON on aarch64.
 - Not tried (each a few % at most on this box, in estimated order):
-  keeping values in the sign-flipped representation between ops (saves
-  the xors before the compares, ~8%); the mid-class (32 < k < 64)
-  power-of-two multiply via 2^k = -(2^(k+32)) 2^64 (21 -> 17 ops on ~a
-  third of the outer-stage butterflies); interleaving two rings per
-  transform (the API is per ring; the callers' closures own the ring
-  loop). AVX-512 IFMA (52-bit multiply-add) would change the picture on
-  a box that has it — this one does not.
+  the mid-class (32 < k < 64) power-of-two multiply via
+  2^k = -(2^(k+32)) 2^64 (21 -> 17 ops on ~a third of the outer-stage
+  butterflies, ~3%); keeping values in the sign-flipped representation
+  between ops (on paper it saves the xors before the compares, but
+  add/sub then need one xor to re-flip their result and the shifts/high
+  partial products need the true value — net ~2-3 ops of 30-52 per
+  butterfly, < 5%); interleaving two rings per transform (the API is per
+  ring; the callers' closures own the ring loop). AVX-512 IFMA (52-bit
+  multiply-add) would change the picture on a box that has it — this
+  one does not. The remaining cost is what the brief anticipated: the
+  u64 x u64 product without IFMA (the two innermost stages, ~40% of the
+  vector work) and one `vpcmpgtq` per conditional subtract (~4-5 per
+  butterfly, port-5-bound).
 - The 12x128 rig was not run by this lane (lane H's memory number; the
   transform change is shape-independent and the 3x16 / 12x64 digests
   are the evidence).

@@ -613,9 +613,16 @@ NOISY-SHARED] — lane H ran throughout):
      dominated by the phases that do not transform); statement 93a98700…
      / EVAL 0ae9cdae… and 80763ea5… / 63f4a3a4… identical on every row,
      accept true.
-  6. Gates at HEAD: uperf-i battery, uperf-pc diff-battery 1T/7T (E2E),
+  6. Gates at HEAD (final binary, after the last code commit 54ebead):
+     uperf-i battery 1T/7T, uperf-pc diff-battery 1T/2T/7T (E2E),
      uperf-c 1T/7T, uperf-f 1T/2T, freeze-check 98 rows == the
-     pre-change capture, self-test 290 s.
+     pre-change capture (twice: after the call-line switch and at
+     HEAD), self-test 290 s / 254.8 s (the same 61 intentional
+     fail/panic lines as the merge-G baseline), rig digests above.
+     Commits: a245db5 skeleton, 768ee63 AVX2 body + battery + bench,
+     8b0f7e3 asm vpmuludq + pow2 twiddles, 07d91cb const stages,
+     36321d2 call-line switch, 54ebead NEON pow2 mirror, then report/
+     ledger commits.
 - FINDING for the orchestrator: cargo does not read
   `zkmatrix-rs/.cargo/config.toml` (`target-cpu=native`) when invoked
   from the repo root with `--manifest-path` — every lane's build is a
