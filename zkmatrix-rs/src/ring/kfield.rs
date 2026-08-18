@@ -4384,15 +4384,17 @@ pub(crate) mod k9_avx2 {
 }
 
 /// [UPERF2-J] Are the hand-written AVX2 bodies in use? `is_x86_feature_
-/// detected!("avx2")` && `ZK_KSIMD` != "0" (read once). `ZK_KSIMD=0` is the
-/// one-binary A/B: today's bodies everywhere.
+/// detected!("avx2")` && `ZK_KSIMD` != "0" (read once) && not
+/// `oracle_mode()` (ZK_UPERF_ORACLE=1 / `set_oracle_mode(true)` stays a
+/// COMPLETE oracle: today's bodies on every path). `ZK_KSIMD=0` is the
+/// one-binary A/B: today's bodies everywhere, every other routing as is.
 pub fn k9_hand_avx2_enabled() -> bool {
     #[cfg(target_arch = "x86_64")]
     {
         static ON: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| {
             std::arch::is_x86_feature_detected!("avx2") && std::env::var("ZK_KSIMD").map(|v| v != "0").unwrap_or(true)
         });
-        *ON
+        *ON && !super::eval_proof::oracle_mode()
     }
     #[cfg(not(target_arch = "x86_64"))]
     {
