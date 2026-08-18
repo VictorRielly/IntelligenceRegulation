@@ -205,7 +205,187 @@ the eval proof with the witness (~20-64x). The design removes the
 first as a separate O(N) K-field pass and shrinks the second's level-0
 term — both matter more at 8B than at 125M.
 
-## 2. The design (pending)
+## 2. The design
+
+### 2.1 The objects committed
+
+Unchanged commitment layer: the exact-digit witness per tensor (balanced
+base-2^e0, l0 limbs; the v4 typing) under the two-group MLWE/MSIS lattice
+commitment, one outer identity `u_0` per group (UAGB1_PASS_AGG_REPORT.md
+Section 2.1). The exact-integer soundness is unchanged: values live at
+q31, the range gadget at q46, tied by the U-L modulus link (chain-demo).
+
+Two changes to what rides in the ACT group's aux tensors (replacing the
+descents' `bk-m/bl/wm/tm` mask/multiplicity tensors):
+
+1. **The SiLU LogUp helper `h`** — one committed column per SiLU witness
+   column: `h_i = 1/(alpha - key_i)` in K, plus the table-side
+   multiplicities `m_j` (256 rows). 12 SiLU columns -> 12 helper columns
+   (vs today's 6 witness trees + 2 table trees). Blinded exactly as the
+   descent masks are today (M1/M3 material committed inside `u_0(T_act)`,
+   FP-L2 mask-then-fold by construction).
+2. **The range/narrowing facts commit nothing new** — they are proved on
+   the digits already committed. Where a width wants bit-granularity the
+   remainder's dense bit planes at q46 are already the TARGET_CONTRACT
+   construction (Section 2); where the committed digit is base-2^e0 the
+   booleanity is the base-4 product form (below).
+
+### 2.2 The batched sumcheck(s)
+
+**One aggregate sumcheck per commitment group** over that group's
+committed-digit hypercube (log2 n_0 variables: ~23 for act, ~22 for
+weight). It replaces the 8 separate claim-layer ixf sumchecks AND the 20
+masked descents with a single Fiat-Shamir random-linear-combination
+(RLC) of all instances.
+
+- **What is summed:** with betas drawn from the transcript after `u_0`
+  (so mask-then-fold holds), the summand is
+  `sum_k beta_k * F_k(x) * eq(rho_k, x)` over the hypercube `x`, where
+  `F_k` ranges over: (i) the 3 matmul relations and the Hadamard /
+  requant zero-checks (the current claim-layer summands, verbatim
+  `IxfCombine::eval` closures — Prod3 / Had / Rq, fold.rs); (ii) the
+  **range facts as booleanity + bound zero-checks** on the committed
+  digits; (iii) the **SiLU LogUp well-formedness** `h_i(alpha - key_i) -
+  1` batched over the 12 columns via the instance axis.
+- **Over which hypercube:** the group's digit-ring index space, the same
+  `x` the eval proof already opens; each `F_k` is supported on its
+  tensors' sub-cube via `eq(rho_k, .)` row/col kernels (the additive
+  `MultiClaimKernel` shape already built for the pass, eval_proof.rs
+  [UAGB1-BJ]).
+- **Degree per round:** matmul (3,2); requant/Hadamard 3; range
+  booleanity 2 (bit planes) or 4 (base-4 digit product
+  `d(d-1)(d-2)(d-3)`); LogUp well-formedness 3. RLC does not raise
+  degree — **degree <= 4 per round**.
+- **How many rounds:** ~23 (act) + ~22 (weight) WIDE rounds, plus the
+  small SiLU table-side sum-equality (256 rows) and the sub-block tails
+  — call it **~50 round-polynomials total** vs the descents' 2,367.
+- **What the prover computes per round, and its cost model:** evaluate
+  the summand at points 0..deg over the current hypercube = O(current
+  size x deg) field MACs, then fold (halve). The **arithmetic + range**
+  terms run in the BASE field q31 (the digits are base-field residues;
+  challenges in a small extension GF(q^c), c>=4, for soundness — Section
+  2.6) at ~1-2 `mad`/MAC, against the descents' ~363-op K-mults. Only
+  the **SiLU LogUp** term carries K-fraction arithmetic, and only over
+  the 12 SiLU columns (T x f-shaped), ~1/8 of the descent leaf volume.
+  Total prover work = one O(n_0) base-field sumcheck pass + one small
+  K-field LogUp — replacing the descents' O(172M) K-field tree pass.
+
+### 2.3 How the range facts ride it
+
+A requant remainder `r in [0, 2^w)` is, on the committed digits: (bound)
+each bit plane `b_i in {0,1}` — the degree-2 zero-check `b_i(b_i - 1) =
+0`, batched across all planes of all remainders by the RLC; (recompose)
+`r = sum_i 2^i b_i` and `Acc = 2^s y + r` — already the requant
+zero-check (rq-g/u/h/d) in the claim layer. The int8 narrowing
+`[0, 256)` is the 8-plane instance of the same. No table, no LogUp, no
+tree, no GF(q^16): **the 84 range/narrowing columns (39 trees, ~5 s of
+K-field descent) become one batched base-field booleanity zero-check on
+digits that are already committed.** The exact-integer, fail-by-design
+property is preserved and sharpened: a value outside `[0, 2^w)` cannot
+present boolean planes that recompose to it (a non-boolean plane fails
+`b(b-1)=0`), which is the same "uncalibrated model cannot be proven"
+guarantee, now a booleanity check instead of a LogUp root cross-check.
+
+Two subtleties: (1) some committed digits are base-2^e0 (e0=2) not bits;
+there the per-digit bound is the degree-4 product `prod_{v<4}(d-v)=0`, or
+the remainder is committed at bit granularity at q46 (the existing
+construction) and linked by U-L — the design uses whichever the tensor
+already commits, priced in Section 3. (2) the "committable-but-off-table
+gap" that BK's tamper leg exploits (`[2^sh_z, representable_max]`) closes
+identically: booleanity of the top planes rejects any value above the
+width.
+
+### 2.4 How the lookup rides it (SiLU)
+
+The SiLU (-3,-3)/(-4,-4) tables are arbitrary 256-row int8->int8 maps,
+not ranges, so they keep a LogUp — but as **one sumcheck, not a tree
+descent**. Commit `h_i = 1/(alpha - key_i)` (the helper) and the table
+multiplicities `m_j`; prove two identities in K:
+
+- **well-formedness** `h_i (alpha - key_i) - 1 = 0` for every witness i,
+  a degree-3 zero-check batched over the 12 columns via the instance
+  axis — folded into the aggregate sumcheck of 2.2;
+- **sum equality** `sum_i h_i = sum_{j<256} m_j / (alpha - t_j)` — the
+  witness side is a hypercube sum the aggregate already computes; the
+  table side is 256 rows, a tiny separate sumcheck.
+
+This is the Haböck LogUp-as-sumcheck (the sumcheck form of what the
+descent computes as a GKR tree): ~log2(N) wide rounds instead of the
+tree's ~336, the same O(N) K-mults but far fewer round-poly objects, and
+`h` rides the ACT eval proof instead of a separate descent transcript.
+alpha is drawn in K after `u_0` (as the descent alpha is today). If any
+`key_i = alpha` (measure ~2^-490) the prover redraws.
+
+### 2.5 The lattice opening at the end
+
+**Still exactly one eval proof per group** (E-O2-BB preserved). The
+aggregate sumcheck's final random point `x*` yields one MLE-evaluation
+claim per committed tensor (the `F_k` evaluations at `x*`, opened via the
+per-tensor `MultiClaimKernel` weights); the SiLU `h` and `m` claims fold
+into the ACT b_rows exactly as the descent pins do today
+(UAGB1_TABLE_DESCENT_REPORT.md Section 2.3). Three composition levers:
+
+- **(T11 b) one-point batching / the R-row.** Today the 8 instances open
+  at their own outer points, so the level-0 h cross-garbage is
+  Theta(n_0 x r) with `r = 64`. If the aggregate reduces every claim to
+  ONE point per group (RLC at a common `x*`), the opening serves one
+  evaluation and the planner's `r` can drop (r=32 halves the level-h
+  term, BG-F3 / T11 b), trading bytes for the h-garbage — and the
+  artifact already sits at 0.48x its gate with room, and drops further
+  here (Section 3), so the byte trade is affordable.
+- **(T11 a) rank-structured `Phi_0`, prover side.** The level-0 claim
+  functional is fed from `PHI_vr = sum_{c,d1} sr_c[row][d1] G_c[cb][d1]`
+  (the T5/T8b factored form) per value ring, never materializing the
+  ~11 GiB `Phi_0` — the T9(c) memory item, here made load-bearing for
+  the one-point opening.
+- **(T11 a') sublinear verifier.** Two options, Section 2.6/5: (Stage A)
+  the verifier computes `Psi_0` factored, O(n_value_rings) — same as
+  today, NOT <= 2 s at 1T; (Stage B, NEW) the prover supplies `Psi_0`
+  with a small sumcheck proving `Psi_0[u] = sum_k c_k Phi_0[k*chunk+u]`
+  against the committed digits, so the verifier checks O(log n_0) rounds
+  + one opening instead of re-deriving `Phi_0`. This is the polylog-
+  verifier opening layer T11 a' names and the only genuinely new crypto.
+
+### 2.6 Soundness sketch (which lemma covers each step; what is NEW)
+
+- **Arithmetic sumcheck + RLC batching:** standard sumcheck soundness
+  (Q4 lemmas); the RLC of instances at a common point is standard
+  multi-claim batching (Schwartz-Zippel over the betas). COVERED, re-use.
+- **Range as booleanity:** degree-2 zero-check soundness (standard); the
+  bit-plane <-> value link is the U-L cross-modulus link (built,
+  chain-demo, integer-exact). NEW only as a claim-class swap: the
+  RangeLookup soundness argument is replaced by a booleanity argument —
+  same guarantee, different lemma; owes the O-3 (claim-class reduction)
+  write-up.
+- **LogUp-as-sumcheck:** Haböck's fractional-identity soundness with the
+  committed helper, re-derived at K = GF(q^16) (the field is already the
+  descent's; the construction swap is tree -> sumcheck). COVERED by the
+  same characteristic bound that gates the descent; NEW as an engine
+  object.
+- **Base-field challenge soundness:** the aggregate runs ~50 rounds at
+  degree <= 4; per-round Schwartz-Zippel error `deg/|field|`. At q31 the
+  base field gives ~2^-25 per round — INSUFFICIENT alone. Challenges must
+  be drawn in GF(q^c) (c >= 4 -> ~2^-120 per round; the slot field
+  already provides K = GF(q^16)); the prover tables stay base-field, only
+  the challenge/fold scalars lift. NEW: re-derive the aggregate knowledge
+  error to the R5 line (2^-128 / the 2^-220 house target). This is O-7.
+- **The supplied-`Psi_0` sumcheck (Stage B):** genuinely NEW. Needs a
+  proof that the prover's `Psi_0` is bound to the committed digits (a
+  sumcheck over the level-0 claim functional, extraction in the
+  Q4_LEMMAS style + the recursive-FS composition PSS pattern). This is
+  the O-5/O-7 obligation and the gating risk for the verifier factor.
+- **ZK for the declared private set:** the aggregate sumcheck runs over
+  MASKED MLEs — the existing `gkr_masked` machinery (g-mask + boundary
+  masks, HVZK lemmas Q4.7-Q4.9) applies to a sumcheck as it does to the
+  descent; the SiLU `h` is blinded as the descent witness is today; the
+  range booleanity zero-checks are masked by the same g-mask. The
+  eval-proof floor masking (Tier-Z, P2) is unchanged. The private-set
+  modes (P1/P2/P3, ZK_GAP_OPTIONS.md Section 6) are unaffected — this is
+  an act-side/relation change, and the P2 weight-floor path is
+  untouched. NEW: the aggregated-transcript simulator (O-4, the WSMD
+  Section 3 style) must cover the aggregate sumcheck instead of the
+  descent — a re-derivation on built masked-sumcheck machinery, not a new
+  primitive.
 
 ## 3. Counts after, side by side (pending)
 
