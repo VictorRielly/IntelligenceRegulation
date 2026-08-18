@@ -2549,7 +2549,11 @@ pub mod prof {
     pub const M_CRS_BLOCKS: usize = 63; // expand_level_matrix_par: the SHA-256 block generation
     pub const M_CRS_WALK: usize = 64; // expand_level_matrix_par: the rejection walk into polys
     pub const M_PHI_SETUP: usize = 65; // PhiFactored::new (row factors + the alpha-contracted G blocks) — inside psi0-factored / kernel-phi
-    pub const N_PHASES: usize = 66;
+    pub const M_TR_S: usize = 66; // transport_level_from_psi_fast: the S contraction (a_l1 psi + sum a_t4 A rows) — inside ep.transport
+    pub const M_TR_ASM: usize = 67; // transport_level_from_psi_fast: the next-witness assembly (scale + T5 adds) — inside ep.transport
+    pub const M_TR_PQ: usize = 68; // transport_level_from_psi_fast: the small-operand products a_t4 c_j / a_l1 cpair — inside ep.transport
+    pub const M_TR_T5: usize = 69; // transport_level_from_psi_fast: the T5 binding contractions — inside ep.transport
+    pub const N_PHASES: usize = 70;
 
     pub const NAMES: [&str; N_PHASES] = [
         "ct.setup(clone+digits)",
@@ -2618,6 +2622,10 @@ pub mod prof {
         "m.crs-blocks",
         "m.crs-walk",
         "m.phi-setup",
+        "m.tr-s",
+        "m.tr-asm",
+        "m.tr-pq",
+        "m.tr-t5",
     ];
 
     static ENABLED: AtomicBool = AtomicBool::new(false);

@@ -2394,6 +2394,17 @@ fn psi_level0_multi_impl(
     }
     if !ntt_tensors.is_empty() {
         let _tn = prof::timer(prof::M_PSI0_NTT); // [UPERF2-M] observation only
+        if std::env::var("ZK_M_DEBUG").map(|v| v == "1").unwrap_or(false) {
+            let n_vr: usize = ntt_tensors.iter().map(|a| a.t.n_value_rings()).sum();
+            let n_dr: usize = ntt_tensors.iter().map(|a| a.t.n_digit_rings()).sum();
+            let n_terms: usize = ntt_tensors.iter().map(|a| a.pf.srs.len() * K_DEG * a.t.n_value_rings()).sum();
+            eprintln!(
+                "[UPERF2-M debug] psi0 NTT: {} aligned tensors, {n_vr} value rings, {n_dr} digit rings, r {r}, chunk {chunk}, avg kernels/tensor {:.1}, avg MAC terms/value ring {:.1}",
+                ntt_tensors.len(),
+                ntt_tensors.iter().map(|a| a.pf.srs.len()).sum::<usize>() as f64 / ntt_tensors.len() as f64,
+                n_terms as f64 / n_vr.max(1) as f64
+            );
+        }
         if !psi_level0_aligned_ntt(ctx, &ntt_tensors, c, chunk, &mut psi) {
             // Over capacity for the single-prime contract at this (q, c,
             // radix) — today's body per tensor (identical values).
@@ -4699,6 +4710,39 @@ pub fn ntt_combine_general_ref(ctx: &RingCtx, alphas: &[Poly], ops: &[&[Poly]], 
         .collect()
 }
 
+/// [UPERF2-M] out[i] = a * smalls[i] over R_q — one mod-q ring times many
+/// small rings, each an exact single product in the Goldilocks NTT domain
+/// (a transformed once, each small ring once, one inverse per output;
+/// the single-product capacity D * (q-1)/2 * s_max <= (p-1)/2 checked from
+/// the data — the GEMM kernel with len = 1 (`ntt_gemm_modq_small`) is the
+/// fallback and the oracle: identical values, this is the same product
+/// without the block machinery). Threads over outputs.
+pub fn mul_modq_small_many(ctx: &RingCtx, a: &Poly, smalls: &[Vec<i64>]) -> Vec<Poly> {
+    use super::aux::{center_from_p, mod_q_centered};
+    let q = ctx.zq.q;
+    let n = smalls.len();
+    if n == 0 {
+        return Vec::new();
+    }
+    let s_max: u128 = smalls.iter().flat_map(|s| s.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0);
+    if oracle_mode() || ntt_window_terms(q, s_max) == 0 || a.iter().all(|&x| x == 0) {
+        let b: Vec<&[Vec<i64>]> = smalls.iter().map(std::slice::from_ref).collect();
+        return ntt_gemm_modq_small(ctx, &[std::slice::from_ref(a)], &b, 1);
+    }
+    let t = &*NTT;
+    let a_hat = fwd_modq(a, q, t);
+    map_ordered_min(n, 64, |i| {
+        let sm = &smalls[i];
+        if sm.iter().all(|&x| x == 0) {
+            return poly_zero();
+        }
+        let mut acc = NttAcc::new();
+        acc.mac(&a_hat, &fwd_small(sm, t));
+        let v = acc.flush(t);
+        v.iter().map(|&x| mod_q_centered(center_from_p(x), q)).collect()
+    })
+}
+
 /// [UPERF2-C T3b] The fast body of `transport_level_from_psi` — the
 /// regrouped form of the module note above: the per-source rings S (Z
 /// family), T5 (T and H families), a_t4[kap] * c_j (T family's T4 term)
@@ -4733,6 +4777,7 @@ pub fn transport_level_from_psi_fast(
     }
     // (i) S[src] = a_l1 * psi[src] + sum_kap a_t4[kap] * A[kap][src].
     let s_rings: Vec<Poly> = {
+        let _ts = prof::timer(prof::M_TR_S); // [UPERF2-M] observation only
         let mut al: Vec<Poly> = Vec::with_capacity(1 + KAPPA_AGG);
         al.push(a_l1.clone());
         al.extend(a_t4.iter().cloned());
@@ -4744,6 +4789,7 @@ pub fn transport_level_from_psi_fast(
         ntt_combine_general(ctx, &al, &ops, chunk)
     };
     // (ii) T5_bi[rel] = sum_kap2 a_t5[bi][kap2] * B_bi[kap2][rel].
+    let _tt5 = prof::timer(prof::M_TR_T5); // [UPERF2-M] observation only (dropped after the T5 rings)
     let t5_rings: Vec<Vec<Poly>> = bindings
         .iter()
         .enumerate()
@@ -4753,11 +4799,19 @@ pub fn transport_level_from_psi_fast(
             ntt_combine_general(ctx, al, &ops, b.cols)
         })
         .collect();
+    drop(_tt5);
     // (iii) P[kap * r + j] = a_t4[kap] * c_j (small operand).
+    // [UPERF2-M] single products through `mul_modq_small_many` (one
+    // transform of the mod-q ring, one per small ring, one inverse each —
+    // the same exact-integer product the GEMM kernel with len = 1 computed
+    // through its block machinery; identical values).
     let p_rings: Vec<Poly> = {
-        let a: Vec<&[Poly]> = a_t4.iter().map(std::slice::from_ref).collect();
-        let b: Vec<&[Vec<i64>]> = c.iter().map(std::slice::from_ref).collect();
-        ntt_gemm_modq_small(ctx, &a, &b, 1)
+        let _tp = prof::timer(prof::M_TR_PQ); // [UPERF2-M] observation only
+        let mut v = Vec::with_capacity(KAPPA_AGG * r);
+        for ak in a_t4.iter() {
+            v.extend(mul_modq_small_many(ctx, ak, c));
+        }
+        v
     };
     // (iv) Q[pair] = a_l1 * cpair[pair], cpair = c_j (x) c_k over Z (small).
     let cp_small: Vec<Vec<i64>> = {
@@ -4770,8 +4824,8 @@ pub fn transport_level_from_psi_fast(
         v
     };
     let q_rings: Vec<Poly> = {
-        let b: Vec<&[Vec<i64>]> = cp_small.iter().map(std::slice::from_ref).collect();
-        ntt_gemm_modq_small(ctx, &[std::slice::from_ref(a_l1)], &b, 1)
+        let _tp = prof::timer(prof::M_TR_PQ); // [UPERF2-M] observation only
+        mul_modq_small_many(ctx, a_l1, &cp_small)
     };
     // (v) Assemble every next-witness ring (fixed order: family term(s),
     // then the bindings in order — a mod-q sum, so identical to the
@@ -4808,7 +4862,10 @@ pub fn transport_level_from_psi_fast(
             }
         }
     };
-    let phi_next: Vec<Poly> = map_ordered(layout.n_total, one);
+    let phi_next: Vec<Poly> = {
+        let _ta = prof::timer(prof::M_TR_ASM); // [UPERF2-M] observation only
+        map_ordered(layout.n_total, one)
+    };
     // Aggregated target: alpha_T1 * H_i + sum over bindings alpha_T5 * u.
     let mut h_next = ring_mul_split_kara_fast(ctx, a_t1, h_target);
     for (bi, b) in bindings.iter().enumerate() {
@@ -4875,6 +4932,18 @@ impl SmallRings for [Vec<i64>] {
         self[u].as_slice()
     }
     fn max_abs(&self) -> u128 {
+        // [UPERF2-M] parallel over rings for the large stores (an exact
+        // max — the same value; the serial scan of the whole level-0 store
+        // per kernel call was ~1.5 s per rig at 12x128 8T).
+        if threads() > 1 && self.len() >= 1 << 12 {
+            return pooled(|| {
+                use rayon::prelude::*;
+                self.par_chunks(1 << 10)
+                    .map(|c| c.iter().flat_map(|r| r.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0))
+                    .max()
+                    .unwrap_or(0)
+            });
+        }
         self.iter().flat_map(|r| r.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0)
     }
     #[inline(always)]
@@ -4901,6 +4970,13 @@ impl SmallRings for [i8] {
         &buf[..]
     }
     fn max_abs(&self) -> u128 {
+        // [UPERF2-M] parallel over 1 MiB chunks for the large stores (exact).
+        if threads() > 1 && self.len() >= 1 << 22 {
+            return pooled(|| {
+                use rayon::prelude::*;
+                self.par_chunks(1 << 20).map(|c| c.iter().map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0)).max().unwrap_or(0)
+            });
+        }
         self.iter().map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0)
     }
     #[inline(always)]
