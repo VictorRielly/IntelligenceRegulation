@@ -895,7 +895,55 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent N status (wt-uperf2-n)
 
-- (lane launches here)
+- 2026-08-17 PLAN COMMIT (lane N, branch uperf2-n from 50aea3e; report:
+  docs/zkmatrix-poc/U_PERF2_GPU3_REPORT.md). Files: `zkmatrix-rs/src/ring/
+  gpu/k9.rs` + `kernels_k9.cu` (extend L's: the DEVICE TREE STORE), `gpu/
+  mod.rs` (re-exports + stubs), `kfield.rs` (the SMALL contract change:
+  `BlkSrc::Device` + `DevLayer` + `CompactLeaves` word accessors),
+  `gkr.rs` (`PackedTree.dev`, `LayerSrc::Device`, the device build in
+  `build_tree_from`, host materialization for CPU readers, release/drop
+  hooks), a `// [UPERF2-N]` bin section with `uperf-n {battery, bench}`,
+  the report, this section. Baseline captured BEFORE any code change from
+  the main worktree's binaries (code-identical to 50aea3e): freeze-check
+  98 `ok` rows (scratchpad/n_freeze_baseline.txt), the batteries' digests
+  (uperf-a f936ff79.., uperf-g 6d6a3f6b.., uperf-h b1e78285.., uperf-l
+  cc4f8c1c.., descent-bench 47a58a27..), the 12x128 / 12x512 8T+GPU rig
+  rows (descent phase attribution).
+  DESIGN (report Section 1): (1) `gkr::build_tree_from` hands the leaves
+  to `gpu::k9_tree_build` — the compact words (memcpy, no re-encoding) or
+  the packed leaf tables go up ONCE, the bottom-up steps run on the device
+  (`k_tree_step[_cl]`), the checkpointed layers (stride max(c, 2), c =
+  `ZK_K9_CHECKPOINT`) stay DEVICE-RESIDENT, the gap layers are freed as
+  soon as the layer above exists, and the small top layers (<= 4096
+  elements) come back to the host store as today (the smallest big layer
+  is downloaded once, 2 MB, and the host loop finishes the top); the
+  FracTree keeps `dev: Some(id)` and NO host copy of the big layers. (2)
+  `FracTree::layer(k)` answers `LayerSrc::Device` (a descriptor: tree id,
+  k) for a device tree's big layers; `masked_rounds_bulk` is unchanged —
+  the fused rounds 0/1 carry `BlkSrc::Device` into `k9_fused_round`, whose
+  layer binding reads a resident checkpoint in place, the compact leaves in
+  place, or CLIMBS a gap layer on the device from the nearest resident
+  layer below into L's layer buffers (freed after round 1 as today) — no
+  per-layer host upload, no host layer store on the GPU path. (3) CPU
+  readers of a device layer (the flush's extract when fusion is off, the
+  CPU body when the hook declines, `p_elem/q_elem` on the ref/scalar/harness
+  paths, `extract_children`) materialize it on demand (`k9_tree_fetch`: a
+  download, or a device climb + download; the compact leaves' host copy is
+  read directly) — correct on every path, fast on the hooked one. (4)
+  `release_layer(k)` frees the device checkpoint (lane H's discipline —
+  the resident set falls as the descent passes; the leaves are never
+  released), `Drop` frees the tree; the store's bytes count in L's VRAM
+  budget and are never released by `release_idle`. (5) `uperf-n battery`:
+  device build vs CPU tree cell by cell (every layer, several depths incl.
+  the 4096-element edge, compact leaves with exceptions, packed leaves,
+  pads) + masked descents GPU-tree vs CPU-tree (digests) at 1/2/7T;
+  `uperf-n bench`. Knob: `ZK_GPU_K9_TREE_STORE=0` (A/B). VRAM model at
+  the 12x512 nrw-88 pair (12 real trees, depth 22): store 2.5 GB after the
+  build (leaves 0.4 + checkpoints 2.1) falling to 0.4 by j = 21; peak at j
+  = 20 (layer 21 recomputed 3.2 + state-1 2.0 + leaves 0.4) 5.7 GB, at j =
+  21 (state-1 4.0 + ping-pong 2.0 + leaves 0.4) 6.5 GB — inside the ~7.7 GB
+  budget with the release discipline on; a shortfall declines to the CPU
+  path (never a value change).
 
 ## Agent O status (wt-uperf2-o)
 
