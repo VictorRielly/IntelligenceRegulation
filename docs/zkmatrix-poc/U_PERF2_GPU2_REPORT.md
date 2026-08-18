@@ -226,8 +226,9 @@ the words would make it a memcpy.
   (scratchpad k_freeze_new.txt), then the UAGB1-BF/BK real-data rows ran
   and passed ("freeze_check_uagb1_bk: all rows stable", "freeze-check
   passed", exit 0).
-- `self-test` (the GPU build, `ZK_GPU=1`, ZK_THREADS 1): see the ledger
-  section (run at close).
+- `self-test` (the GPU build, `ZK_GPU=1`, ZK_THREADS 1): passed in 240.8 s
+  (exit 0; the [U-K9] battery and every descent/claim-layer test inside it
+  ran with the device chains live).
 - `uperf-l dbench 20 8 5 9` (8T, one process, CPU then GPU): prove 0.95 ->
   0.77 s, a.round-g 0.78 -> 0.62 s, a.tree-step 0.28 -> 0.25 (CPU both, the
   device climb OFF), digest IDENTICAL; k9: 111 rounds (86 tiny ones

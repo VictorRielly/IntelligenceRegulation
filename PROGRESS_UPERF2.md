@@ -892,7 +892,7 @@ docs/zkmatrix-poc/U_PERF2_GPU2_REPORT.md — hardware/watts/flags stated):
      freeze-check (GPU build, ZK_GPU=1, wsl export) 98 `ok` rows identical
      to lane K's capture + the BF/BK real-data rows passed; the default
      build (no feature) unchanged (stub state; uperf-a/j/d digests); the
-     rigs (above); self-test: below.
+     rigs (above); `self-test` (GPU build, ZK_GPU=1, 1T) passed in 240.8 s.
 - NOT landed / left (report Section 5): (1) the recomputed depth-1 layer
   still travels CPU-climb -> H2D (~3.2 GB live per big pair; a
   device-side climb whose output stays resident for round 0 needs a small
