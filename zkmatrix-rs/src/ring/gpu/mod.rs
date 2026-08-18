@@ -28,10 +28,14 @@
 // no device, over capacity, below the minimum work, or a device error —
 // reported once) means the CPU body runs as before.
 //
-// Knobs (all runtime): ZK_GPU=1 (on), ZK_GPU_MIN_MACS (decline smaller
-// GEMMs; default 1<<22 D-domain MACs), ZK_GPU_BLOCK_MB (device budget for
-// one transformed u-block, default 512), ZK_GPU_VERBOSE=1 (per-call
-// timing lines to stderr).
+// Knobs (all runtime; none changes a value): ZK_GPU=1 (on),
+// ZK_GPU_MIN_MACS (decline smaller GEMMs; default 1<<22 D-domain MACs),
+// ZK_GPU_BLOCK_MB (device budget for one u-block, default 256),
+// ZK_GPU_STAGES (sub-blocks per call the pipeline aims for, default 4),
+// ZK_GPU_VERBOSE=1 (per-call timing lines to stderr), ZK_GPU_PROFILE=1
+// (synchronize after every kernel and attribute per kernel — analysis
+// only), ZK_GPU_RFWD / ZK_GPU_TFWD / ZK_GPU_MAXRREG (NVRTC-time kernel
+// shape experiments).
 
 #[cfg(feature = "gpu-cuda")]
 mod cuda;
@@ -84,15 +88,21 @@ mod stub {
     pub fn probe() -> Result<ProbeReport, String> {
         Err("built without --features gpu-cuda".to_string())
     }
+    /// Mirrors `cuda::GpuStats` (all zero without the feature).
     #[derive(Clone, Debug, Default)]
     pub struct GpuStats {
         pub calls: u64,
         pub declined: u64,
         pub macs: u128,
         pub bytes_h2d: u64,
+        pub secs_smax: f64,
         pub secs_pack: f64,
-        pub secs_h2d: f64,
-        pub secs_gpu: f64,
+        pub secs_wait: f64,
+        pub secs_k_h2d: f64,
+        pub secs_k_fwd: f64,
+        pub secs_k_gemm: f64,
+        pub secs_k_flush: f64,
+        pub secs_d2h: f64,
         pub secs_total: f64,
     }
     pub fn stats() -> GpuStats {

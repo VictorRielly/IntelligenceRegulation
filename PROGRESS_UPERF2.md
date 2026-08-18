@@ -726,6 +726,72 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
   under the flock. (4) if time: the descent round kernel, same one-hook
   discipline.
 
+STATUS (2026-08-17, HEAD of uperf2-k; report:
+docs/zkmatrix-poc/U_PERF2_GPU_REPORT.md — the CONTINUATION Phase-3 GPU
+rung report, hardware/watts/flags stated):
+
+- LANDED — the GPU rung, step 1:
+  1. Plumbing: feature `gpu-cuda` (default OFF; optional cudarc 0.13.9,
+     no CUDA toolkit — driver + pip NVRTC), `ring/gpu/{mod.rs, cuda.rs,
+     kernels.cu}`: device + NVRTC-compile-once singleton (0.2-0.4 s per
+     process, PTX for the device's cc), `enabled()` = feature AND
+     `ZK_GPU=1` AND device AND not bypassed; `uperf-k probe` reproduces
+     the feasibility result: 0 mismatches of 2^20 (x100), 18.07 G
+     mulmod/s (orchestrator: 14.75). The default build carries a stub
+     (`enabled()` constant false): builds, `uperf-pc diff-battery` 7T
+     green, freeze-check 98 `ok` rows IDENTICAL to the bd5e0dd baseline
+     binary (then the expected BF panic), self-test (see below).
+  2. The port of `ntt_gemm_modq_small` (ONE hook at the top of
+     `ntt_gemm_modq_small_gen`; the CPU body = fallback + oracle):
+     device-side lifts from packed u32/i8 (u64/i64 when needed), batched
+     length-128 NTTs in shared memory with the t-major store, the D = 128
+     batched split-K GEMM (64x64 and 16x64 tiles) with the split-halves
+     sums as 128-bit integers per cell, the flush = the CPU's
+     `gl_reduce128(acc_lo + EPS*acc_hi)` -> inverse -> center -> mod q ->
+     add; the CPU's window boundaries (`ntt_window_terms`); a pipelined
+     execution model (pinned double-buffered staging, copy stream +
+     compute stream + events, >= 4 sub-blocks per call). BIT-IDENTICAL:
+     `uperf-k battery` (transforms on 3,078 rings incl. 78 planted
+     extremes; GEMM 185 legs cell-by-cell GPU vs CPU at q31 + q46, s_max
+     1/2/64/2^20 and 1/64, tiles/u-blocks/windows crossing, zero rings,
+     i8 + i64 stores; 15 over-capacity legs declined by both; 8 hook
+     legs) at ZK_THREADS 1/2/7; `uperf-pc diff-battery` with every GEMM
+     on the device (`ZK_GPU=1 ZK_GPU_MIN_MACS=0`, 270 device calls) at
+     1T/2T/7T; the REAL rigs' digests (below).
+  3. Measured [WSL-BOX 8T NOISY-SHARED — lane J built/ran concurrently;
+     CPU/GPU back-to-back in ONE binary]: the kernel 64x64x1024 (the
+     level-h block) 142-152 -> 17.2-19.8 ms (7.7-8.3x), 64x64x8192 964 ->
+     102 ms (9.4x), 11x64x8192 (the matvec) 494 -> 48 ms (10.4x); REAL
+     3x16 8T 9.2 -> 7.3 s (level-h 2.03 -> 0.48 s), REAL 12x128 8T 58.0
+     -> 45.0 s (commit 6.3 -> 2.9, prove 47.3 -> 37.8; level-h 10.33 ->
+     3.00, matvec 4.38 -> 1.12; RSS 4,100 -> 4,263 MiB), and THE PoC
+     SHAPE 12x512 8T (ONE run, flock, wsl-export): **141.5 s = commit 5.5
+     + prove 126.8 + verify 7.5, accept, statement 2f8a92f8… / EVAL
+     4c259008… / 1,509,911 B identical, peak RSS 10,929 MiB** vs the
+     ledger's quiet 155.6 s (p50 153.1): level-h 22.2 -> 6.3 s, matvec
+     7.8 -> 1.7 s, commit 11.7 -> 5.5 s (194 device calls, 10.6 GB
+     uploaded, 4.4 s inside the device path); the untouched phases ran
+     5-10% slower than the quiet reference in this shared run (descents
+     72 -> 77 s, claim layer 23.9 -> 26.2) — ~135 s [MODEL from the phase
+     sums] for a quiet GPU run; a QUIET measurement is queued.
+  4. Honest factor: 8-10x over the 8T CPU on the ported kernel on THIS
+     box (a 55-70 W mobile part; power limits per nvidia-smi 55 W default
+     / 68.82 W current / 105 W max); -9% on the composed 12x512 wall
+     because the kernel's share was ~27 s of 155. The desktop-board line
+     stays [MODEL] in the report (Section 4.5), no claim.
+- NOT landed / left: (4) the descent round kernel (`k9_fused_round_par`;
+  a.round-g 52-56 s at 12x512 8T — now the wall with the claim layer):
+  not reached; design note in the report Section 5 (one kernel per
+  round over the lane range, per-block partial planes reduced in a
+  fixed order, layers resident on the device, the same one-hook
+  discipline — coordinate with lane J's AVX2 form of the same kernels).
+  GEMM kernel headroom (74 G MAC/s ~ 30% of the IMAD peak; the u32-limb
+  formulation ~2.5-3x on the kernel [ASSUMED]); the host-side phi fill
+  and the i8 pack (a `SmallRings` i8 view would need eval_proof.rs).
+  Build artifact note: the feature build lives in
+  `zkmatrix-rs/target-gpu/` (untracked, not ignored by .gitignore —
+  outside this lane's files).
+
 ## Agent H status (wt-uperf2-h)
 
 - 2026-08-17 PLAN COMMIT (lane H, branch uperf2-h at d38e9ce; report:
