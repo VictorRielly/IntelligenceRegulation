@@ -249,7 +249,25 @@ concurrently)]:
 | same binary, 12x512, 8T, CPU only (default build; O's pool is the only change on this path) | 8.9 s | 72.9 s | 2.6 s | **86.1 s** | identical | 11.1 GiB |
 | same binary, 3x16 8T+GPU / 12x128 8T+GPU | 0.9 / 2.6 s | 2.8 / 11.0 s | 0.5 / 1.4 s | **4.3 s / 15.6 s** | identical | 1.3 / 3.5 GiB |
 
-**After round 8 the PoC shape runs on the reference machine in 34.1 s
+| + lane P alone (GPU step 4: one launch per fused round, device eq b-part, slab/buddy device allocator) (214ebc5), 12x512, 8T + GPU [NOISY, lane Q active] | 5.1 s | 20.7 s | 2.8 s | **30.1 s** | 4c259008… (identical) | 6.7 GiB |
+| + lane Q alone (level-h device session, one combine kernel family, int8 chain GEMM on device, mask/shift digits, 4-lane SHA-NI CRS) (uperf2-q 6a4c700), 12x512, 8T + GPU [NOISY] | 2.5 s | 19.3 s | 1.8 s | **25.0 s** | 4c259008… (identical) | 6.7 GiB |
+| **+ P and Q together (round 9 merge), 12x512, 8T + GPU, QUIET, three consecutive runs** | **2.5 s** | **15.5 s** | **1.7 s** | **21.0 / 21.1 / 20.9 s** | 4c259008… (identical, statement 2f8a92f8…, 1,509,911 B) | **6.7 GiB** |
+| same binary, 12x512, 8T, CPU only (default build), QUIET | 7.2 s | 70.2 s | 2.6 s | **81.5 s** | identical | 11.1 GiB |
+| same binary, 3x16 8T+GPU / 12x128 8T+GPU | 0.3 / 1.4 s | 2.1 / 7.2 s | 0.5 / 1.1 s | **3.4 s / 10.5 s** | identical | 1.6 / 3.9 GiB |
+
+**After round 9 the PoC shape runs on the reference machine in 21.0 s
+with its laptop GPU (81.5 s CPU-only), 8 threads, 6.7 GB peak; verify
+1.7 s at 8T — the contract's <= 2 s verify line is met at 8 threads on
+the full 12x512 statement (not at 1 thread: T11 a').** Attribution at
+21.0 s: prove-group 7.1 (level-h 1.9 device-bound in the GEMM,
+kernel-rows 1.8, psi0 1.6, fold 0.85, matvec 0.8), descents 6.5
+(a.round-g 4.6 = 3.9 s of kernels at 70-88% of the K-mult ceiling on
+this part, trees 1.6), commit 2.5, claim layer 1.75, verify 1.7,
+transport 1.4, CRS 1.3. The kernel curve has flattened: what the lanes
+list as left sums to ~3-4 s [ASSUMED]; the rest is the protocol's
+shape (PROGRESS_UPERF2.md "after round 9" + the decision memo).
+
+**After round 8 the PoC shape ran on the reference machine in 34.1 s
 with its laptop GPU (86.1 s CPU-only), 8 threads, 6.7 GB peak; verify
 2.6 s.** 12x512 8T+GPU attribution at 34.1 s: prove-group 12.3
 (level-h 4.6 — host pack / phi fill bound, the MAC is not the limit

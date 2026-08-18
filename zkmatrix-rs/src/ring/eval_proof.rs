@@ -688,7 +688,38 @@ fn crs_key(seed: u64, group: &str, level: usize, which: &str, rows: usize, cols:
 
 /// SHA-256 counter-mode blocks [lo, hi) of `key` written straight into a
 /// byte buffer, block-parallel (each 32-B block = SHA256(key || i_le)).
+/// [UPERF2-Q] The blocks come from the multi-buffer SHA-NI core
+/// (`crs_sha_ni::blocks_into`, four interleaved single-block compressions
+/// with the key's first eight message words folded into a precomputed
+/// state — the same SHA-256 function, asserted against the `sha2` crate
+/// in `uperf-q battery` and by the CRS bytes themselves) when the CPU
+/// has SHA-NI and `ZK_CRSNI` != 0; the `sha2` crate otherwise (the
+/// pre-change body, `crs_blocks_into_ref`).
 fn crs_blocks_into(key: &[u8; 32], lo: usize, hi: usize, out: &mut [u8]) {
+    assert_eq!(out.len(), (hi - lo) * 32);
+    #[cfg(target_arch = "x86_64")]
+    if crs_sha_ni_enabled() {
+        const CH: usize = 4096; // blocks per parallel unit
+        if threads() > 1 && hi - lo >= 2 * CH {
+            pooled(|| {
+                use rayon::prelude::*;
+                out.par_chunks_mut(CH * 32).enumerate().for_each(|(ci, chunk)| {
+                    let l = lo + ci * CH;
+                    // SAFETY: the `sha` / `sse4.1` / `ssse3` features were detected at dispatch.
+                    unsafe { crs_sha_ni::blocks_into(key, l, l + chunk.len() / 32, chunk) };
+                });
+            });
+        } else {
+            unsafe { crs_sha_ni::blocks_into(key, lo, hi, out) };
+        }
+        return;
+    }
+    crs_blocks_into_ref(key, lo, hi, out);
+}
+
+/// The pre-[UPERF2-Q] body (the `sha2` crate per block) — the SHA-NI
+/// core's oracle (`ZK_CRSNI=0`, non-x86, no SHA-NI).
+pub fn crs_blocks_into_ref(key: &[u8; 32], lo: usize, hi: usize, out: &mut [u8]) {
     use sha2::{Digest, Sha256};
     assert_eq!(out.len(), (hi - lo) * 32);
     let mk = |i: usize, dst: &mut [u8]| {
@@ -711,6 +742,208 @@ fn crs_blocks_into(key: &[u8; 32], lo: usize, hi: usize, out: &mut [u8]) {
     } else {
         for (k, dst) in out.chunks_mut(32).enumerate() {
             mk(lo + k, dst);
+        }
+    }
+}
+
+/// [UPERF2-Q] Battery entry: the SHA-NI blocks (when available) — `None`
+/// when the core is not available on this CPU / build.
+pub fn crs_blocks_into_ni(key: &[u8; 32], lo: usize, hi: usize, out: &mut [u8]) -> bool {
+    #[cfg(target_arch = "x86_64")]
+    if crs_sha_ni_available() {
+        assert_eq!(out.len(), (hi - lo) * 32);
+        unsafe { crs_sha_ni::blocks_into(key, lo, hi, out) };
+        return true;
+    }
+    let _ = (key, lo, hi, out);
+    false
+}
+
+/// [UPERF2-Q] SHA-NI present on this CPU (runtime detection).
+#[cfg(target_arch = "x86_64")]
+pub fn crs_sha_ni_available() -> bool {
+    static V: LazyLock<bool> = LazyLock::new(|| {
+        std::arch::is_x86_feature_detected!("sha") && std::arch::is_x86_feature_detected!("sse4.1") && std::arch::is_x86_feature_detected!("ssse3")
+    });
+    *V
+}
+#[cfg(not(target_arch = "x86_64"))]
+pub fn crs_sha_ni_available() -> bool {
+    false
+}
+
+/// [UPERF2-Q] `ZK_CRSNI=0` keeps the `sha2` crate path (read once).
+#[cfg(target_arch = "x86_64")]
+fn crs_sha_ni_enabled() -> bool {
+    static V: LazyLock<bool> = LazyLock::new(|| std::env::var("ZK_CRSNI").map(|v| v != "0").unwrap_or(true) && crs_sha_ni_available());
+    *V
+}
+
+/// [UPERF2-Q] The multi-buffer SHA-NI core for the CRS counter-mode blocks.
+/// Every block hashes ONE 64-byte message block: key (32 B) || i as u64 LE
+/// (8 B) || 0x80 || 15 x 0x00 || the bit length 320 as u64 BE. Its 16
+/// big-endian message words are W0..7 = the key (constant), W8/W9 = the
+/// counter's two little-endian halves byte-swapped, W10 = 0x80000000,
+/// W11..14 = 0, W15 = 320. Rounds 0..7 depend only on W0..7: the state
+/// after them is computed once per call from the IV; every block then runs
+/// rounds 8..63 from that state (the schedule still uses W0..3 as its
+/// first quads, unchanged). LANES blocks are compressed in lock-step
+/// (independent instruction chains hide the `sha256rnds2` latency). The
+/// round structure is the standard SHA-NI transform (the `sha2` crate's
+/// x86 body): identical values by the definition of SHA-256; asserted
+/// against `sha2` in the battery.
+#[cfg(target_arch = "x86_64")]
+mod crs_sha_ni {
+    use std::arch::x86_64::*;
+
+    const K: [u32; 64] = [
+        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+        0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+        0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+        0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+        0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+        0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+    ];
+    const IV: [u32; 8] = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
+    const LANES: usize = 4;
+
+    #[inline(always)]
+    unsafe fn kv(i: usize) -> __m128i {
+        _mm_set_epi32(K[4 * i + 3] as i32, K[4 * i + 2] as i32, K[4 * i + 1] as i32, K[4 * i] as i32)
+    }
+
+    /// Four rounds on (abef, cdgh) with the message quad `w` (already
+    /// scheduled) and the constants of quad i.
+    #[inline(always)]
+    unsafe fn rounds4(abef: &mut __m128i, cdgh: &mut __m128i, w: __m128i, i: usize) {
+        let t1 = _mm_add_epi32(w, kv(i));
+        *cdgh = _mm_sha256rnds2_epu32(*cdgh, *abef, t1);
+        let t2 = _mm_shuffle_epi32(t1, 0x0E);
+        *abef = _mm_sha256rnds2_epu32(*abef, *cdgh, t2);
+    }
+
+    #[inline(always)]
+    unsafe fn schedule(v0: __m128i, v1: __m128i, v2: __m128i, v3: __m128i) -> __m128i {
+        let t1 = _mm_sha256msg1_epu32(v0, v1);
+        let t2 = _mm_alignr_epi8(v3, v2, 4);
+        let t3 = _mm_add_epi32(t1, t2);
+        _mm_sha256msg2_epu32(t3, v3)
+    }
+
+    /// One block's rounds 8..63 from the precomputed state (after rounds 0..7),
+    /// for LANES blocks in lock-step. `w0`, `w1` = the key quads (constant),
+    /// `w2[l]` = the counter quad of lane l, `w3` = the length quad. Returns
+    /// (abef, cdgh) after the final feed-forward with the IV.
+    #[inline(always)]
+    unsafe fn compress_lanes(abef8: __m128i, cdgh8: __m128i, w0: __m128i, w1: __m128i, w2: [__m128i; LANES], w3: __m128i, iv_abef: __m128i, iv_cdgh: __m128i, out: &mut [[__m128i; 2]; LANES]) {
+        let mut abef = [abef8; LANES];
+        let mut cdgh = [cdgh8; LANES];
+        let mut a0 = [w0; LANES];
+        let mut a1 = [w1; LANES];
+        let mut a2 = w2;
+        let mut a3 = [w3; LANES];
+        let mut a4 = [_mm_setzero_si128(); LANES];
+        for l in 0..LANES {
+            rounds4(&mut abef[l], &mut cdgh[l], a2[l], 2);
+        }
+        for l in 0..LANES {
+            rounds4(&mut abef[l], &mut cdgh[l], a3[l], 3);
+        }
+        macro_rules! sched_rounds {
+            ($p0:ident, $p1:ident, $p2:ident, $p3:ident, $p4:ident, $i:expr) => {{
+                for l in 0..LANES {
+                    $p4[l] = schedule($p0[l], $p1[l], $p2[l], $p3[l]);
+                }
+                for l in 0..LANES {
+                    rounds4(&mut abef[l], &mut cdgh[l], $p4[l], $i);
+                }
+            }};
+        }
+        sched_rounds!(a0, a1, a2, a3, a4, 4);
+        sched_rounds!(a1, a2, a3, a4, a0, 5);
+        sched_rounds!(a2, a3, a4, a0, a1, 6);
+        sched_rounds!(a3, a4, a0, a1, a2, 7);
+        sched_rounds!(a4, a0, a1, a2, a3, 8);
+        sched_rounds!(a0, a1, a2, a3, a4, 9);
+        sched_rounds!(a1, a2, a3, a4, a0, 10);
+        sched_rounds!(a2, a3, a4, a0, a1, 11);
+        sched_rounds!(a3, a4, a0, a1, a2, 12);
+        sched_rounds!(a4, a0, a1, a2, a3, 13);
+        sched_rounds!(a0, a1, a2, a3, a4, 14);
+        sched_rounds!(a1, a2, a3, a4, a0, 15);
+        for l in 0..LANES {
+            out[l][0] = _mm_add_epi32(abef[l], iv_abef);
+            out[l][1] = _mm_add_epi32(cdgh[l], iv_cdgh);
+        }
+    }
+
+    /// The counter quad of block i: W8 = bswap(i_lo), W9 = bswap(i_hi), W10 = 0x80000000, W11 = 0.
+    #[inline(always)]
+    unsafe fn w2_of(i: u64) -> __m128i {
+        _mm_set_epi32(0, 0x8000_0000u32 as i32, ((i >> 32) as u32).swap_bytes() as i32, (i as u32).swap_bytes() as i32)
+    }
+
+    /// Store the digest of (abef, cdgh) as 32 big-endian bytes.
+    #[inline(always)]
+    unsafe fn store_digest(abef: __m128i, cdgh: __m128i, dst: &mut [u8]) {
+        let feba = _mm_shuffle_epi32(abef, 0x1B);
+        let dchg = _mm_shuffle_epi32(cdgh, 0xB1);
+        let dcba = _mm_blend_epi16(feba, dchg, 0xF0);
+        let hgef = _mm_alignr_epi8(dchg, feba, 8);
+        let mask = _mm_set_epi64x(0x0C0D_0E0F_0809_0A0Bu64 as i64, 0x0405_0607_0001_0203u64 as i64);
+        let d0 = _mm_shuffle_epi8(dcba, mask);
+        let d1 = _mm_shuffle_epi8(hgef, mask);
+        _mm_storeu_si128(dst.as_mut_ptr() as *mut __m128i, d0);
+        _mm_storeu_si128(dst.as_mut_ptr().add(16) as *mut __m128i, d1);
+    }
+
+    /// Blocks [lo, hi) of `key` into `out` (32 B each).
+    #[target_feature(enable = "sha,sse2,ssse3,sse4.1")]
+    pub unsafe fn blocks_into(key: &[u8; 32], lo: usize, hi: usize, out: &mut [u8]) {
+        debug_assert_eq!(out.len(), (hi - lo) * 32);
+        let mask = _mm_set_epi64x(0x0C0D_0E0F_0809_0A0Bu64 as i64, 0x0405_0607_0001_0203u64 as i64);
+        // The IV as (abef, cdgh).
+        let dcba = _mm_loadu_si128(IV.as_ptr() as *const __m128i);
+        let efgh = _mm_loadu_si128(IV.as_ptr().add(4) as *const __m128i);
+        let cdab = _mm_shuffle_epi32(dcba, 0xB1);
+        let efgh = _mm_shuffle_epi32(efgh, 0x1B);
+        let iv_abef = _mm_alignr_epi8(cdab, efgh, 8);
+        let iv_cdgh = _mm_blend_epi16(efgh, cdab, 0xF0);
+        // The key quads (constant) and the length quad.
+        let w0 = _mm_shuffle_epi8(_mm_loadu_si128(key.as_ptr() as *const __m128i), mask);
+        let w1 = _mm_shuffle_epi8(_mm_loadu_si128(key.as_ptr().add(16) as *const __m128i), mask);
+        let w3 = _mm_set_epi32(320, 0, 0, 0);
+        // Rounds 0..7 once (they read only W0..7).
+        let mut abef8 = iv_abef;
+        let mut cdgh8 = iv_cdgh;
+        rounds4(&mut abef8, &mut cdgh8, w0, 0);
+        rounds4(&mut abef8, &mut cdgh8, w1, 1);
+        let mut res = [[_mm_setzero_si128(); 2]; LANES];
+        let n = hi - lo;
+        let mut k = 0usize;
+        while k + LANES <= n {
+            let mut w2 = [_mm_setzero_si128(); LANES];
+            for l in 0..LANES {
+                w2[l] = w2_of((lo + k + l) as u64);
+            }
+            compress_lanes(abef8, cdgh8, w0, w1, w2, w3, iv_abef, iv_cdgh, &mut res);
+            for l in 0..LANES {
+                store_digest(res[l][0], res[l][1], &mut out[(k + l) * 32..(k + l + 1) * 32]);
+            }
+            k += LANES;
+        }
+        if k < n {
+            // The tail: pad the lanes with repeats of the last index (their
+            // outputs are dropped).
+            let mut w2 = [_mm_setzero_si128(); LANES];
+            for l in 0..LANES {
+                let i = (lo + (k + l).min(n - 1)) as u64;
+                w2[l] = w2_of(i);
+            }
+            compress_lanes(abef8, cdgh8, w0, w1, w2, w3, iv_abef, iv_cdgh, &mut res);
+            for l in 0..(n - k) {
+                store_digest(res[l][0], res[l][1], &mut out[(k + l) * 32..(k + l + 1) * 32]);
+            }
         }
     }
 }
@@ -813,7 +1046,12 @@ pub fn expand_level_matrix_par_v2(
     const WB: usize = 8192;
     let round_up = |b: usize| -> usize { b.div_ceil(WB / 4) * (WB / 4) };
     let mut n_blocks = round_up(((n_el as u128 * 8 * 1002 / 1000) / 32) as usize + 16);
-    let mut stream: Vec<u8> = Vec::new();
+    // [UPERF2-Q] the stream buffer is a process-wide scratch (taken here,
+    // returned below): its pages stay mapped between calls, and the bytes
+    // are never zeroed — every byte of [have*32, n_blocks*32) is written by
+    // `crs_blocks_into` before the counters or the walk read it.
+    let mut stream: Vec<u8> = std::mem::take(&mut *CRS_SCRATCH.lock().expect("crs scratch"));
+    stream.clear();
     let mut counts: Vec<usize> = Vec::new(); // accepted words per word block (WB words = 256 SHA blocks)
     let accepted = |w: &[u8]| -> bool { (u64::from_le_bytes(w.try_into().unwrap()) >> shift) < q };
     let mut prefix: Vec<usize> = vec![0];
@@ -822,7 +1060,12 @@ pub fn expand_level_matrix_par_v2(
         let have = stream.len() / 32;
         {
             let _tb = prof::timer(prof::M_CRS_BLOCKS); // [UPERF2-M] observation only
-            stream.resize(n_blocks * 32, 0);
+            let new_len = n_blocks * 32;
+            stream.reserve(new_len - stream.len());
+            // SAFETY: u8 has no invalid bit patterns and the whole range
+            // [have*32, new_len) is overwritten by `crs_blocks_into` below
+            // before any read (its length assert covers exactly that range).
+            unsafe { stream.set_len(new_len) };
             crs_blocks_into(&key, have, n_blocks, &mut stream[have * 32..n_blocks * 32]);
         }
         let _tw = prof::timer(prof::M_CRS_WALK); // [UPERF2-M] observation only
@@ -847,7 +1090,8 @@ pub fn expand_level_matrix_par_v2(
     // Poly ranges per thread; each walks its own words from the located start.
     let n_ranges = if threads() > 1 { (threads() * 4).min(n_polys).max(1) } else { 1 };
     let per = n_polys.div_ceil(n_ranges);
-    let stream = &stream;
+    let stream_owned = stream;
+    let stream = &stream_owned;
     let prefix = &prefix;
     let parts: Vec<Vec<Poly>> = map_ordered_min(n_ranges, 2, |ri| {
         let p0 = ri * per;
@@ -897,8 +1141,23 @@ pub fn expand_level_matrix_par_v2(
     for part in parts {
         out.extend(part);
     }
+    // [UPERF2-Q] return the scratch (keep up to CRS_SCRATCH_KEEP bytes
+    // resident; the level-0 A streams of the 12x512 rig are bigger and are
+    // used once per process — freed).
+    {
+        let mut stream = stream_owned;
+        stream.clear();
+        if stream.capacity() > CRS_SCRATCH_KEEP {
+            stream = Vec::new();
+        }
+        *CRS_SCRATCH.lock().expect("crs scratch") = stream;
+    }
     out
 }
+
+/// [UPERF2-Q] The CRS stream scratch (see `expand_level_matrix_par_v2`).
+static CRS_SCRATCH: Mutex<Vec<u8>> = Mutex::new(Vec::new());
+const CRS_SCRATCH_KEEP: usize = 512 << 20;
 
 pub fn expand_level_matrix(
     seed: u64,
@@ -1507,6 +1766,14 @@ pub fn decompose_poly_small_ref(p: &[i64], e: u32, l: usize) -> Vec<Vec<i64>> {
 /// [UPERF2-M] `digits::exact_digit_decompose(x, e0, out.len())` written
 /// into `out` — the same arithmetic (sign-binary at e0 = 1, the balanced
 /// base-2^e0 digits otherwise, the same range panics), no allocation.
+/// [UPERF2-Q] The balanced digit is the UNIQUE d == rem (mod 2^e0) in
+/// [-half, half) (the div/mod body lands there: rem % base then the two
+/// adjustments), so it is `((rem + half) & mask) - half` and the carry
+/// `(rem - d) >> e0` is the exact quotient of a multiple of 2^e0 — the
+/// same digits without the two integer divisions per digit (a per-digit
+/// libdiv was ~1.3 s of the 12x512 witness build). `digits::
+/// exact_digit_decompose` remains the oracle (uperf-q leg + the D / F
+/// batteries' digit legs).
 #[inline]
 fn digits_into_local(x: i64, e0: u32, out: &mut [i64]) {
     let l = out.len();
@@ -1518,19 +1785,13 @@ fn digits_into_local(x: i64, e0: u32, out: &mut [i64]) {
             *o = s * (((a >> j) & 1) as i64);
         }
     } else {
-        let base = 1i64 << e0;
-        let half = base >> 1;
+        let mask = (1i64 << e0) - 1;
+        let half = 1i64 << (e0 - 1);
         let mut rem = x;
         for o in out.iter_mut() {
-            let mut d = rem % base;
-            if d >= half {
-                d -= base;
-            }
-            if d < -half {
-                d += base;
-            }
+            let d = ((rem + half) & mask) - half;
             *o = d;
-            rem = (rem - d) / base;
+            rem = (rem - d) >> e0;
         }
         assert!(rem == 0, "digit range exhausted for {x}");
     }
@@ -2170,6 +2431,11 @@ pub struct MultiClaimKernel {
     pub scale: KElem,
     pub row_kernel: std::rc::Rc<Vec<KElem>>,
     pub col_kernel: std::rc::Rc<Vec<KElem>>,
+    /// [UPERF2-Q] memo of `kernel_row_factors` (scale * row for every row
+    /// — a pure function of (q, s, scale, rows), keyed by (q, s)); the four
+    /// consumers of a group's kernels per pass (the rows pass, the level-h
+    /// source, the two factored psi builds) computed it four times.
+    pub row_factors: std::cell::OnceCell<(u64, u64, Vec<KElem>)>,
 }
 
 /// Reference Phi_0 of one digit ring under the ADDITIVE multi-claim
@@ -2272,11 +2538,34 @@ fn psi_level0_multi_impl(
     assert_eq!(alphas.len(), K_DEG);
     let zq = &ctx.zq;
     let r = c.len();
+    let cmax: u128 = c.iter().flat_map(|ck| ck.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0);
+    // [UPERF2-Q] THE DEVICE COMBINE HOOK: Psi_u = sum_k c_k (x) Phi_0[k*chunk
+    // + u] with Phi_0 streamed from the factored source's pool (one value
+    // ring per value ring, the limb radix applied on the device) — the exact
+    // r-term contract (|c| <= cmax, |Phi_0| <= (q-1)/2: r <= the window), K's
+    // canonical arithmetic, center -> mod q: the value `compute_psi(Phi_0)`
+    // and this function's bodies below both compute (F's / M's battery
+    // legs). Declines (q >= 2^32, small shapes, session off, oracle mode)
+    // run the bodies below — the oracle.
+    if !pre_o5 && r > 0 && chunk > 0 && super::gpu::enabled() && ntt_window_terms(zq.q, cmax) >= r && super::gpu::combine_accepts(zq.q, r, chunk, 1) {
+        let src = Phi0Source::new_for(ctx, kf, group, kernels, alphas, false);
+        if let Some(super::gpu::CombineResult::ModQ(psi)) = super::gpu::combine_stream::<[i8]>(
+            zq.q,
+            c,
+            super::gpu::CombineSrc::Pool(&src),
+            r,
+            chunk,
+            1,
+            super::gpu::CombineOut::ModQ { two_l: None },
+            false,
+        ) {
+            return psi;
+        }
+    }
     let c_polys: Vec<Poly> = c.iter().map(|ck| poly_from_small(zq, ck)).collect();
     let mut psi = vec![poly_zero(); chunk];
     let mut cache = ColBlockCache::new(); // [UPERF-PC O5] per-(col kernel, cb) G blocks
     let mut ntt_tensors: Vec<PsiAlignedTensor> = Vec::new(); // [UPERF2-M]
-    let cmax: u128 = c.iter().flat_map(|ck| ck.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0);
     for (ti, t) in group.tensors.iter().enumerate() {
         let kers: Vec<&MultiClaimKernel> =
             kernels.iter().filter(|k| k.tensor_idx == ti).collect();
@@ -2859,10 +3148,18 @@ pub fn phi0_reference_multi(
 /// [UPERF2-M] parallel over rows (independent K-mults, order kept) on the
 /// fold-reduced K-mult (`kmul_fast` == `kf.mul`).
 fn kernel_row_factors(kf: &KField, ker: &MultiClaimKernel) -> Vec<KElem> {
+    // [UPERF2-Q] the per-kernel memo (the same values: a pure function).
+    if let Some((q, s, v)) = ker.row_factors.get() {
+        if *q == kf.zq.q && *s == kf.s {
+            return v.clone();
+        }
+    }
     let qf = QFold::new(kf.zq.q);
     let rows: &[KElem] = &ker.row_kernel;
     let scale: &KElem = &ker.scale;
-    map_ordered_min(rows.len(), MAP_MIN_PAR, |i| kmul_fast(kf, &qf, scale, &rows[i]))
+    let v: Vec<KElem> = map_ordered_min(rows.len(), MAP_MIN_PAR, |i| kmul_fast(kf, &qf, scale, &rows[i]));
+    let _ = ker.row_factors.set((kf.zq.q, kf.s, v.clone()));
+    v
 }
 
 // ---------------------------------------------------------------------------
@@ -3144,7 +3441,10 @@ impl PhiFactored {
     ) -> Self {
         let _t = prof::timer(prof::M_PHI_SETUP); // [UPERF2-M] observation only
         let srs = kers.iter().map(|k| kernel_row_factors(kf, k)).collect();
-        cache.g_prepare(ctx, kf.s, kers, nb, alphas); // [UPERF2-M] block-parallel build
+        {
+            let _tg = prof::timer(prof::Q_PHI_GBLOCKS); // [UPERF2-Q] observation only: the G blocks' share of phi-setup
+            cache.g_prepare(ctx, kf.s, kers, nb, alphas); // [UPERF2-M] block-parallel build
+        }
         let gs = kers
             .iter()
             .map(|k| (0..nb).map(|cb| cache.g(ctx, kf.s, k, cb, alphas)).collect())
@@ -3956,6 +4256,7 @@ pub fn kernel_pass_factored_gen<B: SmallRings + ?Sized>(
             // T rings as the u128 body (`rows_t_rings_u128`, the pre-change
             // path, verbatim). Both return the reduced T rings [ki][d1][cb].
             let simd_p = if psi_simd_enabled() && t.rows < (1usize << 20) { psi_mac_simd_params(q) } else { None };
+            let _tt = prof::timer(prof::Q_ROWS_T); // [UPERF2-Q] observation only: the T rings' share of the rows pass
             let t_rings: Vec<Poly> = match simd_p {
                 Some(p) => rows_t_rings_avx2(w0, t, &radixes, &srs, nb, n_vr, &p),
                 None => {
@@ -3984,6 +4285,7 @@ pub fn kernel_pass_factored_gen<B: SmallRings + ?Sized>(
                         .collect()
                 }
             };
+            drop(_tt);
             // b_rows[cd] += sum_ki sum_cb sum_d1 CQ[ki][cb][d1][cd] * T[ki][d1][cb],
             // CQ[d1][cd] = sigma(cd, d1) * CQ0[(cd - d1) mod 16] (sigma = s
             // if cd < d1): 16 x 16 ring products per (kernel, cb) block —
@@ -4445,7 +4747,10 @@ pub fn fold_chunks_ntt_gen<B: SmallRings + ?Sized>(cs: &[Vec<i64>], w: &[&B], ch
         return vec![vec![0i64; D]; chunk];
     }
     let cmax: u128 = cs.iter().flat_map(|c| c.iter()).map(|&x| x.unsigned_abs() as u128).max().unwrap_or(0);
-    let wmax: u128 = w.iter().map(|s| s.max_abs()).max().unwrap_or(0);
+    // [UPERF2-Q] the flat i8 store is |w| <= 127 by construction: the bound
+    // stands in for the scan of the whole store (it only feeds the capacity
+    // check; the designed regimes fit at 127 exactly as at the true max).
+    let wmax: u128 = if w.iter().all(|s| s.as_i8().is_some()) { 127 } else { w.iter().map(|s| s.max_abs()).max().unwrap_or(0) };
     // (bounds beyond 2^48 are outside every designed regime — quinary c,
     // digits |w| <= 64 — and could overflow the u128 capacity product:
     // straight to the oracle)
@@ -4457,6 +4762,16 @@ pub fn fold_chunks_ntt_gen<B: SmallRings + ?Sized>(cs: &[Vec<i64>], w: &[&B], ch
         return fold_chunks_ref_gen(cs, w, chunk);
     }
     let _tm = prof::timer(prof::M_FOLD_NTT); // [UPERF2-M] observation only
+    // [UPERF2-Q] THE DEVICE COMBINE HOOK: the same r exact products per
+    // output (K's canonical arithmetic, the exact centered recovery) — the
+    // loop below is its oracle (declined / bypassed / default build).
+    if super::gpu::enabled() {
+        if let Some(super::gpu::CombineResult::I64(z)) =
+            super::gpu::combine_stream::<B>(0, cs, super::gpu::CombineSrc::Small(w), r, chunk, 1, super::gpu::CombineOut::ExactI64, false)
+        {
+            return z;
+        }
+    }
     let t = &*NTT;
     let c_hat: Vec<[u64; D]> = cs.iter().map(|c| fwd_small(c, t)).collect();
     let one = |u: usize| -> Vec<i64> {
@@ -4549,6 +4864,29 @@ pub fn compute_psi_ntt(ctx: &RingCtx, phi: &[Poly], chunk: usize, c: &[Vec<i64>]
     if window < r {
         return compute_psi_ref(ctx, phi, chunk, c);
     }
+    // [UPERF2-Q] THE DEVICE COMBINE HOOK (the phi slices, ragged tail
+    // zero-padded by the pack; the loop below is its oracle).
+    if super::gpu::enabled() && super::gpu::combine_accepts(q, r, chunk, 1) {
+        let ops: Vec<&[Poly]> = (0..r)
+            .map(|k| {
+                let lo = (k * chunk).min(phi.len());
+                let hi = ((k + 1) * chunk).min(phi.len());
+                &phi[lo..hi]
+            })
+            .collect();
+        if let Some(super::gpu::CombineResult::ModQ(o)) = super::gpu::combine_stream::<[i8]>(
+            q,
+            c,
+            super::gpu::CombineSrc::ModQ(&ops),
+            r,
+            chunk,
+            1,
+            super::gpu::CombineOut::ModQ { two_l: None },
+            false,
+        ) {
+            return o;
+        }
+    }
     let t = &*NTT;
     let c_hat: Vec<[u64; D]> = c.iter().map(|ck| fwd_small(ck, t)).collect();
     let one = |u: usize| -> Poly {
@@ -4613,9 +4951,41 @@ pub fn ntt_combine_general(ctx: &RingCtx, alphas: &[Poly], ops: &[&[Poly]], m: u
     if !one_sided && !two_sided {
         return ntt_combine_general_ref(ctx, alphas, ops, m);
     }
+    let two_l = (1u64 << l) % q;
+    // [UPERF2-Q] THE DEVICE COMBINE HOOK (the one-sided regime): the two
+    // alpha limb rows (`split_limbs` of the balanced alphas, as `fwd_modq_
+    // limbs` lifts them) against the operands, out = V0 + 2^L V1 mod q on
+    // the device — the same exact integers; the loop below is its oracle.
+    if one_sided && super::gpu::enabled() && super::gpu::combine_accepts(q, n, m, 2) {
+        use super::aux::{balanced_mod_q, split_limbs};
+        let mut cl: Vec<Vec<i64>> = Vec::with_capacity(2 * n);
+        for lim in 0..2 {
+            for a in alphas.iter() {
+                cl.push(
+                    (0..D)
+                        .map(|i| {
+                            let (lo, hi) = split_limbs(balanced_mod_q(a[i], q), l);
+                            if lim == 0 { lo } else { hi }
+                        })
+                        .collect(),
+                );
+            }
+        }
+        if let Some(super::gpu::CombineResult::ModQ(o)) = super::gpu::combine_stream::<[i8]>(
+            q,
+            &cl,
+            super::gpu::CombineSrc::ModQ(ops),
+            n,
+            m,
+            2,
+            super::gpu::CombineOut::ModQ { two_l: Some(two_l) },
+            false,
+        ) {
+            return o;
+        }
+    }
     let t = &*NTT;
     let a_hat: Vec<[[u64; D]; 3]> = alphas.iter().map(|a| fwd_modq_limbs(a, q, l, t)).collect();
-    let two_l = (1u64 << l) % q;
     let two_2l = mul_q(two_l, two_l, q);
     let one = |u: usize| -> Poly {
         let mut acc = [NttAcc::new(); 3]; // [UPERF2-M]
@@ -5001,6 +5371,13 @@ pub trait SmallRings: Sync {
     fn is_zero(&self, u: usize) -> bool;
     /// The sub-slice of rings [lo, hi).
     fn sub(&self, lo: usize, hi: usize) -> &Self;
+    /// [UPERF2-Q] The flat i8 bytes when the store IS the flat store
+    /// (n_rings * D bytes, ring u at [u*D, (u+1)*D)); None for the boxed
+    /// store. A pack fast path only — the values are the same i64s
+    /// `ring()` yields.
+    fn as_i8(&self) -> Option<&[i8]> {
+        None
+    }
 }
 
 impl SmallRings for [Vec<i64>] {
@@ -5067,6 +5444,10 @@ impl SmallRings for [i8] {
     #[inline(always)]
     fn sub(&self, lo: usize, hi: usize) -> &Self {
         &self[lo * D..hi * D]
+    }
+    #[inline(always)]
+    fn as_i8(&self) -> Option<&[i8]> {
+        Some(self) // [UPERF2-Q]
     }
 }
 
@@ -5258,7 +5639,13 @@ pub struct Phi0Source {
 
 impl Phi0Source {
     pub fn new(ctx: &RingCtx, kf: &KField, group: &AggGroup, kernels: &[MultiClaimKernel], alphas: &[Poly]) -> Phi0Source {
-        let _t = prof::timer(prof::BG_KPHI); // [UPERF-PC] observation only (the phi pass's slot)
+        Self::new_for(ctx, kf, group, kernels, alphas, true)
+    }
+
+    /// [UPERF2-Q] The body; `timed` = false leaves the phi pass's timer
+    /// slot alone (the device psi0 builds a source inside ep.psi0-factored).
+    pub fn new_for(ctx: &RingCtx, kf: &KField, group: &AggGroup, kernels: &[MultiClaimKernel], alphas: &[Poly], timed: bool) -> Phi0Source {
+        let _t = if timed { Some(prof::timer(prof::BG_KPHI)) } else { None }; // [UPERF-PC] observation only (the phi pass's slot)
         assert_eq!(alphas.len(), K_DEG);
         let zq = &ctx.zq;
         let mut cache = ColBlockCache::new();
@@ -5340,6 +5727,101 @@ impl Phi0Source {
         self.fill(zq, 0, self.n_digit_rings, &mut out);
         out
     }
+
+    // [UPERF2-Q] The window as a POOL of source rings + per-ring
+    // descriptors — the device level-h session's a-operand form: Phi_0[v]
+    // = radix * pool ring (mod q), so the session uploads one u32 ring per
+    // VALUE ring touched (not one per digit ring) and applies the limb
+    // radix on the device before the lift (`k_ntt_fwd_pool`). The
+    // consumer's `(pool * radix) % q` is the canonical residue
+    // `poly_scale(radix, value_ring)` writes in `fill` — the same value.
+
+    /// [UPERF2-Q] The number of pool rings the window [v0, v0 + n) needs:
+    /// one per aligned value ring touched, one per small-cols digit ring;
+    /// zero rings and the pad past the group share the caller's zero
+    /// slot. Layout-only (no arithmetic).
+    pub fn pool_count(&self, v0: usize, n: usize) -> usize {
+        let v1 = v0 + n;
+        let mut cnt = 0usize;
+        for (base, c, form) in &self.tensors {
+            let (lo, hi) = ((*base).max(v0), (base + c).min(v1));
+            if lo >= hi {
+                continue;
+            }
+            match form {
+                Phi0Tensor::Zero => {}
+                Phi0Tensor::Small { .. } => cnt += hi - lo,
+                Phi0Tensor::Aligned { l0, .. } => {
+                    let (rel_lo, rel_hi) = (lo - base, hi - base);
+                    cnt += (rel_hi - 1) / l0 - rel_lo / l0 + 1;
+                }
+            }
+        }
+        cnt
+    }
+
+    /// [UPERF2-Q] Write the window [v0, v0 + n): `pool[i*D..(i+1)*D]` =
+    /// pool ring i (u32 mod-q; `pool_count(v0, n)` of them, in window
+    /// order) and `desc[j] = [pool_base + i, radix]` for j in 0..n such that
+    /// Phi_0[v0 + j] == radix * pool ring i (mod q); zero rings / the pad
+    /// get `[zero_slot, 0]`. Requires q < 2^32. Returns the pool rings
+    /// written. Aligned tensors: one `value_ring` per value ring (the
+    /// same MAC `fill` runs), radix = the limb's `radixes[l]`; small-cols
+    /// tensors: the materialized ring, radix 1.
+    pub fn fill_pool_u32(&self, zq: &Zq, v0: usize, n: usize, pool_base: u32, zero_slot: u32, pool: &mut [u32], desc: &mut [[u32; 2]]) -> usize {
+        assert!(zq.q < (1u64 << 32), "fill_pool_u32: q must fit u32");
+        assert!(desc.len() >= n);
+        let v1 = v0 + n;
+        let mut k = 0usize; // pool rings written
+        for (base, cnt, form) in &self.tensors {
+            let (lo, hi) = ((*base).max(v0), (base + cnt).min(v1));
+            if lo >= hi {
+                continue;
+            }
+            match form {
+                Phi0Tensor::Zero => {
+                    for v in lo..hi {
+                        desc[v - v0] = [zero_slot, 0];
+                    }
+                }
+                Phi0Tensor::Small { rings } => {
+                    for v in lo..hi {
+                        let ring = &rings[v - base];
+                        let dst = &mut pool[k * D..(k + 1) * D];
+                        for c in 0..D {
+                            dst[c] = ring[c] as u32;
+                        }
+                        desc[v - v0] = [pool_base + k as u32, 1];
+                        k += 1;
+                    }
+                }
+                Phi0Tensor::Aligned { pf, radixes, l0 } => {
+                    let (rel_lo, rel_hi) = (lo - base, hi - base);
+                    let mut vr = rel_lo / l0;
+                    let mut buf = [0u64; D];
+                    while vr * l0 < rel_hi {
+                        pf.value_ring_into(vr, &mut buf);
+                        let dst = &mut pool[k * D..(k + 1) * D];
+                        for c in 0..D {
+                            dst[c] = buf[c] as u32;
+                        }
+                        let a = rel_lo.max(vr * l0);
+                        let b = rel_hi.min((vr + 1) * l0);
+                        for rel in a..b {
+                            desc[base + rel - v0] = [pool_base + k as u32, radixes[rel - vr * l0] as u32];
+                        }
+                        k += 1;
+                        vr += 1;
+                    }
+                }
+            }
+        }
+        let tail0 = self.n_digit_rings.max(v0).min(v1);
+        for v in tail0..v1 {
+            desc[v - v0] = [zero_slot, 0];
+        }
+        k
+    }
 }
 
 /// u-block of `level_h_pairs_with` (positions per block; r x block rings
@@ -5376,6 +5858,19 @@ pub fn level_h_pairs_with_block<B: SmallRings + ?Sized>(
     let mut g = vec![poly_zero(); r * r];
     if r == 0 || chunk == 0 {
         return level_h_from_g(zq, &g, r);
+    }
+    // [UPERF2-Q] THE DEVICE SESSION HOOK: with the `gpu-cuda` feature,
+    // `ZK_GPU=1` and a live device, the r x r table is accumulated ON THE
+    // DEVICE across the level's u-blocks (`gpu::level_h_stream`: the phi
+    // window as a value-ring pool + limb radix expanded on the device, w
+    // packed i8, the split-halves accumulator resident, one flush per
+    // exact-integer window) — bit-identical to the loop below, which is
+    // its oracle (declined / bypassed / `ZK_UPERF_ORACLE=1` / default
+    // build). See gpu/cuda.rs `level_h`.
+    if !oracle_mode() && super::gpu::enabled() {
+        if let Some(gd) = super::gpu::level_h_stream(ctx, src, w, chunk, block) {
+            return level_h_from_g(zq, &gd, r);
+        }
     }
     let mut phi_buf: Vec<Poly> = vec![poly_zero(); r * block];
     let mut u0 = 0usize;

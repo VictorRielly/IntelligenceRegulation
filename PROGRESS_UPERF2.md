@@ -939,6 +939,153 @@ its `*_ref` oracle behind `ZK_UPERF_ORACLE=1`; `uperf-pc diff-battery`
 rows, the rig digests. Report before/after per item, rig rows, what
 is left.
 
+## Orchestrator status (2026-08-18, after round 9 — P + Q) — 21.0 s; THE KERNEL CURVE HAS FLATTENED
+
+- Lanes P (one launch per fused round over a device range table, the
+  eq b-part built on the device, a slab/buddy device allocator that
+  ended the alloc churn / cold pages of the biggest layers, the tree
+  builds 42-45 -> 17 ms; the K-mult probe `uperf-p kprobe`: the round
+  kernels run at 70-88% of the register-only K-mult ceiling on this
+  part — lane L's "16% of peak" was against a nominal rate; a
+  distributed/unrolled variant MEASURED slower, kept behind
+  `ZK_GPU_K9_KVAR=1`) and Q (the level-h DEVICE SESSION — the h table
+  accumulated on the device across u-blocks, phi as a value-ring pool
+  with the radix applied on the device; ONE combine kernel for the
+  "few fixed small rings x many streamed slices" family behind the
+  quinary fold / factored psi0 / transport / compute_psi; the chain
+  GEMM as an exact int8 device kernel; balanced digits and floor
+  requant by mask/shift; the flat store's bound instead of max_abs
+  scans; a row-factor memo; CRS SHA-256 blocks on a hand-written
+  4-lane SHA-NI core, no new crate, byte-identical) MERGED (214ebc5,
+  this merge), gates green in both builds (uperf-p 182 legs, uperf-q
+  101/101 + 4/4, l/n/o/k/pc/d/a/g/h/j/m/c/e/f under ZK_GPU=1; freeze
+  rows identical; agg-matmul / bh / self-test).
+- **12x512 full statement on the reference box, ZK_THREADS=8 + the
+  RTX 4070 Laptop (`ZK_GPU=1`), QUIET, three consecutive runs: 21.0 /
+  21.1 / 20.9 s = commit 2.5 + prove 15.5 + verify 1.7; peak RSS 6.7
+  GB; CPU-only 81.5 s (7.2 / 70.2 / 2.6, 11.1 GB); 1,509,911 B; every
+  digest identical (statement 2f8a92f8… / EVAL 4c259008…).** 12x128
+  8T+GPU 10.5 s (3.9 GB), 3x16 3.4 s (verify 0.5). P alone 30.1
+  [NOISY], Q alone 25.0 [NOISY], together 21.0 QUIET (from 34.1).
+  Since the 2026-08-17 status recalculation (155.6 s at 8T CPU on this
+  box; 4,811 s prove at 1T on the Mac before the tranche) the PoC
+  shape is 7.4x faster on the same machine, byte-identical; the
+  same-box oracle A/B at 3x16 is 682.8 s -> 3.4 s (~200x).
+- 12x512 8T+GPU attribution at 21.0 s (`fp_12x512_PQ_gpu_r1.txt`):
+  prove-group 7.1 (level-h 1.9 — device-bound at ~10 ms per stage in
+  K's GEMM; kernel-rows 1.8 = q.rows-t 1.1 host T rings; psi0 1.6 =
+  q.cb-fill 0.9 host PHI MAC; fold 0.85; matvec-chunks 0.8), descents
+  6.5 (a.round-g 4.6 = 3.9 s of kernels at 70-88% of the K-mult
+  ceiling + 0.4 hook + 0.3 CPU tail; trees 1.6 = tree-pack 0.75 host
+  fill + tree-step 0.8), commit 2.5 (precommit-u0 1.6, chain-derive
+  1.0 incl. ~0.5 s device init, digits 0.4), claim layer 1.75
+  (cl-rounds 0.9), verify 1.7, transport 1.4, CRS 1.3 (blocks 0.5,
+  walk ~0.7 of allocations). No block above 2 s except the two kernel
+  families that are at their ceilings on this part.
+- **The kernel curve has flattened.** What both lanes list as left
+  (GPU4 §5, EVALPROOF3 §5) sums to ~3-4 s [ASSUMED] of the 21 s: the
+  rows pass's T rings on the device (~0.7), K's GEMM tile loads (~0.5),
+  the fixed-multiply matrix form + lazy reduction in the round kernels
+  (~10-15% of 3.9 = ~0.5), slab pre-allocation (~0.5 once), the CRS
+  poly walk on a flat store (~0.7), overlapping the tree fill with the
+  previous build (~0.5). Ten rounds of differential kernel work took
+  155.6 -> 21.0 s on this machine; a further round buys ~1.15x. The
+  remaining ~15-17 s are the protocol's shape — the descents' rounds,
+  the claim/opening layers, commit — each already at the arithmetic's
+  rate on this part.
+- **Position against TARGET_CONTRACT and the fallback rule
+  (CONTINUATION.md §3):** in proven int8 matmul MAC/s (the conversion
+  note in AGGREGATION_LITERATURE.md, 2026-08-18): 2.9e10 MACs / 21.0 s
+  = **1.4e9 MAC/s measured** on this 55-70 W part vs the contract's
+  1.9-5.8e11 (5-15 s at 8B x 512 tokens): 140-420x below on this part,
+  ~25-100x below on a <= 450 W desktop board [MODEL 4-6x] — i.e. **the
+  8B FFN in ~2-8 minutes on one desktop GPU with the current protocol
+  [MODEL]** — and ~1,100x below Attestable's vendor-claimed 1.6e12 on
+  an H100 (~80-230x hardware-normalized). Phases 0-3 are now MEASURED
+  on the 125M rig and a named GPU, and the residual is not a kernel
+  gap: this is the juncture the fallback rule names. The ruling is
+  Victor's; the orchestrator's decision memo (below) lays out the
+  three routes with what each costs and what each can be expected to
+  buy. Verify: 1.7 s at 8T on the full 12x512 statement — the
+  contract's <= 2 s line is met at 8 threads; at 1 thread it is not
+  (T11 a'), a wording amendment ("single machine, N threads stated")
+  or the protocol change.
+- Build notes for whoever comes next: (1) the first process on a new
+  `kernels_k9.cu` pays NVRTC ~460 s + JIT ~100 s once (then cached) —
+  precompiling the .cu to PTX/cubin at build time is a small item;
+  (2) `eval_proof.rs:812` emits `warning[E0133]` (an `_mm_set_epi32`
+  call inside a `#[target_feature]` fn wants an `unsafe` block) — a
+  future hard error on newer toolchains; wrap it (lane Q's SHA-NI
+  core; trivial, no value change).
+
+## Decision memo (orchestrator, 2026-08-18) — the three routes after the kernel phase
+
+The question for Victor: the lattice line's kernel phase is measured
+out at 21 s for the 12x512 slice of 125M on the reference box (2-8
+min projected for the 8B contract shape on a desktop GPU [MODEL]);
+5-15 s at 8B needs another 25-100x on that class of hardware. Three
+routes; none is a kernel round; each needs a ruling before work.
+
+1. **Lattice line, protocol change (T11): a sumcheck-class opening
+   layer over the committed matmul.** What is measured: descents +
+   claim/opening layers + commit are ~13 of the 21 s (the descents'
+   fused rounds ARE a sumcheck-class object already; the cost is in
+   the K-field arithmetic per round — the 31-word exact chains — and
+   in the number of rounds/pairs the ten folded table-descent pairs
+   produce). A design that (a) folds the per-tensor descents into ONE
+   batched sumcheck per level over the committed digits (fewer, wider
+   rounds — the round kernels are at their ceiling per K-mult but do
+   1,233 launches of small grids), (b) moves the range facts' zero-
+   checks and the lookup's masked descent onto that same object, and
+   (c) keeps the lattice commitment (post-quantum, exact-integer
+   soundness — the reason the line is first) is the T11 (a')-type
+   change. Expected: 3-10x on the prover [MODEL, unmeasured — the
+   round count and K-field cost per round are the two levers; a
+   design memo with the counted rounds/pairs before and after is the
+   first deliverable, ~1 lane-day; the build is a tranche (weeks),
+   transcript-changing (freeze rows re-pinned, Victor's ruling)]. It
+   does NOT by itself reach 25-100x; combined with the r-cap R-row
+   (T11 b) and a desktop GPU it lands the 8B shape in the ~15-160 s
+   class ((2-8 min) / (3-10x), [MODEL]) — a real product number, not
+   the headline.
+2. **The other channel (Attestable-class: hash-based sumcheck/GKR
+   prover, integer matmuls, float nonlinears) as a parallel prototype
+   with an honest comparison row.** What is known: vendor-claimed
+   1.6e12 MAC/s on an H100 (no paper/code as of 2026-08-18); the
+   published open systems (zkLLM 13B in ~15 min on a GPU, DeepProve-1
+   GPT-2-class, zkPyTorch Llama-3-8B ~150 s/token) sit 10-1,000x
+   below that claim. A prototype on OUR statement (the 125M FFN
+   12x512 with the same int8 semantics) in an existing open GKR/
+   sumcheck framework, measured on this GPU, is the honest comparison
+   row the fallback rule asks for; cost ~1-2 lane-weeks; it changes
+   the assumption class (hash-based, ~100-bit) and drops the exact-
+   integer range facts unless re-built. Expected: unknown until
+   measured; the claim, if it holds, is above the contract line.
+3. **Hardware measurement instead of the [MODEL] factor.** The
+   contract names a <= 450 W GPU; every projection above carries the
+   4-6x [MODEL] from a 55-70 W laptop part. The Mac's M3 Ultra (80-core
+   GPU, ~800 GB/s, 256 GB unified — no PCIe link: the host<->device
+   fills that remain in this pass are ~2 s of the 21 [MEASURED:
+   q.cb-fill 0.9, a.tree-pack 0.75, q.lh-fill 0.35] and the 12x512
+   pass would not be memory-bound there) is a named GPU Victor owns:
+   a Metal port of the ~10
+   device kernels (NVRTC CUDA C today; the split-halves GEMM, the
+   fused descent round, the tree step, the ixf round/fold, the combine
+   family) is ~1-2 lane-weeks and turns the projection into a
+   measurement on the machine the tranche's history is written on
+   [MAC-BOX]. Not a route to 25-100x; it removes the biggest [MODEL]
+   from the arithmetic and lets the 12x512 pass run at 1T/8T/16T with
+   the GPU on the box Grok works on.
+
+Recommendation (orchestrator): (1)'s design memo first (one lane-day,
+no code, no ruling needed to write it — it counts rounds/pairs before
+and after and prices the transcript change), (3) in parallel as
+Grok-shaped work once the kernel set is frozen (a port with a
+cell-by-cell battery per kernel is exactly the RUN+CODE-with-oracle
+shape TASK_BOARD gives Grok), and (2) only on Victor's ruling that the
+assumption class may move. Kernel rounds continue only if Victor wants
+the ~1.15x — the ledger's items are listed above with their sizes.
+
 ## Agent P status (wt-uperf2-p)
 
 STATE: LANDED (2026-08-18; HEAD of uperf2-p). Report:
@@ -1021,6 +1168,143 @@ iteration ~10 min compile); (c) pre-allocating the slabs at K9 init
 sequential phases); (d) a.tree-pack 0.71 s (the aligned witness's value
 closures over the threaded compact fill; overlapping it with the previous
 tree's asynchronous device build is a change in the bin's tree loop).
+
+## Agent Q status (wt-uperf2-q)
+
+PLAN (skeleton commit, 2026-08-18). Files: eval_proof.rs (level-h
+session hook + `Phi0Source::fill_u32` + the combine-kernel hooks, each
+with its `_ref` / oracle routing), gpu/cuda.rs + gpu/kernels.cu (the
+level-h streaming session on K's GEMM, the combine kernel), gpu/mod.rs
+(a `// [UPERF2-Q]` block: re-exports + stub), the bin's commit /
+prove-group regions, a `// [UPERF2-Q]` bin section with `uperf-q
+{battery, bench ...}`, ct_engine::prof ids 80-89 renamed in place,
+docs/zkmatrix-poc/U_PERF2_EVALPROOF3_REPORT.md. Order (the brief's):
+(1) level-h host side -> device session; (2) the other small-ring
+contractions (fold / transport S,T5 / compute_psi / psi0-ntt) through
+a device combine kernel; (3) commit phase (precommit-u0 attribution
+first, chain-derive, digit-witness); (4) CRS SHA-NI 4-way + stream
+buffer reuse; (5) transport. Every item: before/after with the same
+command, battery leg at 1/2/7T, commit.
+
+Baseline captures BEFORE any code change (151edc9 binaries saved as
+scratchpad/ring_matmul_base_151edc9 + ring_matmul_gpu_base_151edc9):
+freeze-check with the wsl export — 98 `ok` rows + BF/BK rows +
+"freeze-check passed" (scratchpad/q_freeze_baseline.txt).
+
+1. LEVEL-H DEVICE SESSION (e08dcc9 + the timing commit): the level-0 h
+   table accumulated on the device across the u-blocks —
+   `Phi0Source::fill_pool_u32` (one u32 value ring per VALUE ring
+   touched + (pool index, radix) per digit ring), `k_ntt_fwd_pool`
+   applies the limb radix on the device (`(pool * radix) % q` = the
+   `poly_scale` residue), w packed i8 straight from the flat store
+   (`SmallRings::as_i8`), K's split-halves accumulator resident across
+   the stages, one flush per exact-integer window (the i8 store's bound
+   127 -> no s_max scan when the level fits its window), ping-pong
+   staging so the host fill of stage i+1 overlaps the device work of
+   stage i. Hook at the top of `level_h_pairs_with_block` (the loop is
+   the oracle; `ZK_GPU_LH=0` / `set_lh_session(false)` = K's per-block
+   path for the one-binary A/B; `ZK_GPU_LH_BLOCK` / `set_lh_block` =
+   positions per stage). `uperf-q battery` 48/48 at ZK_THREADS 1/2/7,
+   BATTERY DIGEST a55256e3.. (fill-pool == fill on 11 windows; the
+   session == the CPU body cell by cell over r 3/5/8/17/64 x blocks
+   7/64/1024 x stages default/5/333 on the i8 store, the boxed store
+   and a boxed |w| = 2^20 store (i64 format, 64-term windows -> many
+   flushes); q46 declines; the hook GPU-live == bypassed);
+   `uperf-k battery` + `uperf-pc diff-battery` (ZK_GPU_MIN_MACS=0) green
+   on the GPU build. `uperf-q lh-bench 4096 4096 64` 8T [NOISY-SHARED]:
+   CPU body 1.353 s / K's per-block path 0.294 s / the session 0.100 s
+   (2.96x over K's; 10 stages of 64x64x1024 at 10 ms). RIGS (GPU build,
+   8T, flock; digests identical, accept): 3x16 4.0 s (level-h 0.25);
+   12x128 15.1 s (level-h 1.09; ledger 15.6); **12x512 31.5 s = commit
+   5.0 / prove 22.1 / verify 2.6 (was 34.1), RSS 6.70 GB; bg.level-h
+   4.61 -> 2.08 s (q.lh-stream 1.72 = 174 stages at 9.9 ms: device-bound
+   — fwd ~3 + gemm ~7 ms per stage; host fill 0.36, drain 0.07);
+   prove-group 12.30 -> 9.61** [WSL-BOX 8T QUIET-ish, load ~1.5-3, lane
+   P idle-ish].
+
+2. THE COMBINE SESSION (c0835db): ONE device kernel (`k_combine`: K
+   fixed small rings x K streamed slices -> split-halves cells per (t,
+   position), `k_flush_reduce` + `k_ntt_inv` (mode 1 mod-q / new mode 2
+   exact i64) per stage) behind hooks in `fold_chunks_ntt_gen` (small w
+   slices, exact i64), `psi_level0_multi_impl` (Phi_0 streamed from the
+   `Phi0Source` pool — the same fill as the level-h session, `k_ntt_fwd_
+   pool` layout 1), `ntt_combine_general`'s one-sided regime (the two
+   alpha limb rows, `k_limb_recombine` = V0 + 2^L V1 mod q on the device
+   — the transport's S / T5), `compute_psi_ntt` (ragged mod-q slices).
+   The CPU loops stay the oracles (`ZK_GPU_CB=0` / `set_cb_session`,
+   `ZK_GPU_CB_BLOCK`). `uperf-q battery` 97/97 at 1/2/7T (483481f2..),
+   uperf-pc/c/m/f green under ZK_GPU=1 MIN_MACS=0. 12x512 (NOISY):
+   psi0 2.62 -> 1.85, fold 1.85 -> 1.41, transport 1.90 -> 1.44, verify
+   2.6 -> 1.8; wall 30.8 s.
+3. CHAIN GEMM ON THE DEVICE (68c11e6): `k_gemm_i8` (exact int8 x int8 ->
+   i32) behind `bf_matmul_i64` (ZK_GPU_MM=0 A/B; uperf-q leg + uperf-d
+   30/30 46471467.. under the GPU) — the one-time device init (~0.5 s)
+   now lands in d.chain-derive instead of precommit (a wash). Plus the
+   flat i8 store's bound 127 in place of the whole-store `max_abs`
+   scans (fold wmax; K's per-call s_max when the call fits the
+   127-window): ep.matvec 1.61 -> 0.85, bg.fold 1.33 -> 0.82. 12x512
+   28.5 s.
+4. CRS SHA-NI (51f7366): a hand-written 4-lane SHA-NI core (std::arch,
+   NO new crate; the constant key quads' rounds 0-7 precomputed per
+   call; runtime-detected; `ZK_CRSNI=0` = the sha2 path =
+   `crs_blocks_into_ref`, the oracle) + the stream buffer as an unzeroed
+   process scratch (kept up to 512 MB). uperf-q leg (123105 blocks ==
+   sha2 incl. counters >= 2^32), uperf-m 37d6a49b.. (v2 == v1 == raw),
+   uperf-pc O1. m.crs-blocks 1.75 -> 0.55 s; ep.crs-expand 2.57 -> 1.46;
+   **12x512 8T+GPU 27.8 s = commit 3.5 / prove 20.7 / verify 1.9 (from
+   34.1), RSS 6.70 GB, digests identical** [WSL-BOX 8T, load 1.5-2.7 —
+   NOISY-SHARED-ish].
+
+5. DIGITS + REQUANT BY MASK/SHIFT, ROW-FACTOR MEMO (1c8f4c5, 6a4c700):
+   the balanced digit d == rem (mod 2^e0) in [-half, half) is unique, so
+   `((rem + half) & mask) - half` with the exact carry `>> e0` replaces
+   the two libdivs per digit (bin `digits_into` + eval_proof
+   `digits_into_local`; `digits_into_div` / `exact_digit_decompose` /
+   `decompose_poly_*_ref` are the oracles); `bf_floor_requant` by `>>`
+   / `&` (`bf_floor_requant_div` the oracle); `kernel_row_factors`
+   memoized per `MultiClaimKernel` (a new `OnceCell` field, keyed by
+   (q, s)). uperf-q legs (10204 digit values on every class + range
+   ends; 5632 requant values incl. i64 extremes), uperf-d/c/f/pc green.
+   d.digit-witness 1.13 -> 0.53, m.phi-setup 0.85 -> 0.26.
+
+**LANDED (2026-08-18). Final binary 6a4c700 (+ the report / ledger
+commits). 12x512 8T+GPU: 34.1 -> 25.0 s = commit 2.5 / prove 19.3 /
+verify 1.8, RSS 6.70 GB (unchanged); the brief's four blocks 22.1 ->
+12.3 s (prove-group 12.30 -> 7.02: level-h 4.61 -> 1.83, psi0 2.65 ->
+1.58, fold 1.89 -> 0.84, matvec-chunks 1.50 -> 0.79, kernel-phi 0.39 ->
+0.16, kernel-rows 1.77 -> 1.79 untouched; commit 5.02 -> 2.55; CRS 2.76
+-> 1.28; transport 1.95 -> 1.36; verify-group 2.43 -> 1.61) [WSL-BOX
+8T, load ~2.4 NOISY-SHARED-ish]. CPU-only 12x512 86.1 -> 81.2 s (7.2 /
+69.7 / 2.6, 11.0 GB) [NOISY]. 12x128 15.6 -> 12.2 s (RSS 3.5 -> 3.9
+GB: the <= 512 MB CRS scratch + pinned staging), 3x16 4.3 -> 3.6 s.
+Digests identical on every row and at every landing step. Gates:
+uperf-q 101/101 (GPU, 1/2/7T + MIN_MACS=0, one digest 0df38648..) and
+4/4 (default, c2f4ed16..); uperf-pc both builds 1T/7T; uperf-c/e/f/m
+(incl. every knob off + ZK_CRSNI=0)/i/d both builds; uperf-k; uperf-o/
+n/a/g/h/j under ZK_GPU=1 (ledger digests); freeze-check 98 ok rows +
+BF/BK + passed, IDENTICAL to the pre-change capture; agg-matmul,
+bh-verifier, self-test (247.7 s) passed. Report: docs/zkmatrix-poc/
+U_PERF2_EVALPROOF3_REPORT.md.**
+
+- DONE: items 1-5 LANDED; every gate green.
+- LEFT (report Section 5, with hook shapes): the rows pass's T rings on
+  the device (q.rows-t 1.15 s: one batched u32 GEMM per group with the
+  fold reduction, ~0.7 s [ASSUMED]); K's GEMM kernel (level-h device-
+  bound, ~0.5 s at 1.5x); the psi0 pool fill (host PHI MAC); the CRS
+  poly walk (~0.7 s of allocations; a flat CRS storage).
+- DECISIONS: `CRS_SCRATCH_KEEP` = 512 MB (12x512 peak unchanged; the
+  smaller rigs +0.2-0.4 GB — flip to 256 MB to trade ~0.2-0.3 s of
+  faults); the device init (~0.5 s) now shows in d.chain-derive (the
+  first device call moved from precommit) — a wash for the wall.
+- FOR THE MERGE: files touched are exactly the plan's (eval_proof.rs,
+  gpu/cuda.rs, gpu/kernels.cu, gpu/mod.rs [Q block], ct_engine.rs [Q
+  ids 80-88], the bin's commit / prove-group regions + the Q section +
+  the dispatch line, this ledger, the report); commit.rs and
+  aux_ntt_core.rs untouched; no new crate / feature; two struct
+  additions (`Gpu` fields in cuda.rs; `MultiClaimKernel::row_factors`
+  — its only constructor `bg_multi_kernels` sets it); new knobs
+  ZK_GPU_LH / ZK_GPU_LH_BLOCK / ZK_GPU_CB / ZK_GPU_CB_BLOCK / ZK_GPU_MM
+  / ZK_CRSNI (all default ON = the fast paths).
 
 ## Agent A status (wt-uperf2-a)
 

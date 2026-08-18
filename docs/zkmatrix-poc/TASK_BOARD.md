@@ -453,8 +453,21 @@ zero-check tables on a device-resident chain (O; the GEMM u32-limb
 form was measured and refuted) — **12x512: 34.1 s with the GPU at 8
 threads (commit 5.0 / prove 24.9 / verify 2.6), peak RSS 6.7 GB; 86.1
 s CPU-only; 12x128 15.6 s; 3x16 4.3 s; every digest identical.**
-Round 9 (PROGRESS_UPERF2 "Round 9"): P = the descent kernels + the
-per-round floor; Q = prove-group / commit / CRS / transport.
+Round 9 LANDED (214ebc5 + the Q merge): the descent kernels' floor
+(P: one launch per round, device eq, slab allocator — the kernels
+themselves are at 70-88% of the K-mult ceiling on this part) and the
+prover's CPU-side blocks (Q: level-h device session, one combine
+kernel family, int8 chain GEMM on device, mask/shift digits, 4-lane
+SHA-NI CRS) — **12x512: 21.0 s with the GPU at 8 threads (commit 2.5 /
+prove 15.5 / verify 1.7; three QUIET runs 21.0/21.1/20.9), 6.7 GB;
+81.5 s CPU-only; 12x128 10.5 s; 3x16 3.4 s; every digest identical.**
+THE KERNEL CURVE HAS FLATTENED (what is left sums to ~3-4 s): the
+next step is a ruling — PROGRESS_UPERF2.md "Decision memo
+(orchestrator, 2026-08-18)": (1) the lattice line's protocol change
+(T11: a batched sumcheck-class opening layer; design memo first),
+(2) the hash-based/float-mix channel as a comparison prototype,
+(3) a Metal port for the M3 Ultra as the named GPU. Grok-shaped
+work is (3) once the kernel set is frozen, plus T1.
 Honest position: 34 s is a 12x512 slice of the 125M FFN on a laptop
 GPU; the 8B contract shape is ~30-100x the work on a ~4-6x part [MODEL]
 (3-14 min) — "minutes on one desktop GPU" is the honest projection for
@@ -494,3 +507,7 @@ layers) — record `/usr/bin/time -l`'s number.
   Round 9 launched (P descent kernels, Q prove-group/commit/CRS/
   transport). Grok/Mac: T1 stands (`uperf-pc full-profile 12 512` at
   ZK_THREADS 1/8/16 + one `ZK_UPERF_ORACLE=1` run, digests must match).
+- 2026-08-18 (later): round 9 landed — 12x512 8T+GPU 21.0 s QUIET (x3),
+  CPU-only 81.5 s, digests identical; the kernel curve has flattened;
+  decision memo written for Victor (PROGRESS_UPERF2.md). Nothing new
+  for Grok until the ruling except T1 and the Metal-port question.

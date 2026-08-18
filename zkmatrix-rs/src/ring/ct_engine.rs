@@ -2567,15 +2567,15 @@ pub mod prof {
     pub const P_RESERVED_77: usize = 77;
     pub const P_RESERVED_78: usize = 78;
     pub const P_RESERVED_79: usize = 79;
-    pub const Q_RESERVED_80: usize = 80;
-    pub const Q_RESERVED_81: usize = 81;
-    pub const Q_RESERVED_82: usize = 82;
-    pub const Q_RESERVED_83: usize = 83;
-    pub const Q_RESERVED_84: usize = 84;
-    pub const Q_RESERVED_85: usize = 85;
-    pub const Q_RESERVED_86: usize = 86;
-    pub const Q_RESERVED_87: usize = 87;
-    pub const Q_RESERVED_88: usize = 88;
+    pub const Q_LH_FILL: usize = 80; // [UPERF2-Q] gpu level-h session: host fill (value-ring pool + descriptors) + w pack per stage — inside ep.level-h-pairs
+    pub const Q_LH_WAIT: usize = 81; // [UPERF2-Q] gpu level-h session: host blocked on the device (staging reuse + the drain)
+    pub const Q_LH_STREAM: usize = 82; // [UPERF2-Q] gpu level-h session wall (the whole level's r x r table on the device)
+    pub const Q_LH_SMAX: usize = 83; // [UPERF2-Q] gpu level-h session: the level's s_max scan of the witness store
+    pub const Q_CB_FILL: usize = 84; // [UPERF2-Q] gpu combine session (fold / psi0 / transport combines): host pack per stage
+    pub const Q_CB_WAIT: usize = 85; // [UPERF2-Q] gpu combine session: the drain
+    pub const Q_PHI_GBLOCKS: usize = 86; // [UPERF2-Q] PhiFactored::new: the G blocks (inside m.phi-setup)
+    pub const Q_FOLD_SPLIT: usize = 87; // [UPERF2-Q] bg_fold: the digit split + range assert after the fold (inside bg.fold, outside m.fold-ntt)
+    pub const Q_ROWS_T: usize = 88; // [UPERF2-Q] rows pass: the T rings (value-ring recompose + K-weight MAC) — inside bg.kernel-rows
     pub const Q_RESERVED_89: usize = 89;
     pub const N_PHASES: usize = 90;
 
@@ -2660,15 +2660,15 @@ pub mod prof {
         "p.reserved-77",
         "p.reserved-78",
         "p.reserved-79",
-        "q.reserved-80",
-        "q.reserved-81",
-        "q.reserved-82",
-        "q.reserved-83",
-        "q.reserved-84",
-        "q.reserved-85",
-        "q.reserved-86",
-        "q.reserved-87",
-        "q.reserved-88",
+        "q.lh-fill",
+        "q.lh-wait",
+        "q.lh-stream",
+        "q.lh-smax",
+        "q.cb-fill",
+        "q.cb-wait",
+        "q.phi-gblocks",
+        "q.fold-split",
+        "q.rows-t",
         "q.reserved-89",
     ];
 

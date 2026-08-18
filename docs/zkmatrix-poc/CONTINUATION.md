@@ -185,6 +185,20 @@ numbers need a quiesced box; design and correctness work do not.
   launched; PROGRESS_UPERF2.md "after round 8" has the attribution and
   the honest position (minutes on a desktop GPU for the current
   protocol; 5-15 s needs T11 or the float/int-mix route).
+- 2026-08-18 (round 9): the descent rounds' launch/eq/allocation floor
+  removed (P; the round kernels measured at 70-88% of the K-mult
+  ceiling on this part) and the prover's CPU-side blocks moved to the
+  device or to SHA-NI (Q). **12x512: 21.0 s with the reference box's
+  laptop GPU (commit 2.5 / prove 15.5 / verify 1.7; three QUIET runs
+  within 0.2 s), 81.5 s CPU-only, 8 threads, 6.7 GB, bit-identical.**
+  Verify meets the <= 2 s line at 8 threads. THE KERNEL CURVE HAS
+  FLATTENED — Phases 0-3 are measured on the 125M rig and a named GPU
+  (this section's fallback rule): the residual is the protocol's
+  shape, ~25-100x [MODEL] from the 5-15 s line on desktop hardware.
+  PROGRESS_UPERF2.md "Decision memo (orchestrator, 2026-08-18)" lays
+  out the three routes (lattice-line protocol change T11 / the
+  hash-based float-mix channel as a comparison prototype / a Metal
+  port for the M3 Ultra as the named GPU) for Victor's ruling.
 - 2026-08-17 (Claude, status recalculation — PROGRESS_UPERF.md
   "2026-08-17" section): PATH CORRECTION for Phase 0. The composed
   pass (`bg_pass_run`, the deliverable) never calls `prove_ct_round`;

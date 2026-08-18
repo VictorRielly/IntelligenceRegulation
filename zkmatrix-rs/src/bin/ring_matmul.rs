@@ -6430,6 +6430,8 @@ fn main() {
         Some("uperf-o") => uperf_o_main(&args[1..]),
         // [UPERF2-P] U-PERF2 lane P (GPU step 4: the descent kernels + the per-round floor) battery + bench.
         Some("uperf-p") => uperf_p_main(&args[1..]),
+        // [UPERF2-Q] U-PERF2 lane Q (prove-group / commit / CRS / transport: level-h device session, combine kernels, SHA-NI CRS) battery + bench.
+        Some("uperf-q") => uperf_q_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -20053,6 +20055,35 @@ fn digits_into(x: i64, e0: u32, out: &mut [i64]) {
             *o = s * (((a >> j) & 1) as i64);
         }
     } else {
+        // [UPERF2-Q] the unique balanced digit d == rem (mod 2^e0) in
+        // [-half, half) by mask + shift (the div/mod body — `digits_into_div`,
+        // kept as the battery's oracle next to `exact_digit_decompose` —
+        // lands on the same d and the same exact carry).
+        let mask = (1i64 << e0) - 1;
+        let half = 1i64 << (e0 - 1);
+        let mut rem = x;
+        for o in out.iter_mut() {
+            let d = ((rem + half) & mask) - half;
+            *o = d;
+            rem = (rem - d) >> e0;
+        }
+        assert!(rem == 0, "digit range exhausted for {x}");
+    }
+}
+
+/// [UPERF2-Q] The pre-change div/mod body of `digits_into` (lane D's) —
+/// the battery's oracle for the mask/shift form.
+#[inline(always)]
+fn digits_into_div(x: i64, e0: u32, out: &mut [i64]) {
+    let l = out.len();
+    if e0 == 1 {
+        let s = x.signum();
+        let a = x.unsigned_abs();
+        assert!(a < (1u64 << l), "sign-binary range exhausted for {x}");
+        for (j, o) in out.iter_mut().enumerate() {
+            *o = s * (((a >> j) & 1) as i64);
+        }
+    } else {
         let base = 1i64 << e0;
         let half = base >> 1;
         let mut rem = x;
@@ -24588,6 +24619,21 @@ fn bf_sha_i8(vals: &[i64]) -> String {
 /// The floor requantization x = 2^shift * y + r, r in [0, 2^shift)
 /// (Euclidean quotient/remainder — TARGET_CONTRACT S2 as written).
 fn bf_floor_requant(acc: &[i64], shift: u32) -> (Vec<i64>, Vec<i64>) {
+    // [UPERF2-Q] the Euclidean quotient / remainder by 2^shift are the
+    // arithmetic shift and the low-bit mask (two's complement; shift < 63
+    // — the chain's shifts are < 40): the same integers as `div_euclid` /
+    // `rem_euclid` (`bf_floor_requant_div`, the battery's oracle) without
+    // the two libdivs per element (~1 s of the 12x512 chain derivation).
+    debug_assert!(shift < 63);
+    let mask = (1i64 << shift) - 1;
+    let y: Vec<i64> = acc.iter().map(|&a| a >> shift).collect();
+    let r: Vec<i64> = acc.iter().map(|&a| a & mask).collect();
+    (y, r)
+}
+
+/// [UPERF2-Q] The pre-change `bf_floor_requant` (div_euclid / rem_euclid) —
+/// the battery's oracle for the shift/mask form.
+fn bf_floor_requant_div(acc: &[i64], shift: u32) -> (Vec<i64>, Vec<i64>) {
     let m = 1i64 << shift;
     let y: Vec<i64> = acc.iter().map(|&a| a.div_euclid(m)).collect();
     let r: Vec<i64> = acc.iter().map(|&a| a.rem_euclid(m)).collect();
@@ -24707,6 +24753,13 @@ fn bf_matmul_i64(a: &[i64], b_t: &[i64], rows: usize, inner: usize, cols: usize)
     assert_eq!(b_t.len(), inner * cols);
     let small = |v: &[i64]| v.iter().all(|&x| (-127..=127).contains(&x));
     let i32_ok = inner as u64 * 127 * 127 < (1u64 << 31) && small(a) && small(b_t);
+    // [UPERF2-Q] the device int8 GEMM (exact i32 sums — bit-identical; the
+    // row-blocked loop below is its oracle; ZK_GPU_MM=0 keeps it here).
+    if i32_ok && ring::gpu::enabled() {
+        if let Some(c) = ring::gpu::matmul_i8(a, b_t, rows, inner, cols) {
+            return c;
+        }
+    }
     const RB: usize = 16;
     let mut c = vec![0i64; rows * cols];
     if i32_ok {
@@ -29486,6 +29539,7 @@ fn bg_fold_gen<B: ring::eval_proof::SmallRings + ?Sized>(w: &B, cs: &[Vec<i64>],
     assert!(w.n_rings() >= cs.len() * plan.chunk, "bg_fold: slices not padded to r*chunk");
     let w_sl: Vec<&B> = (0..cs.len()).map(|j| w.sub(j * plan.chunk, (j + 1) * plan.chunk)).collect();
     let z_all = fold_chunks_ntt_gen(cs, &w_sl, plan.chunk);
+    let _ts = ring::ct_engine::prof::timer(ring::ct_engine::prof::Q_FOLD_SPLIT); // [UPERF2-Q] observation only
     let (lo, hi) = ring::digits::representable(plan.e_next, plan.l_z);
     for z in &z_all {
         for &zc in z {
@@ -29799,6 +29853,7 @@ fn bg_multi_kernels(
                 scale: c.scale.clone(),
                 row_kernel: c.row.clone(),
                 col_kernel: c.col.clone(),
+                row_factors: std::cell::OnceCell::new(), // [UPERF2-Q]
             });
         }
     }
@@ -41710,4 +41765,678 @@ fn uperf_p_kprobe(iters: u32) {
             }
         }
     }
+}
+
+// [UPERF2-Q] U-PERF2 lane Q — the prover's CPU-side blocks: the level-h
+// DEVICE SESSION (the level-0 h table accumulated on the device across the
+// u-blocks: value-ring pool + limb radix expanded on the device, resident
+// split-halves accumulator, one flush per exact-integer window), the
+// small-ring "combine" family on the device, the commit phase, the CRS
+// SHA-NI blocks, the transport. ADDITIVE section. Commands:
+//   uperf-q battery              — (A) `Phi0Source::fill_pool_u32` == `fill`
+//                                  (pool ring x radix mod q per window);
+//                                  (B) the session == the CPU body cell by
+//                                  cell (both stores, ragged blocks / stages,
+//                                  window crossings with a boxed |w| = 2^20
+//                                  store, planted extremes, zero rings);
+//                                  (C) q46 declines; (D) the hook GPU-live vs
+//                                  bypassed. Prints a BATTERY DIGEST (run at
+//                                  ZK_THREADS 1/2/7 and compare).
+//   uperf-q lh-bench [rows] [cols] [r]
+//                                — one aligned level-0 shape: the CPU body vs
+//                                  the session, byte equality asserted, walls
+//                                  + the session's fill / wait attribution.
+// Without `--features gpu-cuda` (or ZK_GPU unset) the device legs report the
+// stub / decline and the CPU legs still run.
+
+fn uperf_q_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("battery") => uperf_q_battery(),
+        Some("lh-bench") => {
+            let rows: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(512);
+            let cols: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(2048);
+            let r: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(64);
+            uperf_q_lh_bench(rows, cols, r);
+        }
+        _ => println!("uperf-q battery | lh-bench [rows] [cols] [r]"),
+    }
+}
+
+/// [UPERF2-Q] The battery's mixed synthetic level-0 group (lane F's shape
+/// list + an l0 = 1 tensor, an l0 = 16 (the (2, 16) act class) tensor and a
+/// larger aligned tensor so r = 64 chunks are non-trivial): returns the
+/// group, its claims, the level-0 digit witness (boxed) and the 16 alphas.
+fn uperf_q_group(
+    ctx: &RingCtx,
+    kf: &ring::kfield::KField,
+    rd: &mut XofReader,
+    big: bool,
+) -> (ring::eval_proof::AggGroup, ring::pass_agg::GroupClaims, Vec<Vec<i64>>, Vec<Poly>) {
+    use ring::eval_proof::AggGroup;
+    use ring::kfield::{KElem, K_DEG};
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use std::rc::Rc;
+    let q = ctx.zq.q;
+    let mut g = AggGroup::new("q-battery");
+    g.add_tensor("A", 8, 256, 2, 5);
+    g.add_tensor("B", 6, 128, 1, 8);
+    g.add_tensor("C", 16, 96, 2, 3); // misaligned (small-cols)
+    g.add_tensor("D", 4, 128, 2, 3); // no kernel
+    g.add_tensor("E", 24, 128, 2, 13); // l0 13
+    g.add_tensor("F", 4, 128, 2, 16); // l0 16 (the (2, 16) act class)
+    g.add_tensor("G", 3, 128, 1, 1); // l0 1
+    if big {
+        g.add_tensor("H", 64, 256, 2, 5);
+    }
+    let n_t = g.tensors.len();
+    let rand_kvec = |rd: &mut XofReader, n: usize| -> Rc<Vec<KElem>> { Rc::new((0..n).map(|_| kf.uniform(rd)).collect()) };
+    let col256 = rand_kvec(rd, 256);
+    let col128 = rand_kvec(rd, 128);
+    let mut claims = GroupClaims::new(n_t);
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(rd), row: rand_kvec(rd, 8), col: col256.clone() });
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(rd), row: rand_kvec(rd, 8), col: col256.clone() });
+    claims.push(ClaimContrib { tensor_idx: 1, scale: kf.uniform(rd), row: rand_kvec(rd, 6), col: col128.clone() });
+    claims.push(ClaimContrib { tensor_idx: 2, scale: kf.uniform(rd), row: rand_kvec(rd, 16), col: rand_kvec(rd, 96) });
+    claims.push(ClaimContrib { tensor_idx: 4, scale: kf.uniform(rd), row: rand_kvec(rd, 24), col: col128.clone() });
+    claims.push(ClaimContrib { tensor_idx: 4, scale: kf.uniform(rd), row: rand_kvec(rd, 24), col: rand_kvec(rd, 128) });
+    claims.push(ClaimContrib { tensor_idx: 5, scale: kf.uniform(rd), row: rand_kvec(rd, 4), col: col128.clone() });
+    claims.push(ClaimContrib { tensor_idx: 6, scale: kf.uniform(rd), row: rand_kvec(rd, 3), col: rand_kvec(rd, 128) });
+    if big {
+        claims.push(ClaimContrib { tensor_idx: 7, scale: kf.uniform(rd), row: rand_kvec(rd, 64), col: col256.clone() });
+        claims.push(ClaimContrib { tensor_idx: 7, scale: kf.uniform(rd), row: rand_kvec(rd, 64), col: rand_kvec(rd, 256) });
+    }
+    let mut w0: Vec<Vec<i64>> = Vec::with_capacity(g.n_digit_rings);
+    for t in &g.tensors {
+        let (lo, hi) = ring::digits::alphabet(t.e0);
+        let span = (hi - lo + 1) as u64;
+        for u in 0..t.n_digit_rings() {
+            if u % 11 == 6 {
+                w0.push(vec![0i64; D]);
+            } else {
+                let mut v: Vec<i64> = (0..D).map(|_| lo + rd.next_field(span) as i64).collect();
+                // planted alphabet extremes
+                let p1 = (rd.next_u64() as usize) % D;
+                let p2 = (rd.next_u64() as usize) % D;
+                v[p1] = hi;
+                v[p2] = lo;
+                w0.push(v);
+            }
+        }
+    }
+    let alphas: Vec<Poly> = (0..K_DEG).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
+    (g, claims, w0, alphas)
+}
+
+fn uperf_q_battery() {
+    use ring::eval_proof::{level_h_pairs_with, level_h_pairs_with_block, DigitCols, Phi0Source};
+    use ring::kfield::KField;
+    use sha2::{Digest, Sha256};
+    let t0 = Instant::now();
+    println!("[UPERF2-Q] battery: {}", ring::gpu::label());
+    println!("[UPERF2-Q] ZK_THREADS = {}", ring::eval_proof::threads());
+    let have_gpu = ring::gpu::probe().is_ok();
+    if !have_gpu {
+        println!("[UPERF2-Q] no GPU in this build/box: the device legs are skipped (the CPU bodies are unchanged); the fill-pool leg runs");
+    }
+    let mut battery = Sha256::new();
+    let mut legs = 0usize;
+    let mut fails = 0usize;
+    let mut check = |name: &str, ok: bool| {
+        legs += 1;
+        if !ok {
+            fails += 1;
+        }
+        println!("  {} {name}", if ok { "ok  " } else { "FAIL" });
+    };
+    let absorb_polys = |h: &mut Sha256, v: &[Poly]| {
+        for p in v {
+            for &x in p {
+                h.update(x.to_le_bytes());
+            }
+        }
+    };
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let zq = &ctx.zq;
+    let q = zq.q;
+    let mut rd = XofReader::new("uperf2-q-battery", &[&[0x51u8]]);
+    let (g, claims, w0, alphas) = uperf_q_group(&ctx, &kf, &mut rd, true);
+    let n0 = g.n_digit_rings;
+    let mk = bg_multi_kernels(&claims);
+    let src = Phi0Source::new(&ctx, &kf, &g, &mk, &alphas);
+    let mat = src.materialize(zq);
+    println!("[UPERF2-Q] group: {} tensors, {n0} digit rings", g.tensors.len());
+    // ---- (A) fill_pool_u32 == fill on windows (pool ring x radix mod q).
+    {
+        let mut ok = true;
+        let mut n_pool = 0usize;
+        for &(v0, n) in &[(0usize, 1usize), (0, n0), (79, 3), (75, 60), (100, 250), (n0 - 5, 20), (n0, 7), (n0 + 3, 4), (5, 0), (1, 700), (n0 - 1, 1)] {
+            let cnt = src.pool_count(v0, n);
+            let mut pool = vec![0u32; (cnt + 1) * D];
+            let mut desc = vec![[0u32; 2]; n.max(1)];
+            let base = 3u32; // an arbitrary base
+            let k = src.fill_pool_u32(zq, v0, n, base, 0, &mut pool[..cnt * D], &mut desc[..n]);
+            if k != cnt {
+                ok = false;
+            }
+            n_pool += cnt;
+            let mut out = vec![poly_zero(); n];
+            src.fill(zq, v0, n, &mut out);
+            for i in 0..n {
+                let [idx, radix] = desc[i];
+                let want = &out[i];
+                let got: Poly = if idx == 0 {
+                    // the zero slot: radix must be 0 and the ring zero
+                    if radix != 0 || want.iter().any(|&x| x != 0) {
+                        ok = false;
+                    }
+                    poly_zero()
+                } else {
+                    let pi = (idx - base) as usize;
+                    if pi >= cnt {
+                        ok = false;
+                        poly_zero()
+                    } else {
+                        (0..D).map(|c| zq.mul(pool[pi * D + c] as u64, radix as u64)).collect()
+                    }
+                };
+                if &got != want {
+                    ok = false;
+                }
+            }
+        }
+        check(&format!("Phi0Source::fill_pool_u32 (pool ring x radix mod q) == fill on 11 windows ({n_pool} pool rings)"), ok);
+    }
+    // ---- (A1) the mask/shift digit decomposition == the div/mod body ==
+    // `exact_digit_decompose` on every (e0, l0) class at the range ends,
+    // zero, +-1, +-half, +-(half +- 1) and random values.
+    {
+        use ring::digits::{exact_digit_decompose, representable};
+        let mut ok = true;
+        let mut n_vals = 0usize;
+        for e0 in 1u32..=7 {
+            for &l0 in &[1usize, 2, 3, 5, 8, 13, 14, 16, 21] {
+                if (e0 as usize) * l0 > 60 {
+                    continue;
+                }
+                let (lo, hi) = representable(e0, l0);
+                let (lo, hi) = (lo as i64, hi as i64);
+                let half = 1i64 << (e0.max(1) - 1);
+                let mut xs: Vec<i64> = vec![0, 1, -1, lo, hi, lo + 1, hi - 1, half, -half, half - 1, half + 1, -half - 1, -half + 1];
+                for _ in 0..200 {
+                    let span = (hi as i128 - lo as i128 + 1) as u64;
+                    xs.push(lo + (rd.next_u64() % span) as i64);
+                }
+                for &x in &xs {
+                    if x < lo || x > hi {
+                        continue;
+                    }
+                    let mut a = vec![0i64; l0];
+                    let mut b = vec![0i64; l0];
+                    digits_into(x, e0, &mut a);
+                    digits_into_div(x, e0, &mut b);
+                    let c = exact_digit_decompose(x, e0, l0);
+                    if a != b || a != c {
+                        ok = false;
+                        println!("  FAIL digits e0 {e0} l0 {l0} x {x}: {a:?} vs {b:?} vs {c:?}");
+                    }
+                    n_vals += 1;
+                    for &d in &a {
+                        battery.update(d.to_le_bytes());
+                    }
+                }
+            }
+        }
+        check(&format!("digits mask/shift == div/mod == exact_digit_decompose on {n_vals} values (e0 1..7 x 9 limb counts, range ends)"), ok);
+    }
+    // ---- (A1b) the floor requant by shift/mask == div_euclid/rem_euclid.
+    {
+        let mut ok = true;
+        let mut n = 0usize;
+        for &shift in &[1u32, 2, 5, 9, 12, 17, 23, 31, 40, 55, 62] {
+            let mut xs: Vec<i64> = vec![0, 1, -1, i64::MAX, i64::MIN, i64::MAX - 1, i64::MIN + 1, (1i64 << shift) - 1, 1i64 << shift, -(1i64 << shift), -(1i64 << shift) - 1, -(1i64 << shift) + 1];
+            for _ in 0..500 {
+                let bits = 1 + (rd.next_u64() % 62) as u32;
+                let v = (rd.next_u64() & ((1u64 << bits) - 1)) as i64;
+                xs.push(if rd.next_u64() & 1 == 1 { -v } else { v });
+            }
+            let (y, r) = bf_floor_requant(&xs, shift);
+            let (yd, rdv) = bf_floor_requant_div(&xs, shift);
+            if y != yd || r != rdv {
+                ok = false;
+                println!("  FAIL floor requant shift {shift}");
+            }
+            n += xs.len();
+            for &v in y.iter().take(8) {
+                battery.update(v.to_le_bytes());
+            }
+        }
+        check(&format!("floor requant shift/mask == div_euclid/rem_euclid on {n} values (11 shifts incl. 62, i64 extremes)"), ok);
+    }
+    // ---- (A2) the CRS SHA-NI core == the `sha2` crate: random keys, ranges
+    // crossing the 4-lane groups (lengths 1..9, 4095, 4097), counters
+    // beyond 2^32 (the high word), and the block-parallel dispatch.
+    {
+        use ring::eval_proof::{crs_blocks_into_ni, crs_blocks_into_ref, crs_sha_ni_available};
+        if crs_sha_ni_available() {
+            let mut ok = true;
+            let mut n_blocks = 0usize;
+            let mut keys: Vec<[u8; 32]> = Vec::new();
+            for _ in 0..3 {
+                let mut k = [0u8; 32];
+                for b in k.iter_mut() {
+                    *b = rd.next_u64() as u8;
+                }
+                keys.push(k);
+            }
+            keys.push([0u8; 32]);
+            keys.push([0xFFu8; 32]);
+            for key in &keys {
+                for &(lo, n) in &[(0usize, 1usize), (0, 2), (0, 3), (0, 4), (0, 5), (7, 9), (0, 4095), (1, 4097), (0, 8192 * 2 + 3), (1usize << 32, 6), ((1usize << 32) - 3, 7), (0x1234_5678_9abc, 5)] {
+                    let mut a = vec![0u8; n * 32];
+                    let mut b = vec![0u8; n * 32];
+                    let did = crs_blocks_into_ni(key, lo, lo + n, &mut a);
+                    crs_blocks_into_ref(key, lo, lo + n, &mut b);
+                    if !did || a != b {
+                        ok = false;
+                        println!("  FAIL sha-ni blocks: lo {lo} n {n}");
+                    }
+                    n_blocks += n;
+                    battery.update(&a[..32.min(a.len())]);
+                }
+            }
+            check(&format!("CRS SHA-NI 4-lane core == sha2 crate on {n_blocks} blocks (5 keys x 12 ranges incl. counters >= 2^32, tails 1..3)"), ok);
+        } else {
+            println!("  (CRS SHA-NI core unavailable on this CPU — the sha2 path runs; nothing to compare)");
+        }
+    }
+    // ---- (B) the session == the CPU body (bypassed) cell by cell.
+    if have_gpu {
+        let mut sessions = 0u64;
+        for &r in &[3usize, 5, 8, 17, 64] {
+            let chunk = n0.div_ceil(r);
+            let mut w_pad = w0.clone();
+            w_pad.resize(r * chunk, vec![0i64; D]);
+            let cols_pad = DigitCols::from_vecs(&w_pad);
+            let w_sl: Vec<&[Vec<i64>]> = (0..r).map(|k| &w_pad[k * chunk..(k + 1) * chunk]).collect();
+            let c_sl: Vec<&[i8]> = (0..r).map(|k| &cols_pad.rings()[k * chunk * D..(k + 1) * chunk * D]).collect();
+            // A boxed |w| = 2^20 store (i64 format; the window shrinks to 64
+            // terms at q31 -> many flushes inside the session).
+            let s_big: i64 = 1 << 20;
+            let w_big: Vec<Vec<i64>> = (0..r * chunk)
+                .map(|u| {
+                    if u % 9 == 4 {
+                        vec![0i64; D]
+                    } else {
+                        let mut v: Vec<i64> = (0..D).map(|_| rd.next_field((2 * s_big + 1) as u64) as i64 - s_big).collect();
+                        v[(rd.next_u64() as usize) % D] = s_big;
+                        v[(rd.next_u64() as usize) % D] = -s_big;
+                        v
+                    }
+                })
+                .collect();
+            let b_sl: Vec<&[Vec<i64>]> = (0..r).map(|k| &w_big[k * chunk..(k + 1) * chunk]).collect();
+            for &block in &[7usize, 64, 1024] {
+                for &stage in &[0usize, 5, 333] {
+                    ring::gpu::set_lh_block(stage);
+                    ring::gpu::set_bypass(true);
+                    let want_c = level_h_pairs_with_block(&ctx, &src, &c_sl, chunk, block);
+                    let want_v = level_h_pairs_with_block(&ctx, &src, &w_sl, chunk, block);
+                    let want_b = level_h_pairs_with_block(&ctx, &src, &b_sl, chunk, block);
+                    ring::gpu::set_bypass(false);
+                    let s0 = ring::gpu::lh_stats().sessions;
+                    let got_c = ring::gpu::level_h_stream_force(&ctx, &src, &c_sl, chunk, block).map(|gd| uperf_q_h_from_g(zq, &gd, r));
+                    let got_v = ring::gpu::level_h_stream_force(&ctx, &src, &w_sl, chunk, block).map(|gd| uperf_q_h_from_g(zq, &gd, r));
+                    let got_b = ring::gpu::level_h_stream_force(&ctx, &src, &b_sl, chunk, block).map(|gd| uperf_q_h_from_g(zq, &gd, r));
+                    sessions += ring::gpu::lh_stats().sessions - s0;
+                    let ok = got_c.as_ref() == Some(&want_c) && got_v.as_ref() == Some(&want_v) && got_b.as_ref() == Some(&want_b) && want_c == want_v;
+                    check(&format!("session == CPU body: r {r} chunk {chunk} block {block} stage {stage} (i8, boxed, boxed |w| 2^20)"), ok);
+                    absorb_polys(&mut battery, &want_c);
+                    absorb_polys(&mut battery, &want_b);
+                }
+            }
+            ring::gpu::set_lh_block(0);
+        }
+        println!("[UPERF2-Q] (B): {sessions} device sessions ran (flushes {}, stages {})", ring::gpu::lh_stats().flushes, ring::gpu::lh_stats().stages);
+        // ---- (C) q46 declines (the u32 pool needs q < 2^32) — the CPU body runs.
+        {
+            let ctx46 = ring::ring_ctx(ring::Q8_46, ring::ETA8_46, 8);
+            let kf46 = KField::new(&ctx46);
+            let mut rd46 = XofReader::new("uperf2-q-battery-46", &[&[0x52u8]]);
+            let (g46, cl46, w46, al46) = uperf_q_group(&ctx46, &kf46, &mut rd46, false);
+            let mk46 = bg_multi_kernels(&cl46);
+            let src46 = Phi0Source::new(&ctx46, &kf46, &g46, &mk46, &al46);
+            let r = 5usize;
+            let chunk = g46.n_digit_rings.div_ceil(r);
+            let mut w_pad = w46.clone();
+            w_pad.resize(r * chunk, vec![0i64; D]);
+            let w_sl: Vec<&[Vec<i64>]> = (0..r).map(|k| &w_pad[k * chunk..(k + 1) * chunk]).collect();
+            let got = ring::gpu::level_h_stream_force(&ctx46, &src46, &w_sl, chunk, 64);
+            let d0 = ring::gpu::lh_stats().declined;
+            let via_hook = level_h_pairs_with(&ctx46, &src46, &w_sl, chunk);
+            ring::gpu::set_bypass(true);
+            let want = level_h_pairs_with(&ctx46, &src46, &w_sl, chunk);
+            ring::gpu::set_bypass(false);
+            check(&format!("q46: the session declines (forced -> None, hook declined {}) and the hook == the CPU body", ring::gpu::lh_stats().declined - d0), got.is_none() && via_hook == want);
+            absorb_polys(&mut battery, &want);
+        }
+        // ---- (D) the hook (min_macs in force): GPU-live vs bypassed.
+        {
+            let r = 8usize;
+            let chunk = n0.div_ceil(r);
+            let mut w_pad = w0.clone();
+            w_pad.resize(r * chunk, vec![0i64; D]);
+            let cols_pad = DigitCols::from_vecs(&w_pad);
+            let c_sl: Vec<&[i8]> = (0..r).map(|k| &cols_pad.rings()[k * chunk * D..(k + 1) * chunk * D]).collect();
+            let s0 = ring::gpu::lh_stats().sessions;
+            let got = level_h_pairs_with(&ctx, &src, &c_sl, chunk);
+            let engaged = ring::gpu::lh_stats().sessions > s0;
+            ring::gpu::set_bypass(true);
+            let want = level_h_pairs_with(&ctx, &src, &c_sl, chunk);
+            ring::gpu::set_bypass(false);
+            check(&format!("hook level_h_pairs_with GPU-live (session engaged: {engaged}; ZK_GPU={}) == bypassed at r {r} chunk {chunk}", if ring::gpu::enabled() { "1" } else { "unset" }), got == want);
+            absorb_polys(&mut battery, &want);
+        }
+    }
+    // ---- (E)-(H) the combine family: the fold (exact i64), the factored
+    // psi0 (pool source), the transport's one-sided combine (two limb rows +
+    // recombine), compute_psi (ragged mod-q slices) — session (forced) vs
+    // the CPU bodies (bypassed); then the hooks GPU-live vs bypassed.
+    if have_gpu {
+        use ring::eval_proof::{compute_psi, fold_chunks_ntt_gen, ntt_combine_general, psi_level0_factored_multi};
+        use ring::gpu::{combine_stream, CombineOut, CombineResult, CombineSrc};
+        let mut cb_sessions = 0u64;
+        for &r in &[3usize, 8, 17, 64] {
+            let chunk = n0.div_ceil(r);
+            let mut w_pad = w0.clone();
+            w_pad.resize(r * chunk, vec![0i64; D]);
+            let cols_pad = DigitCols::from_vecs(&w_pad);
+            let w_sl: Vec<&[Vec<i64>]> = (0..r).map(|k| &w_pad[k * chunk..(k + 1) * chunk]).collect();
+            let c_sl: Vec<&[i8]> = (0..r).map(|k| &cols_pad.rings()[k * chunk * D..(k + 1) * chunk * D]).collect();
+            let cs: Vec<Vec<i64>> = (0..r)
+                .map(|_| {
+                    let mut v: Vec<i64> = (0..D).map(|_| rd.next_field(5) as i64 - 2).collect();
+                    v[(rd.next_u64() as usize) % D] = 2;
+                    v[(rd.next_u64() as usize) % D] = -2;
+                    v
+                })
+                .collect();
+            // a boxed |w| = 300 store (the i64 format; capacity r x D x 2 x 300 fits)
+            let w_big: Vec<Vec<i64>> = (0..r * chunk)
+                .map(|u| if u % 9 == 4 { vec![0i64; D] } else { (0..D).map(|_| rd.next_field(601) as i64 - 300).collect() })
+                .collect();
+            let b_sl: Vec<&[Vec<i64>]> = (0..r).map(|k| &w_big[k * chunk..(k + 1) * chunk]).collect();
+            for &stage in &[0usize, 7, 500] {
+                ring::gpu::set_cb_block(stage);
+                // (E) the fold
+                ring::gpu::set_bypass(true);
+                let want_c = fold_chunks_ntt_gen(&cs, &c_sl, chunk);
+                let want_v = fold_chunks_ntt_gen(&cs, &w_sl, chunk);
+                let want_b = fold_chunks_ntt_gen(&cs, &b_sl, chunk);
+                ring::gpu::set_bypass(false);
+                let s0 = ring::gpu::cb_stats().sessions;
+                let got_c = match combine_stream::<[i8]>(0, &cs, CombineSrc::Small(&c_sl), r, chunk, 1, CombineOut::ExactI64, true) {
+                    Some(CombineResult::I64(z)) => Some(z),
+                    _ => None,
+                };
+                let got_v = match combine_stream::<[Vec<i64>]>(0, &cs, CombineSrc::Small(&w_sl), r, chunk, 1, CombineOut::ExactI64, true) {
+                    Some(CombineResult::I64(z)) => Some(z),
+                    _ => None,
+                };
+                let got_b = match combine_stream::<[Vec<i64>]>(0, &cs, CombineSrc::Small(&b_sl), r, chunk, 1, CombineOut::ExactI64, true) {
+                    Some(CombineResult::I64(z)) => Some(z),
+                    _ => None,
+                };
+                let ok = got_c.as_ref() == Some(&want_c) && got_v.as_ref() == Some(&want_v) && got_b.as_ref() == Some(&want_b) && want_c == want_v;
+                check(&format!("fold session == CPU body: r {r} chunk {chunk} stage {stage} (i8, boxed, boxed |w| 300)"), ok);
+                for z in &want_c {
+                    for &x in z {
+                        battery.update(x.to_le_bytes());
+                    }
+                }
+                // (F) the factored psi0 through the pool
+                ring::gpu::set_bypass(true);
+                let want_p = psi_level0_factored_multi(&ctx, &kf, &g, &mk, &alphas, &cs, chunk);
+                ring::gpu::set_bypass(false);
+                let mut mat_pad = mat.clone();
+                mat_pad.resize(r * chunk, poly_zero());
+                let want_cp = {
+                    ring::gpu::set_bypass(true);
+                    let v = compute_psi(&ctx, &mat_pad, chunk, &cs);
+                    ring::gpu::set_bypass(false);
+                    v
+                };
+                let got_p = match combine_stream::<[i8]>(q, &cs, CombineSrc::Pool(&src), r, chunk, 1, CombineOut::ModQ { two_l: None }, true) {
+                    Some(CombineResult::ModQ(p)) => Some(p),
+                    _ => None,
+                };
+                check(&format!("psi0 session (pool) == psi_level0_factored_multi == compute_psi(Phi_0): r {r} chunk {chunk} stage {stage}"), got_p.as_ref() == Some(&want_p) && want_p == want_cp);
+                absorb_polys(&mut battery, &want_p);
+                // (G) compute_psi with ragged phi (the materialized Phi_0, r*chunk - tail rings)
+                let ragged: Vec<Poly> = mat_pad[..r * chunk - (chunk / 3).min(r * chunk - 1)].to_vec();
+                ring::gpu::set_bypass(true);
+                let want_r = compute_psi(&ctx, &ragged, chunk, &cs);
+                ring::gpu::set_bypass(false);
+                let ops_r: Vec<&[Poly]> = (0..r).map(|k| &ragged[(k * chunk).min(ragged.len())..((k + 1) * chunk).min(ragged.len())]).collect();
+                let got_r = match combine_stream::<[i8]>(q, &cs, CombineSrc::ModQ(&ops_r), r, chunk, 1, CombineOut::ModQ { two_l: None }, true) {
+                    Some(CombineResult::ModQ(p)) => Some(p),
+                    _ => None,
+                };
+                check(&format!("compute_psi session (ragged mod-q slices) == CPU body: r {r} chunk {chunk} stage {stage}"), got_r.as_ref() == Some(&want_r));
+                absorb_polys(&mut battery, &want_r);
+                // (H) the transport's one-sided combine: 12 general alphas x 12 operand slices of m rings
+                let n_al = 12usize;
+                let m = chunk;
+                let al: Vec<Poly> = (0..n_al).map(|_| uperf_k_rand_modq_ring(&mut rd, q, false)).collect();
+                let ops_store: Vec<Vec<Poly>> = (0..n_al).map(|i| (0..m).map(|u| uperf_k_rand_modq_ring(&mut rd, q, (u + i) % 11 == 3)).collect()).collect();
+                let ops: Vec<&[Poly]> = ops_store.iter().map(|v| v.as_slice()).collect();
+                ring::gpu::set_bypass(true);
+                let want_t = ntt_combine_general(&ctx, &al, &ops, m);
+                ring::gpu::set_bypass(false);
+                let l = aux::limb_bits(q);
+                let two_l = (1u64 << l) % q;
+                let mut cl: Vec<Vec<i64>> = Vec::with_capacity(2 * n_al);
+                for lim in 0..2 {
+                    for a in al.iter() {
+                        cl.push(
+                            (0..D)
+                                .map(|i| {
+                                    let (lo, hi) = aux::split_limbs(aux::balanced_mod_q(a[i], q), l);
+                                    if lim == 0 { lo } else { hi }
+                                })
+                                .collect(),
+                        );
+                    }
+                }
+                let got_t = match combine_stream::<[i8]>(q, &cl, CombineSrc::ModQ(&ops), n_al, m, 2, CombineOut::ModQ { two_l: Some(two_l) }, true) {
+                    Some(CombineResult::ModQ(p)) => Some(p),
+                    _ => None,
+                };
+                check(&format!("transport combine session (2 limb rows + recombine) == ntt_combine_general: n 12 m {m} stage {stage}"), got_t.as_ref() == Some(&want_t));
+                absorb_polys(&mut battery, &want_t);
+                cb_sessions += ring::gpu::cb_stats().sessions - s0;
+            }
+            ring::gpu::set_cb_block(0);
+        }
+        println!("[UPERF2-Q] (E)-(H): {cb_sessions} combine sessions ran (stages {})", ring::gpu::cb_stats().stages);
+        // the hooks GPU-live vs bypassed (min_macs in force; engaged reported)
+        {
+            let r = 8usize;
+            let chunk = n0.div_ceil(r);
+            let mut w_pad = w0.clone();
+            w_pad.resize(r * chunk, vec![0i64; D]);
+            let cols_pad = DigitCols::from_vecs(&w_pad);
+            let c_sl: Vec<&[i8]> = (0..r).map(|k| &cols_pad.rings()[k * chunk * D..(k + 1) * chunk * D]).collect();
+            let cs: Vec<Vec<i64>> = (0..r).map(|_| (0..D).map(|_| rd.next_field(5) as i64 - 2).collect()).collect();
+            let s0 = ring::gpu::cb_stats().sessions;
+            let f_live = fold_chunks_ntt_gen(&cs, &c_sl, chunk);
+            let p_live = psi_level0_factored_multi(&ctx, &kf, &g, &mk, &alphas, &cs, chunk);
+            let engaged = ring::gpu::cb_stats().sessions - s0;
+            ring::gpu::set_bypass(true);
+            let f_want = fold_chunks_ntt_gen(&cs, &c_sl, chunk);
+            let p_want = psi_level0_factored_multi(&ctx, &kf, &g, &mk, &alphas, &cs, chunk);
+            ring::gpu::set_bypass(false);
+            check(&format!("hooks fold_chunks_ntt + psi_level0_factored_multi GPU-live ({engaged} sessions engaged; ZK_GPU={}) == bypassed at r {r} chunk {chunk}", if ring::gpu::enabled() { "1" } else { "unset" }), f_live == f_want && p_live == p_want);
+        }
+    }
+    // ---- (I) the chain GEMM on the device (int8 x int8 -> i32, exact):
+    // `bf_matmul_i64` GPU-live vs `bf_matmul_i64_ref` on ragged shapes with
+    // planted +-127 and zero rows/cols; a > 127 case declines to the CPU.
+    if have_gpu && ring::gpu::enabled() {
+        let mut ok = true;
+        let mut engaged = 0u64;
+        for &(rows, inner, cols, big) in &[(100usize, 300usize, 200usize, false), (64, 2048, 64, false), (130, 768, 2048, false), (512, 768, 2048, false), (17, 2048, 768, false), (100, 300, 200, true)] {
+            let lim: i64 = if big { 300 } else { 127 };
+            let mut a: Vec<i64> = (0..rows * inner).map(|_| rd.next_field((2 * lim + 1) as u64) as i64 - lim).collect();
+            let mut b: Vec<i64> = (0..inner * cols).map(|_| rd.next_field((2 * lim + 1) as u64) as i64 - lim).collect();
+            let (la, lb) = (a.len(), b.len());
+            for _ in 0..8 {
+                let (i1, i2, i3, i4) = ((rd.next_u64() as usize) % la, (rd.next_u64() as usize) % la, (rd.next_u64() as usize) % lb, (rd.next_u64() as usize) % lb);
+                a[i1] = lim;
+                a[i2] = -lim;
+                b[i3] = lim;
+                b[i4] = -lim;
+            }
+            for k in 0..inner {
+                a[3 * inner + k] = 0; // a zero row
+            }
+            let (m0, _) = ring::gpu::mm_stats();
+            let got = bf_matmul_i64(&a, &b, rows, inner, cols);
+            let (m1, _) = ring::gpu::mm_stats();
+            engaged += m1 - m0;
+            let want = bf_matmul_i64_ref(&a, &b, rows, inner, cols);
+            if got != want {
+                ok = false;
+                println!("  FAIL chain gemm {rows}x{inner}x{cols} big {big}");
+            }
+            for &x in want.iter().take(64) {
+                battery.update(x.to_le_bytes());
+            }
+        }
+        check(&format!("chain gemm bf_matmul_i64 GPU-live ({engaged} device calls of 5 eligible) == bf_matmul_i64_ref on 6 shapes"), ok);
+    }
+    let dg: [u8; 32] = battery.finalize().into();
+    println!(
+        "[UPERF2-Q] battery: {}/{} legs ok in {:.1}s | BATTERY DIGEST {}",
+        legs - fails,
+        legs,
+        t0.elapsed().as_secs_f64(),
+        hex_full(&dg)
+    );
+    if fails > 0 {
+        std::process::exit(1);
+    }
+}
+
+/// h pairs from the r x r table (the battery's copy of `level_h_from_g`:
+/// h_jj = g_jj, h_jk = g_jk + g_kj, pair order).
+fn uperf_q_h_from_g(zq: &ring::Zq, g: &[Poly], r: usize) -> Vec<Poly> {
+    let mut h = Vec::with_capacity(r * (r + 1) / 2);
+    for j in 0..r {
+        for k in j..r {
+            if j == k {
+                h.push(g[j * r + j].clone());
+            } else {
+                h.push(poly_add(zq, &g[j * r + k], &g[k * r + j]));
+            }
+        }
+    }
+    h
+}
+
+/// [UPERF2-Q] One aligned level-0 shape (rows x cols, e0 2, l0 5, 3
+/// contributions, r chunks): the CPU body (bypassed) vs the session.
+fn uperf_q_lh_bench(rows: usize, cols: usize, r: usize) {
+    use ring::eval_proof::{level_h_pairs_with, AggGroup, DigitCols, Phi0Source};
+    use ring::kfield::{KElem, KField, K_DEG};
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use std::rc::Rc;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let q = ctx.zq.q;
+    let mut rd = XofReader::new("uperf2-q-lh-bench", &[&(rows as u64).to_le_bytes(), &(cols as u64).to_le_bytes()]);
+    let mut g = AggGroup::new("q-bench");
+    g.add_tensor("T", rows, cols, 2, 5);
+    let n0 = g.n_digit_rings;
+    let chunk = n0.div_ceil(r);
+    println!("[UPERF2-Q] lh-bench: {}", ring::gpu::label());
+    println!(
+        "[UPERF2-Q] lh-bench: tensor {rows}x{cols} (e0 2, l0 5: {} value rings, {n0} digit rings), r {r} chunk {chunk} ({:.2} G D-domain MACs), ZK_THREADS {}",
+        g.tensors[0].n_value_rings(),
+        (D * r * r * chunk) as f64 / 1e9,
+        ring::eval_proof::threads()
+    );
+    let rand_kvec = |rd: &mut XofReader, n: usize| -> Rc<Vec<KElem>> { Rc::new((0..n).map(|_| kf.uniform(rd)).collect()) };
+    let col_shared = rand_kvec(&mut rd, cols);
+    let mut claims = GroupClaims::new(1);
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: col_shared.clone() });
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: col_shared.clone() });
+    claims.push(ClaimContrib { tensor_idx: 0, scale: kf.uniform(&mut rd), row: rand_kvec(&mut rd, rows), col: rand_kvec(&mut rd, cols) });
+    let (lo, hi) = ring::digits::alphabet(2);
+    let span = (hi - lo + 1) as u64;
+    let mut w = DigitCols::zeros(r * chunk);
+    let mut tmp = vec![0i64; D];
+    for u in 0..n0 {
+        for x in tmp.iter_mut() {
+            *x = lo + rd.next_field(span) as i64;
+        }
+        w.set_ring(u, &tmp);
+    }
+    let alphas: Vec<Poly> = (0..K_DEG).map(|_| (0..D).map(|_| rd.next_field(q)).collect()).collect();
+    let mk = bg_multi_kernels(&claims);
+    let w_sl: Vec<&[i8]> = (0..r).map(|k| &w.rings()[k * chunk * D..(k + 1) * chunk * D]).collect();
+    let t0 = Instant::now();
+    let src = Phi0Source::new(&ctx, &kf, &g, &mk, &alphas);
+    println!("  Phi0Source::new {:.3}s", t0.elapsed().as_secs_f64());
+    ring::gpu::set_bypass(true);
+    ring::gpu::stats_reset();
+    let t0 = Instant::now();
+    let want = level_h_pairs_with(&ctx, &src, &w_sl, chunk);
+    let s_cpu = t0.elapsed().as_secs_f64();
+    ring::gpu::set_bypass(false);
+    println!("  CPU body (bypassed; K's per-block GEMM off): {s_cpu:.3}s");
+    if !ring::gpu::enabled() {
+        println!("  device: off ({}) — set ZK_GPU=1 with the gpu-cuda build for the session", ring::gpu::label());
+        return;
+    }
+    // K's per-block path (the session off: the body's per-block GEMM through K's hook).
+    ring::gpu::set_lh_session(false);
+    let _ = level_h_pairs_with(&ctx, &src, &w_sl, chunk); // warm (NVRTC + allocations)
+    ring::gpu::stats_reset();
+    let t0 = Instant::now();
+    let got_k = level_h_pairs_with(&ctx, &src, &w_sl, chunk);
+    let s_k = t0.elapsed().as_secs_f64();
+    ring::gpu::set_lh_session(true);
+    assert_eq!(got_k, want, "lh-bench: K per-block path != CPU body");
+    let ks = ring::gpu::stats();
+    println!(
+        "  K per-block GEMM (session off): {s_k:.3}s (byte-identical) -> {:.1}x vs the CPU body; {} device calls, pack {:.3}s, wait {:.3}s, d2h {:.3}s, s_max {:.3}s",
+        s_cpu / s_k,
+        ks.calls,
+        ks.secs_pack,
+        ks.secs_wait,
+        ks.secs_d2h,
+        ks.secs_smax
+    );
+    let _ = ring::gpu::level_h_stream_force(&ctx, &src, &w_sl, chunk, 1024); // warm
+    ring::gpu::lh_stats_reset();
+    let t0 = Instant::now();
+    let got = ring::gpu::level_h_stream_force(&ctx, &src, &w_sl, chunk, 1024).expect("session declined");
+    let s_dev = t0.elapsed().as_secs_f64();
+    let h = uperf_q_h_from_g(&ctx.zq, &got, r);
+    assert_eq!(h, want, "lh-bench: session != CPU body");
+    let s = ring::gpu::lh_stats();
+    println!(
+        "  session: {s_dev:.3}s (byte-identical) -> {:.1}x vs the CPU body, {:.2}x vs K's per-block path; stages {}, flushes {}, h2d {:.0} MB; host fill {:.3}s, host wait {:.3}s, s_max {:.3}s, grow {:.3}s, enqueue {:.3}s",
+        s_cpu / s_dev,
+        s_k / s_dev,
+        s.stages,
+        s.flushes,
+        s.bytes_h2d as f64 / 1e6,
+        s.secs_fill,
+        s.secs_wait,
+        s.secs_smax,
+        s.secs_grow,
+        s.secs_enq
+    );
 }

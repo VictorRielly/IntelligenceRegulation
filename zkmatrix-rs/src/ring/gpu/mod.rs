@@ -70,6 +70,21 @@ pub use ixf::{
     ixf_label, ixf_release, ixf_set_bypass, ixf_set_low_bits, ixf_set_min_pairs, ixf_stats, ixf_stats_reset, ixf_zc_abort, ixf_zc_fold, ixf_zc_handover, ixf_zc_open,
     ixf_zc_round, IxfDevChain, IxfStats,
 };
+// [UPERF2-Q] The level-h device session (cuda.rs): the level-0 h table
+// accumulated on the device across the u-blocks (value-ring pool + limb
+// radix expanded on the device, resident split-halves accumulator, one
+// flush per exact-integer window) — the hook in
+// `eval_proof::level_h_pairs_with_block`.
+#[cfg(feature = "gpu-cuda")]
+pub use cuda::{level_h_stream, level_h_stream_force, lh_stats, lh_stats_reset, set_lh_block, set_lh_session, LhStats};
+// [UPERF2-Q] The combine session (cuda.rs): few fixed small rings x many
+// streamed slices -> one inverse per output (the fold, the factored psi,
+// the transport's limb-split combines, compute_psi).
+#[cfg(feature = "gpu-cuda")]
+pub use cuda::{cb_stats, cb_stats_reset, combine_accepts, combine_stream, set_cb_block, set_cb_session, CbStats, CombineOut, CombineResult, CombineSrc};
+// [UPERF2-Q] The commit phase's chain GEMM (int8 x int8 -> i32, exact) on the device.
+#[cfg(feature = "gpu-cuda")]
+pub use cuda::{matmul_i8, mm_stats};
 
 // ---------------------------------------------------------------------------
 // The stub (default build): the hook compiles to a constant-false test.
@@ -321,6 +336,92 @@ mod stub {
         IxfStats::default()
     }
     pub fn ixf_stats_reset() {}
+
+    // ---- [UPERF2-Q] the level-h device session (never live without the feature).
+    use super::super::eval_proof::Phi0Source;
+    /// The session: `None` = the CPU body runs.
+    pub fn level_h_stream<B: SmallRings + ?Sized>(_ctx: &RingCtx, _src: &Phi0Source, _w: &[&B], _chunk: usize, _block: usize) -> Option<Vec<Poly>> {
+        None
+    }
+    pub fn level_h_stream_force<B: SmallRings + ?Sized>(_ctx: &RingCtx, _src: &Phi0Source, _w: &[&B], _chunk: usize, _block: usize) -> Option<Vec<Poly>> {
+        None
+    }
+    /// Mirrors `cuda::LhStats` (all zero without the feature).
+    #[derive(Clone, Debug, Default)]
+    pub struct LhStats {
+        pub sessions: u64,
+        pub declined: u64,
+        pub stages: u64,
+        pub flushes: u64,
+        pub bytes_h2d: u64,
+        pub secs_smax: f64,
+        pub secs_fill: f64,
+        pub secs_wait: f64,
+        pub secs_total: f64,
+        pub secs_grow: f64,
+        pub secs_enq: f64,
+    }
+    pub fn lh_stats() -> LhStats {
+        LhStats::default()
+    }
+    pub fn lh_stats_reset() {}
+    pub fn set_lh_block(_n: usize) {}
+    pub fn set_lh_session(_on: bool) {}
+    // ---- [UPERF2-Q] the combine session (never live without the feature).
+    pub enum CombineSrc<'a, B: SmallRings + ?Sized> {
+        Pool(&'a Phi0Source),
+        Small(&'a [&'a B]),
+        ModQ(&'a [&'a [Poly]]),
+    }
+    #[derive(Clone, Copy, PartialEq, Eq)]
+    pub enum CombineOut {
+        ModQ { two_l: Option<u64> },
+        ExactI64,
+    }
+    pub enum CombineResult {
+        ModQ(Vec<Poly>),
+        I64(Vec<Vec<i64>>),
+    }
+    pub fn combine_accepts(_q: u64, _k: usize, _chunk: usize, _n_out: usize) -> bool {
+        false
+    }
+    #[allow(clippy::too_many_arguments)]
+    pub fn combine_stream<B: SmallRings + ?Sized>(
+        _q: u64,
+        _c: &[Vec<i64>],
+        _src: CombineSrc<'_, B>,
+        _k: usize,
+        _chunk: usize,
+        _n_out: usize,
+        _out: CombineOut,
+        _force: bool,
+    ) -> Option<CombineResult> {
+        None
+    }
+    /// Mirrors `cuda::CbStats` (all zero without the feature).
+    #[derive(Clone, Debug, Default)]
+    pub struct CbStats {
+        pub sessions: u64,
+        pub declined: u64,
+        pub stages: u64,
+        pub bytes_h2d: u64,
+        pub secs_fill: f64,
+        pub secs_wait: f64,
+        pub secs_total: f64,
+    }
+    pub fn cb_stats() -> CbStats {
+        CbStats::default()
+    }
+    pub fn cb_stats_reset() {}
+    pub fn set_cb_session(_on: bool) {}
+    pub fn set_cb_block(_n: usize) {}
+    /// The chain GEMM: `None` = the CPU body runs.
+    pub fn matmul_i8(_a: &[i64], _b_t: &[i64], _rows: usize, _inner: usize, _cols: usize) -> Option<Vec<i64>> {
+        None
+    }
+    pub fn mm_stats() -> (u64, f64) {
+        (0, 0.0)
+    }
 }
 
 #[cfg(not(feature = "gpu-cuda"))]
