@@ -1004,28 +1004,137 @@ mod gl_neon {
         unsafe { (add(u, v, k), mul(sub(u, v, k), t, k)) }
     }
 
+    /// A signed power-of-two twiddle +-2^k as NEON shift counts
+    /// (`vshlq_u64` shifts each lane left by a signed count; a negative
+    /// count shifts right; |count| >= 64 gives 0 — so the three counts
+    /// below are one instruction each, no class-specific shift ops).
+    #[derive(Clone, Copy)]
+    struct Pw {
+        cls: u8, // 0: k <= 32; 1: 32 < k < 64; 2: 64 <= k < 96
+        neg: bool,
+        cl: int64x2_t, // left by k (cls 0/1) or k - 64 (cls 2)
+        cr: int64x2_t, // right by 64 - k (cls 0/1)
+        c2: int64x2_t, // right by 96 - k (cls 1/2)
+    }
+
+    #[inline(always)]
+    unsafe fn pw(f: super::Pw2) -> Pw {
+        let k = f.k as i64;
+        let cls = if k <= 32 { 0 } else if k < 64 { 1 } else { 2 };
+        unsafe {
+            Pw {
+                cls,
+                neg: f.neg,
+                cl: vdupq_n_s64(if k >= 64 { k - 64 } else { k }),
+                cr: vdupq_n_s64(k - 64),
+                c2: vdupq_n_s64(k - 96),
+            }
+        }
+    }
+
+    /// == the AVX2 `mul_pow2` (same cases, same terms): x * (+-2^k) mod p.
+    #[inline(always)]
+    unsafe fn mul_pow2(x: uint64x2_t, w: Pw, k: K) -> uint64x2_t {
+        unsafe {
+            if w.cls == 2 {
+                let y = vshlq_u64(x, w.cl);
+                let y_hi = vshlq_u64(x, w.c2);
+                let e = vmull_u32(vmovn_u64(y), k.eps32);
+                return if w.neg { sub(y_hi, e, k) } else { sub(e, y_hi, k) };
+            }
+            let l = vshlq_u64(x, w.cl);
+            let h = vshlq_u64(x, w.cr);
+            let e = vmull_u32(vmovn_u64(h), k.eps32);
+            let c = vsubq_u64(l, vandq_u64(vcgtq_u64(l, k.pm1), k.p));
+            let s = add(c, e, k);
+            if w.cls == 1 {
+                let h_hi = vshlq_u64(x, w.c2);
+                if w.neg { sub(h_hi, s, k) } else { sub(s, h_hi, k) }
+            } else if w.neg {
+                sub(vdupq_n_u64(0), s, k)
+            } else {
+                s
+            }
+        }
+    }
+
+    #[inline(always)]
+    unsafe fn dit_pow2(u: uint64x2_t, v: uint64x2_t, w: Pw, k: K) -> (uint64x2_t, uint64x2_t) {
+        unsafe {
+            let y = mul_pow2(v, w, k);
+            (add(u, y, k), sub(u, y, k))
+        }
+    }
+
+    #[inline(always)]
+    unsafe fn gs_pow2(u: uint64x2_t, v: uint64x2_t, w: Pw, k: K) -> (uint64x2_t, uint64x2_t) {
+        unsafe { (add(u, v, k), mul_pow2(sub(u, v, k), w, k)) }
+    }
+
+    /// One forward outer stage (== the AVX2 `fwd_stage`, two j at a time;
+    /// the sign of the twiddle swaps the store offsets per group).
+    #[inline(always)]
+    unsafe fn fwd_stage<const M: usize>(p: *mut u64, t: &NttTables, k: K) {
+        let len = D / (2 * M);
+        unsafe {
+            for i in 0..M {
+                let f = t.psi_pw2[M + i];
+                let mut w = pw(f);
+                w.neg = false;
+                let (os, od) = if f.neg { (len, 0) } else { (0, len) };
+                let j1 = 2 * i * len;
+                let mut j = j1;
+                while j < j1 + len {
+                    let (s, d) = dit_pow2(ld(p, j), ld(p, j + len), w, k);
+                    st(p, j + os, s);
+                    st(p, j + od, d);
+                    j += 2;
+                }
+            }
+        }
+    }
+
+    /// One inverse outer stage (== the AVX2 `inv_stage`; the sign swaps
+    /// the load offsets per group).
+    #[inline(always)]
+    unsafe fn inv_stage<const H: usize>(p: *mut u64, t: &NttTables, k: K) {
+        let len = D / (2 * H);
+        unsafe {
+            for i in 0..H {
+                let f = t.ipsi_pw2[H + i];
+                let mut w = pw(f);
+                w.neg = false;
+                let (ou, ov) = if f.neg { (len, 0) } else { (0, len) };
+                let j1 = 2 * i * len;
+                let mut j = j1;
+                while j < j1 + len {
+                    let (s, d) = gs_pow2(ld(p, j + ou), ld(p, j + ov), w, k);
+                    st(p, j, s);
+                    st(p, j + len, d);
+                    j += 2;
+                }
+            }
+        }
+    }
+
     /// == ntt_fwd_fast on NEON.
     pub unsafe fn ntt_fwd(a: &mut [u64; D], t: &NttTables) {
         unsafe {
             let k = consts();
             let p = a.as_mut_ptr();
-            // Stages m = 1..32 (len = 64..2): whole-vector butterflies.
-            let mut m = 1usize;
-            let mut len = D;
-            while m <= 32 {
-                len >>= 1;
-                for i in 0..m {
-                    let tw = tw_splat(t.psi_brv[m + i]);
-                    let j1 = 2 * i * len;
-                    let mut j = j1;
-                    while j < j1 + len {
-                        let (u, v) = dit(ld(p, j), ld(p, j + len), tw, k);
-                        st(p, j, u);
-                        st(p, j + len, v);
-                        j += 2;
-                    }
-                }
-                m <<= 1;
+            // Stages m = 1..16 (len = 64..4): +-2^k twiddles.
+            fwd_stage::<1>(p, t, k);
+            fwd_stage::<2>(p, t, k);
+            fwd_stage::<4>(p, t, k);
+            fwd_stage::<8>(p, t, k);
+            fwd_stage::<16>(p, t, k);
+            // Stage m = 32 (len 2): general twiddles psi_brv[32 + i], one
+            // whole-vector butterfly per group: (a[4i], a[4i+1]) x (a[4i+2], a[4i+3]).
+            for i in 0..32 {
+                let tw = tw_splat(t.psi_brv[32 + i]);
+                let (u, v) = dit(ld(p, 4 * i), ld(p, 4 * i + 2), tw, k);
+                st(p, 4 * i, u);
+                st(p, 4 * i + 2, v);
             }
             // Stage m = 64 (len 1): pairs (a[4k+2i], a[4k+2i+1]), i < 2,
             // twiddles psi_brv[64 + 2k + i], on the zip split of a[4k..4k+4].
@@ -1058,28 +1167,24 @@ mod gl_neon {
                 st(p, 4 * kk, vzip1q_u64(u, v));
                 st(p, 4 * kk + 2, vzip2q_u64(u, v));
             }
-            // Stages len = 2..64 (h = 32..1): whole-vector butterflies.
-            let mut len = 2usize;
-            let mut h = 32usize;
-            while h >= 1 {
-                for i in 0..h {
-                    let tw = tw_splat(t.ipsi_brv[h + i]);
-                    let j1 = 2 * i * len;
-                    let mut j = j1;
-                    while j < j1 + len {
-                        let (u, v) = gs(ld(p, j), ld(p, j + len), tw, k);
-                        st(p, j, u);
-                        st(p, j + len, v);
-                        j += 2;
-                    }
-                }
-                len <<= 1;
-                h >>= 1;
+            // Stage len = 2 (h = 32): general twiddles ipsi_brv[32 + i].
+            for i in 0..32 {
+                let tw = tw_splat(t.ipsi_brv[32 + i]);
+                let (u, v) = gs(ld(p, 4 * i), ld(p, 4 * i + 2), tw, k);
+                st(p, 4 * i, u);
+                st(p, 4 * i + 2, v);
             }
-            let tw = tw_splat(t.n_inv);
+            // Stages len = 4..64 (h = 16..1): +-2^k twiddles.
+            inv_stage::<16>(p, t, k);
+            inv_stage::<8>(p, t, k);
+            inv_stage::<4>(p, t, k);
+            inv_stage::<2>(p, t, k);
+            inv_stage::<1>(p, t, k);
+            // Final scale by 1/n = -2^89.
+            let w = pw(t.n_inv_pw2);
             let mut j = 0;
             while j < D {
-                st(p, j, mul(ld(p, j), tw, k));
+                st(p, j, mul_pow2(ld(p, j), w, k));
                 j += 2;
             }
         }
