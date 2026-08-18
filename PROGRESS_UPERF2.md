@@ -1042,15 +1042,32 @@ routes; none is a kernel round; each needs a ruling before work.
    checks and the lookup's masked descent onto that same object, and
    (c) keeps the lattice commitment (post-quantum, exact-integer
    soundness — the reason the line is first) is the T11 (a')-type
-   change. Expected: 3-10x on the prover [MODEL, unmeasured — the
-   round count and K-field cost per round are the two levers; a
-   design memo with the counted rounds/pairs before and after is the
-   first deliverable, ~1 lane-day; the build is a tranche (weeks),
-   transcript-changing (freeze rows re-pinned, Victor's ruling)]. It
-   does NOT by itself reach 25-100x; combined with the r-cap R-row
-   (T11 b) and a desktop GPU it lands the 8B shape in the ~15-160 s
-   class ((2-8 min) / (3-10x), [MODEL]) — a real product number, not
-   the headline.
+   change. Expected (DESIGN MEMO WRITTEN 2026-08-18,
+   docs/zkmatrix-poc/U_PERF3_OPENING_LAYER_DESIGN.md — counts from the
+   executable `table-descent expect 12 512` and the measured
+   attribution): **Stage A** (range facts as base-field booleanity +
+   recomposition zero-checks folded into the claim layer; SiLU as a
+   LogUp-as-one-sumcheck with a committed helper; the LaBRADOR opening
+   kept) — descents 6.5 -> ~1.0-1.5 s, artifact 1.51 -> ~0.5 MB, wall
+   21.0 -> ~15.5 s = **~1.35x prover [MODEL from measured shares, low
+   risk]**; **Stage B** (the r-cap R-row + rank-structured Phi_0 +
+   one-point batching on the eval proof's level-0 term; a supplied-
+   Psi_0 verifier sumcheck = new crypto) — wall ~11-12 s, verifier to
+   the <= 2 s / 1T line, **~1.8-2.5x combined [MODEL, unmeasured]**.
+   The "3-10x" first written here was the optimistic top and requires
+   the lattice OPENING itself to move (a Greyhound-class O(sqrt N)
+   serving of the eval proof — a larger re-architecture, unpriced).
+   The memo's biggest [ASSUMED]: (1) the range facts' K-field descent
+   (~5.2 of the 6.5 s) collapses to base-field booleanity — spike S1
+   (1-2 days, synthetic, no engine change, no ruling) measures it;
+   (2) the level-0 h-garbage actually drops under the R-row (spike
+   S3); (3) the supplied-Psi_0 sumcheck is sound (owes a proof). Build
+   = a tranche, transcript-changing (EVAL-PROOF digest moves, BK freeze
+   rows retire; the memo's §6.2 lists the four ruling items). Honest
+   bottom line: route 1 as designed lands the 8B shape in the ~1-3 min
+   class on a desktop board [MODEL] — a product number, not the
+   headline; the 25-100x is NOT on this route without the opening
+   re-architecture.
 2. **The other channel (Attestable-class: hash-based sumcheck/GKR
    prover, integer matmuls, float nonlinears) as a parallel prototype
    with an honest comparison row.** What is known: vendor-claimed
@@ -1080,14 +1097,19 @@ routes; none is a kernel round; each needs a ruling before work.
    from the arithmetic and lets the 12x512 pass run at 1T/8T/16T with
    the GPU on the box Grok works on.
 
-Recommendation (orchestrator): (1)'s design memo first (one lane-day,
-no code, no ruling needed to write it — it counts rounds/pairs before
-and after and prices the transcript change), (3) in parallel as
-Grok-shaped work once the kernel set is frozen (a port with a
-cell-by-cell battery per kernel is exactly the RUN+CODE-with-oracle
-shape TASK_BOARD gives Grok), and (2) only on Victor's ruling that the
-assumption class may move. Kernel rounds continue only if Victor wants
-the ~1.15x — the ledger's items are listed above with their sizes.
+Recommendation (orchestrator, revised after the design memo): the
+lattice line as built is a ~1-3 min-per-8B-FFN system on a desktop
+board after route 1 [MODEL], byte-exact and post-quantum; the 5-15 s
+headline is not reachable on it without re-architecting the opening
+(unpriced) — so the ruling is really between (i) accepting the
+"minutes" product number and continuing the lattice line (route 1
+Stage A + spike S1 first, then Stage B; route 3 as Grok-shaped work),
+(ii) opening the other channel (route 2) as a comparison prototype
+because the headline matters more than the assumption class, or
+(iii) both in parallel. The orchestrator will not launch route 1's
+spike or any build lane before the ruling: each is spend on a route
+Victor may not pick. Kernel rounds continue only if Victor wants the
+~1.15x — the ledger's items are listed above with their sizes.
 
 ## Agent P status (wt-uperf2-p)
 
