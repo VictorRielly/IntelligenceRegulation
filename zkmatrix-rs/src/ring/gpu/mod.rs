@@ -46,7 +46,7 @@ mod k9;
 
 #[cfg(feature = "gpu-cuda")]
 pub use cuda::{
-    enabled, label, ntt_batch, ntt_gemm_modq_small, ntt_gemm_modq_small_force, probe, set_block_mb, set_bypass, stats,
+    enabled, imad_probe, label, ntt_batch, ntt_gemm_modq_small, ntt_gemm_modq_small_force, probe, set_block_mb, set_bypass, stats,
     stats_reset, GpuStats, ProbeReport,
 };
 #[cfg(feature = "gpu-cuda")]
@@ -101,6 +101,10 @@ mod stub {
         pub gmul_per_s: f64,
     }
     pub fn probe() -> Result<ProbeReport, String> {
+        Err("built without --features gpu-cuda".to_string())
+    }
+    /// [UPERF2-O] instruction-throughput probe (unavailable here).
+    pub fn imad_probe(_mode: i32, _iters: i32, _blocks: u32) -> Result<f64, String> {
         Err("built without --features gpu-cuda".to_string())
     }
     /// Mirrors `cuda::GpuStats` (all zero without the feature).

@@ -40617,7 +40617,19 @@ fn uperf_o_main(args: &[String]) {
             let reps: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(1);
             uperf_o_bench(layers, t, reps);
         }
-        _ => println!("uperf-o battery [seed] | bench [layers] [t] [reps]"),
+        Some("probe") => {
+            // [UPERF2-O] instruction throughput per MAC formulation (analysis only)
+            let iters: i32 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(4096);
+            let blocks: u32 = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(36 * 16);
+            println!("[UPERF2-O] probe: {} ({iters} steps x {blocks} blocks x 256 threads, best-effort G ops/s)", ring::gpu::label());
+            for (mode, name) in [(0, "IMAD 32x32->32 (u32 mad)"), (1, "mad.wide.u32 32x32->64"), (2, "K's 64x64->128 mul.lo+mul.hi + 2 x ACC128"), (3, "3-limb 9 x mad.wide.u32 (5 diagonals)")] {
+                match ring::gpu::imad_probe(mode, iters, blocks) {
+                    Ok(g) => println!("  mode {mode} {name:<44} {g:8.1} G MAC-class ops/s"),
+                    Err(e) => println!("  mode {mode} {name:<44} unavailable: {e}"),
+                }
+            }
+        }
+        _ => println!("uperf-o battery [seed] | bench [layers] [t] [reps] | probe [iters] [blocks]"),
     }
 }
 

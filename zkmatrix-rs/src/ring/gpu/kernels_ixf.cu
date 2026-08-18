@@ -55,7 +55,10 @@ typedef long long i64;
 #define M31 0x7FFFFFFFULL
 
 #ifndef TOX
-#define TOX 64
+#define TOX 32
+#endif
+#ifndef OIXF_MINB
+#define OIXF_MINB 1
 #endif
 
 // Kernel parameters (by value; == ixf.rs OixfParams, #[repr(C)]).
@@ -103,7 +106,7 @@ __device__ __forceinline__ u32 canon1(u64 v, u32 q) {
     return (r < q) ? r : r2;
 }
 
-// acc[31] += a * b (16x16 schoolbook, burst-folded).
+// acc[31] += a * b (16x16 schoolbook, burst-folded; == kernels_k9.cu kmac).
 __device__ __forceinline__ void kmac(const u32* a, const u32* b, u64* acc, u32 c32) {
 #pragma unroll
     for (int t = 0; t < 31; t++) {
@@ -125,7 +128,7 @@ __device__ __forceinline__ void kmac(const u32* a, const u32* b, u64* acc, u32 c
     }
 }
 
-// out[16] = canonical reduction of acc[31] (each acc_t < 2^45).
+// out[16] = canonical reduction of acc[31] (each acc_t < 2^45; == kred).
 __device__ __forceinline__ void kred(const u64* acc, u32* out, u32 q, u32 s, u32 c31) {
     u32 h[15];
 #pragma unroll
@@ -139,6 +142,9 @@ __device__ __forceinline__ void kred(const u64* acc, u32* out, u32 q, u32 s, u32
     }
 }
 
+// out = a * b (canonical). (A two-pass form with one live acc_t was tried:
+// fewer live registers but less ILP — 3x SLOWER at the same occupancy; the
+// 31-accumulator form stays.)
 __device__ __forceinline__ void kmul(const u32* a, const u32* b, u32* out, const OP& P) {
     u64 acc[31];
 #pragma unroll
@@ -275,8 +281,29 @@ __device__ __forceinline__ void node_val_reg(const u32* e0, const u32* e1, u32 x
     }
 }
 
+// out = s * b for a BASE-FIELD scalar s (a K-element with only coordinate 0
+// set: the shift table's embed(2^shift) entries while position variables
+// remain): the schoolbook has one product per output t < 16 and none above,
+// so h_t = 0 and out[t] = canon1(fold31(fold31(fold32(s b_t)))) — exactly
+// kmul's chain for that operand (the same intermediate integers), 16
+// products instead of 256.
+__device__ __forceinline__ void kmul_scalar(u32 s, const u32* b, u32* out, const OP& P) {
+#pragma unroll
+    for (int t = 0; t < KDEG; t++) {
+        u64 pr = mulw(s, b[t]);
+        u64 acc = madw(P.c32, (u32)(pr >> 32), pr & M32);
+        acc = fold31(acc, P.c31);
+        acc = fold31(acc, P.c31);
+        out[t] = canon1(acc, P.q);
+    }
+}
+
 // Block reduction of accn (mod q, fixed order within the block) + one u64
 // atomic add of the canonical block sum per (node, t) into partial.
+// (A grouped variant — the block's pairs sharing the eq high factor H[j],
+// applied once to the block sum — was measured neutral-to-slower: the eq
+// kmuls it saves are paid back by the fixed per-block grid and the extra
+// atomics; removed.)
 __device__ __forceinline__ void reduce_nodes(u32 accn[4][KDEG], u32 nn, u64* partial, u32 q) {
     __shared__ u32 red[4 * KDEG][TOX / 32];
     const int lane = threadIdx.x & 31, wid = threadIdx.x >> 5;
@@ -302,7 +329,7 @@ __device__ __forceinline__ void reduce_nodes(u32 accn[4][KDEG], u32 nn, u64* par
     }
 }
 
-extern "C" __global__ void __launch_bounds__(TOX)
+extern "C" __global__ void __launch_bounds__(TOX, OIXF_MINB)
 k_oixf_round(OP P, const u32* __restrict__ t1, const u32* __restrict__ t2, const u32* __restrict__ t3,
              const u32* __restrict__ eqA, const u32* __restrict__ eqB, const u32* __restrict__ shp, u64* partial) {
     __shared__ u32 sh[SHW * TOX];
@@ -327,17 +354,18 @@ k_oixf_round(OP P, const u32* __restrict__ t1, const u32* __restrict__ t2, const
             for (int j = 0; j < KDEG; j++) { uint2 v = ld2(t3, p >> 2, p & 3, j); a0[j] = v.x; a1[j] = v.y; }
             put_state(sh, 2, a0, a1, P.q);
         }
-        // the eq pair (registers)
+        // the eq pair (registers): mode 0 = eqL x H per pair; mode 1 = the
+        // small table G.
         u32 q0[KDEG], q1[KDEG];
         if (P.eq_mode == 0) {
             const u32 pp = p & ((1u << P.lo_bits) - 1u);
             const u32 j = p >> P.lo_bits;
-            u32 l0[KDEG], l1[KDEG], hh[KDEG];
+            u32 l0[KDEG], l1[KDEG], h1[KDEG];
 #pragma unroll
             for (int jj = 0; jj < KDEG; jj++) { uint2 v = ld2(eqA, pp >> 2, pp & 3, jj); l0[jj] = v.x; l1[jj] = v.y; }
-            ldel(eqB, j, hh);
-            kmul(l0, hh, q0, P);
-            kmul(l1, hh, q1, P);
+            ldel(eqB, j, h1);
+            kmul(l0, h1, q0, P);
+            kmul(l1, h1, q1, P);
         } else {
 #pragma unroll
             for (int jj = 0; jj < KDEG; jj++) { uint2 v = ld2(eqA, p >> 2, p & 3, jj); q0[jj] = v.x; q1[jj] = v.y; }
@@ -359,21 +387,20 @@ k_oixf_round(OP P, const u32* __restrict__ t1, const u32* __restrict__ t2, const
 #pragma unroll
                 for (int j = 0; j < KDEG; j++) inner[j] = subm(inner[j], v3[j], P.q);
             } else {
-                // the shift pair (rq): re-read per node from the small table
-                // (L1/L2-resident; keeps 32 registers off the budget)
-                u32 s0[KDEG], s1[KDEG];
+                u32 v2[KDEG];
+                node_val(sh, 1, x, v2, P.q);
                 if (P.sh_mode == 1) {
-                    ldel(shp, p >> P.sh_shift, s0);
-#pragma unroll
-                    for (int jj = 0; jj < KDEG; jj++) s1[jj] = s0[jj];
+                    // the shift is a per-slot base-field scalar (both pair
+                    // elements equal: every node value is that scalar)
+                    const u32 s4 = shp[(size_t)((p >> P.sh_shift) >> 3) * KBLK + ((p >> P.sh_shift) & 7)];
+                    kmul_scalar(s4, v2, inner, P);
                 } else {
+                    u32 s0[KDEG], s1[KDEG], v4[KDEG];
 #pragma unroll
                     for (int jj = 0; jj < KDEG; jj++) { uint2 v = ld2(shp, p >> 2, p & 3, jj); s0[jj] = v.x; s1[jj] = v.y; }
+                    node_val_reg(s0, s1, x, v4, P.q);
+                    kmul(v4, v2, inner, P);
                 }
-                u32 v4[KDEG], v2[KDEG];
-                node_val_reg(s0, s1, x, v4, P.q);
-                node_val(sh, 1, x, v2, P.q);
-                kmul(v4, v2, inner, P);
                 u32 v1[KDEG], v3[KDEG];
                 node_val(sh, 0, x, v1, P.q);
                 node_val(sh, 2, x, v3, P.q);

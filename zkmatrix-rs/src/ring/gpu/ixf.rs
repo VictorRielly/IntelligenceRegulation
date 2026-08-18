@@ -47,7 +47,7 @@ const KSRC: &str = include_str!("kernels_ixf.cu");
 const MODULE: &str = "zkgpu_ixf";
 const FUNCS: &[&str] = &["k_oixf_build", "k_oixf_fold", "k_oixf_round"];
 /// Threads per block of the round kernel (== TOX in kernels_ixf.cu).
-const TOX: u32 = 64;
+const TOX: u32 = 32;
 /// Threads per block of the build / fold kernels.
 const TEL: u32 = 128;
 /// Grid cap (grid-stride loops above it).
@@ -262,7 +262,8 @@ fn init_ixf() -> Result<Ixf, String> {
     let t0 = Instant::now();
     let arch = arch_str((major, minor));
     // PTX cached on disk keyed by (source, options, arch) — as k9.rs.
-    let opts_str = format!("-DTOX={TOX}|{}", arch.unwrap_or("generic"));
+    let minb = env_usize("ZK_GPU_IXF_MINB", 1);
+    let opts_str = format!("-DTOX={TOX} -DOIXF_MINB={minb}|{}", arch.unwrap_or("generic"));
     let cache_path = {
         use sha2::Digest;
         let mut h = sha2::Sha256::new();
@@ -278,7 +279,7 @@ fn init_ixf() -> Result<Ixf, String> {
         Some(src) => cudarc::nvrtc::Ptx::from_src(src),
         None => {
             let compile = |arch: Option<&'static str>| {
-                let opts = CompileOptions { arch, options: vec![format!("-DTOX={TOX}")], ..Default::default() };
+                let opts = CompileOptions { arch, options: vec![format!("-DTOX={TOX}"), format!("-DOIXF_MINB={minb}")], ..Default::default() };
                 compile_ptx_with_opts(KSRC, opts)
             };
             let ptx = match compile(arch) {
@@ -639,6 +640,12 @@ impl Ixf {
 
     fn open(&mut self, kf: &KField, kern: &super::super::kfield::KKern, spec: &IxfZcSpec) -> Result<bool, String> {
         self.dev.bind_to_thread().map_err(|e| format!("bind: {e}"))?;
+        // The round kernel treats the shift entries as BASE-FIELD scalars
+        // (coordinate 0 only — embed(2^shift) / zero pads); anything else is
+        // not this instance's shape: decline to the host path.
+        if spec.kind_id() == 2 && spec.sh_layer.iter().any(|e| e[1..].iter().any(|&c| c != 0)) {
+            return Ok(false);
+        }
         let n_vars = spec.n_pos + spec.lambda;
         let n = 1usize << n_vars;
         let words = (n / KL) * KBLK;
@@ -767,6 +774,9 @@ impl Ixf {
 
     fn params(&self, kern: &super::super::kfield::KKern, c: &Chain, deg: usize) -> OP {
         let n_pairs = c.n / 2;
+        // eq: mode 0 = eqL x H per pair (t < h), mode 1 = the small remaining
+        // table G. (A grouped mode — the block's pairs sharing H[j], applied
+        // once to the block sum — measured neutral-to-slower; removed.)
         let (eq_mode, lo_bits) = if c.t < c.h { (0u32, (c.h - c.t - 1) as u32) } else { (1u32, 0u32) };
         let (sh_mode, sh_shift) = if c.kind == 2 {
             if c.t < c.n_pos { (1u32, (c.n_pos - c.t - 1) as u32) } else { (2u32, 0u32) }
