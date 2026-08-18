@@ -2431,6 +2431,11 @@ pub struct MultiClaimKernel {
     pub scale: KElem,
     pub row_kernel: std::rc::Rc<Vec<KElem>>,
     pub col_kernel: std::rc::Rc<Vec<KElem>>,
+    /// [UPERF2-Q] memo of `kernel_row_factors` (scale * row for every row
+    /// — a pure function of (q, s, scale, rows), keyed by (q, s)); the four
+    /// consumers of a group's kernels per pass (the rows pass, the level-h
+    /// source, the two factored psi builds) computed it four times.
+    pub row_factors: std::cell::OnceCell<(u64, u64, Vec<KElem>)>,
 }
 
 /// Reference Phi_0 of one digit ring under the ADDITIVE multi-claim
@@ -3143,10 +3148,18 @@ pub fn phi0_reference_multi(
 /// [UPERF2-M] parallel over rows (independent K-mults, order kept) on the
 /// fold-reduced K-mult (`kmul_fast` == `kf.mul`).
 fn kernel_row_factors(kf: &KField, ker: &MultiClaimKernel) -> Vec<KElem> {
+    // [UPERF2-Q] the per-kernel memo (the same values: a pure function).
+    if let Some((q, s, v)) = ker.row_factors.get() {
+        if *q == kf.zq.q && *s == kf.s {
+            return v.clone();
+        }
+    }
     let qf = QFold::new(kf.zq.q);
     let rows: &[KElem] = &ker.row_kernel;
     let scale: &KElem = &ker.scale;
-    map_ordered_min(rows.len(), MAP_MIN_PAR, |i| kmul_fast(kf, &qf, scale, &rows[i]))
+    let v: Vec<KElem> = map_ordered_min(rows.len(), MAP_MIN_PAR, |i| kmul_fast(kf, &qf, scale, &rows[i]));
+    let _ = ker.row_factors.set((kf.zq.q, kf.s, v.clone()));
+    v
 }
 
 // ---------------------------------------------------------------------------

@@ -29851,6 +29851,7 @@ fn bg_multi_kernels(
                 scale: c.scale.clone(),
                 row_kernel: c.row.clone(),
                 col_kernel: c.col.clone(),
+                row_factors: std::cell::OnceCell::new(), // [UPERF2-Q]
             });
         }
     }
