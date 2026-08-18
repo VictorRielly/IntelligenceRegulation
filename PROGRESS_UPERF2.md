@@ -968,10 +968,29 @@ leg + one commit; the previous bodies stay reachable by env knob):
    then the step kernel itself.
 5. a.tree-pack (host compact fill) threaded/overlapped if time allows.
 
-DONE: skeleton (report + this section).
-NEXT: build the GPU binary at HEAD, take the baselines (kbench + the
-three rigs are the ledger's), then step 2.
-DECISIONS: none yet.
+DONE (97725ef): one launch per fused round over a device range table
+(`k_*_m` kernels; `ZK_GPU_K9_MULTI=0` = lane L's launch per range), the
+eq b-part built on the device (`kfield::EqTab` handle in `FusedPlan.eq_tab`;
+`k_eq_outer` = lo x hi of two host-built halves — the same canonical
+products; host image lazy for CPU readers; `ZK_GPU_K9_EQ_DEV=0` = host
+build), the tree store's buffer pool (exact-size free list, budget-trimmed;
+`ZK_GPU_K9_POOL=0`) + lazy layer-buffer release; `ZK_GPU_K9_WARM=1`
+(memset fresh buffers) MEASURED a net loss (kept off). `uperf-p battery`
+126 legs (35.2M words) green at 7T; 3x16 and 12x512 rig digests identical.
+12x512 8T+GPU: 34.1 -> 32.2 s [WSL-BOX 8T, load ~2, NOISY?] — descents
+10.8 -> 8.7 s (a.round-g 7.14 -> 6.64, a.tree-step 1.91 -> 1.09,
+a.eq-table 0.67 -> 0.10, bk.descent-trees 2.63 -> 1.78).
+FINDING (12x512 verbose): the round-0 hooks of the biggest layers spend
+100-250 ms outside the kernels (cuMemAlloc/Free of multi-GB buffers as
+the budget forces releases + regrowth) and the kernels then run on cold
+pages (~2x); ~1.4 s non-kernel + ~1 s cold inside 6.3 s in-hook.
+NEXT: a slab/buddy allocator in k9.rs so bytes change roles (tree layer
+-> climbed layer -> state chunks) with no new allocations after warm-up
+(per-(range, table) state chunks — the range table already carries
+per-range pointers), then the kernels.
+DECISIONS: one line added to lane L's harness literal (`eq_tab: None`
+in `uperf_l_run_layer`'s `FusedPlan { .. }`) — the plan grew a field;
+flagged for the orchestrator (merge-safe: lane Q does not touch it).
 
 ## Agent A status (wt-uperf2-a)
 
