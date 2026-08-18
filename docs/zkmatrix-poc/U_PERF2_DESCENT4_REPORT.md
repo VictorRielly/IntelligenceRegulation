@@ -8,7 +8,8 @@ Every number carries `[WSL-BOX 1T|NT, QUIET|NOISY-SHARED]`; lane I built
 and ran in its own worktree during the whole session (load 1-7), so every
 wall below is NOISY-SHARED unless marked QUIET; the RSS rows are
 load-independent. Commits: 50d87ca plan, fd646f1 the code (items 1-3),
-9466dfb interim ledger, + the report/ledger commit.
+9466dfb interim ledger, 08b0262 leaves-never-released + report draft, +
+the close commit (report + ledger).
 
 ## 0. One paragraph
 
@@ -246,7 +247,7 @@ overlapped: load 3.2 at the first run's start, 6.9 at the second's].
   3, 4 (8T) and 1T; `uperf-h bench`: 0bf9d7a3.. on all seven knob variants
   and with the arena on.
 - `uperf-pc diff-battery`: O1 4/4, O2 35/35, O3 63/63, O5 12/12, E2E 2/2 at
-  ZK_THREADS 1 (and 7 — see the ledger's close entry).
+  ZK_THREADS 1 and 7.
 - freeze-check: 98 `ok` rows identical to the pre-change capture
   (scratchpad h_freeze_baseline.txt = lane I's capture of the same build;
   then the expected BF panic).
@@ -254,8 +255,18 @@ overlapped: load 3.2 at the first run's start, 6.9 at the second's].
   985,142 B, EVAL-PROOF DIGEST 0ae9cdae..; REAL 12x64 8T: 80763ea5.. /
   63f4a3a4..; REAL 12x128 8T: 4a3af8c3.. / 742d88e1.., 1,372,775 B; the
   new shapes 12x256 and 12x512 twice each (Section 3.2 / 5) — every digest
-  identical on every run.
-- `self-test`: see the ledger's close entry.
+  identical on every run. Same-state A/B at 3x16 1T, back to back under
+  the same load (~3.5): base d38e9ce 34.9 s (bk.descent-trees 0.56,
+  bk.descent-gkr 3.02) vs HEAD 34.5 s (0.48, 3.15) — neutral (the
+  recompute +0.13 s against the compact fill -0.08 s).
+- `self-test`: passed, 259.0 s, 328 `ok` rows (identical to the merge-G
+  capture up to timings). Real data: `table-descent battery small` 5/5
+  (34.8 s at 8T), `pass-agg battery` 14/14 (72.7 s at 8T) — the tamper
+  arms and the WrongTable prover run through the new tree store.
+- The h-bench at 1T [NOISY, load 4.6]: c=0 prove 9.00 s (a.tree-step 2.05,
+  trees 2.15, peak 733 MiB) vs c=2 9.45 s (2.63, 1.81, 664 MiB) — the
+  recompute is +5% of the descent's K-work at 1T as at 8T, half of it
+  given back by the cheaper tree build.
 
 ## 7. What is left (honest state at close)
 
