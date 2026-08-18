@@ -1185,6 +1185,11 @@ pub(crate) fn extract_children_par(
     }
     let l = trees.len();
     assert_eq!(lays.len(), l, "extract: one layer handle per tree");
+    // [UPERF2-N] a device layer is materialized on THIS thread before the
+    // jobs (one fetch per tree, never from inside a pool worker).
+    for lay in lays.iter().flatten() {
+        let _ = lay.tabs();
+    }
     let size = l << k;
     let per_tree_blk = (1usize << k) / KL;
     let mut p0 = KTab::zeroed(size);

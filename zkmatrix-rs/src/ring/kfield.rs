@@ -3169,6 +3169,11 @@ pub(crate) fn k9_tree_climb_par(kern: &KKern, src: &BlkSrc, levels: usize, np: &
             return k9_tree_step_par(kern, p, q, np, nq, out_nblk);
         }
     }
+    // [UPERF2-N] a device layer source is materialized on THIS thread before
+    // the jobs (never from inside a pool worker).
+    if let BlkSrc::Device { .. } = src {
+        let _ = src.host_tabs();
+    }
     let (np, nq) = (&mut np[..out_nblk * KBLK], &mut nq[..out_nblk * KBLK]);
     let kern = *kern;
     let job = |c0: usize, npc: &mut [u32], nqc: &mut [u32]| {

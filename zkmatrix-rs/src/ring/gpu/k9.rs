@@ -951,7 +951,7 @@ impl K9 {
             {
                 let dstw = self.stg[i].slice_mut::<u32>(n);
                 let s = &src[off..off + n];
-                if threads() > 1 && n >= (1 << 20) {
+                if threads() > 1 && n >= (1 << 20) && !in_rayon_worker() {
                     POOL.install(|| {
                         use rayon::prelude::*;
                         dstw.par_chunks_mut(1 << 18).zip(s.par_chunks(1 << 18)).for_each(|(d, s)| d.copy_from_slice(s));
@@ -1017,7 +1017,7 @@ impl K9 {
             {
                 let s = self.stg[i].slice::<u32>(n);
                 let d = &mut dst[off..off + n];
-                if threads() > 1 && n >= (1 << 20) {
+                if threads() > 1 && n >= (1 << 20) && !in_rayon_worker() {
                     POOL.install(|| {
                         use rayon::prelude::*;
                         d.par_chunks_mut(1 << 18).zip(s.par_chunks(1 << 18)).for_each(|(d, s)| d.copy_from_slice(s));
@@ -1087,6 +1087,16 @@ enum DevSel {
     TreeOut(usize),
     /// [UPERF2-N] the in-hook climb's intermediate-level scratch (descent family).
     ClimbScr(usize),
+}
+
+/// [UPERF2-N] Is the current thread a rayon worker (of ANY pool)? A staging
+/// memcpy must then stay serial: `POOL.install` from a worker of another
+/// pool makes that worker steal and run its own pool's pending jobs while it
+/// waits — a job that re-enters this module (a device-layer materialization
+/// from `extract_children_par`'s jobs, say) would then dead-lock on the K9
+/// mutex / the layer's once-cell it is itself initializing.
+fn in_rayon_worker() -> bool {
+    rayon::current_thread_index().is_some()
 }
 
 /// Grid size for a grid-stride kernel over `n` items with `block` threads.
@@ -1650,12 +1660,12 @@ impl K9 {
         let eq_bytes = eq_src.len() * 4;
         // Budget (the state-1 tables come on top: 5 x the LIVE state-1 blocks,
         // and their ping-pong half for state 2).
-        let need = 2 * packed_blk * KBLK * 4 + cl_words * 4 + cl_meta_w * 4 + eq_bytes + scr_bytes;
+        let need = 2 * packed_blk * KBLK * 4 + cl_words * 4 + cl_meta_w * 4 + eq_bytes + 2 * scr_bytes;
         let live_pairs: usize = ranges.iter().map(|&(a, b)| b - a).sum();
         let st1_pairs = if plan.mode == FUSE_EXTRACT { live_pairs / 2 } else { live_pairs };
         let st1 = 5 * st1_pairs * 2 * KBLK * 4;
         let st2 = st1 / 2;
-        let more = need.saturating_sub(self.lay_p.bytes + self.lay_q.bytes + self.cl_w.bytes + self.cl_meta.bytes + self.eqb.bytes + self.climb_scr[0].bytes);
+        let more = need.saturating_sub(self.lay_p.bytes + self.lay_q.bytes + self.cl_w.bytes + self.cl_meta.bytes + self.eqb.bytes + self.climb_scr[0].bytes + self.climb_scr[1].bytes);
         let want = more + st1.saturating_sub(self.st[0].bytes) + st2.saturating_sub(self.st[1].bytes);
         if self.held + want > self.budget {
             self.release_idle(DevSel::LayP);
@@ -1678,8 +1688,10 @@ impl K9 {
         self.grow_dev(DevSel::ClMeta, cl_meta_w * 4)?;
         self.grow_dev(DevSel::Eqb, eq_bytes)?;
         if scr_bytes > 0 {
-            self.grow_dev(DevSel::ClimbScr(0), scr_bytes / 2)?;
-            self.grow_dev(DevSel::ClimbScr(1), scr_bytes / 2)?;
+            // Each scratch buffer holds BOTH tables of one intermediate level
+            // (the levels ping-pong between the two).
+            self.grow_dev(DevSel::ClimbScr(0), scr_bytes)?;
+            self.grow_dev(DevSel::ClimbScr(1), scr_bytes)?;
         }
         // Uploads (copy stream) and climbs (compute stream).
         let mut pp = 0usize;
@@ -2661,8 +2673,8 @@ impl K9 {
         self.grow_dev(DevSel::LayP, bytes)?;
         self.grow_dev(DevSel::LayQ, bytes)?;
         if scr > 0 {
-            self.grow_dev(DevSel::ClimbScr(0), scr / 2)?;
-            self.grow_dev(DevSel::ClimbScr(1), scr / 2)?;
+            self.grow_dev(DevSel::ClimbScr(0), scr)?;
+            self.grow_dev(DevSel::ClimbScr(1), scr)?;
         }
         let (dp, dq) = (self.lay_p.ptr, self.lay_q.ptr);
         self.climb_layer(tree, k, src_k, dp, dq)?;
@@ -2680,6 +2692,8 @@ impl K9 {
         if t.layers[k].is_none() {
             return;
         }
+        // Any thread may release / drop (a FracTree drop): bind the context.
+        let _ = self.dev.bind_to_thread();
         // A LayerRes pointing into it must not survive.
         if let Some(l) = &self.layer {
             if l.ids.iter().any(|(id, _)| matches!(id, LayerId::Device { tree: tt, k: kk } if *tt == tree && *kk == k)) {
@@ -2698,6 +2712,7 @@ impl K9 {
 
     fn tree_drop(&mut self, tree: u64) {
         let Some(mut t) = self.trees.remove(&tree) else { return };
+        let _ = self.dev.bind_to_thread();
         if let Some(l) = &self.layer {
             if l.ids.iter().any(|(id, _)| matches!(id, LayerId::Device { tree: tt, .. } if *tt == tree)) {
                 self.layer = None;

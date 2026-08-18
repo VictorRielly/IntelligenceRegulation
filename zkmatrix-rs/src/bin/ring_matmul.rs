@@ -6424,6 +6424,8 @@ fn main() {
         Some("uperf-m") => uperf_m_main(&args[1..]),
         // [UPERF2-L] U-PERF2 lane L (GPU step 2: the K-field lane kernels on the device) battery + bench.
         Some("uperf-l") => uperf_l_main(&args[1..]),
+        // [UPERF2-N] U-PERF2 lane N (GPU step 3: the descent tree device-resident end to end) battery + bench.
+        Some("uperf-n") => uperf_n_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -40580,4 +40582,376 @@ fn uperf_l_dbench(depth: usize, l: usize, n_real: usize, dt: usize) {
     println!("  CPU phases: {}", cpu_prof.join(" | "));
     println!("  GPU phases: {}", gpu_prof.join(" | "));
     assert_eq!(a.digest, b.digest, "[UPERF2-L] dbench: GPU digest != CPU digest");
+}
+
+// [UPERF2-N] U-PERF2 lane N — THE GPU RUNG, step 3: the descent tree
+// DEVICE-RESIDENT end to end (feature gpu-cuda; ring/gpu/k9.rs's device tree
+// store; gkr.rs `build_tree_from` / `FracTree::layer` — `LayerSrc::Device`,
+// kfield.rs `BlkSrc::Device`). ADDITIVE section. Commands:
+//   uperf-n battery [seed] — (1) TREES cell by cell: the device build vs the
+//                            CPU tree (every layer of every tree, materialized
+//                            through the same handles the descent uses — the
+//                            device checkpoints downloaded, the gap layers
+//                            climbed on the device; roots) at depths 13
+//                            (host, below the store's floor) .. 18, compact
+//                            leaves with exceptions and pads, packed leaves,
+//                            checkpoint strides 2/3/4, and under the GPU
+//                            bypass after the build (every read a host
+//                            materialization); (2) DESCENTS: lane H's
+//                            2-coordinate pairs and lane A's packed-leaf pairs
+//                            proven with the store OFF (today's path) and ON
+//                            under {default, fusion off, every hook declined,
+//                            stride 3, release off} — every digest identical,
+//                            every proof verified; one BATTERY DIGEST for the
+//                            ZK_THREADS 1/2/7 comparison.
+//   uperf-n bench <depth> <l> [n_real] [dt]
+//                          — lane H's descent pair (compact leaves), the store
+//                            OFF then ON in one process (digests asserted
+//                            equal): trees / prove / a.* rows and the k9
+//                            attribution (builds, climbs, resident bindings,
+//                            fetches, VRAM peaks).
+// Without `--features gpu-cuda` (or without ZK_GPU=1) the arms report the
+// state and compare the CPU path with itself.
+
+fn uperf_n_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("battery") => {
+            let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(0x7ee);
+            uperf_n_battery(seed);
+        }
+        Some("bench") => {
+            let depth: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(20);
+            let l: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(8);
+            let n_real: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(if l >= 2 { l - 3 } else { 1 }).max(1);
+            let dt: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(9);
+            uperf_n_bench(depth, l, n_real, dt);
+        }
+        _ => println!("uperf-n battery [seed] | bench <depth> <l> [n_real] [dt]"),
+    }
+}
+
+/// [UPERF2-N] The tree-store knob variants of one descent leg (on top of
+/// lane H's default knobs).
+#[derive(Clone, Copy)]
+struct UperfNVariant {
+    store: bool,
+    fuse: bool,
+    /// Every fused-round hook declines (the CPU body reads the device layers
+    /// through the host materialization).
+    decline: bool,
+    ckpt: usize,
+    release: bool,
+    label: &'static str,
+}
+
+fn uperf_n_set_variant(v: &UperfNVariant) {
+    use ring::kfield::{k9_set_checkpoint_stride, k9_set_fuse_off, k9_set_tree_release};
+    ring::gpu::k9_set_tree_store(Some(v.store));
+    k9_set_fuse_off(!v.fuse);
+    ring::gpu::k9_set_min_pairs(if v.decline { 1 << 30 } else { 0 });
+    k9_set_checkpoint_stride(Some(v.ckpt));
+    k9_set_tree_release(Some(v.release));
+}
+
+fn uperf_n_reset_variant() {
+    use ring::kfield::{k9_set_checkpoint_stride, k9_set_fuse_off, k9_set_tree_release};
+    ring::gpu::k9_set_tree_store(None);
+    k9_set_fuse_off(false);
+    ring::gpu::k9_set_min_pairs(0);
+    k9_set_checkpoint_stride(None);
+    k9_set_tree_release(None);
+}
+
+/// [UPERF2-N] One synthetic tree for the cell-by-cell legs: an aligned
+/// blinded witness tree with 2-coordinate members (compact leaves + the
+/// blinders as exceptions; `general` = full K-values, so the packed leaves),
+/// or a random general tree through `build_tree_sparse` (packed leaves).
+fn uperf_n_tree(kf: &ring::kfield::KField, depth: usize, seed: u64, general: bool, sparse: bool) -> ring::gkr::FracTree {
+    use ring::descent_fold::aligned_witness_tree;
+    use ring::gkr_masked::BlinderSet;
+    use ring::kfield::KElem;
+    let n = 1usize << depth;
+    let q = kf.zq.q;
+    let mut st = seed ^ 0xa5a5_1234_5678_9abc ^ ((depth as u64) << 40);
+    let mut rng = ring::ProverRng::from_test_seed("uperf2-n-blinders", &[seed as u8, depth as u8, general as u8]);
+    let alpha: KElem = (0..ring::kfield::K_DEG).map(|_| ring::splitmix64(&mut st) % q).collect();
+    if sparse {
+        // A general tree: a random default leaf pair + sparse overrides.
+        let dflt_p: KElem = (0..ring::kfield::K_DEG).map(|_| ring::splitmix64(&mut st) % q).collect();
+        let dflt_q: KElem = (0..ring::kfield::K_DEG).map(|_| ring::splitmix64(&mut st) % q).collect();
+        let n_over = 64usize.min(n);
+        let entries: Vec<(usize, KElem, KElem)> = (0..n_over)
+            .map(|_| {
+                let i = (ring::splitmix64(&mut st) as usize) % n;
+                let p: KElem = (0..ring::kfield::K_DEG).map(|_| ring::splitmix64(&mut st) % q).collect();
+                let qq: KElem = (0..ring::kfield::K_DEG).map(|_| ring::splitmix64(&mut st) % q).collect();
+                (i, p, qq)
+            })
+            .collect();
+        return ring::gkr::build_tree_sparse(kf, n, (&dflt_p, &dflt_q), entries);
+    }
+    let shape = uperf_a_member_shape(depth);
+    let col_a: Vec<KElem> = (0..shape.n_el())
+        .map(|_| {
+            let mut v = kf.zero();
+            v[0] = ring::splitmix64(&mut st) % q;
+            v[1] = ring::splitmix64(&mut st) % q;
+            if general {
+                v[5] = ring::splitmix64(&mut st) % q;
+            }
+            v
+        })
+        .collect();
+    let col_b: Vec<KElem> = (0..shape.n_el()).map(|_| kf.embed(ring::splitmix64(&mut st) % q)).collect();
+    let bl = BlinderSet::draw(kf, &mut rng);
+    let slots: Vec<(ring::descent_fold::MemberShape, usize, &[KElem])> = vec![(shape, 0, col_a.as_slice()), (shape, n / 2, col_b.as_slice())];
+    aligned_witness_tree(kf, &alpha, &slots, depth, &bl)
+}
+
+fn uperf_n_battery(seed: u64) {
+    use ring::kfield::KField;
+    use sha2::Digest;
+    let t0 = Instant::now();
+    println!("[UPERF2-N] battery: {} | {}", ring::gpu::label(), ring::gpu::k9_label());
+    println!("[UPERF2-N] ZK_THREADS = {}", ring::eval_proof::threads());
+    let live = ring::gpu::enabled();
+    if !live {
+        println!("[UPERF2-N] battery: the GPU path is not live (build without gpu-cuda, or ZK_GPU unset) — the store cannot engage; the legs compare the CPU path with itself");
+    }
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let mut h = sha2::Sha256::new();
+    let mut legs = 0usize;
+    let mut cells = 0usize;
+    // ---- 1. Trees cell by cell: the device build vs the CPU build.
+    // (depth, general values, sparse general tree, checkpoint stride, bypass after build)
+    let tree_legs: Vec<(usize, bool, bool, usize, bool)> = vec![
+        (13, false, false, 2, false), // below the store's floor: stays on the host
+        (14, false, false, 2, false),
+        (14, true, false, 2, false),
+        (15, false, false, 2, false),
+        (15, false, false, 3, false),
+        (15, false, true, 2, false),
+        (16, false, false, 2, false),
+        (16, false, false, 4, false),
+        (16, false, false, 2, true),
+        (17, false, false, 2, false),
+        (17, true, false, 3, false),
+        (18, false, false, 2, false),
+    ];
+    for &(depth, general, sparse, ckpt, bypass) in &tree_legs {
+        ring::kfield::k9_set_checkpoint_stride(Some(ckpt));
+        ring::gpu::k9_set_tree_store(Some(false));
+        let t_cpu = uperf_n_tree(&kf, depth, seed, general, sparse);
+        ring::gpu::k9_set_tree_store(Some(true));
+        let trace = std::env::var("ZK_N_TRACE").is_ok();
+        if trace { eprintln!("[N-TRACE] building device tree depth {depth}"); }
+        let t_dev = uperf_n_tree(&kf, depth, seed, general, sparse);
+        if trace { eprintln!("[N-TRACE] built"); }
+        let expect_dev = live && depth >= 14;
+        assert_eq!(t_dev.is_device_resident(), expect_dev, "[UPERF2-N] tree at depth {depth}: device residency {} expected {}", t_dev.is_device_resident(), expect_dev);
+        assert!(!t_cpu.is_device_resident());
+        if bypass {
+            ring::gpu::set_bypass(true);
+        }
+        assert_eq!(t_cpu.root(), t_dev.root(), "[UPERF2-N] root mismatch at depth {depth}");
+        if trace { eprintln!("[N-TRACE] roots ok"); }
+        for k in (0..=depth).rev() {
+            let (pc, qc) = t_cpu.harness_layer_words(k);
+            if trace { eprintln!("[N-TRACE] cpu layer {k} read"); }
+            let (pd, qd) = t_dev.harness_layer_words(k);
+            if trace { eprintln!("[N-TRACE] dev layer {k} read"); }
+            assert_eq!(pc.len(), pd.len());
+            for (i, (x, y)) in pc.iter().zip(pd.iter()).enumerate() {
+                assert_eq!(x, y, "[UPERF2-N] tree p mismatch: depth {depth} general {general} sparse {sparse} ckpt {ckpt} bypass {bypass} layer {k} word {i}");
+            }
+            for (i, (x, y)) in qc.iter().zip(qd.iter()).enumerate() {
+                assert_eq!(x, y, "[UPERF2-N] tree q mismatch: depth {depth} general {general} sparse {sparse} ckpt {ckpt} bypass {bypass} layer {k} word {i}");
+            }
+            cells += pc.len() + qc.len();
+            for &x in pc.iter().chain(qc.iter()) {
+                h.update(x.to_le_bytes());
+            }
+        }
+        // A second read of a big layer (the first may have been climbed): identical again.
+        if depth >= 14 {
+            let k = depth - 1;
+            let (p1, q1) = t_dev.harness_layer_words(k);
+            let (p2, q2) = t_dev.harness_layer_words(k);
+            assert!(p1 == p2 && q1 == q2, "[UPERF2-N] a re-read of layer {k} differs at depth {depth}");
+        }
+        if bypass {
+            ring::gpu::set_bypass(false);
+        }
+        let dev_mb = t_dev.device_bytes() as f64 / 1e6;
+        let host_mb = t_dev.resident_bytes() as f64 / 1e6;
+        let cpu_mb = t_cpu.resident_bytes() as f64 / 1e6;
+        drop(t_dev);
+        drop(t_cpu);
+        println!(
+            "  ok   tree depth {depth:>2} ({}{}ckpt {ckpt}{}): every layer identical; device {dev_mb:.1} MB + host {host_mb:.1} MB vs CPU tree {cpu_mb:.1} MB",
+            if general { "general values, " } else { "2-coord values, " },
+            if sparse { "sparse general tree, " } else { "" },
+            if bypass { ", read under the GPU bypass" } else { "" }
+        );
+        legs += 1;
+    }
+    ring::kfield::k9_set_checkpoint_stride(None);
+    ring::gpu::k9_set_tree_store(None);
+    // ---- 2. Descents: the store OFF (today's path) vs ON under the variants.
+    let variants: [UperfNVariant; 5] = [
+        UperfNVariant { store: true, fuse: true, decline: false, ckpt: 2, release: true, label: "store" },
+        UperfNVariant { store: true, fuse: false, decline: false, ckpt: 2, release: true, label: "store-nofuse" },
+        UperfNVariant { store: true, fuse: true, decline: true, ckpt: 2, release: true, label: "store-declined" },
+        UperfNVariant { store: true, fuse: true, decline: false, ckpt: 3, release: true, label: "store-c3" },
+        UperfNVariant { store: true, fuse: true, decline: false, ckpt: 2, release: false, label: "store-norelease" },
+    ];
+    let base = UperfNVariant { store: false, fuse: true, decline: false, ckpt: 2, release: true, label: "host" };
+    // (depth, l, n_real, dt, packed leaves (lane A's pair) or compact (lane H's))
+    let shapes: [(usize, usize, usize, usize, bool); 9] = [
+        (14, 4, 3, 9, false),
+        (14, 2, 2, 8, true),
+        (15, 2, 2, 5, false),
+        (15, 8, 5, 9, false),
+        (16, 4, 3, 9, false),
+        (16, 1, 1, 6, true),
+        (16, 8, 3, 9, false),
+        (17, 2, 1, 6, false),
+        (17, 4, 3, 7, true),
+    ];
+    for &(depth, l, n_real, dt, packed) in &shapes {
+        for zero_mask in [false, true] {
+            let sd = (0x5Eu8 ^ (depth as u8) ^ ((l as u8) << 3) ^ (zero_mask as u8)) ^ (seed as u8);
+            let run = |v: &UperfNVariant| -> UperfADescentOut {
+                uperf_n_set_variant(v);
+                let mut tb = 0usize;
+                let o = if packed { uperf_a_descent_pair(&kf, depth, l, n_real, dt, zero_mask, sd, true) } else { uperf_h_descent_pair(&kf, depth, l, n_real, dt, zero_mask, sd, true, &mut tb) };
+                uperf_n_reset_variant();
+                o
+            };
+            let ref_o = run(&base);
+            let outs: Vec<(UperfNVariant, UperfADescentOut)> = variants.iter().map(|v| (*v, run(v))).collect();
+            let same = outs.iter().all(|(_, o)| o.digest == ref_o.digest);
+            let ok = same && ref_o.verified && outs.iter().all(|(_, o)| o.verified);
+            println!(
+                "  {} descent depth {depth:>2} x l {l:>2} (n_real {n_real}, dt {dt}, {}{}masks): host {} | {} | verified {} | host {:.3}s store {:.3}s",
+                if ok { "ok  " } else { "FAIL" },
+                if packed { "packed leaves, " } else { "compact leaves, " },
+                if zero_mask { "zero " } else { "" },
+                &hex_full(&ref_o.digest)[..12],
+                outs.iter().map(|(v, o)| format!("{} {}", v.label, &hex_full(&o.digest)[..8])).collect::<Vec<_>>().join(" | "),
+                if ok { "all" } else { "NOT ALL" },
+                ref_o.prove_s,
+                outs[0].1.prove_s
+            );
+            assert!(ok, "[UPERF2-N] descent battery FAILED at depth {depth} l {l} packed {packed} zero_mask {zero_mask}");
+            h.update(ref_o.digest);
+            legs += 1;
+        }
+    }
+    let s = ring::gpu::k9_stats();
+    let d: [u8; 32] = h.finalize().into();
+    println!(
+        "[UPERF2-N] battery passed: {legs} legs ({} tree words compared cell by cell; every descent digest identical under 6 variants and verified); k9: tree builds {} (declined {}), device climbs {}, resident bindings {}, host fetches {}, tree bytes peak {:.2} GB, held peak {:.2} GB; BATTERY DIGEST {}; {:.2}s",
+        cells,
+        s.tree_builds,
+        s.tree_declined,
+        s.dev_climbs,
+        s.layer_resident,
+        s.tree_fetches,
+        s.tree_bytes_peak as f64 / 1e9,
+        s.held_peak as f64 / 1e9,
+        hex_full(&d),
+        t0.elapsed().as_secs_f64()
+    );
+}
+
+fn uperf_n_bench(depth: usize, l: usize, n_real: usize, dt: usize) {
+    use ring::ct_engine::prof;
+    let ctx = ring::ring_ctx_q8();
+    let kf = ring::kfield::KField::new(&ctx);
+    println!(
+        "[UPERF2-N] bench: depth {depth} x l {l} (n_real {n_real}, dt {dt}; 2-coordinate members = compact leaves), ZK_THREADS {}; {} | {}",
+        ring::eval_proof::threads(),
+        ring::gpu::label(),
+        ring::gpu::k9_label()
+    );
+    let rows = |tag: &str| -> String {
+        prof::report()
+            .iter()
+            .filter(|(n, s, _)| n.starts_with("a.") && *s >= 0.005 && (n.contains("tree") || n.contains("round-g") || n.contains("gkr-prove") || n.contains("extract") || n.contains("fold")))
+            .map(|(n, s, c)| format!("{n} {s:.3}s ({c})"))
+            .collect::<Vec<_>>()
+            .join(" | ")
+            + tag
+    };
+    // The store OFF (today's path: the CPU build + lane L's uploads).
+    ring::gpu::k9_set_tree_store(Some(false));
+    prof::reset();
+    prof::enable(true, false);
+    ring::gpu::k9_stats_reset();
+    let mut tb0 = 0usize;
+    let ta = Instant::now();
+    let a = uperf_h_descent_pair(&kf, depth, l, n_real, dt, false, 0xA1, false, &mut tb0);
+    let wa = ta.elapsed().as_secs_f64();
+    let sa = ring::gpu::k9_stats();
+    let rows_a = rows("");
+    // The store ON.
+    ring::gpu::k9_set_tree_store(Some(true));
+    prof::reset();
+    ring::gpu::k9_stats_reset();
+    let mut tb1 = 0usize;
+    let tb_ = Instant::now();
+    let b = uperf_h_descent_pair(&kf, depth, l, n_real, dt, false, 0xA1, false, &mut tb1);
+    let wb = tb_.elapsed().as_secs_f64();
+    let sb = ring::gpu::k9_stats();
+    let rows_b = rows("");
+    prof::enable(false, false);
+    ring::gpu::k9_set_tree_store(None);
+    println!(
+        "  store OFF: trees {:.3}s prove {:.3}s wall {:.2}s (witness trees host-resident after build {:.0} MiB) | store ON: trees {:.3}s prove {:.3}s wall {:.2}s (host-resident {:.0} MiB) | digest {} {}",
+        a.trees_s,
+        a.prove_s,
+        wa,
+        tb0 as f64 / (1024.0 * 1024.0),
+        b.trees_s,
+        b.prove_s,
+        wb,
+        tb1 as f64 / (1024.0 * 1024.0),
+        &hex_full(&a.digest)[..16],
+        if a.digest == b.digest { "IDENTICAL" } else { "MISMATCH" }
+    );
+    println!("  OFF phases: {rows_a}");
+    println!("  ON  phases: {rows_b}");
+    println!(
+        "  OFF k9: rounds {} (declined {}), layer binds {} / hits {}, h2d {:.0} MB, d2h {:.0} MB, in-hook {:.2}s = kernel {:.2} + upload {:.2} (encode {:.2}) + handover {:.2}",
+        sa.rounds, sa.declined, sa.layer_uploads, sa.layer_hits, sa.bytes_h2d as f64 / 1e6, sa.bytes_d2h as f64 / 1e6, sa.secs_round, sa.secs_kernel, sa.secs_upload, sa.secs_encode, sa.secs_handover
+    );
+    println!(
+        "  ON  k9: rounds {} (declined {}), layer binds {} / hits {} (resident {}, device climbs {} {:.3}s), h2d {:.0} MB (leaves {:.0} MB), d2h {:.0} MB, in-hook {:.2}s = kernel {:.2} + upload/bind {:.2} + handover {:.2}; tree builds {} {:.3}s (declined {}), host fetches {} {:.3}s; VRAM tree store peak {:.2} GB, K9 held peak {:.2} GB",
+        sb.rounds,
+        sb.declined,
+        sb.layer_uploads,
+        sb.layer_hits,
+        sb.layer_resident,
+        sb.dev_climbs,
+        sb.secs_dev_climb,
+        sb.bytes_h2d as f64 / 1e6,
+        sb.bytes_tree_leaves as f64 / 1e6,
+        sb.bytes_d2h as f64 / 1e6,
+        sb.secs_round,
+        sb.secs_kernel,
+        sb.secs_upload,
+        sb.secs_handover,
+        sb.tree_builds,
+        sb.secs_tree_build,
+        sb.tree_declined,
+        sb.tree_fetches,
+        sb.secs_tree_fetch,
+        sb.tree_bytes_peak as f64 / 1e9,
+        sb.held_peak as f64 / 1e9
+    );
+    println!("  peak RSS (process, both runs) {:.0} MiB", uperf_a_peak_rss_mib());
+    println!("[UPERF2-N] DESCENT DIGEST {}", hex_full(&a.digest));
+    assert_eq!(a.digest, b.digest, "[UPERF2-N] bench: store ON digest != store OFF digest");
 }
