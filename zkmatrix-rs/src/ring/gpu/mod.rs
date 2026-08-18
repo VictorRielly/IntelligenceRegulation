@@ -307,6 +307,8 @@ mod stub {
         pub secs_fill: f64,
         pub secs_wait: f64,
         pub secs_total: f64,
+        pub secs_grow: f64,
+        pub secs_enq: f64,
     }
     pub fn lh_stats() -> LhStats {
         LhStats::default()

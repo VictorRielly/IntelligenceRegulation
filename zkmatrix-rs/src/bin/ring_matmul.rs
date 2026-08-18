@@ -41771,7 +41771,7 @@ fn uperf_q_lh_bench(rows: usize, cols: usize, r: usize) {
     assert_eq!(h, want, "lh-bench: session != CPU body");
     let s = ring::gpu::lh_stats();
     println!(
-        "  session: {s_dev:.3}s (byte-identical) -> {:.1}x vs the CPU body, {:.2}x vs K's per-block path; stages {}, flushes {}, h2d {:.0} MB; host fill {:.3}s, host wait {:.3}s, s_max {:.3}s",
+        "  session: {s_dev:.3}s (byte-identical) -> {:.1}x vs the CPU body, {:.2}x vs K's per-block path; stages {}, flushes {}, h2d {:.0} MB; host fill {:.3}s, host wait {:.3}s, s_max {:.3}s, grow {:.3}s, enqueue {:.3}s",
         s_cpu / s_dev,
         s_k / s_dev,
         s.stages,
@@ -41779,6 +41779,8 @@ fn uperf_q_lh_bench(rows: usize, cols: usize, r: usize) {
         s.bytes_h2d as f64 / 1e6,
         s.secs_fill,
         s.secs_wait,
-        s.secs_smax
+        s.secs_smax,
+        s.secs_grow,
+        s.secs_enq
     );
 }

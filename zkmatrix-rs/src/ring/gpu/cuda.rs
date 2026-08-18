@@ -1100,6 +1100,10 @@ pub struct LhStats {
     pub secs_fill: f64,
     pub secs_wait: f64,
     pub secs_total: f64,
+    /// Buffer growth (allocations; the first session / a bigger shape).
+    pub secs_grow: f64,
+    /// Host time enqueueing the uploads + launches (should be ~0).
+    pub secs_enq: f64,
 }
 
 static LH_SESSIONS: AtomicU64 = AtomicU64::new(0);
@@ -1111,6 +1115,8 @@ static LH_SMAX_US: AtomicU64 = AtomicU64::new(0);
 static LH_FILL_US: AtomicU64 = AtomicU64::new(0);
 static LH_WAIT_US: AtomicU64 = AtomicU64::new(0);
 static LH_TOTAL_US: AtomicU64 = AtomicU64::new(0);
+static LH_GROW_US: AtomicU64 = AtomicU64::new(0);
+static LH_ENQ_US: AtomicU64 = AtomicU64::new(0);
 
 pub fn lh_stats() -> LhStats {
     let us = |s: &AtomicU64| s.load(Ordering::Relaxed) as f64 * 1e-6;
@@ -1124,11 +1130,13 @@ pub fn lh_stats() -> LhStats {
         secs_fill: us(&LH_FILL_US),
         secs_wait: us(&LH_WAIT_US),
         secs_total: us(&LH_TOTAL_US),
+        secs_grow: us(&LH_GROW_US),
+        secs_enq: us(&LH_ENQ_US),
     }
 }
 
 pub fn lh_stats_reset() {
-    for s in [&LH_SESSIONS, &LH_DECLINED, &LH_STAGES, &LH_FLUSHES, &LH_BYTES, &LH_SMAX_US, &LH_FILL_US, &LH_WAIT_US, &LH_TOTAL_US] {
+    for s in [&LH_SESSIONS, &LH_DECLINED, &LH_STAGES, &LH_FLUSHES, &LH_BYTES, &LH_SMAX_US, &LH_FILL_US, &LH_WAIT_US, &LH_TOTAL_US, &LH_GROW_US, &LH_ENQ_US] {
         s.store(0, Ordering::Relaxed);
     }
 }
@@ -1255,6 +1263,7 @@ impl Gpu {
             || self.st_desc.iter().any(|h| h.needs(sz_desc))
             || self.st_b.iter().any(|h| h.needs(sz_src_b))
             || self.st_out.needs(sz_out);
+        let tg = Instant::now();
         if grow {
             self.sync_all()?;
             for d in self.src_a.iter_mut() {
@@ -1282,6 +1291,8 @@ impl Gpu {
             }
             self.st_out.grow(sz_out)?;
         }
+        let secs_grow = tg.elapsed().as_secs_f64();
+        let mut secs_enq = 0.0f64;
         let f_pool = dev.get_func(MODULE, "k_ntt_fwd_pool").ok_or("k_ntt_fwd_pool missing")?;
         let f_fwd = dev.get_func(MODULE, "k_ntt_fwd").ok_or("k_ntt_fwd missing")?;
         let f_gemm = if tm == 16 {
@@ -1388,6 +1399,7 @@ impl Gpu {
             }
             drop(_tq);
             secs_fill += tf.elapsed().as_secs_f64();
+            let te = Instant::now();
             // ---- upload on the copy stream (after the transforms that last
             // read src[pp]); record "h2d done".
             unsafe { cu::stream::wait_event(sc, self.ev_fwd[pp], sys::CUevent_wait_flags::CU_EVENT_WAIT_DEFAULT) }
@@ -1421,6 +1433,7 @@ impl Gpu {
                 )
             }
             .map_err(|e| format!("gemm: {e}"))?;
+            secs_enq += te.elapsed().as_secs_f64();
             in_win += n;
             u0 += n;
             blk += 1;
@@ -1457,10 +1470,14 @@ impl Gpu {
         LH_BYTES.fetch_add(bytes_h2d, Ordering::Relaxed);
         add_us(&LH_FILL_US, secs_fill);
         add_us(&LH_WAIT_US, secs_wait);
+        add_us(&LH_GROW_US, secs_grow);
+        add_us(&LH_ENQ_US, secs_enq);
         if verbose() {
             eprintln!(
-                "[UPERF2-Q] level-h session r {r} chunk {chunk} (window {window}, stage {n_blk}, ks {ks}, b_fmt {b_fmt}): {stages} stages, {flushes} flushes, fill {:.1} ms, wait {:.1} ms, h2d {:.0} MB",
+                "[UPERF2-Q] level-h session r {r} chunk {chunk} (window {window}, stage {n_blk}, ks {ks}, b_fmt {b_fmt}): {stages} stages, {flushes} flushes, grow {:.1} ms, fill {:.1} ms, enqueue {:.1} ms, wait {:.1} ms, h2d {:.0} MB",
+                secs_grow * 1e3,
                 secs_fill * 1e3,
+                secs_enq * 1e3,
                 secs_wait * 1e3,
                 bytes_h2d as f64 / 1e6
             );

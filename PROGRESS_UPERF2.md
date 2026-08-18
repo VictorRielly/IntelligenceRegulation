@@ -954,11 +954,51 @@ first, chain-derive, digit-witness); (4) CRS SHA-NI 4-way + stream
 buffer reuse; (5) transport. Every item: before/after with the same
 command, battery leg at 1/2/7T, commit.
 
-- DONE: skeleton (report Sections 0-5 outlined; this section).
-- NEXT: freeze-check baseline capture on the untouched build; Q prof
-  ids; level-h attribution (fill vs GEMM vs flush at 12x512); the
-  session.
-- DECISIONS: none yet.
+Baseline captures BEFORE any code change (151edc9 binaries saved as
+scratchpad/ring_matmul_base_151edc9 + ring_matmul_gpu_base_151edc9):
+freeze-check with the wsl export — 98 `ok` rows + BF/BK rows +
+"freeze-check passed" (scratchpad/q_freeze_baseline.txt).
+
+1. LEVEL-H DEVICE SESSION (e08dcc9 + the timing commit): the level-0 h
+   table accumulated on the device across the u-blocks —
+   `Phi0Source::fill_pool_u32` (one u32 value ring per VALUE ring
+   touched + (pool index, radix) per digit ring), `k_ntt_fwd_pool`
+   applies the limb radix on the device (`(pool * radix) % q` = the
+   `poly_scale` residue), w packed i8 straight from the flat store
+   (`SmallRings::as_i8`), K's split-halves accumulator resident across
+   the stages, one flush per exact-integer window (the i8 store's bound
+   127 -> no s_max scan when the level fits its window), ping-pong
+   staging so the host fill of stage i+1 overlaps the device work of
+   stage i. Hook at the top of `level_h_pairs_with_block` (the loop is
+   the oracle; `ZK_GPU_LH=0` / `set_lh_session(false)` = K's per-block
+   path for the one-binary A/B; `ZK_GPU_LH_BLOCK` / `set_lh_block` =
+   positions per stage). `uperf-q battery` 48/48 at ZK_THREADS 1/2/7,
+   BATTERY DIGEST a55256e3.. (fill-pool == fill on 11 windows; the
+   session == the CPU body cell by cell over r 3/5/8/17/64 x blocks
+   7/64/1024 x stages default/5/333 on the i8 store, the boxed store
+   and a boxed |w| = 2^20 store (i64 format, 64-term windows -> many
+   flushes); q46 declines; the hook GPU-live == bypassed);
+   `uperf-k battery` + `uperf-pc diff-battery` (ZK_GPU_MIN_MACS=0) green
+   on the GPU build. `uperf-q lh-bench 4096 4096 64` 8T [NOISY-SHARED]:
+   CPU body 1.353 s / K's per-block path 0.294 s / the session 0.100 s
+   (2.96x over K's; 10 stages of 64x64x1024 at 10 ms). RIGS (GPU build,
+   8T, flock; digests identical, accept): 3x16 4.0 s (level-h 0.25);
+   12x128 15.1 s (level-h 1.09; ledger 15.6); **12x512 31.5 s = commit
+   5.0 / prove 22.1 / verify 2.6 (was 34.1), RSS 6.70 GB; bg.level-h
+   4.61 -> 2.08 s (q.lh-stream 1.72 = 174 stages at 9.9 ms: device-bound
+   — fwd ~3 + gemm ~7 ms per stage; host fill 0.36, drain 0.07);
+   prove-group 12.30 -> 9.61** [WSL-BOX 8T QUIET-ish, load ~1.5-3, lane
+   P idle-ish].
+
+- DONE: item 1 (level-h session) LANDED; batteries green; rigs identical.
+- NEXT: the "combine" family on the device (ONE kernel: few fixed small
+  rings x many streamed rings -> per-position inverse; sources: the
+  Phi0Source pool (psi0), the small w store (fold, exact i64 out), mod-q
+  slices (transport S/T5, compute_psi)); then CRS SHA-NI; then the
+  commit phase (precommit-u0 attribution, chain-derive, digit-witness).
+- DECISIONS: the GEMM kernel itself (7 ms of the 10 ms stage, ~48% of
+  its instruction ceiling per lane O) is left for later — O's estimate
+  of <= 0.5 s at the rig stands; the CPU-side blocks are bigger.
 
 ## Agent A status (wt-uperf2-a)
 
