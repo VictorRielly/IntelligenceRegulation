@@ -502,6 +502,99 @@ freeze rows, `self-test`, the REAL rig digests at 1T/8T.
   the NTT; a native-build A/B is queued (repo-root .cargo config if it
   buys anything).
 
+## Round 6 (2026-08-17): lanes J (CPU: AVX2 K-field kernels) and K (GPU rung, CUDA on this box)
+
+State at 96559ee: 12x512 8T 155.6 s (descents 72 s = a.round-g 52.5 +
+a.tree-step 15.7 + trees 10.6; prove-group 38.7 = level-h 22.2 +
+matvec 7.8 + fold 3.7 + rows 3.4; claim layer 23.9; commit 11.7;
+verify 7.3). GPU FEASIBILITY (orchestrator probe, 2026-08-17): this
+box has an NVIDIA GeForce RTX 4070 Laptop GPU (8 GB, 50 W cap, sm_89)
+reachable from WSL2 (driver 566.14 / CUDA 12.7). No CUDA toolkit is
+installed and none is needed: `cudarc 0.13.9` (features driver, nvrtc,
+cuda-12040, dynamic-linking, std) + NVRTC/cudart from the user-level
+pip wheels (`python3 -m pip install --user nvidia-cuda-nvrtc-cu12
+nvidia-cuda-runtime-cu12`), assembled at `/home/victor/cuda-root`
+(include/ from the wheels, lib64/ symlinks: libcuda.so ->
+/usr/lib/wsl/lib/libcuda.so.1, libnvrtc.so + libnvrtc-builtins.so.12.1,
+libcudart.so). Build/run with `CUDA_ROOT=/home/victor/cuda-root
+LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib`.
+A Goldilocks mulmod kernel (`__umul64hi`, the same branchless reduce)
+compiled at runtime via NVRTC ran 2^20 x 100 launches: 0 mismatches vs
+the CPU, 14.75 G mulmod/s (bandwidth-bound: 3 x 8 B per element).
+NVRTC needs `__umul64hi` (no `__int128` without a flag). The probe
+project: scratchpad `cudaprobe/` (Cargo.toml + src/main.rs) — copy its
+shape. Rules: the GPU path is FEATURE-GATED (`--features gpu-cuda`,
+default OFF; the default build and the Mac build must not depend on
+cudarc), runtime-enabled by `ZK_GPU=1`, and DIFFERENTIAL (bit-identical
+outputs vs the CPU kernels — the CPU kernels are the oracle; the rig
+digests are the gate). Worktrees `/home/victor/wt-uperf2-j` (uperf2-j)
+and `/home/victor/wt-uperf2-k` (uperf2-k).
+
+### Lane J — AVX2 in the packed K-field lane kernels (wt-uperf2-j)
+
+OWNS: `zkmatrix-rs/src/ring/kfield.rs` (KKern/KTab lane kernels: the
+descent round/fold kernels of lanes A/G, the ixf sumcheck kernels of
+lane D, tree steps, eq tables), `gkr_masked.rs`/`gkr.rs`/`fold.rs`/
+`sumcheck.rs` ONLY where a call-site switch to a `_simd` variant is
+needed, a `// [UPERF2-J]` bin section + `uperf-j`, NEW
+`docs/zkmatrix-poc/U_PERF2_KSIMD_REPORT.md`, "Agent J status".
+GOAL: the K-field lane arithmetic (Z_q[Y]/(Y^16 - s) elements packed
+as u32 lanes with lazy reduction) is the hot loop of the descents
+(a.round-g 52 s at 12x512 8T) and the claim layer (cl-rounds/folds 17
+s); vectorize the per-block inner loops with AVX2 (`vpmuludq` u32 x
+u32 -> u64 lane products, lazy u64 planes, the existing reduction
+discipline) exactly as lane I did for the NTT (asm `vpmuludq` if LLVM
+mis-lowers; runtime `is_x86_feature_detected!("avx2")`; scalar path =
+today's, `ZK_KSIMD=0` knob; NEON mirror behind cfg [UNTESTED-NEON]).
+Values IDENTICAL (the exact-integer planes are order-independent;
+assert with `uperf-a` 18/18, `uperf-g` 22/22, `uperf-h` battery,
+`uperf-d` 30/30 at 1/2/7T + the descent-bench digest 47a58a27… + a
+`uperf-j battery` on the lane kernels directly). Measure `uperf-a
+descent-bench 20 8 5 9`, `uperf-d bench`, the REAL 3x16 1T/8T and
+12x128 8T rigs, and ONE 12x512 8T (flock, `free -g` >= 12 GB, nothing
+else heavy). Gate: those + `uperf-pc diff-battery`, freeze rows,
+self-test.
+
+### Lane K — THE GPU RUNG, step 1 (wt-uperf2-k)
+
+OWNS: NEW `zkmatrix-rs/src/ring/gpu/` (mod.rs + kernels as CUDA C
+strings compiled via NVRTC at first use), the `gpu-cuda` feature +
+optional `cudarc` dependency in `zkmatrix-rs/Cargo.toml`, the
+`pub mod gpu` line in `ring/mod.rs`, a `// [UPERF2-K]` bin section +
+`uperf-k`, ONE dispatch hook per ported kernel inside eval_proof.rs
+(`ntt_gemm_modq_small`: `if gpu::enabled() { return gpu::ntt_gemm(...) }`
+at the top of the function — nothing else in that file) and later the
+same one-hook pattern in gkr_masked.rs for the descent round kernel,
+NEW `docs/zkmatrix-poc/U_PERF2_GPU_REPORT.md` (this is the
+CONTINUATION Phase-3 GPU rung report — write it as such: hardware
+named, watts stated, [MEASURED] vs [ASSUMED] flags), "Agent K status".
+GOAL, in order: (1) the plumbing — feature-gated cudarc, device init,
+NVRTC compile of the Goldilocks primitives, a `uperf-k probe` that
+reproduces the orchestrator's mulmod result; the default build (no
+feature) unchanged and green. (2) Port `ntt_gemm_modq_small` (the
+level-h and matvec kernel; U_PERF_WAVE_REPORT.md Section 3 describes it
+exactly: D = 128 batched (na x len) x (len x nb) integer GEMMs in the
+Goldilocks NTT domain with the split-halves accumulator and
+exact-integer windows): forward NTTs of the a and b rings on the GPU
+(length-128 negacyclic, psi-twisted, the same twiddle tables), the
+GEMM per coefficient position, the window flush (reduce128, inverse
+NTT, center, mod q) — output BIT-IDENTICAL to the CPU kernel (it is
+exact integer arithmetic; the same window boundaries; assert with the
+O2/O3 battery legs run under ZK_GPU=1 and a `uperf-k battery` cell-by-
+cell vs CPU on random shapes at both moduli). Stream the operands in
+blocks that fit 8 GB VRAM. (3) Measure: `uperf-pc kernel-bench 64 8192
+noref` with ZK_GPU=1 vs the 8T CPU, then the REAL 3x16 and 12x128
+rigs with `ZK_GPU=1` (digests identical), then ONE 12x512 8T+GPU run
+(flock, `free -g`, nothing else heavy). (4) If time remains: the
+descent round kernel (`k9_fused_round_par` — the fused five-table
+round; K-field u32 lanes; the biggest term) with the same discipline.
+Report honestly: the 4070 Laptop is a 50 W mobile part; state the
+measured GPU factor over the 8T CPU on THIS box and do NOT extrapolate
+to the contract's <= 450 W desktop board beyond a clearly-labeled
+[MODEL] line. Gate: default build unchanged (all existing batteries
+green without the feature), the feature build's batteries under
+ZK_GPU=1, rig digests identical, freeze rows, self-test.
+
 ## Agent A status (wt-uperf2-a)
 
 PLAN (skeleton commit, 2026-08-17). Files: gkr_masked.rs / gkr.rs /
@@ -591,6 +684,14 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
   masked_gkr_verify (3-5 ms per pair here) — it sits in the claim
   builders around it.
 - Every number [WSL-BOX NOISY-SHARED] (lane C built/ran throughout).
+
+## Agent J status (wt-uperf2-j)
+
+- (lane launches here)
+
+## Agent K status (wt-uperf2-k)
+
+- (lane launches here)
 
 ## Agent H status (wt-uperf2-h)
 
