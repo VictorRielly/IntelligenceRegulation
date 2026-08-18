@@ -624,6 +624,82 @@ ZK_GPU=1, rig digests identical, freeze rows, self-test.
 - Build hygiene finding: `target-cpu=native` was 3-4x SLOWER here and
   cwd-dependent; removed (cf8cdaf) — one build everywhere.
 
+## Round 7 (2026-08-17): lanes L (GPU step 2: the K-field lane kernels on the device) and M (CPU: psi0-factored + eval-proof leftovers 2)
+
+State at 8c7150d: 12x512 8T+GPU 85.0 s (attribution above). Worktrees
+`/home/victor/wt-uperf2-l` (uperf2-l) and `/home/victor/wt-uperf2-m`
+(uperf2-m). Gate = the REAL rigs (3x16 1T/8T, 12x128 8T, ONE 12x512 8T)
+with digests identical, default build unchanged (all lane batteries),
+GPU build batteries under ZK_GPU=1, freeze rows, self-test. Recipe for
+the GPU build: `CUDA_ROOT=/home/victor/cuda-root
+LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib
+CARGO_TARGET_DIR=<worktree>/zkmatrix-rs/target-gpu cargo build --release
+--features gpu-cuda --manifest-path <worktree>/zkmatrix-rs/Cargo.toml`
+(same LD_LIBRARY_PATH at run time; `ZK_GPU=1`; U_PERF2_GPU_REPORT.md
+Section 2 has the knobs and the one-hook pattern).
+
+### Lane L — GPU step 2: descent round / ixf round / tree step on the device (wt-uperf2-l)
+
+OWNS: `zkmatrix-rs/src/ring/gpu/` (mod.rs, cuda.rs, kernels.cu — extend
+lane K's), ONE additive hook line at the top of each ported entry point
+in `kfield.rs` (`k9_fused_round_par`, `k9_ixf_round_par` / `kt_fold_par`,
+`k9_tree_climb_par` — the AVX2 bodies of lane J are the CPU path and
+the ORACLE), a `// [UPERF2-L]` bin section + `uperf-l`, NEW
+`docs/zkmatrix-poc/U_PERF2_GPU2_REPORT.md`, "Agent L status".
+GOAL: the K-field lane kernels are the biggest remaining terms (12x512
+8T+GPU: a.round-g 22.3 s, cl-folds/rounds 10.2 s, a.tree-step 7.9 s).
+Port, in order, (1) the fused masked-descent round (lane G's fused
+five-table round: per pair-block the round-g evaluations + the fold
+into the next state; K = Z_q[Y]/(Y^16 - s) lane arithmetic on u32
+lanes with the exact u64 planes and the SAME reduction points/order as
+the CPU body — bit-identical round polynomials, folded tables and
+boundary values; the per-block partial planes reduced in the CPU's
+fixed order), with the layer tables device-resident for the pair (VRAM
+8 GB; the biggest pair's tables at depth 22 are ~5.6 GB per lane H's
+model — stream per layer if needed); (2) the ixf sumcheck round + fold
+(lane D's `ixf_round_body` / `kt_fold_par`); (3) the tree step
+(`k9_tree_climb_par`). Each through ONE hook, `oracle_mode()` and
+`ZK_GPU=0` keeping the CPU path, batteries: `uperf-a` 18/18, `uperf-g`
+22/22, `uperf-h` 24x8, `uperf-d` 30/30, `uperf-j` under `ZK_GPU=1`
+(they compare against the scalar/AVX2 oracles) + a `uperf-l battery`
+cell-by-cell on random tables at the kernel level; then the rigs with
+`ZK_GPU=1`. Report: kernel-level GPU vs 8T-AVX2 factors, the rig rows,
+what is left, [MEASURED]/[MODEL] flags, watts.
+
+### Lane M — CPU: psi0-factored + eval-proof leftovers 2 (wt-uperf2-m)
+
+OWNS: `zkmatrix-rs/src/ring/eval_proof.rs` (whole file this round;
+lane K's one hook stays), the bin's bg_*/bk_* call sites it needs,
+`aux_ntt_core.rs` additive, a `// [UPERF2-M]` bin section + `uperf-m`,
+NEW `docs/zkmatrix-poc/U_PERF2_EVALPROOF2_REPORT.md`, "Agent M status".
+GOAL (12x512 8T+GPU rows): (1) `ep.psi0-factored` 11.9 s over its 4
+calls (2 prover level-1 psi via `psi_level0_factored_multi`, 2
+verifier) — per value ring the PHI MAC loop is scalar u128 lazy MACs
+(coefficients < 2^31: `vpmuludq` u32 x u32 -> u64 exact, 4 per
+instruction — vectorize it exactly, lane I/J style), then the per-
+digit-ring `c_k * PHI` Karatsuba ring-mult + poly_scale + poly_add
+into psi[u] — replace by NTT-domain accumulation (c_k small, PHI
+general: one forward transform of PHI per value ring, pointwise MACs
+into psi-hat[u] with the exact-integer window (quinary c => 2^25
+terms at q31), one inverse per u at the end) — bit-identical (exact
+integers; the window/order fixed); oracle: today's bodies under
+`oracle_mode()`; battery leg == compute_psi(reference) at two chunk
+splits + the E2E leg. (2) `bg.kernel-rows` 3.3 s / `bg.fold` 3.7 s /
+`ep.crs-expand` 3.3 s (check whether `sha2` uses SHA-NI here —
+`sha2` 0.10 detects it at runtime on x86_64 if the `asm`/intrinsics
+path is compiled in; if not, enable it or use `sha2` with the right
+feature; blocks stay identical) / `ep.transport` 2.2 s (already NTT;
+threads?) / `bg.commit-phase` 5.4 s (precommit-u0 3.8: the level-0 A
+matvec's transforms — the w transforms are recomputed for level-h;
+consider caching the w NTT-domain image per group if VRAM/RAM allow —
+NO, RAM is tight: measure first). (3) The verifier's 7.2 s: attribute
+with the existing counters (psi0 ~3 s -> item 1; transport ~1 s;
+what else?) and take what is transcript-neutral. Gate: `uperf-pc
+diff-battery` (E2E) 1T/7T, `uperf-c`/`uperf-f` batteries, freeze
+rows, self-test, the rigs (3x16 1T/8T, 12x128 8T, ONE 12x512 8T with
+the GPU build if you can, else CPU-only) digests identical. Report:
+per-item before/after, rig rows, what is left.
+
 ## Agent A status (wt-uperf2-a)
 
 PLAN (skeleton commit, 2026-08-17). Files: gkr_masked.rs / gkr.rs /
@@ -713,6 +789,14 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
   masked_gkr_verify (3-5 ms per pair here) — it sits in the claim
   builders around it.
 - Every number [WSL-BOX NOISY-SHARED] (lane C built/ran throughout).
+
+## Agent L status (wt-uperf2-l)
+
+- (lane launches here)
+
+## Agent M status (wt-uperf2-m)
+
+- (lane launches here)
 
 ## Agent J status (wt-uperf2-j)
 
