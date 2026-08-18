@@ -1766,6 +1766,14 @@ pub fn decompose_poly_small_ref(p: &[i64], e: u32, l: usize) -> Vec<Vec<i64>> {
 /// [UPERF2-M] `digits::exact_digit_decompose(x, e0, out.len())` written
 /// into `out` — the same arithmetic (sign-binary at e0 = 1, the balanced
 /// base-2^e0 digits otherwise, the same range panics), no allocation.
+/// [UPERF2-Q] The balanced digit is the UNIQUE d == rem (mod 2^e0) in
+/// [-half, half) (the div/mod body lands there: rem % base then the two
+/// adjustments), so it is `((rem + half) & mask) - half` and the carry
+/// `(rem - d) >> e0` is the exact quotient of a multiple of 2^e0 — the
+/// same digits without the two integer divisions per digit (a per-digit
+/// libdiv was ~1.3 s of the 12x512 witness build). `digits::
+/// exact_digit_decompose` remains the oracle (uperf-q leg + the D / F
+/// batteries' digit legs).
 #[inline]
 fn digits_into_local(x: i64, e0: u32, out: &mut [i64]) {
     let l = out.len();
@@ -1777,19 +1785,13 @@ fn digits_into_local(x: i64, e0: u32, out: &mut [i64]) {
             *o = s * (((a >> j) & 1) as i64);
         }
     } else {
-        let base = 1i64 << e0;
-        let half = base >> 1;
+        let mask = (1i64 << e0) - 1;
+        let half = 1i64 << (e0 - 1);
         let mut rem = x;
         for o in out.iter_mut() {
-            let mut d = rem % base;
-            if d >= half {
-                d -= base;
-            }
-            if d < -half {
-                d += base;
-            }
+            let d = ((rem + half) & mask) - half;
             *o = d;
-            rem = (rem - d) / base;
+            rem = (rem - d) >> e0;
         }
         assert!(rem == 0, "digit range exhausted for {x}");
     }

@@ -20053,6 +20053,35 @@ fn digits_into(x: i64, e0: u32, out: &mut [i64]) {
             *o = s * (((a >> j) & 1) as i64);
         }
     } else {
+        // [UPERF2-Q] the unique balanced digit d == rem (mod 2^e0) in
+        // [-half, half) by mask + shift (the div/mod body — `digits_into_div`,
+        // kept as the battery's oracle next to `exact_digit_decompose` —
+        // lands on the same d and the same exact carry).
+        let mask = (1i64 << e0) - 1;
+        let half = 1i64 << (e0 - 1);
+        let mut rem = x;
+        for o in out.iter_mut() {
+            let d = ((rem + half) & mask) - half;
+            *o = d;
+            rem = (rem - d) >> e0;
+        }
+        assert!(rem == 0, "digit range exhausted for {x}");
+    }
+}
+
+/// [UPERF2-Q] The pre-change div/mod body of `digits_into` (lane D's) —
+/// the battery's oracle for the mask/shift form.
+#[inline(always)]
+fn digits_into_div(x: i64, e0: u32, out: &mut [i64]) {
+    let l = out.len();
+    if e0 == 1 {
+        let s = x.signum();
+        let a = x.unsigned_abs();
+        assert!(a < (1u64 << l), "sign-binary range exhausted for {x}");
+        for (j, o) in out.iter_mut().enumerate() {
+            *o = s * (((a >> j) & 1) as i64);
+        }
+    } else {
         let base = 1i64 << e0;
         let half = base >> 1;
         let mut rem = x;
@@ -24588,6 +24617,21 @@ fn bf_sha_i8(vals: &[i64]) -> String {
 /// The floor requantization x = 2^shift * y + r, r in [0, 2^shift)
 /// (Euclidean quotient/remainder — TARGET_CONTRACT S2 as written).
 fn bf_floor_requant(acc: &[i64], shift: u32) -> (Vec<i64>, Vec<i64>) {
+    // [UPERF2-Q] the Euclidean quotient / remainder by 2^shift are the
+    // arithmetic shift and the low-bit mask (two's complement; shift < 63
+    // — the chain's shifts are < 40): the same integers as `div_euclid` /
+    // `rem_euclid` (`bf_floor_requant_div`, the battery's oracle) without
+    // the two libdivs per element (~1 s of the 12x512 chain derivation).
+    debug_assert!(shift < 63);
+    let mask = (1i64 << shift) - 1;
+    let y: Vec<i64> = acc.iter().map(|&a| a >> shift).collect();
+    let r: Vec<i64> = acc.iter().map(|&a| a & mask).collect();
+    (y, r)
+}
+
+/// [UPERF2-Q] The pre-change `bf_floor_requant` (div_euclid / rem_euclid) —
+/// the battery's oracle for the shift/mask form.
+fn bf_floor_requant_div(acc: &[i64], shift: u32) -> (Vec<i64>, Vec<i64>) {
     let m = 1i64 << shift;
     let y: Vec<i64> = acc.iter().map(|&a| a.div_euclid(m)).collect();
     let r: Vec<i64> = acc.iter().map(|&a| a.rem_euclid(m)).collect();
@@ -41577,6 +41621,72 @@ fn uperf_q_battery() {
             }
         }
         check(&format!("Phi0Source::fill_pool_u32 (pool ring x radix mod q) == fill on 11 windows ({n_pool} pool rings)"), ok);
+    }
+    // ---- (A1) the mask/shift digit decomposition == the div/mod body ==
+    // `exact_digit_decompose` on every (e0, l0) class at the range ends,
+    // zero, +-1, +-half, +-(half +- 1) and random values.
+    {
+        use ring::digits::{exact_digit_decompose, representable};
+        let mut ok = true;
+        let mut n_vals = 0usize;
+        for e0 in 1u32..=7 {
+            for &l0 in &[1usize, 2, 3, 5, 8, 13, 14, 16, 21] {
+                if (e0 as usize) * l0 > 60 {
+                    continue;
+                }
+                let (lo, hi) = representable(e0, l0);
+                let (lo, hi) = (lo as i64, hi as i64);
+                let half = 1i64 << (e0.max(1) - 1);
+                let mut xs: Vec<i64> = vec![0, 1, -1, lo, hi, lo + 1, hi - 1, half, -half, half - 1, half + 1, -half - 1, -half + 1];
+                for _ in 0..200 {
+                    let span = (hi as i128 - lo as i128 + 1) as u64;
+                    xs.push(lo + (rd.next_u64() % span) as i64);
+                }
+                for &x in &xs {
+                    if x < lo || x > hi {
+                        continue;
+                    }
+                    let mut a = vec![0i64; l0];
+                    let mut b = vec![0i64; l0];
+                    digits_into(x, e0, &mut a);
+                    digits_into_div(x, e0, &mut b);
+                    let c = exact_digit_decompose(x, e0, l0);
+                    if a != b || a != c {
+                        ok = false;
+                        println!("  FAIL digits e0 {e0} l0 {l0} x {x}: {a:?} vs {b:?} vs {c:?}");
+                    }
+                    n_vals += 1;
+                    for &d in &a {
+                        battery.update(d.to_le_bytes());
+                    }
+                }
+            }
+        }
+        check(&format!("digits mask/shift == div/mod == exact_digit_decompose on {n_vals} values (e0 1..7 x 9 limb counts, range ends)"), ok);
+    }
+    // ---- (A1b) the floor requant by shift/mask == div_euclid/rem_euclid.
+    {
+        let mut ok = true;
+        let mut n = 0usize;
+        for &shift in &[1u32, 2, 5, 9, 12, 17, 23, 31, 40, 55, 62] {
+            let mut xs: Vec<i64> = vec![0, 1, -1, i64::MAX, i64::MIN, i64::MAX - 1, i64::MIN + 1, (1i64 << shift) - 1, 1i64 << shift, -(1i64 << shift), -(1i64 << shift) - 1, -(1i64 << shift) + 1];
+            for _ in 0..500 {
+                let bits = 1 + (rd.next_u64() % 62) as u32;
+                let v = (rd.next_u64() & ((1u64 << bits) - 1)) as i64;
+                xs.push(if rd.next_u64() & 1 == 1 { -v } else { v });
+            }
+            let (y, r) = bf_floor_requant(&xs, shift);
+            let (yd, rdv) = bf_floor_requant_div(&xs, shift);
+            if y != yd || r != rdv {
+                ok = false;
+                println!("  FAIL floor requant shift {shift}");
+            }
+            n += xs.len();
+            for &v in y.iter().take(8) {
+                battery.update(v.to_le_bytes());
+            }
+        }
+        check(&format!("floor requant shift/mask == div_euclid/rem_euclid on {n} values (11 shifts incl. 62, i64 extremes)"), ok);
     }
     // ---- (A2) the CRS SHA-NI core == the `sha2` crate: random keys, ranges
     // crossing the 4-lane groups (lengths 1..9, 4095, 4097), counters
