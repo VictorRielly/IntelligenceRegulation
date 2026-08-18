@@ -1647,9 +1647,10 @@ impl K9 {
                         let la = a - plan.layers[ri].first_pair;
                         assert!(f_blk * (la + n) <= nblk, "K9 gpu: device layer range");
                         packed_blk += nblk;
-                        // Intermediate levels (src_k - k >= 2): the largest is layer k+1.
+                        // Intermediate levels (src_k - k >= 2): the largest is layer src_k-1
+                        // (each scratch buffer holds both tables of one level).
                         if src_k - k >= 2 {
-                            scr_bytes = scr_bytes.max(2 * (1usize << (k + 1)) / KL * KBLK * 4);
+                            scr_bytes = scr_bytes.max(2 * (1usize << (src_k - 1)) / KL * KBLK * 4);
                         }
                         binds.push(DevBind::Climb { src_k, nblk });
                     }
@@ -2668,7 +2669,7 @@ impl K9 {
             (k + 1..=depth).find(|&kk| t.layers[kk].is_some() || (kk == depth && t.compact.is_some())).ok_or_else(|| "no resident layer below".to_string())?
         };
         let bytes = words * 4;
-        let scr = if src_k - k >= 2 { 2 * (1usize << (k + 1)) / KL * KBLK * 4 } else { 0 };
+        let scr = if src_k - k >= 2 { 2 * (1usize << (src_k - 1)) / KL * KBLK * 4 } else { 0 };
         self.layer = None;
         self.grow_dev(DevSel::LayP, bytes)?;
         self.grow_dev(DevSel::LayQ, bytes)?;
