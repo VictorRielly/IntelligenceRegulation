@@ -792,7 +792,122 @@ docs/zkmatrix-poc/U_PERF2_DESCENT_REPORT.md):
 
 ## Agent L status (wt-uperf2-l)
 
-- (lane launches here)
+- 2026-08-17 PLAN COMMIT (lane L, branch uperf2-l at f821485; report:
+  docs/zkmatrix-poc/U_PERF2_GPU2_REPORT.md). Files: `zkmatrix-rs/src/ring/
+  gpu/{mod.rs, cuda.rs}` (extend K's plumbing), NEW `gpu/k9.rs` + NEW
+  `gpu/kernels_k9.cu` (the K-field lane kernels on the device), ONE additive
+  hook line at the top of `k9_fused_round_par` / `k9_ixf_round_par` /
+  `KField::kt_fold_par` / `k9_tree_climb_par` in kfield.rs (nothing else
+  there), a `// [UPERF2-L]` bin section with `uperf-l {battery, bench}`,
+  the report, this section. Baseline: the untouched f821485 build (default
+  and GPU feature) — every lane battery + the descent digest 47a58a27..
+  captured before any change.
+  PLAN, in order: (1) the fused masked-descent round (all three modes)
+  with a per-layer DEVICE-RESIDENT chain: the layer (packed live blocks,
+  or the compact leaves re-encoded 8 B/leaf + exceptions and expanded on
+  the device) + the b-part eq table uploaded once per layer (pinned,
+  pipelined), rounds 0/1 read them on the device, round 1 writes the
+  state-1 tables on the device (live ranges only), rounds >= 2 fold on the
+  device (out-of-place ping-pong, one launch per live range), the node
+  values come back per round (per-term canonical reduction — the same
+  field elements the CPU's exact planes finalize to; the identity argument
+  in the report), the host tables are written ONCE at the handover (the
+  last GPU round, predicted from the plan: out pairs < MIN, or the pad
+  materialization ahead) — the chain's successor call is guaranteed by
+  `masked_rounds_bulk`'s control flow (report Section 2); (2) the ixf round
+  + fold chain (eager D2H of every fold — the host stays coherent — the
+  resident copy saves the re-upload); (3) the tree climb (compute on the
+  device, eager D2H; the resident output feeds round 0 of the next layer
+  when the plan presents the same buffers). Gates: `uperf-l battery`
+  (kernel-level cell-by-cell on random tables + planted extremes at
+  ZK_THREADS 1/7), the existing batteries under ZK_GPU=1, the descent
+  digest, the rigs with ZK_GPU=1 (digests identical), the default build
+  unchanged.
+
+STATUS (2026-08-17, HEAD of uperf2-l; report:
+docs/zkmatrix-poc/U_PERF2_GPU2_REPORT.md — hardware/watts/flags stated):
+
+- LANDED — the GPU rung, step 2 (every value identical):
+  1. `ring/gpu/k9.rs` + `ring/gpu/kernels_k9.cu`: the K-field lane
+     kernels on the RTX 4070 Laptop — the fused masked-descent round (all
+     three modes) as a DEVICE-RESIDENT chain per tree layer (the layer —
+     packed live blocks, or the compact leaves re-encoded 8 B/leaf +
+     exceptions and expanded on the device — and the eq table uploaded
+     once; round 1 writes the state-1 tables into device memory (live
+     ranges only); rounds >= 2 fold there out of place; the node values
+     come back per round; the host tables are written ONCE at the
+     handover, predicted from the plan — the successor round is guaranteed
+     by `masked_rounds_bulk`'s control flow, checked at every call, a
+     mismatch panics rather than reads stale tables); the ixf round + fold
+     chain (uploaded at round 0, the folds device-only until the handover,
+     the successor identified by the sequence); the tree climb
+     (implemented, battery-gated, OFF by default: 0.3-0.5x on this PCIe
+     link). Arithmetic: lane J's burst formulation + canonical reductions
+     ported op-for-op (`mad.wide.u32` via inline PTX); the node sums
+     reduced per term instead of once per round (the same field element the
+     CPU's planes finalize to; argued in the report Section 2.2). VRAM:
+     grow-only buffers under a budget (free - 256 MB), idle families
+     released first, the layer buffers freed after round 1 — the biggest
+     12x512 layers fit (compact 0.4 + eq 0.13 + state-1 3.75 + ping-pong
+     1.9 GB). ONE additive hook line at the top of `k9_fused_round_par`
+     (the tabs array moved in and handed back on decline),
+     `k9_ixf_round_par`, `KField::kt_fold_par`, `k9_tree_climb_par`;
+     nothing else in kfield.rs. Knobs: ZK_GPU_K9=0 (A/B),
+     ZK_GPU_K9_MIN_PAIRS (32), ZK_GPU_K9_BUDGET_MB, ZK_GPU_K9_EAGER,
+     ZK_GPU_K9_TREE, ZK_GPU_K9_STG_MB, ZK_GPU_VERBOSE/PROFILE. PTX cached
+     on disk (~/.cache/zkmatrix-gpu; the first process on a new source pays
+     ~40 s NVRTC + ~40 s driver JIT once).
+  2. `uperf-l battery` (310 legs GPU == CPU cell by cell: 14 layer-chain
+     shapes x 5 patterns x {eager, lazy} incl. compact leaves with planted
+     exceptions, pads skipped, masked round 0; ixf chains 3 kinds x
+     degrees 2/3/4 x 2^5..2^13 x {eager, lazy}; tree climbs; 15.9M table
+     words + every round's node values / round polys; BATTERY DIGEST
+     cc4f8c1c.. at ZK_THREADS 1/2/7), `uperf-l bench` (kernel-level GPU
+     vs the 8T bodies), `uperf-l dbench` (lane A's pair CPU vs GPU in one
+     process + the k9 stats).
+  3. Numbers [WSL-BOX 8T NOISY-SHARED, lane M concurrent; one binary]:
+     the fused round kernel 25 ns per element pair per round on the device
+     (~4-5x the 8T AVX2 body per pair; ~16% of the part's integer peak,
+     register-bound); the whole layer chain incl. uploads 2.9-3.5x
+     (compact leaves) / 1.5-2.2x (packed) at 2^21 elements; the ixf chain
+     ~1x at 2^21 (upload-bound); `uperf-h bench 20 8 5 9` a.round-g 0.795
+     -> 0.500 s (1.6x); **12x512 8T (THE PoC SHAPE, ONE run each, flock,
+     wsl-export): 85.0 s (K) -> 74.6 s (commit 5.5 / prove 60.0 / verify
+     7.3), accept, statement 2f8a92f8.. / EVAL 4c259008.. / 1,509,911 B
+     identical, peak RSS 11.2 GB — a.round-g 22.3 -> 12.0 s (1.85x),
+     bk.descent-gkr 27.7 -> 16.4, the claim layer 15.9 -> 15.2 (cl-folds
+     6.8 -> 4.9, cl-rounds 3.4 -> 5.2: its 2-2.5 GB-per-instance uploads);
+     12x128 8T 33.6 -> 30.0 s (descent-gkr 7.8 -> 5.4, cl-folds 1.64 ->
+     0.22); 3x16 8T 6.5-6.7 s (neutral within noise), 1T 16.9 s** — all
+     digests the ledger's. Two WSL2 findings: the pinned H2D DMA runs at
+     5-9 GB/s here; the first device read of freshly DMA'd pages is ~10x
+     slower than the second (per byte).
+  4. Gates at HEAD (the GPU build, ZK_GPU=1, ZK_GPU_K9_MIN_PAIRS=1 =
+     every eligible round on the device): `uperf-a` 18/18 f936ff79..,
+     `uperf-g` 22/22 6d6a3f6b.., `uperf-h` 24/24 x 8 b1e78285..,
+     `uperf-d` 30/30 46471467.., `uperf-j` 1,120 x 3 45dba7c7..,
+     `uperf-l` 310 legs cc4f8c1c.. — each at ZK_THREADS 1, 2, 7;
+     `uperf-a descent-bench 20 8 5 9` DESCENT DIGEST 47a58a27.. (8T,
+     GPU); `uperf-pc diff-battery` 1T/7T passed under ZK_GPU=1;
+     freeze-check (GPU build, ZK_GPU=1, wsl export) 98 `ok` rows identical
+     to lane K's capture + the BF/BK real-data rows passed; the default
+     build (no feature) unchanged (stub state; uperf-a/j/d digests); the
+     rigs (above); `self-test` (GPU build, ZK_GPU=1, 1T) passed in 240.8 s.
+- NOT landed / left (report Section 5): (1) the recomputed depth-1 layer
+  still travels CPU-climb -> H2D (~3.2 GB live per big pair; a
+  device-side climb whose output stays resident for round 0 needs a small
+  contract change in kfield/gkr — designed, not done under this round's
+  file rule); (2) kernel efficiency ~16% of peak (matrix-form fixed
+  multiplies, halved burst folds, a 2-thread coefficient split: ~1.5-2x
+  [ASSUMED]); (3) a lane-D finding: the claim layer's remaining ~10 s at
+  12x512 (cl-tables 5 + cl-folds 5) is host page management (fresh 512 MB
+  tables faulted in and freed per instance) — a table pool, not the
+  device; (4) the ixf tables are built on the host (2-2.5 GB uploads per
+  big instance); (5) the compact re-encoding through `expand_blocks`
+  (~0.3 s per big pair; a words accessor would make it a memcpy); (6) the
+  tree climb OFF (0.3-0.5x); (7) CUDA-only (no Mac).
+- Every number [WSL-BOX NOISY-SHARED] (lane M built/ran throughout; heavy
+  runs serialized through /tmp/zk-heavy.lock).
 
 ## Agent M status (wt-uperf2-m)
 

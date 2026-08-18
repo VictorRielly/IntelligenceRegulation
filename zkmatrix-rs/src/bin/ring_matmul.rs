@@ -6422,6 +6422,8 @@ fn main() {
         Some("uperf-k") => uperf_k_main(&args[1..]),
         // [UPERF2-M] U-PERF2 lane M (psi0-factored SIMD + NTT accumulation, eval-proof leftovers 2) battery + bench.
         Some("uperf-m") => uperf_m_main(&args[1..]),
+        // [UPERF2-L] U-PERF2 lane L (GPU step 2: the K-field lane kernels on the device) battery + bench.
+        Some("uperf-l") => uperf_l_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -39804,4 +39806,778 @@ fn uperf_m_sha_bench(n: usize) {
         n as f64 / s / 1e6,
         std::arch::is_x86_feature_detected!("sha")
     );
+}
+
+// ===========================================================================
+// [UPERF2-L] U-PERF2 lane L — THE GPU RUNG, step 2: the K-field lane kernels
+// (kfield.rs's fused masked-descent round, the claim layer's ixf round +
+// fold, the tree step) on the device (feature gpu-cuda; ring/gpu/k9.rs +
+// kernels_k9.cu; ONE hook at the top of each entry point). ADDITIVE section.
+// Commands:
+//   uperf-l battery [seed]  — kernel-level, cell by cell, GPU vs the CPU
+//                             bodies (bypassed) on random tables with planted
+//                             extremes: the fused round as whole layer chains
+//                             (EXTRACT -> EXTRACT_FOLD -> FOLD.. -> handover;
+//                             packed and compact layers; masks on/off; pads
+//                             skipped; eager and lazy), the ixf round + fold
+//                             chains (three kinds, degrees 2..4), the tree
+//                             step (levels 1, 2; packed + compact).
+//   uperf-l bench [log2_pairs] [reps]
+//                           — the kernels alone, GPU vs the CPU bodies at the
+//                             current ZK_THREADS (the fused FOLD round, the
+//                             extract-fold round, the ixf round, the fold, the
+//                             tree step), with the k9 attribution.
+//   uperf-l dbench <depth> <l> [n_real] [dt]
+//                           — lane A's descent pair CPU vs GPU in one process
+//                             (digests asserted equal) + the k9 stats.
+// Without `--features gpu-cuda` (or without ZK_GPU=1) every arm reports the
+// state and runs nothing.
+
+fn uperf_l_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("battery") => {
+            let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(0x51ed);
+            uperf_l_battery(seed);
+        }
+        Some("bench") => {
+            let lp: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(15);
+            let reps: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(3);
+            uperf_l_bench(lp, reps);
+        }
+        Some("dbench") => {
+            let depth: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(16);
+            let l: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(4);
+            let n_real: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(l);
+            let dt: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(9);
+            uperf_l_dbench(depth, l, n_real, dt);
+        }
+        _ => println!("uperf-l battery [seed] | bench [log2_pairs] [reps] | dbench <depth> <l> [n_real] [dt]"),
+    }
+}
+
+/// [UPERF2-L] Synthetic canonical words (lane J's patterns): 0 uniform, 1
+/// planted extremes mixed in, 2 all q-1, 3 per-lane extremes, 4 1/8 zeros.
+fn uperf_l_words(q: u64, n: usize, seed: u64, pattern: u8) -> Vec<u32> {
+    let mut st = seed ^ 0x9e37_79b9_7f4a_7c15;
+    let ext: [u64; 12] = [0, 1, 2, q - 1, q - 2, q - 3, 1 << 30, (1 << 30) + 1, q - (1 << 30), q / 2, q / 2 + 1, (1 << 30) - 1];
+    (0..n)
+        .map(|i| {
+            let r = ring::splitmix64(&mut st);
+            let v = match pattern {
+                0 => r % q,
+                1 => {
+                    if r & 3 == 0 { ext[(r >> 8) as usize % ext.len()] } else { r % q }
+                }
+                2 => q - 1,
+                3 => ext[(i % 8) % ext.len()],
+                _ => {
+                    if r & 7 == 0 { 0 } else { r % q }
+                }
+            };
+            v as u32
+        })
+        .collect()
+}
+
+fn uperf_l_kelem(q: u64, st: &mut u64) -> ring::kfield::KElem {
+    (0..ring::kfield::K_DEG).map(|_| ring::splitmix64(st) % q).collect()
+}
+
+/// A packed table of `n` elements filled by `uperf_l_words`.
+fn uperf_l_tab(q: u64, n: usize, seed: u64, pattern: u8) -> ring::kfield::KTab {
+    use ring::kfield::{KBLK, KL, KTab};
+    let mut t = KTab::zeroed(n);
+    let nblk = n / KL;
+    let w = uperf_l_words(q, nblk * KBLK, seed, pattern);
+    t.d[..nblk * KBLK].copy_from_slice(&w);
+    t
+}
+
+/// The finalized node values of the planes.
+fn uperf_l_nodes(kf: &ring::kfield::KField, nn: usize, lo: &[u64], hi: &[u64]) -> Vec<ring::kfield::KElem> {
+    use ring::kfield::KL;
+    (0..nn).map(|ni| kf.kt_round_g_finalize(&lo[ni * 31 * KL..(ni + 1) * 31 * KL], &hi[ni * 31 * KL..(ni + 1) * 31 * KL])).collect()
+}
+
+/// One synthetic descent layer for the fused-round legs: `n_inst` instances
+/// of `per` state-0 elements each (`real` = the instances that are live;
+/// the others are pads whose slices are skipped), the tree layer j+1 (2 x
+/// per elements per instance) as a packed table or compact leaves, the
+/// b-part eq table (per elements), E(e) per instance, lambda, the masks'
+/// add-constants.
+struct UperfLLayer {
+    per: usize,
+    n_inst: usize,
+    real: Vec<usize>,
+    lay_p: ring::kfield::KTab,
+    lay_q: ring::kfield::KTab,
+    compact: Vec<Option<ring::kfield::CompactLeaves>>,
+    eqb: ring::kfield::KTab,
+    ee: Vec<Option<ring::kfield::KElem>>,
+    lambda: ring::kfield::KElem,
+    masked: bool,
+    spp: [ring::kfield::KElem; 2],
+    spq: [ring::kfield::KElem; 2],
+}
+
+fn uperf_l_layer(kf: &ring::kfield::KField, per: usize, n_inst: usize, n_pads: usize, compact: bool, masked: bool, seed: u64, pattern: u8) -> UperfLLayer {
+    use ring::kfield::{CompactLeaves, KBLK, KL, K_DEG};
+    let q = kf.zq.q;
+    let mut st = seed.wrapping_mul(0x2545_f491_4f6c_dd1d) ^ (per as u64) ^ ((n_inst as u64) << 20);
+    let real: Vec<usize> = (0..n_inst).filter(|&e| e >= n_pads).collect();
+    let n_lay = 2 * per * n_inst;
+    let mut lay_p = uperf_l_tab(q, n_lay, seed ^ 0x11, pattern);
+    let mut lay_q = uperf_l_tab(q, n_lay, seed ^ 0x22, pattern);
+    let mut compacts: Vec<Option<CompactLeaves>> = (0..n_inst).map(|_| None).collect();
+    if compact {
+        // The aligned-witness leaf shape: members (1, alpha - v) with v on
+        // K-coordinates 0..1, dummies (0, 1), a few blinder exceptions;
+        // the packed tables get the SAME contents (the CPU reference reads
+        // either source through the same kernels).
+        let alpha = uperf_l_kelem(q, &mut st);
+        for e in 0..n_inst {
+            let n = 2 * per;
+            let mut c = CompactLeaves::new(n, &alpha);
+            {
+                let words = c.words_mut();
+                for i in 0..n {
+                    let r = ring::splitmix64(&mut st);
+                    if r % 5 == 0 {
+                        continue; // dummy
+                    }
+                    let q0 = (ring::splitmix64(&mut st) % q) as u32;
+                    let q1 = (ring::splitmix64(&mut st) % q) as u32;
+                    CompactLeaves::put_member(words, 0, i, q0, q1);
+                }
+            }
+            // Fill the packed tables from the compact leaves (exact bytes).
+            let nblk = n / KL;
+            let base = e * n / KL;
+            let mut sp = vec![0u32; nblk * KBLK];
+            let mut sq = vec![0u32; nblk * KBLK];
+            c.expand_blocks(0, nblk, &mut sp, &mut sq);
+            lay_p.d[base * KBLK..(base + nblk) * KBLK].copy_from_slice(&sp);
+            lay_q.d[base * KBLK..(base + nblk) * KBLK].copy_from_slice(&sq);
+            // Exceptions (blinders): random elements at a few positions.
+            let n_exc = 1 + (e % 3);
+            for k in 0..n_exc {
+                let i = (ring::splitmix64(&mut st) as usize + k * 7) % n;
+                let p = uperf_l_kelem(q, &mut st);
+                let qq = uperf_l_kelem(q, &mut st);
+                c.add_exception(i, &p, &qq);
+                lay_p.set(e * n + i, &p);
+                lay_q.set(e * n + i, &qq);
+            }
+            compacts[e] = Some(c);
+        }
+    }
+    let eqb = uperf_l_tab(q, per, seed ^ 0x33, pattern);
+    let ee: Vec<Option<ring::kfield::KElem>> = (0..n_inst).map(|e| if e % 2 == 0 { Some(uperf_l_kelem(q, &mut st)) } else { None }).collect();
+    let lambda = uperf_l_kelem(q, &mut st);
+    let mk = |st: &mut u64| -> [ring::kfield::KElem; 2] { [uperf_l_kelem(q, st), uperf_l_kelem(q, st)] };
+    let spp = mk(&mut st);
+    let spq = mk(&mut st);
+    let _ = K_DEG;
+    UperfLLayer { per, n_inst, real, lay_p, lay_q, compact: compacts, eqb, ee, lambda, masked, spp, spq }
+}
+
+/// Run one synthetic descent layer's fused rounds through
+/// `k9_fused_round_par` (the GPU hook decides), exactly the sequence
+/// `masked_rounds_bulk` issues (EXTRACT, EXTRACT_FOLD, FOLD.. while the
+/// round is bulk and — with pads — while the skipping goes on), and return
+/// (per round: the finalized node values; per round: the state tables'
+/// live ranges as words (only when `snap` is set)). `challenges` = the r_t
+/// per round (drawn here from the seed).
+fn uperf_l_run_layer(kf: &ring::kfield::KField, lay: &UperfLLayer, seed: u64, snap: bool) -> (Vec<Vec<ring::kfield::KElem>>, Vec<Vec<u32>>) {
+    use ring::kfield::{kop, BlkSrc, FusedLayer, FusedPlan, KBLK, KL, KTab, FUSE_EXTRACT, FUSE_EXTRACT_FOLD, FUSE_FOLD, K_DEG};
+    let kern = kf.kern.as_ref().expect("K9 kernel");
+    let q = kf.zq.q;
+    let mut st = seed ^ 0xabcdef;
+    let (per, n_inst) = (lay.per, lay.n_inst);
+    let size = per * n_inst;
+    let pads = lay.real.len() < n_inst;
+    let mut nodes_out: Vec<Vec<ring::kfield::KElem>> = Vec::new();
+    let mut snaps: Vec<Vec<u32>> = Vec::new();
+    let mut scratch: Vec<u32> = Vec::new();
+    let mut eq1 = KTab::zeroed(size / 2);
+    let mut t1 = [KTab::zeroed(size / 2), KTab::zeroed(size / 2), KTab::zeroed(size / 2), KTab::zeroed(size / 2)];
+    let mut r_prev: ring::kfield::KElem = kf.zero();
+    let mut fold_consts: Option<[ring::kfield::KElem; 4]> = None;
+    let mut t = 0usize;
+    loop {
+        let n_t = size >> t;
+        let per_t = per >> t;
+        if n_t < 2 * KL || per_t == 0 {
+            break;
+        }
+        let n_pairs = n_t / (2 * KL);
+        let skipping = pads && per_t >= 2 * KL;
+        if pads && !skipping {
+            break; // need_mat: the CPU flushes and materializes the pads (not a fused round)
+        }
+        let mode = if t == 0 { FUSE_EXTRACT } else if t == 1 { FUSE_EXTRACT_FOLD } else { FUSE_FOLD };
+        let d = if t == 0 && lay.masked { 5usize } else { 3 };
+        let nodes: Vec<u64> = (0..=d as u64).filter(|&x| x != 1).collect();
+        // Node consts (masked round 0).
+        let consts: Option<Vec<[[u32; K_DEG]; 4]>> = if t == 0 && lay.masked {
+            Some(
+                nodes
+                    .iter()
+                    .map(|&x| {
+                        let xk = kf.embed(x);
+                        let zz = kf.mul(&xk, &kf.sub(&kf.one(), &xk));
+                        let c = [kf.mul(&zz, &lay.spp[0]), kf.mul(&zz, &lay.spp[1]), kf.mul(&zz, &lay.spq[0]), kf.mul(&zz, &lay.spq[1])];
+                        [kop(&kf.add(&c[0], &kf.mul(&lay.lambda, &c[2]))), kop(&c[1]), kop(&c[2]), kop(&c[3])]
+                    })
+                    .collect(),
+            )
+        } else {
+            None
+        };
+        let acc_words = nodes.len() * 31 * KL;
+        let mut lo = vec![0u64; acc_words];
+        let mut hi = vec![0u64; acc_words];
+        // Ranges (state-t pair-blocks).
+        let ppe = per_t / (2 * KL);
+        let pranges: Vec<(usize, usize)> = if mode == FUSE_FOLD {
+            if skipping { lay.real.iter().map(|&e| (e * ppe, (e + 1) * ppe)).collect() } else { vec![(0, n_pairs)] }
+        } else {
+            let live: Vec<usize> = if pads { lay.real.clone() } else { (0..n_inst).collect() };
+            live.iter().map(|&e| (e * ppe, (e + 1) * ppe)).collect()
+        };
+        let lambda_k = kop(&lay.lambda);
+        let fc: Option<[[u32; K_DEG]; 4]> = fold_consts.as_ref().map(|c| {
+            if mode == FUSE_FOLD {
+                [kop(&kf.add(&c[0], &kf.mul(&lay.lambda, &c[2]))), kop(&c[1]), kop(&c[2]), kop(&c[3])]
+            } else {
+                [kop(&c[0]), kop(&c[1]), kop(&c[2]), kop(&c[3])]
+            }
+        });
+        // Layers (extract modes).
+        let live_inst: Vec<usize> = if pads { lay.real.clone() } else { (0..n_inst).collect() };
+        let n_lay_e = 2 * per; // layer elements per instance
+        let layers: Vec<FusedLayer> = if mode == FUSE_FOLD {
+            Vec::new()
+        } else {
+            live_inst
+                .iter()
+                .map(|&e| {
+                    let src = match &lay.compact[e] {
+                        Some(c) => BlkSrc::Compact(c),
+                        None => BlkSrc::Packed {
+                            p: &lay.lay_p.d[e * n_lay_e / KL * KBLK..(e + 1) * n_lay_e / KL * KBLK],
+                            q: &lay.lay_q.d[e * n_lay_e / KL * KBLK..(e + 1) * n_lay_e / KL * KBLK],
+                        },
+                    };
+                    FusedLayer { src, first_pair: e * ppe, ee: lay.ee[e].as_ref().map(kop) }
+                })
+                .collect()
+        };
+        let plan = FusedPlan { mode, ranges: &pranges, layers: &layers, r_prev: kop(&r_prev), lambda: lambda_k, fold_consts: fc };
+        match mode {
+            FUSE_EXTRACT => {
+                ring::kfield::k9_fused_round_par(kern, &plan, n_pairs, &mut [], &lay.eqb.d, &mut [], [&mut [], &mut [], &mut [], &mut []], &nodes, consts.as_deref(), &mut lo, &mut hi, &mut scratch);
+            }
+            FUSE_EXTRACT_FOLD => {
+                let [a, b, c, dd] = &mut t1;
+                ring::kfield::k9_fused_round_par(kern, &plan, n_pairs, &mut [], &lay.eqb.d, &mut eq1.d, [&mut a.d, &mut b.d, &mut c.d, &mut dd.d], &nodes, consts.as_deref(), &mut lo, &mut hi, &mut scratch);
+            }
+            _ => {
+                let [a, b, c, dd] = &mut t1;
+                ring::kfield::k9_fused_round_par(kern, &plan, n_pairs, &mut eq1.d, &[], &mut [], [&mut a.d, &mut b.d, &mut c.d, &mut dd.d], &nodes, consts.as_deref(), &mut lo, &mut hi, &mut scratch);
+            }
+        }
+        nodes_out.push(uperf_l_nodes(kf, nodes.len(), &lo, &hi));
+        if snap && mode != FUSE_EXTRACT {
+            let mut v: Vec<u32> = Vec::new();
+            for &(a, b) in &pranges {
+                v.extend_from_slice(&eq1.d[2 * a * KBLK..2 * b * KBLK]);
+                for tb in t1.iter() {
+                    v.extend_from_slice(&tb.d[2 * a * KBLK..2 * b * KBLK]);
+                }
+            }
+            snaps.push(v);
+        }
+        // The challenge of this round and the pending fold's constants.
+        r_prev = uperf_l_kelem(q, &mut st);
+        fold_consts = if t == 0 && lay.masked {
+            let zz = kf.mul(&r_prev, &kf.sub(&kf.one(), &r_prev));
+            Some([kf.mul(&zz, &lay.spp[0]), kf.mul(&zz, &lay.spp[1]), kf.mul(&zz, &lay.spq[0]), kf.mul(&zz, &lay.spq[1])])
+        } else {
+            None
+        };
+        t += 1;
+    }
+    (nodes_out, snaps)
+}
+
+fn uperf_l_battery(seed: u64) {
+    use ring::kfield::{BlkSrc, CompactLeaves, KBLK, KL, KTab};
+    let t0 = Instant::now();
+    println!("[UPERF2-L] battery: {} | {}", ring::gpu::label(), ring::gpu::k9_label());
+    println!("[UPERF2-L] ZK_THREADS = {}", ring::eval_proof::threads());
+    if !ring::gpu::enabled() {
+        println!("[UPERF2-L] battery: the GPU path is not live (build without gpu-cuda, or ZK_GPU unset) — nothing to compare");
+        return;
+    }
+    let ctx = ring::ring_ctx_q8();
+    let kf = ring::kfield::KField::new(&ctx);
+    let kern = *kf.kern.as_ref().expect("K9 kernel");
+    let q = kf.zq.q;
+    ring::gpu::k9_set_min_pairs(1);
+    ring::gpu::k9_set_cold_ok(true);
+    let mut legs = 0usize;
+    let mut cells = 0usize;
+    let mut h = sha2::Sha256::new();
+    use sha2::Digest;
+    // ---- 1. The fused round: whole layer chains, CPU (bypassed) vs GPU.
+    // (per, n_inst, n_pads, compact, masked)
+    let shapes: [(usize, usize, usize, bool, bool); 14] = [
+        (32, 1, 0, false, false),
+        (32, 1, 0, false, true),
+        (64, 2, 0, false, true),
+        (128, 4, 1, false, false),
+        (128, 4, 2, false, true),
+        (256, 2, 0, true, false),
+        (256, 4, 1, true, true),
+        (512, 1, 0, false, true),
+        (512, 8, 3, false, false),
+        (1024, 2, 0, true, true),
+        (2048, 1, 0, false, false),
+        (2048, 4, 2, true, false),
+        (4096, 2, 0, false, true),
+        (8192, 1, 0, true, false),
+    ];
+    for (si, &(per, n_inst, n_pads, compact, masked)) in shapes.iter().enumerate() {
+        for pattern in 0..5u8 {
+            if pattern > 0 && per > 1024 {
+                continue;
+            }
+            let lay = uperf_l_layer(&kf, per, n_inst, n_pads, compact, masked, seed ^ (si as u64) << 8 ^ pattern as u64, pattern);
+            for &eager in &[true, false] {
+                ring::gpu::k9_set_eager(eager);
+                // CPU reference.
+                ring::gpu::set_bypass(true);
+                let (n_cpu, s_cpu) = uperf_l_run_layer(&kf, &lay, seed, true);
+                ring::gpu::set_bypass(false);
+                let k0 = ring::gpu::k9_stats().rounds;
+                let (n_gpu, s_gpu) = uperf_l_run_layer(&kf, &lay, seed, true);
+                let used = ring::gpu::k9_stats().rounds - k0;
+                assert_eq!(n_cpu.len(), n_gpu.len(), "round count");
+                for (r, (a, b)) in n_cpu.iter().zip(n_gpu.iter()).enumerate() {
+                    assert_eq!(a, b, "[UPERF2-L] fused round nodes mismatch: shape {si} (per {per}, inst {n_inst}, pads {n_pads}, compact {compact}, masked {masked}) pattern {pattern} eager {eager} round {r}");
+                    for e in a {
+                        for &x in e {
+                            h.update(x.to_le_bytes());
+                        }
+                    }
+                }
+                // Tables: eager = after every round; lazy = only the last (the
+                // handover) is guaranteed on the host.
+                let n_snap = s_cpu.len();
+                assert_eq!(n_snap, s_gpu.len());
+                for r in 0..n_snap {
+                    if !eager && r + 1 < n_snap {
+                        continue;
+                    }
+                    assert_eq!(s_cpu[r].len(), s_gpu[r].len());
+                    for (i, (x, y)) in s_cpu[r].iter().zip(s_gpu[r].iter()).enumerate() {
+                        assert_eq!(x, y, "[UPERF2-L] fused round TABLE mismatch: shape {si} pattern {pattern} eager {eager} round {r} word {i}");
+                    }
+                    cells += s_cpu[r].len();
+                    for &x in &s_cpu[r] {
+                        h.update(x.to_le_bytes());
+                    }
+                }
+                assert!(used >= 1, "[UPERF2-L] the GPU took no round at shape {si} (per {per})");
+                legs += 1;
+            }
+        }
+        println!("  ok   fused layer chain: per {per} x {n_inst} inst (pads {n_pads}, compact {compact}, masked {masked}), eager + lazy, 5 patterns");
+    }
+    ring::gpu::k9_set_eager(false);
+    // ---- 2. The ixf round + fold chain.
+    for &(kind_id, nt) in &[(2u8, 5usize), (0, 3), (1, 4)] {
+        for &deg in &[2usize, 3, 4] {
+            for &lg in &[5usize, 8, 11, 13] {
+                for pattern in 0..3u8 {
+                    if pattern > 0 && lg > 11 {
+                        continue;
+                    }
+                    let n = 1usize << lg;
+                    let mk = |off: u64| -> Vec<KTab> { (0..nt).map(|k| uperf_l_tab(q, n, seed ^ off ^ (k as u64) << 4 ^ (lg as u64) << 8, pattern)).collect() };
+                    let mut st = seed ^ 0x77 ^ (lg as u64);
+                    let rs: Vec<ring::kfield::KElem> = (0..lg).map(|_| uperf_l_kelem(q, &mut st)).collect();
+                    let run = |tabs: &mut Vec<KTab>| -> (Vec<Vec<ring::kfield::KElem>>, Vec<Vec<u32>>) {
+                        let mut polys = Vec::new();
+                        let mut snaps = Vec::new();
+                        let mut scratch: Vec<Vec<u32>> = (0..nt).map(|_| Vec::new()).collect();
+                        let mut ti = 0usize;
+                        while tabs[0].n >= 2 * KL {
+                            let views: Vec<&KTab> = tabs.iter().collect();
+                            polys.push(kf.kt_ixf_round_poly(&views, deg, kind_id));
+                            for (p, s) in tabs.iter_mut().zip(scratch.iter_mut()) {
+                                kf.kt_fold_par(p, s, &rs[ti]);
+                                let nw = (p.n / 2 / KL) * KBLK;
+                                s.truncate(nw);
+                                s.shrink_to_fit();
+                                p.d.shrink_to_fit();
+                            }
+                            let mut v = Vec::new();
+                            for p in tabs.iter() {
+                                v.extend_from_slice(&p.d[..p.n / KL * KBLK]);
+                            }
+                            snaps.push(v);
+                            ti += 1;
+                        }
+                        (polys, snaps)
+                    };
+                    ring::gpu::set_bypass(true);
+                    let mut tc = mk(0x100);
+                    let (pc, sc) = run(&mut tc);
+                    ring::gpu::set_bypass(false);
+                    for &eager in &[true, false] {
+                        // Eager: every fold's table on the host; lazy: only the
+                        // handover (the last folds) is guaranteed on the host.
+                        ring::gpu::k9_set_eager(eager);
+                        let mut tg = mk(0x100);
+                        let k0 = ring::gpu::k9_stats().ixf_rounds;
+                        let (pg, sg) = run(&mut tg);
+                        let used = ring::gpu::k9_stats().ixf_rounds - k0;
+                        assert_eq!(pc, pg, "[UPERF2-L] ixf round polys mismatch: kind {kind_id} deg {deg} n 2^{lg} pattern {pattern} eager {eager}");
+                        assert_eq!(sc.len(), sg.len());
+                        for (r, (a, b)) in sc.iter().zip(sg.iter()).enumerate() {
+                            if !eager && r + 1 < sc.len() {
+                                continue;
+                            }
+                            for (i, (x, y)) in a.iter().zip(b.iter()).enumerate() {
+                                assert_eq!(x, y, "[UPERF2-L] ixf FOLD table mismatch: kind {kind_id} deg {deg} n 2^{lg} pattern {pattern} eager {eager} round {r} word {i}");
+                            }
+                            cells += a.len();
+                            for &x in a {
+                                h.update(x.to_le_bytes());
+                            }
+                        }
+                        assert!(used >= 1, "[UPERF2-L] the GPU took no ixf round at n 2^{lg}");
+                        legs += 1;
+                    }
+                    ring::gpu::k9_set_eager(false);
+                    for p in &pc {
+                        for e in p {
+                            for &x in e {
+                                h.update(x.to_le_bytes());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        println!("  ok   ixf chain: kind {kind_id} ({nt} tables), degrees 2/3/4, n 2^5..2^13, rounds + folds");
+    }
+    // ---- 3. The tree step (climb): packed sources at levels 1 and 2, the
+    // compact leaves at level 1 (the device path is off by default — on
+    // for these legs).
+    ring::gpu::k9_set_tree(Some(true));
+    for &(out_nblk, levels, compact) in &[(4usize, 1usize, false), (64, 1, false), (64, 2, false), (512, 1, false), (128, 3, false), (64, 1, true), (1024, 1, true), (4096, 1, false)] {
+        for pattern in 0..3u8 {
+            if pattern > 0 && out_nblk >= 4096 {
+                continue;
+            }
+            let src_n = (out_nblk << levels) * KL;
+            let sp = uperf_l_tab(q, src_n, seed ^ 0x500 ^ (out_nblk as u64), pattern);
+            let sq = uperf_l_tab(q, src_n, seed ^ 0x600 ^ (out_nblk as u64), pattern);
+            let mut cl: Option<CompactLeaves> = None;
+            let (mut sp, mut sq) = (sp, sq);
+            if compact {
+                let mut st = seed ^ 0x999;
+                let alpha = uperf_l_kelem(q, &mut st);
+                let mut c = CompactLeaves::new(src_n, &alpha);
+                {
+                    let words = c.words_mut();
+                    for i in 0..src_n {
+                        if ring::splitmix64(&mut st) % 4 == 0 {
+                            continue;
+                        }
+                        let q0 = (ring::splitmix64(&mut st) % q) as u32;
+                        let q1 = (ring::splitmix64(&mut st) % q) as u32;
+                        CompactLeaves::put_member(words, 0, i, q0, q1);
+                    }
+                }
+                for k in 0..3 {
+                    let i = (ring::splitmix64(&mut st) as usize + 11 * k) % src_n;
+                    let p = uperf_l_kelem(q, &mut st);
+                    let qq = uperf_l_kelem(q, &mut st);
+                    c.add_exception(i, &p, &qq);
+                }
+                let nblk = src_n / KL;
+                c.expand_blocks(0, nblk, &mut sp.d, &mut sq.d);
+                cl = Some(c);
+            }
+            let run = |bypass: bool| -> (Vec<u32>, Vec<u32>) {
+                ring::gpu::set_bypass(bypass);
+                let mut np = KTab::zeroed(out_nblk * KL);
+                let mut nq = KTab::zeroed(out_nblk * KL);
+                let src = match &cl {
+                    Some(c) => BlkSrc::Compact(c),
+                    None => BlkSrc::Packed { p: &sp.d, q: &sq.d },
+                };
+                ring::kfield::k9_tree_climb_par(&kern, &src, levels, &mut np.d, &mut nq.d, out_nblk);
+                ring::gpu::set_bypass(false);
+                (np.d.clone(), nq.d.clone())
+            };
+            let (pc, qc) = run(true);
+            let k0 = ring::gpu::k9_stats().climbs;
+            let (pg, qg) = run(false);
+            let used = ring::gpu::k9_stats().climbs - k0;
+            for (i, (x, y)) in pc.iter().zip(pg.iter()).enumerate() {
+                assert_eq!(x, y, "[UPERF2-L] tree step np mismatch: out_nblk {out_nblk} levels {levels} compact {compact} pattern {pattern} word {i}");
+            }
+            for (i, (x, y)) in qc.iter().zip(qg.iter()).enumerate() {
+                assert_eq!(x, y, "[UPERF2-L] tree step nq mismatch: out_nblk {out_nblk} levels {levels} compact {compact} pattern {pattern} word {i}");
+            }
+            cells += pc.len() + qc.len();
+            for &x in pc.iter().chain(qc.iter()) {
+                h.update(x.to_le_bytes());
+            }
+            assert!(used >= 1, "[UPERF2-L] the GPU took no tree climb at out_nblk {out_nblk}");
+            legs += 1;
+        }
+    }
+    println!("  ok   tree step: levels 1/2/3 packed, level 1 compact");
+    ring::gpu::k9_set_tree(None);
+    ring::gpu::k9_set_cold_ok(false);
+    ring::gpu::k9_set_min_pairs(0);
+    let d: [u8; 32] = h.finalize().into();
+    println!(
+        "[UPERF2-L] battery passed: {legs} legs GPU == CPU cell by cell ({cells} table words compared, every round's node values / round polys); BATTERY DIGEST {}; {:.2}s",
+        hex_full(&d),
+        t0.elapsed().as_secs_f64()
+    );
+}
+
+fn uperf_l_bench(lp: usize, reps: usize) {
+    use ring::kfield::{BlkSrc, KTab, KL};
+    println!("[UPERF2-L] bench: {} | {}", ring::gpu::label(), ring::gpu::k9_label());
+    if !ring::gpu::enabled() {
+        println!("[UPERF2-L] bench: the GPU path is not live — nothing to time");
+        return;
+    }
+    let ctx = ring::ring_ctx_q8();
+    let kf = ring::kfield::KField::new(&ctx);
+    let kern = *kf.kern.as_ref().expect("K9 kernel");
+    let q = kf.zq.q;
+    let per = 1usize << lp; // state-0 elements of ONE instance (n_pairs = per / 16)
+    println!(
+        "[UPERF2-L] bench: one instance of 2^{lp} state-0 elements ({} pair-blocks at state 0; the layer 2 x {} elements = {:.0} MB; the state-1 tables 5 x {:.0} MB), ZK_THREADS {}, best of {reps} [{}]",
+        per / 16,
+        2 * per,
+        (2 * per * 64 * 2) as f64 / 1e6,
+        (per / 2 * 64) as f64 / 1e6,
+        ring::eval_proof::threads(),
+        std::env::consts::OS
+    );
+    ring::gpu::k9_set_min_pairs(1);
+    ring::gpu::k9_set_cold_ok(true);
+    let time = |f: &mut dyn FnMut()| -> f64 {
+        let mut b = f64::MAX;
+        for _ in 0..reps {
+            let t0 = Instant::now();
+            f();
+            b = b.min(t0.elapsed().as_secs_f64());
+        }
+        b
+    };
+    // The whole layer chain (extract, extract-fold, folds down to the handover).
+    for &compact in &[false, true] {
+        let lay = uperf_l_layer(&kf, per, 1, 0, compact, false, 0x77, 0);
+        let mut cpu = 0.0;
+        ring::gpu::set_bypass(true);
+        cpu = time(&mut || {
+            let _ = uperf_l_run_layer(&kf, &lay, 5, false);
+        });
+        ring::gpu::set_bypass(false);
+        // warm
+        let _ = uperf_l_run_layer(&kf, &lay, 5, false);
+        ring::gpu::k9_stats_reset();
+        let gpu = time(&mut || {
+            let _ = uperf_l_run_layer(&kf, &lay, 5, false);
+        });
+        let s = ring::gpu::k9_stats();
+        let r = reps as f64;
+        println!(
+            "  layer chain ({}): CPU {:.1} ms -> GPU {:.1} ms ({:.1}x); GPU per chain: rounds {:.0}, kernel {:.1} ms, upload {:.1} ms (encode {:.1}, memcpy-to-pinned {:.1}, dma-wait {:.1}), handover {:.1} ms, h2d {:.0} MB, d2h {:.1} MB",
+            if compact { "compact leaves" } else { "packed layer" },
+            cpu * 1e3,
+            gpu * 1e3,
+            cpu / gpu,
+            s.rounds as f64 / r,
+            s.secs_kernel * 1e3 / r,
+            s.secs_upload * 1e3 / r,
+            s.secs_encode * 1e3 / r,
+            s.secs_up_memcpy * 1e3 / r,
+            s.secs_up_wait * 1e3 / r,
+            s.secs_handover * 1e3 / r,
+            s.bytes_h2d as f64 / 1e6 / r,
+            s.bytes_d2h as f64 / 1e6 / r
+        );
+        let _ = cpu;
+    }
+    // The ixf chain (rq, deg 3) at 2^lp elements x 5 tables.
+    {
+        let n = per;
+        let mk = || -> Vec<KTab> { (0..5).map(|k| uperf_l_tab(q, n, 0x9000 ^ k as u64, 0)).collect() };
+        let mut st = 0x1234u64;
+        let rs: Vec<ring::kfield::KElem> = (0..lp).map(|_| uperf_l_kelem(q, &mut st)).collect();
+        let run = |tabs: &mut Vec<KTab>| {
+            let mut scratch: Vec<Vec<u32>> = (0..5).map(|_| Vec::new()).collect();
+            let mut ti = 0usize;
+            while tabs[0].n >= 2 * KL {
+                let views: Vec<&KTab> = tabs.iter().collect();
+                let _ = kf.kt_ixf_round_poly(&views, 3, 2);
+                for (p, s) in tabs.iter_mut().zip(scratch.iter_mut()) {
+                    kf.kt_fold_par(p, s, &rs[ti]);
+                }
+                ti += 1;
+            }
+        };
+        ring::gpu::set_bypass(true);
+        let cpu = time(&mut || {
+            let mut t = mk();
+            run(&mut t);
+        });
+        ring::gpu::set_bypass(false);
+        let mut t = mk();
+        run(&mut t);
+        ring::gpu::k9_stats_reset();
+        let gpu = time(&mut || {
+            let mut t = mk();
+            run(&mut t);
+        });
+        let s = ring::gpu::k9_stats();
+        let r = reps as f64;
+        println!(
+            "  ixf chain (rq, deg 3, 5 x 2^{lp}; includes the table build): CPU {:.1} ms -> GPU {:.1} ms ({:.1}x); GPU: rounds {:.0} (hits {:.0}), folds {:.0}, kernel {:.1} ms, in-hook {:.1} ms, h2d {:.0} MB, d2h {:.0} MB",
+            cpu * 1e3,
+            gpu * 1e3,
+            cpu / gpu,
+            s.ixf_rounds as f64 / r,
+            s.ixf_hits as f64 / r,
+            s.ixf_folds as f64 / r,
+            s.secs_kernel * 1e3 / r,
+            s.secs_ixf * 1e3 / r,
+            s.bytes_h2d as f64 / 1e6 / r,
+            s.bytes_d2h as f64 / 1e6 / r
+        );
+    }
+    // The tree step (one level) from a packed layer of 2 x 2^lp elements and from compact leaves.
+    ring::gpu::k9_set_tree(Some(true));
+    for &compact in &[false, true] {
+        let src_n = 2 * per;
+        let out_nblk = per / KL;
+        let mut sp = uperf_l_tab(q, src_n, 0x51, 0);
+        let mut sq = uperf_l_tab(q, src_n, 0x52, 0);
+        let mut cl: Option<ring::kfield::CompactLeaves> = None;
+        if compact {
+            let mut st = 0x999u64;
+            let alpha = uperf_l_kelem(q, &mut st);
+            let mut c = ring::kfield::CompactLeaves::new(src_n, &alpha);
+            {
+                let words = c.words_mut();
+                for i in 0..src_n {
+                    if ring::splitmix64(&mut st) % 4 == 0 {
+                        continue;
+                    }
+                    let q0 = (ring::splitmix64(&mut st) % q) as u32;
+                    let q1 = (ring::splitmix64(&mut st) % q) as u32;
+                    ring::kfield::CompactLeaves::put_member(words, 0, i, q0, q1);
+                }
+            }
+            c.expand_blocks(0, src_n / KL, &mut sp.d, &mut sq.d);
+            cl = Some(c);
+        }
+        let mut np = KTab::zeroed(out_nblk * KL);
+        let mut nq = KTab::zeroed(out_nblk * KL);
+        let mut run = |bypass: bool| {
+            ring::gpu::set_bypass(bypass);
+            let src = match &cl {
+                Some(c) => BlkSrc::Compact(c),
+                None => BlkSrc::Packed { p: &sp.d, q: &sq.d },
+            };
+            ring::kfield::k9_tree_climb_par(&kern, &src, 1, &mut np.d, &mut nq.d, out_nblk);
+            ring::gpu::set_bypass(false);
+        };
+        let cpu = time(&mut || run(true));
+        run(false);
+        ring::gpu::k9_stats_reset();
+        let gpu = time(&mut || run(false));
+        let s = ring::gpu::k9_stats();
+        let r = reps as f64;
+        println!(
+            "  tree step ({}, {} -> {} elements): CPU {:.1} ms -> GPU {:.1} ms ({:.2}x); GPU: kernel+upload {:.1} ms, d2h {:.1} ms, h2d {:.0} MB, d2h {:.0} MB",
+            if compact { "compact leaves" } else { "packed layer" },
+            src_n,
+            out_nblk * KL,
+            cpu * 1e3,
+            gpu * 1e3,
+            cpu / gpu,
+            (s.secs_climb - s.secs_climb_d2h) * 1e3 / r,
+            s.secs_climb_d2h * 1e3 / r,
+            s.bytes_h2d as f64 / 1e6 / r,
+            s.bytes_d2h as f64 / 1e6 / r
+        );
+    }
+    ring::gpu::k9_set_tree(None);
+    ring::gpu::k9_set_cold_ok(false);
+    ring::gpu::k9_set_min_pairs(0);
+}
+
+fn uperf_l_dbench(depth: usize, l: usize, n_real: usize, dt: usize) {
+    use ring::ct_engine::prof;
+    let ctx = ring::ring_ctx_q8();
+    let kf = ring::kfield::KField::new(&ctx);
+    println!("[UPERF2-L] dbench: depth {depth} x l {l} (n_real {n_real}, dt {dt}), ZK_THREADS {}; {} | {}", ring::eval_proof::threads(), ring::gpu::label(), ring::gpu::k9_label());
+    prof::reset();
+    prof::enable(true, false);
+    ring::gpu::set_bypass(true);
+    let t0 = Instant::now();
+    let a = uperf_a_descent_pair(&kf, depth, l, n_real, dt, false, 9, false);
+    let w_cpu = t0.elapsed().as_secs_f64();
+    let cpu_prof: Vec<String> = prof::report().iter().filter(|(_, s, _)| *s >= 0.005).map(|(n, s, c)| format!("{n:<16} {s:8.3}s ({c})")).collect();
+    ring::gpu::set_bypass(false);
+    if !ring::gpu::enabled() {
+        println!("  CPU: prove {:.2}s trees {:.2}s wall {:.2}s digest {}; GPU not live", a.prove_s, a.trees_s, w_cpu, hex_full(&a.digest));
+        return;
+    }
+    prof::reset();
+    ring::gpu::k9_stats_reset();
+    let t1 = Instant::now();
+    let b = uperf_a_descent_pair(&kf, depth, l, n_real, dt, false, 9, false);
+    let w_gpu = t1.elapsed().as_secs_f64();
+    let gpu_prof: Vec<String> = prof::report().iter().filter(|(_, s, _)| *s >= 0.005).map(|(n, s, c)| format!("{n:<16} {s:8.3}s ({c})")).collect();
+    let s = ring::gpu::k9_stats();
+    println!("  CPU: prove {:.2}s trees {:.2}s wall {:.2}s | GPU: prove {:.2}s trees {:.2}s wall {:.2}s | digest {} {}", a.prove_s, a.trees_s, w_cpu, b.prove_s, b.trees_s, w_gpu, hex_full(&a.digest), if a.digest == b.digest { "IDENTICAL" } else { "MISMATCH" });
+    println!(
+        "  k9: rounds {} (declined {}), layer uploads {} / hits {}, h2d {:.0} MB, d2h {:.0} MB; in-hook {:.2}s = kernel {:.2} + upload {:.2} (encode {:.2}; memcpy-to-pinned {:.2}, dma-wait {:.2}) + handover {:.2}; climbs {} ({:.2}s, d2h {:.2}s); ixf rounds {} folds {}",
+        s.rounds,
+        s.declined,
+        s.layer_uploads,
+        s.layer_hits,
+        s.bytes_h2d as f64 / 1e6,
+        s.bytes_d2h as f64 / 1e6,
+        s.secs_round,
+        s.secs_kernel,
+        s.secs_upload,
+        s.secs_encode,
+        s.secs_up_memcpy,
+        s.secs_up_wait,
+        s.secs_handover,
+        s.climbs,
+        s.secs_climb,
+        s.secs_climb_d2h,
+        s.ixf_rounds,
+        s.ixf_folds
+    );
+    println!("  CPU phases: {}", cpu_prof.join(" | "));
+    println!("  GPU phases: {}", gpu_prof.join(" | "));
+    assert_eq!(a.digest, b.digest, "[UPERF2-L] dbench: GPU digest != CPU digest");
 }
