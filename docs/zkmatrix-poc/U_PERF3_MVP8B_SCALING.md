@@ -467,4 +467,154 @@ NOT a proof-system change (the m125 study's risk-5 branch, unchanged).
 
 ## 5. The plan (lanes, files, gates) + the Grok RUN task text
 
-(pending)
+### 5.1 The order (smallest rung first; sizes are Section 2's [ASSUMED] lane-days)
+
+**M0 = T12 (Grok, Mac, RUN — the task text is 5.2; needs Victor's
+go).** The data first, because its outputs (the exponent table, the
+W-6/W-7 flags, the violation count) decide two of the code items and
+nothing in it blocks on code. Runs alongside F2 (correctness, < 4 GB
+RSS, no timing).
+
+**M1 (WSL, CODE, 1-2 d) — W-5**: the `BfModel` loader (dims/exps read
+from the export's digests.txt, selected by `ZK_MODEL_EXPORT_DIR`; the
+M125 const path untouched otherwise) **+ W-4** (acc classes from
+d/f). Gates: default-path bytes identical (freeze rows, diff-battery);
+the SYNTHETIC export in results/m8b_test/synth_export is the loader
+fixture (any-dims, already on disk here); a battery leg.
+
+**M2 (WSL, CODE, 0.5 d) — W-2**: `plan_level -> Option`, skip
+infeasible r candidates; planner legs at n0 = 44M/352M (e0 1),
+36M/73M (e0 2). Gate: freeze rows UAGB1-BG-1a/1b identical (the 125M
+schedules move nothing).
+
+**M3 (WSL + Mac, RUN) — the 1x16 pre-rung, THE first real-8B-weights
+proof**: sync layer 0 of the Mac export (~180 MB: 4 bins +
+digests.txt + manifest — same channel as the 125M tarball, Victor's
+call), run the rig at 1x16 (and 3x16) on the WSL box 8T+GPU. Gates:
+the Rust chain digests match the Mac manifest (X/W byte-pinned, z
+re-derived equal); statement accepted, proved, verified (~10-15 s
+[MODEL]); artifact counted vs Section 1.6 (850,159 B at 1x16).
+
+**M4 (per the T12 calibration) — W-6/W-7**: IF flagged — the W-6
+freeze ruling request to Victor (new SiLU member digests in both
+lookup.rs and manifest.rs, UAGB1-BF-style rows), the W-7 width-band
+widening (0.5 d each). Not started speculatively.
+
+**M5 (WSL, CODE, 2-3 d) — W-1**: zero-check column windows (<= 2^25
+K-elements per sub-instance). Gate: k = 1 at 12x512 -> bytes
+IDENTICAL (freeze rows); battery at split shapes; the device ixf path
+stays under 4 GB via 1024-column windows.
+
+**M6 (WSL, CODE, 2-3 d) — W-3**: the act commitment group split by
+layer ranges (k = 2 first, k = 4 if the gate headroom says so).
+Gate: batteries both routings; the +~185 KB/group artifact delta
+counted and recorded.
+
+**M7 (WSL, CODE, 0.5-1 d) — W-8(a)+(d)** (drop `lays` before the
+group proofs; `ZK_W0_REGEN` defaulted for 32-layer rungs) **+ W-10**
+(a `freeze_check_m8b` scaffold keyed by (model tag, layers, T, mode),
+pinned once the Mac digests exist).
+
+**M8 (Mac, RUN) — the ladder**: 32x16 yardstick (needs M1+M2; M7
+recommended — ~145 GB peak [MODEL]; walls recorded honestly with
+[MAC-BOX nT NOISY-SHARED] if F2 still runs, a QUIET window only for
+the headline numbers), then 32x128 (needs M5), then **32x512 =
+MVP-1** (needs M5+M6; W-8(b) only if the real headroom demands it).
+MVP-1 acceptance: the TARGET_CONTRACT FFN statement at 32x512 with
+the real Mistral weights proved AND verified end to end on the Mac,
+digests pinned (W-10 rows), artifact bytes counted (~1.94 MB,
+Section 1.5), prover/verifier walls recorded with labels. Stage A
+(lane S) arrives as protocol v-next alongside, never as an edit of
+the frozen pass.
+
+**What needs Victor** (consolidated): (1) the T12 go-ahead — network
+download on the Mac (~17 GB: 14.5 ckpt + 2.2 data) + ~30 GB disk; no
+license/token for Mistral-7B-v0.1; (2) the checkpoint-name call —
+Mistral-7B-v0.1 (default, ungated) vs Llama-3.1-8B (identical FFN
+dims and naming, gated: Meta license + HF token); (3) the W-6 ruling
+IF the calibration flags a new SiLU member (manifest.rs moves); (4)
+the export-slice transport Mac -> WSL for M3; (5) Mac windows for M8
+(the 32-layer rungs want ~145-184 GB RSS and, for headline timings
+only, a quiesced box — F2 coexistence is Victor's call).
+
+### 5.2 T12 — the Grok RUN task (verbatim, for TASK_BOARD §3)
+
+### T12 — the 8B FFN calibration + export on the Mac  `OPEN (scripts on the lane-R branch/main)`  WHO: MAC  KIND: RUN
+WHY: MVP-1 (PROGRESS_UPERF3.md) proves the 8B FFN shape with REAL
+int8-calibrated weights; this produces the witness in the rig's
+layout. Gates M3/M8. Needs Victor's go for the download (~17 GB
+network, ~30 GB disk). RAM < 4 GB RSS (streamed) — F2 training may
+keep running; nothing here is timed.
+PREREQS (one-time): a python3 with numpy;
+`pip install huggingface_hub tokenizers pyarrow` (network — part of
+the same go-ahead). All commands from the repo root.
+STEPS:
+1. Download Mistral-7B-v0.1 (Apache-2.0, UNGATED — no token; ~14.5 GB):
+   `python3 -c "import os; from huggingface_hub import snapshot_download; snapshot_download('mistralai/Mistral-7B-v0.1', local_dir=os.path.expanduser('~/models/Mistral-7B-v0.1'), allow_patterns=['*.safetensors','*.json','tokenizer.model'])"`
+   Check: `~/models/Mistral-7B-v0.1/` has model-00001/2-of-00002.safetensors,
+   model.safetensors.index.json, config.json, tokenizer.json.
+2. FineWeb-Edu sample (one parquet ~2.2 GB) and a text file from it:
+   `python3 -c "import os; from huggingface_hub import hf_hub_download; print(hf_hub_download('HuggingFaceFW/fineweb-edu', 'sample/10BT/000_00000.parquet', repo_type='dataset', local_dir=os.path.expanduser('~/models/fineweb-edu')))"`
+   then extract the first 4000 documents as text (paste as one block):
+   ```
+   python3 - <<'EOF'
+   import os
+   import pyarrow.parquet as pq
+   pf = pq.ParquetFile(os.path.expanduser(
+       "~/models/fineweb-edu/sample/10BT/000_00000.parquet"))
+   out = open(os.path.expanduser(
+       "~/models/fineweb-edu/sample_text.txt"), "w")
+   n = 0
+   for b in pf.iter_batches(columns=["text"], batch_size=256):
+       for s in b.column(0).to_pylist():
+           out.write(s + "\n\n")
+           n += 1
+       if n >= 4000:
+           break
+   out.close()
+   print(n, "docs")
+   EOF
+   ```
+   (~10-20 MB of text, ~2-5M tokens — the sampler needs >= ~20k.)
+3. Forward sanity BEFORE anything long (~2-5 min):
+   `python3 scripts/m8b_int8_calibration.py --ckpt ~/models/Mistral-7B-v0.1 --decode "The capital of France is"`
+   ACCEPT: the completion contains " Paris". If not: STOP, paste the
+   output (that is a bug report on the hf adapter, not a data problem).
+4. Calibration (~20-45 min [MODEL], < 4 GB RSS — the script prints
+   its peak at the end):
+   `python3 scripts/m8b_int8_calibration.py --ckpt ~/models/Mistral-7B-v0.1 --text ~/models/fineweb-edu/sample_text.txt`
+   PASTE into the log: the per-layer exponent table, every
+   `silu-int8-table-v2 member` line (W-6 flags), the variant-A
+   violation count and loss delta, the VERDICT block, peak RSS.
+   COMMIT: results/m8b_int8_calibration.json.
+5. Export (~10-25 min [MODEL]; writes ~5.7 GB of .bin, gitignored):
+   `python3 scripts/m8b_export_ffn.py --ckpt ~/models/Mistral-7B-v0.1 --text ~/models/fineweb-edu/sample_text.txt`
+   ACCEPT: "range-fact violations across the pass: 0" and no
+   `** remainder widths outside ... **` surprise (if either fails:
+   STOP, paste — that is the W-6/W-7/model-side branch, Victor reads
+   it before anything else happens).
+   COMMIT: results/m8b_ffn_export/digests.txt + manifest.json (+ the
+   .gitignore the script wrote). The .bin files stay on the Mac.
+6. Re-derivation check (~5-10 min): 
+   `python3 scripts/m8b_export_ffn.py --ckpt ~/models/Mistral-7B-v0.1 --weights-only`
+   ACCEPT: "96/96 weight digests match the manifest".
+7. The rig does NOT run yet: the 32x16 rung is GATED on M1+M2 (W-5/
+   W-4/W-2 — the rig is hard-coded to the 125M shape today and will
+   panic). When M1 lands, the board gets the exact command (shape:
+   `ZK_MODEL_EXPORT_DIR=results/m8b_ffn_export ring_matmul uperf-pc full-profile 32 16`
+   — the final arm name comes with M1).
+8. For M3: keep `layer00_*.bin` handy for the WSL sync (~180 MB).
+ACCEPT (whole task): steps 3-6 green; the JSON + manifest + digests
+committed; the paste in the log.
+RECORD: TASK_BOARD §4 + a PROGRESS_UPERF3.md log line ("T12 done:
+eW range …, silu members …, violations 0/…, RSS … GB").
+
+### 5.3 Files this lane added (for the record)
+
+`docs/zkmatrix-poc/U_PERF3_MVP8B_SCALING.md` (this memo),
+`scripts/m8b_scaling_model.py` (Section 1's counter, `--check` green
+vs the rig), `scripts/m8b_int8_calibration.py`,
+`scripts/m8b_export_ffn.py`, `scripts/m8b_verify_125m.py` (12/12
+PASS on this box), `results/m8b_test/` (evidence: the 125M reexport
+digests + manifest). The m125 scripts, the rig, the manifest, the
+task board: untouched.
