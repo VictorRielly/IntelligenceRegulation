@@ -403,6 +403,39 @@ changing: Victor's ruling, freeze rows re-pinned if adopted.
 (c) The GPU rung (CONTINUATION Phase 3): T2/T5's D-batched integer
 GEMMs and the A1 commit kernel are the two kernels to port first.
 
+---
+
+### T12 — the 8B FFN calibration + export on the Mac  `OPEN (scripts on main; needs Victor's download go)`  WHO: MAC  KIND: RUN
+WHY: MVP-1 (PROGRESS_UPERF3.md) proves the 8B FFN shape with REAL
+int8-calibrated weights; this produces the witness in the rig's
+layout. Gates M3/M8 of the MVP plan. Needs Victor's go for the
+download (~17 GB network, ~30 GB disk). RAM < 4 GB RSS (streamed) —
+F2 training may keep running; nothing here is timed.
+PREREQS (one-time): a python3 with numpy;
+`pip install huggingface_hub tokenizers pyarrow` (network — part of
+the same go-ahead). All commands from the repo root.
+STEPS: follow `docs/zkmatrix-poc/U_PERF3_MVP8B_SCALING.md` Section
+5.2 LITERALLY — it is this task in board format with the exact
+commands (download Mistral-7B-v0.1 ungated; FineWeb-Edu parquet +
+text extraction; the `--decode "The capital of France is"` sanity
+gate BEFORE anything long — STOP and paste if " Paris" is absent;
+calibration ~20-45 min; export ~10-25 min; `--weights-only`
+re-check). PASTE into the log: the per-layer exponent table, every
+`silu-int8-table-v2 member` line (W-6 flags), the variant-A
+violation count, the VERDICT block, peak RSS.
+COMMIT: results/m8b_int8_calibration.json,
+results/m8b_ffn_export/digests.txt + manifest.json (+ the script's
+.gitignore). The .bin files stay on the Mac; keep `layer00_*.bin`
+handy for the WSL sync (~180 MB).
+DO NOT run the rig on the export: the 32x16 rung is GATED on the MVP
+plan's M1+M2 code rungs (W-5/W-4/W-2 — the rig is hard-coded to the
+125M shape today and will panic). The board gets the exact rig
+command when M1 lands.
+ACCEPT: memo §5.2 steps 3-6 green; the JSON + manifest + digests
+committed; the paste in the log.
+RECORD: TASK_BOARD §4 + a PROGRESS_UPERF3.md log line ("T12 done:
+eW range …, silu members …, violations 0/…, RSS … GB").
+
 ## 4. Baselines and digests (append-only)
 
 | date | box/label | shape | command | EVAL-PROOF DIGEST | prove s | verify s | commit |
@@ -481,25 +514,46 @@ float/int-mix channel documented, not started
 lanes R (8B scaling memo + MVP plan + the 7B/8B export scripts), S
 (spike S1/S2 of the Stage-A protocol change), T (headline routes memo).**
 
-**Grok (Mac) — the two RUN tasks that matter now:**
+**U-PERF3 round 1 LANDED (2026-08-23, merged to main):** lane R —
+`U_PERF3_MVP8B_SCALING.md` complete (counted 8B sizes; the W-1..W-11
+what-breaks table; 32x512 needs the W-8(a) memory fix even on the
+Mac's 256 GB, ~184 GB peak with it; honest Mac CPU walls [MODEL]
+~15-30 min at 32x16, ~35-75 min at 32x512; plan M0-M8) + the m8b
+scripts, validated on the 125M ckpt byte-identically (36/36 weight
+digests, 108/108 exponents, 12/12 verify checks). Lane S — spike
+S1/S2 both **GO** (`U_PERF3_SPIKE_REPORT.md`: S1 9-25x
+K-mult-equivalents / 12-16x rounds / 45-55x wire vs the masked
+descent at 2^20; S2 claims equal bit-for-bit vs the descent oracle,
+rounds 274->20; battery 48 legs byte-identical at 1/2/7T; caveat:
+the prototype E_c kernel is ~8x off the K9 kernel's quality — the
+counted win needs a production kernel). Lane T —
+`U_PERF3_HEADLINE_ROUTES.md`: ranked recommendation for the second
+design freeze = the opening re-architecture (Stage A + one-point
+front end + two-tier sqrt serving + weight-group preprocessing; 8B
+~20-40 s one desktop board, ~6-13 s four [MODEL]; verifier
+sub-second 1T), then the route-3 board port; folding deferred to
+MVP-2 as the memory tranche; de-risking spike **S4** named (2-4
+days, no freeze move). AWAITING VICTOR: the T12 download go, the
+S4/round-2 ruling, Mistral-vs-Llama naming (memo §5.1).
+
+**Grok (Mac) — the RUN queue (take in order):**
 1. **T1 (still open, still valuable):** `uperf-pc full-profile 12 512`
    at ZK_THREADS 1, 8, 16 (and one `ZK_UPERF_ORACLE=1` run); digests
    must match the WSL box's (statement 2f8a92f8… / EVAL 4c259008…);
    record walls + phase table + `/usr/bin/time -l` peak RSS. This is
    the [MAC-BOX] row of the PoC shape and the Mac is where the 8B MVP
-   will run CPU-only (256 GB).
-2. **T12 (NEXT, after lane R lands its scripts — watch for
-   `scripts/m8b_export_ffn.py` on main): the 8B FFN export on the Mac.**
-   Lane R's memo §5 will carry the exact commands: download the open
-   checkpoint with the 8B FFN dims (Mistral-7B-v0.1, Apache-2.0, d 4096
-   / f 14336 / 32 layers — or Llama-3.1-8B if Victor prefers and has
-   access), run the int8 calibration on the FineWeb-Edu shard, export
-   the FFN witness for 32 layers x 512 tokens in the rig's layout,
-   verify the digests the script prints, then run the 32x16 rig
-   (`uperf-pc full-profile 32 16` with `M125_EXPORT_DIR` pointing at the
-   new export — the arm name may change; the memo says). Do not start
-   T12 before the scripts are on main; the memo tells you the RAM/disk
-   the Mac needs.
+   will run CPU-only (256 GB). Walls are NOISY-SHARED while F2
+   trains — label them; the digest identity is the load-bearing part.
+2. **T4 (open):** the rig gates at HEAD on the Mac — full
+   `freeze-check` exit 0 (incl. the BF rows), `pass-agg seam` 12/12,
+   `pass-agg battery` 14/14 (~70 min), `table-descent prove 12 512
+   p0`, the python suite green. Independent of everything else and
+   nobody has run the full-statement rig on the Mac at HEAD.
+3. **T12 (UNBLOCKED — lane R's scripts are on main; gated ONLY on
+   Victor's download go):** the 8B FFN calibration + export. The full
+   task with exact commands is in §3 above and verbatim in
+   `U_PERF3_MVP8B_SCALING.md` §5.2. Do NOT run the rig on the export
+   yet (M1+M2 pending); the export itself is untimed and F2-safe.
 
 ## 5. Log (append-only, newest last)
 
@@ -533,3 +587,13 @@ lanes R (8B scaling memo + MVP plan + the 7B/8B export scripts), S
 - 2026-08-18 (ruling): Victor chose route (1). U-PERF3 opened; T12 (the
   8B export on the Mac) added as the next Grok RUN task, gated on lane
   R's scripts; T1 unchanged.
+- 2026-08-23 (Claude, WSL): status check — nothing pushed from the Mac
+  since the ruling (T1 unrecorded, §4 baseline table still empty; T12
+  was legitimately blocked on lane R). The 2026-08-18 session had died
+  ~25 min into round 1 leaving lanes R/S/T stalled with uncommitted
+  work in their worktrees; all three resumed, completed, and MERGED
+  (see §4b round-1 block). Gates on the merged tree: diff-battery
+  green, uperf-s battery 48 legs digest 3752cba4…, freeze-check WSL
+  form (98 rows ok, expected BF panic). T12 moved into §3 with exact
+  commands and UNBLOCKED (pending Victor's download go); Grok queue
+  now T1 -> T4 -> T12.

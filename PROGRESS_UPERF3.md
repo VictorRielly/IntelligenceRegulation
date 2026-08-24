@@ -181,6 +181,45 @@ ranked recommendation for a second design freeze and the ONE spike
 that would de-risk the top candidate. Plain narrative, labelled
 numbers, ~300-600 lines.
 
+## Round 1 CLOSED (orchestrator, 2026-08-23)
+
+The 2026-08-18 session died ~25 minutes after opening the round; all
+three lanes were resumed 2026-08-23, completed, and merged (lane R
+9bc34ed..afc8c8e, lane S d9e9e86..28fb3e0, lane T 25e18f7..425367a).
+Gates on the merged tree [WSL-BOX]: `uperf-pc diff-battery` green
+(O1 4/4, O2 35/35, O3 63/63, O5 12/12, E2E 2/2), `uperf-s battery`
+48 legs, digest 3752cba4… identical to the lane run, `freeze-check`
+WSL form (98 rows ok through UAGB1-BL-1d, expected BF panic).
+
+What round 1 established:
+1. **Lane R:** the 8B MVP is buildable — every break is inventoried
+   (W-1..W-11) with smallest fixes totalling ~8-12 lane-days; 32x512
+   fits the Mac ONLY with W-8(a) (~184 GB peak); the export scripts
+   are DONE and validated byte-identically at 125M; Grok's T12 is
+   unblocked (needs the download go). Plan M0-M8 in the memo §5.1.
+2. **Lane S:** Stage A's spike is GO/GO — the zero-check range fact
+   beats the masked descent 9-25x in K-mult-equivalents with 12-16x
+   fewer rounds and 45-55x less wire, and the LogUp-as-one-sumcheck
+   claims are bit-equal to the descent oracle. Named caveat: the
+   prototype E_c kernel runs ~8x below the K9 kernel's quality, so
+   the measured wall win (1.0-3.2x) trails the counted win until a
+   production kernel exists.
+3. **Lane T:** the headline recommendation for a second design
+   freeze — the opening re-architecture (Stage A + one-point front
+   end + Greyhound/Hachi-class two-tier serving + weight-group
+   preprocessing): 8B ~20-40 s on one desktop board, ~6-13 s on
+   four [MODEL], verifier sub-second at 1T; spike S4 (2-4 days, no
+   freeze move) de-risks it against the real 12x512 act group.
+
+**AWAITING VICTOR (the round-2 fork):**
+(a) the T12 download go-ahead (~17 GB network, ~30 GB Mac disk;
+    Mistral-7B-v0.1 default — ungated; or Llama-3.1-8B, gated);
+(b) whether round 2 opens with spike S4 (lane T's recommendation)
+    alongside the MVP code rungs M1+M2 (W-5/W-4/W-2 — what unblocks
+    the first 8B rig run), or MVP-only first;
+(c) the W-6 SiLU-member freeze ruling only if the 7B calibration
+    flags a new member (manifest.rs would move — Victor-only).
+
 ## Agent status sections (lanes append below; do not edit each other's)
 
 ## Agent R status (wt-uperf3-r)
