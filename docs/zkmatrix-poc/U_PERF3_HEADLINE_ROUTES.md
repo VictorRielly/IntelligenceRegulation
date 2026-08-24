@@ -447,11 +447,133 @@ EITHER axis.
 
 ## 3. Compositions and the honest reach
 
-(pending)
+### 3.1 The compounding table [MODEL throughout; laptop = the measured 12x512 part scaled by Section 1.3; board = 4-6x, 4 boards = 12-20x, both unmeasured]
+
+The candidates are not alternatives; they stack. Walls for the 8B
+FFN pass (2.89e12 MACs):
+
+| composition | 8B laptop | one desktop board | four boards | proven MAC/s (one board) |
+|---|---:|---:|---:|---:|
+| built (Section 1.3) | 690-980 s | 120-240 s | — | 1.2-2.4e10 |
+| + Stage A (descents -> base-field aggregate) | ~630-700 s | ~110-175 s | | ~1.7-2.6e10 |
+| + (iii) one-point + r-drop (the (i) front end) | ~570-640 s | ~100-160 s | | ~2e10 |
+| + (i) sqrt/RoKoko-class serving of both groups | ~175-255 s | **~35-60 s** | ~12-21 s | ~5-8e10 |
+| + (vi-a) weight-group preprocessing | ~105-155 s | **~20-40 s** | **~6-13 s** | 0.7-1.5e11 (one board); 2.2-4.8e11 (four) |
+| + (ii) folding across layers | ~neutral clock; peak memory ~4-8 GB; streaming | | | |
+
+Reading it honestly: **Stage A + (i) + (vi-a) on ONE <= 450 W
+desktop board lands ~20-40 s [MODEL] — the 15 s edge of the contract
+window only at the optimistic end of every band. The 5-15 s headline
+proper needs the four-board machine (~6-13 s, 2.2-4.8e11 MAC/s —
+inside the contract band) or constants better than modelled.**
+Nothing on the lattice line reaches 5-15 s without BOTH the opening
+re-architecture and desktop-class hardware; with them it plausibly
+does — that is the "solution anyway" this lane was asked to find,
+and it is bounded honestly at 3-10x model uncertainty until the
+spike and the route-3 measurement land. The verifier line closes
+completely under (i): sub-second at 1T at 8B [MODEL] vs ~10 min
+built — the only composition in this memo that meets TARGET_CONTRACT
+Section 4's <= 2 s / 1T without a contract wording amendment.
+
+### 3.2 What every recommended composition preserves
+
+MLWE/MSIS + transparency (no vSIS, no hash-PCS, no curves);
+exact-integer soundness (digits, booleanity/range facts, U-L link —
+all above the opening layer, untouched by (i)/(iii)/(iv)/(vi-a));
+E-O2-BB (one opening per group; (i) changes what the opening IS, not
+how many); the HVZK story on built masked-sumcheck machinery + a
+Tier-Z-style masked fold response ((i)'s O-4 item). Candidate (ii)
+alone adds a genuinely new soundness family (reduction of knowledge)
+and is sequenced AFTER MVP-1 for that reason.
+
+### 3.3 What could make the reach smaller [the honesty block]
+
+- The fold constant: ~0.18 us/ring-MAC is the A1 CPU kernel class;
+  the GPU GEMM form of the fold is assumed to reach commit-class
+  throughput — unmeasured.
+- The ZK layer on the folded row `w` costs a masked response + images
+  (the Tier-Z surcharge class, +0.5-0.7 MB and some prover time at
+  P2) — priced nowhere above; P0/Tier-N numbers only.
+- The board 4-6x and the 4-board 3-3.5x are route-3 [MODEL] rows;
+  the box is busy (F2 training) and no quiesced measurement exists.
+- Every 2026 external claim (RoKoko's 100x verify, Cyclo's additive
+  norm growth) is abstract-only, unreviewed at D = 128 / q31.
+- The act split (W-3) may still be wanted for memory even though (i)
+  dissolves the gate reason; +~185 KB per extra group.
+- Attention (MVP-2) adds ~3.5x/layer statement mass mostly in
+  matmul/zero-check classes — it dilutes the descents' share
+  (helping Stage A matter less) and grows the aggregate sumcheck;
+  the opening-layer conclusions are shape-stable.
 
 ## 4. Recommendation for a second design freeze + THE ONE spike
 
-(pending)
+### 4.1 The ranked list
+
+1. **The opening re-architecture: Stage A + (iii) as front end + (i)
+   sqrt/polylog serving, with (vi-a) preprocessing as its rider.**
+   This is the family-(c) completion the literature review
+   recommended in July, now with counted 8B evidence (Section 1.3:
+   the x41-43 terms ARE the 8B floor), a 2026 construction class to
+   cite (Greyhound -> Hachi -> RoKoko), and three structural
+   side-payments: the 1T verifier closes, W-2/W-3 dissolve, ~95 GB
+   of CRS/level material leaves the memory peak. Build ~4-6
+   tranche-weeks total including Stage A. Expected: prover ~3-5x
+   over built at 8B, verifier >100x at 1T, artifact ~2-3x smaller
+   [MODEL].
+2. **(iv) the desktop-board lane (route 3)** — no freeze needed, no
+   soundness cost, multiplies everything: the port + a quiesced
+   ladder, and Victor's hardware call (one big board now; the
+   four-board question only matters once 1 lands). 4-6x [MODEL].
+3. **(ii) folding across the 32 layers — AFTER MVP-1, as the MVP-2 /
+   memory / streaming tranche.** Its clock win overlaps 1's; its
+   unique value (8B on an 8-32 GB box; per-layer streaming; the
+   T-axis variant) is a product-shape win, not a headline win.
+   Watch Cyclo/2026-721 and the Nethermind PoC; budget 5-8
+   tranche-weeks when taken.
+4. **(iii) standalone and Stage B's supplied-Psi_0**: fold into 1 —
+   (iii) is 1's front end; the supplied-Psi_0 new-crypto item is
+   RETIRED by 1 (the (i) verifier is sublinear by construction).
+5. **Recorded, not recommended**: Grand Danois (vSIS — assumption
+   change), the hash/FRI channel (the other proving channel,
+   PROVING_CHANNEL_OPTIONS.md), family (e) wraps.
+
+The second design freeze, when Victor calls it, should freeze: the
+(i) two-tier layout + one-point front end as a NEW statement version
+next to the frozen pass (migration battery per
+U_PERF3_OPENING_LAYER_DESIGN.md Section 4), Stage A's aggregate
+schedule, the preprocessing boundary ((vi-a): what is per-model,
+what is per-pass, what the clock claims), and the retirement of
+Stage B's supplied-Psi_0 route.
+
+### 4.2 THE ONE spike that de-risks the top candidate: S4, the sqrt front end on the real rig
+
+(S1/S2 are lane S's running spikes for Stage A; the design memo's S3
+is subsumed by this.) **Spike S4** — 2-4 days, no engine-default
+change, new code behind a `uperf-t`-style selector, the frozen pass
+as ORACLE:
+
+- On a committed group at 2^22-2^23 digit rings (the real 12x512 act
+  group, and a synthetic 2^23), implement the two-tier front end:
+  inner column commitments, the challenge-fold `w = sum c_i row_i`,
+  and feed the EXISTING recursion the sqrt-sized relation.
+- **Differential leg**: the served evaluation claims must EQUAL the
+  built opening's claim values at fixed seeds (state exactly which
+  values: the per-tensor MLE evaluations at the batched point, the
+  b_row images) — the built eval proof is the oracle.
+- **Measure**: the fold wall at 1T/8T (GPU optional), the end-to-end
+  prove-group-equivalent vs `bg.prove-group` at the same shape, the
+  verifier wall at 1T (the O(sqrt) outer check vs
+  `psi_level0_factored_multi`), and the bytes.
+- **Count**: run the public planner in two-tier form at the 8B group
+  shapes (352,321,536 / 145,475,764 rings) — the exact-digit gate
+  headroom per tier (the W-3 dissolution made a counted row), the
+  r/level schedule that remains, and candidate freeze rows.
+- **Acceptance**: claims equal bit-for-bit; >= 5x on the
+  prove-group-equivalent at >= 2^22; 1T verifier level-0 term
+  measured sub-second at the spike shape; 8B two-tier gate green.
+  Failing any of these, the honest fallback is Stage A + (iii) +
+  route 3 (~100-160 s/board class) and the headline stays out of
+  reach on this line — which would itself be a ruling-grade fact.
 
 ## 5. References (with labels)
 
