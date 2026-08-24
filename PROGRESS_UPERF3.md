@@ -438,3 +438,40 @@ no freeze move. New [EXTERNAL] 2026 items cited with URLs: RoKoko
 Nethermind LatticeFold PoC — AGGREGATION_LITERATURE Section 9's "no
 lattice PCS beats sqrt verify" and "no folding implementation" rows
 are STALE.
+
+## Agent U status (smooth experiment, orchestrator-launched 2026-08-24)
+
+STATE: DONE (2026-08-24, same day). Deliverables all committed on
+perf/zk-batch-optimizations: scripts/m8b_smooth_experiment.py (NEW; the
+exact pow2 folds live in a TensorStore wrapper so weight_study/calibrate/
+run_variant are the m8b module's own code verbatim; stats/plan/run
+phases, split-alpha + caps + per-class margin knobs),
+results/m8b_smooth_experiment_wsl_r{1,2,3,4}.json (the policy sweep),
+results/m8b_smooth_experiment_wsl.json (canonical: body = r2 + rounds
+index), docs/zkmatrix-poc/U_PERF3_M8B_SMOOTH_REPORT.md (the answer +
+the ruling options). No frozen file touched; peak RSS 4.65 GB.
+
+THE ANSWER [MEASURED WSL-BOX, seed 1337, 8+8 x 512]: per-channel
+power-of-two rebalancing rescues FORMALITY only partially and QUALITY
+not at all. (1) The folds are fp32-BIT-IDENTICAL at the full stack
+(scales to 2^14); plain weights-only anchor reproduced to 0.0e+00.
+(2) Violations 14,531 -> 4 (r2: alpha=0.5, margins x1/g1/u1/h2/z1) and
+-> 3 (r3: capped fold, margins x2/g1/u1/h3/z1), the residue all in
+l31's h class; 0 is plausibly one l31 margin bit away [PROJECTED].
+(3) Chain loss: baseline +8.18, r1 (brief policy, alpha=1.0) +9.07,
+r2 +8.45, r3 +8.70, r4 (margins-only control, NO fold) +7.86 nats —
+every configuration is a destroyed model; r1's full migration alone
+puts +8.97 into the folded per-tensor weights (eWd +2..+14 bits);
+r4's uncompacted margins move the bulge h -> z (357,168 z violations,
+25x baseline) — the fold IS load-bearing for formality, and the int8
+budget is a waterbed. (4) Irreducible at per-tensor int8: the
+unfoldable silu(g) factor (l1 eA=-1, bulk a ~1 level), the z spikes
+(l1 379.7 vs p999 0.21), l31's ~14-bit u range; also the baseline
+chain itself silently zeroes 4,147 massed l1 h channels below the u
+step. (5) SiLU: the margined model needs 9 members, NONE frozen —
+W-6 should wait for the spec ruling. FOR VICTOR'S RULING: option (a)
+alone buys provable garbage; the measured option-(b) shape is
+per-COLUMN w_down scales (floor_requant already takes per-column
+shifts; absorbs the whole t-fold, deletes the migration damage) plus
+wider a/h/z at the ~6 outlier layers; option (c) stays non-viable
+(+7.9..+9.1 everywhere). Details: U_PERF3_M8B_SMOOTH_REPORT.md.
