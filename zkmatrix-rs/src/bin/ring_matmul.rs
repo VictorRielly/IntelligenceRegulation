@@ -6432,6 +6432,8 @@ fn main() {
         Some("uperf-p") => uperf_p_main(&args[1..]),
         // [UPERF2-Q] U-PERF2 lane Q (prove-group / commit / CRS / transport: level-h device session, combine kernels, SHA-NI CRS) battery + bench.
         Some("uperf-q") => uperf_q_main(&args[1..]),
+        // [UPERF3-S] U-PERF3 lane S (spike S1/S2: range facts as base-field zero-checks vs the masked descent; SiLU LogUp as one sumcheck) bench + battery.
+        Some("uperf-s") => uperf_s_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -42438,5 +42440,627 @@ fn uperf_q_lh_bench(rows: usize, cols: usize, r: usize) {
         s.secs_smax,
         s.secs_grow,
         s.secs_enq
+    );
+}
+
+// ===========================================================================
+// [UPERF3-S] U-PERF3 round 1, lane S — spike S1/S2 of the Stage-A protocol
+// change (U_PERF3_OPENING_LAYER_DESIGN.md Sections 5.3 / 6.1; the engine
+// side is ring/zc_range.rs). ADDITIVE section: no shipped path changes.
+// The frozen masked descent (gkr_masked tree builders + masked_gkr_prove)
+// is the ORACLE — called read-only, never edited. Commands:
+//   uperf-s s1 [n_log2=20] [w=8] [threads=1] [c=0(=all of 4,8,16)] [seed=161] [nodesc]
+//     S1: (a) the masked descent pair as built (witness depth n_log2+1,
+//     [0,2^w) range table at depth w+1) vs (b) zc_range's digit-plane +
+//     recomposition zero-check over the same column; counts (K-mults x
+//     256 vs base MACs), rounds, wire bytes, measured walls.
+//   uperf-s s2 [n_log2=20] [threads=1] [seed=162] [nodesc]
+//     S2: one SiLU column; the descent-form claims vs the LogUp-as-one-
+//     sumcheck claims with the committed helper h — asserted EQUAL at
+//     fixed seeds (the assertions state exactly which values compare).
+//   uperf-s battery [threads=1]
+//     Equalities at several shapes/widths/seeds (c=16 == the boxed-K
+//     oracle byte-for-byte), planted tampers/extremes, the S2 equality
+//     set; one BATTERY DIGEST — run at threads 1/2/7 and compare bytes.
+//   uperf-s count [depth=21] [dt=9] [e_bits=0] [n_real=1]
+//     The structural descent counters (zc_range::masked_*_kmuls).
+// ZK_THREADS is set programmatically from the ARG at arm entry, BEFORE
+// any pool/LazyLock reads it (one thread count per process; asserted).
+
+fn uperf_s_set_threads(t: usize) {
+    // Edition-2024 set_var is unsafe: we are single-threaded here, and the
+    // assert proves no pool/LazyLock read ZK_THREADS before this point.
+    unsafe { std::env::set_var("ZK_THREADS", t.to_string()) };
+    assert_eq!(ring::eval_proof::threads(), t, "ZK_THREADS was read before uperf-s set it");
+}
+
+fn uperf_s_main(args: &[String]) {
+    let geti = |i: usize, d: usize| args.get(i).and_then(|s| s.parse::<usize>().ok()).unwrap_or(d);
+    match args.first().map(String::as_str) {
+        Some("s1") => {
+            let (n_log2, w, threads, c_arg) = (geti(1, 20), geti(2, 8), geti(3, 1), geti(4, 0));
+            let seed = geti(5, 161) as u8;
+            let with_desc = args.get(6).map(String::as_str) != Some("nodesc");
+            uperf_s_set_threads(threads);
+            uperf_s_s1(n_log2, w, c_arg, seed, with_desc);
+        }
+        Some("s2") => {
+            let (n_log2, threads) = (geti(1, 20), geti(2, 1));
+            let seed = geti(3, 162) as u8;
+            let with_desc = args.get(4).map(String::as_str) != Some("nodesc");
+            uperf_s_set_threads(threads);
+            uperf_s_s2(n_log2, seed, with_desc);
+        }
+        Some("battery") => {
+            uperf_s_set_threads(geti(1, 1));
+            uperf_s_battery();
+        }
+        Some("count") => uperf_s_count(geti(1, 21), geti(2, 9), geti(3, 0), geti(4, 1)),
+        _ => println!(
+            "uperf-s s1 [n_log2] [w] [threads] [c|0=all] [seed] [nodesc] | s2 [n_log2] [threads] [seed] [nodesc] | battery [threads] | count [depth] [dt] [e_bits] [n_real]"
+        ),
+    }
+}
+
+/// [UPERF3-S] Synthetic remainder column + honest digit planes at a fixed
+/// seed, in the HOUSE digit alphabet (ring::digits::alphabet): e0 = 1
+/// draws rem uniform in [0, 2^w) and commits its bits (a valid sign-binary
+/// digit vector, and every key lands in the [0, 2^w) range table — the
+/// descent leg's completeness); e0 = 2 draws balanced base-4 digits in
+/// {-2..1} and recomposes rem = sum_k 4^k d_k mod q (zero-check legs only).
+fn uperf_s_instance(q: u64, n_log2: usize, w: usize, e0: u32, seed: u8) -> (Vec<Vec<u32>>, Vec<u32>) {
+    let n = 1usize << n_log2;
+    let mut rd = XofReader::new(
+        "uperf3-s-inst",
+        &[&[seed, e0 as u8], &(n_log2 as u64).to_le_bytes(), &(w as u64).to_le_bytes()],
+    );
+    let mut planes = vec![vec![0u32; n]; w];
+    let mut rem = vec![0u32; n];
+    for i in 0..n {
+        if e0 == 1 {
+            let r = rd.next_field(1u64 << w);
+            for (k, plane) in planes.iter_mut().enumerate() {
+                plane[i] = ((r >> k) & 1) as u32;
+            }
+            rem[i] = r as u32;
+        } else {
+            let mut acc: u64 = 0;
+            for (k, plane) in planes.iter_mut().enumerate() {
+                let d = rd.next_field(1u64 << e0) as i64 - (1i64 << (e0 - 1)); // balanced digits
+                plane[i] = (if d < 0 { d + q as i64 } else { d }) as u32;
+                let term = ((d as i128) << (e0 as usize * k)).rem_euclid(q as i128) as u64;
+                acc = (acc + term) % q;
+            }
+            rem[i] = acc as u32;
+        }
+    }
+    (planes, rem)
+}
+
+/// [UPERF3-S] One masked descent pair over a fused key column and its
+/// table (the S1/S2 (a) sides) — the bk_pass_run call sequence for one
+/// pair: alpha is the FIRST challenge of a transcript at (domain, seed)
+/// (the sumcheck legs draw the identical alpha the same way), blinded
+/// witness tree at `depth`, blinded table tree at `dt` with the honest
+/// multiplicities, the table blinder mass solved to the witness's (the
+/// modified root cross-check condition), masked descents of both sides,
+/// verified on a fresh transcript with pins. Returns the derived roots,
+/// the blinder masses, alpha, walls, proof size and round count.
+struct UperfSDescOut {
+    wroot: [ring::kfield::KElem; 2],
+    troot: [ring::kfield::KElem; 2],
+    mass_w: ring::kfield::KElem,
+    mass_t: ring::kfield::KElem,
+    alpha: ring::kfield::KElem,
+    trees_s: f64,
+    prove_s: f64,
+    verify_s: f64,
+    proof_kel: usize,
+    rounds: usize,
+}
+
+fn uperf_s_descent_pair(
+    kf: &ring::kfield::KField,
+    domain: &str,
+    seed: u8,
+    keys: &[ring::kfield::KElem],
+    tab: &[ring::kfield::KElem],
+    mult: &[u64],
+    depth: usize,
+    dt: usize,
+) -> UperfSDescOut {
+    use ring::gkr_masked::{
+        BlinderSet, blinded_table_tree, blinded_witness_tree, draw_masks, masked_gkr_prove,
+        masked_gkr_verify, masked_transcript_shape,
+    };
+    use ring::kfield::KElem;
+    use ring::sumcheck::LkpTranscript;
+    let mut tr = LkpTranscript::new(domain, &[seed; 32]);
+    let alpha = tr.challenge_k(kf);
+    let mut rng = ring::ProverRng::from_test_seed("uperf3-s-masks", &[seed, depth as u8, dt as u8]);
+    let bl_w = BlinderSet::draw(kf, &mut rng);
+    let mut bl_t = BlinderSet::draw(kf, &mut rng);
+    bl_t.solve_mass(kf, &bl_w.mass(kf));
+    let t0 = Instant::now();
+    let wtree = blinded_witness_tree(kf, &alpha, keys, depth, &bl_w);
+    let m: Vec<KElem> = mult.iter().map(|&h| kf.embed(h)).collect();
+    let ttree = blinded_table_tree(kf, &alpha, tab, &m, dt, &bl_t);
+    let trees_s = t0.elapsed().as_secs_f64();
+    let wroot = wtree.root();
+    let troot = ttree.root();
+    let masks_w = draw_masks(kf, &mut rng, depth, 0);
+    let masks_t = draw_masks(kf, &mut rng, dt, 0);
+    let masks_w_v = masks_w.harness_clone();
+    let masks_t_v = masks_t.harness_clone();
+    let t1 = Instant::now();
+    let (pw, _ew) = masked_gkr_prove(kf, std::slice::from_ref(&wtree), masks_w, &mut tr);
+    let (pt, _et) = masked_gkr_prove(kf, std::slice::from_ref(&ttree), masks_t, &mut tr);
+    let prove_s = t1.elapsed().as_secs_f64();
+    drop(wtree);
+    drop(ttree);
+    let t2 = Instant::now();
+    let mut tv = LkpTranscript::new(domain, &[seed; 32]);
+    let alpha_v = tv.challenge_k(kf);
+    let ok_w = masked_gkr_verify(kf, 1, depth, &masks_w_v, &pw, &mut tv, true).is_some();
+    let ok_t = masked_gkr_verify(kf, 1, dt, &masks_t_v, &pt, &mut tv, true).is_some();
+    let verify_s = t2.elapsed().as_secs_f64();
+    assert!(
+        alpha_v == alpha && ok_w && ok_t && tv.state() == tr.state(),
+        "[UPERF3-S] descent pair verify failed"
+    );
+    let rounds = masked_transcript_shape(depth, 0).0 + masked_transcript_shape(dt, 0).0;
+    UperfSDescOut {
+        wroot,
+        troot,
+        mass_w: bl_w.mass(kf),
+        mass_t: bl_t.mass(kf),
+        alpha,
+        trees_s,
+        prove_s,
+        verify_s,
+        proof_kel: bk_proof_kel(&pw) + bk_proof_kel(&pt),
+        rounds,
+    }
+}
+
+/// [UPERF3-S] `uperf-s s1 <n_log2> <w> <threads> <c|0> <seed> [nodesc]`.
+fn uperf_s_s1(n_log2: usize, w: usize, c_arg: usize, seed: u8, with_desc: bool) {
+    use ring::gkr::root_cross_check;
+    use ring::kfield::{KElem, KField};
+    use ring::sumcheck::LkpTranscript;
+    use ring::zc_range::{
+        MACS_PER_KMUL, SubExt, ZcRangeInstance, masked_pair_kmuls, zc_range_open_check,
+        zc_range_prove, zc_range_verify,
+    };
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let q = ctx.zq.q;
+    assert!((3..=24).contains(&w) && n_log2 >= 4);
+    let threads = ring::eval_proof::threads();
+    println!(
+        "[UPERF3-S] s1: 2^{n_log2} remainder column, width w = {w} (house sign-binary digit planes, deg_f 3), ZK_THREADS {threads} [WSL-BOX {threads}T]"
+    );
+    let (planes, rem) = uperf_s_instance(q, n_log2, w, 1, seed);
+    // ---- (a) the masked descent pair as built ----
+    let mut desc: Option<(u64, usize, usize, f64)> = None;
+    if with_desc {
+        let depth = n_log2 + 1; // blinded_witness_tree capacity n - 8
+        let dt = w + 1; // 2^w rows split one level deeper
+        let keys: Vec<KElem> = rem.iter().map(|&r| kf.embed(r as u64)).collect();
+        let tab: Vec<KElem> = (0..1u64 << w).map(|v| kf.embed(v)).collect();
+        let mut mult = vec![0u64; 1 << w];
+        for &r in &rem {
+            mult[r as usize] += 1;
+        }
+        let out = uperf_s_descent_pair(&kf, "uperf3-s-s1", seed, &keys, &tab, &mult, depth, dt);
+        assert!(root_cross_check(&kf, &out.wroot, &out.troot), "s1 completeness: root cross-check");
+        let (rk, tk) = masked_pair_kmuls(depth, dt, 0, 1);
+        let wire = out.proof_kel * 64;
+        println!(
+            "[UPERF3-S] s1 (a) masked descent pair (witness depth {depth} + range table depth {dt}, as built):"
+        );
+        println!(
+            "    trees {:.2}s | prove {:.2}s | verify {:.2}s [MEASURED WSL-BOX {threads}T] | rounds {} | proof {} K-el = {} B wire (4 B/coord)",
+            out.trees_s, out.prove_s, out.verify_s, out.rounds, out.proof_kel, wire
+        );
+        println!(
+            "    [COUNTED] K-mults: rounds {:.2}M + trees {:.2}M = {:.2}M -> {:.1}M base-MAC equivalents (x{MACS_PER_KMUL})",
+            rk as f64 / 1e6,
+            tk as f64 / 1e6,
+            (rk + tk) as f64 / 1e6,
+            ((rk + tk) * MACS_PER_KMUL) as f64 / 1e6
+        );
+        desc = Some((rk + tk, out.rounds, wire, out.trees_s + out.prove_s));
+    }
+    // ---- (b) the zero-check over the committed digit planes ----
+    let inst = ZcRangeInstance { n_log2, e0: 1, planes: &planes, rem: &rem };
+    let cs: Vec<usize> = if c_arg == 0 { vec![4, 8, 16] } else { vec![c_arg] };
+    for &c in &cs {
+        let ext = SubExt::new(&kf, c);
+        let mut tr = LkpTranscript::new("uperf3-s-s1-zc", &[seed; 32]);
+        let rho: Vec<_> = (0..n_log2).map(|_| ext.challenge(&kf, &mut tr)).collect();
+        let betas: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tr)).collect();
+        let t0 = Instant::now();
+        let (proof, point, stats) = zc_range_prove(&kf, &ext, &inst, &rho, &betas, &mut tr);
+        let prove_s = t0.elapsed().as_secs_f64();
+        let t1 = Instant::now();
+        let mut tv = LkpTranscript::new("uperf3-s-s1-zc", &[seed; 32]);
+        let rho_v: Vec<_> = (0..n_log2).map(|_| ext.challenge(&kf, &mut tv)).collect();
+        let betas_v: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tv)).collect();
+        let vp = zc_range_verify(&kf, &ext, n_log2, 1, w, &rho_v, &betas_v, &proof, &mut tv);
+        let verify_s = t1.elapsed().as_secs_f64();
+        assert!(
+            vp.as_deref() == Some(point.as_slice()) && tv.state() == tr.state(),
+            "s1 zero-check verify failed at c {c}"
+        );
+        let t2 = Instant::now();
+        assert!(zc_range_open_check(&ext, &inst, &point, &proof.finals), "s1 open check failed at c {c}");
+        let open_s = t2.elapsed().as_secs_f64();
+        println!(
+            "[UPERF3-S] s1 (b) zero-check, E_{c} challenges ({w} digit planes + recomposition, one aggregate sumcheck):"
+        );
+        println!(
+            "    prove {prove_s:.3}s (eq {:.3} + rounds {:.3} + folds {:.3}) | verify {verify_s:.3}s | open-check (eval-proof stand-in) {open_s:.3}s [MEASURED WSL-BOX {threads}T]",
+            stats.secs_eq, stats.secs_round, stats.secs_fold
+        );
+        println!(
+            "    [COUNTED] rounds {} | base MACs: rounds {:.1}M + folds {:.1}M + eq {:.1}M = {:.1}M ({:.3}M K-mult equivalents at x{MACS_PER_KMUL}) | wire {} B",
+            stats.rounds,
+            stats.macs_round as f64 / 1e6,
+            stats.macs_fold as f64 / 1e6,
+            stats.macs_eq as f64 / 1e6,
+            stats.macs_total() as f64 / 1e6,
+            stats.macs_total() as f64 / MACS_PER_KMUL as f64 / 1e6,
+            stats.wire_bytes
+        );
+        if let Some((akmul, arounds, awire, awall)) = desc {
+            let equiv = (akmul * MACS_PER_KMUL) as f64 / stats.macs_total() as f64;
+            let r_ratio = arounds as f64 / stats.rounds as f64;
+            println!(
+                "    [S1 RATIOS vs descent] K-mult-equivalents {equiv:.1}x | rounds {r_ratio:.1}x ({arounds} -> {}) | wire {:.2}x ({awire} -> {} B) | prove wall {:.1}x ({awall:.2}s trees+prove -> {prove_s:.3}s) | acceptance (>=5x equiv, ~10x rounds): {}",
+                stats.rounds,
+                awire as f64 / stats.wire_bytes as f64,
+                stats.wire_bytes,
+                awall / prove_s,
+                if equiv >= 5.0 && r_ratio >= 8.0 { "GO" } else { "NO-GO" }
+            );
+        }
+    }
+    println!("[UPERF3-S] s1 peak RSS {:.0} MiB", uperf_a_peak_rss_mib());
+}
+
+/// [UPERF3-S] `uperf-s s2 <n_log2> <threads> <seed> [nodesc]`.
+fn uperf_s_s2(n_log2: usize, seed: u8, with_desc: bool) {
+    use ring::gkr::root_cross_check;
+    use ring::kfield::{KElem, KField};
+    use ring::lookup::{fused_silu_table, silu_int8_table};
+    use ring::sumcheck::LkpTranscript;
+    use ring::zc_range::{MACS_PER_KMUL, logup_sumcheck_prove, logup_sumcheck_verify, masked_pair_kmuls};
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let n = 1usize << n_log2;
+    assert!(n_log2 >= 5);
+    let threads = ring::eval_proof::threads();
+    let rows = silu_int8_table();
+    let tab = fused_silu_table(&kf, &rows);
+    let mut rd = XofReader::new("uperf3-s-s2-col", &[&[seed], &(n_log2 as u64).to_le_bytes()]);
+    let mut keys: Vec<KElem> = Vec::with_capacity(n);
+    let mut row_of: Vec<Option<usize>> = Vec::with_capacity(n);
+    let mut mult = vec![0u64; tab.len()];
+    for _ in 0..n {
+        let j = rd.next_field(tab.len() as u64) as usize;
+        keys.push(tab[j].clone());
+        row_of.push(Some(j));
+        mult[j] += 1;
+    }
+    println!(
+        "[UPERF3-S] s2: one SiLU column, 2^{n_log2} lookups into the 256-row fused table (silu-int8-table-v1), ZK_THREADS {threads} [WSL-BOX {threads}T]"
+    );
+    let depth = n_log2 + 1;
+    let dt = 9; // 256 fused rows, split one level deeper
+    // ---- (a) the masked descent pair (the frozen form of this fact) ----
+    let mut desc: Option<UperfSDescOut> = None;
+    if with_desc {
+        let out = uperf_s_descent_pair(&kf, "uperf3-s-s2", seed, &keys, &tab, &mult, depth, dt);
+        assert!(root_cross_check(&kf, &out.wroot, &out.troot), "s2 completeness: root cross-check");
+        let (rk, tk) = masked_pair_kmuls(depth, dt, 0, 1);
+        println!(
+            "[UPERF3-S] s2 (a) masked descent pair (witness depth {depth} + SiLU table depth {dt}, as built):"
+        );
+        println!(
+            "    trees {:.2}s | prove {:.2}s | verify {:.2}s [MEASURED WSL-BOX {threads}T] | rounds {} | proof {} K-el = {} B wire | [COUNTED] K-mults rounds {:.2}M + trees {:.2}M = {:.2}M",
+            out.trees_s,
+            out.prove_s,
+            out.verify_s,
+            out.rounds,
+            out.proof_kel,
+            out.proof_kel * 64,
+            rk as f64 / 1e6,
+            tk as f64 / 1e6,
+            (rk + tk) as f64 / 1e6
+        );
+        desc = Some(out);
+    }
+    // ---- (b) the LogUp as ONE sumcheck with the committed helper h ----
+    let mut tr = LkpTranscript::new("uperf3-s-s2", &[seed; 32]);
+    let alpha = tr.challenge_k(&kf); // the SAME alpha as the descent leg: same domain/seed, first draw
+    tr.absorb("s2-h-commit", b"spike-stand-in"); // in the protocol the h/m commitments land here
+    let rho: Vec<KElem> = (0..n_log2).map(|_| tr.challenge_k(&kf)).collect();
+    let t0 = Instant::now();
+    let out = logup_sumcheck_prove(&kf, &keys, &row_of, &tab, &mult, &alpha, &rho, &mut tr);
+    let wall = t0.elapsed().as_secs_f64();
+    let mut tv = LkpTranscript::new("uperf3-s-s2", &[seed; 32]);
+    let alpha_v = tv.challenge_k(&kf);
+    tv.absorb("s2-h-commit", b"spike-stand-in");
+    let rho_v: Vec<KElem> = (0..n_log2).map(|_| tv.challenge_k(&kf)).collect();
+    let t1 = Instant::now();
+    let (chain_ok, sum_ok) = logup_sumcheck_verify(&kf, n_log2, &alpha_v, &rho_v, &out, &mut tv);
+    let verify_s = t1.elapsed().as_secs_f64();
+    assert!(chain_ok && sum_ok && tv.state() == tr.state(), "s2 logup sumcheck verify failed");
+    println!("[UPERF3-S] s2 (b) LogUp-as-one-sumcheck (packed Had prover, committed h):");
+    println!(
+        "    prove {wall:.3}s (h build {:.3} + tables {:.3} + sumcheck {:.3} + opens {:.3}) | verify {verify_s:.3}s [MEASURED WSL-BOX {threads}T]",
+        out.secs_h, out.secs_tables, out.secs_sumcheck, out.secs_open
+    );
+    println!(
+        "    [COUNTED] rounds {n_log2} | ~{:.2}M K-mults | wire {} B | committed h: {} base values = {:.1} MiB raw (rides the ACT eval proof)",
+        out.kmuls_counted as f64 / 1e6,
+        out.wire_bytes,
+        out.h_values,
+        out.h_raw_bytes as f64 / (1024.0 * 1024.0)
+    );
+    if let Some(d) = &desc {
+        // The CLAIMS, compared (the descent as oracle) — K-field equalities
+        // at the SAME alpha:
+        //   (1) P_w/Q_w - mass(bl_w) == h_sum       (witness root fraction
+        //       minus the blinder mass == the sumcheck witness-side sum)
+        //   (2) P_t/Q_t - mass(bl_t) == table_sum   (table side)
+        //   (3) mass(bl_t) == mass(bl_w)            (solve_mass)
+        //   (4) root_cross_check <=> h_sum == table_sum (both hold)
+        assert_eq!(d.alpha, alpha, "s2: the two legs drew different alphas");
+        let s_w = kf.mul(&d.wroot[0], &kf.inv(&d.wroot[1]));
+        let s_t = kf.mul(&d.troot[0], &kf.inv(&d.troot[1]));
+        assert_eq!(kf.sub(&s_w, &d.mass_w), out.h_sum, "s2 claim (1) witness fraction == h_sum");
+        assert_eq!(kf.sub(&s_t, &d.mass_t), out.table_sum, "s2 claim (2) table fraction == table_sum");
+        assert_eq!(d.mass_w, d.mass_t, "s2 claim (3) masses solved equal");
+        assert_eq!(out.h_sum, out.table_sum, "s2 claim (4) sum equality");
+        println!(
+            "    [S2 CLAIMS EQUAL] (1) P_w/Q_w - mass_w == h_sum; (2) P_t/Q_t - mass_t == table_sum; (3) mass_t == mass_w; (4) root cross-check == sum equality: all hold at fixed seeds"
+        );
+        println!(
+            "    [S2 RATIOS vs descent] rounds {:.1}x ({} -> {n_log2}) | wire {:.2}x ({} -> {} B) | prove wall {:.1}x ({:.2}s trees+prove -> {wall:.3}s incl. h build)",
+            d.rounds as f64 / n_log2 as f64,
+            d.rounds,
+            (d.proof_kel * 64) as f64 / out.wire_bytes as f64,
+            d.proof_kel * 64,
+            out.wire_bytes,
+            (d.trees_s + d.prove_s) / wall,
+            d.trees_s + d.prove_s
+        );
+    }
+    println!("[UPERF3-S] s2 peak RSS {:.0} MiB", uperf_a_peak_rss_mib());
+}
+
+/// [UPERF3-S] `uperf-s battery <threads>`: the lane's equality battery —
+/// every leg asserted in-process; one digest over the shipped round polys
+/// and claims so runs at ZK_THREADS 1/2/7 compare byte-for-byte.
+fn uperf_s_battery() {
+    use ring::gkr::{eq_eval, root_cross_check};
+    use ring::kfield::{KElem, KField};
+    use ring::lookup::{fuse_pair, fused_silu_table, silu_int8_table};
+    use ring::sumcheck::LkpTranscript;
+    use ring::zc_range::{
+        SubExt, ZcRangeInstance, logup_sumcheck_prove, logup_sumcheck_verify, zc_range_open_check,
+        zc_range_prove, zc_range_prove_oracle_k, zc_range_verify,
+    };
+    use sha2::Digest;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let q = ctx.zq.q;
+    let threads = ring::eval_proof::threads();
+    println!("[UPERF3-S] battery: ZK_THREADS {threads} (run at 1/2/7 and compare the digest)");
+    let mut all = sha2::Sha256::new();
+    let mut legs = 0usize;
+
+    // ---- A: c = 16 IS the frozen K arithmetic — byte identity against the
+    // boxed-K oracle (fold.rs ixf_sumcheck_prove): rounds, point, finals,
+    // transcript state.
+    for (n_log2, w, e0, seed) in
+        [(4usize, 3usize, 1u32, 1u8), (5, 4, 1, 2), (6, 8, 1, 3), (5, 2, 2, 4), (6, 4, 2, 5)]
+    {
+        let (planes, rem) = uperf_s_instance(q, n_log2, w, e0, seed);
+        let inst = ZcRangeInstance { n_log2, e0, planes: &planes, rem: &rem };
+        let ext = SubExt::new(&kf, 16);
+        let mut tra = LkpTranscript::new("uperf3-s-bat-a", &[seed; 32]);
+        let rho: Vec<_> = (0..n_log2).map(|_| ext.challenge(&kf, &mut tra)).collect();
+        let betas: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tra)).collect();
+        let mut trb = LkpTranscript::new("uperf3-s-bat-a", &[seed; 32]);
+        let rho_k: Vec<KElem> = (0..n_log2).map(|_| trb.challenge_k(&kf)).collect();
+        let betas_k: Vec<KElem> = (0..=w).map(|_| trb.challenge_k(&kf)).collect();
+        assert!(rho.iter().zip(&rho_k).all(|(e, k)| ext.to_k(e) == *k), "A: E_16 draw != K draw");
+        assert!(betas.iter().zip(&betas_k).all(|(e, k)| ext.to_k(e) == *k), "A: E_16 beta != K beta");
+        let (pe, pointe, _st) = zc_range_prove(&kf, &ext, &inst, &rho, &betas, &mut tra);
+        let (pk, pointk) = zc_range_prove_oracle_k(&kf, &inst, &rho_k, &betas_k, &mut trb);
+        assert_eq!(tra.state(), trb.state(), "A: transcript identity at c=16");
+        assert_eq!(pe.rounds.len(), pk.rounds.len(), "A: round count");
+        for (ge, gk) in pe.rounds.iter().zip(pk.rounds.iter()) {
+            assert_eq!(ge.len(), gk.len(), "A: nodes per round");
+            assert!(ge.iter().zip(gk.iter()).all(|(e, k)| ext.to_k(e) == *k), "A: round-poly values");
+        }
+        assert!(pointe.iter().zip(&pointk).all(|(e, k)| ext.to_k(e) == *k), "A: fold point");
+        assert_eq!(pk.final_evals.len(), w + 2, "A: oracle finals layout");
+        assert_eq!(pk.final_evals[0], eq_eval(&kf, &rho_k, &pointk), "A: oracle eq final");
+        assert!(
+            pe.finals.iter().zip(pk.final_evals[1..].iter()).all(|(e, k)| ext.to_k(e) == *k),
+            "A: table finals"
+        );
+        for g in &pe.rounds {
+            for e in g {
+                for x in ext.to_k(e) {
+                    all.update(x.to_le_bytes());
+                }
+            }
+        }
+        legs += 1;
+        println!("  ok   A: c=16 == boxed-K oracle (2^{n_log2}, w {w}, e0 {e0}, seed {seed})");
+    }
+
+    // ---- B: c in {4, 8} — honest accept + open check, a digit outside the
+    // alphabet (recomposition kept CONSISTENT so only the alphabet
+    // constraint fails), a recomposition tamper (digits stay valid), and
+    // the boundary extremes (every digit at hi / at lo).
+    for (n_log2, w, e0, seed) in [(6usize, 4usize, 1u32, 11u8), (8, 8, 1, 12), (7, 12, 1, 13), (6, 3, 2, 14)]
+    {
+        for c in [4usize, 8] {
+            let ext = SubExt::new(&kf, c);
+            let run = |planes: &[Vec<u32>], rem: &[u32], tag: &str, expect: bool, all: &mut sha2::Sha256| {
+                let inst = ZcRangeInstance { n_log2, e0, planes, rem };
+                let mut tr = LkpTranscript::new("uperf3-s-bat-b", &[seed; 32]);
+                let rho: Vec<_> = (0..n_log2).map(|_| ext.challenge(&kf, &mut tr)).collect();
+                let betas: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tr)).collect();
+                let (proof, point, _st) = zc_range_prove(&kf, &ext, &inst, &rho, &betas, &mut tr);
+                let mut tv = LkpTranscript::new("uperf3-s-bat-b", &[seed; 32]);
+                let rho_v: Vec<_> = (0..n_log2).map(|_| ext.challenge(&kf, &mut tv)).collect();
+                let betas_v: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tv)).collect();
+                let vp = zc_range_verify(&kf, &ext, n_log2, e0, w, &rho_v, &betas_v, &proof, &mut tv);
+                assert_eq!(vp.is_some(), expect, "B {tag}: verdict at c {c} (2^{n_log2} w {w} e0 {e0})");
+                if expect {
+                    assert_eq!(vp.as_deref(), Some(point.as_slice()), "B {tag}: point");
+                    assert!(zc_range_open_check(&ext, &inst, &point, &proof.finals), "B {tag}: open");
+                }
+                for g in &proof.rounds {
+                    for e in g {
+                        for x in ext.to_k(e) {
+                            all.update(x.to_le_bytes());
+                        }
+                    }
+                }
+            };
+            let (planes, rem) = uperf_s_instance(q, n_log2, w, e0, seed);
+            run(&planes, &rem, "honest", true, &mut all);
+            let (mut p2, mut r2) = (planes.clone(), rem.clone());
+            let (lo, hi) = ring::digits::alphabet(e0);
+            let bad = ctx.zq.to_mod(hi + 1) as u32;
+            let old = p2[0][3];
+            p2[0][3] = bad;
+            r2[3] = ((r2[3] as u64 + (bad as u64 + q - old as u64)) % q) as u32;
+            run(&p2, &r2, "digit-tamper", false, &mut all);
+            let mut r3 = rem.clone();
+            r3[5] = ((r3[5] as u64 + 1) % q) as u32;
+            run(&planes, &r3, "recomp-tamper", false, &mut all);
+            for (which, dval) in [("all-hi", hi), ("all-lo", lo)] {
+                let dm = ctx.zq.to_mod(dval) as u32;
+                let nsz = 1usize << n_log2;
+                let pl: Vec<Vec<u32>> = vec![vec![dm; nsz]; w];
+                let mut acc: u64 = 0;
+                for k in 0..w {
+                    let term = ((dval as i128) << (e0 as usize * k)).rem_euclid(q as i128) as u64;
+                    acc = (acc + term) % q;
+                }
+                let rm = vec![acc as u32; nsz];
+                run(&pl, &rm, which, true, &mut all);
+            }
+            legs += 5;
+            println!("  ok   B: honest + 2 tampers + 2 extremes at c {c} (2^{n_log2}, w {w}, e0 {e0})");
+        }
+    }
+
+    // ---- C: the S2 equality set at a small shape + planted tampers.
+    {
+        let n_log2 = 10usize;
+        let seed = 21u8;
+        let n = 1usize << n_log2;
+        let rows = silu_int8_table();
+        let tab = fused_silu_table(&kf, &rows);
+        let mut rd = XofReader::new("uperf3-s-bat-c", &[&[seed]]);
+        let mut keys: Vec<KElem> = Vec::with_capacity(n);
+        let mut row_of: Vec<Option<usize>> = Vec::with_capacity(n);
+        let mut mult = vec![0u64; tab.len()];
+        for _ in 0..n {
+            let j = rd.next_field(tab.len() as u64) as usize;
+            keys.push(tab[j].clone());
+            row_of.push(Some(j));
+            mult[j] += 1;
+        }
+        let d = uperf_s_descent_pair(&kf, "uperf3-s-bat-c", seed, &keys, &tab, &mult, n_log2 + 1, 9);
+        let run_lkp = |keys: &[KElem], row_of: &[Option<usize>], mult: &[u64]| {
+            let mut tr = LkpTranscript::new("uperf3-s-bat-c", &[seed; 32]);
+            let alpha = tr.challenge_k(&kf);
+            tr.absorb("s2-h-commit", b"spike-stand-in");
+            let rho: Vec<KElem> = (0..n_log2).map(|_| tr.challenge_k(&kf)).collect();
+            let out = logup_sumcheck_prove(&kf, keys, row_of, &tab, mult, &alpha, &rho, &mut tr);
+            let mut tv = LkpTranscript::new("uperf3-s-bat-c", &[seed; 32]);
+            let alpha_v = tv.challenge_k(&kf);
+            tv.absorb("s2-h-commit", b"spike-stand-in");
+            let rho_v: Vec<KElem> = (0..n_log2).map(|_| tv.challenge_k(&kf)).collect();
+            let (chain_ok, sum_ok) = logup_sumcheck_verify(&kf, n_log2, &alpha_v, &rho_v, &out, &mut tv);
+            (out, alpha, chain_ok, sum_ok)
+        };
+        let (out, alpha, chain_ok, sum_ok) = run_lkp(&keys, &row_of, &mult);
+        assert!(chain_ok && sum_ok, "C: honest chain/sum");
+        assert_eq!(d.alpha, alpha, "C: alpha equality across the legs");
+        let s_w = kf.mul(&d.wroot[0], &kf.inv(&d.wroot[1]));
+        let s_t = kf.mul(&d.troot[0], &kf.inv(&d.troot[1]));
+        assert_eq!(kf.sub(&s_w, &d.mass_w), out.h_sum, "C: claim (1) witness fraction == h_sum");
+        assert_eq!(kf.sub(&s_t, &d.mass_t), out.table_sum, "C: claim (2) table fraction == table_sum");
+        assert_eq!(d.mass_w, d.mass_t, "C: claim (3) masses solved equal");
+        assert!(root_cross_check(&kf, &d.wroot, &d.troot), "C: claim (4) root cross-check");
+        assert_eq!(out.h_sum, out.table_sum, "C: claim (4') sum equality");
+        all.update(kf.bytes(&out.h_sum));
+        all.update(kf.bytes(&out.table_sum));
+        // Planted: one off-table key (fuse of (x, y+1)) — the descent's
+        // tamper leg in sumcheck form: well-formedness still holds
+        // (chain ok), the SUM equality fails.
+        let mut keys_t = keys.clone();
+        let mut row_t = row_of.clone();
+        let mut mult_t = mult.clone();
+        let j5 = row_of[5].unwrap();
+        mult_t[j5] -= 1;
+        keys_t[5] = fuse_pair(&kf, ctx.zq.to_mod(rows[j5].0), ctx.zq.to_mod(rows[j5].1 + 1));
+        row_t[5] = None;
+        let (_o2, _a2, c2, s2) = run_lkp(&keys_t, &row_t, &mult_t);
+        assert!(c2 && !s2, "C: an off-table key must keep the chain and FAIL the sum equality");
+        // Planted: a multiplicity tamper — the sum equality fails.
+        let mut mult_m = mult.clone();
+        mult_m[0] += 1;
+        let (_o3, _a3, c3, s3) = run_lkp(&keys, &row_of, &mult_m);
+        assert!(c3 && !s3, "C: a multiplicity tamper must FAIL the sum equality");
+        legs += 3;
+        println!("  ok   C: S2 equality set + off-table / multiplicity tampers (2^{n_log2})");
+    }
+
+    let dgst: [u8; 32] = all.finalize().into();
+    println!("[UPERF3-S] battery: {legs} legs ok at ZK_THREADS {threads}");
+    println!("[UPERF3-S] BATTERY DIGEST {}", hex_full(&dgst));
+}
+
+/// [UPERF3-S] `uperf-s count <depth> <dt> <e_bits> <n_real>`.
+fn uperf_s_count(depth: usize, dt: usize, e_bits: usize, n_real: usize) {
+    use ring::zc_range::{MACS_PER_KMUL, masked_descent_kmuls, masked_pair_kmuls};
+    println!(
+        "[UPERF3-S] structural descent counters (K-mults; x{MACS_PER_KMUL} = base-MAC equivalents) [COUNTED]:"
+    );
+    let (r, t) = masked_pair_kmuls(depth, dt, e_bits, n_real);
+    println!(
+        "  pair (witness depth {depth}, table depth {dt}, e_bits {e_bits}, n_real {n_real}): rounds {:.3}M + trees {:.3}M = {:.3}M K-mults = {:.1}M MAC-equivalents",
+        r as f64 / 1e6,
+        t as f64 / 1e6,
+        (r + t) as f64 / 1e6,
+        ((r + t) * MACS_PER_KMUL) as f64 / 1e6
+    );
+    for (d, dtx, w) in [(21usize, 5usize, 4usize), (21, 9, 8), (21, 13, 12)] {
+        let (rr, tt) = masked_pair_kmuls(d, dtx, 0, 1);
+        println!(
+            "  one 2^20 column at width {w} (witness depth {d} + table depth {dtx}): {:.2}M K-mults ({:.2}M rounds + {:.2}M trees)",
+            (rr + tt) as f64 / 1e6,
+            rr as f64 / 1e6,
+            tt as f64 / 1e6
+        );
+    }
+    let (rw, tw) = masked_descent_kmuls(depth, e_bits, n_real);
+    println!(
+        "  witness side alone at (depth {depth}, e_bits {e_bits}, n_real {n_real}): rounds {:.3}M + tree {:.3}M K-mults",
+        rw as f64 / 1e6,
+        tw as f64 / 1e6
     );
 }

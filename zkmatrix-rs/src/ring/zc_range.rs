@@ -752,11 +752,17 @@ fn round_sums(
     // MAC accounting (per pair-block: 8 pairs).
     let base_round = matches!(tabs[0], ZTab::Base(_));
     let per_pair_node: u64 = if base_round {
-        // per plane: (deg_f - 1) base products + c (eq x f); rec: w scalings + c
-        (w as u64) * ((deg_f as u64 - 1) + c as u64) + w as u64 + c as u64
+        // per plane: 1 (node extrapolation) + (deg_f - 1) (f chain) + c
+        // (eq x f, e_mac_base) + 1 (2^(e0 k) scaling into rec); rec row:
+        // 1 (extrapolation) + c (eq x rec)
+        (w as u64) * (deg_f as u64 + 1 + c as u64) + 1 + c as u64
     } else {
-        // per plane: (deg_f - 1) E x E (c^2) + eq x f (c^2); rec: w scalings (c) + eq x rec (c^2)
-        (w as u64) * (deg_f as u64) * (c * c) as u64 + (w as u64) * c as u64 + (c * c) as u64
+        // per table: c (node extrapolation, scalar x E); per plane: deg_f
+        // E x E (c^2 each: f chain + eq x f) + c (2^(e0 k) scaling); rec
+        // row: c^2 (eq x rec)
+        (w as u64 + 1) * c as u64
+            + (w as u64) * (deg_f as u64 * (c * c) as u64 + c as u64)
+            + (c * c) as u64
     };
     stats.macs_round += per_pair_node * (nblk_pairs * KL) as u64 * nn as u64;
     stats.nodes_computed += nn;
