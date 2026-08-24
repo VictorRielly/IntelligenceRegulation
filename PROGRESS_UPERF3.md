@@ -185,16 +185,40 @@ numbers, ~300-600 lines.
 
 ## Agent T status (wt-uperf3-t)
 
-STATE: IN PROGRESS (skeleton committed 2026-08-18). Deliverable:
-docs/zkmatrix-poc/U_PERF3_HEADLINE_ROUTES.md (sections 0-5). Progress
-is tracked by section commits on branch uperf3-t; this block is
-rewritten at LANDED with the section-0 paragraph, the ranked list and
-the spike.
+STATE: LANDED (2026-08-23; skeleton 2026-08-18). Deliverable:
+docs/zkmatrix-poc/U_PERF3_HEADLINE_ROUTES.md — COMPLETE, sections
+0-5, one commit each on branch uperf3-t.
 
 - [x] skeleton (headings, scope, labels)
-- [ ] Section 1 — the built pass in the family map + what scales x100
-- [ ] Section 2 — candidates (i)-(v)+ with count tables
-- [ ] Section 3 — compositions and the honest reach
-- [ ] Section 4 — recommendation + the one spike
-- [ ] Section 5 — references
-- [ ] Section 0 — the paragraph (written last)
+- [x] Section 1 — the built pass in the family map + what scales x100
+- [x] Section 2 — candidates (i)-(vi) with count tables
+- [x] Section 3 — compositions and the honest reach
+- [x] Section 4 — recommendation + the one spike
+- [x] Section 5 — references
+- [x] Section 0 — the paragraph
+
+**Summary (the memo's Section 0, compressed).** The built pass is
+the family-(c) architecture WITHOUT (c)'s serving move: the
+LaBRADOR-form recursion opens the FULL ~500M-ring 8B witness, and
+those full-witness terms scale x41-43 [COUNTED, lane R] — the 8B
+floor (~2-4 min on a desktop board [MODEL]). **Ranked:** (1) the
+opening re-architecture — Stage A + one-point front end + a
+Greyhound/Hachi/RoKoko-class two-tier (sqrt/polylog) serving of each
+group + per-model weight-group preprocessing: 8B ~20-40 s one board,
+~6-13 s four boards [MODEL], verifier sub-second at 1T (T11 a'
+closed without new crypto; W-2/W-3 dissolve; ~95 GB off the peak);
+(2) route 3, the desktop-board port + quiesced ladder (4-6x, no
+freeze); (3) folding across the 32 layers (LatticeFold+/Cyclo class)
+AFTER MVP-1 as the memory/streaming tranche (peak ~4-8 GB, 8B fits
+the WSL box; clock win overlaps 1); (4) Stage B's supplied-Psi_0
+RETIRED by 1; (5) vSIS (Grand Danois) and the hash channel recorded,
+not recommended. **THE ONE SPIKE: S4** — the sqrt front end on the
+real 12x512 act group with the frozen opening as byte-oracle;
+acceptance: claims equal, >= 5x prove-group-equivalent at >= 2^22,
+sub-second 1T level-0, 8B two-tier exact-digit gate green; 2-4 days,
+no freeze move. New [EXTERNAL] 2026 items cited with URLs: RoKoko
+(ePrint 2026/575), Hachi (2026/156), Grand Danois (2026/1196), Cyclo
+(2026/359, Eurocrypt 26), 2026/721, 2026/1127, 2026/551, the
+Nethermind LatticeFold PoC — AGGREGATION_LITERATURE Section 9's "no
+lattice PCS beats sqrt verify" and "no folding implementation" rows
+are STALE.
