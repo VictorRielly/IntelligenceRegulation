@@ -197,3 +197,24 @@ numbers, ~300-600 lines.
   (`uperf-s s1|s2|battery|count`); (3) freeze-check capture BEFORE any
   edit; (4) measurements 1T/8T; (5) report + this status. Status: IN
   PROGRESS.
+- 2026-08-23 RESUME (session cut 08-18 mid-file): zc_range.rs recovered
+  (1370 lines, coherent, committed as WIP first), counter honesty fix
+  (per-pair-node MACs now include node extrapolation + digit scalings),
+  wired: `mod zc_range` + bin `[UPERF3-S]` section (`uperf-s
+  s1|s2|battery|count`, descent-pair oracle helper mirroring
+  bk_pass_run's call sequence: alpha-first transcript, blinded witness/
+  table trees, solve_mass, masked descents, pinned verify). Build green
+  first try. BATTERY GREEN at ZK_THREADS 1/2/7, 48 legs, digest
+  3752cba4fa08c2ee052475e9f4459e2fc3ed0a0c59862468e0c31cbeb165aaae
+  identical across all three: (A) c=16 zero-check == boxed-K oracle
+  (fold.rs ixf_sumcheck_prove) byte-for-byte — transcript state, round
+  polys, fold point, finals — at 5 shapes incl. e0=2; (B) c in {4,8}
+  honest+open accept, digit-outside-alphabet (recomposition-consistent)
+  REJECTS, recomposition tamper REJECTS, all-hi/all-lo extremes accept,
+  w in {3,4,8,12}; (C) S2 equality set at 2^10: P_w/Q_w - mass_w ==
+  h_sum, P_t/Q_t - mass_t == table_sum, mass_w == mass_t, cross-check
+  == sum equality; off-table key keeps chain and fails sum;
+  multiplicity tamper fails sum. NOTE: e0=1 planes use the HOUSE
+  sign-binary alphabet {-1,0,1} (digits::alphabet), deg_f 3 — an upper
+  bound on the memo's {0,1} booleanity (deg_f 2). Next: gates
+  (uperf-pc diff-battery, freeze-check), then s1/s2 measurement passes.
