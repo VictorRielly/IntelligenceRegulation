@@ -275,6 +275,23 @@ heavier), or (c) accept a bounded-violation/clipped statement
 viable as-is). The W-6 SiLU freeze ruling folds into the same
 decision (the member list depends on the adopted scales).
 
+**POSTSCRIPT after agent U's experiment (2026-08-24, results in
+U_PERF3_M8B_SMOOTH_REPORT.md + the Agent U status below): (a) alone
+is MEASURED DEAD.** The fold family is exact (transformed fp32
+forward bit-identical to the reference) and rescues FORMALITY
+almost completely (violations 14,531 -> 3, all layer-31 h-class),
+but the chain loss stays +7.9..+9.1 nats in every tried policy —
+int8 precision at outlier-covering per-tensor scales destroys the
+model even when nothing overflows. The irreducibles the fold cannot
+reach: the silu(g) path (unfoldable), the z spikes (l1 absmax 379.7
+vs p999 0.21), l31's ~14-bit u range. The measured pointer to the
+viable fix is **(b)-lite**: per-COLUMN w_down scales (absorbing the
+t-fold without the migration damage that ruined per-tensor w_down)
+plus wider a/h/z classes at the ~6 outlier layers only. A PRICING
+experiment for (b)-lite (agent V, launched 2026-08-24) measures the
+loss it achieves and counts the engine/spec surface, so the ruling
+can happen once, with numbers on every option.
+
 ## Agent status sections (lanes append below; do not edit each other's)
 
 ## Agent R status (wt-uperf3-r)
