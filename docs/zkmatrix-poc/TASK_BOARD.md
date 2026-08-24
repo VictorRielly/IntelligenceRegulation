@@ -550,16 +550,18 @@ S4/round-2 ruling, Mistral-vs-Llama naming (memo §5.1).
    `pass-agg battery` 14/14 (~70 min), `table-descent prove 12 512
    p0`, the python suite green. Independent of everything else and
    nobody has run the full-statement rig on the Mac at HEAD.
-3. **T12 (GO — Victor approved the download 2026-08-24):** the 8B
-   FFN calibration + export. The full task with exact commands is in
-   §3 above and verbatim in `U_PERF3_MVP8B_SCALING.md` §5.2. Do NOT
-   run the rig on the export yet (M1+M2 pending); the export itself
-   is untimed and F2-safe. NOTE: the WSL box is running the SAME
-   pipeline as a validation pass (2026-08-24, board log) — the Mac
-   run stays the digest AUTHORITY for X/z (framework-relative);
-   weight digests and the exponent table must MATCH the WSL rows
-   posted in the log/ledger — a mismatch is a bug report, stop and
-   record it.
+3. **T12 — AMENDED 2026-08-24 after the WSL validation run
+   (PROGRESS_UPERF3.md "T12 WSL validation pass"): the checkpoint
+   DOES NOT CALIBRATE under the spec as written** (14,531 held-out
+   range-fact violations, +8.18 nats through the int8 chain;
+   weights-only +0.08 — emergent activation outliers, the known
+   >= 7B phenomenon). Therefore: steps 1-4 of memo §5.2 (download,
+   decode gate — now the gold prompt, calibration) are STILL ON as
+   a digest cross-check: the calibration JSON's exponent table,
+   silu-member list, violation counts and verdict must MATCH
+   results/m8b_int8_calibration_wsl.json (committed). **The EXPORT
+   (steps 5-6) is GATED on Victor's spec ruling** — its 0-violations
+   assert will fail by design; do not run it, that is not a bug.
 
 ## 5. Log (append-only, newest last)
 

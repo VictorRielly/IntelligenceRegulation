@@ -220,6 +220,61 @@ What round 1 established:
 (c) the W-6 SiLU-member freeze ruling only if the 7B calibration
     flags a new member (manifest.rs would move — Victor-only).
 
+## T12 WSL validation pass (orchestrator, 2026-08-24) — THE CALIBRATION FINDING
+
+Victor approved the Mistral download (console, 2026-08-24); the WSL
+box ran the full T12 pipeline as a validation pass. Steps 1-4 results:
+
+1. Download + decode gate: the memo's France-prompt gate was a FALSE
+   FAIL in exact fp32 (" Paris" rank 3, 0.85 logits behind "a"; the
+   " Paris" lore is bf16 arithmetic). The adapter itself is CORRECT —
+   five-prompt factual next-token probe: " Au"/" oxygen"/
+   " Shakespeare"/"4" at rank 0, "J"(upiter) rank 1 gap 0.03. Gate
+   revised to the gold prompt (memo §5.2 step 3; pushed 4821e41);
+   the revised gate PASSES ("...gold is Au. It is a soft, m").
+2. **Calibration [MEASURED WSL-BOX, seed 1337, 8+8 x 512]: Mistral-
+   7B-v0.1 DOES NOT CALIBRATE formally under TARGET_CONTRACT §2 as
+   written.** Range-fact violations on held-out data: 14,531 (g/u/h/z
+   classes; X clean everywhere); int8-chain val loss 10.02 vs bf16
+   ref 1.84 (+8.18 nats — the as-written chain destroys the model);
+   **weights-only int8 is nearly lossless: 1.92 (+0.08 nats)**.
+   Accumulator ceilings all respected (gate/up 27-bit, down 29-bit —
+   W-4's numbers confirmed). W-6 fired: 7 SiLU members outside the
+   frozen family ((-3,-4),(-1,-1),(-4,-5),(-5,-5),(-2,-3),(-1,-2),
+   (-1,-3)). Peak RSS 4.58 GB (memo said < 4 — close). JSON:
+   results/m8b_int8_calibration_wsl.json.
+3. **Diagnosis: emergent activation outliers** (the >= 6.7B
+   phenomenon of the LLM.int8()/SmoothQuant literature — the 125M
+   calibrated clean because it is below the emergence scale). The
+   per-channel profile is textbook: x absmax/p99.99 = 2-6.5x across
+   layers; h (Hadamard) = 6-6158x with layers 0/1/30 extreme (l1
+   absmax 1353 vs p99.99 0.22). A FEW channels carry the range —
+   per-TENSOR power-of-two scales cannot cover them.
+4. CONSEQUENCE: the T12 EXPORT is GATED (its own 0-violations assert
+   would fail); the real-weights 8B witness cannot exist until the
+   spec question is ruled. NOT blocked: all M1/M2 engine work (W-5/
+   W-4/W-2 run on synthetic or 125M-shaped witnesses), the Mac
+   calibration as a digest cross-check.
+5. RESCUE EXPERIMENT LAUNCHED (agent U, new files only):
+   SmoothQuant-class per-channel POWER-OF-TWO rebalancing folded into
+   adjacent weights — exact function equality (X-side: s_j into
+   mlp_norm/gate/up columns; u/h-side: t_k through the up-row/
+   down-column pair; the g->SiLU path cannot fold — margin-bit
+   calibration policy instead), so the PROOF STATEMENT is unchanged
+   in form: it binds the transformed weights, and the transform is a
+   documented preprocessing step in the model identity. The
+   experiment re-runs the verdict on the same seed/windows and
+   reports violations + nats before/after.
+
+**FOR VICTOR (the ruling this sets up, after the experiment
+reports):** (a) adopt the rebalancing transform into the model-
+identity/spec (TARGET_CONTRACT §2 addendum — the amendment path),
+or (b) widen the activation classes (engine + statement change,
+heavier), or (c) accept a bounded-violation/clipped statement
+(measured +8.18 nats says the clipped model is garbage — not
+viable as-is). The W-6 SiLU freeze ruling folds into the same
+decision (the member list depends on the adopted scales).
+
 ## Agent status sections (lanes append below; do not edit each other's)
 
 ## Agent R status (wt-uperf3-r)
