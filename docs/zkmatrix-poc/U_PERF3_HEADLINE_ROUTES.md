@@ -300,15 +300,150 @@ should be built as such, not as a destination.
 
 ### 2.4 (iv) GPU-native restructuring: serial vs parallel, desktop board, N boards, the field
 
-(pending)
+**What is inherently serial.** Only the Fiat-Shamir spine: each
+sumcheck/descent round's challenge depends on the previous round's
+absorbed polys. At 8B that is ~4,659 descent rounds + ~200 claim
+rounds + 10-20 eval-proof levels (or ~50 aggregate rounds + the fold
+under Stage A + (i)) [COUNTED, lane R Section 1.4]. At ~10-100 us of
+launch/absorb latency per round the serial spine is **< 1 s total**
+— at 12x512 the CPU-tail rounds were a real cost (1,134 tiny rounds),
+but at 8B every round body is e8-e9-class work. The pass at 8B is
+compute-bound, not latency-bound: Amdahl's serial fraction is < 1%.
 
-### 2.5 (v) 2025-26 literature that fits
+**What is embarrassingly parallel** [COUNTED structure]: the 10
+descent pairs are mutually independent (and vanish under Stage A);
+the 2-5 commitment groups are independent; within a round the
+hypercube body (3.42G leaves; 2^28 zero-check tables) is data-
+parallel; the level-0 h-garbage and the (i)-fold are GEMM/AXPY
+shapes; commit matvecs and chain GEMMs are GEMM; CRS blocks are
+seed-expanded independently (lane R's W-8(b) block form is exactly
+the streaming-friendly shape). Multi-board split: by layer (32 ways)
+for commit/descents/zero-checks, by tile for the GEMMs, by group for
+the openings; the only cross-board traffic is the per-round
+round-poly reduction (KB per round, ~MB per pass) and the transcript.
 
-(pending)
+**What a desktop board buys [MODEL].** The measured 12x512 chain
+runs the K-field kernels at 70-88% of the 4070 Laptop's ~1.7 G
+kmul/s register ceiling (U_PERF2_GPU4_REPORT.md) — a <= 450 W
+desktop part (4090/5090 class) is **4-6x** on this mix (cores 3-4x,
+bandwidth ~10x for the link-bound half; decision-memo route 3,
+unmeasured). Four boards on one machine: ~3-3.5x more (near-linear
+on a > 99% parallel pass), i.e. **~12-20x over the laptop part
+combined** [MODEL]. VRAM (16-32 GB/board) binds only through the
+descent trees (gone under Stage A) and A_0 (gone under (i); streamed
+blocks under W-8(b) otherwise). Note the field interaction: Stage A
+moves the bulk arithmetic from 363-op GF(q^16) mults to int32
+base-field MACs — the GPU-native lever and the Stage-A lever
+MULTIPLY (cheaper ops AND better-shaped kernels). Precedent that
+transformer-proof workloads parallelize on GPUs at scale: zkLLM's
+CUDA sumchecks and Attestable's claimed single-H100 full-model rate
+[EXTERNAL, Section 2.5/refs].
 
-### 2.6 (vi)+ own candidates
+**Soundness obligations.** NONE — hardware and scheduling only.
+**Build size.** The route-3 port + harness: 1-2 tranche-weeks for
+the desktop CUDA port (the kernels exist), more for Metal;
+measurement gated on quiesced hardware we own (the desktop board is
+a purchase decision for Victor). **Honest factor: 4-6x one board,
+12-20x four boards [MODEL, unmeasured]** — multiplies every other
+candidate; moves no exponent (the verifier and memory walls are
+untouched).
 
-(pending)
+### 2.5 (v) The 2025-26 lattice literature that fits (all [EXTERNAL]; abstracts read 2026-08-23, none verified at our parameters)
+
+Searched 2026-08-23 (WebSearch; IACR ePrint). What is NEW since
+AGGREGATION_LITERATURE.md closed (2026-07-27), and what it changes:
+
+1. **RoKoko** (ePrint 2026/575, Mar 2026): lattice succinct argument
+   with a LINEAR prover and POLYLOG communication and verifier;
+   ~200 KB proofs; claims **100x faster verification than Greyhound
+   at similar prover time**; refines RoK-and-Roll (ASIACRYPT 2025)
+   by committing to cross-terms instead of sending them ("committed
+   refinement"), generalizes LaBRADOR's double-commitment into
+   recursive commitments, and **natively supports tensor-structured
+   relations — polynomial evaluation and SUMCHECK relations**. If it
+   re-derives at D = 128 / q31, this is candidate (i)'s serving
+   layer with a polylog (not sqrt) verifier and a published
+   construction to cite. The strongest single fit found.
+2. **Hachi** (ePrint 2026/156, Feb 2026): lattice multilinear PCS,
+   Module-SIS, sqrt-class verifier, ~55 KB proofs, claims 12.5x
+   faster verification than Greyhound via sumcheck + ring-switching;
+   AND a generic reduction converting evaluation claims over
+   EXTENSION FIELDS F_{q^k} into cyclotomic-ring statements — our
+   batched claims live in K = GF(q^16), so this reduction is
+   directly the shape of our claim seam. Candidate (i) at its most
+   conservative (MSIS, sqrt) would follow Greyhound-with-Hachi's-
+   improvements.
+3. **Grand Danois** (ePrint 2026/1196, Jun 2026): polylog
+   verification AND proof size — but under the vanishing-SIS (vSIS)
+   assumption with STRUCTURED public parameters, plus JL-projection
+   norm proofs. An assumption-class change from our MLWE/MSIS
+   mandate: RECORDED, not recommended, pending independent review of
+   vSIS (the GATE_ALTERNATIVES posture: mandates first).
+4. **Cyclo** (ePrint 2026/359, Eurocrypt 2026): lattice folding
+   improving LatticeFold+ — NO norm checks on the accumulator
+   (amortized norm-refreshing, additive growth per fold within a
+   bounded fold count), pay-per-bit commitments from Neo, no witness
+   decomposition when folding F_q constraints; ~30 KB class proofs,
+   claimed order-of-magnitude better than LF+ and faster in
+   practice. Directly upgrades candidate (ii)'s cost model and
+   answers its norm-growth worry in print. Related: "Improving
+   LatticeFold+ with l2-norm checks" (ePrint 2026/721);
+   "Verifiable Bootstrapping from Lattice-based Folding" (2026/1127).
+5. **Delegated CRS folding** (ePrint 2026/551): makes the VERIFIER's
+   CRS-side folding work succinct by delegating the fold of a
+   seed-generated CRS to the prover with a correctness proof —
+   aimed at exactly the class of cost our `ep.crs-expand` (~55 s at
+   8B, paid by prover AND verifier) represents. A component idea for
+   (i)'s CRS story, not a system.
+6. **Implementations**: NethermindEth/latticefold — a Rust PoC of
+   LatticeFold and LF+ (their benches: LF+ prover ~5x faster than
+   LF). AGGREGATION_LITERATURE Section 9's rows "no confirmed
+   lattice PCS beats a sqrt verifier" and "no implementation for
+   lattice folding" are BOTH STALE: RoKoko/Grand-Danois claim
+   polylog verifiers (unreviewed), and a folding PoC exists.
+7. **The other channel, for calibration only**: zkLLM (CUDA
+   sumcheck + tlookup, ~50x GPU speedups), Lagrange DeepProve-1
+   (full-LLM, DAG-parallel proving), zkGPT (USENIX Sec'25),
+   Attestable's vendor-claimed 53 tok/s Gemma-31B on one H100
+   (~1.6e12 MAC/s class) — all hash/FRI-family, none lattice; they
+   bound what hardware + sumcheck engineering achieves when the
+   opening is hash-cheap, which is the calibration point for
+   Section 3's honest-reach numbers.
+
+None of 1-5 is third-party-reviewed at our ring/modulus; every
+number above is [EXTERNAL, abstract-verified only].
+
+### 2.6 (vi) Own candidates
+
+**(vi-a) Weight-group preprocessing (per-model, off the proving
+clock).** The weight group is 352M of the 498M digit rings (71%) and
+the x99.6 scaling driver — yet it is a PER-MODEL CONSTANT: the same
+committed weights serve every pass, and the pass already treats
+weight binding as "per-model, off-the-clock discipline"
+(UAGB1_PASS_AGG_REPORT.md Section 1). Candidate: compute the weight
+group's commitment, inner (two-tier) commitments, and CRS blocks
+ONCE per model at export/calibration time (minutes, next to the int8
+calibration, Grok-runnable); per pass, pay only the (i)-fold over
+the weights (~3.5e8 rings, ~seconds GPU [MODEL]) + the sqrt-sized
+opening. Removes the weight share of commit (~2/3 of ~110-160 s)
+and of the CRS from every pass. Soundness: a commitment is binding
+whenever it was computed; the statement already pins the model by
+digest chain (M125_PASS_REPORT Section 3.3 discipline; lane R W-10).
+Obligations: (1) the contract wording must say what the clock
+includes (it should — inference-time proving is the product story;
+the calibration was never on the clock); (2) P2/Tier-Z mask
+freshness: the weight-floor mask is drawn per pass TODAY and must
+stay per-pass — preprocess the commitment, never the masked
+response. Build: ~1 tranche-week ON TOP of (i) (it is (i)'s
+serving applied with a cache). Factor: ~1.3-1.6x prover at 8B
+[MODEL] and a large wall-clock UX win (the pass starts at the acts).
+
+**(vi-b) Token-axis streaming (defer).** T = 512 is one prefill
+slab; act-side folding/streaming over token blocks (the (ii)
+machinery pointed at the T axis) would cap act memory at a block and
+serve the decode regime. Not priced here — lane R owns the memory
+architecture; noted so the (ii) design, if built, is shaped to fold
+EITHER axis.
 
 ## 3. Compositions and the honest reach
 
