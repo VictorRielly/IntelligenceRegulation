@@ -417,10 +417,11 @@ the same go-ahead). All commands from the repo root.
 STEPS: follow `docs/zkmatrix-poc/U_PERF3_MVP8B_SCALING.md` Section
 5.2 LITERALLY — it is this task in board format with the exact
 commands (download Mistral-7B-v0.1 ungated; FineWeb-Edu parquet +
-text extraction; the `--decode "The capital of France is"` sanity
-gate BEFORE anything long — STOP and paste if " Paris" is absent;
-calibration ~20-45 min; export ~10-25 min; `--weights-only`
-re-check). PASTE into the log: the per-layer exponent table, every
+text extraction; the `--decode "The chemical symbol for gold is"`
+sanity gate BEFORE anything long — STOP and paste if " Au" is
+absent (gate revised 2026-08-24: the earlier France prompt false-
+fails in fp32 — memo §5.2 step 3 has the record); calibration
+~20-45 min; export ~10-25 min; `--weights-only` re-check). PASTE into the log: the per-layer exponent table, every
 `silu-int8-table-v2 member` line (W-6 flags), the variant-A
 violation count, the VERDICT block, peak RSS.
 COMMIT: results/m8b_int8_calibration.json,

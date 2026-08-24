@@ -599,9 +599,17 @@ STEPS:
    ```
    (~10-20 MB of text, ~2-5M tokens — the sampler needs >= ~20k.)
 3. Forward sanity BEFORE anything long (~2-5 min):
-   `python3 scripts/m8b_int8_calibration.py --ckpt ~/models/Mistral-7B-v0.1 --decode "The capital of France is"`
-   ACCEPT: the completion contains " Paris". If not: STOP, paste the
+   `python3 scripts/m8b_int8_calibration.py --ckpt ~/models/Mistral-7B-v0.1 --decode "The chemical symbol for gold is"`
+   ACCEPT: the completion contains " Au". If not: STOP, paste the
    output (that is a bug report on the hf adapter, not a data problem).
+   (GATE REVISED 2026-08-24 [WSL-BOX]: the original France prompt is a
+   FALSE FAIL in exact fp32 — " Paris" lands rank 3, 0.85 logits
+   behind "a"; the " Paris" lore is bf16 arithmetic. The adapter was
+   validated instead by next-token rank on five factual prompts:
+   " Au" / " oxygen" / " Shakespeare" / "4" at rank 0, "J"(upiter)
+   rank 1 gap 0.03 — grounding this sharp rules out a RoPE/GQA/mask
+   bug. The gold prompt's rank-0 margin makes it a stable greedy
+   gate.)
 4. Calibration (~20-45 min [MODEL], < 4 GB RSS — the script prints
    its peak at the end):
    `python3 scripts/m8b_int8_calibration.py --ckpt ~/models/Mistral-7B-v0.1 --text ~/models/fineweb-edu/sample_text.txt`
