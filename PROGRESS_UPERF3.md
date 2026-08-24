@@ -241,3 +241,14 @@ numbers, ~300-600 lines.
   1.9x (1T) / 1.2x (8T) INCLUDING h build; h overhead: 64 MiB raw per
   2^20 column (rides ACT eval proof), h build 0.13-0.15s. Peak RSS
   627-729 MiB (all runs). Both spikes GO. Next: the report.
+- 2026-08-23 CLOSE: U_PERF3_SPIKE_REPORT.md COMPLETE (go/no-go, what
+  was built, S1/S2 tables with every number labelled, the 12x512 and
+  8B implications, caveats — the kernel-quality gap named as the open
+  wall risk, batching/alphabet/masking/one-point-opening listed as
+  Stage-A obligations the spike did not test). Lane S deliverables
+  done: zc_range.rs + [UPERF3-S] bin section (additive), batteries
+  green 1/2/7, both default gates green, report filled. Files touched:
+  zkmatrix-rs/src/ring/zc_range.rs (NEW), ring/mod.rs (one mod line),
+  bin/ring_matmul.rs ([UPERF3-S] section + dispatch arm),
+  docs/zkmatrix-poc/U_PERF3_SPIKE_REPORT.md, this status section.
+  No frozen file, no other lane's file, no prof id used. STATUS: DONE.
