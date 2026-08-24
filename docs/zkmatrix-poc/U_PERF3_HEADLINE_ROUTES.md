@@ -128,15 +128,175 @@ exponent this memo's candidates must move.
 
 ### 2.1 (i) The full family-(c) O(sqrt N) reroute of the eval proof
 
-(pending)
+**What changes.** The commitment layer, u_0, h0_agg, the claim layer,
+and the descent replacement (Stage A) all stay. Per group, the opening
+is re-architected in the Greyhound shape (AGGREGATION_LITERATURE.md
+Section 3.1): view the group's digit rings as an ~sqrt(n_0) x
+sqrt(n_0) matrix (weight 8B: 18,770^2; act: 12,061^2, or ~6,030^2
+per split subgroup); commit each column under an inner Ajtai
+commitment (the CRS is two seed-expanded matrices of sqrt-class
+width, not today's kappa x chunk level-0 monster); to open the batched
+MLE claim at the aggregate's point x*, the prover sends the
+challenge-folded row `w = sum_i c_i row_i` — ONE weighted pass over
+the n_0 rings — and the verifier checks the outer relation on
+sqrt-sized objects; the norm/well-formedness of `w` and the inner
+commitments is then proven by the EXISTING LaBRADOR-form recursion,
+whose input is now an ~sqrt(n_0)-ring relation (~19K rings) instead
+of 352M. The recursion we already built and audited becomes the
+compressor family (c) always intended it to be.
+
+**Counted/modelled cost at 8B.**
+
+- Prover: the fold pass is ~5.0e8 ring-scalar mults over both groups
+  = ~6.4e10 base-mults [COUNTED from n_0 x D]; at the A1 kernel
+  constant (~0.16-0.20 us/ring-MAC class) ~90 s 1T, ~12-15 s 8T,
+  seconds-class on the GPU GEMM path [MODEL]. The recursion on ~19K
+  rings is floor-class immediately (~1 s). Replaces the ~290 s
+  prove-group + most of the ~55 s transport [MODEL]. Commit is
+  UNCHANGED (the inner commitments are the same Ajtai matvec volume
+  as today's u_0/precommit class).
+- CRS: the 64.4 + 30.4 GB level-0 matrices and the ~55 s `crs-expand`
+  shrink to sqrt-class objects (MB, sub-second) [COUNTED from the
+  two-tier shape].
+- Verifier: O(sqrt n_0) ring ops + polylog rounds — ~2-4e4 ring-mults
+  class, MILLISECONDS at 1T [MODEL] — against the built ~3.5e11 MACs
+  (~10 min 1T) at 8B. This is the only candidate that makes the 8B
+  verifier <= 2 s at 1T with room, closing T11 a' without the
+  supplied-Psi_0 novelty (the Stage-B new-crypto item can be retired
+  in favor of a published construction class).
+- Bytes: the two ~185 KB group blocks become Greyhound-class
+  evaluation proofs (53 KB at 2^30 published [EXTERNAL]; call it
+  55-200 KB total for both groups incl. the norm layer) [MODEL].
+- The W-3 repair, free: the exact-digit gate is gamma_z ~ 2^(e0-1)
+  sqrt(n D) over the OPENED object; two-tier objects are sqrt-sized,
+  so the act group's 8B failure (-0.31 bits flat) turns into ~11-12
+  bits of headroom per tier [MODEL from the sqrt-n law of
+  U_PERF3_MVP8B_SCALING.md Section 1.2] — no act split, no r-search
+  panic class (W-2/W-3 dissolve structurally at any future shape).
+
+**Soundness obligations.** O-1: parameter re-derivation at D = 128 /
+q31 (Greyhound publishes at degree-64 rings; challenge operator norms
+and two-tier binding at our 8-slot CRT are the "review burden, not
+new math" friction already priced in AGGREGATION_LITERATURE Section
+3.2, now on the critical path). O-7: knowledge error of fold +
+recursion (the PSS pattern covers the recursion half — built and
+audited already). O-4: ZK — no published ZK for Greyhound-class
+evals (AGGREGATION_LITERATURE Section 9); the house answer is the
+Tier-Z-style masked response ALREADY built for the floor (the P2
+weight-floor machinery masks exactly this kind of object), extended
+to the folded row `w`; a re-derivation on built machinery, not a new
+primitive. Exact-integer soundness: untouched (the digits, ranges,
+and U-L link live above the opening).
+
+**Build size.** 3-5 tranche-weeks [ASSUMED]: a new opening driver in
+eval_proof.rs behind a statement-version selector, the migration
+battery of U_PERF3_OPENING_LAYER_DESIGN.md Section 4, planner freeze
+rows re-derived. The biggest single re-architecture on the lattice
+line, and the one the design memo declared out of scope for Stage A/B.
+
+**Honest expected factor.** Prover ~2-3.5x over the built 8B pass
+(with Stage A composed: ~3-5x); verifier 1T >100x (minutes ->
+sub-second); artifact ~2-3x smaller; memory: removes the A_0
+matrices (-95 GB) and the level-1 witnesses (-46 GB) from the peak.
+NOT 5-15 s alone: lands the 8B pass at ~40-90 s on one desktop board
+[MODEL].
 
 ### 2.2 (ii) Folding across the 32 identical layers
 
-(pending)
+**What changes.** The per-layer FFN relation (3 matmuls + Hadamard +
+4 requants + ranges/lookup, one layer's weights and acts) becomes THE
+instance; a LatticeFold-class scheme (LatticeFold ePrint 2024/257;
+LatticeFold+ 2025/247; Neo 2025/294; Cyclo 2026/359 [EXTERNAL])
+accumulates the 32 instances into one running instance; ONE decider
+proof — the current machinery at one-layer size — closes the pass.
+Per fold: commit the incoming layer's witness (Ajtai, paid once per
+layer regardless), one fold sumcheck over the layer hypercube
+(~2^22-2^23), a range check on the INCOMING witness only (Cyclo's
+design: no accumulator norm checks, additive norm growth per fold
+[EXTERNAL, abstract]). One 8B layer [COUNTED, lane R's 1x16 rung
+scaled to T = 512]: weight 11.0M digit rings, act ~4.5M, zero-check
+tables 2^23 (under every cap).
 
-### 2.3 (iii) Batching level-0 claims beyond the R-row
+**Counted/modelled cost at 8B.**
 
-(pending)
+- Prover: total commit work UNCHANGED (~110-160 s laptop class —
+  every witness element is committed exactly once, fold or no fold);
+  32 fold sumchecks ~1e10 base-field MACs total ~10-30 s [MODEL];
+  the decider = today's opening at ~15.5M rings: prove-group ~290/32
+  ~ 10 s, transport/CRS /32. Net prover ~1.5-2.5x over built+Stage A
+  — the win OVERLAPS candidate (i)'s (both shrink what the expensive
+  opening sees).
+- Memory — the real prize: the peak becomes one layer + accumulator +
+  tables ~4-8 GB [MODEL] instead of lane R's 63.7 GB w0 + 94.8 GB A_0
+  + 120 GB descent pair. **The 8B pass would FIT the WSL box and any
+  32 GB desktop**, and MVP-1's Mac-only constraint disappears. No
+  other candidate does this.
+- Verifier: 32 fold-verifies (~ms each) + the decider verify at layer
+  size ~1.1e10 MACs ~20-30 s 1T [MODEL] — still needs (i) on the
+  decider for the <= 2 s line.
+- Artifact: 32 fold messages (~4-8 KB each) + one layer-sized decider
+  ~0.5-0.7 MB [MODEL].
+
+**Norm growth vs q31/q46 — the load-bearing question.** Folding
+multiplies witnesses by small-norm challenges and adds: naive growth
+is multiplicative per fold and would blow the exact-digit gate.
+LatticeFold re-decomposes each fold (extra O(N) work); LatticeFold+
+avoids it via a monomial-embedding algebraic range proof — which is
+EXACT set membership, i.e. the same fail-by-design guarantee class as
+our range facts; Cyclo keeps growth ADDITIVE per fold within a
+bounded fold count [EXTERNAL, abstracts]. Our budget [COUNTED-class]:
+one-layer groups sit ~2.5-3 bits under gamma_max by the sqrt-n law —
+a ~6-8x total growth allowance over 32 folds. Cyclo's regime claims
+exactly this; at our parameters it is UNVERIFIED and would be this
+candidate's spike question.
+
+**Soundness obligations.** A reduction-of-knowledge lemma chain —
+genuinely new for the house (no in-repo precedent; the O-7 class but
+for folding); the exact-integer facts must survive the fold (LF+'s
+range proof is exact — good fit — but re-derivation at q31/q46 with
+the U-L link is owed); ZK: NO published ZK lattice folding
+(LatticeBlindFold is blog-stage [EXTERNAL]) — the masked-sumcheck
+machinery covers the fold sumchecks, the fold messages need a
+simulator (O-4 class). FS ordering of fold challenges after pad
+commitments (the WSMD 3.4 extension flagged in
+AGGREGATION_LITERATURE Section 2.3).
+
+**Build size.** 5-8 tranche-weeks [ASSUMED]. Maturity: paper-only
+lineage BUT a Rust PoC now exists (NethermindEth/latticefold, LF +
+LF+ [EXTERNAL]) — AGGREGATION_LITERATURE Section 9's "no
+implementation or library for lattice folding" is STALE as of 2026.
+
+**Honest expected factor.** Prover ~1.5-2.5x (overlapping (i));
+memory peak ~20-30x smaller; artifact ~3x; verifier neutral without
+(i). Its unique value is the MEMORY architecture and the streaming
+story (prove layer k while layer k+1 computes), not the raw clock.
+
+### 2.3 (iii) Batching the level-0 claims beyond the R-row
+
+**What changes.** Inside the BUILT opening: (T11 b) reduce every
+claim to ONE point per group so the planner's r can fall below the
+64 cap (r = 32 halves the h cross-garbage; r = 16 quarters it), plus
+one point shared ACROSS the two groups where the claim structure
+allows; (T11 a) feed level-0 from the rank-structured Phi_0. At 8B
+[COUNTED]: h-garbage 30.7e9 -> 15.3e9 (r 32) -> 7.7e9 (r 16)
+ring-mults, i.e. the ~79 s level-h class term -> ~40 -> ~20 s laptop
+[MODEL]; bytes grow at the floor (spike S3 of the design memo prices
+it; the artifact has 2-4x headroom under its gate). Verifier: one
+point per group collapses n_contrib in the O(n_value_rings x 16 x
+n_contrib) formula -> ~1-3e10 MACs, ~10-30x — but still LINEAR in
+n_value_rings: ~30-60 s at 1T at 8B [MODEL], not <= 2 s.
+
+**Soundness obligations.** None new beyond Stage B's already-listed
+items (the RLC-to-one-point batching is standard; the r re-derive is
+planner work with freeze rows both directions).
+
+**Build size.** 1-2 tranche-weeks (design memo Section 6.3 lane 3).
+
+**Honest expected factor.** <= 1.3-1.5x prover at 8B, ~10-30x
+verifier-but-still-linear. VERDICT: not a standalone route — it is
+the FRONT HALF of candidate (i) (the sqrt reroute requires exactly
+this one-point reduction to serve all claims from one fold), and it
+should be built as such, not as a destination.
 
 ### 2.4 (iv) GPU-native restructuring: serial vs parallel, desktop board, N boards, the field
 
