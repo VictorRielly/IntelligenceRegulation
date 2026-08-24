@@ -1,9 +1,9 @@
 # U-PERF3 lane R — the 8B FFN shape: what it costs, what breaks, how MVP-1 runs
 
-Status: SKELETON (2026-08-18, lane R of U-PERF3 round 1, worktree
-/home/victor/wt-uperf3-r). Sections 0-5 are filled in order and each
-lands in its own commit; every number carries [MEASURED] / [COUNTED] /
-[MODEL] / [ASSUMED] and, for walls, its box label.
+Status: COMPLETE (opened 2026-08-18, finished 2026-08-23; lane R of
+U-PERF3 round 1, worktree /home/victor/wt-uperf3-r). Every number
+carries [MEASURED] / [COUNTED] / [MODEL] / [ASSUMED] and, for walls,
+its box label.
 
 Scope: MVP-1 of PROGRESS_UPERF3.md — the TARGET_CONTRACT FFN statement
 at the 8B shape (32 layers x 512 tokens x d 4096 x f 14336, SwiGLU,
@@ -12,7 +12,29 @@ verified end to end on hardware we own.
 
 ## 0. One paragraph
 
-(to be written last)
+The 8B FFN statement (32 x 512 x 4096 x 14336, real Mistral-7B-v0.1
+weights) is TWO scalings of the measured 12x512 pass — everything
+touching the weights x99.6, everything touching the activations
+x18.5 — and the counted result is a 352M-digit-ring weight
+commitment, 2^28 zero-check tables, a 120 GB peak descent pair and a
+1.94 MB artifact (Section 1). Eleven things break on the way
+(Section 2): five hard code fixes (the 125M-shaped loader W-5, the
+acc classes W-4, the planner's r-search W-2, the K9 table cap W-1,
+the act-group gate W-3), two calibration-dependent ones (W-6 SiLU
+member — a Victor ruling; W-7 width band) and the memory work W-8.
+With ONE memory fix (W-8a) the pass fits the Mac's 256 GB at ~184 GB
+peak; it never fits the WSL box at 32 layers (Section 3) — the WSL
+box is the 1x16/3x16 dev rung, the Mac is the MVP box, and the
+honest walls are ~15-30 min (32x16 yardstick) and ~35-75 min (32x512)
+Mac CPU [MODEL], verify ~1-2 min, with the weight group 60-70% of
+every 32-layer wall (lane T's target). The witness pipeline EXISTS
+and is validated (Section 4): m8b_int8_calibration.py +
+m8b_export_ffn.py stream any-size safetensors at < 4 GB RSS and
+reproduce the m125 references on this box 12/12 (weight export
+byte-identical, val loss to 4 decimals); what remains before the
+first real-8B proof is Victor's download go-ahead (T12, Section 5.2),
+then two small code rungs (W-5+W-4, W-2) to the 1x16 pre-rung, then
+the split work (W-1, W-3) to the Mac ladder (Section 5.1).
 
 ## 1. Counted sizes: 12x512 (measured) -> 32x512 at d 4096 / f 14336
 
