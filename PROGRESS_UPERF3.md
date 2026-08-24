@@ -218,3 +218,26 @@ numbers, ~300-600 lines.
   sign-binary alphabet {-1,0,1} (digits::alphabet), deg_f 3 — an upper
   bound on the memo's {0,1} booleanity (deg_f 2). Next: gates
   (uperf-pc diff-battery, freeze-check), then s1/s2 measurement passes.
+- 2026-08-23 GATES + MEASUREMENTS (box QUIET: 99.4% idle, 12.3 GB free,
+  load 0.59 before timing): uperf-pc diff-battery GREEN (O1 4/4, O2
+  35/35, O3 63/63, O5 12/12, E2E 2/2, 15.5s); freeze-check WSL form
+  GREEN (98 rows ok, last "ok UAGB1-BL-1d pass schedules unmoved by the
+  blind (+1728 rings): tierz L8 floor 1368 e4 (pins L8/1368/e4), bare
+  L8 floor 939 e7 (pins L8/939/e7)", then the EXPECTED panic at the
+  UAGB1-BF m125-export rows — no export on this box). S1 at 2^20
+  [MEASURED WSL-BOX QUIET], c=4 (the design point), zero-check vs the
+  descent pair (depth 21 + dt w+1, l=1): w=4 25.2x K-mult-equiv / 12.2x
+  rounds / 45.4x wire, wall 2.1x (1T) 3.2x (8T); w=8 13.5x / 13.7x /
+  49.5x, wall 1.0x (1T) 1.6x (8T); w=12 9.2x / 16.0x / 55.5x, wall 0.8x
+  (1T) 1.2x (8T) — GO at every width on the memo's acceptance (>=5x
+  equiv, ~10x rounds); c=8 3.9-7.3x (marginal), c=16 ~1x (it IS K).
+  Wall lag vs count: the prototype E_4 round kernel runs ~2.9 GMAC/s
+  (8T) vs the frozen K9 kernel's ~23 GMAC-equiv/s — kernel-quality gap
+  ~8x, so the counted 13.5x nets 1.6x measured; a production E_c kernel
+  is the (b)-side upside. S2 at 2^20: ALL FOUR claim equalities hold at
+  fixed seeds (P_w/Q_w - mass_w == h_sum; P_t/Q_t - mass_t ==
+  table_sum; mass_w == mass_t; cross-check == sum equality); rounds
+  13.7x fewer (274 -> 20), wire 15.7x (86,272 -> 5,504 B), prove wall
+  1.9x (1T) / 1.2x (8T) INCLUDING h build; h overhead: 64 MiB raw per
+  2^20 column (rides ACT eval proof), h build 0.13-0.15s. Peak RSS
+  627-729 MiB (all runs). Both spikes GO. Next: the report.
