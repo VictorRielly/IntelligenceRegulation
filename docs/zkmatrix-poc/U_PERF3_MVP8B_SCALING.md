@@ -324,7 +324,146 @@ the 8B clock more than anything else in the design space.
 
 ## 4. The data: checkpoint, calibration, export, the m8b scripts
 
-(pending)
+### 4.1 The checkpoint
+
+**Mistral-7B-v0.1** (default): d 4096, f 14336, 32 layers, SwiGLU,
+heads 32 / kv 8 (GQA), vocab 32000, rope 10000, bf16, 14.5 GB in two
+safetensors shards + index — **Apache-2.0, UNGATED** (no license
+acceptance, no HF token). Its FFN shape is IDENTICAL to
+Llama-3-8B's — 32 x (3 x 4096 x 14336) — which is what the statement
+proves; the honest words for the headline are "the 8B FFN shape, real
+Mistral-7B weights" (7.24B params). **Llama-3.1-8B** (Victor's call):
+same FFN dims AND the same HF tensor naming, so the scripts run
+unchanged — but gated (Meta license acceptance + HF token). Default is
+Mistral unless Victor prefers the Llama name on the headline.
+
+Calibration data: a **FineWeb-Edu sample retokenized with the model's
+own tokenizer** (the m125 val shard is SmolLM2-tokenized, vocab 49152
+— wrong ids for a 32000-vocab model; FineWeb-Edu itself is the same
+distribution the 125M calibrated on). The window sampler is the m125
+construction VERBATIM (seed 1337, sorted disjoint aligned windows of
+T+1; first 8 calibration, next 8 held-out; the export's X window =
+the FIRST held-out window).
+
+### 4.2 The scripts (NEW files; the m125 scripts are imported, never edited)
+
+**`scripts/m8b_int8_calibration.py`** — the m125 calibration study
+generalized to checkpoints that do not fit RAM:
+- safetensors read **PER TENSOR** (seek to the data_offsets window,
+  read exactly those bytes; bf16 widened exactly), sharded index
+  resolved; the model walked **BLOCK BY BLOCK** (one layer's weights
+  resident, then freed) — peak RSS at the 7B shape < 4 GB by
+  construction, **1.11 GB [MEASURED WSL-BOX] at the 125M shape**, so
+  EITHER box can run it (the 7B download is the Mac's, Section 5);
+- the reference forward is a **numpy fp32 re-implementation** of the
+  standard pre-norm decoder (RMSNorm, RoPE rotate-half, GQA, SwiGLU)
+  with two arch adapters: `--arch hf` (Mistral/Llama naming,
+  config.json-driven) and `--arch frugal` (the 125M — the validation
+  oracle, 4.3);
+- the int8 simulation carries exact integers in float64 BLAS (every
+  |acc| <= f x 127^2 = 2.31e8 << 2^53: exact in any summation order;
+  numpy int64 matmul has no BLAS path and would be ~50x slower);
+- the SiLU table is the **FROZEN v2 family formula** (round_half_up,
+  via m125_export_ffn's pinned generator) in the simulation too — the
+  m125 study simulated with np.round; the m8b verdict is for the exact
+  table the prover uses. New (eGate, eA) members are FLAGGED with
+  their digests (the W-6 ruling input), not asserted away;
+- per-tensor weight exponents eWg/eWu/eWd per layer (m125 asserted a
+  uniform -9; the 7B is not assumed to oblige); variant A (the
+  statement's floor semantics) + weights-only attribution; `--variants`
+  adds round-to-nearest; JSON out with the SAME calibration-row keys
+  as the m125 JSON (either JSON drives the export).
+
+**`scripts/m8b_export_ffn.py`** — the witness export in the EXACT rig
+layout (`bf_export_path` / `bf_sidecar` / `bf_load_layer`,
+ring_matmul.rs :24544/:24599/:24647):
+- `layerNN_X.bin` (T x d), `layerNN_WgT.bin` (d x f), `WuT` (d x f),
+  `WdT` (f x d), int8 row-major; `digests.txt` with the m125 lines
+  (`NN X|WgT|WuT|WdT|z <sha256>`, `NN shifts g u h z`) **plus the W-5
+  loader's rows** (`00 model`, `00 dims T d f layers`,
+  `NN exps eX eGate eA eUp eH eZ eWg eWu eWd`) — verified inert to
+  today's parser (bf_sidecar keys on (layer, name)); `manifest.json`
+  adds shapes, per-tensor digests, acc maxima, **checkpoint shard
+  sha256s** (the model-identity input for the W-10 freeze rows);
+- X is the QUANTIZED end-to-end model's own mlp_norm output (variant
+  A feeds z forward — the m125 lesson: a fp-walk X is a hybrid that
+  neither calibrates nor is claimed); the chain **re-reads the int8
+  weight BYTES just written to disk**, so the digests bind the very
+  tensors the chain used; 0 range-fact violations asserted;
+- flags at run time: new SiLU members (W-6), shifts outside the rig's
+  asserted 5..=10 remainder band (W-7), negative shifts (a
+  calibration the contract chain cannot express — hard error);
+- `--weights-only` re-derives the 96 weight digests from a checkpoint
+  and compares to an existing manifest (the freeze-side check);
+  streamed like everything else.
+
+**`scripts/m8b_verify_125m.py`** — the validation harness (4.3), run
+green on this box before any Mac time is spent.
+
+### 4.3 What was validated HERE, and exactly what was not
+
+`python3 scripts/m8b_verify_125m.py` — **12/12 checks PASS
+[MEASURED WSL-BOX 2026-08-23]**, evidence in results/m8b_test/:
+1. **reader**: the streaming seek-reader reproduces the m125
+   whole-file reader on all 110 tensors of the real 125M checkpoint,
+   byte-equal as fp32.
+2. **synth**: a synthetic SHARDED HF-format checkpoint (2 shards +
+   index.json, BF16, Mistral naming, GQA untied head) runs the full
+   hf pipeline calibration -> export; digests.txt carries the rig rows
+   + the W-5 model/dims/exps rows; bin sizes are the rig's T*d / d*f /
+   f*d int8.
+3. **export** (the byte-identity test the resume brief asked for):
+   m8b_export_ffn --arch frugal on the REAL 125M checkpoint with the
+   COMMITTED m125 calibration JSON — **all 36 weight digests
+   BYTE-IDENTICAL to results/m125_ffn_export_wsl (= the Mac export
+   for weights), all 12 shifts lines identical, 0 range-fact
+   violations**. The X/z digests differ from the mlx reference as
+   EXPECTED: layer-0 X differs in 2 of 393,216 elements (max delta 1
+   — the attention/norm conventions are right), later layers amplify
+   through the quantized residual chain to ~50-60% of elements at
+   max |delta| <= 9 int8 steps — the same mechanism as the documented
+   Mac-mlx-vs-WSL-mlx delta, larger seed. A valid honest witness of
+   the same statement class; **whichever machine runs the 7B export
+   is the digest authority** (the Mac, once — W-10 pins those).
+4. **cal**: m8b_int8_calibration --arch frugal on the real 125M —
+   **all 108 calibrated exponents equal the committed m125 table; the
+   bf16 reference val loss reproduces to 4 decimals (3.2287 vs
+   3.2287)** — the strongest single fact here: the numpy walk
+   (embedding, RoPE, GQA, RMSNorm, SwiGLU, loss) is numerically
+   faithful to the mlx model end to end; variant A: 0 violations,
+   loss delta +4.9717 vs the study's +4.9807 (the frozen-table vs
+   np.round difference, documented).
+
+**NOT exercised here** (honest list): (i) a real 7B checkpoint — the
+sharded-index + hf-naming path ran only on the synthetic checkpoint;
+(ii) the hf attention against a reference implementation — validated
+TRANSITIVELY (the identical walk code reproduces the 125M mlx model
+exactly; the hf adapter differs only in naming, config parsing, and
+the untied head, all exercised synthetically), plus the RUN task's
+greedy-decode sanity ("The capital of France is" must complete
+" Paris") on the Mac before anything else; (iii) the tokenizer paths
+(`tokenizers`/`sentencepiece`) — no tokenizer.json exists on this
+box; the RUN task's decode step exercises them first and cheaply;
+(iv) Mac RSS at the true 7B shape — < 4 GB by construction (largest
+single resident: one fp32 layer ~0.9 GB + one f64 widening ~0.5 GB +
+batch activations ~1.2 GB), to be CONFIRMED by the script's printed
+peak-RSS line in the RUN task.
+
+### 4.4 The exponent picture the 7B will produce [ASSUMED until the Mac calibration lands]
+
+The 125M calibrated to eW -9 uniform, eX -3..-2, eGate/eA -3 and -4,
+shifts 5..10. A 7B trained model has (a) smaller per-weight magnitudes
+(wider layers) but (b) the famous activation OUTLIER channels at this
+scale — eX may sit at 0..+2 on some layers, and eGate/eA may leave
+{-3, -4}: that is exactly W-6 (a new frozen family member — Victor
+ruling, manifest.rs moves) and possibly W-7 (shift outside 5..=10).
+The calibration JSON + the script's W-6/W-7 flag lines are the FIRST
+artifact to read when T12 completes; the W-6/W-7 code work (0.5 d
+each) is scheduled AFTER that read, not speculatively (Section 5).
+If variant A's range facts do NOT hold at 7B (outliers), the
+model-side branch is per-channel/clipped calibration — a statement
+design choice to bring to Victor with the measured violation table,
+NOT a proof-system change (the m125 study's risk-5 branch, unchanged).
 
 ## 5. The plan (lanes, files, gates) + the Grok RUN task text
 
