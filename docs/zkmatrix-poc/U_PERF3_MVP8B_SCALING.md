@@ -226,7 +226,101 @@ the Mac's 256 GB with W-8(a)(b) done: Section 3).
 
 ## 3. Memory and time per box
 
-(pending)
+Baselines [MEASURED, PROGRESS_UPERF2 after round 9, WSL-BOX QUIET]:
+12x512 8T+GPU 21.0 s (commit 2.5 / prove 15.5 / verify 1.7; prove =
+groups 7.1 + descents 6.5 + claim 1.75 + transport 1.4 + CRS 1.3),
+RSS 6.7 GB; CPU-only 8T 81.5 s (7.2 / 70.2 / 2.6), RSS 11.1 GB;
+12x128 8T+GPU 10.5 s (3.9 GB); 3x16 3.4 s. Every 8B size below is
+[COUNTED] (Section 1); every peak and wall is [MODEL] on top of them
+(liveness and throughput assumed as stated).
+
+### 3.1 What is resident when (32x512, the components from W-8)
+
+Phase order of `bk_pass_run`: derive chain -> commit w0 -> claim layer
+-> descents -> group proofs (levels 0..h, transport). Components:
+L = BfLayer i64 66.0 GB (as built lives to the END); W = w0 i8 both
+groups 63.7 GB; C = claim zc tables (4-5 x 17.2 GB unfixed; 1.07 GB
+windows after W-1); D = peak descent pair 120 GB (nrw-88);
+A_w/A_a = level-0 CRS 64.4 / 30.4 GB; V1 = level-1 witness 35.2 (w) +
+11.1 (a) GB.
+
+| phase peak (GB) | as built | + W-8(a) (drop L) | + (a)+(b) (stream A_0) | + Stage A (descents replaced) |
+|---|---:|---:|---:|---:|
+| derive + commit | L+W = 130 | 130 (L alive until groups... (a) drops it after derive: 74) | 74 | 74 |
+| claim (W-1 windows) | L+W+C = 135 | 69 | 69 | 69 |
+| descents | **L+W+D = 250** | **W+D = 184** | 184 | ~70 [MODEL: Stage A trees gone] |
+| group proofs | L+W+A_w+V1 = 229 | **W+A_w+V1 = 163** | ~103 (A_0 in blocks) | ~103 |
+| **pass peak** | **~250 — DOES NOT FIT 256 GB** | **~184 — fits the Mac** | **~184 (descents) / 103 (groups)** | **~103** |
+
+[MODEL from COUNTED parts; liveness assumed as the code reads today —
+W is alive to the end of the group proofs (`ZK_W0_REGEN=1` trades it
+for recompute), L to the end unless (a) drops it.]
+
+Reading: the Mac (256 GB) runs 32x512 with W-8(a) ALONE (~184 GB peak,
+28% headroom); (b) is the margin/robustness fix (down to ~103 GB
+outside the descents), not a gate. Stage A removes the descent peak
+entirely (the design memo's motivation restated in GB). Without (a)
+the pass does NOT fit even the Mac.
+
+Per rung on the Mac, same construction [MODEL]:
+
+| rung | as built peak | with (a) | mandatory before it runs (Section 2) |
+|---|---:|---:|---|
+| 1x16 | ~6 GB | ~4 GB | W-5, W-4 (+W-6/W-7 per calibration) |
+| 32x16 | ~191 GB (L 45.8 + W 45.7 + A_w 64.4 + V1 35.2) | **~145 GB** | + W-2 |
+| 32x128 | ~205 GB | ~160 GB | + W-1 (2^26 table over the cap) |
+| 32x512 | ~250 GB | **~184 GB** | + W-3 (act gate), W-1 |
+
+### 3.2 The WSL box (15 GB + 8 GB VRAM): the dev box, not the MVP box
+
+The weight group alone (w0 45.7 GB, A_0 64.4 GB, V1 35.2 GB) is 3-7x
+the box at ANY 32-layer rung: no fix short of full streaming — (a) +
+int8/i32 layer store, (d) `ZK_W0_REGEN`, (b) A_0 in column blocks, (c)
+flat i8/i16 deep witnesses, W-3-style splitting of BOTH groups into
+per-layer-range groups (k ~ 8-16 of 2-4 layers, which also clears the
+act gate), and for the descents Stage A is not optional here: the
+nrw-88 pair's 120 GB (32x512) / 30 GB (32x128) has no windowed form
+as built (W-9: the GPU declines it too). With ALL of that the
+streamed peak is plausibly ~8-12 GB [MODEL, coarse — dominated by one
+A_0 block + one w0 regen slice + the claim window + level-h pools] at
+8T CPU ~1-2 h [MODEL] — a build tranche of its own, NOT the MVP path.
+What the WSL box IS for: the 1x16 / 2x16 / 3x16 pre-rungs (Section
+1.6: 1.4 GB witness, planner passes at <= 33M rings, both device
+paths fit at depth <= 20) — every W-5/W-4/W-6/W-7 fix and the m8b
+export format get their first green here, 8T+GPU, in seconds-to-
+minutes, before any Mac time is spent.
+
+### 3.3 Honest time projections [MODEL]
+
+Method: each measured 12x512 phase scaled by its counted driver
+(commit ~ total n_0 rings x43.7; groups ~ the level-0 h cross-garbage
+and level GEMMs x42; descents ~ leaf elements x19.9; claim ~ mm-table
+weight reduction x99.6 on its build share + zc rounds x16; transport/
+CRS ~ x43; verify ~ verifier MACs x41). Two big unknowns, stated:
+(i) the CPU-only per-phase split at 12x512 was not recorded (only the
+7.2/70.2/2.6 top split) — the prove-phase scaling is bracketed
+[x19.9 .. x43.7]; (ii) Mac CPU throughput at 16-24T vs this box's 8T
+is [ASSUMED 1.5-2.5x] (never measured on the proof code; the Mac also
+runs F2 training today — a quiesced Mac is part of the RUN task).
+
+| rung, box | commit | prove | verify | total [MODEL] |
+|---|---:|---:|---:|---:|
+| 1x16, WSL 8T+GPU | ~2.5 s (n_0 x0.98 of 12x512) | ~4-8 s (descents x0.03, groups ~x1, claim small) | ~1.5 s | **~10-15 s** — the pre-rung is CHEAP |
+| 32x16, Mac CPU | 7.2 x31.3 / mac | 70.2 x[25-35] x(group share) / mac | ~45-75 s | **~15-30 min** |
+| 32x128, Mac CPU | x34.1 | + descents x5.0 | | **~20-40 min** |
+| 32x512, Mac CPU | 7.2 x43.7 / mac ~ 2-3.5 min | 70.2 x[19.9-43.7] / mac ~ 12-50 min | ~1-2 min (x41 on 2.6 s) | **~35-75 min; Stage A shaves the descent share -> ~25-55 min** |
+| 32x512, the 12x512 reference rig IF the memory existed and the trees fit VRAM (they do not: W-9) | 2.5 x43.7 = 109 s | 298 (groups) + 129 (descents) + ~70 (claim) + 116 (transport+CRS) | ~70 s | **~11-13 min** — the number that says the STREAMING+GPU build (3.2) and Stage A are worth a tranche AFTER the MVP exists |
+
+The MVP-1 headline is therefore an HOURISH-not-minutes Mac number
+(~0.5-1.25 h prover, ~1-2 min verifier, 1.94 MB artifact) unless
+Stage A lands first; Victor's ruling ("even if the proof currently
+takes 1-3 minutes") should be read with this table in hand — the
+1-3-minute class at 8B needs the 11-13 min rig column's memory work
+plus Stage A plus a ~2-4x kernel/GPU step (lane T's territory), not
+just the MVP fixes. The weight group, identical at every T, is
+~60-70% of every 32-layer wall in this table: whatever folds or
+amortizes the 32 layers' weight commitment (lane T (ii)/(iii)) moves
+the 8B clock more than anything else in the design space.
 
 ## 4. The data: checkpoint, calibration, export, the m8b scripts
 
