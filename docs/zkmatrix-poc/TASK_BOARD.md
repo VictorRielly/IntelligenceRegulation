@@ -405,7 +405,7 @@ GEMMs and the A1 commit kernel are the two kernels to port first.
 
 ---
 
-### T12 — the 8B FFN calibration + export on the Mac  `OPEN (scripts on main; needs Victor's download go)`  WHO: MAC  KIND: RUN
+### T12 — the 8B FFN calibration + export on the Mac  `OPEN — DOWNLOAD APPROVED (Victor, console 2026-08-24: "Go ahead with the mistral download")`  WHO: MAC  KIND: RUN
 WHY: MVP-1 (PROGRESS_UPERF3.md) proves the 8B FFN shape with REAL
 int8-calibrated weights; this produces the witness in the rig's
 layout. Gates M3/M8 of the MVP plan. Needs Victor's go for the
@@ -549,11 +549,16 @@ S4/round-2 ruling, Mistral-vs-Llama naming (memo §5.1).
    `pass-agg battery` 14/14 (~70 min), `table-descent prove 12 512
    p0`, the python suite green. Independent of everything else and
    nobody has run the full-statement rig on the Mac at HEAD.
-3. **T12 (UNBLOCKED — lane R's scripts are on main; gated ONLY on
-   Victor's download go):** the 8B FFN calibration + export. The full
-   task with exact commands is in §3 above and verbatim in
-   `U_PERF3_MVP8B_SCALING.md` §5.2. Do NOT run the rig on the export
-   yet (M1+M2 pending); the export itself is untimed and F2-safe.
+3. **T12 (GO — Victor approved the download 2026-08-24):** the 8B
+   FFN calibration + export. The full task with exact commands is in
+   §3 above and verbatim in `U_PERF3_MVP8B_SCALING.md` §5.2. Do NOT
+   run the rig on the export yet (M1+M2 pending); the export itself
+   is untimed and F2-safe. NOTE: the WSL box is running the SAME
+   pipeline as a validation pass (2026-08-24, board log) — the Mac
+   run stays the digest AUTHORITY for X/z (framework-relative);
+   weight digests and the exponent table must MATCH the WSL rows
+   posted in the log/ledger — a mismatch is a bug report, stop and
+   record it.
 
 ## 5. Log (append-only, newest last)
 
@@ -597,3 +602,14 @@ S4/round-2 ruling, Mistral-vs-Llama naming (memo §5.1).
   form (98 rows ok, expected BF panic). T12 moved into §3 with exact
   commands and UNBLOCKED (pending Victor's download go); Grok queue
   now T1 -> T4 -> T12.
+- 2026-08-24 (Victor, console): T12 download APPROVED ("Go ahead with
+  the mistral download"). Claude/WSL starts the same pipeline here as
+  a VALIDATION pass (829 GB free disk; the scripts stream < 4 GB RSS):
+  download -> decode gate -> calibration -> export into a WSL-labeled
+  directory (results/m8b_ffn_export_wsl). Purpose: answer W-6/W-7
+  (SiLU member, remainder widths) and memo §4.3's real-7B untested
+  items TODAY, and give the Mac run a weight-digest/exponent
+  cross-check; it ALSO dissolves memo §5.1 decision (4) (Mac->WSL
+  export-slice transport) — the WSL box can cut its own 1x16 dev-rung
+  slices from a local export. The Mac T12 remains the digest
+  authority for the 8B rig's witness.
