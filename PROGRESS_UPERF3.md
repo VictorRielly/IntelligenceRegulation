@@ -182,3 +182,56 @@ that would de-risk the top candidate. Plain narrative, labelled
 numbers, ~300-600 lines.
 
 ## Agent status sections (lanes append below; do not edit each other's)
+
+## Agent R status (wt-uperf3-r)
+
+STATE: OPEN (2026-08-18) — skeleton committed. Memo:
+docs/zkmatrix-poc/U_PERF3_MVP8B_SCALING.md (sections 0-5 land one
+commit each); scripts: scripts/m8b_int8_calibration.py +
+scripts/m8b_export_ffn.py (NEW files; the m125 scripts are imported,
+never edited). Nothing outside the lane's ownership is written.
+
+DONE (2026-08-23, memo COMPLETE, all commits on uperf3-r):
+- Section 1 (counted sizes 12x512 -> the 8B rungs) + the counter
+  script m8b_scaling_model.py (`--check` reproduces the rig exactly)
+  [previous session].
+- Section 2 (what breaks: W-1..W-11 with file:line, smallest fixes,
+  sizes; the checked-and-NOT-breaking record) — written last session,
+  sanity-checked and committed this session.
+- THE SCRIPTS (Grok's T12 gate): scripts/m8b_int8_calibration.py +
+  scripts/m8b_export_ffn.py — streaming per-tensor safetensors reads
+  + block-by-block numpy walk (< 4 GB RSS at the 7B shape by
+  construction; 1.11 GB [MEASURED WSL-BOX] at 125M), hf (Mistral/
+  Llama) + frugal arch adapters, frozen-family SiLU, per-tensor eW,
+  the rig's exact export layout + the W-5 loader rows (model/dims/
+  exps — verified inert to today's bf_sidecar), W-6/W-7 flags, shard
+  sha256 identity, --weights-only re-check. Plus
+  scripts/m8b_verify_125m.py: **12/12 checks PASS on this box** —
+  streaming reader byte-equal on all 110 tensors; a synthetic SHARDED
+  HF checkpoint through the full pipeline; the REAL 125M export with
+  the committed m125 calibration: 36/36 weight digests BYTE-IDENTICAL
+  to results/m125_ffn_export_wsl, 12/12 shifts identical, 0
+  violations (X/z digests differ by the documented numpy-vs-mlx fp32
+  drift; layer-0 X within 2 of 393,216 elements); the REAL 125M
+  calibration: 108/108 exponents equal the committed table, val loss
+  reproduced to 4 decimals (3.2287), variant A 0 violations.
+  Evidence committed: results/m8b_test/m125_reexport/{digests.txt,
+  manifest.json}. NOT exercised here (memo 4.3): a real 7B ckpt, the
+  hf attention vs an external reference (transitively validated +
+  the RUN task's decode gate), the tokenizer paths, true-7B RSS.
+- Section 3 (memory/time per box: 32x512 needs W-8(a) even on the
+  Mac — ~184 GB peak; the WSL box is the 1x16/3x16 dev rung only;
+  honest walls [MODEL] Mac CPU ~15-30 min at 32x16, ~35-75 min at
+  32x512, verify ~1-2 min; the weight group is 60-70% of every
+  32-layer wall — lane T's target), Section 4 (data + scripts +
+  validation record), Section 5 (plan M0-M8 + the VERBATIM T12 RUN
+  task text for TASK_BOARD §3 — memo 5.2), Section 0.
+DECISIONS NEEDED FROM VICTOR (memo 5.1 end): (1) T12 download
+go-ahead (~17 GB network, ~30 GB Mac disk; Mistral-7B-v0.1 is
+ungated, no token); (2) Mistral (default) vs Llama-3.1-8B (gated,
+same dims/naming); (3) the W-6 SiLU-member freeze ruling IF the 7B
+calibration flags one; (4) the Mac->WSL export-slice transport for
+the 1x16 pre-rung; (5) Mac RAM/quiesced windows for the 32-layer
+rungs (F2 coexistence).
+NEXT (not this lane's round): orchestrator lifts memo 5.2 into
+TASK_BOARD T12; M1 (W-5+W-4) is the first code rung.

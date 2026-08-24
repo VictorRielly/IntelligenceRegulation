@@ -1,0 +1,5 @@
+synth_hf/
+synth_export/
+*.log
+/synth_cal.json
+/m125_recal.json
