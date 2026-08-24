@@ -1,8 +1,8 @@
 # U-PERF3 — the headline within the lattice line: what 5-15 s at 8B would take (design/literature memo, no code)
 
-Status: SKELETON (2026-08-18, U-PERF3 round 1, lane T, worktree
-wt-uperf3-t). Sections are filled and committed one at a time; the
-"Agent T status" block in PROGRESS_UPERF3.md says which are done.
+Status: COMPLETE (2026-08-23; skeleton 2026-08-18; U-PERF3 round 1,
+lane T, worktree wt-uperf3-t). Sections landed one commit each; the
+"Agent T status" block in PROGRESS_UPERF3.md carries the summary.
 
 Scope: Victor's ruling of 2026-08-18 ("be more creative and find a
 solution anyway") applied to the lattice line (Route R: MLWE/MSIS
@@ -19,7 +19,35 @@ Labels: [MEASURED] / [COUNTED] / [MODEL] / [ASSUMED] / [EXTERNAL]
 
 ## 0. Recommendation (one paragraph)
 
-(to be written last)
+The built pass is already the literature review's family-(c)
+architecture in its commitment and claim layers — what it lacks is
+(c)'s defining serving move: the LaBRADOR-form recursion is applied
+to the FULL 500M-digit-ring witness at 8B, and exactly those
+full-witness terms (level-0 h-garbage, level-0 verifier, CRS,
+transport) scale x41-43 and are the counted 8B floor (~11-16 min
+laptop, ~2-4 min desktop board [MODEL]; lane R's Section 1 rows).
+The recommendation for the second design freeze is therefore the
+**opening re-architecture**: Stage A (descents -> base-field
+booleanity + LogUp-sumcheck) + one-point batching as front end + a
+Greyhound/Hachi/RoKoko-class two-tier serving of each group's
+opening, with the weight group's commitment/tier material
+preprocessed per model off the proving clock — landing the 8B FFN
+pass at **~20-40 s on one <= 450 W desktop board and ~6-13 s on a
+four-board machine [MODEL]**, with the 1T verifier sub-second
+(closing TARGET_CONTRACT's <= 2 s line without amendment), the
+artifact ~2-3x smaller, ~95 GB of CRS/level material out of the
+memory peak, and W-2/W-3 dissolved structurally — all while keeping
+MLWE/MSIS, exact-integer soundness, E-O2-BB, and the HVZK story.
+Folding across the 32 layers (LatticeFold+/Cyclo class) is ranked
+AFTER MVP-1 as the memory/streaming tranche (peak ~4-8 GB — 8B on
+the WSL box), not the headline lever, because its clock win overlaps
+the reroute's. The ONE de-risking spike is **S4: the sqrt front end
+built against the real 12x512 act group with the frozen opening as
+oracle** — claims equal bit-for-bit, >= 5x on the
+prove-group-equivalent, sub-second 1T level-0, and the 8B two-tier
+gate green — 2-4 days, no freeze move. Everything above 15 s vs 5 s
+rides the unmeasured desktop-board factor (route 3): the freeze and
+the board measurement should be decided together.
 
 ## 1. The built pass located in the family map, and what scales x100
 
@@ -577,4 +605,69 @@ as ORACLE:
 
 ## 5. References (with labels)
 
-(pending)
+In-house (the load-bearing inputs, all in docs/zkmatrix-poc/ unless
+noted):
+
+- U_PERF3_OPENING_LAYER_DESIGN.md — Stage A/B, the <= ~2.5x finding,
+  the eval-proof floor anatomy [MEASURED/COUNTED/MODEL as labelled
+  there].
+- U_PERF3_MVP8B_SCALING.md (lane R, wt-uperf3-r, Sections 1-2 landed
+  as of 2026-08-23) — every 8B count in Section 1.2/1.3 [COUNTED];
+  the W-1..W-11 break table.
+- AGGREGATION_LITERATURE.md — the family map (a)-(e), the
+  (c)+(b)+(a) verdict, obligations O-1..O-9, Section 9 honest gaps
+  (two rows now stale per Section 2.5).
+- UAGB1_PASS_AGG_REPORT.md / UAGB1_TABLE_DESCENT_REPORT.md — what
+  was actually built (E-O2-BB, BG-F1/F3, BK-F1); the family location
+  in Section 1.1.
+- PROGRESS_UPERF2.md ("after round 9" attribution), U_PERF2_GPU4 /
+  EVALPROOF3 / CLAIM2 / DESCENT4 reports — the measured 12x512
+  anatomy.
+- PROVING_CHANNEL_OPTIONS.md (main branch) — the other channel;
+  TARGET_CONTRACT.md — the 5-15 s / <= 2 s / byte lines.
+
+External, house-verified previously (AGGREGATION_LITERATURE refs,
+abstracts verified 2026-07): LaBRADOR (ePrint 2022/1341); Greyhound
+(2024/1293); PSS / Falcon aggregation (2024/311); LaZer (2024/1846);
+LatticeFold (2024/257); LatticeFold+ (2025/247); Neo (2025/294);
+Orthus (2026/398); ZK toolkit (2026/1289).
+
+External, NEW this memo (searched 2026-08-23; [EXTERNAL],
+abstract-only, unverified at our parameters):
+
+1. RoKoko: Lattice-based Succinct Arguments, a Committed Refinement.
+   IACR ePrint 2026/575. https://eprint.iacr.org/2026/575 — linear
+   prover, polylog verifier/communication, ~200 KB; claims 100x
+   Greyhound verify at similar prover time; tensor-structured
+   relations (sumcheck) native.
+2. Hachi: Efficient Lattice-Based Multilinear Polynomial Commitments
+   over Extension Fields. IACR ePrint 2026/156.
+   https://eprint.iacr.org/2026/156 — MSIS, sqrt verifier, ~55 KB,
+   claimed 12.5x Greyhound verify; extension-field -> cyclotomic
+   claim reduction.
+3. Grand Danois: Succinct Multilinear Polynomial Commitments over
+   Lattices. IACR ePrint 2026/1196. https://eprint.iacr.org/2026/1196
+   — polylog verify + size, but vSIS + structured parameters
+   (assumption change; recorded only).
+4. Cyclo: Lightweight Lattice-based Folding via Partial Range
+   Checks. IACR ePrint 2026/359 (Eurocrypt 2026).
+   https://eprint.iacr.org/2026/359 — no accumulator norm checks,
+   additive norm growth, pay-per-bit; ~30 KB class.
+5. Improving LatticeFold+ with l2-norm Checks. IACR ePrint 2026/721.
+   https://eprint.iacr.org/2026/721 (noted, unread beyond title).
+6. Verifiable Bootstrapping from Lattice-based Folding. IACR ePrint
+   2026/1127. https://eprint.iacr.org/2026/1127 (noted).
+7. Succinct Verification of Lattice-Based Compressed Sigma-Protocols
+   via Delegated Proofs of Correct Folding of Cryptographically
+   Generated Public Parameters. IACR ePrint 2026/551.
+   https://eprint.iacr.org/2026/551 — the CRS-fold delegation idea.
+8. NethermindEth/latticefold (Rust PoC of LatticeFold / LF+).
+   https://github.com/NethermindEth/latticefold — LF+ prover ~5x LF
+   in their benches.
+9. LatticeBlindFold (blog-stage ZK lattice folding).
+   https://blog.icme.io/latticeblindfold-towards-the-first-zero-knowledge-lattice-based-folding-scheme/
+10. zkLLM (arXiv 2404.16109); Lagrange DeepProve-1
+    (lagrange.dev/blog/deepprove-1); zkGPT (USENIX Security 2025);
+    Attestable "Proving LLMs at Scale"
+    (attestable.com/blog/proving-llms-scale, VENDOR-CLAIMED) — the
+    hash-channel calibration points only.
