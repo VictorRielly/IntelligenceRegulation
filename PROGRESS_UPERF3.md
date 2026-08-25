@@ -331,9 +331,30 @@ activations** — activation-int8 in the training loop = the prime
 route-N candidate at 8B class. BitNet b1.58 2B4T = the only fully
 native W1.58A8 line, 2B only, per-token dynamic scales (L1) — watch
 item. Qwen3/Llama-3.1/Mistral: same emergence physics, bridge
-customers. Download of the Gemma 4 12B QAT checkpoint attempted
-from this box (HF license gate status to be recorded when it
-resolves; Gemma needs terms acceptance + token — Victor if gated).
+customers.
+
+GEMMA 4 12B QAT DOWNLOADED AND SCOPED (2026-08-25, this box —
+**no license gate hit**; 23 GB single shard at
+~/models/gemma-4-12B-qat): text_config d 3840 (30x128 OK), f 15360
+(120x128 OK), 48 dense layers (no MoE), GeGLU (gelu_pytorch_tanh
+-> ONE C5 registry member), rms eps 1e-6, GQA 16/8 heads at
+head_dim 256, vocab 262144, tied embeddings, final logit softcap
+30.0. Tensor scan: model.language_model.layers.N.* with the
+FOUR-norm sandwich (input/post_attention/pre_feedforward/
+post_feedforward), q_norm/k_norm [256] (QK-norm), a per-layer
+`layer_scalar` [1] (semantics from the HF modeling source), hybrid
+attention 40 sliding (window 1024 — plain causal is VALID at
+T = 512) + 8 full_attention layers with global_head_dim 512 /
+1 global KV head / attention_k_eq_v; multimodal embedder tensors
+separable (text walk uses embed_tokens directly). FFN statement
+shape: (48, 3840, 15360) — ~8.7e12 MACs at T = 512, ~3x the
+Mistral 8B contract shape (a BIGGER headline than 8B, and ~3x its
+clock). ADAPTER WORK (queued behind agent V for the box): the
+gemma4 walker (four norms, QK-norm, layer_scalar, hybrid
+attention + per-type rope bases from the HF modeling source,
+softcap, tied head), a gelu-tanh table-member candidate, then the
+C4 gate run — the decisive measurement of whether QAT-int8-
+activation training actually tames the outlier profile.
 
 ## Agent status sections (lanes append below; do not edit each other's)
 
