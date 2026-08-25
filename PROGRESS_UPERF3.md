@@ -619,3 +619,86 @@ wider a/h/z at the ~6 outlier layers; option (c) stays non-viable
   ZK_MODEL_EXPORT_DIR = the first proof through the generalized
   loader. Box discipline: agent V full-tilt on this box; builds +
   short batteries + 3x16-class rigs only, no 12x512-class.
+
+- 2026-08-25 DONE (all three rows landed; every wall below [WSL-BOX 1T
+  NOISY-SHARED] — agent V full-tilt concurrent; no 12x512-class runs):
+  * BASELINE (73adfb3 binary, before any edit): diff-battery green
+    15.21s; freeze-check 98 ok rows then the EXPECTED WSL panic at the
+    UAGB1-BF rows (cannot read layer00_X.bin), last ok row =
+    "UAGB1-BL-1d pass schedules unmoved by the blind (+1728 rings):
+    tierz L8 floor 1368 e4 (pins L8/1368/e4), bare L8 floor 939 e7
+    (pins L8/939/e7)"; 3x16 full-profile via M125_EXPORT_DIR =
+    ../results/m125_ffn_export_wsl: accept true, statement digest
+    93a987002a7c4b60c3dfbfc62b7a4f0e5957d8ae2039014ff241e323285fb790,
+    EVAL-PROOF DIGEST
+    0ae9cdae66607239a80cc1f1dea36248370edadbe85214144aee7a5250d975be.
+  * W-5 (a6b3c72): `BfModel { layers, t, d, f, e_w, exps, tag }`
+    parsed once (OnceLock) from ZK_MODEL_EXPORT_DIR's digests.txt
+    (`00 model` / `00 dims` / `NN exps` rows — the m8b export's W-5
+    rows, inert to bf_sidecar; per-tensor/per-layer weight exponents
+    REJECTED as unsupported), else the M125 consts. Threaded through
+    bf_export_path (new env, precedence over M125_EXPORT_DIR),
+    bf_load_layer (exps indexing + `- e_w` shifts + byte-size asserts
+    at m.t*m.d etc. + t_rows==m.t digest gates), bf_derive_chain,
+    bf_entry_shape, bf_entry_typing (t(e_w,..), e_x+e_w, e_h+e_w),
+    bf_instances, the bf_layer_run matmul spec list, bk_pair_specs
+    shapes, BgOpts/BkOpts defaults (layers/t from the model), the
+    bg/bk/uperf-pc CLI arg defaults, wave-profile layer bound,
+    bg_dummy_layer, the four bg_mle(.., d, ..) sites, and the
+    synthetic-layer makers that feed bf_entry_shape machinery
+    (uperf-d mm block, uperf_o_layers). NOT touched (125M-pinned by
+    design): the freeze rows' literal (12, BF_T) calls +
+    freeze_check_uagb1_bk's M125_EXP width derivation, m125-pass /
+    statement-125m / bi wire-bench statement-m125 commands.
+  * W-4 (same commit): `bf_acc_bits(inner) = floor(log2(inner*127^2))
+    + 2` replaces q(25)/q(26) in bf_entry_typing — Gacc/Uacc =
+    acc_bits(d), Dacc = acc_bits(f); bg_entry_class's l0 follows via
+    derive_l0. 768->25, 2048->26 (identical to the constants —
+    battery-asserted), 4096->27, 14336->29. bf_matmul_i64's i32 fast
+    path needs no change (its inner*127^2 < 2^31 guard already
+    admits 14336: 2.31e8).
+  * W-2 (same commit): eval_proof.rs `plan_level -> Option<LevelPlan>`
+    (None where :283-284 asserted; `adaptive_base_opt` returns None
+    where adaptive_base's :235-238 assert fired — the pub
+    adaptive_base keeps its panic contract as a wrapper), plan_schedule
+    r-search skips None candidates (first-feasible-smallest rule
+    unchanged where all candidates feasible), all-None => a clear
+    panic naming n/e.
+  * DEFAULT PATH BYTE-IDENTICAL (the differential floor), verified on
+    the final binary (eca8e7e): freeze-check 98/98 ok rows diff-equal
+    to baseline + the same expected BF panic; diff-battery green
+    15.13s; 3x16 statement + EVAL-PROOF digests IDENTICAL to baseline
+    (93a98700../0ae9cdae..).
+  * uperf-w battery (6d713a0): 23/23 legs green — acc_bits 25/26/27/29
+    + default-model typing/l0 consumer pins (13/14); planner legs
+    [COUNTED]: n0 44M e0=1 r=2 DECLINES, schedule 9 levels level-0
+    r=64 floor 936 e7; 352M e0=1 r=2 DECLINES, 10 levels r=64 floor
+    936 e7; 36M e0=2 r=2 FEASIBLE, 9 levels r=56 floor 936 e7; 73M
+    e0=2 r=2 DECLINES, 9 levels r=56 floor 948 e7 (pre-W-2 the 44M/
+    352M/73M searches PANICKED); parser legs: synthetic good sidecar,
+    6 malformed rejections, and the committed
+    results/m8b_test/m125_reexport/digests.txt parses to exactly the
+    M125 const model (tag frugal-125m, 512/768/2048/12, e_w -9,
+    exps == M125_EXP).
+  * NEW PATH END-TO-END (eca8e7e): local m8b-format 125M re-export
+    with bins (scripts/m8b_export_ffn.py --arch frugal, ckpt
+    125m-best-adamw-val3.0816, committed m125 calibration + shard
+    tokens; 0 violations, peak RSS 0.41 GB [MEASURED]) into
+    results/m8b_local_export (48 bins gitignored; digests.txt
+    BYTE-IDENTICAL to lane R's committed m125_reexport fixture;
+    weights 36/36 byte-identical to m125_ffn_export_wsl, shifts
+    12/12, X 0/12 — the documented numpy-vs-wsl fp32 walk drift).
+    Rigs through ZK_MODEL_EXPORT_DIR (the first proofs through the
+    generalized loader): 1x16 accept TRUE (wall 9.3s, 749,000 B
+    counted), 3x16 accept TRUE (wall 21.1s). STRONGEST LEG: both
+    rungs are DIGEST-IDENTICAL to the M125_EXPORT_DIR path at the
+    same shapes (1x16 statement 1c5421f6../EVAL-PROOF cf79b310..;
+    3x16 93a98700../0ae9cdae.. both paths) — measured cause: the X
+    drift starts at row 40 of layer 0 (2/375/26624 differing bytes in
+    layers 0/1/2) and the first 16 X rows of layers 0-2 are
+    byte-equal, so every byte the loader feeds these rungs is equal.
+  * Commits: 6a47008 skeleton, a6b3c72 W-5+W-4+W-2, 6d713a0 battery,
+    eca8e7e new-path evidence. OPEN: the 8B export itself (T12, Mac),
+    M3 transport of a real 8B layer slice; W-6/W-7 per calibration;
+    the m8b_local_export bins are local-only (re-derivable by the
+    export command above).
