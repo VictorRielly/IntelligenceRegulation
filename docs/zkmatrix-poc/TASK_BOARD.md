@@ -27,13 +27,20 @@ ledger's newest Agent-status sections over this block.
   quantization contract draft (QUANTIZATION_CONTRACT_DESIGN.md,
   awaiting Victor's ruling); Gemma 4 12B QAT scoped (favorable dims,
   no license gate).
-- IN FLIGHT on the WSL box (Claude lanes; branches uperf3-w/x/y +
+- IN FLIGHT on the WSL box (Claude lanes; branches uperf3-w/y +
   work in the main checkout by agent V): V = per-column pricing
   experiment (python, main checkout), W = the rig accepts arbitrary
-  model shapes (Rust, wt-uperf3-w), X = attention statement design
-  memo (docs, wt-uperf3-x), Y = Gemma 4 reference walker (python,
-  wt-uperf3-y). Their branches are pushed to origin as they
-  progress; PARTIAL branches are NORMAL.
+  model shapes (Rust, wt-uperf3-w), Y = Gemma 4 reference walker
+  (python, wt-uperf3-y). Their branches are pushed to origin as
+  they progress; PARTIAL branches are NORMAL.
+- LANE X LANDED AND MERGED (2026-08-25): the attention statement
+  design memo (docs/zkmatrix-poc/U_PERF3_ATTENTION_STATEMENT_
+  DESIGN.md, 859 lines) — MVP-2 full-layer multiples ~x2.0 over
+  FFN-only at the 8B shapes [MODEL]; finding: as-built full-layer
+  8B peak ~260-300 GB exceeds the Mac -> Stage A is MVP-2's
+  memory-feasibility REQUIREMENT; spike X-S1 (integer softmax
+  chain) named; 10 spec amendments AM-1..AM-10 queued for Victor's
+  contract ruling.
 - **GROK: your order is T13 -> T1 -> T4 -> T12 -> T14 (Section 3;
   T14 only once its status says its scripts are on main).** Nothing
   else. Specifically:
