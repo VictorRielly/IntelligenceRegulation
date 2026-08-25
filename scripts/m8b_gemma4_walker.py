@@ -581,19 +581,35 @@ PROBES = [
 ]
 
 
-def encode_prompt(tk, arch, prompt):
+# The -it- checkpoint's canonical wrapping (hub chat_template.jinja,
+# google/gemma-4-12B-it-qat-q4_0-unquantized @ main, published
+# 2026-07-09, lines 188/233/372/382-385): bos_token leads, then
+# '<|turn>user\n{msg}<turn|>\n<|turn>model\n' and, with thinking off,
+# '<|channel>thought\n<channel|>'. Specials encode as single ids
+# (105/106/100/101 — tokenizer.json added_tokens). For the rank probe
+# the PARTIAL SENTENCE is prefilled INTO the model turn, keeping the
+# gate a next-token-rank test while in the it-model's distribution.
+TEMPLATE_PRE = ("<|turn>user\nComplete this sentence.<turn|>\n"
+                "<|turn>model\n<|channel>thought\n<channel|>")
+
+
+def encode_prompt(tk, arch, prompt, template=False):
+    if template:
+        prompt = TEMPLATE_PRE + prompt
     ids = list(m8b.tok_encode(tk, prompt))
     if ids and ids[0] != arch.bos_id:
         ids = [arch.bos_id] + ids
     return ids
 
 
-def greedy_decode(walker, arch, ckpt_dir, prompt, n_new=8):
+def greedy_decode(walker, arch, ckpt_dir, prompt, n_new=8,
+                  template=False):
     tk = m8b.load_tokenizer(ckpt_dir)
-    ids = encode_prompt(tk, arch, prompt)
+    ids = encode_prompt(tk, arch, prompt, template=template)
     p("greedy decode (functional self-check of the forward):")
-    p("  prompt: %r  (BOS %d prepended, %d tokens)"
-      % (prompt, arch.bos_id, len(ids)))
+    p("  prompt: %r  (BOS %d prepended, %d tokens%s)"
+      % (prompt, arch.bos_id, len(ids),
+         ", it-template wrapped" if template else ""))
     for _ in range(n_new):
         toks = np.asarray(ids, dtype=np.int64)[None, :]
         hid = walker.walk(toks)
@@ -603,14 +619,16 @@ def greedy_decode(walker, arch, ckpt_dir, prompt, n_new=8):
     p("  completion: %r" % m8b.tok_decode(tk, ids))
 
 
-def factual_probe(walker, arch, ckpt_dir, top2_needed=3):
+def factual_probe(walker, arch, ckpt_dir, top2_needed=3,
+                  template=False):
     """Rank of each expected next token under the softcapped logits;
     gate: >= top2_needed of the probes at rank <= 1."""
     tk = m8b.load_tokenizer(ckpt_dir)
     hits, rows = 0, []
-    p("factual next-token rank probe (%d prompts):" % len(PROBES))
+    p("factual next-token rank probe (%d prompts%s):"
+      % (len(PROBES), ", it-template wrapped" if template else ""))
     for prompt, expect in PROBES:
-        ids = encode_prompt(tk, arch, prompt)
+        ids = encode_prompt(tk, arch, prompt, template=template)
         want = m8b.tok_encode(tk, expect)
         want_id = int(want[0])
         hid = walker.walk(np.asarray(ids, dtype=np.int64)[None, :])
@@ -636,7 +654,7 @@ def factual_probe(walker, arch, ckpt_dir, top2_needed=3):
       "(need >= %d)"
       % (hits, len(PROBES), "PASS" if verdict else "FAIL", top2_needed))
     return dict(hits=hits, needed=top2_needed, passed=verdict,
-                probes=rows)
+                template=template, probes=rows)
 
 
 # --------------------------------------------------------------------------
@@ -661,6 +679,9 @@ def main():
                     help="greedy-decode this prompt and exit")
     ap.add_argument("--probe", action="store_true",
                     help="run the factual next-token rank gate and exit")
+    ap.add_argument("--template", action="store_true",
+                    help="wrap --decode/--probe prompts in the it "
+                         "chat template (TEMPLATE_PRE)")
     ap.add_argument("--smoke", action="store_true",
                     help="stop after calibration (no held-out chain)")
     args = ap.parse_args()
@@ -687,11 +708,13 @@ def main():
           "model's **" % arch.n_layers)
 
     if args.decode:
-        greedy_decode(walker, arch, args.ckpt, args.decode)
+        greedy_decode(walker, arch, args.ckpt, args.decode,
+                      template=args.template)
         p("peak RSS %.2f GB" % rss_gb())
         return
     if args.probe:
-        res = factual_probe(walker, arch, args.ckpt)
+        res = factual_probe(walker, arch, args.ckpt,
+                            template=args.template)
         out = Path(str(ROOT / "results" / "m8b_gemma4_probe.json"))
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(

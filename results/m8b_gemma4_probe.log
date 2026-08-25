@@ -1,0 +1,16 @@
+m8b_gemma4_walker — gemma-4-12B-qat (48 layers [40 sliding/8 full in use], d 3840, f 15360, heads 16/8 sliding hd 256, global hd 512 kv 1, vocab 262144), TARGET_CONTRACT S2 semantics + gemma4 facts F1-F8
+checkpoint: /home/victor/models/gemma-4-12B-qat (READ-ONLY, streamed per tensor; embedding row-gathered, head chunk-streamed)
+factual next-token rank probe (5 prompts):
+  'The chemical symbol for gold is'                          want ' Au' (id 16107): rank 3452 MISS  gap 14.523
+    top-5: '0' 24.57, '1' 23.13, '.' 22.75, ' \\' 22.59, ' ...' 21.44
+  'The gas that humans need to breathe to survive is called' want ' oxygen' (id 12123): rank 2866 MISS  gap 12.291
+    top-5: '.' 21.76, ',' 20.62, ' "' 20.62, ' \\' 20.05, '0' 19.55
+  'The play Romeo and Juliet was written by William'         want ' Shakespeare' (id 36951): rank 3419 MISS  gap 13.342
+    top-5: '.' 23.09, '0' 22.34, ',' 21.33, '_' 21.26, ' [' 21.14
+  '2 + 2 ='                                                  want ' 4' (id 236743): rank 8 MISS  gap 2.169
+    top-5: '5' 22.41, '3' 22.32, '1' 21.89, '0' 21.89, '2' 21.50
+  'The largest planet in our solar system is'                want ' Jupiter' (id 52895): rank 9814 MISS  gap 16.078
+    top-5: '.' 23.39, '0' 22.62, ' [' 21.42, ':' 21.34, '1' 21.15
+factual gate: 0/5 expected tokens in the top-2 -> FAIL (need >= 3)
+JSON -> /home/victor/wt-uperf3-y/results/m8b_gemma4_probe.json
+peak RSS 1.63 GB

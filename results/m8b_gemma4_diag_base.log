@@ -1,0 +1,59 @@
+prompt 'The chemical symbol for gold is' -> 7 tokens; ablations: attn_scale=1.0 norm_form=w embed_scale=62 vk=RAW
+emb*scale: rms 0.9785 absmax 35.36 (scale 62)
+L00 sliding_ scalar 0.0544 | x rms     1.436 absmax     22.41 | attn_res rms     4.43 | ffw_res rms     25.3 | gate absmax       37
+    lens@L00 top-5: [(1553, 29.999998092651367), (3067, 29.999988555908203), (255999, 29.99998664855957), (106009, 29.99998664855957), (236910, 29.999982833862305)]
+L01 sliding_ scalar 0.1836 | x rms     1.083 absmax     16.12 | attn_res rms     1.27 | ffw_res rms     5.31 | gate absmax       25
+L02 sliding_ scalar 0.2832 | x rms    0.9912 absmax     30.55 | attn_res rms     1.32 | ffw_res rms     3.02 | gate absmax     7.87
+L03 sliding_ scalar 0.5273 | x rms     1.054 absmax     31.92 | attn_res rms    0.597 | ffw_res rms     1.56 | gate absmax     6.12
+L04 sliding_ scalar 0.4062 | x rms    0.8948 absmax     21.05 | attn_res rms    0.855 | ffw_res rms     1.63 | gate absmax     6.18
+L05 full_att scalar 0.3652 | x rms     1.257 absmax     22.34 | attn_res rms      0.7 | ffw_res rms     3.22 | gate absmax     5.62
+L06 sliding_ scalar 0.3574 | x rms     1.129 absmax     26.18 | attn_res rms    0.667 | ffw_res rms     2.72 | gate absmax     8.07
+L07 sliding_ scalar 0.3203 | x rms    0.8961 absmax     35.64 | attn_res rms    0.735 | ffw_res rms     2.51 | gate absmax     10.1
+L08 sliding_ scalar 0.2344 | x rms     1.664 absmax     13.92 | attn_res rms    0.727 | ffw_res rms     6.94 | gate absmax     9.81
+    lens@L08 top-5: [(258882, 30.0), (24356, 29.999998092651367), (37311, 29.999998092651367), (110472, 29.999998092651367), (253646, 29.999998092651367)]
+L09 sliding_ scalar 0.1377 | x rms     1.227 absmax     10.36 | attn_res rms     1.88 | ffw_res rms     7.85 | gate absmax     12.3
+L10 sliding_ scalar 0.1367 | x rms    0.7592 absmax     9.032 | attn_res rms     1.33 | ffw_res rms     5.15 | gate absmax     9.38
+L11 full_att scalar 0.0037 | x rms    0.3128 absmax     14.51 | attn_res rms     3.04 | ffw_res rms     83.7 | gate absmax     7.19
+L12 sliding_ scalar 0.6953 | x rms    0.8989 absmax      48.2 | attn_res rms     1.03 | ffw_res rms    0.416 | gate absmax     14.9
+L13 sliding_ scalar 0.6562 | x rms     1.479 absmax     68.06 | attn_res rms     1.34 | ffw_res rms    0.487 | gate absmax     10.3
+L14 sliding_ scalar 0.8984 | x rms      1.68 absmax     79.04 | attn_res rms    0.165 | ffw_res rms    0.519 | gate absmax     9.26
+L15 sliding_ scalar 0.6250 | x rms     1.846 absmax     91.55 | attn_res rms     1.01 | ffw_res rms    0.525 | gate absmax     6.81
+L16 sliding_ scalar 0.7383 | x rms     2.027 absmax     109.1 | attn_res rms     0.79 | ffw_res rms    0.323 | gate absmax     7.65
+    lens@L16 top-5: [(231477, 29.99142074584961), (237790, 29.99094009399414), (211268, 29.990747451782227), (10421, 29.988658905029297), (168524, 29.986371994018555)]
+L17 full_att scalar 0.7383 | x rms     1.214 absmax     73.57 | attn_res rms    0.341 | ffw_res rms    0.741 | gate absmax     5.28
+L18 sliding_ scalar 0.7070 | x rms     1.877 absmax     119.8 | attn_res rms     0.84 | ffw_res rms    0.993 | gate absmax     4.82
+L19 sliding_ scalar 0.7656 | x rms     2.241 absmax     145.4 | attn_res rms     0.34 | ffw_res rms    0.962 | gate absmax      4.1
+L20 sliding_ scalar 0.6211 | x rms     1.985 absmax     131.1 | attn_res rms    0.393 | ffw_res rms     0.92 | gate absmax     4.38
+L21 sliding_ scalar 0.7344 | x rms     2.426 absmax     152.4 | attn_res rms    0.648 | ffw_res rms    0.919 | gate absmax     5.01
+L22 sliding_ scalar 0.7422 | x rms     2.823 absmax       176 | attn_res rms    0.567 | ffw_res rms     1.12 | gate absmax     3.52
+L23 full_att scalar 0.7305 | x rms     2.658 absmax     165.9 | attn_res rms    0.616 | ffw_res rms    0.777 | gate absmax     3.68
+L24 sliding_ scalar 0.8086 | x rms     2.823 absmax     178.9 | attn_res rms    0.547 | ffw_res rms    0.632 | gate absmax     4.21
+    lens@L24 top-5: [(258882, 29.454870223999023), (92175, 24.8374080657959), (32956, 24.29460334777832), (133338, 24.126911163330078), (96967, 24.09719467163086)]
+L25 sliding_ scalar 0.8438 | x rms     2.829 absmax     179.8 | attn_res rms     0.41 | ffw_res rms    0.621 | gate absmax     2.78
+L26 sliding_ scalar 0.6836 | x rms      2.19 absmax     134.1 | attn_res rms    0.484 | ffw_res rms     1.11 | gate absmax     2.55
+L27 sliding_ scalar 0.6914 | x rms     1.859 absmax     92.68 | attn_res rms    0.671 | ffw_res rms      1.2 | gate absmax     4.67
+L28 sliding_ scalar 0.6484 | x rms     1.814 absmax     80.27 | attn_res rms    0.726 | ffw_res rms      1.5 | gate absmax     6.34
+L29 full_att scalar 0.5898 | x rms     1.361 absmax     41.06 | attn_res rms    0.815 | ffw_res rms      1.4 | gate absmax      5.8
+L30 sliding_ scalar 0.7188 | x rms     1.437 absmax     55.76 | attn_res rms    0.604 | ffw_res rms    0.999 | gate absmax     8.99
+L31 sliding_ scalar 0.7148 | x rms     1.344 absmax     44.98 | attn_res rms     0.43 | ffw_res rms     1.05 | gate absmax     4.24
+L32 sliding_ scalar 0.5859 | x rms     1.291 absmax     50.69 | attn_res rms    0.705 | ffw_res rms     1.35 | gate absmax     3.51
+    lens@L32 top-5: [(258882, 29.999996185302734), (9363, 27.306285858154297), (78092, 26.216510772705078), (115750, 26.206918716430664), (5221, 26.08641242980957)]
+L33 sliding_ scalar 0.6328 | x rms      1.38 absmax     78.25 | attn_res rms    0.591 | ffw_res rms     1.44 | gate absmax     4.92
+L34 sliding_ scalar 0.7305 | x rms     1.396 absmax     67.54 | attn_res rms    0.442 | ffw_res rms     1.04 | gate absmax     4.23
+L35 full_att scalar 0.7500 | x rms     1.191 absmax     40.22 | attn_res rms    0.421 | ffw_res rms    0.842 | gate absmax     7.18
+L36 sliding_ scalar 0.8008 | x rms     1.329 absmax     65.19 | attn_res rms    0.609 | ffw_res rms    0.594 | gate absmax     8.25
+L37 sliding_ scalar 0.8516 | x rms     1.573 absmax     81.65 | attn_res rms    0.352 | ffw_res rms    0.721 | gate absmax     6.37
+L38 sliding_ scalar 0.8008 | x rms     1.443 absmax      73.2 | attn_res rms    0.517 | ffw_res rms    0.763 | gate absmax     5.84
+L39 sliding_ scalar 0.8398 | x rms     1.235 absmax     57.59 | attn_res rms    0.315 | ffw_res rms      0.6 | gate absmax     5.31
+L40 sliding_ scalar 0.7852 | x rms     1.096 absmax     14.38 | attn_res rms    0.471 | ffw_res rms     1.04 | gate absmax     4.64
+    lens@L40 top-5: [(258882, 29.999940872192383), (5122, 29.551774978637695), (15887, 28.93794822692871), (41793, 28.922958374023438), (14561, 28.67376708984375)]
+L41 full_att scalar 0.7852 | x rms     1.082 absmax     23.23 | attn_res rms    0.727 | ffw_res rms     0.88 | gate absmax     4.55
+L42 sliding_ scalar 0.8789 | x rms     1.238 absmax     45.49 | attn_res rms    0.555 | ffw_res rms    0.504 | gate absmax     6.71
+L43 sliding_ scalar 0.8711 | x rms     1.307 absmax     43.03 | attn_res rms    0.401 | ffw_res rms    0.682 | gate absmax     5.24
+L44 sliding_ scalar 0.8477 | x rms     1.273 absmax      50.7 | attn_res rms    0.436 | ffw_res rms     0.75 | gate absmax     4.02
+L45 sliding_ scalar 0.8008 | x rms     1.386 absmax     25.01 | attn_res rms    0.481 | ffw_res rms     1.01 | gate absmax     4.12
+L46 sliding_ scalar 0.7188 | x rms     1.497 absmax     24.12 | attn_res rms    0.808 | ffw_res rms     1.45 | gate absmax     4.66
+    lens@L46 top-5: [(258882, 29.956588745117188), (621, 24.32670783996582), (874, 23.561609268188477), (190683, 23.5451717376709), (609, 23.48323631286621)]
+L47 full_att scalar 0.0496 | x rms    0.1549 absmax      6.94 | attn_res rms     1.15 | ffw_res rms     2.92 | gate absmax     6.04
+FINAL top-5: [('0', 24.57), ('1', 23.13), ('.', 22.75), (' \\', 22.59), (' ...', 21.44)]
+rank of ' Au' (id 16107): 3452
