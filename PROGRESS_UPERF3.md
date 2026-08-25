@@ -292,6 +292,49 @@ experiment for (b)-lite (agent V, launched 2026-08-24) measures the
 loss it achieves and counts the engine/spec surface, so the ruling
 can happen once, with numbers on every option.
 
+## Design round: the general quantization contract (orchestrator, 2026-08-25)
+
+**Authority — Victor, console 2026-08-25 (verbatim), redirecting the
+fix from model-specific to general:** "Let's look for a fix that can
+work in many different contexts (such as this proof requires no more
+than 8 bit quantization models) or something, instead of conjuring a
+fix specific to this precise use case. The more general fix is much
+more easy to maintain going into the future. Be sure to document the
+engineering design choices and limitations." Same day, the model
+question: an open 8B-class model with friendlier NATIVE quantization
+(Gemma 4 named).
+
+DELIVERABLE: docs/zkmatrix-poc/QUANTIZATION_CONTRACT_DESIGN.md — the
+proposed TARGET_CONTRACT §2 v3 as a MODEL-AGNOSTIC contract behind a
+statement-version selector: C1 chain form unchanged; C2 public
+per-channel power-of-two exponent VECTORS (per-tensor = the constant
+degenerate case; the 125M statement unchanged); C3 model identity =
+raw checkpoint + declared function-preserving preprocessing (T1
+per-channel PoT folds, T2 static d-axis orthogonal rotations) +
+calibration record; C4 the mechanical qualification gate (0
+violations + quality budget vs the model's own bf16 reference,
+verdict JSON public); C5 the open frozen-table registry
+(generalizes W-6: silu/gelu/relu^2 members by ruling); C6 declared
+margins. Design choices D1-D6 and limitations L1-L7 documented per
+the authority quote (the sharp ones: static scales only — dynamic
+per-token schemes are out of contract; rotations exist only on the
+d-axis — no rotation seam crosses silu(g)⊙u; C4 detects, it does
+not rescue). Routes R/R+/T/Q/N; agent V's in-flight pricing plugs
+into R+.
+
+MODEL SURVEY (searched 2026-08-25, [EXTERNAL]): **Gemma 4** (Apr 2,
+2026: E2B/E4B/26B-MoE/31B-dense; 12B Unified Jun 3) shipped **QAT
+checkpoints Jun 5, 2026** incl. research-grade
+google/gemma-4-12B-it-qat-q4_0-unquantized and a mobile variant
+QAT-trained with per-channel int2/int4 weights + **int8
+activations** — activation-int8 in the training loop = the prime
+route-N candidate at 8B class. BitNet b1.58 2B4T = the only fully
+native W1.58A8 line, 2B only, per-token dynamic scales (L1) — watch
+item. Qwen3/Llama-3.1/Mistral: same emergence physics, bridge
+customers. Download of the Gemma 4 12B QAT checkpoint attempted
+from this box (HF license gate status to be recorded when it
+resolves; Gemma needs terms acceptance + token — Victor if gated).
+
 ## Agent status sections (lanes append below; do not edit each other's)
 
 ## Agent R status (wt-uperf3-r)
