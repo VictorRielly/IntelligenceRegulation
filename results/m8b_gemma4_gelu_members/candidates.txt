@@ -1,0 +1,17 @@
+gelu-tanh-int8-table-v2 candidates (generation formula + digest convention: frozen silu-v2 family, lookup.rs L191-242; silu pins self-checked on import)
+(eIn,eOut)   out[min,max]       clamp                 digest
+( -5, -5)    [  -5, 127]            0           012ef3c656e5c00faf62024aeedd80cb348705a4aa444033200f3fb7cfbc032d
+( -5, -4)    [  -3,  63]            0           e4c9cbe45a655d5a086b3548801c17fbefccf50259d8025d8ff137f78831203f
+( -4, -5)    [  -5, 127]           64           5231d2a08be4d2ed3c9446dedcc71ae39ef78b51bd65e829d2d8ca0459ea202e
+( -4, -4)    [  -3, 127]            0           d37a631a4cbea89783439bb4882522fb870efd7327a3d216859fd12498fbd65e
+( -4, -3)    [  -1,  64]            0           1c8cb537dd3e529f363860a7faab2fa286fa2bfdeb64b1eb05741b2f3219edbe
+( -3, -4)    [  -3, 127]           64           7967e68617c5368ff1558ce12d64572ef421c9a7d2c17a6a678087d359a3a035
+( -3, -3)    [  -1, 127]            0           cb799cb428499698765619fcdeebb4c0abc3ae7a0d903712311913d94d5ff4df
+( -3, -2)    [  -1,  64]            0           f97a7090aa2657c975628e2dc3cfa9468fcf39aef51950b8cf293b22bfda830a
+( -2, -3)    [  -1, 127]           64           48469869e599fc3d081105589be0f3ca1dcd2af4018c1c6c8d6698d3ef3cc932
+( -2, -2)    [  -1, 127]            0           fea7900e983feee100639224c2ca71d4e79e9b86d5a71d2ed38fb18e342813a9
+( -2, -1)    [   0,  64]            0           641bbbdaf1b67990a81a1e0fcb75d39751c7c5fac7c0ccf2ac8f0a72c205ddd5
+( -1, -2)    [  -1, 127]           64           01cfecc706a0e9e5963c4ae8b87c9c591e53ca4095ad04a60f2f82ed2a5b11a9
+( -1, -1)    [   0, 127]            0           6e5d28a8f2d9a98490ac9aaa56e59465a168fed8140d6fbb90a58b9df2c3f2a4
+tables + digests -> /home/victor/wt-uperf3-y/results/m8b_gemma4_gelu_members
+NOTE: every pair above is a CANDIDATE — the C5 registry is empty for this family; freezing any member is a Victor ruling (manifest-pinned, like W-6).

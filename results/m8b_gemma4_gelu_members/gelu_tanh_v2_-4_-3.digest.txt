@@ -1,0 +1,1 @@
+gelu-tanh-int8-table-v2 (eIn -4, eOut -3) sha256 1c8cb537dd3e529f363860a7faab2fa286fa2bfdeb64b1eb05741b2f3219edbe  out[-1,64] clamp 0

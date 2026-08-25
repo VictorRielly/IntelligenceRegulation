@@ -1,0 +1,57 @@
+m8b_gemma4_walker — gemma-4-12B-qat (6 layers [5 sliding/1 full in use], d 3840, f 15360, heads 16/8 sliding hd 256, global hd 512 kv 1, vocab 262144), TARGET_CONTRACT S2 semantics + gemma4 facts F1-F8
+checkpoint: /home/victor/models/gemma-4-12B-qat (READ-ONLY, streamed per tensor; embedding row-gathered, head chunk-streamed)
+** TRUNCATED to 6 layers — SMOKE RUN, results are not the model's **
+==============================================================================
+SECTION 1 — FFN weight quantization (6 layers x w_gate/w_up/w_down), streamed
+   [semantics: per-tensor symmetric int8, power-of-two scale 2^e, e = ceil(log2(absmax/127))]
+==============================================================================
+layer   tensor      absmax        rms     e     sat@e    sat@e-1     relRMS
+0       w_gate     0.16699    0.01554    -9         0       8862    0.03261
+0       w_up       0.16504    0.01557    -9         0      11413    0.03340
+0       w_down     0.08691    0.00810   -10         0      35478    0.03179
+1       w_gate     0.16602    0.01525    -9         0      15341    0.03319
+1       w_up       0.16211    0.01527    -9         0       4913    0.03369
+1       w_down     0.08301    0.00777   -10         0       9066    0.03348
+2       w_gate     0.15820    0.01506    -9         0       1610    0.03467
+2       w_up       0.15723    0.01506    -9         0       1597    0.03449
+2       w_down     0.08594    0.00824   -10         0       2211    0.03194
+3       w_gate     0.17090    0.01617    -9         0       1450    0.03256
+3       w_up       0.16895    0.01616    -9         0       2047    0.03241
+3       w_down     0.08545    0.00818   -10         0       2985    0.03225
+4       w_gate     0.15723    0.01570    -9         0        327    0.03364
+4       w_up       0.15723    0.01570    -9         0        342    0.03355
+4       w_down     0.08691    0.00812   -10         0       2613    0.03260
+5       w_gate     0.16309    0.01622    -9         0        146    0.03264
+5       w_up       0.16309    0.01623    -9         0        125    0.03261
+5       w_down     0.08203    0.00771   -10         0       2318    0.03425
+-> 18 tensors quantized; exponent range [-10, -9] (PER-TENSOR eW — unlike m125's uniform -9); worst per-tensor relative RMS error 0.0347
+
+==============================================================================
+SECTION 2 — honest accumulator widths (contract convention re-derivation)
+==============================================================================
+convention check — the contract's OWN rows reproduce under symmetric [-127,127]:
+  inner   4096: max|acc| =    66064384 (2^25.98) -> 27-bit signed (contract row 27) OK
+  inner  11008: max|acc| =   177548032 (2^27.40) -> 29-bit signed (contract row 29) OK
+this model's rows (d = 3840, f = 15360):
+  inner   3840: max|acc| =    61935360 (2^25.88) -> 27-bit signed  [gate/up matmuls (inner d)]
+  inner  15360: max|acc| =   247741440 (2^27.88) -> 29-bit signed  [down matmul (inner f)]
+  (these are the statement's Gacc/Uacc/Dacc class widths — memo Section 2 W-4: the rig's 25/26-bit constants must become these)
+token stream: /home/victor/models/fineweb-edu/sample_text.txt tokenized with tokenizers -> 4243819 tokens
+
+==============================================================================
+SECTION 3 — activation calibration (batch: 2 seq x 512 tokens, seeded)
+==============================================================================
+layer        eX    eGate      eUp       eA       eH       eZ   absmax(X/gate/z)
+0             1       -1        1       -1        5        2   165.873 / 58.848 / 317.748
+1             0       -1        0       -1        4        1   82.444 / 44.865 / 139.952
+2            -2       -3       -2       -3        1       -3   17.795 / 14.978 / 12.215
+3            -2       -3       -2       -3        2       -1   18.175 / 15.097 / 43.684
+4            -3       -3       -3       -3        0       -1   12.548 / 12.851 / 39.517
+5            -2       -3       -2       -3        0       -2   18.110 / 10.236 / 16.560
+
+  gelu-tanh-int8-table-v2 member (eGate -1, eA -1): digest 6e5d28a8f2d9a984… ** NOT IN ANY FROZEN FAMILY — C5 registry ruling needed before the rig accepts this statement **
+  gelu-tanh-int8-table-v2 member (eGate -3, eA -3): digest cb799cb428499698… ** NOT IN ANY FROZEN FAMILY — C5 registry ruling needed before the rig accepts this statement **
+
+** --smoke: stopping before the held-out int8 chain **
+JSON -> /home/victor/wt-uperf3-y/results/m8b_gemma4_smoke6.json
+peak RSS 2.41 GB

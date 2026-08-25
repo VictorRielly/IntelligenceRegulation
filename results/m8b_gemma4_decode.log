@@ -1,0 +1,6 @@
+m8b_gemma4_walker — gemma-4-12B-qat (48 layers [40 sliding/8 full in use], d 3840, f 15360, heads 16/8 sliding hd 256, global hd 512 kv 1, vocab 262144), TARGET_CONTRACT S2 semantics + gemma4 facts F1-F8
+checkpoint: /home/victor/models/gemma-4-12B-qat (READ-ONLY, streamed per tensor; embedding row-gathered, head chunk-streamed)
+greedy decode (functional self-check of the forward):
+  prompt: 'The chemical symbol for gold is'  (BOS 2 prepended, 7 tokens)
+  completion: 'The chemical symbol for gold is00000000'
+peak RSS 1.63 GB
