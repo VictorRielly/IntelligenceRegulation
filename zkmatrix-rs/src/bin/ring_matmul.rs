@@ -6434,6 +6434,8 @@ fn main() {
         Some("uperf-q") => uperf_q_main(&args[1..]),
         // [UPERF3-S] U-PERF3 lane S (spike S1/S2: range facts as base-field zero-checks vs the masked descent; SiLU LogUp as one sumcheck) bench + battery.
         Some("uperf-s") => uperf_s_main(&args[1..]),
+        // [UPERF3-W] U-PERF3 lane W (shape generalization: BfModel parser, acc_bits, Option-planner) battery.
+        Some("uperf-w") => uperf_w_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -42662,6 +42664,166 @@ fn uperf_s_set_threads(t: usize) {
     // assert proves no pool/LazyLock read ZK_THREADS before this point.
     unsafe { std::env::set_var("ZK_THREADS", t.to_string()) };
     assert_eq!(ring::eval_proof::threads(), t, "ZK_THREADS was read before uperf-s set it");
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF3-W] Lane W battery (M1+M2 of the MVP plan): the W-5 BfModel
+// sidecar parser (incl. malformed-sidecar rejection), the W-4 acc-bit
+// derivation (125M must reproduce the pre-W-4 25/26 constants; the 8B
+// dims give the contract's honest 27/29 rows), and the W-2 Option
+// planner at the 8B group counts (counts only — no witness data).
+// Run WITHOUT ZK_MODEL_EXPORT_DIR: the legs pin the M125 defaults.
+
+fn uperf_w_battery() {
+    use ring::eval_proof::{plan_level, plan_schedule};
+    println!("[UPERF3-W] uperf-w battery: W-5 parser / W-4 acc classes / W-2 planner");
+    let t0 = Instant::now();
+    let mut legs = 0usize;
+    let mut fails = 0usize;
+    let mut row = |label: &str, good: bool| {
+        println!("  {} {label}", if good { "ok  " } else { "FAIL" });
+        legs += 1;
+        if !good {
+            fails += 1;
+        }
+    };
+
+    row(
+        "precondition: ZK_MODEL_EXPORT_DIR unset (the legs pin the M125 defaults)",
+        std::env::var("ZK_MODEL_EXPORT_DIR").is_err(),
+    );
+
+    // -- W-4: the accumulator class bits from the inner dim. ---------------
+    row("W-4 acc_bits(768) == 25 (the 125M Gacc/Uacc constant)", bf_acc_bits(768) == 25);
+    row("W-4 acc_bits(2048) == 26 (the 125M Dacc constant)", bf_acc_bits(2048) == 26);
+    row("W-4 acc_bits(4096) == 27 (8B d — the contract's honest row)", bf_acc_bits(4096) == 27);
+    row("W-4 acc_bits(14336) == 29 (8B f — the contract's honest row)", bf_acc_bits(14336) == 29);
+    {
+        let lay = bg_dummy_layer(0);
+        let (qm_g, _) = bf_entry_typing(4, &lay); // Gacc
+        let (qm_u, _) = bf_entry_typing(8, &lay); // Uacc
+        let (qm_d, _) = bf_entry_typing(14, &lay); // Dacc
+        row(
+            "W-4 default-model typing: Gacc/Uacc 25 bits, Dacc 26 (pre-W-4 constants reproduced)",
+            qm_g.bits == 25 && qm_u.bits == 25 && qm_d.bits == 26,
+        );
+        let (_, l0_g) = bg_entry_class(4, &lay);
+        let (_, l0_d) = bg_entry_class(14, &lay);
+        row(
+            "W-4 default-model classes: l0(Gacc) == 13, l0(Dacc) == 14 (the consumer rows)",
+            l0_g == 13 && l0_d == 14,
+        );
+    }
+
+    // -- W-2: the Option planner at the 8B group counts (counts only). ----
+    // 44M digit rings ~ the weight group of >= 4 layers of the 8B model
+    // (e0 = 1), 352M ~ all 32 layers; 36M/73M ~ act-group-class counts
+    // (e0 = 2). Pre-W-2 the r = 2 candidate's assert killed the whole
+    // search above ~37.7M rings; now it declines and the search picks a
+    // feasible r.
+    let q = ring_ctx_q8().zq.q;
+    for &(n0, e0, expect_r2_none) in
+        [(44_000_000usize, 1u32, true), (352_000_000, 1, true), (36_000_000, 2, false), (73_000_000, 2, true)]
+            .iter()
+    {
+        let r2 = plan_level(n0, e0, 2, q);
+        let sched = plan_schedule(n0, e0, q, None);
+        let r0 = sched.levels.first().map(|l| l.r).unwrap_or(0);
+        println!(
+            "    n0 {n0} e0 {e0}: r = 2 {} | schedule {} levels, level-0 r {r0}, floor {} rings e{}",
+            if r2.is_none() { "DECLINES (None)" } else { "feasible" },
+            sched.levels.len(),
+            sched.floor_rings,
+            sched.floor_e
+        );
+        row(
+            &format!("W-2 plan_level(n0 = {n0}, e0 = {e0}, r = 2) {} (pinned)",
+                if expect_r2_none { "declines" } else { "is feasible" }),
+            r2.is_none() == expect_r2_none,
+        );
+        row(
+            &format!("W-2 plan_schedule completes at n0 = {n0}, e0 = {e0} (levels >= 1, floor < n0)"),
+            !sched.levels.is_empty() && sched.floor_rings < n0,
+        );
+    }
+
+    // -- W-5: the BfModel sidecar parser. ----------------------------------
+    let good = "00 model synth-2l\n\
+                00 dims 16 256 512 2\n\
+                00 exps -3 -3 -3 -3 0 1 -8 -8 -8\n\
+                01 exps -2 -4 -4 -3 0 -1 -8 -8 -8\n\
+                00 X 0123abc\n\
+                00 shifts 8 8 6 9\n";
+    match bf_model_parse_text(good) {
+        Ok(m) => {
+            row(
+                "W-5 parser: well-formed synthetic sidecar -> tag/dims/e_w/exps",
+                m.tag == "synth-2l"
+                    && (m.t, m.d, m.f, m.layers) == (16, 256, 512, 2)
+                    && m.e_w == -8
+                    && m.exps == vec![(-3, -3, -3, -3, 0, 1), (-2, -4, -4, -3, 0, -1)],
+            );
+        }
+        Err(e) => row(&format!("W-5 parser: well-formed synthetic sidecar REJECTED ({e})"), false),
+    }
+    let bad: [(&str, &str); 6] = [
+        ("missing dims row", "00 model x\n00 exps -3 -3 -3 -3 0 1 -9 -9 -9\n"),
+        ("missing model row", "00 dims 16 256 512 1\n00 exps -3 -3 -3 -3 0 1 -9 -9 -9\n"),
+        ("exps row with 8 fields", "00 model x\n00 dims 16 256 512 1\n00 exps -3 -3 -3 -3 0 1 -9 -9\n"),
+        (
+            "per-tensor weight exponents",
+            "00 model x\n00 dims 16 256 512 1\n00 exps -3 -3 -3 -3 0 1 -9 -8 -9\n",
+        ),
+        (
+            "missing layer-1 exps row",
+            "00 model x\n00 dims 16 256 512 2\n00 exps -3 -3 -3 -3 0 1 -9 -9 -9\n",
+        ),
+        (
+            "non-numeric layer field",
+            "xx model x\n00 dims 16 256 512 1\n00 exps -3 -3 -3 -3 0 1 -9 -9 -9\n",
+        ),
+    ];
+    for (what, text) in bad {
+        row(
+            &format!("W-5 parser: {what} REJECTED"),
+            bf_model_parse_text(text).is_err(),
+        );
+    }
+    // The committed m8b-format 125M re-export sidecar (lane R's fixture)
+    // must parse to exactly the M125 const model.
+    {
+        let p = std::path::PathBuf::from("results/m8b_test/m125_reexport/digests.txt");
+        let p = if p.exists() {
+            p
+        } else {
+            std::path::PathBuf::from("..").join("results/m8b_test/m125_reexport/digests.txt")
+        };
+        match std::fs::read_to_string(&p).map_err(|e| e.to_string()).and_then(|t| bf_model_parse_text(&t)) {
+            Ok(m) => row(
+                "W-5 parser: committed m125_reexport sidecar == the M125 const model (tag frugal-125m, 512/768/2048/12, e_w -9, 12 exps rows)",
+                m.tag == "frugal-125m"
+                    && (m.t, m.d, m.f, m.layers) == (BF_T, BF_D, BF_F, 12)
+                    && m.e_w == -9
+                    && m.exps == M125_EXP.to_vec(),
+            ),
+            Err(e) => row(&format!("W-5 parser: committed m125_reexport sidecar unreadable/rejected ({e})"), false),
+        }
+    }
+
+    println!(
+        "[UPERF3-W] battery: {legs} legs, {fails} FAIL in {:.2}s",
+        t0.elapsed().as_secs_f64()
+    );
+    if fails > 0 {
+        std::process::exit(1);
+    }
+}
+
+fn uperf_w_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("battery") => uperf_w_battery(),
+        _ => println!("uperf-w battery"),
+    }
 }
 
 fn uperf_s_main(args: &[String]) {
