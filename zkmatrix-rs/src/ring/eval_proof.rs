@@ -222,6 +222,20 @@ impl EvalSchedule {
 /// sqrt(n*D) <= gamma_max(exact-digit) — row H-gate-ed — capped at
 /// e <= 7 — row EB4-emax. Panics (derive-time) if even e = 1 fails.
 pub fn adaptive_base(n_rings: usize, q: u64) -> u32 {
+    adaptive_base_opt(n_rings, q).unwrap_or_else(|| {
+        let gamma_e = OP_CONC * ((n_rings * D) as f64).sqrt();
+        panic!(
+            "level fold norm {gamma_e:.3e} exceeds the exact-digit gate (row H-gate-ed) even at e0 = 1"
+        )
+    })
+}
+
+/// [UPERF3-W W-2] `adaptive_base` that DECLINES (None) instead of
+/// panicking when even e = 1 fails the exact-digit gate — the planner's
+/// r-search skips such candidates (an r = 2 split of a large group can
+/// be infeasible while r = 56..64 is fine). Identical to
+/// `adaptive_base` on every feasible input.
+pub fn adaptive_base_opt(n_rings: usize, q: u64) -> Option<u32> {
     let gmax = gamma_max_exact(q);
     let mut e = 1u32;
     while e < FLOOR_E_MAX {
@@ -232,11 +246,7 @@ pub fn adaptive_base(n_rings: usize, q: u64) -> u32 {
         e += 1;
     }
     let gamma_e = OP_CONC * 2f64.powi(e as i32 - 1) * ((n_rings * D) as f64).sqrt();
-    assert!(
-        gamma_e <= gmax,
-        "level fold norm {gamma_e:.3e} exceeds the exact-digit gate (row H-gate-ed) even at e0 = 1"
-    );
-    e
+    if gamma_e <= gmax { Some(e) } else { None }
 }
 
 /// Balanced-digit limb count covering the symmetric interval [-b, b]
@@ -268,7 +278,16 @@ fn fold_coeff_bound(r: usize, e_in: u32) -> i128 {
 /// One level's plan at split r. Interior digit bases are >= 2 (the
 /// balanced decomposition; e = 1 is the sign-binary CLASS base of
 /// level-0 inputs only) and <= 7 (row EB4-emax via adaptive_base).
-fn plan_level(n_in: usize, e_in: u32, r: usize, q: u64) -> LevelPlan {
+///
+/// [UPERF3-W W-2] Returns None (DECLINES) where it used to assert:
+/// when the candidate's next witness exceeds the exact-digit gate even
+/// at e = 1 (adaptive_base_opt None), or when only the sign-binary
+/// base survives (e_ok < 2 — no balanced interior base). The r-search
+/// in `plan_schedule` skips those candidates; wherever every candidate
+/// is feasible the returned plans — and so the schedules — are
+/// IDENTICAL to the pre-W-2 planner (freeze rows UAGB1-BG-1a/1b pin
+/// the 125M schedules both directions).
+pub fn plan_level(n_in: usize, e_in: u32, r: usize, q: u64) -> Option<LevelPlan> {
     let chunk = n_in.div_ceil(r);
     // The next base is chosen against the NEXT witness size, which
     // depends on the limb counts, which depend on the base — resolve by
@@ -280,15 +299,17 @@ fn plan_level(n_in: usize, e_in: u32, r: usize, q: u64) -> LevelPlan {
         let l_h = l_t;
         let n_pairs = r * (r + 1) / 2;
         let n_out = chunk * l_z + r * KAPPA_AGG * l_t + n_pairs * l_h;
-        let e_ok = adaptive_base(n_out, q);
-        assert!(e_ok >= 2, "interior witness too large for a balanced base");
+        let e_ok = adaptive_base_opt(n_out, q)?;
+        if e_ok < 2 {
+            return None; // was: assert!(e_ok >= 2, "interior witness too large for a balanced base")
+        }
         if e_ok <= e_next {
             let e_final = e_next.min(e_ok);
             let l_z = limbs_for_bound(fold_coeff_bound(r, e_in), e_final);
             let l_t = limbs_for_bound((q as i128 - 1) / 2, e_final);
             let l_h = l_t;
             let n_out = chunk * l_z + r * KAPPA_AGG * l_t + n_pairs * l_h;
-            return LevelPlan { n_in, e_in, r, chunk, e_next: e_final, l_z, l_t, l_h, n_pairs, n_out };
+            return Some(LevelPlan { n_in, e_in, r, chunk, e_next: e_final, l_z, l_t, l_h, n_pairs, n_out });
         }
         e_next = e_ok;
     }
@@ -318,15 +339,25 @@ pub fn plan_schedule(n0: usize, e0: u32, q: u64, force_levels: Option<usize>) ->
                 return EvalSchedule { levels, floor_rings: n, floor_e: e, gamma_headrooms: headrooms };
             }
         }
-        // Best split.
+        // Best split. [UPERF3-W W-2] infeasible candidates (None) are
+        // SKIPPED, not panicked on — the first-feasible-smallest rule
+        // over the surviving candidates is unchanged, so any schedule
+        // whose candidates were all feasible is byte-identical.
         let mut best: Option<LevelPlan> = None;
         for r in 2..=n.min(64) {
-            let lp = plan_level(n, e, r, q);
-            if best.as_ref().is_none_or(|b| lp.n_out < b.n_out) {
-                best = Some(lp);
+            if let Some(lp) = plan_level(n, e, r, q) {
+                if best.as_ref().is_none_or(|b| lp.n_out < b.n_out) {
+                    best = Some(lp);
+                }
             }
         }
-        let best = best.expect("some split exists");
+        let best = best.unwrap_or_else(|| {
+            panic!(
+                "no feasible split: every r in 2..={} declines at n = {n} digit rings, e = {e} \
+                 (witness exceeds the exact-digit gate at every candidate)",
+                n.min(64)
+            )
+        });
         if force_levels.is_none() {
             // Stop rule: bytes(stop now) vs level wire + bytes(stop next).
             let bytes_now = n * D; // 1 B/coordinate at e <= 7
