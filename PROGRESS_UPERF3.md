@@ -597,3 +597,19 @@ per-COLUMN w_down scales (floor_requant already takes per-column
 shifts; absorbs the whole t-fold, deletes the migration damage) plus
 wider a/h/z at the ~6 outlier layers; option (c) stays non-viable
 (+7.9..+9.1 everywhere). Details: U_PERF3_M8B_SMOOTH_REPORT.md.
+
+## Agent Y status (wt-uperf3-y)
+
+STATE: OPEN (2026-08-25) — skeleton committed. Lane: the Gemma 4
+reference walker + gate prep (Round 2 Lane Y block above). Plan:
+(1) modeling-source facts block (HF gemma4_unified, URL + line refs)
+at the top of scripts/m8b_gemma4_walker.py; (2) the walker itself —
+drop-in m8b_int8_calibration.Walker interface (four norms,
+layer_scalar, QK-norm, hybrid sliding/global attention incl. k_eq_v
++ head-dim-512 global layers, GeGLU, softcap, tied head), streaming,
+RSS < 4 GB; (3) --max-layers 2-4 smokes + the decode/factual gate
+ONCE (>= 3/5 facts top-2); (4) scripts/m8b_gemma4_gelu_member.py —
+gelu_pytorch_tanh table members in the frozen silu-v2 formula style,
+digests only (C5 candidates, no manifest/lookup.rs edit); (5) the
+one-command full C4 gate line, ready for the orchestrator to run
+after agent V frees the box. NEW files only; smokes only this round.
