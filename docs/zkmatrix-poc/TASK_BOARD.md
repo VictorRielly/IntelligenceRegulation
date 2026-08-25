@@ -27,12 +27,20 @@ ledger's newest Agent-status sections over this block.
   quantization contract draft (QUANTIZATION_CONTRACT_DESIGN.md,
   awaiting Victor's ruling); Gemma 4 12B QAT scoped (favorable dims,
   no license gate).
-- IN FLIGHT on the WSL box (Claude lanes; branches uperf3-w/y +
-  work in the main checkout by agent V): V = per-column pricing
-  experiment (python, main checkout), W = the rig accepts arbitrary
-  model shapes (Rust, wt-uperf3-w), Y = Gemma 4 reference walker
-  (python, wt-uperf3-y). Their branches are pushed to origin as
-  they progress; PARTIAL branches are NORMAL.
+- IN FLIGHT on the WSL box (Claude lanes; branch uperf3-y + work in
+  the main checkout by agent V): V = per-column pricing experiment
+  (python, main checkout), Y = Gemma 4 reference walker (python,
+  wt-uperf3-y). Branches are pushed to origin as they progress;
+  PARTIAL branches are NORMAL.
+- LANE W LANDED AND MERGED (2026-08-25, gates re-run green on the
+  merged tree): the rig accepts arbitrary model shapes — `BfModel`
+  loaded from `ZK_MODEL_EXPORT_DIR`'s digests.txt (default = the
+  M125 consts, freeze rows byte-identical), accumulator classes
+  derived from the dims, the planner declines infeasible candidates
+  instead of panicking (the 8B group counts now plan). FIRST PROOFS
+  through the generalized loader: 1x16 + 3x16 accept,
+  digest-identical to the m125 path. `uperf-w battery` (23 legs) is
+  a standing gate now.
 - LANE X LANDED AND MERGED (2026-08-25): the attention statement
   design memo (docs/zkmatrix-poc/U_PERF3_ATTENTION_STATEMENT_
   DESIGN.md, 859 lines) — MVP-2 full-layer multiples ~x2.0 over
