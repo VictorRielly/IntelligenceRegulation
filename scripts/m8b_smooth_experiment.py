@@ -81,6 +81,51 @@ Typical (WSL box):
 Smoke first (results are NOT the model's):
   python3 scripts/m8b_smooth_experiment.py --phase all --max-layers 4 \
       --stats-npz /tmp/smoke_stats.npz --out-json /tmp/smoke.json
+
+--------------------------------------------------------------------------
+AGENT V EXTENSION (2026-08-24, --phase blite) — the (b)-lite pricing
+experiment: per-column POWER-OF-TWO requant scales at the u/h/z sites
+(+ optionally per-column w_down weight scales) and widened SiLU classes
+at named layers, ON TOP of the same machinery. Everything stays exact
+integers (float64-carried, all values << 2^53); the per-tensor path with
+every extension off reduces BIT-EXACTLY to the m8b module's own chain
+(--equiv-check asserts it in-process against m8b.run_variant).
+
+Semantics added (each a statement/engine surface the report counts):
+  ucols   per-column eUp_k (f-vector): the up requant shift becomes the
+          public per-column vector sh_u_k = eUp_k - eX - eWu (requant
+          AFTER the accumulator, per OUTPUT column — no alignment cost).
+  hcols   per-column eH_k: sh_h_k = eH_k - eA - eUp_k (the Hadamard is
+          elementwise — no alignment cost at this site either).
+  zcols   per-column eZ_j (d-vector): sh_z_j = eZ_j - P_base, requant of
+          the down accumulator per OUTPUT column.
+  wdcols  per-column w_down scales ecol_k. THE ONE ALIGNMENT SITE: down
+          products sit at per-column scales eH_k + ecol_k, so the sum
+          needs public align exponents a_k = (eH_k + ecol_k) - P_base,
+          P_base = min_k; the sim carries Wd8 * 2^a_k exactly and reports
+          the honest accumulator bound 127 * 127 * sum_k 2^a_k (the
+          engine's tier accounting) per layer.
+  a16=L / g16=L   widened SiLU classes at the listed layers (or 'all'):
+          a16 = int16 table OUTPUT (Qa 32767, eA16 = ceil(log2(a/32767)))
+          -- the Hadamard product class widens to <= 32767*127 (2^22);
+          g16 = int16 table DOMAIN (gate range fact at Qg 32767) — a
+          65536-row table in the engine. Both use the v2 rounding formula
+          (round_half_up) with the wider clamp — a NEW family, recorded
+          as (eG, eA, in_bits, out_bits) in the inventory.
+
+Per-tensor calibration rows are NOT re-walked: with t = 0 (asserted) and
+the s-fold exactly invariant on gate/up/a/h/z, every exponent derives
+EXACTLY from the baseline record + the cached per-channel stats (+ a
+stream over the folded wg/wu); the smoke validates the derivation
+against a real m8b.calibrate walk on the folded store, and the full run
+cross-checks derived == baseline on every fold-invariant row.
+
+Typical:
+  python3 scripts/m8b_smooth_experiment.py --phase blite --t-cap 0 \
+      --s-cap 3 --stats-npz <cal stats npz> \
+      --bl-variant "name=percol,ucols,hcols,zcols,wdcols" \
+      --bl-variant "name=wide,ucols,hcols,zcols,wdcols,a16=all,g16=0;1;2;31" \
+      --bl-out results/m8b_blite_experiment_wsl.json
 """
 
 import argparse
@@ -543,6 +588,520 @@ def run_phase(stats, store, arch, walker_plain, cal, val, args, base):
 
 
 # --------------------------------------------------------------------------
+# AGENT V — the (b)-lite machinery (per-column scales + widened SiLU)
+# --------------------------------------------------------------------------
+
+Q8 = 127
+Q16 = 32767
+
+
+def pow2_exp_q(absmax, q):
+    """Smallest e with absmax <= q * 2^e (the m125 convention at width q)."""
+    if absmax == 0:
+        return -30
+    return int(math.ceil(math.log2(absmax / q)))
+
+
+def parse_bl_spec(spec):
+    """'name=P1,ucols,hcols,zcols,wdcols,a16=all,g16=0;1;31,mx=2,mg=1,...'
+    -> option dict. Layer lists use ';' separators inside one token."""
+    opt = dict(name="v", ucols=False, hcols=False, zcols=False,
+               wdcols=False, a16=None, g16=None,
+               mx=2, mg=1, mu=1, mh=1, mz=1)
+    for tok in spec.split(","):
+        tok = tok.strip()
+        if not tok:
+            continue
+        if "=" in tok:
+            k, v = tok.split("=", 1)
+            if k == "name":
+                opt["name"] = v
+            elif k in ("a16", "g16"):
+                opt[k] = "all" if v == "all" else \
+                    sorted(int(x) for x in v.split(";") if x != "")
+            elif k in ("mx", "mg", "mu", "mh", "mz"):
+                opt[k] = int(v)
+            else:
+                raise SystemExit("unknown bl-variant key %r" % k)
+        elif tok in ("ucols", "hcols", "zcols", "wdcols"):
+            opt[tok] = True
+        else:
+            raise SystemExit("unknown bl-variant token %r" % tok)
+    return opt
+
+
+def wide_layers(sel, n_layers):
+    if sel is None:
+        return set()
+    if sel == "all":
+        return set(range(n_layers))
+    return set(l for l in sel if l < n_layers)
+
+
+def silu_wide(yg, eg, ea, qa):
+    """The v2 family rounding formula (round_half_up) at wider clamp:
+    a = clamp(floor(silu(yg * 2^eg) / 2^ea + 0.5), -qa, qa). A NEW
+    family (int16 domain and/or range), recorded in the inventory."""
+    x = yg.astype(np.float64) * (2.0 ** eg)
+    y = x / (1.0 + np.exp(-x))
+    return np.clip(np.floor(y / (2.0 ** ea) + 0.5), -qa, qa)
+
+
+def narrow_q(y, q):
+    """m125.narrow_int8 generalized to width q (identical at q = 127)."""
+    viol = int(np.count_nonzero(np.abs(y) > q))
+    return np.clip(y, -q, q), viol
+
+
+def derive_scales_blite(stats, base, s_exp, t_exp, folded, walker, arch):
+    """Per-tensor scale rows (m8b.calibrate's keys), derived EXACTLY —
+    t must be 0 (asserted); the s-fold is exactly invariant on
+    gate/up/a/h/z (measured bit-identity, agent U), so those rows come
+    from the baseline record; eX from the cached per-channel stats
+    (exact pow2 division); eWg/eWu by streaming the folded tensors when
+    s != 0. Cross-check: every fold-invariant exponent must equal the
+    baseline record's (asserted)."""
+    rows = []
+    s_on = any(int(s_exp[l].max()) > 0 for l in s_exp)
+    for l in range(arch.n_layers):
+        b = base["calibration"][l]
+        assert int(t_exp[l].max()) == 0, "blite requires --t-cap 0"
+        ax = stats.chan(l, "x") / np.exp2(s_exp[l].astype(np.float64))
+        eX = m125.pow2_exp_for(float(ax.max()))
+        if not int(s_exp[l].max()):
+            assert eX == b["eX"], \
+                "layer %d: derived eX %d != baseline %d (stats npz is " \
+                "not the baseline cal windows?)" % (l, eX, b["eX"])
+        # fold-invariant cross-checks (npz absmax vs baseline stats)
+        for key, ek in (("up", "eUp"), ("h", "eH")):
+            der = m125.pow2_exp_for(float(stats.chan(l, key).max()))
+            assert der == b[ek], \
+                "layer %d: npz-derived %s %d != baseline %d" % (
+                    l, ek, der, b[ek])
+        if s_on and int(s_exp[l].max()):
+            eWg = m125.pow2_exp_for(
+                float(np.abs(folded.get(walker._n("w_gate", l))).max()))
+            eWu = m125.pow2_exp_for(
+                float(np.abs(folded.get(walker._n("w_up", l))).max()))
+        else:
+            eWg, eWu = b["eWg"], b["eWu"]
+        rows.append(dict(layer=l, stats=b["stats"], eX=eX,
+                         eGate=b["eGate"], eUp=b["eUp"], eA=b["eA"],
+                         eH=b["eH"], eZ=b["eZ"], eWg=eWg, eWu=eWu,
+                         eWd=b["eWd"]))
+    return rows
+
+
+def blite_percol(stats, rows, arch, opt, s_exp):
+    """Per-layer per-column scale plan + engine accounting. Returns
+    (pc list, accounting list). All vectors int64; every shift >= 0 by
+    the same floors the module's apply_margins enforces (recorded as
+    fixups)."""
+    a16 = wide_layers(opt["a16"], arch.n_layers)
+    g16 = wide_layers(opt["g16"], arch.n_layers)
+    pc, acct = [], []
+    for l in range(arch.n_layers):
+        r = rows[l]
+        st = r["stats"]
+        fix = {}
+        eX = r["eX"] + opt["mx"]
+        eWg, eWu, eWd = r["eWg"], r["eWu"], r["eWd"]
+        # gate (per-tensor always; wide domain at g16 layers)
+        Qg = Q16 if l in g16 else Q8
+        eG = pow2_exp_q(st["gate"]["absmax"], Qg) + opt["mg"]
+        if eG < eX + eWg:
+            fix["eGate"] = dict(frm=eG, to=eX + eWg)
+            eG = eX + eWg
+        # a (table output; no margin — the table clamp IS the range fact)
+        Qa = Q16 if (l in a16 or l in g16) else Q8
+        eA = pow2_exp_q(st["a"]["absmax"], Qa)
+        # u
+        au = stats.chan(l, "up")
+        if opt["ucols"]:
+            eU = np.array([m125.pow2_exp_for(v) for v in au],
+                          dtype=np.int64) + opt["mu"]
+        else:
+            eU = np.full(arch.f, r["eUp"] + opt["mu"], dtype=np.int64)
+        n_fix_u = int((eU < eX + eWu).sum())
+        if n_fix_u:
+            fix["eUp_cols"] = n_fix_u
+        eU = np.maximum(eU, eX + eWu)
+        # h
+        ah = stats.chan(l, "h")
+        if opt["hcols"]:
+            eH = np.array([m125.pow2_exp_for(v) for v in ah],
+                          dtype=np.int64) + opt["mh"]
+        else:
+            eH = np.full(arch.f, r["eH"] + opt["mh"], dtype=np.int64)
+        n_fix_h = int((eH < eA + eU).sum())
+        if n_fix_h:
+            fix["eH_cols"] = n_fix_h
+        eH = np.maximum(eH, eA + eU)
+        # w_down columns
+        awd = stats.chan(l, "wd_col")
+        if opt["wdcols"]:
+            ecol = np.array([m125.pow2_exp_for(v) for v in awd],
+                            dtype=np.int64)
+        else:
+            ecol = np.full(arch.f, eWd, dtype=np.int64)
+        p = eH + ecol
+        p_base = int(p.min())
+        align = p - p_base
+        # z
+        az = stats.chan(l, "z")
+        if opt["zcols"]:
+            eZ = np.array([m125.pow2_exp_for(v) for v in az],
+                          dtype=np.int64) + opt["mz"]
+        else:
+            eZ = np.full(arch.d, r["eZ"] + opt["mz"], dtype=np.int64)
+        n_fix_z = int((eZ < p_base).sum())
+        if n_fix_z:
+            fix["eZ_cols"] = n_fix_z
+        eZ = np.maximum(eZ, p_base)
+        sh_g = eG - eX - eWg
+        sh_u = eU - eX - eWu
+        sh_h = eH - eA - eU
+        sh_z = eZ - p_base
+        # engine accounting: honest worst-case down-acc bound with the
+        # aligned columns; alignment tier count at 8-bit windows
+        sum2a = float(np.exp2(align.astype(np.float64)).sum())
+        bound_down = Q8 * Q8 * sum2a
+        acc_bits_down = int(math.floor(math.log2(bound_down))) + 2
+        acct.append(dict(
+            layer=l, sh_g=int(sh_g),
+            sh_u_max=int(sh_u.max()), sh_h_max=int(sh_h.max()),
+            sh_z_max=int(sh_z.max()), align_max=int(align.max()),
+            sum_2a=sum2a, acc_bits_down=acc_bits_down,
+            tiers_at_8=int(math.ceil(max(int(align.max()), 1) / 8.0)),
+            n_align_gt0=int((align > 0).sum()),
+            fixups=fix))
+        pc.append(dict(
+            layer=l, g16=(l in g16), a16=(Qa == Q16), Qg=Qg, Qa=Qa,
+            eX=eX, eWg=eWg, eWu=eWu, eG=eG, eA=eA,
+            eU=eU, eH=eH, ecol=ecol, align=align, p_base=p_base,
+            eZ=eZ, sh_g=sh_g, sh_u=sh_u, sh_h=sh_h, sh_z=sh_z,
+            m_gu=arch.d * Q8 * Q8, bound_down=bound_down))
+    return pc, acct
+
+
+def make_blite_ffn(pc, members, acc_track, viol_track, err_track):
+    """The b-lite chain: exact integers in float64 BLAS (worst value
+    2^46 << 2^53 — asserted on the first call), floor requant with
+    vector shifts (m125.floor_requant's own vector path)."""
+    checked = [False]
+
+    def ffn(li, x, lw):
+        c = pc[li]
+        B, T, C = x.shape
+        f = lw["w_up"].shape[0]
+        Wg, _ = m125.quantize(lw["w_gate"].astype(np.float64), c["eWg"])
+        Wu, _ = m125.quantize(lw["w_up"].astype(np.float64), c["eWu"])
+        stepc = np.exp2(c["ecol"].astype(np.float64))
+        Wd = np.round(lw["w_down"].astype(np.float64) / stepc[None, :])
+        Wd = np.clip(Wd, -Q8, Q8)
+        Wd *= np.exp2(c["align"].astype(np.float64))[None, :]  # aligned
+        tab = None
+        if not (c["a16"] or c["g16"]):
+            tab = members[(c["eG"], c["eA"])][0].astype(np.float64)
+        z_out = np.empty((B, T, C), dtype=np.float32)
+        for b in range(B):
+            xf = x[b].astype(np.float64)
+            xq, xclip = m125.quantize(xf, c["eX"])
+            viol_track[li]["X_clip"] += xclip
+            acc_g = xq @ Wg.T
+            acc_u = xq @ Wu.T
+            acc_track[li]["gateup"] = max(acc_track[li]["gateup"],
+                                          float(np.abs(acc_g).max()),
+                                          float(np.abs(acc_u).max()))
+            yg, vg = narrow_q(m125.floor_requant(acc_g, c["sh_g"]),
+                              c["Qg"])
+            yu, vu = narrow_q(
+                m125.floor_requant(acc_u, c["sh_u"][None, :]), Q8)
+            viol_track[li]["gate_range"] += vg
+            viol_track[li]["up_range"] += vu
+            if tab is not None:
+                aq = tab[(yg.astype(np.int64) + 128)]
+            else:
+                aq = silu_wide(yg, c["eG"], c["eA"], c["Qa"])
+            hq = aq * yu
+            acc_track[li]["had"] = max(acc_track[li]["had"],
+                                       float(np.abs(hq).max()))
+            yh, vh = narrow_q(
+                m125.floor_requant(hq, c["sh_h"][None, :]), Q8)
+            viol_track[li]["h_range"] += vh
+            acc_d = yh @ Wd.T
+            acc_track[li]["down"] = max(acc_track[li]["down"],
+                                        float(np.abs(acc_d).max()))
+            yz, vz = narrow_q(
+                m125.floor_requant(acc_d, c["sh_z"][None, :]), Q8)
+            viol_track[li]["z_range"] += vz
+            z_out[b] = (yz * np.exp2(c["eZ"].astype(np.float64))[None, :]
+                        ).astype(np.float32)
+            if not checked[0]:
+                checked[0] = True
+                for nm, v in (("acc_d", acc_d), ("hq", hq), ("yz", yz)):
+                    assert float(np.abs(v).max()) < 2.0 ** 52, nm
+                    assert np.all(v == np.floor(v)), \
+                        "%s not integral — exactness broken" % nm
+        # matched-input fp reference on the SAME x (module's formula)
+        flat = x.reshape(B * T, C)
+        gate = flat @ lw["w_gate"].T
+        zf = ((gate / (1.0 + np.exp(-gate)) * (flat @ lw["w_up"].T))
+              @ lw["w_down"].T).astype(np.float64)
+        zq = z_out.reshape(B * T, -1).astype(np.float64)
+        num = float(np.sqrt(((zf - zq) ** 2).mean()))
+        den = float(np.sqrt((zf ** 2).mean()))
+        err_track[li].append(num / den if den else 0.0)
+        return z_out
+
+    return ffn
+
+
+def make_blite_wonly(pc):
+    """Weights-only attribution under the b-lite weight plan (per-tensor
+    wg/wu, per-column wd when enabled), fp activations."""
+
+    def ffn(li, x, lw):
+        c = pc[li]
+        B, T, C = x.shape
+        flat = x.reshape(B * T, C).astype(np.float64)
+        qg, _ = m125.quantize(lw["w_gate"].astype(np.float64), c["eWg"])
+        qu, _ = m125.quantize(lw["w_up"].astype(np.float64), c["eWu"])
+        stepc = np.exp2(c["ecol"].astype(np.float64))
+        qd = np.clip(np.round(lw["w_down"].astype(np.float64)
+                              / stepc[None, :]), -Q8, Q8) * stepc[None, :]
+        dg = qg * (2.0 ** c["eWg"])
+        du = qu * (2.0 ** c["eWu"])
+        gate = flat @ dg.T
+        z = ((gate / (1.0 + np.exp(-gate)) * (flat @ du.T)) @ qd.T)
+        return z.astype(np.float32).reshape(B, T, C)
+
+    return ffn
+
+
+def blite_members(pc):
+    """Frozen-family members for the a8 layers (module machinery) + the
+    wide-class inventory for the a16/g16 layers."""
+    members, wide = {}, []
+    for c in pc:
+        if c["a16"] or c["g16"]:
+            wide.append(dict(layer=c["layer"],
+                             in_bits=16 if c["g16"] else 8,
+                             out_bits=16 if c["a16"] else 8,
+                             eG=int(c["eG"]), eA=int(c["eA"])))
+            continue
+        key = (c["eG"], c["eA"])
+        if key not in members:
+            t = m125x.silu_v2_generate(*key)
+            dg = m125x.silu_v2_digest(key[0], key[1], t)
+            members[key] = (t, dg, m125x.SILU_V2_PINS.get(key) == dg)
+    return members, wide
+
+
+def agg_hist(vecs):
+    out = {}
+    for v in vecs:
+        val, cnt = np.unique(v, return_counts=True)
+        for a, c in zip(val, cnt):
+            out[int(a)] = out.get(int(a), 0) + int(c)
+    return out
+
+
+def run_blite_variant(walker, pc, acct, val_wins, label, arch,
+                      verbose=True):
+    L = arch.n_layers
+    acc_track = [dict(gateup=0.0, had=0.0, down=0.0) for _ in range(L)]
+    viol_track = [dict(X_clip=0, gate_range=0, up_range=0, h_range=0,
+                       z_range=0) for _ in range(L)]
+    err_track = [[] for _ in range(L)]
+    members, wide = blite_members(pc)
+    ffn = make_blite_ffn(pc, members, acc_track, viol_track, err_track)
+    loss = walker.loss(val_wins, ffn_override=ffn)
+    total_viol = 0
+    cls_tot = dict(X_clip=0, gate_range=0, up_range=0, h_range=0,
+                   z_range=0)
+    if verbose:
+        p("%-6s %12s %14s %10s %30s %10s" % (
+            "layer", "max|acc_gu|", "max|acc_dn|", "max|had|",
+            "violations X/g/u/h/z (held-out)", "relFFNerr"))
+    for li in range(L):
+        v = viol_track[li]
+        total_viol += sum(v.values())
+        for k in cls_tot:
+            cls_tot[k] += v[k]
+        if verbose:
+            p("%-6d %12.0f %14.0f %10.0f %30s %10.4f"
+              % (li, acc_track[li]["gateup"], acc_track[li]["down"],
+                 acc_track[li]["had"],
+                 "X:%d g:%d u:%d h:%d z:%d" % (
+                     v["X_clip"], v["gate_range"], v["up_range"],
+                     v["h_range"], v["z_range"]),
+                 float(np.mean(err_track[li]))))
+        assert acc_track[li]["gateup"] <= pc[li]["m_gu"]
+        assert acc_track[li]["down"] <= pc[li]["bound_down"], \
+            "layer %d: down acc %e over the honest aligned bound %e" % (
+                li, acc_track[li]["down"], pc[li]["bound_down"])
+    return dict(label=label, loss=loss, total_viol=total_viol,
+                viol_by_class=cls_tot,
+                per_layer=[dict(acc=acc_track[li], viol=viol_track[li],
+                                rel_ffn_err=float(np.mean(err_track[li])),
+                                acct=acct[li])
+                           for li in range(L)],
+                silu_wide_inventory=wide,
+                silu_members={"%d,%d" % k: dict(digest=dg, frozen=fr)
+                              for k, (t, dg, fr) in members.items()})
+
+
+def blite_phase(stats, store, arch, walker_plain, cal, val, args, base):
+    t0 = time.time()
+    s_exp, t_exp = choose_scales(stats, arch, args)
+    for l in range(arch.n_layers):
+        assert int(t_exp[l].max()) == 0, \
+            "--phase blite requires --t-cap 0 (per-column scales replace " \
+            "the t-fold)"
+    report_scale_choice(s_exp, t_exp, arch)
+    folded = FoldedStore(store, arch, s_exp, t_exp)
+    walker = m8b.Walker(folded, arch, args.t)
+    rows = derive_scales_blite(stats, base, s_exp, t_exp, folded, walker,
+                               arch)
+    p("[blite] per-tensor rows derived exactly (t = 0; fold-invariant "
+      "rows == baseline record, asserted)")
+
+    if args.validate_calibrate:
+        p("[blite] VALIDATION: m8b.calibrate walk on the folded store "
+          "(%d layers) vs the derived rows" % arch.n_layers)
+        wrows = [dict(layer=r["layer"], tensor=t_,
+                      exp={"w_gate": r["eWg"], "w_up": r["eWu"],
+                           "w_down": r["eWd"]}[t_])
+                 for r in rows for t_ in ("w_gate", "w_up", "w_down")]
+        walked = m8b.calibrate(walker, cal, wrows, arch)
+        for r, w in zip(rows, walked):
+            for k in ("eX", "eGate", "eUp", "eA", "eH", "eZ"):
+                assert r[k] == w[k], "derived %s mismatch at layer %d: " \
+                    "%d != %d" % (k, r["layer"], r[k], w[k])
+        p("[blite] VALIDATION OK: every derived exponent equals the "
+          "module's own calibrate walk")
+
+    if args.max_layers:
+        ref = walker_plain.loss(val)
+        src = "recomputed plain walk (truncated stack)"
+    else:
+        ref = base["int8_chain"]["loss_ref"]
+        src = "baseline JSON loss_ref"
+    n_pos = int(val[:, :-1].size)
+    out_vars = []
+    for spec in args.bl_variant:
+        opt = parse_bl_spec(spec)
+        pc, acct = blite_percol(stats, rows, arch, opt, s_exp)
+        p()
+        p("=" * 78)
+        p("BLITE VARIANT %s — %s; margins x/g/u/h/z = %d/%d/%d/%d/%d; "
+          "a16 %s g16 %s" % (
+              opt["name"],
+              "/".join(k for k in ("ucols", "hcols", "zcols", "wdcols")
+                       if opt[k]) or "per-tensor",
+              opt["mx"], opt["mg"], opt["mu"], opt["mh"], opt["mz"],
+              opt["a16"], opt["g16"]))
+        p("=" * 78)
+        if args.equiv_check and not any(
+                (opt["ucols"], opt["hcols"], opt["zcols"], opt["wdcols"],
+                 opt["a16"], opt["g16"])):
+            # the module's own path on the SAME final per-tensor scales
+            mod_scales = []
+            for c, r in zip(pc, rows):
+                mod_scales.append(dict(
+                    layer=r["layer"], eX=c["eX"], eGate=c["eG"],
+                    eUp=int(c["eU"][0]), eA=c["eA"], eH=int(c["eH"][0]),
+                    eZ=int(c["eZ"][0]), eWg=c["eWg"], eWu=c["eWu"],
+                    eWd=r["eWd"]))
+            mem = m8b.silu_members(mod_scales)
+            M = m8b.run_variant(walker, mod_scales, mem, val, "floor",
+                                "module equiv", arch, verbose=False)
+            V = run_blite_variant(walker, pc, acct, val, opt["name"],
+                                  arch, verbose=False)
+            assert V["loss"] == M["loss"], \
+                "EQUIV FAIL: blite loss %.10f != module %.10f" % (
+                    V["loss"], M["loss"])
+            assert V["total_viol"] == M["total_viol"], "EQUIV FAIL viol"
+            for a_, b_ in zip(V["per_layer"], M["per_layer"]):
+                assert a_["viol"] == b_["viol"], "EQUIV FAIL per-layer"
+            p("EQUIV CHECK OK: blite per-tensor path == m8b.run_variant "
+              "bit-exactly (loss %.10f, %d violations)"
+              % (V["loss"], V["total_viol"]))
+        else:
+            V = run_blite_variant(walker, pc, acct, val, opt["name"],
+                                  arch)
+        p("-> %s: violations %d of %d positions x 5 facts %s; loss %.4f "
+          "(ref %.4f, delta %+.4f)"
+          % (opt["name"], V["total_viol"], n_pos,
+             dict(V["viol_by_class"]), V["loss"], ref, V["loss"] - ref))
+        wonly = None
+        if args.bl_wonly:
+            wonly = walker.loss(val, ffn_override=make_blite_wonly(pc))
+            p("   weights-only (b-lite weight plan): %.4f (%+.4f)"
+              % (wonly, wonly - ref))
+        hists = dict(
+            sh_u=agg_hist([c["sh_u"] for c in pc]),
+            sh_h=agg_hist([c["sh_h"] for c in pc]),
+            sh_z=agg_hist([c["sh_z"] for c in pc]),
+            align=agg_hist([c["align"] for c in pc]))
+        eng = dict(
+            max_sh_u=max(a["sh_u_max"] for a in acct),
+            max_sh_h=max(a["sh_h_max"] for a in acct),
+            max_sh_z=max(a["sh_z_max"] for a in acct),
+            max_align=max(a["align_max"] for a in acct),
+            worst_acc_bits_down=max(a["acc_bits_down"] for a in acct),
+            layers_over_31bit_acc=[a["layer"] for a in acct
+                                   if a["acc_bits_down"] > 31],
+            layers_multi_tier=[(a["layer"], a["tiers_at_8"])
+                               for a in acct if a["tiers_at_8"] > 1],
+            rem_bits_needed=max(
+                max(a["sh_u_max"] for a in acct),
+                max(a["sh_h_max"] for a in acct),
+                max(a["sh_z_max"] for a in acct),
+                max(a["sh_g"] for a in acct)))
+        p("   engine accounting: max sh u/h/z = %d/%d/%d, max align %d, "
+          "worst honest down-acc bits %d, layers over 31-bit %s, "
+          "multi-tier %s"
+          % (eng["max_sh_u"], eng["max_sh_h"], eng["max_sh_z"],
+             eng["max_align"], eng["worst_acc_bits_down"],
+             eng["layers_over_31bit_acc"], eng["layers_multi_tier"]))
+        out_vars.append(dict(
+            policy=dict(opt, spec=spec, s_cap=args.s_cap,
+                        r_quantile=args.r_quantile),
+            verdict=dict(total_viol=V["total_viol"],
+                         viol_by_class=V["viol_by_class"],
+                         loss=V["loss"], loss_delta=V["loss"] - ref,
+                         weights_only=wonly,
+                         calibrates_formally=(V["total_viol"] == 0)),
+            per_layer=V["per_layer"], shift_hists=hists, engine=eng,
+            silu_wide_inventory=V["silu_wide_inventory"],
+            silu_members=V["silu_members"]))
+    rep = dict(
+        experiment="m8b_blite_experiment (agent V: per-column pow2 "
+                   "requant scales u/h/z + per-column w_down + widened "
+                   "SiLU classes; exact-integer simulation)",
+        checkpoint=str(args.ckpt), seed=args.seed,
+        dims=dict(layers=arch.n_layers, d=arch.d, f=arch.f, t=args.t),
+        truncated=bool(args.max_layers),
+        loss_ref=ref, ref_source=src, positions=n_pos,
+        baselines=dict(
+            plain_chain_delta=base["verdict"]["loss_delta_nats"]["A"],
+            plain_violations=base["verdict"]["range_violations"]["A"],
+            weights_only_delta=base["verdict"]["loss_delta_nats"]
+            ["weights_only"]),
+        variants=out_vars,
+        wall_s=time.time() - t0, peak_rss_gb=m8b.rss_gb())
+    out = Path(args.bl_out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(rep, indent=1, default=jsonable))
+    p()
+    p("JSON -> %s" % out)
+    p("wall %.0f s, peak RSS %.2f GB" % (rep["wall_s"],
+                                         rep["peak_rss_gb"]))
+
+
+# --------------------------------------------------------------------------
 
 def main():
     ap = argparse.ArgumentParser()
@@ -557,7 +1116,7 @@ def main():
     ap.add_argument("--max-layers", type=int, default=None,
                     help="truncate the stack (SMOKE ONLY)")
     ap.add_argument("--phase", default="all",
-                    choices=("stats", "plan", "run", "all"))
+                    choices=("stats", "plan", "run", "all", "blite"))
     ap.add_argument("--stats-npz",
                     default=str(ROOT / "results" / "m8b_smooth_stats.npz"),
                     help="cache for the phase-1 per-channel stats "
@@ -583,6 +1142,23 @@ def main():
     ap.add_argument("--skip-ref", action="store_true",
                     help="skip the transformed fp32 ref-loss walk "
                          "(iteration rounds; exactness already proven)")
+    # agent V (b-lite) flags — inert unless --phase blite
+    ap.add_argument("--bl-variant", action="append", default=[],
+                    help="b-lite variant spec (repeatable): "
+                         "'name=P1,ucols,hcols,zcols,wdcols,"
+                         "a16=all,g16=0;1;31,mx=2,mg=1,mu=1,mh=1,mz=1'")
+    ap.add_argument("--bl-out",
+                    default=str(ROOT / "results" /
+                                "m8b_blite_experiment.json"))
+    ap.add_argument("--bl-wonly", action="store_true",
+                    help="also run the weights-only attribution walk "
+                         "per variant")
+    ap.add_argument("--equiv-check", action="store_true",
+                    help="run m8b.run_variant alongside an all-per-"
+                         "tensor blite variant and assert bit-equality")
+    ap.add_argument("--validate-calibrate", action="store_true",
+                    help="run a real m8b.calibrate walk and assert the "
+                         "derived rows equal it")
     args = ap.parse_args()
 
     arch = m8b.make_arch(args.arch, args.ckpt)
@@ -616,6 +1192,10 @@ def main():
     toks = m8b.load_token_stream(args, args.ckpt)
     cal, val = m8b.token_batches(toks, args.seed, args.cal_seqs,
                                  args.val_seqs, args.t)
+    if args.phase == "blite":
+        assert args.bl_variant, "--phase blite needs >= 1 --bl-variant"
+        blite_phase(stats, store, arch, walker, cal, val, args, base)
+        return
     run_phase(stats, store, arch, walker, cal, val, args, base)
 
 

@@ -356,6 +356,47 @@ softcap, tied head), a gelu-tanh table-member candidate, then the
 C4 gate run — the decisive measurement of whether QAT-int8-
 activation training actually tames the outlier profile.
 
+## Round 2 (2026-08-25): lanes W (shape generalization M1+M2), X (attention statement design), Y (Gemma 4 adapter) — parallel to agent V (pricing) and the pending rulings
+
+Opened under the standing route-1 ruling (MVP-first, protocol work
+alongside) and Victor's 2026-08-25 console question "What can you
+work on while that is brewing?". Box discipline: agent V owns the
+heavy CPU (full verdict passes); W's builds/short batteries and Y's
+--max-layers smokes are fine; NO 12x512-class runs this round; the
+Gemma full C4 gate run and spike S4 are QUEUED behind V.
+
+### Lane W — the rig accepts arbitrary model shapes (wt-uperf3-w) — CODE (M1+M2 of the MVP plan)
+OWNS: the W-5/W-4/W-2 fix sites in zkmatrix-rs (bin/ring_matmul.rs
+model-const sections, eval_proof.rs planner), a new `uperf-w`
+battery section, "Agent W status" below. The memo rows
+U_PERF3_MVP8B_SCALING.md §2 W-5 / W-4 / W-2 are the brief (file:
+line, smallest fix, freeze constraints). Deliverable: the default
+M125 path BYTE-UNCHANGED (freeze rows, diff-battery, 3x16 digest)
++ a BfModel/ZK_MODEL_EXPORT_DIR path validated end-to-end on the
+m8b-format 125M re-export (the first proof through the generalized
+loader), planner Option legs at the 8B group counts.
+
+### Lane X — the attention statement design (wt-uperf3-x) — DESIGN (MVP-2 opens)
+OWNS: NEW docs/zkmatrix-poc/U_PERF3_ATTENTION_STATEMENT_DESIGN.md,
+"Agent X status" below. Map every op of the transformer layer
+(QK^T, softmax, RoPE, RMSNorm/QK-norm, V/O matmuls, residual,
+GQA/sliding structure, Gemma's four norms + layer_scalar) onto the
+existing claim machinery under the C1-C6 contract
+(QUANTIZATION_CONTRACT_DESIGN.md; ATTENTION_INTEGER_SPEC.md is the
+integer-semantics input), with counted costs at the 125M / Mistral-
+8B / Gemma-12B shapes, the C5 table members needed, witness/
+statement sizes, soundness obligations, and the MVP-2 build plan.
+
+### Lane Y — the Gemma 4 reference walker + gate prep (wt-uperf3-y) — CODE (python, new files only)
+OWNS: NEW scripts/m8b_gemma4_*.py, NEW results/m8b_gemma4_* files,
+"Agent Y status" below. The numpy reference forward for
+gemma-4-12B-qat (four norms, QK-norm, layer_scalar, hybrid
+sliding/global attention with per-type dims/rope from the HF
+modeling source, softcap, tied head), the decode/factual gate, the
+gelu_pytorch_tanh table-member candidate generator. SMOKES ONLY
+(--max-layers 2-4) this round; the full C4 gate run is the
+orchestrator's to schedule after agent V lands.
+
 ## Agent status sections (lanes append below; do not edit each other's)
 
 ## Agent R status (wt-uperf3-r)
