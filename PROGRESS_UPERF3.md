@@ -613,3 +613,60 @@ gelu_pytorch_tanh table members in the frozen silu-v2 formula style,
 digests only (C5 candidates, no manifest/lookup.rs edit); (5) the
 one-command full C4 gate line, ready for the orchestrator to run
 after agent V frees the box. NEW files only; smokes only this round.
+
+DONE (2026-08-25, same session; commits on uperf3-y):
+- FACTS PINNED (walker header F1-F8, transformers @ 9bb5f6a8 with
+  file:line refs; raw sources read in full, not summarized): the
+  norm sandwich order; layer_scalar multiplies the WHOLE stream
+  after the ffn residual (checkpoint values are REAL data,
+  0.0037-0.898 — a trained damping architecture, norms large to
+  compensate); RMSNorm is plain `weight` (NOT Gemma-2/3's 1+w), eps
+  inside the root; attn scaling = 1.0 (NO hd^-0.5 — the constant
+  q/k_norm scalars carry it: 256x0.1221 = 512x0.0605 = same logit
+  scale, sliding vs global); k_eq_v layers bind v to the RAW k_proj
+  output (pre-k_norm, pre-rope); a scale-LESS v_norm RMSNorm on v at
+  ALL layers (no weight tensor — that is why the scan missed it);
+  proportional rope on full layers = 64 rotated pairs at
+  full-hd-denominator exponents + 192 identity pairs (theta 1e6,
+  partial 0.25), default rope theta 10000 on sliding; embed scale =
+  bf16(sqrt(3840)) = 62.0 exactly (the HF downcast is intended);
+  final softcap 30*tanh(logits/30); tied head.
+- scripts/m8b_gemma4_walker.py: drop-in m8b Walker (same calibrate/
+  weight_study run unchanged); embedding NEVER materialized (row
+  seek-gather; head streamed in 8192-row chunks with running LSE +
+  softcap). run_variant/make_int8_ffn/make_wonly_ffn are m8b copies
+  with ONLY the activation swapped to gelu_tanh (m8b hard-codes SiLU
+  in the fp reference). scripts/m8b_gemma4_diag.py: per-layer trace
+  + logit lens + fact ablations.
+- SMOKE [NOISY-SHARED]: 6-layer (5 sliding + 1 full) cal path green,
+  peak RSS 2.41 GB; weights land eW -9/-10, sat@e = 0 everywhere.
+- DECODE/FACTUAL GATE [MEASURED WSL-BOX, 48 layers]: plain-text
+  probe FAILS 0/5 (ranks 2866-9814; greedy '00000000') — NOT a bug:
+  stream healthy at every layer, and generation_config
+  suppress_tokens [258882, 258883] proves the real model also tops
+  these. The -it- checkpoint needs its turn structure: with the
+  canonical hub chat_template wrapping (<|turn>/<turn|>/<|channel>,
+  ids 105/106/100/101; partial sentence prefilled into the model
+  turn) the gate is 5/5 AT RANK 0 (' Au'/' oxygen'/' Shakespeare'/
+  ' Jupiter' sharp; '2 + 2 =' degenerates to the space token under
+  digit-splitting). Peak RSS 1.63-1.65 GB per 48-layer pass.
+  WALKER VALIDATED; --template is the gate mode for it-checkpoints.
+- scripts/m8b_gemma4_gelu_member.py: gelu-tanh-int8-table-v2 family
+  (exact silu-v2 formula/digest layout, silu pins self-checked on
+  import); 13 candidate digests + 256-byte tables committed at
+  results/m8b_gemma4_gelu_members/. Smoke-calibrated members so far:
+  (-1,-1) 6e5d28a8…, (-3,-3) cb799cb4… — C5 candidates, registry
+  EMPTY until the ruling; no manifest/lookup.rs touched.
+- THE FULL C4 GATE (one command, orchestrator schedules after agent
+  V frees the box; ~hours [MODEL] — the 262k-vocab head streams
+  dominate the loss passes; peak ~4.5-5.5 GB [MODEL, T12 analogy —
+  the B=8 collect batch dominates]):
+    python3 scripts/m8b_gemma4_walker.py \
+      --text /home/victor/models/fineweb-edu/sample_text.txt \
+      --out-json results/m8b_gemma4_calibration.json
+  NOTE for the record: the calibration/loss windows are plain
+  fineweb text — for the -it- model both the bf16 reference and the
+  int8 chain sit in the same (slightly off-) distribution, so the
+  C4 delta stays meaningful; the smoke's early-layer activation
+  ranges (X absmax 165.9 at l0, eH 5/4 at l0/l1) are the numbers to
+  watch in the full verdict.
