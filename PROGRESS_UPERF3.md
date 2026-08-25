@@ -597,3 +597,25 @@ per-COLUMN w_down scales (floor_requant already takes per-column
 shifts; absorbs the whole t-fold, deletes the migration damage) plus
 wider a/h/z at the ~6 outlier layers; option (c) stays non-viable
 (+7.9..+9.1 everywhere). Details: U_PERF3_M8B_SMOOTH_REPORT.md.
+
+## Agent W status (wt-uperf3-w)
+
+- 2026-08-25 SKELETON: worktree at 73adfb3 (branch uperf3-w). Lane =
+  M1+M2 of the MVP plan (memo U_PERF3_MVP8B_SCALING.md Section 2 rows
+  W-5 / W-4 / W-2, Section 5.1). Plan: (0) baseline captures BEFORE
+  any edit (release build, diff-battery, freeze-check WSL form, 3x16
+  full-profile digest via M125_EXPORT_DIR); (1) W-5 BfModel loader
+  (dims/exps from the export digests.txt `00 model / 00 dims / NN
+  exps` rows, selected by ZK_MODEL_EXPORT_DIR; env unset = the M125
+  const path byte-unchanged); (2) W-4 acc classes from acc_bits(inner)
+  = floor(log2(inner*127^2))+2 (125M must reproduce 25/26); (3) W-2
+  plan_level -> Option, skip infeasible r candidates (freeze rows
+  UAGB1-BG-1a/1b pin the 125M schedules); (4) new `uperf-w` battery
+  (planner legs 44M/352M e0=1 + 36M/73M e0=2, acc_bits legs, BfModel
+  parser legs incl. malformed rejection); (5) local m8b-format 125M
+  re-export WITH bins (ckpt /home/victor/models/125m-best-adamw-
+  val3.0816/model.safetensors, --arch frugal, out results/
+  m8b_local_export gitignored bins) and the 1x16 + 3x16 rigs through
+  ZK_MODEL_EXPORT_DIR = the first proof through the generalized
+  loader. Box discipline: agent V full-tilt on this box; builds +
+  short batteries + 3x16-class rigs only, no 12x512-class.
