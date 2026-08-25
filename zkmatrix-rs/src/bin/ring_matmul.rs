@@ -6434,6 +6434,8 @@ fn main() {
         Some("uperf-q") => uperf_q_main(&args[1..]),
         // [UPERF3-S] U-PERF3 lane S (spike S1/S2: range facts as base-field zero-checks vs the masked descent; SiLU LogUp as one sumcheck) bench + battery.
         Some("uperf-s") => uperf_s_main(&args[1..]),
+        // [UPERF3-W] U-PERF3 lane W (shape generalization: BfModel parser, acc_bits, Option-planner) battery.
+        Some("uperf-w") => uperf_w_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -24482,7 +24484,7 @@ fn m125_pass_battery(t: usize, smoke_only: bool) {
     // verifier assuming the pre-lift contiguous layout must REJECT.
     {
         use ring::gkr_masked::witness_leaf_positions;
-        let n_el = t * BF_F;
+        let n_el = t * bf_f();
         let nw = 1usize << bf_dw_for(n_el);
         let pos = witness_leaf_positions(n_el, nw);
         assert_true(
@@ -24544,6 +24546,12 @@ const BF_EXPORT_DIR: &str = "results/m125_ffn_export";
 /// The export directory, resolved from either the repo root or
 /// zkmatrix-rs/ (both are working directories in practice).
 fn bf_export_path() -> std::path::PathBuf {
+    // [UPERF3-W W-5] `ZK_MODEL_EXPORT_DIR`: an ARBITRARY-model export
+    // directory — dims/exponents come from its digests.txt (bf_model),
+    // not the M125 consts. Takes precedence over M125_EXPORT_DIR.
+    if let Ok(dir) = std::env::var("ZK_MODEL_EXPORT_DIR") {
+        return std::path::PathBuf::from(dir);
+    }
     // `M125_EXPORT_DIR` (2026-08-17): an alternate export directory —
     // e.g. results/m125_ffn_export_wsl/, the WSL box's own re-export of
     // the SAME checkpoint + window (valid witness, 0 violations) whose X
@@ -24559,6 +24567,174 @@ fn bf_export_path() -> std::path::PathBuf {
 const BF_T: usize = 512;
 const BF_D: usize = 768;
 const BF_F: usize = 2048;
+
+/// [UPERF3-W W-5] The model the bf_/bg_/bk_ rigs run. Without
+/// `ZK_MODEL_EXPORT_DIR` this is the M125 const path (BF_T/BF_D/BF_F +
+/// M125_EXP + eW = -9), byte-identical to the pre-W-5 rig — the freeze
+/// rows pin that. With the env var set, dims/exponents are parsed from
+/// the export directory's digests.txt (the m8b export's `00 model` /
+/// `00 dims` / `NN exps` rows, inert to bf_sidecar), and every shape
+/// the rigs derive follows the model.
+struct BfModel {
+    layers: usize,
+    t: usize,
+    d: usize,
+    f: usize,
+    /// Uniform weight exponent (2^e_w weight scale; -9 at 125M). The
+    /// parser REJECTS exports with non-uniform per-tensor weight
+    /// exponents (a W-6-class extension, not built).
+    e_w: i32,
+    /// (eX, eGate, eA, eUp, eH, eZ) per layer.
+    exps: Vec<(i32, i32, i32, i32, i32, i32)>,
+    tag: String,
+}
+
+fn bf_model_m125() -> BfModel {
+    BfModel {
+        layers: M125_EXP.len(),
+        t: BF_T,
+        d: BF_D,
+        f: BF_F,
+        e_w: -9,
+        exps: M125_EXP.to_vec(),
+        tag: "m125".to_string(),
+    }
+}
+
+/// Parse a BfModel from an export sidecar's text (digests.txt). Rows
+/// read: `00 model <tag>`, `00 dims <T> <d> <f> <layers>`,
+/// `NN exps eX eGate eA eUp eH eZ eWg eWu eWd`; every other row
+/// (X/WgT/WuT/WdT/z digests, shifts) is inert here. Errors are
+/// strings so the battery can assert the malformed-sidecar rejects.
+fn bf_model_parse_text(text: &str) -> Result<BfModel, String> {
+    let mut tag: Option<String> = None;
+    let mut dims: Option<(usize, usize, usize, usize)> = None;
+    let mut exps_rows: std::collections::BTreeMap<usize, (i32, i32, i32, i32, i32, i32)> =
+        std::collections::BTreeMap::new();
+    let mut e_w: Option<i32> = None;
+    for (ln, line) in text.lines().enumerate() {
+        if line.trim().is_empty() {
+            continue;
+        }
+        let mut it = line.split_whitespace();
+        let l: usize = it
+            .next()
+            .ok_or_else(|| format!("line {}: empty", ln + 1))?
+            .parse()
+            .map_err(|_| format!("line {}: layer field is not a number", ln + 1))?;
+        let name = it.next().ok_or_else(|| format!("line {}: no name field", ln + 1))?;
+        let rest: Vec<&str> = it.collect();
+        match name {
+            "model" => {
+                if rest.len() != 1 {
+                    return Err(format!("line {}: model row wants 1 field, got {}", ln + 1, rest.len()));
+                }
+                tag = Some(rest[0].to_string());
+            }
+            "dims" => {
+                if rest.len() != 4 {
+                    return Err(format!("line {}: dims row wants 4 fields, got {}", ln + 1, rest.len()));
+                }
+                let v: Result<Vec<usize>, _> = rest.iter().map(|s| s.parse::<usize>()).collect();
+                let v = v.map_err(|_| format!("line {}: dims field is not a number", ln + 1))?;
+                if v.iter().any(|&x| x == 0) {
+                    return Err(format!("line {}: zero dim", ln + 1));
+                }
+                dims = Some((v[0], v[1], v[2], v[3]));
+            }
+            "exps" => {
+                if rest.len() != 9 {
+                    return Err(format!("line {}: exps row wants 9 fields, got {}", ln + 1, rest.len()));
+                }
+                let v: Result<Vec<i32>, _> = rest.iter().map(|s| s.parse::<i32>()).collect();
+                let v = v.map_err(|_| format!("line {}: exps field is not a number", ln + 1))?;
+                if v[6] != v[7] || v[7] != v[8] {
+                    return Err(format!(
+                        "line {}: per-tensor weight exponents ({} {} {}) unsupported (uniform e_w only)",
+                        ln + 1, v[6], v[7], v[8]
+                    ));
+                }
+                match e_w {
+                    None => e_w = Some(v[6]),
+                    Some(w) if w != v[6] => {
+                        return Err(format!(
+                            "line {}: per-layer weight exponent {} != {} (uniform e_w only)",
+                            ln + 1, v[6], w
+                        ));
+                    }
+                    _ => {}
+                }
+                if exps_rows.insert(l, (v[0], v[1], v[2], v[3], v[4], v[5])).is_some() {
+                    return Err(format!("line {}: duplicate exps row for layer {}", ln + 1, l));
+                }
+            }
+            _ => {} // digest/shifts rows: inert here
+        }
+    }
+    let tag = tag.ok_or("no `00 model` row")?;
+    let (t, d, f, layers) = dims.ok_or("no `00 dims` row")?;
+    let e_w = e_w.ok_or("no `exps` rows")?;
+    let mut exps = Vec::with_capacity(layers);
+    for l in 0..layers {
+        exps.push(
+            *exps_rows
+                .get(&l)
+                .ok_or_else(|| format!("no exps row for layer {l} (model declares {layers} layers)"))?,
+        );
+    }
+    if exps_rows.len() != layers {
+        return Err(format!(
+            "exps rows for {} layers but dims declares {layers}",
+            exps_rows.len()
+        ));
+    }
+    Ok(BfModel { layers, t, d, f, e_w, exps, tag })
+}
+
+/// The active model: parsed once from `ZK_MODEL_EXPORT_DIR`'s
+/// digests.txt when the env var is set, else the M125 consts.
+fn bf_model() -> &'static BfModel {
+    static MODEL: std::sync::OnceLock<BfModel> = std::sync::OnceLock::new();
+    MODEL.get_or_init(|| match std::env::var("ZK_MODEL_EXPORT_DIR") {
+        Ok(dir) => {
+            let path = std::path::Path::new(&dir).join("digests.txt");
+            let text = std::fs::read_to_string(&path)
+                .unwrap_or_else(|e| panic!("ZK_MODEL_EXPORT_DIR: cannot read {} ({e})", path.display()));
+            let m = bf_model_parse_text(&text)
+                .unwrap_or_else(|e| panic!("ZK_MODEL_EXPORT_DIR: bad sidecar {}: {e}", path.display()));
+            eprintln!(
+                "[UPERF3-W] model from ZK_MODEL_EXPORT_DIR: tag {} | layers {} T {} d {} f {} e_w {}",
+                m.tag, m.layers, m.t, m.d, m.f, m.e_w
+            );
+            m
+        }
+        Err(_) => bf_model_m125(),
+    })
+}
+
+/// Model dims (the M125 consts unless `ZK_MODEL_EXPORT_DIR` selects
+/// another export — W-5).
+fn bf_t() -> usize {
+    bf_model().t
+}
+fn bf_d() -> usize {
+    bf_model().d
+}
+fn bf_f() -> usize {
+    bf_model().f
+}
+
+/// [UPERF3-W W-4] Accumulator class bits for an int8 x int8 matmul
+/// over `inner`: |acc| <= inner * 127^2, so
+/// bits = floor(log2(inner * 127^2)) + 2 (magnitude + sign) strictly
+/// contains the interval. 768 -> 25, 2048 -> 26 (the 125M constants
+/// this replaces — asserted unchanged in the uperf-w battery),
+/// 4096 -> 27, 14336 -> 29 (the 8B honest rows).
+fn bf_acc_bits(inner: usize) -> u32 {
+    let bound = inner as u64 * 127 * 127;
+    assert!(bound > 0);
+    (63 - bound.leading_zeros()) + 2
+}
 
 /// Per-layer witness data: exports + the Rust-derived chain.
 struct BfLayer {
@@ -24649,14 +24825,22 @@ fn bf_floor_requant_div(acc: &[i64], shift: u32) -> (Vec<i64>, Vec<i64>) {
 fn bf_load_layer(l: usize, t_rows: usize, quiet: bool) -> BfLayer {
     use ring::lookup::silu_v2_member;
     let dir = bf_export_path();
-    // M125_EXP rows are (eX, eGate, eA, eUp, eH, eZ) — BC's calibrated
-    // table (eGate == eA on every calibrated layer).
-    let (e_x, e_gate, e_a, e_up, e_h, e_z) = M125_EXP[l];
+    // [UPERF3-W W-5] the ACTIVE model's exponent table — M125_EXP (BC's
+    // calibrated rows, eGate == eA on every layer) unless
+    // ZK_MODEL_EXPORT_DIR selects another export.
+    let m = bf_model();
+    assert!(
+        l < m.layers,
+        "layer {l} out of range: model '{}' has {} layers",
+        m.tag,
+        m.layers
+    );
+    let (e_x, e_gate, e_a, e_up, e_h, e_z) = m.exps[l];
     assert_eq!(e_gate, e_a, "family assumes eGate == eA");
-    let sh_g = (e_gate - e_x + 9) as u32;
-    let sh_u = (e_up - e_x + 9) as u32;
+    let sh_g = (e_gate - e_x - m.e_w) as u32;
+    let sh_u = (e_up - e_x - m.e_w) as u32;
     let sh_h = (e_h - e_a - e_up) as u32;
-    let sh_z = (e_z - e_h + 9) as u32;
+    let sh_z = (e_z - e_h - m.e_w) as u32;
     let side = bf_sidecar();
     let want_shifts = side[&(l, "shifts".to_string())].clone();
     assert_eq!(
@@ -24665,11 +24849,11 @@ fn bf_load_layer(l: usize, t_rows: usize, quiet: bool) -> BfLayer {
         "layer {l}: derived shifts disagree with the export sidecar"
     );
 
-    let x_full = bf_read_i8(&dir.join(format!("layer{l:02}_X.bin")), BF_T * BF_D);
-    let wg_t = bf_read_i8(&dir.join(format!("layer{l:02}_WgT.bin")), BF_D * BF_F);
-    let wu_t = bf_read_i8(&dir.join(format!("layer{l:02}_WuT.bin")), BF_D * BF_F);
-    let wd_t = bf_read_i8(&dir.join(format!("layer{l:02}_WdT.bin")), BF_F * BF_D);
-    if t_rows == BF_T {
+    let x_full = bf_read_i8(&dir.join(format!("layer{l:02}_X.bin")), m.t * m.d);
+    let wg_t = bf_read_i8(&dir.join(format!("layer{l:02}_WgT.bin")), m.d * m.f);
+    let wu_t = bf_read_i8(&dir.join(format!("layer{l:02}_WuT.bin")), m.d * m.f);
+    let wd_t = bf_read_i8(&dir.join(format!("layer{l:02}_WdT.bin")), m.f * m.d);
+    if t_rows == m.t {
         for (name, vals) in [("X", &x_full), ("WgT", &wg_t), ("WuT", &wu_t), ("WdT", &wd_t)] {
             assert_eq!(
                 bf_sha_i8(vals),
@@ -24678,7 +24862,7 @@ fn bf_load_layer(l: usize, t_rows: usize, quiet: bool) -> BfLayer {
             );
         }
     }
-    let x: Vec<i64> = x_full[0..t_rows * BF_D].to_vec();
+    let x: Vec<i64> = x_full[0..t_rows * m.d].to_vec();
 
     let mut lay = BfLayer {
         l,
@@ -24694,7 +24878,7 @@ fn bf_load_layer(l: usize, t_rows: usize, quiet: bool) -> BfLayer {
         in_i8(&lay.g8) && in_i8(&lay.u8v) && in_i8(&lay.h8) && in_i8(&lay.z),
         "layer {l}: a range fact FAILS (uncalibratable witness — intended reject)"
     );
-    if t_rows == BF_T {
+    if t_rows == m.t {
         assert_eq!(
             bf_sha_i8(&lay.z),
             side[&(l, "z".to_string())],
@@ -24704,7 +24888,7 @@ fn bf_load_layer(l: usize, t_rows: usize, quiet: bool) -> BfLayer {
     if !quiet {
         println!(
             "  layer {l:2}: chain derived (shifts {sh_g}/{sh_u}/{sh_h}/{sh_z}, table ({e_gate},{e_a})); range facts HOLD{}",
-            if t_rows == BF_T { "; z == Python replica" } else { "" }
+            if t_rows == m.t { "; z == Python replica" } else { "" }
         );
     }
     lay
@@ -24822,8 +25006,8 @@ fn bf_derive_chain(lay: &mut BfLayer, t_rows: usize, table_override: Option<(i32
     // [UPERF2-D] the row-blocked threaded GEMM (bf_matmul_i64_ref is its
     // oracle — the loop that ran inline here).
     let matmul = bf_matmul_i64;
-    lay.gacc = matmul(&lay.x, &lay.wg_t, t_rows, BF_D, BF_F);
-    lay.uacc = matmul(&lay.x, &lay.wu_t, t_rows, BF_D, BF_F);
+    lay.gacc = matmul(&lay.x, &lay.wg_t, t_rows, bf_d(), bf_f());
+    lay.uacc = matmul(&lay.x, &lay.wu_t, t_rows, bf_d(), bf_f());
     let (g8, rg) = bf_floor_requant(&lay.gacc, sh_g);
     let (u8v, ru) = bf_floor_requant(&lay.uacc, sh_u);
     let clamp_dom = |v: i64| v.clamp(-128, 127);
@@ -24837,7 +25021,7 @@ fn bf_derive_chain(lay: &mut BfLayer, t_rows: usize, table_override: Option<(i32
     let (h8, rh) = bf_floor_requant(&lay.hh, sh_h);
     lay.h8 = h8;
     lay.rh = rh;
-    lay.dacc = matmul(&lay.h8, &lay.wd_t, t_rows, BF_F, BF_D);
+    lay.dacc = matmul(&lay.h8, &lay.wd_t, t_rows, bf_f(), bf_d());
     let (z, rd) = bf_floor_requant(&lay.dacc, sh_z);
     lay.z = z;
     lay.rd = rd;
@@ -24852,11 +25036,11 @@ const BF_ENTRIES: [&str; 17] = [
 /// (rows, cols) of entry `e` at sequence length t.
 fn bf_entry_shape(e: usize, t: usize) -> (usize, usize) {
     match BF_ENTRIES[e] {
-        "X" => (t, BF_D),
-        "WgT" | "WuT" => (BF_D, BF_F),
-        "WdT" => (BF_F, BF_D),
-        "Dacc" | "Rd" | "z" => (t, BF_D),
-        _ => (t, BF_F),
+        "X" => (t, bf_d()),
+        "WgT" | "WuT" => (bf_d(), bf_f()),
+        "WdT" => (bf_f(), bf_d()),
+        "Dacc" | "Rd" | "z" => (t, bf_d()),
+        _ => (t, bf_f()),
     }
 }
 
@@ -24873,20 +25057,24 @@ fn bf_entry_typing(e: usize, lay: &BfLayer) -> (manifest::QuantMeta, manifest::T
         class,
         base_e0: e0,
     };
+    // [UPERF3-W W-5/W-4] e_w replaces the inline -9; the accumulator
+    // bit widths derive from the model's inner dims (768 -> 25,
+    // 2048 -> 26 at 125M — the pre-W-4 constants, battery-asserted).
+    let e_w = bf_model().e_w;
     match BF_ENTRIES[e] {
         "X" => (q(8, true), t(e_x, true, CLS_ACT8, 2)),
-        "WgT" | "WuT" | "WdT" => (q(8, true), t(-9, true, CLS_W8S, 1)),
-        "Gacc" | "Uacc" => (q(25, true), t(e_x - 9, true, CLS_ACC, 2)),
-        "Rg" => (q(sh_g, false), t(e_x - 9, false, CLS_REM, 2)),
-        "Ru" => (q(sh_u, false), t(e_x - 9, false, CLS_REM, 2)),
+        "WgT" | "WuT" | "WdT" => (q(8, true), t(e_w, true, CLS_W8S, 1)),
+        "Gacc" | "Uacc" => (q(bf_acc_bits(bf_d()), true), t(e_x + e_w, true, CLS_ACC, 2)),
+        "Rg" => (q(sh_g, false), t(e_x + e_w, false, CLS_REM, 2)),
+        "Ru" => (q(sh_u, false), t(e_x + e_w, false, CLS_REM, 2)),
         "g8" => (q(8, true), t(e_gate, false, CLS_ACT8, 2)),
         "a8" => (q(8, true), t(e_a, true, CLS_ACT8, 2)),
         "u8" => (q(8, true), t(e_up, false, CLS_ACT8, 2)),
         "H" => (q(15, true), t(e_a + e_up, false, CLS_ACC, 2)),
         "Rh" => (q(sh_h, false), t(e_a + e_up, false, CLS_REM, 2)),
         "h8" => (q(8, true), t(e_h, false, CLS_ACT8, 2)),
-        "Dacc" => (q(26, true), t(e_h - 9, false, CLS_ACC, 2)),
-        "Rd" => (q(sh_z, false), t(e_h - 9, false, CLS_REM, 2)),
+        "Dacc" => (q(bf_acc_bits(bf_f()), true), t(e_h + e_w, false, CLS_ACC, 2)),
+        "Rd" => (q(sh_z, false), t(e_h + e_w, false, CLS_REM, 2)),
         "z" => (q(8, true), t(e_z, false, CLS_ACT8, 2)),
         _ => unreachable!(),
     }
@@ -25056,8 +25244,8 @@ struct BfInst {
 fn bf_instances(lay: &BfLayer, t: usize) -> Vec<BfInst> {
     let (sh_g, sh_u, sh_h, sh_z) = lay.shifts;
     let (_, e_gate, e_a, ..) = lay.exps;
-    let nf = t * BF_F;
-    let nd = t * BF_D;
+    let nf = t * bf_f();
+    let nd = t * bf_d();
     let mk = |name: &'static str, entry: usize, pair: Option<usize>, offset: i64,
               t_rows: usize, silu: Option<(i32, i32)>, n_el: usize| BfInst {
         name,
@@ -25615,9 +25803,9 @@ fn bf_layer_run(
 
     // The three matmuls: (a_entry, b_entry, c_entry, rows, inner, cols).
     let matmuls: [(usize, usize, usize, usize, usize, usize); 3] = [
-        (0, 1, 4, t, BF_D, BF_F),
-        (0, 2, 8, t, BF_D, BF_F),
-        (13, 3, 14, t, BF_F, BF_D),
+        (0, 1, 4, t, bf_d(), bf_f()),
+        (0, 2, 8, t, bf_d(), bf_f()),
+        (13, 3, 14, t, bf_f(), bf_d()),
     ];
     let lg2 = |n: usize| usize::BITS as usize - (n - 1).leading_zeros() as usize;
     // Builds the three MLE pins of one matmul instance from public
@@ -25736,7 +25924,7 @@ fn bf_layer_run(
 
     // Hadamard a8 o u8 = H by one degree-3 sumcheck.
     let t_had = Instant::now();
-    let n_f = t * BF_F;
+    let n_f = t * bf_f();
     let lv_f = lg2(n_f);
     let had_proof = {
         let r2: Vec<KElem> = (0..lv_f).map(|_| tr.challenge_k(&kf)).collect();
@@ -29341,8 +29529,8 @@ struct BgOpts {
 impl Default for BgOpts {
     fn default() -> BgOpts {
         BgOpts {
-            layers_n: 12,
-            t: BF_T,
+            layers_n: bf_model().layers,
+            t: bf_model().t,
             p2: false,
             tamper: BgTamper::None,
             weak_map_unbound: false,
@@ -30955,7 +31143,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
     let mut public_vals: Vec<KElem> = Vec::new();
     for (e, tag) in [(0usize, "X"), (16usize, "z")] {
         for (li, lay) in lays.iter().enumerate() {
-            let v = bg_mle(&kf, bf_entry_values(e, lay), BF_D, &eq_or, &eq_oc);
+            let v = bg_mle(&kf, bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
             // PublicClaimLie ships a lied declared-output value ON THE
             // WIRE (bundle + absorb); the prover's internal batch keeps
             // the true value (its witness consistency is not the leg's
@@ -31409,7 +31597,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
             let mut pi = 0usize;
             'outer: for (e, _tag) in [(0usize, "X"), (16usize, "z")] {
                 for (li, lay) in lays.iter().enumerate() {
-                    let want = bg_mle(&kf, bf_entry_values(e, lay), BF_D, &eq_or, &eq_oc);
+                    let want = bg_mle(&kf, bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
                     if bundle.public_vals[pi] != want {
                         verdict.publics_ok = false;
                         fail(&mut verdict, "public-claim");
@@ -31928,15 +32116,18 @@ fn bg_canary() {
 // export files needed — the class table derives from M125_EXP.
 
 fn bg_dummy_layer(l: usize) -> BfLayer {
-    let (e_x, e_gate, e_a, e_up, e_h, e_z) = M125_EXP[l];
+    // [UPERF3-W W-5] the ACTIVE model's table (M125_EXP by default).
+    let m = bf_model();
+    assert!(l < m.layers, "layer {l} out of range: model '{}' has {} layers", m.tag, m.layers);
+    let (e_x, e_gate, e_a, e_up, e_h, e_z) = m.exps[l];
     BfLayer {
         l,
         exps: (e_x, e_gate, e_a, e_up, e_h, e_z),
         shifts: (
-            (e_gate - e_x + 9) as u32,
-            (e_up - e_x + 9) as u32,
+            (e_gate - e_x - m.e_w) as u32,
+            (e_up - e_x - m.e_w) as u32,
             (e_h - e_a - e_up) as u32,
-            (e_z - e_h + 9) as u32,
+            (e_z - e_h - m.e_w) as u32,
         ),
         x: vec![],
         wg_t: vec![],
@@ -32234,8 +32425,8 @@ fn bg_main(args: &[String]) {
         Some("canary") => bg_canary(),
         Some("seam") => bg_seam(), // [UAGB1-BJ] R-BG1 psi-seam differential
         Some("statement") => {
-            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(12);
-            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(bf_model().layers);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(bf_model().t);
             let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
             let reg = bg_build_groups(&lays, t, None);
             println!(
@@ -32244,8 +32435,8 @@ fn bg_main(args: &[String]) {
             );
         }
         Some("prove") => {
-            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(12);
-            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(bf_model().layers);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(bf_model().t);
             let mode = args.get(3).map(String::as_str).unwrap_or("p0");
             // [UAGB1-BL] `p2` now masks the weight round polynomials
             // (t_blind ON — the shipped P2). `p2-noblind` is the BG
@@ -33052,8 +33243,8 @@ impl BkPairSpec {
 /// inventory; nothing here reads the witness).
 fn bk_pair_specs(lays: &[BfLayer], t: usize) -> Vec<BkPairSpec> {
     use ring::descent_fold::{pair_depth, plan_pair_trees, MemberShape};
-    let nf_shape = MemberShape { rows: t, cols: BF_F };
-    let nd_shape = MemberShape { rows: t, cols: BF_D };
+    let nf_shape = MemberShape { rows: t, cols: bf_f() };
+    let nd_shape = MemberShape { rows: t, cols: bf_d() };
     // Collect member lists per pair id.
     let mut members: Vec<Vec<BkMember>> = vec![Vec::new(); BK_PAIR_IDS.len()];
     let mut silu_of: Vec<Option<(i32, i32)>> = vec![None; BK_PAIR_IDS.len()];
@@ -33701,8 +33892,8 @@ struct BkOpts {
 impl Default for BkOpts {
     fn default() -> BkOpts {
         BkOpts {
-            layers_n: 12,
-            t: BF_T,
+            layers_n: bf_model().layers,
+            t: bf_model().t,
             p2: false,
             tamper: BkTamper::None,
             weak_alpha: false,
@@ -34396,7 +34587,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     let mut public_vals: Vec<KElem> = Vec::new();
     for (e, _tag) in [(0usize, "X"), (16usize, "z")] {
         for (li, lay) in lays.iter().enumerate() {
-            let v = bg_mle(&kf, bf_entry_values(e, lay), BF_D, &eq_or, &eq_oc);
+            let v = bg_mle(&kf, bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
             public_vals.push(v.clone());
             claims.push(BkClaim {
                 in_weight: false,
@@ -34692,7 +34883,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
             let mut pi_c = 0usize;
             for (e, _tag) in [(0usize, "X"), (16usize, "z")] {
                 for (li, lay) in lays.iter().enumerate() {
-                    let want = bg_mle(&kf, bf_entry_values(e, lay), BF_D, &eq_or, &eq_oc);
+                    let want = bg_mle(&kf, bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
                     if public_vals[pi_c] != want {
                         verdict.publics_ok = false;
                         fail(&mut verdict, "public-claim".to_string());
@@ -35059,13 +35250,13 @@ fn bk_main(args: &[String]) {
     let sub = args.first().map(String::as_str);
     match sub {
         Some("expect") => {
-            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(12);
-            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(bf_model().layers);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(bf_model().t);
             bk_expect(layers_n, t);
         }
         Some("statement") => {
-            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(12);
-            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(bf_model().layers);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(bf_model().t);
             let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
             let specs = bk_pair_specs(&lays, t);
             let reg = bk_build_groups(&lays, t, &specs, ring_ctx_q8().zq.q);
@@ -35090,8 +35281,8 @@ fn bk_main(args: &[String]) {
             }
         }
         Some("prove") => {
-            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(12);
-            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(bf_model().layers);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(bf_model().t);
             let mode = args.get(3).map(String::as_str).unwrap_or("p0");
             let p2 = match mode {
                 "p0" => false,
@@ -35371,7 +35562,8 @@ fn uperf_pc_wave_profile(li: usize, t: usize, digest: bool) {
         "[UPERF-PC] wave-profile: m125 layer {li} at T = {t} (fixed test seeds; digest {})",
         if digest { "ON" } else { "off" }
     );
-    let mut layers: Vec<BfLayer> = (0..12).map(|l| bf_load_layer(l, t, true)).collect();
+    let mut layers: Vec<BfLayer> =
+        (0..bf_model().layers).map(|l| bf_load_layer(l, t, true)).collect();
     prof::reset();
     prof::enable(true, digest);
     let t0 = Instant::now();
@@ -35488,21 +35680,21 @@ fn uperf_pc_full_profile(layers_n: usize, t: usize, p2: bool) {
 fn uperf_pc_main(args: &[String]) {
     match args.first().map(String::as_str) {
         Some("full-profile") => {
-            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(12);
-            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(bf_model().layers);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(bf_model().t);
             let p2 = args.get(3).map(String::as_str) == Some("p2");
             uperf_pc_full_profile(layers_n, t, p2);
         }
         Some("wave-profile") => {
             let li: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(2);
-            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(bf_model().t);
             let digest = args.get(3).map(String::as_str) != Some("nodigest");
-            assert!(li < 12, "layer in 0..12");
+            assert!(li < bf_model().layers, "layer in 0..{}", bf_model().layers);
             uperf_pc_wave_profile(li, t, digest);
         }
         Some("pass-profile") => {
-            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(12);
-            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(BF_T);
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(bf_model().layers);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(bf_model().t);
             uperf_pc_pass_profile(layers_n, t);
         }
         Some("diff-battery") => uperf_pc_diff_battery(),
@@ -37319,23 +37511,23 @@ fn uperf_d_diff_battery() {
                 l,
                 exps: (0, 0, 0, 0, 0, 0),
                 shifts: (7, 6, 5, 8),
-                x: small(t * BF_D),
-                wg_t: small(BF_D * BF_F),
-                wu_t: small(BF_D * BF_F),
-                wd_t: small(BF_F * BF_D),
-                gacc: wide(small, t * BF_F, 211),
-                rg: small(t * BF_F).iter().map(|v| v.rem_euclid(128)).collect(),
-                g8: small(t * BF_F),
-                a8: small(t * BF_F),
-                uacc: wide(small, t * BF_F, 173),
-                ru: small(t * BF_F).iter().map(|v| v.rem_euclid(64)).collect(),
-                u8v: small(t * BF_F),
-                hh: wide(small, t * BF_F, 97),
-                rh: small(t * BF_F).iter().map(|v| v.rem_euclid(32)).collect(),
-                h8: small(t * BF_F),
-                dacc: wide(small, t * BF_D, 251),
-                rd: small(t * BF_D).iter().map(|v| v.rem_euclid(256)).collect(),
-                z: small(t * BF_D),
+                x: small(t * bf_d()),
+                wg_t: small(bf_d() * bf_f()),
+                wu_t: small(bf_d() * bf_f()),
+                wd_t: small(bf_f() * bf_d()),
+                gacc: wide(small, t * bf_f(), 211),
+                rg: small(t * bf_f()).iter().map(|v| v.rem_euclid(128)).collect(),
+                g8: small(t * bf_f()),
+                a8: small(t * bf_f()),
+                uacc: wide(small, t * bf_f(), 173),
+                ru: small(t * bf_f()).iter().map(|v| v.rem_euclid(64)).collect(),
+                u8v: small(t * bf_f()),
+                hh: wide(small, t * bf_f(), 97),
+                rh: small(t * bf_f()).iter().map(|v| v.rem_euclid(32)).collect(),
+                h8: small(t * bf_f()),
+                dacc: wide(small, t * bf_d(), 251),
+                rd: small(t * bf_d()).iter().map(|v| v.rem_euclid(256)).collect(),
+                z: small(t * bf_d()),
             }
         };
         let lays = vec![mk(&mut small, 0), mk(&mut small, 1), mk(&mut small, 2)];
@@ -37432,12 +37624,12 @@ fn uperf_d_diff_battery() {
         // the chain GEMM ref == fast on the synthetic layers
         for lay in &lays {
             let (g_ref, g_fast) = (
-                bf_matmul_i64_ref(&lay.x, &lay.wg_t, t, BF_D, BF_F),
-                bf_matmul_i64(&lay.x, &lay.wg_t, t, BF_D, BF_F),
+                bf_matmul_i64_ref(&lay.x, &lay.wg_t, t, bf_d(), bf_f()),
+                bf_matmul_i64(&lay.x, &lay.wg_t, t, bf_d(), bf_f()),
             );
             let (d_ref, d_fast) = (
-                bf_matmul_i64_ref(&lay.h8, &lay.wd_t, t, BF_F, BF_D),
-                bf_matmul_i64(&lay.h8, &lay.wd_t, t, BF_F, BF_D),
+                bf_matmul_i64_ref(&lay.h8, &lay.wd_t, t, bf_f(), bf_d()),
+                bf_matmul_i64(&lay.h8, &lay.wd_t, t, bf_f(), bf_d()),
             );
             let ok = g_ref == g_fast && d_ref == d_fast;
             legs += 1;
@@ -37450,7 +37642,7 @@ fn uperf_d_diff_battery() {
                 h.update(v.to_le_bytes());
             }
             battery.update(h.finalize());
-            println!("  {} chain GEMM layer {} ref == fast (t {t}: {}x{}x{} + {}x{}x{})", if ok { "ok  " } else { "FAIL" }, lay.l, t, BF_D, BF_F, t, BF_F, BF_D);
+            println!("  {} chain GEMM layer {} ref == fast (t {t}: {}x{}x{} + {}x{}x{})", if ok { "ok  " } else { "FAIL" }, lay.l, t, bf_d(), bf_f(), t, bf_f(), bf_d());
         }
         // agg_digit_witness ref == fast on a small mixed group
         {
@@ -41073,23 +41265,23 @@ fn uperf_o_layers(n_layers: usize, t: usize, seed: u64) -> Vec<BfLayer> {
             l,
             exps: (0, 0, 0, 0, 0, 0),
             shifts: (7, 6, 5, 8),
-            x: small(t * BF_D),
-            wg_t: small(BF_D * BF_F),
-            wu_t: small(BF_D * BF_F),
-            wd_t: small(BF_F * BF_D),
-            gacc: wide(&mut small, t * BF_F, 211),
-            rg: small(t * BF_F).iter().map(|v| v.rem_euclid(128)).collect(),
-            g8: small(t * BF_F),
-            a8: small(t * BF_F),
-            uacc: wide(&mut small, t * BF_F, 173),
-            ru: small(t * BF_F).iter().map(|v| v.rem_euclid(64)).collect(),
-            u8v: small(t * BF_F),
-            hh: wide(&mut small, t * BF_F, 97),
-            rh: small(t * BF_F).iter().map(|v| v.rem_euclid(32)).collect(),
-            h8: small(t * BF_F),
-            dacc: wide(&mut small, t * BF_D, 251),
-            rd: small(t * BF_D).iter().map(|v| v.rem_euclid(256)).collect(),
-            z: small(t * BF_D),
+            x: small(t * bf_d()),
+            wg_t: small(bf_d() * bf_f()),
+            wu_t: small(bf_d() * bf_f()),
+            wd_t: small(bf_f() * bf_d()),
+            gacc: wide(&mut small, t * bf_f(), 211),
+            rg: small(t * bf_f()).iter().map(|v| v.rem_euclid(128)).collect(),
+            g8: small(t * bf_f()),
+            a8: small(t * bf_f()),
+            uacc: wide(&mut small, t * bf_f(), 173),
+            ru: small(t * bf_f()).iter().map(|v| v.rem_euclid(64)).collect(),
+            u8v: small(t * bf_f()),
+            hh: wide(&mut small, t * bf_f(), 97),
+            rh: small(t * bf_f()).iter().map(|v| v.rem_euclid(32)).collect(),
+            h8: small(t * bf_f()),
+            dacc: wide(&mut small, t * bf_d(), 251),
+            rd: small(t * bf_d()).iter().map(|v| v.rem_euclid(256)).collect(),
+            z: small(t * bf_d()),
         };
         out.push(lay);
     }
@@ -42472,6 +42664,166 @@ fn uperf_s_set_threads(t: usize) {
     // assert proves no pool/LazyLock read ZK_THREADS before this point.
     unsafe { std::env::set_var("ZK_THREADS", t.to_string()) };
     assert_eq!(ring::eval_proof::threads(), t, "ZK_THREADS was read before uperf-s set it");
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF3-W] Lane W battery (M1+M2 of the MVP plan): the W-5 BfModel
+// sidecar parser (incl. malformed-sidecar rejection), the W-4 acc-bit
+// derivation (125M must reproduce the pre-W-4 25/26 constants; the 8B
+// dims give the contract's honest 27/29 rows), and the W-2 Option
+// planner at the 8B group counts (counts only — no witness data).
+// Run WITHOUT ZK_MODEL_EXPORT_DIR: the legs pin the M125 defaults.
+
+fn uperf_w_battery() {
+    use ring::eval_proof::{plan_level, plan_schedule};
+    println!("[UPERF3-W] uperf-w battery: W-5 parser / W-4 acc classes / W-2 planner");
+    let t0 = Instant::now();
+    let mut legs = 0usize;
+    let mut fails = 0usize;
+    let mut row = |label: &str, good: bool| {
+        println!("  {} {label}", if good { "ok  " } else { "FAIL" });
+        legs += 1;
+        if !good {
+            fails += 1;
+        }
+    };
+
+    row(
+        "precondition: ZK_MODEL_EXPORT_DIR unset (the legs pin the M125 defaults)",
+        std::env::var("ZK_MODEL_EXPORT_DIR").is_err(),
+    );
+
+    // -- W-4: the accumulator class bits from the inner dim. ---------------
+    row("W-4 acc_bits(768) == 25 (the 125M Gacc/Uacc constant)", bf_acc_bits(768) == 25);
+    row("W-4 acc_bits(2048) == 26 (the 125M Dacc constant)", bf_acc_bits(2048) == 26);
+    row("W-4 acc_bits(4096) == 27 (8B d — the contract's honest row)", bf_acc_bits(4096) == 27);
+    row("W-4 acc_bits(14336) == 29 (8B f — the contract's honest row)", bf_acc_bits(14336) == 29);
+    {
+        let lay = bg_dummy_layer(0);
+        let (qm_g, _) = bf_entry_typing(4, &lay); // Gacc
+        let (qm_u, _) = bf_entry_typing(8, &lay); // Uacc
+        let (qm_d, _) = bf_entry_typing(14, &lay); // Dacc
+        row(
+            "W-4 default-model typing: Gacc/Uacc 25 bits, Dacc 26 (pre-W-4 constants reproduced)",
+            qm_g.bits == 25 && qm_u.bits == 25 && qm_d.bits == 26,
+        );
+        let (_, l0_g) = bg_entry_class(4, &lay);
+        let (_, l0_d) = bg_entry_class(14, &lay);
+        row(
+            "W-4 default-model classes: l0(Gacc) == 13, l0(Dacc) == 14 (the consumer rows)",
+            l0_g == 13 && l0_d == 14,
+        );
+    }
+
+    // -- W-2: the Option planner at the 8B group counts (counts only). ----
+    // 44M digit rings ~ the weight group of >= 4 layers of the 8B model
+    // (e0 = 1), 352M ~ all 32 layers; 36M/73M ~ act-group-class counts
+    // (e0 = 2). Pre-W-2 the r = 2 candidate's assert killed the whole
+    // search above ~37.7M rings; now it declines and the search picks a
+    // feasible r.
+    let q = ring_ctx_q8().zq.q;
+    for &(n0, e0, expect_r2_none) in
+        [(44_000_000usize, 1u32, true), (352_000_000, 1, true), (36_000_000, 2, false), (73_000_000, 2, true)]
+            .iter()
+    {
+        let r2 = plan_level(n0, e0, 2, q);
+        let sched = plan_schedule(n0, e0, q, None);
+        let r0 = sched.levels.first().map(|l| l.r).unwrap_or(0);
+        println!(
+            "    n0 {n0} e0 {e0}: r = 2 {} | schedule {} levels, level-0 r {r0}, floor {} rings e{}",
+            if r2.is_none() { "DECLINES (None)" } else { "feasible" },
+            sched.levels.len(),
+            sched.floor_rings,
+            sched.floor_e
+        );
+        row(
+            &format!("W-2 plan_level(n0 = {n0}, e0 = {e0}, r = 2) {} (pinned)",
+                if expect_r2_none { "declines" } else { "is feasible" }),
+            r2.is_none() == expect_r2_none,
+        );
+        row(
+            &format!("W-2 plan_schedule completes at n0 = {n0}, e0 = {e0} (levels >= 1, floor < n0)"),
+            !sched.levels.is_empty() && sched.floor_rings < n0,
+        );
+    }
+
+    // -- W-5: the BfModel sidecar parser. ----------------------------------
+    let good = "00 model synth-2l\n\
+                00 dims 16 256 512 2\n\
+                00 exps -3 -3 -3 -3 0 1 -8 -8 -8\n\
+                01 exps -2 -4 -4 -3 0 -1 -8 -8 -8\n\
+                00 X 0123abc\n\
+                00 shifts 8 8 6 9\n";
+    match bf_model_parse_text(good) {
+        Ok(m) => {
+            row(
+                "W-5 parser: well-formed synthetic sidecar -> tag/dims/e_w/exps",
+                m.tag == "synth-2l"
+                    && (m.t, m.d, m.f, m.layers) == (16, 256, 512, 2)
+                    && m.e_w == -8
+                    && m.exps == vec![(-3, -3, -3, -3, 0, 1), (-2, -4, -4, -3, 0, -1)],
+            );
+        }
+        Err(e) => row(&format!("W-5 parser: well-formed synthetic sidecar REJECTED ({e})"), false),
+    }
+    let bad: [(&str, &str); 6] = [
+        ("missing dims row", "00 model x\n00 exps -3 -3 -3 -3 0 1 -9 -9 -9\n"),
+        ("missing model row", "00 dims 16 256 512 1\n00 exps -3 -3 -3 -3 0 1 -9 -9 -9\n"),
+        ("exps row with 8 fields", "00 model x\n00 dims 16 256 512 1\n00 exps -3 -3 -3 -3 0 1 -9 -9\n"),
+        (
+            "per-tensor weight exponents",
+            "00 model x\n00 dims 16 256 512 1\n00 exps -3 -3 -3 -3 0 1 -9 -8 -9\n",
+        ),
+        (
+            "missing layer-1 exps row",
+            "00 model x\n00 dims 16 256 512 2\n00 exps -3 -3 -3 -3 0 1 -9 -9 -9\n",
+        ),
+        (
+            "non-numeric layer field",
+            "xx model x\n00 dims 16 256 512 1\n00 exps -3 -3 -3 -3 0 1 -9 -9 -9\n",
+        ),
+    ];
+    for (what, text) in bad {
+        row(
+            &format!("W-5 parser: {what} REJECTED"),
+            bf_model_parse_text(text).is_err(),
+        );
+    }
+    // The committed m8b-format 125M re-export sidecar (lane R's fixture)
+    // must parse to exactly the M125 const model.
+    {
+        let p = std::path::PathBuf::from("results/m8b_test/m125_reexport/digests.txt");
+        let p = if p.exists() {
+            p
+        } else {
+            std::path::PathBuf::from("..").join("results/m8b_test/m125_reexport/digests.txt")
+        };
+        match std::fs::read_to_string(&p).map_err(|e| e.to_string()).and_then(|t| bf_model_parse_text(&t)) {
+            Ok(m) => row(
+                "W-5 parser: committed m125_reexport sidecar == the M125 const model (tag frugal-125m, 512/768/2048/12, e_w -9, 12 exps rows)",
+                m.tag == "frugal-125m"
+                    && (m.t, m.d, m.f, m.layers) == (BF_T, BF_D, BF_F, 12)
+                    && m.e_w == -9
+                    && m.exps == M125_EXP.to_vec(),
+            ),
+            Err(e) => row(&format!("W-5 parser: committed m125_reexport sidecar unreadable/rejected ({e})"), false),
+        }
+    }
+
+    println!(
+        "[UPERF3-W] battery: {legs} legs, {fails} FAIL in {:.2}s",
+        t0.elapsed().as_secs_f64()
+    );
+    if fails > 0 {
+        std::process::exit(1);
+    }
+}
+
+fn uperf_w_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("battery") => uperf_w_battery(),
+        _ => println!("uperf-w battery"),
+    }
 }
 
 fn uperf_s_main(args: &[String]) {
