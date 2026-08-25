@@ -597,3 +597,74 @@ per-COLUMN w_down scales (floor_requant already takes per-column
 shifts; absorbs the whole t-fold, deletes the migration damage) plus
 wider a/h/z at the ~6 outlier layers; option (c) stays non-viable
 (+7.9..+9.1 everywhere). Details: U_PERF3_M8B_SMOOTH_REPORT.md.
+
+## Agent X status (wt-uperf3-x)
+
+STATE: DONE (2026-08-25, round 2, design lane — documents only).
+Deliverable: docs/zkmatrix-poc/U_PERF3_ATTENTION_STATEMENT_DESIGN.md
+(859 lines, sections 0-6), the MVP-2 opening memo. Files touched:
+the memo (NEW) + this status section; nothing else.
+
+THE ANSWER, compressed:
+- **No new claim family at P0/P2** (ATTENTION_INTEGER_SPEC.md's
+  verdict re-confirmed against the as-built BF/BK/BG machinery):
+  the full layer is more matmul instances, more zero-checks, more
+  range/lookup columns, five public-weight wirings, ONE contract
+  amendment (AM-1: the committed-divisor floor-division relation as
+  a C1 chain form). C1-C6 discharged concretely: C2 head-axis/d-axis
+  exponent vectors ride the BG layer-coefficient-MLE precedent (no
+  new machinery); C5 members named with signatures (exp-neg per
+  (eS, d_h); gelu-tanh; tanh-softcap only-if-private-logits;
+  parametric range widths); C4 extended over attention classes
+  (AM-10 subsumes AT-O1).
+- **Headline multiples, full layer / FFN-only at T = 512** [COUNTED
+  witness / MODEL prove]: 125M x3.56 witness, ~x5 prove as-built
+  (~x2.5 Stage-A form) — 21.0 s -> ~105 s / ~55 s on the reference
+  rig; Mistral-8B x1.72 witness, ~x2.0 prove — MVP-1's 35-75 min
+  Mac -> ~1.2-2.5 h; Gemma-12B x1.72 over its own FFN (itself x1.53
+  Mistral by rings) -> ~2-4 h Mac class. Crossover T where attention
+  overtakes the FFN: ~163 / ~733 / ~1071 — 125M is attention-
+  dominated at the contract T, the 8B class is not. Gemma's band
+  masks linearize 40/48 layers beyond T = 1024 (a route-N argument
+  beyond quantization).
+- **Two new break items at 8B-class full layer** [COUNTED]:
+  X-W12 — the WEIGHT group (436M rings Mistral / 666M Gemma) busts
+  the 376.7M level-0 gate cap MVP-1 just cleared (split k = 2-3);
+  the act group needs k ~ 5-7. And the descent leaves multiply
+  x4.7-9.3 (score-volume range columns), pushing the as-built
+  Mistral-full peak to ~260-300 GB — **over the Mac; Stage A is the
+  memory-feasibility line for MVP-2 at 8B, not an optimization**
+  (memo 4.5) — the range/lookup facts should land on lane S's
+  zero-check machinery from the start (memo 3.3, needs Victor's
+  sequencing ruling).
+- **RoPE ruled**: route (a), proved elementwise rotations (spec
+  form, spike-validated, fRo 7 holds everywhere); the fold-into-
+  scores route (b) counted honestly (-4% extension, busts q31 at
+  d_h >= 256, changes the declared function) and recorded, not
+  chosen.
+- **THE ONE SPIKE: X-S1** — one committed (head, row) softmax chain
+  end to end through the REAL machinery (row max + attainment + exp
+  LookupAt member + masked sum + division zero-check on one rolling
+  transcript), REJECT battery AT-O8/O9, bit-equal vs the Python
+  spike, plus a Stage-A equivalence leg; 2-4 days, additive, no
+  freeze move.
+- **Amendments proposed (never silently assumed)**: AM-1..AM-10
+  (memo 6.3) — AM-1 (division relation into TARGET_CONTRACT §2 v3),
+  AM-2/3 (C5 params key, C2 attention axes), AM-4 (rope table keyed
+  by base; Gemma dual bases), AM-5 (QK-norm site + four-norm
+  sandwich), AM-6 (band masks), AM-7 (k_eq_v), AM-8 (layer_scalar
+  public constant), AM-9 (softcap = public post-processing when
+  logits public), AM-10 (C4 over attention).
+- Full-LLM artifact/tier: 125M ~2.8 MiB P0 as-built / ~1.0-1.3 MiB
+  Stage-A; Mistral-full ~4.4-4.9 MB P0, ~5.5-6.5 MB P3 [MODEL] —
+  outside every frozen FFN tier; tier-row proposal priced for the
+  MVP-2 close (memo 4.4).
+
+OPEN / FOR VICTOR (memo 5.2): the AM set with the C1-C6 ruling;
+table freezes after X2; the Stage-A sequencing ruling; the full-LLM
+tier row at MVP-2 close; lane Y to resolve the Gemma [ASSUMED]
+facts (global-layer head map 8 x d_h 512, layer_scalar semantics,
+rope bases, softcap site) before Gemma-full counts are promoted.
+NOTE for the record: the ledger's Gemma "~8.7e12 MACs" is the
+2-flops-per-MAC convention; in the pass's own 1x convention
+(Mistral 2.89e12) the Gemma FFN is 4.35e12 = x1.51 (memo 3.1).
