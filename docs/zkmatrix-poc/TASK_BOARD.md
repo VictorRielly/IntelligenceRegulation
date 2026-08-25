@@ -27,11 +27,16 @@ ledger's newest Agent-status sections over this block.
   quantization contract draft (QUANTIZATION_CONTRACT_DESIGN.md,
   awaiting Victor's ruling); Gemma 4 12B QAT scoped (favorable dims,
   no license gate).
-- IN FLIGHT on the WSL box (Claude lanes; branch uperf3-y + work in
-  the main checkout by agent V): V = per-column pricing experiment
-  (python, main checkout), Y = Gemma 4 reference walker (python,
-  wt-uperf3-y). Branches are pushed to origin as they progress;
-  PARTIAL branches are NORMAL.
+- IN FLIGHT on the WSL box: agent V = per-column pricing experiment
+  (python, main checkout).
+- LANE Y LANDED AND MERGED (2026-08-25): the Gemma 4 12B reference
+  walker, VALIDATED (semantics pinned to the transformers source;
+  templated factual probe 5/5 rank-0; templated greedy "...gold is
+  Au."). **T14 is now OPEN with exact commands** (Section 3) — the
+  full C4 gate can run on the Mac OR on this box once agent V
+  frees the CPU. Gate risk recorded: the smoke shows hot early
+  layers (X absmax 165.9 at l0) — whether QAT tamed the outlier
+  profile is exactly what the verdict decides.
 - LANE W LANDED AND MERGED (2026-08-25, gates re-run green on the
   merged tree): the rig accepts arbitrary model shapes — `BfModel`
   loaded from `ZK_MODEL_EXPORT_DIR`'s digests.txt (default = the
@@ -525,18 +530,34 @@ QAT-int8-activation checkpoint pass the contract's calibration gate
 (0 range-fact violations + small loss delta) where Mistral-7B failed
 with 14,531 violations and +8.18 nats? If yes, this checkpoint is
 the MVP vehicle.
-GATE: do NOT start until `scripts/m8b_gemma4_walker.py` exists on
-main AND this task's steps have been filled in with the exact
-commands (the orchestrator fills them from lane Y's landing; if
-Claude is out of usage and the scripts ARE on main but this block is
-still a placeholder: the walker script's header comment carries its
-own usage block — follow that, run the decode gate first, then the
-full calibration, paste everything, and treat any assert/exception
-as ACCEPT-fail = paste + stop, per Section 0).
+GATE: OPEN as of 2026-08-25 — lane Y landed; the scripts are on
+main. `git pull` first.
 PREREQ: T13 done; the FineWeb-Edu text file from T12 step 2 (same
 sampler data as the Mistral baseline — REQUIRED so the verdicts are
-comparable).
-STEPS: (placeholder — filled at lane Y's landing)
+comparable). COST: each 48-layer decode pass ~2-6 min on the Mac;
+the full calibration ~15-40 min [MODEL]; RSS < 6 GB; F2 can run.
+STEPS (all from the repo root; the walker defaults to
+`~/models/gemma-4-12B-qat` = T13's location):
+1. `git pull`
+2. `python3 scripts/m8b_gemma4_walker.py --decode "The chemical symbol for gold is" --template`
+   ACCEPT: the completion contains " Au".
+   STOP+paste if not. **NOTE: `--template` is REQUIRED — without it
+   this instruction-tuned checkpoint greedy-decodes degenerate
+   zeros; that is a known property of the model (its own
+   generation_config suppresses those tokens), NOT a bug — do not
+   report a plain-decode failure.**
+3. `python3 scripts/m8b_gemma4_walker.py --probe --template`
+   ACCEPT: >= 3 of the 5 factual prompts in the top-2 ranks (the
+   WSL reference run scored 5/5 at rank 0 — paste your ranks; a
+   materially worse table is a STOP+paste).
+4. The full qualification gate (the C4 verdict):
+   `python3 scripts/m8b_gemma4_walker.py --text ~/models/fineweb-edu/sample_text.txt --out-json results/m8b_gemma4_calibration_mac.json`
+   ACCEPT: the script exits 0 and prints a VERDICT block. There is
+   NO pass/fail expectation here — the verdict itself (violations
+   by class, loss delta, silu/gelu member list) IS the deliverable,
+   whatever it says. Any exception/assert = STOP+paste.
+5. Commit `results/m8b_gemma4_calibration_mac.json` + paste the
+   VERDICT block into Section 5's log; push.
 RECORD: the full verdict block (violations by class, loss delta, the
 member digests) pasted into Section 5 + PROGRESS_UPERF3.md log line;
 commit results JSONs; push.
