@@ -8,8 +8,51 @@ its files, its exact commands, and a byte-identity acceptance. If a
 task's acceptance fails, revert the task's code and record the failure
 here; do not "fix forward" into the transcript.
 
-If you are Grok/Cursor: start at Section 3, take the first task marked
-`OPEN` whose `WHO` includes your box, and follow it literally.
+If you are Grok/Cursor: read Section 0, then start at Section 3, take
+the first task in the ORDER Section 0 names, and follow it literally.
+
+## 0. HANDOFF STATE (the orchestrator keeps this current at every push)
+
+WHY THIS SECTION: Victor's Claude usage can run out MID-TRANCHE. When
+that happens the repository must be continuable by Grok alone. This
+block is the always-current answer to "what is going on and what do I
+do". If the AS-OF date below is stale by more than a day, trust the
+ledger's newest Agent-status sections over this block.
+
+**AS OF 2026-08-25 (commit 73adfb3 + round-2 lanes cut):**
+- DONE and pushed to main: U-PERF3 round 1 (8B scaling memo, Stage-A
+  spike GO/GO, headline-routes memo); the Mistral-7B calibration
+  finding (the checkpoint fails TARGET_CONTRACT §2 as written — see
+  PROGRESS_UPERF3.md "T12 WSL validation pass"); the general
+  quantization contract draft (QUANTIZATION_CONTRACT_DESIGN.md,
+  awaiting Victor's ruling); Gemma 4 12B QAT scoped (favorable dims,
+  no license gate).
+- IN FLIGHT on the WSL box (Claude lanes; branches uperf3-w/x/y +
+  work in the main checkout by agent V): V = per-column pricing
+  experiment (python, main checkout), W = the rig accepts arbitrary
+  model shapes (Rust, wt-uperf3-w), X = attention statement design
+  memo (docs, wt-uperf3-x), Y = Gemma 4 reference walker (python,
+  wt-uperf3-y). Their branches are pushed to origin as they
+  progress; PARTIAL branches are NORMAL.
+- **GROK: your order is T13 -> T1 -> T4 -> T12 -> T14 (Section 3;
+  T14 only once its status says its scripts are on main).** Nothing
+  else. Specifically:
+  - NEVER touch, merge, rebase, or continue the uperf3-* branches —
+    even if they look finished. Claude or Victor merges lanes.
+  - NEVER edit Rust or protocol files; every Grok task is KIND=RUN
+    (run commands, paste outputs, commit results).
+  - If a task's ACCEPT fails: STOP that task, paste the full output
+    into Section 5's log with the date and box, commit, push, and
+    move to the NEXT task in the order. A pasted failure is a
+    COMPLETED Grok task — do not try to fix code.
+  - Commit and push (main) after EVERY completed task, not at the
+    end of the session: one task = one commit, message prefix
+    `U-PERF3 GROK: <task id>`.
+- RULES FOR WRITING NEW GROK TASKS (Claude/Victor): KIND=RUN only;
+  numbered steps with ONE command per step; no compound shell, no
+  env-var prefixes unless the task text gives the exact line to
+  paste; an explicit ACCEPT and an explicit STOP per step; name the
+  RAM/disk/time cost up front; say what to commit.
 
 ## 1. Rules (read once)
 
@@ -437,6 +480,52 @@ committed; the paste in the log.
 RECORD: TASK_BOARD §4 + a PROGRESS_UPERF3.md log line ("T12 done:
 eW range …, silu members …, violations 0/…, RSS … GB").
 
+---
+
+### T13 — download Gemma 4 12B QAT on the Mac  `OPEN`  WHO: MAC  KIND: RUN
+WHY: the prime "native" candidate checkpoint (QAT-trained with int8
+activations) for the general quantization contract; the Mac will run
+its qualification gate (T14) and, if it qualifies, the 12B proof.
+Verified on the WSL box 2026-08-25: NO license gate, no token needed.
+COST: ~23 GB network + 23 GB disk; minutes to ~1 h depending on
+bandwidth; no RAM to speak of. F2 training can keep running.
+STEPS:
+1. `python3 -c "import os; from huggingface_hub import snapshot_download; snapshot_download('google/gemma-4-12B-it-qat-q4_0-unquantized', local_dir=os.path.expanduser('~/models/gemma-4-12B-qat'), allow_patterns=['*.safetensors','*.json','tokenizer.model'])"`
+   (If `huggingface_hub` is missing: `pip install huggingface_hub`
+   first — that is the T12 prereq set.)
+2. `ls ~/models/gemma-4-12B-qat/`
+   ACCEPT: config.json, model.safetensors, tokenizer.json present.
+   STOP if a login/403 error appears — paste it (the WSL box needed
+   no token; a gate here is news).
+3. `du -sh ~/models/gemma-4-12B-qat/`
+   ACCEPT: ~23 GB.
+RECORD: one log line in Section 5 ("T13 done: 23G, files listed"),
+commit, push.
+
+---
+
+### T14 — the Gemma 4 qualification-gate run on the Mac  `GATED (watch for scripts/m8b_gemma4_walker.py on main)`  WHO: MAC  KIND: RUN
+WHY: THE decisive measurement for the "native" route — does a
+QAT-int8-activation checkpoint pass the contract's calibration gate
+(0 range-fact violations + small loss delta) where Mistral-7B failed
+with 14,531 violations and +8.18 nats? If yes, this checkpoint is
+the MVP vehicle.
+GATE: do NOT start until `scripts/m8b_gemma4_walker.py` exists on
+main AND this task's steps have been filled in with the exact
+commands (the orchestrator fills them from lane Y's landing; if
+Claude is out of usage and the scripts ARE on main but this block is
+still a placeholder: the walker script's header comment carries its
+own usage block — follow that, run the decode gate first, then the
+full calibration, paste everything, and treat any assert/exception
+as ACCEPT-fail = paste + stop, per Section 0).
+PREREQ: T13 done; the FineWeb-Edu text file from T12 step 2 (same
+sampler data as the Mistral baseline — REQUIRED so the verdicts are
+comparable).
+STEPS: (placeholder — filled at lane Y's landing)
+RECORD: the full verdict block (violations by class, loss delta, the
+member digests) pasted into Section 5 + PROGRESS_UPERF3.md log line;
+commit results JSONs; push.
+
 ## 4. Baselines and digests (append-only)
 
 | date | box/label | shape | command | EVAL-PROOF DIGEST | prove s | verify s | commit |
@@ -537,7 +626,8 @@ MVP-2 as the memory tranche; de-risking spike **S4** named (2-4
 days, no freeze move). AWAITING VICTOR: the T12 download go, the
 S4/round-2 ruling, Mistral-vs-Llama naming (memo §5.1).
 
-**Grok (Mac) — the RUN queue (take in order):**
+**Grok (Mac) — the RUN queue (ORDER PER SECTION 0: T13 -> T1 -> T4
+-> T12 -> T14; T13/T14 are in Section 3 above):**
 1. **T1 (still open, still valuable):** `uperf-pc full-profile 12 512`
    at ZK_THREADS 1, 8, 16 (and one `ZK_UPERF_ORACLE=1` run); digests
    must match the WSL box's (statement 2f8a92f8… / EVAL 4c259008…);
