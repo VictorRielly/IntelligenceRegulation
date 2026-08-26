@@ -94,6 +94,69 @@ def make_chain_ffn(scales, members, wide):
     return ffn
 
 
+def requant_narrow(acc, sh, q, mode, viol_counter, key):
+    """Exact requant at a possibly-NEGATIVE shift (widened classes can
+    push sh below 0: that is an exact public up-scaling, no rounding),
+    then the range fact at Q=q."""
+    if np.isscalar(sh) and sh < 0:
+        y = acc * (2.0 ** (-sh))            # exact, lossless
+    else:
+        y = m125.floor_requant(acc, sh, mode)
+    viol = int(np.count_nonzero(np.abs(y) > q))
+    viol_counter[key] += viol
+    return np.clip(y, -q, q)
+
+
+def make_exact_ffn(scales, members, wide, mode, viols):
+    """The EXACT integer chain (zfix's make_zfix_ffn semantics, int
+    matmuls on quantized operands, floor/round requant), with the sites
+    in `wide` ⊆ {u,h,z} at int16 (Q 32767, exponent e-8) and the rest
+    at int8. Gate stays the int8 table (a16 would need a 65536-row
+    table — measured separately if hz16 is insufficient)."""
+    Q16 = 32767
+
+    def ffn(li, x, lw):
+        sc = scales[li]
+        B, T, C = x.shape
+        tab = members[(sc["eGate"], sc["eA"])][0].astype(np.float64)
+        Wq = {}
+        for name, ekey in (("w_gate", "eWg"), ("w_up", "eWu"),
+                           ("w_down", "eWd")):
+            q, _ = m125.quantize(lw[name].astype(np.float64), sc[ekey])
+            Wq[name] = q
+        eU = sc["eUp"] - (8 if "u" in wide else 0)
+        eH = sc["eH"] - (8 if "h" in wide else 0)
+        eZ = sc["eZ"] - (8 if "z" in wide else 0)
+        qU = Q16 if "u" in wide else 127
+        qH = Q16 if "h" in wide else 127
+        qZ = Q16 if "z" in wide else 127
+        sh_g = sc["eGate"] - sc["eX"] - sc["eWg"]
+        sh_u = eU - sc["eX"] - sc["eWu"]
+        sh_h = eH - sc["eA"] - eU
+        sh_z = eZ - eH - sc["eWd"]
+        out = np.empty((B, T, C), dtype=np.float32)
+        for b in range(B):
+            xf = x[b].astype(np.float64)
+            xq, xclip = m125.quantize(xf, sc["eX"])
+            viols[li]["X_clip"] += xclip
+            acc_g = xq @ Wq["w_gate"].T
+            acc_u = xq @ Wq["w_up"].T
+            yg = requant_narrow(acc_g, sh_g, 127, mode, viols[li],
+                                "gate_range")
+            yu = requant_narrow(acc_u, sh_u, qU, mode, viols[li],
+                                "up_range")
+            aq = tab[(yg.astype(np.int64) + 128)]
+            hq = aq * yu
+            yh = requant_narrow(hq, sh_h, qH, mode, viols[li],
+                                "h_range")
+            acc_d = yh @ Wq["w_down"].T
+            yz = requant_narrow(acc_d, sh_z, qZ, mode, viols[li],
+                                "z_range")
+            out[b] = (yz * (2.0 ** eZ)).astype(np.float32)
+        return out
+    return ffn
+
+
 def make_site_ffn(scales, members, site):
     """fp GeGLU FFN with quantization at exactly one site."""
     def ffn(li, x, lw):
@@ -161,6 +224,36 @@ def main():
           "baseline delta(full) +%.4f"
           % (len(vsub), len(val), base["verdict"]["loss_ref"],
              base["verdict"]["loss_delta_nats"]["A"]))
+
+    if "--exact" in sys.argv:
+        from collections import Counter
+        specs = [("exact_floor_a8", set(), "floor"),
+                 ("exact_floor_hz16", {"h", "z"}, "floor"),
+                 ("exact_round_hz16", {"h", "z"}, "round"),
+                 ("exact_round_a8", set(), "round")]
+        results = {}
+        for label, wide, mode in specs:
+            vio = [Counter() for _ in range(arch.n_layers)]
+            t0 = time.time()
+            loss = walker.loss(vsub, ffn_override=make_exact_ffn(
+                scales, members, wide, mode, vio))
+            tot = sum(sum(c.values()) for c in vio)
+            by = Counter()
+            for c in vio:
+                by.update(c)
+            results[label] = dict(loss=loss, total_viol=tot,
+                                  viol_by_class=dict(by),
+                                  wall_s=round(time.time() - t0, 1))
+            print("  %-18s loss %.4f  viol %d %s  (%.0fs)"
+                  % (label, loss, tot, dict(by), time.time() - t0))
+            OUT.write_text(json.dumps(dict(
+                meta=dict(experiment="m8b_gemma4_attrib --exact "
+                                     "(exact chain, widened classes)",
+                          val_take=len(vsub), seed=seed, t=t,
+                          box="[MEASURED WSL-BOX NT]"),
+                results=results), indent=1))
+        print("JSON ->", OUT)
+        return
 
     if "--chains" in sys.argv:
         runs = [("fp", None),
