@@ -1,0 +1,152 @@
+{
+ "experiment": "m8b_blite_experiment (agent V: per-column pow2 requant scales u/h/z + per-column w_down + widened SiLU classes; exact-integer simulation)",
+ "checkpoint": "/home/victor/models/Mistral-7B-v0.1",
+ "seed": 1337,
+ "dims": {
+  "layers": 2,
+  "d": 4096,
+  "f": 14336,
+  "t": 512
+ },
+ "truncated": true,
+ "loss_ref": 9.948077785426635,
+ "ref_source": "recomputed plain walk (truncated stack)",
+ "positions": 4096,
+ "baselines": {
+  "plain_chain_delta": 8.177282527943255,
+  "plain_violations": 14531,
+  "weights_only_delta": 0.07873274899103722
+ },
+ "variants": [
+  {
+   "policy": {
+    "name": "equiv",
+    "ucols": false,
+    "hcols": false,
+    "zcols": false,
+    "wdcols": false,
+    "a16": null,
+    "g16": null,
+    "mx": 0,
+    "mg": 0,
+    "mu": 0,
+    "mh": 0,
+    "mz": 0,
+    "spec": "name=equiv,mx=0,mg=0,mu=0,mh=0,mz=0",
+    "s_cap": 0,
+    "r_quantile": "p999"
+   },
+   "verdict": {
+    "total_viol": 0,
+    "viol_by_class": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "loss": 10.49544275578893,
+    "loss_delta": 0.5473649703622954,
+    "weights_only": null,
+    "calibrates_formally": true
+   },
+   "per_layer": [
+    {
+     "acc": {
+      "gateup": 128407.0,
+      "had": 14520.0,
+      "down": 8071.0
+     },
+     "viol": {
+      "X_clip": 0,
+      "gate_range": 0,
+      "up_range": 0,
+      "h_range": 0,
+      "z_range": 0
+     },
+     "rel_ffn_err": 6.502342381708473,
+     "acct": {
+      "layer": 0,
+      "sh_g": 11,
+      "sh_u_max": 10,
+      "sh_h_max": 7,
+      "sh_z_max": 6,
+      "align_max": 0,
+      "sum_2a": 14336.0,
+      "acc_bits_down": 29,
+      "tiers_at_8": 1,
+      "n_align_gt0": 0,
+      "fixups": {}
+     }
+    },
+    {
+     "acc": {
+      "gateup": 138712.0,
+      "had": 4690.0,
+      "down": 5358.0
+     },
+     "viol": {
+      "X_clip": 0,
+      "gate_range": 0,
+      "up_range": 0,
+      "h_range": 0,
+      "z_range": 0
+     },
+     "rel_ffn_err": 8.027632510844398,
+     "acct": {
+      "layer": 1,
+      "sh_g": 10,
+      "sh_u_max": 11,
+      "sh_h_max": 6,
+      "sh_z_max": 6,
+      "align_max": 0,
+      "sum_2a": 14336.0,
+      "acc_bits_down": 29,
+      "tiers_at_8": 1,
+      "n_align_gt0": 0,
+      "fixups": {}
+     }
+    }
+   ],
+   "shift_hists": {
+    "sh_u": {
+     "10": 14336,
+     "11": 14336
+    },
+    "sh_h": {
+     "7": 14336,
+     "6": 14336
+    },
+    "sh_z": {
+     "6": 8192
+    },
+    "align": {
+     "0": 28672
+    }
+   },
+   "engine": {
+    "max_sh_u": 11,
+    "max_sh_h": 7,
+    "max_sh_z": 6,
+    "max_align": 0,
+    "worst_acc_bits_down": 29,
+    "layers_over_31bit_acc": [],
+    "layers_multi_tier": [],
+    "rem_bits_needed": 11
+   },
+   "silu_wide_inventory": [],
+   "silu_members": {
+    "-3,-4": {
+     "digest": "e1ae1075ca7f9f0f35d1535539f24aebc7920a37422ac10ce96c1603e5afb0bf",
+     "frozen": false
+    },
+    "-1,-1": {
+     "digest": "9ee726a744d3e61aa1398fc3b3767fe6512da125ac4c23856bb1a237ef41d5e8",
+     "frozen": false
+    }
+   }
+  }
+ ],
+ "wall_s": 174.63076257705688,
+ "peak_rss_gb": 3.910628
+}

@@ -607,7 +607,7 @@ def parse_bl_spec(spec):
     -> option dict. Layer lists use ';' separators inside one token."""
     opt = dict(name="v", ucols=False, hcols=False, zcols=False,
                wdcols=False, a16=None, g16=None,
-               mx=2, mg=1, mu=1, mh=1, mz=1)
+               mx=2, mg=1, mu=1, mh=1, mz=1, floor=True)
     for tok in spec.split(","):
         tok = tok.strip()
         if not tok:
@@ -625,6 +625,8 @@ def parse_bl_spec(spec):
                 raise SystemExit("unknown bl-variant key %r" % k)
         elif tok in ("ucols", "hcols", "zcols", "wdcols"):
             opt[tok] = True
+        elif tok == "nofloor":
+            opt["floor"] = False
         else:
             raise SystemExit("unknown bl-variant token %r" % tok)
     return opt
@@ -715,11 +717,19 @@ def blite_percol(stats, rows, arch, opt, s_exp):
         # a (table output; no margin — the table clamp IS the range fact)
         Qa = Q16 if (l in a16 or l in g16) else Q8
         eA = pow2_exp_q(st["a"]["absmax"], Qa)
+        # per-column robustness floor: a column's exponent never sits
+        # below the TENSOR's p999 exponent (sleepy cal columns get free
+        # val headroom, and the alignment spread compresses from the
+        # bottom — the acc-bound win); active outlier columns keep their
+        # own scales + margin.
         # u
         au = stats.chan(l, "up")
         if opt["ucols"]:
             eU = np.array([m125.pow2_exp_for(v) for v in au],
                           dtype=np.int64) + opt["mu"]
+            if opt["floor"]:
+                eU = np.maximum(eU,
+                                m125.pow2_exp_for(st["up"]["p999"]))
         else:
             eU = np.full(arch.f, r["eUp"] + opt["mu"], dtype=np.int64)
         n_fix_u = int((eU < eX + eWu).sum())
@@ -731,6 +741,9 @@ def blite_percol(stats, rows, arch, opt, s_exp):
         if opt["hcols"]:
             eH = np.array([m125.pow2_exp_for(v) for v in ah],
                           dtype=np.int64) + opt["mh"]
+            if opt["floor"]:
+                eH = np.maximum(eH,
+                                m125.pow2_exp_for(st["h"]["p999"]))
         else:
             eH = np.full(arch.f, r["eH"] + opt["mh"], dtype=np.int64)
         n_fix_h = int((eH < eA + eU).sum())
@@ -752,6 +765,9 @@ def blite_percol(stats, rows, arch, opt, s_exp):
         if opt["zcols"]:
             eZ = np.array([m125.pow2_exp_for(v) for v in az],
                           dtype=np.int64) + opt["mz"]
+            if opt["floor"]:
+                eZ = np.maximum(eZ,
+                                m125.pow2_exp_for(st["z"]["p999"]))
         else:
             eZ = np.full(arch.d, r["eZ"] + opt["mz"], dtype=np.int64)
         n_fix_z = int((eZ < p_base).sum())
