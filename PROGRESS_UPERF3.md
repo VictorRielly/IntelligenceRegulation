@@ -1046,3 +1046,103 @@ bulk-u resolution; measure the trim); (iv) the SiLU member/W-6 story
 under b-lite: a8 layers still need ~7-9 unfrozen (eGate,eA) members
 (margin-dependent), g16 layers need the NEW wide family — both wait
 on the ruling; (v) wall/RSS labels for the record pass.
+
+## Agent Z status (Gemma z-fix measurement, launched 2026-08-26)
+
+STATE: HANDED OFF 2026-08-26 (orchestrator directive after the smoke:
+no further process launches from this session; the orchestrator runs
+the full record pass `python3 scripts/m8b_gemma4_zfix.py --run
+equiv,Z1,Z2` and writes the blite report with its numbers). Commits:
+bf31d70 (scripts/m8b_gemma4_zfix.py), this one (smoke JSON + zcol
+stats npz + this section).
+
+**1. The platform (bf31d70).** NEW file scripts/m8b_gemma4_zfix.py;
+the validated walker (m8b_gemma4_walker.py) is imported UNCHANGED —
+zero risk to the decode/probe gates. Per-tensor scales/stats/ref
+numbers are REUSED verbatim from results/m8b_gemma4_calibration.json
+(same seed 1337 / windows / walker => deltas comparable to +17.6029);
+the only new calibration data is the per-column z absmax over the cal
+windows (fp collect walk, cached at results/m8b_gemma4_zcol_stats.npz
+— 3-layer slice so far; the full run re-collects 48 and re-caches).
+Derivation is agent V's zcols semantics exactly: eZ_j =
+pow2ceil(absmax_j) + mz, floored at the TENSOR z-p999 exponent,
+clamped at P_base = eH + eWd (shift >= 0, fixups counted).
+Chain = g4.make_int8_ffn's inner loop line-for-line with the one
+surgical delta at the z requant (vector shift via m125.floor_requant's
+own vector path; exact integers in f64 throughout; z_out = yz * 2^eZ_j
+exact in fp32). Variants: equiv (mechanism off — the equivalence
+gate), Z1 (percol all layers), Z2 (percol at hot {2,9,21,23,24,26}
+only), Z3 (int16 z, Qz 32767, per-tensor, hot layers — run only if Z1
+leaves a material residual delta). Incremental JSON writes per stage;
+record file results/m8b_gemma4_zfix_wsl.json.
+
+**2. Smoke results [SMOKE 3-layer TRUNCATED, WSL-BOX — results are
+NOT the model's; results/m8b_gemma4_zfix_SMOKE.json; exit 0, ~6 min
+total, walk-only (no head/loss)].**
+- EQUIVALENCE GATE: PASS — the per-tensor path reproduces the
+  baseline per-layer counters (viol dicts, acc floats, rel_ffn_err)
+  BIT-IDENTICALLY at layers 0-2, zero mismatches. The full-pass gate
+  additionally asserts the loss float bit-equal.
+- The mechanism at l2 (the 98,650-violation layer), per-column eZ all
+  layers, p999 floor on: mz=0 -> 126,567 z-viols at l2 (WORSE than
+  per-tensor: margin-less per-column ranges are tighter than the
+  tensor ceiling), mz=1 -> 22,899, **mz=2 -> 9** (l0/l1 z fully
+  clean; only leftovers = l1's known X_clip 1 + the 9). mz=2 is the
+  right primary margin (matches agent V's round-1 Mistral config).
+- Engine/statement at the smoke: max sh_z 9 (mz=2) — comfortably
+  UNDER the 16-bit CLS_REM cap (unlike Mistral's 24-27; eWd is
+  uniformly -10 and Gemma's z spread is small, absmax/p999 1.5-15) —
+  the REM-cap-raise does NOT apply to the Gemma z fix on this
+  evidence. Zero shift fixups. Statement bytes: 3840 i8/layer
+  (d-vector) => Z1 = 184,320 B, Z2 = 23,040 B.
+- THE HONEST EARLY WARNING: matched-input rel_ffn_err at l2 stays
+  ~3.0-3.8 under per-column z (baseline 3.10; mz=2 gives 3.77 — the
+  baseline's clipping was CAPPING upstream noise, the fix uncaps it).
+  The l2 FFN error is NOT z-clipping-dominated; it sits upstream at
+  the h-site RESOLUTION (h absmax/p999 = 43 at l2, eH=1 => bulk h at
+  ~2 quant levels — the Mistral disease at Gemma's hot layers; the
+  hot six all have h ratio 43-240). The z fix removes the hard
+  range-fact failure; whether the DELTA rescues is exactly what the
+  full pass measures — if it does not, the next mechanism is percol
+  sh_h (per-column eH_k) at the hot layers, NOT more z.
+- Baseline caveat for reading downstream numbers: baseline
+  rel_ffn_err at layers > 2 is measured on the post-l2-blowup stream;
+  Z1/Z2's per-layer rel errs on the healthy stream are the real
+  diagnostic of where residual error lives.
+
+**3. What the full pass produces (orchestrator, in flight).**
+results/m8b_gemma4_zfix_wsl.json: equiv (gate incl. bit-equal loss
+24.8395916385...), Z1/Z2 each with total/per-class/per-layer
+violations, loss + delta_vs_ref (ref 7.236668249862625), per-layer
+rel_ffn_err, eZ/sh histograms, max sh_z, statement bytes, wall/RSS.
+Expected shapes [MODEL, from the smoke]: Z1/Z2 z-residue O(10-100)
+elements at mz=2 (not 0 — C4(i) then needs either mz=3 at the residue
+layers or the +1-margin C6 move; l1 X_clip 1 + l12 up 14 persist
+regardless, they are X/up-site margin items outside this lane's
+question). Z3 decision rule: run only if Z1's delta stays materially
+above the +0.10-nats C4 budget region — int16-z at hot layers
+disambiguates "z-site precision" from "upstream h-resolution" (if
+int16 z ALSO fails to rescue, the residual delta is upstream and the
+answer to THE QUESTION is no-at-z-alone).
+
+**4. Report notes for U_PERF3_M8B_BLITE_REPORT.md (not started, per
+directive — structure for whoever writes it).** §0 the answer: one
+sentence per checkpoint — Mistral R+ dead on quality (percol +7.63,
+percol_g16 +7.32 vs baseline +8.18, results/
+m8b_blite_experiment_wsl.json); Gemma z-fix = Z1/Z2 delta vs +17.6029
+(fill from the record JSON), with the C4(i) residue status. §1
+mechanisms + bills: V's ledger §5 accounting (Mistral: REM 16->~28,
+align 18-21, down-acc 34-37, 18 multi-tier layers, ~47 KB/layer
+statement) vs the z-fix bill (post-accumulator, NO alignment, acc
+bound unchanged, max sh_z 9 => REM cap UNTOUCHED, 3.75 KB/layer at 6
+layers = 22.5 KB total for Z2). §2 tables: Mistral percol/percol_g16
+(viols by class, delta) x Gemma equiv/Z1/Z2(/Z3) (same columns +
+sh/exp histograms). §3 contract reading: C2 percol-eZ is the cheapest
+real mechanism and Gemma needs ONLY it (if delta rescues) — checkpoint
+strategy N+small-bridge beats R+ everywhere; margins are C6 statement
+data (mz=2 load-bearing: 0->2 bits swings l2 126,567->9). §4 open:
+(i) the ~10-element z residue policy (mz=3 local vs accept), (ii) l1
+X_clip/l12 up margin bits, (iii) percol sh_h at hot layers if quality
+does not rescue, (iv) quiesced wall-clock labels (box shared, F2
+training on the Mac; WSL numbers are NT-labeled), (v) C5: 6 GELU
+members await the freeze ruling.

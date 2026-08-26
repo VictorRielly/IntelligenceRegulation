@@ -1,0 +1,557 @@
+{
+ "meta": {
+  "experiment": "m8b_gemma4_zfix (agent Z: per-column eZ / int16 z at the z site; everything else baseline per-tensor)",
+  "checkpoint": "/home/victor/models/gemma-4-12B-qat",
+  "seed": 1337,
+  "dims": {
+   "layers": 3,
+   "d": 3840,
+   "f": 15360,
+   "t": 512
+  },
+  "truncated": true,
+  "box": "[SMOKE TRUNCATED \u2014 not the model's numbers]",
+  "baseline": {
+   "json": "/home/victor/IntelligenceRegulation/results/m8b_gemma4_calibration.json",
+   "loss_ref": 7.236668249862625,
+   "plain_delta": 17.60292338866909,
+   "plain_viol": 116852,
+   "weights_only_delta": 0.13560653455445948,
+   "ref_source": "baseline JSON loss_ref (same seed/windows/walker \u2014 deterministic)"
+  },
+  "hot_layers": [
+   2
+  ],
+  "mz": 2,
+  "floor": true,
+  "zcol_stats": "/home/victor/IntelligenceRegulation/results/m8b_gemma4_zcol_stats.npz"
+ },
+ "smoke_equiv": {
+  "passed": true,
+  "mismatches": [],
+  "record": {
+   "label": "smoke-equiv",
+   "mode": "floor",
+   "total_viol": 98651,
+   "viol_by_class": {
+    "X_clip": 1,
+    "gate_range": 0,
+    "up_range": 0,
+    "h_range": 0,
+    "z_range": 98650
+   },
+   "loss": null,
+   "acc_bounds": {
+    "gateup": [
+     61935360,
+     27
+    ],
+    "down": [
+     247741440,
+     29
+    ]
+   },
+   "engine": {
+    "max_sh_z": 7,
+    "statement_exp_bytes": 0,
+    "percol_layers": [],
+    "exp_hist_all": {},
+    "sh_hist_all": {},
+    "alignment_cost": 0,
+    "note": "post-accumulator per-output-column shift: no alignment, down-acc bound unchanged"
+   },
+   "per_layer": [
+    {
+     "acc": {
+      "gateup": 53635.0,
+      "had": 2599.0,
+      "down": 9851.0
+     },
+     "viol": {
+      "X_clip": 0,
+      "gate_range": 0,
+      "up_range": 0,
+      "h_range": 0,
+      "z_range": 0
+     },
+     "rel_ffn_err": 0.6380110086181141,
+     "z": {
+      "mode": "tensor",
+      "eZ": 2,
+      "sh_z": 7
+     }
+    },
+    {
+     "acc": {
+      "gateup": 42672.0,
+      "had": 2832.0,
+      "down": 9783.0
+     },
+     "viol": {
+      "X_clip": 1,
+      "gate_range": 0,
+      "up_range": 0,
+      "h_range": 0,
+      "z_range": 0
+     },
+     "rel_ffn_err": 0.3788297738432869,
+     "z": {
+      "mode": "tensor",
+      "eZ": 1,
+      "sh_z": 7
+     }
+    },
+    {
+     "acc": {
+      "gateup": 29343.0,
+      "had": 6555.0,
+      "down": 23993.0
+     },
+     "viol": {
+      "X_clip": 0,
+      "gate_range": 0,
+      "up_range": 0,
+      "h_range": 0,
+      "z_range": 98650
+     },
+     "rel_ffn_err": 3.1010003887117294,
+     "z": {
+      "mode": "tensor",
+      "eZ": -3,
+      "sh_z": 6
+     }
+    }
+   ],
+   "wall_s": 71.78991055488586,
+   "rss_gb": 4.183008
+  }
+ },
+ "smoke_percol_mz0": {
+  "label": "smoke-percol-mz0",
+  "mode": "floor",
+  "total_viol": 126623,
+  "viol_by_class": {
+   "X_clip": 1,
+   "gate_range": 0,
+   "up_range": 0,
+   "h_range": 0,
+   "z_range": 126622
+  },
+  "loss": null,
+  "acc_bounds": {
+   "gateup": [
+    61935360,
+    27
+   ],
+   "down": [
+    247741440,
+    29
+   ]
+  },
+  "engine": {
+   "max_sh_z": 7,
+   "statement_exp_bytes": 11520,
+   "percol_layers": [
+    0,
+    1,
+    2
+   ],
+   "exp_hist_all": {
+    "-4": 3811,
+    "-3": 29,
+    "-1": 3703,
+    "0": 3752,
+    "1": 203,
+    "2": 22
+   },
+   "sh_hist_all": {
+    "5": 11134,
+    "6": 359,
+    "7": 27
+   },
+   "alignment_cost": 0,
+   "note": "post-accumulator per-output-column shift: no alignment, down-acc bound unchanged"
+  },
+  "per_layer": [
+   {
+    "acc": {
+     "gateup": 53635.0,
+     "had": 2599.0,
+     "down": 9851.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 41
+    },
+    "rel_ffn_err": 0.620676719349038,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": 0,
+     "eZ_max": 2,
+     "sh_min": 5,
+     "sh_max": 7,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "0": 3620,
+      "1": 198,
+      "2": 22
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 43484.0,
+     "had": 2940.0,
+     "down": 10176.0
+    },
+    "viol": {
+     "X_clip": 1,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 14
+    },
+    "rel_ffn_err": 0.35550516915981534,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -1,
+     "eZ_max": 1,
+     "sh_min": 5,
+     "sh_max": 7,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-1": 3703,
+      "0": 132,
+      "1": 5
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 29118.0,
+     "had": 6156.0,
+     "down": 23876.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 126567
+    },
+    "rel_ffn_err": 3.0079806927205968,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -4,
+     "eZ_max": -3,
+     "sh_min": 5,
+     "sh_max": 6,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-4": 3811,
+      "-3": 29
+     }
+    }
+   }
+  ],
+  "wall_s": 72.27040553092957,
+  "rss_gb": 4.183484
+ },
+ "smoke_percol_mz1": {
+  "label": "smoke-percol-mz1",
+  "mode": "floor",
+  "total_viol": 22900,
+  "viol_by_class": {
+   "X_clip": 1,
+   "gate_range": 0,
+   "up_range": 0,
+   "h_range": 0,
+   "z_range": 22899
+  },
+  "loss": null,
+  "acc_bounds": {
+   "gateup": [
+    61935360,
+    27
+   ],
+   "down": [
+    247741440,
+    29
+   ]
+  },
+  "engine": {
+   "max_sh_z": 8,
+   "statement_exp_bytes": 11520,
+   "percol_layers": [
+    0,
+    1,
+    2
+   ],
+   "exp_hist_all": {
+    "-4": 3748,
+    "-3": 63,
+    "-2": 29,
+    "-1": 2849,
+    "0": 3386,
+    "1": 1220,
+    "2": 203,
+    "3": 22
+   },
+   "sh_hist_all": {
+    "5": 9129,
+    "6": 2005,
+    "7": 359,
+    "8": 27
+   },
+   "alignment_cost": 0,
+   "note": "post-accumulator per-output-column shift: no alignment, down-acc bound unchanged"
+  },
+  "per_layer": [
+   {
+    "acc": {
+     "gateup": 53635.0,
+     "had": 2599.0,
+     "down": 9851.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.6216823080765695,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": 0,
+     "eZ_max": 3,
+     "sh_min": 5,
+     "sh_max": 8,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "0": 2532,
+      "1": 1088,
+      "2": 198,
+      "3": 22
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 43432.0,
+     "had": 2940.0,
+     "down": 10074.0
+    },
+    "viol": {
+     "X_clip": 1,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.35594773460132123,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -1,
+     "eZ_max": 2,
+     "sh_min": 5,
+     "sh_max": 8,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-1": 2849,
+      "0": 854,
+      "1": 132,
+      "2": 5
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 29397.0,
+     "had": 6327.0,
+     "down": 24308.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 22899
+    },
+    "rel_ffn_err": 3.684681436680135,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -4,
+     "eZ_max": -2,
+     "sh_min": 5,
+     "sh_max": 7,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-4": 3748,
+      "-3": 63,
+      "-2": 29
+     }
+    }
+   }
+  ],
+  "wall_s": 73.23860669136047,
+  "rss_gb": 4.183484
+ },
+ "smoke_percol_mz2": {
+  "label": "smoke-percol-mz2",
+  "mode": "floor",
+  "total_viol": 10,
+  "viol_by_class": {
+   "X_clip": 1,
+   "gate_range": 0,
+   "up_range": 0,
+   "h_range": 0,
+   "z_range": 9
+  },
+  "loss": null,
+  "acc_bounds": {
+   "gateup": [
+    61935360,
+    27
+   ],
+   "down": [
+    247741440,
+    29
+   ]
+  },
+  "engine": {
+   "max_sh_z": 9,
+   "statement_exp_bytes": 11520,
+   "percol_layers": [
+    0,
+    1,
+    2
+   ],
+   "exp_hist_all": {
+    "-4": 2940,
+    "-3": 808,
+    "-2": 63,
+    "-1": 38,
+    "0": 2904,
+    "1": 3322,
+    "2": 1220,
+    "3": 203,
+    "4": 22
+   },
+   "sh_hist_all": {
+    "5": 3013,
+    "6": 6116,
+    "7": 2005,
+    "8": 359,
+    "9": 27
+   },
+   "alignment_cost": 0,
+   "note": "post-accumulator per-output-column shift: no alignment, down-acc bound unchanged"
+  },
+  "per_layer": [
+   {
+    "acc": {
+     "gateup": 53635.0,
+     "had": 2599.0,
+     "down": 9851.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.6330879290304671,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": 0,
+     "eZ_max": 4,
+     "sh_min": 5,
+     "sh_max": 9,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "0": 64,
+      "1": 2468,
+      "2": 1088,
+      "3": 198,
+      "4": 22
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 42996.0,
+     "had": 2842.0,
+     "down": 10013.0
+    },
+    "viol": {
+     "X_clip": 1,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.3653007844370868,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -1,
+     "eZ_max": 3,
+     "sh_min": 5,
+     "sh_max": 9,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-1": 9,
+      "0": 2840,
+      "1": 854,
+      "2": 132,
+      "3": 5
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 29587.0,
+     "had": 6496.0,
+     "down": 24374.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 9
+    },
+    "rel_ffn_err": 3.768975367848347,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -4,
+     "eZ_max": -1,
+     "sh_min": 5,
+     "sh_max": 8,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-4": 2940,
+      "-3": 808,
+      "-2": 63,
+      "-1": 29
+     }
+    }
+   }
+  ],
+  "wall_s": 73.23973178863525,
+  "rss_gb": 4.183484
+ }
+}
