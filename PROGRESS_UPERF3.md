@@ -846,3 +846,136 @@ DONE (2026-08-25, same session; commits on uperf3-y):
   C4 delta stays meaningful; the smoke's early-layer activation
   ranges (X absmax 165.9 at l0, eH 5/4 at l0/l1) are the numbers to
   watch in the full verdict.
+
+## Agent V status (b-lite pricing, orchestrator-launched 2026-08-24)
+
+STATE: HANDED OFF 2026-08-25 (orchestrator directive: no further runs
+from this session; the orchestrator executes the full passes with the
+committed script). Code + smokes COMPLETE and green; the full-stack
+pricing passes NOT yet run. Commits: 73adfb3 (the blite phase),
+then the p999-floor commit (+ results/m8b_smooth_stats.npz, the
+three SMOKE JSONs). The blite report doc
+(docs/zkmatrix-poc/U_PERF3_M8B_BLITE_REPORT.md) is NOT yet written —
+it needs the full-pass numbers.
+
+**1. The verified per-column-shift claim (the brief's first task).**
+Agent U's sentence "m125.floor_requant already accepts per-column
+shifts" is TRUE of the Python simulator and FALSE of everything the
+prover actually runs:
+- scripts/m125_int8_calibration.py:139-154 — floor_requant's docstring
+  says "`shift` may be a scalar or a per-column vector" and the code
+  vectorizes; :481/:482/:501 use vector shifts, fed by the m125
+  study's per-OUTPUT-channel weight variant (quantize_weights
+  wgran="channel", :431-455). NOTE: that variant is per-output-channel
+  W scales (row of W = output column) — NOT the per-INPUT-column
+  w_down scales mechanism 1 needs (those force alignment, below).
+- The RIG fixes ONE scalar shift per requant site: bf_floor_requant
+  (acc: &[i64], shift: u32) at zkmatrix-rs/src/bin/ring_matmul.rs:24623;
+  BfLayer.shifts is a 4-tuple of scalars, asserted against the export
+  sidecar's four scalars per layer (:24656-24666); the export scripts
+  write scalars only (scripts/m8b_export_ffn.py:251-271, :308;
+  m125_export_ffn.py:202-211).
+- The STATEMENT fixes one scale per committed entry: TypingV4
+  .scale_exp is a single i32 (src/manifest.rs:625-635); class caps
+  CLS_ACT8 bits <= 8, CLS_ACC <= 31, CLS_REM <= 16 (:666-681).
+So the true (b)-lite delta = vector shifts in the engine + per-column
+scale metadata in the statement (a manifest/v5 move — Victor-gated
+file) + the alignment story at the down edge + REM/ACC class-cap
+moves (measured needs below).
+
+**2. What the committed script implements (--phase blite).** Per-
+column pow2 requant scales at u/h/z + per-column w_down, widened SiLU
+classes, exact-integer simulation, the module's own verdict counters:
+- ucols/hcols/zcols: per-column eUp_k/eH_k (f-vectors), eZ_j
+  (d-vector); requant shifts become public per-column vectors. u and z
+  requant AFTER their accumulators per OUTPUT column and h is
+  elementwise — NO alignment cost at those three sites.
+- wdcols: per-column w_down scales ecol_k. THE ONE ALIGNMENT SITE:
+  down products sit at per-column scales eH_k + ecol_k; the sim
+  carries Wd8 * 2^a_k exactly (a_k = eH_k + ecol_k - P_base) and
+  reports the honest acc bound 127^2 * sum_k 2^a_k + 8-bit tier
+  counts per layer (the engine cost accounting).
+- a16=/g16= layer lists: SiLU widened to int16 range (Qa 32767)
+  and/or domain (Qg 32767, a 65536-row table in the engine), v2
+  round_half_up formula at the wider clamp — a NEW family, inventory
+  recorded per layer.
+- The t-fold is RETIRED in this phase (--t-cap 0 asserted): per-column
+  eUp_k/eH_k subsume it exactly (p_k = nh_k + wcol_k is
+  fold-invariant); the s-fold (X-side) is KEPT (s_cap 3, preprocessing,
+  exact). Per-tensor scale rows are NOT re-walked: derived exactly
+  from the baseline record + the cal-stats npz + a stream over folded
+  wg/wu, ASSERTED equal to a real m8b.calibrate walk
+  (--validate-calibrate; green at 2 and 4 layers, incl. s != 0).
+- Per-column p999 robustness floor (second commit): a column's
+  exponent never sits below the tensor's p999 exponent — sleepy cal
+  columns get free val headroom, and the alignment spread compresses
+  from the bottom. Token `nofloor` disables.
+- --equiv-check: the blite chain with everything off is BIT-EXACT vs
+  m8b.run_variant (asserted green: loss 10.4954427558 equal, same
+  violations, 2-layer smoke).
+
+**3. Smoke results [SMOKE 4-layer TRUNCATED, WSL-BOX — results are
+NOT the model's; JSONs in results/m8b_blite_SMOKE*.json].**
+- margin-1 percol (mu/mh/mz=1, no floor): 2,451 violations —
+  per-column cal absmax is a TIGHT fit, val fluctuates ~2x; margins
+  are the knob.
+- floored percol (mu/mh/mz=2 + p999 floor): 857 violations, ALL
+  remaining at l0 (836 h + 21 u; layers 1-3 fully clean, z clean);
+  truncated-stack chain delta +0.0097 vs the fp ref (margin-1 smoke:
+  +0.1399). l0 likely needs mh=3 or a16=0.
+- Engine accounting at the smoke: max align 18-21, honest down-acc
+  34-37 bits at l0/l1 (over the 31-bit CLS_ACC/i32-fast-path line →
+  2-3 tiers), max sh_z 24-27 (over the 16-bit CLS_REM cap).
+- Design probes from the cal stats [MEASURED, full-stack stats]:
+  gate-path bulk levels at int8: l1 = 1.3 (destroyed), l0 = 4.4,
+  l2/l30/l31 = 10-11, rest 20-40 → g16 candidates {0,1,2,30,31},
+  l1 mandatory. u absmax/p999: l1 = 74.6, l31 = 10.9, l0 = 9.3, rest
+  3-6. z spikes are PERVASIVE (25 of 32 layers ratio > 8) → per-column
+  z, not per-layer widening. Bulk-h levels at the Hadamard product
+  scale with a8: 60-240 at most layers (per-column sh_h recovers them;
+  a16 NOT needed everywhere), exceptions l1 (0.29), l0 (21.9),
+  l30/l31 (44-57).
+
+**4. THE ROUND-1 COMMAND (for the orchestrator; ~40 min: 2 verdict
+walks, no calibrate walk needed — derivation is assert-guarded):**
+  python3 scripts/m8b_smooth_experiment.py --phase blite \
+    --s-cap 3 --t-cap 0 --stats-npz results/m8b_smooth_stats.npz \
+    --bl-variant "name=percol,ucols,hcols,zcols,wdcols,mx=2,mg=1,mu=2,mh=2,mz=2" \
+    --bl-variant "name=percol_g16,ucols,hcols,zcols,wdcols,g16=0;1;2;30;31,mx=2,mg=1,mu=2,mh=2,mz=2" \
+    --bl-out results/m8b_blite_experiment_wsl.json
+(run from the repo root; label [WSL-BOX NT] or NOISY-SHARED per top.)
+Round 2 (read round 1 first): margin/floor repair of any residual
+violation class (mh=3 or a16=0 for l0-class residue); then the TRIM
+runs for the smallest surface: (a) drop wdcols (per-tensor eWd — the
+align spread then comes from eH_k alone), (b) g16 list trimmed to
+{1} or {0,1}, (c) mx=1 quality check. Round 3: the record pass of the
+chosen config with --bl-wonly. If percol_g16 still misses <= +0.3
+nats: a16=all is the next escalation, then u16/h16 at l1 only.
+Expected shape [PROJECTED, not measured]: percol alone lands mid
+(l1's silu path still broken — bulk gate 1.3 levels); percol_g16 is
+the one with a shot at <= +0.3.
+
+**5. The engine bill so far (counted; the full pass refines).**
+(a) vector requant shifts u/h/z + per-column scale vectors as
+statement metadata (~3f + d i8 exponents/layer ≈ 47 KB/layer public,
+hashed into the model identity) — manifest.rs v5 (Victor-gated);
+(b) the down-edge alignment: committed aligned w_down (per-column
+range classes 127 * 2^a_k) with 8-bit tiers — most layers 1-2 tiers,
+l1 = 3 [SMOKE-counted; full pass gives the real per-layer tier
+table]; CLS_ACC cap 31 holds per tier, NOT for a single flat acc at
+l0/l1-class layers (honest 34-37 bits); (c) CLS_REM cap 16 -> ~28
+(more q46 bit planes at the wide-shift sites); (d) g16 layers: 65536-
+row tables at ~5 layers max (K9 cap 2^25 unaffected; lookup transcript
+grows — count vs LKP-7 at write-up); (e) W-4/W-1 items unchanged in
+kind, W-4's acc_bits formula gains the per-tier form. Est. lane-days
+at write-up after the measured pass.
+
+**6. Open items.** (i) Full-stack passes + results/
+m8b_blite_experiment_wsl.json + U_PERF3_M8B_BLITE_REPORT.md §0-§4 —
+all blocked on the round-1 numbers; (ii) the l0 residue policy;
+(iii) whether ucols can drop from the smallest surface (u cleaned at
+margin 1 per-tensor in agent U's r4 — but per-tensor eUp costs l1/l31
+bulk-u resolution; measure the trim); (iv) the SiLU member/W-6 story
+under b-lite: a8 layers still need ~7-9 unfrozen (eGate,eA) members
+(margin-dependent), g16 layers need the NEW wide family — both wait
+on the ruling; (v) wall/RSS labels for the record pass.
