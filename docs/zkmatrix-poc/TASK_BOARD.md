@@ -27,8 +27,15 @@ ledger's newest Agent-status sections over this block.
   quantization contract draft (QUANTIZATION_CONTRACT_DESIGN.md,
   awaiting Victor's ruling); Gemma 4 12B QAT scoped (favorable dims,
   no license gate).
-- IN FLIGHT on the WSL box: agent V = per-column pricing experiment
-  (python, main checkout).
+- **THE QUANTIZATION QUESTION IS ANSWERED (2026-08-26; ruling
+  pending):** the widened-stack amendment (int16 table-out/u/h/z +
+  round requant; weights and the big matmul inputs stay int8) lands
+  Mistral-7B at +0.216 nats and Gemma-4-12B at +0.035 — BOTH
+  checkpoints qualify. Consolidated record:
+  U_PERF3_QUANTIZATION_MEASUREMENTS.md; amendment text:
+  QUANTIZATION_CONTRACT_DESIGN.md §7'. Awaiting Victor's contract
+  ruling; the engine build round (E1-E5, ~1.5-2 lane-weeks) follows
+  it. Nothing is in flight on the WSL box right now.
 - LANE Y LANDED AND MERGED (2026-08-25): the Gemma 4 12B reference
   walker, VALIDATED (semantics pinned to the transformers source;
   templated factual probe 5/5 rank-0; templated greedy "...gold is

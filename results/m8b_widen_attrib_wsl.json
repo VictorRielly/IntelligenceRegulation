@@ -1,0 +1,37 @@
+{
+ "meta": {
+  "experiment": "m8b_widen_attrib (Mistral class-widening cross-check)",
+  "seed": 1337,
+  "t": 512,
+  "loss_ref": 1.841096998602386,
+  "box": "[MEASURED WSL-BOX NT]"
+ },
+ "results": {
+  "exact_round_a16uhz16": {
+   "loss": 2.056827986824654,
+   "delta": 0.21573098822226822,
+   "total_viol": 32,
+   "viol_by_class": {
+    "X_clip": 8,
+    "gate_range": 7,
+    "up_range": 1,
+    "h_range": 16,
+    "z_range": 0
+   },
+   "wall_s": 668.9
+  },
+  "exact_round_uhz16": {
+   "loss": 2.1197232416597487,
+   "delta": 0.2786262430573627,
+   "total_viol": 25,
+   "viol_by_class": {
+    "X_clip": 8,
+    "gate_range": 4,
+    "up_range": 1,
+    "h_range": 10,
+    "z_range": 2
+   },
+   "wall_s": 669.0
+  }
+ }
+}

@@ -235,6 +235,27 @@ L7 The 125M freeze rows stay v2; dual maintenance until v3 lands
   that the static-activation contract is the strict variant; their
   1-3% claims lean on dynamism we exclude by D1.
 
+## 7'. MEASURED POSTSCRIPT (2026-08-26) — the amendment this memo's
+##     framework produced
+
+The C4 gate + the mechanism menu were exercised in full
+(U_PERF3_QUANTIZATION_MEASUREMENTS.md is the consolidated record).
+Outcome: neither checkpoint qualifies under ANY range mechanism
+(routes R/R+ measured dead on quality); the ATTRIBUTION found the
+resolution deficit at the a/u/h/z sites; and **the WIDENED-STACK
+amendment** — int16-resolution table output (256-row tables
+unchanged), int16 u/h/z classes, round-nearest requant, X and the
+gate/up matmul inputs at int8 — lands **Mistral-7B at +0.216 nats
+and Gemma-4-12B at +0.035** with violations at margin-bit level.
+Weights stay int8 everywhere. This becomes the contract's DEFAULT
+QUALIFICATION PROFILE (a C1-level class amendment, not a per-model
+bridge); C2's per-channel vectors remain available but are not
+required by either measured checkpoint. Engine bill: five items,
+one structural (the h16 limb-split down-matmul input) —
+§2 of the measurements report. The ruling items in §7 below are
+superseded accordingly: the checkpoint strategy is no longer
+either/or — BOTH qualify under the amendment.
+
 ## 7. Recommendation and what needs Victor
 
 1. Adopt C1-C6 as the v3 contract draft (ruling AFTER agent V's

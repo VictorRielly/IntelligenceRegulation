@@ -539,6 +539,19 @@ Mistral cross-check (the same winning stack on the SwiGLU chain,
 scripts/m8b_widen_attrib.py) launched — the model-agnosticism
 evidence for the amendment. The ruling package follows it.
 
+**MISTRAL CONFIRMED (2026-08-26, [MEASURED WSL-BOX NT], full val
+windows):** the same cheap stack lands Mistral-7B at **+0.2157
+nats** (from +8.1773 frozen / +7.32 best-prior-static; violations
+14,531 -> 32: X_clip 8, gate 7, u 1, h 16, z 0). uhz16 without
+a16-out: +0.2786. THE AMENDMENT IS MODEL-AGNOSTIC — both
+checkpoints, both gate functions (SwiGLU + GeGLU), the same five
+engine items. Under it, BOTH checkpoints QUALIFY: Mistral-7B
+(the original MVP-1 contract shape) at +0.216, Gemma-4-12B at
++0.035. Consolidated report:
+docs/zkmatrix-poc/U_PERF3_QUANTIZATION_MEASUREMENTS.md; the
+amendment text: QUANTIZATION_CONTRACT_DESIGN.md §8 (measured
+postscript). The ruling package is with Victor.
+
 ## Agent status sections (lanes append below; do not edit each other's)
 
 ## Agent R status (wt-uperf3-r)
