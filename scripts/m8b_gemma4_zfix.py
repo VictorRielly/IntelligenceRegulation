@@ -138,8 +138,17 @@ def make_zcfg(scales, az, arch, variant, mz, use_floor=True):
             e = np.array([pow2_exp_q(v, 127) for v in az[li]],
                          dtype=np.int64) + mz
             if use_floor:
-                e = np.maximum(
-                    e, pow2_exp_q(sc["stats"]["z"]["p999"], 127))
+                # RANGE-EXTENSION floor (2026-08-26, after the first
+                # record pass): never let ANY column sit below the
+                # BASELINE per-tensor exponent — coverage is then a
+                # strict superset of the baseline (violations can
+                # only shrink; bulk resolution unchanged; hot columns
+                # extend above). The earlier p999 floor (V's Mistral
+                # resolution heuristic) TIGHTENED bulk columns below
+                # the tensor scale and destabilized the chain
+                # (Z1 911k viols / +23.6 nats — recorded in the
+                # first record JSON).
+                e = np.maximum(e, sc["eZ"])
             n_fix = int((e < p_base).sum())
             e = np.maximum(e, p_base)
             cfgs.append(dict(kind="percol", qz=127, eZ=e,
