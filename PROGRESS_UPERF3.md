@@ -552,6 +552,78 @@ docs/zkmatrix-poc/U_PERF3_QUANTIZATION_MEASUREMENTS.md; the
 amendment text: QUANTIZATION_CONTRACT_DESIGN.md §8 (measured
 postscript). The ruling package is with Victor.
 
+## RULING (Victor, console 2026-08-26, verbatim): "Let's continue
+## adopting this v3 fix."
+
+Adopted: TARGET_CONTRACT §2 v3 = the C1-C6 contract + the
+widened-stack amendment (QUANTIZATION_CONTRACT_DESIGN.md §7';
+measured record U_PERF3_QUANTIZATION_MEASUREMENTS.md). The adoption
+covers the C5 registry additions the amendment requires (int16-out
+silu/gelu members — the manifest.rs/lookup.rs additive freeze rides
+this ruling, versioned, existing digests unmoved). Victor also
+asked for the distance to a FIRST FULL proof (attention included)
+of an 8B/12B model — answered in the board §0 and the reply of
+record.
+
+## Round 3 (2026-08-26): lanes AA (witness/margins/exports), BB (the v3 engine), CC (attention-site gate)
+
+Box discipline: AA and CC run measurement walks (~4-5 GB each) —
+wrap every walk in `flock -w 7200 /tmp/zk-heavy.lock`; BB builds and
+runs batteries freely; nothing 12x512-class without the lock.
+Subagent stall note: background-run wakes are unreliable — arm ONE
+tracked background call and end the turn; never build watcher
+stacks; if you find your own run finished without a wake, just
+continue from its output file.
+
+### Lane AA — margin bits to zero violations + the v3 witness exports (wt-uperf3-aa) — PYTHON
+OWNS: NEW scripts/m8b_margins.py + additive flags in
+scripts/m8b_export_ffn.py and scripts/m8b_gemma4_walker.py (lanes
+R/Y closed; additive only — default behavior byte-identical), NEW
+results files, "Agent AA status". GOAL: (1) the margin-bit round:
++1 bit on the per-tensor exponents of the residual-violation sites
+(Mistral X/gate/u/h rows; Gemma X/gate/h/z rows), re-run both
+verdicts under the widened stack, iterate to **0 violations** with
+the smallest margin set; record the quality cost (expect ~none —
+the margins touch coverage, not bulk resolution). (2) The v3
+EXPORT profile: extend the export path to emit the widened witness
+(int16 planes at a/u/h/z, the round-mode flag, the margin exponents,
+the int16-out table ids) for BOTH checkpoints — Mistral streamed
+here, Gemma local — with digests; the layout doc for lane BB's
+loader in the script header. (3) The int16-out member tables +
+digests for the C5 freeze (silu set + gelu 6) — generation script,
+registry-ready.
+
+### Lane BB — the v3 statement in the engine (wt-uperf3-bb) — RUST
+OWNS: the v3 selector path in zkmatrix-rs (statement version /
+rig arm `uperf-v3` or M1-style profile flag), E1 widened witness
+classes at a/u/h/z, E2 the h16 limb-split down matmul
+(A1LimbCommitKernel / ring_mul_q_limbsplit pattern), E4 round-mode
+requant selector, E5 range-fact classes (u/z 2^15, h 2^30), the C5
+int16-out registry rows in lookup.rs AND manifest.rs (ADDITIVE,
+under this ruling, with UAGB1-BF-2a-style freeze rows; EVERY
+existing digest unmoved), the migration battery (v2 default
+byte-identical: diff-battery + freeze-check + the 3x16 digests are
+the floor), "Agent BB status". GOAL: the v3 pass proves a widened
+witness end-to-end on the 125M shape first (the synthetic/125M
+rung — lane AA's export format), then the 1x16/3x16 real rungs.
+NOT this round: W-1/W-3 (they gate 32x128+; the 32x16 rung does
+not need them).
+
+### Lane CC — the attention-site qualification gate (wt-uperf3-cc) — PYTHON (the MVP-2 de-risk measurement)
+OWNS: NEW scripts/m8b_gemma4_attn_gate.py (+ additive collect hooks
+in the walker if needed), NEW results, "Agent CC status". GOAL:
+MVP-2's biggest unknown is whether ATTENTION activations carry the
+same outlier disease. Extend the walker to collect the attention
+intermediates per ATTENTION_INTEGER_SPEC.md's site classes (q/k
+post-norm, scores/softmax in, attn-probs, attn-out, o-proj out,
+residual x at the attention seam) on the calibration windows; run
+the C4-style int8 (and widened-int16) simulation per site
+(attribution-style: per-site quantize-dequant deltas + range
+profiles per layer); deliver the site table (which attention sites
+are int8-clean, which need the widened class) for the MVP-2
+statement design (U_PERF3_ATTENTION_STATEMENT_DESIGN.md §1's
+exponent assumptions get their first real data).
+
 ## Agent status sections (lanes append below; do not edit each other's)
 
 ## Agent R status (wt-uperf3-r)

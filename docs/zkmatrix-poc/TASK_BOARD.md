@@ -27,15 +27,22 @@ ledger's newest Agent-status sections over this block.
   quantization contract draft (QUANTIZATION_CONTRACT_DESIGN.md,
   awaiting Victor's ruling); Gemma 4 12B QAT scoped (favorable dims,
   no license gate).
-- **THE QUANTIZATION QUESTION IS ANSWERED (2026-08-26; ruling
-  pending):** the widened-stack amendment (int16 table-out/u/h/z +
-  round requant; weights and the big matmul inputs stay int8) lands
-  Mistral-7B at +0.216 nats and Gemma-4-12B at +0.035 — BOTH
-  checkpoints qualify. Consolidated record:
-  U_PERF3_QUANTIZATION_MEASUREMENTS.md; amendment text:
-  QUANTIZATION_CONTRACT_DESIGN.md §7'. Awaiting Victor's contract
-  ruling; the engine build round (E1-E5, ~1.5-2 lane-weeks) follows
-  it. Nothing is in flight on the WSL box right now.
+- **v3 ADOPTED (Victor, console 2026-08-26: "Let's continue
+  adopting this v3 fix")** — the widened-stack amendment is the
+  contract's default qualification profile; both checkpoints
+  qualify (Mistral +0.216, Gemma +0.035;
+  U_PERF3_QUANTIZATION_MEASUREMENTS.md). ROUND 3 IN FLIGHT
+  (branches uperf3-aa/bb/cc): AA = margin bits to 0 violations +
+  the v3 witness exports (both checkpoints) + the int16-out table
+  digests; BB = the v3 statement in the engine (widened classes,
+  h16 limb-split down matmul, round-mode requant, the C5 registry
+  rows under the ruling; v2 default byte-identical is the floor);
+  CC = the attention-site qualification gate (the MVP-2 de-risk
+  measurement). **Grok note: T12's export step stays gated until
+  lane AA lands the v3 export flags on main** (the old per-tensor
+  export would produce a witness the v3 statement rejects); T13/
+  T1/T4 and T12's calibration cross-check unchanged; T14
+  unchanged.
 - LANE Y LANDED AND MERGED (2026-08-25): the Gemma 4 12B reference
   walker, VALIDATED (semantics pinned to the transformers source;
   templated factual probe 5/5 rank-0; templated greedy "...gold is
