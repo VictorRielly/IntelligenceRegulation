@@ -1,0 +1,3680 @@
+{
+ "meta": {
+  "experiment": "m8b_gemma4_zfix (agent Z: per-column eZ / int16 z at the z site; everything else baseline per-tensor)",
+  "checkpoint": "/home/victor/models/gemma-4-12B-qat",
+  "seed": 1337,
+  "dims": {
+   "layers": 48,
+   "d": 3840,
+   "f": 15360,
+   "t": 512
+  },
+  "truncated": false,
+  "box": "[MEASURED WSL-BOX NT]",
+  "baseline": {
+   "json": "/home/victor/IntelligenceRegulation/results/m8b_gemma4_calibration.json",
+   "loss_ref": 7.236668249862625,
+   "plain_delta": 17.60292338866909,
+   "plain_viol": 116852,
+   "weights_only_delta": 0.13560653455445948,
+   "ref_source": "baseline JSON loss_ref (same seed/windows/walker \u2014 deterministic)"
+  },
+  "hot_layers": [
+   2,
+   9,
+   21,
+   23,
+   24,
+   26
+  ],
+  "mz": 2,
+  "floor": true,
+  "zcol_stats": "/home/victor/IntelligenceRegulation/results/m8b_gemma4_zcol_stats.npz"
+ },
+ "equiv": {
+  "label": "equiv",
+  "mode": "floor",
+  "total_viol": 116852,
+  "viol_by_class": {
+   "X_clip": 1,
+   "gate_range": 0,
+   "up_range": 14,
+   "h_range": 0,
+   "z_range": 116837
+  },
+  "loss": 24.839591638531715,
+  "acc_bounds": {
+   "gateup": [
+    61935360,
+    27
+   ],
+   "down": [
+    247741440,
+    29
+   ]
+  },
+  "engine": {
+   "max_sh_z": 9,
+   "statement_exp_bytes": 0,
+   "percol_layers": [],
+   "exp_hist_all": {},
+   "sh_hist_all": {},
+   "alignment_cost": 0,
+   "note": "post-accumulator per-output-column shift: no alignment, down-acc bound unchanged"
+  },
+  "per_layer": [
+   {
+    "acc": {
+     "gateup": 53635.0,
+     "had": 2599.0,
+     "down": 9851.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.6380110086181141,
+    "z": {
+     "mode": "tensor",
+     "eZ": 2,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 42672.0,
+     "had": 2832.0,
+     "down": 9783.0
+    },
+    "viol": {
+     "X_clip": 1,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.3788297738432869,
+    "z": {
+     "mode": "tensor",
+     "eZ": 1,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 29343.0,
+     "had": 6555.0,
+     "down": 23993.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 98650
+    },
+    "rel_ffn_err": 3.1010003887117294,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 31593.0,
+     "had": 2340.0,
+     "down": 15123.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.2889841757809677,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 32919.0,
+     "had": 1599.0,
+     "down": 23867.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.5196221381753168,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 12835.0,
+     "had": 450.0,
+     "down": 10205.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.7745936389699977,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 14652.0,
+     "had": 1225.0,
+     "down": 17333.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.8698553263734112,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 9356.0,
+     "had": 418.0,
+     "down": 13901.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.547782959354125,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 9694.0,
+     "had": 152.0,
+     "down": 24472.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.518418592957361,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 15381.0,
+     "had": 84.0,
+     "down": 14651.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 5885
+    },
+    "rel_ffn_err": 5.280543712567289,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 17477.0,
+     "had": 600.0,
+     "down": 13887.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 5.7895013872730345,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 29542.0,
+     "had": 1564.0,
+     "down": 18010.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.41866172188883893,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 145543.0,
+     "had": 840.0,
+     "down": 11265.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 14,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.4539869165099509,
+    "z": {
+     "mode": "tensor",
+     "eZ": 0,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 85739.0,
+     "had": 495.0,
+     "down": 4086.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.371991981541422,
+    "z": {
+     "mode": "tensor",
+     "eZ": 1,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 46992.0,
+     "had": 399.0,
+     "down": 2741.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.57178933411283,
+    "z": {
+     "mode": "tensor",
+     "eZ": 0,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 11724.0,
+     "had": 128.0,
+     "down": 2848.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.042681760055386,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 10379.0,
+     "had": 240.0,
+     "down": 11858.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.756175625437681,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 18792.0,
+     "had": 140.0,
+     "down": 12645.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.5317434214644052,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 23334.0,
+     "had": 200.0,
+     "down": 26333.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.110972188599662,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 10820.0,
+     "had": 144.0,
+     "down": 25750.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 9.5155358958596,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 10244.0,
+     "had": 70.0,
+     "down": 16656.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.7891810262739893,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 12820.0,
+     "had": 120.0,
+     "down": 17170.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 7
+    },
+    "rel_ffn_err": 8.003625009457167,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 8427.0,
+     "had": 252.0,
+     "down": 22257.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.470094423049655,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 9373.0,
+     "had": 168.0,
+     "down": 11185.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 178
+    },
+    "rel_ffn_err": 5.6847847803829135,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 16086.0,
+     "had": 170.0,
+     "down": 17972.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 12036
+    },
+    "rel_ffn_err": 8.113323217600515,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 5
+    }
+   },
+   {
+    "acc": {
+     "gateup": 5684.0,
+     "had": 66.0,
+     "down": 7754.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.351805539253798,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 6320.0,
+     "had": 66.0,
+     "down": 10845.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 81
+    },
+    "rel_ffn_err": 9.256367320517384,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 2016.0,
+     "had": 40.0,
+     "down": 6421.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 7.473747949427541,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 4037.0,
+     "had": 196.0,
+     "down": 12022.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.514674161949688,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 5858.0,
+     "had": 171.0,
+     "down": 9831.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.800295735354826,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 12350.0,
+     "had": 288.0,
+     "down": 15161.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.1784580136849023,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 7498.0,
+     "had": 360.0,
+     "down": 22841.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.2745368390302991,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 11304.0,
+     "had": 372.0,
+     "down": 28377.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.9085863891697716,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 11355.0,
+     "had": 600.0,
+     "down": 15821.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.9513957248780567,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 21448.0,
+     "had": 490.0,
+     "down": 12310.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.2763474883573924,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 19271.0,
+     "had": 240.0,
+     "down": 5050.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.19290343851135,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 22680.0,
+     "had": 468.0,
+     "down": 6362.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.7660383763300427,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 29621.0,
+     "had": 200.0,
+     "down": 10723.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.6647442553167804,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 14116.0,
+     "had": 312.0,
+     "down": 8116.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.8607861446805425,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 14363.0,
+     "had": 392.0,
+     "down": 7378.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.5751531480188588,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 10040.0,
+     "had": 368.0,
+     "down": 8615.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.0719847366573263,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 9557.0,
+     "had": 130.0,
+     "down": 4498.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.262128862708761,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 20142.0,
+     "had": 144.0,
+     "down": 3682.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.7542727424083318,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 48380.0,
+     "had": 176.0,
+     "down": 6643.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.245323987570897,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 16699.0,
+     "had": 286.0,
+     "down": 5855.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.2920390663642625,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 31763.0,
+     "had": 77.0,
+     "down": 3216.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.891355185563265,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 17097.0,
+     "had": 783.0,
+     "down": 14360.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.4461937114738168,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 13909.0,
+     "had": 1500.0,
+     "down": 16582.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.4093473122815759,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   }
+  ],
+  "wall_s": 1277.6269142627716,
+  "rss_gb": 4.258512,
+  "policy": {
+   "variant": "equiv",
+   "mz": 2,
+   "floor": true,
+   "percol_layers": [],
+   "qz": 127,
+   "derivation": "eZ_j = pow2ceil(cal fp absmax_j) + mz, floored at the tensor z p999 exponent, clamped at P_base = eH + eWd (agent V zcols semantics)"
+  },
+  "delta_vs_ref": 17.60292338866909,
+  "equivalence": {
+   "passed": true,
+   "mismatches": []
+  }
+ },
+ "Z1": {
+  "label": "Z1",
+  "mode": "floor",
+  "total_viol": 87,
+  "viol_by_class": {
+   "X_clip": 1,
+   "gate_range": 0,
+   "up_range": 5,
+   "h_range": 0,
+   "z_range": 81
+  },
+  "loss": 24.806010055727036,
+  "acc_bounds": {
+   "gateup": [
+    61935360,
+    27
+   ],
+   "down": [
+    247741440,
+    29
+   ]
+  },
+  "engine": {
+   "max_sh_z": 11,
+   "statement_exp_bytes": 184320,
+   "percol_layers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47
+   ],
+   "exp_hist_all": {
+    "-4": 34286,
+    "-3": 76548,
+    "-2": 23327,
+    "-1": 30790,
+    "0": 7742,
+    "1": 7621,
+    "2": 3780,
+    "3": 204,
+    "4": 22
+   },
+   "sh_hist_all": {
+    "5": 3783,
+    "6": 30477,
+    "7": 34310,
+    "8": 61637,
+    "9": 53744,
+    "10": 269,
+    "11": 100
+   },
+   "alignment_cost": 0,
+   "note": "post-accumulator per-output-column shift: no alignment, down-acc bound unchanged"
+  },
+  "per_layer": [
+   {
+    "acc": {
+     "gateup": 53635.0,
+     "had": 2599.0,
+     "down": 9851.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.6446960134362015,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": 2,
+     "eZ_max": 4,
+     "sh_min": 7,
+     "sh_max": 9,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "2": 3620,
+      "3": 198,
+      "4": 22
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 42815.0,
+     "had": 2832.0,
+     "down": 9929.0
+    },
+    "viol": {
+     "X_clip": 1,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.3802850712210821,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": 1,
+     "eZ_max": 3,
+     "sh_min": 7,
+     "sh_max": 9,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "1": 3703,
+      "2": 132,
+      "3": 5
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 29098.0,
+     "had": 6264.0,
+     "down": 23484.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.733392802849926,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 6,
+     "sh_max": 8,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3748,
+      "-2": 63,
+      "-1": 29
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 31945.0,
+     "had": 2340.0,
+     "down": 15404.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.8985697151739127,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -1,
+     "eZ_max": 1,
+     "sh_min": 7,
+     "sh_max": 9,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-1": 3817,
+      "0": 6,
+      "1": 17
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 33868.0,
+     "had": 1680.0,
+     "down": 23109.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.483424093932783,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -1,
+     "eZ_max": 1,
+     "sh_min": 9,
+     "sh_max": 11,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-1": 3826,
+      "0": 8,
+      "1": 6
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 12417.0,
+     "had": 384.0,
+     "down": 10556.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.832080708422062,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 7,
+     "sh_max": 9,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3820,
+      "-2": 11,
+      "-1": 9
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 15204.0,
+     "had": 1320.0,
+     "down": 17915.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.8877531317771115,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -2,
+     "eZ_max": 0,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-2": 3833,
+      "-1": 3,
+      "0": 4
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 8690.0,
+     "had": 304.0,
+     "down": 14554.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.59748421871265,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -2,
+     "eZ_max": 0,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-2": 3829,
+      "-1": 2,
+      "0": 9
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 10134.0,
+     "had": 150.0,
+     "down": 23696.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.4559240880914155,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -2,
+     "eZ_max": 0,
+     "sh_min": 9,
+     "sh_max": 11,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-2": 3837,
+      "-1": 2,
+      "0": 1
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 15573.0,
+     "had": 96.0,
+     "down": 14608.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 5.345754925638123,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -4,
+     "eZ_max": -2,
+     "sh_min": 6,
+     "sh_max": 8,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-4": 3730,
+      "-3": 80,
+      "-2": 30
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 16542.0,
+     "had": 580.0,
+     "down": 13335.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 5.645961321572484,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -1,
+     "eZ_max": 1,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-1": 3798,
+      "0": 29,
+      "1": 13
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 30319.0,
+     "had": 1488.0,
+     "down": 18681.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.4151205231690813,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 9,
+     "sh_max": 11,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3786,
+      "-2": 52,
+      "-1": 2
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 134188.0,
+     "had": 855.0,
+     "down": 13155.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 5,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.4643953205034235,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": 0,
+     "eZ_max": 2,
+     "sh_min": 9,
+     "sh_max": 11,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "0": 3810,
+      "1": 8,
+      "2": 22
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 94520.0,
+     "had": 720.0,
+     "down": 4300.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.3793306018329545,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": 1,
+     "eZ_max": 3,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "1": 3836,
+      "2": 3,
+      "3": 1
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 42152.0,
+     "had": 399.0,
+     "down": 3230.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.6474839724379273,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": 0,
+     "eZ_max": 2,
+     "sh_min": 6,
+     "sh_max": 8,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "0": 3822,
+      "1": 15,
+      "2": 3
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 11099.0,
+     "had": 128.0,
+     "down": 2648.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.0497330154858446,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -1,
+     "eZ_max": 1,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-1": 3802,
+      "0": 37,
+      "1": 1
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 10212.0,
+     "had": 276.0,
+     "down": 11942.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.7392948878521306,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -2,
+     "eZ_max": 0,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-2": 3807,
+      "-1": 32,
+      "0": 1
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 20960.0,
+     "had": 204.0,
+     "down": 13054.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.396965647271026,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -1,
+     "eZ_max": 1,
+     "sh_min": 7,
+     "sh_max": 9,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-1": 3823,
+      "0": 5,
+      "1": 12
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 22806.0,
+     "had": 192.0,
+     "down": 24741.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.9631269221822722,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -1,
+     "eZ_max": 1,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-1": 3832,
+      "0": 1,
+      "1": 7
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 12004.0,
+     "had": 136.0,
+     "down": 25840.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 9.363066120393807,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -1,
+     "eZ_max": 1,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-1": 3837,
+      "0": 2,
+      "1": 1
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 10630.0,
+     "had": 78.0,
+     "down": 16574.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.7741146260531435,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -2,
+     "eZ_max": 0,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-2": 3837,
+      "-1": 1,
+      "0": 2
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 12521.0,
+     "had": 104.0,
+     "down": 17123.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 8.200127177005978,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -1,
+     "eZ_max": 1,
+     "sh_min": 7,
+     "sh_max": 9,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-1": 3834,
+      "0": 4,
+      "1": 2
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 8145.0,
+     "had": 234.0,
+     "down": 23891.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.4869026220290156,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -2,
+     "eZ_max": 0,
+     "sh_min": 9,
+     "sh_max": 11,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-2": 3839,
+      "0": 1
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 8923.0,
+     "had": 203.0,
+     "down": 10166.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 5.819249356706209,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 6,
+     "sh_max": 8,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3821,
+      "-2": 15,
+      "-1": 4
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 15247.0,
+     "had": 135.0,
+     "down": 18292.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 39
+    },
+    "rel_ffn_err": 8.59121662979109,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -4,
+     "eZ_max": -2,
+     "sh_min": 5,
+     "sh_max": 7,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-4": 3783,
+      "-3": 53,
+      "-2": 4
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 5487.0,
+     "had": 64.0,
+     "down": 7517.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.8629163759030085,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -4,
+     "eZ_max": -2,
+     "sh_min": 6,
+     "sh_max": 8,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-4": 3825,
+      "-3": 11,
+      "-2": 4
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 5461.0,
+     "had": 63.0,
+     "down": 9897.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 42
+    },
+    "rel_ffn_err": 10.304053015881724,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 6,
+     "sh_max": 8,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3837,
+      "-2": 2,
+      "-1": 1
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 2022.0,
+     "had": 32.0,
+     "down": 5516.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 7.6641971085252045,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -4,
+     "eZ_max": -2,
+     "sh_min": 6,
+     "sh_max": 8,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-4": 3818,
+      "-3": 19,
+      "-2": 3
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 3430.0,
+     "had": 180.0,
+     "down": 11471.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.6186439805458623,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -4,
+     "eZ_max": -2,
+     "sh_min": 7,
+     "sh_max": 9,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-4": 3825,
+      "-3": 3,
+      "-2": 12
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 5825.0,
+     "had": 180.0,
+     "down": 10002.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.962447227116746,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 7,
+     "sh_max": 9,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3834,
+      "-2": 3,
+      "-1": 3
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 13344.0,
+     "had": 286.0,
+     "down": 14992.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.2102475887116246,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 9,
+     "sh_max": 11,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3837,
+      "-1": 3
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 7342.0,
+     "had": 364.0,
+     "down": 20955.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.28943725823075,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 9,
+     "sh_max": 11,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3834,
+      "-2": 4,
+      "-1": 2
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 11283.0,
+     "had": 432.0,
+     "down": 28930.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.9044716818566065,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -4,
+     "eZ_max": -2,
+     "sh_min": 9,
+     "sh_max": 11,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-4": 3830,
+      "-3": 4,
+      "-2": 6
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 11050.0,
+     "had": 560.0,
+     "down": 17526.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.9616703895391578,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3829,
+      "-2": 10,
+      "-1": 1
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 22089.0,
+     "had": 504.0,
+     "down": 10021.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.291800405921774,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -4,
+     "eZ_max": -2,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-4": 3825,
+      "-3": 3,
+      "-2": 12
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 19256.0,
+     "had": 240.0,
+     "down": 5232.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.3118575660528897,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 6,
+     "sh_max": 8,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3823,
+      "-2": 3,
+      "-1": 14
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 21314.0,
+     "had": 330.0,
+     "down": 6437.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.837218200085043,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 7,
+     "sh_max": 9,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3822,
+      "-2": 1,
+      "-1": 17
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 32495.0,
+     "had": 225.0,
+     "down": 12783.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.6827369239954206,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3819,
+      "-2": 2,
+      "-1": 19
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 14507.0,
+     "had": 351.0,
+     "down": 8019.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.8743100262477189,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3822,
+      "-2": 6,
+      "-1": 12
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 15162.0,
+     "had": 462.0,
+     "down": 6570.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.5815932792580759,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 9,
+     "sh_max": 11,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3822,
+      "-2": 9,
+      "-1": 9
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 9996.0,
+     "had": 380.0,
+     "down": 8799.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.0821802798915743,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 9,
+     "sh_max": 11,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3822,
+      "-2": 17,
+      "-1": 1
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 11556.0,
+     "had": 150.0,
+     "down": 4842.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.2842017998283852,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3829,
+      "-2": 1,
+      "-1": 10
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 19873.0,
+     "had": 192.0,
+     "down": 3938.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.7618740169940086,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3828,
+      "-2": 2,
+      "-1": 10
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 52881.0,
+     "had": 160.0,
+     "down": 6464.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.2491936490050854,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 9,
+     "sh_max": 11,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3825,
+      "-2": 10,
+      "-1": 5
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 17122.0,
+     "had": 234.0,
+     "down": 6504.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.2995186508099092,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -4,
+     "eZ_max": -2,
+     "sh_min": 9,
+     "sh_max": 11,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-4": 3827,
+      "-3": 1,
+      "-2": 12
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 32391.0,
+     "had": 80.0,
+     "down": 2919.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.8834912984603178,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -4,
+     "eZ_max": -2,
+     "sh_min": 8,
+     "sh_max": 10,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-4": 3823,
+      "-3": 1,
+      "-2": 16
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 15768.0,
+     "had": 792.0,
+     "down": 13645.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.4466988304573534,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 9,
+     "sh_max": 11,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3821,
+      "-2": 18,
+      "-1": 1
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 13842.0,
+     "had": 1564.0,
+     "down": 21113.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.4174889483911387,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 9,
+     "sh_max": 11,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3794,
+      "-2": 17,
+      "-1": 29
+     }
+    }
+   }
+  ],
+  "wall_s": 1259.6662011146545,
+  "rss_gb": 4.278112,
+  "policy": {
+   "variant": "Z1",
+   "mz": 2,
+   "floor": true,
+   "percol_layers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47
+   ],
+   "qz": 127,
+   "derivation": "eZ_j = pow2ceil(cal fp absmax_j) + mz, floored at the tensor z p999 exponent, clamped at P_base = eH + eWd (agent V zcols semantics)"
+  },
+  "delta_vs_ref": 17.56934180586441
+ },
+ "Z2": {
+  "label": "Z2",
+  "mode": "floor",
+  "total_viol": 116,
+  "viol_by_class": {
+   "X_clip": 1,
+   "gate_range": 0,
+   "up_range": 27,
+   "h_range": 0,
+   "z_range": 88
+  },
+  "loss": 25.216137376782044,
+  "acc_bounds": {
+   "gateup": [
+    61935360,
+    27
+   ],
+   "down": [
+    247741440,
+    29
+   ]
+  },
+  "engine": {
+   "max_sh_z": 9,
+   "statement_exp_bytes": 23040,
+   "percol_layers": [
+    2,
+    9,
+    21,
+    23,
+    24,
+    26
+   ],
+   "exp_hist_all": {
+    "-4": 7513,
+    "-3": 11539,
+    "-2": 114,
+    "-1": 3868,
+    "0": 4,
+    "1": 2
+   },
+   "sh_hist_all": {
+    "5": 3783,
+    "6": 15189,
+    "7": 3998,
+    "8": 68,
+    "9": 2
+   },
+   "alignment_cost": 0,
+   "note": "post-accumulator per-output-column shift: no alignment, down-acc bound unchanged"
+  },
+  "per_layer": [
+   {
+    "acc": {
+     "gateup": 53635.0,
+     "had": 2599.0,
+     "down": 9851.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.6380110086181141,
+    "z": {
+     "mode": "tensor",
+     "eZ": 2,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 42672.0,
+     "had": 2832.0,
+     "down": 9783.0
+    },
+    "viol": {
+     "X_clip": 1,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.3788297738432869,
+    "z": {
+     "mode": "tensor",
+     "eZ": 1,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 29343.0,
+     "had": 6555.0,
+     "down": 23993.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.702948856446295,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 6,
+     "sh_max": 8,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3748,
+      "-2": 63,
+      "-1": 29
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 31496.0,
+     "had": 2340.0,
+     "down": 15875.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.9360881486581154,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 32403.0,
+     "had": 1640.0,
+     "down": 22918.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.481280800298972,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 13059.0,
+     "had": 375.0,
+     "down": 10348.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.8341223683015517,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 14561.0,
+     "had": 1140.0,
+     "down": 17839.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.8901799465684057,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 9423.0,
+     "had": 300.0,
+     "down": 14323.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.586532137275794,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 10275.0,
+     "had": 135.0,
+     "down": 26040.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.460705990098712,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 15280.0,
+     "had": 121.0,
+     "down": 14473.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 5.330228905025459,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -4,
+     "eZ_max": -2,
+     "sh_min": 6,
+     "sh_max": 8,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-4": 3730,
+      "-3": 80,
+      "-2": 30
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 17487.0,
+     "had": 672.0,
+     "down": 13496.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 5.7724712446291715,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 29222.0,
+     "had": 1428.0,
+     "down": 17815.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.4275764860084325,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 138588.0,
+     "had": 987.0,
+     "down": 13738.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 27,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.4398926538649092,
+    "z": {
+     "mode": "tensor",
+     "eZ": 0,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 87896.0,
+     "had": 697.0,
+     "down": 4359.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.259941494783662,
+    "z": {
+     "mode": "tensor",
+     "eZ": 1,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 45208.0,
+     "had": 440.0,
+     "down": 3006.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.6257946460299264,
+    "z": {
+     "mode": "tensor",
+     "eZ": 0,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 10982.0,
+     "had": 128.0,
+     "down": 4206.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.0387343672315665,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 10097.0,
+     "had": 264.0,
+     "down": 10851.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.7625866315856639,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 18947.0,
+     "had": 128.0,
+     "down": 13905.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.567193338290751,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 23810.0,
+     "had": 216.0,
+     "down": 25785.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.110016873799837,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 11305.0,
+     "had": 126.0,
+     "down": 24978.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 9.521308756647782,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 10485.0,
+     "had": 84.0,
+     "down": 16832.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.7890068951568818,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 14807.0,
+     "had": 126.0,
+     "down": 17027.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 8.030149595231078,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -1,
+     "eZ_max": 1,
+     "sh_min": 7,
+     "sh_max": 9,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-1": 3834,
+      "0": 4,
+      "1": 2
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 8566.0,
+     "had": 308.0,
+     "down": 22274.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.4527999136036225,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 9901.0,
+     "had": 195.0,
+     "down": 10964.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 5.6460126144664216,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 6,
+     "sh_max": 8,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3821,
+      "-2": 15,
+      "-1": 4
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 16749.0,
+     "had": 145.0,
+     "down": 18456.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 51
+    },
+    "rel_ffn_err": 8.450740358133302,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -4,
+     "eZ_max": -2,
+     "sh_min": 5,
+     "sh_max": 7,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-4": 3783,
+      "-3": 53,
+      "-2": 4
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 4899.0,
+     "had": 60.0,
+     "down": 7291.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.849733112210024,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 6030.0,
+     "had": 65.0,
+     "down": 10200.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 37
+    },
+    "rel_ffn_err": 10.151866602988457,
+    "z": {
+     "mode": "percol",
+     "qz": 127,
+     "eZ_min": -3,
+     "eZ_max": -1,
+     "sh_min": 6,
+     "sh_max": 8,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-3": 3837,
+      "-2": 2,
+      "-1": 1
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 1903.0,
+     "had": 40.0,
+     "down": 5893.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 7.6664083841491095,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 3560.0,
+     "had": 189.0,
+     "down": 10767.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.609187994628515,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 6305.0,
+     "had": 170.0,
+     "down": 10005.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.9099131552138555,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 12403.0,
+     "had": 300.0,
+     "down": 14023.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.1937132776460198,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 7823.0,
+     "had": 342.0,
+     "down": 21338.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.2752360675065868,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 11717.0,
+     "had": 403.0,
+     "down": 27625.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.8952213941858979,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 11438.0,
+     "had": 598.0,
+     "down": 16356.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.9492917217778076,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 22389.0,
+     "had": 546.0,
+     "down": 10548.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.2887221393211745,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 19749.0,
+     "had": 210.0,
+     "down": 5352.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.3061982726492216,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 22094.0,
+     "had": 320.0,
+     "down": 6436.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.8252979387311201,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 30191.0,
+     "had": 280.0,
+     "down": 10708.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.6818801139590512,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 14498.0,
+     "had": 312.0,
+     "down": 8197.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.8727775483175403,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 15830.0,
+     "had": 420.0,
+     "down": 6917.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.5761297156147921,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 10128.0,
+     "had": 432.0,
+     "down": 8360.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.0722123252585856,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 10074.0,
+     "had": 126.0,
+     "down": 5461.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.2720909145438655,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 20211.0,
+     "had": 182.0,
+     "down": 3992.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.7426925134802802,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 49638.0,
+     "had": 153.0,
+     "down": 7176.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.2451033809283265,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 16759.0,
+     "had": 260.0,
+     "down": 4981.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.2879527364206642,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 32711.0,
+     "had": 112.0,
+     "down": 2853.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.883171279949565,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 17008.0,
+     "had": 675.0,
+     "down": 14826.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.4467148656931657,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 13665.0,
+     "had": 1620.0,
+     "down": 18190.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.4064698708309842,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   }
+  ],
+  "wall_s": 1291.5496091842651,
+  "rss_gb": 4.278112,
+  "policy": {
+   "variant": "Z2",
+   "mz": 2,
+   "floor": true,
+   "percol_layers": [
+    2,
+    9,
+    21,
+    23,
+    24,
+    26
+   ],
+   "qz": 127,
+   "derivation": "eZ_j = pow2ceil(cal fp absmax_j) + mz, floored at the tensor z p999 exponent, clamped at P_base = eH + eWd (agent V zcols semantics)"
+  },
+  "delta_vs_ref": 17.97946912691942
+ }
+}

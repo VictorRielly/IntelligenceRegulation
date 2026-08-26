@@ -464,6 +464,40 @@ requant (NO alignment cost, the cheapest C2 mechanism). The decisive
 measurement (agent Z, launched 2026-08-26): per-column eZ at the hot
 layers on the Gemma walker, delta vs the +17.60 baseline.
 
+## Z-fix record passes (orchestrator, 2026-08-26 morning)
+
+First record pass (p999 floor): a DERIVATION BUG — V's p999 floor
+tightened bulk z columns below the baseline per-tensor scale and
+destabilized the chain (Z1 911k viols / +23.6; preserved as
+results/m8b_gemma4_zfix_wsl_p999floor.json; equiv gate bit-exact so
+the machinery itself is sound). Floor corrected to the baseline
+per-tensor exponent (pure range extension; smoke: hot-layer z viols
+98,650 -> 0).
+
+Corrected record pass [MEASURED WSL-BOX NT, seed 1337]:
+- **Z1 (per-column eZ, all 48 layers): violations 116,852 -> 87**
+  (z 81, up 5, X 1) — formality one margin bit from clean.
+  **Loss delta +17.5693 vs baseline +17.6029 — QUALITY UNCHANGED.**
+- Z2 (hot 6 layers only): 116 viols, +17.9795.
+- max sh_z 9 (inside the 16-bit REM cap), statement bytes 184,320
+  (Z1) / 23,040 (Z2); no alignment, acc bounds unchanged.
+
+**READING: the z RANGE was never the quality killer. The +17.6 is
+RESOLUTION loss at outlier-stretched per-tensor ranges (h ratios
+43-240 at the hot layers; z feeds the residual at coarse steps
+everywhere; relFFNerr 0.4-9.5 even at violation-free layers). Same
+disease as Mistral, different symptom. Across BOTH checkpoints,
+every RANGE mechanism (folds, margins, per-column requant at every
+site family) now measures: violations -> O(10-100), quality
+unmoved. The ONE static mechanism family not yet measured on
+quality is CLASS WIDENING — int16 activations at the stretched
+sites (V's a16/g16 for Mistral; Z3 int16-z + an h16 extension for
+Gemma). Being measured now: Gemma Z3, then Mistral a16=all. If
+widening rescues quality, the contract's answer is W8A16-at-
+declared-sites (weights stay int8). If not, the static-scale
+boundary (L1) is fully established and the honest routes are QAT
+fine-tuning to the contract (route Q) or a quality-labeled MVP.**
+
 ## Agent status sections (lanes append below; do not edit each other's)
 
 ## Agent R status (wt-uperf3-r)
