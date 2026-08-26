@@ -114,6 +114,16 @@ def make_exact_ffn(scales, members, wide, mode, viols):
     at int8. Gate stays the int8 table (a16 would need a 65536-row
     table — measured separately if hz16 is insufficient)."""
     Q16 = 32767
+    tab16_cache = {}
+
+    def gelu_tab16(eg16, ea):
+        key = (eg16, ea)
+        if key not in tab16_cache:
+            g = (np.arange(65536, dtype=np.float64) - 32768) * (2.0 ** eg16)
+            a = g * 0.5 * (1.0 + np.tanh(
+                0.7978845608028654 * (g + 0.044715 * g ** 3)))
+            tab16_cache[key] = np.floor(a / (2.0 ** ea) + 0.5)
+        return tab16_cache[key]
 
     def ffn(li, x, lw):
         sc = scales[li]
@@ -130,7 +140,10 @@ def make_exact_ffn(scales, members, wide, mode, viols):
         qU = Q16 if "u" in wide else 127
         qH = Q16 if "h" in wide else 127
         qZ = Q16 if "z" in wide else 127
-        sh_g = sc["eGate"] - sc["eX"] - sc["eWg"]
+        g16 = "g16" in wide
+        eG = sc["eGate"] - (8 if g16 else 0)
+        qG = Q16 if g16 else 127
+        sh_g = eG - sc["eX"] - sc["eWg"]
         sh_u = eU - sc["eX"] - sc["eWu"]
         sh_h = eH - sc["eA"] - eU
         sh_z = eZ - eH - sc["eWd"]
@@ -141,11 +154,15 @@ def make_exact_ffn(scales, members, wide, mode, viols):
             viols[li]["X_clip"] += xclip
             acc_g = xq @ Wq["w_gate"].T
             acc_u = xq @ Wq["w_up"].T
-            yg = requant_narrow(acc_g, sh_g, 127, mode, viols[li],
+            yg = requant_narrow(acc_g, sh_g, qG, mode, viols[li],
                                 "gate_range")
             yu = requant_narrow(acc_u, sh_u, qU, mode, viols[li],
                                 "up_range")
-            aq = tab[(yg.astype(np.int64) + 128)]
+            if g16:
+                aq = gelu_tab16(eG, sc["eA"])[
+                    (yg.astype(np.int64) + 32768)]
+            else:
+                aq = tab[(yg.astype(np.int64) + 128)]
             hq = aq * yu
             yh = requant_narrow(hq, sh_h, qH, mode, viols[li],
                                 "h_range")
@@ -227,10 +244,14 @@ def main():
 
     if "--exact" in sys.argv:
         from collections import Counter
-        specs = [("exact_floor_a8", set(), "floor"),
-                 ("exact_floor_hz16", {"h", "z"}, "floor"),
-                 ("exact_round_hz16", {"h", "z"}, "round"),
-                 ("exact_round_a8", set(), "round")]
+        specs = [("exact_round_uhz16", {"u", "h", "z"}, "round"),
+                 ("exact_round_uhzg16", {"u", "h", "z", "g16"},
+                  "round")]
+        if "--first-four" in sys.argv:
+            specs = [("exact_floor_a8", set(), "floor"),
+                     ("exact_floor_hz16", {"h", "z"}, "floor"),
+                     ("exact_round_hz16", {"h", "z"}, "round"),
+                     ("exact_round_a8", set(), "round")]
         results = {}
         for label, wide, mode in specs:
             vio = [Counter() for _ in range(arch.n_layers)]

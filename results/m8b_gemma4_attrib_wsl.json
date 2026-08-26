@@ -1,46 +1,59 @@
 {
  "meta": {
-  "experiment": "m8b_gemma4_attrib (per-site noise)",
-  "val_take": 2,
+  "experiment": "m8b_gemma4_attrib --exact (exact chain, widened classes)",
+  "val_take": 8,
   "seed": 1337,
   "t": 512,
-  "box": "[MEASURED WSL-BOX NT, val subset]"
+  "box": "[MEASURED WSL-BOX NT]"
  },
  "results": {
-  "none": {
-   "loss": 7.531904413158597,
-   "delta_vs_fp_subset": 0.0,
-   "wall_s": 188.1
+  "exact_floor_a8": {
+   "loss": 24.839591638531715,
+   "total_viol": 116852,
+   "viol_by_class": {
+    "X_clip": 1,
+    "gate_range": 0,
+    "up_range": 14,
+    "h_range": 0,
+    "z_range": 116837
+   },
+   "wall_s": 1017.1
   },
-  "W": {
-   "loss": 7.604360679172865,
-   "delta_vs_fp_subset": 0.07245626601426824,
-   "wall_s": 356.0
+  "exact_floor_hz16": {
+   "loss": 8.608864211961027,
+   "total_viol": 4,
+   "viol_by_class": {
+    "X_clip": 2,
+    "gate_range": 0,
+    "up_range": 0,
+    "h_range": 2,
+    "z_range": 0
+   },
+   "wall_s": 1005.0
   },
-  "X": {
-   "loss": 7.797231330305708,
-   "delta_vs_fp_subset": 0.2653269171471111,
-   "wall_s": 267.5
+  "exact_round_hz16": {
+   "loss": 8.022723722947621,
+   "total_viol": 10,
+   "viol_by_class": {
+    "X_clip": 1,
+    "gate_range": 1,
+    "up_range": 0,
+    "h_range": 4,
+    "z_range": 4
+   },
+   "wall_s": 1009.2
   },
-  "gate": {
-   "loss": 7.916345784543948,
-   "delta_vs_fp_subset": 0.3844413713853507,
-   "wall_s": 258.5
-  },
-  "u": {
-   "loss": 7.648182389332611,
-   "delta_vs_fp_subset": 0.11627797617401381,
-   "wall_s": 275.5
-  },
-  "h": {
-   "loss": 10.306813076614851,
-   "delta_vs_fp_subset": 2.7749086634562543,
-   "wall_s": 269.4
-  },
-  "z": {
-   "loss": 11.175182801167502,
-   "delta_vs_fp_subset": 3.6432783880089046,
-   "wall_s": 268.9
+  "exact_round_a8": {
+   "loss": 12.154180302513518,
+   "total_viol": 63,
+   "viol_by_class": {
+    "X_clip": 21,
+    "gate_range": 0,
+    "up_range": 0,
+    "h_range": 6,
+    "z_range": 36
+   },
+   "wall_s": 1042.7
   }
  }
 }
