@@ -7,17 +7,29 @@
   "box": "[MEASURED WSL-BOX NT]"
  },
  "results": {
-  "exact_round_Xuhz16": {
-   "loss": 7.83337133329732,
-   "total_viol": 10,
+  "exact_round_a16uhz16": {
+   "loss": 7.271981880780727,
+   "total_viol": 14,
    "viol_by_class": {
-    "X_clip": 1,
+    "X_clip": 4,
     "gate_range": 3,
     "up_range": 0,
-    "h_range": 3,
-    "z_range": 3
+    "h_range": 2,
+    "z_range": 5
    },
-   "wall_s": 1099.0
+   "wall_s": 1079.1
+  },
+  "exact_round_Xa16uhz16": {
+   "loss": 7.28852744266643,
+   "total_viol": 12,
+   "viol_by_class": {
+    "X_clip": 3,
+    "gate_range": 2,
+    "up_range": 0,
+    "h_range": 3,
+    "z_range": 4
+   },
+   "wall_s": 1050.1
   }
  }
 }
