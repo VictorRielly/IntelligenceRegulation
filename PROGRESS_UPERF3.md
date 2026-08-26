@@ -434,6 +434,36 @@ Round-1 blite pricing (Mistral, agent V's exact command, variants
 percol + percol_g16) LAUNCHED on the freed box right after this
 verdict — running now.
 
+## Blite round-1 verdict (orchestrator ran agent V's command, 2026-08-26 ~00:15)
+
+[MEASURED WSL-BOX NT, seed 1337, same windows; wall 1,699 s, peak
+RSS 3.93 GB, exit 0; results/m8b_blite_experiment_wsl.json.]
+
+**Quality is NOT rescued on Mistral — route R+ is measured dead.**
+percol (per-column u/h/z requant scales + per-column w_down +
+margins): violations 14,531 -> 1,106 (h 1,082 residual) but delta
+**+7.63 nats** (baseline +8.18). percol_g16 (+ the 16-bit gate table
+at layers 0/1/2/30/31): 1,789 violations, delta **+7.32**. With
+agent U's fold results this is now THREE independent mechanism
+families that fix RANGE but not QUALITY on Mistral: the per-layer
+relative FFN error sits at 40-90% even where formally in-range —
+static 8-bit precision against Mistral's activation distributions is
+the binding constraint, not range coverage. The literature's escape
+hatches (dynamic per-token scales, QAT) are exactly the ones outside
+the static contract (L1) or outside preprocessing (route Q).
+Engine bill as measured (for the record; now moot for Mistral):
+max sh 24-27 (the REM class cap must rise 16 -> ~28), max align
+18-21, honest down-acc 34-37 bits, 18 layers multi-tier (up to 3).
+
+**CONSEQUENCE — the ruling picture simplifies:** (i) Mistral-7B is
+not an MVP vehicle under any static-8-bit preprocessing we can
+build; it stays the documented hard case. (ii) Gemma-4-12B-QAT is
+the live vehicle IF its one broken site (z, ~6 layers, internals
+clean) rescues — the z mechanism is post-accumulator per-column
+requant (NO alignment cost, the cheapest C2 mechanism). The decisive
+measurement (agent Z, launched 2026-08-26): per-column eZ at the hot
+layers on the Gemma walker, delta vs the +17.60 baseline.
+
 ## Agent status sections (lanes append below; do not edit each other's)
 
 ## Agent R status (wt-uperf3-r)
