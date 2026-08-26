@@ -498,6 +498,47 @@ declared-sites (weights stay int8). If not, the static-scale
 boundary (L1) is fully established and the honest routes are QAT
 fine-tuning to the contract (route Q) or a quality-labeled MVP.**
 
+## THE CLASS-WIDENING RESULT (orchestrator, 2026-08-26 — the fix)
+
+After the per-site noise ATTRIBUTION located the damage (h +2.77 /
+z +3.64 first-order at ALL layers; W/X/gate/u 0.07-0.38), the exact
+integer chain was measured with WIDENED CLASSES (int16 = the same
+absmax coverage at exponent e-8, 256x finer step; negative shifts =
+exact public up-scalings). Gemma-4-12B, full val windows, all
+[MEASURED WSL-BOX NT]; the floor/a8 sanity leg reproduced the
+baseline BIT-EXACTLY (24.8396 / 116,852):
+
+| exact chain variant | delta (nats) | violations |
+|---|---|---|
+| floor, all-int8 (frozen spec) | +17.6029 | 116,852 |
+| round, all-int8 | +4.9175 | 63 |
+| floor, h16+z16 | +1.3722 | 4 |
+| round, h16+z16 | +0.7860 | 10 |
+| round, u16+h16+z16 | +0.7146 | 11 |
+| round, uhz16 + g16(domain) | +0.7656 | 5 (g16 NEUTRAL) |
+| round, X16+uhz16 | +0.5967 | 10 |
+| **round, a16(out)+uhz16 — THE CHEAP STACK** | **+0.0353** | **14** |
+| round, X16+a16+uhz16 | +0.0518 | 12 (X16 unnecessary) |
+
+**+17.60 -> +0.0353 nats — essentially faithful (BELOW the
+weights-only +0.1356 floor) — with the CHEAP stack: int16-resolution
+TABLE OUTPUT (the table keeps 256 rows), int16 u/h/z classes (all
+elementwise/post-accumulator), round-nearest requant (the m125-
+documented same-proven-relation mode), X and the matmul inputs
+except h staying int8.** Violations 14 of 4096x5x48 — one margin
+bit from zero. ENGINE BILL: (1) witness digit width doubles at the
+a/u/h/z activation tensors only; (2) ONE limb-split matmul input
+(h16 into the down matmul — A1LimbCommitKernel-pattern precedent);
+(3) new frozen table members (256-row, int16-out) in the C5
+registry; (4) round-mode requant as a statement semantics choice;
+(5) range-fact classes at 2^15 (u/z), 2^30 (h = a16 x u16). NO
+limb-split on the gate/up matmuls (X stays int8) — the two big
+matmuls are untouched.
+
+Mistral cross-check (the same winning stack on the SwiGLU chain,
+scripts/m8b_widen_attrib.py) launched — the model-agnosticism
+evidence for the amendment. The ruling package follows it.
+
 ## Agent status sections (lanes append below; do not edit each other's)
 
 ## Agent R status (wt-uperf3-r)

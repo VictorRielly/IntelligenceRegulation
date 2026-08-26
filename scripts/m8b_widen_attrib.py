@@ -42,6 +42,20 @@ def requant_narrow(acc, sh, q, mode, vc, key):
     return np.clip(y, -q, q)
 
 
+SILU_A16_CACHE = {}
+
+
+def silu_tab_a16(eg, ea16):
+    """int8 domain (256 rows), int16-resolution output at ea16 — the
+    winning cheap widening from the Gemma measurement, SiLU form."""
+    key = (eg, ea16)
+    if key not in SILU_A16_CACHE:
+        g = (np.arange(256, dtype=np.float64) - 128) * (2.0 ** eg)
+        a = g / (1.0 + np.exp(-g))
+        SILU_A16_CACHE[key] = np.floor(a / (2.0 ** ea16) + 0.5)
+    return SILU_A16_CACHE[key]
+
+
 def make_widen_ffn(scales, members, wide, mode, viols):
     def ffn(li, x, lw):
         sc = scales[li]
@@ -53,7 +67,9 @@ def make_widen_ffn(scales, members, wide, mode, viols):
             q, _ = m125.quantize(lw[name].astype(np.float64), sc[ekey])
             Wq[name] = q
         x16 = "X" in wide
+        a16 = "a16" in wide
         eX = sc["eX"] - (8 if x16 else 0)
+        eA = sc["eA"] - (8 if a16 else 0)
         eU = sc["eUp"] - (8 if "u" in wide else 0)
         eH = sc["eH"] - (8 if "h" in wide else 0)
         eZ = sc["eZ"] - (8 if "z" in wide else 0)
@@ -62,7 +78,7 @@ def make_widen_ffn(scales, members, wide, mode, viols):
         qZ = Q16 if "z" in wide else 127
         sh_g = sc["eGate"] - eX - sc["eWg"]
         sh_u = eU - eX - sc["eWu"]
-        sh_h = eH - sc["eA"] - eU
+        sh_h = eH - eA - eU
         sh_z = eZ - eH - sc["eWd"]
         out = np.empty((B, T, C), dtype=np.float32)
         for b in range(B):
@@ -77,7 +93,11 @@ def make_widen_ffn(scales, members, wide, mode, viols):
                                 "gate_range")
             yu = requant_narrow(acc_u, sh_u, qU, mode, viols[li],
                                 "up_range")
-            aq = tab[(yg.astype(np.int64) + 128)]
+            if a16:
+                aq = silu_tab_a16(sc["eGate"], eA)[
+                    (yg.astype(np.int64) + 128)]
+            else:
+                aq = tab[(yg.astype(np.int64) + 128)]
             hq = aq * yu
             yh = requant_narrow(hq, sh_h, qH, mode, viols[li],
                                 "h_range")
@@ -115,8 +135,8 @@ def main():
     print("Mistral widen cross-check; ref %.4f, baselines: floor-a8 "
           "+8.1773 (14,531 viols), best static prior +7.32" % loss_ref)
 
-    specs = [("exact_round_uhz16", {"u", "h", "z"}, "round"),
-             ("exact_round_Xuhz16", {"X", "u", "h", "z"}, "round")]
+    specs = [("exact_round_a16uhz16", {"a16", "u", "h", "z"}, "round"),
+             ("exact_round_uhz16", {"u", "h", "z"}, "round")]
     results = {}
     for label, wide, mode in specs:
         vio = [Counter() for _ in range(arch.n_layers)]
