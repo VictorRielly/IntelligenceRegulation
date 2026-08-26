@@ -5059,6 +5059,9 @@ fn freeze_check() {
     all_ok &= freeze_check_uagb1_bi(); // [UAGB1-BI] wire-format stability row
     all_ok &= freeze_check_uagb1_bg();
     all_ok &= freeze_check_uagb1_bl(); // [UAGB1-BL] T_blind rows (n_g, surcharge, masked sumcheck)
+    // [UPERF3-BB] the v3-profile C5 registry rows sit BEFORE the BK rows
+    // so the WSL form (which panics at BK's export load) exercises them.
+    all_ok &= freeze_check_uperf3_bb();
     all_ok &= freeze_check_uagb1_bk(); // [UAGB1-BK] table-descent pair inventory + audited-cap gates
 
     if all_ok {
@@ -6436,6 +6439,8 @@ fn main() {
         Some("uperf-s") => uperf_s_main(&args[1..]),
         // [UPERF3-W] U-PERF3 lane W (shape generalization: BfModel parser, acc_bits, Option-planner) battery.
         Some("uperf-w") => uperf_w_main(&args[1..]),
+        // [UPERF3-BB] U-PERF3 lane BB (the v3 statement profile: widened classes, h16 limb split, round mode, C5 int16-out registry).
+        Some("uperf-v3") => u3_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -43415,4 +43420,164 @@ fn uperf_s_count(depth: usize, dt: usize, e_bits: usize, n_real: usize) {
         rw as f64 / 1e6,
         tw as f64 / 1e6
     );
+}
+
+// ===========================================================================
+// [UPERF3-BB] U-PERF3 round 3, lane BB: the v3 STATEMENT PROFILE in the
+// engine — TARGET_CONTRACT §2 v3 + the widened-stack amendment (ADOPTED,
+// Victor's ruling of record 2026-08-26; measured record
+// U_PERF3_QUANTIZATION_MEASUREMENTS.md, engine bill E1-E5 + C5).
+//
+// The profile is a NEW protocol version behind an explicit selector:
+// the v2 default path is BYTE-IDENTICAL (freeze-check + uperf-pc
+// diff-battery + the 3x16 digests are the floor at every commit).
+// Chain semantics (the reference implementations this must agree with
+// numerically: scripts/m8b_widen_attrib.py make_widen_ffn (silu) and
+// scripts/m8b_gemma4_attrib.py make_exact_ffn (gelu), both proven
+// bit-exact against the v2 baseline at the sanity leg):
+//
+//   E1  the a/u/h/z activation tensors carry int16 classes (exponent
+//       e - 8, SAME absmax coverage, 256x finer step);
+//   E2  ONE limb-split matmul input: h16 enters the down matmul as two
+//       int8 limbs, h16 = 256 * Hhi + Hlo (Hhi in [-128,127], Hlo in
+//       [0,255] — exactly the int16 window), with TWO accumulators
+//       DaccLo/DaccHi so every committed accumulator stays inside
+//       CLS_ACC <= 31 at every shape; the gate/up matmuls UNTOUCHED;
+//   E4  round-to-nearest requant as a statement selector: the SAME
+//       proven floor relation applied to acc + 2^(shift-1)
+//       (m125_int8_calibration.py:139-151) — the requant plumbing sees
+//       only the pre-shifted operand; sh < 0 is an EXACT public
+//       up-scaling (no remainder, no rounding);
+//   E5  range facts: u16/z16 against a [0, 2^16) table at offset
+//       32768 (the asymmetric int16 window — the v2 precedent, whose
+//       [0,256) fact at offset 128 admits -128), H bounded 2^30 by
+//       construction (a16 x u16 <= 32767^2), remainders at the DERIVED
+//       widths (CLS_REM <= 16; the m125-v3 profile lands sh_h in
+//       13..15, sh_u in -1..1);
+//   C5  the int16-out table members frozen in ring/lookup.rs AND
+//       manifest.rs (additive, versioned; freeze rows below).
+
+/// [UPERF3-BB] Freeze rows for the C5 registry additions. Sit BEFORE
+/// the UAGB1-BK rows in freeze_check() so the WSL form (which panics at
+/// BK's export load on boxes without the m125 bins) exercises them.
+fn freeze_check_uperf3_bb() -> bool {
+    use ring::lookup::{
+        Act16Fn, GELU16_V3_DIGESTS, GELU16_V3_MEMBERS, GELU16_V3_OUTPUTS, SILU16_V3_DIGESTS,
+        SILU16_V3_MEMBERS, SILU16_V3_OUTPUTS, int16out_generate, int16out_member, int16out_rows,
+        table_spec_digest_int16out,
+    };
+    let mut ok = true;
+    let mut row = |label: &str, good: bool| {
+        println!("  {} {label}", if good { "ok  " } else { "  FAIL" });
+        ok &= good;
+    };
+    // BB-1a: the frozen bytes reproduce through the deterministic f64
+    // generator (platform-drift detector; the consts stay authoritative).
+    let mut regen = true;
+    for (i, &(ei, eo)) in SILU16_V3_MEMBERS.iter().enumerate() {
+        regen &= int16out_generate(Act16Fn::Silu, ei, eo) == SILU16_V3_OUTPUTS[i];
+    }
+    for (i, &(ei, eo)) in GELU16_V3_MEMBERS.iter().enumerate() {
+        regen &= int16out_generate(Act16Fn::GeluTanh, ei, eo) == GELU16_V3_OUTPUTS[i];
+    }
+    row(
+        "UPERF3-BB-1a int16-out members regenerate byte-identically (9 silu + 6 gelu)",
+        regen,
+    );
+    // BB-1b: the pinned digests equal the spec-header digest of the
+    // FROZEN bytes, and the accessor serves exactly the frozen set.
+    let mut dg_ok = true;
+    for (i, &(ei, eo)) in SILU16_V3_MEMBERS.iter().enumerate() {
+        let rows = int16out_rows(&SILU16_V3_OUTPUTS[i]);
+        dg_ok &= table_spec_digest_int16out(Act16Fn::Silu, ei, eo, &rows) == SILU16_V3_DIGESTS[i];
+        dg_ok &= int16out_member(Act16Fn::Silu, ei, eo)
+            .map(|(b, d)| *b == SILU16_V3_OUTPUTS[i] && d == SILU16_V3_DIGESTS[i])
+            .unwrap_or(false);
+    }
+    for (i, &(ei, eo)) in GELU16_V3_MEMBERS.iter().enumerate() {
+        let rows = int16out_rows(&GELU16_V3_OUTPUTS[i]);
+        dg_ok &=
+            table_spec_digest_int16out(Act16Fn::GeluTanh, ei, eo, &rows) == GELU16_V3_DIGESTS[i];
+        dg_ok &= int16out_member(Act16Fn::GeluTanh, ei, eo)
+            .map(|(b, d)| *b == GELU16_V3_OUTPUTS[i] && d == GELU16_V3_DIGESTS[i])
+            .unwrap_or(false);
+    }
+    dg_ok &= int16out_member(Act16Fn::Silu, -3, -3).is_none(); // v2 pairs are NOT v3 members
+    row(
+        "UPERF3-BB-1b int16-out spec digests pin the frozen bytes; accessor serves exactly the frozen set",
+        dg_ok,
+    );
+    // BB-1c: duplicated-constant discipline — the manifest.rs copies
+    // equal the lookup.rs pins, member-for-member, and the v3 registry
+    // is the v4 registry (BYTE-UNMOVED) + the 15 members in order.
+    let reg = manifest::uperf3_v3_table_registry();
+    let v4 = manifest::v4_table_registry();
+    let mut mf_ok = reg.len() == v4.len() + 9 + 6 && reg[..v4.len()] == v4[..];
+    mf_ok &= manifest::UPERF3_SILU16_MEMBERS == SILU16_V3_MEMBERS
+        && manifest::UPERF3_GELU16_MEMBERS == GELU16_V3_MEMBERS;
+    for i in 0..9 {
+        let spec = &reg[v4.len() + i];
+        mf_ok &= manifest::UPERF3_SILU16_TABLE_DIGESTS[i] == SILU16_V3_DIGESTS[i]
+            && spec.digest == SILU16_V3_DIGESTS[i]
+            && spec.input.bits == 8
+            && spec.output.bits == 16
+            && spec.input.frac_bits == (-SILU16_V3_MEMBERS[i].0) as u32
+            && spec.output.frac_bits == (-SILU16_V3_MEMBERS[i].1) as u32
+            && (spec.domain_min, spec.domain_max) == (-128, 127);
+    }
+    for i in 0..6 {
+        let spec = &reg[v4.len() + 9 + i];
+        mf_ok &= manifest::UPERF3_GELU16_TABLE_DIGESTS[i] == GELU16_V3_DIGESTS[i]
+            && spec.digest == GELU16_V3_DIGESTS[i]
+            && spec.input.bits == 8
+            && spec.output.bits == 16;
+    }
+    row(
+        "UPERF3-BB-1c manifest.rs registry rows == lookup.rs pins (duplicated-constant discipline); v3 registry = v4 registry (unmoved) + 15 members",
+        mf_ok,
+    );
+    // BB-1d: the pre-existing frozen digests DO NOT MOVE (the additive
+    // gate, asserted from this side too).
+    row(
+        "UPERF3-BB-1d v2 family digests unmoved (v1/m3/m4 pins byte-equal across both files)",
+        manifest::SILU_V2_M3_TABLE_DIGEST == ring::lookup::SILU_V2_M3_DIGEST
+            && manifest::SILU_V2_M4_TABLE_DIGEST == ring::lookup::SILU_V2_M4_DIGEST
+            && manifest::SILU_INT8_TABLE_DIGEST == ring::lookup::SILU_INT8_TABLE_DIGEST,
+    );
+    ok
+}
+
+/// [UPERF3-BB] `uperf-v3 tables`: print the frozen int16-out registry
+/// (member exponents, output ranges, digests) — the C5 record aid.
+fn u3_tables() {
+    use ring::lookup::{
+        Act16Fn, GELU16_V3_DIGESTS, GELU16_V3_MEMBERS, GELU16_V3_OUTPUTS, SILU16_V3_DIGESTS,
+        SILU16_V3_MEMBERS, SILU16_V3_OUTPUTS,
+    };
+    println!("[UPERF3-BB] the frozen int16-out table registry (C5; PROVISIONAL under the 2026-08-26 ruling — reconcile with lane AA):");
+    for (fam, members, outs, digs) in [
+        ("silu-int16out-table-v3", &SILU16_V3_MEMBERS[..], &SILU16_V3_OUTPUTS[..], &SILU16_V3_DIGESTS[..]),
+        ("gelu-tanh-int16out-table-v3", &GELU16_V3_MEMBERS[..], &GELU16_V3_OUTPUTS[..], &GELU16_V3_DIGESTS[..]),
+    ] {
+        for (i, &(ei, eo)) in members.iter().enumerate() {
+            let lo = outs[i].iter().copied().min().unwrap();
+            let hi = outs[i].iter().copied().max().unwrap();
+            let sat = outs[i].iter().filter(|&&v| v == 32767).count();
+            println!(
+                "  {fam} (eGate {ei:>2}, eOut {eo:>3}): out [{lo:>6}, {hi:>6}] sat rows {sat:>3}  digest {}",
+                hex_full(&digs[i])
+            );
+        }
+    }
+    let _ = Act16Fn::Silu;
+}
+
+fn u3_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("tables") => u3_tables(),
+        _ => {
+            eprintln!("usage: ring_matmul uperf-v3 tables");
+            std::process::exit(2);
+        }
+    }
 }
