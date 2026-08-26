@@ -130,6 +130,14 @@ Typical runs:
   python3 scripts/m8b_gemma4_walker.py --max-layers 6 --text <f> --smoke
   # THE FULL C4 GATE RUN (orchestrator schedules after the box frees):
   python3 scripts/m8b_gemma4_walker.py --text <fineweb_sample.txt>
+  # the v3 widened-witness export (U-PERF3 round 3 lane AA; ADDITIVE —
+  # without --export-v3 this script's behavior is byte-identical).
+  # Layout: EXACTLY the m8b_export_ffn.py header section "V3 PROFILE"
+  # (GeGLU sites; table lines carry gelu-tanh-int16out-table-v3
+  # members); implementation of record scripts/m8b_margins.py:
+  python3 scripts/m8b_gemma4_walker.py --export-v3 results/m8b_gemma4_v3_export \
+      --cal-json results/m8b_gemma4_calibration.json \
+      --margins results/m8b_margins_gemma_wsl.json --text <fineweb_sample.txt>
 """
 
 import argparse
@@ -684,6 +692,20 @@ def main():
                          "chat template (TEMPLATE_PRE)")
     ap.add_argument("--smoke", action="store_true",
                     help="stop after calibration (no held-out chain)")
+    ap.add_argument("--export-v3", default=None, metavar="OUTDIR",
+                    help="write the v3 widened-witness export to "
+                         "OUTDIR and exit (layout: m8b_export_ffn.py "
+                         "header 'V3 PROFILE'; ADDITIVE mode)")
+    ap.add_argument("--cal-json",
+                    default=str(ROOT / "results" /
+                                "m8b_gemma4_calibration.json"),
+                    help="--export-v3 only: calibration JSON")
+    ap.add_argument("--margins", default=None,
+                    help="--export-v3 only: m8b_margins.py result "
+                         "JSON (final.margins)")
+    ap.add_argument("--no-ckpt-sha", action="store_true",
+                    help="--export-v3 only: skip hashing the "
+                         "checkpoint shards")
     args = ap.parse_args()
 
     arch = arch_gemma4(args.ckpt)
@@ -706,6 +728,102 @@ def main():
     if args.max_layers:
         p("** TRUNCATED to %d layers — SMOKE RUN, results are not the "
           "model's **" % arch.n_layers)
+
+    if args.export_v3:
+        # v3 widened-witness export (ADDITIVE; lane AA). The chain,
+        # planes, sidecar and manifest fields are the SAME code paths
+        # as the Mistral exporter — m8b_margins.v3_witness_walk /
+        # write_v3_sidecar via m8b_export_ffn's field conventions —
+        # so the layout cannot fork between checkpoints.
+        import m8b_margins as mv3
+        import m8b_export_ffn as mx
+        out_dir = Path(args.export_v3)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / ".gitignore").write_text("*.bin\n")
+        caldata = json.loads(Path(args.cal_json).read_text())
+        scales = caldata["calibration"]
+        assert len(scales) >= arch.n_layers, \
+            "calibration JSON has %d layers, model needs %d" \
+            % (len(scales), arch.n_layers)
+        margins = {}
+        msrc = None
+        if args.margins:
+            mj = json.loads(Path(args.margins).read_text())
+            margins = mv3.margins_from_json(mj["final"]["margins"])
+            msrc = str(args.margins)
+        p("m8b_gemma4_walker V3 EXPORT — %s (%d layers, T %d, d %d, "
+          "f %d) -> %s" % (arch.tag, arch.n_layers, args.t, arch.d,
+                           arch.f, out_dir))
+        p("margins: %s" % (msrc or "none (zero-margin v3 chain)"))
+        if args.max_layers:
+            p("** TRUNCATED to %d layers — SMOKE RUN **"
+              % arch.n_layers)
+        manifest = {
+            "checkpoint": str(args.ckpt),
+            "model_tag": arch.tag,
+            "arch": "gemma4_unified",
+            "seed": args.seed,
+            "profile": "v3-widened",
+            "requant": "round",
+            "semantics": "TARGET_CONTRACT S2 v3 (widened-stack "
+                         "amendment, adopted 2026-08-26) on the GeGLU "
+                         "FFN: int8 X/weights; int16-out gelu-tanh "
+                         "table (256-row int8 domain, clamped "
+                         "registry member); int16 u/h/z at base-8 "
+                         "exponents; round-to-nearest requant; "
+                         "margin-adjusted per-tensor exponents; "
+                         "negative shifts are exact public "
+                         "up-scalings; walker facts F1-F8",
+            "margins_source": msrc,
+            "margins": mv3.margins_to_json(margins),
+            "shapes": {"X": [args.t, arch.d],
+                       "WgT": [arch.d, arch.f],
+                       "WuT": [arch.d, arch.f],
+                       "WdT": [arch.f, arch.d],
+                       "a16": [args.t, arch.f],
+                       "u16": [args.t, arch.f],
+                       "h16": [args.t, arch.f],
+                       "z16": [args.t, arch.d]},
+            "dtypes": {"X": "int8", "WgT": "int8", "WuT": "int8",
+                       "WdT": "int8", "a16": "<i2", "u16": "<i2",
+                       "h16": "<i2", "z16": "<i2"},
+            "dims": {"t": args.t, "d": arch.d, "f": arch.f,
+                     "layers": arch.n_layers},
+            "layers": [],
+        }
+        if not args.no_ckpt_sha:
+            manifest["checkpoint_sha256"] = {
+                Path(f).name: mx.sha_file(f)
+                for f in store.shard_paths()}
+            p("checkpoint shard sha256s recorded (%d files)"
+              % len(manifest["checkpoint_sha256"]))
+        mx.export_weights(store, walker, arch, scales, out_dir,
+                          manifest)
+        toks = m8b.load_token_stream(args, args.ckpt)
+        cal_b, val_b = m8b.token_batches(toks, args.seed,
+                                         args.cal_seqs, args.val_seqs,
+                                         args.t)
+        seq = val_b[:1]
+
+        def read_weight_bin(li, name):
+            shape = {"WgT": (arch.d, arch.f),
+                     "WuT": (arch.d, arch.f),
+                     "WdT": (arch.f, arch.d)}[name]
+            return np.fromfile(
+                out_dir / ("layer%02d_%s.bin" % (li, name)),
+                dtype=np.int8).reshape(shape)
+
+        total, _cache = mv3.v3_witness_walk(
+            "gelu", walker, arch, scales, margins, seq, out_dir,
+            manifest, read_weight_bin)
+        assert total == 0, "witness does not satisfy the v3 statement"
+        (out_dir / "manifest.json").write_text(
+            json.dumps(manifest, indent=1))
+        mv3.write_v3_sidecar(out_dir, manifest, arch, args.t)
+        p("manifest -> %s (+ digests.txt v3 sidecar)"
+          % (out_dir / "manifest.json"))
+        p("peak RSS %.2f GB" % rss_gb())
+        return
 
     if args.decode:
         greedy_decode(walker, arch, args.ckpt, args.decode,

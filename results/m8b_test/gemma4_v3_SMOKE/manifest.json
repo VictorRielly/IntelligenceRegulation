@@ -1,0 +1,192 @@
+{
+ "checkpoint": "/home/victor/models/gemma-4-12B-qat",
+ "model_tag": "gemma-4-12B-qat",
+ "arch": "gemma4_unified",
+ "seed": 1337,
+ "profile": "v3-widened",
+ "requant": "round",
+ "semantics": "TARGET_CONTRACT S2 v3 (widened-stack amendment, adopted 2026-08-26) on the GeGLU FFN: int8 X/weights; int16-out gelu-tanh table (256-row int8 domain, clamped registry member); int16 u/h/z at base-8 exponents; round-to-nearest requant; margin-adjusted per-tensor exponents; negative shifts are exact public up-scalings; walker facts F1-F8",
+ "margins_source": null,
+ "margins": {},
+ "shapes": {
+  "X": [
+   512,
+   3840
+  ],
+  "WgT": [
+   3840,
+   15360
+  ],
+  "WuT": [
+   3840,
+   15360
+  ],
+  "WdT": [
+   15360,
+   3840
+  ],
+  "a16": [
+   512,
+   15360
+  ],
+  "u16": [
+   512,
+   15360
+  ],
+  "h16": [
+   512,
+   15360
+  ],
+  "z16": [
+   512,
+   3840
+  ]
+ },
+ "dtypes": {
+  "X": "int8",
+  "WgT": "int8",
+  "WuT": "int8",
+  "WdT": "int8",
+  "a16": "<i2",
+  "u16": "<i2",
+  "h16": "<i2",
+  "z16": "<i2"
+ },
+ "dims": {
+  "t": 512,
+  "d": 3840,
+  "f": 15360,
+  "layers": 2
+ },
+ "layers": [
+  {
+   "layer": 0,
+   "eX": 1,
+   "eGate": -1,
+   "eA": -1,
+   "eUp": 1,
+   "eH": 5,
+   "eZ": 2,
+   "eWg": -9,
+   "eWu": -9,
+   "eWd": -10,
+   "files": {
+    "WgT": "layer00_WgT.bin",
+    "WuT": "layer00_WuT.bin",
+    "WdT": "layer00_WdT.bin",
+    "X": "layer00_X.bin",
+    "a16": "layer00_a16.bin",
+    "u16": "layer00_u16.bin",
+    "h16": "layer00_h16.bin",
+    "z16": "layer00_z16.bin"
+   },
+   "digests": {
+    "WgT": "0b1e260d57ddfa22cf37ce0499b56a5ffb3c1fd259edd8712309a87c9869c85d",
+    "WuT": "eadbb65ce7a2a61b848a3f97373d8ac3b1a1186fa823d89b1569270138fe6ad4",
+    "WdT": "644f58ceb8e49b0885ab5157512d0cb94409e4cc180a28a5f58c1377ad710cf6",
+    "X": "e45f279f1fe1c77ea330184653e5ae0313245285f4fc644a32a49d7c78eee847",
+    "a16": "0af1c07065ebe746fc5999a7cc9920340671c9ba4517bcb52cbd33b3eb03ffc3",
+    "u16": "e700d59975f5b3e1b8221544abd6a9d202a105f81566a21344e360fd532cc082",
+    "h16": "1c4e947b76c0d3b65169065dea4eb4023cf51630b551c6d082def7ad796669a9",
+    "z16": "cf75878367bb2b8a2fa6fb3333b59cb80d43ab0dd552e7ff55385790f6f85c76"
+   },
+   "shifts": {
+    "g": 7,
+    "u": 1,
+    "h": 13,
+    "z": 7
+   },
+   "exps_v3": {
+    "eX": 1,
+    "eG": -1,
+    "eA16": -9,
+    "eU16": -7,
+    "eH16": -3,
+    "eZ16": -6,
+    "eWg": -9,
+    "eWu": -9,
+    "eWd": -10
+   },
+   "margins": {},
+   "table": {
+    "function": "gelu-tanh-int16out-table-v3",
+    "e_in": -1,
+    "e_out": -9,
+    "digest": "046effd433a6ca204131a25ed3e06343236b5eb77e2a0e6d562d8af73cc29eab"
+   },
+   "acc_max": {
+    "gateup": 30420,
+    "down": 1739707,
+    "had": 105340928
+   }
+  },
+  {
+   "layer": 1,
+   "eX": 0,
+   "eGate": -1,
+   "eA": -1,
+   "eUp": 0,
+   "eH": 4,
+   "eZ": 1,
+   "eWg": -9,
+   "eWu": -9,
+   "eWd": -10,
+   "files": {
+    "WgT": "layer01_WgT.bin",
+    "WuT": "layer01_WuT.bin",
+    "WdT": "layer01_WdT.bin",
+    "X": "layer01_X.bin",
+    "a16": "layer01_a16.bin",
+    "u16": "layer01_u16.bin",
+    "h16": "layer01_h16.bin",
+    "z16": "layer01_z16.bin"
+   },
+   "digests": {
+    "WgT": "f5512293e5400bd831d2e502879471fac6c9ab87ff5bd4710b49b01c6e234d67",
+    "WuT": "80095256c26a3dc095ab9d367032dedf975334c465090b53a4e5ce975f2b240a",
+    "WdT": "611be6fa25c215d7e5f32427510590e4ae6ff86110516b881ff925f3d7fa4f11",
+    "X": "b1458b206999f85f7fa6d72107e9ad4fb9522fdf3639dbe45fa2efed843de1fc",
+    "a16": "413a1bd8f6cd659990c99a9be98b2e7cd82a8cfeca36b4cea87548a488cb9a21",
+    "u16": "18d710aad63d06b4087cab02e29d28e5fa178bdacef63c2bcf224a271237898a",
+    "h16": "db56472399e14e15ed8393b54b62e2f139e7b7cd5668385fad57de13ca46732e",
+    "z16": "817271341c7f693b9dfd2834e169fdbffd86a3be0dff4535db23ef3d27b25a92"
+   },
+   "shifts": {
+    "g": 8,
+    "u": 1,
+    "h": 13,
+    "z": 7
+   },
+   "exps_v3": {
+    "eX": 0,
+    "eG": -1,
+    "eA16": -9,
+    "eU16": -8,
+    "eH16": -4,
+    "eZ16": -7,
+    "eWg": -9,
+    "eWu": -9,
+    "eWd": -10
+   },
+   "margins": {},
+   "table": {
+    "function": "gelu-tanh-int16out-table-v3",
+    "e_in": -1,
+    "e_out": -9,
+    "digest": "046effd433a6ca204131a25ed3e06343236b5eb77e2a0e6d562d8af73cc29eab"
+   },
+   "acc_max": {
+    "gateup": 35571,
+    "down": 2253963,
+    "had": 193248000
+   }
+  }
+ ],
+ "range_violations": 0,
+ "a16_clamp_hits": 0,
+ "tables_v3": {
+  "gelu-tanh-int16out-table-v3,-1,-9": {
+   "digest": "046effd433a6ca204131a25ed3e06343236b5eb77e2a0e6d562d8af73cc29eab"
+  }
+ }
+}
