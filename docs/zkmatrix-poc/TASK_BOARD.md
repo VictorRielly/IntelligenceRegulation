@@ -552,10 +552,14 @@ STEPS (all from the repo root; the walker defaults to
    materially worse table is a STOP+paste).
 4. The full qualification gate (the C4 verdict):
    `python3 scripts/m8b_gemma4_walker.py --text ~/models/fineweb-edu/sample_text.txt --out-json results/m8b_gemma4_calibration_mac.json`
-   ACCEPT: the script exits 0 and prints a VERDICT block. There is
-   NO pass/fail expectation here — the verdict itself (violations
-   by class, loss delta, silu/gelu member list) IS the deliverable,
-   whatever it says. Any exception/assert = STOP+paste.
+   ACCEPT: the script exits 0 and prints a VERDICT block. **The WSL
+   verdict already landed 2026-08-25 (FAIL: 116,852 violations,
+   almost all at the z site of ~6 layers with the FFN internals
+   clean; +17.60 nats; committed as
+   results/m8b_gemma4_calibration.json) — your run is the CROSS-
+   CHECK: the violation counts, exponent tables and member digests
+   must MATCH that JSON. A mismatch is the finding — paste both.**
+   Any exception/assert = STOP+paste.
 5. Commit `results/m8b_gemma4_calibration_mac.json` + paste the
    VERDICT block into Section 5's log; push.
 RECORD: the full verdict block (violations by class, loss delta, the

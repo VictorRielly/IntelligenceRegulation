@@ -397,6 +397,43 @@ gelu_pytorch_tanh table-member candidate generator. SMOKES ONLY
 (--max-layers 2-4) this round; the full C4 gate run is the
 orchestrator's to schedule after agent V lands.
 
+## The Gemma 4 C4 gate verdict (orchestrator ran it, 2026-08-25 ~23:30)
+
+[MEASURED WSL-BOX NT, seed 1337, 8+8 x 512 on the same FineWeb text
+as the Mistral baseline; results/m8b_gemma4_calibration.json; peak
+RSS 5.34 GB; exit 0.]
+
+**VERDICT: FAIL — but a structurally DIFFERENT and smaller failure
+than Mistral's.** 116,852 held-out range-fact violations, chain loss
+delta +17.60 nats (ref 7.2367 — the plain-fineweb-through-an-it-model
+caveat lane Y flagged: absolute losses read high, the DELTA is the
+meaningful number), weights-only +0.1356.
+
+The structure is the story: **the QAT training DID tame the FFN
+internals** — across all 48 layers the internal sites are essentially
+CLEAN at per-tensor int8 (X: 1 violation total, gate: 0, up: 14,
+Hadamard h: 0 — the sites that carried thousands of violations and
+the 6158x outliers on Mistral). Every remaining violation but 15 is
+at the **z site (the down-projection output feeding the residual
+stream)** and concentrated at ~6 layers, dominated by ONE (layer 2:
+98,650 of the 116,852; then l24 12,036, l9 5,885, l23/l26/l21
+small). Accumulator ceilings all respected (27/29-bit). 6 GELU
+members outside any frozen registry (C5 ruling rides along).
+
+READING: Gemma-4-QAT needs the per-channel bridge at the z SITE of a
+handful of layers (exactly agent V's `zcols` mechanism) — a much
+SMALLER bridge surface than Mistral's (which needs u/h/z + widened
+gate classes). Neither checkpoint qualifies natively at per-tensor;
+the C2 per-channel contract is load-bearing for BOTH routes — the
+general fix is the right fix. TODO for the pricing side: a
+Gemma/GeGLU adaptation of the blite z-variant to measure whether
+per-column eZ at those ~6 layers rescues the delta (the blite phase
+as built is SwiGLU/m8b-module-specific).
+
+Round-1 blite pricing (Mistral, agent V's exact command, variants
+percol + percol_g16) LAUNCHED on the freed box right after this
+verdict — running now.
+
 ## Agent status sections (lanes append below; do not edit each other's)
 
 ## Agent R status (wt-uperf3-r)
