@@ -125,6 +125,18 @@ def make_exact_ffn(scales, members, wide, mode, viols):
             tab16_cache[key] = np.floor(a / (2.0 ** ea) + 0.5)
         return tab16_cache[key]
 
+    def gelu_tab_a16(eg, ea16):
+        # int8 DOMAIN (256 rows), int16-resolution OUTPUT at ea16 —
+        # the cheap widening: the table stays 256 rows, only the
+        # output class widens.
+        key = ("a16", eg, ea16)
+        if key not in tab16_cache:
+            g = (np.arange(256, dtype=np.float64) - 128) * (2.0 ** eg)
+            a = g * 0.5 * (1.0 + np.tanh(
+                0.7978845608028654 * (g + 0.044715 * g ** 3)))
+            tab16_cache[key] = np.floor(a / (2.0 ** ea16) + 0.5)
+        return tab16_cache[key]
+
     def ffn(li, x, lw):
         sc = scales[li]
         B, T, C = x.shape
@@ -141,16 +153,28 @@ def make_exact_ffn(scales, members, wide, mode, viols):
         qH = Q16 if "h" in wide else 127
         qZ = Q16 if "z" in wide else 127
         g16 = "g16" in wide
+        a16 = "a16" in wide
         eG = sc["eGate"] - (8 if g16 else 0)
         qG = Q16 if g16 else 127
+        eA = sc["eA"] - (8 if a16 else 0)
         sh_g = eG - sc["eX"] - sc["eWg"]
         sh_u = eU - sc["eX"] - sc["eWu"]
-        sh_h = eH - sc["eA"] - eU
+        sh_h = eH - eA - eU
         sh_z = eZ - eH - sc["eWd"]
+        x16 = "X" in wide
+        eX = sc["eX"] - (8 if x16 else 0)
+        if x16:
+            sh_g = sh_g + 8
+            sh_u = sh_u + 8
         out = np.empty((B, T, C), dtype=np.float32)
         for b in range(B):
             xf = x[b].astype(np.float64)
-            xq, xclip = m125.quantize(xf, sc["eX"])
+            if x16:
+                xq = np.clip(np.round(xf / (2.0 ** eX)), -32767, 32767)
+                xclip = int(np.count_nonzero(
+                    np.abs(np.round(xf / (2.0 ** eX))) > 32767))
+            else:
+                xq, xclip = m125.quantize(xf, sc["eX"])
             viols[li]["X_clip"] += xclip
             acc_g = xq @ Wq["w_gate"].T
             acc_u = xq @ Wq["w_up"].T
@@ -159,8 +183,11 @@ def make_exact_ffn(scales, members, wide, mode, viols):
             yu = requant_narrow(acc_u, sh_u, qU, mode, viols[li],
                                 "up_range")
             if g16:
-                aq = gelu_tab16(eG, sc["eA"])[
+                aq = gelu_tab16(eG, eA)[
                     (yg.astype(np.int64) + 32768)]
+            elif a16:
+                aq = gelu_tab_a16(eG, eA)[
+                    (yg.astype(np.int64) + 128)]
             else:
                 aq = tab[(yg.astype(np.int64) + 128)]
             hq = aq * yu
@@ -244,9 +271,10 @@ def main():
 
     if "--exact" in sys.argv:
         from collections import Counter
-        specs = [("exact_round_uhz16", {"u", "h", "z"}, "round"),
-                 ("exact_round_uhzg16", {"u", "h", "z", "g16"},
-                  "round")]
+        specs = [("exact_round_a16uhz16",
+                  {"a16", "u", "h", "z"}, "round"),
+                 ("exact_round_Xa16uhz16",
+                  {"X", "a16", "u", "h", "z"}, "round")]
         if "--first-four" in sys.argv:
             specs = [("exact_floor_a8", set(), "floor"),
                      ("exact_floor_hz16", {"h", "z"}, "floor"),
