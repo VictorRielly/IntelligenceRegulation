@@ -3676,5 +3676,1073 @@
    "derivation": "eZ_j = pow2ceil(cal fp absmax_j) + mz, floored at the tensor z p999 exponent, clamped at P_base = eH + eWd (agent V zcols semantics)"
   },
   "delta_vs_ref": 17.97946912691942
+ },
+ "Z3": {
+  "label": "Z3",
+  "mode": "floor",
+  "total_viol": 17,
+  "viol_by_class": {
+   "X_clip": 1,
+   "gate_range": 0,
+   "up_range": 16,
+   "h_range": 0,
+   "z_range": 0
+  },
+  "loss": 25.305985159504885,
+  "acc_bounds": {
+   "gateup": [
+    61935360,
+    27
+   ],
+   "down": [
+    247741440,
+    29
+   ]
+  },
+  "engine": {
+   "max_sh_z": 9,
+   "statement_exp_bytes": 23040,
+   "percol_layers": [
+    2,
+    9,
+    21,
+    23,
+    24,
+    26
+   ],
+   "exp_hist_all": {
+    "-10": 3840,
+    "-9": 15360,
+    "-7": 3840
+   },
+   "sh_hist_all": {
+    "0": 19200,
+    "1": 3840
+   },
+   "alignment_cost": 0,
+   "note": "post-accumulator per-output-column shift: no alignment, down-acc bound unchanged"
+  },
+  "per_layer": [
+   {
+    "acc": {
+     "gateup": 53635.0,
+     "had": 2599.0,
+     "down": 9851.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.6380110086181141,
+    "z": {
+     "mode": "tensor",
+     "eZ": 2,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 42672.0,
+     "had": 2832.0,
+     "down": 9783.0
+    },
+    "viol": {
+     "X_clip": 1,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.3788297738432869,
+    "z": {
+     "mode": "tensor",
+     "eZ": 1,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 29343.0,
+     "had": 6555.0,
+     "down": 23993.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.7273215037120058,
+    "z": {
+     "mode": "int16",
+     "qz": 32767,
+     "eZ_min": -9,
+     "eZ_max": -9,
+     "sh_min": 0,
+     "sh_max": 0,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-9": 3840
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 31697.0,
+     "had": 2340.0,
+     "down": 15757.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.9582007597560027,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 32302.0,
+     "had": 1640.0,
+     "down": 22572.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.5235246738830674,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 12237.0,
+     "had": 330.0,
+     "down": 10284.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.827667046645267,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 14908.0,
+     "had": 1147.0,
+     "down": 18328.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.8818434282680396,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 10247.0,
+     "had": 360.0,
+     "down": 13331.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.569982890793116,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 9912.0,
+     "had": 120.0,
+     "down": 25099.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.4743525482299535,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 15924.0,
+     "had": 99.0,
+     "down": 14367.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 5.470868311090811,
+    "z": {
+     "mode": "int16",
+     "qz": 32767,
+     "eZ_min": -10,
+     "eZ_max": -10,
+     "sh_min": 0,
+     "sh_max": 0,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-10": 3840
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 16628.0,
+     "had": 627.0,
+     "down": 13893.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 5.736064573767755,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 30778.0,
+     "had": 1456.0,
+     "down": 18066.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.4197229080736246,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 135137.0,
+     "had": 741.0,
+     "down": 16515.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 16,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.45485020490810196,
+    "z": {
+     "mode": "tensor",
+     "eZ": 0,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 102553.0,
+     "had": 817.0,
+     "down": 3860.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.18833976334503,
+    "z": {
+     "mode": "tensor",
+     "eZ": 1,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 41018.0,
+     "had": 380.0,
+     "down": 2738.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.610709234995173,
+    "z": {
+     "mode": "tensor",
+     "eZ": 0,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 11446.0,
+     "had": 128.0,
+     "down": 2964.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.0312458380447633,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 9785.0,
+     "had": 276.0,
+     "down": 11318.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.7542859837057392,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 19593.0,
+     "had": 144.0,
+     "down": 13173.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.543898389507645,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 23851.0,
+     "had": 264.0,
+     "down": 24749.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.060747284668215,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 11962.0,
+     "had": 135.0,
+     "down": 25069.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 9.498752063781938,
+    "z": {
+     "mode": "tensor",
+     "eZ": -1,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 11391.0,
+     "had": 114.0,
+     "down": 17079.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.7839578336219173,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 14216.0,
+     "had": 104.0,
+     "down": 17688.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 8.120924008974777,
+    "z": {
+     "mode": "int16",
+     "qz": 32767,
+     "eZ_min": -7,
+     "eZ_max": -7,
+     "sh_min": 1,
+     "sh_max": 1,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-7": 3840
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 8643.0,
+     "had": 261.0,
+     "down": 22327.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.4560217949242584,
+    "z": {
+     "mode": "tensor",
+     "eZ": -2,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 9114.0,
+     "had": 147.0,
+     "down": 10401.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 5.922995705828066,
+    "z": {
+     "mode": "int16",
+     "qz": 32767,
+     "eZ_min": -9,
+     "eZ_max": -9,
+     "sh_min": 0,
+     "sh_max": 0,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-9": 3840
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 16456.0,
+     "had": 144.0,
+     "down": 18087.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 8.53733187753079,
+    "z": {
+     "mode": "int16",
+     "qz": 32767,
+     "eZ_min": -9,
+     "eZ_max": -9,
+     "sh_min": 0,
+     "sh_max": 0,
+     "n_shift_fixups": 1,
+     "exp_hist": {
+      "-9": 3840
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 4946.0,
+     "had": 66.0,
+     "down": 7501.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.873974972969078,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 5727.0,
+     "had": 72.0,
+     "down": 10293.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 10.280308607991183,
+    "z": {
+     "mode": "int16",
+     "qz": 32767,
+     "eZ_min": -9,
+     "eZ_max": -9,
+     "sh_min": 0,
+     "sh_max": 0,
+     "n_shift_fixups": 0,
+     "exp_hist": {
+      "-9": 3840
+     }
+    }
+   },
+   {
+    "acc": {
+     "gateup": 1895.0,
+     "had": 36.0,
+     "down": 5741.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 7.712614608337006,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 3543.0,
+     "had": 182.0,
+     "down": 10483.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.5870725686510196,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 5833.0,
+     "had": 180.0,
+     "down": 9702.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 4.882414244256476,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 12848.0,
+     "had": 308.0,
+     "down": 15899.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.1926856272269284,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 7580.0,
+     "had": 336.0,
+     "down": 20311.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.2923865893709736,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 11113.0,
+     "had": 420.0,
+     "down": 26619.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.911672840778001,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 11401.0,
+     "had": 660.0,
+     "down": 17005.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.969858272207672,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 22410.0,
+     "had": 522.0,
+     "down": 9917.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.288551050596084,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 19055.0,
+     "had": 238.0,
+     "down": 5459.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 3.2488030754724515,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 6
+    }
+   },
+   {
+    "acc": {
+     "gateup": 21022.0,
+     "had": 338.0,
+     "down": 6233.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.7984415167914392,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 7
+    }
+   },
+   {
+    "acc": {
+     "gateup": 29414.0,
+     "had": 238.0,
+     "down": 11072.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.672832871637731,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 14544.0,
+     "had": 312.0,
+     "down": 7721.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.8736472184433142,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 14458.0,
+     "had": 420.0,
+     "down": 7014.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.5807149402417059,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 9974.0,
+     "had": 380.0,
+     "down": 10217.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.0749128422035246,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 9717.0,
+     "had": 120.0,
+     "down": 5308.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 2.270021318977843,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 19425.0,
+     "had": 165.0,
+     "down": 3788.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.7481616734841101,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 53612.0,
+     "had": 144.0,
+     "down": 6714.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.2429451294394005,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 18863.0,
+     "had": 288.0,
+     "down": 4976.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.2872358186390884,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 31373.0,
+     "had": 78.0,
+     "down": 2849.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.886453970990957,
+    "z": {
+     "mode": "tensor",
+     "eZ": -4,
+     "sh_z": 8
+    }
+   },
+   {
+    "acc": {
+     "gateup": 15665.0,
+     "had": 616.0,
+     "down": 14691.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 1.443750948254272,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   },
+   {
+    "acc": {
+     "gateup": 14539.0,
+     "had": 1334.0,
+     "down": 17669.0
+    },
+    "viol": {
+     "X_clip": 0,
+     "gate_range": 0,
+     "up_range": 0,
+     "h_range": 0,
+     "z_range": 0
+    },
+    "rel_ffn_err": 0.4073773436923356,
+    "z": {
+     "mode": "tensor",
+     "eZ": -3,
+     "sh_z": 9
+    }
+   }
+  ],
+  "wall_s": 1258.562869310379,
+  "rss_gb": 4.277288,
+  "policy": {
+   "variant": "Z3",
+   "mz": 2,
+   "floor": true,
+   "percol_layers": [
+    2,
+    9,
+    21,
+    23,
+    24,
+    26
+   ],
+   "qz": 32767,
+   "derivation": "eZ16 = pow2ceil(cal fp tensor absmax / 32767) + mz, clamped at P_base"
+  },
+  "delta_vs_ref": 18.06931690964226
  }
 }
