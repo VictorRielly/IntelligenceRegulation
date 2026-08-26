@@ -1306,3 +1306,14 @@ X_clip/l12 up margin bits, (iii) percol sh_h at hot layers if quality
 does not rescue, (iv) quiesced wall-clock labels (box shared, F2
 training on the Mac; WSL numbers are NT-labeled), (v) C5: 6 GELU
 members await the freeze ruling.
+
+## Agent AA status (wt-uperf3-aa, round 3)
+
+STATE: OPEN (2026-08-26) — skeleton committed. Lane: (1) margin-bit
+round to 0 violations under the adopted v3 widened stack (both
+checkpoints, scripts/m8b_margins.py NEW); (2) the v3 witness export
+profile (additive --profile v3 in scripts/m8b_export_ffn.py +
+additive --export-v3 in scripts/m8b_gemma4_walker.py; defaults stay
+byte-identical); (3) the int16-out C5 member tables + digests
+(silu-v2 formula/digest convention). Results files NEW under
+results/. Nothing outside the lane's ownership is written.
