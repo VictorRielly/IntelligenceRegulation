@@ -1306,3 +1306,53 @@ X_clip/l12 up margin bits, (iii) percol sh_h at hot layers if quality
 does not rescue, (iv) quiesced wall-clock labels (box shared, F2
 training on the Mac; WSL numbers are NT-labeled), (v) C5: 6 GELU
 members await the freeze ruling.
+
+## Agent BB status (wt-uperf3-bb) — round 3, the v3 statement in the engine
+
+- 2026-08-26 SKELETON. Lane = the v3 statement profile behind an
+  explicit selector (E1 widened a/u/h/z classes, E2 h16 limb-split
+  down matmul, E4 round-mode requant, E5 range-fact classes, C5
+  int16-out registry rows), v2 default byte-identical (freeze-check +
+  uperf-pc diff-battery + uperf-w battery + the 3x16 digests
+  93a98700../0ae9cdae.. are the floor at every commit). PLAN (strict
+  rungs, one commit per green rung):
+  (0) baseline captures on THIS worktree binary (build, freeze-check
+      WSL form, diff-battery, 3x16 full-profile digests via
+      M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/
+      m125_ffn_export_wsl — the main repo holds the local bins).
+  (1) C5: lookup.rs int16-out member family (silu 9 members from the
+      committed Mistral calibration's distinct (eGate,eA) pairs at
+      e_out = eA-8, gelu 6 from Gemma's; frozen i16 bytes + v3 spec
+      digests, generator + digest fn mirroring silu-v2/L191-242 and
+      scripts/m8b_gemma4_gelu_member.py), manifest.rs ADDITIVE
+      versioned registry rows (duplicated-constant discipline), new
+      freeze rows inserted before the UAGB1-BF rows so the WSL form
+      exercises them. PROVISIONAL under the ruling: digests to be
+      reconciled with lane AA's generation script when it lands.
+  (2) E4: round-mode requant helper (floor relation on acc +
+      2^(sh-1); m125_int8_calibration.py:139-151 semantics) + oracle
+      leg; negative-shift (exact up-scaling) branch.
+  (3) the v3 chain in Rust (u3_derive_chain): int16 a/u/h/z at e-8,
+      h16 -> (Hlo,Hhi) limbs at 2^8, two down-matmul accumulators
+      DaccLo/DaccHi (CLS_ACC stays <= 31 at every shape), round mode;
+      numerically against make_widen_ffn/make_exact_ffn (reference
+      port = the battery oracle).
+  (4) the `uperf-v3` rig arm: v3 statement digest (profile tag, exps,
+      shifts incl. negative, round flag, int16-out member digests) +
+      the full bf_layer_run-pattern prove/verify E2E: 4 matmul
+      sumchecks, Hadamard a16 o u16, 4 requant pins (limb-recombine
+      + round-const forms), lookup pair (g8,a16) vs the int16-out
+      member, range instances incl. 2^16-row u16/z16 tables
+      (multi-commitment m columns), tamper legs (WrongWeight,
+      WrongTable, SeamSwap, RangeViolation, LimbForge, RoundModeLie).
+  (5) rungs: synthetic small shape battery (ZK_THREADS 1/2/7); the
+      125M rung on the REAL local bins with the v3-widened M125
+      profile (eA/eUp/eH/eZ -8, round; sh_u in [-1,1] exercises the
+      upscale branch on real data; sh_h 13-15 inside CLS_REM 16);
+      1x16/3x16 real Mistral/Gemma rungs HELD for the merged round
+      (need lane AA's exports).
+  Writes: zkmatrix-rs/src/ring/lookup.rs (additive), src/manifest.rs
+  (C5 rows ONLY, under the ruling), src/bin/ring_matmul.rs (the
+  [UPERF3-BB] section + freeze-row insertion + dispatch), this
+  section. NOT touched: kfield/sumcheck/gkr/gkr_masked internals,
+  codex-audit-*, the python scripts, other lanes' files.
