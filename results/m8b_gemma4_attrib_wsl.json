@@ -1,0 +1,46 @@
+{
+ "meta": {
+  "experiment": "m8b_gemma4_attrib (per-site noise)",
+  "val_take": 2,
+  "seed": 1337,
+  "t": 512,
+  "box": "[MEASURED WSL-BOX NT, val subset]"
+ },
+ "results": {
+  "none": {
+   "loss": 7.531904413158597,
+   "delta_vs_fp_subset": 0.0,
+   "wall_s": 188.1
+  },
+  "W": {
+   "loss": 7.604360679172865,
+   "delta_vs_fp_subset": 0.07245626601426824,
+   "wall_s": 356.0
+  },
+  "X": {
+   "loss": 7.797231330305708,
+   "delta_vs_fp_subset": 0.2653269171471111,
+   "wall_s": 267.5
+  },
+  "gate": {
+   "loss": 7.916345784543948,
+   "delta_vs_fp_subset": 0.3844413713853507,
+   "wall_s": 258.5
+  },
+  "u": {
+   "loss": 7.648182389332611,
+   "delta_vs_fp_subset": 0.11627797617401381,
+   "wall_s": 275.5
+  },
+  "h": {
+   "loss": 10.306813076614851,
+   "delta_vs_fp_subset": 2.7749086634562543,
+   "wall_s": 269.4
+  },
+  "z": {
+   "loss": 11.175182801167502,
+   "delta_vs_fp_subset": 3.6432783880089046,
+   "wall_s": 268.9
+  }
+ }
+}

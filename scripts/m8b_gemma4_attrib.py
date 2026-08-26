@@ -47,6 +47,53 @@ def deq(x, e):
     return q * (2.0 ** e)
 
 
+def deq16(x, e8):
+    """int16 quantize-dequant with the SAME absmax coverage as the int8
+    exponent e8 (e16 = e8 - 8): 256x finer step, identical range."""
+    e16 = e8 - 8
+    q = np.clip(np.floor(x / (2.0 ** e16) + 0.5), -32767, 32767)
+    return q * (2.0 ** e16)
+
+
+def make_chain_ffn(scales, members, wide):
+    """The FULL quantized chain (every site quantized), with the sites
+    named in `wide` at int16 (e8-8 exponents) and the rest at int8 —
+    the class-widening quality measurement. wide ⊆ {X,gate,u,h,z}."""
+    def ffn(li, x, lw):
+        sc = scales[li]
+        B, T, C = x.shape
+        wg = deq(lw["w_gate"].astype(np.float64), sc["eWg"])
+        wu = deq(lw["w_up"].astype(np.float64), sc["eWu"])
+        wd = deq(lw["w_down"].astype(np.float64), sc["eWd"])
+        tab = members[(sc["eGate"], sc["eA"])][0].astype(np.float64)
+        out = np.empty((B, T, C), dtype=np.float32)
+        for b in range(B):
+            xf = x[b].astype(np.float64)
+            xf = deq16(xf, sc["eX"]) if "X" in wide else deq(xf, sc["eX"])
+            gate = xf @ wg.T
+            up = xf @ wu.T
+            if "gate" in wide:
+                gq = np.clip(np.floor(gate / (2.0 ** (sc["eGate"] - 8))
+                                      + 0.5), -32767, 32767)
+                g16 = gq * (2.0 ** (sc["eGate"] - 8))
+                a = g16 * 0.5 * (1.0 + np.tanh(
+                    0.7978845608028654 * (g16 + 0.044715 * g16 ** 3)))
+                a = deq16(a, sc["eA"])
+            else:
+                a = tab[(np.clip(np.floor(gate / (2.0 ** sc["eGate"])
+                                          + 0.5), -128, 127)
+                         .astype(np.int64) + 128)] * (2.0 ** sc["eA"])
+            up = deq16(up, sc["eUp"]) if "u" in wide else deq(
+                up, sc["eUp"])
+            h = a * up
+            h = deq16(h, sc["eH"]) if "h" in wide else deq(h, sc["eH"])
+            z = h @ wd.T
+            z = deq16(z, sc["eZ"]) if "z" in wide else deq(z, sc["eZ"])
+            out[b] = z.astype(np.float32)
+        return out
+    return ffn
+
+
 def make_site_ffn(scales, members, site):
     """fp GeGLU FFN with quantization at exactly one site."""
     def ffn(li, x, lw):
@@ -103,6 +150,7 @@ def main():
         tokens = None
         cal_seqs = 8
         val_seqs = 8
+    A.t = t
 
     toks = m8b.load_token_stream(A, ckpt)
     cal, val = m8b.token_batches(toks, seed, A.cal_seqs, A.val_seqs, t)
@@ -114,19 +162,30 @@ def main():
           % (len(vsub), len(val), base["verdict"]["loss_ref"],
              base["verdict"]["loss_delta_nats"]["A"]))
 
+    if "--chains" in sys.argv:
+        runs = [("fp", None),
+                ("chain_a8", make_chain_ffn(scales, members, set())),
+                ("chain_hz16", make_chain_ffn(scales, members,
+                                              {"h", "z"})),
+                ("chain_a16", make_chain_ffn(scales, members,
+                                             {"X", "gate", "u", "h",
+                                              "z"}))]
+    else:
+        runs = [(s, None if s == "none" else
+                 make_site_ffn(scales, members, s))
+                for s in ("none", "W", "X", "gate", "u", "h", "z")]
+
     results = {}
     ref_sub = None
-    for site in ("none", "W", "X", "gate", "u", "h", "z"):
+    for site, ffn in runs:
         t0 = time.time()
-        ffn = None if site == "none" else make_site_ffn(
-            scales, members, site)
         loss = walker.loss(vsub, ffn_override=ffn)
-        if site == "none":
+        if ref_sub is None:
             ref_sub = loss
-        d = loss - (ref_sub if ref_sub is not None else loss)
+        d = loss - ref_sub
         results[site] = dict(loss=loss, delta_vs_fp_subset=d,
                              wall_s=round(time.time() - t0, 1))
-        print("  site %-5s loss %.4f  delta %+8.4f  (%.0fs)"
+        print("  site %-10s loss %.4f  delta %+8.4f  (%.0fs)"
               % (site, loss, d, time.time() - t0))
         OUT.write_text(json.dumps(dict(
             meta=dict(experiment="m8b_gemma4_attrib (per-site noise)",
