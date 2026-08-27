@@ -1358,9 +1358,26 @@ STATE: IN FLIGHT (2026-08-26). Landed so far (one commit each):
   whole X plane's resolution at those layers; z/gate/h margins land
   on int16 planes with resolution to spare). Mechanism smoke green.
   Marker: results/m8b_margins_decomp.done.
-- **The Gemma v3 EXPORT and the --tables C5 record are HELD** on
-  the decomposition (which margin policy to bake into the witness
-  is a real choice now: the 14 violations are 14 ELEMENTS — a
-  per-column/local margin, an accept-N-residues statement row, or
-  eating +0.11 nats are all on the table; Mistral's export is
-  unaffected). Final report after the decomp lands.
+- **DECOMPOSITION LANDED [MEASURED WSL-BOX NT] — the hypothesis is
+  REFUTED, and the answer is better**: the four X-site bits alone
+  cost **+0.0011** nats (FREE — int8-X resolution was NOT the
+  mechanism); the z/gate/h bits alone cost **+0.1317** (sum
+  +0.1329 vs full +0.1082, interaction gap -0.0247 — sane). The
+  cost lives on the int16 planes' margins, almost certainly
+  because z/h margins coarsen EARLY/MID-stream planes that feed
+  everything downstream (z l5!) and the gate margin swaps the
+  activation-table member to a coarser input grid at l34.
+  Residuals: with X-margins only, 7 violating ELEMENTS remain
+  (gate 1, z 6); with z/gate/h-margins only, 4 remain (X_clip 2,
+  z 2) — the chain interacts, neither subset reproduces round 0's
+  14. results/m8b_margins_gemma_decomp.json.
+- **RECOMMENDED POLICY for the ruling (the report's line): take the
+  X margins (free, kills X_clip), do NOT take z/gate/h margins;
+  treat the ~7 residual elements with lane Z's measured per-column
+  eZ mechanism (C2 percol, ~3.75 KB/layer at the residue layers —
+  the zfix pass already measured it killing z-residues cheaply) or
+  an accept-N-residues statement row.** Mistral's margin set and
+  export are unaffected (its margins were free).
+- The Gemma v3 EXPORT and --tables stay HELD for Victor's pick of
+  the residue mechanism (percol-eZ vs accept-N); everything else in
+  the lane is done. Final report block next.
