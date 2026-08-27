@@ -19,22 +19,36 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
-**AS OF 2026-08-26 late (round 3 mid-flight; lanes uperf3-aa/bb/cc pushed):**
-- ROUND 3 STATE: **AA** — Mistral margins-to-zero DONE (+0.2150, 12
-  margin bits, 0 viols) + the REAL Mistral-7B v3 export DONE (0
-  viols); Gemma margin iteration RUNNING DETACHED (see the marker
-  protocol below; done-marker wt-uperf3-aa/results/
-  m8b_margins_gemma.done, then the Gemma v3 export + --tables are the
-  lane's rest). **BB** — C5 registry + the full v3 rig + `uperf-v3
-  verify-export` LANDED; per-tensor weight exponents (e_w3) landed;
-  **the REAL Mistral v3 witness VERIFIES byte-for-bit in the Rust
-  engine (32 layers, 128 plane legs, sha256s == sidecar)**; next:
-  the real-plane proof rungs. **CC** — site-stats + per-site
-  ATTRIBUTION done: the attention COMPUTE CORE IS INT8-CLEAN
-  (q/k/v/scores/probs/ctx |delta| <= 0.09); the seam/residual sites
-  carry the poison (xattn +2.00, ao +0.41, postn +2.16, xres
-  +13.23); the int16 widen pass is QUEUED DETACHED behind AA's run
-  (marker wt-uperf3-cc/results/m8b_gemma4_attn_widen.done).
+**AS OF 2026-08-26 night (round 3 measurements COMPLETE on this box;
+lanes uperf3-aa/bb/cc pushed; the night queue ran itself dry):**
+- **AA** — Mistral margins-to-zero DONE (+0.2150, 12 bits, 0 viols,
+  margins FREE) + the REAL Mistral-7B v3 export DONE. Gemma margins
+  DONE with a decomposed FLAG: 0 viols at 8 bits but the margins
+  cost +0.1082 nats; decomposition MEASURED — the four X bits are
+  FREE (+0.0011), the z/gate/h bits carry +0.1317 (early/mid-stream
+  int16 planes coarsened). RECOMMENDED (awaiting Victor): take the
+  X margins; treat the ~7 residual ELEMENTS with lane Z's percol-eZ
+  (C2, ~3.75 KB/layer) or an accept-N row — do NOT take z/gate/h
+  margins. **The Gemma v3 export + --tables are GATED on that
+  pick**; everything else in the lane is done.
+- **BB** — C5 registry + the full v3 rig + `uperf-v3 verify-export`
+  + per-tensor weight exponents (e_w3; statement layout v2) LANDED.
+  **The REAL Mistral v3 witness VERIFIES byte-for-bit (32 layers x
+  T=512, 128 plane legs, sha256s == sidecar).** m125 real-bins e2e
+  ACCEPT post-migration (91.4 s wall). **The 7B PROOF rung is a MAC
+  task (measured): 1x16 real-Mistral e2e OOM-killed at 15.08 GB on
+  this box — weights-dominated, t-independent** (Grok RUN material
+  once the lane merges, or the W-8(a) u3 diet).
+- **CC** — COMPLETE as a measurement lane: stats + attribution +
+  WIDEN. The MVP-2 answer: attention's compute core is INT8-CLEAN
+  per-tensor (no per-head machinery needed); the four seam sites
+  (xattn/ao/postn/xres) need the widened int16 class and it RESCUES
+  (composed stack_wide +0.0854 vs all-int8 +14.83); postn keeps a
+  +0.19 residue (open, same decision family as AA's flag). Design
+  memo §1.6b carries the measured data (SYNTHETIC -> MEASURED).
+- OPEN FOR VICTOR: (1) the Gemma residue mechanism (percol-eZ vs
+  accept-N) — gates AA's export; (2) postn's +0.19 treatment; (3)
+  round-3 merge when ready.
 - **NEW STANDING PROTOCOL (CLAUDE.md "Heavy runs: detach, queue,
   marker"):** heavy runs launch `setsid nohup` under
   `flock /tmp/zk-heavy.lock` with a `.done` exit-code marker, and
