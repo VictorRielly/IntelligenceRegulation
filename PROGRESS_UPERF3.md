@@ -1340,6 +1340,27 @@ STATE: IN FLIGHT (2026-08-26). Landed so far (one commit each):
   margin-adjusted Mistral member set needs NO new members — the gate
   margins map l3/4 -> (-4,-13) and l14/15 -> (-3,-12), both already
   frozen; (-5,-13) becomes unused post-margin (harmless).
-IN FLIGHT: Gemma margin iteration (queued on /tmp/zk-heavy.lock
-behind lane CC's attrib walk). THEN: Gemma v3 export, the --tables
-C5 record (final margin-adjusted member sets), final report.
+- **GEMMA MARGINS TO ZERO [MEASURED WSL-BOX NT|NOISY-SHARED] — WITH
+  A FLAG**: round 0 reproduces the ruling verdict bit-for-print
+  (+0.0353 / 14 viols: X_clip 4 at l1/10/12/21, z 5 at l5, gate 3
+  at l34, h 2 at l39/43). ONE margin round -> 0 violations at just
+  8 bits (+1 bit at exactly those 8 (layer, site) cells; clamp-hits
+  2). **BUT the margin quality cost is +0.1082 nats** (final delta
+  +0.1436 vs ref — ABOVE the +0.1356 weights-only floor), where
+  Mistral's margin set was FREE (-0.0007). The script's own
+  \>0.05-nat gate fired ("REPORT THIS").
+  results/m8b_margins_gemma_wsl.json, peak RSS 3.71 GB.
+- DECOMPOSITION IN FLIGHT (queued on the heavy lock behind CC's
+  widen pass): scripts/m8b_margins_decomp.py — one verdict walk
+  with the four X-site bits alone, one with the z/gate/h bits
+  alone, same ref + windows. Hypothesis: the X margins carry the
+  cost (X stays INT8 in the v3 stack — +1 exponent bit halves the
+  whole X plane's resolution at those layers; z/gate/h margins land
+  on int16 planes with resolution to spare). Mechanism smoke green.
+  Marker: results/m8b_margins_decomp.done.
+- **The Gemma v3 EXPORT and the --tables C5 record are HELD** on
+  the decomposition (which margin policy to bake into the witness
+  is a real choice now: the 14 violations are 14 ELEMENTS — a
+  per-column/local margin, an accept-N-residues statement row, or
+  eating +0.11 nats are all on the table; Mistral's export is
+  unaffected). Final report after the decomp lands.
