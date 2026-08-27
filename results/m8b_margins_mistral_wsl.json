@@ -1,0 +1,310 @@
+{
+ "meta": {
+  "experiment": "m8b_margins (margin bits to zero violations, adopted v3 widened stack: round, a16-out+u16/h16/z16, int16-out tables CLAMPED/registry-exact)",
+  "model": "mistral",
+  "checkpoint": "/home/victor/models/Mistral-7B-v0.1",
+  "seed": 1337,
+  "t": 512,
+  "val_windows": 8,
+  "layers": 32,
+  "loss_ref": 1.841096998602386,
+  "smoke": false,
+  "box": "[MEASURED WSL-BOX NT|NOISY-SHARED]"
+ },
+ "rounds": [
+  {
+   "round": 0,
+   "margins": {},
+   "margin_bits_total": 0,
+   "loss": 2.056827986824654,
+   "delta_vs_ref": 0.21573098822226822,
+   "total_viol": 32,
+   "viol_by_class": {
+    "X_clip": 8,
+    "gate_range": 7,
+    "up_range": 1,
+    "h_range": 16,
+    "z_range": 0
+   },
+   "per_layer_viol": {
+    "3": {
+     "gate_range": 1
+    },
+    "4": {
+     "gate_range": 4
+    },
+    "7": {
+     "up_range": 1
+    },
+    "15": {
+     "gate_range": 2
+    },
+    "16": {
+     "h_range": 1
+    },
+    "26": {
+     "h_range": 2
+    },
+    "27": {
+     "h_range": 2
+    },
+    "31": {
+     "X_clip": 8,
+     "h_range": 11
+    }
+   },
+   "a16_clamp_hits": 0,
+   "wall_s": 719.3,
+   "margins_next": {
+    "3": {
+     "gate": 1
+    },
+    "4": {
+     "gate": 1
+    },
+    "7": {
+     "u": 1
+    },
+    "15": {
+     "gate": 1
+    },
+    "16": {
+     "h": 1
+    },
+    "26": {
+     "h": 1
+    },
+    "27": {
+     "h": 1
+    },
+    "31": {
+     "X": 1,
+     "h": 1
+    }
+   }
+  },
+  {
+   "round": 1,
+   "margins": {
+    "3": {
+     "gate": 1
+    },
+    "4": {
+     "gate": 1
+    },
+    "7": {
+     "u": 1
+    },
+    "15": {
+     "gate": 1
+    },
+    "16": {
+     "h": 1
+    },
+    "26": {
+     "h": 1
+    },
+    "27": {
+     "h": 1
+    },
+    "31": {
+     "X": 1,
+     "h": 1
+    }
+   },
+   "margin_bits_total": 9,
+   "loss": 2.0465613595223546,
+   "delta_vs_ref": 0.20546436091996867,
+   "total_viol": 5,
+   "viol_by_class": {
+    "X_clip": 0,
+    "gate_range": 3,
+    "up_range": 0,
+    "h_range": 0,
+    "z_range": 2
+   },
+   "per_layer_viol": {
+    "14": {
+     "gate_range": 3
+    },
+    "20": {
+     "z_range": 1
+    },
+    "22": {
+     "z_range": 1
+    }
+   },
+   "a16_clamp_hits": 2,
+   "wall_s": 684.6,
+   "margins_next": {
+    "3": {
+     "gate": 1
+    },
+    "4": {
+     "gate": 1
+    },
+    "7": {
+     "u": 1
+    },
+    "14": {
+     "gate": 1
+    },
+    "15": {
+     "gate": 1
+    },
+    "16": {
+     "h": 1
+    },
+    "20": {
+     "z": 1
+    },
+    "22": {
+     "z": 1
+    },
+    "26": {
+     "h": 1
+    },
+    "27": {
+     "h": 1
+    },
+    "31": {
+     "X": 1,
+     "h": 1
+    }
+   }
+  },
+  {
+   "round": 2,
+   "margins": {
+    "3": {
+     "gate": 1
+    },
+    "4": {
+     "gate": 1
+    },
+    "7": {
+     "u": 1
+    },
+    "14": {
+     "gate": 1
+    },
+    "15": {
+     "gate": 1
+    },
+    "16": {
+     "h": 1
+    },
+    "20": {
+     "z": 1
+    },
+    "22": {
+     "z": 1
+    },
+    "26": {
+     "h": 1
+    },
+    "27": {
+     "h": 1
+    },
+    "31": {
+     "X": 1,
+     "h": 1
+    }
+   },
+   "margin_bits_total": 12,
+   "loss": 2.056126704807549,
+   "delta_vs_ref": 0.21502970620516315,
+   "total_viol": 0,
+   "viol_by_class": {
+    "X_clip": 0,
+    "gate_range": 0,
+    "up_range": 0,
+    "h_range": 0,
+    "z_range": 0
+   },
+   "per_layer_viol": {},
+   "a16_clamp_hits": 3,
+   "wall_s": 749.7,
+   "margins_next": {
+    "3": {
+     "gate": 1
+    },
+    "4": {
+     "gate": 1
+    },
+    "7": {
+     "u": 1
+    },
+    "14": {
+     "gate": 1
+    },
+    "15": {
+     "gate": 1
+    },
+    "16": {
+     "h": 1
+    },
+    "20": {
+     "z": 1
+    },
+    "22": {
+     "z": 1
+    },
+    "26": {
+     "h": 1
+    },
+    "27": {
+     "h": 1
+    },
+    "31": {
+     "X": 1,
+     "h": 1
+    }
+   }
+  }
+ ],
+ "final": {
+  "margins": {
+   "3": {
+    "gate": 1
+   },
+   "4": {
+    "gate": 1
+   },
+   "7": {
+    "u": 1
+   },
+   "14": {
+    "gate": 1
+   },
+   "15": {
+    "gate": 1
+   },
+   "16": {
+    "h": 1
+   },
+   "20": {
+    "z": 1
+   },
+   "22": {
+    "z": 1
+   },
+   "26": {
+    "h": 1
+   },
+   "27": {
+    "h": 1
+   },
+   "31": {
+    "X": 1,
+    "h": 1
+   }
+  },
+  "margin_bits_total": 12,
+  "loss": 2.056126704807549,
+  "delta_vs_ref": 0.21502970620516315,
+  "delta_vs_round0": -0.0007012820171050649,
+  "total_viol": 0,
+  "verdict": "ZERO-VIOLATIONS"
+ }
+}
