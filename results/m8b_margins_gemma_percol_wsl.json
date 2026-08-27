@@ -1,0 +1,303 @@
+{
+ "meta": {
+  "experiment": "m8b_margins (margin bits to zero violations, adopted v3 widened stack: round, a16-out+u16/h16/z16, int16-out tables CLAMPED/registry-exact)",
+  "model": "gemma",
+  "checkpoint": "/home/victor/models/gemma-4-12B-qat",
+  "seed": 1337,
+  "t": 512,
+  "val_windows": 8,
+  "layers": 48,
+  "loss_ref": 7.236668249862625,
+  "smoke": false,
+  "box": "[MEASURED WSL-BOX NT|NOISY-SHARED]",
+  "z_percol": {
+   "mz": 2,
+   "derivation": "eZ16_j = pow2ceil(cal fp absmax_j / Q16) + mz, FLOORED at the per-tensor eZ16 (columns only widen); per-column sh_z"
+  }
+ },
+ "rounds": [
+  {
+   "round": 0,
+   "margins": {},
+   "margin_bits_total": 0,
+   "percol_z": {},
+   "percol_stats": {},
+   "loss": 7.271981880780727,
+   "delta_vs_ref": 0.035313630918102135,
+   "total_viol": 14,
+   "viol_by_class": {
+    "X_clip": 4,
+    "gate_range": 3,
+    "up_range": 0,
+    "h_range": 2,
+    "z_range": 5
+   },
+   "per_layer_viol": {
+    "1": {
+     "X_clip": 1
+    },
+    "5": {
+     "z_range": 5
+    },
+    "10": {
+     "X_clip": 1
+    },
+    "12": {
+     "X_clip": 1
+    },
+    "21": {
+     "X_clip": 1
+    },
+    "34": {
+     "gate_range": 3
+    },
+    "39": {
+     "h_range": 1
+    },
+    "43": {
+     "h_range": 1
+    }
+   },
+   "a16_clamp_hits": 0,
+   "wall_s": 1079.7,
+   "margins_next": {
+    "1": {
+     "X": 1
+    },
+    "10": {
+     "X": 1
+    },
+    "12": {
+     "X": 1
+    },
+    "21": {
+     "X": 1
+    },
+    "34": {
+     "gate": 1
+    },
+    "39": {
+     "h": 1
+    },
+    "43": {
+     "h": 1
+    }
+   },
+   "percol_next": {
+    "5": 0
+   }
+  },
+  {
+   "round": 1,
+   "margins": {
+    "1": {
+     "X": 1
+    },
+    "10": {
+     "X": 1
+    },
+    "12": {
+     "X": 1
+    },
+    "21": {
+     "X": 1
+    },
+    "34": {
+     "gate": 1
+    },
+    "39": {
+     "h": 1
+    },
+    "43": {
+     "h": 1
+    }
+   },
+   "margin_bits_total": 7,
+   "percol_z": {
+    "5": 2
+   },
+   "percol_stats": {
+    "5": {
+     "mz": 2,
+     "cols_widened": 19,
+     "max_extra_bits": 2,
+     "e_sha": "3316a7a6d677cbfe337f65da74afcdde4a0e2494542e82c52cbabe3057dc029f"
+    }
+   },
+   "loss": 7.349019361862562,
+   "delta_vs_ref": 0.11235111199993764,
+   "total_viol": 1,
+   "viol_by_class": {
+    "X_clip": 0,
+    "gate_range": 0,
+    "up_range": 0,
+    "h_range": 1,
+    "z_range": 0
+   },
+   "per_layer_viol": {
+    "30": {
+     "h_range": 1
+    }
+   },
+   "a16_clamp_hits": 0,
+   "wall_s": 1072.9,
+   "margins_next": {
+    "1": {
+     "X": 1
+    },
+    "10": {
+     "X": 1
+    },
+    "12": {
+     "X": 1
+    },
+    "21": {
+     "X": 1
+    },
+    "30": {
+     "h": 1
+    },
+    "34": {
+     "gate": 1
+    },
+    "39": {
+     "h": 1
+    },
+    "43": {
+     "h": 1
+    }
+   },
+   "percol_next": {
+    "5": 0
+   }
+  },
+  {
+   "round": 2,
+   "margins": {
+    "1": {
+     "X": 1
+    },
+    "10": {
+     "X": 1
+    },
+    "12": {
+     "X": 1
+    },
+    "21": {
+     "X": 1
+    },
+    "30": {
+     "h": 1
+    },
+    "34": {
+     "gate": 1
+    },
+    "39": {
+     "h": 1
+    },
+    "43": {
+     "h": 1
+    }
+   },
+   "margin_bits_total": 8,
+   "percol_z": {
+    "5": 2
+   },
+   "percol_stats": {
+    "5": {
+     "mz": 2,
+     "cols_widened": 19,
+     "max_extra_bits": 2,
+     "e_sha": "3316a7a6d677cbfe337f65da74afcdde4a0e2494542e82c52cbabe3057dc029f"
+    }
+   },
+   "loss": 7.341577958998375,
+   "delta_vs_ref": 0.10490970913575026,
+   "total_viol": 0,
+   "viol_by_class": {
+    "X_clip": 0,
+    "gate_range": 0,
+    "up_range": 0,
+    "h_range": 0,
+    "z_range": 0
+   },
+   "per_layer_viol": {},
+   "a16_clamp_hits": 0,
+   "wall_s": 1044.5,
+   "margins_next": {
+    "1": {
+     "X": 1
+    },
+    "10": {
+     "X": 1
+    },
+    "12": {
+     "X": 1
+    },
+    "21": {
+     "X": 1
+    },
+    "30": {
+     "h": 1
+    },
+    "34": {
+     "gate": 1
+    },
+    "39": {
+     "h": 1
+    },
+    "43": {
+     "h": 1
+    }
+   },
+   "percol_next": {
+    "5": 0
+   }
+  }
+ ],
+ "final": {
+  "margins": {
+   "1": {
+    "X": 1
+   },
+   "10": {
+    "X": 1
+   },
+   "12": {
+    "X": 1
+   },
+   "21": {
+    "X": 1
+   },
+   "30": {
+    "h": 1
+   },
+   "34": {
+    "gate": 1
+   },
+   "39": {
+    "h": 1
+   },
+   "43": {
+    "h": 1
+   }
+  },
+  "margin_bits_total": 8,
+  "percol_z": {
+   "5": 2
+  },
+  "percol_stats": {
+   "5": {
+    "mz": 2,
+    "cols_widened": 19,
+    "max_extra_bits": 2,
+    "e_sha": "3316a7a6d677cbfe337f65da74afcdde4a0e2494542e82c52cbabe3057dc029f"
+   }
+  },
+  "loss": 7.341577958998375,
+  "delta_vs_ref": 0.10490970913575026,
+  "delta_vs_round0": 0.06959607821764813,
+  "total_viol": 0,
+  "verdict": "ZERO-VIOLATIONS"
+ }
+}

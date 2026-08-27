@@ -1378,6 +1378,31 @@ STATE: IN FLIGHT (2026-08-26). Landed so far (one commit each):
   the zfix pass already measured it killing z-residues cheaply) or
   an accept-N-residues statement row.** Mistral's margin set and
   export are unaffected (its margins were free).
-- The Gemma v3 EXPORT and --tables stay HELD for Victor's pick of
-  the residue mechanism (percol-eZ vs accept-N); everything else in
-  the lane is done. Final report block next.
+- **RULING (Victor, console 2026-08-26 night): percol-eZ adopted as
+  the z-residue mechanism.** Implemented as --z-percol in
+  m8b_margins.py (per-column eZ16 floored at the per-tensor base —
+  columns only WIDEN; vector sh_z through floor_requant's
+  per-channel form; z viols route to the percol set with escalating
+  mz; e_sha per layer pins the vector for the export reconcile).
+- **PERCOL POLICY RUN [MEASURED WSL-BOX NT]: ZERO violations, and
+  percol-z is FREE as designed** (l5: 19/3840 cols widened, max +2
+  bits, identical e_sha both rounds; the forced-path check measured
+  its loss effect at 7e-6). Converged margin set: X x4 (free) +
+  gate l34 + h l30/39/43 (l30 is a NEW second-order h viol that
+  surfaced in round 1). **BUT final delta +0.1049 — the gate/h
+  margin bits carry +0.0696 of quality cost.** The z bit was NOT
+  the whole story: gate/h bits are the remaining cost carriers.
+  results/m8b_margins_gemma_percol_wsl.json.
+- MECHANISM OPTIONS for gate/h (why percol does NOT port there):
+  gate is the table INDEX (per-column eGate = per-column C5 members
+  — blocked); h feeds the down MATMUL (per-column e_h = the R+
+  input-alignment bill the v3 stack exists to avoid). So the
+  choice is localized margins (+0.0696) vs an accept-N statement
+  row for ~6 elements (gate 3 at l34, h 2-3 at l30/39/43).
+- POLICY DECOMPOSITION IN FLIGHT (queued on the lock): --policy
+  mode in m8b_margins_decomp.py — base (X margins + percol-z,
+  expect ~+0.035) vs base+gate-bit vs base+h-bits. If ONE site
+  carries ~all of +0.0696, the accept-N row need only cover that
+  site's elements. Marker: results/m8b_margins_policy_decomp.done.
+  The Gemma v3 EXPORT waits on this split + Victor's accept-N vs
+  eat-the-margin call for gate/h.

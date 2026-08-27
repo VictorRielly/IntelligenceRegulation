@@ -1,0 +1,13 @@
+token stream: /home/victor/models/fineweb-edu/sample_text.txt tokenized with tokenizers -> 4243819 tokens
+m8b_margins — gemma, 48 layers, 8 val windows, ref loss 7.2367
+round 0: loss 7.2720 (delta +0.0353)  viol 14 {'X_clip': 4, 'gate_range': 3, 'up_range': 0, 'h_range': 2, 'z_range': 5}  clamp-hits 0  margins {}  percol {}  (1080s)
+  per-layer: {'1': {'X_clip': 1}, '5': {'z_range': 5}, '10': {'X_clip': 1}, '12': {'X_clip': 1}, '21': {'X_clip': 1}, '34': {'gate_range': 3}, '39': {'h_range': 1}, '43': {'h_range': 1}}
+round 1: loss 7.3490 (delta +0.1124)  viol 1 {'X_clip': 0, 'gate_range': 0, 'up_range': 0, 'h_range': 1, 'z_range': 0}  clamp-hits 0  margins {'1': {'X': 1}, '10': {'X': 1}, '12': {'X': 1}, '21': {'X': 1}, '34': {'gate': 1}, '39': {'h': 1}, '43': {'h': 1}}  percol {'5': 2}  (1073s)
+  per-layer: {'30': {'h_range': 1}}
+  percol: {'5': {'mz': 2, 'cols_widened': 19, 'max_extra_bits': 2, 'e_sha': '3316a7a6d677cbfe337f65da74afcdde4a0e2494542e82c52cbabe3057dc029f'}}
+round 2: loss 7.3416 (delta +0.1049)  viol 0 {'X_clip': 0, 'gate_range': 0, 'up_range': 0, 'h_range': 0, 'z_range': 0}  clamp-hits 0  margins {'1': {'X': 1}, '10': {'X': 1}, '12': {'X': 1}, '21': {'X': 1}, '30': {'h': 1}, '34': {'gate': 1}, '39': {'h': 1}, '43': {'h': 1}}  percol {'5': 2}  (1045s)
+  percol: {'5': {'mz': 2, 'cols_widened': 19, 'max_extra_bits': 2, 'e_sha': '3316a7a6d677cbfe337f65da74afcdde4a0e2494542e82c52cbabe3057dc029f'}}
+FINAL: ZERO-VIOLATIONS — margins {'1': {'X': 1}, '10': {'X': 1}, '12': {'X': 1}, '21': {'X': 1}, '30': {'h': 1}, '34': {'gate': 1}, '39': {'h': 1}, '43': {'h': 1}} (8 bits), loss 7.3416, delta_vs_ref +0.1049, margin quality cost +0.0696 nats
+** margin quality cost exceeds 0.05 nats — REPORT THIS **
+JSON -> /home/victor/wt-uperf3-aa/results/m8b_margins_gemma_percol_wsl.json
+peak RSS 3.72 GB
