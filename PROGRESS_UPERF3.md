@@ -1459,3 +1459,15 @@ trajectory_regularization > 0 / shared init, then re-measure.
   e_red_block — the remaining ~2 ops/MAC of the 3 are shuffles;
   target <= 0.15 ns/MAC); (4) e_mac_base via pure vector ops
   (currently memory-bound at c*KL per call).
+
+- 2026-08-27 RUNG 2 DONE: the 8 zc_range call sites route through
+  `*_auto` dispatchers (cached avx2_active(); `ZK_EC_SCALAR=1`
+  kill-switch for A/B). GATES: **uperf-s battery 48 legs ok,
+  BATTERY DIGEST 3752cba4.. UNCHANGED with the AVX2 path live** —
+  the dispatch is transcript-invariant, proven. SPIKE WALL RE-RUN
+  [WSL-BOX QUIET], E_4 arm at 2^20 w=8 vs the masked-descent
+  oracle: **1T prove wall 1.9x (was ~parity with the scalar
+  kernel); 8T 2.3x (was 1.6x)** — 0.878 s vs 1.65 s at 1T, 0.232 s
+  vs 0.54 s at 8T; counted ratios unchanged (13.5x equiv, 13.7x
+  rounds, 49.5x wire; GO). The remaining wall/counted gap is still
+  kernel-bound (rung 3, the shuffle elimination).

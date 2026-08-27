@@ -588,7 +588,7 @@ fn build_eq_full(ext: &SubExt, rho: &[EElem]) -> ETab {
             for v in hi.iter_mut() {
                 *v = 0;
             }
-            e_mac(c, &ab, &bb, &mut lo, &mut hi);
+            super::ec_kernel::mac_auto(c, &ab, &bb, &mut lo, &mut hi);
             e_red_block(&ext_c, &lo, &hi, blk);
         }
     };
@@ -659,7 +659,7 @@ fn fold_ext(ext: &SubExt, t: &ETab, r: &EElem) -> ETab {
             for x in 0..bw {
                 lo[x] += a[x] as u64;
             }
-            e_mac_fixed(c, &b, r, &mut lo, &mut hi);
+            super::ec_kernel::mac_fixed_auto(c, &b, r, &mut lo, &mut hi);
             e_red_block(&ext_c, &lo, &hi, blk);
         }
     };
@@ -709,7 +709,7 @@ fn fold_base(ext: &SubExt, t: &[u32], r: &EElem) -> ETab {
             for l in 0..KL {
                 lo[l] += a[l] as u64;
             }
-            e_mac_base_fixed(c, &b, r, &mut lo, &mut hi);
+            super::ec_kernel::mac_base_fixed_auto(c, &b, r, &mut lo, &mut hi);
             e_red_block(&ext_c, &lo, &hi, blk);
         }
     };
@@ -818,7 +818,7 @@ fn round_sums(
                                 bf[l] = f;
                             }
                             let sl = (k * nn + ni) * planes;
-                            e_mac_base(c, &eqb, &bf, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
+                            super::ec_kernel::mac_base_auto(c, &eqb, &bf, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
                             for l in 0..KL {
                                 brec[l] = subm32(brec[l], mulm(pow2[k], bv[l], c31, q32), q32);
                             }
@@ -827,7 +827,7 @@ fn round_sums(
                                 brec[l] = addm32(brec[l], bv[l], q32);
                             }
                             let sl = (w * nn + ni) * planes;
-                            e_mac_base(c, &eqb, &brec, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
+                            super::ec_kernel::mac_base_auto(c, &eqb, &brec, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
                         }
                     }
                 } else {
@@ -862,11 +862,11 @@ fn round_sums(
                                 for v in phi.iter_mut() {
                                     *v = 0;
                                 }
-                                e_mac(c, &ef, &et, &mut plo, &mut phi);
+                                super::ec_kernel::mac_auto(c, &ef, &et, &mut plo, &mut phi);
                                 e_red_block(&ext_c, &plo, &phi, &mut ef);
                             }
                             let sl = (k * nn + ni) * planes;
-                            e_mac(c, &eqb, &ef, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
+                            super::ec_kernel::mac_auto(c, &eqb, &ef, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
                             for i in 0..bw {
                                 erec[i] = subm32(erec[i], mulm(pow2[k], ev[i], c31, q32), q32);
                             }
@@ -875,7 +875,7 @@ fn round_sums(
                                 erec[i] = addm32(erec[i], ev[i], q32);
                             }
                             let sl = (w * nn + ni) * planes;
-                            e_mac(c, &eqb, &erec, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
+                            super::ec_kernel::mac_auto(c, &eqb, &erec, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
                         }
                     }
                 }

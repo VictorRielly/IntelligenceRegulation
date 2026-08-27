@@ -30,6 +30,32 @@ pub fn avx2() -> bool {
     }
 }
 
+/// The dispatch decision, cached: AVX2 present and not disabled by
+/// `ZK_EC_SCALAR=1` (the A/B + debugging kill-switch).
+pub fn avx2_active() -> bool {
+    static F: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *F.get_or_init(|| avx2() && std::env::var("ZK_EC_SCALAR").map_or(true, |v| v != "1"))
+}
+
+// The auto-dispatched family (the zc_range call sites; byte-identical
+// paths, so the uperf-s battery digest is invariant to the dispatch).
+#[inline(always)]
+pub fn mac_auto(c: usize, a: &[u32], b: &[u32], lo: &mut [u64], hi: &mut [u64]) {
+    mac(c, a, b, lo, hi, avx2_active());
+}
+#[inline(always)]
+pub fn mac_base_auto(c: usize, a: &[u32], f: &[u32; KL], lo: &mut [u64], hi: &mut [u64]) {
+    mac_base(c, a, f, lo, hi, avx2_active());
+}
+#[inline(always)]
+pub fn mac_fixed_auto(c: usize, a: &[u32], r: &[u32], lo: &mut [u64], hi: &mut [u64]) {
+    mac_fixed(c, a, r, lo, hi, avx2_active());
+}
+#[inline(always)]
+pub fn mac_base_fixed_auto(c: usize, a: &[u32; KL], r: &[u32], lo: &mut [u64], hi: &mut [u64]) {
+    mac_base_fixed(c, a, r, lo, hi, avx2_active());
+}
+
 // ---------------------------------------------------------------------------
 // AVX2 bodies. Layout: an E element is c * KL u32 (lane-blocked); the
 // accumulator planes are (2c-1) * KL u64 (e_mac/e_mac_fixed) or c * KL
