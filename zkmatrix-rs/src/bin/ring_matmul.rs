@@ -43440,6 +43440,78 @@ fn uperf_s_count(depth: usize, dt: usize, e_bits: usize, n_real: usize) {
 
 fn uperf_t_main(args: &[String]) {
     match args.first().map(|s| s.as_str()) {
-        _ => eprintln!("uperf-t plan [log2_rings] | diff [n_log2] [threads] [seed] | bench ... (rungs land incrementally; see PROGRESS_UPERF3.md Agent FF status)"),
+        Some("plan") => {
+            // `uperf-t plan [log2_rings [e0]]`: one custom shape, or the
+            // memo's counted set (2^20/2^22/2^23 synthetic at e0 = 2, the
+            // 8B weight group 352,321,536 at e0 = 1 sign-binary CLASS_W8S,
+            // the 8B act group 145,475,764 at e0 = 2).
+            let shapes: Vec<(String, usize, u32)> = if let Some(lg) = args.get(1) {
+                let lg: usize = lg.parse().expect("log2_rings");
+                let e0: u32 = args.get(2).map(|s| s.parse().expect("e0")).unwrap_or(2);
+                vec![(format!("2^{lg}"), 1usize << lg, e0)]
+            } else {
+                vec![
+                    ("2^20 synth".into(), 1usize << 20, 2),
+                    ("2^22 synth".into(), 1usize << 22, 2),
+                    ("2^23 synth".into(), 1usize << 23, 2),
+                    ("8B weight".into(), 352_321_536usize, 1),
+                    ("8B act".into(), 145_475_764usize, 2),
+                ]
+            };
+            uperf_t_plan(&shapes);
+        }
+        _ => eprintln!("uperf-t plan [log2_rings [e0]] | diff [n_log2] [threads] [seed] | bench ... (rungs land incrementally; see PROGRESS_UPERF3.md Agent FF status)"),
+    }
+}
+
+/// [UPERF3-FF] Rung 1: the two-tier PLANNER table (no proving) —
+/// ring::two_tier::plan_two_tier at each shape, the per-tier
+/// exact-digit gates, and the remaining recursion schedule (the
+/// frozen plan_schedule, reused). The memo acceptance row is the "8B
+/// two-tier gate" verdict per 8B group shape.
+fn uperf_t_plan(shapes: &[(String, usize, u32)]) {
+    use ring::two_tier::{gate_headroom_bits, plan_two_tier, recursion_schedule};
+    let q = ring::Q8;
+    println!("[UPERF3-FF] uperf-t plan — the two-tier object map (q = {q}, kappa = {}, quinary fold challenges, house concentration bounds)", ring::eval_proof::KAPPA_AGG);
+    println!("[UPERF3-FF] columns: S = rings/row-group (inner), G = row groups (outer), e' = interior base, l_z/l_t = fold/u limb counts,");
+    println!("[UPERF3-FF]          n_w = S*l_z (folded-row digits), n2 = G*kappa*l_t (tier-2 u digits), rec = recursion input (V-clear | V-recursed)");
+    for (name, n0, e0) in shapes {
+        let (n0, e0) = (*n0, *e0);
+        println!("\n[UPERF3-FF] ---- {name}: n0 = {n0} digit rings, e0 = {e0} ----");
+        let hs = gate_headroom_bits(n0, e0, q);
+        println!(
+            "[UPERF3-FF]   built single-tier gate at (n0, e0): headroom {:+.2} bits {}",
+            hs,
+            if hs >= 0.0 { "(green)" } else { "(RED — the W-3 class failure the split dissolves)" }
+        );
+        let (p_sqrt, p_best) = plan_two_tier(n0, e0, q);
+        for (tag, p) in [("sqrt split", &p_sqrt), ("balanced  ", &p_best)] {
+            let Some(p) = p else {
+                println!("[UPERF3-FF]   {tag}: DECLINES (no feasible interior base)");
+                continue;
+            };
+            println!(
+                "[UPERF3-FF]   {tag}: S {} x G {} (pad {}), e' {}, l_z {}, l_t {}, n_w {}, n2 {}, rec {} | {}",
+                p.s, p.g, p.s * p.g - p.n0, p.e_next, p.l_z, p.l_t, p.n_w, p.n2, p.n_rec_clear, p.n_rec_full
+            );
+            println!(
+                "[UPERF3-FF]     gates (bits, >= 0 green): row-group {:+.2}, folded w {:+.2}, tier-2 u {:+.2}  => two-tier gate {}",
+                p.head_rowgroup, p.head_w, p.head_u,
+                if p.gate_green() { "GREEN" } else { "RED" }
+            );
+            println!(
+                "[UPERF3-FF]     wire (V-clear spike form): U kappa rings + w clear {} B + G = {} fold challenges; commit volume kappa*n0 ring-MACs (unchanged class)",
+                p.w_clear_bytes, p.g
+            );
+            for (vtag, n_rec) in [("V-clear", p.n_rec_clear), ("V-recursed", p.n_rec_full)] {
+                match recursion_schedule(n_rec, p.e_next, q) {
+                    Some(s) => println!(
+                        "[UPERF3-FF]     recursion [{vtag}] on {} rings at e' {}: {} levels, floor {} rings e {} (existing planner, reused)",
+                        n_rec, p.e_next, s.levels.len(), s.floor_rings, s.floor_e
+                    ),
+                    None => println!("[UPERF3-FF]     recursion [{vtag}] on {} rings at e' {}: GATE RED (frozen planner would refuse)", n_rec, p.e_next),
+                }
+            }
+        }
     }
 }

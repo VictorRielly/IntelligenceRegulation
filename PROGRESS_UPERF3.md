@@ -1498,3 +1498,35 @@ trajectory_regularization > 0 / shared init, then re-measure.
   panic at the missing m125 export (the brief said 102; the branch
   baseline measured here and at lane S round 1 is 98 — recorded
   honestly, not chased).
+- RUNG 1 (2026-08-27) — THE PLANNER (`uperf-t plan`), design-in-code,
+  no proving. ring::two_tier: plan_two_tier_at (e' fixed-point
+  mirroring the frozen plan_level with n_pairs = 0 — the pair
+  cross-garbage is what two-tier removes), plan_two_tier (sqrt split
+  + balanced-optimum S sweep), recursion_schedule (frozen
+  plan_schedule REUSED, pre-gated), gate_headroom_bits.
+  limbs_for_bound / fold_coeff_bound reproduced verbatim (private in
+  the frozen module; provenance cited in-code). THE TABLE (full
+  output = `uperf-t plan`; q31, kappa 11, quinary fold):
+  | shape (e0) | single-tier | sqrt split S x G | tiers n_w / n2 | gates rg/w/u (bits) | rec (V-clear|V-rec) -> floor | verdict |
+  | 2^20 (2) | +3.24 | 1024 x 1024 | 3072 / 56320 | +8.2/+2.5/+0.4 | 56K|59K -> 7 lv, 924-927 e7 | GREEN |
+  | 2^22 (2) | +2.24 | 2048 x 2048 | 6144 / 135168 | +7.7/+3.0/+0.7 | 135K|141K -> 7 lv, 939 e7 | GREEN |
+  | 2^23 (2) | +1.74 | 2897 x 2896 | 8691 / 191136 | +7.5/+2.7/+0.5 | 191K|200K -> 7 lv, 945-948 e7 | GREEN |
+  | 8B weight 352,321,536 (1) | +0.05 | 18771 x 18770 | 75084 / 1651760 | +7.2/+3.2/+0.9 | 1.65M|1.73M -> 8 lv, 933 e7 | GREEN |
+  | 8B act 145,475,764 (2) | -0.31 RED | 12062 x 12061 | 48248 / 928697 | +6.5/+2.5/+0.3 | 929K|977K -> 8 lv, 927 e7 | GREEN |
+  ** 8B TWO-TIER PLANNER GATE: GREEN on both group shapes ** — and the
+  single-tier act failure reproduces the memo's exact -0.31 bits
+  (W-3), dissolved by the split. HONESTY ROWS (counted vs the memo's
+  [MODEL]): (a) the recursion input is DOMINATED BY THE TIER-2
+  u-DIGITS (G*kappa*l_t): 1.65M rings (8B weight sqrt split), NOT the
+  memo's "~19K rings" (which counts only the folded row n_w = 75K);
+  the balanced split (S ~ sqrt(n0*kappa*l_t/l_z)) lands 574K/369K
+  total — still 200-600x below n0, floor-class schedules (8 levels,
+  floor ~915-957 e7), but the "~19K" row should be read as w-only.
+  (b) per-tier headroom at 8B act sqrt: +6.5 (row-group) / +2.5
+  (folded w) / +0.33 (tier-2 u) bits — the memo modeled "~11-12 bits
+  per tier"; counted is smaller (the u-digit object is the tight
+  one); still green everywhere. (c) V-clear w wire at the spike
+  shapes: 1.0-1.5 MB (2^22-2^23), 6-10 MB at 8B — the production
+  form recurses w instead (V-recursed column). Gates at commit:
+  diff-battery green, uperf-s digest 3752cba4.. unchanged,
+  freeze-check 98 ok + expected panic.
