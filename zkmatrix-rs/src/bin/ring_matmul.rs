@@ -6434,6 +6434,8 @@ fn main() {
         Some("uperf-q") => uperf_q_main(&args[1..]),
         // [UPERF3-S] U-PERF3 lane S (spike S1/S2: range facts as base-field zero-checks vs the masked descent; SiLU LogUp as one sumcheck) bench + battery.
         Some("uperf-s") => uperf_s_main(&args[1..]),
+        // [UPERF3-FF] U-PERF3 round 4 lane FF (spike S4: the sqrt two-tier opening front end vs the built bg opening) planner + differential + bench.
+        Some("uperf-t") => uperf_t_main(&args[1..]),
         // [UPERF3-W] U-PERF3 lane W (shape generalization: BfModel parser, acc_bits, Option-planner) battery.
         Some("uperf-w") => uperf_w_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
@@ -43415,4 +43417,29 @@ fn uperf_s_count(depth: usize, dt: usize, e_bits: usize, n_real: usize) {
         rw as f64 / 1e6,
         tw as f64 / 1e6
     );
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF3-FF] U-PERF3 round 4, lane FF — spike S4: the sqrt (two-tier
+// / Greyhound-shape) front end for the group opening, behind the
+// `uperf-t` selector (U_PERF3_HEADLINE_ROUTES.md Section 4.2
+// VERBATIM; the frozen bg_prove_group / bg_verify_group pass is the
+// ORACLE and is never edited). Module: ring::two_tier.
+//
+// Subcommands (filled rung by rung):
+//   uperf-t plan [log2_rings]  — the two-tier PLANNER only (rung 1):
+//       tier split, what each tier commits, the exact-digit gate per
+//       tier, at 2^20/2^22/2^23 and the 8B group shapes
+//       (352,321,536 / 145,475,764 rings). No proving.
+//   uperf-t diff [n_log2] [threads] [seed]  — the differential (rung
+//       2): a synthetic committed group both ways (built opening =
+//       oracle; two-tier front end), fixed seeds, served claims
+//       asserted EQUAL bit-for-bit.
+//   uperf-t bench ...  — rung 3 walls (fold 1T/8T, prove-group-
+//       equivalent vs bg.prove-group, verifier 1T, bytes).
+
+fn uperf_t_main(args: &[String]) {
+    match args.first().map(|s| s.as_str()) {
+        _ => eprintln!("uperf-t plan [log2_rings] | diff [n_log2] [threads] [seed] | bench ... (rungs land incrementally; see PROGRESS_UPERF3.md Agent FF status)"),
+    }
 }

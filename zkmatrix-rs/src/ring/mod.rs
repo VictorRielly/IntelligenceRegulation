@@ -47,6 +47,7 @@ pub mod params;
 pub mod sigma;
 pub mod t_blind; // [UAGB1-BL] T_blind: masking the weight-touching round polynomials (P2)
 pub mod zc_range; // [UPERF3-S] SPIKE (S1/S2): base-field/E_c zero-check + LogUp-as-sumcheck; not called by any shipped path
+pub mod two_tier; // [UPERF3-FF] SPIKE (S4): the sqrt two-tier opening front end; not called by any shipped path
 
 pub use aux::D;
 pub const LOG2_DELTA0: f64 = 0.005326; // log2(1.0037), same C3 model as Route Z

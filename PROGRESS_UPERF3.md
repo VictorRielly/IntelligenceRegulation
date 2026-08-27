@@ -1433,3 +1433,68 @@ level the deltas are ~1-2 int8 counts. Counted design memo = a
 future lane item once a smoothness-regularized checkpoint exists;
 the joint experiment (frugal side): a ladder run with
 trajectory_regularization > 0 / shared init, then re-measure.
+
+## Agent FF status (wt-uperf3-ff) — round 4
+
+- 2026-08-27 SKELETON (rung 0): worktree on uperf3-ff at the round-4
+  open commit. OWNS: NEW zkmatrix-rs/src/ring/two_tier.rs (+ its one
+  `pub mod two_tier;` line in ring/mod.rs), the NEW [UPERF3-FF] bin
+  section with `uperf-t` in the main dispatch (one line by the
+  `uperf-s` line), this status section. eval_proof.rs and every other
+  ring module READ-ONLY. Rung plan (one commit per green rung):
+  1. `uperf-t plan [log2_rings]` — the two-tier PLANNER only: tier
+     split (sqrt sizing), what each tier commits, the exact-digit
+     gate per tier, printed at 2^20 / 2^22 / 2^23 and the 8B group
+     shapes 352,321,536 / 145,475,764 rings (memo acceptance: "8B
+     two-tier gate green"). Table recorded here.
+  2. The synthetic differential at 2^20: one committed group both
+     ways (the built bg_prove_group/bg_verify_group opening as the
+     ORACLE; the two-tier front end behind uperf-t), fixed seeds,
+     served claims asserted EQUAL. THE VALUES COMPARED (stated up
+     front, memo 4.2 differential leg): (a) the b_row images — the
+     K_DEG = 16 conj-packed claim-row polys `GroupEvalProof.b_rows`,
+     byte-for-byte, whose constant terms are the batched claim
+     values v_batch; (b) the per-tensor / per-contrib MLE evaluation
+     claims at the batched point — for every ClaimContrib m the
+     K-element y_m = ct_K(sum_u bpolys(kw_m(u)) * w0[u]) computed by
+     the oracle kernel pass restricted to m vs the same value served
+     through the two-tier route; (c) the alpha-batched opening
+     target h_cur = sum_c alphas0_c * b_rows_c vs the two-tier claim
+     transport's reconstruction. If the claims cannot be made to
+     line up: STOP, record exactly where the semantics diverge (a
+     finding, not a failure).
+  3. Scale to 2^22-2^23 synthetic + the real 12x512 act group
+     (M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/
+     m125_ffn_export_wsl); fold wall 1T/8T + prove-group-equivalent
+     vs bg.prove-group at the same shape + verifier 1T + bytes; the
+     box is SHARED — [WSL-BOX NT|NOISY-SHARED] on every wall,
+     byte-identity and counts are the deliverables.
+  Floor at every commit: release build green; uperf-pc diff-battery
+  green; uperf-s battery digest 3752cba4.. unchanged; freeze-check
+  WSL form (102 ok rows then the expected BK panic at the missing
+  export).
+- DESIGN NOTE (recorded before building, from the read of
+  eval_proof.rs/pass_agg.rs): the built claim functional is, per
+  contrib, rank-16 (not rank-1) over any (row x column-block) grid —
+  the K-multiplication row_ker *_K col_ker mixes the 16 K-coordinates,
+  so Phi_0[v] = radix_limb * sum_{d<16} beta[row][d] * conjQ[cb][d]
+  (the [UAGB1-BH] row-column split, eval_proof.rs:2229). The
+  Greyhound v-vector mechanism therefore needs per-(contrib, d)
+  v-vectors on a grid where each term is rank-1 — given by the
+  tensor-row-aligned grid. Consequences to measure/record honestly
+  in rungs 1-2: (i) the tensor-aligned grid is UNBALANCED (outer =
+  sum of tensor rows >> inner = nb*l0), so the planner must weigh
+  both the balanced sqrt split (binding/norm side) and the aligned
+  split (claim side); (ii) claim-side wire/verifier work scales with
+  n_contrib x 16 v-vectors — counted, not assumed. Open question
+  recorded, not guessed: whether the production shape wants the T11 b
+  one-point RLC first (one contrib per tensor) — this spike measures
+  the multi-claim form as built.
+- RUNG 0 GATES (2026-08-27, pre-existing baseline, stub-only change
+  set): build green; uperf-pc diff-battery green (O1 4/4, O2 35/35,
+  O3 63/63, O5 12/12, E2E 2/2, 15.1s); uperf-s battery 48 legs,
+  BATTERY DIGEST 3752cba4fa08c2ee052475e9f4459e2fc3ed0a0c59862468e0c31cbeb165aaae
+  unchanged; freeze-check WSL form: 98 ok rows then the EXPECTED BK
+  panic at the missing m125 export (the brief said 102; the branch
+  baseline measured here and at lane S round 1 is 98 — recorded
+  honestly, not chased).
