@@ -1433,3 +1433,29 @@ level the deltas are ~1-2 int8 counts. Counted design memo = a
 future lane item once a smoothness-regularized checkpoint exists;
 the joint experiment (frugal side): a ladder run with
 trajectory_regularization > 0 / shared init, then re-measure.
+
+## Agent DD status (wt-uperf3-dd) — round 4, the production E_c kernel
+
+- 2026-08-27 RUNG 0+1 (one commit): ring/ec_kernel.rs — AVX2 bodies
+  for the four MAC families (u32xu32->u64 widening via
+  _mm256_mul_epu32 on even/odd u32 positions, unpack/permute back to
+  the scalar lane order, split lo/hi u64 plane accumulate), runtime
+  feature detection, scalar zc_range bodies = the oracle
+  (pub(crate) hooks); `uperf-s kernel-bench [c] [log2_pairs]
+  [reps]` = identity gate (4 families byte-identical scalar vs
+  avx2, running-sum path exercised) + the ns/MAC table.
+  MEASURED [WSL-BOX 1T QUIET]:
+  | c | e_mac scalar->avx2 | e_mac_fixed | e_mac_base |
+  | 4  | 0.757 -> 0.296 (2.6x) | 0.748 -> 0.319 (2.3x) | 0.813 -> 0.507 (1.6x) |
+  | 8  | 0.726 -> 0.249 (2.9x) | 0.699 -> 0.299 (2.3x) | 0.825 -> 0.466 (1.8x) |
+  | 16 | 0.732 -> 0.252 (2.9x) | 0.740 -> 0.334 (2.2x) | 0.810 -> 0.498 (1.6x) |
+  Reading: the spike's "~8x below K9" scalar kernel is now ~3x
+  below K9-class [MODEL: K9 ~0.1 ns/MAC-equiv] at the kernel level.
+  NEXT RUNGS: (2) wire the zc_range call sites through the
+  dispatchers (cached avx2 flag; battery digest 3752cba4.. must not
+  move) and re-run the spike s1 wall matrix — the wall ratio should
+  move from 1.6x toward the counted 13.5x; (3) the shuffle
+  elimination (permuted-plane accumulate, un-permute ONCE in
+  e_red_block — the remaining ~2 ops/MAC of the 3 are shuffles;
+  target <= 0.15 ns/MAC); (4) e_mac_base via pure vector ops
+  (currently memory-bound at c*KL per call).

@@ -372,7 +372,7 @@ fn b_deint_pair(src: &[u32], m: usize, t0: &mut [u32; KL], t1: &mut [u32; KL]) {
 /// E x E lane MAC into split planes ((2c-1) x KL each): planes[t] +=
 /// sum_{i+j=t} a_i b_j per lane.
 #[inline(always)]
-fn e_mac(c: usize, a: &[u32], b: &[u32], lo: &mut [u64], hi: &mut [u64]) {
+pub(crate) fn e_mac(c: usize, a: &[u32], b: &[u32], lo: &mut [u64], hi: &mut [u64]) {
     for i in 0..c {
         for j in 0..c {
             let t = i + j;
@@ -387,7 +387,7 @@ fn e_mac(c: usize, a: &[u32], b: &[u32], lo: &mut [u64], hi: &mut [u64]) {
 
 /// E x base lane MAC into split planes: planes[j] += a_j * f per lane.
 #[inline(always)]
-fn e_mac_base(c: usize, a: &[u32], f: &[u32; KL], lo: &mut [u64], hi: &mut [u64]) {
+pub(crate) fn e_mac_base(c: usize, a: &[u32], f: &[u32; KL], lo: &mut [u64], hi: &mut [u64]) {
     for j in 0..c {
         for l in 0..KL {
             let p = a[j * KL + l] as u64 * f[l] as u64;
@@ -399,7 +399,7 @@ fn e_mac_base(c: usize, a: &[u32], f: &[u32; KL], lo: &mut [u64], hi: &mut [u64]
 
 /// E x broadcast-E lane MAC (the fold's fixed operand r).
 #[inline(always)]
-fn e_mac_fixed(c: usize, a: &[u32], r: &[u32], lo: &mut [u64], hi: &mut [u64]) {
+pub(crate) fn e_mac_fixed(c: usize, a: &[u32], r: &[u32], lo: &mut [u64], hi: &mut [u64]) {
     for i in 0..c {
         for j in 0..c {
             let t = i + j;
@@ -415,7 +415,7 @@ fn e_mac_fixed(c: usize, a: &[u32], r: &[u32], lo: &mut [u64], hi: &mut [u64]) {
 
 /// base x broadcast-E lane MAC (the first fold of a base table).
 #[inline(always)]
-fn e_mac_base_fixed(c: usize, a: &[u32; KL], r: &[u32], lo: &mut [u64], hi: &mut [u64]) {
+pub(crate) fn e_mac_base_fixed(c: usize, a: &[u32; KL], r: &[u32], lo: &mut [u64], hi: &mut [u64]) {
     for j in 0..c {
         let rj = r[j] as u64;
         for l in 0..KL {
