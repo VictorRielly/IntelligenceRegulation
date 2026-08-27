@@ -1306,3 +1306,40 @@ X_clip/l12 up margin bits, (iii) percol sh_h at hot layers if quality
 does not rescue, (iv) quiesced wall-clock labels (box shared, F2
 training on the Mac; WSL numbers are NT-labeled), (v) C5: 6 GELU
 members await the freeze ruling.
+
+## Agent CC status (wt-uperf3-cc) — round 3, the attention-site qualification gate
+
+STATE: IN FLIGHT (2026-08-26). One commit per green rung:
+- SKELETON + EQUIV (593d3ba): scripts/m8b_gemma4_attn_gate.py
+  (stats/attrib/widen/equiv phases; site table + spec/AM references
+  in the header — the doc of record for MVP-2's site names). equiv
+  gate: this walker with all hooks off is BIT-EXACT vs the validated
+  m8b_gemma4_walker at 2 and 6 layers (incl. one k_eq_v full layer);
+  6-layer stats smoke green.
+- STATS (0804237): the full 48-layer site-stats pass [MEASURED
+  WSL-BOX NT, 623 s, RSS 2.6 GB] — q/k/v/scores/ctx TIGHT
+  (absmax/p999 ratio <= 5, the FFN-internals-clean picture);
+  xattn/ao/postn/xres OUTLIER-STRETCHED (ratios to 49; xattn l0
+  absmax 1302, col-ratio 100 — the residual-stream disease at the
+  attention seam); probs: 75-92% of the causal support sits below
+  the fP=9 step (the fixed-point floor is the binding constraint,
+  not range); qr=q+1 bit only at l5.
+- ATTRIB [MEASURED WSL-BOX NT, val subset take=2, ref_subset
+  7.5319]: first-order per-site int8 deltas, FFN fp, exponents
+  frozen from the stats pass —
+  q -0.0005, k +0.0203, v -0.0363, scores -0.0213, exps -0.0146,
+  probs -0.0871, ctx -0.0446 (the attention COMPUTE CORE IS
+  INT8-CLEAN at first order; negative deltas = subset noise floor);
+  Wattn +0.2000 (all four proj weights int8);
+  xattn +2.0043, ao +0.4081, postn +2.1633, xres +13.2300 (the
+  SEAM/RESIDUAL-STREAM sites carry the poison — the SAME
+  class-widening story as the FFN verdict); all_int8 +14.8339
+  (composed upper anchor). ~200 s/site, peak RSS 2.10 GB.
+  results/m8b_gemma4_attn_attrib.{json,log}.
+- IN FLIGHT: --phase widen --sites xattn,ao,postn,xres (int16 e-8
+  singles + the composed stack_wide row) — QUEUED DETACHED on
+  /tmp/zk-heavy.lock behind lane AA's Gemma margins run (flock
+  queue, survives session death; done-marker
+  results/m8b_gemma4_attn_widen.done). THEN: the site table ->
+  U_PERF3_ATTENTION_STATEMENT_DESIGN.md §1 real-data update + final
+  report block.
