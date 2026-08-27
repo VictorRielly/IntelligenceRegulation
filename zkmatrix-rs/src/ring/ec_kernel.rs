@@ -266,6 +266,237 @@ pub fn mac_base_fixed(c: usize, a: &[u32; KL], r: &[u32], lo: &mut [u64], hi: &m
 }
 
 // ---------------------------------------------------------------------------
+// [rung 3] Fused modular LANE primitives. The round loop's other half:
+// the extrapolation / f-chain / recomposition loops are scalar
+// mulm/addm32/subm32 chains in zc_range's body — at w = 8, deg_f = 3,
+// c = 4 they are ~half the counted round MACs, untouched by rungs 0-2
+// (the measured Amdahl gap: kernel 2.6x but wall 1.9x). Each primitive
+// has an EXACT scalar body (the loop moved verbatim from zc_range) and
+// an AVX2 body producing IDENTICAL canonical residues lane-for-lane
+// (same fold31/canon32 formulas in vector form) — the transcript
+// depends on exact values, so the identity gate + the battery digest
+// are the acceptance.
+// ---------------------------------------------------------------------------
+
+/// Scalar reference ops (duplicated from zc_range's private helpers —
+/// the duplicated-constant discipline; zc_range's stay the callers'
+/// oracle via ZK_EC_SCALAR=1).
+#[inline(always)]
+fn fold31(v: u64, c31: u64) -> u64 {
+    (v & 0x7FFF_FFFF) + c31 * (v >> 31)
+}
+#[inline(always)]
+fn canon32(v: u64, q32: u32) -> u32 {
+    let r = v as u32;
+    let r = r.min(r.wrapping_sub(q32));
+    r.min(r.wrapping_sub(q32))
+}
+#[inline(always)]
+fn addm32(a: u32, b: u32, q32: u32) -> u32 {
+    let s = a + b;
+    s.min(s.wrapping_sub(q32))
+}
+#[inline(always)]
+fn subm32(a: u32, b: u32, q32: u32) -> u32 {
+    let d = a.wrapping_sub(b);
+    d.min(d.wrapping_add(q32))
+}
+#[inline(always)]
+fn mulm(a: u32, b: u32, c31: u64, q32: u32) -> u32 {
+    let p = a as u64 * b as u64;
+    canon32(fold31(fold31(p, c31), c31), q32)
+}
+
+#[cfg(target_arch = "x86_64")]
+mod lanes_avx {
+    #[cfg(target_arch = "x86_64")]
+    use std::arch::x86_64::*;
+
+    /// 8-lane modular helpers on u32 ymm vectors. All values canonical
+    /// (< q < 2^31); q32/c31 broadcast. Same formulas as the scalar
+    /// bodies — min-trick canon, double fold31 — so results are
+    /// IDENTICAL, not merely congruent.
+    #[inline(always)]
+    pub unsafe fn vsub(a: __m256i, b: __m256i, q: __m256i) -> __m256i {
+        unsafe {
+            let d = _mm256_sub_epi32(a, b);
+            _mm256_min_epu32(d, _mm256_add_epi32(d, q))
+        }
+    }
+    #[inline(always)]
+    pub unsafe fn vadd(a: __m256i, b: __m256i, q: __m256i) -> __m256i {
+        unsafe {
+            let s = _mm256_add_epi32(a, b);
+            _mm256_min_epu32(s, _mm256_sub_epi32(s, q))
+        }
+    }
+    /// One 4-lane u64 half of the modular product: p = a64 * b64 (both
+    /// < 2^31 in the low u32 of each u64 lane), double fold31, then the
+    /// result stays in u64 lanes (< 2^32, canon applied by caller after
+    /// the halves are packed back to u32 lanes).
+    #[inline(always)]
+    unsafe fn vmul_fold_half(a64: __m256i, b64: __m256i, c31: __m256i) -> __m256i {
+        unsafe {
+            let m31 = _mm256_set1_epi64x(0x7FFF_FFFF);
+            let p = _mm256_mul_epu32(a64, b64);
+            // fold 1
+            let lo = _mm256_and_si256(p, m31);
+            let hi = _mm256_srli_epi64::<31>(p);
+            let f1 = _mm256_add_epi64(lo, _mm256_mul_epu32(hi, c31));
+            // fold 2
+            let lo2 = _mm256_and_si256(f1, m31);
+            let hi2 = _mm256_srli_epi64::<31>(f1);
+            _mm256_add_epi64(lo2, _mm256_mul_epu32(hi2, c31))
+        }
+    }
+    /// bv = ba + xr (bb - ba) over 8n lanes, AVX2-attributed.
+    #[target_feature(enable = "avx2")]
+    pub unsafe fn extrap_avx(ba: &[u32], bb: &[u32], xr: u32, c31: u64, q32: u32, bv: &mut [u32]) {
+        unsafe {
+            let q = _mm256_set1_epi32(q32 as i32);
+            let c31v = _mm256_set1_epi64x(c31 as i64);
+            let xv = _mm256_set1_epi32(xr as i32);
+            for blk in 0..ba.len() / super::KL {
+                let s = blk * super::KL;
+                let av = _mm256_loadu_si256(ba.as_ptr().add(s).cast());
+                let bvv = _mm256_loadu_si256(bb.as_ptr().add(s).cast());
+                let d = vsub(bvv, av, q);
+                let xd = vmulm(xv, d, c31v, q);
+                _mm256_storeu_si256(bv.as_mut_ptr().add(s).cast(), vadd(av, xd, q));
+            }
+        }
+    }
+
+    /// f = prod_a (bv - a) over KL lanes, AVX2-attributed.
+    #[target_feature(enable = "avx2")]
+    pub unsafe fn f_chain_avx(bv: &[u32; super::KL], alphabet: &[u32], c31: u64, q32: u32, bf: &mut [u32; super::KL]) {
+        unsafe {
+            let q = _mm256_set1_epi32(q32 as i32);
+            let c31v = _mm256_set1_epi64x(c31 as i64);
+            let v = _mm256_loadu_si256(bv.as_ptr().cast());
+            let mut f = vsub(v, _mm256_set1_epi32(alphabet[0] as i32), q);
+            for &a in &alphabet[1..] {
+                let t = vsub(v, _mm256_set1_epi32(a as i32), q);
+                f = vmulm(f, t, c31v, q);
+            }
+            _mm256_storeu_si256(bf.as_mut_ptr().cast(), f);
+        }
+    }
+
+    /// rec -= p2k * v over 8n lanes, AVX2-attributed.
+    #[target_feature(enable = "avx2")]
+    pub unsafe fn rec_sub_scaled_avx(rec: &mut [u32], p2k: u32, v: &[u32], c31: u64, q32: u32) {
+        unsafe {
+            let q = _mm256_set1_epi32(q32 as i32);
+            let c31v = _mm256_set1_epi64x(c31 as i64);
+            let pv = _mm256_set1_epi32(p2k as i32);
+            for blk in 0..rec.len() / super::KL {
+                let s = blk * super::KL;
+                let rv = _mm256_loadu_si256(rec.as_ptr().add(s).cast());
+                let vv = _mm256_loadu_si256(v.as_ptr().add(s).cast());
+                _mm256_storeu_si256(rec.as_mut_ptr().add(s).cast(), vsub(rv, vmulm(pv, vv, c31v, q), q));
+            }
+        }
+    }
+
+    /// rec += v over 8n lanes, AVX2-attributed.
+    #[target_feature(enable = "avx2")]
+    pub unsafe fn rec_add_avx(rec: &mut [u32], v: &[u32], q32: u32) {
+        unsafe {
+            let q = _mm256_set1_epi32(q32 as i32);
+            for blk in 0..rec.len() / super::KL {
+                let s = blk * super::KL;
+                let rv = _mm256_loadu_si256(rec.as_ptr().add(s).cast());
+                let vv = _mm256_loadu_si256(v.as_ptr().add(s).cast());
+                _mm256_storeu_si256(rec.as_mut_ptr().add(s).cast(), vadd(rv, vv, q));
+            }
+        }
+    }
+
+    /// 8-lane modular multiply a*b -> canonical, all lanes.
+    #[inline(always)]
+    pub unsafe fn vmulm(a: __m256i, b: __m256i, c31: __m256i, q: __m256i) -> __m256i {
+        unsafe {
+            let ae = a;
+            let be = b;
+            let ao = _mm256_srli_epi64::<32>(a);
+            let bo = _mm256_srli_epi64::<32>(b);
+            let fe = vmul_fold_half(ae, be, c31); // lanes 0,2,4,6 in u64 slots
+            let fo = vmul_fold_half(ao, bo, c31); // lanes 1,3,5,7
+            // pack u64 lanes (< 2^32) back into u32 lane order: even
+            // results sit in the low u32 of each u64 slot; odd results
+            // shifted up 32 recreate the odd u32 positions.
+            let packed = _mm256_or_si256(fe, _mm256_slli_epi64::<32>(fo));
+            // canon32 twice (min-trick)
+            let r = _mm256_min_epu32(packed, _mm256_sub_epi32(packed, q));
+            _mm256_min_epu32(r, _mm256_sub_epi32(r, q))
+        }
+    }
+}
+
+/// bv = ba + xr * (bb - ba) over 8n lanes (the round extrapolation;
+/// base path n = 1 block, ext path n = c blocks).
+#[inline]
+pub fn extrap_lanes(ba: &[u32], bb: &[u32], xr: u32, c31: u64, q32: u32, bv: &mut [u32]) {
+    debug_assert!(ba.len() == bb.len() && ba.len() == bv.len() && ba.len() % KL == 0);
+    #[cfg(target_arch = "x86_64")]
+    if avx2_active() {
+        unsafe { lanes_avx::extrap_avx(ba, bb, xr, c31, q32, bv) };
+        return;
+    }
+    for l in 0..ba.len() {
+        let d = subm32(bb[l], ba[l], q32);
+        bv[l] = addm32(ba[l], mulm(xr, d, c31, q32), q32);
+    }
+}
+
+/// The base-path f chain over KL lanes: f = prod_a (bv - a) with the
+/// SCALAR alphabet (the sign-binary node values).
+#[inline]
+pub fn f_chain_lanes(bv: &[u32; KL], alphabet: &[u32], c31: u64, q32: u32, bf: &mut [u32; KL]) {
+    #[cfg(target_arch = "x86_64")]
+    if avx2_active() {
+        unsafe { lanes_avx::f_chain_avx(bv, alphabet, c31, q32, bf) };
+        return;
+    }
+    for l in 0..KL {
+        let mut f = subm32(bv[l], alphabet[0], q32);
+        for &a in &alphabet[1..] {
+            f = mulm(f, subm32(bv[l], a, q32), c31, q32);
+        }
+        bf[l] = f;
+    }
+}
+
+/// rec -= p2k * v over 8n lanes (the recomposition's scaled subtract).
+#[inline]
+pub fn rec_sub_scaled(rec: &mut [u32], p2k: u32, v: &[u32], c31: u64, q32: u32) {
+    debug_assert!(rec.len() == v.len() && rec.len() % KL == 0);
+    #[cfg(target_arch = "x86_64")]
+    if avx2_active() {
+        unsafe { lanes_avx::rec_sub_scaled_avx(rec, p2k, v, c31, q32) };
+        return;
+    }
+    for l in 0..rec.len() {
+        rec[l] = subm32(rec[l], mulm(p2k, v[l], c31, q32), q32);
+    }
+}
+
+/// rec += v over 8n lanes.
+#[inline]
+pub fn rec_add(rec: &mut [u32], v: &[u32], q32: u32) {
+    debug_assert!(rec.len() == v.len() && rec.len() % KL == 0);
+    #[cfg(target_arch = "x86_64")]
+    if avx2_active() {
+        unsafe { lanes_avx::rec_add_avx(rec, v, q32) };
+        return;
+    }
+    for l in 0..rec.len() {
+        rec[l] = addm32(rec[l], v[l], q32);
+    }
+}
+
+// ---------------------------------------------------------------------------
 // The kernel-bench harness (rung 0/1 record) + the identity check.
 // ---------------------------------------------------------------------------
 

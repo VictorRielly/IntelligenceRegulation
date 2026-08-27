@@ -776,7 +776,6 @@ fn round_sums(
         let mut eqb = vec![0u32; bw];
         let mut ea = vec![0u32; bw]; // E table even lanes
         let mut eb = vec![0u32; bw]; // E table odd lanes
-        let mut ed = vec![0u32; bw]; // odd - even
         let mut ev = vec![0u32; bw]; // extrapolated value at X
         let mut ef = vec![0u32; bw]; // f(v) (E)
         let mut et = vec![0u32; bw]; // temp
@@ -803,29 +802,15 @@ fn round_sums(
                     for (k, tab) in tabs.iter().enumerate() {
                         let ZTab::Base(t) = tab else { unreachable!() };
                         b_deint_pair(t, m, &mut ba, &mut bb);
-                        for l in 0..KL {
-                            // v = a + X (b - a)
-                            let d = subm32(bb[l], ba[l], q32);
-                            bv[l] = addm32(ba[l], mulm(xr, d, c31, q32), q32);
-                        }
+                        super::ec_kernel::extrap_lanes(&ba, &bb, xr, c31, q32, &mut bv);
                         if k < w {
                             // f = prod_a (v - a)
-                            for l in 0..KL {
-                                let mut f = subm32(bv[l], alpha_v[0], q32);
-                                for &a in &alpha_v[1..] {
-                                    f = mulm(f, subm32(bv[l], a, q32), c31, q32);
-                                }
-                                bf[l] = f;
-                            }
+                            super::ec_kernel::f_chain_lanes(&bv, &alpha_v, c31, q32, &mut bf);
                             let sl = (k * nn + ni) * planes;
                             super::ec_kernel::mac_base_auto(c, &eqb, &bf, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
-                            for l in 0..KL {
-                                brec[l] = subm32(brec[l], mulm(pow2[k], bv[l], c31, q32), q32);
-                            }
+                            super::ec_kernel::rec_sub_scaled(&mut brec, pow2[k], &bv, c31, q32);
                         } else {
-                            for l in 0..KL {
-                                brec[l] = addm32(brec[l], bv[l], q32);
-                            }
+                            super::ec_kernel::rec_add(&mut brec, &bv, q32);
                             let sl = (w * nn + ni) * planes;
                             super::ec_kernel::mac_base_auto(c, &eqb, &brec, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
                         }
@@ -837,10 +822,7 @@ fn round_sums(
                     for (k, tab) in tabs.iter().enumerate() {
                         let ZTab::Ext(t) = tab else { unreachable!() };
                         e_deint_pair(c, &t.d, m, &mut ea, &mut eb);
-                        for i in 0..bw {
-                            ed[i] = subm32(eb[i], ea[i], q32);
-                            ev[i] = addm32(ea[i], mulm(xr, ed[i], c31, q32), q32);
-                        }
+                        super::ec_kernel::extrap_lanes(&ea, &eb, xr, c31, q32, &mut ev);
                         if k < w {
                             // f = prod_a (v - a): (deg_f - 1) E x E products
                             for i in 0..bw {
@@ -867,13 +849,9 @@ fn round_sums(
                             }
                             let sl = (k * nn + ni) * planes;
                             super::ec_kernel::mac_auto(c, &eqb, &ef, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
-                            for i in 0..bw {
-                                erec[i] = subm32(erec[i], mulm(pow2[k], ev[i], c31, q32), q32);
-                            }
+                            super::ec_kernel::rec_sub_scaled(&mut erec, pow2[k], &ev, c31, q32);
                         } else {
-                            for i in 0..bw {
-                                erec[i] = addm32(erec[i], ev[i], q32);
-                            }
+                            super::ec_kernel::rec_add(&mut erec, &ev, q32);
                             let sl = (w * nn + ni) * planes;
                             super::ec_kernel::mac_auto(c, &eqb, &erec, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
                         }

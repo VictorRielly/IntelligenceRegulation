@@ -1471,3 +1471,27 @@ trajectory_regularization > 0 / shared init, then re-measure.
   vs 0.54 s at 8T; counted ratios unchanged (13.5x equiv, 13.7x
   rounds, 49.5x wire; GO). The remaining wall/counted gap is still
   kernel-bound (rung 3, the shuffle elimination).
+
+- 2026-08-27 RUNG 3 DONE (re-aimed by profile, one regression fixed
+  honestly): the round loop's OTHER half is scalar modular LANE
+  chains (extrapolation bv = a + X(b-a), the f chain prod(v-alpha),
+  the recomposition +-2^(e0 k) v) — at w=8/deg_f=3/c=4 ~half the
+  counted round MACs, untouched by rungs 0-2 (the measured Amdahl
+  gap). Built fused AVX2 lane primitives (extrap_lanes /
+  f_chain_lanes / rec_sub_scaled / rec_add) mirroring the
+  fold31/canon32/min-trick formulas op-for-op (values IDENTICAL,
+  not merely congruent), wired into both the base and ext round
+  paths. REGRESSION CAUGHT: the first cut called _mm256 intrinsics
+  from non-#[target_feature] fns — LLVM legalized every 256-bit op
+  without AVX2 (rounds 0.70 -> 3.23 s!); fix = the rung-1 pattern
+  (attributed loop-body fns). GATES: battery digest 3752cba4..
+  UNCHANGED under avx2 AND ZK_EC_SCALAR=1 (the primitives'
+  exact-value preservation verified end-to-end through 48 legs).
+  WALLS [WSL-BOX QUIET], E_4 2^20 w=8: **1T rounds 0.696 -> 0.625 s,
+  prove wall 2.0x; 8T rounds 0.148 -> 0.122 s, wall 2.6x** (vs the
+  descent oracle; was 1.6x pre-round-4).
+  NEXT: rung 4 = per-node FUSION (one attributed call per (k, tab)
+  doing extrap + f-chain + mac_base + rec register-resident — the
+  8-lane-per-call setup amortization is the remaining bound), and
+  the shuffle elimination inside mac_block; target: the counted
+  13.5x converting to >= 4-5x wall at 8T.
