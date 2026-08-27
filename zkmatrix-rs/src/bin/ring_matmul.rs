@@ -24585,13 +24585,32 @@ struct BfModel {
     t: usize,
     d: usize,
     f: usize,
-    /// Uniform weight exponent (2^e_w weight scale; -9 at 125M). The
-    /// parser REJECTS exports with non-uniform per-tensor weight
-    /// exponents (a W-6-class extension, not built).
-    e_w: i32,
+    /// Per-layer per-tensor weight exponents (eWg, eWu, eWd) — the
+    /// sidecar exps row's fields 7-9. Uniform exports (m125: -9
+    /// everywhere) populate every slot with the one value; the real 7B
+    /// checkpoints calibrate per tensor (Mistral l0: -10 -11 -10).
+    e_w3: Vec<(i32, i32, i32)>,
     /// (eX, eGate, eA, eUp, eH, eZ) per layer.
     exps: Vec<(i32, i32, i32, i32, i32, i32)>,
     tag: String,
+}
+
+impl BfModel {
+    fn e_wg(&self, l: usize) -> i32 {
+        self.e_w3[l].0
+    }
+    fn e_wu(&self, l: usize) -> i32 {
+        self.e_w3[l].1
+    }
+    fn e_wd(&self, l: usize) -> i32 {
+        self.e_w3[l].2
+    }
+    /// The single weight exponent when the export is uniform (m125:
+    /// Some(-9)); None for per-tensor exports.
+    fn e_w_uniform(&self) -> Option<i32> {
+        let (g0, _, _) = *self.e_w3.first()?;
+        self.e_w3.iter().all(|&(g, u, d)| (g, u, d) == (g0, g0, g0)).then_some(g0)
+    }
 }
 
 fn bf_model_m125() -> BfModel {
@@ -24600,7 +24619,7 @@ fn bf_model_m125() -> BfModel {
         t: BF_T,
         d: BF_D,
         f: BF_F,
-        e_w: -9,
+        e_w3: vec![(-9, -9, -9); M125_EXP.len()],
         exps: M125_EXP.to_vec(),
         tag: "m125".to_string(),
     }
@@ -24616,7 +24635,8 @@ fn bf_model_parse_text(text: &str) -> Result<BfModel, String> {
     let mut dims: Option<(usize, usize, usize, usize)> = None;
     let mut exps_rows: std::collections::BTreeMap<usize, (i32, i32, i32, i32, i32, i32)> =
         std::collections::BTreeMap::new();
-    let mut e_w: Option<i32> = None;
+    let mut e_w3_rows: std::collections::BTreeMap<usize, (i32, i32, i32)> =
+        std::collections::BTreeMap::new();
     for (ln, line) in text.lines().enumerate() {
         if line.trim().is_empty() {
             continue;
@@ -24653,39 +24673,28 @@ fn bf_model_parse_text(text: &str) -> Result<BfModel, String> {
                 }
                 let v: Result<Vec<i32>, _> = rest.iter().map(|s| s.parse::<i32>()).collect();
                 let v = v.map_err(|_| format!("line {}: exps field is not a number", ln + 1))?;
-                if v[6] != v[7] || v[7] != v[8] {
-                    return Err(format!(
-                        "line {}: per-tensor weight exponents ({} {} {}) unsupported (uniform e_w only)",
-                        ln + 1, v[6], v[7], v[8]
-                    ));
-                }
-                match e_w {
-                    None => e_w = Some(v[6]),
-                    Some(w) if w != v[6] => {
-                        return Err(format!(
-                            "line {}: per-layer weight exponent {} != {} (uniform e_w only)",
-                            ln + 1, v[6], w
-                        ));
-                    }
-                    _ => {}
-                }
                 if exps_rows.insert(l, (v[0], v[1], v[2], v[3], v[4], v[5])).is_some() {
                     return Err(format!("line {}: duplicate exps row for layer {}", ln + 1, l));
                 }
+                e_w3_rows.insert(l, (v[6], v[7], v[8]));
             }
             _ => {} // digest/shifts rows: inert here
         }
     }
     let tag = tag.ok_or("no `00 model` row")?;
     let (t, d, f, layers) = dims.ok_or("no `00 dims` row")?;
-    let e_w = e_w.ok_or("no `exps` rows")?;
+    if exps_rows.is_empty() {
+        return Err("no `exps` rows".to_string());
+    }
     let mut exps = Vec::with_capacity(layers);
+    let mut e_w3 = Vec::with_capacity(layers);
     for l in 0..layers {
         exps.push(
             *exps_rows
                 .get(&l)
                 .ok_or_else(|| format!("no exps row for layer {l} (model declares {layers} layers)"))?,
         );
+        e_w3.push(e_w3_rows[&l]);
     }
     if exps_rows.len() != layers {
         return Err(format!(
@@ -24693,7 +24702,7 @@ fn bf_model_parse_text(text: &str) -> Result<BfModel, String> {
             exps_rows.len()
         ));
     }
-    Ok(BfModel { layers, t, d, f, e_w, exps, tag })
+    Ok(BfModel { layers, t, d, f, e_w3, exps, tag })
 }
 
 /// The active model: parsed once from `ZK_MODEL_EXPORT_DIR`'s
@@ -24709,7 +24718,15 @@ fn bf_model() -> &'static BfModel {
                 .unwrap_or_else(|e| panic!("ZK_MODEL_EXPORT_DIR: bad sidecar {}: {e}", path.display()));
             eprintln!(
                 "[UPERF3-W] model from ZK_MODEL_EXPORT_DIR: tag {} | layers {} T {} d {} f {} e_w {}",
-                m.tag, m.layers, m.t, m.d, m.f, m.e_w
+                m.tag,
+                m.layers,
+                m.t,
+                m.d,
+                m.f,
+                match m.e_w_uniform() {
+                    Some(w) => w.to_string(),
+                    None => "per-tensor".to_string(),
+                }
             );
             m
         }
@@ -24842,10 +24859,10 @@ fn bf_load_layer(l: usize, t_rows: usize, quiet: bool) -> BfLayer {
     );
     let (e_x, e_gate, e_a, e_up, e_h, e_z) = m.exps[l];
     assert_eq!(e_gate, e_a, "family assumes eGate == eA");
-    let sh_g = (e_gate - e_x - m.e_w) as u32;
-    let sh_u = (e_up - e_x - m.e_w) as u32;
+    let sh_g = (e_gate - e_x - m.e_wg(l)) as u32;
+    let sh_u = (e_up - e_x - m.e_wu(l)) as u32;
     let sh_h = (e_h - e_a - e_up) as u32;
-    let sh_z = (e_z - e_h - m.e_w) as u32;
+    let sh_z = (e_z - e_h - m.e_wd(l)) as u32;
     let side = bf_sidecar();
     let want_shifts = side[&(l, "shifts".to_string())].clone();
     assert_eq!(
@@ -25065,21 +25082,26 @@ fn bf_entry_typing(e: usize, lay: &BfLayer) -> (manifest::QuantMeta, manifest::T
     // [UPERF3-W W-5/W-4] e_w replaces the inline -9; the accumulator
     // bit widths derive from the model's inner dims (768 -> 25,
     // 2048 -> 26 at 125M — the pre-W-4 constants, battery-asserted).
-    let e_w = bf_model().e_w;
+    // [UPERF3-BB] per-tensor weight exponents: each matmul's W/acc/rem
+    // rows carry ITS weight's exponent (uniform exports unchanged).
+    let (e_wg, e_wu, e_wd) = bf_model().e_w3[lay.l];
     match BF_ENTRIES[e] {
         "X" => (q(8, true), t(e_x, true, CLS_ACT8, 2)),
-        "WgT" | "WuT" | "WdT" => (q(8, true), t(e_w, true, CLS_W8S, 1)),
-        "Gacc" | "Uacc" => (q(bf_acc_bits(bf_d()), true), t(e_x + e_w, true, CLS_ACC, 2)),
-        "Rg" => (q(sh_g, false), t(e_x + e_w, false, CLS_REM, 2)),
-        "Ru" => (q(sh_u, false), t(e_x + e_w, false, CLS_REM, 2)),
+        "WgT" => (q(8, true), t(e_wg, true, CLS_W8S, 1)),
+        "WuT" => (q(8, true), t(e_wu, true, CLS_W8S, 1)),
+        "WdT" => (q(8, true), t(e_wd, true, CLS_W8S, 1)),
+        "Gacc" => (q(bf_acc_bits(bf_d()), true), t(e_x + e_wg, true, CLS_ACC, 2)),
+        "Uacc" => (q(bf_acc_bits(bf_d()), true), t(e_x + e_wu, true, CLS_ACC, 2)),
+        "Rg" => (q(sh_g, false), t(e_x + e_wg, false, CLS_REM, 2)),
+        "Ru" => (q(sh_u, false), t(e_x + e_wu, false, CLS_REM, 2)),
         "g8" => (q(8, true), t(e_gate, false, CLS_ACT8, 2)),
         "a8" => (q(8, true), t(e_a, true, CLS_ACT8, 2)),
         "u8" => (q(8, true), t(e_up, false, CLS_ACT8, 2)),
         "H" => (q(15, true), t(e_a + e_up, false, CLS_ACC, 2)),
         "Rh" => (q(sh_h, false), t(e_a + e_up, false, CLS_REM, 2)),
         "h8" => (q(8, true), t(e_h, false, CLS_ACT8, 2)),
-        "Dacc" => (q(bf_acc_bits(bf_f()), true), t(e_h + e_w, false, CLS_ACC, 2)),
-        "Rd" => (q(sh_z, false), t(e_h + e_w, false, CLS_REM, 2)),
+        "Dacc" => (q(bf_acc_bits(bf_f()), true), t(e_h + e_wd, false, CLS_ACC, 2)),
+        "Rd" => (q(sh_z, false), t(e_h + e_wd, false, CLS_REM, 2)),
         "z" => (q(8, true), t(e_z, false, CLS_ACT8, 2)),
         _ => unreachable!(),
     }
@@ -32129,10 +32151,10 @@ fn bg_dummy_layer(l: usize) -> BfLayer {
         l,
         exps: (e_x, e_gate, e_a, e_up, e_h, e_z),
         shifts: (
-            (e_gate - e_x - m.e_w) as u32,
-            (e_up - e_x - m.e_w) as u32,
+            (e_gate - e_x - m.e_wg(l)) as u32,
+            (e_up - e_x - m.e_wu(l)) as u32,
             (e_h - e_a - e_up) as u32,
-            (e_z - e_h - m.e_w) as u32,
+            (e_z - e_h - m.e_wd(l)) as u32,
         ),
         x: vec![],
         wg_t: vec![],
@@ -42765,20 +42787,28 @@ fn uperf_w_battery() {
                 "W-5 parser: well-formed synthetic sidecar -> tag/dims/e_w/exps",
                 m.tag == "synth-2l"
                     && (m.t, m.d, m.f, m.layers) == (16, 256, 512, 2)
-                    && m.e_w == -8
+                    && m.e_w_uniform() == Some(-8)
+                    && m.e_w3 == vec![(-8, -8, -8); 2]
                     && m.exps == vec![(-3, -3, -3, -3, 0, 1), (-2, -4, -4, -3, 0, -1)],
             );
         }
         Err(e) => row(&format!("W-5 parser: well-formed synthetic sidecar REJECTED ({e})"), false),
     }
-    let bad: [(&str, &str); 6] = [
+    // [UPERF3-BB] per-tensor weight exponents now PARSE (the real 7B
+    // exports calibrate eWg/eWu/eWd independently — Mistral l0:
+    // -10 -11 -10); e_w_uniform() reports None for them.
+    let pt = "00 model x\n00 dims 16 256 512 1\n00 exps -3 -3 -3 -3 0 1 -9 -8 -9\n";
+    match bf_model_parse_text(pt) {
+        Ok(m) => row(
+            "W-5 parser: per-tensor weight exponents ACCEPTED (e_w3 = [(-9,-8,-9)], uniform = None)",
+            m.e_w3 == vec![(-9, -8, -9)] && m.e_w_uniform().is_none(),
+        ),
+        Err(e) => row(&format!("W-5 parser: per-tensor sidecar REJECTED ({e})"), false),
+    }
+    let bad: [(&str, &str); 5] = [
         ("missing dims row", "00 model x\n00 exps -3 -3 -3 -3 0 1 -9 -9 -9\n"),
         ("missing model row", "00 dims 16 256 512 1\n00 exps -3 -3 -3 -3 0 1 -9 -9 -9\n"),
         ("exps row with 8 fields", "00 model x\n00 dims 16 256 512 1\n00 exps -3 -3 -3 -3 0 1 -9 -9\n"),
-        (
-            "per-tensor weight exponents",
-            "00 model x\n00 dims 16 256 512 1\n00 exps -3 -3 -3 -3 0 1 -9 -8 -9\n",
-        ),
         (
             "missing layer-1 exps row",
             "00 model x\n00 dims 16 256 512 2\n00 exps -3 -3 -3 -3 0 1 -9 -9 -9\n",
@@ -42808,7 +42838,7 @@ fn uperf_w_battery() {
                 "W-5 parser: committed m125_reexport sidecar == the M125 const model (tag frugal-125m, 512/768/2048/12, e_w -9, 12 exps rows)",
                 m.tag == "frugal-125m"
                     && (m.t, m.d, m.f, m.layers) == (BF_T, BF_D, BF_F, 12)
-                    && m.e_w == -9
+                    && m.e_w_uniform() == Some(-9)
                     && m.exps == M125_EXP.to_vec(),
             ),
             Err(e) => row(&format!("W-5 parser: committed m125_reexport sidecar unreadable/rejected ({e})"), false),
@@ -43625,7 +43655,9 @@ struct U3Model {
     t: usize,
     d: usize,
     f: usize,
-    e_w: i32,
+    /// Per-layer per-tensor weight exponents (eWg, eWu, eWd) — see
+    /// BfModel::e_w3.
+    e_w3: Vec<(i32, i32, i32)>,
     /// (e_x, e_gate, e_a16, e_up16, e_h16, e_z16) per layer.
     exps: Vec<(i32, i32, i32, i32, i32, i32)>,
     /// E4: round-to-nearest requant (false = the v2 floor semantics on
@@ -43648,10 +43680,11 @@ impl U3Model {
     /// sh_u -1..1).
     fn shifts(&self, l: usize) -> (i32, i32, i32, i32) {
         let (e_x, e_gate, e_a16, e_up16, e_h16, e_z16) = self.exps[l];
-        let sh_g = e_gate - e_x - self.e_w;
-        let sh_u = e_up16 - e_x - self.e_w;
+        let (e_wg, e_wu, e_wd) = self.e_w3[l];
+        let sh_g = e_gate - e_x - e_wg;
+        let sh_u = e_up16 - e_x - e_wu;
         let sh_h = e_h16 - e_a16 - e_up16;
-        let sh_z = e_z16 - e_h16 - self.e_w;
+        let sh_z = e_z16 - e_h16 - e_wd;
         assert!((1..=16).contains(&sh_g), "layer {l}: sh_g {sh_g} outside 1..=16");
         assert!((-8..=16).contains(&sh_u), "layer {l}: sh_u {sh_u} outside -8..=16");
         assert!((0..=16).contains(&sh_h), "layer {l}: sh_h {sh_h} outside 0..=16");
@@ -43668,7 +43701,7 @@ impl U3Model {
             t: m.t,
             d: m.d,
             f: m.f,
-            e_w: m.e_w,
+            e_w3: m.e_w3.clone(),
             exps: m
                 .exps
                 .iter()
@@ -44204,18 +44237,20 @@ fn u3_statement_bytes(
     crs_hash: &[u8],
 ) -> Vec<u8> {
     use ring::lookup::int16out_member;
-    let mut b: Vec<u8> = b"uperf3-v3-pass-v1".to_vec();
+    // v2 layout: the uniform e_w field became per-layer (eWg, eWu,
+    // eWd) triples in the per-layer block (per-tensor 7B exports).
+    let mut b: Vec<u8> = b"uperf3-v3-pass-v2".to_vec();
     b.extend(crs_hash);
     for v in [t_rows, layers.len(), m.d, m.f] {
         b.extend((v as u64).to_le_bytes());
     }
-    b.extend(m.e_w.to_le_bytes());
     b.push(m.gelu as u8);
     b.push(m.round as u8);
     for (li, lay) in layers.iter().enumerate() {
         b.extend((lay.l as u64).to_le_bytes());
         let (e_x, e_gate, e_a16, e_up16, e_h16, e_z16) = lay.exps;
-        for v in [e_x, e_gate, e_a16, e_up16, e_h16, e_z16] {
+        let (e_wg, e_wu, e_wd) = m.e_w3[lay.l];
+        for v in [e_x, e_gate, e_a16, e_up16, e_h16, e_z16, e_wg, e_wu, e_wd] {
             b.extend(v.to_le_bytes());
         }
         let (sh_g, sh_u, sh_h, sh_z) = lay.shifts;
@@ -44278,7 +44313,7 @@ fn u3_synth_model(gelu: bool, round: bool, t: usize) -> (U3Model, Vec<U3Layer>) 
         t,
         d: 64,
         f: 128,
-        e_w: -9,
+        e_w3: vec![(-9, -9, -9); 2],
         exps,
         round,
         gelu,

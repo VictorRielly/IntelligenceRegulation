@@ -1473,3 +1473,41 @@ members await the freeze ruling.
   * Floor at this commit [WSL-BOX]: diff-battery green 28.0s;
     freeze-check 102 ok rows (last = UPERF3-BB-1d) then the
     expected BK panic — identical to the C5-commit baseline.
+
+- 2026-08-26 (later) PER-TENSOR WEIGHT EXPONENTS + THE REAL-MISTRAL
+  RECONCILE (the blocker rung, same session):
+  * BfModel/U3Model `e_w: i32` -> `e_w3: Vec<(eWg, eWu, eWd)>` per
+    layer (accessors e_wg/e_wu/e_wd + e_w_uniform()); the sidecar
+    parser accepts per-tensor exps fields 7-9 (both uniform-only
+    rejections removed); consumers migrated per site: bf_load_layer
+    + bg_dummy_layer shifts (gate/up matmuls use eWg/eWu, down uses
+    eWd), bf_entry_typing (WgT/WuT/WdT + Gacc/Uacc + Rg/Ru +
+    Dacc/Rd rows split, each matmul's W/acc/rem carry ITS weight
+    exponent), U3Model::shifts, widen_from_bf, u3_synth_model.
+    Uniform exports produce identical values by construction.
+  * v3 STATEMENT LAYOUT v2 ("uperf3-v3-pass-v2"): the global e_w
+    field left the header; (eWg,eWu,eWd) joined the per-layer
+    exponent block. Recorded: any v1-tagged digest in earlier
+    evidence lines is superseded (v3 statement digests were never
+    frozen — this is the right time for the layout change).
+  * W-5 parser battery: the "per-tensor REJECTED" leg FLIPPED to
+    "per-tensor ACCEPTED (e_w3 = [(-9,-8,-9)], uniform = None)";
+    uniform + m125-fixture legs now assert via e_w_uniform().
+  * GATES [WSL-BOX]: uperf-w battery 23/23; diff-battery 26.5s
+    green; freeze-check 102 ok rows unchanged; uperf-v3 battery
+    smoke green 16.9s (honest silu-round ACCEPT under the v2
+    statement bytes); chain-m125 12/12 range facts HOLD; the 125M
+    verify-export re-run BYTE-IDENTICAL (48 legs — the uniform path
+    is untouched).
+  * **THE REAL MISTRAL-7B v3 WITNESS VERIFIES: verify-export PASSED
+    on AA's m8b_mistral_v3_export — 32 layers x T=512, 128 plane
+    legs byte-identical, full-plane sha256s == sidecar, every table
+    row = a frozen C5 member, per-tensor exponents (l0: -10 -11
+    -10) and the margin-adjusted exps rows handled end to end.**
+    The python export chain and the Rust v3 engine agree bit for
+    bit at the real 8B-class shape — the cross-language reconcile
+    the round was opened for.
+  * NEXT: the 1x16/3x16 real-plane PROOF rungs on the Mistral
+    export (u3_layer_run on loaded planes; the plumbing exists —
+    u3_load_m125_layer generalizes via bf_model()); then Gemma once
+    lane AA's export lands (gelu family, GeGLU sites).
