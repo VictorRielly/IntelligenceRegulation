@@ -624,6 +624,64 @@ are int8-clean, which need the widened class) for the MVP-2
 statement design (U_PERF3_ATTENTION_STATEMENT_DESIGN.md §1's
 exponent assumptions get their first real data).
 
+## ROUND 4 — STAGE A BUILD (opened 2026-08-27; Victor console: work
+## Stage A while the Mac is busy; sanctioned by the 2026-08-18
+## route-1 ruling's "protocol work alongside")
+
+Ground: spike S1/S2 GO/GO (U_PERF3_SPIKE_REPORT.md — 9-25x
+K-mult-equivalents, 12-16x rounds, 45-55x wire vs the masked descent
+at 2^20; claims bit-identical); the production gaps are the spike
+report §5 list. Stage A is ALSO MVP-2's memory-feasibility
+requirement (the 120 GB descent pair vanishes). Everything additive
+behind uperf-s/uperf-t selectors; the frozen pass stays the oracle;
+freeze-check + diff-battery + the uperf-s 48-leg battery digest
+3752cba4.. are the floor at every commit.
+
+### Lane DD — the production E_c kernel (wt-uperf3-dd) — RUST/AVX2
+OWNS: NEW zkmatrix-rs/src/ring/ec_kernel.rs + the e_mac* dispatch
+hooks in ring/zc_range.rs (additive; the scalar bodies stay as the
+oracle), a `uperf-s kernel-bench` arm in the bin's [UPERF3-S]
+section, "Agent DD status". WHY: "kernel quality is the open wall
+risk" (spike §5) — the E_4 kernel runs ~8x below K9's MAC
+throughput, so the counted 13.5x is a measured wall win of only
+1.6x (8T). GOAL: AVX2 intrinsics for the four MAC families
+(e_mac / e_mac_base / e_mac_fixed / e_mac_base_fixed — u32xu32->u64
+widening MACs into split lo/hi planes; the round-6 lane-J K9 AVX2
+idiom, SIMPLER here: base-field, no 16-wide reduction), runtime
+feature detection, scalar fallback = today's code. ACCEPT: uperf-s
+battery 48 legs BATTERY DIGEST unchanged at ZK_THREADS 1/2/7;
+kernel-bench before/after table; the spike's w/c matrix walls
+re-run — target the E_c MAC gap <= 2x of K9-class [MODEL: the
+counted 13.5x then lands ~5-8x measured].
+
+### Lane EE — the aggregate zero-check + the mask transfer (wt-uperf3-ee) — RUST
+OWNS: the aggregate section of ring/zc_range.rs (additive; DD owns
+only the e_mac* hook lines), new uperf-s arms, "Agent EE status".
+WHY: the spike ran ONE COLUMN per sumcheck; the design batches all
+range columns of an instance into ONE aggregate (instance axis,
+shared eq, claim-layer stacking — design memo §2.2), and the
+zero-check ran UNMASKED (the O-4 obligation: the g-mask machinery
+transfers per §2.6). GOAL: (1) the aggregate arm — claims equal the
+per-column spike path bit-for-bit on the 48-leg matrix; counted
+rounds/MACs vs per-column recorded; (2) the masked variant — values
+equal unmasked, blinding verified by the existing mask battery
+pattern. NOT this lane: the {0,1} alphabet (bit-granularity
+commitment — a design ruling first).
+
+### Lane FF — S4, the sqrt front end on the real rig (wt-uperf3-ff) — RUST, the 2-4 day de-risk
+OWNS: a `uperf-t` bin section + NEW ring/two_tier.rs (nothing in
+eval_proof.rs moves; read-only reuse), "Agent FF status". SCOPE:
+U_PERF3_HEADLINE_ROUTES.md §4.2 VERBATIM — inner column
+commitments, the challenge-fold w = sum c_i row_i, feed the
+EXISTING recursion the sqrt-sized relation; on the real 12x512 act
+group + a synthetic 2^23. ACCEPT (the memo's four): served claims
+EQUAL the built opening's bit-for-bit at fixed seeds; >= 5x on the
+prove-group-equivalent at >= 2^22; 1T verifier level-0 term
+sub-second at the spike shape; the 8B two-tier planner gate green
+(352,321,536 / 145,475,764 rings). Failing any -> the honest
+fallback is recorded and the headline stays out of reach on this
+line (a ruling-grade fact either way).
+
 ## Agent status sections (lanes append below; do not edit each other's)
 
 ## Agent R status (wt-uperf3-r)

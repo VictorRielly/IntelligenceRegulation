@@ -54,6 +54,16 @@ uperf3-aa/bb/cc pushed):**
   smoothness must be INDUCED; proof-side delta/K-anchor commitment
   compression once a smooth checkpoint exists — frugal-lm side
   experiment, separate sessions).
+- **ROUND 4 OPENED (2026-08-27, Victor console): STAGE A BUILD
+  while the Mac is busy** — lanes DD (the production E_c kernel:
+  the ~8x AVX2 gap is THE wall risk), EE (the aggregate zero-check
+  + the O-4 mask transfer), FF (spike S4: the sqrt front end on
+  the real rig — the headline de-risk, §4.2 acceptance verbatim).
+  Briefs in PROGRESS_UPERF3.md "ROUND 4". All additive behind
+  uperf-s/uperf-t selectors; the frozen pass is the oracle; the
+  48-leg battery digest 3752cba4.. + diff-battery + freeze-check
+  are the floor. Grok: rounds 3-4 lanes remain OFF-LIMITS (Section
+  0 rules unchanged).
 - **NEW STANDING PROTOCOL (CLAUDE.md "Heavy runs: detach, queue,
   marker"):** heavy runs launch `setsid nohup` under
   `flock /tmp/zk-heavy.lock` with a `.done` exit-code marker, and
