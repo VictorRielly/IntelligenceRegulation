@@ -1,0 +1,8 @@
+token stream: /home/victor/models/fineweb-edu/sample_text.txt tokenized with tokenizers -> 4243819 tokens
+m8b_margins_decomp — gemma, 48 layers, 8 val windows, ref 7.2367  [policy mode]
+  base_x_percol loss 7.3587  delta +0.1221  viol 2 {'X_clip': 0, 'gate_range': 0, 'up_range': 0, 'h_range': 2, 'z_range': 0}  (1082s)
+  plus_gate loss 7.3508  delta +0.1141  viol 2 {'X_clip': 0, 'gate_range': 0, 'up_range': 0, 'h_range': 2, 'z_range': 0}  (1052s)
+  plus_h  loss 7.3587  delta +0.1221  viol 0 {'X_clip': 0, 'gate_range': 0, 'up_range': 0, 'h_range': 0, 'z_range': 0}  (1095s)
+POLICY DECOMP: base(X+percol) +0.0868  gate-bit -0.0079  h-bits -0.0000  full +0.0696  (gap -0.0092)
+JSON -> /home/victor/wt-uperf3-aa/results/m8b_margins_gemma_policy_decomp.json
+peak RSS 3.72 GB

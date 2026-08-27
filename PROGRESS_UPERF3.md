@@ -1399,10 +1399,28 @@ STATE: IN FLIGHT (2026-08-26). Landed so far (one commit each):
   input-alignment bill the v3 stack exists to avoid). So the
   choice is localized margins (+0.0696) vs an accept-N statement
   row for ~6 elements (gate 3 at l34, h 2-3 at l30/39/43).
-- POLICY DECOMPOSITION IN FLIGHT (queued on the lock): --policy
-  mode in m8b_margins_decomp.py — base (X margins + percol-z,
-  expect ~+0.035) vs base+gate-bit vs base+h-bits. If ONE site
-  carries ~all of +0.0696, the accept-N row need only cover that
-  site's elements. Marker: results/m8b_margins_policy_decomp.done.
-  The Gemma v3 EXPORT waits on this split + Victor's accept-N vs
-  eat-the-margin call for gate/h.
+- **POLICY DECOMPOSITION LANDED [MEASURED WSL-BOX NT] — the split
+  FLIPPED**: base (X margins + percol-z) costs **+0.0868**; the
+  gate bit is FREE (-0.0079) and the h bits are FREE (-0.0000)
+  (additivity gap -0.0092, noise-scale). **The cost carrier is
+  percol-z itself, not gate/h.** Reconciled ranking of every z
+  mechanism at l5: whole-plane z margin bit +0.13 > percol mz=2
+  +0.087 > (untested: percol mz=0, accept-N). The z site at l5 is
+  intrinsically expensive to COARSEN: the 19 widened columns are
+  the outlier channels, mz=2 over-widens them 4x past their
+  calibrated need, and the coarsening propagates 43 layers.
+  results/m8b_margins_gemma_policy_decomp.json.
+- HONEST CORRECTION to the "free as designed" line above: the
+  forced-path check (7e-6) ran on a 6-layer TRUNCATED stack where
+  l5 is TERMINAL — structurally blind to downstream propagation.
+  The percol mechanism note stands (columns only widen), but
+  widening hot columns is not free when 43 layers consume them.
+- IN FLIGHT (queued on the lock): the **mz=0 percol run** —
+  columns get exactly the exponent their calibrated absmax
+  demands, no overhang; escalation handles val-tail escapes.
+  Expected: cost well below +0.087, possibly ~free; a few viols if
+  the val tail exceeds cal (escalates per layer). Marker:
+  results/m8b_margins_gemma_percol_mz0.done. If mz=0 still costs
+  materially, the zero-quality-cost option is **accept-N at l5-z
+  (~5-6 enumerated elements)** — Victor's call. The Gemma v3
+  EXPORT waits on that outcome.
