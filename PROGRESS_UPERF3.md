@@ -1356,3 +1356,46 @@ members await the freeze ruling.
   [UPERF3-BB] section + freeze-row insertion + dispatch), this
   section. NOT touched: kfield/sumcheck/gkr/gkr_masked internals,
   codex-audit-*, the python scripts, other lanes' files.
+
+- 2026-08-26 RUNG 0+1 DONE (commits 496d71f skeleton, 90415d0 C5):
+  * BASELINE captured on this worktree's binary (4e82219 + skeleton):
+    build green; the floor gates re-verified AFTER the C5 edit (below).
+  * C5 LANDED: ring/lookup.rs `silu-int16out-table-v3` (9 members) +
+    `gelu-tanh-int16out-table-v3` (6 members) — 256-row int8 domain,
+    int16 output at e_out = eA - 8, frozen i16 bytes + v3 spec-header
+    digests + deterministic generators + `int16out_member` accessor;
+    manifest.rs ADDITIVE versioned rows (UPERF3_SILU16/GELU16_MEMBERS +
+    _TABLE_DIGESTS duplicated-constant copies, `uperf3_v3_table_
+    registry()` = v4 registry UNMOVED + 15 members; v4_table_registry
+    and every existing digest byte-identical). Member sets = the
+    distinct calibrated (eGate,eA) pairs of the two measured
+    checkpoints (Mistral 9 silu, Gemma 6 gelu; m125's two pairs map to
+    (-3,-11)/(-4,-12), both present). PROVISIONAL under the ruling —
+    digests to reconcile with lane AA's generation script.
+  * CONVENTION NOTE for AA (the one deliberate divergence from the
+    measurement scripts): the frozen members CLAMP at +-32767 (the
+    family totality declaration, = the v2 +-127 discipline; same
+    absmax coverage as the int8 member — design choice D1). The quick
+    silu_tab_a16/gelu_tab_a16 tables in the attrib scripts carry NO
+    clamp, so at saturating members (eA <= eGate: 6 of 9 silu, 2 of 6
+    gelu) the top gate codes differ (ref values run to 65024-130048 =
+    "int17-18"). Cross-checked in python: byte-identical on every
+    non-saturating member; diffs ONLY at clamped rows. If AA's
+    freeze prefers the unclamped reading, the output class must widen
+    past int16 — flag for the reconcile.
+  * FREEZE ROWS UPERF3-BB-1a..1d (regenerate byte-identical; digests
+    pin frozen bytes + accessor exact; manifest == lookup pins + v3
+    registry shape; v2 family digests unmoved) inserted BEFORE the
+    UAGB1-BK rows so the WSL form exercises them.
+  * FLOOR GATES on the C5 binary [WSL-BOX NT]: freeze-check 102 ok
+    rows (98 baseline + the 4 BB rows, all green) then the expected
+    BK panic at the export load (cannot read layer00_X.bin), last ok
+    row = "UPERF3-BB-1d v2 family digests unmoved"; uperf-pc
+    diff-battery green 29.4s; uperf-w battery 23/23; 3x16
+    full-profile via M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/
+    results/m125_ffn_export_wsl (the main repo holds the local bins;
+    this worktree has none): accept TRUE, statement digest
+    93a98700.. and EVAL-PROOF DIGEST 0ae9cdae.. BYTE-IDENTICAL to the
+    lane-W baseline.
+  * IN FLIGHT: the u3 rig (E1/E2/E4/E5 + the `uperf-v3` battery and
+    the m125-v3 rungs) appended, building.
