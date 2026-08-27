@@ -1306,3 +1306,37 @@ X_clip/l12 up margin bits, (iii) percol sh_h at hot layers if quality
 does not rescue, (iv) quiesced wall-clock labels (box shared, F2
 training on the Mac; WSL numbers are NT-labeled), (v) C5: 6 GELU
 members await the freeze ruling.
+
+## Orchestrator note 2026-08-26 (night): the m125 cross-layer weight structure [MEASURED WSL-BOX]
+
+Victor's conjecture (console): the 125M architecture is simpler and
+its layer weights "should be correlated". Measured on the committed
+m125_ffn_export_wsl int8 planes (12 layers x WgT/WuT/WdT):
+
+- **Elementwise cross-layer correlation: ~ZERO.** mean |r| 0.0006-
+  0.004, max |r| 0.0096 over all 66 layer pairs per family; top-64
+  right-singular-subspace overlap 0.093-0.097 vs 0.080 random
+  baseline. The 12 blocks are statistically INDEPENDENT — no
+  cross-layer commitment compression is available (each layer's
+  weights need their own commitment). frugal-lm model.py confirms:
+  standard pre-norm blocks, no sharing by construction.
+- **But the layers are IDENTICALLY DISTRIBUTED to a striking
+  degree**: absmax in [64, 67] and std in [15.3, 21.8] (int8 units)
+  across ALL 36 tensors — one weight class, ONE uniform e_w = -9
+  (this uniformity is where the rig's |w| <= 64 digit bound and the
+  single-exponent statement rows come from). Contrast Mistral-7B:
+  per-tensor weight exponents spanning 4 binades ([-11, -8]).
+- **The "does not suffer these problems" half is TRUE and was
+  already measured**: m125 variant-A int8 = 0 violations (lane R),
+  no widening/margins/percol needed — the entire v3 qualification
+  machinery exists only for the >= 7B off-the-shelf checkpoints'
+  emergent outliers.
+- **Caveat for the roadmap**: frugal-lm's plan (docs/PLAN.md §3) is
+  the standard consensus recipe to ~1.2B — benignness at 125M is a
+  SCALE property, not an architectural safeguard; the outlier
+  phenomenon emerges ~6.7B+ in standard transformers, so the
+  1.2B-ladder ceiling likely stays benign, but a frugal 8B would
+  need that VERIFIED (or QAT-style interventions) before assuming
+  the simple statement. The frugal ladder keeps the simple
+  v2-class statement; v3 remains the off-the-shelf qualification
+  path.
