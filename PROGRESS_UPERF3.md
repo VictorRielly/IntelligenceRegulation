@@ -1340,3 +1340,38 @@ m125_ffn_export_wsl int8 planes (12 layers x WgT/WuT/WdT):
   the simple statement. The frugal ladder keeps the simple
   v2-class statement; v3 remains the off-the-shelf qualification
   path.
+
+FOLLOW-UP (same night — Victor: the local main is the OLD llama
+recipe; the EULER architecture is the intended one and should have
+high layer-to-layer correlation): CONFIRMED on frugal-lm's
+`origin/euler-growth-and-10b-roadmap` branch (local main was 3
+commits behind it). The Euler program: `EulerBlock` x_{k+1} = x_k +
+s*f_k(x_k), s = 1/L — a depth-time ODE discretization; growth ops
+duplicate/interpolate/identity/merge (EULER_DEPTH_SCALING.md);
+PATH_TO_10B.md is the scale roadmap. The correlation claim, AS
+MEASURED THERE:
+- The TOY Euler transformer: adjacent-block QKV kernels differ
+  ~0.04-0.05% relative — depthwise weight function near CONSTANT
+  (extreme layer correlation, no regularizer needed).
+- **The trained 360m-euler-merged-qkv run: weight smoothness is
+  NOT there** — median adjacent rel diff 1.4135 (~sqrt(2) = the
+  independent-blocks value), adjacent cos at chance even after
+  neuron alignment, confirmed not an init artifact; the V1 verdict
+  DROPPED the interpolate growth arm. State smoothness decays with
+  training (adjacent-increment cos 0.26 -> 0.18; capacity-bound
+  signal). Same verdict as our m125 measurement: today's TRAINED
+  checkpoints (both recipes) sit at the independent-layers value.
+- The branch's own named remedies (wired, untested): shared-block
+  init and trajectory_regularization > 0 — "would unlock
+  interpolation later."
+PROOF-SIDE STAKE (why the proof project should care that a future
+pretrain induces weight smoothness): small adjacent weight deltas
+=> commit layer 0 + per-layer DELTA planes with tight magnitude
+bounds (narrow witness classes, cheap commitments); genuinely
+interpolable theta(t) => commit K anchor layers and DERIVE the rest
+by public linear interpolation (the rig's existing linear
+machinery) — an L/K commitment compression. At the toy's 0.05%
+level the deltas are ~1-2 int8 counts. Counted design memo = a
+future lane item once a smoothness-regularized checkpoint exists;
+the joint experiment (frugal side): a ladder run with
+trajectory_regularization > 0 / shared init, then re-measure.
