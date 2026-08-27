@@ -211,3 +211,280 @@ pub fn recursion_schedule(n_rec: usize, e: u32, q: u64) -> Option<EvalSchedule> 
     }
     Some(plan_schedule(n_rec, e, q, None))
 }
+
+// ---------------------------------------------------------------------------
+// Rung 2 — THE FRONT END (the differential's subject).
+//
+// Per-tensor two-tier grid: for an ALIGNED tensor (cols % D == 0 —
+// every real-rig tensor; the misaligned battery shapes are OUT of the
+// front end, recorded in the lane ledger), the digit rings of g_rows
+// consecutive matrix rows form the CONTIGUOUS slice
+// [base + i*width, base + (i+1)*width), width = g_rows * nb * l0 —
+// the two-tier "row group" is plain contiguous chunking of the
+// tensor's ring range, so the fold and the inner commitments ride
+// the EXISTING fold_chunks_ntt / matvec machinery unchanged.
+//
+// THE CLAIM FACTORIZATION (the load-bearing semantics; every identity
+// below is pinned bit-for-bit by the `uperf-t diff` differential):
+// the [UAGB1-BH] row-column split gives, per contrib and per digit
+// ring v = (row, cb, limb) of an aligned tensor,
+//   Phi_0[v] = radix_limb * sum_d beta[row][d] * conjQ[cb][d],
+//   beta[row][d] = sum_c (scale *K row_ker[row] *K Y^d)[c] * alpha_c.
+// With the row kernel in FACTORED eq form  scale *K row_ker[i*g + r]
+// = hi[i] *K lo[r]  (the production structure: sumcheck eq points
+// factor across the row bits; the GroupClaims API materializes the
+// product — the oracle path consumes the product, the front end the
+// factors), K-bilinearity over the coordinate basis splits beta:
+//   beta[i*g+r][d] = sum_e (lo[r] *K Y^d)[e] * alphaHi[i][e],
+//   alphaHi[i][e]  = sum_c (hi[i] *K Y^e)[c] * alpha_c,
+// and Phi_0 factors RANK-16 over the (row-group i) x (in-group j)
+// grid:
+//   Phi_0[i, j=(r,cb,l)] = sum_e b_e[i] * a_e[j],
+//   b_e[i] = alphaHi[i][e]            (outer functional, polys),
+//   a_e[j] = radix_l * sum_d (lo[r] *K Y^d)[e] * conjQ[cb][d].
+// The front end serves the batched opening target
+//   h_cur = sum_v Phi_0[v] w0[v]  =  sum_m sum_e sum_i b_e[i] v_e[i]
+// through the Greyhound two-check structure (v before c — Fiat-
+// Shamir order is load-bearing):
+//   (a) binding      : A_t w_t == sum_i c_i u_{t,i}  (+ U rebind),
+//   (b) claim        : sum_{m,e} sum_i b^m_e[i] v^m_e[i] == h_cur,
+//   (c) consistency  : sum_j a^m_e[j] w_j == sum_i c_i v^m_e[i]
+//                      per (m, e).
+
+use super::eval_proof::{AggGroup, AggTensor, SmallRings};
+use super::kfield::{KElem, KField};
+use super::{poly_add, poly_from_small, poly_scale, poly_zero, ring_mul_split_kara_fast, Poly, RingCtx, Zq};
+
+/// One tensor's grid block: g_rows matrix rows per row group.
+#[derive(Clone, Debug)]
+pub struct TtGridTensor {
+    pub tensor_idx: usize,
+    pub g_rows: usize,
+    /// rings per row group = g_rows * (cols/D) * l0.
+    pub width: usize,
+    pub n_groups: usize,
+}
+
+/// Per-tensor grids at a common width target (the largest power-of-2
+/// g_rows dividing rows with width <= s_target; g_rows >= 1 always).
+pub fn build_tt_grid(group: &AggGroup, s_target: usize) -> Vec<TtGridTensor> {
+    group
+        .tensors
+        .iter()
+        .enumerate()
+        .map(|(ti, t)| {
+            assert!(t.cols % super::D == 0, "two-tier front end: tensor {} misaligned (cols % D != 0)", t.name);
+            let row_rings = (t.cols / super::D) * t.l0;
+            let mut g = 1usize;
+            while g * 2 <= t.rows && t.rows % (g * 2) == 0 && (g * 2) * row_rings <= s_target {
+                g *= 2;
+            }
+            TtGridTensor { tensor_idx: ti, g_rows: g, width: g * row_rings, n_groups: t.rows / g }
+        })
+        .collect()
+}
+
+/// The factored claim contrib the front end consumes: scale *K
+/// row_ker[i*g + r] == hi[i] *K lo[r] (asserted by the differential),
+/// col as in ClaimContrib.
+#[derive(Clone)]
+pub struct TtContrib {
+    pub tensor_idx: usize,
+    pub hi: Vec<KElem>,
+    pub lo: Vec<KElem>,
+    pub col: std::rc::Rc<Vec<KElem>>,
+}
+
+/// conjQ[cb][d] = conj_poly(c1 -> col[cb*D + c1][d]) — the aligned-
+/// branch column slices of psi_level0_factored, reproduced.
+pub fn tt_conjq(zq: &Zq, col: &[KElem], nb: usize) -> Vec<Vec<Poly>> {
+    (0..nb)
+        .map(|cb| {
+            (0..super::kfield::K_DEG)
+                .map(|d| {
+                    let mut base = poly_zero();
+                    for c1 in 0..super::D {
+                        base[c1] = col[cb * super::D + c1][d];
+                    }
+                    super::eval_proof::conj_poly(zq, &base)
+                })
+                .collect()
+        })
+        .collect()
+}
+
+/// loY[r][d] = lo[r] *K Y^d (K-elements; coordinate e of loY[r][d] is
+/// the a-side scalar).
+pub fn tt_lo_y(kf: &KField, lo: &[KElem]) -> Vec<Vec<KElem>> {
+    let ybasis: Vec<KElem> = (0..super::kfield::K_DEG)
+        .map(|d| {
+            let mut e = kf.zero();
+            e[d] = 1;
+            e
+        })
+        .collect();
+    lo.iter().map(|l| ybasis.iter().map(|y| kf.mul(l, y)).collect()).collect()
+}
+
+/// Inner functionals a_e[j] over one row group's width rings:
+/// a[e][(r*nb + cb)*l0 + limb] = radix_limb * sum_d loY[r][d][e] *
+/// conjQ[cb][d].
+pub fn tt_inner_functionals(
+    ctx: &RingCtx,
+    t: &AggTensor,
+    g_rows: usize,
+    lo_y: &[Vec<KElem>],
+    conjq: &[Vec<Poly>],
+) -> Vec<Vec<Poly>> {
+    let zq = &ctx.zq;
+    let kd = super::kfield::K_DEG;
+    let nb = t.cols / super::D;
+    let radixes: Vec<u64> = (0..t.l0).map(|l| zq.to_mod(1i64 << (t.e0 as usize * l))).collect();
+    let mut a = vec![vec![poly_zero(); g_rows * nb * t.l0]; kd];
+    for r in 0..g_rows {
+        for cb in 0..nb {
+            // combo[e] = sum_d loY[r][d][e] * conjQ[cb][d]
+            let mut combo = vec![poly_zero(); kd];
+            for d in 0..kd {
+                for (e, cmb) in combo.iter_mut().enumerate() {
+                    let s = lo_y[r][d][e];
+                    if s != 0 {
+                        *cmb = poly_add(zq, cmb, &poly_scale(zq, s, &conjq[cb][d]));
+                    }
+                }
+            }
+            for (e, cmb) in combo.iter().enumerate() {
+                for (l, &rad) in radixes.iter().enumerate() {
+                    a[e][(r * nb + cb) * t.l0 + l] = poly_scale(zq, rad, cmb);
+                }
+            }
+        }
+    }
+    a
+}
+
+/// Outer functionals b[i][e] = alphaHi[i][e] = sum_c (hi[i] *K Y^e)[c]
+/// * alphas[c].
+pub fn tt_outer_functionals(zq: &Zq, kf: &KField, hi: &[KElem], alphas: &[Poly]) -> Vec<Vec<Poly>> {
+    let kd = super::kfield::K_DEG;
+    let ybasis: Vec<KElem> = (0..kd)
+        .map(|e| {
+            let mut y = kf.zero();
+            y[e] = 1;
+            y
+        })
+        .collect();
+    hi.iter()
+        .map(|h| {
+            (0..kd)
+                .map(|e| {
+                    let hy = kf.mul(h, &ybasis[e]);
+                    let mut acc = poly_zero();
+                    for (c, a) in alphas.iter().enumerate() {
+                        if hy[c] != 0 {
+                            acc = poly_add(zq, &acc, &poly_scale(zq, hy[c], a));
+                        }
+                    }
+                    acc
+                })
+                .collect()
+        })
+        .collect()
+}
+
+/// The v-pass for one contrib: v[e][i] = sum_j a_e[j] * F_ij over the
+/// tensor's grid rows, computed through the shared contractions
+///   Fl[vr]      = radix-recombined limb rings (recompose_rings),
+///   Q[vr][d]    = conjQ[cb][d] * Fl[vr]        (the ring-mult pass,
+///                 16 per nonzero value ring — shareable per distinct
+///                 col kernel; the spike recomputes per contrib and
+///                 records the count),
+///   QR[row][d]  = sum_cb Q[row*nb + cb][d],
+///   v[e][i]     = sum_{r,d} loY[r][d][e] * QR[i*g + r][d].
+/// Exact mod-q regroupings only — pinned by the differential.
+pub fn tt_v_pass(
+    ctx: &RingCtx,
+    t: &AggTensor,
+    gt: &TtGridTensor,
+    w0: &[i8],
+    lo_y: &[Vec<KElem>],
+    conjq: &[Vec<Poly>],
+) -> Vec<Vec<Poly>> {
+    let zq = &ctx.zq;
+    let kd = super::kfield::K_DEG;
+    let nb = t.cols / super::D;
+    let g = gt.g_rows;
+    let mut qr = vec![vec![poly_zero(); kd]; t.rows];
+    let mut buf = [0i64; super::D];
+    for row in 0..t.rows {
+        for cb in 0..nb {
+            let vr = row * nb + cb;
+            // Fl = sum_l radix_l * digits (exact i64 recomposition).
+            let mut fl = [0i64; super::D];
+            let mut nonzero = false;
+            for l in 0..t.l0 {
+                let u = t.digit_ring_base + vr * t.l0 + l;
+                let ring = SmallRings::ring(w0, u, &mut buf);
+                let rad = 1i64 << (t.e0 as usize * l);
+                for (f, &x) in fl.iter_mut().zip(ring.iter()) {
+                    if x != 0 {
+                        *f += rad * x;
+                        nonzero = true;
+                    }
+                }
+            }
+            if !nonzero {
+                continue;
+            }
+            let flp = poly_from_small(zq, &fl);
+            for d in 0..kd {
+                let m = ring_mul_split_kara_fast(ctx, &conjq[cb][d], &flp);
+                qr[row][d] = poly_add(zq, &qr[row][d], &m);
+            }
+        }
+    }
+    let mut v = vec![vec![poly_zero(); gt.n_groups]; kd];
+    for i in 0..gt.n_groups {
+        for r in 0..g {
+            let row = i * g + r;
+            for d in 0..kd {
+                let src = &qr[row][d];
+                if src.iter().all(|&x| x == 0) {
+                    continue;
+                }
+                for e in 0..kd {
+                    let s = lo_y[r][d][e];
+                    if s != 0 {
+                        v[e][i] = poly_add(zq, &v[e][i], &poly_scale(zq, s, src));
+                    }
+                }
+            }
+        }
+    }
+    v
+}
+
+/// sum_e sum_i b[i][e] * v[e][i] — the contrib's claim reconstruction
+/// H_m (and, summed over contribs, the served opening target).
+pub fn tt_claim_sum(ctx: &RingCtx, b: &[Vec<Poly>], v: &[Vec<Poly>]) -> Poly {
+    let zq = &ctx.zq;
+    let kd = super::kfield::K_DEG;
+    let mut acc = poly_zero();
+    for (i, bi) in b.iter().enumerate() {
+        for e in 0..kd {
+            if bi[e].iter().all(|&x| x == 0) || v[e][i].iter().all(|&x| x == 0) {
+                continue;
+            }
+            acc = poly_add(zq, &acc, &ring_mul_split_kara_fast(ctx, &bi[e], &v[e][i]));
+        }
+    }
+    acc
+}
+
+/// The honest-fold coefficient bound at a G-way fold of base-e0
+/// digits (fold_coeff_bound at r = G) — the prover asserts the honest
+/// fold fits (restart discipline), the verifier range-checks the
+/// clear w against it.
+pub fn tt_fold_bound(g: usize, e0: u32) -> i128 {
+    fold_coeff_bound(g, e0)
+}

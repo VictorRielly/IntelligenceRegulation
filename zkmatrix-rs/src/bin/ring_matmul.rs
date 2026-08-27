@@ -43460,6 +43460,10 @@ fn uperf_t_main(args: &[String]) {
             };
             uperf_t_plan(&shapes);
         }
+        Some("diff") => {
+            let geti = |i: usize, d: usize| args.get(i).map(|s| s.parse().expect("num")).unwrap_or(d);
+            uperf_t_diff(geti(1, 20), geti(2, 1), geti(3, 161) as u8);
+        }
         _ => eprintln!("uperf-t plan [log2_rings [e0]] | diff [n_log2] [threads] [seed] | bench ... (rungs land incrementally; see PROGRESS_UPERF3.md Agent FF status)"),
     }
 }
@@ -43513,5 +43517,614 @@ fn uperf_t_plan(shapes: &[(String, usize, u32)]) {
                 }
             }
         }
+    }
+}
+
+// ---- [UPERF3-FF] rung 2: the synthetic differential ------------------------
+//
+// One committed group both ways at fixed seeds: the built
+// bg_prove_group / bg_verify_group opening is the ORACLE; the
+// two-tier front end (ring::two_tier) is the subject. THE COMPARED
+// VALUES (memo 4.2 differential leg, stated in the lane ledger):
+//   (1) the b_row images (GroupEvalProof.b_rows vs the front end's
+//       claim layer) — byte-for-byte;
+//   (2) the per-tensor / per-contrib MLE evaluation claims rows_m
+//       (single-contrib kernel passes; sum_m rows_m == b_rows) and
+//       their two-tier reconstructions H_m = sum_e sum_i b^m_e[i]
+//       v^m_e[i] == sum_c alphas0_c * rows_m[c] — poly-exact;
+//   (3) the batched opening target h_cur = sum_c alphas0_c b_rows_c
+//       == sum_m H_m — both routes, same drawn alphas.
+// Plus the front end's own verifier (binding / claim / consistency)
+// and four wire-tamper REJECT legs.
+
+/// eq-product expansion over K: index bit b of the output <-> z[b].
+fn tt_eq_expand(kf: &ring::kfield::KField, z: &[ring::kfield::KElem]) -> Vec<ring::kfield::KElem> {
+    let mut t = vec![kf.one()];
+    for zv in z {
+        let zbar = kf.sub(&kf.one(), zv);
+        let mut nt = Vec::with_capacity(t.len() * 2);
+        for a in &t {
+            nt.push(kf.mul(a, &zbar));
+        }
+        for a in &t {
+            nt.push(kf.mul(a, zv));
+        }
+        t = nt;
+    }
+    t
+}
+
+/// The synthetic differential instance: aligned tensors (real-rig
+/// classes e0 in {1, 2}), one claimless tensor, 7 contribs with a
+/// shared col kernel pair, eq-FACTORED row kernels (scale folded into
+/// hi). `n_log2` scales the two big tensors (20 -> ~0.81M rings).
+struct TtInstance {
+    group: ring::eval_proof::AggGroup,
+    grid: Vec<ring::two_tier::TtGridTensor>,
+    claims: ring::pass_agg::GroupClaims,
+    tt: Vec<ring::two_tier::TtContrib>,
+}
+
+fn tt_build_instance(kf: &ring::kfield::KField, n_log2: usize, seed: u8) -> TtInstance {
+    use ring::eval_proof::AggGroup;
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use ring::two_tier::TtContrib;
+    use std::rc::Rc;
+    assert!(n_log2 >= 20, "instance defined for n_log2 >= 20");
+    let mult = 1usize << (n_log2 - 20);
+    let mut g = AggGroup::new("ttdiff");
+    g.add_tensor("ta", 512, 4096, 2, 3);
+    g.add_tensor("tb", 1024 * mult, 8192, 1, 8);
+    g.add_tensor("tc", 256, 2048, 2, 5);
+    g.add_tensor("td", 512 * mult, 8192, 2, 6);
+    g.add_tensor("te", 256, 4096, 2, 2);
+    g.add_tensor("tf", 128, 1024, 2, 3); // NO claim (zero-kernel path)
+    let s_target = (g.n_digit_rings as f64).sqrt().ceil() as usize;
+    let grid = ring::two_tier::build_tt_grid(&g, s_target);
+    let mut rd = XofReader::new("uperf-t-diff-inst", &[&[seed]]);
+    let rand_kvec = |rd: &mut XofReader, n: usize| -> Rc<Vec<ring::kfield::KElem>> {
+        Rc::new((0..n).map(|_| kf.uniform(rd)).collect())
+    };
+    let col_a = rand_kvec(&mut rd, 4096);
+    let col_b = rand_kvec(&mut rd, 8192);
+    let col_c = rand_kvec(&mut rd, 2048);
+    let col_d1 = rand_kvec(&mut rd, 8192);
+    let col_d2 = rand_kvec(&mut rd, 8192);
+    let col_e = rand_kvec(&mut rd, 4096);
+    // (tensor_idx, col) per contrib; ta gets TWO contribs sharing col_a.
+    let plan: Vec<(usize, Rc<Vec<ring::kfield::KElem>>)> = vec![
+        (0, col_a.clone()),
+        (0, col_a.clone()),
+        (1, col_b.clone()),
+        (2, col_c.clone()),
+        (3, col_d1.clone()),
+        (3, col_d2.clone()),
+        (4, col_e.clone()),
+    ];
+    let mut claims = GroupClaims::new(g.tensors.len());
+    let mut tt = Vec::new();
+    for (ti, col) in plan {
+        let t = &g.tensors[ti];
+        let gt = &grid[ti];
+        let kbits = t.rows.trailing_zeros() as usize;
+        let jbits = gt.g_rows.trailing_zeros() as usize;
+        assert_eq!(1usize << kbits, t.rows, "rows must be a power of two for the eq split");
+        let z: Vec<ring::kfield::KElem> = (0..kbits).map(|_| kf.uniform(&mut rd)).collect();
+        let scale = kf.uniform(&mut rd);
+        let lo = tt_eq_expand(kf, &z[..jbits]);
+        let hi_raw = tt_eq_expand(kf, &z[jbits..]);
+        let hi: Vec<ring::kfield::KElem> = hi_raw.iter().map(|h| kf.mul(&scale, h)).collect();
+        // Materialize scale * eq(z, row) = hi[row >> j] *K lo[row & (g-1)]
+        // for the oracle path (the GroupClaims API's product form).
+        let row: Vec<ring::kfield::KElem> = (0..t.rows)
+            .map(|r| kf.mul(&hi[r >> jbits], &lo[r & (gt.g_rows - 1)]))
+            .collect();
+        claims.push(ClaimContrib { tensor_idx: ti, scale: kf.one(), row: Rc::new(row), col: col.clone() });
+        tt.push(TtContrib { tensor_idx: ti, hi, lo, col });
+    }
+    TtInstance { group: g, grid, claims, tt }
+}
+
+/// The deterministic level-0 witness (built twice — the bg oracle run
+/// CONSUMES its copy): mixed digits inside each tensor's alphabet,
+/// every 11th ring zero (the e2e battery's sprinkle).
+fn tt_build_witness(group: &ring::eval_proof::AggGroup, seed: u8) -> ring::eval_proof::DigitCols {
+    let mut rd = XofReader::new("uperf-t-diff-wit", &[&[seed]]);
+    let mut w = ring::eval_proof::DigitCols::zeros(group.n_digit_rings);
+    let mut ring_buf = vec![0i64; D];
+    for t in &group.tensors {
+        let (lo, hi) = ring::digits::alphabet(t.e0);
+        let span = (hi - lo + 1) as u64;
+        for u in 0..t.n_digit_rings() {
+            let gu = t.digit_ring_base + u;
+            if gu % 11 == 6 {
+                continue;
+            }
+            for x in ring_buf.iter_mut() {
+                *x = lo + rd.next_field(span) as i64;
+            }
+            w.set_ring(gu, &ring_buf);
+        }
+    }
+    w
+}
+
+/// The front end's wire (spike-clear form: u and v ride clear; the
+/// production form recurses them — priced by the planner, measured at
+/// rung 3).
+struct TtWire {
+    b_rows: Vec<Poly>,
+    /// [tensor][row group][kappa] inner commitments.
+    u: Vec<Vec<Vec<Poly>>>,
+    /// U = B_tt * digits(u) (kappa rings).
+    u_cap: Vec<Poly>,
+    /// [contrib][e][row group of its tensor] v-vectors.
+    v: Vec<Vec<Vec<Poly>>>,
+    /// [tensor][ring] the clear folded rows.
+    w: Vec<Vec<Vec<i64>>>,
+}
+
+/// One prover pass of the two-tier front end. Returns the wire plus
+/// the drawn alphas, the served target h_cur, and the per-contrib
+/// reconstructions H_m (differential objects).
+#[allow(clippy::type_complexity)]
+fn tt_prove(
+    ctx: &RingCtx,
+    kf: &ring::kfield::KField,
+    inst: &TtInstance,
+    w0: &ring::eval_proof::DigitCols,
+    v_batch: &ring::kfield::KElem,
+    seed: u64,
+) -> (TtWire, Vec<Poly>, Poly, Vec<Poly>) {
+    use ring::eval_proof::{
+        absorb_polys, decompose_polys_modq, expand_level_matrix_arc, fold_chunks_ntt_gen,
+        kernel_pass_factored_gen, matvec_modq_small, matvec_modq_small_multi_gen, SmallRings, KAPPA_AGG,
+    };
+    use ring::kfield::K_DEG;
+    use ring::two_tier::{tt_claim_sum, tt_conjq, tt_fold_bound, tt_lo_y, tt_outer_functionals, tt_v_pass};
+    let zq = &ctx.zq;
+    let q = zq.q;
+    let group = &inst.group;
+    let n0 = group.n_digit_rings;
+    let flat: &[i8] = &w0.rings()[..n0 * D];
+    let mut tr = ring::sumcheck::LkpTranscript::new("uperf-t-diff", &[0x7Fu8; 32]);
+    // ---- claim layer (identical to the built path). ----
+    let mk = bg_multi_kernels(&inst.claims);
+    let (b_rows, _) = kernel_pass_factored_gen(ctx, kf, group, &mk, Some(flat), None);
+    for (c, row) in b_rows.iter().enumerate() {
+        assert_eq!(row[0], v_batch[c], "tt honest claim row ct mismatch (row {c})");
+    }
+    absorb_polys(&mut tr, "tt-brows", &b_rows);
+    let alphas0 = agg_draw_alphas(&mut tr, "tt-alpha0", K_DEG, q);
+    let mut h_cur = poly_zero();
+    for (a, b) in alphas0.iter().zip(b_rows.iter()) {
+        h_cur = poly_add(zq, &h_cur, &ring_mul_split_kara_fast(ctx, a, b));
+    }
+    // ---- tier 1: inner commitments per tensor row group. ----
+    let mut u_all: Vec<Vec<Vec<Poly>>> = Vec::new();
+    for (ti, t) in group.tensors.iter().enumerate() {
+        let gt = &inst.grid[ti];
+        let a_mat = expand_level_matrix_arc(seed, group.name, ti, "T", KAPPA_AGG, gt.width, q);
+        let sl: Vec<&[i8]> = (0..gt.n_groups)
+            .map(|i| {
+                SmallRings::sub(
+                    flat,
+                    t.digit_ring_base + i * gt.width,
+                    t.digit_ring_base + (i + 1) * gt.width,
+                )
+            })
+            .collect();
+        let u_t = matvec_modq_small_multi_gen(ctx, &a_mat, KAPPA_AGG, gt.width, &sl);
+        absorb_polys(&mut tr, &format!("tt-u-{ti}"), &u_t.concat());
+        u_all.push(u_t);
+    }
+    // ---- tier 2: the outer commitment over the u digits. ----
+    let u_flat: Vec<Poly> = u_all.iter().flat_map(|ut| ut.concat()).collect();
+    let l_u = agg_l_t_deg(q);
+    let udig = decompose_polys_modq(zq, &u_flat, AGG_E_DEG, l_u);
+    let b_mat = expand_level_matrix_arc(seed, group.name, 0, "TU", KAPPA_AGG, udig.len(), q);
+    let u_cap = matvec_modq_small(ctx, &b_mat, KAPPA_AGG, udig.len(), &udig);
+    absorb_polys(&mut tr, "tt-ucap", &u_cap);
+    // ---- the v-vectors (BEFORE the fold challenges — FS order). ----
+    let mut v_all: Vec<Vec<Vec<Poly>>> = Vec::new();
+    for (m, tc) in inst.tt.iter().enumerate() {
+        let t = &group.tensors[tc.tensor_idx];
+        let gt = &inst.grid[tc.tensor_idx];
+        let conjq = tt_conjq(zq, &tc.col, t.cols / D);
+        let lo_y = tt_lo_y(kf, &tc.lo);
+        let v = tt_v_pass(ctx, t, gt, flat, &lo_y, &conjq);
+        for (e, ve) in v.iter().enumerate() {
+            absorb_polys(&mut tr, &format!("tt-v-{m}-{e}"), ve);
+        }
+        v_all.push(v);
+    }
+    // ---- the fold challenges and the clear folded rows. ----
+    let mut w_all: Vec<Vec<Vec<i64>>> = Vec::new();
+    let mut cs_all: Vec<Vec<Vec<i64>>> = Vec::new();
+    for (ti, t) in group.tensors.iter().enumerate() {
+        let gt = &inst.grid[ti];
+        let (cs, _) = agg_draw_cs(&mut tr, &format!("tt-c-{ti}"), gt.n_groups);
+        let sl: Vec<&[i8]> = (0..gt.n_groups)
+            .map(|i| {
+                SmallRings::sub(
+                    flat,
+                    t.digit_ring_base + i * gt.width,
+                    t.digit_ring_base + (i + 1) * gt.width,
+                )
+            })
+            .collect();
+        let w_t = fold_chunks_ntt_gen(&cs, &sl, gt.width);
+        let bound = tt_fold_bound(gt.n_groups, t.e0) as i64;
+        for ring_w in &w_t {
+            for &x in ring_w {
+                assert!(x.abs() <= bound, "honest two-tier fold exceeded the budget (restart discipline)");
+            }
+        }
+        let w_polys: Vec<Poly> = w_t.iter().map(|r| poly_from_small(zq, r)).collect();
+        absorb_polys(&mut tr, &format!("tt-w-{ti}"), &w_polys);
+        w_all.push(w_t);
+        cs_all.push(cs);
+    }
+    // ---- the per-contrib claim reconstructions (differential objects). ----
+    let mut h_ms = Vec::new();
+    for (m, tc) in inst.tt.iter().enumerate() {
+        let b_out = tt_outer_functionals(zq, kf, &tc.hi, &alphas0);
+        h_ms.push(tt_claim_sum(ctx, &b_out, &v_all[m]));
+    }
+    (TtWire { b_rows, u: u_all, u_cap, v: v_all, w: w_all }, alphas0, h_cur, h_ms)
+}
+
+/// The two-tier verifier (the sqrt outer relation on the spike-clear
+/// wire; NEVER touches the witness): Fiat-Shamir replay, ct gate,
+/// U rebind, w range, (a) fold-binding, (b) claim, (c) consistency.
+fn tt_verify(
+    ctx: &RingCtx,
+    kf: &ring::kfield::KField,
+    inst: &TtInstance,
+    wire: &TtWire,
+    v_batch: &ring::kfield::KElem,
+    seed: u64,
+) -> Result<(), &'static str> {
+    use ring::eval_proof::{
+        absorb_polys, decompose_polys_modq, expand_level_matrix_arc, matvec_modq_small, KAPPA_AGG,
+    };
+    use ring::kfield::K_DEG;
+    use ring::two_tier::{tt_claim_sum, tt_conjq, tt_fold_bound, tt_inner_functionals, tt_lo_y, tt_outer_functionals};
+    let zq = &ctx.zq;
+    let q = zq.q;
+    let group = &inst.group;
+    let mut tr = ring::sumcheck::LkpTranscript::new("uperf-t-diff", &[0x7Fu8; 32]);
+    if wire.b_rows.len() != K_DEG || wire.u.len() != group.tensors.len() || wire.w.len() != group.tensors.len() {
+        return Err("tt-wire-shape");
+    }
+    for (c, row) in wire.b_rows.iter().enumerate() {
+        if row[0] != v_batch[c] {
+            return Err("tt-ct-row-gate");
+        }
+    }
+    absorb_polys(&mut tr, "tt-brows", &wire.b_rows);
+    let alphas0 = agg_draw_alphas(&mut tr, "tt-alpha0", K_DEG, q);
+    let mut h_cur = poly_zero();
+    for (a, b) in alphas0.iter().zip(wire.b_rows.iter()) {
+        h_cur = poly_add(zq, &h_cur, &ring_mul_split_kara_fast(ctx, a, b));
+    }
+    for (ti, gt) in inst.grid.iter().enumerate() {
+        if wire.u[ti].len() != gt.n_groups || wire.u[ti].iter().any(|u| u.len() != KAPPA_AGG) {
+            return Err("tt-wire-shape");
+        }
+        absorb_polys(&mut tr, &format!("tt-u-{ti}"), &wire.u[ti].concat());
+    }
+    // U rebind (the digits are the deterministic balanced split).
+    let u_flat: Vec<Poly> = wire.u.iter().flat_map(|ut| ut.concat()).collect();
+    let l_u = agg_l_t_deg(q);
+    let udig = decompose_polys_modq(zq, &u_flat, AGG_E_DEG, l_u);
+    let b_mat = expand_level_matrix_arc(seed, group.name, 0, "TU", KAPPA_AGG, udig.len(), q);
+    if matvec_modq_small(ctx, &b_mat, KAPPA_AGG, udig.len(), &udig) != wire.u_cap {
+        return Err("tt-u-binding");
+    }
+    absorb_polys(&mut tr, "tt-ucap", &wire.u_cap);
+    if wire.v.len() != inst.tt.len() {
+        return Err("tt-wire-shape");
+    }
+    for (m, tc) in inst.tt.iter().enumerate() {
+        let gt = &inst.grid[tc.tensor_idx];
+        if wire.v[m].len() != K_DEG || wire.v[m].iter().any(|ve| ve.len() != gt.n_groups) {
+            return Err("tt-wire-shape");
+        }
+        for (e, ve) in wire.v[m].iter().enumerate() {
+            absorb_polys(&mut tr, &format!("tt-v-{m}-{e}"), ve);
+        }
+    }
+    let mut cs_all: Vec<Vec<Vec<i64>>> = Vec::new();
+    for (ti, t) in group.tensors.iter().enumerate() {
+        let gt = &inst.grid[ti];
+        let (cs, _) = agg_draw_cs(&mut tr, &format!("tt-c-{ti}"), gt.n_groups);
+        if wire.w[ti].len() != gt.width {
+            return Err("tt-wire-shape");
+        }
+        let bound = tt_fold_bound(gt.n_groups, t.e0) as i64;
+        for ring_w in &wire.w[ti] {
+            if ring_w.len() != D || ring_w.iter().any(|x| x.abs() > bound) {
+                return Err("tt-w-range");
+            }
+        }
+        let w_polys: Vec<Poly> = wire.w[ti].iter().map(|r| poly_from_small(zq, r)).collect();
+        absorb_polys(&mut tr, &format!("tt-w-{ti}"), &w_polys);
+        cs_all.push(cs);
+    }
+    // ---- (a) fold-binding per tensor: A_t w_t == sum_i c_i u_{t,i}. ----
+    for (ti, gt) in inst.grid.iter().enumerate() {
+        let a_mat = expand_level_matrix_arc(seed, group.name, ti, "T", KAPPA_AGG, gt.width, q);
+        let lhs = matvec_modq_small(ctx, &a_mat, KAPPA_AGG, gt.width, &wire.w[ti]);
+        let mut rhs = vec![poly_zero(); KAPPA_AGG];
+        for (i, cs) in cs_all[ti].iter().enumerate() {
+            let c_poly = poly_from_small(zq, cs);
+            for (kap, r) in rhs.iter_mut().enumerate() {
+                *r = poly_add(zq, r, &ring_mul_split_kara_fast(ctx, &c_poly, &wire.u[ti][i][kap]));
+            }
+        }
+        if lhs != rhs {
+            return Err("tt-fold-binding");
+        }
+    }
+    // ---- (c) consistency per (m, e): a_e . w == c . v_e (checked
+    // BEFORE (b) so a lying v fires here — v's binding to the
+    // committed rows through the fold). ----
+    for (m, tc) in inst.tt.iter().enumerate() {
+        let t = &group.tensors[tc.tensor_idx];
+        let gt = &inst.grid[tc.tensor_idx];
+        let conjq = tt_conjq(zq, &tc.col, t.cols / D);
+        let lo_y = tt_lo_y(kf, &tc.lo);
+        let a_inner = tt_inner_functionals(ctx, t, gt.g_rows, &lo_y, &conjq);
+        let w_polys: Vec<Poly> = wire.w[tc.tensor_idx].iter().map(|r| poly_from_small(zq, r)).collect();
+        let c_polys: Vec<Poly> = cs_all[tc.tensor_idx].iter().map(|c| poly_from_small(zq, c)).collect();
+        for e in 0..K_DEG {
+            let mut lhs = poly_zero();
+            for (aj, wj) in a_inner[e].iter().zip(w_polys.iter()) {
+                if aj.iter().all(|&x| x == 0) {
+                    continue;
+                }
+                lhs = poly_add(zq, &lhs, &ring_mul_split_kara_fast(ctx, aj, wj));
+            }
+            let mut rhs = poly_zero();
+            for (ci, vi) in c_polys.iter().zip(wire.v[m][e].iter()) {
+                if vi.iter().all(|&x| x == 0) {
+                    continue;
+                }
+                rhs = poly_add(zq, &rhs, &ring_mul_split_kara_fast(ctx, ci, vi));
+            }
+            if lhs != rhs {
+                return Err("tt-consistency");
+            }
+        }
+    }
+    // ---- (b) the claim: sum_m sum_e sum_i b^m_e[i] v^m_e[i] == h_cur. ----
+    let mut served = poly_zero();
+    for (m, tc) in inst.tt.iter().enumerate() {
+        let b_out = tt_outer_functionals(zq, kf, &tc.hi, &alphas0);
+        served = poly_add(zq, &served, &tt_claim_sum(ctx, &b_out, &wire.v[m]));
+    }
+    if served != h_cur {
+        return Err("tt-claim");
+    }
+    Ok(())
+}
+
+/// [UPERF3-FF] Rung 2: `uperf-t diff [n_log2] [threads] [seed]` — the
+/// differential at fixed seeds. Panics on the first mismatch.
+fn uperf_t_diff(n_log2: usize, threads: usize, seed: u8) {
+    use ring::eval_proof::{kernel_pass_factored_gen, plan_schedule, DigitCols, MultiClaimKernel};
+    use ring::kfield::{KElem, KField, K_DEG};
+    let t0 = std::time::Instant::now();
+    uperf_s_set_threads(threads);
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let q = ctx.zq.q;
+    let mut inst = tt_build_instance(&kf, n_log2, seed);
+    let n0 = inst.group.n_digit_rings;
+    let n_m = inst.tt.len();
+    println!(
+        "[UPERF3-FF] diff: {} tensors / {} digit rings (~2^{:.1}), {} contribs, ZK_THREADS {} [WSL-BOX {}T|NOISY-SHARED], seed {seed}",
+        inst.group.tensors.len(), n0, (n0 as f64).log2(), n_m, threads, threads
+    );
+    for (ti, gt) in inst.grid.iter().enumerate() {
+        let t = &inst.group.tensors[ti];
+        println!(
+            "[UPERF3-FF]   grid {}: g_rows {} width {} n_groups {} (e0 {} l0 {})",
+            t.name, gt.g_rows, gt.width, gt.n_groups, t.e0, t.l0
+        );
+    }
+    // The factored-kernel invariant the front end consumes.
+    for (m, tc) in inst.tt.iter().enumerate() {
+        let gt = &inst.grid[tc.tensor_idx];
+        let cc = &inst.claims.per_tensor[tc.tensor_idx];
+        let claim = cc.iter().filter(|c| std::rc::Rc::ptr_eq(&c.col, &tc.col)).nth(
+            inst.tt[..m].iter().filter(|p| p.tensor_idx == tc.tensor_idx && std::rc::Rc::ptr_eq(&p.col, &tc.col)).count(),
+        ).expect("contrib pairing");
+        for (r, rk) in claim.row.iter().enumerate() {
+            let want = kf.mul(&tc.hi[r >> gt.g_rows.trailing_zeros()], &tc.lo[r & (gt.g_rows - 1)]);
+            assert_eq!(rk, &want, "factored-kernel invariant broke (m {m}, row {r})");
+        }
+    }
+    println!("[UPERF3-FF]   factored-kernel invariant: scale *K eq == hi *K lo on every row, {n_m}/{n_m} contribs");
+    // ---- the shared claim layer + oracle b_rows. ----
+    let mut w0_tt = tt_build_witness(&inst.group, seed);
+    let mk = bg_multi_kernels(&inst.claims);
+    let (rows_ref, _) = kernel_pass_factored_gen(&ctx, &kf, &inst.group, &mk, Some(&w0_tt.rings()[..n0 * D]), None);
+    let v_batch: KElem = (0..K_DEG).map(|c| rows_ref[c][0]).collect();
+    let seed_crs = 0x77F0_0000u64 + seed as u64;
+    // ---- ORACLE: the built opening at the same (group, claims, witness). ----
+    let t_or = std::time::Instant::now();
+    let sched = plan_schedule(n0, 2, q, Some(2));
+    inst.group.begin_opening().expect("tt oracle opening");
+    let mut w0_bg = tt_build_witness(&inst.group, seed);
+    assert_eq!(w0_bg.rings(), w0_tt.rings(), "deterministic witness rebuild diverged");
+    let pre = bg_precommit(&ctx, &inst.group, &sched, &mut w0_bg, seed_crs);
+    let mut tr = ring::sumcheck::LkpTranscript::new("uperf-t-diff-oracle", &[0x7Eu8; 32]);
+    let mut rng = ring::ProverRng::from_test_seed("uperf-t-diff-oracle-rng", &[seed]);
+    let (proof, _) = bg_prove_group(
+        &ctx, &kf, &inst.group, &sched, &mut w0_bg, &inst.claims, &v_batch, pre, &mut tr, seed_crs,
+        false, false, &mut rng,
+    );
+    let mut trv = ring::sumcheck::LkpTranscript::new("uperf-t-diff-oracle", &[0x7Eu8; 32]);
+    bg_verify_group(&ctx, &kf, &inst.group, &sched, &inst.claims, &v_batch, &proof, &mut trv, seed_crs, None)
+        .expect("oracle bg proof must verify");
+    println!("[UPERF3-FF]   oracle bg_prove_group + verify: ACCEPT in {:.2}s (forced 2-level schedule)", t_or.elapsed().as_secs_f64());
+    // ---- SUBJECT: the two-tier front end. ----
+    let t_tt = std::time::Instant::now();
+    let (wire, alphas0, h_cur, h_ms) = tt_prove(&ctx, &kf, &inst, &w0_tt, &v_batch, seed_crs);
+    let t_tt_prove = t_tt.elapsed().as_secs_f64();
+    let t_v = std::time::Instant::now();
+    tt_verify(&ctx, &kf, &inst, &wire, &v_batch, seed_crs).expect("two-tier front end must verify");
+    println!(
+        "[UPERF3-FF]   two-tier prove {:.2}s + verify {:.2}s: ACCEPT (binding + U rebind + claim + consistency + w range)",
+        t_tt_prove, t_v.elapsed().as_secs_f64()
+    );
+    // ---- DIFFERENTIAL LEG 1: the b_row images, byte-for-byte. ----
+    assert_eq!(wire.b_rows, proof.b_rows, "b_rows differ: two-tier claim layer vs the built opening");
+    assert_eq!(wire.b_rows, rows_ref, "b_rows differ vs the direct kernel pass");
+    println!("[UPERF3-FF]   DIFF 1: b_row images BYTE-IDENTICAL (16 rows) two-tier vs built GroupEvalProof.b_rows; ct row = v_batch");
+    // ---- DIFFERENTIAL LEG 2: per-contrib MLE claims and their
+    // two-tier reconstructions. ----
+    let zq = &ctx.zq;
+    let mut sum_rows = vec![poly_zero(); K_DEG];
+    let mut sum_h = poly_zero();
+    for (m, k) in mk.iter().enumerate() {
+        let one: Vec<MultiClaimKernel> = vec![MultiClaimKernel {
+            tensor_idx: k.tensor_idx,
+            scale: k.scale.clone(),
+            row_kernel: k.row_kernel.clone(),
+            col_kernel: k.col_kernel.clone(),
+            row_factors: std::cell::OnceCell::new(),
+        }];
+        let (rows_m, _) = kernel_pass_factored_gen(&ctx, &kf, &inst.group, &one, Some(&w0_tt.rings()[..n0 * D]), None);
+        for (sr, rm) in sum_rows.iter_mut().zip(rows_m.iter()) {
+            *sr = poly_add(zq, sr, rm);
+        }
+        let mut h_m_oracle = poly_zero();
+        for (a, b) in alphas0.iter().zip(rows_m.iter()) {
+            h_m_oracle = poly_add(zq, &h_m_oracle, &ring_mul_split_kara_fast(&ctx, a, b));
+        }
+        assert_eq!(
+            h_ms[m], h_m_oracle,
+            "contrib {m}: two-tier reconstruction H_m != alpha-batched per-contrib claim rows"
+        );
+        sum_h = poly_add(zq, &sum_h, &h_ms[m]);
+    }
+    assert_eq!(sum_rows, wire.b_rows, "sum of per-contrib claim rows != b_rows");
+    println!("[UPERF3-FF]   DIFF 2: per-contrib MLE claim rows: sum_m rows_m == b_rows; H_m == alphas . rows_m POLY-EXACT, {n_m}/{n_m} contribs");
+    // ---- DIFFERENTIAL LEG 3: the batched opening target. ----
+    let mut h_oracle = poly_zero();
+    for (a, b) in alphas0.iter().zip(proof.b_rows.iter()) {
+        h_oracle = poly_add(zq, &h_oracle, &ring_mul_split_kara_fast(&ctx, a, b));
+    }
+    assert_eq!(h_cur, h_oracle, "served h_cur != the built opening's batched target at the same alphas");
+    assert_eq!(h_cur, sum_h, "served h_cur != sum of per-contrib reconstructions");
+    println!("[UPERF3-FF]   DIFF 3: batched opening target h_cur IDENTICAL: two-tier == built b_rows route == sum_m H_m (same drawn alphas)");
+    // ---- REJECT legs: wire tampers must fail the verifier. ----
+    let mut legs = 0;
+    {
+        let mut t = TtWire { b_rows: wire.b_rows.clone(), u: wire.u.clone(), u_cap: wire.u_cap.clone(), v: wire.v.clone(), w: wire.w.clone() };
+        t.w[0][3][7] += 1;
+        let e = tt_verify(&ctx, &kf, &inst, &t, &v_batch, seed_crs).unwrap_err();
+        println!("[UPERF3-FF]   REJECT w tamper: {e}");
+        legs += 1;
+    }
+    {
+        let mut t = TtWire { b_rows: wire.b_rows.clone(), u: wire.u.clone(), u_cap: wire.u_cap.clone(), v: wire.v.clone(), w: wire.w.clone() };
+        t.v[0][2][1][0] = ctx.zq.add(t.v[0][2][1][0], 1);
+        let e = tt_verify(&ctx, &kf, &inst, &t, &v_batch, seed_crs).unwrap_err();
+        println!("[UPERF3-FF]   REJECT v tamper: {e}");
+        legs += 1;
+    }
+    {
+        let mut t = TtWire { b_rows: wire.b_rows.clone(), u: wire.u.clone(), u_cap: wire.u_cap.clone(), v: wire.v.clone(), w: wire.w.clone() };
+        t.u[1][0][0][0] = ctx.zq.add(t.u[1][0][0][0], 1);
+        let e = tt_verify(&ctx, &kf, &inst, &t, &v_batch, seed_crs).unwrap_err();
+        println!("[UPERF3-FF]   REJECT u tamper: {e}");
+        legs += 1;
+    }
+    {
+        let mut t = TtWire { b_rows: wire.b_rows.clone(), u: wire.u.clone(), u_cap: wire.u_cap.clone(), v: wire.v.clone(), w: wire.w.clone() };
+        t.b_rows[0][0] = ctx.zq.add(t.b_rows[0][0], 1);
+        let e = tt_verify(&ctx, &kf, &inst, &t, &v_batch, seed_crs).unwrap_err();
+        println!("[UPERF3-FF]   REJECT b_rows tamper: {e}");
+        legs += 1;
+    }
+    // Malicious-PROVER legs: tamper, then refold w honestly under the
+    // tampered transcript so binding (a) passes and the SEMANTIC
+    // checks are the ones that fire.
+    {
+        let mut t = TtWire { b_rows: wire.b_rows.clone(), u: wire.u.clone(), u_cap: wire.u_cap.clone(), v: wire.v.clone(), w: wire.w.clone() };
+        t.v[0][2][1][0] = ctx.zq.add(t.v[0][2][1][0], 1);
+        tt_refold(&ctx, &kf, &inst, &mut t, &w0_tt, seed_crs);
+        let e = tt_verify(&ctx, &kf, &inst, &t, &v_batch, seed_crs).unwrap_err();
+        assert!(e == "tt-consistency" || e == "tt-claim", "lying-v refold must fail a semantic check, got {e}");
+        println!("[UPERF3-FF]   REJECT lying-v + honest refold (binding passes): {e}");
+        legs += 1;
+    }
+    {
+        let mut t = TtWire { b_rows: wire.b_rows.clone(), u: wire.u.clone(), u_cap: wire.u_cap.clone(), v: wire.v.clone(), w: wire.w.clone() };
+        t.b_rows[0][1] = ctx.zq.add(t.b_rows[0][1], 1); // non-ct coeff: ct gate passes
+        tt_refold(&ctx, &kf, &inst, &mut t, &w0_tt, seed_crs);
+        let e = tt_verify(&ctx, &kf, &inst, &t, &v_batch, seed_crs).unwrap_err();
+        assert_eq!(e, "tt-claim", "lying b_rows (non-ct) + refold must fail the claim check");
+        println!("[UPERF3-FF]   REJECT lying b_rows non-ct coeff + honest refold: {e}");
+        legs += 1;
+    }
+    let _ = DigitCols::zeros(0);
+    println!(
+        "[UPERF3-FF] diff PASS: 3 differential legs + {legs} reject legs in {:.1}s, peak RSS {:.0} MiB",
+        t0.elapsed().as_secs_f64(),
+        uperf_a_peak_rss_mib()
+    );
+}
+
+/// [UPERF3-FF] Malicious-prover refold: replay the (possibly
+/// tampered) wire's transcript to draw the fold challenges, then
+/// refold w HONESTLY from the witness — so the fold-binding check (a)
+/// passes and the semantic checks (b)/(c) are the ones on trial.
+fn tt_refold(
+    ctx: &RingCtx,
+    kf: &ring::kfield::KField,
+    inst: &TtInstance,
+    wire: &mut TtWire,
+    w0: &ring::eval_proof::DigitCols,
+    _seed: u64,
+) {
+    use ring::eval_proof::{absorb_polys, fold_chunks_ntt_gen, SmallRings};
+    use ring::kfield::K_DEG;
+    let zq = &ctx.zq;
+    let q = zq.q;
+    let group = &inst.group;
+    let flat: &[i8] = &w0.rings()[..group.n_digit_rings * D];
+    let mut tr = ring::sumcheck::LkpTranscript::new("uperf-t-diff", &[0x7Fu8; 32]);
+    absorb_polys(&mut tr, "tt-brows", &wire.b_rows);
+    let _alphas0 = agg_draw_alphas(&mut tr, "tt-alpha0", K_DEG, q);
+    for ti in 0..group.tensors.len() {
+        absorb_polys(&mut tr, &format!("tt-u-{ti}"), &wire.u[ti].concat());
+    }
+    absorb_polys(&mut tr, "tt-ucap", &wire.u_cap);
+    for (m, _) in inst.tt.iter().enumerate() {
+        for (e, ve) in wire.v[m].iter().enumerate() {
+            absorb_polys(&mut tr, &format!("tt-v-{m}-{e}"), ve);
+        }
+    }
+    let _ = kf;
+    for (ti, t) in group.tensors.iter().enumerate() {
+        let gt = &inst.grid[ti];
+        let (cs, _) = agg_draw_cs(&mut tr, &format!("tt-c-{ti}"), gt.n_groups);
+        let sl: Vec<&[i8]> = (0..gt.n_groups)
+            .map(|i| {
+                SmallRings::sub(
+                    flat,
+                    t.digit_ring_base + i * gt.width,
+                    t.digit_ring_base + (i + 1) * gt.width,
+                )
+            })
+            .collect();
+        wire.w[ti] = fold_chunks_ntt_gen(&cs, &sl, gt.width);
+        let w_polys: Vec<Poly> = wire.w[ti].iter().map(|r| poly_from_small(zq, r)).collect();
+        absorb_polys(&mut tr, &format!("tt-w-{ti}"), &w_polys);
     }
 }

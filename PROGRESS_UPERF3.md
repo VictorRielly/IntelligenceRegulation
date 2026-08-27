@@ -1530,3 +1530,60 @@ trajectory_regularization > 0 / shared init, then re-measure.
   form recurses w instead (V-recursed column). Gates at commit:
   diff-battery green, uperf-s digest 3752cba4.. unchanged,
   freeze-check 98 ok + expected panic.
+- RUNG 2 (2026-08-27) — THE DIFFERENTIAL: GREEN, claims line up
+  BIT-FOR-BIT. `uperf-t diff [n_log2] [threads] [seed]` (defaults
+  20/1/161): a 6-tensor aligned synthetic group (809,984 digit rings
+  ~2^19.6, e0 in {1,2} incl. a sign-binary l0=8 tensor and a
+  claimless tensor), 7 contribs (two sharing a col kernel), the
+  SAME (group, claims, witness) both ways.
+  THE SEMANTIC KEY (recorded before building, PROVEN by the legs):
+  the built claim functional factors RANK-16 over the per-tensor
+  (row-group x in-group) grid via the BH row-column split PLUS the
+  eq hi/lo split of the row kernel —
+    Phi_0[i,j] = sum_e b_e[i] a_e[j],
+    b_e[i] = alphaHi[i][e] (hi-side alpha contraction),
+    a_e[j] = radix_l sum_d (lo[r] *K Y^d)[e] conjQ[cb][d]
+  — so the front end consumes FACTORED contribs (hi, lo, col; scale
+  folded into hi; the GroupClaims API's materialized product is what
+  the oracle eats; invariant scale*K eq == hi *K lo asserted on every
+  row). The per-tensor two-tier grid is CONTIGUOUS chunking (row
+  group = g_rows whole matrix rows = width rings), so fold + inner
+  commits ride fold_chunks_ntt_gen / matvec_modq_small_multi_gen
+  UNCHANGED. Greyhound two-check structure, FS order v-before-c:
+  (a) fold-binding A_t w_t == sum_i c_i u_{t,i} (+ tier-2 U rebind),
+  (c) consistency a_e.w == c.v_e per (contrib,e), (b) claim
+  sum_{m,e,i} b_e[i] v_e[i] == h_cur.
+  DIFFERENTIAL LEGS (all PASS, fixed seeds):
+  1. b_row images: two-tier claim layer == built GroupEvalProof.b_rows
+     BYTE-IDENTICAL (16 rows; ct = v_batch), oracle bg_prove_group +
+     bg_verify_group ACCEPT on the same instance.
+  2. per-contrib MLE claims: single-contrib kernel-pass rows_m sum to
+     b_rows; the two-tier reconstruction H_m = sum_e sum_i b_e[i]
+     v_e[i] == sum_c alphas0_c rows_m[c] POLY-EXACT, 7/7.
+  3. the batched opening target: h_cur two-tier == the built b_rows
+     route == sum_m H_m at the same drawn alphas.
+  REJECT LEGS (6): w/v/u/b_rows wire tampers (FS divergence or
+  binding: tt-fold-binding / tt-u-binding / tt-ct-row-gate) + two
+  MALICIOUS-PROVER legs (tamper + honest refold under the tampered
+  transcript so binding passes): lying v -> tt-consistency, lying
+  b_rows non-ct coeff -> tt-claim — both semantic checks provably
+  fire.
+  WALLS AT 2^19.6 [WSL-BOX NOISY-SHARED; identity is the deliverable,
+  not the walls]: oracle bg prove+verify 16.6s 1T / 8.5s 7T (forced
+  2-level); two-tier prove 19.8s 1T / 16.2s 7T + verify 1.9s 1T —
+  the tt prove at this small shape is NOT yet ahead (the v-passes
+  recompute per-contrib Q without col-kernel sharing, and 2^20 is
+  below the memo's >= 2^22 acceptance shape; rung 3 measures
+  properly with phase attribution). Peak RSS 2.4 GiB.
+  OPEN (recorded, not guessed): (i) the front end requires ALIGNED
+  tensors (cols % D == 0 — every real-rig tensor; the misaligned
+  battery shapes would need the generic per-ring branch, linear for
+  the verifier); (ii) rows must admit a power-of-2 g_rows for the eq
+  hi/lo split (real tensors: rows = T or model dims — 512/768/2048
+  all fine at some g); (iii) the real composed-pass kernels are
+  materialized Vec<KElem> — whether every real contrib's row kernel
+  is a genuine eq product (numerically recoverable via kf.inv +
+  verified) is a rung-3 question; a non-product kernel would force
+  the g_rows = 1 unbalanced grid for that contrib.
+  Gates at commit: build green, diff-battery green, uperf-s digest
+  3752cba4.. unchanged, freeze-check 98 ok + expected panic.
