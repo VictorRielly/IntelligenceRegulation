@@ -1470,6 +1470,19 @@ STATE: IN FLIGHT (2026-08-26). Landed so far (one commit each):
     pair lands on an already-frozen member; the frozen (-5,-13)
     silu member goes unused post-margin (harmless). NO C5
     additions needed. results/m8b_int16out_members.{json,txt}.
-  REMAINING for the lane: the export's completion record + the
-  final report block. BB's next rung: the clamp-selector z gadget
-  (statement) + the Gemma gelu verify-export with zclamps rows.
+- **THE REAL GEMMA-4-12B v3 EXPORT IS DONE [MEASURED WSL-BOX
+  NT|NOISY-SHARED]**: 48 layers x T=512 (d 3840, f 15360) under
+  the adopted 7-bit margin set — **0 violations AND 0 z clamps on
+  the export window** (the window happens to be clamp-free, so the
+  witness is a plain v3 witness; sidecar carries `00 zpolicy
+  clamp` and no zclamps rows). Shifts: sh_g 8-10, sh_u 0-3 (no
+  negative — Gemma has no upscale layer), sh_h 11-14, sh_z 8-9;
+  peak RSS 3.43 GB; 11G bins gitignored; digests.txt + manifest
+  committed. (First launch died on a missing --text flag — the
+  token-stream source; rerun clean.)
+  REMAINING for the lane: the final report block. BB (in flight):
+  the Gemma gelu verify-export reconcile (family sniff from the
+  sidecar table row + a legible zclamps!=0 guard landed in the BB
+  worktree); the clamp-selector z gadget is forward-looking
+  statement work (no clamped element exists in any current
+  witness).
