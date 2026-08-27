@@ -1415,12 +1415,37 @@ STATE: IN FLIGHT (2026-08-26). Landed so far (one commit each):
   l5 is TERMINAL — structurally blind to downstream propagation.
   The percol mechanism note stands (columns only widen), but
   widening hot columns is not free when 43 layers consume them.
-- IN FLIGHT (queued on the lock): the **mz=0 percol run** —
-  columns get exactly the exponent their calibrated absmax
-  demands, no overhang; escalation handles val-tail escapes.
-  Expected: cost well below +0.087, possibly ~free; a few viols if
-  the val tail exceeds cal (escalates per layer). Marker:
-  results/m8b_margins_gemma_percol_mz0.done. If mz=0 still costs
-  materially, the zero-quality-cost option is **accept-N at l5-z
-  (~5-6 enumerated elements)** — Victor's call. The Gemma v3
-  EXPORT waits on that outcome.
+- **mz=0 PERCOL RUN LANDED [MEASURED WSL-BOX NT] — the decisive
+  history (results/m8b_margins_gemma_percol_mz0_wsl.json)**:
+  * Round 1 (THE MONEY ROW): free margins (X x4 + gate l34 + h
+    l39/43, 7 bits) + percol l5 at mz=0 — which is a NO-OP (0
+    columns widened: the cal-window column absmax already fits the
+    per-tensor base!) — **delta +0.0380** (= round-0 +0.0353 +
+    noise), 7 z-element viols (6 at l5, 1 at l37), clamp-hits 1.
+  * Round 2: l5 escalated to mz=1 (9 cols, +1 bit) — kills l5's
+    viols at **+0.037 quality cost** (7.2746 -> 7.3118) and a NEW
+    single z viol pops at l25. Round 3: l25's mz=0 percol is a
+    no-op -> RESIDUAL-1 at +0.0751. WHACK-A-MOLE CONFIRMED.
+  * READING: the z residues are ~7 ROAMING single val-tail
+    elements — NOT stable hot columns (cal stats do not predict
+    them; percol mz=0 is literally the identity). Every RANGE
+    mechanism that chases them coarsens live channels and pays;
+    CLAMPING them is quality-free (the chain already clamps —
+    +0.0380 IS the clamp policy's measured quality).
+- **THE MEASURED MENU (Gemma, complete)**:
+  | policy | delta | unexplained viols |
+  | free margins + CLAMP at z | +0.0380 | 0 (clamp relation total) |
+  | + percol l5 mz=1 | +0.0751 | 1 roaming |
+  | full percol mz=2 | +0.1049 | 0 |
+  | whole-plane z margin | +0.1082 | 0 |
+  RECOMMENDATION: free margins + a CLAMPED-REQUANT relation at the
+  z site (the C5 tables' own D1 +-32767 clamp convention extended
+  to the z requant edge; statement-side: a per-element selector —
+  in-range branch = the normal remainder+range relation, clamped
+  branch = acc-beyond-threshold + y pinned at +-32767; count bound
+  provable by selector-column sum). BB prices the selector gadget
+  vs the percol statement rows (both are new rungs; clamp is 3x
+  better on quality and has no convergence risk). Mistral already
+  lives under D1 clamp semantics at the TABLE site (clamp-hits 3).
+  AWAITING VICTOR: adopt clamp-at-z, or take a percol/margin row
+  from the menu. The Gemma v3 EXPORT fires on the ruling.
