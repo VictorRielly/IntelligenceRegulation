@@ -145,3 +145,63 @@ curve), results/m8b_widen_attrib_wsl.json (the Mistral
 confirmation). Scripts: m8b_smooth_experiment.py (U/V),
 m8b_gemma4_zfix.py (Z), m8b_gemma4_attrib.py, m8b_widen_attrib.py
 (orchestrator).
+
+## 6. Round-3 postscript (2026-08-26/27): from the ruling to verified witnesses
+
+The v3 amendment went from adopted to EXECUTED in one round; every
+number below is measured on the WSL reference box, lanes AA/BB/CC.
+
+**The margin story, decomposed to its end.** Margins-to-zero found
+Mistral's 12-bit set FREE (-0.0007 nats; +0.2150 final) but Gemma's
+first 8-bit set cost +0.1082. Three decomposition passes located the
+cost precisely: X-site bits free (+0.0011), the z bit the largest
+single carrier, gate/h bits free (-0.008/-0.000) — and the ruling's
+percol-eZ mechanism, tried honestly, measured +0.087 at mz=2 and
++0.0398 at mz=0-escalated WITHOUT converging (the z residues are ~7
+ROAMING val-tail elements the calibration columns cannot predict;
+range mechanisms chase them at real cost). **RULING (2026-08-27):
+CLAMP-AT-Z** — the z requant relation is clamped (the C5 tables' D1
++-32767 convention extended to the requant edge); free margins carry
+the other sites. Gemma quality of record: **+0.0380** (vs +0.105-
+0.108 for every range-chasing alternative). The general lesson the
+campaign has now measured three separate ways: the residual stream's
+hot channels need RESOLUTION — every mechanism that trades their
+resolution for range pays quality; tolerating enumerable tail
+elements is free.
+
+**Witnesses cut and verified cross-language.** Real v3 exports exist
+for BOTH checkpoints (Mistral 32x512 under its free margin set;
+Gemma 48x512 under the adopted 7-bit set — 0 violations AND 0 clamps
+on the export window), and the Rust v3 engine re-derives BOTH bit
+for bit: verify-export PASSED at 128 (Mistral, silu) and 192 (Gemma,
+gelu) plane legs, full-plane sha256s equal, every table row a frozen
+C5 member. The reconcile forced one real engine extension —
+per-tensor weight exponents (e_w3; the 125M's uniform -9 had hidden
+the need) — and the --tables record confirmed the frozen 15-member
+registry covers both adopted sets with NO additions.
+
+**Attention (lane CC): the MVP-2 answer.** The attention compute
+core (q/k/v/scores/exps/probs/ctx) is INT8-CLEAN per-tensor
+(first-order deltas <= 0.09; QK-norm doing its architectural job —
+no per-head machinery needed); the seam/residual sites carry the
+FFN's disease (xres +13.23 alone) and the SAME cure works: int16 at
+xattn/ao/postn/xres composes to **+0.0854** vs all-int8's +14.83.
+One open site: postn keeps a +0.19 first-order residue (the
+four-norm sandwich's requant edge) — an MVP-2 design-pass item, same
+decision family as the z residues. Design memo section 1.6b carries
+the measured exponents (SYNTHETIC -> MEASURED).
+
+**Statement obligations opened by this round** (engine side, BB
+forward list): the clamp-selector relation at the z edge (needed
+only when a witness window actually clamps — no current witness
+does); per-column statement rows if percol is ever adopted at
+another site; the 7B/12B PROOF rungs are Mac tasks (measured: 15.08
+GB OOM at 1x16 on this box, weights-dominated, t-independent).
+
+New artifacts: results/m8b_margins_{mistral,gemma}_wsl.json,
+m8b_margins_gemma_percol{,_mz0}_wsl.json, m8b_margins_gemma
+_{decomp,policy_decomp}.json, m8b_int16out_members.{json,txt},
+m8b_mistral_v3_export/ + m8b_gemma4_v3_export/ (sidecars committed,
+bins local), m8b_gemma4_attn_{stats,attrib,widen}.json,
+uperf3_bb_verify_{mistral,gemma}.log. Scripts: m8b_margins.py,
+m8b_margins_decomp.py, m8b_gemma4_attn_gate.py (lanes AA/CC).
