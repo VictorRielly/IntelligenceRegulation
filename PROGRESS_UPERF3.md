@@ -1495,3 +1495,27 @@ trajectory_regularization > 0 / shared init, then re-measure.
   8-lane-per-call setup amortization is the remaining bound), and
   the shuffle elimination inside mac_block; target: the counted
   13.5x converting to >= 4-5x wall at 8T.
+
+- 2026-08-27 RUNG 4 DONE — the fused base-round node
+  (ec_kernel::base_node_fused, one #[target_feature] call per
+  (block m, node x): AVX2 deinterleave (shuffle/unpack/permute =
+  b_deint_pair's exact lane order), extrapolation, f chain, the
+  c eq x f MAC blocks and the recomposition all register-resident;
+  eq blocks loaded once per node; zc_range's body takes the fast
+  path when base_round && avx2_active(), the rung-3 loop stays as
+  the ZK_EC_SCALAR/portable fallback). GATES: battery digest
+  3752cba4.. UNCHANGED both modes. WALLS [WSL-BOX 1T/8T QUIET, no
+  build contention]: rounds 0.625 -> 0.530 s (1T), 0.122 -> 0.115 s
+  (8T); **prove wall vs the masked-descent oracle: 2.3x (1T) /
+  2.7x (8T)** — the round-4 arc took the spike's 1.6x to 2.7x, all
+  transcript-invariant.
+  SCOPE DECISION (recorded, not deferred silently): the next term
+  is the FOLDS (0.150 s = 21% of 1T prove), whose per-block cost is
+  dominated by the SCALAR e_red_block reduction (the cross-plane
+  Z^c = s0 fold) — vectorizing it is delicate, AND lane EE's
+  aggregate restructures the fold amortization entirely (shared eq,
+  batched columns). Rung 5 (fold fusion + e_red_block AVX2) is
+  therefore GATED on EE's profile: build it only if the aggregate
+  still shows folds as a top-3 term. The honest DD position: the
+  counted 13.5x will finish converting in the AGGREGATE's shape,
+  not the per-column spike harness.

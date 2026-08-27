@@ -497,6 +497,173 @@ pub fn rec_add(rec: &mut [u32], v: &[u32], q32: u32) {
 }
 
 // ---------------------------------------------------------------------------
+// [rung 4] The fused base-round NODE: per (block m, node x) the whole
+// k loop — deinterleave, extrapolate, f-chain, eq x f MAC, and the
+// recomposition — in ONE #[target_feature] body, register-resident
+// (eq blocks loaded once per node; bv/bf/rec never touch memory).
+// Rung 3 measured the per-call setup of the 8-lane primitives as the
+// remaining bound; this removes it for the dominant round.
+// ---------------------------------------------------------------------------
+
+#[cfg(target_arch = "x86_64")]
+mod node_avx {
+    use super::KL;
+    use super::lanes_avx::{vadd, vmulm, vsub};
+    #[cfg(target_arch = "x86_64")]
+    use std::arch::x86_64::*;
+
+    const M32V: i64 = 0xFFFF_FFFF;
+
+    /// Deinterleave 16 consecutive u32 at src[16 m..] into (even, odd)
+    /// 8-lane vectors — b_deint_pair's exact lane order.
+    #[inline(always)]
+    unsafe fn deint16(src: *const u32) -> (__m256i, __m256i) {
+        unsafe {
+            let v0 = _mm256_loadu_si256(src.cast());
+            let v1 = _mm256_loadu_si256(src.add(8).cast());
+            // per 128-bit half: [0,1,2,3] -> [0,2,1,3]
+            let s0 = _mm256_shuffle_epi32::<0xD8>(v0);
+            let s1 = _mm256_shuffle_epi32::<0xD8>(v1);
+            let elo = _mm256_unpacklo_epi64(s0, s1); // lanes 0,2 8,10 | 4,6 12,14
+            let ehi = _mm256_unpackhi_epi64(s0, s1); // lanes 1,3 9,11 | 5,7 13,15
+            // 64-bit groups [0,2][8,10][4,6][12,14] -> [0,2][4,6][8,10][12,14]
+            let even = _mm256_permute4x64_epi64::<0xD8>(elo);
+            let odd = _mm256_permute4x64_epi64::<0xD8>(ehi);
+            (even, odd)
+        }
+    }
+
+    /// One eq-block MAC with a REGISTER operand f: lo/hi[.. KL] += eq * f
+    /// (elementwise, split planes, scalar lane order).
+    #[inline(always)]
+    unsafe fn mac_block_reg(eq: __m256i, f: __m256i, lo: *mut u64, hi: *mut u64) {
+        unsafe {
+            let mask = _mm256_set1_epi64x(M32V);
+            let pe = _mm256_mul_epu32(eq, f);
+            let po = _mm256_mul_epu32(_mm256_srli_epi64::<32>(eq), _mm256_srli_epi64::<32>(f));
+            let lo_e = _mm256_and_si256(pe, mask);
+            let hi_e = _mm256_srli_epi64::<32>(pe);
+            let lo_o = _mm256_and_si256(po, mask);
+            let hi_o = _mm256_srli_epi64::<32>(po);
+            let l01 = _mm256_unpacklo_epi64(lo_e, lo_o);
+            let l23 = _mm256_unpackhi_epi64(lo_e, lo_o);
+            let h01 = _mm256_unpacklo_epi64(hi_e, hi_o);
+            let h23 = _mm256_unpackhi_epi64(hi_e, hi_o);
+            let lin0 = _mm256_permute2x128_si256::<0x20>(l01, l23);
+            let lin1 = _mm256_permute2x128_si256::<0x31>(l01, l23);
+            let hin0 = _mm256_permute2x128_si256::<0x20>(h01, h23);
+            let hin1 = _mm256_permute2x128_si256::<0x31>(h01, h23);
+            let a0 = _mm256_loadu_si256(lo.cast());
+            let a1 = _mm256_loadu_si256(lo.add(4).cast());
+            let b0 = _mm256_loadu_si256(hi.cast());
+            let b1 = _mm256_loadu_si256(hi.add(4).cast());
+            _mm256_storeu_si256(lo.cast(), _mm256_add_epi64(a0, lin0));
+            _mm256_storeu_si256(lo.add(4).cast(), _mm256_add_epi64(a1, lin1));
+            _mm256_storeu_si256(hi.cast(), _mm256_add_epi64(b0, hin0));
+            _mm256_storeu_si256(hi.add(4).cast(), _mm256_add_epi64(b1, hin1));
+        }
+    }
+
+    /// The whole base-path node (see the section header). `tabs` = the
+    /// w+1 base planes; slice k of lo/hi is at (k*nn + ni)*planes and
+    /// receives c*KL split-accumulated products (planes = the caller's
+    /// slice stride). Values are IDENTICAL to the scalar path (same
+    /// canonical formulas; the split-plane sums are order-free exact
+    /// integers).
+    #[target_feature(enable = "avx2")]
+    #[allow(clippy::too_many_arguments)]
+    pub unsafe fn base_node(
+        tabs: &[&[u32]],
+        m: usize,
+        xr: u32,
+        alphabet: &[u32],
+        pow2: &[u32],
+        eqb: &[u32],
+        c: usize,
+        nn: usize,
+        ni: usize,
+        planes: usize,
+        c31: u64,
+        q32: u32,
+        lo: &mut [u64],
+        hi: &mut [u64],
+    ) {
+        unsafe {
+            let w = tabs.len() - 1;
+            debug_assert!(eqb.len() == c * KL && alphabet.len() >= 1 && pow2.len() >= w);
+            let q = _mm256_set1_epi32(q32 as i32);
+            let c31v = _mm256_set1_epi64x(c31 as i64);
+            let xv = _mm256_set1_epi32(xr as i32);
+            // eq blocks, loaded once per node
+            let mut eq = [_mm256_setzero_si256(); 16];
+            for (j, e) in eq.iter_mut().enumerate().take(c) {
+                *e = _mm256_loadu_si256(eqb.as_ptr().add(j * KL).cast());
+            }
+            let mut rec = _mm256_setzero_si256();
+            for (k, t) in tabs.iter().enumerate() {
+                debug_assert!(t.len() >= 16 * m + 16);
+                let (a_v, b_v) = deint16(t.as_ptr().add(16 * m));
+                let v = vadd(a_v, vmulm(xv, vsub(b_v, a_v, q), c31v, q), q);
+                if k < w {
+                    let mut f = vsub(v, _mm256_set1_epi32(alphabet[0] as i32), q);
+                    for &a in &alphabet[1..] {
+                        f = vmulm(f, vsub(v, _mm256_set1_epi32(a as i32), q), c31v, q);
+                    }
+                    let sl = (k * nn + ni) * planes;
+                    for (j, &e) in eq.iter().enumerate().take(c) {
+                        mac_block_reg(
+                            e,
+                            f,
+                            lo.as_mut_ptr().add(sl + j * KL),
+                            hi.as_mut_ptr().add(sl + j * KL),
+                        );
+                    }
+                    let p2 = _mm256_set1_epi32(pow2[k] as i32);
+                    rec = vsub(rec, vmulm(p2, v, c31v, q), q);
+                } else {
+                    rec = vadd(rec, v, q);
+                    let sl = (w * nn + ni) * planes;
+                    for (j, &e) in eq.iter().enumerate().take(c) {
+                        mac_block_reg(
+                            e,
+                            rec,
+                            lo.as_mut_ptr().add(sl + j * KL),
+                            hi.as_mut_ptr().add(sl + j * KL),
+                        );
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// The fused base-round node (rung 4): caller must have checked
+/// `avx2_active()`. See node_avx::base_node.
+#[cfg(target_arch = "x86_64")]
+#[allow(clippy::too_many_arguments)]
+pub fn base_node_fused(
+    tabs: &[&[u32]],
+    m: usize,
+    xr: u32,
+    alphabet: &[u32],
+    pow2: &[u32],
+    eqb: &[u32],
+    c: usize,
+    nn: usize,
+    ni: usize,
+    planes: usize,
+    c31: u64,
+    q32: u32,
+    lo: &mut [u64],
+    hi: &mut [u64],
+) {
+    debug_assert!(avx2_active());
+    unsafe {
+        node_avx::base_node(tabs, m, xr, alphabet, pow2, eqb, c, nn, ni, planes, c31, q32, lo, hi)
+    };
+}
+
+// ---------------------------------------------------------------------------
 // The kernel-bench harness (rung 0/1 record) + the identity check.
 // ---------------------------------------------------------------------------
 

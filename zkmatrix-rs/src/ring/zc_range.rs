@@ -789,6 +789,31 @@ fn round_sums(
         let mut brec = [0u32; KL];
         // 2^(e0 k) as canonical residues
         let pow2: Vec<u32> = (0..w).map(|k| ((1u128 << (e0 as usize * k)) % ext_c.q as u128) as u32).collect();
+        // [UPERF3-DD rung 4] the fused base-round fast path: one
+        // attributed AVX2 call per (block, node) — deinterleave,
+        // extrapolation, f chain, eq x f MAC and recomposition
+        // register-resident. Values identical to the loop below (the
+        // battery digest is the gate); ZK_EC_SCALAR=1 forces the loop.
+        #[cfg(target_arch = "x86_64")]
+        if base_round && super::ec_kernel::avx2_active() {
+            let bp: Vec<&[u32]> = tabs
+                .iter()
+                .map(|t| {
+                    let ZTab::Base(v) = t else { unreachable!() };
+                    v.as_slice()
+                })
+                .collect();
+            for m in m0..m1 {
+                let eq_blk = &eq_pairs.d[m * bw..(m + 1) * bw];
+                for (ni, &x) in nodes.iter().enumerate() {
+                    let xr = (x % ext_c.q) as u32;
+                    super::ec_kernel::base_node_fused(
+                        &bp, m, xr, &alpha_v, &pow2, eq_blk, c, nn, ni, planes, c31, q32, lo, hi,
+                    );
+                }
+            }
+            return;
+        }
         for m in m0..m1 {
             let eq_blk = &eq_pairs.d[m * bw..(m + 1) * bw];
             eqb.copy_from_slice(eq_blk);
