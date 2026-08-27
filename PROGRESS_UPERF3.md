@@ -1530,3 +1530,24 @@ members await the freeze ruling.
     waves, 911 pins), commit 3.3 s / prove 70.3 s / verify 17.6 s,
     wall 91.4 s, statement 2059 bytes. The v3 rig's real-data proof
     arm is green after the per-tensor migration.
+
+- 2026-08-27 THE GEMMA (GeGLU) RECONCILE — both real checkpoints
+  now verify byte-for-bit:
+  * verify-export gained (a) table-family sniffing from the
+    sidecar's layer-0 table row (widen_from_bf defaults to silu;
+    the Gemma export carries gelu-tanh members), (b) a LEGIBLE
+    guard on clamp-at-z exports: `00 zpolicy clamp` accepted, but
+    any nonzero `NN zclamps` row fails with "the clamp-semantics
+    rung is required" instead of a confusing plane diff (the chain
+    here does not clamp; AA's Gemma export window measured 0
+    clamps, so it reconciles as a plain v3 witness).
+  * **GEMMA GATE PASSED [WSL-BOX]: AA's m8b_gemma4_v3_export — 48
+    layers x T=512 (d 3840, f 15360), 192 plane legs
+    byte-identical, full-plane sha256s == sidecar, every table row
+    = a frozen C5 member.** With Mistral's 128 legs this closes
+    the cross-language reconcile for BOTH real checkpoints and
+    BOTH activation families under the adopted margin sets.
+  * REMAINING (forward-looking): the clamp-selector z gadget (the
+    statement-side clamp relation — needed only when a witness
+    window actually contains a clamped element); the 7B/12B proof
+    rungs are Mac tasks (the 15.08 GB OOM record above).

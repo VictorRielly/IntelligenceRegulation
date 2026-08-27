@@ -45688,7 +45688,26 @@ fn u3_verify_v3_export(t_rows: usize) {
     assert_eq!(profile, "v3-widened", "profile row: {profile}");
     let requant = side.get(&(0, "requant".to_string())).expect("no `00 requant` row");
     assert_eq!(requant, "round", "requant row: {requant}");
-    let m = U3Model::widen_from_bf(bm, true);
+    let mut m = U3Model::widen_from_bf(bm, true);
+    // Table family from the sidecar's layer-0 table row (the Gemma
+    // GeGLU exports carry gelu-tanh members; widen_from_bf defaults
+    // to silu).
+    m.gelu = side[&(0, "table".to_string())].starts_with("gelu");
+    if let Some(zp) = side.get(&(0, "zpolicy".to_string())) {
+        // clamp-at-z exports are reconcilable as-is ONLY when the
+        // witness window contains no clamped element (the chain here
+        // does not clamp); a nonzero zclamps row would need the
+        // clamp-semantics rung — fail legibly, not with a plane diff.
+        assert_eq!(zp, "clamp", "zpolicy row: {zp}");
+        for l in 0..m.layers {
+            if let Some(n) = side.get(&(l, "zclamps".to_string())) {
+                assert_eq!(
+                    n, "0",
+                    "layer {l}: {n} z-clamped elements in the witness — the clamp-semantics rung is required to reconcile this export"
+                );
+            }
+        }
+    }
     println!(
         "[UPERF3-BB] verify-export: '{}' v3-widened/round, {} layers, T {} (checking {} rows/layer)",
         m.tag, m.layers, bm.t, t_rows
