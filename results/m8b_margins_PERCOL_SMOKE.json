@@ -1,0 +1,53 @@
+{
+ "meta": {
+  "experiment": "m8b_margins (margin bits to zero violations, adopted v3 widened stack: round, a16-out+u16/h16/z16, int16-out tables CLAMPED/registry-exact)",
+  "model": "gemma",
+  "checkpoint": "/home/victor/models/gemma-4-12B-qat",
+  "seed": 1337,
+  "t": 512,
+  "val_windows": 1,
+  "layers": 6,
+  "loss_ref": 7.236668249862625,
+  "smoke": true,
+  "box": "[MEASURED WSL-BOX NT|NOISY-SHARED]",
+  "z_percol": {
+   "mz": 2,
+   "derivation": "eZ16_j = pow2ceil(cal fp absmax_j / Q16) + mz, FLOORED at the per-tensor eZ16 (columns only widen); per-column sh_z"
+  }
+ },
+ "rounds": [
+  {
+   "round": 0,
+   "margins": {},
+   "margin_bits_total": 0,
+   "percol_z": {},
+   "percol_stats": {},
+   "loss": 38.63843136398721,
+   "delta_vs_ref": 31.401763114124584,
+   "total_viol": 0,
+   "viol_by_class": {
+    "X_clip": 0,
+    "gate_range": 0,
+    "up_range": 0,
+    "h_range": 0,
+    "z_range": 0
+   },
+   "per_layer_viol": {},
+   "a16_clamp_hits": 0,
+   "wall_s": 43.5,
+   "margins_next": {},
+   "percol_next": {}
+  }
+ ],
+ "final": {
+  "margins": {},
+  "margin_bits_total": 0,
+  "percol_z": {},
+  "percol_stats": {},
+  "loss": 38.63843136398721,
+  "delta_vs_ref": 31.401763114124584,
+  "delta_vs_round0": 0.0,
+  "total_viol": 0,
+  "verdict": "ZERO-VIOLATIONS"
+ }
+}

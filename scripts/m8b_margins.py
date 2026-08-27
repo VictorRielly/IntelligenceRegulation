@@ -190,8 +190,10 @@ class MemberCache:
 def requant_narrow(acc, sh, q, mode, vc, key):
     """Exact requant at a possibly-NEGATIVE scalar shift (negative =
     exact public up-scaling, no rounding), then the range fact at Q=q
-    (violations counted pre-clip)."""
-    if sh < 0:
+    (violations counted pre-clip).  `sh` may be a per-column vector
+    (all entries nonnegative — floor_requant asserts it): the C2
+    per-channel form."""
+    if np.ndim(sh) == 0 and sh < 0:
         y = acc * (2.0 ** (-sh))            # exact, lossless
     else:
         y = m125.floor_requant(acc, sh, mode)
@@ -202,6 +204,44 @@ def requant_narrow(acc, sh, q, mode, vc, key):
 def margin_bits(margins, li, site):
     """margins: {int layer: {site: bits}} (missing = 0)."""
     return int(margins.get(li, {}).get(site, 0))
+
+
+# --------------------------------------------------------------------------
+# per-column eZ (C2 percol — the ruling's residue mechanism, 2026-08-26:
+# z-site residues get per-column exponents instead of a whole-plane
+# margin bit; the decomposition measured whole-plane z/h margins at
+# +0.13 nats where X margins are free)
+# --------------------------------------------------------------------------
+
+GEMMA_ZSTATS = [ROOT / "results" / "m8b_gemma4_zcol_stats.npz",
+                Path("/home/victor/IntelligenceRegulation/results/"
+                     "m8b_gemma4_zcol_stats.npz")]
+
+
+def load_zcol_absmax(n_layers):
+    """The lane-Z per-column fp absmax over the cal windows (az:
+    (layers, d)).  Worktree copies may hold the 3-layer smoke npz —
+    fall through to the main repo's full collection."""
+    for path in GEMMA_ZSTATS:
+        if path.exists():
+            az = np.load(path)["az"]
+            if az.shape[0] >= n_layers:
+                return az
+    raise SystemExit("no zcol stats npz with >= %d layers (looked: %s)"
+                     % (n_layers, ", ".join(str(s) for s in GEMMA_ZSTATS)))
+
+
+def percol_ez16(az_row, base_e16, mz):
+    """Per-column int16 z exponents: pow2ceil of the cal fp absmax at
+    the Q16 grid + mz margin bits, FLOORED at the per-tensor base — a
+    column only ever WIDENS, so the healthy columns keep the base
+    resolution and the whole-plane-coarsening cost mechanism is
+    excluded by construction (base + nonnegative per-column deltas is
+    also the statement form)."""
+    with np.errstate(divide="ignore"):
+        e = np.ceil(np.log2(np.maximum(az_row, 1e-300) / Q16))
+    e = np.where(az_row == 0, -30, e).astype(np.int64) + mz
+    return np.maximum(e, base_e16)
 
 
 def v3_exponents(sc, margins, li):
@@ -226,7 +266,7 @@ def v3_shifts(e):
 
 
 def make_v3_ffn(kind, scales, margins, cache, viols, clamp_hits,
-                mode="round", getW=None, emit=None):
+                mode="round", getW=None, emit=None, percol_z=None):
     """ffn_override(li, x, lw) running the adopted v3 widened chain:
     int8 X/gate + int8 weights, int16-out table (registry-exact,
     CLAMPED), int16 u/h/z, round requant, margin-adjusted exponents.
@@ -284,8 +324,19 @@ def make_v3_ffn(kind, scales, margins, cache, viols, clamp_hits,
                                 "h_range")
             acc_d = yh @ Wq["w_down"].T
             accmax["down"] = max(accmax["down"], int(np.abs(acc_d).max()))
-            yz = requant_narrow(acc_d, sh["z"], Q16, mode, viols[li],
-                                "z_range")
+            pz = None if percol_z is None else percol_z.get(li)
+            if pz is None:
+                yz = requant_narrow(acc_d, sh["z"], Q16, mode, viols[li],
+                                    "z_range")
+                zscale = 2.0 ** e["eZ16"]
+            else:
+                sh_col = pz - e["eH16"] - e["eWd"]
+                assert int(sh_col.min()) >= 0, (
+                    "percol sh_z went negative at layer %d" % li)
+                yz = requant_narrow(acc_d, sh_col[None, :], Q16, mode,
+                                    viols[li], "z_range")
+                zscale = 2.0 ** pz.astype(np.float64)
+                e = dict(e, eZcol=pz)
             if emit is not None:
                 emit(li, dict(X=xq.astype(np.int8),
                               a16=aq.astype("<i2"),
@@ -293,7 +344,7 @@ def make_v3_ffn(kind, scales, margins, cache, viols, clamp_hits,
                               h16=yh.astype("<i2"),
                               z16=yz.astype("<i2")),
                      e, sh, accmax)
-            out[b] = (yz * (2.0 ** e["eZ16"])).astype(np.float32)
+            out[b] = (yz * zscale).astype(np.float32)
         return out
     return ffn
 
@@ -373,6 +424,14 @@ def run_margin_rounds(args):
         box="[MEASURED WSL-BOX NT|NOISY-SHARED]"), rounds=[])
 
     margins = {}
+    percol = {}   # {layer: extra mz} — the 2026-08-26 ruling's z-residue mechanism
+    az = None
+    if args.z_percol:
+        assert args.model == "gemma", "--z-percol: gemma only (zcol stats)"
+        az = load_zcol_absmax(arch.n_layers)
+        report["meta"]["z_percol"] = dict(mz=args.mz, derivation=(
+            "eZ16_j = pow2ceil(cal fp absmax_j / Q16) + mz, FLOORED at "
+            "the per-tensor eZ16 (columns only widen); per-column sh_z"))
     start_round = 0
     if args.resume and out_path.exists():
         prev = json.loads(out_path.read_text())
@@ -380,6 +439,8 @@ def run_margin_rounds(args):
             report["rounds"] = prev["rounds"]
             last = prev["rounds"][-1]
             margins = margins_from_json(last["margins_next"])
+            percol = {int(k): v
+                      for k, v in last.get("percol_next", {}).items()}
             start_round = last["round"] + 1
             p("resuming at round %d with margins %s"
               % (start_round, margins_to_json(margins)))
@@ -391,8 +452,22 @@ def run_margin_rounds(args):
     for rnd in range(start_round, args.rounds):
         viols = [Counter() for _ in range(arch.n_layers)]
         clamp_hits = [0] * arch.n_layers
+        pz_vec = None
+        pstats = {}
+        if args.z_percol and percol:
+            pz_vec = {}
+            for li, extra in percol.items():
+                base = scales[li]["eZ"] + margin_bits(margins, li, "z") - 8
+                ez = percol_ez16(az[li], base, args.mz + extra)
+                pz_vec[li] = ez
+                pstats[str(li)] = dict(
+                    mz=args.mz + extra,
+                    cols_widened=int(np.count_nonzero(ez > base)),
+                    max_extra_bits=int((ez - base).max()),
+                    e_sha=hashlib.sha256(
+                        ez.astype("<i8").tobytes()).hexdigest())
         ffn = make_v3_ffn(ctx["kind"], scales, margins, cache, viols,
-                          clamp_hits)
+                          clamp_hits, percol_z=pz_vec)
         t0 = time.time()
         loss = walker.loss(val, ffn_override=ffn)
         wall = time.time() - t0
@@ -403,33 +478,47 @@ def run_margin_rounds(args):
         per_layer = {str(li): {k: v for k, v in c.items() if v}
                      for li, c in enumerate(viols) if sum(c.values())}
         # grow the margin set: +1 bit exactly where a violation stands
+        # (z-site violations route to the percol set under --z-percol:
+        # first hit = percol at base mz, repeats escalate the layer's mz)
         nxt = {li: dict(m) for li, m in margins.items()}
+        pnxt = dict(percol)
         for li, c in enumerate(viols):
             for k, n in c.items():
                 if n > 0:
                     site = VIOL2SITE[k]
+                    if args.z_percol and site == "z":
+                        pnxt[li] = pnxt[li] + 1 if li in pnxt else 0
+                        continue
                     nxt.setdefault(li, {})
                     nxt[li][site] = nxt[li].get(site, 0) + 1
         row = dict(round=rnd, margins=margins_to_json(margins),
                    margin_bits_total=sum(b for m in margins.values()
                                          for b in m.values()),
+                   percol_z={str(li): args.mz + x
+                             for li, x in percol.items()},
+                   percol_stats=pstats,
                    loss=loss, delta_vs_ref=loss - ctx["loss_ref"],
                    total_viol=total, viol_by_class=dict(by),
                    per_layer_viol=per_layer,
                    a16_clamp_hits=int(sum(clamp_hits)),
                    wall_s=round(wall, 1),
-                   margins_next=margins_to_json(nxt))
+                   margins_next=margins_to_json(nxt),
+                   percol_next={str(li): x for li, x in pnxt.items()})
         report["rounds"].append(row)
         p("round %d: loss %.4f (delta %+.4f)  viol %d %s  clamp-hits %d"
-          "  margins %s  (%.0fs)"
+          "  margins %s  percol %s  (%.0fs)"
           % (rnd, loss, loss - ctx["loss_ref"], total, dict(by),
-             sum(clamp_hits), margins_to_json(margins) or "{}", wall))
+             sum(clamp_hits), margins_to_json(margins) or "{}",
+             row["percol_z"] or "{}", wall))
         if per_layer:
             p("  per-layer: %s" % per_layer)
+        if pstats:
+            p("  percol: %s" % pstats)
         r0 = report["rounds"][0]
         report["final"] = dict(
             margins=row["margins"],
             margin_bits_total=row["margin_bits_total"],
+            percol_z=row["percol_z"], percol_stats=pstats,
             loss=loss, delta_vs_ref=loss - ctx["loss_ref"],
             delta_vs_round0=loss - r0["loss"],
             total_viol=total,
@@ -440,6 +529,7 @@ def run_margin_rounds(args):
         if total == 0:
             break
         margins = nxt
+        percol = pnxt
 
     fin = report["final"]
     p("FINAL: %s — margins %s (%d bits), loss %.4f, delta_vs_ref "
@@ -642,6 +732,11 @@ def main():
     ap.add_argument("--max-layers", type=int, default=None,
                     help="truncate the stack (SMOKE ONLY)")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--z-percol", action="store_true",
+                    help="route z-site violations to per-column eZ "
+                         "(the 2026-08-26 ruling) instead of margin bits")
+    ap.add_argument("--mz", type=int, default=2,
+                    help="percol margin bits on the per-column exponents")
     ap.add_argument("--resume", action="store_true",
                     help="continue from the last round in --out")
     ap.add_argument("--tables", action="store_true",
