@@ -1436,7 +1436,58 @@ trajectory_regularization > 0 / shared init, then re-measure.
 
 ## Agent EE status (wt-uperf3-ee) — round 4
 
-STATE: OPEN (2026-08-27) — skeleton. Lane: the aggregate zero-check
+STATE: DONE (2026-08-27; all four rungs landed same day: R0 8566aba,
+R1 2c1f5c8, R2 4bb51cd, R3 6f1933d, close = this commit). Lane
+summary: (1) the AGGREGATE zero-check built and differentially
+pinned — m range columns as ONE sumcheck (instance axis, ONE shared
+eq, stacked per-column claims served for the opening layer), byte-
+identical to the spike's per-column prover on the stacked instance
+in all 32 battery cells and to the per-column path verbatim at
+m = 1; counted at 2^20 x 16: rounds 320 -> 24 (13.33x), wire 6.61x,
+MACs NEUTRAL (1.00x) — the batching win is structural (round
+objects/wire/one eq + transcript), exactly the dimensions the
+descent comparison is bound by. (2) the O-4 mask transfer built —
+the house M1 g-mask carried onto the aggregate sumcheck, claims
+provably untouched (bit-equal to the table MLEs) while every
+shipped round poly blinds; flipped-mask/tampered-opening rejects.
+Batteries: agg-battery 136 legs, digest 46234986.. identical at
+ZK_THREADS 1/2/7; floor held at every commit (48-leg digest
+3752cba4.. unmoved, diff-battery green). Files touched: the
+[UPERF3-EE] section appended to zkmatrix-rs/src/ring/zc_range.rs
+(no existing function edited; lane DD's e_mac* hook lines untouched),
+the [UPERF3-EE] arms in the bin's [UPERF3-S] section (agg /
+agg-battery / agg-mask + dispatch), this status section. No frozen
+file, no other lane's file.
+
+OPEN QUESTIONS / NOTES FOR THE ORCHESTRATOR:
+- "Both moduli": read as e0 {1,2} x c {4,8} (see the MODULI NOTE
+  below) — the E_c kernels structurally exclude Q8_46; if a q46
+  aggregate is wanted it needs a kernel-gate ruling first.
+- The brief's "aggregate's served claims EQUAL the per-column path's
+  claims bit-for-bit": FS makes literally-per-column-transcript
+  claims live at different points, so the leg set implements the
+  three exact equalities that are well-defined: (i) m = 1 whole-path
+  byte identity vs zc_range_prove; (ii) any-m byte identity vs
+  zc_range_prove on the stacked instance (the spike prover AS the
+  oracle); (iii) every served claim == base_mle_eval (the per-column
+  path's claim definition, zc_range_open_check's machinery) at
+  r_col, bit-for-bit. If a different reading was intended, say so
+  and the leg is cheap to add.
+- The aggregate is MAC-NEUTRAL vs per-column (R2): the memo's
+  "advantage only improves" holds in rounds/wire/objects; anyone
+  modelling walls should NOT book a MAC saving from batching alone.
+- Non-power-of-two m pays the pad in MACs (m = 7 -> 8: 0.90x at the
+  smoke shape); group planners should prefer power-of-two column
+  batches per aggregate.
+- The mask commitment is a STAND-IN (binding transcript digest, the
+  S2 h-commit idiom); production needs the real mask-commitment wave
+  + eval-proof pin rows (the O-4 write-up's remaining half), and the
+  O-4/O-7 simulator + knowledge-error derivations remain design
+  obligations (memo §2.6) — engine evidence is now in place for both.
+- Mask cost: +2 E-elements wire, closed-form M_t per round (57
+  coefficients at the demo shape), prove overhead in the noise.
+
+Lane: the aggregate zero-check
 (design memo §2.2: instance axis, shared eq, stacked claims) + the
 O-4 mask transfer (§2.6: the g-mask machinery onto the aggregate
 sumcheck). Everything additive: a `[UPERF3-EE] aggregate` section
