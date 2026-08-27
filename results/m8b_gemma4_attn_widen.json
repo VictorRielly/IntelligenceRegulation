@@ -1,0 +1,92 @@
+{
+ "meta": {
+  "experiment": "m8b_gemma4_attn_gate --phase widen",
+  "checkpoint": "/home/victor/models/gemma-4-12B-qat",
+  "seed": 1337,
+  "t": 512,
+  "val_take": 2,
+  "smoke": false,
+  "fE": 9,
+  "fP": 9,
+  "box": "[MEASURED WSL-BOX NT, val subset]",
+  "ref_full": 7.236668249862625,
+  "note": "first-order per-site attribution; FFN fp; exponents frozen from the cal-window stats pass",
+  "ref_subset": 7.531904413158597
+ },
+ "results": {
+  "xattn16": {
+   "loss": 7.516098106086464,
+   "delta_vs_fp_subset": -0.015806307072133485,
+   "sites": [
+    "xattn"
+   ],
+   "wide": [
+    "xattn"
+   ],
+   "perhead": [],
+   "wall_s": 207.5
+  },
+  "ao16": {
+   "loss": 7.521107801176164,
+   "delta_vs_fp_subset": -0.010796611982432758,
+   "sites": [
+    "ao"
+   ],
+   "wide": [
+    "ao"
+   ],
+   "perhead": [],
+   "wall_s": 209.0
+  },
+  "postn16": {
+   "loss": 7.721358600358943,
+   "delta_vs_fp_subset": 0.18945418720034635,
+   "sites": [
+    "postn"
+   ],
+   "wide": [
+    "postn"
+   ],
+   "perhead": [],
+   "wall_s": 183.9
+  },
+  "xres16": {
+   "loss": 7.4770355468014404,
+   "delta_vs_fp_subset": -0.0548688663571566,
+   "sites": [
+    "xres"
+   ],
+   "wide": [
+    "xres"
+   ],
+   "perhead": [],
+   "wall_s": 182.8
+  },
+  "stack_wide": {
+   "loss": 7.617306451093018,
+   "delta_vs_fp_subset": 0.08540203793442114,
+   "sites": [
+    "Wattn",
+    "ao",
+    "ctx",
+    "exps",
+    "k",
+    "postn",
+    "probs",
+    "q",
+    "scores",
+    "v",
+    "xattn",
+    "xres"
+   ],
+   "wide": [
+    "ao",
+    "postn",
+    "xattn",
+    "xres"
+   ],
+   "perhead": [],
+   "wall_s": 221.7
+  }
+ }
+}

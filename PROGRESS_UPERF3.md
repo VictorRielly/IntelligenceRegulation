@@ -1336,10 +1336,25 @@ STATE: IN FLIGHT (2026-08-26). One commit per green rung:
   class-widening story as the FFN verdict); all_int8 +14.8339
   (composed upper anchor). ~200 s/site, peak RSS 2.10 GB.
   results/m8b_gemma4_attn_attrib.{json,log}.
-- IN FLIGHT: --phase widen --sites xattn,ao,postn,xres (int16 e-8
-  singles + the composed stack_wide row) — QUEUED DETACHED on
-  /tmp/zk-heavy.lock behind lane AA's Gemma margins run (flock
-  queue, survives session death; done-marker
-  results/m8b_gemma4_attn_widen.done). THEN: the site table ->
-  U_PERF3_ATTENTION_STATEMENT_DESIGN.md §1 real-data update + final
-  report block.
+- **WIDEN [MEASURED WSL-BOX NT, val subset take=2] — THE MVP-2
+  ANSWER: the FFN story REPEATS AT ATTENTION.** int16 (e-8) singles
+  at the four poisoned sites vs their int8 attrib deltas:
+  xattn +2.0043 -> **-0.0158** (rescued to noise), ao +0.4081 ->
+  **-0.0108** (rescued), xres +13.2300 -> **-0.0549** (the residual
+  -stream poison DIES with one class widening), postn +2.1633 ->
+  **+0.1895** (mostly rescued; the one site with a first-order
+  residue — the Gemma four-norm sandwich's post_attention_layernorm
+  edge; flag for the statement design). Composed **stack_wide**
+  (EVERY site int8 incl. Wattn, only the material four at int16):
+  **+0.0854** vs all_int8 +14.8339 — the widened attention stack
+  lands in the same +0.1-nat class as the FFN's widened stack.
+  Interaction note: stack_wide beats the postn16 single (+0.085 <
+  +0.190) — first-order singles over-count the postn residue.
+  ~200 s/walk, peak RSS 2.16 GB.
+  results/m8b_gemma4_attn_widen.{json,log}.
+- REMAINING: the site table -> U_PERF3_ATTENTION_STATEMENT_DESIGN.md
+  §1 real-data update (exponent assumptions -> measured; the widened
+  -class site list = xattn/ao/postn/xres, postn residue flagged) +
+  final report block. Decision input for Victor: whether MVP-2's
+  statement carries the widened class at exactly these four sites
+  (the measured answer) and what to do about postn's +0.19.
