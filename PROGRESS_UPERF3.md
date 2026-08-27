@@ -1470,7 +1470,7 @@ PLAN (one commit per green rung, prefix "U-PERF3 EE:"):
   w in {8,14} x both digit bases e0 in {1,2} (see the moduli note
   below) x c in {4,8}, honest + a tampered-claim reject leg, own
   AGG BATTERY DIGEST at ZK_THREADS 1/2/7.
-- [ ] R2 COUNTED: rounds/MACs/wire, aggregate vs m separate
+- [x] R2 COUNTED: rounds/MACs/wire, aggregate vs m separate
   per-column zero-checks at 2^20 x 16 columns (w = 8, c = 4, e0 = 1);
   [COUNTED] table here; walls labeled [WSL-BOX NT NOISY-SHARED]
   (lane DD benches on this box — counts and byte-identity are the
@@ -1508,8 +1508,44 @@ R1 EVIDENCE (2026-08-27, WSL box, shared with lane DD):
   [COUNTED].
 - Floor: 48-leg battery digest 3752cba4.. UNMOVED; diff-battery
   green 15.9s; build green.
-- commit: R0 8566aba; R1 = the commit carrying this evidence block
-  (hash backfilled at R2).
+- commit: R0 8566aba; R1 2c1f5c8.
+
+R2 EVIDENCE (2026-08-27, WSL box, SHARED — lane DD benches possible;
+run under `flock /tmp/zk-heavy.lock`, ZK_THREADS 1):
+- cmd: `uperf-s agg 20 16 8 1 4 1 171` — 16 columns x 2^20, w 8,
+  c 4, e0 1 (the S1 design point). All differentials GREEN at full
+  scale: stacked-oracle byte identity (transcript, 24 round polys,
+  point) + all 144 stacked claims == per-column base_mle_eval
+  bit-for-bit.
+- [COUNTED] per-column (16 separate sumchecks) -> aggregate (ONE):
+
+  | metric      | per-column      | aggregate       | ratio  |
+  |-------------|-----------------|-----------------|--------|
+  | rounds      | 320             | 24              | 13.33x |
+  | wire bytes  | 27,904          | 4,224 (incl 144 claims) | 6.61x |
+  | base MACs   | 15,292.8M       | 15,292.5M       | 1.00x  |
+  |  - rounds   | 13,514.4M       | 13,514.1M       | 1.00x  |
+  |  - folds    | 1,510.0M        | 1,510.0M        | 1.00x  |
+  |  - eq       | 268.4M          | 268.4M          | 1.00x  |
+
+  READING: the aggregate is MAC-NEUTRAL (the stacked cube's round/
+  fold/eq volume equals the 16 columns' sum at power-of-two m; a
+  non-power-of-two m pays the pad, e.g. 7 -> 8 cost 0.90x at the
+  smoke shape) — the batching win is STRUCTURAL: 13.3x fewer round
+  polynomials/challenges (320 -> 24, i.e. 1.5 effective rounds per
+  column instead of 20), 6.6x less wire, ONE eq object and ONE
+  transcript instead of 16, and the S1 per-column advantage vs the
+  descent carries unchanged since MACs do not grow. This matches the
+  memo's "the counted per-column advantage only improves" in the
+  round/wire dimensions that motivated it (the descent comparison is
+  rounds/wire-bound, spike report §2).
+- Walls (labeled, not chased): prove 23.08s (16 columns) vs 24.53s
+  (aggregate) [WSL-BOX 1T NOISY-SHARED]; peak RSS 3,095 MiB
+  (the aggregate materializes ONE stacked copy of the 9 base tables
+  at 2^24 + the E tables; per-column peaks at ~100 MiB/column —
+  the 8B streaming plan prices this in lane R's memory architecture).
+- commit: R2 = the commit carrying this block (ledger-only; the arm
+  landed at R1 2c1f5c8).
 
 MODULI NOTE (recorded, not guessed): the brief's battery matrix says
 "both moduli". The E_c sub-extension kernels REQUIRE the q31 point
