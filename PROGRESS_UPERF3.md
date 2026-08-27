@@ -1443,3 +1443,33 @@ members await the freeze ruling.
     the v3 profile at T=16; measured widened shifts sh_g 7-9, sh_u
     {-1,0,1} (layers 3/4 = the real upscale layers), sh_h 13-15,
     sh_z 6-10; members (-3,-11)/(-4,-12) only; max |z16| 11445.
+
+- 2026-08-26 (late) VERIFY-EXPORT RUNG — the cross-language
+  reconciliation gate against lane AA's --profile v3 exports:
+  * `uperf-v3 verify-export [t]` (point ZK_MODEL_EXPORT_DIR at a v3
+    export): asserts per layer (1) sidecar SIGNED shifts == the
+    Rust-derived ones, (2) wexps row == the widened exponents, (3)
+    the table row names EXACTLY a frozen C5 member (family, e_in,
+    e_out, digest), (4) Rust-derived a16/u16/h16(=256*Hhi+Hlo)/z16
+    == AA's exported planes byte-for-byte, (5) at t == T the
+    full-plane sha256s == the sidecar rows. Margins arrive BAKED
+    into the sidecar's exps row (the margins row is metadata), so
+    the gate holds for any margin set by construction.
+  * 125M GATE PASSED [WSL-BOX]: AA's m8b_test/m125_v3_export at the
+    FULL T=512 x 12 layers — 48 plane legs byte-identical, every
+    table row = a frozen C5 member, full-plane sha256s == sidecar.
+    The python export chain and the Rust u3 chain agree bit for bit.
+  * FINDING (the real-7B blocker, expected class): the REAL Mistral
+    v3 export FAILS TO LOAD — bf_model's sidecar parser (line
+    ~24658) supports UNIFORM e_w only; Mistral has per-tensor
+    per-layer weight exponents (l0: -10 -11 -10). The 125M export
+    slid through because its three exponents happen to be equal
+    (-9 -9 -9). NEXT RUNG (ownership extension noted: the lane-W
+    loader region, lane W closed 2026-08-25): BfModel per-tensor
+    e_w3 = [eWg,eWu,eWd] per layer; consumers migrate (bf_shifts,
+    the witness class table W/acc/rem rows, u3 shifts); uniform
+    sidecars byte-identical by construction (all three equal); W-5
+    parser battery legs extended with a per-tensor leg.
+  * Floor at this commit [WSL-BOX]: diff-battery green 28.0s;
+    freeze-check 102 ok rows (last = UPERF3-BB-1d) then the
+    expected BK panic — identical to the C5-commit baseline.

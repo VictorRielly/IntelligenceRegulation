@@ -43592,9 +43592,15 @@ fn u3_main(args: &[String]) {
             let layers_n: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(2);
             u3_e2e_m125(li, t, layers_n);
         }
+        // The cross-language reconciliation gate against lane AA's
+        // --profile v3 export (ZK_MODEL_EXPORT_DIR points at it).
+        Some("verify-export") => {
+            let t: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(bf_model().t);
+            u3_verify_v3_export(t);
+        }
         _ => {
             eprintln!(
-                "usage: ring_matmul uperf-v3 tables | battery [small|smoke] | chain-m125 [t] | e2e-m125 [layer] [t] [layers]"
+                "usage: ring_matmul uperf-v3 tables | battery [small|smoke] | chain-m125 [t] | e2e-m125 [layer] [t] [layers] | verify-export [t]"
             );
             std::process::exit(2);
         }
@@ -45603,4 +45609,108 @@ fn u3_e2e_m125(li: usize, t_rows: usize, layers_n: usize) {
         c.bytes_total()
     );
     assert!(v.accept(), "honest v3 m125 layer {li} proof REJECTED");
+}
+
+/// [UPERF3-BB] int16 little-endian plane reader (AA's v3 export
+/// layerNN_{a16,u16,h16,z16}.bin files).
+fn u3_read_i16(path: &std::path::Path, n: usize) -> Vec<i64> {
+    let bytes = std::fs::read(path)
+        .unwrap_or_else(|e| panic!("cannot read {} ({e}) — a v3 export directory is required", path.display()));
+    assert_eq!(bytes.len(), 2 * n, "{}: wrong size", path.display());
+    bytes
+        .chunks_exact(2)
+        .map(|c| i16::from_le_bytes([c[0], c[1]]) as i64)
+        .collect()
+}
+
+/// sha256 of a value slice serialized as int16 LE (the v3 sidecar's
+/// plane-digest convention).
+fn u3_sha_i16(vals: &[i64]) -> String {
+    let mut bytes = Vec::with_capacity(vals.len() * 2);
+    for &v in vals {
+        bytes.extend((v as i16).to_le_bytes());
+    }
+    hex_full(&uk8_sha(&[&bytes]))
+}
+
+/// [UPERF3-BB] `uperf-v3 verify-export [t]`: the cross-language
+/// reconciliation gate against lane AA's --profile v3 export (point
+/// ZK_MODEL_EXPORT_DIR at it). Per layer: (1) the sidecar's SIGNED
+/// shifts equal the Rust-derived ones; (2) the wexps row equals the
+/// widened exponents; (3) the table row names EXACTLY the frozen C5
+/// member (function, e_in, e_out, digest); (4) my derived
+/// a16/u16/h16(=256*Hhi+Hlo)/z16 equal AA's exported planes
+/// byte-for-byte on the first t rows; (5) at t == T additionally the
+/// full-plane sha256 digests equal the sidecar rows.
+fn u3_verify_v3_export(t_rows: usize) {
+    use ring::lookup::int16out_member;
+    let bm = bf_model();
+    let dir = bf_export_path();
+    let side = bf_sidecar();
+    let profile = side
+        .get(&(0, "profile".to_string()))
+        .unwrap_or_else(|| panic!("no `00 profile` row — not a v3 export"));
+    assert_eq!(profile, "v3-widened", "profile row: {profile}");
+    let requant = side.get(&(0, "requant".to_string())).expect("no `00 requant` row");
+    assert_eq!(requant, "round", "requant row: {requant}");
+    let m = U3Model::widen_from_bf(bm, true);
+    println!(
+        "[UPERF3-BB] verify-export: '{}' v3-widened/round, {} layers, T {} (checking {} rows/layer)",
+        m.tag, m.layers, bm.t, t_rows
+    );
+    let mut legs = 0usize;
+    for l in 0..m.layers {
+        let lay = u3_load_m125_layer(&m, l, t_rows);
+        let (sh_g, sh_u, sh_h, sh_z) = lay.shifts;
+        assert_eq!(
+            side[&(l, "shifts".to_string())],
+            format!("{sh_g} {sh_u} {sh_h} {sh_z}"),
+            "layer {l}: sidecar shifts disagree with the Rust-derived signed shifts"
+        );
+        let (_, _, e_a16, e_up16, e_h16, e_z16) = lay.exps;
+        assert_eq!(
+            side[&(l, "wexps".to_string())],
+            format!("{e_a16} {e_up16} {e_h16} {e_z16}"),
+            "layer {l}: sidecar wexps disagree with the widened exponents"
+        );
+        let (eg, ea16) = (lay.exps.1, lay.exps.2);
+        let (_, dg) = int16out_member(m.act_fn(), eg, ea16).expect("frozen member");
+        let fam = if m.gelu { "gelu-tanh-int16out-table-v3" } else { "silu-int16out-table-v3" };
+        assert_eq!(
+            side[&(l, "table".to_string())],
+            format!("{fam} {eg} {ea16} {}", hex_full(&dg)),
+            "layer {l}: sidecar table row disagrees with the FROZEN C5 member (registry reconcile FAILS)"
+        );
+        let h16: Vec<i64> =
+            lay.hlo.iter().zip(lay.hhi.iter()).map(|(&lo, &hi)| 256 * hi + lo).collect();
+        for (name, mine, cols) in [
+            ("a16", &lay.a16, m.f),
+            ("u16", &lay.u16v, m.f),
+            ("h16", &h16, m.f),
+            ("z16", &lay.z16, m.d),
+        ] {
+            let full = u3_read_i16(&dir.join(format!("layer{l:02}_{name}.bin")), bm.t * cols);
+            assert_eq!(
+                &full[0..t_rows * cols],
+                &mine[..],
+                "layer {l} {name}: AA's exported plane differs from the Rust-derived chain"
+            );
+            if t_rows == bm.t {
+                assert_eq!(
+                    u3_sha_i16(mine),
+                    side[&(l, name.to_string())],
+                    "layer {l} {name}: full-plane digest mismatch"
+                );
+            }
+            legs += 1;
+        }
+        println!(
+            "  layer {l:2}: shifts/wexps/table rows OK; a16/u16/h16/z16 planes byte-identical ({} rows){}",
+            t_rows,
+            if t_rows == bm.t { "; full-plane sha256 == sidecar" } else { "" }
+        );
+    }
+    println!(
+        "[UPERF3-BB] verify-export PASSED: {legs} plane legs byte-identical; every table row = a frozen C5 member"
+    );
 }

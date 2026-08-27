@@ -1,0 +1,4 @@
+
+thread 'main' (252948) panicked at src/bin/ring_matmul.rs:24709:37:
+ZK_MODEL_EXPORT_DIR: bad sidecar /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export/digests.txt: line 14: per-tensor weight exponents (-10 -11 -10) unsupported (uniform e_w only)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
