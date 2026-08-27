@@ -1,0 +1,40 @@
+m8b_export_ffn V3 PROFILE — hf-model (32 layers, T 512, d 4096, f 14336) -> /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export
+margins: /home/victor/wt-uperf3-aa/results/m8b_margins_mistral_wsl.json
+checkpoint shard sha256s recorded (2 files)
+96 weight tensors exported (per-tensor int8, transposed to the matmul layout)
+token stream: /home/victor/models/fineweb-edu/sample_text.txt tokenized with tokenizers -> 4748171 tokens
+  layer  0: shifts g/u/h/z = 11/2/15/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest d0e6224af70ac51e
+  layer  1: shifts g/u/h/z = 10/3/14/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 2185fbc535771762
+  layer  2: shifts g/u/h/z = 9/1/13/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest ebd9b8eeef85fa23
+  layer  3: shifts g/u/h/z = 8/-1/14/5, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 039e4a86788bd9d1
+  layer  4: shifts g/u/h/z = 7/-2/13/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest d9db9487dba709b0
+  layer  5: shifts g/u/h/z = 8/0/13/5, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 686fe570eb63fe56
+  layer  6: shifts g/u/h/z = 7/-2/13/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest e11e7cbeba4cb7fa
+  layer  7: shifts g/u/h/z = 7/-1/12/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest e461862ae5097991
+  layer  8: shifts g/u/h/z = 7/-1/12/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest a69d24149d4bf4f9
+  layer  9: shifts g/u/h/z = 7/-1/14/7, viol X/g/u/h/z = 0/0/0/0/0, z16 digest f01e99466277a637
+  layer 10: shifts g/u/h/z = 7/-1/12/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 540ddd2c9d4f7749
+  layer 11: shifts g/u/h/z = 7/-2/13/5, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 293c5c0650e6f292
+  layer 12: shifts g/u/h/z = 6/0/13/5, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 2ea0755628531491
+  layer 13: shifts g/u/h/z = 6/-2/13/5, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 40149eae0add6f90
+  layer 14: shifts g/u/h/z = 7/-1/14/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest b17d219eb26621a0
+  layer 15: shifts g/u/h/z = 7/-1/13/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 5a858741d202676a
+  layer 16: shifts g/u/h/z = 7/-1/12/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest c7f0d93edf7c3bbd
+  layer 17: shifts g/u/h/z = 7/-2/12/7, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 128c9ace4ebce31c
+  layer 18: shifts g/u/h/z = 7/-2/13/7, viol X/g/u/h/z = 0/0/0/0/0, z16 digest cdc333630544b3de
+  layer 19: shifts g/u/h/z = 7/-1/13/7, viol X/g/u/h/z = 0/0/0/0/0, z16 digest b95d0764f55bbaee
+  layer 20: shifts g/u/h/z = 7/-1/13/7, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 62e699e80eb2214a
+  layer 21: shifts g/u/h/z = 7/-2/14/7, viol X/g/u/h/z = 0/0/0/0/0, z16 digest b2a8bb1981045184
+  layer 22: shifts g/u/h/z = 7/0/13/5, viol X/g/u/h/z = 0/0/0/0/0, z16 digest e9e562c1ac830d4c
+  layer 23: shifts g/u/h/z = 6/-1/13/5, viol X/g/u/h/z = 0/0/0/0/0, z16 digest bc0c2235abf18d68
+  layer 24: shifts g/u/h/z = 7/-1/14/3, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 7c40c2de4c32c316
+  layer 25: shifts g/u/h/z = 7/0/13/5, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 15b00a20dd0670c0
+  layer 26: shifts g/u/h/z = 7/-1/14/4, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 6e4553fbb4b8b66c
+  layer 27: shifts g/u/h/z = 7/-1/14/4, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 5de1c8dc390c86a8
+  layer 28: shifts g/u/h/z = 7/0/12/5, viol X/g/u/h/z = 0/0/0/0/0, z16 digest cc8ef8c76cf0d1d9
+  layer 29: shifts g/u/h/z = 8/0/13/5, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 6fc23b22477e6364
+  layer 30: shifts g/u/h/z = 8/-1/14/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 251057411163e1dd
+  layer 31: shifts g/u/h/z = 9/1/12/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest b19e0e8580f4d880
+range-fact violations across the export pass: 0 (0 required)
+manifest -> /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export/manifest.json (+ digests.txt v3 sidecar)
+peak RSS 3.13 GB
