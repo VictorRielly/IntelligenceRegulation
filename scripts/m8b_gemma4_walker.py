@@ -816,7 +816,10 @@ def main():
         total, _cache = mv3.v3_witness_walk(
             "gelu", walker, arch, scales, margins, seq, out_dir,
             manifest, read_weight_bin)
-        assert total == 0, "witness does not satisfy the v3 statement"
+        # clamp-at-z (Victor ruling 2026-08-27): z clamp events are
+        # legal statement semantics; every OTHER site must be clean.
+        assert manifest["hard_violations"] == 0, (
+            "witness does not satisfy the v3 statement (non-z sites)")
         (out_dir / "manifest.json").write_text(
             json.dumps(manifest, indent=1))
         mv3.write_v3_sidecar(out_dir, manifest, arch, args.t)

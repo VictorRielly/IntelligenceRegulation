@@ -1,0 +1,14 @@
+gelu-tanh-int16out-table-v3 (e_in -4, e_out -12) sha256 13ecf11e5608d6032ae9e3e119974e0f22a68fee70624d2295871b7e6f5ec1df  out[-696,32512] clamp 0  used_by {'gemma': 3}
+gelu-tanh-int16out-table-v3 (e_in -3, e_out -12) sha256 37558a0d99cb5a226f4f8ef48f504e097249dffda54a9c563de2de4e6638ea6b  out[-696,32767] clamp 64  used_by {'gemma': 3}
+gelu-tanh-int16out-table-v3 (e_in -3, e_out -11) sha256 4c811e7d93de21a9bd2cd925ed7b4abb87afda229ee49add8c22abec4b32fb1a  out[-348,32512] clamp 0  used_by {'gemma': 23}
+gelu-tanh-int16out-table-v3 (e_in -2, e_out -11) sha256 f9eefef1e2e9e66d11a821d3fec7f4567e2e936b5817f2d157725301d33b0a15  out[-348,32767] clamp 64  used_by {'gemma': 2}
+gelu-tanh-int16out-table-v3 (e_in -2, e_out -10) sha256 775e023b20b441268b9037c0f826d4378044991790e32274e1d613c3b4de5e09  out[-174,32512] clamp 0  used_by {'gemma': 13}
+gelu-tanh-int16out-table-v3 (e_in -1, e_out -9) sha256 046effd433a6ca204131a25ed3e06343236b5eb77e2a0e6d562d8af73cc29eab  out[-81,32512] clamp 0  used_by {'gemma': 4}
+silu-int16out-table-v3 (e_in -4, e_out -13) sha256 0c74b0e6fb57dd67a49c61bef5dae093f6ce154d6f331bd65d0d548faf0eca60  out[-2280,32767] clamp 62  used_by {'mistral': 4}
+silu-int16out-table-v3 (e_in -4, e_out -12) sha256 afed7dc5c289cbdb18fbf5d794285ba5901ebe43e9e561aad6ec32987fa66d54  out[-1140,32500] clamp 0  used_by {'mistral': 8}
+silu-int16out-table-v3 (e_in -3, e_out -12) sha256 859344ba5ed57bd3f831c9082e5991fe7012a0c5696cfa705320ffdb6cb17a25  out[-1140,32767] clamp 63  used_by {'mistral': 3}
+silu-int16out-table-v3 (e_in -3, e_out -11) sha256 1001c138ce0d00f09390b36178044d72712fbdca1071467ea274dc980bd9a3f7  out[-570,32512] clamp 0  used_by {'mistral': 13}
+silu-int16out-table-v3 (e_in -2, e_out -11) sha256 eda5f34a1c0dd94ce7398d6762202ed85e3f6f2c4984a5b07aca57b00b30ba56  out[-570,32767] clamp 64  used_by {'mistral': 1}
+silu-int16out-table-v3 (e_in -1, e_out -11) sha256 493202f2d89b0ffe7981decfb818aafaacea4cccb117d758b9e6b416463d9a4b  out[-560,32767] clamp 96  used_by {'mistral': 1}
+silu-int16out-table-v3 (e_in -1, e_out -10) sha256 5323ca1bd1091ec18bf5036ca7ea4e007224ebc3a26ad56759a4b9da0c419a79  out[-280,32767] clamp 64  used_by {'mistral': 1}
+silu-int16out-table-v3 (e_in -1, e_out -9) sha256 d835998909adcd25dcc7eba10239e82ea0323437b5ba419d9fa5c28e6fa6c689  out[-140,32512] clamp 0  used_by {'mistral': 1}

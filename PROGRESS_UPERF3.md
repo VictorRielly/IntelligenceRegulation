@@ -1447,5 +1447,29 @@ STATE: IN FLIGHT (2026-08-26). Landed so far (one commit each):
   vs the percol statement rows (both are new rungs; clamp is 3x
   better on quality and has no convergence risk). Mistral already
   lives under D1 clamp semantics at the TABLE site (clamp-hits 3).
-  AWAITING VICTOR: adopt clamp-at-z, or take a percol/margin row
-  from the menu. The Gemma v3 EXPORT fires on the ruling.
+- **RULING (Victor, console 2026-08-27): CLAMP-AT-Z ADOPTED** — the
+  z requant relation is CLAMPED (D1 extended); free margins (7
+  bits) carry the other sites; NO percol in the adopted statement
+  (the percol machinery + its measurements stay as evidence).
+  Quality of record: +0.0380 (the mz0 run's round 1 IS the adopted
+  policy's verdict walk: margins = the 7-bit set, percol l5-mz0 =
+  the identity).
+- EXECUTED under the ruling (this session):
+  * v3_witness_walk records the z split (z_clamps +
+    z_clamps_per_layer + hard_violations in the manifest; sidecar
+    rows `00 zpolicy clamp` + `NN zclamps <n>` — inert to the
+    bf_model parser; BB's clamp rung reads them); the export
+    asserts hard_violations == 0 (non-z sites) instead of total.
+  * The Gemma v3 EXPORT is IN FLIGHT on the lock (--margins = the
+    mz0 final 7-bit set; marker results/m8b_gemma4_v3_export.done).
+  * --tables C5 RECORD under the ADOPTED margin sets (new
+    ADOPTED_MARGINS map: mistral = margins-to-zero, gemma = the
+    mz0 7-bit set): **14 members used (8 silu + 6 gelu) and every
+    digest matches BB's frozen registry byte-for-byte** (checked
+    against `uperf-v3 tables` output) — the l34 gate-margin-shifted
+    pair lands on an already-frozen member; the frozen (-5,-13)
+    silu member goes unused post-margin (harmless). NO C5
+    additions needed. results/m8b_int16out_members.{json,txt}.
+  REMAINING for the lane: the export's completion record + the
+  final report block. BB's next rung: the clamp-selector z gadget
+  (statement) + the Gemma gelu verify-export with zclamps rows.

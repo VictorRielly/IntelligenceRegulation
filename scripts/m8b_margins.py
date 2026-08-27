@@ -105,6 +105,15 @@ MISTRAL_BASE = ROOT / "results" / "m8b_int8_calibration_wsl.json"
 GEMMA_BASE = ROOT / "results" / "m8b_gemma4_calibration.json"
 MARGINS_OUT = {"mistral": ROOT / "results" / "m8b_margins_mistral_wsl.json",
                "gemma": ROOT / "results" / "m8b_margins_gemma_wsl.json"}
+# The ADOPTED margin sets (the exports' doc of record). Mistral: the
+# margins-to-zero set (free). Gemma: the clamp-at-z ruling's 7-bit set
+# (Victor 2026-08-27) — the mz=0 run's final margins; its z residues
+# are CLAMPED, not margined (the whole-plane z bit cost +0.13, percol
+# +0.04..0.09; clamping is free — see the AA ledger's measured menu).
+ADOPTED_MARGINS = {
+    "mistral": MARGINS_OUT["mistral"],
+    "gemma": ROOT / "results" / "m8b_margins_gemma_percol_mz0_wsl.json",
+}
 
 # --------------------------------------------------------------------------
 # the int16-out table family (C5 candidates; frozen-v2 conventions)
@@ -556,7 +565,7 @@ def emit_tables(args):
                              ("gemma", GEMMA_BASE)):
         base = json.loads(base_path.read_text())
         kind = "silu" if model == "mistral" else "gelu"
-        mpath = MARGINS_OUT[model]
+        mpath = ADOPTED_MARGINS[model]
         margins = {}
         msrc = None
         if mpath.exists():
@@ -676,13 +685,24 @@ def v3_witness_walk(kind, walker, arch, scales, margins, seq, out_dir,
                       mode="round", getW=getW, emit=emit)
     walker.walk(seq[:, :-1], ffn_override=ffn)
     total = sum(sum(c.values()) for c in viols)
+    # CLAMP-AT-Z (Victor ruling 2026-08-27): the z requant relation is
+    # CLAMPED (the D1 +-32767 table convention extended to the z edge)
+    # — z-site clamp events are legal statement semantics, recorded,
+    # not failed; every other site must still be violation-free.
+    z_total = int(sum(c["z_range"] for c in viols))
     manifest["range_violations"] = total
+    manifest["z_clamps"] = z_total
+    manifest["z_clamps_per_layer"] = {
+        str(li): int(c["z_range"]) for li, c in enumerate(viols)
+        if c["z_range"]}
+    manifest["hard_violations"] = total - z_total
     manifest["a16_clamp_hits"] = int(sum(clamp_hits))
     manifest["tables_v3"] = {
         "%s,%d,%d" % (I16_FAMILY[k][0], ei, eo): dict(digest=m["digest"])
         for (k, ei, eo), m in cache.items()}
-    p("range-fact violations across the export pass: %d (0 required)"
-      % total)
+    p("range-fact violations across the export pass: %d "
+      "(z clamps %d — legal under clamp-at-z; non-z %d, 0 required)"
+      % (total, z_total, total - z_total))
     return total, cache
 
 
@@ -692,7 +712,14 @@ def write_v3_sidecar(out_dir, manifest, arch, t):
     lines = ["00 model %s" % arch.tag.replace(" ", "_"),
              "00 dims %d %d %d %d" % (t, arch.d, arch.f, arch.n_layers),
              "00 profile v3-widened",
-             "00 requant round"]
+             "00 requant round",
+             # clamp-at-z (Victor ruling 2026-08-27): the z requant is
+             # a CLAMPED relation; per-layer witness clamp counts below
+             # (zclamps rows). Inert to bf_model_parse_text.
+             "00 zpolicy clamp"]
+    for li_s, n in sorted(manifest.get("z_clamps_per_layer", {}).items(),
+                          key=lambda kv: int(kv[0])):
+        lines.append("%02d zclamps %d" % (int(li_s), n))
     for r in manifest["layers"]:
         li = r["layer"]
         for name in ("X", "WgT", "WuT", "WdT", "a16", "u16", "h16",
