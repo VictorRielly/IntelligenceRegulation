@@ -42848,8 +42848,12 @@ fn uperf_s_main(args: &[String]) {
             uperf_s_battery();
         }
         Some("count") => uperf_s_count(geti(1, 21), geti(2, 9), geti(3, 0), geti(4, 1)),
+        // [UPERF3-EE] round 4 lane EE: the aggregate zero-check + O-4 mask.
+        Some("agg") | Some("agg-battery") | Some("agg-mask") => println!(
+            "[UPERF3-EE] skeleton: agg [n_log2] [m] [w] [threads] [c] [e0] [seed] | agg-battery [threads] | agg-mask [n_log2] [m] [w] [threads] [c] [e0] [seed] (rungs R1/R3 land here)"
+        ),
         _ => println!(
-            "uperf-s s1 [n_log2] [w] [threads] [c|0=all] [seed] [nodesc] | s2 [n_log2] [threads] [seed] [nodesc] | battery [threads] | count [depth] [dt] [e_bits] [n_real]"
+            "uperf-s s1 [n_log2] [w] [threads] [c|0=all] [seed] [nodesc] | s2 [n_log2] [threads] [seed] [nodesc] | battery [threads] | count [depth] [dt] [e_bits] [n_real] | agg ... | agg-battery ... | agg-mask ... (see the [UPERF3-EE] section)"
         ),
     }
 }

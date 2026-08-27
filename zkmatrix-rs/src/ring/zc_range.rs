@@ -1374,3 +1374,34 @@ pub fn masked_pair_kmuls(depth: usize, dt: usize, e_bits: usize, n_real: usize) 
 /// Base MACs per K-mult (the 16x16 lane MAC of kfield.rs) — the exchange
 /// rate every K-mult-equivalent figure in the spike report uses.
 pub const MACS_PER_KMUL: u64 = 256;
+
+// ===========================================================================
+// [UPERF3-EE] aggregate — U-PERF3 round 4, lane EE (STAGE A BUILD).
+//
+// (1) The AGGREGATE zero-check (design memo U_PERF3_OPENING_LAYER_DESIGN.md
+//     §2.2): all range columns of an instance batched into ONE sumcheck over
+//     an added INSTANCE AXIS (the high a = ceil(log2 m) hypercube variables;
+//     pad columns are all-zero, and 0 is in every house alphabet so pads
+//     satisfy the constraint), with ONE shared eq table over the n + a
+//     variables and STACKED per-column claims: after the n column-axis
+//     rounds the folded tables hold, at index i, column i's table MLE at the
+//     shared column point r_col — those m x (w + 1) values are the served
+//     claims (the opening layer's per-tensor form); the verifier recombines
+//     T_k(x*) = sum_i eq(r_inst, i) * claim[i][k] for the final identity.
+//     The per-column spike path above is the ORACLE: at m = 1 the aggregate
+//     IS zc_range_prove byte-for-byte, at any m it equals zc_range_prove on
+//     the manually stacked instance, and the served claims equal
+//     base_mle_eval per column at r_col bit-for-bit.
+//
+// (2) The O-4 MASK TRANSFER (memo §2.6): the g-mask machinery of
+//     gkr_masked.rs carried onto the aggregate sumcheck — an M1-shaped mask
+//     (a0 + per-variable univariates, degrees matching the round pattern)
+//     drawn in E_c from prover-private CSPRNG state, its commitment stand-in
+//     absorbed BEFORE rho/betas (mask-then-fold), the hypersum G served and
+//     nu-combined into the running claim, the mask's closed-form per-round
+//     summand added to every shipped round polynomial. The mask vanishes on
+//     the served claims (they stay the true table MLEs) while the transcript
+//     blinds.
+//
+// Everything below is ADDITIVE: no function above this line is modified.
+// (Skeleton — rungs R1/R3 land here.)

@@ -1433,3 +1433,68 @@ level the deltas are ~1-2 int8 counts. Counted design memo = a
 future lane item once a smoothness-regularized checkpoint exists;
 the joint experiment (frugal side): a ladder run with
 trajectory_regularization > 0 / shared init, then re-measure.
+
+## Agent EE status (wt-uperf3-ee) — round 4
+
+STATE: OPEN (2026-08-27) — skeleton. Lane: the aggregate zero-check
+(design memo §2.2: instance axis, shared eq, stacked claims) + the
+O-4 mask transfer (§2.6: the g-mask machinery onto the aggregate
+sumcheck). Everything additive: a `[UPERF3-EE] aggregate` section
+APPENDED to ring/zc_range.rs (no existing function or round body
+touched — lane DD owns the e_mac* hook lines), new `uperf-s` arms
+(`agg`, `agg-battery`, `agg-mask`) in the bin's [UPERF3-S] dispatch,
+this status section. Floor at every commit: release build; `uperf-s
+battery` 48 legs, digest 3752cba4.. UNMOVED (the aggregate gets its
+OWN battery arm + digest); `uperf-pc diff-battery` green.
+
+PLAN (one commit per green rung, prefix "U-PERF3 EE:"):
+- [x] R0 SKELETON: this section, the empty [UPERF3-EE] code section,
+  stub arms printing usage.
+- [ ] R1 AGGREGATE: `zc_agg_prove/verify` — m same-shape range
+  columns as ONE sumcheck over the stacked hypercube (instance axis =
+  the high a = ceil(log2 m) variables, zero-padded pad columns — the
+  house alphabets contain 0 so pads satisfy the constraint), ONE
+  shared eq table over n+a vars, per-column claim STACKING: after the
+  n column-axis rounds the folded tables hold each column's MLE at
+  the shared column point r_col; those m x (w+1) values are the
+  served claims (the opening layer's per-tensor form), the verifier
+  recombines T_k(x*) = sum_i eq(r_inst, i) claim[i][k] for the final
+  identity. DIFFERENTIAL (the per-column spike path is the oracle):
+  (i) m = 1 => byte-identical to `zc_range_prove` (transcript,
+  rounds, point, claims == finals); (ii) any m => byte-identical to
+  `zc_range_prove` run on the manually stacked instance (the spike
+  prover as the stacked oracle); (iii) served claims ==
+  `base_mle_eval` (the per-column path's claim definition, the
+  zc_range_open_check machinery) per column at r_col, bit-for-bit,
+  asserted and printed. Battery arm `agg-battery`: m in {1,2,7,16} x
+  w in {8,14} x both digit bases e0 in {1,2} (see the moduli note
+  below) x c in {4,8}, honest + a tampered-claim reject leg, own
+  AGG BATTERY DIGEST at ZK_THREADS 1/2/7.
+- [ ] R2 COUNTED: rounds/MACs/wire, aggregate vs m separate
+  per-column zero-checks at 2^20 x 16 columns (w = 8, c = 4, e0 = 1);
+  [COUNTED] table here; walls labeled [WSL-BOX NT NOISY-SHARED]
+  (lane DD benches on this box — counts and byte-identity are the
+  deliverables, not walls).
+- [ ] R3 O-4 MASK: `ZcAggMask` = the M1 g-mask shape
+  (gkr_masked::GMask: a0 + per-variable univariates, degrees matching
+  the round pattern) carried into E_c, drawn from ProverRng,
+  commitment stand-in absorbed BEFORE rho/betas (mask-then-fold),
+  hypersum G served + nu-combined into the claim (the house
+  masked-sumcheck idiom), the mask's per-round closed-form summand
+  added to every shipped round poly; the served claims are the SAME
+  table MLE values (the mask vanishes on the claims — asserted via
+  the base_mle_eval oracle at the masked run's point); transcript
+  differs from unmasked; zero-mask degeneracy == unmasked
+  byte-for-byte; tamper legs: a flipped mask coefficient at verify
+  REJECTS, a tampered served mask evaluation REJECTS.
+
+MODULI NOTE (recorded, not guessed): the brief's battery matrix says
+"both moduli". The E_c sub-extension kernels REQUIRE the q31 point
+(SubExt::new asserts 2^30 < q < 2^31, 2^31 mod q < 1024) — the house
+has exactly ONE such modulus (Q8 = 2^31 - 399); the other house
+modulus Q8_46 (46-bit) fails the gate by construction. Reading
+adopted: "both moduli" = both digit-plane bases the house commits
+(e0 = 1 sign-binary / e0 = 2 balanced base-4 — the two vanishing
+moduli of the digit alphabet), crossed with both practical
+sub-extension moduli c in {4, 8} (Z^c - s0). If Victor meant Q8_46,
+that needs a kernel-gate ruling first — flagged as an open question.
