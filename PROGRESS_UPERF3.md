@@ -1309,11 +1309,37 @@ members await the freeze ruling.
 
 ## Agent AA status (wt-uperf3-aa, round 3)
 
-STATE: OPEN (2026-08-26) — skeleton committed. Lane: (1) margin-bit
-round to 0 violations under the adopted v3 widened stack (both
-checkpoints, scripts/m8b_margins.py NEW); (2) the v3 witness export
-profile (additive --profile v3 in scripts/m8b_export_ffn.py +
-additive --export-v3 in scripts/m8b_gemma4_walker.py; defaults stay
-byte-identical); (3) the int16-out C5 member tables + digests
-(silu-v2 formula/digest convention). Results files NEW under
-results/. Nothing outside the lane's ownership is written.
+STATE: IN FLIGHT (2026-08-26). Landed so far (one commit each):
+- scripts/m8b_margins.py: the v3 widened exact chain with
+  REGISTRY-EXACT int16-out tables (CLAMPED +/-32767 — matches lane
+  BB's freeze convention BY CONSTRUCTION; clamp-row index hits
+  tracked per run), greedy +1-bit margin iteration, --tables C5
+  record mode, and the shared v3 export machinery (make_v3_ffn /
+  v3_witness_walk / write_v3_sidecar) both exporters call.
+- **MISTRAL MARGINS TO ZERO** [MEASURED WSL-BOX NT]: round 0
+  reproduces the ruling verdict (+0.2157 / 32 viols, clamp-hits 0);
+  2 margin rounds -> **0 violations at 12 margin bits** (gate
+  l3/4/14/15, u l7, h l16/26/27/31, z l20/22, X l31; rounds 1-2
+  surfaced 5 second-order viols — gate l14, z l20/22 — killed by the
+  same rule). Quality cost of margins **-0.0007 nats** (net
+  IMPROVE); final delta +0.2150 vs ref. clamp-hits 3 elements at the
+  final set. results/m8b_margins_mistral_wsl.json.
+- The v3 EXPORT PROFILE: additive --profile v3 in m8b_export_ffn.py
+  (layout DOC OF RECORD in its header; v2 default re-export
+  BYTE-IDENTICAL to the committed m125_reexport digests) + additive
+  --export-v3 in m8b_gemma4_walker.py (same shared code paths — the
+  layout cannot fork). 125M v3 validation: 0 viols, weight +
+  layer-0-X digests byte-match v2. REAL Mistral-7B v3 export DONE:
+  0 violations under the margin set, negative sh_u = -1 exercises
+  the exact-up-scaling path; digests + manifest committed, 6.8G bins
+  gitignored.
+- BB RECONCILE COMPLETE: all 15 frozen int16out members (9 silu + 6
+  gelu, uperf3-bb lookup.rs 90415d0) regenerate BYTE-IDENTICAL and
+  DIGEST-IDENTICAL from m8b_margins.py's generator (same function
+  names, rounding strings, clamp, spec-header JSON). The
+  margin-adjusted Mistral member set needs NO new members — the gate
+  margins map l3/4 -> (-4,-13) and l14/15 -> (-3,-12), both already
+  frozen; (-5,-13) becomes unused post-margin (harmless).
+IN FLIGHT: Gemma margin iteration (queued on /tmp/zk-heavy.lock
+behind lane CC's attrib walk). THEN: Gemma v3 export, the --tables
+C5 record (final margin-adjusted member sets), final report.
