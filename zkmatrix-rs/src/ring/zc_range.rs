@@ -1446,6 +1446,11 @@ pub struct ZcAggProof {
     /// the opening layer serves. The verifier recombines
     /// T_k(x*) = sum_i eq(r_inst, i) * col_claims[i][k].
     pub col_claims: Vec<Vec<EElem>>,
+    /// O-4 (masked runs only): the mask hypersum G, served and nu-combined
+    /// into the running claim (the house "hypersum sent and pinned" field).
+    pub mask_hyper: Option<EElem>,
+    /// O-4 (masked runs only): g_m(x*), the mask's final-point opening.
+    pub mask_final: Option<EElem>,
 }
 
 /// eq(r, idx) for a BOOLEAN point idx (little-endian bits over r):
@@ -1490,6 +1495,116 @@ pub fn zc_agg_stack(inst: &ZcAggInstance) -> (Vec<Vec<u32>>, Vec<u32>) {
     (planes, rem)
 }
 
+// ---- O-4: the mask transfer (design memo §2.6) --------------------------
+
+/// The aggregate sumcheck's mask — the M1 g-mask shape of gkr_masked.rs
+/// (`GMask`: a0 + one univariate per variable, no per-variable constant,
+/// degrees matching the round pattern) carried into E_c. Drawn from
+/// prover-private CSPRNG state (`ProverRng`), committed (stand-in: a
+/// binding transcript digest) BEFORE rho/betas — mask-then-fold — then
+/// nu-combined into the running claim with its hypersum G served, exactly
+/// the house masked-sumcheck idiom. The mask is a "sum of univariates", so
+/// its per-round contribution has the closed form
+///   M_t(X) = 2^free (a0 + sum_{s<t} u_s(r_s) + u_t(X))
+///            + 2^(free-1) sum_{s>t} u_s(1),   free = n_tot - t - 1,
+/// (g_hypersum style) and it VANISHES on the served claims: the tables are
+/// never touched, only the shipped round polynomials carry nu * M_t.
+pub struct ZcAggMask {
+    pub a0: EElem,
+    /// Per variable: coefficients of x^1..x^deg (deg = deg_f + 1, the
+    /// shipped round degree).
+    pub uni: Vec<Vec<EElem>>,
+}
+
+impl ZcAggMask {
+    /// Uniform mask over n_vars variables at per-variable degree `deg`.
+    /// MUST be called from prover-private CSPRNG state (the gkr_masked
+    /// draw_masks rule: Fiat-Shamir state is not entropy).
+    pub fn draw(ext: &SubExt, rng: &mut super::ProverRng, n_vars: usize, deg: usize) -> ZcAggMask {
+        let draw_e =
+            |rng: &mut super::ProverRng| (0..ext.c).map(|_| super::rng_below(rng, ext.q) as u32).collect::<EElem>();
+        ZcAggMask {
+            a0: draw_e(rng),
+            uni: (0..n_vars).map(|_| (0..deg).map(|_| draw_e(rng)).collect()).collect(),
+        }
+    }
+
+    /// The all-zero mask (the degeneracy battery leg: nu * 0 everywhere).
+    pub fn zero(ext: &SubExt, n_vars: usize, deg: usize) -> ZcAggMask {
+        ZcAggMask { a0: ext.zero(), uni: vec![vec![ext.zero(); deg]; n_vars] }
+    }
+
+    /// u_t(x) by Horner (no constant term).
+    pub fn uni_eval(&self, ext: &SubExt, t: usize, x: &EElem) -> EElem {
+        let coeffs = &self.uni[t];
+        let mut acc = coeffs[coeffs.len() - 1].clone();
+        for a in coeffs[..coeffs.len() - 1].iter().rev() {
+            acc = ext.add(&ext.mul(&acc, x), a);
+        }
+        ext.mul(&acc, x)
+    }
+
+    /// u_t(1) = the coefficient sum.
+    pub fn uni_one(&self, ext: &SubExt, t: usize) -> EElem {
+        let mut acc = ext.zero();
+        for a in &self.uni[t] {
+            acc = ext.add(&acc, a);
+        }
+        acc
+    }
+
+    /// g_m(pt) = a0 + sum_t u_t(pt_t) — the final-point opening.
+    pub fn eval(&self, ext: &SubExt, pt: &[EElem]) -> EElem {
+        assert_eq!(pt.len(), self.uni.len());
+        let mut acc = self.a0.clone();
+        for (t, x) in pt.iter().enumerate() {
+            acc = ext.add(&acc, &self.uni_eval(ext, t, x));
+        }
+        acc
+    }
+
+    /// sum over {0,1}^n = 2^n a0 + 2^(n-1) sum_t u_t(1) (GMask::hypersum).
+    pub fn hypersum(&self, ext: &SubExt) -> EElem {
+        let n = self.uni.len();
+        let p_full = ((1u128 << n) % ext.q as u128) as u32;
+        let p_half = ((1u128 << (n - 1)) % ext.q as u128) as u32;
+        let mut acc = ext.scale(p_full, &self.a0);
+        for t in 0..n {
+            acc = ext.add(&acc, &ext.scale(p_half, &self.uni_one(ext, t)));
+        }
+        acc
+    }
+
+    /// The committed flattening (a0 then the univariates in variable order —
+    /// the GMask::coeffs layout).
+    pub fn flat(&self) -> Vec<EElem> {
+        let mut out = vec![self.a0.clone()];
+        for u in &self.uni {
+            out.extend(u.iter().cloned());
+        }
+        out
+    }
+
+    /// Absorb the mask COMMITMENT stand-in (a binding digest of the
+    /// coefficients) — call on BOTH transcripts BEFORE drawing rho/betas
+    /// (mask-then-fold). In the real protocol this is the mask commitment
+    /// wave; here the digest binds the transcript to the coefficients the
+    /// verifier will pin against.
+    pub fn commit_absorb(&self, kf: &KField, ext: &SubExt, tr: &mut LkpTranscript) {
+        let mut tc = LkpTranscript::new("uperf3-ee-agg-mask-commit", &[]);
+        ext.absorb(kf, &mut tc, "mask-coeffs", &self.flat());
+        tr.absorb("agg-mask-commit", &tc.state());
+    }
+}
+
+/// Harness evidence returned by the masked prover (NEVER wire): nu and the
+/// STRIPPED rounds g_F = shipped - nu * M_t — the O-4 differential's
+/// object (a valid UNMASKED round chain for the same challenges).
+pub struct ZcAggMaskEvidence {
+    pub nu: EElem,
+    pub stripped_rounds: Vec<Vec<EElem>>,
+}
+
 /// PROVE the aggregate: ONE sumcheck of n + a rounds over the stacked
 /// hypercube under (rho, betas) with challenges in E_c; rho has n + a
 /// coordinates (column axis low, instance axis high), betas the w + 1 RLC
@@ -1509,6 +1624,26 @@ pub fn zc_agg_prove(
     betas: &[EElem],
     tr: &mut LkpTranscript,
 ) -> (ZcAggProof, Vec<EElem>, ZcRangeStats) {
+    let (proof, point, stats, _ev) = zc_agg_prove_masked(kf, ext, inst, rho, betas, None, tr);
+    (proof, point, stats)
+}
+
+/// The masked aggregate prover (O-4). `mask = None` is EXACTLY
+/// zc_agg_prove (no mask absorbs, no nu — byte-identical). With
+/// `Some(mask)` the caller must have absorbed the mask commitment
+/// (commit_absorb) before drawing rho/betas; this function then serves the
+/// hypersum G, draws nu, and ships g_t = g_F_t + nu * M_t per round while
+/// the TABLES (and so the stacked claims) are untouched — the mask
+/// vanishes on the claim values and lives only in the transcript.
+pub fn zc_agg_prove_masked(
+    kf: &KField,
+    ext: &SubExt,
+    inst: &ZcAggInstance,
+    rho: &[EElem],
+    betas: &[EElem],
+    mask: Option<&ZcAggMask>,
+    tr: &mut LkpTranscript,
+) -> (ZcAggProof, Vec<EElem>, ZcRangeStats, Option<ZcAggMaskEvidence>) {
     let t_all = std::time::Instant::now();
     let n = inst.n_log2;
     let (m, a, w) = (inst.m(), inst.a(), inst.w());
@@ -1531,6 +1666,24 @@ pub fn zc_agg_prove(
     let mut eq_pairs = compact_even(c, &eq_full);
     drop(eq_full);
     stats.secs_eq += t0.elapsed().as_secs_f64();
+    // O-4 mask setup (Some only; None touches NOTHING — byte-identical to
+    // the unmasked prover): serve the hypersum, draw nu, precompute the
+    // suffix sums sum_{s>t} u_s(1) for the closed-form M_t.
+    let mask_deg = deg_f + 1;
+    let mask_state = mask.map(|mk| {
+        assert_eq!(mk.uni.len(), n_tot, "mask arity != n + a");
+        assert!(mk.uni.iter().all(|u| u.len() == mask_deg), "mask degree != deg_f + 1");
+        let g_hyper = mk.hypersum(ext);
+        ext.absorb(kf, tr, "agg-mask-hsum", std::slice::from_ref(&g_hyper));
+        let nu = ext.challenge(kf, tr);
+        let mut suffix = vec![ext.zero(); n_tot];
+        for t in (0..n_tot - 1).rev() {
+            suffix[t] = ext.add(&suffix[t + 1], &mk.uni_one(ext, t + 1));
+        }
+        (g_hyper, nu, suffix)
+    });
+    let mut mask_pt = ext.zero(); // P_t = sum_{s<t} u_s(r_s)
+    let mut stripped: Vec<Vec<EElem>> = Vec::with_capacity(n_tot);
     let mut tabs: Vec<ZTab> = stacked.planes.iter().map(|p| ZTab::Base(p.clone())).collect();
     tabs.push(ZTab::Base(stacked.rem.to_vec()));
     let mut rounds: Vec<Vec<EElem>> = Vec::with_capacity(n_tot);
@@ -1569,9 +1722,35 @@ pub fn zc_agg_prove(
         stats.secs_round += tr0.elapsed().as_secs_f64();
         stats.rounds += 1;
         stats.wire_bytes += (deg + 1) * ext.wire_bytes();
-        ext.absorb(kf, tr, "ixf-round-poly", &g);
+        // O-4: the SHIPPED round poly is g_F + nu * M_t (closed form; the
+        // tables and the running F chain c_run never see the mask).
+        let g_ship = if let Some((_gh, nu, suffix)) = &mask_state {
+            let mk = mask.unwrap();
+            let free = n_tot - t - 1;
+            let p_free = ((1u128 << free) % ext.q as u128) as u32;
+            let base = ext.add(&mk.a0, &mask_pt);
+            let tail = if free >= 1 {
+                let p_half = ((1u128 << (free - 1)) % ext.q as u128) as u32;
+                ext.scale(p_half, &suffix[t])
+            } else {
+                ext.zero()
+            };
+            let mut gs = Vec::with_capacity(g.len());
+            for (x, gx) in g.iter().enumerate() {
+                let ux = mk.uni_eval(ext, t, &ext.embed(x as u64));
+                let m_t = ext.add(&ext.scale(p_free, &ext.add(&base, &ux)), &tail);
+                gs.push(ext.add(gx, &ext.mul(nu, &m_t)));
+            }
+            gs
+        } else {
+            g.clone()
+        };
+        ext.absorb(kf, tr, "ixf-round-poly", &g_ship);
         let r = ext.challenge(kf, tr);
         c_run = ext.lagrange_eval(kf, &g, &r);
+        if mask_state.is_some() {
+            mask_pt = ext.add(&mask_pt, &mask.unwrap().uni_eval(ext, t, &r));
+        }
         let tf0 = std::time::Instant::now();
         let mut ntabs = Vec::with_capacity(tabs.len());
         for tab in tabs.iter() {
@@ -1591,7 +1770,8 @@ pub fn zc_agg_prove(
         eq_pairs = compact_even(c, &eq_pairs);
         stats.secs_fold += tf0.elapsed().as_secs_f64();
         p_t = ext.mul(&p_t, &ext.eq_point(std::slice::from_ref(&rho[t]), std::slice::from_ref(&r)));
-        rounds.push(g);
+        rounds.push(g_ship);
+        stripped.push(g);
         point.push(r);
         cur /= 2;
         if cur == (1usize << a) && col_claims.is_empty() {
@@ -1612,8 +1792,18 @@ pub fn zc_agg_prove(
     }
     assert_eq!(col_claims.len(), m);
     stats.wire_bytes += m * (w + 1) * ext.wire_bytes();
+    let (mask_hyper, mask_final, evidence) = if let Some((g_hyper, nu, _suffix)) = mask_state {
+        // g_m(x*) = a0 + sum_t u_t(r_t) = a0 + P_{n_tot} — the final-point
+        // opening; both openings are pinned by the verifier against its
+        // mask copy (the commitment-opening stand-in).
+        let mf = ext.add(&mask.unwrap().a0, &mask_pt);
+        stats.wire_bytes += 2 * ext.wire_bytes();
+        (Some(g_hyper), Some(mf), Some(ZcAggMaskEvidence { nu, stripped_rounds: stripped }))
+    } else {
+        (None, None, None)
+    };
     stats.secs_total = t_all.elapsed().as_secs_f64();
-    (ZcAggProof { c, m, a, rounds, col_claims }, point, stats)
+    (ZcAggProof { c, m, a, rounds, col_claims, mask_hyper, mask_final }, point, stats, evidence)
 }
 
 /// VERIFY the aggregate: the round chain (identical to zc_range_verify's),
@@ -1644,6 +1834,8 @@ pub fn zc_agg_verify(
         || proof.col_claims.iter().any(|cl| cl.len() != w + 1)
         || rho.len() != n_tot
         || betas.len() != w + 1
+        || proof.mask_hyper.is_some()
+        || proof.mask_final.is_some()
     {
         return None;
     }
@@ -1677,6 +1869,94 @@ pub fn zc_agg_verify(
         (lo..=hi).map(|a| (if a < 0 { (a + ext.q as i64) as u64 } else { a as u64 }) as u32).collect();
     let gval = zc_range_g_of(ext, e0, &alphabet, betas, &finals);
     let expect = ext.mul(&ext.eq_point(rho, &point), &gval);
+    if expect != c_run {
+        return None;
+    }
+    Some(point)
+}
+
+/// VERIFY the MASKED aggregate (O-4). The caller must have absorbed the
+/// mask commitment (`commit_absorb`) into `tr` BEFORE drawing rho/betas.
+/// `mask` is the verifier's pinned mask data — the harness stand-in for
+/// the commitment opening, exactly the masked_gkr_verify idiom (in the
+/// full pass the two openings ride the eval proof's pin rows): the served
+/// hypersum and final evaluation are checked against it, the round chain
+/// starts at nu * G, and the final identity carries + nu * g_m(x*). The
+/// claims recombine as in the unmasked verifier — the mask never touches
+/// them. Returns the point.
+#[allow(clippy::too_many_arguments)]
+pub fn zc_agg_verify_masked(
+    kf: &KField,
+    ext: &SubExt,
+    n_log2: usize,
+    e0: u32,
+    w: usize,
+    m: usize,
+    rho: &[EElem],
+    betas: &[EElem],
+    proof: &ZcAggProof,
+    mask: &ZcAggMask,
+    tr: &mut LkpTranscript,
+) -> Option<Vec<EElem>> {
+    let a = zc_agg_axis(m);
+    let n_tot = n_log2 + a;
+    let (Some(g_hyper), Some(mask_final)) = (&proof.mask_hyper, &proof.mask_final) else {
+        return None;
+    };
+    if proof.rounds.len() != n_tot
+        || proof.c != ext.c
+        || proof.m != m
+        || proof.a != a
+        || proof.col_claims.len() != m
+        || proof.col_claims.iter().any(|cl| cl.len() != w + 1)
+        || rho.len() != n_tot
+        || betas.len() != w + 1
+    {
+        return None;
+    }
+    let deg_f = super::digits::alphabet_rows(e0);
+    let deg = deg_f + 1;
+    if mask.uni.len() != n_tot || mask.uni.iter().any(|u| u.len() != deg) {
+        return None;
+    }
+    // Pin 1: the served hypersum against the (committed) mask.
+    if *g_hyper != mask.hypersum(ext) {
+        return None;
+    }
+    ext.absorb(kf, tr, "agg-mask-hsum", std::slice::from_ref(g_hyper));
+    let nu = ext.challenge(kf, tr);
+    let mut c_run = ext.mul(&nu, g_hyper);
+    let mut point = Vec::with_capacity(n_tot);
+    for g in &proof.rounds {
+        if g.len() != deg + 1 {
+            return None;
+        }
+        if ext.add(&g[0], &g[1]) != c_run {
+            return None;
+        }
+        ext.absorb(kf, tr, "ixf-round-poly", g);
+        let r = ext.challenge(kf, tr);
+        c_run = ext.lagrange_eval(kf, g, &r);
+        point.push(r);
+    }
+    // Pin 2: the served final-point opening against the mask.
+    if *mask_final != mask.eval(ext, &point) {
+        return None;
+    }
+    let r_inst = &point[n_log2..];
+    let mut finals = vec![ext.zero(); w + 1];
+    for (i, cl) in proof.col_claims.iter().enumerate() {
+        let wi = zc_agg_eq_bool(ext, r_inst, i);
+        for (k, f) in finals.iter_mut().enumerate() {
+            *f = ext.add(f, &ext.mul(&wi, &cl[k]));
+        }
+    }
+    let (lo, hi) = super::digits::alphabet(e0);
+    let alphabet: Vec<u32> =
+        (lo..=hi).map(|a| (if a < 0 { (a + ext.q as i64) as u64 } else { a as u64 }) as u32).collect();
+    let gval = zc_range_g_of(ext, e0, &alphabet, betas, &finals);
+    let expect =
+        ext.add(&ext.mul(&ext.eq_point(rho, &point), &gval), &ext.mul(&nu, mask_final));
     if expect != c_run {
         return None;
     }

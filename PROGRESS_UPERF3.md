@@ -1475,7 +1475,7 @@ PLAN (one commit per green rung, prefix "U-PERF3 EE:"):
   [COUNTED] table here; walls labeled [WSL-BOX NT NOISY-SHARED]
   (lane DD benches on this box — counts and byte-identity are the
   deliverables, not walls).
-- [ ] R3 O-4 MASK: `ZcAggMask` = the M1 g-mask shape
+- [x] R3 O-4 MASK: `ZcAggMask` = the M1 g-mask shape
   (gkr_masked::GMask: a0 + per-variable univariates, degrees matching
   the round pattern) carried into E_c, drawn from ProverRng,
   commitment stand-in absorbed BEFORE rho/betas (mask-then-fold),
@@ -1544,8 +1544,51 @@ run under `flock /tmp/zk-heavy.lock`, ZK_THREADS 1):
   (the aggregate materializes ONE stacked copy of the 9 base tables
   at 2^24 + the E tables; per-column peaks at ~100 MiB/column —
   the 8B streaming plan prices this in lane R's memory architecture).
-- commit: R2 = the commit carrying this block (ledger-only; the arm
-  landed at R1 2c1f5c8).
+- commit: R2 4bb51cd (ledger-only; the arm landed at R1 2c1f5c8).
+
+R3 EVIDENCE (2026-08-27, WSL box, shared):
+- The O-4 construction (zc_range.rs [UPERF3-EE]): `ZcAggMask` — the
+  M1 g-mask shape (gkr_masked::GMask: a0 + one univariate per
+  variable, no per-variable constant, degree deg_f + 1 = the shipped
+  round degree) in E_c, drawn from `ProverRng` (the draw_masks rule:
+  FS state is not entropy), commitment stand-in = a binding
+  transcript digest of the coefficients absorbed BEFORE rho/betas
+  (mask-then-fold); the prover serves the hypersum G, draws nu, and
+  ships g_t = g_F_t + nu * M_t with the closed-form
+  M_t(X) = 2^free (a0 + sum_{s<t} u_s(r_s) + u_t(X)) +
+  2^(free-1) sum_{s>t} u_s(1) — the TABLES never see the mask, so the
+  stacked claims stay the true table MLEs; the verifier
+  (`zc_agg_verify_masked`, the masked_gkr_verify idiom: the mask set
+  stands for the commitment opening) pins BOTH served openings
+  (G, g_m(x*)), starts the chain at nu*G and closes with + nu*g_m(x*).
+  `zc_agg_prove` is now the mask=None path of `zc_agg_prove_masked` —
+  the None path's byte-identity to the untouched `zc_range_prove` is
+  re-proven by the 32 stacked-oracle legs in the battery (the
+  refactor degeneracy).
+- cmd: `uperf-s agg-battery [1|2|7]` — now 136 legs (96 R1 + 40 mask:
+  m {2,7} x e0 {1,2} x c {4,8} at w 8, 2^6/column, 5 legs/cell), AGG
+  BATTERY DIGEST moved (mask legs appended) to
+  4623498603db778361e61f790df90485e61cec52fc8b80373f010cbbd61a419e,
+  byte-identical at ZK_THREADS 1/2/7. Mask legs per cell: honest
+  masked verify + ALL claims == base_mle_eval at the masked point
+  (the mask VANISHES on the claim values) | the STRIP check (shipped
+  minus nu*M_t is a VALID UNMASKED round chain for the same
+  challenges, closing on the recombined claims — the O-4 transfer
+  fact) | blinding (transcript differs from the unmasked run; every
+  shipped round differs from its stripped g_F) | zero-mask degeneracy
+  (shipped == stripped, G = g_m(x*) = 0, verify green) | tampers: a
+  FLIPPED mask coefficient at verify REJECTS (hypersum pin), tampered
+  served g_m(x*) REJECTS (final pin), tampered served G REJECTS,
+  unmasked verifier rejects a masked proof and vice versa.
+- cmd: `uperf-s agg-mask 12 4 8 1 4 1 181` (demo, 2^12 x 4): all
+  differentials print + assert; shipped round-0 identity == nu*G;
+  mask overhead in the noise (57 coefficients, closed-form M_t —
+  masked 0.024s vs unmasked 0.025s [WSL-BOX 1T NOISY-SHARED]); wire
+  +32 B (the two mask openings).
+- Floor: 48-leg battery digest 3752cba4.. UNMOVED; diff-battery green
+  16.1s; build green (the two new-code warnings fixed; no new
+  warnings from this lane).
+- commit: R3 = the commit carrying this block.
 
 MODULI NOTE (recorded, not guessed): the brief's battery matrix says
 "both moduli". The E_c sub-extension kernels REQUIRE the q31 point
