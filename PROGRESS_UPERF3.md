@@ -1511,3 +1511,22 @@ members await the freeze ruling.
     export (u3_layer_run on loaded planes; the plumbing exists —
     u3_load_m125_layer generalizes via bf_model()); then Gemma once
     lane AA's export lands (gelu family, GeGLU sites).
+
+- 2026-08-26 (night queue) THE 7B PROOF RUNG NEEDS THE MAC (measured,
+  not assumed):
+  * `uperf-v3 e2e-m125 0 16 1` on the REAL Mistral export (the
+    per-tensor loader banner prints "e_w per-tensor" — the new path
+    live on real planes) was **OOM-KILLED on the 15 GB box at 15.08
+    GB anon RSS** (dmesg: total-vm 20.3 GB; exit 137). The bill is
+    WEIGHTS-dominated — three 4096x14336 planes and their digit-ring
+    /commit structures are t-INDEPENDENT, so a smaller T does not
+    rescue it. Disposition: the rung runs on the Mac (256 GB; a
+    Grok RUN task once this lane merges), or after a u3-rig memory
+    diet (the W-8(a)-class streaming, the known MVP-plan item —
+    lane R's memo predicted exactly this bill class).
+  * POST-MIGRATION real-bins evidence [WSL-BOX NT]: `uperf-v3
+    e2e-m125 0 16 2` on the m125 export under the v2 STATEMENT
+    LAYOUT: **accept = true** — 5320 data cms (5405 commitments, 41
+    waves, 911 pins), commit 3.3 s / prove 70.3 s / verify 17.6 s,
+    wall 91.4 s, statement 2059 bytes. The v3 rig's real-data proof
+    arm is green after the per-tensor migration.
