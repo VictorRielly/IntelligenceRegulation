@@ -1450,7 +1450,7 @@ OWN battery arm + digest); `uperf-pc diff-battery` green.
 PLAN (one commit per green rung, prefix "U-PERF3 EE:"):
 - [x] R0 SKELETON: this section, the empty [UPERF3-EE] code section,
   stub arms printing usage.
-- [ ] R1 AGGREGATE: `zc_agg_prove/verify` — m same-shape range
+- [x] R1 AGGREGATE: `zc_agg_prove/verify` — m same-shape range
   columns as ONE sumcheck over the stacked hypercube (instance axis =
   the high a = ceil(log2 m) variables, zero-padded pad columns — the
   house alphabets contain 0 so pads satisfy the constraint), ONE
@@ -1487,6 +1487,29 @@ PLAN (one commit per green rung, prefix "U-PERF3 EE:"):
   differs from unmasked; zero-mask degeneracy == unmasked
   byte-for-byte; tamper legs: a flipped mask coefficient at verify
   REJECTS, a tampered served mask evaluation REJECTS.
+
+R1 EVIDENCE (2026-08-27, WSL box, shared with lane DD):
+- cmd: `uperf-s agg-battery [1|2|7]` — 96 legs ok, AGG BATTERY DIGEST
+  16c2e2fdce4e10fd686eadca42f2e243454dfa67a0f06d8278ca3a62b001b7fb
+  byte-identical at ZK_THREADS 1/2/7. Matrix: m {1,2,7,16} x w {8,14}
+  x e0 {1,2} x c {4,8} at 2^6/column; per cell: honest verify green +
+  the stacked-oracle BYTE identity (transcript state, every round
+  poly, fold point vs `zc_range_prove` on the stacked instance — at
+  m = 1 the oracle IS the per-column path verbatim) + recombined
+  stacked claims == oracle finals + ALL m x (w+1) served claims ==
+  per-column `base_mle_eval` at r_col bit-for-bit + a flipped-claim
+  reject + a flipped-round-node reject.
+- cmd: `uperf-s agg 10 7 8 1 4 1 171` (smoke, m = 7 exercises pad
+  columns): all three differentials assert + print (col-0 plane-0
+  claim [1177458288, 890349491, 1733341912, 1774377869] identical
+  both ways); per-column -> aggregate at 7 x 2^10: rounds 70 -> 13
+  (5.4x), wire 6,608 -> 2,048 B (3.2x), MACs 0.90x (the 7 -> 8
+  pad inflates the stacked cube; power-of-two m has no pad loss)
+  [COUNTED].
+- Floor: 48-leg battery digest 3752cba4.. UNMOVED; diff-battery
+  green 15.9s; build green.
+- commit: R0 8566aba; R1 = the commit carrying this evidence block
+  (hash backfilled at R2).
 
 MODULI NOTE (recorded, not guessed): the brief's battery matrix says
 "both moduli". The E_c sub-extension kernels REQUIRE the q31 point

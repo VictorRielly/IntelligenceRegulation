@@ -1404,4 +1404,281 @@ pub const MACS_PER_KMUL: u64 = 256;
 //     blinds.
 //
 // Everything below is ADDITIVE: no function above this line is modified.
-// (Skeleton — rungs R1/R3 land here.)
+
+/// The aggregate instance: m same-shape range columns (equal n_log2, e0 and
+/// width) proven by ONE sumcheck. The per-column data reuses the spike's
+/// ZcRangeInstance form.
+pub struct ZcAggInstance<'a> {
+    pub n_log2: usize,
+    pub e0: u32,
+    pub cols: Vec<ZcRangeInstance<'a>>,
+}
+
+impl ZcAggInstance<'_> {
+    pub fn m(&self) -> usize {
+        self.cols.len()
+    }
+    pub fn w(&self) -> usize {
+        self.cols[0].w()
+    }
+    /// The instance-axis width a = ceil(log2 m) (0 at m = 1).
+    pub fn a(&self) -> usize {
+        zc_agg_axis(self.m())
+    }
+}
+
+/// ceil(log2 m): the number of instance-axis variables for m columns.
+pub fn zc_agg_axis(m: usize) -> usize {
+    assert!(m >= 1);
+    (usize::BITS - (m - 1).leading_zeros()) as usize
+}
+
+pub struct ZcAggProof {
+    pub c: usize,
+    /// Real columns (the instance axis is zero-padded above m).
+    pub m: usize,
+    /// Instance-axis variables a = ceil(log2 m).
+    pub a: usize,
+    /// Per round the shipped nodes g_t(0..=deg_f + 1) — n + a rounds.
+    pub rounds: Vec<Vec<EElem>>,
+    /// The STACKED claims [i][k]: column i's table-k MLE (planes then rem)
+    /// at the shared column point r_col = point[..n] — the per-tensor form
+    /// the opening layer serves. The verifier recombines
+    /// T_k(x*) = sum_i eq(r_inst, i) * col_claims[i][k].
+    pub col_claims: Vec<Vec<EElem>>,
+}
+
+/// eq(r, idx) for a BOOLEAN point idx (little-endian bits over r):
+/// prod_j (r_j if bit j else 1 - r_j) — the instance-axis recombination
+/// weight.
+pub fn zc_agg_eq_bool(ext: &SubExt, r: &[EElem], idx: usize) -> EElem {
+    let one = ext.one();
+    let mut acc = one.clone();
+    for (j, rj) in r.iter().enumerate() {
+        let f = if (idx >> j) & 1 == 1 { rj.clone() } else { ext.sub(&one, rj) };
+        acc = ext.mul(&acc, &f);
+    }
+    acc
+}
+
+/// Stack m columns into the aggregate base tables (instance axis = the HIGH
+/// a variables => plain concatenation, zero-padded to 2^(n+a); the house
+/// alphabets contain 0 and 0 - sum 2^(e0 k) 0 = 0, so pad columns satisfy
+/// every constraint). Returns (planes, rem) of the stacked single-column
+/// form — the differential oracle's input.
+pub fn zc_agg_stack(inst: &ZcAggInstance) -> (Vec<Vec<u32>>, Vec<u32>) {
+    let n = inst.n_log2;
+    let (m, a, w) = (inst.m(), inst.a(), inst.w());
+    let size_col = 1usize << n;
+    let size = 1usize << (n + a);
+    for col in &inst.cols {
+        assert_eq!(col.n_log2, n);
+        assert_eq!(col.e0, inst.e0);
+        assert_eq!(col.w(), w);
+        assert!(col.planes.iter().all(|p| p.len() == size_col) && col.rem.len() == size_col);
+    }
+    let mut planes = vec![vec![0u32; size]; w];
+    let mut rem = vec![0u32; size];
+    for (i, col) in inst.cols.iter().enumerate() {
+        let base = i * size_col;
+        for (k, plane) in planes.iter_mut().enumerate() {
+            plane[base..base + size_col].copy_from_slice(&col.planes[k]);
+        }
+        rem[base..base + size_col].copy_from_slice(col.rem);
+    }
+    let _ = m;
+    (planes, rem)
+}
+
+/// PROVE the aggregate: ONE sumcheck of n + a rounds over the stacked
+/// hypercube under (rho, betas) with challenges in E_c; rho has n + a
+/// coordinates (column axis low, instance axis high), betas the w + 1 RLC
+/// coefficients SHARED across columns (the random instance axis separates
+/// the columns). The eq table is built ONCE over all n + a variables (the
+/// shared-eq saving). After the n column-axis rounds the folded tables
+/// hold, at index i, column i's table MLE at r_col — extracted as the
+/// STACKED claims. Round-for-round the arithmetic is exactly
+/// zc_range_prove's on the stacked instance (the differential oracle:
+/// byte-identical transcript / rounds / point; at m = 1 this IS the
+/// per-column path).
+pub fn zc_agg_prove(
+    kf: &KField,
+    ext: &SubExt,
+    inst: &ZcAggInstance,
+    rho: &[EElem],
+    betas: &[EElem],
+    tr: &mut LkpTranscript,
+) -> (ZcAggProof, Vec<EElem>, ZcRangeStats) {
+    let t_all = std::time::Instant::now();
+    let n = inst.n_log2;
+    let (m, a, w) = (inst.m(), inst.a(), inst.w());
+    let n_tot = n + a;
+    assert!(n >= 4, "zc_agg_prove needs n >= 4 (one full pair-block per column)");
+    assert_eq!(rho.len(), n_tot);
+    assert_eq!(betas.len(), w + 1);
+    let (stk_planes, stk_rem) = zc_agg_stack(inst);
+    let stacked = ZcRangeInstance { n_log2: n_tot, e0: inst.e0, planes: &stk_planes, rem: &stk_rem };
+    let size = 1usize << n_tot;
+    let alphabet = stacked.alphabet(ext.q);
+    let deg_f = alphabet.len();
+    let nodes: Vec<u64> = (0..=deg_f as u64).filter(|&x| x != 1).collect();
+    let mut stats = ZcRangeStats::default();
+    let c = ext.c;
+    // ONE shared eq table over all n + a variables, at pair granularity.
+    let t0 = std::time::Instant::now();
+    let eq_full = build_eq_full(ext, rho);
+    stats.macs_eq += (size as u64) * (c * c) as u64;
+    let mut eq_pairs = compact_even(c, &eq_full);
+    drop(eq_full);
+    stats.secs_eq += t0.elapsed().as_secs_f64();
+    let mut tabs: Vec<ZTab> = stacked.planes.iter().map(|p| ZTab::Base(p.clone())).collect();
+    tabs.push(ZTab::Base(stacked.rem.to_vec()));
+    let mut rounds: Vec<Vec<EElem>> = Vec::with_capacity(n_tot);
+    let mut point: Vec<EElem> = Vec::with_capacity(n_tot);
+    let mut col_claims: Vec<Vec<EElem>> = Vec::new();
+    let one = ext.one();
+    let mut c_run = ext.zero();
+    let mut p_t = one.clone();
+    let mut d_t = one.clone();
+    let mut cur = size;
+    for t in 0..n_tot {
+        let npairs = cur / 2;
+        d_t = ext.mul(&d_t, &ext.sub(&one, &rho[t]));
+        assert!(!ext.is_zero(&d_t) && !ext.is_zero(&rho[t]), "degenerate rho (restart guard)");
+        let k_t = ext.mul(&p_t, &ext.inv(kf, &d_t));
+        let tr0 = std::time::Instant::now();
+        let sums = round_sums(ext, &tabs, &eq_pairs, npairs, &nodes, &alphabet, inst.e0, &mut stats);
+        let mut h: Vec<EElem> = vec![ext.zero(); nodes.len()];
+        for (k, bk) in betas.iter().enumerate() {
+            for (ni, hv) in h.iter_mut().enumerate() {
+                *hv = ext.add(hv, &ext.mul(bk, &sums[k][ni]));
+            }
+        }
+        let deg = deg_f + 1;
+        let mut g = vec![ext.zero(); deg + 1];
+        let mut hfull = vec![ext.zero(); deg_f + 1];
+        for (ni, &x) in nodes.iter().enumerate() {
+            hfull[x as usize] = h[ni].clone();
+            g[x as usize] = ext.mul(&ext.mul(&k_t, &ext.eq_node(&rho[t], x)), &h[ni]);
+        }
+        g[1] = ext.sub(&c_run, &g[0]);
+        let k_rho = ext.mul(&k_t, &rho[t]);
+        hfull[1] = ext.mul(&g[1], &ext.inv(kf, &k_rho));
+        let h_last = extrapolate_next(ext, &hfull);
+        g[deg] = ext.mul(&ext.mul(&k_t, &ext.eq_node(&rho[t], deg as u64)), &h_last);
+        stats.secs_round += tr0.elapsed().as_secs_f64();
+        stats.rounds += 1;
+        stats.wire_bytes += (deg + 1) * ext.wire_bytes();
+        ext.absorb(kf, tr, "ixf-round-poly", &g);
+        let r = ext.challenge(kf, tr);
+        c_run = ext.lagrange_eval(kf, &g, &r);
+        let tf0 = std::time::Instant::now();
+        let mut ntabs = Vec::with_capacity(tabs.len());
+        for tab in tabs.iter() {
+            let nt = match tab {
+                ZTab::Base(b) => {
+                    stats.macs_fold += (npairs.div_ceil(KL) * KL) as u64 * c as u64;
+                    fold_base(ext, b, &r)
+                }
+                ZTab::Ext(e) => {
+                    stats.macs_fold += (npairs.div_ceil(KL) * KL) as u64 * (c * c) as u64;
+                    fold_ext(ext, e, &r)
+                }
+            };
+            ntabs.push(ZTab::Ext(nt));
+        }
+        tabs = ntabs;
+        eq_pairs = compact_even(c, &eq_pairs);
+        stats.secs_fold += tf0.elapsed().as_secs_f64();
+        p_t = ext.mul(&p_t, &ext.eq_point(std::slice::from_ref(&rho[t]), std::slice::from_ref(&r)));
+        rounds.push(g);
+        point.push(r);
+        cur /= 2;
+        if cur == (1usize << a) && col_claims.is_empty() {
+            // The claim-stacking point: the n column-axis variables are
+            // bound; entry i of every folded table is column i's MLE at
+            // r_col = point[..n].
+            col_claims = (0..m)
+                .map(|i| {
+                    tabs.iter()
+                        .map(|tab| match tab {
+                            ZTab::Ext(e) => e.get(i),
+                            ZTab::Base(_) => unreachable!("tables lift to E at the first fold"),
+                        })
+                        .collect()
+                })
+                .collect();
+        }
+    }
+    assert_eq!(col_claims.len(), m);
+    stats.wire_bytes += m * (w + 1) * ext.wire_bytes();
+    stats.secs_total = t_all.elapsed().as_secs_f64();
+    (ZcAggProof { c, m, a, rounds, col_claims }, point, stats)
+}
+
+/// VERIFY the aggregate: the round chain (identical to zc_range_verify's),
+/// then the RECOMBINATION T_k(x*) = sum_i eq(r_inst, i) * col_claims[i][k]
+/// (pad columns are zero) and the final identity
+/// C == eq(rho, x*) * G(T(x*)). The stacked claims are the MLE claims the
+/// eval proof would open per tensor. Returns the point.
+#[allow(clippy::too_many_arguments)]
+pub fn zc_agg_verify(
+    kf: &KField,
+    ext: &SubExt,
+    n_log2: usize,
+    e0: u32,
+    w: usize,
+    m: usize,
+    rho: &[EElem],
+    betas: &[EElem],
+    proof: &ZcAggProof,
+    tr: &mut LkpTranscript,
+) -> Option<Vec<EElem>> {
+    let a = zc_agg_axis(m);
+    let n_tot = n_log2 + a;
+    if proof.rounds.len() != n_tot
+        || proof.c != ext.c
+        || proof.m != m
+        || proof.a != a
+        || proof.col_claims.len() != m
+        || proof.col_claims.iter().any(|cl| cl.len() != w + 1)
+        || rho.len() != n_tot
+        || betas.len() != w + 1
+    {
+        return None;
+    }
+    let deg_f = super::digits::alphabet_rows(e0);
+    let deg = deg_f + 1;
+    let mut c_run = ext.zero();
+    let mut point = Vec::with_capacity(n_tot);
+    for g in &proof.rounds {
+        if g.len() != deg + 1 {
+            return None;
+        }
+        if ext.add(&g[0], &g[1]) != c_run {
+            return None;
+        }
+        ext.absorb(kf, tr, "ixf-round-poly", g);
+        let r = ext.challenge(kf, tr);
+        c_run = ext.lagrange_eval(kf, g, &r);
+        point.push(r);
+    }
+    // Recombine the stacked claims over the instance axis.
+    let r_inst = &point[n_log2..];
+    let mut finals = vec![ext.zero(); w + 1];
+    for (i, cl) in proof.col_claims.iter().enumerate() {
+        let wi = zc_agg_eq_bool(ext, r_inst, i);
+        for (k, f) in finals.iter_mut().enumerate() {
+            *f = ext.add(f, &ext.mul(&wi, &cl[k]));
+        }
+    }
+    let (lo, hi) = super::digits::alphabet(e0);
+    let alphabet: Vec<u32> =
+        (lo..=hi).map(|a| (if a < 0 { (a + ext.q as i64) as u64 } else { a as u64 }) as u32).collect();
+    let gval = zc_range_g_of(ext, e0, &alphabet, betas, &finals);
+    let expect = ext.mul(&ext.eq_point(rho, &point), &gval);
+    if expect != c_run {
+        return None;
+    }
+    Some(point)
+}
