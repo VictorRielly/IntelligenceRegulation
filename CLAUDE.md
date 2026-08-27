@@ -36,6 +36,33 @@ reason.
   `rm`, `mv`, `kill` require approval — batch them (e.g. the push at tranche
   close) and present them together with one-line rationales.
 
+## Heavy runs: detach, queue, marker (the no-hangup protocol, 2026-08-26)
+
+The box must keep working when the session dies (usage cutout, /clear,
+crash). Evidence: 2026-08-26, a foreground Gemma margins run died with
+the session ~1 min after starting and the box sat idle 80+ minutes.
+Therefore every run expected to take > ~5 minutes is launched DETACHED:
+
+```
+setsid nohup bash -c 'flock /tmp/zk-heavy.lock <cmd> >> <log> 2>&1; echo $? > <log-stem>.done' >/dev/null 2>&1 &
+```
+
+- `setsid nohup` — the run survives session death.
+- `flock /tmp/zk-heavy.lock` — serializes heavy jobs on the 15 GB box
+  (the shared-box rule); the KERNEL releases the lock when the holder
+  dies, so a stale lock is impossible (never hand-roll lock files).
+  ENQUEUE follow-up runs immediately with the same wrapper — they
+  block on the lock and self-start when it frees, session or no
+  session. CPU-light gates (a verify pass, a battery) can skip the
+  lock and run alongside.
+- The `.done` marker holds the exit code — the universal "did it
+  finish" answer for ANY later session or agent. Check for `.done`
+  files and half-written logs when resuming; integrate before
+  starting new work.
+- The session watching a run uses a Monitor/background watcher on the
+  log or marker (cover FAILURE lines too, not just success), never a
+  foreground wait.
+
 ## Protocol invariants (from the PROGRESS ledgers — verify there before acting)
 
 - **Do NOT touch**: `codex-audit-*` (read-only), `scripts/logup_*_spike.py`,

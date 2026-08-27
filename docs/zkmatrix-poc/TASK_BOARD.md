@@ -19,6 +19,30 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-08-26 late (round 3 mid-flight; lanes uperf3-aa/bb/cc pushed):**
+- ROUND 3 STATE: **AA** — Mistral margins-to-zero DONE (+0.2150, 12
+  margin bits, 0 viols) + the REAL Mistral-7B v3 export DONE (0
+  viols); Gemma margin iteration RUNNING DETACHED (see the marker
+  protocol below; done-marker wt-uperf3-aa/results/
+  m8b_margins_gemma.done, then the Gemma v3 export + --tables are the
+  lane's rest). **BB** — C5 registry + the full v3 rig + `uperf-v3
+  verify-export` LANDED; per-tensor weight exponents (e_w3) landed;
+  **the REAL Mistral v3 witness VERIFIES byte-for-bit in the Rust
+  engine (32 layers, 128 plane legs, sha256s == sidecar)**; next:
+  the real-plane proof rungs. **CC** — site-stats + per-site
+  ATTRIBUTION done: the attention COMPUTE CORE IS INT8-CLEAN
+  (q/k/v/scores/probs/ctx |delta| <= 0.09); the seam/residual sites
+  carry the poison (xattn +2.00, ao +0.41, postn +2.16, xres
+  +13.23); the int16 widen pass is QUEUED DETACHED behind AA's run
+  (marker wt-uperf3-cc/results/m8b_gemma4_attn_widen.done).
+- **NEW STANDING PROTOCOL (CLAUDE.md "Heavy runs: detach, queue,
+  marker"):** heavy runs launch `setsid nohup` under
+  `flock /tmp/zk-heavy.lock` with a `.done` exit-code marker, and
+  follow-ups are ENQUEUED on the lock so the box keeps working when
+  a session dies. ANY resuming agent: check for fresh `.done`
+  markers + half-written logs in the worktrees' results/ FIRST and
+  integrate them (ledger line + commit) before starting new work.
+
 **AS OF 2026-08-25 (commit 73adfb3 + round-2 lanes cut):**
 - DONE and pushed to main: U-PERF3 round 1 (8B scaling memo, Stage-A
   spike GO/GO, headline-routes memo); the Mistral-7B calibration
