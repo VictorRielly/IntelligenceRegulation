@@ -1399,3 +1399,47 @@ members await the freeze ruling.
     lane-W baseline.
   * IN FLIGHT: the u3 rig (E1/E2/E4/E5 + the `uperf-v3` battery and
     the m125-v3 rungs) appended, building.
+
+- 2026-08-26 RUNG 2-4 DONE (commit 6f1b2c3-class; the v3 rig): E1/E2/
+  E4/E5 + the `uperf-v3` rig landed in ring_matmul.rs ([UPERF3-BB]
+  section, ~2000 lines, v2 path untouched):
+  * The v3 chain (u3_derive_chain + serial reference oracle): 19-entry
+    statement per layer (X, WgT, WuT, WdT, Gacc, Rg, g8, a16, Uacc,
+    Ru, u16, H, Rh, Hlo, Hhi, DaccLo, DaccHi, Rd, z16). E2 = h16
+    NEVER committed whole: Hlo [0,255] + Hhi [-128,127] (the exact
+    int16 window), TWO down-matmul accumulators (every committed acc
+    stays inside CLS_ACC <= 31 at every shape; the single-acc form
+    would need 35-38 bits at 125M/8B). E4 = round as floor on the
+    publicly pre-shifted operand; sh <= 0 = exact up-scaling on a
+    committed edge (no remainder). E5 = u16/z16 range facts against
+    [0, 2^16) tables at offset 32768 (multi-commitment m columns —
+    the layout generalization), limb facts via the 256-row tables,
+    remainders at derived widths; minimum table depth 4 (the sh_u = 1
+    two-row tables of the m125-v3 profile underflow
+    blinder_positions below 16 leaves — found and fixed).
+  * The wave rig (u3_layer_run, the bf_layer_run pattern): 4 matmul
+    sumchecks, Hadamard a16 o u16, 4 requant pins with the round
+    half-constant and the limb-recombine/two-acc linear forms,
+    lookup pair (g8, a16) vs the frozen int16-out member, up to 9
+    range instances/layer; v3 statement digest = profile tag + dims +
+    exps + SIGNED shifts + round/family flags + member digests +
+    entry digests + the registry digest list; verifier statement gate
+    recomputes weights from the public model (P0).
+  * BATTERY (uperf-v3 battery small) 3x GREEN at ZK_THREADS 1/2/7
+    (115.1s / 114.4s / 106.4s [WSL-BOX NT]): C5 freeze rows; chain
+    oracle 8/8 layer-runs byte-identical (silu/gelu x round/floor,
+    all 15 derived tensors); E2 limb identity (DaccLo + 256*DaccHi ==
+    h16 @ WdT byte-exact); E4 round == floor-on-pre-shifted (sh
+    1..=16 signed) + upscale exactness; honest E2E ACCEPT x4
+    (silu-round l0 (-3,-11), silu-round l1 (-4,-12) + NEGATIVE sh_u
+    upscale edge, gelu-round, silu-FLOOR profile; 345 cms, 3 waves,
+    787 pins at t=16 d=64 f=128); tamper REJECTS x6 at exactly the
+    intended gates: WrongWeight (statement gate), WrongTable (waves;
+    statement/matmuls/roots green), SeamSwap (waves), RangeViolation
+    (rd root ONLY), LimbForge (hlo root ONLY — hlo+256/hhi-1 with
+    recombination preserved), RoundModeLie (waves).
+  * chain-m125 on the REAL local bins (M125_EXPORT_DIR=main repo's
+    m125_ffn_export_wsl): ALL 12 layers derive + range-check under
+    the v3 profile at T=16; measured widened shifts sh_g 7-9, sh_u
+    {-1,0,1} (layers 3/4 = the real upscale layers), sh_h 13-15,
+    sh_z 6-10; members (-3,-11)/(-4,-12) only; max |z16| 11445.
