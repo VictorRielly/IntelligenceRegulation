@@ -1612,3 +1612,247 @@ STATE: IN FLIGHT (2026-08-26). Landed so far (one commit each):
   worktree); the clamp-selector z gadget is forward-looking
   statement work (no clamped element exists in any current
   witness).
+## Agent BB status (wt-uperf3-bb) — round 3, the v3 statement in the engine
+
+- 2026-08-26 SKELETON. Lane = the v3 statement profile behind an
+  explicit selector (E1 widened a/u/h/z classes, E2 h16 limb-split
+  down matmul, E4 round-mode requant, E5 range-fact classes, C5
+  int16-out registry rows), v2 default byte-identical (freeze-check +
+  uperf-pc diff-battery + uperf-w battery + the 3x16 digests
+  93a98700../0ae9cdae.. are the floor at every commit). PLAN (strict
+  rungs, one commit per green rung):
+  (0) baseline captures on THIS worktree binary (build, freeze-check
+      WSL form, diff-battery, 3x16 full-profile digests via
+      M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/
+      m125_ffn_export_wsl — the main repo holds the local bins).
+  (1) C5: lookup.rs int16-out member family (silu 9 members from the
+      committed Mistral calibration's distinct (eGate,eA) pairs at
+      e_out = eA-8, gelu 6 from Gemma's; frozen i16 bytes + v3 spec
+      digests, generator + digest fn mirroring silu-v2/L191-242 and
+      scripts/m8b_gemma4_gelu_member.py), manifest.rs ADDITIVE
+      versioned registry rows (duplicated-constant discipline), new
+      freeze rows inserted before the UAGB1-BF rows so the WSL form
+      exercises them. PROVISIONAL under the ruling: digests to be
+      reconciled with lane AA's generation script when it lands.
+  (2) E4: round-mode requant helper (floor relation on acc +
+      2^(sh-1); m125_int8_calibration.py:139-151 semantics) + oracle
+      leg; negative-shift (exact up-scaling) branch.
+  (3) the v3 chain in Rust (u3_derive_chain): int16 a/u/h/z at e-8,
+      h16 -> (Hlo,Hhi) limbs at 2^8, two down-matmul accumulators
+      DaccLo/DaccHi (CLS_ACC stays <= 31 at every shape), round mode;
+      numerically against make_widen_ffn/make_exact_ffn (reference
+      port = the battery oracle).
+  (4) the `uperf-v3` rig arm: v3 statement digest (profile tag, exps,
+      shifts incl. negative, round flag, int16-out member digests) +
+      the full bf_layer_run-pattern prove/verify E2E: 4 matmul
+      sumchecks, Hadamard a16 o u16, 4 requant pins (limb-recombine
+      + round-const forms), lookup pair (g8,a16) vs the int16-out
+      member, range instances incl. 2^16-row u16/z16 tables
+      (multi-commitment m columns), tamper legs (WrongWeight,
+      WrongTable, SeamSwap, RangeViolation, LimbForge, RoundModeLie).
+  (5) rungs: synthetic small shape battery (ZK_THREADS 1/2/7); the
+      125M rung on the REAL local bins with the v3-widened M125
+      profile (eA/eUp/eH/eZ -8, round; sh_u in [-1,1] exercises the
+      upscale branch on real data; sh_h 13-15 inside CLS_REM 16);
+      1x16/3x16 real Mistral/Gemma rungs HELD for the merged round
+      (need lane AA's exports).
+  Writes: zkmatrix-rs/src/ring/lookup.rs (additive), src/manifest.rs
+  (C5 rows ONLY, under the ruling), src/bin/ring_matmul.rs (the
+  [UPERF3-BB] section + freeze-row insertion + dispatch), this
+  section. NOT touched: kfield/sumcheck/gkr/gkr_masked internals,
+  codex-audit-*, the python scripts, other lanes' files.
+
+- 2026-08-26 RUNG 0+1 DONE (commits 496d71f skeleton, 90415d0 C5):
+  * BASELINE captured on this worktree's binary (4e82219 + skeleton):
+    build green; the floor gates re-verified AFTER the C5 edit (below).
+  * C5 LANDED: ring/lookup.rs `silu-int16out-table-v3` (9 members) +
+    `gelu-tanh-int16out-table-v3` (6 members) — 256-row int8 domain,
+    int16 output at e_out = eA - 8, frozen i16 bytes + v3 spec-header
+    digests + deterministic generators + `int16out_member` accessor;
+    manifest.rs ADDITIVE versioned rows (UPERF3_SILU16/GELU16_MEMBERS +
+    _TABLE_DIGESTS duplicated-constant copies, `uperf3_v3_table_
+    registry()` = v4 registry UNMOVED + 15 members; v4_table_registry
+    and every existing digest byte-identical). Member sets = the
+    distinct calibrated (eGate,eA) pairs of the two measured
+    checkpoints (Mistral 9 silu, Gemma 6 gelu; m125's two pairs map to
+    (-3,-11)/(-4,-12), both present). PROVISIONAL under the ruling —
+    digests to reconcile with lane AA's generation script.
+  * CONVENTION NOTE for AA (the one deliberate divergence from the
+    measurement scripts): the frozen members CLAMP at +-32767 (the
+    family totality declaration, = the v2 +-127 discipline; same
+    absmax coverage as the int8 member — design choice D1). The quick
+    silu_tab_a16/gelu_tab_a16 tables in the attrib scripts carry NO
+    clamp, so at saturating members (eA <= eGate: 6 of 9 silu, 2 of 6
+    gelu) the top gate codes differ (ref values run to 65024-130048 =
+    "int17-18"). Cross-checked in python: byte-identical on every
+    non-saturating member; diffs ONLY at clamped rows. If AA's
+    freeze prefers the unclamped reading, the output class must widen
+    past int16 — flag for the reconcile.
+  * FREEZE ROWS UPERF3-BB-1a..1d (regenerate byte-identical; digests
+    pin frozen bytes + accessor exact; manifest == lookup pins + v3
+    registry shape; v2 family digests unmoved) inserted BEFORE the
+    UAGB1-BK rows so the WSL form exercises them.
+  * FLOOR GATES on the C5 binary [WSL-BOX NT]: freeze-check 102 ok
+    rows (98 baseline + the 4 BB rows, all green) then the expected
+    BK panic at the export load (cannot read layer00_X.bin), last ok
+    row = "UPERF3-BB-1d v2 family digests unmoved"; uperf-pc
+    diff-battery green 29.4s; uperf-w battery 23/23; 3x16
+    full-profile via M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/
+    results/m125_ffn_export_wsl (the main repo holds the local bins;
+    this worktree has none): accept TRUE, statement digest
+    93a98700.. and EVAL-PROOF DIGEST 0ae9cdae.. BYTE-IDENTICAL to the
+    lane-W baseline.
+  * IN FLIGHT: the u3 rig (E1/E2/E4/E5 + the `uperf-v3` battery and
+    the m125-v3 rungs) appended, building.
+
+- 2026-08-26 RUNG 2-4 DONE (commit 6f1b2c3-class; the v3 rig): E1/E2/
+  E4/E5 + the `uperf-v3` rig landed in ring_matmul.rs ([UPERF3-BB]
+  section, ~2000 lines, v2 path untouched):
+  * The v3 chain (u3_derive_chain + serial reference oracle): 19-entry
+    statement per layer (X, WgT, WuT, WdT, Gacc, Rg, g8, a16, Uacc,
+    Ru, u16, H, Rh, Hlo, Hhi, DaccLo, DaccHi, Rd, z16). E2 = h16
+    NEVER committed whole: Hlo [0,255] + Hhi [-128,127] (the exact
+    int16 window), TWO down-matmul accumulators (every committed acc
+    stays inside CLS_ACC <= 31 at every shape; the single-acc form
+    would need 35-38 bits at 125M/8B). E4 = round as floor on the
+    publicly pre-shifted operand; sh <= 0 = exact up-scaling on a
+    committed edge (no remainder). E5 = u16/z16 range facts against
+    [0, 2^16) tables at offset 32768 (multi-commitment m columns —
+    the layout generalization), limb facts via the 256-row tables,
+    remainders at derived widths; minimum table depth 4 (the sh_u = 1
+    two-row tables of the m125-v3 profile underflow
+    blinder_positions below 16 leaves — found and fixed).
+  * The wave rig (u3_layer_run, the bf_layer_run pattern): 4 matmul
+    sumchecks, Hadamard a16 o u16, 4 requant pins with the round
+    half-constant and the limb-recombine/two-acc linear forms,
+    lookup pair (g8, a16) vs the frozen int16-out member, up to 9
+    range instances/layer; v3 statement digest = profile tag + dims +
+    exps + SIGNED shifts + round/family flags + member digests +
+    entry digests + the registry digest list; verifier statement gate
+    recomputes weights from the public model (P0).
+  * BATTERY (uperf-v3 battery small) 3x GREEN at ZK_THREADS 1/2/7
+    (115.1s / 114.4s / 106.4s [WSL-BOX NT]): C5 freeze rows; chain
+    oracle 8/8 layer-runs byte-identical (silu/gelu x round/floor,
+    all 15 derived tensors); E2 limb identity (DaccLo + 256*DaccHi ==
+    h16 @ WdT byte-exact); E4 round == floor-on-pre-shifted (sh
+    1..=16 signed) + upscale exactness; honest E2E ACCEPT x4
+    (silu-round l0 (-3,-11), silu-round l1 (-4,-12) + NEGATIVE sh_u
+    upscale edge, gelu-round, silu-FLOOR profile; 345 cms, 3 waves,
+    787 pins at t=16 d=64 f=128); tamper REJECTS x6 at exactly the
+    intended gates: WrongWeight (statement gate), WrongTable (waves;
+    statement/matmuls/roots green), SeamSwap (waves), RangeViolation
+    (rd root ONLY), LimbForge (hlo root ONLY — hlo+256/hhi-1 with
+    recombination preserved), RoundModeLie (waves).
+  * chain-m125 on the REAL local bins (M125_EXPORT_DIR=main repo's
+    m125_ffn_export_wsl): ALL 12 layers derive + range-check under
+    the v3 profile at T=16; measured widened shifts sh_g 7-9, sh_u
+    {-1,0,1} (layers 3/4 = the real upscale layers), sh_h 13-15,
+    sh_z 6-10; members (-3,-11)/(-4,-12) only; max |z16| 11445.
+
+- 2026-08-26 (late) VERIFY-EXPORT RUNG — the cross-language
+  reconciliation gate against lane AA's --profile v3 exports:
+  * `uperf-v3 verify-export [t]` (point ZK_MODEL_EXPORT_DIR at a v3
+    export): asserts per layer (1) sidecar SIGNED shifts == the
+    Rust-derived ones, (2) wexps row == the widened exponents, (3)
+    the table row names EXACTLY a frozen C5 member (family, e_in,
+    e_out, digest), (4) Rust-derived a16/u16/h16(=256*Hhi+Hlo)/z16
+    == AA's exported planes byte-for-byte, (5) at t == T the
+    full-plane sha256s == the sidecar rows. Margins arrive BAKED
+    into the sidecar's exps row (the margins row is metadata), so
+    the gate holds for any margin set by construction.
+  * 125M GATE PASSED [WSL-BOX]: AA's m8b_test/m125_v3_export at the
+    FULL T=512 x 12 layers — 48 plane legs byte-identical, every
+    table row = a frozen C5 member, full-plane sha256s == sidecar.
+    The python export chain and the Rust u3 chain agree bit for bit.
+  * FINDING (the real-7B blocker, expected class): the REAL Mistral
+    v3 export FAILS TO LOAD — bf_model's sidecar parser (line
+    ~24658) supports UNIFORM e_w only; Mistral has per-tensor
+    per-layer weight exponents (l0: -10 -11 -10). The 125M export
+    slid through because its three exponents happen to be equal
+    (-9 -9 -9). NEXT RUNG (ownership extension noted: the lane-W
+    loader region, lane W closed 2026-08-25): BfModel per-tensor
+    e_w3 = [eWg,eWu,eWd] per layer; consumers migrate (bf_shifts,
+    the witness class table W/acc/rem rows, u3 shifts); uniform
+    sidecars byte-identical by construction (all three equal); W-5
+    parser battery legs extended with a per-tensor leg.
+  * Floor at this commit [WSL-BOX]: diff-battery green 28.0s;
+    freeze-check 102 ok rows (last = UPERF3-BB-1d) then the
+    expected BK panic — identical to the C5-commit baseline.
+
+- 2026-08-26 (later) PER-TENSOR WEIGHT EXPONENTS + THE REAL-MISTRAL
+  RECONCILE (the blocker rung, same session):
+  * BfModel/U3Model `e_w: i32` -> `e_w3: Vec<(eWg, eWu, eWd)>` per
+    layer (accessors e_wg/e_wu/e_wd + e_w_uniform()); the sidecar
+    parser accepts per-tensor exps fields 7-9 (both uniform-only
+    rejections removed); consumers migrated per site: bf_load_layer
+    + bg_dummy_layer shifts (gate/up matmuls use eWg/eWu, down uses
+    eWd), bf_entry_typing (WgT/WuT/WdT + Gacc/Uacc + Rg/Ru +
+    Dacc/Rd rows split, each matmul's W/acc/rem carry ITS weight
+    exponent), U3Model::shifts, widen_from_bf, u3_synth_model.
+    Uniform exports produce identical values by construction.
+  * v3 STATEMENT LAYOUT v2 ("uperf3-v3-pass-v2"): the global e_w
+    field left the header; (eWg,eWu,eWd) joined the per-layer
+    exponent block. Recorded: any v1-tagged digest in earlier
+    evidence lines is superseded (v3 statement digests were never
+    frozen — this is the right time for the layout change).
+  * W-5 parser battery: the "per-tensor REJECTED" leg FLIPPED to
+    "per-tensor ACCEPTED (e_w3 = [(-9,-8,-9)], uniform = None)";
+    uniform + m125-fixture legs now assert via e_w_uniform().
+  * GATES [WSL-BOX]: uperf-w battery 23/23; diff-battery 26.5s
+    green; freeze-check 102 ok rows unchanged; uperf-v3 battery
+    smoke green 16.9s (honest silu-round ACCEPT under the v2
+    statement bytes); chain-m125 12/12 range facts HOLD; the 125M
+    verify-export re-run BYTE-IDENTICAL (48 legs — the uniform path
+    is untouched).
+  * **THE REAL MISTRAL-7B v3 WITNESS VERIFIES: verify-export PASSED
+    on AA's m8b_mistral_v3_export — 32 layers x T=512, 128 plane
+    legs byte-identical, full-plane sha256s == sidecar, every table
+    row = a frozen C5 member, per-tensor exponents (l0: -10 -11
+    -10) and the margin-adjusted exps rows handled end to end.**
+    The python export chain and the Rust v3 engine agree bit for
+    bit at the real 8B-class shape — the cross-language reconcile
+    the round was opened for.
+  * NEXT: the 1x16/3x16 real-plane PROOF rungs on the Mistral
+    export (u3_layer_run on loaded planes; the plumbing exists —
+    u3_load_m125_layer generalizes via bf_model()); then Gemma once
+    lane AA's export lands (gelu family, GeGLU sites).
+
+- 2026-08-26 (night queue) THE 7B PROOF RUNG NEEDS THE MAC (measured,
+  not assumed):
+  * `uperf-v3 e2e-m125 0 16 1` on the REAL Mistral export (the
+    per-tensor loader banner prints "e_w per-tensor" — the new path
+    live on real planes) was **OOM-KILLED on the 15 GB box at 15.08
+    GB anon RSS** (dmesg: total-vm 20.3 GB; exit 137). The bill is
+    WEIGHTS-dominated — three 4096x14336 planes and their digit-ring
+    /commit structures are t-INDEPENDENT, so a smaller T does not
+    rescue it. Disposition: the rung runs on the Mac (256 GB; a
+    Grok RUN task once this lane merges), or after a u3-rig memory
+    diet (the W-8(a)-class streaming, the known MVP-plan item —
+    lane R's memo predicted exactly this bill class).
+  * POST-MIGRATION real-bins evidence [WSL-BOX NT]: `uperf-v3
+    e2e-m125 0 16 2` on the m125 export under the v2 STATEMENT
+    LAYOUT: **accept = true** — 5320 data cms (5405 commitments, 41
+    waves, 911 pins), commit 3.3 s / prove 70.3 s / verify 17.6 s,
+    wall 91.4 s, statement 2059 bytes. The v3 rig's real-data proof
+    arm is green after the per-tensor migration.
+
+- 2026-08-27 THE GEMMA (GeGLU) RECONCILE — both real checkpoints
+  now verify byte-for-bit:
+  * verify-export gained (a) table-family sniffing from the
+    sidecar's layer-0 table row (widen_from_bf defaults to silu;
+    the Gemma export carries gelu-tanh members), (b) a LEGIBLE
+    guard on clamp-at-z exports: `00 zpolicy clamp` accepted, but
+    any nonzero `NN zclamps` row fails with "the clamp-semantics
+    rung is required" instead of a confusing plane diff (the chain
+    here does not clamp; AA's Gemma export window measured 0
+    clamps, so it reconciles as a plain v3 witness).
+  * **GEMMA GATE PASSED [WSL-BOX]: AA's m8b_gemma4_v3_export — 48
+    layers x T=512 (d 3840, f 15360), 192 plane legs
+    byte-identical, full-plane sha256s == sidecar, every table row
+    = a frozen C5 member.** With Mistral's 128 legs this closes
+    the cross-language reconcile for BOTH real checkpoints and
+    BOTH activation families under the adopted margin sets.
+  * REMAINING (forward-looking): the clamp-selector z gadget (the
+    statement-side clamp relation — needed only when a witness
+    window actually contains a clamped element); the 7B/12B proof
+    rungs are Mac tasks (the 15.08 GB OOM record above).
