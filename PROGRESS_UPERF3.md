@@ -2490,7 +2490,7 @@ PLAN (one commit per green rung, prefix "U-PERF3 GG:"):
   the raw committed values (the zc_range_open_check pattern on the
   zc side; the direct part-functional evaluation on the descent
   side). Exact compared values recorded here.
-- [ ] R3 ALL FAMILIES + the composed 3x16 pass behind the selector
+- [x] R3 ALL FAMILIES + the composed 3x16 pass behind the selector
   (own driver in the [UPERF3-GG] section; bk_pass_run untouched):
   full prove + verify ACCEPT with every descent family replaced;
   transcript delta recorded (rows/bytes changed — a protocol change
@@ -2522,6 +2522,54 @@ OPEN QUESTIONS (conservative readings taken, flagged not guessed):
   booleanity alphabet that closes the negative side is the design
   ruling EE's lane already flagged (bit-granularity commitment).
   Recorded, not silently widened.
+
+R3 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED):
+- The selector: `uperf-a pass [layers] [t] [range|full]` — an OWN
+  composed driver in the [UPERF3-GG] section mirroring bk_pass_run
+  (claim layer / publics / nu-assembly / group proofs verbatim
+  reuse); bk_pass_run itself untouched, so the DEFAULT path is
+  byte-identical by construction (floors below). Own transcript
+  domain "uperf3-gg-pass" + own h0 (statement digest + gg map bytes
+  binding ALL group inventories + both u_0s).
+- cmd: `uperf-a pass 3 16 range` — ACCEPT TRUE (full prove +
+  verify): the 7 range/narrowing families at 3x16 replaced by
+  zc_agg aggregates over committed width-w bit-plane tensors
+  (strided member layout r*cols_pad + c — the descent tree's own
+  alignment, so the rem claim lands on the MEMBER tensor as
+  to_k(cc[i][w]) - offset*S_eq); silu pairs keep the frozen
+  descents; NO stand-ins — every Stage-A claim grounds through the
+  act opening (bg_prove_group's honest-ct row assert is the gate
+  and it holds). DELTA: descent pairs 600,960 B -> 141,264 B (the
+  remaining 128,000 B is the two silu descents; the range share
+  473 KB -> 13.3 KB); total 985,142 -> 525,834 B; act n_0 79,477
+  -> 102,276 (+29%, the committed planes).
+- cmd: `uperf-a pass 3 16 full` — ACCEPT TRUE with EVERY descent
+  family replaced: descent pairs 600,960 B -> Stage-A 26,320 B
+  (22.8x), total 985,142 -> 584,786 B; claims served 1,140-ish
+  descent-derived -> 231 (225 act/weight + 6 act-h). THE THIRD
+  GROUP: h cannot ride u_0(T_act) (h depends on alpha; u_0 is
+  NONLINEAR in the witness — that0 is a digit decomposition — so
+  the memo §2.1/§2.4 ordering is CIRCULAR; finding). Resolution
+  implemented: an "act-h" commitment group committed
+  mid-transcript (u_0(T_h) absorbed after the silu alphas, before
+  any rho — mask-then-fold holds), served by its own single
+  opening (E-O2-BB preserved per group; the PASS gains a third
+  group + 173,896 B of opening bytes; act-h n_0 196,608 rings at
+  3x16 — the R1 h-cost finding in composed form: the h GROUP is
+  2x the act group itself). Walls (NOISY-SHARED, small shape):
+  range mode prove 12.4s == oracle 12.4s; full mode 20.8s (the
+  act-h opening dominates at this scale — h-class cost, not
+  sumcheck cost).
+- Serving forms pinned by the driver (the new transcript rows):
+  planes claims (block row kernel x eq_lo at r_col over the
+  planes tensor), member rem claims (to_k(cc)-offset*S_eq), LogUp
+  h_sum/h(x*) claims (act-h, ones/eq kernels x ypow), key(x*)
+  claims (prim + Y-scaled image member parts), table_sum claims
+  (inv(alpha-t_j) weights over the per-column m block), stacked
+  zc claims + LogUp finals/served values absorbed before the nus
+  (CRB-N5 kept).
+- floors: diff-battery 15.33s green; 3752cba4.. / 46234986..
+  unchanged; freeze-check passed (default path byte-identical).
 
 R2 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED):
 - cmd: `uperf-a diff rem-w6 3 16 205` (also run: nrw-88 — the
