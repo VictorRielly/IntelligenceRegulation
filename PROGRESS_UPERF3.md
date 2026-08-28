@@ -2483,7 +2483,7 @@ PLAN (one commit per green rung, prefix "U-PERF3 GG:"):
   count, depth/dt, the claims it serves to the opening (counted), and
   its Stage-A replacement instance (zc_agg / LogUp per memo §2.3/2.4).
   Reconcile against memo §1.1's counted rows; mismatches are FINDINGS.
-- [ ] R2 ONE-FAMILY DIFFERENTIAL on real 3x16 (M125_EXPORT_DIR): the
+- [x] R2 ONE-FAMILY DIFFERENTIAL on real 3x16 (M125_EXPORT_DIR): the
   simplest rem-w pair proved BOTH ways at fixed seeds — the descent
   pair (bk_pass_run call sequence, the oracle) and the aggregate
   zero-check — with every served claim checked bit-for-bit against
@@ -2522,6 +2522,43 @@ OPEN QUESTIONS (conservative readings taken, flagged not guessed):
   booleanity alphabet that closes the negative side is the design
   ruling EE's lane already flagged (bit-granularity commitment).
   Recorded, not silently widened.
+
+R2 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED):
+- cmd: `uperf-a diff rem-w6 3 16 205` (also run: nrw-88 — the
+  multi-tree + pad shape; nrw-z — the nd padded-2^14 shape). ALL
+  LEGS GREEN on each.
+- EXACTLY WHICH VALUES ARE COMPARED (the differential's contract):
+  (a) DESCENT ORACLE (bk_pass_run's per-pair call sequence verbatim:
+  alpha = first challenge, bk_build_aux blinders/masks/counts,
+  bk_tree_slots -> aligned_witness_tree + blinded_table_tree,
+  masked_gkr_prove both sides, the PASS-form verify — zero-mask
+  shells, no pins — + root cross-checks + transcript parity, claims
+  rebuilt by bk_pair_claims from the VERIFIER's re-derived
+  endpoints): every served claim is grounded by the eval-proof
+  STAND-IN — claim.value == sum_parts(scale x row^T M col) evaluated
+  directly on the raw committed grids (member tensors via
+  bf_entry_values, m/bl/wm/tm via the bk_build_aux value vectors),
+  EXACT K-field equality, 88/88 claims (rem-w6; 96/96 nrw-88, 92/92
+  nrw-z). (b) ZC LEG ([UPERF3-EE] zc_agg_prove/verify at E_4, e0=1,
+  one aggregate per shape class, w bit planes per member column
+  built by stage_a::range_planes from the SAME bf_entry_values
+  arrays — shared committed-code digest printed): every served
+  stacked claim col_claims[i][k] == base_mle_eval(plane_k | rem,
+  r_col) BIT-FOR-BIT (7/7 rem-w6 m=1; 54/54 nrw-88 m=6 a=3; 27/27
+  nrw-z m=3 a=2), verify green, prover/verifier transcript parity.
+  The two legs serve DIFFERENT claim forms at different points by
+  design (the EE lane's FS note); the common ground is the raw
+  committed data both sides are checked against, byte-identical by
+  the shared code digest.
+- Tamper mini-legs (the BK RangeViolation shape, +2^w at one code):
+  descent REJECTS at the root cross-check (mass mismatch); zc
+  truncated-plane cheat REJECTS at zc_agg_verify (recomposition
+  breaks — the top bit cannot be presented). Both asserted.
+- Walls (informational, NOISY-SHARED): rem-w6 zc prove 0.02s vs
+  descent trees+prove 0.09s; nrw-88 0.19s vs 0.29s; peak RSS
+  267-313 MiB.
+- floors: diff-battery 15.64s green; 3752cba4.. / 46234986..
+  unchanged; freeze-check passed.
 
 R1 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED; structure-only, no
 proving, no walls):

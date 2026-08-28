@@ -50,3 +50,29 @@ pub fn descent_pair_claims(depth: usize, dt: usize) -> (usize, usize, usize) {
     let (w, t) = (side(depth), side(dt));
     (w, t, w + t + 4)
 }
+
+// ---------------------------------------------------------------------------
+// Rung 2: the range-fact instance built from a REAL member column.
+
+/// The w bit planes + canonical residues of a member column's coded values
+/// (code = value + offset), zero-padded to 2^n_log2. HONEST instances only:
+/// every code is asserted in [0, 2^w) — the bits are then a valid
+/// sign-binary digit vector (memo §2.3 / the S1 spike form) and the coded
+/// value recomposes as sum_k 2^k b_k, so (planes, rem) is a green
+/// ZcRangeInstance at e0 = 1. Pads are zeros (0 is in the alphabet and
+/// recomposes to 0).
+pub fn range_planes(vals: &[i64], offset: i64, w: usize, n_log2: usize) -> (Vec<Vec<u32>>, Vec<u32>) {
+    let size = 1usize << n_log2;
+    assert!(vals.len() <= size, "column longer than the padded hypercube");
+    let mut planes = vec![vec![0u32; size]; w];
+    let mut rem = vec![0u32; size];
+    for (i, &v) in vals.iter().enumerate() {
+        let code = v + offset;
+        assert!(code >= 0 && (code as u128) < (1u128 << w), "off-range code in an honest instance");
+        for (k, plane) in planes.iter_mut().enumerate() {
+            plane[i] = ((code >> k) & 1) as u32;
+        }
+        rem[i] = code as u32;
+    }
+    (planes, rem)
+}

@@ -47484,12 +47484,355 @@ fn uperf_a_gg_main(args: &[String]) {
     let geti = |i: usize, d: usize| args.get(i).and_then(|s| s.parse::<usize>().ok()).unwrap_or(d);
     match args.first().map(String::as_str) {
         Some("map") => uperf_a_gg_map(geti(1, bf_model().layers), geti(2, bf_model().t)),
+        Some("diff") => {
+            let pair = args.get(1).cloned().unwrap_or_else(|| "rem-w6".to_string());
+            uperf_a_gg_diff(&pair, geti(2, 3), geti(3, 16), geti(4, 205) as u8);
+        }
         Some("descent-bench") | Some("descent-battery") => uperf_a_main(args),
         _ => {
-            println!("uperf-a map [layers] [t]   ([UPERF3-GG] Stage-A integration, round 5)");
+            println!(
+                "uperf-a map [layers] [t] | diff [pair] [layers] [t] [seed]   ([UPERF3-GG] Stage-A integration, round 5)"
+            );
             uperf_a_main(args);
         }
     }
+}
+
+/// [UPERF3-GG] rung 2 helper — mutable access to a member entry's values
+/// (the tamper legs; remainder/narrowing entries only).
+fn gg_entry_values_mut(e: usize, lay: &mut BfLayer) -> &mut Vec<i64> {
+    match BF_ENTRIES[e] {
+        "Rg" => &mut lay.rg,
+        "Ru" => &mut lay.ru,
+        "Rh" => &mut lay.rh,
+        "Rd" => &mut lay.rd,
+        "u8" => &mut lay.u8v,
+        "h8" => &mut lay.h8,
+        "z" => &mut lay.z,
+        _ => panic!("tamper leg supports remainder/narrowing entries only"),
+    }
+}
+
+/// [UPERF3-GG] rung 2 helper — the eval-proof STAND-IN on the descent
+/// side: evaluate one served claim's parts directly against the raw
+/// committed grids (scale x row^T M col per part, values embedded as the
+/// digit witness would serve them) and return the functional value the
+/// opening would ground `claim.value` against.
+fn gg_claim_functional(
+    kf: &ring::kfield::KField,
+    tensors: &[ring::eval_proof::AggTensor],
+    vals: &[Option<&[i64]>],
+    claim: &BkClaim,
+) -> ring::kfield::KElem {
+    let zq = &kf.zq;
+    let mut acc = kf.zero();
+    for (ti, scale, row, col) in &claim.parts {
+        let ten = &tensors[*ti];
+        let v = vals[*ti].unwrap_or_else(|| panic!("claim touches unresolved tensor {}", ten.name));
+        let mut part = kf.zero();
+        for (r, rw) in row.iter().enumerate() {
+            if kf.is_zero(rw) {
+                continue;
+            }
+            let mut rowacc = kf.zero();
+            for (c, cw) in col.iter().enumerate() {
+                let x = v[r * ten.cols + c];
+                if x != 0 {
+                    rowacc = kf.add(&rowacc, &kf.scale(zq.to_mod(x), cw));
+                }
+            }
+            part = kf.add(&part, &kf.mul(rw, &rowacc));
+        }
+        acc = kf.add(&acc, &kf.mul(scale, &part));
+    }
+    acc
+}
+
+/// [UPERF3-GG] rung 2 — the descent ORACLE leg for ONE pair on the REAL
+/// layers: bk_pass_run's per-pair call sequence at a fixed seed (alpha =
+/// first challenge, aligned witness trees + blinded table trees over the
+/// pair's aux, masked descents both sides, the pass-form verify —
+/// zero-mask shells, no pins — root cross-checks, then bk_pair_claims from
+/// the verifier's re-derived endpoints). Returns (verify+cross ok, the
+/// served claims, walls).
+#[allow(clippy::type_complexity)]
+fn uperf_a_gg_desc_leg(
+    kf: &ring::kfield::KField,
+    sp: &BkPairSpec,
+    lays: &[BfLayer],
+    reg: &BkRegistry,
+    pi: usize,
+    seed: u8,
+) -> (bool, Vec<BkClaim>, BkAuxMat, f64, f64, f64) {
+    use ring::descent_fold::{aligned_witness_tree, neutral_tree};
+    use ring::gkr::root_cross_check;
+    use ring::gkr_masked::{blinded_table_tree, masked_gkr_prove, masked_gkr_verify, zero_masks};
+    use ring::kfield::KElem;
+    use ring::sumcheck::LkpTranscript;
+    let zq = &kf.zq;
+    let plan = &sp.plan;
+    let mut rng = ring::ProverRng::from_test_seed("uperf3-gg-diff-aux", &[seed, sp.pid as u8]);
+    let mut aux = bk_build_aux(sp, lays, reg, pi, kf, &mut rng);
+    let mut tr = LkpTranscript::new("uperf3-gg-diff", &[seed; 32]);
+    let alpha = tr.challenge_k(kf);
+    let t0 = Instant::now();
+    let mut wtrees: Vec<ring::gkr::FracTree> = Vec::with_capacity(plan.l);
+    for i in 0..plan.n_real {
+        let slots = bk_tree_slots(kf, sp, lays, i);
+        let slot_refs: Vec<(ring::descent_fold::MemberShape, usize, &[KElem])> =
+            slots.iter().map(|(s, b, c)| (*s, *b, c.as_slice())).collect();
+        wtrees.push(aligned_witness_tree(kf, &alpha, &slot_refs, plan.depth, &aux.bl_w[i]));
+    }
+    for _ in plan.n_real..plan.l {
+        wtrees.push(neutral_tree(kf, plan.depth));
+    }
+    let trees_a = t0.elapsed().as_secs_f64();
+    let masks_w = aux.masks_w.take().expect("witness masks drawn once");
+    let t1 = Instant::now();
+    let (pw, _endw) = masked_gkr_prove(kf, &wtrees, masks_w, &mut tr);
+    drop(wtrees);
+    let t2 = Instant::now();
+    let tab_k = sp.table_k(kf);
+    let mut ttrees: Vec<ring::gkr::FracTree> = Vec::with_capacity(plan.l);
+    for i in 0..plan.n_real {
+        let m_k: Vec<KElem> = aux.m_counts[i].iter().map(|&c| kf.embed(zq.to_mod(c))).collect();
+        ttrees.push(blinded_table_tree(kf, &alpha, &tab_k, &m_k, sp.dt, &aux.bl_t[i]));
+    }
+    for _ in plan.n_real..plan.l {
+        ttrees.push(neutral_tree(kf, sp.dt));
+    }
+    let trees_s = trees_a + t2.elapsed().as_secs_f64();
+    let masks_t = aux.masks_t.take().expect("table masks drawn once");
+    let (pt, _endt) = masked_gkr_prove(kf, &ttrees, masks_t, &mut tr);
+    drop(ttrees);
+    let prove_s = t1.elapsed().as_secs_f64() - (trees_s - trees_a);
+    // The pass-form VERIFY on a fresh transcript.
+    let t3 = Instant::now();
+    let mut tv = LkpTranscript::new("uperf3-gg-diff", &[seed; 32]);
+    let alpha_v = tv.challenge_k(kf);
+    assert!(alpha_v == alpha, "alpha replay");
+    let shell_w = zero_masks(kf, plan.depth, plan.e_bits);
+    let Some((roots_w, endw_v)) = masked_gkr_verify(kf, plan.l, plan.depth, &shell_w, &pw, &mut tv, false) else {
+        return (false, Vec::new(), aux, trees_s, prove_s, t3.elapsed().as_secs_f64());
+    };
+    let shell_t = zero_masks(kf, sp.dt, plan.e_bits);
+    let Some((roots_t, endt_v)) = masked_gkr_verify(kf, plan.l, sp.dt, &shell_t, &pt, &mut tv, false) else {
+        return (false, Vec::new(), aux, trees_s, prove_s, t3.elapsed().as_secs_f64());
+    };
+    let mut cross_ok = tv.state() == tr.state();
+    for i in 0..plan.n_real {
+        cross_ok &= root_cross_check(kf, &roots_w[i], &roots_t[i]);
+    }
+    for i in plan.n_real..plan.l {
+        for p in [&pw.layer1[i], &pt.layer1[i]] {
+            cross_ok &= kf.is_zero(&p[0]) && kf.is_zero(&p[1]) && p[2] == kf.one() && p[3] == kf.one();
+        }
+    }
+    let verify_s = t3.elapsed().as_secs_f64();
+    let mut claims: Vec<BkClaim> = Vec::new();
+    if cross_ok {
+        let ypow = bk_ypow_col(kf);
+        let view = BkPairView { alpha: &alpha_v, pw: &pw, endw: &endw_v, pt: &pt, endt: &endt_v };
+        bk_pair_claims(kf, sp, reg, pi, &view, &ypow, &mut claims);
+    }
+    (cross_ok, claims, aux, trees_s, prove_s, verify_s)
+}
+
+/// [UPERF3-GG] rung 2 — ONE-FAMILY DIFFERENTIAL on the real shape: the
+/// chosen range pair proved BOTH ways at fixed seeds — (a) the masked
+/// descent pair (the frozen pass's call sequence, the ORACLE) with every
+/// served claim grounded directly against the raw committed grids (the
+/// eval-proof stand-in), and (b) the Stage-A aggregate zero-check
+/// ([UPERF3-EE] zc_agg) over the same columns' width-w bit planes with
+/// every served claim checked bit-for-bit against base_mle_eval (the S1
+/// zc_range_open_check pattern). Plus the off-table tamper mini-legs on
+/// both sides.
+fn uperf_a_gg_diff(pair: &str, layers_n: usize, t: usize, seed: u8) {
+    use ring::kfield::KField;
+    use ring::stage_a::{clog2, range_planes};
+    use ring::sumcheck::LkpTranscript;
+    use ring::zc_range::{SubExt, ZcAggInstance, ZcRangeInstance, base_mle_eval, zc_agg_prove, zc_agg_verify};
+    use sha2::{Digest, Sha256};
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let q = ctxr.zq.q;
+    println!(
+        "[UPERF3-GG] diff: pair {pair}, {layers_n} layers, T = {t}, seed {seed} [WSL-BOX NOISY-SHARED]"
+    );
+    let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
+    let specs = bk_pair_specs(&lays, t);
+    let pi = specs.iter().position(|s| s.name() == pair).unwrap_or_else(|| {
+        panic!("pair {pair} absent at this shape (present: {:?})", specs.iter().map(|s| s.name()).collect::<Vec<_>>())
+    });
+    let sp = &specs[pi];
+    assert!(sp.silu.is_none(), "diff rung covers the range families (SiLU rides rung 3)");
+    let reg = bk_build_groups(&lays, t, &specs, q);
+    let w = sp.t_rows.trailing_zeros() as usize;
+
+    // ---- (a) the descent ORACLE leg + the serving check. ----
+    let (ok, claims, aux, trees_s, prove_s, verify_s) = uperf_a_gg_desc_leg(&kf, sp, &lays, &reg, pi, seed);
+    assert!(ok, "honest descent pair must verify + cross-check");
+    let mut vals_of: Vec<Option<&[i64]>> = vec![None; reg.ga.tensors.len()];
+    for (li, lay) in lays.iter().enumerate() {
+        for e in 0..BF_ENTRIES.len() {
+            let (in_w, ti) = reg.map[li][e];
+            if !in_w {
+                vals_of[ti] = Some(bf_entry_values(e, lay));
+            }
+        }
+    }
+    let [ti_m, ti_bl, ti_wm, ti_tm] = reg.aux_base[pi];
+    vals_of[ti_m] = Some(&aux.vals_m);
+    vals_of[ti_bl] = Some(&aux.vals_bl);
+    vals_of[ti_wm] = Some(&aux.vals_wm);
+    vals_of[ti_tm] = Some(&aux.vals_tm);
+    let mut ground_ok = 0usize;
+    for (ci, claim) in claims.iter().enumerate() {
+        assert!(!claim.in_weight, "pair claims live in the act group");
+        let f = gg_claim_functional(&kf, &reg.ga.tensors, &vals_of, claim);
+        assert!(f == claim.value, "descent served claim {ci} does not ground against the raw grids");
+        ground_ok += 1;
+    }
+    println!(
+        "  (a) descent oracle: verify+cross green; SERVING CHECK {ground_ok}/{} claims — each claim.value == sum_parts(scale x row^T M col) over the raw committed grids (members via bf_entry_values, aux via bk_build_aux) EXACT; trees {trees_s:.2}s prove {prove_s:.2}s verify {verify_s:.2}s",
+        claims.len()
+    );
+
+    // ---- (b) the Stage-A zc_agg leg + the serving check. ----
+    // One aggregate per shape class (equal n_log2 per zc_agg).
+    let ext = SubExt::new(&kf, 4);
+    let mut shape_classes: Vec<(usize, usize)> = Vec::new();
+    for m in &sp.members {
+        let key = (m.shape.rows, m.shape.cols);
+        if !shape_classes.contains(&key) {
+            shape_classes.push(key);
+        }
+    }
+    let mut zc_claims_total = 0usize;
+    let mut zc_rounds_total = 0usize;
+    let mut zc_prove_s = 0.0f64;
+    for (rows, cols) in &shape_classes {
+        let n_el = rows * cols;
+        let n_log2 = clog2(n_el);
+        let members: Vec<&BkMember> =
+            sp.members.iter().filter(|m| (m.shape.rows, m.shape.cols) == (*rows, *cols)).collect();
+        let m_cols = members.len();
+        // The instances read the SAME committed values the descent folded.
+        let mut store: Vec<(Vec<Vec<u32>>, Vec<u32>)> = Vec::with_capacity(m_cols);
+        let mut code_digest = Sha256::new_with_prefix(b"uperf3-gg-codes-v1");
+        for m in &members {
+            let vals = bf_entry_values(m.entry, &lays[m.li]);
+            let (planes, rem) = range_planes(vals, m.offset, w, n_log2);
+            for &r in rem.iter().take(vals.len()) {
+                code_digest.update(r.to_le_bytes());
+            }
+            store.push((planes, rem));
+        }
+        let cols_inst: Vec<ZcRangeInstance> = store
+            .iter()
+            .map(|(p, r)| ZcRangeInstance { n_log2, e0: 1, planes: p, rem: r })
+            .collect();
+        let inst = ZcAggInstance { n_log2, e0: 1, cols: cols_inst };
+        let a = inst.a();
+        let n_tot = n_log2 + a;
+        let mut trz = LkpTranscript::new("uperf3-gg-zc", &[seed; 32]);
+        let rho: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut trz)).collect();
+        let betas: Vec<_> = (0..w + 1).map(|_| ext.challenge(&kf, &mut trz)).collect();
+        let tz = Instant::now();
+        let (proof, point, stats) = zc_agg_prove(&kf, &ext, &inst, &rho, &betas, &mut trz);
+        zc_prove_s += tz.elapsed().as_secs_f64();
+        let mut trv = LkpTranscript::new("uperf3-gg-zc", &[seed; 32]);
+        let rho_v: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut trv)).collect();
+        let betas_v: Vec<_> = (0..w + 1).map(|_| ext.challenge(&kf, &mut trv)).collect();
+        assert!(rho_v == rho && betas_v == betas, "challenge replay");
+        let vpoint = zc_agg_verify(&kf, &ext, n_log2, 1, w, m_cols, &rho_v, &betas_v, &proof, &mut trv)
+            .expect("honest aggregate must verify");
+        assert!(vpoint == point && trv.state() == trz.state(), "zc transcript parity");
+        // SERVING CHECK: every stacked claim == the table MLE at r_col.
+        let r_col = &point[..n_log2];
+        let mut mle_ok = 0usize;
+        for (i, (planes, rem)) in store.iter().enumerate() {
+            for (k, plane) in planes.iter().enumerate() {
+                assert!(
+                    proof.col_claims[i][k] == base_mle_eval(&ext, plane, r_col),
+                    "zc served claim (col {i}, plane {k}) != base_mle_eval"
+                );
+                mle_ok += 1;
+            }
+            assert!(
+                proof.col_claims[i][w] == base_mle_eval(&ext, rem, r_col),
+                "zc served claim (col {i}, rem) != base_mle_eval"
+            );
+            mle_ok += 1;
+        }
+        zc_claims_total += mle_ok;
+        zc_rounds_total += stats.rounds;
+        println!(
+            "  (b) zc_agg [{rows}x{cols} class]: m = {m_cols} cols x 2^{n_log2}, a = {a}, {} rounds, E_4; verify green; SERVING CHECK {mle_ok}/{mle_ok} col_claims == base_mle_eval(plane_k | rem, r_col) BIT-FOR-BIT; shared committed-code digest {}",
+            stats.rounds,
+            hex_full(&code_digest.finalize().into())[..16].to_string()
+        );
+    }
+    println!(
+        "  claims swap at this pair: descent serves {} claims (incl. {} member-grid parts inside wq) -> zc serves {zc_claims_total} MLE claims over {zc_rounds_total} rounds; zc prove {zc_prove_s:.2}s vs descent trees+prove {:.2}s [NOISY-SHARED]",
+        claims.len(),
+        sp.members.len(),
+        trees_s + prove_s
+    );
+
+    // ---- Tamper mini-legs (the BK RangeViolation shape: a committable
+    // ---- code bumped by +2^w — off-table both ways). ----
+    let mut lays_t: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
+    let m0 = sp.members[0];
+    let idx = 3usize;
+    gg_entry_values_mut(m0.entry, &mut lays_t[m0.li])[idx] += 1i64 << w;
+    let (ok_t, _c, _a, _t1, _t2, _t3) = uperf_a_gg_desc_leg(&kf, sp, &lays_t, &reg, pi, seed);
+    assert!(!ok_t, "tampered descent leg must fail the root cross-check");
+    println!("  tamper (a): +2^{w} at member 0 idx {idx} -> descent REJECTS (root cross-check / mass mismatch)");
+    {
+        let (rows, cols) = (m0.shape.rows, m0.shape.cols);
+        let n_log2 = clog2(rows * cols);
+        let members: Vec<&BkMember> =
+            sp.members.iter().filter(|m| (m.shape.rows, m.shape.cols) == (rows, cols)).collect();
+        let mut store: Vec<(Vec<Vec<u32>>, Vec<u32>)> = Vec::with_capacity(members.len());
+        for (mi, m) in members.iter().enumerate() {
+            let vals = bf_entry_values(m.entry, &lays_t[m.li]);
+            if mi == 0 {
+                // The cheating prover: the committed rem carries the real
+                // (off-table) code; the best available planes are its low
+                // w bits (the top bit cannot be presented — booleanity).
+                let size = 1usize << n_log2;
+                let mut planes = vec![vec![0u32; size]; w];
+                let mut rem = vec![0u32; size];
+                for (i, &v) in vals.iter().enumerate() {
+                    let code = v + m.offset;
+                    for (k, plane) in planes.iter_mut().enumerate() {
+                        plane[i] = ((code >> k) & 1) as u32;
+                    }
+                    rem[i] = ctxr.zq.to_mod(code) as u32;
+                }
+                store.push((planes, rem));
+            } else {
+                store.push(range_planes(vals, m.offset, w, n_log2));
+            }
+        }
+        let cols_inst: Vec<ZcRangeInstance> =
+            store.iter().map(|(p, r)| ZcRangeInstance { n_log2, e0: 1, planes: p, rem: r }).collect();
+        let inst = ZcAggInstance { n_log2, e0: 1, cols: cols_inst };
+        let n_tot = n_log2 + inst.a();
+        let m_cols = inst.m();
+        let mut trz = LkpTranscript::new("uperf3-gg-zc-tamper", &[seed; 32]);
+        let rho: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut trz)).collect();
+        let betas: Vec<_> = (0..w + 1).map(|_| ext.challenge(&kf, &mut trz)).collect();
+        let (proof, _point, _stats) = zc_agg_prove(&kf, &ext, &inst, &rho, &betas, &mut trz);
+        let mut trv = LkpTranscript::new("uperf3-gg-zc-tamper", &[seed; 32]);
+        let rho_v: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut trv)).collect();
+        let betas_v: Vec<_> = (0..w + 1).map(|_| ext.challenge(&kf, &mut trv)).collect();
+        let res = zc_agg_verify(&kf, &ext, n_log2, 1, w, m_cols, &rho_v, &betas_v, &proof, &mut trv);
+        assert!(res.is_none(), "tampered zc leg must reject");
+        println!("  tamper (b): same bump, truncated-plane cheat -> zc_agg_verify REJECTS (recomposition breaks; the top bit cannot be presented)");
+    }
+    println!("[UPERF3-GG] diff: ALL LEGS GREEN (peak RSS {:.0} MiB)", uperf_a_peak_rss_mib());
 }
 
 /// [UPERF3-GG] rung 1 — THE OBJECT MAP (no proving): every descent-pair
