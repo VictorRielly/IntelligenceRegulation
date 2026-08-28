@@ -6404,7 +6404,7 @@ fn main() {
         // [UPERF-PC] U-PERF lane PC profile/differential harness (additive).
         Some("uperf-pc") => uperf_pc_main(&args[1..]),
         // [UPERF2-A] U-PERF2 lane A descent bench/battery harness (additive).
-        Some("uperf-a") => uperf_a_main(&args[1..]),
+        Some("uperf-a") => uperf_a_gg_main(&args[1..]), // [UPERF3-GG] Stage-A integration arms; the [UPERF2-A] subcommands delegate verbatim
         // [UPERF2-C] U-PERF2 lane C (eval-proof leftovers) battery + benches.
         Some("uperf-c") => uperf_c_main(&args[1..]),
         // [UPERF2-D] U-PERF2 lane D (claim layer + commit phase) battery + bench.
@@ -47461,4 +47461,34 @@ fn tt_build_real_act_instance(kf: &ring::kfield::KField, layers_n: usize, t: usi
         tt.push(TtContrib { tensor_idx: ti, hi, lo, col });
     }
     (TtInstance { group: ga, grid, claims, tt }, w0)
+}
+
+// ===========================================================================
+// [UPERF3-GG] U-PERF3 round 5, lane GG — STAGE A INTEGRATION: the descent
+// replacement in the real pass (spec: U_PERF3_OPENING_LAYER_DESIGN.md §2;
+// engine side: ring/stage_a.rs; components reused read-only:
+// ring/zc_range.rs [UPERF3-S]+[UPERF3-EE], ring/ec_kernel.rs [UPERF3-DD]).
+// The frozen BK full-statement path (bk_pass_run) is the ORACLE; everything
+// here is additive and selector-gated — the default path stays
+// byte-identical (the frozen digests are the floor).
+//
+// `uperf-a` dispatch (lane GG owns the dispatch line): the Stage-A arms
+// below; the legacy [UPERF2-A] subcommands (descent-bench /
+// descent-battery) delegate to uperf_a_main verbatim.
+//
+//   uperf-a map [layers] [t]  — rung 1: THE OBJECT MAP (no proving) — every
+//     descent-pair family of the real pass at the shape, its instance
+//     count / depth / served claims, and its Stage-A replacement instance.
+
+fn uperf_a_gg_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("map") => {
+            println!("[UPERF3-GG] map: not built yet (rung 1)");
+        }
+        Some("descent-bench") | Some("descent-battery") => uperf_a_main(args),
+        _ => {
+            println!("uperf-a map [layers] [t]   ([UPERF3-GG] Stage-A integration, round 5)");
+            uperf_a_main(args);
+        }
+    }
 }

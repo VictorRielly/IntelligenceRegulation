@@ -2456,3 +2456,80 @@ that needs a kernel-gate ruling first — flagged as an open question.
     patch to this spike).
   * Floor at close: diff-battery 15.78 s green; uperf-s digest
     3752cba4.. unchanged.
+
+## Agent GG status (wt-uperf3-gg) — round 5
+
+STATE: R0 SKELETON (2026-08-28). Lane: Stage A INTO THE REAL PASS —
+replace the masked descents of the BK full-statement path with the
+validated components (EE's aggregate zero-check + O-4 mask for the
+range/narrowing pairs; S2's LogUp-as-one-sumcheck for the SiLU pairs)
+behind an explicit selector, the frozen pass as oracle, spec =
+U_PERF3_OPENING_LAYER_DESIGN.md §2. OWNS: NEW ring/stage_a.rs, one
+line in ring/mod.rs, the [UPERF3-GG] bin section + the `uperf-a`
+dispatch line, this status section. Everything else read-only.
+
+FLOORS at every commit: release build; uperf-pc diff-battery green;
+uperf-s battery digest 3752cba4.. unchanged; uperf-s agg-battery
+digest 46234986.. unchanged; freeze-check 102 ok rows then the
+expected BK panic (WSL box).
+
+PLAN (one commit per green rung, prefix "U-PERF3 GG:"):
+- [x] R0 SKELETON: this section; empty ring/stage_a.rs + its mod
+  line; the `uperf-a` GG dispatch wrapper + [UPERF3-GG] bin section
+  stub (`map` prints not-built).
+- [ ] R1 THE OBJECT MAP (no proving): `uperf-a map [layers] [t]` —
+  from the REAL pass structures (bk_pair_specs + the bk_pair_claims
+  shape) at 12x512 and 3x16: every descent-pair family with instance
+  count, depth/dt, the claims it serves to the opening (counted), and
+  its Stage-A replacement instance (zc_agg / LogUp per memo §2.3/2.4).
+  Reconcile against memo §1.1's counted rows; mismatches are FINDINGS.
+- [ ] R2 ONE-FAMILY DIFFERENTIAL on real 3x16 (M125_EXPORT_DIR): the
+  simplest rem-w pair proved BOTH ways at fixed seeds — the descent
+  pair (bk_pass_run call sequence, the oracle) and the aggregate
+  zero-check — with every served claim checked bit-for-bit against
+  the raw committed values (the zc_range_open_check pattern on the
+  zc side; the direct part-functional evaluation on the descent
+  side). Exact compared values recorded here.
+- [ ] R3 ALL FAMILIES + the composed 3x16 pass behind the selector
+  (own driver in the [UPERF3-GG] section; bk_pass_run untouched):
+  full prove + verify ACCEPT with every descent family replaced;
+  transcript delta recorded (rows/bytes changed — a protocol change
+  by design, selector-only).
+- [ ] R4 O-4 masked variant at pass level + tamper legs (flipped
+  mask / tampered claim / tampered round must reject).
+- [ ] R5 (stretch) 12x512 prove wall + /usr/bin/time -v peak RSS,
+  selector on/off [WSL-BOX NT NOISY-SHARED] — the 5.6 GB descent
+  pair memory should vanish from the peak.
+
+OPEN QUESTIONS (conservative readings taken, flagged not guessed):
+- OQ-1 `uperf-a` NAME COLLISION: the brief says "register a uperf-a
+  stub arm", but `uperf-a` has been the [UPERF2-A] descent
+  bench/battery arm since U-PERF2 (uperf_a_main; the design memo
+  §5.3 itself cites `uperf-a descent-bench`). Resolution: the GG
+  wrapper `uperf_a_gg_main` takes the dispatch line (granted to this
+  lane), handles the new Stage-A subcommands, and DELEGATES the
+  legacy subcommands to uperf_a_main verbatim (their stdout
+  unchanged); unknown/no-arg prints both usage lines.
+- OQ-2 RANGE PLANES (transcript-affecting; memo §2.3 subtlety (1)):
+  the pass commits balanced base-2^e0 digits per tensor; a
+  zero-check on THOSE limbs alone cannot close the committable-but-
+  off-table gap (bk_range_violation's leg). The spike/EE-validated
+  form is w width-specific planes under the house sign-binary
+  alphabet (e0 = 1, deg_f 3) — that is what R2/R3 use (committed as
+  new aux tensors under the selector, replacing bk-m/bl/wm/tm).
+  KNOWN GAP carried to the O-3 write-up: sign-binary w planes prove
+  membership in [-(2^w - 1), 2^w - 1], not [0, 2^w) — the {0,1}
+  booleanity alphabet that closes the negative side is the design
+  ruling EE's lane already flagged (bit-granularity commitment).
+  Recorded, not silently widened.
+
+R0 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED):
+- cmd: release build green; `uperf-a map` prints the stub; legacy
+  `uperf-a` (no args / descent-*) delegates with its usage intact.
+- floors: uperf-pc diff-battery green (O1 4/4, O2 35/35, O3 63/63,
+  O5 12/12, E2E 2/2, 15.01 s); uperf-s battery 48 legs digest
+  3752cba4.. unchanged; agg-battery 136 legs digest 46234986..
+  unchanged; freeze-check WITH M125_EXPORT_DIR: 102 ok rows AND the
+  BK rows stable ("freeze-check passed" — no panic with the WSL
+  export present; the brief's expected-panic form is the no-export
+  invocation).
