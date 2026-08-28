@@ -34093,6 +34093,34 @@ fn bk_tree_slot_fns<'a>(
     out
 }
 
+/// [UPERF3-HH W-8a] The layer loader + tamper arms in ONE place: the
+/// i64 layer store (`BfLayer`, W-8's 66 GB at 32x512) is DROPPED for
+/// the group-proof phase (the group proofs read w0 + the Phi0Source,
+/// never `lays`) and rebuilt here for the verifier's registry /
+/// public-claim MLEs. Loading + the tamper arms are deterministic
+/// functions of the export files and `opts`, so the rebuilt layers —
+/// and with them reg_v, h0_v and every claim value — are byte-identical
+/// to the first load (the pass digests are the acceptance gate).
+fn bk_load_lays(opts: &BkOpts, t: usize) -> Vec<BfLayer> {
+    let mut lays: Vec<BfLayer> = (0..opts.layers_n).map(|l| bf_load_layer(l, t, true)).collect();
+    match opts.tamper {
+        BkTamper::RangeViolation => {
+            bk_range_violation(&mut lays);
+        }
+        BkTamper::WrongTable => {
+            // The singleton m4 layer's chain rederived against m3 —
+            // the prover's pair material follows (bk_prover_silu).
+            let li = lays
+                .iter()
+                .position(|l| l.exps.1 == -4)
+                .expect("battery shape carries an m4 layer");
+            bf_derive_chain(&mut lays[li], t, Some((-3, -3)));
+        }
+        _ => {}
+    }
+    lays
+}
+
 #[allow(clippy::too_many_arguments)]
 fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     use ring::descent_fold::{aligned_witness_tree, aligned_witness_tree_fn, neutral_tree, tree_ceiling_ok};
@@ -34132,22 +34160,10 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     };
 
     // ---- Witness: the REAL ckpt-00009536 layers (+ tamper arms). ----
-    let mut lays: Vec<BfLayer> = (0..opts.layers_n).map(|l| bf_load_layer(l, t, true)).collect();
-    match opts.tamper {
-        BkTamper::RangeViolation => {
-            bk_range_violation(&mut lays);
-        }
-        BkTamper::WrongTable => {
-            // The singleton m4 layer's chain rederived against m3 —
-            // the prover's pair material follows (bk_prover_silu).
-            let li = lays
-                .iter()
-                .position(|l| l.exps.1 == -4)
-                .expect("battery shape carries an m4 layer");
-            bf_derive_chain(&mut lays[li], t, Some((-3, -3)));
-        }
-        _ => {}
-    }
+    // [UPERF3-HH W-8a] loader + tamper arms factored (bk_load_lays) —
+    // the store is dropped before the group proofs and reloaded
+    // byte-identically for the verifier below.
+    let mut lays: Vec<BfLayer> = bk_load_lays(opts, t);
     uf_rss("bk.layers-loaded"); // [UPERF2-F] observation only
 
     // ---- Pair specs, registry, schedules, aux, witnesses. ----
@@ -34670,6 +34686,11 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         w0_a.resize(w0_grid_a);
         uf_rss("bk.w0-rebuilt"); // [UPERF2-F] observation only
     }
+    // [UPERF3-HH W-8a] the group proofs read w0 + the Phi0Source
+    // (registry metadata + claim kernels), never the layer store — drop
+    // it for the pass's peak phase (W-8: 66 GB -> 0 during the groups at
+    // 32x512). Reloaded byte-identically for the verifier below.
+    lays = Vec::new();
     uf_trim();
     uf_rss("bk.groups-start"); // [UPERF2-F] observation only
     let (proof_w, tz_w) = bg_prove_group(
@@ -34699,6 +34720,10 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
             return (verdict, cost, BkArtifacts { h0, statement_digest: ctx_digest, pair_alphas });
         }
     };
+    // [UPERF3-HH W-8a] rebuild the layer store for the verifier — same
+    // loader + same tamper arms => byte-identical layers (see
+    // bk_load_lays); reg_v / h0_v / the claim MLEs below are unchanged.
+    lays = bk_load_lays(opts, t);
     let reg_v = bk_build_groups(&lays, t, &specs, q);
     let h0_v = if opts.weak_alpha {
         uk8_sha(&[b"uagb1-bk-h0", &ctx_v, &bk_map_bytes(&reg_v), &polys_bytes(&proof_w.u0)])

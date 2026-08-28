@@ -2520,3 +2520,33 @@ column block is then regenerated from its SHA counter range and
 walked with a skip — byte-identical values by construction. That is
 what CrsColStream (rung 2) implements; cost model unchanged from
 the memo (~one extra full generation per consumer sweep).
+
+RUNG 1 — W-8(a) LANDED (2026-08-28): `lays` (the i64 BfLayer store)
+dropped before the group proofs (they read w0 + the Phi0Source, not
+lays — the W-8 row's parenthetical, confirmed on the code: bg_prove_
+group takes group registry + claims + w0 only), REBUILT byte-
+identically for the verifier via the factored bk_load_lays (loader +
+tamper arms are deterministic functions of the exports + opts, so
+reg_v / h0_v / the public-claim MLEs are unchanged — including under
+the RangeViolation / WrongTable tamper legs).
+  ACCEPT: all five identity anchors BYTE-IDENTICAL to baseline
+  (fp3x16 stmt 93a98700 + EP 0ae9cdae; pa12x64 stmt 45fb3405;
+  fp12x64 stmt 80763ea5 + EP 63f4a3a4); floors green (diff-battery
+  0; freeze 102 ok + expected export panic; uperf-s 3752cba4).
+  RSS delta [MEASURED, NOISY-SHARED]: fp3x16 1,126,084 -> 1,125,344
+  KB (-0.7 MB); pa12x64 2,968,604 -> 2,968,436 KB (~0, expected —
+  (a) is a bk_pass_run fix, the bg rig has no lays drop); fp12x64
+  3,091,220 -> 3,091,152 KB (~0). HONEST READING: ~zero at the 125M
+  shapes because peak RSS is a high-water mark set in the claim/
+  descent phases, where lays are still READ (bk_tree_slots /
+  bk_tree_slot_fns build the descent trees from layer values) — the
+  fix removes L only from the GROUP phase, exactly as the W-8 row
+  prices it ("66 -> 0 GB during the group phase" at 32x512, where
+  the group phase is 229 GB as built -> 163). NOTE for the rung-4
+  projection: the memo's 3.1 table optimistically shows the DESCENT
+  phase too at W+D with (a); as built the descents read lays, so
+  with (a) alone the descent-phase peak KEEPS L (250 GB at 32x512)
+  — the 184 figure needs lane GG's Stage A (descents replaced) or a
+  per-member layer stream (not this lane). Verify-side cost: one
+  extra layer load + chain derivation (wall-neutral at these
+  shapes: 23.4 s vs 24.1 s fp12x64, within run noise).
