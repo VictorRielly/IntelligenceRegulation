@@ -47491,15 +47491,42 @@ fn uperf_a_gg_main(args: &[String]) {
         Some("pass") => {
             let mode = match args.get(3).map(String::as_str) {
                 Some("full") => GgMode::Full,
+                Some("masked") => GgMode::Masked,
                 _ => GgMode::Range,
             };
-            let with_oracle = args.get(4).map(String::as_str) != Some("nooracle");
-            uperf_a_gg_pass(geti(1, 3), geti(2, 16), mode, with_oracle);
+            let t4 = args.get(4).map(String::as_str);
+            let tamper = match t4 {
+                Some("mask-commit") => GgTamper::MaskCommit,
+                Some("mask-served") => GgTamper::MaskServed,
+                Some("claim") => GgTamper::Claim,
+                Some("round") => GgTamper::Round,
+                _ => GgTamper::None,
+            };
+            let with_oracle = t4 != Some("nooracle") && tamper == GgTamper::None;
+            let accept = uperf_a_gg_pass(geti(1, 3), geti(2, 16), mode, with_oracle, tamper);
+            if tamper != GgTamper::None {
+                assert!(!accept, "tamper leg must reject");
+                println!("[UPERF3-GG] tamper leg REJECTED as required");
+            }
+        }
+        Some("pass-battery") => {
+            let (l, t) = (geti(1, 3), geti(2, 16));
+            assert!(uperf_a_gg_pass(l, t, GgMode::Masked, false, GgTamper::None), "masked honest must accept");
+            for (name, tam) in [
+                ("mask-served", GgTamper::MaskServed),
+                ("mask-commit", GgTamper::MaskCommit),
+                ("claim", GgTamper::Claim),
+                ("round", GgTamper::Round),
+            ] {
+                assert!(!uperf_a_gg_pass(l, t, GgMode::Masked, false, tam), "tamper {name} must reject");
+                println!("[UPERF3-GG] pass-battery: tamper {name} REJECTED as required");
+            }
+            println!("[UPERF3-GG] pass-battery: masked honest ACCEPT + 4 tamper legs REJECT — all green");
         }
         Some("descent-bench") | Some("descent-battery") => uperf_a_main(args),
         _ => {
             println!(
-                "uperf-a map [layers] [t] | diff [pair] [layers] [t] [seed] | pass [layers] [t] [range|full] [nooracle]   ([UPERF3-GG] Stage-A integration, round 5)"
+                "uperf-a map [layers] [t] | diff [pair] [layers] [t] [seed] | pass [layers] [t] [range|full|masked] [nooracle|mask-commit|mask-served|claim|round] | pass-battery [layers] [t]   ([UPERF3-GG] Stage-A integration, round 5)"
             );
             uperf_a_main(args);
         }
@@ -47539,7 +47566,41 @@ fn uperf_a_gg_main(args: &[String]) {
 enum GgMode {
     Range,
     Full,
+    /// Range mode with the O-4 MASKED aggregates: per class a private
+    /// ZcAggMask (M1 g-mask shape in E_4) drawn from ProverRng, its
+    /// coefficients COMMITTED as an act tensor before any challenge
+    /// (mask-then-fold via u_0(T_act) inside h0 — the wm/tm idiom), the
+    /// hypersum + final-eval openings served and ground by claims.
+    Masked,
 }
+
+/// Rung-4 tamper legs (each must REJECT at a named gate).
+#[derive(Clone, Copy, PartialEq)]
+enum GgTamper {
+    None,
+    /// Flip one COMMITTED mask coefficient (witness side) while proving
+    /// with the true mask; ct rows forced (the BD WrongC pattern) —
+    /// REJECT lands in the act group's floor chain.
+    MaskCommit,
+    /// Flip the SERVED mask final evaluation — REJECT at the masked
+    /// aggregate's final identity (zc-agg gate).
+    MaskServed,
+    /// Flip one served stacked claim — REJECT at the aggregate's
+    /// recombination / final identity (zc-agg gate).
+    Claim,
+    /// Flip one round-poly node — REJECT in the aggregate's round chain
+    /// (zc-agg gate).
+    Round,
+}
+
+const GG_MASK_A: [&str; 10] = [
+    "zca-mk-a-silu-m3", "zca-mk-a-silu-m4", "zca-mk-a-nrw-88", "zca-mk-a-nrw-z", "zca-mk-a-rem-w5",
+    "zca-mk-a-rem-w6", "zca-mk-a-rem-w7", "zca-mk-a-rem-w8", "zca-mk-a-rem-w9", "zca-mk-a-rem-w10",
+];
+const GG_MASK_B: [&str; 10] = [
+    "zca-mk-b-silu-m3", "zca-mk-b-silu-m4", "zca-mk-b-nrw-88", "zca-mk-b-nrw-z", "zca-mk-b-rem-w5",
+    "zca-mk-b-rem-w6", "zca-mk-b-rem-w7", "zca-mk-b-rem-w8", "zca-mk-b-rem-w9", "zca-mk-b-rem-w10",
+];
 
 const GG_PLANES_A: [&str; 10] = [
     "zca-a-silu-m3", "zca-a-silu-m4", "zca-a-nrw-88", "zca-a-nrw-z", "zca-a-rem-w5",
@@ -47573,6 +47634,8 @@ struct GgClass {
     members: Vec<usize>,
     /// The planes tensor index in the act group.
     ti: usize,
+    /// Masked mode: the mask-coefficient tensor index in the act group.
+    ti_mask: usize,
 }
 
 struct GgPairPlan {
@@ -47615,7 +47678,7 @@ fn gg_build_groups(
     for sp in specs {
         if sp.silu.is_some() {
             match mode {
-                GgMode::Range => {
+                GgMode::Range | GgMode::Masked => {
                     // Verbatim bk_build_groups aux block for this pair.
                     let plan = &sp.plan;
                     let m_cols = bk_pad_to(plan.n_real * sp.t_rows, D);
@@ -47679,6 +47742,7 @@ fn gg_build_groups(
                             w,
                             members: vec![mi],
                             ti: usize::MAX,
+                            ti_mask: usize::MAX,
                         });
                     }
                 }
@@ -47688,6 +47752,16 @@ fn gg_build_groups(
                 let name = if ci == 0 { GG_PLANES_A[sp.pid] } else { GG_PLANES_B[sp.pid] };
                 c.ti = ga.tensors.len();
                 ga.add_tensor(name, c.members.len() * c.w * c.rows, c.cols_pad, 1, 1);
+                if mode == GgMode::Masked {
+                    // The mask-coefficient tensor: 1 + (n_log2 + a) * deg
+                    // E_4 coefficients, one K-elem row each (deg = deg_f+1
+                    // = 4 at e0 = 1), committed at the blinder class.
+                    let n_tot = c.n_log2 + ring::zc_range::zc_agg_axis(c.members.len());
+                    let n_coeff = bk_pad_to(1 + n_tot * 4, 8);
+                    let mname = if ci == 0 { GG_MASK_A[sp.pid] } else { GG_MASK_B[sp.pid] };
+                    c.ti_mask = ga.tensors.len();
+                    ga.add_tensor(mname, n_coeff, ring::kfield::K_DEG, 2, l0_q);
+                }
             }
             aux_base.push([usize::MAX; 4]);
             aux_shape.push([0; 4]);
@@ -47729,6 +47803,81 @@ fn gg_map_bytes(reg: &BkRegistry, gh: Option<&ring::eval_proof::AggGroup>) -> Ve
 struct GgClassData {
     planes_vals: Vec<i64>,
     cols_tabs: Vec<(Vec<Vec<u32>>, Vec<u32>)>,
+    /// Masked mode: the private mask + its committed coefficient values
+    /// (flat() order, K coords centered).
+    mask: Option<ring::zc_range::ZcAggMask>,
+    mask_vals: Vec<i64>,
+}
+
+/// Draw the class's O-4 mask (Masked mode) and lay its coefficients out as
+/// the committed tensor values.
+fn gg_draw_class_mask(
+    zq: &ring::Zq,
+    ext: &ring::zc_range::SubExt,
+    cls: &GgClass,
+    cd: &mut GgClassData,
+    rng: &mut ring::ProverRng,
+) {
+    let n_tot = cls.n_log2 + ring::zc_range::zc_agg_axis(cls.members.len());
+    let mask = ring::zc_range::ZcAggMask::draw(ext, rng, n_tot, 4);
+    let flat = mask.flat();
+    let mut vals = vec![0i64; bk_pad_to(flat.len(), 8) * ring::kfield::K_DEG];
+    for (r, e) in flat.iter().enumerate() {
+        let k = ext.to_k(e);
+        for c in 0..ring::kfield::K_DEG {
+            vals[r * ring::kfield::K_DEG + c] = zq.center(k[c]);
+        }
+    }
+    cd.mask = Some(mask);
+    cd.mask_vals = vals;
+}
+
+/// The two mask-opening claims (Masked mode, shared by prover and
+/// verifier): the served hypersum G = 2^n a0 + 2^(n-1) sum_t u_t(1) and
+/// the served final g_m(x*) = a0 + sum_t sum_d coeff[t][d] x*_t^(d+1),
+/// both LINEAR functionals of the committed mask coefficients — ground by
+/// the act opening (the bk mask_claims idiom carried to the aggregate).
+fn gg_mask_claims(
+    kf: &ring::kfield::KField,
+    ext: &ring::zc_range::SubExt,
+    cls: &GgClass,
+    proof: &ring::zc_range::ZcAggProof,
+    point: &[ring::zc_range::EElem],
+    claims: &mut Vec<BkClaim>,
+) {
+    use std::rc::Rc;
+    let ypow = bk_ypow_col(kf);
+    let one = kf.one();
+    let n_tot = cls.n_log2 + ring::zc_range::zc_agg_axis(cls.members.len());
+    let deg = 4usize;
+    let n_rows = bk_pad_to(1 + n_tot * deg, 8);
+    let q = ext.q as u128;
+    let p_full = kf.embed(((1u128 << n_tot) % q) as u64);
+    let p_half = kf.embed(((1u128 << (n_tot - 1)) % q) as u64);
+    let mut hrow = vec![kf.zero(); n_rows];
+    hrow[0] = p_full;
+    for r in hrow.iter_mut().take(1 + n_tot * deg).skip(1) {
+        *r = p_half.clone();
+    }
+    claims.push(BkClaim {
+        in_weight: false,
+        value: ext.to_k(proof.mask_hyper.as_ref().expect("masked proof")),
+        parts: vec![(cls.ti_mask, one.clone(), Rc::new(hrow), ypow.clone())],
+    });
+    let mut frow = vec![kf.zero(); n_rows];
+    frow[0] = kf.one();
+    for t in 0..n_tot {
+        let mut p = point[t].clone();
+        for d in 0..deg {
+            frow[1 + t * deg + d] = ext.to_k(&p);
+            p = ext.mul(&p, &point[t]);
+        }
+    }
+    claims.push(BkClaim {
+        in_weight: false,
+        value: ext.to_k(proof.mask_final.as_ref().expect("masked proof")),
+        parts: vec![(cls.ti_mask, one, Rc::new(frow), ypow)],
+    });
 }
 
 fn gg_build_class_data(sp: &BkPairSpec, cls: &GgClass, lays: &[BfLayer]) -> GgClassData {
@@ -47756,7 +47905,7 @@ fn gg_build_class_data(sp: &BkPairSpec, cls: &GgClass, lays: &[BfLayer]) -> GgCl
         }
         cols_tabs.push((planes, rem));
     }
-    GgClassData { planes_vals, cols_tabs }
+    GgClassData { planes_vals, cols_tabs, mask: None, mask_vals: Vec::new() }
 }
 
 /// The range-class claim builder (shared verbatim by prover and verifier):
@@ -47907,6 +48056,9 @@ fn gg_witness_act(
         } else {
             for cd in &class_data[pi] {
                 vals.push(&cd.planes_vals);
+                if !cd.mask_vals.is_empty() {
+                    vals.push(&cd.mask_vals);
+                }
             }
         }
     }
@@ -47930,9 +48082,9 @@ enum GgShip {
     Zc(Vec<ring::zc_range::ZcAggProof>),
 }
 
-/// [UPERF3-GG] rung 3 — the composed pass under the selector. Returns
+/// [UPERF3-GG] rung 3/4 — the composed pass under the selector. Returns
 /// accept.
-fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool) -> bool {
+fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, tamper: GgTamper) -> bool {
     use ring::descent_fold::{aligned_witness_tree, neutral_tree};
     use ring::fold::{
         expand_layer_table, ixf_layout, ixf_sumcheck_prove_kind, ixf_sumcheck_verify,
@@ -47948,9 +48100,21 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool) -
     use ring::zc_range::{logup_sumcheck_prove, logup_sumcheck_verify, zc_agg_prove, zc_agg_verify, SubExt, ZcAggInstance, ZcRangeInstance};
     use std::collections::HashMap;
     use std::rc::Rc;
-    let mode_name = if mode == GgMode::Full { "full" } else { "range" };
+    let mode_name = match mode {
+        GgMode::Full => "full",
+        GgMode::Masked => "masked",
+        GgMode::Range => "range",
+    };
+    let tamper_name = match tamper {
+        GgTamper::None => "",
+        GgTamper::MaskCommit => " TAMPER=mask-commit",
+        GgTamper::MaskServed => " TAMPER=mask-served",
+        GgTamper::Claim => " TAMPER=claim",
+        GgTamper::Round => " TAMPER=round",
+    };
+    assert!(tamper == GgTamper::None || mode == GgMode::Masked, "tamper legs run on the masked mode");
     println!(
-        "[UPERF3-GG] STAGE-A composed pass: {layers_n} layers, T = {t}, mode {mode_name} [WSL-BOX NOISY-SHARED]"
+        "[UPERF3-GG] STAGE-A composed pass: {layers_n} layers, T = {t}, mode {mode_name}{tamper_name} [WSL-BOX NOISY-SHARED]"
     );
     let ctxr = ring_ctx_q8();
     let kf = KField::new(&ctxr);
@@ -47987,8 +48151,9 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool) -
     let mut bk_aux: Vec<Option<BkAuxMat>> = Vec::with_capacity(specs.len());
     let mut class_data: Vec<Vec<GgClassData>> = Vec::with_capacity(specs.len());
     let mut m_vals: Vec<Option<Vec<i64>>> = Vec::with_capacity(specs.len());
+    let mut zc_mask_rng = ring::ProverRng::from_test_seed("uperf3-gg-zc-masks", &[0xA4]);
     for (pi, sp) in specs.iter().enumerate() {
-        if sp.silu.is_some() && mode == GgMode::Range {
+        if sp.silu.is_some() && matches!(mode, GgMode::Range | GgMode::Masked) {
             bk_aux.push(Some(bk_build_aux(sp, &lays, &reg, pi, &kf, &mut aux_rng)));
             class_data.push(Vec::new());
             m_vals.push(None);
@@ -48016,11 +48181,28 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool) -
             class_data.push(Vec::new());
             m_vals.push(Some(mv));
         } else {
-            let cds = plans[pi].classes.iter().map(|c| gg_build_class_data(sp, c, &lays)).collect();
+            let mut cds: Vec<GgClassData> =
+                plans[pi].classes.iter().map(|c| gg_build_class_data(sp, c, &lays)).collect();
+            if mode == GgMode::Masked {
+                for (ci, cls) in plans[pi].classes.iter().enumerate() {
+                    gg_draw_class_mask(&zq, &ext, cls, &mut cds[ci], &mut zc_mask_rng);
+                }
+            }
             bk_aux.push(None);
             class_data.push(cds);
             m_vals.push(None);
         }
+    }
+    if tamper == GgTamper::MaskCommit {
+        // Flip one COMMITTED mask coefficient value; the prover proves
+        // with the TRUE mask (ct rows forced below) — the BD WrongC shape.
+        let cd = class_data
+            .iter_mut()
+            .find(|cds| !cds.is_empty())
+            .and_then(|cds| cds.first_mut())
+            .expect("a range class exists");
+        assert!(!cd.mask_vals.is_empty(), "masked mode has committed mask values");
+        cd.mask_vals[0] += 1;
     }
     let sched_w = ring::eval_proof::plan_schedule(reg.gw.n_digit_rings, 1, q, None);
     let sched_a = ring::eval_proof::plan_schedule(reg.ga.n_digit_rings, 2, q, None);
@@ -48286,7 +48468,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool) -
     let mut stage_a_bytes = 0usize;
     let ypow = bk_ypow_col(&kf);
     for (pi, sp) in specs.iter().enumerate() {
-        if sp.silu.is_some() && mode == GgMode::Range {
+        if sp.silu.is_some() && matches!(mode, GgMode::Range | GgMode::Masked) {
             let plan = &sp.plan;
             let alpha = tr.challenge_k(&kf);
             let aux = bk_aux[pi].as_mut().unwrap();
@@ -48364,15 +48546,51 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool) -
                 let n_tot = cls.n_log2 + inst.a();
                 let rho: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut tr)).collect();
                 let betas: Vec<_> = (0..cls.w + 1).map(|_| ext.challenge(&kf, &mut tr)).collect();
-                let (proof, point, stats) = zc_agg_prove(&kf, &ext, &inst, &rho, &betas, &mut tr);
-                let flat: Vec<KElem> =
+                let (proof, point, stats) = if let Some(mask) = &cd.mask {
+                    // O-4: the mask commitment binds via u_0(T_act) inside
+                    // h0 (mask-then-fold — every challenge above descends
+                    // from h0); the prover serves G + g_m(x*).
+                    let (p, pt, st, _ev) =
+                        ring::zc_range::zc_agg_prove_masked(&kf, &ext, &inst, &rho, &betas, Some(mask), &mut tr);
+                    (p, pt, st)
+                } else {
+                    zc_agg_prove(&kf, &ext, &inst, &rho, &betas, &mut tr)
+                };
+                let mut flat: Vec<KElem> =
                     proof.col_claims.iter().flat_map(|cl| cl.iter().map(|e| ext.to_k(e))).collect();
+                if let Some(mf) = &proof.mask_final {
+                    flat.push(ext.to_k(mf));
+                }
                 tr.absorb_k(&kf, "gg-zc-claims", &flat);
                 stage_a_bytes += stats.wire_bytes;
                 gg_zc_claims(&kf, &ext, &reg, sp, cls, &proof, &point, &mut claims);
+                if cd.mask.is_some() {
+                    gg_mask_claims(&kf, &ext, cls, &proof, &point, &mut claims);
+                }
                 proofs.push(proof);
             }
             ships.push(GgShip::Zc(proofs));
+        }
+    }
+    // Rung-4 tamper injection on the SHIPPED objects (the prover's own
+    // transcript/claims stay honest; the verifier consumes the flip).
+    if matches!(tamper, GgTamper::Claim | GgTamper::Round | GgTamper::MaskServed) {
+        let p = ships
+            .iter_mut()
+            .find_map(|s| match s {
+                GgShip::Zc(ps) => ps.first_mut(),
+                _ => None,
+            })
+            .expect("a zc proof exists");
+        let q32 = q as u32;
+        let bump = |v: &mut u32| {
+            *v = if *v + 1 >= q32 { 0 } else { *v + 1 };
+        };
+        match tamper {
+            GgTamper::Claim => bump(&mut p.col_claims[0][0][0]),
+            GgTamper::Round => bump(&mut p.rounds[2][0][0]),
+            GgTamper::MaskServed => bump(&mut p.mask_final.as_mut().expect("masked proof")[0]),
+            _ => unreachable!(),
         }
     }
 
@@ -48430,8 +48648,8 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool) -
         &mut mask_rng,
     );
     let (proof_a, _tza) = bg_prove_group(
-        &ctxr, &kf, &reg.ga, &sched_a, &mut w0_a, &gc_a, &vb_a, pre_a, &mut tr, crs_seed, false, false,
-        &mut mask_rng,
+        &ctxr, &kf, &reg.ga, &sched_a, &mut w0_a, &gc_a, &vb_a, pre_a, &mut tr, crs_seed,
+        tamper == GgTamper::MaskCommit, false, &mut mask_rng,
     );
     let proof_h = if let (Some(g), Some(sh), Some(p)) = (gh.as_ref(), sched_h.as_ref(), pre_h) {
         let mut vb_h = kf.zero();
@@ -48674,19 +48892,34 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool) -
                             let n_tot = cls.n_log2 + ring::zc_range::zc_agg_axis(m_cols);
                             let rho_v: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut tv)).collect();
                             let betas_v: Vec<_> = (0..cls.w + 1).map(|_| ext.challenge(&kf, &mut tv)).collect();
-                            let Some(point) = zc_agg_verify(
-                                &kf, &ext, cls.n_log2, 1, cls.w, m_cols, &rho_v, &betas_v, &proofs[ci], &mut tv,
-                            ) else {
+                            let res = if mode == GgMode::Masked {
+                                ring::stage_a::zc_agg_verify_masked_served(
+                                    &kf, &ext, cls.n_log2, 1, cls.w, m_cols, &rho_v, &betas_v, &proofs[ci],
+                                    &mut tv,
+                                )
+                            } else {
+                                zc_agg_verify(
+                                    &kf, &ext, cls.n_log2, 1, cls.w, m_cols, &rho_v, &betas_v, &proofs[ci],
+                                    &mut tv,
+                                )
+                            };
+                            let Some(point) = res else {
                                 fail(&mut accept, &mut first_fail, format!("zc-agg:{}", sp.name()));
                                 break 'verify;
                             };
-                            let flat: Vec<KElem> = proofs[ci]
+                            let mut flat: Vec<KElem> = proofs[ci]
                                 .col_claims
                                 .iter()
                                 .flat_map(|cl| cl.iter().map(|e| ext.to_k(e)))
                                 .collect();
+                            if let Some(mf) = &proofs[ci].mask_final {
+                                flat.push(ext.to_k(mf));
+                            }
                             tv.absorb_k(&kf, "gg-zc-claims", &flat);
                             gg_zc_claims(&kf, &ext, &reg, sp, cls, &proofs[ci], &point, &mut claims_v);
+                            if mode == GgMode::Masked {
+                                gg_mask_claims(&kf, &ext, cls, &proofs[ci], &point, &mut claims_v);
+                            }
                         }
                     }
                 }

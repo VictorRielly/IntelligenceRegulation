@@ -2495,7 +2495,7 @@ PLAN (one commit per green rung, prefix "U-PERF3 GG:"):
   full prove + verify ACCEPT with every descent family replaced;
   transcript delta recorded (rows/bytes changed — a protocol change
   by design, selector-only).
-- [ ] R4 O-4 masked variant at pass level + tamper legs (flipped
+- [x] R4 O-4 masked variant at pass level + tamper legs (flipped
   mask / tampered claim / tampered round must reject).
 - [ ] R5 (stretch) 12x512 prove wall + /usr/bin/time -v peak RSS,
   selector on/off [WSL-BOX NT NOISY-SHARED] — the 5.6 GB descent
@@ -2522,6 +2522,38 @@ OPEN QUESTIONS (conservative readings taken, flagged not guessed):
   booleanity alphabet that closes the negative side is the design
   ruling EE's lane already flagged (bit-granularity commitment).
   Recorded, not silently widened.
+
+R4 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED):
+- The O-4 masked variant AT PASS LEVEL (`uperf-a pass 3 16 masked`,
+  ACCEPT TRUE): per range class a private ZcAggMask (EE's M1 g-mask
+  in E_4, deg 4) drawn from ProverRng, its coefficients COMMITTED
+  as an act tensor (zca-mk-*, K-coord rows at the blinder class,
+  rows padded to the value-ring grid) — mask-then-fold holds via
+  u_0(T_act) inside h0, so EE's commit_absorb stand-in is replaced
+  by the REAL commitment binding; the prover runs
+  zc_agg_prove_masked and serves G + g_m(x*); the verifier runs
+  stage_a::zc_agg_verify_masked_served (REIMPLEMENTED in
+  stage_a.rs: zc_range's zc_agg_verify_masked pins against a
+  verifier-held mask copy — at pass level the mask is private, so
+  the two pins become OPENING CLAIMS over the committed mask
+  tensor: hypersum = [2^n, 2^(n-1)..] weights, final = [1,
+  x*_t^(d+1)..] weights — the bk mask_claims idiom carried to the
+  aggregate; zc_range untouched per the ownership rule). +16 mask
+  claims at 3x16 (2 per class x 8 classes), 427 claims total,
+  bytes 526,090 (vs 525,834 unmasked — the two served E-values per
+  class).
+- Tamper battery (`uperf-a pass-battery 3 16`): masked honest
+  ACCEPT + 4 REJECTS, each at a NAMED gate: mask-served (flipped
+  served g_m(x*)) -> zc-agg:nrw-88 (the masked final identity);
+  mask-commit (flipped COMMITTED mask coefficient, ct rows forced
+  — the BD WrongC shape) -> floor-target (the act group's floor
+  chain); claim (flipped stacked claim) -> zc-agg:nrw-88
+  (recombination/final identity); round (flipped round-poly node)
+  -> zc-agg:nrw-88 (the round chain). All asserted.
+- Regression: range + full modes re-run, both still ACCEPT
+  (525,834 / 584,786 B unchanged).
+- floors: diff-battery 15.43s green; 3752cba4.. / 46234986..
+  unchanged; freeze-check passed.
 
 R3 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED):
 - The selector: `uperf-a pass [layers] [t] [range|full]` — an OWN

@@ -76,3 +76,84 @@ pub fn range_planes(vals: &[i64], offset: i64, w: usize, n_log2: usize) -> (Vec<
     }
     (planes, rem)
 }
+
+// ---------------------------------------------------------------------------
+// Rung 4: the O-4 masked aggregate at PASS level.
+
+/// VERIFY the MASKED aggregate with the two mask openings SERVED (the pass
+/// form). zc_range::zc_agg_verify_masked pins the served hypersum and
+/// final evaluation against a verifier-held mask copy — the EE harness
+/// stand-in for the commitment opening. At pass level the verifier does
+/// NOT hold the (private) mask: the two served values are instead ground
+/// by OPENING CLAIMS over the committed mask-coefficient tensor (the
+/// bk_pair_claims mask_claims idiom), so this verifier runs the identical
+/// round chain and final identity but takes proof.mask_hyper /
+/// proof.mask_final at face value — the caller MUST push the two claims.
+/// Reimplemented here (zc_range is read-only for lane GG; noted in the
+/// ledger). Returns the point.
+#[allow(clippy::too_many_arguments)]
+pub fn zc_agg_verify_masked_served(
+    kf: &super::kfield::KField,
+    ext: &super::zc_range::SubExt,
+    n_log2: usize,
+    e0: u32,
+    w: usize,
+    m: usize,
+    rho: &[super::zc_range::EElem],
+    betas: &[super::zc_range::EElem],
+    proof: &super::zc_range::ZcAggProof,
+    tr: &mut super::sumcheck::LkpTranscript,
+) -> Option<Vec<super::zc_range::EElem>> {
+    use super::zc_range::{zc_agg_axis, zc_agg_eq_bool, zc_range_g_of};
+    let a = zc_agg_axis(m);
+    let n_tot = n_log2 + a;
+    let (Some(g_hyper), Some(mask_final)) = (&proof.mask_hyper, &proof.mask_final) else {
+        return None;
+    };
+    if proof.rounds.len() != n_tot
+        || proof.c != ext.c
+        || proof.m != m
+        || proof.a != a
+        || proof.col_claims.len() != m
+        || proof.col_claims.iter().any(|cl| cl.len() != w + 1)
+        || rho.len() != n_tot
+        || betas.len() != w + 1
+    {
+        return None;
+    }
+    let deg_f = super::digits::alphabet_rows(e0);
+    let deg = deg_f + 1;
+    ext.absorb(kf, tr, "agg-mask-hsum", std::slice::from_ref(g_hyper));
+    let nu = ext.challenge(kf, tr);
+    let mut c_run = ext.mul(&nu, g_hyper);
+    let mut point = Vec::with_capacity(n_tot);
+    for g in &proof.rounds {
+        if g.len() != deg + 1 {
+            return None;
+        }
+        if ext.add(&g[0], &g[1]) != c_run {
+            return None;
+        }
+        ext.absorb(kf, tr, "ixf-round-poly", g);
+        let r = ext.challenge(kf, tr);
+        c_run = ext.lagrange_eval(kf, g, &r);
+        point.push(r);
+    }
+    let r_inst = &point[n_log2..];
+    let mut finals = vec![ext.zero(); w + 1];
+    for (i, cl) in proof.col_claims.iter().enumerate() {
+        let wi = zc_agg_eq_bool(ext, r_inst, i);
+        for (k, f) in finals.iter_mut().enumerate() {
+            *f = ext.add(f, &ext.mul(&wi, &cl[k]));
+        }
+    }
+    let (lo, hi) = super::digits::alphabet(e0);
+    let alphabet: Vec<u32> =
+        (lo..=hi).map(|a| (if a < 0 { (a + ext.q as i64) as u64 } else { a as u64 }) as u32).collect();
+    let gval = zc_range_g_of(ext, e0, &alphabet, betas, &finals);
+    let expect = ext.add(&ext.mul(&ext.eq_point(rho, &point), &gval), &ext.mul(&nu, mask_final));
+    if expect != c_run {
+        return None;
+    }
+    Some(point)
+}
