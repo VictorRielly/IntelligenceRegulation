@@ -151,6 +151,24 @@ but it funds the ~20-40 s/board tier of the routes memo, not the
 resolves favorably (both together: ~5-6x, verifier ~0.6-0.9 s
 [MODEL]).
 
+### C-R1 FULL COUNT (2026-08-28, closing the check)
+
+The swap-order form v[e][i] = sum_cb sum_d conjQ[cb][d] (x)
+S[i][cb][d][e], with S = sum_r loY[r][d][e] Fl[(ig+r) nb + cb], cuts
+the RING products by the row-group factor g (rows x nb x 16 ->
+(rows/g) x nb x 16) at the price of the scalar pass S. Naively S
+costs rows x nb x 256 x D scalar MACs (~23 us per row-nb unit —
+WORSE than the current ~6.4 us). But loY[r][d][e] = coord e of
+lo[r] (x) Y^d, and multiplication by the Y^d BASIS is a
+coordinate-shift-with-reduction-twist: the (d, e) dependence
+collapses to (e - d) plus a rank-limited twist term, so S factors
+to rows x nb x 16 x D scalar MACs x (~2 for the twist) ≈ 1.4-2.8
+us per row-nb unit. NET R1 CEILING: **2-5x on the v-pass** (20.01
+-> 4-10 s), not T5's 40x. Composed core: rows 1.45 + v 4-10 +
+fold 2.25 + recursion ~3.5 (recursed) ≈ **11-17 s -> ratio
+1.6-2.5x vs bg_prove_group** — the 5x bar CANNOT be cleared on
+paper by the enumerated moves.
+
 ## 4. The bar, and spike S5 if it clears
 
 Before ANY spike: (1) CHECK C-R1 — the conjQ factorability count
@@ -162,6 +180,20 @@ acceptance criteria as S4, same differential legs, 2-3 days.
 IF NOT: the redesign is recorded as "3-4x class, funds route-3
 tier", the headline stays with the fallback posture, and this memo
 is the closing document of the 5-15 s question on this line.
+
+**CLOSING VERDICT (2026-08-28, C-R1 counted):** the bar is NOT
+cleared — the composed best case is 1.6-2.5x prove-equivalent. Per
+this memo's own §4 rule, NO spike S5; **the 5-15 s question on
+this line is CLOSED unless a structurally new idea arrives** (not
+a variation of R1-R4). The recommendation to Victor: the fallback
+posture stands, and the measured place the headline budget now
+lives is lane GG's INTEGRATED Stage A (descent bytes -23x, total
+transcript -41% at 3x16, the 8B descent-pair memory gone) composed
+with route 3 — the ~100-160 s/board tier, with the GPU port as its
+multiplier. A 2-5x v-pass improvement (the C-R1 convolution form)
+remains worth HAVING inside that posture if the two-tier front end
+is ever adopted for its BYTES profile — recorded as an optional
+rung, not a headline vehicle.
 
 ## 5. Not counted here (honesty)
 
