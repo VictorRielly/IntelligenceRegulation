@@ -1907,3 +1907,89 @@ STATE: IN FLIGHT (2026-08-26). One commit per green rung:
   final report block. Decision input for Victor: whether MVP-2's
   statement carries the widened class at exactly these four sites
   (the measured answer) and what to do about postn's +0.19.
+
+## Agent DD status (wt-uperf3-dd) — round 4, the production E_c kernel
+
+- 2026-08-27 RUNG 0+1 (one commit): ring/ec_kernel.rs — AVX2 bodies
+  for the four MAC families (u32xu32->u64 widening via
+  _mm256_mul_epu32 on even/odd u32 positions, unpack/permute back to
+  the scalar lane order, split lo/hi u64 plane accumulate), runtime
+  feature detection, scalar zc_range bodies = the oracle
+  (pub(crate) hooks); `uperf-s kernel-bench [c] [log2_pairs]
+  [reps]` = identity gate (4 families byte-identical scalar vs
+  avx2, running-sum path exercised) + the ns/MAC table.
+  MEASURED [WSL-BOX 1T QUIET]:
+  | c | e_mac scalar->avx2 | e_mac_fixed | e_mac_base |
+  | 4  | 0.757 -> 0.296 (2.6x) | 0.748 -> 0.319 (2.3x) | 0.813 -> 0.507 (1.6x) |
+  | 8  | 0.726 -> 0.249 (2.9x) | 0.699 -> 0.299 (2.3x) | 0.825 -> 0.466 (1.8x) |
+  | 16 | 0.732 -> 0.252 (2.9x) | 0.740 -> 0.334 (2.2x) | 0.810 -> 0.498 (1.6x) |
+  Reading: the spike's "~8x below K9" scalar kernel is now ~3x
+  below K9-class [MODEL: K9 ~0.1 ns/MAC-equiv] at the kernel level.
+  NEXT RUNGS: (2) wire the zc_range call sites through the
+  dispatchers (cached avx2 flag; battery digest 3752cba4.. must not
+  move) and re-run the spike s1 wall matrix — the wall ratio should
+  move from 1.6x toward the counted 13.5x; (3) the shuffle
+  elimination (permuted-plane accumulate, un-permute ONCE in
+  e_red_block — the remaining ~2 ops/MAC of the 3 are shuffles;
+  target <= 0.15 ns/MAC); (4) e_mac_base via pure vector ops
+  (currently memory-bound at c*KL per call).
+
+- 2026-08-27 RUNG 2 DONE: the 8 zc_range call sites route through
+  `*_auto` dispatchers (cached avx2_active(); `ZK_EC_SCALAR=1`
+  kill-switch for A/B). GATES: **uperf-s battery 48 legs ok,
+  BATTERY DIGEST 3752cba4.. UNCHANGED with the AVX2 path live** —
+  the dispatch is transcript-invariant, proven. SPIKE WALL RE-RUN
+  [WSL-BOX QUIET], E_4 arm at 2^20 w=8 vs the masked-descent
+  oracle: **1T prove wall 1.9x (was ~parity with the scalar
+  kernel); 8T 2.3x (was 1.6x)** — 0.878 s vs 1.65 s at 1T, 0.232 s
+  vs 0.54 s at 8T; counted ratios unchanged (13.5x equiv, 13.7x
+  rounds, 49.5x wire; GO). The remaining wall/counted gap is still
+  kernel-bound (rung 3, the shuffle elimination).
+
+- 2026-08-27 RUNG 3 DONE (re-aimed by profile, one regression fixed
+  honestly): the round loop's OTHER half is scalar modular LANE
+  chains (extrapolation bv = a + X(b-a), the f chain prod(v-alpha),
+  the recomposition +-2^(e0 k) v) — at w=8/deg_f=3/c=4 ~half the
+  counted round MACs, untouched by rungs 0-2 (the measured Amdahl
+  gap). Built fused AVX2 lane primitives (extrap_lanes /
+  f_chain_lanes / rec_sub_scaled / rec_add) mirroring the
+  fold31/canon32/min-trick formulas op-for-op (values IDENTICAL,
+  not merely congruent), wired into both the base and ext round
+  paths. REGRESSION CAUGHT: the first cut called _mm256 intrinsics
+  from non-#[target_feature] fns — LLVM legalized every 256-bit op
+  without AVX2 (rounds 0.70 -> 3.23 s!); fix = the rung-1 pattern
+  (attributed loop-body fns). GATES: battery digest 3752cba4..
+  UNCHANGED under avx2 AND ZK_EC_SCALAR=1 (the primitives'
+  exact-value preservation verified end-to-end through 48 legs).
+  WALLS [WSL-BOX QUIET], E_4 2^20 w=8: **1T rounds 0.696 -> 0.625 s,
+  prove wall 2.0x; 8T rounds 0.148 -> 0.122 s, wall 2.6x** (vs the
+  descent oracle; was 1.6x pre-round-4).
+  NEXT: rung 4 = per-node FUSION (one attributed call per (k, tab)
+  doing extrap + f-chain + mac_base + rec register-resident — the
+  8-lane-per-call setup amortization is the remaining bound), and
+  the shuffle elimination inside mac_block; target: the counted
+  13.5x converting to >= 4-5x wall at 8T.
+
+- 2026-08-27 RUNG 4 DONE — the fused base-round node
+  (ec_kernel::base_node_fused, one #[target_feature] call per
+  (block m, node x): AVX2 deinterleave (shuffle/unpack/permute =
+  b_deint_pair's exact lane order), extrapolation, f chain, the
+  c eq x f MAC blocks and the recomposition all register-resident;
+  eq blocks loaded once per node; zc_range's body takes the fast
+  path when base_round && avx2_active(), the rung-3 loop stays as
+  the ZK_EC_SCALAR/portable fallback). GATES: battery digest
+  3752cba4.. UNCHANGED both modes. WALLS [WSL-BOX 1T/8T QUIET, no
+  build contention]: rounds 0.625 -> 0.530 s (1T), 0.122 -> 0.115 s
+  (8T); **prove wall vs the masked-descent oracle: 2.3x (1T) /
+  2.7x (8T)** — the round-4 arc took the spike's 1.6x to 2.7x, all
+  transcript-invariant.
+  SCOPE DECISION (recorded, not deferred silently): the next term
+  is the FOLDS (0.150 s = 21% of 1T prove), whose per-block cost is
+  dominated by the SCALAR e_red_block reduction (the cross-plane
+  Z^c = s0 fold) — vectorizing it is delicate, AND lane EE's
+  aggregate restructures the fold amortization entirely (shared eq,
+  batched columns). Rung 5 (fold fusion + e_red_block AVX2) is
+  therefore GATED on EE's profile: build it only if the aggregate
+  still shows folds as a top-3 term. The honest DD position: the
+  counted 13.5x will finish converting in the AGGREGATE's shape,
+  not the per-column spike harness.

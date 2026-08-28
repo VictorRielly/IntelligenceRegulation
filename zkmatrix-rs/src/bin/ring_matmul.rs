@@ -42883,8 +42883,18 @@ fn uperf_s_main(args: &[String]) {
             uperf_s_battery();
         }
         Some("count") => uperf_s_count(geti(1, 21), geti(2, 9), geti(3, 0), geti(4, 1)),
+        // [UPERF3-DD] round 4: the production E_c kernel bench — the
+        // identity gate (4 families, scalar vs avx2, byte-identical)
+        // then the ns/MAC table. 1T by design (kernel-level).
+        Some("kernel-bench") => {
+            let (c, log2_pairs, reps) = (geti(1, 4), geti(2, 18), geti(3, 8));
+            assert!(matches!(c, 4 | 8 | 16), "kernel-bench c in {{4, 8, 16}}");
+            let q = ring_ctx_q8().zq.q;
+            println!("[UPERF3-DD] avx2 detected: {}", ring::ec_kernel::avx2());
+            ring::ec_kernel::kernel_bench(c, log2_pairs, reps, q);
+        }
         _ => println!(
-            "uperf-s s1 [n_log2] [w] [threads] [c|0=all] [seed] [nodesc] | s2 [n_log2] [threads] [seed] [nodesc] | battery [threads] | count [depth] [dt] [e_bits] [n_real]"
+            "uperf-s s1 [n_log2] [w] [threads] [c|0=all] [seed] [nodesc] | s2 [n_log2] [threads] [seed] [nodesc] | battery [threads] | count [depth] [dt] [e_bits] [n_real] | kernel-bench [c] [log2_pairs] [reps]"
         ),
     }
 }

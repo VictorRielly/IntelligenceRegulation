@@ -372,7 +372,7 @@ fn b_deint_pair(src: &[u32], m: usize, t0: &mut [u32; KL], t1: &mut [u32; KL]) {
 /// E x E lane MAC into split planes ((2c-1) x KL each): planes[t] +=
 /// sum_{i+j=t} a_i b_j per lane.
 #[inline(always)]
-fn e_mac(c: usize, a: &[u32], b: &[u32], lo: &mut [u64], hi: &mut [u64]) {
+pub(crate) fn e_mac(c: usize, a: &[u32], b: &[u32], lo: &mut [u64], hi: &mut [u64]) {
     for i in 0..c {
         for j in 0..c {
             let t = i + j;
@@ -387,7 +387,7 @@ fn e_mac(c: usize, a: &[u32], b: &[u32], lo: &mut [u64], hi: &mut [u64]) {
 
 /// E x base lane MAC into split planes: planes[j] += a_j * f per lane.
 #[inline(always)]
-fn e_mac_base(c: usize, a: &[u32], f: &[u32; KL], lo: &mut [u64], hi: &mut [u64]) {
+pub(crate) fn e_mac_base(c: usize, a: &[u32], f: &[u32; KL], lo: &mut [u64], hi: &mut [u64]) {
     for j in 0..c {
         for l in 0..KL {
             let p = a[j * KL + l] as u64 * f[l] as u64;
@@ -399,7 +399,7 @@ fn e_mac_base(c: usize, a: &[u32], f: &[u32; KL], lo: &mut [u64], hi: &mut [u64]
 
 /// E x broadcast-E lane MAC (the fold's fixed operand r).
 #[inline(always)]
-fn e_mac_fixed(c: usize, a: &[u32], r: &[u32], lo: &mut [u64], hi: &mut [u64]) {
+pub(crate) fn e_mac_fixed(c: usize, a: &[u32], r: &[u32], lo: &mut [u64], hi: &mut [u64]) {
     for i in 0..c {
         for j in 0..c {
             let t = i + j;
@@ -415,7 +415,7 @@ fn e_mac_fixed(c: usize, a: &[u32], r: &[u32], lo: &mut [u64], hi: &mut [u64]) {
 
 /// base x broadcast-E lane MAC (the first fold of a base table).
 #[inline(always)]
-fn e_mac_base_fixed(c: usize, a: &[u32; KL], r: &[u32], lo: &mut [u64], hi: &mut [u64]) {
+pub(crate) fn e_mac_base_fixed(c: usize, a: &[u32; KL], r: &[u32], lo: &mut [u64], hi: &mut [u64]) {
     for j in 0..c {
         let rj = r[j] as u64;
         for l in 0..KL {
@@ -588,7 +588,7 @@ fn build_eq_full(ext: &SubExt, rho: &[EElem]) -> ETab {
             for v in hi.iter_mut() {
                 *v = 0;
             }
-            e_mac(c, &ab, &bb, &mut lo, &mut hi);
+            super::ec_kernel::mac_auto(c, &ab, &bb, &mut lo, &mut hi);
             e_red_block(&ext_c, &lo, &hi, blk);
         }
     };
@@ -659,7 +659,7 @@ fn fold_ext(ext: &SubExt, t: &ETab, r: &EElem) -> ETab {
             for x in 0..bw {
                 lo[x] += a[x] as u64;
             }
-            e_mac_fixed(c, &b, r, &mut lo, &mut hi);
+            super::ec_kernel::mac_fixed_auto(c, &b, r, &mut lo, &mut hi);
             e_red_block(&ext_c, &lo, &hi, blk);
         }
     };
@@ -709,7 +709,7 @@ fn fold_base(ext: &SubExt, t: &[u32], r: &EElem) -> ETab {
             for l in 0..KL {
                 lo[l] += a[l] as u64;
             }
-            e_mac_base_fixed(c, &b, r, &mut lo, &mut hi);
+            super::ec_kernel::mac_base_fixed_auto(c, &b, r, &mut lo, &mut hi);
             e_red_block(&ext_c, &lo, &hi, blk);
         }
     };
@@ -776,7 +776,6 @@ fn round_sums(
         let mut eqb = vec![0u32; bw];
         let mut ea = vec![0u32; bw]; // E table even lanes
         let mut eb = vec![0u32; bw]; // E table odd lanes
-        let mut ed = vec![0u32; bw]; // odd - even
         let mut ev = vec![0u32; bw]; // extrapolated value at X
         let mut ef = vec![0u32; bw]; // f(v) (E)
         let mut et = vec![0u32; bw]; // temp
@@ -790,6 +789,31 @@ fn round_sums(
         let mut brec = [0u32; KL];
         // 2^(e0 k) as canonical residues
         let pow2: Vec<u32> = (0..w).map(|k| ((1u128 << (e0 as usize * k)) % ext_c.q as u128) as u32).collect();
+        // [UPERF3-DD rung 4] the fused base-round fast path: one
+        // attributed AVX2 call per (block, node) — deinterleave,
+        // extrapolation, f chain, eq x f MAC and recomposition
+        // register-resident. Values identical to the loop below (the
+        // battery digest is the gate); ZK_EC_SCALAR=1 forces the loop.
+        #[cfg(target_arch = "x86_64")]
+        if base_round && super::ec_kernel::avx2_active() {
+            let bp: Vec<&[u32]> = tabs
+                .iter()
+                .map(|t| {
+                    let ZTab::Base(v) = t else { unreachable!() };
+                    v.as_slice()
+                })
+                .collect();
+            for m in m0..m1 {
+                let eq_blk = &eq_pairs.d[m * bw..(m + 1) * bw];
+                for (ni, &x) in nodes.iter().enumerate() {
+                    let xr = (x % ext_c.q) as u32;
+                    super::ec_kernel::base_node_fused(
+                        &bp, m, xr, &alpha_v, &pow2, eq_blk, c, nn, ni, planes, c31, q32, lo, hi,
+                    );
+                }
+            }
+            return;
+        }
         for m in m0..m1 {
             let eq_blk = &eq_pairs.d[m * bw..(m + 1) * bw];
             eqb.copy_from_slice(eq_blk);
@@ -803,31 +827,17 @@ fn round_sums(
                     for (k, tab) in tabs.iter().enumerate() {
                         let ZTab::Base(t) = tab else { unreachable!() };
                         b_deint_pair(t, m, &mut ba, &mut bb);
-                        for l in 0..KL {
-                            // v = a + X (b - a)
-                            let d = subm32(bb[l], ba[l], q32);
-                            bv[l] = addm32(ba[l], mulm(xr, d, c31, q32), q32);
-                        }
+                        super::ec_kernel::extrap_lanes(&ba, &bb, xr, c31, q32, &mut bv);
                         if k < w {
                             // f = prod_a (v - a)
-                            for l in 0..KL {
-                                let mut f = subm32(bv[l], alpha_v[0], q32);
-                                for &a in &alpha_v[1..] {
-                                    f = mulm(f, subm32(bv[l], a, q32), c31, q32);
-                                }
-                                bf[l] = f;
-                            }
+                            super::ec_kernel::f_chain_lanes(&bv, &alpha_v, c31, q32, &mut bf);
                             let sl = (k * nn + ni) * planes;
-                            e_mac_base(c, &eqb, &bf, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
-                            for l in 0..KL {
-                                brec[l] = subm32(brec[l], mulm(pow2[k], bv[l], c31, q32), q32);
-                            }
+                            super::ec_kernel::mac_base_auto(c, &eqb, &bf, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
+                            super::ec_kernel::rec_sub_scaled(&mut brec, pow2[k], &bv, c31, q32);
                         } else {
-                            for l in 0..KL {
-                                brec[l] = addm32(brec[l], bv[l], q32);
-                            }
+                            super::ec_kernel::rec_add(&mut brec, &bv, q32);
                             let sl = (w * nn + ni) * planes;
-                            e_mac_base(c, &eqb, &brec, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
+                            super::ec_kernel::mac_base_auto(c, &eqb, &brec, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
                         }
                     }
                 } else {
@@ -837,10 +847,7 @@ fn round_sums(
                     for (k, tab) in tabs.iter().enumerate() {
                         let ZTab::Ext(t) = tab else { unreachable!() };
                         e_deint_pair(c, &t.d, m, &mut ea, &mut eb);
-                        for i in 0..bw {
-                            ed[i] = subm32(eb[i], ea[i], q32);
-                            ev[i] = addm32(ea[i], mulm(xr, ed[i], c31, q32), q32);
-                        }
+                        super::ec_kernel::extrap_lanes(&ea, &eb, xr, c31, q32, &mut ev);
                         if k < w {
                             // f = prod_a (v - a): (deg_f - 1) E x E products
                             for i in 0..bw {
@@ -862,20 +869,16 @@ fn round_sums(
                                 for v in phi.iter_mut() {
                                     *v = 0;
                                 }
-                                e_mac(c, &ef, &et, &mut plo, &mut phi);
+                                super::ec_kernel::mac_auto(c, &ef, &et, &mut plo, &mut phi);
                                 e_red_block(&ext_c, &plo, &phi, &mut ef);
                             }
                             let sl = (k * nn + ni) * planes;
-                            e_mac(c, &eqb, &ef, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
-                            for i in 0..bw {
-                                erec[i] = subm32(erec[i], mulm(pow2[k], ev[i], c31, q32), q32);
-                            }
+                            super::ec_kernel::mac_auto(c, &eqb, &ef, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
+                            super::ec_kernel::rec_sub_scaled(&mut erec, pow2[k], &ev, c31, q32);
                         } else {
-                            for i in 0..bw {
-                                erec[i] = addm32(erec[i], ev[i], q32);
-                            }
+                            super::ec_kernel::rec_add(&mut erec, &ev, q32);
                             let sl = (w * nn + ni) * planes;
-                            e_mac(c, &eqb, &erec, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
+                            super::ec_kernel::mac_auto(c, &eqb, &erec, &mut lo[sl..sl + planes], &mut hi[sl..sl + planes]);
                         }
                     }
                 }

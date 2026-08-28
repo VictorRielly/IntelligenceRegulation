@@ -46,6 +46,7 @@ pub mod sumcheck;
 pub mod params;
 pub mod sigma;
 pub mod t_blind; // [UAGB1-BL] T_blind: masking the weight-touching round polynomials (P2)
+pub mod ec_kernel; // [UPERF3-DD] Stage A round 4: the production E_c MAC kernels (bench + AVX2); not called by any shipped path
 pub mod zc_range; // [UPERF3-S] SPIKE (S1/S2): base-field/E_c zero-check + LogUp-as-sumcheck; not called by any shipped path
 
 pub use aux::D;
