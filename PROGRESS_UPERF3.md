@@ -2753,3 +2753,255 @@ R0 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED):
   BK rows stable ("freeze-check passed" — no panic with the WSL
   export present; the brief's expected-panic form is the no-export
   invocation).
+## Agent HH status (wt-uperf3-hh) — round 5
+
+STATE: OPEN (2026-08-28) — the W-8 memory diet (the "fits 128 GB at
+8B" milestone's diet half). SPEC: U_PERF3_MVP8B_SCALING.md W-8 row
+verbatim; acceptance at EVERY rung = the two identity anchors below
+BYTE-IDENTICAL (a memory diet is transcript-preserving or it is
+nothing) + the floors (build, uperf-pc diff-battery, freeze-check
+102-ok-rows form, uperf-s digest 3752cba4..).
+
+RUNG PLAN (order = the W-8 row's effort ranking):
+  0. skeleton + BASELINE (this section) [DONE below]
+  1. W-8(a) drop `lays` (the i64 BfLayer store) before the group
+     proofs; reload byte-identically for the verifier.
+  2. W-8(b) A_0 (level-0 CRS) expanded per column block inside its
+     consumers — never materialized (CrsColStream + blocked t0
+     GEMM + blocked level-1 transport).
+  3. W-8(c) flat i8 store for the deeper-level witnesses (DigitCols
+     is the pattern; every level base e <= 7 so |digit| <= 64).
+  4. the record: measured RSS curve + the counted 8B projection
+     (which section-3 terms each fix removes at 32x512).
+
+BASELINE (2026-08-28, WSL box, ZK_THREADS=8,
+M125_EXPORT_DIR=results/m125_ffn_export_wsl (main repo), each run
+one-at-a-time under flock /tmp/zk-heavy.lock; box otherwise light —
+load 1.49 at start, 12.7 GB free; two sibling lanes exist but were
+not running heavy jobs during the window; label NOISY-SHARED
+applies to walls, less so to peak RSS):
+  * uperf-pc full-profile 3 16: accept=true, wall 6.0 s, peak RSS
+    1,126,084 KB (1.07 GB); STATEMENT DIGEST 93a987002a7c4b60c3df
+    bfc62b7a4f0e5957d8ae2039014ff241e323285fb790; EVAL-PROOF DIGEST
+    0ae9cdae66607239a80cc1f1dea36248370edadbe85214144aee7a5250d975be.
+  * pass-agg prove 12 64 p0: wall 18.6 s, peak RSS 2,968,604 KB
+    (2.83 GB); STATEMENT DIGEST 45fb340517eee2344b44dd40d4e47562d8
+    0305eb7c5604c9c6cf61ede37443dc (this rig prints no EVAL-PROOF
+    digest; statement + the floors carry its identity).
+  * SUPPLEMENTARY uperf-pc full-profile 12 64 (the bk rig at the
+    bigger shape, so W-8(a) — a bk_pass_run fix — is measurable
+    above 3x16): accept=true, wall 24.0 s, peak RSS 3,091,220 KB
+    (2.95 GB); STATEMENT 80763ea537e77cd9cb5c538397af2622044447d6
+    54b8e9a34cae3ccad8f3f115; EVAL-PROOF 63f4a3a4320a47260ab8ae3d
+    52cfa3656b626fc367af671c6c317300454dec89.
+  * Floors at baseline: uperf-pc diff-battery exit 0; freeze-check
+    102 ok rows then the EXPECTED panic (bf_read_i8: cannot read
+    results/m125_ffn_export/layer00_X.bin — freeze-check ignores
+    M125_EXPORT_DIR by design, the frozen Mac sidecar is
+    authoritative; exit 134 = SIGABRT, the WSL form); uperf-s
+    battery 48 legs ok, digest 3752cba4fa08c2ee052475e9f4459e2fc3
+    ed0a0c59862468e0c31cbeb165aaae.
+
+NOTE (readers of the W-8 row): the memo's "expand A_0 per column
+block ... blocks are independent" needs one correction discovered
+on contact with expand_level_matrix_raw: the CRS stream is ONE
+sequential SHA-256-counter byte stream walked by a REJECTION
+sampler, so entry n's value depends on how many words were rejected
+before it — blocks are NOT independently re-keyable. They ARE
+independently *resumable*: acceptance is a pure per-word predicate
+((word >> shift) < q, ~0.2% rejection), so one cheap counting pass
+(generate + count per 8K-word block, discard bytes) gives a prefix
+table that locates any (row, col) range's word window exactly; a
+column block is then regenerated from its SHA counter range and
+walked with a skip — byte-identical values by construction. That is
+what CrsColStream (rung 2) implements; cost model unchanged from
+the memo (~one extra full generation per consumer sweep).
+
+RUNG 1 — W-8(a) LANDED (2026-08-28): `lays` (the i64 BfLayer store)
+dropped before the group proofs (they read w0 + the Phi0Source, not
+lays — the W-8 row's parenthetical, confirmed on the code: bg_prove_
+group takes group registry + claims + w0 only), REBUILT byte-
+identically for the verifier via the factored bk_load_lays (loader +
+tamper arms are deterministic functions of the exports + opts, so
+reg_v / h0_v / the public-claim MLEs are unchanged — including under
+the RangeViolation / WrongTable tamper legs).
+  ACCEPT: all five identity anchors BYTE-IDENTICAL to baseline
+  (fp3x16 stmt 93a98700 + EP 0ae9cdae; pa12x64 stmt 45fb3405;
+  fp12x64 stmt 80763ea5 + EP 63f4a3a4); floors green (diff-battery
+  0; freeze 102 ok + expected export panic; uperf-s 3752cba4).
+  RSS delta [MEASURED, NOISY-SHARED]: fp3x16 1,126,084 -> 1,125,344
+  KB (-0.7 MB); pa12x64 2,968,604 -> 2,968,436 KB (~0, expected —
+  (a) is a bk_pass_run fix, the bg rig has no lays drop); fp12x64
+  3,091,220 -> 3,091,152 KB (~0). HONEST READING: ~zero at the 125M
+  shapes because peak RSS is a high-water mark set in the claim/
+  descent phases, where lays are still READ (bk_tree_slots /
+  bk_tree_slot_fns build the descent trees from layer values) — the
+  fix removes L only from the GROUP phase, exactly as the W-8 row
+  prices it ("66 -> 0 GB during the group phase" at 32x512, where
+  the group phase is 229 GB as built -> 163). NOTE for the rung-4
+  projection: the memo's 3.1 table optimistically shows the DESCENT
+  phase too at W+D with (a); as built the descents read lays, so
+  with (a) alone the descent-phase peak KEEPS L (250 GB at 32x512)
+  — the 184 figure needs lane GG's Stage A (descents replaced) or a
+  per-member layer stream (not this lane). Verify-side cost: one
+  extra layer load + chain derivation (wall-neutral at these
+  shapes: 23.4 s vs 24.1 s fp12x64, within run noise).
+
+RUNG 2 — W-8(b) LANDED (2026-08-28): the level-0 CRS matrices A_0
+are STREAMED per column block, never materialized. New additive
+eval_proof.rs machinery: `CrsColStream` (the counting pass over the
+SHA-256-counter stream -> a prefix table of accepted words per
+8K-word block; `cols(c0, c1)` regenerates exactly the SHA counter
+range covering a block and resumes the rejection walk with a skip —
+the SAME accepted words in the SAME order as expand_level_matrix_raw)
+and `transport_level_from_psi_cols` (the fast transport body with
+the per-column-independent S combine assembled block by block; the
+fast body is its oracle). Bin side: `bg_matvec_chunks_stream` (the
+t = A_0 w GEMM per column block, mod-q accumulation of exact window
+sums — identical canonical rings by the GEMM contract), `BgA0`
+(Mat|Stream) in `BgPre`, and the level-1 transport dispatch.
+Defaults: ON at 8192 cols (`ZK_A0_BLOCK`, 0 = materialized
+fallback); guarded OFF in oracle mode and for < 2-level schedules
+(their floor / tier-z sigma reads A_0 whole). Deeper levels' A stay
+materialized (small).
+  ORACLE CHECK: `ZK_A0_CHECK=1` full-matrix compare of the stream
+  against expand_level_matrix_raw at construction — run at 3x16,
+  PASSED on both groups' A_0 (a0check leg, exit 0, digests
+  unchanged). This also validated the one spec correction recorded
+  at rung 0: blocks are resumable, not independently re-keyable.
+  ACCEPT: all five identity anchors BYTE-IDENTICAL (93a98700 /
+  0ae9cdae; 45fb3405; 80763ea5 / 63f4a3a4); floors green
+  (diff-battery 0; freeze 102 ok + expected export panic; uperf-s
+  3752cba4).
+  RSS delta [MEASURED, NOISY-SHARED, vs rung-1 tree]:
+    fp3x16   1,125,344 -> 1,093,432 KB  (-31 MB)
+    pa12x64  2,968,436 -> 2,616,568 KB  (-344 MB, -11.9%)
+    fp12x64  3,091,152 -> 2,834,316 KB  (-251 MB, -8.3%)
+  (the 12-layer weight A_0 is ~647 MB boxed; the process still
+  re-expands A_0 WHOLE once in the VERIFY phase — bg_verify_group's
+  level-0 expand_level_matrix_arc is not a named W-8 site, recorded
+  as an open item below — so the prover-phase saving, not the full
+  A_0, is what the process high-water mark can show at these
+  shapes.)
+  WALL delta [MEASURED, honest]: fp3x16 6.0 -> 6.2 s; pa12x64
+  18.6 -> 19.7 s (+6%); fp12x64 24.1 -> 25.5 s (+6%) — the W-8
+  row's "expansion paid ~3x" showing up as ~1-1.5 s at these
+  shapes (the counting pass + one regeneration sweep per consumer).
+  NOTE: the [UPERF3-HH W-8c] flat-store helpers
+  (decompose_polys_*_into, DigitCols::extend_vecs) ride this commit
+  INERT in eval_proof.rs (no caller until rung 3) — additive only.
+
+RUNG 3 — W-8(c) LANDED (2026-08-28): the deeper-level witnesses
+(`w_cur` in bg_prove_group — W-8(c)'s `Vec<Vec<i64>>`, 1,064 B/ring
+boxed) now live in the existing flat i8 `DigitCols` store (128
+B/ring, 8.3x): additive `decompose_polys_small_into` (the same
+per-ring split appended in the same order, digits asserted into i8
+— every level base is e <= 7, alphabet |d| <= 64) + `DigitCols::
+extend_vecs`; bin-side `bg_fold_into` (bg_fold_gen's fold + the
+VERBATIM l_z budget assert, split written straight into the flat
+store — the boxed z intermediate digit rings never exist; the
+boxed i64 fold OUTPUT z_all still exists transiently, ~5.9 GB at
+the 8B weight level 0 — recorded). The t/h digit families stay
+boxed (KBs at every level). The floor is boxed back at the floor
+(~1K rings) for the wire form / tier-z helpers.
+  ACCEPT: all five identity anchors BYTE-IDENTICAL (93a98700 /
+  0ae9cdae; 45fb3405; 80763ea5 / 63f4a3a4); floors green
+  (diff-battery 0; freeze 102 ok + expected panic; uperf-s
+  3752cba4).
+  RSS delta [MEASURED, NOISY-SHARED, vs rung-2 tree]: fp3x16
+  -0.1 MB; pa12x64 +5.5 MB; fp12x64 -0.6 MB — i.e. WITHIN NOISE,
+  honestly recorded: at the 125M shapes the deeper witnesses are
+  0.1-0.4 GB boxed and the process high-water mark sits in the
+  claim/descent phases, so the fix cannot move it here. The
+  counted 8B win: level-1 witnesses 35.2 + 11.1 GB boxed -> ~5.6
+  GB flat (both groups), and every deeper level shrinks 8.3x.
+
+RUNG 4 — THE RECORD (2026-08-28). One more (a)-completion rode this
+rung: the VERIFIER's last read of `lays` is the public-claim MLE
+check, so the store is dropped a second time before the group
+verifies (bg_verify_group takes reg_v + shipped proofs only) — at
+12x64 this alone moved the process peak -583 MB, i.e. the high-water
+mark at that shape sat in the VERIFY phase (reloaded lays + claim
+tables + the verifier's A_0). Digests + floors green as at every
+rung.
+
+THE MEASURED 125M-SHAPE RSS CURVE (peak RSS KB, /usr/bin/time -v,
+ZK_THREADS=8, flock-serialized, NOISY-SHARED box; each column = the
+lane tree at that rung):
+  shape    baseline    +a         +a+b       +a+b+c     +a(verify)  total
+  fp3x16   1,126,084   1,125,344  1,093,432  1,093,324    974,028   -152 MB (-13.5%)
+  pa12x64  2,968,604   2,968,436  2,616,568  2,622,056  2,621,856   -347 MB (-11.7%)
+  fp12x64  3,091,220   3,091,152  2,834,316  2,833,716  2,251,012   -840 MB (-27.2%)
+  walls: fp3x16 6.1 -> 6.5 s; pa12x64 18.6 -> 20.2 s; fp12x64
+  24.1 -> 27.1 s (+8-12%: the ~3x CRS expansion sweeps + the layer
+  reload; the W-8 row priced exactly this trade).
+  Reading per fix: (a) moves nothing at 125M shapes (peak is in
+  claim/descent/verify phases, which read lays) until the VERIFY
+  drop lands, then it is the biggest single mover at 12x64; (b) is
+  the prover-side mover (-344 MB at pa12x64 ~ the 12-layer A_0
+  boxed minus the verifier re-expansion); (c) is invisible here
+  (0.1-0.4 GB terms) and counted at 8B below.
+
+THE COUNTED 8B PROJECTION (memo section 1.6/3.1 terms; [COUNTED]
+sizes, [MODEL] liveness; phases of bk_pass_run after this lane):
+  32x16 (the yardstick — carries the ENTIRE 352M-ring weight group):
+    commit L 45.8 + W 45.7 = 91.5 | claim ~95 | descents
+    L+W+D(3.8) = 95.3 | groups: lvl-0 W+block ~52, lvl-1 phi_1 35.2
+    + s_rings 5.9 + V1flat 4.2 + act-w0 0.6 = ~46 | verify: A_w
+    re-expansion 64.4 + reg_v/proofs = ~70 (lays dropped).
+    PEAK ~95 GB — **UNDER 128 GB with this lane's diet ALONE,
+    descents included** (as built: ~191 GB — the memo's own row).
+  32x512 (MVP-1):
+    WITH the descents as built: descent phase L 66 + W 63.7 + D 120
+    = ~250 GB — NOT under 128 (nor 256); my diet does not touch D,
+    and the descent trees READ lays, so (a) cannot clear L there.
+    The memo 3.1 descent-row "184 with (a)" is optimistic on this
+    point (recorded at rung 1). Lane GG's Stage A is the fix — cite,
+    not built here.
+    WITHOUT the descents (lane GG lands): the peak moves to
+    commit/claim: commit L 66 + W 63.7 = ~130; claim ~135 — 2-7 GB
+    OVER 128 as-is. With W-8(d) ZK_W0_REGEN=1 (EXISTS, run flag):
+    claim ~71; commit still ~130. With the W-3 act-group split
+    (MANDATORY at 32x512 anyway — the act gate fails unsplit),
+    committed per split: commit ~ L 66 + W_w 45.1 + one act split
+    4.7 = ~116. Groups after (b)+(c): lvl-0 ~72 (W + z_all boxed
+    transient 5.9 + flat store), lvl-1 ~64 (phi_1 35.2 + s_rings
+    5.9 + V1flat 4.2 + act w0 18.6). Verify ~70.
+    VERDICT: **~116 GB peak — UNDER 128 — via (a)+(b)+(c) [this
+    lane] + Stage A [lane GG] + ZK_W0_REGEN [exists] + W-3 [already
+    mandatory]**; without the regen/W-3 pieces the commit/claim
+    phases hold ~130-135 and the milestone is MARGINALLY missed.
+  T9's old 12x512-under-14-GB goal: baseline CPU-only was 11.1 GB
+  (already under); the diet removes the ~2 GB A_0 + ~0.5 GB V1
+  boxed terms from the prover phases — projected ~9-10 GB, NOT
+  measured here (12x512 runs excluded by the shared-box rule this
+  round; measure on a quiet window).
+
+NEW FIRST-ORDER TERM the projection surfaced (not in memo 3.1's
+component list): phi_1 — the level-1 aggregated functional
+(transport phi_next, boxed MOD-Q rings, same ring count as the
+level-1 witness): ~35.2 GB (w) + ~11.1 GB (a) at 8B, alive through
+the level-1 h pairs and the level-2 transport. It cannot go i8
+(mod-q values); its two consumers are both windowable (the
+Phi0Source / CrsColStream patterns generalize) — the natural NEXT
+diet rung if the level-1 group phase must shrink below ~64 GB.
+
+OPEN ITEMS / NOT DONE HERE:
+  * bg_verify_group still expands A_0 WHOLE at level 0 (verify
+    phase ~70 GB at 8B — bounded, NOT a 128 GB blocker after the
+    verify-side lays drop; the same transport_level_from_psi_cols
+    helper applies if a later rung wants it — the site is outside
+    this lane's named-sites grant).
+  * The commit-phase per-group build->precommit->free ordering
+    (~111 GB without W-3) — a small bk_pass_run liveness reorder,
+    ~0.5 d, only needed if W-3 lands late.
+  * bg_pass_run (the pass-agg rig) kept its lays end-to-end — (a)
+    is spec'd against bk_pass_run only; the bg rig gets (b)+(c)
+    through the shared bg_precommit/bg_prove_group.
+  * z_all (the boxed i64 fold output inside bg_fold_into) is a
+    ~5.9 GB transient at the 8B weight level 0 — a fold-into-flat
+    kernel would remove it (not priced by the W-8 row; minor).
+
+STATE: DONE (2026-08-28) — rungs 0-4 landed, one commit each, all
+pushed on uperf3-hh; every rung transcript-preserving (five digest
+anchors byte-identical at every commit) with floors green.

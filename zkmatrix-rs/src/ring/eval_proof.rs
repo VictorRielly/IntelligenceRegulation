@@ -1257,6 +1257,191 @@ pub fn expand_level_matrix_arc(
     a
 }
 
+// ---------------------------------------------------------------------------
+// [UPERF3-HH W-8b] Column-block access to a level CRS matrix WITHOUT
+// materializing it. The level-0 A matrices are the pass's largest CRS
+// objects (64.4 GB weight + 30.4 GB act at the 8B shape, W-8(b)) and
+// both their consumers walk them column-wise (the t = A w GEMM per
+// u-window; the level-1 transport's per-column S combine), so the
+// matrix never needs to exist whole.
+//
+// One correction to the W-8 row's "blocks are independent": the CRS
+// stream is ONE SHA-256-counter byte stream consumed sequentially by a
+// REJECTION sampler (`XofReader::next_field`), so entry n's stream
+// position depends on every rejection before it — blocks are NOT
+// independently re-keyable. They ARE independently RESUMABLE:
+// acceptance is a pure per-word predicate ((word >> shift) < q, ~0.2%
+// rejection at the house q), so one counting pass (generate, count
+// accepted words per fixed word-block, DISCARD the bytes) yields a
+// prefix table that locates any accepted-index range's word window
+// exactly; a column block is then regenerated from its SHA counter
+// range and walked with a skip — the SAME accepted words in the SAME
+// order as `expand_level_matrix_raw`, byte-identical by construction
+// (`ZK_A0_CHECK=1` asserts a full-matrix comparison against the raw
+// oracle at construction — dev shapes only).
+//
+// Cost model (the W-8 row's, unchanged): the counting pass is one full
+// stream generation; each consumer sweep over all blocks regenerates
+// the stream once more (~25 s per full 8B expansion [MODEL], paid ~3x).
+// Resident: one column block + the prefix table (8 B per 8,192 words —
+// ~7.6 MB at the 8B weight shape).
+
+/// Words per counted block (64 KiB of stream; 4 words per SHA block).
+const CRS_COL_WB: usize = 8192;
+
+pub struct CrsColStream {
+    key: [u8; 32],
+    rows: usize,
+    cols: usize,
+    q: u64,
+    shift: u32,
+    /// Words covered by the counted prefix (a multiple of CRS_COL_WB).
+    n_words: usize,
+    /// prefix[b] = accepted words strictly before word block b.
+    prefix: Vec<u64>,
+    /// Kept for the ZK_A0_CHECK oracle comparison only.
+    params: (u64, String, usize, String),
+}
+
+impl CrsColStream {
+    /// The counting pass: generate the stream in bounded chunks, count
+    /// accepted words per CRS_COL_WB-word block, discard the bytes.
+    pub fn new(seed: u64, group: &str, level: usize, which: &str, rows: usize, cols: usize, q: u64) -> CrsColStream {
+        let _t = prof::timer(prof::EP_CRS); // the counting pass is CRS work
+        let key = crs_key(seed, group, level, which, rows, cols);
+        let shift = q.leading_zeros();
+        let n_el = (rows * cols * D) as u64;
+        // 512 word-blocks (32 MiB) per generation chunk.
+        const WCHUNK: usize = 512;
+        let mut prefix: Vec<u64> = vec![0];
+        let mut total = 0u64;
+        let mut blk = 0usize; // next SHA block index
+        let mut buf: Vec<u8> = Vec::new();
+        while total < n_el {
+            let sha_n = CRS_COL_WB / 4 * WCHUNK;
+            buf.resize(sha_n * 32, 0);
+            crs_blocks_into(&key, blk, blk + sha_n, &mut buf);
+            blk += sha_n;
+            let counts: Vec<u64> = map_ordered_min(WCHUNK, 2, |i| {
+                buf[i * CRS_COL_WB * 8..(i + 1) * CRS_COL_WB * 8]
+                    .chunks_exact(8)
+                    .filter(|w| (u64::from_le_bytes((*w).try_into().unwrap()) >> shift) < q)
+                    .count() as u64
+            });
+            for c in counts {
+                total += c;
+                prefix.push(total);
+                if total >= n_el {
+                    break;
+                }
+            }
+        }
+        let n_words = (prefix.len() - 1) * CRS_COL_WB;
+        let s = CrsColStream {
+            key,
+            rows,
+            cols,
+            q,
+            shift,
+            n_words,
+            prefix,
+            params: (seed, group.to_string(), level, which.to_string()),
+        };
+        if std::env::var("ZK_A0_CHECK").map(|v| v == "1").unwrap_or(false) {
+            s.self_check_against_raw();
+        }
+        s
+    }
+
+    pub fn n_rows(&self) -> usize {
+        self.rows
+    }
+    pub fn n_cols(&self) -> usize {
+        self.cols
+    }
+
+    /// The word block holding accepted index e: prefix[b] <= e <
+    /// prefix[b+1] (the last block with equal prefix when empty blocks
+    /// share it — `expand_level_matrix_par_v2`'s locate).
+    fn locate(&self, e: u64) -> usize {
+        match self.prefix.binary_search(&e) {
+            Ok(i) => {
+                let mut j = i;
+                while j + 1 < self.prefix.len() - 1 && self.prefix[j + 1] == e {
+                    j += 1;
+                }
+                j
+            }
+            Err(i) => i - 1,
+        }
+    }
+
+    /// Row `row`, columns [c0, c1): the SAME values
+    /// `expand_level_matrix_raw` puts at those positions.
+    fn row_cols(&self, row: usize, c0: usize, c1: usize) -> Vec<Poly> {
+        let bc = c1 - c0;
+        let e0 = ((row * self.cols + c0) * D) as u64; // first accepted index
+        let e1 = ((row * self.cols + c1) * D) as u64; // one past the last
+        let b0 = self.locate(e0);
+        let b1 = self.locate(e1 - 1);
+        let w_lo = b0 * CRS_COL_WB;
+        let w_hi = ((b1 + 1) * CRS_COL_WB).min(self.n_words);
+        let mut buf = vec![0u8; (w_hi - w_lo) * 8];
+        crs_blocks_into(&self.key, w_lo / 4, w_hi / 4, &mut buf);
+        let mut skip = e0 - self.prefix[b0];
+        let n_w = w_hi - w_lo;
+        let mut w = 0usize;
+        let mut out: Vec<Poly> = Vec::with_capacity(bc);
+        for _ in 0..bc {
+            let mut p = poly_zero();
+            for c in p.iter_mut() {
+                loop {
+                    assert!(w < n_w, "crs col walk overran the counted stream");
+                    let word = u64::from_le_bytes(buf[w * 8..w * 8 + 8].try_into().unwrap());
+                    w += 1;
+                    if (word >> self.shift) < self.q {
+                        if skip > 0 {
+                            skip -= 1;
+                            continue;
+                        }
+                        *c = word >> self.shift;
+                        break;
+                    }
+                }
+            }
+            out.push(p);
+        }
+        out
+    }
+
+    /// The rows x (c1-c0) column block, row-major within the block:
+    /// entry (r, c) at [r * (c1-c0) + (c - c0)] — the layout every
+    /// row-major consumer (`matvec_modq_small*`, the transport's
+    /// per-row ops) expects of a (rows x bc) matrix. Rows are walked
+    /// serially; the SHA generation inside is block-parallel.
+    pub fn cols(&self, c0: usize, c1: usize) -> Vec<Poly> {
+        assert!(c0 <= c1 && c1 <= self.cols, "column block out of range");
+        let bc = c1 - c0;
+        let mut out: Vec<Poly> = Vec::with_capacity(self.rows * bc);
+        if bc == 0 {
+            return out;
+        }
+        for row in 0..self.rows {
+            out.extend(self.row_cols(row, c0, c1));
+        }
+        out
+    }
+
+    /// [dev, ZK_A0_CHECK=1] full-matrix comparison against the raw
+    /// rejection walk — the oracle for the resumable-stream claim.
+    fn self_check_against_raw(&self) {
+        let (seed, ref group, level, ref which) = self.params;
+        let raw = expand_level_matrix_raw(seed, group, level, which, self.rows, self.cols, self.q);
+        let mine = self.cols(0, self.cols);
+        assert_eq!(mine, raw, "CrsColStream mismatch vs expand_level_matrix_raw");
+    }
+}
+
 /// t = M s over R_q: rows x cols mod-q matrix times a small (digit)
 /// ring column vector. [UPERF-PC O3] NTT-domain body (`ntt_gemm_modq_small`
 /// with one small vector); `matvec_modq_small_ref` is the Karatsuba
@@ -4883,6 +5068,39 @@ pub fn decompose_polys_small(polys: &[Vec<i64>], e: u32, l: usize) -> Vec<Vec<i6
     out
 }
 
+// [UPERF3-HH W-8c] The digit split written straight into a flat i8
+// store (`DigitCols`) — the boxed intermediate (1,064 B/ring vs 128 B
+// flat; W-8(c)'s 35.2 + 11.1 GB level-1 witnesses at 8B) never
+// exists. Ring order and digit values are IDENTICAL to
+// `decompose_polys_small` (the same per-ring split, appended in the
+// same order); every digit is asserted into i8 (the deeper-level
+// bases are e <= 7, alphabet |d| <= 64). The t/h digit families stay
+// boxed at every level (r*kappa*l_t + pairs*l_h rings — KBs).
+
+/// `decompose_polys_small` appended into a flat i8 store.
+pub fn decompose_polys_small_into(polys: &[Vec<i64>], e: u32, l: usize, out: &mut DigitCols) {
+    let base = out.len();
+    out.resize(base + polys.len() * l);
+    let dst = &mut out.rings_mut()[base * D..];
+    let work = |i: usize, chunk: &mut [i8]| {
+        let digs = decompose_poly_small(&polys[i], e, l);
+        debug_assert_eq!(digs.len(), l);
+        for (li, dr) in digs.iter().enumerate() {
+            for (o, &x) in chunk[li * D..(li + 1) * D].iter_mut().zip(dr.iter()) {
+                *o = i8::try_from(x).unwrap_or_else(|_| panic!("flat digit store: digit {x} outside i8"));
+            }
+        }
+    };
+    if threads() > 1 && polys.len() >= 8 {
+        pooled(|| {
+            use rayon::prelude::*;
+            dst.par_chunks_mut(l * D).enumerate().for_each(|(i, c)| work(i, c));
+        });
+    } else {
+        dst.chunks_mut(l * D).enumerate().for_each(|(i, c)| work(i, c));
+    }
+}
+
 // ---- compute_psi. ----
 
 /// [UPERF2-C] NTT-domain `compute_psi`: c_k transformed once, per output
@@ -5365,6 +5583,151 @@ pub fn transport_level_from_psi_fast(
     LevelTransport { phi_next, h_next }
 }
 
+/// [UPERF3-HH W-8b] `transport_level_from_psi_fast` with the level A
+/// matrix streamed per column block (`CrsColStream`) instead of
+/// materialized. ONLY the S-ring stage touches A, and the combine
+/// S[src] = a_l1 * psi[src] + sum_kap a_t4[kap] * A[kap][src] is
+/// per-column independent (`ntt_combine_general` computes each output
+/// ring from its own column of operands; its capacity gates depend on
+/// (q, n) only, both unchanged here) — so assembling s_rings block by
+/// block concatenates to the SAME canonical rings, and every stage
+/// after (ii)-(v), verbatim below) sees identical inputs. The fast
+/// body is this function's oracle: byte-identical outputs.
+#[allow(clippy::too_many_arguments)]
+pub fn transport_level_from_psi_cols(
+    ctx: &RingCtx,
+    psi: &[Poly],
+    h_target: &Poly,
+    plan: &LevelPlan,
+    layout: &NextLayout,
+    a_cols: &CrsColStream,
+    bindings: &[OuterBinding],
+    c: &[Vec<i64>],
+    alphas: &[Poly],
+    block_cols: usize,
+) -> LevelTransport {
+    let zq = &ctx.zq;
+    let chunk = plan.chunk;
+    let r = c.len();
+    assert_eq!(psi.len(), chunk);
+    assert!(block_cols > 0, "block_cols must be positive");
+    assert!(a_cols.n_rows() == KAPPA_AGG && a_cols.n_cols() >= chunk, "A_i is kappa x chunk");
+    let n_rows = transport_rows(bindings.len());
+    assert_eq!(alphas.len(), n_rows);
+    let (a_t1, a_l1) = (&alphas[0], &alphas[1]);
+    let a_t4 = &alphas[2..2 + KAPPA_AGG];
+    let a_t5 = &alphas[2 + KAPPA_AGG..];
+    for b in bindings {
+        assert!(b.b_mat.len() >= KAPPA_AGG * b.cols, "B is kappa x cols");
+    }
+    // (i) S[src] = a_l1 * psi[src] + sum_kap a_t4[kap] * A[kap][src],
+    // per column block — never more than KAPPA_AGG x block_cols of A
+    // resident.
+    let s_rings: Vec<Poly> = {
+        let _ts = prof::timer(prof::M_TR_S); // [UPERF2-M] observation only
+        let mut al: Vec<Poly> = Vec::with_capacity(1 + KAPPA_AGG);
+        al.push(a_l1.clone());
+        al.extend(a_t4.iter().cloned());
+        let mut s: Vec<Poly> = Vec::with_capacity(chunk);
+        let mut c0 = 0usize;
+        while c0 < chunk {
+            let c1 = (c0 + block_cols).min(chunk);
+            let bc = c1 - c0;
+            let a_blk = a_cols.cols(c0, c1); // KAPPA_AGG x bc, row-major
+            let mut ops: Vec<&[Poly]> = Vec::with_capacity(1 + KAPPA_AGG);
+            ops.push(&psi[c0..c1]);
+            for kap in 0..KAPPA_AGG {
+                ops.push(&a_blk[kap * bc..(kap + 1) * bc]);
+            }
+            s.extend(ntt_combine_general(ctx, &al, &ops, bc));
+            c0 = c1;
+        }
+        s
+    };
+    // (ii) T5_bi[rel] = sum_kap2 a_t5[bi][kap2] * B_bi[kap2][rel].
+    let _tt5 = prof::timer(prof::M_TR_T5); // [UPERF2-M] observation only (dropped after the T5 rings)
+    let t5_rings: Vec<Vec<Poly>> = bindings
+        .iter()
+        .enumerate()
+        .map(|(bi, b)| {
+            let al = &a_t5[bi * KAPPA_AGG..(bi + 1) * KAPPA_AGG];
+            let ops: Vec<&[Poly]> = (0..KAPPA_AGG).map(|k2| &b.b_mat[k2 * b.cols..(k2 + 1) * b.cols]).collect();
+            ntt_combine_general(ctx, al, &ops, b.cols)
+        })
+        .collect();
+    drop(_tt5);
+    // (iii) P[kap * r + j] = a_t4[kap] * c_j (small operand).
+    let p_rings: Vec<Poly> = {
+        let _tp = prof::timer(prof::M_TR_PQ); // [UPERF2-M] observation only
+        let mut v = Vec::with_capacity(KAPPA_AGG * r);
+        for ak in a_t4.iter() {
+            v.extend(mul_modq_small_many(ctx, ak, c));
+        }
+        v
+    };
+    // (iv) Q[pair] = a_l1 * cpair[pair], cpair = c_j (x) c_k over Z (small).
+    let cp_small: Vec<Vec<i64>> = {
+        let mut v = Vec::with_capacity(r * (r + 1) / 2);
+        for j in 0..r {
+            for k in j..r {
+                v.push(poly_mul_small(&c[j], &c[k]));
+            }
+        }
+        v
+    };
+    let q_rings: Vec<Poly> = {
+        let _tp = prof::timer(prof::M_TR_PQ); // [UPERF2-M] observation only
+        mul_modq_small_many(ctx, a_l1, &cp_small)
+    };
+    // (v) Assemble every next-witness ring (fixed order — identical to
+    // the fast body).
+    let t5_at = |pos: usize, acc: &mut Poly| {
+        for (bi, b) in bindings.iter().enumerate() {
+            if pos >= b.col_base && pos < b.col_base + b.cols {
+                *acc = poly_add(zq, acc, &t5_rings[bi][pos - b.col_base]);
+            }
+        }
+    };
+    let e_next = plan.e_next as usize;
+    let one = |u: usize| -> Poly {
+        let (fam, src, limb) = layout.locate(u);
+        match fam {
+            Fam::Z => {
+                let radix = zq.to_mod(1i64 << (e_next * limb));
+                scale_exact(zq, &s_rings[src], radix)
+            }
+            Fam::T => {
+                let (j, kap) = (src / KAPPA_AGG, src % KAPPA_AGG);
+                let radix = 1i64 << (e_next * limb);
+                let mut acc = scale_exact(zq, &p_rings[kap * r + j], zq.to_mod(-radix));
+                t5_at(u - layout.t_base, &mut acc);
+                acc
+            }
+            Fam::H => {
+                let radix_u = zq.to_mod(1i64 << (e_next * limb));
+                let (j, k) = pair_from_index(plan.r, src);
+                let mut acc = if j == k { scale_exact(zq, a_t1, radix_u) } else { poly_zero() };
+                acc = poly_add(zq, &acc, &scale_exact(zq, &q_rings[src], zq.neg(radix_u)));
+                t5_at(u - layout.t_base, &mut acc);
+                acc
+            }
+        }
+    };
+    let phi_next: Vec<Poly> = {
+        let _ta = prof::timer(prof::M_TR_ASM); // [UPERF2-M] observation only
+        map_ordered(layout.n_total, one)
+    };
+    // Aggregated target: alpha_T1 * H_i + sum over bindings alpha_T5 * u.
+    let mut h_next = ring_mul_split_kara_fast(ctx, a_t1, h_target);
+    for (bi, b) in bindings.iter().enumerate() {
+        for (kap, uk) in b.u.iter().enumerate() {
+            let ak = &a_t5[bi * KAPPA_AGG + kap];
+            h_next = poly_add(zq, &h_next, &ring_mul_split_kara_fast(ctx, ak, uk));
+        }
+    }
+    LevelTransport { phi_next, h_next }
+}
+
 // ---------------------------------------------------------------------------
 // [UPERF2-F] MEMORY DIET (U-PERF2 lane F): the level-0 digit witness as a
 // flat i8 store, consumed per ring inside the kernels.
@@ -5546,6 +5909,16 @@ impl DigitCols {
         assert_eq!(r.len(), D, "DigitCols::set_ring: ring length");
         for (o, &x) in self.ring_mut(u).iter_mut().zip(r.iter()) {
             *o = i8::try_from(x).unwrap_or_else(|_| panic!("DigitCols: digit {x} outside i8"));
+        }
+    }
+    /// [UPERF3-HH W-8c] Append boxed rings (every coefficient must fit
+    /// an i8 — `set_ring` asserts; the deeper-level digit alphabets are
+    /// |d| <= 64 at the house bases e <= 7).
+    pub fn extend_vecs(&mut self, v: &[Vec<i64>]) {
+        let base = self.len();
+        self.resize(base + v.len());
+        for (u, r) in v.iter().enumerate() {
+            self.set_ring(base + u, r);
         }
     }
     /// Zero-pad or truncate to n rings.
