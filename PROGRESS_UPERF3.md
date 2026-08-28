@@ -2619,3 +2619,93 @@ boxed (KBs at every level). The floor is boxed back at the floor
   claim/descent phases, so the fix cannot move it here. The
   counted 8B win: level-1 witnesses 35.2 + 11.1 GB boxed -> ~5.6
   GB flat (both groups), and every deeper level shrinks 8.3x.
+
+RUNG 4 — THE RECORD (2026-08-28). One more (a)-completion rode this
+rung: the VERIFIER's last read of `lays` is the public-claim MLE
+check, so the store is dropped a second time before the group
+verifies (bg_verify_group takes reg_v + shipped proofs only) — at
+12x64 this alone moved the process peak -583 MB, i.e. the high-water
+mark at that shape sat in the VERIFY phase (reloaded lays + claim
+tables + the verifier's A_0). Digests + floors green as at every
+rung.
+
+THE MEASURED 125M-SHAPE RSS CURVE (peak RSS KB, /usr/bin/time -v,
+ZK_THREADS=8, flock-serialized, NOISY-SHARED box; each column = the
+lane tree at that rung):
+  shape    baseline    +a         +a+b       +a+b+c     +a(verify)  total
+  fp3x16   1,126,084   1,125,344  1,093,432  1,093,324    974,028   -152 MB (-13.5%)
+  pa12x64  2,968,604   2,968,436  2,616,568  2,622,056  2,621,856   -347 MB (-11.7%)
+  fp12x64  3,091,220   3,091,152  2,834,316  2,833,716  2,251,012   -840 MB (-27.2%)
+  walls: fp3x16 6.1 -> 6.5 s; pa12x64 18.6 -> 20.2 s; fp12x64
+  24.1 -> 27.1 s (+8-12%: the ~3x CRS expansion sweeps + the layer
+  reload; the W-8 row priced exactly this trade).
+  Reading per fix: (a) moves nothing at 125M shapes (peak is in
+  claim/descent/verify phases, which read lays) until the VERIFY
+  drop lands, then it is the biggest single mover at 12x64; (b) is
+  the prover-side mover (-344 MB at pa12x64 ~ the 12-layer A_0
+  boxed minus the verifier re-expansion); (c) is invisible here
+  (0.1-0.4 GB terms) and counted at 8B below.
+
+THE COUNTED 8B PROJECTION (memo section 1.6/3.1 terms; [COUNTED]
+sizes, [MODEL] liveness; phases of bk_pass_run after this lane):
+  32x16 (the yardstick — carries the ENTIRE 352M-ring weight group):
+    commit L 45.8 + W 45.7 = 91.5 | claim ~95 | descents
+    L+W+D(3.8) = 95.3 | groups: lvl-0 W+block ~52, lvl-1 phi_1 35.2
+    + s_rings 5.9 + V1flat 4.2 + act-w0 0.6 = ~46 | verify: A_w
+    re-expansion 64.4 + reg_v/proofs = ~70 (lays dropped).
+    PEAK ~95 GB — **UNDER 128 GB with this lane's diet ALONE,
+    descents included** (as built: ~191 GB — the memo's own row).
+  32x512 (MVP-1):
+    WITH the descents as built: descent phase L 66 + W 63.7 + D 120
+    = ~250 GB — NOT under 128 (nor 256); my diet does not touch D,
+    and the descent trees READ lays, so (a) cannot clear L there.
+    The memo 3.1 descent-row "184 with (a)" is optimistic on this
+    point (recorded at rung 1). Lane GG's Stage A is the fix — cite,
+    not built here.
+    WITHOUT the descents (lane GG lands): the peak moves to
+    commit/claim: commit L 66 + W 63.7 = ~130; claim ~135 — 2-7 GB
+    OVER 128 as-is. With W-8(d) ZK_W0_REGEN=1 (EXISTS, run flag):
+    claim ~71; commit still ~130. With the W-3 act-group split
+    (MANDATORY at 32x512 anyway — the act gate fails unsplit),
+    committed per split: commit ~ L 66 + W_w 45.1 + one act split
+    4.7 = ~116. Groups after (b)+(c): lvl-0 ~72 (W + z_all boxed
+    transient 5.9 + flat store), lvl-1 ~64 (phi_1 35.2 + s_rings
+    5.9 + V1flat 4.2 + act w0 18.6). Verify ~70.
+    VERDICT: **~116 GB peak — UNDER 128 — via (a)+(b)+(c) [this
+    lane] + Stage A [lane GG] + ZK_W0_REGEN [exists] + W-3 [already
+    mandatory]**; without the regen/W-3 pieces the commit/claim
+    phases hold ~130-135 and the milestone is MARGINALLY missed.
+  T9's old 12x512-under-14-GB goal: baseline CPU-only was 11.1 GB
+  (already under); the diet removes the ~2 GB A_0 + ~0.5 GB V1
+  boxed terms from the prover phases — projected ~9-10 GB, NOT
+  measured here (12x512 runs excluded by the shared-box rule this
+  round; measure on a quiet window).
+
+NEW FIRST-ORDER TERM the projection surfaced (not in memo 3.1's
+component list): phi_1 — the level-1 aggregated functional
+(transport phi_next, boxed MOD-Q rings, same ring count as the
+level-1 witness): ~35.2 GB (w) + ~11.1 GB (a) at 8B, alive through
+the level-1 h pairs and the level-2 transport. It cannot go i8
+(mod-q values); its two consumers are both windowable (the
+Phi0Source / CrsColStream patterns generalize) — the natural NEXT
+diet rung if the level-1 group phase must shrink below ~64 GB.
+
+OPEN ITEMS / NOT DONE HERE:
+  * bg_verify_group still expands A_0 WHOLE at level 0 (verify
+    phase ~70 GB at 8B — bounded, NOT a 128 GB blocker after the
+    verify-side lays drop; the same transport_level_from_psi_cols
+    helper applies if a later rung wants it — the site is outside
+    this lane's named-sites grant).
+  * The commit-phase per-group build->precommit->free ordering
+    (~111 GB without W-3) — a small bk_pass_run liveness reorder,
+    ~0.5 d, only needed if W-3 lands late.
+  * bg_pass_run (the pass-agg rig) kept its lays end-to-end — (a)
+    is spec'd against bk_pass_run only; the bg rig gets (b)+(c)
+    through the shared bg_precommit/bg_prove_group.
+  * z_all (the boxed i64 fold output inside bg_fold_into) is a
+    ~5.9 GB transient at the 8B weight level 0 — a fold-into-flat
+    kernel would remove it (not priced by the W-8 row; minor).
+
+STATE: DONE (2026-08-28) — rungs 0-4 landed, one commit each, all
+pushed on uperf3-hh; every rung transcript-preserving (five digest
+anchors byte-identical at every commit) with floors green.

@@ -35100,6 +35100,12 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
             tv.absorb_k(&kf, "bk-public", &public_vals);
             let nus_v: Vec<KElem> = (0..claims_v.len()).map(|_| tv.challenge_k(&kf)).collect();
             let (vb_w_v, vb_a_v, gc_w_v, gc_a_v) = assemble(&claims_v, &nus_v, &reg_v, &kf);
+            // [UPERF3-HH W-8a] the public-claim MLEs above were the
+            // verifier's LAST read of the layer store — the group
+            // verifies take reg_v + the shipped proofs only. Drop it
+            // again (66 GB at 32x512) before the verify-side peak.
+            lays = Vec::new();
+            uf_trim();
             uf_rss("bk.verify-groups-start"); // [UPERF2-F] observation only
             let res_w = bg_verify_group(
                 &ctxr, &kf, &reg_v.gw, &sched_w, &gc_w_v, &vb_w_v, &proof_w, &mut tv, crs_seed,
