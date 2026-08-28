@@ -1433,3 +1433,182 @@ level the deltas are ~1-2 int8 counts. Counted design memo = a
 future lane item once a smoothness-regularized checkpoint exists;
 the joint experiment (frugal side): a ladder run with
 trajectory_regularization > 0 / shared init, then re-measure.
+## Agent AA status (wt-uperf3-aa, round 3)
+
+STATE: IN FLIGHT (2026-08-26). Landed so far (one commit each):
+- scripts/m8b_margins.py: the v3 widened exact chain with
+  REGISTRY-EXACT int16-out tables (CLAMPED +/-32767 — matches lane
+  BB's freeze convention BY CONSTRUCTION; clamp-row index hits
+  tracked per run), greedy +1-bit margin iteration, --tables C5
+  record mode, and the shared v3 export machinery (make_v3_ffn /
+  v3_witness_walk / write_v3_sidecar) both exporters call.
+- **MISTRAL MARGINS TO ZERO** [MEASURED WSL-BOX NT]: round 0
+  reproduces the ruling verdict (+0.2157 / 32 viols, clamp-hits 0);
+  2 margin rounds -> **0 violations at 12 margin bits** (gate
+  l3/4/14/15, u l7, h l16/26/27/31, z l20/22, X l31; rounds 1-2
+  surfaced 5 second-order viols — gate l14, z l20/22 — killed by the
+  same rule). Quality cost of margins **-0.0007 nats** (net
+  IMPROVE); final delta +0.2150 vs ref. clamp-hits 3 elements at the
+  final set. results/m8b_margins_mistral_wsl.json.
+- The v3 EXPORT PROFILE: additive --profile v3 in m8b_export_ffn.py
+  (layout DOC OF RECORD in its header; v2 default re-export
+  BYTE-IDENTICAL to the committed m125_reexport digests) + additive
+  --export-v3 in m8b_gemma4_walker.py (same shared code paths — the
+  layout cannot fork). 125M v3 validation: 0 viols, weight +
+  layer-0-X digests byte-match v2. REAL Mistral-7B v3 export DONE:
+  0 violations under the margin set, negative sh_u = -1 exercises
+  the exact-up-scaling path; digests + manifest committed, 6.8G bins
+  gitignored.
+- BB RECONCILE COMPLETE: all 15 frozen int16out members (9 silu + 6
+  gelu, uperf3-bb lookup.rs 90415d0) regenerate BYTE-IDENTICAL and
+  DIGEST-IDENTICAL from m8b_margins.py's generator (same function
+  names, rounding strings, clamp, spec-header JSON). The
+  margin-adjusted Mistral member set needs NO new members — the gate
+  margins map l3/4 -> (-4,-13) and l14/15 -> (-3,-12), both already
+  frozen; (-5,-13) becomes unused post-margin (harmless).
+- **GEMMA MARGINS TO ZERO [MEASURED WSL-BOX NT|NOISY-SHARED] — WITH
+  A FLAG**: round 0 reproduces the ruling verdict bit-for-print
+  (+0.0353 / 14 viols: X_clip 4 at l1/10/12/21, z 5 at l5, gate 3
+  at l34, h 2 at l39/43). ONE margin round -> 0 violations at just
+  8 bits (+1 bit at exactly those 8 (layer, site) cells; clamp-hits
+  2). **BUT the margin quality cost is +0.1082 nats** (final delta
+  +0.1436 vs ref — ABOVE the +0.1356 weights-only floor), where
+  Mistral's margin set was FREE (-0.0007). The script's own
+  \>0.05-nat gate fired ("REPORT THIS").
+  results/m8b_margins_gemma_wsl.json, peak RSS 3.71 GB.
+- DECOMPOSITION IN FLIGHT (queued on the heavy lock behind CC's
+  widen pass): scripts/m8b_margins_decomp.py — one verdict walk
+  with the four X-site bits alone, one with the z/gate/h bits
+  alone, same ref + windows. Hypothesis: the X margins carry the
+  cost (X stays INT8 in the v3 stack — +1 exponent bit halves the
+  whole X plane's resolution at those layers; z/gate/h margins land
+  on int16 planes with resolution to spare). Mechanism smoke green.
+  Marker: results/m8b_margins_decomp.done.
+- **DECOMPOSITION LANDED [MEASURED WSL-BOX NT] — the hypothesis is
+  REFUTED, and the answer is better**: the four X-site bits alone
+  cost **+0.0011** nats (FREE — int8-X resolution was NOT the
+  mechanism); the z/gate/h bits alone cost **+0.1317** (sum
+  +0.1329 vs full +0.1082, interaction gap -0.0247 — sane). The
+  cost lives on the int16 planes' margins, almost certainly
+  because z/h margins coarsen EARLY/MID-stream planes that feed
+  everything downstream (z l5!) and the gate margin swaps the
+  activation-table member to a coarser input grid at l34.
+  Residuals: with X-margins only, 7 violating ELEMENTS remain
+  (gate 1, z 6); with z/gate/h-margins only, 4 remain (X_clip 2,
+  z 2) — the chain interacts, neither subset reproduces round 0's
+  14. results/m8b_margins_gemma_decomp.json.
+- **RECOMMENDED POLICY for the ruling (the report's line): take the
+  X margins (free, kills X_clip), do NOT take z/gate/h margins;
+  treat the ~7 residual elements with lane Z's measured per-column
+  eZ mechanism (C2 percol, ~3.75 KB/layer at the residue layers —
+  the zfix pass already measured it killing z-residues cheaply) or
+  an accept-N-residues statement row.** Mistral's margin set and
+  export are unaffected (its margins were free).
+- **RULING (Victor, console 2026-08-26 night): percol-eZ adopted as
+  the z-residue mechanism.** Implemented as --z-percol in
+  m8b_margins.py (per-column eZ16 floored at the per-tensor base —
+  columns only WIDEN; vector sh_z through floor_requant's
+  per-channel form; z viols route to the percol set with escalating
+  mz; e_sha per layer pins the vector for the export reconcile).
+- **PERCOL POLICY RUN [MEASURED WSL-BOX NT]: ZERO violations, and
+  percol-z is FREE as designed** (l5: 19/3840 cols widened, max +2
+  bits, identical e_sha both rounds; the forced-path check measured
+  its loss effect at 7e-6). Converged margin set: X x4 (free) +
+  gate l34 + h l30/39/43 (l30 is a NEW second-order h viol that
+  surfaced in round 1). **BUT final delta +0.1049 — the gate/h
+  margin bits carry +0.0696 of quality cost.** The z bit was NOT
+  the whole story: gate/h bits are the remaining cost carriers.
+  results/m8b_margins_gemma_percol_wsl.json.
+- MECHANISM OPTIONS for gate/h (why percol does NOT port there):
+  gate is the table INDEX (per-column eGate = per-column C5 members
+  — blocked); h feeds the down MATMUL (per-column e_h = the R+
+  input-alignment bill the v3 stack exists to avoid). So the
+  choice is localized margins (+0.0696) vs an accept-N statement
+  row for ~6 elements (gate 3 at l34, h 2-3 at l30/39/43).
+- **POLICY DECOMPOSITION LANDED [MEASURED WSL-BOX NT] — the split
+  FLIPPED**: base (X margins + percol-z) costs **+0.0868**; the
+  gate bit is FREE (-0.0079) and the h bits are FREE (-0.0000)
+  (additivity gap -0.0092, noise-scale). **The cost carrier is
+  percol-z itself, not gate/h.** Reconciled ranking of every z
+  mechanism at l5: whole-plane z margin bit +0.13 > percol mz=2
+  +0.087 > (untested: percol mz=0, accept-N). The z site at l5 is
+  intrinsically expensive to COARSEN: the 19 widened columns are
+  the outlier channels, mz=2 over-widens them 4x past their
+  calibrated need, and the coarsening propagates 43 layers.
+  results/m8b_margins_gemma_policy_decomp.json.
+- HONEST CORRECTION to the "free as designed" line above: the
+  forced-path check (7e-6) ran on a 6-layer TRUNCATED stack where
+  l5 is TERMINAL — structurally blind to downstream propagation.
+  The percol mechanism note stands (columns only widen), but
+  widening hot columns is not free when 43 layers consume them.
+- **mz=0 PERCOL RUN LANDED [MEASURED WSL-BOX NT] — the decisive
+  history (results/m8b_margins_gemma_percol_mz0_wsl.json)**:
+  * Round 1 (THE MONEY ROW): free margins (X x4 + gate l34 + h
+    l39/43, 7 bits) + percol l5 at mz=0 — which is a NO-OP (0
+    columns widened: the cal-window column absmax already fits the
+    per-tensor base!) — **delta +0.0380** (= round-0 +0.0353 +
+    noise), 7 z-element viols (6 at l5, 1 at l37), clamp-hits 1.
+  * Round 2: l5 escalated to mz=1 (9 cols, +1 bit) — kills l5's
+    viols at **+0.037 quality cost** (7.2746 -> 7.3118) and a NEW
+    single z viol pops at l25. Round 3: l25's mz=0 percol is a
+    no-op -> RESIDUAL-1 at +0.0751. WHACK-A-MOLE CONFIRMED.
+  * READING: the z residues are ~7 ROAMING single val-tail
+    elements — NOT stable hot columns (cal stats do not predict
+    them; percol mz=0 is literally the identity). Every RANGE
+    mechanism that chases them coarsens live channels and pays;
+    CLAMPING them is quality-free (the chain already clamps —
+    +0.0380 IS the clamp policy's measured quality).
+- **THE MEASURED MENU (Gemma, complete)**:
+  | policy | delta | unexplained viols |
+  | free margins + CLAMP at z | +0.0380 | 0 (clamp relation total) |
+  | + percol l5 mz=1 | +0.0751 | 1 roaming |
+  | full percol mz=2 | +0.1049 | 0 |
+  | whole-plane z margin | +0.1082 | 0 |
+  RECOMMENDATION: free margins + a CLAMPED-REQUANT relation at the
+  z site (the C5 tables' own D1 +-32767 clamp convention extended
+  to the z requant edge; statement-side: a per-element selector —
+  in-range branch = the normal remainder+range relation, clamped
+  branch = acc-beyond-threshold + y pinned at +-32767; count bound
+  provable by selector-column sum). BB prices the selector gadget
+  vs the percol statement rows (both are new rungs; clamp is 3x
+  better on quality and has no convergence risk). Mistral already
+  lives under D1 clamp semantics at the TABLE site (clamp-hits 3).
+- **RULING (Victor, console 2026-08-27): CLAMP-AT-Z ADOPTED** — the
+  z requant relation is CLAMPED (D1 extended); free margins (7
+  bits) carry the other sites; NO percol in the adopted statement
+  (the percol machinery + its measurements stay as evidence).
+  Quality of record: +0.0380 (the mz0 run's round 1 IS the adopted
+  policy's verdict walk: margins = the 7-bit set, percol l5-mz0 =
+  the identity).
+- EXECUTED under the ruling (this session):
+  * v3_witness_walk records the z split (z_clamps +
+    z_clamps_per_layer + hard_violations in the manifest; sidecar
+    rows `00 zpolicy clamp` + `NN zclamps <n>` — inert to the
+    bf_model parser; BB's clamp rung reads them); the export
+    asserts hard_violations == 0 (non-z sites) instead of total.
+  * The Gemma v3 EXPORT is IN FLIGHT on the lock (--margins = the
+    mz0 final 7-bit set; marker results/m8b_gemma4_v3_export.done).
+  * --tables C5 RECORD under the ADOPTED margin sets (new
+    ADOPTED_MARGINS map: mistral = margins-to-zero, gemma = the
+    mz0 7-bit set): **14 members used (8 silu + 6 gelu) and every
+    digest matches BB's frozen registry byte-for-byte** (checked
+    against `uperf-v3 tables` output) — the l34 gate-margin-shifted
+    pair lands on an already-frozen member; the frozen (-5,-13)
+    silu member goes unused post-margin (harmless). NO C5
+    additions needed. results/m8b_int16out_members.{json,txt}.
+- **THE REAL GEMMA-4-12B v3 EXPORT IS DONE [MEASURED WSL-BOX
+  NT|NOISY-SHARED]**: 48 layers x T=512 (d 3840, f 15360) under
+  the adopted 7-bit margin set — **0 violations AND 0 z clamps on
+  the export window** (the window happens to be clamp-free, so the
+  witness is a plain v3 witness; sidecar carries `00 zpolicy
+  clamp` and no zclamps rows). Shifts: sh_g 8-10, sh_u 0-3 (no
+  negative — Gemma has no upscale layer), sh_h 11-14, sh_z 8-9;
+  peak RSS 3.43 GB; 11G bins gitignored; digests.txt + manifest
+  committed. (First launch died on a missing --text flag — the
+  token-stream source; rerun clean.)
+  REMAINING for the lane: the final report block. BB (in flight):
+  the Gemma gelu verify-export reconcile (family sniff from the
+  sidecar table row + a legible zclamps!=0 guard landed in the BB
+  worktree); the clamp-selector z gadget is forward-looking
+  statement work (no clamped element exists in any current
+  witness).

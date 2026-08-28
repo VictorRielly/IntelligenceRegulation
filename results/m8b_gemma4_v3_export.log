@@ -1,0 +1,58 @@
+m8b_gemma4_walker — gemma-4-12B-qat (48 layers [40 sliding/8 full in use], d 3840, f 15360, heads 16/8 sliding hd 256, global hd 512 kv 1, vocab 262144), TARGET_CONTRACT S2 semantics + gemma4 facts F1-F8
+checkpoint: /home/victor/models/gemma-4-12B-qat (READ-ONLY, streamed per tensor; embedding row-gathered, head chunk-streamed)
+m8b_gemma4_walker V3 EXPORT — gemma-4-12B-qat (48 layers, T 512, d 3840, f 15360) -> /home/victor/wt-uperf3-aa/results/m8b_gemma4_v3_export
+margins: /home/victor/wt-uperf3-aa/results/m8b_margins_gemma_percol_mz0_wsl.json
+checkpoint shard sha256s recorded (1 files)
+144 weight tensors exported (per-tensor int8, transposed to the matmul layout)
+token stream: /home/victor/models/fineweb-edu/sample_text.txt tokenized with tokenizers -> 4243819 tokens
+  layer  0: shifts g/u/h/z = 7/1/13/7, viol X/g/u/h/z = 0/0/0/0/0, z16 digest cf75878367bb2b8a
+  layer  1: shifts g/u/h/z = 7/0/13/7, viol X/g/u/h/z = 0/0/0/0/0, z16 digest efb012db39cd7880
+  layer  2: shifts g/u/h/z = 8/0/15/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 4e62903d10212827
+  layer  3: shifts g/u/h/z = 9/1/14/7, viol X/g/u/h/z = 0/0/0/0/0, z16 digest b84b7c97e385f351
+  layer  4: shifts g/u/h/z = 9/1/14/9, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 0186835fcefbae87
+  layer  5: shifts g/u/h/z = 8/1/13/7, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 4d203ef2811e4cf5
+  layer  6: shifts g/u/h/z = 8/0/14/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 751ae154c30fb2b9
+  layer  7: shifts g/u/h/z = 7/-1/14/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 063389a87e6d9251
+  layer  8: shifts g/u/h/z = 8/0/13/9, viol X/g/u/h/z = 0/0/0/0/0, z16 digest a004926d5e8d57c9
+  layer  9: shifts g/u/h/z = 10/1/13/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 90c90c1734f4cfb9
+  layer 10: shifts g/u/h/z = 7/0/14/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 39227515f30d36ee
+  layer 11: shifts g/u/h/z = 9/0/14/9, viol X/g/u/h/z = 0/0/0/0/0, z16 digest f13c3d75a8feb394
+  layer 12: shifts g/u/h/z = 8/1/12/9, viol X/g/u/h/z = 0/0/0/0/0, z16 digest b74602003517bf92
+  layer 13: shifts g/u/h/z = 9/2/14/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 96905b8d089abb33
+  layer 14: shifts g/u/h/z = 10/2/14/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 68a7708cda1c6438
+  layer 15: shifts g/u/h/z = 8/1/10/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 7336e0830b5305e2
+  layer 16: shifts g/u/h/z = 7/1/11/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest c638c5207ebdba6c
+  layer 17: shifts g/u/h/z = 8/1/13/7, viol X/g/u/h/z = 0/0/0/0/0, z16 digest fa943aa27ea1453e
+  layer 18: shifts g/u/h/z = 8/2/13/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest f6bd033df7449211
+  layer 19: shifts g/u/h/z = 8/1/14/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 6f174ce76ccc1e17
+  layer 20: shifts g/u/h/z = 8/1/11/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 517286b0647908af
+  layer 21: shifts g/u/h/z = 7/0/13/7, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 15843f1962330824
+  layer 22: shifts g/u/h/z = 7/0/12/9, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 01e5047d903de722
+  layer 23: shifts g/u/h/z = 7/1/13/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest cfff7d008e947a9e
+  layer 24: shifts g/u/h/z = 8/1/14/5, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 378d2241dd626d54
+  layer 25: shifts g/u/h/z = 8/0/12/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest f84e731e2fb4dd7c
+  layer 26: shifts g/u/h/z = 8/0/13/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 473f757eab8944a1
+  layer 27: shifts g/u/h/z = 7/-1/12/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest b382636ae1e3844f
+  layer 28: shifts g/u/h/z = 6/-1/12/7, viol X/g/u/h/z = 0/0/0/0/0, z16 digest a3318de006e13877
+  layer 29: shifts g/u/h/z = 7/0/13/7, viol X/g/u/h/z = 0/0/0/0/0, z16 digest d8cab3d0ec94285d
+  layer 30: shifts g/u/h/z = 9/0/11/9, viol X/g/u/h/z = 0/0/0/0/0, z16 digest b876ca7e07a97beb
+  layer 31: shifts g/u/h/z = 7/-1/12/9, viol X/g/u/h/z = 0/0/0/0/0, z16 digest b1cc873aefa92908
+  layer 32: shifts g/u/h/z = 7/0/12/9, viol X/g/u/h/z = 0/0/0/0/0, z16 digest b64e265f236bebab
+  layer 33: shifts g/u/h/z = 8/0/13/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 2971a530a3234684
+  layer 34: shifts g/u/h/z = 9/1/13/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 668b4e57c808719a
+  layer 35: shifts g/u/h/z = 9/1/13/6, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 4e16528b6c0ffc0b
+  layer 36: shifts g/u/h/z = 8/1/13/7, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 188e3d677b05e7c9
+  layer 37: shifts g/u/h/z = 8/2/11/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest ff16ac7b069044bf
+  layer 38: shifts g/u/h/z = 8/1/12/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 3d645b44cf399dd0
+  layer 39: shifts g/u/h/z = 9/1/12/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 70168254e0fd1f1f
+  layer 40: shifts g/u/h/z = 8/0/12/9, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 5975c24c7f7d215c
+  layer 41: shifts g/u/h/z = 8/1/12/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 466fb00fb21ba204
+  layer 42: shifts g/u/h/z = 10/1/12/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 60865aa2ba22356a
+  layer 43: shifts g/u/h/z = 10/3/12/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest ee316df0e6f85192
+  layer 44: shifts g/u/h/z = 8/1/12/9, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 4d208ddc657510bf
+  layer 45: shifts g/u/h/z = 10/3/11/8, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 991efd0c1aa7296a
+  layer 46: shifts g/u/h/z = 8/0/14/9, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 14e93d7e8ccddb08
+  layer 47: shifts g/u/h/z = 8/0/13/9, viol X/g/u/h/z = 0/0/0/0/0, z16 digest 05e579fc1b50d54a
+range-fact violations across the export pass: 0 (z clamps 0 — legal under clamp-at-z; non-z 0, 0 required)
+manifest -> /home/victor/wt-uperf3-aa/results/m8b_gemma4_v3_export/manifest.json (+ digests.txt v3 sidecar)
+peak RSS 3.43 GB

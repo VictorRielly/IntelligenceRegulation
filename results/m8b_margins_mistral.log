@@ -1,0 +1,10 @@
+token stream: /home/victor/models/fineweb-edu/sample_text.txt tokenized with tokenizers -> 4748171 tokens
+m8b_margins — mistral, 32 layers, 8 val windows, ref loss 1.8411
+round 0: loss 2.0568 (delta +0.2157)  viol 32 {'X_clip': 8, 'gate_range': 7, 'up_range': 1, 'h_range': 16, 'z_range': 0}  clamp-hits 0  margins {}  (719s)
+  per-layer: {'3': {'gate_range': 1}, '4': {'gate_range': 4}, '7': {'up_range': 1}, '15': {'gate_range': 2}, '16': {'h_range': 1}, '26': {'h_range': 2}, '27': {'h_range': 2}, '31': {'X_clip': 8, 'h_range': 11}}
+round 1: loss 2.0466 (delta +0.2055)  viol 5 {'X_clip': 0, 'gate_range': 3, 'up_range': 0, 'h_range': 0, 'z_range': 2}  clamp-hits 2  margins {'3': {'gate': 1}, '4': {'gate': 1}, '7': {'u': 1}, '15': {'gate': 1}, '16': {'h': 1}, '26': {'h': 1}, '27': {'h': 1}, '31': {'X': 1, 'h': 1}}  (685s)
+  per-layer: {'14': {'gate_range': 3}, '20': {'z_range': 1}, '22': {'z_range': 1}}
+round 2: loss 2.0561 (delta +0.2150)  viol 0 {'X_clip': 0, 'gate_range': 0, 'up_range': 0, 'h_range': 0, 'z_range': 0}  clamp-hits 3  margins {'3': {'gate': 1}, '4': {'gate': 1}, '7': {'u': 1}, '14': {'gate': 1}, '15': {'gate': 1}, '16': {'h': 1}, '20': {'z': 1}, '22': {'z': 1}, '26': {'h': 1}, '27': {'h': 1}, '31': {'X': 1, 'h': 1}}  (750s)
+FINAL: ZERO-VIOLATIONS — margins {'3': {'gate': 1}, '4': {'gate': 1}, '7': {'u': 1}, '14': {'gate': 1}, '15': {'gate': 1}, '16': {'h': 1}, '20': {'z': 1}, '22': {'z': 1}, '26': {'h': 1}, '27': {'h': 1}, '31': {'X': 1, 'h': 1}} (12 bits), loss 2.0561, delta_vs_ref +0.2150, margin quality cost -0.0007 nats
+JSON -> /home/victor/wt-uperf3-aa/results/m8b_margins_mistral_wsl.json
+peak RSS 3.66 GB

@@ -1,0 +1,44 @@
+{
+ "meta": {
+  "experiment": "m8b_margins (margin bits to zero violations, adopted v3 widened stack: round, a16-out+u16/h16/z16, int16-out tables CLAMPED/registry-exact)",
+  "model": "gemma",
+  "checkpoint": "/home/victor/models/gemma-4-12B-qat",
+  "seed": 1337,
+  "t": 512,
+  "val_windows": 1,
+  "layers": 2,
+  "loss_ref": 7.236668249862625,
+  "smoke": true,
+  "box": "[MEASURED WSL-BOX NT|NOISY-SHARED]"
+ },
+ "rounds": [
+  {
+   "round": 0,
+   "margins": {},
+   "margin_bits_total": 0,
+   "loss": 36.39201916695366,
+   "delta_vs_ref": 29.155350917091035,
+   "total_viol": 0,
+   "viol_by_class": {
+    "X_clip": 0,
+    "gate_range": 0,
+    "up_range": 0,
+    "h_range": 0,
+    "z_range": 0
+   },
+   "per_layer_viol": {},
+   "a16_clamp_hits": 0,
+   "wall_s": 26.0,
+   "margins_next": {}
+  }
+ ],
+ "final": {
+  "margins": {},
+  "margin_bits_total": 0,
+  "loss": 36.39201916695366,
+  "delta_vs_ref": 29.155350917091035,
+  "delta_vs_round0": 0.0,
+  "total_viol": 0,
+  "verdict": "ZERO-VIOLATIONS"
+ }
+}
