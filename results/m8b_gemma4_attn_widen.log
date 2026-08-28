@@ -1,0 +1,10 @@
+token stream: /home/victor/models/fineweb-edu/sample_text.txt tokenized with tokenizers -> 4243819 tokens
+m8b_gemma4_attn_gate --phase widen: 48 layers (40 sliding/8 full)
+val subset: 2 of 8 windows; ref(full) 7.2367
+  xattn16          loss 7.5161  delta  -0.0158  (208s)
+  ao16             loss 7.5211  delta  -0.0108  (209s)
+  postn16          loss 7.7214  delta  +0.1895  (184s)
+  xres16           loss 7.4770  delta  -0.0549  (183s)
+  stack_wide       loss 7.6173  delta  +0.0854  (222s)
+JSON -> /home/victor/wt-uperf3-cc/results/m8b_gemma4_attn_widen.json
+peak RSS 2.16 GB

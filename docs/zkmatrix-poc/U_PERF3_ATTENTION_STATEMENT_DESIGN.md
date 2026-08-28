@@ -43,6 +43,7 @@ Shapes used throughout (T = 512 contract workload):
 - [x] Section 4: statement/witness size and memory
 - [x] Section 5: the MVP-2 build plan (rungs, lanes, the ONE spike)
 - [x] Section 6: design choices and limitations (numbered, the house style)
+- [x] Section 1.6b: the MEASURED Gemma gate data (lane CC, 2026-08-26) — core int8-clean, seam sites widened-class, stack_wide +0.0854
 
 ## 0. One paragraph
 
@@ -311,6 +312,50 @@ and Gemma's QK-norm is an architectural mitigation on exactly the
 q/k rows (one reason the route-N candidate is attractive for MVP-2,
 not just MVP-1). Every attention exponent remains [SYNTHETIC] until
 the AT-O1/C4 run (Section 5).
+
+### 1.6b MEASURED (2026-08-26, lane CC — the qualification-gate data)
+
+The C4-style gate ran on Gemma-4-12B (48 layers, 40 sliding/8 full;
+scripts/m8b_gemma4_attn_gate.py, equiv phase bit-exact vs the
+validated walker; results/m8b_gemma4_attn_{stats,attrib,widen}.json,
+[MEASURED WSL-BOX NT], attrib/widen on the 2-window val subset).
+Three findings, in the order they kill assumptions:
+
+1. **The attention COMPUTE CORE is int8-clean per-tensor.** Range
+   ratios (absmax/p999) <= 5 at q/k/v/scores/ctx, and first-order
+   int8 deltas: q -0.0005, k +0.0203, v -0.0363, scores -0.0213,
+   exps -0.0146, probs -0.0871, ctx -0.0446 (negatives = subset
+   noise floor). QK-norm is doing exactly the mitigation 1.6
+   hoped: the per-HEAD exponent vectors proposed for q/k/s8 are
+   NOT needed at first order — the degenerate per-tensor C2 case
+   suffices there. qr wants q's exponent +1 bit only at l5.
+2. **The seam/residual sites are the FFN disease again**: ratios to
+   49 (xattn l0 absmax 1302, col-ratio 100); int8 deltas xattn
+   +2.0043, ao +0.4081, postn +2.1633, xres +13.2300; all-site
+   int8 composes to +14.8339. Wattn (all four proj weights int8)
+   costs +0.2000.
+3. **Class WIDENING rescues, exactly as in the FFN v3 ruling**:
+   int16 (e-8) singles land xattn -0.0158, ao -0.0108, xres
+   -0.0549 (rescued to noise); postn +0.1895 is the ONE site with
+   a first-order residue (the four-norm sandwich's requant edge —
+   open item below). The composed **stack_wide** row (every site
+   int8 incl. Wattn, only xattn/ao/postn/xres at int16):
+   **+0.0854** — the widened attention stack sits in the same
+   +0.1-nat class as the FFN's widened stack. (stack_wide beats
+   the postn16 single: first-order singles over-count the postn
+   residue; the composed number is the decision-relevant one.)
+
+Consequences for the AM-3 axis table: the d-axis R+ per-column
+machinery priced for o8/ao8/xres is likely UNNECESSARY on this
+checkpoint — the v3-style widened CLASS at the four seam sites is
+the measured fix (sites, not axes); the softmax fixed-point floor
+matters more than range (75-92% of causal support sits below the
+fP=9 step — fP is a resolution knob, revisit with the exp-table
+member choice); postn's +0.19 residue is the open question (finer
+e, a per-column vector at THIS one site, or accept — same decision
+family as lane AA's Gemma margin-cost finding). Exponents at the
+core sites graduate from [SYNTHETIC] to [MEASURED] for Section 5's
+AT-O1 rung.
 
 ### 1.7 Softcap, embedding, unembedding
 

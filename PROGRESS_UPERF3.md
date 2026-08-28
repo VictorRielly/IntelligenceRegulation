@@ -1856,3 +1856,54 @@ STATE: IN FLIGHT (2026-08-26). Landed so far (one commit each):
     statement-side clamp relation — needed only when a witness
     window actually contains a clamped element); the 7B/12B proof
     rungs are Mac tasks (the 15.08 GB OOM record above).
+## Agent CC status (wt-uperf3-cc) — round 3, the attention-site qualification gate
+
+STATE: IN FLIGHT (2026-08-26). One commit per green rung:
+- SKELETON + EQUIV (593d3ba): scripts/m8b_gemma4_attn_gate.py
+  (stats/attrib/widen/equiv phases; site table + spec/AM references
+  in the header — the doc of record for MVP-2's site names). equiv
+  gate: this walker with all hooks off is BIT-EXACT vs the validated
+  m8b_gemma4_walker at 2 and 6 layers (incl. one k_eq_v full layer);
+  6-layer stats smoke green.
+- STATS (0804237): the full 48-layer site-stats pass [MEASURED
+  WSL-BOX NT, 623 s, RSS 2.6 GB] — q/k/v/scores/ctx TIGHT
+  (absmax/p999 ratio <= 5, the FFN-internals-clean picture);
+  xattn/ao/postn/xres OUTLIER-STRETCHED (ratios to 49; xattn l0
+  absmax 1302, col-ratio 100 — the residual-stream disease at the
+  attention seam); probs: 75-92% of the causal support sits below
+  the fP=9 step (the fixed-point floor is the binding constraint,
+  not range); qr=q+1 bit only at l5.
+- ATTRIB [MEASURED WSL-BOX NT, val subset take=2, ref_subset
+  7.5319]: first-order per-site int8 deltas, FFN fp, exponents
+  frozen from the stats pass —
+  q -0.0005, k +0.0203, v -0.0363, scores -0.0213, exps -0.0146,
+  probs -0.0871, ctx -0.0446 (the attention COMPUTE CORE IS
+  INT8-CLEAN at first order; negative deltas = subset noise floor);
+  Wattn +0.2000 (all four proj weights int8);
+  xattn +2.0043, ao +0.4081, postn +2.1633, xres +13.2300 (the
+  SEAM/RESIDUAL-STREAM sites carry the poison — the SAME
+  class-widening story as the FFN verdict); all_int8 +14.8339
+  (composed upper anchor). ~200 s/site, peak RSS 2.10 GB.
+  results/m8b_gemma4_attn_attrib.{json,log}.
+- **WIDEN [MEASURED WSL-BOX NT, val subset take=2] — THE MVP-2
+  ANSWER: the FFN story REPEATS AT ATTENTION.** int16 (e-8) singles
+  at the four poisoned sites vs their int8 attrib deltas:
+  xattn +2.0043 -> **-0.0158** (rescued to noise), ao +0.4081 ->
+  **-0.0108** (rescued), xres +13.2300 -> **-0.0549** (the residual
+  -stream poison DIES with one class widening), postn +2.1633 ->
+  **+0.1895** (mostly rescued; the one site with a first-order
+  residue — the Gemma four-norm sandwich's post_attention_layernorm
+  edge; flag for the statement design). Composed **stack_wide**
+  (EVERY site int8 incl. Wattn, only the material four at int16):
+  **+0.0854** vs all_int8 +14.8339 — the widened attention stack
+  lands in the same +0.1-nat class as the FFN's widened stack.
+  Interaction note: stack_wide beats the postn16 single (+0.085 <
+  +0.190) — first-order singles over-count the postn residue.
+  ~200 s/walk, peak RSS 2.16 GB.
+  results/m8b_gemma4_attn_widen.{json,log}.
+- REMAINING: the site table -> U_PERF3_ATTENTION_STATEMENT_DESIGN.md
+  §1 real-data update (exponent assumptions -> measured; the widened
+  -class site list = xattn/ao/postn/xres, postn residue flagged) +
+  final report block. Decision input for Victor: whether MVP-2's
+  statement carries the widened class at exactly these four sites
+  (the measured answer) and what to do about postn's +0.19.

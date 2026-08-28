@@ -1,0 +1,3 @@
+token stream: /home/victor/models/fineweb-edu/sample_text.txt tokenized with tokenizers -> 4243819 tokens
+m8b_gemma4_attn_gate --phase stats: 48 layers (40 sliding/8 full)
+stats: 48 layers in 623s; JSON -> /home/victor/wt-uperf3-cc/results/m8b_gemma4_attn_stats.json; peak RSS 2.60 GB

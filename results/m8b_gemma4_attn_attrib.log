@@ -1,0 +1,19 @@
+token stream: /home/victor/models/fineweb-edu/sample_text.txt tokenized with tokenizers -> 4243819 tokens
+m8b_gemma4_attn_gate --phase attrib: 48 layers (40 sliding/8 full)
+val subset: 2 of 8 windows; ref(full) 7.2367
+  none             loss 7.5319  delta     ref   (204s)
+  Wattn            loss 7.7319  delta  +0.2000  (267s)
+  xattn            loss 9.5362  delta  +2.0043  (219s)
+  q                loss 7.5314  delta  -0.0005  (203s)
+  k                loss 7.5522  delta  +0.0203  (207s)
+  v                loss 7.4956  delta  -0.0363  (200s)
+  scores           loss 7.5106  delta  -0.0213  (185s)
+  exps             loss 7.5173  delta  -0.0146  (185s)
+  probs            loss 7.4448  delta  -0.0871  (184s)
+  ctx              loss 7.4873  delta  -0.0446  (186s)
+  ao               loss 7.9400  delta  +0.4081  (195s)
+  postn            loss 9.6952  delta  +2.1633  (184s)
+  xres             loss 20.7619  delta +13.2300  (186s)
+  all_int8         loss 22.3658  delta +14.8339  (223s)
+JSON -> /home/victor/wt-uperf3-cc/results/m8b_gemma4_attn_attrib.json
+peak RSS 2.10 GB

@@ -1,0 +1,167 @@
+{
+ "meta": {
+  "experiment": "m8b_gemma4_attn_gate --phase attrib",
+  "checkpoint": "/home/victor/models/gemma-4-12B-qat",
+  "seed": 1337,
+  "t": 512,
+  "val_take": 2,
+  "smoke": false,
+  "fE": 9,
+  "fP": 9,
+  "box": "[MEASURED WSL-BOX NT, val subset]",
+  "ref_full": 7.236668249862625,
+  "note": "first-order per-site attribution; FFN fp; exponents frozen from the cal-window stats pass",
+  "ref_subset": 7.531904413158597
+ },
+ "results": {
+  "none": {
+   "loss": 7.531904413158597,
+   "delta_vs_fp_subset": null,
+   "sites": [],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 204.4
+  },
+  "Wattn": {
+   "loss": 7.731938418225752,
+   "delta_vs_fp_subset": 0.20003400506715519,
+   "sites": [
+    "Wattn"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 267.0
+  },
+  "xattn": {
+   "loss": 9.536170579842777,
+   "delta_vs_fp_subset": 2.0042661666841797,
+   "sites": [
+    "xattn"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 218.8
+  },
+  "q": {
+   "loss": 7.5313938625755235,
+   "delta_vs_fp_subset": -0.0005105505830735879,
+   "sites": [
+    "q"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 203.4
+  },
+  "k": {
+   "loss": 7.552208941927761,
+   "delta_vs_fp_subset": 0.020304528769163888,
+   "sites": [
+    "k"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 206.9
+  },
+  "v": {
+   "loss": 7.495596996998428,
+   "delta_vs_fp_subset": -0.036307416160169304,
+   "sites": [
+    "v"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 199.8
+  },
+  "scores": {
+   "loss": 7.510573035398842,
+   "delta_vs_fp_subset": -0.02133137775975502,
+   "sites": [
+    "scores"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 184.6
+  },
+  "exps": {
+   "loss": 7.517349135371287,
+   "delta_vs_fp_subset": -0.014555277787310139,
+   "sites": [
+    "exps"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 185.0
+  },
+  "probs": {
+   "loss": 7.4448231646980485,
+   "delta_vs_fp_subset": -0.08708124846054854,
+   "sites": [
+    "probs"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 184.4
+  },
+  "ctx": {
+   "loss": 7.4873025996484746,
+   "delta_vs_fp_subset": -0.04460181351012249,
+   "sites": [
+    "ctx"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 186.1
+  },
+  "ao": {
+   "loss": 7.940000671113132,
+   "delta_vs_fp_subset": 0.40809625795453464,
+   "sites": [
+    "ao"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 195.3
+  },
+  "postn": {
+   "loss": 9.695156374699053,
+   "delta_vs_fp_subset": 2.163251961540456,
+   "sites": [
+    "postn"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 184.4
+  },
+  "xres": {
+   "loss": 20.761879130521024,
+   "delta_vs_fp_subset": 13.229974717362428,
+   "sites": [
+    "xres"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 186.1
+  },
+  "all_int8": {
+   "loss": 22.36577370340426,
+   "delta_vs_fp_subset": 14.833869290245662,
+   "sites": [
+    "Wattn",
+    "ao",
+    "ctx",
+    "exps",
+    "k",
+    "postn",
+    "probs",
+    "q",
+    "scores",
+    "v",
+    "xattn",
+    "xres"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 223.4
+  }
+ }
+}
