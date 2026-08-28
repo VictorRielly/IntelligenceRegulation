@@ -75,6 +75,28 @@ ratios at comparable operand counts]. Core 25.44 -> ~7 s, ratio
 ~4x. R1 alone nearly clears criterion 2's bar and is useless for
 criteria 3's u-terms — hence R2/R3.
 
+**C-R1 PRELIMINARY (2026-08-28, first structural pass — a caution,
+recorded before the full count):** the T5 analogy is WEAKER than
+hoped. conjQ IS col_c-derived per (cb, d) — the kernel side has the
+T5 shape — but the ROW-side operand differs in kind: T5's passes had
+scalar row operands (sr_c[row] coords; V_vr entered scalar-by-
+scalar), which is what let the factoring collapse ring-products
+into scalar-x-ring MACs. The v-pass's row operand Fl[row nb + cb]
+is a GENERAL RING (the radix-recombined limb rings), so the direct
+transplant does not exist. The swap-order variant (pull the
+consumer tt_v_from_qr's scalar loY sum inside: v[e][i] = sum_cb
+sum_d conjQ (x) (sum_r loY[r][d][e] Fl[..])) trades rows x nb x 16
+NTT-batched ring-products for rows x nb x 256 x D scalar MACs —
+FIRST-CUT PARITY, not 40x, at D = 128 with the measured
+mul_modq_small_many batching. The remaining R1 hopes are narrower:
+(i) the loY tensor's rank structure (lo is the challenge-fold
+vector — if loY[r][d][e] factors as scalar(r) x scalar(d,e), the
+r-sum collapses g-fold); (ii) sharing Fl recombination across the
+16 d-lanes (already partially batched). The FULL count with the
+shape numbers decides; until it lands, the composed table's +R1
+row should be read as UNPROVEN, and the 3-4x composed estimate as
+an UPPER bound on current knowledge.
+
 ### R2 — recurse the u/v serving (kill the clear planes)
 
 The spike serves u (14.9 MB) and v (26.2 MB) CLEAR; the production
