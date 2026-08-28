@@ -1587,3 +1587,39 @@ trajectory_regularization > 0 / shared init, then re-measure.
   the g_rows = 1 unbalanced grid for that contrib.
   Gates at commit: build green, diff-battery green, uperf-s digest
   3752cba4.. unchanged, freeze-check 98 ok + expected panic.
+
+- 2026-08-27/28 RUNG 3 — THE MEASURED S4 VERDICT (the ladder ran
+  detached 2^22/2^23 x 1T/7T; integrated by the orchestrator; walls
+  [WSL-BOX NOISY-SHARED], counted rows box-independent):
+  * Criterion 1 (claims bit-for-bit): **GO** (rung 2).
+  * Criterion 4 (the 8B two-tier planner gate): **GO** (rung 1).
+  * Criterion 2 (>= 5x prove-group-equivalent at >= 2^22):
+    **NO-GO** — measured 1.10x core at 2^22 1T (25.44 vs 27.91 s),
+    1.08x at 2^23 1T; at 7T the two-tier is SLOWER than the built
+    path (0.65x / 0.66x core; 0.56-0.61x with commit-class).
+  * Criterion 3 (1T verifier level-0 sub-second): **NO-GO** —
+    tt_verify 3.93-4.66 s vs the built path's psi0 level-0 term
+    0.99 s (2^22) / 2.05 s (2^23).
+  * Bytes: the spike-clear form is 45.3-57.6 MB vs the built
+    GroupEvalProof's 179-181 KB (production would recurse u/v/w —
+    the clear u/v planes are the spike's measured overhead — but
+    no measured recursed form exists to cite).
+  * THE CAUSE (already flagged by rung 1's honesty row): the
+    memo's cost model counted only the w-digit recursion input
+    (~19K rings); the real tier-2 input is DOMINATED by u-digits —
+    1.65M rings at the 8B weight sqrt, ~85x the modeled work. The
+    sqrt serving trick as specified in U_PERF3_HEADLINE_ROUTES.md
+    §4.2 does not clear its own bar at these shapes.
+  * PER THE MEMO'S OWN ACCEPTANCE TEXT, this is the RULING-GRADE
+    outcome it named: "the honest fallback is Stage A + (iii) +
+    route 3 (~100-160 s/board class) and the headline stays out of
+    reach on this line." Stage A proper (the descent replacement:
+    lanes DD/EE — 13.5x counted, 2.7x wall and climbing, the
+    aggregate's 13.3x rounds / 6.6x wire) is UNAFFECTED by this
+    verdict; what fails is the sqrt SERVING front end's >= 5x
+    claim. AWAITING VICTOR: accept the fallback route as the
+    headline posture, or commission a redesigned front end that
+    addresses the u-digit domination (a new design memo, not a
+    patch to this spike).
+  * Floor at close: diff-battery 15.78 s green; uperf-s digest
+    3752cba4.. unchanged.

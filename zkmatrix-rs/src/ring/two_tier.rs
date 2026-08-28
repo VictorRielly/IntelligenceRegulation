@@ -392,36 +392,30 @@ pub fn tt_outer_functionals(zq: &Zq, kf: &KField, hi: &[KElem], alphas: &[Poly])
         .collect()
 }
 
-/// The v-pass for one contrib: v[e][i] = sum_j a_e[j] * F_ij over the
-/// tensor's grid rows, computed through the shared contractions
-///   Fl[vr]      = radix-recombined limb rings (recompose_rings),
-///   Q[vr][d]    = conjQ[cb][d] * Fl[vr]        (the ring-mult pass,
-///                 16 per nonzero value ring — shareable per distinct
-///                 col kernel; the spike recomputes per contrib and
-///                 records the count),
-///   QR[row][d]  = sum_cb Q[row*nb + cb][d],
-///   v[e][i]     = sum_{r,d} loY[r][d][e] * QR[i*g + r][d].
-/// Exact mod-q regroupings only — pinned by the differential.
-pub fn tt_v_pass(
+/// The heavy half of the v-pass, shareable across contribs on the
+/// same (tensor, col kernel): QR[row][d] = sum_cb conjQ[cb][d] *
+/// Fl[row*nb+cb], with Fl the radix-recombined limb rings. The
+/// per-(cb,d) products ride `mul_modq_small_many` (one forward NTT of
+/// the conjQ poly, windowed MACs over the row smalls — the commit
+/// path's batching); exact mod-q regroupings only, pinned by the
+/// differential.
+pub fn tt_qr_pass(
     ctx: &RingCtx,
     t: &AggTensor,
-    gt: &TtGridTensor,
     w0: &[i8],
-    lo_y: &[Vec<KElem>],
     conjq: &[Vec<Poly>],
 ) -> Vec<Vec<Poly>> {
     let zq = &ctx.zq;
     let kd = super::kfield::K_DEG;
     let nb = t.cols / super::D;
-    let g = gt.g_rows;
     let mut qr = vec![vec![poly_zero(); kd]; t.rows];
     let mut buf = [0i64; super::D];
-    for row in 0..t.rows {
-        for cb in 0..nb {
+    let mut fl_cb: Vec<Vec<i64>> = Vec::with_capacity(t.rows);
+    for cb in 0..nb {
+        fl_cb.clear();
+        for row in 0..t.rows {
             let vr = row * nb + cb;
-            // Fl = sum_l radix_l * digits (exact i64 recomposition).
-            let mut fl = [0i64; super::D];
-            let mut nonzero = false;
+            let mut fl = vec![0i64; super::D];
             for l in 0..t.l0 {
                 let u = t.digit_ring_base + vr * t.l0 + l;
                 let ring = SmallRings::ring(w0, u, &mut buf);
@@ -429,20 +423,34 @@ pub fn tt_v_pass(
                 for (f, &x) in fl.iter_mut().zip(ring.iter()) {
                     if x != 0 {
                         *f += rad * x;
-                        nonzero = true;
                     }
                 }
             }
-            if !nonzero {
-                continue;
-            }
-            let flp = poly_from_small(zq, &fl);
-            for d in 0..kd {
-                let m = ring_mul_split_kara_fast(ctx, &conjq[cb][d], &flp);
-                qr[row][d] = poly_add(zq, &qr[row][d], &m);
+            fl_cb.push(fl);
+        }
+        for d in 0..kd {
+            let prods = super::eval_proof::mul_modq_small_many(ctx, &conjq[cb][d], &fl_cb);
+            for (row, p) in prods.into_iter().enumerate() {
+                if p.iter().all(|&x| x == 0) {
+                    continue;
+                }
+                qr[row][d] = poly_add(zq, &qr[row][d], &p);
             }
         }
     }
+    qr
+}
+
+/// The light half of the v-pass: v[e][i] = sum_{r,d} loY[r][d][e] *
+/// QR[i*g + r][d] (scalar-scaled ring sums; per-contrib).
+pub fn tt_v_from_qr(
+    zq: &Zq,
+    gt: &TtGridTensor,
+    lo_y: &[Vec<KElem>],
+    qr: &[Vec<Poly>],
+) -> Vec<Vec<Poly>> {
+    let kd = super::kfield::K_DEG;
+    let g = gt.g_rows;
     let mut v = vec![vec![poly_zero(); gt.n_groups]; kd];
     for i in 0..gt.n_groups {
         for r in 0..g {
@@ -487,4 +495,25 @@ pub fn tt_claim_sum(ctx: &RingCtx, b: &[Vec<Poly>], v: &[Vec<Poly>]) -> Poly {
 /// clear w against it.
 pub fn tt_fold_bound(g: usize, e0: u32) -> i128 {
     fold_coeff_bound(g, e0)
+}
+
+/// The tier-2 u-digit base: the largest exact-digit-gate-green base
+/// for the u-digit witness (G_all * KAPPA_AGG * l_t rings), resolved
+/// by the same fixed point as the planner (a deterministic public
+/// function of (g_all, q) — Fiat-Shamir-safe).
+pub fn tt_u_digit_base(g_all: usize, q: u64) -> (u32, usize) {
+    let mut e = 2u32;
+    for _ in 0..8 {
+        let l_t = limbs_for_bound((q as i128 - 1) / 2, e);
+        let n2 = g_all * KAPPA_AGG * l_t;
+        let e_ok = adaptive_base_opt(n2, q).expect("tier-2 u witness infeasible at every base");
+        assert!(e_ok >= 2, "tier-2 u witness needs a balanced base");
+        if e_ok <= e {
+            let e_final = e.min(e_ok);
+            let l_t = limbs_for_bound((q as i128 - 1) / 2, e_final);
+            return (e_final, l_t);
+        }
+        e = e_ok;
+    }
+    unreachable!("u-digit base fixed point diverged");
 }
