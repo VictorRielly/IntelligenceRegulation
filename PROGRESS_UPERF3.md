@@ -1993,3 +1993,221 @@ STATE: IN FLIGHT (2026-08-26). One commit per green rung:
   still shows folds as a top-3 term. The honest DD position: the
   counted 13.5x will finish converting in the AGGREGATE's shape,
   not the per-column spike harness.
+
+## Agent EE status (wt-uperf3-ee) — round 4
+
+STATE: DONE (2026-08-27; all four rungs landed same day: R0 8566aba,
+R1 2c1f5c8, R2 4bb51cd, R3 6f1933d, close = this commit). Lane
+summary: (1) the AGGREGATE zero-check built and differentially
+pinned — m range columns as ONE sumcheck (instance axis, ONE shared
+eq, stacked per-column claims served for the opening layer), byte-
+identical to the spike's per-column prover on the stacked instance
+in all 32 battery cells and to the per-column path verbatim at
+m = 1; counted at 2^20 x 16: rounds 320 -> 24 (13.33x), wire 6.61x,
+MACs NEUTRAL (1.00x) — the batching win is structural (round
+objects/wire/one eq + transcript), exactly the dimensions the
+descent comparison is bound by. (2) the O-4 mask transfer built —
+the house M1 g-mask carried onto the aggregate sumcheck, claims
+provably untouched (bit-equal to the table MLEs) while every
+shipped round poly blinds; flipped-mask/tampered-opening rejects.
+Batteries: agg-battery 136 legs, digest 46234986.. identical at
+ZK_THREADS 1/2/7; floor held at every commit (48-leg digest
+3752cba4.. unmoved, diff-battery green). Files touched: the
+[UPERF3-EE] section appended to zkmatrix-rs/src/ring/zc_range.rs
+(no existing function edited; lane DD's e_mac* hook lines untouched),
+the [UPERF3-EE] arms in the bin's [UPERF3-S] section (agg /
+agg-battery / agg-mask + dispatch), this status section. No frozen
+file, no other lane's file.
+
+OPEN QUESTIONS / NOTES FOR THE ORCHESTRATOR:
+- "Both moduli": read as e0 {1,2} x c {4,8} (see the MODULI NOTE
+  below) — the E_c kernels structurally exclude Q8_46; if a q46
+  aggregate is wanted it needs a kernel-gate ruling first.
+- The brief's "aggregate's served claims EQUAL the per-column path's
+  claims bit-for-bit": FS makes literally-per-column-transcript
+  claims live at different points, so the leg set implements the
+  three exact equalities that are well-defined: (i) m = 1 whole-path
+  byte identity vs zc_range_prove; (ii) any-m byte identity vs
+  zc_range_prove on the stacked instance (the spike prover AS the
+  oracle); (iii) every served claim == base_mle_eval (the per-column
+  path's claim definition, zc_range_open_check's machinery) at
+  r_col, bit-for-bit. If a different reading was intended, say so
+  and the leg is cheap to add.
+- The aggregate is MAC-NEUTRAL vs per-column (R2): the memo's
+  "advantage only improves" holds in rounds/wire/objects; anyone
+  modelling walls should NOT book a MAC saving from batching alone.
+- Non-power-of-two m pays the pad in MACs (m = 7 -> 8: 0.90x at the
+  smoke shape); group planners should prefer power-of-two column
+  batches per aggregate.
+- The mask commitment is a STAND-IN (binding transcript digest, the
+  S2 h-commit idiom); production needs the real mask-commitment wave
+  + eval-proof pin rows (the O-4 write-up's remaining half), and the
+  O-4/O-7 simulator + knowledge-error derivations remain design
+  obligations (memo §2.6) — engine evidence is now in place for both.
+- Mask cost: +2 E-elements wire, closed-form M_t per round (57
+  coefficients at the demo shape), prove overhead in the noise.
+
+Lane: the aggregate zero-check
+(design memo §2.2: instance axis, shared eq, stacked claims) + the
+O-4 mask transfer (§2.6: the g-mask machinery onto the aggregate
+sumcheck). Everything additive: a `[UPERF3-EE] aggregate` section
+APPENDED to ring/zc_range.rs (no existing function or round body
+touched — lane DD owns the e_mac* hook lines), new `uperf-s` arms
+(`agg`, `agg-battery`, `agg-mask`) in the bin's [UPERF3-S] dispatch,
+this status section. Floor at every commit: release build; `uperf-s
+battery` 48 legs, digest 3752cba4.. UNMOVED (the aggregate gets its
+OWN battery arm + digest); `uperf-pc diff-battery` green.
+
+PLAN (one commit per green rung, prefix "U-PERF3 EE:"):
+- [x] R0 SKELETON: this section, the empty [UPERF3-EE] code section,
+  stub arms printing usage.
+- [x] R1 AGGREGATE: `zc_agg_prove/verify` — m same-shape range
+  columns as ONE sumcheck over the stacked hypercube (instance axis =
+  the high a = ceil(log2 m) variables, zero-padded pad columns — the
+  house alphabets contain 0 so pads satisfy the constraint), ONE
+  shared eq table over n+a vars, per-column claim STACKING: after the
+  n column-axis rounds the folded tables hold each column's MLE at
+  the shared column point r_col; those m x (w+1) values are the
+  served claims (the opening layer's per-tensor form), the verifier
+  recombines T_k(x*) = sum_i eq(r_inst, i) claim[i][k] for the final
+  identity. DIFFERENTIAL (the per-column spike path is the oracle):
+  (i) m = 1 => byte-identical to `zc_range_prove` (transcript,
+  rounds, point, claims == finals); (ii) any m => byte-identical to
+  `zc_range_prove` run on the manually stacked instance (the spike
+  prover as the stacked oracle); (iii) served claims ==
+  `base_mle_eval` (the per-column path's claim definition, the
+  zc_range_open_check machinery) per column at r_col, bit-for-bit,
+  asserted and printed. Battery arm `agg-battery`: m in {1,2,7,16} x
+  w in {8,14} x both digit bases e0 in {1,2} (see the moduli note
+  below) x c in {4,8}, honest + a tampered-claim reject leg, own
+  AGG BATTERY DIGEST at ZK_THREADS 1/2/7.
+- [x] R2 COUNTED: rounds/MACs/wire, aggregate vs m separate
+  per-column zero-checks at 2^20 x 16 columns (w = 8, c = 4, e0 = 1);
+  [COUNTED] table here; walls labeled [WSL-BOX NT NOISY-SHARED]
+  (lane DD benches on this box — counts and byte-identity are the
+  deliverables, not walls).
+- [x] R3 O-4 MASK: `ZcAggMask` = the M1 g-mask shape
+  (gkr_masked::GMask: a0 + per-variable univariates, degrees matching
+  the round pattern) carried into E_c, drawn from ProverRng,
+  commitment stand-in absorbed BEFORE rho/betas (mask-then-fold),
+  hypersum G served + nu-combined into the claim (the house
+  masked-sumcheck idiom), the mask's per-round closed-form summand
+  added to every shipped round poly; the served claims are the SAME
+  table MLE values (the mask vanishes on the claims — asserted via
+  the base_mle_eval oracle at the masked run's point); transcript
+  differs from unmasked; zero-mask degeneracy == unmasked
+  byte-for-byte; tamper legs: a flipped mask coefficient at verify
+  REJECTS, a tampered served mask evaluation REJECTS.
+
+R1 EVIDENCE (2026-08-27, WSL box, shared with lane DD):
+- cmd: `uperf-s agg-battery [1|2|7]` — 96 legs ok, AGG BATTERY DIGEST
+  16c2e2fdce4e10fd686eadca42f2e243454dfa67a0f06d8278ca3a62b001b7fb
+  byte-identical at ZK_THREADS 1/2/7. Matrix: m {1,2,7,16} x w {8,14}
+  x e0 {1,2} x c {4,8} at 2^6/column; per cell: honest verify green +
+  the stacked-oracle BYTE identity (transcript state, every round
+  poly, fold point vs `zc_range_prove` on the stacked instance — at
+  m = 1 the oracle IS the per-column path verbatim) + recombined
+  stacked claims == oracle finals + ALL m x (w+1) served claims ==
+  per-column `base_mle_eval` at r_col bit-for-bit + a flipped-claim
+  reject + a flipped-round-node reject.
+- cmd: `uperf-s agg 10 7 8 1 4 1 171` (smoke, m = 7 exercises pad
+  columns): all three differentials assert + print (col-0 plane-0
+  claim [1177458288, 890349491, 1733341912, 1774377869] identical
+  both ways); per-column -> aggregate at 7 x 2^10: rounds 70 -> 13
+  (5.4x), wire 6,608 -> 2,048 B (3.2x), MACs 0.90x (the 7 -> 8
+  pad inflates the stacked cube; power-of-two m has no pad loss)
+  [COUNTED].
+- Floor: 48-leg battery digest 3752cba4.. UNMOVED; diff-battery
+  green 15.9s; build green.
+- commit: R0 8566aba; R1 2c1f5c8.
+
+R2 EVIDENCE (2026-08-27, WSL box, SHARED — lane DD benches possible;
+run under `flock /tmp/zk-heavy.lock`, ZK_THREADS 1):
+- cmd: `uperf-s agg 20 16 8 1 4 1 171` — 16 columns x 2^20, w 8,
+  c 4, e0 1 (the S1 design point). All differentials GREEN at full
+  scale: stacked-oracle byte identity (transcript, 24 round polys,
+  point) + all 144 stacked claims == per-column base_mle_eval
+  bit-for-bit.
+- [COUNTED] per-column (16 separate sumchecks) -> aggregate (ONE):
+
+  | metric      | per-column      | aggregate       | ratio  |
+  |-------------|-----------------|-----------------|--------|
+  | rounds      | 320             | 24              | 13.33x |
+  | wire bytes  | 27,904          | 4,224 (incl 144 claims) | 6.61x |
+  | base MACs   | 15,292.8M       | 15,292.5M       | 1.00x  |
+  |  - rounds   | 13,514.4M       | 13,514.1M       | 1.00x  |
+  |  - folds    | 1,510.0M        | 1,510.0M        | 1.00x  |
+  |  - eq       | 268.4M          | 268.4M          | 1.00x  |
+
+  READING: the aggregate is MAC-NEUTRAL (the stacked cube's round/
+  fold/eq volume equals the 16 columns' sum at power-of-two m; a
+  non-power-of-two m pays the pad, e.g. 7 -> 8 cost 0.90x at the
+  smoke shape) — the batching win is STRUCTURAL: 13.3x fewer round
+  polynomials/challenges (320 -> 24, i.e. 1.5 effective rounds per
+  column instead of 20), 6.6x less wire, ONE eq object and ONE
+  transcript instead of 16, and the S1 per-column advantage vs the
+  descent carries unchanged since MACs do not grow. This matches the
+  memo's "the counted per-column advantage only improves" in the
+  round/wire dimensions that motivated it (the descent comparison is
+  rounds/wire-bound, spike report §2).
+- Walls (labeled, not chased): prove 23.08s (16 columns) vs 24.53s
+  (aggregate) [WSL-BOX 1T NOISY-SHARED]; peak RSS 3,095 MiB
+  (the aggregate materializes ONE stacked copy of the 9 base tables
+  at 2^24 + the E tables; per-column peaks at ~100 MiB/column —
+  the 8B streaming plan prices this in lane R's memory architecture).
+- commit: R2 4bb51cd (ledger-only; the arm landed at R1 2c1f5c8).
+
+R3 EVIDENCE (2026-08-27, WSL box, shared):
+- The O-4 construction (zc_range.rs [UPERF3-EE]): `ZcAggMask` — the
+  M1 g-mask shape (gkr_masked::GMask: a0 + one univariate per
+  variable, no per-variable constant, degree deg_f + 1 = the shipped
+  round degree) in E_c, drawn from `ProverRng` (the draw_masks rule:
+  FS state is not entropy), commitment stand-in = a binding
+  transcript digest of the coefficients absorbed BEFORE rho/betas
+  (mask-then-fold); the prover serves the hypersum G, draws nu, and
+  ships g_t = g_F_t + nu * M_t with the closed-form
+  M_t(X) = 2^free (a0 + sum_{s<t} u_s(r_s) + u_t(X)) +
+  2^(free-1) sum_{s>t} u_s(1) — the TABLES never see the mask, so the
+  stacked claims stay the true table MLEs; the verifier
+  (`zc_agg_verify_masked`, the masked_gkr_verify idiom: the mask set
+  stands for the commitment opening) pins BOTH served openings
+  (G, g_m(x*)), starts the chain at nu*G and closes with + nu*g_m(x*).
+  `zc_agg_prove` is now the mask=None path of `zc_agg_prove_masked` —
+  the None path's byte-identity to the untouched `zc_range_prove` is
+  re-proven by the 32 stacked-oracle legs in the battery (the
+  refactor degeneracy).
+- cmd: `uperf-s agg-battery [1|2|7]` — now 136 legs (96 R1 + 40 mask:
+  m {2,7} x e0 {1,2} x c {4,8} at w 8, 2^6/column, 5 legs/cell), AGG
+  BATTERY DIGEST moved (mask legs appended) to
+  4623498603db778361e61f790df90485e61cec52fc8b80373f010cbbd61a419e,
+  byte-identical at ZK_THREADS 1/2/7. Mask legs per cell: honest
+  masked verify + ALL claims == base_mle_eval at the masked point
+  (the mask VANISHES on the claim values) | the STRIP check (shipped
+  minus nu*M_t is a VALID UNMASKED round chain for the same
+  challenges, closing on the recombined claims — the O-4 transfer
+  fact) | blinding (transcript differs from the unmasked run; every
+  shipped round differs from its stripped g_F) | zero-mask degeneracy
+  (shipped == stripped, G = g_m(x*) = 0, verify green) | tampers: a
+  FLIPPED mask coefficient at verify REJECTS (hypersum pin), tampered
+  served g_m(x*) REJECTS (final pin), tampered served G REJECTS,
+  unmasked verifier rejects a masked proof and vice versa.
+- cmd: `uperf-s agg-mask 12 4 8 1 4 1 181` (demo, 2^12 x 4): all
+  differentials print + assert; shipped round-0 identity == nu*G;
+  mask overhead in the noise (57 coefficients, closed-form M_t —
+  masked 0.024s vs unmasked 0.025s [WSL-BOX 1T NOISY-SHARED]); wire
+  +32 B (the two mask openings).
+- Floor: 48-leg battery digest 3752cba4.. UNMOVED; diff-battery green
+  16.1s; build green (the two new-code warnings fixed; no new
+  warnings from this lane).
+- commit: R3 = the commit carrying this block.
+
+MODULI NOTE (recorded, not guessed): the brief's battery matrix says
+"both moduli". The E_c sub-extension kernels REQUIRE the q31 point
+(SubExt::new asserts 2^30 < q < 2^31, 2^31 mod q < 1024) — the house
+has exactly ONE such modulus (Q8 = 2^31 - 399); the other house
+modulus Q8_46 (46-bit) fails the gate by construction. Reading
+adopted: "both moduli" = both digit-plane bases the house commits
+(e0 = 1 sign-binary / e0 = 2 balanced base-4 — the two vanishing
+moduli of the digit alphabet), crossed with both practical
+sub-extension moduli c in {4, 8} (Z^c - s0). If Victor meant Q8_46,
+that needs a kernel-gate ruling first — flagged as an open question.

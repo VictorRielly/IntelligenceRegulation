@@ -42893,8 +42893,28 @@ fn uperf_s_main(args: &[String]) {
             println!("[UPERF3-DD] avx2 detected: {}", ring::ec_kernel::avx2());
             ring::ec_kernel::kernel_bench(c, log2_pairs, reps, q);
         }
+        // [UPERF3-EE] round 4 lane EE: the aggregate zero-check + O-4 mask.
+        Some("agg") => {
+            let (n_log2, m, w, threads, c) = (geti(1, 20), geti(2, 16), geti(3, 8), geti(4, 1), geti(5, 4));
+            let e0 = geti(6, 1) as u32;
+            let seed = geti(7, 171) as u8;
+            let with_percol = args.get(8).map(String::as_str) != Some("nopc");
+            uperf_s_set_threads(threads);
+            uperf_s_agg(n_log2, m, w, c, e0, seed, with_percol);
+        }
+        Some("agg-battery") => {
+            uperf_s_set_threads(geti(1, 1));
+            uperf_s_agg_battery();
+        }
+        Some("agg-mask") => {
+            let (n_log2, m, w, threads, c) = (geti(1, 12), geti(2, 4), geti(3, 8), geti(4, 1), geti(5, 4));
+            let e0 = geti(6, 1) as u32;
+            let seed = geti(7, 181) as u8;
+            uperf_s_set_threads(threads);
+            uperf_s_agg_mask(n_log2, m, w, c, e0, seed);
+        }
         _ => println!(
-            "uperf-s s1 [n_log2] [w] [threads] [c|0=all] [seed] [nodesc] | s2 [n_log2] [threads] [seed] [nodesc] | battery [threads] | count [depth] [dt] [e_bits] [n_real] | kernel-bench [c] [log2_pairs] [reps]"
+            "uperf-s s1 [n_log2] [w] [threads] [c|0=all] [seed] [nodesc] | s2 [n_log2] [threads] [seed] [nodesc] | battery [threads] | count [depth] [dt] [e_bits] [n_real] | kernel-bench [c] [log2_pairs] [reps] | agg ... | agg-battery ... | agg-mask ... (see the [UPERF3-EE] section)"
         ),
     }
 }
@@ -45777,4 +45797,697 @@ fn u3_verify_v3_export(t_rows: usize) {
     println!(
         "[UPERF3-BB] verify-export PASSED: {legs} plane legs byte-identical; every table row = a frozen C5 member"
     );
+// ---------------------------------------------------------------------------
+// [UPERF3-EE] U-PERF3 round 4, lane EE — the aggregate zero-check arms
+// (engine side: the [UPERF3-EE] section of ring/zc_range.rs). ADDITIVE:
+// the lane-S arms above and the 48-leg battery digest are untouched.
+
+/// [UPERF3-EE] m synthetic columns at fixed seeds (per-column seed =
+/// seed + i through the spike's instance generator).
+fn uperf_s_agg_columns(
+    q: u64,
+    n_log2: usize,
+    m: usize,
+    w: usize,
+    e0: u32,
+    seed: u8,
+) -> Vec<(Vec<Vec<u32>>, Vec<u32>)> {
+    (0..m).map(|i| uperf_s_instance(q, n_log2, w, e0, seed.wrapping_add(i as u8))).collect()
+}
+
+/// [UPERF3-EE] `uperf-s agg <n_log2> <m> <w> <threads> <c> <e0> <seed>
+/// [nopc]`: the aggregate zero-check over m same-shape columns vs the
+/// per-column spike path, with the three differential legs asserted.
+#[allow(clippy::too_many_arguments)]
+fn uperf_s_agg(n_log2: usize, m: usize, w: usize, c: usize, e0: u32, seed: u8, with_percol: bool) {
+    use ring::kfield::KField;
+    use ring::sumcheck::LkpTranscript;
+    use ring::zc_range::{
+        SubExt, ZcAggInstance, ZcRangeInstance, ZcRangeStats, base_mle_eval, zc_agg_axis,
+        zc_agg_eq_bool, zc_agg_prove, zc_agg_stack, zc_agg_verify, zc_range_open_check,
+        zc_range_prove, zc_range_verify,
+    };
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let q = ctx.zq.q;
+    assert!((3..=24).contains(&w) && n_log2 >= 4 && m >= 1);
+    let threads = ring::eval_proof::threads();
+    let a = zc_agg_axis(m);
+    println!(
+        "[UPERF3-EE] agg: m = {m} columns x 2^{n_log2} (w = {w}, e0 = {e0}), instance axis a = {a}, E_{c} challenges, ZK_THREADS {threads} [WSL-BOX {threads}T NOISY-SHARED]"
+    );
+    let cols_data = uperf_s_agg_columns(q, n_log2, m, w, e0, seed);
+    let cols: Vec<ZcRangeInstance> =
+        cols_data.iter().map(|(p, r)| ZcRangeInstance { n_log2, e0, planes: p, rem: r }).collect();
+    let inst = ZcAggInstance { n_log2, e0, cols };
+    let ext = SubExt::new(&kf, c);
+    // ---- (a) the per-column spike path: m separate sumchecks, m eq builds.
+    let mut pc: Option<(ZcRangeStats, f64, f64)> = None;
+    if with_percol {
+        let mut tot = ZcRangeStats::default();
+        let (mut prove_s, mut verify_s) = (0.0f64, 0.0f64);
+        for (i, col) in inst.cols.iter().enumerate() {
+            let si = seed.wrapping_add(i as u8);
+            let mut tr = LkpTranscript::new("uperf3-ee-agg-pc", &[si; 32]);
+            let rho: Vec<_> = (0..n_log2).map(|_| ext.challenge(&kf, &mut tr)).collect();
+            let betas: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tr)).collect();
+            let t0 = Instant::now();
+            let (proof, point, st) = zc_range_prove(&kf, &ext, col, &rho, &betas, &mut tr);
+            prove_s += t0.elapsed().as_secs_f64();
+            let t1 = Instant::now();
+            let mut tv = LkpTranscript::new("uperf3-ee-agg-pc", &[si; 32]);
+            let rho_v: Vec<_> = (0..n_log2).map(|_| ext.challenge(&kf, &mut tv)).collect();
+            let betas_v: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tv)).collect();
+            let vp = zc_range_verify(&kf, &ext, n_log2, e0, w, &rho_v, &betas_v, &proof, &mut tv);
+            verify_s += t1.elapsed().as_secs_f64();
+            assert!(
+                vp.as_deref() == Some(point.as_slice()) && tv.state() == tr.state(),
+                "agg: per-column verify failed at column {i}"
+            );
+            tot.rounds += st.rounds;
+            tot.nodes_computed += st.nodes_computed;
+            tot.macs_round += st.macs_round;
+            tot.macs_fold += st.macs_fold;
+            tot.macs_eq += st.macs_eq;
+            tot.wire_bytes += st.wire_bytes;
+            tot.secs_eq += st.secs_eq;
+            tot.secs_round += st.secs_round;
+            tot.secs_fold += st.secs_fold;
+            tot.secs_total += st.secs_total;
+        }
+        println!(
+            "[UPERF3-EE] agg (a) PER-COLUMN spike path: {m} separate sumchecks, {m} eq builds:"
+        );
+        println!(
+            "    prove {prove_s:.3}s | verify {verify_s:.3}s [MEASURED WSL-BOX {threads}T NOISY-SHARED]"
+        );
+        println!(
+            "    [COUNTED] rounds {} | base MACs: rounds {:.2}M + folds {:.2}M + eq {:.2}M = {:.2}M | wire {} B",
+            tot.rounds,
+            tot.macs_round as f64 / 1e6,
+            tot.macs_fold as f64 / 1e6,
+            tot.macs_eq as f64 / 1e6,
+            tot.macs_total() as f64 / 1e6,
+            tot.wire_bytes
+        );
+        pc = Some((tot, prove_s, verify_s));
+    }
+    // ---- (b) the aggregate: ONE sumcheck, one shared eq, stacked claims.
+    let mut tr = LkpTranscript::new("uperf3-ee-agg", &[seed; 32]);
+    let rho: Vec<_> = (0..n_log2 + a).map(|_| ext.challenge(&kf, &mut tr)).collect();
+    let betas: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tr)).collect();
+    let t0 = Instant::now();
+    let (proof, point, st) = zc_agg_prove(&kf, &ext, &inst, &rho, &betas, &mut tr);
+    let prove_s = t0.elapsed().as_secs_f64();
+    let t1 = Instant::now();
+    let mut tv = LkpTranscript::new("uperf3-ee-agg", &[seed; 32]);
+    let rho_v: Vec<_> = (0..n_log2 + a).map(|_| ext.challenge(&kf, &mut tv)).collect();
+    let betas_v: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tv)).collect();
+    let vp = zc_agg_verify(&kf, &ext, n_log2, e0, w, m, &rho_v, &betas_v, &proof, &mut tv);
+    let verify_s = t1.elapsed().as_secs_f64();
+    assert!(vp.as_deref() == Some(point.as_slice()) && tv.state() == tr.state(), "agg verify failed");
+    println!(
+        "[UPERF3-EE] agg (b) AGGREGATE: ONE sumcheck of {} rounds, ONE shared eq over {} vars, stacked claims {m} x {}:",
+        n_log2 + a,
+        n_log2 + a,
+        w + 1
+    );
+    println!(
+        "    prove {prove_s:.3}s (eq {:.3} + rounds {:.3} + folds {:.3}) | verify {verify_s:.3}s [MEASURED WSL-BOX {threads}T NOISY-SHARED]",
+        st.secs_eq, st.secs_round, st.secs_fold
+    );
+    println!(
+        "    [COUNTED] rounds {} | base MACs: rounds {:.2}M + folds {:.2}M + eq {:.2}M = {:.2}M | wire {} B (incl. the {} stacked claims)",
+        st.rounds,
+        st.macs_round as f64 / 1e6,
+        st.macs_fold as f64 / 1e6,
+        st.macs_eq as f64 / 1e6,
+        st.macs_total() as f64 / 1e6,
+        st.wire_bytes,
+        m * (w + 1)
+    );
+    // ---- DIFFERENTIAL (i)+(ii): zc_range_prove on the stacked instance is
+    // the ORACLE (at m = 1 the stacking is the identity, so the oracle IS
+    // the per-column path run verbatim): byte identity of transcript /
+    // round polys / point; the recombined stacked claims == oracle finals.
+    {
+        let (sp, sr) = zc_agg_stack(&inst);
+        let sinst = ZcRangeInstance { n_log2: n_log2 + a, e0, planes: &sp, rem: &sr };
+        let mut tro = LkpTranscript::new("uperf3-ee-agg", &[seed; 32]);
+        let rho_o: Vec<_> = (0..n_log2 + a).map(|_| ext.challenge(&kf, &mut tro)).collect();
+        let betas_o: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tro)).collect();
+        let (po, pto, _sto) = zc_range_prove(&kf, &ext, &sinst, &rho_o, &betas_o, &mut tro);
+        assert_eq!(tro.state(), tr.state(), "DIFFERENTIAL: transcript identity vs the stacked oracle");
+        assert_eq!(po.rounds, proof.rounds, "DIFFERENTIAL: round polys vs the stacked oracle");
+        assert_eq!(pto, point, "DIFFERENTIAL: fold point vs the stacked oracle");
+        let r_inst = &point[n_log2..];
+        for k in 0..=w {
+            let mut acc = ext.zero();
+            for (i, cl) in proof.col_claims.iter().enumerate() {
+                acc = ext.add(&acc, &ext.mul(&zc_agg_eq_bool(&ext, r_inst, i), &cl[k]));
+            }
+            assert_eq!(acc, po.finals[k], "DIFFERENTIAL: recombined claim {k} == oracle final");
+        }
+        assert!(zc_range_open_check(&ext, &sinst, &point, &po.finals), "stacked open check");
+        println!(
+            "    [DIFFERENTIAL i+ii] aggregate == zc_range_prove(stacked): transcript state, {} round polys, fold point BYTE-IDENTICAL; recombined stacked claims == oracle finals ({} values){}",
+            proof.rounds.len(),
+            w + 1,
+            if m == 1 { " — at m = 1 the oracle IS the per-column path verbatim" } else { "" }
+        );
+    }
+    // ---- DIFFERENTIAL (iii): the served claims == the per-column path's
+    // claim machinery (base_mle_eval, the zc_range_open_check definition)
+    // at the shared column point, bit-for-bit.
+    {
+        let r_col = &point[..n_log2];
+        for (i, col) in inst.cols.iter().enumerate() {
+            for k in 0..w {
+                assert_eq!(
+                    base_mle_eval(&ext, &col.planes[k], r_col),
+                    proof.col_claims[i][k],
+                    "DIFFERENTIAL: claim (col {i}, plane {k})"
+                );
+            }
+            assert_eq!(
+                base_mle_eval(&ext, col.rem, r_col),
+                proof.col_claims[i][w],
+                "DIFFERENTIAL: claim (col {i}, rem)"
+            );
+        }
+        println!(
+            "    [DIFFERENTIAL iii] all {} stacked claims == per-column base_mle_eval at r_col BIT-FOR-BIT; col 0 shown:",
+            m * (w + 1)
+        );
+        println!("      plane 0 agg-served  {:?}", proof.col_claims[0][0]);
+        println!("      plane 0 per-column  {:?}", base_mle_eval(&ext, &inst.cols[0].planes[0], &point[..n_log2]));
+        println!("      rem     agg-served  {:?}", proof.col_claims[0][w]);
+        println!("      rem     per-column  {:?}", base_mle_eval(&ext, inst.cols[0].rem, &point[..n_log2]));
+    }
+    // ---- the side-by-side table.
+    if let Some((tot, pc_prove, _pc_verify)) = pc {
+        println!(
+            "[UPERF3-EE] [COUNTED] per-column -> aggregate at m = {m} x 2^{n_log2} (w {w}, c {c}, e0 {e0}):"
+        );
+        println!(
+            "    rounds     {:>12} -> {:>12}  ({:.2}x)",
+            tot.rounds,
+            st.rounds,
+            tot.rounds as f64 / st.rounds as f64
+        );
+        println!(
+            "    wire B     {:>12} -> {:>12}  ({:.2}x)",
+            tot.wire_bytes,
+            st.wire_bytes,
+            tot.wire_bytes as f64 / st.wire_bytes as f64
+        );
+        println!(
+            "    MACs       {:>12} -> {:>12}  ({:.2}x)  (rounds {:.2}x, folds {:.2}x, eq {:.2}x)",
+            tot.macs_total(),
+            st.macs_total(),
+            tot.macs_total() as f64 / st.macs_total() as f64,
+            tot.macs_round as f64 / st.macs_round as f64,
+            tot.macs_fold as f64 / st.macs_fold as f64,
+            tot.macs_eq as f64 / st.macs_eq as f64
+        );
+        println!(
+            "    prove wall {pc_prove:>11.3}s -> {prove_s:>11.3}s  ({:.2}x) [WSL-BOX {threads}T NOISY-SHARED — counts are the deliverable]",
+            pc_prove / prove_s
+        );
+    }
+    println!("[UPERF3-EE] agg peak RSS {:.0} MiB", uperf_a_peak_rss_mib());
+}
+
+/// [UPERF3-EE] `uperf-s agg-battery <threads>`: the aggregate matrix
+/// m in {1, 2, 7, 16} x w in {8, 14} x e0 in {1, 2} (both committed digit
+/// bases — the ledger's moduli note) x c in {4, 8}; per cell the honest
+/// aggregate with the stacked-oracle byte identity + the per-column claim
+/// identity, then a tampered-claim reject and a tampered-round reject.
+/// One AGG BATTERY DIGEST — run at ZK_THREADS 1/2/7 and compare. The
+/// lane-S 48-leg battery and its digest are UNTOUCHED by this arm.
+fn uperf_s_agg_battery() {
+    use ring::kfield::KField;
+    use ring::sumcheck::LkpTranscript;
+    use ring::zc_range::{
+        SubExt, ZcAggInstance, ZcRangeInstance, base_mle_eval, zc_agg_axis, zc_agg_eq_bool,
+        zc_agg_prove, zc_agg_stack, zc_agg_verify, zc_range_prove,
+    };
+    use sha2::Digest;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let q = ctx.zq.q;
+    let threads = ring::eval_proof::threads();
+    println!("[UPERF3-EE] agg-battery: ZK_THREADS {threads} (run at 1/2/7 and compare the digest)");
+    let mut all = sha2::Sha256::new();
+    let mut legs = 0usize;
+    let n_log2 = 6usize;
+    let mut cell_seed = 40u8;
+    for e0 in [1u32, 2] {
+        for c in [4usize, 8] {
+            let ext = SubExt::new(&kf, c);
+            for w in [8usize, 14] {
+                for m in [1usize, 2, 7, 16] {
+                    let seed = cell_seed;
+                    cell_seed = cell_seed.wrapping_add(1);
+                    let a = zc_agg_axis(m);
+                    let cols_data = uperf_s_agg_columns(q, n_log2, m, w, e0, seed);
+                    let cols: Vec<ZcRangeInstance> = cols_data
+                        .iter()
+                        .map(|(p, r)| ZcRangeInstance { n_log2, e0, planes: p, rem: r })
+                        .collect();
+                    let inst = ZcAggInstance { n_log2, e0, cols };
+                    // Honest aggregate + verify.
+                    let mut tr = LkpTranscript::new("uperf3-ee-agg-bat", &[seed; 32]);
+                    let rho: Vec<_> = (0..n_log2 + a).map(|_| ext.challenge(&kf, &mut tr)).collect();
+                    let betas: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tr)).collect();
+                    let (mut proof, point, _st) = zc_agg_prove(&kf, &ext, &inst, &rho, &betas, &mut tr);
+                    let verify = |proof: &ring::zc_range::ZcAggProof| {
+                        let mut tv = LkpTranscript::new("uperf3-ee-agg-bat", &[seed; 32]);
+                        let rho_v: Vec<_> =
+                            (0..n_log2 + a).map(|_| ext.challenge(&kf, &mut tv)).collect();
+                        let betas_v: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tv)).collect();
+                        let vp =
+                            zc_agg_verify(&kf, &ext, n_log2, e0, w, m, &rho_v, &betas_v, proof, &mut tv);
+                        (vp, tv.state())
+                    };
+                    let (vp, tv_state) = verify(&proof);
+                    assert!(
+                        vp.as_deref() == Some(point.as_slice()) && tv_state == tr.state(),
+                        "agg-battery honest verify (m {m} w {w} e0 {e0} c {c})"
+                    );
+                    // The stacked oracle: byte identity + recombination.
+                    let (sp, sr) = zc_agg_stack(&inst);
+                    let sinst =
+                        ZcRangeInstance { n_log2: n_log2 + a, e0, planes: &sp, rem: &sr };
+                    let mut tro = LkpTranscript::new("uperf3-ee-agg-bat", &[seed; 32]);
+                    let rho_o: Vec<_> = (0..n_log2 + a).map(|_| ext.challenge(&kf, &mut tro)).collect();
+                    let betas_o: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tro)).collect();
+                    let (po, pto, _so) = zc_range_prove(&kf, &ext, &sinst, &rho_o, &betas_o, &mut tro);
+                    assert!(
+                        tro.state() == tr.state() && po.rounds == proof.rounds && pto == point,
+                        "agg-battery stacked-oracle identity (m {m} w {w} e0 {e0} c {c})"
+                    );
+                    let r_inst = &point[n_log2..];
+                    for k in 0..=w {
+                        let mut acc = ext.zero();
+                        for (i, cl) in proof.col_claims.iter().enumerate() {
+                            acc = ext.add(&acc, &ext.mul(&zc_agg_eq_bool(&ext, r_inst, i), &cl[k]));
+                        }
+                        assert_eq!(acc, po.finals[k], "agg-battery recombination k {k}");
+                    }
+                    // The per-column claim identity (the base_mle_eval oracle).
+                    let r_col = &point[..n_log2];
+                    for (i, col) in inst.cols.iter().enumerate() {
+                        for k in 0..w {
+                            assert_eq!(
+                                base_mle_eval(&ext, &col.planes[k], r_col),
+                                proof.col_claims[i][k],
+                                "agg-battery claim (col {i} plane {k})"
+                            );
+                        }
+                        assert_eq!(
+                            base_mle_eval(&ext, col.rem, r_col),
+                            proof.col_claims[i][w],
+                            "agg-battery claim (col {i} rem)"
+                        );
+                    }
+                    for g in &proof.rounds {
+                        for e in g {
+                            for x in ext.to_k(e) {
+                                all.update(x.to_le_bytes());
+                            }
+                        }
+                    }
+                    for cl in &proof.col_claims {
+                        for e in cl {
+                            for x in ext.to_k(e) {
+                                all.update(x.to_le_bytes());
+                            }
+                        }
+                    }
+                    legs += 1;
+                    // Tamper 1: a flipped stacked claim must reject.
+                    let q32 = q as u32;
+                    let old = proof.col_claims[0][0][0];
+                    proof.col_claims[0][0][0] = (old + 1) % q32;
+                    assert!(verify(&proof).0.is_none(), "agg-battery claim tamper must reject");
+                    proof.col_claims[0][0][0] = old;
+                    legs += 1;
+                    // Tamper 2: a flipped round-poly node must reject.
+                    let old = proof.rounds[1][2][0];
+                    proof.rounds[1][2][0] = (old + 1) % q32;
+                    assert!(verify(&proof).0.is_none(), "agg-battery round tamper must reject");
+                    proof.rounds[1][2][0] = old;
+                    legs += 1;
+                }
+                println!(
+                    "  ok   AGG: m {{1,2,7,16}} honest+oracle+claims + 2 tampers each (2^{n_log2}, w {w}, e0 {e0}, c {c})"
+                );
+            }
+        }
+    }
+    // ---- O-4 mask legs (rung R3): the masked aggregate at w = 8,
+    // 2^6/column, m in {2, 7} x e0 in {1, 2} x c in {4, 8}. Per cell:
+    // masked verify green; the served claims EQUAL the unmasked claim
+    // values (the table MLEs via the base_mle_eval oracle) at the masked
+    // point; the STRIP check (shipped - nu*M_t is a valid UNMASKED chain
+    // for the same challenges, closing on the recombined claims); the
+    // transcript differs from the unmasked run's while every shipped
+    // round poly differs from its stripped form; the zero-mask
+    // degeneracy (shipped == stripped, G = g_m(x*) = 0, verify green);
+    // tamper rejects (flipped verifier-mask coefficient, tampered served
+    // g_m(x*), tampered served G, verifier/proof mode mismatches).
+    {
+        use ring::zc_range::{ZcAggMask, zc_agg_prove_masked, zc_agg_verify_masked};
+        let w = 8usize;
+        for e0 in [1u32, 2] {
+            for c in [4usize, 8] {
+                let ext = SubExt::new(&kf, c);
+                let deg = ring::digits::alphabet_rows(e0) + 1;
+                for m in [2usize, 7] {
+                    let seed = cell_seed;
+                    cell_seed = cell_seed.wrapping_add(1);
+                    let a = zc_agg_axis(m);
+                    let n_tot = n_log2 + a;
+                    let cols_data = uperf_s_agg_columns(q, n_log2, m, w, e0, seed);
+                    let cols: Vec<ZcRangeInstance> = cols_data
+                        .iter()
+                        .map(|(p, r)| ZcRangeInstance { n_log2, e0, planes: p, rem: r })
+                        .collect();
+                    let inst = ZcAggInstance { n_log2, e0, cols };
+                    // The unmasked reference (transcript-difference leg).
+                    let mut tr_u = LkpTranscript::new("uperf3-ee-agg-bat-mask", &[seed; 32]);
+                    let rho_u: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut tr_u)).collect();
+                    let betas_u: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tr_u)).collect();
+                    let (proof_u, _pt_u, _s) = zc_agg_prove(&kf, &ext, &inst, &rho_u, &betas_u, &mut tr_u);
+                    // The masked run (mask committed BEFORE rho/betas).
+                    let mut rng =
+                        ring::ProverRng::from_test_seed("uperf3-ee-agg-bat-mask", &[seed, m as u8]);
+                    let mask = ZcAggMask::draw(&ext, &mut rng, n_tot, deg);
+                    let mut tr = LkpTranscript::new("uperf3-ee-agg-bat-mask", &[seed; 32]);
+                    mask.commit_absorb(&kf, &ext, &mut tr);
+                    let rho: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut tr)).collect();
+                    let betas: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tr)).collect();
+                    let (mut proof, point, _st, ev) =
+                        zc_agg_prove_masked(&kf, &ext, &inst, &rho, &betas, Some(&mask), &mut tr);
+                    let ev = ev.expect("masked evidence");
+                    let mverify = |proof: &ring::zc_range::ZcAggProof, vmask: &ZcAggMask| {
+                        let mut tv = LkpTranscript::new("uperf3-ee-agg-bat-mask", &[seed; 32]);
+                        vmask.commit_absorb(&kf, &ext, &mut tv);
+                        let rho_v: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut tv)).collect();
+                        let betas_v: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tv)).collect();
+                        let vp = zc_agg_verify_masked(
+                            &kf, &ext, n_log2, e0, w, m, &rho_v, &betas_v, proof, vmask, &mut tv,
+                        );
+                        (vp, tv.state())
+                    };
+                    let (vp, tv_state) = mverify(&proof, &mask);
+                    assert!(
+                        vp.as_deref() == Some(point.as_slice()) && tv_state == tr.state(),
+                        "mask honest verify (m {m} e0 {e0} c {c})"
+                    );
+                    // Claims: the mask VANISHES on the claim values — they
+                    // equal the unmasked claim function (the table MLEs).
+                    let r_col = &point[..n_log2];
+                    for (i, col) in inst.cols.iter().enumerate() {
+                        for k in 0..w {
+                            assert_eq!(
+                                base_mle_eval(&ext, &col.planes[k], r_col),
+                                proof.col_claims[i][k],
+                                "mask claim (col {i} plane {k})"
+                            );
+                        }
+                        assert_eq!(
+                            base_mle_eval(&ext, col.rem, r_col),
+                            proof.col_claims[i][w],
+                            "mask claim (col {i} rem)"
+                        );
+                    }
+                    legs += 1;
+                    // Strip: shipped - nu*M_t == g_F, a VALID unmasked
+                    // chain at the same challenges, closing on the
+                    // recombined claims.
+                    {
+                        assert_eq!(ev.stripped_rounds.len(), n_tot);
+                        let mut c_run = ext.zero();
+                        for (t, gf) in ev.stripped_rounds.iter().enumerate() {
+                            assert_eq!(
+                                ext.add(&gf[0], &gf[1]),
+                                c_run,
+                                "strip chain round {t} (m {m} e0 {e0} c {c})"
+                            );
+                            c_run = ext.lagrange_eval(&kf, gf, &point[t]);
+                        }
+                        let r_inst = &point[n_log2..];
+                        let mut finals = vec![ext.zero(); w + 1];
+                        for (i, cl) in proof.col_claims.iter().enumerate() {
+                            let wi = zc_agg_eq_bool(&ext, r_inst, i);
+                            for (k, f) in finals.iter_mut().enumerate() {
+                                *f = ext.add(f, &ext.mul(&wi, &cl[k]));
+                            }
+                        }
+                        let alpha_res: Vec<u32> = {
+                            let (lo, hi) = ring::digits::alphabet(e0);
+                            (lo..=hi)
+                                .map(|v| (if v < 0 { (v + q as i64) as u64 } else { v as u64 }) as u32)
+                                .collect()
+                        };
+                        let gval =
+                            ring::zc_range::zc_range_g_of(&ext, e0, &alpha_res, &betas, &finals);
+                        assert_eq!(
+                            c_run,
+                            ext.mul(&ext.eq_point(&rho, &point), &gval),
+                            "strip final identity (m {m} e0 {e0} c {c})"
+                        );
+                    }
+                    legs += 1;
+                    // Blinding: the transcript differs from the unmasked
+                    // run's, and EVERY shipped round differs from its
+                    // stripped form.
+                    assert_ne!(tr.state(), tr_u.state(), "mask transcript must differ");
+                    for (gs, gf) in proof.rounds.iter().zip(ev.stripped_rounds.iter()) {
+                        assert_ne!(gs, gf, "shipped round must differ from stripped");
+                    }
+                    legs += 1;
+                    // Zero-mask degeneracy: shipped == stripped, G = 0,
+                    // g_m(x*) = 0, verify green.
+                    {
+                        let mask0 = ZcAggMask::zero(&ext, n_tot, deg);
+                        let mut tr0 = LkpTranscript::new("uperf3-ee-agg-bat-mask0", &[seed; 32]);
+                        mask0.commit_absorb(&kf, &ext, &mut tr0);
+                        let rho0: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut tr0)).collect();
+                        let betas0: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tr0)).collect();
+                        let (proof0, point0, _s0, ev0) =
+                            zc_agg_prove_masked(&kf, &ext, &inst, &rho0, &betas0, Some(&mask0), &mut tr0);
+                        let ev0 = ev0.expect("zero-mask evidence");
+                        assert_eq!(proof0.rounds, ev0.stripped_rounds, "zero mask: shipped == stripped");
+                        assert!(
+                            ext.is_zero(proof0.mask_hyper.as_ref().unwrap())
+                                && ext.is_zero(proof0.mask_final.as_ref().unwrap()),
+                            "zero mask: G and g_m(x*) are 0"
+                        );
+                        let mut tv0 = LkpTranscript::new("uperf3-ee-agg-bat-mask0", &[seed; 32]);
+                        mask0.commit_absorb(&kf, &ext, &mut tv0);
+                        let rho0v: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut tv0)).collect();
+                        let betas0v: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tv0)).collect();
+                        let vp0 = zc_agg_verify_masked(
+                            &kf, &ext, n_log2, e0, w, m, &rho0v, &betas0v, &proof0, &mask0, &mut tv0,
+                        );
+                        assert!(
+                            vp0.as_deref() == Some(point0.as_slice()) && tv0.state() == tr0.state(),
+                            "zero mask verify"
+                        );
+                    }
+                    legs += 1;
+                    // Tampers: a FLIPPED verifier mask must reject (the
+                    // hypersum pin); a tampered served g_m(x*) must reject
+                    // (the final pin); a tampered served G must reject; the
+                    // unmasked verifier rejects a masked proof and the
+                    // masked verifier rejects an unmasked proof.
+                    {
+                        let mut mask_bad = ZcAggMask {
+                            a0: mask.a0.clone(),
+                            uni: mask.uni.clone(),
+                        };
+                        mask_bad.uni[0][0][0] = (mask_bad.uni[0][0][0] + 1) % q as u32;
+                        assert!(mverify(&proof, &mask_bad).0.is_none(), "flipped mask must reject");
+                        let old = proof.mask_final.clone();
+                        proof.mask_final.as_mut().unwrap()[0] =
+                            (proof.mask_final.as_ref().unwrap()[0] + 1) % q as u32;
+                        assert!(mverify(&proof, &mask).0.is_none(), "tampered g_m(x*) must reject");
+                        proof.mask_final = old;
+                        let old = proof.mask_hyper.clone();
+                        proof.mask_hyper.as_mut().unwrap()[0] =
+                            (proof.mask_hyper.as_ref().unwrap()[0] + 1) % q as u32;
+                        assert!(mverify(&proof, &mask).0.is_none(), "tampered G must reject");
+                        proof.mask_hyper = old;
+                        let mut tvx = LkpTranscript::new("uperf3-ee-agg-bat-mask", &[seed; 32]);
+                        mask.commit_absorb(&kf, &ext, &mut tvx);
+                        let rho_x: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut tvx)).collect();
+                        let betas_x: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tvx)).collect();
+                        assert!(
+                            zc_agg_verify(&kf, &ext, n_log2, e0, w, m, &rho_x, &betas_x, &proof, &mut tvx)
+                                .is_none(),
+                            "unmasked verifier must reject a masked proof"
+                        );
+                        let mut tvy = LkpTranscript::new("uperf3-ee-agg-bat-mask", &[seed; 32]);
+                        mask.commit_absorb(&kf, &ext, &mut tvy);
+                        let rho_y: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut tvy)).collect();
+                        let betas_y: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tvy)).collect();
+                        assert!(
+                            zc_agg_verify_masked(
+                                &kf, &ext, n_log2, e0, w, m, &rho_y, &betas_y, &proof_u, &mask, &mut tvy
+                            )
+                            .is_none(),
+                            "masked verifier must reject an unmasked proof"
+                        );
+                    }
+                    legs += 1;
+                    // Digest: the masked shipped rounds + claims + the two
+                    // served mask values (all deterministic: test-seeded
+                    // CSPRNG) — thread-invariant like everything above.
+                    for g in &proof.rounds {
+                        for e in g {
+                            for x in ext.to_k(e) {
+                                all.update(x.to_le_bytes());
+                            }
+                        }
+                    }
+                    for e in [proof.mask_hyper.as_ref().unwrap(), proof.mask_final.as_ref().unwrap()] {
+                        for x in ext.to_k(e) {
+                            all.update(x.to_le_bytes());
+                        }
+                    }
+                }
+                println!(
+                    "  ok   AGG-MASK: m {{2,7}} masked+strip+blind+zero-mask+tampers (2^{n_log2}, w {w}, e0 {e0}, c {c})"
+                );
+            }
+        }
+    }
+    let dgst: [u8; 32] = all.finalize().into();
+    println!("[UPERF3-EE] agg-battery: {legs} legs ok at ZK_THREADS {threads}");
+    println!("[UPERF3-EE] AGG BATTERY DIGEST {}", hex_full(&dgst));
+}
+
+/// [UPERF3-EE] `uperf-s agg-mask <n_log2> <m> <w> <threads> <c> <e0>
+/// <seed>`: the O-4 masked aggregate at one shape, with the differential
+/// evidence printed — the served claims EQUAL the unmasked claim values
+/// (the table MLEs) bit-for-bit while the transcript blinds; the strip
+/// check; a flipped mask rejects.
+#[allow(clippy::too_many_arguments)]
+fn uperf_s_agg_mask(n_log2: usize, m: usize, w: usize, c: usize, e0: u32, seed: u8) {
+    use ring::kfield::KField;
+    use ring::sumcheck::LkpTranscript;
+    use ring::zc_range::{
+        SubExt, ZcAggInstance, ZcAggMask, ZcRangeInstance, base_mle_eval, zc_agg_axis,
+        zc_agg_prove, zc_agg_prove_masked, zc_agg_verify_masked,
+    };
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let q = ctx.zq.q;
+    assert!((3..=24).contains(&w) && n_log2 >= 4 && m >= 1);
+    let threads = ring::eval_proof::threads();
+    let a = zc_agg_axis(m);
+    let n_tot = n_log2 + a;
+    let deg = ring::digits::alphabet_rows(e0) + 1;
+    println!(
+        "[UPERF3-EE] agg-mask: m = {m} x 2^{n_log2} (w {w}, e0 {e0}), E_{c}, O-4 g-mask over {n_tot} vars (deg {deg}/var, {} coeffs), ZK_THREADS {threads} [WSL-BOX {threads}T NOISY-SHARED]",
+        1 + n_tot * deg
+    );
+    let cols_data = uperf_s_agg_columns(q, n_log2, m, w, e0, seed);
+    let cols: Vec<ZcRangeInstance> =
+        cols_data.iter().map(|(p, r)| ZcRangeInstance { n_log2, e0, planes: p, rem: r }).collect();
+    let inst = ZcAggInstance { n_log2, e0, cols };
+    let ext = SubExt::new(&kf, c);
+    // Unmasked reference.
+    let mut tr_u = LkpTranscript::new("uperf3-ee-agg-mask", &[seed; 32]);
+    let rho_u: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut tr_u)).collect();
+    let betas_u: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tr_u)).collect();
+    let t0 = Instant::now();
+    let (proof_u, point_u, _su) = zc_agg_prove(&kf, &ext, &inst, &rho_u, &betas_u, &mut tr_u);
+    let unmasked_s = t0.elapsed().as_secs_f64();
+    // Masked run: draw from prover-private CSPRNG, commit BEFORE rho/betas.
+    let mut rng = ring::ProverRng::from_test_seed("uperf3-ee-agg-mask", &[seed, m as u8]);
+    let mask = ZcAggMask::draw(&ext, &mut rng, n_tot, deg);
+    let mut tr = LkpTranscript::new("uperf3-ee-agg-mask", &[seed; 32]);
+    mask.commit_absorb(&kf, &ext, &mut tr);
+    let rho: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut tr)).collect();
+    let betas: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tr)).collect();
+    let t1 = Instant::now();
+    let (proof, point, st, ev) =
+        zc_agg_prove_masked(&kf, &ext, &inst, &rho, &betas, Some(&mask), &mut tr);
+    let masked_s = t1.elapsed().as_secs_f64();
+    let ev = ev.expect("masked evidence");
+    let mut tv = LkpTranscript::new("uperf3-ee-agg-mask", &[seed; 32]);
+    mask.commit_absorb(&kf, &ext, &mut tv);
+    let rho_v: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut tv)).collect();
+    let betas_v: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tv)).collect();
+    let vp = zc_agg_verify_masked(&kf, &ext, n_log2, e0, w, m, &rho_v, &betas_v, &proof, &mask, &mut tv);
+    assert!(vp.as_deref() == Some(point.as_slice()) && tv.state() == tr.state(), "masked verify failed");
+    println!(
+        "    masked prove {masked_s:.3}s (unmasked {unmasked_s:.3}s — mask overhead {:.1}%) | verify green (both pins: hypersum G, g_m(x*)) | wire {} B (+{} B for the two mask openings)",
+        100.0 * (masked_s - unmasked_s) / unmasked_s,
+        st.wire_bytes,
+        2 * ext.wire_bytes()
+    );
+    // Differential: the claims are UNPERTURBED — the mask lives only in
+    // the shipped round polys.
+    let r_col = &point[..n_log2];
+    for (i, col) in inst.cols.iter().enumerate() {
+        for k in 0..w {
+            assert_eq!(base_mle_eval(&ext, &col.planes[k], r_col), proof.col_claims[i][k]);
+        }
+        assert_eq!(base_mle_eval(&ext, col.rem, r_col), proof.col_claims[i][w]);
+    }
+    assert_ne!(tr.state(), tr_u.state());
+    let mut rounds_differ = 0usize;
+    for (gs, gf) in proof.rounds.iter().zip(ev.stripped_rounds.iter()) {
+        if gs != gf {
+            rounds_differ += 1;
+        }
+    }
+    assert_eq!(rounds_differ, n_tot, "every shipped round must be blinded");
+    println!(
+        "    [DIFFERENTIAL] all {} served claims == the unmasked claim values (per-column base_mle_eval) BIT-FOR-BIT at the masked point; transcript state DIFFERS from the unmasked run; {rounds_differ}/{n_tot} shipped round polys differ from their stripped g_F",
+        m * (w + 1)
+    );
+    println!("      col 0 plane 0 masked-served {:?}", proof.col_claims[0][0]);
+    println!(
+        "      col 0 plane 0 table MLE      {:?}",
+        base_mle_eval(&ext, &inst.cols[0].planes[0], r_col)
+    );
+    // Strip: the masked transcript minus the analytic mask layer is a
+    // valid UNMASKED chain for the same challenges; the SHIPPED chain
+    // starts at nu * G (the mask deposit).
+    {
+        assert_eq!(
+            ext.add(&proof.rounds[0][0], &proof.rounds[0][1]),
+            ext.mul(&ev.nu, proof.mask_hyper.as_ref().unwrap()),
+            "shipped round-0 identity == nu * G"
+        );
+        let mut c_run = ext.zero();
+        for (t, gf) in ev.stripped_rounds.iter().enumerate() {
+            assert_eq!(ext.add(&gf[0], &gf[1]), c_run, "strip chain at round {t}");
+            c_run = ext.lagrange_eval(&kf, gf, &point[t]);
+        }
+        println!(
+            "    [STRIP] shipped g_0(0)+g_0(1) == nu*G; shipped - nu*M_t satisfies the UNMASKED round identities at all {n_tot} rounds (g_F(0)+g_F(1) == C_F chain from 0)"
+        );
+    }
+    // A flipped mask must reject.
+    let mut mask_bad = ZcAggMask { a0: mask.a0.clone(), uni: mask.uni.clone() };
+    mask_bad.uni[0][0][0] = (mask_bad.uni[0][0][0] + 1) % q as u32;
+    let mut tb = LkpTranscript::new("uperf3-ee-agg-mask", &[seed; 32]);
+    mask_bad.commit_absorb(&kf, &ext, &mut tb);
+    let rho_b: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut tb)).collect();
+    let betas_b: Vec<_> = (0..=w).map(|_| ext.challenge(&kf, &mut tb)).collect();
+    assert!(
+        zc_agg_verify_masked(&kf, &ext, n_log2, e0, w, m, &rho_b, &betas_b, &proof, &mask_bad, &mut tb)
+            .is_none(),
+        "a flipped mask must reject"
+    );
+    println!("    [TAMPER] a flipped mask coefficient at verify REJECTS (the hypersum pin)");
+    let _ = (&proof_u, &point_u);
+    println!("[UPERF3-EE] agg-mask peak RSS {:.0} MiB", uperf_a_peak_rss_mib());
 }
