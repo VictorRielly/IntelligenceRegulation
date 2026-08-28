@@ -2594,3 +2594,28 @@ materialized (small).
   NOTE: the [UPERF3-HH W-8c] flat-store helpers
   (decompose_polys_*_into, DigitCols::extend_vecs) ride this commit
   INERT in eval_proof.rs (no caller until rung 3) — additive only.
+
+RUNG 3 — W-8(c) LANDED (2026-08-28): the deeper-level witnesses
+(`w_cur` in bg_prove_group — W-8(c)'s `Vec<Vec<i64>>`, 1,064 B/ring
+boxed) now live in the existing flat i8 `DigitCols` store (128
+B/ring, 8.3x): additive `decompose_polys_small_into` (the same
+per-ring split appended in the same order, digits asserted into i8
+— every level base is e <= 7, alphabet |d| <= 64) + `DigitCols::
+extend_vecs`; bin-side `bg_fold_into` (bg_fold_gen's fold + the
+VERBATIM l_z budget assert, split written straight into the flat
+store — the boxed z intermediate digit rings never exist; the
+boxed i64 fold OUTPUT z_all still exists transiently, ~5.9 GB at
+the 8B weight level 0 — recorded). The t/h digit families stay
+boxed (KBs at every level). The floor is boxed back at the floor
+(~1K rings) for the wire form / tier-z helpers.
+  ACCEPT: all five identity anchors BYTE-IDENTICAL (93a98700 /
+  0ae9cdae; 45fb3405; 80763ea5 / 63f4a3a4); floors green
+  (diff-battery 0; freeze 102 ok + expected panic; uperf-s
+  3752cba4).
+  RSS delta [MEASURED, NOISY-SHARED, vs rung-2 tree]: fp3x16
+  -0.1 MB; pa12x64 +5.5 MB; fp12x64 -0.6 MB — i.e. WITHIN NOISE,
+  honestly recorded: at the 125M shapes the deeper witnesses are
+  0.1-0.4 GB boxed and the process high-water mark sits in the
+  claim/descent phases, so the fix cannot move it here. The
+  counted 8B win: level-1 witnesses 35.2 + 11.1 GB boxed -> ~5.6
+  GB flat (both groups), and every deeper level shrinks 8.3x.

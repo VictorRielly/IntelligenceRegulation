@@ -5068,37 +5068,14 @@ pub fn decompose_polys_small(polys: &[Vec<i64>], e: u32, l: usize) -> Vec<Vec<i6
     out
 }
 
-// [UPERF3-HH W-8c] The same digit splits written straight into a flat
-// i8 store (`DigitCols`) — the boxed intermediate (1,064 B/ring vs
-// 128 B flat; W-8(c)'s 35.2 + 11.1 GB level-1 witnesses at 8B) never
+// [UPERF3-HH W-8c] The digit split written straight into a flat i8
+// store (`DigitCols`) — the boxed intermediate (1,064 B/ring vs 128 B
+// flat; W-8(c)'s 35.2 + 11.1 GB level-1 witnesses at 8B) never
 // exists. Ring order and digit values are IDENTICAL to
-// `decompose_polys_modq` / `decompose_polys_small` (the same per-ring
-// split, appended in the same order); every digit is asserted into i8
-// (the deeper-level bases are e <= 7, alphabet |d| <= 64).
-
-/// `decompose_polys_modq` appended into a flat i8 store.
-pub fn decompose_polys_modq_into(zq: &Zq, polys: &[Poly], e: u32, l: usize, out: &mut DigitCols) {
-    let base = out.len();
-    out.resize(base + polys.len() * l);
-    let dst = &mut out.rings_mut()[base * D..];
-    let work = |i: usize, chunk: &mut [i8]| {
-        let digs = decompose_poly_modq(zq, &polys[i], e, l);
-        debug_assert_eq!(digs.len(), l);
-        for (li, dr) in digs.iter().enumerate() {
-            for (o, &x) in chunk[li * D..(li + 1) * D].iter_mut().zip(dr.iter()) {
-                *o = i8::try_from(x).unwrap_or_else(|_| panic!("flat digit store: digit {x} outside i8"));
-            }
-        }
-    };
-    if threads() > 1 && polys.len() >= 8 {
-        pooled(|| {
-            use rayon::prelude::*;
-            dst.par_chunks_mut(l * D).enumerate().for_each(|(i, c)| work(i, c));
-        });
-    } else {
-        dst.chunks_mut(l * D).enumerate().for_each(|(i, c)| work(i, c));
-    }
-}
+// `decompose_polys_small` (the same per-ring split, appended in the
+// same order); every digit is asserted into i8 (the deeper-level
+// bases are e <= 7, alphabet |d| <= 64). The t/h digit families stay
+// boxed at every level (r*kappa*l_t + pairs*l_h rings — KBs).
 
 /// `decompose_polys_small` appended into a flat i8 store.
 pub fn decompose_polys_small_into(polys: &[Vec<i64>], e: u32, l: usize, out: &mut DigitCols) {

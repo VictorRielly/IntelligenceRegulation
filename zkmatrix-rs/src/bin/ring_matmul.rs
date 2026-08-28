@@ -29826,6 +29826,35 @@ fn bg_fold(w: &[Vec<i64>], cs: &[Vec<i64>], plan: &ring::eval_proof::LevelPlan) 
     bg_fold_gen(w, cs, plan)
 }
 
+/// [UPERF3-HH W-8c] `bg_fold_gen` with the digit split written straight
+/// into a flat i8 store — the boxed intermediate never exists. The fold
+/// and the public l_z budget assert are VERBATIM bg_fold_gen's; the
+/// split appends the same digits in the same order
+/// (`decompose_polys_small_into` == `decompose_polys_small` per ring).
+fn bg_fold_into<B: ring::eval_proof::SmallRings + ?Sized>(
+    w: &B,
+    cs: &[Vec<i64>],
+    plan: &ring::eval_proof::LevelPlan,
+    out: &mut ring::eval_proof::DigitCols,
+) {
+    use ring::eval_proof::{decompose_polys_small_into, fold_chunks_ntt_gen};
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_FOLD); // observation only
+    assert!(w.n_rings() >= cs.len() * plan.chunk, "bg_fold: slices not padded to r*chunk");
+    let w_sl: Vec<&B> = (0..cs.len()).map(|j| w.sub(j * plan.chunk, (j + 1) * plan.chunk)).collect();
+    let z_all = fold_chunks_ntt_gen(cs, &w_sl, plan.chunk);
+    let _ts = ring::ct_engine::prof::timer(ring::ct_engine::prof::Q_FOLD_SPLIT); // [UPERF2-Q] observation only
+    let (lo, hi) = ring::digits::representable(plan.e_next, plan.l_z);
+    for z in &z_all {
+        for &zc in z {
+            assert!(
+                (zc as i128) >= lo && (zc as i128) <= hi,
+                "honest fold exceeded the public l_z budget (restart discipline)"
+            );
+        }
+    }
+    decompose_polys_small_into(&z_all, plan.e_next, plan.l_z, out);
+}
+
 /// [UPERF2-F] `bg_fold` generic over the witness store (`SmallRings`: the
 /// flat i8 level-0 witness or the boxed deeper-level witnesses) — the body.
 fn bg_fold_gen<B: ring::eval_proof::SmallRings + ?Sized>(w: &B, cs: &[Vec<i64>], plan: &ring::eval_proof::LevelPlan) -> Vec<Vec<i64>> {
@@ -30012,10 +30041,16 @@ fn bg_prove_group(
     ring::eval_proof::absorb_polys(tr, &format!("bg-ugh0-{}", group.name), &ugh0);
     let (c0, att0) = agg_draw_cs(tr, &format!("bg-c0-{}", group.name), plan0.r);
     tcap_attempts.extend(att0);
-    let zhat0 = bg_fold_gen(w0.rings(), &c0, plan0);
-    let mut w_cur: Vec<Vec<i64>> = zhat0;
-    w_cur.extend(that0.iter().cloned());
-    w_cur.extend(hhat0.iter().cloned());
+    // [UPERF3-HH W-8c] the deeper-level witnesses live in a flat i8
+    // store (W-8(c): 35.2 + 11.1 GB boxed at the 8B level 1 -> 128
+    // B/ring flat; every level base is e <= 7 so |digit| <= 64 —
+    // DigitCols asserts). Same digits in the same order: bg_fold_into
+    // keeps bg_fold_gen's fold + budget assert verbatim and writes the
+    // split straight into the flat store.
+    let mut w_cur = ring::eval_proof::DigitCols::zeros(0);
+    bg_fold_into(w0.rings(), &c0, plan0, &mut w_cur);
+    w_cur.extend_vecs(&that0);
+    w_cur.extend_vecs(&hhat0);
     w0.clear();
     w0.shrink_to_fit();
     phi_cur.truncate(n0);
@@ -30086,11 +30121,11 @@ fn bg_prove_group(
         phi_cur = lt.phi_next;
         h_cur = lt.h_next;
         let plan = &sched.levels[li];
-        w_cur.resize(plan.r * plan.chunk, vec![0i64; D]);
+        w_cur.resize(plan.r * plan.chunk); // [UPERF3-HH W-8c] zero-ring pad, flat store
         phi_cur.resize(plan.r * plan.chunk, poly_zero());
         let a_mat = expand_level_matrix_arc(seed, group.name, li, "A", KAPPA_AGG, plan.chunk, q);
-        let (_tp, that) = bg_matvec_chunks(ctxr, &w_cur[..], plan.r, plan.chunk, &a_mat, plan.e_next, plan.l_t);
-        let (_hp, hhat) = bg_level_h(ctxr, &phi_cur, &w_cur[..], plan);
+        let (_tp, that) = bg_matvec_chunks(ctxr, w_cur.rings(), plan.r, plan.chunk, &a_mat, plan.e_next, plan.l_t);
+        let (_hp, hhat) = bg_level_h(ctxr, &phi_cur, w_cur.rings(), plan);
         let th_len = that.len() + hhat.len();
         let b_mat = expand_level_matrix_arc(seed, group.name, li, "B", KAPPA_AGG, th_len, q);
         let mut th: Vec<Vec<i64>> = that.clone();
@@ -30099,10 +30134,11 @@ fn bg_prove_group(
         ring::eval_proof::absorb_polys(tr, &format!("bg-u{li}-{}", group.name), &u_i);
         let (cs, atts) = agg_draw_cs(tr, &format!("bg-c{li}-{}", group.name), plan.r);
         tcap_attempts.extend(atts);
-        let zhat = bg_fold_gen(&w_cur[..], &cs, plan);
-        let mut w_next = zhat;
-        w_next.extend(that.iter().cloned());
-        w_next.extend(hhat.iter().cloned());
+        // [UPERF3-HH W-8c] fold + split straight into the next flat store.
+        let mut w_next = ring::eval_proof::DigitCols::zeros(0);
+        bg_fold_into(w_cur.rings(), &cs, plan, &mut w_next);
+        w_next.extend_vecs(&that);
+        w_next.extend_vecs(&hhat);
         level_us.push(u_i.clone());
         phi_cur.truncate(layout_prev.n_total.min(phi_cur.len()));
         prev_a = BgA0::Mat(a_mat); // [UPERF3-HH W-8b] deeper levels stay materialized (small)
@@ -30112,6 +30148,10 @@ fn bg_prove_group(
         uf_rss(&format!("bg.{}.level{li}", group.name)); // [UPERF2-F] observation only
     }
     assert_eq!(w_cur.len(), sched.floor_rings, "floor size mismatch vs schedule");
+    // [UPERF3-HH W-8c] the floor witness is a few hundred rings — box it
+    // back for the wire form / the agg_* tier-z helpers (same values).
+    let w_floor: Vec<Vec<i64>> = w_cur.to_vecs();
+    drop(w_cur);
     let (floor, tz) = if tier_z {
         let plan_last = sched.levels.last().unwrap();
         let layout_last = NextLayout::new(plan_last);
@@ -30134,19 +30174,19 @@ fn bg_prove_group(
                 ctxr, kf, group, &mk, &alphas0, &prev_c, plan_last.chunk,
             );
             agg_tier_z_mask_floor_psi(
-                ctxr, &w_cur, plan_last, &layout_last, &prev_bindings_data, &prev_a_mat, &prev_c,
+                ctxr, &w_floor, plan_last, &layout_last, &prev_bindings_data, &prev_a_mat, &prev_c,
                 &psi0, tr, group.name, rng,
             )
         } else {
             phi_cur.resize(plan_last.r * plan_last.chunk, poly_zero());
             agg_tier_z_mask_floor(
-                ctxr, &w_cur, plan_last, &layout_last, &prev_bindings_data, &prev_a_mat, &prev_c,
+                ctxr, &w_floor, plan_last, &layout_last, &prev_bindings_data, &prev_a_mat, &prev_c,
                 &phi_cur, tr, group.name, rng,
             )
         };
         (tzf.response.clone(), Some(tzf))
     } else {
-        (w_cur, None)
+        (w_floor, None)
     };
     let proof = ring::eval_proof::GroupEvalProof {
         u0,
