@@ -19,6 +19,35 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-08-28 (ROUND 5 MERGED; main fast-forwarded; all gates
++ both identity anchors green on the final tree):**
+- **ROUND 5 VERDICTS**: **GG — STAGE A IS INTEGRATED ON THE REAL
+  PASS**: range AND full modes ACCEPT at 3x16 behind the selector
+  (default byte-identical); descent transcript -23x, total -41%;
+  12x128 A/B [CPU NOISY]: bytes 2.15x smaller, wall +15%, RSS 2x
+  at this small shape (full mode OOM = finding F1's face); every
+  claim grounded bit-for-bit; O-4 masked at pass level with real
+  commitment binding. **HH — the W-8 diet landed digest-identical**
+  (RSS -12..-27% at 125M; walls +8-12% as priced): **32x16 8B
+  yardstick ~95 GB (fits 128 GB TODAY); 32x512 ~116 GB without
+  descents** [COUNTED]; spec corrections recorded (CRS stream;
+  the phi_1 omission ~46 GB at 8B = the next diet rung). **II —
+  the S4 redesign memo CLOSED: the composed best case is 1.6-2.5x
+  vs the 5x bar; NO spike S5; the 5-15 s question on this line is
+  CLOSED absent a structurally new idea**
+  (U_PERF3_S4_REDESIGN.md).
+- **RULINGS AWAITING VICTOR (the round-6 opening decisions)**:
+  (1) adopt the fallback headline posture formally (integrated
+  Stage A + route 3, GPU port as multiplier — now the measured
+  recommendation of BOTH round-5 paths); (2) F1 — Stage-A round-1
+  scope: RANGE-ONLY (84/96 cols, silu descents kept; dodges the
+  +25.2M-ring act-h growth) vs full-with-committed-h; (3) F2 —
+  the act-h third-group ordering amendment (the design memo's
+  ordering is circular as written); (4) OQ-2 — the {0,1} alphabet
+  (sign-binary planes prove the two-sided range, not [0, 2^w));
+  (5) EE's q46-aggregate question. The Mac/other-compute queue
+  (T13/T14/T15) is unchanged and ready.
+
 **AS OF 2026-08-27 (round 3 WSL program COMPLETE; lanes
 uperf3-aa/bb/cc pushed):**
 - **RULINGS (Victor, console 2026-08-26/27)**: percol-eZ tried and
