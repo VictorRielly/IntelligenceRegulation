@@ -2456,3 +2456,300 @@ that needs a kernel-gate ruling first — flagged as an open question.
     patch to this spike).
   * Floor at close: diff-battery 15.78 s green; uperf-s digest
     3752cba4.. unchanged.
+
+## Agent GG status (wt-uperf3-gg) — round 5
+
+STATE: DONE (2026-08-28; rungs 0-5 all landed same day: R0 b0f9afd,
+R1 02bce92, R2 ed7fdd7, R3 3aa8ad3, R4 4feb066, R5 = the close
+commit). LANE SUMMARY — Stage A INTO THE REAL PASS: (1) the object
+map reconciles EXACTLY with memo §1.1 at 12x512 (all rows + totals +
+the 31,116 aux rings); (2) the one-family differential on real 3x16
+grounds EVERY served claim on both sides bit-for-bit against the raw
+committed data, tampers reject both ways; (3) the COMPOSED 3x16 pass
+ACCEPTS behind the selector in all three modes (range / full /
+masked) with bk_pass_run untouched (default byte-identical, floors
+green at every commit) — descent transcript 600,960 B -> 26,320 B
+(full) at 3x16; (4) the O-4 mask rides at pass level with the mask
+coefficients REALLY committed (u_0-bound, not the EE stand-in) and 4
+tamper legs reject at named gates; (5) the 12x128 A/B: bytes 2.15x
+smaller, walls par on this CPU build, and the MEMORY hypothesis
+fails honestly — peak 1.9x HIGHER selector-on and full mode OOMs
+the 15 GiB box (the h-commit finding measured). TWO FINDINGS FOR
+THE RULING: (F1) COMMIT GROWTH the memo does not carry — width
+planes must be committed to close the off-table gap (+4.5M rings at
+12x512, +58% act) and the naive h commit at l0_q=16 adds 25.2M
+rings (act n_0 7.85M -> ~37.5M counted; measured as the 12x128 OOM)
+— options: a cheaper h class/side channel, or Stage-A round 1 =
+range-only (84/96 cols, the unambiguous win) with silu descents
+kept; (F2) the memo §2.1/§2.4 h ORDERING IS CIRCULAR (h depends on
+alpha; u_0 is nonlinear — that0 is a digit decomposition) — the
+working amendment implemented here is a THIRD "act-h" group
+committed mid-transcript (one opening per group preserved; the pass
+gains a group). OWNS: NEW ring/stage_a.rs, one line in ring/mod.rs,
+the [UPERF3-GG] bin section + the `uperf-a` dispatch line, this
+status section. Everything else read-only — bk_pass_run, zc_range,
+manifest.rs untouched.
+
+FLOORS at every commit: release build; uperf-pc diff-battery green;
+uperf-s battery digest 3752cba4.. unchanged; uperf-s agg-battery
+digest 46234986.. unchanged; freeze-check 102 ok rows then the
+expected BK panic (WSL box).
+
+PLAN (one commit per green rung, prefix "U-PERF3 GG:"):
+- [x] R0 SKELETON: this section; empty ring/stage_a.rs + its mod
+  line; the `uperf-a` GG dispatch wrapper + [UPERF3-GG] bin section
+  stub (`map` prints not-built).
+- [x] R1 THE OBJECT MAP (no proving): `uperf-a map [layers] [t]` —
+  from the REAL pass structures (bk_pair_specs + the bk_pair_claims
+  shape) at 12x512 and 3x16: every descent-pair family with instance
+  count, depth/dt, the claims it serves to the opening (counted), and
+  its Stage-A replacement instance (zc_agg / LogUp per memo §2.3/2.4).
+  Reconcile against memo §1.1's counted rows; mismatches are FINDINGS.
+- [x] R2 ONE-FAMILY DIFFERENTIAL on real 3x16 (M125_EXPORT_DIR): the
+  simplest rem-w pair proved BOTH ways at fixed seeds — the descent
+  pair (bk_pass_run call sequence, the oracle) and the aggregate
+  zero-check — with every served claim checked bit-for-bit against
+  the raw committed values (the zc_range_open_check pattern on the
+  zc side; the direct part-functional evaluation on the descent
+  side). Exact compared values recorded here.
+- [x] R3 ALL FAMILIES + the composed 3x16 pass behind the selector
+  (own driver in the [UPERF3-GG] section; bk_pass_run untouched):
+  full prove + verify ACCEPT with every descent family replaced;
+  transcript delta recorded (rows/bytes changed — a protocol change
+  by design, selector-only).
+- [x] R4 O-4 masked variant at pass level + tamper legs (flipped
+  mask / tampered claim / tampered round must reject).
+- [x] R5 the A/B walls + /usr/bin/time -v peak RSS, selector on/off,
+  at 12x128 (coordinator-scoped 2026-08-28; 12x512 DEFERRED WITH
+  CAUSE — see the R5 evidence) [WSL-BOX CPU NOISY-SHARED].
+
+OPEN QUESTIONS (conservative readings taken, flagged not guessed):
+- OQ-1 `uperf-a` NAME COLLISION: the brief says "register a uperf-a
+  stub arm", but `uperf-a` has been the [UPERF2-A] descent
+  bench/battery arm since U-PERF2 (uperf_a_main; the design memo
+  §5.3 itself cites `uperf-a descent-bench`). Resolution: the GG
+  wrapper `uperf_a_gg_main` takes the dispatch line (granted to this
+  lane), handles the new Stage-A subcommands, and DELEGATES the
+  legacy subcommands to uperf_a_main verbatim (their stdout
+  unchanged); unknown/no-arg prints both usage lines.
+- OQ-2 RANGE PLANES (transcript-affecting; memo §2.3 subtlety (1)):
+  the pass commits balanced base-2^e0 digits per tensor; a
+  zero-check on THOSE limbs alone cannot close the committable-but-
+  off-table gap (bk_range_violation's leg). The spike/EE-validated
+  form is w width-specific planes under the house sign-binary
+  alphabet (e0 = 1, deg_f 3) — that is what R2/R3 use (committed as
+  new aux tensors under the selector, replacing bk-m/bl/wm/tm).
+  KNOWN GAP carried to the O-3 write-up: sign-binary w planes prove
+  membership in [-(2^w - 1), 2^w - 1], not [0, 2^w) — the {0,1}
+  booleanity alphabet that closes the negative side is the design
+  ruling EE's lane already flagged (bit-granularity commitment).
+  Recorded, not silently widened.
+
+R5 EVIDENCE (2026-08-28, WSL box, CPU build, ~22T default,
+NOISY-SHARED; /usr/bin/time -v peaks; all runs under flock):
+- THE A/B TABLE at 12x128 (same box, same binary, selector off/on):
+
+  | leg | accept | commit | prove | verify | bytes | descent/stage-a B | peak RSS |
+  |---|---|---|---|---|---|---|---|
+  | oracle `table-descent prove 12 128 p0` | TRUE | 13.3s | 94.8s | 5.3s | 1,372,775 | 952,128 (descents) | 4,481 MiB |
+  | `uperf-a pass 12 128 range` | TRUE | 17.5s | 109.4s | 12.0s | 637,691 | 215,888 (2 silu descents 187K + zc 29K) | 8,621 MiB |
+  | `uperf-a pass 12 128 full` | KILLED (signal 9, OOM) at ~2:58 | - | - | - | - | - | 14,777 MiB (box ceiling) |
+
+  Groups at 12x128: weight n_0 3,538,944 both legs; act n_0
+  oracle-reg ~2.36M -> 3,091,604 selector-on (+planes); full mode
+  adds act-h n_0 6,291,456 (2x the act group) — the OOM driver.
+- VERDICT (honest, ruling-grade): (i) BYTES: 2.15x smaller
+  selector-on (descent transcript 952 KB -> 216 KB, of which 187 KB
+  is the two KEPT silu descents — the range replacement itself is
+  ~45x on its share). (ii) WALLS: roughly par on this CPU build
+  (the zc E_4 prototype kernels + the +29% act opening offset the
+  descent savings — consistent with the spike's kernel-quality
+  caveat; the counted win needs DD-class kernels and/or the GPU
+  path). (iii) MEMORY: the rung's hypothesis ("the descent-pair
+  memory vanishes from the peak") FAILS at this shape with the
+  naive layouts — peak 1.9x HIGHER selector-on: at t=128 the trees
+  were only ~a few hundred MB while the Stage-A side pays the
+  planes witness + act growth + zc table residency; and full mode
+  OOMs the 15 GiB box outright (the act-h group alone is 2x act —
+  the R1 h-commit finding now MEASURED at pass level).
+- 12x512 DEFERRED WITH CAUSE: range-mode projection from the
+  measured 12x128 peak (act 12.4M rings = 4x, claim tables 4x,
+  nrw-88 zc transient ~5 GB) lands >= the 15 GiB box under
+  NOISY-SHARED; full mode is excluded by the measured 12x128 OOM.
+  Prerequisites named: lane HH's diet on the shared phases + a
+  ruling on the h/planes commitment layout (R1 finding). The
+  descent side's 12x512 CPU baseline also untaken (same box
+  courtesy). No number faked; the counted deltas are in R1.
+- floors: diff-battery 15.38s green; 3752cba4.. / 46234986..
+  unchanged; freeze-check passed.
+
+R4 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED):
+- The O-4 masked variant AT PASS LEVEL (`uperf-a pass 3 16 masked`,
+  ACCEPT TRUE): per range class a private ZcAggMask (EE's M1 g-mask
+  in E_4, deg 4) drawn from ProverRng, its coefficients COMMITTED
+  as an act tensor (zca-mk-*, K-coord rows at the blinder class,
+  rows padded to the value-ring grid) — mask-then-fold holds via
+  u_0(T_act) inside h0, so EE's commit_absorb stand-in is replaced
+  by the REAL commitment binding; the prover runs
+  zc_agg_prove_masked and serves G + g_m(x*); the verifier runs
+  stage_a::zc_agg_verify_masked_served (REIMPLEMENTED in
+  stage_a.rs: zc_range's zc_agg_verify_masked pins against a
+  verifier-held mask copy — at pass level the mask is private, so
+  the two pins become OPENING CLAIMS over the committed mask
+  tensor: hypersum = [2^n, 2^(n-1)..] weights, final = [1,
+  x*_t^(d+1)..] weights — the bk mask_claims idiom carried to the
+  aggregate; zc_range untouched per the ownership rule). +16 mask
+  claims at 3x16 (2 per class x 8 classes), 427 claims total,
+  bytes 526,090 (vs 525,834 unmasked — the two served E-values per
+  class).
+- Tamper battery (`uperf-a pass-battery 3 16`): masked honest
+  ACCEPT + 4 REJECTS, each at a NAMED gate: mask-served (flipped
+  served g_m(x*)) -> zc-agg:nrw-88 (the masked final identity);
+  mask-commit (flipped COMMITTED mask coefficient, ct rows forced
+  — the BD WrongC shape) -> floor-target (the act group's floor
+  chain); claim (flipped stacked claim) -> zc-agg:nrw-88
+  (recombination/final identity); round (flipped round-poly node)
+  -> zc-agg:nrw-88 (the round chain). All asserted.
+- Regression: range + full modes re-run, both still ACCEPT
+  (525,834 / 584,786 B unchanged).
+- floors: diff-battery 15.43s green; 3752cba4.. / 46234986..
+  unchanged; freeze-check passed.
+
+R3 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED):
+- The selector: `uperf-a pass [layers] [t] [range|full]` — an OWN
+  composed driver in the [UPERF3-GG] section mirroring bk_pass_run
+  (claim layer / publics / nu-assembly / group proofs verbatim
+  reuse); bk_pass_run itself untouched, so the DEFAULT path is
+  byte-identical by construction (floors below). Own transcript
+  domain "uperf3-gg-pass" + own h0 (statement digest + gg map bytes
+  binding ALL group inventories + both u_0s).
+- cmd: `uperf-a pass 3 16 range` — ACCEPT TRUE (full prove +
+  verify): the 7 range/narrowing families at 3x16 replaced by
+  zc_agg aggregates over committed width-w bit-plane tensors
+  (strided member layout r*cols_pad + c — the descent tree's own
+  alignment, so the rem claim lands on the MEMBER tensor as
+  to_k(cc[i][w]) - offset*S_eq); silu pairs keep the frozen
+  descents; NO stand-ins — every Stage-A claim grounds through the
+  act opening (bg_prove_group's honest-ct row assert is the gate
+  and it holds). DELTA: descent pairs 600,960 B -> 141,264 B (the
+  remaining 128,000 B is the two silu descents; the range share
+  473 KB -> 13.3 KB); total 985,142 -> 525,834 B; act n_0 79,477
+  -> 102,276 (+29%, the committed planes).
+- cmd: `uperf-a pass 3 16 full` — ACCEPT TRUE with EVERY descent
+  family replaced: descent pairs 600,960 B -> Stage-A 26,320 B
+  (22.8x), total 985,142 -> 584,786 B; claims served 1,140-ish
+  descent-derived -> 231 (225 act/weight + 6 act-h). THE THIRD
+  GROUP: h cannot ride u_0(T_act) (h depends on alpha; u_0 is
+  NONLINEAR in the witness — that0 is a digit decomposition — so
+  the memo §2.1/§2.4 ordering is CIRCULAR; finding). Resolution
+  implemented: an "act-h" commitment group committed
+  mid-transcript (u_0(T_h) absorbed after the silu alphas, before
+  any rho — mask-then-fold holds), served by its own single
+  opening (E-O2-BB preserved per group; the PASS gains a third
+  group + 173,896 B of opening bytes; act-h n_0 196,608 rings at
+  3x16 — the R1 h-cost finding in composed form: the h GROUP is
+  2x the act group itself). Walls (NOISY-SHARED, small shape):
+  range mode prove 12.4s == oracle 12.4s; full mode 20.8s (the
+  act-h opening dominates at this scale — h-class cost, not
+  sumcheck cost).
+- Serving forms pinned by the driver (the new transcript rows):
+  planes claims (block row kernel x eq_lo at r_col over the
+  planes tensor), member rem claims (to_k(cc)-offset*S_eq), LogUp
+  h_sum/h(x*) claims (act-h, ones/eq kernels x ypow), key(x*)
+  claims (prim + Y-scaled image member parts), table_sum claims
+  (inv(alpha-t_j) weights over the per-column m block), stacked
+  zc claims + LogUp finals/served values absorbed before the nus
+  (CRB-N5 kept).
+- floors: diff-battery 15.33s green; 3752cba4.. / 46234986..
+  unchanged; freeze-check passed (default path byte-identical).
+
+R2 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED):
+- cmd: `uperf-a diff rem-w6 3 16 205` (also run: nrw-88 — the
+  multi-tree + pad shape; nrw-z — the nd padded-2^14 shape). ALL
+  LEGS GREEN on each.
+- EXACTLY WHICH VALUES ARE COMPARED (the differential's contract):
+  (a) DESCENT ORACLE (bk_pass_run's per-pair call sequence verbatim:
+  alpha = first challenge, bk_build_aux blinders/masks/counts,
+  bk_tree_slots -> aligned_witness_tree + blinded_table_tree,
+  masked_gkr_prove both sides, the PASS-form verify — zero-mask
+  shells, no pins — + root cross-checks + transcript parity, claims
+  rebuilt by bk_pair_claims from the VERIFIER's re-derived
+  endpoints): every served claim is grounded by the eval-proof
+  STAND-IN — claim.value == sum_parts(scale x row^T M col) evaluated
+  directly on the raw committed grids (member tensors via
+  bf_entry_values, m/bl/wm/tm via the bk_build_aux value vectors),
+  EXACT K-field equality, 88/88 claims (rem-w6; 96/96 nrw-88, 92/92
+  nrw-z). (b) ZC LEG ([UPERF3-EE] zc_agg_prove/verify at E_4, e0=1,
+  one aggregate per shape class, w bit planes per member column
+  built by stage_a::range_planes from the SAME bf_entry_values
+  arrays — shared committed-code digest printed): every served
+  stacked claim col_claims[i][k] == base_mle_eval(plane_k | rem,
+  r_col) BIT-FOR-BIT (7/7 rem-w6 m=1; 54/54 nrw-88 m=6 a=3; 27/27
+  nrw-z m=3 a=2), verify green, prover/verifier transcript parity.
+  The two legs serve DIFFERENT claim forms at different points by
+  design (the EE lane's FS note); the common ground is the raw
+  committed data both sides are checked against, byte-identical by
+  the shared code digest.
+- Tamper mini-legs (the BK RangeViolation shape, +2^w at one code):
+  descent REJECTS at the root cross-check (mass mismatch); zc
+  truncated-plane cheat REJECTS at zc_agg_verify (recomposition
+  breaks — the top bit cannot be presented). Both asserted.
+- Walls (informational, NOISY-SHARED): rem-w6 zc prove 0.02s vs
+  descent trees+prove 0.09s; nrw-88 0.19s vs 0.29s; peak RSS
+  267-313 MiB.
+- floors: diff-battery 15.64s green; 3752cba4.. / 46234986..
+  unchanged; freeze-check passed.
+
+R1 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED; structure-only, no
+proving, no walls):
+- cmd: `uperf-a map 12 512` (M125_EXPORT_DIR set) — the OBJECT-MAP
+  VERDICT: **memo §1.1 reconciliation ALL ROWS MATCH** (per pair:
+  member cols / real trees / l / pads / wit depth / tab dt / derived
+  B, engine-derived from bk_pair_specs + plan_pair_trees +
+  pair_expected_bytes; totals 96 cols / 45 trees / 57 l (12 pads) /
+  1,083,456 B exactly). Retired aux ring count 31,116 == memo §1.3's
+  "aux 31,116 = 0.40%" row. Claims served today (counted from the
+  bk_pair_claims structure, per pair 2(D-1)+2(D-2) mask opens per
+  side + wp/wq/tp/tq): 1,140 claims at 12x512, 856 at 3x16.
+- cmd: `uperf-a map 3 16` — the 3x16 inventory: 9 pairs live (rem-w5
+  ABSENT at 3 layers), 24 member cols, 14 real trees; rem-w6..w10
+  and both nrw pairs present; rem-w8 is a MIXED-SHAPE pair (nf 2^15
+  + nd padded 2^14 members) -> the Stage-A schedule gives one
+  zc_agg per (pair, shape class): 10 range aggregates + 3 SiLU
+  LogUp columns at 3x16 (14 aggregates + 12 LogUp cols at 12x512).
+- Stage-A replacement schedule (printed as the table): range pairs
+  -> ZC-AGG (e0=1 sign-binary planes, w = t_rows.log2, instance
+  axis a = ceil(log2 m)); silu pairs -> LogUp h+m (Had prover) per
+  member column. Served-claim swap 1,140 -> 761 MLE claims at
+  12x512 (199 at 3x16).
+- FINDING (ruling-grade input, quantifies memo §5.1's "wash" risk):
+  the commit-side growth the memo's "range facts commit nothing
+  new" line does NOT carry for the q31 pass. (a) Closing the
+  committable-but-off-table gap (the BK RangeViolation gate)
+  requires committing width-w planes — the already-committed
+  balanced base-2^e0 limbs of the remainder tensors CANNOT close
+  it (any value in the gap has valid house digits). Counted cost:
+  +4.52M digit rings at 12x512 (+58% of act n_0 7.85M). (b) The
+  SiLU helper h's K coordinates commit at the blinder class
+  (e0=2, l0_q=16): +25.2M digit rings at 12x512 — the naive h
+  commit alone TRIPLES the act group. Together n_0 7.85M ->
+  ~37.5M [COUNTED approx]. Options for the ruling (not taken
+  here): a cheaper committed class/side channel for h; or Stage-A
+  round 1 replacing only the 8 range pairs (84/96 cols, the
+  memo's own fulcrum) and keeping the 2 SiLU descents. Rungs 2-4
+  proceed at 3x16 where the volumes are small (+0.23M rings)
+  and the composed-pass evidence is unaffected.
+- floors: diff-battery 16.65s green; uperf-s digest 3752cba4..
+  unchanged; agg digest 46234986.. unchanged; freeze-check passed
+  (BK rows stable with the WSL export).
+
+R0 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED):
+- cmd: release build green; `uperf-a map` prints the stub; legacy
+  `uperf-a` (no args / descent-*) delegates with its usage intact.
+- floors: uperf-pc diff-battery green (O1 4/4, O2 35/35, O3 63/63,
+  O5 12/12, E2E 2/2, 15.01 s); uperf-s battery 48 legs digest
+  3752cba4.. unchanged; agg-battery 136 legs digest 46234986..
+  unchanged; freeze-check WITH M125_EXPORT_DIR: 102 ok rows AND the
+  BK rows stable ("freeze-check passed" — no panic with the WSL
+  export present; the brief's expected-panic form is the no-export
+  invocation).
