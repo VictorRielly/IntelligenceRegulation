@@ -54,16 +54,41 @@ uperf3-aa/bb/cc pushed):**
   smoothness must be INDUCED; proof-side delta/K-anchor commitment
   compression once a smooth checkpoint exists — frugal-lm side
   experiment, separate sessions).
-- **ROUND 4 OPENED (2026-08-27, Victor console): STAGE A BUILD
-  while the Mac is busy** — lanes DD (the production E_c kernel:
-  the ~8x AVX2 gap is THE wall risk), EE (the aggregate zero-check
-  + the O-4 mask transfer), FF (spike S4: the sqrt front end on
-  the real rig — the headline de-risk, §4.2 acceptance verbatim).
-  Briefs in PROGRESS_UPERF3.md "ROUND 4". All additive behind
-  uperf-s/uperf-t selectors; the frozen pass is the oracle; the
-  48-leg battery digest 3752cba4.. + diff-battery + freeze-check
-  are the floor. Grok: rounds 3-4 lanes remain OFF-LIMITS (Section
-  0 rules unchanged).
+- **ROUNDS 3 AND 4 ARE MERGED (2026-08-28) — main is
+  FAST-FORWARDED to the merged tree.** Gates on the final tree ALL
+  GREEN: diff-battery, freeze-check 102 ok rows, the 48-leg digest
+  3752cba4.. UNCHANGED with lanes DD+EE+FF's code live, uperf-w
+  23/23, EE's agg-battery 136 legs digest 4623..., v3 smoke +
+  chain-m125 12/12, the uperf-t planner arm.
+- **ROUND 4 VERDICTS**: DD — the E_c kernels took the zero-check
+  from the spike's 1.6x to 2.7x wall vs the descents (AVX2,
+  transcript-invariant). EE — the aggregate: rounds 13.3x, wire
+  6.6x, MAC-NEUTRAL (structural win); O-4 mask landed. **FF —
+  spike S4 is a MEASURED NO-GO on 2 of 4 criteria** (prove-group-
+  equivalent 1.1x at 1T / 0.6x at 7T vs the required >= 5x;
+  tt_verify 3.9-4.7 s vs sub-second; cause: the memo modeled ~19K
+  w-only recursion rings, the real tier-2 input is u-digit-
+  dominated at 1.65M). Claims equality and the 8B planner gate
+  were GO. **AWAITING VICTOR (ruling-grade per the memo's own
+  text): accept the fallback headline posture (Stage A + (iii) +
+  route 3, ~100-160 s/board) or commission a redesigned front
+  end.** Stage A proper is unaffected and validated.
+- **NEW MAC TASK T15 (after T13; Grok-format, KIND=RUN)**: the
+  real-checkpoint v3 rungs on the Mac (the bins are WSL-local;
+  the Mac re-exports from its own checkpoints): (1) after T12's
+  download: `python3 scripts/m8b_export_ffn.py --profile v3
+  --margins results/m8b_margins_mistral_wsl.json` per the script
+  header, into results/m8b_mistral_v3_export_mac; digests must
+  MATCH the committed WSL sidecar rows; (2) after T13: the same
+  via `python3 scripts/m8b_gemma4_walker.py --export-v3 ...
+  --margins results/m8b_margins_gemma_percol_mz0_wsl.json --text
+  <fineweb sample>`; (3) `ZK_MODEL_EXPORT_DIR=<export>
+  zkmatrix-rs/target/release/ring_matmul uperf-v3 verify-export`
+  (expect PASSED, 128/192 plane legs); (4) THE PROOF RUNG:
+  `ZK_MODEL_EXPORT_DIR=<mistral export> ring_matmul uperf-v3
+  e2e-m125 0 16 1` — needs > 15 GB RSS (measured OOM on the WSL
+  box; the Mac's 256 GB holds it); paste accept/wall/RSS. STOP and
+  paste on any digest mismatch — a mismatch is the finding.
 - **NEW STANDING PROTOCOL (CLAUDE.md "Heavy runs: detach, queue,
   marker"):** heavy runs launch `setsid nohup` under
   `flock /tmp/zk-heavy.lock` with a `.done` exit-code marker, and
