@@ -29639,12 +29639,32 @@ fn bg_act_snapshot(p: &ring::eval_proof::GroupEvalProof) -> Vec<u8> {
 struct BgPre {
     u0: Vec<Poly>,
     that0: Vec<Vec<i64>>,
-    a0_mat: std::sync::Arc<Vec<Poly>>,  // [UPERF2-F] the CRS memo's handle (no clone)
+    a0: BgA0,                           // [UPERF3-HH W-8b] streamed or materialized
     b0u_mat: std::sync::Arc<Vec<Poly>>, // [UPERF2-F]
     r0: usize,
     chunk0: usize,
     e_t0: u32,
     l_t0: usize,
+}
+
+/// [UPERF3-HH W-8b] The level-0 CRS handle: the column-block stream
+/// (never materialized — W-8(b)'s 64.4 + 30.4 GB at 8B) or the
+/// materialized Arc (oracle mode, ZK_A0_BLOCK=0, or schedules with
+/// < 2 levels, where A_0 must survive to the floor / tier-z sigma).
+enum BgA0 {
+    Mat(std::sync::Arc<Vec<Poly>>),
+    Stream(ring::eval_proof::CrsColStream),
+}
+
+/// [UPERF3-HH W-8b] Column-block width for the streamed level-0 CRS.
+/// `ZK_A0_BLOCK=<cols>` overrides; `0` disables streaming (the
+/// materialized fallback). Default 8192 columns (~96 MB of boxed rings
+/// per resident block at kappa 11). Read once.
+fn bg_a0_block_cols() -> usize {
+    static BLOCK: std::sync::LazyLock<usize> = std::sync::LazyLock::new(|| {
+        std::env::var("ZK_A0_BLOCK").ok().and_then(|v| v.parse::<usize>().ok()).unwrap_or(8192)
+    });
+    *BLOCK
 }
 
 /// [UPERF2-F] generic over the witness store (`SmallRings`: the flat i8
@@ -29672,6 +29692,50 @@ fn bg_matvec_chunks<B: ring::eval_proof::SmallRings + ?Sized>(
     (t_polys, that)
 }
 
+/// [UPERF3-HH W-8b] `bg_matvec_chunks` with the level-0 CRS matrix
+/// streamed per column block — never materialized. Identical values:
+/// t[j][kap] is a mod-q sum of EXACT integer window sums (the GEMM's
+/// contract), so any column partition accumulates (poly_add mod q) to
+/// the same canonical rings; the digit split then runs on the same
+/// values. Returns only `that` (both call sites discard t_polys).
+fn bg_matvec_chunks_stream<B: ring::eval_proof::SmallRings + ?Sized>(
+    ctxr: &RingCtx,
+    w: &B,
+    r: usize,
+    chunk: usize,
+    a: &ring::eval_proof::CrsColStream,
+    e_t: u32,
+    l_t: usize,
+    block_cols: usize,
+) -> Vec<Vec<i64>> {
+    use ring::eval_proof::{decompose_polys_modq, matvec_modq_small_multi_gen, KAPPA_AGG};
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_MATVEC_CHUNKS);
+    let zq = &ctxr.zq;
+    assert!(block_cols > 0, "block_cols must be positive");
+    assert!(a.n_rows() == KAPPA_AGG && a.n_cols() >= chunk, "A_0 is kappa x chunk");
+    let mut t_polys: Vec<Vec<Poly>> = vec![vec![poly_zero(); KAPPA_AGG]; r];
+    let mut c0 = 0usize;
+    while c0 < chunk {
+        let c1 = (c0 + block_cols).min(chunk);
+        let bc = c1 - c0;
+        let a_blk = a.cols(c0, c1); // KAPPA_AGG x bc, row-major
+        let s_list: Vec<&B> = (0..r).map(|j| w.sub(j * chunk + c0, j * chunk + c1)).collect();
+        let part = matvec_modq_small_multi_gen(ctxr, &a_blk, KAPPA_AGG, bc, &s_list);
+        for (tj, pj) in t_polys.iter_mut().zip(part.iter()) {
+            for (tk, pk) in tj.iter_mut().zip(pj.iter()) {
+                *tk = poly_add(zq, tk, pk);
+            }
+        }
+        c0 = c1;
+    }
+    // [UPERF2-C] digit split per ring in parallel (order preserved).
+    let mut that = Vec::with_capacity(r * KAPPA_AGG * l_t);
+    for tj in &t_polys {
+        that.extend(decompose_polys_modq(zq, tj, e_t, l_t));
+    }
+    that
+}
+
 fn bg_precommit(
     ctxr: &RingCtx,
     group: &ring::eval_proof::AggGroup,
@@ -29679,7 +29743,7 @@ fn bg_precommit(
     w0: &mut ring::eval_proof::DigitCols, // [UPERF2-F] the flat i8 level-0 witness
     seed: u64,
 ) -> BgPre {
-    use ring::eval_proof::{expand_level_matrix_arc, matvec_modq_small, KAPPA_AGG};
+    use ring::eval_proof::{expand_level_matrix_arc, matvec_modq_small, CrsColStream, KAPPA_AGG};
     let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::D_PRECOMMIT); // [UPERF2-D] observation only
     let q = ctxr.zq.q;
     let (r0, chunk0, e_t0, l_t0) = match sched.levels.first() {
@@ -29687,11 +29751,23 @@ fn bg_precommit(
         None => (1, group.n_digit_rings, AGG_E_DEG, agg_l_t_deg(q)),
     };
     w0.resize(r0 * chunk0);
-    let a0_mat = expand_level_matrix_arc(seed, group.name, 0, "A", KAPPA_AGG, chunk0, q); // [UPERF2-F] Arc handle
-    let (_t0, that0) = bg_matvec_chunks(ctxr, w0.rings(), r0, chunk0, &a0_mat, e_t0, l_t0);
+    // [UPERF3-HH W-8b] the level-0 A is streamed per column block by
+    // default (values identical — see bg_matvec_chunks_stream /
+    // transport_level_from_psi_cols); the materialized Arc path stays
+    // for oracle mode, ZK_A0_BLOCK=0 and short (< 2 level) schedules
+    // whose floor / tier-z sigma reads A_0 whole.
+    let (a0, that0) = if bg_a0_block_cols() > 0 && !ring::eval_proof::oracle_mode() && sched.levels.len() >= 2 {
+        let s = CrsColStream::new(seed, group.name, 0, "A", KAPPA_AGG, chunk0, q);
+        let that0 = bg_matvec_chunks_stream(ctxr, w0.rings(), r0, chunk0, &s, e_t0, l_t0, bg_a0_block_cols());
+        (BgA0::Stream(s), that0)
+    } else {
+        let a0_mat = expand_level_matrix_arc(seed, group.name, 0, "A", KAPPA_AGG, chunk0, q); // [UPERF2-F] Arc handle
+        let (_t0, that0) = bg_matvec_chunks(ctxr, w0.rings(), r0, chunk0, &a0_mat, e_t0, l_t0);
+        (BgA0::Mat(a0_mat), that0)
+    };
     let b0u_mat = expand_level_matrix_arc(seed, group.name, 0, "Bu", KAPPA_AGG, that0.len(), q);
     let u0 = matvec_modq_small(ctxr, &b0u_mat, KAPPA_AGG, that0.len(), &that0);
-    BgPre { u0, that0, a0_mat, b0u_mat, r0, chunk0, e_t0, l_t0 }
+    BgPre { u0, that0, a0, b0u_mat, r0, chunk0, e_t0, l_t0 }
 }
 
 /// h cross-garbage over padded slices (phi padded by the caller).
@@ -29902,7 +29978,7 @@ fn bg_prove_group(
     };
     uf_rss(&format!("bg.{}.phi-pass", group.name)); // [UPERF2-F] observation only
 
-    let BgPre { u0, that0, a0_mat, b0u_mat, r0, chunk0, e_t0, l_t0 } = pre;
+    let BgPre { u0, that0, a0, b0u_mat, r0, chunk0, e_t0, l_t0 } = pre;
     let mut tcap_attempts: Vec<u32> = Vec::new();
 
     if sched.levels.is_empty() {
@@ -29951,7 +30027,10 @@ fn bg_prove_group(
     uf_trim();
     uf_rss(&format!("bg.{}.level0-fold", group.name)); // [UPERF2-F] observation only
 
-    let mut prev_a_mat: Arc<Vec<Poly>> = a0_mat;
+    // [UPERF3-HH W-8b] the level-0 A handle may be the column-block
+    // stream (never materialized); deeper levels' A matrices are small
+    // and stay materialized (`BgA0::Mat`).
+    let mut prev_a: BgA0 = a0;
     let mut prev_bindings_data: Vec<(Arc<Vec<Poly>>, usize, usize, Vec<Poly>)> = vec![
         (b0u_mat, 0, that0.len(), u0.clone()),
         (b0h_mat, that0.len(), hhat0.len(), ugh0.clone()),
@@ -29977,13 +30056,29 @@ fn bg_prove_group(
                 let psi0 = ring::eval_proof::psi_level0_factored_multi(
                     ctxr, kf, group, &mk, &alphas0, &prev_c, plan_prev.chunk,
                 );
-                transport_level_from_psi(
-                    ctxr, &psi0, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings, &prev_c,
-                    &alphas,
-                )
+                match &prev_a {
+                    // [UPERF3-HH W-8b] the level-1 transport consumes
+                    // A_0 per column block (byte-identical outputs —
+                    // the fast body is the oracle).
+                    BgA0::Stream(s) => ring::eval_proof::transport_level_from_psi_cols(
+                        ctxr, &psi0, &h_cur, plan_prev, &layout_prev, s, &bindings, &prev_c,
+                        &alphas, bg_a0_block_cols(),
+                    ),
+                    BgA0::Mat(m) => transport_level_from_psi(
+                        ctxr, &psi0, &h_cur, plan_prev, &layout_prev, m, &bindings, &prev_c,
+                        &alphas,
+                    ),
+                }
             } else {
+                let m = match &prev_a {
+                    BgA0::Mat(m) => m,
+                    // materialized-phi transports only run in oracle
+                    // mode (li == 1) or at li >= 2 — both Mat by the
+                    // bg_precommit guard / the loop reassignment.
+                    BgA0::Stream(_) => unreachable!("materialized-phi transport with streamed A_0"),
+                };
                 transport_level(
-                    ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings, &prev_c,
+                    ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, m, &bindings, &prev_c,
                     &alphas,
                 )
             }
@@ -30010,7 +30105,7 @@ fn bg_prove_group(
         w_next.extend(hhat.iter().cloned());
         level_us.push(u_i.clone());
         phi_cur.truncate(layout_prev.n_total.min(phi_cur.len()));
-        prev_a_mat = a_mat;
+        prev_a = BgA0::Mat(a_mat); // [UPERF3-HH W-8b] deeper levels stay materialized (small)
         prev_bindings_data = vec![(b_mat, 0, th_len, u_i)];
         prev_c = cs;
         w_cur = w_next;
@@ -30020,6 +30115,14 @@ fn bg_prove_group(
     let (floor, tz) = if tier_z {
         let plan_last = sched.levels.last().unwrap();
         let layout_last = NextLayout::new(plan_last);
+        // [UPERF3-HH W-8b] the floor sigma reads the LAST level's A —
+        // materialized for every schedule the stream mode admits
+        // (bg_precommit streams only when levels >= 2, and the loop
+        // reassigns Mat at every deeper level).
+        let prev_a_mat: &[Poly] = match &prev_a {
+            BgA0::Mat(m) => m.as_slice(),
+            BgA0::Stream(_) => unreachable!("tier-z floor with streamed A_0 (guarded off at bg_precommit)"),
+        };
         // [UPERF2-F] the last level's (small) bindings as owned matrices for
         // the agg_* Tier-Z helpers (their signature; a few MB at the floor).
         let prev_bindings_data: Vec<(Vec<Poly>, usize, usize, Vec<Poly>)> =

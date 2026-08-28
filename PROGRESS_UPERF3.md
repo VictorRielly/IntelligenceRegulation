@@ -2550,3 +2550,47 @@ the RangeViolation / WrongTable tamper legs).
   per-member layer stream (not this lane). Verify-side cost: one
   extra layer load + chain derivation (wall-neutral at these
   shapes: 23.4 s vs 24.1 s fp12x64, within run noise).
+
+RUNG 2 — W-8(b) LANDED (2026-08-28): the level-0 CRS matrices A_0
+are STREAMED per column block, never materialized. New additive
+eval_proof.rs machinery: `CrsColStream` (the counting pass over the
+SHA-256-counter stream -> a prefix table of accepted words per
+8K-word block; `cols(c0, c1)` regenerates exactly the SHA counter
+range covering a block and resumes the rejection walk with a skip —
+the SAME accepted words in the SAME order as expand_level_matrix_raw)
+and `transport_level_from_psi_cols` (the fast transport body with
+the per-column-independent S combine assembled block by block; the
+fast body is its oracle). Bin side: `bg_matvec_chunks_stream` (the
+t = A_0 w GEMM per column block, mod-q accumulation of exact window
+sums — identical canonical rings by the GEMM contract), `BgA0`
+(Mat|Stream) in `BgPre`, and the level-1 transport dispatch.
+Defaults: ON at 8192 cols (`ZK_A0_BLOCK`, 0 = materialized
+fallback); guarded OFF in oracle mode and for < 2-level schedules
+(their floor / tier-z sigma reads A_0 whole). Deeper levels' A stay
+materialized (small).
+  ORACLE CHECK: `ZK_A0_CHECK=1` full-matrix compare of the stream
+  against expand_level_matrix_raw at construction — run at 3x16,
+  PASSED on both groups' A_0 (a0check leg, exit 0, digests
+  unchanged). This also validated the one spec correction recorded
+  at rung 0: blocks are resumable, not independently re-keyable.
+  ACCEPT: all five identity anchors BYTE-IDENTICAL (93a98700 /
+  0ae9cdae; 45fb3405; 80763ea5 / 63f4a3a4); floors green
+  (diff-battery 0; freeze 102 ok + expected export panic; uperf-s
+  3752cba4).
+  RSS delta [MEASURED, NOISY-SHARED, vs rung-1 tree]:
+    fp3x16   1,125,344 -> 1,093,432 KB  (-31 MB)
+    pa12x64  2,968,436 -> 2,616,568 KB  (-344 MB, -11.9%)
+    fp12x64  3,091,152 -> 2,834,316 KB  (-251 MB, -8.3%)
+  (the 12-layer weight A_0 is ~647 MB boxed; the process still
+  re-expands A_0 WHOLE once in the VERIFY phase — bg_verify_group's
+  level-0 expand_level_matrix_arc is not a named W-8 site, recorded
+  as an open item below — so the prover-phase saving, not the full
+  A_0, is what the process high-water mark can show at these
+  shapes.)
+  WALL delta [MEASURED, honest]: fp3x16 6.0 -> 6.2 s; pa12x64
+  18.6 -> 19.7 s (+6%); fp12x64 24.1 -> 25.5 s (+6%) — the W-8
+  row's "expansion paid ~3x" showing up as ~1-1.5 s at these
+  shapes (the counting pass + one regeneration sweep per consumer).
+  NOTE: the [UPERF3-HH W-8c] flat-store helpers
+  (decompose_polys_*_into, DigitCols::extend_vecs) ride this commit
+  INERT in eval_proof.rs (no caller until rung 3) — additive only.
