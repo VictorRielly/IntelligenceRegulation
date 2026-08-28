@@ -682,6 +682,61 @@ sub-second at the spike shape; the 8B two-tier planner gate green
 fallback is recorded and the headline stays out of reach on this
 line (a ruling-grade fact either way).
 
+## ROUND 5 — STAGE A INTO THE REAL PASS + THE HEADLINE REDESIGN
+## (opened 2026-08-28; Victor console: "try options 1 and 2 in
+## parallel in two separate paths — worth trying to make it work but
+## also important to keep moving forward")
+
+Ground: rounds 3+4 merged, main fast-forwarded, all gates green.
+Components validated: the E_c kernels (DD, 2.7x wall), the aggregate
+zero-check + O-4 mask (EE, 13.3x rounds MAC-neutral), the S2 LogUp
+(lane S), and the S4 verdict (FF: sound but slow as specified —
+u-digit domination). The frozen pass remains the oracle; floors at
+every commit: diff-battery, freeze-check 102 ok rows, uperf-s digest
+3752cba4.., agg digest 4623..96, uperf-w 23/23.
+
+### Lane GG — Stage A integration (wt-uperf3-gg) — RUST (the descent replacement in the real pass)
+OWNS: NEW ring/stage_a.rs + a `uperf-a` bin section (+ its dispatch
+line), read-only reuse of zc_range/ec_kernel/eval_proof/the pass
+code; "Agent GG status". SPEC: U_PERF3_OPENING_LAYER_DESIGN.md §2
+(2.2 batched sumchecks, 2.3 range facts, 2.4 the SiLU lookup, 2.5
+the lattice opening, 2.6 soundness/O-obligations) — implement THE
+MEMO on the real pass behind a selector, the frozen pass as oracle.
+RUNGS: (0) skeleton; (1) THE OBJECT MAP (no proving): enumerate
+every descent-pair family of the 12x512 pass and its Stage-A
+replacement instance — a printed table; (2) ONE family differential
+on real 3x16 (the zero-check serves the SAME claims to the opening
+the descent served — S1's open-check is the stand-in pattern); (3)
+all families, the composed 3x16 behind the selector: accept + the
+recorded transcript delta; (4) O-4 masked + tamper battery; (5)
+12x512 wall + peak RSS (the descent-pair memory should VANISH —
+the 128 GB milestone's first half).
+
+### Lane HH — the W-8(b)(c)(a) memory diet (wt-uperf3-hh) — RUST
+OWNS: the named W-8 sites in the bin + eval_proof.rs additive
+helpers; "Agent HH status". SPEC: U_PERF3_MVP8B_SCALING.md's W-8
+row VERBATIM: (a) drop `lays` before the group proofs / int8-class
+storage; (b) A_0 expanded per column block inside its three
+consumers (the CRS is seed-expanded; ~25 s per full 8B expansion
+[MODEL], paid ~3x); (c) flat i8/i16 deeper-witness store
+(DigitCols exists). ACCEPT: statement + EVAL-PROOF digests
+IDENTICAL at 3x16 and 12x64 (M125_EXPORT_DIR local bins);
+/usr/bin/time -v RSS before/after per fix; floors green. The
+target row: 12x512 under 14 GB CPU-side (T9's old goal) and the
+counted 8B projection under 128 GB WITH lane GG (the milestone's
+second half).
+
+### Lane II — the sqrt front-end REDESIGN memo (orchestrator) — DESIGN
+The S4 verdict's cause (u-digit recursion input 1.65M rings vs the
+memo's ~19K) is specific enough to attack on paper. Memo:
+docs/zkmatrix-poc/U_PERF3_S4_REDESIGN.md — the redesign space
+(recursed u/v serving per FF's V-recursed planner row; u-digits
+folded into lane EE's aggregate zero-check — they are range-shaped;
+alternative tier geometries), each with COUNTS against the measured
+S4 baseline, and the explicit bar a design must clear on paper
+before any spike (>= 5x prove-group-equivalent at 2^22 in counted
+form). No code. Victor rules on the winner (or none).
+
 ## Agent status sections (lanes append below; do not edit each other's)
 
 ## Agent R status (wt-uperf3-r)
