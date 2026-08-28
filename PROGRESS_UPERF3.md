@@ -2456,3 +2456,67 @@ that needs a kernel-gate ruling first — flagged as an open question.
     patch to this spike).
   * Floor at close: diff-battery 15.78 s green; uperf-s digest
     3752cba4.. unchanged.
+
+## Agent HH status (wt-uperf3-hh) — round 5
+
+STATE: OPEN (2026-08-28) — the W-8 memory diet (the "fits 128 GB at
+8B" milestone's diet half). SPEC: U_PERF3_MVP8B_SCALING.md W-8 row
+verbatim; acceptance at EVERY rung = the two identity anchors below
+BYTE-IDENTICAL (a memory diet is transcript-preserving or it is
+nothing) + the floors (build, uperf-pc diff-battery, freeze-check
+102-ok-rows form, uperf-s digest 3752cba4..).
+
+RUNG PLAN (order = the W-8 row's effort ranking):
+  0. skeleton + BASELINE (this section) [DONE below]
+  1. W-8(a) drop `lays` (the i64 BfLayer store) before the group
+     proofs; reload byte-identically for the verifier.
+  2. W-8(b) A_0 (level-0 CRS) expanded per column block inside its
+     consumers — never materialized (CrsColStream + blocked t0
+     GEMM + blocked level-1 transport).
+  3. W-8(c) flat i8 store for the deeper-level witnesses (DigitCols
+     is the pattern; every level base e <= 7 so |digit| <= 64).
+  4. the record: measured RSS curve + the counted 8B projection
+     (which section-3 terms each fix removes at 32x512).
+
+BASELINE (2026-08-28, WSL box, ZK_THREADS=8,
+M125_EXPORT_DIR=results/m125_ffn_export_wsl (main repo), each run
+one-at-a-time under flock /tmp/zk-heavy.lock; box otherwise light —
+load 1.49 at start, 12.7 GB free; two sibling lanes exist but were
+not running heavy jobs during the window; label NOISY-SHARED
+applies to walls, less so to peak RSS):
+  * uperf-pc full-profile 3 16: accept=true, wall 6.0 s, peak RSS
+    1,126,084 KB (1.07 GB); STATEMENT DIGEST 93a987002a7c4b60c3df
+    bfc62b7a4f0e5957d8ae2039014ff241e323285fb790; EVAL-PROOF DIGEST
+    0ae9cdae66607239a80cc1f1dea36248370edadbe85214144aee7a5250d975be.
+  * pass-agg prove 12 64 p0: wall 18.6 s, peak RSS 2,968,604 KB
+    (2.83 GB); STATEMENT DIGEST 45fb340517eee2344b44dd40d4e47562d8
+    0305eb7c5604c9c6cf61ede37443dc (this rig prints no EVAL-PROOF
+    digest; statement + the floors carry its identity).
+  * SUPPLEMENTARY uperf-pc full-profile 12 64 (the bk rig at the
+    bigger shape, so W-8(a) — a bk_pass_run fix — is measurable
+    above 3x16): accept=true, wall 24.0 s, peak RSS 3,091,220 KB
+    (2.95 GB); STATEMENT 80763ea537e77cd9cb5c538397af2622044447d6
+    54b8e9a34cae3ccad8f3f115; EVAL-PROOF 63f4a3a4320a47260ab8ae3d
+    52cfa3656b626fc367af671c6c317300454dec89.
+  * Floors at baseline: uperf-pc diff-battery exit 0; freeze-check
+    102 ok rows then the EXPECTED panic (bf_read_i8: cannot read
+    results/m125_ffn_export/layer00_X.bin — freeze-check ignores
+    M125_EXPORT_DIR by design, the frozen Mac sidecar is
+    authoritative; exit 134 = SIGABRT, the WSL form); uperf-s
+    battery 48 legs ok, digest 3752cba4fa08c2ee052475e9f4459e2fc3
+    ed0a0c59862468e0c31cbeb165aaae.
+
+NOTE (readers of the W-8 row): the memo's "expand A_0 per column
+block ... blocks are independent" needs one correction discovered
+on contact with expand_level_matrix_raw: the CRS stream is ONE
+sequential SHA-256-counter byte stream walked by a REJECTION
+sampler, so entry n's value depends on how many words were rejected
+before it — blocks are NOT independently re-keyable. They ARE
+independently *resumable*: acceptance is a pure per-word predicate
+((word >> shift) < q, ~0.2% rejection), so one cheap counting pass
+(generate + count per 8K-word block, discard bytes) gives a prefix
+table that locates any (row, col) range's word window exactly; a
+column block is then regenerated from its SHA counter range and
+walked with a skip — byte-identical values by construction. That is
+what CrsColStream (rung 2) implements; cost model unchanged from
+the memo (~one extra full generation per consumer sweep).
