@@ -1,0 +1,12 @@
+[UPERF3-FF] bench [2^22 synth]: n0 = 2972672 (~2^21.5), 6 tensors / 7 contribs, G_all 2626, u digits e6 x 6 -> n2 173316, ZK_THREADS 1 [WSL-BOX 1T|NOISY-SHARED]
+[UPERF3-FF]   tt prove phases: rows 1.45s, tier1+tier2 commit 14.59s, v-passes 20.01s, FOLD WALL 2.25s
+[UPERF3-FF]   tt verify 3.93s total: replay+range 0.32, u-rebind 1.65, (a) binding 0.19, (c) consistency 1.17, (b) claim 0.60
+[UPERF3-FF]   proxy recursion input: 173316 rings at e6 -> 7 levels, floor 945 rings e7
+[UPERF3-FF]   proxy recursion: precommit 0.44s, prove 1.73s, verify 0.36s
+[UPERF3-FF]   baseline schedule: 8 levels, floor 936 rings e7, level-0 r 56 chunk 53084
+[UPERF3-FF]   b_row images BYTE-IDENTICAL two-tier vs built at this shape (16 rows)
+[UPERF3-FF]   baseline: bg_precommit 7.10s, bg_prove_group 27.91s, bg_verify_group 2.61s (psi0-factored level-0 term alone 0.99s)
+[UPERF3-FF]   PROVE-GROUP-EQUIVALENT: tt 25.44s core (rows+v+fold+recursion; +commit-class 40.47s) vs bg_prove_group 27.91s -> RATIO 1.10x core / 0.87x with-commit (acceptance >= 5x at >= 2^22)
+[UPERF3-FF]   VERIFIER 1T-class: tt_verify 3.93s (+ proxy recursion verify 0.36s) vs built verify 2.61s / its psi0 level-0 term 0.99s (acceptance: level-0 term sub-second at the spike shape)
+[UPERF3-FF]   BYTES spike-clear: b_rows 8256 + u 14905176 + U 5676 + v 26155008 + w 4063232 + recursion block 174664 = 45312012 vs built GroupEvalProof 179192 [the production form recurses u/v/w — the V-recursed planner row; clear-u/v are the spike's measured overhead]
+[UPERF3-FF] bench done in 120.1s, peak RSS 4913 MiB [WSL-BOX 1T|NOISY-SHARED]

@@ -2211,3 +2211,193 @@ adopted: "both moduli" = both digit-plane bases the house commits
 moduli of the digit alphabet), crossed with both practical
 sub-extension moduli c in {4, 8} (Z^c - s0). If Victor meant Q8_46,
 that needs a kernel-gate ruling first — flagged as an open question.
+
+## Agent FF status (wt-uperf3-ff) — round 4
+
+- 2026-08-27 SKELETON (rung 0): worktree on uperf3-ff at the round-4
+  open commit. OWNS: NEW zkmatrix-rs/src/ring/two_tier.rs (+ its one
+  `pub mod two_tier;` line in ring/mod.rs), the NEW [UPERF3-FF] bin
+  section with `uperf-t` in the main dispatch (one line by the
+  `uperf-s` line), this status section. eval_proof.rs and every other
+  ring module READ-ONLY. Rung plan (one commit per green rung):
+  1. `uperf-t plan [log2_rings]` — the two-tier PLANNER only: tier
+     split (sqrt sizing), what each tier commits, the exact-digit
+     gate per tier, printed at 2^20 / 2^22 / 2^23 and the 8B group
+     shapes 352,321,536 / 145,475,764 rings (memo acceptance: "8B
+     two-tier gate green"). Table recorded here.
+  2. The synthetic differential at 2^20: one committed group both
+     ways (the built bg_prove_group/bg_verify_group opening as the
+     ORACLE; the two-tier front end behind uperf-t), fixed seeds,
+     served claims asserted EQUAL. THE VALUES COMPARED (stated up
+     front, memo 4.2 differential leg): (a) the b_row images — the
+     K_DEG = 16 conj-packed claim-row polys `GroupEvalProof.b_rows`,
+     byte-for-byte, whose constant terms are the batched claim
+     values v_batch; (b) the per-tensor / per-contrib MLE evaluation
+     claims at the batched point — for every ClaimContrib m the
+     K-element y_m = ct_K(sum_u bpolys(kw_m(u)) * w0[u]) computed by
+     the oracle kernel pass restricted to m vs the same value served
+     through the two-tier route; (c) the alpha-batched opening
+     target h_cur = sum_c alphas0_c * b_rows_c vs the two-tier claim
+     transport's reconstruction. If the claims cannot be made to
+     line up: STOP, record exactly where the semantics diverge (a
+     finding, not a failure).
+  3. Scale to 2^22-2^23 synthetic + the real 12x512 act group
+     (M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/
+     m125_ffn_export_wsl); fold wall 1T/8T + prove-group-equivalent
+     vs bg.prove-group at the same shape + verifier 1T + bytes; the
+     box is SHARED — [WSL-BOX NT|NOISY-SHARED] on every wall,
+     byte-identity and counts are the deliverables.
+  Floor at every commit: release build green; uperf-pc diff-battery
+  green; uperf-s battery digest 3752cba4.. unchanged; freeze-check
+  WSL form (102 ok rows then the expected BK panic at the missing
+  export).
+- DESIGN NOTE (recorded before building, from the read of
+  eval_proof.rs/pass_agg.rs): the built claim functional is, per
+  contrib, rank-16 (not rank-1) over any (row x column-block) grid —
+  the K-multiplication row_ker *_K col_ker mixes the 16 K-coordinates,
+  so Phi_0[v] = radix_limb * sum_{d<16} beta[row][d] * conjQ[cb][d]
+  (the [UAGB1-BH] row-column split, eval_proof.rs:2229). The
+  Greyhound v-vector mechanism therefore needs per-(contrib, d)
+  v-vectors on a grid where each term is rank-1 — given by the
+  tensor-row-aligned grid. Consequences to measure/record honestly
+  in rungs 1-2: (i) the tensor-aligned grid is UNBALANCED (outer =
+  sum of tensor rows >> inner = nb*l0), so the planner must weigh
+  both the balanced sqrt split (binding/norm side) and the aligned
+  split (claim side); (ii) claim-side wire/verifier work scales with
+  n_contrib x 16 v-vectors — counted, not assumed. Open question
+  recorded, not guessed: whether the production shape wants the T11 b
+  one-point RLC first (one contrib per tensor) — this spike measures
+  the multi-claim form as built.
+- RUNG 0 GATES (2026-08-27, pre-existing baseline, stub-only change
+  set): build green; uperf-pc diff-battery green (O1 4/4, O2 35/35,
+  O3 63/63, O5 12/12, E2E 2/2, 15.1s); uperf-s battery 48 legs,
+  BATTERY DIGEST 3752cba4fa08c2ee052475e9f4459e2fc3ed0a0c59862468e0c31cbeb165aaae
+  unchanged; freeze-check WSL form: 98 ok rows then the EXPECTED BK
+  panic at the missing m125 export (the brief said 102; the branch
+  baseline measured here and at lane S round 1 is 98 — recorded
+  honestly, not chased).
+- RUNG 1 (2026-08-27) — THE PLANNER (`uperf-t plan`), design-in-code,
+  no proving. ring::two_tier: plan_two_tier_at (e' fixed-point
+  mirroring the frozen plan_level with n_pairs = 0 — the pair
+  cross-garbage is what two-tier removes), plan_two_tier (sqrt split
+  + balanced-optimum S sweep), recursion_schedule (frozen
+  plan_schedule REUSED, pre-gated), gate_headroom_bits.
+  limbs_for_bound / fold_coeff_bound reproduced verbatim (private in
+  the frozen module; provenance cited in-code). THE TABLE (full
+  output = `uperf-t plan`; q31, kappa 11, quinary fold):
+  | shape (e0) | single-tier | sqrt split S x G | tiers n_w / n2 | gates rg/w/u (bits) | rec (V-clear|V-rec) -> floor | verdict |
+  | 2^20 (2) | +3.24 | 1024 x 1024 | 3072 / 56320 | +8.2/+2.5/+0.4 | 56K|59K -> 7 lv, 924-927 e7 | GREEN |
+  | 2^22 (2) | +2.24 | 2048 x 2048 | 6144 / 135168 | +7.7/+3.0/+0.7 | 135K|141K -> 7 lv, 939 e7 | GREEN |
+  | 2^23 (2) | +1.74 | 2897 x 2896 | 8691 / 191136 | +7.5/+2.7/+0.5 | 191K|200K -> 7 lv, 945-948 e7 | GREEN |
+  | 8B weight 352,321,536 (1) | +0.05 | 18771 x 18770 | 75084 / 1651760 | +7.2/+3.2/+0.9 | 1.65M|1.73M -> 8 lv, 933 e7 | GREEN |
+  | 8B act 145,475,764 (2) | -0.31 RED | 12062 x 12061 | 48248 / 928697 | +6.5/+2.5/+0.3 | 929K|977K -> 8 lv, 927 e7 | GREEN |
+  ** 8B TWO-TIER PLANNER GATE: GREEN on both group shapes ** — and the
+  single-tier act failure reproduces the memo's exact -0.31 bits
+  (W-3), dissolved by the split. HONESTY ROWS (counted vs the memo's
+  [MODEL]): (a) the recursion input is DOMINATED BY THE TIER-2
+  u-DIGITS (G*kappa*l_t): 1.65M rings (8B weight sqrt split), NOT the
+  memo's "~19K rings" (which counts only the folded row n_w = 75K);
+  the balanced split (S ~ sqrt(n0*kappa*l_t/l_z)) lands 574K/369K
+  total — still 200-600x below n0, floor-class schedules (8 levels,
+  floor ~915-957 e7), but the "~19K" row should be read as w-only.
+  (b) per-tier headroom at 8B act sqrt: +6.5 (row-group) / +2.5
+  (folded w) / +0.33 (tier-2 u) bits — the memo modeled "~11-12 bits
+  per tier"; counted is smaller (the u-digit object is the tight
+  one); still green everywhere. (c) V-clear w wire at the spike
+  shapes: 1.0-1.5 MB (2^22-2^23), 6-10 MB at 8B — the production
+  form recurses w instead (V-recursed column). Gates at commit:
+  diff-battery green, uperf-s digest 3752cba4.. unchanged,
+  freeze-check 98 ok + expected panic.
+- RUNG 2 (2026-08-27) — THE DIFFERENTIAL: GREEN, claims line up
+  BIT-FOR-BIT. `uperf-t diff [n_log2] [threads] [seed]` (defaults
+  20/1/161): a 6-tensor aligned synthetic group (809,984 digit rings
+  ~2^19.6, e0 in {1,2} incl. a sign-binary l0=8 tensor and a
+  claimless tensor), 7 contribs (two sharing a col kernel), the
+  SAME (group, claims, witness) both ways.
+  THE SEMANTIC KEY (recorded before building, PROVEN by the legs):
+  the built claim functional factors RANK-16 over the per-tensor
+  (row-group x in-group) grid via the BH row-column split PLUS the
+  eq hi/lo split of the row kernel —
+    Phi_0[i,j] = sum_e b_e[i] a_e[j],
+    b_e[i] = alphaHi[i][e] (hi-side alpha contraction),
+    a_e[j] = radix_l sum_d (lo[r] *K Y^d)[e] conjQ[cb][d]
+  — so the front end consumes FACTORED contribs (hi, lo, col; scale
+  folded into hi; the GroupClaims API's materialized product is what
+  the oracle eats; invariant scale*K eq == hi *K lo asserted on every
+  row). The per-tensor two-tier grid is CONTIGUOUS chunking (row
+  group = g_rows whole matrix rows = width rings), so fold + inner
+  commits ride fold_chunks_ntt_gen / matvec_modq_small_multi_gen
+  UNCHANGED. Greyhound two-check structure, FS order v-before-c:
+  (a) fold-binding A_t w_t == sum_i c_i u_{t,i} (+ tier-2 U rebind),
+  (c) consistency a_e.w == c.v_e per (contrib,e), (b) claim
+  sum_{m,e,i} b_e[i] v_e[i] == h_cur.
+  DIFFERENTIAL LEGS (all PASS, fixed seeds):
+  1. b_row images: two-tier claim layer == built GroupEvalProof.b_rows
+     BYTE-IDENTICAL (16 rows; ct = v_batch), oracle bg_prove_group +
+     bg_verify_group ACCEPT on the same instance.
+  2. per-contrib MLE claims: single-contrib kernel-pass rows_m sum to
+     b_rows; the two-tier reconstruction H_m = sum_e sum_i b_e[i]
+     v_e[i] == sum_c alphas0_c rows_m[c] POLY-EXACT, 7/7.
+  3. the batched opening target: h_cur two-tier == the built b_rows
+     route == sum_m H_m at the same drawn alphas.
+  REJECT LEGS (6): w/v/u/b_rows wire tampers (FS divergence or
+  binding: tt-fold-binding / tt-u-binding / tt-ct-row-gate) + two
+  MALICIOUS-PROVER legs (tamper + honest refold under the tampered
+  transcript so binding passes): lying v -> tt-consistency, lying
+  b_rows non-ct coeff -> tt-claim — both semantic checks provably
+  fire.
+  WALLS AT 2^19.6 [WSL-BOX NOISY-SHARED; identity is the deliverable,
+  not the walls]: oracle bg prove+verify 16.6s 1T / 8.5s 7T (forced
+  2-level); two-tier prove 19.8s 1T / 16.2s 7T + verify 1.9s 1T —
+  the tt prove at this small shape is NOT yet ahead (the v-passes
+  recompute per-contrib Q without col-kernel sharing, and 2^20 is
+  below the memo's >= 2^22 acceptance shape; rung 3 measures
+  properly with phase attribution). Peak RSS 2.4 GiB.
+  OPEN (recorded, not guessed): (i) the front end requires ALIGNED
+  tensors (cols % D == 0 — every real-rig tensor; the misaligned
+  battery shapes would need the generic per-ring branch, linear for
+  the verifier); (ii) rows must admit a power-of-2 g_rows for the eq
+  hi/lo split (real tensors: rows = T or model dims — 512/768/2048
+  all fine at some g); (iii) the real composed-pass kernels are
+  materialized Vec<KElem> — whether every real contrib's row kernel
+  is a genuine eq product (numerically recoverable via kf.inv +
+  verified) is a rung-3 question; a non-product kernel would force
+  the g_rows = 1 unbalanced grid for that contrib.
+  Gates at commit: build green, diff-battery green, uperf-s digest
+  3752cba4.. unchanged, freeze-check 98 ok + expected panic.
+
+- 2026-08-27/28 RUNG 3 — THE MEASURED S4 VERDICT (the ladder ran
+  detached 2^22/2^23 x 1T/7T; integrated by the orchestrator; walls
+  [WSL-BOX NOISY-SHARED], counted rows box-independent):
+  * Criterion 1 (claims bit-for-bit): **GO** (rung 2).
+  * Criterion 4 (the 8B two-tier planner gate): **GO** (rung 1).
+  * Criterion 2 (>= 5x prove-group-equivalent at >= 2^22):
+    **NO-GO** — measured 1.10x core at 2^22 1T (25.44 vs 27.91 s),
+    1.08x at 2^23 1T; at 7T the two-tier is SLOWER than the built
+    path (0.65x / 0.66x core; 0.56-0.61x with commit-class).
+  * Criterion 3 (1T verifier level-0 sub-second): **NO-GO** —
+    tt_verify 3.93-4.66 s vs the built path's psi0 level-0 term
+    0.99 s (2^22) / 2.05 s (2^23).
+  * Bytes: the spike-clear form is 45.3-57.6 MB vs the built
+    GroupEvalProof's 179-181 KB (production would recurse u/v/w —
+    the clear u/v planes are the spike's measured overhead — but
+    no measured recursed form exists to cite).
+  * THE CAUSE (already flagged by rung 1's honesty row): the
+    memo's cost model counted only the w-digit recursion input
+    (~19K rings); the real tier-2 input is DOMINATED by u-digits —
+    1.65M rings at the 8B weight sqrt, ~85x the modeled work. The
+    sqrt serving trick as specified in U_PERF3_HEADLINE_ROUTES.md
+    §4.2 does not clear its own bar at these shapes.
+  * PER THE MEMO'S OWN ACCEPTANCE TEXT, this is the RULING-GRADE
+    outcome it named: "the honest fallback is Stage A + (iii) +
+    route 3 (~100-160 s/board class) and the headline stays out of
+    reach on this line." Stage A proper (the descent replacement:
+    lanes DD/EE — 13.5x counted, 2.7x wall and climbing, the
+    aggregate's 13.3x rounds / 6.6x wire) is UNAFFECTED by this
+    verdict; what fails is the sqrt SERVING front end's >= 5x
+    claim. AWAITING VICTOR: accept the fallback route as the
+    headline posture, or commission a redesigned front end that
+    addresses the u-digit domination (a new design memo, not a
+    patch to this spike).
+  * Floor at close: diff-battery 15.78 s green; uperf-s digest
+    3752cba4.. unchanged.
