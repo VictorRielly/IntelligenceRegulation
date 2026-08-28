@@ -47481,14 +47481,221 @@ fn tt_build_real_act_instance(kf: &ring::kfield::KField, layers_n: usize, t: usi
 //     count / depth / served claims, and its Stage-A replacement instance.
 
 fn uperf_a_gg_main(args: &[String]) {
+    let geti = |i: usize, d: usize| args.get(i).and_then(|s| s.parse::<usize>().ok()).unwrap_or(d);
     match args.first().map(String::as_str) {
-        Some("map") => {
-            println!("[UPERF3-GG] map: not built yet (rung 1)");
-        }
+        Some("map") => uperf_a_gg_map(geti(1, bf_model().layers), geti(2, bf_model().t)),
         Some("descent-bench") | Some("descent-battery") => uperf_a_main(args),
         _ => {
             println!("uperf-a map [layers] [t]   ([UPERF3-GG] Stage-A integration, round 5)");
             uperf_a_main(args);
         }
     }
+}
+
+/// [UPERF3-GG] rung 1 — THE OBJECT MAP (no proving): every descent-pair
+/// family of the REAL pass at (layers, t), from the same engine structures
+/// bk_pass_run drives (bk_pair_specs / plan_pair_trees /
+/// pair_expected_bytes / the bk_pair_claims shape), with its Stage-A
+/// replacement instance per design memo §2.3/§2.4. At (12, 512) the rows
+/// are reconciled against the memo §1.1 counted table; any mismatch is
+/// printed as a FINDING, never papered over.
+fn uperf_a_gg_map(layers_n: usize, t: usize) {
+    use ring::stage_a::{clog2, descent_pair_claims, zc_agg_plan};
+    println!(
+        "[UPERF3-GG] object map: {layers_n} layers, T = {t} (engine structures; memo §1.1 reconciliation at 12x512)"
+    );
+    let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
+    let specs = bk_pair_specs(&lays, t);
+    let q = ring_ctx_q8().zq.q;
+    let reg = bk_build_groups(&lays, t, &specs, q);
+
+    // ---- The descent side, as built. ----
+    println!("  DESCENT PAIRS (as built — what the selector replaces):");
+    println!(
+        "  {:<8} {:>4} {:>5} {:>3} {:>4} {:>5} {:>3} {:>6} {:>9} {:>7} {:>10}",
+        "pair", "mem", "trees", "l", "pad", "depth", "dt", "e_bits", "derived_B", "claims", "aux_vals"
+    );
+    let (mut tm, mut tr, mut tl, mut tp, mut tb, mut tc, mut ta) = (0usize, 0usize, 0usize, 0usize, 0usize, 0usize, 0usize);
+    // memo §1.1 counted rows at 12x512: (name, cols, trees, l, pad, depth, dt, bytes)
+    let memo: [(&str, usize, usize, usize, usize, usize, usize, usize); 10] = [
+        ("silu-m3", 10, 5, 8, 3, 22, 9, 118_336),
+        ("silu-m4", 2, 1, 1, 0, 22, 9, 92_480),
+        ("nrw-88", 24, 12, 16, 4, 22, 9, 129_856),
+        ("nrw-z", 12, 6, 8, 2, 21, 9, 111_360),
+        ("rem-w5", 4, 2, 2, 0, 22, 6, 91_776),
+        ("rem-w6", 7, 3, 4, 1, 22, 7, 102_336),
+        ("rem-w7", 10, 3, 4, 1, 22, 8, 105_472),
+        ("rem-w8", 17, 8, 8, 0, 22, 9, 118_336),
+        ("rem-w9", 7, 3, 4, 1, 22, 10, 112_512),
+        ("rem-w10", 3, 2, 2, 0, 21, 11, 100_992),
+    ];
+    let mut findings: Vec<String> = Vec::new();
+    for (pi, sp) in specs.iter().enumerate() {
+        let p = &sp.plan;
+        let bytes = ring::descent_fold::pair_expected_bytes(p.depth, sp.dt, p.e_bits, p.l);
+        let (_, _, claims) = descent_pair_claims(p.depth, sp.dt);
+        let [m_cols, bl_kel, wm_kel, tm_kel] = reg.aux_shape[pi];
+        let aux_vals = m_cols + (bl_kel + wm_kel + tm_kel) * ring::kfield::K_DEG;
+        println!(
+            "  {:<8} {:>4} {:>5} {:>3} {:>4} {:>5} {:>3} {:>6} {:>9} {:>7} {:>10}",
+            sp.name(), sp.members.len(), p.n_real, p.l, p.l - p.n_real, p.depth, sp.dt, p.e_bits, bytes, claims, aux_vals
+        );
+        tm += sp.members.len();
+        tr += p.n_real;
+        tl += p.l;
+        tp += p.l - p.n_real;
+        tb += bytes;
+        tc += claims;
+        ta += aux_vals;
+        if (layers_n, t) == (12, 512) {
+            if let Some(row) = memo.iter().find(|r| r.0 == sp.name()) {
+                let got = (sp.members.len(), p.n_real, p.l, p.l - p.n_real, p.depth, sp.dt, bytes);
+                let want = (row.1, row.2, row.3, row.4, row.5, row.6, row.7);
+                if got != want {
+                    findings.push(format!("{}: engine {:?} != memo {:?}", sp.name(), got, want));
+                }
+            } else {
+                findings.push(format!("{}: pair absent from the memo table", sp.name()));
+            }
+        }
+    }
+    println!(
+        "  {:<8} {:>4} {:>5} {:>3} {:>4} {:>5} {:>3} {:>6} {:>9} {:>7} {:>10}",
+        "TOTAL", tm, tr, tl, tp, "", "", "", tb, tc, ta
+    );
+    if (layers_n, t) == (12, 512) {
+        let want_tot = (96usize, 45usize, 57usize, 12usize, 1_083_456usize);
+        let got_tot = (tm, tr, tl, tp, tb);
+        if got_tot != want_tot {
+            findings.push(format!("TOTAL: engine {:?} != memo {:?}", got_tot, want_tot));
+        }
+        if findings.is_empty() {
+            println!("  memo §1.1 reconciliation: ALL ROWS MATCH (cols/trees/l/pad/depth/dt/bytes + totals)");
+        } else {
+            println!("  memo §1.1 reconciliation FINDINGS ({}):", findings.len());
+            for f in &findings {
+                println!("    FINDING: {f}");
+            }
+        }
+    }
+    println!(
+        "  each pair serves: per side 2(D-1)+2(D-2) mask-open claims (g-hypersum + g-open per layer, Rp/Rq per interior layer, vs bk-wm/tm)"
+    );
+    println!(
+        "  + wp (blinder-a), wq (member tensors + blinder-u — the ONLY claims over committed pass data; SiLU members add a Y-scaled a8 part), tp (bk-m + blinder-a), tq (blinder-u + statement table fold)"
+    );
+
+    // ---- The Stage-A replacement (memo §2.3 range -> zc_agg; §2.4 SiLU -> LogUp). ----
+    println!("  STAGE-A REPLACEMENT (selector on; per memo §2.3/§2.4, shapes as validated by [UPERF3-EE]/[UPERF3-S]):");
+    println!(
+        "  {:<8} {:<26} {:>4} {:>7} {:>2} {:>2} {:>7} {:>7} {:>12}",
+        "pair", "instance", "m", "n_log2", "w", "a", "rounds", "claims", "commit_vals"
+    );
+    let (mut sc, mut sv) = (0usize, 0usize);
+    for sp in &specs {
+        // Group the pair's members by shape (equal n_log2 per aggregate;
+        // mixed-shape pairs get one aggregate per shape class).
+        let mut shapes: Vec<((usize, usize), usize)> = Vec::new();
+        for m in &sp.members {
+            let key = (m.shape.rows, m.shape.cols);
+            match shapes.iter_mut().find(|s| s.0 == key) {
+                Some(s) => s.1 += 1,
+                None => shapes.push((key, 1)),
+            }
+        }
+        let w = sp.t_rows.trailing_zeros() as usize;
+        for ((rows, cols), m) in &shapes {
+            let n_el = rows * cols;
+            let n_log2 = clog2(n_el);
+            if sp.silu.is_some() {
+                // LogUp-as-one-sumcheck per member column (the S2-validated
+                // form): rounds = n_log2 each; commits h (n_el x 16 coords
+                // per column) + keeps the m multiplicities (256/tree).
+                let claims = m * 2 + 2; // h(x*), key(x*) per col + m-claim + sum-equality
+                let commit = m * (n_el << 4);
+                println!(
+                    "  {:<8} {:<26} {:>4} {:>7} {:>2} {:>2} {:>7} {:>7} {:>12}",
+                    sp.name(),
+                    "LOGUP h+m (Had prover)",
+                    m,
+                    n_log2,
+                    "-",
+                    "-",
+                    m * n_log2,
+                    claims,
+                    commit
+                );
+                sc += claims;
+                sv += commit;
+            } else {
+                let (a, rounds, claims) = zc_agg_plan(*m, n_log2, w);
+                let commit = m * w * (1usize << n_log2);
+                println!(
+                    "  {:<8} {:<26} {:>4} {:>7} {:>2} {:>2} {:>7} {:>7} {:>12}",
+                    sp.name(),
+                    format!("ZC-AGG e0=1 sign-binary"),
+                    m,
+                    n_log2,
+                    w,
+                    a,
+                    rounds,
+                    claims,
+                    commit
+                );
+                sc += claims;
+                sv += commit;
+            }
+        }
+    }
+    println!(
+        "  {:<8} {:<26} {:>4} {:>7} {:>2} {:>2} {:>7} {:>7} {:>12}",
+        "TOTAL", "", "", "", "", "", "", sc, sv
+    );
+    println!(
+        "  replaced committed aux: bk-m/bl/wm/tm = {ta} values -> planes/h/m = {sv} values (planes i8-class bits; h rides the ACT group as the blinders did)"
+    );
+    println!(
+        "  served-claim swap: {tc} descent-derived claims -> {sc} MLE claims at the aggregates' points (+ the aggregate round polys on the wire in place of {tb} descent B)"
+    );
+    // ---- The commit-side growth, in digit rings (the finding the memo's
+    // ---- "commit nothing new" line does not carry for the q31 pass:
+    // ---- width-planes must be committed to close the off-table gap, and
+    // ---- h's K coordinates commit at the blinder class l0_q). ----
+    let dring = |values: usize, l0: usize| values.div_ceil(128) * l0;
+    let (mut add_plane_r, mut add_h_r) = (0usize, 0usize);
+    for sp in &specs {
+        let mut shapes: Vec<((usize, usize), usize)> = Vec::new();
+        for m in &sp.members {
+            let key = (m.shape.rows, m.shape.cols);
+            match shapes.iter_mut().find(|s| s.0 == key) {
+                Some(s) => s.1 += 1,
+                None => shapes.push((key, 1)),
+            }
+        }
+        let w = sp.t_rows.trailing_zeros() as usize;
+        for ((rows, cols), m) in &shapes {
+            let n_log2 = ring::stage_a::clog2(rows * cols);
+            if sp.silu.is_some() {
+                add_h_r += dring(m * (1usize << n_log2) * ring::kfield::K_DEG, reg.l0_q);
+            } else {
+                add_plane_r += dring(m * w * (1usize << n_log2), 1);
+            }
+        }
+    }
+    let mut retired_r = 0usize;
+    for base in &reg.aux_base {
+        for &ti in base.iter() {
+            retired_r += reg.ga.tensors[ti].n_digit_rings();
+        }
+    }
+    println!(
+        "  ACT-GROUP DIGIT RINGS [COUNTED approx, per-tensor padding folded]: today n_0 = {} (incl. {} aux rings retired); Stage-A adds planes ~{} + h(l0_q={}) ~{} rings -> n_0 ~{}",
+        reg.ga.n_digit_rings,
+        retired_r,
+        add_plane_r,
+        reg.l0_q,
+        add_h_r,
+        reg.ga.n_digit_rings - retired_r + add_plane_r + add_h_r
+    );
+    println!("  [COUNTED from the engine structures; no proving in this arm]");
 }

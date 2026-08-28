@@ -22,4 +22,31 @@
 // reuse — any needed-but-private zc_range surface is wrapped here, never
 // edited there.
 
-// (rung 1+ content lands here)
+// ---------------------------------------------------------------------------
+// Rung 1: the object-map plan shapes (no proving).
+
+/// ceil(log2 n) — the padded hypercube width of an n-element column.
+pub fn clog2(n: usize) -> usize {
+    assert!(n >= 1);
+    (usize::BITS - (n - 1).leading_zeros()) as usize
+}
+
+/// The Stage-A replacement plan of one range/narrowing aggregate over m
+/// same-shape columns of 2^n_log2 elements at width w (memo §2.2/§2.3,
+/// the zc_agg shapes of [UPERF3-EE]): returns (instance-axis width a,
+/// sumcheck rounds n_log2 + a, served claims m x (w + 1)).
+pub fn zc_agg_plan(m: usize, n_log2: usize, w: usize) -> (usize, usize, usize) {
+    let a = super::zc_range::zc_agg_axis(m);
+    (a, n_log2 + a, m * (w + 1))
+}
+
+/// The claims ONE masked descent pair serves to the opening, counted from
+/// the bk_pair_claims structure (bin, [UAGB1-BK]): per side (witness depth
+/// `depth`, table depth `dt`) the mask-opening claims 2(D-1) + 2(D-2)
+/// (g-hypersum + g-open per layer, Rp/Rq per interior layer), plus the
+/// four endpoint claims wp/wq/tp/tq. Returns (wm_opens, tm_opens, total).
+pub fn descent_pair_claims(depth: usize, dt: usize) -> (usize, usize, usize) {
+    let side = |d: usize| 2 * (d - 1) + 2 * d.saturating_sub(2);
+    let (w, t) = (side(depth), side(dt));
+    (w, t, w + t + 4)
+}

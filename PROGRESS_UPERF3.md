@@ -2477,7 +2477,7 @@ PLAN (one commit per green rung, prefix "U-PERF3 GG:"):
 - [x] R0 SKELETON: this section; empty ring/stage_a.rs + its mod
   line; the `uperf-a` GG dispatch wrapper + [UPERF3-GG] bin section
   stub (`map` prints not-built).
-- [ ] R1 THE OBJECT MAP (no proving): `uperf-a map [layers] [t]` —
+- [x] R1 THE OBJECT MAP (no proving): `uperf-a map [layers] [t]` —
   from the REAL pass structures (bk_pair_specs + the bk_pair_claims
   shape) at 12x512 and 3x16: every descent-pair family with instance
   count, depth/dt, the claims it serves to the opening (counted), and
@@ -2522,6 +2522,49 @@ OPEN QUESTIONS (conservative readings taken, flagged not guessed):
   booleanity alphabet that closes the negative side is the design
   ruling EE's lane already flagged (bit-granularity commitment).
   Recorded, not silently widened.
+
+R1 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED; structure-only, no
+proving, no walls):
+- cmd: `uperf-a map 12 512` (M125_EXPORT_DIR set) — the OBJECT-MAP
+  VERDICT: **memo §1.1 reconciliation ALL ROWS MATCH** (per pair:
+  member cols / real trees / l / pads / wit depth / tab dt / derived
+  B, engine-derived from bk_pair_specs + plan_pair_trees +
+  pair_expected_bytes; totals 96 cols / 45 trees / 57 l (12 pads) /
+  1,083,456 B exactly). Retired aux ring count 31,116 == memo §1.3's
+  "aux 31,116 = 0.40%" row. Claims served today (counted from the
+  bk_pair_claims structure, per pair 2(D-1)+2(D-2) mask opens per
+  side + wp/wq/tp/tq): 1,140 claims at 12x512, 856 at 3x16.
+- cmd: `uperf-a map 3 16` — the 3x16 inventory: 9 pairs live (rem-w5
+  ABSENT at 3 layers), 24 member cols, 14 real trees; rem-w6..w10
+  and both nrw pairs present; rem-w8 is a MIXED-SHAPE pair (nf 2^15
+  + nd padded 2^14 members) -> the Stage-A schedule gives one
+  zc_agg per (pair, shape class): 10 range aggregates + 3 SiLU
+  LogUp columns at 3x16 (14 aggregates + 12 LogUp cols at 12x512).
+- Stage-A replacement schedule (printed as the table): range pairs
+  -> ZC-AGG (e0=1 sign-binary planes, w = t_rows.log2, instance
+  axis a = ceil(log2 m)); silu pairs -> LogUp h+m (Had prover) per
+  member column. Served-claim swap 1,140 -> 761 MLE claims at
+  12x512 (199 at 3x16).
+- FINDING (ruling-grade input, quantifies memo §5.1's "wash" risk):
+  the commit-side growth the memo's "range facts commit nothing
+  new" line does NOT carry for the q31 pass. (a) Closing the
+  committable-but-off-table gap (the BK RangeViolation gate)
+  requires committing width-w planes — the already-committed
+  balanced base-2^e0 limbs of the remainder tensors CANNOT close
+  it (any value in the gap has valid house digits). Counted cost:
+  +4.52M digit rings at 12x512 (+58% of act n_0 7.85M). (b) The
+  SiLU helper h's K coordinates commit at the blinder class
+  (e0=2, l0_q=16): +25.2M digit rings at 12x512 — the naive h
+  commit alone TRIPLES the act group. Together n_0 7.85M ->
+  ~37.5M [COUNTED approx]. Options for the ruling (not taken
+  here): a cheaper committed class/side channel for h; or Stage-A
+  round 1 replacing only the 8 range pairs (84/96 cols, the
+  memo's own fulcrum) and keeping the 2 SiLU descents. Rungs 2-4
+  proceed at 3x16 where the volumes are small (+0.23M rings)
+  and the composed-pass evidence is unaffected.
+- floors: diff-battery 16.65s green; uperf-s digest 3752cba4..
+  unchanged; agg digest 46234986.. unchanged; freeze-check passed
+  (BK rows stable with the WSL export).
 
 R0 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED):
 - cmd: release build green; `uperf-a map` prints the stub; legacy
