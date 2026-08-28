@@ -2459,14 +2459,36 @@ that needs a kernel-gate ruling first — flagged as an open question.
 
 ## Agent GG status (wt-uperf3-gg) — round 5
 
-STATE: R0 SKELETON (2026-08-28). Lane: Stage A INTO THE REAL PASS —
-replace the masked descents of the BK full-statement path with the
-validated components (EE's aggregate zero-check + O-4 mask for the
-range/narrowing pairs; S2's LogUp-as-one-sumcheck for the SiLU pairs)
-behind an explicit selector, the frozen pass as oracle, spec =
-U_PERF3_OPENING_LAYER_DESIGN.md §2. OWNS: NEW ring/stage_a.rs, one
-line in ring/mod.rs, the [UPERF3-GG] bin section + the `uperf-a`
-dispatch line, this status section. Everything else read-only.
+STATE: DONE (2026-08-28; rungs 0-5 all landed same day: R0 b0f9afd,
+R1 02bce92, R2 ed7fdd7, R3 3aa8ad3, R4 4feb066, R5 = the close
+commit). LANE SUMMARY — Stage A INTO THE REAL PASS: (1) the object
+map reconciles EXACTLY with memo §1.1 at 12x512 (all rows + totals +
+the 31,116 aux rings); (2) the one-family differential on real 3x16
+grounds EVERY served claim on both sides bit-for-bit against the raw
+committed data, tampers reject both ways; (3) the COMPOSED 3x16 pass
+ACCEPTS behind the selector in all three modes (range / full /
+masked) with bk_pass_run untouched (default byte-identical, floors
+green at every commit) — descent transcript 600,960 B -> 26,320 B
+(full) at 3x16; (4) the O-4 mask rides at pass level with the mask
+coefficients REALLY committed (u_0-bound, not the EE stand-in) and 4
+tamper legs reject at named gates; (5) the 12x128 A/B: bytes 2.15x
+smaller, walls par on this CPU build, and the MEMORY hypothesis
+fails honestly — peak 1.9x HIGHER selector-on and full mode OOMs
+the 15 GiB box (the h-commit finding measured). TWO FINDINGS FOR
+THE RULING: (F1) COMMIT GROWTH the memo does not carry — width
+planes must be committed to close the off-table gap (+4.5M rings at
+12x512, +58% act) and the naive h commit at l0_q=16 adds 25.2M
+rings (act n_0 7.85M -> ~37.5M counted; measured as the 12x128 OOM)
+— options: a cheaper h class/side channel, or Stage-A round 1 =
+range-only (84/96 cols, the unambiguous win) with silu descents
+kept; (F2) the memo §2.1/§2.4 h ORDERING IS CIRCULAR (h depends on
+alpha; u_0 is nonlinear — that0 is a digit decomposition) — the
+working amendment implemented here is a THIRD "act-h" group
+committed mid-transcript (one opening per group preserved; the pass
+gains a group). OWNS: NEW ring/stage_a.rs, one line in ring/mod.rs,
+the [UPERF3-GG] bin section + the `uperf-a` dispatch line, this
+status section. Everything else read-only — bk_pass_run, zc_range,
+manifest.rs untouched.
 
 FLOORS at every commit: release build; uperf-pc diff-battery green;
 uperf-s battery digest 3752cba4.. unchanged; uperf-s agg-battery
@@ -2497,9 +2519,9 @@ PLAN (one commit per green rung, prefix "U-PERF3 GG:"):
   by design, selector-only).
 - [x] R4 O-4 masked variant at pass level + tamper legs (flipped
   mask / tampered claim / tampered round must reject).
-- [ ] R5 (stretch) 12x512 prove wall + /usr/bin/time -v peak RSS,
-  selector on/off [WSL-BOX NT NOISY-SHARED] — the 5.6 GB descent
-  pair memory should vanish from the peak.
+- [x] R5 the A/B walls + /usr/bin/time -v peak RSS, selector on/off,
+  at 12x128 (coordinator-scoped 2026-08-28; 12x512 DEFERRED WITH
+  CAUSE — see the R5 evidence) [WSL-BOX CPU NOISY-SHARED].
 
 OPEN QUESTIONS (conservative readings taken, flagged not guessed):
 - OQ-1 `uperf-a` NAME COLLISION: the brief says "register a uperf-a
@@ -2522,6 +2544,44 @@ OPEN QUESTIONS (conservative readings taken, flagged not guessed):
   booleanity alphabet that closes the negative side is the design
   ruling EE's lane already flagged (bit-granularity commitment).
   Recorded, not silently widened.
+
+R5 EVIDENCE (2026-08-28, WSL box, CPU build, ~22T default,
+NOISY-SHARED; /usr/bin/time -v peaks; all runs under flock):
+- THE A/B TABLE at 12x128 (same box, same binary, selector off/on):
+
+  | leg | accept | commit | prove | verify | bytes | descent/stage-a B | peak RSS |
+  |---|---|---|---|---|---|---|---|
+  | oracle `table-descent prove 12 128 p0` | TRUE | 13.3s | 94.8s | 5.3s | 1,372,775 | 952,128 (descents) | 4,481 MiB |
+  | `uperf-a pass 12 128 range` | TRUE | 17.5s | 109.4s | 12.0s | 637,691 | 215,888 (2 silu descents 187K + zc 29K) | 8,621 MiB |
+  | `uperf-a pass 12 128 full` | KILLED (signal 9, OOM) at ~2:58 | - | - | - | - | - | 14,777 MiB (box ceiling) |
+
+  Groups at 12x128: weight n_0 3,538,944 both legs; act n_0
+  oracle-reg ~2.36M -> 3,091,604 selector-on (+planes); full mode
+  adds act-h n_0 6,291,456 (2x the act group) — the OOM driver.
+- VERDICT (honest, ruling-grade): (i) BYTES: 2.15x smaller
+  selector-on (descent transcript 952 KB -> 216 KB, of which 187 KB
+  is the two KEPT silu descents — the range replacement itself is
+  ~45x on its share). (ii) WALLS: roughly par on this CPU build
+  (the zc E_4 prototype kernels + the +29% act opening offset the
+  descent savings — consistent with the spike's kernel-quality
+  caveat; the counted win needs DD-class kernels and/or the GPU
+  path). (iii) MEMORY: the rung's hypothesis ("the descent-pair
+  memory vanishes from the peak") FAILS at this shape with the
+  naive layouts — peak 1.9x HIGHER selector-on: at t=128 the trees
+  were only ~a few hundred MB while the Stage-A side pays the
+  planes witness + act growth + zc table residency; and full mode
+  OOMs the 15 GiB box outright (the act-h group alone is 2x act —
+  the R1 h-commit finding now MEASURED at pass level).
+- 12x512 DEFERRED WITH CAUSE: range-mode projection from the
+  measured 12x128 peak (act 12.4M rings = 4x, claim tables 4x,
+  nrw-88 zc transient ~5 GB) lands >= the 15 GiB box under
+  NOISY-SHARED; full mode is excluded by the measured 12x128 OOM.
+  Prerequisites named: lane HH's diet on the shared phases + a
+  ruling on the h/planes commitment layout (R1 finding). The
+  descent side's 12x512 CPU baseline also untaken (same box
+  courtesy). No number faked; the counted deltas are in R1.
+- floors: diff-battery 15.38s green; 3752cba4.. / 46234986..
+  unchanged; freeze-check passed.
 
 R4 EVIDENCE (2026-08-28, WSL box, NOISY-SHARED):
 - The O-4 masked variant AT PASS LEVEL (`uperf-a pass 3 16 masked`,

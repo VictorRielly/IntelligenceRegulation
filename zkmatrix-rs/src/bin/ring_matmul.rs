@@ -47801,12 +47801,39 @@ fn gg_map_bytes(reg: &BkRegistry, gh: Option<&ring::eval_proof::AggGroup>) -> Ve
 /// tables the zc instance reads — BOTH built from the same bf_entry_values
 /// arrays.
 struct GgClassData {
+    /// The committed planes tensor values (freed after the pre-commit —
+    /// the digit witness carries them from there; ~6 GB at 12x512).
     planes_vals: Vec<i64>,
-    cols_tabs: Vec<(Vec<Vec<u32>>, Vec<u32>)>,
     /// Masked mode: the private mask + its committed coefficient values
     /// (flat() order, K coords centered).
     mask: Option<ring::zc_range::ZcAggMask>,
     mask_vals: Vec<i64>,
+}
+
+/// The zc instance's (planes, rem) u32 tables for one class — built
+/// per-pair inside the Stage-A phase and dropped after (transient; the
+/// same bf_entry_values bits as the committed planes).
+fn gg_build_class_tabs(sp: &BkPairSpec, cls: &GgClass, lays: &[BfLayer]) -> Vec<(Vec<Vec<u32>>, Vec<u32>)> {
+    let size = 1usize << cls.n_log2;
+    let mut cols_tabs = Vec::with_capacity(cls.members.len());
+    for &mi in &cls.members {
+        let m = &sp.members[mi];
+        let vals = bf_entry_values(m.entry, &lays[m.li]);
+        let mut planes = vec![vec![0u32; size]; cls.w];
+        let mut rem = vec![0u32; size];
+        for r in 0..cls.rows {
+            for c in 0..cls.cols {
+                let code = vals[r * cls.cols + c] + m.offset;
+                let x = r * cls.cols_pad + c;
+                for (k, plane) in planes.iter_mut().enumerate() {
+                    plane[x] = ((code >> k) & 1) as u32;
+                }
+                rem[x] = code as u32;
+            }
+        }
+        cols_tabs.push((planes, rem));
+    }
+    cols_tabs
 }
 
 /// Draw the class's O-4 mask (Masked mode) and lay its coefficients out as
@@ -47881,31 +47908,22 @@ fn gg_mask_claims(
 }
 
 fn gg_build_class_data(sp: &BkPairSpec, cls: &GgClass, lays: &[BfLayer]) -> GgClassData {
-    let size = 1usize << cls.n_log2;
     let mut planes_vals = vec![0i64; cls.members.len() * cls.w * cls.rows * cls.cols_pad];
-    let mut cols_tabs = Vec::with_capacity(cls.members.len());
     for (j, &mi) in cls.members.iter().enumerate() {
         let m = &sp.members[mi];
         let vals = bf_entry_values(m.entry, &lays[m.li]);
         assert_eq!(vals.len(), cls.rows * cls.cols);
-        let mut planes = vec![vec![0u32; size]; cls.w];
-        let mut rem = vec![0u32; size];
         for r in 0..cls.rows {
             for c in 0..cls.cols {
                 let code = vals[r * cls.cols + c] + m.offset;
                 assert!(code >= 0 && (code as u128) < (1u128 << cls.w), "honest range fact");
-                let x = r * cls.cols_pad + c;
                 for k in 0..cls.w {
-                    let bit = (code >> k) & 1;
-                    planes[k][x] = bit as u32;
-                    planes_vals[((j * cls.w + k) * cls.rows + r) * cls.cols_pad + c] = bit;
+                    planes_vals[((j * cls.w + k) * cls.rows + r) * cls.cols_pad + c] = (code >> k) & 1;
                 }
-                rem[x] = code as u32;
             }
         }
-        cols_tabs.push((planes, rem));
     }
-    GgClassData { planes_vals, cols_tabs, mask: None, mask_vals: Vec::new() }
+    GgClassData { planes_vals, mask: None, mask_vals: Vec::new() }
 }
 
 /// The range-class claim builder (shared verbatim by prover and verifier):
@@ -48209,6 +48227,14 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     let sched_h = gh.as_ref().map(|g| ring::eval_proof::plan_schedule(g.n_digit_rings, 2, q, None));
     let mut w0_w = bk_witness_weight(&reg, &lays);
     let mut w0_a = gg_witness_act(&reg, &lays, &specs, &plans, &bk_aux, &class_data, &m_vals);
+    // The committed planes now live in the digit witness — free the i64
+    // staging vectors (~6 GB at 12x512) before the pre-commit peak.
+    for cds in class_data.iter_mut() {
+        for cd in cds.iter_mut() {
+            cd.planes_vals = Vec::new();
+        }
+    }
+    uf_trim();
     let crs_seed = 0xB6_C0DEu64;
     let pre_w = bg_precommit(&ctxr, &reg.gw, &sched_w, &mut w0_w, crs_seed);
     let pre_a = bg_precommit(&ctxr, &reg.ga, &sched_a, &mut w0_a, crs_seed);
@@ -48537,8 +48563,11 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
             let mut proofs = Vec::new();
             for (ci, cls) in plans[pi].classes.iter().enumerate() {
                 let cd = &class_data[pi][ci];
-                let cols_inst: Vec<ZcRangeInstance> = cd
-                    .cols_tabs
+                // Transient per class: the u32 zc tables (dropped at the
+                // end of the class — the memory the descent trees used to
+                // hold is gone; this is the replacement's own residency).
+                let cols_tabs = gg_build_class_tabs(sp, cls, &lays);
+                let cols_inst: Vec<ZcRangeInstance> = cols_tabs
                     .iter()
                     .map(|(p, r)| ZcRangeInstance { n_log2: cls.n_log2, e0: 1, planes: p, rem: r })
                     .collect();
@@ -48571,6 +48600,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
             }
             ships.push(GgShip::Zc(proofs));
         }
+        uf_trim(); // per-pair transient tables back to the OS
     }
     // Rung-4 tamper injection on the SHIPPED objects (the prover's own
     // transcript/claims stay honest; the verifier consumes the flip).
