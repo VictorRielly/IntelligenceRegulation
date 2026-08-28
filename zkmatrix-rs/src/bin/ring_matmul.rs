@@ -45797,6 +45797,8 @@ fn u3_verify_v3_export(t_rows: usize) {
     println!(
         "[UPERF3-BB] verify-export PASSED: {legs} plane legs byte-identical; every table row = a frozen C5 member"
     );
+}
+
 // ---------------------------------------------------------------------------
 // [UPERF3-EE] U-PERF3 round 4, lane EE — the aggregate zero-check arms
 // (engine side: the [UPERF3-EE] section of ring/zc_range.rs). ADDITIVE:
