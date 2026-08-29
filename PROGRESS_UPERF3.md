@@ -3148,3 +3148,70 @@ consumers read windows (bin, bg_prove_group):
   honest cost of (a): ~1-1.5 s at 12x64 (~5%), the price of
   assembling phi windows twice (h pairs + psi) instead of one
   stage-(v) pass.
+
+RUNG 3 — THE RECORD (2026-08-29).
+
+THE MEASURED 125M-SHAPE RSS CURVE (peak RSS KB, /usr/bin/time -v,
+ZK_THREADS=8, flock-serialized, NOISY-SHARED box; the KK baseline IS
+HH's rung-4 endpoint — GG + HH merged at da327a4):
+  shape    HH rd-5 base   KK base    +KK(b) verify-A0  +KK(a) phi1
+  fp3x16     1,126,084     974,648      869,060           869,084
+  pa12x64    2,968,604   2,608,000    2,040,436         2,040,772
+  fp12x64    3,091,220   2,250,276    2,165,536         2,171,604
+  Cumulative across the TWO diet lanes (HH + KK) vs the round-5
+  baseline: fp3x16 -257 MB (-22.8%); pa12x64 -907 MB (-31.3%);
+  fp12x64 -898 MB (-29.7%). Reading per KK fix: (b) is the measured
+  mover at 125M shapes (the verify-phase A_0 re-expansion was the
+  pa12x64 high-water mark: -568 MB); (a) is invisible here (phi_1 is
+  44-400 MB at these shapes, peak sits elsewhere) and counted at 8B.
+  Walls: fp3x16 6.25 -> 6.78 s; pa12x64 19.62 -> 20.87 s; fp12x64
+  25.95 -> 28.54 s (+2.6 s, of which ~1.2 s attributed by the
+  profile to the windowed h pairs, the rest box noise).
+
+THE CORRECTED 8B PROJECTION (HH's rung-4 count, 32x512 range-only
+with Stage A [lane GG, merged] + W-3 [mandatory] + ZK_W0_REGEN
+[exists], with THIS lane's two terms removed; [COUNTED] sizes,
+[MODEL] liveness):
+  commit  ~116  (L 66 + W_w 45.1 + one act split 4.7) — UNCHANGED,
+                 still the pass peak
+  claim    ~71  (regen)
+  lvl-0    ~72  (W + z_all transient 5.9 + flat store)
+  lvl-1    ~29  (WAS ~64: phi_1_w 35.2 REMOVED; s_rings 5.9 +
+                 V1flat 4.2 + act w0 18.6 remain; the act group's
+                 phi_1_a 11.1 removed likewise from its phase)
+  verify    ~6  (WAS ~70: A_w 64.4 + A_a 30.4 NEVER EXPAND; reg_v +
+                 shipped proofs ~5.6 + one resident column block)
+  VERDICT: **~116 GB peak — UNDER 128 GB with ~12 GB margin, and the
+  margin is now ROBUST: the only phase above ~75 GB is the commit
+  phase** (before this lane, claim/lvl-0/lvl-1/verify all sat at
+  64-72 GB, each within estimate-drift range of the line). HH's
+  caveats stand: without W-3 the commit is ~130, without the regen
+  the claim is ~135 (both pieces load-bearing); with the descents as
+  built (no Stage A) the descent phase ~250 GB still dominates.
+  THE LARGEST REMAINING TERM: the commit-phase BfLayer store L =
+  66 GB (i64; W-8(a) drops it only AFTER the commit — it must exist
+  to be committed). The next lever is the W-8 row's other arm:
+  per-class i8/i32 layer storage (~9.9 GB), which would take the
+  commit phase to ~60 GB and make the lvl-0 group phase (~72 GB)
+  the pass peak. 32x16 (the yardstick): peak stays ~95 (claim),
+  with lvl-1 46 -> ~11 and verify 70 -> ~6.
+
+OPEN ITEMS / NOT DONE HERE:
+  * The 2-level tier-z corner materializes phi_1 from the source
+    (values identical by ZK_PHI1_CHECK; no floor leg runs tier-z
+    through bg_prove_group at exactly 2 levels — the corner is
+    small-shape-only, 8B schedules are 8+ levels at 12x64 already).
+  * The (a) wall cost (~5% at 12x64) is the double window assembly
+    (h pairs + psi); if it matters at 8B the two consumers could
+    share one assembly sweep — not built.
+  * At 8B the verify side now pays ~2 extra CRS generations (~50 s
+    [MODEL] instead of holding 64.4 GB) — the W-8 trade, verify-side.
+  * HH's remaining opens stand: bg_pass_run keeps lays end-to-end;
+    z_all ~5.9 GB fold transient; the commit-phase L above.
+
+STATE: DONE (2026-08-29) — rungs 0-3 landed, one commit each, all
+pushed on uperf3-kk; every rung transcript-preserving (five digest
+anchors byte-identical at every commit: fp3x16 93a98700../0ae9cdae..,
+pa12x64 45fb3405.., fp12x64 80763ea5../63f4a3a4..) with floors green
+(diff-battery incl. the 2-level E2E cross-verify; freeze-check 102
+ok exit 0; uperf-s 3752cba4..; agg-battery 46234986..).
