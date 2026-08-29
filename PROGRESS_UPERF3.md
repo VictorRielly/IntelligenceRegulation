@@ -3099,3 +3099,52 @@ guard = bg_precommit's: ZK_A0_BLOCK > 0, !oracle, levels >= 2).
   19.62 -> 19.96 s (+1.7%); fp12x64 25.95 -> 26.11 s (+0.6%) —
   verify-phase walls 0.7->0.8 / 1.3->1.5 / 2.0->2.1 s (the counting
   pass + one regeneration sweep instead of one expansion).
+
+RUNG 2 — diet2(a) LANDED (2026-08-29): phi_1 (the level-1 transported
+functional) is NEVER MATERIALIZED on the streamed-A_0 path. The
+transport's stage-(v) assembly is DEFERRED into an additive
+`TransportPhiSource` (eval_proof.rs: the s/t5/p/q precursor rings +
+a_t1 + the layout — `fill` runs the fast/cols bodies' `one(u)`
+verbatim per window; `transport_level_from_psi_cols_src` = stages
+(i)-(iv) of the cols body verbatim + the source + h_next). The
+consumers read windows (bin, bg_prove_group):
+  * the level-1 h pairs: `bg_level_h_win` -> `level_h_pairs_phiwin`
+    (the level_h_pairs_with_block pattern: r x 1024 phi rings alive,
+    the r x r table accumulated mod q over blocks — exact partial
+    sums, the in-tree blocked-GEMM identity);
+  * the level-2 transport: `compute_psi_from_phiwin` (windows
+    partition the OUTPUT index only — each output ring's whole
+    k-term MAC runs in one compute_psi call on the same ring values;
+    the source's zero pad past n_total = the old resize's) ->
+    transport_level_from_psi;
+  * the 2-level tier-z floor corner: materialize from the source
+    (same rings by the check; 8B schedules are deep — the corner
+    never binds at scale).
+  Gate: ZK_PHI1_WIN=0 disables (A/B); only consulted on the streamed
+  arm, so oracle mode / ZK_A0_BLOCK=0 / < 2-level schedules disable
+  both diets together. Deeper-level phis stay materialized (small).
+  ORACLE CHECK: ZK_PHI1_CHECK=1 at 3x16 — src.materialize() vs the
+  cols body's phi_next FULL-VECTOR EQUAL on both groups (41,568 +
+  9,248 rings) + h_next equal; digests unchanged under the check.
+  ACCEPT: all five identity anchors BYTE-IDENTICAL (93a98700 /
+  0ae9cdae; 45fb3405; 80763ea5 / 63f4a3a4); floors green
+  (diff-battery 0 FAIL — the 2-level E2E leg now runs THROUGH the
+  windowed path fast-side and stays proof-identical to oracle;
+  freeze 102 ok; uperf-s 3752cba4..; agg 46234986..).
+  RSS delta [MEASURED, NOISY-SHARED, vs rung 1]: fp3x16 +0.02 MB;
+  pa12x64 +0.3 MB; fp12x64 +5.9 MB — WITHIN NOISE, honestly
+  recorded: phi_1 at these shapes is 44 MB (3x16 weight) to a few
+  hundred MB (12x64) and the process high-water mark sits in the
+  commit/claim/descent phases. The counted 8B win: 35.2 (w) + 11.1
+  (a) GB of boxed mod-q rings never exist; the source holds the
+  s_rings (~5.9 GB, already a counted round-5 term) + KB-scale
+  t5/p/q rings.
+  WALL delta [MEASURED, honest]: fp12x64 26.11 -> 28.54 s, of which
+  the profile attributes ~1.2 s to bg.level-h (8.62 -> 9.84 s x16 —
+  the windowed h pairs re-assemble phi per block) and ~0.1 s to
+  psi0-factored; the REST of the delta also appears in untouched
+  phases (descent-gkr 4.37 -> 4.76, a.round-g 3.51 -> 3.83) = box
+  noise. fp3x16 6.25 -> 6.78 s; pa12x64 19.96 -> 20.87 s. Net
+  honest cost of (a): ~1-1.5 s at 12x64 (~5%), the price of
+  assembling phi windows twice (h pairs + psi) instead of one
+  stage-(v) pass.
