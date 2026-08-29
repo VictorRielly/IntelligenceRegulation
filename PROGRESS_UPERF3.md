@@ -3005,3 +3005,47 @@ OPEN ITEMS / NOT DONE HERE:
 STATE: DONE (2026-08-28) — rungs 0-4 landed, one commit each, all
 pushed on uperf3-hh; every rung transcript-preserving (five digest
 anchors byte-identical at every commit) with floors green.
+
+## ROUND 6 — MVP-2 OPENS + DIET 2 (opened 2026-08-29; Victor
+## console: spin up the tasks that can run while the Mac works)
+
+Ground: round 5 merged (Stage A integrated; the diet landed; the S4
+line closed); the composition ladder measuring; the five rulings
+pending do NOT gate these lanes (X-S1 is explicitly no-freeze-move;
+diet 2 is transcript-preserving by definition). Floors at every
+commit: diff-battery, freeze-check 102 ok, uperf-s 3752cba4..,
+agg 4623..96, uperf-w 23/23.
+
+### Lane JJ — spike X-S1: the integer softmax chain (wt-uperf3-jj) — RUST+PY, MVP-2's opener
+OWNS: NEW ring/attn_softmax.rs (+ mod line), a `uperf-x` bin
+section + dispatch line, additive exp-member machinery in
+lookup.rs ONLY if the frozen families stay byte-identical (else
+keep members lane-local), "Agent JJ status". SPEC:
+U_PERF3_ATTENTION_STATEMENT_DESIGN.md §5.3 VERBATIM (§2.3 item 1 +
+§1.3 for the chain; ATTENTION_INTEGER_SPEC.md §2.4-2.5 the op
+semantics; scripts/attention_spec_spike.py = the value oracle).
+One committed (head, row) softmax chain end to end through the
+as-built claim machinery: s8 -> m/d/zsel (pins + w8/w1 range facts
++ attainment zero-check) -> E via a REAL LookupAt fused pair with
+a frozen exp member -> Sum by masked thin sumcheck -> P/rho/sigma
+by the division zero-check with broadcast divisor + off-support
+pin — one rolling transcript, PW-3/PW-4 wired for real.
+ACCEPTANCE = the memo's four: honest ACCEPT; the AT-O8/AT-O9
+tamper battery (m over/under, zsel two-hot/off-support,
+off-support P != 0, shifted mask, wrong exp member — each rejects
+at its PRE-REGISTERED gate); values bit-equal the python reference
+at the same seed; the Stage-A leg (the row's range facts through
+zc_range, claims == the descent oracle).
+
+### Lane KK — diet 2: phi_1 windowing + the verifier A_0 site (wt-uperf3-kk) — RUST
+OWNS: the phi_1 consumers + the verifier A_0 expansion site in the
+bin, additive eval_proof.rs helpers, "Agent KK status". SPEC: lane
+HH's findings (its ledger status): (a) phi_1 — the level-1
+aggregated functional (~35+11 GB boxed at 8B, MISSING from the
+scaling memo §3.1) — both consumers windowable; (b) the verifier
+still expands A_0 whole (~70 GB phase at 8B) — HH's CrsColStream
+helper applies, the site was outside HH's grant. ACCEPT: the HH
+discipline verbatim — statement + EVAL-PROOF digests IDENTICAL at
+3x16 and 12x64 at every rung (transcript-preserving only; any
+digest move = revert + record); RSS before/after per fix; the 8B
+projection updated.
