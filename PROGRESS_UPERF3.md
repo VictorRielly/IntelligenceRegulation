@@ -3131,3 +3131,65 @@ this additive spike's own statement):
 FLOORS AT EVERY COMMIT: cargo build --release; uperf-pc diff-battery
 green; uperf-s battery digest 3752cba4..; uperf-s agg-battery digest
 46234986..; freeze-check 102 ok rows + the expected BK panic.
+
+THE FOUR ACCEPTANCES (X-S1, memo §5.3), verdicts:
+  (a) honest ACCEPT — GREEN at the contract point (seed 161,
+      T 512): every fact on ONE rolling transcript (F-one, F-hit,
+      the PW-3 masked row sum, the PW-4 broadcast-divisor DIV,
+      sigma-def, the off-support batch pin, the d-pin, 6 masked
+      descent pairs incl. the REAL fused (d, E) exp pair, 19 ct
+      waves + closing). 1.5 + 34.1 + 8.5 s [WSL-BOX NOISY-SHARED].
+  (b) tamper battery — GREEN, 8/8 legs each at its PRE-REGISTERED
+      gate (digest be89d5da..); the one pre-registration corrected
+      mid-rung and recorded: wrong-exp-member rejects at the
+      masked-claims sum gate (the statement-table leaf pin
+      surfacing one step before the waves), not in the waves.
+  (c) value bit-equality vs scripts/attention_spec_spike.py —
+      GREEN at 4 (seed, T) synthetic pairs + the calibrated
+      variant (CHAIN 949d5cee.. synthetic / b5f2cbf3.. calibrated
+      at the contract point; softmax_int driven VERBATIM).
+  (d) Stage-A leg — GREEN: 4/4 range-fact groups (d w8, zsel w1,
+      rho/sigma w18) through zc_range's zero-check form vs the
+      masked-descent-pair oracle on the same column, c = 16
+      byte-identical to the boxed-K oracle (digest 34c6c1e2..).
+
+WHAT THE SPIKE DE-RISKED (the memo's four names): the four-fact
+softmax coupling under one transcript with no ordering freedom;
+PW-3 (mask as public weights in the d-pin, the masked row sum, and
+the verifier's weight-MLE checks — the shifted-mask leg rejects at
+the FIRST mask-consuming public-weight gate) and PW-4 (the
+broadcast divisor as a free row-MLE read); the exp member registry
+mechanics (spec-header digest byte-compatible with the oracle,
+drift-loud, statement-bound — the wrong-member leg shows the
+STATEMENT table is the only witness needed); and the Stage-A
+sequencing recommendation exercised at attention's widths.
+
+OPEN QUESTIONS (for the round close / X1):
+  * The exp member freeze: lane-local in attn_softmax.rs (eS -1
+    and -2 at d_h 64, fE 9). Promotion into lookup.rs/manifest.rs
+    is additive (no existing digest moves — verified by the floor
+    gates at every commit) but is a C5 registry RULING (AM-2 key
+    extension with the params field); goes to Victor with the X1
+    freeze set.
+  * AM-2 params gap: the calibrated leg keys the member at the
+    spike's d_h 64 while the measured stats are Gemma d_h 256 —
+    the (eS, d_h) member matrix is X2 (AT-O1) output.
+  * wrho at non-contract T derives as fE + log2 T (lane-local);
+    the X1 instancing policy should fix it statement-side.
+  * The wrong-member reject gate: the masked-claims sum gate, not
+    the waves — if the round wants the reject to land INSIDE a
+    named wave, the pin psi would need to bind pin INDICES rather
+    than values (a design note, not a defect: the gate is sound
+    and deterministic either way).
+  * first-failing-gate semantics after a rejecting sumcheck leave
+    the verifier transcript deliberately desynced (house
+    behavior, bf/u3 precedent) — later flags in a rejecting run
+    are not individually meaningful; the verdict names the first.
+
+STATE: DONE (2026-08-29) — rungs 0-5 landed, one commit per rung
+(rungs 2+3 share one commit, reason recorded), all pushed on
+uperf3-jj; footprint purely additive (attn_softmax.rs + mod line +
+the [UPERF3-JJ] bin section + this ledger section + the recorded
+repro script); floors green at every commit (diff-battery, uperf-s
+3752cba4.., agg 46234986.., freeze-check 102 ok + expected BK
+panic).
