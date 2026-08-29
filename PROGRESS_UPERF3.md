@@ -3069,7 +3069,20 @@ RUNG PLAN (one commit per green rung, prefix "U-PERF3 JJ:"):
   4. `uperf-x stage-a [seed] [t]` — the same row's range facts
      (d w8, zsel w1, rho/sigma w18) through zc_range's zero-check
      form vs the descent oracle (acceptance d, the S1/S2 pattern at
-     attention's widths).                                     [PEND]
+     attention's widths).
+     DONE 2026-08-29: 4/4 fact groups at the contract point (seed
+     161, T 512, n 2^18): (a) the masked descent PAIR (the oracle
+     form) root cross-check green per group; (b) the zc_range
+     zero-check at c 8/16 verify + open-check green on the SAME
+     column; (c) c = 16 BYTE-IDENTICAL to the boxed-K oracle
+     (rounds, fold point, finals, transcript state — the uperf-s
+     leg-A identity at attention's widths). 70.2 s total 1T
+     [WSL-BOX NOISY-SHARED]. XS1 STAGE-A DIGEST 34c6c1e2897ad6bb..
+     Differential reading recorded: for RANGE facts the
+     claims-equality is the pair-vs-zc GREEN on one committed
+     column + the K-oracle byte identity (the S2 fraction-sum
+     equality is a LOOKUP-side comparison; the exp pair's Stage-A
+     LogUp form is X1 work, not spiked here).                 [DONE]
   5. (stretch) the 125M-calibrated data variant.              [PEND]
 
 LANE-LOCAL CONVENTIONS (recorded; none transcript-affecting beyond

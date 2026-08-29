@@ -49829,6 +49829,11 @@ fn uperf_x_main(args: &[String]) {
             let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(64);
             uperf_x_battery(seed, t);
         }
+        Some("stage-a") => {
+            let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(161);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(512);
+            uperf_x_stage_a(seed, t);
+        }
         _ => {
             eprintln!("usage: ring_matmul uperf-x chain [seed] [t] | prove [seed] [t] | battery | stage-a [seed] [t]");
             std::process::exit(2);
@@ -51516,4 +51521,131 @@ fn uperf_x_battery(seed: u64, t: usize) {
         t0.elapsed().as_secs_f64()
     );
     println!("[UPERF3-JJ] XS1 BATTERY DIGEST {}", hex_full(&dg));
+}
+
+/// [UPERF3-JJ] rung 4 — `uperf-x stage-a [seed] [t]` (acceptance d):
+/// the SAME chain's range facts (d w8, zsel w1, the rho/sigma
+/// remainder w18s at the contract T) through zc_range's zero-check
+/// form, with the masked descent pair as the ORACLE on the same
+/// committed column (the S1/lane-GG differential pattern at
+/// attention's widths) and the c = 16 sub-extension proven
+/// BYTE-IDENTICAL to the boxed-K oracle (rounds, fold point, finals,
+/// transcript state — the uperf-s battery leg-A identity).
+fn uperf_x_stage_a(seed: u64, t: usize) {
+    use ring::attn_softmax::{E_S, derive_chain, exp_member, seeded_s8};
+    use ring::gkr::{eq_eval, root_cross_check};
+    use ring::kfield::{KElem, KField};
+    use ring::sumcheck::LkpTranscript;
+    use ring::zc_range::{
+        SubExt, ZcRangeInstance, zc_range_open_check, zc_range_prove, zc_range_prove_oracle_k,
+        zc_range_verify,
+    };
+    use sha2::{Digest, Sha256};
+    let t0 = Instant::now();
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let q = ctx.zq.q;
+    assert!(t.is_power_of_two() && t >= 32);
+    let lgt = t.trailing_zeros() as usize;
+    let n_log2 = 2 * lgt;
+    let wrho = xs_wrho(t);
+    let (tab, _) = exp_member(E_S);
+    let s8 = seeded_s8(seed, t * t);
+    let ch = derive_chain(t, &s8, &tab);
+    println!(
+        "[UPERF3-JJ] stage-a leg at seed {seed}, T = {t} (n = 2^{n_log2}; widths d w8, zsel w1, rho/sigma w{wrho}; ZK_THREADS {})",
+        ring::eval_proof::threads()
+    );
+    let groups: [(&str, &[i64], usize); 4] = [
+        ("d-w8", &ch.d, 8),
+        ("zsel-w1", &ch.zsel, 1),
+        (&format!("rho-w{wrho}").leak(), &ch.rho, wrho),
+        (&format!("sigma-w{wrho}").leak(), &ch.sigma, wrho),
+    ];
+    let mut all = Sha256::new();
+    for (gi, (name, vals, w)) in groups.iter().enumerate() {
+        // ---- (a) the masked descent pair — the ORACLE form of the fact.
+        let keys: Vec<KElem> = vals.iter().map(|&v| kf.embed(ctx.zq.to_mod(v))).collect();
+        let tab_k: Vec<KElem> = (0..1u64 << w).map(|j| kf.embed(j)).collect();
+        let mut mult = vec![0u64; 1 << w];
+        for &v in vals.iter() {
+            mult[v as usize] += 1;
+        }
+        let depth = n_log2 + 1;
+        let dt = (w + 1).max(4);
+        let out = uperf_s_descent_pair(
+            &kf, "uperf3-jj-za", (seed as u8) ^ (gi as u8), &keys, &tab_k, &mult, depth, dt,
+        );
+        assert!(
+            root_cross_check(&kf, &out.wroot, &out.troot),
+            "{name}: descent-oracle root cross-check"
+        );
+        // ---- (b) the Stage-A zero-check form on the same column.
+        let (planes, rem) = ring::stage_a::range_planes(vals, 0, *w, n_log2);
+        let inst = ZcRangeInstance { n_log2, e0: 1, planes: &planes, rem: &rem };
+        let mut c16_secs = 0.0;
+        for c in [8usize, 16] {
+            let ext = SubExt::new(&kf, c);
+            let mut tr = LkpTranscript::new("uperf3-jj-za-zc", &[seed as u8 ^ gi as u8; 32]);
+            let rho: Vec<_> = (0..n_log2).map(|_| ext.challenge(&kf, &mut tr)).collect();
+            let betas: Vec<_> = (0..=*w).map(|_| ext.challenge(&kf, &mut tr)).collect();
+            let tz = Instant::now();
+            let (proof, point, _st) = zc_range_prove(&kf, &ext, &inst, &rho, &betas, &mut tr);
+            let prove_s = tz.elapsed().as_secs_f64();
+            let mut tv = LkpTranscript::new("uperf3-jj-za-zc", &[seed as u8 ^ gi as u8; 32]);
+            let rho_v: Vec<_> = (0..n_log2).map(|_| ext.challenge(&kf, &mut tv)).collect();
+            let betas_v: Vec<_> = (0..=*w).map(|_| ext.challenge(&kf, &mut tv)).collect();
+            let vp = zc_range_verify(&kf, &ext, n_log2, 1, *w, &rho_v, &betas_v, &proof, &mut tv);
+            assert!(
+                vp.as_deref() == Some(point.as_slice()) && tv.state() == tr.state(),
+                "{name}: zc verify at c {c}"
+            );
+            assert!(
+                zc_range_open_check(&ext, &inst, &point, &proof.finals),
+                "{name}: open check at c {c}"
+            );
+            for g in &proof.rounds {
+                for e in g {
+                    for x in ext.to_k(e) {
+                        all.update(x.to_le_bytes());
+                    }
+                }
+            }
+            if c == 16 {
+                c16_secs = prove_s;
+                // ---- (c) c = 16 IS the frozen K arithmetic: byte identity
+                // against the boxed-K oracle on the SAME challenges.
+                let mut trb =
+                    LkpTranscript::new("uperf3-jj-za-zc", &[seed as u8 ^ gi as u8; 32]);
+                let rho_k: Vec<KElem> = (0..n_log2).map(|_| trb.challenge_k(&kf)).collect();
+                let betas_k: Vec<KElem> = (0..=*w).map(|_| trb.challenge_k(&kf)).collect();
+                assert!(rho.iter().zip(&rho_k).all(|(e, k)| ext.to_k(e) == *k));
+                let (pk, pointk) = zc_range_prove_oracle_k(&kf, &inst, &rho_k, &betas_k, &mut trb);
+                assert_eq!(tr.state(), trb.state(), "{name}: transcript identity at c=16");
+                for (ge, gk) in proof.rounds.iter().zip(pk.rounds.iter()) {
+                    assert!(
+                        ge.iter().zip(gk.iter()).all(|(e, k)| ext.to_k(e) == *k),
+                        "{name}: round-poly identity"
+                    );
+                }
+                assert!(point.iter().zip(&pointk).all(|(e, k)| ext.to_k(e) == *k));
+                assert_eq!(pk.final_evals[0], eq_eval(&kf, &rho_k, &pointk));
+                assert!(
+                    proof.finals.iter().zip(pk.final_evals[1..].iter()).all(|(e, k)| ext.to_k(e) == *k),
+                    "{name}: finals identity"
+                );
+                let _ = q;
+            }
+        }
+        println!(
+            "  ok   {name}: descent-oracle roots cross-check green (depth {depth} + table depth {dt}, trees+prove {:.2}s) | zc form c 8/16 verify+open green (c16 prove {c16_secs:.2}s) | c16 == boxed-K oracle byte-identical [WSL-BOX NOISY-SHARED]",
+            out.trees_s + out.prove_s
+        );
+    }
+    let dg: [u8; 32] = all.finalize().into();
+    println!(
+        "[UPERF3-JJ] stage-a leg: 4 fact groups x (oracle + zc + K-identity) green in {:.1}s",
+        t0.elapsed().as_secs_f64()
+    );
+    println!("[UPERF3-JJ] XS1 STAGE-A DIGEST {}", hex_full(&dg));
 }
