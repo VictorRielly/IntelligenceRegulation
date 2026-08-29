@@ -3282,3 +3282,190 @@ anchors byte-identical at every commit: fp3x16 93a98700../0ae9cdae..,
 pa12x64 45fb3405.., fp12x64 80763ea5../63f4a3a4..) with floors green
 (diff-battery incl. the 2-level E2E cross-verify; freeze-check 102
 ok exit 0; uperf-s 3752cba4..; agg-battery 46234986..).
+## Agent JJ status (wt-uperf3-jj) — round 6
+
+LANE: SPIKE X-S1 — the integer softmax chain through the real claim
+machinery (U_PERF3_ATTENTION_STATEMENT_DESIGN.md §5.3 verbatim; the
+semantics ATTENTION_INTEGER_SPEC.md §2.4-2.5; the value oracle
+scripts/attention_spec_spike.py). MVP-2's opening rung: the ONE
+construction with no FFN precedent — the softmax row-normalization
+coupling (four fact groups on one rolling transcript).
+
+OWNERSHIP: NEW zkmatrix-rs/src/ring/attn_softmax.rs; one mod line in
+ring/mod.rs; the [UPERF3-JJ] bin section + one `uperf-x` dispatch
+line in bin/ring_matmul.rs; this ledger section. Everything else
+READ-ONLY; frozen registries (lookup.rs / manifest.rs) unmoved.
+
+RUNG PLAN (one commit per green rung, prefix "U-PERF3 JJ:"):
+  0. skeleton: this section + empty attn_softmax.rs + mod line +
+     `uperf-x` stub arm.                                    [DONE]
+  1. `uperf-x chain [seed] [t]` — the Rust value chain bit-equal to
+     the Python oracle (acceptance c early): seeded s8 -> mask ->
+     m/zsel/d -> E (exp member, spec-header digest) -> Sum -> P/rho/
+     sigma; per-tensor sha256 digests printed on both sides.
+     DONE 2026-08-29: BYTE-IDENTICAL at (seed 161, T 512), (7, 128),
+     (20260811, 512), (42, 32) — CHAIN digest at the contract point
+     949d5cee85212bc9..; exp members pinned (eS -1 15903694.., eS -2
+     b4f01aca..) from the oracle's own generator; the Python driver
+     (scratchpad xs1_chain_ref.py) drives softmax_int VERBATIM on the
+     sha256-stream s8.                                        [DONE]
+  2. `uperf-x prove [seed] [t]` — the committed chain through the
+     as-built machinery (u3_layer_run pattern): 9 committed entries
+     (s8, m, zsel, d, E, Sum, P, rho, sigma), the d-pin (PW-3), the
+     F-one/F-hit/Sum/DIV/sigma-def/off-support sumchecks (PW-3/PW-4
+     weights real), 6 lookup/range instances incl. the REAL fused
+     (d, E) LookupAt pair against the lane-local frozen exp member,
+     pins -> psi claims -> masked wave split -> ct waves + closing;
+     honest ACCEPT (acceptance a).
+     DONE 2026-08-29: ACCEPT at the contract point (seed 161,
+     T 512): 2435 data cms / 2476 commits / 19 waves / 703 pins;
+     commit 1.5 s + prove 34.1 s (gates 4.2, lkp 4.1) + verify
+     8.5 s [WSL-BOX NOISY-SHARED]; also ACCEPT at T 32/64/128.
+     Instance transcript order = the spec chain order (d-w8,
+     zsel-w1, exp-pair, P-w10, rho-w, sigma-w).                [DONE]
+  3. `uperf-x battery` — the AT-O8/O9 tamper legs, each at its
+     pre-registered gate (acceptance b): m overstated -> F-hit;
+     m understated -> F-dom (w8 root cross-check); zsel two-hot ->
+     F-one; zsel off-support -> F-hit; off-support P != 0 -> the
+     off-support batch zero-check; shifted mask -> the first PW-3
+     public-weight MLE check (Sum gate); wrong exp member -> the
+     statement-table leaf pin (waves).
+     DONE 2026-08-29: 8/8 legs at seed 161, T 64, EACH at its
+     pre-registered gate, with side-fire isolation checks
+     (m-under: exp-pair root also fires, G1/G2 green under the
+     strongest cheater who re-places zsel at a d=0 position;
+     off-support P: G1-G5 green; shifted mask: G1/G2 green, G3's
+     PW-3 weight-MLE check is the gate; wrong member: ALL gates +
+     roots green — the reject comes from the verifier folding the
+     STATEMENT member into the exp tq leaf pin, surfacing at the
+     masked-claims sum gate one step before the waves — the leg's
+     pre-registration updated to that exact gate, recorded).
+     XS1 BATTERY DIGEST be89d5da10aa7a375f36460f3c1a2a8cac8630b1
+     61cfa189aacd055a476c191a.                                 [DONE]
+  4. `uperf-x stage-a [seed] [t]` — the same row's range facts
+     (d w8, zsel w1, rho/sigma w18) through zc_range's zero-check
+     form vs the descent oracle (acceptance d, the S1/S2 pattern at
+     attention's widths).
+     DONE 2026-08-29: 4/4 fact groups at the contract point (seed
+     161, T 512, n 2^18): (a) the masked descent PAIR (the oracle
+     form) root cross-check green per group; (b) the zc_range
+     zero-check at c 8/16 verify + open-check green on the SAME
+     column; (c) c = 16 BYTE-IDENTICAL to the boxed-K oracle
+     (rounds, fold point, finals, transcript state — the uperf-s
+     leg-A identity at attention's widths). 70.2 s total 1T
+     [WSL-BOX NOISY-SHARED]. XS1 STAGE-A DIGEST 34c6c1e2897ad6bb..
+     Differential reading recorded: for RANGE facts the
+     claims-equality is the pair-vs-zc GREEN on one committed
+     column + the K-oracle byte identity (the S2 fraction-sum
+     equality is a LOOKUP-side comparison; the exp pair's Stage-A
+     LogUp form is X1 work, not spiked here).                 [DONE]
+  5. (stretch) the calibrated data variant.
+     DONE 2026-08-29: `uperf-x prove-cal [seed] [t]` + `chain-cal`.
+     The s8 draw is score-shaped at the MEASURED eS = -2 — lane
+     CC's results/m8b_gemma4_attn_stats.json layer 0 (absmax
+     25.887, e8 = -2; the 125M attention exponents were never
+     captured — the study ran attention fp32 — so the Gemma gate
+     data is the honest measured source, per the round-6 brief);
+     integer-exact Irwin-Hall map (ledger-recorded formula) so
+     the Python driver reproduces it bit-for-bit. Value chain
+     BYTE-IDENTICAL Rust-vs-oracle at (161, 512) CHAIN
+     b5f2cbf358a4d956..; the committed chain ACCEPTs at T 512
+     with the statement binding the eS = -2 member (same rig
+     walls); chain stats printed: exp underflow 0.0% of support,
+     Sum in [512, 46637], row mass [265, 512] vs 2^9 (the
+     oracle's [282, 512] class). NOTE: stats are Gemma d_h 256;
+     the member decay stays keyed at the spike's d_h 64 — the
+     AM-2 params gap is an X1 item, recorded.                 [DONE]
+
+  Repro driver: scripts/attention_xs1_chain_ref.py (NEW file, one
+  step outside the strict ownership grant, additive and
+  collision-free — committed for Grok-resumability of acceptance
+  (c); recorded here as the lane's one ownership note).
+
+LANE-LOCAL CONVENTIONS (recorded; none transcript-affecting beyond
+this additive spike's own statement):
+  * The seeded s8 draw is a SHA-256 counter stream (seed || counter
+    LE64, byte -> (b % 255) - 127), implemented identically on both
+    sides — numpy PCG64 is not replicated in Rust; the CHAIN from s8
+    onward is the oracle's softmax_int verbatim.
+  * The exp member (exp-neg-table-v1, eS = -1, d_h = 64, fE = 9 —
+    the spec's layer-0 example) is LANE-LOCAL: generated in
+    attn_softmax.rs with the spec §2.5 header JSON byte-exact to the
+    oracle's exp_table_digest, digest pinned as a const (drift-loud,
+    silu-v2 discipline). OPEN FREEZE QUESTION: promoting exp members
+    into the lookup.rs/manifest.rs registries is additive (no
+    existing digest moves) but is a C5 registry ruling (the AM-2
+    key extension) — left for Victor with the X1 freeze set.
+  * At T != 512 the remainder width derives as wrho = fE + log2(T)
+    (18 at the contract T = 512, matching the oracle's w18); the
+    battery runs at small T with derived widths. OPEN QUESTION:
+    instancing/width policy at non-contract T is X1 work.
+  * zsel is the FIRST argmax position (np.argmax first-occurrence
+    convention) — any attainment witness verifies; the oracle pick
+    is pinned for the bit-equality leg only.
+
+FLOORS AT EVERY COMMIT: cargo build --release; uperf-pc diff-battery
+green; uperf-s battery digest 3752cba4..; uperf-s agg-battery digest
+46234986..; freeze-check 102 ok rows + the expected BK panic.
+
+THE FOUR ACCEPTANCES (X-S1, memo §5.3), verdicts:
+  (a) honest ACCEPT — GREEN at the contract point (seed 161,
+      T 512): every fact on ONE rolling transcript (F-one, F-hit,
+      the PW-3 masked row sum, the PW-4 broadcast-divisor DIV,
+      sigma-def, the off-support batch pin, the d-pin, 6 masked
+      descent pairs incl. the REAL fused (d, E) exp pair, 19 ct
+      waves + closing). 1.5 + 34.1 + 8.5 s [WSL-BOX NOISY-SHARED].
+  (b) tamper battery — GREEN, 8/8 legs each at its PRE-REGISTERED
+      gate (digest be89d5da..); the one pre-registration corrected
+      mid-rung and recorded: wrong-exp-member rejects at the
+      masked-claims sum gate (the statement-table leaf pin
+      surfacing one step before the waves), not in the waves.
+  (c) value bit-equality vs scripts/attention_spec_spike.py —
+      GREEN at 4 (seed, T) synthetic pairs + the calibrated
+      variant (CHAIN 949d5cee.. synthetic / b5f2cbf3.. calibrated
+      at the contract point; softmax_int driven VERBATIM).
+  (d) Stage-A leg — GREEN: 4/4 range-fact groups (d w8, zsel w1,
+      rho/sigma w18) through zc_range's zero-check form vs the
+      masked-descent-pair oracle on the same column, c = 16
+      byte-identical to the boxed-K oracle (digest 34c6c1e2..).
+
+WHAT THE SPIKE DE-RISKED (the memo's four names): the four-fact
+softmax coupling under one transcript with no ordering freedom;
+PW-3 (mask as public weights in the d-pin, the masked row sum, and
+the verifier's weight-MLE checks — the shifted-mask leg rejects at
+the FIRST mask-consuming public-weight gate) and PW-4 (the
+broadcast divisor as a free row-MLE read); the exp member registry
+mechanics (spec-header digest byte-compatible with the oracle,
+drift-loud, statement-bound — the wrong-member leg shows the
+STATEMENT table is the only witness needed); and the Stage-A
+sequencing recommendation exercised at attention's widths.
+
+OPEN QUESTIONS (for the round close / X1):
+  * The exp member freeze: lane-local in attn_softmax.rs (eS -1
+    and -2 at d_h 64, fE 9). Promotion into lookup.rs/manifest.rs
+    is additive (no existing digest moves — verified by the floor
+    gates at every commit) but is a C5 registry RULING (AM-2 key
+    extension with the params field); goes to Victor with the X1
+    freeze set.
+  * AM-2 params gap: the calibrated leg keys the member at the
+    spike's d_h 64 while the measured stats are Gemma d_h 256 —
+    the (eS, d_h) member matrix is X2 (AT-O1) output.
+  * wrho at non-contract T derives as fE + log2 T (lane-local);
+    the X1 instancing policy should fix it statement-side.
+  * The wrong-member reject gate: the masked-claims sum gate, not
+    the waves — if the round wants the reject to land INSIDE a
+    named wave, the pin psi would need to bind pin INDICES rather
+    than values (a design note, not a defect: the gate is sound
+    and deterministic either way).
+  * first-failing-gate semantics after a rejecting sumcheck leave
+    the verifier transcript deliberately desynced (house
+    behavior, bf/u3 precedent) — later flags in a rejecting run
+    are not individually meaningful; the verdict names the first.
+
+STATE: DONE (2026-08-29) — rungs 0-5 landed, one commit per rung
+(rungs 2+3 share one commit, reason recorded), all pushed on
+uperf3-jj; footprint purely additive (attn_softmax.rs + mod line +
+the [UPERF3-JJ] bin section + this ledger section + the recorded
+repro script); floors green at every commit (diff-battery, uperf-s
+3752cba4.., agg 46234986.., freeze-check 102 ok + expected BK
+panic).

@@ -50,6 +50,7 @@ pub mod ec_kernel; // [UPERF3-DD] Stage A round 4: the production E_c MAC kernel
 pub mod zc_range; // [UPERF3-S] SPIKE (S1/S2): base-field/E_c zero-check + LogUp-as-sumcheck; not called by any shipped path
 pub mod two_tier; // [UPERF3-FF] SPIKE (S4): the sqrt two-tier opening front end; not called by any shipped path
 pub mod stage_a; // [UPERF3-GG] Stage A round 5: the descent replacement in the real pass (selector-gated); not called by any shipped path
+pub mod attn_softmax; // [UPERF3-JJ] SPIKE X-S1: the integer softmax chain value side (lane-local exp member + oracle-exact derivation); not called by any shipped path
 
 pub use aux::D;
 pub const LOG2_DELTA0: f64 = 0.005326; // log2(1.0037), same C3 model as Route Z
