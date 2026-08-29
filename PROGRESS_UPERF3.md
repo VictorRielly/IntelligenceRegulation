@@ -3083,7 +3083,28 @@ RUNG PLAN (one commit per green rung, prefix "U-PERF3 JJ:"):
      column + the K-oracle byte identity (the S2 fraction-sum
      equality is a LOOKUP-side comparison; the exp pair's Stage-A
      LogUp form is X1 work, not spiked here).                 [DONE]
-  5. (stretch) the 125M-calibrated data variant.              [PEND]
+  5. (stretch) the calibrated data variant.
+     DONE 2026-08-29: `uperf-x prove-cal [seed] [t]` + `chain-cal`.
+     The s8 draw is score-shaped at the MEASURED eS = -2 — lane
+     CC's results/m8b_gemma4_attn_stats.json layer 0 (absmax
+     25.887, e8 = -2; the 125M attention exponents were never
+     captured — the study ran attention fp32 — so the Gemma gate
+     data is the honest measured source, per the round-6 brief);
+     integer-exact Irwin-Hall map (ledger-recorded formula) so
+     the Python driver reproduces it bit-for-bit. Value chain
+     BYTE-IDENTICAL Rust-vs-oracle at (161, 512) CHAIN
+     b5f2cbf358a4d956..; the committed chain ACCEPTs at T 512
+     with the statement binding the eS = -2 member (same rig
+     walls); chain stats printed: exp underflow 0.0% of support,
+     Sum in [512, 46637], row mass [265, 512] vs 2^9 (the
+     oracle's [282, 512] class). NOTE: stats are Gemma d_h 256;
+     the member decay stays keyed at the spike's d_h 64 — the
+     AM-2 params gap is an X1 item, recorded.                 [DONE]
+
+  Repro driver: scripts/attention_xs1_chain_ref.py (NEW file, one
+  step outside the strict ownership grant, additive and
+  collision-free — committed for Grok-resumability of acceptance
+  (c); recorded here as the lane's one ownership note).
 
 LANE-LOCAL CONVENTIONS (recorded; none transcript-affecting beyond
 this additive spike's own statement):

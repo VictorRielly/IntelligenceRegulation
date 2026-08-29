@@ -115,6 +115,36 @@ pub fn seeded_s8(seed: u64, n: usize) -> Vec<i64> {
     out
 }
 
+/// The CALIBRATED-DATA s8 draw (rung 5): score-shaped values on the
+/// int8 grid at eS = -2 — the MEASURED layer-0 scores exponent of
+/// results/m8b_gemma4_attn_stats.json (lane CC, [MEASURED WSL-BOX NT]:
+/// absmax 25.887, p999 23.076, e8 = -2; note recorded: the stats are
+/// Gemma-4 d_h 256 — the member's decay stays keyed at the spike's
+/// d_h 64, the AM-2 params gap is an open X1 item). Integer-exact
+/// Irwin-Hall map so the Python driver reproduces it bit-for-bit:
+/// s = sum of 16 raw stream bytes (mean 2040, std ~295.6);
+/// s8 = clamp((s - 2040) * 3121 >> 15, -103, 103)
+/// (std(s8) ~28 -> real std ~7.0 at the 2^-2 grid; |real| <= 25.75).
+pub fn calibrated_s8(seed: u64, n: usize) -> Vec<i64> {
+    let mut bytes = Vec::with_capacity(n * 16);
+    let mut ctr = 0u64;
+    while bytes.len() < n * 16 {
+        let mut h = Sha256::new();
+        h.update(seed.to_le_bytes());
+        h.update(b"cal");
+        h.update(ctr.to_le_bytes());
+        let block: [u8; 32] = h.finalize().into();
+        bytes.extend_from_slice(&block);
+        ctr += 1;
+    }
+    (0..n)
+        .map(|i| {
+            let s: i64 = bytes[i * 16..(i + 1) * 16].iter().map(|&b| b as i64).sum();
+            (((s - 2040) * 3121) >> 15).clamp(-103, 103)
+        })
+        .collect()
+}
+
 /// One (head, row-block) softmax chain at T rows — the oracle's
 /// `softmax_int` verbatim (row-major T x T tensors; support t' <= t).
 pub struct SoftmaxChain {

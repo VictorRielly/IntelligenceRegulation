@@ -49817,7 +49817,12 @@ fn uperf_x_main(args: &[String]) {
         Some("chain") => {
             let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(161);
             let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(512);
-            uperf_x_chain(seed, t);
+            uperf_x_chain_inner(seed, t, false);
+        }
+        Some("chain-cal") => {
+            let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(161);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(512);
+            uperf_x_chain_inner(seed, t, true);
         }
         Some("prove") => {
             let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(161);
@@ -49829,35 +49834,46 @@ fn uperf_x_main(args: &[String]) {
             let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(64);
             uperf_x_battery(seed, t);
         }
+        Some("prove-cal") => {
+            let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(161);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(512);
+            uperf_x_prove_cal(seed, t);
+        }
         Some("stage-a") => {
             let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(161);
             let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(512);
             uperf_x_stage_a(seed, t);
         }
         _ => {
-            eprintln!("usage: ring_matmul uperf-x chain [seed] [t] | prove [seed] [t] | battery | stage-a [seed] [t]");
+            eprintln!("usage: ring_matmul uperf-x chain [seed] [t] | prove [seed] [t] | prove-cal [seed] [t] | battery [seed] [t] | stage-a [seed] [t]");
             std::process::exit(2);
         }
     }
 }
 
-/// [UPERF3-JJ] rung 1 — `uperf-x chain [seed] [t]`: the value chain,
-/// printed in the exact format of the Python side
+/// [UPERF3-JJ] rung 1 — `uperf-x chain [seed] [t]` (and the rung-5
+/// `chain-cal` twin at the measured eS = -2 on calibrated-shaped s8):
+/// the value chain, printed in the exact format of the Python side
 /// (scratchpad xs1_chain_ref.py driving the oracle's softmax_int) for
 /// a byte-for-byte diff. Acceptance (c).
-fn uperf_x_chain(seed: u64, t: usize) {
+fn uperf_x_chain_inner(seed: u64, t: usize, cal: bool) {
     use ring::attn_softmax::{
-        E_S, F_E, F_P, HEAD_DIM, derive_chain, exp_member, seeded_s8, tensor_digest,
+        E_S, F_E, F_P, HEAD_DIM, calibrated_s8, derive_chain, exp_member, seeded_s8,
+        tensor_digest,
     };
     use sha2::{Digest, Sha256};
+    let es = if cal { -2 } else { E_S };
     let hex = |d: &[u8; 32]| d.iter().map(|b| format!("{b:02x}")).collect::<String>();
-    let (tab, tab_dig) = exp_member(E_S);
-    let (_, tab_dig_m2) = exp_member(E_S - 1);
-    let s8 = seeded_s8(seed, t * t);
+    let (tab, tab_dig) = exp_member(es);
+    let (_, tab_dig_m2) = exp_member(if es == -1 { -2 } else { -1 });
+    let s8 = if cal { calibrated_s8(seed, t * t) } else { seeded_s8(seed, t * t) };
     let ch = derive_chain(t, &s8, &tab);
-    println!("[UPERF3-JJ] chain seed {seed} t {t} eS {E_S} d_h {HEAD_DIM} fE {F_E} fP {F_P}");
-    println!("  exp-member(eS {E_S})  {}", hex(&tab_dig));
-    println!("  exp-member(eS {})  {}", E_S - 1, hex(&tab_dig_m2));
+    println!(
+        "[UPERF3-JJ] chain{} seed {seed} t {t} eS {es} d_h {HEAD_DIM} fE {F_E} fP {F_P}",
+        if cal { "-cal" } else { "" }
+    );
+    println!("  exp-member(eS {es})  {}", hex(&tab_dig));
+    println!("  exp-member(eS {})  {}", if es == -1 { -2 } else { -1 }, hex(&tab_dig_m2));
     let tensors: [(&str, &[i64]); 9] = [
         ("s8", &ch.s8), ("m", &ch.m), ("zsel", &ch.zsel), ("d", &ch.d), ("E", &ch.e),
         ("Sum", &ch.sum), ("P", &ch.p), ("rho", &ch.rho), ("sigma", &ch.sigma),
@@ -50007,7 +50023,7 @@ struct XsInst {
     tm_c: usize,
 }
 
-fn xs_instances(t: usize) -> Vec<XsInst> {
+fn xs_instances(t: usize, es: i32) -> Vec<XsInst> {
     let n2 = t * t;
     let wrho = xs_wrho(t);
     let mk = |name: &str, entry: usize, pair: Option<usize>, t_rows: usize, exp_es: Option<i32>| XsInst {
@@ -50032,7 +50048,7 @@ fn xs_instances(t: usize) -> Vec<XsInst> {
     vec![
         mk("rng-d-w8", 3, None, 256, None),
         mk("rng-zsel-w1", 2, None, 2, None),
-        mk("exp-pair", 3, Some(4), 256, Some(ring::attn_softmax::E_S)),
+        mk("exp-pair", 3, Some(4), 256, Some(es)),
         mk("rng-P-w10", 6, None, 1 << 10, None),
         mk(&format!("rng-rho-w{wrho}"), 7, None, 1 << wrho, None),
         mk(&format!("rng-sigma-w{wrho}"), 8, None, 1 << wrho, None),
@@ -50055,7 +50071,7 @@ struct XsLayout {
     pad_layout: ring::ct_engine::WavePadLayout,
 }
 
-fn xs_layout(t: usize, shape: CommitShape, q: u64) -> XsLayout {
+fn xs_layout(t: usize, es: i32, shape: CommitShape, q: u64) -> XsLayout {
     use ring::ct_engine::{WavePadLayout, plan_waves};
     use ring::gkr_masked::mask_coeff_counts;
     use ring::kfield::K_DEG;
@@ -50071,7 +50087,7 @@ fn xs_layout(t: usize, shape: CommitShape, q: u64) -> XsLayout {
         cursor += entry_cms[e];
     }
     let kel_cms = |n_kel: usize| (n_kel * K_DEG).div_ceil(per).max(1);
-    let mut insts = xs_instances(t);
+    let mut insts = xs_instances(t, es);
     for inst in insts.iter_mut() {
         let (gw, rw) = mask_coeff_counts(inst.dw, 0);
         let (gt, rt) = mask_coeff_counts(inst.dt, 0);
@@ -50122,18 +50138,18 @@ fn xs_layout(t: usize, shape: CommitShape, q: u64) -> XsLayout {
 /// the STATEMENT exp member digest + the causal-mask convention + the
 /// entry commitment digests. The witness tags bind exactly as in the
 /// bf/u3 pass statements.
-fn xs_statement_bytes(t: usize, commit_digests: &[Vec<u8>], crs_hash: &[u8]) -> Vec<u8> {
-    use ring::attn_softmax::{E_S, F_E, F_P, HEAD_DIM, exp_member};
+fn xs_statement_bytes(t: usize, es: i32, commit_digests: &[Vec<u8>], crs_hash: &[u8]) -> Vec<u8> {
+    use ring::attn_softmax::{F_E, F_P, HEAD_DIM, exp_member};
     let mut b: Vec<u8> = b"uperf3-jj-xs1-v1".to_vec();
     b.extend(crs_hash);
     for v in [t, HEAD_DIM, xs_wrho(t)] {
         b.extend((v as u64).to_le_bytes());
     }
-    for v in [E_S, F_E as i32, F_P as i32] {
+    for v in [es, F_E as i32, F_P as i32] {
         b.extend(v.to_le_bytes());
     }
     b.extend(b"mask:causal-lower-tri;offsupport-reads:-127;offsupport-aux:0");
-    let (_, dg) = exp_member(E_S);
+    let (_, dg) = exp_member(es);
     b.extend(dg);
     for d in commit_digests {
         b.extend(d);
@@ -50280,8 +50296,15 @@ impl XsVerdict {
 /// [UPERF3-JJ] The X-S1 committed-chain run: derive (with tamper),
 /// commit, prove on ONE rolling transcript, verify. Returns the verdict
 /// + (commit_s, prove_s, verify_s, n_pins, n_waves).
-fn xs1_run(seed: u64, t: usize, tamper: XsTamper, quiet: bool) -> (XsVerdict, [f64; 3], usize, usize) {
-    use ring::attn_softmax::{E_S, F_P, derive_chain, exp_member, seeded_s8};
+fn xs1_run(
+    seed: u64,
+    t: usize,
+    es: i32,
+    cal: bool,
+    tamper: XsTamper,
+    quiet: bool,
+) -> (XsVerdict, [f64; 3], usize, usize) {
+    use ring::attn_softmax::{F_P, calibrated_s8, derive_chain, exp_member, seeded_s8};
     use ring::ct_engine::{
         CtClaim, StdOpening, WavePads, closing_round_claims, ct_h0, derive_ct_round_params,
         draw_wave_pads, pack_wave_pads, prove_ct_round, sample_ct_masks,
@@ -50314,9 +50337,9 @@ fn xs1_run(seed: u64, t: usize, tamper: XsTamper, quiet: bool) -> (XsVerdict, [f
     let n2 = t * t;
 
     // ---- The witness chain (honest, then the tamper knob). --------------
-    let s8 = seeded_s8(seed, n2);
-    let (tab_stmt, _) = exp_member(E_S);
-    let (tab_wrong, _) = exp_member(E_S - 1);
+    let s8 = if cal { calibrated_s8(seed, n2) } else { seeded_s8(seed, n2) };
+    let (tab_stmt, _) = exp_member(es);
+    let (tab_wrong, _) = exp_member(if es == -1 { -2 } else { -1 });
     let honest = derive_chain(t, &s8, &tab_stmt);
     {
         // Rung-1 tie: the rig's knobbed derivation at honest knobs
@@ -50397,7 +50420,7 @@ fn xs1_run(seed: u64, t: usize, tamper: XsTamper, quiet: bool) -> (XsVerdict, [f
     let a1p = build_a1_paths(&crs, rp_probe.sigma, isqrt_u128(rp_probe.bound_sq));
     let path = KernelPath::A1(&a1p);
     let (entry_digests, kept) = xs_commit_entries(&ch, t, shape, &crs, &path);
-    let ml = xs_layout(t, shape, q);
+    let ml = xs_layout(t, es, shape, q);
     let BfCommitted { mut msgs, mut rhos8, mut t1s, mut t2s } = kept;
 
     let mut rng = ring::ProverRng::from_test_seed(
@@ -50556,7 +50579,7 @@ fn xs1_run(seed: u64, t: usize, tamper: XsTamper, quiet: bool) -> (XsVerdict, [f
     };
 
     // ---- The statement + h0 (binds EVERY commitment). -------------------
-    let st_bytes = xs_statement_bytes(t, &entry_digests, &crs.crs_hash);
+    let st_bytes = xs_statement_bytes(t, es, &entry_digests, &crs.crs_hash);
     let ctx = uk8_sha(&[&st_bytes]);
     let h0 = ct_h0(&crs, &ctx, &t1s, &t2s, &[]);
 
@@ -51111,7 +51134,7 @@ fn xs1_run(seed: u64, t: usize, tamper: XsTamper, quiet: bool) -> (XsVerdict, [f
     // =====================================================================
     let t_verify = Instant::now();
     {
-        let st_v = xs_statement_bytes(t, &entry_digests, &crs.crs_hash);
+        let st_v = xs_statement_bytes(t, es, &entry_digests, &crs.crs_hash);
         if uk8_sha(&[&st_v]) != ctx {
             verdict.statement_ok = false;
             return (verdict, [commit_s, prove_s, 0.0], n_pins, n_waves);
@@ -51399,14 +51422,60 @@ fn xs1_run(seed: u64, t: usize, tamper: XsTamper, quiet: bool) -> (XsVerdict, [f
 
 /// [UPERF3-JJ] `uperf-x prove [seed] [t]` — acceptance (a).
 fn uperf_x_prove(seed: u64, t: usize) {
-    let (verdict, _, _, _) = xs1_run(seed, t, XsTamper::None, false);
-    let insts = xs_instances(t);
+    let (verdict, _, _, _) = xs1_run(seed, t, ring::attn_softmax::E_S, false, XsTamper::None, false);
+    let insts = xs_instances(t, ring::attn_softmax::E_S);
     println!(
         "[UPERF3-JJ] prove: {} (first gate state: {})",
         if verdict.accept() { "ACCEPT" } else { "REJECT" },
         verdict.first_failed_gate(&insts)
     );
     assert!(verdict.accept(), "honest xs1 chain must ACCEPT");
+}
+
+/// [UPERF3-JJ] rung 5 — `uperf-x prove-cal [seed] [t]`: the
+/// CALIBRATED-DATA variant. The s8 draw is score-shaped at the
+/// MEASURED eS = -2 (lane CC's results/m8b_gemma4_attn_stats.json,
+/// layer 0: absmax 25.887, e8 -2); the statement binds the eS = -2
+/// member; chain stats (exp underflow share, Sum range, row-mass
+/// window) printed for the record.
+fn uperf_x_prove_cal(seed: u64, t: usize) {
+    use ring::attn_softmax::{F_E, F_P, calibrated_s8, derive_chain, exp_member};
+    let es = -2;
+    let (tab, _) = exp_member(es);
+    let s8 = calibrated_s8(seed, t * t);
+    let ch = derive_chain(t, &s8, &tab);
+    let mut zero_e = 0usize;
+    let mut support = 0usize;
+    for r in 0..t {
+        for c in 0..=r {
+            support += 1;
+            if ch.e[r * t + c] == 0 {
+                zero_e += 1;
+            }
+        }
+    }
+    let (mut mass_lo, mut mass_hi) = (i64::MAX, i64::MIN);
+    for r in 0..t {
+        let m: i64 = (0..=r).map(|c| ch.p[r * t + c]).sum();
+        mass_lo = mass_lo.min(m);
+        mass_hi = mass_hi.max(m);
+    }
+    println!(
+        "[UPERF3-JJ] prove-cal chain stats: exp underflow {:.1}% of support | Sum in [{}, {}] (floor 2^{F_E} = {}) | row mass in [{mass_lo}, {mass_hi}] vs 2^{F_P} = {}",
+        100.0 * zero_e as f64 / support as f64,
+        ch.sum.iter().min().unwrap(),
+        ch.sum.iter().max().unwrap(),
+        1i64 << F_E,
+        1i64 << F_P
+    );
+    let (verdict, _, _, _) = xs1_run(seed, t, es, true, XsTamper::None, false);
+    let insts = xs_instances(t, es);
+    println!(
+        "[UPERF3-JJ] prove-cal (eS -2, measured exponent): {} (first gate state: {})",
+        if verdict.accept() { "ACCEPT" } else { "REJECT" },
+        verdict.first_failed_gate(&insts)
+    );
+    assert!(verdict.accept(), "calibrated xs1 chain must ACCEPT");
 }
 
 /// [UPERF3-JJ] rung 3 — `uperf-x battery [seed] [t]`: the AT-O8/AT-O9
@@ -51420,7 +51489,7 @@ fn uperf_x_battery(seed: u64, t: usize) {
         "[UPERF3-JJ] uperf-x battery at seed {seed}, T = {t} (ZK_THREADS {})",
         ring::eval_proof::threads()
     );
-    let insts = xs_instances(t);
+    let insts = xs_instances(t, ring::attn_softmax::E_S);
     // (leg, tamper, the PRE-REGISTERED gate as first_failed_gate names it,
     //  side-fire notes asserted where checkable).
     let legs: Vec<(&str, XsTamper, String)> = vec![
@@ -51468,7 +51537,7 @@ fn uperf_x_battery(seed: u64, t: usize) {
     let mut digest = Sha256::new();
     let mut all_ok = true;
     for (name, tamper, expect) in &legs {
-        let (verdict, _, _, _) = xs1_run(seed, t, *tamper, true);
+        let (verdict, _, _, _) = xs1_run(seed, t, ring::attn_softmax::E_S, false, *tamper, true);
         let got = verdict.first_failed_gate(&insts);
         let leg_ok = got == *expect
             && (*tamper == XsTamper::None) == verdict.accept();
