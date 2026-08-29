@@ -19,6 +19,31 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-08-29 (ROUND 6 MERGED; main current; four battery
+digests + all identity anchors green on the final tree):**
+- **JJ — SPIKE X-S1 GREEN ON ALL FOUR ACCEPTANCES: the first
+  attention machinery exists** — a committed integer softmax chain
+  end-to-end through the real claim machinery (2435 cms / 703
+  pins, the REAL fused (d,E) LookupAt pair, one rolling
+  transcript); 8/8 tamper legs at pre-registered gates (XS1
+  battery digest be89d5da..); values byte-identical to
+  scripts/attention_spec_spike.py, synthetic + Gemma-calibrated;
+  the Stage-A leg byte-identical vs the descent oracle at
+  attention widths. MVP-2's X1 rung (entry classes + PW wirings)
+  is UNBLOCKED. New ruling item: the exp-member C5/AM-2 promotion
+  (lane-local members await the X1 freeze set).
+- **KK — DIET 2 landed digest-identical**: the verifier A_0
+  streams (the ~70 GB 8B verify phase -> ~6 GB); phi_1 windowed.
+  **8B 32x512 peak ~116 GB with ~12 GB margin, ROBUST (one phase
+  above 75 GB, was four)**; next lever = the i8 layer store
+  (-> peak ~72 GB class). Cumulative diet at 125M: -23..-31% RSS.
+- **The composition ladder**: diet x Stage A ACCEPTS in one binary
+  at 12x64 + 12x128 (bytes 2.1-2.15x smaller, prove +15%, the
+  diet reaches Stage-A mode) — the F1 ruling input.
+- Design memo Appendix A carries the A.1/A.2/A.3 amendment texts;
+  U_PERF3_S4_REDESIGN.md is the closed headline record. RULINGS
+  PENDING: the round-5 five + AM-2/exp-members.
+
 **AS OF 2026-08-28 (ROUND 5 MERGED; main fast-forwarded; all gates
 + both identity anchors green on the final tree):**
 - **ROUND 5 VERDICTS**: **GG — STAGE A IS INTEGRATED ON THE REAL
