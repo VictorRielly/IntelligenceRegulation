@@ -3073,3 +3073,212 @@ place to see Stage-A's memory win (descent pairs here are ~1 GB;
 at 8B they are 120 GB) — the F1 ruling input is: range-only Stage A
 composes cleanly with the diet TODAY, and every counted 8B term
 says the composition is what fits 128 GB.
+## Agent KK status (wt-uperf3-kk) — round 6
+
+STATE: OPEN (2026-08-29) — DIET 2: (a) phi_1 windowing (the level-1
+aggregated functional, ~35.2 + 11.1 GB boxed mod-q at 8B — the
+first-order term HH's projection surfaced, NOT in memo 3.1's
+component list) and (b) the verifier-side A_0 expansion
+(bg_verify_group's level-0 expand_level_matrix_arc, HH's recorded
+open item — CrsColStream applies directly). ACCEPTANCE at EVERY
+rung: the identity anchors BYTE-IDENTICAL (fp3x16 stmt 93a98700..
++ EP 0ae9cdae..; the 12x64 digests captured at rung 0 below) + the
+floors (build; diff-battery; freeze-check 102 ok + expected export
+panic; uperf-s battery 3752cba4..; uperf-s agg-battery 46234986..).
+A memory diet is TRANSCRIPT-PRESERVING ONLY: any digest move =
+revert the rung, record the failure, do NOT fix forward.
+
+RUNG PLAN:
+  0. skeleton + BASELINE (this section): /usr/bin/time -v at 3x16
+     and 12x64 under flock; digests + peak RSS captured. [DONE below]
+  1. (b) the verifier A_0 through CrsColStream — bg_verify_group's
+     level-0 handle becomes BgA0 (Stream when ZK_A0_BLOCK > 0,
+     !oracle, levels >= 2 — HH's precommit guard mirrored); the
+     li == 1 transport consumes it via transport_level_from_psi_cols
+     (landed round 5). Deeper levels / the floor keep Mat.
+  2. (a) phi_1 windowed at its consumers: the transport's stage-(v)
+     assembly DEFERRED into a TransportPhiSource (s/t5/p/q precursor
+     rings + the `one(u)` assembly — ~s_rings-sized, 5.9 GB at 8B,
+     vs 35.2 GB materialized); consumers read windows: the level-1
+     h pairs (blocked GEMM, the level_h_pairs_with_block pattern),
+     the level-2 transport + the tier-z floor (both consume phi only
+     through Psi — computed per output block from the source).
+     ZK_PHI1_CHECK=1 oracle leg (materialize vs the cols transport's
+     phi_next) run once at 3x16.
+  3. THE RECORD: the RSS curve (HH round-5 numbers + these rungs) +
+     the corrected 8B projection (the 32x512 range-only-Stage-A
+     ~116 GB with phi_1 + verifier-A_0 removed; the margin verdict
+     and the largest remaining term).
+
+OWNERSHIP: bg_prove_group's phi_1 consumer sites + bg_verify_group's
+A_0 site (src/bin/ring_matmul.rs); ADDITIVE helpers in
+ring/eval_proof.rs. READ-ONLY: manifest.rs, stage_a.rs, zc_range.rs,
+ec_kernel.rs, attn_softmax.rs, kfield/gkr/descent internals.
+
+BASELINE (2026-08-29, WSL box, ZK_THREADS=8, M125_EXPORT_DIR=
+/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl,
+each run under flock /tmp/zk-heavy.lock; NOISY-SHARED label applies
+to walls; tree = da327a4, i.e. HH's round-5 diet + GG's Stage A
+already merged — this baseline IS HH's rung-4 endpoint):
+  * fp3x16: accept=true, wall 6.25 s, peak RSS 974,648 KB; STATEMENT
+    93a987002a7c4b60c3dfbfc62b7a4f0e5957d8ae2039014ff241e323285fb790
+    EVAL-PROOF
+    0ae9cdae66607239a80cc1f1dea36248370edadbe85214144aee7a5250d975be
+    — BOTH match the brief's pinned anchors.
+  * pa12x64 (pass-agg prove 12 64 p0): wall 19.62 s, peak RSS
+    2,608,000 KB; STATEMENT 45fb340517eee2344b44dd40d4e47562d80305
+    eb7c5604c9c6cf61ede37443dc (matches HH's).
+  * fp12x64: accept=true, wall 25.95 s, peak RSS 2,250,276 KB;
+    STATEMENT 80763ea537e77cd9cb5c538397af2622044447d654b8e9a34cae
+    3ccad8f3f115; EVAL-PROOF 63f4a3a4320a47260ab8ae3d52cfa3656b626f
+    c367af671c6c317300454dec89 (both match HH's).
+  * Floors: diff-battery 0 FAIL (16.26 s; the E2E leg "bg_prove_
+    group/verify 2/2 identical oracle vs fast" runs a FORCED 2-LEVEL
+    schedule — it exercises BOTH my sites); freeze-check exit 0,
+    102 ok rows — NOTE: no export panic on this box anymore (results/
+    m125_ffn_export now exists in the main repo, so the WSL freeze
+    floor is the FULL pass, stronger than HH's expected-SIGABRT
+    form); uperf-s battery 48 legs 3752cba4..; agg-battery 136 legs
+    46234986...
+  * Schedule depths at the test shapes (from the fp RSS trace): BOTH
+    groups run 8 levels at 12x64 — the deep-schedule phi_1 consumer
+    (the li=2 transport) is exercised by every profile anchor; the
+    2-level boundary (h-pairs-only consumer) by the E2E leg.
+
+RUNG 1 — diet2(b) LANDED (2026-08-29): bg_verify_group's level-0 A
+is STREAMED per column block (the BgA0 enum on the verify side; the
+li=1 transport through transport_level_from_psi_cols — HH's round-5
+body, its fast oracle unchanged; deeper levels + the floor keep Mat;
+guard = bg_precommit's: ZK_A0_BLOCK > 0, !oracle, levels >= 2).
+  ACCEPT: all five identity anchors BYTE-IDENTICAL (93a98700 /
+  0ae9cdae; 45fb3405; 80763ea5 / 63f4a3a4); floors green
+  (diff-battery 0 FAIL incl. the 2-level E2E cross-verify leg;
+  freeze-check 102 ok exit 0; uperf-s 3752cba4..; agg 46234986..).
+  RSS delta [MEASURED, NOISY-SHARED, vs rung 0]:
+    fp3x16     974,648 ->   869,060 KB  (-106 MB, -10.8%)
+    pa12x64  2,608,000 -> 2,040,436 KB  (-568 MB, -21.8%)
+    fp12x64  2,250,276 -> 2,165,536 KB  ( -85 MB,  -3.8%)
+  (pa12x64 is the big mover: after HH's verify-side lays drop its
+  high-water mark sat in the VERIFY phase — reloaded claim tables +
+  the whole A_0 re-expansion; the ~647 MB boxed 12-layer weight A_0
+  never materializes now. fp12x64's peak has left the verify phase.)
+  WALL delta [MEASURED, honest]: fp3x16 6.25 -> 6.25 s; pa12x64
+  19.62 -> 19.96 s (+1.7%); fp12x64 25.95 -> 26.11 s (+0.6%) —
+  verify-phase walls 0.7->0.8 / 1.3->1.5 / 2.0->2.1 s (the counting
+  pass + one regeneration sweep instead of one expansion).
+
+RUNG 2 — diet2(a) LANDED (2026-08-29): phi_1 (the level-1 transported
+functional) is NEVER MATERIALIZED on the streamed-A_0 path. The
+transport's stage-(v) assembly is DEFERRED into an additive
+`TransportPhiSource` (eval_proof.rs: the s/t5/p/q precursor rings +
+a_t1 + the layout — `fill` runs the fast/cols bodies' `one(u)`
+verbatim per window; `transport_level_from_psi_cols_src` = stages
+(i)-(iv) of the cols body verbatim + the source + h_next). The
+consumers read windows (bin, bg_prove_group):
+  * the level-1 h pairs: `bg_level_h_win` -> `level_h_pairs_phiwin`
+    (the level_h_pairs_with_block pattern: r x 1024 phi rings alive,
+    the r x r table accumulated mod q over blocks — exact partial
+    sums, the in-tree blocked-GEMM identity);
+  * the level-2 transport: `compute_psi_from_phiwin` (windows
+    partition the OUTPUT index only — each output ring's whole
+    k-term MAC runs in one compute_psi call on the same ring values;
+    the source's zero pad past n_total = the old resize's) ->
+    transport_level_from_psi;
+  * the 2-level tier-z floor corner: materialize from the source
+    (same rings by the check; 8B schedules are deep — the corner
+    never binds at scale).
+  Gate: ZK_PHI1_WIN=0 disables (A/B); only consulted on the streamed
+  arm, so oracle mode / ZK_A0_BLOCK=0 / < 2-level schedules disable
+  both diets together. Deeper-level phis stay materialized (small).
+  ORACLE CHECK: ZK_PHI1_CHECK=1 at 3x16 — src.materialize() vs the
+  cols body's phi_next FULL-VECTOR EQUAL on both groups (41,568 +
+  9,248 rings) + h_next equal; digests unchanged under the check.
+  ACCEPT: all five identity anchors BYTE-IDENTICAL (93a98700 /
+  0ae9cdae; 45fb3405; 80763ea5 / 63f4a3a4); floors green
+  (diff-battery 0 FAIL — the 2-level E2E leg now runs THROUGH the
+  windowed path fast-side and stays proof-identical to oracle;
+  freeze 102 ok; uperf-s 3752cba4..; agg 46234986..).
+  RSS delta [MEASURED, NOISY-SHARED, vs rung 1]: fp3x16 +0.02 MB;
+  pa12x64 +0.3 MB; fp12x64 +5.9 MB — WITHIN NOISE, honestly
+  recorded: phi_1 at these shapes is 44 MB (3x16 weight) to a few
+  hundred MB (12x64) and the process high-water mark sits in the
+  commit/claim/descent phases. The counted 8B win: 35.2 (w) + 11.1
+  (a) GB of boxed mod-q rings never exist; the source holds the
+  s_rings (~5.9 GB, already a counted round-5 term) + KB-scale
+  t5/p/q rings.
+  WALL delta [MEASURED, honest]: fp12x64 26.11 -> 28.54 s, of which
+  the profile attributes ~1.2 s to bg.level-h (8.62 -> 9.84 s x16 —
+  the windowed h pairs re-assemble phi per block) and ~0.1 s to
+  psi0-factored; the REST of the delta also appears in untouched
+  phases (descent-gkr 4.37 -> 4.76, a.round-g 3.51 -> 3.83) = box
+  noise. fp3x16 6.25 -> 6.78 s; pa12x64 19.96 -> 20.87 s. Net
+  honest cost of (a): ~1-1.5 s at 12x64 (~5%), the price of
+  assembling phi windows twice (h pairs + psi) instead of one
+  stage-(v) pass.
+
+RUNG 3 — THE RECORD (2026-08-29).
+
+THE MEASURED 125M-SHAPE RSS CURVE (peak RSS KB, /usr/bin/time -v,
+ZK_THREADS=8, flock-serialized, NOISY-SHARED box; the KK baseline IS
+HH's rung-4 endpoint — GG + HH merged at da327a4):
+  shape    HH rd-5 base   KK base    +KK(b) verify-A0  +KK(a) phi1
+  fp3x16     1,126,084     974,648      869,060           869,084
+  pa12x64    2,968,604   2,608,000    2,040,436         2,040,772
+  fp12x64    3,091,220   2,250,276    2,165,536         2,171,604
+  Cumulative across the TWO diet lanes (HH + KK) vs the round-5
+  baseline: fp3x16 -257 MB (-22.8%); pa12x64 -907 MB (-31.3%);
+  fp12x64 -898 MB (-29.7%). Reading per KK fix: (b) is the measured
+  mover at 125M shapes (the verify-phase A_0 re-expansion was the
+  pa12x64 high-water mark: -568 MB); (a) is invisible here (phi_1 is
+  44-400 MB at these shapes, peak sits elsewhere) and counted at 8B.
+  Walls: fp3x16 6.25 -> 6.78 s; pa12x64 19.62 -> 20.87 s; fp12x64
+  25.95 -> 28.54 s (+2.6 s, of which ~1.2 s attributed by the
+  profile to the windowed h pairs, the rest box noise).
+
+THE CORRECTED 8B PROJECTION (HH's rung-4 count, 32x512 range-only
+with Stage A [lane GG, merged] + W-3 [mandatory] + ZK_W0_REGEN
+[exists], with THIS lane's two terms removed; [COUNTED] sizes,
+[MODEL] liveness):
+  commit  ~116  (L 66 + W_w 45.1 + one act split 4.7) — UNCHANGED,
+                 still the pass peak
+  claim    ~71  (regen)
+  lvl-0    ~72  (W + z_all transient 5.9 + flat store)
+  lvl-1    ~29  (WAS ~64: phi_1_w 35.2 REMOVED; s_rings 5.9 +
+                 V1flat 4.2 + act w0 18.6 remain; the act group's
+                 phi_1_a 11.1 removed likewise from its phase)
+  verify    ~6  (WAS ~70: A_w 64.4 + A_a 30.4 NEVER EXPAND; reg_v +
+                 shipped proofs ~5.6 + one resident column block)
+  VERDICT: **~116 GB peak — UNDER 128 GB with ~12 GB margin, and the
+  margin is now ROBUST: the only phase above ~75 GB is the commit
+  phase** (before this lane, claim/lvl-0/lvl-1/verify all sat at
+  64-72 GB, each within estimate-drift range of the line). HH's
+  caveats stand: without W-3 the commit is ~130, without the regen
+  the claim is ~135 (both pieces load-bearing); with the descents as
+  built (no Stage A) the descent phase ~250 GB still dominates.
+  THE LARGEST REMAINING TERM: the commit-phase BfLayer store L =
+  66 GB (i64; W-8(a) drops it only AFTER the commit — it must exist
+  to be committed). The next lever is the W-8 row's other arm:
+  per-class i8/i32 layer storage (~9.9 GB), which would take the
+  commit phase to ~60 GB and make the lvl-0 group phase (~72 GB)
+  the pass peak. 32x16 (the yardstick): peak stays ~95 (claim),
+  with lvl-1 46 -> ~11 and verify 70 -> ~6.
+
+OPEN ITEMS / NOT DONE HERE:
+  * The 2-level tier-z corner materializes phi_1 from the source
+    (values identical by ZK_PHI1_CHECK; no floor leg runs tier-z
+    through bg_prove_group at exactly 2 levels — the corner is
+    small-shape-only, 8B schedules are 8+ levels at 12x64 already).
+  * The (a) wall cost (~5% at 12x64) is the double window assembly
+    (h pairs + psi); if it matters at 8B the two consumers could
+    share one assembly sweep — not built.
+  * At 8B the verify side now pays ~2 extra CRS generations (~50 s
+    [MODEL] instead of holding 64.4 GB) — the W-8 trade, verify-side.
+  * HH's remaining opens stand: bg_pass_run keeps lays end-to-end;
+    z_all ~5.9 GB fold transient; the commit-phase L above.
+
+STATE: DONE (2026-08-29) — rungs 0-3 landed, one commit each, all
+pushed on uperf3-kk; every rung transcript-preserving (five digest
+anchors byte-identical at every commit: fp3x16 93a98700../0ae9cdae..,
+pa12x64 45fb3405.., fp12x64 80763ea5../63f4a3a4..) with floors green
+(diff-battery incl. the 2-level E2E cross-verify; freeze-check 102
+ok exit 0; uperf-s 3752cba4..; agg-battery 46234986..).

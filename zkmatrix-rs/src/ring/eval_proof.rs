@@ -5729,6 +5729,320 @@ pub fn transport_level_from_psi_cols(
 }
 
 // ---------------------------------------------------------------------------
+// [UPERF3-KK diet2(a)] The transported functional as a SOURCE of
+// windows — phi_next never materialized.
+//
+// The transport's stage (v) expands the small precursors (S per source
+// ring, the per-binding T5 combines, P = a_t4 (x) c, Q = a_l1 * cpair,
+// a_t1) into layout.n_total boxed mod-q rings: ONE ring op per output
+// ring (a radix scale, plus binding adds on the T/H families). At the
+// 8B level 1 that output is ~35.2 GB (weight) + ~11.1 GB (act) boxed —
+// the first-order term HH's round-5 projection surfaced — while the
+// precursors are ~chunk rings (~5.9 GB, the s_rings figure already in
+// the round-5 count). Both consumers of a transported phi walk it in
+// windows (the level h pairs' blocked GEMM; the next transport and the
+// tier-z floor consume phi only through Psi), so stage (v) can be
+// DEFERRED into a window source: `fill` runs the SAME per-ring
+// assembly (`one(u)` of the fast/cols bodies, fixed order) on demand,
+// so any consumer that read phi_next[u] reads the identical canonical
+// ring. `ZK_PHI1_CHECK=1` asserts the full-vector comparison against
+// the cols body at construction (dev shapes only).
+
+pub struct TransportPhiSource {
+    layout: NextLayout,
+    /// the producing level's fold count (c.len()).
+    r: usize,
+    s_rings: Vec<Poly>,
+    t5_rings: Vec<Vec<Poly>>,
+    /// (col_base, cols) per binding, relative to layout.t_base.
+    t5_geom: Vec<(usize, usize)>,
+    p_rings: Vec<Poly>,
+    q_rings: Vec<Poly>,
+    a_t1: Poly,
+}
+
+impl TransportPhiSource {
+    pub fn n_total(&self) -> usize {
+        self.layout.n_total
+    }
+
+    /// T5 contribution of a next-witness position (relative to t_base)
+    /// — stage (v)'s `t5_at`, binding order fixed.
+    fn t5_at(&self, zq: &Zq, pos: usize, acc: &mut Poly) {
+        for (bi, &(col_base, cols)) in self.t5_geom.iter().enumerate() {
+            if pos >= col_base && pos < col_base + cols {
+                *acc = poly_add(zq, acc, &self.t5_rings[bi][pos - col_base]);
+            }
+        }
+    }
+
+    /// Phi_next[u] — stage (v)'s `one(u)`, verbatim.
+    fn one(&self, zq: &Zq, u: usize) -> Poly {
+        let plan = &self.layout.plan;
+        let e_next = plan.e_next as usize;
+        let (fam, src, limb) = self.layout.locate(u);
+        match fam {
+            Fam::Z => {
+                let radix = zq.to_mod(1i64 << (e_next * limb));
+                scale_exact(zq, &self.s_rings[src], radix)
+            }
+            Fam::T => {
+                let (j, kap) = (src / KAPPA_AGG, src % KAPPA_AGG);
+                let radix = 1i64 << (e_next * limb);
+                let mut acc = scale_exact(zq, &self.p_rings[kap * self.r + j], zq.to_mod(-radix));
+                self.t5_at(zq, u - self.layout.t_base, &mut acc);
+                acc
+            }
+            Fam::H => {
+                let radix_u = zq.to_mod(1i64 << (e_next * limb));
+                let (j, k) = pair_from_index(plan.r, src);
+                let mut acc = if j == k { scale_exact(zq, &self.a_t1, radix_u) } else { poly_zero() };
+                acc = poly_add(zq, &acc, &scale_exact(zq, &self.q_rings[src], zq.neg(radix_u)));
+                self.t5_at(zq, u - self.layout.t_base, &mut acc);
+                acc
+            }
+        }
+    }
+
+    /// out[i] = Phi_next[v0 + i] for i in 0..n — the rings stage (v)
+    /// writes at those positions (zero rings past n_total: the
+    /// chunk-grid pad the consumers' `resize` used to provide).
+    pub fn fill(&self, zq: &Zq, v0: usize, n: usize, out: &mut [Poly]) {
+        assert!(out.len() >= n);
+        for i in 0..n {
+            let u = v0 + i;
+            out[i] = if u < self.layout.n_total { self.one(zq, u) } else { poly_zero() };
+        }
+    }
+
+    /// The whole functional (the tier-z floor corner and battery use —
+    /// must equal the cols/fast bodies' phi_next).
+    pub fn materialize(&self, zq: &Zq) -> Vec<Poly> {
+        let _ta = prof::timer(prof::M_TR_ASM); // observation only
+        map_ordered(self.layout.n_total, |u| self.one(zq, u))
+    }
+}
+
+pub struct LevelTransportSrc {
+    pub src: TransportPhiSource,
+    pub h_next: Poly,
+}
+
+/// [UPERF3-KK diet2(a)] `transport_level_from_psi_cols` with stage (v)
+/// DEFERRED: stages (i)-(iv) verbatim (the S combine per column block,
+/// never more than KAPPA_AGG x block_cols of A resident), then the
+/// precursors are returned as a `TransportPhiSource` instead of being
+/// expanded into phi_next. h_next is the reference sum, verbatim.
+#[allow(clippy::too_many_arguments)]
+pub fn transport_level_from_psi_cols_src(
+    ctx: &RingCtx,
+    psi: &[Poly],
+    h_target: &Poly,
+    plan: &LevelPlan,
+    layout: &NextLayout,
+    a_cols: &CrsColStream,
+    bindings: &[OuterBinding],
+    c: &[Vec<i64>],
+    alphas: &[Poly],
+    block_cols: usize,
+) -> LevelTransportSrc {
+    let zq = &ctx.zq;
+    let chunk = plan.chunk;
+    let r = c.len();
+    assert_eq!(psi.len(), chunk);
+    assert!(block_cols > 0, "block_cols must be positive");
+    assert!(a_cols.n_rows() == KAPPA_AGG && a_cols.n_cols() >= chunk, "A_i is kappa x chunk");
+    let n_rows = transport_rows(bindings.len());
+    assert_eq!(alphas.len(), n_rows);
+    let (a_t1, a_l1) = (&alphas[0], &alphas[1]);
+    let a_t4 = &alphas[2..2 + KAPPA_AGG];
+    let a_t5 = &alphas[2 + KAPPA_AGG..];
+    for b in bindings {
+        assert!(b.b_mat.len() >= KAPPA_AGG * b.cols, "B is kappa x cols");
+    }
+    // (i) S[src] = a_l1 * psi[src] + sum_kap a_t4[kap] * A[kap][src],
+    // per column block (the cols body, verbatim).
+    let s_rings: Vec<Poly> = {
+        let _ts = prof::timer(prof::M_TR_S); // [UPERF2-M] observation only
+        let mut al: Vec<Poly> = Vec::with_capacity(1 + KAPPA_AGG);
+        al.push(a_l1.clone());
+        al.extend(a_t4.iter().cloned());
+        let mut s: Vec<Poly> = Vec::with_capacity(chunk);
+        let mut c0 = 0usize;
+        while c0 < chunk {
+            let c1 = (c0 + block_cols).min(chunk);
+            let bc = c1 - c0;
+            let a_blk = a_cols.cols(c0, c1); // KAPPA_AGG x bc, row-major
+            let mut ops: Vec<&[Poly]> = Vec::with_capacity(1 + KAPPA_AGG);
+            ops.push(&psi[c0..c1]);
+            for kap in 0..KAPPA_AGG {
+                ops.push(&a_blk[kap * bc..(kap + 1) * bc]);
+            }
+            s.extend(ntt_combine_general(ctx, &al, &ops, bc));
+            c0 = c1;
+        }
+        s
+    };
+    // (ii) T5_bi[rel] = sum_kap2 a_t5[bi][kap2] * B_bi[kap2][rel].
+    let _tt5 = prof::timer(prof::M_TR_T5); // [UPERF2-M] observation only (dropped after the T5 rings)
+    let t5_rings: Vec<Vec<Poly>> = bindings
+        .iter()
+        .enumerate()
+        .map(|(bi, b)| {
+            let al = &a_t5[bi * KAPPA_AGG..(bi + 1) * KAPPA_AGG];
+            let ops: Vec<&[Poly]> = (0..KAPPA_AGG).map(|k2| &b.b_mat[k2 * b.cols..(k2 + 1) * b.cols]).collect();
+            ntt_combine_general(ctx, al, &ops, b.cols)
+        })
+        .collect();
+    drop(_tt5);
+    // (iii) P[kap * r + j] = a_t4[kap] * c_j (small operand).
+    let p_rings: Vec<Poly> = {
+        let _tp = prof::timer(prof::M_TR_PQ); // [UPERF2-M] observation only
+        let mut v = Vec::with_capacity(KAPPA_AGG * r);
+        for ak in a_t4.iter() {
+            v.extend(mul_modq_small_many(ctx, ak, c));
+        }
+        v
+    };
+    // (iv) Q[pair] = a_l1 * cpair[pair], cpair = c_j (x) c_k over Z (small).
+    let cp_small: Vec<Vec<i64>> = {
+        let mut v = Vec::with_capacity(r * (r + 1) / 2);
+        for j in 0..r {
+            for k in j..r {
+                v.push(poly_mul_small(&c[j], &c[k]));
+            }
+        }
+        v
+    };
+    let q_rings: Vec<Poly> = {
+        let _tp = prof::timer(prof::M_TR_PQ); // [UPERF2-M] observation only
+        mul_modq_small_many(ctx, a_l1, &cp_small)
+    };
+    // Stage (v) deferred: the precursors AS the source.
+    let src = TransportPhiSource {
+        layout: layout.clone(),
+        r,
+        s_rings,
+        t5_rings,
+        t5_geom: bindings.iter().map(|b| (b.col_base, b.cols)).collect(),
+        p_rings,
+        q_rings,
+        a_t1: a_t1.clone(),
+    };
+    // Aggregated target: alpha_T1 * H_i + sum over bindings alpha_T5 * u.
+    let mut h_next = ring_mul_split_kara_fast(ctx, a_t1, h_target);
+    for (bi, b) in bindings.iter().enumerate() {
+        for (kap, uk) in b.u.iter().enumerate() {
+            let ak = &a_t5[bi * KAPPA_AGG + kap];
+            h_next = poly_add(zq, &h_next, &ring_mul_split_kara_fast(ctx, ak, uk));
+        }
+    }
+    if std::env::var("ZK_PHI1_CHECK").map(|v| v == "1").unwrap_or(false) {
+        // [dev] full-vector comparison against the cols body — the
+        // oracle for the deferred-assembly claim.
+        let oracle = transport_level_from_psi_cols(
+            ctx, psi, h_target, plan, layout, a_cols, bindings, c, alphas, block_cols,
+        );
+        assert_eq!(src.materialize(zq), oracle.phi_next, "TransportPhiSource mismatch vs the cols body");
+        assert_eq!(h_next, oracle.h_next, "TransportPhiSource h_next mismatch vs the cols body");
+        println!("[UPERF3-KK] ZK_PHI1_CHECK: {} rings byte-identical to the cols body", src.n_total());
+    }
+    LevelTransportSrc { src, h_next }
+}
+
+/// [UPERF3-KK diet2(a)] `compute_psi` with phi supplied per window by a
+/// `TransportPhiSource`. Per output ring u the k-term MAC is the SAME
+/// as `compute_psi(materialized phi, chunk, c)`: every output's whole
+/// fold sum runs in one inner call on the same ring values (windows
+/// partition the OUTPUT index only), and the source's zero rings past
+/// n_total contribute exactly what the materialized tail-break did —
+/// byte-identical values.
+pub const PSI_WIN_BLOCK: usize = 4096;
+pub fn compute_psi_from_phiwin(ctx: &RingCtx, src: &TransportPhiSource, chunk: usize, c: &[Vec<i64>]) -> Vec<Poly> {
+    let zq = &ctx.zq;
+    let r = c.len();
+    let mut out: Vec<Poly> = Vec::with_capacity(chunk);
+    let mut u0 = 0usize;
+    while u0 < chunk {
+        let n = PSI_WIN_BLOCK.min(chunk - u0);
+        // slice k's window [k * chunk + u0, + n), k-major, stride n —
+        // the layout compute_psi expects of a (r x n) phi at chunk = n.
+        let mut phi_blk: Vec<Poly> = vec![poly_zero(); r * n];
+        {
+            let fill = |k: usize, buf: &mut [Poly]| src.fill(zq, k * chunk + u0, n, &mut buf[..n]);
+            if threads() > 1 {
+                pooled(|| {
+                    use rayon::prelude::*;
+                    phi_blk.par_chunks_mut(n).enumerate().for_each(|(k, buf)| fill(k, buf));
+                });
+            } else {
+                phi_blk.chunks_mut(n).enumerate().for_each(|(k, buf)| fill(k, buf));
+            }
+        }
+        out.extend(compute_psi(ctx, &phi_blk, n, c));
+        u0 += n;
+    }
+    out
+}
+
+/// [UPERF3-KK diet2(a)] `level_h_pairs` with the phi slices supplied
+/// per u-block by a `TransportPhiSource` (slice j = phi rings
+/// [j*chunk, (j+1)*chunk)) — the `level_h_pairs_with_block` pattern:
+/// r x block rings of phi alive at a time, the r x r inner-product
+/// table accumulated mod q over the blocks (exact partial sums) —
+/// bit-identical to `level_h_pairs_gen(materialized padded slices, w,
+/// chunk)`. No device hook (the deeper-level source has no pool form);
+/// the caller guards oracle mode off.
+pub fn level_h_pairs_phiwin<B: SmallRings + ?Sized>(ctx: &RingCtx, src: &TransportPhiSource, w: &[&B], chunk: usize) -> Vec<Poly> {
+    level_h_pairs_phiwin_block(ctx, src, w, chunk, LEVELH_BLOCK)
+}
+
+/// The block-size-parameterized body.
+pub fn level_h_pairs_phiwin_block<B: SmallRings + ?Sized>(
+    ctx: &RingCtx,
+    src: &TransportPhiSource,
+    w: &[&B],
+    chunk: usize,
+    block: usize,
+) -> Vec<Poly> {
+    let _t = prof::timer(prof::EP_LEVELH); // [UPERF-PC] observation only
+    let zq = &ctx.zq;
+    let r = w.len();
+    for s in w {
+        assert_eq!(s.n_rings(), chunk, "w slice length");
+    }
+    assert!(block >= 1);
+    let mut g = vec![poly_zero(); r * r];
+    if r == 0 || chunk == 0 {
+        return level_h_from_g(zq, &g, r);
+    }
+    let mut phi_buf: Vec<Poly> = vec![poly_zero(); r * block];
+    let mut u0 = 0usize;
+    while u0 < chunk {
+        let n = block.min(chunk - u0);
+        {
+            let fill = |j: usize, buf: &mut [Poly]| src.fill(zq, j * chunk + u0, n, &mut buf[..n]);
+            if threads() > 1 {
+                pooled(|| {
+                    use rayon::prelude::*;
+                    phi_buf.par_chunks_mut(block).enumerate().for_each(|(j, buf)| fill(j, buf));
+                });
+            } else {
+                phi_buf.chunks_mut(block).enumerate().for_each(|(j, buf)| fill(j, buf));
+            }
+        }
+        let phi_sl: Vec<&[Poly]> = (0..r).map(|j| &phi_buf[j * block..j * block + n]).collect();
+        let w_sl: Vec<&B> = (0..r).map(|k| w[k].sub(u0, u0 + n)).collect();
+        let gb = ntt_gemm_modq_small_gen(ctx, &phi_sl, &w_sl, n);
+        for (gi, gbi) in g.iter_mut().zip(gb.iter()) {
+            *gi = poly_add(zq, gi, gbi);
+        }
+        u0 += n;
+    }
+    level_h_from_g(zq, &g, r)
+}
+
+// ---------------------------------------------------------------------------
 // [UPERF2-F] MEMORY DIET (U-PERF2 lane F): the level-0 digit witness as a
 // flat i8 store, consumed per ring inside the kernels.
 //

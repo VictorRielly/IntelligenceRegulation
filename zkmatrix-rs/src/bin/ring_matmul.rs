@@ -29667,6 +29667,40 @@ fn bg_a0_block_cols() -> usize {
     *BLOCK
 }
 
+/// [UPERF3-KK diet2(a)] phi_1 windowing gate: `ZK_PHI1_WIN=0` disables
+/// (the materialized fallback, for A/B). Default ON. Only consulted on
+/// the streamed-A_0 transport arm, so oracle mode / ZK_A0_BLOCK=0 /
+/// < 2-level schedules disable both diets together.
+fn bg_phi1_win() -> bool {
+    static ON: std::sync::LazyLock<bool> =
+        std::sync::LazyLock::new(|| std::env::var("ZK_PHI1_WIN").map(|v| v != "0").unwrap_or(true));
+    *ON
+}
+
+/// [UPERF3-KK diet2(a)] `bg_level_h` with the level's phi supplied per
+/// u-block by a `TransportPhiSource` (never materialized): same outputs
+/// as `bg_level_h(ctxr, &phi_materialized_padded, w, plan)` — the
+/// source's zero rings past n_total are the pad `resize` used to
+/// provide.
+fn bg_level_h_win<B: ring::eval_proof::SmallRings + ?Sized>(
+    ctxr: &RingCtx,
+    src: &ring::eval_proof::TransportPhiSource,
+    w: &B,
+    plan: &ring::eval_proof::LevelPlan,
+) -> (Vec<Poly>, Vec<Vec<i64>>) {
+    use ring::eval_proof::{decompose_polys_modq, level_h_pairs_phiwin};
+    let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::BG_LEVELH);
+    let zq = &ctxr.zq;
+    let r = plan.r;
+    let c = plan.chunk;
+    assert!(w.n_rings() >= r * c, "bg_level_h_win: w not padded to r*chunk");
+    let w_sl: Vec<&B> = (0..r).map(|k| w.sub(k * c, (k + 1) * c)).collect();
+    let h_polys = level_h_pairs_phiwin(ctxr, src, &w_sl, c);
+    debug_assert_eq!(h_polys.len(), plan.n_pairs);
+    let hhat = decompose_polys_modq(zq, &h_polys, plan.e_next, plan.l_h);
+    (h_polys, hhat)
+}
+
 /// [UPERF2-F] generic over the witness store (`SmallRings`: the flat i8
 /// level-0 witness or the boxed deeper-level witnesses).
 fn bg_matvec_chunks<B: ring::eval_proof::SmallRings + ?Sized>(
@@ -30072,6 +30106,11 @@ fn bg_prove_group(
     ];
     let mut prev_c = c0;
     let mut level_us: Vec<Vec<Poly>> = Vec::new();
+    // [UPERF3-KK diet2(a)] Some = the CURRENT level's phi is a window
+    // source (the level-1 transport's stage-(v) assembly deferred —
+    // 35.2 + 11.1 GB boxed at the 8B level 1 never exist; phi_cur is
+    // empty while this is live). Deeper transports produce Mat again.
+    let mut phi_win: Option<ring::eval_proof::TransportPhiSource> = None;
 
     for li in 1..sched.levels.len() {
         let plan_prev = &sched.levels[li - 1];
@@ -30079,7 +30118,7 @@ fn bg_prove_group(
         assert_eq!(layout_prev.n_total, w_cur.len(), "layout/witness mismatch at level {li}");
         let n_rows = transport_rows(prev_bindings_data.len());
         let alphas = agg_draw_alphas(tr, &format!("bg-alphaT{li}-{}", group.name), n_rows, q);
-        let lt = {
+        {
             let bindings: Vec<OuterBinding> = prev_bindings_data
                 .iter()
                 .map(|(bm, cb, cl, u)| OuterBinding { b_mat: bm.as_slice(), col_base: *cb, cols: *cl, u })
@@ -30095,14 +30134,37 @@ fn bg_prove_group(
                     // [UPERF3-HH W-8b] the level-1 transport consumes
                     // A_0 per column block (byte-identical outputs —
                     // the fast body is the oracle).
-                    BgA0::Stream(s) => ring::eval_proof::transport_level_from_psi_cols(
-                        ctxr, &psi0, &h_cur, plan_prev, &layout_prev, s, &bindings, &prev_c,
-                        &alphas, bg_a0_block_cols(),
-                    ),
-                    BgA0::Mat(m) => transport_level_from_psi(
-                        ctxr, &psi0, &h_cur, plan_prev, &layout_prev, m, &bindings, &prev_c,
-                        &alphas,
-                    ),
+                    // [UPERF3-KK diet2(a)] with the windowing gate ON,
+                    // stage (v) is deferred into a window source: the
+                    // level-1 phi is NEVER materialized (identical
+                    // reads — ZK_PHI1_CHECK is the oracle leg).
+                    BgA0::Stream(s) if bg_phi1_win() => {
+                        let lts = ring::eval_proof::transport_level_from_psi_cols_src(
+                            ctxr, &psi0, &h_cur, plan_prev, &layout_prev, s, &bindings, &prev_c,
+                            &alphas, bg_a0_block_cols(),
+                        );
+                        h_cur = lts.h_next;
+                        phi_win = Some(lts.src);
+                        phi_cur = Vec::new();
+                    }
+                    BgA0::Stream(s) => {
+                        let lt = ring::eval_proof::transport_level_from_psi_cols(
+                            ctxr, &psi0, &h_cur, plan_prev, &layout_prev, s, &bindings, &prev_c,
+                            &alphas, bg_a0_block_cols(),
+                        );
+                        phi_cur = lt.phi_next;
+                        h_cur = lt.h_next;
+                        phi_win = None;
+                    }
+                    BgA0::Mat(m) => {
+                        let lt = transport_level_from_psi(
+                            ctxr, &psi0, &h_cur, plan_prev, &layout_prev, m, &bindings, &prev_c,
+                            &alphas,
+                        );
+                        phi_cur = lt.phi_next;
+                        h_cur = lt.h_next;
+                        phi_win = None;
+                    }
                 }
             } else {
                 let m = match &prev_a {
@@ -30112,20 +30174,42 @@ fn bg_prove_group(
                     // bg_precommit guard / the loop reassignment.
                     BgA0::Stream(_) => unreachable!("materialized-phi transport with streamed A_0"),
                 };
-                transport_level(
-                    ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, m, &bindings, &prev_c,
-                    &alphas,
-                )
+                let lt = if let Some(srcw) = &phi_win {
+                    // [UPERF3-KK diet2(a)] the deeper transport consumes
+                    // the windowed phi only through Psi — computed per
+                    // output block from the source (byte-identical to
+                    // compute_psi of the materialized phi).
+                    let psi = ring::eval_proof::compute_psi_from_phiwin(ctxr, srcw, plan_prev.chunk, &prev_c);
+                    transport_level_from_psi(
+                        ctxr, &psi, &h_cur, plan_prev, &layout_prev, m, &bindings, &prev_c,
+                        &alphas,
+                    )
+                } else {
+                    transport_level(
+                        ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, m, &bindings, &prev_c,
+                        &alphas,
+                    )
+                };
+                phi_cur = lt.phi_next;
+                h_cur = lt.h_next;
+                phi_win = None;
             }
-        };
-        phi_cur = lt.phi_next;
-        h_cur = lt.h_next;
+        }
         let plan = &sched.levels[li];
         w_cur.resize(plan.r * plan.chunk); // [UPERF3-HH W-8c] zero-ring pad, flat store
-        phi_cur.resize(plan.r * plan.chunk, poly_zero());
+        if phi_win.is_none() {
+            phi_cur.resize(plan.r * plan.chunk, poly_zero());
+        }
         let a_mat = expand_level_matrix_arc(seed, group.name, li, "A", KAPPA_AGG, plan.chunk, q);
         let (_tp, that) = bg_matvec_chunks(ctxr, w_cur.rings(), plan.r, plan.chunk, &a_mat, plan.e_next, plan.l_t);
-        let (_hp, hhat) = bg_level_h(ctxr, &phi_cur, w_cur.rings(), plan);
+        let (_hp, hhat) = if let Some(srcw) = &phi_win {
+            // [UPERF3-KK diet2(a)] the level h pairs read phi per
+            // u-block from the source (the level_h_pairs_with_block
+            // pattern; the source's zero pad = the resize's).
+            bg_level_h_win(ctxr, srcw, w_cur.rings(), plan)
+        } else {
+            bg_level_h(ctxr, &phi_cur, w_cur.rings(), plan)
+        };
         let th_len = that.len() + hhat.len();
         let b_mat = expand_level_matrix_arc(seed, group.name, li, "B", KAPPA_AGG, th_len, q);
         let mut th: Vec<Vec<i64>> = that.clone();
@@ -30178,6 +30262,14 @@ fn bg_prove_group(
                 &psi0, tr, group.name, rng,
             )
         } else {
+            // [UPERF3-KK diet2(a)] a 2-level tier-z schedule ends with
+            // the level-1 phi still windowed: materialize from the
+            // source for the floor mask (the same rings stage (v)
+            // would write — a small-shape corner; 8B schedules are
+            // deep, so the diet never binds here at scale).
+            if let Some(srcw) = phi_win.take() {
+                phi_cur = srcw.materialize(&ctxr.zq);
+            }
             phi_cur.resize(plan_last.r * plan_last.chunk, poly_zero());
             agg_tier_z_mask_floor(
                 ctxr, &w_floor, plan_last, &layout_last, &prev_bindings_data, &prev_a_mat, &prev_c,
@@ -30324,8 +30416,19 @@ fn bg_verify_group(
         ctxr, kf, group, &bg_multi_kernels(claims), &alphas0, &c0, plan0.chunk,
     );
     let mut phi_cur: Vec<Poly> = Vec::new();
+    // [UPERF3-KK diet2(b)] the level-0 A is streamed per column block on
+    // the VERIFY side too (HH's round-5 open item — the ~64.4 GB verify-
+    // phase re-expansion at 8B): its only consumer under a >= 2-level
+    // schedule is the li == 1 transport, which has the column-block body
+    // (transport_level_from_psi_cols, landed round 5). Guard mirrors
+    // bg_precommit's: ZK_A0_BLOCK > 0, not oracle mode, >= 2 levels
+    // (shorter schedules read A_0 whole at the floor and stay Mat).
     // [UPERF2-F] CRS handles from the memo (Arc, no clones).
-    let mut prev_a_mat: Arc<Vec<Poly>> = expand_level_matrix_arc(seed, group.name, 0, "A", KAPPA_AGG, plan0.chunk, q);
+    let mut prev_a: BgA0 = if bg_a0_block_cols() > 0 && !ring::eval_proof::oracle_mode() && sched.levels.len() >= 2 {
+        BgA0::Stream(ring::eval_proof::CrsColStream::new(seed, group.name, 0, "A", KAPPA_AGG, plan0.chunk, q))
+    } else {
+        BgA0::Mat(expand_level_matrix_arc(seed, group.name, 0, "A", KAPPA_AGG, plan0.chunk, q))
+    };
     let mut prev_bindings_data: Vec<(Arc<Vec<Poly>>, usize, usize, Vec<Poly>)> = vec![
         (
             expand_level_matrix_arc(seed, group.name, 0, "Bu", KAPPA_AGG, that0_len, q),
@@ -30355,13 +30458,27 @@ fn bg_verify_group(
             // (BD's post-BH shape); deeper levels transport the small
             // materialized phi.
             if li == 1 {
-                transport_level_from_psi(
-                    ctxr, &psi0, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings,
-                    &prev_c, &alphas,
-                )
+                match &prev_a {
+                    // [UPERF3-KK diet2(b)] A_0 per column block — the
+                    // fast body is the cols body's oracle (byte-
+                    // identical, the round-5 W-8(b) argument verbatim).
+                    BgA0::Stream(s) => ring::eval_proof::transport_level_from_psi_cols(
+                        ctxr, &psi0, &h_cur, plan_prev, &layout_prev, s, &bindings, &prev_c,
+                        &alphas, bg_a0_block_cols(),
+                    ),
+                    BgA0::Mat(m) => transport_level_from_psi(
+                        ctxr, &psi0, &h_cur, plan_prev, &layout_prev, m, &bindings,
+                        &prev_c, &alphas,
+                    ),
+                }
             } else {
+                let m = match &prev_a {
+                    BgA0::Mat(m) => m,
+                    // deeper levels are reassigned Mat below.
+                    BgA0::Stream(_) => unreachable!("deeper-level transport with streamed A (verify)"),
+                };
                 transport_level(
-                    ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings,
+                    ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, m, &bindings,
                     &prev_c, &alphas,
                 )
             }
@@ -30376,7 +30493,7 @@ fn bg_verify_group(
         }
         ring::eval_proof::absorb_polys(tr, &format!("bg-u{li}-{}", group.name), u_i);
         let (cs, _) = agg_draw_cs(tr, &format!("bg-c{li}-{}", group.name), plan.r);
-        prev_a_mat = expand_level_matrix_arc(seed, group.name, li, "A", KAPPA_AGG, plan.chunk, q);
+        prev_a = BgA0::Mat(expand_level_matrix_arc(seed, group.name, li, "A", KAPPA_AGG, plan.chunk, q)); // [UPERF3-KK] deeper levels stay materialized (small)
         prev_bindings_data = vec![(
             expand_level_matrix_arc(seed, group.name, li, "B", KAPPA_AGG, th_len, q),
             0,
@@ -30388,6 +30505,14 @@ fn bg_verify_group(
 
     let plan_last = sched.levels.last().unwrap();
     let layout = NextLayout::new(plan_last);
+    // [UPERF3-KK diet2(b)] the floor reads the LAST level's A —
+    // materialized for every schedule the stream guard admits (a
+    // >= 2-level schedule reassigns Mat in the loop; a 1-level
+    // schedule never streams).
+    let prev_a_mat: Arc<Vec<Poly>> = match prev_a {
+        BgA0::Mat(m) => m,
+        BgA0::Stream(_) => unreachable!("floor with streamed A_0 (guarded off for < 2-level schedules)"),
+    };
     if proof.floor.len() != layout.n_total || proof.floor.len() != sched.floor_rings {
         return Err("wire-shape");
     }
