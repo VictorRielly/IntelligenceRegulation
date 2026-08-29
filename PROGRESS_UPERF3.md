@@ -3005,3 +3005,75 @@ OPEN ITEMS / NOT DONE HERE:
 STATE: DONE (2026-08-28) — rungs 0-4 landed, one commit each, all
 pushed on uperf3-hh; every rung transcript-preserving (five digest
 anchors byte-identical at every commit) with floors green.
+
+## Agent KK status (wt-uperf3-kk) — round 6
+
+STATE: OPEN (2026-08-29) — DIET 2: (a) phi_1 windowing (the level-1
+aggregated functional, ~35.2 + 11.1 GB boxed mod-q at 8B — the
+first-order term HH's projection surfaced, NOT in memo 3.1's
+component list) and (b) the verifier-side A_0 expansion
+(bg_verify_group's level-0 expand_level_matrix_arc, HH's recorded
+open item — CrsColStream applies directly). ACCEPTANCE at EVERY
+rung: the identity anchors BYTE-IDENTICAL (fp3x16 stmt 93a98700..
++ EP 0ae9cdae..; the 12x64 digests captured at rung 0 below) + the
+floors (build; diff-battery; freeze-check 102 ok + expected export
+panic; uperf-s battery 3752cba4..; uperf-s agg-battery 46234986..).
+A memory diet is TRANSCRIPT-PRESERVING ONLY: any digest move =
+revert the rung, record the failure, do NOT fix forward.
+
+RUNG PLAN:
+  0. skeleton + BASELINE (this section): /usr/bin/time -v at 3x16
+     and 12x64 under flock; digests + peak RSS captured. [DONE below]
+  1. (b) the verifier A_0 through CrsColStream — bg_verify_group's
+     level-0 handle becomes BgA0 (Stream when ZK_A0_BLOCK > 0,
+     !oracle, levels >= 2 — HH's precommit guard mirrored); the
+     li == 1 transport consumes it via transport_level_from_psi_cols
+     (landed round 5). Deeper levels / the floor keep Mat.
+  2. (a) phi_1 windowed at its consumers: the transport's stage-(v)
+     assembly DEFERRED into a TransportPhiSource (s/t5/p/q precursor
+     rings + the `one(u)` assembly — ~s_rings-sized, 5.9 GB at 8B,
+     vs 35.2 GB materialized); consumers read windows: the level-1
+     h pairs (blocked GEMM, the level_h_pairs_with_block pattern),
+     the level-2 transport + the tier-z floor (both consume phi only
+     through Psi — computed per output block from the source).
+     ZK_PHI1_CHECK=1 oracle leg (materialize vs the cols transport's
+     phi_next) run once at 3x16.
+  3. THE RECORD: the RSS curve (HH round-5 numbers + these rungs) +
+     the corrected 8B projection (the 32x512 range-only-Stage-A
+     ~116 GB with phi_1 + verifier-A_0 removed; the margin verdict
+     and the largest remaining term).
+
+OWNERSHIP: bg_prove_group's phi_1 consumer sites + bg_verify_group's
+A_0 site (src/bin/ring_matmul.rs); ADDITIVE helpers in
+ring/eval_proof.rs. READ-ONLY: manifest.rs, stage_a.rs, zc_range.rs,
+ec_kernel.rs, attn_softmax.rs, kfield/gkr/descent internals.
+
+BASELINE (2026-08-29, WSL box, ZK_THREADS=8, M125_EXPORT_DIR=
+/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl,
+each run under flock /tmp/zk-heavy.lock; NOISY-SHARED label applies
+to walls; tree = da327a4, i.e. HH's round-5 diet + GG's Stage A
+already merged — this baseline IS HH's rung-4 endpoint):
+  * fp3x16: accept=true, wall 6.25 s, peak RSS 974,648 KB; STATEMENT
+    93a987002a7c4b60c3dfbfc62b7a4f0e5957d8ae2039014ff241e323285fb790
+    EVAL-PROOF
+    0ae9cdae66607239a80cc1f1dea36248370edadbe85214144aee7a5250d975be
+    — BOTH match the brief's pinned anchors.
+  * pa12x64 (pass-agg prove 12 64 p0): wall 19.62 s, peak RSS
+    2,608,000 KB; STATEMENT 45fb340517eee2344b44dd40d4e47562d80305
+    eb7c5604c9c6cf61ede37443dc (matches HH's).
+  * fp12x64: accept=true, wall 25.95 s, peak RSS 2,250,276 KB;
+    STATEMENT 80763ea537e77cd9cb5c538397af2622044447d654b8e9a34cae
+    3ccad8f3f115; EVAL-PROOF 63f4a3a4320a47260ab8ae3d52cfa3656b626f
+    c367af671c6c317300454dec89 (both match HH's).
+  * Floors: diff-battery 0 FAIL (16.26 s; the E2E leg "bg_prove_
+    group/verify 2/2 identical oracle vs fast" runs a FORCED 2-LEVEL
+    schedule — it exercises BOTH my sites); freeze-check exit 0,
+    102 ok rows — NOTE: no export panic on this box anymore (results/
+    m125_ffn_export now exists in the main repo, so the WSL freeze
+    floor is the FULL pass, stronger than HH's expected-SIGABRT
+    form); uperf-s battery 48 legs 3752cba4..; agg-battery 136 legs
+    46234986...
+  * Schedule depths at the test shapes (from the fp RSS trace): BOTH
+    groups run 8 levels at 12x64 — the deep-schedule phi_1 consumer
+    (the li=2 transport) is exercised by every profile anchor; the
+    2-level boundary (h-pairs-only consumer) by the E2E leg.
