@@ -729,3 +729,55 @@ shares and the counted round/K-mult ratios, and the single biggest one
 (the range base-field collapse) is gated by spike S1 before the design
 freeze. No number here is a new measurement; the spike is where the
 first new measurement is taken.*
+
+## Appendix A (2026-08-29) — post-integration amendments (lane GG's measured findings; ruling inputs)
+
+Stage A is now INTEGRATED and ACCEPTING on the real pass (round 5,
+lane GG: range and full modes at 3x16; the 12x128 A/B; every claim
+grounded bit-for-bit; O-4 masked at pass level). The integration
+falsified two of this memo's claims and sharpened one open choice —
+recorded here as amendments awaiting Victor's ruling, NOT silently
+patched into the sections above.
+
+### A.1 (= finding F1) The "commit nothing new" claim is WRONG — the commit-side bill
+
+Section 2.1's implication that Stage A commits no new objects does
+not survive contact: (a) the off-table gap needs the WIDTH PLANES
+committed (committed limbs cannot close it) — +4.5M rings at
+12x512; (b) h under the naive encoding at l0_q = 16 adds +25.2M
+rings (the act group's n_0 goes 7.85M -> ~37.5M counted; measured
+as the 12x128 full-mode OOM at 14.8 GiB on the 15 GB box). THE
+RULING (round-6 opening decision 2): Stage-A round 1 = RANGE-ONLY
+(84/96 columns; the silu descents stay), which retires the range
+descents — including the 8B 120 GB pair — while dodging (b)
+entirely; full mode returns only with a committed-h design that
+beats the naive encoding. The 8B memory verdict under range-only:
+~116 GB at 32x512 with lane HH's diet [COUNTED, subject to HH's
+phi_1 correction], i.e. the 128 GB milestone stands on range-only.
+
+### A.2 (= finding F2) The h ordering in sections 2.1/2.4 is circular as written
+
+h depends on the fold challenge alpha, and u_0 is nonlinear — the
+memo's ordering (h inside u_0(T_act)) cannot be transcribed. The
+working amendment, IMPLEMENTED in lane GG's full mode: a THIRD
+"act-h" group committed MID-TRANSCRIPT (after alpha is drawn), one
+opening per group preserved. Adopting this ordering formally is
+round-6 opening decision 3; it costs one extra commitment wave and
+nothing else that the 3x16 measurements can see.
+
+### A.3 (= OQ-2) The alphabet: what the sign-binary planes actually prove
+
+The house sign-binary digit planes prove membership of
+[-(2^w - 1), 2^w - 1], NOT [0, 2^w) — the descents' range tables
+proved the one-sided fact. For the range families this is a
+soundness-relevant widening (two-sided where one-sided was
+declared): either (i) the statement rows are re-declared two-sided
+where the chain analysis permits (the requant remainders are
+nonneg by relation — the recomposition pins them, so the widening
+may be harmless case by case), or (ii) the {0,1} booleanity
+alphabet lands (1/3 cheaper rounds, needs the bit-granularity
+commitment — the q46-remainder / U-L link of the spike report §5).
+Round-6 opening decision 4; (i) needs a per-family analysis memo,
+(ii) needs a commitment-design rung. Until ruled, range-only
+Stage A declares the two-sided fact honestly in its statement rows
+(what lane GG's R3 implements).
