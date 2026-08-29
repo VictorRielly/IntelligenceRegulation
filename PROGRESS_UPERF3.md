@@ -3049,3 +3049,27 @@ discipline verbatim — statement + EVAL-PROOF digests IDENTICAL at
 3x16 and 12x64 at every rung (transcript-preserving only; any
 digest move = revert + record); RSS before/after per fix; the 8B
 projection updated.
+
+### Orchestrator note 2026-08-29 — the composition ladder (diet x Stage A, the first combined-binary measurement) [WSL-BOX NOISY-SHARED: agent lanes building concurrently]
+
+`uperf-a pass <shape> range` on the round-5 MERGED tree (HH's diet
+active + GG's Stage A), oracle and Stage-A modes in one process,
+/usr/bin/time -v, flock:
+
+| shape | mode | commit/prove/verify (s) | bytes | process peak RSS |
+|---|---|---|---|---|
+| 12x64 | oracle | 10.8 / 67.8 / 5.4 | 1,308,775 (descents 890,304) | 5.2 GiB (both modes) |
+| 12x64 | Stage-A | 13.6 / 77.8 / 9.6 | 622,011 (2.10x smaller) | " |
+| 12x128 | oracle | 12.9 / 97.1 / 6.6 | 1,372,775 (descents 952,128) | 7.85 GiB (both modes) |
+| 12x128 | Stage-A | 17.8 / 112.1 / 14.7 | 637,691 (2.15x smaller) | " |
+
+Reading: the composition ACCEPTS at both shapes (the two round-5
+lanes coexist correctly); bytes hold at 2.1-2.15x smaller; prove
++15% (CPU, the known trade at 125M scales where descents are cheap);
+the combined-process peak at 12x128 (7.85 GiB, INCLUDING the oracle
+phase) sits BELOW lane GG's pre-diet Stage-A-only 8.62 GiB — the
+diet reaches Stage-A mode too. The 125M shapes remain the WRONG
+place to see Stage-A's memory win (descent pairs here are ~1 GB;
+at 8B they are 120 GB) — the F1 ruling input is: range-only Stage A
+composes cleanly with the diet TODAY, and every counted 8B term
+says the composition is what fits 128 GB.
