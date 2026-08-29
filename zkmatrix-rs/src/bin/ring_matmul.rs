@@ -49819,6 +49819,16 @@ fn uperf_x_main(args: &[String]) {
             let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(512);
             uperf_x_chain(seed, t);
         }
+        Some("prove") => {
+            let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(161);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(512);
+            uperf_x_prove(seed, t);
+        }
+        Some("battery") => {
+            let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(161);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(64);
+            uperf_x_battery(seed, t);
+        }
         _ => {
             eprintln!("usage: ring_matmul uperf-x chain [seed] [t] | prove [seed] [t] | battery | stage-a [seed] [t]");
             std::process::exit(2);
@@ -49855,4 +49865,1655 @@ fn uperf_x_chain(seed: u64, t: usize) {
     }
     let cd: [u8; 32] = combined.finalize().into();
     println!("  CHAIN  {}", hex(&cd));
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF3-JJ] rung 2 — the committed chain + the honest proof through the
+// as-built machinery (the u3_layer_run wave pattern): 9 committed entries,
+// the d-pin (PW-3), six thin-sumcheck gates with real PW-3/PW-4 public
+// weights, six lookup/range instances (incl. the REAL fused (d, E)
+// LookupAt pair against the lane-local frozen exp member), pins -> psi
+// claims -> masked wave split -> ct waves + closing, ONE rolling
+// transcript. Gate order is FIXED (F5: no ordering freedom):
+//   G1 F-one (row-sum-1)   G2 F-hit (attainment ZC)   G3 Sum (masked row
+//   sum, PW-3)             G4 DIV (broadcast divisor, PW-4)
+//   G5 sigma-def           G6 off-support batch pin   G7 the d-pin (PW-3)
+//   then the instances: exp pair, d-w8, zsel-w1, P-w10, rho-w, sigma-w.
+
+const XS_ENTRIES: [&str; 9] = ["s8", "m", "zsel", "d", "E", "Sum", "P", "rho", "sigma"];
+
+fn xs_entry_len(e: usize, t: usize) -> usize {
+    match XS_ENTRIES[e] {
+        "m" | "Sum" => t,
+        _ => t * t,
+    }
+}
+
+fn xs_entry_values<'a>(e: usize, ch: &'a ring::attn_softmax::SoftmaxChain) -> &'a [i64] {
+    match XS_ENTRIES[e] {
+        "s8" => &ch.s8,
+        "m" => &ch.m,
+        "zsel" => &ch.zsel,
+        "d" => &ch.d,
+        "E" => &ch.e,
+        "Sum" => &ch.sum,
+        "P" => &ch.p,
+        "rho" => &ch.rho,
+        "sigma" => &ch.sigma,
+        _ => unreachable!(),
+    }
+}
+
+/// The derived remainder width: wrho = fE + log2(T) (18 at the contract
+/// T = 512 — the oracle's w18; lane-local derivation at other T,
+/// ledger-recorded).
+fn xs_wrho(t: usize) -> usize {
+    (ring::attn_softmax::F_E as usize) + (usize::BITS as usize - 1 - t.leading_zeros() as usize)
+}
+
+/// The chain derivation with tamper knobs (mask_shift for the
+/// shifted-mask leg; m_delta = (row, +-1) for the m legs; exp table as
+/// given — the wrong-member leg passes the eS = -2 member). The honest
+/// call (shift 0, no delta, eS -1 member) bit-equals
+/// ring::attn_softmax::derive_chain (asserted by the caller).
+fn xs_derive(
+    t: usize,
+    s8: &[i64],
+    tab: &[i64; 256],
+    mask_shift: i64,
+    m_delta: Option<(usize, i64)>,
+) -> ring::attn_softmax::SoftmaxChain {
+    use ring::attn_softmax::{F_E, F_P, SoftmaxChain};
+    let mask = |r: usize, c: usize| (c as i64) <= (r as i64) + mask_shift;
+    let sm_at = |r: usize, c: usize| if mask(r, c) { s8[r * t + c] } else { -127 };
+    let mut m = vec![0i64; t];
+    let mut zsel = vec![0i64; t * t];
+    let mut d = vec![0i64; t * t];
+    let mut e = vec![0i64; t * t];
+    let mut sum = vec![0i64; t];
+    let mut p = vec![0i64; t * t];
+    let mut rho = vec![0i64; t * t];
+    let mut sigma = vec![0i64; t * t];
+    for r in 0..t {
+        let mut mx = i64::MIN;
+        let mut arg = 0usize;
+        for c in 0..t {
+            let v = sm_at(r, c);
+            if v > mx {
+                mx = v;
+                arg = c;
+            }
+        }
+        if let Some((tr_, delta)) = m_delta {
+            if tr_ == r {
+                mx += delta;
+            }
+        }
+        m[r] = mx;
+        zsel[r * t + arg] = 1;
+        let mut s_acc = 0i64;
+        for c in 0..t {
+            let dd = mx - sm_at(r, c);
+            d[r * t + c] = dd;
+            // Tampered chains may push dd outside [0, 256): the table
+            // read wraps (& 255) so the rest of the chain stays
+            // self-consistent — the RANGE/LOOKUP gates see the raw dd.
+            let ev = tab[(dd & 255) as usize];
+            e[r * t + c] = ev;
+            if mask(r, c) {
+                s_acc += ev;
+            }
+        }
+        assert!(s_acc >= 1, "empty support row");
+        let _ = F_E;
+        sum[r] = s_acc;
+        for c in 0..t {
+            if mask(r, c) {
+                let num = e[r * t + c] << F_P;
+                let q = num / s_acc;
+                let rr = num - q * s_acc;
+                p[r * t + c] = q;
+                rho[r * t + c] = rr;
+                sigma[r * t + c] = s_acc - 1 - rr;
+            }
+        }
+    }
+    SoftmaxChain { t, s8: s8.to_vec(), m, zsel, d, e, sum, p, rho, sigma }
+}
+
+/// One lookup/range instance of the spike chain (the U3Inst shape).
+#[derive(Clone)]
+struct XsInst {
+    name: String,
+    entry: usize,
+    pair: Option<usize>,
+    offset: i64,
+    t_rows: usize,
+    /// Some(eS) for the exp fused pair — the STATEMENT member.
+    exp_es: Option<i32>,
+    dw: usize,
+    dt: usize,
+    base_m: usize,
+    m_c: usize,
+    idx_bl: usize,
+    base_wm: usize,
+    base_tm: usize,
+    wm_c: usize,
+    tm_c: usize,
+}
+
+fn xs_instances(t: usize) -> Vec<XsInst> {
+    let n2 = t * t;
+    let wrho = xs_wrho(t);
+    let mk = |name: &str, entry: usize, pair: Option<usize>, t_rows: usize, exp_es: Option<i32>| XsInst {
+        name: name.into(),
+        entry,
+        pair,
+        offset: 0,
+        t_rows,
+        exp_es,
+        dw: bf_dw_for(n2),
+        dt: ((t_rows.trailing_zeros() as usize) + 1).max(4),
+        base_m: usize::MAX,
+        m_c: 0,
+        idx_bl: usize::MAX,
+        base_wm: usize::MAX,
+        base_tm: usize::MAX,
+        wm_c: 0,
+        tm_c: 0,
+    };
+    // Transcript order = the spec's chain order: the w8/w1 range facts
+    // (F-dom, F-bin), THEN the exp lookup, then the division-side widths.
+    vec![
+        mk("rng-d-w8", 3, None, 256, None),
+        mk("rng-zsel-w1", 2, None, 2, None),
+        mk("exp-pair", 3, Some(4), 256, Some(ring::attn_softmax::E_S)),
+        mk("rng-P-w10", 6, None, 1 << 10, None),
+        mk(&format!("rng-rho-w{wrho}"), 7, None, 1 << wrho, None),
+        mk(&format!("rng-sigma-w{wrho}"), 8, None, 1 << wrho, None),
+    ]
+}
+
+struct XsLayout {
+    entry_base: Vec<usize>,
+    entry_cms: Vec<usize>,
+    insts: Vec<XsInst>,
+    n_data: usize,
+    base_pad: usize,
+    base_closing_g: usize,
+    base_wave_g: usize,
+    n_commits: usize,
+    c2_max: usize,
+    wave_g_groups: usize,
+    closing_g_groups: usize,
+    plan: ring::ct_engine::WavePlan,
+    pad_layout: ring::ct_engine::WavePadLayout,
+}
+
+fn xs_layout(t: usize, shape: CommitShape, q: u64) -> XsLayout {
+    use ring::ct_engine::{WavePadLayout, plan_waves};
+    use ring::gkr_masked::mask_coeff_counts;
+    use ring::kfield::K_DEG;
+    let per = shape.msg_r * D;
+    let mut entry_base = vec![0usize; XS_ENTRIES.len()];
+    let mut entry_cms = vec![0usize; XS_ENTRIES.len()];
+    let mut cursor = 0usize;
+    for e in 0..XS_ENTRIES.len() {
+        // Tails allowed (m/Sum are T-length): the pack pads with zeros;
+        // pins/instances address only the first n positions.
+        entry_base[e] = cursor;
+        entry_cms[e] = xs_entry_len(e, t).div_ceil(per);
+        cursor += entry_cms[e];
+    }
+    let kel_cms = |n_kel: usize| (n_kel * K_DEG).div_ceil(per).max(1);
+    let mut insts = xs_instances(t);
+    for inst in insts.iter_mut() {
+        let (gw, rw) = mask_coeff_counts(inst.dw, 0);
+        let (gt, rt) = mask_coeff_counts(inst.dt, 0);
+        inst.wm_c = kel_cms(gw + rw);
+        inst.tm_c = kel_cms(gt + rt);
+        inst.m_c = inst.t_rows.div_ceil(per).max(1);
+        inst.base_m = cursor;
+        inst.idx_bl = cursor + inst.m_c;
+        inst.base_wm = cursor + inst.m_c + 1;
+        inst.base_tm = inst.base_wm + inst.wm_c;
+        cursor += inst.m_c + 1 + inst.wm_c + inst.tm_c;
+        assert!(ring::gkr::ceiling_gate_ok(1u64 << inst.dw, q));
+        assert!(ring::gkr::ceiling_gate_ok(1u64 << inst.dt, q));
+    }
+    let n_data = cursor;
+    let wave_g_groups = UR1_PIN_COPIES.div_ceil(shape.msg_r);
+    let c2_max = ur1_c2_max_commits(q, shape);
+    let data_cap = c2_max - 1 - wave_g_groups;
+    let plan = plan_waves(n_data, &[], data_cap).expect("group-free first-fit plan");
+    let n_waves = plan.waves.len();
+    let pad_layout =
+        WavePadLayout::derive(UR1_PIN_COPIES, (0..n_waves).collect(), n_waves, shape.msg_r)
+            .expect("pad layout derives");
+    let closing_g_groups =
+        if pad_layout.has_pads() { UR1_PIN_COPIES.div_ceil(shape.msg_r) } else { 0 };
+    let base_pad = n_data;
+    let base_closing_g = base_pad + pad_layout.n_pad_cms;
+    let base_wave_g = base_closing_g + closing_g_groups;
+    let n_commits = base_wave_g + n_waves * wave_g_groups;
+    XsLayout {
+        entry_base,
+        entry_cms,
+        insts,
+        n_data,
+        base_pad,
+        base_closing_g,
+        base_wave_g,
+        n_commits,
+        c2_max,
+        wave_g_groups,
+        closing_g_groups,
+        plan,
+        pad_layout,
+    }
+}
+
+/// The spike statement bytes (digest = uk8_sha): shape + spec params +
+/// the STATEMENT exp member digest + the causal-mask convention + the
+/// entry commitment digests. The witness tags bind exactly as in the
+/// bf/u3 pass statements.
+fn xs_statement_bytes(t: usize, commit_digests: &[Vec<u8>], crs_hash: &[u8]) -> Vec<u8> {
+    use ring::attn_softmax::{E_S, F_E, F_P, HEAD_DIM, exp_member};
+    let mut b: Vec<u8> = b"uperf3-jj-xs1-v1".to_vec();
+    b.extend(crs_hash);
+    for v in [t, HEAD_DIM, xs_wrho(t)] {
+        b.extend((v as u64).to_le_bytes());
+    }
+    for v in [E_S, F_E as i32, F_P as i32] {
+        b.extend(v.to_le_bytes());
+    }
+    b.extend(b"mask:causal-lower-tri;offsupport-reads:-127;offsupport-aux:0");
+    let (_, dg) = exp_member(E_S);
+    b.extend(dg);
+    for d in commit_digests {
+        b.extend(d);
+    }
+    b
+}
+
+fn xs_commit_entries(
+    ch: &ring::attn_softmax::SoftmaxChain,
+    t: usize,
+    shape: CommitShape,
+    crs: &ring::commit::RingCrs,
+    path: &KernelPath,
+) -> (Vec<Vec<u8>>, BfCommitted) {
+    let zq = ring_ctx_q8().zq;
+    let per = shape.msg_r * D;
+    let mut entry_digests = Vec::with_capacity(XS_ENTRIES.len());
+    let mut kept =
+        BfCommitted { msgs: Vec::new(), rhos8: Vec::new(), t1s: Vec::new(), t2s: Vec::new() };
+    for e in 0..XS_ENTRIES.len() {
+        let vals = xs_entry_values(e, ch);
+        let n_cms = vals.len().div_ceil(per);
+        let mut rng = ring::ProverRng::from_test_seed(
+            "uperf3-jj-wit",
+            &[(e as u64).to_le_bytes(), (t as u64).to_le_bytes()].concat(),
+        );
+        let mut cm_digests = Vec::with_capacity(n_cms);
+        for g in 0..n_cms {
+            let mut polys = vec![poly_zero(); shape.msg_r];
+            for s in 0..shape.msg_r {
+                for c in 0..D {
+                    let idx = g * per + s * D + c;
+                    if idx < vals.len() {
+                        polys[s][c] = zq.to_mod(vals[idx]);
+                    }
+                }
+            }
+            let rho: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+            let (t1, t2) = commit(path, crs, &polys, &rho);
+            cm_digests.push(group_digest(&t1, &t2));
+            kept.msgs.push(polys);
+            kept.rhos8.push(rho.iter().flat_map(|p| p.iter().map(|&x| x as i8)).collect());
+            kept.t1s.push(t1);
+            kept.t2s.push(t2);
+        }
+        entry_digests.push(group_list_digest(&cm_digests));
+    }
+    (entry_digests, kept)
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum XsTamper {
+    None,
+    /// m[t0] += 1 (chain rederived self-consistently; zsel stays at the
+    /// argmax). PRE-REGISTERED GATE: G2 F-hit (zsel o d = 1 != 0).
+    MOverstate,
+    /// m[t0] -= 1 (d = -1 at the argmax). PRE-REGISTERED GATE: the
+    /// rng-d-w8 root cross-check (F-dom's lower edge); the exp pair's
+    /// root cross-check and G2 also fire — recorded, not the gate.
+    MUnderstate,
+    /// A second zsel bit at a TIED max position (d = 0 there).
+    /// PRE-REGISTERED GATE: G1 F-one (row-sum 2 != 1).
+    ZselTwoHot,
+    /// zsel moved to an off-support column on a row with m > -127.
+    /// PRE-REGISTERED GATE: G2 F-hit (d off-support = m + 127 > 0).
+    ZselOffsupport,
+    /// P at one off-support position set nonzero. PRE-REGISTERED GATE:
+    /// G6 the off-support batch zero-check.
+    OffsupportP,
+    /// The prover derives chain + ITS weight tables under a mask
+    /// shifted by +1. PRE-REGISTERED GATE: G3's PW-3 weight-MLE check
+    /// (the first mask-consuming public-weight gate in transcript
+    /// order); every later mask gate + the d-pin waves also fire.
+    ShiftedMask,
+    /// Chain + exp instance run the eS = -2 member consistently; the
+    /// statement declares eS = -1. PRE-REGISTERED GATE: the waves (the
+    /// verifier folds the STATEMENT table into the exp tq leaf pin).
+    WrongExpMember,
+}
+
+struct XsVerdict {
+    statement_ok: bool,
+    fone_ok: bool,
+    fhit_ok: bool,
+    sum_ok: bool,
+    div_ok: bool,
+    sigdef_ok: bool,
+    offsup_ok: bool,
+    roots_ok: Vec<bool>,
+    sum_gate_ok: bool,
+    waves_ok: bool,
+    first_bad_wave: Option<usize>,
+    closing_ok: bool,
+}
+
+impl XsVerdict {
+    fn accept(&self) -> bool {
+        self.statement_ok
+            && self.fone_ok
+            && self.fhit_ok
+            && self.sum_ok
+            && self.div_ok
+            && self.sigdef_ok
+            && self.offsup_ok
+            && self.roots_ok.iter().all(|&b| b)
+            && self.sum_gate_ok
+            && self.waves_ok
+            && self.closing_ok
+    }
+    fn first_failed_gate(&self, insts: &[XsInst]) -> String {
+        if !self.statement_ok {
+            return "statement".into();
+        }
+        for (ok, name) in [
+            (self.fone_ok, "G1 F-one (row-sum-1)"),
+            (self.fhit_ok, "G2 F-hit (attainment zero-check)"),
+            (self.sum_ok, "G3 Sum (masked row sum, PW-3 weight check)"),
+            (self.div_ok, "G4 DIV (broadcast-divisor zero-check, PW-4)"),
+            (self.sigdef_ok, "G5 sigma-def"),
+            (self.offsup_ok, "G6 off-support batch zero-check"),
+        ] {
+            if !ok {
+                return name.into();
+            }
+        }
+        for (i, &ok) in self.roots_ok.iter().enumerate() {
+            if !ok {
+                return format!("{} root cross-check", insts[i].name);
+            }
+        }
+        if !self.sum_gate_ok {
+            return "masked-claims sum gate".into();
+        }
+        if !self.waves_ok {
+            return format!("waves (pin claims; first bad wave {:?})", self.first_bad_wave);
+        }
+        if !self.closing_ok {
+            return "closing round".into();
+        }
+        "ACCEPT".into()
+    }
+}
+
+/// [UPERF3-JJ] The X-S1 committed-chain run: derive (with tamper),
+/// commit, prove on ONE rolling transcript, verify. Returns the verdict
+/// + (commit_s, prove_s, verify_s, n_pins, n_waves).
+fn xs1_run(seed: u64, t: usize, tamper: XsTamper, quiet: bool) -> (XsVerdict, [f64; 3], usize, usize) {
+    use ring::attn_softmax::{E_S, F_P, derive_chain, exp_member, seeded_s8};
+    use ring::ct_engine::{
+        CtClaim, StdOpening, WavePads, closing_round_claims, ct_h0, derive_ct_round_params,
+        draw_wave_pads, pack_wave_pads, prove_ct_round, sample_ct_masks,
+        split_claims_prover_masked, split_claims_verifier_masked, verify_ct_round,
+    };
+    use ring::gkr::{eq_eval, eq_table};
+    use ring::gkr_masked::{
+        BlinderSet, DescentEnd, MaskedDescentProof, blinded_table_tree, blinded_witness_tree,
+        blinder_positions, draw_masks, masked_gkr_prove, masked_gkr_verify, table_row_positions,
+        witness_leaf_positions, zero_masks,
+    };
+    use ring::kfield::{K_DEG, KElem, KField};
+    use ring::lookup::{PinTerm, PinnedValue, derive_pin_psi, fuse_pair, multiplicities, pin_claims};
+    use ring::sumcheck::{LkpTranscript, SumcheckProof, sumcheck_prove, sumcheck_verify};
+
+    assert!(t.is_power_of_two() && t >= 32, "xs1: T a power of two >= 32");
+    let ctx_ring = ring_ctx_q8();
+    let kf = KField::new(&ctx_ring);
+    let zq = ctx_ring.zq;
+    let q = zq.q;
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    let msg_r = shape.msg_r;
+    let per = msg_r * D;
+    let kpc = per / K_DEG;
+    let crs = expand_crs(shape, q, 0x0A11);
+    let zero = kf.zero();
+    let one = kf.one();
+    let lgt = t.trailing_zeros() as usize;
+    let lv = 2 * lgt; // T x T hypercube variables
+    let n2 = t * t;
+
+    // ---- The witness chain (honest, then the tamper knob). --------------
+    let s8 = seeded_s8(seed, n2);
+    let (tab_stmt, _) = exp_member(E_S);
+    let (tab_wrong, _) = exp_member(E_S - 1);
+    let honest = derive_chain(t, &s8, &tab_stmt);
+    {
+        // Rung-1 tie: the rig's knobbed derivation at honest knobs
+        // bit-equals the value oracle's chain.
+        let d0 = xs_derive(t, &s8, &tab_stmt, 0, None);
+        assert_eq!(d0.m, honest.m);
+        assert_eq!(d0.p, honest.p);
+        assert_eq!(d0.sigma, honest.sigma);
+    }
+    let t0_row = t / 2;
+    // MUnderstate rides the STRONGEST cheater: a row where max - 1 is
+    // also attained, so zsel can move to a d = 0 position and the
+    // reject isolates to F-dom (the d range/lookup gates) — the spec's
+    // "understating m makes some d negative" argument, adversarially.
+    let mu_row = (1..t)
+        .rev()
+        .find(|&r| {
+            let mx = honest.m[r];
+            mx > -127 && (0..=r).any(|c| s8[r * t + c] == mx - 1)
+        })
+        .expect("no row supports the m-understate leg at this seed/T");
+    let mut ch = match tamper {
+        XsTamper::None => honest,
+        XsTamper::MOverstate => xs_derive(t, &s8, &tab_stmt, 0, Some((t0_row, 1))),
+        XsTamper::MUnderstate => xs_derive(t, &s8, &tab_stmt, 0, Some((mu_row, -1))),
+        XsTamper::ShiftedMask => xs_derive(t, &s8, &tab_stmt, 1, None),
+        XsTamper::WrongExpMember => xs_derive(t, &s8, &tab_wrong, 0, None),
+        XsTamper::ZselTwoHot | XsTamper::ZselOffsupport | XsTamper::OffsupportP => honest,
+    };
+    match tamper {
+        XsTamper::MUnderstate => {
+            let r = mu_row;
+            let arg = (0..t).find(|&c| ch.zsel[r * t + c] == 1).unwrap();
+            let c2 = (0..t).find(|&c| ch.d[r * t + c] == 0).expect("d = 0 position exists");
+            ch.zsel[r * t + arg] = 0;
+            ch.zsel[r * t + c2] = 1;
+        }
+        XsTamper::ZselTwoHot => {
+            // A row with a TIE: two support positions attaining m.
+            let mut done = false;
+            for r in (1..t).rev() {
+                let hits: Vec<usize> =
+                    (0..=r).filter(|&c| ch.s8[r * t + c] == ch.m[r]).collect();
+                if hits.len() >= 2 {
+                    let second = hits.iter().find(|&&c| ch.zsel[r * t + c] == 0).unwrap();
+                    ch.zsel[r * t + second] = 1;
+                    done = true;
+                    break;
+                }
+            }
+            assert!(done, "no tied row found for the two-hot leg");
+        }
+        XsTamper::ZselOffsupport => {
+            let r = t0_row;
+            assert!(ch.m[r] > -127);
+            let arg = (0..t).find(|&c| ch.zsel[r * t + c] == 1).unwrap();
+            ch.zsel[r * t + arg] = 0;
+            ch.zsel[r * t + (t - 1)] = 1; // t-1 > t/2: off-support
+        }
+        XsTamper::OffsupportP => {
+            ch.p[t0_row * t + t0_row + 1] = 3;
+        }
+        _ => {}
+    }
+    // The prover's OWN mask (the shifted-mask leg derives + weights with
+    // it); the verifier always uses the statement's causal mask.
+    let p_shift: i64 = if tamper == XsTamper::ShiftedMask { 1 } else { 0 };
+    let p_mask = move |r: usize, c: usize| (c as i64) <= (r as i64) + p_shift;
+    let v_mask = |r: usize, c: usize| c <= r;
+    // The prover's table for the exp instance (wrong-member leg forges
+    // consistently; the verifier folds the STATEMENT member).
+    let tab_prover: &[i64; 256] =
+        if tamper == XsTamper::WrongExpMember { &tab_wrong } else { &tab_stmt };
+
+    // ---- Commit pass (entries + aux; ALL before any challenge). ---------
+    let t_commit = Instant::now();
+    let rp_probe = derive_ct_round_params(q, shape, ur1_c2_max_commits(q, shape), 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp_probe.sigma, isqrt_u128(rp_probe.bound_sq));
+    let path = KernelPath::A1(&a1p);
+    let (entry_digests, kept) = xs_commit_entries(&ch, t, shape, &crs, &path);
+    let ml = xs_layout(t, shape, q);
+    let BfCommitted { mut msgs, mut rhos8, mut t1s, mut t2s } = kept;
+
+    let mut rng = ring::ProverRng::from_test_seed(
+        "uperf3-jj-session",
+        &[seed.to_le_bytes(), (t as u64).to_le_bytes()].concat(),
+    );
+    let mut pads_live: Option<WavePads> = Some(draw_wave_pads(&mut rng, q, &ml.pad_layout));
+    let pack_scalar_chunk = |vals: &[u64]| -> Vec<Poly> {
+        assert!(vals.len() <= per);
+        let mut polys = vec![poly_zero(); msg_r];
+        for (i, &v) in vals.iter().enumerate() {
+            polys[i / D][i % D] = v;
+        }
+        polys
+    };
+    let pack_kelems = |kelems: &[KElem]| -> Vec<Vec<Poly>> {
+        let mut flat: Vec<u64> = Vec::with_capacity(kelems.len() * K_DEG);
+        for e in kelems {
+            flat.extend_from_slice(&e[..]);
+        }
+        (0..flat.len().div_ceil(per).max(1))
+            .map(|g| {
+                (0..msg_r)
+                    .map(|s| {
+                        (0..D)
+                            .map(|c| {
+                                let idx = g * per + s * D + c;
+                                if idx < flat.len() { flat[idx] } else { 0 }
+                            })
+                            .collect()
+                    })
+                    .collect()
+            })
+            .collect()
+    };
+    let mut push_commit = |mv: Vec<Poly>,
+                           rng: &mut ring::ProverRng,
+                           msgs: &mut Vec<Vec<Poly>>,
+                           rhos8: &mut Vec<Vec<i8>>,
+                           t1s: &mut Vec<Vec<Poly>>,
+                           t2s: &mut Vec<Vec<Poly>>| {
+        let rho: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(rng)).collect();
+        let (t1, t2) = commit(&path, &crs, &mv, &rho);
+        msgs.push(mv);
+        rhos8.push(rho.iter().flat_map(|p| p.iter().map(|&x| x as i8)).collect());
+        t1s.push(t1);
+        t2s.push(t2);
+    };
+    struct XsInstMat {
+        w_col: Vec<ring::kfield::KElem>,
+        tab_k: Vec<ring::kfield::KElem>,
+        m_k: Vec<ring::kfield::KElem>,
+        masks_w: Option<ring::gkr_masked::MaskSet>,
+        masks_t: Option<ring::gkr_masked::MaskSet>,
+        bl_w: ring::gkr_masked::BlinderSet,
+        bl_t: ring::gkr_masked::BlinderSet,
+    }
+    let mut inst_mat: Vec<XsInstMat> = Vec::with_capacity(ml.insts.len());
+    for inst in &ml.insts {
+        let vals = xs_entry_values(inst.entry, &ch);
+        let (w_col, tab_k): (Vec<KElem>, Vec<KElem>) = if inst.exp_es.is_some() {
+            let pair = xs_entry_values(inst.pair.unwrap(), &ch);
+            let w = vals
+                .iter()
+                .zip(pair.iter())
+                .map(|(&x, &y)| fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y)))
+                .collect();
+            let tk = tab_prover
+                .iter()
+                .enumerate()
+                .map(|(dd, &ev)| fuse_pair(&kf, dd as u64, zq.to_mod(ev)))
+                .collect();
+            (w, tk)
+        } else {
+            let w = vals.iter().map(|&x| kf.embed(zq.to_mod(x + inst.offset))).collect();
+            let tk = (0..inst.t_rows as u64).map(|j| kf.embed(j)).collect();
+            (w, tk)
+        };
+        let m_k: Vec<KElem> = if inst.exp_es.is_some() {
+            multiplicities(&kf, &w_col, &tab_k)
+        } else {
+            let mut hist = vec![0u64; inst.t_rows];
+            for w in &w_col {
+                let c0 = w[0] as usize;
+                if c0 < inst.t_rows {
+                    hist[c0] += 1;
+                }
+            }
+            hist.into_iter().map(|h| kf.embed(h)).collect()
+        };
+        let m_vals: Vec<u64> = m_k.iter().map(|e| e[0]).collect();
+        for g in 0..inst.m_c {
+            let lo = g * per;
+            let hi = ((g + 1) * per).min(m_vals.len());
+            push_commit(
+                pack_scalar_chunk(&m_vals[lo..hi]),
+                &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s,
+            );
+        }
+        let bw = BlinderSet::draw(&kf, &mut rng);
+        let mut bt = BlinderSet::draw(&kf, &mut rng);
+        bt.solve_mass(&kf, &bw.mass(&kf));
+        let blinder_kelems: Vec<KElem> = {
+            let mut v = Vec::with_capacity(16);
+            for b in [&bw.tl, &bw.tr, &bw.f0, &bw.f1, &bt.tl, &bt.tr, &bt.f0, &bt.f1] {
+                v.push(b.a.clone());
+                v.push(b.u.clone());
+            }
+            v
+        };
+        let bl_msg = pack_kelems(&blinder_kelems);
+        assert_eq!(bl_msg.len(), 1);
+        push_commit(bl_msg.into_iter().next().unwrap(), &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        let mw = draw_masks(&kf, &mut rng, inst.dw, 0);
+        let mt = draw_masks(&kf, &mut rng, inst.dt, 0);
+        for mm in pack_kelems(&mw.flatten()) {
+            push_commit(mm, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        }
+        for mm in pack_kelems(&mt.flatten()) {
+            push_commit(mm, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        }
+        inst_mat.push(XsInstMat { w_col, tab_k, m_k, masks_w: Some(mw), masks_t: Some(mt), bl_w: bw, bl_t: bt });
+    }
+    assert_eq!(msgs.len(), ml.n_data);
+    if ml.pad_layout.has_pads() {
+        for mm in pack_wave_pads(&mut rng, q, msg_r, &ml.pad_layout, pads_live.as_ref().unwrap())
+            .expect("pad packing")
+        {
+            push_commit(mm, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        }
+    }
+    for mm in sample_ct_masks(&mut rng, q, msg_r, if ml.closing_g_groups > 0 { UR1_PIN_COPIES } else { 0 }) {
+        push_commit(mm, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+    }
+    for _ in 0..ml.plan.waves.len() {
+        for mm in sample_ct_masks(&mut rng, q, msg_r, UR1_PIN_COPIES) {
+            push_commit(mm, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        }
+    }
+    assert_eq!(msgs.len(), ml.n_commits);
+    let commit_s = t_commit.elapsed().as_secs_f64();
+
+    let mut verdict = XsVerdict {
+        statement_ok: true,
+        fone_ok: true,
+        fhit_ok: true,
+        sum_ok: true,
+        div_ok: true,
+        sigdef_ok: true,
+        offsup_ok: true,
+        roots_ok: vec![true; ml.insts.len()],
+        sum_gate_ok: true,
+        waves_ok: true,
+        first_bad_wave: None,
+        closing_ok: true,
+    };
+
+    // ---- The statement + h0 (binds EVERY commitment). -------------------
+    let st_bytes = xs_statement_bytes(t, &entry_digests, &crs.crs_hash);
+    let ctx = uk8_sha(&[&st_bytes]);
+    let h0 = ct_h0(&crs, &ctx, &t1s, &t2s, &[]);
+
+    // ---- Shared public helpers (prover uses p_mask, verifier v_mask). ---
+    let lg2 = |n: usize| usize::BITS as usize - (n - 1).leading_zeros() as usize;
+    assert_eq!(lg2(n2), lv);
+    // eq-over-row-bits weight on position x: eq_r[row(x)] tables.
+    let row_bcast = |eq_r: &[KElem]| -> Vec<KElem> {
+        let mut w = Vec::with_capacity(n2);
+        for r in 0..t {
+            for _ in 0..t {
+                w.push(eq_r[r].clone());
+            }
+        }
+        w
+    };
+    let embed_col = |vals: &[i64]| -> Vec<KElem> {
+        vals.iter().map(|&v| kf.embed(zq.to_mod(v))).collect()
+    };
+    // MLE of a mask-shaped public weight table at a point (the verifier's
+    // PW-3/PW-4 evaluation; O(T^2) at spike scale).
+    let pub_mle = |tab: &[KElem], point: &[KElem]| -> KElem {
+        let ez = eq_table(&kf, point);
+        let mut acc = kf.zero();
+        for (x, w) in tab.iter().enumerate() {
+            if !kf.is_zero(w) {
+                acc = kf.add(&acc, &kf.mul(w, &ez[x]));
+            }
+        }
+        acc
+    };
+    // Public mass sum_x eq(rho, x) * mask-ish(x) over a 0/1 indicator.
+    let pub_mass = |eqt: &[KElem], ind: &dyn Fn(usize, usize) -> bool| -> KElem {
+        let mut acc = kf.zero();
+        for r in 0..t {
+            for c in 0..t {
+                if ind(r, c) {
+                    acc = kf.add(&acc, &eqt[r * t + c]);
+                }
+            }
+        }
+        acc
+    };
+    let product2 = |kf: &KField, vals: &[KElem]| kf.mul(&vals[0], &vals[1]);
+    let product3 = |kf: &KField, vals: &[KElem]| kf.mul(&kf.mul(&vals[0], &vals[1]), &vals[2]);
+    // G4 combine: w * (P * Sumbc + L), degree 3.
+    let div_combine = |kf: &KField, vals: &[KElem]| {
+        kf.mul(&vals[0], &kf.add(&kf.mul(&vals[1], &vals[2]), &vals[3]))
+    };
+
+    // Pin builders shared verbatim by prover and verifier (weights are
+    // the CALLER's public data; values ride the proof).
+    let col_pin = |e: usize, weights_tab: &[KElem], value: &KElem| -> PinnedValue {
+        let n_e = xs_entry_len(e, t);
+        PinnedValue {
+            terms: (0..ml.entry_cms[e])
+                .map(|g| {
+                    let lo = g * per;
+                    let hi = ((g + 1) * per).min(n_e).min(weights_tab.len());
+                    PinTerm::Scalar {
+                        commit: ml.entry_base[e] + g,
+                        coeff0: 0,
+                        weights: weights_tab[lo..hi].to_vec(),
+                    }
+                })
+                .collect(),
+            value: value.clone(),
+        }
+    };
+
+    // =====================================================================
+    // PROVER (one rolling transcript from h0).
+    // =====================================================================
+    let t_prove = Instant::now();
+    let mut tr = LkpTranscript::new("uperf3-jj-xs1", &h0);
+    let mut pins: Vec<PinnedValue> = Vec::new();
+
+    let zsel_k = embed_col(&ch.zsel);
+    let d_k = embed_col(&ch.d);
+    let e_k = embed_col(&ch.e);
+    let p_k = embed_col(&ch.p);
+
+    // ---- G1: F-one (row-sum-1). -----------------------------------------
+    let (g1_proof, _) = {
+        let r1: Vec<KElem> = (0..lgt).map(|_| tr.challenge_k(&kf)).collect();
+        let eq_r1 = eq_table(&kf, &r1);
+        let w1 = row_bcast(&eq_r1);
+        let (scp, zst) = sumcheck_prove(&kf, vec![w1, zsel_k.clone()], 2, &product2, &mut tr);
+        tr.absorb_k(&kf, "xs1-fone-final", &scp.final_evals);
+        pins.push(col_pin(2, &eq_table(&kf, &zst), &scp.final_evals[1]));
+        (scp, zst)
+    };
+
+    // ---- G2: F-hit (attainment zero-check, deg 3). ----------------------
+    let (g2_proof, _) = {
+        let rho1: Vec<KElem> = (0..lv).map(|_| tr.challenge_k(&kf)).collect();
+        let eqt = eq_table(&kf, &rho1);
+        let (scp, zst) =
+            sumcheck_prove(&kf, vec![eqt, zsel_k.clone(), d_k.clone()], 3, &product3, &mut tr);
+        tr.absorb_k(&kf, "xs1-fhit-final", &scp.final_evals);
+        let lw = eq_table(&kf, &zst);
+        pins.push(col_pin(2, &lw, &scp.final_evals[1]));
+        pins.push(col_pin(3, &lw, &scp.final_evals[2]));
+        (scp, zst)
+    };
+
+    // ---- G3: Sum (masked row sum; PW-3 weights). ------------------------
+    let (g3_proof, g3_claim) = {
+        let r2: Vec<KElem> = (0..lgt).map(|_| tr.challenge_k(&kf)).collect();
+        let eq_r2 = eq_table(&kf, &r2);
+        let mut w2 = row_bcast(&eq_r2);
+        for r in 0..t {
+            for c in 0..t {
+                if !p_mask(r, c) {
+                    w2[r * t + c] = kf.zero();
+                }
+            }
+        }
+        let mut v_sum = kf.zero();
+        for (x, w) in w2.iter().enumerate() {
+            if ch.e[x] != 0 && !kf.is_zero(w) {
+                v_sum = kf.add(&v_sum, &kf.scale(zq.to_mod(ch.e[x]), w));
+            }
+        }
+        tr.absorb_k(&kf, "xs1-sum-claim", std::slice::from_ref(&v_sum));
+        let (scp, zst) = sumcheck_prove(&kf, vec![w2, e_k.clone()], 2, &product2, &mut tr);
+        tr.absorb_k(&kf, "xs1-sum-final", &scp.final_evals);
+        pins.push(col_pin(5, &eq_r2, &v_sum));
+        pins.push(col_pin(4, &eq_table(&kf, &zst), &scp.final_evals[1]));
+        (scp, v_sum)
+    };
+
+    // ---- G4: DIV (broadcast divisor Sum, PW-4; deg 3). ------------------
+    let (g4_proof, _) = {
+        let rho2: Vec<KElem> = (0..lv).map(|_| tr.challenge_k(&kf)).collect();
+        let eqt = eq_table(&kf, &rho2);
+        let mut w3 = eqt;
+        for r in 0..t {
+            for c in 0..t {
+                if !p_mask(r, c) {
+                    w3[r * t + c] = kf.zero();
+                }
+            }
+        }
+        let sumbc: Vec<KElem> = {
+            let mut v = Vec::with_capacity(n2);
+            for r in 0..t {
+                let e = kf.embed(zq.to_mod(ch.sum[r]));
+                for _ in 0..t {
+                    v.push(e.clone());
+                }
+            }
+            v
+        };
+        let l_tab: Vec<KElem> = (0..n2)
+            .map(|x| kf.embed(zq.to_mod(ch.rho[x] - (ch.e[x] << F_P))))
+            .collect();
+        let (scp, zst) = sumcheck_prove(
+            &kf, vec![w3, p_k.clone(), sumbc, l_tab], 3, &div_combine, &mut tr,
+        );
+        tr.absorb_k(&kf, "xs1-div-final", &scp.final_evals);
+        let lw = eq_table(&kf, &zst);
+        pins.push(col_pin(6, &lw, &scp.final_evals[1]));
+        let eq_hi = eq_table(&kf, &zst[lgt..]);
+        pins.push(col_pin(5, &eq_hi, &scp.final_evals[2]));
+        // L pin: rho - 2^fP * E at z*.
+        let neg_shift = zq.to_mod(-(1i64 << F_P));
+        let lw_e: Vec<KElem> = lw.iter().map(|w| kf.scale(neg_shift, w)).collect();
+        let mut pv = col_pin(7, &lw, &scp.final_evals[3]);
+        pv.terms.extend(col_pin(4, &lw_e, &scp.final_evals[3]).terms);
+        pins.push(pv);
+        (scp, zst)
+    };
+
+    // ---- G5: sigma-def (sigma + rho + 1 - Sum = 0 on support). ----------
+    let (g5_proof, _) = {
+        let rho3: Vec<KElem> = (0..lv).map(|_| tr.challenge_k(&kf)).collect();
+        let eqt = eq_table(&kf, &rho3);
+        let mut w4 = eqt.clone();
+        for r in 0..t {
+            for c in 0..t {
+                if !p_mask(r, c) {
+                    w4[r * t + c] = kf.zero();
+                }
+            }
+        }
+        let c_tab: Vec<KElem> = (0..n2)
+            .map(|x| kf.embed(zq.to_mod(ch.sigma[x] + ch.rho[x] - ch.sum[x / t])))
+            .collect();
+        // claim: sum w4 * C = -mask-mass (public on both sides).
+        let (scp, zst) = sumcheck_prove(&kf, vec![w4, c_tab], 2, &product2, &mut tr);
+        tr.absorb_k(&kf, "xs1-sigdef-final", &scp.final_evals);
+        let lw = eq_table(&kf, &zst);
+        let eq_hi = eq_table(&kf, &zst[lgt..]);
+        let mut pv = col_pin(8, &lw, &scp.final_evals[1]);
+        pv.terms.extend(col_pin(7, &lw, &scp.final_evals[1]).terms);
+        let neg_hi: Vec<KElem> = eq_hi.iter().map(|w| kf.neg(w)).collect();
+        pv.terms.extend(col_pin(5, &neg_hi, &scp.final_evals[1]).terms);
+        pins.push(pv);
+        (scp, zst)
+    };
+
+    // ---- G6: off-support batch pin (P, rho, sigma vanish off support). --
+    let (g6_proof, g6_gamma) = {
+        let gamma = tr.challenge_k(&kf);
+        let gamma2 = kf.mul(&gamma, &gamma);
+        let rho4: Vec<KElem> = (0..lv).map(|_| tr.challenge_k(&kf)).collect();
+        let eqt = eq_table(&kf, &rho4);
+        let mut w5 = eqt;
+        for r in 0..t {
+            for c in 0..t {
+                if p_mask(r, c) {
+                    w5[r * t + c] = kf.zero();
+                }
+            }
+        }
+        let b_tab: Vec<KElem> = (0..n2)
+            .map(|x| {
+                let mut v = kf.embed(zq.to_mod(ch.p[x]));
+                v = kf.add(&v, &kf.mul(&gamma, &kf.embed(zq.to_mod(ch.rho[x]))));
+                kf.add(&v, &kf.mul(&gamma2, &kf.embed(zq.to_mod(ch.sigma[x]))))
+            })
+            .collect();
+        let (scp, zst) = sumcheck_prove(&kf, vec![w5, b_tab], 2, &product2, &mut tr);
+        tr.absorb_k(&kf, "xs1-offsup-final", &scp.final_evals);
+        let lw = eq_table(&kf, &zst);
+        let lw_r: Vec<KElem> = lw.iter().map(|w| kf.mul(&gamma, w)).collect();
+        let lw_s: Vec<KElem> = lw.iter().map(|w| kf.mul(&gamma2, w)).collect();
+        let mut pv = col_pin(6, &lw, &scp.final_evals[1]);
+        pv.terms.extend(col_pin(7, &lw_r, &scp.final_evals[1]).terms);
+        pv.terms.extend(col_pin(8, &lw_s, &scp.final_evals[1]).terms);
+        pins.push(pv);
+        (scp, gamma)
+    };
+
+    // ---- G7: the d-pin (PW-3): d + mask o s8 - m_bc = 127 * maskC. ------
+    {
+        let r_d: Vec<KElem> = (0..lv).map(|_| tr.challenge_k(&kf)).collect();
+        let lw = eq_table(&kf, &r_d);
+        let eq_hi = eq_table(&kf, &r_d[lgt..]);
+        let mut masked_lw = lw.clone();
+        for r in 0..t {
+            for c in 0..t {
+                if !p_mask(r, c) {
+                    masked_lw[r * t + c] = kf.zero();
+                }
+            }
+        }
+        let maskc_mass = pub_mass(&lw, &|r, c| !p_mask(r, c));
+        let value = kf.scale(zq.to_mod(127), &maskc_mass);
+        let mut pv = col_pin(3, &lw, &value);
+        pv.terms.extend(col_pin(0, &masked_lw, &value).terms);
+        let neg_hi: Vec<KElem> = eq_hi.iter().map(|w| kf.neg(w)).collect();
+        pv.terms.extend(col_pin(1, &neg_hi, &value).terms);
+        pins.push(pv);
+    }
+    let gates_s = t_prove.elapsed().as_secs_f64();
+
+    // ---- The lookup/range instances (masked descent pairs + pins). ------
+    let descent_pins = |base: usize,
+                        shape_masks: &ring::gkr_masked::MaskSet,
+                        proof: &MaskedDescentProof,
+                        end: &DescentEnd,
+                        depth: usize|
+     -> Vec<PinnedValue> {
+        use ring::gkr_masked::{g_hypersum_weights, g_open_weights, r_open_weights};
+        let kelem_terms = |base: usize, flat_off: usize, weights: &[KElem]| -> Vec<PinTerm> {
+            let mut terms = Vec::new();
+            let mut i = 0usize;
+            while i < weights.len() {
+                let idx = flat_off + i;
+                let commit = base + idx / kpc;
+                let coeff0 = (idx % kpc) * K_DEG;
+                let take = (kpc - (idx % kpc)).min(weights.len() - i);
+                terms.push(PinTerm::Kelems { commit, coeff0, weights: weights[i..i + take].to_vec() });
+                i += take;
+            }
+            terms
+        };
+        let mut out = Vec::new();
+        for j in 1..depth {
+            let lp_j = &proof.layers[j - 1];
+            let gm = &shape_masks.g[j - 1];
+            out.push(PinnedValue {
+                terms: kelem_terms(base, shape_masks.g_offset(j), &g_hypersum_weights(&kf, gm)),
+                value: lp_j.g_sum.clone(),
+            });
+            let (open_pt, mu_prev, c_w) = &end.layer_pts[j - 1];
+            out.push(PinnedValue {
+                terms: kelem_terms(base, shape_masks.g_offset(j), &g_open_weights(&kf, gm, open_pt)),
+                value: lp_j.open_g.clone(),
+            });
+            if j >= 2 {
+                let (orp, orq) = lp_j.open_r.clone().expect("interior layer opens Rp/Rq");
+                let rw = r_open_weights(&kf, mu_prev, c_w);
+                out.push(PinnedValue {
+                    terms: kelem_terms(base, shape_masks.r_offset(j), &rw),
+                    value: orp,
+                });
+                out.push(PinnedValue {
+                    terms: kelem_terms(base, shape_masks.r_offset(j) + 6, &rw),
+                    value: orq,
+                });
+            }
+        }
+        out
+    };
+    let leaf_pins = |inst: &XsInst,
+                     tab_k: &[KElem],
+                     endw: &DescentEnd,
+                     endt: &DescentEnd,
+                     alpha: &KElem|
+     -> Vec<PinnedValue> {
+        let n_el = xs_entry_len(inst.entry, t);
+        let lw = eq_table(&kf, &endw.zstar);
+        let lt = eq_table(&kf, &endt.zstar);
+        let nw = 1usize << inst.dw;
+        let nt = 1usize << inst.dt;
+        let bpw = blinder_positions(nw);
+        let bpt = blinder_positions(nt);
+        let tpos = table_row_positions(inst.t_rows, nt);
+        let wpos: Vec<usize> = witness_leaf_positions(n_el, nw);
+        let eqw: Vec<KElem> = bpw.iter().map(|&p| lw[p].clone()).collect();
+        let eqt: Vec<KElem> = bpt.iter().map(|&p| lt[p].clone()).collect();
+        let hw = (0..n_el).fold(zero.clone(), |a, i| kf.add(&a, &lw[wpos[i]]));
+        let ht = (0..inst.t_rows).fold(zero.clone(), |a, j| kf.add(&a, &lt[tpos[j]]));
+        let sum_eqw = eqw.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+        let sum_eqt = eqt.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+        let ft = (0..inst.t_rows)
+            .fold(zero.clone(), |a, j| kf.add(&a, &kf.mul(&lt[tpos[j]], &tab_k[j])));
+        let z = zero.clone();
+        let wp = PinnedValue {
+            terms: vec![PinTerm::Kelems {
+                commit: inst.idx_bl,
+                coeff0: 0,
+                weights: vec![
+                    eqw[0].clone(), z.clone(), eqw[1].clone(), z.clone(),
+                    eqw[2].clone(), z.clone(), eqw[3].clone(), z.clone(),
+                ],
+            }],
+            value: kf.sub(&endw.p_claim, &hw),
+        };
+        let ddw = kf.sub(&kf.sub(&one, &hw), &sum_eqw);
+        let mut wq_terms = vec![PinTerm::Kelems {
+            commit: inst.idx_bl,
+            coeff0: 0,
+            weights: vec![
+                z.clone(), eqw[0].clone(), z.clone(), eqw[1].clone(),
+                z.clone(), eqw[2].clone(), z.clone(), eqw[3].clone(),
+            ],
+        }];
+        for g in 0..ml.entry_cms[inst.entry] {
+            let lo = g * per;
+            let n_c = (n_el - lo).min(per);
+            wq_terms.push(PinTerm::Scalar {
+                commit: ml.entry_base[inst.entry] + g,
+                coeff0: 0,
+                weights: (0..n_c).map(|i| kf.neg(&lw[wpos[lo + i]])).collect(),
+            });
+        }
+        if let Some(pe) = inst.pair {
+            for g in 0..ml.entry_cms[pe] {
+                let lo = g * per;
+                let n_c = (n_el - lo).min(per);
+                wq_terms.push(PinTerm::Scalar {
+                    commit: ml.entry_base[pe] + g,
+                    coeff0: 0,
+                    weights: (0..n_c)
+                        .map(|i| kf.neg(&ring::lookup::mul_y(&kf, &lw[wpos[lo + i]])))
+                        .collect(),
+                });
+            }
+        }
+        let mut wq_value = kf.sub(&kf.sub(&endw.q_claim, &kf.mul(alpha, &hw)), &ddw);
+        if inst.offset != 0 {
+            wq_value = kf.add(&wq_value, &kf.scale(zq.to_mod(inst.offset), &hw));
+        }
+        let wq = PinnedValue { terms: wq_terms, value: wq_value };
+        let mut tp_terms: Vec<PinTerm> = Vec::new();
+        for g in 0..inst.m_c {
+            let lo = g * per;
+            let hi = ((g + 1) * per).min(inst.t_rows);
+            tp_terms.push(PinTerm::Scalar {
+                commit: inst.base_m + g,
+                coeff0: 0,
+                weights: (lo..hi).map(|j| lt[tpos[j]].clone()).collect(),
+            });
+        }
+        tp_terms.push(PinTerm::Kelems {
+            commit: inst.idx_bl,
+            coeff0: 8 * K_DEG,
+            weights: vec![
+                eqt[0].clone(), z.clone(), eqt[1].clone(), z.clone(),
+                eqt[2].clone(), z.clone(), eqt[3].clone(), z.clone(),
+            ],
+        });
+        let tp = PinnedValue { terms: tp_terms, value: endt.p_claim.clone() };
+        let ddt = kf.sub(&kf.sub(&one, &ht), &sum_eqt);
+        let tq = PinnedValue {
+            terms: vec![PinTerm::Kelems {
+                commit: inst.idx_bl,
+                coeff0: 8 * K_DEG,
+                weights: vec![
+                    z.clone(), eqt[0].clone(), z.clone(), eqt[1].clone(),
+                    z.clone(), eqt[2].clone(), z.clone(), eqt[3].clone(),
+                ],
+            }],
+            value: kf.add(&kf.sub(&kf.sub(&endt.q_claim, &kf.mul(alpha, &ht)), &ddt), &ft),
+        };
+        vec![wp, wq, tp, tq]
+    };
+    // The STATEMENT-side table (what the verifier folds).
+    let stmt_tab_k = |inst: &XsInst| -> Vec<KElem> {
+        if inst.exp_es.is_some() {
+            tab_stmt
+                .iter()
+                .enumerate()
+                .map(|(dd, &ev)| fuse_pair(&kf, dd as u64, zq.to_mod(ev)))
+                .collect()
+        } else {
+            (0..inst.t_rows as u64).map(|j| kf.embed(j)).collect()
+        }
+    };
+
+    let t_lkp = Instant::now();
+    let mut inst_proofs: Vec<(MaskedDescentProof, MaskedDescentProof)> = Vec::new();
+    for (ii, inst) in ml.insts.iter().enumerate() {
+        let mat = &mut inst_mat[ii];
+        let alpha = tr.challenge_k(&kf);
+        let wtree = blinded_witness_tree(&kf, &alpha, &mat.w_col, inst.dw, &mat.bl_w);
+        let (pw, endw) = masked_gkr_prove(&kf, &[wtree], mat.masks_w.take().unwrap(), &mut tr);
+        let ttree = blinded_table_tree(&kf, &alpha, &mat.tab_k, &mat.m_k, inst.dt, &mat.bl_t);
+        let (pt, endt) = masked_gkr_prove(&kf, &[ttree], mat.masks_t.take().unwrap(), &mut tr);
+        let shell_w = zero_masks(&kf, inst.dw, 0);
+        let shell_t = zero_masks(&kf, inst.dt, 0);
+        pins.extend(descent_pins(inst.base_wm, &shell_w, &pw, &endw, inst.dw));
+        pins.extend(descent_pins(inst.base_tm, &shell_t, &pt, &endt, inst.dt));
+        pins.extend(leaf_pins(inst, &mat.tab_k, &endw, &endt, &alpha));
+        inst_proofs.push((pw, pt));
+        mat.w_col = Vec::new();
+    }
+    let lkp_s = t_lkp.elapsed().as_secs_f64();
+
+    // ---- Pin batch -> psi claims -> masked wave split -> waves. ---------
+    for p in &pins {
+        tr.absorb_k(&kf, "xs1-pin", std::slice::from_ref(&p.value));
+    }
+    let n_pins = pins.len();
+    let psi = derive_pin_psi(&tr.state(), UR1_PIN_COPIES, pins.len() * K_DEG, q);
+    let claims_p = pin_claims(&kf, &pins, ml.n_data, msg_r, &psi);
+    drop(pins);
+    let msg_refs: Vec<&[Poly]> = msgs[..ml.n_data].iter().map(|mm| mm.as_slice()).collect();
+    let (mut pw_claims, reveals) = split_claims_prover_masked(
+        &zq,
+        &ml.plan,
+        &claims_p,
+        &msg_refs,
+        &ml.pad_layout,
+        pads_live.take().expect("pads drawn pre-challenge"),
+    )
+    .expect("honest masked split");
+    drop(claims_p);
+    if pw_claims.is_empty() {
+        pw_claims = (0..ml.plan.waves.len()).map(|_| Vec::new()).collect();
+    }
+
+    let n_waves = ml.plan.waves.len();
+    let unpack_rho = |packed: &[i8]| -> Vec<Vec<i64>> {
+        (0..shape.n_r)
+            .map(|r| packed[r * D..(r + 1) * D].iter().map(|&b| b as i64).collect())
+            .collect()
+    };
+    let wave_idxs = |w: usize| -> Vec<usize> {
+        let mut v = ml.plan.waves[w].clone();
+        if ml.pad_layout.has_pads() {
+            v.push(ml.base_pad + w / ml.pad_layout.waves_per_cm);
+        }
+        let g0 = ml.base_wave_g + w * ml.wave_g_groups;
+        v.extend(g0..g0 + ml.wave_g_groups);
+        v
+    };
+    let mut wave_proofs: Vec<ring::ct_engine::CtRoundProof> = Vec::with_capacity(n_waves);
+    let mut rp_cache: std::collections::BTreeMap<usize, (ring::ct_engine::CtRoundParams, ring::commit::A1Paths)> =
+        std::collections::BTreeMap::new();
+    let tr_state = tr.state();
+    for w in 0..n_waves {
+        let idxs = wave_idxs(w);
+        let n_cw = idxs.len();
+        assert!(n_cw <= ml.c2_max);
+        if !rp_cache.contains_key(&n_cw) {
+            let rp = derive_ct_round_params(q, shape, n_cw, 0, 0, true);
+            let a1pw = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cw, (rp, a1pw));
+        }
+        let (rp_w, a1p_w) = rp_cache.get(&n_cw).unwrap();
+        let path_w = KernelPath::A1(a1p_w);
+        let claims_w: Vec<CtClaim> = std::mem::take(&mut pw_claims[w]);
+        let wrhos: Vec<Vec<Vec<i64>>> = idxs.iter().map(|&i| unpack_rho(&rhos8[i])).collect();
+        let openings: Vec<StdOpening> = idxs
+            .iter()
+            .enumerate()
+            .map(|(j, &i)| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &msgs[i], rho: &wrhos[j] })
+            .collect();
+        let mut state_p: Vec<u8> = tr_state.to_vec();
+        state_p.extend((w as u64).to_le_bytes());
+        let wt1s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t1s[i].clone()).collect();
+        let wt2s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_w = ct_h0(&crs, &state_p, &wt1s, &wt2s, &[]);
+        let pad_shift = usize::from(ml.pad_layout.has_pads());
+        let (proof_w, _) = prove_ct_round(
+            &path_w, &ctx_ring, rp_w, None, &crs, &h0_w, &claims_w, &[], &[], &[], &openings,
+            &[], &[], ml.plan.waves[w].len() + pad_shift, &mut rng,
+        );
+        wave_proofs.push(proof_w);
+    }
+    let closing_proof = if ml.pad_layout.has_pads() {
+        let idxs_z: Vec<usize> = (ml.base_pad..ml.base_pad + ml.pad_layout.n_pad_cms)
+            .chain(ml.base_closing_g..ml.base_closing_g + ml.closing_g_groups)
+            .collect();
+        let n_cz = idxs_z.len();
+        if !rp_cache.contains_key(&n_cz) {
+            let rp = derive_ct_round_params(q, shape, n_cz, 0, 0, true);
+            let a1pz = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+            rp_cache.insert(n_cz, (rp, a1pz));
+        }
+        let (rp_z, a1p_z) = rp_cache.get(&n_cz).unwrap();
+        let path_z = KernelPath::A1(a1p_z);
+        let claims_z = closing_round_claims(&zq, &ml.pad_layout);
+        let mut state_z: Vec<u8> = tr_state.to_vec();
+        state_z.extend(b"xs1-closing");
+        let zt1s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t1s[i].clone()).collect();
+        let zt2s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_z = ct_h0(&crs, &state_z, &zt1s, &zt2s, &[]);
+        let zrhos: Vec<Vec<Vec<i64>>> = idxs_z.iter().map(|&i| unpack_rho(&rhos8[i])).collect();
+        let openings_z: Vec<StdOpening> = idxs_z
+            .iter()
+            .enumerate()
+            .map(|(j, &i)| StdOpening { t1: &t1s[i], t2: &t2s[i], x: &msgs[i], rho: &zrhos[j] })
+            .collect();
+        let (proof_z, _) = prove_ct_round(
+            &path_z, &ctx_ring, rp_z, None, &crs, &h0_z, &claims_z, &[], &[], &[], &openings_z,
+            &[], &[], ml.pad_layout.n_pad_cms, &mut rng,
+        );
+        Some(proof_z)
+    } else {
+        None
+    };
+    let prove_s = t_prove.elapsed().as_secs_f64();
+
+    // =====================================================================
+    // VERIFIER (statement gate + the same rolling transcript).
+    // =====================================================================
+    let t_verify = Instant::now();
+    {
+        let st_v = xs_statement_bytes(t, &entry_digests, &crs.crs_hash);
+        if uk8_sha(&[&st_v]) != ctx {
+            verdict.statement_ok = false;
+            return (verdict, [commit_s, prove_s, 0.0], n_pins, n_waves);
+        }
+    }
+    let mut tv = LkpTranscript::new("uperf3-jj-xs1", &h0);
+    let mut pins_v: Vec<PinnedValue> = Vec::new();
+
+    // ---- G1. ------------------------------------------------------------
+    {
+        let r1: Vec<KElem> = (0..lgt).map(|_| tv.challenge_k(&kf)).collect();
+        let sc = sumcheck_verify(&kf, lv, 2, &one, &g1_proof, &product2, &mut tv);
+        tv.absorb_k(&kf, "xs1-fone-final", &g1_proof.final_evals);
+        match sc {
+            Some((zst, _)) => {
+                // W1's MLE at z* = eq(r1, z*_high) — mask-free public row weight.
+                if g1_proof.final_evals[0] != eq_eval(&kf, &r1, &zst[lgt..]) {
+                    verdict.fone_ok = false;
+                }
+                pins_v.push(col_pin(2, &eq_table(&kf, &zst), &g1_proof.final_evals[1]));
+            }
+            None => verdict.fone_ok = false,
+        }
+    }
+    // ---- G2. ------------------------------------------------------------
+    {
+        let rho1: Vec<KElem> = (0..lv).map(|_| tv.challenge_k(&kf)).collect();
+        let sc = sumcheck_verify(&kf, lv, 3, &zero, &g2_proof, &product3, &mut tv);
+        tv.absorb_k(&kf, "xs1-fhit-final", &g2_proof.final_evals);
+        match sc {
+            Some((zst, _)) => {
+                if g2_proof.final_evals[0] != eq_eval(&kf, &rho1, &zst) {
+                    verdict.fhit_ok = false;
+                }
+                let lw = eq_table(&kf, &zst);
+                pins_v.push(col_pin(2, &lw, &g2_proof.final_evals[1]));
+                pins_v.push(col_pin(3, &lw, &g2_proof.final_evals[2]));
+            }
+            None => verdict.fhit_ok = false,
+        }
+    }
+    // ---- G3 (PW-3 weight check: the shifted-mask pre-registered gate). --
+    {
+        let r2: Vec<KElem> = (0..lgt).map(|_| tv.challenge_k(&kf)).collect();
+        let eq_r2 = eq_table(&kf, &r2);
+        tv.absorb_k(&kf, "xs1-sum-claim", std::slice::from_ref(&g3_claim));
+        let sc = sumcheck_verify(&kf, lv, 2, &g3_claim, &g3_proof, &product2, &mut tv);
+        tv.absorb_k(&kf, "xs1-sum-final", &g3_proof.final_evals);
+        match sc {
+            Some((zst, _)) => {
+                let mut w2v = row_bcast(&eq_r2);
+                for r in 0..t {
+                    for c in 0..t {
+                        if !v_mask(r, c) {
+                            w2v[r * t + c] = kf.zero();
+                        }
+                    }
+                }
+                if g3_proof.final_evals[0] != pub_mle(&w2v, &zst) {
+                    verdict.sum_ok = false;
+                }
+                pins_v.push(col_pin(5, &eq_r2, &g3_claim));
+                pins_v.push(col_pin(4, &eq_table(&kf, &zst), &g3_proof.final_evals[1]));
+            }
+            None => verdict.sum_ok = false,
+        }
+    }
+    // ---- G4. ------------------------------------------------------------
+    {
+        let rho2: Vec<KElem> = (0..lv).map(|_| tv.challenge_k(&kf)).collect();
+        let sc = sumcheck_verify(&kf, lv, 3, &zero, &g4_proof, &div_combine, &mut tv);
+        tv.absorb_k(&kf, "xs1-div-final", &g4_proof.final_evals);
+        match sc {
+            Some((zst, _)) => {
+                let eqt = eq_table(&kf, &rho2);
+                let mut w3v = eqt;
+                for r in 0..t {
+                    for c in 0..t {
+                        if !v_mask(r, c) {
+                            w3v[r * t + c] = kf.zero();
+                        }
+                    }
+                }
+                if g4_proof.final_evals[0] != pub_mle(&w3v, &zst) {
+                    verdict.div_ok = false;
+                }
+                let lw = eq_table(&kf, &zst);
+                pins_v.push(col_pin(6, &lw, &g4_proof.final_evals[1]));
+                let eq_hi = eq_table(&kf, &zst[lgt..]);
+                pins_v.push(col_pin(5, &eq_hi, &g4_proof.final_evals[2]));
+                let neg_shift = zq.to_mod(-(1i64 << F_P));
+                let lw_e: Vec<KElem> = lw.iter().map(|w| kf.scale(neg_shift, w)).collect();
+                let mut pv = col_pin(7, &lw, &g4_proof.final_evals[3]);
+                pv.terms.extend(col_pin(4, &lw_e, &g4_proof.final_evals[3]).terms);
+                pins_v.push(pv);
+            }
+            None => verdict.div_ok = false,
+        }
+    }
+    // ---- G5. ------------------------------------------------------------
+    {
+        let rho3: Vec<KElem> = (0..lv).map(|_| tv.challenge_k(&kf)).collect();
+        let eqt = eq_table(&kf, &rho3);
+        let claim_v = kf.neg(&pub_mass(&eqt, &|r, c| v_mask(r, c)));
+        let sc = sumcheck_verify(&kf, lv, 2, &claim_v, &g5_proof, &product2, &mut tv);
+        tv.absorb_k(&kf, "xs1-sigdef-final", &g5_proof.final_evals);
+        match sc {
+            Some((zst, _)) => {
+                let mut w4v = eqt;
+                for r in 0..t {
+                    for c in 0..t {
+                        if !v_mask(r, c) {
+                            w4v[r * t + c] = kf.zero();
+                        }
+                    }
+                }
+                if g5_proof.final_evals[0] != pub_mle(&w4v, &zst) {
+                    verdict.sigdef_ok = false;
+                }
+                let lw = eq_table(&kf, &zst);
+                let eq_hi = eq_table(&kf, &zst[lgt..]);
+                let mut pv = col_pin(8, &lw, &g5_proof.final_evals[1]);
+                pv.terms.extend(col_pin(7, &lw, &g5_proof.final_evals[1]).terms);
+                let neg_hi: Vec<KElem> = eq_hi.iter().map(|w| kf.neg(w)).collect();
+                pv.terms.extend(col_pin(5, &neg_hi, &g5_proof.final_evals[1]).terms);
+                pins_v.push(pv);
+            }
+            None => verdict.sigdef_ok = false,
+        }
+    }
+    // ---- G6. ------------------------------------------------------------
+    {
+        let gamma = tv.challenge_k(&kf);
+        // NOTE: after an earlier REJECTING gate the verifier transcript
+        // is deliberately desynced (house behavior — the verdict names
+        // the first failing gate); gamma is NOT asserted equal to the
+        // prover's.
+        let _ = &g6_gamma;
+        let gamma2 = kf.mul(&gamma, &gamma);
+        let rho4: Vec<KElem> = (0..lv).map(|_| tv.challenge_k(&kf)).collect();
+        let sc = sumcheck_verify(&kf, lv, 2, &zero, &g6_proof, &product2, &mut tv);
+        tv.absorb_k(&kf, "xs1-offsup-final", &g6_proof.final_evals);
+        match sc {
+            Some((zst, _)) => {
+                let eqt = eq_table(&kf, &rho4);
+                let mut w5v = eqt;
+                for r in 0..t {
+                    for c in 0..t {
+                        if v_mask(r, c) {
+                            w5v[r * t + c] = kf.zero();
+                        }
+                    }
+                }
+                if g6_proof.final_evals[0] != pub_mle(&w5v, &zst) {
+                    verdict.offsup_ok = false;
+                }
+                let lw = eq_table(&kf, &zst);
+                let lw_r: Vec<KElem> = lw.iter().map(|w| kf.mul(&gamma, w)).collect();
+                let lw_s: Vec<KElem> = lw.iter().map(|w| kf.mul(&gamma2, w)).collect();
+                let mut pv = col_pin(6, &lw, &g6_proof.final_evals[1]);
+                pv.terms.extend(col_pin(7, &lw_r, &g6_proof.final_evals[1]).terms);
+                pv.terms.extend(col_pin(8, &lw_s, &g6_proof.final_evals[1]).terms);
+                pins_v.push(pv);
+            }
+            None => verdict.offsup_ok = false,
+        }
+    }
+    // ---- G7 (verifier side, TRUE mask). ---------------------------------
+    {
+        let r_d: Vec<KElem> = (0..lv).map(|_| tv.challenge_k(&kf)).collect();
+        let lw = eq_table(&kf, &r_d);
+        let eq_hi = eq_table(&kf, &r_d[lgt..]);
+        let mut masked_lw = lw.clone();
+        for r in 0..t {
+            for c in 0..t {
+                if !v_mask(r, c) {
+                    masked_lw[r * t + c] = kf.zero();
+                }
+            }
+        }
+        let maskc_mass = pub_mass(&lw, &|r, c| !v_mask(r, c));
+        let value = kf.scale(zq.to_mod(127), &maskc_mass);
+        let mut pv = col_pin(3, &lw, &value);
+        pv.terms.extend(col_pin(0, &masked_lw, &value).terms);
+        let neg_hi: Vec<KElem> = eq_hi.iter().map(|w| kf.neg(w)).collect();
+        pv.terms.extend(col_pin(1, &neg_hi, &value).terms);
+        pins_v.push(pv);
+    }
+    // ---- Instances. -----------------------------------------------------
+    for (ii, inst) in ml.insts.iter().enumerate() {
+        let (pw, pt) = &inst_proofs[ii];
+        let alpha = tv.challenge_k(&kf);
+        let shell_w = zero_masks(&kf, inst.dw, 0);
+        let shell_t = zero_masks(&kf, inst.dt, 0);
+        let vw = masked_gkr_verify(&kf, 1, inst.dw, &shell_w, pw, &mut tv, false);
+        let vt = masked_gkr_verify(&kf, 1, inst.dt, &shell_t, pt, &mut tv, false);
+        match (vw, vt) {
+            (Some((roots_w, ew)), Some((roots_t, et))) => {
+                let mut ok = !kf.is_zero(&roots_w[0][1]) && !kf.is_zero(&roots_t[0][1]);
+                ok &= kf.mul(&roots_w[0][0], &roots_t[0][1])
+                    == kf.mul(&roots_t[0][0], &roots_w[0][1]);
+                verdict.roots_ok[ii] = ok;
+                pins_v.extend(descent_pins(inst.base_wm, &shell_w, pw, &ew, inst.dw));
+                pins_v.extend(descent_pins(inst.base_tm, &shell_t, pt, &et, inst.dt));
+                pins_v.extend(leaf_pins(inst, &stmt_tab_k(inst), &ew, &et, &alpha));
+            }
+            _ => {
+                verdict.roots_ok[ii] = false;
+            }
+        }
+    }
+    // ---- Pin batch + waves. ---------------------------------------------
+    for p in &pins_v {
+        tv.absorb_k(&kf, "xs1-pin", std::slice::from_ref(&p.value));
+    }
+    let psi_v = derive_pin_psi(&tv.state(), UR1_PIN_COPIES, pins_v.len() * K_DEG, q);
+    let claims_v = pin_claims(&kf, &pins_v, ml.n_data, msg_r, &psi_v);
+    drop(pins_v);
+    let v_split = split_claims_verifier_masked(&zq, &ml.plan, &claims_v, &reveals, &ml.pad_layout);
+    drop(claims_v);
+    let mut vw_claims: Vec<Vec<CtClaim>> = match v_split {
+        Ok(v) => v,
+        Err(_) => {
+            verdict.sum_gate_ok = false;
+            verdict.waves_ok = false;
+            return (verdict, [commit_s, prove_s, t_verify.elapsed().as_secs_f64()], n_pins, n_waves);
+        }
+    };
+    if vw_claims.is_empty() {
+        vw_claims = (0..n_waves).map(|_| Vec::new()).collect();
+    }
+    let tv_state = tv.state();
+    for w in 0..n_waves {
+        let idxs = wave_idxs(w);
+        let n_cw = idxs.len();
+        let (rp_w, a1p_w) = rp_cache.get(&n_cw).expect("verifier derives the same round shapes");
+        let path_w = KernelPath::A1(a1p_w);
+        let claims_w: Vec<CtClaim> = std::mem::take(&mut vw_claims[w]);
+        let mut state_v: Vec<u8> = tv_state.to_vec();
+        state_v.extend((w as u64).to_le_bytes());
+        let wt1s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t1s[i].clone()).collect();
+        let wt2s: Vec<Vec<Poly>> = idxs.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_wv = ct_h0(&crs, &state_v, &wt1s, &wt2s, &[]);
+        let pad_shift = usize::from(ml.pad_layout.has_pads());
+        let ok_w = verify_ct_round(
+            &path_w, &ctx_ring, rp_w, None, &crs, &h0_wv, &claims_w, &[], &[], &[], &wt1s, &wt2s,
+            &[], &[], &[], ml.plan.waves[w].len() + pad_shift, &wave_proofs[w],
+        );
+        if !ok_w {
+            verdict.waves_ok = false;
+            if verdict.first_bad_wave.is_none() {
+                verdict.first_bad_wave = Some(w);
+            }
+        }
+    }
+    if let Some(proof_z) = &closing_proof {
+        let idxs_z: Vec<usize> = (ml.base_pad..ml.base_pad + ml.pad_layout.n_pad_cms)
+            .chain(ml.base_closing_g..ml.base_closing_g + ml.closing_g_groups)
+            .collect();
+        let n_cz = idxs_z.len();
+        let (rp_z, a1p_z) = rp_cache.get(&n_cz).expect("closing shape derived");
+        let path_z = KernelPath::A1(a1p_z);
+        let claims_zv = closing_round_claims(&zq, &ml.pad_layout);
+        let mut state_zv: Vec<u8> = tv_state.to_vec();
+        state_zv.extend(b"xs1-closing");
+        let zt1s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t1s[i].clone()).collect();
+        let zt2s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| t2s[i].clone()).collect();
+        let h0_zv = ct_h0(&crs, &state_zv, &zt1s, &zt2s, &[]);
+        if !verify_ct_round(
+            &path_z, &ctx_ring, rp_z, None, &crs, &h0_zv, &claims_zv, &[], &[], &[], &zt1s, &zt2s,
+            &[], &[], &[], ml.pad_layout.n_pad_cms, proof_z,
+        ) {
+            verdict.closing_ok = false;
+        }
+    }
+    let verify_s = t_verify.elapsed().as_secs_f64();
+    if !quiet {
+        println!(
+            "  xs1 seed {seed} t {t}: accept={} | {} data cms / {} commits / {n_waves} waves / {n_pins} pins | commit {commit_s:.1}s prove {prove_s:.1}s (gates {gates_s:.1} lkp {lkp_s:.1}) verify {verify_s:.1}s [WSL-BOX NOISY-SHARED]",
+            verdict.accept(), ml.n_data, ml.n_commits,
+        );
+    }
+    (verdict, [commit_s, prove_s, verify_s], n_pins, n_waves)
+}
+
+/// [UPERF3-JJ] `uperf-x prove [seed] [t]` — acceptance (a).
+fn uperf_x_prove(seed: u64, t: usize) {
+    let (verdict, _, _, _) = xs1_run(seed, t, XsTamper::None, false);
+    let insts = xs_instances(t);
+    println!(
+        "[UPERF3-JJ] prove: {} (first gate state: {})",
+        if verdict.accept() { "ACCEPT" } else { "REJECT" },
+        verdict.first_failed_gate(&insts)
+    );
+    assert!(verdict.accept(), "honest xs1 chain must ACCEPT");
+}
+
+/// [UPERF3-JJ] rung 3 — `uperf-x battery [seed] [t]`: the AT-O8/AT-O9
+/// tamper legs, EACH asserted to reject at its PRE-REGISTERED gate
+/// (acceptance b), plus the honest ACCEPT leg. Prints its own digest
+/// over the leg outcome lines.
+fn uperf_x_battery(seed: u64, t: usize) {
+    use sha2::{Digest, Sha256};
+    let t0 = Instant::now();
+    println!(
+        "[UPERF3-JJ] uperf-x battery at seed {seed}, T = {t} (ZK_THREADS {})",
+        ring::eval_proof::threads()
+    );
+    let insts = xs_instances(t);
+    // (leg, tamper, the PRE-REGISTERED gate as first_failed_gate names it,
+    //  side-fire notes asserted where checkable).
+    let legs: Vec<(&str, XsTamper, String)> = vec![
+        ("honest", XsTamper::None, "ACCEPT".into()),
+        (
+            "m-overstated (+1, chain self-consistent, zsel at argmax)",
+            XsTamper::MOverstate,
+            "G2 F-hit (attainment zero-check)".into(),
+        ),
+        (
+            "m-understated (-1, zsel moved to a d=0 position — strongest cheater)",
+            XsTamper::MUnderstate,
+            "rng-d-w8 root cross-check".into(),
+        ),
+        (
+            "zsel two-hot (second bit at a TIED max, d=0 there)",
+            XsTamper::ZselTwoHot,
+            "G1 F-one (row-sum-1)".into(),
+        ),
+        (
+            "zsel off-support (row-sum still 1; d = m+127 > 0 there)",
+            XsTamper::ZselOffsupport,
+            "G2 F-hit (attainment zero-check)".into(),
+        ),
+        (
+            "off-support P != 0 (support facts untouched)",
+            XsTamper::OffsupportP,
+            "G6 off-support batch zero-check".into(),
+        ),
+        (
+            "shifted mask (prover derives + weights with support t' <= t+1)",
+            XsTamper::ShiftedMask,
+            "G3 Sum (masked row sum, PW-3 weight check)".into(),
+        ),
+        (
+            // The verifier folds the STATEMENT member into the exp tq
+            // leaf pin; the changed pin value shifts the psi-batched
+            // claim mass, and the masked split's sum gate rejects —
+            // the leaf-pin gate surfacing one step before the waves.
+            "wrong exp member (eS -2 forged consistently; statement says -1)",
+            XsTamper::WrongExpMember,
+            "masked-claims sum gate".into(),
+        ),
+    ];
+    let mut digest = Sha256::new();
+    let mut all_ok = true;
+    for (name, tamper, expect) in &legs {
+        let (verdict, _, _, _) = xs1_run(seed, t, *tamper, true);
+        let got = verdict.first_failed_gate(&insts);
+        let leg_ok = got == *expect
+            && (*tamper == XsTamper::None) == verdict.accept();
+        // Side-fire assertions where the gate order lets us check them.
+        let side = match tamper {
+            XsTamper::MUnderstate => {
+                // The exp pair's root cross-check must ALSO fire (the
+                // fused (d, E) code is off-table at the d = -1 position);
+                // F-one/F-hit stay green (the strongest-cheater move).
+                let s = !verdict.roots_ok[2] && verdict.fone_ok && verdict.fhit_ok;
+                if s { " [exp-pair root also fires; G1/G2 green]" } else { " [SIDE-FIRE CHECK FAILED]" }
+            }
+            XsTamper::OffsupportP => {
+                let s = verdict.fone_ok && verdict.fhit_ok && verdict.sum_ok && verdict.div_ok && verdict.sigdef_ok;
+                if s { " [G1-G5 green: support facts blind to it]" } else { " [SIDE-FIRE CHECK FAILED]" }
+            }
+            XsTamper::ZselOffsupport | XsTamper::MOverstate => {
+                let s = verdict.fone_ok;
+                if s { " [G1 green]" } else { " [SIDE-FIRE CHECK FAILED]" }
+            }
+            XsTamper::ShiftedMask => {
+                let s = verdict.fone_ok && verdict.fhit_ok;
+                if s { " [G1/G2 green (mask-free gates)]" } else { " [SIDE-FIRE CHECK FAILED]" }
+            }
+            XsTamper::WrongExpMember => {
+                // The forge is self-consistent: every gate and every
+                // root cross-check stays green — ONLY the statement-side
+                // table fold catches it (C5's whole point).
+                let s = verdict.fone_ok && verdict.fhit_ok && verdict.sum_ok
+                    && verdict.div_ok && verdict.sigdef_ok && verdict.offsup_ok
+                    && verdict.roots_ok.iter().all(|&b| b);
+                if s { " [all gates + roots green: the STATEMENT table is the only witness]" } else { " [SIDE-FIRE CHECK FAILED]" }
+            }
+            _ => "",
+        };
+        let line = format!(
+            "  {} {name}: gate {got}{side}",
+            if leg_ok && !side.contains("FAILED") { "ok  " } else { "FAIL" }
+        );
+        println!("{line}");
+        digest.update(line.as_bytes());
+        digest.update(expect.as_bytes());
+        all_ok &= leg_ok && !side.contains("FAILED");
+    }
+    let dg: [u8; 32] = digest.finalize().into();
+    assert!(all_ok, "xs1 battery: a leg missed its pre-registered gate");
+    println!(
+        "[UPERF3-JJ] battery: {} legs ok in {:.1}s [WSL-BOX NOISY-SHARED]",
+        legs.len(),
+        t0.elapsed().as_secs_f64()
+    );
+    println!("[UPERF3-JJ] XS1 BATTERY DIGEST {}", hex_full(&dg));
 }

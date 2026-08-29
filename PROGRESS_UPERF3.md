@@ -3040,14 +3040,32 @@ RUNG PLAN (one commit per green rung, prefix "U-PERF3 JJ:"):
      weights real), 6 lookup/range instances incl. the REAL fused
      (d, E) LookupAt pair against the lane-local frozen exp member,
      pins -> psi claims -> masked wave split -> ct waves + closing;
-     honest ACCEPT (acceptance a).                            [PEND]
+     honest ACCEPT (acceptance a).
+     DONE 2026-08-29: ACCEPT at the contract point (seed 161,
+     T 512): 2435 data cms / 2476 commits / 19 waves / 703 pins;
+     commit 1.5 s + prove 34.1 s (gates 4.2, lkp 4.1) + verify
+     8.5 s [WSL-BOX NOISY-SHARED]; also ACCEPT at T 32/64/128.
+     Instance transcript order = the spec chain order (d-w8,
+     zsel-w1, exp-pair, P-w10, rho-w, sigma-w).                [DONE]
   3. `uperf-x battery` — the AT-O8/O9 tamper legs, each at its
      pre-registered gate (acceptance b): m overstated -> F-hit;
      m understated -> F-dom (w8 root cross-check); zsel two-hot ->
      F-one; zsel off-support -> F-hit; off-support P != 0 -> the
      off-support batch zero-check; shifted mask -> the first PW-3
      public-weight MLE check (Sum gate); wrong exp member -> the
-     statement-table leaf pin (waves).                        [PEND]
+     statement-table leaf pin (waves).
+     DONE 2026-08-29: 8/8 legs at seed 161, T 64, EACH at its
+     pre-registered gate, with side-fire isolation checks
+     (m-under: exp-pair root also fires, G1/G2 green under the
+     strongest cheater who re-places zsel at a d=0 position;
+     off-support P: G1-G5 green; shifted mask: G1/G2 green, G3's
+     PW-3 weight-MLE check is the gate; wrong member: ALL gates +
+     roots green — the reject comes from the verifier folding the
+     STATEMENT member into the exp tq leaf pin, surfacing at the
+     masked-claims sum gate one step before the waves — the leg's
+     pre-registration updated to that exact gate, recorded).
+     XS1 BATTERY DIGEST be89d5da10aa7a375f36460f3c1a2a8cac8630b1
+     61cfa189aacd055a476c191a.                                 [DONE]
   4. `uperf-x stage-a [seed] [t]` — the same row's range facts
      (d w8, zsel w1, rho/sigma w18) through zc_range's zero-check
      form vs the descent oracle (acceptance d, the S1/S2 pattern at
