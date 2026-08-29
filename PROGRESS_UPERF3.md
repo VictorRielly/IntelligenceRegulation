@@ -3026,7 +3026,13 @@ RUNG PLAN (one commit per green rung, prefix "U-PERF3 JJ:"):
   1. `uperf-x chain [seed] [t]` — the Rust value chain bit-equal to
      the Python oracle (acceptance c early): seeded s8 -> mask ->
      m/zsel/d -> E (exp member, spec-header digest) -> Sum -> P/rho/
-     sigma; per-tensor sha256 digests printed on both sides.  [PEND]
+     sigma; per-tensor sha256 digests printed on both sides.
+     DONE 2026-08-29: BYTE-IDENTICAL at (seed 161, T 512), (7, 128),
+     (20260811, 512), (42, 32) — CHAIN digest at the contract point
+     949d5cee85212bc9..; exp members pinned (eS -1 15903694.., eS -2
+     b4f01aca..) from the oracle's own generator; the Python driver
+     (scratchpad xs1_chain_ref.py) drives softmax_int VERBATIM on the
+     sha256-stream s8.                                        [DONE]
   2. `uperf-x prove [seed] [t]` — the committed chain through the
      as-built machinery (u3_layer_run pattern): 9 committed entries
      (s8, m, zsel, d, E, Sum, P, rho, sigma), the d-pin (PW-3), the

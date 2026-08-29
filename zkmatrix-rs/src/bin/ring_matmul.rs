@@ -49826,9 +49826,33 @@ fn uperf_x_main(args: &[String]) {
     }
 }
 
-/// [UPERF3-JJ] rung 1 stub — filled by the chain rung.
+/// [UPERF3-JJ] rung 1 — `uperf-x chain [seed] [t]`: the value chain,
+/// printed in the exact format of the Python side
+/// (scratchpad xs1_chain_ref.py driving the oracle's softmax_int) for
+/// a byte-for-byte diff. Acceptance (c).
 fn uperf_x_chain(seed: u64, t: usize) {
-    let _ = (seed, t);
-    eprintln!("[UPERF3-JJ] chain: rung 1 pending");
-    std::process::exit(2);
+    use ring::attn_softmax::{
+        E_S, F_E, F_P, HEAD_DIM, derive_chain, exp_member, seeded_s8, tensor_digest,
+    };
+    use sha2::{Digest, Sha256};
+    let hex = |d: &[u8; 32]| d.iter().map(|b| format!("{b:02x}")).collect::<String>();
+    let (tab, tab_dig) = exp_member(E_S);
+    let (_, tab_dig_m2) = exp_member(E_S - 1);
+    let s8 = seeded_s8(seed, t * t);
+    let ch = derive_chain(t, &s8, &tab);
+    println!("[UPERF3-JJ] chain seed {seed} t {t} eS {E_S} d_h {HEAD_DIM} fE {F_E} fP {F_P}");
+    println!("  exp-member(eS {E_S})  {}", hex(&tab_dig));
+    println!("  exp-member(eS {})  {}", E_S - 1, hex(&tab_dig_m2));
+    let tensors: [(&str, &[i64]); 9] = [
+        ("s8", &ch.s8), ("m", &ch.m), ("zsel", &ch.zsel), ("d", &ch.d), ("E", &ch.e),
+        ("Sum", &ch.sum), ("P", &ch.p), ("rho", &ch.rho), ("sigma", &ch.sigma),
+    ];
+    let mut combined = Sha256::new();
+    for (name, v) in tensors {
+        let d = tensor_digest(v);
+        combined.update(d);
+        println!("  {name:<6} {}", hex(&d));
+    }
+    let cd: [u8; 32] = combined.finalize().into();
+    println!("  CHAIN  {}", hex(&cd));
 }
