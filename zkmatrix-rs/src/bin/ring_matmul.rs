@@ -30324,8 +30324,19 @@ fn bg_verify_group(
         ctxr, kf, group, &bg_multi_kernels(claims), &alphas0, &c0, plan0.chunk,
     );
     let mut phi_cur: Vec<Poly> = Vec::new();
+    // [UPERF3-KK diet2(b)] the level-0 A is streamed per column block on
+    // the VERIFY side too (HH's round-5 open item — the ~64.4 GB verify-
+    // phase re-expansion at 8B): its only consumer under a >= 2-level
+    // schedule is the li == 1 transport, which has the column-block body
+    // (transport_level_from_psi_cols, landed round 5). Guard mirrors
+    // bg_precommit's: ZK_A0_BLOCK > 0, not oracle mode, >= 2 levels
+    // (shorter schedules read A_0 whole at the floor and stay Mat).
     // [UPERF2-F] CRS handles from the memo (Arc, no clones).
-    let mut prev_a_mat: Arc<Vec<Poly>> = expand_level_matrix_arc(seed, group.name, 0, "A", KAPPA_AGG, plan0.chunk, q);
+    let mut prev_a: BgA0 = if bg_a0_block_cols() > 0 && !ring::eval_proof::oracle_mode() && sched.levels.len() >= 2 {
+        BgA0::Stream(ring::eval_proof::CrsColStream::new(seed, group.name, 0, "A", KAPPA_AGG, plan0.chunk, q))
+    } else {
+        BgA0::Mat(expand_level_matrix_arc(seed, group.name, 0, "A", KAPPA_AGG, plan0.chunk, q))
+    };
     let mut prev_bindings_data: Vec<(Arc<Vec<Poly>>, usize, usize, Vec<Poly>)> = vec![
         (
             expand_level_matrix_arc(seed, group.name, 0, "Bu", KAPPA_AGG, that0_len, q),
@@ -30355,13 +30366,27 @@ fn bg_verify_group(
             // (BD's post-BH shape); deeper levels transport the small
             // materialized phi.
             if li == 1 {
-                transport_level_from_psi(
-                    ctxr, &psi0, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings,
-                    &prev_c, &alphas,
-                )
+                match &prev_a {
+                    // [UPERF3-KK diet2(b)] A_0 per column block — the
+                    // fast body is the cols body's oracle (byte-
+                    // identical, the round-5 W-8(b) argument verbatim).
+                    BgA0::Stream(s) => ring::eval_proof::transport_level_from_psi_cols(
+                        ctxr, &psi0, &h_cur, plan_prev, &layout_prev, s, &bindings, &prev_c,
+                        &alphas, bg_a0_block_cols(),
+                    ),
+                    BgA0::Mat(m) => transport_level_from_psi(
+                        ctxr, &psi0, &h_cur, plan_prev, &layout_prev, m, &bindings,
+                        &prev_c, &alphas,
+                    ),
+                }
             } else {
+                let m = match &prev_a {
+                    BgA0::Mat(m) => m,
+                    // deeper levels are reassigned Mat below.
+                    BgA0::Stream(_) => unreachable!("deeper-level transport with streamed A (verify)"),
+                };
                 transport_level(
-                    ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, &prev_a_mat, &bindings,
+                    ctxr, &phi_cur, &h_cur, plan_prev, &layout_prev, m, &bindings,
                     &prev_c, &alphas,
                 )
             }
@@ -30376,7 +30401,7 @@ fn bg_verify_group(
         }
         ring::eval_proof::absorb_polys(tr, &format!("bg-u{li}-{}", group.name), u_i);
         let (cs, _) = agg_draw_cs(tr, &format!("bg-c{li}-{}", group.name), plan.r);
-        prev_a_mat = expand_level_matrix_arc(seed, group.name, li, "A", KAPPA_AGG, plan.chunk, q);
+        prev_a = BgA0::Mat(expand_level_matrix_arc(seed, group.name, li, "A", KAPPA_AGG, plan.chunk, q)); // [UPERF3-KK] deeper levels stay materialized (small)
         prev_bindings_data = vec![(
             expand_level_matrix_arc(seed, group.name, li, "B", KAPPA_AGG, th_len, q),
             0,
@@ -30388,6 +30413,14 @@ fn bg_verify_group(
 
     let plan_last = sched.levels.last().unwrap();
     let layout = NextLayout::new(plan_last);
+    // [UPERF3-KK diet2(b)] the floor reads the LAST level's A —
+    // materialized for every schedule the stream guard admits (a
+    // >= 2-level schedule reassigns Mat in the loop; a 1-level
+    // schedule never streams).
+    let prev_a_mat: Arc<Vec<Poly>> = match prev_a {
+        BgA0::Mat(m) => m,
+        BgA0::Stream(_) => unreachable!("floor with streamed A_0 (guarded off for < 2-level schedules)"),
+    };
     if proof.floor.len() != layout.n_total || proof.floor.len() != sched.floor_rings {
         return Err("wire-shape");
     }

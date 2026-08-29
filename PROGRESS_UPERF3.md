@@ -3077,3 +3077,25 @@ already merged — this baseline IS HH's rung-4 endpoint):
     groups run 8 levels at 12x64 — the deep-schedule phi_1 consumer
     (the li=2 transport) is exercised by every profile anchor; the
     2-level boundary (h-pairs-only consumer) by the E2E leg.
+
+RUNG 1 — diet2(b) LANDED (2026-08-29): bg_verify_group's level-0 A
+is STREAMED per column block (the BgA0 enum on the verify side; the
+li=1 transport through transport_level_from_psi_cols — HH's round-5
+body, its fast oracle unchanged; deeper levels + the floor keep Mat;
+guard = bg_precommit's: ZK_A0_BLOCK > 0, !oracle, levels >= 2).
+  ACCEPT: all five identity anchors BYTE-IDENTICAL (93a98700 /
+  0ae9cdae; 45fb3405; 80763ea5 / 63f4a3a4); floors green
+  (diff-battery 0 FAIL incl. the 2-level E2E cross-verify leg;
+  freeze-check 102 ok exit 0; uperf-s 3752cba4..; agg 46234986..).
+  RSS delta [MEASURED, NOISY-SHARED, vs rung 0]:
+    fp3x16     974,648 ->   869,060 KB  (-106 MB, -10.8%)
+    pa12x64  2,608,000 -> 2,040,436 KB  (-568 MB, -21.8%)
+    fp12x64  2,250,276 -> 2,165,536 KB  ( -85 MB,  -3.8%)
+  (pa12x64 is the big mover: after HH's verify-side lays drop its
+  high-water mark sat in the VERIFY phase — reloaded claim tables +
+  the whole A_0 re-expansion; the ~647 MB boxed 12-layer weight A_0
+  never materializes now. fp12x64's peak has left the verify phase.)
+  WALL delta [MEASURED, honest]: fp3x16 6.25 -> 6.25 s; pa12x64
+  19.62 -> 19.96 s (+1.7%); fp12x64 25.95 -> 26.11 s (+0.6%) —
+  verify-phase walls 0.7->0.8 / 1.3->1.5 / 2.0->2.1 s (the counting
+  pass + one regeneration sweep instead of one expansion).
