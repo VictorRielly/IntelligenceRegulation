@@ -1,0 +1,188 @@
+// [UPERF3-JJ] U-PERF3 round 6, lane JJ — SPIKE X-S1: the integer
+// softmax chain (U_PERF3_ATTENTION_STATEMENT_DESIGN.md §5.3; semantics
+// ATTENTION_INTEGER_SPEC.md §2.4-2.5; value oracle
+// scripts/attention_spec_spike.py). ADDITIVE, NO ENGINE CHANGE: nothing
+// here is called by any shipped path; the frozen registries
+// (lookup.rs / manifest.rs) are untouched — the exp member below is
+// LANE-LOCAL (open freeze question recorded in the ledger).
+//
+// This module carries the VALUE SIDE of the spike: the exp-neg table
+// member (generation + spec-header digest, the silu-v2 drift-loud
+// discipline), the seeded s8 draw, and the exact chain derivation
+// (mask -> m/zsel/d -> E -> Sum -> P/rho/sigma) that must bit-equal
+// the Python oracle at the same seed (acceptance c). The claim-side
+// rig (commitments, waves, pins, the fused (d, E) LookupAt pair, the
+// thin sumchecks, the division zero-check) lives in the bin's
+// [UPERF3-JJ] section, u3_layer_run-patterned.
+
+use sha2::{Digest, Sha256};
+
+/// Spec parameters (ATTENTION_INTEGER_SPEC.md §2.5; the 125M shape).
+pub const F_E: i64 = 9; // exp-table output frac bits: E in [0, 2^F_E]
+pub const F_P: i64 = 9; // attention-weight frac bits: P in [0, 2^F_P]
+pub const HEAD_DIM: usize = 64; // d_h at 125M — lam = 2^eS / sqrt(64)
+pub const E_S: i32 = -1; // the spec's layer-0 example eS [SYNTHETIC]
+
+/// round_half_up(x) = floor(x + 1/2) — the house table rounding rule.
+fn round_half_up(x: f64) -> i64 {
+    (x + 0.5).floor() as i64
+}
+
+/// exp-neg-table-v1 member (eS, head_dim, fE): the range-REDUCED exp
+/// table over d = m - sM in [0, 255].
+/// E[d] = round_half_up(2^fE * exp(-d * lam)), lam = 2^eS / sqrt(d_h).
+/// Deterministic f64 generation exists to make platform drift LOUD; the
+/// pinned digests below (not runtime evaluation) define each member.
+pub fn exp_table_generate(e_s: i32, head_dim: usize, f_e: i64) -> [i64; 256] {
+    let lam = (e_s as f64).exp2() / (head_dim as f64).sqrt();
+    let scale = (f_e as f64).exp2();
+    let mut out = [0i64; 256];
+    for (d, slot) in out.iter_mut().enumerate() {
+        *slot = round_half_up(scale * (-(d as f64) * lam).exp());
+    }
+    out
+}
+
+/// The canonical exp-neg-table-v1 spec-header digest — byte-exact with
+/// the oracle's `exp_table_digest` (scripts/attention_spec_spike.py)
+/// and the spec §2.5 header JSON.
+pub fn exp_table_digest(e_s: i32, head_dim: usize, f_e: i64, table: &[i64; 256]) -> [u8; 32] {
+    let mut rows = String::new();
+    for (d, e) in table.iter().enumerate() {
+        if d > 0 {
+            rows.push(',');
+        }
+        rows.push_str(&format!("[{d},{e}]"));
+    }
+    let js = format!(
+        "{{\"function\":\"exp-neg-table-v1\",\
+         \"input\":{{\"width\":8,\"signed\":false}},\
+         \"output\":{{\"width\":{},\"signed\":false,\"frac_bits\":{f_e}}},\
+         \"decay\":{{\"score_scale_exp\":{e_s},\"head_dim\":{head_dim}}},\
+         \"rounding\":\"E = round_half_up(2^frac_bits * exp(-d * 2^score_scale_exp / sqrt(head_dim)))\",\
+         \"table\":[{rows}]}}",
+        f_e + 1
+    );
+    let mut h = Sha256::new();
+    h.update(js.as_bytes());
+    h.finalize().into()
+}
+
+/// The lane-local frozen members: (eS, d_h 64, fE 9) for eS in {-1, -2}
+/// (-1 = the statement member; -2 = the wrong-member battery leg).
+/// Digest pins land in rung 1 after the Python cross-run; until then
+/// the accessor asserts generation determinism only.
+pub fn exp_member(e_s: i32) -> ([i64; 256], [u8; 32]) {
+    assert!(e_s == -1 || e_s == -2, "lane-local frozen exp members: eS in {{-1, -2}}");
+    let t = exp_table_generate(e_s, HEAD_DIM, F_E);
+    let d = exp_table_digest(e_s, HEAD_DIM, F_E, &t);
+    (t, d)
+}
+
+/// The seeded s8 draw (lane-local convention, ledger-recorded): a
+/// SHA-256 counter stream — block i = SHA256(le64(seed) || le64(i)),
+/// each byte b -> (b % 255) - 127 in [-127, 127]. Implemented
+/// identically by the Python cross-check driver.
+pub fn seeded_s8(seed: u64, n: usize) -> Vec<i64> {
+    let mut out = Vec::with_capacity(n);
+    let mut ctr = 0u64;
+    while out.len() < n {
+        let mut h = Sha256::new();
+        h.update(seed.to_le_bytes());
+        h.update(ctr.to_le_bytes());
+        let block: [u8; 32] = h.finalize().into();
+        for &b in block.iter() {
+            if out.len() == n {
+                break;
+            }
+            out.push((b % 255) as i64 - 127);
+        }
+        ctr += 1;
+    }
+    out
+}
+
+/// One (head, row-block) softmax chain at T rows — the oracle's
+/// `softmax_int` verbatim (row-major T x T tensors; support t' <= t).
+pub struct SoftmaxChain {
+    pub t: usize,
+    pub s8: Vec<i64>,   // T x T, int8 grid
+    pub m: Vec<i64>,    // T, exact row max of sM
+    pub zsel: Vec<i64>, // T x T, binary attainment selector
+    pub d: Vec<i64>,    // T x T, m - sM in [0, 256)
+    pub e: Vec<i64>,    // T x T, ExpT[d] in [0, 2^F_E]
+    pub sum: Vec<i64>,  // T, masked row sum of E (>= 2^F_E)
+    pub p: Vec<i64>,    // T x T, floor(E * 2^F_P / Sum) on support, 0 off
+    pub rho: Vec<i64>,  // T x T, remainder on support, 0 off
+    pub sigma: Vec<i64>, // T x T, Sum - 1 - rho on support, 0 off
+}
+
+/// mask(t, t') = 1 iff t' <= t (causal support; PUBLIC structure).
+#[inline]
+pub fn causal_mask(t_row: usize, t_col: usize) -> bool {
+    t_col <= t_row
+}
+
+/// Derive the chain from a committed s8 block (the oracle's exact
+/// semantics: sM = mask*s8 + maskC*(-127); m = row max over the FULL
+/// row; zsel = first argmax; E = ExpT[d]; Sum masked; floor division
+/// with two-sided remainders; off-support P/rho/sigma pinned 0).
+pub fn derive_chain(t: usize, s8: &[i64], exp_tab: &[i64; 256]) -> SoftmaxChain {
+    assert_eq!(s8.len(), t * t);
+    let mut m = vec![0i64; t];
+    let mut zsel = vec![0i64; t * t];
+    let mut d = vec![0i64; t * t];
+    let mut e = vec![0i64; t * t];
+    let mut sum = vec![0i64; t];
+    let mut p = vec![0i64; t * t];
+    let mut rho = vec![0i64; t * t];
+    let mut sigma = vec![0i64; t * t];
+    let sm_at = |r: usize, c: usize| if causal_mask(r, c) { s8[r * t + c] } else { -127 };
+    for r in 0..t {
+        let mut mx = i64::MIN;
+        let mut arg = 0usize;
+        for c in 0..t {
+            let v = sm_at(r, c);
+            if v > mx {
+                mx = v;
+                arg = c;
+            }
+        }
+        m[r] = mx;
+        zsel[r * t + arg] = 1;
+        let mut s_acc = 0i64;
+        for c in 0..t {
+            let dd = mx - sm_at(r, c);
+            debug_assert!((0..256).contains(&dd));
+            d[r * t + c] = dd;
+            let ev = exp_tab[dd as usize];
+            e[r * t + c] = ev;
+            if causal_mask(r, c) {
+                s_acc += ev;
+            }
+        }
+        debug_assert!(s_acc >= 1 << F_E);
+        sum[r] = s_acc;
+        for c in 0..t {
+            if causal_mask(r, c) {
+                let num = e[r * t + c] << F_P;
+                let q = num / s_acc;
+                let rr = num - q * s_acc;
+                p[r * t + c] = q;
+                rho[r * t + c] = rr;
+                sigma[r * t + c] = s_acc - 1 - rr;
+            }
+        }
+    }
+    SoftmaxChain { t, s8: s8.to_vec(), m, zsel, d, e, sum, p, rho, sigma }
+}
+
+/// sha256 of the values as little-endian i64 bytes — the numpy
+/// `ascontiguousarray(x, "<i8").tobytes()` layout the oracle digests.
+pub fn tensor_digest(vals: &[i64]) -> [u8; 32] {
+    let mut h = Sha256::new();
+    for &v in vals {
+        h.update(v.to_le_bytes());
+    }
+    h.finalize().into()
+}

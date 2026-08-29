@@ -3005,3 +3005,71 @@ OPEN ITEMS / NOT DONE HERE:
 STATE: DONE (2026-08-28) — rungs 0-4 landed, one commit each, all
 pushed on uperf3-hh; every rung transcript-preserving (five digest
 anchors byte-identical at every commit) with floors green.
+
+## Agent JJ status (wt-uperf3-jj) — round 6
+
+LANE: SPIKE X-S1 — the integer softmax chain through the real claim
+machinery (U_PERF3_ATTENTION_STATEMENT_DESIGN.md §5.3 verbatim; the
+semantics ATTENTION_INTEGER_SPEC.md §2.4-2.5; the value oracle
+scripts/attention_spec_spike.py). MVP-2's opening rung: the ONE
+construction with no FFN precedent — the softmax row-normalization
+coupling (four fact groups on one rolling transcript).
+
+OWNERSHIP: NEW zkmatrix-rs/src/ring/attn_softmax.rs; one mod line in
+ring/mod.rs; the [UPERF3-JJ] bin section + one `uperf-x` dispatch
+line in bin/ring_matmul.rs; this ledger section. Everything else
+READ-ONLY; frozen registries (lookup.rs / manifest.rs) unmoved.
+
+RUNG PLAN (one commit per green rung, prefix "U-PERF3 JJ:"):
+  0. skeleton: this section + empty attn_softmax.rs + mod line +
+     `uperf-x` stub arm.                                    [DONE]
+  1. `uperf-x chain [seed] [t]` — the Rust value chain bit-equal to
+     the Python oracle (acceptance c early): seeded s8 -> mask ->
+     m/zsel/d -> E (exp member, spec-header digest) -> Sum -> P/rho/
+     sigma; per-tensor sha256 digests printed on both sides.  [PEND]
+  2. `uperf-x prove [seed] [t]` — the committed chain through the
+     as-built machinery (u3_layer_run pattern): 9 committed entries
+     (s8, m, zsel, d, E, Sum, P, rho, sigma), the d-pin (PW-3), the
+     F-one/F-hit/Sum/DIV/sigma-def/off-support sumchecks (PW-3/PW-4
+     weights real), 6 lookup/range instances incl. the REAL fused
+     (d, E) LookupAt pair against the lane-local frozen exp member,
+     pins -> psi claims -> masked wave split -> ct waves + closing;
+     honest ACCEPT (acceptance a).                            [PEND]
+  3. `uperf-x battery` — the AT-O8/O9 tamper legs, each at its
+     pre-registered gate (acceptance b): m overstated -> F-hit;
+     m understated -> F-dom (w8 root cross-check); zsel two-hot ->
+     F-one; zsel off-support -> F-hit; off-support P != 0 -> the
+     off-support batch zero-check; shifted mask -> the first PW-3
+     public-weight MLE check (Sum gate); wrong exp member -> the
+     statement-table leaf pin (waves).                        [PEND]
+  4. `uperf-x stage-a [seed] [t]` — the same row's range facts
+     (d w8, zsel w1, rho/sigma w18) through zc_range's zero-check
+     form vs the descent oracle (acceptance d, the S1/S2 pattern at
+     attention's widths).                                     [PEND]
+  5. (stretch) the 125M-calibrated data variant.              [PEND]
+
+LANE-LOCAL CONVENTIONS (recorded; none transcript-affecting beyond
+this additive spike's own statement):
+  * The seeded s8 draw is a SHA-256 counter stream (seed || counter
+    LE64, byte -> (b % 255) - 127), implemented identically on both
+    sides — numpy PCG64 is not replicated in Rust; the CHAIN from s8
+    onward is the oracle's softmax_int verbatim.
+  * The exp member (exp-neg-table-v1, eS = -1, d_h = 64, fE = 9 —
+    the spec's layer-0 example) is LANE-LOCAL: generated in
+    attn_softmax.rs with the spec §2.5 header JSON byte-exact to the
+    oracle's exp_table_digest, digest pinned as a const (drift-loud,
+    silu-v2 discipline). OPEN FREEZE QUESTION: promoting exp members
+    into the lookup.rs/manifest.rs registries is additive (no
+    existing digest moves) but is a C5 registry ruling (the AM-2
+    key extension) — left for Victor with the X1 freeze set.
+  * At T != 512 the remainder width derives as wrho = fE + log2(T)
+    (18 at the contract T = 512, matching the oracle's w18); the
+    battery runs at small T with derived widths. OPEN QUESTION:
+    instancing/width policy at non-contract T is X1 work.
+  * zsel is the FIRST argmax position (np.argmax first-occurrence
+    convention) — any attainment witness verifies; the oracle pick
+    is pinned for the bit-equality leg only.
+
+FLOORS AT EVERY COMMIT: cargo build --release; uperf-pc diff-battery
+green; uperf-s battery digest 3752cba4..; uperf-s agg-battery digest
+46234986..; freeze-check 102 ok rows + the expected BK panic.

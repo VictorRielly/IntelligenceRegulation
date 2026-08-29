@@ -6443,6 +6443,8 @@ fn main() {
         Some("uperf-w") => uperf_w_main(&args[1..]),
         // [UPERF3-BB] U-PERF3 lane BB (the v3 statement profile: widened classes, h16 limb split, round mode, C5 int16-out registry).
         Some("uperf-v3") => u3_main(&args[1..]),
+        // [UPERF3-JJ] U-PERF3 round 6 lane JJ (SPIKE X-S1: the integer softmax chain through the real claim machinery). Additive.
+        Some("uperf-x") => uperf_x_main(&args[1..]),
         Some("uagb1-bi") => bi_main(&args[1..]), // [UAGB1-BI] wire format (M-05) + bench harness
         Some("pass-agg") => {
             // [UAGB1-BG] the pass-level composition (wave 3): BF's
@@ -49793,4 +49795,40 @@ fn uperf_a_gg_map(layers_n: usize, t: usize) {
         reg.ga.n_digit_rings - retired_r + add_plane_r + add_h_r
     );
     println!("  [COUNTED from the engine structures; no proving in this arm]");
+}
+
+// ===========================================================================
+// [UPERF3-JJ] U-PERF3 round 6, lane JJ — SPIKE X-S1: the integer softmax
+// chain through the real claim machinery (U_PERF3_ATTENTION_STATEMENT_
+// DESIGN.md §5.3; semantics ATTENTION_INTEGER_SPEC.md §2.4-2.5; value
+// oracle scripts/attention_spec_spike.py). ADDITIVE: nothing here is
+// called by any shipped path; frozen registries unmoved (the exp member
+// is lane-local in ring/attn_softmax.rs — open freeze question in the
+// ledger).
+//
+//   uperf-x chain [seed] [t]    — the value chain + digests (acceptance c)
+//   uperf-x prove [seed] [t]    — the committed chain, honest ACCEPT (a)
+//   uperf-x battery             — the AT-O8/O9 tamper legs (b)
+//   uperf-x stage-a [seed] [t]  — the Stage-A range-fact leg (d)
+// ===========================================================================
+
+fn uperf_x_main(args: &[String]) {
+    match args.first().map(String::as_str) {
+        Some("chain") => {
+            let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(161);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(512);
+            uperf_x_chain(seed, t);
+        }
+        _ => {
+            eprintln!("usage: ring_matmul uperf-x chain [seed] [t] | prove [seed] [t] | battery | stage-a [seed] [t]");
+            std::process::exit(2);
+        }
+    }
+}
+
+/// [UPERF3-JJ] rung 1 stub — filled by the chain rung.
+fn uperf_x_chain(seed: u64, t: usize) {
+    let _ = (seed, t);
+    eprintln!("[UPERF3-JJ] chain: rung 1 pending");
+    std::process::exit(2);
 }
