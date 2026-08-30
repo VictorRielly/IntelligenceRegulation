@@ -30757,6 +30757,61 @@ fn bg_stack_table(
     tab
 }
 
+// ---------------------------------------------------------------------------
+// [UPERF3-LL W-1] Zero-check column windows.
+//
+// The claim layer's stacked zero-check tables hold 2^(lr + lcp + lambda)
+// K-elements; the AUDITED K9 packed-table cap (ring/kfield.rs
+// K9_MAX_LEAVES = 2^25 — "raise only with a new integer-bound proof and
+// tests"; it does NOT move here) bounds one packed table. At the 8B
+// shapes (T = 512, 32 layers) the f-shaped instances (had, rq-g/u/h at
+// 14336 cols) are 2^28 and the d-shaped (rq-d at 4096 cols) 2^26 — over
+// the cap. The ruled fix (U_PERF3_MVP8B_SCALING.md row W-1): split each
+// instance over its COLUMN space into windows of
+// <= 2^(cap_log2 - lr - lambda) columns; each window is the same
+// instance kind over a column range (its own eq_pc; the terminal claims
+// are ClaimContribs whose column kernel is the window's eq table
+// SCATTERED at the window offset over the full column space — the same
+// product form). k = 1 (window >= cols_real) is the NULL SPLIT: the
+// callers execute the pre-W1 statements verbatim (byte-identical
+// transcripts — the identity anchors are the arbiter).
+
+/// The column-window plan of one stacked zero-check instance.
+struct ZcWindowPlan {
+    /// Per window: (column offset, real columns in the window).
+    wins: Vec<(usize, usize)>,
+    /// Padded window width (2^lcw). k = 1: the instance's original
+    /// cols_pad, so the null split reproduces the pre-W1 shape.
+    wcols: usize,
+    lcw: usize,
+}
+
+/// Window plan for `cols_real` columns at 2^lr padded rows and 2^lambda
+/// layer slots. `req` (opts.zc_window / ZK_ZC_WINDOW_COLS) must be a
+/// power of two; it is clamped to the cap-derived maximum so no request
+/// can push a packed table over the audited K9 cap.
+fn bg_zc_window_plan(cols_real: usize, lr: usize, lambda: usize, req: Option<usize>) -> ZcWindowPlan {
+    let cap_log2 = ring::kfield::K9_MAX_LEAVES.trailing_zeros() as usize; // read, never moved
+    assert!(
+        lr + lambda < cap_log2,
+        "zc window plan: rows x layer slots alone (2^{}) reach the K9 cap — column windows cannot help",
+        lr + lambda
+    );
+    let lcp = usize::BITS as usize - (cols_real - 1).leading_zeros() as usize;
+    let cols_pad = 1usize << lcp;
+    let cap_cols = 1usize << (cap_log2 - lr - lambda);
+    let w = req.unwrap_or(cap_cols);
+    assert!(w.is_power_of_two() && w > 0, "zc window ({w}) must be a power of two");
+    let w = w.min(cap_cols);
+    if w >= cols_real {
+        // The NULL SPLIT: one window, the pre-W1 shape.
+        return ZcWindowPlan { wins: vec![(0, cols_real)], wcols: cols_pad, lcw: lcp };
+    }
+    let k = cols_real.div_ceil(w);
+    let wins = (0..k).map(|i| (i * w, w.min(cols_real - i * w))).collect();
+    ZcWindowPlan { wins, wcols: w, lcw: w.trailing_zeros() as usize }
+}
+
 /// [UPERF2-D] One stacked zero-check instance's PROVER: builds the factor
 /// tables (eq over the full point, the three stacked witness tables, the
 /// per-layer shift table for the requant form) and runs the ixf sumcheck.
@@ -36012,6 +36067,70 @@ fn uperf_pc_full_profile(layers_n: usize, t: usize, p2: bool) {
     }
 }
 
+/// [UPERF3-LL W-1] The zero-check window PLANNER (no proving): for a
+/// shape (layers, t, dmodel, dff) and an optional window override,
+/// print each stacked zero-check instance's lr/lcp/lambda, K-element
+/// count, cap verdict, window count k, per-window K-elements and the
+/// counted transcript bytes (64 B per shipped K-element: 1 claim +
+/// the round polynomials + the final evals per sub-instance).
+fn uperf_pc_zc_plan(layers_n: usize, t: usize, dmodel: usize, dff: usize, window: Option<usize>) {
+    let cap = ring::kfield::K9_MAX_LEAVES;
+    let cap_log2 = cap.trailing_zeros() as usize;
+    let il = ring::fold::ixf_layout(layers_n);
+    let lambda = il.lambda;
+    let lr = t.trailing_zeros() as usize;
+    assert_eq!(1usize << lr, t, "t must be a power of two");
+    println!(
+        "[UPERF-PC] zc-plan: {layers_n} layers (lambda {lambda}), T = {t} (lr {lr}), dmodel {dmodel}, dff {dff}, window {} (cap-derived max 2^{} = {} cols; K9 cap 2^{cap_log2} AUDITED, unchanged)",
+        window.map_or("default".to_string(), |w| w.to_string()),
+        cap_log2 - lr - lambda,
+        1usize << (cap_log2 - lr - lambda)
+    );
+    // Counted K-elements of one (sub-)instance's wire face: the absorbed
+    // zero claim + round polys (had: all rounds degree 3 -> 4 evals;
+    // rq: [2; n_pos] ++ [3; lambda] -> 3 then 4 evals) + finals (had 4;
+    // rq 5 with sh*) — the BgInstLine kel formula.
+    let kel = |n_pos: usize, is_rq: bool| -> usize {
+        if is_rq { 1 + 3 * n_pos + 4 * lambda + 5 } else { 1 + 4 * (n_pos + lambda) + 4 }
+    };
+    let mut tot_unsplit = 0usize;
+    let mut tot_split = 0usize;
+    let mut all_under = true;
+    println!("    inst    cols  lr lcp lam   K-elems      k  wcols  win K-elems   bytes unsplit -> split");
+    for (name, is_rq, cols_real) in [
+        ("had", false, dff),
+        ("rq-g", true, dff),
+        ("rq-u", true, dff),
+        ("rq-h", true, dff),
+        ("rq-d", true, dmodel),
+    ] {
+        let lcp = usize::BITS as usize - (cols_real - 1).leading_zeros() as usize;
+        let unsplit_log2 = lr + lcp + lambda;
+        let under = (1usize << unsplit_log2) <= cap;
+        let plan = bg_zc_window_plan(cols_real, lr, lambda, window);
+        let k = plan.wins.len();
+        let win_log2 = lr + plan.lcw + lambda;
+        let win_under = (1usize << win_log2) <= cap;
+        all_under &= win_under;
+        let b_unsplit = 64 * kel(lr + lcp, is_rq);
+        let b_split = 64 * k * kel(lr + plan.lcw, is_rq);
+        tot_unsplit += b_unsplit;
+        tot_split += b_split;
+        println!(
+            "    {name:<6} {cols_real:>6} {lr:>3} {lcp:>3} {lambda:>3}  2^{unsplit_log2:<2} {}  {k:>2} {:>6}  2^{win_log2:<2} {}   {b_unsplit:>7} -> {b_split:>7}  ({:+})",
+            if under { "UNDER" } else { " OVER" },
+            plan.wcols,
+            if win_under { "UNDER" } else { " OVER" },
+            b_split as isize - b_unsplit as isize
+        );
+    }
+    println!(
+        "    TOTAL zc transcript {tot_unsplit} -> {tot_split} B ({:+} B); every window {} the K9 cap ({cap} K-elements)",
+        tot_split as isize - tot_unsplit as isize,
+        if all_under { "UNDER" } else { "OVER — REFUSE" }
+    );
+}
+
 fn uperf_pc_main(args: &[String]) {
     match args.first().map(String::as_str) {
         Some("full-profile") => {
@@ -36032,6 +36151,14 @@ fn uperf_pc_main(args: &[String]) {
             let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(bf_model().t);
             uperf_pc_pass_profile(layers_n, t);
         }
+        Some("zc-plan") => {
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(bf_model().layers);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(bf_model().t);
+            let dmodel: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or_else(|| bf_d());
+            let dff: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or_else(|| bf_f());
+            let window: Option<usize> = args.get(5).and_then(|s| s.parse().ok());
+            uperf_pc_zc_plan(layers_n, t, dmodel, dff, window);
+        }
         Some("diff-battery") => uperf_pc_diff_battery(),
         Some("kernel-bench") => {
             let r: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(16);
@@ -36046,7 +36173,7 @@ fn uperf_pc_main(args: &[String]) {
             uperf_pc_kpass_bench(rows, cols, with_ref);
         }
         _ => println!(
-            "uperf-pc full-profile [layers] [t] [p2] | pass-profile [layers] [t] | wave-profile [layer] [t] [nodigest] | diff-battery | kernel-bench [r] [chunk] [noref] | kpass-bench [rows] [cols] [noref]"
+            "uperf-pc full-profile [layers] [t] [p2] | pass-profile [layers] [t] | wave-profile [layer] [t] [nodigest] | zc-plan [layers] [t] [dmodel] [dff] [window] | diff-battery | kernel-bench [r] [chunk] [noref] | kpass-bench [rows] [cols] [noref]"
         ),
     }
 }

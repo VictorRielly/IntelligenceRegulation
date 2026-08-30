@@ -3615,3 +3615,35 @@ walls [WSL-BOX NOISY-SHARED] — identity is the anchor, not time):
   1308775 B counted.
 All three equal the round-6 Mac-sync values (ledger above) — the
 tree is clean at the round-7 open commit.
+
+R1 PLANNER — DONE. `uperf-pc zc-plan <layers> <t> <dmodel> <dff>
+[window]` (arithmetic only, no proving). The kel formula (had:
+1 + 4(n_pos+lam) + 4; rq: 1 + 3 n_pos + 4 lam + 5; 64 B/K-element)
+is VERIFIED EXACTLY against the measured wire face at 3x16
+(`table-descent prove 3 16` instance lines: had 73 kel, rq-g/u/h 59,
+rq-d 56 = the planner's numbers to the byte). Table (default =
+cap-derived window 2^(25 - lr - lambda)):
+
+  shape    inst    K-elems  verdict  k  wcols  win-elems  zc bytes
+  3x16     all 5   2^16-17  UNDER    1  —      —          19584 (+0)
+  12x64    all 5   2^20-21  UNDER    1  —      —          24192 (+0)
+  32x16    all 5   2^21-23  UNDER    1  —      —          26304 (+0)
+  8x512    f x4    2^26     OVER     2  8192   2^25       +22016 total
+           rq-d    2^24     UNDER    1  —      —
+  32x128   f x4    2^26     OVER     2  8192   2^25       +22400 total
+           rq-d    2^24     UNDER    1  —      —
+  32x512   f x4    2^28     OVER     7  2048   2^25       31424 ->
+           rq-d    2^26     OVER     2  2048   2^25       173632 B
+                                                          (+142208)
+  32x512 w=1024 (the W-9 GPU option): f k=14, d k=4, windows 2^24;
+                                                          +303424 B
+
+VERDICT: the 125M shapes and the 32x16 yardstick are ALL k=1 (the
+null split); at 32x512 the f-instances split 7-way and rq-d 2-way,
+every window AT the cap boundary 2^25 (<=, the KTab::words_for
+assert form) — the W-1 row's window counts reproduced. HONEST
+CORRECTION vs the row's estimate: the counted delta is +142,208 B
+at 32x512 (not ~+30 KB) — the row's ~+3.4 KB/instance is the
+125M-shape instance cost; an 8B WINDOW instance is 5.4-6.7 KB and
+there are 25 extra instances. +139 KB rides a transcript whose
+125M-3x16 count is already 985 KB — noise at the 8B scale.
