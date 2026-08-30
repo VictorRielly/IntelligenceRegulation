@@ -3567,3 +3567,190 @@ one statement, differential: the composed accept + per-layer
 digests vs 12 independent u3 proofs + seam tamper legs incl. a
 CROSS-layer swap), then shape-general (the Mistral 32-layer form —
 the Mac runs it as T17 once landed).
+## Agent LL status (wt-uperf3-ll) — round 7
+
+W-1: zero-check column-splitting — the last named code blocker before
+the 32x16 8B yardstick. The K9 packed-table cap (kfield.rs:283,
+2^25, AUDITED) is NEVER moved; every zero-check instance whose
+stacked table would exceed it is split over its COLUMN space into
+windows of <= 2^(25 - lr - lambda) columns, each window the same
+instance kind (same product form, eq_pc per window, ClaimContribs
+over the window's scattered column kernel).
+
+RUNG PLAN
+- R0 SKELETON: this section + BASELINE anchors (below). [commit 1]
+- R1 PLANNER: `uperf-pc zc-plan <layers> <t> <dmodel> <dff>
+  [window]` — per-instance lr/lcp/lambda, K-elements, cap verdict,
+  window count k, per-window K-elements, counted transcript bytes
+  (no proving; 8B shapes = arithmetic only). Table recorded here.
+- R2 THE SPLIT with k=1 as the NULL PATH: the window loop in
+  bg_pass_run + bk_pass_run (prover + verifier mirrors); the k=1
+  branch executes the pre-W1 statements verbatim (same labels, same
+  bg_zc_prove call). ACCEPT: all three identity anchors
+  BYTE-IDENTICAL.
+- R3 FORCED-WINDOW BATTERY: new arm `uperf-pc zc-battery` (own
+  digest — existing battery digests untouched): 125M shapes at
+  512-col windows -> real multi-window instances; honest ACCEPT +
+  claim-vs-unsplit-oracle byte-identity + tamper legs (tampered
+  sub-instance claim; window-boundary off-by-one witness) rejecting.
+- R4 RECORD: counted 8B transcript delta from the planner, the
+  1024-col GPU-window note (W-9), ledger close.
+
+DESIGN CHOICES (the k=1 anchors are the arbiter)
+- Window size parameter: opts field `zc_window` (battery/programmatic)
+  + env `ZK_ZC_WINDOW_COLS` read by the uperf-pc profile arms;
+  default = the cap-derived 2^(25 - lr - lambda), clamped to a power
+  of two <= the cap. k = 1 (window >= cols_real) = the NULL SPLIT.
+- FS ambiguity ruling: window count/size is DERIVED (shape + the K9
+  cap constant + the parameter), not separately absorbed; windowed
+  instances get per-window absorb labels "<name>-w<i>" while k=1
+  keeps the exact pre-W1 labels — byte-identity at k=1 by
+  construction. OPEN QUESTION for the statement layer: a production
+  8B statement should pin the window parameter in the statement
+  digest (same class as the shape rows); recorded, not implemented.
+- No ring/ changes: IxfZcSpec is already parameterized by
+  (cols_real, cols_pad, n_pos); windows hand it per-window column
+  slices (materialized copies, transient). K9_MAX_LEAVES read, never
+  written.
+
+BASELINE (identity anchors at the round-7 open commit ab2db23,
+M125_EXPORT_DIR=results/m125_ffn_export_wsl, WSL box, ZK_THREADS 1,
+walls [WSL-BOX NOISY-SHARED] — identity is the anchor, not time):
+- fp3x16  (uperf-pc full-profile 3 16): accept true; statement
+  93a987002a7c4b60c3dfbfc62b7a4f0e5957d8ae2039014ff241e323285fb790;
+  EVAL-PROOF
+  0ae9cdae66607239a80cc1f1dea36248370edadbe85214144aee7a5250d975be;
+  985142 B counted.
+- pa12x64 (uperf-pc pass-profile 12 64): accept true; statement
+  45fb340517eee2344b44dd40d4e47562d80305eb7c5604c9c6cf61ede37443dc;
+  EVAL-PROOF
+  23cf1cb757c6edae949f8103d8a34497cf709ff0fde81b64273174b6381c0eb5;
+  418471 B counted.
+- fp12x64 (uperf-pc full-profile 12 64): accept true; statement
+  80763ea537e77cd9cb5c538397af2622044447d654b8e9a34cae3ccad8f3f115;
+  EVAL-PROOF
+  63f4a3a4320a47260ab8ae3d52cfa3656b626fc367af671c6c317300454dec89;
+  1308775 B counted.
+All three equal the round-6 Mac-sync values (ledger above) — the
+tree is clean at the round-7 open commit.
+
+R1 PLANNER — DONE. `uperf-pc zc-plan <layers> <t> <dmodel> <dff>
+[window]` (arithmetic only, no proving). The kel formula (had:
+1 + 4(n_pos+lam) + 4; rq: 1 + 3 n_pos + 4 lam + 5; 64 B/K-element)
+is VERIFIED EXACTLY against the measured wire face at 3x16
+(`table-descent prove 3 16` instance lines: had 73 kel, rq-g/u/h 59,
+rq-d 56 = the planner's numbers to the byte). Table (default =
+cap-derived window 2^(25 - lr - lambda)):
+
+  shape    inst    K-elems  verdict  k  wcols  win-elems  zc bytes
+  3x16     all 5   2^16-17  UNDER    1  —      —          19584 (+0)
+  12x64    all 5   2^20-21  UNDER    1  —      —          24192 (+0)
+  32x16    all 5   2^21-23  UNDER    1  —      —          26304 (+0)
+  8x512    f x4    2^26     OVER     2  8192   2^25       +22016 total
+           rq-d    2^24     UNDER    1  —      —
+  32x128   f x4    2^26     OVER     2  8192   2^25       +22400 total
+           rq-d    2^24     UNDER    1  —      —
+  32x512   f x4    2^28     OVER     7  2048   2^25       31424 ->
+           rq-d    2^26     OVER     2  2048   2^25       173632 B
+                                                          (+142208)
+  32x512 w=1024 (the W-9 GPU option): f k=14, d k=4, windows 2^24;
+                                                          +303424 B
+
+VERDICT: the 125M shapes and the 32x16 yardstick are ALL k=1 (the
+null split); at 32x512 the f-instances split 7-way and rq-d 2-way,
+every window AT the cap boundary 2^25 (<=, the KTab::words_for
+assert form) — the W-1 row's window counts reproduced. HONEST
+CORRECTION vs the row's estimate: the counted delta is +142,208 B
+at 32x512 (not ~+30 KB) — the row's ~+3.4 KB/instance is the
+125M-shape instance cost; an 8B WINDOW instance is 5.4-6.7 KB and
+there are 25 extra instances. +139 KB rides a transcript whose
+125M-3x16 count is already 985 KB — noise at the 8B scale.
+
+R2 THE SPLIT (k=1 = the NULL PATH) — DONE. The window loop in
+bg_pass_run + bk_pass_run, prover AND verifier mirrors (the verifier
+re-derives the identical plan from shape + the K9 cap constant +
+opts). k = 1 executes the pre-W1 statements verbatim (same labels
+"bg/bk-claim-<name>", same bg_zc_prove call); k > 1 proves one
+sub-instance of the SAME KIND per window through the NEW
+bg_zc_prove_win (windowed per-layer operand copies into the
+UNCHANGED IxfZcSpec; labels "<name>-w<i>"), terminal claims through
+bg_zc_scatter_col (the window eq kernel scattered at the window
+offset over the full padded column space — same ClaimContrib product
+form over the FULL committed tensors). No ring/ file touched;
+K9_MAX_LEAVES read, never written. Parameter surface: opts.zc_window
+(both rigs) + ZK_ZC_WINDOW_COLS on the uperf-pc profile arms.
+ACCEPT (all at ZK_THREADS 1, M125 WSL export):
+- IDENTITY ANCHORS BYTE-IDENTICAL post-split: fp3x16
+  93a98700../0ae9cdae..; pa12x64 45fb3405../23cf1cb7..; fp12x64
+  80763ea5../63f4a3a4.. (statement + EVAL-PROOF, all six digests
+  equal the R0 baseline).
+- FLOORS: freeze-check FULL exit 0 (102 ok rows); uperf-pc
+  diff-battery passed; uperf-s battery 48 legs 3752cba4..; uperf-s
+  agg-battery 136 legs 46234986..; uperf-x battery 8 legs
+  be89d5da.. — all unchanged.
+- FORCED-WINDOW SMOKE (both rigs at 3x16, ZK_ZC_WINDOW_COLS=512 ->
+  f k=4, d k=2): accept TRUE; statement digests UNCHANGED
+  (bg 3x16 de93b680.. and bk 3x16 93a98700.. identical with and
+  without the forced plan — the statement is window-independent);
+  EVAL-PROOF digests differ at k>1 as expected (the transcript
+  grows by the extra sub-instances).
+
+R3 FORCED-WINDOW BATTERY — DONE. NEW arm `uperf-pc zc-battery`
+(own digest; NO existing battery digest moved). 7/7 legs ok,
+ZC BATTERY DIGEST
+01ca048b9021e3573e40286de35d1af7f0bc74492414e6c18f661c852cda32f7:
+- plan-125M-null: 3x16 + 12x64, f + d cols all k=1.
+- plan-8B-32x512: default f k=7 w=2048 / d k=2; the 1024-col W-9
+  option f k=14 / d k=4 — all windows under the K9 cap.
+- bg-3x16-w512-honest+oracle and bk-3x16-w512-honest+oracle: accept
+  TRUE with 54/54 zc terminal claims (3 x (4 f-windows x 4 insts +
+  2 d-windows)) BYTE-IDENTICAL to the unsplit oracle (each windowed
+  claim re-evaluated from the FULL tensors through the scattered
+  kernels, asserted in-pass) — the recombined-claims identity.
+- bg-3x16-w512-tamper-subclaim (BgTamper::ZcSubClaim, +1 on the last
+  windowed sub-instance's t1 final on the wire): REJECT, first_fail
+  sc-requant (the combine check at the instance gate).
+- bg-3x16-w512-boundary-c511 / -c512 (+1 on layer-0 H at the last
+  column of window 0 / the first column of window 1): both REJECT,
+  first_fail sc-hadamard — no column escapes coverage at the seam.
+FLOORS re-run green at this commit: freeze-check FULL exit 0 (102
+ok), diff-battery, uperf-s 3752cba4.., agg 46234986.., uperf-x
+be89d5da..; all three identity anchors byte-identical again
+(93a98700/0ae9cdae, 45fb3405/23cf1cb7, 80763ea5/63f4a3a4).
+
+R4 THE RECORD — LANE CLOSE.
+- THE 8B TRANSCRIPT DELTA (counted, planner-verified end to end):
+  the planner's byte accounting is CONFIRMED ON THE REAL WIRE —
+  fp3x16 forced-512 counted 1,029,686 B vs the 985,142 B baseline
+  = +44,544 B, EXACTLY the planner's forced-512 3x16 zc delta.
+  The 8B 32x512 counted delta therefore stands at +142,208 B
+  (~+139 KB) at the 2048-col cap default (f-instances 7 windows,
+  rq-d 2); the W-1 row's ~+30 KB estimate is superseded (honest
+  correction recorded under R1). At 8x512 / 32x128: ~+22 KB. At
+  32x16 (the yardstick): +0 B — the null split.
+- THE GPU-WINDOW NOTE (W-9): `ZK_ZC_WINDOW_COLS=1024` (or
+  opts.zc_window = Some(1024)) keeps every zc packed table at 2^24
+  K-elements = half the K9 budget, holding the device ixf path
+  inside its 4 GB at 32x512 (f k=14, d k=4; +303,424 B counted).
+  The default stays the cap-derived 2048.
+- OPEN QUESTION (recorded, not implemented; the k=1 anchors were
+  the arbiter): the window parameter is DERIVED (shape + the K9 cap
+  constant + opts/env), absorbed only through the per-window labels
+  "<name>-w<i>"; a production 8B statement should pin the window
+  size in the statement digest like the shape rows (one line in the
+  statement builder when the 8B statement lands — W-10 territory).
+- MEMORY NOTE: k>1 windows materialize per-window operand copies
+  (3 entries x layers x rows x window i64) — ~768 MB transient per
+  f-window at 32x512, freed per window; the packed tables the
+  windows exist to shrink are 2.1 GB each. No ring/ change; if the
+  copy ever matters, an IxfZcSpec col-stride is the additive fix.
+LANE VERDICT: W-1 CLOSED. The last named code blocker before board
+task T16 (the 32x16 8B yardstick — itself k=1/null-split) is
+removed, and the 32x512 ladder rung has a proven, battery-covered
+split with every packed table under the AUDITED, UNTOUCHED K9 cap.
+Files: src/bin/ring_matmul.rs only (bg_zc_window_plan /
+bg_zc_prove_win / bg_zc_window_vals / bg_zc_scatter_col /
+bg_stack_table_win, the window loops in bg_pass_run + bk_pass_run
+prover+verifier, uperf-pc zc-plan + zc-battery, opts fields,
+BgTamper::ZcSubClaim). READ-ONLY honored: kfield.rs, manifest.rs,
+stage_a.rs, zc_range.rs, attn_softmax.rs, two_tier.rs untouched.

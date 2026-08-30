@@ -29520,6 +29520,11 @@ enum BgTamper {
     TierZImage,
     /// The prover lies in a declared-output public claim value.
     PublicClaimLie,
+    /// [UPERF3-LL W-1] A tampered zero-check SUB-INSTANCE terminal
+    /// claim on the wire (+1 on the last zc instance's t1 final —
+    /// under a forced window plan that is a windowed sub-instance);
+    /// the sumcheck combine check must reject it.
+    ZcSubClaim,
 }
 
 /// The full composed pass run. `p2` = mode P2 (weight floor Tier-Z
@@ -29555,6 +29560,19 @@ struct BgOpts {
     /// the one weight-group opening). Default OFF (P0 byte-identical;
     /// the P2-noblind regression config keeps BG's landed bytes).
     t_blind: bool,
+    /// [UPERF3-LL W-1] Zero-check column-window size override (cols,
+    /// power of two; clamped to the cap-derived maximum). None = the
+    /// cap default 2^(25 - lr - lambda), which is the NULL SPLIT at
+    /// every 125M shape (byte-identical transcripts).
+    zc_window: Option<usize>,
+    /// [UPERF3-LL W-1] Battery hook: re-evaluate every zero-check
+    /// terminal claim from the FULL tensors through the (scattered)
+    /// kernels — the unsplit oracle — and abort on any mismatch.
+    zc_oracle_check: bool,
+    /// [UPERF3-LL W-1] Battery hook: +1 on layer-0's H tensor at this
+    /// flat index (a window-boundary column probe — the hadamard
+    /// window owning the column must reject).
+    zc_perturb_h: Option<usize>,
 }
 
 impl Default for BgOpts {
@@ -29573,6 +29591,9 @@ impl Default for BgOpts {
             h0_override: None,
             quiet: false,
             t_blind: false,
+            zc_window: None,
+            zc_oracle_check: false,
+            zc_perturb_h: None,
         }
     }
 }
@@ -30757,6 +30778,61 @@ fn bg_stack_table(
     tab
 }
 
+// ---------------------------------------------------------------------------
+// [UPERF3-LL W-1] Zero-check column windows.
+//
+// The claim layer's stacked zero-check tables hold 2^(lr + lcp + lambda)
+// K-elements; the AUDITED K9 packed-table cap (ring/kfield.rs
+// K9_MAX_LEAVES = 2^25 — "raise only with a new integer-bound proof and
+// tests"; it does NOT move here) bounds one packed table. At the 8B
+// shapes (T = 512, 32 layers) the f-shaped instances (had, rq-g/u/h at
+// 14336 cols) are 2^28 and the d-shaped (rq-d at 4096 cols) 2^26 — over
+// the cap. The ruled fix (U_PERF3_MVP8B_SCALING.md row W-1): split each
+// instance over its COLUMN space into windows of
+// <= 2^(cap_log2 - lr - lambda) columns; each window is the same
+// instance kind over a column range (its own eq_pc; the terminal claims
+// are ClaimContribs whose column kernel is the window's eq table
+// SCATTERED at the window offset over the full column space — the same
+// product form). k = 1 (window >= cols_real) is the NULL SPLIT: the
+// callers execute the pre-W1 statements verbatim (byte-identical
+// transcripts — the identity anchors are the arbiter).
+
+/// The column-window plan of one stacked zero-check instance.
+struct ZcWindowPlan {
+    /// Per window: (column offset, real columns in the window).
+    wins: Vec<(usize, usize)>,
+    /// Padded window width (2^lcw). k = 1: the instance's original
+    /// cols_pad, so the null split reproduces the pre-W1 shape.
+    wcols: usize,
+    lcw: usize,
+}
+
+/// Window plan for `cols_real` columns at 2^lr padded rows and 2^lambda
+/// layer slots. `req` (opts.zc_window / ZK_ZC_WINDOW_COLS) must be a
+/// power of two; it is clamped to the cap-derived maximum so no request
+/// can push a packed table over the audited K9 cap.
+fn bg_zc_window_plan(cols_real: usize, lr: usize, lambda: usize, req: Option<usize>) -> ZcWindowPlan {
+    let cap_log2 = ring::kfield::K9_MAX_LEAVES.trailing_zeros() as usize; // read, never moved
+    assert!(
+        lr + lambda < cap_log2,
+        "zc window plan: rows x layer slots alone (2^{}) reach the K9 cap — column windows cannot help",
+        lr + lambda
+    );
+    let lcp = usize::BITS as usize - (cols_real - 1).leading_zeros() as usize;
+    let cols_pad = 1usize << lcp;
+    let cap_cols = 1usize << (cap_log2 - lr - lambda);
+    let w = req.unwrap_or(cap_cols);
+    assert!(w.is_power_of_two() && w > 0, "zc window ({w}) must be a power of two");
+    let w = w.min(cap_cols);
+    if w >= cols_real {
+        // The NULL SPLIT: one window, the pre-W1 shape.
+        return ZcWindowPlan { wins: vec![(0, cols_real)], wcols: cols_pad, lcw: lcp };
+    }
+    let k = cols_real.div_ceil(w);
+    let wins = (0..k).map(|i| (i * w, w.min(cols_real - i * w))).collect();
+    ZcWindowPlan { wins, wcols: w, lcw: w.trailing_zeros() as usize }
+}
+
 /// [UPERF2-D] One stacked zero-check instance's PROVER: builds the factor
 /// tables (eq over the full point, the three stacked witness tables, the
 /// per-layer shift table for the requant form) and runs the ixf sumcheck.
@@ -30817,6 +30893,126 @@ fn bg_zc_prove(
         let t1 = bg_stack_table(kf, lays, entries[0], slots, n_pos, cols_real, cols_pad);
         let t2 = bg_stack_table(kf, lays, entries[1], slots, n_pos, cols_real, cols_pad);
         let t3 = bg_stack_table(kf, lays, entries[2], slots, n_pos, cols_real, cols_pad);
+        let mut tabs = vec![eq_full, t1, t2, t3];
+        if is_rq {
+            tabs.push(expand_layer_table(kf, sh_layer, np));
+        }
+        drop(prof_tabs);
+        ixf_sumcheck_prove_kind(kf, tabs, sched, kind, tr)
+    }
+}
+
+/// [UPERF3-LL W-1] Per-layer value copies of one column window
+/// (rows x w_real, row-major) of entry `e` — the operands a windowed
+/// zero-check sub-instance hands to the packed/oracle builders
+/// (transient; freed after the window's prove).
+fn bg_zc_window_vals(lays: &[BfLayer], e: usize, cols_real: usize, w_off: usize, w_real: usize) -> Vec<Vec<i64>> {
+    lays.iter()
+        .map(|lay| {
+            let vals = bf_entry_values(e, lay);
+            let rows = vals.len() / cols_real;
+            let mut out = Vec::with_capacity(rows * w_real);
+            for i in 0..rows {
+                out.extend_from_slice(&vals[i * cols_real + w_off..i * cols_real + w_off + w_real]);
+            }
+            out
+        })
+        .collect()
+}
+
+/// [UPERF3-LL W-1] `bg_stack_table` over explicit per-layer value
+/// slices (the windowed oracle builder; the same loops and elements
+/// as `bg_stack_table` at the window's shape).
+fn bg_stack_table_win(
+    kf: &ring::kfield::KField,
+    vals_per_layer: &[Vec<i64>],
+    n_pos: usize,
+    cols_real: usize,
+    cols_pad: usize,
+    slots: usize,
+) -> Vec<ring::kfield::KElem> {
+    let zq = &kf.zq;
+    let np = 1usize << n_pos;
+    let mut tab = vec![kf.zero(); slots * np];
+    for (li, vals) in vals_per_layer.iter().enumerate() {
+        let rows = vals.len() / cols_real;
+        for i in 0..rows {
+            for j in 0..cols_real {
+                let v = vals[i * cols_real + j];
+                if v != 0 {
+                    tab[li * np + i * cols_pad + j] = kf.scale(zq.to_mod(v), &kf.one());
+                }
+            }
+        }
+    }
+    tab
+}
+
+/// [UPERF3-LL W-1] The window's eq kernel scattered at the window
+/// offset over the full padded column space: the sub-instance's
+/// terminal claims keep the ClaimContrib product form over the FULL
+/// committed tensor (zero weight outside the window; only the first
+/// cols_real positions are ever read by the claim consumers).
+fn bg_zc_scatter_col(
+    kf: &ring::kfield::KField,
+    eq_w: &[ring::kfield::KElem],
+    w_off: usize,
+    cols_pad: usize,
+) -> Vec<ring::kfield::KElem> {
+    let mut v = vec![kf.zero(); cols_pad];
+    v[w_off..w_off + eq_w.len()].clone_from_slice(eq_w);
+    v
+}
+
+/// [UPERF3-LL W-1] `bg_zc_prove` for ONE column window given the
+/// windowed per-layer operands (the k > 1 path only; k = 1 keeps
+/// `bg_zc_prove` verbatim — the null split). Same fast/oracle routing
+/// and table shapes at (cols_real = w_real, cols_pad = the window
+/// width); every window table is <= 2^25 K-elements by the plan, so
+/// the audited K9 cap holds without being touched.
+#[allow(clippy::too_many_arguments)]
+fn bg_zc_prove_win(
+    kf: &ring::kfield::KField,
+    wvals: &[Vec<Vec<i64>>; 3],
+    is_rq: bool,
+    sh_layer: &[ring::kfield::KElem],
+    r_q: &[ring::kfield::KElem],
+    slots: usize,
+    n_pos: usize,
+    cols_real: usize,
+    cols_pad: usize,
+    sched: &[usize],
+    tr: &mut ring::sumcheck::LkpTranscript,
+) -> (ring::sumcheck::SumcheckProof, Vec<ring::kfield::KElem>) {
+    use ring::ct_engine::prof as dprof;
+    use ring::fold::{expand_layer_table, ixf_sumcheck_prove_kind, ixf_sumcheck_prove_zc, IxfCombine, IxfTable, IxfZcSpec};
+    let kind = if is_rq { IxfCombine::Rq } else { IxfCombine::Had };
+    let np = 1usize << n_pos;
+    if IxfTable::available(kf) {
+        let lambda = slots.trailing_zeros() as usize;
+        assert_eq!(1usize << lambda, slots, "zc: slots is a power of two");
+        let spec = IxfZcSpec {
+            kind,
+            point: r_q,
+            layers: [
+                wvals[0].iter().map(|v| v.as_slice()).collect(),
+                wvals[1].iter().map(|v| v.as_slice()).collect(),
+                wvals[2].iter().map(|v| v.as_slice()).collect(),
+            ],
+            cols_real,
+            cols_pad,
+            n_pos,
+            lambda,
+            slots,
+            sh_layer,
+        };
+        ixf_sumcheck_prove_zc(kf, &spec, sched, tr)
+    } else {
+        let prof_tabs = dprof::timer(dprof::D_CL_TABLES); // observation only
+        let eq_full = ring::gkr::eq_table(kf, r_q);
+        let t1 = bg_stack_table_win(kf, &wvals[0], n_pos, cols_real, cols_pad, slots);
+        let t2 = bg_stack_table_win(kf, &wvals[1], n_pos, cols_real, cols_pad, slots);
+        let t3 = bg_stack_table_win(kf, &wvals[2], n_pos, cols_real, cols_pad, slots);
         let mut tabs = vec![eq_full, t1, t2, t3];
         if is_rq {
             tabs.push(expand_layer_table(kf, sh_layer, np));
@@ -31072,6 +31268,12 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
                 w.iter_mut().for_each(|x| *x = 0);
             }
         }
+    }
+    if let Some(ci) = opts.zc_perturb_h {
+        // [UPERF3-LL W-1] battery hook: an off-by-one on layer-0's H
+        // tensor at a window-boundary column (flat index ci) — the
+        // hadamard zero-check window owning that column must reject.
+        lays[0].hh[ci] += 1;
     }
 
     // ---- Registry, schedules, witnesses, pre-commits. ----
@@ -31371,23 +31573,21 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
     // [UPERF2-O] the packed tables' pool across the zero-check instances
     // (allocation plumbing only; released at the end of the loop).
     let ixf_pool_scope = ring::fold::IxfPoolScope::open();
+    let mut zc_oracle_n = 0usize; // [UPERF3-LL W-1] battery-hook counter
     for (name, e1, e2, e3, is_rq) in &zc_insts {
         // Position space of the acc/product tensor (cols zero-extended).
         let shape_e = if *is_rq { *e1 } else { *e3 };
         let (rows, cols_real) = bf_entry_shape(shape_e, t);
+        let _ = rows;
         let lcp = usize::BITS as usize - (cols_real - 1).leading_zeros() as usize;
         let cols_pad = 1usize << lcp;
-        let n_pos = lr + lcp;
-        let r_q: Vec<KElem> = (0..n_pos + lambda).map(|_| tr.challenge_k(&kf)).collect();
-        let zero = kf.zero();
-        tr.absorb_k(&kf, &format!("bg-claim-{name}"), std::slice::from_ref(&zero));
-        let sched = if *is_rq {
-            let mut d = vec![2usize; n_pos];
-            d.extend(std::iter::repeat_n(3usize, lambda));
-            d
-        } else {
-            zerocheck_degree_schedule(n_pos, lambda)
-        };
+        // [UPERF3-LL W-1] the column-window plan: k = 1 (every 125M
+        // shape at the cap default) is the NULL SPLIT — the pre-W1
+        // statements verbatim, byte-identical transcript; k > 1 proves
+        // one sub-instance of the SAME KIND per column window, keeping
+        // every packed table under the audited K9 cap.
+        let plan = bg_zc_window_plan(cols_real, lr, lambda, opts.zc_window);
+        let k = plan.wins.len();
         let sh_layer: Vec<KElem> = if *is_rq {
             (0..il.slots)
                 .map(|li| {
@@ -31401,36 +31601,89 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
         } else {
             Vec::new()
         };
-        // [UPERF2-D] tables built directly packed + the packed bulk prover
-        // (oracle: the boxed builders + the scalar `ixf_sumcheck_prove`
-        // with rq_comb / had_comb — bg_zc_prove).
-        let (scp, point) = bg_zc_prove(
-            &kf, &lays, [*e1, *e2, *e3], *is_rq, &sh_layer, &r_q, il.slots, n_pos, cols_real, cols_pad, &sched,
-            &mut tr,
-        );
-        tr.absorb_k(&kf, &format!("bg-final-{name}"), &scp.final_evals);
-        cost.inst_lines.push(BgInstLine {
-            name,
-            kel: 1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len(),
-        });
-        let _prof_fin = dprof::timer(dprof::D_CL_FINALS); // [UPERF2-D] observation only (to the loop end)
-        let p_col = &point[..lcp];
-        let p_row = &point[lcp..n_pos];
-        let p_lay = &point[n_pos..];
-        let eq_pc = Rc::new(eq_table(&kf, p_col));
-        let eq_pr = Rc::new(eq_table(&kf, p_row));
-        let eq_pl = eq_table(&kf, p_lay);
-        for (fe, e) in [(1usize, *e1), (2, *e2), (3, *e3)] {
-            claims.push(BgClaim {
-                in_weight: false,
-                value: scp.final_evals[fe].clone(),
-                parts: (0..opts.layers_n)
-                    .map(|li| (li, e, eq_pl[li].clone(), eq_pr.clone(), eq_pc.clone()))
-                    .collect(),
-                            blind_parts: Vec::new(),
+        for (wi, &(w_off, w_real)) in plan.wins.iter().enumerate() {
+            let (lcw, wpad) = if k == 1 { (lcp, cols_pad) } else { (plan.lcw, plan.wcols) };
+            let n_pos = lr + lcw;
+            let label = if k == 1 { (*name).to_string() } else { format!("{name}-w{wi}") };
+            let r_q: Vec<KElem> = (0..n_pos + lambda).map(|_| tr.challenge_k(&kf)).collect();
+            let zero = kf.zero();
+            tr.absorb_k(&kf, &format!("bg-claim-{label}"), std::slice::from_ref(&zero));
+            let sched = if *is_rq {
+                let mut d = vec![2usize; n_pos];
+                d.extend(std::iter::repeat_n(3usize, lambda));
+                d
+            } else {
+                zerocheck_degree_schedule(n_pos, lambda)
+            };
+            // [UPERF2-D] tables built directly packed + the packed bulk prover
+            // (oracle: the boxed builders + the scalar `ixf_sumcheck_prove`
+            // with rq_comb / had_comb — bg_zc_prove).
+            let (scp, point) = if k == 1 {
+                bg_zc_prove(
+                    &kf, &lays, [*e1, *e2, *e3], *is_rq, &sh_layer, &r_q, il.slots, n_pos, cols_real, cols_pad,
+                    &sched, &mut tr,
+                )
+            } else {
+                let wvals = [
+                    bg_zc_window_vals(&lays, *e1, cols_real, w_off, w_real),
+                    bg_zc_window_vals(&lays, *e2, cols_real, w_off, w_real),
+                    bg_zc_window_vals(&lays, *e3, cols_real, w_off, w_real),
+                ];
+                bg_zc_prove_win(
+                    &kf, &wvals, *is_rq, &sh_layer, &r_q, il.slots, n_pos, w_real, wpad, &sched, &mut tr,
+                )
+            };
+            tr.absorb_k(&kf, &format!("bg-final-{label}"), &scp.final_evals);
+            cost.inst_lines.push(BgInstLine {
+                name,
+                kel: 1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len(),
             });
+            let _prof_fin = dprof::timer(dprof::D_CL_FINALS); // [UPERF2-D] observation only (to the loop end)
+            let p_col = &point[..lcw];
+            let p_row = &point[lcw..n_pos];
+            let p_lay = &point[n_pos..];
+            // [UPERF3-LL W-1] k > 1: the window's eq kernel scattered at
+            // the window offset over the full padded column space — the
+            // terminal claims keep the SAME product form over the FULL
+            // committed tensors (zero weight outside the window).
+            let eq_pc = if k == 1 {
+                Rc::new(eq_table(&kf, p_col))
+            } else {
+                Rc::new(bg_zc_scatter_col(&kf, &eq_table(&kf, p_col), w_off, cols_pad))
+            };
+            let eq_pr = Rc::new(eq_table(&kf, p_row));
+            let eq_pl = eq_table(&kf, p_lay);
+            for (fe, e) in [(1usize, *e1), (2, *e2), (3, *e3)] {
+                if opts.zc_oracle_check {
+                    // [UPERF3-LL W-1] battery hook: the sub-instance's
+                    // terminal claim re-evaluated from the FULL tensors
+                    // through the (scattered) kernels — the unsplit
+                    // oracle — must be byte-identical.
+                    let mut want = kf.zero();
+                    for li in 0..opts.layers_n {
+                        let m = bg_mle(&kf, bf_entry_values(e, &lays[li]), cols_real, &eq_pr, &eq_pc);
+                        want = kf.add(&want, &kf.mul(&eq_pl[li], &m));
+                    }
+                    assert_eq!(
+                        want, scp.final_evals[fe],
+                        "W-1 zc claim-vs-oracle mismatch: {label} entry {e}"
+                    );
+                    zc_oracle_n += 1;
+                }
+                claims.push(BgClaim {
+                    in_weight: false,
+                    value: scp.final_evals[fe].clone(),
+                    parts: (0..opts.layers_n)
+                        .map(|li| (li, e, eq_pl[li].clone(), eq_pr.clone(), eq_pc.clone()))
+                        .collect(),
+                    blind_parts: Vec::new(),
+                });
+            }
+            sc_proofs.push(scp);
         }
-        sc_proofs.push(scp);
+    }
+    if opts.zc_oracle_check {
+        println!("[UPERF3-LL W-1] zc claim-vs-oracle: {zc_oracle_n} terminal claims byte-identical to the unsplit oracle");
     }
     drop(ixf_pool_scope); // [UPERF2-O] release the pooled tables
 
@@ -31626,6 +31879,14 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
             let tz = tz_w.as_mut().expect("P2 tamper needs the masked weight floor");
             tz.images[0][0] = zq.add(tz.images[0][0], 1);
         }
+        BgTamper::ZcSubClaim => {
+            // [UPERF3-LL W-1] +1 on the last zero-check sub-instance's
+            // t1 final on the wire (under a forced window plan this is
+            // a WINDOWED sub-instance — rq-d's last window); the
+            // verifier's sumcheck combine check must reject it.
+            let scp = sc_proofs.last_mut().expect("zc instances exist");
+            scp.final_evals[1] = kf.add(&scp.final_evals[1], &kf.one());
+        }
         _ => {}
     }
     let blind_seg = reg.blind.as_ref().map(|b| b.seg_val.clone());
@@ -31819,72 +32080,86 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
             }
         }
         if verdict.instances_ok {
-            for (name, e1, e2, e3, is_rq) in &zc_insts {
+            // [UPERF3-LL W-1] the verifier mirrors the prover's window
+            // plan (derived from the same shape + cap + opts; k = 1 is
+            // the pre-W1 flow verbatim).
+            'zc_v: for (name, e1, e2, e3, is_rq) in &zc_insts {
                 let shape_e = if *is_rq { *e1 } else { *e3 };
                 let (_rows, cols_real) = bf_entry_shape(shape_e, t);
                 let lcp = usize::BITS as usize - (cols_real - 1).leading_zeros() as usize;
-                let n_pos = lr + lcp;
-                let r_q: Vec<KElem> = (0..n_pos + lambda).map(|_| tv.challenge_k(&kf)).collect();
-                let zero = kf.zero();
-                tv.absorb_k(&kf, &format!("bg-claim-{name}"), std::slice::from_ref(&zero));
-                let sched = if *is_rq {
-                    let mut d = vec![2usize; n_pos];
-                    d.extend(std::iter::repeat_n(3usize, lambda));
-                    d
-                } else {
-                    zerocheck_degree_schedule(n_pos, lambda)
-                };
-                let scp = &bundle.sc_proofs[sci];
-                let res = if *is_rq {
-                    ixf_sumcheck_verify(&kf, &sched, &zero, scp, &rq_comb, &mut tv)
-                } else {
-                    ixf_sumcheck_verify(&kf, &sched, &zero, scp, &had_comb, &mut tv)
-                };
-                let (point, _red) = match res {
-                    Some(x) => x,
-                    None => {
+                let cols_pad = 1usize << lcp;
+                let plan = bg_zc_window_plan(cols_real, lr, lambda, opts.zc_window);
+                let k = plan.wins.len();
+                for (wi, &(w_off, _w_real)) in plan.wins.iter().enumerate() {
+                    let lcw = if k == 1 { lcp } else { plan.lcw };
+                    let n_pos = lr + lcw;
+                    let label = if k == 1 { (*name).to_string() } else { format!("{name}-w{wi}") };
+                    let r_q: Vec<KElem> = (0..n_pos + lambda).map(|_| tv.challenge_k(&kf)).collect();
+                    let zero = kf.zero();
+                    tv.absorb_k(&kf, &format!("bg-claim-{label}"), std::slice::from_ref(&zero));
+                    let sched = if *is_rq {
+                        let mut d = vec![2usize; n_pos];
+                        d.extend(std::iter::repeat_n(3usize, lambda));
+                        d
+                    } else {
+                        zerocheck_degree_schedule(n_pos, lambda)
+                    };
+                    let scp = &bundle.sc_proofs[sci];
+                    let res = if *is_rq {
+                        ixf_sumcheck_verify(&kf, &sched, &zero, scp, &rq_comb, &mut tv)
+                    } else {
+                        ixf_sumcheck_verify(&kf, &sched, &zero, scp, &had_comb, &mut tv)
+                    };
+                    let (point, _red) = match res {
+                        Some(x) => x,
+                        None => {
+                            verdict.instances_ok = false;
+                            fail(&mut verdict, if *is_rq { "sc-requant" } else { "sc-hadamard" });
+                            break 'zc_v;
+                        }
+                    };
+                    let eq_star = eq_eval(&kf, &r_q, &point);
+                    if scp.final_evals[0] != eq_star {
                         verdict.instances_ok = false;
-                        fail(&mut verdict, if *is_rq { "sc-requant" } else { "sc-hadamard" });
-                        break;
+                        fail(&mut verdict, "eq-final");
+                        break 'zc_v;
                     }
-                };
-                let eq_star = eq_eval(&kf, &r_q, &point);
-                if scp.final_evals[0] != eq_star {
-                    verdict.instances_ok = false;
-                    fail(&mut verdict, "eq-final");
-                    break;
-                }
-                if *is_rq {
-                    // sh* grounded from the STATEMENT's shift table.
+                    if *is_rq {
+                        // sh* grounded from the STATEMENT's shift table.
+                        let eq_pl = eq_table(&kf, &point[n_pos..]);
+                        let mut sh_star = kf.zero();
+                        for (li, lay) in lays.iter().enumerate() {
+                            sh_star = kf.add(
+                                &sh_star,
+                                &kf.scale(zq.to_mod(1i64 << bg_rq_shift(name, lay)), &eq_pl[li]),
+                            );
+                        }
+                        if scp.final_evals[4] != sh_star {
+                            verdict.instances_ok = false;
+                            fail(&mut verdict, "sh-final");
+                            break 'zc_v;
+                        }
+                    }
+                    tv.absorb_k(&kf, &format!("bg-final-{label}"), &scp.final_evals);
+                    let eq_pc = if k == 1 {
+                        Rc::new(eq_table(&kf, &point[..lcw]))
+                    } else {
+                        Rc::new(bg_zc_scatter_col(&kf, &eq_table(&kf, &point[..lcw]), w_off, cols_pad))
+                    };
+                    let eq_pr = Rc::new(eq_table(&kf, &point[lcw..n_pos]));
                     let eq_pl = eq_table(&kf, &point[n_pos..]);
-                    let mut sh_star = kf.zero();
-                    for (li, lay) in lays.iter().enumerate() {
-                        sh_star = kf.add(
-                            &sh_star,
-                            &kf.scale(zq.to_mod(1i64 << bg_rq_shift(name, lay)), &eq_pl[li]),
-                        );
+                    for (fe, e) in [(1usize, *e1), (2, *e2), (3, *e3)] {
+                        claims_v.push(BgClaim {
+                            in_weight: false,
+                            value: scp.final_evals[fe].clone(),
+                            parts: (0..opts.layers_n)
+                                .map(|li| (li, e, eq_pl[li].clone(), eq_pr.clone(), eq_pc.clone()))
+                                .collect(),
+                            blind_parts: Vec::new(),
+                        });
                     }
-                    if scp.final_evals[4] != sh_star {
-                        verdict.instances_ok = false;
-                        fail(&mut verdict, "sh-final");
-                        break;
-                    }
+                    sci += 1;
                 }
-                tv.absorb_k(&kf, &format!("bg-final-{name}"), &scp.final_evals);
-                let eq_pc = Rc::new(eq_table(&kf, &point[..lcp]));
-                let eq_pr = Rc::new(eq_table(&kf, &point[lcp..n_pos]));
-                let eq_pl = eq_table(&kf, &point[n_pos..]);
-                for (fe, e) in [(1usize, *e1), (2, *e2), (3, *e3)] {
-                    claims_v.push(BgClaim {
-                        in_weight: false,
-                        value: scp.final_evals[fe].clone(),
-                        parts: (0..opts.layers_n)
-                            .map(|li| (li, e, eq_pl[li].clone(), eq_pr.clone(), eq_pc.clone()))
-                            .collect(),
-                                            blind_parts: Vec::new(),
-                    });
-                }
-                sci += 1;
             }
         }
         if verdict.instances_ok {
@@ -34191,6 +34466,15 @@ struct BkOpts {
     /// is fixed. Battery-only; never a shipped mode.
     weak_alpha: bool,
     quiet: bool,
+    /// [UPERF3-LL W-1] Zero-check column-window size override (cols,
+    /// power of two; clamped to the cap-derived maximum). None = the
+    /// cap default 2^(25 - lr - lambda) — the NULL SPLIT at every
+    /// 125M shape (byte-identical transcripts).
+    zc_window: Option<usize>,
+    /// [UPERF3-LL W-1] Battery hook: re-evaluate every zero-check
+    /// terminal claim from the FULL tensors through the (scattered)
+    /// kernels — the unsplit oracle — and abort on any mismatch.
+    zc_oracle_check: bool,
 }
 
 impl Default for BkOpts {
@@ -34202,6 +34486,8 @@ impl Default for BkOpts {
             tamper: BkTamper::None,
             weak_alpha: false,
             quiet: false,
+            zc_window: None,
+            zc_oracle_check: false,
         }
     }
 }
@@ -34713,22 +34999,20 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     // [UPERF2-O] the packed tables' pool across the zero-check instances
     // (allocation plumbing only; released at the end of the loop).
     let ixf_pool_scope = ring::fold::IxfPoolScope::open();
+    let mut zc_oracle_n = 0usize; // [UPERF3-LL W-1] battery-hook counter
     for (name, e1, e2, e3, is_rq) in &zc_insts {
         let shape_e = if *is_rq { *e1 } else { *e3 };
         let (_rows, cols_real) = bf_entry_shape(shape_e, t);
         let lcp = usize::BITS as usize - (cols_real - 1).leading_zeros() as usize;
         let cols_pad = 1usize << lcp;
-        let n_pos = lr + lcp;
-        let r_q: Vec<KElem> = (0..n_pos + lambda).map(|_| tr.challenge_k(&kf)).collect();
-        let zero = kf.zero();
-        tr.absorb_k(&kf, &format!("bk-claim-{name}"), std::slice::from_ref(&zero));
-        let sched = if *is_rq {
-            let mut d = vec![2usize; n_pos];
-            d.extend(std::iter::repeat_n(3usize, lambda));
-            d
-        } else {
-            zerocheck_degree_schedule(n_pos, lambda)
-        };
+        // [UPERF3-LL W-1] the column-window plan: k = 1 (every 125M
+        // shape at the cap default) is the NULL SPLIT — the pre-W1
+        // statements verbatim, byte-identical transcript; k > 1 proves
+        // one sub-instance of the SAME KIND per column window, keeping
+        // every packed table under the audited K9 cap (the 8B 32x512
+        // f-instances: k = 7 at the 2048-col default).
+        let plan = bg_zc_window_plan(cols_real, lr, lambda, opts.zc_window);
+        let k = plan.wins.len();
         let sh_layer: Vec<KElem> = if *is_rq {
             (0..il.slots)
                 .map(|li| {
@@ -34742,39 +35026,92 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         } else {
             Vec::new()
         };
-        // [UPERF2-D] tables built directly packed + the packed bulk prover
-        // (oracle: the boxed builders + the scalar `ixf_sumcheck_prove`
-        // with rq_comb / had_comb — bg_zc_prove).
-        let (scp, point) = bg_zc_prove(
-            &kf, &lays, [*e1, *e2, *e3], *is_rq, &sh_layer, &r_q, il.slots, n_pos, cols_real, cols_pad, &sched,
-            &mut tr,
-        );
-        tr.absorb_k(&kf, &format!("bk-final-{name}"), &scp.final_evals);
-        cost.inst_lines.push(BgInstLine {
-            name,
-            kel: 1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len(),
-        });
-        let prof_fin = dprof::timer(dprof::D_CL_FINALS); // [UPERF2-D] observation only
-        let p_col = &point[..lcp];
-        let p_row = &point[lcp..n_pos];
-        let p_lay = &point[n_pos..];
-        let eq_pc = Rc::new(eq_table(&kf, p_col));
-        let eq_pr = Rc::new(eq_table(&kf, p_row));
-        let eq_pl = eq_table(&kf, p_lay);
-        for (fe, e) in [(1usize, *e1), (2, *e2), (3, *e3)] {
-            claims.push(BkClaim {
-                in_weight: false,
-                value: scp.final_evals[fe].clone(),
-                parts: to_parts(
-                    (0..opts.layers_n)
-                        .map(|li| (li, e, eq_pl[li].clone(), eq_pr.clone(), eq_pc.clone()))
-                        .collect(),
-                    &reg,
-                ),
+        for (wi, &(w_off, w_real)) in plan.wins.iter().enumerate() {
+            let (lcw, wpad) = if k == 1 { (lcp, cols_pad) } else { (plan.lcw, plan.wcols) };
+            let n_pos = lr + lcw;
+            let label = if k == 1 { (*name).to_string() } else { format!("{name}-w{wi}") };
+            let r_q: Vec<KElem> = (0..n_pos + lambda).map(|_| tr.challenge_k(&kf)).collect();
+            let zero = kf.zero();
+            tr.absorb_k(&kf, &format!("bk-claim-{label}"), std::slice::from_ref(&zero));
+            let sched = if *is_rq {
+                let mut d = vec![2usize; n_pos];
+                d.extend(std::iter::repeat_n(3usize, lambda));
+                d
+            } else {
+                zerocheck_degree_schedule(n_pos, lambda)
+            };
+            // [UPERF2-D] tables built directly packed + the packed bulk prover
+            // (oracle: the boxed builders + the scalar `ixf_sumcheck_prove`
+            // with rq_comb / had_comb — bg_zc_prove).
+            let (scp, point) = if k == 1 {
+                bg_zc_prove(
+                    &kf, &lays, [*e1, *e2, *e3], *is_rq, &sh_layer, &r_q, il.slots, n_pos, cols_real, cols_pad,
+                    &sched, &mut tr,
+                )
+            } else {
+                let wvals = [
+                    bg_zc_window_vals(&lays, *e1, cols_real, w_off, w_real),
+                    bg_zc_window_vals(&lays, *e2, cols_real, w_off, w_real),
+                    bg_zc_window_vals(&lays, *e3, cols_real, w_off, w_real),
+                ];
+                bg_zc_prove_win(
+                    &kf, &wvals, *is_rq, &sh_layer, &r_q, il.slots, n_pos, w_real, wpad, &sched, &mut tr,
+                )
+            };
+            tr.absorb_k(&kf, &format!("bk-final-{label}"), &scp.final_evals);
+            cost.inst_lines.push(BgInstLine {
+                name,
+                kel: 1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len(),
             });
+            let prof_fin = dprof::timer(dprof::D_CL_FINALS); // [UPERF2-D] observation only
+            let p_col = &point[..lcw];
+            let p_row = &point[lcw..n_pos];
+            let p_lay = &point[n_pos..];
+            // [UPERF3-LL W-1] k > 1: the window's eq kernel scattered at
+            // the window offset over the full padded column space — the
+            // terminal claims keep the SAME product form over the FULL
+            // committed tensors (zero weight outside the window).
+            let eq_pc = if k == 1 {
+                Rc::new(eq_table(&kf, p_col))
+            } else {
+                Rc::new(bg_zc_scatter_col(&kf, &eq_table(&kf, p_col), w_off, cols_pad))
+            };
+            let eq_pr = Rc::new(eq_table(&kf, p_row));
+            let eq_pl = eq_table(&kf, p_lay);
+            for (fe, e) in [(1usize, *e1), (2, *e2), (3, *e3)] {
+                if opts.zc_oracle_check {
+                    // [UPERF3-LL W-1] battery hook: the sub-instance's
+                    // terminal claim re-evaluated from the FULL tensors
+                    // through the (scattered) kernels — the unsplit
+                    // oracle — must be byte-identical.
+                    let mut want = kf.zero();
+                    for li in 0..opts.layers_n {
+                        let m = bg_mle(&kf, bf_entry_values(e, &lays[li]), cols_real, &eq_pr, &eq_pc);
+                        want = kf.add(&want, &kf.mul(&eq_pl[li], &m));
+                    }
+                    assert_eq!(
+                        want, scp.final_evals[fe],
+                        "W-1 zc claim-vs-oracle mismatch: {label} entry {e}"
+                    );
+                    zc_oracle_n += 1;
+                }
+                claims.push(BkClaim {
+                    in_weight: false,
+                    value: scp.final_evals[fe].clone(),
+                    parts: to_parts(
+                        (0..opts.layers_n)
+                            .map(|li| (li, e, eq_pl[li].clone(), eq_pr.clone(), eq_pc.clone()))
+                            .collect(),
+                        &reg,
+                    ),
+                });
+            }
+            sc_proofs.push(scp);
+            drop(prof_fin);
         }
-        sc_proofs.push(scp);
-        drop(prof_fin);
+    }
+    if opts.zc_oracle_check {
+        println!("[UPERF3-LL W-1] zc claim-vs-oracle: {zc_oracle_n} terminal claims byte-identical to the unsplit oracle");
     }
     drop(ixf_pool_scope); // [UPERF2-O] release the pooled tables
 
@@ -35084,70 +35421,84 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
                 });
                 sci += 1;
             }
+            // [UPERF3-LL W-1] the verifier mirrors the prover's window
+            // plan (derived from the same shape + cap + opts; k = 1 is
+            // the pre-W1 flow verbatim).
             for (name, e1, e2, e3, is_rq) in &zc_insts {
                 let shape_e = if *is_rq { *e1 } else { *e3 };
                 let (_rows, cols_real) = bf_entry_shape(shape_e, t);
                 let lcp = usize::BITS as usize - (cols_real - 1).leading_zeros() as usize;
-                let n_pos = lr + lcp;
-                let r_q: Vec<KElem> = (0..n_pos + lambda).map(|_| tv.challenge_k(&kf)).collect();
-                let zero = kf.zero();
-                tv.absorb_k(&kf, &format!("bk-claim-{name}"), std::slice::from_ref(&zero));
-                let sched = if *is_rq {
-                    let mut d = vec![2usize; n_pos];
-                    d.extend(std::iter::repeat_n(3usize, lambda));
-                    d
-                } else {
-                    zerocheck_degree_schedule(n_pos, lambda)
-                };
-                let scp = &sc_proofs[sci];
-                let res = if *is_rq {
-                    ixf_sumcheck_verify(&kf, &sched, &zero, scp, &rq_comb, &mut tv)
-                } else {
-                    ixf_sumcheck_verify(&kf, &sched, &zero, scp, &had_comb, &mut tv)
-                };
-                let Some((point, _red)) = res else {
-                    verdict.instances_ok = false;
-                    fail(&mut verdict, if *is_rq { "sc-requant".to_string() } else { "sc-hadamard".to_string() });
-                    break 'verify;
-                };
-                let eq_star = eq_eval(&kf, &r_q, &point);
-                if scp.final_evals[0] != eq_star {
-                    verdict.instances_ok = false;
-                    fail(&mut verdict, "eq-final".to_string());
-                    break 'verify;
-                }
-                if *is_rq {
-                    let eq_pl = eq_table(&kf, &point[n_pos..]);
-                    let mut sh_star = kf.zero();
-                    for (li, lay) in lays.iter().enumerate() {
-                        sh_star = kf.add(
-                            &sh_star,
-                            &kf.scale(zq.to_mod(1i64 << bg_rq_shift(name, lay)), &eq_pl[li]),
-                        );
-                    }
-                    if scp.final_evals[4] != sh_star {
+                let cols_pad = 1usize << lcp;
+                let wplan = bg_zc_window_plan(cols_real, lr, lambda, opts.zc_window);
+                let k = wplan.wins.len();
+                for (wi, &(w_off, _w_real)) in wplan.wins.iter().enumerate() {
+                    let lcw = if k == 1 { lcp } else { wplan.lcw };
+                    let n_pos = lr + lcw;
+                    let label = if k == 1 { (*name).to_string() } else { format!("{name}-w{wi}") };
+                    let r_q: Vec<KElem> = (0..n_pos + lambda).map(|_| tv.challenge_k(&kf)).collect();
+                    let zero = kf.zero();
+                    tv.absorb_k(&kf, &format!("bk-claim-{label}"), std::slice::from_ref(&zero));
+                    let sched = if *is_rq {
+                        let mut d = vec![2usize; n_pos];
+                        d.extend(std::iter::repeat_n(3usize, lambda));
+                        d
+                    } else {
+                        zerocheck_degree_schedule(n_pos, lambda)
+                    };
+                    let scp = &sc_proofs[sci];
+                    let res = if *is_rq {
+                        ixf_sumcheck_verify(&kf, &sched, &zero, scp, &rq_comb, &mut tv)
+                    } else {
+                        ixf_sumcheck_verify(&kf, &sched, &zero, scp, &had_comb, &mut tv)
+                    };
+                    let Some((point, _red)) = res else {
                         verdict.instances_ok = false;
-                        fail(&mut verdict, "sh-final".to_string());
+                        fail(&mut verdict, if *is_rq { "sc-requant".to_string() } else { "sc-hadamard".to_string() });
+                        break 'verify;
+                    };
+                    let eq_star = eq_eval(&kf, &r_q, &point);
+                    if scp.final_evals[0] != eq_star {
+                        verdict.instances_ok = false;
+                        fail(&mut verdict, "eq-final".to_string());
                         break 'verify;
                     }
+                    if *is_rq {
+                        let eq_pl = eq_table(&kf, &point[n_pos..]);
+                        let mut sh_star = kf.zero();
+                        for (li, lay) in lays.iter().enumerate() {
+                            sh_star = kf.add(
+                                &sh_star,
+                                &kf.scale(zq.to_mod(1i64 << bg_rq_shift(name, lay)), &eq_pl[li]),
+                            );
+                        }
+                        if scp.final_evals[4] != sh_star {
+                            verdict.instances_ok = false;
+                            fail(&mut verdict, "sh-final".to_string());
+                            break 'verify;
+                        }
+                    }
+                    tv.absorb_k(&kf, &format!("bk-final-{label}"), &scp.final_evals);
+                    let eq_pc = if k == 1 {
+                        Rc::new(eq_table(&kf, &point[..lcw]))
+                    } else {
+                        Rc::new(bg_zc_scatter_col(&kf, &eq_table(&kf, &point[..lcw]), w_off, cols_pad))
+                    };
+                    let eq_pr = Rc::new(eq_table(&kf, &point[lcw..n_pos]));
+                    let eq_pl = eq_table(&kf, &point[n_pos..]);
+                    for (fe, e) in [(1usize, *e1), (2, *e2), (3, *e3)] {
+                        claims_v.push(BkClaim {
+                            in_weight: false,
+                            value: scp.final_evals[fe].clone(),
+                            parts: to_parts(
+                                (0..opts.layers_n)
+                                    .map(|li| (li, e, eq_pl[li].clone(), eq_pr.clone(), eq_pc.clone()))
+                                    .collect(),
+                                &reg_v,
+                            ),
+                        });
+                    }
+                    sci += 1;
                 }
-                tv.absorb_k(&kf, &format!("bk-final-{name}"), &scp.final_evals);
-                let eq_pc = Rc::new(eq_table(&kf, &point[..lcp]));
-                let eq_pr = Rc::new(eq_table(&kf, &point[lcp..n_pos]));
-                let eq_pl = eq_table(&kf, &point[n_pos..]);
-                for (fe, e) in [(1usize, *e1), (2, *e2), (3, *e3)] {
-                    claims_v.push(BkClaim {
-                        in_weight: false,
-                        value: scp.final_evals[fe].clone(),
-                        parts: to_parts(
-                            (0..opts.layers_n)
-                                .map(|li| (li, e, eq_pl[li].clone(), eq_pr.clone(), eq_pc.clone()))
-                                .collect(),
-                            &reg_v,
-                        ),
-                    });
-                }
-                sci += 1;
             }
             // Descent pairs: verify each masked descent on the rolling
             // transcript, run the per-instance root cross-checks, and
@@ -35944,7 +36295,9 @@ fn uperf_pc_pass_profile(layers_n: usize, t: usize) {
     prof::reset();
     prof::enable(true, true); // phase timers + the EVAL-PROOF DIGEST
     let t0 = Instant::now();
-    let opts = BgOpts { layers_n, t, ..Default::default() };
+    // [UPERF3-LL W-1] optional zero-check window override (cols).
+    let zc_window: Option<usize> = std::env::var("ZK_ZC_WINDOW_COLS").ok().and_then(|s| s.parse().ok());
+    let opts = BgOpts { layers_n, t, zc_window, ..Default::default() };
     let (v, c, art) = bg_pass_run(&opts);
     let wall = t0.elapsed().as_secs_f64();
     prof::enable(false, false);
@@ -35985,7 +36338,9 @@ fn uperf_pc_full_profile(layers_n: usize, t: usize, p2: bool) {
     prof::reset();
     prof::enable(true, true);
     let t0 = Instant::now();
-    let opts = BkOpts { layers_n, t, p2, ..Default::default() };
+    // [UPERF3-LL W-1] optional zero-check window override (cols).
+    let zc_window: Option<usize> = std::env::var("ZK_ZC_WINDOW_COLS").ok().and_then(|s| s.parse().ok());
+    let opts = BkOpts { layers_n, t, p2, zc_window, ..Default::default() };
     let (v, c, art) = bk_pass_run(&opts);
     let wall = t0.elapsed().as_secs_f64();
     prof::enable(false, false);
@@ -36012,6 +36367,202 @@ fn uperf_pc_full_profile(layers_n: usize, t: usize, p2: bool) {
     }
 }
 
+/// [UPERF3-LL W-1] The zero-check window PLANNER (no proving): for a
+/// shape (layers, t, dmodel, dff) and an optional window override,
+/// print each stacked zero-check instance's lr/lcp/lambda, K-element
+/// count, cap verdict, window count k, per-window K-elements and the
+/// counted transcript bytes (64 B per shipped K-element: 1 claim +
+/// the round polynomials + the final evals per sub-instance).
+fn uperf_pc_zc_plan(layers_n: usize, t: usize, dmodel: usize, dff: usize, window: Option<usize>) {
+    let cap = ring::kfield::K9_MAX_LEAVES;
+    let cap_log2 = cap.trailing_zeros() as usize;
+    let il = ring::fold::ixf_layout(layers_n);
+    let lambda = il.lambda;
+    let lr = t.trailing_zeros() as usize;
+    assert_eq!(1usize << lr, t, "t must be a power of two");
+    println!(
+        "[UPERF-PC] zc-plan: {layers_n} layers (lambda {lambda}), T = {t} (lr {lr}), dmodel {dmodel}, dff {dff}, window {} (cap-derived max 2^{} = {} cols; K9 cap 2^{cap_log2} AUDITED, unchanged)",
+        window.map_or("default".to_string(), |w| w.to_string()),
+        cap_log2 - lr - lambda,
+        1usize << (cap_log2 - lr - lambda)
+    );
+    // Counted K-elements of one (sub-)instance's wire face: the absorbed
+    // zero claim + round polys (had: all rounds degree 3 -> 4 evals;
+    // rq: [2; n_pos] ++ [3; lambda] -> 3 then 4 evals) + finals (had 4;
+    // rq 5 with sh*) — the BgInstLine kel formula.
+    let kel = |n_pos: usize, is_rq: bool| -> usize {
+        if is_rq { 1 + 3 * n_pos + 4 * lambda + 5 } else { 1 + 4 * (n_pos + lambda) + 4 }
+    };
+    let mut tot_unsplit = 0usize;
+    let mut tot_split = 0usize;
+    let mut all_under = true;
+    println!("    inst    cols  lr lcp lam   K-elems      k  wcols  win K-elems   bytes unsplit -> split");
+    for (name, is_rq, cols_real) in [
+        ("had", false, dff),
+        ("rq-g", true, dff),
+        ("rq-u", true, dff),
+        ("rq-h", true, dff),
+        ("rq-d", true, dmodel),
+    ] {
+        let lcp = usize::BITS as usize - (cols_real - 1).leading_zeros() as usize;
+        let unsplit_log2 = lr + lcp + lambda;
+        let under = (1usize << unsplit_log2) <= cap;
+        let plan = bg_zc_window_plan(cols_real, lr, lambda, window);
+        let k = plan.wins.len();
+        let win_log2 = lr + plan.lcw + lambda;
+        let win_under = (1usize << win_log2) <= cap;
+        all_under &= win_under;
+        let b_unsplit = 64 * kel(lr + lcp, is_rq);
+        let b_split = 64 * k * kel(lr + plan.lcw, is_rq);
+        tot_unsplit += b_unsplit;
+        tot_split += b_split;
+        println!(
+            "    {name:<6} {cols_real:>6} {lr:>3} {lcp:>3} {lambda:>3}  2^{unsplit_log2:<2} {}  {k:>2} {:>6}  2^{win_log2:<2} {}   {b_unsplit:>7} -> {b_split:>7}  ({:+})",
+            if under { "UNDER" } else { " OVER" },
+            plan.wcols,
+            if win_under { "UNDER" } else { " OVER" },
+            b_split as isize - b_unsplit as isize
+        );
+    }
+    println!(
+        "    TOTAL zc transcript {tot_unsplit} -> {tot_split} B ({:+} B); every window {} the K9 cap ({cap} K-elements)",
+        tot_split as isize - tot_unsplit as isize,
+        if all_under { "UNDER" } else { "OVER — REFUSE" }
+    );
+}
+
+/// [UPERF3-LL W-1] The forced-window battery (a NEW arm with its OWN
+/// digest — the existing battery digests are untouched): window-plan
+/// legs at the 125M and 8B shapes (arithmetic), honest forced-window
+/// passes on BOTH rigs at 3x16 (512-col windows -> real multi-window
+/// instances: f k=4, d k=2) with the claim-vs-unsplit-oracle identity
+/// asserted in-pass on every zc terminal claim, and the tamper legs
+/// (a tampered windowed sub-instance claim; a window-boundary
+/// off-by-one witness on either side of the first window seam).
+fn uperf_pc_zc_battery() {
+    use sha2::{Digest, Sha256};
+    println!(
+        "[UPERF3-LL] zc-battery: zero-check column-window split (forced 512-col windows at 3x16; ZK_THREADS {})",
+        ring::eval_proof::threads()
+    );
+    let mut battery = Sha256::new_with_prefix(b"uperf3-ll-zc-battery-v1");
+    let t0 = Instant::now();
+    let mut results: Vec<(String, bool, String)> = Vec::new();
+
+    // Plan legs (arithmetic only).
+    {
+        let mut ok = true;
+        let mut detail = String::new();
+        for (layers, t, dm, df) in [(3usize, 16usize, 768usize, 2048usize), (12, 64, 768, 2048)] {
+            let lambda = ring::fold::ixf_layout(layers).lambda;
+            let lr = t.trailing_zeros() as usize;
+            for cols in [df, dm] {
+                let plan = bg_zc_window_plan(cols, lr, lambda, None);
+                ok &= plan.wins.len() == 1;
+                detail.push_str(&format!("{layers}x{t}/{cols}:k={} ", plan.wins.len()));
+            }
+        }
+        results.push(("plan-125M-null".to_string(), ok, detail));
+    }
+    {
+        let lambda = ring::fold::ixf_layout(32).lambda;
+        let lr = 512usize.trailing_zeros() as usize;
+        let under = |p: &ZcWindowPlan| (1usize << (lr + p.lcw + lambda)) <= ring::kfield::K9_MAX_LEAVES;
+        let pf = bg_zc_window_plan(14336, lr, lambda, None);
+        let pd = bg_zc_window_plan(4096, lr, lambda, None);
+        let pf1 = bg_zc_window_plan(14336, lr, lambda, Some(1024));
+        let pd1 = bg_zc_window_plan(4096, lr, lambda, Some(1024));
+        let ok = pf.wins.len() == 7
+            && pd.wins.len() == 2
+            && pf.wcols == 2048
+            && under(&pf)
+            && under(&pd)
+            && pf1.wins.len() == 14
+            && pd1.wins.len() == 4
+            && pf1.wcols == 1024
+            && under(&pf1)
+            && under(&pd1);
+        results.push((
+            "plan-8B-32x512".to_string(),
+            ok,
+            format!(
+                "default: f k={} w={}, d k={} | 1024-col (W-9): f k={}, d k={} — all under the K9 cap",
+                pf.wins.len(),
+                pf.wcols,
+                pd.wins.len(),
+                pf1.wins.len(),
+                pd1.wins.len()
+            ),
+        ));
+    }
+
+    // Honest forced-window passes, claim-vs-oracle asserted in-pass.
+    {
+        let opts = BgOpts { layers_n: 3, t: 16, zc_window: Some(512), zc_oracle_check: true, quiet: true, ..Default::default() };
+        let (v, _c, _a) = bg_pass_run(&opts);
+        results.push((
+            "bg-3x16-w512-honest+oracle".to_string(),
+            v.accept(),
+            format!("accept={} first_fail={:?}", v.accept(), v.first_fail),
+        ));
+    }
+    {
+        let opts = BkOpts { layers_n: 3, t: 16, zc_window: Some(512), zc_oracle_check: true, quiet: true, ..Default::default() };
+        let (v, _c, _a) = bk_pass_run(&opts);
+        results.push((
+            "bk-3x16-w512-honest+oracle".to_string(),
+            v.accept(),
+            format!("accept={} first_fail={:?}", v.accept(), v.first_fail),
+        ));
+    }
+    // A tampered windowed sub-instance claim on the wire -> REJECT at
+    // the instance gate (rq-d's last window; combine check).
+    {
+        let opts = BgOpts { layers_n: 3, t: 16, zc_window: Some(512), tamper: BgTamper::ZcSubClaim, quiet: true, ..Default::default() };
+        let (v, _c, _a) = bg_pass_run(&opts);
+        let ok = !v.accept() && v.first_fail == Some("sc-requant");
+        results.push((
+            "bg-3x16-w512-tamper-subclaim".to_string(),
+            ok,
+            format!("accept={} first_fail={:?} (want sc-requant)", v.accept(), v.first_fail),
+        ));
+    }
+    // Window-boundary off-by-one witness: +1 on H at layer 0, columns
+    // 511 (last col of window 0) and 512 (first col of window 1) — the
+    // owning window's hadamard zero-check must reject; no column
+    // escapes the coverage at the seam.
+    for (lname, ci) in [("bg-3x16-w512-boundary-c511", 511usize), ("bg-3x16-w512-boundary-c512", 512usize)] {
+        let opts = BgOpts { layers_n: 3, t: 16, zc_window: Some(512), zc_perturb_h: Some(ci), quiet: true, ..Default::default() };
+        let (v, _c, _a) = bg_pass_run(&opts);
+        let ok = !v.accept() && v.first_fail == Some("sc-hadamard");
+        results.push((
+            lname.to_string(),
+            ok,
+            format!("accept={} first_fail={:?} (want sc-hadamard)", v.accept(), v.first_fail),
+        ));
+    }
+
+    let mut fails = 0usize;
+    for (name, ok, detail) in &results {
+        if !ok {
+            fails += 1;
+        }
+        battery.update(name.as_bytes());
+        battery.update([*ok as u8]);
+        battery.update(detail.as_bytes());
+        println!("  {} {name}: {detail}", if *ok { "ok  " } else { "FAIL" });
+    }
+    let dg: [u8; 32] = battery.finalize().into();
+    println!(
+        "[UPERF3-LL] zc-battery: {}/{} legs ok in {:.1}s [WSL-BOX NOISY-SHARED]",
+        results.len() - fails,
+        results.len(),
+        t0.elapsed().as_secs_f64()
+    );
+    println!("[UPERF3-LL] ZC BATTERY DIGEST {}", hex_full(&dg));
+    assert!(fails == 0, "zc-battery failed");
+}
+
 fn uperf_pc_main(args: &[String]) {
     match args.first().map(String::as_str) {
         Some("full-profile") => {
@@ -36032,6 +36583,15 @@ fn uperf_pc_main(args: &[String]) {
             let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(bf_model().t);
             uperf_pc_pass_profile(layers_n, t);
         }
+        Some("zc-plan") => {
+            let layers_n: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(bf_model().layers);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(bf_model().t);
+            let dmodel: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or_else(|| bf_d());
+            let dff: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or_else(|| bf_f());
+            let window: Option<usize> = args.get(5).and_then(|s| s.parse().ok());
+            uperf_pc_zc_plan(layers_n, t, dmodel, dff, window);
+        }
+        Some("zc-battery") => uperf_pc_zc_battery(),
         Some("diff-battery") => uperf_pc_diff_battery(),
         Some("kernel-bench") => {
             let r: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(16);
@@ -36046,7 +36606,7 @@ fn uperf_pc_main(args: &[String]) {
             uperf_pc_kpass_bench(rows, cols, with_ref);
         }
         _ => println!(
-            "uperf-pc full-profile [layers] [t] [p2] | pass-profile [layers] [t] | wave-profile [layer] [t] [nodigest] | diff-battery | kernel-bench [r] [chunk] [noref] | kpass-bench [rows] [cols] [noref]"
+            "uperf-pc full-profile [layers] [t] [p2] | pass-profile [layers] [t] | wave-profile [layer] [t] [nodigest] | zc-plan [layers] [t] [dmodel] [dff] [window] | zc-battery | diff-battery | kernel-bench [r] [chunk] [noref] | kpass-bench [rows] [cols] [noref]"
         ),
     }
 }
@@ -49355,7 +49915,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     let _ = clog2; // (used by gg_build_groups)
     if with_oracle {
         println!("  ORACLE (frozen bk_pass_run, same shape, default path):");
-        let opts = BkOpts { layers_n, t, p2: false, tamper: BkTamper::None, weak_alpha: false, quiet: true };
+        let opts = BkOpts { layers_n, t, p2: false, tamper: BkTamper::None, weak_alpha: false, quiet: true, ..Default::default() };
         let (v, c, _art) = bk_pass_run(&opts);
         println!(
             "    accept {} | commit {:.1}s prove {:.1}s verify {:.1}s | {} B counted (descent pairs {} B)",
