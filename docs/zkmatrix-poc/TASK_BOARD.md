@@ -41,6 +41,30 @@ Mac gate pass green):**
 - The Mac queue (T13/T14/T15 + the 7B proof rung) is runnable on a
   building, fully gated tree.
 
+**AS OF 2026-08-30 (MAC SYNC MERGED + the PoC sprint scoped):**
+- **THE MAC GATE PASS IS GREEN** (0aed842, box QUIET): freeze-check
+  FULL exit 0, suite 81/81, every battery digest byte-identical on
+  aarch64 incl. the attention spike (be89d5da..); two aarch64 cfg
+  gates fixed; the seam battery's silent-vacuity defect fixed
+  (battery artifact; +1 ruling: the drift-loud memo).
+- **STILL OPEN ON THE MAC (the PoC path, in order)**: T1 (the
+  12x512 walls + digests), T13/T14 (Gemma), **T15 (the v3 exports
+  + verify-export + the >15 GB per-layer proof rung)**, and THEN
+  the NEW milestone: **the 32x16 8B YARDSTICK — the first full
+  8B FFN proof (~95 GB, fits the Mac; needs W-1 column-splitting
+  first, ~2-3 d WSL CODE — the last named code blocker)**.
+- **THE STANDING TARGET (Victor 2026-08-30): ~80 proven tokens/s
+  per H100 board at 30B** — currently counted ~25-35 amortized;
+  the enumerated levers (Stage-A aggregate GPU port + fold fusion
+  1.2-1.5x, pipelining 1.3x, spine amortization 1.1-1.2x) compose
+  to ~65; the last ~1.3x needs an act-side opening idea — the
+  round-7+ optimization campaign, informed by the first real
+  Mac/H100 measurements.
+- **ADVERSARIAL_TESTING_PLAN.md is DOCUMENTED AND SHELVED** per
+  Victor's directive (surfaces ranked, campaign phased, activates
+  by ruling after the PoC); its §3 standing rule (tamper legs ship
+  with every statement feature, same commit) is adopted NOW.
+
 **AS OF 2026-08-29 (ROUND 6 MERGED; main current; four battery
 digests + all identity anchors green on the final tree):**
 - **JJ — SPIKE X-S1 GREEN ON ALL FOUR ACCEPTANCES: the first
