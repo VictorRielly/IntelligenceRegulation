@@ -3548,3 +3548,70 @@ tamper); (3) the planner leg at the 8B shapes (the 2^28-class
 f-instances -> 7 windows, d -> 2, ALL under the cap; ~+3.4 KB per
 extra instance, ~+30 KB total at 8B counted); (4) floors green.
 This unlocks board task T16 (the 32x16 yardstick on the Mac).
+
+## Agent LL status (wt-uperf3-ll) — round 7
+
+W-1: zero-check column-splitting — the last named code blocker before
+the 32x16 8B yardstick. The K9 packed-table cap (kfield.rs:283,
+2^25, AUDITED) is NEVER moved; every zero-check instance whose
+stacked table would exceed it is split over its COLUMN space into
+windows of <= 2^(25 - lr - lambda) columns, each window the same
+instance kind (same product form, eq_pc per window, ClaimContribs
+over the window's scattered column kernel).
+
+RUNG PLAN
+- R0 SKELETON: this section + BASELINE anchors (below). [commit 1]
+- R1 PLANNER: `uperf-pc zc-plan <layers> <t> <dmodel> <dff>
+  [window]` — per-instance lr/lcp/lambda, K-elements, cap verdict,
+  window count k, per-window K-elements, counted transcript bytes
+  (no proving; 8B shapes = arithmetic only). Table recorded here.
+- R2 THE SPLIT with k=1 as the NULL PATH: the window loop in
+  bg_pass_run + bk_pass_run (prover + verifier mirrors); the k=1
+  branch executes the pre-W1 statements verbatim (same labels, same
+  bg_zc_prove call). ACCEPT: all three identity anchors
+  BYTE-IDENTICAL.
+- R3 FORCED-WINDOW BATTERY: new arm `uperf-pc zc-battery` (own
+  digest — existing battery digests untouched): 125M shapes at
+  512-col windows -> real multi-window instances; honest ACCEPT +
+  claim-vs-unsplit-oracle byte-identity + tamper legs (tampered
+  sub-instance claim; window-boundary off-by-one witness) rejecting.
+- R4 RECORD: counted 8B transcript delta from the planner, the
+  1024-col GPU-window note (W-9), ledger close.
+
+DESIGN CHOICES (the k=1 anchors are the arbiter)
+- Window size parameter: opts field `zc_window` (battery/programmatic)
+  + env `ZK_ZC_WINDOW_COLS` read by the uperf-pc profile arms;
+  default = the cap-derived 2^(25 - lr - lambda), clamped to a power
+  of two <= the cap. k = 1 (window >= cols_real) = the NULL SPLIT.
+- FS ambiguity ruling: window count/size is DERIVED (shape + the K9
+  cap constant + the parameter), not separately absorbed; windowed
+  instances get per-window absorb labels "<name>-w<i>" while k=1
+  keeps the exact pre-W1 labels — byte-identity at k=1 by
+  construction. OPEN QUESTION for the statement layer: a production
+  8B statement should pin the window parameter in the statement
+  digest (same class as the shape rows); recorded, not implemented.
+- No ring/ changes: IxfZcSpec is already parameterized by
+  (cols_real, cols_pad, n_pos); windows hand it per-window column
+  slices (materialized copies, transient). K9_MAX_LEAVES read, never
+  written.
+
+BASELINE (identity anchors at the round-7 open commit ab2db23,
+M125_EXPORT_DIR=results/m125_ffn_export_wsl, WSL box, ZK_THREADS 1,
+walls [WSL-BOX NOISY-SHARED] — identity is the anchor, not time):
+- fp3x16  (uperf-pc full-profile 3 16): accept true; statement
+  93a987002a7c4b60c3dfbfc62b7a4f0e5957d8ae2039014ff241e323285fb790;
+  EVAL-PROOF
+  0ae9cdae66607239a80cc1f1dea36248370edadbe85214144aee7a5250d975be;
+  985142 B counted.
+- pa12x64 (uperf-pc pass-profile 12 64): accept true; statement
+  45fb340517eee2344b44dd40d4e47562d80305eb7c5604c9c6cf61ede37443dc;
+  EVAL-PROOF
+  23cf1cb757c6edae949f8103d8a34497cf709ff0fde81b64273174b6381c0eb5;
+  418471 B counted.
+- fp12x64 (uperf-pc full-profile 12 64): accept true; statement
+  80763ea537e77cd9cb5c538397af2622044447d654b8e9a34cae3ccad8f3f115;
+  EVAL-PROOF
+  63f4a3a4320a47260ab8ae3d52cfa3656b626fc367af671c6c317300454dec89;
+  1308775 B counted.
+All three equal the round-6 Mac-sync values (ledger above) — the
+tree is clean at the round-7 open commit.
