@@ -3647,3 +3647,32 @@ at 32x512 (not ~+30 KB) — the row's ~+3.4 KB/instance is the
 125M-shape instance cost; an 8B WINDOW instance is 5.4-6.7 KB and
 there are 25 extra instances. +139 KB rides a transcript whose
 125M-3x16 count is already 985 KB — noise at the 8B scale.
+
+R2 THE SPLIT (k=1 = the NULL PATH) — DONE. The window loop in
+bg_pass_run + bk_pass_run, prover AND verifier mirrors (the verifier
+re-derives the identical plan from shape + the K9 cap constant +
+opts). k = 1 executes the pre-W1 statements verbatim (same labels
+"bg/bk-claim-<name>", same bg_zc_prove call); k > 1 proves one
+sub-instance of the SAME KIND per window through the NEW
+bg_zc_prove_win (windowed per-layer operand copies into the
+UNCHANGED IxfZcSpec; labels "<name>-w<i>"), terminal claims through
+bg_zc_scatter_col (the window eq kernel scattered at the window
+offset over the full padded column space — same ClaimContrib product
+form over the FULL committed tensors). No ring/ file touched;
+K9_MAX_LEAVES read, never written. Parameter surface: opts.zc_window
+(both rigs) + ZK_ZC_WINDOW_COLS on the uperf-pc profile arms.
+ACCEPT (all at ZK_THREADS 1, M125 WSL export):
+- IDENTITY ANCHORS BYTE-IDENTICAL post-split: fp3x16
+  93a98700../0ae9cdae..; pa12x64 45fb3405../23cf1cb7..; fp12x64
+  80763ea5../63f4a3a4.. (statement + EVAL-PROOF, all six digests
+  equal the R0 baseline).
+- FLOORS: freeze-check FULL exit 0 (102 ok rows); uperf-pc
+  diff-battery passed; uperf-s battery 48 legs 3752cba4..; uperf-s
+  agg-battery 136 legs 46234986..; uperf-x battery 8 legs
+  be89d5da.. — all unchanged.
+- FORCED-WINDOW SMOKE (both rigs at 3x16, ZK_ZC_WINDOW_COLS=512 ->
+  f k=4, d k=2): accept TRUE; statement digests UNCHANGED
+  (bg 3x16 de93b680.. and bk 3x16 93a98700.. identical with and
+  without the forced plan — the statement is window-independent);
+  EVAL-PROOF digests differ at k>1 as expected (the transcript
+  grows by the extra sub-instances).
