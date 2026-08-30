@@ -3600,4 +3600,103 @@ Floors at every commit: release build, uperf-pc diff-battery, freeze-check
 102 ok, uperf-s 3752cba4… / agg 46234986… / uperf-x be89d5da… unchanged,
 m125 fp3x16 anchors 93a98700…/0ae9cdae… unchanged.
 
-STATUS: rung 0 committed; rung 1 (the map) in progress.
+STATUS: rung 0 committed; rung 1 (the map) below.
+
+### RUNG 1 — THE MAP (the gap table; sources read, none guessed)
+
+READING CORRECTIONS first (what the precedents actually are):
+
+- **`pass-agg seam` is NOT a cross-layer seam.** bg_seam()
+  ([UAGB1-BJ], ring_matmul.rs ~31993) is the R-BG1 *aggregation*
+  differential: factored multi-claim Psi_0 == compute_psi over the
+  reference phi materialization, on real + synthetic groups, plus a
+  non-vacuity perturbation. Its mechanism (two implementations of one
+  aggregation semantics, differential-tested) transfers as a TEST
+  DISCIPLINE, not as a seam relation. The cross-layer seam needs its
+  own relation; none exists anywhere in the house today.
+- **The m125 composed pass binds consecutive layers by PUBLIC
+  DECLARATION, not by relation.** [UAGB1-BG] prove (~31437): "Public
+  binding claims: X_l + declared z_l at a shared point" — the prover
+  ships MLE evals of every layer's X and z planes at one
+  transcript-drawn point; the verifier RECOMPUTES them from the public
+  planes (~31891) and rejects on mismatch ("public-claim" gate). All
+  layers sit in ONE statement + ONE transcript, but no arithmetic fact
+  ties z(l) to X(l+1). The house says this out loud already:
+  uagb1_statement_125m prints "the RMSNorm/residual inter-layer edge
+  is NOT integer-specified and NOT wired" (~19690).
+- **Why there is no such relation in the data**: both walkers
+  (m125_int8_calibration.py walk() ~326: `x = x + blk.attn(...)`;
+  m8b_int8_calibration.py walk() ~360: attn residual + mlp_norm
+  between sublayers) put attention + residual + RMSNorm — float, out
+  of FFN statement scope — between z(l) and X(l+1). The exported
+  X(l+1) planes do NOT satisfy any requant of z16(l). A seam-requant
+  statement over the REAL export planes would (correctly) REJECT.
+
+THE GAP TABLE — what a composed v3 statement must bind that
+u3_layer_run does not:
+
+| # | must bind | u3_layer_run today | precedent | composed v3 design |
+|---|-----------|--------------------|-----------|--------------------|
+| G1 | ONE accept over all layers | one proven layer per call (li); 12/32 independent accepts | [UAGB1-BG]: one bundle, one verify | one composed driver: all layers committed, all proven, one composed verdict = AND(per-layer gates) AND(seam gates) |
+| G2 | one transcript spine | statement ctx ALREADY covers all layers (u3_statement_bytes = all-layer commitment digests) but each proof seeds its own h0 = ct_h0(ctx\|\|li, own tags); proofs are transcript-independent, mixable across sessions | BG: one rolling tr absorbs everything | one LkpTranscript: absorb every layer's h0_l (commitment binding) FIRST, then per-layer relation phases, then seam phases, then per-layer pin->psi->waves — every challenge downstream of all commitments |
+| G3 | composed statement digest | "uperf3-v3-pass-v2" bytes (all-layer, no seam data) | BG statement + expect | NEW tag "uperf3-v3-composed-v1": the existing per-layer blocks verbatim + a seam block (per seam: sh_seam, half, zpolicy byte) + Rs commitment digests; per-layer u3_statement_bytes untouched (byte-identity floor) |
+| G4 | the seam relation z16(l) -> X(l+1) | absent (SeamSwap tamper is INTRA-layer g8) | none (see corrections) | the v3 requant edge, cross-layer: X(l+1) = rq_round(z16(l), sh_seam), sh_seam = eX(l+1) - eZ16(l); proven as THREE pins at one shared eq-point r_seam — pin z16(l) MLE (layer l commit space), pin X(l+1) MLE, pin Rs (layer l+1 space) — verifier checks v_z + half*S = 2^sh*v_x + v_rs ("seam-edge" gate); same PinnedValue machinery, no new crypto |
+| G5 | seam range facts | X has NO range instance (it is an input); no Rs | v2 range-instance classes | seam-fed X(l+1) becomes an interior plane: rng-x ([-128,127] via 256-row identity table at offset 128, the rng-hhi class) + rng-rs-w{sh} ([0,2^sh) identity table) — instances LOCAL to layer l+1's commit space; NO C5-class table addition (C5 freezes act16 members only; identity tables are built on the fly). ANSWER to the brief's flagged question: the seam RIDES the existing requant relation. |
+| G6 | clamp-at-z at the seam | u3 requant edges are exact linear identities — a clamp event breaks them (caught at the remainder range instance, i.e. only clamp-FREE witnesses prove today) | 2026-08-27 ruling (ledger ~1631): clamp legal AT Z, events counted, both real exports measured 0; BB's guard fails nonzero `NN zclamps` loudly; clamp-selector z gadget = the recorded open item | same treatment at the seam: statement declares zpolicy; the tower builder counts would-be seam clamps and REQUIRES 0 (clamp-free witness class); a witness with real seam clamps needs the same clamp-selector gadget (recorded, not built here) |
+| G7 | witness for the seam-fed layers | u3_load_m125_layer loads every layer's X from the export (correct planes; no seam relation holds between them) | — | THE TOWER (verdict below): layer 0 X = export plane; X(l+1) := rq_round(z16(l), sh_seam) at the export eX(l+1) — downstream shifts stay as calibrated; values shrink through the seam so range facts hold (clamp count measured, 0 required) |
+
+RECONCILE vs the REAL Mistral sidecar (wt-uperf3-aa
+results/m8b_mistral_v3_export, read-only):
+
+- The export CARRIES the seam operands: X (int8) and z16 (int16)
+  planes per layer, both committed independently — the seam is
+  expressible as a relation between committed planes. It does NOT
+  carry seam shifts (derived: sh_seam = eX(l+1) - (eZ(l)-8) from the
+  exps rows) or any inter-layer plane.
+- Derived Mistral seam shifts, 31 seams: [12, 3, 15, 15, 14, 15, 14,
+  15, 14, 11, 14, 14, 15, 15, 11, 14, 13, 12, 12, 11, 11, 11, 13, 13,
+  14, 14, 13, 13, 13, 13, 8] — ALL in the provable 1..=16 band;
+  2 of 31 (sh 3, sh 8) are clamp-POSSIBLE at extreme z16.
+- m125 seam shifts (M125_EXP, eZ16 = eZ - 8): [5,7,5,7,7,9,9,9,8,8,6]
+  — all in band; sh <= 8 seams are clamp-possible in principle,
+  tower values expected far below the thresholds (measured at rung 2,
+  0 required).
+- This sidecar copy PRE-DATES the zpolicy row (no `00 zpolicy clamp`
+  line; manifest has range_violations 0, no z_clamps key). The
+  m8b_margins.py of record writes it now; Gemma's export carries it.
+  Inert to the composed rung (the statement takes the policy from the
+  model profile, not this file).
+
+THE VERDICT (the honest scope statement rung 2 builds under):
+
+The composed v3 statement that is BUILDABLE today with existing
+machinery classes is the **FFN TOWER**: X(0) committed from the
+export, every later X(l+1) bound to z16(l) by the declared seam
+requant, every intermediate plane committed and range-checked, ONE
+statement, ONE transcript, ONE accept. This binds every cross-layer
+seam cryptographically and is the PoC statement. It is NOT the walked
+model: the real inter-layer edge (residual + attention + RMSNorm) is
+replaced by the declared seam requant — exactly the edge the house
+has always declared out of FFN scope, and the edge lane CC's
+attention-site gate exists to close in MVP-2. The composed driver
+prints this scope label loudly (the D3-skeleton precedent).
+
+OPEN QUESTIONS (flagged, not guessed):
+
+- OQ1 (for Victor / T17 disposition): should the REAL Mistral 32-layer
+  composed run (Mac, T17) run the TOWER semantics (machinery
+  yardstick; witness planes diverge from the export planes after
+  layer 0 by construction), or wait for the attention statement and
+  compose model-faithfully (X planes declared per layer, the m125
+  public-binding reading)? Rungs 2-4 build the tower arm either way;
+  T17's label depends on the answer.
+- OQ2: if the m125 tower witness carries ANY seam clamp event, rung 2
+  stops and reports (the clamp-selector gadget is the recorded
+  dependency; transcript-affecting, not mine to improvise).
+- OQ3: the composed statement byte layout is a NEW tag (no existing
+  digest moves); the manifest-v5 typed statement encoding stays the
+  recorded merged-round item (BB's own note at the v3 rig header).
+- OQ4: the round-7 brief calls the precedent "the m125 composed pass's
+  psi-seam (pass-agg seam 12/12)" — per the reading corrections above
+  that battery is the aggregation differential, not a cross-layer
+  mechanism; recorded here so the next agent doesn't chase it.
