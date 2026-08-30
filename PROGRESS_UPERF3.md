@@ -3676,3 +3676,26 @@ ACCEPT (all at ZK_THREADS 1, M125 WSL export):
   without the forced plan — the statement is window-independent);
   EVAL-PROOF digests differ at k>1 as expected (the transcript
   grows by the extra sub-instances).
+
+R3 FORCED-WINDOW BATTERY — DONE. NEW arm `uperf-pc zc-battery`
+(own digest; NO existing battery digest moved). 7/7 legs ok,
+ZC BATTERY DIGEST
+01ca048b9021e3573e40286de35d1af7f0bc74492414e6c18f661c852cda32f7:
+- plan-125M-null: 3x16 + 12x64, f + d cols all k=1.
+- plan-8B-32x512: default f k=7 w=2048 / d k=2; the 1024-col W-9
+  option f k=14 / d k=4 — all windows under the K9 cap.
+- bg-3x16-w512-honest+oracle and bk-3x16-w512-honest+oracle: accept
+  TRUE with 54/54 zc terminal claims (3 x (4 f-windows x 4 insts +
+  2 d-windows)) BYTE-IDENTICAL to the unsplit oracle (each windowed
+  claim re-evaluated from the FULL tensors through the scattered
+  kernels, asserted in-pass) — the recombined-claims identity.
+- bg-3x16-w512-tamper-subclaim (BgTamper::ZcSubClaim, +1 on the last
+  windowed sub-instance's t1 final on the wire): REJECT, first_fail
+  sc-requant (the combine check at the instance gate).
+- bg-3x16-w512-boundary-c511 / -c512 (+1 on layer-0 H at the last
+  column of window 0 / the first column of window 1): both REJECT,
+  first_fail sc-hadamard — no column escapes coverage at the seam.
+FLOORS re-run green at this commit: freeze-check FULL exit 0 (102
+ok), diff-battery, uperf-s 3752cba4.., agg 46234986.., uperf-x
+be89d5da..; all three identity anchors byte-identical again
+(93a98700/0ae9cdae, 45fb3405/23cf1cb7, 80763ea5/63f4a3a4).

@@ -36431,6 +36431,138 @@ fn uperf_pc_zc_plan(layers_n: usize, t: usize, dmodel: usize, dff: usize, window
     );
 }
 
+/// [UPERF3-LL W-1] The forced-window battery (a NEW arm with its OWN
+/// digest — the existing battery digests are untouched): window-plan
+/// legs at the 125M and 8B shapes (arithmetic), honest forced-window
+/// passes on BOTH rigs at 3x16 (512-col windows -> real multi-window
+/// instances: f k=4, d k=2) with the claim-vs-unsplit-oracle identity
+/// asserted in-pass on every zc terminal claim, and the tamper legs
+/// (a tampered windowed sub-instance claim; a window-boundary
+/// off-by-one witness on either side of the first window seam).
+fn uperf_pc_zc_battery() {
+    use sha2::{Digest, Sha256};
+    println!(
+        "[UPERF3-LL] zc-battery: zero-check column-window split (forced 512-col windows at 3x16; ZK_THREADS {})",
+        ring::eval_proof::threads()
+    );
+    let mut battery = Sha256::new_with_prefix(b"uperf3-ll-zc-battery-v1");
+    let t0 = Instant::now();
+    let mut results: Vec<(String, bool, String)> = Vec::new();
+
+    // Plan legs (arithmetic only).
+    {
+        let mut ok = true;
+        let mut detail = String::new();
+        for (layers, t, dm, df) in [(3usize, 16usize, 768usize, 2048usize), (12, 64, 768, 2048)] {
+            let lambda = ring::fold::ixf_layout(layers).lambda;
+            let lr = t.trailing_zeros() as usize;
+            for cols in [df, dm] {
+                let plan = bg_zc_window_plan(cols, lr, lambda, None);
+                ok &= plan.wins.len() == 1;
+                detail.push_str(&format!("{layers}x{t}/{cols}:k={} ", plan.wins.len()));
+            }
+        }
+        results.push(("plan-125M-null".to_string(), ok, detail));
+    }
+    {
+        let lambda = ring::fold::ixf_layout(32).lambda;
+        let lr = 512usize.trailing_zeros() as usize;
+        let under = |p: &ZcWindowPlan| (1usize << (lr + p.lcw + lambda)) <= ring::kfield::K9_MAX_LEAVES;
+        let pf = bg_zc_window_plan(14336, lr, lambda, None);
+        let pd = bg_zc_window_plan(4096, lr, lambda, None);
+        let pf1 = bg_zc_window_plan(14336, lr, lambda, Some(1024));
+        let pd1 = bg_zc_window_plan(4096, lr, lambda, Some(1024));
+        let ok = pf.wins.len() == 7
+            && pd.wins.len() == 2
+            && pf.wcols == 2048
+            && under(&pf)
+            && under(&pd)
+            && pf1.wins.len() == 14
+            && pd1.wins.len() == 4
+            && pf1.wcols == 1024
+            && under(&pf1)
+            && under(&pd1);
+        results.push((
+            "plan-8B-32x512".to_string(),
+            ok,
+            format!(
+                "default: f k={} w={}, d k={} | 1024-col (W-9): f k={}, d k={} — all under the K9 cap",
+                pf.wins.len(),
+                pf.wcols,
+                pd.wins.len(),
+                pf1.wins.len(),
+                pd1.wins.len()
+            ),
+        ));
+    }
+
+    // Honest forced-window passes, claim-vs-oracle asserted in-pass.
+    {
+        let opts = BgOpts { layers_n: 3, t: 16, zc_window: Some(512), zc_oracle_check: true, quiet: true, ..Default::default() };
+        let (v, _c, _a) = bg_pass_run(&opts);
+        results.push((
+            "bg-3x16-w512-honest+oracle".to_string(),
+            v.accept(),
+            format!("accept={} first_fail={:?}", v.accept(), v.first_fail),
+        ));
+    }
+    {
+        let opts = BkOpts { layers_n: 3, t: 16, zc_window: Some(512), zc_oracle_check: true, quiet: true, ..Default::default() };
+        let (v, _c, _a) = bk_pass_run(&opts);
+        results.push((
+            "bk-3x16-w512-honest+oracle".to_string(),
+            v.accept(),
+            format!("accept={} first_fail={:?}", v.accept(), v.first_fail),
+        ));
+    }
+    // A tampered windowed sub-instance claim on the wire -> REJECT at
+    // the instance gate (rq-d's last window; combine check).
+    {
+        let opts = BgOpts { layers_n: 3, t: 16, zc_window: Some(512), tamper: BgTamper::ZcSubClaim, quiet: true, ..Default::default() };
+        let (v, _c, _a) = bg_pass_run(&opts);
+        let ok = !v.accept() && v.first_fail == Some("sc-requant");
+        results.push((
+            "bg-3x16-w512-tamper-subclaim".to_string(),
+            ok,
+            format!("accept={} first_fail={:?} (want sc-requant)", v.accept(), v.first_fail),
+        ));
+    }
+    // Window-boundary off-by-one witness: +1 on H at layer 0, columns
+    // 511 (last col of window 0) and 512 (first col of window 1) — the
+    // owning window's hadamard zero-check must reject; no column
+    // escapes the coverage at the seam.
+    for (lname, ci) in [("bg-3x16-w512-boundary-c511", 511usize), ("bg-3x16-w512-boundary-c512", 512usize)] {
+        let opts = BgOpts { layers_n: 3, t: 16, zc_window: Some(512), zc_perturb_h: Some(ci), quiet: true, ..Default::default() };
+        let (v, _c, _a) = bg_pass_run(&opts);
+        let ok = !v.accept() && v.first_fail == Some("sc-hadamard");
+        results.push((
+            lname.to_string(),
+            ok,
+            format!("accept={} first_fail={:?} (want sc-hadamard)", v.accept(), v.first_fail),
+        ));
+    }
+
+    let mut fails = 0usize;
+    for (name, ok, detail) in &results {
+        if !ok {
+            fails += 1;
+        }
+        battery.update(name.as_bytes());
+        battery.update([*ok as u8]);
+        battery.update(detail.as_bytes());
+        println!("  {} {name}: {detail}", if *ok { "ok  " } else { "FAIL" });
+    }
+    let dg: [u8; 32] = battery.finalize().into();
+    println!(
+        "[UPERF3-LL] zc-battery: {}/{} legs ok in {:.1}s [WSL-BOX NOISY-SHARED]",
+        results.len() - fails,
+        results.len(),
+        t0.elapsed().as_secs_f64()
+    );
+    println!("[UPERF3-LL] ZC BATTERY DIGEST {}", hex_full(&dg));
+    assert!(fails == 0, "zc-battery failed");
+}
+
 fn uperf_pc_main(args: &[String]) {
     match args.first().map(String::as_str) {
         Some("full-profile") => {
@@ -36459,6 +36591,7 @@ fn uperf_pc_main(args: &[String]) {
             let window: Option<usize> = args.get(5).and_then(|s| s.parse().ok());
             uperf_pc_zc_plan(layers_n, t, dmodel, dff, window);
         }
+        Some("zc-battery") => uperf_pc_zc_battery(),
         Some("diff-battery") => uperf_pc_diff_battery(),
         Some("kernel-bench") => {
             let r: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(16);
@@ -36473,7 +36606,7 @@ fn uperf_pc_main(args: &[String]) {
             uperf_pc_kpass_bench(rows, cols, with_ref);
         }
         _ => println!(
-            "uperf-pc full-profile [layers] [t] [p2] | pass-profile [layers] [t] | wave-profile [layer] [t] [nodigest] | zc-plan [layers] [t] [dmodel] [dff] [window] | diff-battery | kernel-bench [r] [chunk] [noref] | kpass-bench [rows] [cols] [noref]"
+            "uperf-pc full-profile [layers] [t] [p2] | pass-profile [layers] [t] | wave-profile [layer] [t] [nodigest] | zc-plan [layers] [t] [dmodel] [dff] [window] | zc-battery | diff-battery | kernel-bench [r] [chunk] [noref] | kpass-bench [rows] [cols] [noref]"
         ),
     }
 }
