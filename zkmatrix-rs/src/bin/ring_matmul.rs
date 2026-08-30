@@ -43969,9 +43969,16 @@ fn u3_main(args: &[String]) {
             let t: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(bf_model().t);
             u3_verify_v3_export(t);
         }
+        // [UPERF3-MM] the composed (cross-layer-seam) arms.
+        Some("composed-chain") => {
+            let t: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(16);
+            let layers_n: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(usize::MAX);
+            let raw = args.last().map(String::as_str) == Some("raw");
+            u3c_chain_probe(t, layers_n, raw);
+        }
         _ => {
             eprintln!(
-                "usage: ring_matmul uperf-v3 tables | battery [small|smoke] | chain-m125 [t] | e2e-m125 [layer] [t] [layers] | verify-export [t]"
+                "usage: ring_matmul uperf-v3 tables | battery [small|smoke] | chain-m125 [t] | e2e-m125 [layer] [t] [layers] | verify-export [t] | composed-chain [t] [layers]"
             );
             std::process::exit(2);
         }
@@ -46107,6 +46114,329 @@ fn u3_verify_v3_export(t_rows: usize) {
     }
     println!(
         "[UPERF3-BB] verify-export PASSED: {legs} plane legs byte-identical; every table row = a frozen C5 member"
+    );
+}
+
+// ===========================================================================
+// [UPERF3-MM] U-PERF3 round 7, lane MM: THE COMPOSED v3 STATEMENT — one
+// multi-layer statement with the CROSS-LAYER seams bound. ADDITIVE: no
+// [UPERF3-BB] function above is modified; the per-layer rig's bytes are
+// the differential reference.
+//
+// SCOPE (the lane MM map, PROGRESS_UPERF3.md "Agent MM status"): the
+// buildable composed statement is the FFN TOWER — X(0) committed from
+// the export, X(l+1) bound to z16(l) by the DECLARED seam relation
+//   z16(l) + half = 2^sh_seam * Ys(l+1) + Rs(l+1)   (exact, cross-layer)
+//   X(l+1) = clamp(Ys(l+1), -127, 127)              (the clamp-pair fact)
+//   sh_seam(l->l+1) = eX(l+1) - eZ16(l), half = 2^(sh-1) in round mode
+// with Ys/Rs committed in layer l+1's space, the clamp step proven by a
+// fused-pair lookup against the STATEMENT-derived saturation table (the
+// clamp-at-z ruling's semantics, 2026-08-27, applied at the seam), and
+// Rs range-checked in [0, 2^sh). The real inter-layer edge (residual +
+// attention + RMSNorm) is REPLACED by this declared requant — the
+// attention statement (lane CC / MVP-2) is where the model-faithful
+// composition lands; this arm is the seam MACHINERY and the one-accept
+// spine. Every print carries the scope label.
+
+/// One cross-layer seam's witness planes (owned by the FED layer l+1;
+/// layer 0 has none).
+struct U3cSeam {
+    /// The declared seam shift eX(l+1) - eZ16(l).
+    sh: i32,
+    /// Pre-clamp requant outputs (committed): ys = rq_round(z16(l), sh).
+    ys: Vec<i64>,
+    /// Seam remainders (committed): z16(l) + half - 2^sh * ys.
+    rs: Vec<i64>,
+    /// Clamp events (|ys| > 127) — legal under the clamped seam.
+    clamps: usize,
+}
+
+/// Derive one seam: (X(l+1), seam planes) from z16(l). The clamp count
+/// is REPORTED, not asserted — clamp events are legal statement
+/// semantics under the clamp-pair fact.
+fn u3c_seam_derive(z16: &[i64], sh: i32, round: bool) -> (Vec<i64>, U3cSeam) {
+    assert!((1..=16).contains(&sh), "seam shift {sh} outside the provable 1..=16 band");
+    let (ys, rs) = u3_requant(z16, sh, round);
+    let x: Vec<i64> = ys.iter().map(|&y| y.clamp(-127, 127)).collect();
+    let clamps = ys.iter().filter(|&&y| !(-127..=127).contains(&y)).count();
+    (x, U3cSeam { sh, ys, rs, clamps })
+}
+
+/// A tower layer from a GIVEN X plane (the seam-derived input) + the
+/// export's weight planes — u3_load_m125_layer with X supplied and no
+/// range assert (the caller measures/asserts).
+fn u3c_tower_layer_from_x(u3m: &U3Model, l: usize, t_rows: usize, x: Vec<i64>) -> U3Layer {
+    let dir = bf_export_path();
+    let bm = bf_model();
+    assert!(l < bm.layers);
+    assert_eq!(x.len(), t_rows * bm.d);
+    let wg_t = bf_read_i8(&dir.join(format!("layer{l:02}_WgT.bin")), bm.d * bm.f);
+    let wu_t = bf_read_i8(&dir.join(format!("layer{l:02}_WuT.bin")), bm.d * bm.f);
+    let wd_t = bf_read_i8(&dir.join(format!("layer{l:02}_WdT.bin")), bm.f * bm.d);
+    let mut lay = U3Layer {
+        l,
+        exps: u3m.exps[l],
+        shifts: u3m.shifts(l),
+        x, wg_t, wu_t, wd_t,
+        gacc: vec![], rg: vec![], g8: vec![], a16: vec![], uacc: vec![], ru: vec![],
+        u16v: vec![], hh: vec![], rh: vec![], hlo: vec![], hhi: vec![],
+        dacc_lo: vec![], dacc_hi: vec![], rd: vec![], z16: vec![],
+    };
+    u3_derive_chain(&mut lay, u3m, t_rows, None, u3m.round);
+    lay
+}
+
+/// Non-asserting range report for a derived layer: violation counts
+/// per site [g8, u16, h16, z16, limb, rem] (u3_assert_ranges' facts,
+/// counted instead of panicking — the tower probe's instrument).
+fn u3c_range_violations(lay: &U3Layer) -> [usize; 6] {
+    let (sh_g, sh_u, sh_h, sh_z) = lay.shifts;
+    let cw = |v: &[i64], b: i64| v.iter().filter(|&&x| !(-b..=b).contains(&x)).count();
+    let cr = |v: &[i64], sh: i32| {
+        if sh <= 0 { 0 } else { v.iter().filter(|&&x| !(0..(1i64 << sh)).contains(&x)).count() }
+    };
+    let h16: Vec<i64> =
+        lay.hlo.iter().zip(lay.hhi.iter()).map(|(&lo, &hi)| 256 * hi + lo).collect();
+    [
+        cw(&lay.g8, 127),
+        cw(&lay.u16v, 32767),
+        cw(&h16, 32767),
+        cw(&lay.z16, 32767),
+        lay.hlo.iter().filter(|&&v| !(0..=255).contains(&v)).count()
+            + lay.hhi.iter().filter(|&&v| !(-128..=127).contains(&v)).count(),
+        cr(&lay.rg, sh_g) + cr(&lay.ru, sh_u) + cr(&lay.rh, sh_h) + cr(&lay.rd, sh_z),
+    ]
+}
+
+/// The tower witness over the ACTIVE export (bf_model()-general):
+/// layer 0's X from the export, every later X seam-derived. Returns
+/// (layers, seams) with seams[0] = None. `strict` additionally asserts
+/// zero non-seam violations (the provable-witness gate).
+fn u3c_tower_layers(
+    m: &U3Model,
+    t_rows: usize,
+    layers_n: usize,
+    strict: bool,
+) -> (Vec<U3Layer>, Vec<Option<U3cSeam>>) {
+    assert!(layers_n >= 2 && layers_n <= m.layers);
+    let mut layers = vec![u3_load_m125_layer(m, 0, t_rows)];
+    let mut seams: Vec<Option<U3cSeam>> = vec![None];
+    for l in 1..layers_n {
+        let sh = m.exps[l].0 - m.exps[l - 1].5;
+        let (x, seam) = u3c_seam_derive(&layers[l - 1].z16, sh, m.round);
+        let lay = u3c_tower_layer_from_x(m, l, t_rows, x);
+        if strict {
+            let v = u3c_range_violations(&lay);
+            assert_eq!(
+                v.iter().sum::<usize>(),
+                0,
+                "tower layer {l}: non-seam range violations {v:?} — uncalibratable tower witness (lane MM OQ5)"
+            );
+        }
+        layers.push(lay);
+        seams.push(Some(seam));
+    }
+    (layers, seams)
+}
+
+/// [UPERF3-MM] THE TOWER CALIBRATION (greedy forward, shift space).
+/// The raw probe measured the export calibration UNCALIBRATABLE for
+/// the tower witness (the z-image input exceeds every per-layer band
+/// — see the lane MM ledger). Fix, house-precedented by the export's
+/// own margin mechanism: re-choose each seam-fed layer's ACTIVATION
+/// exponents (eX, eUp16, eH16, eZ16) from the measured tower planes,
+/// keeping the FROZEN quantities untouched — the C5 member pair
+/// (e_gate, e_a16), the weight exponents, and every shift-band
+/// constraint of U3Model::shifts. All choices are DECLARED in the
+/// statement's existing exps/shifts rows; sh_seam is re-derivable by
+/// the verifier as eX(l) - eZ16(l-1). Greedy per layer:
+///   sh_seam + sh_g = e_gate - eWg - eZ16(l-1)  (the coupled budget)
+///   sh_u/sh_h/sh_z = smallest in-band shifts putting the measured
+///   maxima inside the range facts (+1 headroom at z for the next
+///   layer's budget), retry +1 on a rounding-edge miss.
+/// Layer 0 stays at the export calibration (its witness is real).
+/// Because sh_seam + sh_g is COUPLED through eZ16(l-1) (both ends
+/// frozen: e_gate by the member, eWg by the export), the per-layer
+/// seam+gate BUDGET is set one layer earlier; a multi-pass loop
+/// raises a layer's budget target when the measured planes need more
+/// than the default, and re-runs the forward pass (targets only grow,
+/// capped at 32 = both shifts at band edge — beyond that the tower is
+/// structurally infeasible and the OQ5 stop fires).
+fn u3c_tower_calibrated(
+    m0: &U3Model,
+    t_rows: usize,
+    layers_n: usize,
+) -> (U3Model, Vec<U3Layer>, Vec<Option<U3cSeam>>) {
+    let need = |mx: i64, cap: i64| -> i32 {
+        let mut s = 0i32;
+        while (mx >> s) > cap {
+            s += 1;
+        }
+        s
+    };
+    let mut targets = vec![12i32; layers_n];
+    'pass: for pass in 0..64 {
+        let mut m = m0.clone();
+        m.layers = layers_n;
+        m.exps.truncate(layers_n);
+        let mut layers = vec![u3_load_m125_layer(&m, 0, t_rows)];
+        let mut seams: Vec<Option<U3cSeam>> = vec![None];
+        for l in 1..layers_n {
+            let ez16_prev = m.exps[l - 1].5;
+            let (e_gate, e_a16) = (m0.exps[l].1, m0.exps[l].2);
+            let (e_wg, e_wu, e_wd) = m.e_w3[l];
+            let budget = e_gate - e_wg - ez16_prev; // = sh_seam + sh_g (actual)
+            assert!(
+                (2..=32).contains(&budget),
+                "tower layer {l}: seam+gate budget {budget} outside [2,32] — infeasible (OQ5)"
+            );
+            // Scan the in-band window from the LIVEST seam upward and
+            // take the first split whose gate side fits its measured
+            // need (clamp events are legal — the clamp-pair proves
+            // them; a saturated X still carries signal).
+            let wg_t = bf_read_i8(
+                &bf_export_path().join(format!("layer{l:02}_WgT.bin")),
+                bf_model().d * bf_model().f,
+            );
+            let s_lo = 1.max(budget - 16);
+            let s_hi = 16.min(budget - 1);
+            let mut picked: Option<(Vec<i64>, U3cSeam, i32)> = None;
+            let mut first_need = 0i32;
+            for s in s_lo..=s_hi {
+                let (xx, ss) = u3c_seam_derive(&layers[l - 1].z16, s, m.round);
+                let gacc = bf_matmul_i64(&xx, &wg_t, t_rows, m.d, m.f);
+                let g_need = need(gacc.iter().map(|&v| v.abs()).max().unwrap_or(0), 126);
+                if s == s_lo {
+                    first_need = g_need;
+                }
+                if budget - s >= g_need.max(1) {
+                    picked = Some((xx, ss, s));
+                    break;
+                }
+            }
+            let Some((x, seam, sh_seam)) = picked else {
+                // The budget is too small for this layer's planes:
+                // raise its target (set one layer earlier) and re-run.
+                let want = (s_lo + first_need.max(1) + 1).min(32);
+                assert!(
+                    want > targets[l],
+                    "tower layer {l}: budget stuck at {budget} (want {want}) — infeasible (OQ5)"
+                );
+                targets[l] = want;
+                assert!(pass < 63, "tower calibration did not converge (OQ5)");
+                continue 'pass;
+            };
+            let e_x = ez16_prev + sh_seam;
+            // Keep eZ16(l) from sinking with the decaying signal: the
+            // NEXT layer's budget target is met by distributing surplus
+            // shift onto sh_z/sh_h/sh_u above their measured minima
+            // (over-shrinking a plane is always factually valid).
+            let s_target = if l + 1 < layers_n {
+                (m0.exps[l + 1].1 - m.e_w3[l + 1].0 - targets[l + 1])
+                    - (e_x + e_wu + e_a16 + e_wd)
+            } else {
+                i32::MIN
+            };
+            let mut sh_u = 0i32;
+            let mut sh_h = 0i32;
+            let mut sh_z = 1i32;
+            for attempt in 0..8 {
+                let e_up16 = e_x + e_wu + sh_u;
+                let e_h16 = e_a16 + e_up16 + sh_h;
+                let e_z16 = e_h16 + e_wd + sh_z;
+                m.exps[l] = (e_x, e_gate, e_a16, e_up16, e_h16, e_z16);
+                let lay = u3c_tower_layer_from_x(&m, l, t_rows, x.clone());
+                let mxa = |v: &[i64]| v.iter().map(|&w| w.abs()).max().unwrap_or(0);
+                let dacc: Vec<i64> = lay
+                    .dacc_lo
+                    .iter()
+                    .zip(lay.dacc_hi.iter())
+                    .map(|(&lo, &hi)| lo + 256 * hi)
+                    .collect();
+                let need_u = need(mxa(&lay.uacc), 32766).clamp(0, 16);
+                let need_h = need(mxa(&lay.hh), 32766).clamp(0, 16);
+                let need_z = need(mxa(&dacc), 32766).clamp(1, 16);
+                let mut deficit = s_target.saturating_sub(need_u + need_h + need_z).max(0);
+                let (mut want_u, mut want_h, mut want_z) = (need_u, need_h, need_z);
+                let mut give = |sh: &mut i32, deficit: &mut i32| {
+                    let room = (16 - *sh).min(*deficit).max(0);
+                    *sh += room;
+                    *deficit -= room;
+                };
+                give(&mut want_z, &mut deficit);
+                give(&mut want_h, &mut deficit);
+                give(&mut want_u, &mut deficit);
+                // Any residual deficit surfaces as a smaller-than-target
+                // budget at l+1; the scan there copes or bumps targets.
+                if (sh_u, sh_h, sh_z) == (want_u, want_h, want_z) {
+                    let v = u3c_range_violations(&lay);
+                    assert_eq!(
+                        v.iter().sum::<usize>(),
+                        0,
+                        "tower layer {l}: violations {v:?} after calibration — infeasible (OQ5)"
+                    );
+                    layers.push(lay);
+                    seams.push(Some(seam));
+                    break;
+                }
+                assert!(attempt < 7, "tower layer {l}: calibration did not settle");
+                (sh_u, sh_h, sh_z) = (want_u, want_h, want_z);
+            }
+        }
+        return (m, layers, seams);
+    }
+    unreachable!("tower calibration pass loop");
+}
+
+/// [UPERF3-MM] `uperf-v3 composed-chain [t] [layers] [raw]`: the tower
+/// witness probe — seam shifts, clamp counts and per-site range
+/// violations, NO proving. Default = the CALIBRATED tower (the
+/// composed rung's witness; 0 non-seam violations asserted); `raw` =
+/// the export-calibration tower (the OQ5 evidence run).
+fn u3c_chain_probe(t_rows: usize, layers_n: usize, raw: bool) {
+    let bm = bf_model();
+    let m0 = U3Model::widen_from_bf(bm, true);
+    let layers_n = layers_n.min(m0.layers);
+    println!(
+        "[UPERF3-MM] composed-chain probe ({}): the FFN-tower witness over '{}' at T = {t_rows}, {layers_n} layers",
+        if raw { "RAW export calibration — the OQ5 evidence run" } else { "CALIBRATED" },
+        m0.tag
+    );
+    println!(
+        "  scope: X(l+1) = clamp127(rq_round(z16(l), sh_seam)) — the real inter-layer edge (residual+attention+norm) is REPLACED by the declared seam requant (lane MM map; model-faithful composition = MVP-2)"
+    );
+    let (m, layers, seams) = if raw {
+        let (layers, seams) = u3c_tower_layers(&m0, t_rows, layers_n, false);
+        let mut mm = m0.clone();
+        mm.layers = layers_n;
+        mm.exps.truncate(layers_n);
+        (mm, layers, seams)
+    } else {
+        u3c_tower_calibrated(&m0, t_rows, layers_n)
+    };
+    let mut total_viol = 0usize;
+    let mut total_clamps = 0usize;
+    let mx = |v: &[i64]| v.iter().map(|&x| x.abs()).max().unwrap_or(0);
+    for l in 1..layers_n {
+        let seam = seams[l].as_ref().unwrap();
+        let v = u3c_range_violations(&layers[l]);
+        total_clamps += seam.clamps;
+        total_viol += v.iter().sum::<usize>();
+        let (sh_g, sh_u, sh_h, sh_z) = layers[l].shifts;
+        println!(
+            "  seam {:2}->{l:2}: sh_seam {:2} clamps {:5} max |ys| {:6} | layer {l:2} shifts ({sh_g},{sh_u},{sh_h},{sh_z}) exps {:?} viols g8 {} u16 {} h16 {} z16 {} limb {} rem {} | max |g8| {:3} |u16| {:5} |z16| {:5}",
+            l - 1, seam.sh, seam.clamps, mx(&seam.ys), m.exps[l],
+            v[0], v[1], v[2], v[3], v[4], v[5],
+            mx(&layers[l].g8), mx(&layers[l].u16v), mx(&layers[l].z16)
+        );
+    }
+    println!(
+        "[UPERF3-MM] tower probe: {total_clamps} seam clamp events (legal, clamp-pair-provable), {total_viol} non-seam range violations across {layers_n} layers — {}",
+        if total_viol == 0 {
+            "PROVABLE under the clamped-seam composed statement"
+        } else {
+            "NOT provable without tower recalibration (lane MM OQ5 — report, do not force)"
+        }
     );
 }
 
