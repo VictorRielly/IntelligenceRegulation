@@ -1,0 +1,32 @@
+[UPERF3-BB] v3-widened chain over the 'm125-v3' model at T = 16 (round mode; exponents = v2 - 8 at a/u/h/z):
+  layer  0: shifts (9, 1,14,10) member (-3,-11) | max |g8| 43 |a16| 10957 |u16| 14606 |h16| 6554 |z16| 4759 — range facts HOLD
+  layer  1: shifts (7, 0,15,8) member (-4,-12) | max |g8| 77 |a16| 19553 |u16| 16206 |h16| 4263 |z16| 4173 — range facts HOLD
+  layer  2: shifts (8, 1,15,8) member (-3,-11) | max |g8| 34 |a16| 8582 |u16| 8699 |h16| 1107 |z16| 4202 — range facts HOLD
+  layer  3: shifts (8,-1,14,9) member (-3,-11) | max |g8| 36 |a16| 8582 |u16| 18232 |h16| 4831 |z16| 4787 — range facts HOLD
+  layer  4: shifts (7,-1,14,10) member (-4,-12) | max |g8| 77 |a16| 16895 |u16| 19318 |h16| 9774 |z16| 5225 — range facts HOLD
+  layer  5: shifts (8, 0,13,7) member (-3,-11) | max |g8| 37 |a16| 9380 |u16| 10153 |h16| 4366 |z16| 10321 — range facts HOLD
+  layer  6: shifts (8, 0,14,6) member (-3,-11) | max |g8| 46 |a16| 8314 |u16| 12179 |h16| 2910 |z16| 10386 — range facts HOLD
+  layer  7: shifts (8, 0,13,7) member (-3,-11) | max |g8| 38 |a16| 9645 |u16| 9675 |h16| 7580 |z16| 11445 — range facts HOLD
+  layer  8: shifts (8, 0,14,7) member (-3,-11) | max |g8| 34 |a16| 8314 |u16| 10669 |h16| 2526 |z16| 6215 — range facts HOLD
+  layer  9: shifts (8, 0,14,7) member (-3,-11) | max |g8| 39 |a16| 8849 |u16| 12589 |h16| 3419 |z16| 7233 — range facts HOLD
+  layer 10: shifts (8, 1,13,9) member (-3,-11) | max |g8| 42 |a16| 9645 |u16| 5437 |h16| 3603 |z16| 7838 — range facts HOLD
+  layer 11: shifts (8, 1,13,10) member (-3,-11) | max |g8| 39 |a16| 9115 |u16| 7689 |h16| 3943 |z16| 8768 — range facts HOLD
+[UPERF3-BB] all 12 layers derive + range-check under the v3 profile
+        0.13 real         0.13 user         0.00 sys
+            54657024  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                3551  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 109  involuntary context switches
+          2706331283  instructions retired
+           561818191  cycles elapsed
+            53625288  peak memory footprint

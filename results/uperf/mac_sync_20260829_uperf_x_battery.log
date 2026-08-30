@@ -1,0 +1,29 @@
+[UPERF3-JJ] uperf-x battery at seed 161, T = 64 (ZK_THREADS 1)
+  ok   honest: gate ACCEPT
+  ok   m-overstated (+1, chain self-consistent, zsel at argmax): gate G2 F-hit (attainment zero-check) [G1 green]
+  ok   m-understated (-1, zsel moved to a d=0 position — strongest cheater): gate rng-d-w8 root cross-check [exp-pair root also fires; G1/G2 green]
+  ok   zsel two-hot (second bit at a TIED max, d=0 there): gate G1 F-one (row-sum-1)
+  ok   zsel off-support (row-sum still 1; d = m+127 > 0 there): gate G2 F-hit (attainment zero-check) [G1 green]
+  ok   off-support P != 0 (support facts untouched): gate G6 off-support batch zero-check [G1-G5 green: support facts blind to it]
+  ok   shifted mask (prover derives + weights with support t' <= t+1): gate G3 Sum (masked row sum, PW-3 weight check) [G1/G2 green (mask-free gates)]
+  ok   wrong exp member (eS -2 forged consistently; statement says -1): gate masked-claims sum gate [all gates + roots green: the STATEMENT table is the only witness]
+[UPERF3-JJ] battery: 8 legs ok in 18.4s [WSL-BOX NOISY-SHARED]
+[UPERF3-JJ] XS1 BATTERY DIGEST be89d5da10aa7a375f36460f3c1a2a8cac8630b161cfa189aacd055a476c191a
+       18.38 real        18.27 user         0.09 sys
+           153731072  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               11016  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                2097  involuntary context switches
+        424595496132  instructions retired
+         72753909724  cycles elapsed
+           107151840  peak memory footprint

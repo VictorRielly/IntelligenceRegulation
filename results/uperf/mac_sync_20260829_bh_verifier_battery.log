@@ -1,0 +1,43 @@
+
+[UAGB1-BH] verifier-performance battery
+  ok   psi differential [128x768x256 weight]: factored == wave-2 reference (n0 6144, chunk 559, r 11, aligned)
+  ok   psi differential [128x768x256 act]: factored == wave-2 reference (n0 11008, chunk 847, r 13, aligned)
+  ok   psi differential [128x768x256 weight]: factored == wave-2 reference (n0 6144, chunk 559, r 11, aligned)
+  ok   psi differential [128x768x256 act]: factored == wave-2 reference (n0 11008, chunk 847, r 13, aligned)
+  ok   psi differential [64x96x128 weight]: factored == wave-2 reference (n0 384, chunk 128, r 3, MISALIGNED cols -> generic branch)
+  ok   phi0 oracle [weight]: library per-ring == bin vw pipeline
+  ok   psi differential [64x96x128 act]: factored == wave-2 reference (n0 1248, chunk 250, r 5, aligned)
+  ok   phi0 oracle [act]: library per-ring == bin vw pipeline
+  ok   row-column verifier: honest ACCEPT at 128x768x256 (2 levels)
+  ok   row-column verifier: OOA floor pair still caught by the alphabet gate ONLY
+  ok   BF-F3 layout identity below the cap (w = 28, depth 6)
+  ok   BF-F3 layout identity below the cap (w = 100, depth 8)
+  ok   BF-F3 layout identity below the cap (w = 2044, depth 12)
+  ok   BF-F3 leaf vectors below the cap == historical fill (bit-identical trees follow)
+  ok   BF-F3 roots below the cap unchanged
+  ok   BF-F3 beyond-cap positions valid (w = 40 > cap 28 at depth 6; right block at n/2)
+  ok   BF-F3 beyond-cap HONEST: masked descent verifies, derived roots match, leaf P/Q pins match the split layout
+  ok   BF-F3 beyond-cap TAMPER (right-block leaf): descent self-consistent but the leaf pin REJECTS against the true column
+  ok   BF-F3 beyond-cap WRONG MAP (contiguous assumption): leaf pins REJECT — the split map is load-bearing
+  ok   BF-F3 capacity n - 8: all positions distinct, in range, off the blinder slots
+  ok   BF-F3 blinder positions UNCHANGED (LKP-6 layout: [28, 60, 30, 61] at n = 64)
+
+[UAGB1-BH] battery passed in 8.30s
+        8.30 real         8.27 user         0.03 sys
+           288325632  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               18673  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  42  involuntary context switches
+        213254616281  instructions retired
+         33521413689  cycles elapsed
+           209109592  peak memory footprint

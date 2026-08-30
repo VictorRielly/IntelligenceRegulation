@@ -1,0 +1,33 @@
+
+[UAGB1-BJ] R-BG1 psi-seam differential (additive multi-claim factored Psi_0)
+  ok   psi differential [real-act]: factored-multi == compute_psi(bg_kernel_pass phi) (n0 20800, chunk 1224, r 17, 42 kernels, aligned)
+  ok   perturbed scale moves Psi [real-act]
+  ok   psi differential [real-weight]: factored-multi == compute_psi(bg_kernel_pass phi) (n0 294912, chunk 6554, r 45, 9 kernels, aligned)
+  ok   perturbed scale moves Psi [real-weight]
+  ok   psi differential [synthetic-weight-64x96 L2]: factored-multi == compute_psi(bg_kernel_pass phi) (n0 384, chunk 128, r 3, 3 kernels, MISALIGNED cols -> generic branch)
+  ok   phi0 oracle [synthetic-weight-64x96 L2]: eval_proof per-ring multi == bg_kernel_pass
+  ok   perturbed scale moves Psi [synthetic-weight-64x96 L2]
+  ok   psi differential [synthetic-act-96x128 L2]: factored-multi == compute_psi(bg_kernel_pass phi) (n0 1248, chunk 250, r 5, 6 kernels, aligned)
+  ok   phi0 oracle [synthetic-act-96x128 L2]: eval_proof per-ring multi == bg_kernel_pass
+  ok   perturbed scale moves Psi [synthetic-act-96x128 L2]
+  ok   psi differential [synthetic-weight-64x96 L1]: factored-multi == compute_psi(bg_kernel_pass phi) (n0 384, chunk 128, r 3, 3 kernels, MISALIGNED cols -> generic branch)
+  ok   perturbed scale moves Psi [synthetic-weight-64x96 L1]
+[UAGB1-BJ] seam differential: 12/12 legs green in 26.2s
+       26.68 real        26.12 user         0.10 sys
+           411484160  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               26232  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 240  involuntary context switches
+        685851906994  instructions retired
+        105369175037  cycles elapsed
+           375112400  peak memory footprint

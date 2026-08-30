@@ -3469,3 +3469,63 @@ the [UPERF3-JJ] bin section + this ledger section + the recorded
 repro script); floors green at every commit (diff-battery, uperf-s
 3752cba4.., agg 46234986.., freeze-check 102 ok + expected BK
 panic).
+
+## Orchestrator note 2026-08-29 — MAC-BOX sync gate pass [MAC-BOX QUIET]
+
+Pull f698548 -> 9a8fa3d: the whole U-PERF2/U-PERF3 program landed on
+this box for the first time. Box state at the run: QUIET — load ~1.7
+on the M3 Ultra, frugal-lm F2 training NOT running (status watchers
+only). Walls below are context, not a quiesced timing ladder.
+
+1. **aarch64 BUILD BREAK (fixed)**: the pulled tree did not compile on
+   the Mac — two WSL-round x86 paths lacked arch gates:
+   `psi_avx2::mac_fold_row` called from `rows_t_rings_avx2`
+   (eval_proof.rs, the module is `#[cfg(x86_64)]`) and
+   `is_x86_feature_detected!("sha")` in `uperf_m_sha_bench`
+   (ring_matmul.rs). Fix, house style: `rows_t_rings_avx2` is now
+   `#[cfg(x86_64)]` with an off-x86 `unreachable!` stub (safe:
+   `psi_simd_enabled()` is hard-false off x86_64, so the arm is never
+   taken) and the sha flag print computes a cfg'd bool. x86 behavior
+   byte-identical (same calls, same values, same print).
+
+2. **GATE PASS** (logs + walls + peak RSS:
+   `results/uperf/mac_sync_20260829_*`, marker `...done`):
+   - freeze-check: **exit 0, 102 ok rows, FULL — no panic; the BK/BF
+     rows run on this box** (0.4-0.9 s)
+   - uperf-pc diff-battery green 12.6 s (O1 4/4, O2 35/35, O3 63/63,
+     O5 12/12)
+   - uperf-s battery 48 legs ok, DIGEST 3752cba4.. (matches ledger);
+     uperf-s agg-battery 136 legs ok, DIGEST 46234986.. (matches)
+   - uperf-w 23 legs 0 FAIL; agg-matmul battery green 80 s;
+     bh-verifier battery green 8.3 s
+   - uperf-v3 battery smoke green; uperf-v3 chain-m125: all 12 layers
+     derive + range-check (v3 profile, T = 16)
+   - uperf-x battery 8 legs ok, XS1 DIGEST be89d5da.. (matches JJ;
+     note the banner hard-codes "[WSL-BOX NOISY-SHARED]" — a label
+     constant, cosmetic)
+   - python suite: **Ran 81 tests, OK — all green, no skips** (434 s)
+   - pass-agg seam: 12/12 — AFTER the fix in the finding below (the
+     first run FAILED at "perturbed scale moves Psi [real-act]")
+
+3. **FINDING (latent, arch-independent): the `pass-agg seam`
+   non-vacuity legs were broken by the [UPERF2-Q] row-factor memo.**
+   `MultiClaimKernel.row_factors` caches scale * row keyed by (q, s)
+   only (its own comment: "a pure function of (q, s, scale, rows),
+   keyed by (q, s)"). The seam battery mutates `kernels[0].scale` in
+   place after the honest run has populated the memo; the perturbed
+   re-run hits the stale memo, Psi does not move, the leg panics.
+   Triangulation: ZK_UPERF_ORACLE=1 -> 12/12 green (the oracle body
+   reads scale directly); ZK_PSI0NTT=0 -> still fails (lane M's NTT
+   body exonerated); f698548 has no memo (the seam predates lane Q and
+   was green). The gate had simply not been run since lane Q landed —
+   it is in NO round-5/6 gate list; WSL at HEAD fails identically.
+   **PRODUCTION UNAFFECTED**: kernels are built fresh per pass
+   (`bg_multi_kernels`) and scale is never mutated post-construction.
+   FIX (battery-side, minimal): the seam drops `row_factors` when it
+   mutates the scale. OPEN for Victor: whether the memo should be
+   drift-loud (store scale in the memo, validate on read) — the
+   scale-immutability contract is now load-bearing and only
+   documented.
+
+Floors re-run green on the final tree after all three code changes:
+build, diff-battery 12.6 s, freeze-check 102 ok exit 0, seam 12/12.

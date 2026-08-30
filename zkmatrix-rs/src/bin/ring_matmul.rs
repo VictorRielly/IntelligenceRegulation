@@ -32084,6 +32084,11 @@ fn bg_seam() {
         }
         // Non-vacuity: one perturbed contribution scale must move Psi.
         kernels[0].scale = kf.add(&kernels[0].scale, &kf.one());
+        // The [UPERF2-Q] row-factor memo folds scale in and is keyed by
+        // (q, s) only — valid because production kernels never change
+        // scale after construction. This leg does: drop the memo so the
+        // mutation reaches the factored paths.
+        kernels[0].row_factors = std::cell::OnceCell::new();
         let psi_bad =
             psi_level0_factored_multi(&ctxr, &kf, group, &kernels, &alphas, &cs, plan0.chunk);
         check(&format!("perturbed scale moves Psi [{what}]"), psi_bad != psi_ref);
@@ -40387,11 +40392,14 @@ fn uperf_m_sha_bench(n: usize) {
         acc ^= u64::from_le_bytes(d[..8].try_into().unwrap());
     }
     let s = t0.elapsed().as_secs_f64();
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    let sha_ni = std::arch::is_x86_feature_detected!("sha");
+    #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+    let sha_ni = false;
     println!(
-        "[UPERF2-M] sha-bench: {n} blocks (40 B input each) in {s:.3}s = {:.1} ns/block, {:.1} M blocks/s (1T; xor {acc:#x}); sha_ni cpu flag: {}",
+        "[UPERF2-M] sha-bench: {n} blocks (40 B input each) in {s:.3}s = {:.1} ns/block, {:.1} M blocks/s (1T; xor {acc:#x}); sha_ni cpu flag: {sha_ni}",
         s * 1e9 / n as f64,
         n as f64 / s / 1e6,
-        std::arch::is_x86_feature_detected!("sha")
     );
 }
 

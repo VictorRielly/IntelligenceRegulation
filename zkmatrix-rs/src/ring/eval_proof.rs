@@ -4564,6 +4564,7 @@ pub fn kernel_pass_factored_gen<B: SmallRings + ?Sized>(
 /// and `QFold::reduce` lands the canonical residue = the u128 body's
 /// `(x % q)` of the same exact sum. V is reduced by the fold from its exact
 /// i128 recomposition (i64 fast path when it fits) — == `mod_q_i128`.
+#[cfg(target_arch = "x86_64")]
 #[allow(clippy::too_many_arguments)]
 fn rows_t_rings_avx2<B: SmallRings + ?Sized>(
     w0: &B,
@@ -4649,6 +4650,22 @@ fn rows_t_rings_avx2<B: SmallRings + ?Sized>(
         range_work(0, n_vr)
     };
     (0..n_k * K_DEG * nb).map(|i| tacc[i * D..(i + 1) * D].iter().map(|&x| qf.reduce(x as u128)).collect()).collect()
+}
+
+/// Off-x86 stub: `psi_simd_enabled()` is hard-false off x86_64, so the
+/// caller's `simd_p` is always `None` and this arm is never taken.
+#[cfg(not(target_arch = "x86_64"))]
+#[allow(clippy::too_many_arguments)]
+fn rows_t_rings_avx2<B: SmallRings + ?Sized>(
+    _w0: &B,
+    _t: &AggTensor,
+    _radixes: &[u64],
+    _srs: &[Vec<KElem>],
+    _nb: usize,
+    _n_vr: usize,
+    _p: &PsiMacParams,
+) -> Vec<Poly> {
+    unreachable!("rows_t_rings_avx2: AVX2 body off x86_64")
 }
 
 /// The pre-[UPERF2-M] per-block body of the rows pass: prods[e] = CQ0[e] *

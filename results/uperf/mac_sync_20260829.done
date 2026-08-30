@@ -1,0 +1,16 @@
+0
+freeze_check 0
+uperf_pc_diff_battery 0
+uperf_s_battery 0
+uperf_s_agg_battery 0
+uperf_w_battery 0
+agg_matmul_battery 0
+pass_agg_seam -6 (first run: the UPERF2-Q row-factor memo vs the in-place scale perturbation — battery artifact, fixed same day)
+bh_verifier_battery 0
+uperf_v3_battery_smoke 0
+uperf_v3_chain_m125 0
+uperf_x_battery 0
+python_suite 0
+pass_agg_seam_fixed 0 (12/12 legs green)
+uperf_pc_diff_battery_r2 0
+freeze_check_r2 0 (102 ok rows, full, exit 0)

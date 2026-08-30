@@ -1,0 +1,35 @@
+[UPERF3-S] battery: ZK_THREADS 1 (run at 1/2/7 and compare the digest)
+  ok   A: c=16 == boxed-K oracle (2^4, w 3, e0 1, seed 1)
+  ok   A: c=16 == boxed-K oracle (2^5, w 4, e0 1, seed 2)
+  ok   A: c=16 == boxed-K oracle (2^6, w 8, e0 1, seed 3)
+  ok   A: c=16 == boxed-K oracle (2^5, w 2, e0 2, seed 4)
+  ok   A: c=16 == boxed-K oracle (2^6, w 4, e0 2, seed 5)
+  ok   B: honest + 2 tampers + 2 extremes at c 4 (2^6, w 4, e0 1)
+  ok   B: honest + 2 tampers + 2 extremes at c 8 (2^6, w 4, e0 1)
+  ok   B: honest + 2 tampers + 2 extremes at c 4 (2^8, w 8, e0 1)
+  ok   B: honest + 2 tampers + 2 extremes at c 8 (2^8, w 8, e0 1)
+  ok   B: honest + 2 tampers + 2 extremes at c 4 (2^7, w 12, e0 1)
+  ok   B: honest + 2 tampers + 2 extremes at c 8 (2^7, w 12, e0 1)
+  ok   B: honest + 2 tampers + 2 extremes at c 4 (2^6, w 3, e0 2)
+  ok   B: honest + 2 tampers + 2 extremes at c 8 (2^6, w 3, e0 2)
+  ok   C: S2 equality set + off-table / multiplicity tampers (2^10)
+[UPERF3-S] battery: 48 legs ok at ZK_THREADS 1
+[UPERF3-S] BATTERY DIGEST 3752cba4fa08c2ee052475e9f4459e2fc3ed0a0c59862468e0c31cbeb165aaae
+        0.24 real         0.24 user         0.00 sys
+             6946816  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 633  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                   6  involuntary context switches
+          6267672214  instructions retired
+           976826565  cycles elapsed
+             5226856  peak memory footprint

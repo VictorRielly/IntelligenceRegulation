@@ -19,6 +19,28 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-08-29 evening (MAC-BOX SYNCED to the round-6 tree; full
+Mac gate pass green):**
+- The Mac pulled 9a8fa3d and now BUILDS — two aarch64 cfg gates were
+  missing from the WSL rounds (the `psi_avx2::mac_fold_row` call in
+  eval_proof.rs, the sha flag print in uperf-m); fixed, x86
+  byte-identical.
+- Full MAC gate pass [box QUIET, F2 training not running]:
+  freeze-check FULL exit 0 (102 ok rows), suite 81/81 OK,
+  diff-battery, uperf-s 48-leg 3752cba4.. + agg 136-leg 46234986..,
+  uperf-w 23/23, agg-matmul, bh-verifier, v3 smoke + chain-m125 all
+  12 layers, uperf-x 8/8 be89d5da.. Logs:
+  `results/uperf/mac_sync_20260829_*`.
+- **FINDING**: `pass-agg seam` had been silently broken since
+  [UPERF2-Q] — the row-factor memo (keyed (q, s), scale folded in)
+  ignores the battery's in-place scale perturbation. Battery
+  artifact, production unaffected; the battery now drops the memo at
+  the perturbation, seam 12/12 green. The drift-loud-memo question is
+  left for Victor. Full record: the 2026-08-29 orchestrator note in
+  PROGRESS_UPERF3.md.
+- The Mac queue (T13/T14/T15 + the 7B proof rung) is runnable on a
+  building, fully gated tree.
+
 **AS OF 2026-08-29 (ROUND 6 MERGED; main current; four battery
 digests + all identity anchors green on the final tree):**
 - **JJ — SPIKE X-S1 GREEN ON ALL FOUR ACCEPTANCES: the first

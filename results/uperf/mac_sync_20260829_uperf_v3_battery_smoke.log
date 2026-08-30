@@ -1,0 +1,38 @@
+[UPERF3-BB] uperf-v3 battery at T = 16 (synthetic guaranteed-valid v3 models, d 64 f 128; ZK_THREADS 1)
+  ok   UPERF3-BB-1a int16-out members regenerate byte-identically (9 silu + 6 gelu)
+  ok   UPERF3-BB-1b int16-out spec digests pin the frozen bytes; accessor serves exactly the frozen set
+  ok   UPERF3-BB-1c manifest.rs registry rows == lookup.rs pins (duplicated-constant discipline); v3 registry = v4 registry (unmoved) + 15 members
+  ok   UPERF3-BB-1d v2 family digests unmoved (v1/m3/m4 pins byte-equal across both files)
+  ok   C5 registry freeze rows green (UPERF3-BB-1a..1d)
+  ok   chain oracle: synth-v3-silu layer 0 fast == reference (all 15 derived tensors byte-identical)
+  ok   chain oracle: synth-v3-silu layer 1 fast == reference (all 15 derived tensors byte-identical)
+  ok   chain oracle: synth-v3-silu layer 0 fast == reference (all 15 derived tensors byte-identical)
+  ok   chain oracle: synth-v3-silu layer 1 fast == reference (all 15 derived tensors byte-identical)
+  ok   chain oracle: synth-v3-gelu layer 0 fast == reference (all 15 derived tensors byte-identical)
+  ok   chain oracle: synth-v3-gelu layer 1 fast == reference (all 15 derived tensors byte-identical)
+  ok   chain oracle: synth-v3-gelu layer 0 fast == reference (all 15 derived tensors byte-identical)
+  ok   chain oracle: synth-v3-gelu layer 1 fast == reference (all 15 derived tensors byte-identical)
+  ok   E2 limb identity: layer 0 DaccLo + 256*DaccHi == h16 @ WdT (byte identity)
+  ok   E2 limb identity: layer 1 DaccLo + 256*DaccHi == h16 @ WdT (byte identity)
+  ok   E4 round-mode identity: round == floor on the pre-shifted operand (sh 1..=16, signed operands); sh <= 0 exact up-scaling
+  ok   honest silu-round layer 0 ACCEPT ((-3,-11) member, shifts (8,1,14,14); 345 cms, 3 waves, 787 pins; commit 0.1s prove 6.8s verify 0.6s)
+
+[UPERF3-BB] v3 smoke passed in 7.4s (full battery: `uperf-v3 battery small`)
+        7.44 real         7.40 user         0.04 sys
+           241549312  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               18216  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 161  involuntary context switches
+        172656711479  instructions retired
+         30070595541  cycles elapsed
+           171950680  peak memory footprint

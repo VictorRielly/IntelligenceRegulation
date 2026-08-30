@@ -1,0 +1,27 @@
+
+[UAGB1-BJ] R-BG1 psi-seam differential (additive multi-claim factored Psi_0)
+  ok   psi differential [real-act]: factored-multi == compute_psi(bg_kernel_pass phi) (n0 20800, chunk 1224, r 17, 42 kernels, aligned)
+    FAIL  perturbed scale moves Psi [real-act]
+
+thread 'main' (58536743) panicked at src/bin/ring_matmul.rs:32017:9:
+seam leg failed: perturbed scale moves Psi [real-act]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+time: command terminated abnormally
+        1.85 real         1.84 user         0.01 sys
+           110264320  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                7341  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 128  involuntary context switches
+         48600663719  instructions retired
+          7460800087  cycles elapsed
+           108839416  peak memory footprint

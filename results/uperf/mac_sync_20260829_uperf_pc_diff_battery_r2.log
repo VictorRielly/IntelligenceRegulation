@@ -1,0 +1,26 @@
+[UPERF-PC] differential battery
+[UPERF-PC] ZK_THREADS = 1
+[UPERF-PC] O1 CRS memo: 4/4 byte-identical + group-key separation + block-parallel XOF 4/4
+[UPERF-PC] O2 level-h: 35/35 byte-identical (q31 + q46, windows crossing, fallback)
+[UPERF-PC] O3 matvec: 63/63 byte-identical (single, multi, ring-ip; q31 + q46)
+[UPERF-PC] O5 kernel-pass: 12/12 byte-identical (rows + phi + verifier psi0-factored-multi; aligned/misaligned/no-kernel tensors, shared col kernels, q31 + q46)
+[UPERF-PC] E2E bg_prove_group/verify: 2/2 proofs identical oracle vs fast + accept (2-level schedule, mixed tensors)
+[UPERF-PC] differential battery passed in 12.59s
+       12.59 real        12.54 user         0.04 sys
+           187432960  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               13837  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  52  involuntary context switches
+        308538366257  instructions retired
+         50694049218  cycles elapsed
+           132268536  peak memory footprint

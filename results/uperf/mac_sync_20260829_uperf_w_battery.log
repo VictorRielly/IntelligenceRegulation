@@ -1,0 +1,47 @@
+[UPERF3-W] uperf-w battery: W-5 parser / W-4 acc classes / W-2 planner
+  ok   precondition: ZK_MODEL_EXPORT_DIR unset (the legs pin the M125 defaults)
+  ok   W-4 acc_bits(768) == 25 (the 125M Gacc/Uacc constant)
+  ok   W-4 acc_bits(2048) == 26 (the 125M Dacc constant)
+  ok   W-4 acc_bits(4096) == 27 (8B d — the contract's honest row)
+  ok   W-4 acc_bits(14336) == 29 (8B f — the contract's honest row)
+  ok   W-4 default-model typing: Gacc/Uacc 25 bits, Dacc 26 (pre-W-4 constants reproduced)
+  ok   W-4 default-model classes: l0(Gacc) == 13, l0(Dacc) == 14 (the consumer rows)
+    n0 44000000 e0 1: r = 2 DECLINES (None) | schedule 9 levels, level-0 r 64, floor 936 rings e7
+  ok   W-2 plan_level(n0 = 44000000, e0 = 1, r = 2) declines (pinned)
+  ok   W-2 plan_schedule completes at n0 = 44000000, e0 = 1 (levels >= 1, floor < n0)
+    n0 352000000 e0 1: r = 2 DECLINES (None) | schedule 10 levels, level-0 r 64, floor 936 rings e7
+  ok   W-2 plan_level(n0 = 352000000, e0 = 1, r = 2) declines (pinned)
+  ok   W-2 plan_schedule completes at n0 = 352000000, e0 = 1 (levels >= 1, floor < n0)
+    n0 36000000 e0 2: r = 2 feasible | schedule 9 levels, level-0 r 56, floor 936 rings e7
+  ok   W-2 plan_level(n0 = 36000000, e0 = 2, r = 2) is feasible (pinned)
+  ok   W-2 plan_schedule completes at n0 = 36000000, e0 = 2 (levels >= 1, floor < n0)
+    n0 73000000 e0 2: r = 2 DECLINES (None) | schedule 9 levels, level-0 r 56, floor 948 rings e7
+  ok   W-2 plan_level(n0 = 73000000, e0 = 2, r = 2) declines (pinned)
+  ok   W-2 plan_schedule completes at n0 = 73000000, e0 = 2 (levels >= 1, floor < n0)
+  ok   W-5 parser: well-formed synthetic sidecar -> tag/dims/e_w/exps
+  ok   W-5 parser: per-tensor weight exponents ACCEPTED (e_w3 = [(-9,-8,-9)], uniform = None)
+  ok   W-5 parser: missing dims row REJECTED
+  ok   W-5 parser: missing model row REJECTED
+  ok   W-5 parser: exps row with 8 fields REJECTED
+  ok   W-5 parser: missing layer-1 exps row REJECTED
+  ok   W-5 parser: non-numeric layer field REJECTED
+  ok   W-5 parser: committed m125_reexport sidecar == the M125 const model (tag frugal-125m, 512/768/2048/12, e_w -9, 12 exps rows)
+[UPERF3-W] battery: 23 legs, 0 FAIL in 0.00s
+        0.00 real         0.00 user         0.00 sys
+             2572288  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 366  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                   6  involuntary context switches
+            31885038  instructions retired
+             9309002  cycles elapsed
+             1491280  peak memory footprint

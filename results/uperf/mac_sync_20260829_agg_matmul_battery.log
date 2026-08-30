@@ -1,0 +1,44 @@
+
+[UAGB1-BD] aggregation-stack battery
+  ok   conj-packing identity ct(conj(a)*b) = <a,b> (SR 1.2 fact 3)
+  ok   exact negacyclic op norm: |X^5| = 1
+  ok   op norm of the all-ones multiplier is > T_cap (resampling is real)
+  ok   E-O2-BB: first opening in group accepted
+  ok   E-O2-BB NEGATIVE: second batched opening in a commitment group is a BUILD ERROR
+  ok   honest ACCEPT at 64x96x128 (degenerate floor; 238798 B counted, prove 0.19s verify 0.11s)
+  ok   WrongC REJECT at the degenerate floor (committed C tampered, honest-product claimed, ct-lie shipped) — first fail: claim-row-eval
+  ok   WrongC REJECT through the auto-planned recursion at the same shape — first fail: floor-target
+  ok   WrongClassDecl REJECT at the statement gate (E-O1-BB negative vector: weight e0 = 2)
+  ok   honest ACCEPT at 128x768x256 (2 forced levels/group; floors 1391/1677 rings; 445902 B counted, prove 2.32s verify 0.28s)
+  ok   WrongC REJECT through the recursion (transported target catches the ct-lie) — floor-target
+  ok   floor-coordinate tamper REJECT (a transported linear family fails) — floor-fold-consistency
+  ok   OUT-OF-ALPHABET floor pair (recomposition-preserving) REJECTED by the alphabet gate ONLY — every transported linear family passes (the sharp leg)
+  ok   F5 ATTACK: compensated false claim-row pair ACCEPTS under alpha-before-rows ordering (the binding collapse demonstrated)
+  ok   F5 DEFENSE: the same crafting REJECTED by the shipped rows-before-alpha order — floor-target
+  ok   F5 ATTACK: h-garbage compensated against a PRE-KNOWN level-1 fold challenge ACCEPTS under challenge-before-commitment ordering
+  ok   F5 DEFENSE: the same crafting REJECTED by the shipped commit-then-challenge order — floor-fold-consistency
+  ok   stale-order finding: a wave-1-style solved C entry (mod-q scale) is OUTSIDE the accumulator class range — the exact-digit encoding gate refuses the forgery
+  ok   F-Z1 arithmetic: the battery shape's auto Tier-Z floor (310,784 coords) sits at b = 2^28.16 >= 28.00 — the corner is CLOSED there and the derive gate refuses the schedule (observed; floors must be < 1,940 rings)
+  ok   TIER-Z honest ACCEPT at 256x768x2048 (masked floors at e_L = 4, 1344/1356 rings; 1511494 B counted, sampler restarts 0; F-Z1 corner asserted at derive)
+  ok   TIER-Z response-norm tamper REJECT (a response coefficient past the F-Z1 corner bound)
+  ok   TIER-Z mask-image tamper REJECT (a family equation fails on the masked floor)
+
+[UAGB1-BD] battery passed in 80.14s
+       80.15 real        79.83 user         0.31 sys
+          2226323456  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              144526  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 338  involuntary context switches
+       2019940341098  instructions retired
+        323059679669  cycles elapsed
+          1544275552  peak memory footprint

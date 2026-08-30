@@ -1,0 +1,33 @@
+[UPERF3-EE] agg-battery: ZK_THREADS 1 (run at 1/2/7 and compare the digest)
+  ok   AGG: m {1,2,7,16} honest+oracle+claims + 2 tampers each (2^6, w 8, e0 1, c 4)
+  ok   AGG: m {1,2,7,16} honest+oracle+claims + 2 tampers each (2^6, w 14, e0 1, c 4)
+  ok   AGG: m {1,2,7,16} honest+oracle+claims + 2 tampers each (2^6, w 8, e0 1, c 8)
+  ok   AGG: m {1,2,7,16} honest+oracle+claims + 2 tampers each (2^6, w 14, e0 1, c 8)
+  ok   AGG: m {1,2,7,16} honest+oracle+claims + 2 tampers each (2^6, w 8, e0 2, c 4)
+  ok   AGG: m {1,2,7,16} honest+oracle+claims + 2 tampers each (2^6, w 14, e0 2, c 4)
+  ok   AGG: m {1,2,7,16} honest+oracle+claims + 2 tampers each (2^6, w 8, e0 2, c 8)
+  ok   AGG: m {1,2,7,16} honest+oracle+claims + 2 tampers each (2^6, w 14, e0 2, c 8)
+  ok   AGG-MASK: m {2,7} masked+strip+blind+zero-mask+tampers (2^6, w 8, e0 1, c 4)
+  ok   AGG-MASK: m {2,7} masked+strip+blind+zero-mask+tampers (2^6, w 8, e0 1, c 8)
+  ok   AGG-MASK: m {2,7} masked+strip+blind+zero-mask+tampers (2^6, w 8, e0 2, c 4)
+  ok   AGG-MASK: m {2,7} masked+strip+blind+zero-mask+tampers (2^6, w 8, e0 2, c 8)
+[UPERF3-EE] agg-battery: 136 legs ok at ZK_THREADS 1
+[UPERF3-EE] AGG BATTERY DIGEST 4623498603db778361e61f790df90485e61cec52fc8b80373f010cbbd61a419e
+        0.31 real         0.30 user         0.00 sys
+             5357568  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 536  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                   9  involuntary context switches
+          8227470561  instructions retired
+          1247537584  cycles elapsed
+             4112744  peak memory footprint
