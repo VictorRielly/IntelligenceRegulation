@@ -3529,3 +3529,22 @@ only). Walls below are context, not a quiesced timing ladder.
 
 Floors re-run green on the final tree after all three code changes:
 build, diff-battery 12.6 s, freeze-check 102 ok exit 0, seam 12/12.
+
+## ROUND 7 — THE PoC SPRINT (opened 2026-08-30; Victor: "let's go
+## ahead and continue" — the 32x16 8B yardstick is the milestone)
+
+### Lane LL — W-1: zero-check column-splitting (wt-uperf3-ll) — RUST, the last code blocker
+OWNS: the zero-check instance builder path (bg_zc_prove + its
+callers' window loop), additive helpers, "Agent LL status". SPEC:
+U_PERF3_MVP8B_SCALING.md's W-1 row VERBATIM: split each zero-check
+instance over its COLUMN space into windows <= 2^(25 - lr - lambda)
+columns; each sub-instance the same instance kind over a col range
+(the eq_pc factor per window; terminal claims = ClaimContribs over
+the window — the same product form); the K9 cap 2^25 is AUDITED and
+does NOT move. ACCEPT: (1) k=1 at 125M shapes = the NULL split —
+statement + EVAL-PROOF digests BYTE-IDENTICAL (the anchors);
+(2) a forced-window battery leg (windows < cols at 125M: accept +
+tamper); (3) the planner leg at the 8B shapes (the 2^28-class
+f-instances -> 7 windows, d -> 2, ALL under the cap; ~+3.4 KB per
+extra instance, ~+30 KB total at 8B counted); (4) floors green.
+This unlocks board task T16 (the 32x16 yardstick on the Mac).
