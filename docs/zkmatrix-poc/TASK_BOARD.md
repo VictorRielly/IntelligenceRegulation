@@ -64,6 +64,22 @@ Mac gate pass green):**
   Victor's directive (surfaces ranked, campaign phased, activates
   by ruling after the PoC); its §3 standing rule (tamper legs ship
   with every statement feature, same commit) is adopted NOW.
+- **ROUND 7 (the PoC sprint) IN FLIGHT**: LL = W-1 column-splitting
+  (the claim-table blocker); MM = the COMPOSED v3 statement (the
+  cross-layer z->X seam binding — 32 per-layer proofs are not a
+  model proof; MM's map-the-gap rung defines T17).
+- **NEW MAC TASK T16 (after T15's Mistral export; KIND=RUN)** —
+  the per-layer 8B evidence ladder (no new code needed): for l in
+  0..31: `ZK_MODEL_EXPORT_DIR=<mistral v3 export>
+  zkmatrix-rs/target/release/ring_matmul uperf-v3 e2e-m125 <l> 16
+  32` (each proves layer l against the 32-layer stack; ~>15 GB RSS
+  each, fine on the Mac; wrap each in /usr/bin/time -l). ACCEPT:
+  32/32 `accept = true`; paste per-layer wall + peak RSS + the
+  statement-bytes line into the log; STOP+paste on any reject.
+  This is the first full-model-COVERAGE 8B proof evidence (the
+  seams are MM's T17 — say so in any write-up). T17 (the composed
+  32-layer statement on the Mac) gets exact commands when lane MM
+  lands.
 
 **AS OF 2026-08-29 (ROUND 6 MERGED; main current; four battery
 digests + all identity anchors green on the final tree):**
