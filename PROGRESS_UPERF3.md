@@ -3548,3 +3548,22 @@ tamper); (3) the planner leg at the 8B shapes (the 2^28-class
 f-instances -> 7 windows, d -> 2, ALL under the cap; ~+3.4 KB per
 extra instance, ~+30 KB total at 8B counted); (4) floors green.
 This unlocks board task T16 (the 32x16 yardstick on the Mac).
+
+### Lane MM — the composed v3 statement (wt-uperf3-mm) — RUST, the PoC statement itself
+OWNS: a composed-driver arm in the [UPERF3-BB]/u3 region (additive),
+NEW seam machinery, "Agent MM status". WHY: the u3 rig proves
+PER-LAYER v3 statements (its SeamSwap tamper is the INTRA-layer
+gate seam); a working PoC = ONE composed multi-layer statement with
+the CROSS-LAYER seams bound (layer l's z16 -> layer l+1's X: the
+dequant/requant seam at the committed planes) — the m125 composed
+pass's psi-seam (pass-agg seam 12/12) is the house precedent.
+RUNG 1 IS A MAP, NOT CODE: enumerate exactly what a composed v3
+statement must bind that u3_layer_run does not (the seam relation
+in v3 semantics incl. clamp-at-z at the seam, the shared transcript
+spine, the statement digest form), reconciled against the m125
+composed pass's seam machinery — the gap table is the deliverable
+and half the risk. THEN: the m125-shape composed rung (12 layers,
+one statement, differential: the composed accept + per-layer
+digests vs 12 independent u3 proofs + seam tamper legs incl. a
+CROSS-layer swap), then shape-general (the Mistral 32-layer form —
+the Mac runs it as T17 once landed).
