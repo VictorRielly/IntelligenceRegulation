@@ -3567,3 +3567,37 @@ one statement, differential: the composed accept + per-layer
 digests vs 12 independent u3 proofs + seam tamper legs incl. a
 CROSS-layer swap), then shape-general (the Mistral 32-layer form —
 the Mac runs it as T17 once landed).
+
+
+## Agent MM status (wt-uperf3-mm) — round 7
+
+Lane MM: the COMPOSED v3 statement (cross-layer seam binding — the PoC
+statement itself). Rung plan:
+
+- **Rung 0 (this commit)**: skeleton status.
+- **Rung 1 — THE MAP (deliverable: the gap table, below when done)**:
+  enumerate what a composed v3 statement must bind that u3_layer_run
+  does not — (a) the cross-layer seam relation in v3 semantics
+  (z16(l) -> X(l+1) through the dequant/requant seam, clamp-at-z per
+  the 2026-08-27 ruling); (b) the shared transcript spine (one rolling
+  transcript + composed statement digest vs 32 independent ones);
+  (c) what the m125 composed pass's psi-seam differential actually
+  checks and whether the mechanism transfers. Reconciled against the
+  real Mistral sidecar (wt-uperf3-aa results/m8b_mistral_v3_export,
+  read-only). Open questions flagged, not guessed.
+- **Rung 2 — the composed driver at m125**: `uperf-v3 composed [t]
+  [layers]` — 12 layers under ONE rolling transcript, seam relations
+  bound; differential vs 12 independent u3_layer_run proofs; honest
+  ACCEPT.
+- **Rung 3 — the seam tamper battery**: cross-layer swap, seam
+  off-by-one (wrong shift), clamp-lie at the seam — each rejecting at
+  a named gate; existing battery digests unmoved.
+- **Rung 4 — shape-general**: the composed arm through
+  bf_model()/ZK_MODEL_EXPORT_DIR; m125 smoke via the env var; the real
+  Mistral 32-layer run stays a Mac task (T17) — NOT run here.
+
+Floors at every commit: release build, uperf-pc diff-battery, freeze-check
+102 ok, uperf-s 3752cba4… / agg 46234986… / uperf-x be89d5da… unchanged,
+m125 fp3x16 anchors 93a98700…/0ae9cdae… unchanged.
+
+STATUS: rung 0 committed; rung 1 (the map) in progress.
