@@ -3699,3 +3699,40 @@ FLOORS re-run green at this commit: freeze-check FULL exit 0 (102
 ok), diff-battery, uperf-s 3752cba4.., agg 46234986.., uperf-x
 be89d5da..; all three identity anchors byte-identical again
 (93a98700/0ae9cdae, 45fb3405/23cf1cb7, 80763ea5/63f4a3a4).
+
+R4 THE RECORD — LANE CLOSE.
+- THE 8B TRANSCRIPT DELTA (counted, planner-verified end to end):
+  the planner's byte accounting is CONFIRMED ON THE REAL WIRE —
+  fp3x16 forced-512 counted 1,029,686 B vs the 985,142 B baseline
+  = +44,544 B, EXACTLY the planner's forced-512 3x16 zc delta.
+  The 8B 32x512 counted delta therefore stands at +142,208 B
+  (~+139 KB) at the 2048-col cap default (f-instances 7 windows,
+  rq-d 2); the W-1 row's ~+30 KB estimate is superseded (honest
+  correction recorded under R1). At 8x512 / 32x128: ~+22 KB. At
+  32x16 (the yardstick): +0 B — the null split.
+- THE GPU-WINDOW NOTE (W-9): `ZK_ZC_WINDOW_COLS=1024` (or
+  opts.zc_window = Some(1024)) keeps every zc packed table at 2^24
+  K-elements = half the K9 budget, holding the device ixf path
+  inside its 4 GB at 32x512 (f k=14, d k=4; +303,424 B counted).
+  The default stays the cap-derived 2048.
+- OPEN QUESTION (recorded, not implemented; the k=1 anchors were
+  the arbiter): the window parameter is DERIVED (shape + the K9 cap
+  constant + opts/env), absorbed only through the per-window labels
+  "<name>-w<i>"; a production 8B statement should pin the window
+  size in the statement digest like the shape rows (one line in the
+  statement builder when the 8B statement lands — W-10 territory).
+- MEMORY NOTE: k>1 windows materialize per-window operand copies
+  (3 entries x layers x rows x window i64) — ~768 MB transient per
+  f-window at 32x512, freed per window; the packed tables the
+  windows exist to shrink are 2.1 GB each. No ring/ change; if the
+  copy ever matters, an IxfZcSpec col-stride is the additive fix.
+LANE VERDICT: W-1 CLOSED. The last named code blocker before board
+task T16 (the 32x16 8B yardstick — itself k=1/null-split) is
+removed, and the 32x512 ladder rung has a proven, battery-covered
+split with every packed table under the AUDITED, UNTOUCHED K9 cap.
+Files: src/bin/ring_matmul.rs only (bg_zc_window_plan /
+bg_zc_prove_win / bg_zc_window_vals / bg_zc_scatter_col /
+bg_stack_table_win, the window loops in bg_pass_run + bk_pass_run
+prover+verifier, uperf-pc zc-plan + zc-battery, opts fields,
+BgTamper::ZcSubClaim). READ-ONLY honored: kfield.rs, manifest.rs,
+stage_a.rs, zc_range.rs, attn_softmax.rs, two_tier.rs untouched.
