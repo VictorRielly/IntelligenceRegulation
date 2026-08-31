@@ -4311,3 +4311,45 @@ transcript-affecting beyond this additive lane's own arms):
     before any commit; the ledger commits follow rung order. The
     one-commit-per-green-rung discipline collapsed to code+record
     commits — floors run on the combined tree (identical code).
+
+FLOORS AT THE RUNG 1-4 COMMIT (aa33bf0), all on this tree [WSL-BOX
+NOISY-SHARED]:
+  * cargo build --release: green (0 errors).
+  * uperf-pc diff-battery: passed (18.1 s).
+  * uperf-s battery: 48 legs, digest 3752cba4.. UNCHANGED.
+  * uperf-s agg-battery: 136 legs, digest 46234986.. UNCHANGED.
+  * uperf-x battery: 8 legs, digest be89d5da.. UNCHANGED — verified
+    both immediately after the xs1_run_core extraction AND on the
+    final tree with the NN arms live (the refactor guard).
+  * freeze-check (M125_EXPORT_DIR=results/m125_ffn_export_wsl):
+    FULL exit 0, 102 ok rows.
+  * uperf-pc zc-battery: 7/7 legs, digest 01ca048b.. UNCHANGED.
+  * composed 7465fa05..: NOT re-run — the u3 region untouched (the
+    diff is the additive NN block + the parameterized JJ core; no
+    u3/composed path in the change set).
+  * Extra point: head-prove 2/2 ACCEPT also at seed 20260811 T 32
+    (digest 23a6c75a.., seed-dependent as expected); layer-chain
+    byte-identity additionally checked at seed 5 (6 pairs total).
+
+NEW LANE DIGESTS (this lane's arms; existing digests never moved):
+  X1 ENTRIES    0358428f85efd1d84d2ad9c0aa3737dec80c3f87cd66d34c
+                e7d2284f6c774ca8 (1611, 16); 0e895bda.. (1611, 32)
+  X1 CHAIN      ee72b55f0793003540cc9fde9a7c9f196d73fba7074d3994
+                a2b903cc2c5382a1 (1611, 16); b646c164.. (1611, 32)
+  X1 PW BATTERY f2f3913785f958f9ad8b3b0105518d75e73db616671aa0e0
+                54abbb9b8b3d070f (19 legs)
+  X1 HEAD-PROVE 5f5625f79ff825ddb4a5d6c02b03b21c2e75e5b3e267cae8
+                cdd5a92f89878d15 (1611, 32; 2/2 ACCEPT)
+  X1 HEAD BATT  35ddec83ffcdcee93440423d4ec1b081f9decfd12ef13d5e
+                b36704de2cc7a72 (7/7 pre-registered)
+
+STATE: DONE (2026-08-31) — rungs 0-5 landed on uperf3-nn (skeleton
+c022b4e; rungs 1-4 + records aa33bf0; this close commit), all
+pushed. Footprint purely additive: ring/attn_entries.rs (NEW) + one
+mod line + one #[derive(Clone)] on SoftmaxChain + the
+behavior-preserving xs1_run_core parameterization in the JJ bin
+section + the [UPERF3-NN] bin section + scripts/
+attention_x1_layer_ref.py (NEW) + this ledger section. Frozen
+registries untouched; every pre-existing battery digest byte-
+identical. OPEN QUESTIONS live in the rung-5 needs list (freeze
+rulings item 4 -> Victor, jointly with JJ's exp-member C5 ruling).
