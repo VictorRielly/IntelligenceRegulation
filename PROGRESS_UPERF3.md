@@ -4124,3 +4124,37 @@ the round-8 ledger commit = KK's round-6 endpoint merged):
     this box has the export); uperf-s battery 48 legs 3752cba4..;
     agg-battery 136 legs 46234986..; uperf-x battery 8 legs
     be89d5da..
+
+RUNG 1 — WEIGHT PLANES LANDED (2026-08-31): wg_t/wu_t/wd_t live as
+compact `BfPlane`s (I8 for honest chains — the export values are
+i8-source) and the WHOLE accessor surface moved to the guard form in
+this rung: `bf_entry_values -> BfVals` (Deref to [i64]; Borrowed for
+the still-i64 tensors, so rung 2 is a field flip with no further
+consumer surgery). The named wide/hot consumers got their local
+fixes NOW: bg_mm_tables hoists per-layer planes out of the per-block
+fills (one materialization per layer, not per block); the zc
+IxfZcSpec site holds guard owners; bg_witness / bk_witness_act /
+bk_witness_weight / gg_witness_act feed agg_digit_witness_cols
+PER TENSOR through new additive `agg_digit_witness_{cols,ref}_src`
+(fetch closure; the old &[&[i64]] forms remain as wrappers — no
+whole-group i64 materialization); bk_member_vals returns guards and
+bk_tree_slot_fns moves them into its Sync closures; the tamper arms
+write through BfPlane::get/set/fill_zero (set widens the class in
+place if a tampered value does not fit — no new panic path); the
+GG serving-check leg holds owners; derive/battery GEMMs materialize
+weight inputs transiently.
+  ACCEPT: all five identity anchors BYTE-IDENTICAL (93a98700 /
+  0ae9cdae; 45fb3405; 80763ea5 / 63f4a3a4); floors green
+  (diff-battery exit 0 in 18.0 s; freeze-check 102 ok exit 0;
+  uperf-s 3752cba4..; agg 46234986..; uperf-x be89d5da..).
+  RSS delta [MEASURED, NOISY-SHARED, vs rung 0]:
+    fp3x16     869,172 ->   814,624 KB  ( -53 MB,  -6.3%)
+    pa12x64  2,040,644 -> 1,653,768 KB  (-378 MB, -19.0%)
+    fp12x64  2,164,948 -> 1,778,104 KB  (-387 MB, -17.9%)
+  (the counted 12-layer weight store is 452 MB i64 -> 57 MB i8 =
+  -396 MB; the measured 378-387 MB at the 12x64 shapes IS that term
+  minus transients — the fix behaves exactly as priced.)
+  WALL delta [MEASURED]: fp3x16 6.38 -> 6.36 s; pa12x64 19.87 ->
+  20.13 s; fp12x64 26.13 -> 26.10 s — within run noise (the
+  materialization cost is one i64 copy per plane consumer, paid
+  against O(plane) walks that already existed).
