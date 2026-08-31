@@ -4039,3 +4039,27 @@ preserving ONLY — the five digest anchors (fp3x16 93a98700../
 0ae9cdae.., pa12x64 45fb3405.., fp12x64 80763ea5../63f4a3a4..)
 byte-identical at every rung, /usr/bin/time -v RSS before/after,
 any digest move = revert + record.
+
+## RULINGS (Victor, console 2026-08-31)
+
+1. **T17 = BOTH FORMS**: the declarational composed statement over
+   the real Mistral export AND the calibrated-tower composed proof
+   (each object's meaning stated plainly in the write-up). The
+   board's T17 task text updated accordingly.
+2. **F1 = FULL MODE**: the Stage-A round-1 freeze set adopts FULL
+   mode (every descent family incl. the silu lookups through the
+   aggregate), accepting the committed-h bill. RECORDED
+   CONSEQUENCES (not relitigated): (a) the F2 act-h mid-transcript
+   third-group ordering amendment is thereby REQUIRED (it is what
+   makes full mode transcribable) — treated as adopted with this
+   ruling; (b) the committed-h growth is the new named cost center
+   (+25.2M rings at 12x512 scale; the measured 12x128 full-mode
+   OOM at 14.8 GiB on the 15 GB box) — a NEW WORK ITEM is opened:
+   the COMPACT COMMITTED-H ENCODING (beat the naive l0_q=16
+   encoding; candidates: the limb-split form h already carries in
+   v3, a coarser l0_q, or a derived-not-committed h with its own
+   relation) — this is the round-9 design item; (c) the 8B memory
+   projection is STALE for full mode — the ~116 GB/~72 GB figures
+   are range-only; a fresh counted row is OWED before hardware
+   commitments (first estimate [MODEL]: commit-phase act growth
+   puts the peak back in the ~130-160 GB class until (b) lands).
