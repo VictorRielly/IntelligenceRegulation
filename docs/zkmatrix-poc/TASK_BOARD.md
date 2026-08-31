@@ -41,6 +41,33 @@ Mac gate pass green):**
 - The Mac queue (T13/T14/T15 + the 7B proof rung) is runnable on a
   building, fully gated tree.
 
+**AS OF 2026-08-30 late (ROUND 7 MERGED — the PoC sprint's WSL side
+is COMPLETE; five battery digests + freeze-check green on the tree):**
+- **LL/W-1 LANDED**: the claim tables split at 8B (f k=7, d k=2,
+  all under the audited 2^25 cap); null split byte-identical; the
+  forced-window battery (zc digest 01ca048b..); honest +139 KB at
+  32x512 (corrects the memo's ~30 KB); the yardstick pays +0.
+- **MM/THE COMPOSED v3 STATEMENT LANDED**: cross-layer seams BOUND
+  (seam-edge MLE pins + the clamp-pair vs a statement-derived
+  saturation table + Rs range — all existing machinery classes, no
+  registry additions); composed battery 4/4 (digest 7465fa05..,
+  surgical rejects incl. the honestly-recorded leg fix); the
+  6-layer composed differential PASSED (12L = Mac-class, 10.6 GB
+  measured at 6L); **the real-Mistral shape-general smoke is
+  PROVABLE (39 legal seam clamps, 0 violations)**.
+- **NEW MAC TASK T17 (after T15; KIND=RUN)**: the composed
+  32-layer statement — `ZK_MODEL_EXPORT_DIR=<mistral v3 export>
+  ring_matmul uperf-v3 composed 16 32` (add `diff` for the 32
+  independent-proof differential if time permits; /usr/bin/time
+  -l; expect ~40+ GB RSS [MODEL], hours-class at T=16 CPU). THIS
+  IS THE WORKING PoC RUN. RULING FIRST (T17 semantics, Victor):
+  (a) the declarational composed statement over the real export
+  (the honest MVP-1 form) and/or (b) the calibrated-tower proof
+  (seams arithmetically bound; not the model's function and says
+  so). Orchestrator recommends BOTH.
+- The Mac queue order stands: T1 -> T13/T14 -> **T15 -> T16 ->
+  T17**.
+
 **AS OF 2026-08-30 (MAC SYNC MERGED + the PoC sprint scoped):**
 - **THE MAC GATE PASS IS GREEN** (0aed842, box QUIET): freeze-check
   FULL exit 0, suite 81/81, every battery digest byte-identical on
