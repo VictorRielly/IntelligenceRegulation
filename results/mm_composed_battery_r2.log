@@ -1,0 +1,23 @@
+[UPERF3-MM] composed-battery: 3 layers, T = 16 (the m125 tower; tampers at the CROSS-LAYER seams)
+  [UPERF3-MM] layer  0: all gates ok (5320 data cms, 41 waves)
+  [UPERF3-MM] layer  1: all gates ok (5353 data cms, 41 waves)
+  [UPERF3-MM] layer  2: all gates ok (5393 data cms, 42 waves)
+[UPERF3-MM] composed accept = true | statement 2941 B digest 0aa154eee40212c8 | 16066 data cms / 16323 commits / 124 waves / 2973 pins | commit 5.5s prove 169.9s verify 50.8s
+  ok   honest composed tower ACCEPT (3 layers, 2 seams, 6 clamp events)
+  [UPERF3-MM] layer  0: all gates ok (5320 data cms, 41 waves)
+  [UPERF3-MM] layer  1: REJECTS (5353 data cms, 41 waves) at: SEAM-EDGE
+  [UPERF3-MM] layer  2: all gates ok (5393 data cms, 42 waves)
+[UPERF3-MM] composed accept = false | statement 2941 B digest fcfed2e78a1c6c42 | 16066 data cms / 16323 commits / 124 waves / 2973 pins | commit 5.0s prove 164.2s verify 50.0s
+  ok   CrossLayerSwap (layer 1 fed z16(1)'s image instead of the declared z16(0); downstream re-derived) REJECTS at SEAM-EDGE(1) ONLY [seam gates: [false, true]]; statement + per-layer gates clean: true
+  [UPERF3-MM] layer  0: all gates ok (5320 data cms, 41 waves)
+  [UPERF3-MM] layer  1: REJECTS (5353 data cms, 41 waves) at: roots[act16], roots[rng-hhi], SEAM-EDGE
+  [UPERF3-MM] layer  2: REJECTS (5393 data cms, 42 waves) at: roots[act16], roots[rng-u16], roots[rng-hhi], roots[rng-z16]
+[UPERF3-MM] composed accept = false | statement 2941 B digest 951f52b1a8717f07 | 16066 data cms / 16323 commits / 124 waves / 2973 pins | commit 5.1s prove 160.5s verify 50.8s
+  ok   SeamShiftLie (layer 1 derived at sh-1, statement declares sh=10; downstream re-derived) REJECTS at SEAM-EDGE(1) [seam gates: [false, true]; downstream edges consistent by construction]
+  [UPERF3-MM] layer  0: all gates ok (5320 data cms, 41 waves)
+  [UPERF3-MM] layer  1: all gates ok (5353 data cms, 41 waves)
+  [UPERF3-MM] layer  2: REJECTS (5393 data cms, 42 waves) at: roots[seam-clamp-w1]
+[UPERF3-MM] composed accept = false | statement 2941 B digest d3614296bd1f777c | 16066 data cms / 16323 commits / 124 waves / 2973 pins | commit 5.4s prove 174.1s verify 50.5s
+  ok   SeamClampLie (layer 2 X[0] forged to 127 at in-band ys=1; Ys/Rs honest) REJECTS at the seam-clamp instance's roots gate (inst 9); ALL seam edges HOLD: true
+[UPERF3-MM] composed battery: 4/4 legs green in 893.2s
+[UPERF3-MM] COMPOSED BATTERY DIGEST 7465fa054d982b79ceee9f3bca939d987b4cdad25c53e7ba56b48337dcd64c57

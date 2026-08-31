@@ -1,0 +1,43 @@
+[UPERF3-MM] COMPOSED v3 statement over 'm125-v3': 6 layers, T = 16, ONE transcript, cross-layer seams BOUND
+  scope: the FFN TOWER — X(l+1) = clamp127(rq_round(z16(l), sh_seam)) as the DECLARED seam; the real inter-layer edge (residual+attention+norm) is out of FFN scope (model-faithful composition = MVP-2; lane MM map OQ1)
+  tower calibrated: 5 seams, 1309 clamp events (clamp-pair-proven), 0 non-seam violations
+  [UPERF3-MM] layer  0: all gates ok (5320 data cms, 41 waves)
+  [UPERF3-MM] layer  1: all gates ok (5353 data cms, 41 waves)
+  [UPERF3-MM] layer  2: all gates ok (5412 data cms, 42 waves)
+  [UPERF3-MM] layer  3: all gates ok (5398 data cms, 42 waves)
+  [UPERF3-MM] layer  4: all gates ok (5475 data cms, 42 waves)
+  [UPERF3-MM] layer  5: all gates ok (5375 data cms, 42 waves)
+[UPERF3-MM] composed accept = true | statement 5269 B digest 243023cc3a2767e1 | 32333 data cms / 32851 commits / 250 waves / 6208 pins | commit 11.3s prove 381.2s verify 103.8s
+[UPERF3-MM] honest composed run: accept = true | wall 497.1s | statement digest 243023cc3a2767e14995b52c8a9c7ab14e139428301d21277c64ab7004bf2a9d
+[UPERF3-MM] DIFFERENTIAL vs the per-layer [UPERF3-BB] rig:
+  (a)+(b) ok: 6 x 19-entry digest lists byte-identical to the fresh u3_commit_entries reference; per-layer statement body (4859 B) embedded VERBATIM in the composed bytes (5269 B)
+  (c) independent u3_layer_run layer  0: accept = true (92.9s)
+  (c) independent u3_layer_run layer  1: accept = true (77.3s)
+  (c) independent u3_layer_run layer  2: accept = true (88.5s)
+  (c) independent u3_layer_run layer  3: accept = true (97.1s)
+  (c) independent u3_layer_run layer  4: accept = true (95.9s)
+  (c) independent u3_layer_run layer  5: accept = true (85.5s)
+[UPERF3-MM] differential PASSED: composed accept + 6/6 independent accepts; per-layer commitment content identical (public seeds); differs BY DESIGN: transcript spine (one vs 6), proof randomness, Ys/Rs seam entries (composed only)
+	Command being timed: "/home/victor/wt-uperf3-mm/zkmatrix-rs/target/release/ring_matmul uperf-v3 composed 16 6 diff"
+	User time (seconds): 1045.73
+	System time (seconds): 5.89
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 17:31.78
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 10582288
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2963052
+	Voluntary context switches: 35
+	Involuntary context switches: 1699
+	Swaps: 0
+	File system inputs: 27648
+	File system outputs: 64
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

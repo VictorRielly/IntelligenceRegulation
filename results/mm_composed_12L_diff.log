@@ -1,0 +1,4 @@
+[UPERF3-MM] COMPOSED v3 statement over 'm125-v3': 12 layers, T = 16, ONE transcript, cross-layer seams BOUND
+  scope: the FFN TOWER — X(l+1) = clamp127(rq_round(z16(l), sh_seam)) as the DECLARED seam; the real inter-layer edge (residual+attention+norm) is out of FFN scope (model-faithful composition = MVP-2; lane MM map OQ1)
+  tower calibrated: 11 seams, 1309 clamp events (clamp-pair-proven), 0 non-seam violations
+Killed
