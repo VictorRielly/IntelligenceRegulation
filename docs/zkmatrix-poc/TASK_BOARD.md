@@ -41,6 +41,30 @@ Mac gate pass green):**
 - The Mac queue (T13/T14/T15 + the 7B proof rung) is runnable on a
   building, fully gated tree.
 
+**AS OF 2026-08-31 (ROUND 8 MERGED + the day's rulings recorded):**
+- **RULED: T17 = BOTH forms; F1 = FULL MODE** (F2 thereby adopted;
+  the compact committed-h encoding = the round-9 design item; the
+  8B recount owed — see the ledger's 2026-08-31 rulings block).
+- **NN/X1 LANDED**: the full attention layer's 66 typed entries
+  (spec §4.1 reconciled EXACTLY, 4 deltas flagged), the layer value
+  chain byte-identical vs the python oracle at 6 (seed,T) pairs,
+  PW-1..4 builders 19/19 F5 legs (digest f2f39137..), per-head
+  X-S1 proving 2/2 accepts + 7/7 tampers at pre-registered gates;
+  the X3 needs list (10 items, incl. NEW freeze rulings: AM-2 exp
+  members, rope rows, range widths). X2 (AT-O1 at 125M) is next on
+  the attention ladder.
+- **OO/DIET 3 LANDED digest-identical**: the compact BfPlane store
+  — 12x64 RSS -23% on top of HH+KK (cumulative -46..47% vs round
+  5); **8B: commit ~61 GB, the pass peak now lvl-0 ~72 GB — under
+  128 GB with ~56 GB margin (range-form counts); 30B: the layer
+  store off the critical list (~40-46 GB), the new 30B peak = the
+  weight-group terms ~265-270 GB (future levers named)**. The
+  full-mode recount (owed per the F1 ruling) starts from these
+  numbers.
+- Six battery digests + freeze-check + both anchors green on the
+  merged tree. The Mac path unchanged: T15 -> T16 -> T17 (both
+  forms).
+
 **AS OF 2026-08-30 late (ROUND 7 MERGED — the PoC sprint's WSL side
 is COMPLETE; five battery digests + freeze-check green on the tree):**
 - **LL/W-1 LANDED**: the claim tables split at 8B (f k=7, d k=2,
