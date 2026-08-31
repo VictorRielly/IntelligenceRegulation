@@ -52633,8 +52633,34 @@ fn uperf_x_main(args: &[String]) {
             let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(512);
             uperf_x_stage_a(seed, t);
         }
+        // [UPERF3-NN] X1 arms (round 8; toy shape T 16 value / T 32 proven).
+        Some("entries") => {
+            let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(1611);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(16);
+            uperf_x_entries(seed, t);
+        }
+        Some("layer-chain") => {
+            let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(1611);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(16);
+            uperf_x_layer_chain(seed, t);
+        }
+        Some("pw-battery") => {
+            let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(1611);
+            uperf_x_pw_battery(seed);
+        }
+        Some("head-prove") => {
+            let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(1611);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(32);
+            uperf_x_head_prove(seed, t);
+        }
+        Some("head-battery") => {
+            let seed: u64 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(1611);
+            let t: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(32);
+            uperf_x_head_battery(seed, t);
+        }
         _ => {
             eprintln!("usage: ring_matmul uperf-x chain [seed] [t] | prove [seed] [t] | prove-cal [seed] [t] | battery [seed] [t] | stage-a [seed] [t]");
+            eprintln!("       ring_matmul uperf-x entries [seed] [t] | layer-chain [seed] [t] | pw-battery [seed] | head-prove [seed] [t] | head-battery [seed] [t]   [UPERF3-NN]");
             std::process::exit(2);
         }
     }
@@ -52928,8 +52954,26 @@ fn xs_layout(t: usize, es: i32, shape: CommitShape, q: u64) -> XsLayout {
 /// entry commitment digests. The witness tags bind exactly as in the
 /// bf/u3 pass statements.
 fn xs_statement_bytes(t: usize, es: i32, commit_digests: &[Vec<u8>], crs_hash: &[u8]) -> Vec<u8> {
-    use ring::attn_softmax::{F_E, F_P, HEAD_DIM, exp_member};
-    let mut b: Vec<u8> = b"uperf3-jj-xs1-v1".to_vec();
+    use ring::attn_softmax::exp_member;
+    let (_, dg) = exp_member(es);
+    xs_statement_bytes_tagged(b"uperf3-jj-xs1-v1", b"", t, es, &dg, commit_digests, crs_hash)
+}
+
+/// [UPERF3-NN] The X-S1 statement bytes, parameterized (tag + extra
+/// statement data + the member digest as an argument) so the lane-NN
+/// head-indexed statements ride the same shape; the JJ entry point
+/// above keeps its exact bytes (uperf-x battery digest is the guard).
+fn xs_statement_bytes_tagged(
+    tag: &[u8],
+    extra: &[u8],
+    t: usize,
+    es: i32,
+    member_digest: &[u8; 32],
+    commit_digests: &[Vec<u8>],
+    crs_hash: &[u8],
+) -> Vec<u8> {
+    use ring::attn_softmax::{F_E, F_P, HEAD_DIM};
+    let mut b: Vec<u8> = tag.to_vec();
     b.extend(crs_hash);
     for v in [t, HEAD_DIM, xs_wrho(t)] {
         b.extend((v as u64).to_le_bytes());
@@ -52938,8 +52982,8 @@ fn xs_statement_bytes(t: usize, es: i32, commit_digests: &[Vec<u8>], crs_hash: &
         b.extend(v.to_le_bytes());
     }
     b.extend(b"mask:causal-lower-tri;offsupport-reads:-127;offsupport-aux:0");
-    let (_, dg) = exp_member(es);
-    b.extend(dg);
+    b.extend(member_digest);
+    b.extend(extra);
     for d in commit_digests {
         b.extend(d);
     }
@@ -52952,6 +52996,7 @@ fn xs_commit_entries(
     shape: CommitShape,
     crs: &ring::commit::RingCrs,
     path: &KernelPath,
+    wit_tag: &str,
 ) -> (Vec<Vec<u8>>, BfCommitted) {
     let zq = ring_ctx_q8().zq;
     let per = shape.msg_r * D;
@@ -52962,7 +53007,7 @@ fn xs_commit_entries(
         let vals = xs_entry_values(e, ch);
         let n_cms = vals.len().div_ceil(per);
         let mut rng = ring::ProverRng::from_test_seed(
-            "uperf3-jj-wit",
+            wit_tag,
             &[(e as u64).to_le_bytes(), (t as u64).to_le_bytes()].concat(),
         );
         let mut cm_digests = Vec::with_capacity(n_cms);
@@ -52989,7 +53034,7 @@ fn xs_commit_entries(
     (entry_digests, kept)
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 enum XsTamper {
     None,
     /// m[t0] += 1 (chain rederived self-consistently; zsel stays at the
@@ -53093,7 +53138,51 @@ fn xs1_run(
     tamper: XsTamper,
     quiet: bool,
 ) -> (XsVerdict, [f64; 3], usize, usize) {
-    use ring::attn_softmax::{F_P, calibrated_s8, derive_chain, exp_member, seeded_s8};
+    use ring::attn_softmax::{calibrated_s8, exp_member, seeded_s8};
+    let s8 = if cal { calibrated_s8(seed, t * t) } else { seeded_s8(seed, t * t) };
+    let (tab_stmt, member_digest) = exp_member(es);
+    let (tab_wrong, _) = exp_member(if es == -1 { -2 } else { -1 });
+    let cfg = XsCfg {
+        label: "uperf3-jj-xs1",
+        stmt_tag: b"uperf3-jj-xs1-v1",
+        stmt_extra: b"",
+        wit_tag: "uperf3-jj-wit",
+        session_tag: "uperf3-jj-session",
+        es,
+        tab_stmt: &tab_stmt,
+        member_digest,
+        tab_wrong: &tab_wrong,
+    };
+    xs1_run_core(seed, t, &s8, &cfg, tamper, quiet)
+}
+
+/// [UPERF3-NN] The X-S1 rig parameterized over the s8 source, the exp
+/// members and the statement/transcript tags (behavior-preserving
+/// extraction: the JJ wrapper above reproduces the round-6 bytes
+/// exactly — uperf-x battery digest be89d5da.. is the guard). Lane NN
+/// drives it per (head) with the LAYER-derived s8 blocks and
+/// head-tagged statements.
+struct XsCfg<'a> {
+    label: &'a str,
+    stmt_tag: &'a [u8],
+    stmt_extra: &'a [u8],
+    wit_tag: &'a str,
+    session_tag: &'a str,
+    es: i32,
+    tab_stmt: &'a [i64; 256],
+    member_digest: [u8; 32],
+    tab_wrong: &'a [i64; 256],
+}
+
+fn xs1_run_core(
+    seed: u64,
+    t: usize,
+    s8_in: &[i64],
+    cfg: &XsCfg,
+    tamper: XsTamper,
+    quiet: bool,
+) -> (XsVerdict, [f64; 3], usize, usize) {
+    use ring::attn_softmax::{F_P, derive_chain};
     use ring::ct_engine::{
         CtClaim, StdOpening, WavePads, closing_round_claims, ct_h0, derive_ct_round_params,
         draw_wave_pads, pack_wave_pads, prove_ct_round, sample_ct_masks,
@@ -53126,14 +53215,16 @@ fn xs1_run(
     let n2 = t * t;
 
     // ---- The witness chain (honest, then the tamper knob). --------------
-    let s8 = if cal { calibrated_s8(seed, n2) } else { seeded_s8(seed, n2) };
-    let (tab_stmt, _) = exp_member(es);
-    let (tab_wrong, _) = exp_member(if es == -1 { -2 } else { -1 });
-    let honest = derive_chain(t, &s8, &tab_stmt);
+    let s8: Vec<i64> = s8_in.to_vec();
+    assert_eq!(s8.len(), n2);
+    let es = cfg.es;
+    let tab_stmt = cfg.tab_stmt;
+    let tab_wrong = cfg.tab_wrong;
+    let honest = derive_chain(t, &s8, tab_stmt);
     {
         // Rung-1 tie: the rig's knobbed derivation at honest knobs
         // bit-equals the value oracle's chain.
-        let d0 = xs_derive(t, &s8, &tab_stmt, 0, None);
+        let d0 = xs_derive(t, &s8, tab_stmt, 0, None);
         assert_eq!(d0.m, honest.m);
         assert_eq!(d0.p, honest.p);
         assert_eq!(d0.sigma, honest.sigma);
@@ -53143,24 +53234,31 @@ fn xs1_run(
     // also attained, so zsel can move to a d = 0 position and the
     // reject isolates to F-dom (the d range/lookup gates) — the spec's
     // "understating m makes some d negative" argument, adversarially.
-    let mu_row = (1..t)
-        .rev()
-        .find(|&r| {
-            let mx = honest.m[r];
-            mx > -127 && (0..=r).any(|c| s8[r * t + c] == mx - 1)
-        })
-        .expect("no row supports the m-understate leg at this seed/T");
+    // [UPERF3-NN] computed lazily (only the leg that needs it), so
+    // honest runs on arbitrary s8 sources never require such a row.
+    let mu_row_find = || {
+        (1..t)
+            .rev()
+            .find(|&r| {
+                let mx = honest.m[r];
+                mx > -127 && (0..=r).any(|c| s8[r * t + c] == mx - 1)
+            })
+            .expect("no row supports the m-understate leg at this seed/T")
+    };
     let mut ch = match tamper {
-        XsTamper::None => honest,
-        XsTamper::MOverstate => xs_derive(t, &s8, &tab_stmt, 0, Some((t0_row, 1))),
-        XsTamper::MUnderstate => xs_derive(t, &s8, &tab_stmt, 0, Some((mu_row, -1))),
-        XsTamper::ShiftedMask => xs_derive(t, &s8, &tab_stmt, 1, None),
-        XsTamper::WrongExpMember => xs_derive(t, &s8, &tab_wrong, 0, None),
-        XsTamper::ZselTwoHot | XsTamper::ZselOffsupport | XsTamper::OffsupportP => honest,
+        XsTamper::None => honest.clone(),
+        XsTamper::MOverstate => xs_derive(t, &s8, tab_stmt, 0, Some((t0_row, 1))),
+        XsTamper::MUnderstate => {
+            let mu_row = mu_row_find();
+            xs_derive(t, &s8, tab_stmt, 0, Some((mu_row, -1)))
+        }
+        XsTamper::ShiftedMask => xs_derive(t, &s8, tab_stmt, 1, None),
+        XsTamper::WrongExpMember => xs_derive(t, &s8, tab_wrong, 0, None),
+        XsTamper::ZselTwoHot | XsTamper::ZselOffsupport | XsTamper::OffsupportP => honest.clone(),
     };
     match tamper {
         XsTamper::MUnderstate => {
-            let r = mu_row;
+            let r = mu_row_find();
             let arg = (0..t).find(|&c| ch.zsel[r * t + c] == 1).unwrap();
             let c2 = (0..t).find(|&c| ch.d[r * t + c] == 0).expect("d = 0 position exists");
             ch.zsel[r * t + arg] = 0;
@@ -53201,19 +53299,19 @@ fn xs1_run(
     // The prover's table for the exp instance (wrong-member leg forges
     // consistently; the verifier folds the STATEMENT member).
     let tab_prover: &[i64; 256] =
-        if tamper == XsTamper::WrongExpMember { &tab_wrong } else { &tab_stmt };
+        if tamper == XsTamper::WrongExpMember { tab_wrong } else { tab_stmt };
 
     // ---- Commit pass (entries + aux; ALL before any challenge). ---------
     let t_commit = Instant::now();
     let rp_probe = derive_ct_round_params(q, shape, ur1_c2_max_commits(q, shape), 0, 0, true);
     let a1p = build_a1_paths(&crs, rp_probe.sigma, isqrt_u128(rp_probe.bound_sq));
     let path = KernelPath::A1(&a1p);
-    let (entry_digests, kept) = xs_commit_entries(&ch, t, shape, &crs, &path);
+    let (entry_digests, kept) = xs_commit_entries(&ch, t, shape, &crs, &path, cfg.wit_tag);
     let ml = xs_layout(t, es, shape, q);
     let BfCommitted { mut msgs, mut rhos8, mut t1s, mut t2s } = kept;
 
     let mut rng = ring::ProverRng::from_test_seed(
-        "uperf3-jj-session",
+        cfg.session_tag,
         &[seed.to_le_bytes(), (t as u64).to_le_bytes()].concat(),
     );
     let mut pads_live: Option<WavePads> = Some(draw_wave_pads(&mut rng, q, &ml.pad_layout));
@@ -53368,7 +53466,9 @@ fn xs1_run(
     };
 
     // ---- The statement + h0 (binds EVERY commitment). -------------------
-    let st_bytes = xs_statement_bytes(t, es, &entry_digests, &crs.crs_hash);
+    let st_bytes = xs_statement_bytes_tagged(
+        cfg.stmt_tag, cfg.stmt_extra, t, es, &cfg.member_digest, &entry_digests, &crs.crs_hash,
+    );
     let ctx = uk8_sha(&[&st_bytes]);
     let h0 = ct_h0(&crs, &ctx, &t1s, &t2s, &[]);
 
@@ -53443,7 +53543,7 @@ fn xs1_run(
     // PROVER (one rolling transcript from h0).
     // =====================================================================
     let t_prove = Instant::now();
-    let mut tr = LkpTranscript::new("uperf3-jj-xs1", &h0);
+    let mut tr = LkpTranscript::new(cfg.label, &h0);
     let mut pins: Vec<PinnedValue> = Vec::new();
 
     let zsel_k = embed_col(&ch.zsel);
@@ -53923,13 +54023,15 @@ fn xs1_run(
     // =====================================================================
     let t_verify = Instant::now();
     {
-        let st_v = xs_statement_bytes(t, es, &entry_digests, &crs.crs_hash);
+        let st_v = xs_statement_bytes_tagged(
+            cfg.stmt_tag, cfg.stmt_extra, t, es, &cfg.member_digest, &entry_digests, &crs.crs_hash,
+        );
         if uk8_sha(&[&st_v]) != ctx {
             verdict.statement_ok = false;
             return (verdict, [commit_s, prove_s, 0.0], n_pins, n_waves);
         }
     }
-    let mut tv = LkpTranscript::new("uperf3-jj-xs1", &h0);
+    let mut tv = LkpTranscript::new(cfg.label, &h0);
     let mut pins_v: Vec<PinnedValue> = Vec::new();
 
     // ---- G1. ------------------------------------------------------------
@@ -54506,4 +54608,678 @@ fn uperf_x_stage_a(seed: u64, t: usize) {
         t0.elapsed().as_secs_f64()
     );
     println!("[UPERF3-JJ] XS1 STAGE-A DIGEST {}", hex_full(&dg));
+}
+
+// ===========================================================================
+// [UPERF3-NN] U-PERF3 round 8, lane NN — X1: the attention ENTRY CLASSES +
+// PUBLIC-WEIGHT WIRINGS at toy shape (design memo §5.1 X1; semantics
+// ATTENTION_INTEGER_SPEC.md §2.1-2.9; value side ring/attn_entries.rs;
+// softmax core = the X-S1 machinery above, reused per head through
+// xs1_run_core). ADDITIVE: nothing here is called by any shipped path;
+// frozen registries unmoved (rope/exp members lane-local, AT-O5/O6
+// pending). AT-O2 ruled UNFUSED (66 entries; ledger).
+//
+//   uperf-x entries [seed] [t]      — the typed 66-entry table + census
+//   uperf-x layer-chain [seed] [t]  — the full-layer value chain (diff vs
+//                                     scripts/attention_x1_layer_ref.py)
+//   uperf-x pw-battery [seed]       — PW-1..PW-4 + head-coeff-MLE F5 legs
+//   uperf-x head-prove [seed] [t]   — the per-head X-S1 chain proven (2 heads)
+//   uperf-x head-battery [seed] [t] — AT-O8/O9-class tamper legs per head
+// ===========================================================================
+
+/// The per-entry (QuantMeta, TypingV4) rows + class label + exponent
+/// SOURCE tag (the §1.6b measured defaults / synthetic / structural /
+/// derived), at the toy dims. Declared class bounds (int8 operands),
+/// never draw-empirical — the bf_entry_typing discipline.
+fn x1_entry_typing(
+    e: usize,
+    lay: &ring::attn_entries::X1Layer,
+) -> (manifest::QuantMeta, manifest::TypingV4, &'static str, String) {
+    use manifest::{CLS_ACC, CLS_ACT8, CLS_AUX31, CLS_REM, CLS_W8S, QuantMeta, TypingV4};
+    use ring::attn_entries::{bits_signed, bits_unsigned, E_GAMMA, E_W, E_X, TOY_D, W_LIMB, X1_ENTRIES};
+    use ring::attn_softmax::{F_E, F_P, HEAD_DIM};
+    let m = &lay.meta;
+    let t = lay.t;
+    let q = |bits: u32, signed: bool| QuantMeta { bits, frac_bits: 0, signed };
+    let qf = |bits: u32, frac: u32, signed: bool| QuantMeta { bits, frac_bits: frac, signed };
+    let ty = |se: i32, sym: bool, class: u32| TypingV4 { scale_exp: se, symmetric: sym, class, base_e0: 2 };
+    let tyw = |se: i32| TypingV4 { scale_exp: se, symmetric: true, class: CLS_W8S, base_e0: 1 };
+    let d_i = TOY_D as i64;
+    let ceps_a = m.ceps_a;
+    let ceps_m = m.ceps_m;
+    let dmax_a = ring::attn_entries::isqrt_i64(d_i * 127 * 127 + ceps_a);
+    let dmax_m = ring::attn_entries::isqrt_i64(d_i * 127 * 127 + ceps_m);
+    let acc768 = bits_signed(d_i * 127 * 127); // inner-d int8xint8 declared class
+    let acc_score = bits_signed(HEAD_DIM as i64 * 127 * 127);
+    let acc_pv = bits_signed((t as i64) * (1 << F_P) * 127);
+    let acc_rope = bits_signed(2 * 127 << 7);
+    let xw1_b = bits_signed(127 * ((1i64 << (E_X - std::cmp::min(E_X, m.e_ao))) + (1i64 << (m.e_ao - std::cmp::min(E_X, m.e_ao)))));
+    let meas = |e8: i32| format!("MEASURED §1.6b l0 e8 {e8} (per-tensor int8)");
+    let seam = |e8: i32| format!("MEASURED §1.6b l0 e8 {e8}; SEAM: i16 class @8B (stack_wide ruling)");
+    let der = "derived (edge metadata)".to_string();
+    let strq = "structural (§1.6 axis table: none)".to_string();
+    let syn = "SYNTHETIC (spec §0 class; X2/AT-O1 kills)".to_string();
+    let wsrc = "study class eW -9 (Wattn int8 MEASURED +0.20 composed)".to_string();
+    match X1_ENTRIES[e] {
+        "xsqA" => (q(15, true), ty(2 * E_X, true, CLS_ACC), "ACC", der),
+        "xsqM" => (q(15, true), ty(2 * m.e_r1, true, CLS_ACC), "ACC", der),
+        "SSA" => (q(bits_unsigned(d_i * 127 * 127 + ceps_a), false), ty(2 * E_X, false, CLS_ACC), "ACC", der),
+        "SSM" => (q(bits_unsigned(d_i * 127 * 127 + ceps_m), false), ty(2 * m.e_r1, false, CLS_ACC), "ACC", der),
+        "DA" => (q(bits_unsigned(dmax_a), false), ty(E_X, false, CLS_AUX31), "AUX", der),
+        "DM" => (q(bits_unsigned(dmax_m), false), ty(m.e_r1, false, CLS_AUX31), "AUX", der),
+        "DsqA" => (q(bits_unsigned(dmax_a * dmax_a), false), ty(2 * E_X, false, CLS_AUX31), "AUX", der),
+        "DsqM" => (q(bits_unsigned(dmax_m * dmax_m), false), ty(2 * m.e_r1, false, CLS_AUX31), "AUX", der),
+        "a1A" | "a2A" | "a1M" | "a2M" => (q(14, false), ty(0, false, CLS_AUX31), "AUX", "derived (isqrt fact pair w14)".to_string()),
+        "xn8" => (q(8, true), ty(m.e_xn, true, CLS_ACT8), "ACT8", syn),
+        "xm8" => (q(8, true), ty(m.e_xm, true, CLS_ACT8), "ACT8", syn),
+        "rhoA_lo" | "sigA_lo" => (q(W_LIMB, false), ty(0, false, CLS_REM), "REM", format!("derived (norm DIV limb {W_LIMB} of w{})", m.wrho_a)),
+        "rhoA_hi" | "sigA_hi" => (q(m.wrho_a - W_LIMB, false), ty(0, false, CLS_REM), "REM", format!("derived (norm DIV limb hi of w{})", m.wrho_a)),
+        "rhoM_lo" | "sigM_lo" => (q(W_LIMB, false), ty(0, false, CLS_REM), "REM", format!("derived (norm DIV limb {W_LIMB} of w{})", m.wrho_m)),
+        "rhoM_hi" | "sigM_hi" => (q(m.wrho_m - W_LIMB, false), ty(0, false, CLS_REM), "REM", format!("derived (norm DIV limb hi of w{})", m.wrho_m)),
+        "Qacc" => (q(acc768, true), ty(m.e_xn + E_W, true, CLS_ACC), "ACC", der),
+        "Kacc" => (q(acc768, true), ty(m.e_xn + E_W, true, CLS_ACC), "ACC", der),
+        "Vacc" => (q(acc768, true), ty(m.e_xn + E_W, true, CLS_ACC), "ACC", der),
+        "q8" => (q(8, true), ty(m.e_q, true, CLS_ACT8), "ACT8", meas(-3)),
+        "k8" => (q(8, true), ty(m.e_k, true, CLS_ACT8), "ACT8", meas(-6)),
+        "v8" => (q(8, true), ty(m.e_v, true, CLS_ACT8), "ACT8", meas(-3)),
+        "rQ" => (q(m.sh_q, false), ty(m.e_xn + E_W, false, CLS_REM), "REM", der),
+        "rK" => (q(m.sh_k, false), ty(m.e_xn + E_W, false, CLS_REM), "REM", der),
+        "rV" => (q(m.sh_v, false), ty(m.e_xn + E_W, false, CLS_REM), "REM", der),
+        "QRacc" | "KRacc" => (q(acc_rope, true), ty(m.e_q - 7, true, CLS_ACC), "ACC", der),
+        "qr8" => (q(8, true), ty(m.e_qr, true, CLS_ACT8), "ACT8", meas(-3)),
+        "kr8" => (q(8, true), ty(m.e_kr, true, CLS_ACT8), "ACT8", meas(-6)),
+        "rQR" | "rKR" => (q(7, false), ty(m.e_q - 7, false, CLS_REM), "REM", der),
+        "Sacc" => (q(acc_score, true), ty(m.e_qr + m.e_kr, true, CLS_ACC), "ACC", der),
+        "s8" => (q(8, true), ty(m.e_s, true, CLS_ACT8), "ACT8", meas(-2)),
+        "rS" => (q(m.sh_s, false), ty(m.e_qr + m.e_kr, false, CLS_REM), "REM", der),
+        "m" => (q(8, true), ty(m.e_s, true, CLS_ACT8), "ACT8", strq),
+        "d" => (q(8, false), ty(m.e_s, false, CLS_AUX31), "AUX", strq),
+        "zsel" => (q(1, false), ty(0, false, CLS_AUX31), "AUX", strq),
+        "E" => (qf(F_E as u32 + 1, F_E as u32, false), ty(-(F_E as i32), false, CLS_AUX31), "AUX", strq),
+        "Sum" => (qf(m.wrho_sm + 1, F_E as u32, false), ty(-(F_E as i32), false, CLS_AUX31), "AUX", strq),
+        "P" => (qf(F_P as u32 + 1, F_P as u32, false), ty(-(F_P as i32), false, CLS_AUX31), "AUX", strq),
+        "rho" | "sig" => (q(m.wrho_sm, false), ty(-(F_E as i32), false, CLS_REM), "REM", strq),
+        "Oacc" => (q(acc_pv, true), ty(m.e_v - F_P as i32, true, CLS_ACC), "ACC", der),
+        "o8" => (q(8, true), ty(m.e_o, true, CLS_ACT8), "ACT8", meas(-3)),
+        "rO" => (q(m.sh_o, false), ty(m.e_v - F_P as i32, false, CLS_REM), "REM", der),
+        "AOacc" => (q(acc768, true), ty(m.e_o + E_W, true, CLS_ACC), "ACC", der),
+        "ao8" => (q(8, true), ty(m.e_ao, true, CLS_ACT8), "ACT8", seam(-3)),
+        "rAO" => (q(m.sh_ao, false), ty(m.e_o + E_W, false, CLS_REM), "REM", der),
+        "xw1" => (q(xw1_b, true), ty(std::cmp::min(E_X, m.e_ao), true, CLS_ACC), "ACC", der),
+        "xres1" => (q(8, true), ty(m.e_r1, true, CLS_ACT8), "ACT8", seam(0)),
+        "rr1" => (q(m.sh_r1, false), ty(std::cmp::min(E_X, m.e_ao), false, CLS_REM), "REM", der),
+        "xw2" => (q(bits_signed(254), true), ty(m.e_r1, true, CLS_ACC), "ACC", der),
+        "xres2" => (q(8, true), ty(m.e_r2, true, CLS_ACT8), "ACT8", seam(0)),
+        "rr2" => (q(m.sh_r2, false), ty(m.e_r1, false, CLS_REM), "REM", der),
+        "Wq" | "Wk" | "Wv" | "Wo" => (q(8, true), tyw(E_W), "W8S", wsrc),
+        "gA" | "gM" => (q(8, true), tyw(E_GAMMA), "W8S", "study gamma class eG -6 (oracle convention)".to_string()),
+        _ => unreachable!(),
+    }
+}
+
+/// [UPERF3-NN] rung 1 — `uperf-x entries [seed] [t]`: the typed entry
+/// enumeration, reconciled against the spec §4.1 census (66 = witness
+/// 60 + weights 6) and the memo §1 inventory; deltas FLAGGED.
+fn uperf_x_entries(seed: u64, t: usize) {
+    use ring::attn_entries::{derive_layer, x1_entry_shape, X1_BLOCKS, X1_ENTRIES};
+    use sha2::{Digest, Sha256};
+    let lay = derive_layer(seed, t);
+    let mut out: Vec<String> = Vec::new();
+    out.push(format!(
+        "[UPERF3-NN] entries seed {seed} t {t} (toy: d 128, H 2, Hkv 1, dh 64) — AT-O2: UNFUSED (66)"
+    ));
+    let mut block_iter = X1_BLOCKS.iter();
+    let mut block_left = 0usize;
+    let mut counted = 0usize;
+    for e in 0..X1_ENTRIES.len() {
+        if block_left == 0 {
+            let (bn, bc) = block_iter.next().unwrap();
+            block_left = *bc;
+            out.push(format!("  -- {bn} ({bc})"));
+        }
+        block_left -= 1;
+        counted += 1;
+        let (r, c) = x1_entry_shape(e, t);
+        let (qm, ty, cls, src) = x1_entry_typing(e, &lay);
+        out.push(format!(
+            "  {:>2} {:<8} {:>4}x{:<4} {:<4} bits {:>2}{} frac {} scale 2^{:<3} sym {} e0 {} | {}",
+            e,
+            X1_ENTRIES[e],
+            r,
+            c,
+            cls,
+            qm.bits,
+            if qm.signed { "s" } else { "u" },
+            qm.frac_bits,
+            ty.scale_exp,
+            if ty.symmetric { 1 } else { 0 },
+            ty.base_e0,
+            src
+        ));
+    }
+    assert_eq!(counted, 66);
+    out.push("  RECONCILIATION vs spec §4.1 / memo §1:".to_string());
+    out.push("    census 66/66 (witness 60 + weights 6): attn_norm 11, qkv 9, rope 6, scores 3, softmax 8, pv 3, wo 3, resid1 3, mlp_norm 11, resid2 3, weights 6 — MATCHES".to_string());
+    out.push(format!(
+        "    softmax rho/sig SINGLE range facts at w{} = fE + log2(T) (18 at 125M T=512; §2.9 split rule) — no limb split; norm remainders split ({}, {})",
+        lay.meta.wrho_sm,
+        ring::attn_entries::W_LIMB,
+        lay.meta.wrho_a - ring::attn_entries::W_LIMB
+    ));
+    out.push("    FLAG (delta, by design): X_l input + the FFN 17 are the MVP-1 entries (shared, not re-counted); resid2 consumes the FFN output — toy chain uses a seeded stand-in (the X3 seam)".to_string());
+    out.push("    FLAG (delta, by design): Gemma AM-5 sites (QK-norm x2, post_attn/post_ffn norms) are NOT in the §4.1 125M inventory — the §1.6b postn measured row has no entry here; they enter with the route-N adapter, not X1".to_string());
+    out.push("    FLAG (class registry): attention aux (D/Dsq/a1/a2/d/zsel/E/Sum/P) rides CLS_AUX31 + CLS_REM — no dedicated narrow class row added (frozen registries untouched); whether narrower classes pay is an X3 pricing item".to_string());
+    out.push("    C2 axes (§1.6b MEASURED): per-tensor (degenerate) at every core site; per-head vectors NOT needed at first order — head-axis kept as the AM-3 recorded escape (the pw-battery's coeff-MLE leg exercises the machinery)".to_string());
+    let mut h = Sha256::new();
+    for l in &out {
+        h.update(l.as_bytes());
+        h.update(b"\n");
+        println!("{l}");
+    }
+    let dg: [u8; 32] = h.finalize().into();
+    println!("[UPERF3-NN] X1 ENTRIES DIGEST {}", hex_full(&dg));
+}
+
+/// [UPERF3-NN] rung 2 — `uperf-x layer-chain [seed] [t]`: the full
+/// toy-layer value chain; stdout byte-diffable vs the stated reference
+/// scripts/attention_x1_layer_ref.py (acceptance (c) at layer scope).
+fn uperf_x_layer_chain(seed: u64, t: usize) {
+    use ring::attn_entries::{derive_layer, layer_header_lines, X1_ENTRIES};
+    use ring::attn_softmax::tensor_digest;
+    use sha2::{Digest, Sha256};
+    let lay = derive_layer(seed, t);
+    for l in layer_header_lines(seed, &lay) {
+        println!("{l}");
+    }
+    let mut combined = Sha256::new();
+    for (e, name) in X1_ENTRIES.iter().enumerate() {
+        let dg = tensor_digest(&lay.entries[e]);
+        combined.update(dg);
+        println!("  {name:<8} {}", ring::attn_entries::hex32(&dg));
+    }
+    let cd: [u8; 32] = combined.finalize().into();
+    println!("  CHAIN {}", ring::attn_entries::hex32(&cd));
+}
+
+/// The layer CHAIN digest (sha256 over the 66 entry digests) — the
+/// head-prove statement's layer-binding bytes.
+fn x1_chain_digest(lay: &ring::attn_entries::X1Layer) -> [u8; 32] {
+    use ring::attn_softmax::tensor_digest;
+    use sha2::{Digest, Sha256};
+    let mut combined = Sha256::new();
+    for e in 0..ring::attn_entries::X1_ENTRIES.len() {
+        combined.update(tensor_digest(&lay.entries[e]));
+    }
+    combined.finalize().into()
+}
+
+/// Dense multilinear evaluation by folding (LSB-first: bit j of the
+/// index pairs with point[j] — the house eq_table convention). The
+/// INDEPENDENT second evaluation path of the F5 legs.
+fn x1_mle_fold(kf: &ring::kfield::KField, vals: &[ring::kfield::KElem], point: &[ring::kfield::KElem]) -> ring::kfield::KElem {
+    let mut cur = vals.to_vec();
+    let n = 1usize << point.len();
+    assert!(vals.len() <= n);
+    cur.resize(n, kf.zero());
+    for p in point {
+        let half = cur.len() / 2;
+        let mut nxt = Vec::with_capacity(half);
+        for i in 0..half {
+            let lo = &cur[2 * i];
+            let hi = &cur[2 * i + 1];
+            nxt.push(kf.add(lo, &kf.mul(p, &kf.sub(hi, lo))));
+        }
+        cur = nxt;
+    }
+    cur.into_iter().next().unwrap()
+}
+
+/// [UPERF3-NN] rung 3 — `uperf-x pw-battery [seed]`: the PW-1..PW-4
+/// builders' F5 legs (each public-weight functional == its direct
+/// evaluation at random points, two independent code paths) + the
+/// head-indexed public coefficient MLE (the BG layer-MLE precedent
+/// extended to (l, h)) + the rope-cs member freeze legs.
+fn uperf_x_pw_battery(seed: u64) {
+    use ring::attn_entries::{derive_layer, rope_member, seeded_w8, HEAD_DIM as DH, TOY_GQA_GROUP, TOY_H};
+    use ring::gkr::eq_table;
+    use ring::kfield::{KElem, KField};
+    use ring::sumcheck::LkpTranscript;
+    use sha2::{Digest, Sha256};
+    let t0 = Instant::now();
+    let ctx_ring = ring_ctx_q8();
+    let kf = KField::new(&ctx_ring);
+    let zq = ctx_ring.zq;
+    let t = 16usize;
+    let lay = derive_layer(seed, t);
+    let h0 = uk8_sha(&[b"uperf3-nn-pw", &seed.to_le_bytes()]);
+    let mut tr = LkpTranscript::new("uperf3-nn-pw", &h0);
+    let mut draw = |n: usize| -> Vec<KElem> { (0..n).map(|_| tr.challenge_k(&kf)).collect() };
+    let embed = |v: i64| kf.embed(zq.to_mod(v));
+    let embed_col = |vals: &[i64]| -> Vec<KElem> { vals.iter().map(|&v| embed(v)).collect() };
+    let dense_eval = |vals: &[KElem], point: &[KElem]| -> KElem {
+        let ez = eq_table(&kf, point);
+        let mut acc = kf.zero();
+        for (x, v) in vals.iter().enumerate() {
+            if !kf.is_zero(v) {
+                acc = kf.add(&acc, &kf.mul(v, &ez[x]));
+            }
+        }
+        acc
+    };
+    let mut legs: Vec<(String, bool)> = Vec::new();
+    let mut leg = |name: &str, ok: bool| {
+        assert!(ok, "PW battery leg FAILED: {name}");
+        println!("  leg {name}: ok");
+        legs.push((name.to_string(), ok));
+    };
+
+    // ---- PW-1: RoPE flip-read + sign-folded c/s weight closed forms. ----
+    {
+        let q8 = lay.entry("q8"); // [t, H*64] head-major; n = 2048 = 2^11
+        let n = q8.len();
+        let lv = n.trailing_zeros() as usize;
+        let (ctab, stab, _) = rope_member(t);
+        let half = DH / 2;
+        // index bits: i = b & 63 (bits 0-5; top-of-head bit 5), h = bit 6.., t = high bits
+        let lgh = TOY_H.trailing_zeros() as usize;
+        let qk = embed_col(q8);
+        let qracc = lay.entry("QRacc");
+        let r = draw(lv);
+        // (a) flip-read exact identity: dense sum of eq(r,b)*q8(flip b)
+        //     == MLE(q8) at r with coordinate 5 replaced by 1 - r_5.
+        let flip_tab: Vec<KElem> = (0..n).map(|b| qk[b ^ half].clone()).collect();
+        let dense_flip = dense_eval(&flip_tab, &r);
+        let mut r_flip = r.clone();
+        r_flip[5] = kf.sub(&kf.one(), &r[5]);
+        let fold_flip = x1_mle_fold(&kf, &qk, &r_flip);
+        leg("pw1-flip-read-identity", dense_flip == fold_flip);
+        // (b) the rotation relation as a weighted zero point: the honest
+        //     witness satisfies QRacc = cW o q8 + sW o q8(flip) pointwise.
+        let cw = |b: usize| -> i64 { ctab[(b >> (6 + lgh)) * half + (b & (half - 1))] };
+        let sw = |b: usize| -> i64 {
+            let s = stab[(b >> (6 + lgh)) * half + (b & (half - 1))];
+            if (b >> 5) & 1 == 1 { s } else { -s }
+        };
+        let mut acc = kf.zero();
+        let ez = eq_table(&kf, &r);
+        for b in 0..n {
+            let resid = qracc[b] - cw(b) * q8[b] - sw(b) * q8[b ^ half];
+            if resid != 0 {
+                acc = kf.add(&acc, &kf.mul(&embed(resid), &ez[b]));
+            }
+        }
+        leg("pw1-rotation-zero-check", kf.is_zero(&acc));
+        // (c) cW~ closed form: head + top-of-head bits marginalize to 1.
+        let cw_tab: Vec<KElem> = (0..n).map(|b| embed(cw(b))).collect();
+        let dense_cw = dense_eval(&cw_tab, &r);
+        let c_small: Vec<KElem> = (0..t * half).map(|x| embed(ctab[x])).collect();
+        let mut pt_small: Vec<KElem> = r[..5].to_vec();
+        pt_small.extend_from_slice(&r[6 + lgh..]);
+        let closed_cw = x1_mle_fold(&kf, &c_small, &pt_small);
+        leg("pw1-cw-closed-form", dense_cw == closed_cw);
+        // (d) sW~ closed form: the sign rides the top-of-head bit as
+        //     the factor (2*r_5 - 1).
+        let sw_tab: Vec<KElem> = (0..n).map(|b| embed(sw(b))).collect();
+        let dense_sw = dense_eval(&sw_tab, &r);
+        let s_small: Vec<KElem> = (0..t * half).map(|x| embed(stab[x])).collect();
+        let sign = kf.sub(&kf.add(&r[5], &r[5]), &kf.one());
+        let closed_sw = kf.mul(&sign, &x1_mle_fold(&kf, &s_small, &pt_small));
+        leg("pw1-sw-closed-form", dense_sw == closed_sw);
+    }
+
+    // ---- PW-2: the GQA/MQA map as public K-side weight structure. -------
+    {
+        // (a) the layer's own map (H 2 -> Hkv 1, g(h) = h/2 = 0: MQA).
+        let kr8 = lay.entry("kr8"); // [t, 64]
+        let lgh = TOY_H.trailing_zeros() as usize;
+        let lv = lgh + (t * DH).trailing_zeros() as usize;
+        let r = draw(lv);
+        let (r_h, r_tj) = (&r[lv - lgh..], &r[..lv - lgh]);
+        let stacked: Vec<KElem> = (0..TOY_H * t * DH)
+            .map(|b| {
+                let h = b >> ((t * DH).trailing_zeros() as usize);
+                let tj = b & (t * DH - 1);
+                let _g = h / TOY_GQA_GROUP; // = 0 at Hkv 1
+                embed(kr8[tj])
+            })
+            .collect();
+        let dense = dense_eval(&stacked, &r);
+        // structured: sum_h eq(r_h, h) * MLE(kr8)(r_tj) with g(h) = 0.
+        let eq_h = eq_table(&kf, r_h);
+        let mle_k = x1_mle_fold(&kf, &embed_col(kr8), r_tj);
+        let mut structured = kf.zero();
+        for eh in eq_h.iter().take(TOY_H) {
+            structured = kf.add(&structured, &kf.mul(eh, &mle_k));
+        }
+        leg("pw2-mqa-map-h2-hkv1", dense == structured);
+        // (b) a NONTRIVIAL map on synthetic data: H 2 -> Hkv 2 identity
+        //     (g(h) = h): the head bits pass through to the kv index.
+        let k2 = seeded_w8("x1-pw2", seed, t * 2 * DH);
+        let lv2 = (2 * t * DH).trailing_zeros() as usize;
+        let r2 = draw(lv2);
+        let (r2_h, r2_tj) = (&r2[lv2 - 1..], &r2[..lv2 - 1]);
+        // stacked read: b = (h, t, j) reads k2[t, h*64 + j] (g = h).
+        let lgtj = (t * DH).trailing_zeros() as usize;
+        let stacked2: Vec<KElem> = (0..2 * t * DH)
+            .map(|b| {
+                let h = b >> lgtj;
+                let tt = (b & (t * DH - 1)) >> 6;
+                let j = b & (DH - 1);
+                embed(k2[tt * 2 * DH + h * DH + j])
+            })
+            .collect();
+        let dense2 = dense_eval(&stacked2, &r2);
+        // structured: sum_h eq(r_h, h) * MLE(k2)(r_j, bits(h), r_t) —
+        // the kv-head coordinate of k2's index space pinned to h.
+        let eq_h2 = eq_table(&kf, r2_h);
+        let mut structured2 = kf.zero();
+        for h in 0..2usize {
+            let mut pt: Vec<KElem> = r2_tj[..6].to_vec(); // j bits
+            pt.push(if h == 1 { kf.one() } else { kf.zero() }); // kv-head bit
+            pt.extend_from_slice(&r2_tj[6..]); // t bits
+            let v = x1_mle_fold(&kf, &embed_col(&k2), &pt);
+            structured2 = kf.add(&structured2, &kf.mul(&eq_h2[h], &v));
+        }
+        leg("pw2-gqa-identity-map-h2-hkv2", dense2 == structured2);
+    }
+
+    // ---- PW-3: causal mask closed form + band degeneracy. ---------------
+    {
+        let lgt = t.trailing_zeros() as usize;
+        let ra = draw(lgt); // row point
+        let rb = draw(lgt); // col point
+        // dense: sum over support pairs.
+        let ea = eq_table(&kf, &ra);
+        let eb = eq_table(&kf, &rb);
+        let mut dense = kf.zero();
+        for tt in 0..t {
+            for c in 0..=tt {
+                dense = kf.add(&dense, &kf.mul(&ea[tt], &eb[c]));
+            }
+        }
+        // closed form (O(log T) DP): le~ = lt + eq over MSB-first bits.
+        let mut eq_acc = kf.one();
+        let mut lt_acc = kf.zero();
+        for j in (0..lgt).rev() {
+            let a = &ra[j];
+            let b = &rb[j];
+            let both0 = kf.mul(&kf.sub(&kf.one(), a), &kf.sub(&kf.one(), b));
+            let both1 = kf.mul(a, b);
+            let a1b0 = kf.mul(a, &kf.sub(&kf.one(), b));
+            lt_acc = kf.add(&lt_acc, &kf.mul(&eq_acc, &a1b0));
+            eq_acc = kf.mul(&eq_acc, &kf.add(&both0, &both1));
+        }
+        let closed = kf.add(&lt_acc, &eq_acc);
+        leg("pw3-causal-mle-closed-form", dense == closed);
+        // pub_mass tie on the full TxT index space (row bits HIGH).
+        let rho = draw(2 * lgt);
+        let et = eq_table(&kf, &rho);
+        let mut mass = kf.zero();
+        for tt in 0..t {
+            for c in 0..=tt {
+                mass = kf.add(&mass, &et[tt * t + c]);
+            }
+        }
+        let mut eq_acc2 = kf.one();
+        let mut lt_acc2 = kf.zero();
+        for j in (0..lgt).rev() {
+            let a = &rho[lgt + j]; // row bit
+            let b = &rho[j]; // col bit
+            let both0 = kf.mul(&kf.sub(&kf.one(), a), &kf.sub(&kf.one(), b));
+            let both1 = kf.mul(a, b);
+            let a1b0 = kf.mul(a, &kf.sub(&kf.one(), b));
+            lt_acc2 = kf.add(&lt_acc2, &kf.mul(&eq_acc2, &a1b0));
+            eq_acc2 = kf.mul(&eq_acc2, &kf.add(&both0, &both1));
+        }
+        leg("pw3-mask-mass-tie", mass == kf.add(&lt_acc2, &eq_acc2));
+        // band degeneracy (AM-6): window w >= T => band == causal.
+        let w = 2 * t; // any window >= T
+        let mut same = true;
+        for tt in 0..t {
+            for c in 0..t {
+                let band = c <= tt && tt < c + w;
+                let causal = c <= tt;
+                same &= band == causal;
+            }
+        }
+        leg("pw3-band-degenerates-at-T<=window", same);
+        // wrong-mask sanity: the shifted triangle's MLE differs (whp).
+        let mut dense_shift = kf.zero();
+        for tt in 0..t {
+            for c in 0..t.min(tt + 2) {
+                dense_shift = kf.add(&dense_shift, &kf.mul(&ea[tt], &eb[c]));
+            }
+        }
+        leg("pw3-shifted-mask-differs", dense_shift != closed);
+    }
+
+    // ---- PW-4: broadcast reads (free row/col MLE reads). -----------------
+    {
+        let lgt = t.trailing_zeros() as usize;
+        let lgd = ring::attn_entries::TOY_D.trailing_zeros() as usize;
+        // (a) row-broadcast divisor: Sum_bc over columns == MLE(Sum) at
+        //     the row coordinates (the G4 eq_hi pin identity).
+        let sum = &lay.entry("Sum")[..t]; // head 0's Sum column
+        let z = draw(2 * lgt);
+        let bc: Vec<KElem> = (0..t * t).map(|x| embed(sum[x / t])).collect();
+        let dense = dense_eval(&bc, &z);
+        let fold = x1_mle_fold(&kf, &embed_col(sum), &z[lgt..]);
+        leg("pw4-row-broadcast-divisor", dense == fold);
+        // (b) col-broadcast weight vector: G_bc over rows == MLE(G) at
+        //     the column coordinates (the RMSNorm G read).
+        let g = lay.entry("gA");
+        let z2 = draw(lgt + lgd);
+        let bc2: Vec<KElem> = (0..t << lgd).map(|x| embed(g[x & ((1 << lgd) - 1)])).collect();
+        let dense2 = dense_eval(&bc2, &z2);
+        let fold2 = x1_mle_fold(&kf, &embed_col(g), &z2[..lgd]);
+        leg("pw4-col-broadcast-gamma", dense2 == fold2);
+        // (c) row-broadcast D (the norm divisor read), scaled by 2^tn.
+        let dd = lay.entry("DA");
+        let z3 = draw(lgt + lgd);
+        let tn = lay.meta.tn_a;
+        let bc3: Vec<KElem> = (0..t << lgd).map(|x| embed(dd[x >> lgd] << tn)).collect();
+        let dense3 = dense_eval(&bc3, &z3);
+        let fold3 = kf.scale(zq.to_mod(1i64 << tn), &x1_mle_fold(&kf, &embed_col(dd), &z3[lgd..]));
+        leg("pw4-row-broadcast-normdiv", dense3 == fold3);
+    }
+
+    // ---- The head-indexed public coefficient MLE (AM-3 / §1.6: the BG
+    //      layer-coefficient precedent extended to (l, h)). --------------
+    {
+        let n_l = 4usize;
+        let n_h = TOY_H;
+        let lv = (n_l * n_h).trailing_zeros() as usize;
+        // statement shift table s_{l,h} (synthetic, seeded, in [0, 16)).
+        let sv: Vec<i64> = seeded_w8("x1-coeff", seed, n_l * n_h).iter().map(|v| (v + 16) % 16).collect();
+        let cvals: Vec<KElem> = sv.iter().map(|&s| embed(1i64 << s)).collect();
+        let r = draw(lv);
+        let dense = dense_eval(&cvals, &r);
+        let fold = x1_mle_fold(&kf, &cvals, &r);
+        leg("pwc-head-coeff-mle-f5", dense == fold);
+        // wrong-vector: one tampered shift moves the value (whp) — the
+        // statement-read obligation's terminal-mismatch analog.
+        let mut sv2 = sv.clone();
+        sv2[3] = (sv2[3] + 1) % 16;
+        let cvals2: Vec<KElem> = sv2.iter().map(|&s| embed(1i64 << s)).collect();
+        leg("pwc-wrong-vector-differs", dense_eval(&cvals2, &r) != dense);
+    }
+
+    // ---- rope-cs-table-v1 member freeze legs (AT-O6 discipline). --------
+    {
+        for tm in [16usize, 32usize] {
+            let (c1, s1, d1) = rope_member(tm); // asserts the pinned digest
+            let (c2, s2, d2) = rope_member(tm);
+            leg(&format!("rope-t{tm}-deterministic"), c1 == c2 && s1 == s2 && d1 == d2);
+            let bound_ok = c1.iter().chain(s1.iter()).all(|&v| v.abs() <= 128);
+            leg(&format!("rope-t{tm}-bounds"), bound_ok && c1[0] == 128 && s1[0] == 0);
+        }
+    }
+
+    let mut h = Sha256::new();
+    for (name, ok) in &legs {
+        h.update(name.as_bytes());
+        h.update(if *ok { &b"=ok\n"[..] } else { &b"=FAIL\n"[..] });
+    }
+    let dg: [u8; 32] = h.finalize().into();
+    println!(
+        "[UPERF3-NN] pw-battery: {} legs ok in {:.1}s [WSL-BOX NOISY-SHARED]",
+        legs.len(),
+        t0.elapsed().as_secs_f64()
+    );
+    println!("[UPERF3-NN] X1 PW BATTERY DIGEST {}", hex_full(&dg));
+}
+
+/// Head-run config: the layer-calibrated statement member + the
+/// head-tagged statement bytes over the xs1 core.
+fn x1_head_cfg<'a>(
+    lay: &'a ring::attn_entries::X1Layer,
+    tab_wrong: &'a [i64; 256],
+    chain_dig: &[u8; 32],
+    h: usize,
+    wit_tag: &'a str,
+    session_tag: &'a str,
+    extra_buf: &'a mut Vec<u8>,
+) -> XsCfg<'a> {
+    extra_buf.clear();
+    extra_buf.extend(b"head");
+    extra_buf.extend((h as u64).to_le_bytes());
+    extra_buf.extend((ring::attn_entries::TOY_H as u64).to_le_bytes());
+    extra_buf.extend(chain_dig);
+    XsCfg {
+        label: "uperf3-nn-x1",
+        stmt_tag: b"uperf3-nn-x1-head-v1",
+        stmt_extra: extra_buf,
+        wit_tag,
+        session_tag,
+        es: lay.meta.e_s,
+        tab_stmt: &lay.exp_tab,
+        member_digest: lay.meta.exp_digest,
+        tab_wrong,
+    }
+}
+
+/// [UPERF3-NN] rung 4a — `uperf-x head-prove [seed] [t]`: the layer
+/// chain's per-head s8 blocks through the X-S1 machinery (xs1_run_core
+/// reused per head; head-tagged statements binding the LAYER-calibrated
+/// exp member + the layer chain digest). Honest ACCEPT per head.
+fn uperf_x_head_prove(seed: u64, t: usize) {
+    use ring::attn_entries::{derive_layer, TOY_H};
+    use ring::attn_softmax::{derive_chain, F_E, HEAD_DIM};
+    use sha2::{Digest, Sha256};
+    let lay = derive_layer(seed, t);
+    let chain_dig = x1_chain_digest(&lay);
+    let tab_wrong = ring::attn_softmax::exp_table_generate(lay.meta.e_s - 1, HEAD_DIM, F_E);
+    println!(
+        "[UPERF3-NN] head-prove seed {seed} t {t}: eS {} member {} (ZK_THREADS {})",
+        lay.meta.e_s,
+        ring::attn_entries::hex32(&lay.meta.exp_digest),
+        ring::eval_proof::threads(),
+    );
+    let mut all = Sha256::new();
+    all.update(chain_dig);
+    for h in 0..TOY_H {
+        let s8h = lay.s8_head(h);
+        // the layer/spike tie: the per-head chain the core will derive
+        // equals the LAYER's committed softmax slices bit-for-bit.
+        let ch = derive_chain(t, &s8h, &lay.exp_tab);
+        let n2 = t * t;
+        assert_eq!(&ch.m[..], &lay.entry("m")[h * t..(h + 1) * t]);
+        assert_eq!(&ch.p[..], &lay.entry("P")[h * n2..(h + 1) * n2]);
+        assert_eq!(&ch.sigma[..], &lay.entry("sig")[h * n2..(h + 1) * n2]);
+        let wit_tag = format!("uperf3-nn-wit-h{h}");
+        let session_tag = format!("uperf3-nn-session-h{h}");
+        let mut extra = Vec::new();
+        let cfg = x1_head_cfg(&lay, &tab_wrong, &chain_dig, h, &wit_tag, &session_tag, &mut extra);
+        let (verdict, _, n_pins, n_waves) = xs1_run_core(seed, t, &s8h, &cfg, XsTamper::None, false);
+        let insts = xs_instances(t, lay.meta.e_s);
+        println!(
+            "[UPERF3-NN] head {h}: {} (first gate state: {})",
+            if verdict.accept() { "ACCEPT" } else { "REJECT" },
+            verdict.first_failed_gate(&insts)
+        );
+        assert!(verdict.accept(), "head {h}: honest run must accept");
+        all.update((h as u64).to_le_bytes());
+        all.update(b"accept");
+        all.update((n_pins as u64).to_le_bytes());
+        all.update((n_waves as u64).to_le_bytes());
+    }
+    let dg: [u8; 32] = all.finalize().into();
+    println!("[UPERF3-NN] X1 HEAD-PROVE DIGEST {}", hex_full(&dg));
+}
+
+/// [UPERF3-NN] rung 4b — `uperf-x head-battery [seed] [t]`: the
+/// AT-O8/O9-class tamper legs on the PER-HEAD proven chains (the X-S1
+/// leg set at its pre-registered gates, driven on layer-derived s8;
+/// legs alternate heads; the two chain-shape-dependent legs run on the
+/// head whose block supports them — asserted, not skipped).
+fn uperf_x_head_battery(seed: u64, t: usize) {
+    use ring::attn_entries::{derive_layer, TOY_H};
+    use ring::attn_softmax::{F_E, HEAD_DIM};
+    use sha2::{Digest, Sha256};
+    let t0 = Instant::now();
+    let lay = derive_layer(seed, t);
+    let chain_dig = x1_chain_digest(&lay);
+    let tab_wrong = ring::attn_softmax::exp_table_generate(lay.meta.e_s - 1, HEAD_DIM, F_E);
+    println!(
+        "[UPERF3-NN] head-battery seed {seed} t {t} eS {} (ZK_THREADS {})",
+        lay.meta.e_s,
+        ring::eval_proof::threads(),
+    );
+    // leg support probes on the layer-derived blocks.
+    let supports_mu = |s8: &[i64]| -> bool {
+        let ch = ring::attn_softmax::derive_chain(t, s8, &lay.exp_tab);
+        (1..t).rev().any(|r| {
+            let mx = ch.m[r];
+            mx > -127 && (0..=r).any(|c| s8[r * t + c] == mx - 1)
+        })
+    };
+    let supports_tie = |s8: &[i64]| -> bool {
+        let ch = ring::attn_softmax::derive_chain(t, s8, &lay.exp_tab);
+        (1..t).rev().any(|r| (0..=r).filter(|&c| s8[r * t + c] == ch.m[r]).count() >= 2)
+    };
+    let head_for = |pred: &dyn Fn(&[i64]) -> bool, name: &str| -> usize {
+        (0..TOY_H)
+            .find(|&h| pred(&lay.s8_head(h)))
+            .unwrap_or_else(|| panic!("no head supports the {name} leg at this seed/T"))
+    };
+    let legs: Vec<(XsTamper, usize, &str)> = vec![
+        (XsTamper::MOverstate, 0, "G2 F-hit"),
+        (XsTamper::MUnderstate, head_for(&supports_mu, "m-understate"), "rng-d-w8 root cross-check"),
+        (XsTamper::ZselTwoHot, head_for(&supports_tie, "zsel-two-hot"), "G1 F-one"),
+        (XsTamper::ZselOffsupport, 1, "G2 F-hit"),
+        (XsTamper::OffsupportP, 1, "G6 off-support batch zero-check"),
+        (XsTamper::ShiftedMask, 0, "G3 Sum (masked row sum, PW-3 weight check)"),
+        (XsTamper::WrongExpMember, 1, "masked-claims sum gate"),
+    ];
+    let mut all = Sha256::new();
+    all.update(chain_dig);
+    let mut n_ok = 0usize;
+    for (tamper, h, expect) in &legs {
+        let s8h = lay.s8_head(*h);
+        let wit_tag = format!("uperf3-nn-wit-h{h}");
+        let session_tag = format!("uperf3-nn-session-h{h}");
+        let mut extra = Vec::new();
+        let cfg = x1_head_cfg(&lay, &tab_wrong, &chain_dig, *h, &wit_tag, &session_tag, &mut extra);
+        let (verdict, _, _, _) = xs1_run_core(seed, t, &s8h, &cfg, *tamper, true);
+        let insts = xs_instances(t, lay.meta.e_s);
+        let gate = verdict.first_failed_gate(&insts);
+        let ok = !verdict.accept() && gate.starts_with(expect);
+        println!(
+            "  leg {:?} head {h}: {} at '{}' (pre-registered '{}')",
+            tamper,
+            if verdict.accept() { "ACCEPT(!)" } else { "REJECT" },
+            gate,
+            expect
+        );
+        assert!(ok, "leg {tamper:?} did not reject at its pre-registered gate");
+        n_ok += 1;
+        all.update(format!("{tamper:?}|h{h}|{gate}").as_bytes());
+    }
+    let dg: [u8; 32] = all.finalize().into();
+    println!(
+        "[UPERF3-NN] head-battery: {n_ok}/{} legs at their pre-registered gates in {:.1}s [WSL-BOX NOISY-SHARED]",
+        legs.len(),
+        t0.elapsed().as_secs_f64()
+    );
+    println!("[UPERF3-NN] X1 HEAD BATTERY DIGEST {}", hex_full(&dg));
 }

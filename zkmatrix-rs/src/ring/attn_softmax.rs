@@ -147,6 +147,7 @@ pub fn calibrated_s8(seed: u64, n: usize) -> Vec<i64> {
 
 /// One (head, row-block) softmax chain at T rows — the oracle's
 /// `softmax_int` verbatim (row-major T x T tensors; support t' <= t).
+#[derive(Clone)]
 pub struct SoftmaxChain {
     pub t: usize,
     pub s8: Vec<i64>,   // T x T, int8 grid
