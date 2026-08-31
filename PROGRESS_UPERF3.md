@@ -4039,3 +4039,82 @@ preserving ONLY — the five digest anchors (fp3x16 93a98700../
 0ae9cdae.., pa12x64 45fb3405.., fp12x64 80763ea5../63f4a3a4..)
 byte-identical at every rung, /usr/bin/time -v RSS before/after,
 any digest move = revert + record.
+
+## Agent NN status (wt-uperf3-nn) — round 8
+
+LANE: X1 — the attention ENTRY CLASSES + PUBLIC-WEIGHT WIRINGS at toy
+shape (design memo §5.1 X1 verbatim; semantics ATTENTION_INTEGER_
+SPEC.md §2.1-2.9; measured exponent defaults §1.6b / results/
+m8b_gemma4_attn_stats.json layer 0). Toy shape: T = 16 (value level;
+the proven rung at T = 32, the X-S1 machinery's floor), d = 128,
+H = 2, H_kv = 1 (GQA group 2), d_h = 64, synthetic witness.
+
+AT-O2 FUSION DECISION (recorded): UNFUSED — the 66-entry table
+(witness 60 + weights 6, spec §4.1 verbatim). Why: the as-built
+house pattern (u3_layer_run, X-S1) commits accumulators and the
+fused matmul-terminal requant pin's wave-plan interaction is
+explicitly unverified (AT-O2 names its own battery, unbuilt); X1 is
+the typing/wiring rung, so the -13.8% commit-volume saving is
+deferred to the rung where volume binds (X3+), with the fused form
+kept as a recorded statement-level packing option.
+
+OWNERSHIP: NEW ring/attn_entries.rs + one mod line in ring/mod.rs;
+extensions of the [UPERF3-JJ] bin section limited to a
+behavior-preserving parameterization of xs1_run (s8 source +
+statement/transcript tags become arguments; the JJ entry points keep
+their exact bytes — uperf-x battery digest be89d5da.. is the guard);
+the NEW [UPERF3-NN] bin section + uperf-x arms (entries, layer-chain,
+pw-battery, head-prove, head-battery); NEW
+scripts/attention_x1_layer_ref.py (the stated reference driver);
+this ledger section. Frozen registries (lookup.rs / manifest.rs)
+untouched; exp + rope members LANE-LOCAL pending AT-O5/O6.
+
+RUNG PLAN (one commit per green rung, prefix "U-PERF3 NN:"):
+  0. skeleton: this section. [DONE]
+  1. THE ENTRY TABLE: `uperf-x entries [t]` — the 66 typed entries
+     (name, shape, class, exponent source) reconciled against the
+     memo §1 / spec §4.1 inventory; mismatches flagged, not papered.
+  2. THE VALUE CHAIN: `uperf-x layer-chain [seed] [t]` — the full
+     attention-layer derivation at toy shape, bit-exact vs the
+     REFERENCE (stated: scripts/attention_x1_layer_ref.py, Python,
+     written by this lane, driving the validated oracle
+     scripts/attention_spec_spike.py primitives — rmsnorm_int /
+     rope_int / softmax_int / requant — VERBATIM at patched toy
+     shape constants; per-tensor sha256 + CHAIN digest both sides).
+  3. PW-1..PW-4 builders + F5 batteries: `uperf-x pw-battery` —
+     flip-read (PW-1), GQA/MQA map (PW-2), causal mask closed form +
+     band degeneracy (PW-3), broadcast reads (PW-4), the
+     head-indexed public coefficient MLE (the BG layer-MLE
+     precedent extended to (l, h)), rope-cs-table-v1 generation +
+     python-pinned digest; each functional == its direct evaluation
+     on random points + wrong-vector sanity legs; own digest.
+  4. Head-indexed instances + the per-head X-S1 chain proven for 2
+     heads (`uperf-x head-prove`): the layer chain's per-head s8
+     blocks through the xs1 core (head-tagged statements binding
+     the layer-calibrated exp member), honest ACCEPT x2; tamper
+     legs (`uperf-x head-battery`, AT-O8/O9 class) at
+     pre-registered gates; own digest.
+  5. The record: the X3 needs list, enumerated here.
+
+FLOORS AT EVERY COMMIT: cargo build --release; uperf-pc
+diff-battery; uperf-s battery 3752cba4..; uperf-s agg-battery
+46234986..; uperf-x battery be89d5da.. (existing arms byte-frozen);
+freeze-check 102 ok via M125_EXPORT_DIR; uperf-pc zc-battery
+01ca048b..; composed 7465fa05.. NOT touched (u3 region untouched).
+
+LANE-LOCAL CONVENTIONS (recorded; conservative picks for
+transcript-affecting ambiguities):
+  * Calibration at toy shape is per-draw integer max-calibration
+    (smallest shift with the floor-requant output in [-127, 127],
+    the study's rule on the integer grid); the MEASURED §1.6b
+    exponents ride the entry table as the calibrated DEFAULT source
+    column (Gemma-4 l0: q -3 / k -6 / v -3 / qr -3 / kr -6 /
+    scores -2 / ctx -3; seam sites ao/postn/xres int16 per the
+    stack_wide ruling), since a synthetic toy witness cannot honor
+    real absolute scales without failing narrowing by design.
+  * Exp members generated at the layer-calibrated (eS, d_h 64,
+    fE 9); contract-point members pinned from the Python side
+    (drift-loud); non-contract eS prints UNPINNED loudly.
+  * The Gemma four-norm/QK-norm sites (AM-5) are NOT in the
+    66-entry table (spec §4.1 is the 125M two-norm form) — recorded
+    as the reconciliation's known delta, not a mismatch.
