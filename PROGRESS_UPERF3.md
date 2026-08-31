@@ -4011,3 +4011,31 @@ mm_composed_mistral_smoke.log; .done markers alongside).
   Orchestrator recommendation: BOTH (b is nearly free given a; the
   write-up states each object's meaning plainly). The seam
   machinery itself transfers to MVP-2's real seams either way.
+
+## ROUND 8 — MVP-2 X1 + THE i8 LAYER STORE (opened 2026-08-31;
+## Victor: continue; the Mac holds T15-T17)
+
+### Lane NN — X1: attention entry classes + PW wirings (wt-uperf3-nn) — RUST
+OWNS: ring/attn_softmax.rs extensions + a NEW ring/attn_entries.rs
+if cleaner, the [UPERF3-JJ]/[UPERF3-NN] bin sections + uperf-x
+arms, "Agent NN status". SPEC: the design memo §5.1 X1 VERBATIM
+(~66 new per-layer entries in the BF typing — or ~60 fused, AT-O2
+decides and the lane RECORDS its pick; PW-1..PW-4 public-weight
+builders; the folded instance families extended with the head
+index; exp + range members LANE-LOCAL pending the AT-O5/O6
+freezes) at T=16, 1-2 heads, synthetic witness; §1.6b's measured
+exponents are the calibrated source. GATES: F5 batteries per PW;
+AT-O8/O9 tamper legs; every frozen digest + the five battery
+digests + freeze-check unmoved at every commit.
+
+### Lane OO — the i8 layer store (wt-uperf3-oo) — RUST, diet 3
+OWNS: the BfLayer/U3Layer storage representation + consumers'
+accessor path (additive accessors; the HH/KK wrap-don't-rewrite
+rule), "Agent OO status". WHY: the commit-phase layer store (i64,
+66 GB at 8B, ~245 GB at 30B) is the LAST term above ~75 GB; the
+W-8 row prices the i8/i32 per-class store at ~9.9 GB (8B) -> the
+counted peak moves to lvl-0 ~72 GB. DISCIPLINE: transcript-
+preserving ONLY — the five digest anchors (fp3x16 93a98700../
+0ae9cdae.., pa12x64 45fb3405.., fp12x64 80763ea5../63f4a3a4..)
+byte-identical at every rung, /usr/bin/time -v RSS before/after,
+any digest move = revert + record.
