@@ -4376,3 +4376,246 @@ attention_x1_layer_ref.py (NEW) + this ledger section. Frozen
 registries untouched; every pre-existing battery digest byte-
 identical. OPEN QUESTIONS live in the rung-5 needs list (freeze
 rulings item 4 -> Victor, jointly with JJ's exp-member C5 ruling).
+## Agent OO status (wt-uperf3-oo) — round 8
+
+STATE: OPEN (2026-08-31) — DIET 3: the per-class compact layer
+store. BfLayer's 17 chain tensors held as Vec<i64> are the
+commit-phase term (66 GB at 8B 32x512, ~245 GB at 30B — the LAST
+phase term above ~75 GB after rounds 5-6). Per class the values fit
+narrow storage: i8 for X/weights/g8/a8/u8/h8/z (|v| <= 127 by the
+range facts), i32 for Gacc/Uacc/Dacc/H and the remainders (bounded
+by the acc bits). The consumers keep reading i64 VALUES through the
+accessor surface — a REPRESENTATION change only.
+
+DESIGN PICK (the brief's option (a), recorded): compact planes in
+BfLayer + `bf_entry_values` returns a per-call materialization
+GUARD (`BfVals`: Borrowed for wide planes, Owned Vec<i64>
+materialized from compact ones; Deref to [i64]) — NOT option (b)'s
+LRU. Why: (1) no interior mutability — guard lifetimes make the
+live set explicit at every call site and the borrow checker
+enforces it; (2) the consumers are phase-local and touch one plane
+at a time except three named sites, each with a local fix (hoist
+per-layer planes out of bg_mm_tables' block fill; feed
+agg_digit_witness_cols per tensor instead of a whole-group
+Vec<&[i64]>; move the guards into bk_tree_slot_fns' closures);
+(3) an LRU "sized to the live set" needs a phase-dependent policy
+plus shared mutable state under rayon (`Sync` per-leaf closures in
+the tree fills) — a lock inside the threaded packed fill, i.e.
+serialization risk for no extra memory win.
+  Plane classes I8/I16/I32 with an I64 fallback chosen by VALUE
+SCAN at store time: honest chains compact (the range facts are the
+guarantee); tampered chains that exceed a class ride WIDE — values
+exact, the PROOF is what rejects, no new panic path (the
+RangeViolation/WrongTable arms write through the same store).
+I16 is what makes the W-8 row's ~9.9 GB: H/Rh/Rg/Ru/Rd fit i16 at
+the m125/8B shifts; the pure-i8+i32 split counts ~12.9 GB.
+  U3Layer: OUT OF SCOPE, recorded — it is the v3 engine spike rig
+(24 fields incl. i16-class a16/u16/h16 limbs + lo/hi split planes,
+its own u3_entry_values surface); the same BfPlane machinery
+applies verbatim when a later rung wants it; the 8B commit-phase
+term W-8 prices is BfLayer.
+
+RUNG PLAN (one commit per green rung, prefix "U-PERF3 OO:"):
+  0. skeleton + BASELINE: this section; /usr/bin/time -v digests +
+     peak RSS at fp3x16 / pa12x64 / fp12x64 under flock; floors.
+  1. compact store for the WEIGHT planes (wg_t/wu_t/wd_t — 45 of
+     the 66 GB at 8B; lowest-risk consumers). ACCEPT: five anchors
+     byte-identical, RSS delta recorded.
+  2. the activation/accumulator/remainder planes (x, gacc, rg, g8,
+     a8, uacc, ru, u8v, hh, rh, h8, dacc, rd, z). ACCEPT: same.
+  3. THE RECORD: the RSS curve on top of HH+KK, the counted 8B and
+     30B projections (does the 8B peak now sit at lvl-0 ~72 GB;
+     what 30B's peak becomes), open questions.
+
+DISCIPLINE (HH/KK verbatim): transcript-preserving ONLY — at EVERY
+rung the five identity anchors byte-identical (fp3x16 stmt
+93a98700.. + EP 0ae9cdae..; pa12x64 stmt 45fb3405..; fp12x64 stmt
+80763ea5.. + EP 63f4a3a4..; full values at rung 0 below); floors
+green (build; uperf-pc diff-battery; freeze-check 102 ok exit 0;
+uperf-s battery 3752cba4..; agg-battery 46234986..; uperf-x battery
+be89d5da..). ANY digest move = revert the rung, record, do NOT fix
+forward. Runs under flock /tmp/zk-heavy.lock, NOISY-SHARED label;
+shapes 3x16 and 12x64 only.
+
+BASELINE (2026-08-31, WSL box, ZK_THREADS=8, M125_EXPORT_DIR=
+/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl,
+each run one-at-a-time under flock /tmp/zk-heavy.lock; sibling lane
+NN shares the box — NOISY-SHARED applies to walls; tree = 20aa4b5,
+the round-8 ledger commit = KK's round-6 endpoint merged):
+  * fp3x16: accept=true, wall 6.38 s, peak RSS 869,172 KB; STATEMENT
+    93a987002a7c4b60c3dfbfc62b7a4f0e5957d8ae2039014ff241e323285fb790
+    EVAL-PROOF
+    0ae9cdae66607239a80cc1f1dea36248370edadbe85214144aee7a5250d975be
+  * pa12x64 (pass-agg prove 12 64 p0): wall 19.87 s, peak RSS
+    2,040,644 KB; STATEMENT 45fb340517eee2344b44dd40d4e47562d80305
+    eb7c5604c9c6cf61ede37443dc
+  * fp12x64: accept=true, wall 26.13 s, peak RSS 2,164,948 KB;
+    STATEMENT 80763ea537e77cd9cb5c538397af2622044447d654b8e9a34cae
+    3ccad8f3f115; EVAL-PROOF 63f4a3a4320a47260ab8ae3d52cfa3656b626f
+    c367af671c6c317300454dec89
+  (all five anchors match the brief's pinned values; the RSS figures
+  reproduce KK's rung-2 endpoint within noise.)
+  * Floors: diff-battery exit 0 (15.55 s, incl. the 2-level E2E
+    cross-verify); freeze-check exit 0, 102 ok rows (full pass —
+    this box has the export); uperf-s battery 48 legs 3752cba4..;
+    agg-battery 136 legs 46234986..; uperf-x battery 8 legs
+    be89d5da..
+
+RUNG 1 — WEIGHT PLANES LANDED (2026-08-31): wg_t/wu_t/wd_t live as
+compact `BfPlane`s (I8 for honest chains — the export values are
+i8-source) and the WHOLE accessor surface moved to the guard form in
+this rung: `bf_entry_values -> BfVals` (Deref to [i64]; Borrowed for
+the still-i64 tensors, so rung 2 is a field flip with no further
+consumer surgery). The named wide/hot consumers got their local
+fixes NOW: bg_mm_tables hoists per-layer planes out of the per-block
+fills (one materialization per layer, not per block); the zc
+IxfZcSpec site holds guard owners; bg_witness / bk_witness_act /
+bk_witness_weight / gg_witness_act feed agg_digit_witness_cols
+PER TENSOR through new additive `agg_digit_witness_{cols,ref}_src`
+(fetch closure; the old &[&[i64]] forms remain as wrappers — no
+whole-group i64 materialization); bk_member_vals returns guards and
+bk_tree_slot_fns moves them into its Sync closures; the tamper arms
+write through BfPlane::get/set/fill_zero (set widens the class in
+place if a tampered value does not fit — no new panic path); the
+GG serving-check leg holds owners; derive/battery GEMMs materialize
+weight inputs transiently.
+  ACCEPT: all five identity anchors BYTE-IDENTICAL (93a98700 /
+  0ae9cdae; 45fb3405; 80763ea5 / 63f4a3a4); floors green
+  (diff-battery exit 0 in 18.0 s; freeze-check 102 ok exit 0;
+  uperf-s 3752cba4..; agg 46234986..; uperf-x be89d5da..).
+  RSS delta [MEASURED, NOISY-SHARED, vs rung 0]:
+    fp3x16     869,172 ->   814,624 KB  ( -53 MB,  -6.3%)
+    pa12x64  2,040,644 -> 1,653,768 KB  (-378 MB, -19.0%)
+    fp12x64  2,164,948 -> 1,778,104 KB  (-387 MB, -17.9%)
+  (the counted 12-layer weight store is 452 MB i64 -> 57 MB i8 =
+  -396 MB; the measured 378-387 MB at the 12x64 shapes IS that term
+  minus transients — the fix behaves exactly as priced.)
+  WALL delta [MEASURED]: fp3x16 6.38 -> 6.36 s; pa12x64 19.87 ->
+  20.13 s; fp12x64 26.13 -> 26.10 s — within run noise (the
+  materialization cost is one i64 copy per plane consumer, paid
+  against O(plane) walks that already existed).
+
+RUNG 2 — ACTIVATION/ACCUMULATOR/REMAINDER PLANES LANDED (2026-08-31):
+the remaining 14 fields (x, gacc, rg, g8, a8, uacc, ru, u8v, hh, rh,
+h8, dacc, rd, z) flipped to BfPlane — ALL 17 chain tensors now live
+compact per class (the rung-1 accessor surgery made this a field
+flip: bf_entry_values already guards every entry; new additive
+bf_entry_plane gives len/get without materialization).
+bf_derive_chain computes the chain in i64 locals VERBATIM (same
+operations, same values) and compacts each tensor once its last i64
+use passes; bf_load_layer's range-fact assert is BfPlane::fits_i8
+(the exact old predicate); the z digest check materializes; the
+tamper arms (BfTamper::RangeViolation, zc_perturb_h,
+bk_range_violation, the GG +2^w bump via gg_entry_values_mut ->
+&mut BfPlane) write through get/set — the widening path carries any
+out-of-class tampered value exactly.
+  ACCEPT: all five identity anchors BYTE-IDENTICAL (93a98700 /
+  0ae9cdae; 45fb3405; 80763ea5 / 63f4a3a4); floors green
+  (diff-battery exit 0; freeze-check 102 ok exit 0; uperf-s
+  3752cba4..; agg 46234986..; uperf-x be89d5da..). PRUDENCE legs
+  beyond the floors (the edited tamper arms exercised end to end):
+  m125-pass battery small ALL LEGS ok exit 0 (533 s — WrongWeight/
+  WrongTable/SeamSwap/RangeViolation/WrongMap each rejects at its
+  pre-registered gate); table-descent battery small 5/5 ok (74 s,
+  incl. the BK RangeViolation leg).
+  RSS delta [MEASURED, NOISY-SHARED, vs rung 1]:
+    fp3x16     814,624 ->   814,116 KB  (  -0.5 MB — peak sits in
+                                          claim/verify, not the store)
+    pa12x64  1,653,768 -> 1,562,672 KB  ( -91 MB)
+    fp12x64  1,778,104 -> 1,668,184 KB  (-110 MB)
+  (the counted 12x64 non-weight store is ~140 MB i64 -> ~35 MB
+  compact = -105 MB; the measured 91-110 MB IS that term.)
+  WALL delta [MEASURED, honest]: fp3x16 6.36 -> 6.84 s; pa12x64
+  20.13 -> 21.24 s; fp12x64 26.10 -> 27.78 s (+5-6% at 12x64 — the
+  per-consumer guard materializations; NOISY-SHARED box, lane NN
+  building concurrently).
+
+RUNG 3 — THE RECORD (2026-08-31).
+
+THE MEASURED 125M-SHAPE RSS CURVE (peak RSS KB, /usr/bin/time -v,
+ZK_THREADS=8, flock-serialized, NOISY-SHARED box; the OO baseline IS
+KK's round-6 endpoint — rounds 5-7 merged at 20aa4b5):
+  shape    OO base    +weights (r1)  +all planes (r2)   lane total
+  fp3x16     869,172     814,624        814,116          -55 MB  ( -6.3%)
+  pa12x64  2,040,644   1,653,768      1,562,672         -478 MB  (-23.4%)
+  fp12x64  2,164,948   1,778,104      1,668,184         -497 MB  (-22.9%)
+  Counted check: the 12-layer 12x64 store is 598 MB i64 -> ~93 MB
+  per-class = -505 MB; the measured -478/-497 MB IS that term (the
+  small gap = guard transients live at the high-water mark). fp3x16
+  moves less than its -104 MB counted store because its peak sits in
+  the claim/verify phases where only part of the store overlaps.
+  CUMULATIVE across the THREE diet lanes (HH + KK + OO) vs the
+  round-5 baseline: fp3x16 1,126,084 -> 814,116 (-27.7%); pa12x64
+  2,968,604 -> 1,562,672 (-47.4%); fp12x64 3,091,220 -> 1,668,184
+  (-46.0%).
+  Walls [MEASURED, honest]: fp3x16 6.38 -> 6.84 s; pa12x64 19.87 ->
+  21.24 s; fp12x64 26.13 -> 27.78 s (+5-6% at 12x64: the guard
+  materializations in the claim/commit walks; lane NN was building
+  concurrently — treat as an upper bound).
+
+THE COUNTED 8B PROJECTION (32x512; t=512 d=4096 f=14336; 257.9M
+elements/layer x 32 = 8.25G, i64 66.04 GB — the W-8 row's number
+reproduced exactly):
+  The per-class store: i8 planes (X + 3 weights + g8/a8/u8/h8/z)
+  209.7 MB/layer; H i16 (|a8*u8| <= 16129); Gacc/Uacc/Dacc i32
+  (inner-dim bounds 2^26-2^28); remainders i16 or i32 by the m8b
+  shifts (auto-picked by from_vals) -> 339.7-388 MB/layer =
+  **10.9-12.4 GB total** (5.3-6.1x; the W-8 row's ~9.9 GB assumed
+  every remainder i16 — the honest band depends on the calibrated
+  shifts, sh < 15 gives the low end).
+  The phase table (KK's corrected projection with L compact; range-
+  only Stage A [GG] + W-3 [mandatory] + ZK_W0_REGEN [exists] +
+  HH/KK diets assumed as before):
+    commit  ~61  (WAS ~116: L 66 -> ~11.5; W_w 45.1 + act split 4.7)
+    claim   ~20  (WAS ~71: L compact + W-1 windows + zc guard
+                  owners ~5.6 transient)
+    lvl-0   ~72  (unchanged — W 63.7 flat + z_all 5.9 + flat store)
+    lvl-1   ~29  (KK)
+    verify   ~6  (KK)
+  VERDICT: **the pass peak now sits at lvl-0 ~72 GB — exactly the
+  W-8 row's prediction; UNDER 128 GB with ~56 GB margin (was ~12 GB
+  at the commit phase before this lane), UNDER the Mac trivially.**
+  32x16 (the yardstick): L 45.8 -> ~5.7; the ~95 GB claim/descent
+  peak drops to ~55-57 (descents still read lays — compact now);
+  commit 91.5 -> ~51. T9's 12x512 CPU row: store 1.61 -> ~0.35 GB;
+  projected ~8-9 GB with HH+KK+OO (NOT measured — shared-box rule).
+
+THE 30B PROJECTION (the brief's ~245 GB i64 store, ratio 3.71x the
+8B layer volume): L compact = **~40-46 GB** (from ~245 — the store
+is no longer the blocker at ANY box under ~64 GB headroom for it).
+30B's peak becomes the W-side group terms (lvl-0 ~72 GB at 8B
+scales to ~265-270 GB): the known levers are per-layer-range
+WEIGHT-group splits (the W-3 mechanism applied to the weight side),
+ZK_W0_REGEN, and the already-landed A_0/phi streaming — a build
+round of its own, NOT this lane; L is off the critical list.
+
+OPEN ITEMS / NOT DONE HERE:
+  * bg_zc_window_vals materializes the FULL entry plane per (layer,
+    window) to slice one column window — O(windows x plane) copies
+    on the W-1 windowed path at 8B (wall, not memory). A compact
+    window extractor over bf_entry_plane would make it O(window).
+  * bg_mm_tables' hoist holds BOTH operand planes across all layers
+    as i64 while the full tables build (~17 GB transient at 8B for
+    an (h8, WdT) instance) — only IF the unwindowed path runs
+    there; the W-1 windowed claim path avoids it. A monomorphized
+    per-class fill would remove the transient entirely.
+  * bk_tree_slot_fns' closures own materialized member planes for
+    the live tree (oracle-descent mode only; Stage A is the 8B
+    path and never builds them).
+  * The +5-6% 12x64 wall: the biggest per-call materializers are
+    the bg_mle claim-parts loop and bf_commit_entries; both could
+    read through bf_entry_plane (get/window) if 8B walls demand it.
+  * U3Layer: OUT OF SCOPE as recorded at rung 0 — the v3 engine
+    spike rig (24 fields incl. a16/u16 i16 classes and the h16
+    lo/hi limb planes, its own u3_entry_values surface); BfPlane
+    applies verbatim when a lane owns that surface.
+  * bg_pass_run still keeps lays end-to-end (HH's open item) — now
+    6.4x smaller; pa12x64's -478 MB is that term shrinking.
+
+STATE: DONE (2026-08-31) — rungs 0-3 landed, one commit each, all
+pushed on uperf3-oo; every rung transcript-preserving (five digest
+anchors byte-identical at every commit: fp3x16 93a98700../
+0ae9cdae.., pa12x64 45fb3405.., fp12x64 80763ea5../63f4a3a4..)
+with floors green (diff-battery; freeze-check 102 ok exit 0;
+uperf-s 3752cba4..; agg 46234986..; uperf-x be89d5da..; plus the
+m125-pass and table-descent tamper batteries at rung 2).

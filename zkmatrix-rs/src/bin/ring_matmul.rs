@@ -20028,9 +20028,21 @@ fn agg_group_descriptor(g: &ring::eval_proof::AggGroup, wrong_class: bool) -> ma
 /// value-ring-major, limb-minor (ring u = tensor base + vr*l0 + limb).
 /// The serial digit witness — THE ORACLE of `agg_digit_witness`.
 fn agg_digit_witness_ref(g: &ring::eval_proof::AggGroup, values: &[&[i64]]) -> Vec<Vec<i64>> {
+    agg_digit_witness_ref_src(g, &|ti| BfVals::B(values[ti]))
+}
+
+/// [UPERF3-OO] `agg_digit_witness_ref` fed per tensor by `fetch` (one
+/// materialized plane live at a time instead of a whole-group slice
+/// vector) — the same tensors in the same order, so the same digits.
+fn agg_digit_witness_ref_src<'a>(
+    g: &ring::eval_proof::AggGroup,
+    fetch: &dyn Fn(usize) -> BfVals<'a>,
+) -> Vec<Vec<i64>> {
     use ring::digits::exact_digit_decompose;
     let mut w = vec![vec![0i64; D]; g.n_digit_rings];
-    for (t, vals) in g.tensors.iter().zip(values.iter()) {
+    for (ti, t) in g.tensors.iter().enumerate() {
+        let guard = fetch(ti);
+        let vals: &[i64] = &guard;
         assert_eq!(t.n_values(), vals.len());
         for vr in 0..t.n_value_rings() {
             for c1 in 0..D {
@@ -20171,15 +20183,27 @@ fn agg_digit_witness(g: &ring::eval_proof::AggGroup, values: &[&[i64]]) -> Vec<V
 /// battery pins `DigitCols == Vec<Vec<i64>>` on mixed groups); the oracle
 /// route builds the boxed reference and packs it.
 fn agg_digit_witness_cols(g: &ring::eval_proof::AggGroup, values: &[&[i64]]) -> ring::eval_proof::DigitCols {
+    agg_digit_witness_cols_src(g, &|ti| BfVals::B(values[ti]))
+}
+
+/// [UPERF3-OO] `agg_digit_witness_cols` fed per tensor by `fetch` — the
+/// whole-group `Vec<&[i64]>` (which would pin every materialized plane
+/// live at once) is replaced by one guard per loop iteration.
+fn agg_digit_witness_cols_src<'a>(
+    g: &ring::eval_proof::AggGroup,
+    fetch: &dyn Fn(usize) -> BfVals<'a>,
+) -> ring::eval_proof::DigitCols {
     use rayon::prelude::*;
     use ring::eval_proof::DigitCols;
     use ring::fold::{ixf_pooled, ixf_threads};
     let _t = ring::ct_engine::prof::timer(ring::ct_engine::prof::D_DIGITS); // [UPERF2-D] observation only
     if ring::eval_proof::oracle_mode() {
-        return DigitCols::from_vecs(&agg_digit_witness_ref(g, values));
+        return DigitCols::from_vecs(&agg_digit_witness_ref_src(g, fetch));
     }
     let mut w = DigitCols::zeros(g.n_digit_rings);
-    for (t, vals) in g.tensors.iter().zip(values.iter()) {
+    for (ti, t) in g.tensors.iter().enumerate() {
+        let guard = fetch(ti);
+        let vals: &[i64] = &guard;
         assert_eq!(t.n_values(), vals.len());
         let nvr = t.n_value_rings();
         let l0 = t.l0;
@@ -24763,6 +24787,141 @@ fn bf_acc_bits(inner: usize) -> u32 {
 }
 
 /// Per-layer witness data: exports + the Rust-derived chain.
+// ---------------------------------------------------------------------------
+// [UPERF3-OO] The per-class compact layer store (the W-8 row's "int8/i32
+// storage per class"): a chain-tensor plane held at the smallest integer
+// class that fits its VALUES — i8 for the int8-class tensors (X, the
+// weights, g8, a8, u8, h8, z: |v| <= 127 by the range facts), i16/i32 for
+// the accumulator/remainder classes (bounded by the acc bits), with an
+// i64 fallback so out-of-class values (tampered chains) ride WIDE: the
+// stored values are exact in every case and the PROOF is what rejects a
+// bad chain — no new panic path. Consumers keep reading i64 values
+// through `bf_entry_values` (now a materialization guard): a
+// REPRESENTATION change only — the arithmetic sees the same integers, so
+// every transcript digest is unchanged by construction.
+
+#[derive(Clone)]
+enum BfPlane {
+    I8(Vec<i8>),
+    I16(Vec<i16>),
+    I32(Vec<i32>),
+    I64(Vec<i64>),
+}
+
+impl BfPlane {
+    /// Compact `vals` into the smallest class holding every value.
+    fn from_vals(vals: Vec<i64>) -> BfPlane {
+        let (mut lo, mut hi) = (0i64, 0i64);
+        for &v in &vals {
+            if v < lo {
+                lo = v;
+            }
+            if v > hi {
+                hi = v;
+            }
+        }
+        let fits = |l: i64, h: i64| lo >= l && hi <= h;
+        if fits(i8::MIN as i64, i8::MAX as i64) {
+            BfPlane::I8(vals.iter().map(|&v| v as i8).collect())
+        } else if fits(i16::MIN as i64, i16::MAX as i64) {
+            BfPlane::I16(vals.iter().map(|&v| v as i16).collect())
+        } else if fits(i32::MIN as i64, i32::MAX as i64) {
+            BfPlane::I32(vals.iter().map(|&v| v as i32).collect())
+        } else {
+            BfPlane::I64(vals)
+        }
+    }
+    fn empty() -> BfPlane {
+        BfPlane::I8(Vec::new())
+    }
+    fn len(&self) -> usize {
+        match self {
+            BfPlane::I8(v) => v.len(),
+            BfPlane::I16(v) => v.len(),
+            BfPlane::I32(v) => v.len(),
+            BfPlane::I64(v) => v.len(),
+        }
+    }
+    fn get(&self, i: usize) -> i64 {
+        match self {
+            BfPlane::I8(v) => v[i] as i64,
+            BfPlane::I16(v) => v[i] as i64,
+            BfPlane::I32(v) => v[i] as i64,
+            BfPlane::I64(v) => v[i],
+        }
+    }
+    /// Element write; the plane WIDENS in place when `val` does not fit
+    /// its class (tamper arms) — every other element keeps its value.
+    fn set(&mut self, i: usize, val: i64) {
+        match self {
+            BfPlane::I8(v) if i8::try_from(val).is_ok() => v[i] = val as i8,
+            BfPlane::I16(v) if i16::try_from(val).is_ok() => v[i] = val as i16,
+            BfPlane::I32(v) if i32::try_from(val).is_ok() => v[i] = val as i32,
+            BfPlane::I64(v) => v[i] = val,
+            _ => {
+                let mut wide = self.to_vec();
+                wide[i] = val;
+                *self = BfPlane::from_vals(wide);
+            }
+        }
+    }
+    fn fill_zero(&mut self) {
+        match self {
+            BfPlane::I8(v) => v.fill(0),
+            BfPlane::I16(v) => v.fill(0),
+            BfPlane::I32(v) => v.fill(0),
+            BfPlane::I64(v) => v.fill(0),
+        }
+    }
+    /// True iff every value fits [-128, 127] (the int8 range facts —
+    /// exactly the old `in_i8` predicate over the i64 values).
+    fn fits_i8(&self) -> bool {
+        let ok = |x: i64| (-128..=127).contains(&x);
+        match self {
+            BfPlane::I8(_) => true,
+            BfPlane::I16(v) => v.iter().all(|&x| ok(x as i64)),
+            BfPlane::I32(v) => v.iter().all(|&x| ok(x as i64)),
+            BfPlane::I64(v) => v.iter().all(|&x| ok(x)),
+        }
+    }
+    /// The i64 values, materialized.
+    fn to_vec(&self) -> Vec<i64> {
+        match self {
+            BfPlane::I8(v) => v.iter().map(|&x| x as i64).collect(),
+            BfPlane::I16(v) => v.iter().map(|&x| x as i64).collect(),
+            BfPlane::I32(v) => v.iter().map(|&x| x as i64).collect(),
+            BfPlane::I64(v) => v.clone(),
+        }
+    }
+    /// The accessor guard: Borrowed straight from a wide plane, Owned
+    /// (per-call materialization) from a compact one.
+    fn vals(&self) -> BfVals<'_> {
+        match self {
+            BfPlane::I64(v) => BfVals::B(v),
+            _ => BfVals::O(self.to_vec()),
+        }
+    }
+}
+
+/// [UPERF3-OO] `bf_entry_values`' return: the entry's i64 values, either
+/// borrowed from the layer or materialized per call from a compact
+/// plane. Derefs to `[i64]` — consumers see the same values the old
+/// `&[i64]` return carried.
+enum BfVals<'a> {
+    B(&'a [i64]),
+    O(Vec<i64>),
+}
+
+impl std::ops::Deref for BfVals<'_> {
+    type Target = [i64];
+    fn deref(&self) -> &[i64] {
+        match self {
+            BfVals::B(s) => s,
+            BfVals::O(v) => v,
+        }
+    }
+}
+
 struct BfLayer {
     l: usize,
     /// (eX, eGate, eA, eUp, eH, eZ) — BB's M125_EXP row (calibration).
@@ -24770,23 +24929,27 @@ struct BfLayer {
     /// shifts (g, u, h, z) — derived from the true exponents; asserted
     /// equal to the export sidecar's.
     shifts: (u32, u32, u32, u32),
-    x: Vec<i64>,
-    wg_t: Vec<i64>,
-    wu_t: Vec<i64>,
-    wd_t: Vec<i64>,
-    gacc: Vec<i64>,
-    rg: Vec<i64>,
-    g8: Vec<i64>,
-    a8: Vec<i64>,
-    uacc: Vec<i64>,
-    ru: Vec<i64>,
-    u8v: Vec<i64>,
-    hh: Vec<i64>,
-    rh: Vec<i64>,
-    h8: Vec<i64>,
-    dacc: Vec<i64>,
-    rd: Vec<i64>,
-    z: Vec<i64>,
+    /// [UPERF3-OO] every chain tensor lives compact per class: i8 for
+    /// the int8-class planes (X, weights, g8, a8, u8, h8, z), i16/i32
+    /// for the accumulator/remainder classes; i64 only when a value
+    /// (tampered chain) does not fit.
+    x: BfPlane,
+    wg_t: BfPlane,
+    wu_t: BfPlane,
+    wd_t: BfPlane,
+    gacc: BfPlane,
+    rg: BfPlane,
+    g8: BfPlane,
+    a8: BfPlane,
+    uacc: BfPlane,
+    ru: BfPlane,
+    u8v: BfPlane,
+    hh: BfPlane,
+    rh: BfPlane,
+    h8: BfPlane,
+    dacc: BfPlane,
+    rd: BfPlane,
+    z: BfPlane,
 }
 
 fn bf_read_i8(path: &std::path::Path, n: usize) -> Vec<i64> {
@@ -24894,19 +25057,26 @@ fn bf_load_layer(l: usize, t_rows: usize, quiet: bool) -> BfLayer {
         l,
         exps: (e_x, e_gate, e_a, e_up, e_h, e_z),
         shifts: (sh_g, sh_u, sh_h, sh_z),
-        x, wg_t, wu_t, wd_t,
-        gacc: vec![], rg: vec![], g8: vec![], a8: vec![], uacc: vec![], ru: vec![],
-        u8v: vec![], hh: vec![], rh: vec![], h8: vec![], dacc: vec![], rd: vec![], z: vec![],
+        // [UPERF3-OO] compact planes (i8-source values — I8).
+        x: BfPlane::from_vals(x),
+        wg_t: BfPlane::from_vals(wg_t),
+        wu_t: BfPlane::from_vals(wu_t),
+        wd_t: BfPlane::from_vals(wd_t),
+        gacc: BfPlane::empty(), rg: BfPlane::empty(), g8: BfPlane::empty(),
+        a8: BfPlane::empty(), uacc: BfPlane::empty(), ru: BfPlane::empty(),
+        u8v: BfPlane::empty(), hh: BfPlane::empty(), rh: BfPlane::empty(),
+        h8: BfPlane::empty(), dacc: BfPlane::empty(), rd: BfPlane::empty(),
+        z: BfPlane::empty(),
     };
     bf_derive_chain(&mut lay, t_rows, None);
-    let in_i8 = |v: &[i64]| v.iter().all(|&x| (-128..=127).contains(&x));
+    let in_i8 = |p: &BfPlane| p.fits_i8();
     assert!(
         in_i8(&lay.g8) && in_i8(&lay.u8v) && in_i8(&lay.h8) && in_i8(&lay.z),
         "layer {l}: a range fact FAILS (uncalibratable witness — intended reject)"
     );
     if t_rows == m.t {
         assert_eq!(
-            bf_sha_i8(&lay.z),
+            bf_sha_i8(&lay.z.to_vec()),
             side[&(l, "z".to_string())],
             "layer {l}: Rust chain z differs from the Python replica"
         );
@@ -25032,25 +25202,45 @@ fn bf_derive_chain(lay: &mut BfLayer, t_rows: usize, table_override: Option<(i32
     // [UPERF2-D] the row-blocked threaded GEMM (bf_matmul_i64_ref is its
     // oracle — the loop that ran inline here).
     let matmul = bf_matmul_i64;
-    lay.gacc = matmul(&lay.x, &lay.wg_t, t_rows, bf_d(), bf_f());
-    lay.uacc = matmul(&lay.x, &lay.wu_t, t_rows, bf_d(), bf_f());
-    let (g8, rg) = bf_floor_requant(&lay.gacc, sh_g);
-    let (u8v, ru) = bf_floor_requant(&lay.uacc, sh_u);
+    // [UPERF3-OO] the compact planes materialize transiently for the
+    // chain arithmetic (same i64 values, same operations, same results);
+    // each derived tensor compacts into its plane once its last i64 use
+    // has passed.
+    let x = lay.x.to_vec();
+    let gacc = {
+        let wg_t = lay.wg_t.to_vec();
+        matmul(&x, &wg_t, t_rows, bf_d(), bf_f())
+    };
+    let uacc = {
+        let wu_t = lay.wu_t.to_vec();
+        matmul(&x, &wu_t, t_rows, bf_d(), bf_f())
+    };
+    drop(x);
+    let (g8, rg) = bf_floor_requant(&gacc, sh_g);
+    lay.gacc = BfPlane::from_vals(gacc);
+    lay.rg = BfPlane::from_vals(rg);
+    let (u8v, ru) = bf_floor_requant(&uacc, sh_u);
+    lay.uacc = BfPlane::from_vals(uacc);
+    lay.ru = BfPlane::from_vals(ru);
     let clamp_dom = |v: i64| v.clamp(-128, 127);
     let (table, _dg) = silu_v2_member(eg, ea).expect("frozen family member");
-    lay.a8 = g8.iter().map(|&g| table[(clamp_dom(g) + 128) as usize] as i64).collect();
-    lay.g8 = g8;
-    lay.rg = rg;
-    lay.u8v = u8v;
-    lay.ru = ru;
-    lay.hh = lay.a8.iter().zip(lay.u8v.iter()).map(|(&a, &u)| a * u).collect();
-    let (h8, rh) = bf_floor_requant(&lay.hh, sh_h);
-    lay.h8 = h8;
-    lay.rh = rh;
-    lay.dacc = matmul(&lay.h8, &lay.wd_t, t_rows, bf_f(), bf_d());
-    let (z, rd) = bf_floor_requant(&lay.dacc, sh_z);
-    lay.z = z;
-    lay.rd = rd;
+    let a8: Vec<i64> = g8.iter().map(|&g| table[(clamp_dom(g) + 128) as usize] as i64).collect();
+    lay.g8 = BfPlane::from_vals(g8);
+    let hh: Vec<i64> = a8.iter().zip(u8v.iter()).map(|(&a, &u)| a * u).collect();
+    lay.a8 = BfPlane::from_vals(a8);
+    lay.u8v = BfPlane::from_vals(u8v);
+    let (h8, rh) = bf_floor_requant(&hh, sh_h);
+    lay.hh = BfPlane::from_vals(hh);
+    lay.rh = BfPlane::from_vals(rh);
+    let dacc = {
+        let wd_t = lay.wd_t.to_vec();
+        matmul(&h8, &wd_t, t_rows, bf_f(), bf_d())
+    };
+    lay.h8 = BfPlane::from_vals(h8);
+    let (z, rd) = bf_floor_requant(&dacc, sh_z);
+    lay.dacc = BfPlane::from_vals(dacc);
+    lay.z = BfPlane::from_vals(z);
+    lay.rd = BfPlane::from_vals(rd);
 }
 
 /// Entry roles per layer, in commitment order (17 per layer).
@@ -25112,7 +25302,16 @@ fn bf_entry_typing(e: usize, lay: &BfLayer) -> (manifest::QuantMeta, manifest::T
 }
 
 /// The witness values of entry `e` (the chain tensors, in entry order).
-fn bf_entry_values<'a>(e: usize, lay: &'a BfLayer) -> &'a [i64] {
+/// [UPERF3-OO] returns a guard: Borrowed for the i64-held tensors,
+/// Owned (materialized per call) for the compact planes — the same i64
+/// values either way.
+fn bf_entry_values<'a>(e: usize, lay: &'a BfLayer) -> BfVals<'a> {
+    bf_entry_plane(e, lay).vals()
+}
+
+/// [UPERF3-OO] The compact plane of entry `e` (len/get without
+/// materialization).
+fn bf_entry_plane<'a>(e: usize, lay: &'a BfLayer) -> &'a BfPlane {
     match BF_ENTRIES[e] {
         "X" => &lay.x,
         "WgT" => &lay.wg_t,
@@ -25204,7 +25403,7 @@ fn m125_build_statement(
             model.extend(v.to_le_bytes());
         }
         for e in [0usize, 1, 2, 3] {
-            model.extend(bf_sha_i8(bf_entry_values(e, lay)).into_bytes());
+            model.extend(bf_sha_i8(&bf_entry_values(e, lay)).into_bytes());
         }
     }
     model.extend(ring::lookup::SILU_V2_M3_DIGEST);
@@ -25617,9 +25816,16 @@ fn bf_layer_run(
             // Pick a position whose z stays comfortably inside int8 so
             // the ONLY out-of-range value is the remainder (leg
             // isolation: the rd instance's root check is the sole gate).
-            let idx = layers[li].z.iter().position(|&v| v > -100 && v < 100).unwrap();
-            layers[li].rd[idx] += 1i64 << sh_z;
-            layers[li].z[idx] -= 1;
+            let idx = (0..layers[li].z.len())
+                .find(|&i| {
+                    let v = layers[li].z.get(i);
+                    v > -100 && v < 100
+                })
+                .unwrap();
+            let r = layers[li].rd.get(idx);
+            layers[li].rd.set(idx, r + (1i64 << sh_z));
+            let zv = layers[li].z.get(idx);
+            layers[li].z.set(idx, zv - 1);
         }
         // WrongMap is a VERIFIER-side hook (leaf-pin position map);
         // the witness is honest.
@@ -25960,12 +26166,16 @@ fn bf_layer_run(
     let had_proof = {
         let r2: Vec<KElem> = (0..lv_f).map(|_| tr.challenge_k(&kf)).collect();
         let eq_r2 = eq_table(&kf, &r2);
+        // [UPERF3-OO] entry guards (a8 = 7, u8 = 10, H = 11).
+        let a8g = bf_entry_values(7, lay);
+        let u8g = bf_entry_values(10, lay);
+        let hhg = bf_entry_values(11, lay);
         let a8k: Vec<KElem> =
-            lay.a8.iter().map(|&v| kf.embed(zq.to_mod(v))).chain((lay.a8.len()..1 << lv_f).map(|_| kf.zero())).collect();
+            a8g.iter().map(|&v| kf.embed(zq.to_mod(v))).chain((a8g.len()..1 << lv_f).map(|_| kf.zero())).collect();
         let u8k: Vec<KElem> =
-            lay.u8v.iter().map(|&v| kf.embed(zq.to_mod(v))).chain((lay.u8v.len()..1 << lv_f).map(|_| kf.zero())).collect();
+            u8g.iter().map(|&v| kf.embed(zq.to_mod(v))).chain((u8g.len()..1 << lv_f).map(|_| kf.zero())).collect();
         let mut v_h = kf.zero();
-        for (j, &hv) in lay.hh.iter().enumerate() {
+        for (j, &hv) in hhg.iter().enumerate() {
             if hv != 0 {
                 v_h = kf.add(&v_h, &kf.scale(zq.to_mod(hv), &eq_r2[j]));
             }
@@ -29455,27 +29665,36 @@ fn bg_map_bytes(reg: &BgRegistry) -> Vec<u8> {
 /// [UPERF2-F] as the flat i8 store (`DigitCols`) — one allocation instead
 /// of one 1 KiB heap block per digit ring.
 fn bg_witness(reg: &BgRegistry, lays: &[BfLayer], weight_side: bool) -> ring::eval_proof::DigitCols {
+    // [UPERF3-OO] tensor-index plan (li, e) in the SAME order the old
+    // slice vector was built; the decomposition fetches one plane at a
+    // time through the guard (no whole-group i64 materialization).
     let g = if weight_side { &reg.gw } else { &reg.ga };
-    let mut vals: Vec<&[i64]> = Vec::with_capacity(g.tensors.len());
-    for (li, lay) in lays.iter().enumerate() {
+    let mut srcs: Vec<(usize, usize)> = Vec::with_capacity(g.tensors.len());
+    for (li, _lay) in lays.iter().enumerate() {
         for e in 0..BF_ENTRIES.len() {
             let (w, _) = reg.map[li][e];
             if w == weight_side {
-                vals.push(bf_entry_values(e, lay));
+                srcs.push((li, e));
             }
         }
     }
     // [UAGB1-BL] the T_blind tensors (mask + segment) are appended to the
     // WEIGHT group after the BF weight tensors, in the same order
     // bg_add_blind_shapes added them.
-    if weight_side {
-        if let Some(blind) = &reg.blind {
-            for v in &blind.values {
-                vals.push(v.as_slice());
-            }
+    let blind: &[Vec<i64>] = if weight_side {
+        reg.blind.as_ref().map(|b| b.values.as_slice()).unwrap_or(&[])
+    } else {
+        &[]
+    };
+    let n_bf = srcs.len();
+    agg_digit_witness_cols_src(g, &|ti| {
+        if ti < n_bf {
+            let (li, e) = srcs[ti];
+            bf_entry_values(e, &lays[li])
+        } else {
+            BfVals::B(blind[ti - n_bf].as_slice())
         }
-    }
-    agg_digit_witness_cols(g, &vals)
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -30871,13 +31090,20 @@ fn bg_zc_prove(
         // embed(to_mod(v)) at (layer, row, padded col), the shift expansion).
         let lambda = slots.trailing_zeros() as usize;
         assert_eq!(1usize << lambda, slots, "zc: slots is a power of two");
+        // [UPERF3-OO] guard owners for the spec's borrowed slices (the
+        // zero-check operands across all layers, same values).
+        let own: [Vec<BfVals>; 3] = [
+            lays.iter().map(|lay| bf_entry_values(entries[0], lay)).collect(),
+            lays.iter().map(|lay| bf_entry_values(entries[1], lay)).collect(),
+            lays.iter().map(|lay| bf_entry_values(entries[2], lay)).collect(),
+        ];
         let spec = IxfZcSpec {
             kind,
             point: r_q,
             layers: [
-                lays.iter().map(|lay| bf_entry_values(entries[0], lay)).collect(),
-                lays.iter().map(|lay| bf_entry_values(entries[1], lay)).collect(),
-                lays.iter().map(|lay| bf_entry_values(entries[2], lay)).collect(),
+                own[0].iter().map(|v| &**v).collect(),
+                own[1].iter().map(|v| &**v).collect(),
+                own[2].iter().map(|v| &**v).collect(),
             ],
             cols_real,
             cols_pad,
@@ -31109,6 +31335,11 @@ fn bg_mm_tables(
     let cols = b_cols;
     let mut ta = vec![kf.zero(); slots * nk];
     let mut tb = vec![kf.zero(); slots * nk];
+    // [UPERF3-OO] per-layer planes hoisted OUT of the per-block fills
+    // (one materialization per layer instead of one per block; the fills
+    // read the same values through the guards).
+    let a_planes: Vec<BfVals> = lays.iter().map(|lay| bf_entry_values(a_e, lay)).collect();
+    let b_planes: Vec<BfVals> = lays.iter().map(|lay| bf_entry_values(b_e, lay)).collect();
     // Block size: divides nk (a power of two >= 64), so a block never
     // straddles two layers.
     let blk = 64usize.min(nk);
@@ -31119,7 +31350,7 @@ fn bg_mm_tables(
         if li >= lays.len() || k0 >= inner {
             return;
         }
-        let av = bf_entry_values(a_e, &lays[li]);
+        let av = &a_planes[li];
         let k1 = (k0 + out.len()).min(inner);
         let mut accs = vec![[0u128; K_DEG]; k1 - k0];
         for i in 0..a_rows {
@@ -31146,7 +31377,7 @@ fn bg_mm_tables(
         if li >= lays.len() || k0 >= inner {
             return;
         }
-        let bv = bf_entry_values(b_e, &lays[li]);
+        let bv = &b_planes[li];
         let k1 = (k0 + out.len()).min(inner);
         for k in k0..k1 {
             let row = &bv[k * cols..(k + 1) * cols];
@@ -31260,12 +31491,13 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
         lays[1].gacc = g0;
     }
     if opts.perturb_w {
-        lays[0].wg_t[0] += if lays[0].wg_t[0] < 100 { 1 } else { -1 };
+        let w0 = lays[0].wg_t.get(0);
+        lays[0].wg_t.set(0, w0 + if w0 < 100 { 1 } else { -1 });
     }
     if opts.zero_w {
         for lay in lays.iter_mut() {
             for w in [&mut lay.wg_t, &mut lay.wu_t, &mut lay.wd_t] {
-                w.iter_mut().for_each(|x| *x = 0);
+                w.fill_zero();
             }
         }
     }
@@ -31273,7 +31505,8 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
         // [UPERF3-LL W-1] battery hook: an off-by-one on layer-0's H
         // tensor at a window-boundary column (flat index ci) — the
         // hadamard zero-check window owning that column must reject.
-        lays[0].hh[ci] += 1;
+        let h = lays[0].hh.get(ci);
+        lays[0].hh.set(ci, h + 1);
     }
 
     // ---- Registry, schedules, witnesses, pre-commits. ----
@@ -31443,7 +31676,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
         } else {
             let mut s = kf.zero();
             for (li, lay) in lays.iter().enumerate() {
-                let m = bg_mle(&kf, bf_entry_values(c_e, lay), cols, &eq_rx, &eq_ry);
+                let m = bg_mle(&kf, &bf_entry_values(c_e, lay), cols, &eq_rx, &eq_ry);
                 s = kf.add(&s, &kf.mul(&eq_rl[li], &m));
             }
             let rigged = opts.zero_w || opts.perturb_w || opts.tamper != BgTamper::None;
@@ -31661,7 +31894,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
                     // oracle — must be byte-identical.
                     let mut want = kf.zero();
                     for li in 0..opts.layers_n {
-                        let m = bg_mle(&kf, bf_entry_values(e, &lays[li]), cols_real, &eq_pr, &eq_pc);
+                        let m = bg_mle(&kf, &bf_entry_values(e, &lays[li]), cols_real, &eq_pr, &eq_pc);
                         want = kf.add(&want, &kf.mul(&eq_pl[li], &m));
                     }
                     assert_eq!(
@@ -31695,7 +31928,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
     let mut public_vals: Vec<KElem> = Vec::new();
     for (e, tag) in [(0usize, "X"), (16usize, "z")] {
         for (li, lay) in lays.iter().enumerate() {
-            let v = bg_mle(&kf, bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
+            let v = bg_mle(&kf, &bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
             // PublicClaimLie ships a lied declared-output value ON THE
             // WIRE (bundle + absorb); the prover's internal batch keeps
             // the true value (its witness consistency is not the leg's
@@ -31766,7 +31999,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
                 for p in &claim.parts {
                     let (li, e, scale, row, col) = (p.0, p.1, &p.2, &p.3, &p.4);
                     let (_, cols) = bf_entry_shape(e, t);
-                    let m = bg_mle(kf, bf_entry_values(e, &lays[li]), cols, row, col);
+                    let m = bg_mle(kf, &bf_entry_values(e, &lays[li]), cols, row, col);
                     let contrib = kf.mul(scale, &m);
                     if reg.map[li][e].0 {
                         vw = kf.add(&vw, &contrib);
@@ -32171,7 +32404,7 @@ fn bg_pass_run(opts: &BgOpts) -> (BgVerdict, BgCost, BgArtifacts) {
             let mut pi = 0usize;
             'outer: for (e, _tag) in [(0usize, "X"), (16usize, "z")] {
                 for (li, lay) in lays.iter().enumerate() {
-                    let want = bg_mle(&kf, bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
+                    let want = bg_mle(&kf, &bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
                     if bundle.public_vals[pi] != want {
                         verdict.publics_ok = false;
                         fail(&mut verdict, "public-claim");
@@ -32708,23 +32941,23 @@ fn bg_dummy_layer(l: usize) -> BfLayer {
             (e_h - e_a - e_up) as u32,
             (e_z - e_h - m.e_wd(l)) as u32,
         ),
-        x: vec![],
-        wg_t: vec![],
-        wu_t: vec![],
-        wd_t: vec![],
-        gacc: vec![],
-        rg: vec![],
-        g8: vec![],
-        a8: vec![],
-        uacc: vec![],
-        ru: vec![],
-        u8v: vec![],
-        hh: vec![],
-        rh: vec![],
-        h8: vec![],
-        dacc: vec![],
-        rd: vec![],
-        z: vec![],
+        x: BfPlane::empty(),
+        wg_t: BfPlane::empty(),
+        wu_t: BfPlane::empty(),
+        wd_t: BfPlane::empty(),
+        gacc: BfPlane::empty(),
+        rg: BfPlane::empty(),
+        g8: BfPlane::empty(),
+        a8: BfPlane::empty(),
+        uacc: BfPlane::empty(),
+        ru: BfPlane::empty(),
+        u8v: BfPlane::empty(),
+        hh: BfPlane::empty(),
+        rh: BfPlane::empty(),
+        h8: BfPlane::empty(),
+        dacc: BfPlane::empty(),
+        rd: BfPlane::empty(),
+        z: BfPlane::empty(),
     }
 }
 
@@ -33979,7 +34212,7 @@ struct BkAuxMat {
 /// The witness code of element f of a member (integer, pre-embedding):
 /// primary value + offset (ranges) — the SiLU member is keyed by the
 /// (x, y) residue pair instead (see bk_m_counts).
-fn bk_member_vals<'a>(m: &BkMember, lays: &'a [BfLayer]) -> (&'a [i64], Option<&'a [i64]>) {
+fn bk_member_vals<'a>(m: &BkMember, lays: &'a [BfLayer]) -> (BfVals<'a>, Option<BfVals<'a>>) {
     let prim = bf_entry_values(m.entry, &lays[m.li]);
     let pair = m.pair_entry.map(|pe| bf_entry_values(pe, &lays[m.li]));
     (prim, pair)
@@ -34015,7 +34248,7 @@ fn bk_m_counts(sp: &BkPairSpec, lays: &[BfLayer], zq: &ring::Zq) -> Vec<Vec<i64>
         for b in &plan.blocks {
             let m = &sp.members[b.member];
             let (prim, _) = bk_member_vals(m, lays);
-            for &v in prim {
+            for &v in prim.iter() {
                 let code = v + m.offset;
                 if (0..sp.t_rows as i64).contains(&code) {
                     out[b.tree][code as usize] += 1;
@@ -34102,35 +34335,48 @@ fn bk_witness_act(
     lays: &[BfLayer],
     aux: &[BkAuxMat],
 ) -> ring::eval_proof::DigitCols {
-    let mut vals: Vec<&[i64]> = Vec::with_capacity(reg.ga.tensors.len());
-    for (li, lay) in lays.iter().enumerate() {
+    // [UPERF3-OO] per-tensor fetch (same order as the old slice vector).
+    let mut srcs: Vec<(usize, usize)> = Vec::with_capacity(reg.ga.tensors.len());
+    for (li, _lay) in lays.iter().enumerate() {
         for e in 0..BF_ENTRIES.len() {
             let (w, _) = reg.map[li][e];
             if !w {
-                vals.push(bf_entry_values(e, lay));
+                srcs.push((li, e));
             }
         }
     }
-    for a in aux {
-        vals.push(&a.vals_m);
-        vals.push(&a.vals_bl);
-        vals.push(&a.vals_wm);
-        vals.push(&a.vals_tm);
-    }
-    agg_digit_witness_cols(&reg.ga, &vals) // [UPERF2-F] flat i8 store
+    let n_bf = srcs.len();
+    agg_digit_witness_cols_src(&reg.ga, &|ti| {
+        if ti < n_bf {
+            let (li, e) = srcs[ti];
+            bf_entry_values(e, &lays[li])
+        } else {
+            let a = &aux[(ti - n_bf) / 4];
+            BfVals::B(match (ti - n_bf) % 4 {
+                0 => &a.vals_m,
+                1 => &a.vals_bl,
+                2 => &a.vals_wm,
+                _ => &a.vals_tm,
+            })
+        }
+    }) // [UPERF2-F] flat i8 store
 }
 
 fn bk_witness_weight(reg: &BkRegistry, lays: &[BfLayer]) -> ring::eval_proof::DigitCols {
-    let mut vals: Vec<&[i64]> = Vec::with_capacity(reg.gw.tensors.len());
-    for (li, lay) in lays.iter().enumerate() {
+    // [UPERF3-OO] per-tensor fetch (same order as the old slice vector).
+    let mut srcs: Vec<(usize, usize)> = Vec::with_capacity(reg.gw.tensors.len());
+    for (li, _lay) in lays.iter().enumerate() {
         for e in 0..BF_ENTRIES.len() {
             let (w, _) = reg.map[li][e];
             if w {
-                vals.push(bf_entry_values(e, lay));
+                srcs.push((li, e));
             }
         }
     }
-    agg_digit_witness_cols(&reg.gw, &vals) // [UPERF2-F] flat i8 store
+    agg_digit_witness_cols_src(&reg.gw, &|ti| {
+        let (li, e) = srcs[ti];
+        bf_entry_values(e, &lays[li])
+    }) // [UPERF2-F] flat i8 store
 }
 
 // ---------------------------------------------------------------------------
@@ -34562,11 +34808,14 @@ fn bk_range_violation(lays: &mut [BfLayer]) -> usize {
     assert!(max_orig >= 0, "no committable off-table gap for width {sh_z}");
     let idx = (0..lays[0].rd.len())
         .find(|&i| {
-            lays[0].rd[i] >= 0 && lays[0].rd[i] <= max_orig && lays[0].z[i] > -100 && lays[0].z[i] < 100
+            let (r, zv) = (lays[0].rd.get(i), lays[0].z.get(i));
+            r >= 0 && r <= max_orig && zv > -100 && zv < 100
         })
         .expect("a committable off-table position exists at layer 0");
-    lays[0].rd[idx] += bump;
-    lays[0].z[idx] -= 1;
+    let r = lays[0].rd.get(idx);
+    lays[0].rd.set(idx, r + bump);
+    let zv = lays[0].z.get(idx);
+    lays[0].z.set(idx, zv - 1);
     idx
 }
 
@@ -34642,6 +34891,8 @@ fn bk_tree_slot_fns<'a>(
     let mut out: Vec<(ring::descent_fold::MemberShape, usize, Box<dyn Fn(usize) -> ring::kfield::KElem + Sync + 'a>)> = Vec::new();
     for b in sp.plan.blocks.iter().filter(|b| b.tree == tree) {
         let m = &sp.members[b.member];
+        // [UPERF3-OO] the guards move INTO the closures (owned when the
+        // member's plane is compact) — same values per element.
         let (prim, pair) = bk_member_vals(m, lays);
         let offset = m.offset;
         let f: Box<dyn Fn(usize) -> ring::kfield::KElem + Sync + 'a> = if let Some(pv) = pair {
@@ -34931,7 +35182,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
         let v_c = {
             let mut s = kf.zero();
             for (li, lay) in lays.iter().enumerate() {
-                let m = bg_mle(&kf, bf_entry_values(c_e, lay), cols, &eq_rx, &eq_ry);
+                let m = bg_mle(&kf, &bf_entry_values(c_e, lay), cols, &eq_rx, &eq_ry);
                 s = kf.add(&s, &kf.mul(&eq_rl[li], &m));
             }
             s
@@ -35086,7 +35337,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
                     // oracle — must be byte-identical.
                     let mut want = kf.zero();
                     for li in 0..opts.layers_n {
-                        let m = bg_mle(&kf, bf_entry_values(e, &lays[li]), cols_real, &eq_pr, &eq_pc);
+                        let m = bg_mle(&kf, &bf_entry_values(e, &lays[li]), cols_real, &eq_pr, &eq_pc);
                         want = kf.add(&want, &kf.mul(&eq_pl[li], &m));
                     }
                     assert_eq!(
@@ -35244,7 +35495,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
     let mut public_vals: Vec<KElem> = Vec::new();
     for (e, _tag) in [(0usize, "X"), (16usize, "z")] {
         for (li, lay) in lays.iter().enumerate() {
-            let v = bg_mle(&kf, bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
+            let v = bg_mle(&kf, &bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
             public_vals.push(v.clone());
             claims.push(BkClaim {
                 in_weight: false,
@@ -35563,7 +35814,7 @@ fn bk_pass_run(opts: &BkOpts) -> (BkVerdict, BkCost, BkArtifacts) {
             let mut pi_c = 0usize;
             for (e, _tag) in [(0usize, "X"), (16usize, "z")] {
                 for (li, lay) in lays.iter().enumerate() {
-                    let want = bg_mle(&kf, bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
+                    let want = bg_mle(&kf, &bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
                     if public_vals[pi_c] != want {
                         verdict.publics_ok = false;
                         fail(&mut verdict, "public-claim".to_string());
@@ -38406,23 +38657,23 @@ fn uperf_d_diff_battery() {
                 l,
                 exps: (0, 0, 0, 0, 0, 0),
                 shifts: (7, 6, 5, 8),
-                x: small(t * bf_d()),
-                wg_t: small(bf_d() * bf_f()),
-                wu_t: small(bf_d() * bf_f()),
-                wd_t: small(bf_f() * bf_d()),
-                gacc: wide(small, t * bf_f(), 211),
-                rg: small(t * bf_f()).iter().map(|v| v.rem_euclid(128)).collect(),
-                g8: small(t * bf_f()),
-                a8: small(t * bf_f()),
-                uacc: wide(small, t * bf_f(), 173),
-                ru: small(t * bf_f()).iter().map(|v| v.rem_euclid(64)).collect(),
-                u8v: small(t * bf_f()),
-                hh: wide(small, t * bf_f(), 97),
-                rh: small(t * bf_f()).iter().map(|v| v.rem_euclid(32)).collect(),
-                h8: small(t * bf_f()),
-                dacc: wide(small, t * bf_d(), 251),
-                rd: small(t * bf_d()).iter().map(|v| v.rem_euclid(256)).collect(),
-                z: small(t * bf_d()),
+                x: BfPlane::from_vals(small(t * bf_d())),
+                wg_t: BfPlane::from_vals(small(bf_d() * bf_f())),
+                wu_t: BfPlane::from_vals(small(bf_d() * bf_f())),
+                wd_t: BfPlane::from_vals(small(bf_f() * bf_d())),
+                gacc: BfPlane::from_vals(wide(small, t * bf_f(), 211)),
+                rg: BfPlane::from_vals(small(t * bf_f()).iter().map(|v| v.rem_euclid(128)).collect()),
+                g8: BfPlane::from_vals(small(t * bf_f())),
+                a8: BfPlane::from_vals(small(t * bf_f())),
+                uacc: BfPlane::from_vals(wide(small, t * bf_f(), 173)),
+                ru: BfPlane::from_vals(small(t * bf_f()).iter().map(|v| v.rem_euclid(64)).collect()),
+                u8v: BfPlane::from_vals(small(t * bf_f())),
+                hh: BfPlane::from_vals(wide(small, t * bf_f(), 97)),
+                rh: BfPlane::from_vals(small(t * bf_f()).iter().map(|v| v.rem_euclid(32)).collect()),
+                h8: BfPlane::from_vals(small(t * bf_f())),
+                dacc: BfPlane::from_vals(wide(small, t * bf_d(), 251)),
+                rd: BfPlane::from_vals(small(t * bf_d()).iter().map(|v| v.rem_euclid(256)).collect()),
+                z: BfPlane::from_vals(small(t * bf_d())),
             }
         };
         let lays = vec![mk(&mut small, 0), mk(&mut small, 1), mk(&mut small, 2)];
@@ -38497,7 +38748,7 @@ fn uperf_d_diff_battery() {
                 .iter()
                 .map(|lay| {
                     let vals = bf_entry_values(_c_e, lay);
-                    (bg_mle_ref(&kf, vals, b_cols, &eq_rx, &eq_ry), bg_mle(&kf, vals, b_cols, &eq_rx, &eq_ry))
+                    (bg_mle_ref(&kf, &vals, b_cols, &eq_rx, &eq_ry), bg_mle(&kf, &vals, b_cols, &eq_rx, &eq_ry))
                 })
                 .unzip();
             let ok = ta_r == ta_f && tb_r == tb_f && mle_r == mle_f;
@@ -38519,12 +38770,12 @@ fn uperf_d_diff_battery() {
         // the chain GEMM ref == fast on the synthetic layers
         for lay in &lays {
             let (g_ref, g_fast) = (
-                bf_matmul_i64_ref(&lay.x, &lay.wg_t, t, bf_d(), bf_f()),
-                bf_matmul_i64(&lay.x, &lay.wg_t, t, bf_d(), bf_f()),
+                bf_matmul_i64_ref(&lay.x.to_vec(), &lay.wg_t.to_vec(), t, bf_d(), bf_f()),
+                bf_matmul_i64(&lay.x.to_vec(), &lay.wg_t.to_vec(), t, bf_d(), bf_f()),
             );
             let (d_ref, d_fast) = (
-                bf_matmul_i64_ref(&lay.h8, &lay.wd_t, t, bf_f(), bf_d()),
-                bf_matmul_i64(&lay.h8, &lay.wd_t, t, bf_f(), bf_d()),
+                bf_matmul_i64_ref(&lay.h8.to_vec(), &lay.wd_t.to_vec(), t, bf_f(), bf_d()),
+                bf_matmul_i64(&lay.h8.to_vec(), &lay.wd_t.to_vec(), t, bf_f(), bf_d()),
             );
             let ok = g_ref == g_fast && d_ref == d_fast;
             legs += 1;
@@ -42163,23 +42414,23 @@ fn uperf_o_layers(n_layers: usize, t: usize, seed: u64) -> Vec<BfLayer> {
             l,
             exps: (0, 0, 0, 0, 0, 0),
             shifts: (7, 6, 5, 8),
-            x: small(t * bf_d()),
-            wg_t: small(bf_d() * bf_f()),
-            wu_t: small(bf_d() * bf_f()),
-            wd_t: small(bf_f() * bf_d()),
-            gacc: wide(&mut small, t * bf_f(), 211),
-            rg: small(t * bf_f()).iter().map(|v| v.rem_euclid(128)).collect(),
-            g8: small(t * bf_f()),
-            a8: small(t * bf_f()),
-            uacc: wide(&mut small, t * bf_f(), 173),
-            ru: small(t * bf_f()).iter().map(|v| v.rem_euclid(64)).collect(),
-            u8v: small(t * bf_f()),
-            hh: wide(&mut small, t * bf_f(), 97),
-            rh: small(t * bf_f()).iter().map(|v| v.rem_euclid(32)).collect(),
-            h8: small(t * bf_f()),
-            dacc: wide(&mut small, t * bf_d(), 251),
-            rd: small(t * bf_d()).iter().map(|v| v.rem_euclid(256)).collect(),
-            z: small(t * bf_d()),
+            x: BfPlane::from_vals(small(t * bf_d())),
+            wg_t: BfPlane::from_vals(small(bf_d() * bf_f())),
+            wu_t: BfPlane::from_vals(small(bf_d() * bf_f())),
+            wd_t: BfPlane::from_vals(small(bf_f() * bf_d())),
+            gacc: BfPlane::from_vals(wide(&mut small, t * bf_f(), 211)),
+            rg: BfPlane::from_vals(small(t * bf_f()).iter().map(|v| v.rem_euclid(128)).collect()),
+            g8: BfPlane::from_vals(small(t * bf_f())),
+            a8: BfPlane::from_vals(small(t * bf_f())),
+            uacc: BfPlane::from_vals(wide(&mut small, t * bf_f(), 173)),
+            ru: BfPlane::from_vals(small(t * bf_f()).iter().map(|v| v.rem_euclid(64)).collect()),
+            u8v: BfPlane::from_vals(small(t * bf_f())),
+            hh: BfPlane::from_vals(wide(&mut small, t * bf_f(), 97)),
+            rh: BfPlane::from_vals(small(t * bf_f()).iter().map(|v| v.rem_euclid(32)).collect()),
+            h8: BfPlane::from_vals(small(t * bf_f())),
+            dacc: BfPlane::from_vals(wide(&mut small, t * bf_d(), 251)),
+            rd: BfPlane::from_vals(small(t * bf_d()).iter().map(|v| v.rem_euclid(256)).collect()),
+            z: BfPlane::from_vals(small(t * bf_d())),
         };
         out.push(lay);
     }
@@ -51019,33 +51270,44 @@ fn gg_witness_act(
     class_data: &[Vec<GgClassData>],
     m_vals: &[Option<Vec<i64>>],
 ) -> ring::eval_proof::DigitCols {
-    let mut vals: Vec<&[i64]> = Vec::with_capacity(reg.ga.tensors.len());
-    for (li, lay) in lays.iter().enumerate() {
+    // [UPERF3-OO] BF entries per-tensor through the guard (same order as
+    // the old slice vector); the aux/plane extras stay borrowed slices.
+    let mut srcs: Vec<(usize, usize)> = Vec::with_capacity(reg.ga.tensors.len());
+    for (li, _lay) in lays.iter().enumerate() {
         for e in 0..BF_ENTRIES.len() {
             let (w, _) = reg.map[li][e];
             if !w {
-                vals.push(bf_entry_values(e, lay));
+                srcs.push((li, e));
             }
         }
     }
+    let mut extra: Vec<&[i64]> = Vec::new();
     for (pi, _sp) in specs.iter().enumerate() {
         if let Some(a) = &bk_aux[pi] {
-            vals.push(&a.vals_m);
-            vals.push(&a.vals_bl);
-            vals.push(&a.vals_wm);
-            vals.push(&a.vals_tm);
+            extra.push(&a.vals_m);
+            extra.push(&a.vals_bl);
+            extra.push(&a.vals_wm);
+            extra.push(&a.vals_tm);
         } else if plans[pi].logup.is_some() {
-            vals.push(m_vals[pi].as_ref().expect("logup m values"));
+            extra.push(m_vals[pi].as_ref().expect("logup m values"));
         } else {
             for cd in &class_data[pi] {
-                vals.push(&cd.planes_vals);
+                extra.push(&cd.planes_vals);
                 if !cd.mask_vals.is_empty() {
-                    vals.push(&cd.mask_vals);
+                    extra.push(&cd.mask_vals);
                 }
             }
         }
     }
-    agg_digit_witness_cols(&reg.ga, &vals)
+    let n_bf = srcs.len();
+    agg_digit_witness_cols_src(&reg.ga, &|ti| {
+        if ti < n_bf {
+            let (li, e) = srcs[ti];
+            bf_entry_values(e, &lays[li])
+        } else {
+            BfVals::B(extra[ti - n_bf])
+        }
+    })
 }
 
 /// One silu pair's Full-mode prover material (alpha-dependent; built after
@@ -51284,7 +51546,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
         let v_c = {
             let mut s = kf.zero();
             for (li, lay) in lays.iter().enumerate() {
-                let m = bg_mle(&kf, bf_entry_values(c_e, lay), cols, &eq_rx, &eq_ry);
+                let m = bg_mle(&kf, &bf_entry_values(c_e, lay), cols, &eq_rx, &eq_ry);
                 s = kf.add(&s, &kf.mul(&eq_rl[li], &m));
             }
             s
@@ -51597,7 +51859,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     let mut public_vals: Vec<KElem> = Vec::new();
     for (e, _tag) in [(0usize, "X"), (16usize, "z")] {
         for (li, lay) in lays.iter().enumerate() {
-            let v = bg_mle(&kf, bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
+            let v = bg_mle(&kf, &bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
             public_vals.push(v.clone());
             claims.push(BkClaim {
                 in_weight: false,
@@ -51926,7 +52188,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
             let mut pi_c = 0usize;
             for (e, _tag) in [(0usize, "X"), (16usize, "z")] {
                 for (li, lay) in lays.iter().enumerate() {
-                    let want = bg_mle(&kf, bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
+                    let want = bg_mle(&kf, &bf_entry_values(e, lay), bf_d(), &eq_or, &eq_oc);
                     if public_vals[pi_c] != want {
                         fail(&mut accept, &mut first_fail, "public-claim".to_string());
                         break 'verify;
@@ -52041,9 +52303,11 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     accept
 }
 
-/// [UPERF3-GG] rung 2 helper — mutable access to a member entry's values
+/// [UPERF3-GG] rung 2 helper — mutable access to a member entry's plane
 /// (the tamper legs; remainder/narrowing entries only).
-fn gg_entry_values_mut(e: usize, lay: &mut BfLayer) -> &mut Vec<i64> {
+/// [UPERF3-OO] returns the compact plane; element writes go through
+/// `BfPlane::set` (widening — a tampered out-of-class value rides wide).
+fn gg_entry_values_mut(e: usize, lay: &mut BfLayer) -> &mut BfPlane {
     match BF_ENTRIES[e] {
         "Rg" => &mut lay.rg,
         "Ru" => &mut lay.ru,
@@ -52215,15 +52479,18 @@ fn uperf_a_gg_diff(pair: &str, layers_n: usize, t: usize, seed: u8) {
     // ---- (a) the descent ORACLE leg + the serving check. ----
     let (ok, claims, aux, trees_s, prove_s, verify_s) = uperf_a_gg_desc_leg(&kf, sp, &lays, &reg, pi, seed);
     assert!(ok, "honest descent pair must verify + cross-check");
-    let mut vals_of: Vec<Option<&[i64]>> = vec![None; reg.ga.tensors.len()];
+    // [UPERF3-OO] guard owners for the per-tensor slices (battery leg,
+    // small shapes — holding every act plane materialized is fine here).
+    let mut owners: Vec<Option<BfVals>> = (0..reg.ga.tensors.len()).map(|_| None).collect();
     for (li, lay) in lays.iter().enumerate() {
         for e in 0..BF_ENTRIES.len() {
             let (in_w, ti) = reg.map[li][e];
             if !in_w {
-                vals_of[ti] = Some(bf_entry_values(e, lay));
+                owners[ti] = Some(bf_entry_values(e, lay));
             }
         }
     }
+    let mut vals_of: Vec<Option<&[i64]>> = owners.iter().map(|o| o.as_ref().map(|g| &**g)).collect();
     let [ti_m, ti_bl, ti_wm, ti_tm] = reg.aux_base[pi];
     vals_of[ti_m] = Some(&aux.vals_m);
     vals_of[ti_bl] = Some(&aux.vals_bl);
@@ -52265,7 +52532,7 @@ fn uperf_a_gg_diff(pair: &str, layers_n: usize, t: usize, seed: u8) {
         let mut code_digest = Sha256::new_with_prefix(b"uperf3-gg-codes-v1");
         for m in &members {
             let vals = bf_entry_values(m.entry, &lays[m.li]);
-            let (planes, rem) = range_planes(vals, m.offset, w, n_log2);
+            let (planes, rem) = range_planes(&vals, m.offset, w, n_log2);
             for &r in rem.iter().take(vals.len()) {
                 code_digest.update(r.to_le_bytes());
             }
@@ -52328,7 +52595,11 @@ fn uperf_a_gg_diff(pair: &str, layers_n: usize, t: usize, seed: u8) {
     let mut lays_t: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
     let m0 = sp.members[0];
     let idx = 3usize;
-    gg_entry_values_mut(m0.entry, &mut lays_t[m0.li])[idx] += 1i64 << w;
+    {
+        let p = gg_entry_values_mut(m0.entry, &mut lays_t[m0.li]);
+        let v = p.get(idx);
+        p.set(idx, v + (1i64 << w));
+    }
     let (ok_t, _c, _a, _t1, _t2, _t3) = uperf_a_gg_desc_leg(&kf, sp, &lays_t, &reg, pi, seed);
     assert!(!ok_t, "tampered descent leg must fail the root cross-check");
     println!("  tamper (a): +2^{w} at member 0 idx {idx} -> descent REJECTS (root cross-check / mass mismatch)");
@@ -52356,7 +52627,7 @@ fn uperf_a_gg_diff(pair: &str, layers_n: usize, t: usize, seed: u8) {
                 }
                 store.push((planes, rem));
             } else {
-                store.push(range_planes(vals, m.offset, w, n_log2));
+                store.push(range_planes(&vals, m.offset, w, n_log2));
             }
         }
         let cols_inst: Vec<ZcRangeInstance> =
