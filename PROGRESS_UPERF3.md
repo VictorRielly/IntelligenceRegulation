@@ -4158,3 +4158,38 @@ weight inputs transiently.
   20.13 s; fp12x64 26.13 -> 26.10 s — within run noise (the
   materialization cost is one i64 copy per plane consumer, paid
   against O(plane) walks that already existed).
+
+RUNG 2 — ACTIVATION/ACCUMULATOR/REMAINDER PLANES LANDED (2026-08-31):
+the remaining 14 fields (x, gacc, rg, g8, a8, uacc, ru, u8v, hh, rh,
+h8, dacc, rd, z) flipped to BfPlane — ALL 17 chain tensors now live
+compact per class (the rung-1 accessor surgery made this a field
+flip: bf_entry_values already guards every entry; new additive
+bf_entry_plane gives len/get without materialization).
+bf_derive_chain computes the chain in i64 locals VERBATIM (same
+operations, same values) and compacts each tensor once its last i64
+use passes; bf_load_layer's range-fact assert is BfPlane::fits_i8
+(the exact old predicate); the z digest check materializes; the
+tamper arms (BfTamper::RangeViolation, zc_perturb_h,
+bk_range_violation, the GG +2^w bump via gg_entry_values_mut ->
+&mut BfPlane) write through get/set — the widening path carries any
+out-of-class tampered value exactly.
+  ACCEPT: all five identity anchors BYTE-IDENTICAL (93a98700 /
+  0ae9cdae; 45fb3405; 80763ea5 / 63f4a3a4); floors green
+  (diff-battery exit 0; freeze-check 102 ok exit 0; uperf-s
+  3752cba4..; agg 46234986..; uperf-x be89d5da..). PRUDENCE legs
+  beyond the floors (the edited tamper arms exercised end to end):
+  m125-pass battery small ALL LEGS ok exit 0 (533 s — WrongWeight/
+  WrongTable/SeamSwap/RangeViolation/WrongMap each rejects at its
+  pre-registered gate); table-descent battery small 5/5 ok (74 s,
+  incl. the BK RangeViolation leg).
+  RSS delta [MEASURED, NOISY-SHARED, vs rung 1]:
+    fp3x16     814,624 ->   814,116 KB  (  -0.5 MB — peak sits in
+                                          claim/verify, not the store)
+    pa12x64  1,653,768 -> 1,562,672 KB  ( -91 MB)
+    fp12x64  1,778,104 -> 1,668,184 KB  (-110 MB)
+  (the counted 12x64 non-weight store is ~140 MB i64 -> ~35 MB
+  compact = -105 MB; the measured 91-110 MB IS that term.)
+  WALL delta [MEASURED, honest]: fp3x16 6.36 -> 6.84 s; pa12x64
+  20.13 -> 21.24 s; fp12x64 26.10 -> 27.78 s (+5-6% at 12x64 — the
+  per-consumer guard materializations; NOISY-SHARED box, lane NN
+  building concurrently).
