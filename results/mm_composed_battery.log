@@ -1,0 +1,8 @@
+[UPERF3-MM] composed-battery: 3 layers, T = 16 (the m125 tower; tampers at the CROSS-LAYER seams)
+  ok   honest composed tower ACCEPT (3 layers, 2 seams, 6 clamp events)
+  FAIL CrossLayerSwap (layer 1 fed from z16(2), self-consistent) REJECTS at SEAM-EDGE(1) [seam gates: [false, false]]; statement + every per-layer gate clean: false
+
+thread 'main' (314270) panicked at src/bin/ring_matmul.rs:48039:9:
+composed battery leg failed: CrossLayerSwap (layer 1 fed from z16(2), self-consistent) REJECTS at SEAM-EDGE(1) [seam gates: [false, false]]; statement + every per-layer gate clean: false
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+Aborted (core dumped)

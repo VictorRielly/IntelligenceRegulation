@@ -43976,9 +43976,20 @@ fn u3_main(args: &[String]) {
             let raw = args.last().map(String::as_str) == Some("raw");
             u3c_chain_probe(t, layers_n, raw);
         }
+        Some("composed") => {
+            let t: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(16);
+            let layers_n: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(usize::MAX);
+            let diff = args.last().map(String::as_str) == Some("diff");
+            u3c_composed(t, layers_n, diff);
+        }
+        Some("composed-battery") => {
+            let t: usize = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(16);
+            let layers_n: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(3);
+            u3c_battery(t, layers_n);
+        }
         _ => {
             eprintln!(
-                "usage: ring_matmul uperf-v3 tables | battery [small|smoke] | chain-m125 [t] | e2e-m125 [layer] [t] [layers] | verify-export [t] | composed-chain [t] [layers]"
+                "usage: ring_matmul uperf-v3 tables | battery [small|smoke] | chain-m125 [t] | e2e-m125 [layer] [t] [layers] | verify-export [t] | composed-chain [t] [layers] [raw] | composed [t] [layers] [diff] | composed-battery [t] [layers]"
             );
             std::process::exit(2);
         }
@@ -46140,6 +46151,7 @@ fn u3_verify_v3_export(t_rows: usize) {
 
 /// One cross-layer seam's witness planes (owned by the FED layer l+1;
 /// layer 0 has none).
+#[derive(Clone)]
 struct U3cSeam {
     /// The declared seam shift eX(l+1) - eZ16(l).
     sh: i32,
@@ -46438,6 +46450,1760 @@ fn u3c_chain_probe(t_rows: usize, layers_n: usize, raw: bool) {
             "NOT provable without tower recalibration (lane MM OQ5 — report, do not force)"
         }
     );
+}
+
+// ---- [UPERF3-MM] the composed rig: layout, clamp table, statement. --------
+
+/// Seam entry indices in a seam-fed layer's commit space (after the 19
+/// base entries): Ys = pre-clamp seam outputs, Rs = seam remainders.
+const U3C_YS: usize = 19;
+const U3C_RS: usize = 20;
+
+fn u3c_entry_shape(m: &U3Model, e: usize, t: usize) -> (usize, usize) {
+    if e >= U3C_YS { (t, m.d) } else { u3_entry_shape(m, e, t) }
+}
+
+fn u3c_entry_values<'a>(e: usize, lay: &'a U3Layer, seam: Option<&'a U3cSeam>) -> &'a [i64] {
+    match e {
+        U3C_YS => &seam.expect("seam entry on a seam-fed layer").ys,
+        U3C_RS => &seam.expect("seam entry on a seam-fed layer").rs,
+        _ => u3_entry_values(e, lay),
+    }
+}
+
+/// The saturation table for a declared seam shift: rows (v, clamp127(v))
+/// over the exact reachable pre-clamp domain [lo, hi] (ys = rq_round of
+/// z16 in [-32767, 32767]), padded to a power of two by repeating the
+/// top row. STATEMENT-derived (like the identity range tables) — no
+/// frozen-registry addition; the verifier folds this same table.
+fn u3c_clamp_rows(sh: i32, round: bool) -> (Vec<(i64, i64)>, i64) {
+    assert!((1..=16).contains(&sh));
+    let half = if round { 1i64 << (sh - 1) } else { 0 };
+    let hi = (32767 + half) >> sh;
+    let lo = (-32767 + half) >> sh;
+    let n = usize::try_from(hi - lo + 1).unwrap().next_power_of_two().max(16);
+    let rows = (0..n)
+        .map(|j| {
+            let v = (lo + j as i64).min(hi);
+            (v, v.clamp(-127, 127))
+        })
+        .collect();
+    (rows, lo)
+}
+
+/// The composed rig's per-layer lookup instance (the U3Inst fields +
+/// the seam-clamp discriminator).
+#[derive(Clone)]
+struct U3cInst {
+    name: String,
+    entry: usize,
+    pair: Option<usize>,
+    offset: i64,
+    t_rows: usize,
+    act16: Option<(i32, i32)>,
+    /// Some(sh): the seam-clamp fused-pair instance (entry = Ys,
+    /// pair = X) against the u3c_clamp_rows(sh) statement table.
+    clamp_sh: Option<i32>,
+    dw: usize,
+    dt: usize,
+    base_m: usize,
+    m_c: usize,
+    idx_bl: usize,
+    base_wm: usize,
+    base_tm: usize,
+    wm_c: usize,
+    tm_c: usize,
+}
+
+/// The layer's instances under the composed statement: the per-layer
+/// v3 set (u3_instances, unchanged relations) + for seam-fed layers
+/// the seam-clamp pair and the Rs range fact. X needs no separate
+/// range instance — the clamp table's output column IS the X range
+/// fact; Ys needs none — the table domain IS the Ys range fact.
+fn u3c_instances(m: &U3Model, lay: &U3Layer, seam: Option<&U3cSeam>, t: usize) -> Vec<U3cInst> {
+    let from_base = |i: &U3Inst| U3cInst {
+        name: i.name.clone(),
+        entry: i.entry,
+        pair: i.pair,
+        offset: i.offset,
+        t_rows: i.t_rows,
+        act16: i.act16,
+        clamp_sh: None,
+        dw: i.dw,
+        dt: i.dt,
+        base_m: usize::MAX,
+        m_c: 0,
+        idx_bl: usize::MAX,
+        base_wm: usize::MAX,
+        base_tm: usize::MAX,
+        wm_c: 0,
+        tm_c: 0,
+    };
+    let mut v: Vec<U3cInst> = u3_instances(m, lay, t).iter().map(from_base).collect();
+    if let Some(s) = seam {
+        let nd = t * m.d;
+        let (rows, _) = u3c_clamp_rows(s.sh, m.round);
+        let mk = |name: String, entry: usize, pair: Option<usize>, offset: i64, t_rows: usize,
+                  clamp_sh: Option<i32>| U3cInst {
+            name,
+            entry,
+            pair,
+            offset,
+            t_rows,
+            act16: None,
+            clamp_sh,
+            dw: bf_dw_for(nd),
+            dt: ((t_rows.trailing_zeros() as usize) + 1).max(4),
+            base_m: usize::MAX,
+            m_c: 0,
+            idx_bl: usize::MAX,
+            base_wm: usize::MAX,
+            base_tm: usize::MAX,
+            wm_c: 0,
+            tm_c: 0,
+        };
+        v.push(mk(format!("seam-clamp-w{}", s.sh), U3C_YS, Some(0), 0, rows.len(), Some(s.sh)));
+        v.push(mk(format!("seam-rng-rs-w{}", s.sh), U3C_RS, None, 0, 1usize << s.sh, None));
+    }
+    v
+}
+
+/// The composed per-layer commitment layout (u3_layout's structure
+/// over 19 or 21 entries + the seam instances).
+struct U3cLayout {
+    n_entries: usize,
+    entry_base: Vec<usize>,
+    entry_cms: Vec<usize>,
+    insts: Vec<U3cInst>,
+    n_data: usize,
+    base_pad: usize,
+    base_closing_g: usize,
+    base_wave_g: usize,
+    n_commits: usize,
+    c2_max: usize,
+    wave_g_groups: usize,
+    closing_g_groups: usize,
+    plan: ring::ct_engine::WavePlan,
+    pad_layout: ring::ct_engine::WavePadLayout,
+}
+
+fn u3c_layout(
+    m: &U3Model,
+    lay: &U3Layer,
+    seam: Option<&U3cSeam>,
+    t: usize,
+    shape: CommitShape,
+    q: u64,
+) -> U3cLayout {
+    use ring::ct_engine::{WavePadLayout, plan_waves};
+    use ring::gkr_masked::mask_coeff_counts;
+    use ring::kfield::K_DEG;
+    let per = shape.msg_r * D;
+    let n_entries = if seam.is_some() { 21 } else { 19 };
+    let mut entry_base = vec![0usize; n_entries];
+    let mut entry_cms = vec![0usize; n_entries];
+    let mut cursor = 0usize;
+    for e in 0..n_entries {
+        let (rows, cols) = u3c_entry_shape(m, e, t);
+        assert_eq!((rows * cols) % per, 0, "no-tail discipline at entry {e}");
+        entry_base[e] = cursor;
+        entry_cms[e] = (rows * cols) / per;
+        cursor += entry_cms[e];
+    }
+    let kel_cms = |n_kel: usize| (n_kel * K_DEG).div_ceil(per).max(1);
+    let mut insts = u3c_instances(m, lay, seam, t);
+    for inst in insts.iter_mut() {
+        let (gw, rw) = mask_coeff_counts(inst.dw, 0);
+        let (gt, rt) = mask_coeff_counts(inst.dt, 0);
+        inst.wm_c = kel_cms(gw + rw);
+        inst.tm_c = kel_cms(gt + rt);
+        inst.m_c = inst.t_rows.div_ceil(per).max(1);
+        inst.base_m = cursor;
+        inst.idx_bl = cursor + inst.m_c;
+        inst.base_wm = cursor + inst.m_c + 1;
+        inst.base_tm = inst.base_wm + inst.wm_c;
+        cursor += inst.m_c + 1 + inst.wm_c + inst.tm_c;
+        assert!(ring::gkr::ceiling_gate_ok(1u64 << inst.dw, q));
+        assert!(ring::gkr::ceiling_gate_ok(1u64 << inst.dt, q));
+    }
+    let n_data = cursor;
+    let wave_g_groups = UR1_PIN_COPIES.div_ceil(shape.msg_r);
+    let c2_max = ur1_c2_max_commits(q, shape);
+    let data_cap = c2_max - 1 - wave_g_groups;
+    let plan = plan_waves(n_data, &[], data_cap).expect("group-free first-fit plan");
+    let n_waves = plan.waves.len();
+    let pad_layout =
+        WavePadLayout::derive(UR1_PIN_COPIES, (0..n_waves).collect(), n_waves, shape.msg_r)
+            .expect("pad layout derives");
+    let closing_g_groups =
+        if pad_layout.has_pads() { UR1_PIN_COPIES.div_ceil(shape.msg_r) } else { 0 };
+    let base_pad = n_data;
+    let base_closing_g = base_pad + pad_layout.n_pad_cms;
+    let base_wave_g = base_closing_g + closing_g_groups;
+    let n_commits = base_wave_g + n_waves * wave_g_groups;
+    U3cLayout {
+        n_entries,
+        entry_base,
+        entry_cms,
+        insts,
+        n_data,
+        base_pad,
+        base_closing_g,
+        base_wave_g,
+        n_commits,
+        c2_max,
+        wave_g_groups,
+        closing_g_groups,
+        plan,
+        pad_layout,
+    }
+}
+
+/// Commit one composed layer's entries. Entries 0..19 use EXACTLY the
+/// per-layer rig's public seed rule (weights "uperf3-v3-w", witness
+/// "uperf3-v3-wit", keyed (l, e)) — the differential's byte-identity
+/// hinge; the seam entries use their own tag. `only_weights` serves
+/// the verifier's statement-gate recompute (e in 1..=3).
+fn u3c_commit_entries(
+    lay: &U3Layer,
+    seam: Option<&U3cSeam>,
+    m: &U3Model,
+    t: usize,
+    shape: CommitShape,
+    crs: &ring::commit::RingCrs,
+    path: &KernelPath,
+    keep: bool,
+    only_weights: bool,
+) -> (Vec<Vec<u8>>, Option<BfCommitted>) {
+    let zq = ring_ctx_q8().zq;
+    let per = shape.msg_r * D;
+    let n_entries = if seam.is_some() { 21 } else { 19 };
+    let mut entry_digests = Vec::with_capacity(n_entries);
+    let mut kept =
+        BfCommitted { msgs: Vec::new(), rhos8: Vec::new(), t1s: Vec::new(), t2s: Vec::new() };
+    for e in 0..n_entries {
+        if only_weights && !(1..=3).contains(&e) {
+            entry_digests.push(Vec::new());
+            continue;
+        }
+        let vals = u3c_entry_values(e, lay, seam);
+        let n_cms = vals.len().div_ceil(per);
+        let seed_tag = if (1..=3).contains(&e) {
+            "uperf3-v3-w"
+        } else if e >= U3C_YS {
+            "uperf3-mm-seam"
+        } else {
+            "uperf3-v3-wit"
+        };
+        let mut rng = ring::ProverRng::from_test_seed(
+            seed_tag,
+            &[(lay.l as u64).to_le_bytes(), (e as u64).to_le_bytes()].concat(),
+        );
+        let mut cm_digests = Vec::with_capacity(n_cms);
+        for g in 0..n_cms {
+            let mut polys = vec![poly_zero(); shape.msg_r];
+            for s in 0..shape.msg_r {
+                for c in 0..D {
+                    let idx = g * per + s * D + c;
+                    if idx < vals.len() {
+                        polys[s][c] = zq.to_mod(vals[idx]);
+                    }
+                }
+            }
+            let rho: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(&mut rng)).collect();
+            let (t1, t2) = commit(path, crs, &polys, &rho);
+            cm_digests.push(group_digest(&t1, &t2));
+            if keep {
+                kept.msgs.push(polys);
+                kept.rhos8.push(rho.iter().flat_map(|p| p.iter().map(|&x| x as i8)).collect());
+                kept.t1s.push(t1);
+                kept.t2s.push(t2);
+            }
+        }
+        entry_digests.push(group_list_digest(&cm_digests));
+    }
+    let _ = (m, t);
+    (entry_digests, if keep { Some(kept) } else { None })
+}
+
+/// The composed statement bytes: a NEW tag, then the per-layer v3
+/// statement body VERBATIM (u3_statement_bytes over the 19-entry
+/// digests — the differential's embedding check), then the seam block
+/// (zpolicy byte + per seam: fed layer, declared shift, Ys/Rs
+/// commitment digests). sh_seam is redundantly re-derivable from the
+/// declared exps (eX(l) - eZ16(l-1)) — the verifier's rebuild checks
+/// the whole byte string.
+fn u3c_statement_bytes(
+    t_rows: usize,
+    m: &U3Model,
+    layers: &[U3Layer],
+    seams: &[Option<U3cSeam>],
+    all_digests: &[Vec<Vec<u8>>],
+    crs_hash: &[u8],
+) -> Vec<u8> {
+    let mut b: Vec<u8> = b"uperf3-mm-composed-v1".to_vec();
+    let d19: Vec<Vec<Vec<u8>>> = all_digests.iter().map(|d| d[..19].to_vec()).collect();
+    b.extend(u3_statement_bytes(t_rows, m, layers, &d19, crs_hash));
+    b.extend(b"seams-v1");
+    b.push(1u8); // zpolicy: the seam requant is the CLAMPED relation.
+    for (l, s) in seams.iter().enumerate() {
+        if let Some(s) = s {
+            b.extend((l as u64).to_le_bytes());
+            b.extend(s.sh.to_le_bytes());
+            b.extend(&all_digests[l][U3C_YS]);
+            b.extend(&all_digests[l][U3C_RS]);
+        }
+    }
+    b
+}
+
+/// The composed verdict: one accept over every per-layer gate set plus
+/// the named cross-layer seam-edge gates.
+struct U3cVerdict {
+    statement_ok: bool,
+    layer: Vec<U3Verdict>,
+    /// Per FED layer (index l >= 1): v_z16(l-1) + half*S == 2^sh*v_ys(l) + v_rs(l).
+    seam_edge_ok: Vec<bool>,
+}
+
+impl U3cVerdict {
+    fn accept(&self) -> bool {
+        self.statement_ok
+            && self.layer.iter().all(U3Verdict::accept)
+            && self.seam_edge_ok.iter().all(|&b| b)
+    }
+}
+
+/// Weights-only layer view for the verifier's statement-gate recompute
+/// (P0 model identity: weight digests from the PUBLIC export planes).
+fn u3c_weights_only_layer(m: &U3Model, l: usize) -> U3Layer {
+    let dir = bf_export_path();
+    let bm = bf_model();
+    U3Layer {
+        l,
+        exps: m.exps[l],
+        shifts: m.shifts(l),
+        x: vec![],
+        wg_t: bf_read_i8(&dir.join(format!("layer{l:02}_WgT.bin")), bm.d * bm.f),
+        wu_t: bf_read_i8(&dir.join(format!("layer{l:02}_WuT.bin")), bm.d * bm.f),
+        wd_t: bf_read_i8(&dir.join(format!("layer{l:02}_WdT.bin")), bm.f * bm.d),
+        gacc: vec![], rg: vec![], g8: vec![], a16: vec![], uacc: vec![], ru: vec![],
+        u16v: vec![], hh: vec![], rh: vec![], hlo: vec![], hhi: vec![],
+        dacc_lo: vec![], dacc_hi: vec![], rd: vec![], z16: vec![],
+    }
+}
+
+/// [UPERF3-MM] The COMPOSED prover + verifier: every layer committed
+/// and proven under ONE statement and ONE transcript spine, with the
+/// cross-layer seam relations bound (seam-edge pins + the clamp-pair
+/// and Rs range instances). The per-layer relation machinery is the
+/// [UPERF3-BB] wave rig's, phase-reordered: commitments (all layers)
+/// -> one h0 spine -> relation phases (per layer) -> seam phase ->
+/// pin batches/waves/closing (per layer). Tampered witnesses are
+/// prepared by the CALLER; the proof rejects at a named gate.
+#[allow(clippy::too_many_lines)]
+fn u3c_run(
+    m: &U3Model,
+    t: usize,
+    layers: &[U3Layer],
+    seams: &[Option<U3cSeam>],
+    quiet: bool,
+) -> (U3cVerdict, BfCost, String) {
+    use ring::ct_engine::{
+        CtClaim, StdOpening, WavePads, closing_round_claims, ct_h0, derive_ct_round_params,
+        draw_wave_pads, pack_wave_pads, prove_ct_round, sample_ct_masks,
+        split_claims_prover_masked, split_claims_verifier_masked, verify_ct_round,
+    };
+    use ring::gkr::eq_table;
+    use ring::gkr_masked::{
+        BlinderSet, DescentEnd, MaskSet, MaskedDescentProof, blinded_table_tree,
+        blinded_witness_tree, blinder_positions, draw_masks, masked_gkr_prove, masked_gkr_verify,
+        masked_pass_bytes, table_row_positions, witness_leaf_positions, zero_masks,
+    };
+    use ring::kfield::{K_DEG, KElem, KField};
+    use ring::lookup::{
+        PinTerm, PinnedValue, derive_pin_psi, fuse_pair, int16out_member, int16out_rows,
+        multiplicities, pin_claims,
+    };
+    use ring::sumcheck::{LkpTranscript, sumcheck_prove, sumcheck_verify};
+
+    let nl = layers.len();
+    assert_eq!(seams.len(), nl);
+    let ctx_ring = ring_ctx_q8();
+    let kf = KField::new(&ctx_ring);
+    let zq = ctx_ring.zq;
+    let q = zq.q;
+    let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+    let msg_r = shape.msg_r;
+    let per = msg_r * D;
+    let kpc = per / K_DEG;
+    let crs = expand_crs(shape, q, 0x0BB3);
+    let zero = kf.zero();
+    let one = kf.one();
+    let lg2 = |n: usize| usize::BITS as usize - (n - 1).leading_zeros() as usize;
+    let product2 = |kf: &KField, vals: &[KElem]| kf.mul(&vals[0], &vals[1]);
+    let product3 = |kf: &KField, vals: &[KElem]| kf.mul(&kf.mul(&vals[0], &vals[1]), &vals[2]);
+
+    // ---- Commit pass: every layer's entries + instance-side commits. ----
+    let t_commit = Instant::now();
+    let rp_probe = derive_ct_round_params(q, shape, ur1_c2_max_commits(q, shape), 0, 0, true);
+    let a1p = build_a1_paths(&crs, rp_probe.sigma, isqrt_u128(rp_probe.bound_sq));
+    let path = KernelPath::A1(&a1p);
+    struct U3cInstMat {
+        w_col: Vec<ring::kfield::KElem>,
+        tab_k: Vec<ring::kfield::KElem>,
+        m_k: Vec<ring::kfield::KElem>,
+        masks_w: Option<ring::gkr_masked::MaskSet>,
+        masks_t: Option<ring::gkr_masked::MaskSet>,
+        bl_w: ring::gkr_masked::BlinderSet,
+        bl_t: ring::gkr_masked::BlinderSet,
+    }
+    let mut rng = ring::ProverRng::from_test_seed(
+        "uperf3-mm-session",
+        &[(t as u64).to_le_bytes(), (nl as u64).to_le_bytes()].concat(),
+    );
+    let mut mls: Vec<U3cLayout> = Vec::with_capacity(nl);
+    let mut all_digests: Vec<Vec<Vec<u8>>> = Vec::with_capacity(nl);
+    let mut lmsgs: Vec<Vec<Vec<Poly>>> = Vec::with_capacity(nl);
+    let mut lrhos: Vec<Vec<Vec<i8>>> = Vec::with_capacity(nl);
+    let mut lt1s: Vec<Vec<Vec<Poly>>> = Vec::with_capacity(nl);
+    let mut lt2s: Vec<Vec<Vec<Poly>>> = Vec::with_capacity(nl);
+    let mut lpads: Vec<Option<WavePads>> = Vec::with_capacity(nl);
+    let mut linst: Vec<Vec<U3cInstMat>> = Vec::with_capacity(nl);
+    let pack_scalar_chunk = |vals: &[u64]| -> Vec<Poly> {
+        assert!(vals.len() <= per);
+        let mut polys = vec![poly_zero(); msg_r];
+        for (i, &v) in vals.iter().enumerate() {
+            polys[i / D][i % D] = v;
+        }
+        polys
+    };
+    let pack_kelems = |kelems: &[KElem]| -> Vec<Vec<Poly>> {
+        let mut flat: Vec<u64> = Vec::with_capacity(kelems.len() * K_DEG);
+        for e in kelems {
+            flat.extend_from_slice(&e[..]);
+        }
+        (0..flat.len().div_ceil(per).max(1))
+            .map(|g| {
+                (0..msg_r)
+                    .map(|s| {
+                        (0..D)
+                            .map(|c| {
+                                let idx = g * per + s * D + c;
+                                if idx < flat.len() { flat[idx] } else { 0 }
+                            })
+                            .collect()
+                    })
+                    .collect()
+            })
+            .collect()
+    };
+    for l in 0..nl {
+        let lay = &layers[l];
+        let seam = seams[l].as_ref();
+        let ml = u3c_layout(m, lay, seam, t, shape, q);
+        let (digs, kept) = u3c_commit_entries(lay, seam, m, t, shape, &crs, &path, true, false);
+        let BfCommitted { mut msgs, mut rhos8, mut t1s, mut t2s } = kept.unwrap();
+        let mut push_commit = |mv: Vec<Poly>,
+                               rng: &mut ring::ProverRng,
+                               msgs: &mut Vec<Vec<Poly>>,
+                               rhos8: &mut Vec<Vec<i8>>,
+                               t1s: &mut Vec<Vec<Poly>>,
+                               t2s: &mut Vec<Vec<Poly>>| {
+            let rho: Vec<Vec<i64>> = (0..shape.n_r).map(|_| rng_ternary_poly(rng)).collect();
+            let (t1, t2) = commit(&path, &crs, &mv, &rho);
+            msgs.push(mv);
+            rhos8.push(rho.iter().flat_map(|p| p.iter().map(|&x| x as i8)).collect());
+            t1s.push(t1);
+            t2s.push(t2);
+        };
+        let mut inst_mat: Vec<U3cInstMat> = Vec::with_capacity(ml.insts.len());
+        for inst in &ml.insts {
+            let vals = u3c_entry_values(inst.entry, lay, seam);
+            let (w_col, tab_k): (Vec<KElem>, Vec<KElem>) = if let Some((eg, ea)) = inst.act16 {
+                let (bytes, _) = int16out_member(m.act_fn(), eg, ea).expect("frozen member");
+                let rows = int16out_rows(bytes);
+                let pairv = u3c_entry_values(inst.pair.unwrap(), lay, seam);
+                let w = vals
+                    .iter()
+                    .zip(pairv.iter())
+                    .map(|(&x, &y)| fuse_pair(&kf, zq.to_mod(x), zq.to_mod(y)))
+                    .collect();
+                let tk =
+                    rows.iter().map(|&(v, s)| fuse_pair(&kf, zq.to_mod(v), zq.to_mod(s))).collect();
+                (w, tk)
+            } else if let Some(sh) = inst.clamp_sh {
+                let (rows, _) = u3c_clamp_rows(sh, m.round);
+                let pairv = u3c_entry_values(inst.pair.unwrap(), lay, seam);
+                let w = vals
+                    .iter()
+                    .zip(pairv.iter())
+                    .map(|(&y, &x)| fuse_pair(&kf, zq.to_mod(y), zq.to_mod(x)))
+                    .collect();
+                let tk =
+                    rows.iter().map(|&(v, s)| fuse_pair(&kf, zq.to_mod(v), zq.to_mod(s))).collect();
+                (w, tk)
+            } else {
+                let w = vals.iter().map(|&x| kf.embed(zq.to_mod(x + inst.offset))).collect();
+                let tk = (0..inst.t_rows as u64).map(|j| kf.embed(j)).collect();
+                (w, tk)
+            };
+            let m_k: Vec<KElem> = if inst.act16.is_some() {
+                multiplicities(&kf, &w_col, &tab_k)
+            } else if let Some(sh) = inst.clamp_sh {
+                let (_, lo) = u3c_clamp_rows(sh, m.round);
+                let mut hist = vec![0u64; inst.t_rows];
+                for &y in vals {
+                    let idx = y - lo;
+                    if (0..inst.t_rows as i64).contains(&idx) {
+                        hist[idx as usize] += 1;
+                    }
+                }
+                hist.into_iter().map(|h| kf.embed(h)).collect()
+            } else {
+                let mut hist = vec![0u64; inst.t_rows];
+                for w in &w_col {
+                    let c0 = w[0] as usize;
+                    if c0 < inst.t_rows {
+                        hist[c0] += 1;
+                    }
+                }
+                hist.into_iter().map(|h| kf.embed(h)).collect()
+            };
+            let m_vals: Vec<u64> = m_k.iter().map(|e| e[0]).collect();
+            for g in 0..inst.m_c {
+                let lo = g * per;
+                let hi = ((g + 1) * per).min(m_vals.len());
+                push_commit(
+                    pack_scalar_chunk(&m_vals[lo..hi]),
+                    &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s,
+                );
+            }
+            let bw = BlinderSet::draw(&kf, &mut rng);
+            let mut bt = BlinderSet::draw(&kf, &mut rng);
+            bt.solve_mass(&kf, &bw.mass(&kf));
+            let blinder_kelems: Vec<KElem> = {
+                let mut v = Vec::with_capacity(16);
+                for b in [&bw.tl, &bw.tr, &bw.f0, &bw.f1, &bt.tl, &bt.tr, &bt.f0, &bt.f1] {
+                    v.push(b.a.clone());
+                    v.push(b.u.clone());
+                }
+                v
+            };
+            let bl_msg = pack_kelems(&blinder_kelems);
+            assert_eq!(bl_msg.len(), 1);
+            push_commit(bl_msg.into_iter().next().unwrap(), &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+            let mw = draw_masks(&kf, &mut rng, inst.dw, 0);
+            let mt = draw_masks(&kf, &mut rng, inst.dt, 0);
+            for mm in pack_kelems(&mw.flatten()) {
+                push_commit(mm, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+            }
+            for mm in pack_kelems(&mt.flatten()) {
+                push_commit(mm, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+            }
+            inst_mat.push(U3cInstMat { w_col, tab_k, m_k, masks_w: Some(mw), masks_t: Some(mt), bl_w: bw, bl_t: bt });
+        }
+        assert_eq!(msgs.len(), ml.n_data);
+        let pads_live: Option<WavePads> = if ml.pad_layout.has_pads() {
+            let pads = draw_wave_pads(&mut rng, q, &ml.pad_layout);
+            for mm in pack_wave_pads(&mut rng, q, msg_r, &ml.pad_layout, &pads).expect("pad packing")
+            {
+                push_commit(mm, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+            }
+            Some(pads)
+        } else {
+            None
+        };
+        for mm in sample_ct_masks(&mut rng, q, msg_r, if ml.closing_g_groups > 0 { UR1_PIN_COPIES } else { 0 }) {
+            push_commit(mm, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+        }
+        for _ in 0..ml.plan.waves.len() {
+            for mm in sample_ct_masks(&mut rng, q, msg_r, UR1_PIN_COPIES) {
+                push_commit(mm, &mut rng, &mut msgs, &mut rhos8, &mut t1s, &mut t2s);
+            }
+        }
+        assert_eq!(msgs.len(), ml.n_commits);
+        // Entry digests from the ACTUAL tags (tamper-honest).
+        let mut cursor = 0usize;
+        let mut digs_actual = Vec::with_capacity(ml.n_entries);
+        for e in 0..ml.n_entries {
+            let n = ml.entry_cms[e];
+            let cm_d: Vec<Vec<u8>> =
+                (cursor..cursor + n).map(|i| group_digest(&t1s[i], &t2s[i])).collect();
+            digs_actual.push(group_list_digest(&cm_d));
+            cursor += n;
+        }
+        let _ = digs;
+        all_digests.push(digs_actual);
+        mls.push(ml);
+        lmsgs.push(msgs);
+        lrhos.push(rhos8);
+        lt1s.push(t1s);
+        lt2s.push(t2s);
+        lpads.push(pads_live);
+        linst.push(inst_mat);
+    }
+
+    // ---- The composed statement and the ONE transcript spine. -----------
+    let st_bytes = u3c_statement_bytes(t, m, layers, seams, &all_digests, &crs.crs_hash);
+    let ctx = uk8_sha(&[&st_bytes]);
+    let st_digest = hex_full(&ctx);
+    let mut cost = BfCost {
+        n_data: mls.iter().map(|ml| ml.n_data).sum(),
+        n_commits: mls.iter().map(|ml| ml.n_commits).sum(),
+        n_waves: mls.iter().map(|ml| ml.plan.waves.len()).sum(),
+        commit_s: t_commit.elapsed().as_secs_f64(),
+        ..BfCost::default()
+    };
+    cost.bytes_statement = st_bytes.len();
+    cost.bytes_commit_tags = cost.n_commits * (shape.kappa + msg_r) * D * 4;
+    let h0_of = |l: usize| -> [u8; 32] {
+        let mut cb: Vec<u8> = ctx.to_vec();
+        cb.extend((l as u64).to_le_bytes());
+        ct_h0(&crs, &cb, &lt1s[l], &lt2s[l], &[])
+    };
+    let h0s: Vec<[u8; 32]> = (0..nl).map(h0_of).collect();
+    let spine = {
+        let mut hb: Vec<u8> = ctx.to_vec();
+        for h in &h0s {
+            hb.extend(h.as_slice());
+        }
+        uk8_sha(&[&hb])
+    };
+    let mut verdict = U3cVerdict {
+        statement_ok: true,
+        layer: (0..nl)
+            .map(|l| U3Verdict {
+                statement_ok: true,
+                matmul_ok: [true; 4],
+                hadamard_ok: true,
+                roots_ok: vec![true; mls[l].insts.len()],
+                sum_gate_ok: true,
+                waves_ok: true,
+                first_bad_wave: None,
+                closing_ok: true,
+            })
+            .collect(),
+        seam_edge_ok: vec![true; nl],
+    };
+
+    // ---- PROVER: relation phases per layer on the shared transcript. ----
+    let t_prove = Instant::now();
+    let mut tr = LkpTranscript::new("uperf3-mm-composed", &spine);
+    let mut lpins: Vec<Vec<PinnedValue>> = (0..nl).map(|_| Vec::new()).collect();
+    let matmuls: [(usize, usize, usize, usize, usize, usize); 4] = [
+        (0, 1, 4, t, m.d, m.f),
+        (0, 2, 8, t, m.d, m.f),
+        (13, 3, 15, t, m.f, m.d),
+        (14, 3, 16, t, m.f, m.d),
+    ];
+    // Pin builders parameterized by layout (shared prover/verifier).
+    let matmul_pins = |ml: &U3cLayout, ea: usize, eb: usize, ec: usize,
+                       rows: usize, inner: usize, cols: usize,
+                       eq_rx: &[KElem], eq_ry: &[KElem], eq_k: &[KElem],
+                       v: &KElem, a_star: &KElem, b_star: &KElem|
+     -> Vec<PinnedValue> {
+        let scalar_terms = |base: usize, n_cms: usize, wf: &dyn Fn(usize) -> Option<KElem>| {
+            let mut terms = Vec::new();
+            for g in 0..n_cms {
+                let lo = g * per;
+                let mut weights: Vec<KElem> = Vec::with_capacity(per);
+                let mut any = false;
+                for c in 0..per {
+                    match wf(lo + c) {
+                        Some(w) => {
+                            if !kf.is_zero(&w) {
+                                any = true;
+                            }
+                            weights.push(w);
+                        }
+                        None => weights.push(kf.zero()),
+                    }
+                }
+                if any {
+                    terms.push(PinTerm::Scalar { commit: base + g, coeff0: 0, weights });
+                }
+            }
+            terms
+        };
+        vec![
+            PinnedValue {
+                terms: scalar_terms(ml.entry_base[ec], ml.entry_cms[ec], &|f| {
+                    if f < rows * cols { Some(kf.mul(&eq_rx[f / cols], &eq_ry[f % cols])) } else { None }
+                }),
+                value: v.clone(),
+            },
+            PinnedValue {
+                terms: scalar_terms(ml.entry_base[ea], ml.entry_cms[ea], &|f| {
+                    if f < rows * inner { Some(kf.mul(&eq_rx[f / inner], &eq_k[f % inner])) } else { None }
+                }),
+                value: a_star.clone(),
+            },
+            PinnedValue {
+                terms: scalar_terms(ml.entry_base[eb], ml.entry_cms[eb], &|f| {
+                    if f < inner * cols { Some(kf.mul(&eq_k[f / cols], &eq_ry[f % cols])) } else { None }
+                }),
+                value: b_star.clone(),
+            },
+        ]
+    };
+    let col_pin = |ml: &U3cLayout, e: usize, weights_tab: &[KElem], value: &KElem| PinnedValue {
+        terms: (0..ml.entry_cms[e])
+            .map(|g| PinTerm::Scalar {
+                commit: ml.entry_base[e] + g,
+                coeff0: 0,
+                weights: weights_tab[g * per..(g + 1) * per].to_vec(),
+            })
+            .collect(),
+        value: value.clone(),
+    };
+    let edge_pins = |ml: &U3cLayout, lay: &U3Layer, tr: &mut LkpTranscript,
+                     pins_out: &mut Vec<PinnedValue>| {
+        for edge in &u3_edges(m, lay, t) {
+            let lv = lg2(edge.n_el);
+            let r: Vec<KElem> = (0..lv).map(|_| tr.challenge_k(&kf)).collect();
+            let lw = eq_table(&kf, &r);
+            let col_terms = |e: usize, f: &dyn Fn(&KElem) -> KElem| -> Vec<PinTerm> {
+                (0..ml.entry_cms[e])
+                    .map(|g| PinTerm::Scalar {
+                        commit: ml.entry_base[e] + g,
+                        coeff0: 0,
+                        weights: lw[g * per..(g + 1) * per].iter().map(f).collect(),
+                    })
+                    .collect()
+            };
+            let mut terms = Vec::new();
+            for &(e, c) in &edge.plus {
+                let cm = zq.to_mod(c);
+                terms.extend(col_terms(e, &|w| kf.scale(cm, w)));
+            }
+            for &(e, c) in &edge.minus_scaled {
+                let cm = zq.to_mod(edge.shift_pow * c);
+                terms.extend(col_terms(e, &|w| kf.neg(&kf.scale(cm, w))));
+            }
+            if let Some(re) = edge.r {
+                terms.extend(col_terms(re, &|w| kf.neg(w)));
+            }
+            let mut s_mass = kf.zero();
+            for w in lw.iter().take(edge.n_el) {
+                s_mass = kf.add(&s_mass, w);
+            }
+            let value = kf.scale(zq.to_mod(-edge.half), &s_mass);
+            pins_out.push(PinnedValue { terms, value });
+        }
+    };
+    let descent_pins = |base: usize,
+                        shape_masks: &MaskSet,
+                        proof: &MaskedDescentProof,
+                        end: &DescentEnd,
+                        depth: usize|
+     -> Vec<PinnedValue> {
+        use ring::gkr_masked::{g_hypersum_weights, g_open_weights, r_open_weights};
+        let kelem_terms = |base: usize, flat_off: usize, weights: &[KElem]| -> Vec<PinTerm> {
+            let mut terms = Vec::new();
+            let mut i = 0usize;
+            while i < weights.len() {
+                let idx = flat_off + i;
+                let commit = base + idx / kpc;
+                let coeff0 = (idx % kpc) * K_DEG;
+                let take = (kpc - (idx % kpc)).min(weights.len() - i);
+                terms.push(PinTerm::Kelems { commit, coeff0, weights: weights[i..i + take].to_vec() });
+                i += take;
+            }
+            terms
+        };
+        let mut out = Vec::new();
+        for j in 1..depth {
+            let lp_j = &proof.layers[j - 1];
+            let gm = &shape_masks.g[j - 1];
+            out.push(PinnedValue {
+                terms: kelem_terms(base, shape_masks.g_offset(j), &g_hypersum_weights(&kf, gm)),
+                value: lp_j.g_sum.clone(),
+            });
+            let (open_pt, mu_prev, c_w) = &end.layer_pts[j - 1];
+            out.push(PinnedValue {
+                terms: kelem_terms(base, shape_masks.g_offset(j), &g_open_weights(&kf, gm, open_pt)),
+                value: lp_j.open_g.clone(),
+            });
+            if j >= 2 {
+                let (orp, orq) = lp_j.open_r.clone().expect("interior layer opens Rp/Rq");
+                let rw = r_open_weights(&kf, mu_prev, c_w);
+                out.push(PinnedValue {
+                    terms: kelem_terms(base, shape_masks.r_offset(j), &rw),
+                    value: orp,
+                });
+                out.push(PinnedValue {
+                    terms: kelem_terms(base, shape_masks.r_offset(j) + 6, &rw),
+                    value: orq,
+                });
+            }
+        }
+        out
+    };
+    let leaf_pins = |ml: &U3cLayout, inst: &U3cInst,
+                     tab_k: &[KElem],
+                     endw: &DescentEnd,
+                     endt: &DescentEnd,
+                     alpha: &KElem|
+     -> Vec<PinnedValue> {
+        let (er, ec) = u3c_entry_shape(m, inst.entry, t);
+        let n_el = er * ec;
+        let lw = eq_table(&kf, &endw.zstar);
+        let lt = eq_table(&kf, &endt.zstar);
+        let nw = 1usize << inst.dw;
+        let nt = 1usize << inst.dt;
+        let bpw = blinder_positions(nw);
+        let bpt = blinder_positions(nt);
+        let tpos = table_row_positions(inst.t_rows, nt);
+        let wpos: Vec<usize> = witness_leaf_positions(n_el, nw);
+        let eqw: Vec<KElem> = bpw.iter().map(|&p| lw[p].clone()).collect();
+        let eqt: Vec<KElem> = bpt.iter().map(|&p| lt[p].clone()).collect();
+        let hw = (0..n_el).fold(zero.clone(), |a, i| kf.add(&a, &lw[wpos[i]]));
+        let ht = (0..inst.t_rows).fold(zero.clone(), |a, j| kf.add(&a, &lt[tpos[j]]));
+        let sum_eqw = eqw.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+        let sum_eqt = eqt.iter().fold(zero.clone(), |a, e| kf.add(&a, e));
+        let ft = (0..inst.t_rows)
+            .fold(zero.clone(), |a, j| kf.add(&a, &kf.mul(&lt[tpos[j]], &tab_k[j])));
+        let z = zero.clone();
+        let wp = PinnedValue {
+            terms: vec![PinTerm::Kelems {
+                commit: inst.idx_bl,
+                coeff0: 0,
+                weights: vec![
+                    eqw[0].clone(), z.clone(), eqw[1].clone(), z.clone(),
+                    eqw[2].clone(), z.clone(), eqw[3].clone(), z.clone(),
+                ],
+            }],
+            value: kf.sub(&endw.p_claim, &hw),
+        };
+        let ddw = kf.sub(&kf.sub(&one, &hw), &sum_eqw);
+        let mut wq_terms = vec![PinTerm::Kelems {
+            commit: inst.idx_bl,
+            coeff0: 0,
+            weights: vec![
+                z.clone(), eqw[0].clone(), z.clone(), eqw[1].clone(),
+                z.clone(), eqw[2].clone(), z.clone(), eqw[3].clone(),
+            ],
+        }];
+        for g in 0..ml.entry_cms[inst.entry] {
+            let lo = g * per;
+            let n_c = (n_el - lo).min(per);
+            wq_terms.push(PinTerm::Scalar {
+                commit: ml.entry_base[inst.entry] + g,
+                coeff0: 0,
+                weights: (0..n_c).map(|i| kf.neg(&lw[wpos[lo + i]])).collect(),
+            });
+        }
+        if let Some(pe) = inst.pair {
+            for g in 0..ml.entry_cms[pe] {
+                let lo = g * per;
+                let n_c = (n_el - lo).min(per);
+                wq_terms.push(PinTerm::Scalar {
+                    commit: ml.entry_base[pe] + g,
+                    coeff0: 0,
+                    weights: (0..n_c)
+                        .map(|i| kf.neg(&ring::lookup::mul_y(&kf, &lw[wpos[lo + i]])))
+                        .collect(),
+                });
+            }
+        }
+        let mut wq_value = kf.sub(&kf.sub(&endw.q_claim, &kf.mul(alpha, &hw)), &ddw);
+        if inst.offset != 0 {
+            wq_value = kf.add(&wq_value, &kf.scale(zq.to_mod(inst.offset), &hw));
+        }
+        let wq = PinnedValue { terms: wq_terms, value: wq_value };
+        let mut tp_terms: Vec<PinTerm> = Vec::new();
+        for g in 0..inst.m_c {
+            let lo = g * per;
+            let hi = ((g + 1) * per).min(inst.t_rows);
+            tp_terms.push(PinTerm::Scalar {
+                commit: inst.base_m + g,
+                coeff0: 0,
+                weights: (lo..hi).map(|j| lt[tpos[j]].clone()).collect(),
+            });
+        }
+        tp_terms.push(PinTerm::Kelems {
+            commit: inst.idx_bl,
+            coeff0: 8 * K_DEG,
+            weights: vec![
+                eqt[0].clone(), z.clone(), eqt[1].clone(), z.clone(),
+                eqt[2].clone(), z.clone(), eqt[3].clone(), z.clone(),
+            ],
+        });
+        let tp = PinnedValue { terms: tp_terms, value: endt.p_claim.clone() };
+        let ddt = kf.sub(&kf.sub(&one, &ht), &sum_eqt);
+        let tq = PinnedValue {
+            terms: vec![PinTerm::Kelems {
+                commit: inst.idx_bl,
+                coeff0: 8 * K_DEG,
+                weights: vec![
+                    z.clone(), eqt[0].clone(), z.clone(), eqt[1].clone(),
+                    z.clone(), eqt[2].clone(), z.clone(), eqt[3].clone(),
+                ],
+            }],
+            value: kf.add(&kf.sub(&kf.sub(&endt.q_claim, &kf.mul(alpha, &ht)), &ddt), &ft),
+        };
+        vec![wp, wq, tp, tq]
+    };
+    let stmt_tab_k = |inst: &U3cInst| -> Vec<KElem> {
+        if let Some((eg, ea)) = inst.act16 {
+            let (bytes, _) = int16out_member(m.act_fn(), eg, ea).expect("frozen member");
+            int16out_rows(bytes)
+                .iter()
+                .map(|&(v, s)| fuse_pair(&kf, zq.to_mod(v), zq.to_mod(s)))
+                .collect()
+        } else if let Some(sh) = inst.clamp_sh {
+            u3c_clamp_rows(sh, m.round)
+                .0
+                .iter()
+                .map(|&(v, s)| fuse_pair(&kf, zq.to_mod(v), zq.to_mod(s)))
+                .collect()
+        } else {
+            (0..inst.t_rows as u64).map(|j| kf.embed(j)).collect()
+        }
+    };
+
+    let mut lmm: Vec<Vec<(ring::sumcheck::SumcheckProof, KElem)>> = Vec::with_capacity(nl);
+    let mut lhad: Vec<(ring::sumcheck::SumcheckProof, KElem)> = Vec::with_capacity(nl);
+    let mut linstp: Vec<Vec<(MaskedDescentProof, MaskedDescentProof)>> = Vec::with_capacity(nl);
+    for l in 0..nl {
+        let lay = &layers[l];
+        let seam = seams[l].as_ref();
+        let ml = &mls[l];
+        // Matmuls.
+        let mut mm_proofs = Vec::new();
+        for &(ea, eb, ec, rows, inner, cols) in &matmuls {
+            let (lr, _lk, lc) = (lg2(rows), lg2(inner), lg2(cols));
+            let a_vals = u3c_entry_values(ea, lay, seam);
+            let b_vals = u3c_entry_values(eb, lay, seam);
+            let c_vals = u3c_entry_values(ec, lay, seam);
+            let rx: Vec<KElem> = (0..lr).map(|_| tr.challenge_k(&kf)).collect();
+            let ry: Vec<KElem> = (0..lc).map(|_| tr.challenge_k(&kf)).collect();
+            let eq_rx = eq_table(&kf, &rx);
+            let eq_ry = eq_table(&kf, &ry);
+            let nk = 1usize << lg2(inner);
+            let mut ta = vec![kf.zero(); nk];
+            for i in 0..rows {
+                let w = &eq_rx[i];
+                if kf.is_zero(w) {
+                    continue;
+                }
+                for k in 0..inner {
+                    let v = a_vals[i * inner + k];
+                    if v != 0 {
+                        ta[k] = kf.add(&ta[k], &kf.scale(zq.to_mod(v), w));
+                    }
+                }
+            }
+            let mut tb = vec![kf.zero(); nk];
+            for k in 0..inner {
+                let row = &b_vals[k * cols..(k + 1) * cols];
+                let mut acc = kf.zero();
+                for (j, &v) in row.iter().enumerate() {
+                    if v != 0 {
+                        acc = kf.add(&acc, &kf.scale(zq.to_mod(v), &eq_ry[j]));
+                    }
+                }
+                tb[k] = acc;
+            }
+            let mut v = kf.zero();
+            for i in 0..rows {
+                let row = &c_vals[i * cols..(i + 1) * cols];
+                let mut ri = kf.zero();
+                for (j, &cv) in row.iter().enumerate() {
+                    if cv != 0 {
+                        ri = kf.add(&ri, &kf.scale(zq.to_mod(cv), &eq_ry[j]));
+                    }
+                }
+                v = kf.add(&v, &kf.mul(&ri, &eq_rx[i]));
+            }
+            tr.absorb_k(&kf, "u3-mm-claim", std::slice::from_ref(&v));
+            let (scp, kstar) = sumcheck_prove(&kf, vec![ta, tb], 2, &product2, &mut tr);
+            tr.absorb_k(&kf, "u3-mm-final", &scp.final_evals);
+            cost.bytes_sumcheck +=
+                64 * (1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len());
+            let eq_k = eq_table(&kf, &kstar);
+            lpins[l].extend(matmul_pins(
+                ml, ea, eb, ec, rows, inner, cols, &eq_rx, &eq_ry, &eq_k, &v,
+                &scp.final_evals[0], &scp.final_evals[1],
+            ));
+            mm_proofs.push((scp, v));
+        }
+        // Hadamard.
+        let n_f = t * m.f;
+        let lv_f = lg2(n_f);
+        let had_proof = {
+            let r2: Vec<KElem> = (0..lv_f).map(|_| tr.challenge_k(&kf)).collect();
+            let eq_r2 = eq_table(&kf, &r2);
+            let a16k: Vec<KElem> = lay
+                .a16
+                .iter()
+                .map(|&v| kf.embed(zq.to_mod(v)))
+                .chain((lay.a16.len()..1 << lv_f).map(|_| kf.zero()))
+                .collect();
+            let u16k: Vec<KElem> = lay
+                .u16v
+                .iter()
+                .map(|&v| kf.embed(zq.to_mod(v)))
+                .chain((lay.u16v.len()..1 << lv_f).map(|_| kf.zero()))
+                .collect();
+            let mut v_h = kf.zero();
+            for (j, &hv) in lay.hh.iter().enumerate() {
+                if hv != 0 {
+                    v_h = kf.add(&v_h, &kf.scale(zq.to_mod(hv), &eq_r2[j]));
+                }
+            }
+            tr.absorb_k(&kf, "u3-had-claim", std::slice::from_ref(&v_h));
+            let (scp, kstar) = sumcheck_prove(&kf, vec![eq_r2.clone(), a16k, u16k], 3, &product3, &mut tr);
+            tr.absorb_k(&kf, "u3-had-final", &scp.final_evals);
+            cost.bytes_sumcheck +=
+                64 * (1 + scp.rounds.iter().map(|r| r.len()).sum::<usize>() + scp.final_evals.len());
+            let eq_z = eq_table(&kf, &kstar);
+            lpins[l].push(col_pin(ml, 11, &eq_r2, &v_h));
+            lpins[l].push(col_pin(ml, 7, &eq_z, &scp.final_evals[1]));
+            lpins[l].push(col_pin(ml, 10, &eq_z, &scp.final_evals[2]));
+            (scp, v_h)
+        };
+        // Requant edges.
+        edge_pins(ml, lay, &mut tr, &mut lpins[l]);
+        // Lookup instances (masked descents).
+        let mut inst_proofs: Vec<(MaskedDescentProof, MaskedDescentProof)> = Vec::new();
+        for (ii, inst) in ml.insts.iter().enumerate() {
+            let mat = &mut linst[l][ii];
+            let alpha = tr.challenge_k(&kf);
+            let wtree = blinded_witness_tree(&kf, &alpha, &mat.w_col, inst.dw, &mat.bl_w);
+            let (pw, endw) = masked_gkr_prove(&kf, &[wtree], mat.masks_w.take().unwrap(), &mut tr);
+            let ttree = blinded_table_tree(&kf, &alpha, &mat.tab_k, &mat.m_k, inst.dt, &mat.bl_t);
+            let (pt, endt) = masked_gkr_prove(&kf, &[ttree], mat.masks_t.take().unwrap(), &mut tr);
+            let shell_w = zero_masks(&kf, inst.dw, 0);
+            let shell_t = zero_masks(&kf, inst.dt, 0);
+            lpins[l].extend(descent_pins(inst.base_wm, &shell_w, &pw, &endw, inst.dw));
+            lpins[l].extend(descent_pins(inst.base_tm, &shell_t, &pt, &endt, inst.dt));
+            lpins[l].extend(leaf_pins(ml, inst, &mat.tab_k, &endw, &endt, &alpha));
+            cost.bytes_descents += masked_pass_bytes(inst.dw, inst.dt, 0, 1);
+            inst_proofs.push((pw, pt));
+            mat.w_col = Vec::new();
+        }
+        lmm.push(mm_proofs);
+        lhad.push(had_proof);
+        linstp.push(inst_proofs);
+    }
+
+    // ---- THE SEAM PHASE: cross-layer edge pins at shared points. --------
+    let nd = t * m.d;
+    let lv_d = lg2(nd);
+    let mut seam_claims: Vec<Option<(KElem, KElem)>> = vec![None; nl];
+    for l in 1..nl {
+        let Some(seam) = seams[l].as_ref() else { continue };
+        let r_seam: Vec<KElem> = (0..lv_d).map(|_| tr.challenge_k(&kf)).collect();
+        let lw = eq_table(&kf, &r_seam);
+        let eval = |vals: &[i64]| {
+            let mut v = kf.zero();
+            for (j, &x) in vals.iter().enumerate() {
+                if x != 0 {
+                    v = kf.add(&v, &kf.scale(zq.to_mod(x), &lw[j]));
+                }
+            }
+            v
+        };
+        let v_z = eval(&layers[l - 1].z16);
+        let scale_pow = zq.to_mod(1i64 << seam.sh);
+        let v_lin = {
+            let ys = eval(&seam.ys);
+            let rs = eval(&seam.rs);
+            kf.add(&kf.scale(scale_pow, &ys), &rs)
+        };
+        tr.absorb_k(&kf, "u3c-seam", &[v_z.clone(), v_lin.clone()]);
+        let col_terms = |ml: &U3cLayout, e: usize, f: &dyn Fn(&KElem) -> KElem| -> Vec<PinTerm> {
+            (0..ml.entry_cms[e])
+                .map(|g| PinTerm::Scalar {
+                    commit: ml.entry_base[e] + g,
+                    coeff0: 0,
+                    weights: lw[g * per..(g + 1) * per].iter().map(f).collect(),
+                })
+                .collect()
+        };
+        lpins[l - 1].push(PinnedValue {
+            terms: col_terms(&mls[l - 1], 18, &|w| w.clone()),
+            value: v_z.clone(),
+        });
+        let mut lin_terms = col_terms(&mls[l], U3C_YS, &|w| kf.scale(scale_pow, w));
+        lin_terms.extend(col_terms(&mls[l], U3C_RS, &|w| w.clone()));
+        lpins[l].push(PinnedValue { terms: lin_terms, value: v_lin.clone() });
+        seam_claims[l] = Some((v_z, v_lin));
+        cost.bytes_ct_other += 128; // the two shipped seam claims
+    }
+
+    // ---- Pin batches -> psi -> waves -> closing, per layer. -------------
+    let t_waves = Instant::now();
+    let unpack_rho = |packed: &[i8]| -> Vec<Vec<i64>> {
+        (0..shape.n_r)
+            .map(|r| packed[r * D..(r + 1) * D].iter().map(|&b| b as i64).collect())
+            .collect()
+    };
+    let wave_idxs = |ml: &U3cLayout, w: usize| -> Vec<usize> {
+        let mut v = ml.plan.waves[w].clone();
+        if ml.pad_layout.has_pads() {
+            v.push(ml.base_pad + w / ml.pad_layout.waves_per_cm);
+        }
+        let g0 = ml.base_wave_g + w * ml.wave_g_groups;
+        v.extend(g0..g0 + ml.wave_g_groups);
+        v
+    };
+    let mut rp_cache: std::collections::BTreeMap<usize, (ring::ct_engine::CtRoundParams, ring::commit::A1Paths)> =
+        std::collections::BTreeMap::new();
+    let mut lreveals: Vec<Vec<Vec<(usize, i64)>>> = Vec::with_capacity(nl);
+    let mut lwavep: Vec<Vec<ring::ct_engine::CtRoundProof>> = Vec::with_capacity(nl);
+    let mut lclosep: Vec<Option<ring::ct_engine::CtRoundProof>> = Vec::with_capacity(nl);
+    let mut ltrstate: Vec<[u8; 32]> = Vec::with_capacity(nl);
+    for l in 0..nl {
+        let ml = &mls[l];
+        for p in &lpins[l] {
+            tr.absorb_k(&kf, "u3-pin", std::slice::from_ref(&p.value));
+        }
+        cost.n_pins += lpins[l].len();
+        let psi = derive_pin_psi(&tr.state(), UR1_PIN_COPIES, lpins[l].len() * K_DEG, q);
+        let claims_p = pin_claims(&kf, &lpins[l], ml.n_data, msg_r, &psi);
+        lpins[l] = Vec::new();
+        let msg_refs: Vec<&[Poly]> = lmsgs[l][..ml.n_data].iter().map(|mm| mm.as_slice()).collect();
+        let (mut pw_claims, reveals) = split_claims_prover_masked(
+            &zq,
+            &ml.plan,
+            &claims_p,
+            &msg_refs,
+            &ml.pad_layout,
+            lpads[l].take().expect("pads drawn pre-challenge"),
+        )
+        .expect("honest masked split");
+        drop(claims_p);
+        if pw_claims.is_empty() {
+            pw_claims = (0..ml.plan.waves.len()).map(|_| Vec::new()).collect();
+        }
+        cost.bytes_reveals += 12 * reveals.iter().map(|r| r.len()).sum::<usize>();
+        let n_waves = ml.plan.waves.len();
+        let tr_state = tr.state();
+        ltrstate.push(tr_state);
+        let mut wave_proofs: Vec<ring::ct_engine::CtRoundProof> = Vec::with_capacity(n_waves);
+        for w in 0..n_waves {
+            let idxs = wave_idxs(ml, w);
+            let n_cw = idxs.len();
+            assert!(n_cw <= ml.c2_max);
+            if !rp_cache.contains_key(&n_cw) {
+                let rp = derive_ct_round_params(q, shape, n_cw, 0, 0, true);
+                let a1pw = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+                rp_cache.insert(n_cw, (rp, a1pw));
+            }
+            let (rp_w, a1p_w) = rp_cache.get(&n_cw).unwrap();
+            let path_w = KernelPath::A1(a1p_w);
+            let claims_w: Vec<CtClaim> = std::mem::take(&mut pw_claims[w]);
+            let wrhos: Vec<Vec<Vec<i64>>> = idxs.iter().map(|&i| unpack_rho(&lrhos[l][i])).collect();
+            let openings: Vec<StdOpening> = idxs
+                .iter()
+                .enumerate()
+                .map(|(j, &i)| StdOpening { t1: &lt1s[l][i], t2: &lt2s[l][i], x: &lmsgs[l][i], rho: &wrhos[j] })
+                .collect();
+            let mut state_p: Vec<u8> = tr_state.to_vec();
+            state_p.extend((l as u64).to_le_bytes());
+            state_p.extend((w as u64).to_le_bytes());
+            let wt1s: Vec<Vec<Poly>> = idxs.iter().map(|&i| lt1s[l][i].clone()).collect();
+            let wt2s: Vec<Vec<Poly>> = idxs.iter().map(|&i| lt2s[l][i].clone()).collect();
+            let h0_w = ct_h0(&crs, &state_p, &wt1s, &wt2s, &[]);
+            let pad_shift = usize::from(ml.pad_layout.has_pads());
+            let (proof_w, _) = prove_ct_round(
+                &path_w, &ctx_ring, rp_w, None, &crs, &h0_w, &claims_w, &[], &[], &[], &openings,
+                &[], &[], ml.plan.waves[w].len() + pad_shift, &mut rng,
+            );
+            cost.bytes_ct_z += n_cw * shape.n_r * D * 8;
+            cost.bytes_ct_w1 += n_cw * shape.kappa * D * 4;
+            cost.bytes_ct_other += claims_w.len() * D * 4 * 2;
+            wave_proofs.push(proof_w);
+        }
+        let closing_proof = if ml.pad_layout.has_pads() {
+            let idxs_z: Vec<usize> = (ml.base_pad..ml.base_pad + ml.pad_layout.n_pad_cms)
+                .chain(ml.base_closing_g..ml.base_closing_g + ml.closing_g_groups)
+                .collect();
+            let n_cz = idxs_z.len();
+            if !rp_cache.contains_key(&n_cz) {
+                let rp = derive_ct_round_params(q, shape, n_cz, 0, 0, true);
+                let a1pz = build_a1_paths(&crs, rp.sigma, isqrt_u128(rp.bound_sq));
+                rp_cache.insert(n_cz, (rp, a1pz));
+            }
+            let (rp_z, a1p_z) = rp_cache.get(&n_cz).unwrap();
+            let path_z = KernelPath::A1(a1p_z);
+            let claims_z = closing_round_claims(&zq, &ml.pad_layout);
+            let mut state_z: Vec<u8> = tr_state.to_vec();
+            state_z.extend((l as u64).to_le_bytes());
+            state_z.extend(b"u3c-closing");
+            let zt1s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| lt1s[l][i].clone()).collect();
+            let zt2s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| lt2s[l][i].clone()).collect();
+            let h0_z = ct_h0(&crs, &state_z, &zt1s, &zt2s, &[]);
+            let zrhos: Vec<Vec<Vec<i64>>> = idxs_z.iter().map(|&i| unpack_rho(&lrhos[l][i])).collect();
+            let openings_z: Vec<StdOpening> = idxs_z
+                .iter()
+                .enumerate()
+                .map(|(j, &i)| StdOpening { t1: &lt1s[l][i], t2: &lt2s[l][i], x: &lmsgs[l][i], rho: &zrhos[j] })
+                .collect();
+            let (proof_z, _) = prove_ct_round(
+                &path_z, &ctx_ring, rp_z, None, &crs, &h0_z, &claims_z, &[], &[], &[], &openings_z,
+                &[], &[], ml.pad_layout.n_pad_cms, &mut rng,
+            );
+            cost.bytes_ct_z += n_cz * shape.n_r * D * 8;
+            cost.bytes_ct_w1 += n_cz * shape.kappa * D * 4;
+            cost.bytes_ct_other += claims_z.len() * D * 4 * 2;
+            Some(proof_z)
+        } else {
+            None
+        };
+        lreveals.push(reveals);
+        lwavep.push(wave_proofs);
+        lclosep.push(closing_proof);
+    }
+    cost.waves_s = t_waves.elapsed().as_secs_f64();
+    cost.prove_s = t_prove.elapsed().as_secs_f64();
+
+    // ---- VERIFIER. ------------------------------------------------------
+    // Statement gate (P0): weight digests recomputed from the PUBLIC
+    // export planes under the public seeds; witness digests received.
+    let t_verify = Instant::now();
+    {
+        let mut v_digests = all_digests.clone();
+        for l in 0..nl {
+            let wlay = u3c_weights_only_layer(m, l);
+            let (wd, _) =
+                u3c_commit_entries(&wlay, None, m, t, shape, &crs, &path, false, true);
+            for e in 1..=3 {
+                v_digests[l][e] = wd[e].clone();
+            }
+        }
+        let st_v = u3c_statement_bytes(t, m, layers, seams, &v_digests, &crs.crs_hash);
+        if uk8_sha(&[&st_v]) != ctx {
+            verdict.statement_ok = false;
+            cost.verify_s = t_verify.elapsed().as_secs_f64();
+            return (verdict, cost, st_digest);
+        }
+    }
+    let mut tv = LkpTranscript::new("uperf3-mm-composed", &spine);
+    let mut lpins_v: Vec<Vec<PinnedValue>> = (0..nl).map(|_| Vec::new()).collect();
+    for l in 0..nl {
+        let ml = &mls[l];
+        for (mi, &(ea, eb, ec, rows, inner, cols)) in matmuls.iter().enumerate() {
+            let (lr, lk, lc) = (lg2(rows), lg2(inner), lg2(cols));
+            let (scp, v_claim) = &lmm[l][mi];
+            let rx: Vec<KElem> = (0..lr).map(|_| tv.challenge_k(&kf)).collect();
+            let ry: Vec<KElem> = (0..lc).map(|_| tv.challenge_k(&kf)).collect();
+            tv.absorb_k(&kf, "u3-mm-claim", std::slice::from_ref(v_claim));
+            let sc = sumcheck_verify(&kf, lk, 2, v_claim, scp, &product2, &mut tv);
+            tv.absorb_k(&kf, "u3-mm-final", &scp.final_evals);
+            match sc {
+                Some((kstar, _)) => {
+                    let eq_rx = eq_table(&kf, &rx);
+                    let eq_ry = eq_table(&kf, &ry);
+                    let eq_k = eq_table(&kf, &kstar);
+                    lpins_v[l].extend(matmul_pins(
+                        ml, ea, eb, ec, rows, inner, cols, &eq_rx, &eq_ry, &eq_k, v_claim,
+                        &scp.final_evals[0], &scp.final_evals[1],
+                    ));
+                }
+                None => {
+                    verdict.layer[l].matmul_ok[mi] = false;
+                }
+            }
+        }
+        {
+            let n_f = t * m.f;
+            let lv_f = lg2(n_f);
+            let (scp, v_h) = &lhad[l];
+            let r2: Vec<KElem> = (0..lv_f).map(|_| tv.challenge_k(&kf)).collect();
+            tv.absorb_k(&kf, "u3-had-claim", std::slice::from_ref(v_h));
+            let sc = sumcheck_verify(&kf, lv_f, 3, v_h, scp, &product3, &mut tv);
+            tv.absorb_k(&kf, "u3-had-final", &scp.final_evals);
+            match sc {
+                Some((kstar, _)) => {
+                    if scp.final_evals[0] != bf_eq_point(&kf, &r2, &kstar) {
+                        verdict.layer[l].hadamard_ok = false;
+                    }
+                    let eq_r2 = eq_table(&kf, &r2);
+                    let eq_z = eq_table(&kf, &kstar);
+                    lpins_v[l].push(col_pin(ml, 11, &eq_r2, v_h));
+                    lpins_v[l].push(col_pin(ml, 7, &eq_z, &scp.final_evals[1]));
+                    lpins_v[l].push(col_pin(ml, 10, &eq_z, &scp.final_evals[2]));
+                }
+                None => {
+                    verdict.layer[l].hadamard_ok = false;
+                }
+            }
+        }
+        edge_pins(ml, &layers[l], &mut tv, &mut lpins_v[l]);
+        for (ii, inst) in ml.insts.iter().enumerate() {
+            let (pw, pt) = &linstp[l][ii];
+            let alpha = tv.challenge_k(&kf);
+            let shell_w = zero_masks(&kf, inst.dw, 0);
+            let shell_t = zero_masks(&kf, inst.dt, 0);
+            let vw = masked_gkr_verify(&kf, 1, inst.dw, &shell_w, pw, &mut tv, false);
+            let vt = masked_gkr_verify(&kf, 1, inst.dt, &shell_t, pt, &mut tv, false);
+            match (vw, vt) {
+                (Some((roots_w, ew)), Some((roots_t, et))) => {
+                    let mut ok = !kf.is_zero(&roots_w[0][1]) && !kf.is_zero(&roots_t[0][1]);
+                    ok &= kf.mul(&roots_w[0][0], &roots_t[0][1])
+                        == kf.mul(&roots_t[0][0], &roots_w[0][1]);
+                    verdict.layer[l].roots_ok[ii] = ok;
+                    lpins_v[l].extend(descent_pins(inst.base_wm, &shell_w, pw, &ew, inst.dw));
+                    lpins_v[l].extend(descent_pins(inst.base_tm, &shell_t, pt, &et, inst.dt));
+                    lpins_v[l].extend(leaf_pins(ml, inst, &stmt_tab_k(inst), &ew, &et, &alpha));
+                }
+                _ => {
+                    verdict.layer[l].roots_ok[ii] = false;
+                }
+            }
+        }
+    }
+    // Seam phase (verifier): same challenge points, shipped values.
+    for l in 1..nl {
+        let Some(seam) = seams[l].as_ref() else { continue };
+        let r_seam: Vec<KElem> = (0..lv_d).map(|_| tv.challenge_k(&kf)).collect();
+        let lw = eq_table(&kf, &r_seam);
+        let (v_z, v_lin) = seam_claims[l].clone().expect("seam claims shipped");
+        tv.absorb_k(&kf, "u3c-seam", &[v_z.clone(), v_lin.clone()]);
+        // THE SEAM-EDGE GATE: v_z + half * S == v_lin.
+        let half = if m.round { 1i64 << (seam.sh - 1) } else { 0 };
+        let mut s_mass = kf.zero();
+        for w in lw.iter().take(nd) {
+            s_mass = kf.add(&s_mass, w);
+        }
+        let lhs = kf.add(&v_z, &kf.scale(zq.to_mod(half), &s_mass));
+        if lhs != v_lin {
+            verdict.seam_edge_ok[l] = false;
+        }
+        let col_terms = |ml: &U3cLayout, e: usize, f: &dyn Fn(&KElem) -> KElem| -> Vec<PinTerm> {
+            (0..ml.entry_cms[e])
+                .map(|g| PinTerm::Scalar {
+                    commit: ml.entry_base[e] + g,
+                    coeff0: 0,
+                    weights: lw[g * per..(g + 1) * per].iter().map(f).collect(),
+                })
+                .collect()
+        };
+        let scale_pow = zq.to_mod(1i64 << seam.sh);
+        lpins_v[l - 1].push(PinnedValue {
+            terms: col_terms(&mls[l - 1], 18, &|w| w.clone()),
+            value: v_z,
+        });
+        let mut lin_terms = col_terms(&mls[l], U3C_YS, &|w| kf.scale(scale_pow, w));
+        lin_terms.extend(col_terms(&mls[l], U3C_RS, &|w| w.clone()));
+        lpins_v[l].push(PinnedValue { terms: lin_terms, value: v_lin });
+    }
+    // Pin batches -> psi -> wave verification, per layer.
+    for l in 0..nl {
+        let ml = &mls[l];
+        for p in &lpins_v[l] {
+            tv.absorb_k(&kf, "u3-pin", std::slice::from_ref(&p.value));
+        }
+        let psi_v = derive_pin_psi(&tv.state(), UR1_PIN_COPIES, lpins_v[l].len() * K_DEG, q);
+        let claims_v = pin_claims(&kf, &lpins_v[l], ml.n_data, msg_r, &psi_v);
+        lpins_v[l] = Vec::new();
+        let v_split =
+            split_claims_verifier_masked(&zq, &ml.plan, &claims_v, &lreveals[l], &ml.pad_layout);
+        drop(claims_v);
+        let tv_state = tv.state();
+        if tv_state != ltrstate[l] {
+            // Transcript fork (should not happen structurally).
+            verdict.layer[l].sum_gate_ok = false;
+        }
+        let n_waves = ml.plan.waves.len();
+        let mut vw_claims: Vec<Vec<CtClaim>> = match v_split {
+            Ok(v) => v,
+            Err(_) => {
+                verdict.layer[l].sum_gate_ok = false;
+                verdict.layer[l].waves_ok = false;
+                continue;
+            }
+        };
+        if vw_claims.is_empty() {
+            vw_claims = (0..n_waves).map(|_| Vec::new()).collect();
+        }
+        for w in 0..n_waves {
+            let idxs = wave_idxs(ml, w);
+            let n_cw = idxs.len();
+            let (rp_w, a1p_w) = rp_cache.get(&n_cw).expect("verifier derives the same round shapes");
+            let path_w = KernelPath::A1(a1p_w);
+            let claims_w: Vec<CtClaim> = std::mem::take(&mut vw_claims[w]);
+            let mut state_v: Vec<u8> = tv_state.to_vec();
+            state_v.extend((l as u64).to_le_bytes());
+            state_v.extend((w as u64).to_le_bytes());
+            let wt1s: Vec<Vec<Poly>> = idxs.iter().map(|&i| lt1s[l][i].clone()).collect();
+            let wt2s: Vec<Vec<Poly>> = idxs.iter().map(|&i| lt2s[l][i].clone()).collect();
+            let h0_wv = ct_h0(&crs, &state_v, &wt1s, &wt2s, &[]);
+            let pad_shift = usize::from(ml.pad_layout.has_pads());
+            let ok_w = verify_ct_round(
+                &path_w, &ctx_ring, rp_w, None, &crs, &h0_wv, &claims_w, &[], &[], &[], &wt1s, &wt2s,
+                &[], &[], &[], ml.plan.waves[w].len() + pad_shift, &lwavep[l][w],
+            );
+            if !ok_w {
+                verdict.layer[l].waves_ok = false;
+                if verdict.layer[l].first_bad_wave.is_none() {
+                    verdict.layer[l].first_bad_wave = Some(w);
+                }
+            }
+        }
+        if let Some(proof_z) = &lclosep[l] {
+            let idxs_z: Vec<usize> = (ml.base_pad..ml.base_pad + ml.pad_layout.n_pad_cms)
+                .chain(ml.base_closing_g..ml.base_closing_g + ml.closing_g_groups)
+                .collect();
+            let n_cz = idxs_z.len();
+            let (rp_z, a1p_z) = rp_cache.get(&n_cz).expect("closing shape derived");
+            let path_z = KernelPath::A1(a1p_z);
+            let claims_zv = closing_round_claims(&zq, &ml.pad_layout);
+            let mut state_zv: Vec<u8> = tv_state.to_vec();
+            state_zv.extend((l as u64).to_le_bytes());
+            state_zv.extend(b"u3c-closing");
+            let zt1s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| lt1s[l][i].clone()).collect();
+            let zt2s: Vec<Vec<Poly>> = idxs_z.iter().map(|&i| lt2s[l][i].clone()).collect();
+            let h0_zv = ct_h0(&crs, &state_zv, &zt1s, &zt2s, &[]);
+            if !verify_ct_round(
+                &path_z, &ctx_ring, rp_z, None, &crs, &h0_zv, &claims_zv, &[], &[], &[], &zt1s, &zt2s,
+                &[], &[], &[], ml.pad_layout.n_pad_cms, proof_z,
+            ) {
+                verdict.layer[l].closing_ok = false;
+            }
+        }
+    }
+    cost.verify_s = t_verify.elapsed().as_secs_f64();
+    if !quiet {
+        for l in 0..nl {
+            let bad: Vec<String> = {
+                let v = &verdict.layer[l];
+                let mut b = Vec::new();
+                for (mi, ok) in v.matmul_ok.iter().enumerate() {
+                    if !ok { b.push(format!("matmul{mi}")); }
+                }
+                if !v.hadamard_ok { b.push("hadamard".into()); }
+                for (ii, ok) in v.roots_ok.iter().enumerate() {
+                    if !ok { b.push(format!("roots[{}]", mls[l].insts[ii].name)); }
+                }
+                if !v.sum_gate_ok { b.push("sum-gate".into()); }
+                if !v.waves_ok { b.push(format!("waves(first bad {:?})", v.first_bad_wave)); }
+                if !v.closing_ok { b.push("closing".into()); }
+                if !verdict.seam_edge_ok[l] { b.push("SEAM-EDGE".into()); }
+                b
+            };
+            println!(
+                "  [UPERF3-MM] layer {l:2}: {} ({} data cms, {} waves){}",
+                if bad.is_empty() { "all gates ok" } else { "REJECTS" },
+                mls[l].n_data,
+                mls[l].plan.waves.len(),
+                if bad.is_empty() { String::new() } else { format!(" at: {}", bad.join(", ")) }
+            );
+        }
+        println!(
+            "[UPERF3-MM] composed accept = {} | statement {} B digest {} | {} data cms / {} commits / {} waves / {} pins | commit {:.1}s prove {:.1}s verify {:.1}s",
+            verdict.accept(), cost.bytes_statement, &st_digest[..16],
+            cost.n_data, cost.n_commits, cost.n_waves, cost.n_pins,
+            cost.commit_s, cost.prove_s, cost.verify_s
+        );
+    }
+    (verdict, cost, st_digest)
+}
+
+/// [UPERF3-MM] `uperf-v3 composed [t] [layers] [diff]`: the composed
+/// tower statement over the ACTIVE export (bf_model()-general) — build
+/// the calibrated tower, prove ALL layers under one transcript with
+/// the seams bound, honest ACCEPT asserted. With `diff`, additionally
+/// the DIFFERENTIAL vs the per-layer rig: (a) every layer's 19-entry
+/// commitment digest list equals a fresh u3_commit_entries reference
+/// (the composed rig commits under the SAME public seeds); (b) the
+/// composed statement embeds the per-layer u3_statement_bytes body
+/// VERBATIM; (c) N independent u3_layer_run proofs on the SAME tower
+/// layers each accept. What legitimately differs: proof randomness /
+/// challenges (one spine vs per-layer transcripts), the instance-side
+/// commitments (session rng), and the composed-only Ys/Rs entries.
+fn u3c_composed(t_rows: usize, layers_n: usize, diff: bool) {
+    let bm = bf_model();
+    let m0 = U3Model::widen_from_bf(bm, true);
+    let layers_n = layers_n.min(m0.layers);
+    println!(
+        "[UPERF3-MM] COMPOSED v3 statement over '{}': {layers_n} layers, T = {t_rows}, ONE transcript, cross-layer seams BOUND",
+        m0.tag
+    );
+    println!(
+        "  scope: the FFN TOWER — X(l+1) = clamp127(rq_round(z16(l), sh_seam)) as the DECLARED seam; the real inter-layer edge (residual+attention+norm) is out of FFN scope (model-faithful composition = MVP-2; lane MM map OQ1)"
+    );
+    let (m, layers, seams) = u3c_tower_calibrated(&m0, t_rows, layers_n);
+    let clamps: usize = seams.iter().flatten().map(|s| s.clamps).sum();
+    println!(
+        "  tower calibrated: {} seams, {} clamp events (clamp-pair-proven), 0 non-seam violations",
+        layers_n - 1, clamps
+    );
+    let t0 = Instant::now();
+    let (v, cost, st_digest) = u3c_run(&m, t_rows, &layers, &seams, false);
+    println!(
+        "[UPERF3-MM] honest composed run: accept = {} | wall {:.1}s | statement digest {}",
+        v.accept(),
+        t0.elapsed().as_secs_f64(),
+        st_digest
+    );
+    assert!(v.accept(), "honest composed proof REJECTED");
+    let _ = cost;
+    if diff {
+        println!("[UPERF3-MM] DIFFERENTIAL vs the per-layer [UPERF3-BB] rig:");
+        let ctxr = ring_ctx_q8();
+        let q = ctxr.zq.q;
+        let shape = CommitShape { kappa: 8, n_r: 26, msg_r: 8 };
+        let crs = expand_crs(shape, q, 0x0BB3);
+        use ring::ct_engine::derive_ct_round_params;
+        let rp_probe = derive_ct_round_params(q, shape, ur1_c2_max_commits(q, shape), 0, 0, true);
+        let a1p = build_a1_paths(&crs, rp_probe.sigma, isqrt_u128(rp_probe.bound_sq));
+        let path = KernelPath::A1(&a1p);
+        // (a) + (b): the reference digests and the statement embedding.
+        let mut ref_digests: Vec<Vec<Vec<u8>>> = Vec::with_capacity(layers_n);
+        for lay in &layers {
+            let (d, _) = u3_commit_entries(lay, &m, t_rows, shape, &crs, &path, false);
+            ref_digests.push(d);
+        }
+        let per_layer_body =
+            u3_statement_bytes(t_rows, &m, &layers, &ref_digests, &crs.crs_hash);
+        let composed_bytes = {
+            // Rebuild the composed statement bytes from the same
+            // reference digests + the seam planes' digests.
+            let mut all: Vec<Vec<Vec<u8>>> = ref_digests.clone();
+            for (l, s) in seams.iter().enumerate() {
+                if s.is_some() {
+                    let (d, _) = u3c_commit_entries(
+                        &layers[l], seams[l].as_ref(), &m, t_rows, shape, &crs, &path, false, false,
+                    );
+                    all[l] = d;
+                }
+            }
+            u3c_statement_bytes(t_rows, &m, &layers, &seams, &all, &crs.crs_hash)
+        };
+        let tag = b"uperf3-mm-composed-v1".len();
+        assert_eq!(
+            &composed_bytes[tag..tag + per_layer_body.len()],
+            &per_layer_body[..],
+            "the composed statement does NOT embed the per-layer body verbatim"
+        );
+        assert_eq!(hex_full(&uk8_sha(&[&composed_bytes])), st_digest,
+            "composed statement digest differs from the proof run's (commitment seeds moved?)");
+        println!(
+            "  (a)+(b) ok: {} x 19-entry digest lists byte-identical to the fresh u3_commit_entries reference; per-layer statement body ({} B) embedded VERBATIM in the composed bytes ({} B)",
+            layers_n,
+            per_layer_body.len(),
+            composed_bytes.len()
+        );
+        // (c) N independent per-layer proofs on the SAME tower layers.
+        let mut layers_mut: Vec<U3Layer> = Vec::with_capacity(layers_n);
+        for l in 0..layers_n {
+            layers_mut.push(if l == 0 {
+                u3_load_m125_layer(&m, 0, t_rows)
+            } else {
+                u3c_tower_layer_from_x(&m, l, t_rows, layers[l].x.clone())
+            });
+        }
+        for li in 0..layers_n {
+            let x_h = layers[li].x.clone();
+            let m_c = m.clone();
+            let reload: Box<dyn Fn() -> U3Layer> = if li == 0 {
+                Box::new(move || u3_load_m125_layer(&m_c, 0, t_rows))
+            } else {
+                Box::new(move || u3c_tower_layer_from_x(&m_c, li, t_rows, x_h.clone()))
+            };
+            let t1 = Instant::now();
+            let (vi, _) =
+                u3_layer_run(&m, t_rows, &mut layers_mut, li, U3Tamper::None, &reload, true);
+            println!(
+                "  (c) independent u3_layer_run layer {li:2}: accept = {} ({:.1}s)",
+                vi.accept(),
+                t1.elapsed().as_secs_f64()
+            );
+            assert!(vi.accept(), "independent per-layer proof {li} REJECTED on the tower witness");
+        }
+        println!(
+            "[UPERF3-MM] differential PASSED: composed accept + {layers_n}/{layers_n} independent accepts; per-layer commitment content identical (public seeds); differs BY DESIGN: transcript spine (one vs {layers_n}), proof randomness, Ys/Rs seam entries (composed only)"
+        );
+    }
+}
+
+/// [UPERF3-MM] `uperf-v3 composed-battery [t] [layers]`: the seam
+/// tamper battery on the m125 tower (default 3 layers) — the honest
+/// ACCEPT plus three cross-layer seam tampers, each rejecting at a
+/// named gate; the arm digest pins the leg verdict lines.
+fn u3c_battery(t_rows: usize, layers_n: usize) {
+    let bm = bf_model();
+    let m0 = U3Model::widen_from_bf(bm, true);
+    let layers_n = layers_n.min(m0.layers).max(3);
+    println!(
+        "[UPERF3-MM] composed-battery: {layers_n} layers, T = {t_rows} (the m125 tower; tampers at the CROSS-LAYER seams)"
+    );
+    let (m, layers, seams) = u3c_tower_calibrated(&m0, t_rows, layers_n);
+    let mut lines: Vec<String> = Vec::new();
+    let mut check = |label: &str, ok: bool| {
+        println!("  {} {label}", if ok { "ok  " } else { "FAIL" });
+        assert!(ok, "composed battery leg failed: {label}");
+        lines.push(label.to_string());
+    };
+    let t0 = Instant::now();
+
+    // Leg 1: the honest composed accept.
+    let (v, _, _) = u3c_run(&m, t_rows, &layers, &seams, false);
+    check(
+        &format!(
+            "honest composed tower ACCEPT ({} layers, {} seams, {} clamp events)",
+            layers_n,
+            layers_n - 1,
+            seams.iter().flatten().map(|s| s.clamps).sum::<usize>()
+        ),
+        v.accept(),
+    );
+
+    // Helpers: rebuild a tampered layer-l tower view (weights from the
+    // export; chain re-derived from the tampered X; downstream layers
+    // NOT re-derived — the tamper is local and self-consistent within
+    // the layer, so only the seam gates can see it).
+    let rebuild = |l: usize, x: Vec<i64>| -> U3Layer {
+        u3c_tower_layer_from_x(&m, l, t_rows, x)
+    };
+
+    // The tampered tower builder: layers < ts honest, layer ts from
+    // the given X + seam planes, everything DOWNSTREAM re-derived
+    // self-consistently through the declared seams — so the ONLY
+    // inconsistent relation is the one the leg targets (the first
+    // battery run tampered one layer without downstream re-derivation
+    // and legitimately fired BOTH adjacent seam edges; recorded in
+    // the lane ledger).
+    let tampered_tower = |ts: usize,
+                          x_bad: Vec<i64>,
+                          seam_bad: U3cSeam|
+     -> (Vec<U3Layer>, Vec<Option<U3cSeam>>) {
+        let mut lays2: Vec<U3Layer> = Vec::new();
+        let mut seams2: Vec<Option<U3cSeam>> = Vec::new();
+        for l in 0..ts {
+            lays2.push(rebuild_honest(&m, l, t_rows, &layers));
+            seams2.push(seams[l].clone());
+        }
+        lays2.push(rebuild(ts, x_bad));
+        seams2.push(Some(seam_bad));
+        for l in ts + 1..layers_n {
+            let shl = seams[l].as_ref().unwrap().sh;
+            let (x_next, seam_next) = u3c_seam_derive(&lays2[l - 1].z16, shl, m.round);
+            lays2.push(rebuild(l, x_next));
+            seams2.push(Some(seam_next));
+        }
+        (lays2, seams2)
+    };
+
+    // Leg 2: CROSS-LAYER SWAP — layer 1 fed a DIFFERENT layer's
+    // z-derived X: its own z16(1) replayed as the seam source instead
+    // of the declared z16(0); downstream re-derived, so seam-edge(1)
+    // is the ONLY inconsistent relation. Source-scale note (two
+    // measured failed aims, see the ledger): the tower calibration
+    // has ~zero headroom, so a swap source HOTTER than the declared
+    // one also blows the tampered layer's act16 table domain (g8's
+    // range fact IS the 256-row table) — the replayed self-z is
+    // strictly colder (the tower decays), keeping every per-layer
+    // gate green: the seam gate is the lone discriminator.
+    {
+        let ts = 1usize;
+        let src = 1usize;
+        let sh = seams[ts].as_ref().unwrap().sh;
+        let (x_bad, seam_bad) = u3c_seam_derive(&layers[src].z16, sh, m.round);
+        let (lays2, seams2) = tampered_tower(ts, x_bad, seam_bad);
+        let (v, _, _) = u3c_run(&m, t_rows, &lays2, &seams2, false);
+        let others_clean = v.statement_ok && v.layer.iter().all(U3Verdict::accept);
+        let downstream_hold = (ts + 1..layers_n).all(|l| v.seam_edge_ok[l]);
+        check(
+            &format!(
+                "CrossLayerSwap (layer {ts} fed z16({src})'s image instead of the declared z16({}); downstream re-derived) REJECTS at SEAM-EDGE({ts}) ONLY [seam gates: {:?}]; statement + per-layer gates clean: {others_clean}",
+                ts - 1,
+                (1..layers_n).map(|l| v.seam_edge_ok[l]).collect::<Vec<_>>()
+            ),
+            !v.accept() && !v.seam_edge_ok[ts] && downstream_hold && others_clean,
+        );
+    }
+
+    // Leg 3: SEAM OFF-BY-ONE — layer 1's X/Ys/Rs derived at sh-1
+    // while the statement declares sh (from the exps rows);
+    // downstream re-derived. The PRIMARY gate is seam-edge(1); the
+    // ~2x-hot off-shift input may additionally trip the tampered
+    // layer's own table/range gates (defense in depth, tolerated and
+    // printed — the zero-headroom calibration again).
+    {
+        let ts = 1usize;
+        let sh = seams[ts].as_ref().unwrap().sh;
+        assert!(sh >= 2, "off-by-one leg needs sh_seam >= 2 at seam {ts}");
+        let (x_bad, seam_bad) = u3c_seam_derive(&layers[0].z16, sh - 1, m.round);
+        let seam_lied = U3cSeam { sh, ..seam_bad };
+        let (lays2, seams2) = tampered_tower(ts, x_bad, seam_lied);
+        let (v, _, _) = u3c_run(&m, t_rows, &lays2, &seams2, false);
+        check(
+            &format!(
+                "SeamShiftLie (layer {ts} derived at sh-1, statement declares sh={sh}; downstream re-derived) REJECTS at SEAM-EDGE({ts}) [seam gates: {:?}; downstream edges consistent by construction]",
+                (1..layers_n).map(|l| v.seam_edge_ok[l]).collect::<Vec<_>>()
+            ),
+            !v.accept() && !v.seam_edge_ok[ts],
+        );
+    }
+
+    // Leg 4: CLAMP-LIE at the LAST layer (its larger gate shift
+    // absorbs the one-position X delta, so the forged plane's derived
+    // chain stays in range): X forged to 127 at an in-band position
+    // while Ys/Rs stay honest — every SEAM EDGE holds (the edge binds
+    // z16 to Ys/Rs, not to X; X is bound by the CLAMP PAIR) and only
+    // the seam-clamp instance's roots cross-check sees the lie. The
+    // forged layer's chain is re-derived (self-consistent matmuls);
+    // no downstream exists.
+    {
+        let ts = layers_n - 1;
+        let honest_seam = seams[ts].as_ref().unwrap();
+        let idx = honest_seam
+            .ys
+            .iter()
+            .position(|&y| (-100..=100).contains(&y) && y != 127)
+            .expect("an in-band seam position exists");
+        let mut x_bad = layers[ts].x.clone();
+        x_bad[idx] = 127;
+        let (lays2, seams2) = tampered_tower(ts, x_bad, honest_seam.clone());
+        let (v, _, _) = u3c_run(&m, t_rows, &lays2, &seams2, false);
+        let clamp_ii = mls_clamp_index(&m, &lays2[ts], seams2[ts].as_ref(), t_rows);
+        let edges_hold = (1..layers_n).all(|l| v.seam_edge_ok[l]);
+        check(
+            &format!(
+                "SeamClampLie (layer {ts} X[{idx}] forged to 127 at in-band ys={}; Ys/Rs honest) REJECTS at the seam-clamp instance's roots gate (inst {clamp_ii}); ALL seam edges HOLD: {edges_hold}",
+                honest_seam.ys[idx]
+            ),
+            !v.accept() && !v.layer[ts].roots_ok[clamp_ii] && edges_hold,
+        );
+    }
+
+    let mut digest_bytes: Vec<u8> = Vec::new();
+    for l in &lines {
+        digest_bytes.extend(l.as_bytes());
+        digest_bytes.push(b'\n');
+    }
+    println!(
+        "[UPERF3-MM] composed battery: {}/{} legs green in {:.1}s",
+        lines.len(),
+        lines.len(),
+        t0.elapsed().as_secs_f64()
+    );
+    println!("[UPERF3-MM] COMPOSED BATTERY DIGEST {}", hex_full(&uk8_sha(&[&digest_bytes])));
+}
+
+/// Rebuild an HONEST tower layer l (weights from the export, X from
+/// the honest tower) — the battery's per-leg fresh copy.
+fn rebuild_honest(m: &U3Model, l: usize, t_rows: usize, honest: &[U3Layer]) -> U3Layer {
+    if l == 0 {
+        u3_load_m125_layer(m, 0, t_rows)
+    } else {
+        u3c_tower_layer_from_x(m, l, t_rows, honest[l].x.clone())
+    }
+}
+
+/// The seam-clamp instance's index in a seam-fed layer's instance list
+/// (for the battery's named-gate assertion).
+fn mls_clamp_index(m: &U3Model, lay: &U3Layer, seam: Option<&U3cSeam>, t: usize) -> usize {
+    u3c_instances(m, lay, seam, t)
+        .iter()
+        .position(|i| i.clamp_sh.is_some())
+        .expect("seam-fed layer carries the clamp instance")
 }
 
 // ---------------------------------------------------------------------------
