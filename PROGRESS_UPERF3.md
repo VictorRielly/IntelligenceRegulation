@@ -4341,7 +4341,7 @@ NEW LANE DIGESTS (this lane's arms; existing digests never moved):
   X1 HEAD-PROVE 5f5625f79ff825ddb4a5d6c02b03b21c2e75e5b3e267cae8
                 cdd5a92f89878d15 (1611, 32; 2/2 ACCEPT)
   X1 HEAD BATT  35ddec83ffcdcee93440423d4ec1b081f9decfd12ef13d5e
-                b36704de2cc7a72 (7/7 pre-registered)
+                bb36704de2cc7a72 (7/7 pre-registered)
 
 STATE: DONE (2026-08-31) — rungs 0-5 landed on uperf3-nn (skeleton
 c022b4e; rungs 1-4 + records aa33bf0; this close commit), all
