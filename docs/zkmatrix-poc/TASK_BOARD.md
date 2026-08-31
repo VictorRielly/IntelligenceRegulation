@@ -60,11 +60,14 @@ is COMPLETE; five battery digests + freeze-check green on the tree):**
   ring_matmul uperf-v3 composed 16 32` (add `diff` for the 32
   independent-proof differential if time permits; /usr/bin/time
   -l; expect ~40+ GB RSS [MODEL], hours-class at T=16 CPU). THIS
-  IS THE WORKING PoC RUN. RULING FIRST (T17 semantics, Victor):
-  (a) the declarational composed statement over the real export
-  (the honest MVP-1 form) and/or (b) the calibrated-tower proof
-  (seams arithmetically bound; not the model's function and says
-  so). Orchestrator recommends BOTH.
+  IS THE WORKING PoC RUN. **RULED (Victor 2026-08-31): BOTH
+  forms** — run the declarational composed statement over the real
+  export AND the calibrated-tower composed proof (`composed-chain`
+  feeds the tower; the same arm family), and the write-up states
+  each object's meaning plainly. ALSO RULED: F1 = FULL MODE for
+  the freeze set (see the ledger's 2026-08-31 rulings block: F2
+  thereby adopted; the compact committed-h encoding is the round-9
+  design item; the 8B memory recount owed).
 - The Mac queue order stands: T1 -> T13/T14 -> **T15 -> T16 ->
   T17**.
 
