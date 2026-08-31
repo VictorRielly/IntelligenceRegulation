@@ -4039,3 +4039,88 @@ preserving ONLY — the five digest anchors (fp3x16 93a98700../
 0ae9cdae.., pa12x64 45fb3405.., fp12x64 80763ea5../63f4a3a4..)
 byte-identical at every rung, /usr/bin/time -v RSS before/after,
 any digest move = revert + record.
+
+## Agent OO status (wt-uperf3-oo) — round 8
+
+STATE: OPEN (2026-08-31) — DIET 3: the per-class compact layer
+store. BfLayer's 17 chain tensors held as Vec<i64> are the
+commit-phase term (66 GB at 8B 32x512, ~245 GB at 30B — the LAST
+phase term above ~75 GB after rounds 5-6). Per class the values fit
+narrow storage: i8 for X/weights/g8/a8/u8/h8/z (|v| <= 127 by the
+range facts), i32 for Gacc/Uacc/Dacc/H and the remainders (bounded
+by the acc bits). The consumers keep reading i64 VALUES through the
+accessor surface — a REPRESENTATION change only.
+
+DESIGN PICK (the brief's option (a), recorded): compact planes in
+BfLayer + `bf_entry_values` returns a per-call materialization
+GUARD (`BfVals`: Borrowed for wide planes, Owned Vec<i64>
+materialized from compact ones; Deref to [i64]) — NOT option (b)'s
+LRU. Why: (1) no interior mutability — guard lifetimes make the
+live set explicit at every call site and the borrow checker
+enforces it; (2) the consumers are phase-local and touch one plane
+at a time except three named sites, each with a local fix (hoist
+per-layer planes out of bg_mm_tables' block fill; feed
+agg_digit_witness_cols per tensor instead of a whole-group
+Vec<&[i64]>; move the guards into bk_tree_slot_fns' closures);
+(3) an LRU "sized to the live set" needs a phase-dependent policy
+plus shared mutable state under rayon (`Sync` per-leaf closures in
+the tree fills) — a lock inside the threaded packed fill, i.e.
+serialization risk for no extra memory win.
+  Plane classes I8/I16/I32 with an I64 fallback chosen by VALUE
+SCAN at store time: honest chains compact (the range facts are the
+guarantee); tampered chains that exceed a class ride WIDE — values
+exact, the PROOF is what rejects, no new panic path (the
+RangeViolation/WrongTable arms write through the same store).
+I16 is what makes the W-8 row's ~9.9 GB: H/Rh/Rg/Ru/Rd fit i16 at
+the m125/8B shifts; the pure-i8+i32 split counts ~12.9 GB.
+  U3Layer: OUT OF SCOPE, recorded — it is the v3 engine spike rig
+(24 fields incl. i16-class a16/u16/h16 limbs + lo/hi split planes,
+its own u3_entry_values surface); the same BfPlane machinery
+applies verbatim when a later rung wants it; the 8B commit-phase
+term W-8 prices is BfLayer.
+
+RUNG PLAN (one commit per green rung, prefix "U-PERF3 OO:"):
+  0. skeleton + BASELINE: this section; /usr/bin/time -v digests +
+     peak RSS at fp3x16 / pa12x64 / fp12x64 under flock; floors.
+  1. compact store for the WEIGHT planes (wg_t/wu_t/wd_t — 45 of
+     the 66 GB at 8B; lowest-risk consumers). ACCEPT: five anchors
+     byte-identical, RSS delta recorded.
+  2. the activation/accumulator/remainder planes (x, gacc, rg, g8,
+     a8, uacc, ru, u8v, hh, rh, h8, dacc, rd, z). ACCEPT: same.
+  3. THE RECORD: the RSS curve on top of HH+KK, the counted 8B and
+     30B projections (does the 8B peak now sit at lvl-0 ~72 GB;
+     what 30B's peak becomes), open questions.
+
+DISCIPLINE (HH/KK verbatim): transcript-preserving ONLY — at EVERY
+rung the five identity anchors byte-identical (fp3x16 stmt
+93a98700.. + EP 0ae9cdae..; pa12x64 stmt 45fb3405..; fp12x64 stmt
+80763ea5.. + EP 63f4a3a4..; full values at rung 0 below); floors
+green (build; uperf-pc diff-battery; freeze-check 102 ok exit 0;
+uperf-s battery 3752cba4..; agg-battery 46234986..; uperf-x battery
+be89d5da..). ANY digest move = revert the rung, record, do NOT fix
+forward. Runs under flock /tmp/zk-heavy.lock, NOISY-SHARED label;
+shapes 3x16 and 12x64 only.
+
+BASELINE (2026-08-31, WSL box, ZK_THREADS=8, M125_EXPORT_DIR=
+/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl,
+each run one-at-a-time under flock /tmp/zk-heavy.lock; sibling lane
+NN shares the box — NOISY-SHARED applies to walls; tree = 20aa4b5,
+the round-8 ledger commit = KK's round-6 endpoint merged):
+  * fp3x16: accept=true, wall 6.38 s, peak RSS 869,172 KB; STATEMENT
+    93a987002a7c4b60c3dfbfc62b7a4f0e5957d8ae2039014ff241e323285fb790
+    EVAL-PROOF
+    0ae9cdae66607239a80cc1f1dea36248370edadbe85214144aee7a5250d975be
+  * pa12x64 (pass-agg prove 12 64 p0): wall 19.87 s, peak RSS
+    2,040,644 KB; STATEMENT 45fb340517eee2344b44dd40d4e47562d80305
+    eb7c5604c9c6cf61ede37443dc
+  * fp12x64: accept=true, wall 26.13 s, peak RSS 2,164,948 KB;
+    STATEMENT 80763ea537e77cd9cb5c538397af2622044447d654b8e9a34cae
+    3ccad8f3f115; EVAL-PROOF 63f4a3a4320a47260ab8ae3d52cfa3656b626f
+    c367af671c6c317300454dec89
+  (all five anchors match the brief's pinned values; the RSS figures
+  reproduce KK's rung-2 endpoint within noise.)
+  * Floors: diff-battery exit 0 (15.55 s, incl. the 2-level E2E
+    cross-verify); freeze-check exit 0, 102 ok rows (full pass —
+    this box has the export); uperf-s battery 48 legs 3752cba4..;
+    agg-battery 136 legs 46234986..; uperf-x battery 8 legs
+    be89d5da..
