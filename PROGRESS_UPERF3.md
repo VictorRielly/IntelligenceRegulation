@@ -4063,3 +4063,316 @@ any digest move = revert + record.
    are range-only; a fresh counted row is OWED before hardware
    commitments (first estimate [MODEL]: commit-phase act growth
    puts the peak back in the ~130-160 GB class until (b) lands).
+## Agent NN status (wt-uperf3-nn) — round 8
+
+LANE: X1 — the attention ENTRY CLASSES + PUBLIC-WEIGHT WIRINGS at toy
+shape (design memo §5.1 X1 verbatim; semantics ATTENTION_INTEGER_
+SPEC.md §2.1-2.9; measured exponent defaults §1.6b / results/
+m8b_gemma4_attn_stats.json layer 0). Toy shape: T = 16 (value level;
+the proven rung at T = 32, the X-S1 machinery's floor), d = 128,
+H = 2, H_kv = 1 (GQA group 2), d_h = 64, synthetic witness.
+
+AT-O2 FUSION DECISION (recorded): UNFUSED — the 66-entry table
+(witness 60 + weights 6, spec §4.1 verbatim). Why: the as-built
+house pattern (u3_layer_run, X-S1) commits accumulators and the
+fused matmul-terminal requant pin's wave-plan interaction is
+explicitly unverified (AT-O2 names its own battery, unbuilt); X1 is
+the typing/wiring rung, so the -13.8% commit-volume saving is
+deferred to the rung where volume binds (X3+), with the fused form
+kept as a recorded statement-level packing option.
+
+OWNERSHIP: NEW ring/attn_entries.rs + one mod line in ring/mod.rs;
+extensions of the [UPERF3-JJ] bin section limited to a
+behavior-preserving parameterization of xs1_run (s8 source +
+statement/transcript tags become arguments; the JJ entry points keep
+their exact bytes — uperf-x battery digest be89d5da.. is the guard);
+the NEW [UPERF3-NN] bin section + uperf-x arms (entries, layer-chain,
+pw-battery, head-prove, head-battery); NEW
+scripts/attention_x1_layer_ref.py (the stated reference driver);
+this ledger section. Frozen registries (lookup.rs / manifest.rs)
+untouched; exp + rope members LANE-LOCAL pending AT-O5/O6.
+
+RUNG PLAN (one commit per green rung, prefix "U-PERF3 NN:"):
+  0. skeleton: this section. [DONE]
+  1. THE ENTRY TABLE: `uperf-x entries [t]` — the 66 typed entries
+     (name, shape, class, exponent source) reconciled against the
+     memo §1 / spec §4.1 inventory; mismatches flagged, not papered.
+  2. THE VALUE CHAIN: `uperf-x layer-chain [seed] [t]` — the full
+     attention-layer derivation at toy shape, bit-exact vs the
+     REFERENCE (stated: scripts/attention_x1_layer_ref.py, Python,
+     written by this lane, driving the validated oracle
+     scripts/attention_spec_spike.py primitives — rmsnorm_int /
+     rope_int / softmax_int / requant — VERBATIM at patched toy
+     shape constants; per-tensor sha256 + CHAIN digest both sides).
+  3. PW-1..PW-4 builders + F5 batteries: `uperf-x pw-battery` —
+     flip-read (PW-1), GQA/MQA map (PW-2), causal mask closed form +
+     band degeneracy (PW-3), broadcast reads (PW-4), the
+     head-indexed public coefficient MLE (the BG layer-MLE
+     precedent extended to (l, h)), rope-cs-table-v1 generation +
+     python-pinned digest; each functional == its direct evaluation
+     on random points + wrong-vector sanity legs; own digest.
+  4. Head-indexed instances + the per-head X-S1 chain proven for 2
+     heads (`uperf-x head-prove`): the layer chain's per-head s8
+     blocks through the xs1 core (head-tagged statements binding
+     the layer-calibrated exp member), honest ACCEPT x2; tamper
+     legs (`uperf-x head-battery`, AT-O8/O9 class) at
+     pre-registered gates; own digest.
+  5. The record: the X3 needs list, enumerated here.
+
+FLOORS AT EVERY COMMIT: cargo build --release; uperf-pc
+diff-battery; uperf-s battery 3752cba4..; uperf-s agg-battery
+46234986..; uperf-x battery be89d5da.. (existing arms byte-frozen);
+freeze-check 102 ok via M125_EXPORT_DIR; uperf-pc zc-battery
+01ca048b..; composed 7465fa05.. NOT touched (u3 region untouched).
+
+LANE-LOCAL CONVENTIONS (recorded; conservative picks for
+transcript-affecting ambiguities):
+  * Calibration at toy shape is per-draw integer max-calibration
+    (smallest shift with the floor-requant output in [-127, 127],
+    the study's rule on the integer grid); the MEASURED §1.6b
+    exponents ride the entry table as the calibrated DEFAULT source
+    column (Gemma-4 l0: q -3 / k -6 / v -3 / qr -3 / kr -6 /
+    scores -2 / ctx -3; seam sites ao/postn/xres int16 per the
+    stack_wide ruling), since a synthetic toy witness cannot honor
+    real absolute scales without failing narrowing by design.
+  * Exp members generated at the layer-calibrated (eS, d_h 64,
+    fE 9); contract-point members pinned from the Python side
+    (drift-loud); non-contract eS prints UNPINNED loudly.
+  * The Gemma four-norm/QK-norm sites (AM-5) are NOT in the
+    66-entry table (spec §4.1 is the 125M two-norm form) — recorded
+    as the reconciliation's known delta, not a mismatch.
+
+RUNG RESULTS (recorded as gated, in order; the four rungs' code is
+ONE additive block across ring/attn_entries.rs + the bin section —
+built together, gated per rung below, ledger commits follow the
+gates in order):
+
+  1. THE ENTRY TABLE — DONE. `uperf-x entries [seed] [t]`: 66 typed
+     entries (name, shape, manifest QuantMeta/TypingV4 row with the
+     CLS_W8S/ACT8/ACC/REM/AUX31 mapping, exponent source), census
+     66/66 vs spec §4.1 (witness 60 + weights 6; per-block counts
+     match exactly). RECONCILIATION VERDICT: MATCHES, with four
+     recorded deltas/flags (none papered over): (a) X_l + the FFN 17
+     are shared MVP-1 entries, not re-counted; resid2's FFN input is
+     a seeded stand-in (the X3 seam); (b) Gemma AM-5 sites (QK-norm,
+     post_attn/post_ffn norms) absent from the §4.1 125M inventory
+     by design — §1.6b's postn measured row has no 125M entry;
+     (c) softmax rho/sig SINGLE range facts at wrhoSm = fE + log2 T
+     (13/14 toy, 18 at 125M) vs the norm remainders' (11, 8) limb
+     split — both per the §2.9 split rule; (d) attention aux rides
+     CLS_AUX31/CLS_REM (no new class rows; whether narrower classes
+     pay is X3 pricing). X1 ENTRIES DIGEST 0358428f85efd1d8.. at
+     (1611, 16); 0e895bda3a9b4f59.. at (1611, 32).             [DONE]
+
+  2. THE VALUE CHAIN — DONE. `uperf-x layer-chain [seed] [t]`: the
+     full attention layer at toy shape (T 16/32, d 128, H 2, Hkv 1,
+     d_h 64): attn_norm (isqrt pair + DIV + limbs) -> QKV + requant
+     -> RoPE (route (a), fRo 7, scale-preserving) -> stacked scores
+     (public GQA map g(h) = h/2) + requant -> per-head X-S1 softmax
+     chain (derive_chain verbatim) -> PV -> Wo -> resid1 ->
+     mlp_norm -> resid2 (seeded FFN stand-in). REFERENCE (stated):
+     scripts/attention_x1_layer_ref.py — Python, this lane, driving
+     the VALIDATED oracle attention_spec_spike.py primitives
+     VERBATIM (rmsnorm_int / requant / rope_int / softmax_int +
+     both table generators) at patched toy constants, aux tensors
+     recomputed per the spec formulas and tied to every oracle
+     output. stdout BYTE-IDENTICAL Rust-vs-Python at 5 (seed, T)
+     pairs: (1611,16) CHAIN ee72b55f07930035.., (7,16), (42,16),
+     (1611,32) CHAIN b646c164d355a461.., (20260811,32).
+     Calibration: per-draw integer max-calibration (smallest
+     narrowing shift); contract point lands eXn -5, eQ/eK/eV -7,
+     eS -6 (exp member 062917d84faa9782.. PINNED, oracle-generated;
+     non-contract eS runs loudly UNPINNED), eO -7, eAo -9, eR1 -3.
+     rope-cs-table-v1 members pinned from the oracle side: t16
+     355be440fcc13985.., t32 e0de1cf45aa38f10.. (drift-loud, AT-O6
+     pending). NOTE (open, cosmetic): synthetic toy data lands
+     eS = -6 (slow-decay member, softmax near-uniform) vs the
+     measured Gemma eS -2 class — wiring gates don't depend on it;
+     the calibrated-shape variant stays X2's business (JJ's
+     prove-cal already covered measured-eS score shape).      [DONE]
+
+  3. PW BUILDERS + F5 BATTERIES — DONE. `uperf-x pw-battery [seed]`,
+     19/19 legs at seed 1611 (each public-weight functional equals
+     its DIRECT evaluation at transcript-drawn random points, two
+     independent code paths — dense eq-table sum vs closed
+     form/multilinear fold):
+     * PW-1 (RoPE): the flip-read EXACT identity (dense flip-composed
+       read == MLE(q8) at the coordinate-flipped point); the rotation
+       relation as a weighted zero point on the honest witness; cW~
+       and sW~ closed forms (head + top-of-head bits marginalize;
+       the sign rides (2 r_top - 1)).
+     * PW-2 (GQA/MQA map): the layer's own H2->Hkv1 stacked K-read
+       (dense == sum_h eq * MLE) + a NONTRIVIAL identity map
+       (H2->Hkv2 on seeded data; head bits pass through to the
+       kv-head coordinate).
+     * PW-3 (mask): the causal MLE O(log T) DP closed form == dense
+       support sum; the pub_mass tie on the T x T index space; band
+       degeneracy at T <= window (AM-6); shifted-triangle MLE
+       DIFFERS (the wrong-mask sanity leg).
+     * PW-4 (broadcast reads): row-broadcast divisor (Sum_bc == free
+       row-MLE read), col-broadcast gamma, row-broadcast D*2^tn.
+     * The head-indexed public coefficient MLE (memo §1.6 / AM-3,
+       the BG layer-MLE precedent extended to (l, h) = 4x2): fold ==
+       dense F5 + the wrong-vector (tampered s_{l,h}) value moves.
+     * rope-cs-table-v1 freeze legs: double-generation determinism +
+       pinned oracle digests + bounds (c[0] = 128, |c|,|s| <= 128)
+       at t_max 16 and 32.
+     X1 PW BATTERY DIGEST f2f3913785f958f9.. .               [DONE]
+
+  4. HEAD-INDEXED INSTANCES + THE PER-HEAD PROVEN CHAIN — DONE.
+     xs1_run parameterized into xs1_run_core (s8 source, exp
+     members, statement/transcript/rng tags as arguments; the JJ
+     entry points byte-preserved — uperf-x battery digest
+     be89d5da.. re-verified green both before AND after the NN
+     arms landed). `uperf-x head-prove 1611 32`: the LAYER-derived
+     per-head s8 blocks (tie asserted: the core's chain ==
+     the layer's committed softmax slices bit-for-bit) proven
+     through the full X-S1 machinery per head under HEAD-TAGGED
+     statements (tag uperf3-nn-x1-head-v1; extra bytes bind head
+     index + H + the 66-entry layer CHAIN digest; per-head wit/
+     session rng tags), statement member = the layer-calibrated
+     PINNED eS -6 member: 2/2 honest ACCEPT (120 data cms / 122
+     commits / 1 wave / 479 pins each; commit 0.1 s + prove
+     2.2-2.6 s + verify 0.4 s per head [WSL-BOX NOISY-SHARED]).
+     X1 HEAD-PROVE DIGEST 5f5625f79ff825dd.. .
+     `uperf-x head-battery 1611 32`: 7/7 AT-O8/O9-class legs on the
+     layer-derived per-head chains, EACH at its pre-registered gate
+     (legs alternate heads; the two chain-shape-dependent legs
+     probe head support and assert, never skip): m-overstate h0 ->
+     G2 F-hit; m-understate h0 -> rng-d-w8 root cross-check;
+     zsel-two-hot h0 -> G1 F-one; zsel-off-support h1 -> G2 F-hit;
+     off-support-P h1 -> G6; shifted-mask h0 -> G3's PW-3
+     weight-MLE check; wrong-exp-member h1 -> the masked-claims sum
+     gate (JJ's corrected registration, reproduced on layer data).
+     17.6 s total. X1 HEAD BATTERY DIGEST 35ddec83ffcdcee9.. .
+     Head-INDEXED instance families: the scores/PV/softmax entries
+     are committed HEAD-STACKED ((H*T) x T tensors, head bits = the
+     high index bits — the F-IF1 index-extension form the §4.3
+     dispositions fold over), and the per-head shift/member freedom
+     rides the coefficient-MLE machinery exercised in rung 3; full
+     folded (l, h) instances over the claim engine are X3's
+     integration (enumerated in rung 5).                      [DONE]
+
+  5. THE RECORD — WHAT X3 (one full layer proven at 125M, then the
+     12x512 full-LLM pass) STILL NEEDS, enumerated:
+     (1) STATEMENT INTEGRATION (AT-O3, manifest v5): the 66 typed
+         rows into a real ClaimManifest — operation kinds (or their
+         decomposition into existing kinds + PW descriptors), the
+         causal-mask convention flag, per-layer (tn, Cn, Ceps, fE,
+         fP, wrho) metadata; v4 digests unmoved (BF-2b). X1 built
+         the typed rows + census, not the manifest wiring.
+     (2) THE NON-SOFTMAX CLAIM INSTANCES at layer scope: the
+         matmul-class instances (QKV x3, scores, PV, Wo, SS/E/zsel
+         rowsums), ZC3 (xsq/Dsq, DIV x3, F-hit), the RoPE deg-2
+         zero-checks consuming PW-1 for real, the PIN families
+         (requant edges, d-def, isqrt pins, limb recomps,
+         residuals). All precedented (mm-*/had/rq-*), none yet
+         built at attention shapes — X1 proved the SOFTMAX block
+         per head through the X-S1 rig and validated every PW
+         functional at value/MLE level.
+     (3) FOLDED (l, h) INSTANCE FAMILIES: the head index as
+         index-extension variables inside the folded families
+         (scores/pv carry (l, h); rq coefficient MLEs head-indexed
+         — machinery exercised in rung 3, fold-side IxfZcSpec +
+         schedule integration not built). The entries commit
+         HEAD-STACKED already (head bits = high index bits).
+     (4) FREEZE RULINGS (VICTOR): exp members into lookup.rs/
+         manifest.rs under the AM-2 key (function, e_in, e_out,
+         params {d_h}) — additive, C5 registry ruling (joint with
+         JJ's open item); rope-cs-table-v1 freeze rows (AT-O6);
+         parametric range widths {1, 9, 10, 11, 13/14, 18} +
+         shifts (AT-O5); the Stage-A sequencing ruling (memo §3.3)
+         — X3's score-volume range facts should land on zc_range
+         from the start, descent form as toy oracle.
+     (5) X2 FIRST (AT-O1 as a C4 run): every exponent here is
+         per-draw synthetic; X3 needs the frozen 125M per-layer
+         exponent table + the 12 real exp members. §1.6b's Gemma
+         data de-risks the CLASSES (per-tensor int8 core, widened
+         seams), it is not the 125M table. The toy eS -6 wants the
+         real-score-shape check X2 provides.
+     (6) SCALE ITEMS AT T = 512: statement-DECLARED wrho (X1
+         derives fE + log2 T lane-locally; fix it statement-side —
+         the JJ open question stands); LKP-2/N_inst instancing
+         gates (per-layer exp instances fine at 125M); W-1 column
+         windows if stacked zc tables grow; the 15 GiB box
+         discipline for the T^2 tensors (score volume 12 x 512^2).
+     (7) THE SEAMS: resid2 must bind the REAL MVP-1 FFN output
+         entry (the seeded stand-in retires); X_l = the shared FFN
+         "X" entry (one commitment, two consumers — the AM-7-class
+         layout fact); the inter-layer residual-stream pins (spec
+         §4.3) with the cross-layer-seam REJECT leg extended.
+     (8) RoPE THROUGH THE REAL EVAL PROOF: the flip-read's extra
+         opening point through the mu-batched per-group eval proof
+         (E-O2-BB preserved) — X1 checked the exact identity at
+         MLE level, not the eval-proof plumbing; rope-cs member at
+         (T_max 512, d_h 64, base 10000, fRo 7) frozen (32 KiB).
+     (9) EMBEDDING/UNEMBEDDING (PW-5): outside X1's layer scope;
+         needed for the 12x512 full-LLM milestone — last-position
+         unembed default (X-D6), the PW-5 selector weights + F5.
+    (10) INSTANCE-LEVEL BATTERIES: AT-O4 F5-pair ORDERING batteries
+         per PW at proof level (X1's F5 legs are value/MLE level);
+         the wrong-coefficient-vector PROOF-level reject at the
+         instance terminal; k_eq_v (AM-7) only when Gemma enters.
+
+LANE-LOCAL CONVENTIONS ADDED DURING THE BUILD (all recorded, none
+transcript-affecting beyond this additive lane's own arms):
+  * Seeded draws: tagged SHA-256 counter streams (tag || le64 seed
+    || le64 ctr); weights [-16, 16] (the study's weight-RMS class,
+    so eS lands non-degenerate), gammas [49, 79] at eG -6, x8
+    full-range at declared eX -4.
+  * RMSNorm e_y by integer max-calibration search (smallest
+    window-admissible e_y whose narrowing holds — monotone), the
+    oracle's window rule as the probe.
+  * Head statements: tag uperf3-nn-x1-head-v1 + (head, H, layer
+    CHAIN digest) extra bytes; per-head wit/session rng tags (two
+    heads never share commitment randomness).
+  * resid2's FFN input is a seeded STAND-IN (x1-ffn stream) at
+    e_r1 — the X3 seam, loudly recorded in the arm and the table.
+  * COMMIT-GRANULARITY DEVIATION (recorded): rungs 1-4 landed as
+    one additive code block (two shared files + one new module +
+    one script); each rung's gate ran green with its own digest
+    before any commit; the ledger commits follow rung order. The
+    one-commit-per-green-rung discipline collapsed to code+record
+    commits — floors run on the combined tree (identical code).
+
+FLOORS AT THE RUNG 1-4 COMMIT (aa33bf0), all on this tree [WSL-BOX
+NOISY-SHARED]:
+  * cargo build --release: green (0 errors).
+  * uperf-pc diff-battery: passed (18.1 s).
+  * uperf-s battery: 48 legs, digest 3752cba4.. UNCHANGED.
+  * uperf-s agg-battery: 136 legs, digest 46234986.. UNCHANGED.
+  * uperf-x battery: 8 legs, digest be89d5da.. UNCHANGED — verified
+    both immediately after the xs1_run_core extraction AND on the
+    final tree with the NN arms live (the refactor guard).
+  * freeze-check (M125_EXPORT_DIR=results/m125_ffn_export_wsl):
+    FULL exit 0, 102 ok rows.
+  * uperf-pc zc-battery: 7/7 legs, digest 01ca048b.. UNCHANGED.
+  * composed 7465fa05..: NOT re-run — the u3 region untouched (the
+    diff is the additive NN block + the parameterized JJ core; no
+    u3/composed path in the change set).
+  * Extra point: head-prove 2/2 ACCEPT also at seed 20260811 T 32
+    (digest 23a6c75a.., seed-dependent as expected); layer-chain
+    byte-identity additionally checked at seed 5 (6 pairs total).
+
+NEW LANE DIGESTS (this lane's arms; existing digests never moved):
+  X1 ENTRIES    0358428f85efd1d84d2ad9c0aa3737dec80c3f87cd66d34c
+                e7d2284f6c774ca8 (1611, 16); 0e895bda.. (1611, 32)
+  X1 CHAIN      ee72b55f0793003540cc9fde9a7c9f196d73fba7074d3994
+                a2b903cc2c5382a1 (1611, 16); b646c164.. (1611, 32)
+  X1 PW BATTERY f2f3913785f958f9ad8b3b0105518d75e73db616671aa0e0
+                54abbb9b8b3d070f (19 legs)
+  X1 HEAD-PROVE 5f5625f79ff825ddb4a5d6c02b03b21c2e75e5b3e267cae8
+                cdd5a92f89878d15 (1611, 32; 2/2 ACCEPT)
+  X1 HEAD BATT  35ddec83ffcdcee93440423d4ec1b081f9decfd12ef13d5e
+                bb36704de2cc7a72 (7/7 pre-registered)
+
+STATE: DONE (2026-08-31) — rungs 0-5 landed on uperf3-nn (skeleton
+c022b4e; rungs 1-4 + records aa33bf0; this close commit), all
+pushed. Footprint purely additive: ring/attn_entries.rs (NEW) + one
+mod line + one #[derive(Clone)] on SoftmaxChain + the
+behavior-preserving xs1_run_core parameterization in the JJ bin
+section + the [UPERF3-NN] bin section + scripts/
+attention_x1_layer_ref.py (NEW) + this ledger section. Frozen
+registries untouched; every pre-existing battery digest byte-
+identical. OPEN QUESTIONS live in the rung-5 needs list (freeze
+rulings item 4 -> Victor, jointly with JJ's exp-member C5 ruling).
