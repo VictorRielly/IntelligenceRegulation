@@ -4193,3 +4193,93 @@ out-of-class tampered value exactly.
   20.13 -> 21.24 s; fp12x64 26.10 -> 27.78 s (+5-6% at 12x64 — the
   per-consumer guard materializations; NOISY-SHARED box, lane NN
   building concurrently).
+
+RUNG 3 — THE RECORD (2026-08-31).
+
+THE MEASURED 125M-SHAPE RSS CURVE (peak RSS KB, /usr/bin/time -v,
+ZK_THREADS=8, flock-serialized, NOISY-SHARED box; the OO baseline IS
+KK's round-6 endpoint — rounds 5-7 merged at 20aa4b5):
+  shape    OO base    +weights (r1)  +all planes (r2)   lane total
+  fp3x16     869,172     814,624        814,116          -55 MB  ( -6.3%)
+  pa12x64  2,040,644   1,653,768      1,562,672         -478 MB  (-23.4%)
+  fp12x64  2,164,948   1,778,104      1,668,184         -497 MB  (-22.9%)
+  Counted check: the 12-layer 12x64 store is 598 MB i64 -> ~93 MB
+  per-class = -505 MB; the measured -478/-497 MB IS that term (the
+  small gap = guard transients live at the high-water mark). fp3x16
+  moves less than its -104 MB counted store because its peak sits in
+  the claim/verify phases where only part of the store overlaps.
+  CUMULATIVE across the THREE diet lanes (HH + KK + OO) vs the
+  round-5 baseline: fp3x16 1,126,084 -> 814,116 (-27.7%); pa12x64
+  2,968,604 -> 1,562,672 (-47.4%); fp12x64 3,091,220 -> 1,668,184
+  (-46.0%).
+  Walls [MEASURED, honest]: fp3x16 6.38 -> 6.84 s; pa12x64 19.87 ->
+  21.24 s; fp12x64 26.13 -> 27.78 s (+5-6% at 12x64: the guard
+  materializations in the claim/commit walks; lane NN was building
+  concurrently — treat as an upper bound).
+
+THE COUNTED 8B PROJECTION (32x512; t=512 d=4096 f=14336; 257.9M
+elements/layer x 32 = 8.25G, i64 66.04 GB — the W-8 row's number
+reproduced exactly):
+  The per-class store: i8 planes (X + 3 weights + g8/a8/u8/h8/z)
+  209.7 MB/layer; H i16 (|a8*u8| <= 16129); Gacc/Uacc/Dacc i32
+  (inner-dim bounds 2^26-2^28); remainders i16 or i32 by the m8b
+  shifts (auto-picked by from_vals) -> 339.7-388 MB/layer =
+  **10.9-12.4 GB total** (5.3-6.1x; the W-8 row's ~9.9 GB assumed
+  every remainder i16 — the honest band depends on the calibrated
+  shifts, sh < 15 gives the low end).
+  The phase table (KK's corrected projection with L compact; range-
+  only Stage A [GG] + W-3 [mandatory] + ZK_W0_REGEN [exists] +
+  HH/KK diets assumed as before):
+    commit  ~61  (WAS ~116: L 66 -> ~11.5; W_w 45.1 + act split 4.7)
+    claim   ~20  (WAS ~71: L compact + W-1 windows + zc guard
+                  owners ~5.6 transient)
+    lvl-0   ~72  (unchanged — W 63.7 flat + z_all 5.9 + flat store)
+    lvl-1   ~29  (KK)
+    verify   ~6  (KK)
+  VERDICT: **the pass peak now sits at lvl-0 ~72 GB — exactly the
+  W-8 row's prediction; UNDER 128 GB with ~56 GB margin (was ~12 GB
+  at the commit phase before this lane), UNDER the Mac trivially.**
+  32x16 (the yardstick): L 45.8 -> ~5.7; the ~95 GB claim/descent
+  peak drops to ~55-57 (descents still read lays — compact now);
+  commit 91.5 -> ~51. T9's 12x512 CPU row: store 1.61 -> ~0.35 GB;
+  projected ~8-9 GB with HH+KK+OO (NOT measured — shared-box rule).
+
+THE 30B PROJECTION (the brief's ~245 GB i64 store, ratio 3.71x the
+8B layer volume): L compact = **~40-46 GB** (from ~245 — the store
+is no longer the blocker at ANY box under ~64 GB headroom for it).
+30B's peak becomes the W-side group terms (lvl-0 ~72 GB at 8B
+scales to ~265-270 GB): the known levers are per-layer-range
+WEIGHT-group splits (the W-3 mechanism applied to the weight side),
+ZK_W0_REGEN, and the already-landed A_0/phi streaming — a build
+round of its own, NOT this lane; L is off the critical list.
+
+OPEN ITEMS / NOT DONE HERE:
+  * bg_zc_window_vals materializes the FULL entry plane per (layer,
+    window) to slice one column window — O(windows x plane) copies
+    on the W-1 windowed path at 8B (wall, not memory). A compact
+    window extractor over bf_entry_plane would make it O(window).
+  * bg_mm_tables' hoist holds BOTH operand planes across all layers
+    as i64 while the full tables build (~17 GB transient at 8B for
+    an (h8, WdT) instance) — only IF the unwindowed path runs
+    there; the W-1 windowed claim path avoids it. A monomorphized
+    per-class fill would remove the transient entirely.
+  * bk_tree_slot_fns' closures own materialized member planes for
+    the live tree (oracle-descent mode only; Stage A is the 8B
+    path and never builds them).
+  * The +5-6% 12x64 wall: the biggest per-call materializers are
+    the bg_mle claim-parts loop and bf_commit_entries; both could
+    read through bf_entry_plane (get/window) if 8B walls demand it.
+  * U3Layer: OUT OF SCOPE as recorded at rung 0 — the v3 engine
+    spike rig (24 fields incl. a16/u16 i16 classes and the h16
+    lo/hi limb planes, its own u3_entry_values surface); BfPlane
+    applies verbatim when a lane owns that surface.
+  * bg_pass_run still keeps lays end-to-end (HH's open item) — now
+    6.4x smaller; pa12x64's -478 MB is that term shrinking.
+
+STATE: DONE (2026-08-31) — rungs 0-3 landed, one commit each, all
+pushed on uperf3-oo; every rung transcript-preserving (five digest
+anchors byte-identical at every commit: fp3x16 93a98700../
+0ae9cdae.., pa12x64 45fb3405.., fp12x64 80763ea5../63f4a3a4..)
+with floors green (diff-battery; freeze-check 102 ok exit 0;
+uperf-s 3752cba4..; agg 46234986..; uperf-x be89d5da..; plus the
+m125-pass and table-descent tamper batteries at rung 2).
