@@ -4644,3 +4644,64 @@ limb-split h vs GG's naive act-h vs derived-not-committed h with
 the range facts read through the Hadamard relation), fold in the
 owed 8B full-mode memory recount from OO's new baseline. Memo:
 docs/zkmatrix-poc/U_PERF3_COMMITTED_H.md.
+
+## Agent PP status (wt-uperf3-pp) — round 9, X2: the 125M attention gate
+
+LANE: X2 — AT-O1 as a C4-style gate run at 125M (the round-9 Lane PP
+brief above; the CC pattern scripts/m8b_gemma4_attn_gate.py — that
+file UNTOUCHED — transplanted to the frugal adapter in
+m8b_int8_calibration.py --arch frugal). Deliverable: the MEASURED
+125M attention exponent table + site verdicts so X3 builds on
+measured, not synthetic, exponents (NN rung-5 item 5; the toy eS -6
+wants the real-score-shape check).
+
+OWNERSHIP: NEW scripts/m125_attn_gate.py; NEW results/m125_attn_*
+files; this ledger section. Everything else READ-ONLY (python-only
+lane; no Rust files touched; frugal-lm never written).
+
+DATA: the local-since-T10 checkpoint
+/home/victor/models/125m-best-adamw-val3.0816/model.safetensors +
+val shard /home/victor/shard-00000.npy; the m125 sampler verbatim
+(seed 1337, 8 cal + 8 val disjoint T=512 windows —
+scripts/m8b_verify_125m.py proved this sampler + the m8b frugal
+walker reproduce the committed calibration 108/108 on this box).
+
+THE 125M SITE LIST (enumerated from frugal-lm src/frugal_lm/model.py,
+read-only: pre-norm two-norm sandwich, RoPE rotate-half, GQA H 12 /
+H_kv 4, d 768, d_h 64, scale hd^-0.5, NO QK-norm):
+  Wattn, xattn [xn8], q, k (RAW projections PRE-rope — the Gemma hook
+  position with the QK-norm stage nonexistent), v (no v_norm),
+  scores [s8 — SCALED at hd^-0.5 unlike Gemma's 1.0], exps [E fE=9],
+  probs [P fP=9 floor], ctx [o8], ao [ao8], xres [xres1].
+  ABSENT vs Gemma (by architecture, stated not papered): postn (no
+  post_attention_layernorm — two-norm sandwich), q/k/v norms (AM-5),
+  post_ffw_norm + layer scalar (facts F2), sliding/global family
+  split (all 12 layers plain causal). qr/kr recorded as stats.
+
+RUNG PLAN (one commit per green rung, prefix "U-PERF3 PP:"):
+  0. skeleton: this section + scripts/m125_attn_gate.py (a NEW script
+     importing the shared m125/m8b machinery — the safer branch of
+     the brief's choice; the Gemma gate stays byte-identical). [DONE]
+  1. EQUIV (the precondition): hooks-off walker BIT-EXACT vs the
+     validated m8b frugal Walker on the val windows (final-hidden
+     array_equal + loss equality + logits sha256)
+     -> results/m125_attn_equiv.json. STOP and record if not.
+  2. STATS: the full 12-layer per-site range profiles
+     (absmax/p999/p9999, per-head where head-structured) on the 8
+     cal windows -> results/m125_attn_stats.json.
+  3. ATTRIB: per-site int8 quantize-dequant first-order deltas (FFN
+     fp), exponents frozen from the stats pass, val subset take=2
+     -> results/m125_attn_attrib.json. Expectation to TEST, not
+     assume: the attention core int8-clean (the Gemma 1.6b picture);
+     a surprise here is a major finding.
+  4. WIDEN (only if attrib shows sites >= +0.10 nats): int16 singles
+     + per-head variants + the composed stack_wide row
+     -> results/m125_attn_widen.json.
+  5. RECORD: the AT-O1 table X3 consumes (per site per layer: e8,
+     class, exp members keyed (eS, d_h 64, fE 9), wrho = fE +
+     log2(T) = 18) -> results/m125_attn_at_o1.json + the 1.6b-style
+     verdict paragraph here and the 125M column note for the design
+     doc's site->class table (§1.6b extension left to the merge if
+     doc ownership is contested; the JSON is the source of truth).
+
+STATE: rung 0 committed; rungs 1-5 pending.
