@@ -1,0 +1,13 @@
+{
+ "experiment": "m125_attn_gate --phase equiv",
+ "checkpoint": "/home/victor/models/125m-best-adamw-val3.0816/model.safetensors",
+ "seed": 1337,
+ "t": 512,
+ "smoke": false,
+ "hidden_bit_exact": true,
+ "hidden_sha256": "1922d7d3aff85b33a5f548176a3e9e2fef101df6f5201909ab35b3f6cb003b87",
+ "logits_w0_sha256": "7ae681a974246ff9d98dd40f082d4c2a2713520785aeaea1e66e9736581b0981",
+ "loss_val_8win": 3.22867289818325,
+ "loss_ref_committed_mlx": 3.228672832250595,
+ "note": "hooked walker with all hooks off vs the validated m8b frugal Walker: final hidden array_equal on val window 0, loss equal on all 8 val windows; the committed mlx loss_ref differs at the documented numpy-vs-mlx fp32 drift level"
+}

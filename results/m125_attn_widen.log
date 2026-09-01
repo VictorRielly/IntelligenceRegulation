@@ -1,0 +1,6 @@
+m125_attn_gate --phase widen: frugal-125m, 12 layers, d 768, H 12/4, d_h 64
+val subset: 2 of 8 windows; committed mlx ref 3.228672832250595
+  xres16           loss 3.3587  delta  +0.0000  (6s)
+  stack_wide       loss 3.3901  delta  +0.0314  (7s)
+JSON -> /home/victor/wt-uperf3-pp/results/m125_attn_widen.json
+peak RSS 0.81 GB

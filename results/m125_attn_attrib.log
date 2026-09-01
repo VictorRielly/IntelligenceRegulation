@@ -1,0 +1,17 @@
+m125_attn_gate --phase attrib: frugal-125m, 12 layers, d 768, H 12/4, d_h 64
+val subset: 2 of 8 windows; committed mlx ref 3.228672832250595
+  none             loss 3.3587  delta     ref   (6s)
+  Wattn            loss 3.3602  delta  +0.0015  (6s)
+  xattn            loss 3.3606  delta  +0.0020  (8s)
+  q                loss 3.3583  delta  -0.0004  (7s)
+  k                loss 3.3596  delta  +0.0009  (8s)
+  v                loss 3.3587  delta  +0.0000  (6s)
+  scores           loss 3.3592  delta  +0.0006  (7s)
+  exps             loss 3.3592  delta  +0.0005  (9s)
+  probs            loss 3.3754  delta  +0.0167  (6s)
+  ctx              loss 3.3584  delta  -0.0003  (6s)
+  ao               loss 3.3584  delta  -0.0002  (6s)
+  xres             loss 7.6333  delta  +4.2747  (7s)
+  all_int8         loss 6.1337  delta  +2.7750  (7s)
+JSON -> /home/victor/wt-uperf3-pp/results/m125_attn_attrib.json
+peak RSS 0.82 GB

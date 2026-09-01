@@ -1,0 +1,2 @@
+m125_attn_gate --phase stats: frugal-125m, 12 layers, d 768, H 12/4, d_h 64
+stats: 12 layers in 28s; JSON -> /home/victor/wt-uperf3-pp/results/m125_attn_stats.json; peak RSS 0.55 GB

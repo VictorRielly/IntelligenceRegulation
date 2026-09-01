@@ -4644,3 +4644,153 @@ limb-split h vs GG's naive act-h vs derived-not-committed h with
 the range facts read through the Hadamard relation), fold in the
 owed 8B full-mode memory recount from OO's new baseline. Memo:
 docs/zkmatrix-poc/U_PERF3_COMMITTED_H.md.
+
+## Agent PP status (wt-uperf3-pp) — round 9, X2: the 125M attention gate
+
+LANE: X2 — AT-O1 as a C4-style gate run at 125M (the round-9 Lane PP
+brief above; the CC pattern scripts/m8b_gemma4_attn_gate.py — that
+file UNTOUCHED — transplanted to the frugal adapter in
+m8b_int8_calibration.py --arch frugal). Deliverable: the MEASURED
+125M attention exponent table + site verdicts so X3 builds on
+measured, not synthetic, exponents (NN rung-5 item 5; the toy eS -6
+wants the real-score-shape check).
+
+OWNERSHIP: NEW scripts/m125_attn_gate.py; NEW results/m125_attn_*
+files; this ledger section. Everything else READ-ONLY (python-only
+lane; no Rust files touched; frugal-lm never written).
+
+DATA: the local-since-T10 checkpoint
+/home/victor/models/125m-best-adamw-val3.0816/model.safetensors +
+val shard /home/victor/shard-00000.npy; the m125 sampler verbatim
+(seed 1337, 8 cal + 8 val disjoint T=512 windows —
+scripts/m8b_verify_125m.py proved this sampler + the m8b frugal
+walker reproduce the committed calibration 108/108 on this box).
+
+THE 125M SITE LIST (enumerated from frugal-lm src/frugal_lm/model.py,
+read-only: pre-norm two-norm sandwich, RoPE rotate-half, GQA H 12 /
+H_kv 4, d 768, d_h 64, scale hd^-0.5, NO QK-norm):
+  Wattn, xattn [xn8], q, k (RAW projections PRE-rope — the Gemma hook
+  position with the QK-norm stage nonexistent), v (no v_norm),
+  scores [s8 — SCALED at hd^-0.5 unlike Gemma's 1.0], exps [E fE=9],
+  probs [P fP=9 floor], ctx [o8], ao [ao8], xres [xres1].
+  ABSENT vs Gemma (by architecture, stated not papered): postn (no
+  post_attention_layernorm — two-norm sandwich), q/k/v norms (AM-5),
+  post_ffw_norm + layer scalar (facts F2), sliding/global family
+  split (all 12 layers plain causal). qr/kr recorded as stats.
+
+RUNG PLAN (one commit per green rung, prefix "U-PERF3 PP:"):
+  0. skeleton: this section + scripts/m125_attn_gate.py (a NEW script
+     importing the shared m125/m8b machinery — the safer branch of
+     the brief's choice; the Gemma gate stays byte-identical). [DONE]
+  1. EQUIV (the precondition): hooks-off walker BIT-EXACT vs the
+     validated m8b frugal Walker on the val windows (final-hidden
+     array_equal + loss equality + logits sha256)
+     -> results/m125_attn_equiv.json. STOP and record if not.
+     DONE: BIT-EXACT at 12 layers (hidden sha256 1922d7d3aff85b33..,
+     logits w0 sha256 7ae681a974246ff9..); val loss (8 win, numpy)
+     3.228673 both walkers — matches the committed mlx loss_ref
+     3.2286728 at the 1e-6 level (the documented numpy-vs-mlx drift
+     is negligible at 125M). 49 s, RSS 0.96 GB [WSL-BOX
+     NOISY-SHARED]. 2-layer smoke also green.               [DONE]
+  2. STATS: the full 12-layer per-site range profiles
+     (absmax/p999/p9999, per-head where head-structured) on the 8
+     cal windows -> results/m125_attn_stats.json.
+     DONE [MEASURED WSL-BOX NOISY-SHARED, 28 s, RSS 0.55 GB]:
+     * COMPUTE CORE TIGHT (the Gemma picture WITHOUT QK-norm):
+       q/k/v/scores/ctx absmax/p999 ratios <= 5.6 (mostly <= 3).
+       e8 ranges: q [-3,-2], k [-4,-3], v [-5,-3], ctx [-5,-4].
+     * **scores e8 = -2 at ALL 12 LAYERS** — ONE distinct eS, so
+       X3 needs ONE exp member (exp-neg, eS -2, d_h 64, fE 9), not
+       the 12 the design doc counted — and it is the SAME (eS -2)
+       class JJ's prove-cal already pinned from Gemma l0.
+     * qr/kr post-rope: e8 == q/k's everywhere (no +1-bit layer —
+       even the Gemma l5 qr quirk is absent).
+     * xattn mildly stretched (absmax ~19-20, ratio <= 2.9,
+       col_ratio 5.3-9.1) — far milder than Gemma l0's 1302/100.
+     * xres = the residual-stream growth again but milder: absmax
+       2.4 -> 357 (l8 peak), e8 -5 -> +2, ratio <= 7.95, col_ratio
+       to 30.5. ao ratio <= 4.3.
+     * probs: 40-86% of causal support below the fP=9 step (the
+       fixed-point floor is the binding constraint, as at Gemma).
+                                                              [DONE]
+  3. ATTRIB: per-site int8 quantize-dequant first-order deltas (FFN
+     fp), exponents frozen from the stats pass, val subset take=2
+     -> results/m125_attn_attrib.json. Expectation to TEST, not
+     assume: the attention core int8-clean (the Gemma 1.6b picture);
+     a surprise here is a major finding.
+     DONE [MEASURED WSL-BOX NOISY-SHARED, take=2, ref_subset
+     3.3587, ~7 s/site]: q -0.0004, k +0.0009, v +0.0000, scores
+     +0.0006, exps +0.0005, ctx -0.0003 (core CLEAN at the noise
+     floor) — and unlike Gemma, the SEAM sites are clean too:
+     Wattn +0.0015 (vs Gemma +0.2000), xattn +0.0020 (vs +2.0043),
+     ao -0.0002 (vs +0.4081). probs +0.0167 (the fP=9 floor cost,
+     visible but sub-material). **xres +4.2747 — the ONE poisoned
+     site** (the residual-stream disease, concentrated). all_int8
+     +2.7750 (composed anchor; below the xres single — the same
+     first-order over-count interaction CC recorded).        [DONE]
+  4. WIDEN (only if attrib shows sites >= +0.10 nats): int16 singles
+     + per-head variants + the composed stack_wide row
+     -> results/m125_attn_widen.json.
+     DONE [same rig]: xres16 single +0.0000 — the poison DIES with
+     one class widening (cleaner than Gemma's -0.0549). Composed
+     **stack_wide** (EVERY site int8 incl. Wattn, ONLY xres int16,
+     exps fE=9, probs fP=9): **+0.0314** vs all_int8 +2.7750 —
+     inside the +0.1-nat class, better than Gemma's +0.0854; the
+     residue is mostly the probs fixed-point floor.          [DONE]
+  5. RECORD: the AT-O1 table X3 consumes (per site per layer: e8,
+     class, exp members keyed (eS, d_h 64, fE 9), wrho = fE +
+     log2(T) = 18) -> results/m125_attn_at_o1.json + the 1.6b-style
+     verdict paragraph here and the 125M column note for the design
+     doc's site->class table (§1.6b extension left to the merge if
+     doc ownership is contested; the JSON is the source of truth).
+     DONE: results/m125_attn_at_o1.json (per site per layer e8 +
+     class + per-head e8 lists + exp-member keys + probs floor
+     stats; poison threshold 0.10 nats recorded in meta). [DONE]
+
+THE 125M AT-O1 VERDICT (the §1.6b-style paragraph — X3's measured
+source; every number [MEASURED WSL-BOX NOISY-SHARED], attrib/widen
+on the 2-window val subset, machine-independent):
+
+1. **The attention COMPUTE CORE is int8-clean per-tensor at 125M —
+   WITHOUT QK-norm.** Ratios <= 5.6; first-order int8 deltas q
+   -0.0004, k +0.0009, v +0.0000, scores +0.0006, exps +0.0005,
+   ctx -0.0003 (all at the subset noise floor). Per-head exponent
+   vectors are NOT needed at first order (degenerate per-tensor C2,
+   as at Gemma); qr/kr take q/k's exponents with no extra bit
+   anywhere (even Gemma's one l5 quirk is absent).
+2. **The Gemma four-site widened class COLLAPSES TO ONE SITE at
+   125M.** Wattn +0.0015, xattn +0.0020, ao -0.0002 — the seam
+   sites Gemma needed widened are CLEAN here; postn does not exist
+   (two-norm sandwich). The residual-stream disease concentrates
+   entirely at **xres +4.2747**, rescued by one class widening to
+   **+0.0000** (xres16). Composed **stack_wide** (every attention
+   site int8 incl. Wattn, ONLY xres int16, exps fE 9, probs fP 9):
+   **+0.0314** vs all_int8 +2.7750 — inside the +0.1-nat class and
+   better than Gemma's +0.0854.
+3. **ONE exp member serves the whole model**: scores e8 = -2 at ALL
+   12 layers -> the single member (exp-neg, eS -2, d_h 64, fE 9) —
+   the design doc's counted "12 at 125M" becomes 1 MEASURED, and it
+   is the same eS -2 class lane JJ's prove-cal already pinned from
+   Gemma l0 (X3's member freeze list = ONE row). wrho = 18 at the
+   contract T 512.
+4. **probs carries the one visible sub-material residue**: +0.0167
+   first-order (40-86% of causal support below the fP=9 step — the
+   fixed-point floor binds, not range). fP is a statement
+   resolution knob; the composed +0.0314 says fP 9 is acceptable
+   at 125M (same decision family as CC's Gemma fP note).
+5. X3 CONSUMPTION NOTES: (a) NN's X1 entry table carried the Gemma
+   measured defaults (seam sites ao/postn/xres int16 per the Gemma
+   stack_wide ruling) — the MEASURED 125M classes narrow that to
+   xres-only int16, ao int8, no postn row: reconcile the 66-entry
+   table's exponent-source column to results/m125_attn_at_o1.json.
+   (b) l0 is range-atypical (xattn/v/ao e8 -5 vs -2/-3 elsewhere;
+   xres e8 -5 vs +1/+2) — keep per-layer exponents, do not collapse
+   layers. (c) The toy eS -6 concern (NN rung 2 note) is resolved:
+   real 125M scores land eS -2. (d) Deltas are first-order on a
+   2-window subset; stack_wide +0.0314 is the decision number.
+
+STATE: LANE COMPLETE (2026-09-01). Commits: 5339707 skeleton,
+b689dcf equiv, 35cd6ad stats, 05c5c08 attrib+widen, close = this
+commit. Files: scripts/m125_attn_gate.py;
+results/m125_attn_{equiv,stats,attrib,widen,at_o1}.json (+ .log).
+The Gemma gate script and all Rust untouched.
