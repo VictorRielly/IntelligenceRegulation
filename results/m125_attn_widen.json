@@ -1,0 +1,52 @@
+{
+ "meta": {
+  "experiment": "m125_attn_gate --phase widen",
+  "checkpoint": "/home/victor/models/125m-best-adamw-val3.0816/model.safetensors",
+  "seed": 1337,
+  "t": 512,
+  "val_take": 2,
+  "smoke": false,
+  "fE": 9,
+  "fP": 9,
+  "box": "[MEASURED WSL-BOX, val subset]",
+  "ref_full_committed_mlx": 3.228672832250595,
+  "note": "first-order per-site attribution; FFN fp; exponents frozen from the cal-window stats pass",
+  "ref_subset": 3.358683253292248
+ },
+ "results": {
+  "xres16": {
+   "loss": 3.358705404236765,
+   "delta_vs_fp_subset": 2.2150944516852178e-05,
+   "sites": [
+    "xres"
+   ],
+   "wide": [
+    "xres"
+   ],
+   "perhead": [],
+   "wall_s": 6.5
+  },
+  "stack_wide": {
+   "loss": 3.3900691619580527,
+   "delta_vs_fp_subset": 0.031385908665804596,
+   "sites": [
+    "Wattn",
+    "ao",
+    "ctx",
+    "exps",
+    "k",
+    "probs",
+    "q",
+    "scores",
+    "v",
+    "xattn",
+    "xres"
+   ],
+   "wide": [
+    "xres"
+   ],
+   "perhead": [],
+   "wall_s": 7.3
+  }
+ }
+}

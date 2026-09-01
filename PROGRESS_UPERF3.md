@@ -4718,9 +4718,25 @@ RUNG PLAN (one commit per green rung, prefix "U-PERF3 PP:"):
      -> results/m125_attn_attrib.json. Expectation to TEST, not
      assume: the attention core int8-clean (the Gemma 1.6b picture);
      a surprise here is a major finding.
+     DONE [MEASURED WSL-BOX NOISY-SHARED, take=2, ref_subset
+     3.3587, ~7 s/site]: q -0.0004, k +0.0009, v +0.0000, scores
+     +0.0006, exps +0.0005, ctx -0.0003 (core CLEAN at the noise
+     floor) — and unlike Gemma, the SEAM sites are clean too:
+     Wattn +0.0015 (vs Gemma +0.2000), xattn +0.0020 (vs +2.0043),
+     ao -0.0002 (vs +0.4081). probs +0.0167 (the fP=9 floor cost,
+     visible but sub-material). **xres +4.2747 — the ONE poisoned
+     site** (the residual-stream disease, concentrated). all_int8
+     +2.7750 (composed anchor; below the xres single — the same
+     first-order over-count interaction CC recorded).        [DONE]
   4. WIDEN (only if attrib shows sites >= +0.10 nats): int16 singles
      + per-head variants + the composed stack_wide row
      -> results/m125_attn_widen.json.
+     DONE [same rig]: xres16 single +0.0000 — the poison DIES with
+     one class widening (cleaner than Gemma's -0.0549). Composed
+     **stack_wide** (EVERY site int8 incl. Wattn, ONLY xres int16,
+     exps fE=9, probs fP=9): **+0.0314** vs all_int8 +2.7750 —
+     inside the +0.1-nat class, better than Gemma's +0.0854; the
+     residue is mostly the probs fixed-point floor.          [DONE]
   5. RECORD: the AT-O1 table X3 consumes (per site per layer: e8,
      class, exp members keyed (eS, d_h 64, fE 9), wrho = fE +
      log2(T) = 18) -> results/m125_attn_at_o1.json + the 1.6b-style

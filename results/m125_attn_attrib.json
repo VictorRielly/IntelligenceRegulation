@@ -1,0 +1,156 @@
+{
+ "meta": {
+  "experiment": "m125_attn_gate --phase attrib",
+  "checkpoint": "/home/victor/models/125m-best-adamw-val3.0816/model.safetensors",
+  "seed": 1337,
+  "t": 512,
+  "val_take": 2,
+  "smoke": false,
+  "fE": 9,
+  "fP": 9,
+  "box": "[MEASURED WSL-BOX, val subset]",
+  "ref_full_committed_mlx": 3.228672832250595,
+  "note": "first-order per-site attribution; FFN fp; exponents frozen from the cal-window stats pass",
+  "ref_subset": 3.358683253292248
+ },
+ "results": {
+  "none": {
+   "loss": 3.358683253292248,
+   "delta_vs_fp_subset": null,
+   "sites": [],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 5.8
+  },
+  "Wattn": {
+   "loss": 3.3601534982856687,
+   "delta_vs_fp_subset": 0.001470244993420522,
+   "sites": [
+    "Wattn"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 6.4
+  },
+  "xattn": {
+   "loss": 3.360639411621201,
+   "delta_vs_fp_subset": 0.001956158328952906,
+   "sites": [
+    "xattn"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 8.1
+  },
+  "q": {
+   "loss": 3.358295766225278,
+   "delta_vs_fp_subset": -0.00038748706697022683,
+   "sites": [
+    "q"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 7.3
+  },
+  "k": {
+   "loss": 3.3595553714377413,
+   "delta_vs_fp_subset": 0.0008721181454931504,
+   "sites": [
+    "k"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 8.0
+  },
+  "v": {
+   "loss": 3.3587208938797195,
+   "delta_vs_fp_subset": 3.764058747135479e-05,
+   "sites": [
+    "v"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 6.2
+  },
+  "scores": {
+   "loss": 3.3592413053160133,
+   "delta_vs_fp_subset": 0.0005580520237651321,
+   "sites": [
+    "scores"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 6.6
+  },
+  "exps": {
+   "loss": 3.3592014261746383,
+   "delta_vs_fp_subset": 0.0005181728823901999,
+   "sites": [
+    "exps"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 8.5
+  },
+  "probs": {
+   "loss": 3.375416435750691,
+   "delta_vs_fp_subset": 0.016733182458442908,
+   "sites": [
+    "probs"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 6.5
+  },
+  "ctx": {
+   "loss": 3.358400475537194,
+   "delta_vs_fp_subset": -0.00028277775505403113,
+   "sites": [
+    "ctx"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 6.4
+  },
+  "ao": {
+   "loss": 3.358437161115061,
+   "delta_vs_fp_subset": -0.00024609217718696286,
+   "sites": [
+    "ao"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 5.9
+  },
+  "xres": {
+   "loss": 7.633342836710497,
+   "delta_vs_fp_subset": 4.274659583418249,
+   "sites": [
+    "xres"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 6.5
+  },
+  "all_int8": {
+   "loss": 6.133719445371193,
+   "delta_vs_fp_subset": 2.7750361920789453,
+   "sites": [
+    "Wattn",
+    "ao",
+    "ctx",
+    "exps",
+    "k",
+    "probs",
+    "q",
+    "scores",
+    "v",
+    "xattn",
+    "xres"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 7.0
+  }
+ }
+}
