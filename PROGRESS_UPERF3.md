@@ -4619,3 +4619,28 @@ anchors byte-identical at every commit: fp3x16 93a98700../
 with floors green (diff-battery; freeze-check 102 ok exit 0;
 uperf-s 3752cba4..; agg 46234986..; uperf-x be89d5da..; plus the
 m125-pass and table-descent tamper batteries at rung 2).
+
+## ROUND 9 — X2 + THE COMMITTED-H ENCODING (opened 2026-09-01)
+
+### Lane PP — X2: the 125M attention calibration gate (wt-uperf3-pp) — PYTHON
+OWNS: NEW scripts/m125_attn_gate.py (or an m8b_gemma4_attn_gate.py
+generalization — additive, Gemma defaults byte-identical), NEW
+results files, "Agent PP status". WHY: lane JJ's close recorded
+that the 125M model's ATTENTION exponents were never captured (the
+original study ran attention fp32) — X3 (one full attention layer
+proven at 125M) needs MEASURED 125M exponents, and X2 is the
+memo's AT-O1 C4-style gate at 125M. GOAL: the stats + attribution
+phases of the Gemma gate pattern on the FRUGAL 125M checkpoint
+(local since T10; the frugal arch adapter exists in
+m8b_int8_calibration.py): per-site range profiles, the int8
+first-order attribution, the widened-class check where poisoned,
+and the exponent table (AT-O1) as X3's calibrated source. The
+equiv gate (hooks-off bit-exactness vs the validated frugal
+walker) is the precondition leg, as always.
+
+### The committed-h encoding (orchestrator, lane II-style) — DESIGN
+The F1 full-mode ruling's price: count the candidates (the v3
+limb-split h vs GG's naive act-h vs derived-not-committed h with
+the range facts read through the Hadamard relation), fold in the
+owed 8B full-mode memory recount from OO's new baseline. Memo:
+docs/zkmatrix-poc/U_PERF3_COMMITTED_H.md.
