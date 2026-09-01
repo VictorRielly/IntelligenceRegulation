@@ -4686,6 +4686,12 @@ RUNG PLAN (one commit per green rung, prefix "U-PERF3 PP:"):
      validated m8b frugal Walker on the val windows (final-hidden
      array_equal + loss equality + logits sha256)
      -> results/m125_attn_equiv.json. STOP and record if not.
+     DONE: BIT-EXACT at 12 layers (hidden sha256 1922d7d3aff85b33..,
+     logits w0 sha256 7ae681a974246ff9..); val loss (8 win, numpy)
+     3.228673 both walkers — matches the committed mlx loss_ref
+     3.2286728 at the 1e-6 level (the documented numpy-vs-mlx drift
+     is negligible at 125M). 49 s, RSS 0.96 GB [WSL-BOX
+     NOISY-SHARED]. 2-layer smoke also green.               [DONE]
   2. STATS: the full 12-layer per-site range profiles
      (absmax/p999/p9999, per-head where head-structured) on the 8
      cal windows -> results/m125_attn_stats.json.
