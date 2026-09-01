@@ -4695,6 +4695,24 @@ RUNG PLAN (one commit per green rung, prefix "U-PERF3 PP:"):
   2. STATS: the full 12-layer per-site range profiles
      (absmax/p999/p9999, per-head where head-structured) on the 8
      cal windows -> results/m125_attn_stats.json.
+     DONE [MEASURED WSL-BOX NOISY-SHARED, 28 s, RSS 0.55 GB]:
+     * COMPUTE CORE TIGHT (the Gemma picture WITHOUT QK-norm):
+       q/k/v/scores/ctx absmax/p999 ratios <= 5.6 (mostly <= 3).
+       e8 ranges: q [-3,-2], k [-4,-3], v [-5,-3], ctx [-5,-4].
+     * **scores e8 = -2 at ALL 12 LAYERS** — ONE distinct eS, so
+       X3 needs ONE exp member (exp-neg, eS -2, d_h 64, fE 9), not
+       the 12 the design doc counted — and it is the SAME (eS -2)
+       class JJ's prove-cal already pinned from Gemma l0.
+     * qr/kr post-rope: e8 == q/k's everywhere (no +1-bit layer —
+       even the Gemma l5 qr quirk is absent).
+     * xattn mildly stretched (absmax ~19-20, ratio <= 2.9,
+       col_ratio 5.3-9.1) — far milder than Gemma l0's 1302/100.
+     * xres = the residual-stream growth again but milder: absmax
+       2.4 -> 357 (l8 peak), e8 -5 -> +2, ratio <= 7.95, col_ratio
+       to 30.5. ao ratio <= 4.3.
+     * probs: 40-86% of causal support below the fP=9 step (the
+       fixed-point floor is the binding constraint, as at Gemma).
+                                                              [DONE]
   3. ATTRIB: per-site int8 quantize-dequant first-order deltas (FFN
      fp), exponents frozen from the stats pass, val subset take=2
      -> results/m125_attn_attrib.json. Expectation to TEST, not
