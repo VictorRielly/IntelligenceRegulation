@@ -53390,6 +53390,32 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
         let out = ss_ships.iter_mut().find_map(|v| v.first_mut()).expect("a routed column exists");
         out.h_sum = kf.add(&out.h_sum, &kf.one());
     }
+    // [UPERF3-WW] round 11, rung 1 — THE COLD-DESCENT-KERNELS FIX: the
+    // device zc aggregate keeps its table buffers across the phase's
+    // aggregates (3.31 GB at 12x512) and nothing gave them back before
+    // the process ended; with k9's idle slabs beside them the device sat
+    // at "free 0.00 GB" when the in-process ORACLE leg's claim layer
+    // came — the ixf module declined its tables and k9's next upload
+    // failed (CUDA_ERROR_INVALID_VALUE), which disables the descent
+    // kernels for the rest of the process (leg C's 54.9 s oracle). The
+    // phase is over here: release, so the openings below and the oracle
+    // leg see the VRAM. Device memory only — transcript-neutral. The
+    // second half of the same finding: k9's budget is fixed at its init
+    // and its slabs are kept for the process, so after the silu descents
+    // it sits on GB of IDLE slabs (3.76 GB at 12x512) that the modules
+    // budgeting against the live free VRAM (ixf, zc) cannot see — the
+    // oracle leg's claim layer then lost the ixf module (declined at
+    // "free 3.65 GB") and k9's own upload path crashed. Trim the idle
+    // residency here too (make_room's rule: nothing live is taken).
+    let ww_zc_freed = ring::gpu::zc_agg_release();
+    let ww_k9_freed = ring::gpu::k9_trim_idle();
+    if ww_zc_freed > 0 || ww_k9_freed > 0 {
+        println!(
+            "  [UPERF3-WW] device residency given back after the Stage-A phase: zc aggregate buffers {:.2} GB, k9 idle slabs/buffers {:.2} GB",
+            ww_zc_freed as f64 / 1e9,
+            ww_k9_freed as f64 / 1e9
+        );
+    }
     let rr_t_stagea = t_prove.elapsed().as_secs_f64(); // [UPERF3-RR]
     // Rung-4 tamper injection on the SHIPPED objects (the prover's own
     // transcript/claims stay honest; the verifier consumes the flip).

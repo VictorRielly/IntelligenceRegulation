@@ -1,0 +1,113 @@
+[UPERF-PC] full-profile: FULL-STATEMENT composed pass prove+verify (table-descent rig), 12 layers, T = 128, P0
+[UPERF2-F] RSS bk.layers-loaded             hwm      287 MiB  rss      273 MiB
+[UPERF2-F] RSS bk.aux-built                 hwm      287 MiB  rss      273 MiB
+[UPERF2-F] RSS bk.witness-built             hwm      948 MiB  rss      948 MiB
+[UPERF2-F] RSS bk.precommit                 hwm     1179 MiB  rss     1117 MiB
+[UPERF2-F] RSS bk.commit-end                hwm     1179 MiB  rss     1132 MiB
+[UPERF2-F] RSS bk.claim-layer-end           hwm     1382 MiB  rss     1272 MiB
+[UPERF2-F] RSS bk.pair-silu-m3              hwm     1382 MiB  rss     1288 MiB
+[UPERF2-F] RSS bk.pair-silu-m4              hwm     1382 MiB  rss     1300 MiB
+[UPERF2-F] RSS bk.pair-nrw-88               hwm     1403 MiB  rss     1316 MiB
+[UPERF2-F] RSS bk.pair-nrw-z                hwm     1436 MiB  rss     1329 MiB
+[UPERF2-F] RSS bk.pair-rem-w5               hwm     1436 MiB  rss     1341 MiB
+[UPERF2-F] RSS bk.pair-rem-w6               hwm     1438 MiB  rss     1355 MiB
+[UPERF2-F] RSS bk.pair-rem-w7               hwm     1438 MiB  rss     1368 MiB
+[UPERF2-F] RSS bk.pair-rem-w8               hwm     1464 MiB  rss     1383 MiB
+[UPERF2-F] RSS bk.pair-rem-w9               hwm     1464 MiB  rss     1398 MiB
+[UPERF2-F] RSS bk.pair-rem-w10              hwm     1464 MiB  rss     1411 MiB
+[UPERF2-F] RSS bk.groups-start              hwm     1464 MiB  rss     1306 MiB
+[UPERF2-F] RSS bg.weight.rows-pass          hwm     1464 MiB  rss     1318 MiB
+[UPERF2-F] RSS bg.weight.phi-pass           hwm     1464 MiB  rss     1325 MiB
+[UPERF2-F] RSS bg.weight.level0-h           hwm     1464 MiB  rss     1394 MiB
+[UPERF2-F] RSS bg.weight.level0-fold        hwm     1724 MiB  rss     1190 MiB
+[UPERF2-F] RSS bg.weight.level1             hwm     1724 MiB  rss     1571 MiB
+[UPERF2-F] RSS bg.weight.level2             hwm     1724 MiB  rss     1577 MiB
+[UPERF2-F] RSS bg.weight.level3             hwm     1724 MiB  rss     1582 MiB
+[UPERF2-F] RSS bg.weight.level4             hwm     1724 MiB  rss     1585 MiB
+[UPERF2-F] RSS bg.weight.level5             hwm     1724 MiB  rss     1592 MiB
+[UPERF2-F] RSS bg.weight.level6             hwm     1724 MiB  rss     1599 MiB
+[UPERF2-F] RSS bg.weight.level7             hwm     1724 MiB  rss     1605 MiB
+[UPERF2-F] RSS bk.prove-weight-end          hwm     1724 MiB  rss     1441 MiB
+[UPERF2-F] RSS bg.act.rows-pass             hwm     1724 MiB  rss     1481 MiB
+[UPERF2-F] RSS bg.act.phi-pass              hwm     1724 MiB  rss     1512 MiB
+[UPERF2-F] RSS bg.act.level0-h              hwm     1724 MiB  rss     1514 MiB
+[UPERF2-F] RSS bg.act.level0-fold           hwm     1724 MiB  rss     1326 MiB
+[UPERF2-F] RSS bg.act.level1                hwm     1724 MiB  rss     1577 MiB
+[UPERF2-F] RSS bg.act.level2                hwm     1724 MiB  rss     1609 MiB
+[UPERF2-F] RSS bg.act.level3                hwm     1724 MiB  rss     1615 MiB
+[UPERF2-F] RSS bg.act.level4                hwm     1724 MiB  rss     1621 MiB
+[UPERF2-F] RSS bg.act.level5                hwm     1724 MiB  rss     1628 MiB
+[UPERF2-F] RSS bg.act.level6                hwm     1724 MiB  rss     1634 MiB
+[UPERF2-F] RSS bg.act.level7                hwm     1724 MiB  rss     1640 MiB
+[UPERF2-F] RSS bk.prove-act-end             hwm     1724 MiB  rss     1439 MiB
+[UPERF2-F] RSS bk.verify-groups-start       hwm     1724 MiB  rss     1578 MiB
+[UPERF2-F] RSS bk.verify-weight-end         hwm     1922 MiB  rss     1865 MiB
+[UPERF2-F] RSS bk.verify-act-end            hwm     1922 MiB  rss     1827 MiB
+  full-statement composed pass: 12 layers, T = 128, mode P0 (bare) | commit 2.3s prove 11.4s verify 2.5s | 1372775 B counted | accept true
+[UPERF-PC] accept = true | wall 17.4s | commit 2.3s prove 11.4s verify 2.5s | statement digest 4a3af8c3b28de9b0c472d653f981fd85bb024df23e33b08ca7f8d77cbb1bf688 | ZK_THREADS 8 | oracle false
+[UPERF-PC] phase attribution (process-global; bg.*/bk.* are region totals, ep.* are shared by prover and verifier):
+    ep.crs-expand                 0.80s  x36
+    ep.matvec                     0.80s  x48
+    ep.compute-psi                0.15s  x26
+    ep.transport                  0.27s  x24
+    ep.psi0-factored              1.31s  x4
+    ep.level-h-pairs              1.10s  x16
+    ep.crs-cache-hit              0.00s  x32
+    bg.kernel-rows                1.33s  x2
+    bg.kernel-phi                 0.19s  x2
+    bg.fold                       0.53s  x16
+    bg.matvec-chunks              1.48s  x16
+    bg.level-h                    1.12s  x16
+    bg.prove-group                5.85s  x2
+    bg.verify-group               1.89s  x2
+    bg.commit-phase               2.29s  x1
+    bg.claim-layer                1.22s  x1
+    bk.descent-trees              0.69s  x20
+    bk.descent-gkr                3.54s  x20
+    a.tree-pack                   0.29s  x90
+    a.tree-step                   0.37s  x90
+    a.eq-table                    0.07s  x245
+    a.extract                     0.01s  x60
+    a.round-g                     3.25s  x1979
+    a.fold                        0.01s  x1103
+    a.scalar-tail                 0.05s  x980
+    a.gkr-prove                   3.54s  x20
+    a.gkr-verify                  0.04s  x20
+    d.chain-derive                1.20s  x24
+    d.digit-witness               0.40s  x2
+    d.precommit-u0                1.61s  x2
+    d.statement                   0.12s  x1
+    d.aux-build                   0.17s  x1
+    d.groups                      0.00s  x1
+    d.cl-tables                   0.42s  x8
+    d.cl-rounds                   0.47s  x128
+    d.cl-folds                    0.02s  x128
+    d.cl-finals                   0.00s  x8
+    d.cl-pack                     0.01s  x3
+    e.tree-slots                  0.03s  x45
+    e.tree-witness                0.65s  x55
+    e.tree-table                  0.01s  x10
+    e.verify-shells               0.00s  x20
+    e.verify-cross                0.00s  x10
+    e.claims-mask                 0.08s  x20
+    e.claims-witness              0.01s  x20
+    e.claims-table                0.01s  x20
+    e.kpass-smallcols             0.58s  x120
+    m.fold-ntt                    0.49s  x16
+    m.crs-blocks                  0.10s  x32
+    m.crs-walk                    0.03s  x32
+    m.phi-setup                   0.19s  x642
+    m.tr-s                        1.49s  x28
+    m.tr-asm                      0.09s  x26
+    m.tr-pq                       0.04s  x56
+    m.tr-t5                       0.23s  x28
+    q.lh-fill                     0.21s  x89
+    q.lh-wait                     0.14s  x2
+    q.lh-stream                   0.94s  x2
+    q.lh-smax                     0.00s  x2
+    q.cb-fill                     0.50s  x293
+    q.cb-wait                     0.35s  x56
+    q.phi-gblocks                 0.13s  x642
+    q.fold-split                  0.04s  x16
+    q.rows-t                      0.74s  x214
+[UPERF-PC] EVAL-PROOF DIGEST 742d88e1a030f9be6a6c4eee5cf19f42eaf6e289e0814c4bb3e5b9b03bddcb69

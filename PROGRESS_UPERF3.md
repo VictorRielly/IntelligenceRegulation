@@ -6571,4 +6571,101 @@ the round-11 ground before any edit.
   becomes "statement 441ca5db.. / transcript **c0b8236f..** (default;
   44528c6a.. under ZK_RR_ZC_CLAIMS=gg)". Logs:
   results/uperf3_ww_r0_{freeze_check,12x64_batched_cpu,12x64_gg_cpu,12x64_batched_gpu,12x128_batched_gpu}.log.
-- Commit: the commit carrying this entry ("U-PERF3 WW: RUNG 0").
+- Commit: 26990ea.
+
+### RUNG 1 — THE COLD-DESCENT-KERNELS FINDING: CAUSE + FIX (2026-09-02) [WSL-BOX 8T GPU NOISY-SHARED]
+
+THE CAUSE [MEASURED, `ZK_GPU_VERBOSE=1` at 12x512, one process
+(`uperf-a pass 12 512 range`, batched default);
+results/uperf3_ww_r1_repro_12x512_verbose.log]: NOT a k9 budget
+decline — a DEVICE ERROR that disables k9 for the rest of the process
+(`[UPERF2-L] gpu k9 ixf round failed (h2d: CUDA_ERROR_INVALID_VALUE)`,
+printed right after the oracle leg's `bk.commit-end`), produced by a
+VRAM-residency interaction of three device modules:
+1. RR's zc aggregate module keeps its table/eq buffers across the
+   phase's 12 aggregates (3.31 GB at 12x512) and nothing gave them
+   back before process exit ("held 3.31 GB" on leg C's status line).
+2. k9's VRAM budget is fixed at its init (free 7.15 - 0.256 = 6.88 GB,
+   computed in the Stage-A leg's claim layer, BEFORE zc allocated) and
+   its slabs are kept for the process: after the Stage-A leg's silu
+   descents it sits on 3.76 GB of IDLE residency.
+3. Lane L's ixf module (the claim layer's device-built zero-check
+   tables + device chain at 2^24: 4.06 GB, released per instance)
+   budgets against the LIVE free VRAM with a 256 MB margin.
+The sequence in the oracle leg's claim layer: free VRAM 0.34 GB (8.59
+total - zc 3.31 - k9 idle 3.76 - ~1.2 base) -> the ixf module DECLINED
+("need 4.06 GB more, free 0.34 GB"; it never declines in the standalone
+frozen pass, where the claim layer precedes the descents and it opens at
+4.06 GB) -> the CPU-built tables went through k9's own `ixf_round`
+upload path (first instance: a 2.4 s first round, the 4-table upload)
+-> at the second instance k9's accounting crossed its budget mid-way
+through the table-grow loop -> `make_room` (fired from `grow_dev`)
+freed the WHOLE idle ixf_t family — including the tables grown moments
+earlier in the same call (`self.ixf` is None during the loop; "k9: gave
+back 3.76 GB") -> the upload wrote to ptr 0 -> CUDA_ERROR_INVALID_VALUE
+-> `k9_ixf_round` disables the module -> all 20 descents on the CPU
+(bk.descent-gkr 28.8 s + trees 7.0 s): prove 54.9 s (leg C) / 59.1 s
+(the repro). At 12x128 the residency is 0.83 + ~1 GB and nothing bites
+(RR's warm 7.5 s oracle).
+HALF-FIX EVIDENCE (the zc release alone;
+results/uperf3_ww_r1_12x512_ab_gpu_verbose.log): free at the oracle's
+claim layer 3.65 GB — still < 4.06 + 0.256, the ixf module still
+declined, the crash recurred (prove 56.2 / 49.8 s in two runs). The k9
+half is required — rung 1 proves the cause is a k9 budget interaction,
+so the brief's ADDITIVE, default-preserving k9 fix is in scope.
+
+THE FIX (three additive pieces; nothing frozen moves — every digest
+below is unchanged):
+(a) gpu/zc_agg.rs: `pub fn zc_agg_release() -> usize` — the module's
+    private `release()` made callable: table/eq/ab buffers back to the
+    device, the module stays live (not bypassed, not disabled; the next
+    open re-grows), a no-op while a chain is live or before any open.
+(b) gpu/k9.rs, two pieces: [B] in `K9::ixf_round` the room is made ONCE
+    before the table-grow loop (`make_room` for the pre-check's own
+    over-counted `more`, then decline = the CPU round if still short) —
+    no `make_room` can fire mid-loop any more, so the upload can never
+    target a buffer freed in the same call; [C] `pub fn k9_trim_idle()
+    -> usize` — `make_room`'s own rule (the idle families + the wholly
+    free slabs; never a live chain, the layer binding, the eq or the
+    tree store) at a caller-chosen boundary. k9's static init-time
+    budget itself is left as is (re-reading free VRAM inside the
+    frozen path's device planner is a behavior change I did not want
+    without a ruling; the trim makes the boundary explicit instead).
+(c) the `uperf-a` driver: both called at the END of the Stage-A phase
+    (before the openings), one print `[UPERF3-WW] device residency
+    given back after the Stage-A phase: zc .. GB, k9 .. GB`. gpu/mod.rs:
+    the two names on the `pub use` lines + two no-op stub twins for the
+    non-GPU build (RR's pattern; the minimal export).
+
+ACCEPTANCE [MEASURED, one GPU binary, one process, ZK_GPU=1, 8T]:
+- 12x128 (results/uperf3_ww_r1_12x128_ab_fixed.log): given back zc 0.83
+  + k9 0.81 GB; Stage-A 3.4 / 7.7 / 2.1 s; ORACLE 1.9 / 8.9 / 2.2 s with
+  k9 "used 1.89 GB" (the trees on the device); the standalone frozen
+  pass `uperf-pc full-profile 12 128` (GPU) 2.1 / 9.2 / 2.3 and 2.3 /
+  11.4 / 2.5 in two runs — within noise. Digest 1644b4e1.. unchanged;
+  process peak 3,110 MiB.
+- 12x512 (results/uperf3_ww_r1_12x512_ab_fixed_verbose.log): given back
+  zc 3.31 + k9 2.96 GB; the oracle leg's claim layer OPENS the ixf
+  module (5 x "ixf open ... held 4.06 GB" — the standalone path); no k9
+  failure; ORACLE commit 3.3 / prove 18.2 / verify 4.1 s vs the
+  standalone frozen pass `uperf-pc full-profile 12 512` (GPU, same
+  session) 3.4 / 16.9 / 3.8 and 3.6 / 17.7 / 4.4 — within noise (+3-8%,
+  NOISY-SHARED). Stage-A 7.1 / 18.8 / 4.6 s, digest e0b3b985.. unchanged
+  (the fix is transcript-neutral). Process wall 57 s (was 1:37).
+  **Process peak RSS 7,157 MiB — leg C's "11.2 GB fits" was the
+  CPU-descent artifact (the oracle's CPU trees, hwm 10.9 GB at
+  bk.claim-layer-end), not the Stage-A driver's peak.**
+- FLOORS on this commit. CPU binary: diff-battery 15.66 s passed;
+  freeze-check 102 ok + passed, exit 0; uperf-s 3752cba4..; agg
+  46234986..; uperf-x be89d5da..; 12x64 c0b8236f.. (default) /
+  44528c6a.. (gg); `uperf-a pass-battery 3 16` green. GPU binary:
+  diff-battery (ZK_GPU=1) 18.43 s passed; agg-battery with the device
+  forced (ZK_GPU_ZC_MIN_PAIRS=1) 46234986..; THE FROZEN PASS AFTER THE
+  k9 EDIT: `uperf-pc full-profile` EVAL-PROOF DIGEST 12x128 742d88e1..
+  and 12x512 4c259008.. == the same binary lineage before the edit
+  (results/uperf3_ww_r1_frozen{128,512}_after_k9fix.log vs
+  uperf3_ww_r1_12x{128,512}_frozen_gpu.log); `pass-battery 3 16` with
+  the device forced green.
+- FOR RUNG 3: the one-process A/B is VALID on this box from here on —
+  no separate oracle process needed.
+- Commit: the commit carrying this entry ("U-PERF3 WW: RUNG 1").

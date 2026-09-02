@@ -1,0 +1,1356 @@
+[UPERF3-GG] STAGE-A composed pass: 12 layers, T = 512, mode range [WSL-BOX NOISY-SHARED]
+[UPERF2-K] gpu init: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB), NVRTC compile 0.38s
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 2.1 ms, h2d+kernel 2.5 ms, d2h+widen 3.1 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.2 ms, h2d+kernel 2.4 ms, d2h+widen 3.2 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 3.2 ms, h2d+kernel 2.7 ms, d2h+widen 0.7 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.5 ms, h2d+kernel 2.5 ms, d2h+widen 3.9 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.1 ms, h2d+kernel 2.4 ms, d2h+widen 3.2 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 0.9 ms, h2d+kernel 2.6 ms, d2h+widen 0.7 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.6 ms, h2d+kernel 2.6 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.1 ms, h2d+kernel 2.5 ms, d2h+widen 3.8 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.9 ms, h2d+kernel 2.8 ms, d2h+widen 0.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.1 ms, h2d+kernel 2.6 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.4 ms, h2d+kernel 2.5 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 2.3 ms, h2d+kernel 2.9 ms, d2h+widen 0.7 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.4 ms, h2d+kernel 2.5 ms, d2h+widen 3.7 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 2.0 ms, h2d+kernel 2.5 ms, d2h+widen 3.2 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.1 ms, h2d+kernel 2.7 ms, d2h+widen 0.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.6 ms, h2d+kernel 2.5 ms, d2h+widen 1.8 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.3 ms, h2d+kernel 2.6 ms, d2h+widen 3.3 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 2.4 ms, h2d+kernel 3.3 ms, d2h+widen 0.7 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.6 ms, h2d+kernel 2.6 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.5 ms, h2d+kernel 2.5 ms, d2h+widen 3.3 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.3 ms, h2d+kernel 2.8 ms, d2h+widen 0.8 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 2.3 ms, h2d+kernel 2.6 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.4 ms, h2d+kernel 2.5 ms, d2h+widen 3.1 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.6 ms, h2d+kernel 2.8 ms, d2h+widen 0.7 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.9 ms, h2d+kernel 2.6 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.2 ms, h2d+kernel 2.4 ms, d2h+widen 2.9 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.7 ms, h2d+kernel 2.8 ms, d2h+widen 0.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.7 ms, h2d+kernel 2.5 ms, d2h+widen 1.4 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 0.9 ms, h2d+kernel 2.4 ms, d2h+widen 3.0 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.3 ms, h2d+kernel 2.5 ms, d2h+widen 0.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.2 ms, h2d+kernel 2.8 ms, d2h+widen 1.4 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.1 ms, h2d+kernel 2.4 ms, d2h+widen 3.1 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 2.4 ms, h2d+kernel 2.7 ms, d2h+widen 0.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.0 ms, h2d+kernel 2.7 ms, d2h+widen 1.8 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.5 ms, h2d+kernel 2.4 ms, d2h+widen 3.6 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 2.3 ms, h2d+kernel 2.7 ms, d2h+widen 0.6 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 19.5 ms, wait 11.6 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 14.8 ms, wait 17.8 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.7 ms, wait 20.2 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 11.1 ms, wait 20.2 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 11.7 ms, wait 19.3 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 17.3 ms, wait 14.6 ms, h2d 113 MB, d2h 0.4 ms
+[UPERF2-K] gemm na 11 nb 64 len 6144 (window 528416, ublk 1536, ks 4, a_fmt 0, b_fmt 2): pack 13.3 ms, wait 11.7 ms, h2d 85 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 1 len 4224 (window 2097152, ublk 1056, ks 4, a_fmt 0, b_fmt 2): pack 4.3 ms, wait 5.4 ms, h2d 24 MB, d2h 0.1 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.8 ms, wait 19.6 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 11.1 ms, wait 20.3 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.0 ms, wait 21.3 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 9.8 ms, wait 20.6 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 11.8 ms, wait 17.0 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 9.5 ms, wait 20.8 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.7 ms, wait 20.3 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.1 ms, wait 21.1 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.2 ms, wait 20.8 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.7 ms, wait 20.1 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 11.0 ms, wait 19.9 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 9.2 ms, wait 21.2 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 12.3 ms, wait 19.1 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 13.8 ms, wait 21.3 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.0 ms, wait 20.5 ms, h2d 113 MB, d2h 0.4 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.0 ms, wait 21.2 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.3 ms, wait 20.8 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 9.6 ms, wait 20.9 ms, h2d 113 MB, d2h 0.4 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.2 ms, wait 20.6 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 12.1 ms, wait 18.7 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.1 ms, wait 20.9 ms, h2d 113 MB, d2h 0.4 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 9.2 ms, wait 21.4 ms, h2d 113 MB, d2h 0.4 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.9 ms, wait 19.4 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 4573 (window 528416, ublk 1144, ks 4, a_fmt 0, b_fmt 2): pack 6.7 ms, wait 10.7 ms, h2d 63 MB, d2h 0.4 ms
+[UPERF2-K] gemm na 11 nb 1 len 4928 (window 4194304, ublk 1232, ks 4, a_fmt 0, b_fmt 2): pack 3.8 ms, wait 6.8 ms, h2d 28 MB, d2h 0.1 ms
+[UPERF2-L] k9 init: PTX (NVRTC or the disk cache) 0.02s + module load (driver JIT or its cache) 0.08s + setup 0.02s; VRAM free 7.15 / 8.59 GB; K9 budget 6.88 GB; min_pairs 32
+[UPERF2-L] k9 occupancy at 64 threads/block: k_fold_round: 4 blk/SM (8 warps); k_extract_round: 4 blk/SM (8 warps); k_extract_round_cl: 4 blk/SM (8 warps); k_extract_fold: 4 blk/SM (8 warps); k_extract_fold_cl: 4 blk/SM (8 warps); k_fold_table: 8 blk/SM (16 warps); k_tree_step: 4 blk/SM (8 warps); k_tree_step_cl: 4 blk/SM (8 warps); k_ixf_round: 2 blk/SM (4 warps); k_fold_round_m: 4 blk/SM (8 warps); k_extract_round_m: 4 blk/SM (8 warps); k_extract_round_cl_m: 4 blk/SM (8 warps); k_extract_fold_m: 4 blk/SM (8 warps); k_extract_fold_cl_m: 4 blk/SM (8 warps); k_eq_outer: 10 blk/SM (20 warps); k_fold_round_m1: 4 blk/SM (8 warps); k_extract_round_m1: 4 blk/SM (8 warps); k_extract_round_cl_m1: 4 blk/SM (8 warps); k_extract_fold_m1: 4 blk/SM (8 warps); k_extract_fold_cl_m1: 4 blk/SM (8 warps)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 1024 deg 2: 2.34 ms (kernel+sync 0.68 ms)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.03 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.05 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.08 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 512 deg 2: 0.25 ms (kernel+sync 0.17 ms)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.01 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.05 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.06 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 256 deg 2: 0.22 ms (kernel+sync 0.17 ms)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.01 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.06 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.06 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 128 deg 2: 0.22 ms (kernel+sync 0.17 ms)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.02 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.04 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.09 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 64 deg 2: 0.24 ms (kernel+sync 0.19 ms)
+[UPERF2-L] k9 ixf fold n_out 512: 0.02 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 512: 0.06 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 512: 0.07 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 32 deg 2: 0.27 ms (kernel+sync 0.19 ms)
+[UPERF2-L] k9 ixf fold n_out 256: 0.12 ms (t.d len 4096 cap 4096, scratch len 262144 cap 262144)
+[UPERF2-L] k9 ixf fold n_out 256: 0.12 ms (t.d len 4096 cap 262144, scratch len 262144 cap 262144)
+[UPERF2-L] k9 ixf fold n_out 256: 0.12 ms (t.d len 4096 cap 262144, scratch len 262144 cap 262144)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 1024 deg 2: 1.81 ms (kernel+sync 0.65 ms)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.08 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.24 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.08 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 512 deg 2: 0.33 ms (kernel+sync 0.19 ms)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.03 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.06 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.11 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 256 deg 2: 0.27 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.07 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.03 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.10 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 128 deg 2: 0.32 ms (kernel+sync 0.24 ms)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.03 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.06 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.06 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 64 deg 2: 0.29 ms (kernel+sync 0.24 ms)
+[UPERF2-L] k9 ixf fold n_out 512: 0.08 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 512: 0.20 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 512: 0.09 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 32 deg 2: 0.33 ms (kernel+sync 0.16 ms)
+[UPERF2-L] k9 ixf fold n_out 256: 0.17 ms (t.d len 4096 cap 4096, scratch len 262144 cap 262144)
+[UPERF2-L] k9 ixf fold n_out 256: 0.17 ms (t.d len 4096 cap 262144, scratch len 262144 cap 262144)
+[UPERF2-L] k9 ixf fold n_out 256: 0.16 ms (t.d len 4096 cap 262144, scratch len 262144 cap 262144)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 2048 deg 2: 4.63 ms (kernel+sync 0.87 ms)
+[UPERF2-L] k9 ixf fold n_out 16384: 0.04 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 16384: 0.23 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 16384: 0.08 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 1024 deg 2: 0.40 ms (kernel+sync 0.31 ms)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.03 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.06 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.10 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 512 deg 2: 0.27 ms (kernel+sync 0.20 ms)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.03 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.11 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.03 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 256 deg 2: 0.31 ms (kernel+sync 0.18 ms)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.03 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.10 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.05 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 128 deg 2: 0.27 ms (kernel+sync 0.18 ms)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.03 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.06 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.05 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 64 deg 2: 0.36 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 ixf fold n_out 512: 0.03 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 512: 0.06 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 512: 0.05 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 32 deg 2: 0.33 ms (kernel+sync 0.19 ms)
+[UPERF2-L] k9 ixf fold n_out 256: 0.17 ms (t.d len 4096 cap 4096, scratch len 524288 cap 524288)
+[UPERF2-L] k9 ixf fold n_out 256: 0.16 ms (t.d len 4096 cap 524288, scratch len 524288 cap 524288)
+[UPERF2-L] k9 ixf fold n_out 256: 0.16 ms (t.d len 4096 cap 524288, scratch len 524288 cap 524288)
+[UPERF2-O] ixf init: PTX 0.00s + module load 0.00s; min_pairs 32, low bits 12; occupancy: k_oixf_build: 12 blk/SM (48 warps); k_oixf_fold: 4 blk/SM (16 warps); k_oixf_round: 7 blk/SM (7 warps)
+[UPERF2-O] ixf open kind 1 n 2^24 (n_pos 20, lambda 4): 249.3 ms (held 4.06 GB)
+[UPERF2-O] ixf round t 0 n 16777216 deg 3: 85.56 ms (kernel+sync 85.49 ms)
+[UPERF2-O] ixf round t 1 n 8388608 deg 3: 71.14 ms (kernel+sync 44.05 ms)
+[UPERF2-O] ixf round t 2 n 4194304 deg 3: 36.92 ms (kernel+sync 22.92 ms)
+[UPERF2-O] ixf round t 3 n 2097152 deg 3: 19.22 ms (kernel+sync 12.25 ms)
+[UPERF2-O] ixf round t 4 n 1048576 deg 3: 9.82 ms (kernel+sync 6.30 ms)
+[UPERF2-O] ixf round t 5 n 524288 deg 3: 5.13 ms (kernel+sync 3.31 ms)
+[UPERF2-O] ixf round t 6 n 262144 deg 3: 2.74 ms (kernel+sync 1.82 ms)
+[UPERF2-O] ixf round t 7 n 131072 deg 3: 1.55 ms (kernel+sync 1.02 ms)
+[UPERF2-O] ixf round t 8 n 65536 deg 3: 0.77 ms (kernel+sync 0.57 ms)
+[UPERF2-O] ixf round t 9 n 32768 deg 3: 0.56 ms (kernel+sync 0.37 ms)
+[UPERF2-O] ixf round t 10 n 16384 deg 3: 0.57 ms (kernel+sync 0.46 ms)
+[UPERF2-O] ixf round t 11 n 8192 deg 3: 0.29 ms (kernel+sync 0.19 ms)
+[UPERF2-O] ixf round t 12 n 4096 deg 3: 0.73 ms (kernel+sync 0.68 ms)
+[UPERF2-O] ixf round t 13 n 2048 deg 3: 0.22 ms (kernel+sync 0.19 ms)
+[UPERF2-O] ixf round t 14 n 1024 deg 3: 0.24 ms (kernel+sync 0.16 ms)
+[UPERF2-O] ixf round t 15 n 512 deg 3: 0.28 ms (kernel+sync 0.21 ms)
+[UPERF2-O] ixf open kind 2 n 2^24 (n_pos 20, lambda 4): 70.4 ms (held 4.06 GB)
+[UPERF2-O] ixf round t 0 n 16777216 deg 2: 49.46 ms (kernel+sync 49.40 ms)
+[UPERF2-O] ixf round t 1 n 8388608 deg 2: 52.65 ms (kernel+sync 25.78 ms)
+[UPERF2-O] ixf round t 2 n 4194304 deg 2: 27.62 ms (kernel+sync 13.61 ms)
+[UPERF2-O] ixf round t 3 n 2097152 deg 2: 14.21 ms (kernel+sync 7.25 ms)
+[UPERF2-O] ixf round t 4 n 1048576 deg 2: 7.47 ms (kernel+sync 3.82 ms)
+[UPERF2-O] ixf round t 5 n 524288 deg 2: 3.87 ms (kernel+sync 2.07 ms)
+[UPERF2-O] ixf round t 6 n 262144 deg 2: 2.14 ms (kernel+sync 1.20 ms)
+[UPERF2-O] ixf round t 7 n 131072 deg 2: 1.21 ms (kernel+sync 0.68 ms)
+[UPERF2-O] ixf round t 8 n 65536 deg 2: 0.62 ms (kernel+sync 0.39 ms)
+[UPERF2-O] ixf round t 9 n 32768 deg 2: 0.51 ms (kernel+sync 0.35 ms)
+[UPERF2-O] ixf round t 10 n 16384 deg 2: 0.37 ms (kernel+sync 0.25 ms)
+[UPERF2-O] ixf round t 11 n 8192 deg 2: 0.38 ms (kernel+sync 0.22 ms)
+[UPERF2-O] ixf round t 12 n 4096 deg 2: 0.64 ms (kernel+sync 0.59 ms)
+[UPERF2-O] ixf round t 13 n 2048 deg 2: 0.23 ms (kernel+sync 0.20 ms)
+[UPERF2-O] ixf round t 14 n 1024 deg 2: 0.30 ms (kernel+sync 0.19 ms)
+[UPERF2-O] ixf round t 15 n 512 deg 2: 0.21 ms (kernel+sync 0.13 ms)
+[UPERF2-O] ixf open kind 2 n 2^24 (n_pos 20, lambda 4): 70.3 ms (held 4.06 GB)
+[UPERF2-O] ixf round t 0 n 16777216 deg 2: 49.42 ms (kernel+sync 49.37 ms)
+[UPERF2-O] ixf round t 1 n 8388608 deg 2: 52.36 ms (kernel+sync 25.53 ms)
+[UPERF2-O] ixf round t 2 n 4194304 deg 2: 27.63 ms (kernel+sync 13.68 ms)
+[UPERF2-O] ixf round t 3 n 2097152 deg 2: 14.49 ms (kernel+sync 7.48 ms)
+[UPERF2-O] ixf round t 4 n 1048576 deg 2: 7.41 ms (kernel+sync 3.88 ms)
+[UPERF2-O] ixf round t 5 n 524288 deg 2: 3.79 ms (kernel+sync 2.04 ms)
+[UPERF2-O] ixf round t 6 n 262144 deg 2: 1.98 ms (kernel+sync 1.10 ms)
+[UPERF2-O] ixf round t 7 n 131072 deg 2: 1.07 ms (kernel+sync 0.63 ms)
+[UPERF2-O] ixf round t 8 n 65536 deg 2: 0.58 ms (kernel+sync 0.35 ms)
+[UPERF2-O] ixf round t 9 n 32768 deg 2: 0.34 ms (kernel+sync 0.22 ms)
+[UPERF2-O] ixf round t 10 n 16384 deg 2: 0.29 ms (kernel+sync 0.19 ms)
+[UPERF2-O] ixf round t 11 n 8192 deg 2: 0.33 ms (kernel+sync 0.16 ms)
+[UPERF2-O] ixf round t 12 n 4096 deg 2: 0.64 ms (kernel+sync 0.57 ms)
+[UPERF2-O] ixf round t 13 n 2048 deg 2: 0.18 ms (kernel+sync 0.14 ms)
+[UPERF2-O] ixf round t 14 n 1024 deg 2: 0.19 ms (kernel+sync 0.12 ms)
+[UPERF2-O] ixf round t 15 n 512 deg 2: 0.22 ms (kernel+sync 0.15 ms)
+[UPERF2-O] ixf open kind 2 n 2^24 (n_pos 20, lambda 4): 70.4 ms (held 4.06 GB)
+[UPERF2-O] ixf round t 0 n 16777216 deg 2: 49.29 ms (kernel+sync 49.22 ms)
+[UPERF2-O] ixf round t 1 n 8388608 deg 2: 52.57 ms (kernel+sync 25.56 ms)
+[UPERF2-O] ixf round t 2 n 4194304 deg 2: 27.27 ms (kernel+sync 13.55 ms)
+[UPERF2-O] ixf round t 3 n 2097152 deg 2: 14.33 ms (kernel+sync 7.35 ms)
+[UPERF2-O] ixf round t 4 n 1048576 deg 2: 7.22 ms (kernel+sync 3.68 ms)
+[UPERF2-O] ixf round t 5 n 524288 deg 2: 3.72 ms (kernel+sync 1.94 ms)
+[UPERF2-O] ixf round t 6 n 262144 deg 2: 2.01 ms (kernel+sync 1.13 ms)
+[UPERF2-O] ixf round t 7 n 131072 deg 2: 1.21 ms (kernel+sync 0.67 ms)
+[UPERF2-O] ixf round t 8 n 65536 deg 2: 0.66 ms (kernel+sync 0.42 ms)
+[UPERF2-O] ixf round t 9 n 32768 deg 2: 0.45 ms (kernel+sync 0.29 ms)
+[UPERF2-O] ixf round t 10 n 16384 deg 2: 0.35 ms (kernel+sync 0.24 ms)
+[UPERF2-O] ixf round t 11 n 8192 deg 2: 0.31 ms (kernel+sync 0.19 ms)
+[UPERF2-O] ixf round t 12 n 4096 deg 2: 0.64 ms (kernel+sync 0.59 ms)
+[UPERF2-O] ixf round t 13 n 2048 deg 2: 0.24 ms (kernel+sync 0.17 ms)
+[UPERF2-O] ixf round t 14 n 1024 deg 2: 0.28 ms (kernel+sync 0.18 ms)
+[UPERF2-O] ixf round t 15 n 512 deg 2: 0.26 ms (kernel+sync 0.17 ms)
+[UPERF2-O] ixf open kind 2 n 2^23 (n_pos 19, lambda 4): 30.6 ms (held 4.06 GB)
+[UPERF2-O] ixf round t 0 n 8388608 deg 2: 25.17 ms (kernel+sync 25.09 ms)
+[UPERF2-O] ixf round t 1 n 4194304 deg 2: 26.96 ms (kernel+sync 13.03 ms)
+[UPERF2-O] ixf round t 2 n 2097152 deg 2: 14.22 ms (kernel+sync 7.16 ms)
+[UPERF2-O] ixf round t 3 n 1048576 deg 2: 7.14 ms (kernel+sync 3.67 ms)
+[UPERF2-O] ixf round t 4 n 524288 deg 2: 3.70 ms (kernel+sync 1.98 ms)
+[UPERF2-O] ixf round t 5 n 262144 deg 2: 2.08 ms (kernel+sync 1.18 ms)
+[UPERF2-O] ixf round t 6 n 131072 deg 2: 1.16 ms (kernel+sync 0.66 ms)
+[UPERF2-O] ixf round t 7 n 65536 deg 2: 0.65 ms (kernel+sync 0.41 ms)
+[UPERF2-O] ixf round t 8 n 32768 deg 2: 0.38 ms (kernel+sync 0.28 ms)
+[UPERF2-O] ixf round t 9 n 16384 deg 2: 0.29 ms (kernel+sync 0.18 ms)
+[UPERF2-O] ixf round t 10 n 8192 deg 2: 0.24 ms (kernel+sync 0.15 ms)
+[UPERF2-O] ixf round t 11 n 4096 deg 2: 0.30 ms (kernel+sync 0.14 ms)
+[UPERF2-O] ixf round t 12 n 2048 deg 2: 0.59 ms (kernel+sync 0.56 ms)
+[UPERF2-O] ixf round t 13 n 1024 deg 2: 0.32 ms (kernel+sync 0.18 ms)
+[UPERF2-O] ixf round t 14 n 512 deg 2: 0.28 ms (kernel+sync 0.17 ms)
+[UPERF2-O] ixf: released 4.06 GB of device buffers
+[UPERF2-N] k9 tree build: id 1 depth 22 in 41.59 ms; store 1 trees 0.21 GB; held 0.01 GB
+[UPERF2-N] k9 tree build: id 2 depth 22 in 31.20 ms; store 2 trees 0.42 GB; held 0.01 GB
+[UPERF2-N] k9 tree build: id 3 depth 22 in 27.04 ms; store 3 trees 0.64 GB; held 0.01 GB
+[UPERF2-N] k9 tree build: id 4 depth 22 in 26.98 ms; store 4 trees 0.85 GB; held 0.01 GB
+[UPERF2-N] k9 tree build: id 5 depth 22 in 17.46 ms; store 5 trees 1.06 GB; held 0.01 GB
+[UPERF2-L] k9 round mode 1 n_pairs 32 ranges 5 nn 5 handover false : 1.09 ms (kernel+sync 0.60 ms)
+[UPERF2-L] k9 round mode 1 n_pairs 64 ranges 5 nn 5 handover false : 0.92 ms (kernel+sync 0.58 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 32 ranges 5 nn 3 handover true : 1.26 ms (kernel+sync 0.34 ms)
+[UPERF2-L] k9 round mode 1 n_pairs 128 ranges 5 nn 5 handover false : 0.96 ms (kernel+sync 0.65 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 64 ranges 5 nn 3 handover false : 0.35 ms (kernel+sync 0.30 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 5 nn 3 handover true : 1.29 ms (kernel+sync 0.33 ms)
+[UPERF2-L] k9 round mode 1 n_pairs 256 ranges 5 nn 5 handover false : 0.70 ms (kernel+sync 0.32 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 128 ranges 5 nn 3 handover false : 0.29 ms (kernel+sync 0.27 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 5 nn 3 handover false : 0.24 ms (kernel+sync 0.22 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 5 nn 3 handover true : 1.02 ms (kernel+sync 0.22 ms)
+[UPERF2-P] k9 eq build: id 1 2^10 entries in 0.55 ms
+[UPERF2-L] k9 round mode 1 n_pairs 512 ranges 5 nn 5 handover false : 1.02 ms (kernel+sync 0.58 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 256 ranges 5 nn 3 handover false : 0.45 ms (kernel+sync 0.39 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 5 nn 3 handover false : 0.25 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 5 nn 3 handover false : 0.26 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 5 nn 3 handover true : 1.25 ms (kernel+sync 0.23 ms)
+[UPERF2-P] k9 eq build: id 2 2^11 entries in 0.47 ms
+[UPERF2-L] k9 round mode 1 n_pairs 1024 ranges 5 nn 5 handover false : 1.23 ms (kernel+sync 0.62 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 512 ranges 5 nn 3 handover false : 0.71 ms (kernel+sync 0.66 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 5 nn 3 handover false : 0.28 ms (kernel+sync 0.22 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 5 nn 3 handover false : 0.26 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 5 nn 3 handover false : 0.27 ms (kernel+sync 0.24 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 5 nn 3 handover true : 1.06 ms (kernel+sync 0.22 ms)
+[UPERF2-P] k9 eq build: id 3 2^12 entries in 0.33 ms
+[UPERF2-L] k9 round mode 1 n_pairs 2048 ranges 5 nn 5 handover false : 0.71 ms (kernel+sync 0.46 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 1024 ranges 5 nn 3 handover false : 0.68 ms (kernel+sync 0.65 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 5 nn 3 handover false : 0.27 ms (kernel+sync 0.26 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 5 nn 3 handover false : 0.25 ms (kernel+sync 0.24 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 5 nn 3 handover false : 0.26 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 5 nn 3 handover false : 0.26 ms (kernel+sync 0.24 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 5 nn 3 handover true : 0.88 ms (kernel+sync 0.22 ms)
+[UPERF2-P] k9 eq build: id 4 2^13 entries in 0.55 ms
+[UPERF2-L] k9 round mode 1 n_pairs 4096 ranges 5 nn 5 handover false : 0.71 ms (kernel+sync 0.67 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 2048 ranges 5 nn 3 handover false : 0.95 ms (kernel+sync 0.86 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 1024 ranges 5 nn 3 handover false : 0.35 ms (kernel+sync 0.33 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 5 nn 3 handover false : 0.26 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 5 nn 3 handover false : 0.24 ms (kernel+sync 0.22 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 5 nn 3 handover false : 0.23 ms (kernel+sync 0.22 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 5 nn 3 handover false : 0.23 ms (kernel+sync 0.21 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 5 nn 3 handover true : 0.91 ms (kernel+sync 0.22 ms)
+[UPERF2-P] k9 eq build: id 5 2^14 entries in 0.57 ms
+[UPERF2-L] k9 round mode 1 n_pairs 8192 ranges 5 nn 5 handover false : 1.62 ms (kernel+sync 1.04 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 4096 ranges 5 nn 3 handover false : 1.34 ms (kernel+sync 1.29 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 2048 ranges 5 nn 3 handover false : 0.55 ms (kernel+sync 0.51 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 1024 ranges 5 nn 3 handover false : 0.33 ms (kernel+sync 0.31 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 5 nn 3 handover false : 0.24 ms (kernel+sync 0.22 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 5 nn 3 handover false : 0.24 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 5 nn 3 handover false : 0.25 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 5 nn 3 handover false : 0.24 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 5 nn 3 handover true : 0.93 ms (kernel+sync 0.30 ms)
+[UPERF2-P] k9 eq build: id 6 2^15 entries in 0.54 ms
+[UPERF2-L] k9 round mode 1 n_pairs 16384 ranges 5 nn 5 handover false : 1.85 ms (kernel+sync 1.83 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 8192 ranges 5 nn 3 handover false : 2.08 ms (kernel+sync 2.00 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 4096 ranges 5 nn 3 handover false : 0.83 ms (kernel+sync 0.80 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 2048 ranges 5 nn 3 handover false : 0.45 ms (kernel+sync 0.43 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 1024 ranges 5 nn 3 handover false : 0.31 ms (kernel+sync 0.30 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 5 nn 3 handover false : 0.29 ms (kernel+sync 0.27 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 5 nn 3 handover false : 0.31 ms (kernel+sync 0.27 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 5 nn 3 handover false : 0.28 ms (kernel+sync 0.26 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 5 nn 3 handover false : 0.33 ms (kernel+sync 0.31 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 5 nn 3 handover true : 1.00 ms (kernel+sync 0.26 ms)
+[UPERF2-P] k9 eq build: id 7 2^16 entries in 0.34 ms
+[UPERF2-L] k9 round mode 1 n_pairs 32768 ranges 5 nn 5 handover false : 5.11 ms (kernel+sync 3.41 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 16384 ranges 5 nn 3 handover false : 3.36 ms (kernel+sync 3.26 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 8192 ranges 5 nn 3 handover false : 1.26 ms (kernel+sync 1.24 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 4096 ranges 5 nn 3 handover false : 0.65 ms (kernel+sync 0.63 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 2048 ranges 5 nn 3 handover false : 0.42 ms (kernel+sync 0.41 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 1024 ranges 5 nn 3 handover false : 0.28 ms (kernel+sync 0.26 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 5 nn 3 handover false : 0.25 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 5 nn 3 handover false : 0.30 ms (kernel+sync 0.28 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 5 nn 3 handover false : 0.22 ms (kernel+sync 0.20 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 5 nn 3 handover false : 0.23 ms (kernel+sync 0.21 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 5 nn 3 handover true : 1.21 ms (kernel+sync 0.21 ms)
+[UPERF2-P] k9 eq build: id 8 2^17 entries in 0.63 ms
+[UPERF2-L] k9 round mode 1 n_pairs 65536 ranges 5 nn 5 handover false : 6.47 ms (kernel+sync 6.45 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 32768 ranges 5 nn 3 handover false : 5.28 ms (kernel+sync 5.25 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 16384 ranges 5 nn 3 handover false : 2.29 ms (kernel+sync 2.24 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 8192 ranges 5 nn 3 handover false : 1.49 ms (kernel+sync 1.43 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 4096 ranges 5 nn 3 handover false : 0.80 ms (kernel+sync 0.72 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 2048 ranges 5 nn 3 handover false : 0.55 ms (kernel+sync 0.43 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 1024 ranges 5 nn 3 handover false : 0.33 ms (kernel+sync 0.30 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 5 nn 3 handover false : 0.35 ms (kernel+sync 0.29 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 5 nn 3 handover false : 0.36 ms (kernel+sync 0.30 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 5 nn 3 handover false : 0.46 ms (kernel+sync 0.33 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 5 nn 3 handover false : 0.37 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 5 nn 3 handover true : 1.30 ms (kernel+sync 0.29 ms)
+[UPERF2-P] k9 eq build: id 9 2^18 entries in 0.83 ms
+[UPERF2-L] k9 round mode 1 n_pairs 131072 ranges 5 nn 5 handover false : 18.73 ms (kernel+sync 12.65 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 65536 ranges 5 nn 3 handover false : 23.24 ms (kernel+sync 21.08 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32768 ranges 5 nn 3 handover false : 3.94 ms (kernel+sync 3.90 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 16384 ranges 5 nn 3 handover false : 2.13 ms (kernel+sync 2.11 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 8192 ranges 5 nn 3 handover false : 1.28 ms (kernel+sync 1.26 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 4096 ranges 5 nn 3 handover false : 0.76 ms (kernel+sync 0.73 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 2048 ranges 5 nn 3 handover false : 0.45 ms (kernel+sync 0.43 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 1024 ranges 5 nn 3 handover false : 0.35 ms (kernel+sync 0.34 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 5 nn 3 handover false : 0.31 ms (kernel+sync 0.30 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 5 nn 3 handover false : 0.37 ms (kernel+sync 0.35 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 5 nn 3 handover false : 0.29 ms (kernel+sync 0.28 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 5 nn 3 handover false : 0.29 ms (kernel+sync 0.27 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 5 nn 3 handover true : 1.14 ms (kernel+sync 0.25 ms)
+[UPERF2-P] k9 eq build: id 10 2^19 entries in 1.01 ms
+[UPERF2-L] k9 round mode 1 n_pairs 262144 ranges 5 nn 5 handover false : 24.27 ms (kernel+sync 24.23 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 131072 ranges 5 nn 3 handover false : 18.65 ms (kernel+sync 18.57 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 65536 ranges 5 nn 3 handover false : 7.63 ms (kernel+sync 7.55 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32768 ranges 5 nn 3 handover false : 3.76 ms (kernel+sync 3.71 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 16384 ranges 5 nn 3 handover false : 2.22 ms (kernel+sync 2.18 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 8192 ranges 5 nn 3 handover false : 1.50 ms (kernel+sync 1.42 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 4096 ranges 5 nn 3 handover false : 0.89 ms (kernel+sync 0.84 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 2048 ranges 5 nn 3 handover false : 0.59 ms (kernel+sync 0.54 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 1024 ranges 5 nn 3 handover false : 0.34 ms (kernel+sync 0.28 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 5 nn 3 handover false : 0.32 ms (kernel+sync 0.26 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 5 nn 3 handover false : 0.33 ms (kernel+sync 0.26 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 5 nn 3 handover false : 0.34 ms (kernel+sync 0.28 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 5 nn 3 handover false : 0.31 ms (kernel+sync 0.25 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 5 nn 3 handover true : 2.27 ms (kernel+sync 0.53 ms)
+[UPERF2-P] k9 eq build: id 11 2^20 entries in 1.41 ms
+[UPERF2-L] k9 round mode 1 n_pairs 524288 ranges 5 nn 5 handover false : 69.26 ms (kernel+sync 47.67 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 262144 ranges 5 nn 3 handover false : 70.80 ms (kernel+sync 63.00 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 131072 ranges 5 nn 3 handover false : 14.25 ms (kernel+sync 14.15 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 65536 ranges 5 nn 3 handover false : 7.54 ms (kernel+sync 7.43 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32768 ranges 5 nn 3 handover false : 3.87 ms (kernel+sync 3.77 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 16384 ranges 5 nn 3 handover false : 2.46 ms (kernel+sync 2.41 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 8192 ranges 5 nn 3 handover false : 1.32 ms (kernel+sync 1.30 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 4096 ranges 5 nn 3 handover false : 0.89 ms (kernel+sync 0.81 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 2048 ranges 5 nn 3 handover false : 0.52 ms (kernel+sync 0.40 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 1024 ranges 5 nn 3 handover false : 0.37 ms (kernel+sync 0.31 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 5 nn 3 handover false : 0.43 ms (kernel+sync 0.36 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 5 nn 3 handover false : 0.78 ms (kernel+sync 0.74 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 5 nn 3 handover false : 0.30 ms (kernel+sync 0.28 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 5 nn 3 handover false : 0.24 ms (kernel+sync 0.22 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 5 nn 3 handover true : 2.09 ms (kernel+sync 0.45 ms)
+[UPERF2-P] k9 eq build: id 12 2^21 entries in 2.08 ms
+[UPERF2-L] k9 round mode 1 n_pairs 1048576 ranges 5 nn 3 handover false : 68.70 ms (kernel+sync 68.65 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 524288 ranges 5 nn 3 handover false : 62.23 ms (kernel+sync 62.16 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 262144 ranges 5 nn 3 handover false : 41.55 ms (kernel+sync 39.88 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 131072 ranges 5 nn 3 handover false : 13.77 ms (kernel+sync 13.70 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 65536 ranges 5 nn 3 handover false : 7.18 ms (kernel+sync 7.14 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32768 ranges 5 nn 3 handover false : 3.93 ms (kernel+sync 3.88 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 16384 ranges 5 nn 3 handover false : 2.23 ms (kernel+sync 2.15 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 8192 ranges 5 nn 3 handover false : 1.29 ms (kernel+sync 1.25 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 4096 ranges 5 nn 3 handover false : 0.72 ms (kernel+sync 0.69 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 2048 ranges 5 nn 3 handover false : 0.42 ms (kernel+sync 0.40 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 1024 ranges 5 nn 3 handover false : 0.31 ms (kernel+sync 0.29 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 5 nn 3 handover false : 0.25 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 5 nn 3 handover false : 0.24 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 5 nn 3 handover false : 0.24 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 5 nn 3 handover false : 0.22 ms (kernel+sync 0.21 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 5 nn 3 handover true : 0.92 ms (kernel+sync 0.22 ms)
+[UPERF2-L] k9 round mode 1 n_pairs 32 ranges 5 nn 5 handover false : 0.95 ms (kernel+sync 0.61 ms)
+[UPERF2-L] k9 round mode 1 n_pairs 64 ranges 5 nn 5 handover false : 0.95 ms (kernel+sync 0.56 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 32 ranges 5 nn 3 handover true : 1.31 ms (kernel+sync 0.35 ms)
+[UPERF2-L] k9 round mode 1 n_pairs 128 ranges 5 nn 3 handover false : 0.77 ms (kernel+sync 0.54 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 64 ranges 5 nn 3 handover false : 0.30 ms (kernel+sync 0.28 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 5 nn 3 handover true : 0.96 ms (kernel+sync 0.21 ms)
+[UPERF2-N] k9 tree build: id 6 depth 22 in 17.63 ms; store 1 trees 0.21 GB; held 0.01 GB
+[UPERF2-L] k9 round mode 1 n_pairs 32 ranges 1 nn 5 handover false : 0.93 ms (kernel+sync 0.57 ms)
+[UPERF2-P] k9 eq build: id 13 2^10 entries in 0.51 ms
+[UPERF2-L] k9 round mode 1 n_pairs 64 ranges 1 nn 5 handover false : 0.47 ms (kernel+sync 0.32 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 32 ranges 1 nn 3 handover true : 0.50 ms (kernel+sync 0.33 ms)
+[UPERF2-P] k9 eq build: id 14 2^11 entries in 0.61 ms
+[UPERF2-L] k9 round mode 1 n_pairs 128 ranges 1 nn 5 handover false : 0.49 ms (kernel+sync 0.30 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 64 ranges 1 nn 3 handover false : 0.31 ms (kernel+sync 0.29 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 1 nn 3 handover true : 0.65 ms (kernel+sync 0.31 ms)
+[UPERF2-P] k9 eq build: id 15 2^12 entries in 0.51 ms
+[UPERF2-L] k9 round mode 1 n_pairs 256 ranges 1 nn 5 handover false : 0.29 ms (kernel+sync 0.21 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 128 ranges 1 nn 3 handover false : 0.26 ms (kernel+sync 0.25 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 1 nn 3 handover false : 0.23 ms (kernel+sync 0.21 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 1 nn 3 handover true : 0.36 ms (kernel+sync 0.21 ms)
+[UPERF2-P] k9 eq build: id 16 2^13 entries in 0.29 ms
+[UPERF2-L] k9 round mode 1 n_pairs 512 ranges 1 nn 5 handover false : 0.22 ms (kernel+sync 0.20 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 256 ranges 1 nn 3 handover false : 0.26 ms (kernel+sync 0.24 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 1 nn 3 handover false : 0.22 ms (kernel+sync 0.21 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 1 nn 3 handover false : 0.22 ms (kernel+sync 0.21 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 1 nn 3 handover true : 0.37 ms (kernel+sync 0.21 ms)
+[UPERF2-P] k9 eq build: id 17 2^14 entries in 0.27 ms
+[UPERF2-L] k9 round mode 1 n_pairs 1024 ranges 1 nn 5 handover false : 0.37 ms (kernel+sync 0.25 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 512 ranges 1 nn 3 handover false : 0.36 ms (kernel+sync 0.33 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 1 nn 3 handover false : 0.30 ms (kernel+sync 0.24 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 1 nn 3 handover false : 0.26 ms (kernel+sync 0.25 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 1 nn 3 handover false : 0.26 ms (kernel+sync 0.25 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 1 nn 3 handover true : 0.46 ms (kernel+sync 0.23 ms)
+[UPERF2-P] k9 eq build: id 18 2^15 entries in 0.29 ms
+[UPERF2-L] k9 round mode 1 n_pairs 2048 ranges 1 nn 5 handover false : 0.47 ms (kernel+sync 0.45 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 1024 ranges 1 nn 3 handover false : 0.36 ms (kernel+sync 0.33 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 1 nn 3 handover false : 0.24 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 1 nn 3 handover false : 0.24 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 1 nn 3 handover false : 0.24 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 1 nn 3 handover false : 0.24 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 1 nn 3 handover true : 0.47 ms (kernel+sync 0.23 ms)
+[UPERF2-P] k9 eq build: id 19 2^16 entries in 0.31 ms
+[UPERF2-L] k9 round mode 1 n_pairs 4096 ranges 1 nn 5 handover false : 1.18 ms (kernel+sync 0.80 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 2048 ranges 1 nn 3 handover false : 0.69 ms (kernel+sync 0.65 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 1024 ranges 1 nn 3 handover false : 0.33 ms (kernel+sync 0.31 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 1 nn 3 handover false : 0.27 ms (kernel+sync 0.25 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 1 nn 3 handover false : 0.24 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 1 nn 3 handover false : 0.26 ms (kernel+sync 0.24 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 1 nn 3 handover false : 0.23 ms (kernel+sync 0.21 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 1 nn 3 handover true : 0.43 ms (kernel+sync 0.23 ms)
+[UPERF2-P] k9 eq build: id 20 2^17 entries in 0.66 ms
+[UPERF2-L] k9 round mode 1 n_pairs 8192 ranges 1 nn 5 handover false : 1.35 ms (kernel+sync 1.32 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 4096 ranges 1 nn 3 handover false : 1.61 ms (kernel+sync 1.57 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 2048 ranges 1 nn 3 handover false : 0.61 ms (kernel+sync 0.58 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 1024 ranges 1 nn 3 handover false : 0.25 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 1 nn 3 handover false : 0.23 ms (kernel+sync 0.22 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 1 nn 3 handover false : 0.27 ms (kernel+sync 0.24 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 1 nn 3 handover false : 0.26 ms (kernel+sync 0.25 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 1 nn 3 handover false : 0.23 ms (kernel+sync 0.21 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 1 nn 3 handover true : 0.44 ms (kernel+sync 0.23 ms)
+[UPERF2-P] k9 eq build: id 21 2^18 entries in 0.76 ms
+[UPERF2-L] k9 round mode 1 n_pairs 16384 ranges 1 nn 5 handover false : 3.73 ms (kernel+sync 2.47 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 8192 ranges 1 nn 3 handover false : 2.73 ms (kernel+sync 2.68 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 4096 ranges 1 nn 3 handover false : 1.03 ms (kernel+sync 1.01 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 2048 ranges 1 nn 3 handover false : 0.56 ms (kernel+sync 0.54 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 1024 ranges 1 nn 3 handover false : 0.25 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 1 nn 3 handover false : 0.27 ms (kernel+sync 0.24 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 1 nn 3 handover false : 0.24 ms (kernel+sync 0.22 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 1 nn 3 handover false : 0.23 ms (kernel+sync 0.22 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 1 nn 3 handover false : 0.24 ms (kernel+sync 0.22 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 1 nn 3 handover true : 0.39 ms (kernel+sync 0.20 ms)
+[UPERF2-P] k9 eq build: id 22 2^19 entries in 0.93 ms
+[UPERF2-L] k9 round mode 1 n_pairs 32768 ranges 1 nn 5 handover false : 4.60 ms (kernel+sync 4.58 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 16384 ranges 1 nn 3 handover false : 4.49 ms (kernel+sync 4.41 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 8192 ranges 1 nn 3 handover false : 1.95 ms (kernel+sync 1.92 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 4096 ranges 1 nn 3 handover false : 1.09 ms (kernel+sync 1.07 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 2048 ranges 1 nn 3 handover false : 0.64 ms (kernel+sync 0.62 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 1024 ranges 1 nn 3 handover false : 0.37 ms (kernel+sync 0.36 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 1 nn 3 handover false : 0.36 ms (kernel+sync 0.35 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 1 nn 3 handover false : 0.31 ms (kernel+sync 0.27 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 1 nn 3 handover false : 0.37 ms (kernel+sync 0.35 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 1 nn 3 handover false : 0.40 ms (kernel+sync 0.39 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 1 nn 3 handover true : 0.79 ms (kernel+sync 0.30 ms)
+[UPERF2-P] k9 eq build: id 23 2^20 entries in 1.39 ms
+[UPERF2-L] k9 round mode 1 n_pairs 65536 ranges 1 nn 5 handover false : 12.96 ms (kernel+sync 8.58 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 32768 ranges 1 nn 3 handover false : 6.64 ms (kernel+sync 6.60 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 16384 ranges 1 nn 3 handover false : 3.07 ms (kernel+sync 3.05 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 8192 ranges 1 nn 3 handover false : 1.64 ms (kernel+sync 1.63 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 4096 ranges 1 nn 3 handover false : 0.86 ms (kernel+sync 0.85 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 2048 ranges 1 nn 3 handover false : 0.53 ms (kernel+sync 0.52 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 1024 ranges 1 nn 3 handover false : 0.28 ms (kernel+sync 0.26 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 1 nn 3 handover false : 0.25 ms (kernel+sync 0.24 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 1 nn 3 handover false : 0.24 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 1 nn 3 handover false : 0.24 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 1 nn 3 handover false : 0.24 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 1 nn 3 handover true : 0.47 ms (kernel+sync 0.23 ms)
+[UPERF2-P] k9 eq build: id 24 2^21 entries in 1.95 ms
+[UPERF2-L] k9 round mode 1 n_pairs 131072 ranges 1 nn 3 handover false : 12.17 ms (kernel+sync 12.15 ms)
+[UPERF2-L] k9 round mode 2 n_pairs 65536 ranges 1 nn 3 handover false : 12.08 ms (kernel+sync 12.02 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32768 ranges 1 nn 3 handover false : 5.81 ms (kernel+sync 5.77 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 16384 ranges 1 nn 3 handover false : 3.01 ms (kernel+sync 2.97 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 8192 ranges 1 nn 3 handover false : 1.73 ms (kernel+sync 1.70 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 4096 ranges 1 nn 3 handover false : 1.08 ms (kernel+sync 0.98 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 2048 ranges 1 nn 3 handover false : 0.53 ms (kernel+sync 0.51 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 1024 ranges 1 nn 3 handover false : 0.25 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 512 ranges 1 nn 3 handover false : 0.24 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 256 ranges 1 nn 3 handover false : 0.23 ms (kernel+sync 0.21 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 128 ranges 1 nn 3 handover false : 0.23 ms (kernel+sync 0.21 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 64 ranges 1 nn 3 handover false : 0.23 ms (kernel+sync 0.21 ms)
+[UPERF2-L] k9 round mode 0 n_pairs 32 ranges 1 nn 3 handover true : 0.49 ms (kernel+sync 0.22 ms)
+[UPERF3-RR] zc init: PTX (NVRTC or the disk cache) 0.00s + module load 0.00s; c 4, WMAX 12, TZC 128, min_pairs 4096
+[UPERF3-RR] zc open: n 2^25 x 9 tables (w 8), stop_n 32: 372.8 ms (held 3.22 GB)
+[UPERF3-RR] zc round t 0 n 33554432: 31.89 ms (kernel+sync 31.83 ms)
+[UPERF3-RR] zc round t 1 n 16777216: 92.72 ms (kernel+sync 69.57 ms)
+[UPERF3-RR] zc round t 2 n 8388608: 56.61 ms (kernel+sync 34.26 ms)
+[UPERF3-RR] zc round t 3 n 4194304: 31.00 ms (kernel+sync 19.72 ms)
+[UPERF3-RR] zc round t 4 n 2097152: 15.35 ms (kernel+sync 9.66 ms)
+[UPERF3-RR] zc round t 5 n 1048576: 7.95 ms (kernel+sync 4.94 ms)
+[UPERF3-RR] zc round t 6 n 524288: 3.94 ms (kernel+sync 2.47 ms)
+[UPERF3-RR] zc round t 7 n 262144: 1.80 ms (kernel+sync 1.28 ms)
+[UPERF3-RR] zc round t 8 n 131072: 0.97 ms (kernel+sync 0.67 ms)
+[UPERF3-RR] zc round t 9 n 65536: 0.39 ms (kernel+sync 0.37 ms)
+[UPERF3-RR] zc round t 10 n 32768: 0.29 ms (kernel+sync 0.21 ms)
+[UPERF3-RR] zc round t 11 n 16384: 0.26 ms (kernel+sync 0.21 ms)
+[UPERF3-RR] zc round t 12 n 8192: 0.17 ms (kernel+sync 0.13 ms)
+[UPERF3-RR] zc open: n 2^23 x 9 tables (w 8), stop_n 16: 61.5 ms (held 3.22 GB)
+[UPERF3-RR] zc round t 0 n 8388608: 9.95 ms (kernel+sync 9.90 ms)
+[UPERF3-RR] zc round t 1 n 4194304: 25.13 ms (kernel+sync 19.05 ms)
+[UPERF3-RR] zc round t 2 n 2097152: 15.69 ms (kernel+sync 9.84 ms)
+[UPERF3-RR] zc round t 3 n 1048576: 7.83 ms (kernel+sync 4.95 ms)
+[UPERF3-RR] zc round t 4 n 524288: 4.11 ms (kernel+sync 2.54 ms)
+[UPERF3-RR] zc round t 5 n 262144: 2.23 ms (kernel+sync 1.36 ms)
+[UPERF3-RR] zc round t 6 n 131072: 1.08 ms (kernel+sync 0.78 ms)
+[UPERF3-RR] zc round t 7 n 65536: 0.62 ms (kernel+sync 0.39 ms)
+[UPERF3-RR] zc round t 8 n 32768: 0.45 ms (kernel+sync 0.35 ms)
+[UPERF3-RR] zc round t 9 n 16384: 0.58 ms (kernel+sync 0.20 ms)
+[UPERF3-RR] zc round t 10 n 8192: 0.60 ms (kernel+sync 0.22 ms)
+[UPERF3-RR] zc open: n 2^22 x 6 tables (w 5), stop_n 4: 25.7 ms (held 3.22 GB)
+[UPERF3-RR] zc round t 0 n 4194304: 4.06 ms (kernel+sync 4.03 ms)
+[UPERF3-RR] zc round t 1 n 2097152: 7.89 ms (kernel+sync 5.98 ms)
+[UPERF3-RR] zc round t 2 n 1048576: 4.69 ms (kernel+sync 3.01 ms)
+[UPERF3-RR] zc round t 3 n 524288: 2.45 ms (kernel+sync 1.61 ms)
+[UPERF3-RR] zc round t 4 n 262144: 1.14 ms (kernel+sync 0.88 ms)
+[UPERF3-RR] zc round t 5 n 131072: 0.52 ms (kernel+sync 0.49 ms)
+[UPERF3-RR] zc round t 6 n 65536: 0.31 ms (kernel+sync 0.29 ms)
+[UPERF3-RR] zc round t 7 n 32768: 0.20 ms (kernel+sync 0.19 ms)
+[UPERF3-RR] zc round t 8 n 16384: 0.19 ms (kernel+sync 0.17 ms)
+[UPERF3-RR] zc round t 9 n 8192: 0.14 ms (kernel+sync 0.13 ms)
+[UPERF3-RR] zc open: n 2^23 x 7 tables (w 6), stop_n 8: 47.5 ms (held 3.22 GB)
+[UPERF3-RR] zc round t 0 n 8388608: 7.49 ms (kernel+sync 7.45 ms)
+[UPERF3-RR] zc round t 1 n 4194304: 18.56 ms (kernel+sync 13.97 ms)
+[UPERF3-RR] zc round t 2 n 2097152: 11.35 ms (kernel+sync 7.09 ms)
+[UPERF3-RR] zc round t 3 n 1048576: 5.65 ms (kernel+sync 3.62 ms)
+[UPERF3-RR] zc round t 4 n 524288: 2.75 ms (kernel+sync 1.85 ms)
+[UPERF3-RR] zc round t 5 n 262144: 1.38 ms (kernel+sync 1.01 ms)
+[UPERF3-RR] zc round t 6 n 131072: 0.57 ms (kernel+sync 0.52 ms)
+[UPERF3-RR] zc round t 7 n 65536: 0.32 ms (kernel+sync 0.31 ms)
+[UPERF3-RR] zc round t 8 n 32768: 0.23 ms (kernel+sync 0.22 ms)
+[UPERF3-RR] zc round t 9 n 16384: 0.15 ms (kernel+sync 0.14 ms)
+[UPERF3-RR] zc round t 10 n 8192: 0.13 ms (kernel+sync 0.12 ms)
+[UPERF3-RR] zc open: n 2^19 x 7 tables (w 6), stop_n 1: 4.9 ms (held 3.22 GB)
+[UPERF3-RR] zc round t 0 n 524288: 0.76 ms (kernel+sync 0.70 ms)
+[UPERF3-RR] zc round t 1 n 262144: 1.18 ms (kernel+sync 1.04 ms)
+[UPERF3-RR] zc round t 2 n 131072: 0.63 ms (kernel+sync 0.51 ms)
+[UPERF3-RR] zc round t 3 n 65536: 0.39 ms (kernel+sync 0.36 ms)
+[UPERF3-RR] zc round t 4 n 32768: 0.25 ms (kernel+sync 0.24 ms)
+[UPERF3-RR] zc round t 5 n 16384: 0.19 ms (kernel+sync 0.19 ms)
+[UPERF3-RR] zc round t 6 n 8192: 0.18 ms (kernel+sync 0.17 ms)
+[UPERF3-RR] zc open: n 2^23 x 8 tables (w 7), stop_n 8: 52.5 ms (held 3.22 GB)
+[UPERF3-RR] zc round t 0 n 8388608: 8.52 ms (kernel+sync 8.49 ms)
+[UPERF3-RR] zc round t 1 n 4194304: 21.34 ms (kernel+sync 16.23 ms)
+[UPERF3-RR] zc round t 2 n 2097152: 13.04 ms (kernel+sync 8.13 ms)
+[UPERF3-RR] zc round t 3 n 1048576: 6.52 ms (kernel+sync 4.19 ms)
+[UPERF3-RR] zc round t 4 n 524288: 3.34 ms (kernel+sync 2.20 ms)
+[UPERF3-RR] zc round t 5 n 262144: 1.64 ms (kernel+sync 1.16 ms)
+[UPERF3-RR] zc round t 6 n 131072: 0.79 ms (kernel+sync 0.64 ms)
+[UPERF3-RR] zc round t 7 n 65536: 0.45 ms (kernel+sync 0.41 ms)
+[UPERF3-RR] zc round t 8 n 32768: 0.30 ms (kernel+sync 0.29 ms)
+[UPERF3-RR] zc round t 9 n 16384: 0.21 ms (kernel+sync 0.19 ms)
+[UPERF3-RR] zc round t 10 n 8192: 0.14 ms (kernel+sync 0.13 ms)
+[UPERF3-RR] zc open: n 2^21 x 8 tables (w 7), stop_n 4: 18.3 ms (held 3.22 GB)
+[UPERF3-RR] zc round t 0 n 2097152: 2.76 ms (kernel+sync 2.73 ms)
+[UPERF3-RR] zc round t 1 n 1048576: 5.31 ms (kernel+sync 4.19 ms)
+[UPERF3-RR] zc round t 2 n 524288: 3.25 ms (kernel+sync 2.17 ms)
+[UPERF3-RR] zc round t 3 n 262144: 1.61 ms (kernel+sync 1.24 ms)
+[UPERF3-RR] zc round t 4 n 131072: 0.74 ms (kernel+sync 0.68 ms)
+[UPERF3-RR] zc round t 5 n 65536: 0.45 ms (kernel+sync 0.42 ms)
+[UPERF3-RR] zc round t 6 n 32768: 0.27 ms (kernel+sync 0.26 ms)
+[UPERF3-RR] zc round t 7 n 16384: 0.30 ms (kernel+sync 0.29 ms)
+[UPERF3-RR] zc round t 8 n 8192: 0.18 ms (kernel+sync 0.16 ms)
+[UPERF3-RR] zc open: n 2^24 x 9 tables (w 8), stop_n 16: 142.7 ms (held 3.22 GB)
+[UPERF3-RR] zc round t 0 n 16777216: 17.03 ms (kernel+sync 16.93 ms)
+[UPERF3-RR] zc round t 1 n 8388608: 45.58 ms (kernel+sync 34.05 ms)
+[UPERF3-RR] zc round t 2 n 4194304: 30.16 ms (kernel+sync 19.15 ms)
+[UPERF3-RR] zc round t 3 n 2097152: 14.80 ms (kernel+sync 9.65 ms)
+[UPERF3-RR] zc round t 4 n 1048576: 7.66 ms (kernel+sync 5.04 ms)
+[UPERF3-RR] zc round t 5 n 524288: 4.15 ms (kernel+sync 2.69 ms)
+[UPERF3-RR] zc round t 6 n 262144: 2.03 ms (kernel+sync 1.35 ms)
+[UPERF3-RR] zc round t 7 n 131072: 1.02 ms (kernel+sync 0.78 ms)
+[UPERF3-RR] zc round t 8 n 65536: 0.44 ms (kernel+sync 0.43 ms)
+[UPERF3-RR] zc round t 9 n 32768: 0.26 ms (kernel+sync 0.25 ms)
+[UPERF3-RR] zc round t 10 n 16384: 0.21 ms (kernel+sync 0.20 ms)
+[UPERF3-RR] zc round t 11 n 8192: 0.16 ms (kernel+sync 0.13 ms)
+[UPERF3-RR] zc open: n 2^20 x 9 tables (w 8), stop_n 2: 10.1 ms (held 3.22 GB)
+[UPERF3-RR] zc round t 0 n 1048576: 1.60 ms (kernel+sync 1.58 ms)
+[UPERF3-RR] zc round t 1 n 524288: 3.07 ms (kernel+sync 2.54 ms)
+[UPERF3-RR] zc round t 2 n 262144: 1.76 ms (kernel+sync 1.26 ms)
+[UPERF3-RR] zc round t 3 n 131072: 0.89 ms (kernel+sync 0.71 ms)
+[UPERF3-RR] zc round t 4 n 65536: 0.49 ms (kernel+sync 0.43 ms)
+[UPERF3-RR] zc round t 5 n 32768: 0.25 ms (kernel+sync 0.24 ms)
+[UPERF3-RR] zc round t 6 n 16384: 0.18 ms (kernel+sync 0.16 ms)
+[UPERF3-RR] zc round t 7 n 8192: 0.13 ms (kernel+sync 0.12 ms)
+[UPERF3-RR] zc open: n 2^23 x 10 tables (w 9), stop_n 8: 58.6 ms (held 3.29 GB)
+[UPERF3-RR] zc round t 0 n 8388608: 10.52 ms (kernel+sync 10.50 ms)
+[UPERF3-RR] zc round t 1 n 4194304: 27.55 ms (kernel+sync 21.28 ms)
+[UPERF3-RR] zc round t 2 n 2097152: 16.52 ms (kernel+sync 10.70 ms)
+[UPERF3-RR] zc round t 3 n 1048576: 8.39 ms (kernel+sync 5.46 ms)
+[UPERF3-RR] zc round t 4 n 524288: 4.09 ms (kernel+sync 2.81 ms)
+[UPERF3-RR] zc round t 5 n 262144: 1.93 ms (kernel+sync 1.43 ms)
+[UPERF3-RR] zc round t 6 n 131072: 0.93 ms (kernel+sync 0.78 ms)
+[UPERF3-RR] zc round t 7 n 65536: 0.46 ms (kernel+sync 0.44 ms)
+[UPERF3-RR] zc round t 8 n 32768: 0.27 ms (kernel+sync 0.25 ms)
+[UPERF3-RR] zc round t 9 n 16384: 0.29 ms (kernel+sync 0.26 ms)
+[UPERF3-RR] zc round t 10 n 8192: 0.19 ms (kernel+sync 0.18 ms)
+[UPERF3-RR] zc open: n 2^20 x 10 tables (w 9), stop_n 2: 11.0 ms (held 3.29 GB)
+[UPERF3-RR] zc round t 0 n 1048576: 1.71 ms (kernel+sync 1.69 ms)
+[UPERF3-RR] zc round t 1 n 524288: 3.45 ms (kernel+sync 2.85 ms)
+[UPERF3-RR] zc round t 2 n 262144: 2.09 ms (kernel+sync 1.49 ms)
+[UPERF3-RR] zc round t 3 n 131072: 1.02 ms (kernel+sync 0.81 ms)
+[UPERF3-RR] zc round t 4 n 65536: 0.58 ms (kernel+sync 0.52 ms)
+[UPERF3-RR] zc round t 5 n 32768: 0.28 ms (kernel+sync 0.27 ms)
+[UPERF3-RR] zc round t 6 n 16384: 0.19 ms (kernel+sync 0.18 ms)
+[UPERF3-RR] zc round t 7 n 8192: 0.14 ms (kernel+sync 0.13 ms)
+[UPERF3-RR] zc open: n 2^21 x 11 tables (w 10), stop_n 4: 23.1 ms (held 3.31 GB)
+[UPERF3-RR] zc round t 0 n 2097152: 3.56 ms (kernel+sync 3.54 ms)
+[UPERF3-RR] zc round t 1 n 1048576: 7.70 ms (kernel+sync 6.15 ms)
+[UPERF3-RR] zc round t 2 n 524288: 4.69 ms (kernel+sync 3.08 ms)
+[UPERF3-RR] zc round t 3 n 262144: 2.19 ms (kernel+sync 1.61 ms)
+[UPERF3-RR] zc round t 4 n 131072: 1.20 ms (kernel+sync 0.91 ms)
+[UPERF3-RR] zc round t 5 n 65536: 0.59 ms (kernel+sync 0.55 ms)
+[UPERF3-RR] zc round t 6 n 32768: 0.31 ms (kernel+sync 0.29 ms)
+[UPERF3-RR] zc round t 7 n 16384: 0.44 ms (kernel+sync 0.26 ms)
+[UPERF3-RR] zc round t 8 n 8192: 0.22 ms (kernel+sync 0.17 ms)
+  [UPERF3-WW] zc aggregate device buffers released after the Stage-A phase: 3.31 GB
+[UPERF2-F] RSS bg.weight.rows-pass          hwm     6983 MiB  rss     4057 MiB
+[UPERF2-F] RSS bg.weight.phi-pass           hwm     6983 MiB  rss     4064 MiB
+[UPERF2-Q] level-h session r 64 chunk 55296 (window 528416, stage 1024, ks 4, b_fmt 2): 54 stages, 1 flushes, grow 45.4 ms, fill 88.9 ms, enqueue 8.0 ms, wait 392.6 ms, h2d 708 MB
+[UPERF2-F] RSS bg.weight.level0-h           hwm     6983 MiB  rss     4131 MiB
+[UPERF2-K] gemm na 11 nb 1 len 12480 (window 2097152, ublk 3120, ks 4, a_fmt 0, b_fmt 2): pack 8.3 ms, wait 18.1 ms, h2d 72 MB, d2h 0.1 ms
+[UPERF2-Q] combine session K 64 chunk 55296 n_out 1 (flat; stage 2048, b_fmt 2): 27 stages, fill 28.2 ms, wait 71.6 ms, h2d 453 MB
+[UPERF2-F] RSS bg.weight.level0-fold        hwm     6983 MiB  rss     3930 MiB
+[UPERF2-Q] combine session K 64 chunk 55296 n_out 1 (pool; stage 2048, b_fmt -1): 27 stages, fill 39.4 ms, wait 83.6 ms, h2d 255 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 6.0 ms, wait 4.5 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 6.3 ms, wait 4.0 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.7 ms, wait 4.6 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.5 ms, wait 4.8 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.2 ms, wait 5.1 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 6.0 ms, wait 4.2 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 6144 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 4.2 ms, wait 4.2 ms, h2d 38 MB
+[UPERF2-Q] combine session K 11 chunk 4224 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 3.4 ms, wait 3.0 ms, h2d 24 MB
+[UPERF2-Q] combine session K 11 chunk 12480 n_out 2 (flat; stage 2048, b_fmt 0): 7 stages, fill 8.8 ms, wait 4.6 ms, h2d 70 MB
+[UPERF2-K] gemm na 11 nb 39 len 3264 (window 528416, ublk 816, ks 4, a_fmt 0, b_fmt 2): pack 4.0 ms, wait 7.2 ms, h2d 35 MB, d2h 0.2 ms
+[UPERF2-K] gemm na 39 nb 39 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 3.3 ms, wait 7.2 ms, h2d 26 MB, d2h 0.5 ms
+[UPERF2-K] gemm na 39 nb 39 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 3.3 ms, wait 7.5 ms, h2d 26 MB, d2h 0.5 ms
+[UPERF2-K] gemm na 39 nb 39 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 3.8 ms, wait 6.8 ms, h2d 26 MB, d2h 0.6 ms
+[UPERF2-K] gemm na 39 nb 39 len 192 (window 528416, ublk 64, ks 2, a_fmt 0, b_fmt 2): pack 1.3 ms, wait 1.7 ms, h2d 5 MB, d2h 0.5 ms
+[UPERF2-K] gemm na 11 nb 1 len 6045 (window 1048576, ublk 1512, ks 4, a_fmt 0, b_fmt 2): pack 3.9 ms, wait 8.6 ms, h2d 35 MB, d2h 0.2 ms
+[UPERF2-Q] combine session K 39 chunk 3264 n_out 1 (flat; stage 2048, b_fmt 2): 2 stages, fill 1.1 ms, wait 5.2 ms, h2d 16 MB
+[UPERF2-F] RSS bg.weight.level1             hwm     6983 MiB  rss     4314 MiB
+[UPERF2-Q] combine session K 39 chunk 3264 n_out 1 (flat; stage 2048, b_fmt 0): 2 stages, fill 6.0 ms, wait 9.6 ms, h2d 65 MB
+[UPERF2-Q] combine session K 12 chunk 3264 n_out 2 (flat; stage 2048, b_fmt 0): 2 stages, fill 2.4 ms, wait 3.0 ms, h2d 20 MB
+[UPERF2-Q] combine session K 11 chunk 6045 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 3.6 ms, wait 4.0 ms, h2d 34 MB
+[UPERF2-K] gemm na 11 nb 18 len 880 (window 528416, ublk 220, ks 4, a_fmt 0, b_fmt 2): pack 2.1 ms, wait 1.3 ms, h2d 7 MB, d2h 0.1 ms
+[UPERF2-K] gemm na 18 nb 18 len 880 (window 528416, ublk 220, ks 4, a_fmt 0, b_fmt 2): pack 3.0 ms, wait 4.7 ms, h2d 10 MB, d2h 0.1 ms
+[UPERF2-F] RSS bg.weight.level2             hwm     6983 MiB  rss     4400 MiB
+[UPERF2-Q] combine session K 11 chunk 1845 n_out 2 (flat; stage 1845, b_fmt 0): 1 stages, fill 1.4 ms, wait 2.8 ms, h2d 10 MB
+[UPERF2-K] gemm na 11 nb 11 len 408 (window 528416, ublk 102, ks 4, a_fmt 0, b_fmt 2): pack 1.2 ms, wait 0.5 ms, h2d 3 MB, d2h 0.2 ms
+[UPERF2-K] gemm na 11 nb 11 len 408 (window 528416, ublk 102, ks 4, a_fmt 0, b_fmt 2): pack 4.8 ms, wait 0.8 ms, h2d 3 MB, d2h 0.1 ms
+[UPERF2-F] RSS bg.weight.level3             hwm     6983 MiB  rss     4404 MiB
+[UPERF2-F] RSS bg.weight.level4             hwm     6983 MiB  rss     4409 MiB
+[UPERF2-F] RSS bg.weight.level5             hwm     6983 MiB  rss     4416 MiB
+[UPERF2-F] RSS bg.weight.level6             hwm     6983 MiB  rss     4422 MiB
+[UPERF2-F] RSS bg.weight.level7             hwm     6983 MiB  rss     4429 MiB
+[UPERF2-F] RSS bg.act.rows-pass             hwm     6983 MiB  rss     4750 MiB
+[UPERF2-F] RSS bg.act.phi-pass              hwm     6983 MiB  rss     5176 MiB
+[UPERF2-Q] level-h session r 64 chunk 192989 (window 528416, stage 1024, ks 4, b_fmt 2): 189 stages, 1 flushes, grow 0.0 ms, fill 750.7 ms, enqueue 34.4 ms, wait 821.1 ms, h2d 4580 MB
+[UPERF2-F] RSS bg.act.level0-h              hwm     6983 MiB  rss     5186 MiB
+[UPERF2-K] gemm na 11 nb 1 len 14560 (window 4194304, ublk 3640, ks 4, a_fmt 0, b_fmt 2): pack 6.1 ms, wait 16.5 ms, h2d 84 MB, d2h 0.1 ms
+[UPERF2-Q] combine session K 64 chunk 192989 n_out 1 (flat; stage 2048, b_fmt 2): 95 stages, fill 87.4 ms, wait 232.4 ms, h2d 1581 MB
+[UPERF2-F] RSS bg.act.level0-fold           hwm     6983 MiB  rss     3398 MiB
+[UPERF2-Q] combine session K 64 chunk 192989 n_out 1 (pool; stage 2048, b_fmt -1): 95 stages, fill 607.2 ms, wait 9.5 ms, h2d 2998 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.0 ms, wait 5.2 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.3 ms, wait 4.5 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.6 ms, wait 4.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.4 ms, wait 4.8 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.0 ms, wait 5.3 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.6 ms, wait 4.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.6 ms, wait 4.5 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.7 ms, wait 4.4 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.3 ms, wait 5.1 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.5 ms, wait 5.1 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.6 ms, wait 4.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.5 ms, wait 4.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.1 ms, wait 5.1 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.4 ms, wait 5.0 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.4 ms, wait 4.9 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.3 ms, wait 4.8 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.1 ms, wait 5.1 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 6.0 ms, wait 4.3 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.4 ms, wait 5.0 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.7 ms, wait 4.5 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.4 ms, wait 4.9 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.4 ms, wait 4.9 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.6 ms, wait 4.8 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 4573 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 3.2 ms, wait 3.5 ms, h2d 28 MB
+[UPERF2-Q] combine session K 11 chunk 4928 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 3.5 ms, wait 2.9 ms, h2d 28 MB
+[UPERF2-Q] combine session K 11 chunk 14560 n_out 2 (flat; stage 2048, b_fmt 0): 8 stages, fill 9.8 ms, wait 5.3 ms, h2d 82 MB
+[UPERF2-K] gemm na 11 nb 64 len 9351 (window 528416, ublk 2338, ks 4, a_fmt 0, b_fmt 2): pack 12.1 ms, wait 27.2 ms, h2d 129 MB, d2h 0.4 ms
+[UPERF2-K] gemm na 64 nb 64 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 5.7 ms, wait 8.5 ms, h2d 42 MB, d2h 1.4 ms
+[UPERF2-K] gemm na 64 nb 64 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 5.8 ms, wait 8.7 ms, h2d 42 MB, d2h 1.3 ms
+[UPERF2-K] gemm na 64 nb 64 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 5.4 ms, wait 8.9 ms, h2d 42 MB, d2h 1.3 ms
+[UPERF2-K] gemm na 64 nb 64 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 6.3 ms, wait 7.5 ms, h2d 42 MB, d2h 1.3 ms
+[UPERF2-K] gemm na 64 nb 64 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 6.1 ms, wait 8.1 ms, h2d 42 MB, d2h 1.5 ms
+[UPERF2-K] gemm na 64 nb 64 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 7.6 ms, wait 6.8 ms, h2d 42 MB, d2h 1.5 ms
+[UPERF2-K] gemm na 64 nb 64 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 6.5 ms, wait 8.0 ms, h2d 42 MB, d2h 1.4 ms
+[UPERF2-K] gemm na 64 nb 64 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 5.7 ms, wait 8.2 ms, h2d 42 MB, d2h 1.3 ms
+[UPERF2-K] gemm na 64 nb 64 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 6.9 ms, wait 7.4 ms, h2d 42 MB, d2h 1.3 ms
+[UPERF2-K] gemm na 64 nb 64 len 135 (window 528416, ublk 64, ks 2, a_fmt 0, b_fmt 2): pack 2.1 ms, wait 1.4 ms, h2d 6 MB, d2h 1.3 ms
+[UPERF2-K] gemm na 11 nb 1 len 13920 (window 1048576, ublk 3480, ks 4, a_fmt 0, b_fmt 2): pack 10.7 ms, wait 18.7 ms, h2d 80 MB, d2h 0.2 ms
+[UPERF2-Q] combine session K 64 chunk 9351 n_out 1 (flat; stage 2048, b_fmt 2): 5 stages, fill 5.2 ms, wait 14.9 ms, h2d 77 MB
+[UPERF2-F] RSS bg.act.level1                hwm     6983 MiB  rss     4050 MiB
+[UPERF2-Q] combine session K 64 chunk 4096 n_out 1 (flat; stage 2048, b_fmt 0): 2 stages, fill 10.4 ms, wait 19.9 ms, h2d 134 MB
+[UPERF2-Q] combine session K 64 chunk 4096 n_out 1 (flat; stage 2048, b_fmt 0): 2 stages, fill 10.7 ms, wait 19.4 ms, h2d 134 MB
+[UPERF2-Q] combine session K 64 chunk 1159 n_out 1 (flat; stage 1159, b_fmt 0): 1 stages, fill 3.2 ms, wait 8.2 ms, h2d 38 MB
+[UPERF2-Q] combine session K 12 chunk 9351 n_out 2 (flat; stage 2048, b_fmt 0): 5 stages, fill 7.0 ms, wait 3.7 ms, h2d 57 MB
+[UPERF2-Q] combine session K 11 chunk 13920 n_out 2 (flat; stage 2048, b_fmt 0): 7 stages, fill 8.4 ms, wait 5.7 ms, h2d 78 MB
+[UPERF2-K] gemm na 11 nb 26 len 1615 (window 528416, ublk 404, ks 4, a_fmt 0, b_fmt 2): pack 4.2 ms, wait 2.3 ms, h2d 14 MB, d2h 0.2 ms
+[UPERF2-K] gemm na 26 nb 26 len 1615 (window 528416, ublk 404, ks 4, a_fmt 0, b_fmt 2): pack 3.5 ms, wait 12.1 ms, h2d 27 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 1 len 3185 (window 1048576, ublk 797, ks 4, a_fmt 0, b_fmt 2): pack 1.8 ms, wait 5.5 ms, h2d 18 MB, d2h 0.1 ms
+[UPERF2-Q] combine session K 26 chunk 1615 n_out 1 (flat; stage 1615, b_fmt 2): 1 stages, fill 0.6 ms, wait 2.3 ms, h2d 5 MB
+[UPERF2-F] RSS bg.act.level2                hwm     6983 MiB  rss     4220 MiB
+[UPERF2-Q] combine session K 26 chunk 1615 n_out 1 (flat; stage 1615, b_fmt 0): 1 stages, fill 1.9 ms, wait 5.1 ms, h2d 22 MB
+[UPERF2-Q] combine session K 12 chunk 1615 n_out 2 (flat; stage 1615, b_fmt 0): 1 stages, fill 1.0 ms, wait 2.7 ms, h2d 10 MB
+[UPERF2-Q] combine session K 11 chunk 3185 n_out 2 (flat; stage 2048, b_fmt 0): 2 stages, fill 1.8 ms, wait 2.8 ms, h2d 18 MB
+[UPERF2-K] gemm na 11 nb 14 len 574 (window 528416, ublk 144, ks 4, a_fmt 0, b_fmt 2): pack 4.9 ms, wait 1.1 ms, h2d 4 MB, d2h 0.2 ms
+[UPERF2-K] gemm na 14 nb 14 len 574 (window 528416, ublk 144, ks 4, a_fmt 0, b_fmt 2): pack 2.6 ms, wait 0.8 ms, h2d 5 MB, d2h 0.2 ms
+[UPERF2-F] RSS bg.act.level3                hwm     6983 MiB  rss     4225 MiB
+[UPERF2-K] gemm na 11 nb 9 len 336 (window 528416, ublk 84, ks 3, a_fmt 0, b_fmt 2): pack 4.2 ms, wait 0.8 ms, h2d 2 MB, d2h 0.1 ms
+[UPERF2-F] RSS bg.act.level4                hwm     6983 MiB  rss     4225 MiB
+[UPERF2-F] RSS bg.act.level5                hwm     6983 MiB  rss     4226 MiB
+[UPERF2-F] RSS bg.act.level6                hwm     6983 MiB  rss     4227 MiB
+[UPERF2-F] RSS bg.act.level7                hwm     6983 MiB  rss     4230 MiB
+[UPERF2-F] RSS bg.act.level8                hwm     6983 MiB  rss     4236 MiB
+  [UPERF3-SS] PASS TRANSCRIPT DIGEST e0b3b98564c5148c64debc45aea0a8e8045dcb1df2078062e9f3e59758c58f2f
+[UPERF2-Q] combine session K 64 chunk 55296 n_out 1 (pool; stage 2048, b_fmt -1): 27 stages, fill 38.1 ms, wait 84.1 ms, h2d 255 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 6.9 ms, wait 3.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.7 ms, wait 4.5 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.7 ms, wait 4.5 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.9 ms, wait 4.6 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.4 ms, wait 4.8 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.5 ms, wait 4.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 6144 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 4.0 ms, wait 4.3 ms, h2d 38 MB
+[UPERF2-Q] combine session K 11 chunk 4224 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 3.1 ms, wait 3.0 ms, h2d 24 MB
+[UPERF2-Q] combine session K 11 chunk 12480 n_out 2 (flat; stage 2048, b_fmt 0): 7 stages, fill 9.2 ms, wait 5.3 ms, h2d 70 MB
+[UPERF2-Q] combine session K 39 chunk 3264 n_out 1 (flat; stage 2048, b_fmt 0): 2 stages, fill 5.5 ms, wait 9.9 ms, h2d 65 MB
+[UPERF2-Q] combine session K 12 chunk 3264 n_out 2 (flat; stage 2048, b_fmt 0): 2 stages, fill 2.0 ms, wait 3.0 ms, h2d 20 MB
+[UPERF2-Q] combine session K 11 chunk 6045 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 3.3 ms, wait 4.3 ms, h2d 34 MB
+[UPERF2-Q] combine session K 11 chunk 1845 n_out 2 (flat; stage 1845, b_fmt 0): 1 stages, fill 1.0 ms, wait 2.8 ms, h2d 10 MB
+[UPERF2-Q] combine session K 64 chunk 192989 n_out 1 (pool; stage 2048, b_fmt -1): 95 stages, fill 606.2 ms, wait 9.2 ms, h2d 2998 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.0 ms, wait 5.0 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.9 ms, wait 4.3 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.5 ms, wait 4.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.5 ms, wait 4.6 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.0 ms, wait 5.2 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.7 ms, wait 4.5 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.1 ms, wait 5.1 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.3 ms, wait 5.0 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.8 ms, wait 4.6 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.5 ms, wait 4.6 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.6 ms, wait 4.3 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.3 ms, wait 4.8 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 4.9 ms, wait 5.2 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.0 ms, wait 5.3 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.0 ms, wait 5.1 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.1 ms, wait 5.1 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.6 ms, wait 4.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.5 ms, wait 4.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.9 ms, wait 4.5 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.3 ms, wait 4.9 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.6 ms, wait 4.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.8 ms, wait 4.5 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.9 ms, wait 4.5 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 4573 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 3.0 ms, wait 3.7 ms, h2d 28 MB
+[UPERF2-Q] combine session K 11 chunk 4928 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 2.9 ms, wait 3.3 ms, h2d 28 MB
+[UPERF2-Q] combine session K 11 chunk 14560 n_out 2 (flat; stage 2048, b_fmt 0): 8 stages, fill 9.5 ms, wait 5.5 ms, h2d 82 MB
+[UPERF2-Q] combine session K 64 chunk 9351 n_out 1 (flat; stage 2048, b_fmt 0): 5 stages, fill 23.9 ms, wait 31.5 ms, h2d 306 MB
+[UPERF2-Q] combine session K 12 chunk 9351 n_out 2 (flat; stage 2048, b_fmt 0): 5 stages, fill 6.2 ms, wait 4.8 ms, h2d 57 MB
+[UPERF2-Q] combine session K 11 chunk 13920 n_out 2 (flat; stage 2048, b_fmt 0): 7 stages, fill 8.1 ms, wait 6.1 ms, h2d 78 MB
+[UPERF2-Q] combine session K 26 chunk 1615 n_out 1 (flat; stage 1615, b_fmt 0): 1 stages, fill 1.7 ms, wait 5.2 ms, h2d 22 MB
+[UPERF2-Q] combine session K 12 chunk 1615 n_out 2 (flat; stage 1615, b_fmt 0): 1 stages, fill 1.0 ms, wait 2.8 ms, h2d 10 MB
+[UPERF2-Q] combine session K 11 chunk 3185 n_out 2 (flat; stage 2048, b_fmt 0): 2 stages, fill 1.7 ms, wait 3.0 ms, h2d 18 MB
+  STAGE-A pass: commit 6.7s prove 18.8s verify 4.6s | 670891 B counted | accept true
+  bytes: statement 26107 + instances 37056 + STAGE-A 243664 + publics 1536 + groups 362528 ( weight 179576 B; act 182952 B;)
+  groups: weight n_0 3538944 (8 lv), act n_0 12351296 (9 lv)
+  claims served: 455 (act/weight) + 0 (act-h) = 455
+  ORACLE (frozen bk_pass_run, same shape, default path):
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.8 ms, h2d+kernel 2.8 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.2 ms, h2d+kernel 2.5 ms, d2h+widen 1.7 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.7 ms, h2d+kernel 3.1 ms, d2h+widen 0.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.4 ms, h2d+kernel 2.8 ms, d2h+widen 1.4 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.2 ms, h2d+kernel 2.5 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.8 ms, h2d+kernel 3.0 ms, d2h+widen 0.7 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.1 ms, h2d+kernel 2.8 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.8 ms, h2d+kernel 2.8 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.4 ms, h2d+kernel 3.0 ms, d2h+widen 0.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.3 ms, h2d+kernel 2.8 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 0.7 ms, h2d+kernel 2.8 ms, d2h+widen 1.4 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.8 ms, h2d+kernel 3.1 ms, d2h+widen 0.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.6 ms, h2d+kernel 2.8 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 2.1 ms, h2d+kernel 2.8 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.3 ms, h2d+kernel 3.0 ms, d2h+widen 0.7 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.4 ms, h2d+kernel 2.8 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.3 ms, h2d+kernel 2.8 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 2.1 ms, h2d+kernel 3.0 ms, d2h+widen 0.5 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.2 ms, h2d+kernel 2.8 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.6 ms, h2d+kernel 2.8 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.5 ms, h2d+kernel 3.1 ms, d2h+widen 0.8 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.6 ms, h2d+kernel 2.8 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.4 ms, h2d+kernel 2.5 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.5 ms, h2d+kernel 3.0 ms, d2h+widen 0.7 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 2.3 ms, h2d+kernel 3.0 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 0.7 ms, h2d+kernel 2.7 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.0 ms, h2d+kernel 2.8 ms, d2h+widen 0.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.7 ms, h2d+kernel 2.8 ms, d2h+widen 1.4 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.7 ms, h2d+kernel 2.8 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.4 ms, h2d+kernel 3.0 ms, d2h+widen 0.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.3 ms, h2d+kernel 2.6 ms, d2h+widen 1.4 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.7 ms, h2d+kernel 2.7 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.3 ms, h2d+kernel 3.0 ms, d2h+widen 0.7 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.6 ms, h2d+kernel 2.8 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 2.5 ms, h2d+kernel 2.7 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.2 ms, h2d+kernel 3.0 ms, d2h+widen 0.6 ms
+[UPERF2-F] RSS bk.layers-loaded             hwm     6983 MiB  rss     4682 MiB
+[UPERF2-F] RSS bk.aux-built                 hwm     6983 MiB  rss     4682 MiB
+[UPERF2-F] RSS bk.witness-built             hwm     6983 MiB  rss     6073 MiB
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 11.3 ms, wait 81.4 ms, h2d 113 MB, d2h 0.4 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.3 ms, wait 67.0 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 9.1 ms, wait 45.8 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.4 ms, wait 42.0 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.3 ms, wait 30.5 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 11.7 ms, wait 30.1 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 6144 (window 528416, ublk 1536, ks 4, a_fmt 0, b_fmt 2): pack 8.2 ms, wait 20.5 ms, h2d 85 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 1 len 4224 (window 2097152, ublk 1056, ks 4, a_fmt 0, b_fmt 2): pack 5.0 ms, wait 7.9 ms, h2d 24 MB, d2h 0.1 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.4 ms, wait 26.8 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 9.0 ms, wait 28.3 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 9.6 ms, wait 27.6 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 9.4 ms, wait 28.2 ms, h2d 113 MB, d2h 0.4 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.5 ms, wait 19.9 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 9.6 ms, wait 21.2 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 9.4 ms, wait 21.4 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 12.0 ms, wait 18.7 ms, h2d 113 MB, d2h 0.4 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.3 ms, wait 20.3 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 9.6 ms, wait 20.4 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 11.2 ms, wait 20.0 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 12.1 ms, wait 19.1 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 9.3 ms, wait 21.6 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 10.3 ms, wait 20.8 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 8039 (window 528416, ublk 2010, ks 4, a_fmt 0, b_fmt 2): pack 13.4 ms, wait 19.3 ms, h2d 111 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 1 len 4928 (window 4194304, ublk 1232, ks 4, a_fmt 0, b_fmt 2): pack 2.7 ms, wait 7.7 ms, h2d 28 MB, d2h 0.1 ms
+[UPERF2-F] RSS bk.precommit                 hwm     6983 MiB  rss     4960 MiB
+[UPERF2-F] RSS bk.commit-end                hwm     6983 MiB  rss     4977 MiB
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 1024 deg 2: 1.51 ms (kernel+sync 0.65 ms)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.02 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.06 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.06 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 512 deg 2: 0.23 ms (kernel+sync 0.17 ms)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.01 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.06 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.10 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 256 deg 2: 0.22 ms (kernel+sync 0.17 ms)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.02 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.05 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.07 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 128 deg 2: 0.23 ms (kernel+sync 0.17 ms)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.01 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.05 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.06 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 64 deg 2: 0.22 ms (kernel+sync 0.17 ms)
+[UPERF2-L] k9 ixf fold n_out 512: 0.01 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 512: 0.05 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 512: 0.06 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 32 deg 2: 0.30 ms (kernel+sync 0.23 ms)
+[UPERF2-L] k9 ixf fold n_out 256: 0.09 ms (t.d len 4096 cap 4096, scratch len 262144 cap 262144)
+[UPERF2-L] k9 ixf fold n_out 256: 0.09 ms (t.d len 4096 cap 262144, scratch len 262144 cap 262144)
+[UPERF2-L] k9 ixf fold n_out 256: 0.10 ms (t.d len 4096 cap 262144, scratch len 262144 cap 262144)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 1024 deg 2: 1.45 ms (kernel+sync 0.60 ms)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.03 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.03 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.06 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 512 deg 2: 0.24 ms (kernel+sync 0.17 ms)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.02 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.07 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.05 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 256 deg 2: 0.23 ms (kernel+sync 0.17 ms)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.02 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.12 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.09 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 128 deg 2: 0.29 ms (kernel+sync 0.20 ms)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.01 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.09 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.09 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 64 deg 2: 0.28 ms (kernel+sync 0.20 ms)
+[UPERF2-L] k9 ixf fold n_out 512: 0.01 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 512: 0.10 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 512: 0.07 ms (t.d len 262144 cap 262144, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 32 deg 2: 0.24 ms (kernel+sync 0.18 ms)
+[UPERF2-L] k9 ixf fold n_out 256: 0.14 ms (t.d len 4096 cap 4096, scratch len 262144 cap 262144)
+[UPERF2-L] k9 ixf fold n_out 256: 0.13 ms (t.d len 4096 cap 262144, scratch len 262144 cap 262144)
+[UPERF2-L] k9 ixf fold n_out 256: 0.13 ms (t.d len 4096 cap 262144, scratch len 262144 cap 262144)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 2048 deg 2: 2.07 ms (kernel+sync 0.73 ms)
+[UPERF2-L] k9 ixf fold n_out 16384: 0.02 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 16384: 0.07 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 16384: 0.08 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 1024 deg 2: 0.31 ms (kernel+sync 0.24 ms)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.01 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.05 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.06 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 512 deg 2: 0.22 ms (kernel+sync 0.15 ms)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.01 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.05 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.05 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 256 deg 2: 0.23 ms (kernel+sync 0.17 ms)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.01 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.05 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.06 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 128 deg 2: 0.23 ms (kernel+sync 0.17 ms)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.01 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.05 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.05 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 64 deg 2: 0.19 ms (kernel+sync 0.15 ms)
+[UPERF2-L] k9 ixf fold n_out 512: 0.01 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 512: 0.05 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf fold n_out 512: 0.05 ms (t.d len 524288 cap 524288, scratch len 0 cap 0)
+[UPERF2-L] k9 ixf round kind 0 nt 3 n_pairs 32 deg 2: 0.19 ms (kernel+sync 0.14 ms)
+[UPERF2-L] k9 ixf fold n_out 256: 0.08 ms (t.d len 4096 cap 4096, scratch len 524288 cap 524288)
+[UPERF2-L] k9 ixf fold n_out 256: 0.08 ms (t.d len 4096 cap 524288, scratch len 524288 cap 524288)
+[UPERF2-L] k9 ixf fold n_out 256: 0.08 ms (t.d len 4096 cap 524288, scratch len 524288 cap 524288)
+[UPERF2-O] ixf: declined n 2^24 (need 4.06 GB more, free 3.65 GB)
+[UPERF2-L] k9 ixf round kind 1 nt 4 n_pairs 524288 deg 3: 583.75 ms (kernel+sync 103.06 ms)
+[UPERF2-L] k9 ixf fold n_out 4194304: 0.13 ms (t.d len 134217728 cap 134217728, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 4194304: 4.98 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 4194304: 4.80 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 4194304: 4.80 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf round kind 1 nt 4 n_pairs 262144 deg 3: 54.97 ms (kernel+sync 50.17 ms)
+[UPERF2-L] k9 ixf fold n_out 2097152: 0.05 ms (t.d len 134217728 cap 134217728, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 2097152: 2.76 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 2097152: 2.39 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 2097152: 2.42 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf round kind 1 nt 4 n_pairs 131072 deg 3: 27.88 ms (kernel+sync 25.52 ms)
+[UPERF2-L] k9 ixf fold n_out 1048576: 0.03 ms (t.d len 134217728 cap 134217728, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 1048576: 1.21 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 1048576: 1.26 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 1048576: 1.26 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf round kind 1 nt 4 n_pairs 65536 deg 3: 14.47 ms (kernel+sync 13.19 ms)
+[UPERF2-L] k9 ixf fold n_out 524288: 0.05 ms (t.d len 134217728 cap 134217728, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 524288: 0.55 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 524288: 0.66 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 524288: 0.68 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf round kind 1 nt 4 n_pairs 32768 deg 3: 7.72 ms (kernel+sync 7.05 ms)
+[UPERF2-L] k9 ixf fold n_out 262144: 0.02 ms (t.d len 134217728 cap 134217728, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 262144: 0.28 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 262144: 0.36 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 262144: 0.36 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf round kind 1 nt 4 n_pairs 16384 deg 3: 4.00 ms (kernel+sync 3.66 ms)
+[UPERF2-L] k9 ixf fold n_out 131072: 0.01 ms (t.d len 134217728 cap 134217728, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 131072: 0.23 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 131072: 0.19 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 131072: 0.21 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf round kind 1 nt 4 n_pairs 8192 deg 3: 2.10 ms (kernel+sync 1.93 ms)
+[UPERF2-L] k9 ixf fold n_out 65536: 0.01 ms (t.d len 134217728 cap 134217728, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 65536: 0.10 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 65536: 0.12 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 65536: 0.14 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf round kind 1 nt 4 n_pairs 4096 deg 3: 1.23 ms (kernel+sync 1.10 ms)
+[UPERF2-L] k9 ixf fold n_out 32768: 0.01 ms (t.d len 134217728 cap 134217728, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 32768: 0.09 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 32768: 0.09 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 32768: 0.09 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf round kind 1 nt 4 n_pairs 2048 deg 3: 0.67 ms (kernel+sync 0.60 ms)
+[UPERF2-L] k9 ixf fold n_out 16384: 0.01 ms (t.d len 134217728 cap 134217728, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 16384: 0.07 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 16384: 0.09 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 16384: 0.08 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf round kind 1 nt 4 n_pairs 1024 deg 3: 0.52 ms (kernel+sync 0.44 ms)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.04 ms (t.d len 134217728 cap 134217728, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.11 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.10 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 8192: 0.10 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf round kind 1 nt 4 n_pairs 512 deg 3: 0.24 ms (kernel+sync 0.19 ms)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.02 ms (t.d len 134217728 cap 134217728, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.09 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.16 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 4096: 0.19 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf round kind 1 nt 4 n_pairs 256 deg 3: 0.54 ms (kernel+sync 0.33 ms)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.02 ms (t.d len 134217728 cap 134217728, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.11 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.10 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 2048: 0.10 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf round kind 1 nt 4 n_pairs 128 deg 3: 0.52 ms (kernel+sync 0.43 ms)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.01 ms (t.d len 134217728 cap 134217728, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.11 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.10 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 1024: 0.12 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf round kind 1 nt 4 n_pairs 64 deg 3: 0.41 ms (kernel+sync 0.30 ms)
+[UPERF2-L] k9 ixf fold n_out 512: 0.02 ms (t.d len 134217728 cap 134217728, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 512: 0.11 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 512: 0.12 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 512: 0.11 ms (t.d len 134217728 cap 268435456, scratch len 268435456 cap 268435456)
+[UPERF2-L] k9 ixf round kind 1 nt 4 n_pairs 32 deg 3: 0.36 ms (kernel+sync 0.27 ms)
+[UPERF2-L] k9 ixf fold n_out 256: 0.19 ms (t.d len 4096 cap 268435456, scratch len 134217728 cap 134217728)
+[UPERF2-L] k9 ixf fold n_out 256: 0.18 ms (t.d len 4096 cap 134217728, scratch len 134217728 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 256: 0.17 ms (t.d len 4096 cap 268435456, scratch len 134217728 cap 268435456)
+[UPERF2-L] k9 ixf fold n_out 256: 0.17 ms (t.d len 4096 cap 268435456, scratch len 134217728 cap 268435456)
+[UPERF2-O] ixf: declined n 2^24 (need 4.06 GB more, free 0.43 GB)
+[UPERF2-P] k9: gave back 3.76 GB of idle device buffers / free slabs
+[UPERF2-L] gpu k9 ixf round failed (h2d: DriverError(CUDA_ERROR_INVALID_VALUE, "invalid argument")); this and later K-field calls fall back to the CPU bodies
+[UPERF2-O] ixf open kind 2 n 2^24 (n_pos 20, lambda 4): 367.5 ms (held 4.06 GB)
+[UPERF2-O] ixf round t 0 n 16777216 deg 2: 46.50 ms (kernel+sync 46.43 ms)
+[UPERF2-O] ixf round t 1 n 8388608 deg 2: 51.82 ms (kernel+sync 24.10 ms)
+[UPERF2-O] ixf round t 2 n 4194304 deg 2: 26.82 ms (kernel+sync 12.84 ms)
+[UPERF2-O] ixf round t 3 n 2097152 deg 2: 14.29 ms (kernel+sync 7.24 ms)
+[UPERF2-O] ixf round t 4 n 1048576 deg 2: 7.20 ms (kernel+sync 3.55 ms)
+[UPERF2-O] ixf round t 5 n 524288 deg 2: 3.88 ms (kernel+sync 2.15 ms)
+[UPERF2-O] ixf round t 6 n 262144 deg 2: 1.97 ms (kernel+sync 1.09 ms)
+[UPERF2-O] ixf round t 7 n 131072 deg 2: 1.14 ms (kernel+sync 0.68 ms)
+[UPERF2-O] ixf round t 8 n 65536 deg 2: 0.79 ms (kernel+sync 0.61 ms)
+[UPERF2-O] ixf round t 9 n 32768 deg 2: 0.43 ms (kernel+sync 0.31 ms)
+[UPERF2-O] ixf round t 10 n 16384 deg 2: 0.41 ms (kernel+sync 0.20 ms)
+[UPERF2-O] ixf round t 11 n 8192 deg 2: 0.25 ms (kernel+sync 0.19 ms)
+[UPERF2-O] ixf round t 12 n 4096 deg 2: 0.59 ms (kernel+sync 0.50 ms)
+[UPERF2-O] ixf round t 13 n 2048 deg 2: 0.45 ms (kernel+sync 0.28 ms)
+[UPERF2-O] ixf round t 14 n 1024 deg 2: 0.36 ms (kernel+sync 0.17 ms)
+[UPERF2-O] ixf round t 15 n 512 deg 2: 0.26 ms (kernel+sync 0.12 ms)
+[UPERF2-O] ixf open kind 2 n 2^24 (n_pos 20, lambda 4): 69.7 ms (held 4.06 GB)
+[UPERF2-O] ixf round t 0 n 16777216 deg 2: 49.70 ms (kernel+sync 49.64 ms)
+[UPERF2-O] ixf round t 1 n 8388608 deg 2: 53.12 ms (kernel+sync 25.65 ms)
+[UPERF2-O] ixf round t 2 n 4194304 deg 2: 27.79 ms (kernel+sync 13.48 ms)
+[UPERF2-O] ixf round t 3 n 2097152 deg 2: 14.43 ms (kernel+sync 7.41 ms)
+[UPERF2-O] ixf round t 4 n 1048576 deg 2: 7.36 ms (kernel+sync 3.88 ms)
+[UPERF2-O] ixf round t 5 n 524288 deg 2: 3.89 ms (kernel+sync 1.98 ms)
+[UPERF2-O] ixf round t 6 n 262144 deg 2: 1.97 ms (kernel+sync 1.08 ms)
+[UPERF2-O] ixf round t 7 n 131072 deg 2: 1.11 ms (kernel+sync 0.66 ms)
+[UPERF2-O] ixf round t 8 n 65536 deg 2: 0.60 ms (kernel+sync 0.39 ms)
+[UPERF2-O] ixf round t 9 n 32768 deg 2: 0.36 ms (kernel+sync 0.23 ms)
+[UPERF2-O] ixf round t 10 n 16384 deg 2: 0.32 ms (kernel+sync 0.18 ms)
+[UPERF2-O] ixf round t 11 n 8192 deg 2: 0.23 ms (kernel+sync 0.15 ms)
+[UPERF2-O] ixf round t 12 n 4096 deg 2: 0.56 ms (kernel+sync 0.53 ms)
+[UPERF2-O] ixf round t 13 n 2048 deg 2: 0.20 ms (kernel+sync 0.15 ms)
+[UPERF2-O] ixf round t 14 n 1024 deg 2: 0.20 ms (kernel+sync 0.14 ms)
+[UPERF2-O] ixf round t 15 n 512 deg 2: 0.20 ms (kernel+sync 0.13 ms)
+[UPERF2-O] ixf open kind 2 n 2^23 (n_pos 19, lambda 4): 28.9 ms (held 4.06 GB)
+[UPERF2-O] ixf round t 0 n 8388608 deg 2: 25.38 ms (kernel+sync 25.34 ms)
+[UPERF2-O] ixf round t 1 n 4194304 deg 2: 27.53 ms (kernel+sync 13.53 ms)
+[UPERF2-O] ixf round t 2 n 2097152 deg 2: 14.40 ms (kernel+sync 7.37 ms)
+[UPERF2-O] ixf round t 3 n 1048576 deg 2: 7.33 ms (kernel+sync 3.78 ms)
+[UPERF2-O] ixf round t 4 n 524288 deg 2: 3.87 ms (kernel+sync 2.06 ms)
+[UPERF2-O] ixf round t 5 n 262144 deg 2: 2.05 ms (kernel+sync 1.11 ms)
+[UPERF2-O] ixf round t 6 n 131072 deg 2: 1.16 ms (kernel+sync 0.66 ms)
+[UPERF2-O] ixf round t 7 n 65536 deg 2: 0.71 ms (kernel+sync 0.46 ms)
+[UPERF2-O] ixf round t 8 n 32768 deg 2: 0.47 ms (kernel+sync 0.30 ms)
+[UPERF2-O] ixf round t 9 n 16384 deg 2: 0.37 ms (kernel+sync 0.22 ms)
+[UPERF2-O] ixf round t 10 n 8192 deg 2: 0.25 ms (kernel+sync 0.16 ms)
+[UPERF2-O] ixf round t 11 n 4096 deg 2: 0.23 ms (kernel+sync 0.15 ms)
+[UPERF2-O] ixf round t 12 n 2048 deg 2: 0.29 ms (kernel+sync 0.27 ms)
+[UPERF2-O] ixf round t 13 n 1024 deg 2: 0.18 ms (kernel+sync 0.13 ms)
+[UPERF2-O] ixf round t 14 n 512 deg 2: 0.18 ms (kernel+sync 0.12 ms)
+[UPERF2-O] ixf: released 4.06 GB of device buffers
+[UPERF2-F] RSS bk.claim-layer-end           hwm    10919 MiB  rss     4965 MiB
+[UPERF2-F] RSS bk.pair-silu-m3              hwm    10919 MiB  rss     4984 MiB
+[UPERF2-F] RSS bk.pair-silu-m4              hwm    10919 MiB  rss     5000 MiB
+[UPERF2-F] RSS bk.pair-nrw-88               hwm    10919 MiB  rss     5019 MiB
+[UPERF2-F] RSS bk.pair-nrw-z                hwm    10919 MiB  rss     5036 MiB
+[UPERF2-F] RSS bk.pair-rem-w5               hwm    10919 MiB  rss     5051 MiB
+[UPERF2-F] RSS bk.pair-rem-w6               hwm    10919 MiB  rss     5068 MiB
+[UPERF2-F] RSS bk.pair-rem-w7               hwm    10919 MiB  rss     5085 MiB
+[UPERF2-F] RSS bk.pair-rem-w8               hwm    10919 MiB  rss     5104 MiB
+[UPERF2-F] RSS bk.pair-rem-w9               hwm    10919 MiB  rss     5123 MiB
+[UPERF2-F] RSS bk.pair-rem-w10              hwm    10919 MiB  rss     5138 MiB
+[UPERF2-F] RSS bk.groups-start              hwm    10919 MiB  rss     4881 MiB
+[UPERF2-F] RSS bg.weight.rows-pass          hwm    10919 MiB  rss     4894 MiB
+[UPERF2-F] RSS bg.weight.phi-pass           hwm    10919 MiB  rss     4882 MiB
+[UPERF2-Q] level-h session r 64 chunk 55296 (window 528416, stage 1024, ks 4, b_fmt 2): 54 stages, 1 flushes, grow 0.0 ms, fill 110.3 ms, enqueue 5.7 ms, wait 535.4 ms, h2d 708 MB
+[UPERF2-F] RSS bg.weight.level0-h           hwm    10919 MiB  rss     4901 MiB
+[UPERF2-K] gemm na 11 nb 1 len 12480 (window 2097152, ublk 3120, ks 4, a_fmt 0, b_fmt 2): pack 13.0 ms, wait 10.8 ms, h2d 72 MB, d2h 0.2 ms
+[UPERF2-Q] combine session K 64 chunk 55296 n_out 1 (flat; stage 2048, b_fmt 2): 27 stages, fill 29.5 ms, wait 60.1 ms, h2d 453 MB
+[UPERF2-F] RSS bg.weight.level0-fold        hwm    10919 MiB  rss     4467 MiB
+[UPERF2-Q] combine session K 64 chunk 55296 n_out 1 (pool; stage 2048, b_fmt -1): 27 stages, fill 37.2 ms, wait 85.4 ms, h2d 255 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.1 ms, wait 5.2 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.7 ms, wait 4.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 4.8 ms, wait 5.3 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 7.4 ms, wait 5.2 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 4.9 ms, wait 5.3 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.3 ms, wait 4.9 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 6144 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 3.7 ms, wait 4.6 ms, h2d 38 MB
+[UPERF2-Q] combine session K 11 chunk 4224 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 3.4 ms, wait 3.0 ms, h2d 24 MB
+[UPERF2-Q] combine session K 11 chunk 12480 n_out 2 (flat; stage 2048, b_fmt 0): 7 stages, fill 7.8 ms, wait 5.7 ms, h2d 70 MB
+[UPERF2-K] gemm na 11 nb 39 len 3264 (window 528416, ublk 816, ks 4, a_fmt 0, b_fmt 2): pack 4.2 ms, wait 6.9 ms, h2d 35 MB, d2h 0.2 ms
+[UPERF2-K] gemm na 39 nb 39 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 3.9 ms, wait 6.5 ms, h2d 26 MB, d2h 0.5 ms
+[UPERF2-K] gemm na 39 nb 39 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 4.2 ms, wait 6.3 ms, h2d 26 MB, d2h 0.6 ms
+[UPERF2-K] gemm na 39 nb 39 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 3.6 ms, wait 6.9 ms, h2d 26 MB, d2h 0.6 ms
+[UPERF2-K] gemm na 39 nb 39 len 192 (window 528416, ublk 64, ks 2, a_fmt 0, b_fmt 2): pack 1.2 ms, wait 1.4 ms, h2d 5 MB, d2h 0.6 ms
+[UPERF2-K] gemm na 11 nb 1 len 6045 (window 1048576, ublk 1512, ks 4, a_fmt 0, b_fmt 2): pack 4.5 ms, wait 8.1 ms, h2d 35 MB, d2h 0.1 ms
+[UPERF2-Q] combine session K 39 chunk 3264 n_out 1 (flat; stage 2048, b_fmt 2): 2 stages, fill 1.1 ms, wait 5.0 ms, h2d 16 MB
+[UPERF2-F] RSS bg.weight.level1             hwm    10919 MiB  rss     4755 MiB
+[UPERF2-Q] combine session K 39 chunk 3264 n_out 1 (flat; stage 2048, b_fmt 0): 2 stages, fill 5.8 ms, wait 9.7 ms, h2d 65 MB
+[UPERF2-Q] combine session K 12 chunk 3264 n_out 2 (flat; stage 2048, b_fmt 0): 2 stages, fill 2.3 ms, wait 2.8 ms, h2d 20 MB
+[UPERF2-Q] combine session K 11 chunk 6045 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 8.1 ms, wait 4.1 ms, h2d 34 MB
+[UPERF2-K] gemm na 11 nb 18 len 880 (window 528416, ublk 220, ks 4, a_fmt 0, b_fmt 2): pack 6.4 ms, wait 1.3 ms, h2d 7 MB, d2h 0.1 ms
+[UPERF2-K] gemm na 18 nb 18 len 880 (window 528416, ublk 220, ks 4, a_fmt 0, b_fmt 2): pack 3.9 ms, wait 3.8 ms, h2d 10 MB, d2h 0.2 ms
+[UPERF2-F] RSS bg.weight.level2             hwm    10919 MiB  rss     4772 MiB
+[UPERF2-Q] combine session K 11 chunk 1845 n_out 2 (flat; stage 1845, b_fmt 0): 1 stages, fill 1.2 ms, wait 2.8 ms, h2d 10 MB
+[UPERF2-K] gemm na 11 nb 11 len 408 (window 528416, ublk 102, ks 4, a_fmt 0, b_fmt 2): pack 5.6 ms, wait 0.8 ms, h2d 3 MB, d2h 0.1 ms
+[UPERF2-K] gemm na 11 nb 11 len 408 (window 528416, ublk 102, ks 4, a_fmt 0, b_fmt 2): pack 3.8 ms, wait 0.9 ms, h2d 3 MB, d2h 0.1 ms
+[UPERF2-F] RSS bg.weight.level3             hwm    10919 MiB  rss     4773 MiB
+[UPERF2-F] RSS bg.weight.level4             hwm    10919 MiB  rss     4773 MiB
+[UPERF2-F] RSS bg.weight.level5             hwm    10919 MiB  rss     4773 MiB
+[UPERF2-F] RSS bg.weight.level6             hwm    10919 MiB  rss     4773 MiB
+[UPERF2-F] RSS bg.weight.level7             hwm    10919 MiB  rss     4773 MiB
+[UPERF2-F] RSS bk.prove-weight-end          hwm    10919 MiB  rss     4429 MiB
+[UPERF2-F] RSS bg.act.rows-pass             hwm    10919 MiB  rss     4500 MiB
+[UPERF2-F] RSS bg.act.phi-pass              hwm    10919 MiB  rss     4552 MiB
+[UPERF2-Q] level-h session r 64 chunk 122727 (window 528416, stage 1024, ks 4, b_fmt 2): 120 stages, 1 flushes, grow 0.0 ms, fill 280.6 ms, enqueue 19.1 ms, wait 821.7 ms, h2d 1666 MB
+[UPERF2-F] RSS bg.act.level0-h              hwm    10919 MiB  rss     4560 MiB
+[UPERF2-K] gemm na 11 nb 1 len 14560 (window 4194304, ublk 3640, ks 4, a_fmt 0, b_fmt 2): pack 8.6 ms, wait 16.5 ms, h2d 84 MB, d2h 0.1 ms
+[UPERF2-Q] combine session K 64 chunk 122727 n_out 1 (flat; stage 2048, b_fmt 2): 60 stages, fill 61.8 ms, wait 124.0 ms, h2d 1005 MB
+[UPERF2-F] RSS bg.act.level0-fold           hwm    10919 MiB  rss     3609 MiB
+[UPERF2-Q] combine session K 64 chunk 122727 n_out 1 (pool; stage 2048, b_fmt -1): 60 stages, fill 169.7 ms, wait 96.1 ms, h2d 659 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.8 ms, wait 4.4 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.3 ms, wait 4.8 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.3 ms, wait 4.6 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.6 ms, wait 4.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.2 ms, wait 4.8 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.6 ms, wait 4.0 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.9 ms, wait 4.6 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.5 ms, wait 4.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.6 ms, wait 4.8 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.7 ms, wait 4.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 6.0 ms, wait 4.4 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 6.0 ms, wait 4.6 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.6 ms, wait 4.9 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.4 ms, wait 4.8 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8039 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 4.7 ms, wait 5.2 ms, h2d 49 MB
+[UPERF2-Q] combine session K 11 chunk 4928 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 3.0 ms, wait 3.4 ms, h2d 28 MB
+[UPERF2-Q] combine session K 11 chunk 14560 n_out 2 (flat; stage 2048, b_fmt 0): 8 stages, fill 9.5 ms, wait 5.8 ms, h2d 82 MB
+[UPERF2-K] gemm na 11 nb 58 len 6684 (window 528416, ublk 1671, ks 4, a_fmt 0, b_fmt 2): pack 7.5 ms, wait 17.4 ms, h2d 87 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 58 nb 58 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 4.2 ms, wait 8.8 ms, h2d 38 MB, d2h 1.1 ms
+[UPERF2-K] gemm na 58 nb 58 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 5.4 ms, wait 7.8 ms, h2d 38 MB, d2h 1.1 ms
+[UPERF2-K] gemm na 58 nb 58 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 4.9 ms, wait 8.4 ms, h2d 38 MB, d2h 1.1 ms
+[UPERF2-K] gemm na 58 nb 58 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 5.4 ms, wait 8.0 ms, h2d 38 MB, d2h 1.1 ms
+[UPERF2-K] gemm na 58 nb 58 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 5.3 ms, wait 8.3 ms, h2d 38 MB, d2h 1.1 ms
+[UPERF2-K] gemm na 58 nb 58 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 4.8 ms, wait 8.7 ms, h2d 38 MB, d2h 1.1 ms
+[UPERF2-K] gemm na 58 nb 58 len 540 (window 528416, ublk 135, ks 4, a_fmt 0, b_fmt 2): pack 5.2 ms, wait 6.7 ms, h2d 20 MB, d2h 1.1 ms
+[UPERF2-K] gemm na 11 nb 1 len 11745 (window 1048576, ublk 2937, ks 4, a_fmt 0, b_fmt 2): pack 9.7 ms, wait 13.5 ms, h2d 68 MB, d2h 0.1 ms
+[UPERF2-Q] combine session K 58 chunk 6684 n_out 1 (flat; stage 2048, b_fmt 2): 4 stages, fill 3.3 ms, wait 10.7 ms, h2d 50 MB
+[UPERF2-F] RSS bg.act.level1                hwm    10919 MiB  rss     4304 MiB
+[UPERF2-Q] combine session K 58 chunk 4096 n_out 1 (flat; stage 2048, b_fmt 0): 2 stages, fill 9.0 ms, wait 18.2 ms, h2d 122 MB
+[UPERF2-Q] combine session K 58 chunk 2588 n_out 1 (flat; stage 2048, b_fmt 0): 2 stages, fill 6.0 ms, wait 12.6 ms, h2d 77 MB
+[UPERF2-Q] combine session K 12 chunk 6684 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 4.1 ms, wait 4.5 ms, h2d 41 MB
+[UPERF2-Q] combine session K 11 chunk 11745 n_out 2 (flat; stage 2048, b_fmt 0): 6 stages, fill 7.3 ms, wait 4.8 ms, h2d 66 MB
+[UPERF2-K] gemm na 11 nb 23 len 1383 (window 528416, ublk 346, ks 4, a_fmt 0, b_fmt 2): pack 5.3 ms, wait 1.8 ms, h2d 12 MB, d2h 0.1 ms
+[UPERF2-K] gemm na 23 nb 23 len 1383 (window 528416, ublk 346, ks 4, a_fmt 0, b_fmt 2): pack 3.2 ms, wait 8.8 ms, h2d 20 MB, d2h 0.2 ms
+[UPERF2-F] RSS bg.act.level2                hwm    10919 MiB  rss     4404 MiB
+[UPERF2-Q] combine session K 12 chunk 1383 n_out 2 (flat; stage 1383, b_fmt 0): 1 stages, fill 1.1 ms, wait 2.4 ms, h2d 9 MB
+[UPERF2-Q] combine session K 11 chunk 2645 n_out 2 (flat; stage 2048, b_fmt 0): 2 stages, fill 1.7 ms, wait 2.9 ms, h2d 15 MB
+[UPERF2-K] gemm na 11 nb 13 len 523 (window 528416, ublk 131, ks 4, a_fmt 0, b_fmt 2): pack 4.8 ms, wait 0.9 ms, h2d 4 MB, d2h 0.1 ms
+[UPERF2-K] gemm na 13 nb 13 len 523 (window 528416, ublk 131, ks 4, a_fmt 0, b_fmt 2): pack 7.3 ms, wait 1.0 ms, h2d 4 MB, d2h 0.1 ms
+[UPERF2-F] RSS bg.act.level3                hwm    10919 MiB  rss     4409 MiB
+[UPERF2-F] RSS bg.act.level4                hwm    10919 MiB  rss     4409 MiB
+[UPERF2-F] RSS bg.act.level5                hwm    10919 MiB  rss     4409 MiB
+[UPERF2-F] RSS bg.act.level6                hwm    10919 MiB  rss     4409 MiB
+[UPERF2-F] RSS bg.act.level7                hwm    10919 MiB  rss     4409 MiB
+[UPERF2-F] RSS bg.act.level8                hwm    10919 MiB  rss     4409 MiB
+[UPERF2-F] RSS bk.prove-act-end             hwm    10919 MiB  rss     3749 MiB
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.4 ms, h2d+kernel 2.5 ms, d2h+widen 3.9 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 2.0 ms, h2d+kernel 2.4 ms, d2h+widen 3.5 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 2.0 ms, h2d+kernel 2.7 ms, d2h+widen 0.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.3 ms, h2d+kernel 2.6 ms, d2h+widen 1.7 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.1 ms, h2d+kernel 2.2 ms, d2h+widen 1.7 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.3 ms, h2d+kernel 2.7 ms, d2h+widen 1.4 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.2 ms, h2d+kernel 2.5 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.1 ms, h2d+kernel 2.4 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.7 ms, h2d+kernel 2.7 ms, d2h+widen 1.4 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.4 ms, h2d+kernel 2.5 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 0.9 ms, h2d+kernel 2.2 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.4 ms, h2d+kernel 2.7 ms, d2h+widen 1.3 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.4 ms, h2d+kernel 2.5 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.1 ms, h2d+kernel 2.4 ms, d2h+widen 1.8 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.5 ms, h2d+kernel 2.7 ms, d2h+widen 1.2 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.1 ms, h2d+kernel 5.4 ms, d2h+widen 1.7 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.3 ms, h2d+kernel 2.2 ms, d2h+widen 2.2 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.3 ms, h2d+kernel 2.7 ms, d2h+widen 1.2 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.6 ms, h2d+kernel 2.5 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.1 ms, h2d+kernel 2.4 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 2.1 ms, h2d+kernel 2.7 ms, d2h+widen 1.3 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.5 ms, h2d+kernel 2.5 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 0.9 ms, h2d+kernel 2.4 ms, d2h+widen 1.7 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.8 ms, h2d+kernel 2.7 ms, d2h+widen 0.7 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.3 ms, h2d+kernel 2.6 ms, d2h+widen 1.9 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.0 ms, h2d+kernel 2.5 ms, d2h+widen 1.7 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.0 ms, h2d+kernel 2.7 ms, d2h+widen 0.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.0 ms, h2d+kernel 2.6 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.1 ms, h2d+kernel 2.4 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 1.5 ms, h2d+kernel 2.8 ms, d2h+widen 0.8 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.6 ms, h2d+kernel 2.6 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.0 ms, h2d+kernel 2.4 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 0.8 ms, h2d+kernel 2.7 ms, d2h+widen 0.7 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.6 ms, h2d+kernel 2.5 ms, d2h+widen 1.6 ms
+[UPERF2-Q] chain gemm 512x768x2048: sync 0.0 ms, pack 1.2 ms, h2d+kernel 2.4 ms, d2h+widen 1.5 ms
+[UPERF2-Q] chain gemm 512x2048x768: sync 0.0 ms, pack 0.9 ms, h2d+kernel 2.4 ms, d2h+widen 0.6 ms
+[UPERF2-F] RSS bk.verify-groups-start       hwm    10919 MiB  rss     3924 MiB
+[UPERF2-Q] combine session K 64 chunk 55296 n_out 1 (pool; stage 2048, b_fmt -1): 27 stages, fill 41.5 ms, wait 81.1 ms, h2d 255 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.4 ms, wait 4.8 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.8 ms, wait 4.9 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.5 ms, wait 4.6 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.3 ms, wait 4.9 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.6 ms, wait 4.6 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.1 ms, wait 5.1 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 6144 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 4.1 ms, wait 3.9 ms, h2d 38 MB
+[UPERF2-Q] combine session K 11 chunk 4224 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 2.9 ms, wait 3.3 ms, h2d 24 MB
+[UPERF2-Q] combine session K 11 chunk 12480 n_out 2 (flat; stage 2048, b_fmt 0): 7 stages, fill 8.9 ms, wait 4.3 ms, h2d 70 MB
+[UPERF2-Q] combine session K 39 chunk 3264 n_out 1 (flat; stage 2048, b_fmt 0): 2 stages, fill 6.3 ms, wait 9.3 ms, h2d 65 MB
+[UPERF2-Q] combine session K 12 chunk 3264 n_out 2 (flat; stage 2048, b_fmt 0): 2 stages, fill 2.1 ms, wait 3.0 ms, h2d 20 MB
+[UPERF2-Q] combine session K 11 chunk 6045 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 4.7 ms, wait 3.1 ms, h2d 34 MB
+[UPERF2-Q] combine session K 11 chunk 1845 n_out 2 (flat; stage 1845, b_fmt 0): 1 stages, fill 1.0 ms, wait 2.8 ms, h2d 10 MB
+[UPERF2-F] RSS bk.verify-weight-end         hwm    10919 MiB  rss     4374 MiB
+[UPERF2-Q] combine session K 64 chunk 122727 n_out 1 (pool; stage 2048, b_fmt -1): 60 stages, fill 185.5 ms, wait 81.7 ms, h2d 659 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.0 ms, wait 5.1 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.9 ms, wait 4.5 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.2 ms, wait 5.1 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.6 ms, wait 4.6 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.3 ms, wait 4.8 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 4.9 ms, wait 5.3 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.1 ms, wait 5.1 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.2 ms, wait 4.8 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.1 ms, wait 5.0 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.2 ms, wait 5.0 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.3 ms, wait 5.0 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.2 ms, wait 4.9 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 6.7 ms, wait 4.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.0 ms, wait 5.3 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 8039 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 7.1 ms, wait 3.9 ms, h2d 49 MB
+[UPERF2-Q] combine session K 11 chunk 4928 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 3.0 ms, wait 3.4 ms, h2d 28 MB
+[UPERF2-Q] combine session K 11 chunk 14560 n_out 2 (flat; stage 2048, b_fmt 0): 8 stages, fill 8.9 ms, wait 6.4 ms, h2d 82 MB
+[UPERF2-Q] combine session K 58 chunk 6684 n_out 1 (flat; stage 2048, b_fmt 0): 4 stages, fill 15.1 ms, wait 22.5 ms, h2d 199 MB
+[UPERF2-Q] combine session K 12 chunk 6684 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 4.9 ms, wait 3.6 ms, h2d 41 MB
+[UPERF2-Q] combine session K 11 chunk 11745 n_out 2 (flat; stage 2048, b_fmt 0): 6 stages, fill 8.2 ms, wait 4.0 ms, h2d 66 MB
+[UPERF2-Q] combine session K 12 chunk 1383 n_out 2 (flat; stage 1383, b_fmt 0): 1 stages, fill 1.0 ms, wait 2.3 ms, h2d 9 MB
+[UPERF2-Q] combine session K 11 chunk 2645 n_out 2 (flat; stage 2048, b_fmt 0): 2 stages, fill 1.7 ms, wait 2.7 ms, h2d 15 MB
+[UPERF2-F] RSS bk.verify-act-end            hwm    10919 MiB  rss     4816 MiB
+    accept true | commit 3.2s prove 49.8s verify 4.0s | 1509911 B counted (descent pairs 1083456 B)
+  TRANSCRIPT DELTA [COUNTED]: descent pairs 1083456 B -> STAGE-A 243664 B; total 1509911 B -> 670891 B; act n_0 7854476 -> 12351296
+[UPERF3-RR] ATTRIBUTION mode range + zc claims BATCHED (the Stage-A default since round 11; ZK_RR_ZC_CLAIMS=gg = GG's per-column form) (walls s; 8 threads):
+  commit 6.69: groups+planes 1.53 | witness 1.75 | precommit weight 0.96 | precommit act 2.36 | statement 0.09
+  prove 18.84: claim-layer 2.50 | stage-a phase 4.52 = silu descents 2.24 + logup 0.00 + zc tabs-build 0.30 + zc prove 1.68 (eq 0.00 rounds 0.77 folds 0.03; 264 rounds, 83.61 G MACs) + zc claims-transport 0.25 + other 0.04 | publics+nus 0.04 | opening weight 2.48 | opening act 9.31 | tail 0.00
+    zc nrw-88   class 0: m 24 x 2^20 w  8 (n_tot 25): tabs 0.14s | prove 0.64s (eq 0.00 rounds 0.25 folds 0.00; 25 rounds, 30.58 G MACs) | claims 0.09s
+    zc nrw-z    class 0: m 12 x 2^19 w  8 (n_tot 23): tabs 0.02s | prove 0.14s (eq 0.00 rounds 0.07 folds 0.00; 23 rounds, 7.65 G MACs) | claims 0.03s
+    zc rem-w5   class 0: m  4 x 2^20 w  5 (n_tot 22): tabs 0.01s | prove 0.06s (eq 0.00 rounds 0.03 folds 0.00; 22 rounds, 2.49 G MACs) | claims 0.01s
+    zc rem-w6   class 0: m  6 x 2^20 w  6 (n_tot 23): tabs 0.02s | prove 0.11s (eq 0.00 rounds 0.05 folds 0.00; 23 rounds, 5.87 G MACs) | claims 0.01s
+    zc rem-w6   class 1: m  1 x 2^19 w  6 (n_tot 19): tabs 0.01s | prove 0.02s (eq 0.00 rounds 0.01 folds 0.00; 19 rounds, 0.37 G MACs) | claims 0.00s
+    zc rem-w7   class 0: m  6 x 2^20 w  7 (n_tot 23): tabs 0.02s | prove 0.12s (eq 0.00 rounds 0.06 folds 0.00; 23 rounds, 6.76 G MACs) | claims 0.01s
+    zc rem-w7   class 1: m  4 x 2^19 w  7 (n_tot 21): tabs 0.01s | prove 0.04s (eq 0.00 rounds 0.02 folds 0.00; 21 rounds, 1.69 G MACs) | claims 0.01s
+    zc rem-w8   class 0: m 15 x 2^20 w  8 (n_tot 24): tabs 0.05s | prove 0.28s (eq 0.00 rounds 0.13 folds 0.00; 24 rounds, 15.29 G MACs) | claims 0.04s
+    zc rem-w8   class 1: m  2 x 2^19 w  8 (n_tot 20): tabs 0.00s | prove 0.03s (eq 0.00 rounds 0.02 folds 0.00; 20 rounds, 0.96 G MACs) | claims 0.01s
+    zc rem-w9   class 0: m  5 x 2^20 w  9 (n_tot 23): tabs 0.02s | prove 0.15s (eq 0.00 rounds 0.08 folds 0.00; 23 rounds, 8.54 G MACs) | claims 0.02s
+    zc rem-w9   class 1: m  2 x 2^19 w  9 (n_tot 20): tabs 0.01s | prove 0.03s (eq 0.00 rounds 0.02 folds 0.00; 20 rounds, 1.07 G MACs) | claims 0.01s
+    zc rem-w10  class 0: m  3 x 2^19 w 10 (n_tot 21): tabs 0.01s | prove 0.06s (eq 0.00 rounds 0.03 folds 0.00; 21 rounds, 2.36 G MACs) | claims 0.02s
+  verify 4.61: claim-layer 0.00 | stage-a 0.15 | publics+nus 0.04 | group verifies 4.42
+  device: gpu-cuda: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB VRAM), ZK_GPU=1, min_macs 4194304, block budget 256 MB, stages 4, bypass false | k9: on — K-field kernels on the device (budget 6.88 GB, used 0.00 GB, min_pairs 32, eager false; tree store on — 0 trees, 0.00 GB) | ixf: on — device-built zero-check tables + device chain (held 0.00 GB, min_pairs 32, low bits 12) | zc: on — device zc aggregate (c 4; held 0.00 GB, peak 3.31 GB; 12 aggregates, 0 declined, 120 rounds / 120 folds; open 0.83s round 0.69s fold 0.01s handover 0.01s; min_pairs 4096)
+  phase table (prof, process-global; STAGE-A pass | ORACLE pass; bg.* per-group totals, ep.* shared by prover and verifier):
+    ep.crs-expand                 1.43s x38     |      0.73s x15
+    ep.matvec                     1.30s x69     |      1.18s x60
+    ep.compute-psi                0.31s x30     |      0.16s x29
+    ep.transport                  0.36s x26     |      0.30s x26
+    ep.psi0-factored              3.15s x4      |      1.69s x4
+    ep.level-h-pairs              2.48s x17     |      2.04s x17
+    ep.crs-cache-hit              0.00s x34     |      0.00s x57
+    bg.kernel-rows                3.39s x2      |      1.97s x2
+    bg.kernel-phi                 0.37s x2      |      0.16s x2
+    bg.fold                       0.84s x17     |      0.56s x17
+    bg.matvec-chunks              2.83s x17     |      1.92s x17
+    bg.level-h                    2.50s x17     |      2.05s x17
+    bg.prove-group               11.79s x2      |      7.65s x2
+    bg.verify-group               4.37s x2      |      2.86s x2
+    bg.commit-phase               0.00s x0      |      3.16s x1
+    bg.claim-layer                0.00s x0      |      5.62s x1
+    bk.descent-trees              0.00s x0      |      7.31s x20
+    bk.descent-gkr                0.00s x0      |     28.77s x20
+    a.tree-pack                   0.07s x12     |      0.91s x90
+    a.tree-step                   0.17s x12     |      9.34s x307
+    a.eq-table                    0.02s x52     |      0.70s x265
+    a.extract                     0.00s x10     |      0.01s x60
+    a.round-g                     0.74s x453    |     23.37s x2367
+    a.fold                        0.00s x231    |      0.74s x1195
+    a.scalar-tail                 0.01s x208    |      0.05s x1060
+    a.gkr-prove                   0.81s x4      |     28.77s x20
+    a.gkr-verify                  0.01s x4      |      0.04s x20
+    d.chain-derive                1.21s x12     |      1.15s x24
+    d.digit-witness               0.96s x2      |      0.61s x2
+    d.precommit-u0                3.21s x2      |      2.09s x2
+    d.statement                   0.00s x0      |      0.08s x1
+    d.aux-build                   0.00s x0      |      0.34s x1
+    d.groups                      0.00s x0      |      0.00s x1
+    d.cl-tables                   0.00s x5      |      1.79s x8
+    d.cl-rounds                   0.94s x138    |      2.26s x138
+    d.cl-folds                    0.02s x138    |      0.82s x138
+    d.cl-finals                   0.00s x0      |      0.00s x8
+    d.cl-pack                     0.01s x3      |      0.01s x3
+    e.tree-slots                  0.00s x0      |      0.12s x45
+    e.tree-witness                0.00s x0      |      7.18s x55
+    e.tree-table                  0.00s x0      |      0.01s x10
+    e.verify-shells               0.00s x0      |      0.00s x20
+    e.verify-cross                0.00s x0      |      0.00s x10
+    e.claims-mask                 0.01s x4      |      0.10s x20
+    e.claims-witness              0.00s x4      |      0.01s x20
+    e.claims-table                0.00s x4      |      0.02s x20
+    e.kpass-smallcols             0.10s x24     |      0.49s x120
+    m.fold-ntt                    0.71s x17     |      0.47s x17
+    m.crs-blocks                  0.16s x34     |      0.03s x11
+    m.crs-walk                    0.04s x34     |      0.01s x11
+    m.phi-setup                   1.32s x654    |      0.40s x642
+    m.tr-s                        3.24s x30     |      2.36s x30
+    m.tr-asm                      0.14s x28     |      0.08s x28
+    m.tr-pq                       0.06s x60     |      0.05s x60
+    m.tr-t5                       0.25s x30     |      0.25s x30
+    q.lh-fill                     0.84s x243    |      0.39s x174
+    q.lh-wait                     0.06s x2      |      0.06s x2
+    q.lh-stream                   2.15s x2      |      1.78s x2
+    q.lh-smax                     0.00s x2      |      0.00s x2
+    q.cb-fill                     1.91s x718    |      0.91s x533
+    q.cb-wait                     0.48s x101    |      0.38s x79
+    q.phi-gblocks                 0.29s x654    |      0.09s x642
+    q.fold-split                  0.11s x17     |      0.08s x17
+    q.rows-t                      2.35s x218    |      1.22s x214
+[UPERF3-RR] STAGE-A DIGEST statement ee87f41495edce0479ca4a72ffdff5fc75973e3a6ea508b056ab138745e8bad8 | prover-transcript e0b3b98564c5148c64debc45aea0a8e8045dcb1df2078062e9f3e59758c58f2f | verifier-transcript e0b3b98564c5148c64debc45aea0a8e8045dcb1df2078062e9f3e59758c58f2f | bytes 670891
+  peak RSS 10919 MiB
+	Command being timed: "/home/victor/wt-uperf3-ww/zkmatrix-rs/target-gpu/release/ring_matmul uperf-a pass 12 512 range"
+	User time (seconds): 344.94
+	System time (seconds): 59.74
+	Percent of CPU this job got: 459%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:28.11
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 11180884
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 21673943
+	Voluntary context switches: 740033
+	Involuntary context switches: 1192
+	Swaps: 0
+	File system inputs: 9678
+	File system outputs: 272
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
