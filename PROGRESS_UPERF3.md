@@ -6289,3 +6289,234 @@ commit (status COMPLETE + this section).
   lane: why the oracle leg's k9 path stayed cold after the device zc
   aggregate held 3.31 GB (VRAM budget interaction) — a one-process
   A/B needs the oracle leg FIRST or a standalone run.
+
+## RULINGS (Victor, console 2026-09-02, after round 10's close)
+
+Victor, verbatim: "Let's do 1) and 2) go ahead and work on variant B
+as well as a separate attempt". Read against the orchestrator's
+round-10 close message (item 1 = start the hash-based comparison
+prototype now; item 2 = the three rulings: the compact full-mode
+helper as the encoding, the batched claim transport as the Stage-A
+transcript form, and whether to build Variant B):
+1. **CHOICE D STARTS NOW**: the hash-based (float/int-mix-line)
+   comparison prototype on OUR exact int8 statement, on OUR rig —
+   round 11 lane UU. PROVING_CHANNEL_OPTIONS.md's "documented, not
+   started" line changes to "in build".
+2. **The kappa-4 partial-fraction helper is ADOPTED as THE full-mode
+   encoding** (lane SS's V3 form; `full` already means it, `full-s2`
+   keeps the GG/S2 form reachable). T17's full-mode freeze set uses
+   it.
+3. **The BATCHED claim transport is ADOPTED as the Stage-A transcript
+   form** (lane RR's R3a; today opt-in via ZK_RR_ZC_CLAIMS=batched;
+   round 11 lane WW makes it the default with the GG form opt-in).
+4. **Variant B of the two-tier opening is BUILT as a separate
+   attempt** (lane QQ's rung-1 count: tier-1 over the int8 VALUE
+   rings) — round 11 lane VV, against the original reopen bar.
+If the orchestrator's reading of "2)" overreaches (i.e. Victor meant
+only Variant B), items 2 and 3 revert to "pending" — both are
+selector-gated Stage-A forms, nothing frozen moves either way.
+
+## ROUND 11 — THE COMPARISON PROTOTYPE + VARIANT B + THE STAGE-A DEFAULTS (opened 2026-09-02)
+
+Ground: round 10 merged (0dc31f7; all floors green, CPU + GPU
+binaries). Every lane reads START_HERE.md first, then this block,
+then its brief. Worktrees wt-uperf3-{uu,vv,ww} on branches
+uperf3-{uu,vv,ww}. Standing rules = round 10's (build under
+`flock /tmp/zk-build.lock`; no background runs by lanes; > ~8 min
+runs posted as ORCHESTRATOR-RUN; one commit per green rung; labels
+on every wall; the built pass byte-identical; floors: release build,
+`uperf-pc diff-battery`, `freeze-check` with M125_EXPORT_DIR
+102 ok, uperf-s 3752cba4.., agg 46234986.., uperf-x be89d5da..,
+`uperf-a pass 12 64 range` statement 441ca5db.. / transcript
+44528c6a..).
+
+WHY THIS ROUND (plain words): round 10 measured every recorded lever
+of the lattice line and none made a proof faster than today's pass
+at 125M; the throughput model puts the line at 2-15 tok/s for 30B
+prefill on one H100 at the very best, against a 50 tok/s goal.
+Round 11 therefore (a) builds the competing proof system on our own
+statement to get OUR number for it (UU), (b) builds the one lattice
+lever that counted at 8-15x on paper (VV), and (c) makes the
+round-10 memory/bytes wins the defaults and gets the reference shape
+running in Stage-A mode on the laptop (WW).
+
+### Lane UU — the hash-based comparison prototype ("Route B") (wt-uperf3-uu) — RUST, NEW CRATE
+OWNS: NEW top-level crate `hashline/` (its own Cargo.toml, target
+dir, README), NEW results/hashline_*, one status paragraph in
+docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md §2 ("in build" + the
+measured row when it lands), "Agent UU status". READ-ONLY:
+everything under zkmatrix-rs/ (it is the semantic reference and the
+source of the frozen SiLU table — `ring::lookup::silu_v2_member` —
+and of the export reader's layout; nothing in it is modified),
+scripts/m125_export_ffn.py and scripts/m8b_export_ffn.py (the exact
+integer chain, the digest sidecar format), TARGET_CONTRACT.md §2 (the
+semantics), results/m125_ffn_export_wsl/ (the witness: layerNN_X.bin
+int8 T x d row-major, layerNN_WgT/WuT/WdT.bin int8, digests.txt with
+the per-layer shifts g/u/h/z and the per-tensor sha256s).
+WHAT TO BUILD (the honest comparison row, nothing more): a prover +
+verifier for THE SAME statement the lattice line proves at 12x512 —
+the 125M FFN pass, 12 layers x 512 tokens, EXACT int8 semantics
+(per layer: g = X.Wg and u = X.Wu with exact accumulators; the
+requant of g/u by the sidecar shifts with the remainders proven in
+range; the SiLU as the FROZEN 256-row v2 table applied to the
+requantized gate; the Hadamard with u; the requant of h; z = h.Wd
+with its requant to the sidecar's z width; every range fact a
+proven lookup) — but proven with a HASH-BASED, small-prime-field
+stack: (1) a multilinear polynomial commitment of the Ligero /
+Brakedown tensor-product class (rows Reed-Solomon-encoded, Merkle
+over columns, evaluation = one clear row-combination + random
+column checks; sqrt-size proofs; O(N) prover) over the Goldilocks
+field p = 2^64 - 2^32 + 1 with a degree-2 extension for challenges;
+(2) the three matmuls per layer via the matrix-multiplication
+sumcheck (Thaler: C~(r1,r2) = sum_k A~(r1,k) B~(k,r2), log2(d) rounds,
+prover cost linear in the matrix SIZES, not the MACs); (3) the SiLU
+table and every range/requant fact via LogUp-as-sumcheck over the
+256-row / 2^w-row tables with committed multiplicities; (4) the
+Hadamard and requant identities as zero-check sumchecks; (5)
+Fiat-Shamir via blake3 or sha2 (the repo has sha2). Field/NTT/Merkle
+primitives: use plonky3 crates from crates.io if `cargo` can fetch
+them on this box (p3-goldilocks, p3-field, p3-dft, p3-merkle-tree,
+p3-symmetric/p3-keccak, p3-challenger); if not fetchable, hand-roll
+(Goldilocks arithmetic is ~60 lines; a radix-2 NTT ~80; Merkle over
+sha2 ~40) — rung 0 decides and records which.
+RUNGS (prefix "U-PERF3 UU:"):
+  0. SKELETON: the crate builds (`flock /tmp/zk-build.lock cargo
+     build --release --manifest-path /home/victor/wt-uperf3-uu/hashline/Cargo.toml`);
+     field + extension + NTT + Merkle + transcript with unit tests;
+     the export reader reproduces the sidecar's per-tensor sha256s
+     for layer 0 (the witness is the right one); this status section
+     with the rung plan.
+  1. THE INTEGER CHAIN, EXACTLY: a plain (unproven) Rust
+     re-execution of one layer's FFN chain from the export bins that
+     reproduces the export's z digest for layer 0 AND layers 1-11
+     (the sidecar's `z` sha256 lines) — the proof is only worth
+     measuring if it is about the same integers. STOP and record if
+     any digest differs (read scripts/m125_export_ffn.py for the
+     exact floor/shift/table semantics).
+  2. THE MATMUL SUMCHECK at 3x16 for g = X.Wg: prover + verifier;
+     a differential vs the plain chain; tamper legs (one flipped X
+     entry, one flipped weight) reject.
+  3. THE PCS: commit X_l, Wg/Wu/Wd, and the intermediate tensors;
+     open the matmul sumcheck's terminal claims through it; tamper
+     legs on the commitment (a flipped committed value with an honest
+     opening attempt) reject.
+  4. THE LOOKUPS + IDENTITIES: SiLU table LogUp, the range/requant
+     facts, the Hadamard/requant zero-checks; the full ONE-LAYER
+     statement at 12x512 shape (T 512, d 768, f 2048) accepts;
+     tamper legs: an out-of-range remainder, a wrong table entry, a
+     wrong requant.
+  5. THE 12-LAYER PASS at 12x512 end to end (the same 2.89e10-MAC
+     statement the lattice line's 21.0 s row proves), measured with
+     /usr/bin/time -v at ZK_THREADS-equivalent 8 threads AND at the
+     box's 22 threads; prover wall, verifier wall, proof bytes, peak
+     RSS; proven MAC/s. THIS IS THE COMPARISON ROW — write it into
+     PROVING_CHANNEL_OPTIONS.md §3 next to the lattice line's 1.4e9
+     [MEASURED], with the label and every caveat (what is NOT
+     proven: attention, seams between layers; what the assumption
+     class is: hash-only, ~100-bit with the chosen parameters — state
+     them).
+  6. (if time) GPU: which kernels (NTT, the sumcheck round sums, the
+     Merkle hashing) would go to the RTX 4070 and a [MODEL] estimate
+     from the measured CPU shares — no port unless rung 5 is green
+     and the measured CPU row already beats the lattice line.
+ACCEPT for the round: rung 5's row is [MEASURED] on the same
+statement with tamper legs rejecting. A row SLOWER than the lattice
+line is as valuable as a faster one — it is the number Victor asked
+for.
+
+### Lane VV — Variant B of the two-tier opening (wt-uperf3-vv) — RUST
+OWNS: zkmatrix-rs/src/ring/two_tier.rs (ADDITIVE: Variant B behind
+a flag; QQ's R1 paths and the S4 paths stay byte-identical), the
+`uperf-t` bin section (ADDITIVE subcommands: `count-b`, `b diff`,
+`b bench`, `repeat-b`), NEW results/uperf3_vv_*, "Agent VV status".
+READ-ONLY: everything else (eval_proof.rs, the pass, manifest.rs,
+the GPU modules — reuse QQ's device fold/GEMM hooks, do not edit).
+WHAT IT IS (lane QQ's rung-1 count, verbatim): "VARIANT B: tier-1
+commitment over the int8 VALUE rings (e = 8) instead of the digit
+rings. Row-group exact-digit gate headroom +3.45 / +1.74 / +1.42
+bits at 12x512 / 8B / 30B (green); commit and fold 8x cheaper (8B
+fold 3.2 s); n_rec full 6.0M at 8B; per-proof 6.7 s (proxy) | 9.1 s
+(full) at 8B => ratio 32.8x | 24.0x [MODEL]; 12x512: 12.2x | 5.8x."
+And QQ's rung-5 projection: 8B weight side 14-27 s per proof vs
+~210 s built (7.8-15x); 30B 65-125 s vs ~940 s. The per-proof lever
+it removes is the digit-ring FOLD (58-73% of QQ's measured per-proof
+clock at 12x512).
+RUNGS (prefix "U-PERF3 VV:"):
+  0. SKELETON + the planner: `uperf-t count-b <log2>` prints the
+     Variant-B object map and the exact-digit gate at 2^22, 12x512
+     W, 8B W, 30B W (reproduce QQ's +3.45/+1.74/+1.42 bits; STOP if
+     the gate is red anywhere — that is the finding).
+  1. SOUNDNESS NOTE FIRST (a status-section paragraph, before code):
+     what the lattice binding rides on when tier-1 commits VALUE
+     rings rather than balanced digits — which lemma of
+     AGGREGATION_PARAMS_DESIGN.md / the built opening's extraction
+     argument covers a tier-1 witness of width e = 8, what the
+     norm-bound / exact-digit gate must hold, and what the tier-2
+     recursion sees. If the argument needs a NEW lemma, say so
+     plainly (Victor rules before any freeze; the build continues
+     as a measured spike).
+  2. BUILD Variant B on CPU behind the flag: the S4/R1 differential
+     legs (b_rows byte-equal, y_m equal, h_cur equal vs the built
+     opening) at 2^20 and 2^22; tamper legs reject.
+  3. THE DEVICE PATH: QQ's fold-as-GEMM and v-GEMM hooks over the
+     value-ring tier; bit-identical to rung 2; walls at 2^22 / 2^23
+     8T GPU vs the built `bg_prove_group` GPU path.
+  4. THE PER-PROOF MEASUREMENT at the real 12x512 weight group
+     (M125_EXPORT_DIR), per-model part warm (`repeat-b`), vs the
+     built GPU opening — THE BAR: >= 5x, claims bit-identical.
+  5. RECORD: the measured constants -> the 8B/30B per-proof weight
+     rows in lane TT's form; the verdict at the bar; what changes in
+     U_PERF3_THROUGHPUT_MODEL.md §2.4/§4 if it clears.
+
+### Lane WW — the Stage-A defaults + the driver diet at 12x512 (wt-uperf3-ww) — RUST
+OWNS: the `uperf-a` driver section of zkmatrix-rs/src/bin/ring_matmul.rs
+(the [UPERF3-GG]/[UPERF3-RR]/[UPERF3-SS] driver code; RR's and SS's
+lanes are closed), zc_range.rs (ADDITIVE), stage_a.rs, stage_a_full.rs,
+NEW results/uperf3_ww_*, "Agent WW status". READ-ONLY: eval_proof.rs,
+two_tier.rs, the frozen pass, manifest.rs, the GPU modules except
+zc_agg.rs (RR's — ADDITIVE fixes allowed if a VRAM-budget interaction
+is the cause of rung 3's finding).
+RUNGS (prefix "U-PERF3 WW:"):
+  0. THE DEFAULTS (rulings 2 and 3): `full` = kappa-4 (confirm; it
+     already is), the batched claim transport = the Stage-A DEFAULT
+     with the GG form opt-in (`ZK_RR_ZC_CLAIMS=gg`); the identity
+     floors move accordingly — record the NEW 12x64 batched digests
+     (RR: c0b8236f.. at 12x64, 1644b4e1.. at 12x128) as the Stage-A
+     identity from here on, and that the GG-form digests
+     (441ca5db../44528c6a..) remain reachable under the opt-in.
+  1. THE ORACLE-LEG-COLD FINDING: leg C's in-process oracle ran with
+     k9 "used 0.00 GB, 0 trees" (descents on the CPU, 54.9 s) after
+     the device zc aggregate held 3.31 GB — find the cause (VRAM
+     budget interaction? bypass state? order of legs?) and fix it or
+     make the driver run the oracle leg FIRST; acceptance: a
+     one-process 12x128 A/B where the oracle leg's k9 status shows
+     the trees on the device and its prove wall matches the
+     standalone frozen pass within noise.
+  2. THE DRIVER DIET at 12x512: lane GG's named terms (the nrw-88
+     zero-check transient ~5 GB, the claim tables at 4x) and lane
+     SS's claim-kernel diet (one h_sum claim per pair; free the
+     prover's claims before verify) — until `uperf-a pass 12 512
+     range` (batched default) AND `uperf-a pass 12 512 full` accept
+     on this box; record the three RSS high-water lines and the
+     peaks (/usr/bin/time -v; these are ~2-6 min runs at 8T — run
+     them yourself if under 8 min, else post as ORCHESTRATOR-RUN).
+  3. THE 12x512 A/B, honestly: oracle (k9 warm) vs Stage-A range vs
+     Stage-A full, one binary, ZK_GPU=1, 8T, walls + bytes + RSS +
+     digests — the row the round-10 ladder could not take on this
+     box; if the oracle leg must be a separate process for the k9
+     reason, say so and run it that way.
+  4. RECORD: the new Stage-A reference numbers at 12x512 on the
+     laptop, in lane TT's form; the 8B full-mode memory re-estimate
+     with the diet (replacing the "lower bound" caveat).
+
+## Agent UU status (wt-uperf3-uu) — round 11
+
+(lane appends below)
+
+## Agent VV status (wt-uperf3-vv) — round 11
+
+(lane appends below)
+
+## Agent WW status (wt-uperf3-ww) — round 11
+
+(lane appends below)

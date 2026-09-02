@@ -209,7 +209,19 @@ nonlinear parts. It is documented, not started
 (`PROVING_CHANNEL_OPTIONS.md`); the standing ruling (Aug 18) was to
 finish the lattice-line 8B MVP first.
 
-## 7. The choices, and what was decided (2026-09-02: ROUND 10 OPENED)
+## 7. The choices, and what was decided (2026-09-02: ROUND 10 CLOSED, ROUND 11 OPENED)
+
+Round 10's four lanes all landed the same day (§6 table). Victor then
+ruled (console, 2026-09-02): start the hash-based comparison
+prototype now (round 11 lane UU, a new crate `hashline/` proving the
+same 12x512 int8 statement with a hash-based small-field stack; its
+deliverable is a measured row next to the lattice line's 1.4e9
+MAC/s); adopt the compact full-mode helper and the batched claim
+transport as the Stage-A forms (lane WW makes them the defaults and
+gets the reference shape running on the laptop); and build "Variant
+B" of the two-tier opening as a separate attempt (lane VV, against
+the original 5x bar). Choice C (hardware) remains open. The
+paragraph below is the round-10 record.
 
 Victor chose the recommended order on 2026-09-02. Round 10 in
 `PROGRESS_UPERF3.md` opens four lanes with self-contained briefs:

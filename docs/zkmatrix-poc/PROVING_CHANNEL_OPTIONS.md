@@ -62,7 +62,23 @@ magnitude below the vendor-claimed hash-based line today (Section 3);
 the artifact is MB-class; the verifier is seconds-class at 1 thread on
 big statements until Stage B.
 
-## 2. Option B — the float/int-mix, hash-based line (Attestable-class) — DOCUMENTED, NOT STARTED
+## 2. Option B — the float/int-mix, hash-based line (Attestable-class) — IN BUILD (2026-09-02, round 11 lane UU)
+
+**Status update 2026-09-02.** Victor ruled (console) to start the
+comparison prototype now: round 11 lane UU builds `hashline/` — a
+hash-based, small-prime-field prover/verifier (Goldilocks with a
+degree-2 extension; a Ligero/Brakedown-class multilinear commitment;
+the matrix-multiplication sumcheck for the three matmuls; LogUp
+lookups for the SiLU table and every range/requant fact) for THE SAME
+12x512 exact-int8 statement the lattice line proves in 21.0 s. The
+deliverable is the [MEASURED] row in §3 below with tamper legs
+rejecting, plus the honest caveats (FFN-only, no seams, hash-only
+assumption class at the stated parameters). Context for the ruling:
+round 10 measured every recorded lattice-line lever and none made the
+proof faster than the built pass at 125M; U_PERF3_THROUGHPUT_MODEL.md
+puts the lattice line at 2-15 tok/s for 30B prefill on one H100 at
+best against a 50 tok/s goal. Until lane UU's row lands, everything
+below in this section remains [EXTERNAL] or [MODEL].
 
 **What is publicly known [EXTERNAL, VENDOR-CLAIMED, UNVERIFIED as of
 2026-08-18].** Attestable ("Proving LLMs at Scale", 2026-08-11): full

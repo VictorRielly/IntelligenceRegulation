@@ -19,6 +19,37 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-09-02 late (ROUND 10 CLOSED, ROUND 11 OPENED; three
+rulings; the Mac runbook unchanged):**
+- **ROUND 10 CLOSED**: all four lanes merged at 0dc31f7, floors green
+  on the CPU and GPU binaries. Net: no lever measured makes the
+  lattice proof faster than today's pass at 125M (QQ: the two-tier
+  opening with preprocessed weights at PARITY, bar 5x; RR: Stage A on
+  the GPU at parity only with the batched transport); the wins are
+  bytes (2.15-2.25x) and memory (7.5 -> 3.1 GB at 12x128; the first
+  Stage-A 12x512 run that fits the laptop, 11.2 GB); the tokens/s
+  model puts the lattice line at 2-15 tok/s for 30B prefill on one
+  H100 at best. Details in the four lane bullets below.
+- **RULINGS (Victor, console 2026-09-02: "Let's do 1) and 2) go ahead
+  and work on variant B as well as a separate attempt")**: the
+  hash-based comparison prototype STARTS NOW; the kappa-4 helper is
+  the full-mode encoding; the batched claim transport is the Stage-A
+  transcript form; Variant B is built as a separate attempt. The
+  ledger's RULINGS block (2026-09-02) records the reading and its
+  revert condition.
+- **ROUND 11 LANES** (PROGRESS_UPERF3.md, self-contained briefs):
+  **UU** = the hash-based prototype ("Route B") as a NEW crate
+  `hashline/` on the SAME 12x512 int8 statement — Goldilocks field,
+  Ligero/Brakedown-class multilinear commitment, the matmul sumcheck,
+  LogUp lookups; the deliverable is the MEASURED comparison row in
+  PROVING_CHANNEL_OPTIONS.md §3 with tamper legs; **VV** = Variant B
+  of the two-tier opening (tier-1 over int8 value rings; QQ counted
+  8-15x at 8B) against the original >= 5x bar at the 12x512 weight
+  group, soundness note first; **WW** = the Stage-A defaults
+  (rulings 2-3), the cold-descent-kernels finding from leg C, the
+  driver diet so 12x512 runs in both Stage-A modes on the laptop,
+  and the honest 12x512 A/B.
+
 **AS OF 2026-09-02 (ROUND 10 OPENED — the throughput round; the Mac
 runbook is the Mac's queue):**
 - **THE GOAL (Victor 2026-09-02)**: >= 50 proven tokens/s for a
