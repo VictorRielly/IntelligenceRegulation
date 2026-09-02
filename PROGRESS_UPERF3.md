@@ -5015,7 +5015,374 @@ ONE GPU (H100-class allowed), written so a newcomer can follow it:
 
 ## Agent QQ status (wt-uperf3-qq) — round 10
 
-(lane appends below)
+- 2026-09-02 SKELETON (rung 0): worktree wt-uperf3-qq on uperf3-qq
+  at 10f73bf (round-10 open). OWNS: zkmatrix-rs/src/ring/two_tier.rs
+  (ADDITIVE), NEW zkmatrix-rs/src/ring/gpu/two_tier_gpu.rs (+ its
+  `pub mod` line and the stub twin), the `uperf-t` bin section
+  (ADDITIVE: new [UPERF3-QQ] block after tt_build_real_act_instance;
+  the dispatcher now lists `count | r1 | gpu | repeat`), NEW
+  results/uperf3_qq_*, this section. READ-ONLY: everything else.
+  RUNG PLAN (one commit each, prefix "U-PERF3 QQ:"):
+  1. `uperf-t count [log2_rings]` — the C-R1 swap-order form
+     COUNTED: scalar MACs / ring products per phase (rows / v-pass /
+     fold / recursion), per-model vs per-proof, at 2^22, the 8B
+     weight group (352,321,536 rings) and a 30B weight group (shape
+     stated); [MODEL] walls on the RTX 4070 from the measured kernel
+     classes. The table lands here.
+  2. `uperf-t r1 [n_log2] [threads] [seed]` — the factored v-pass on
+     the CPU behind a flag (two_tier.rs: new functions, the S4
+     tt_qr_pass/tt_v_from_qr untouched); the FF rung-2 legs (DIFF
+     1-3 + the reject legs) reused verbatim at 2^20; the v-pass wall
+     at 2^22 1T vs the measured 20.01 s (bench22_1t_v2).
+  3. `uperf-t gpu` — the device port of the factored linear pass
+     (cudarc/NVRTC, integer MACs mod q31); bit-identical to rung 2;
+     wall at 2^22/2^23 ZK_GPU=1 vs the built bg_prove_group GPU path.
+  4. `uperf-t repeat <shape> [n]` — the per-model struct (built once,
+     held warm) vs the per-proof work; per-proof wall over n proofs;
+     then the REAL 12x512 WEIGHT group vs the built weight-group
+     opening (ZK_GPU=1 both), claims bit-identical.
+  5. RECORD + the verdict against the reopen bar (>= 5x per-proof
+     weight-side opening at the 12x512 weight group, claims
+     bit-identical); if not, the measured ratio is the finding.
+  Every wall: [WSL-BOX] [1T|8T] [NOISY-SHARED] (lanes RR/SS active).
+  Every number: [MEASURED] / [COUNTED] / [MODEL].
+  Rung 0 commit: 83e163d.
+- 2026-09-02 RUNG 1 — THE COUNT (`uperf-t count`, a printer, no
+  proving; full output results/uperf3_qq_count.log). THE FORM
+  COUNTED (memo §2 R1 / C-R1, written out over VALUE rings):
+    v[e][i] = sum_{j=(r,cb)} P_e[j] (x) Fl_i[j],
+    P_e[(r,cb)] = sum_d loY[r][d][e] * conjQ[cb][d]  (16 x nb x g mod-q rings per contrib),
+    Fl_i[(r,cb)] = the recombined value ring (= the int8 weight for CLASS_W8S).
+  i.e. the v-vectors are ONE GEMM of the built `ntt_gemm_modq_small`
+  contract (a = 16 rows of nb*g mod-q rings, b = G columns of nb*g
+  small rings) — the kernel that is already GPU-hooked and AVX2-
+  tuned. The memo's Y^d-basis shift (loY[r][d][e] = tw(d,e)
+  lo[r][(e-d) mod 16]) lives entirely in the P precompute (256 D nb g
+  scalar MACs, negligible) and never touches the witness pass.
+  THREE COUNTED FACTS the memo did not have:
+  (1) R1 has the SAME D-domain MAC count as the S4 `tt_qr_pass`
+      (16 Nv D) — the S4 cost was the TRANSFORMS: one forward AND one
+      inverse 128-pt NTT per (row, cb, d) product = 8,847,360 pairs at
+      2^22 (2.26 us each 1T [MEASURED-derived from the 20.01 s]); the
+      GEMM pays ONE forward transform per value ring (569,344 at 2^22)
+      + 16 G inverses. Counted v-pass at 2^22 1T: 1.94 s [MODEL C8]
+      vs 20.01 s => ~10x on the v-pass, above the memo's 2-5x ceiling
+      (the memo priced the swap-order S-pass as scalar MACs per row-nb
+      unit and missed that it is the GEMM the engine already has).
+  (2) The built claim layer's kernel-pass ROWS over the whole witness
+      are REDUNDANT in the two-tier form: b_rows[c] = sum_m sum_i
+      sum_e hiY[i][e][c] v[e][i] (256 D G scalar MACs per contrib) —
+      v does not depend on alphas, so the transcript order (b_rows,
+      alpha0, u, U, v, c, w) is unchanged. The differential leg
+      becomes STRONGER (b_rows recovered from v vs the oracle).
+  (3) The per-proof floor of the design of record is the FOLD over
+      DIGIT rings (8x the value rings at l0 8): 25.4 s at 8B on the
+      combine class C4 (72 ns/digit ring [MEASURED 12x512]) vs the v
+      GEMM's 1.2 + 1.0 s. The recursion's input with the per-tensor
+      grids as built is n_w + n2 + n_v = 10.3M rings at 8B (w digits
+      5.2M — 96 per-tensor folded rows x l_z 4 at e' 4; u 2.1M; v
+      3.0M), NOT the FF planner's global-split 1.65M: the per-tensor
+      grid costs ~6x in n_rec.
+  THE TABLE [COUNTED sizes; walls MODEL on the RTX 4070 Laptop from
+  the measured classes C1 GEMM 74 G D-MAC/s, C2 transform 22.9
+  ns/ring, C4 fold 72 ns/digit ring, C5 the built prove-group 0.623
+  us/level-0 ring (12x512: 7.1 s / 11,393,420 rings) used both as
+  the recursion class and as the built-opening class; one contrib
+  per weight tensor; ratio = built / two-tier per-proof, (proxy =
+  the FF bench's u-digit recursion | full = w+u+v recursed)]:
+  | shape | n0 digit rings | Nv value rings | v GEMM D-MACs | n_rec (w+u+v) | per-MODEL s | per-proof v (GEMM+xf) s | fold s | recursion s | per-proof TOTAL s | built s | ratio proxy | ratio full |
+  |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+  | 2^22 FF synthetic (n0 2,972,672) | 2.97e6 | 422,912 | 1.17e9 | 495,876 | 0.12 | 0.029 | 0.21 | 0.31 | 0.55 | 1.85 | 5.3x | 3.4x |
+  | 12x512 weight group (the bar's shape) | 3.54e6 | 442,368 | 0.91e9 | 583,680 | 0.15 | 0.022 | 0.25 | 0.36 | 0.64 | 2.21 | 5.5x | 3.4x |
+  | 8B weight group (352,321,536) | 352.3e6 | 44.0e6 | 90.2e9 | 10.3e6 | 14.8 | 2.23 | 25.4 | 6.4 | 34.0 | 219.6 | 7.6x | 6.5x |
+  | 30B FFN weight group (64 x 5120 x 25600 = 2.52e10 weights, ASSUMED shape; x1.23 for attention weights) | 1.57e9 | 196.6e6 | 402.7e9 | 42.7e6 | 65.9 | 9.9 | 113.2 | 26.6 | 149.8 | 980.2 | 7.6x | 6.5x |
+  PER-MODEL (alpha-independent, once per model): tier-1 commit
+  kappa*n0 ring-MACs (8B: 3.88e9 = 4.96e11 D-MACs, 6.7 s GEMM + 8.1 s
+  transforms [MODEL]), tier-2 U kappa*n2, CRS kappa*(width_sum+n2)
+  rings, the int8 value layout (8B: 5.64 GB; 30B: 25.2 GB — VRAM
+  residency is a board question; streamed at C3 11.7 GB/s it is
+  0.48 s / 2.15 s per pass).
+  VARIANT B [COUNTED, a DESIGN CHANGE outside this lane's authority —
+  recorded as the lever the count exposes]: tier-1 commitment over
+  the int8 VALUE rings (e = 8) instead of the digit rings. Row-group
+  exact-digit gate headroom +3.45 / +1.74 / +1.42 bits at 12x512 /
+  8B / 30B (green); commit and fold 8x cheaper (8B fold 3.2 s); n_rec
+  full 6.0M at 8B; per-proof 6.7 s (proxy) | 9.1 s (full) at 8B =>
+  ratio 32.8x | 24.0x [MODEL]; 12x512: 12.2x | 5.8x.
+  READING FOR THE RULING: on the GPU cost model the design of record
+  is a ~5-8x per-proof win over the built opening on the weight side
+  [MODEL], not the memo's 1.6-2.5x (which priced CPU ring products
+  and 1T); at the 12x512 bar shape the count sits AT the 5x bar
+  (5.5x proxy / 3.4x full) because the fixed-class fold + recursion
+  dominate a 3.5M-ring group; the win grows with the shape (8B 7.6x)
+  and Variant B is the ~25-30x lever. What clears 50 tok/s is lane
+  TT's arithmetic (per-proof weight side 34 s at 8B on THIS laptop
+  part [MODEL] is the row to convert). Every wall above is a model
+  from four measured classes; rungs 2-4 measure.
+  Floors at commit: build green; diff-battery 15.63 s; freeze-check
+  102 ok + passed; uperf-s 3752cba4.., agg 46234986.., uperf-x
+  be89d5da.. unchanged. Rung 1 commit: 1fa6611.
+- 2026-09-02 RUNG 2 — R1 ON THE CPU: GREEN, bit-identical; v-pass
+  6.1x [MEASURED]. BUILT: ring::two_tier (ADDITIVE; the S4 functions
+  untouched): `R1Form {Value, Digit}` + `tt_r1_form_for` (value form
+  whenever the recombined |value| fits >= 1 exact-integer window of
+  the GEMM — every CLASS_W8S weight tensor and every tensor of the FF
+  synthetic; the digit form is the same GEMM over the flat i8 digit
+  rings with the radix in P, for act classes beyond l0 ~11),
+  `tt_inner_value_functionals` (P_e over (r, cb)), `tt_fl_row_groups`
+  (the recombined value rings per row-group batch), `tt_v_pass_r1`
+  (batches of <= 64K value rings through `ntt_gemm_modq_small_gen`,
+  a = 16 x (nb g) mod-q rings, b = G x (nb g) small rings),
+  `tt_rows_from_v` (b_rows recovered from v). Bin: `TtVMode {S4, R1}`
+  threaded through tt_prove (the two FF call sites pass S4 — the
+  spike path is unchanged: `uperf-t diff 20 1 161` re-run, same
+  legs, same verdicts); in R1 mode the v-vectors are computed FIRST
+  (they never see the transcript), b_rows are recovered from them,
+  and the wire/absorption order is identical. `uperf-t r1 diff|bench`.
+  DIFFERENTIAL (`uperf-t r1 diff 20 1 161`, results/uperf3_qq_r1_diff20_1t.log)
+  [WSL-BOX 1T NOISY-SHARED]: all six tensors take the Value form
+  (windows 24,582-6.7M terms); DIFF 1 b_row images BYTE-IDENTICAL vs
+  the built GroupEvalProof.b_rows — in R1 mode the images are
+  RECOVERED FROM v, so this leg now pins the count's fact (2); DIFF 2
+  H_m == alphas . rows_m POLY-EXACT 7/7; DIFF 3 h_cur identical; the
+  6 reject legs fire at the same gates (tt-fold-binding x2,
+  tt-u-binding, tt-ct-row-gate, tt-consistency, tt-claim). two-tier
+  prove 8.58 s (R1) vs 16.18 s (S4, same box, concurrently) at
+  2^19.6; oracle 21.6 s; peak RSS 2594 MiB.
+  THE 2^22 MEASUREMENT (the FF bench harness in R1 mode;
+  results/uperf3_qq_r1_bench22_{1t,8t}.log; flock, /usr/bin/time -v):
+  | [WSL-BOX NOISY-SHARED] | S4 bench22_1t_v2 | R1 1T | R1 8T |
+  |---|---:|---:|---:|
+  | rows pass (S4: kernel pass; R1: rows-from-v) | 1.45 | **0.34** | 0.33 |
+  | v-passes | **20.01** | **3.26** (6.1x) | 2.29 |
+  | fold | 2.25 | 2.59 | 0.73 |
+  | tier1+tier2 commit (per-model class) | 14.59 | 16.41 | 4.91 |
+  | proxy recursion precommit + prove | 0.44 + 1.73 | 0.67 + 2.21 | 0.22 + 0.71 |
+  | tt core (rows+v+fold+rec) | 25.44 | **8.41** | 4.06 |
+  | bg_precommit / bg_prove_group | 7.10 / 27.91 | 7.23 / 28.74 | 2.90 / 8.26 |
+  | PROVE-GROUP-EQUIVALENT core ratio | 1.10x | **3.42x** | 2.03x |
+  | with-commit ratio | ~0.6x | 1.41x | 1.21x |
+  | tt_verify (unchanged by R1) | 3.93 | 4.80 | 3.25 |
+  | peak RSS | 4913 MiB | 4963 MiB | 4993 MiB |
+  READING: R1 on the CPU takes the S4 core from 1.10x to 3.42x at
+  1T — above the memo's 1.6-2.5x composed ceiling (the memo priced
+  the swap-order S-pass as scalar row-nb MACs and missed the GEMM
+  identity), below the 5x bar: the remaining core is fold 2.59 +
+  recursion 2.21 = 57%, exactly the two terms the count names as
+  the design-of-record floor. The R1 v-pass measured 3.26 s vs the
+  count's 1.94 s [MODEL C8] — the CPU GEMM body plus the i64 Fl
+  materialization and the P precompute on a noisy box; the GPU
+  measurement (rung 3) is the one the count is about. Bytes and the
+  verifier are untouched (criterion 3 was never R1's). ACCEPT per
+  the rung's own criterion (bit-identical; ratio recorded).
+  Floors at commit: build green; diff-battery green; freeze-check
+  102 ok + passed; uperf-s 3752cba4.., agg 46234986.., uperf-x
+  be89d5da.. unchanged. Rung 2 commit: 1a34ac6.
+- 2026-09-02 RUNG 3 — THE DEVICE PORT: bit-identical; measured at
+  PARITY with the built GPU opening at 2^22-2^23 and at the real
+  12x512 weight group (0.85x / 0.93x / 1.05x core). NO NEW KERNEL:
+  the R1 pass IS the `ntt_gemm_modq_small` contract, whose device
+  port (k_gemm_split, cuda.rs :638) is the existing hook — the port
+  is the dispatch. Built (two_tier.rs, ADDITIVE): `tt_v_pass_r1_dev`
+  (the value-form GEMM with the Fl batch built on a pool at the
+  house thread count and packed flat-i8 whenever every value fits —
+  the hook's `as_i8` fast path, i.e. every real int8 weight tensor),
+  `TtStridedCol` (a strided-column `SmallRings` view of the flat i8
+  witness; the GEMM never calls `sub`) + `tt_fold_r1` (the fold as
+  ONE GEMM per tensor: a = the G challenges as mod-q rings, b = the
+  width strided columns, len = G; centered back to the exact i64 fold
+  — the combine class is tuned for r <= 64 x many outputs, the
+  two-tier fold is G ~ 10^3 x width outputs, the transpose),
+  `tt_inner_value_functionals` / `tt_rows_from_v` pooled, the
+  attribution counters `tt_r1_prof_take`. Bin: R1 mode uses both;
+  `tt_wire_digest` (SHA-256 over b_rows|u|U|v|w) printed by diff and
+  bench with the GPU label — the cross-run identity check.
+  BYTE IDENTITY: WIRE DIGEST cae0b3123c0335b4.. at 2^20 IDENTICAL
+  across CPU/S4, CPU/R1, GPU/R1 (three binaries/modes; the FF legs
+  green on the device: results/uperf3_qq_r1_diff20_gpu.log); the
+  real weight group: b_row images byte-identical two-tier vs the
+  built opening at the real shape (the FF bench's leg).
+  THE MEASUREMENT [WSL-BOX 8T NOISY-SHARED, ZK_GPU=1, RTX 4070
+  Laptop; flock, /usr/bin/time -v; results/uperf3_qq_r1_bench{22,23}_8t_gpu.log,
+  results/uperf3_qq_r1_bench_realw_8t_gpu.log]:
+  | GPU 8T | 2^22 synth (n0 2.97M) | 2^23 synth (5.86M) | REAL 12x512 WEIGHT (3.54M, 36 tensors) |
+  |---|---:|---:|---:|
+  | rows-from-v | 0.09 | 0.44* | 0.11 |
+  | v-pass (P + Fl + GEMM) | 1.35 (0.06 + 0.41 + 0.85) | 1.90 (0.31 + 0.67 + 0.87)* | **0.67** (0.16 + 0.29 + **0.19**) |
+  | fold wall (fold-as-GEMM inside) | 0.71 (0.31) | 0.96 (0.59)* | 0.94 (0.49) |
+  | proxy recursion precommit + prove (u digits, 173-207K rings) | 0.19 + 0.62 | 0.22 + 0.55 | 0.24 + 0.58 |
+  | tt core (rows+v+fold+rec) | 2.77 | 3.85 | **2.30** |
+  | tier1+tier2 commit (per-model class) | 2.24 | 2.31 | 2.90 |
+  | built bg_precommit / bg_prove_group | 0.72 / **2.35** | 1.32 / 3.59 | 0.81 / **2.42** |
+  | RATIO core (proxy recursion) | 0.85x | 0.93x | **1.05x** |
+  | tt_verify (unchanged by R1) | 3.05 | 3.51 | 7.27 (consistency 5.13 — 36 tensors x 16 x width) |
+  | bytes spike-clear vs built | 45.3 MB vs 179 KB | — | 65.0 MB vs 180 KB |
+  | peak RSS | 5242 MiB | 6749 MiB | 6369 MiB |
+  (* the 2^23 row is from the run before the P/rows pooling landed;
+  the pooled 2^22 row is the final form.)
+  ATTRIBUTION (what the device actually does at these shapes):
+  (1) the GEMM hook at the two-tier shape (len = g*nb = 64-512 value
+  rings, na = 16, nb up to 1024) runs ~8x below C1: `ZK_GPU_VERBOSE`
+  shows "gemm na 16 nb 1024 len 64 (b_fmt 3 = i64): pack 5.1 ms,
+  wait 15.0 ms, h2d 68 MB, d2h 10 ms" — a short K loop, an i64
+  operand in the synthetic (|Fl| <= 255), transfer-bound; on the real
+  int8 weights (i8 pack) the whole v GEMM is 0.19 s at 12x512. At the
+  8B shape len = 1792 (the level-h class) — the count's C1 applies
+  there, not here. (2) the fold-as-GEMM: 0.31-0.49 s vs the combine
+  class's 0.99 s at 2^22 (measured in the first GPU run); the rest of
+  the fold wall is host-side (the honest-bound check + poly_from_small
+  + absorb over width rings). (3) THE FLOOR: the proxy recursion on a
+  173-207K-ring group costs 0.8 s = ~4 us/ring — the built machinery's
+  fixed-cost regime (7 levels, CRS, transcript), 6x the C5 class the
+  count used (0.62 us/ring, measured at 11.4M rings). The count's
+  12x512 row assumed C5 for the recursion; measured, the recursion
+  alone is 1/3 of the built opening's whole wall.
+  READING: at 2^22-2^23 and at the real 12x512 weight group the
+  built opening on this GPU costs 2.3-3.6 s, and the two-tier
+  per-proof core (R1, device GEMMs, proxy recursion) is AT PARITY
+  (0.85-1.05x) — the S4 spike's 0.65x at 7T CPU becomes ~1x on the
+  device, the v-pass having gone from 79% of the core to ~30%. The
+  5x bar at this shape would need the recursion + fold + v together
+  under ~0.5 s against a 2.4 s built wall; the recursion alone is
+  0.8 s. This is the shape-class finding the count predicted in its
+  own reading ("the fixed-class fold + recursion dominate a 3.5M-ring
+  group") but at a worse constant than counted. The two-tier form's
+  advantage is asymptotic — the built path's x41-43 opening terms vs
+  linear passes — and lives at the 8B shape [MODEL 6.5-7.6x, count],
+  not at 12x512 [MEASURED 1.05x]. Rung 4 measures the per-model /
+  per-proof split at this shape; the reopen bar as written (12x512
+  weight group, >= 5x) is NOT met [MEASURED].
+  Floors at commit: build green (CPU + GPU); diff-battery green;
+  freeze-check 102 ok + passed; uperf-s 3752cba4.., agg 46234986..,
+  uperf-x be89d5da.. unchanged. Rung 3 commit: c030ea6.
+- 2026-09-02 RUNG 4 — THE PREPROCESSING BOUNDARY: built and
+  measured; the weight-side per-proof opening at the real 12x512
+  weight group is 1.00x the built GPU opening [MEASURED]. BUILT
+  (bin, ADDITIVE): `TtPerModel` = everything alpha/point-independent
+  — the tier-1 inner commitments u, the tier-2 U, the flat-i8 value
+  layout the v GEMM reads (the CRS matrices ride eval_proof's Arc
+  cache, warm after the build); `tt_build_per_model`; `tt_prove`
+  takes `Option<&TtPerModel>` (the commitments are absorbed from the
+  cache — the transcript and wire are unchanged: digest identical);
+  two_tier.rs `tt_fl_layout_i8` + `tt_v_pass_r1_dev(.., fl_cache)`.
+  `uperf-t repeat <n_log2|real|real-w> [n] [threads] [seed]`: the
+  per-model build once, n two-tier proofs with it warm (per-proof =
+  tt_prove + the proxy recursion prove; the recursion's precommit is
+  per-model class and reported separately), then n built openings
+  on an identically rebuilt group (the E-O2-BB one-opening gate) with
+  the witness cloned; b_rows two-tier == built asserted; the wire
+  digest asserted identical across the n proofs.
+  THE MEASUREMENT [WSL-BOX 8T NOISY-SHARED, ZK_GPU=1, RTX 4070
+  Laptop; flock, /usr/bin/time -v; results/uperf3_qq_repeat_realw_8t_gpu.log,
+  results/uperf3_qq_repeat22_8t_gpu.log]:
+  | GPU 8T, n = 3 | REAL 12x512 WEIGHT group (3,538,944 rings, 36 tensors, i8 layout 36/36) | 2^22 synth |
+  |---|---:|---:|
+  | PER-MODEL build (u + U + i8 layout) | **2.34 s**, 91.2 MB held | 1.93 s, 32.9 MB |
+  | per-proof tt_prove (min) | 1.74 = rows-from-v 0.09 + v 0.27 (P 0.13 + GEMM **0.12**) + fold 0.80 (GEMM 0.42) + commits-from-cache 0.03 + absorbs | 1.80 |
+  | per-proof recursion prove (proxy, u digits 202,752 rings) | 0.34 (its precommit 0.10, per-model class) | 0.28 |
+  | **PER-PROOF two-tier, per-model warm (min / median)** | **2.08 / 2.15 s** | 2.09 / 2.24 |
+  | built bg_prove_group (min / median) | **2.09 / 2.11 s** | 1.79 / 1.80 |
+  | built bg_precommit (min; per-model class, paid per proof as built) | 0.68 | 0.57 |
+  | RATIO built / two-tier per-proof | **1.00x** (prove-group) / 1.33x (+ precommit) | 0.86x / 1.13x |
+  | claims | b_row images BYTE-IDENTICAL (two-tier recovered from v vs built); wire digest 12a8a3f6.. identical x3 | cba4356c.. x3 |
+  | peak RSS | 5872 MiB | 4763 MiB |
+  WHERE THE PER-PROOF 2.08 s GOES at the weight group: the fold 0.80
+  (0.42 device GEMM over strided columns at len = G = 64-96 — a short
+  K again — + 0.38 host: honest-bound check, poly_from_small and the
+  transcript absorb of 43,008 folded rings), the recursion prove
+  0.34, the v GEMM 0.12 (+ P 0.13 on the CPU pool), rows-from-v 0.09,
+  the transcript/absorbs the rest. The per-model part removed from
+  the per-proof clock: 2.34 s of tier commits + layout — the same
+  class as the built path's own precommit (0.68 s), which the built
+  pass ALSO treats as per-model discipline for the weights.
+  VERDICT AT THE BAR: per-proof weight-side opening at the 12x512
+  weight group = 1.00x the built GPU path (bar: >= 5x) — NOT MET
+  [MEASURED]. Claims bit-identical throughout.
+  Floors at commit: build green (CPU + GPU); diff-battery green;
+  freeze-check 102 ok + passed; uperf-s 3752cba4.., agg 46234986..,
+  uperf-x be89d5da.. unchanged. Rung 4 commit: 1dfcf72.
+- 2026-09-02 RUNG 5 — THE RECORD AND THE VERDICT. LANE COMPLETE.
+  THE VERDICT against the reopen bar (per-proof weight-side opening
+  at the 12x512 weight group >= 5x faster than the built GPU path,
+  claims bit-identical): **NOT MET — measured 1.00x** (2.08 s vs
+  2.09 s, [WSL-BOX 8T GPU NOISY-SHARED], claims byte-identical, the
+  per-model part held warm). Per the brief, the ratio is the finding
+  and the lane stops here. What the lane established on the way:
+  (a) the memo's C-R1 count was wrong in the memo's own favor-
+  against: the swap-order v-pass is ONE existing GEMM (10x on the
+  v-pass at 1T CPU [MODEL], 6.1x [MEASURED]), taking the S4 core
+  from 1.10x to 3.42x at 1T CPU [MEASURED] — above the memo's
+  1.6-2.5x closing ceiling; (b) on the device the whole two-tier
+  per-proof side reaches PARITY with the built opening at 2^22-2^23
+  and at the real weight group, and no better, because at ~3.5M
+  rings the built GPU opening costs ~2 s and the two-tier's floors
+  (a ~200K-ring recursion, a fold over 8x the value rings, the
+  per-tensor host-side fold tail) add up to the same; (c) the
+  per-model / per-proof boundary EXISTS and is bit-identical (2.34 s
+  per model at 12x512, 91 MB held; the transcript unchanged).
+  THE MEASURED CONSTANTS (12x512 weight group, GPU 8T NOISY; every
+  8B/30B row below is [MODEL] = these constants x the counted
+  sizes, linear unless said):
+  | constant | value | source |
+  |---|---:|---|
+  | K1 per-model tier-1 + U + i8 layout | 0.66 us / digit ring | 2.34 s / 3,538,944 |
+  | K2 v GEMM, i8 operand, len = g*nb 128-192 (short K) | 7.5 G D-MAC/s | 0.12 s / 9.06e8; at len ~1800 (8B) the C1 class 74 G/s applies [MODEL] |
+  | K3 P precompute (CPU pool) | 1.35 G scalar MAC/s | 0.13 s / 1.76e8 |
+  | K4 fold-as-GEMM, len = G 64-96 | 119 ns / digit ring | 0.42 s / 3,538,944 (combine class: 72 ns; Variant B: over value rings) |
+  | K5 fold host tail (bound check + poly_from_small + absorb) | 8.8 us / folded ring | 0.38 s / 43,008 (scales with width_sum = the per-tensor grid tax) |
+  | K6 recursion prove, small regime | 1.68 us / ring | 0.34 s / 202,752 (C5 0.62 us/ring at 11.4M) |
+  | K7 rows-from-v | ~1.1 G scalar MAC/s | 0.09 s / 1.0e8 |
+  | K8 the built bg_prove_group on the device | 0.59 us / digit ring | 2.09 s / 3,538,944 (C5 0.62 at 12x512 both groups; ROUTES x41-43 for x44 rings — linear class) |
+  THE PROJECTION TABLE FOR LANE TT (RTX 4070 Laptop GPU, 8T, weights
+  resident; [MODEL] from K1-K8 x the rung-1 counted sizes; ranges =
+  short-K rate .. C1 rate for the v GEMM, small-regime .. C5 for the
+  recursion):
+  | shape | per-MODEL (once) | per-proof v GEMM + P + rows | per-proof fold (GEMM + host tail) | per-proof recursion (proxy u digits) | **per-proof TOTAL** | built opening | ratio |
+  |---|---:|---:|---:|---:|---:|---:|---:|
+  | 12x512 W [MEASURED] | 2.34 s | 0.27 + 0.09 | 0.42 + 0.38 | 0.34 | **2.08 s** | 2.09 s | **1.00x** |
+  | 8B W, design of record | 233 s | 1.2-12 + 4.4 + 0.7 | 41.9 + 12.7 | 1.3-3.5 | **62-75 s** | ~210 s | **2.8-3.4x** |
+  | 8B W, Variant B (value-ring tier 1; a design change) | ~30 s | 1.2-12 + 4.4 + 0.7 | 5.2 + 1.6 | 1.3-3.5 | **14-27 s** | ~210 s | **7.8-15x** |
+  | 30B W (FFN-only 64x5120x25600), design of record | 1,040 s | 5.4-54 + 20 + 3 | 187 + 57 | 6-16 | **280-340 s** | ~940 s | ~2.8-3.4x |
+  | 30B W, Variant B | ~130 s | 5.4-54 + 20 + 3 | 23 + 7 | 6-16 | **65-125 s** | ~940 s | ~7.5-14x |
+  (the "full" recursion — w + u + v digits recursed, 10.3M rings at
+  8B — adds 6-17 s to the 8B rows; the u/v/w clear-wire form is what
+  was measured. Per-proof act-side work is NOT in this table: the
+  weight side only, as the brief asks.)
+  READING FOR THE RULING: on this GPU the two-tier opening with
+  weight preprocessing gives ~3x on the weight-side per-proof clock
+  at 8B in the design of record [MODEL], ~8-15x with Variant B, and
+  1.00x at 12x512 [MEASURED]. The count's 6.5-7.6x (rung 1) assumed
+  the C-class rates for the fold and the recursion; the measured
+  constants at the two-tier's shapes (short-K GEMMs, a small-regime
+  recursion, the per-tensor fold tail) are 2-6x worse. The lever the
+  measurements point at is NOT the v-pass any more (0.27 s of 2.08):
+  it is the FOLD over digit rings (K4 + K5 = 58% of the per-proof
+  clock at 12x512, 73% at 8B) — Variant B removes 8x of it by
+  committing the int8 value rings (row-group gate +1.74 bits at 8B
+  [COUNTED, rung 1]) and needs a design ruling (the committed object
+  changes; the exact-digit gate holds), plus a global (not
+  per-tensor) grid to kill the K5 tail (6x on n_w at 8B [COUNTED]).
+  Whether ~3x (or ~10x) on the weight side of one proof reaches 50
+  tok/s is lane TT's conversion; this lane's numbers are the rows
+  above.
+  NOT COUNTED / NOT MEASURED (honesty): the act-side opening under
+  two-tier (act tensors need the digit form or i64 operands: l0 up
+  to 15); the verifier (criterion 3: tt_verify 7.27 s at the weight
+  group, consistency 5.13 s — 36 tensors x 16 x width; R2's
+  recursed serving was never built); the R2 bytes (65 MB clear vs
+  180 KB built); the composed pass (this is the group opening
+  alone); a quiet box (every wall here is NOISY-SHARED, 8T); a
+  desktop board or an H100 (nothing here is measured on one — the
+  weights resident assumption is a board question: 5.6 GB at 8B,
+  25 GB at 30B); a tensor-core int8 fold kernel (not built; would
+  be the other way to remove K4). The S4 code paths, the built
+  pass, and every freeze row are byte-identical (floors green at
+  every commit; `uperf-t diff 20 1 161` re-run in S4 mode gives the
+  FF verdicts and the same wire digest as R1).
+  ORCHESTRATOR-RUN: none posted — every run of this lane fit the
+  foreground limit (longest: bench 22 1T, 1:49).
+  Commits: 83e163d (rung 0), 1fa6611 (rung 1), 1a34ac6 (rung 2),
+  c030ea6 (rung 3), 1dfcf72 (rung 4), this entry (rung 5).
 
 ## Agent RR status (wt-uperf3-rr) — round 10
 

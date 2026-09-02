@@ -49755,14 +49755,24 @@ fn uperf_t_main(args: &[String]) {
         }
         Some("diff") => {
             let geti = |i: usize, d: usize| args.get(i).map(|s| s.parse().expect("num")).unwrap_or(d);
-            uperf_t_diff(geti(1, 20), geti(2, 1), geti(3, 161) as u8);
+            uperf_t_diff(geti(1, 20), geti(2, 1), geti(3, 161) as u8, TtVMode::S4);
         }
         Some("bench") => {
             let geti = |i: usize, d: usize| args.get(i).map(|s| s.parse().expect("num")).unwrap_or(d);
             let shape = args.get(1).cloned().unwrap_or_else(|| "22".to_string());
-            uperf_t_bench(&shape, geti(2, 1), geti(3, 161) as u8);
+            uperf_t_bench(&shape, geti(2, 1), geti(3, 161) as u8, TtVMode::S4);
         }
-        _ => eprintln!("uperf-t plan [log2_rings [e0]] | diff [n_log2] [threads] [seed] | bench [n_log2] [threads] [seed] (see PROGRESS_UPERF3.md Agent FF status)"),
+        // [UPERF3-QQ] round 10: the C-R1 count printer, the factored
+        // v-pass on the CPU (rung 2), its device port (rung 3), the
+        // per-model / per-proof boundary (rung 4).
+        Some("count") => uperf_t_qq_count(&args[1..]),
+        Some("r1") => uperf_t_qq_r1(&args[1..]),
+        Some("gpu") => uperf_t_qq_gpu(&args[1..]),
+        Some("repeat") => uperf_t_qq_repeat(&args[1..]),
+        _ => eprintln!(
+            "uperf-t plan [log2_rings [e0]] | diff [n_log2] [threads] [seed] | bench [n_log2] [threads] [seed] (see PROGRESS_UPERF3.md Agent FF status)\n\
+             uperf-t count [log2_rings] | r1 [n_log2] [threads] [seed] | gpu [n_log2] [threads] [seed] | repeat <n_log2|real> [n] [threads] [seed] (round 10, Agent QQ status)"
+        ),
     }
 }
 
@@ -49962,10 +49972,115 @@ struct TtWire {
     w: Vec<Vec<Vec<i64>>>,
 }
 
+/// [UPERF3-QQ] SHA-256 over the two-tier wire (b_rows | u | U | v | w,
+/// little-endian words) — the cross-run byte-identity check (CPU vs
+/// device, S4 vs R1: the wire must not move).
+fn tt_wire_digest(wire: &TtWire) -> String {
+    use sha2::{Digest, Sha256};
+    let mut h = Sha256::new();
+    let polys = |h: &mut Sha256, ps: &[Poly]| {
+        for p in ps {
+            for &x in p {
+                h.update(x.to_le_bytes());
+            }
+        }
+    };
+    polys(&mut h, &wire.b_rows);
+    for ut in &wire.u {
+        for u in ut {
+            polys(&mut h, u);
+        }
+    }
+    polys(&mut h, &wire.u_cap);
+    for vm in &wire.v {
+        for ve in vm {
+            polys(&mut h, ve);
+        }
+    }
+    for wt in &wire.w {
+        for r in wt {
+            for &x in r {
+                h.update(x.to_le_bytes());
+            }
+        }
+    }
+    h.finalize().iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// [UPERF3-QQ] Which v-pass the two-tier prover runs. `S4` is the FF
+/// spike verbatim (tt_qr_pass + tt_v_from_qr, b_rows from the built
+/// kernel pass); `R1` is the factored GEMM form (ring::two_tier::
+/// tt_v_pass_r1) with b_rows RECOVERED from v (tt_rows_from_v). The
+/// wire and the transcript order are identical in both modes.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum TtVMode {
+    S4,
+    R1,
+}
+
+/// [UPERF3-QQ rung 4] THE PER-MODEL PART of the two-tier opening —
+/// everything alpha/point-independent, built once per (witness, CRS
+/// seed, grid) and held across proofs: the tier-1 inner commitments
+/// u, the tier-2 outer commitment U, and the flat-i8 value layout the
+/// v GEMM reads. (The CRS matrices ride eval_proof's Arc cache, warm
+/// after the build.) NOT here, by construction: anything drawn from a
+/// transcript or a claim point (P, v, b_rows, the fold, the recursion).
+struct TtPerModel {
+    /// [tensor][row group][kappa].
+    u: Vec<Vec<Vec<Poly>>>,
+    u_cap: Vec<Poly>,
+    /// [tensor] -> Some(per row group flat g*nb*D i8) when every value fits.
+    fl_i8: Vec<Option<Vec<Vec<i8>>>>,
+    /// wall of the build, s.
+    build_s: f64,
+    /// held bytes (u + U + layout).
+    bytes: usize,
+}
+
+fn tt_build_per_model(ctx: &RingCtx, inst: &TtInstance, w0: &ring::eval_proof::DigitCols, seed: u64) -> TtPerModel {
+    use ring::eval_proof::{decompose_polys_modq, expand_level_matrix_arc, matvec_modq_small, matvec_modq_small_multi_gen, SmallRings, KAPPA_AGG};
+    let t0 = std::time::Instant::now();
+    let zq = &ctx.zq;
+    let q = zq.q;
+    let group = &inst.group;
+    let flat: &[i8] = &w0.rings()[..group.n_digit_rings * D];
+    let mut u_all: Vec<Vec<Vec<Poly>>> = Vec::new();
+    for (ti, t) in group.tensors.iter().enumerate() {
+        let gt = &inst.grid[ti];
+        let a_mat = expand_level_matrix_arc(seed, group.name, ti, "T", KAPPA_AGG, gt.width, q);
+        let sl: Vec<&[i8]> = (0..gt.n_groups)
+            .map(|i| SmallRings::sub(flat, t.digit_ring_base + i * gt.width, t.digit_ring_base + (i + 1) * gt.width))
+            .collect();
+        u_all.push(matvec_modq_small_multi_gen(ctx, &a_mat, KAPPA_AGG, gt.width, &sl));
+    }
+    let u_flat: Vec<Poly> = u_all.iter().flat_map(|ut| ut.concat()).collect();
+    let g_all: usize = inst.grid.iter().map(|gt| gt.n_groups).sum();
+    let (e_u, l_u) = ring::two_tier::tt_u_digit_base(g_all, q);
+    let udig = decompose_polys_modq(zq, &u_flat, e_u, l_u);
+    let b_mat = expand_level_matrix_arc(seed, group.name, 0, "TU", KAPPA_AGG, udig.len(), q);
+    let u_cap = matvec_modq_small(ctx, &b_mat, KAPPA_AGG, udig.len(), &udig);
+    let fl_i8: Vec<Option<Vec<Vec<i8>>>> = group
+        .tensors
+        .iter()
+        .enumerate()
+        .map(|(ti, t)| {
+            if ring::two_tier::tt_r1_form_for(q, t) == ring::two_tier::R1Form::Value {
+                ring::two_tier::tt_fl_layout_i8(t, flat, &inst.grid[ti])
+            } else {
+                None
+            }
+        })
+        .collect();
+    let bytes = u_flat.len() * D * 8 + u_cap.len() * D * 8 + fl_i8.iter().flatten().map(|v| v.iter().map(|g| g.len()).sum::<usize>()).sum::<usize>();
+    TtPerModel { u: u_all, u_cap, fl_i8, build_s: t0.elapsed().as_secs_f64(), bytes }
+}
+
 /// One prover pass of the two-tier front end. Returns the wire plus
 /// the drawn alphas, the served target h_cur, and the per-contrib
-/// reconstructions H_m (differential objects).
-#[allow(clippy::type_complexity)]
+/// reconstructions H_m (differential objects). `pm`: the per-model
+/// part when held (rung 4) — the tier commitments and the value
+/// layout are taken from it, the transcript is unchanged.
+#[allow(clippy::type_complexity, clippy::too_many_arguments)]
 fn tt_prove(
     ctx: &RingCtx,
     kf: &ring::kfield::KField,
@@ -49974,6 +50089,8 @@ fn tt_prove(
     v_batch: &ring::kfield::KElem,
     seed: u64,
     mut timings: Option<&mut Vec<(&'static str, f64)>>,
+    vmode: TtVMode,
+    pm: Option<&TtPerModel>,
 ) -> (TtWire, Vec<Poly>, Poly, Vec<Poly>) {
     let mut tick = std::time::Instant::now();
     let mut lap = |timings: &mut Option<&mut Vec<(&'static str, f64)>>, tag: &'static str, tick: &mut std::time::Instant| {
@@ -49994,9 +50111,39 @@ fn tt_prove(
     let n0 = group.n_digit_rings;
     let flat: &[i8] = &w0.rings()[..n0 * D];
     let mut tr = ring::sumcheck::LkpTranscript::new("uperf-t-diff", &[0x7Fu8; 32]);
-    // ---- claim layer (identical to the built path). ----
-    let mk = bg_multi_kernels(&inst.claims);
-    let (b_rows, _) = kernel_pass_factored_gen(ctx, kf, group, &mk, Some(flat), None);
+    // [UPERF3-QQ] R1: the v-vectors FIRST (they depend on the claim
+    // point only, never on the transcript), then the claim-row images
+    // recovered from them; the absorption order below is unchanged.
+    let mut v_pre: Vec<Vec<Vec<Poly>>> = Vec::new();
+    let b_rows: Vec<Poly> = if vmode == TtVMode::R1 {
+        use ring::two_tier::{tt_r1_form_for, tt_rows_from_v, tt_v_pass_r1, tt_v_pass_r1_dev, R1Form};
+        for tc in inst.tt.iter() {
+            let t = &group.tensors[tc.tensor_idx];
+            let gt = &inst.grid[tc.tensor_idx];
+            let conjq = tt_conjq(zq, &tc.col, t.cols / D);
+            let lo_y = tt_lo_y(kf, &tc.lo);
+            let form = tt_r1_form_for(q, t);
+            // [rung 3] the device shape (pooled Fl build, flat-i8 pack)
+            // for the value form; the digit form through the generic path.
+            let fl_cache = pm.and_then(|p| p.fl_i8[tc.tensor_idx].as_deref());
+            v_pre.push(if form == R1Form::Value {
+                tt_v_pass_r1_dev(ctx, t, gt, flat, &lo_y, &conjq, fl_cache)
+            } else {
+                tt_v_pass_r1(ctx, t, gt, flat, &lo_y, &conjq, form)
+            });
+        }
+        lap(&mut timings, "v-passes", &mut tick);
+        let mut rows = vec![poly_zero(); K_DEG];
+        for (m, tc) in inst.tt.iter().enumerate() {
+            tt_rows_from_v(zq, kf, &tc.hi, &v_pre[m], &mut rows);
+        }
+        rows
+    } else {
+        // ---- claim layer (identical to the built path). ----
+        let mk = bg_multi_kernels(&inst.claims);
+        let (rows, _) = kernel_pass_factored_gen(ctx, kf, group, &mk, Some(flat), None);
+        rows
+    };
     for (c, row) in b_rows.iter().enumerate() {
         assert_eq!(row[0], v_batch[c], "tt honest claim row ct mismatch (row {c})");
     }
@@ -50008,34 +50155,44 @@ fn tt_prove(
         h_cur = poly_add(zq, &h_cur, &ring_mul_split_kara_fast(ctx, a, b));
     }
     // ---- tier 1: inner commitments per tensor row group. ----
+    // [UPERF3-QQ rung 4] taken from the per-model part when held (the
+    // same values: absorbed identically).
     let mut u_all: Vec<Vec<Vec<Poly>>> = Vec::new();
     for (ti, t) in group.tensors.iter().enumerate() {
         let gt = &inst.grid[ti];
-        let a_mat = expand_level_matrix_arc(seed, group.name, ti, "T", KAPPA_AGG, gt.width, q);
-        let sl: Vec<&[i8]> = (0..gt.n_groups)
-            .map(|i| {
-                SmallRings::sub(
-                    flat,
-                    t.digit_ring_base + i * gt.width,
-                    t.digit_ring_base + (i + 1) * gt.width,
-                )
-            })
-            .collect();
-        let u_t = matvec_modq_small_multi_gen(ctx, &a_mat, KAPPA_AGG, gt.width, &sl);
+        let u_t = if let Some(p) = pm {
+            p.u[ti].clone()
+        } else {
+            let a_mat = expand_level_matrix_arc(seed, group.name, ti, "T", KAPPA_AGG, gt.width, q);
+            let sl: Vec<&[i8]> = (0..gt.n_groups)
+                .map(|i| {
+                    SmallRings::sub(
+                        flat,
+                        t.digit_ring_base + i * gt.width,
+                        t.digit_ring_base + (i + 1) * gt.width,
+                    )
+                })
+                .collect();
+            matvec_modq_small_multi_gen(ctx, &a_mat, KAPPA_AGG, gt.width, &sl)
+        };
         absorb_polys(&mut tr, &format!("tt-u-{ti}"), &u_t.concat());
         u_all.push(u_t);
     }
     lap(&mut timings, "tier1-commit", &mut tick);
     // ---- tier 2: the outer commitment over the u digits. ----
-    let u_flat: Vec<Poly> = u_all.iter().flat_map(|ut| ut.concat()).collect();
-    // [UPERF3-FF rung 3] adaptive u-digit base: AGG_E_DEG = 7 is
-    // gate-RED above ~2^20 (the planner's head_u row) — derive the
-    // green base from G_all (deterministic public function, FS-safe).
-    let g_all: usize = inst.grid.iter().map(|gt| gt.n_groups).sum();
-    let (e_u, l_u) = ring::two_tier::tt_u_digit_base(g_all, q);
-    let udig = decompose_polys_modq(zq, &u_flat, e_u, l_u);
-    let b_mat = expand_level_matrix_arc(seed, group.name, 0, "TU", KAPPA_AGG, udig.len(), q);
-    let u_cap = matvec_modq_small(ctx, &b_mat, KAPPA_AGG, udig.len(), &udig);
+    let u_cap = if let Some(p) = pm {
+        p.u_cap.clone()
+    } else {
+        let u_flat: Vec<Poly> = u_all.iter().flat_map(|ut| ut.concat()).collect();
+        // [UPERF3-FF rung 3] adaptive u-digit base: AGG_E_DEG = 7 is
+        // gate-RED above ~2^20 (the planner's head_u row) — derive the
+        // green base from G_all (deterministic public function, FS-safe).
+        let g_all: usize = inst.grid.iter().map(|gt| gt.n_groups).sum();
+        let (e_u, l_u) = ring::two_tier::tt_u_digit_base(g_all, q);
+        let udig = decompose_polys_modq(zq, &u_flat, e_u, l_u);
+        let b_mat = expand_level_matrix_arc(seed, group.name, 0, "TU", KAPPA_AGG, udig.len(), q);
+        matvec_modq_small(ctx, &b_mat, KAPPA_AGG, udig.len(), &udig)
+    };
     absorb_polys(&mut tr, "tt-ucap", &u_cap);
     lap(&mut timings, "tier2-U", &mut tick);
     // ---- the v-vectors (BEFORE the fold challenges — FS order).
@@ -50046,25 +50203,33 @@ fn tt_prove(
     let mut qr_cache: std::collections::HashMap<(usize, *const Vec<ring::kfield::KElem>), std::rc::Rc<Vec<Vec<Poly>>>> =
         std::collections::HashMap::new();
     for (m, tc) in inst.tt.iter().enumerate() {
-        let t = &group.tensors[tc.tensor_idx];
-        let gt = &inst.grid[tc.tensor_idx];
-        let key = (tc.tensor_idx, std::rc::Rc::as_ptr(&tc.col));
-        let qr = qr_cache
-            .entry(key)
-            .or_insert_with(|| {
-                let conjq = tt_conjq(zq, &tc.col, t.cols / D);
-                std::rc::Rc::new(tt_qr_pass(ctx, t, flat, &conjq))
-            })
-            .clone();
-        let lo_y = tt_lo_y(kf, &tc.lo);
-        let v = tt_v_from_qr(zq, gt, &lo_y, &qr);
+        let v = if vmode == TtVMode::R1 {
+            std::mem::take(&mut v_pre[m])
+        } else {
+            let t = &group.tensors[tc.tensor_idx];
+            let gt = &inst.grid[tc.tensor_idx];
+            let key = (tc.tensor_idx, std::rc::Rc::as_ptr(&tc.col));
+            let qr = qr_cache
+                .entry(key)
+                .or_insert_with(|| {
+                    let conjq = tt_conjq(zq, &tc.col, t.cols / D);
+                    std::rc::Rc::new(tt_qr_pass(ctx, t, flat, &conjq))
+                })
+                .clone();
+            let lo_y = tt_lo_y(kf, &tc.lo);
+            tt_v_from_qr(zq, gt, &lo_y, &qr)
+        };
         for (e, ve) in v.iter().enumerate() {
             absorb_polys(&mut tr, &format!("tt-v-{m}-{e}"), ve);
         }
         v_all.push(v);
     }
     drop(qr_cache);
-    lap(&mut timings, "v-passes", &mut tick);
+    if vmode == TtVMode::S4 {
+        lap(&mut timings, "v-passes", &mut tick);
+    } else {
+        lap(&mut timings, "v-absorb", &mut tick);
+    }
     // ---- the fold challenges and the clear folded rows. ----
     let mut w_all: Vec<Vec<Vec<i64>>> = Vec::new();
     let mut cs_all: Vec<Vec<Vec<i64>>> = Vec::new();
@@ -50080,7 +50245,14 @@ fn tt_prove(
                 )
             })
             .collect();
-        let w_t = fold_chunks_ntt_gen(&cs, &sl, gt.width);
+        // [UPERF3-QQ rung 3] R1: the fold as one GEMM over strided columns
+        // (exact, centered); S4: the combine-class fold verbatim.
+        let w_t = if vmode == TtVMode::R1 {
+            let _ = &sl;
+            ring::two_tier::tt_fold_r1(ctx, t, gt, flat, &cs)
+        } else {
+            fold_chunks_ntt_gen(&cs, &sl, gt.width)
+        };
         let bound = tt_fold_bound(gt.n_groups, t.e0) as i64;
         for ring_w in &w_t {
             for &x in ring_w {
@@ -50254,7 +50426,7 @@ fn tt_verify(
 
 /// [UPERF3-FF] Rung 2: `uperf-t diff [n_log2] [threads] [seed]` — the
 /// differential at fixed seeds. Panics on the first mismatch.
-fn uperf_t_diff(n_log2: usize, threads: usize, seed: u8) {
+fn uperf_t_diff(n_log2: usize, threads: usize, seed: u8, vmode: TtVMode) {
     use ring::eval_proof::{kernel_pass_factored_gen, plan_schedule, DigitCols, MultiClaimKernel};
     use ring::kfield::{KElem, KField, K_DEG};
     let t0 = std::time::Instant::now();
@@ -50266,9 +50438,19 @@ fn uperf_t_diff(n_log2: usize, threads: usize, seed: u8) {
     let n0 = inst.group.n_digit_rings;
     let n_m = inst.tt.len();
     println!(
-        "[UPERF3-FF] diff: {} tensors / {} digit rings (~2^{:.1}), {} contribs, ZK_THREADS {} [WSL-BOX {}T|NOISY-SHARED], seed {seed}",
+        "[UPERF3-FF] diff [v-pass {vmode:?}]: {} tensors / {} digit rings (~2^{:.1}), {} contribs, ZK_THREADS {} [WSL-BOX {}T|NOISY-SHARED], seed {seed}",
         inst.group.tensors.len(), n0, (n0 as f64).log2(), n_m, threads, threads
     );
+    if vmode == TtVMode::R1 {
+        for (ti, t) in inst.group.tensors.iter().enumerate() {
+            println!(
+                "[UPERF3-QQ]   R1 form for {}: {:?} (recombined |value| <= {}, window {} terms)",
+                t.name, ring::two_tier::tt_r1_form_for(q, t), ring::two_tier::tt_value_bound(t),
+                ring::eval_proof::ntt_window_terms(q, ring::two_tier::tt_value_bound(t))
+            );
+            let _ = ti;
+        }
+    }
     for (ti, gt) in inst.grid.iter().enumerate() {
         let t = &inst.group.tensors[ti];
         println!(
@@ -50314,7 +50496,7 @@ fn uperf_t_diff(n_log2: usize, threads: usize, seed: u8) {
     println!("[UPERF3-FF]   oracle bg_prove_group + verify: ACCEPT in {:.2}s (forced 2-level schedule)", t_or.elapsed().as_secs_f64());
     // ---- SUBJECT: the two-tier front end. ----
     let t_tt = std::time::Instant::now();
-    let (wire, alphas0, h_cur, h_ms) = tt_prove(&ctx, &kf, &inst, &w0_tt, &v_batch, seed_crs, None);
+    let (wire, alphas0, h_cur, h_ms) = tt_prove(&ctx, &kf, &inst, &w0_tt, &v_batch, seed_crs, None, vmode, None);
     let t_tt_prove = t_tt.elapsed().as_secs_f64();
     let t_v = std::time::Instant::now();
     tt_verify(&ctx, &kf, &inst, &wire, &v_batch, seed_crs, None).expect("two-tier front end must verify");
@@ -50415,6 +50597,7 @@ fn uperf_t_diff(n_log2: usize, threads: usize, seed: u8) {
         legs += 1;
     }
     let _ = DigitCols::zeros(0);
+    println!("[UPERF3-QQ] WIRE DIGEST {} (b_rows|u|U|v|w; v-pass {vmode:?}; {})", tt_wire_digest(&wire), ring::gpu::label());
     println!(
         "[UPERF3-FF] diff PASS: 3 differential legs + {legs} reject legs in {:.1}s, peak RSS {:.0} MiB",
         t0.elapsed().as_secs_f64(),
@@ -50481,7 +50664,7 @@ fn tt_refold(
 /// the built verifier's level-0 term), the PROXY recursion on the
 /// tier-2 u-digit witness (the existing machinery at the sqrt size;
 /// binding-target injection recorded as a build item), and the bytes.
-fn uperf_t_bench(shape: &str, threads: usize, seed: u8) {
+fn uperf_t_bench(shape: &str, threads: usize, seed: u8, vmode: TtVMode) {
     use ring::eval_proof::{
         kernel_pass_factored_gen, plan_schedule, psi_level0_factored_multi, DigitCols,
     };
@@ -50494,13 +50677,18 @@ fn uperf_t_bench(shape: &str, threads: usize, seed: u8) {
     let (mut inst, w0_tt, w0_bg, label) = if shape == "real" {
         let (inst, w0) = tt_build_real_act_instance(&kf, 12, BF_T, seed);
         let w0_bg = w0.clone();
-        (inst, w0, w0_bg, "REAL 12x512 act group".to_string())
+        (inst, w0, w0_bg, format!("REAL 12x512 act group, v-pass {vmode:?}"))
+    } else if shape == "real-w" {
+        // [UPERF3-QQ] the REAL 12x512 WEIGHT group (rung 4).
+        let (inst, w0) = tt_build_real_weight_instance(&kf, 12, BF_T, seed);
+        let w0_bg = w0.clone();
+        (inst, w0, w0_bg, format!("REAL 12x512 weight group, v-pass {vmode:?}"))
     } else {
-        let n_log2: usize = shape.parse().expect("n_log2 | real");
+        let n_log2: usize = shape.parse().expect("n_log2 | real | real-w");
         let inst = tt_build_instance(&kf, n_log2, seed);
         let w0 = tt_build_witness(&inst.group, seed);
         let w0b = tt_build_witness(&inst.group, seed);
-        (inst, w0, w0b, format!("2^{n_log2} synth"))
+        (inst, w0, w0b, format!("2^{n_log2} synth, v-pass {vmode:?}"))
     };
     let mut w0_bg = w0_bg;
     let n0 = inst.group.n_digit_rings;
@@ -50517,17 +50705,25 @@ fn uperf_t_bench(shape: &str, threads: usize, seed: u8) {
     let seed_crs = 0x77F0_0000u64 + seed as u64;
     // ---- the two-tier front end, phase-timed. ----
     let mut tp: Vec<(&'static str, f64)> = Vec::new();
-    let (wire, alphas0, _h_cur, _h_ms) = tt_prove(&ctx, &kf, &inst, &w0_tt, &v_batch, seed_crs, Some(&mut tp));
+    let (wire, alphas0, _h_cur, _h_ms) = tt_prove(&ctx, &kf, &inst, &w0_tt, &v_batch, seed_crs, Some(&mut tp), vmode, None);
     let mut tv: Vec<(&'static str, f64)> = Vec::new();
     let t_v0 = std::time::Instant::now();
     tt_verify(&ctx, &kf, &inst, &wire, &v_batch, seed_crs, Some(&mut tv)).expect("tt verify");
     let tt_verify_total = t_v0.elapsed().as_secs_f64();
+    println!("[UPERF3-QQ] WIRE DIGEST {} (b_rows|u|U|v|w; v-pass {vmode:?}; {})", tt_wire_digest(&wire), ring::gpu::label());
     let phase = |ts: &[(&'static str, f64)], tag: &str| ts.iter().find(|(t, _)| *t == tag).map(|(_, s)| *s).unwrap_or(0.0);
     let tt_rows = phase(&tp, "rows-pass");
     let tt_commit = phase(&tp, "tier1-commit") + phase(&tp, "tier2-U");
     let tt_v = phase(&tp, "v-passes");
     let tt_fold = phase(&tp, "fold");
     println!("[UPERF3-FF]   tt prove phases: rows {:.2}s, tier1+tier2 commit {:.2}s, v-passes {:.2}s, FOLD WALL {:.2}s", tt_rows, tt_commit, tt_v, tt_fold);
+    if vmode == TtVMode::R1 {
+        let pr = ring::two_tier::tt_r1_prof_take();
+        println!(
+            "[UPERF3-QQ]   R1 attribution: v-pass P precompute {:.3}s + Fl build {:.3}s + GEMM {:.3}s + out {:.3}s; fold-as-GEMM {:.3}s (v-absorb {:.2}s)",
+            pr[ring::two_tier::TT_R1_P], pr[ring::two_tier::TT_R1_FL], pr[ring::two_tier::TT_R1_GEMM], pr[ring::two_tier::TT_R1_OUT], pr[ring::two_tier::TT_R1_FOLD], phase(&tp, "v-absorb")
+        );
+    }
     println!(
         "[UPERF3-FF]   tt verify {:.2}s total: replay+range {:.2}, u-rebind {:.2}, (a) binding {:.2}, (c) consistency {:.2}, (b) claim {:.2}",
         tt_verify_total, phase(&tv, "replay+range"), phase(&tv, "u-rebind"), phase(&tv, "a-fold-binding"), phase(&tv, "c-consistency"), phase(&tv, "b-claim")
@@ -50677,6 +50873,586 @@ fn tt_build_real_act_instance(kf: &ring::kfield::KField, layers_n: usize, t: usi
         tt.push(TtContrib { tensor_idx: ti, hi, lo, col });
     }
     (TtInstance { group: ga, grid, claims, tt }, w0)
+}
+
+// ===========================================================================
+// [UPERF3-QQ] U-PERF3 round 10, lane QQ — the two-tier opening + weight
+// preprocessing on the GPU cost model (PROGRESS_UPERF3.md "Lane QQ";
+// U_PERF3_S4_REDESIGN.md §2 R1 + C-R1). ADDITIVE: new `uperf-t`
+// subcommands only; the FF spike paths above and the frozen pass stay
+// byte-identical. Rungs:
+//   1. `uperf-t count [log2_rings]` — the C-R1 swap-order form COUNTED
+//      (scalar MACs / ring products per phase, per-model vs per-proof)
+//      at 2^22, the 8B weight group and a 30B weight group; [MODEL]
+//      walls on the RTX 4070 from the measured kernel classes.
+//   2. `uperf-t r1` — the factored v-pass on the CPU behind a flag;
+//      the FF rung-2 differential legs reused verbatim.
+//   3. `uperf-t gpu` — the device port of the factored linear pass.
+//   4. `uperf-t repeat` — the per-model / per-proof boundary.
+
+// ---- [UPERF3-QQ] rung 1: THE COUNT ------------------------------------------
+//
+// The C-R1 swap-order form (U_PERF3_S4_REDESIGN.md §2 R1 / C-R1),
+// written out over VALUE rings. Per contrib on an aligned tensor with
+// grid (g rows per row group, G = rows/g groups, nb = cols/D):
+//
+//   v[e][i] = sum_{r<g} sum_{cb} sum_d loY[r][d][e] conjQ[cb][d] (x) Fl[(ig+r) nb + cb]
+//           = sum_{j=(r,cb)} P_e[j] (x) Fl_i[j],
+//   P_e[(r,cb)] = sum_d loY[r][d][e] * conjQ[cb][d]        (mod-q rings; 16 x nb x g per contrib)
+//   Fl_i[(r,cb)] = sum_l radix_l digit_l                   (the recombined VALUE ring = the int8 weight for CLASS_W8S)
+//
+// i.e. the v-vectors are ONE GEMM of the built `ntt_gemm_modq_small`
+// contract: a = 16 rows of (nb g) mod-q rings, b = G columns of (nb g)
+// small rings, out[e][i]. The Y^d-basis shift of the memo (loY[r][d][e] =
+// tw(d,e) lo[r][(e-d) mod 16]) is what makes P a 16-term scalar sum per
+// ring — it is absorbed into the P precompute (256 D nb g scalar MACs,
+// negligible) and never touches the witness pass. The b_row images are
+// then RECOVERED from v (b_rows[c] = sum_m sum_i sum_e hiY[i][e][c] v[e][i],
+// 256 D G scalar MACs per contrib) — the built claim layer's kernel pass
+// over the whole witness is redundant in the two-tier form.
+//
+// Compared with the S4 spike's `tt_qr_pass` (QR[row][d] = sum_cb conjQ[cb][d]
+// (x) Fl[row nb + cb] via mul_modq_small_many): the SAME D-domain MAC count
+// (16 Nv D), but S4 pays one forward AND one inverse 128-point transform
+// per (row, cb, d) product (16 pairs per value ring) where the GEMM pays
+// ONE forward transform per value ring and 16 G inverses per contrib.
+//
+// The kernel classes below carry their measured source; every wall
+// printed from them is [MODEL].
+
+/// [UPERF3-QQ] The measured kernel classes the count prices with.
+struct QqClasses {
+    /// D-domain MAC/s of ntt_gemm_modq_small on the device.
+    gemm_mac_s: f64,
+    /// forward transform, ns per ring, on the device.
+    xform_ns: f64,
+    /// pinned h2d, GB/s.
+    h2d_gbps: f64,
+    /// the combine-class fold, ns per digit ring, on the device.
+    fold_ns: f64,
+    /// the built prove-group on the device, us per level-0 ring (the recursion class).
+    rec_us_gpu: f64,
+    /// the built prove-group at the S4 proxy shape, us per ring, 1T CPU.
+    rec_us_cpu1t: f64,
+    /// one (fwd_small + MAC + inverse) ring product of mul_modq_small_many, us, 1T CPU.
+    ringprod_us_cpu1t: f64,
+    /// the CPU GEMM body, D-domain MAC/s at 1T.
+    cpu_gemm_mac_s_1t: f64,
+    /// scalar mod-q MAC/s on the device (IMAD class).
+    scalar_mac_s_gpu: f64,
+}
+
+fn qq_classes() -> QqClasses {
+    QqClasses {
+        gemm_mac_s: 74e9,
+        xform_ns: 3.0e-3 / 131_072.0 * 1e9,
+        h2d_gbps: 11.7,
+        fold_ns: 0.82 / 11_393_420.0 * 1e9,
+        rec_us_gpu: 7.1 / 11_393_420.0 * 1e6,
+        rec_us_cpu1t: 1.73 / 135_168.0 * 1e6,
+        ringprod_us_cpu1t: 20.01 / 8_847_360.0 * 1e6,
+        cpu_gemm_mac_s_1t: 0.6e9,
+        scalar_mac_s_gpu: 1e12,
+    }
+}
+
+fn qq_print_classes(c: &QqClasses) {
+    println!("[UPERF3-QQ] kernel classes (RTX 4070 Laptop unless said; the walls below are [MODEL] from these):");
+    println!("[UPERF3-QQ]   C1 GEMM  ntt_gemm_modq_small device: {:.0} G D-MAC/s [MEASURED U_PERF2_GPU_REPORT.md:203, level-h block 64x64x1024, NOISY]", c.gemm_mac_s / 1e9);
+    println!("[UPERF3-QQ]   C2 XFORM forward 128-pt transform: {:.1} ns/ring [MEASURED :203, 3.0 ms / 128K rings]", c.xform_ns);
+    println!("[UPERF3-QQ]   C3 H2D   pinned host->device: {:.1} GB/s [MEASURED :203]", c.h2d_gbps);
+    println!("[UPERF3-QQ]   C4 FOLD  combine-class quinary fold: {:.1} ns/digit ring [MEASURED PROGRESS_UPERF2.md:1270, bg.fold 0.82 s / 11,393,420 rings, 12x512 GPU 8T NOISY]", c.fold_ns);
+    println!("[UPERF3-QQ]   C5 REC   the built prove-group on the device: {:.3} us/level-0 ring [MEASURED ROUTES §1.3, 7.1 s / 11,393,420 rings, 12x512 QUIET] — used as the recursion class AND the built-opening class", c.rec_us_gpu);
+    println!("[UPERF3-QQ]   C6 REC1T the built prove-group at the S4 proxy shape: {:.1} us/ring 1T CPU [MEASURED bench22_1t_v2: 1.73 s / 135,168 rings]", c.rec_us_cpu1t);
+    println!("[UPERF3-QQ]   C7 RP1T  S4 ring product (fwd_small+MAC+inv): {:.2} us 1T CPU [MEASURED-derived: v-passes 20.01 s / 8,847,360 products at 2^22]", c.ringprod_us_cpu1t);
+    println!("[UPERF3-QQ]   C8 CPU-GEMM body 1T: {:.1} G D-MAC/s [MODEL from :204 — 0.54 G MACs in 142 ms at 8T, imperfect scaling assumed]", c.cpu_gemm_mac_s_1t / 1e9);
+    println!("[UPERF3-QQ]   C9 SCALAR mod-q MAC on the device: {:.0} G/s [MODEL, IMAD class; only the negligible terms use it]", c.scalar_mac_s_gpu / 1e9);
+}
+
+/// One counted shape: a group, its per-tensor grid, the contribs
+/// (tensor index each), and whether the value rings are int8 weights.
+struct QqShape {
+    label: String,
+    note: &'static str,
+    group: ring::eval_proof::AggGroup,
+    contribs: Vec<usize>,
+    int8_weights: bool,
+}
+
+fn qq_weight_group(label: String, note: &'static str, layers: usize, d: usize, f: usize) -> QqShape {
+    use ring::digits::CLASS_W8S;
+    let mut g = ring::eval_proof::AggGroup::new("weight");
+    for _ in 0..layers {
+        g.add_tensor("WgT", d, f, CLASS_W8S.e0, CLASS_W8S.l0);
+        g.add_tensor("WuT", d, f, CLASS_W8S.e0, CLASS_W8S.l0);
+        g.add_tensor("WdT", f, d, CLASS_W8S.e0, CLASS_W8S.l0);
+    }
+    let contribs = (0..g.tensors.len()).collect();
+    QqShape { label, note, group: g, contribs, int8_weights: true }
+}
+
+/// The counted rows of one shape (all integers exact; [COUNTED]).
+#[derive(Default)]
+struct QqCount {
+    n0: usize,
+    nv: usize,
+    nv_claimed: usize,
+    n_tensors: usize,
+    n_contribs: usize,
+    s_target: usize,
+    g_all: usize,
+    width_sum: usize,
+    e_u: u32,
+    l_u: usize,
+    n_w: usize,
+    n2: usize,
+    n_v: usize,
+    // per-model
+    m1_ringmacs: f64,
+    m3_crs_rings: f64,
+    int8_bytes: f64,
+    // per-proof R1
+    p1_scalar: f64,
+    p2_dmacs: f64,
+    p2_xforms: f64,
+    p2_inverses: f64,
+    p3_scalar: f64,
+    // S4 as built
+    s2_ringprods: f64,
+    s3_scalar: f64,
+    // variant B (value-ring tier 1)
+    vb_head_rowgroup: f64,
+    vb_n_w: usize,
+    vb_width_sum: usize,
+    vb_width_max: usize,
+}
+
+fn qq_count_shape(sh: &QqShape, q: u64) -> (QqCount, Vec<ring::two_tier::TtGridTensor>) {
+    use ring::eval_proof::KAPPA_AGG;
+    use ring::two_tier::{build_tt_grid, gate_headroom_bits, tt_u_digit_base, tt_w_digit_limbs};
+    let g = &sh.group;
+    let mut c = QqCount { n0: g.n_digit_rings, n_tensors: g.tensors.len(), n_contribs: sh.contribs.len(), ..Default::default() };
+    c.s_target = (c.n0 as f64).sqrt().ceil() as usize;
+    let grid = build_tt_grid(g, c.s_target);
+    c.g_all = grid.iter().map(|gt| gt.n_groups).sum();
+    let (e_u, l_u) = tt_u_digit_base(c.g_all, q);
+    c.e_u = e_u;
+    c.l_u = l_u;
+    c.n2 = c.g_all * KAPPA_AGG * l_u;
+    for (ti, t) in g.tensors.iter().enumerate() {
+        let gt = &grid[ti];
+        c.nv += t.n_value_rings();
+        c.width_sum += gt.width;
+        c.n_w += gt.width * tt_w_digit_limbs(gt.n_groups, t.e0, e_u);
+        if sh.int8_weights {
+            // Variant B: the row group holds g*nb VALUE rings at e = 8 (|x| <= 128).
+            let w_v = gt.g_rows * (t.cols / D);
+            c.vb_width_sum += w_v;
+            c.vb_n_w += w_v * tt_w_digit_limbs(gt.n_groups, 8, e_u);
+            let h = gate_headroom_bits(w_v, 8, q);
+            if ti == 0 || h < c.vb_head_rowgroup {
+                c.vb_head_rowgroup = h;
+                c.vb_width_max = w_v;
+            }
+        }
+    }
+    for &ti in &sh.contribs {
+        let t = &g.tensors[ti];
+        let gt = &grid[ti];
+        let nb = t.cols / D;
+        let (gr, gg) = (gt.g_rows, gt.n_groups);
+        let nv = t.n_value_rings();
+        c.nv_claimed += nv;
+        c.p1_scalar += (256 * D * nb * gr) as f64;
+        c.p2_dmacs += (16 * nv * D) as f64;
+        c.p2_xforms += nv as f64;
+        c.p2_inverses += (16 * gg) as f64;
+        c.p3_scalar += (256 * D * gg) as f64;
+        c.n_v += 16 * gg * l_u;
+        c.s2_ringprods += (t.rows * nb * 16) as f64;
+        c.s3_scalar += (t.rows * 256 * D) as f64;
+    }
+    c.m1_ringmacs = (KAPPA_AGG * c.n0) as f64;
+    c.m3_crs_rings = (KAPPA_AGG * (c.width_sum + c.n2)) as f64;
+    c.int8_bytes = (c.nv * D) as f64;
+    (c, grid)
+}
+
+fn qq_fmt_big(x: f64) -> String {
+    if x >= 1e12 {
+        format!("{:.2}e12", x / 1e12)
+    } else if x >= 1e9 {
+        format!("{:.2}e9", x / 1e9)
+    } else if x >= 1e6 {
+        format!("{:.2}e6", x / 1e6)
+    } else {
+        format!("{:.0}", x)
+    }
+}
+
+/// [UPERF3-QQ] rung 1: `uperf-t count [log2_rings]` — the COUNT printer
+/// (no proving). Default set: the 2^22 FF synthetic (rung 2's
+/// measurement shape), the real 12x512 weight group shape (the reopen
+/// bar's shape), the 8B weight group (352,321,536 rings) and a 30B-class
+/// weight group (shape stated in the row).
+fn uperf_t_qq_count(args: &[String]) {
+    use ring::kfield::KField;
+    use ring::two_tier::plan_two_tier;
+    let q = ring::Q8;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let cls = qq_classes();
+    let mut shapes: Vec<QqShape> = Vec::new();
+    if let Some(lg) = args.first() {
+        let lg: usize = lg.parse().expect("log2_rings");
+        let inst = tt_build_instance(&kf, lg, 161);
+        let contribs = inst.tt.iter().map(|c| c.tensor_idx).collect();
+        shapes.push(QqShape { label: format!("2^{lg} FF synthetic"), note: "6 tensors e0 in {1,2}, l0 2-8, 7 contribs (ta twice), tf claimless", group: inst.group, contribs, int8_weights: false });
+    } else {
+        let inst = tt_build_instance(&kf, 22, 161);
+        let contribs = inst.tt.iter().map(|c| c.tensor_idx).collect();
+        shapes.push(QqShape { label: "2^22 FF synthetic".into(), note: "6 tensors e0 in {1,2}, l0 2-8, 7 contribs (ta twice), tf claimless — bench22_1t_v2's shape", group: inst.group, contribs, int8_weights: false });
+        shapes.push(qq_weight_group("12x512 weight group".into(), "12 x [WgT 768x2048, WuT 768x2048, WdT 2048x768], CLASS_W8S e0 1 l0 8 — the reopen bar's shape (3,538,944 rings)", 12, 768, 2048));
+        shapes.push(qq_weight_group("8B weight group".into(), "32 x [4096x14336 x2, 14336x4096], e0 1 l0 8 — U_PERF3_HEADLINE_ROUTES.md §1.2 (352,321,536 rings)", 32, 4096, 14336));
+        shapes.push(qq_weight_group("30B weight group (FFN-only, ASSUMED shape)".into(), "64 x [5120x25600 x2, 25600x5120] = 2.52e10 int8 FFN weights (Qwen3-32B-class d/f/L); START_HERE §2's 3.1e10 MAC/token counts attention too (x1.23 on every row here)", 64, 5120, 25600));
+    }
+    println!("[UPERF3-QQ] uperf-t count — the C-R1 swap-order two-tier opening, COUNTED per phase, PER-MODEL vs PER-PROOF (q = {q}, kappa = {}, D = {D}, K_DEG 16)", ring::eval_proof::KAPPA_AGG);
+    qq_print_classes(&cls);
+    println!("[UPERF3-QQ] one contrib per tensor is assumed for the weight groups (the composed pass's one-point form); the synthetic keeps FF's 7-contrib set.");
+    let mut summary: Vec<String> = Vec::new();
+    for sh in &shapes {
+        let (c, grid) = qq_count_shape(sh, q);
+        println!("\n[UPERF3-QQ] ==== {} ====", sh.label);
+        println!("[UPERF3-QQ]   {}", sh.note);
+        println!(
+            "[UPERF3-QQ]   n0 {} digit rings (~2^{:.1}), Nv {} value rings ({} under claims), {} tensors / {} contribs, s_target {}, G_all {}, width_sum {}",
+            c.n0, (c.n0 as f64).log2(), c.nv, c.nv_claimed, c.n_tensors, c.n_contribs, c.s_target, c.g_all, c.width_sum
+        );
+        // Distinct grid classes.
+        let mut seen: Vec<(usize, usize, usize, usize, usize, u32, usize)> = Vec::new();
+        for (ti, t) in sh.group.tensors.iter().enumerate() {
+            let gt = &grid[ti];
+            let key = (t.rows, t.cols, gt.g_rows, gt.width, gt.n_groups, t.e0, t.l0);
+            if !seen.contains(&key) {
+                seen.push(key);
+                println!(
+                    "[UPERF3-QQ]   grid class {}: rows {} x cols {} (e0 {} l0 {}, nb {}) -> g_rows {} width {} rings, G {} row groups",
+                    t.name, t.rows, t.cols, t.e0, t.l0, t.cols / D, gt.g_rows, gt.width, gt.n_groups
+                );
+            }
+        }
+        // The FF planner at the group size (reused; the global split).
+        let e0_min = sh.group.tensors.iter().map(|t| t.e0).min().unwrap_or(1);
+        let (p_sqrt, p_best) = plan_two_tier(c.n0, e0_min, q);
+        for (tag, p) in [("sqrt split", &p_sqrt), ("balanced", &p_best)] {
+            match p {
+                Some(p) => println!(
+                    "[UPERF3-QQ]   FF planner [{tag}] at (n0, e0 {}): S {} x G {}, e' {}, l_z {}, l_t {}, n_w {}, n2 {}, gates row-group {:+.2} / w {:+.2} / u {:+.2} bits => {}",
+                    e0_min, p.s, p.g, p.e_next, p.l_z, p.l_t, p.n_w, p.n2, p.head_rowgroup, p.head_w, p.head_u,
+                    if p.gate_green() { "GREEN" } else { "RED" }
+                ),
+                None => println!("[UPERF3-QQ]   FF planner [{tag}]: DECLINES"),
+            }
+        }
+        println!(
+            "[UPERF3-QQ]   per-tensor grids (the front end as built): u digits e{} x {} limbs -> n2 {} rings; n_w {} (w digits over {} folded rings); n_v {} (v digits: 16 x G x l_u per contrib) => n_rec V-clear {} | V-recursed (w+u) {} | +v {}",
+            c.e_u, c.l_u, c.n2, c.n_w, c.width_sum, c.n_v, c.n2, c.n_w + c.n2, c.n_w + c.n2 + c.n_v
+        );
+        // ---- PER-MODEL ----
+        let t_m1 = c.m1_ringmacs * D as f64 / cls.gemm_mac_s + c.n0 as f64 * cls.xform_ns * 1e-9;
+        println!(
+            "[UPERF3-QQ]   PER-MODEL [COUNTED] (alpha-independent, built once per model): tier-1 commit kappa*n0 = {} ring-MACs = {} D-MACs + {} B-transforms; tier-2 U kappa*n2 = {} ring-MACs; CRS kappa*(width_sum+n2) = {} rings; int8 value layout {:.2} GB",
+            qq_fmt_big(c.m1_ringmacs), qq_fmt_big(c.m1_ringmacs * D as f64), qq_fmt_big(c.n0 as f64), qq_fmt_big((ring::eval_proof::KAPPA_AGG * c.n2) as f64), qq_fmt_big(c.m3_crs_rings), c.int8_bytes / 1e9
+        );
+        println!("[UPERF3-QQ]     per-model wall [MODEL 4070]: tier-1 GEMM {:.2} s (C1) + transforms {:.2} s (C2) = {:.2} s (+ the digit witness build, CPU, per model)", c.m1_ringmacs * D as f64 / cls.gemm_mac_s, c.n0 as f64 * cls.xform_ns * 1e-9, t_m1);
+        // ---- PER-PROOF R1 ----
+        let t_p1 = c.p1_scalar / cls.scalar_mac_s_gpu;
+        let t_p2 = c.p2_dmacs / cls.gemm_mac_s;
+        let t_xf = c.p2_xforms * cls.xform_ns * 1e-9;
+        let t_p3 = c.p3_scalar / cls.scalar_mac_s_gpu;
+        let t_fold = c.n0 as f64 * cls.fold_ns * 1e-9;
+        let n_rec_proxy = c.n2; // the FF bench's proxy recursion object (u digits; v/w clear)
+        let n_rec_full = c.n_w + c.n2 + c.n_v;
+        let t_rec_proxy = n_rec_proxy as f64 * cls.rec_us_gpu * 1e-6;
+        let t_rec_full = n_rec_full as f64 * cls.rec_us_gpu * 1e-6;
+        let t_stream_int8 = c.int8_bytes / (cls.h2d_gbps * 1e9);
+        let t_stream_digits = (c.n0 * D) as f64 / (cls.h2d_gbps * 1e9);
+        println!(
+            "[UPERF3-QQ]   PER-PROOF R1 [COUNTED] (alpha/point-dependent): P precompute {} scalar MACs; v GEMM {} D-MACs (16 Nv D) + {} B-transforms + {} inverses, ZERO general ring products; b_rows-from-v {} scalar MACs (the kernel-pass rows over n0 are NOT needed); fold n0 = {} ring-MACs (combine class); recursion input {} rings (proxy: u digits) | {} rings (w+u+v recursed)",
+            qq_fmt_big(c.p1_scalar), qq_fmt_big(c.p2_dmacs), qq_fmt_big(c.p2_xforms), qq_fmt_big(c.p2_inverses), qq_fmt_big(c.p3_scalar), qq_fmt_big(c.n0 as f64), n_rec_proxy, n_rec_full
+        );
+        let pp_core = t_p1 + t_p2 + t_xf + t_p3 + t_fold;
+        println!(
+            "[UPERF3-QQ]     per-proof wall [MODEL 4070, weights resident]: v GEMM {:.3} s + B-transforms {:.3} s + scalar {:.3} s + fold {:.2} s (C4 — over DIGIT rings, 8x the value rings) = {:.2} s linear; + recursion proxy {:.2} s | full {:.2} s (C5) => {:.2} s (proxy) | {:.2} s (full)",
+            t_p2, t_xf, t_p1 + t_p3, t_fold, pp_core, t_rec_proxy, t_rec_full, pp_core + t_rec_proxy, pp_core + t_rec_full
+        );
+        println!(
+            "[UPERF3-QQ]     streaming if NOT resident [MODEL C3]: int8 layout {:.2} s per pass (the GEMM's B operand), digit rings {:.2} s (the fold's operand; regenerable on the device from the int8 layout)",
+            t_stream_int8, t_stream_digits
+        );
+        // ---- S4 as built ----
+        let t_s4_v_cpu = c.s2_ringprods * cls.ringprod_us_cpu1t * 1e-6;
+        println!(
+            "[UPERF3-QQ]   S4-AS-BUILT per-proof [COUNTED]: rows pass over n0 (the O5 kernel pass); QR {} ring products (each fwd_small + MAC + inverse) + v_from_qr {} scalar MACs; fold n0; recursion as above => S4 v-pass 1T CPU {:.1} s [MODEL C7]{}",
+            qq_fmt_big(c.s2_ringprods), qq_fmt_big(c.s3_scalar), t_s4_v_cpu,
+            if sh.label.starts_with("2^22") { " (the calibration point: 20.01 s [MEASURED])" } else { "" }
+        );
+        // ---- the built opening, same shape ----
+        let t_built_gpu = c.n0 as f64 * cls.rec_us_gpu * 1e-6;
+        let t_r1_v_cpu = c.p2_dmacs / cls.cpu_gemm_mac_s_1t;
+        println!(
+            "[UPERF3-QQ]   BUILT OPENING at this shape [MODEL C5, linear in n0]: bg_prove_group {:.2} s on the 4070 => per-proof RATIO built / two-tier = {:.1}x (proxy recursion) | {:.1}x (full recursion); R1 v-pass 1T CPU {:.2} s [MODEL C8] vs S4 {:.1} s => {:.1}x on the v-pass",
+            t_built_gpu, t_built_gpu / (pp_core + t_rec_proxy), t_built_gpu / (pp_core + t_rec_full), t_r1_v_cpu, t_s4_v_cpu, t_s4_v_cpu / t_r1_v_cpu.max(1e-9)
+        );
+        // ---- Variant B ----
+        if sh.int8_weights {
+            let t_fold_b = c.nv as f64 * cls.fold_ns * 1e-9;
+            let n_rec_b = c.vb_n_w + c.n2 + c.n_v;
+            let t_rec_b = n_rec_b as f64 * cls.rec_us_gpu * 1e-6;
+            let pp_b = t_p1 + t_p2 + t_xf + t_p3 + t_fold_b;
+            println!(
+                "[UPERF3-QQ]   VARIANT B [COUNTED; a DESIGN CHANGE outside this lane — the tier-1 commitment over the int8 VALUE rings (e = 8) instead of the digit rings]: row-group gate headroom {:+.2} bits (the tightest tensor class, width {} value rings); tier-1 commit {} ring-MACs (8x cheaper); fold over Nv = {} rings => {:.2} s [MODEL C4]; n_w {} -> n_rec full {}; per-proof {:.2} s (proxy) | {:.2} s (full) => ratio {:.1}x | {:.1}x",
+                c.vb_head_rowgroup, c.vb_width_max, qq_fmt_big((ring::eval_proof::KAPPA_AGG * c.nv) as f64), c.nv, t_fold_b, c.vb_n_w, n_rec_b,
+                pp_b + t_rec_proxy, pp_b + t_rec_b, t_built_gpu / (pp_b + t_rec_proxy), t_built_gpu / (pp_b + t_rec_b)
+            );
+        }
+        summary.push(format!(
+            "| {} | {} | {} | {} | {} | {:.2} | {:.3} | {:.2} | {:.2} | {:.2} | {:.2} | {:.1}x | {:.1}x |",
+            sh.label, qq_fmt_big(c.n0 as f64), qq_fmt_big(c.nv as f64), qq_fmt_big(c.p2_dmacs), n_rec_full, t_m1, t_p2 + t_xf, t_fold, t_rec_full, pp_core + t_rec_full, t_built_gpu,
+            t_built_gpu / (pp_core + t_rec_proxy), t_built_gpu / (pp_core + t_rec_full)
+        ));
+    }
+    println!("\n[UPERF3-QQ] SUMMARY [COUNTED sizes; walls MODEL on the RTX 4070 Laptop from C1-C5; ratio = built opening / two-tier per-proof, (proxy | full recursion)]");
+    println!("| shape | n0 digit rings | Nv value rings | v GEMM D-MACs | n_rec (w+u+v) | per-MODEL s | per-proof v (GEMM+xf) s | fold s | recursion s | per-proof TOTAL s | built s | ratio proxy | ratio full |");
+    println!("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|");
+    for s in &summary {
+        println!("{s}");
+    }
+    println!("[UPERF3-QQ] reading: the per-proof weight side is linear passes (v GEMM + fold) + a sqrt-class recursion; the digit-ring FOLD (C4, 8x the value rings) is the largest per-proof term at every weight shape in the design of record.");
+}
+
+/// [UPERF3-QQ] rung 2: `uperf-t r1 diff [n_log2] [threads] [seed]` —
+/// the FF rung-2 differential legs VERBATIM with the R1 v-pass;
+/// `uperf-t r1 bench [n_log2|real|real-w] [threads] [seed]` — the FF
+/// rung-3 bench harness with the R1 v-pass (phase walls, the
+/// prove-group-equivalent vs bg_prove_group, verifier, bytes).
+fn uperf_t_qq_r1(args: &[String]) {
+    let geti = |i: usize, d: usize| args.get(i).map(|s| s.parse().expect("num")).unwrap_or(d);
+    match args.first().map(String::as_str) {
+        Some("diff") => uperf_t_diff(geti(1, 20), geti(2, 1), geti(3, 161) as u8, TtVMode::R1),
+        Some("bench") => {
+            let shape = args.get(1).cloned().unwrap_or_else(|| "22".to_string());
+            uperf_t_bench(&shape, geti(2, 1), geti(3, 161) as u8, TtVMode::R1);
+        }
+        _ => eprintln!("uperf-t r1 diff [n_log2] [threads] [seed] | bench [n_log2|real|real-w] [threads] [seed]"),
+    }
+}
+
+/// [UPERF3-QQ] The REAL 12x512 WEIGHT-group instance (rung 4's
+/// subject): the composed pass's registry + WEIGHT-side witness
+/// (bg_build_groups / bg_witness(.., true) — the real int8 weights of
+/// the m125 export), one contrib per weight tensor with the FACTORED
+/// row kernel hi[i] *K lo[r] (lo = a genuine eq tensor over the
+/// row-group bits, hi = fresh uniform K-elements — WgT/WuT have 768
+/// rows, not a power of two, so the eq split over ALL row bits is not
+/// available; the front end needs only the factored form, the oracle
+/// eats the materialized product), col kernel uniform. HONESTY LABEL
+/// as FF's: the witness, groups and shapes are the real rig's; the
+/// claim POINTS are drawn here.
+fn tt_build_real_weight_instance(kf: &ring::kfield::KField, layers_n: usize, t: usize, seed: u8) -> (TtInstance, ring::eval_proof::DigitCols) {
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use ring::two_tier::TtContrib;
+    use std::rc::Rc;
+    let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
+    let reg = bg_build_groups(&lays, t, None);
+    let w0 = bg_witness(&reg, &lays, true);
+    drop(lays);
+    let gw = reg.gw;
+    let s_target = (gw.n_digit_rings as f64).sqrt().ceil() as usize;
+    let grid = ring::two_tier::build_tt_grid(&gw, s_target);
+    let mut rd = XofReader::new("uperf-t-real-w-inst", &[&[seed]]);
+    let mut claims = GroupClaims::new(gw.tensors.len());
+    let mut tt = Vec::new();
+    for (ti, ten) in gw.tensors.iter().enumerate() {
+        let gt = &grid[ti];
+        let jbits = gt.g_rows.trailing_zeros() as usize;
+        assert_eq!(1usize << jbits, gt.g_rows, "g_rows is a power of two by construction");
+        assert_eq!(ten.rows % gt.g_rows, 0, "row groups tile the rows");
+        let z: Vec<ring::kfield::KElem> = (0..jbits).map(|_| kf.uniform(&mut rd)).collect();
+        let lo = tt_eq_expand(kf, &z);
+        let hi: Vec<ring::kfield::KElem> = (0..gt.n_groups).map(|_| kf.uniform(&mut rd)).collect();
+        let row: Vec<ring::kfield::KElem> = (0..ten.rows)
+            .map(|r| kf.mul(&hi[r >> jbits], &lo[r & (gt.g_rows - 1)]))
+            .collect();
+        let col: Rc<Vec<ring::kfield::KElem>> = Rc::new((0..ten.cols).map(|_| kf.uniform(&mut rd)).collect());
+        claims.push(ClaimContrib { tensor_idx: ti, scale: kf.one(), row: Rc::new(row), col: col.clone() });
+        tt.push(TtContrib { tensor_idx: ti, hi, lo, col });
+    }
+    (TtInstance { group: gw, grid, claims, tt }, w0)
+}
+
+fn uperf_t_qq_gpu(_args: &[String]) {
+    println!("[UPERF3-QQ] uperf-t gpu: rung 3 not built yet (skeleton)");
+}
+
+/// [UPERF3-QQ] rung 4: `uperf-t repeat <n_log2|real|real-w> [n] [threads] [seed]`
+/// — the PREPROCESSING BOUNDARY measured: the per-model part built
+/// once (tt_build_per_model), then n two-tier proofs with it held
+/// warm (per-proof wall = tt_prove R1 + the proxy recursion prove),
+/// then n built openings (bg_precommit + bg_prove_group on the same
+/// group; the group is rebuilt identically per proof for the E-O2-BB
+/// one-opening gate, the witness cloned). Claims bit-identical
+/// (b_rows two-tier == built), the wire digest identical across the n
+/// proofs. The verdict line is against the reopen bar.
+fn uperf_t_qq_repeat(args: &[String]) {
+    use ring::eval_proof::{decompose_polys_modq, kernel_pass_factored_gen, plan_schedule, AggGroup, DigitCols, KAPPA_AGG};
+    use ring::kfield::{KElem, KField, K_DEG};
+    let geti = |i: usize, d: usize| args.get(i).map(|s| s.parse().expect("num")).unwrap_or(d);
+    let shape = args.first().cloned().unwrap_or_else(|| "22".to_string());
+    let n_rep = geti(1, 3).max(1);
+    let threads = geti(2, 8);
+    let seed = geti(3, 161) as u8;
+    let t00 = std::time::Instant::now();
+    uperf_s_set_threads(threads);
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let q = ctx.zq.q;
+    let (inst, w0, label) = match shape.as_str() {
+        "real-w" => {
+            let (i, w) = tt_build_real_weight_instance(&kf, 12, BF_T, seed);
+            (i, w, "REAL 12x512 weight group".to_string())
+        }
+        "real" => {
+            let (i, w) = tt_build_real_act_instance(&kf, 12, BF_T, seed);
+            (i, w, "REAL 12x512 act group".to_string())
+        }
+        s => {
+            let lg: usize = s.parse().expect("n_log2 | real | real-w");
+            let i = tt_build_instance(&kf, lg, seed);
+            let w = tt_build_witness(&i.group, seed);
+            (i, w, format!("2^{lg} synth"))
+        }
+    };
+    let n0 = inst.group.n_digit_rings;
+    let g_all: usize = inst.grid.iter().map(|gt| gt.n_groups).sum();
+    let (e_u, l_u) = ring::two_tier::tt_u_digit_base(g_all, q);
+    println!(
+        "[UPERF3-QQ] repeat [{label}]: n0 = {n0} (~2^{:.1}), {} tensors / {} contribs, G_all {g_all}, n = {n_rep}, ZK_THREADS {threads} [WSL-BOX {threads}T|NOISY-SHARED]; {}",
+        (n0 as f64).log2(), inst.group.tensors.len(), inst.tt.len(), ring::gpu::label()
+    );
+    let mk = bg_multi_kernels(&inst.claims);
+    let (rows_ref, _) = kernel_pass_factored_gen(&ctx, &kf, &inst.group, &mk, Some(&w0.rings()[..n0 * D]), None);
+    let v_batch: KElem = (0..K_DEG).map(|c| rows_ref[c][0]).collect();
+    let seed_crs = 0x77F0_0000u64 + seed as u64;
+    // ---- PER-MODEL: built once. ----
+    let pm = tt_build_per_model(&ctx, &inst, &w0, seed_crs);
+    let n_i8 = pm.fl_i8.iter().filter(|f| f.is_some()).count();
+    println!(
+        "[UPERF3-QQ]   PER-MODEL build {:.2}s [MEASURED]: tier-1 u {} rings, U {} rings, flat-i8 value layout on {}/{} tensors; {:.1} MB held",
+        pm.build_s, pm.u.iter().map(|ut| ut.len() * KAPPA_AGG).sum::<usize>(), pm.u_cap.len(), n_i8, inst.group.tensors.len(), pm.bytes as f64 / 1e6
+    );
+    // ---- PER-PROOF x n with the per-model part warm. ----
+    let phase = |ts: &[(&'static str, f64)], tag: &str| ts.iter().find(|(t, _)| *t == tag).map(|(_, s)| *s).unwrap_or(0.0);
+    let mut digests: Vec<String> = Vec::new();
+    let mut per_proof: Vec<f64> = Vec::new();
+    let mut rec_pre_s: Vec<f64> = Vec::new();
+    let mut first_wire: Option<TtWire> = None;
+    for k in 0..n_rep {
+        let mut tp: Vec<(&'static str, f64)> = Vec::new();
+        let _ = ring::two_tier::tt_r1_prof_take();
+        let t_p = std::time::Instant::now();
+        let (wire, _a0, _h, _hms) = tt_prove(&ctx, &kf, &inst, &w0, &v_batch, seed_crs, Some(&mut tp), TtVMode::R1, Some(&pm));
+        let prove_s = t_p.elapsed().as_secs_f64();
+        let pr = ring::two_tier::tt_r1_prof_take();
+        // the proxy recursion on the u digits (precommit = per-model class; prove = per-proof).
+        let u_flat: Vec<Poly> = wire.u.iter().flat_map(|ut| ut.concat()).collect();
+        let udig = decompose_polys_modq(&ctx.zq, &u_flat, e_u, l_u);
+        let mut g2 = AggGroup::new("tt-rec");
+        g2.add_tensor("udig", udig.len(), D, e_u, 1);
+        let sched2 = plan_schedule(udig.len(), e_u, q, None);
+        let mut w2 = DigitCols::from_vecs(&udig);
+        g2.begin_opening().expect("proxy opening");
+        let claims2 = ring::pass_agg::GroupClaims::new(1);
+        let vb2: KElem = vec![0; K_DEG];
+        let t_r0 = std::time::Instant::now();
+        let pre2 = bg_precommit(&ctx, &g2, &sched2, &mut w2, seed_crs ^ 0x5A5A);
+        let rec_pre = t_r0.elapsed().as_secs_f64();
+        let mut tr2 = ring::sumcheck::LkpTranscript::new("uperf-t-rec", &[0x7Du8; 32]);
+        let mut rng2 = ring::ProverRng::from_test_seed("uperf-t-rec-rng", &[seed]);
+        let t_r1 = std::time::Instant::now();
+        let (_proof2, _) = bg_prove_group(&ctx, &kf, &g2, &sched2, &mut w2, &claims2, &vb2, pre2, &mut tr2, seed_crs ^ 0x5A5A, false, false, &mut rng2);
+        let rec_prove = t_r1.elapsed().as_secs_f64();
+        if k == 0 {
+            tt_verify(&ctx, &kf, &inst, &wire, &v_batch, seed_crs, None).expect("two-tier verify");
+        }
+        let pp = prove_s + rec_prove;
+        println!(
+            "[UPERF3-QQ]   proof {k}: two-tier per-proof {:.2}s = tt_prove {:.2}s (rows-from-v {:.2}, v-pass {:.2} [P {:.2} + GEMM {:.2}; Fl cached], fold {:.2} [GEMM {:.2}], tier commits from cache {:.2}) + recursion prove {:.2}s (its precommit {:.2}s = per-model class)",
+            pp, prove_s, phase(&tp, "rows-pass"), phase(&tp, "v-passes"), pr[ring::two_tier::TT_R1_P], pr[ring::two_tier::TT_R1_GEMM],
+            phase(&tp, "fold"), pr[ring::two_tier::TT_R1_FOLD], phase(&tp, "tier1-commit") + phase(&tp, "tier2-U"), rec_prove, rec_pre
+        );
+        digests.push(tt_wire_digest(&wire));
+        per_proof.push(pp);
+        rec_pre_s.push(rec_pre);
+        if first_wire.is_none() {
+            first_wire = Some(wire);
+        }
+    }
+    assert!(digests.iter().all(|d| d == &digests[0]), "wire digest moved across repeated proofs");
+    println!("[UPERF3-QQ]   WIRE DIGEST {} identical across {n_rep} proofs (per-model part warm)", digests[0]);
+    let first_wire = first_wire.expect("one proof");
+    // ---- THE BUILT OPENING x n (the same group, rebuilt per proof for the one-opening gate). ----
+    let sched = plan_schedule(n0, 2, q, None);
+    let mut built_pre: Vec<f64> = Vec::new();
+    let mut built_pg: Vec<f64> = Vec::new();
+    for k in 0..n_rep {
+        let mut gk = AggGroup::new(inst.group.name);
+        for t in &inst.group.tensors {
+            gk.add_tensor(t.name, t.rows, t.cols, t.e0, t.l0);
+        }
+        assert_eq!(gk.n_digit_rings, n0);
+        gk.begin_opening().expect("built opening");
+        let mut w0_bg = w0.clone();
+        let t_b0 = std::time::Instant::now();
+        let pre = bg_precommit(&ctx, &gk, &sched, &mut w0_bg, seed_crs);
+        let b_pre = t_b0.elapsed().as_secs_f64();
+        let mut tr = ring::sumcheck::LkpTranscript::new("uperf-t-bench", &[0x7Cu8; 32]);
+        let mut rng = ring::ProverRng::from_test_seed("uperf-t-bench-rng", &[seed]);
+        let t_b1 = std::time::Instant::now();
+        let (proof, _) = bg_prove_group(&ctx, &kf, &gk, &sched, &mut w0_bg, &inst.claims, &v_batch, pre, &mut tr, seed_crs, false, false, &mut rng);
+        let b_pg = t_b1.elapsed().as_secs_f64();
+        if k == 0 {
+            let mut trv = ring::sumcheck::LkpTranscript::new("uperf-t-bench", &[0x7Cu8; 32]);
+            bg_verify_group(&ctx, &kf, &gk, &sched, &inst.claims, &v_batch, &proof, &mut trv, seed_crs, None).expect("built verify");
+            assert_eq!(first_wire.b_rows, proof.b_rows, "b_row images differ: two-tier vs built");
+            println!("[UPERF3-QQ]   claims: b_row images BYTE-IDENTICAL two-tier (recovered from v) vs the built GroupEvalProof.b_rows; built proof verifies");
+        }
+        println!("[UPERF3-QQ]   built {k}: bg_precommit {:.2}s (per-model class as built, recomputed per proof) + bg_prove_group {:.2}s", b_pre, b_pg);
+        built_pre.push(b_pre);
+        built_pg.push(b_pg);
+    }
+    let min = |v: &[f64]| v.iter().cloned().fold(f64::INFINITY, f64::min);
+    let med = |v: &[f64]| {
+        let mut s = v.to_vec();
+        s.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        s[s.len() / 2]
+    };
+    let tt_min = min(&per_proof);
+    let bg_min = min(&built_pg);
+    println!(
+        "[UPERF3-QQ]   PER-PROOF two-tier (per-model warm): min {:.2}s / median {:.2}s over {n_rep}; recursion precommit (per-model class, excluded) min {:.2}s; PER-MODEL build {:.2}s",
+        tt_min, med(&per_proof), min(&rec_pre_s), pm.build_s
+    );
+    println!(
+        "[UPERF3-QQ]   BUILT bg_prove_group: min {:.2}s / median {:.2}s; + bg_precommit min {:.2}s (the built path's own per-model-class term, paid per proof as built)",
+        bg_min, med(&built_pg), min(&built_pre)
+    );
+    println!(
+        "[UPERF3-QQ]   RATIO built / two-tier per-proof: {:.2}x (prove-group only) | {:.2}x (built precommit + prove-group) — reopen bar >= 5x at the 12x512 weight group: {}",
+        bg_min / tt_min, (bg_min + min(&built_pre)) / tt_min,
+        if bg_min / tt_min >= 5.0 { "MET" } else { "NOT MET" }
+    );
+    println!("[UPERF3-QQ] repeat done in {:.1}s, peak RSS {:.0} MiB [WSL-BOX {threads}T|NOISY-SHARED]", t00.elapsed().as_secs_f64(), uperf_a_peak_rss_mib());
 }
 
 // ===========================================================================

@@ -1,0 +1,92 @@
+[UPERF3-QQ] uperf-t count — the C-R1 swap-order two-tier opening, COUNTED per phase, PER-MODEL vs PER-PROOF (q = 2147483249, kappa = 11, D = 128, K_DEG 16)
+[UPERF3-QQ] kernel classes (RTX 4070 Laptop unless said; the walls below are [MODEL] from these):
+[UPERF3-QQ]   C1 GEMM  ntt_gemm_modq_small device: 74 G D-MAC/s [MEASURED U_PERF2_GPU_REPORT.md:203, level-h block 64x64x1024, NOISY]
+[UPERF3-QQ]   C2 XFORM forward 128-pt transform: 22.9 ns/ring [MEASURED :203, 3.0 ms / 128K rings]
+[UPERF3-QQ]   C3 H2D   pinned host->device: 11.7 GB/s [MEASURED :203]
+[UPERF3-QQ]   C4 FOLD  combine-class quinary fold: 72.0 ns/digit ring [MEASURED PROGRESS_UPERF2.md:1270, bg.fold 0.82 s / 11,393,420 rings, 12x512 GPU 8T NOISY]
+[UPERF3-QQ]   C5 REC   the built prove-group on the device: 0.623 us/level-0 ring [MEASURED ROUTES §1.3, 7.1 s / 11,393,420 rings, 12x512 QUIET] — used as the recursion class AND the built-opening class
+[UPERF3-QQ]   C6 REC1T the built prove-group at the S4 proxy shape: 12.8 us/ring 1T CPU [MEASURED bench22_1t_v2: 1.73 s / 135,168 rings]
+[UPERF3-QQ]   C7 RP1T  S4 ring product (fwd_small+MAC+inv): 2.26 us 1T CPU [MEASURED-derived: v-passes 20.01 s / 8,847,360 products at 2^22]
+[UPERF3-QQ]   C8 CPU-GEMM body 1T: 0.6 G D-MAC/s [MODEL from :204 — 0.54 G MACs in 142 ms at 8T, imperfect scaling assumed]
+[UPERF3-QQ]   C9 SCALAR mod-q MAC on the device: 1000 G/s [MODEL, IMAD class; only the negligible terms use it]
+[UPERF3-QQ] one contrib per tensor is assumed for the weight groups (the composed pass's one-point form); the synthetic keeps FF's 7-contrib set.
+
+[UPERF3-QQ] ==== 2^22 FF synthetic ====
+[UPERF3-QQ]   6 tensors e0 in {1,2}, l0 2-8, 7 contribs (ta twice), tf claimless — bench22_1t_v2's shape
+[UPERF3-QQ]   n0 2972672 digit rings (~2^21.5), Nv 422912 value rings (569344 under claims), 6 tensors / 7 contribs, s_target 1725, G_all 2626, width_sum 7936
+[UPERF3-QQ]   grid class ta: rows 512 x cols 4096 (e0 2 l0 3, nb 32) -> g_rows 16 width 1536 rings, G 32 row groups
+[UPERF3-QQ]   grid class tb: rows 4096 x cols 8192 (e0 1 l0 8, nb 64) -> g_rows 2 width 1024 rings, G 2048 row groups
+[UPERF3-QQ]   grid class tc: rows 256 x cols 2048 (e0 2 l0 5, nb 16) -> g_rows 16 width 1280 rings, G 16 row groups
+[UPERF3-QQ]   grid class td: rows 2048 x cols 8192 (e0 2 l0 6, nb 64) -> g_rows 4 width 1536 rings, G 512 row groups
+[UPERF3-QQ]   grid class te: rows 256 x cols 4096 (e0 2 l0 2, nb 32) -> g_rows 16 width 1024 rings, G 16 row groups
+[UPERF3-QQ]   grid class tf: rows 128 x cols 1024 (e0 2 l0 3, nb 8) -> g_rows 64 width 1536 rings, G 2 row groups
+[UPERF3-QQ]   FF planner [sqrt split] at (n0, e0 1): S 1725 x G 1724, e' 6, l_z 3, l_t 6, n_w 5175, n2 113784, gates row-group +8.87 / w +3.08 / u +0.85 bits => GREEN
+[UPERF3-QQ]   FF planner [balanced] at (n0, e0 1): S 9758 x G 305, e' 7, l_z 2, l_t 5, n_w 19516, n2 16775, gates row-group +7.62 / w +1.12 / u +1.23 bits => GREEN
+[UPERF3-QQ]   per-tensor grids (the front end as built): u digits e6 x 6 limbs -> n2 173316 rings; n_w 18432 (w digits over 7936 folded rings); n_v 304128 (v digits: 16 x G x l_u per contrib) => n_rec V-clear 173316 | V-recursed (w+u) 191748 | +v 495876
+[UPERF3-QQ]   PER-MODEL [COUNTED] (alpha-independent, built once per model): tier-1 commit kappa*n0 = 32.70e6 ring-MACs = 4.19e9 D-MACs + 2.97e6 B-transforms; tier-2 U kappa*n2 = 1.91e6 ring-MACs; CRS kappa*(width_sum+n2) = 1.99e6 rings; int8 value layout 0.05 GB
+[UPERF3-QQ]     per-model wall [MODEL 4070]: tier-1 GEMM 0.06 s (C1) + transforms 0.07 s (C2) = 0.12 s (+ the digit witness build, CPU, per model)
+[UPERF3-QQ]   PER-PROOF R1 [COUNTED] (alpha/point-dependent): P precompute 79.69e6 scalar MACs; v GEMM 1.17e9 D-MACs (16 Nv D) + 569344 B-transforms + 50688 inverses, ZERO general ring products; b_rows-from-v 103.81e6 scalar MACs (the kernel-pass rows over n0 are NOT needed); fold n0 = 2.97e6 ring-MACs (combine class); recursion input 173316 rings (proxy: u digits) | 495876 rings (w+u+v recursed)
+[UPERF3-QQ]     per-proof wall [MODEL 4070, weights resident]: v GEMM 0.016 s + B-transforms 0.013 s + scalar 0.000 s + fold 0.21 s (C4 — over DIGIT rings, 8x the value rings) = 0.24 s linear; + recursion proxy 0.11 s | full 0.31 s (C5) => 0.35 s (proxy) | 0.55 s (full)
+[UPERF3-QQ]     streaming if NOT resident [MODEL C3]: int8 layout 0.00 s per pass (the GEMM's B operand), digit rings 0.03 s (the fold's operand; regenerable on the device from the int8 layout)
+[UPERF3-QQ]   S4-AS-BUILT per-proof [COUNTED]: rows pass over n0 (the O5 kernel pass); QR 9.11e6 ring products (each fwd_small + MAC + inverse) + v_from_qr 318.77e6 scalar MACs; fold n0; recursion as above => S4 v-pass 1T CPU 20.6 s [MODEL C7] (the calibration point: 20.01 s [MEASURED])
+[UPERF3-QQ]   BUILT OPENING at this shape [MODEL C5, linear in n0]: bg_prove_group 1.85 s on the 4070 => per-proof RATIO built / two-tier = 5.3x (proxy recursion) | 3.4x (full recursion); R1 v-pass 1T CPU 1.94 s [MODEL C8] vs S4 20.6 s => 10.6x on the v-pass
+
+[UPERF3-QQ] ==== 12x512 weight group ====
+[UPERF3-QQ]   12 x [WgT 768x2048, WuT 768x2048, WdT 2048x768], CLASS_W8S e0 1 l0 8 — the reopen bar's shape (3,538,944 rings)
+[UPERF3-QQ]   n0 3538944 digit rings (~2^21.8), Nv 442368 value rings (442368 under claims), 36 tensors / 36 contribs, s_target 1882, G_all 3072, width_sum 43008
+[UPERF3-QQ]   grid class WgT: rows 768 x cols 2048 (e0 1 l0 8, nb 16) -> g_rows 8 width 1024 rings, G 96 row groups
+[UPERF3-QQ]   grid class WdT: rows 2048 x cols 768 (e0 1 l0 8, nb 6) -> g_rows 32 width 1536 rings, G 64 row groups
+[UPERF3-QQ]   FF planner [sqrt split] at (n0, e0 1): S 1882 x G 1881, e' 6, l_z 3, l_t 6, n_w 5646, n2 124146, gates row-group +8.81 / w +3.01 / u +0.78 bits => GREEN
+[UPERF3-QQ]   FF planner [balanced] at (n0, e0 1): S 10646 x G 333, e' 7, l_z 2, l_t 5, n_w 21292, n2 18315, gates row-group +7.56 / w +1.06 / u +1.16 bits => GREEN
+[UPERF3-QQ]   per-tensor grids (the front end as built): u digits e6 x 6 limbs -> n2 202752 rings; n_w 86016 (w digits over 43008 folded rings); n_v 294912 (v digits: 16 x G x l_u per contrib) => n_rec V-clear 202752 | V-recursed (w+u) 288768 | +v 583680
+[UPERF3-QQ]   PER-MODEL [COUNTED] (alpha-independent, built once per model): tier-1 commit kappa*n0 = 38.93e6 ring-MACs = 4.98e9 D-MACs + 3.54e6 B-transforms; tier-2 U kappa*n2 = 2.23e6 ring-MACs; CRS kappa*(width_sum+n2) = 2.70e6 rings; int8 value layout 0.06 GB
+[UPERF3-QQ]     per-model wall [MODEL 4070]: tier-1 GEMM 0.07 s (C1) + transforms 0.08 s (C2) = 0.15 s (+ the digit witness build, CPU, per model)
+[UPERF3-QQ]   PER-PROOF R1 [COUNTED] (alpha/point-dependent): P precompute 176.16e6 scalar MACs; v GEMM 905.97e6 D-MACs (16 Nv D) + 442368 B-transforms + 49152 inverses, ZERO general ring products; b_rows-from-v 100.66e6 scalar MACs (the kernel-pass rows over n0 are NOT needed); fold n0 = 3.54e6 ring-MACs (combine class); recursion input 202752 rings (proxy: u digits) | 583680 rings (w+u+v recursed)
+[UPERF3-QQ]     per-proof wall [MODEL 4070, weights resident]: v GEMM 0.012 s + B-transforms 0.010 s + scalar 0.000 s + fold 0.25 s (C4 — over DIGIT rings, 8x the value rings) = 0.28 s linear; + recursion proxy 0.13 s | full 0.36 s (C5) => 0.40 s (proxy) | 0.64 s (full)
+[UPERF3-QQ]     streaming if NOT resident [MODEL C3]: int8 layout 0.00 s per pass (the GEMM's B operand), digit rings 0.04 s (the fold's operand; regenerable on the device from the int8 layout)
+[UPERF3-QQ]   S4-AS-BUILT per-proof [COUNTED]: rows pass over n0 (the O5 kernel pass); QR 7.08e6 ring products (each fwd_small + MAC + inverse) + v_from_qr 1.41e9 scalar MACs; fold n0; recursion as above => S4 v-pass 1T CPU 16.0 s [MODEL C7]
+[UPERF3-QQ]   BUILT OPENING at this shape [MODEL C5, linear in n0]: bg_prove_group 2.21 s on the 4070 => per-proof RATIO built / two-tier = 5.5x (proxy recursion) | 3.4x (full recursion); R1 v-pass 1T CPU 1.51 s [MODEL C8] vs S4 16.0 s => 10.6x on the v-pass
+[UPERF3-QQ]   VARIANT B [COUNTED; a DESIGN CHANGE outside this lane — the tier-1 commitment over the int8 VALUE rings (e = 8) instead of the digit rings]: row-group gate headroom +3.45 bits (the tightest tensor class, width 192 value rings); tier-1 commit 4.87e6 ring-MACs (8x cheaper); fold over Nv = 442368 rings => 0.03 s [MODEL C4]; n_w 21504 -> n_rec full 519168; per-proof 0.18 s (proxy) | 0.38 s (full) => ratio 12.2x | 5.8x
+
+[UPERF3-QQ] ==== 8B weight group ====
+[UPERF3-QQ]   32 x [4096x14336 x2, 14336x4096], e0 1 l0 8 — U_PERF3_HEADLINE_ROUTES.md §1.2 (352,321,536 rings)
+[UPERF3-QQ]   n0 352321536 digit rings (~2^28.4), Nv 44040192 value rings (44040192 under claims), 96 tensors / 96 contribs, s_target 18771, G_all 23552, width_sum 1441792
+[UPERF3-QQ]   grid class WgT: rows 4096 x cols 14336 (e0 1 l0 8, nb 112) -> g_rows 16 width 14336 rings, G 256 row groups
+[UPERF3-QQ]   grid class WdT: rows 14336 x cols 4096 (e0 1 l0 8, nb 32) -> g_rows 64 width 16384 rings, G 224 row groups
+[UPERF3-QQ]   FF planner [sqrt split] at (n0, e0 1): S 18771 x G 18770, e' 4, l_z 4, l_t 8, n_w 75084, n2 1651760, gates row-group +7.15 / w +3.15 / u +0.92 bits => GREEN
+[UPERF3-QQ]   FF planner [balanced] at (n0, e0 1): S 106185 x G 3318, e' 5, l_z 3, l_t 7, n_w 318555, n2 255486, gates row-group +5.90 / w +1.10 / u +1.26 bits => GREEN
+[UPERF3-QQ]   per-tensor grids (the front end as built): u digits e4 x 8 limbs -> n2 2072576 rings; n_w 5242880 (w digits over 1441792 folded rings); n_v 3014656 (v digits: 16 x G x l_u per contrib) => n_rec V-clear 2072576 | V-recursed (w+u) 7315456 | +v 10330112
+[UPERF3-QQ]   PER-MODEL [COUNTED] (alpha-independent, built once per model): tier-1 commit kappa*n0 = 3.88e9 ring-MACs = 496.07e9 D-MACs + 352.32e6 B-transforms; tier-2 U kappa*n2 = 22.80e6 ring-MACs; CRS kappa*(width_sum+n2) = 38.66e6 rings; int8 value layout 5.64 GB
+[UPERF3-QQ]     per-model wall [MODEL 4070]: tier-1 GEMM 6.70 s (C1) + transforms 8.06 s (C2) = 14.77 s (+ the digit witness build, CPU, per model)
+[UPERF3-QQ]   PER-PROOF R1 [COUNTED] (alpha/point-dependent): P precompute 5.91e9 scalar MACs; v GEMM 90.19e9 D-MACs (16 Nv D) + 44.04e6 B-transforms + 376832 inverses, ZERO general ring products; b_rows-from-v 771.75e6 scalar MACs (the kernel-pass rows over n0 are NOT needed); fold n0 = 352.32e6 ring-MACs (combine class); recursion input 2072576 rings (proxy: u digits) | 10330112 rings (w+u+v recursed)
+[UPERF3-QQ]     per-proof wall [MODEL 4070, weights resident]: v GEMM 1.219 s + B-transforms 1.008 s + scalar 0.007 s + fold 25.36 s (C4 — over DIGIT rings, 8x the value rings) = 27.59 s linear; + recursion proxy 1.29 s | full 6.44 s (C5) => 28.88 s (proxy) | 34.03 s (full)
+[UPERF3-QQ]     streaming if NOT resident [MODEL C3]: int8 layout 0.48 s per pass (the GEMM's B operand), digit rings 3.85 s (the fold's operand; regenerable on the device from the int8 layout)
+[UPERF3-QQ]   S4-AS-BUILT per-proof [COUNTED]: rows pass over n0 (the O5 kernel pass); QR 704.64e6 ring products (each fwd_small + MAC + inverse) + v_from_qr 23.62e9 scalar MACs; fold n0; recursion as above => S4 v-pass 1T CPU 1593.7 s [MODEL C7]
+[UPERF3-QQ]   BUILT OPENING at this shape [MODEL C5, linear in n0]: bg_prove_group 219.56 s on the 4070 => per-proof RATIO built / two-tier = 7.6x (proxy recursion) | 6.5x (full recursion); R1 v-pass 1T CPU 150.32 s [MODEL C8] vs S4 1593.7 s => 10.6x on the v-pass
+[UPERF3-QQ]   VARIANT B [COUNTED; a DESIGN CHANGE outside this lane — the tier-1 commitment over the int8 VALUE rings (e = 8) instead of the digit rings]: row-group gate headroom +1.74 bits (the tightest tensor class, width 2048 value rings); tier-1 commit 484.44e6 ring-MACs (8x cheaper); fold over Nv = 44040192 rings => 3.17 s [MODEL C4]; n_w 901120 -> n_rec full 5988352; per-proof 6.69 s (proxy) | 9.13 s (full) => ratio 32.8x | 24.0x
+
+[UPERF3-QQ] ==== 30B weight group (FFN-only, ASSUMED shape) ====
+[UPERF3-QQ]   64 x [5120x25600 x2, 25600x5120] = 2.52e10 int8 FFN weights (Qwen3-32B-class d/f/L); START_HERE §2's 3.1e10 MAC/token counts attention too (x1.23 on every row here)
+[UPERF3-QQ]   n0 1572864000 digit rings (~2^30.6), Nv 196608000 value rings (196608000 under claims), 192 tensors / 192 contribs, s_target 39660, G_all 66560, width_sum 4587520
+[UPERF3-QQ]   grid class WgT: rows 5120 x cols 25600 (e0 1 l0 8, nb 200) -> g_rows 16 width 25600 rings, G 320 row groups
+[UPERF3-QQ]   grid class WdT: rows 25600 x cols 5120 (e0 1 l0 8, nb 40) -> g_rows 64 width 20480 rings, G 400 row groups
+[UPERF3-QQ]   FF planner [sqrt split] at (n0, e0 1): S 39660 x G 39659, e' 4, l_z 4, l_t 8, n_w 158640, n2 3489992, gates row-group +6.61 / w +2.61 / u +0.38 bits => GREEN
+[UPERF3-QQ]   FF planner [balanced] at (n0, e0 1): S 158640 x G 9915, e' 4, l_z 4, l_t 8, n_w 634560, n2 872520, gates row-group +5.61 / w +1.61 / u +1.38 bits => GREEN
+[UPERF3-QQ]   per-tensor grids (the front end as built): u digits e3 x 11 limbs -> n2 8053760 rings; n_w 22937600 (w digits over 4587520 folded rings); n_v 11714560 (v digits: 16 x G x l_u per contrib) => n_rec V-clear 8053760 | V-recursed (w+u) 30991360 | +v 42705920
+[UPERF3-QQ]   PER-MODEL [COUNTED] (alpha-independent, built once per model): tier-1 commit kappa*n0 = 17.30e9 ring-MACs = 2.21e12 D-MACs + 1.57e9 B-transforms; tier-2 U kappa*n2 = 88.59e6 ring-MACs; CRS kappa*(width_sum+n2) = 139.05e6 rings; int8 value layout 25.17 GB
+[UPERF3-QQ]     per-model wall [MODEL 4070]: tier-1 GEMM 29.93 s (C1) + transforms 36.00 s (C2) = 65.93 s (+ the digit witness build, CPU, per model)
+[UPERF3-QQ]   PER-PROOF R1 [COUNTED] (alpha/point-dependent): P precompute 18.79e9 scalar MACs; v GEMM 402.65e9 D-MACs (16 Nv D) + 196.61e6 B-transforms + 1.06e6 inverses, ZERO general ring products; b_rows-from-v 2.18e9 scalar MACs (the kernel-pass rows over n0 are NOT needed); fold n0 = 1.57e9 ring-MACs (combine class); recursion input 8053760 rings (proxy: u digits) | 42705920 rings (w+u+v recursed)
+[UPERF3-QQ]     per-proof wall [MODEL 4070, weights resident]: v GEMM 5.441 s + B-transforms 4.500 s + scalar 0.021 s + fold 113.20 s (C4 — over DIGIT rings, 8x the value rings) = 123.16 s linear; + recursion proxy 5.02 s | full 26.61 s (C5) => 128.18 s (proxy) | 149.78 s (full)
+[UPERF3-QQ]     streaming if NOT resident [MODEL C3]: int8 layout 2.15 s per pass (the GEMM's B operand), digit rings 17.21 s (the fold's operand; regenerable on the device from the int8 layout)
+[UPERF3-QQ]   S4-AS-BUILT per-proof [COUNTED]: rows pass over n0 (the O5 kernel pass); QR 3.15e9 ring products (each fwd_small + MAC + inverse) + v_from_qr 75.16e9 scalar MACs; fold n0; recursion as above => S4 v-pass 1T CPU 7114.7 s [MODEL C7]
+[UPERF3-QQ]   BUILT OPENING at this shape [MODEL C5, linear in n0]: bg_prove_group 980.16 s on the 4070 => per-proof RATIO built / two-tier = 7.6x (proxy recursion) | 6.5x (full recursion); R1 v-pass 1T CPU 671.09 s [MODEL C8] vs S4 7114.7 s => 10.6x on the v-pass
+[UPERF3-QQ]   VARIANT B [COUNTED; a DESIGN CHANGE outside this lane — the tier-1 commitment over the int8 VALUE rings (e = 8) instead of the digit rings]: row-group gate headroom +1.42 bits (the tightest tensor class, width 3200 value rings); tier-1 commit 2.16e9 ring-MACs (8x cheaper); fold over Nv = 196608000 rings => 14.15 s [MODEL C4]; n_w 4014080 -> n_rec full 23782400; per-proof 29.13 s (proxy) | 38.93 s (full) => ratio 33.6x | 25.2x
+
+[UPERF3-QQ] SUMMARY [COUNTED sizes; walls MODEL on the RTX 4070 Laptop from C1-C5; ratio = built opening / two-tier per-proof, (proxy | full recursion)]
+| shape | n0 digit rings | Nv value rings | v GEMM D-MACs | n_rec (w+u+v) | per-MODEL s | per-proof v (GEMM+xf) s | fold s | recursion s | per-proof TOTAL s | built s | ratio proxy | ratio full |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 2^22 FF synthetic | 2.97e6 | 422912 | 1.17e9 | 495876 | 0.12 | 0.029 | 0.21 | 0.31 | 0.55 | 1.85 | 5.3x | 3.4x |
+| 12x512 weight group | 3.54e6 | 442368 | 905.97e6 | 583680 | 0.15 | 0.022 | 0.25 | 0.36 | 0.64 | 2.21 | 5.5x | 3.4x |
+| 8B weight group | 352.32e6 | 44.04e6 | 90.19e9 | 10330112 | 14.77 | 2.227 | 25.36 | 6.44 | 34.03 | 219.56 | 7.6x | 6.5x |
+| 30B weight group (FFN-only, ASSUMED shape) | 1.57e9 | 196.61e6 | 402.65e9 | 42705920 | 65.93 | 9.941 | 113.20 | 26.61 | 149.78 | 980.16 | 7.6x | 6.5x |
+[UPERF3-QQ] reading: the per-proof weight side is linear passes (v GEMM + fold) + a sqrt-class recursion; the digit-ring FOLD (C4, 8x the value rings) is the largest per-proof term at every weight shape in the design of record.

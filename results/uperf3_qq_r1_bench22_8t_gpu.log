@@ -1,0 +1,37 @@
+[UPERF3-FF] bench [2^22 synth, v-pass R1]: n0 = 2972672 (~2^21.5), 6 tensors / 7 contribs, G_all 2626, u digits e6 x 6 -> n2 173316, ZK_THREADS 8 [WSL-BOX 8T|NOISY-SHARED]
+[UPERF3-QQ] WIRE DIGEST cba4356c07eeb35e7c29c0ab08e17bd494547603df7556aabbc0e436a9fc3751 (b_rows|u|U|v|w; v-pass R1; gpu-cuda: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB VRAM), ZK_GPU=1, min_macs 4194304, block budget 256 MB, stages 4, bypass false)
+[UPERF3-FF]   tt prove phases: rows 0.09s, tier1+tier2 commit 2.24s, v-passes 1.35s, FOLD WALL 0.71s
+[UPERF3-QQ]   R1 attribution: v-pass P precompute 0.058s + Fl build 0.405s + GEMM 0.849s + out 0.007s; fold-as-GEMM 0.311s (v-absorb 0.04s)
+[UPERF3-FF]   tt verify 3.05s total: replay+range 0.37, u-rebind 0.35, (a) binding 0.20, (c) consistency 1.48, (b) claim 0.64
+[UPERF3-FF]   proxy recursion input: 173316 rings at e6 -> 7 levels, floor 945 rings e7
+[UPERF3-FF]   proxy recursion: precommit 0.19s, prove 0.62s, verify 0.19s
+[UPERF3-FF]   baseline schedule: 8 levels, floor 936 rings e7, level-0 r 56 chunk 53084
+[UPERF3-FF]   b_row images BYTE-IDENTICAL two-tier vs built at this shape (16 rows)
+[UPERF3-FF]   baseline: bg_precommit 0.72s, bg_prove_group 2.35s, bg_verify_group 0.94s (psi0-factored level-0 term alone 0.15s)
+[UPERF3-FF]   PROVE-GROUP-EQUIVALENT: tt 2.77s core (rows+v+fold+recursion; +commit-class 5.20s) vs bg_prove_group 2.35s -> RATIO 0.85x core / 0.59x with-commit (acceptance >= 5x at >= 2^22)
+[UPERF3-FF]   VERIFIER 1T-class: tt_verify 3.05s (+ proxy recursion verify 0.19s) vs built verify 0.94s / its psi0 level-0 term 0.15s (acceptance: level-0 term sub-second at the spike shape)
+[UPERF3-FF]   BYTES spike-clear: b_rows 8256 + u 14905176 + U 5676 + v 26155008 + w 4063232 + recursion block 174664 = 45312012 vs built GroupEvalProof 179192 [the production form recurses u/v/w — the V-recursed planner row; clear-u/v are the spike's measured overhead]
+[UPERF3-FF] bench done in 51.5s, peak RSS 5242 MiB [WSL-BOX 8T|NOISY-SHARED]
+	Command being timed: "/home/victor/wt-uperf3-qq/zkmatrix-rs/target-gpu/release/ring_matmul uperf-t r1 bench 22 8 161"
+	User time (seconds): 70.31
+	System time (seconds): 12.06
+	Percent of CPU this job got: 159%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:51.73
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 5367616
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 1876984
+	Voluntary context switches: 85561
+	Involuntary context switches: 263
+	Swaps: 0
+	File system inputs: 9678
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
