@@ -51741,7 +51741,7 @@ fn ss_lookup_claims(
     table_k: &[ring::kfield::KElem],
     out: &ring::stage_a::full::LookupOut,
     claims: &mut Vec<BkClaim>,
-    claims_h: &mut Vec<(ring::kfield::KElem, Vec<(usize, ring::kfield::KElem, std::rc::Rc<Vec<ring::kfield::KElem>>, std::rc::Rc<Vec<ring::kfield::KElem>>)>)>,
+    claims_h: &mut Vec<WwHClaim>,
     // [UPERF3-WW] round 11, rung 2 — SS's claim-kernel diet (i): when true
     // the per-column h_sum claim (a dense ones-row over the column's block,
     // gh_rows K elements) is NOT pushed; the caller pushes ONE h_sum claim
@@ -51755,15 +51755,15 @@ fn ss_lookup_claims(
     let ypow = bk_ypow_col(kf);
     let kappa = out.kappa;
     let n_h = 1usize << out.point.len();
+    // [UPERF3-WW] rung 2b: the act-h rows are COMPACT (the column's block
+    // at its offset); `ww_combine_h_claims` builds the one dense row per
+    // tensor at assembly time.
+    assert!((h_block + 1) * n_h <= gh_rows, "the column's block fits the act-h tensor");
     if !pair_sum {
-        let mut ones_row = vec![kf.zero(); gh_rows];
-        ones_row[h_block * n_h..(h_block + 1) * n_h].fill(kf.one());
-        claims_h.push((out.h_sum.clone(), vec![(ti_h, one.clone(), Rc::new(ones_row), ypow.clone())]));
+        claims_h.push((out.h_sum.clone(), vec![(ti_h, one.clone(), h_block * n_h, Rc::new(vec![kf.one(); n_h]), ypow.clone())]));
     }
     let eq_pt = eq_table(kf, &out.point);
-    let mut h_row = vec![kf.zero(); gh_rows];
-    h_row[h_block * n_h..(h_block + 1) * n_h].clone_from_slice(&eq_pt);
-    claims_h.push((out.h_at_point.clone(), vec![(ti_h, one.clone(), Rc::new(h_row), ypow.clone())]));
+    claims_h.push((out.h_at_point.clone(), vec![(ti_h, one.clone(), h_block * n_h, Rc::new(eq_pt), ypow.clone())]));
     let cols_pad = m.shape.cols_pad();
     let lcp = cols_pad.trailing_zeros() as usize;
     assert!(kappa <= lcp, "the leaf position rides the column bits");
@@ -51847,13 +51847,72 @@ fn ss_pair_h_sum_claim(
     gh_rows: usize,
     n_rows_covered: usize,
     h_sum_pair: &ring::kfield::KElem,
-    claims_h: &mut Vec<(ring::kfield::KElem, Vec<(usize, ring::kfield::KElem, std::rc::Rc<Vec<ring::kfield::KElem>>, std::rc::Rc<Vec<ring::kfield::KElem>>)>)>,
+    claims_h: &mut Vec<WwHClaim>,
 ) {
     use std::rc::Rc;
     assert!(n_rows_covered <= gh_rows, "the pair's column blocks fit the act-h tensor");
-    let mut ones_row = vec![kf.zero(); gh_rows];
-    ones_row[..n_rows_covered].fill(kf.one());
-    claims_h.push((h_sum_pair.clone(), vec![(ti_h, kf.one(), Rc::new(ones_row), bk_ypow_col(kf))]));
+    // Compact: ones over [0, n_rows_covered) at offset 0 (rung 2b).
+    claims_h.push((h_sum_pair.clone(), vec![(ti_h, kf.one(), 0usize, Rc::new(vec![kf.one(); n_rows_covered]), bk_ypow_col(kf))]));
+}
+
+/// [UPERF3-WW] round 11, rung 2b — an act-h opening claim: (value, parts),
+/// each part = (tensor index in the act-h group, scale, ROW OFFSET, the
+/// COMPACT row (the claim's nonzero block), the column kernel). Before
+/// rung 2b every part carried a DENSE row of gh_rows K elements with one
+/// nonzero block — 24 x 655,360 x ~128 B = ~2 GB per side at 12x512, and
+/// at 8B (gh_rows 16.8M per pair) 34 rows x 2.1 GB = ~73 GB per side:
+/// the term lane SS's V4 row counted at BLOCK size (n_h) instead of
+/// tensor size (its own 12x128 verify-phase growth, +1.3 GB, is the
+/// dense size, not the 50 MB the block size gives).
+type WwHClaim = (ring::kfield::KElem, Vec<(usize, ring::kfield::KElem, usize, std::rc::Rc<Vec<ring::kfield::KElem>>, std::rc::Rc<Vec<ring::kfield::KElem>>)>);
+
+/// [UPERF3-WW] rung 2b — the act-h claims of ONE tensor combine into ONE
+/// opening contrib. Every act-h claim is (tensor, scale, offset, compact
+/// row, the column kernel ypow), so with the nus drawn
+///   K = sum_j nu_j scale_j (row_j (x) ypow) = (sum_j nu_j scale_j row_j) (x) ypow
+/// — one dense row per tensor, built here from the compact rows; the
+/// batched value is sum_j nu_j value_j as before. The opening proves
+/// <K, w> = v for the SUM kernel and its transcript does not see the
+/// contrib decomposition, so this is transcript-neutral (the full-mode
+/// digests are checked unchanged in the ledger); what it removes is the
+/// per-claim dense rows and the engine's per-contrib kernel passes
+/// (`bg.kernel-rows` x contribs on a 16.8M-row tensor at 8B). Prover and
+/// verifier call the same function on their own claim lists.
+fn ww_combine_h_claims(
+    kf: &ring::kfield::KField,
+    rows_of: &[usize],
+    claims_h: &[WwHClaim],
+    nus: &[ring::kfield::KElem],
+) -> (ring::kfield::KElem, ring::pass_agg::GroupClaims) {
+    use ring::pass_agg::{ClaimContrib, GroupClaims};
+    use std::rc::Rc;
+    assert_eq!(claims_h.len(), nus.len(), "one nu per act-h claim");
+    let mut vb = kf.zero();
+    let mut comb: Vec<Option<Vec<ring::kfield::KElem>>> = (0..rows_of.len()).map(|_| None).collect();
+    let mut col_of: Vec<Option<Rc<Vec<ring::kfield::KElem>>>> = (0..rows_of.len()).map(|_| None).collect();
+    for ((value, parts), nu) in claims_h.iter().zip(nus.iter()) {
+        vb = kf.add(&vb, &kf.mul(nu, value));
+        for (ti, scale, off, row, col) in parts {
+            let rows = rows_of[*ti];
+            assert!(off + row.len() <= rows, "the compact row fits its tensor");
+            let acc = comb[*ti].get_or_insert_with(|| vec![kf.zero(); rows]);
+            let w = kf.mul(nu, scale);
+            for (k, e) in row.iter().enumerate() {
+                acc[off + k] = kf.add(&acc[off + k], &kf.mul(&w, e));
+            }
+            match &col_of[*ti] {
+                None => col_of[*ti] = Some(col.clone()),
+                Some(c) => assert!(**c == **col, "one column kernel per act-h tensor"),
+            }
+        }
+    }
+    let mut gc = GroupClaims::new(rows_of.len());
+    for ti in 0..rows_of.len() {
+        if let Some(row) = comb[ti].take() {
+            gc.push(ClaimContrib { tensor_idx: ti, scale: kf.one(), row: Rc::new(row), col: col_of[ti].clone().unwrap() });
+        }
+    }
+    (vb, gc)
 }
 
 /// [UPERF3-SS] `uperf-a ss-diff [layers] [t]`: the routed identity lookup
@@ -52603,7 +52662,7 @@ fn gg_logup_claims(
     table_k: &[ring::kfield::KElem],
     out: &ring::zc_range::LogupSumcheckOut,
     claims: &mut Vec<BkClaim>,
-    claims_h: &mut Vec<(ring::kfield::KElem, Vec<(usize, ring::kfield::KElem, std::rc::Rc<Vec<ring::kfield::KElem>>, std::rc::Rc<Vec<ring::kfield::KElem>>)>)>,
+    claims_h: &mut Vec<WwHClaim>,
 ) {
     use ring::gkr::eq_table;
     use std::rc::Rc;
@@ -52611,14 +52670,13 @@ fn gg_logup_claims(
     let (ti_m, ti_h, n_log2) = plan.logup.expect("logup plan");
     let n_el = 1usize << n_log2;
     let ypow = bk_ypow_col(kf);
-    // (i) act-h claims.
-    let mut ones_row = vec![kf.zero(); gh_rows];
-    ones_row[j * n_el..(j + 1) * n_el].fill(kf.one());
-    claims_h.push((out.h_sum.clone(), vec![(ti_h, one.clone(), Rc::new(ones_row), ypow.clone())]));
+    // (i) act-h claims — COMPACT rows at the column's offset ([UPERF3-WW]
+    // rung 2b; the S2 form's claim STRUCTURE is unchanged: one h_sum and
+    // one h(x*) claim per column, combined per tensor at assembly).
+    assert!((j + 1) * n_el <= gh_rows, "the column's block fits the act-h tensor");
+    claims_h.push((out.h_sum.clone(), vec![(ti_h, one.clone(), j * n_el, Rc::new(vec![kf.one(); n_el]), ypow.clone())]));
     let eq_pt = eq_table(kf, &out.point);
-    let mut h_row = vec![kf.zero(); gh_rows];
-    h_row[j * n_el..(j + 1) * n_el].clone_from_slice(&eq_pt);
-    claims_h.push((out.h_at_point.clone(), vec![(ti_h, one.clone(), Rc::new(h_row), ypow.clone())]));
+    claims_h.push((out.h_at_point.clone(), vec![(ti_h, one.clone(), j * n_el, Rc::new(eq_pt), ypow.clone())]));
     // (ii) the key claim over the member tensors.
     let m = &sp.members[j];
     let lcp = m.shape.cols_pad().trailing_zeros() as usize;
@@ -52945,7 +53003,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
         kf.mul(&v[0], &kf.sub(&kf.sub(&v[1], &kf.mul(&v[4], &v[2])), &v[3]))
     };
     let mut claims: Vec<BkClaim> = Vec::new();
-    let mut claims_h: Vec<(KElem, Vec<(usize, KElem, Rc<Vec<KElem>>, Rc<Vec<KElem>>)>)> = Vec::new();
+    let mut claims_h: Vec<WwHClaim> = Vec::new();
     let mut v_cs: Vec<KElem> = Vec::new();
     let mut sc_proofs: Vec<ring::sumcheck::SumcheckProof> = Vec::new();
     let mut inst_kel = 0usize;
@@ -53563,19 +53621,9 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     );
     let rr_t_ga = t_prove.elapsed().as_secs_f64(); // [UPERF3-RR]
     let proof_h = if let (Some(g), Some(sh), Some(p)) = (gh.as_ref(), sched_h.as_ref(), pre_h) {
-        let mut vb_h = kf.zero();
-        let mut gc_h = GroupClaims::new(g.tensors.len());
-        for ((value, parts), nu) in claims_h.iter().zip(nus_h.iter()) {
-            vb_h = kf.add(&vb_h, &kf.mul(nu, value));
-            for (ti, scale, row, col) in parts {
-                gc_h.push(ClaimContrib {
-                    tensor_idx: *ti,
-                    scale: kf.mul(nu, scale),
-                    row: row.clone(),
-                    col: col.clone(),
-                });
-            }
-        }
+        // [UPERF3-WW] rung 2b: one combined contrib per act-h tensor.
+        let rows_of: Vec<usize> = g.tensors.iter().map(|t| t.rows).collect();
+        let (vb_h, gc_h) = ww_combine_h_claims(&kf, &rows_of, &claims_h, &nus_h);
         let (p_h, _) = bg_prove_group(
             &ctxr, &kf, g, sh, &mut w0_h, &gc_h, &vb_h, p, &mut tr, crs_seed, false, false, &mut mask_rng,
         );
@@ -53635,7 +53683,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     if accept {
         let mut tv = LkpTranscript::new("uperf3-gg-pass", &h0_v);
         let mut claims_v: Vec<BkClaim> = Vec::new();
-        let mut claims_h_v: Vec<(KElem, Vec<(usize, KElem, Rc<Vec<KElem>>, Rc<Vec<KElem>>)>)> = Vec::new();
+        let mut claims_h_v: Vec<WwHClaim> = Vec::new();
         let mut sci = 0usize;
         'verify: {
             for (name, a_e, b_e, c_e) in BG_MM_INSTS {
@@ -53968,17 +54016,11 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
             if let (Some(g), Some(sh), Some(ph)) = (gh.as_ref(), sched_h.as_ref(), proof_h.as_ref()) {
                 let mut vb_h_v = kf.zero();
                 let mut gc_h_v = GroupClaims::new(g.tensors.len());
-                for ((value, parts), nu) in claims_h_v.iter().zip(nus_h_v.iter()) {
-                    vb_h_v = kf.add(&vb_h_v, &kf.mul(nu, value));
-                    for (ti, scale, row, col) in parts {
-                        gc_h_v.push(ClaimContrib {
-                            tensor_idx: *ti,
-                            scale: kf.mul(nu, scale),
-                            row: row.clone(),
-                            col: col.clone(),
-                        });
-                    }
-                }
+                // [UPERF3-WW] rung 2b: the same combination on the verifier's list.
+                let rows_of_v: Vec<usize> = g.tensors.iter().map(|t| t.rows).collect();
+                let (vb_h_comb, gc_h_comb) = ww_combine_h_claims(&kf, &rows_of_v, &claims_h_v, &nus_h_v);
+                vb_h_v = kf.add(&vb_h_v, &vb_h_comb);
+                gc_h_v = gc_h_comb;
                 if let Err(e) = bg_verify_group(&ctxr, &kf, g, sh, &gc_h_v, &vb_h_v, ph, &mut tv, crs_seed, None) {
                     fail(&mut accept, &mut first_fail, e.to_string());
                 }
