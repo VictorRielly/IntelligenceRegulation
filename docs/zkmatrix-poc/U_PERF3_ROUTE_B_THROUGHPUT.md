@@ -670,7 +670,7 @@ for P2/P3:
    of link rows per tensor) [MODEL, uncounted]. This is S4 §3's
    "A + B" row made concrete.
 
-   **Priced (lane ZZ, 2026-09-02): **
+   **Priced (lane ZZ, 2026-09-02): `U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md`**
    counts the three options above (and a fourth from the
    literature: none found) on this memo's yardstick. Option 2 in
    its hash-in-circuit form (a once-per-model Poseidon2 tree, the
