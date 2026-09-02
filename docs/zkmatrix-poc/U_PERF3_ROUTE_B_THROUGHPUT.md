@@ -397,7 +397,115 @@ term below linear — the same R1 wall as S0 §7.2.
 
 ## 3. The hardware factor for THIS mix, as a range
 
-(pending)
+No Route-B number has been measured on anything but the laptop's
+CPU at 8 threads (S1). This section says what the work is made of,
+copies the spec sheets S0 used, and composes a factor per machine
+as a range with its reasoning. Lane XX's port is the measurement
+that replaces the first column; until it lands every device cell in
+§6 is [MODEL] on top of the CPU row.
+
+### 3.1 What kind of work the pass is [MEASURED shares from S1; kinds COUNTED from S3]
+
+| kind | phases | share of the 23.0 s | what bounds it on a CPU | what bounds it on a GPU |
+|---|---|---:|---|---|
+| **NTT** (Reed-Solomon encoding of every committed row: 39 butterflies per element, rows of 2^14 -> 2^16 elements = 128-512 KB, L2-resident) | commit W / A / H | ~35-40% [MODEL split of the 47% commit share: the hash is ~10-20% of a commit on the CPU] | 64-bit modular multiplies (scalar `mulx` + the Goldilocks reduction); ~7 ns per butterfly per thread as built | memory bandwidth (a batched small-NTT kernel reads and writes each row a few times) — the textbook GPU kernel |
+| **blake3 hashing** (32 bytes per committed element; the Merkle tree adds 1/m) | commit W / A / H; the transcript | ~5-10% [MODEL] | ALU; ~1-3 GB/s per core on 2-4 KB inputs [MODEL] | ALU (compute-bound); tens of GB/s per board [MODEL, no source in this repository — lane XX rung 2 measures it] |
+| **sumcheck rounds** (map-reduce over 13-15 extension tables; ~100 Fp2 multiplications per pair; the tables halve each round) | zero-checks 20 and 17; the two matmul sumchecks' rounds | 30% | extension multiplies (3 Goldilocks products each) and the per-round table pass; 27.5 ns per table-entry at 8T | a reduction kernel: bandwidth for the table passes, ALU for the constraint body — the standard GPU sumcheck |
+| **streaming reductions** (row-combinations `fold_rows_multi`, the matmul folds `fold_rows/cols_i8/i32`) | PCS openings; matmul g/u and d | 23% | as built, strided 32-byte-line reads for 8 used bytes and per-element branches: 4.85-6.2 ns per multiply-add at 8T, ~10x from a tuned loop | pure bandwidth: 1 byte (int8 weights) or 8 bytes (activations) read per multiply-add — GEMV-class |
+| other (batched inversions for the helpers ~0.5%; column gathers and Merkle paths; the ~130 Fiat-Shamir squeezes per layer, microseconds each) | | ~2% | | the serial fraction is < 0.1% [COUNTED]: no spine problem (S0 §5.4's concern does not arise here) |
+
+Every kind is device-native, there is no phase that must stay on the
+host, and a layer's whole working set fits one device (650 MB at
+125M; 9-16 GB at 8B/30B, §2.4) — unlike the lattice line's pass,
+half of which is CPU-bound by measurement (S0 §3.1). That is why
+the factors below are much larger than S0's 2-8x: the Route-B row is
+a CPU-only row of device-shaped work, and the GPU port is the first
+step, not a refinement.
+
+### 3.2 The parts [EXTERNAL, spec sheet; copied from S0 §3.2 with the laptop CPU added]
+
+| part | SMs / cores | boost clock | SM x GHz (integer ALU proxy) | memory | memory bandwidth | host link | board power |
+|---|---:|---:|---:|---:|---:|---|---:|
+| Core Ultra 9 185H (the measured CPU) — 6 P + 8 E + 2 LP cores, 22 threads; the row uses 8 threads | 16 cores | P-cores to 5.1 GHz spec; sustained ~3-4 [MODEL] | ~1 x 64-bit multiply per P-core cycle: ~2-3e10 mul/s at 8T | 15 GB of the box's RAM | LPDDR5x-7467: 120 GB/s (DDR5-5600: 90 GB/s) | — | 45-115 W package |
+| RTX 4070 Laptop (AD106) | 36 | 2.18 spec; ~1.5-2.0 sustained at 55-70 W [MODEL] | 54-72 | 8 GB | 256 GB/s | PCIe 4 x8; 11.7 GB/s measured (S0 S14) | 55-70 W |
+| RTX 4090 (AD102) — "one desktop board" | 128 | 2.52 | 323 | 24 GB | 1,008 GB/s | PCIe 4 x16, ~25 GB/s | 450 W (the contract's line) |
+| RTX 5090 (GB202) | 170 | 2.41 | 410 | 32 GB | 1,792 GB/s | PCIe 5 x16, ~50 GB/s | 575 W — over the contract's line |
+| H100 SXM5 | 132 | 1.98 | 261 | 80 GB HBM3 | 3,350 GB/s | PCIe 5 x16 / NVLink | 700 W |
+| H100 PCIe | 114 | 1.76 | 200 | 80 GB HBM2e | 2,000 GB/s | PCIe 5 x16 | 350 W |
+
+The 64-bit modular multiply at the heart of every kind here is
+emulated on a GPU as four 32-bit wide multiplies plus adds in every
+lane the same way (the standard Goldilocks kernels of the open
+STARK libraries [EXTERNAL, project code; not verified here]); so
+SM x GHz is the right proxy for the hash and constraint parts, and
+memory bandwidth for the NTT, reductions and table passes. As S0
+§3.2 notes, on scalar integer work an H100 is NOT faster than a
+4090; its advantages for THIS mix are bandwidth (3.3x a 4090) and
+capacity (80 GB: the only board where the 30B int8 weights, 21.5 GB,
+and a layer's 16 GB working set are both resident).
+
+### 3.3 The composed factor, as a range with its reasoning [MODEL]
+
+The laptop CPU row as built is the base. Its own headroom matters:
+the streaming loops run ~10x below a tuned CPU loop (§2.1), the
+commit's NTT ~2-3x [MODEL] — so part of any first "GPU factor" is
+really a tuning factor, and the range below is over the row AS
+MEASURED, not over a tuned CPU.
+
+| machine | factor over the laptop CPU row (as built) | low end means | high end means |
+|---|---:|---|---|
+| **the laptop's own GPU** (RTX 4070 Laptop) | **5-15x** [MODEL; lane XX measures] | only the commits (NTT + hash) and the sumcheck rounds ported; the openings' gathers and the folds stay CPU-side | all four kinds on the device at UU's per-kernel 10-30x (S2 rung 6: 1.5-2.5 s per 12x512 pass = 9-15x), Amdahl over the measured shares |
+| **one desktop board** (4090 class, <= 450 W) | **15-75x** [MODEL on MODEL] | the laptop-GPU port x3: bandwidth-bound (3.9x the laptop GPU's), weights fed over PCIe per layer | x5: the compute-bound parts (hashing, constraint bodies) at 4.5-6x SM-GHz, everything device-resident |
+| **one H100 SXM** | **25-180x** [MODEL on MODEL] | x5 over the laptop GPU: hash-bound (3.6-4.8x SM-GHz) with the bandwidth-bound parts partly hidden behind it | x12: bandwidth-bound throughout (13x), weights and working set resident, PCIe only for the cache columns |
+| (one H100 PCIe) | 15-120x | | |
+
+Central values used in the prose of §6-7: 4090 ~35x, H100 ~70x.
+There is no measured point anywhere in this table; the honest
+statement of §6 is that every device cell is the CPU row divided by
+one of these ranges.
+
+### 3.4 The measured inverted thread scaling, and why it does not transfer
+
+S1: 8 threads 23.0 s, 16 threads 32.2 s, 22 threads 37-39 s; verify
+2.8 s -> 5.7 -> 8 s. Reproduced, not chased. The hypotheses recorded
+there [MODEL]: (i) the hybrid part's E-cores are weak on the
+64x64 -> 128 multiply the Goldilocks reduction uses and, under the
+laptop's package power limit, adding them lowers the P-cores'
+clocks; (ii) rayon's static chunking gives every thread an equal
+share, so in each of the ~130 parallel regions per layer the
+slowest E-core sets the finish time and the P-cores wait at the
+barrier; (iii) WSL2's vCPU scheduling. None of these mechanisms
+exists on a GPU: the lanes are homogeneous, the 64-bit multiply is
+emulated identically in every lane, work is split into thousands of
+hardware-scheduled blocks with no per-chunk barrier at the thread
+level, and there is no core asymmetry induced by a power limit. The
+inversion is an artefact of this laptop part, not a property of the
+workload. Two consequences this memo carries: the 8-thread row is
+the ONLY CPU row (no 22-thread "improvement" exists to scale from),
+and a CPU core-count scaling is not a factor this memo uses (a
+32-core server at 4x the threads would be [MODEL] 2-4x, not 4x —
+S0 §3.3's k_c, applied only if a CPU row is ever wanted).
+
+### 3.5 The per-proof memory floor for Route B (matters for decode)
+
+Every Route-B proof reads the weights once (§2.3), int8, one byte
+each — 8x less than the lattice line's digit store (S0 §3.4):
+
+| weight store | size | laptop (15 GB RAM, 8 GB VRAM) | RTX 4090 (24 GB, ~25 GB/s link) | H100 SXM (80 GB, 3.35 TB/s) |
+|---|---:|---|---|---|
+| 8B, int8 | 5.6 GB | RAM-resident: ~0.1 s at ~50 GB/s effective; VRAM-resident: 22 ms | resident: 5.6 ms | resident: **1.7 ms** |
+| 30B stand-in, int8 | 21.5 GB | does not fit | resident only WITHOUT the layer's 16 GB working set (§2.4): streamed from the host, **0.86 s** per proof | resident with 58 GB to spare: **6.4 ms** |
+| the per-model encoded cache at rate 1/4 (the column decommitments' source), 8B / 30B | 141 / 538 GB | NVMe | NVMe or host RAM | host RAM (a server) or NVMe; per proof 88 / 336 MB read column-major: ~2 / ~7 ms over PCIe 5 from host RAM, 0.03-0.1 / 0.1-0.3 s from NVMe |
+
+Reading for §7: on one H100 the memory floor of a 30B decode proof
+is ~6.4 + ~7 = **~13 ms** — 65% of the 20 ms budget, before any
+arithmetic — the same figure S0 §3.4 reached for the lattice line
+by a different route (there, a 13 ms read of a packed 43 GB digit
+store; here, 6 ms of int8 weights plus 7 ms of decommitment columns
+over the host link). On a 4090 the 30B decode floor is ~0.9 s per
+proof (the weights streamed): at most ~1 tok/s at batch 1 whatever
+the arithmetic; at T = 512 the same 0.9 s is 8% of the 10.2 s
+budget.
 
 ## 4. The zero-knowledge surcharge [MODEL, mandatory]
 
