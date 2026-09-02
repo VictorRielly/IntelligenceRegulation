@@ -1341,3 +1341,15 @@ the lattice commitment; the descents/opens are the majority of the
 pass), the r-cap R-row (T11 (b)) — are the lattice line's answer; the
 float/int-mix route (Attestable's) is the other channel. Both need
 Victor's ruling after round 9's numbers, not before.
+
+## Addendum 2026-09-02 — hash-based weight privacy across proofs (lane ZZ)
+
+A cached hash-based (Ligero/Brakedown-class) weight commitment leaks
+its sampled columns across proofs and is recoverable by linear
+algebra after (n + Q)/Q proofs (65 at the 125M parameters, 257/513
+at the 8B/30B optimum) [COUNTED, U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md
+§1]. The hidden-column construction that avoids sending columns
+(Orion, ePrint 2022/1010) was found UNSOUND as published [EXTERNAL,
+ePrint 2024/1164]; any Orion-class design here needs its own written
+simulator/extractor (ZZ's spike O2-3). Full pricing of the three
+options: U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md.

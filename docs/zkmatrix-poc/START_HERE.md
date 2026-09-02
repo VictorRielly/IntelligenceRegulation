@@ -100,8 +100,21 @@ hash-based weight commitment leaks its columns across proofs
 (recoverable after ~65 proofs), so the weights must be re-committed
 every proof (7-23 s of hashing per proof at 30B on an H100), unless
 an uncounted design (hidden-column openings, or a lattice-hybrid
-weight commitment) is built. Which privacy mode the product needs
-is therefore the next ruling.
+weight commitment) is built. Those designs are now priced
+(`U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md`, 2026-09-02): **the one that
+keeps private weights on the 50 tokens/s path is "never send the
+sampled weight columns"** — commit the weights once per model under
+an arithmetic hash and, on each proof, prove the verifier's column
+check inside a fresh zero-knowledge inner proof; its per-proof cost
+on an H100 is 0.05-3.6 s against a 4-62 s prefill proof [MODEL],
+about two lane-weeks to a first measured row, and it needs its own
+written security argument (the published construction it descends
+from was found unsound, ePrint 2024/1164). Re-committing the weights
+each proof works only with 16 or more prefills batched per proof;
+the lattice-hybrid is an audit channel, not a throughput route.
+Which privacy mode the product needs is therefore the next ruling:
+private inputs only costs 2-8% and none of this; private weights
+costs that two-week build.
 
 ## 3. Where we stand (the honest numbers)
 

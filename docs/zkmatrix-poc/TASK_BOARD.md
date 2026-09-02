@@ -58,6 +58,42 @@ rulings; the Mac runbook unchanged):**
   the Route-B throughput model (lane TT's seven items for the hash
   line, incl. the ZK surcharge — Victor's ZK rule is non-negotiable —
   and the proof-size lever).
+- **LANE ZZ LANDED (merged; `U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md`,
+  1,132 lines, docs only) — THE PRIVATE-WEIGHTS ANSWER FOR ROUTE B.**
+  Three ways, one keeps 50 tok/s at 30B reachable: **option 2, never
+  send the sampled weight columns** — the weight tree committed ONCE
+  per model under an arithmetic hash (Poseidon2; 2-18 min on a GPU
+  at 30B, off the clock), and per proof the verifier's column check
+  (256 columns x 2,648 rows x 3 inner products + hashes + Merkle
+  paths: 5.9e6 Poseidon2 permutations, ~4.4e9 native multiplies at
+  30B [COUNTED]) proven inside a fresh ZK GKR/sumcheck proof with
+  masked clear vectors. Per-proof surcharge on one H100 50-180 ms
+  at the floor, 0.16-3.6 s scaled [MODEL] vs a 3.7-62 s P0 prefill
+  proof -> its 30B prefill cells are P0's own (46-137 floor / 7.8-58
+  scaled tok/s); reaches 50 under exactly P0's conditions (batched
+  or 512-token prefill, upper half of the hardware range, >= ~50
+  GB/s device hash rate). Hinges on: the inner ZK prover's overhead
+  over native (5-20x, the one uncounted constant), and a WRITTEN
+  simulator — the published Orion was found unsound [EXTERNAL,
+  ePrint 2024/1164]. Option 1 (re-commit per proof) reaches 50 only
+  with >= 16 stacked prefills per proof + a token-streaming
+  commitment (258 GB working set). Option 3 (the lattice hybrid) is
+  the AUDIT channel, not a throughput route: the lattice weight
+  opening is 100-1,000x the hash line's on the same board, and the
+  cross-commitment bridge (a Goldilocks-extension claim opened from
+  the q31 commitment) has no recorded design — the cheapest honest
+  bridge forces a >= 46-bit weight modulus. No fourth way found.
+  Batch-1 decode: unreachable for every option. Corrections to YY:
+  the recovery horizon is 257/513 proofs at the 8B/30B optimum
+  (65 was the 125M set); only W needs the inner proof, not A/H.
+  SPIKE LIST with sizes (§7): Z-1 the hashline ZK form (1 lane-day,
+  needed under ANY privacy mode); O2-1 Poseidon2 + the W tree behind
+  a switch (2-3 d); O2-2 the inner statement + ZK GKR at 12x512 with
+  the outer verifier accepting with W columns absent, K_ov measured
+  (3-5 d); O2-3 the simulator/extractor (1 d, docs); O2-4 device port
+  (an XX rung). **FOR THE RULING: P1 (private inputs) costs 2-8% and
+  needs none of this; P2/P3 (private weights) costs option 2's ~two
+  lane-weeks to a first measured row.**
 - **LANE VV LANDED (merged a630f25; `results/uperf3_vv_variant_b.md`).
   VARIANT B AT THE BAR: NOT MET — 1.77x [MEASURED]** (real 12x512
   weight group, RTX 4070, 8T, per-model part warm, n=5: 1.24 s min /

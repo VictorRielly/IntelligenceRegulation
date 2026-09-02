@@ -670,6 +670,18 @@ for P2/P3:
    of link rows per tensor) [MODEL, uncounted]. This is S4 §3's
    "A + B" row made concrete.
 
+   **Priced (lane ZZ, 2026-09-02): `U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md`**
+   counts the three options above (and a fourth from the
+   literature: none found) on this memo's yardstick. Option 2 in
+   its hash-in-circuit form (a once-per-model Poseidon2 tree, the
+   column check proven per proof in a fresh ZK GKR, a fresh mask
+   commitment) keeps P0's 30B prefill cells (46-137 tok/s at the
+   floor / 7.8-58 scaled, one H100); option 1 reaches 50 only at
+   B >= 16 stacked 512-token prefills per proof (42-127 / 12-87);
+   option 3 only with Variant B at B >= 16 (32-128), and its
+   Goldilocks-to-q31 link has no recorded design. Its §6 table and
+   §7 verdict carry the ruling's numbers.
+
 ### 4.5 Partial knowledge: what each declared mode leaves in the clear on Route B
 
 | mode (S6 A1) | private | stays in the clear | ZK machinery | surcharge over the P0 row |
