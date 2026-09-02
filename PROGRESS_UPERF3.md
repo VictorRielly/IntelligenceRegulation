@@ -6845,7 +6845,70 @@ RUNGS (prefix "U-PERF3 WW:"):
   ring proxy) + the v GEMM + rows — 0.9-1.1 s that Variant B does
   not touch. The bar (>= 5x) is NOT met at 2^22-2^23 [MEASURED]; the
   12x512 weight group (rung 4) is the bar's shape.
-  Rung 3 commit: (this entry).
+  Rung 3 commit: 06b88ed.
+- 2026-09-02 RUNG 4 — THE PER-PROOF MEASUREMENT AT THE REAL 12x512
+  WEIGHT GROUP: **1.77x the built GPU opening [MEASURED] — the >= 5x
+  bar is NOT MET.** Claims bit-identical throughout.
+  TWO ATTRIBUTION CORRECTIONS FIRST (they change how QQ's 2.08 s
+  should be read, and they are in the code now): (1) the per-contrib
+  reconstructions H_m (tt_claim_sum over 36 contribs x G x 16 ring
+  products) are DIFFERENTIAL objects (the diff's DIFF 2 leg), not
+  protocol work — QQ's tt_prove computes them unconditionally at the
+  end of every proof, so ~0.3-0.5 s of QQ's per-proof clock was
+  bookkeeping (measured 0.31-0.33 s at 2^20 in `b diff`; QQ's
+  "unattributed 0.55 s residual" at 12x512 is mostly this); tt_prove_b
+  takes `want_hms` (the diff passes true; bench/repeat-b false) and
+  times it as its own phase. (2) the fold's "host tail" (QQ: 0.38 s =
+  bound check + poly_from_small + absorb over 43,008 folded rings) is
+  actually the CHALLENGE DRAW: `agg_draw_cs` draws G_all = 3,072
+  quinary rings serially through `draw_quinary_capped` at ~120 us
+  each = 0.34-0.40 s per proof, proportional to G_all and independent
+  of the tier form; the real tail is 0.01 s (measured with the fold
+  phase split into draw / fold-fn / tail). The draws are independent
+  pure functions of (state, label, j), so `tt_draw_cs_par` (two_tier.rs)
+  runs them on the lane pool — value-identical (the wire digest
+  02708a51.. unchanged before/after) — used by tt_prove_b / tt_verify_b
+  / tt_refold_b only; the built path's serial `agg_draw_cs` is
+  untouched. Draw 0.37 -> 0.08 s at 8T.
+  THE MEASUREMENT [WSL-BOX 8T NOISY-SHARED, ZK_GPU=1, RTX 4070 Laptop;
+  flock, /usr/bin/time -v; `uperf-t repeat-b real-w 5 8 161`,
+  results/uperf3_vv_repeat_b_realw_8t_gpu.log; QQ's `uperf-t repeat
+  real-w 5 8 161` re-run in the SAME session for the A/B,
+  results/uperf3_vv_qq_repeat_realw_8t_gpu_rerun.log; the phase table
+  from `uperf-t b bench real-w 8 161`, results/uperf3_vv_b_bench_realw_8t_gpu.log]:
+  | GPU 8T, REAL 12x512 WEIGHT group (3,538,944 digit rings = 442,368 value rings, 36 tensors, all value/i8) | QQ R1 (same session, n = 5) | VARIANT B (n = 5) |
+  |---|---:|---:|
+  | PER-MODEL build (held warm) | 2.43 s (u + U + i8 layout), 91.2 MB | **2.14 s** (layouts 0.23 + tier-1 u over the VALUE rings + U), 91.2 MB |
+  | per-proof rows-from-v | 0.08-0.09 | 0.08-0.09 |
+  | per-proof v-pass (P + GEMM; layout cached) | 0.26-0.37 (0.12 + 0.12-0.23) | 0.27-0.35 (0.11-0.14 + 0.12-0.20) |
+  | per-proof fold wall | 0.79-1.30 (GEMM 0.40-0.90 over 3.54M digit rings + serial draw ~0.37 + tail) | **0.33-0.47** (draw 0.07-0.09 pooled + fold-fn 0.24-0.38 over 442K value rings + tail 0.01) |
+  | tier commits from cache + absorbs | 0.03 + (in residual) | 0.03-0.04 + v-absorb 0.03 |
+  | h_ms (differential bookkeeping) | in the clock (~0.3-0.5, unattributed) | NOT computed |
+  | tt_prove | 1.71-2.33 | **0.78-0.96** |
+  | per-proof recursion prove (proxy: u digits, 202,752 rings) | 0.30-0.51 | 0.39-0.52 |
+  | **PER-PROOF (min / median)** | 2.14 / 2.30 | **1.24 / 1.29** |
+  | built bg_prove_group (min / median), same run | 2.11 / 2.13 | 2.20 / 2.23 |
+  | built bg_precommit (min) | 0.67 | 0.67 |
+  | **RATIO built / per-proof** | 0.98x (1.30x + precommit) | **1.77x (2.31x + precommit)** |
+  | claims | b_rows byte-identical; digest 12a8a3f6.. x5 | b_rows byte-identical; digest **02708a51..** x5 (== the pre-pooled-draw run) |
+  | bench: tt core (rows+v+fold+rec) vs bg_prove_group | (QQ rung 3: 2.30 vs 2.42, 1.05x) | 1.34 vs 2.51, **1.88x**; verify 2.15 s (consistency 0.77) |
+  | peak RSS | 5871 MiB | 5510 MiB |
+  WHERE THE 1.24 s GOES: the recursion prove 0.39-0.52 (the frozen
+  bg machinery on a 203K-ring proxy — 1.9-2.6 us/ring, the small
+  regime QQ named; 35%), the value fold GEMM 0.24-0.38 (36 device
+  GEMMs of 1 x 128-192 columns x len 64-96 — launch/pack-bound: 8x
+  fewer rings than the record's fold but only ~1.5-2x less wall), the
+  v-pass 0.27-0.35 (P on the CPU pool 0.11-0.14 + the i8 GEMM
+  0.12-0.20), rows 0.08, the draw 0.08, absorbs 0.06. The bar (>= 5x)
+  needs <= 0.44 s per proof: the recursion ALONE is at or above the
+  whole budget, before any fold or v-pass. VERDICT AT THE BAR: NOT
+  MET — 1.77x [MEASURED]. Per the brief the ratio is the finding and
+  the lane stops here (rung 5 = the record).
+  Floors at commit (final tree, CPU + GPU builds green 2m12s /
+  2m29s): diff-battery 16.11 s CPU / 18.23 s GPU; freeze-check 102 ok
+  + passed; uperf-s 3752cba4..; agg 46234986..; uperf-x be89d5da..;
+  QQ's `r1 diff 20` cae0b312.. unchanged; `b diff 20 1 161` CPU
+  e757eff7.. (== GPU). Rung 4 commit: (this entry).
 
 ## Agent WW status (wt-uperf3-ww) — round 11
 

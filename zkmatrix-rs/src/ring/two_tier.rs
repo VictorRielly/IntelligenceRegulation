@@ -1402,6 +1402,26 @@ pub fn tt_fold_b(ctx: &RingCtx, t: &AggTensor, gt: &TtGridTensor, layout: &TtBLa
     w
 }
 
+/// [rung 4] The G quinary fold challenges of one tensor drawn on the
+/// lane pool: `draw_quinary_capped(state, label, j)` is a pure function
+/// of (transcript state, label, j), so the G draws are independent and
+/// the values are IDENTICAL to the serial `agg_draw_cs` (pinned by the
+/// wire digest). The two-tier form draws G_all ~ 10^3-10^4 rings per
+/// proof (the built path draws r <= 64 per level) — measured 120 us per
+/// ring serially at 12x512 (0.37 s of the per-proof clock). The caller
+/// absorbs the ratchet tick exactly as `agg_draw_cs` does.
+pub fn tt_draw_cs_par(state: &[u8; 32], label: &str, r: usize) -> Vec<Vec<i64>> {
+    let one = |j: usize| super::eval_proof::draw_quinary_capped(state, label, j as u64).0;
+    if super::eval_proof::threads() > 1 && r >= 32 {
+        tt_pool().install(|| {
+            use rayon::prelude::*;
+            (0..r).into_par_iter().map(one).collect()
+        })
+    } else {
+        (0..r).map(one).collect()
+    }
+}
+
 /// The combine-class fold over the value layout (`fold_chunks_ntt_gen`
 /// on the per-row-group slices) — the diff's identity oracle for
 /// `tt_fold_b`, never on a measured path.

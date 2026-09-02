@@ -51740,6 +51740,15 @@ fn vv_tier1_mat(seed: u64, name: &str, ti: usize, form: ring::two_tier::TtBForm,
     }
 }
 
+/// [rung 4] `agg_draw_cs` with the G draws on the lane pool (the same
+/// values; the built path's serial `agg_draw_cs` is untouched).
+fn vv_draw_cs(tr: &mut ring::sumcheck::LkpTranscript, label: &str, r: usize) -> Vec<Vec<i64>> {
+    let st = tr.state();
+    let cs = ring::two_tier::tt_draw_cs_par(&st, label, r);
+    tr.absorb(label, b"c-tick");
+    cs
+}
+
 fn vv_layouts(inst: &TtInstance, b: &TtBInst, flat: &[i8]) -> Vec<ring::two_tier::TtBLayout> {
     inst.group.tensors.iter().enumerate().map(|(ti, t)| ring::two_tier::tt_b_layout(t, flat, &inst.grid[ti], b.forms[ti])).collect()
 }
@@ -51807,6 +51816,7 @@ fn tt_prove_b(
     seed: u64,
     mut timings: Option<&mut Vec<(&'static str, f64)>>,
     pm: Option<&TtBPerModel>,
+    want_hms: bool,
 ) -> (TtWire, Vec<Poly>, Poly, Vec<Poly>) {
     let mut tick = std::time::Instant::now();
     let mut lap = |timings: &mut Option<&mut Vec<(&'static str, f64)>>, tag: &'static str, tick: &mut std::time::Instant| {
@@ -51821,6 +51831,10 @@ fn tt_prove_b(
         tt_claim_sum, tt_conjq, tt_fold_b, tt_fold_bound, tt_fold_r1, tt_lo_y, tt_outer_functionals, tt_r1_form_for,
         tt_rows_from_v, tt_v_pass_r1, tt_v_pass_r1_dev, R1Form, TtBForm, TtBLayout,
     };
+    // Fold-phase attribution (rung 4): the challenge draw, the fold
+    // function (GEMM + pack + centering), the tail (bound check +
+    // poly_from_small + absorb).
+    let (mut t_draw, mut t_fn, mut t_tail) = (0f64, 0f64, 0f64);
     let zq = &ctx.zq;
     let q = zq.q;
     let group = &inst.group;
@@ -51884,11 +51898,16 @@ fn tt_prove_b(
     let mut w_all: Vec<Vec<Vec<i64>>> = Vec::new();
     for (ti, t) in group.tensors.iter().enumerate() {
         let gt = &inst.grid[ti];
-        let (cs, _) = agg_draw_cs(&mut tr, &format!("tt-c-{ti}"), gt.n_groups);
+        let t_a = std::time::Instant::now();
+        let cs = vv_draw_cs(&mut tr, &format!("tt-c-{ti}"), gt.n_groups);
+        t_draw += t_a.elapsed().as_secs_f64();
+        let t_b = std::time::Instant::now();
         let (w_t, e_form) = match b.forms[ti] {
             TtBForm::Value => (tt_fold_b(ctx, t, gt, &layouts[ti], &cs), b.plan.tensors[ti].e_v),
             TtBForm::Digit => (tt_fold_r1(ctx, t, gt, flat, &cs), t.e0),
         };
+        t_fn += t_b.elapsed().as_secs_f64();
+        let t_c = std::time::Instant::now();
         let bound = tt_fold_bound(gt.n_groups, e_form) as i64;
         for ring_w in &w_t {
             for &x in ring_w {
@@ -51897,14 +51916,26 @@ fn tt_prove_b(
         }
         let w_polys: Vec<Poly> = w_t.iter().map(|r| poly_from_small(zq, r)).collect();
         absorb_polys(&mut tr, &format!("tt-w-{ti}"), &w_polys);
+        t_tail += t_c.elapsed().as_secs_f64();
         w_all.push(w_t);
     }
-    lap(&mut timings, "fold", &mut tick);
-    let mut h_ms = Vec::new();
-    for (m, tc) in inst.tt.iter().enumerate() {
-        let b_out = tt_outer_functionals(zq, kf, &tc.hi, &alphas0);
-        h_ms.push(tt_claim_sum(ctx, &b_out, &v_all[m]));
+    if let Some(ts) = timings.as_deref_mut() {
+        ts.push(("fold-draw", t_draw));
+        ts.push(("fold-fn", t_fn));
+        ts.push(("fold-tail", t_tail));
     }
+    lap(&mut timings, "fold", &mut tick);
+    // The per-contrib reconstructions H_m are DIFFERENTIAL objects (the
+    // diff's DIFF 2 leg), not protocol work — computed only on request
+    // and timed as their own phase so no per-proof clock counts them.
+    let mut h_ms = Vec::new();
+    if want_hms {
+        for (m, tc) in inst.tt.iter().enumerate() {
+            let b_out = tt_outer_functionals(zq, kf, &tc.hi, &alphas0);
+            h_ms.push(tt_claim_sum(ctx, &b_out, &v_all[m]));
+        }
+    }
+    lap(&mut timings, "h-ms", &mut tick);
     (TtWire { b_rows, u: u_all, u_cap, v: v_all, w: w_all }, alphas0, h_cur, h_ms)
 }
 
@@ -51980,7 +52011,7 @@ fn tt_verify_b(
     let mut cs_all: Vec<Vec<Vec<i64>>> = Vec::new();
     for (ti, t) in group.tensors.iter().enumerate() {
         let gt = &inst.grid[ti];
-        let (cs, _) = agg_draw_cs(&mut tr, &format!("tt-c-{ti}"), gt.n_groups);
+        let cs = vv_draw_cs(&mut tr, &format!("tt-c-{ti}"), gt.n_groups);
         let (w_len, e_form) = match b.forms[ti] {
             TtBForm::Value => (b.plan.tensors[ti].width_v, b.plan.tensors[ti].e_v),
             TtBForm::Digit => (gt.width, t.e0),
@@ -52093,7 +52124,7 @@ fn tt_refold_b(
     }
     for (ti, t) in group.tensors.iter().enumerate() {
         let gt = &inst.grid[ti];
-        let (cs, _) = agg_draw_cs(&mut tr, &format!("tt-c-{ti}"), gt.n_groups);
+        let cs = vv_draw_cs(&mut tr, &format!("tt-c-{ti}"), gt.n_groups);
         wire.w[ti] = match b.forms[ti] {
             TtBForm::Value => tt_fold_b(ctx, t, gt, &layouts[ti], &cs),
             TtBForm::Digit => tt_fold_r1(ctx, t, gt, flat, &cs),
@@ -52173,14 +52204,14 @@ fn uperf_t_vv_diff(n_log2: usize, threads: usize, seed: u8) {
     // ---- SUBJECT: Variant B. ----
     let t_tt = std::time::Instant::now();
     let mut tp: Vec<(&'static str, f64)> = Vec::new();
-    let (wire, alphas0, h_cur, h_ms) = tt_prove_b(&ctx, &kf, &inst, &binst, &w0_tt, &v_batch, seed_crs, Some(&mut tp), None);
+    let (wire, alphas0, h_cur, h_ms) = tt_prove_b(&ctx, &kf, &inst, &binst, &w0_tt, &v_batch, seed_crs, Some(&mut tp), None, true);
     let t_tt_prove = t_tt.elapsed().as_secs_f64();
     let t_v = std::time::Instant::now();
     tt_verify_b(&ctx, &kf, &inst, &binst, &wire, &v_batch, seed_crs, None).expect("Variant-B front end must verify");
     let phase = |ts: &[(&'static str, f64)], tag: &str| ts.iter().find(|(t, _)| *t == tag).map(|(_, s)| *s).unwrap_or(0.0);
     println!(
-        "[UPERF3-VV]   Variant-B prove {:.2}s (layout {:.2} + v {:.2} + rows {:.2} + commits {:.2} + fold {:.2}) + verify {:.2}s: ACCEPT (binding + U rebind + claim + consistency + w range)",
-        t_tt_prove, phase(&tp, "layout"), phase(&tp, "v-passes"), phase(&tp, "rows-pass"), phase(&tp, "tier1-commit") + phase(&tp, "tier2-U"), phase(&tp, "fold"), t_v.elapsed().as_secs_f64()
+        "[UPERF3-VV]   Variant-B prove {:.2}s (layout {:.2} + v {:.2} + rows {:.2} + commits {:.2} + fold {:.2} + h_ms {:.2} [differential bookkeeping]) + verify {:.2}s: ACCEPT (binding + U rebind + claim + consistency + w range)",
+        t_tt_prove, phase(&tp, "layout"), phase(&tp, "v-passes"), phase(&tp, "rows-pass"), phase(&tp, "tier1-commit") + phase(&tp, "tier2-U"), phase(&tp, "fold"), phase(&tp, "h-ms"), t_v.elapsed().as_secs_f64()
     );
     // ---- DIFFERENTIAL LEG 1: the b_row images, byte-for-byte. ----
     assert_eq!(wire.b_rows, proof.b_rows, "b_rows differ: Variant B vs the built opening");
@@ -52365,7 +52396,7 @@ fn uperf_t_vv_bench(shape: &str, threads: usize, seed: u8) {
     // ---- the Variant-B front end, phase-timed. ----
     let _ = ring::two_tier::tt_r1_prof_take();
     let mut tp: Vec<(&'static str, f64)> = Vec::new();
-    let (wire, alphas0, _h_cur, _h_ms) = tt_prove_b(&ctx, &kf, &inst, &binst, &w0_tt, &v_batch, seed_crs, Some(&mut tp), None);
+    let (wire, alphas0, _h_cur, _h_ms) = tt_prove_b(&ctx, &kf, &inst, &binst, &w0_tt, &v_batch, seed_crs, Some(&mut tp), None, false);
     let pr = ring::two_tier::tt_r1_prof_take();
     let mut tv: Vec<(&'static str, f64)> = Vec::new();
     let t_v0 = std::time::Instant::now();
@@ -52379,8 +52410,8 @@ fn uperf_t_vv_bench(shape: &str, threads: usize, seed: u8) {
     let tt_v = phase(&tp, "v-passes");
     let tt_fold = phase(&tp, "fold");
     println!(
-        "[UPERF3-VV]   tt-b prove phases: layout {:.2}s (per-model class), rows {:.2}s, tier1+tier2 commit {:.2}s, v-passes {:.2}s, FOLD WALL {:.2}s (v-absorb {:.2}s)",
-        tt_layout, tt_rows, tt_commit, tt_v, tt_fold, phase(&tp, "v-absorb")
+        "[UPERF3-VV]   tt-b prove phases: layout {:.2}s (per-model class), rows {:.2}s, tier1+tier2 commit {:.2}s, v-passes {:.2}s, FOLD WALL {:.2}s = draw {:.2} + fold-fn {:.2} + tail {:.2} (v-absorb {:.2}s; h_ms not computed)",
+        tt_layout, tt_rows, tt_commit, tt_v, tt_fold, phase(&tp, "fold-draw"), phase(&tp, "fold-fn"), phase(&tp, "fold-tail"), phase(&tp, "v-absorb")
     );
     println!(
         "[UPERF3-VV]   attribution: v-pass P precompute {:.3}s + Fl build {:.3}s + GEMM {:.3}s + out {:.3}s; fold-as-GEMM {:.3}s",
@@ -52565,7 +52596,7 @@ fn uperf_t_vv_repeat_b(args: &[String]) {
         let mut tp: Vec<(&'static str, f64)> = Vec::new();
         let _ = ring::two_tier::tt_r1_prof_take();
         let t_p = std::time::Instant::now();
-        let (wire, _a0, _h, _hms) = tt_prove_b(&ctx, &kf, &inst, &binst, &w0, &v_batch, seed_crs, Some(&mut tp), Some(&pm));
+        let (wire, _a0, _h, _hms) = tt_prove_b(&ctx, &kf, &inst, &binst, &w0, &v_batch, seed_crs, Some(&mut tp), Some(&pm), false);
         let prove_s = t_p.elapsed().as_secs_f64();
         let pr = ring::two_tier::tt_r1_prof_take();
         let u_flat: Vec<Poly> = wire.u.iter().flat_map(|ut| ut.concat()).collect();
@@ -52590,9 +52621,10 @@ fn uperf_t_vv_repeat_b(args: &[String]) {
         }
         let pp = prove_s + rec_prove;
         println!(
-            "[UPERF3-VV]   proof {k}: Variant-B per-proof {:.2}s = tt_prove_b {:.2}s (rows-from-v {:.2}, v-pass {:.2} [P {:.2} + GEMM {:.2}; layout cached], fold {:.2} [GEMM {:.2}], tier commits from cache {:.2}, v-absorb {:.2}) + recursion prove {:.2}s (its precommit {:.2}s = per-model class)",
+            "[UPERF3-VV]   proof {k}: Variant-B per-proof {:.2}s = tt_prove_b {:.2}s (rows-from-v {:.2}, v-pass {:.2} [P {:.2} + GEMM {:.2}; layout cached], fold {:.2} [draw {:.2} + fold-fn {:.2} (GEMM slot {:.2}) + tail {:.2}], tier commits from cache {:.2}, v-absorb {:.2}; h_ms not computed) + recursion prove {:.2}s (its precommit {:.2}s = per-model class)",
             pp, prove_s, phase(&tp, "rows-pass"), phase(&tp, "v-passes"), pr[ring::two_tier::TT_R1_P], pr[ring::two_tier::TT_R1_GEMM],
-            phase(&tp, "fold"), pr[ring::two_tier::TT_R1_FOLD], phase(&tp, "tier1-commit") + phase(&tp, "tier2-U"), phase(&tp, "v-absorb"), rec_prove, rec_pre
+            phase(&tp, "fold"), phase(&tp, "fold-draw"), phase(&tp, "fold-fn"), pr[ring::two_tier::TT_R1_FOLD], phase(&tp, "fold-tail"),
+            phase(&tp, "tier1-commit") + phase(&tp, "tier2-U"), phase(&tp, "v-absorb"), rec_prove, rec_pre
         );
         digests.push(tt_wire_digest(&wire));
         per_proof.push(pp);
