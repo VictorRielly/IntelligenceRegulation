@@ -6725,7 +6725,85 @@ RUNGS (prefix "U-PERF3 WW:"):
   subject) — and it needs Victor's ruling (E-O2-BB, the class row)
   before any freeze. The build continues as a MEASURED spike with the
   S4/QQ criteria: claims bit-identical, gates green, the per-proof
-  wall ratio at the bar. Rung 1 commit: (this entry).
+  wall ratio at the bar. Rung 1 commit: fdc718d.
+- 2026-09-02 RUNG 2 — VARIANT B ON THE CPU: GREEN, claims bit-identical
+  at 2^20 and 2^22; every reject leg fires. BUILT (two_tier.rs,
+  ADDITIVE): `TtBForm {Value, Digit}` + `tt_b_form_for` (the public
+  per-tensor rule: value form iff the row-group gate at (width_v, e_v)
+  is green, else the record's digit form — F0), `TtBLayout {I8, I64,
+  Digit}` + `tt_b_layout` (the tier-1 witness = the recombined value
+  rings in row-group order: `tt_fl_layout_i8` when every value fits an
+  i8 — every real int8 weight tensor — else boxed i64; the SAME object
+  the R1 v GEMM reads as its B operand), `tt_b_commit` (u_i = A_B *
+  Fl_i via `matvec_modq_small_multi_gen` over the layout slices, CRS
+  label "TB" at width_v; the digit form keeps "T" at width — so a
+  digit-form tensor's u is byte-identical to R1's), `TtStridedColI8` /
+  `TtStridedColI64` (strided columns of the layout) + `tt_fold_b` (the
+  value fold as ONE GEMM, a = the G challenges, b = the width_v
+  strided columns, len = G — `tt_fold_r1`'s contract over the value
+  tier; centered to the exact i64 fold) + `tt_fold_b_ref` (the
+  combine-class `fold_chunks_ntt_gen` over the same slices — the
+  identity oracle, never on a measured path). Bin (the [UPERF3-VV]
+  block): `TtBInst` (plan + forms), `TtBPerModel` (layouts + u + U),
+  `tt_build_per_model_b`, SEPARATE `tt_prove_b` / `tt_verify_b` /
+  `tt_refold_b` (transcript domain "uperf-t-vb"; FF's tt_prove /
+  tt_verify and QQ's R1 untouched): the v-vectors FIRST by R1's value
+  GEMM (the i8 layout as its B operand when held), b_rows recovered
+  from v, tier 1 over the form's witness, tier 2 over the u digits
+  (e_u, l_u from the plan = `tt_u_digit_base`), v absorbed, the fold
+  per form with the honest bound `tt_fold_bound(G, e_v | e0)`; the
+  verifier's consistency check (c) uses the radix-free value
+  functionals `tt_inner_value_functionals` for value-form tensors.
+  `uperf-t b diff|bench`, `uperf-t repeat-b`.
+  THE DIFFERENTIAL (`uperf-t b diff 20 1 161`, results/uperf3_vv_b_diff20_1t.log
+  [WSL-BOX 1T NOISY-SHARED]; `b diff 22 8 161`, results/uperf3_vv_b_diff22_8t.log
+  [8T]; the FF instance, forms ta/tb/tc/te/tf VALUE (e_v 7/9/11/5/7;
+  layouts i8/i64/i64/i8/i8), td DIGIT (e_v 13, gate -1.26 / -1.76)):
+  DIFF 1 b_row images BYTE-IDENTICAL vs the built GroupEvalProof.b_rows
+  and the direct kernel pass; DIFF 2 H_m == alphas . rows_m POLY-EXACT
+  7/7; DIFF 3 h_cur identical (built route == sum_m H_m); VV-1 the v
+  plane (7 x 16) and b_rows BYTE-IDENTICAL to R1's, run by QQ's
+  prover in the same process (R1's own wire digests reproduced:
+  cae0b312.. at 2^20, cba4356c.. at 2^22), the digit-form u identical
+  to R1's and the five value-form u's distinct; VV-2 the value fold
+  as ONE GEMM == fold_chunks_ntt_gen over the same layout slices
+  (fresh challenges) 5/5; REJECT (7): w tamper -> tt-fold-binding, v
+  tamper -> tt-fold-binding, u tamper -> tt-u-binding, b_rows tamper
+  -> tt-ct-row-gate, lying-v + honest refold -> tt-consistency, lying
+  b_rows non-ct + refold -> tt-claim, and the NEW VV-3 LYING VALUE
+  RING (one committed value +-1, u/U re-committed, honest refold
+  under the tampered transcript so fold-binding AND the U rebind
+  pass) -> tt-consistency. Variant-B WIRE DIGESTS e757eff7.. (2^20)
+  / 1b239b2a.. (2^22) — the cross-binary identity for rung 3. Walls
+  at 2^19.6 1T: oracle 18.2 s; R1 prove 8.57 s; Variant-B prove 5.01 s
+  (layout 0.34 + v 1.13 + rows 0.17 + commits 1.96 + fold 1.02) +
+  verify 2.12 s; peak RSS 2594 MiB (2^22 8T: 4978 MiB).
+  THE CPU BENCH ROW (`b bench 22 8 161`, results/uperf3_vv_b_bench22_8t_cpu.log
+  [WSL-BOX 8T CPU NOISY-SHARED]; QQ's R1 8T CPU row for contrast):
+  | 8T CPU, 2^22 synth | QQ R1 (bench22_8t) | Variant B |
+  |---|---:|---:|
+  | rows-from-v | 0.33 | 0.08 |
+  | v-passes | 2.29 | 1.14 (P 0.06 + Fl 0.29 + GEMM 0.76) |
+  | fold wall | 0.73 (combine class over 2.97M digit rings) | 1.18 (fold-as-GEMM over 3,456 value columns: 0.86) |
+  | proxy recursion prove | 0.71 | 0.72 |
+  | tt core (rows+v+fold+rec) | 4.06 | **3.12** |
+  | tier1+tier2 commit (+ layout) | 4.91 | 3.26 (+ 0.93 layout) |
+  | bg_precommit / bg_prove_group | 2.90 / 8.26 | 3.00 / 7.60 |
+  | core ratio | 2.03x | **2.44x** |
+  | tt verify | 3.25 | 2.65 |
+  | bytes spike-clear | 45.3 MB | 43.0 MB (w 1.77 MB: 3,456 folded rings vs 7,936) |
+  READING: on the CPU the fold-as-GEMM over the value tier (0.86 s
+  for 3,456 short-K GEMM columns, two of them i64) is NOT faster than
+  the record's combine-class fold over 7x more digit rings (0.73 s) —
+  the short-K GEMM is the wrong class on the CPU (the combine class
+  over the value layout, `tt_fold_b_ref`, is the CPU form; the
+  device hook is what rung 3 measures, as QQ). The core gain vs R1
+  is the v-pass (the i8 layout cached) and rows. The 5x bar is a
+  device question; recorded, not chased on the CPU.
+  Floors at commit (CPU + GPU builds green, 2m59s / 2m27s):
+  diff-battery 16.88 s; freeze-check 102 ok + passed; uperf-s
+  3752cba4..; agg 46234986..; uperf-x be89d5da..; QQ's `r1 diff 20`
+  cae0b312.. unchanged. Rung 2 commit: (this entry).
 
 ## Agent WW status (wt-uperf3-ww) — round 11
 

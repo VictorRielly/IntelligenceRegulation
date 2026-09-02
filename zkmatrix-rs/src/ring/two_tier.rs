@@ -1200,3 +1200,223 @@ pub fn tt_b_plan(group: &AggGroup, grid: &[TtGridTensor], bounds: &[u128], contr
         head_w_record: gate_headroom_bits(n_w_record, e_u, q),
     }
 }
+
+// ---- [UPERF3-VV rung 2] the Variant-B front end's tier-1 objects ----------
+//
+// Per tensor a PUBLIC form rule (a deterministic function of the plan —
+// Fiat-Shamir-safe): the VALUE form when the row-group gate at (width_v,
+// e_v) is green, else the record's DIGIT form (finding F0: act-class
+// tensors with wide values fail the value gate on the record grid; the
+// int8 weight group takes the value form on every tensor). The v-pass
+// is R1's in both cases (the v-vectors never depend on the tier form).
+
+/// The tier-1 form of a tensor under Variant B.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TtBForm {
+    /// tier 1 commits/folds the recombined value rings (width_v at e_v).
+    Value,
+    /// the record: tier 1 commits/folds the digit rings (width at e0).
+    Digit,
+}
+
+pub fn tt_b_form_for(tp: &TtBTensorPlan) -> TtBForm {
+    if tp.head_rowgroup >= 0.0 {
+        TtBForm::Value
+    } else {
+        TtBForm::Digit
+    }
+}
+
+/// The tier-1 witness layout of one tensor: per row group its g*nb
+/// recombined value rings — flat i8 when every value fits (the GEMM
+/// hook's pack fast path; every real int8 weight tensor), boxed i64
+/// rings otherwise (the synthetic's wide tensors); `Digit` = no layout
+/// (the flat digit witness slices are the witness, as the record).
+pub enum TtBLayout {
+    I8(Vec<Vec<i8>>),
+    I64(Vec<Vec<Vec<i64>>>),
+    Digit,
+}
+
+impl TtBLayout {
+    pub fn bytes(&self) -> usize {
+        match self {
+            TtBLayout::I8(g) => g.iter().map(|v| v.len()).sum(),
+            TtBLayout::I64(g) => g.iter().map(|v| v.len() * D * 8).sum(),
+            TtBLayout::Digit => 0,
+        }
+    }
+    pub fn as_i8(&self) -> Option<&[Vec<i8>]> {
+        match self {
+            TtBLayout::I8(g) => Some(g.as_slice()),
+            _ => None,
+        }
+    }
+    pub fn tag(&self) -> &'static str {
+        match self {
+            TtBLayout::I8(_) => "value/i8",
+            TtBLayout::I64(_) => "value/i64",
+            TtBLayout::Digit => "digit",
+        }
+    }
+}
+
+/// Build the tier-1 layout of a tensor for its form (per model: the
+/// recombined values in row-group order, alpha-independent).
+pub fn tt_b_layout(t: &AggTensor, w0: &[i8], gt: &TtGridTensor, form: TtBForm) -> TtBLayout {
+    match form {
+        TtBForm::Digit => TtBLayout::Digit,
+        TtBForm::Value => match tt_fl_layout_i8(t, w0, gt) {
+            Some(g) => TtBLayout::I8(g),
+            None => TtBLayout::I64(tt_fl_row_groups(t, w0, gt, 0, gt.n_groups)),
+        },
+    }
+}
+
+/// THE VARIANT-B TIER-1 COMMIT: u_i = A * row_i for every row group of
+/// a tensor over its tier-1 witness — the value layout (A = A_B, kappa
+/// x width_v) or the flat digit slices (A = the record's kappa x width).
+/// The same `matvec_modq_small_multi_gen` (= the level-0 GEMM contract).
+pub fn tt_b_commit(ctx: &RingCtx, a_mat: &[Poly], t: &AggTensor, gt: &TtGridTensor, w0: &[i8], layout: &TtBLayout) -> Vec<Vec<Poly>> {
+    use super::eval_proof::matvec_modq_small_multi_gen;
+    let width_v = gt.g_rows * (t.cols / D);
+    match layout {
+        TtBLayout::I8(gs) => {
+            let sl: Vec<&[i8]> = gs.iter().map(|g| g.as_slice()).collect();
+            matvec_modq_small_multi_gen(ctx, a_mat, KAPPA_AGG, width_v, &sl)
+        }
+        TtBLayout::I64(gs) => {
+            let sl: Vec<&[Vec<i64>]> = gs.iter().map(|g| g.as_slice()).collect();
+            matvec_modq_small_multi_gen(ctx, a_mat, KAPPA_AGG, width_v, &sl)
+        }
+        TtBLayout::Digit => {
+            let sl: Vec<&[i8]> = (0..gt.n_groups)
+                .map(|i| SmallRings::sub(w0, t.digit_ring_base + i * gt.width, t.digit_ring_base + (i + 1) * gt.width))
+                .collect();
+            matvec_modq_small_multi_gen(ctx, a_mat, KAPPA_AGG, gt.width, &sl)
+        }
+    }
+}
+
+/// A strided column of the flat-i8 VALUE layout: ring u = position `ib`
+/// of row group u. The GEMM's B operand for the value fold (never `sub`).
+pub struct TtStridedColI8<'a> {
+    pub groups: &'a [Vec<i8>],
+    pub ib: usize,
+}
+
+impl SmallRings for TtStridedColI8<'_> {
+    #[inline(always)]
+    fn n_rings(&self) -> usize {
+        self.groups.len()
+    }
+    #[inline(always)]
+    fn ring<'a>(&'a self, u: usize, buf: &'a mut [i64; D]) -> &'a [i64] {
+        let s = &self.groups[u][self.ib * D..(self.ib + 1) * D];
+        for (b, &x) in buf.iter_mut().zip(s.iter()) {
+            *b = x as i64;
+        }
+        &buf[..]
+    }
+    fn max_abs(&self) -> u128 {
+        let mut m = 0u8;
+        for g in self.groups {
+            for &x in &g[self.ib * D..(self.ib + 1) * D] {
+                m = m.max(x.unsigned_abs());
+            }
+        }
+        m as u128
+    }
+    fn is_zero(&self, u: usize) -> bool {
+        self.groups[u][self.ib * D..(self.ib + 1) * D].iter().all(|&x| x == 0)
+    }
+    fn sub(&self, _lo: usize, _hi: usize) -> &Self {
+        unreachable!("TtStridedColI8::sub: the GEMM contract never sub-slices its B operand")
+    }
+}
+
+/// A strided column of the boxed-i64 VALUE layout.
+pub struct TtStridedColI64<'a> {
+    pub groups: &'a [Vec<Vec<i64>>],
+    pub ib: usize,
+}
+
+impl SmallRings for TtStridedColI64<'_> {
+    #[inline(always)]
+    fn n_rings(&self) -> usize {
+        self.groups.len()
+    }
+    #[inline(always)]
+    fn ring<'a>(&'a self, u: usize, _buf: &'a mut [i64; D]) -> &'a [i64] {
+        self.groups[u][self.ib].as_slice()
+    }
+    fn max_abs(&self) -> u128 {
+        let mut m = 0u128;
+        for g in self.groups {
+            for &x in &g[self.ib] {
+                m = m.max(x.unsigned_abs() as u128);
+            }
+        }
+        m
+    }
+    fn is_zero(&self, u: usize) -> bool {
+        self.groups[u][self.ib].iter().all(|&x| x == 0)
+    }
+    fn sub(&self, _lo: usize, _hi: usize) -> &Self {
+        unreachable!("TtStridedColI64::sub: the GEMM contract never sub-slices its B operand")
+    }
+}
+
+/// THE VARIANT-B FOLD: w_v[ib] = sum_i c_i (x) Fl_i[ib] over the width_v
+/// VALUE rings of a tensor as ONE GEMM (a = the G fold challenges as
+/// mod-q rings; b = the width_v strided columns of the value layout;
+/// len = G) — `tt_fold_r1`'s contract over the value tier (the device
+/// hook applies unchanged under ZK_GPU=1). Centered back to the exact
+/// i64 fold: identical to `fold_chunks_ntt_gen` over the same slices
+/// (pinned by the diff's fold-identity leg). The digit form folds
+/// through `tt_fold_r1`.
+pub fn tt_fold_b(ctx: &RingCtx, t: &AggTensor, gt: &TtGridTensor, layout: &TtBLayout, cs: &[Vec<i64>]) -> Vec<Vec<i64>> {
+    let zq = &ctx.zq;
+    let q = zq.q;
+    let t0 = std::time::Instant::now();
+    assert_eq!(cs.len(), gt.n_groups, "one fold challenge per row group");
+    let width_v = gt.g_rows * (t.cols / D);
+    let c_polys: Vec<Poly> = cs.iter().map(|c| poly_from_small(zq, c)).collect();
+    let a: Vec<&[Poly]> = vec![c_polys.as_slice()];
+    let out = match layout {
+        TtBLayout::I8(gs) => {
+            let cols: Vec<TtStridedColI8> = (0..width_v).map(|ib| TtStridedColI8 { groups: gs, ib }).collect();
+            let b: Vec<&TtStridedColI8> = cols.iter().collect();
+            super::eval_proof::ntt_gemm_modq_small_gen::<TtStridedColI8>(ctx, &a, &b, gt.n_groups)
+        }
+        TtBLayout::I64(gs) => {
+            let cols: Vec<TtStridedColI64> = (0..width_v).map(|ib| TtStridedColI64 { groups: gs, ib }).collect();
+            let b: Vec<&TtStridedColI64> = cols.iter().collect();
+            super::eval_proof::ntt_gemm_modq_small_gen::<TtStridedColI64>(ctx, &a, &b, gt.n_groups)
+        }
+        TtBLayout::Digit => unreachable!("tt_fold_b: the digit form folds through tt_fold_r1"),
+    };
+    let half = q / 2;
+    let w: Vec<Vec<i64>> = out.iter().map(|p| p.iter().map(|&x| if x > half { x as i64 - q as i64 } else { x as i64 }).collect()).collect();
+    tt_r1_add(TT_R1_FOLD, t0);
+    w
+}
+
+/// The combine-class fold over the value layout (`fold_chunks_ntt_gen`
+/// on the per-row-group slices) — the diff's identity oracle for
+/// `tt_fold_b`, never on a measured path.
+pub fn tt_fold_b_ref(t: &AggTensor, gt: &TtGridTensor, layout: &TtBLayout, cs: &[Vec<i64>]) -> Vec<Vec<i64>> {
+    use super::eval_proof::fold_chunks_ntt_gen;
+    let width_v = gt.g_rows * (t.cols / D);
+    match layout {
+        TtBLayout::I8(gs) => {
+            let sl: Vec<&[i8]> = gs.iter().map(|g| g.as_slice()).collect();
+            fold_chunks_ntt_gen(cs, &sl, width_v)
+        }
+        TtBLayout::I64(gs) => {
+            let sl: Vec<&[Vec<i64>]> = gs.iter().map(|g| g.as_slice()).collect();
+            fold_chunks_ntt_gen(cs, &sl, width_v)
+        }
+        TtBLayout::Digit => unreachable!("tt_fold_b_ref: digit form"),
+    }
+}
