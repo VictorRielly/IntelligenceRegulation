@@ -5027,4 +5027,110 @@ ONE GPU (H100-class allowed), written so a newcomer can follow it:
 
 ## Agent TT status (main session) — round 10
 
-(lane appends below)
+STATE: LANE COMPLETE (2026-09-02; docs only — no code, no builds, no
+runs; worktree wt-uperf3-tt, branch uperf3-tt, cut at 8e2060d).
+DELIVERABLE: docs/zkmatrix-poc/U_PERF3_THROUGHPUT_MODEL.md (the
+proven-tokens-per-second model, plain language, every number
+labelled [MEASURED]/[COUNTED]/[MODEL]/[EXTERNAL] and traced to one
+of sixteen named sources). OWNS: that file + this section. Nothing
+else written.
+
+THE ANSWER (§0 of the memo, compressed):
+- The only timed proof is 12x512 of the 125M model: 18.0 s prover
+  clock (21.0 s with verify) = 28 FFN-proven tokens/s OF THAT MODEL
+  [MEASURED, S1 = PROGRESS_UPERF2 "after round 9"].
+- Built system at 8B, scaled by the counted phase growth (routes memo
+  §1.3): ~0.6-0.8 tok/s for T=512 prefill on the laptop, ~1-5 on one
+  desktop board, ~1-7 on one H100 [MODEL]; batch-1 decode ~0.0025
+  tok/s on the laptop (~0.005-0.02 on either board) — 250x worse
+  than prefill because the built protocol re-proves the whole weight
+  side per proof and at T=1 the witness is 99.9% weights. At 30B
+  every cell is 3-4x smaller again and nothing fits one board.
+- 50 tok/s at 30B = 1.55e12 proven MAC/s = 20 ms/token = 10.2 s per
+  512-token proof, ~1,000x the measured rate.
+- The recorded design path (Stage A + two-tier opening + weight
+  preprocessing), at ITS OWN modelled constants, lands at 2-15
+  tok/s for 30B prefill and 0.05-0.7 tok/s for 30B decode on one
+  H100 [MODEL on MODEL]; at the constants spike S4 actually
+  measured, 3-30x lower. Under no assumption recorded anywhere in
+  this repository does the lattice line reach 50 tok/s in either
+  workload. Batch-1 decode is additionally bounded by the per-proof
+  read of the weight digits (172 GB at 30B; 13 ms only if packed to
+  2 bits AND H100-resident = 65% of the 20 ms budget).
+
+THE TOKENS/S TABLE (memo §4; FFN-only tokens; laptop / one desktop
+board (2-6x [MODEL]) / one H100 (2-8x [MODEL])):
+  8B prefill T=512:  (a) built 0.56-0.83 / 1.1-5.0 / 1.1-6.6;
+                     (b) +Stage A 0.71-0.80 / 1.4-4.8 / 1.4-6.4;
+                     (c) two-tier+preproc, routes constants
+                         3.3-5.6 / 6.6-33 / 6.6-45;
+                     (c') same, spike-measured constants
+                         0.9-2.4 / 1.8-9.7 / 1.8-9.7.
+  8B decode:         (a)=(b) 0.0024-0.0027 / 0.005-0.016 / 0.005-0.022;
+                     (c) 0.08-0.25 / 0.15-0.55 / 0.15-2.0;
+                     (c') 0.003-0.016 / 0.006-0.06 / 0.006-0.06.
+  30B prefill T=512: (a) 0.17-0.24 / 0.35-1.4 / 0.35-1.9;
+                     (b) 0.21-0.23 / 0.42-1.4 / 0.42-1.9;
+                     (c) 1.1-1.9 / 2.3-12 / 2.3-15;
+                     (c') 0.26-0.78 / 0.5-3.1 / 0.5-3.1.
+  30B decode:        (a)=(b) 0.0006-0.0007 / 0.0013-0.004 / 0.0013-0.006;
+                     (c) 0.024-0.09 / 0.05-0.14 / 0.05-0.3 (0.05-0.7
+                         with a packed resident store [MODEL]);
+                     (c') 0.0008-0.004 / 0.0016-0.017 / 0.0016-0.017.
+  Every 8B cell [MODEL]; every 30B cell [MODEL on MODEL] (a
+  Gemma-3-27B-shaped stand-in: L 62, d 5376, f 21504 — the real
+  Gemma-4-31B architecture is not recorded here); board/H100 add the
+  unmeasured hardware factor. The hardware note that matters: on
+  scalar integer work an H100 has FEWER SM-GHz than a 4090; its
+  edge for this mix is bandwidth (13x the laptop) and 80 GB.
+
+THE AUDIT (memo §5) of the board's 2026-08-30 line — every part
+UNSOURCED, RETRACTED:
+- "~25-35 tok/s amortized": no derivation anywhere; nearest recorded
+  row = the routes memo's most optimistic 8B composition on ONE
+  DESKTOP board (~20-40 s/proof) = 13-26 tok/s of an 8B FFN-only
+  model; its 30B/one-H100 equivalent 2-15 tok/s prefill, < 1 decode.
+- "Stage-A aggregate GPU port + fold fusion 1.2-1.5x": restates the
+  design memo's [MODEL] factor for Stage A ITSELF (measured 0.87x on
+  CPU at 125M, the composition ladder); "fold fusion" = lane DD's
+  rung 5, an unbuilt AVX2 CPU item. Lane RR rung 5 replaces it.
+- "pipelining 1.3x": no design, count or measurement exists; the
+  structural bound is <= 2x at 12x512's ~50% CPU share and -> 1x as
+  the pass is ported (the hardware lever counted twice).
+- "spine amortization 1.1-1.2x": contradicted by the routes memo's
+  own count (the Fiat-Shamir spine < 1 s of a 620-910 s 8B pass).
+- "~65": the product of the four (43-82, midpoint ~62).
+  Quotable sentence: memo §5.6. TASK_BOARD.md §0 (orchestrator's
+  file) should point its 2026-08-30 line at it.
+
+THE 50 TOK/S BUDGET (memo §7): 1.55e12 proven MAC/s; batch 1 = 20
+ms per proof, of which a per-proof walk over the 30B weight digits
+is >= 13 ms even packed+resident -> batch-1 decode at 50 tok/s needs
+a per-proof weight-side cost SUBLINEAR in the weights (an idea this
+repo does not have) or >= ~500 tokens per proof; at T=512 the weight
+walk is 0.1% of the 10.2 s budget and the whole question is the
+ACTIVATION side: it must prove 1.6e13 MACs in ~10 s = 1.6e12 MAC/s
+on one H100 vs a best-modelled 0.5-3.3e11 — 3-20x short at the
+routes constants, 5-35x at the spike's. Requirements R1-R5 stated.
+Which measurement replaces which constant: QQ rung 4 (the per-proof
+weight-side opening after preprocessing at the 12x512 weight group,
+the reopen bar >= 5x) + rung 1's 8B/30B count collapse the (c)/(c')
+spread; QQ rung 3 = the GPU linear pass; RR rungs 3-5 = the
+Stage-A-on-GPU factor ((b) and the activation side of (c)); RR rung
+0 = the CPU/GPU split (the pipelining bound, the low end of the
+hardware factor); Mac runbook M5 (layer 0 at T = 16/64/512) = the
+W/A split at 8B (fit wall = W + A x T/512), turning §2.5's split
+from ring-share [MODEL] into [MEASURED, MAC-BOX]; M7 = the thread
+factor; choice C = the board factor. The two deciding unknowns: U1
+= the per-proof weight-side constant on a GPU (QQ); U2 = whether
+ANY lattice-line activation-side opening can run at ~1e12 MAC/s on
+one board — no lane measures U2; it is the choice-D question and
+should be put to Victor when QQ's count lands. Round 11 is to be cut
+from QQ rung 4 + RR rung 5 + M5's three points applied to memo §2.5,
+not from any tokens/s number.
+
+COMMITS (branch uperf3-tt, never pushed by this lane): af09959
+skeleton + sources; a71b98d §1 workloads; e814f91 §2 cost anatomy;
+c02418a §3 hardware factor; 7a28184 §4 table + §0 answer; 3e482b7
+§5 audit; 84e306a §6 competitor + §7 budget + unknowns; close = this
+commit (status COMPLETE + this section).

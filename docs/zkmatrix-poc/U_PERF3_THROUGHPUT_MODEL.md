@@ -1,9 +1,12 @@
 # U-PERF3 lane TT — the throughput model: proven tokens per second, honestly
 
-Status: IN PROGRESS (opened 2026-09-02; round 10 of tranche U-PERF3,
-lane TT, docs only, worktree wt-uperf3-tt). Sections land one commit
-each; the "Agent TT status" block in PROGRESS_UPERF3.md carries the
-summary.
+Status: COMPLETE (2026-09-02; round 10 of tranche U-PERF3, lane TT,
+docs only, worktree wt-uperf3-tt). Sections landed one commit each;
+the "Agent TT status" block in PROGRESS_UPERF3.md carries the
+summary. Two things this memo asks of the orchestrator's files:
+TASK_BOARD.md §0's 2026-08-30 line should point at §5.6 here, and
+START_HERE.md §2's "until then no tokens/s number in this repository
+is sourced" can now cite §4.
 
 Who this is for: a reader who knows what a cryptographic proof is
 but has never opened this repository. Every term is defined where it
@@ -569,7 +572,7 @@ board or H100 cell adds the unmeasured §3 factor on top of that.
 |---|---:|---:|---:|---:|---:|---:|
 | (a) built | 0.56-0.83 | 0.0024-0.0027 | 1.1-5.0 | 0.005-0.016 | 1.1-6.6 | 0.005-0.022 |
 | (b) built + Stage A | 0.71-0.80 | 0.0024-0.0027 | 1.4-4.8 | 0.005-0.016 | 1.4-6.4 | 0.005-0.022 |
-| (c) two-tier + weight preprocessing, routes constants | 3.3-5.6 | 0.08-0.25 | 6.6-33 | 0.15-0.55 (floor: 1.8 s streamed store) | 6.6-43 | 0.15-2.0 |
+| (c) two-tier + weight preprocessing, routes constants | 3.3-5.6 | 0.08-0.25 | 6.6-33 | 0.15-0.55 (floor: 1.8 s streamed store) | 6.6-45 | 0.15-2.0 |
 | (c') same design, spike-measured constants, CPU weight pass | 0.9-2.4 | 0.003-0.016 | 1.8-9.7 (host 2-4x) | 0.006-0.06 | 1.8-9.7 (host 2-4x) | 0.006-0.06 |
 
 Per-proof costs behind the cells (laptop, prover clock, s): (a)
@@ -624,7 +627,7 @@ that is the model's claim, unverified until an 8B proof runs.
    2-15 tok/s at 30B prefill and 0.05-0.7 tok/s at 30B decode.** It
    does not reach 50 tok/s in any cell, in either workload, under
    any assumption recorded in this repository. The best cell in the
-   whole table (8B prefill, one H100, routes constants) is 43 tok/s
+   whole table (8B prefill, one H100, routes constants) is 45 tok/s
    of an 8B FFN-only model.
 4. The (c)/(c') spread — 3-5x on prefill, 15-30x on decode — is the
    unmeasured per-proof weight-side constant; lane QQ's rungs 3-4
