@@ -220,6 +220,20 @@ fn eval_many(data: &[Fp], slices: &[(usize, usize)], point: &[Fp2]) -> Vec<Fp2> 
         .collect()
 }
 
+/// [UPERF3-XX] `eval_many` on the device when the commitment is device-resident (same values), else on the host.
+fn eval_many_dev(cm: &pcs::Committed, data: &[Fp], slices: &[(usize, usize)], point: &[Fp2]) -> Vec<Fp2> {
+    #[cfg(feature = "gpu-cuda")]
+    if let (true, Some(dc)) = (crate::gpu::enabled(), dev_of(cm)) {
+        let offs: Vec<usize> = slices.iter().map(|&(o, len)| { assert_eq!(len, 1usize << point.len()); o }).collect();
+        match crate::gpu::dev_eval_many(dc, &offs, point) {
+            Ok(v) => return v,
+            Err(e) => eprintln!("[UPERF3-XX] gpu eval_many declined ({e}); CPU path"),
+        }
+    }
+    let _ = cm;
+    eval_many(data, slices, point)
+}
+
 fn sum_fp2(v: &[Fp2]) -> Fp2 {
     v.par_iter().copied().reduce(|| Fp2::ZERO, |a, b| a.add(b))
 }
@@ -289,6 +303,14 @@ fn helper_constraint(h: Fp2, l1: Fp2, l2: Fp2, alpha: Fp2) -> Fp2 {
 pub struct ProveOutput {
     pub proof: LayerProof,
     pub timings: Vec<(String, f64)>,
+}
+
+/// The host-side Fp2 tables of the zero-checks (the CPU path builds them
+/// with the helper columns; the device path never materializes them).
+struct HostTabs {
+    g8f: Vec<Fp2>, rgf: Vec<Fp2>, a8f: Vec<Fp2>, u8f: Vec<Fp2>, ruf: Vec<Fp2>, h8f: Vec<Fp2>, rhf: Vec<Fp2>,
+    hg: Vec<Fp2>, hu: Vec<Fp2>, hh: Vec<Fp2>,
+    zf: Vec<Vec<Fp2>>, rdf: Vec<Vec<Fp2>>, hz: Vec<Vec<Fp2>>,
 }
 
 /// [UPERF3-XX] The device-resident commitment behind a `Committed`, when the GPU path made it.
@@ -364,54 +386,90 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
     let beta = tr.challenge_fp2();
     let gamma = tr.challenge_fp2();
     let alpha = tr.challenge_fp2();
-    // lookup value columns (Fp2)
-    let g8f = to_fp2_i32(&w.g8[..tf]);
-    let a8f = to_fp2_i32(&w.a8[..tf]);
-    let rgf = to_fp2_i32(&w.rg[..tf]);
-    let u8f = to_fp2_i32(&w.u8v[..tf]);
-    let ruf = to_fp2_i32(&w.ru[..tf]);
-    let h8f = to_fp2_i32(&w.h8[..tf]);
-    let rhf = to_fp2_i32(&w.rh[..tf]);
     let g_silu = gamma.mul_base(Fp::new(TAG_SILU));
     let g_int8 = gamma.mul_base(Fp::new(TAG_INT8));
     let g_rg = gamma.mul_base(Fp::new(tag_range(sh_g)));
     let g_ru = gamma.mul_base(Fp::new(tag_range(sh_u)));
     let g_rh = gamma.mul_base(Fp::new(tag_range(sh_h)));
     let g_rd = gamma.mul_base(Fp::new(tag_range(sh_z)));
-    let lg: Vec<Fp2> = g8f.par_iter().zip(a8f.par_iter()).map(|(g, a)| g.add(beta.mul(*a)).add(g_silu)).collect();
-    let lrg: Vec<Fp2> = rgf.par_iter().map(|r| r.add(g_rg)).collect();
-    let lu: Vec<Fp2> = u8f.par_iter().map(|v| v.add(g_int8)).collect();
-    let lru: Vec<Fp2> = ruf.par_iter().map(|r| r.add(g_ru)).collect();
-    let lh: Vec<Fp2> = h8f.par_iter().map(|v| v.add(g_int8)).collect();
-    let lrh: Vec<Fp2> = rhf.par_iter().map(|r| r.add(g_rh)).collect();
-    let hg = helper_column(&lg, &lrg, alpha);
-    let hu = helper_column(&lu, &lru, alpha);
-    let hh = helper_column(&lh, &lrh, alpha);
-    drop(lg); drop(lrg); drop(lu); drop(lru); drop(lh); drop(lrh);
-    let mut zf: Vec<Vec<Fp2>> = Vec::new();
-    let mut rdf: Vec<Vec<Fp2>> = Vec::new();
-    let mut hz: Vec<Vec<Fp2>> = Vec::new();
-    for b in 0..3 {
-        let z_b: Vec<Fp2> = a_data[lay.z[b]..lay.z[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect();
-        let rd_b: Vec<Fp2> = a_data[lay.rd[b]..lay.rd[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect();
-        let lz: Vec<Fp2> = z_b.par_iter().map(|v| v.add(g_int8)).collect();
-        let lrd: Vec<Fp2> = rd_b.par_iter().map(|r| r.add(g_rd)).collect();
-        hz.push(helper_column(&lz, &lrd, alpha));
-        zf.push(z_b);
-        rdf.push(rd_b);
-    }
-    let mut h_data = vec![Fp::ZERO; lay.h_len];
-    for (col, (ore, oim)) in [(&hg, lay.hg), (&hu, lay.hu), (&hh, lay.hh)] {
-        h_data[ore..ore + tf].par_iter_mut().zip(col.par_iter()).for_each(|(o, v)| *o = v.c0);
-        h_data[oim..oim + tf].par_iter_mut().zip(col.par_iter()).for_each(|(o, v)| *o = v.c1);
-    }
-    for b in 0..3 {
-        let (ore, oim) = lay.hz[b];
-        h_data[ore..ore + tb].par_iter_mut().zip(hz[b].par_iter()).for_each(|(o, v)| *o = v.c0);
-        h_data[oim..oim + tb].par_iter_mut().zip(hz[b].par_iter()).for_each(|(o, v)| *o = v.c1);
-    }
     let h_pcs = params.pcs_for(lay.log_tb);
-    let h_cm = pcs::commit(&h_pcs, &h_data, ntt);
+    // [UPERF3-XX] the device path: helper columns computed on the device from the resident A data
+    // straight into a device H buffer (no host tables, no upload), committed from there; the helper
+    // sums come from a device reduction. Err -> the host body below.
+    let mut host_tabs: Option<HostTabs> = None;
+    let mut h_data: Vec<Fp> = Vec::new();
+    let mut dev_helper_sums: Option<Vec<Fp2>> = None;
+    #[cfg(feature = "gpu-cuda")]
+    let h_cm_dev: Option<pcs::Committed> = if let (true, Some(a_dc)) = (crate::gpu::enabled(), dev_of(&a_cm)) {
+        use crate::gpu::HelperSpec;
+        let mut specs = vec![
+            HelperSpec { off_v1: lay.g8, off_w: Some(lay.a8), off_v2: lay.rg, len: tf, c1: g_silu, c2: g_rg, off_re: lay.hg.0, off_im: lay.hg.1 },
+            HelperSpec { off_v1: lay.u8v, off_w: None, off_v2: lay.ru, len: tf, c1: g_int8, c2: g_ru, off_re: lay.hu.0, off_im: lay.hu.1 },
+            HelperSpec { off_v1: lay.h8, off_w: None, off_v2: lay.rh, len: tf, c1: g_int8, c2: g_rh, off_re: lay.hh.0, off_im: lay.hh.1 },
+        ];
+        for b in 0..3 {
+            specs.push(HelperSpec { off_v1: lay.z[b], off_w: None, off_v2: lay.rd[b], len: tb, c1: g_int8, c2: g_rd, off_re: lay.hz[b].0, off_im: lay.hz[b].1 });
+        }
+        let rows = lay.h_len / h_pcs.cols();
+        let r = crate::gpu::dev_helpers(a_dc, lay.h_len, &specs, alpha, beta)
+            .and_then(|(d_h, sums)| crate::gpu::dev_commit_from(&h_pcs, d_h, rows, ntt).map(|(dc, leaves)| (dc, leaves, sums)));
+        match r {
+            Ok((dc, leaves, sums)) => {
+                dev_helper_sums = Some(sums);
+                Some(pcs::Committed { params: h_pcs, rows, store: pcs::Store::Device(dc), tree: crate::merkle::MerkleTree::build(leaves) })
+            }
+            Err(e) => { eprintln!("[UPERF3-XX] gpu helpers declined ({e}); CPU path"); None }
+        }
+    } else { None };
+    #[cfg(not(feature = "gpu-cuda"))]
+    let h_cm_dev: Option<pcs::Committed> = None;
+    let h_cm = match h_cm_dev {
+        Some(cm) => cm,
+        None => {
+            // lookup value columns (Fp2)
+            let g8f = to_fp2_i32(&w.g8[..tf]);
+            let a8f = to_fp2_i32(&w.a8[..tf]);
+            let rgf = to_fp2_i32(&w.rg[..tf]);
+            let u8f = to_fp2_i32(&w.u8v[..tf]);
+            let ruf = to_fp2_i32(&w.ru[..tf]);
+            let h8f = to_fp2_i32(&w.h8[..tf]);
+            let rhf = to_fp2_i32(&w.rh[..tf]);
+            let lg: Vec<Fp2> = g8f.par_iter().zip(a8f.par_iter()).map(|(g, a)| g.add(beta.mul(*a)).add(g_silu)).collect();
+            let lrg: Vec<Fp2> = rgf.par_iter().map(|r| r.add(g_rg)).collect();
+            let lu: Vec<Fp2> = u8f.par_iter().map(|v| v.add(g_int8)).collect();
+            let lru: Vec<Fp2> = ruf.par_iter().map(|r| r.add(g_ru)).collect();
+            let lh: Vec<Fp2> = h8f.par_iter().map(|v| v.add(g_int8)).collect();
+            let lrh: Vec<Fp2> = rhf.par_iter().map(|r| r.add(g_rh)).collect();
+            let hg = helper_column(&lg, &lrg, alpha);
+            let hu = helper_column(&lu, &lru, alpha);
+            let hh = helper_column(&lh, &lrh, alpha);
+            drop(lg); drop(lrg); drop(lu); drop(lru); drop(lh); drop(lrh);
+            let mut zf: Vec<Vec<Fp2>> = Vec::new();
+            let mut rdf: Vec<Vec<Fp2>> = Vec::new();
+            let mut hz: Vec<Vec<Fp2>> = Vec::new();
+            for b in 0..3 {
+                let z_b: Vec<Fp2> = a_data[lay.z[b]..lay.z[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect();
+                let rd_b: Vec<Fp2> = a_data[lay.rd[b]..lay.rd[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect();
+                let lz: Vec<Fp2> = z_b.par_iter().map(|v| v.add(g_int8)).collect();
+                let lrd: Vec<Fp2> = rd_b.par_iter().map(|r| r.add(g_rd)).collect();
+                hz.push(helper_column(&lz, &lrd, alpha));
+                zf.push(z_b);
+                rdf.push(rd_b);
+            }
+            h_data = vec![Fp::ZERO; lay.h_len];
+            for (col, (ore, oim)) in [(&hg, lay.hg), (&hu, lay.hu), (&hh, lay.hh)] {
+                h_data[ore..ore + tf].par_iter_mut().zip(col.par_iter()).for_each(|(o, v)| *o = v.c0);
+                h_data[oim..oim + tf].par_iter_mut().zip(col.par_iter()).for_each(|(o, v)| *o = v.c1);
+            }
+            for b in 0..3 {
+                let (ore, oim) = lay.hz[b];
+                h_data[ore..ore + tb].par_iter_mut().zip(hz[b].par_iter()).for_each(|(o, v)| *o = v.c0);
+                h_data[oim..oim + tb].par_iter_mut().zip(hz[b].par_iter()).for_each(|(o, v)| *o = v.c1);
+            }
+            host_tabs = Some(HostTabs { g8f, rgf, a8f, u8f, ruf, h8f, rhf, hg, hu, hh, zf, rdf, hz });
+            pcs::commit(&h_pcs, &h_data, ntt)
+        }
+    };
     proof.h_com = Some(h_cm.commitment());
     absorb_com(tr, b"H", proof.h_com.as_ref().unwrap());
     lap("helpers + commit H", &mut timings, &mut tick);
@@ -422,7 +480,7 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
     let lam_gu = tr.challenge_fp2();
     let mut p1 = r_i.clone();
     p1.extend_from_slice(&r_j);
-    let ev = eval_many(&a_data, &[(lay.g8, tf), (lay.rg, tf), (lay.u8v, tf), (lay.ru, tf)], &p1);
+    let ev = eval_many_dev(&a_cm, &a_data, &[(lay.g8, tf), (lay.rg, tf), (lay.u8v, tf), (lay.ru, tf)], &p1);
     let g_claim = ev[0].mul_base(pow2(sh_g)).add(ev[1]);
     let u_claim = ev[2].mul_base(pow2(sh_u)).add(ev[3]);
     proof.gu_claims = vec![g_claim, u_claim];
@@ -458,7 +516,7 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
     let lam_d = tr.challenge_fp2_vec(3);
     let mut p4 = r_ip.clone();
     p4.extend_from_slice(&r_jp);
-    let ev = eval_many(&a_data, &[(lay.z[0], tb), (lay.rd[0], tb), (lay.z[1], tb), (lay.rd[1], tb), (lay.z[2], tb), (lay.rd[2], tb)], &p4);
+    let ev = eval_many_dev(&a_cm, &a_data, &[(lay.z[0], tb), (lay.rd[0], tb), (lay.z[1], tb), (lay.rd[1], tb), (lay.z[2], tb), (lay.rd[2], tb)], &p4);
     proof.d_claims = (0..3).map(|b| ev[2 * b].mul_base(pow2(sh_z)).add(ev[2 * b + 1])).collect();
     tr.absorb_fp2(b"d-claims", &proof.d_claims);
     let eq_rip = eq_table_msb(&r_ip);
@@ -514,8 +572,11 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
     #[cfg(not(feature = "gpu-cuda"))]
     let dev_out: Option<sumcheck::ProverOutput> = None;
     let out = match dev_out {
-        Some(out) => { drop((g8f, rgf, a8f, u8f, ruf, h8f, rhf, hg, hu, hh)); out }
+        Some(out) => out,
         None => {
+            let ht = host_tabs.as_mut().expect("zero-check 20: the device path declined after the device helpers; no host tables (rerun with HL_GPU unset)");
+            let (g8f, rgf, a8f, u8f, ruf, h8f, rhf) = (std::mem::take(&mut ht.g8f), std::mem::take(&mut ht.rgf), std::mem::take(&mut ht.a8f), std::mem::take(&mut ht.u8f), std::mem::take(&mut ht.ruf), std::mem::take(&mut ht.h8f), std::mem::take(&mut ht.rhf));
+            let (hg, hu, hh) = (std::mem::take(&mut ht.hg), std::mem::take(&mut ht.hu), std::mem::take(&mut ht.hh));
             let mut tables: Vec<Vec<Fp2>> = vec![eq_table_msb(&tau), eq_table_msb(&p1), eq_table_msb(&p5), g8f, rgf, a8f, u8f, ruf, h8f, rhf, hg, hu, hh];
             let zc20_poly = move |v: &[Fp2]| -> Fp2 {
                 let (eqt, eq1, eq5) = (v[0], v[1], v[2]);
@@ -568,13 +629,14 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
     #[cfg(not(feature = "gpu-cuda"))]
     let dev_out: Option<sumcheck::ProverOutput> = None;
     let out = match dev_out {
-        Some(out) => { drop((zf, rdf, hz)); out }
+        Some(out) => out,
         None => {
+            let ht = host_tabs.as_mut().expect("zero-check 17: the device path declined after the device helpers; no host tables (rerun with HL_GPU unset)");
             let mut tables: Vec<Vec<Fp2>> = vec![eq_table_msb(&tau2), eq_table_msb(&p2), eq_table_msb(&p4)];
             for b in 0..3 { tables.push(a_data[lay.x[b]..lay.x[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect()); }
-            for b in 0..3 { tables.push(std::mem::take(&mut zf[b])); }
-            for b in 0..3 { tables.push(std::mem::take(&mut rdf[b])); }
-            for b in 0..3 { tables.push(std::mem::take(&mut hz[b])); }
+            for b in 0..3 { tables.push(std::mem::take(&mut ht.zf[b])); }
+            for b in 0..3 { tables.push(std::mem::take(&mut ht.rdf[b])); }
+            for b in 0..3 { tables.push(std::mem::take(&mut ht.hz[b])); }
             let zc17_poly = move |v: &[Fp2]| -> Fp2 {
                 let (eqt, eq2, eq4) = (v[0], v[1], v[2]);
                 let mut zc = Fp2::ZERO;
@@ -600,13 +662,20 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
     lap("zero-check 17", &mut timings, &mut tick);
 
     // ---- helper sums ---------------------------------------------------------------
-    let sums = |re: usize, im: usize, len: usize| -> Fp2 {
-        let sre = h_data[re..re + len].par_iter().copied().reduce(|| Fp::ZERO, |a, b| a.add(b));
-        let sim = h_data[im..im + len].par_iter().copied().reduce(|| Fp::ZERO, |a, b| a.add(b));
-        Fp2::new(sre, sim)
+    proof.helper_sums = match dev_helper_sums.take() {
+        Some(s) => s,
+        None => {
+            let sums = |re: usize, im: usize, len: usize| -> Fp2 {
+                let sre = h_data[re..re + len].par_iter().copied().reduce(|| Fp::ZERO, |a, b| a.add(b));
+                let sim = h_data[im..im + len].par_iter().copied().reduce(|| Fp::ZERO, |a, b| a.add(b));
+                Fp2::new(sre, sim)
+            };
+            let mut v = vec![sums(lay.hg.0, lay.hg.1, tf), sums(lay.hu.0, lay.hu.1, tf), sums(lay.hh.0, lay.hh.1, tf)];
+            for b in 0..3 { v.push(sums(lay.hz[b].0, lay.hz[b].1, tb)); }
+            v
+        }
     };
-    proof.helper_sums = vec![sums(lay.hg.0, lay.hg.1, tf), sums(lay.hu.0, lay.hu.1, tf), sums(lay.hh.0, lay.hh.1, tf)];
-    for b in 0..3 { proof.helper_sums.push(sums(lay.hz[b].0, lay.hz[b].1, tb)); }
+    drop(host_tabs);
     tr.absorb_fp2(b"helper-sums", &proof.helper_sums);
 
     // ---- PCS openings -------------------------------------------------------------

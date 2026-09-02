@@ -546,3 +546,132 @@ extern "C" __global__ void k_fold_rows(const u64* __restrict__ data, const u64* 
         if (g < k) st_f2(out, (size_t)g * n + j, acc[g]);
     }
 }
+
+// ---------------------------------------------------------------------------
+// [rung 4b] The LogUp helper columns on the device: h = 1/(alpha - l1) +
+// 1/(alpha - l2) with l1 = v1 + beta * w + c1 (w optional), l2 = v2 + c2,
+// v1 / w / v2 base-field slices of the resident A data; h's (re, im) go
+// straight into the H data buffer. Inverses by Montgomery's trick over a
+// per-thread chunk of HC elements (2 HC denominators) with one Fermat
+// inversion; inverses are unique, so the values equal the CPU's
+// batch_inverse2's.
+
+#define HC 8
+
+__device__ __forceinline__ u64 gl_pow_pm2(u64 a) {
+    // a^(p - 2), p - 2 = 0xFFFFFFFE_FFFFFFFF: square-and-multiply, MSB first.
+    u64 e = 0xFFFFFFFEFFFFFFFFULL;
+    u64 acc = 1ULL;
+    u64 base = a;
+    for (int i = 0; i < 64; i++) {
+        if ((e >> i) & 1ULL) acc = gl_mul(acc, base);
+        base = gl_mul(base, base);
+    }
+    return acc;
+}
+__device__ __forceinline__ f2 f2_inv(f2 a) {
+    u64 norm = gl_sub(gl_mul(a.c0, a.c0), gl_mul(gl_mul(a.c1, a.c1), NONRES));
+    u64 ninv = gl_pow_pm2(norm);
+    f2 r;
+    r.c0 = gl_mul(a.c0, ninv);
+    r.c1 = gl_mul(gl_sub(0ULL, a.c1), ninv);
+    return r;
+}
+
+// prm: alpha 0, beta 2, c1 4, c2 6
+extern "C" __global__ void k_helper(const u64* __restrict__ a, int off_v1, int off_w, int off_v2, int n, const u64* __restrict__ prm,
+                                    u64* __restrict__ h, int off_re, int off_im) {
+    int t = blockIdx.x * blockDim.x + threadIdx.x;
+    int base = t * HC;
+    if (base >= n) return;
+    f2 alpha = prm_f2(prm, 0), beta = prm_f2(prm, 2), c1 = prm_f2(prm, 4), c2 = prm_f2(prm, 6);
+    f2 den[2 * HC];
+    int cnt = (n - base) < HC ? (n - base) : HC;
+    #pragma unroll
+    for (int i = 0; i < HC; i++) {
+        if (i < cnt) {
+            f2 v1; v1.c0 = a[off_v1 + base + i]; v1.c1 = 0;
+            f2 l1 = f2_add(v1, c1);
+            if (off_w >= 0) { f2 w; w.c0 = a[off_w + base + i]; w.c1 = 0; l1 = f2_add(l1, f2_mul(beta, w)); }
+            f2 v2; v2.c0 = a[off_v2 + base + i]; v2.c1 = 0;
+            f2 l2 = f2_add(v2, c2);
+            den[2 * i] = f2_sub(alpha, l1);
+            den[2 * i + 1] = f2_sub(alpha, l2);
+        } else {
+            den[2 * i].c0 = 1; den[2 * i].c1 = 0;
+            den[2 * i + 1].c0 = 1; den[2 * i + 1].c1 = 0;
+        }
+    }
+    // Montgomery: prefix products, one inversion, backward sweep
+    f2 pre[2 * HC];
+    f2 acc; acc.c0 = 1; acc.c1 = 0;
+    #pragma unroll
+    for (int i = 0; i < 2 * HC; i++) { pre[i] = acc; acc = f2_mul(acc, den[i]); }
+    f2 inv = f2_inv(acc);
+    #pragma unroll
+    for (int i = 2 * HC - 1; i >= 0; i--) {
+        f2 d = den[i];
+        den[i] = f2_mul(inv, pre[i]);
+        inv = f2_mul(inv, d);
+    }
+    #pragma unroll
+    for (int i = 0; i < HC; i++) {
+        if (i < cnt) {
+            f2 hv = f2_add(den[2 * i], den[2 * i + 1]);
+            h[off_re + base + i] = hv.c0;
+            h[off_im + base + i] = hv.c1;
+        }
+    }
+}
+
+// partial[blockIdx.x] = the block's sum of src[off + i], i < n (base field).
+extern "C" __global__ void k_sum_fp(const u64* __restrict__ src, int off, int n, u64* __restrict__ partial) {
+    __shared__ u64 red[256];
+    u64 acc = 0;
+    for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n; i += gridDim.x * blockDim.x) acc = gl_add(acc, src[off + i]);
+    red[threadIdx.x] = acc;
+    __syncthreads();
+    for (int s = blockDim.x / 2; s > 0; s >>= 1) {
+        if (threadIdx.x < s) red[threadIdx.x] = gl_add(red[threadIdx.x], red[threadIdx.x + s]);
+        __syncthreads();
+    }
+    if (threadIdx.x == 0) partial[blockIdx.x] = red[0];
+}
+
+// ---------------------------------------------------------------------------
+// [rung 4c] eq tables from two half tables (eq(r, x) factorizes over the
+// variable split: the same product, one f2_mul per entry) and the MLE
+// evaluations of base-field slices against a resident eq table (the
+// prover's `eval_many`: sum_i data[off + i] * eq[i], block partials).
+
+extern "C" __global__ void k_eq_join(const u64* __restrict__ hi, const u64* __restrict__ lo, u64* __restrict__ dst, int lo_bits, int n) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx >= n) return;
+    f2 h = ld_f2(hi, idx >> lo_bits);
+    f2 l = ld_f2(lo, idx & ((1 << lo_bits) - 1));
+    st_f2(dst, idx, f2_mul(h, l));
+}
+
+// partial[blockIdx.x * m + s] = the block's sum over i of data[offs[s] + i] * eq[i], for m slices.
+extern "C" __global__ void k_dot_slices(const u64* __restrict__ data, const int* __restrict__ offs, int m, const u64* __restrict__ eq, int n, u64* __restrict__ partial) {
+    __shared__ u64 red[256 * 2];
+    for (int s = 0; s < m; s++) {
+        int off = offs[s];
+        f2 acc = f2_zero();
+        for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n; i += gridDim.x * blockDim.x) {
+            acc = f2_add(acc, f2_mul_base(ld_f2(eq, i), data[off + i]));
+        }
+        red[threadIdx.x * 2] = acc.c0;
+        red[threadIdx.x * 2 + 1] = acc.c1;
+        __syncthreads();
+        for (int st = blockDim.x / 2; st > 0; st >>= 1) {
+            if (threadIdx.x < st) {
+                red[threadIdx.x * 2] = gl_add(red[threadIdx.x * 2], red[(threadIdx.x + st) * 2]);
+                red[threadIdx.x * 2 + 1] = gl_add(red[threadIdx.x * 2 + 1], red[(threadIdx.x + st) * 2 + 1]);
+            }
+            __syncthreads();
+        }
+        if (threadIdx.x == 0) { partial[(blockIdx.x * m + s) * 2] = red[0]; partial[(blockIdx.x * m + s) * 2 + 1] = red[1]; }
+        __syncthreads();
+    }
+}

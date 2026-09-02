@@ -11,7 +11,7 @@ use crate::merkle::Digest;
 use crate::ntt::NttTables;
 use crate::pcs::PcsParams;
 use cudarc::driver::result as cu;
-use cudarc::driver::{sys, CudaDevice, CudaSlice, LaunchAsync, LaunchConfig};
+use cudarc::driver::{sys, CudaDevice, CudaSlice, DeviceSlice, LaunchAsync, LaunchConfig};
 use cudarc::nvrtc::{compile_ptx_with_opts, CompileOptions};
 use rayon::prelude::*;
 use std::sync::{Arc, Mutex, OnceLock};
@@ -22,12 +22,15 @@ const MODULE: &str = "hlgpu";
 const FUNCS: &[&str] = &[
     "k_probe", "k_ntt_p1", "k_ntt_p2", "k_gather_cols", "k_hash_cols",
     "k_sc_round_zc20", "k_sc_round_zc17", "k_reduce_f2", "k_sc_fold", "k_tab_from_fp", "k_tab_from_fp2", "k_eq_table",
-    "k_fold_rows",
+    "k_fold_rows", "k_helper", "k_sum_fp", "k_eq_join", "k_dot_slices",
 ];
 const SC_THREADS: u32 = 256;
 const SC_MAX_BLOCKS: u32 = 1024;
 const NTT_LOG_BLK: u32 = 12;
-const NTT_THREADS: u32 = 256;
+fn ntt_threads() -> u32 {
+    static V: OnceLock<u32> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_GPU_NTT_THREADS").ok().and_then(|v| v.parse().ok()).unwrap_or(256u32).clamp(32, 1024))
+}
 
 pub(super) struct Gpu {
     pub(super) dev: Arc<CudaDevice>,
@@ -314,12 +317,12 @@ impl Gpu {
         let p1 = self.dev.get_func(MODULE, "k_ntt_p1").ok_or("k_ntt_p1 missing")?;
         let lb = log_n.min(NTT_LOG_BLK);
         let blocks_per_row = 1u32 << (log_n - lb);
-        let cfg1 = LaunchConfig { grid_dim: (rows as u32 * blocks_per_row, 1, 1), block_dim: (NTT_THREADS, 1, 1), shared_mem_bytes: 0 };
+        let cfg1 = LaunchConfig { grid_dim: (rows as u32 * blocks_per_row, 1, 1), block_dim: (ntt_threads(), 1, 1), shared_mem_bytes: 0 };
         unsafe { p1.launch(cfg1, (src, &mut *dst, tw, log_n as i32, n_src as i32, scale)) }.map_err(|e| format!("k_ntt_p1: {e}"))?;
         if log_n > NTT_LOG_BLK {
             let p2 = self.dev.get_func(MODULE, "k_ntt_p2").ok_or("k_ntt_p2 missing")?;
             let tiles = 1u32 << (log_n - NTT_LOG_BLK);
-            let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (NTT_THREADS, 1, 1), shared_mem_bytes: 0 };
+            let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (ntt_threads(), 1, 1), shared_mem_bytes: 0 };
             unsafe { p2.launch(cfg2, (&mut *dst, tw, log_n as i32, scale)) }.map_err(|e| format!("k_ntt_p2: {e}"))?;
         }
         Ok(())
@@ -328,26 +331,39 @@ impl Gpu {
 
 /// Commit on the device: upload `data`, encode every row (inverse NTT of
 /// size n, forward NTT of size nn = n * inv_rate with zero padding), and
-/// return the device commitment plus the column leaves (rung 1: hashed
-/// on the host from the encoded matrix copied back). `Err` -> the caller
-/// runs the CPU body.
+/// return the device commitment plus the column leaves (rung 2: hashed on
+/// the device; `HL_GPU_HOST_HASH=1` keeps rung 1's host hashing). `Err`
+/// -> the caller runs the CPU body.
 pub fn dev_commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Result<(DevCommit, Vec<Digest>), String> {
+    let g = gpu().ok_or_else(init_err)?;
+    let g = g.lock().unwrap();
+    let n = params.cols();
+    assert!(data.len() % n == 0 && !data.is_empty());
+    let rows = data.len() / n;
+    let dev = g.dev.clone();
+    let t0 = Instant::now();
+    let d_data = dev.htod_sync_copy(as_u64s(data)).map_err(|e| format!("data upload: {e}"))?;
+    dev.synchronize().map_err(|e| e.to_string())?;
+    stats_with(|s| { s.secs_h2d += t0.elapsed().as_secs_f64(); s.bytes_h2d += (data.len() * 8) as u64; });
+    drop(g);
+    dev_commit_from(params, d_data, rows, ntt)
+}
+
+/// Commit a device-resident data buffer (rows x n u64, row-major) — the
+/// encode + hash half of `dev_commit`, also used for the H data the helper
+/// kernels write on the device.
+pub fn dev_commit_from(params: &PcsParams, d_data: CudaSlice<u64>, rows: usize, ntt: &NttTables) -> Result<(DevCommit, Vec<Digest>), String> {
     let g = gpu().ok_or_else(init_err)?;
     let mut g = g.lock().unwrap();
     g.ensure_twiddles(ntt)?;
     let n = params.cols();
     let nn = params.enc_cols();
-    assert!(data.len() % n == 0 && !data.is_empty());
-    let rows = data.len() / n;
+    assert_eq!(d_data.len(), rows * n);
     let log_n = params.log_cols;
     let log_nn = nn.trailing_zeros();
     assert_eq!(1usize << log_nn, nn, "inv_rate must be a power of two on the device path");
     let dev = g.dev.clone();
-    let t0 = Instant::now();
-    let d_data = dev.htod_sync_copy(as_u64s(data)).map_err(|e| format!("data upload: {e}"))?;
-    dev.synchronize().map_err(|e| e.to_string())?;
     let t1 = Instant::now();
-    stats_with(|s| { s.secs_h2d += (t1 - t0).as_secs_f64(); s.bytes_h2d += (data.len() * 8) as u64; });
     let mut d_coef = unsafe { dev.alloc::<u64>(rows * n) }.map_err(|e| format!("coef alloc: {e}"))?;
     let mut d_enc = unsafe { dev.alloc::<u64>(rows * nn) }.map_err(|e| format!("enc alloc: {e}"))?;
     g.ntt_rows(&d_data, &mut d_coef, rows, n, log_n, true)?;
@@ -528,7 +544,6 @@ pub fn dev_zerocheck(kind: i32, specs: &[TabSpec], prm: &[u64], tr: &mut Transcr
     let mut tabs = unsafe { dev.alloc::<u64>(k * l * 2) }.map_err(|e| format!("sc tables alloc ({} MB): {e}", k * l * 16 >> 20))?;
     let f_fp = dev.get_func(MODULE, "k_tab_from_fp").ok_or("k_tab_from_fp missing")?;
     let f_fp2 = dev.get_func(MODULE, "k_tab_from_fp2").ok_or("k_tab_from_fp2 missing")?;
-    let f_eq = dev.get_func(MODULE, "k_eq_table").ok_or("k_eq_table missing")?;
     let mut eq_pts: Vec<CudaSlice<u64>> = Vec::new();
     for (t, sp) in specs.iter().enumerate() {
         let mut dst = tabs.slice_mut(t * l * 2..(t + 1) * l * 2);
@@ -547,9 +562,8 @@ pub fn dev_zerocheck(kind: i32, specs: &[TabSpec], prm: &[u64], tr: &mut Transcr
             }
             TabSpec::Eq(r) => {
                 assert_eq!(1usize << r.len(), l);
-                let d_r = dev.htod_sync_copy(&as_u64s_f2(r)).map_err(|e| e.to_string())?;
-                unsafe { f_eq.clone().launch(cfg, (&d_r, &mut dst, r.len() as i32)) }.map_err(|e| format!("k_eq_table: {e}"))?;
-                eq_pts.push(d_r);
+                let keep = g.eq_table_into(r, &mut dst)?;
+                eq_pts.extend(keep);
             }
         }
     }
@@ -637,4 +651,115 @@ pub fn dev_fold_rows(dc: &DevCommit, rhos: &[Vec<Fp2>]) -> Result<Vec<Vec<Fp2>>,
     let h = dev.dtoh_sync_copy(&d_out).map_err(|e| e.to_string())?;
     stats_with(|s| { s.secs_fold += t0.elapsed().as_secs_f64(); s.bytes_d2h += (k * n * 16) as u64; });
     Ok((0..k).map(|g| (0..n).map(|j| Fp2::new(Fp(h[(g * n + j) * 2]), Fp(h[(g * n + j) * 2 + 1]))).collect()).collect())
+}
+
+/// One helper column's specification (element offsets into the A data /
+/// the H data): l1 = v1 + beta * w + c1 (w optional), l2 = v2 + c2.
+pub struct HelperSpec {
+    pub off_v1: usize,
+    pub off_w: Option<usize>,
+    pub off_v2: usize,
+    pub len: usize,
+    pub c1: Fp2,
+    pub c2: Fp2,
+    pub off_re: usize,
+    pub off_im: usize,
+}
+
+/// [rung 4b] The LogUp helper columns computed on the device from the
+/// resident A data into a fresh H data buffer (h_len u64), returned
+/// together with each helper's (re, im) column sums (the helper-sum
+/// functionals, order-free field sums).
+pub fn dev_helpers(a_dc: &DevCommit, h_len: usize, specs: &[HelperSpec], alpha: Fp2, beta: Fp2) -> Result<(CudaSlice<u64>, Vec<Fp2>), String> {
+    let g = gpu().ok_or_else(init_err)?;
+    let g = g.lock().unwrap();
+    let dev = g.dev.clone();
+    let t0 = Instant::now();
+    let mut d_h = dev.alloc_zeros::<u64>(h_len).map_err(|e| format!("h data alloc: {e}"))?;
+    let f = dev.get_func(MODULE, "k_helper").ok_or("k_helper missing")?;
+    let f_sum = dev.get_func(MODULE, "k_sum_fp").ok_or("k_sum_fp missing")?;
+    let mut sums = Vec::with_capacity(specs.len());
+    let mut d_part = unsafe { dev.alloc::<u64>(1024) }.map_err(|e| e.to_string())?;
+    for sp in specs {
+        let prm = as_u64s_f2(&[alpha, beta, sp.c1, sp.c2]);
+        let d_prm = dev.htod_sync_copy(&prm).map_err(|e| e.to_string())?;
+        // HC = 8 elements per thread (den + prefix arrays live in registers); 128-thread blocks keep
+        // the register file within the launch limit.
+        let threads = (sp.len + 7) / 8;
+        let cfg = LaunchConfig { grid_dim: (((threads + 127) / 128) as u32, 1, 1), block_dim: (128, 1, 1), shared_mem_bytes: 0 };
+        let off_w: i32 = sp.off_w.map(|o| o as i32).unwrap_or(-1);
+        unsafe {
+            f.clone().launch(cfg, (&a_dc.data, sp.off_v1 as i32, off_w, sp.off_v2 as i32, sp.len as i32, &d_prm, &mut d_h, sp.off_re as i32, sp.off_im as i32))
+        }
+        .map_err(|e| format!("k_helper: {e}"))?;
+        let mut parts = [Fp::ZERO; 2];
+        for (which, off) in [sp.off_re, sp.off_im].iter().enumerate() {
+            let blocks = (((sp.len + 255) / 256) as u32).clamp(1, 1024);
+            let cfg_s = LaunchConfig { grid_dim: (blocks, 1, 1), block_dim: (256, 1, 1), shared_mem_bytes: 0 };
+            unsafe { f_sum.clone().launch(cfg_s, (&d_h, *off as i32, sp.len as i32, &mut d_part)) }.map_err(|e| format!("k_sum_fp: {e}"))?;
+            let h = dev.dtoh_sync_copy(&d_part.slice(0..blocks as usize)).map_err(|e| e.to_string())?;
+            parts[which] = h.iter().fold(Fp::ZERO, |a, &b| a.add(Fp(b)));
+        }
+        sums.push(Fp2::new(parts[0], parts[1]));
+    }
+    stats_with(|s| s.secs_helpers += t0.elapsed().as_secs_f64());
+    Ok((d_h, sums))
+}
+
+impl Gpu {
+    /// eq(r, .) over 2^len(r) entries into `dst` (MSB convention): the two
+    /// half tables by the per-bit product, joined by one f2_mul per entry.
+    /// Returns the buffers that must outlive the launches.
+    fn eq_table_into(&self, r: &[Fp2], dst: &mut cudarc::driver::CudaViewMut<u64>) -> Result<Vec<CudaSlice<u64>>, String> {
+        let nv = r.len();
+        let n = 1usize << nv;
+        let f_eq = self.dev.get_func(MODULE, "k_eq_table").ok_or("k_eq_table missing")?;
+        if nv <= 10 {
+            let d_r = self.dev.htod_sync_copy(&as_u64s_f2(r)).map_err(|e| e.to_string())?;
+            let cfg = LaunchConfig::for_num_elems(n as u32);
+            unsafe { f_eq.launch(cfg, (&d_r, &mut *dst, nv as i32)) }.map_err(|e| format!("k_eq_table: {e}"))?;
+            return Ok(vec![d_r]);
+        }
+        let lo_bits = nv / 2;
+        let hi_bits = nv - lo_bits;
+        let d_hi_r = self.dev.htod_sync_copy(&as_u64s_f2(&r[..hi_bits])).map_err(|e| e.to_string())?;
+        let d_lo_r = self.dev.htod_sync_copy(&as_u64s_f2(&r[hi_bits..])).map_err(|e| e.to_string())?;
+        let mut d_hi = unsafe { self.dev.alloc::<u64>(2 << hi_bits) }.map_err(|e| e.to_string())?;
+        let mut d_lo = unsafe { self.dev.alloc::<u64>(2 << lo_bits) }.map_err(|e| e.to_string())?;
+        unsafe { f_eq.clone().launch(LaunchConfig::for_num_elems(1 << hi_bits), (&d_hi_r, &mut d_hi, hi_bits as i32)) }.map_err(|e| format!("k_eq_table: {e}"))?;
+        unsafe { f_eq.launch(LaunchConfig::for_num_elems(1 << lo_bits), (&d_lo_r, &mut d_lo, lo_bits as i32)) }.map_err(|e| format!("k_eq_table: {e}"))?;
+        let f_join = self.dev.get_func(MODULE, "k_eq_join").ok_or("k_eq_join missing")?;
+        unsafe { f_join.launch(LaunchConfig::for_num_elems(n as u32), (&d_hi, &d_lo, &mut *dst, lo_bits as i32, n as i32)) }.map_err(|e| format!("k_eq_join: {e}"))?;
+        Ok(vec![d_hi_r, d_lo_r, d_hi, d_lo])
+    }
+}
+
+/// [rung 4c] The prover's `eval_many` on the device: the MLE of each
+/// base-field slice (offset, len = 2^len(point)) of the resident data at
+/// `point`, sharing one device eq table.
+pub fn dev_eval_many(dc: &DevCommit, offs: &[usize], point: &[Fp2]) -> Result<Vec<Fp2>, String> {
+    let g = gpu().ok_or_else(init_err)?;
+    let g = g.lock().unwrap();
+    let dev = g.dev.clone();
+    let t0 = Instant::now();
+    let n = 1usize << point.len();
+    let m = offs.len();
+    let mut d_eq = unsafe { dev.alloc::<u64>(2 * n) }.map_err(|e| e.to_string())?;
+    let _keep = g.eq_table_into(point, &mut d_eq.slice_mut(..))?;
+    let offs32: Vec<i32> = offs.iter().map(|&o| o as i32).collect();
+    let d_offs = dev.htod_sync_copy(&offs32).map_err(|e| e.to_string())?;
+    let blocks = (((n + 255) / 256) as u32).clamp(1, 1024);
+    let mut d_part = unsafe { dev.alloc::<u64>(blocks as usize * m * 2) }.map_err(|e| e.to_string())?;
+    let f = dev.get_func(MODULE, "k_dot_slices").ok_or("k_dot_slices missing")?;
+    let cfg = LaunchConfig { grid_dim: (blocks, 1, 1), block_dim: (256, 1, 1), shared_mem_bytes: 0 };
+    unsafe { f.launch(cfg, (&dc.data, &d_offs, m as i32, &d_eq, n as i32, &mut d_part)) }.map_err(|e| format!("k_dot_slices: {e}"))?;
+    let h = dev.dtoh_sync_copy(&d_part).map_err(|e| e.to_string())?;
+    let mut out = vec![Fp2::ZERO; m];
+    for b in 0..blocks as usize {
+        for s in 0..m {
+            out[s] = out[s].add(Fp2::new(Fp(h[(b * m + s) * 2]), Fp(h[(b * m + s) * 2 + 1])));
+        }
+    }
+    stats_with(|s| s.secs_fold += t0.elapsed().as_secs_f64());
+    Ok(out)
 }

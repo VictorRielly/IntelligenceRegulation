@@ -184,13 +184,12 @@ impl Committed {
     }
 }
 
-/// Row weights and column weights of a claim on an m x n matrix.
-fn claim_weights(claim: &Claim, rows: usize, log_cols: u32) -> (Vec<Fp2>, Vec<Fp2>) {
+/// Row weights of a claim on an m x n matrix (the column weights are per
+/// group: `col_weights` of the claim's `col_key`).
+fn row_weights(claim: &Claim, rows: usize, log_cols: u32) -> Vec<Fp2> {
     let n = 1usize << log_cols;
     let mut row_w = vec![Fp2::ZERO; rows];
-    let col_w: Vec<Fp2>;
     if claim.sum {
-        col_w = vec![Fp2::ONE; n];
         for (sl, coef) in &claim.parts {
             let srows = (1usize << sl.log_size) / n;
             let r0 = sl.offset / n;
@@ -202,7 +201,6 @@ fn claim_weights(claim: &Claim, rows: usize, log_cols: u32) -> (Vec<Fp2>, Vec<Fp
         let log_rows_part = claim.parts[0].0.log_size - log_cols;
         assert_eq!(claim.point.len() as u32, claim.parts[0].0.log_size, "claim point arity != slice size");
         let eq_r = eq_table_msb(&claim.point[..log_rows_part as usize]);
-        col_w = eq_table_msb(&claim.point[log_rows_part as usize..]);
         for (sl, coef) in &claim.parts {
             assert_eq!(sl.log_size, claim.parts[0].0.log_size, "claim parts must have equal size");
             assert!(sl.offset % n == 0);
@@ -212,17 +210,41 @@ fn claim_weights(claim: &Claim, rows: usize, log_cols: u32) -> (Vec<Fp2>, Vec<Fp
             }
         }
     }
-    (row_w, col_w)
+    row_w
+}
+
+/// The column-weight key of a claim: None for the all-ones sum, else the
+/// point's column tail (log_cols entries).
+fn col_key(claim: &Claim, log_cols: u32) -> Option<Vec<Fp2>> {
+    if claim.sum {
+        None
+    } else {
+        let log_rows_part = claim.parts[0].0.log_size - log_cols;
+        Some(claim.point[log_rows_part as usize..].to_vec())
+    }
+}
+
+fn col_weights(key: &Option<Vec<Fp2>>, log_cols: u32) -> Vec<Fp2> {
+    match key {
+        None => vec![Fp2::ONE; 1usize << log_cols],
+        Some(tail) => eq_table_msb(tail),
+    }
 }
 
 /// Group claims by identical column weights (same point tail / sum kind).
+/// [UPERF3-XX] The 2^log_cols column table is built once per group (it
+/// was built per claim and compared: 37 claims x 2^14 entries per layer).
 fn group_claims(claims: &[Claim], rows: usize, log_cols: u32) -> Vec<(Vec<Fp2>, Vec<(Vec<Fp2>, Fp2)>)> {
+    let mut keys: Vec<Option<Vec<Fp2>>> = Vec::new();
     let mut groups: Vec<(Vec<Fp2>, Vec<(Vec<Fp2>, Fp2)>)> = Vec::new();
     for c in claims {
-        let (rw, cw) = claim_weights(c, rows, log_cols);
-        if let Some(g) = groups.iter_mut().find(|g| g.0 == cw) {
-            g.1.push((rw, c.value));
+        let key = col_key(c, log_cols);
+        let rw = row_weights(c, rows, log_cols);
+        if let Some(gi) = keys.iter().position(|k| *k == key) {
+            groups[gi].1.push((rw, c.value));
         } else {
+            let cw = col_weights(&key, log_cols);
+            keys.push(key);
             groups.push((cw, vec![(rw, c.value)]));
         }
     }

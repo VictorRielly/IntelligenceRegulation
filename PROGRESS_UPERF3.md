@@ -7000,7 +7000,7 @@ witness-plane -> Fp conversions and the H2D of W/A (~0.6 s), the
 eq-table builds (0.25 s) and the matmul folds (0.3 s). Next: the
 helper columns on the device from the resident A data (the H
 commitment then encodes a device buffer with no upload), then rung
-5's measurement. Commit
+5's measurement. Commit 15e480f.
 
 ## Agent YY status (wt-uperf3-yy) — round 11
 
