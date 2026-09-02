@@ -5252,6 +5252,83 @@ cannot even build its keys at 8B), and the boxed key/helper vectors
 (Vec<u64> K elements, ~150 B each) would hold ~40 GB of transient at
 8B — the keys must be strided/packed (V3 makes the silu column
 strided like the V1 route; the packed build is an 8B-rung item).
+- Commit: 1d4e911 (+ results/uperf3_ss_v2_full_count_12x512.log).
+
+### RUNG V3 — FULL MODE FITS THE BOX: `uperf-a pass 12 128 full` (2026-09-02) [WSL-BOX 8T NOISY-SHARED]
+
+WHAT V3 ROUTES, honestly restated after V2: the spec's "all h +
+remainder facts routed [through lookups]" is retired by the count
+(V2: 2.95 billion rings at 8B for the range facts as lookups vs 92M
+for their planes). The remainder/narrowing facts STAY on the planes
+(range mode's form, the compact one); the SiLU lookups — the facts
+that cannot be planes — carry the compact committed-h: the
+kappa-level partial-fraction helper at kappa 4. `full` now MEANS that
+(`GgMode::FullSs { kappa_silu: 4, route_nrw: None }`); the S2 form GG
+built is reachable as `full-s2` and is byte-identical to the pre-V3
+`full` (digest b0349a45.. at 3x16, checked again after every V3 edit).
+Also landed: the SiLU keys built STRIDED over the padded grid (pads
+on the table's row-0 key, subtracted by every claim builder with the
+pad kernel sum — the f = 14336 -> 16384 case GG's `prim.len() ==
+n_el` assert excluded; a no-op at m125's f = 2048, digests unchanged),
+and the keys diet (a column's boxed keys live only while its helper
+or its sumcheck is built; the helper alone is held across the commit).
+
+THE 12x128 TABLE [MEASURED, ZK_THREADS=8, /usr/bin/time -v, walls
+NOISY-SHARED — lane QQ benching, the 3x16 checks overlapped one run]:
+
+| `uperf-a pass 12 128 ...` | accept | commit / prove / verify | bytes | act n_0 / act-h n_0 | prover high-water | **peak RSS** | wall |
+|---|---|---|---:|---:|---:|---:|---:|
+| `range` (planes; silu descents) — the baseline | true | 8.9 / 36.2 / 4.9 s | 637,691 | 3,091,604 / — | — | **6,802 MiB** | 50 s |
+| `full-s2` = full as GG built it (S2 K-helper) | **OOM** (GG 2026-08-28, 22T, killed at 2:58) | — | — | 3,086,576 / 6,291,456 | — | **14,777 MiB** (box ceiling) | — |
+| **`full` = kappa 4 (V3)** | **true** | 8.4 / 56.1 / 8.9 s (quiet-er run); 9.2 / 57.7 / 17.3 (overlapped) | 860,867 | 3,086,576 / **393,216** | **6,801 MiB** (= range's peak) | **8,072 MiB** (8,872 before the keys diet) | 74 s / 96 s |
+| `full-ss k3 noroute` | true | 9.2 / 54.2 / 9.1 s | **772,467** | 3,086,576 / 786,432 | 7,491 MiB | 9,337 MiB | 73 s |
+| `full-ss k5 noroute` | **REJECT** at `ss-lookup-chain:silu-m3` (see below) | 8.2 / 66.2 / — | 1,029,059 | 3,086,576 / 196,608 | 6,715 MiB | 6,715 MiB | — |
+
+Digests (the mode-routing floor from here on): range 12x128
+e5085602a2fbc93b..; full (kappa 4) 646f0dceae89d8da..; full-ss k3
+c2d614550c7cec5b..; range 12x64 44528c6aeee0a771.. UNCHANGED after
+every V3 edit; 3x16: full-s2 = full-ss k0 noroute b0349a45.. (the
+pre-V3 full), full (kappa 4) dbc581525eb1f9c9.., full-ss (the V1
+route) 4c63259d.. — all unchanged by the strided keys and the diet.
+
+VERDICT: **`uperf-a pass 12 128 full` no longer OOMs the 15 GiB box —
+peak 8,072 MiB against range mode's 6,802 (+19%) and the as-built
+full mode's 14,777 (killed).** The act-h group is 393,216 rings
+(16x smaller than the 6,291,456 that OOMed; 0.13x the act group). The
+prover's high-water mark is 6,801 MiB — IDENTICAL to range mode's
+peak; the remaining +1.3 GB sits in the VERIFIER phase and is the
+served-claim kernels (two dense n_h-row kernels per column for h_sum
+and h(x*), both prover's and verifier's copies live during verify —
+with the as-built helper they were 16x larger, part of the OOM).
+Named follow-ups, not built: (i) ONE h_sum claim per PAIR (ones over
+all blocks; the union multiset against the summed multiplicities is
+the same membership fact) cuts 11 of the 12 ones-kernels; (ii) freeing
+the prover's claim vectors before the verifier runs (a driver-level
+diet, range mode's too). Wall: prove +20 s over range (the 12
+degree-18 lookup sumchecks 14.8 s + the act-h commit/opening); bytes
+860,867 vs range 637,691 (+35%: the third opening 175 KB + the
+degree-18 rounds x 15 x 12 columns 247 KB, minus the 187 KB of silu
+descents) — kappa 3 is the bytes-optimal point (772,467, STAGE-A
+173,776 < range's 215,888) at +1.3 GB more memory; kappa 4 is the
+memory point. The pre-V3 bytes win vs the oracle (1,372,775) is 2.15x
+in the as-built form, 1.6x at kappa 4, 1.8x at kappa 3.
+
+KAPPA 5 IS BLOCKED BY THE HOUSE VERIFIER, not by the design:
+`sumcheck::lagrange_eval` (read-only) forms the node denominator
+prod_{j != i} (i - j) as an i64 before reducing — it overflows above
+degree ~20 (20! = 2.4e18), so the degree-34 round chain of kappa 5
+fails at the verifier's own reduction (prover and honest witness
+fine: the sums hold; kappa 4 = degree 18 is the last green). Fix =
+reduce the denominator mod q per factor (one line in sumcheck.rs, a
+frozen-path file — RECORDED for a ruling, not touched). kappa 4
+(degree 18) is the practical maximum today; the 8B row (V4) uses it.
+
+FLOORS: build green; diff-battery 17.50 s green; freeze-check 102 ok
++ passed; 3752cba4.. / 46234986.. / be89d5da.. unchanged; range 12x64
+digest 44528c6a.. unchanged (622,011 B, peak 3,891 MiB).
+- Commit: 3916742 (the code + the 12x128 logs under results/
+  uperf3_ss_v3_*; this status text landed one commit later — the
+  ledger edit missed its anchor the first time).
 
 ## Agent TT status (main session) — round 10
 
