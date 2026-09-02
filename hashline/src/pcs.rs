@@ -88,6 +88,26 @@ impl Opening {
         let c: usize = self.columns.iter().map(|(_, col, path)| 8 + col.len() * 8 + path.len() * 32).sum();
         g + p + c
     }
+    /// [UPERF3-XX] The flat little-endian encoding `size_bytes` counts.
+    pub fn write_bytes(&self, out: &mut Vec<u8>) {
+        for v in &self.group_vecs {
+            for x in v {
+                out.extend_from_slice(&x.to_bytes());
+            }
+        }
+        for x in &self.prox_vec {
+            out.extend_from_slice(&x.to_bytes());
+        }
+        for (j, col, path) in &self.columns {
+            out.extend_from_slice(&(*j as u64).to_le_bytes());
+            for x in col {
+                out.extend_from_slice(&x.to_bytes());
+            }
+            for d in path {
+                out.extend_from_slice(d);
+            }
+        }
+    }
 }
 
 fn hash_column(col: &[Fp]) -> Digest {

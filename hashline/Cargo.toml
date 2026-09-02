@@ -12,10 +12,22 @@ path = "src/lib.rs"
 name = "hashline"
 path = "src/bin/hashline.rs"
 
+[features]
+# [UPERF3-XX] The GPU port: CUDA via cudarc (driver API + NVRTC runtime
+# compilation of src/gpu/kernels.cu), the same toolchain zkmatrix-rs's
+# gpu-cuda feature uses on this box. Default OFF: the CPU build never sees
+# cudarc. With the feature on, the device path is still runtime-gated by
+# `HL_GPU=1` and falls back to the CPU kernels when no device initializes.
+# Build: CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=<driver+nvrtc>
+#   CARGO_TARGET_DIR=hashline/target-gpu cargo build --release --features gpu-cuda
+gpu-cuda = ["dep:cudarc"]
+
 [dependencies]
 blake3 = "1.8"
 rayon = "1.11"
 sha2 = "0.10"
+# [UPERF3-XX] optional, only with `--features gpu-cuda` (see above).
+cudarc = { version = "0.13", default-features = false, features = ["driver", "nvrtc", "cuda-12040", "dynamic-linking", "std"], optional = true }
 
 [profile.release]
 opt-level = 3

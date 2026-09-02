@@ -4,8 +4,11 @@
 //!   hashline matmul <layers> <t_rows>           rung 2: the g/u matmul sumcheck differential + tamper legs
 //!   hashline layer <l> <t_rows> [opts]          rungs 3-4: prove + verify one layer (+ tamper legs)
 //!   hashline pass <layers> <t_rows> [opts]      rung 5: the multi-layer pass, one transcript, measured
+//!   hashline gpu-probe                          [UPERF3-XX] rung 0: the device field probe vs field.rs
 //! opts: --threads N  --log-cols N (default 14)  --col-checks Q (default 256)  --inv-rate R (default 4)
 //!       --tamper none|flipx|flipw|rem|table|requant|z  --tamper-idx I  --no-verify  --all-tampers
+//!       --proof-out PATH  [UPERF3-XX] write the concatenated layer proofs (flat LE encoding) and print their sha256
+//! [UPERF3-XX] `HL_GPU=1` runs the prover's device path (feature gpu-cuda); the proof bytes must not change.
 
 use hashline::chain::{derive, LayerWitness};
 use hashline::export::{export_dir, load_layer, Sidecar, D, F, LAYERS};
@@ -22,10 +25,11 @@ struct Opts {
     tamper: Tamper,
     verify: bool,
     all_tampers: bool,
+    proof_out: Option<String>,
 }
 
 fn parse_opts(args: &[String]) -> Opts {
-    let mut o = Opts { threads: 0, log_cols: 14, col_checks: 256, inv_rate: 4, tamper: Tamper::None, verify: true, all_tampers: false };
+    let mut o = Opts { threads: 0, log_cols: 14, col_checks: 256, inv_rate: 4, tamper: Tamper::None, verify: true, all_tampers: false, proof_out: None };
     let mut i = 0;
     let mut tkind = "none".to_string();
     let mut tidx = 12345usize;
@@ -39,6 +43,7 @@ fn parse_opts(args: &[String]) -> Opts {
             "--tamper-idx" => { tidx = args[i + 1].parse().unwrap(); i += 1; }
             "--no-verify" => { o.verify = false; }
             "--all-tampers" => { o.all_tampers = true; }
+            "--proof-out" => { o.proof_out = Some(args[i + 1].clone()); i += 1; }
             other => { eprintln!("unknown option {other}"); std::process::exit(2); }
         }
         i += 1;
@@ -93,9 +98,28 @@ fn main() {
             let o = parse_opts(&args[4..]);
             pass(n, t, &o)
         }
+        "gpu-probe" => gpu_probe(),
         _ => {
-            eprintln!("usage: hashline check-export | chain [layers] | matmul <layers> <t> | layer <l> <t> | pass <layers> <t>  [opts]");
+            eprintln!("usage: hashline check-export | chain [layers] | matmul <layers> <t> | layer <l> <t> | pass <layers> <t>  [opts] | gpu-probe");
             std::process::exit(2);
+        }
+    }
+}
+
+/// [UPERF3-XX] rung 0: the device field probe.
+fn gpu_probe() {
+    println!("{}", hashline::gpu::label());
+    match hashline::gpu::probe() {
+        Ok(r) => {
+            println!(
+                "gpu-probe: {} — {} pairs (incl. edge values): mul/add/sub mismatches {} ; {:.1} G mul/s (the 3-op kernel, 50 launches)",
+                r.device, r.n, r.mismatches, r.gmul_per_s
+            );
+            if r.mismatches > 0 { std::process::exit(1); }
+        }
+        Err(e) => {
+            eprintln!("gpu-probe: {e}");
+            std::process::exit(1);
         }
     }
 }
@@ -246,6 +270,7 @@ fn pass(n: usize, t: usize, o: &Opts) {
     let ntt = NttTables::new(o.log_cols + o.inv_rate.trailing_zeros());
     let p = params(o);
     println!("pass: {n} layers x {t} tokens (log_cols {}, inv_rate {}, col checks {}, threads {})", o.log_cols, o.inv_rate, o.col_checks, rayon::current_num_threads());
+    println!("  {}", hashline::gpu::label());
     let t_all = Instant::now();
     // load + derive every layer's witness first (the chain is not part of the prover clock; the lattice
     // line's 21.0 s also excludes its export read but INCLUDES its chain derivation — reported separately)
@@ -276,6 +301,25 @@ fn pass(n: usize, t: usize, o: &Opts) {
     let bytes: usize = proofs.iter().map(|p| p.size_bytes()).sum();
     println!("prover phases (summed over layers):");
     for (name, s) in &agg { println!("      {name:<22} {s:8.3} s"); }
+    if hashline::gpu::enabled() {
+        let g = hashline::gpu::dev_stats();
+        println!(
+            "  gpu device-side (summed): h2d {:.3} s ({:.0} MB) | ntt {:.3} s | hash {:.3} s | sumcheck {:.3} s | fold {:.3} s | helpers {:.3} s | d2h {:.3} s ({:.0} MB) | vram peak {:.0} MB",
+            g.secs_h2d, g.bytes_h2d as f64 / 1e6, g.secs_ntt, g.secs_hash, g.secs_sumcheck, g.secs_fold, g.secs_helpers, g.secs_d2h, g.bytes_d2h as f64 / 1e6, g.vram_peak as f64 / 1e6
+        );
+    }
+    // [UPERF3-XX] the byte-identity gate: the flat encoding of every layer proof, concatenated, sha256'd
+    {
+        let mut all: Vec<u8> = Vec::with_capacity(bytes);
+        for p in &proofs { all.extend_from_slice(&p.to_bytes()); }
+        assert_eq!(all.len(), bytes, "serializer/size_bytes disagree");
+        let digest = hashline::export::sha256_hex(&all);
+        println!("PROOF sha256 {digest} ({} B)", all.len());
+        if let Some(path) = &o.proof_out {
+            std::fs::write(path, &all).unwrap_or_else(|e| panic!("cannot write {path}: {e}"));
+            println!("  proof written to {path}");
+        }
+    }
     let mut ok = true;
     let mut t_verify = 0.0;
     if o.verify {

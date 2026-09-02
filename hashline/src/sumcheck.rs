@@ -23,6 +23,14 @@ impl SumcheckProof {
     pub fn size_bytes(&self) -> usize {
         self.rounds.iter().map(|r| r.len() * 16).sum()
     }
+    /// [UPERF3-XX] The flat little-endian encoding `size_bytes` counts.
+    pub fn write_bytes(&self, out: &mut Vec<u8>) {
+        for r in &self.rounds {
+            for v in r {
+                out.extend_from_slice(&v.to_bytes());
+            }
+        }
+    }
 }
 
 pub struct ProverOutput {

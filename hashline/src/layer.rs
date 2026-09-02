@@ -131,6 +131,50 @@ impl LayerProof {
             + self.zc20_sc.size_bytes() + f2(&self.zc20_term) + self.zc17_sc.size_bytes() + f2(&self.zc17_term)
             + f2(&self.helper_sums) + self.w_open.size_bytes() + self.a_open.size_bytes() + self.h_open.size_bytes()
     }
+
+    /// [UPERF3-XX] The flat little-endian encoding `size_bytes` counts
+    /// (the byte-identity gate between the CPU and GPU provers: the
+    /// sha256 of the concatenated layer proofs).
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut out = Vec::with_capacity(self.size_bytes());
+        let com = |out: &mut Vec<u8>, c: &Option<Commitment>| {
+            let c = c.as_ref().expect("commitment");
+            out.extend_from_slice(&c.root);
+            out.extend_from_slice(&(c.rows as u64).to_le_bytes());
+            out.extend_from_slice(&c.log_cols.to_le_bytes());
+        };
+        com(&mut out, &self.w_com);
+        com(&mut out, &self.a_com);
+        com(&mut out, &self.h_com);
+        for (tag, m) in &self.mults {
+            out.extend_from_slice(&tag.to_le_bytes());
+            out.extend_from_slice(&(m.len() as u32).to_le_bytes());
+            for v in m {
+                out.extend_from_slice(&v.to_le_bytes());
+            }
+        }
+        let f2 = |out: &mut Vec<u8>, v: &Vec<Fp2>| {
+            for x in v {
+                out.extend_from_slice(&x.to_bytes());
+            }
+        };
+        f2(&mut out, &self.gu_claims);
+        self.gu_sc.write_bytes(&mut out);
+        f2(&mut out, &self.gu_term);
+        f2(&mut out, &self.d_claims);
+        self.d_sc.write_bytes(&mut out);
+        f2(&mut out, &self.d_term);
+        self.zc20_sc.write_bytes(&mut out);
+        f2(&mut out, &self.zc20_term);
+        self.zc17_sc.write_bytes(&mut out);
+        f2(&mut out, &self.zc17_term);
+        f2(&mut out, &self.helper_sums);
+        self.w_open.write_bytes(&mut out);
+        self.a_open.write_bytes(&mut out);
+        self.h_open.write_bytes(&mut out);
+        debug_assert_eq!(out.len(), self.size_bytes());
+        out
+    }
 }
 
 fn absorb_statement(tr: &mut Transcript, st: &Statement) {
