@@ -19,6 +19,33 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-09-01 (ROUND 9 MERGED; the speed question put to Victor;
+START_HERE.md written):**
+- **NEW: `docs/zkmatrix-poc/START_HERE.md`** — the plain-words
+  onboarding page (what is built, the measured numbers, why the
+  5-15 s goal is hard, what was tried, the five choices A-E, the
+  working rules, the map, a glossary). Anyone new reads it FIRST.
+- **PP/X2 MERGED (8e2060d)**: the 125M attention calibration table
+  (`results/m125_attn_at_o1.json`): core int8-clean without QK-norm,
+  ONE poisoned site (xres, rescued by int16), ONE exp member for the
+  whole model, stack_wide +0.0314. X3 (one full attention layer
+  proven at 125M) is next on the attention ladder.
+- The committed-h memo landed (72caf67): the full-mode price is a
+  layout artifact; rungs V1-V4 defined for the next round.
+- **THE SPEED QUESTION (Victor, console 2026-09-01: "reach the 5-15 s
+  per proof goal as quickly as we can" -> "decide how to proceed
+  together")**: the recorded state is that the lattice line's
+  enumerated moves count to ~100-160 s/board (II's 2026-08-28
+  closing verdict); START_HERE.md §7 lists the five choices (A: the
+  two-tier opening re-counted and measured on the GPU cost model;
+  B: the Stage-A aggregate on the device; C: desktop-class hardware
+  under the ladder; D: the hash-based comparison prototype; E: the
+  8B MVP on the Mac + committed-h V1-V4 + X3). NOTHING IS STARTED;
+  the next round opens when Victor rules.
+- Config housekeeping (not project code): the allowlist synced with
+  CLAUDE.md (4014cb5); no Bash command has prompted since auto mode
+  went on in mid-August.
+
 **AS OF 2026-08-29 evening (MAC-BOX SYNCED to the round-6 tree; full
 Mac gate pass green):**
 - The Mac pulled 9a8fa3d and now BUILDS — two aarch64 cfg gates were

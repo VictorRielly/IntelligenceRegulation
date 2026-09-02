@@ -1,5 +1,9 @@
 # IntelligenceRegulation — project instructions
 
+**New to the project? Read `docs/zkmatrix-poc/START_HERE.md` first**
+(plain words: what is built, the measured numbers, why the speed goal
+is hard, the open choices, the rules, a glossary).
+
 **Any agent working on the proof clocks (Claude, Grok/Cursor, human):
 start at `docs/zkmatrix-poc/TASK_BOARD.md`** — the ordered queue of
 small, self-checking tasks with exact commands and byte-identity
