@@ -5019,8 +5019,15 @@ ONE GPU (H100-class allowed), written so a newcomer can follow it:
 
 ## Agent RR status (wt-uperf3-rr) — round 10
 
-STATE: IN PROGRESS (opened 2026-09-02). Lane: Stage A's aggregate
-checks on the device — the RANGE-mode path (zc_agg + LogUp h+m), the
+STATE: RUNGS 0-3 + 5 DONE (2026-09-02; R0a efde2bf, R1 517ae49, R2
+f948888, R3 + R5 = the commits carrying this block); rung 4 (the 12x512
+A/B) POSTED as orchestrator-run below. THE RESULT: the aggregate prover
+5.0-5.9 -> 0.58 s at 12x128 (device, bit-identical); Stage-A prove
+17.6-19.4 -> 13.4 s with GG's transport (1.31-1.44x, the board's guess
+measured) -> 7.5 s == the oracle's with the BATCHED claim transport
+(opt-in, a Stage-A transcript variant, ruling item); verify at parity;
+total 1.14x (the planes commit); process peak 7.5 -> 3.1 GB. Lane: Stage
+A's aggregate checks on the device — the RANGE-mode path (zc_agg + LogUp h+m), the
 factor MEASURED at 12x64 / 12x128 (12x512 orchestrator-run). OWNS per
 the brief: zc_range.rs (ADDITIVE hook lines only, eval_proof.rs
 pattern, CPU body = oracle), NEW gpu/zc_agg.rs + gpu/kernels_zc.cu (+
@@ -5040,19 +5047,20 @@ PLAN (one commit per green rung, prefix "U-PERF3 RR:"):
 - [x] R0a SKELETON: this section; worktree cut at 10f73bf; GPU build
   (target-gpu, --features gpu-cuda) 2m24s green; CPU build 2m18s
   green — the round-9 code, no Rust touched.
-- [ ] R0b BASELINE: `uperf-a pass 12 64 range` / `12 128 range`,
+- [x] R0b BASELINE: `uperf-a pass 12 64 range` / `12 128 range`,
   ZK_GPU=1 ZK_THREADS=8, oracle + Stage-A in one process, per-phase
   walls, digests, /usr/bin/time -v RSS; which Stage-A phases run on
   the CPU today.
-- [ ] R1 ATTRIBUTION: per-function timers inside the Stage-A path at
+- [x] R1 ATTRIBUTION: per-function timers inside the Stage-A path at
   12x128 -> the ranked cost table.
-- [ ] R2 the TOP cost center on the device, bit-identical (digests
+- [x] R2 the TOP cost center on the device, bit-identical (digests
   unchanged at 12x64 / 12x128; tamper legs reject).
-- [ ] R3 the next cost centers until Stage-A wall <= oracle wall at
-  12x128 (both ZK_GPU=1, 8T).
-- [ ] R4 the 12x512 A/B — ORCHESTRATOR-RUN (command posted here).
-- [ ] R5 RECORD the measured Stage-A-on-GPU factor (replaces the
-  board's unsourced 1.2-1.5x).
+- [x] R3 the next cost centers until Stage-A wall <= oracle wall at
+  12x128 (both ZK_GPU=1, 8T) — MET on prove + verify under the batched
+  transport variant; total 1.14x (the planes commit).
+- [ ] R4 the 12x512 A/B — ORCHESTRATOR-RUN (command posted below).
+- [x] R5 RECORD the measured Stage-A-on-GPU factor (replaces the
+  board's unsourced 1.2-1.5x): results/uperf3_rr_stage_a_gpu.md.
 
 R0b BASELINE EVIDENCE (2026-09-02, [WSL-BOX] [8T] [NOISY-SHARED]; the
 round-9 code's GPU binary, oracle + Stage-A in ONE process (`uperf-a
@@ -5196,6 +5204,109 @@ R2 THE DEVICE PORT — EVIDENCE (2026-09-02, [WSL-BOX] [8T] [NOISY-SHARED]) [MEA
   posted for the ruling with its measurement.
 - commits: R1 = the driver timers + prof + digest line; R2 = the port
   (this block).
+
+R3 THE NEXT COST CENTERS — EVIDENCE (2026-09-02, [WSL-BOX] [8T]
+[NOISY-SHARED], ZK_GPU=1, two reps back-to-back each) [MEASURED]:
+- R3a THE BATCHED CLAIM TRANSPORT (opt-in, `ZK_RR_ZC_CLAIMS=batched`;
+  `gg_zc_claims_batched` + `gg_zc_claims_sel` at both call sites in the
+  uperf-a driver; stage_a.rs untouched): the m x w per-column plane
+  claims of a class recombined along the instance axis into w claims
+  (value = sum_i eq(r_inst, i) claim[i][k]; row kernel = the
+  eq(r_inst, i)-weighted block concatenation over the members; col
+  kernel eq_lo; the m per-member rem claims verbatim). The SERVED values
+  and their absorption ("gg-zc-claims") are untouched; the opening's
+  claim structure and hence the nu count change -> a Stage-A transcript
+  VARIANT (selector-only path; default = GG's form, byte-identical).
+  Claims served at 12x128: 997 -> 439. Identity: CPU == GPU under the
+  variant (12x64 statement 441ca5db.., transcript c0b8236fed52daa1..;
+  12x128 dc3100e7.. / 1644b4e14dd4f298..); GG's `pass-battery 3 16`
+  green under the variant with the device forced on (the "claim"
+  tamper flips col_claims[0][0][0] -> the batched value moves -> the
+  opening rejects).
+- R3b the device stacks the columns on upload (the host `zc_agg_stack`
+  copy skipped while the chain is live; pad columns memset on the
+  device; the host rebuild stacks on demand) + `gg_build_class_tabs`
+  parallel over members: zc prove 0.93 -> 0.57 s, tabs 0.29 -> 0.07 s.
+- R3c `gg_build_class_data` (the planes tensor grid) parallel over
+  members: commit groups+planes 1.0-1.7 -> 0.9 s, witness 0.8 -> 0.5 s.
+- THE 12x128 TABLE (one process, one binary; peak = process peak):
+
+  | leg | commit | prove | verify | total | claims | peak RSS |
+  |---|---|---|---|---|---|---|
+  | ORACLE (the built pass, descents on k9) | 1.5 | 7.5 / 7.5 | 2.0 / 2.1 | 11.0 | 64 rows | (<= the process peak) |
+  | Stage-A, GG transport, aggregate on CPU (round-9 code) | 3.6 | 17.6 / 19.4 | 4.3 | 25.5-27.3 | 997 | 7.5 GB |
+  | Stage-A, GG transport, aggregate on DEVICE (R2) | 3.6 | 13.4 / 13.5 | 3.9 | 20.9 | 997 | 7.5 GB |
+  | Stage-A, device + BATCHED transport (R3a) | 3.7 | 8.5 / 8.5 | 2.1 / 2.0 | 14.3 | 439 | 2.87 GB |
+  | Stage-A, device + batched + R3b/R3c | 3.06 | 7.58 / 7.50 | 2.01 / 1.98 | 12.6-12.7 | 439 | 3.09 GB |
+
+  12x64 (device + batched + R3b/c): Stage-A 2.5 / 5.75 / 1.53 vs oracle
+  1.3 / 5.7 / 1.8 (peak 2.6 GB).
+  VERDICT ON THE RUNG-3 BAR ("Stage-A wall <= oracle wall at 12x128, both
+  ZK_GPU=1, 8T"): MET on the PROVE wall (7.50-7.58 vs 7.5 s: 1.00-1.01x,
+  inside run-to-run noise) and the VERIFY wall (1.98-2.01 vs 2.0-2.1)
+  UNDER THE BATCHED-TRANSPORT VARIANT; NOT met on the total (12.6-12.7 vs
+  11.0: 1.14x) — the planes commit (+1.6 s: groups+planes 0.9 + witness
+  0.5 + precommit act 0.77) is the residual, the F1 commit-growth
+  finding at this scale. With GG's transport unchanged the bar is NOT
+  met (13.4 vs 7.5): the opening's per-contrib cost, not the aggregate,
+  is what stands between Stage A and the oracle on this box.
+- floors at this commit: CPU + GPU builds; diff-battery green on both
+  binaries (15.6 s / 16.1 s); freeze-check 102 ok + passed; uperf-s
+  3752cba4..; agg 46234986.. (CPU, and GPU with the device forced on
+  every aggregate); uperf-x be89d5da..; 12x64 default-transport digests
+  441ca5db.. / 44528c6a.. unchanged; tamper batteries green under both
+  transports.
+- FOR LANE SS's MERGE: this lane did NOT touch stage_a.rs; the driver
+  edits are the [UPERF3-RR]-tagged timer lines, `gg_zc_claims_sel` at
+  the two `gg_zc_claims` call sites (prover + verifier), the parallel
+  bodies of `gg_build_class_tabs` / `gg_build_class_data`, and the
+  print block before `peak RSS`; zc_range.rs: the hook block in
+  `zc_agg_prove_masked` (before the eq build, the round, the fold) + the
+  three `[UPERF3-RR]` helper fns before `zc_agg_prove`.
+
+R4 THE 12x512 A/B — ORCHESTRATOR-RUN (posted 2026-09-02; NOT run by this
+lane: > 5 min; the box must be QUIET; three legs, each detached under
+the heavy lock; run leg C FIRST — it is the one expected to fit: the GG
+transport's claim rows were the 7.5 GB peak at 12x128 and grow 4x):
+ORCHESTRATOR-RUN:
+  # leg C: Stage-A device aggregate + BATCHED transport (+ the oracle, same process)
+  setsid nohup bash -c 'flock /tmp/zk-heavy.lock env ZK_GPU=1 ZK_THREADS=8 ZK_RR_ZC_CLAIMS=batched M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /usr/bin/time -v /home/victor/wt-uperf3-rr/zkmatrix-rs/target-gpu/release/ring_matmul uperf-a pass 12 512 range >> /home/victor/wt-uperf3-rr/results/uperf3_rr_12x512_C_batched.log 2>&1; echo $? > /home/victor/wt-uperf3-rr/results/uperf3_rr_12x512_C_batched.done' >/dev/null 2>&1 &
+  # leg A: Stage-A device aggregate, GG transport (+ the oracle) — may hit the 15 GB ceiling
+  setsid nohup bash -c 'flock /tmp/zk-heavy.lock env ZK_GPU=1 ZK_THREADS=8 M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /usr/bin/time -v /home/victor/wt-uperf3-rr/zkmatrix-rs/target-gpu/release/ring_matmul uperf-a pass 12 512 range >> /home/victor/wt-uperf3-rr/results/uperf3_rr_12x512_A_gg_devzc.log 2>&1; echo $? > /home/victor/wt-uperf3-rr/results/uperf3_rr_12x512_A_gg_devzc.done' >/dev/null 2>&1 &
+  # leg B: Stage-A aggregate on the CPU, GG transport (+ the oracle) — the round-9 form
+  setsid nohup bash -c 'flock /tmp/zk-heavy.lock env ZK_GPU=1 ZK_GPU_ZC=0 ZK_THREADS=8 M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /usr/bin/time -v /home/victor/wt-uperf3-rr/zkmatrix-rs/target-gpu/release/ring_matmul uperf-a pass 12 512 range >> /home/victor/wt-uperf3-rr/results/uperf3_rr_12x512_B_gg_cpuzc.log 2>&1; echo $? > /home/victor/wt-uperf3-rr/results/uperf3_rr_12x512_B_gg_cpuzc.done' >/dev/null 2>&1 &
+  READ: the "STAGE-A pass:" line, the ORACLE "accept true |" line, the
+  "[UPERF3-RR] ATTRIBUTION" block (commit / prove / verify splits), the
+  "zc: on" label (aggregates / declined / VRAM held — a "declined" count
+  > 0 means the device chain fell back to the CPU for VRAM: the 12x512
+  nrw-88 class needs ~3.2 GB beside k9's residency), the STAGE-A DIGEST
+  line, and "Maximum resident set size". An exit 137 / "Killed" with the
+  .done file holding 137 is the 15 GB ceiling — record the peak from the
+  last "[UPERF2-F] RSS" line.
+
+R5 RECORD (2026-09-02): results/uperf3_rr_stage_a_gpu.md — the measured
+factor in lane TT's form. THE LINE THAT REPLACES THE BOARD'S "Stage-A
+aggregate GPU port + fold fusion 1.2-1.5x" (UNSOURCED, 2026-08-30):
+  * the aggregate prover on the device: 5.0-5.9 s -> 0.58 s at 12x128
+    (8.6-10x) [MEASURED];
+  * the Stage-A PROVE wall with GG's transport: 17.6-19.4 -> 13.4-13.5 s
+    = 1.31-1.44x [MEASURED] — the port alone lands in the guessed range
+    but leaves Stage-A prove 1.36-1.40x the ORACLE's (the built pass);
+  * with the batched transport (ruling item): 7.5-7.6 s = the oracle's
+    7.5 s — Stage A + GPU is 1.00x on prove, 1.00x on verify, 1.14x on
+    total (the planes commit) vs the built pass at 12x128 [MEASURED];
+    cumulative 2.3-2.6x on the Stage-A prove wall vs the round-9 code.
+  * FOR TT: book NO speed factor > 1.0 for "Stage A + GPU" against the
+    built pass at 125M; book the bytes (2.15x) and the memory (process
+    peak 7.5 -> 3.1 GB at 12x128 in the batched form; at 8B the 120 GB
+    descent term). The prove anatomy with Stage A + device + batched at
+    12x128: claim layer 0.90 | Stage-A phase 1.29 | openings 5.3 (weight
+    2.25, act 3.1) — the OPENING is 70% of the prove.
+  * RULING ITEM (Victor / the orchestrator): adopt the batched transport
+    as the Stage-A default (then the per-column served values can leave
+    the wire too), or keep GG's form and accept 1.8x on the Stage-A prove
+    wall at 125M. Soundness reading in the results page §4.
+STATE: DONE for rungs 0-3 + 5; rung 4 posted (orchestrator-run).
 
 
 ## Agent SS status (wt-uperf3-ss) — round 10

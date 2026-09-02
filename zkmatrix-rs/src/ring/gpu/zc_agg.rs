@@ -35,7 +35,7 @@
 
 use super::super::eval_proof::oracle_mode;
 use super::super::kfield::KL;
-use super::super::zc_range::{EElem, ETab, SubExt};
+use super::super::zc_range::{EElem, ETab, SubExt, ZcAggInstance};
 use super::cuda::{device_handle, env_usize, verbose, DevBuf, HostPinned};
 use cudarc::driver::result as cu;
 use cudarc::driver::{sys, CudaDevice, CudaFunction, CudaStream, LaunchAsync, LaunchConfig};
@@ -366,16 +366,23 @@ impl ZcDevChain {
 
 /// Open a device chain for one stacked aggregate: `None` = declined (module
 /// off, shape, budget) — the caller runs the host body.
-pub fn zc_agg_open(ext: &SubExt, planes: &[&[u32]], rem: &[u32], rho: &[EElem], stop_n: usize) -> Option<ZcDevChain> {
+pub fn zc_agg_open(ext: &SubExt, inst: &ZcAggInstance, rho: &[EElem], stop_n: usize) -> Option<ZcDevChain> {
     if !live() {
         return None;
     }
-    let n = rem.len();
-    let w = planes.len();
-    if ext.c != ZC_C || w + 1 > WMAX || n < 2 * KL || !n.is_power_of_two() || (1usize << rho.len()) != n || planes.iter().any(|p| p.len() != n) {
+    let (m, a, w) = (inst.m(), inst.a(), inst.w());
+    let size_col = 1usize << inst.n_log2;
+    let n = size_col << a;
+    if ext.c != ZC_C
+        || w + 1 > WMAX
+        || n < 2 * KL
+        || rho.len() != inst.n_log2 + a
+        || inst.cols.iter().any(|c| c.n_log2 != inst.n_log2 || c.e0 != inst.e0 || c.w() != w || c.rem.len() != size_col || c.planes.iter().any(|p| p.len() != size_col))
+    {
         S_DECL.fetch_add(1, Ordering::Relaxed);
         return None;
     }
+    let _ = m;
     let probe = ZcDevChain { n, t: 0, stop_n };
     if !probe.device_next() {
         S_DECL.fetch_add(1, Ordering::Relaxed);
@@ -385,7 +392,7 @@ pub fn zc_agg_open(ext: &SubExt, planes: &[&[u32]], rem: &[u32], rho: &[EElem], 
     let mut s = m.lock().unwrap();
     assert!(s.chain.is_none(), "[UPERF3-RR] zc_agg_open while a device chain is open (protocol violation)");
     let t0 = Instant::now();
-    match s.open(ext, planes, rem, rho, stop_n) {
+    match s.open(ext, inst, rho, stop_n) {
         Ok(true) => {
             S_INST.fetch_add(1, Ordering::Relaxed);
             add_us(&S_OPEN_US, t0.elapsed().as_secs_f64());
@@ -590,10 +597,11 @@ impl Zc {
         Ok(p)
     }
 
-    fn open(&mut self, ext: &SubExt, planes: &[&[u32]], rem: &[u32], rho: &[EElem], stop_n: usize) -> Result<bool, String> {
+    fn open(&mut self, ext: &SubExt, inst: &ZcAggInstance, rho: &[EElem], stop_n: usize) -> Result<bool, String> {
         self.dev.bind_to_thread().map_err(|e| format!("bind: {e}"))?;
-        let n = rem.len();
-        let w = planes.len();
+        let (m, a, w) = (inst.m(), inst.a(), inst.w());
+        let size_col = 1usize << inst.n_log2;
+        let n = size_col << a;
         let ntab = w + 1;
         let c = ext.c;
         let e_bytes = (n / 2) * c * 4; // one table buffer: n/2 E elements (>= n base words)
@@ -630,13 +638,26 @@ impl Zc {
         Self::grow(&mut self.ab, ab_bytes.max(256), &mut held)?;
         self.held = held;
         S_HELD_PEAK.fetch_max(self.held as u64, Ordering::Relaxed);
-        // ---- the base tables into their buffers (round 0 reads them in place).
-        for (k, p) in planes.iter().enumerate() {
-            let dst = self.bufs[k].ptr;
-            self.upload(dst, p)?;
+        // ---- the base tables into their buffers, STACKED on the way (column
+        // i at element offset i * size_col — zc_agg_stack's layout; the pad
+        // columns m..2^a zeroed: the buffers carry an earlier aggregate's
+        // data); round 0 reads them in place.
+        for k in 0..ntab {
+            let base = self.bufs[k].ptr;
+            for (i, col) in inst.cols.iter().enumerate() {
+                let dst = base + (i * size_col * 4) as u64;
+                if k < w {
+                    self.upload(dst, &col.planes[k])?;
+                } else {
+                    self.upload(dst, col.rem)?;
+                }
+            }
+            if m * size_col < n {
+                let off = (m * size_col * 4) as u64;
+                let bytes = (n - m * size_col) * 4;
+                unsafe { cu::memset_d8_async(base + off, 0, bytes, self.sk.stream) }.map_err(|e| format!("memset pad: {e}"))?;
+            }
         }
-        let dst_rem = self.bufs[w].ptr;
-        self.upload(dst_rem, rem)?;
         // ---- the eq half tables (build_eq_full's A / B) -> the pair eq on the device.
         let build = |z: &[EElem]| -> Vec<EElem> {
             let mut t = vec![ext.one()];

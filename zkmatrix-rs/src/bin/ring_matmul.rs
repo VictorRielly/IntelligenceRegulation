@@ -51030,26 +51030,30 @@ struct GgClassData {
 /// per-pair inside the Stage-A phase and dropped after (transient; the
 /// same bf_entry_values bits as the committed planes).
 fn gg_build_class_tabs(sp: &BkPairSpec, cls: &GgClass, lays: &[BfLayer]) -> Vec<(Vec<Vec<u32>>, Vec<u32>)> {
+    // [UPERF3-RR] rung 3: one member per task (values identical; the
+    // scalar loop was 0.3 s of the 12x128 Stage-A phase).
+    use rayon::prelude::*;
     let size = 1usize << cls.n_log2;
-    let mut cols_tabs = Vec::with_capacity(cls.members.len());
-    for &mi in &cls.members {
-        let m = &sp.members[mi];
-        let vals = bf_entry_values(m.entry, &lays[m.li]);
-        let mut planes = vec![vec![0u32; size]; cls.w];
-        let mut rem = vec![0u32; size];
-        for r in 0..cls.rows {
-            for c in 0..cls.cols {
-                let code = vals[r * cls.cols + c] + m.offset;
-                let x = r * cls.cols_pad + c;
-                for (k, plane) in planes.iter_mut().enumerate() {
-                    plane[x] = ((code >> k) & 1) as u32;
+    cls.members
+        .par_iter()
+        .map(|&mi| {
+            let m = &sp.members[mi];
+            let vals = bf_entry_values(m.entry, &lays[m.li]);
+            let mut planes = vec![vec![0u32; size]; cls.w];
+            let mut rem = vec![0u32; size];
+            for r in 0..cls.rows {
+                for c in 0..cls.cols {
+                    let code = vals[r * cls.cols + c] + m.offset;
+                    let x = r * cls.cols_pad + c;
+                    for (k, plane) in planes.iter_mut().enumerate() {
+                        plane[x] = ((code >> k) & 1) as u32;
+                    }
+                    rem[x] = code as u32;
                 }
-                rem[x] = code as u32;
             }
-        }
-        cols_tabs.push((planes, rem));
-    }
-    cols_tabs
+            (planes, rem)
+        })
+        .collect()
 }
 
 /// Draw the class's O-4 mask (Masked mode) and lay its coefficients out as
@@ -51124,8 +51128,13 @@ fn gg_mask_claims(
 }
 
 fn gg_build_class_data(sp: &BkPairSpec, cls: &GgClass, lays: &[BfLayer]) -> GgClassData {
-    let mut planes_vals = vec![0i64; cls.members.len() * cls.w * cls.rows * cls.cols_pad];
-    for (j, &mi) in cls.members.iter().enumerate() {
+    // [UPERF3-RR] rung 3: one member per task over its disjoint slice of
+    // the planes grid (values identical; this loop was ~1 s of the 12x128
+    // Stage-A commit phase).
+    use rayon::prelude::*;
+    let per_member = cls.w * cls.rows * cls.cols_pad;
+    let mut planes_vals = vec![0i64; cls.members.len() * per_member];
+    planes_vals.par_chunks_mut(per_member).zip(cls.members.par_iter()).for_each(|(slot, &mi)| {
         let m = &sp.members[mi];
         let vals = bf_entry_values(m.entry, &lays[m.li]);
         assert_eq!(vals.len(), cls.rows * cls.cols);
@@ -51134,11 +51143,11 @@ fn gg_build_class_data(sp: &BkPairSpec, cls: &GgClass, lays: &[BfLayer]) -> GgCl
                 let code = vals[r * cls.cols + c] + m.offset;
                 assert!(code >= 0 && (code as u128) < (1u128 << cls.w), "honest range fact");
                 for k in 0..cls.w {
-                    planes_vals[((j * cls.w + k) * cls.rows + r) * cls.cols_pad + c] = (code >> k) & 1;
+                    slot[(k * cls.rows + r) * cls.cols_pad + c] = (code >> k) & 1;
                 }
             }
         }
-    }
+    });
     GgClassData { planes_vals, mask: None, mask_vals: Vec::new() }
 }
 
@@ -51193,6 +51202,99 @@ fn gg_zc_claims(
             value,
             parts: vec![(ti_mem, one.clone(), Rc::new(eq_hi.clone()), eq_lo_trunc)],
         });
+    }
+}
+
+/// [UPERF3-RR] rung 3 — the BATCHED planes transport (opt-in:
+/// ZK_RR_ZC_CLAIMS=batched). The m x w per-column plane claims of a class
+/// recombine LINEARLY along the instance axis into w claims, T_k(x*) =
+/// sum_i eq(r_inst, i) claim[i][k] — the recombination zc_agg_verify
+/// already performs for the final identity — so the opening serves ONE
+/// claim per plane per class: row kernel = the eq(r_inst, i)-weighted
+/// block concatenation over the members (the same planes tensor `cls.ti`),
+/// col kernel eq_lo unchanged. The m rem claims (per-member tensors) are
+/// gg_zc_claims's verbatim. The SERVED values and their absorption
+/// ("gg-zc-claims") are untouched; what changes is the opening's claim
+/// structure (m x w + m -> w + m contribs per class) and hence the nu
+/// count — a Stage-A transcript variant (selector-only path), measured
+/// behind the knob and posted for the ruling; the default stays GG's form.
+#[allow(clippy::too_many_arguments)]
+fn gg_zc_claims_batched(
+    kf: &ring::kfield::KField,
+    ext: &ring::zc_range::SubExt,
+    reg: &BkRegistry,
+    sp: &BkPairSpec,
+    cls: &GgClass,
+    proof: &ring::zc_range::ZcAggProof,
+    point: &[ring::zc_range::EElem],
+    claims: &mut Vec<BkClaim>,
+) {
+    use ring::gkr::eq_table;
+    use ring::zc_range::zc_agg_eq_bool;
+    use std::rc::Rc;
+    let zq = &kf.zq;
+    let one = kf.one();
+    let r_k: Vec<ring::kfield::KElem> = point[..cls.n_log2].iter().map(|e| ext.to_k(e)).collect();
+    let lcp = cls.cols_pad.trailing_zeros() as usize;
+    let lr = cls.rows.trailing_zeros() as usize;
+    assert_eq!(lcp + lr, cls.n_log2);
+    let eq_lo = Rc::new(eq_table(kf, &r_k[..lcp]));
+    let eq_hi = eq_table(kf, &r_k[lcp..]);
+    let m = cls.members.len();
+    let r_inst = &point[cls.n_log2..];
+    let wts: Vec<ring::kfield::KElem> = (0..m).map(|i| ext.to_k(&zc_agg_eq_bool(ext, r_inst, i))).collect();
+    let rows_tot = m * cls.w * cls.rows;
+    for k in 0..cls.w {
+        let mut row = vec![kf.zero(); rows_tot];
+        let mut value = kf.zero();
+        for i in 0..m {
+            let base = (i * cls.w + k) * cls.rows;
+            for r in 0..cls.rows {
+                row[base + r] = kf.mul(&wts[i], &eq_hi[r]);
+            }
+            value = kf.add(&value, &kf.mul(&wts[i], &ext.to_k(&proof.col_claims[i][k])));
+        }
+        claims.push(BkClaim { in_weight: false, value, parts: vec![(cls.ti, one.clone(), Rc::new(row), eq_lo.clone())] });
+    }
+    for (i, &mi) in cls.members.iter().enumerate() {
+        let mm = &sp.members[mi];
+        let (_, ti_mem) = reg.map[mm.li][mm.entry];
+        let eq_lo_trunc = Rc::new(eq_lo[..cls.cols].to_vec());
+        let hi_sum = eq_hi.iter().fold(kf.zero(), |a, e| kf.add(&a, e));
+        let lo_sum = eq_lo_trunc.iter().fold(kf.zero(), |a, e| kf.add(&a, e));
+        let s_eq = kf.mul(&hi_sum, &lo_sum);
+        let value = kf.sub(&ext.to_k(&proof.col_claims[i][cls.w]), &kf.scale(zq.to_mod(mm.offset), &s_eq));
+        claims.push(BkClaim {
+            in_weight: false,
+            value,
+            parts: vec![(ti_mem, one.clone(), Rc::new(eq_hi.clone()), eq_lo_trunc)],
+        });
+    }
+}
+
+/// [UPERF3-RR] the transport knob (read once): ZK_RR_ZC_CLAIMS=batched.
+fn rr_zc_claims_batched() -> bool {
+    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *V.get_or_init(|| std::env::var("ZK_RR_ZC_CLAIMS").map(|v| v == "batched").unwrap_or(false))
+}
+
+/// [UPERF3-RR] the zc claim transport, selected by the knob (prover and
+/// verifier call the same function — the structure is shared).
+#[allow(clippy::too_many_arguments)]
+fn gg_zc_claims_sel(
+    kf: &ring::kfield::KField,
+    ext: &ring::zc_range::SubExt,
+    reg: &BkRegistry,
+    sp: &BkPairSpec,
+    cls: &GgClass,
+    proof: &ring::zc_range::ZcAggProof,
+    point: &[ring::zc_range::EElem],
+    claims: &mut Vec<BkClaim>,
+) {
+    if rr_zc_claims_batched() {
+        gg_zc_claims_batched(kf, ext, reg, sp, cls, proof, point, claims)
+    } else {
+        gg_zc_claims(kf, ext, reg, sp, cls, proof, point, claims)
     }
 }
 
@@ -51851,7 +51953,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                 tr.absorb_k(&kf, "gg-zc-claims", &flat);
                 stage_a_bytes += stats.wire_bytes;
                 let rr_t2 = Instant::now();
-                gg_zc_claims(&kf, &ext, &reg, sp, cls, &proof, &point, &mut claims);
+                gg_zc_claims_sel(&kf, &ext, &reg, sp, cls, &proof, &point, &mut claims);
                 let rr_c_claims = rr_t2.elapsed().as_secs_f64();
                 rr_s_zc_claims += rr_c_claims;
                 rr_zc_lines.push(format!(
@@ -52222,7 +52324,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                                 flat.push(ext.to_k(mf));
                             }
                             tv.absorb_k(&kf, "gg-zc-claims", &flat);
-                            gg_zc_claims(&kf, &ext, &reg, sp, cls, &proofs[ci], &point, &mut claims_v);
+                            gg_zc_claims_sel(&kf, &ext, &reg, sp, cls, &proofs[ci], &point, &mut claims_v);
                             if mode == GgMode::Masked {
                                 gg_mask_claims(&kf, &ext, cls, &proofs[ci], &point, &mut claims_v);
                             }
@@ -52356,7 +52458,11 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
         );
     }
     // [UPERF3-RR] rung 1: the attribution table + the identity digest.
-    println!("[UPERF3-RR] ATTRIBUTION mode {mode_name} (walls s; {} threads):", ring::eval_proof::threads());
+    println!(
+        "[UPERF3-RR] ATTRIBUTION mode {mode_name}{} (walls s; {} threads):",
+        if rr_zc_claims_batched() { " + zc claims BATCHED (ZK_RR_ZC_CLAIMS=batched: a Stage-A transcript VARIANT)" } else { "" },
+        ring::eval_proof::threads()
+    );
     println!(
         "  commit {commit_s:.2}: groups+planes {:.2} | witness {:.2} | precommit weight {:.2} | precommit act {:.2} | statement {:.2}",
         rr_t_groups, rr_t_wit - rr_t_groups, rr_t_pre_w - rr_t_wit, rr_t_pre_a - rr_t_pre_w, commit_s - rr_t_pre_a

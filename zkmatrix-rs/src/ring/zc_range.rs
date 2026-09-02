@@ -1634,8 +1634,10 @@ fn zc_dev_fold_count(stats: &mut ZcRangeStats, base_round: bool, w: usize, c: us
 /// The host rebuild after a device error: the tables of the stacked
 /// instance folded by the challenges drawn so far (deterministic — the same
 /// tables the device held) and the eq table compacted as many times.
-fn zc_agg_host_rebuild(ext: &SubExt, stacked: &ZcRangeInstance, rho: &[EElem], point: &[EElem]) -> (Vec<ZTab>, ETab) {
+fn zc_agg_host_rebuild(ext: &SubExt, inst: &ZcAggInstance, rho: &[EElem], point: &[EElem]) -> (Vec<ZTab>, ETab) {
     let c = ext.c;
+    let (stk_planes, stk_rem) = zc_agg_stack(inst);
+    let stacked = &ZcRangeInstance { n_log2: inst.n_log2 + inst.a(), e0: inst.e0, planes: &stk_planes, rem: &stk_rem };
     let eq_full = build_eq_full(ext, rho);
     let mut eq_pairs = compact_even(c, &eq_full);
     drop(eq_full);
@@ -1702,7 +1704,15 @@ pub fn zc_agg_prove_masked(
     assert!(n >= 4, "zc_agg_prove needs n >= 4 (one full pair-block per column)");
     assert_eq!(rho.len(), n_tot);
     assert_eq!(betas.len(), w + 1);
-    let (stk_planes, stk_rem) = zc_agg_stack(inst);
+    // [UPERF3-RR] the device chain (gpu/zc_agg.rs, the ixf pattern): the
+    // tables + the eq live on the device until the handover; the host loop
+    // below keeps the transcript, the tail rounds and the claim stacking.
+    // Opened FIRST: the device stacks the columns itself while uploading,
+    // so the host stacking copy is skipped while the chain is live (the
+    // host rebuild on a device error stacks on demand). `None` = the CPU
+    // body is the oracle (feature off, ZK_GPU unset, shape, VRAM budget).
+    let mut dev = if super::gpu::enabled() { super::gpu::zc_agg_open(ext, inst, rho, 1usize << a) } else { None };
+    let (stk_planes, stk_rem) = if dev.is_some() { (Vec::new(), Vec::new()) } else { zc_agg_stack(inst) };
     let stacked = ZcRangeInstance { n_log2: n_tot, e0: inst.e0, planes: &stk_planes, rem: &stk_rem };
     let size = 1usize << n_tot;
     let alphabet = stacked.alphabet(ext.q);
@@ -1710,17 +1720,6 @@ pub fn zc_agg_prove_masked(
     let nodes: Vec<u64> = (0..=deg_f as u64).filter(|&x| x != 1).collect();
     let mut stats = ZcRangeStats::default();
     let c = ext.c;
-    // [UPERF3-RR] the device chain (gpu/zc_agg.rs, the ixf pattern): the
-    // tables + the eq live on the device until the handover; the host loop
-    // below keeps the transcript, the tail rounds and the claim stacking.
-    // `None` = the CPU body is the oracle (feature off, ZK_GPU unset, shape,
-    // VRAM budget).
-    let mut dev = if super::gpu::enabled() {
-        let plane_refs: Vec<&[u32]> = stk_planes.iter().map(|p| p.as_slice()).collect();
-        super::gpu::zc_agg_open(ext, &plane_refs, &stk_rem, rho, 1usize << a)
-    } else {
-        None
-    };
     // ONE shared eq table over all n + a variables, at pair granularity.
     let t0 = std::time::Instant::now();
     stats.macs_eq += (size as u64) * (c * c) as u64;
@@ -1782,7 +1781,7 @@ pub fn zc_agg_prove_masked(
             }
             Some(Err(e)) => {
                 eprintln!("[UPERF3-RR] zc device round failed ({e}); this aggregate continues on the host");
-                let (tb, eqp) = zc_agg_host_rebuild(ext, &stacked, rho, &point);
+                let (tb, eqp) = zc_agg_host_rebuild(ext, inst, rho, &point);
                 tabs = tb;
                 eq_pairs = eqp;
                 dev = None;
@@ -1861,7 +1860,7 @@ pub fn zc_agg_prove_masked(
                         eprintln!("[UPERF3-RR] zc device handover failed ({e}); this aggregate continues on the host");
                         let mut pt = point.clone();
                         pt.push(r.clone());
-                        let (tb, eqp) = zc_agg_host_rebuild(ext, &stacked, rho, &pt);
+                        let (tb, eqp) = zc_agg_host_rebuild(ext, inst, rho, &pt);
                         tabs = tb;
                         eq_pairs = eqp;
                     }
@@ -1872,7 +1871,7 @@ pub fn zc_agg_prove_masked(
                 dev = None;
                 let mut pt = point.clone();
                 pt.push(r.clone());
-                let (tb, eqp) = zc_agg_host_rebuild(ext, &stacked, rho, &pt);
+                let (tb, eqp) = zc_agg_host_rebuild(ext, inst, rho, &pt);
                 tabs = tb;
                 eq_pairs = eqp;
             }

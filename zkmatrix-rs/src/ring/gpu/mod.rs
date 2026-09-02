@@ -349,7 +349,7 @@ mod stub {
     pub fn ixf_stats_reset() {}
 
     // ---- [UPERF3-RR] the device zc aggregate (never live without the feature).
-    use super::super::zc_range::{EElem, ETab, SubExt};
+    use super::super::zc_range::{EElem, ETab, SubExt, ZcAggInstance};
     /// The device chain handle (never constructed without the feature).
     pub struct ZcDevChain {
         pub n: usize,
@@ -361,7 +361,7 @@ mod stub {
             false
         }
     }
-    pub fn zc_agg_open(_ext: &SubExt, _planes: &[&[u32]], _rem: &[u32], _rho: &[EElem], _stop_n: usize) -> Option<ZcDevChain> {
+    pub fn zc_agg_open(_ext: &SubExt, _inst: &ZcAggInstance, _rho: &[EElem], _stop_n: usize) -> Option<ZcDevChain> {
         None
     }
     pub fn zc_agg_round(_ext: &SubExt, _ch: &mut ZcDevChain, _nodes: &[u64], _alphabet: &[u32], _e0: u32) -> Result<Vec<Vec<EElem>>, String> {
