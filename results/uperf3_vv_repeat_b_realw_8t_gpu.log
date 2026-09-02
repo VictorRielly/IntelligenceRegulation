@@ -1,0 +1,78 @@
+[UPERF3-VV] repeat-b [REAL 12x512 weight group, VARIANT B]: n0 = 3538944 (~2^21.8) digit rings, Nv 442368 value rings, 36 tensors / 36 contribs, G_all 3072, n = 5, ZK_THREADS 8 [WSL-BOX 8T|NOISY-SHARED]; gpu-cuda: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB VRAM), ZK_GPU=1, min_macs 4194304, block budget 256 MB, stages 4, bypass false
+[UPERF3-VV]   B form for WgT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WuT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WdT: Value (bound 128, e_v 8, width_v 192 value rings x G 64, row-group gate +3.45 bits; record width 1536 digit rings at e0 1)
+[UPERF3-VV]   B form for WgT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WuT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WdT: Value (bound 128, e_v 8, width_v 192 value rings x G 64, row-group gate +3.45 bits; record width 1536 digit rings at e0 1)
+[UPERF3-VV]   B form for WgT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WuT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WdT: Value (bound 128, e_v 8, width_v 192 value rings x G 64, row-group gate +3.45 bits; record width 1536 digit rings at e0 1)
+[UPERF3-VV]   B form for WgT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WuT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WdT: Value (bound 128, e_v 8, width_v 192 value rings x G 64, row-group gate +3.45 bits; record width 1536 digit rings at e0 1)
+[UPERF3-VV]   B form for WgT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WuT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WdT: Value (bound 128, e_v 8, width_v 192 value rings x G 64, row-group gate +3.45 bits; record width 1536 digit rings at e0 1)
+[UPERF3-VV]   B form for WgT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WuT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WdT: Value (bound 128, e_v 8, width_v 192 value rings x G 64, row-group gate +3.45 bits; record width 1536 digit rings at e0 1)
+[UPERF3-VV]   B form for WgT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WuT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WdT: Value (bound 128, e_v 8, width_v 192 value rings x G 64, row-group gate +3.45 bits; record width 1536 digit rings at e0 1)
+[UPERF3-VV]   B form for WgT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WuT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WdT: Value (bound 128, e_v 8, width_v 192 value rings x G 64, row-group gate +3.45 bits; record width 1536 digit rings at e0 1)
+[UPERF3-VV]   B form for WgT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WuT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WdT: Value (bound 128, e_v 8, width_v 192 value rings x G 64, row-group gate +3.45 bits; record width 1536 digit rings at e0 1)
+[UPERF3-VV]   B form for WgT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WuT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WdT: Value (bound 128, e_v 8, width_v 192 value rings x G 64, row-group gate +3.45 bits; record width 1536 digit rings at e0 1)
+[UPERF3-VV]   B form for WgT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WuT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WdT: Value (bound 128, e_v 8, width_v 192 value rings x G 64, row-group gate +3.45 bits; record width 1536 digit rings at e0 1)
+[UPERF3-VV]   B form for WgT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WuT: Value (bound 128, e_v 8, width_v 128 value rings x G 96, row-group gate +3.74 bits; record width 1024 digit rings at e0 1)
+[UPERF3-VV]   B form for WdT: Value (bound 128, e_v 8, width_v 192 value rings x G 64, row-group gate +3.45 bits; record width 1536 digit rings at e0 1)
+[UPERF3-VV]   B gates: row-group min +3.45 (36 value-form tensors of 36), folded w +2.05 (n_w_B 21504 vs record 86016), tier-2 u +0.43 (n2 202752, e_u 6 x 6 limbs)
+[UPERF3-VV]   PER-MODEL build 2.14s [MEASURED] (layouts 0.23s + tier-1 u 33792 rings + U 11 rings): forms value/i8 x36; 91.2 MB held
+[UPERF3-VV]   proof 0: Variant-B per-proof 1.29s = tt_prove_b 0.86s (rows-from-v 0.09, v-pass 0.27 [P 0.13 + GEMM 0.12; layout cached], fold 0.44 [draw 0.07 + fold-fn 0.36 (GEMM slot 0.36) + tail 0.01], tier commits from cache 0.04, v-absorb 0.03; h_ms not computed) + recursion prove 0.44s (its precommit 0.12s = per-model class)
+[UPERF3-VV]   proof 1: Variant-B per-proof 1.45s = tt_prove_b 0.96s (rows-from-v 0.08, v-pass 0.35 [P 0.13 + GEMM 0.20; layout cached], fold 0.47 [draw 0.08 + fold-fn 0.38 (GEMM slot 0.38) + tail 0.01], tier commits from cache 0.03, v-absorb 0.03; h_ms not computed) + recursion prove 0.49s (its precommit 0.13s = per-model class)
+[UPERF3-VV]   proof 2: Variant-B per-proof 1.26s = tt_prove_b 0.78s (rows-from-v 0.09, v-pass 0.30 [P 0.13 + GEMM 0.15; layout cached], fold 0.34 [draw 0.08 + fold-fn 0.24 (GEMM slot 0.24) + tail 0.01], tier commits from cache 0.03, v-absorb 0.03; h_ms not computed) + recursion prove 0.48s (its precommit 0.13s = per-model class)
+[UPERF3-VV]   proof 3: Variant-B per-proof 1.24s = tt_prove_b 0.86s (rows-from-v 0.08, v-pass 0.33 [P 0.14 + GEMM 0.18; layout cached], fold 0.38 [draw 0.09 + fold-fn 0.29 (GEMM slot 0.28) + tail 0.01], tier commits from cache 0.03, v-absorb 0.03; h_ms not computed) + recursion prove 0.39s (its precommit 0.10s = per-model class)
+[UPERF3-VV]   proof 4: Variant-B per-proof 1.30s = tt_prove_b 0.78s (rows-from-v 0.08, v-pass 0.31 [P 0.11 + GEMM 0.18; layout cached], fold 0.33 [draw 0.08 + fold-fn 0.24 (GEMM slot 0.24) + tail 0.01], tier commits from cache 0.03, v-absorb 0.03; h_ms not computed) + recursion prove 0.52s (its precommit 0.14s = per-model class)
+[UPERF3-VV]   WIRE DIGEST 02708a51d76e62ee0d3b73a74cc891163e7bd429f0e4467f832e7a1e3d8bc616 identical across 5 proofs (per-model part warm)
+[UPERF3-VV]   claims: b_row images BYTE-IDENTICAL Variant B (recovered from v) vs the built GroupEvalProof.b_rows; built proof verifies
+[UPERF3-VV]   built 0: bg_precommit 0.88s (per-model class as built, recomputed per proof) + bg_prove_group 2.35s
+[UPERF3-VV]   built 1: bg_precommit 0.67s (per-model class as built, recomputed per proof) + bg_prove_group 2.20s
+[UPERF3-VV]   built 2: bg_precommit 0.69s (per-model class as built, recomputed per proof) + bg_prove_group 2.21s
+[UPERF3-VV]   built 3: bg_precommit 0.71s (per-model class as built, recomputed per proof) + bg_prove_group 2.26s
+[UPERF3-VV]   built 4: bg_precommit 0.72s (per-model class as built, recomputed per proof) + bg_prove_group 2.23s
+[UPERF3-VV]   PER-PROOF Variant B (per-model warm): min 1.24s / median 1.29s over 5; recursion precommit (per-model class, excluded) min 0.10s; PER-MODEL build 2.14s
+[UPERF3-VV]   BUILT bg_prove_group: min 2.20s / median 2.23s; + bg_precommit min 0.67s
+[UPERF3-VV]   RATIO built / Variant-B per-proof: 1.77x (prove-group only) | 2.31x (built precommit + prove-group) — the bar >= 5x at the 12x512 weight group: NOT MET
+[UPERF3-VV] repeat-b done in 30.8s, peak RSS 5510 MiB [WSL-BOX 8T|NOISY-SHARED]
+	Command being timed: "/home/victor/wt-uperf3-vv/zkmatrix-rs/target-gpu/release/ring_matmul uperf-t repeat-b real-w 5 8 161"
+	User time (seconds): 80.68
+	System time (seconds): 18.13
+	Percent of CPU this job got: 319%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:30.97
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 5642496
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 3505569
+	Voluntary context switches: 432614
+	Involuntary context switches: 233
+	Swaps: 0
+	File system inputs: 9678
+	File system outputs: 24
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

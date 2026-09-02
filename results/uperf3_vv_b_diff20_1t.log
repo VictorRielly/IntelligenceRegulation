@@ -1,0 +1,25 @@
+[UPERF3-VV] b diff [VARIANT B]: 6 tensors / 809984 digit rings (~2^19.6) / 128000 value rings, 7 contribs, ZK_THREADS 1 [WSL-BOX 1T|NOISY-SHARED], seed 161; gpu: off (built without --features gpu-cuda)
+[UPERF3-VV]   B form for ta: Value (bound 42, e_v 7, width_v 256 value rings x G 64, row-group gate +4.24 bits; record width 768 digit rings at e0 2)
+[UPERF3-VV]   B form for tb: Value (bound 255, e_v 9, width_v 64 value rings x G 1024, row-group gate +3.24 bits; record width 512 digit rings at e0 1)
+[UPERF3-VV]   B form for tc: Value (bound 682, e_v 11, width_v 128 value rings x G 32, row-group gate +0.74 bits; record width 640 digit rings at e0 2)
+[UPERF3-VV]   B form for td: Digit (bound 2730, e_v 13, width_v 128 value rings x G 256, row-group gate -1.26 bits; record width 768 digit rings at e0 2)
+[UPERF3-VV]   B form for te: Value (bound 10, e_v 5, width_v 256 value rings x G 32, row-group gate +6.24 bits; record width 512 digit rings at e0 2)
+[UPERF3-VV]   B form for tf: Value (bound 42, e_v 7, width_v 256 value rings x G 4, row-group gate +4.24 bits; record width 768 digit rings at e0 2)
+[UPERF3-VV]   B gates: row-group min -1.26 (5 value-form tensors of 6), folded w +3.32 (n_w_B 3712 vs record 9984), tier-2 u +0.99 (n2 93192, e_u 6 x 6 limbs)
+[UPERF3-VV]   oracle bg_prove_group + verify: ACCEPT in 18.24s (forced 2-level schedule)
+[UPERF3-VV]   R1 reference prove (QQ): 8.57s, wire digest cae0b3123c0335b470435b5d6e78219db1b8e6f16b2351f90d3e79fe790f3793
+[UPERF3-VV]   Variant-B prove 5.01s (layout 0.34 + v 1.13 + rows 0.17 + commits 1.96 + fold 1.02) + verify 2.12s: ACCEPT (binding + U rebind + claim + consistency + w range)
+[UPERF3-VV]   DIFF 1: b_row images BYTE-IDENTICAL (16 rows) Variant B (recovered from v) vs built GroupEvalProof.b_rows; ct row = v_batch
+[UPERF3-VV]   DIFF 2: per-contrib MLE claim rows: sum_m rows_m == b_rows; H_m == alphas . rows_m POLY-EXACT, 7/7 contribs
+[UPERF3-VV]   DIFF 3: batched opening target h_cur IDENTICAL: Variant B == built b_rows route == sum_m H_m (same drawn alphas)
+[UPERF3-VV]   VV-1: v plane (7 contribs x 16) and b_rows BYTE-IDENTICAL to R1's; digit-form u identical (1 tensors), value-form u distinct (5 tensors)
+[UPERF3-VV]   VV-2: value fold as ONE GEMM == fold_chunks_ntt_gen over the same layout slices, 5/5 value-form tensors (value/i8,value/i64,value/i64,digit,value/i8,value/i8)
+[UPERF3-VV]   REJECT w tamper: tt-fold-binding
+[UPERF3-VV]   REJECT v tamper: tt-fold-binding
+[UPERF3-VV]   REJECT u tamper: tt-u-binding
+[UPERF3-VV]   REJECT b_rows tamper: tt-ct-row-gate
+[UPERF3-VV]   REJECT lying-v + honest refold (binding passes): tt-consistency
+[UPERF3-VV]   REJECT lying b_rows non-ct coeff + honest refold: tt-claim
+[UPERF3-VV]   REJECT VV-3 lying VALUE ring (tensor 0: +-1 on one committed value, re-committed u/U, honest refold — binding + U rebind pass): tt-consistency
+[UPERF3-VV] WIRE DIGEST e757eff75b8479a0581fc462a690e4e4901eb8cdde7b52271958adc7c44712b3 (b_rows|u|U|v|w; Variant B; gpu: off (built without --features gpu-cuda))
+[UPERF3-VV] b diff PASS: 3 differential legs + 2 identity legs + 7 reject legs in 55.0s, peak RSS 2594 MiB

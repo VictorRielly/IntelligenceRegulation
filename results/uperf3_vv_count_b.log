@@ -1,0 +1,79 @@
+[UPERF3-VV] uperf-t count-b — VARIANT B (tier 1 over the recombined VALUE rings) vs the design of record (tier 1 over the digit rings), on the RECORD GRID (q = 2147483249, kappa = 11, D = 128, K_DEG 16; gates = row H-gate-ed, gamma = OP_CONC * 2^(e-1) * sqrt(n*D) <= gamma_max_exact = 2^22.12)
+[UPERF3-VV] the value base e_v of a tensor = the smallest e with 2^(e-1) >= its public value bound (int8 class: 128 -> e_v 8 = the balanced alphabet [-128, 127]); the grid, the claim factorization, the v-vectors and the tier-2 object are the record's (QQ) — only tier 1's witness and the fold change.
+
+[UPERF3-VV] ==== 2^22 FF synthetic ====
+[UPERF3-VV]   6 tensors e0 in {1,2}, l0 2-8, 7 contribs (ta twice), tf claimless — the rung-2/3 measurement shape (values NOT int8: e_v per tensor from the representable bound)
+[UPERF3-VV]   n0 2972672 digit rings (~2^21.5) -> Nv 422912 value rings (7.0x fewer); 6 tensors / 7 contribs; G_all 2626; u digits e6 x 6 -> n2 173316 (unchanged)
+[UPERF3-VV]   grid class ta: rows 512 x cols 4096 (e0 2 l0 3, nb 32) -> g_rows 16, G 32; record width 1536 digit rings at e0 (gate +7.95) | B width_v 512 value rings, bound 42 -> e_v 7, gate +3.74 bits; fold bound 2^15 -> l_z 3 at e_u 6 (record l_z 2); n_w 1536 (record 3072)
+[UPERF3-VV]   grid class tb: rows 4096 x cols 8192 (e0 1 l0 8, nb 64) -> g_rows 2, G 2048; record width 1024 digit rings at e0 (gate +9.24) | B width_v 128 value rings, bound 255 -> e_v 9, gate +2.74 bits; fold bound 2^20 -> l_z 4 at e_u 6 (record l_z 3); n_w 512 (record 3072)
+[UPERF3-VV]   grid class tc: rows 256 x cols 2048 (e0 2 l0 5, nb 16) -> g_rows 16, G 16; record width 1280 digit rings at e0 (gate +8.08) | B width_v 256 value rings, bound 682 -> e_v 11, gate +0.24 bits; fold bound 2^19 -> l_z 4 at e_u 6 (record l_z 2); n_w 1024 (record 2560)
+[UPERF3-VV]   grid class td: rows 2048 x cols 8192 (e0 2 l0 6, nb 64) -> g_rows 4, G 512; record width 1536 digit rings at e0 (gate +7.95) | B width_v 256 value rings, bound 2730 -> e_v 13, gate -1.76 bits; fold bound 2^23 -> l_z 5 at e_u 6 (record l_z 3); n_w 1280 (record 4608)
+[UPERF3-VV]   grid class te: rows 256 x cols 4096 (e0 2 l0 2, nb 32) -> g_rows 16, G 16; record width 1024 digit rings at e0 (gate +8.24) | B width_v 512 value rings, bound 10 -> e_v 5, gate +5.74 bits; fold bound 2^13 -> l_z 3 at e_u 6 (record l_z 2); n_w 1536 (record 2048)
+[UPERF3-VV]   grid class tf: rows 128 x cols 1024 (e0 2 l0 3, nb 8) -> g_rows 64, G 2; record width 1536 digit rings at e0 (gate +7.95) | B width_v 512 value rings, bound 42 -> e_v 7, gate +3.74 bits; fold bound 2^13 -> l_z 3 at e_u 6 (record l_z 2); n_w 1536 (record 3072)
+[UPERF3-VV]   RECORD gates (tier 1 over digit rings): row-group min +7.95 bits, folded w +2.16 (n_w 18432), tier-2 u +0.54 (n2 173316) => GREEN; n_rec clear 173316 | full (w+u+v) 495876
+[UPERF3-VV]   VARIANT B gates (tier 1 over value rings): row-group min -1.76 bits (tensor td, width_v 256, e_v 13), folded w +2.82 (n_w 7424), tier-2 u +0.54 (n2 173316) => RED; n_rec clear 173316 | full (w+u+v) 484868 (1.02x the record's)
+[UPERF3-VV]     B recursion [V-clear (u digits)] on 173316 rings at e_u 6: 7 levels, floor 945 rings e7 (frozen planner, reused)
+[UPERF3-VV]     B recursion [V-recursed (w+u+v)] on 484868 rings at e_u 6: GATE RED (frozen planner would refuse)
+[UPERF3-VV]   (for information) a VALUE-sqrt grid (width_v <= 651): G_all 793, n2 43615, row-group min -2.26 bits, w +1.22, u +0.54 => RED; n_rec full 145631 — NOT the design: the record grid above is what the differential keeps
+[UPERF3-VV]   PER-MODEL [COUNTED]: tier-1 commit kappa*Nv = 4.65e6 ring-MACs (record kappa*n0 = 32.70e6: 7.0x fewer); CRS kappa*(width_v_sum 2176 + n2 173316) = 1.93e6 rings (record 1.99e6); the i8 value layout 0.05 GB is the tier-1 witness itself
+[UPERF3-VV]   PER-PROOF [MODEL from QQ's K2-K9, RTX 4070 Laptop 8T, weights resident]: v GEMM 0.02-0.16 s + P 0.06 + rows 0.09; fold RECORD 0.42 s (K4 x n0 + K5 x width_sum) vs B 0.07 s (K4 x Nv + K5 x width_v_sum); recursion proxy 0.11-0.29 s (n2); residual 0.31 s (K9 x G_all)
+[UPERF3-VV]     => per-proof RECORD 1.01-1.34 s | VARIANT B 0.66-0.98 s | built (K8 x n0) 1.75 s => ratio record 1.3-1.7x | B 1.8-2.7x (bar >= 5x)
+
+[UPERF3-VV] ==== 12x512 weight group ====
+[UPERF3-VV]   12 x [WgT 768x2048, WuT 768x2048, WdT 2048x768], CLASS_W8S e0 1 l0 8 — the bar's shape (3,538,944 digit rings)
+[UPERF3-VV]   n0 3538944 digit rings (~2^21.8) -> Nv 442368 value rings (8.0x fewer); 36 tensors / 36 contribs; G_all 3072; u digits e6 x 6 -> n2 202752 (unchanged)
+[UPERF3-VV]   grid class WgT: rows 768 x cols 2048 (e0 1 l0 8, nb 16) -> g_rows 8, G 96; record width 1024 digit rings at e0 (gate +9.24) | B width_v 128 value rings, bound 128 -> e_v 8, gate +3.74 bits; fold bound 2^17 -> l_z 4 at e_u 6 (record l_z 2); n_w 512 (record 2048)
+[UPERF3-VV]   grid class WdT: rows 2048 x cols 768 (e0 1 l0 8, nb 6) -> g_rows 32, G 64; record width 1536 digit rings at e0 (gate +8.95) | B width_v 192 value rings, bound 128 -> e_v 8, gate +3.45 bits; fold bound 2^17 -> l_z 4 at e_u 6 (record l_z 2); n_w 768 (record 3072)
+[UPERF3-VV]   RECORD gates (tier 1 over digit rings): row-group min +8.95 bits, folded w +1.05 (n_w 86016), tier-2 u +0.43 (n2 202752) => GREEN; n_rec clear 202752 | full (w+u+v) 583680
+[UPERF3-VV]   VARIANT B gates (tier 1 over value rings): row-group min +3.45 bits (tensor WdT, width_v 192, e_v 8), folded w +2.05 (n_w 21504), tier-2 u +0.43 (n2 202752) => GREEN; n_rec clear 202752 | full (w+u+v) 519168 (1.12x the record's)
+[UPERF3-VV]     B recursion [V-clear (u digits)] on 202752 rings at e_u 6: 7 levels, floor 948 rings e7 (frozen planner, reused)
+[UPERF3-VV]     B recursion [V-recursed (w+u+v)] on 519168 rings at e_u 6: GATE RED (frozen planner would refuse)
+[UPERF3-VV]   (for information) a VALUE-sqrt grid (width_v <= 666): G_all 960, n2 52800, row-group min +2.74 bits, w +0.43, u +0.40 => GREEN; n_rec full 180288 — NOT the design: the record grid above is what the differential keeps
+[UPERF3-VV]   PER-MODEL [COUNTED]: tier-1 commit kappa*Nv = 4.87e6 ring-MACs (record kappa*n0 = 38.93e6: 8.0x fewer); CRS kappa*(width_v_sum 5376 + n2 202752) = 2.29e6 rings (record 2.70e6); the i8 value layout 0.06 GB is the tier-1 witness itself
+[UPERF3-VV]   PER-PROOF [MODEL from QQ's K2-K9, RTX 4070 Laptop 8T, weights resident]: v GEMM 0.01-0.12 s + P 0.13 + rows 0.09; fold RECORD 0.80 s (K4 x n0 + K5 x width_sum) vs B 0.10 s (K4 x Nv + K5 x width_v_sum); recursion proxy 0.13-0.34 s (n2); residual 0.37 s (K9 x G_all)
+[UPERF3-VV]     => per-proof RECORD 1.53-1.85 s | VARIANT B 0.83-1.15 s | built (K8 x n0) 2.09 s => ratio record 1.1-1.4x | B 1.8-2.5x (bar >= 5x)
+
+[UPERF3-VV] ==== 8B weight group ====
+[UPERF3-VV]   32 x [4096x14336 x2, 14336x4096], e0 1 l0 8 (352,321,536 digit rings)
+[UPERF3-VV]   n0 352321536 digit rings (~2^28.4) -> Nv 44040192 value rings (8.0x fewer); 96 tensors / 96 contribs; G_all 23552; u digits e4 x 8 -> n2 2072576 (unchanged)
+[UPERF3-VV]   grid class WgT: rows 4096 x cols 14336 (e0 1 l0 8, nb 112) -> g_rows 16, G 256; record width 14336 digit rings at e0 (gate +7.34) | B width_v 1792 value rings, bound 128 -> e_v 8, gate +1.84 bits; fold bound 2^18 -> l_z 5 at e_u 4 (record l_z 4); n_w 8960 (record 57344)
+[UPERF3-VV]   grid class WdT: rows 14336 x cols 4096 (e0 1 l0 8, nb 32) -> g_rows 64, G 224; record width 16384 digit rings at e0 (gate +7.24) | B width_v 2048 value rings, bound 128 -> e_v 8, gate +1.74 bits; fold bound 2^17 -> l_z 5 at e_u 4 (record l_z 3); n_w 10240 (record 49152)
+[UPERF3-VV]   RECORD gates (tier 1 over digit rings): row-group min +7.24 bits, folded w +0.08 (n_w 5242880), tier-2 u +0.75 (n2 2072576) => GREEN; n_rec clear 2072576 | full (w+u+v) 10330112
+[UPERF3-VV]   VARIANT B gates (tier 1 over value rings): row-group min +1.74 bits (tensor WdT, width_v 2048, e_v 8), folded w +1.35 (n_w 901120), tier-2 u +0.75 (n2 2072576) => GREEN; n_rec clear 2072576 | full (w+u+v) 5988352 (1.73x the record's)
+[UPERF3-VV]     B recursion [V-clear (u digits)] on 2072576 rings at e_u 4: 8 levels, floor 936 rings e7 (frozen planner, reused)
+[UPERF3-VV]     B recursion [V-recursed (w+u+v)] on 5988352 rings at e_u 4: GATE RED (frozen planner would refuse)
+[UPERF3-VV]   (for information) a VALUE-sqrt grid (width_v <= 6637): G_all 11776, n2 906752, row-group min +1.24 bits, w +0.01, u +0.35 => GREEN; n_rec full 3667456 — NOT the design: the record grid above is what the differential keeps
+[UPERF3-VV]   PER-MODEL [COUNTED]: tier-1 commit kappa*Nv = 484.44e6 ring-MACs (record kappa*n0 = 3.88e9: 8.0x fewer); CRS kappa*(width_v_sum 180224 + n2 2072576) = 24.78e6 rings (record 38.66e6); the i8 value layout 5.64 GB is the tier-1 witness itself
+[UPERF3-VV]   PER-PROOF [MODEL from QQ's K2-K9, RTX 4070 Laptop 8T, weights resident]: v GEMM 1.22-12.03 s + P 4.37 + rows 0.70; fold RECORD 54.61 s (K4 x n0 + K5 x width_sum) vs B 6.83 s (K4 x Nv + K5 x width_v_sum); recursion proxy 1.28-3.48 s (n2); residual 2.81 s (K9 x G_all)
+[UPERF3-VV]     => per-proof RECORD 65.01-78.01 s | VARIANT B 17.22-30.22 s | built (K8 x n0) 207.87 s => ratio record 2.7-3.2x | B 6.9-12.1x (bar >= 5x)
+
+[UPERF3-VV] ==== 30B weight group (FFN-only, ASSUMED shape) ====
+[UPERF3-VV]   64 x [5120x25600 x2, 25600x5120] = 2.52e10 int8 FFN weights
+[UPERF3-VV]   n0 1572864000 digit rings (~2^30.6) -> Nv 196608000 value rings (8.0x fewer); 192 tensors / 192 contribs; G_all 66560; u digits e3 x 11 -> n2 8053760 (unchanged)
+[UPERF3-VV]   grid class WgT: rows 5120 x cols 25600 (e0 1 l0 8, nb 200) -> g_rows 16, G 320; record width 25600 digit rings at e0 (gate +6.92) | B width_v 3200 value rings, bound 128 -> e_v 8, gate +1.42 bits; fold bound 2^18 -> l_z 7 at e_u 3 (record l_z 5); n_w 22400 (record 128000)
+[UPERF3-VV]   grid class WdT: rows 25600 x cols 5120 (e0 1 l0 8, nb 40) -> g_rows 64, G 400; record width 20480 digit rings at e0 (gate +7.08) | B width_v 2560 value rings, bound 128 -> e_v 8, gate +1.58 bits; fold bound 2^18 -> l_z 7 at e_u 3 (record l_z 5); n_w 17920 (record 102400)
+[UPERF3-VV]   RECORD gates (tier 1 over digit rings): row-group min +6.92 bits, folded w +0.02 (n_w 22937600), tier-2 u +0.77 (n2 8053760) => GREEN; n_rec clear 8053760 | full (w+u+v) 42705920
+[UPERF3-VV]   VARIANT B gates (tier 1 over value rings): row-group min +1.42 bits (tensor WgT, width_v 3200, e_v 8), folded w +1.28 (n_w 4014080), tier-2 u +0.77 (n2 8053760) => GREEN; n_rec clear 8053760 | full (w+u+v) 23782400 (1.80x the record's)
+[UPERF3-VV]     B recursion [V-clear (u digits)] on 8053760 rings at e_u 3: 9 levels, floor 915 rings e7 (frozen planner, reused)
+[UPERF3-VV]     B recursion [V-recursed (w+u+v)] on 23782400 rings at e_u 3: GATE RED (frozen planner would refuse)
+[UPERF3-VV]   (for information) a VALUE-sqrt grid (width_v <= 14022): G_all 16640, n2 1281280, row-group min +0.42 bits, w -1.32, u +0.10 => RED; n_rec full 12320000 — NOT the design: the record grid above is what the differential keeps
+[UPERF3-VV]   PER-MODEL [COUNTED]: tier-1 commit kappa*Nv = 2.16e9 ring-MACs (record kappa*n0 = 17.30e9: 8.0x fewer); CRS kappa*(width_v_sum 573440 + n2 8053760) = 94.90e6 rings (record 139.05e6); the i8 value layout 25.17 GB is the tier-1 witness itself
+[UPERF3-VV]   PER-PROOF [MODEL from QQ's K2-K9, RTX 4070 Laptop 8T, weights resident]: v GEMM 5.44-53.69 s + P 13.92 + rows 1.98; fold RECORD 227.54 s (K4 x n0 + K5 x width_sum) vs B 28.44 s (K4 x Nv + K5 x width_v_sum); recursion proxy 4.99-13.53 s (n2); residual 7.94 s (K9 x G_all)
+[UPERF3-VV]     => per-proof RECORD 261.82-318.60 s | VARIANT B 62.72-119.51 s | built (K8 x n0) 927.99 s => ratio record 2.9-3.5x | B 7.8-14.8x (bar >= 5x)
+
+[UPERF3-VV] GATE TABLE [COUNTED; bits >= 0 green; the record grid]
+| shape | n0 digit rings | Nv value rings | record row-group | B row-group | B folded w | tier-2 u | B verdict |
+|---|---:|---:|---:|---:|---:|---:|---|
+| 2^22 FF synthetic | 2.97e6 | 422912 | +7.95 | -1.76 (e_v 13, width_v 256) | +2.82 | +0.54 | RED |
+| 12x512 weight group | 3.54e6 | 442368 | +8.95 | +3.45 (e_v 8, width_v 192) | +2.05 | +0.43 | GREEN |
+| 8B weight group | 352.32e6 | 44.04e6 | +7.24 | +1.74 (e_v 8, width_v 2048) | +1.35 | +0.75 | GREEN |
+| 30B weight group (FFN-only, ASSUMED shape) | 1.57e9 | 196.61e6 | +6.92 | +1.42 (e_v 8, width_v 3200) | +1.28 | +0.77 | GREEN |
+
+[UPERF3-VV] PROJECTION [MODEL from QQ's measured constants K2-K9; ranges = C1..short-K GEMM x C5..small-regime recursion; per-proof weight side only]
+| shape | n0 | Nv | B n_rec full | v GEMM s | P+rows s | fold record s | fold B GEMM..total s | recursion s | per-proof RECORD s | per-proof B s | built s | ratio record | ratio B |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 2^22 FF synthetic | 2.97e6 | 422912 | 484868 | 0.02-0.16 | 0.15 | 0.42 | 0.05-0.07 | 0.11-0.29 | 1.01-1.34 | 0.66-0.98 | 1.75 | 1.3-1.7x | 1.8-2.7x |
+| 12x512 weight group | 3.54e6 | 442368 | 519168 | 0.01-0.12 | 0.22 | 0.80 | 0.05-0.10 | 0.13-0.34 | 1.53-1.85 | 0.83-1.15 | 2.09 | 1.1-1.4x | 1.8-2.5x |
+| 8B weight group | 352.32e6 | 44.04e6 | 5988352 | 1.22-12.03 | 5.08 | 54.61 | 5.24-6.83 | 1.28-3.48 | 65.01-78.01 | 17.22-30.22 | 207.87 | 2.7-3.2x | 6.9-12.1x |
+| 30B weight group (FFN-only, ASSUMED shape) | 1.57e9 | 196.61e6 | 23782400 | 5.44-53.69 | 15.90 | 227.54 | 23.40-28.44 | 4.99-13.53 | 261.82-318.60 | 62.72-119.51 | 927.99 | 2.9-3.5x | 7.8-14.8x |
+[UPERF3-VV] reading: Variant B removes l0x of the fold (K4 + K5 = 58% of QQ's measured per-proof clock at 12x512, 73% at 8B); what it cannot remove is the v GEMM + P + rows and the recursion on the unchanged tier-2 object.
