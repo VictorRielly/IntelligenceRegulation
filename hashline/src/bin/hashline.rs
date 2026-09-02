@@ -250,8 +250,13 @@ fn pass(n: usize, t: usize, o: &Opts) {
     // load + derive every layer's witness first (the chain is not part of the prover clock; the lattice
     // line's 21.0 s also excludes its export read but INCLUDES its chain derivation — reported separately)
     let t0 = Instant::now();
-    let ws: Vec<LayerWitness> = (0..n).map(load_witness).collect();
+    let mut ws: Vec<LayerWitness> = (0..n).map(load_witness).collect();
     let t_load = t0.elapsed().as_secs_f64();
+    if !matches!(o.tamper, Tamper::None) {
+        let victim = n / 2;
+        println!("  (tamper {:?} applied to layer {victim}'s witness)", o.tamper);
+        apply_tamper(&mut ws[victim], o.tamper);
+    }
     let mut tr = Transcript::new(b"hashline-pass");
     let mut proofs = Vec::with_capacity(n);
     let mut stmts = Vec::with_capacity(n);

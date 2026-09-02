@@ -6604,6 +6604,138 @@ sha256 on **12/12 layers** (3cff4aa0.., 234a13a5.., 78fb1239..,
 fact holding; 0.06-0.09 s per layer, 0.84 s for the pass including
 the file reads [MEASURED, WSL-BOX 22T NOISY-SHARED]. The proof is
 about the same integers as the lattice line's. No STOP.
+Commit f56c0b3 (rungs 0 + 1).
+
+**RUNG 2 — THE MATMUL SUMCHECK at 3x16: GREEN (2026-09-02).**
+`hashline matmul 3 16`: the g/u matrix-multiplication sumcheck alone
+(no PCS; the verifier evaluates X~, Wg~, Wu~ and the gacc/uacc claims
+from ITS OWN plain matrices — the differential against the plain
+chain). Layers 0-2 at T = 16: honest ACCEPT x3 (0.19-0.25 s each,
+the folds dominate); tamper legs REJECT on every layer: a flipped X
+entry and a flipped Wg entry both fail "sumcheck round 0: s(0) + s(1)
+!= claim"; a wrong claimed gacc (g8[i] -= 1) fails "claimed
+evaluation != the honest chain's". Sumcheck engine (`sumcheck.rs`):
+generic tables in Fp2, MSB-first variable order (row-major matrices
+flatten as row bits || col bits), round polynomial sent as values at
+0..=deg, verifier interpolates; unit tests: product sumcheck
+roundtrip + wrong-sum + tampered-round reject, zero-check with eq.
+
+**RUNG 3 — THE PCS: GREEN (2026-09-02).** `pcs.rs`: Ligero/Brakedown
+tensor form over an m x n matrix (n = 2^log_cols), systematic RS at
+rate 1/inv_rate via NTT (encoded[i][4j] = data[i][j]), blake3 column
+Merkle (tiled column hashing, no transposed copy), functionals as
+(slice, coefficient) parts x point (or the all-ones sum), grouped by
+identical column weights into ONE clear row-combination each, a
+proximity combination, Q shared column checks with paths. Unit test
+(2^4 cols, rate 1/4, Q 20): a 4-claim opening over three slices
+including an Fp2 helper as (re, u*im) parts and its sum functional
+accepts; a wrong claimed value, a flipped committed value with an
+honest opening attempt (against the original commitment: root
+mismatch; against its own commitment: claim mismatch), and a tampered
+clear vector all reject. Opened through the layer statement at T =
+16 and T = 512 (rung 4) with the flipped-X / flipped-W legs going
+through the commitment path.
+
+**RUNG 4 — LOOKUPS + IDENTITIES, ONE FULL LAYER AT 12x512 SHAPE:
+GREEN (2026-09-02, WSL-BOX 8T NOISY-SHARED).** `hashline layer 0 512
+--all-tampers --threads 8` (flock zk-heavy, /usr/bin/time -v): the
+full one-layer statement (T 512, d 768, f 2048) **ACCEPTS: prove
+2.58 s (commit W 0.22 / commit A 0.44 / helpers + commit H 0.54 /
+matmul g,u 0.11 / matmul d 0.07 / zero-check 20 0.52 / zero-check 17
+0.28 / openings 0.41), verify 0.40 s, proof 5,573,568 B, peak RSS
+1.15 GB** [MEASURED]. Tamper legs, all REJECT: flipped X entry (g/u
+sumcheck round 0), flipped Wg entry (same), out-of-range remainder
+(rg[i] += 2^sh_g with g8[i] -= 1 so the gacc identity holds AND the
+prover pads its multiplicities so the totals pass — rejected by the
+LogUp identity itself), wrong table entry (a8[i] += 1 with the whole
+downstream chain recomputed consistently — rejected by the LogUp
+identity), wrong requant (h8[i] += 1, rh unchanged — zero-check 20
+round 0), wrong z (d matmul sumcheck round 0). The same six legs
+also reject at T = 16 (prove 0.6 s). Commit 34e7dd2 (rungs 2-4).
+
+**RUNG 5 — THE 12-LAYER PASS AT 12x512, MEASURED: GREEN — THE
+COMPARISON ROW (2026-09-02, WSL-BOX CPU-ONLY NOISY-SHARED, load avg
+2-3).** `flock /tmp/zk-heavy.lock /usr/bin/time -v
+hashline/target/release/hashline pass 12 512 --threads N` (one
+transcript chains the 12 layers; the same 2.899e10-MAC statement as
+the lattice line's 21.0 s row; witness digest-identical):
+- **8T: PROVE 23.0 s p50 (22.92 / 23.07 / 23.69 / 21.48 over four
+  runs; includes the three per-layer commitments), VERIFY 2.8 s
+  (2.76-3.12), proof 66,844,928 B (66.8 MB; 5.57 MB per layer), peak
+  RSS 1.56 GB, 1.26e9 proven MAC/s (1.22-1.35e9)** [MEASURED, 8T].
+  Per layer 1.80-2.49 s. Phase shares (8T run 1, summed): commit W
+  2.19 s, commit A 3.98 s, helpers + commit H 4.58 s, matmul g/u
+  0.77 s, matmul d 0.60 s, zero-check 20 4.50 s, zero-check 17
+  2.30 s, PCS openings 3.96 s — commitments 47%, zero-checks 30%,
+  openings 17%, matmul sumchecks 6%. Witness load + plain chain
+  0.9-1.5 s outside the clock.
+- **22T: PROVE 37.1 / 39.4 s, VERIFY 7.9-8.1 s, same bytes, RSS 1.57
+  GB, 7.4-7.8e8 MAC/s** [MEASURED, 22T]; 16T: 32.2 s / 5.7 s. Thread
+  scaling is INVERTED beyond 8T on this hybrid laptop part
+  (reproduced); hypotheses [MODEL]: E-cores weak on the 64x64->128
+  multiplies of the Goldilocks reduction under the laptop power
+  limit, rayon chunking not E-core-aware, WSL2 vCPU scheduling. Not
+  chased; the 8T figure is the row (= the lattice line's ZK_THREADS=8
+  convention).
+- Pass-level tamper leg: `pass 12 512 --threads 8 --tamper requant`
+  (a wrong requant in layer 6 of the chained transcript) -> "layer 6:
+  REJECT: sumcheck round 0" [MEASURED].
+- THE ROW is written into docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md
+  §3 (table + caveats) with a §2 status paragraph; the full record is
+  results/hashline_pass_12x512.md. Assumption class and parameters,
+  stated: Goldilocks p = 2^64 - 2^32 + 1, degree-2 extension for every
+  challenge (|Fp2| ~ 2^128); Ligero/Brakedown PCS at RS rate 1/4,
+  n = 2^14 columns (W m = 288 rows, A m = 520, H m = 432), Q = 256
+  column checks; soundness: proximity (1 - delta/3)^Q = (3/4)^256 =
+  2^-106, LogUp (N + |T|)/2^128 = 2^-105 per layer -> 2^-101 over 12,
+  sumchecks ~2^-120, blake3 2^-128, Fiat-Shamir in the ROM => ~100-bit
+  hash-only class, post-quantum. NOT zero-knowledge. Not proven:
+  attention, layer seams (X_l committed fresh — the lattice tower's
+  declared seam), X/W int8 ranges (declared; the open M3 finding on
+  both lines).
+- READING: on the CPU alone the hash-based prover of the SAME
+  statement lands at parity with the lattice line's GPU-assisted 21.0
+  s (18.0 s commit + prove vs 23.0 s) and ~3.5x under its CPU-only
+  81.5 s, with 4.3x less memory (1.56 vs 6.7 GB), 44x larger proofs
+  (66.8 vs 1.51 MB), a slower verifier (2.8 vs 1.7 s), and no ZK. The
+  proof-system difference §2 predicted is real at 125M on this box
+  but is ~4x (CPU vs CPU), not the ~1,000x the vendor claim implies —
+  the rest of that gap, if it exists, is GPU-native engineering and
+  scale, neither measured here.
+
+**RUNG 6 — GPU ESTIMATE [MODEL], no port (the CPU row is at parity
+with the lattice GPU row, not beyond it, so per the brief no port).**
+From the measured 8T shares: commitments 47% (per row an inverse NTT
+of 2^14 + a forward NTT of 2^16 + blake3 over 64 KB per column: both
+are the textbook GPU kernels — batched NTT over 288-520 rows of 2^16,
+and a hash-per-column kernel; 10-30x per-kernel over 8 CPU threads
+on a 4070 Laptop is the usual range [MODEL]); the zero-check
+sumchecks 30% (each round is an embarrassingly parallel map-reduce
+over 2^20 points with ~13 Fp2 tables — a GPU reduction; 10-20x
+[MODEL]); the PCS openings 17% (row-combinations = a GEMV of an
+m x n Fp matrix against 2-3 Fp2 row vectors, plus the strided column
+reads — GEMV-class, 10x [MODEL]); the matmul sumchecks 6% (folds =
+GEMV, same). Amdahl over the measured shares with those factors:
+**~1.5-2.5 s per 12x512 pass on the RTX 4070 Laptop [MODEL on
+MEASURED shares]** — i.e. the 5-15 s contract band would be reachable
+at 125M on this box, and the 8B extrapolation (100x the MACs, but the
+hash line's cost is linear in the witness SIZE, ~100x too) would be
+~2.5-4 min on the laptop part and ~30-60 s on a desktop board
+[MODEL on MODEL], before any of the two-tier/preprocessing tricks
+the lattice line needed just to stay in the game. Nothing here is
+built or measured on a device.
+
+**WHERE THIS LANE STOPPED.** Rungs 0-5 green and recorded; rung 6 is
+the [MODEL] paragraph above. Open items, none blocking the row: (a)
+the inverted thread scaling beyond 8T; (b) proof size (a FRI/STIR
+PCS swap or a larger n with the batched-evaluation reduction would cut
+the 66.8 MB by ~10x at some prover cost); (c) ZK masking rows; (d)
+per-model weight preprocessing (commit W once, 2.2 s of the 23.0 s);
+(e) X/W range lookups (5.1M more lookups per layer, ~+15-20% [MODEL])
+if the statement is to close the M3 gap on this line; (f) the
+LogUp-GKR form to drop the H commitment (~4.6 s of 23.0 s, [MODEL]
+half of it recoverable). No ORCHESTRATOR-RUN posted: every run fit
+under 8 minutes and was run in the lane.
 
 (lane appends below)
 

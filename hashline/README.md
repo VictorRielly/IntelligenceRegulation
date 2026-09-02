@@ -23,6 +23,14 @@ Build:
 Witness: `M125_EXPORT_DIR` (default the WSL re-export under
 results/m125_ffn_export_wsl/).
 
-    hashline check-export        the export's sidecar digests reproduce
-    hashline chain [layers]      the exact integer chain reproduces every z digest
-    (later rungs add matmul / layer / pass prove+verify with tamper legs)
+    hashline check-export                   the export's sidecar digests reproduce
+    hashline chain [layers]                 the exact integer chain reproduces every z digest
+    hashline matmul <layers> <t>            the g/u matmul sumcheck differential + tamper legs
+    hashline layer <l> <t> [--all-tampers]  prove + verify one layer (+ six tamper legs)
+    hashline pass <layers> <t>              the chained multi-layer pass, timed (the comparison row)
+    opts: --threads N --log-cols N (14) --col-checks Q (256) --inv-rate R (4)
+          --tamper flipx|flipw|rem|table|requant|z --tamper-idx I --no-verify
+
+The measured row (12x512, 8 threads, CPU only, 2026-09-02): prove
+23.0 s p50, verify 2.8 s, proof 66.8 MB, peak RSS 1.56 GB, 1.26e9
+proven MAC/s — results/hashline_pass_12x512.md.

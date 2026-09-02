@@ -80,6 +80,33 @@ puts the lattice line at 2-15 tok/s for 30B prefill on one H100 at
 best against a 50 tok/s goal. Until lane UU's row lands, everything
 below in this section remains [EXTERNAL] or [MODEL].
 
+**Lane UU's row LANDED (2026-09-02, same day).** `hashline/` proves
+the SAME 12x512 exact-int8 statement (digest-identical witness, 48/48
+tensor and 12/12 z sha256s reproduced) on the WSL laptop's CPU alone
+in **23.0 s p50 prove (21.5 s min, 8 threads; includes all three
+commitments) + 2.8 s verify, 66.8 MB proof, 1.56 GB peak RSS,
+1.26e9 proven MAC/s** [MEASURED, WSL-BOX 8T CPU-ONLY NOISY-SHARED],
+with seven tamper legs rejecting (flipped X, flipped W, out-of-range
+remainder, wrong table entry, wrong requant, wrong z, and a tampered
+layer inside the chained 12-layer transcript). Stack and parameters:
+Goldilocks + degree-2 extension challenges; Ligero/Brakedown PCS at
+Reed-Solomon rate 1/4 with 256 column checks and blake3 Merkle; the
+matrix-multiplication sumcheck for the matmuls; LogUp with committed
+helpers for the SiLU table and every range/requant fact; blake3
+Fiat-Shamir. Soundness ~100-bit (proximity 2^-106, LogUp 2^-101 over
+12 layers, sumchecks 2^-120, blake3 2^-128), hash-only + ROM. NOT
+zero-knowledge; attention and the layer seams not proven (as the
+lattice tower); X/W ranges declared (the same open M3 gap). Full
+record: results/hashline_pass_12x512.md; ledger: PROGRESS_UPERF3.md
+"Agent UU status". Reading: on the CPU the hash-based line is at
+PARITY with the lattice line's GPU-assisted 21.0 s and ~3.5x under its
+CPU-only 81.5 s, with 4.3x less memory and 44x larger proofs, after
+one untuned lane-day — the proof-system difference the section above
+predicted is real at 125M, though smaller than the vendor claim's
+~1,000x implies at this scale and on this box. Thread scaling on the
+hybrid laptop part is inverted beyond 8 threads (16T 32 s, 22T 37-39
+s; not chased).
+
 **What is publicly known [EXTERNAL, VENDOR-CLAIMED, UNVERIFIED as of
 2026-08-18].** Attestable ("Proving LLMs at Scale", 2026-08-11): full
 LLM inference proofs, Gemma-4-31B int8, 53 tok/s (batch 1, 16K ctx) /
@@ -125,6 +152,29 @@ Proven int8 matmul MAC/s (AGGREGATION_LITERATURE.md, conversion note
 this mix [MODEL]) A is ~80-230x behind B's claim algorithmically; the
 route-1 protocol change closes <= ~2.5x of it; the rest is the opening
 architecture (U_PERF3_HEADLINE_ROUTES.md).
+
+**The measured B row on OUR statement (lane UU, 2026-09-02).** The same
+12x512 exact-int8 FFN statement, the same witness, the same box:
+
+| channel | device | prove (incl. commit) | verify | proof | peak RSS | proven MAC/s | assumptions / ZK | label |
+|---|---|---:|---:|---:|---:|---:|---|---|
+| A lattice (zkmatrix-rs, 2026-08-18 reference) | WSL laptop, 8T + RTX 4070 Laptop | 18.0 s (2.5 + 15.5); 21.0 s total wall | 1.7 s | 1.51 MB | 6.7 GB | 1.4e9 | MLWE/MSIS, 2^-220, ZK yes | [MEASURED, QUIET] |
+| A lattice, CPU only | WSL laptop, 8T | ~80 s (81.5 s total) | ~1.7 s | 1.51 MB | 6.7 GB | ~3.6e8 | same | [MEASURED] |
+| **B hash-based (`hashline/`, this lane)** | **WSL laptop, 8T CPU only** | **23.0 s p50 (21.5-23.7 s over 4 runs)** | **2.8 s** | **66.8 MB** | **1.56 GB** | **1.26e9 (1.22-1.35e9)** | **hash-only + ROM, ~100-bit (2^-101..106; Goldilocks, deg-2 ext., RS rate 1/4, Q = 256), ZK NO** | **[MEASURED, NOISY-SHARED]** |
+| B hash-based, 22T | WSL laptop, 22T CPU only | 37-39 s | 8 s | 66.8 MB | 1.57 GB | 7.4-7.8e8 | same | [MEASURED, NOISY-SHARED] |
+
+Caveats on the B row (all stated in results/hashline_pass_12x512.md):
+FFN-only, no attention, no layer seams (X_l committed fresh, as the
+lattice tower); X and weight ranges declared, not range-proven (the
+same open M3 gap on both lines); the prover clock includes the three
+per-layer commitments (weights recommitted every proof — a
+per-model preprocessing would remove the 2.2 s "commit W" share);
+the witness derivation (0.9-1.5 s) is outside the clock; sqrt-size
+proofs by construction (a FRI/STIR-class PCS would trade prover time
+for ~100s of KB); untuned single-lane-day Rust with thread scaling
+inverted beyond 8T on the hybrid laptop part; no GPU code. The proven
+MAC/s row is a CPU number: the lattice line's 1.4e9 needed the GPU
+for its 21.0 s, and its CPU-only figure is ~3.6e8.
 
 | Context | Better fit | Why |
 |---|---|---|
