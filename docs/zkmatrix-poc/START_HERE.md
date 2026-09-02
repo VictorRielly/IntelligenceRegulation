@@ -71,11 +71,19 @@ weights preprocessed, §5) at its own modelled constants reaches
 **2-15 tokens/s at 30B prefill on one H100** and under 1 tokens/s
 for decode [MODEL on MODEL]. **Under no assumption recorded in this
 repository does the lattice line reach 50 tokens/s at 30B on one
-GPU.** What decides the rest is one measurement (lane QQ: the
-per-proof weight-side cost on a GPU) and one open question nobody
-has priced: whether any lattice-line activation-side opening can
-prove ~1e12 MAC/s on one board (the memo's U2). That question is
-what choice D in §7 is about.
+GPU.** The one measurement that could have moved that answer up is
+now in (lane QQ, 2026-09-02): with the weights preprocessed once
+per model, the two-tier opening proves the real 12x512 weight group
+in 2.08 s per proof against 2.09 s for the built opening on the
+laptop GPU — parity, not the 5x the design needed [MEASURED]. Its
+8B projection is 2.8-3.4x over built for the weight side [MODEL], so
+the lattice line sits at the low band of the model (about 0.5-3
+tokens/s at 30B prefill on one H100). A further design change
+("Variant B", counted at 8-15x, not built) would need a ruling. The
+remaining open question nobody has priced is whether any
+lattice-line activation-side opening can prove ~1e12 MAC/s on one
+board (the memo's U2). That question is what choice D in §7 is
+about.
 
 ## 3. Where we stand (the honest numbers)
 

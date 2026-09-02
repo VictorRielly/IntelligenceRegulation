@@ -51,6 +51,30 @@ runbook is the Mac's queue):**
   modelled 0.5-3.3e11 (U2, memo §7.4 — no lane measures it; it is
   the choice-D question). Round 11 is cut from QQ rung 4, RR rung 5
   and Mac M5 — not from any tokens/s number.
+- **LANE QQ LANDED (merged 6b6ae1f; floors green on the merged tree:
+  diff-battery 17.2 s, freeze-check 102 ok exit 0, 3752cba4.. /
+  46234986.. / be89d5da.. unchanged, range 12x64 digest 44528c6a..
+  unchanged). THE REOPEN BAR IS NOT MET — MEASURED 1.00x**: the
+  two-tier opening with the weights PREPROCESSED (per-model part
+  built once, 2.34 s, held warm) proves the real 12x512 weight group
+  in 2.08 s per proof vs 2.09 s for the built GPU opening [WSL-BOX
+  8T GPU NOISY-SHARED], claims byte-identical across 3 proofs. On
+  the way: the redesign memo's C-R1 count was wrong AGAINST itself —
+  the swap-order linear pass is ONE existing GEMM, so on 1 CPU
+  thread the spike goes from 1.10x to 3.42x [MEASURED]; but on the
+  GPU the built opening already runs that GEMM class, and the
+  two-tier's own floors (a ~200K-ring recursion, a fold over 8x the
+  value rings, a per-tensor host tail) add up to parity. Projection
+  [MODEL from the measured constants K1-K8]: 8B weight side 62-75 s
+  per proof vs ~210 s built (2.8-3.4x) on the 4070; a "Variant B"
+  (tier-1 over int8 value rings, +1.74 bits at the gate) counts at
+  14-27 s (8-15x) — a DESIGN CHANGE needing a ruling, not built.
+  The per-proof weight lever is now the digit-ring FOLD (58-73%),
+  not the linear pass. **For the 50 tok/s question this settles U1
+  at the low band: the lattice line's 30B one-H100 prefill cell is
+  the (c') class (~0.5-3 tok/s), not (c).** Weight preprocessing
+  itself WORKS and is bit-identical (the per-model/per-proof
+  boundary exists: `uperf-t repeat`).
 - **LANE SS LANDED (merged 827e90b; floors green on the merged tree:
   diff-battery 16.4 s, freeze-check 102 ok exit 0, 3752cba4.. /
   46234986.. / be89d5da.. unchanged, range 12x64 digest 44528c6a..

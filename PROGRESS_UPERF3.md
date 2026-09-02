@@ -5905,3 +5905,14 @@ commit (status COMPLETE + this section).
 - **SS's ORCHESTRATOR-RUN pair (12x512 full vs range nooracle)**:
   DEFERRED — a ~9-11 GB pass while two lanes build on the 15 GB box
   is an OOM risk; enqueue on /tmp/zk-heavy.lock once QQ/RR report.
+- **QQ merged (6b6ae1f)**: two_tier.rs R1 functions + `uperf-t
+  count|r1 diff|r1 bench|repeat` + the [UPERF3-QQ] block. Floors on
+  the MERGED tree (release build 2m09s): diff-battery 17.20 s
+  passed; freeze-check 102 ok + passed, exit 0; uperf-s 3752cba4..;
+  agg 46234986..; uperf-x be89d5da..; `uperf-a pass 12 64 range`
+  transcript digest 44528c6a.., 622,011 B, accept — identical to the
+  SS-merge floors. THE VERDICT: the reopen bar NOT MET at 1.00x
+  [MEASURED, 8T GPU NOISY-SHARED]; U1 settled at the low band (the
+  (c') class of U_PERF3_THROUGHPUT_MODEL.md); Variant B (8-15x
+  [MODEL]) is a design-ruling candidate, not built. The GPU build of
+  the merged tree is checked at RR's merge (RR adds gpu/ files).
