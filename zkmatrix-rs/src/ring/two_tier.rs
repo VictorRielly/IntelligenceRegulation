@@ -497,6 +497,15 @@ pub fn tt_fold_bound(g: usize, e0: u32) -> i128 {
     fold_coeff_bound(g, e0)
 }
 
+/// [UPERF3-QQ] The folded-row digit limb count at interior base `e`:
+/// limbs_for_bound(fold_coeff_bound(G, e0), e) — the planner's l_z for
+/// a G-way fold of base-e0 rings, exposed for the per-tensor count
+/// (the planner works on one global split; the front end folds per
+/// tensor grid).
+pub fn tt_w_digit_limbs(g: usize, e0: u32, e: u32) -> usize {
+    limbs_for_bound(fold_coeff_bound(g, e0), e)
+}
+
 /// The tier-2 u-digit base: the largest exact-digit-gate-green base
 /// for the u-digit witness (G_all * KAPPA_AGG * l_t rings), resolved
 /// by the same fixed point as the planner (a deterministic public
