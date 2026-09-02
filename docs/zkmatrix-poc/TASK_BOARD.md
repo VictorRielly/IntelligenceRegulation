@@ -95,13 +95,18 @@ runbook is the Mac's queue):**
   one-line denominator reduction in `sumcheck::lagrange_eval`
   (frozen file, i64 overflow above degree ~20) — not needed for
   kappa 4. **CAVEAT (orchestrator-run, later the same day): the
-  12x512 full-mode pass OOM-KILLED at 15.18 GB on this box** (8.3 GB
-  after the helper commit, 12.2 GB after the aggregate checks, killed
-  in the openings) — SS modelled ~9-11 GB; the 12x128-to-12x512
-  growth is > 7 GB. So the reference shape does not run in full mode
-  on the laptop until the claim-kernel diet lands, and the 8B
-  full-mode figure (~78-87 GB) is a LOWER BOUND until the Mac
-  measures 12x512 full mode (MAC_RUNBOOK M1b, new).
+  Stage-A composed driver at 12x512 OOM-KILLS the 15 GB box in BOTH
+  modes** — full 15.18 GB (8.3 GB after the helper commit, 12.2 GB
+  after the aggregate checks, killed in the openings), range 14.4 GiB
+  (lane GG projected exactly this on 2026-08-28 and deferred the
+  shape; the diets since did not bring it under the box). So on the
+  laptop the Stage-A reference shape is 12x128 (both modes accept
+  there), RR's 12x512 A/B is Mac-only (MAC_RUNBOOK M1b, new — CPU
+  numbers for both modes), the 8B full-mode figure (~78-87 GB) is a
+  LOWER BOUND until M1b lands, and a Stage-A driver diet (the nrw-88
+  zero-check transient ~5 GB, the claim tables, SS's claim kernels)
+  is a named round-11 item. The frozen pass at 12x512 is unaffected
+  (6.7 GB with the GPU).
 - **RETRACTED (lane TT, memo §5.6)**: the 2026-08-30 "~25-35 tok/s
   amortized; levers 1.2-1.5x / 1.3x / 1.1-1.2x -> ~65" line below —
   none of its five numbers derives from anything recorded; the

@@ -5934,3 +5934,25 @@ commit (status COMPLETE + this section).
   "approximately nothing" at the reference shape as measured here.
   The range-mode sibling (`12 512 range nooracle`) is queued next
   and gives the same-binary baseline peak.
+- **SS's ORCHESTRATOR-RUN, second half**: `uperf-a pass 12 512 range
+  nooracle` ALSO OOM-KILLED — 15,092,328 kB max RSS (14.4 GiB)
+  after 1:42 [WSL-BOX 8T NOISY-SHARED]. So the Stage-A composed
+  DRIVER at the reference shape exceeds the 15 GB box in BOTH modes
+  on today's tree — this is NOT a full-mode-specific cost. Lane GG
+  had projected it on 2026-08-28 ("12x512 DEFERRED WITH CAUSE:
+  range-mode projection from the measured 12x128 peak — act 12.4M
+  rings = 4x, claim tables 4x, the nrw-88 zc transient ~5 GB — lands
+  >= the 15 GiB box"); the HH/KK/OO diets since (-46/-47% at 12x64)
+  did not bring the Stage-A driver's 12x512 under the box. MEASURED
+  now, not projected. CONSEQUENCES: (a) on this box the Stage-A
+  reference shape is 12x128 (both modes accept there; the GPU
+  factor lane RR measures is a 12x128 number); (b) RR's rung-4
+  12x512 A/B is NOT runnable here — the Mac's M1b gives the CPU
+  12x512 numbers for both modes (no CUDA on the Mac, so the GPU
+  factor stays a 12x128 measurement until desktop hardware exists);
+  (c) the named memory lever for the Stage-A driver is GG's list
+  (the nrw-88 zero-check transient, the claim tables at 4x) plus
+  SS's claim-kernel diet — a diet lane for round 11 if the WSL box
+  is to run the reference shape in Stage-A mode at all; (d) the
+  frozen pass (`uperf-pc full-profile 12 512`) is unaffected: 6.7 GB
+  with the GPU / 11.1 GB CPU-only [MEASURED 2026-08-18].
