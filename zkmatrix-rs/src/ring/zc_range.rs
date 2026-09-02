@@ -1608,6 +1608,56 @@ pub struct ZcAggMaskEvidence {
     pub stripped_rounds: Vec<Vec<EElem>>,
 }
 
+// ---- [UPERF3-RR] the device-chain support (round 10, lane RR) ------------
+
+/// The MAC counters `round_sums` books, for a round the device computed
+/// (the same field elements; the counts are the CPU's, so the stats lines
+/// read the same either way).
+fn zc_dev_round_count(stats: &mut ZcRangeStats, base_round: bool, w: usize, deg_f: usize, c: usize, npairs: usize, nn: usize) {
+    let nblk_pairs = npairs.div_ceil(KL);
+    let per_pair_node: u64 = if base_round {
+        (w as u64) * (deg_f as u64 + 1 + c as u64) + 1 + c as u64
+    } else {
+        (w as u64 + 1) * c as u64 + (w as u64) * (deg_f as u64 * (c * c) as u64 + c as u64) + (c * c) as u64
+    };
+    stats.macs_round += per_pair_node * (nblk_pairs * KL) as u64 * nn as u64;
+    stats.nodes_computed += nn;
+}
+
+/// The fold MAC counters for a device fold (== the per-table booking of the
+/// host fold: c per output for a base table, c^2 for an E table).
+fn zc_dev_fold_count(stats: &mut ZcRangeStats, base_round: bool, w: usize, c: usize, npairs: usize) {
+    let per = if base_round { c as u64 } else { (c * c) as u64 };
+    stats.macs_fold += (w as u64 + 1) * (npairs.div_ceil(KL) * KL) as u64 * per;
+}
+
+/// The host rebuild after a device error: the tables of the stacked
+/// instance folded by the challenges drawn so far (deterministic — the same
+/// tables the device held) and the eq table compacted as many times.
+fn zc_agg_host_rebuild(ext: &SubExt, inst: &ZcAggInstance, rho: &[EElem], point: &[EElem]) -> (Vec<ZTab>, ETab) {
+    let c = ext.c;
+    let (stk_planes, stk_rem) = zc_agg_stack(inst);
+    let stacked = &ZcRangeInstance { n_log2: inst.n_log2 + inst.a(), e0: inst.e0, planes: &stk_planes, rem: &stk_rem };
+    let eq_full = build_eq_full(ext, rho);
+    let mut eq_pairs = compact_even(c, &eq_full);
+    drop(eq_full);
+    let mut tabs: Vec<ZTab> = stacked.planes.iter().map(|p| ZTab::Base(p.clone())).collect();
+    tabs.push(ZTab::Base(stacked.rem.to_vec()));
+    for r in point {
+        let mut ntabs = Vec::with_capacity(tabs.len());
+        for tab in tabs.iter() {
+            let nt = match tab {
+                ZTab::Base(b) => fold_base(ext, b, r),
+                ZTab::Ext(e) => fold_ext(ext, e, r),
+            };
+            ntabs.push(ZTab::Ext(nt));
+        }
+        tabs = ntabs;
+        eq_pairs = compact_even(c, &eq_pairs);
+    }
+    (tabs, eq_pairs)
+}
+
 /// PROVE the aggregate: ONE sumcheck of n + a rounds over the stacked
 /// hypercube under (rho, betas) with challenges in E_c; rho has n + a
 /// coordinates (column axis low, instance axis high), betas the w + 1 RLC
@@ -1654,7 +1704,15 @@ pub fn zc_agg_prove_masked(
     assert!(n >= 4, "zc_agg_prove needs n >= 4 (one full pair-block per column)");
     assert_eq!(rho.len(), n_tot);
     assert_eq!(betas.len(), w + 1);
-    let (stk_planes, stk_rem) = zc_agg_stack(inst);
+    // [UPERF3-RR] the device chain (gpu/zc_agg.rs, the ixf pattern): the
+    // tables + the eq live on the device until the handover; the host loop
+    // below keeps the transcript, the tail rounds and the claim stacking.
+    // Opened FIRST: the device stacks the columns itself while uploading,
+    // so the host stacking copy is skipped while the chain is live (the
+    // host rebuild on a device error stacks on demand). `None` = the CPU
+    // body is the oracle (feature off, ZK_GPU unset, shape, VRAM budget).
+    let mut dev = if super::gpu::enabled() { super::gpu::zc_agg_open(ext, inst, rho, 1usize << a) } else { None };
+    let (stk_planes, stk_rem) = if dev.is_some() { (Vec::new(), Vec::new()) } else { zc_agg_stack(inst) };
     let stacked = ZcRangeInstance { n_log2: n_tot, e0: inst.e0, planes: &stk_planes, rem: &stk_rem };
     let size = 1usize << n_tot;
     let alphabet = stacked.alphabet(ext.q);
@@ -1664,10 +1722,15 @@ pub fn zc_agg_prove_masked(
     let c = ext.c;
     // ONE shared eq table over all n + a variables, at pair granularity.
     let t0 = std::time::Instant::now();
-    let eq_full = build_eq_full(ext, rho);
     stats.macs_eq += (size as u64) * (c * c) as u64;
-    let mut eq_pairs = compact_even(c, &eq_full);
-    drop(eq_full);
+    let mut eq_pairs = if dev.is_some() {
+        ETab::zeroed(0, c) // [UPERF3-RR] device-resident until the handover
+    } else {
+        let eq_full = build_eq_full(ext, rho);
+        let e = compact_even(c, &eq_full);
+        drop(eq_full);
+        e
+    };
     stats.secs_eq += t0.elapsed().as_secs_f64();
     // O-4 mask setup (Some only; None touches NOTHING — byte-identical to
     // the unmasked prover): serve the hypersum, draw nu, precompute the
@@ -1687,8 +1750,13 @@ pub fn zc_agg_prove_masked(
     });
     let mut mask_pt = ext.zero(); // P_t = sum_{s<t} u_s(r_s)
     let mut stripped: Vec<Vec<EElem>> = Vec::with_capacity(n_tot);
-    let mut tabs: Vec<ZTab> = stacked.planes.iter().map(|p| ZTab::Base(p.clone())).collect();
-    tabs.push(ZTab::Base(stacked.rem.to_vec()));
+    let mut tabs: Vec<ZTab> = if dev.is_some() {
+        Vec::new() // [UPERF3-RR] device-resident until the handover
+    } else {
+        let mut v: Vec<ZTab> = stacked.planes.iter().map(|p| ZTab::Base(p.clone())).collect();
+        v.push(ZTab::Base(stacked.rem.to_vec()));
+        v
+    };
     let mut rounds: Vec<Vec<EElem>> = Vec::with_capacity(n_tot);
     let mut point: Vec<EElem> = Vec::with_capacity(n_tot);
     let mut col_claims: Vec<Vec<EElem>> = Vec::new();
@@ -1703,7 +1771,24 @@ pub fn zc_agg_prove_masked(
         assert!(!ext.is_zero(&d_t) && !ext.is_zero(&rho[t]), "degenerate rho (restart guard)");
         let k_t = ext.mul(&p_t, &ext.inv(kf, &d_t));
         let tr0 = std::time::Instant::now();
-        let sums = round_sums(ext, &tabs, &eq_pairs, npairs, &nodes, &alphabet, inst.e0, &mut stats);
+        // [UPERF3-RR] the device round; on a device error the host rebuilds
+        // the tables from the stacked instance + the challenges so far.
+        let dev_sums = dev.as_mut().map(|ch| super::gpu::zc_agg_round(ext, ch, &nodes, &alphabet, inst.e0));
+        let sums = match dev_sums {
+            Some(Ok(s)) => {
+                zc_dev_round_count(&mut stats, t == 0, w, deg_f, c, npairs, nodes.len());
+                s
+            }
+            Some(Err(e)) => {
+                eprintln!("[UPERF3-RR] zc device round failed ({e}); this aggregate continues on the host");
+                let (tb, eqp) = zc_agg_host_rebuild(ext, inst, rho, &point);
+                tabs = tb;
+                eq_pairs = eqp;
+                dev = None;
+                round_sums(ext, &tabs, &eq_pairs, npairs, &nodes, &alphabet, inst.e0, &mut stats)
+            }
+            None => round_sums(ext, &tabs, &eq_pairs, npairs, &nodes, &alphabet, inst.e0, &mut stats),
+        };
         let mut h: Vec<EElem> = vec![ext.zero(); nodes.len()];
         for (k, bk) in betas.iter().enumerate() {
             for (ni, hv) in h.iter_mut().enumerate() {
@@ -1755,22 +1840,60 @@ pub fn zc_agg_prove_masked(
             mask_pt = ext.add(&mask_pt, &mask.unwrap().uni_eval(ext, t, &r));
         }
         let tf0 = std::time::Instant::now();
-        let mut ntabs = Vec::with_capacity(tabs.len());
-        for tab in tabs.iter() {
-            let nt = match tab {
-                ZTab::Base(b) => {
-                    stats.macs_fold += (npairs.div_ceil(KL) * KL) as u64 * c as u64;
-                    fold_base(ext, b, &r)
+        // [UPERF3-RR] the device fold (+ the eq compaction); the handover
+        // materializes the tables + eq on the host once the device is done
+        // (the tail rounds and the claim stacking read host tables).
+        let dev_fold = dev.as_mut().map(|ch| {
+            zc_dev_fold_count(&mut stats, t == 0, w, c, npairs);
+            super::gpu::zc_agg_fold(ext, ch, &r).map(|()| ch.device_next())
+        });
+        match dev_fold {
+            Some(Ok(true)) => {}
+            Some(Ok(false)) => {
+                let ch = dev.take().unwrap();
+                match super::gpu::zc_agg_handover(ext, ch) {
+                    Ok((tb, eqp)) => {
+                        tabs = tb.into_iter().map(ZTab::Ext).collect();
+                        eq_pairs = eqp;
+                    }
+                    Err(e) => {
+                        eprintln!("[UPERF3-RR] zc device handover failed ({e}); this aggregate continues on the host");
+                        let mut pt = point.clone();
+                        pt.push(r.clone());
+                        let (tb, eqp) = zc_agg_host_rebuild(ext, inst, rho, &pt);
+                        tabs = tb;
+                        eq_pairs = eqp;
+                    }
                 }
-                ZTab::Ext(e) => {
-                    stats.macs_fold += (npairs.div_ceil(KL) * KL) as u64 * (c * c) as u64;
-                    fold_ext(ext, e, &r)
+            }
+            Some(Err(e)) => {
+                eprintln!("[UPERF3-RR] zc device fold failed ({e}); this aggregate continues on the host");
+                dev = None;
+                let mut pt = point.clone();
+                pt.push(r.clone());
+                let (tb, eqp) = zc_agg_host_rebuild(ext, inst, rho, &pt);
+                tabs = tb;
+                eq_pairs = eqp;
+            }
+            None => {
+                let mut ntabs = Vec::with_capacity(tabs.len());
+                for tab in tabs.iter() {
+                    let nt = match tab {
+                        ZTab::Base(b) => {
+                            stats.macs_fold += (npairs.div_ceil(KL) * KL) as u64 * c as u64;
+                            fold_base(ext, b, &r)
+                        }
+                        ZTab::Ext(e) => {
+                            stats.macs_fold += (npairs.div_ceil(KL) * KL) as u64 * (c * c) as u64;
+                            fold_ext(ext, e, &r)
+                        }
+                    };
+                    ntabs.push(ZTab::Ext(nt));
                 }
-            };
-            ntabs.push(ZTab::Ext(nt));
+                tabs = ntabs;
+                eq_pairs = compact_even(c, &eq_pairs);
+            }
         }
-        tabs = ntabs;
-        eq_pairs = compact_even(c, &eq_pairs);
         stats.secs_fold += tf0.elapsed().as_secs_f64();
         p_t = ext.mul(&p_t, &ext.eq_point(std::slice::from_ref(&rho[t]), std::slice::from_ref(&r)));
         rounds.push(g_ship);

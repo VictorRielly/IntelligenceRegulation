@@ -51,6 +51,31 @@ runbook is the Mac's queue):**
   modelled 0.5-3.3e11 (U2, memo §7.4 — no lane measures it; it is
   the choice-D question). Round 11 is cut from QQ rung 4, RR rung 5
   and Mac M5 — not from any tokens/s number.
+- **LANE RR LANDED (merged; the measured Stage-A-on-GPU factor —
+  `results/uperf3_rr_stage_a_gpu.md`).** The aggregate zero-check
+  prover on the device: 5.0-5.9 s -> 0.58 s (**8.6-10x**,
+  bit-identical, agg-battery 46234986.. with the device forced on
+  every aggregate). But the Stage-A prove WALL with lane GG's claim
+  transport only moves 17.6-19.4 -> 13.4-13.5 s (**1.31-1.44x** —
+  the number the retracted line guessed), and Stage A stays
+  1.36-1.40x SLOWER than the built pass at 12x128, because the
+  critical path is the act-group opening's per-contrib phases (~700
+  rank-1 plane claims). With an opt-in BATCHED claim transport
+  (`ZK_RR_ZC_CLAIMS=batched`; a Stage-A transcript variant, served
+  values unchanged, the claim count 997 -> 439 — **RULING ITEM**):
+  Stage-A prove == oracle prove (7.5 s, 1.00x), verify at parity,
+  total 1.14x (the planes commit +1.6 s), and **peak RSS 7.5 -> 3.1
+  GB** at 12x128. FOR THE THROUGHPUT MODEL: Stage A + GPU buys NO
+  speed over the built pass at 125M — it buys bytes (2.15x) and
+  memory; the opening is 70% of the prove wall (lane QQ's territory).
+  Two device races found and fixed. **Leg C at 12x512 (batched, GPU)
+  RAN AND FITS: commit 6.1 / prove 17.9 / verify 4.5 s, 670,891 B,
+  accept, 11.2 GB process peak** — the first Stage-A run of the
+  reference shape on this box; vs the frozen pass's Aug-18 QUIET row
+  (prove 15.5 s) that is parity-class at 2.25x fewer bytes. (Its
+  in-process oracle leg ran with cold descent kernels — not the
+  reference; see the ledger.) Legs A/B are Mac-only (M1b). All round
+  10 floors green on the merged tree, CPU and GPU binaries.
 - **LANE QQ LANDED (merged 6b6ae1f; floors green on the merged tree:
   diff-battery 17.2 s, freeze-check 102 ok exit 0, 3752cba4.. /
   46234986.. / be89d5da.. unchanged, range 12x64 digest 44528c6a..

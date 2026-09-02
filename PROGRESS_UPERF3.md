@@ -5386,7 +5386,295 @@ ONE GPU (H100-class allowed), written so a newcomer can follow it:
 
 ## Agent RR status (wt-uperf3-rr) — round 10
 
-(lane appends below)
+STATE: RUNGS 0-3 + 5 DONE (2026-09-02; R0a efde2bf, R1 517ae49, R2
+f948888, R3 + R5 = the commits carrying this block); rung 4 (the 12x512
+A/B) POSTED as orchestrator-run below. THE RESULT: the aggregate prover
+5.0-5.9 -> 0.58 s at 12x128 (device, bit-identical); Stage-A prove
+17.6-19.4 -> 13.4 s with GG's transport (1.31-1.44x, the board's guess
+measured) -> 7.5 s == the oracle's with the BATCHED claim transport
+(opt-in, a Stage-A transcript variant, ruling item); verify at parity;
+total 1.14x (the planes commit); process peak 7.5 -> 3.1 GB. Lane: Stage
+A's aggregate checks on the device — the RANGE-mode path (zc_agg + LogUp h+m), the
+factor MEASURED at 12x64 / 12x128 (12x512 orchestrator-run). OWNS per
+the brief: zc_range.rs (ADDITIVE hook lines only, eval_proof.rs
+pattern, CPU body = oracle), NEW gpu/zc_agg.rs + gpu/kernels_zc.cu (+
+their mod/FUNCS lines in gpu/mod.rs and the stub block), stage_a.rs
+(ADDITIVE, range-mode path), the `uperf-a` bin section (ADDITIVE
+timers/subcommands), NEW results/uperf3_rr_*, this section.
+
+FLOORS at every Rust-touching commit: CPU release build (the stub
+block) + GPU release build; `uperf-pc diff-battery` green;
+freeze-check 102 ok rows + passed (M125_EXPORT_DIR set); uperf-s
+battery 3752cba4..; agg-battery 46234986..; uperf-x be89d5da..; the
+Stage-A identity (EVAL-PROOF DIGEST + statement digest of `uperf-a
+pass 12 64 range` identical with/without ZK_GPU=1); GG's tamper legs
+(`uperf-a pass-battery 3 16`) still reject.
+
+PLAN (one commit per green rung, prefix "U-PERF3 RR:"):
+- [x] R0a SKELETON: this section; worktree cut at 10f73bf; GPU build
+  (target-gpu, --features gpu-cuda) 2m24s green; CPU build 2m18s
+  green — the round-9 code, no Rust touched.
+- [x] R0b BASELINE: `uperf-a pass 12 64 range` / `12 128 range`,
+  ZK_GPU=1 ZK_THREADS=8, oracle + Stage-A in one process, per-phase
+  walls, digests, /usr/bin/time -v RSS; which Stage-A phases run on
+  the CPU today.
+- [x] R1 ATTRIBUTION: per-function timers inside the Stage-A path at
+  12x128 -> the ranked cost table.
+- [x] R2 the TOP cost center on the device, bit-identical (digests
+  unchanged at 12x64 / 12x128; tamper legs reject).
+- [x] R3 the next cost centers until Stage-A wall <= oracle wall at
+  12x128 (both ZK_GPU=1, 8T) — MET on prove + verify under the batched
+  transport variant; total 1.14x (the planes commit).
+- [ ] R4 the 12x512 A/B — ORCHESTRATOR-RUN (command posted below).
+- [x] R5 RECORD the measured Stage-A-on-GPU factor (replaces the
+  board's unsourced 1.2-1.5x): results/uperf3_rr_stage_a_gpu.md.
+
+R0b BASELINE EVIDENCE (2026-09-02, [WSL-BOX] [8T] [NOISY-SHARED]; the
+round-9 code's GPU binary, oracle + Stage-A in ONE process (`uperf-a
+pass <l> <t> range`, M125_EXPORT_DIR set), /usr/bin/time -v, flock) [MEASURED]:
+
+  | shape | device | leg | commit / prove / verify (s) | bytes | process peak RSS |
+  |---|---|---|---|---|---|
+  | 12x64 | ZK_GPU=1 | oracle | 1.7 / 6.9 / 1.8 | 1,308,775 | 4,811 MiB (both legs) |
+  | 12x64 | ZK_GPU=1 | Stage-A | 3.2 / 11.6 / 2.6 | 622,011 | " |
+  | 12x64 | CPU (ZK_GPU unset, same binary) | oracle | 4.7 / 21.2 / 2.2 | 1,308,775 | 4,259 MiB |
+  | 12x64 | CPU | Stage-A | 6.1 / 22.6 / 3.3 | 622,011 | " |
+  | 12x128 | ZK_GPU=1 | oracle | 1.8 / 9.7 / 2.0 | 1,372,775 | 7,344 MiB (both legs) |
+  | 12x128 | ZK_GPU=1 | Stage-A | 3.6 / 18.3 / 4.2 | 637,691 | " |
+
+  READING: with the device live, Stage-A prove is 1.68x (12x64) /
+  1.89x (12x128) SLOWER than the oracle — the oracle's descents ride
+  k9 while the aggregate runs on the CPU; CPU-only the two legs are
+  near par (22.6 vs 21.2 at 12x64), consistent with the 08-29 note's
+  +15% (that note's absolute walls, 67.8/77.8 s at 12x64, were taken
+  at 22T on a loaded box; these are 8T). WHICH STAGE-A PHASES RUN ON
+  THE CPU TODAY: the planes tensors (gg_build_groups/gg_witness_act),
+  the per-class zc tables (gg_build_class_tabs), zc_agg_prove
+  ENTIRELY (eq / round sums / folds — the ec_kernel MAC families), and
+  the claims transport (gg_zc_claims); the kept silu descents ride
+  k9; the act/weight openings ride the level-h/GEMM device paths.
+
+R1 ATTRIBUTION EVIDENCE (2026-09-02, [WSL-BOX] [8T] [NOISY-SHARED],
+ZK_GPU=1; per-function timers added to the `uperf-a pass` driver, the
+`[UPERF3-RR] ATTRIBUTION` block) [MEASURED]:
+- 12x128 Stage-A pass: commit 3.73 = groups+planes 1.07 | witness 0.98
+  | precommit weight 0.85 | precommit act 0.77 | statement 0.07.
+- prove 19.20 = claim-layer 0.95 | STAGE-A PHASE 6.74 (silu descents
+  0.58 + zc tabs-build 0.28 + ZC PROVE 5.45 [eq 0.29, rounds 2.76,
+  folds 1.65; 240 rounds; 20.90 G MACs -> 3.8 GMAC/s on 8T] + zc
+  claims-transport 0.40) | publics+nus 0.02 | opening weight 2.70 |
+  OPENING ACT 8.80.
+- verify 4.75 = stage-a 0.19 | group verifies 4.54.
+- the ranked zc classes: nrw-88 (m 24 x 2^18, w 8, n_tot 23) 1.89 s
+  (7.65 G MACs); rem-w8 c0 (15 x 2^18) 0.94; rem-w9 c0 0.59; nrw-z
+  0.48; rem-w7 c0 0.45; rem-w6 c0 0.43; the rest < 0.2 s each.
+- THE RANKED COST TABLE (Stage-A-specific, prove side): (1) the act
+  OPENING's excess — 8.80 s vs the weight group's 2.70 on a group
+  1.14x smaller in rings (act n_0 3.09M vs weight 3.54M) — the Stage-A
+  act group carries 997 claims of which ~700 are planes contribs
+  (gg_zc_claims: m x w rank-1 claims per class, each a row kernel of
+  length m*w*rows with ONE nonzero block); [read-only eval_proof.rs,
+  already device-hooked; the prof split is printed from the next
+  commit on]; (2) zc_agg_prove 5.45 s (CPU; THIS lane's port target);
+  (3) claims transport 0.40 + tabs-build 0.28 (CPU scalar loops);
+  (4) the planes commit (+1.8 s commit vs oracle).
+- IDENTITY: the new `[UPERF3-RR] STAGE-A DIGEST` line (statement
+  digest | prover transcript state | verifier transcript state) is
+  IDENTICAL with and without ZK_GPU=1 at 12x64: statement
+  441ca5db221d4dd2.., transcript 44528c6aeee0a771.. (prover ==
+  verifier); at 12x128 (GPU): statement dc3100e73f810cf7..,
+  transcript e5085602a2fbc93b...
+
+R2 THE DEVICE PORT — EVIDENCE (2026-09-02, [WSL-BOX] [8T] [NOISY-SHARED]) [MEASURED]:
+- WHAT: NEW gpu/kernels_zc.cu + gpu/zc_agg.rs — the aggregate zero-check's
+  round loop on the device: E_4 arithmetic op-for-op with the CPU's
+  reduction chain (products folded by 2^32, fold31 x2, one conditional
+  subtraction, Z^c = s), `k_zc_round_base` / `k_zc_round_ext` (grid.y =
+  node; per-thread mod-q accumulators for the w+1 constraints x c
+  coordinates; warp-shuffle + shared-memory reduction in a fixed order;
+  ONE u64 atomic per (node, constraint, coordinate); the host reduces
+  mod q — the same field elements the CPU's split planes finalize to),
+  `k_zc_fold_base` / `k_zc_fold_ext` (out of place, a rotating scratch:
+  w+2 buffers for w+1 tables; the base table rides in the E buffer, n
+  u32 fitting n/2 E elements), `k_zc_eq_build` (the pair eq from
+  build_eq_full's two half tables, built on the host) + `k_zc_eq_compact`.
+  The hook (zc_range::zc_agg_prove_masked, the ixf/fold.rs pattern):
+  open before the eq build; per round the device round / fold; handover
+  (tables + eq materialized as ETab) at n <= 2^a (the claim-stacking
+  point) or n/2 < min_pairs; a device error -> the host rebuilds from the
+  stacked instance + the challenges drawn (`zc_agg_host_rebuild`) and
+  the module is disabled (reported once). Declines -> CPU: c != 4, w+1 >
+  12, n < 16, VRAM (256 MB margin). Stub twins in gpu/mod.rs for the
+  non-GPU build. Knobs: ZK_GPU_ZC=0 (the in-process A/B),
+  ZK_GPU_ZC_MIN_PAIRS (default 4096), ZK_GPU_VERBOSE=1.
+- TWO BUGS FOUND AND FIXED on the way: (1) the handover copied whole
+  8-lane blocks, so a small-n handover carried STALE lanes past n where
+  the CPU's ETab pads are zeros (a stale eq lane weighs a pad pair) —
+  zeroed at handover; (2) uploads by pageable cuMemcpyHtoD on the
+  module's (non-null) stream RACED the next launch (a pageable copy may
+  return before the DMA lands): 2-4 failures in 6 runs on tiny shapes,
+  data-dependent-looking; fixed by pinned staging + memcpy_htod_async
+  stream-ordered on the module's stream (the ixf discipline) — 18/18
+  after.
+- IDENTITY: `uperf-s agg-battery 7` under ZK_GPU=1 ZK_GPU_ZC_MIN_PAIRS=1
+  (the device forced on EVERY aggregate, to the last round): 136 legs
+  ok, digest 46234986.. UNCHANGED; smoke shapes incl. the pass's nrw-88
+  shape (m 24 x 2^17, 216 claims), a 2^23 grid-stride shape, w 10, e0 2:
+  all BYTE-IDENTICAL to zc_range_prove(stacked) + claims ==
+  base_mle_eval; `uperf-a pass 12 64 range` ZK_GPU=1: ACCEPT, STAGE-A
+  DIGEST statement 441ca5db.. / transcript 44528c6a.. == the CPU run;
+  12x128: dc3100e7.. / e5085602.. == the CPU run; GG's `pass-battery 3
+  16` (masked honest ACCEPT + 4 tampers REJECT) green with the device
+  forced on. FLOORS: CPU + GPU builds; diff-battery green on both
+  binaries (19.8 s CPU / 18.9 s ZK_GPU=1); freeze-check 102 ok rows +
+  "freeze-check passed"; uperf-s 3752cba4..; agg 46234986..; uperf-x
+  be89d5da...
+- WALLS at 12x128, ZK_GPU=1, 8T, ONE binary, ZK_GPU_ZC=0 vs 1, two reps
+  each back-to-back (lane QQ was benching concurrently at the start):
+
+  | leg | prove (s) | stage-a phase | zc prove (eq / rounds / folds) | opening weight / act | verify |
+  |---|---|---|---|---|---|
+  | Stage-A, aggregate on CPU | 17.58 / 19.38 | 6.37 / 7.53 | 5.04 (0.23 / 2.60 / 1.52) / 5.88 (0.31 / 2.96 / 1.76) | 2.46 / 7.83 | 4.29 / 4.4 |
+  | Stage-A, aggregate on DEVICE | 13.36 / 13.55 | 2.40 / 2.33 | 0.95 (0.00 / 0.26 / 0.02) / 0.95 | 2.34 / 7.65 | 3.88 / 3.9 |
+  | oracle (same process, descents on k9) | 9.6 - 9.9 | - | - | - | 2.0 - 2.1 |
+
+  Device-side split (the zc label): 12 aggregates, 96 device rounds /
+  folds, 0.83 GB VRAM held; open 0.23 s (300 MB of base tables up),
+  rounds 0.19 s, folds 0.01 s, handover 0.01 s; the remaining ~0.5 s of
+  "zc prove" is host work (zc_agg_stack's copy + the tail rounds).
+  THE FACTOR: the aggregate prover 5.0-5.9 s -> 0.95 s (5.3-6.2x); the
+  Stage-A PROVE wall 17.6-19.4 -> 13.4-13.5 s (1.31-1.44x); at 12x64
+  12.7 -> 9.8 s (zc 3.10 -> 0.61). Stage-A prove remains 1.36-1.40x the
+  oracle's at 12x128 — the port removed the aggregate from the critical
+  path; what remains is NOT the aggregate.
+- THE RESIDUAL (rung 3's target) from the prof table at 12x128
+  (Stage-A | oracle, seconds): bg.prove-group 9.98 | 4.35;
+  bg.kernel-rows 3.58 | 1.11; ep.psi0-factored 3.74 | 0.87;
+  bg.kernel-phi 0.89 | 0.14; ep.crs-expand 0.84 (x36) | 0.46 (x16);
+  ep.level-h-pairs 1.55 | 0.93; bg.matvec-chunks 1.44 | 1.03;
+  bg.level-h 1.56 | 0.95; bg.verify-group 3.52 | 1.56. The per-CONTRIB
+  phases (kernel-rows, kernel-phi, psi0-factored: +6.1 s prove-side, ~+2
+  s verify-side) carry the excess: the Stage-A act group serves ~700
+  planes contribs (gg_zc_claims: m x w rank-1 claims per class, each a
+  row kernel of length m*w*rows with ONE nonzero block) where the oracle
+  serves ~64 rows. eval_proof.rs is read-only for this lane; the lever
+  inside this lane's files is the CLAIM TRANSPORT: the m x w per-column
+  plane claims of a class recombine LINEARLY to w claims — T_k(x*) =
+  sum_i eq(r_inst, i) claim[i][k], the recombination zc_agg_verify
+  already performs — i.e. ONE opening claim per plane per class (row
+  kernel = the eq(r_inst, i)-weighted block concatenation, col kernel
+  eq_lo unchanged); the m rem claims stay (per-member tensors).
+  [COUNTED] 672 -> 96 planes contribs at 12x128. That is a TRANSCRIPT
+  CHANGE of the Stage-A path (selector-only, not frozen; the served
+  plane values become w recombined values per class instead of m x w):
+  implemented next as an OPT-IN variant (default byte-identical) and
+  posted for the ruling with its measurement.
+- commits: R1 = the driver timers + prof + digest line; R2 = the port
+  (this block).
+
+R3 THE NEXT COST CENTERS — EVIDENCE (2026-09-02, [WSL-BOX] [8T]
+[NOISY-SHARED], ZK_GPU=1, two reps back-to-back each) [MEASURED]:
+- R3a THE BATCHED CLAIM TRANSPORT (opt-in, `ZK_RR_ZC_CLAIMS=batched`;
+  `gg_zc_claims_batched` + `gg_zc_claims_sel` at both call sites in the
+  uperf-a driver; stage_a.rs untouched): the m x w per-column plane
+  claims of a class recombined along the instance axis into w claims
+  (value = sum_i eq(r_inst, i) claim[i][k]; row kernel = the
+  eq(r_inst, i)-weighted block concatenation over the members; col
+  kernel eq_lo; the m per-member rem claims verbatim). The SERVED values
+  and their absorption ("gg-zc-claims") are untouched; the opening's
+  claim structure and hence the nu count change -> a Stage-A transcript
+  VARIANT (selector-only path; default = GG's form, byte-identical).
+  Claims served at 12x128: 997 -> 439. Identity: CPU == GPU under the
+  variant (12x64 statement 441ca5db.., transcript c0b8236fed52daa1..;
+  12x128 dc3100e7.. / 1644b4e14dd4f298..); GG's `pass-battery 3 16`
+  green under the variant with the device forced on (the "claim"
+  tamper flips col_claims[0][0][0] -> the batched value moves -> the
+  opening rejects).
+- R3b the device stacks the columns on upload (the host `zc_agg_stack`
+  copy skipped while the chain is live; pad columns memset on the
+  device; the host rebuild stacks on demand) + `gg_build_class_tabs`
+  parallel over members: zc prove 0.93 -> 0.57 s, tabs 0.29 -> 0.07 s.
+- R3c `gg_build_class_data` (the planes tensor grid) parallel over
+  members: commit groups+planes 1.0-1.7 -> 0.9 s, witness 0.8 -> 0.5 s.
+- THE 12x128 TABLE (one process, one binary; peak = process peak):
+
+  | leg | commit | prove | verify | total | claims | peak RSS |
+  |---|---|---|---|---|---|---|
+  | ORACLE (the built pass, descents on k9) | 1.5 | 7.5 / 7.5 | 2.0 / 2.1 | 11.0 | 64 rows | (<= the process peak) |
+  | Stage-A, GG transport, aggregate on CPU (round-9 code) | 3.6 | 17.6 / 19.4 | 4.3 | 25.5-27.3 | 997 | 7.5 GB |
+  | Stage-A, GG transport, aggregate on DEVICE (R2) | 3.6 | 13.4 / 13.5 | 3.9 | 20.9 | 997 | 7.5 GB |
+  | Stage-A, device + BATCHED transport (R3a) | 3.7 | 8.5 / 8.5 | 2.1 / 2.0 | 14.3 | 439 | 2.87 GB |
+  | Stage-A, device + batched + R3b/R3c | 3.06 | 7.58 / 7.50 | 2.01 / 1.98 | 12.6-12.7 | 439 | 3.09 GB |
+
+  12x64 (device + batched + R3b/c): Stage-A 2.5 / 5.75 / 1.53 vs oracle
+  1.3 / 5.7 / 1.8 (peak 2.6 GB).
+  VERDICT ON THE RUNG-3 BAR ("Stage-A wall <= oracle wall at 12x128, both
+  ZK_GPU=1, 8T"): MET on the PROVE wall (7.50-7.58 vs 7.5 s: 1.00-1.01x,
+  inside run-to-run noise) and the VERIFY wall (1.98-2.01 vs 2.0-2.1)
+  UNDER THE BATCHED-TRANSPORT VARIANT; NOT met on the total (12.6-12.7 vs
+  11.0: 1.14x) — the planes commit (+1.6 s: groups+planes 0.9 + witness
+  0.5 + precommit act 0.77) is the residual, the F1 commit-growth
+  finding at this scale. With GG's transport unchanged the bar is NOT
+  met (13.4 vs 7.5): the opening's per-contrib cost, not the aggregate,
+  is what stands between Stage A and the oracle on this box.
+- floors at this commit: CPU + GPU builds; diff-battery green on both
+  binaries (15.6 s / 16.1 s); freeze-check 102 ok + passed; uperf-s
+  3752cba4..; agg 46234986.. (CPU, and GPU with the device forced on
+  every aggregate); uperf-x be89d5da..; 12x64 default-transport digests
+  441ca5db.. / 44528c6a.. unchanged; tamper batteries green under both
+  transports.
+- FOR LANE SS's MERGE: this lane did NOT touch stage_a.rs; the driver
+  edits are the [UPERF3-RR]-tagged timer lines, `gg_zc_claims_sel` at
+  the two `gg_zc_claims` call sites (prover + verifier), the parallel
+  bodies of `gg_build_class_tabs` / `gg_build_class_data`, and the
+  print block before `peak RSS`; zc_range.rs: the hook block in
+  `zc_agg_prove_masked` (before the eq build, the round, the fold) + the
+  three `[UPERF3-RR]` helper fns before `zc_agg_prove`.
+
+R4 THE 12x512 A/B — ORCHESTRATOR-RUN (posted 2026-09-02; NOT run by this
+lane: > 5 min; the box must be QUIET; three legs, each detached under
+the heavy lock; run leg C FIRST — it is the one expected to fit: the GG
+transport's claim rows were the 7.5 GB peak at 12x128 and grow 4x):
+ORCHESTRATOR-RUN:
+  # leg C: Stage-A device aggregate + BATCHED transport (+ the oracle, same process)
+  setsid nohup bash -c 'flock /tmp/zk-heavy.lock env ZK_GPU=1 ZK_THREADS=8 ZK_RR_ZC_CLAIMS=batched M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /usr/bin/time -v /home/victor/wt-uperf3-rr/zkmatrix-rs/target-gpu/release/ring_matmul uperf-a pass 12 512 range >> /home/victor/wt-uperf3-rr/results/uperf3_rr_12x512_C_batched.log 2>&1; echo $? > /home/victor/wt-uperf3-rr/results/uperf3_rr_12x512_C_batched.done' >/dev/null 2>&1 &
+  # leg A: Stage-A device aggregate, GG transport (+ the oracle) — may hit the 15 GB ceiling
+  setsid nohup bash -c 'flock /tmp/zk-heavy.lock env ZK_GPU=1 ZK_THREADS=8 M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /usr/bin/time -v /home/victor/wt-uperf3-rr/zkmatrix-rs/target-gpu/release/ring_matmul uperf-a pass 12 512 range >> /home/victor/wt-uperf3-rr/results/uperf3_rr_12x512_A_gg_devzc.log 2>&1; echo $? > /home/victor/wt-uperf3-rr/results/uperf3_rr_12x512_A_gg_devzc.done' >/dev/null 2>&1 &
+  # leg B: Stage-A aggregate on the CPU, GG transport (+ the oracle) — the round-9 form
+  setsid nohup bash -c 'flock /tmp/zk-heavy.lock env ZK_GPU=1 ZK_GPU_ZC=0 ZK_THREADS=8 M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib /usr/bin/time -v /home/victor/wt-uperf3-rr/zkmatrix-rs/target-gpu/release/ring_matmul uperf-a pass 12 512 range >> /home/victor/wt-uperf3-rr/results/uperf3_rr_12x512_B_gg_cpuzc.log 2>&1; echo $? > /home/victor/wt-uperf3-rr/results/uperf3_rr_12x512_B_gg_cpuzc.done' >/dev/null 2>&1 &
+  READ: the "STAGE-A pass:" line, the ORACLE "accept true |" line, the
+  "[UPERF3-RR] ATTRIBUTION" block (commit / prove / verify splits), the
+  "zc: on" label (aggregates / declined / VRAM held — a "declined" count
+  > 0 means the device chain fell back to the CPU for VRAM: the 12x512
+  nrw-88 class needs ~3.2 GB beside k9's residency), the STAGE-A DIGEST
+  line, and "Maximum resident set size". An exit 137 / "Killed" with the
+  .done file holding 137 is the 15 GB ceiling — record the peak from the
+  last "[UPERF2-F] RSS" line.
+
+R5 RECORD (2026-09-02): results/uperf3_rr_stage_a_gpu.md — the measured
+factor in lane TT's form. THE LINE THAT REPLACES THE BOARD'S "Stage-A
+aggregate GPU port + fold fusion 1.2-1.5x" (UNSOURCED, 2026-08-30):
+  * the aggregate prover on the device: 5.0-5.9 s -> 0.58 s at 12x128
+    (8.6-10x) [MEASURED];
+  * the Stage-A PROVE wall with GG's transport: 17.6-19.4 -> 13.4-13.5 s
+    = 1.31-1.44x [MEASURED] — the port alone lands in the guessed range
+    but leaves Stage-A prove 1.36-1.40x the ORACLE's (the built pass);
+  * with the batched transport (ruling item): 7.5-7.6 s = the oracle's
+    7.5 s — Stage A + GPU is 1.00x on prove, 1.00x on verify, 1.14x on
+    total (the planes commit) vs the built pass at 12x128 [MEASURED];
+    cumulative 2.3-2.6x on the Stage-A prove wall vs the round-9 code.
+  * FOR TT: book NO speed factor > 1.0 for "Stage A + GPU" against the
+    built pass at 125M; book the bytes (2.15x) and the memory (process
+    peak 7.5 -> 3.1 GB at 12x128 in the batched form; at 8B the 120 GB
+    descent term). The prove anatomy with Stage A + device + batched at
+    12x128: claim layer 0.90 | Stage-A phase 1.29 | openings 5.3 (weight
+    2.25, act 3.1) — the OPENING is 70% of the prove.
+  * RULING ITEM (Victor / the orchestrator): adopt the batched transport
+    as the Stage-A default (then the per-column served values can leave
+    the wire too), or keep GG's form and accept 1.8x on the Stage-A prove
+    wall at 125M. Soundness reading in the results page §4.
+STATE: DONE for rungs 0-3 + 5; rung 4 posted (orchestrator-run).
+
 
 ## Agent SS status (wt-uperf3-ss) — round 10
 
@@ -5956,3 +6244,48 @@ commit (status COMPLETE + this section).
   is to run the reference shape in Stage-A mode at all; (d) the
   frozen pass (`uperf-pc full-profile 12 512`) is unaffected: 6.7 GB
   with the GPU / 11.1 GB CPU-only [MEASURED 2026-08-18].
+- **RR merged (this commit)**: gpu/kernels_zc.cu + gpu/zc_agg.rs +
+  the zc_range.rs hook + the [UPERF3-RR] driver timers/prof/batched
+  transport. Four ring_matmul.rs conflicts with SS (the uperf-a
+  driver) resolved by keeping both lanes' additions: SS's
+  `gg_witness_act(.., &ss_m)` signature + RR's `rr_t_wit` timer; RR's
+  `rr_s_desc` timer then SS's committed-h SiLU branch; SS's phase-C
+  RSS print + tamper block then RR's `rr_t_stagea`; SS's transcript
+  digest + RSS prints then RR's `rr_tr_state`. RR's leg C (12x512,
+  batched transport, GPU) launched detached under the heavy lock
+  with RR's worktree binary; legs A/B not attempted here (the range
+  and full 12x512 passes with GG's transport already OOM-killed this
+  box today — see above). RULING ITEM from RR: the batched claim
+  transport as the Stage-A transcript form (997 -> 439 claims at
+  12x128; peak RSS 7.5 -> 3.1 GB; prove parity with the built pass).
+  Floors on the merged tree: recorded below once the builds run
+  (held until leg C leaves the box).
+- **Floors on the RR-merged tree** (this checkout; CPU build 2m14s,
+  GPU build 2m23s): diff-battery 15.71 s passed; freeze-check (M125
+  export) 102 ok + passed, exit 0; uperf-s 3752cba4..; agg
+  46234986..; uperf-x be89d5da..; `uperf-a pass 12 64 range`: CPU
+  binary AND GPU binary (ZK_GPU=1, device zc aggregate on, 0
+  declined) both print statement 441ca5db.. / transcript 44528c6a..,
+  622,011 B, accept — the Stage-A identity holds across CPU/GPU and
+  across the SS/RR merge.
+- **RR's leg C at 12x512 [MEASURED, WSL-BOX 8T GPU NOISY-SHARED,
+  RR's worktree binary]**: Stage-A range mode + device aggregate +
+  BATCHED transport: commit 6.1 / prove 17.9 / verify 4.5 s, 670,891
+  B, accept, statement ee87f414.., prover == verifier transcript
+  e0b3b985..; zc on the device: 12 aggregates, 0 declined, 3.31 GB
+  VRAM held, open 0.79 + round 0.69 s. Process peak RSS 11.17 GB
+  (BOTH legs in one process) — **the first Stage-A run of the
+  reference shape that fits this box** (GG's transport OOMs it in
+  both modes, above). CAVEAT on the in-process oracle leg: it
+  printed commit 3.0 / prove 54.9 / verify 4.1 s with the k9 status
+  "used 0.00 GB, 0 trees" — i.e. the descent kernels did NOT engage
+  for the oracle in that process (the 12x64 GPU floor run shows k9
+  "used 1.08 GB" when they do), so 54.9 s is a CPU-descent number
+  and NOT the A/B reference; the reference is the frozen pass's
+  2026-08-18 QUIET GPU row (commit 2.5 / prove 15.5 / verify 1.7).
+  Against that: Stage-A batched prove 17.9 s ~ 1.15x (NOISY vs
+  QUIET) — parity-class, consistent with RR's 12x128 finding. Bytes
+  670,891 vs 1,509,911 (2.25x smaller). Follow-up for a round-11
+  lane: why the oracle leg's k9 path stayed cold after the device zc
+  aggregate held 3.31 GB (VRAM budget interaction) — a one-process
+  A/B needs the oracle leg FIRST or a standalone run.

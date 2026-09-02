@@ -184,7 +184,11 @@ requires desktop hardware too.
 | attempt | result | verdict | where |
 |---|---|---|---|
 | GPU + AVX2 kernel campaign (Aug 17-18, 9 rounds) | 12x512: 155.6 s -> 21.0 s | kernel curve flattened; residual is structural | `PROGRESS_UPERF2.md` |
-| Stage A in the real pass (lane GG, Aug 28) | bytes 2.15x smaller, wall par on CPU, full mode OOM at 15 GB | landed behind a switch; GPU port of it is a named 1.2-1.5x lever, not built | `PROGRESS_UPERF3.md` Agent GG |
+| Stage A in the real pass (lane GG, Aug 28) | bytes 2.15x smaller, wall par on CPU, full mode OOM at 15 GB | landed behind a switch | `PROGRESS_UPERF3.md` Agent GG |
+| **Stage A's checks on the GPU (lane RR, Sep 2)** | the aggregate check 8.6-10x faster on the device, bit-identical; but Stage A's total wall only reaches parity with the old path (never faster at 125M) and only with a batched claim transport that needs a ruling; memory 7.5 -> 3.1 GB | landed; buys bytes and memory, not speed | `results/uperf3_rr_stage_a_gpu.md` |
+| **Two-tier opening + preprocessed weights on the GPU (lane QQ, Sep 2)** | per-proof weight-side opening 2.08 s vs 2.09 s built at 12x512: parity, bar was 5x; 8B projection ~3x | the decisive lever measured; "Variant B" (8-15x on paper) needs a ruling | `PROGRESS_UPERF3.md` Agent QQ |
+| **Full-mode memory encoding (lane SS, Sep 2)** | 12x128 full mode 8.1 GB (was OOM); the memo's route was wrong (32x worse), a compact helper works; 8B full-mode >= 78 GB | landed; ruling on the helper as the encoding | `PROGRESS_UPERF3.md` Agent SS |
+| **Throughput model (lane TT, Sep 2)** | every tokens/s number sourced; lattice line 2-15 tok/s at 30B prefill on one H100 at best, <1 decode; the Aug 30 board line retracted | the yardstick for all decisions | `U_PERF3_THROUGHPUT_MODEL.md` |
 | **Spike S4: the two-tier opening on the real rig** (lane FF, Aug 27-28) | correctness bit-for-bit OK at 4M rings; **speed 1.10x vs the 5x bar**; verifier 3.9 s vs sub-second | NO-GO on speed; cause: the "cheap" linear pass computes general ring products | Agent FF |
 | Redesign of S4 on paper (lane II, Aug 28) | best composed case **1.6-2.5x** | **"the 5-15 s question on this line is CLOSED unless a structurally new idea arrives"** | `U_PERF3_S4_REDESIGN.md` |
 | Fallback posture (Aug 28 ruling) | Stage A + one-point front end + a desktop board | **~100-160 s per proof on one board** [MODEL] | task board §0 |
