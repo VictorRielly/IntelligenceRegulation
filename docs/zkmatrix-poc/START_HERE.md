@@ -60,11 +60,22 @@ and sub-second verification [EXTERNAL, VENDOR-CLAIMED, no paper or
 code]. In the units this repository measures: one decoded token at
 30B costs about 3.1e10 multiply-accumulates, so 50 tokens/s means
 about 1.55e12 proven MAC/s. Our measured rate is 1.4e9 on the
-laptop's 55-70 W GPU [MEASURED]. The throughput model that converts
-between "seconds per proof" and "tokens per second" honestly, with
-the hardware factor stated as a range, is lane TT's deliverable this
-round (`U_PERF3_THROUGHPUT_MODEL.md`, when it lands). Until then no
-tokens/s number in this repository is sourced.
+laptop's 55-70 W GPU [MEASURED]. The honest conversion is
+`U_PERF3_THROUGHPUT_MODEL.md` (2026-09-02; every number sourced,
+the hardware factor as a range). Its answer: the built system is a
+~0.6-0.8 tokens/s system at 8B for 512-token prefill on the laptop,
+and ~0.0025 tokens/s for one-token-at-a-time decode, because every
+proof re-proves the whole weight side [MODEL from the one measured
+pass]. The recorded design path (the two-tier opening with the
+weights preprocessed, §5) at its own modelled constants reaches
+**2-15 tokens/s at 30B prefill on one H100** and under 1 tokens/s
+for decode [MODEL on MODEL]. **Under no assumption recorded in this
+repository does the lattice line reach 50 tokens/s at 30B on one
+GPU.** What decides the rest is one measurement (lane QQ: the
+per-proof weight-side cost on a GPU) and one open question nobody
+has priced: whether any lattice-line activation-side opening can
+prove ~1e12 MAC/s on one board (the memo's U2). That question is
+what choice D in §7 is about.
 
 ## 3. Where we stand (the honest numbers)
 

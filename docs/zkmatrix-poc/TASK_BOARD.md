@@ -33,11 +33,31 @@ runbook is the Mac's queue):**
   device (measures the factor the 2026-08-30 board line guessed at
   1.2-1.5x — that line is UNSOURCED, see below); SS = committed-h
   V1-V4; TT = the tokens/s model + the audit of the unsourced line.
-- **RETRACTION PENDING**: the 2026-08-30 "~25-35 tok/s amortized;
-  levers 1.2-1.5x / 1.3x / 1.1-1.2x -> ~65" line below has no
-  derivation in any ledger or memo. Treat it as a guess until lane
-  TT derives or retracts it. Weight preprocessing has never been
-  built or measured (lane QQ rung 4 is its first measurement).
+- **LANE TT LANDED (merged aae3478): `U_PERF3_THROUGHPUT_MODEL.md`
+  — THE TOKENS/S MODEL, every number sourced.** The verdict, plain:
+  the built system is a ~0.6-0.8 tok/s system at 8B prefill on the
+  laptop and ~0.0025 tok/s at batch-1 decode (every proof re-proves
+  the whole weight side) [MODEL from the one measured pass]; the
+  recorded design path (Stage A + two-tier opening + weight
+  preprocessing), at its OWN modelled constants, gives **2-15 tok/s
+  at 30B prefill and 0.05-0.7 tok/s at 30B decode on one H100
+  [MODEL on MODEL]**, 3-30x lower at the constants the spike
+  measured. **Under no assumption recorded in this repository does
+  the lattice line reach 50 tok/s at 30B on one GPU.** Batch-1
+  decode is floored by reading the weight digits (13 of the 20 ms
+  budget even packed and H100-resident); 512-token prefill makes the
+  weight side irrelevant and turns the question into the
+  activation-side proving rate: 1.6e12 MAC/s needed vs a best
+  modelled 0.5-3.3e11 (U2, memo §7.4 — no lane measures it; it is
+  the choice-D question). Round 11 is cut from QQ rung 4, RR rung 5
+  and Mac M5 — not from any tokens/s number.
+- **RETRACTED (lane TT, memo §5.6)**: the 2026-08-30 "~25-35 tok/s
+  amortized; levers 1.2-1.5x / 1.3x / 1.1-1.2x -> ~65" line below —
+  none of its five numbers derives from anything recorded; the
+  nearest recorded row is 13-26 tok/s of an 8B FFN-only model on one
+  DESKTOP board [MODEL]; no pipelining or spine-amortization lever
+  exists in any design. Weight preprocessing has never been built
+  or measured (lane QQ rung 4 is its first measurement).
 - **THE MAC QUEUE IS NOW `docs/zkmatrix-poc/MAC_RUNBOOK.md`** — the
   ordered, self-contained list (sync + gate pass, T1 with a thread
   ladder, T13/T14, T15, T16 with the T-scaling leg that measures the
@@ -165,7 +185,10 @@ is COMPLETE; five battery digests + freeze-check green on the tree):**
   1.2-1.5x, pipelining 1.3x, spine amortization 1.1-1.2x) compose
   to ~65; the last ~1.3x needs an act-side opening idea — the
   round-7+ optimization campaign, informed by the first real
-  Mac/H100 measurements.
+  Mac/H100 measurements. **[RETRACTED 2026-09-02: none of these
+  numbers is derived from anything recorded — see
+  U_PERF3_THROUGHPUT_MODEL.md §5.6 for the audit and §4 for the
+  sourced table; kept here as history.]**
 - **ADVERSARIAL_TESTING_PLAN.md is DOCUMENTED AND SHELVED** per
   Victor's directive (surfaces ranked, campaign phased, activates
   by ruling after the PoC); its §3 standing rule (tamper legs ship
