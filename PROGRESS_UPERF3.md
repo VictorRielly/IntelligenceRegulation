@@ -6832,3 +6832,115 @@ known" at the end.
 ## Agent YY status (wt-uperf3-yy) — round 11
 
 (lane appends below)
+
+**LANE COMPLETE (2026-09-02, docs only; no code, no builds, no
+runs).** Deliverable: NEW `docs/zkmatrix-poc/U_PERF3_ROUTE_B_THROUGHPUT.md`
+— lane TT's seven items for the hash-based line on the same
+yardstick (S0 = TT's memo; workloads, shapes, MACs per token copied
+verbatim), every number labelled [MEASURED] / [COUNTED] / [MODEL] /
+[EXTERNAL] with a source; plus one pointer line in
+PROVING_CHANNEL_OPTIONS.md §3 (after the B row's caveats). Commits:
+d37d5f6 skeleton; 52f3e07 §0 + §1; 329e56c §2; 7982586 §3; ecf4b65
+§4; 74c37bd §5; f4a1fc3 §6; 414c84f §7 + What is not known; the
+pointer line and this status block in the closing commit. Not
+pushed.
+
+**THE ANSWER (§0).** From UU's measured 12x512 row (23.0 s prove,
+8T CPU, 22 proven tokens/s of the 125M model) and the loops in
+`hashline/src/*.rs`: per-model 2.19 s (9.6%, commit W); per-proof
+weight side 1.52 s (6.6%: 4.33 extension-by-int8 multiply-adds per
+weight — 4/3 in the matmul folds, 3 in the Ligero opening — LINEAR
+in the weight count); activation side 19.17 s (83.8%, 102 ns per
+committed element; 13 f + 5 d elements per token-layer). Scaled by
+counted sizes to the laptop CPU: 8B x 512 = 151 + 341 = **492 s
+(1.0 tok/s)**, 8B decode ~152 s (0.007 tok/s); 30B x 512 = 576 + 970
+= **1,546 s (0.33 tok/s)**, 30B decode ~578 s [MODEL from MEASURED].
+Hardware factor for THIS mix (NTT + blake3 + sumcheck reductions +
+GEMV streaming; all device-native, no host-bound share): laptop CPU
+-> laptop GPU 5-15x [MODEL until XX], -> 4090 15-75x, -> H100
+25-180x [MODEL on MODEL]; the 8T/16T/22T inversion is a hybrid-part
+artefact (E-cores + power limit + static chunking) that does not
+transfer to a GPU. **Tokens/s (§6): Route B on one H100, P0 (no
+ZK), FFN-only: 30B prefill 8.3-60 tok/s, 30B decode 0.04-0.3; 8B
+prefill 26-187, 8B decode 0.16-1.2** — vs the lattice line's best
+modelled 30B-prefill cell 2.3-15 (S0). Counted spec-sheet floors on
+the H100: 30B prefill 3.7-11 s per proof (47-138 tok/s; hashing 311
+GB of encoded activations at 30-100 GB/s is the term), 30B decode
+30-80 ms (12-33 tok/s; the linear weight opening alone is 25-60 ms:
+6.4 ms of HBM reads + 18-36 ms of arithmetic + 7 ms of cache
+columns).
+
+**THE ZK SURCHARGE (§4, Victor's rule).** Constructions: Ligero-ZK
+randomised rows (+Q pad symbols, Q 256 -> 296 with non-systematic
+sampling — as built 1 in 4 opened columns is a RAW column) + mask
+rows; CFS/Libra masking polynomials for the four sumchecks (<= 81
+coefficients each); masked claims; committed multiplicities (the
+histograms are in the clear today — the lattice line's C-01 leak);
+salted leaves. Cost as fractions of UU's phases: **P1 (activations
+private): +2-8% prover, +1-8% bytes, +2-15% verifier** [COUNTED
+from the constructions]. **THE FINDING: a cached hash-based weight
+commitment cannot be zero-knowledge across proofs — each proof
+reveals 256 encoded columns, and after (n + Q)/Q = 65 proofs (40-80
+for any RS parameters at 2^-106) the weights are recoverable by
+linear algebra from the published proofs.** So P2/P3 (weights
+private) must re-commit W with fresh randomness EVERY proof: +9.6%
+at 125M, +44% at 8B x 512, +54% at 30B x 512, +143% at decode; on an
+H100 the re-commit's hashing floor is 1.8-6 s (8B) / **7-23 s (30B)
+per proof — 70-230% of the 10.2 s budget by itself**. On Route B the
+cheap partial-knowledge mode is P1 (open weights, private inputs)
+and the expensive one is P2 (proprietary weights) — the reverse of
+the lattice line, where the MLWE commitment is hiding and
+re-openable with a sqrt-class mask. Uncounted ways out: Orion-class
+hidden columns (an inner proof of ~1e9 constraints per proof at
+30B); a hiding lattice commitment for the weights with a ZK link
+(the A + B hybrid).
+
+**THE PROOF-SIZE LEVER (§5).** 66.8 MB is the sqrt class; the
+as-built n = 2^14 is within 2% of the per-commitment optimum, so no
+parameter lever exists. At the optimum: 613 MB per 8B x 512 proof,
+1.51 GB per 30B x 512 proof, and **282 / 736 MB per DECODE token**
+(the W opening's bytes do not shrink with T); verifier ~3-5 s (8B)
+/ 8-12 s (30B) at 8T vs the <= 2 s line [MODEL]. Batched-evaluation
++ one merged commitment: −50-56% bytes at +5-15% time. WHIR/STIR-
+class PCS swap: 3-12 MB per 8B/30B pass (−100-250x), 3-12 MB per
+decode token, ms verify, at x0.94-1.4 prover [MODEL from stated
+complexities: half the hashed bytes at rate 1/2, a larger NTT, an
+N-sized sumcheck opening]; FRI 2-3x larger; Goldilocks has 2-adicity
+32, so the lattice review's two-adicity wall does not exist here.
+The swap changes neither the weight opening's linearity nor the
+§4.4 leak.
+
+**THE §7 VERDICT.** The competitor's claimed 1.6e12 proven MAC/s
+(53 tok/s, batch 1, one H100 [EXTERNAL]) is INSIDE Route B's counted
+FFN-only prefill floor band (1.0-3.0e12) — consistent with a
+hash-based prover at the spec-sheet floor, batched — and 1.5-4x
+above the counted batch-1 floor of a LINEAR weight opening on the
+same board. Budget: at 30B the per-proof weight opening is **25-60
+ms against a 20 ms batch-1 budget (NOT affordable; the arithmetic,
+not the bytes, is the larger part)** and 0.3-0.6% of the 10.2 s
+prefill budget (affordable). Batching table at the floor: B = 1
+12-31 tok/s, B = 4 28-77, B = 8 36-100, B = 512 47-138: **50 tok/s at
+30B needs B >= 4-16 requests per proof AND a device hash rate >= ~50
+GB/s.** Requirements R1-R6 stated; R6 (ZK) is a product ruling that
+changes the answer by >= 2x. **Verdict: 50 tok/s at 30B on one H100
+is reachable on Route B under the counted assumptions ONLY for
+prefill / batched proving, FFN-only, in modes P0/P1, and only in the
+upper half of the hardware range (>= ~90x over the CPU row as built)
+— it hinges on lane XX's port factor and the device hash rate.
+Batch-1 decode at 50 tok/s is not reachable under any counted
+assumption. Under P2/P3 no counted cell reaches 50 tok/s.**
+
+**WHICH MEASUREMENT REPLACES WHICH CONSTANT (§7.4).** Lane XX rung 5
+-> the laptop-GPU column [MEASURED]; XX rung 2 -> the device hash
+rate (the dominant floor term); XX rung 4 -> the row-combination /
+the decode row; a ZK spike (Ligero-ZK pads + mask rows + Libra masks
++ committed multiplicities on hashline at 12x512) -> §4.3
+[MEASURED]; a PCS spike (a WHIR/STIR-class pcs.rs behind a switch)
+-> §5; an 8B-shape layer of hashline on the Mac at T = 16/64/512 ->
+the 8B constants (and the zero-check-17 3.5x anomaly); choice C ->
+every device column. 14 unknowns listed at the end of the memo.
+
+**Asks of the orchestrator's files (not in this lane's ownership):**
+START_HERE.md §2's "Its GPU port and its own tokens-per-second model
+are round 11's follow-on lanes" can now cite the memo; TASK_BOARD.md
+§0 may carry the one-line verdict above.

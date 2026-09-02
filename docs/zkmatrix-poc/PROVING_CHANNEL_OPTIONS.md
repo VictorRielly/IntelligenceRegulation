@@ -175,6 +175,10 @@ for ~100s of KB); untuned single-lane-day Rust with thread scaling
 inverted beyond 8T on the hybrid laptop part; no GPU code. The proven
 MAC/s row is a CPU number: the lattice line's 1.4e9 needed the GPU
 for its 21.0 s, and its CPU-only figure is ~3.6e8.
+**The B row's tokens/s model** (lane YY, 2026-09-02): the 8B / 30B
+per-proof anatomy, the hardware range, the ZK surcharge (P1 +2-8%;
+P2/P3 need a per-proof weight re-commit) and the proof-size lever are
+in `U_PERF3_ROUTE_B_THROUGHPUT.md`, on lane TT's yardstick.
 
 | Context | Better fit | Why |
 |---|---|---|
