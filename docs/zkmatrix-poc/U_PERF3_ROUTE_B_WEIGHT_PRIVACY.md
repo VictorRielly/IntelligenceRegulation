@@ -279,7 +279,253 @@ Reading:
 
 ## 3. Option 2 — never reveal the columns (Orion-class hidden openings)
 
-(lands with §3's commit)
+### 3.1 The idea, and what was actually read [EXTERNAL]
+
+Instead of SENDING the 256 sampled columns and letting the verifier
+run the column check, the prover PROVES, inside a second
+zero-knowledge argument, that columns consistent with the
+committed root exist and pass the check. Nothing about the cached
+commitment is ever opened in the clear, so there is nothing to
+accumulate.
+
+What this memo read of L5 (the ePrint 2022/1010 page and the PDF's
+text, extracted in this session): the abstract ("O(N) prover time
+of field operations and hash functions and O(log^2 N) proof size
+... the prover time is 3.09 s and the proof size is 1.5 MB for a
+circuit with 2^20 multiplication gates"); the technique — "a proof
+composition named 'code switching' proposed in [RR20] ... using
+the encoding circuit of the linear-time encodable code"; the inner
+system — "In our construction, we use the ZKP scheme in [ZXZS20]
+[Virgo] as the second ZKP. The scheme is based on the interactive
+oracle proofs (IOP) and the witness is encoded using the
+Reed-Solomon code. Therefore, the technique is called code
+switching"; Protocol 6's statement — "Witness: y_γ0, y_1, C1[:,
+idx] ∀ idx ∈ Î ... Public input: γ0, r0, r1, y. Public
+information: Î and I chosen by the verifier" (the clear vectors
+and the sampled columns are the inner witness; the challenges and
+the claimed value are public); the commitment's shape — "a Merkle
+tree commitment for every column C2[:, i] of the n x n codeword C2,
+and finally ... another Merkle tree on top of their roots", with
+the verifier checking "the Merkle tree proofs of c1[idx], cγ0[idx]"
+(a few ENTRIES of the sampled columns' own codewords — no hash is
+evaluated inside the inner circuit); the parameters — an
+expander-based code of relative distance 0.055 opening t = 1,568
+columns, SHA-256, the field GF((2^61 - 1)^2), single-threaded on a
+Xeon 8375C. Successor read: den Hollander and Slamanig, "A Crack
+in the Firmament: Restoring Soundness of the Orion Proof System
+and More" (ePrint 2024/1164, abstract only): "Orion in its current
+revision is still unsound (with and without the zero-knowledge
+property)"; the corrected scheme, Scorpius, keeps the linear-time
+prover "without additional assumptions". Also read (abstract only):
+Hirner, Krieger, Piber, Sinha Roy, TCHES 2025 (ePrint 2024/1918) —
+an FPGA acceleration of Brakedown/Orion whose "end-to-end speedup
+with Virgo" is quoted at up to 3.85x against a 463 s software
+baseline at degree 2^28: evidence that at scale the outer
+commitment, not the inner Virgo proof, dominates the pipeline.
+
+### 3.2 Why the literal Orion form is NOT enough here [COUNTED]
+
+Orion's inner oracle IS the cached column codeword (a Merkle tree
+per column): each proof opens some q_in positions of each of the
+256 sampled columns' codewords (Virgo's queries), and the pad that
+makes those positions uniform is chosen when the column is
+committed — once. The accumulation of §1 reappears one level down:
+256 x q_in equations per proof against the N = 3.47e8 unknowns of
+a 30B layer; at a FRI-class q_in of 100-300 the layer is
+determined after N / (256 q_in) ≈ 4,500-13,000 proofs — 10-25x
+slower than as built (513), not zero. A partial-knowledge leak,
+bounded and slow, but not zero-knowledge across proofs; it fails
+the rule. The form that meets the rule — call it option 2b — makes
+the sampled columns the witness of a FRESH per-proof inner
+commitment (fresh pads, so nothing accumulates) and proves their
+binding to the cached outer root INSIDE the inner argument. That
+means the outer tree's hash function is evaluated in-circuit, so
+the cached W tree must use an arithmetic hash (Poseidon2, L7); the
+inner witness's own commitment, whose openings nobody proves, can
+stay blake3. The rest of this section prices 2b.
+
+### 3.3 The exact inner statement at 8B and 30B [COUNTED from S3 `pcs::verify`]
+
+Per sampled column j of one layer's W commitment (m rows), the
+inner circuit must contain exactly what `verify` does with that
+column, plus the mask rows of §1:
+
+1. the column hash: m field elements absorbed at rate 8 (Poseidon2
+   t = 12, capacity 4 = 256 bits) = m/8 permutations, plus one
+   per-column salt element for hiding;
+2. the Merkle path to the cached root: log2(4n) compressions
+   (two 4-element digests in, one out: a t = 8 permutation);
+3. the (k + 1) = 3 row-combinations restricted to the column: m
+   extension-by-base multiply-adds each (2 base multiplies + 2
+   adds), with the row weights rho_g public (S3 `layer.rs` lines
+   518-520: Wg and Wu blocks at one point, Wd at a second, so k = 2
+   column-weight groups, k + 1 = 3 with the proximity row);
+4. the comparison with Enc(v'_g)[j] - Enc(U)[g][j]: v' (the masked
+   clear vectors) are public and the verifier re-encodes them as
+   built; U is the per-proof fresh mask matrix (3 rows of n per
+   layer, §1), whose column j — 3 elements — is inner witness with
+   its own Merkle path to the per-proof U root (log2(4n) more
+   compressions), so that rho^T Enc(M)[:, j] is never public.
+
+Public inputs: the W root (per model), the U root (per proof), rho
+(from the transcript), the 256 indices, and Enc(v')[j] at those
+indices. One W commitment per layer holds Wg, Wu and Wd (S2's
+design of record; one `pcs::commit(&w_pcs, ..)` per layer in
+`layer.rs`), so the statement is 256 columns x L layers; a single
+per-model W commitment (m = L x m_layer rows) would have the same
+column-hash count and L times fewer paths — a < 6% difference,
+since column hashing dominates. Counted per layer:
+
+| | 8B | 30B |
+|---|---:|---:|
+| layers L; W per layer as n columns x m rows (S0 §5.2's optimum n) | 32; 2^16 x 2,688 | 62; 2^17 x 2,648 |
+| column-hash permutations per column (m/8, t = 12) | 336 | 331 |
+| Merkle compressions per column, W tree + U tree (2 x log2 4n) | 36 | 38 |
+| permutations per column | 372 | 369 |
+| **permutations per proof** (x 256 x L) | **3.05e6** | **5.86e6** |
+| native Goldilocks multiplies per t = 12 permutation: R_F = 8 full rounds x 12 S-boxes (x^7 = 4 multiplies) + R_P = 22 partial rounds x 1 S-box + the linear layers [COUNTED from L7's round structure; R_F = 8 is L7 eq. (1); R_P = 22 for Goldilocks t = 12 is the value the open Goldilocks Poseidon2 parameter sets instantiate — EXTERNAL, not re-derived here] | ~700 | ~700 |
+| hash part, native multiplies | 2.1e9 | 4.1e9 |
+| inner-product part: 256 x m x 3 x 2 x L | 1.3e8 | 2.5e8 |
+| **inner statement, native Goldilocks multiplies per proof** | **~2.3e9** | **~4.4e9** |
+| inner witness (the sampled columns): 256 x m x L elements | 2.2e7 (176 MB) | 4.2e7 (336 MB) |
+
+Cross-check against S0 §4.4's "62 x 3 x (256 x ~2,600 x 3) ≈ 3.7e8
+multiply-adds plus ~1e5 hash evaluations ... of order 1e9
+constraints": S0 counted all three commitments (A and H need not
+be in the inner proof — they are fresh per proof and stay in the
+clear under P2 or Ligero-padded under P3) and counted only the
+paths as hashes; once the hash is arithmetic the column hashes
+themselves (336 MB of elements per proof at 30B) are the dominant
+term. Same order of magnitude, different composition.
+
+### 3.4 Which inner prover, its time, and the hash swap's cost on the OUTER commit
+
+**The inner prover** is a zero-knowledge sumcheck/GKR over a
+data-parallel circuit: 256 x L identical Poseidon2 instances with
+the inner products folded in. The reference construction is
+Libra's linear-time GKR with its masking (L3); the seed in this
+repository is `hashline/src/sumcheck.rs` (S3), whose measured
+constant — 27.5 ns per table-entry at 8 threads for a 13-table,
+degree-4 zero-check (S0 §2.1) — is the only sumcheck-prover rate
+measured here. Its zero-knowledge is the standard pair: masking
+polynomials for the sumcheck rounds, and Ligero-ZK pads on the
+inner witness's own commitment, which is FRESH per proof (blake3:
+32 B per element over 176 / 336 MB of witness = 0.7 / 1.3 GB
+hashed: **7-23 ms at 8B, 13-45 ms at 30B** at 30-100 GB/s
+[COUNTED]). The per-proof U commitment (3 x 4n elements per layer,
+a per-column leaf of 24 B and a 4n-leaf tree, blake3) is another
+0.74 GB (8B) / 2.9 GB (30B) hashed: **7-25 ms / 29-95 ms**
+[COUNTED]. Neither needs an arithmetic hash.
+
+**The prover overhead constant K_ov [MODEL]: 5-20x native.** A
+sumcheck prover evaluates every constraint at (degree + 1) points
+per round over tables that halve each round; S0 §2.1's measured
+zero-check spends ~110 extension multiplies (~330 base) per table
+entry on a constraint whose native cost is ~20 multiplies — ~15x,
+the pessimistic end; linear-time GKR provers over layered circuits
+are reported with small constants (L3) — 5x the optimistic end.
+
+| inner prover, per proof | 8B | 30B | label |
+|---|---:|---:|---|
+| field multiplies (native x 5-20) | 1.2e10-4.6e10 | 2.2e10-8.8e10 | [COUNTED x MODEL] |
+| H100, counted floor (2.4e12 multiplies/s, S0 §7.2) | **5-19 ms** | **9-37 ms** | [MODEL on spec sheet] |
+| laptop CPU 8T (1.0e9 base multiplies/s: S0 §2.1's 1.3e8 Fp2 multiplies per layer in 0.375 s, 3 base per Fp2) | 12-46 s | 22-88 s | [MODEL from MEASURED constant] |
+| H100, scaled (laptop CPU / 25-180) | 0.07-1.8 s | **0.12-3.5 s** | [MODEL on MODEL] |
+| plus the two fresh blake3 commitments (inner witness + U) | 14-48 ms | 42-140 ms | [COUNTED on spec sheet] |
+
+**As a fraction of the P0 row** (S0 §6.4, §7.2; the whole W-side
+surcharge = inner prover + fresh commitments):
+
+| cell | P0 per proof | option 2 adds | fraction |
+|---|---:|---:|---:|
+| 30B prefill (512 tokens), floor | 3.7-11 s | 0.05-0.18 s | +0.5-5% |
+| 30B prefill, scaled | 8.6-62 s | 0.16-3.6 s | +2-40% (central ~4%: ~1 s on ~25 s) |
+| 30B decode, floor | 30-80 ms | 51-177 ms | **x2.7-3.2** (the fresh commitments and the inner proof are each the size of the whole row) |
+| 30B decode, scaled | 3.2-23 s | 0.16-3.6 s | +5-16% |
+| 8B prefill, floor / scaled | 1.3-3.7 s / 2.7-20 s | 0.02-0.07 s / 0.08-1.8 s | +1-5% / +3-9% |
+| 8B decode, floor | 12-30 ms | 19-67 ms | x2.6-3.2 |
+
+**The hash swap on the OUTER commit phase.** Only the per-model W
+tree changes; A and H stay blake3, so the ON-CLOCK hash rate —
+the dominant term of every S0 floor — is untouched. Per model
+[COUNTED from the sizes; rates EXTERNAL/MODEL]: the encoded W
+matrix is 4N elements (8.6e10 at 30B, 2.3e10 at 8B) = 4N/8
+column-absorption permutations plus 4n x L tree compressions:
+**~1.1e10 permutations at 30B, ~2.8e9 at 8B.** At L7's Table 2
+rate (2.81 us per t = 12 permutation, Rust, one thread) that is
+8.6 h / 2.2 h of one CPU thread — ~1.1 h / ~17 min at 8 threads
+[MODEL]; on a GPU at 1e7-1e8 permutations/s [MODEL, no source in
+this repository] **2-18 min at 30B, 0.5-5 min at 8B**, once per
+model, off the contract's clock (S0 §1.1) — 5-150x blake3's 7-23 s
+for the same tree. The cached object is the same 538 / 141 GB
+encoded matrix (the 256 column reads per proof — 336 / 88 MB
+column-major over the host link, S0 §2.3 — are unchanged) plus its
+tree (2^19 x 62 x 32 B = 1 GB at 30B).
+
+### 3.5 Proof bytes and verifier time
+
+**Bytes at 30B per 512-token proof [COUNTED from S0 §5.1's
+formula].** As built the W side sends 256 x 2,648 x 8 B x 62 = 336
+MB of columns and 256 x 19 x 32 B x 62 = 9.6 MB of paths. Option 2b
+replaces both with: one inner proof — with a Ligero-class inner
+PCS over the 4.2e7-element inner witness at its own optimum (n =
+2^16, m = 640, k + 1 = 2): 256 x 640 x 8 + 2 x 2^16 x 16 + 256 x 18
+x 32 = 3.6 MB, plus the GKR/sumcheck transcript (~0.2 MB) — plus
+U's 256 opened columns per layer (3 elements and a 19-digest path:
+62 x 256 x 632 B = 10 MB): **~14 MB in place of 346 MB.** At 8B:
+176 + 4.7 MB become ~7.6 MB. With a WHIR-class inner PCS (S0 §5.3)
+the inner proof is ~0.1-0.3 MB. The masked W clear vectors (3 x
+2^17 x 16 B x 62 = 390 MB at 30B) are NOT touched by option 2; they
+fall with the PCS swap of S0 §5. So the 30B proof goes 1.51 GB ->
+~1.18 GB in the sqrt class, and to the S0 §5.3 6-12 MB row after
+the swap of both layers.
+
+**Verifier.** The as-built W work per layer (256 blake3 hashes of
+21 KB columns, 256 x 2,648 x 3 multiply-adds, 256 paths: ~0.3-0.6 s
+single-threaded per 30B proof [COUNTED]) moves into the inner
+proof; the verifier instead checks the inner proof — the inner
+PCS's 256 columns x 640 x 2, two NTTs of 2^18, the GKR rounds: ~10-30
+ms [MODEL] — and U's trivial openings. The 3 W clear-vector
+re-encodings per layer (62 x 3 NTTs of 2^19 at 30B, ~2-4 s
+single-threaded [COUNTED, S0 §5.2's term]) remain, and remain the
+reason the <= 2 s line needs the PCS swap. Net: the verifier is
+slightly FASTER than as built.
+
+### 3.6 Per proof, or amortisable?
+
+Per proof: rho, the indices and U are fresh every time. Batched
+across the L layers into ONE inner proof (identical circuits — the
+GKR is data-parallel). Amortised over the B x T tokens of the proof
+exactly as the weight opening is (§2.3): at B x T = 8,192 the
+30B surcharge is 0.006-0.44 ms per token. NOT amortisable across
+proofs by any construction counted here. One candidate exists for
+deferring column checks across proofs — Arc (Bünz, Mishra, Nguyen,
+Wang, ePrint 2024/1731, CRYPTO 2025: "a hash-based accumulation
+scheme ... for claims about proximity of claimed codewords to the
+Reed-Solomon code", unbounded steps, random-oracle only [EXTERNAL,
+abstract]) — but whether the accumulated instances stay HIDDEN is
+not addressed in its abstract, and it is not counted.
+
+### 3.7 What option 2 rests on (honesty)
+
+(a) Nothing is built: `hashline` has no Poseidon2, no inner prover,
+no zero-knowledge form. (b) K_ov = 5-20x is a model with one
+measured anchor. (c) R_P = 22 for t = 12 over Goldilocks is taken as
+instantiated by the public parameter sets, not re-derived from L7's
+formula (1); a different t or R_P moves the hash term
+proportionally. (d) The composition's soundness needs its own
+written argument: the successor paper found Orion's published
+revision unsound [EXTERNAL, ePrint 2024/1164]. Our column check is
+the Reed-Solomon/Ligero one (distance 3/4, 256 columns, S3), not
+Orion's expander code, and the inner statement is a plain circuit
+over it; the risk sits in the composition — the fresh U mask, the
+salted cached tree, two Fiat-Shamir layers — which needs a
+simulator and an extractor, the same obligation class as S0 §4.2's
+last bullet and S5 §4.5's "the cross-commitment link argument must
+be simulatable too". (e) The per-model hash rate is unmeasured and
+off the clock. (f) The decode row is where option 2 costs most (the
+fresh commitments are the size of the whole P0 decode row); the
+prefill row barely notices it.
 
 ## 4. Option 3 — the lattice-hybrid weight commitment
 
