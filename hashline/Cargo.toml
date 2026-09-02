@@ -1,0 +1,25 @@
+[package]
+name = "hashline"
+version = "0.1.0"
+edition = "2021"
+description = "U-PERF3 lane UU: hash-based small-prime-field prover/verifier for the 125M FFN int8 statement (comparison row vs the lattice line)"
+
+[lib]
+name = "hashline"
+path = "src/lib.rs"
+
+[[bin]]
+name = "hashline"
+path = "src/bin/hashline.rs"
+
+[dependencies]
+blake3 = "1.8"
+rayon = "1.11"
+sha2 = "0.10"
+
+[profile.release]
+opt-level = 3
+codegen-units = 1
+lto = "fat"
+panic = "abort"
+debug = false

@@ -6513,7 +6513,97 @@ RUNGS (prefix "U-PERF3 WW:"):
 
 (lane appends below)
 
-## Agent VV status (wt-uperf3-vv) — round 11
+**RUNG PLAN (2026-09-02, opened).** 0 skeleton + primitives + the
+export reader; 1 the exact integer chain vs the 12 z digests; 2 the
+matmul sumcheck at 3x16 with tamper legs; 3 the PCS with tamper legs;
+4 lookups + identities, one full layer at 12x512 shape with tamper
+legs; 5 the 12-layer pass measured (prover/verifier wall, bytes, RSS
+at 8T and 22T, proven MAC/s) -> PROVING_CHANNEL_OPTIONS.md §3 row; 6
+(optional) the GPU [MODEL] estimate.
+
+**DESIGN OF RECORD (what `hashline/` proves and how).** Per layer l
+(T 512, d 768, f 2048), the committed columns are X (as 3 blocks of
+T x 256 — d = 768 = 3 x 2^8 is the one non-power-of-two dimension and
+is handled by block structure, NOT zero padding, so no padded region
+needs constraining), Wg/Wu (3 blocks of 256 x f each), Wd (3 blocks
+of f x 256), g8, rg, u8, ru, a8, h8, rh (T x f each), z, rd (3 blocks
+T x 256). Requant identities are LINEAR and fold into evaluations:
+gacc~(r) := 2^sh_g g8~(r) + rg~(r) (no separate zero-check). Matmuls:
+the Thaler matrix-multiplication sumcheck, g and u batched on one
+(r_i, r_j) with a random lambda (8 rounds over k' in 2^8, three block
+products summed), d over k in 2^11 with the three output blocks
+batched; prover cost = the matrix SIZES (fold X against eq(r_i), fold
+W against eq(r_j)), not the MACs. Hadamard hh = a8 u8 = 2^sh_h h8 +
+rh: a zero-check sumcheck (degree 3 per round). Lookups: LogUp with
+committed helper columns h = 1/(alpha - v1) + 1/(alpha - v2) (one
+extension helper = two base columns per TWO lookups), the helper
+identity h (alpha - v1)(alpha - v2) = 2 alpha - v1 - v2 as a
+zero-check batched with the Hadamard check, the helper sum as a plain
+functional of the commitment, and the table side computed by the
+verifier from multiplicities sent in the clear. Tables: the 256-row
+SiLU member as pairs v + beta S[v] (g8's range fact = table-domain
+membership, as the lattice line), int8 [-128, 127] for u8/h8/z (the
+rig's `fits_i8`), [0, 2^sh) per distinct shift for rg/ru/rh/rd; each
+table tagged by gamma * tag so a column cannot borrow another's
+table. X and the weights are DECLARED int8 (not range-proven) —
+exactly the lattice statement's open M3 finding; the same gap on
+both lines. PCS: Ligero/Brakedown tensor form — the committed vector
+as an m x n matrix, rows RS-encoded to 4n (rate 1/4), blake3 Merkle
+over the 4n columns; an evaluation = one clear row-combination
+(extension vector of length n) checked at Q = 256 random columns
+(shared across every functional on the commitment); claims that
+share column weights share one row-combination. Three commitments
+per layer: W (weights), A (activations + X + z), H (helpers, after
+alpha/beta/gamma). Fiat-Shamir over blake3; every challenge in Fp2.
+Soundness bookkeeping (stated again with the §3 row): proximity
+test (1 - delta/3)^Q with delta = 3/4 -> 2^-106; LogUp alpha in Fp2
+with 2^23 lookups per layer -> 2^-105 per layer; sumcheck rounds
+(deg x rounds)/2^128; Merkle/blake3 2^-128 => ~100-bit hash-only
+(+ ROM) class. NOT zero-knowledge (the Ligero ZK masking rows are a
+known, cheap addition; not built).
+
+**RUNG 0 — SKELETON + PRIMITIVES + THE EXPORT READER: GREEN
+(2026-09-02, WSL-BOX).** `hashline/` builds under `flock
+/tmp/zk-build.lock cargo build --release --manifest-path
+/home/victor/wt-uperf3-uu/hashline/Cargo.toml` (7.2 s cold). Decision
+of record on primitives: crates.io IS reachable from this box
+(`cargo search` finds p3-goldilocks / p3-field / p3-dft at
+0.7.0-rc.1) but the primitives were HAND-ROLLED — Goldilocks
+add/sub/mul (the 2^64 = 2^32 - 1 reduction, canonical), Fp2 = Fp[u]/
+(u^2 - 7) (7 checked a non-residue), a radix-2 in-place NTT with a
+2^32-order root (pinned to plonky2's 1753635133440165772), a blake3
+column Merkle tree, a blake3 Fiat-Shamir transcript — because the p3
+API is an rc, the code is ~300 lines, and the measurement stays
+self-contained; blake3 1.8 / rayon 1.12 / sha2 0.10 from crates.io
+(pinned in Cargo.lock). 16 unit tests green (`cargo test --release`):
+mul vs a u128 reference on 200k pairs + edge values, add/sub vs
+reference, inverse + batch inverse, two-adic roots, extension
+axioms, NTT vs naive evaluation + roundtrip at 2^0..2^12, RS encode
+= evaluation, Merkle paths accept / tampered leaf + index reject,
+transcript determinism/sensitivity, eq-table sums to 1 and matches
+eq at boolean points, matrix folds = tensor evaluations,
+interpolation. The frozen SiLU family: zkmatrix-rs has NO lib target
+(no src/lib.rs), so `hashline::silu` regenerates both members from
+the frozen formula and CHECKS the v2 spec digests against the pins
+(bdf8bc71.. for (-3,-3), 06399348.. for (-4,-4) — the same digests
+the export manifest's "tables" carries): both reproduce. Export
+reader (`hashline check-export`, reading
+results/m125_ffn_export_wsl/ read-only, the same digests.txt framing
+as bf_sidecar): **48/48 tensor sha256s reproduce** (X/WgT/WuT/WdT x
+12 layers) and the sidecar shifts equal the calibration-derived
+sh_g = eGate - eX + 9 etc. on every layer (0.05 s).
+
+**RUNG 1 — THE INTEGER CHAIN, EXACTLY: GREEN (2026-09-02, WSL-BOX
+22T).** `hashline chain 12`: the plain Rust chain (i32 exact
+accumulators, arithmetic-shift floor requant with the low-bit mask
+remainder = the rig's bf_floor_requant, the digest-pinned member
+table, the rig's [-128,127] range facts) reproduces the sidecar's z
+sha256 on **12/12 layers** (3cff4aa0.., 234a13a5.., 78fb1239..,
+37e88a6c.., bc684858.., aa3f1d52.., 34e99652.., f6d9ca73..,
+7589552a.., 6325892d.., 1d045f10.., 8193e4ca..) with every range
+fact holding; 0.06-0.09 s per layer, 0.84 s for the pass including
+the file reads [MEASURED, WSL-BOX 22T NOISY-SHARED]. The proof is
+about the same integers as the lattice line's. No STOP.
 
 (lane appends below)
 
