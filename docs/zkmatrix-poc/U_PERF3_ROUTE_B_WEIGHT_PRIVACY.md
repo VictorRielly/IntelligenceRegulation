@@ -529,7 +529,211 @@ prefill row barely notices it.
 
 ## 4. Option 3 — the lattice-hybrid weight commitment
 
-(lands with §4's commit)
+### 4.1 The shape
+
+The lattice line's weight commitment is hiding by construction
+(MLWE), and it is re-openable with a fresh challenge every proof
+without the columns problem: what leaks per opening is a bounded
+set of functional images — the "floor" of S6 §3 — and the masked
+(Tier Z) path hides those (S6 Amendment A1). So the hybrid keeps
+the WEIGHTS on the lattice channel — committed once per model as
+the built weight group (lane QQ's per-model build: the tier-1
+commitments, the tier-2 U, the int8 layout; **2.34 s at 12x512
+[MEASURED, S1]**; 233 s at 8B, 1,040 s at 30B on the laptop GPU
+[MODEL, S1]) and opened per proof by the two-tier opening (**2.08 s
+at the 12x512 weight group with the per-model part warm
+[MEASURED, S1]**; 62-75 s at 8B and 280-340 s at 30B in the design
+of record, 14-27 / 65-125 s with Variant B [MODEL, S1]; lane VV is
+measuring Variant B) — and carries everything else (the activation
+commitments, the helpers, the lookups, the requant identities, the
+Hadamard check) on the hash channel at Route B's rates. This is
+S8's "A + B" row made concrete, and S5 §4.4 item 4's
+"field-switch + link" with the fast prover on the hash side.
+
+### 4.2 The cross-commitment link — the crux
+
+The two channels meet at the matmul. `hashline` proves gacc = X Wg,
+uacc = X Wu and z = h8 Wd with Thaler's matrix-multiplication
+sumcheck (S2), which ends in evaluation claims on the multilinear
+extensions of BOTH factors at a random point in Fp2 (Goldilocks,
+degree-2 extension): X~(r_i, r_k) and Wg~(r_k, r_j) (S3 `layer.rs`
+lines 379-381, 518-520). The weight claim must now be opened from
+the LATTICE commitment. What object carries it, and what it costs,
+depends on which side runs the matmul.
+
+**Form 3a — the matmul on the lattice channel.** The three matmuls
+are proven by the lattice engine exactly as in the built pass (its
+claim layer over q31 rings, S1's "b_rows"), so the weight-side
+object is the lattice engine's own ct-claim and needs no bridge.
+But the matmul's OTHER terminal claims land on activation tensors
+— X, the accumulators (through g8, rg, u8, ru), h8, z — which must
+then also be lattice-committed, per proof, fresh (the built
+activation group), and tied to their hash-side twins (which the
+lookups and requant checks read) by S7's link rows: two
+commitments of the SAME integers at two moduli, l = 24 random
+w = 11-bit integer functionals, each proven on both sides ("Two
+linear ct-claims per row assert the SAME y_l", S7 §3.2), the
+integer y_l revealed and range-gated. On the hash side any
+public-weight linear functional is one sumcheck of the tensor's
+size (batched over the rows: cheap). This is the RECORDED link,
+applied verbatim; its price is that ~30% of the activation witness
+(4 T f + 2 T d of the 13 f + 5 d elements per token-layer, S0
+§1.5 [COUNTED]) is committed and opened on the lattice channel at
+the lattice line's activation-side rates — S4 §2.2/2.4: 250-491 s
+built, 90-240 s two-tier, per 8B x 512 proof on the laptop; 30% of
+that, x2.87 at 30B, over the H100's 2-8x: **12-215 s per 30B
+prefill proof** on top of the weight opening [MODEL on MODEL]. Form
+3a is therefore never cheaper than the lattice line's own
+activation side for those tensors; it is the audit-channel form
+(S8), not the fast one.
+
+**Form 3b — the matmul on the hash channel, the weight claim
+bridged.** The object is an MLE evaluation claim W~(r) with r in
+Fp2: a linear functional of the int8 weights whose coefficients
+eq(r, i) are 128-bit field elements. The lattice claim layer
+proves linear functionals of the committed rings with coefficients
+mod q31 = 2^31 - 399, and those are INTEGER-exact only when the
+functional cannot wrap: |<xi, v>| < q/2 (S7 §3.3's w_max rule).
+**No recorded design opens a Goldilocks-field claim from the q31
+commitment; the recorded link (S7) ties two COMMITMENTS of the same
+integers at two moduli through revealed small-coefficient integer
+functionals.** The cheapest honest bridge this memo can construct
+is that pattern applied to one claim value:
+
+1. Split each coefficient's two 64-bit limbs into 11-bit digits:
+   c_i = sum_{l<2} u^l sum_{t<6} 2^{11 t} c_{i,l,t}. Then W~(r) =
+   sum_{l,t} u^l 2^{11 t} F_{l,t} with F_{l,t} = sum_i c_{i,l,t} w_i
+   — **12 integer functionals per weight claim with 11-bit
+   non-negative coefficients** (S7's w = 11 class), 36 per layer.
+2. The lattice side proves each F_{l,t} EXACTLY as an integer (a
+   ct-claim with the range gate); the verifier recombines them mod
+   p — an integer identity holds in every field. Exactness needs
+   |F| < q/2 on the grounding side: |F| < 2^11 x 2^7 x N; for one
+   30B weight tensor N = 5376 x 21504 = 2^26.8, so |F| < 2^44.8 —
+   it does NOT fit q31 (2^30) and fits the q46 gadget class (q46/2
+   = 2^45) with 0.2 bits to spare (10-bit digits, 14 functionals,
+   give 1.2 bits). At q31 the functional would have to be chunked
+   into pieces of < 2^(23 - w) coordinates — with w = 1 and 128
+   bit-planes that is ~3,600 functionals per tensor per claim, and
+   the two-tier fold's cost is proportional to the number of
+   challenge rows G (S1: the fold-as-GEMM, G = 64-96 today), so
+   ~40-100x the measured opening: dead. **The bridge therefore
+   requires the weight group committed at a >= 46-bit modulus** —
+   the q46 gadget class already designed for bit tensors (S7 §3.1),
+   here carrying the int8 VALUE rings (Variant B's committed
+   object, S1) — a per-model change to the committed object of the
+   same ruling class as Variant B, with 46-bit modular reduction in
+   the per-proof fold [MODEL: x1-1.5 on S1's K2/K4].
+3. Per proof the lattice side serves 36-42 extra functionals per
+   layer (2,200-2,600 per proof at 30B) — the same class as the
+   64-96 challenge rows the built opening already serves per weight
+   group (S1), so the opening's cost is **x1-1.5** [MODEL]. Each
+   revealed F is one linear functional of a whole tensor: 12
+   equations per proof against 1.2e8 unknowns — the lattice line's
+   floor-leak class, ~1e7 proofs from recovery by linear algebra
+   [COUNTED], which Victor's rule masks anyway: on the lattice side
+   the ct-round's g-masks hide y_l ("Both claims ride their side's
+   ordinary ct-round (g-masks, reveals, combined mask images)", S7
+   §3.2); on the hash side the sumcheck's terminal claim is already
+   masked by the fresh Libra polynomial (S0 §4.2 (b)-(c)), so the
+   recombination target W~(r) + c g~(r) is masked too, and the
+   twelve lattice masks must satisfy ONE linear relation (their
+   recombination = c g~(r) mod p) while staying inside the range
+   gate. That mask design is not recorded; its cost class is the
+   Tier Z masked-floor surcharge (S6 A1: +272,640-281,856 B per
+   masked floor at 8B) per weight tensor per proof [MODEL].
+4. Bytes: S0's "~59 KB of link rows per tensor" is S7 §3.4's row —
+   "full FFN tensor | 24 [rows] | 2,519 B | 59.0 [KB/link] | 7.4
+   [MB/pass at 128 linked tensors]", bytes per row = "revealed y (8
+   B) + q46 reveal h_l and mask image W_l (736 B each) + q31 h_l and
+   W_l (496 B each) + amortized g-slot share on both sides" — as
+   scaled by S5 §4.4 item 4 to "~59 KB/tensor x 3 tensors x 32
+   layers ~ 5.7 MB". The 3b bridge is one-sided (only the lattice
+   side reveals) with 12-14 rows: **~15-20 KB per tensor per proof**
+   [COUNTED from S7's row composition], 2.8-3.7 MB per 30B proof
+   (186 tensors), plus the masked-floor surcharge. Prover time for
+   the functionals is noise-class (S7 §3.4: 2.25e11 MACs per pass =
+   3.3 s at 22 threads; here 2.6e11 per 30B proof, inside the fold
+   on the device).
+
+Either form leaves the lattice line's Tier Z simulator obligation
+(S5 §4.5: "the cross-commitment link argument must be simulatable
+too, and the double-committed witness doubles the surface the
+rank/recovery battery class must cover") plus a new one for the
+Goldilocks-side recombination. Nothing in this subsection is
+built; the ct-claim machinery, the q46 gadget layer design and the
+link prototype (`gadget_link_spike.rs`, S7 §3.6) are the pieces.
+
+### 4.3 The hybrid's per-proof cost on one H100 [MODEL on MODEL]
+
+**Weight side (lattice).** S1's 30B rows use an assumed 64 x 5120 x
+25600 = 2.52e10-weight shape; rescaled linearly to S0's 30B
+stand-in (2.15e10, x0.85 [COUNTED]): design of record 239-290 s,
+Variant B 55-107 s on the laptop GPU; 8B 62-75 / 14-27 s. The
+two-tier opening is lattice-line work — device GEMMs plus
+host-side tails (S1's attribution: the fold's host tail K5 is 0.38
+s of the 2.08 s; the recursion 0.34 s) — so it is normalised with
+S4 §3.3's lattice ranges (H100 2-8x over the laptop WITH its GPU),
+not S0's 25-180x. With the 3b bridge's x1-1.5:
+
+| per-proof weight opening, one H100 | 8B | 30B |
+|---|---:|---:|
+| design of record (digit rings) | 7.8-57 s | 30-218 s |
+| Variant B (value rings; lane VV measuring) | **1.75-20 s** | **6.9-81 s** |
+
+Memory: the fold walks every committed weight ring per proof, so
+the store must be device-resident. The design of record's digit
+store is 45 GB at 8B and 172 GB at 30B — the 30B store does NOT
+fit an H100 unless packed to 2 bits (43 GB [MODEL], S4 §3.4), else
+it streams from the host at ~3.4 s per pass; Variant B's int8 value
+rings are 5.6 / 21.5 GB and fit. Variant B is the only 30B form on
+one board, for memory as much as for time.
+
+**Hash side.** The whole activation side of Route B at P1's
+surcharge (x1.02-1.08): per 512 tokens at 30B, floor 3.6-10.8 s
+(7-21 ms per token), scaled 5.4-39 s; at 8B floor 1.3-3.7 s, scaled
+2.7-20 s (S0 §6.4, §7.2). Links and masks: noise-class time (§4.2
+item 4), bytes as counted.
+
+**Tokens/s, option 3 with Variant B (hash side at the floor; the
+scaled hash side in parentheses) [MODEL on MODEL]:**
+
+| cell | per proof | tokens/s |
+|---|---:|---:|
+| 30B prefill, B = 1 (512 tokens) | 6.9-81 + 3.6-10.8 = 10.5-92 s (12-120 s) | **5.6-49** (4.3-42) |
+| 30B prefill, B = 16 (8,192 tokens) | 6.9-81 + 57-172 = 64-253 s (93-704 s) | **32-128** (12-88) |
+| 30B decode, B = 1 | 6.9-81 s | 0.012-0.14 |
+| 30B decode, B = 16 | (6.9-81 + 0.11-0.34) / 16 | 0.2-2.3 |
+| 8B prefill, B = 1 | 1.75-20 + 1.3-3.7 = 3.1-24 s | 21-165 |
+| 8B prefill, B = 16 | 1.75-20 + 21-59 = 23-79 s | 104-356 |
+| 8B decode, B = 1 | 1.75-20 s | 0.05-0.57 |
+| design of record instead of Variant B: 30B prefill B = 1 / B = 16; decode | 34-229 s / 87-390 s; 30-218 s | 2.2-15 / 21-94; 0.005-0.03 |
+| design of record, 8B prefill B = 1; decode | 9.1-61 s; 7.8-57 s | 8.4-56; 0.018-0.13 |
+
+### 4.4 Reading
+
+1. The hybrid inherits the lattice line's per-proof weight
+   opening — the term lanes TT and QQ showed keeps the lattice line
+   at 0.5-15 tok/s. At 30B it reaches 50 tok/s **only with Variant
+   B, only at B >= 16 prefills per proof, only in the upper half of
+   BOTH hardware ranges**; never at a single 512-token prefill
+   (5.6-49 at best); never in decode (< 2.5 tok/s at B = 16).
+2. Both openings are linear in the weights, but the lattice fold
+   is over rings with modular arithmetic and a recursion, the hash
+   opening is two int8 multiply-adds per weight: 6.9-81 s against
+   25-60 ms at 30B on the same board — the 100-1,000x that decides
+   §6. Option 2 keeps the hash opening and hides it; option 3
+   replaces it.
+3. What option 3 buys that option 2 does not: the weight-side
+   guarantee is the lattice line's (MLWE hiding; the audit channel
+   of S8, where "a mismatch between the two proofs is itself an
+   audit signal"); a 1-byte-per-weight per-model store (Variant B)
+   instead of the hash line's 25-byte cache; no arithmetic hash.
+   What it costs: two proof systems to maintain and audit (S5
+   §4.6's permanent burden), an unrecorded bridge that forces a
+   q46-class weight commitment (a ruling), the Tier Z mask design
+   for twelve revealed integers per tensor, and 10-100x option 2's
+   weight-side per-proof time.
 
 ## 5. Option 4 — anything else the literature offers
 
