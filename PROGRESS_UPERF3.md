@@ -5108,6 +5108,76 @@ commitment) — that is V1's target.
   helper / kappa-level pf helper / planes / descent; V3 = the SiLU
   helper routed through the kappa-level pf form, `uperf-a pass 12
   128 full` peak vs range mode; V4 = the 8B full-mode counted row.
+- Commit: 0301c66.
+
+### RUNG V1 — ONE RANGE FACT AS A 256-ROW LOOKUP OVER ITS EXISTING COMMITMENT (2026-09-02) [WSL-BOX 8T NOISY-SHARED]
+
+WHAT WAS BUILT (ring/stage_a_full.rs + the driver's Full-mode branches):
+the mode `uperf-a pass L T full-ss [k<kappa_silu>] [r<kappa_route>|noroute]
+[ss-sum]` — the SiLU pairs' LogUp helper at kappa levels (kappa 0 = the
+S2 form as GG built it) and, by default, the nrw-88 member (layer 0, h8)
+taken OUT of its planes class and proven as a 256-row identity lookup
+over its EXISTING h8 commitment (multiplicities in act, helper in act-h;
+the key claim lands on the member tensor as key_b(x*) - offset * S_eq
+with the strided eq_hi x eq_lo kernels the planes form uses; pads carry
+key 0 = row 0 and are counted in m[0]). The kappa-level partial-fraction
+prover/verifier (eq * (h * Q - P), degree 2^kappa + 2; the verifier is
+the house ixf_sumcheck_verify with the shape's combine) landed with it
+and is exercised at kappa 3/4 — that is V3's core, tested here on the
+small shape. `uperf-a ss-diff` = the standalone R2-style differential.
+- DIFFERENTIAL LEG 1, byte identity of the plumbing: `pass 3 16 full-ss
+  k0 noroute` reproduces GG's `pass 3 16 full` BIT-FOR-BIT — PASS
+  TRANSCRIPT DIGEST **b0349a4536cddaf0..** both, 584,786 B, act-h n_0
+  196,608, 231 claims [MEASURED].
+- DIFFERENTIAL LEG 2, the lookup form over the existing commitment
+  (`ss-diff 1 16`, the real layer-0 h8 column, 2^15 codes, one alpha
+  across the forms): kappa 0 / 3 / 4 all ACCEPT; every served value
+  grounded DIRECTLY on the raw column in exact K equality (key_b(x*)
+  1/1, 8/8, 16/16; h(x*); h_sum and table_sum recomputed); the three
+  forms' h_sum IDENTICAL (the same rational identity sum_i 1/(alpha -
+  key_i)); TAMPER off-table (one code 300 -> 428, outside [0,256) yet
+  inside the committed class — the BK RangeViolation shape; the prover
+  honest about its own inverse) REJECTS at the SUM gate with the chain
+  intact at kappa 0 and 3; TAMPER served key REJECTS at the CHAIN gate
+  at kappa 0 and 3. ALL LEGS GREEN, peak RSS 44 MiB.
+- DIFFERENTIAL LEG 3, at pass level (`pass 3 16 full-ss`, kappa 0 both):
+  ACCEPT, digest 4c63259d6c4ffd97.., 589,762 B; the route's key_b(x*) /
+  h(x*) direct == served, h_sum == table_sum (asserted in the driver);
+  `pass 3 16 full-ss ss-sum` (the served h_sum flipped) REJECTS at the
+  named gate `ss-lookup-sum:nrw-88`. The descent (table) form of the
+  same fact is the frozen oracle's nrw-88 pair (bk_pass_run; its
+  RangeViolation leg rejects the same off-table shape) — same rational
+  identity, proven as a masked GKR tree instead of a committed helper;
+  no served value to compare bit-for-bit across the two proof systems
+  beyond the accept/reject pair, recorded as such.
+- **THE RING VERDICT [MEASURED at 3x16]**: routing ONE 8-bit fact (2^15
+  elements) through the lookup form over its existing commitment
+  costs act-h **+65,536 rings** (the S2 helper, 2/element) and saves
+  act **-2,030 rings** (its 8 planes 2,048 minus the 18-ring
+  multiplicity tensor): **32x MORE commitment for the same fact**.
+  `full` -> `full-ss`: act-h 196,608 -> 262,144, act 98,614 -> 96,584,
+  bytes 584,786 -> 589,762, peak 1,024 -> 1,145 MiB. The memo's C2
+  ("the act-h group and the width planes both vanish") is inverted:
+  the planes are the compact form for range facts; the lookup form
+  buys ONE thing the planes cannot — the exact one-sided fact [0, 256)
+  (GG's OQ-2 sign gap closes by construction: the table IS the range).
+  At kappa 3 the same route costs 8,192 rings (4x the planes), at
+  kappa 4 4,096 (2x) — still never cheaper than the planes.
+- THE V3 FORM AT 3x16 (`pass 3 16 full-ss k3 r4`): ACCEPT, digest
+  1fa0ff25b6905bbe.., **act-h n_0 196,608 -> 28,672 (6.9x smaller;
+  silu-m3 131,072 -> 16,384, silu-m4 65,536 -> 8,192, the route
+  4,096)**, bytes 611,794 (+27 KB: degree-10/18 rounds + 2^kappa key
+  claims), peak RSS **890 MiB vs 1,024 (full) / 1,145 (full-ss k0)**,
+  lookup sumchecks 1.12 s vs 0.46 s (kappa 0), verify 1.2 s.
+- FLOORS: build green; diff-battery 17.45 s green; freeze-check 102 ok
+  + passed; 3752cba4.. / 46234986.. / be89d5da.. unchanged; range-mode
+  12x64 digest 44528c6a.. UNCHANGED (622,011 B, 989 claims, peak 3,891
+  MiB) — range mode byte-identical.
+- What V1 does NOT settle: the kappa-level form's soundness argument is
+  the partial-fraction identity P/Q = sum_i 1/(alpha - key_i) (exact
+  when alpha is no key) plus the standard sumcheck bound at degree
+  2^kappa + 2 over K (2^496) — written here, not yet reviewed by
+  anyone but this lane; it enters no freeze row until ruled.
 
 ## Agent TT status (main session) — round 10
 
