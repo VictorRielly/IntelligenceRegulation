@@ -58,10 +58,19 @@ pub struct Claim {
     pub value: Fp2,
 }
 
+/// [UPERF3-XX] Where the encoded matrix lives: the host (the CPU path,
+/// unchanged) or the device (`HL_GPU=1`; the systematic data and the
+/// encoding stay resident until the opening).
+pub enum Store {
+    Host { encoded: Vec<Fp> }, // rows x enc_cols, row-major
+    #[cfg(feature = "gpu-cuda")]
+    Device(crate::gpu::DevCommit),
+}
+
 pub struct Committed {
     pub params: PcsParams,
     pub rows: usize,
-    pub encoded: Vec<Fp>, // rows x enc_cols, row-major
+    pub store: Store,
     pub tree: MerkleTree,
 }
 
@@ -118,22 +127,10 @@ fn hash_column(col: &[Fp]) -> Digest {
     *h.finalize().as_bytes()
 }
 
-/// Commit to `data` (length must be a multiple of n).
-pub fn commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Committed {
-    let n = params.cols();
-    let nn = params.enc_cols();
-    assert!(data.len() % n == 0 && !data.is_empty(), "pcs: data length {} not a multiple of n = {n}", data.len());
-    let rows = data.len() / n;
-    let mut encoded = vec![Fp::ZERO; rows * nn];
-    encoded.par_chunks_mut(nn).zip(data.par_chunks(n)).for_each(|(erow, drow)| {
-        // systematic: interpolate on the size-n subgroup, evaluate on the size-nn group
-        let mut coeffs = drow.to_vec();
-        ntt.inverse(&mut coeffs);
-        ntt.rs_encode(&coeffs, erow);
-    });
-    // column hashes, tiled
+/// The column leaves of an encoded matrix (rows x nn, row-major): blake3
+/// of each column's little-endian bytes, hashed in tiles of 64 columns.
+pub fn hash_columns(encoded: &[Fp], rows: usize, nn: usize) -> Vec<Digest> {
     let tile = 64usize;
-    let n_tiles = (nn + tile - 1) / tile;
     let mut leaves = vec![[0u8; 32]; nn];
     leaves.par_chunks_mut(tile).enumerate().for_each(|(ti, out)| {
         let c0 = ti * tile;
@@ -149,9 +146,36 @@ pub fn commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Committed {
             *o = *blake3::hash(b).as_bytes();
         }
     });
-    let _ = n_tiles;
+    leaves
+}
+
+/// Commit to `data` (length must be a multiple of n).
+pub fn commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Committed {
+    let n = params.cols();
+    let nn = params.enc_cols();
+    assert!(data.len() % n == 0 && !data.is_empty(), "pcs: data length {} not a multiple of n = {n}", data.len());
+    let rows = data.len() / n;
+    // [UPERF3-XX] the device path (HL_GPU=1): the same encoding and the same leaves; Err -> the CPU body below.
+    #[cfg(feature = "gpu-cuda")]
+    if crate::gpu::enabled() {
+        match crate::gpu::dev_commit(params, data, ntt) {
+            Ok((dc, leaves)) => {
+                let tree = MerkleTree::build(leaves);
+                return Committed { params: *params, rows, store: Store::Device(dc), tree };
+            }
+            Err(e) => eprintln!("[UPERF3-XX] gpu commit declined ({e}); CPU path"),
+        }
+    }
+    let mut encoded = vec![Fp::ZERO; rows * nn];
+    encoded.par_chunks_mut(nn).zip(data.par_chunks(n)).for_each(|(erow, drow)| {
+        // systematic: interpolate on the size-n subgroup, evaluate on the size-nn group
+        let mut coeffs = drow.to_vec();
+        ntt.inverse(&mut coeffs);
+        ntt.rs_encode(&coeffs, erow);
+    });
+    let leaves = hash_columns(&encoded, rows, nn);
     let tree = MerkleTree::build(leaves);
-    Committed { params: *params, rows, encoded, tree }
+    Committed { params: *params, rows, store: Store::Host { encoded }, tree }
 }
 
 impl Committed {
@@ -206,11 +230,15 @@ fn group_claims(claims: &[Claim], rows: usize, log_cols: u32) -> Vec<(Vec<Fp2>, 
 }
 
 /// rho^T M for several rho at once, reading the systematic positions of
-/// the encoded matrix (encoded[i][inv_rate * j] == data[i][j]).
+/// the encoded matrix (encoded[i][inv_rate * j] == data[i][j]) — or, for
+/// a device store, its host copy of the data (stride 1).
 fn fold_rows_multi(cm: &Committed, rhos: &[Vec<Fp2>]) -> Vec<Vec<Fp2>> {
     let n = cm.params.cols();
-    let nn = cm.params.enc_cols();
-    let ir = cm.params.inv_rate;
+    let (src, nn, ir): (&[Fp], usize, usize) = match &cm.store {
+        Store::Host { encoded } => (encoded, cm.params.enc_cols(), cm.params.inv_rate),
+        #[cfg(feature = "gpu-cuda")]
+        Store::Device(dc) => (&dc.data_host, n, 1),
+    };
     let k = rhos.len();
     let chunk = 512usize.min(n);
     let n_chunks = (n + chunk - 1) / chunk;
@@ -221,7 +249,7 @@ fn fold_rows_multi(cm: &Committed, rhos: &[Vec<Fp2>]) -> Vec<Vec<Fp2>> {
             let w = chunk.min(n - c0);
             let mut out = vec![vec![Fp2::ZERO; w]; k];
             for i in 0..cm.rows {
-                let row = &cm.encoded[i * nn..(i + 1) * nn];
+                let row = &src[i * nn..(i + 1) * nn];
                 for (g, rho) in rhos.iter().enumerate() {
                     let r = rho[i];
                     if r.is_zero() { continue; }
@@ -279,13 +307,20 @@ pub fn open(cm: &Committed, claims: &[Claim], tr: &mut Transcript) -> Opening {
     tr.absorb_fp2(b"pcs-prox", &prox_vec);
     let idx = tr.challenge_indices(cm.params.num_col_checks, cm.params.enc_cols());
     let nn = cm.params.enc_cols();
-    let columns: Vec<(usize, Vec<Fp>, Vec<Digest>)> = idx
-        .par_iter()
-        .map(|&j| {
-            let col: Vec<Fp> = (0..rows).map(|i| cm.encoded[i * nn + j]).collect();
-            (j, col, cm.tree.path(j))
-        })
-        .collect();
+    let columns: Vec<(usize, Vec<Fp>, Vec<Digest>)> = match &cm.store {
+        Store::Host { encoded } => idx
+            .par_iter()
+            .map(|&j| {
+                let col: Vec<Fp> = (0..rows).map(|i| encoded[i * nn + j]).collect();
+                (j, col, cm.tree.path(j))
+            })
+            .collect(),
+        #[cfg(feature = "gpu-cuda")]
+        Store::Device(dc) => {
+            let cols = crate::gpu::dev_columns(dc, &idx).expect("gpu column gather");
+            idx.iter().zip(cols.into_iter()).map(|(&j, col)| (j, col, cm.tree.path(j))).collect()
+        }
+    };
     let _ = n;
     Opening { group_vecs: vecs, prox_vec, columns }
 }

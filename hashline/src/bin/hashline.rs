@@ -122,6 +122,22 @@ fn gpu_probe() {
             std::process::exit(1);
         }
     }
+    // [UPERF3-XX] rung 1: the device RS encoding == the CPU encoding element for element
+    #[cfg(feature = "gpu-cuda")]
+    {
+        let mut fails = 0;
+        for (log_cols, inv_rate, rows) in [(4u32, 4usize, 3usize), (10, 4, 5), (12, 4, 7), (14, 4, 5), (14, 4, 64), (13, 2, 4), (12, 8, 3)] {
+            match hashline::gpu::dev_commit_check(log_cols, inv_rate, rows) {
+                Ok((bad, t_cpu, t_gpu)) => {
+                    println!("  ntt check log_cols {log_cols} inv_rate {inv_rate} rows {rows}: {bad} mismatches (cpu encode {t_cpu:.3} s, device commit incl. upload+hash {t_gpu:.3} s)");
+                    if bad > 0 { fails += 1; }
+                }
+                Err(e) => { println!("  ntt check log_cols {log_cols} inv_rate {inv_rate} rows {rows}: ERROR {e}"); fails += 1; }
+            }
+        }
+        println!("gpu-probe: ntt checks {}", if fails == 0 { "GREEN" } else { "RED" });
+        if fails > 0 { std::process::exit(1); }
+    }
 }
 
 fn check_export() {

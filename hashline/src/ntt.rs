@@ -43,6 +43,13 @@ impl NttTables {
         NttTables { max_log, roots, inv_roots, twiddles, inv_twiddles }
     }
 
+    /// [UPERF3-XX] The per-level twiddle tables (forward, inverse) of the
+    /// size-2^max_log transform, as `transform` indexes them
+    /// (tw[k * (max_n / len)]); the device NTT uploads these once.
+    pub fn twiddle_tables(&self) -> (&[Fp], &[Fp]) {
+        (&self.twiddles, &self.inv_twiddles)
+    }
+
     /// In-place forward NTT of `a` (length 2^log_n): coefficients -> evaluations
     /// at omega^i, i = 0..n (natural order).
     pub fn forward(&self, a: &mut [Fp]) {

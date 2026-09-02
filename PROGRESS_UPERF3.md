@@ -6829,6 +6829,43 @@ known" at the end.
 
 (lane appends below)
 
+**RUNG 0 — SKELETON + THE DEVICE FIELD PROBE: GREEN (2026-09-02,
+WSL-BOX, RTX 4070 Laptop sm_89 36 SMs, NOISY-SHARED: another lane's
+job held ~6 GB while this ran).** `hashline/` gains a `gpu-cuda` cargo
+feature (cudarc 0.13.9, the same driver+NVRTC toolchain and features
+zkmatrix-rs uses; default OFF), `src/gpu/{mod.rs,cuda.rs,kernels.cu}`
+in zkmatrix-rs's bootstrap pattern (device singleton, `include_str!`
+kernel source compiled once by NVRTC, FUNCS list, `HL_GPU=1` runtime
+toggle, `HL_GPU_VERBOSE=1`), and a device Goldilocks probe. Build:
+`CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib
+CARGO_TARGET_DIR=/home/victor/wt-uperf3-xx/hashline/target-gpu flock
+/tmp/zk-build.lock cargo build --release --features gpu-cuda
+--manifest-path /home/victor/wt-uperf3-xx/hashline/Cargo.toml` (19 s;
+the CPU build in `target/` is untouched by the feature). Run:
+`HL_GPU=1 LD_LIBRARY_PATH=<as above> hashline/target-gpu/release/hashline
+gpu-probe`: **NVRTC compile 0.39 s; 2^20 canonical pairs (the 81 edge
+pairs of {0, 1, p-1, p-2, 2^32-1, 2^32, 2^63, p-(2^32-1), 2^64-2^32}
+first, then xorshift) — mul / add / sub mismatches 0 vs field.rs**
+(the reduction is the CPU's reduce128 with the same borrow/carry
+adjustments; 4.9 G mul/s on the naive 3-op probe kernel, memory-bound,
+not a ceiling) [MEASURED]. Byte-identity gate added for every rung:
+`LayerProof::to_bytes()` (the flat LE encoding `size_bytes` counted
+— asserted equal), `--proof-out PATH`, and a `PROOF sha256` line in
+`pass`. CPU path unchanged: 19/19 unit tests green (CPU build); the
+3x16 pass gives sha256 596b9c79f086d6f1.. (7,365,588 B) from BOTH the
+CPU-only binary and the gpu-cuda binary with HL_GPU unset (the
+feature-on build without the toggle is the CPU prover). THE CPU
+REFERENCE at 12x512 for this lane (CPU-only binary, `flock
+/tmp/zk-heavy.lock /usr/bin/time -v hashline pass 12 512 --threads 8
+--proof-out ...`): **PROOF sha256
+50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d
+(66,844,928 B); PROVE 21.60 s, VERIFY 2.85 s, RSS 1.56 GB; phases
+commit W 2.13 | commit A 3.76 | helpers + commit H 4.38 | matmul g/u
+0.73 | matmul d 0.57 | zero-check 20 4.13 | zero-check 17 2.15 | PCS
+openings 3.71 s** [MEASURED, WSL-BOX 8T CPU NOISY-SHARED] — UU's row
+reproduced within its 21.5-23.7 s spread. Commit 7352e3d.
+
+
 ## Agent YY status (wt-uperf3-yy) — round 11
 
 (lane appends below)
