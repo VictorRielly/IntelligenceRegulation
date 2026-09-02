@@ -49769,9 +49769,16 @@ fn uperf_t_main(args: &[String]) {
         Some("r1") => uperf_t_qq_r1(&args[1..]),
         Some("gpu") => uperf_t_qq_gpu(&args[1..]),
         Some("repeat") => uperf_t_qq_repeat(&args[1..]),
+        // [UPERF3-VV] round 11: Variant B (tier 1 over the value rings) —
+        // the planner/count (rung 0), the CPU build + legs (rung 2), the
+        // device path (rung 3), the per-proof measurement (rung 4).
+        Some("count-b") => uperf_t_vv_count_b(&args[1..]),
+        Some("b") => uperf_t_vv_b(&args[1..]),
+        Some("repeat-b") => uperf_t_vv_repeat_b(&args[1..]),
         _ => eprintln!(
             "uperf-t plan [log2_rings [e0]] | diff [n_log2] [threads] [seed] | bench [n_log2] [threads] [seed] (see PROGRESS_UPERF3.md Agent FF status)\n\
-             uperf-t count [log2_rings] | r1 [n_log2] [threads] [seed] | gpu [n_log2] [threads] [seed] | repeat <n_log2|real> [n] [threads] [seed] (round 10, Agent QQ status)"
+             uperf-t count [log2_rings] | r1 [n_log2] [threads] [seed] | gpu [n_log2] [threads] [seed] | repeat <n_log2|real> [n] [threads] [seed] (round 10, Agent QQ status)\n\
+             uperf-t count-b [log2_rings] | b diff|bench ... | repeat-b <n_log2|real-w> [n] [threads] [seed] (round 11, Agent VV status)"
         ),
     }
 }
@@ -51453,6 +51460,231 @@ fn uperf_t_qq_repeat(args: &[String]) {
         if bg_min / tt_min >= 5.0 { "MET" } else { "NOT MET" }
     );
     println!("[UPERF3-QQ] repeat done in {:.1}s, peak RSS {:.0} MiB [WSL-BOX {threads}T|NOISY-SHARED]", t00.elapsed().as_secs_f64(), uperf_a_peak_rss_mib());
+}
+
+// ===========================================================================
+// [UPERF3-VV] U-PERF3 round 11, lane VV — VARIANT B of the two-tier opening:
+// tier 1 over the recombined VALUE rings (PROGRESS_UPERF3.md "Lane VV";
+// lane QQ's rung-1 count). ADDITIVE: new `uperf-t` subcommands only; the
+// FF (S4) and QQ (R1) paths above and the frozen pass stay byte-identical.
+// Rungs:
+//   0. `uperf-t count-b [log2_rings]` — the Variant-B object map + the
+//      exact-digit gates at 2^22 / 12x512 W / 8B W / 30B W (reproduces
+//      QQ's row-group headroom +3.45 / +1.74 / +1.42 bits); [MODEL]
+//      per-proof walls from QQ's measured constants K1-K8.
+//   1. the soundness note (ledger, before code).
+//   2. `uperf-t b diff|bench` — Variant B on the CPU behind the flag; the
+//      S4/R1 differential legs + the reject legs at 2^20 / 2^22.
+//   3. the device path (QQ's fold/GEMM hooks over the value tier),
+//      `uperf-t b bench` under ZK_GPU=1 at 2^22 / 2^23.
+//   4. `uperf-t repeat-b real-w` — the per-proof measurement at the real
+//      12x512 weight group vs the built GPU opening (the >= 5x bar).
+
+/// [UPERF3-VV] The PUBLIC value bounds of a group's tensors: the int8
+/// class (bound 128 — alphabet(8) = [-128, 127] is CLASS_W8S's declared
+/// range, so a value ring is ONE balanced digit at base 8) when the
+/// group is the int8 weight group; else the representable bound of the
+/// tensor's (e0, l0) — the synthetic instances' honest witnesses fill
+/// their alphabets, so their values are NOT int8 (tb: |x| <= 255).
+fn vv_value_bounds(group: &ring::eval_proof::AggGroup, int8_weights: bool) -> Vec<u128> {
+    group.tensors.iter().map(|t| if int8_weights { 128 } else { ring::two_tier::tt_value_bound(t) }).collect()
+}
+
+/// [UPERF3-VV] Lane QQ's MEASURED constants (12x512 weight group, RTX
+/// 4070 Laptop, 8T, NOISY-SHARED; Agent QQ rung 5) — every wall printed
+/// from them is [MODEL].
+struct VvK {
+    /// v GEMM, i8 operand, short K (len 128-192): D-MAC/s; and the C1 class at len ~1800.
+    k2_short: f64,
+    k2_c1: f64,
+    /// P precompute on the CPU pool, scalar MAC/s.
+    k3_p: f64,
+    /// fold-as-GEMM, ns per tier-1 witness ring (measured over digit rings at len = G 64-96).
+    k4_fold_ns: f64,
+    /// fold host tail, us per FOLDED ring (bound check + poly_from_small + absorb).
+    k5_tail_us: f64,
+    /// recursion prove, us per ring: the small regime (203K rings) and the C5 class (11.4M rings).
+    k6_small_us: f64,
+    k6_c5_us: f64,
+    /// rows-from-v, scalar MAC/s.
+    k7_rows: f64,
+    /// the built bg_prove_group on the device, us per digit ring.
+    k8_built_us: f64,
+    /// QQ's unattributed per-proof residual at 12x512 (transcript absorbs of the u/v planes etc.): 2.08 - (0.09+0.27+0.80+0.03+0.34) s, scaled with G_all.
+    k9_resid_s_per_g: f64,
+}
+
+fn vv_k() -> VvK {
+    VvK {
+        k2_short: 7.5e9,
+        k2_c1: 74e9,
+        k3_p: 1.35e9,
+        k4_fold_ns: 119.0,
+        k5_tail_us: 8.8,
+        k6_small_us: 1.68,
+        k6_c5_us: 0.62,
+        k7_rows: 1.1e9,
+        k8_built_us: 0.59,
+        k9_resid_s_per_g: 0.55 / 4608.0,
+    }
+}
+
+/// [UPERF3-VV] rung 0: `uperf-t count-b [log2_rings]` — the Variant-B
+/// object map and the exact-digit gates (no proving). Default set = QQ's
+/// count set (the 2^22 FF synthetic, the 12x512 / 8B / 30B weight groups);
+/// the record's numbers ride QQ's `qq_count_shape` unchanged and Variant B
+/// is laid on top (`ring::two_tier::tt_b_plan`).
+fn uperf_t_vv_count_b(args: &[String]) {
+    use ring::kfield::KField;
+    use ring::two_tier::{build_tt_grid, recursion_schedule, tt_b_plan};
+    let q = ring::Q8;
+    let ctx = ring_ctx_q8();
+    let kf = KField::new(&ctx);
+    let k = vv_k();
+    let mut shapes: Vec<QqShape> = Vec::new();
+    if let Some(lg) = args.first() {
+        let lg: usize = lg.parse().expect("log2_rings");
+        let inst = tt_build_instance(&kf, lg, 161);
+        let contribs = inst.tt.iter().map(|c| c.tensor_idx).collect();
+        shapes.push(QqShape { label: format!("2^{lg} FF synthetic"), note: "6 tensors e0 in {1,2}, l0 2-8, 7 contribs (ta twice), tf claimless", group: inst.group, contribs, int8_weights: false });
+    } else {
+        let inst = tt_build_instance(&kf, 22, 161);
+        let contribs = inst.tt.iter().map(|c| c.tensor_idx).collect();
+        shapes.push(QqShape { label: "2^22 FF synthetic".into(), note: "6 tensors e0 in {1,2}, l0 2-8, 7 contribs (ta twice), tf claimless — the rung-2/3 measurement shape (values NOT int8: e_v per tensor from the representable bound)", group: inst.group, contribs, int8_weights: false });
+        shapes.push(qq_weight_group("12x512 weight group".into(), "12 x [WgT 768x2048, WuT 768x2048, WdT 2048x768], CLASS_W8S e0 1 l0 8 — the bar's shape (3,538,944 digit rings)", 12, 768, 2048));
+        shapes.push(qq_weight_group("8B weight group".into(), "32 x [4096x14336 x2, 14336x4096], e0 1 l0 8 (352,321,536 digit rings)", 32, 4096, 14336));
+        shapes.push(qq_weight_group("30B weight group (FFN-only, ASSUMED shape)".into(), "64 x [5120x25600 x2, 25600x5120] = 2.52e10 int8 FFN weights", 64, 5120, 25600));
+    }
+    println!(
+        "[UPERF3-VV] uperf-t count-b — VARIANT B (tier 1 over the recombined VALUE rings) vs the design of record (tier 1 over the digit rings), on the RECORD GRID (q = {q}, kappa = {}, D = {D}, K_DEG 16; gates = row H-gate-ed, gamma = OP_CONC * 2^(e-1) * sqrt(n*D) <= gamma_max_exact = 2^{:.2})",
+        ring::eval_proof::KAPPA_AGG,
+        ring::digits::gamma_max_exact(q).log2()
+    );
+    println!("[UPERF3-VV] the value base e_v of a tensor = the smallest e with 2^(e-1) >= its public value bound (int8 class: 128 -> e_v 8 = the balanced alphabet [-128, 127]); the grid, the claim factorization, the v-vectors and the tier-2 object are the record's (QQ) — only tier 1's witness and the fold change.");
+    let mut gate_rows: Vec<String> = Vec::new();
+    let mut proj_rows: Vec<String> = Vec::new();
+    for sh in &shapes {
+        let (c, grid) = qq_count_shape(sh, q);
+        let bounds = vv_value_bounds(&sh.group, sh.int8_weights);
+        let p = tt_b_plan(&sh.group, &grid, &bounds, &sh.contribs, q);
+        println!("\n[UPERF3-VV] ==== {} ====", sh.label);
+        println!("[UPERF3-VV]   {}", sh.note);
+        println!(
+            "[UPERF3-VV]   n0 {} digit rings (~2^{:.1}) -> Nv {} value rings ({:.1}x fewer); {} tensors / {} contribs; G_all {}; u digits e{} x {} -> n2 {} (unchanged)",
+            p.n0, (p.n0 as f64).log2(), p.nv, p.n0 as f64 / p.nv as f64, sh.group.tensors.len(), sh.contribs.len(), p.g_all, p.e_u, p.l_u, p.n2
+        );
+        // Distinct grid classes with the Variant-B columns.
+        let mut seen: Vec<(usize, usize, usize, u32, u32)> = Vec::new();
+        for (ti, t) in sh.group.tensors.iter().enumerate() {
+            let tp = &p.tensors[ti];
+            let key = (t.rows, t.cols, tp.g_rows, t.e0, tp.e_v);
+            if !seen.contains(&key) {
+                seen.push(key);
+                println!(
+                    "[UPERF3-VV]   grid class {}: rows {} x cols {} (e0 {} l0 {}, nb {}) -> g_rows {}, G {}; record width {} digit rings at e0 (gate {:+.2}) | B width_v {} value rings, bound {} -> e_v {}, gate {:+.2} bits; fold bound 2^{:.0} -> l_z {} at e_u {} (record l_z {}); n_w {} (record {})",
+                    t.name, t.rows, t.cols, t.e0, t.l0, tp.nb, tp.g_rows, tp.n_groups, grid[ti].width,
+                    ring::two_tier::gate_headroom_bits(grid[ti].width, t.e0, q),
+                    tp.width_v, tp.bound, tp.e_v, tp.head_rowgroup, (tp.fold_bound as f64).log2(), tp.l_z, p.e_u,
+                    ring::two_tier::tt_w_digit_limbs(tp.n_groups, t.e0, p.e_u), tp.n_w, tp.n_w_record
+                );
+            }
+        }
+        let n_rec_rec_full = p.n_w_record + p.n2 + p.n_v;
+        println!(
+            "[UPERF3-VV]   RECORD gates (tier 1 over digit rings): row-group min {:+.2} bits, folded w {:+.2} (n_w {}), tier-2 u {:+.2} (n2 {}) => {}; n_rec clear {} | full (w+u+v) {}",
+            p.head_rowgroup_record_min, p.head_w_record, p.n_w_record, p.head_u, p.n2,
+            if p.head_rowgroup_record_min >= 0.0 && p.head_w_record >= 0.0 && p.head_u >= 0.0 { "GREEN" } else { "RED" },
+            p.n2, n_rec_rec_full
+        );
+        println!(
+            "[UPERF3-VV]   VARIANT B gates (tier 1 over value rings): row-group min {:+.2} bits (tensor {}, width_v {}, e_v {}), folded w {:+.2} (n_w {}), tier-2 u {:+.2} (n2 {}) => {}; n_rec clear {} | full (w+u+v) {} ({:.2}x the record's)",
+            p.head_rowgroup_min, sh.group.tensors[p.head_rowgroup_min_idx].name, p.tensors[p.head_rowgroup_min_idx].width_v, p.tensors[p.head_rowgroup_min_idx].e_v,
+            p.head_w, p.n_w, p.head_u, p.n2,
+            if p.gate_green() { "GREEN" } else { "RED" },
+            p.n_rec_clear(), p.n_rec_full(), n_rec_rec_full as f64 / p.n_rec_full() as f64
+        );
+        for (tag, n_rec) in [("V-clear (u digits)", p.n_rec_clear()), ("V-recursed (w+u+v)", p.n_rec_full())] {
+            match recursion_schedule(n_rec, p.e_u, q) {
+                Some(s) => println!("[UPERF3-VV]     B recursion [{tag}] on {} rings at e_u {}: {} levels, floor {} rings e{} (frozen planner, reused)", n_rec, p.e_u, s.levels.len(), s.floor_rings, s.floor_e),
+                None => println!("[UPERF3-VV]     B recursion [{tag}] on {} rings at e_u {}: GATE RED (frozen planner would refuse)", n_rec, p.e_u),
+            }
+        }
+        // For information: a grid balanced over VALUE rings (width_v ~ sqrt(Nv)).
+        {
+            let l0_max = sh.group.tensors.iter().map(|t| t.l0).max().unwrap_or(1);
+            let s_alt = (p.nv as f64).sqrt().ceil() as usize * l0_max;
+            let grid_alt = build_tt_grid(&sh.group, s_alt);
+            let p_alt = tt_b_plan(&sh.group, &grid_alt, &bounds, &sh.contribs, q);
+            println!(
+                "[UPERF3-VV]   (for information) a VALUE-sqrt grid (width_v <= {}): G_all {}, n2 {}, row-group min {:+.2} bits, w {:+.2}, u {:+.2} => {}; n_rec full {} — NOT the design: the record grid above is what the differential keeps",
+                s_alt / l0_max, p_alt.g_all, p_alt.n2, p_alt.head_rowgroup_min, p_alt.head_w, p_alt.head_u,
+                if p_alt.gate_green() { "GREEN" } else { "RED" }, p_alt.n_rec_full()
+            );
+        }
+        // Per-model / per-proof [MODEL] from QQ's K1-K8.
+        let kap = ring::eval_proof::KAPPA_AGG as f64;
+        println!(
+            "[UPERF3-VV]   PER-MODEL [COUNTED]: tier-1 commit kappa*Nv = {} ring-MACs (record kappa*n0 = {}: {:.1}x fewer); CRS kappa*(width_v_sum {} + n2 {}) = {} rings (record {}); the i8 value layout {:.2} GB is the tier-1 witness itself",
+            qq_fmt_big(kap * p.nv as f64), qq_fmt_big(kap * p.n0 as f64), p.n0 as f64 / p.nv as f64,
+            p.width_v_sum, p.n2, qq_fmt_big(kap * (p.width_v_sum + p.n2) as f64), qq_fmt_big(kap * (p.width_sum + p.n2) as f64), (p.nv * D) as f64 / 1e9
+        );
+        let t_v_lo = c.p2_dmacs / k.k2_c1;
+        let t_v_hi = c.p2_dmacs / k.k2_short;
+        let t_p = c.p1_scalar / k.k3_p;
+        let t_rows = c.p3_scalar / k.k7_rows;
+        let t_fold_rec = p.n0 as f64 * k.k4_fold_ns * 1e-9 + p.width_sum as f64 * k.k5_tail_us * 1e-6;
+        let t_fold_b = p.nv as f64 * k.k4_fold_ns * 1e-9 + p.width_v_sum as f64 * k.k5_tail_us * 1e-6;
+        let t_rec_lo = p.n2 as f64 * k.k6_c5_us * 1e-6;
+        let t_rec_hi = p.n2 as f64 * k.k6_small_us * 1e-6;
+        let t_resid = p.g_all as f64 * k.k9_resid_s_per_g;
+        let t_built = p.n0 as f64 * k.k8_built_us * 1e-6;
+        let rec_lo = t_v_lo + t_p + t_rows + t_fold_rec + t_rec_lo + t_resid;
+        let rec_hi = t_v_hi + t_p + t_rows + t_fold_rec + t_rec_hi + t_resid;
+        let b_lo = t_v_lo + t_p + t_rows + t_fold_b + t_rec_lo + t_resid;
+        let b_hi = t_v_hi + t_p + t_rows + t_fold_b + t_rec_hi + t_resid;
+        println!(
+            "[UPERF3-VV]   PER-PROOF [MODEL from QQ's K2-K9, RTX 4070 Laptop 8T, weights resident]: v GEMM {:.2}-{:.2} s + P {:.2} + rows {:.2}; fold RECORD {:.2} s (K4 x n0 + K5 x width_sum) vs B {:.2} s (K4 x Nv + K5 x width_v_sum); recursion proxy {:.2}-{:.2} s (n2); residual {:.2} s (K9 x G_all)",
+            t_v_lo, t_v_hi, t_p, t_rows, t_fold_rec, t_fold_b, t_rec_lo, t_rec_hi, t_resid
+        );
+        println!(
+            "[UPERF3-VV]     => per-proof RECORD {:.2}-{:.2} s | VARIANT B {:.2}-{:.2} s | built (K8 x n0) {:.2} s => ratio record {:.1}-{:.1}x | B {:.1}-{:.1}x (bar >= 5x)",
+            rec_lo, rec_hi, b_lo, b_hi, t_built, t_built / rec_hi, t_built / rec_lo, t_built / b_hi, t_built / b_lo
+        );
+        gate_rows.push(format!(
+            "| {} | {} | {} | {:+.2} | {:+.2} (e_v {}, width_v {}) | {:+.2} | {:+.2} | {} |",
+            sh.label, qq_fmt_big(p.n0 as f64), qq_fmt_big(p.nv as f64), p.head_rowgroup_record_min, p.head_rowgroup_min,
+            p.tensors[p.head_rowgroup_min_idx].e_v, p.tensors[p.head_rowgroup_min_idx].width_v, p.head_w, p.head_u,
+            if p.gate_green() { "GREEN" } else { "RED" }
+        ));
+        proj_rows.push(format!(
+            "| {} | {} | {} | {} | {:.2}-{:.2} | {:.2} | {:.2} | {:.2}-{:.2} | {:.2}-{:.2} | {:.2}-{:.2} | {:.2}-{:.2} | {:.2} | {:.1}-{:.1}x | {:.1}-{:.1}x |",
+            sh.label, qq_fmt_big(p.n0 as f64), qq_fmt_big(p.nv as f64), p.n_rec_full(), t_v_lo, t_v_hi, t_p + t_rows, t_fold_rec, t_fold_b - p.width_v_sum as f64 * k.k5_tail_us * 1e-6, t_fold_b,
+            t_rec_lo, t_rec_hi, rec_lo, rec_hi, b_lo, b_hi, t_built, t_built / rec_hi, t_built / rec_lo, t_built / b_hi, t_built / b_lo
+        ));
+    }
+    println!("\n[UPERF3-VV] GATE TABLE [COUNTED; bits >= 0 green; the record grid]");
+    println!("| shape | n0 digit rings | Nv value rings | record row-group | B row-group | B folded w | tier-2 u | B verdict |");
+    println!("|---|---:|---:|---:|---:|---:|---:|---|");
+    for r in &gate_rows {
+        println!("{r}");
+    }
+    println!("\n[UPERF3-VV] PROJECTION [MODEL from QQ's measured constants K2-K9; ranges = C1..short-K GEMM x C5..small-regime recursion; per-proof weight side only]");
+    println!("| shape | n0 | Nv | B n_rec full | v GEMM s | P+rows s | fold record s | fold B GEMM..total s | recursion s | per-proof RECORD s | per-proof B s | built s | ratio record | ratio B |");
+    println!("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|");
+    for r in &proj_rows {
+        println!("{r}");
+    }
+    println!("[UPERF3-VV] reading: Variant B removes l0x of the fold (K4 + K5 = 58% of QQ's measured per-proof clock at 12x512, 73% at 8B); what it cannot remove is the v GEMM + P + rows and the recursion on the unchanged tier-2 object.");
+}
+
+/// [UPERF3-VV] rung 2/3: `uperf-t b diff|bench ...` (skeleton).
+fn uperf_t_vv_b(_args: &[String]) {
+    println!("[UPERF3-VV] uperf-t b: rung 2 not built yet (skeleton)");
+}
+
+/// [UPERF3-VV] rung 4: `uperf-t repeat-b ...` (skeleton).
+fn uperf_t_vv_repeat_b(_args: &[String]) {
+    println!("[UPERF3-VV] uperf-t repeat-b: rung 4 not built yet (skeleton)");
 }
 
 // ===========================================================================

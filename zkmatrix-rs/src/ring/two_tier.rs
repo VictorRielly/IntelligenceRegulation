@@ -1020,3 +1020,183 @@ pub fn tt_u_digit_base(g_all: usize, q: u64) -> (u32, usize) {
     }
     unreachable!("u-digit base fixed point diverged");
 }
+
+// ---------------------------------------------------------------------------
+// [UPERF3-VV] Round 11 — VARIANT B: tier 1 over the recombined VALUE
+// rings (PROGRESS_UPERF3.md "Lane VV"; lane QQ's rung-1 count, verbatim:
+// "tier-1 commitment over the int8 VALUE rings (e = 8) instead of the
+// digit rings"). ADDITIVE: the S4 (FF) and R1 (QQ) functions above are
+// untouched; everything below is reached only through the `uperf-t
+// count-b | b | repeat-b` subcommands.
+//
+// THE OBJECT MAP, per tensor t on the DESIGN-OF-RECORD grid (QQ's
+// build_tt_grid — g_rows matrix rows per row group, G = rows/g_rows
+// groups, nb = cols/D; the grid is kept so the claim factorization
+// hi *K lo, the v-vectors and the tier-2 object are IDENTICAL to R1's):
+//   tier-1 witness : row group i = its g_rows*nb RECOMBINED VALUE rings
+//                    Fl_i[(r,cb)] = sum_l radix_l digit_l (the int8
+//                    weight itself for CLASS_W8S) — width_v = g_rows*nb
+//                    rings at the VALUE base e_v (|x| <= 2^(e_v-1); the
+//                    int8 class gives e_v = 8: alphabet(8) = [-128, 127]
+//                    is the class range exactly) — instead of the
+//                    record's width = width_v*l0 digit rings at e0.
+//   tier-1 commit  : u_i = A_B * Fl_i, A_B = kappa x width_v (seed-
+//                    expanded, label "TB"); kappa*Nv ring-MACs per model
+//                    (l0x fewer than the record's kappa*n0).
+//   tier 2         : UNCHANGED (the u_i digits at e_u; n2 = G_all*kappa*l_u;
+//                    the same G_all).
+//   v-pass         : UNCHANGED — R1's value-form GEMM already reads Fl.
+//   fold           : w_v = sum_i c_i Fl_i over width_v VALUE rings (l0x
+//                    fewer ring-MACs, l0x fewer folded rings than the
+//                    record); honest bound fold_coeff_bound(G, e_v).
+//   consistency    : sum_j P_e[j] w_v[j] == sum_i c_i v_e[i] with P the
+//                    value-position functionals (tt_inner_value_functionals
+//                    — the radix-free form the R1 GEMM consumes).
+//   recursion      : n_w_B = sum_t width_v * l_z(G, e_v, e_u), + n2 (+ n_v).
+// Exact-digit gates (the row H-gate-ed law gamma = OP_CONC * 2^(e-1) *
+// sqrt(n*D) <= gamma_max_exact, per OPENED object): the row group at
+// (width_v, e_v), the folded w at (n_w_B, e_u), the tier-2 u at (n2, e_u).
+
+/// The value base from a PUBLIC magnitude bound: the smallest e >= 1
+/// with 2^(e-1) >= bound (the fold-norm law's per-coefficient magnitude
+/// 2^(e-1)). bound 128 (the int8 class) -> 8; bound 255 (the
+/// representable range of 8 sign-binary limbs) -> 9.
+pub fn tt_b_value_base(bound: u128) -> u32 {
+    let mut e = 1u32;
+    while (1u128 << (e - 1)) < bound {
+        e += 1;
+        assert!(e <= 64, "value base diverged");
+    }
+    e
+}
+
+/// One tensor's Variant-B plan on the record grid.
+#[derive(Clone, Debug)]
+pub struct TtBTensorPlan {
+    pub tensor_idx: usize,
+    pub g_rows: usize,
+    pub nb: usize,
+    /// value rings per row group = g_rows * nb (the record's width / l0).
+    pub width_v: usize,
+    pub n_groups: usize,
+    /// the public magnitude bound of the recombined value rings.
+    pub bound: u128,
+    pub e_v: u32,
+    /// exact-digit gate headroom of the row group at (width_v, e_v).
+    pub head_rowgroup: f64,
+    /// honest fold coefficient bound at the G-way fold of base-e_v rings.
+    pub fold_bound: i128,
+    /// folded-row limbs at e_u.
+    pub l_z: usize,
+    /// folded-row digit rings width_v * l_z (V-recursed).
+    pub n_w: usize,
+    /// the record's folded-row digit rings for this tensor (contrast).
+    pub n_w_record: usize,
+}
+
+/// The Variant-B object map of a group on the record grid.
+#[derive(Clone, Debug)]
+pub struct TtBPlan {
+    pub tensors: Vec<TtBTensorPlan>,
+    pub n0: usize,
+    /// total value rings = the tier-1 witness.
+    pub nv: usize,
+    pub g_all: usize,
+    pub e_u: u32,
+    pub l_u: usize,
+    pub n2: usize,
+    pub width_v_sum: usize,
+    pub width_sum: usize,
+    pub n_w: usize,
+    pub n_w_record: usize,
+    /// v digits: 16 * G * l_u per contrib (the +v recursed form).
+    pub n_v: usize,
+    pub head_rowgroup_min: f64,
+    pub head_rowgroup_min_idx: usize,
+    pub head_w: f64,
+    pub head_u: f64,
+    /// the record's gates on the same grid (contrast).
+    pub head_rowgroup_record_min: f64,
+    pub head_w_record: f64,
+}
+
+impl TtBPlan {
+    pub fn n_rec_clear(&self) -> usize {
+        self.n2
+    }
+    pub fn n_rec_full(&self) -> usize {
+        self.n_w + self.n2 + self.n_v
+    }
+    pub fn gate_green(&self) -> bool {
+        self.head_rowgroup_min >= 0.0 && self.head_w >= 0.0 && self.head_u >= 0.0
+    }
+}
+
+/// The Variant-B planner: the record grid `grid` (build_tt_grid), one
+/// public value bound per tensor (`bounds[ti]`), the contribs (tensor
+/// index each — for n_v).
+pub fn tt_b_plan(group: &AggGroup, grid: &[TtGridTensor], bounds: &[u128], contribs: &[usize], q: u64) -> TtBPlan {
+    assert_eq!(bounds.len(), group.tensors.len(), "one value bound per tensor");
+    let g_all: usize = grid.iter().map(|gt| gt.n_groups).sum();
+    let (e_u, l_u) = tt_u_digit_base(g_all, q);
+    let n2 = g_all * KAPPA_AGG * l_u;
+    let mut tensors = Vec::with_capacity(group.tensors.len());
+    let (mut nv, mut width_v_sum, mut width_sum, mut n_w, mut n_w_record) = (0usize, 0usize, 0usize, 0usize, 0usize);
+    let (mut head_min, mut head_min_idx, mut head_rec_min) = (f64::INFINITY, 0usize, f64::INFINITY);
+    for (ti, t) in group.tensors.iter().enumerate() {
+        let gt = &grid[ti];
+        let nb = t.cols / D;
+        let width_v = gt.g_rows * nb;
+        let e_v = tt_b_value_base(bounds[ti]);
+        let head = gate_headroom_bits(width_v, e_v, q);
+        let fb = fold_coeff_bound(gt.n_groups, e_v);
+        let l_z = limbs_for_bound(fb, e_u);
+        let tn_w = width_v * l_z;
+        let tn_w_rec = gt.width * tt_w_digit_limbs(gt.n_groups, t.e0, e_u);
+        nv += t.n_value_rings();
+        width_v_sum += width_v;
+        width_sum += gt.width;
+        n_w += tn_w;
+        n_w_record += tn_w_rec;
+        if head < head_min {
+            head_min = head;
+            head_min_idx = ti;
+        }
+        head_rec_min = head_rec_min.min(gate_headroom_bits(gt.width, t.e0, q));
+        tensors.push(TtBTensorPlan {
+            tensor_idx: ti,
+            g_rows: gt.g_rows,
+            nb,
+            width_v,
+            n_groups: gt.n_groups,
+            bound: bounds[ti],
+            e_v,
+            head_rowgroup: head,
+            fold_bound: fb,
+            l_z,
+            n_w: tn_w,
+            n_w_record: tn_w_rec,
+        });
+    }
+    let n_v: usize = contribs.iter().map(|&ti| 16 * grid[ti].n_groups * l_u).sum();
+    TtBPlan {
+        tensors,
+        n0: group.n_digit_rings,
+        nv,
+        g_all,
+        e_u,
+        l_u,
+        n2,
+        width_v_sum,
+        width_sum,
+        n_w,
+        n_w_record,
+        n_v,
+        head_rowgroup_min: head_min,
+        head_rowgroup_min_idx: head_min_idx,
+        head_w: gate_headroom_bits(n_w, e_u, q),
+        head_u: gate_headroom_bits(n2, e_u, q),
+        head_rowgroup_record_min: head_rec_min,
+        head_w_record: gate_headroom_bits(n_w_record, e_u, q),
+    }
+}

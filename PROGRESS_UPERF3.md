@@ -6515,7 +6515,92 @@ RUNGS (prefix "U-PERF3 WW:"):
 
 ## Agent VV status (wt-uperf3-vv) — round 11
 
-(lane appends below)
+- 2026-09-02 SKELETON + THE PLANNER (rung 0): worktree wt-uperf3-vv on
+  uperf3-vv at 80de176 (round-11 open). OWNS: two_tier.rs (ADDITIVE —
+  the [UPERF3-VV] block at the end: `tt_b_value_base`, `TtBTensorPlan`,
+  `TtBPlan`, `tt_b_plan`; the FF/QQ functions untouched), the `uperf-t`
+  bin section (ADDITIVE: `count-b | b | repeat-b` in the dispatcher +
+  the [UPERF3-VV] block after QQ's `uperf_t_qq_repeat`), NEW
+  results/uperf3_vv_*, this section. READ-ONLY: everything else.
+  RUNG PLAN (one commit each, prefix "U-PERF3 VV:"): 0 this count; 1
+  the soundness note (below, before code); 2 `uperf-t b diff|bench` on
+  the CPU (the S4/R1 legs at 2^20/2^22 + rejects); 3 the device path
+  (QQ's hooks over the value tier, bit-identical, 2^22/2^23 8T GPU vs
+  bg_prove_group); 4 `uperf-t repeat-b real-w` (per-model warm) vs the
+  built GPU opening at the real 12x512 weight group — THE BAR >= 5x,
+  claims bit-identical; 5 the record. Every wall [WSL-BOX] [1T|8T]
+  [GPU|CPU] [NOISY-SHARED]; every number [MEASURED]/[COUNTED]/[MODEL].
+  THE DESIGN AS PLANNED (two_tier.rs header of the VV block): the
+  DESIGN-OF-RECORD GRID is KEPT (QQ's build_tt_grid: g_rows, G, the
+  hi *K lo claim factorization, the v-vectors, the tier-2 object all
+  IDENTICAL to R1); tier 1 commits row group i = its g_rows*nb
+  RECOMBINED VALUE rings Fl_i (the flat-i8 value layout QQ's R1 GEMM
+  already reads — `tt_fl_layout_i8` — IS the tier-1 witness) at the
+  VALUE base e_v = the smallest e with 2^(e-1) >= the tensor's PUBLIC
+  value bound (int8 class: 128 -> e_v 8; alphabet(8) = [-128, 127] is
+  CLASS_W8S's declared range exactly, so a value ring is ONE balanced
+  digit at base 8); the fold w_v = sum_i c_i Fl_i runs over width_v =
+  width/l0 value rings with honest bound fold_coeff_bound(G, e_v); the
+  consistency check uses the radix-free value functionals P
+  (`tt_inner_value_functionals`, the operand the R1 GEMM consumes);
+  gates per opened object: row group (width_v, e_v), folded w
+  (n_w_B = sum width_v * l_z(G, e_v, e_u), e_u), tier-2 u (n2, e_u).
+  `uperf-t count-b` [COUNTED] (results/uperf3_vv_count_b.log; QQ's
+  `qq_count_shape` reused for the record's numbers, `tt_b_plan` laid
+  on top) — THE GATE TABLE (the record grid; bits >= 0 green):
+  | shape | n0 digit rings | Nv value rings | record row-group | B row-group (tightest tensor) | B folded w (n_w_B) | tier-2 u (n2) | B verdict |
+  |---|---:|---:|---:|---:|---:|---:|---|
+  | 2^22 FF synthetic | 2.97e6 | 422,912 | +7.95 | **-1.76** (td: e0 2 l0 6, bound 2730 -> e_v 13, width_v 256) | +2.82 (7,424) | +0.54 (173,316) | RED (see F0) |
+  | 12x512 weight group | 3.54e6 | 442,368 | +8.95 | **+3.45** (WdT, e_v 8, width_v 192) | +2.05 (21,504) | +0.43 (202,752) | GREEN |
+  | 8B weight group | 352.3e6 | 44.0e6 | +7.24 | **+1.74** (WdT, e_v 8, width_v 2048) | +1.35 (901,120) | +0.75 (2,072,576) | GREEN |
+  | 30B weight group (ASSUMED 64x5120x25600) | 1.57e9 | 196.6e6 | +6.92 | **+1.42** (WgT, e_v 8, width_v 3200) | +1.28 (4,014,080) | +0.77 (8,053,760) | GREEN |
+  QQ's +3.45 / +1.74 / +1.42 bits REPRODUCED exactly at 12x512 / 8B /
+  30B: GREEN at every weight shape — no stop. Also counted: the
+  folded-w object SHRINKS under B (n_w_B = 21.5K vs the record's
+  86.0K at 12x512; 0.90M vs 5.24M at 8B; 4.0M vs 22.9M at 30B — the
+  fold bound grows 2^7 but the folded rings drop 8x: l_z 4-7 vs 2-5
+  limbs, net 4-6x fewer w digits), so the B folded-w gate is GREENER
+  than the record's (+2.05 vs +1.05 at 12x512; +1.35 vs +0.08 at 8B;
+  +1.28 vs +0.02 at 30B); n_rec full (w+u+v) 519K / 5.99M / 23.8M vs
+  the record's 584K / 10.3M / 42.7M (1.1-1.8x smaller); per-model
+  tier-1 commit kappa*Nv = 8.0x fewer ring-MACs; the CRS 2.29M vs
+  2.70M rings at 12x512. (The "V-recursed (w+u+v) at e_u" recursion
+  row is GATE RED at every shape for BOTH forms — e_u is derived for
+  n2 alone (`tt_u_digit_base`), as QQ's proxy measured; a production
+  V-recursed form re-derives the base for the combined object; the
+  proxy recursion on the u digits is what rungs 3-4 measure, as QQ.)
+  FINDING F0 (recorded, not a stop): the 2^22 FF synthetic is RED for
+  a PURE Variant B because its td tensor (e0 2, l0 6) is an ACT-class
+  tensor with |values| <= 2730 (e_v 13) — Variant B is an INT8-WEIGHT
+  lever (QQ's count priced it only for int8_weights shapes); on the
+  record grid the value form is green up to about e_v 11 at width_v
+  256 (tc +0.24) and fails at e_v 13. Therefore Variant B is defined
+  PER TENSOR by a public rule: the VALUE form iff gate(width_v, e_v)
+  >= 0, else the record's DIGIT form (QQ's R1Form precedent) — the
+  2^20/2^22 differential legs run the hybrid on the SAME instance the
+  S4/R1 legs used (td digit-form, the rest value-form), the real
+  12x512 weight group runs all-value (36/36 tensors at e_v 8). This
+  also answers the act-side question in advance: the value tier does
+  NOT extend to act-class tensors (l0 >= 6) on this grid.
+  PROJECTION [MODEL from QQ's measured K2-K9 x the counted sizes;
+  K9 = QQ's unattributed 0.55 s residual at 12x512 scaled with
+  G_all; ranges = C1..short-K GEMM x C5..small-regime recursion]:
+  per-proof B 0.83-1.15 s vs built 2.09 s at 12x512 => **1.8-2.5x
+  [MODEL]** (the record 1.1-1.4x; QQ measured 1.00x); 8B: B 17-30 s
+  vs 208 s => 6.9-12.1x; 30B: B 63-120 s vs 928 s => 7.8-14.8x —
+  QQ's rung-5 rows within rounding. Reading BEFORE measuring: on
+  the measured constants the fold is the only term B removes (0.80
+  -> 0.10 s at 12x512); the v GEMM + P + rows (0.22-0.34 s), the
+  recursion (0.13-0.34 s) and the residual (0.37 s) stay, so the
+  12x512 bar (>= 5x) is NOT expected to clear on paper; the rungs
+  measure it.
+  Floors at commit (rung-0 tree, CPU + GPU binaries): build green
+  both (2m08s / 2m18s); `uperf-pc diff-battery` 16.99 s CPU / 19.58 s
+  GPU green; freeze-check 102 ok + "freeze-check passed" exit 0;
+  uperf-s battery 48 legs 3752cba4..; agg-battery 136 legs
+  46234986..; uperf-x be89d5da..; QQ's identity `uperf-t r1 diff 20 1
+  161` PASS with WIRE DIGEST cae0b312.. (unchanged). Rung 0 commit:
+  (this entry's commit; hash recorded at rung 1).
 
 ## Agent WW status (wt-uperf3-ww) — round 11
 
