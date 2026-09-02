@@ -759,6 +759,187 @@ this lane's ownership).
 
 ## 6. The competitor row on the same yardstick
 
+The claim (S9, Attestable, blog post of 2026-08-11; no paper, no
+code, no third-party reproduction as of this memo): Gemma-4-31B
+INT8, **53 tok/s at batch 1** (16K context) and **77 tok/s at batch
+4**, on ONE H100; proofs 4.35-7.92 MiB; CPU verification 157-648
+ms; hash-based, post-quantum, 100-bit security; "all non-linear
+operations in floating point, all matrix multiplications quantized
+to integers", ~1.5x proving overhead from approximation. Every
+number **[EXTERNAL, VENDOR-CLAIMED, UNVERIFIED]**.
+
+On this memo's yardstick (3.1e10 MACs per token, §1.4):
+
+| row | tokens/s | proven MAC/s | ms per token | what the statement covers | label |
+|---|---:|---:|---:|---|---|
+| Attestable, batch 1 | 53 | **1.6e12** | 18.9 | the full model: attention, FFN, float nonlinears (approximate), 16K context | [EXTERNAL, VENDOR-CLAIMED] |
+| Attestable, batch 4 | 77 | 2.4e12 | 52 per 4-token step | same | [EXTERNAL, VENDOR-CLAIMED] |
+| **the goal** | 50 | 1.55e12 | 20 | | |
+| ours, measured (125M, 12x512, laptop) | 28 (of a 125M model) | 1.4e9 wall / 1.6e9 prover | 36 (of a 125M token) | FFN only, exact integer, lattice, ZK for the declared set | [MEASURED, S1] |
+| ours, (a) built, 8B prefill, one H100 | 1.1-6.6 | 0.6-3.7e10 | 150-900 | FFN only | [MODEL] |
+| ours, (c) routes constants, 30B prefill, one H100 | 2.3-15 | 0.5-3.3e11 | 65-430 | FFN only | [MODEL on MODEL] |
+| ours, (c) routes constants, 30B decode, one H100 | 0.05-0.7 | 1-15e9 | 1,400-20,000 | FFN only | [MODEL on MODEL] |
+
+Ratios: the claim is ~1,100x our measured rate, ~40-270x the built
+pass modelled on an H100, and **~5-30x above the best cell this
+repository can model for 30B prefill** — and 100-1,600x above the
+best modelled batch-1 decode cell, which is the workload the claim
+is stated for. Hardware-normalized (§3: an H100 is 2-8x the laptop
+on this mix), the built system's algorithmic gap to the claim is
+~140-550x [MODEL]; the S10 note's "~80-230x" used a 5-15x hardware
+factor that §3 finds too generous for integer work.
+
+The other columns matter too, and they cut both ways. Proof size:
+theirs 4-8 MiB per token(-step); ours 1.5 MB per 512-token pass at
+125M and 1.9 MB at 8B [COUNTED, S8 §1.5] — 1,000x smaller per token.
+Verification: theirs 0.16-0.65 s on a CPU; ours 1.7 s at 8 threads
+for 12x512 [MEASURED], ~70 s at 8 threads for 8B under the built
+opening [MODEL, S3 §1.3], sub-second under the two-tier opening
+[MODEL, S3 §2.1]. Guarantee class: theirs hash-based, 100-bit, with
+an approximation contract on the nonlinears; ours lattice-based,
+exact-integer (an uncalibrated model fails to prove, by design),
+zero-knowledge for the declared private set (S16 §1, S10 §3).
+
+**What our system would have to match.** At batch 1: the ENTIRE
+per-proof cost — weight side, activation side, fixed overhead — for
+3.1e10 MACs including attention, in under 19 ms on one H100. Under
+any design that walks the weight digits per proof, 13 ms of that is
+memory reads even in the best case (§3.4), so matching the batch-1
+claim on the lattice line requires a per-proof weight-side cost
+that is sublinear in the weight count — the "structurally new idea"
+the two-tier redesign memo said the 5-15 s question was closed
+without (S5, closing verdict). At batch 4 (multi-request): 52 ms per
+4-token step, of which the weight walk is 13 ms — conceivable on the
+memory side; the arithmetic must still run at ~1.6e12 proven MAC/s.
+
 ## 7. What a 50 tok/s design must have
 
+### 7.1 The budget, on one H100
+
+| quantity | batch-1 decode | T = 512 prefill (or a 512-request batch) |
+|---|---:|---:|
+| proven MAC/s required | 1.55e12 | 1.55e12 |
+| time per proof | **20 ms** | **10.2 s** |
+| of which, a per-proof walk over the 30B weight digits (§3.4) | 13 ms IF packed and H100-resident; 3.4 s if streamed (impossible) | 13 ms (0.1% of the budget) |
+| left for everything else | **~7 ms** for 3.1e10 MACs (4.4e12 MAC/s) | ~10 s for 1.6e13 MACs (1.6e12 MAC/s) |
+| activation-side cost at 30B x 512 today, routes constants, H100 [MODEL on MODEL] | — | 258-416 s laptop / 2-8 = **32-208 s** |
+| activation-side gap to the budget | — | **3-20x** (5-35x at the spike-measured constants) |
+
+The budget separates the two workloads cleanly. **Batch-1 decode at
+50 tok/s is not reachable by any design that touches every weight
+per proof**: the memory read alone eats 65% of the budget in the
+best case, and the two-tier opening's per-proof fold is exactly such
+a touch. **T = 512 prefill (or multi-request batching at hundreds of
+requests) makes the weight side irrelevant** and turns the question
+into the activation side's proving rate: 1.6e12 proven MAC/s on one
+board, against a best modelled 0.5-3.3e11.
+
+### 7.2 The requirements, stated as "must"
+
+- **R1 (weight side).** Either (R1a) a per-proof weight-side cost
+  sublinear in the 1.34e9 weight rings — a preprocessed structure
+  whose per-proof part touches O(sqrt N) or less; the two-tier
+  design's challenge fold is linear, so R1a needs an idea this
+  repository does not have — or (R1b) >= ~500 tokens per proof, at
+  which point a 13-50 ms weight walk is under 0.5% of the budget.
+  R1b is the only path recorded here; it means the product is
+  "prefill / batched proving", not "batch-1 decode".
+- **R2 (activation side).** A proving rate of >= 1.6e12 proven MAC/s
+  on one H100 for the activation-side statement (commit of the
+  activations, their opening, the Stage-A range and lookup checks,
+  the claim layer). The best modelled lattice-line figure is
+  0.5-3.3e11 (§4.4, (c) 30B prefill on an H100); the gap is 3-20x
+  at the routes constants and 5-35x at the spike's. Nothing in the
+  recorded design space is priced to close it.
+- **R3 (memory).** At 30B on one board: a weight digit store that is
+  device-resident (packed to 2 bits: 43 GB [MODEL]) and an
+  activation-side working set under the remaining ~35 GB — the 8B
+  x 512 pass peaks at ~72 GB host-side today (S7) and the 30B
+  activation group is 2.9x larger, so a streaming design over the
+  token axis (S3 §2.6 (vi-b), deferred) is required, not optional.
+- **R4 (statement).** Attention in the proof (X3 and beyond; S16
+  §4): the FFN-only tokens of this memo are 69-78% of a real token's
+  MACs and an unknown fraction of its proof cost (S3 §3.3: ~3.5x
+  per layer of statement mass).
+- **R5 (verifier and bytes).** Sub-second verification and
+  megabyte-class proofs at 30B: the two-tier opening's verifier
+  [MODEL, S3 §2.1] and the Stage-A byte drop [MEASURED 2.15x, S6]
+  are the recorded path; the built opening's ~70 s at 8 threads for
+  8B [MODEL] is not shippable next to a 0.2-0.6 s competitor.
+
+### 7.3 Which measurement replaces which constant
+
+| constant in this memo | current status | who measures it | where it lands |
+|---|---|---|---|
+| the per-proof weight-side opening after preprocessing (§2.4: 2-10 s vs 60-330 s at 8B on the laptop) | [MODEL] vs [COUNTED from a 1T CPU spike] — 10-40x apart | **lane QQ** rung 4 (the 12x512 weight group on the 4070, per-proof wall with the per-model part warm, vs the built GPU opening; the reopen bar is >= 5x) and rung 1's count at 8B/30B | collapses (c)/(c') into one row; decides whether the 30B H100 prefill cell is 2-15 tok/s or 0.5-3 |
+| the GPU wall of the factored linear pass over the weight rings (the S5 v-pass) | never run on a GPU | **lane QQ** rung 3 | the arithmetic half of R1's per-proof cost |
+| the Stage-A-on-GPU factor (§2.3: descents 80-300 -> 20-40 s at 8B; +58% width-plane rings) | [MODEL] at 8B; 0.87x measured on CPU at 125M | **lane RR** rungs 3-5 (12x128, then the 12x512 A/B: oracle vs Stage A vs Stage A + GPU) | the (b) row and the activation side of (c) |
+| which phases run on the CPU today (the pipelining bound of §5.3; c in §3.3) | unrecorded at 8B | **lane RR** rung 0 | the low end of the hardware factor |
+| the weight/activation split W vs A(T) at 8B (§2.2: by ring shares) | [MODEL] | **the Mac runbook M5, T-scaling leg**: layer 0 of the 8B model at T = 16 / 64 / 512 on the Mac CPU; fit wall = W + A x T/512 to the three points | the W/A columns of §2.5 become [MEASURED, MAC-BOX CPU]; the decode row of §4.2 follows directly |
+| the thread factor k_c of §3.3 | [MODEL 2-4x] | Mac runbook M7 (8B thread ladder, optional) | the low end of the board/H100 factor |
+| the board factor itself (2-6x / 2-8x) | [MODEL], never measured | choice C (S16 §7): a 4090/5090 or a rented H100 under the 12x512 rig, 20 warm QUIET runs | every board/H100 column |
+| the 30B shape and its padding | assumed (§1.3, §1.5) | Victor (the target model) | the x3.81 / x2.87 factors |
+| attention's proof cost per layer | [MODEL ~3.5x statement mass] | X3 (one attention layer at 125M) | R4 |
+
+### 7.4 The one or two unknowns that decide the answer
+
+1. **U1 — the per-proof weight-side constant on a GPU.** If lane QQ
+   measures the factored linear pass at the routes memo's
+   "seconds-class" (>= 5x the built opening at the 12x512 weight
+   group, claims bit-identical), the (c) row stands and the
+   lattice line is a 2-15 tok/s system at 30B prefill on one H100
+   [MODEL on MODEL]. If it measures at the spike's class, the (c')
+   row stands (0.5-3 tok/s) and the lattice line's one-H100 ceiling
+   at 30B is low single digits in prefill and below 0.02 tok/s in
+   decode. Either way the answer to "50 tok/s on the lattice line
+   as designed" is no; U1 decides by how much.
+2. **U2 — whether ANY lattice-line activation-side opening can run
+   at ~1e12 proven MAC/s on one board.** No recorded design, count
+   or measurement approaches it (best modelled 0.5-3.3e11, and that
+   is [MODEL on MODEL]). No round-10 lane measures U2; it is the
+   question that decides between "the lattice line at 5-15 tok/s
+   for batched proving, exact and post-quantum" and "the hash-based
+   line" (choice D, S16 §7), and it should be put to Victor as such
+   when QQ's count lands.
+
+Round 11 should be cut from QQ's rung-4 ratio, RR's rung-5 factor
+and M5's three points, applied to §2.5 — not from any tokens/s
+number, including this memo's, until those three land.
+
 ## What is not known
+
+1. **Any 8B proof wall.** None has ever run (S16 §3.1). Every 8B
+   and 30B cell in §4 is a model of a 125M measurement.
+2. **The hardware factor.** No proof has run on anything but the
+   laptop's RTX 4070 (55-70 W) and the Mac's CPU. Board 2-6x, H100
+   2-8x are [MODEL] (§3.3).
+3. **The per-proof weight-side constant** of the two-tier opening
+   on a GPU (U1, §7.4): a 10-40x spread between the routes memo's
+   model and the spike's measurement.
+4. **The Stage-A-on-GPU factor**: measured 0.87x on CPU at 125M
+   (S6), modelled 1.1-1.5x at 8B (§2.3); lane RR.
+5. **The weight/activation split at 8B**: by ring shares here
+   (§2.2); the Mac runbook's M5 measures it.
+6. **The 30B architecture.** A Gemma-3-27B-shaped stand-in is used
+   (§1.3); the real target's layer count, widths and attention
+   pattern change every 30B row, and its FFN hidden (21504) is not
+   a power of two (§1.5).
+7. **Attention's proof cost.** The statement is FFN-only; attention
+   is priced at ~3.5x per layer of statement mass [MODEL, S3 §3.3]
+   and has been proven only at toy scale (S16 §4).
+8. **The CPU / GPU / link split at 8B** (the pipelining bound, the
+   low end of the hardware factor; RR rung 0).
+9. **Memory at 30B on one board**: the 172 GB digit store (packed
+   43 GB is a design note, not built) and the activation-side
+   working set (the 8B pass peaks ~72 GB host-side, S7).
+10. **The full-mode Stage A cost** (the F1 ruling: every lookup
+    through the aggregate) at 8B: the memory recount is lane SS's
+    rungs V1-V4; this memo's (b)/(c) rows use the cheaper range-only
+    mode that OO's 8B projection assumes (S7).
+11. **The verifier at 8B and 30B**: ~70 s at 8 threads under the
+    built opening [MODEL, S3 §1.3]; sub-second under the two-tier
+    opening [MODEL, S3 §2.1]; the spike measured 3.9-4.7 s at 2^22
+    rings, 1 thread (S5 §1), above the sub-second bar.
+12. **Whether the competitor's claim holds.** No paper, no code, no
+    reproduction (S9). The yardstick comparison in §6 is against a
+    number nobody outside the vendor has checked.
