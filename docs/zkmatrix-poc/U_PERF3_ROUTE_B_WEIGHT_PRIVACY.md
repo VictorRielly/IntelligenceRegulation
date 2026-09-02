@@ -737,7 +737,85 @@ scaled hash side in parentheses) [MODEL on MODEL]:**
 
 ## 5. Option 4 — anything else the literature offers
 
-(lands with §5's commit)
+**The question.** Is there a hash-based commitment that is made
+ONCE, cached, and opened in zero knowledge MANY times — a fresh
+outer masking layer per proof over a fixed inner commitment, a
+"commit once, mask per proof" construction, a rerandomisation of a
+Merkle/Reed-Solomon commitment — so that the weights need neither
+a re-commit (§2) nor an inner proof (§3) nor a second assumption
+(§4)?
+
+**The search, stated so it can be repeated.** Web (2026-09-02,
+from this session): two searches — "hash-based polynomial
+commitment hiding reusable across many proofs rerandomizable
+Ligero Brakedown zero-knowledge 'commit once' preprocessed private
+witness" and "Orion polynomial commitment successor zero-knowledge
+column openings inner proof 'code switching' Brakedown 2023 2024
+2025 eprint"; ePrint pages fetched (abstract level): 2022/1010
+(Orion), 2024/1164 (its soundness restoration), 2024/1918 (the
+TCHES 2025 FPGA accelerator), 2024/1731 (Arc), 2026/1367 (the
+hash-based PCS SoK), 2023/323 (Poseidon2), 2025/1085 (SmallWood —
+Brakedown techniques with a degree-enforcing commitment from the
+Threshold-Computation-in-the-Head framework; a hash-based PCS for
+small statements, from the search summary only, not read); the
+PDFs of 2022/1010 and 2023/323 text-extracted. Repository: S5
+(families (a)-(e), §9 "what we did NOT find"), S6, S7, S8. Result:
+**none found.** The SoK's abstract, which surveys the whole
+Ligero-Brakedown-BaseFold-FRI-STIR-WHIR line to 2025, does not
+mention a hiding form reusable across proofs; Orion's zero
+knowledge is per proof; SmallWood's and Arc's abstracts do not
+address it. The absence is not proof of absence — this is one
+session's search, not a literature review — but the constructions
+that were named all fall on one side of the dichotomy below.
+
+**Why the natural constructions do not work [COUNTED, an argument,
+not a theorem].** A Merkle/Reed-Solomon commitment's opening
+REVEALS the committed codeword at the queried positions; across
+many proofs the positions cover the codeword. Every way to hide
+that either re-randomises the codeword at every position per proof
+or stops revealing it:
+
+1. *Mask per proof by linearity.* Enc([M | r']) = Enc([M | 0]) +
+   Enc([0 | r']): the cached codeword plus the encoding of a fresh
+   pad message. But the columns opened must be columns of the
+   MASKED codeword, whose Merkle tree is fresh — every column
+   re-hashed. That is the re-commit of §2 minus nothing that
+   matters: the encoding of the sparse pad is a full 4n-point
+   transform per row anyway (the NTT does not get cheaper for a
+   sparse message), and hashing is 85-98% of the re-commit (§2.2).
+2. *Re-salt the tree per proof.* Fresh salts per leaf make the
+   UNOPENED columns hiding, but the opened ones are still the
+   cached codeword's values; and re-salting is re-hashing every
+   leaf — the whole hash cost again.
+3. *Mask rows from a fresh small commitment U per proof* (§1, §3.3
+   item 4): hides the clear vectors, not the columns; a component
+   of option 2, not an option.
+4. *An additive one-time pad on the weights* (commit per proof to
+   W + R with R fresh): the commitment to W + R is fresh per proof
+   — a re-commit — and R's own commitment and opening add to it.
+5. *Hide the positions instead of the values*: an opening the
+   verifier checks without seeing the column (an oblivious or
+   proven opening) — that IS option 2.
+6. *Amortise across proofs by accumulation*: Arc (L5-class,
+   ePrint 2024/1731, CRYPTO 2025) accumulates Reed-Solomon
+   proximity claims hash-only over unbounded steps [EXTERNAL,
+   abstract]; the lattice line's family (b) (S5 §2) folds
+   instances. Either defers the opening, and the deferred object
+   is eventually opened; whether the accumulated instances stay
+   hidden from the accumulator's verifier is not addressed in
+   Arc's abstract and is not counted here. A research direction,
+   not an option.
+7. *A commitment that is hiding AND re-openable by construction* —
+   homomorphic ones: Pedersen/KZG (discrete-log; excluded by the
+   post-quantum mandate, S5 §5.1) and the lattice line's MLWE
+   commitment (option 3). The hiding-across-openings property the
+   weights need is exactly what a hash commitment lacks and an
+   algebraic one has; that is the structural fact S0 §4.5 named.
+
+So the fourth option collapses onto the first three: re-commit
+(1, 2, 4), prove the opening (5), or change the assumption (7);
+(6) is unpriced research. The memo carries "none found" with the
+search above as its evidence.
 
 ## 6. THE TABLE
 
