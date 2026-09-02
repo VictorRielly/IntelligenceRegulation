@@ -7464,31 +7464,6 @@ Plain language, every number labelled and sourced.
 
 (lane appends below)
 
-<<<<<<< HEAD
-## Orchestrator note 2026-09-02 — round 11: VV merged (a630f25)
-
-- two_tier.rs (Variant B behind its flag, `tt_b_plan`, the pooled
-  challenge draw `tt_draw_cs_par`, `want_hms`), the `uperf-t
-  count-b | b diff | b bench | repeat-b` surface, results/uperf3_vv_*.
-  Floors on the merged tree: recorded below once the builds finish.
-- THE VERDICT: NOT MET at 1.77x [MEASURED, real 12x512 weight group,
-  GPU 8T, per-model warm]; the floor is the frozen recursion prove
-  on the ~200K-ring proxy + the launch-bound value-fold GEMM + the
-  v-pass; 8B/30B [MODEL] 4.4-15x / 4.6-18x straddle the bar — an
-  8B-shape run (Mac M-item or a desktop board) is the only settle.
-  Three ruling items (VV's status): the int8-value class row; the
-  per-model weight certificate (E-O2-BB second opening vs a 256-row
-  lookup); the pooled draw. The lattice line's 30B band in
-  U_PERF3_THROUGHPUT_MODEL.md is unchanged by this lane.
-- Floors on the VV-merged tree (CPU build 2m33s, GPU build 2m53s):
-  diff-battery 22.45 s passed; freeze-check 102 ok + passed, exit 0;
-  uperf-s 3752cba4..; agg 46234986..; uperf-x be89d5da..; Stage-A
-  12x64 range identity statement 441ca5db.. / transcript 44528c6a..
-  on BOTH binaries; `uperf-t r1 diff 20` (GPU) wire cae0b312.. PASS
-  (3 differential + 6 reject legs, 127.9 s); `uperf-t b diff 20`
-  (GPU) wire e757eff7.. PASS (3 differential + 2 identity + 7 reject
-  legs, 31.2 s). [WSL-BOX NOISY-SHARED: lanes WW/XX building]
-=======
 **LANE COMPLETE (2026-09-02, docs only; no code, no builds, no
 runs).** Deliverable: NEW `docs/zkmatrix-poc/U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md`
 (§0-7 + What is not known; every number labelled [MEASURED] /
@@ -7652,7 +7627,30 @@ built" can now cite the memo — the hidden-column design is priced
 at P0's cells; TASK_BOARD.md §0 may carry the one-line verdict;
 AGGREGATION_LITERATURE's family (d)/(e) rows could note ePrint
 2024/1164 (Orion found unsound as published; Scorpius).
->>>>>>> uperf3-zz
+
+## Orchestrator note 2026-09-02 — round 11: VV merged (a630f25)
+
+- two_tier.rs (Variant B behind its flag, `tt_b_plan`, the pooled
+  challenge draw `tt_draw_cs_par`, `want_hms`), the `uperf-t
+  count-b | b diff | b bench | repeat-b` surface, results/uperf3_vv_*.
+  Floors on the merged tree: recorded below once the builds finish.
+- THE VERDICT: NOT MET at 1.77x [MEASURED, real 12x512 weight group,
+  GPU 8T, per-model warm]; the floor is the frozen recursion prove
+  on the ~200K-ring proxy + the launch-bound value-fold GEMM + the
+  v-pass; 8B/30B [MODEL] 4.4-15x / 4.6-18x straddle the bar — an
+  8B-shape run (Mac M-item or a desktop board) is the only settle.
+  Three ruling items (VV's status): the int8-value class row; the
+  per-model weight certificate (E-O2-BB second opening vs a 256-row
+  lookup); the pooled draw. The lattice line's 30B band in
+  U_PERF3_THROUGHPUT_MODEL.md is unchanged by this lane.
+- Floors on the VV-merged tree (CPU build 2m33s, GPU build 2m53s):
+  diff-battery 22.45 s passed; freeze-check 102 ok + passed, exit 0;
+  uperf-s 3752cba4..; agg 46234986..; uperf-x be89d5da..; Stage-A
+  12x64 range identity statement 441ca5db.. / transcript 44528c6a..
+  on BOTH binaries; `uperf-t r1 diff 20` (GPU) wire cae0b312.. PASS
+  (3 differential + 6 reject legs, 127.9 s); `uperf-t b diff 20`
+  (GPU) wire e757eff7.. PASS (3 differential + 2 identity + 7 reject
+  legs, 31.2 s). [WSL-BOX NOISY-SHARED: lanes WW/XX building]
 
 ## Orchestrator note 2026-09-02 — round 11: ZZ merged (docs only)
 
