@@ -9,6 +9,11 @@
 //!       --tamper none|flipx|flipw|rem|table|requant|z  --tamper-idx I  --no-verify  --all-tampers
 //!       --proof-out PATH  [UPERF3-XX] write the concatenated layer proofs (flat LE encoding) and print their sha256
 //! [UPERF3-XX] `HL_GPU=1` runs the prover's device path (feature gpu-cuda); the proof bytes must not change.
+//! [UPERF3-ZB] `--profile v3 --export DIR` (or HL_EXPORT_DIR) selects the WIDENED-STACK statement over an m8b
+//!   v3 export (int16-out activation table, round-nearest requant, int16 u/h/z classes, signed shifts):
+//!   check-export | chain [layers] [--t T] | layer <l> <t> | pass <layers> <t> as above; `tables-v3` prints the
+//!   frozen int16-out registry (15 members, digests = the exports' `NN table` rows / `uperf-v3 tables`).
+//!   v3 tampers: --tamper flipx|flipw|rem|table|requant|z|round|i16. The v2 path is untouched.
 
 use hashline::chain::{derive, LayerWitness};
 use hashline::export::{export_dir, load_layer, Sidecar, D, F, LAYERS};
@@ -16,6 +21,7 @@ use hashline::layer::{apply_tamper, matmul_differential, prove_layer, verify_lay
 use hashline::ntt::NttTables;
 use hashline::transcript::Transcript;
 use std::time::Instant;
+use hashline::export_v3::{clone_witness_v3, compare_planes, derive_v3, export_dir_v3, load_layer_v3, V3Sidecar, V3Witness};
 
 struct Opts {
     threads: usize,
@@ -26,10 +32,17 @@ struct Opts {
     verify: bool,
     all_tampers: bool,
     proof_out: Option<String>,
+    // [UPERF3-ZB]
+    profile: String,
+    export: Option<String>,
+    t_rows: Option<usize>,
+    tamper_kind: String,
+    tamper_idx: usize,
 }
 
 fn parse_opts(args: &[String]) -> Opts {
-    let mut o = Opts { threads: 0, log_cols: 14, col_checks: 256, inv_rate: 4, tamper: Tamper::None, verify: true, all_tampers: false, proof_out: None };
+    let mut o = Opts { threads: 0, log_cols: 14, col_checks: 256, inv_rate: 4, tamper: Tamper::None, verify: true, all_tampers: false, proof_out: None,
+        profile: "v2".to_string(), export: None, t_rows: None, tamper_kind: "none".to_string(), tamper_idx: 12345 };
     let mut i = 0;
     let mut tkind = "none".to_string();
     let mut tidx = 12345usize;
@@ -44,11 +57,22 @@ fn parse_opts(args: &[String]) -> Opts {
             "--no-verify" => { o.verify = false; }
             "--all-tampers" => { o.all_tampers = true; }
             "--proof-out" => { o.proof_out = Some(args[i + 1].clone()); i += 1; }
+            // [UPERF3-ZB]
+            "--profile" => { o.profile = args[i + 1].clone(); i += 1; }
+            "--export" => { o.export = Some(args[i + 1].clone()); i += 1; }
+            "--t" => { o.t_rows = Some(args[i + 1].parse().unwrap()); i += 1; }
             other => { eprintln!("unknown option {other}"); std::process::exit(2); }
         }
         i += 1;
     }
-    o.tamper = tamper_from(&tkind, tidx);
+    o.tamper_kind = tkind.clone();
+    o.tamper_idx = tidx;
+    if o.profile == "v3" {
+        // v3 tamper names are resolved by the v3 driver (a superset)
+    } else {
+        o.tamper = tamper_from(&tkind, tidx);
+    }
+    if o.profile != "v2" && o.profile != "v3" { eprintln!("unknown profile {} (v2|v3)", o.profile); std::process::exit(2); }
     if o.threads == 0 {
         if let Ok(s) = std::env::var("ZK_THREADS") { o.threads = s.parse().unwrap_or(0); }
     }
@@ -75,10 +99,18 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     let cmd = args.get(1).map(|s| s.as_str()).unwrap_or("help");
     match cmd {
-        "check-export" => check_export(),
+        "tables-v3" => tables_v3(),
+        "check-export" => {
+            let o = parse_opts(&args[2..]);
+            if o.profile == "v3" { check_export_v3(&o) } else { check_export() }
+        }
         "chain" => {
-            let n: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(LAYERS);
-            chain(n)
+            let (n, rest): (Option<usize>, &[String]) = match args.get(2).and_then(|s| s.parse().ok()) {
+                Some(n) => (Some(n), &args[3..]),
+                None => (None, &args[2.min(args.len())..]),
+            };
+            let o = parse_opts(rest);
+            if o.profile == "v3" { chain_v3(n, &o) } else { chain(n.unwrap_or(LAYERS)) }
         }
         "matmul" => {
             let n: usize = args[2].parse().unwrap();
@@ -100,7 +132,7 @@ fn main() {
         }
         "gpu-probe" => gpu_probe(),
         _ => {
-            eprintln!("usage: hashline check-export | chain [layers] | matmul <layers> <t> | layer <l> <t> | pass <layers> <t>  [opts] | gpu-probe");
+            eprintln!("usage: hashline check-export | chain [layers] | matmul <layers> <t> | layer <l> <t> | pass <layers> <t>  [opts] | gpu-probe | tables-v3   (opts incl. --profile v2|v3 --export DIR)");
             std::process::exit(2);
         }
     }
@@ -371,3 +403,87 @@ fn pass(n: usize, t: usize, o: &Opts) {
         if ok { "ACCEPT" } else { "REJECT" }, bytes as f64 / 1e6, macs, macs / t_prove, t_all.elapsed().as_secs_f64());
     if !ok { std::process::exit(1); }
 }
+
+// ===========================================================================
+// [UPERF3-ZB] the widened-stack (v3) profile
+// ===========================================================================
+
+/// The frozen int16-out registry, regenerated and pin-checked (the third
+/// leg next to scripts/m8b_margins.py and `ring_matmul uperf-v3 tables`).
+fn tables_v3() {
+    println!("[UPERF3-ZB] the frozen int16-out table registry (regenerated from the frozen formula; digest == pin on every row):");
+    for (name, ei, eo, d, mn, mx, sat) in hashline::tables_v3::registry_report() {
+        println!("  {name} (eGate {ei:2}, eOut {eo:3}): out [{mn:6}, {mx:6}] sat rows {sat:3}  digest {d}");
+    }
+}
+
+fn v3_dir_side(o: &Opts) -> (std::path::PathBuf, V3Sidecar) {
+    let dir = export_dir_v3(o.export.as_deref());
+    let side = V3Sidecar::load(&dir);
+    (dir, side)
+}
+
+/// Rung 1: every per-tensor sha256 of the v3 export reproduces (X/WgT/WuT/WdT/a16/u16/h16/z16 per layer),
+/// the sidecar's signed shifts equal the exponent-derived ones, every table row names a frozen member.
+fn check_export_v3(o: &Opts) {
+    let (dir, side) = v3_dir_side(o);
+    let dm = side.dims;
+    println!("export dir {} — model {} profile v3-widened/round, dims T {} d {} f {} layers {}{}", dir.display(), side.model, dm.t, dm.d, dm.f, dm.layers,
+        side.zpolicy.as_ref().map(|z| format!(", zpolicy {z}")).unwrap_or_default());
+    let t0 = Instant::now();
+    let (mut ok_n, mut all_n) = (0usize, 0usize);
+    for l in 0..dm.layers {
+        let ex = load_layer_v3(&dir, &side, l, true, true);
+        let bad: Vec<&str> = ex.digest_checks.iter().filter(|(_, ok)| !ok).map(|(n, _)| *n).collect();
+        ok_n += ex.digest_checks.iter().filter(|(_, ok)| *ok).count();
+        all_n += ex.digest_checks.len();
+        let (sg, su, sh, sz) = ex.shifts;
+        println!(
+            "  layer {l:2}: {} digests {}; shifts g/u/h/z = {sg}/{su}/{sh}/{sz}; table {} ({},{}) {}..",
+            ex.digest_checks.len(), if bad.is_empty() { "== sidecar".to_string() } else { format!("MISMATCH at {bad:?}") },
+            ex.act.spec_name(), ex.exps.e_g, ex.exps.e_a16, &ex.table_digest[..16]
+        );
+    }
+    println!("check-export v3: {ok_n}/{all_n} tensor digests reproduce ({:.2} s)", t0.elapsed().as_secs_f64());
+    if ok_n != all_n { std::process::exit(1); }
+}
+
+/// Rung 2: re-execute the exact widened chain from X and the weights and reproduce the export's
+/// a16/u16/h16/z16 planes — full-plane sha256 at t_rows == T, element-wise on the first t_rows rows otherwise.
+fn chain_v3(n: Option<usize>, o: &Opts) {
+    let (dir, side) = v3_dir_side(o);
+    let dm = side.dims;
+    let n = n.unwrap_or(dm.layers).min(dm.layers);
+    let t_rows = o.t_rows.unwrap_or(dm.t);
+    println!("chain v3: {} — {n} layers, T {t_rows} of {} (d {} f {}), {} threads", dir.display(), dm.t, dm.d, dm.f, rayon::current_num_threads());
+    let t0 = Instant::now();
+    let mut bad = 0usize;
+    for l in 0..n {
+        let ex = load_layer_v3(&dir, &side, l, true, false);
+        let t1 = Instant::now();
+        let w = derive_v3(&ex, t_rows);
+        let mut line = String::new();
+        let mut ok = w.range_ok;
+        if t_rows == dm.t {
+            for (i, name) in ["a16", "u16", "h16", "z16"].iter().enumerate() {
+                let same = w.digests[i] == side.digest(l, name);
+                ok &= same;
+                line.push_str(&format!(" {name} {}{}", &w.digests[i][..8], if same { "==" } else { "!=" }));
+            }
+        } else {
+            for (name, mism) in compare_planes(&w, &ex) {
+                ok &= mism == 0;
+                line.push_str(&format!(" {name} {}", if mism == 0 { "==".to_string() } else { format!("{mism} DIFF") }));
+            }
+        }
+        if !ok { bad += 1; }
+        let (sg, su, sh, sz) = w.shifts;
+        println!("  layer {l:2}:{line}; range facts {}; shifts {sg}/{su}/{sh}/{sz}; table ({},{}); {:.2} s",
+            if w.range_ok { "HOLD" } else { "FAIL" }, w.exps.e_g, w.exps.e_a16, t1.elapsed().as_secs_f64());
+    }
+    println!("chain v3: {}/{n} layers reproduce the export's a16/u16/h16/z16 ({:.2} s total)", n - bad, t0.elapsed().as_secs_f64());
+    if bad > 0 { std::process::exit(1); }
+}
+
+#[allow(dead_code)]
+fn v3_unused(w: &V3Witness) -> V3Witness { clone_witness_v3(w) }

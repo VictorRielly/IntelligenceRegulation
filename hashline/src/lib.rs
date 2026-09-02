@@ -23,3 +23,8 @@ pub mod sumcheck;
 pub mod pcs;
 pub mod layer;
 pub mod gpu;
+// [UPERF3-ZB] the widened-stack (v3) profile: the frozen int16-out table
+// families, the m8b v3 export reader + exact chain; the v3 statement lives
+// in layer.rs (additive) behind `--profile v3`.
+pub mod tables_v3;
+pub mod export_v3;

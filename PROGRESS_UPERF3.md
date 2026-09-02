@@ -8464,3 +8464,63 @@ are uniform; the laptop's inverted scaling is the hybrid part),
   50cf7bdfd6b5b182.. (66,844,928 B) — byte-identical, as XX
   recorded. Device-side sum 1.44 s (h2d 0.23, ntt 0.43, hash 0.11,
   sumcheck 0.43, fold 0.16, helpers 0.09); the rest is host.
+
+**ZB RUNG PLAN (2026-09-02, opened on 0c8e636).** 0 skeleton: the
+`--profile v3 --export DIR` flags, `tables_v3.rs` (the 15 frozen
+int16-out members regenerated + digest-pinned), `export_v3.rs` (the
+m8b v3 sidecar/bin reader + the exact widened chain), the plan; 1 the
+reader reproducing every per-tensor sha256 (125M v3 export; Mistral
+layer 0 — its bins exist here); 2 the exact chain reproducing the
+a16/u16/h16/z16 planes of BOTH exports; 3 the v3 PROOF at the 125M v3
+export 12x512, CPU + GPU, tamper legs, walls vs the v2 row; 4 one
+Mistral layer at T=16 here if memory allows; 5 MAC_RUNBOOK M9 + the
+record. DESIGN OF RECORD (what `--profile v3` proves, per layer, any
+(T, d, f)): the same three Ligero commitments and the same sumcheck
+skeleton as v2, generalized to nb_d = d / 2^log_db blocks on the d
+axis and nb_f = f / 2^log_fb blocks on the f axis (768 = 3 x 256 and
+2048 = 1 x 2048 at 125M; 4096 = 1 x 4096 and 14336 = 7 x 2048 at
+Mistral — block structure, no zero padding); the (g8, a16) lookup
+into the layer's frozen int16-out member (256 rows, int16 outputs;
+tag ACT16; the member's spec digest is part of the statement); the
+int16 classes as ONE 2^16-row range table [-32768, 32767] (tag INT16
+— the class the engine's v3 statement proves: its rng-u16/rng-z16
+tables are 2^16 rows and its h16 limb split admits -32768; the
+Python export's honest-witness assert +-32767 is a subset); ROUND-
+to-nearest requant as the exact identity acc = 2^sh y + r with the
+BALANCED remainder r in [-2^(sh-1), 2^(sh-1)) (equivalent to the
+engine's floor on the pre-shifted operand acc + 2^(sh-1); the
+identities stay linear with no constant, so they fold into the
+evaluation claims exactly as v2's and the XX zero-check kernels
+apply unchanged); negative sh_u (the exact public up-scaling branch,
+present in both exports) as the identity uacc = 2^-k u16 with the
+field inverse of 2^k as the public coefficient and an all-zero
+remainder column over the one-row window {0}; signed shifts and the
+member digest absorbed into the statement. v2 untouched.
+
+- **RUNG 0+1+2 GREEN (2026-09-02, WSL-BOX).** Build 7-14 s CPU; 22/22
+  unit tests (19 + 3 new: every frozen member regenerates to its pin,
+  requant_round == the pre-shifted floor on 140k values at 5 shifts
+  incl. the sh <= 0 branch, the i64 down-matmul). `hashline tables-v3`
+  prints the 15 members with min/max/saturated rows/digests LINE-
+  IDENTICAL to `ring_matmul uperf-v3 tables` (third leg: a python
+  parse of lookup.rs's frozen consts vs m8b_margins.py's generator —
+  15/15 bytes + digests SAME). READER [MEASURED]: `check-export
+  --profile v3` reproduces **96/96** tensor sha256s of the 125M v3
+  export (X/WgT/WuT/WdT/a16/u16/h16/z16 x 12; 0.30 s) and **256/256**
+  of the REAL Mistral-7B v3 export (x 32 layers; 7.0 GB of bins under
+  /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export/, 9.2 s);
+  every sidecar shifts row equals the exponent-derived signed shifts,
+  every wexps row equals exps - 8, every table row names a frozen
+  member whose regenerated digest equals the row's. THE EXACT CHAIN
+  [MEASURED]: `chain --profile v3` re-executes each layer from X and
+  the int8 weights alone and reproduces the export's planes:
+  **125M 12/12 layers x 4 planes** (a16/u16/h16/z16 full-plane sha256
+  at T=512, 2.0 s, 22T) and **Mistral-7B 32/32 layers x 4 planes**
+  (128 plane digests at T=512, 127.6 s at 8T under the heavy lock,
+  peak RSS 0.72 GB [NOISY-SHARED]); every range fact HOLDS (g8 in the
+  table domain, u16/h16/z16 in the int16 class, every balanced
+  remainder in its window incl. sh_u in {-2..3}). No STOP. The
+  statement the proof is about is the exported one, bit for bit, on
+  both checkpoints. Files: hashline/src/tables_v3.rs, export_v3.rs,
+  lib.rs (+2 mod lines), bin/hashline.rs (+flags, check-export/chain
+  v3, tables-v3).
