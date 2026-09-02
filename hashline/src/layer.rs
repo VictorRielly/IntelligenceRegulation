@@ -291,6 +291,15 @@ pub struct ProveOutput {
     pub timings: Vec<(String, f64)>,
 }
 
+/// [UPERF3-XX] The device-resident commitment behind a `Committed`, when the GPU path made it.
+#[cfg(feature = "gpu-cuda")]
+fn dev_of(cm: &pcs::Committed) -> Option<&crate::gpu::DevCommit> {
+    match &cm.store {
+        pcs::Store::Device(dc) => Some(dc),
+        _ => None,
+    }
+}
+
 /// Prove one layer over the first `t_rows` rows of the witness.
 pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &NttTables, tr: &mut Transcript) -> ProveOutput {
     use std::time::Instant;
@@ -479,25 +488,55 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
     let tau = tr.challenge_fp2_vec(lay.log_tf as usize);
     let mu = tr.challenge_fp2_vec(4); // had, hg, hu, hh
     let nu = tr.challenge_fp2_vec(3); // g, u, h
-    let mut tables: Vec<Vec<Fp2>> = vec![eq_table_msb(&tau), eq_table_msb(&p1), eq_table_msb(&p5), g8f, rgf, a8f, u8f, ruf, h8f, rhf, hg, hu, hh];
     let (p_g, p_u, p_h) = (pow2(sh_g), pow2(sh_u), pow2(sh_h));
-    let zc20_poly = move |v: &[Fp2]| -> Fp2 {
-        let (eqt, eq1, eq5) = (v[0], v[1], v[2]);
-        let (g8, rg, a8, u8, ru, h8, rh, hg, hu, hh) = (v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12]);
-        let c_had = a8.mul(u8).sub(h8.mul_base(p_h)).sub(rh);
-        let c_hg = helper_constraint(hg, g8.add(beta.mul(a8)).add(g_silu), rg.add(g_rg), alpha);
-        let c_hu = helper_constraint(hu, u8.add(g_int8), ru.add(g_ru), alpha);
-        let c_hh = helper_constraint(hh, h8.add(g_int8), rh.add(g_rh), alpha);
-        let zc = mu[0].mul(c_had).add(mu[1].mul(c_hg)).add(mu[2].mul(c_hu)).add(mu[3].mul(c_hh));
-        let fold1 = nu[0].mul(g8.mul_base(p_g).add(rg)).add(nu[1].mul(u8.mul_base(p_u).add(ru)));
-        eqt.mul(zc).add(eq1.mul(fold1)).add(eq5.mul(nu[2].mul(h8)))
+    // [UPERF3-XX] the device zero-check: tables built on the device from the resident A / H data (no upload)
+    #[cfg(feature = "gpu-cuda")]
+    let dev_out = if let (true, Some(a_dc), Some(h_dc)) = (crate::gpu::enabled(), dev_of(&a_cm), dev_of(&h_cm)) {
+        use crate::gpu::TabSpec;
+        let specs = vec![
+            TabSpec::Eq(&tau), TabSpec::Eq(&p1), TabSpec::Eq(&p5),
+            TabSpec::FromFp(a_dc, lay.g8, tf), TabSpec::FromFp(a_dc, lay.rg, tf), TabSpec::FromFp(a_dc, lay.a8, tf),
+            TabSpec::FromFp(a_dc, lay.u8v, tf), TabSpec::FromFp(a_dc, lay.ru, tf), TabSpec::FromFp(a_dc, lay.h8, tf), TabSpec::FromFp(a_dc, lay.rh, tf),
+            TabSpec::FromFp2(h_dc, lay.hg.0, lay.hg.1, tf), TabSpec::FromFp2(h_dc, lay.hu.0, lay.hu.1, tf), TabSpec::FromFp2(h_dc, lay.hh.0, lay.hh.1, tf),
+        ];
+        let mut prm: Vec<u64> = Vec::new();
+        for v in [alpha, beta, g_silu, g_rg, g_ru, g_rh, g_int8, mu[0], mu[1], mu[2], mu[3], nu[0], nu[1], nu[2]] {
+            prm.push(v.c0.0);
+            prm.push(v.c1.0);
+        }
+        prm.extend([p_g.0, p_u.0, p_h.0]);
+        let mut tr_try = Transcript::clone_state(tr);
+        match crate::gpu::dev_zerocheck(0, &specs, &prm, &mut tr_try) {
+            Ok(out) => { *tr = tr_try; Some(out) }
+            Err(e) => { eprintln!("[UPERF3-XX] gpu zero-check 20 declined ({e}); CPU path"); None }
+        }
+    } else { None };
+    #[cfg(not(feature = "gpu-cuda"))]
+    let dev_out: Option<sumcheck::ProverOutput> = None;
+    let out = match dev_out {
+        Some(out) => { drop((g8f, rgf, a8f, u8f, ruf, h8f, rhf, hg, hu, hh)); out }
+        None => {
+            let mut tables: Vec<Vec<Fp2>> = vec![eq_table_msb(&tau), eq_table_msb(&p1), eq_table_msb(&p5), g8f, rgf, a8f, u8f, ruf, h8f, rhf, hg, hu, hh];
+            let zc20_poly = move |v: &[Fp2]| -> Fp2 {
+                let (eqt, eq1, eq5) = (v[0], v[1], v[2]);
+                let (g8, rg, a8, u8, ru, h8, rh, hg, hu, hh) = (v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12]);
+                let c_had = a8.mul(u8).sub(h8.mul_base(p_h)).sub(rh);
+                let c_hg = helper_constraint(hg, g8.add(beta.mul(a8)).add(g_silu), rg.add(g_rg), alpha);
+                let c_hu = helper_constraint(hu, u8.add(g_int8), ru.add(g_ru), alpha);
+                let c_hh = helper_constraint(hh, h8.add(g_int8), rh.add(g_rh), alpha);
+                let zc = mu[0].mul(c_had).add(mu[1].mul(c_hg)).add(mu[2].mul(c_hu)).add(mu[3].mul(c_hh));
+                let fold1 = nu[0].mul(g8.mul_base(p_g).add(rg)).add(nu[1].mul(u8.mul_base(p_u).add(ru)));
+                eqt.mul(zc).add(eq1.mul(fold1)).add(eq5.mul(nu[2].mul(h8)))
+            };
+            let out = sumcheck::prove(&mut tables, 4, zc20_poly, tr);
+            drop(tables);
+            out
+        }
     };
-    let out = sumcheck::prove(&mut tables, 4, zc20_poly, tr);
     proof.zc20_sc = out.proof;
     let rho20 = out.challenges;
     proof.zc20_term = out.finals[3..13].to_vec();
     tr.absorb_fp2(b"zc20-term", &proof.zc20_term);
-    drop(tables);
     lap("zero-check 20", &mut timings, &mut tick);
 
     // ---- zero-check 17 ---------------------------------------------------------------
@@ -505,31 +544,59 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
     let mu2 = tr.challenge_fp2_vec(3);
     let nu_x = tr.challenge_fp2_vec(3);
     let nu_z = tr.challenge_fp2_vec(3);
-    let mut tables: Vec<Vec<Fp2>> = vec![eq_table_msb(&tau2), eq_table_msb(&p2), eq_table_msb(&p4)];
-    for b in 0..3 { tables.push(a_data[lay.x[b]..lay.x[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect()); }
-    for b in 0..3 { tables.push(std::mem::take(&mut zf[b])); }
-    for b in 0..3 { tables.push(std::mem::take(&mut rdf[b])); }
-    for b in 0..3 { tables.push(std::mem::take(&mut hz[b])); }
     let p_z = pow2(sh_z);
-    let zc17_poly = move |v: &[Fp2]| -> Fp2 {
-        let (eqt, eq2, eq4) = (v[0], v[1], v[2]);
-        let mut zc = Fp2::ZERO;
-        let mut fx = Fp2::ZERO;
-        let mut fz = Fp2::ZERO;
-        for b in 0..3 {
-            let (x, z, rd, h) = (v[3 + b], v[6 + b], v[9 + b], v[12 + b]);
-            zc = zc.add(mu2[b].mul(helper_constraint(h, z.add(g_int8), rd.add(g_rd), alpha)));
-            fx = fx.add(nu_x[b].mul(x));
-            fz = fz.add(nu_z[b].mul(z.mul_base(p_z).add(rd)));
+    #[cfg(feature = "gpu-cuda")]
+    let dev_out = if let (true, Some(a_dc), Some(h_dc)) = (crate::gpu::enabled(), dev_of(&a_cm), dev_of(&h_cm)) {
+        use crate::gpu::TabSpec;
+        let mut specs = vec![TabSpec::Eq(&tau2), TabSpec::Eq(&p2), TabSpec::Eq(&p4)];
+        for b in 0..3 { specs.push(TabSpec::FromFp(a_dc, lay.x[b], tb)); }
+        for b in 0..3 { specs.push(TabSpec::FromFp(a_dc, lay.z[b], tb)); }
+        for b in 0..3 { specs.push(TabSpec::FromFp(a_dc, lay.rd[b], tb)); }
+        for b in 0..3 { specs.push(TabSpec::FromFp2(h_dc, lay.hz[b].0, lay.hz[b].1, tb)); }
+        let mut prm: Vec<u64> = Vec::new();
+        for v in [alpha, g_int8, g_rd, mu2[0], mu2[1], mu2[2], nu_x[0], nu_x[1], nu_x[2], nu_z[0], nu_z[1], nu_z[2]] {
+            prm.push(v.c0.0);
+            prm.push(v.c1.0);
         }
-        eqt.mul(zc).add(eq2.mul(fx)).add(eq4.mul(fz))
+        prm.push(p_z.0);
+        let mut tr_try = Transcript::clone_state(tr);
+        match crate::gpu::dev_zerocheck(1, &specs, &prm, &mut tr_try) {
+            Ok(out) => { *tr = tr_try; Some(out) }
+            Err(e) => { eprintln!("[UPERF3-XX] gpu zero-check 17 declined ({e}); CPU path"); None }
+        }
+    } else { None };
+    #[cfg(not(feature = "gpu-cuda"))]
+    let dev_out: Option<sumcheck::ProverOutput> = None;
+    let out = match dev_out {
+        Some(out) => { drop((zf, rdf, hz)); out }
+        None => {
+            let mut tables: Vec<Vec<Fp2>> = vec![eq_table_msb(&tau2), eq_table_msb(&p2), eq_table_msb(&p4)];
+            for b in 0..3 { tables.push(a_data[lay.x[b]..lay.x[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect()); }
+            for b in 0..3 { tables.push(std::mem::take(&mut zf[b])); }
+            for b in 0..3 { tables.push(std::mem::take(&mut rdf[b])); }
+            for b in 0..3 { tables.push(std::mem::take(&mut hz[b])); }
+            let zc17_poly = move |v: &[Fp2]| -> Fp2 {
+                let (eqt, eq2, eq4) = (v[0], v[1], v[2]);
+                let mut zc = Fp2::ZERO;
+                let mut fx = Fp2::ZERO;
+                let mut fz = Fp2::ZERO;
+                for b in 0..3 {
+                    let (x, z, rd, h) = (v[3 + b], v[6 + b], v[9 + b], v[12 + b]);
+                    zc = zc.add(mu2[b].mul(helper_constraint(h, z.add(g_int8), rd.add(g_rd), alpha)));
+                    fx = fx.add(nu_x[b].mul(x));
+                    fz = fz.add(nu_z[b].mul(z.mul_base(p_z).add(rd)));
+                }
+                eqt.mul(zc).add(eq2.mul(fx)).add(eq4.mul(fz))
+            };
+            let out = sumcheck::prove(&mut tables, 4, zc17_poly, tr);
+            drop(tables);
+            out
+        }
     };
-    let out = sumcheck::prove(&mut tables, 4, zc17_poly, tr);
     proof.zc17_sc = out.proof;
     let rho17 = out.challenges;
     proof.zc17_term = out.finals[3..15].to_vec();
     tr.absorb_fp2(b"zc17-term", &proof.zc17_term);
-    drop(tables);
     lap("zero-check 17", &mut timings, &mut tick);
 
     // ---- helper sums ---------------------------------------------------------------

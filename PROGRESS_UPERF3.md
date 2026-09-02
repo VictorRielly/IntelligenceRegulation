@@ -6865,6 +6865,142 @@ commit W 2.13 | commit A 3.76 | helpers + commit H 4.38 | matmul g/u
 openings 3.71 s** [MEASURED, WSL-BOX 8T CPU NOISY-SHARED] — UU's row
 reproduced within its 21.5-23.7 s spread. Commit 7352e3d.
 
+**RUNG 1 — THE BATCHED ROW NTT ON THE DEVICE: GREEN, BYTE-IDENTICAL
+(2026-09-02, WSL-BOX 8T + RTX 4070 Laptop, NOISY-SHARED).** Kernels
+`k_ntt_p1` (the first 12 radix-2 DIT stages of a row on a 4096-element
+shared-memory block, the bit-reversed gather done on the load with
+positions >= n_src read as zero = the RS zero padding never
+materialized) and `k_ntt_p2` (the remaining log_n - 12 stages on a
+[2^(log_n-12)] x [J] tile, closed under those stages since the
+partner of x = t*4096 + j differs only in t); the CPU's own twiddle
+tables (`NttTables::twiddle_tables()`, indexed tw[k * max_n/len]
+exactly as ntt.rs) uploaded once; the 1/n scale on the last store.
+`pcs::commit` dispatches to `gpu::dev_commit` when `HL_GPU=1` (Err ->
+the CPU body): data H2D, inverse NTT (2^14) into a coefficient
+buffer, forward NTT (2^16) into the device-resident encoded matrix;
+the commitment becomes `pcs::Store::Device` and the opening's 256
+columns come from a gather kernel (`k_gather_cols`). Rung 1 still
+hashes on the HOST (the encoded matrix copied back) so the hashing
+question is measured in rung 2. Checks: `gpu-probe` now also encodes
+random rows at (log_cols, inv_rate, rows) = (4,4,3) (10,4,5) (12,4,7)
+(14,4,5) (14,4,64) (13,2,4) (12,8,3) — **0 mismatches** against the
+CPU encoder element for element, and the gathered columns match. THE
+GATE: `HL_GPU=1 hashline pass 3 16 --threads 8` -> **PROOF sha256
+596b9c79f086d6f1.. = the CPU's**; `HL_GPU=1 flock /tmp/zk-heavy.lock
+/usr/bin/time -v hashline pass 12 512 --threads 8` -> **PROOF sha256
+50cf7bdfd6b5b182.. = the CPU's (66,844,928 B), PASS ACCEPT**.
+Walls at 12x512 [MEASURED, WSL-BOX 8T GPU NOISY-SHARED]: **PROVE
+19.33 s (CPU ref 21.60), VERIFY 2.73 s, RSS 1.44 GB, VRAM peak 2.16
+GB**; commit W 1.65 / commit A 3.07 / helpers + commit H 3.82 s (CPU:
+2.13 / 3.76 / 4.38); device-side sums: H2D 0.51 s for 1.95 GB (3.9
+GB/s pageable), NTT 1.19 s (36 commitments, ~33 ms each — ~8 G
+butterflies/s, well under the part's arithmetic ceiling: the
+twiddle reads in p1 are strided (tw[k*stride]) and the u64 shared
+butterflies bank-conflict; a stage-major twiddle table is rung 2's
+first fix), host hashing 1.02 s, **D2H 3.17 s for 7.83 GB** (the
+encoded matrices copied back for the host hash at 2.5 GB/s — the
+commit phase is now transfer-bound, which is exactly the rung-2
+question: hashing on the device removes the 7.8 GB entirely). Commit
+7ed56cf.
+
+**RUNG 2 — blake3 MERKLE LEAVES ON THE DEVICE: GREEN, BYTE-IDENTICAL;
+DECISION: hash on the device (2026-09-02, WSL-BOX 8T + RTX 4070
+Laptop, NOISY-SHARED).** `k_hash_cols`: one thread per column runs the
+reference blake3 (7-round compression, 1024-byte chunks with
+CHUNK_START/END, the lazy CV-stack merge to popcount(chunk index)
+before each push, the root roll-up with ROOT on the last compression)
+over the column's little-endian u64 bytes read straight from the
+device-resident encoded matrix (coalesced across the warp); only the
+2^16 x 32 B leaves come back and the host builds the Merkle levels as
+before (`MerkleTree::build`, ~2 ms; not worth a kernel). Check:
+`gpu-probe` hashes 64 random columns at 322 row counts (1..300 and
+432, 520, 511-513, 640, 767-769, 1023-1025, 1500, 2047-2049, 3000,
+4095-4097, 8191, 8192 — every chunk-tree shape up to 64 KB) against
+`blake3::hash`: **0 failing**. Also the NTT twiddle table became
+stage-major (stage s owns tw_cpu[k << (max_log - s)] contiguous;
+same values, coalesced reads). Gates: 3x16 sha256 596b9c79.. and
+12x512 sha256 50cf7bdf.. — IDENTICAL. The A/B that decides the rung
+[MEASURED at 12x512, 8T GPU NOISY-SHARED]: host hashing (rung 1's
+form, kept behind `HL_GPU_HOST_HASH=1`): D2H 3.17 s for 7.83 GB +
+host hash 1.02 s; device hashing: 0.30 s device time, D2H 0.106 GB
+per pass -> commit W 0.83 / A 1.57 / H 2.54 s (CPU 2.13 / 3.76 /
+4.38; rung 1 1.65 / 3.07 / 3.82). **PROVE 16.22 s** (CPU ref 21.60),
+verify 3.06 s, RSS 1.24 GB, VRAM 2.16 GB. Device-side sums: H2D 0.60
+s / 1.95 GB, NTT 1.41 s, hash 0.30 s. The commit phase's remaining
+~4.9 s is now mostly HOST work (the Fp conversions of the witness
+planes, the LogUp helper columns' batch inversions ~1.3 s, the
+68/57/37 MB host copies) — moved in the follow-on items below.
+
+**RUNG 3 — THE ZERO-CHECK SUMCHECKS ON THE DEVICE: GREEN,
+BYTE-IDENTICAL (2026-09-02, WSL-BOX 8T + RTX 4070 Laptop,
+NOISY-SHARED).** `gpu::dev_zerocheck(kind, specs, prm, tr)`: the 13
+(zc20) / 15 (zc17) tables are BUILT ON THE DEVICE — base-field slices
+of the resident A commitment data (`k_tab_from_fp`), (re, im) slice
+pairs of the resident H data (`k_tab_from_fp2`), and the eq tables of
+the challenge points (`k_eq_table`, the per-bit factor product, MSB
+convention as `mle::eq_table_msb`) — no table upload at all; the
+round loop stays on the host with the transcript: `k_sc_round_zc20 /
+_zc17` (templated on the table count so cur/dif live in registers;
+the parameters staged in shared memory; the CPU's incremental cur =
+v0 + d*dif evaluation at d = 0..4; block partials) -> `k_reduce_f2`
+-> 5 Fp2 back -> absorb -> challenge -> `k_sc_fold`; finals from the
+folded tables. layer.rs branches when A and H are device stores
+(`Transcript::clone_state` lets a declined attempt fall back to the
+CPU body untouched); the polynomials mirror the Rust closures term
+for term. Gates: 3x16 596b9c79.. and 12x512 50cf7bdf.. IDENTICAL.
+Bug found on the way: the first version copied the whole 218 MB table
+buffer back to read the 13 finals (0.13 s per layer); fixed to 13
+16-byte reads. Per layer at T = 512 [MEASURED, HL_GPU_VERBOSE]: zc20
+(2^20 x 13) tables 0.021 s | rounds 0.020 s | folds 0.004 s | syncs
+0.002 s = **0.047 s** (CPU 0.34 s); zc17 (2^17 x 15) **0.013 s** (CPU
+0.18 s). At 12x512: **zero-check 20 0.71 s (CPU 4.13), zero-check 17
+0.17 s (CPU 2.15)**; PROVE 13.52 s in a run where another lane loaded
+the CPU (the untouched host phases — openings 5.54 s, matmul 1.04 /
+0.81 s, verify 4.34 s — all ran 1.4-1.5x slower than in the rung-2 run;
+NOISY-SHARED, rung 5's p50 is the number). The matmul sumchecks stay
+on the host BY DESIGN: their tables are 2^8 (g/u, 6 tables) and 2^11
+(d, 2 tables) entries — the matmul phases' cost is the FOLDS
+(fold_rows/cols over X, Wg, Wu, h8, Wd: GEMV-class, 1.3 s per pass),
+which rung 4's kernel class covers. The LogUp is inside the two
+zero-checks (the helper identity) and its helper-sum functionals.
+
+**RUNG 4 — THE PCS OPENING'S ROW-COMBINATION ON THE DEVICE + THE
+HOST-SIDE FINDING: GREEN, BYTE-IDENTICAL (2026-09-02, WSL-BOX 8T +
+RTX 4070 Laptop, NOISY-SHARED).** `k_fold_rows` (one thread per
+column, up to 4 row-weight vectors at once — the 2-3 claim groups +
+the proximity rho — over the device-resident systematic data;
+warp-uniform rho reads) behind `gpu::dev_fold_rows`; `pcs::open`
+dispatches on the store; the DevCommit's host data copy is gone
+(saved a 37/68/57 MB clone per commitment). Gates: 3x16 596b9c79..
+and 12x512 50cf7bdf.. IDENTICAL; the fold itself 0.16-0.23 s per
+pass (36 combinations; CPU ~1.1 s). THE FINDING while profiling
+`pcs::open` (`HL_TIMING=1`): `group_claims` cost 0.26 s per layer —
+`mle::eq_table` opened a rayon parallel region per doubling step,
+and the 37 claims x 2 eq tables x up to 14 steps per layer paid ~0.3
+ms of pool wake-up each; the same code runs in the VERIFIER. Fix
+(same values, one `if len < 4096 { sequential }`): group_claims 0.26
+-> 0.03 s per layer. Because that is CPU-path code, the CPU
+reference moves too and is re-measured here so the comparison stays
+apples to apples: **CPU-only binary, this tree, 12x512 8T: PROVE
+17.36 s (was 21.60), VERIFY 0.73 s (was 2.85), sha256 50cf7bdf..
+unchanged**; phases commit W 1.98 | A 3.64 | H 4.18 | matmul 0.37 /
+0.22 | zc20 3.76 | zc17 1.75 | openings 1.43 s [MEASURED,
+NOISY-SHARED]. (UU's 23.0 s row stands as the round-11 record of the
+untuned prototype; the 17.4 s is the same prover after this fix.)
+GPU, after rungs 1-4 [MEASURED, 12x512, 8T + GPU, alone on the
+device — a concurrent 3x16 run on the same GPU had polluted an
+earlier attempt 3x, noted]: **PROVE 4.88 s, VERIFY 0.44 s, RSS 1.08
+GB, VRAM peak 2.40 GB**; commit W 0.45 | commit A 0.84 | helpers +
+commit H 1.75 | matmul g/u 0.34 | matmul d 0.19 | zero-check 20 0.56
+| zero-check 17 0.12 | PCS openings 0.58 s; device-side sums: H2D
+0.35 s / 1.95 GB, NTT 0.84 s, hash 0.11 s, sumcheck 0.64 s, fold 0.16
+s. What is left is HOST work around the device: the LogUp helper
+columns (batch inversions + the Fp2 tables, ~1.4 s per pass), the
+witness-plane -> Fp conversions and the H2D of W/A (~0.6 s), the
+eq-table builds (0.25 s) and the matmul folds (0.3 s). Next: the
+helper columns on the device from the resident A data (the H
+commitment then encodes a device buffer with no upload), then rung
+5's measurement. Commit
 
 ## Agent YY status (wt-uperf3-yy) — round 11
 

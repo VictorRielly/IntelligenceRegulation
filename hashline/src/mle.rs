@@ -19,11 +19,23 @@ pub fn eq_table(r: &[Fp2]) -> Vec<Fp2> {
         let (lo, hi) = out.split_at_mut(len);
         let hi = &mut hi[..len];
         let one_minus = Fp2::ONE.sub(ri);
-        lo.par_iter_mut().zip(hi.par_iter_mut()).for_each(|(a, b)| {
-            let e = *a;
-            *b = e.mul(ri);
-            *a = e.mul(one_minus);
-        });
+        // [UPERF3-XX] small steps run sequentially: a rayon region per
+        // doubling step cost ~0.3 ms of pool wake-up each and dominated
+        // pcs::group_claims (37 claims x 2 tables x up to 14 steps per
+        // layer); same values.
+        if len < 4096 {
+            for (a, b) in lo.iter_mut().zip(hi.iter_mut()) {
+                let e = *a;
+                *b = e.mul(ri);
+                *a = e.mul(one_minus);
+            }
+        } else {
+            lo.par_iter_mut().zip(hi.par_iter_mut()).for_each(|(a, b)| {
+                let e = *a;
+                *b = e.mul(ri);
+                *a = e.mul(one_minus);
+            });
+        }
         len <<= 1;
     }
     // out[idx] where idx bit (n-1-i) = variable i -> but the loop above makes

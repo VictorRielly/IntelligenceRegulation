@@ -230,14 +230,14 @@ fn group_claims(claims: &[Claim], rows: usize, log_cols: u32) -> Vec<(Vec<Fp2>, 
 }
 
 /// rho^T M for several rho at once, reading the systematic positions of
-/// the encoded matrix (encoded[i][inv_rate * j] == data[i][j]) — or, for
-/// a device store, its host copy of the data (stride 1).
+/// the encoded matrix (encoded[i][inv_rate * j] == data[i][j]); for a
+/// device store the combination runs on the device (`gpu::dev_fold_rows`).
 fn fold_rows_multi(cm: &Committed, rhos: &[Vec<Fp2>]) -> Vec<Vec<Fp2>> {
     let n = cm.params.cols();
     let (src, nn, ir): (&[Fp], usize, usize) = match &cm.store {
         Store::Host { encoded } => (encoded, cm.params.enc_cols(), cm.params.inv_rate),
         #[cfg(feature = "gpu-cuda")]
-        Store::Device(dc) => (&dc.data_host, n, 1),
+        Store::Device(dc) => return crate::gpu::dev_fold_rows(dc, rhos).expect("gpu row-combination"),
     };
     let k = rhos.len();
     let chunk = 512usize.min(n);
@@ -281,9 +281,13 @@ fn fold_rows_multi(cm: &Committed, rhos: &[Vec<Fp2>]) -> Vec<Vec<Fp2>> {
 /// group vectors absorbed -> proximity rho -> prox vector absorbed ->
 /// column indices.
 pub fn open(cm: &Committed, claims: &[Claim], tr: &mut Transcript) -> Opening {
+    use std::time::Instant;
+    let vb = std::env::var("HL_TIMING").map(|v| v == "1").unwrap_or(false);
+    let t0 = Instant::now();
     let rows = cm.rows;
     let n = cm.params.cols();
     let groups = group_claims(claims, rows, cm.params.log_cols);
+    let t_groups = t0.elapsed().as_secs_f64();
     let mut rhos: Vec<Vec<Fp2>> = Vec::with_capacity(groups.len() + 1);
     for (_, members) in &groups {
         let lambdas = tr.challenge_fp2_vec(members.len());
@@ -299,13 +303,16 @@ pub fn open(cm: &Committed, claims: &[Claim], tr: &mut Transcript) -> Opening {
     }
     let prox_rho = tr.challenge_fp2_vec(rows);
     rhos.push(prox_rho);
+    let t_rho = t0.elapsed().as_secs_f64();
     let mut vecs = fold_rows_multi(cm, &rhos);
+    let t_fold = t0.elapsed().as_secs_f64();
     let prox_vec = vecs.pop().unwrap();
     for v in &vecs {
         tr.absorb_fp2(b"pcs-vec", v);
     }
     tr.absorb_fp2(b"pcs-prox", &prox_vec);
     let idx = tr.challenge_indices(cm.params.num_col_checks, cm.params.enc_cols());
+    let t_absorb = t0.elapsed().as_secs_f64();
     let nn = cm.params.enc_cols();
     let columns: Vec<(usize, Vec<Fp>, Vec<Digest>)> = match &cm.store {
         Store::Host { encoded } => idx
@@ -322,6 +329,12 @@ pub fn open(cm: &Committed, claims: &[Claim], tr: &mut Transcript) -> Opening {
         }
     };
     let _ = n;
+    if vb {
+        eprintln!(
+            "[pcs::open] rows {rows} n {n} claims {} groups {}: group_claims {:.4} | rhos {:.4} | fold {:.4} | absorb+idx {:.4} | columns {:.4} s",
+            claims.len(), groups.len(), t_groups, t_rho - t_groups, t_fold - t_rho, t_absorb - t_fold, t0.elapsed().as_secs_f64() - t_absorb
+        );
+    }
     Opening { group_vecs: vecs, prox_vec, columns }
 }
 

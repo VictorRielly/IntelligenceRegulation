@@ -20,7 +20,10 @@
 mod cuda;
 
 #[cfg(feature = "gpu-cuda")]
-pub use cuda::{dev_columns, dev_commit, dev_commit_check, dev_stats, dev_stats_reset, enabled, label, probe, DevCommit, GpuStats, ProbeReport};
+pub use cuda::{
+    dev_columns, dev_commit, dev_commit_check, dev_fold_rows, dev_hash_check, dev_stats, dev_stats_reset, dev_zerocheck, enabled, label, probe,
+    DevCommit, GpuStats, ProbeReport, TabSpec,
+};
 
 #[cfg(not(feature = "gpu-cuda"))]
 mod stub {
