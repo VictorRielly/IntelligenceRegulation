@@ -5916,3 +5916,21 @@ commit (status COMPLETE + this section).
   (c') class of U_PERF3_THROUGHPUT_MODEL.md); Variant B (8-15x
   [MODEL]) is a design-ruling candidate, not built. The GPU build of
   the merged tree is checked at RR's merge (RR adds gpu/ files).
+- **SS's ORCHESTRATOR-RUN, first half (2026-09-02, detached under
+  /tmp/zk-heavy.lock, the merged binary at 6b6ae1f)**: `uperf-a pass
+  12 512 full` (kappa 4) **OOM-KILLED at 15.18 GB max RSS after
+  2:06** [WSL-BOX 8T NOISY-SHARED]. The lane's own RSS lines: 8,317
+  MiB after the act-h commit (phase B), 12,179 MiB after the Stage-A
+  phase (phase C), then signal 9 inside the group openings. SS's
+  expectation for this shape was ~9-11 GB [MODEL] ("range's peak +
+  ~1.5-2 GB of claim kernels"); the measured growth from 12x128
+  (8,072 MiB, accept) to 12x512 is > 7 GB, not ~2. CONSEQUENCES:
+  (a) the 12x512 reference shape does NOT run in full mode on the
+  15 GB box until the claim-kernel diet SS named lands (or the Mac
+  runs it — MAC_RUNBOOK M1b added); (b) the V4 8B full-mode row
+  (~78 GB; ~87 GB "until the diet lands") rests on the same
+  claim-kernel model and is now a LOWER BOUND pending the Mac's
+  12x512 full-mode measurement; the F1 full-mode price is not
+  "approximately nothing" at the reference shape as measured here.
+  The range-mode sibling (`12 512 range nooracle`) is queued next
+  and gives the same-binary baseline peak.

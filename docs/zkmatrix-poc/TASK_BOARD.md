@@ -94,8 +94,14 @@ runbook is the Mac's queue):**
   S2 form stays reachable as `full-s2`); (2) kappa 5+ needs a
   one-line denominator reduction in `sumcheck::lagrange_eval`
   (frozen file, i64 overflow above degree ~20) — not needed for
-  kappa 4. Orchestrator-run pending: the 12x512 full-mode A/B
-  (deferred until QQ/RR's builds are off the box).
+  kappa 4. **CAVEAT (orchestrator-run, later the same day): the
+  12x512 full-mode pass OOM-KILLED at 15.18 GB on this box** (8.3 GB
+  after the helper commit, 12.2 GB after the aggregate checks, killed
+  in the openings) — SS modelled ~9-11 GB; the 12x128-to-12x512
+  growth is > 7 GB. So the reference shape does not run in full mode
+  on the laptop until the claim-kernel diet lands, and the 8B
+  full-mode figure (~78-87 GB) is a LOWER BOUND until the Mac
+  measures 12x512 full mode (MAC_RUNBOOK M1b, new).
 - **RETRACTED (lane TT, memo §5.6)**: the 2026-08-30 "~25-35 tok/s
   amortized; levers 1.2-1.5x / 1.3x / 1.1-1.2x -> ~65" line below —
   none of its five numbers derives from anything recorded; the

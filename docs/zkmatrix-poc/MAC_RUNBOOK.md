@@ -99,6 +99,27 @@ across all four; the statement digest line starts with
 RECORD (§R): per thread count: commit / prove / verify seconds, the
 `real` wall, peak RSS in GiB, the label (QUIET/NOISY-SHARED).
 
+## M1b. The reference shape in FULL proof mode (new 2026-09-02; the laptop cannot hold it)
+
+WHY: the "full" proof mode (every table lookup routed through the
+newer aggregate checks — the mode the final composed run will use)
+was made to fit at 12 layers x 128 tokens on the laptop (8.1 GB), but
+at the reference shape 12 x 512 it was killed at 15.2 GB there. The
+Mac's 256 GB holds it. This one run tells us the true full-mode
+memory growth, which the 8B memory estimate depends on.
+
+```
+ZK_THREADS=8 M125_EXPORT_DIR=results/m125_ffn_export /usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-a pass 12 512 full > results/uperf/mac_stagea_12x512_full.log 2>&1
+ZK_THREADS=8 M125_EXPORT_DIR=results/m125_ffn_export /usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-a pass 12 512 range nooracle > results/uperf/mac_stagea_12x512_range.log 2>&1
+grep -h 'RSS high-water\|accept\|TRANSCRIPT DIGEST\|commit\|prove\|verify\|real\|maximum resident' results/uperf/mac_stagea_12x512_*.log
+```
+(`results/m125_ffn_export` is the Mac's own frozen 125M export, which
+exists there; ~5-15 min each [MODEL]; expect the full run's peak well
+above 15 GB.)
+ACCEPT: `accept true` in both.
+RECORD (§R): for each mode: the three `RSS high-water` lines, peak
+RSS in GiB, commit / prove / verify seconds, bytes, the label.
+
 ## M2. Download Gemma-4-12B (T13; ~23 GB; no RAM; F2 may run)
 
 ```
