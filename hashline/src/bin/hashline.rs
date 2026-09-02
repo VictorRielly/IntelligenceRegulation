@@ -122,6 +122,22 @@ fn gpu_probe() {
             std::process::exit(1);
         }
     }
+    // [UPERF3-XX] rung 2: device blake3 column hashes == blake3::hash (every tree shape up to 2^13 rows)
+    #[cfg(feature = "gpu-cuda")]
+    {
+        let mut fails = 0;
+        let mut checked = 0;
+        let mut rows_list: Vec<usize> = (1..=300).collect();
+        rows_list.extend([432, 520, 511, 512, 513, 640, 767, 768, 769, 1023, 1024, 1025, 1500, 2047, 2048, 2049, 3000, 4095, 4096, 4097, 8191, 8192]);
+        for rows in rows_list {
+            match hashline::gpu::dev_hash_check(rows) {
+                Ok(bad) => { checked += 1; if bad > 0 { println!("  hash check rows {rows}: {bad}/64 columns mismatch"); fails += 1; } }
+                Err(e) => { println!("  hash check rows {rows}: ERROR {e}"); fails += 1; }
+            }
+        }
+        println!("gpu-probe: blake3 checks {} ({checked} row counts x 64 columns; {} failing)", if fails == 0 { "GREEN" } else { "RED" }, fails);
+        if fails > 0 { std::process::exit(1); }
+    }
     // [UPERF3-XX] rung 1: the device RS encoding == the CPU encoding element for element
     #[cfg(feature = "gpu-cuda")]
     {

@@ -7002,6 +7002,107 @@ helper columns on the device from the resident A data (the H
 commitment then encodes a device buffer with no upload), then rung
 5's measurement. Commit 15e480f.
 
+**RUNGS 4b-4d — THE HOST REMAINDER MOVED, THE POOL, THE GATHER-FREE
+ENCODE: GREEN, BYTE-IDENTICAL (2026-09-02, WSL-BOX 8T + RTX 4070
+Laptop, NOISY-SHARED).** (4b) The LogUp helper columns on the device:
+`k_helper` computes h = 1/(alpha - l1) + 1/(alpha - l2) from the
+resident A data (l1 = v1 + beta w + c1, l2 = v2 + c2) straight into a
+device H buffer — Montgomery's trick over 8-element thread chunks
+with one Fermat inversion (inverses are unique, so the values equal
+`batch_inverse2`'s); the H commitment encodes that buffer with no
+upload (`dev_commit_from`); the helper sums come from `k_sum_fp`
+block reductions. The host Fp2 tables (g8f..rhf, lg.., hg/hu/hh,
+zf/rdf/hz) are never built on the device path (`HostTabs` is an
+Option; a device zero-check that declines after device helpers is a
+hard error, not a silent divergence). First attempt failed to launch
+(CUDA_ERROR_LAUNCH_OUT_OF_RESOURCES: 16-element chunks x 1024-thread
+blocks exceeded the register file) and the CPU fallback took over
+with identical bytes — the Err-discipline works; fixed at 8 x 128.
+(4c) `eval_many` on the device (`k_dot_slices` against a device eq
+table), eq tables by the two-half join (`k_eq_join`: eq factorizes
+over the variable split — one f2_mul per entry instead of 20), and
+`pcs::group_claims` builds the 2^14 column-weight table once per
+group instead of once per claim (37 claims/layer -> 3-5 groups; also
+the verifier's; 0.26 -> 0.005 s per layer). (4d) THE FIRST-TOUCH
+FINDING: a freshly cuMemAlloc'd buffer pays ~12 ms per 68 MB on its
+first write on this box (measured by encoding the same rows twice:
+inverse NTT 15.2 -> 2.9 ms, zc20 table build 13.4 -> 3.0 ms on the
+second pass) — so a device buffer POOL reuses buffers by exact length
+across commitments and layers (`Pooled`, returned on drop). Also the
+encode became gather-free — the inverse as a DIF NTT (natural in,
+bit-reversed out: `k_dif_pa` strided tile stages, `k_dif_pb`
+contiguous) and the forward as a DIT from the bit-reversed,
+zero-padded coefficients (`k_dit_p1_pad`: DIT position m R reads
+coef-buffer[m], the rest are zeros — a contiguous load); it turned
+out the gather was NOT the cost (the first-touch was), but the form
+is cleaner and stays (`HL_GPU_GATHER_NTT=1` keeps rung 1's). Every
+step: `gpu-probe` NTT/blake3 checks GREEN, 3x16 sha 596b9c79.. and
+12x512 sha 50cf7bdf.. IDENTICAL. Commits 3bd5a85 (4b/4c), 0e5a2eb
+(4d).
+
+**RUNG 5 — THE 12x512 PASS MEASURED: THE GPU ROW (2026-09-02, WSL-BOX
+8T + RTX 4070 Laptop, NOISY-SHARED, alone on the device, `flock
+/tmp/zk-heavy.lock`, 4 runs).** `HL_GPU=1 /usr/bin/time -v
+hashline/target-gpu/release/hashline pass 12 512 --threads 8
+--proof-out <file>`: **PROVE 3.43 / 3.38 / 3.38 / 3.49 s -> p50 3.40
+s; VERIFY 0.41-0.44 s; proof 66,844,928 B; peak RSS 775 MB; VRAM peak
+2.43 GB (cuMemGetInfo, incl. the driver context); 8.5e9 proven MAC/s
+(8.3-8.6e9)** [MEASURED]. **BYTE-IDENTITY: `sha256sum` of the four
+written GPU proofs and of the CPU-only binary's proof all equal
+50cf7bdfd6b5b182f9c029c3d62087ca9e0e273be218d017609323c15146a17d**;
+the 3x16 gate 596b9c79.. both ways. Per-phase (run 2, CPU-this-tree
+run 1 / UU's row in parentheses): commit W 0.43 (1.98 / 2.19) | commit
+A 0.95 (3.64 / 3.98) | helpers + commit H 0.50 (4.18 / 4.58) | matmul
+g/u 0.39 (0.37 / 0.77) | matmul d 0.27 (0.22 / 0.60) | zero-check 20
+0.35 (3.76 / 4.50) | zero-check 17 0.10 (1.75 / 2.30) | PCS openings
+0.35 (1.43 / 3.96) s. Device-side sums (run 2): H2D 0.25 s / 1.27 GB,
+NTT 0.43 s, blake3 leaves 0.12 s, zero-checks 0.45 s, row-combinations
++ eval_many 0.17 s, helpers 0.10 s, D2H 0.14 GB. The CPU reference in
+THIS tree (CPU-only binary, 3 runs, load 2-7): PROVE 17.36 / 20.38 /
+20.90 s (p50 20.4), VERIFY 0.33-0.73 s, RSS 1.56 GB, same sha256.
+Tamper legs THROUGH THE GPU PROVER: `HL_GPU=1 hashline layer 0 512
+--all-tampers --threads 8` -> flipped X / flipped Wg / wrong requant /
+wrong z REJECT at "sumcheck round 0: s(0) + s(1) != claim",
+out-of-range remainder / wrong table entry REJECT at "LogUp identity
+fails" — the same seven sites as the CPU prover's; `HL_GPU=1 pass 12
+512 --tamper requant` -> "layer 6: REJECT: sumcheck round 0" (that
+pass proved its 12 layers in 2.75 s with the box momentarily quieter —
+the fastest prove seen; not in the p50, it bounds the noise penalty at
+~20%). THE VERDICT AGAINST UU's [MODEL] 1.5-2.5 s: MISSED, at 3.4 s
+(1.4-2.3x over the band's ends), and the attribution is measured, not
+guessed: ~1.5 s of the 3.4 s is device time (the NTT at ~34 G
+butterflies/s is far under the part's arithmetic ceiling; the
+zero-checks 0.45 s; H2D 0.25 s pageable), ~1.9 s is host work the
+estimate did not count — the witness planes to field elements and
+their upload (~0.35 s), the matmul folds + the 2^8/2^11 sumchecks
+(~0.5 s), the Merkle levels (36 x 2^16 leaves), the transcript and
+claim bookkeeping, serialization, the per-round syncs. All of it has
+byte-preserving fixes (upload the i8/i32 planes and convert on the
+device, the folds on the device, pinned staging, a radix-4 /
+conflict-free NTT); none applied. Against the lattice line on the
+same device: 8.5e9 vs 1.4e9 proven MAC/s (6.1x), 3.4 s vs 18.0 s
+commit+prove, 0.78 GB + 2.43 GB VRAM vs 6.7 GB, 66.8 MB vs 1.5 MB
+proofs, no ZK vs ZK. THE ROW is in docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md
+§3 (next to UU's, same columns, same caveats, plus the CPU-this-tree
+row) with a status paragraph; the full record is
+results/hashline_gpu_12x512.md; hashline/README.md carries the GPU
+build/run recipe.
+
+**WHERE THIS LANE STOPPED.** Rungs 0-5 green, recorded, committed;
+the byte-identity gate held at every rung. Open items, none blocking
+the row: (a) the ~1.9 s host remainder listed above (the largest:
+plane -> Fp conversion + 1.27 GB pageable H2D per pass; the matmul
+folds); (b) the NTT kernels (shared-memory bank conflicts on u64,
+radix-2, 256 threads — 2-4x available [MODEL]); (c) the CPU verifier
+is unchanged in structure (0.3-0.7 s; its RS re-encodes of the 10
+clear vectors per layer and the 256 column checks could take the
+device too); (d) `layer` (unlike `pass`) starts the device inside its
+prove clock (the NVRTC compile ~0.5-0.8 s shows in single-layer
+timings; `pass` initializes before the clock); (e) everything UU
+listed (ZK masking, proof size, per-model W preprocessing — commit W
+is 0.43 s of the 3.4 s here — X/W range lookups, LogUp-GKR). No
+ORCHESTRATOR-RUN posted: every run fit under 8 minutes.
+
 ## Agent YY status (wt-uperf3-yy) — round 11
 
 (lane appends below)
