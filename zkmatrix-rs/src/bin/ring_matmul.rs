@@ -51556,6 +51556,7 @@ fn uperf_a_gg_main(args: &[String]) {
                 "uperf-a map [layers] [t] | diff [pair] [layers] [t] [seed] | pass [layers] [t] [range|full|masked] [nooracle|mask-commit|mask-served|claim|round] | pass-battery [layers] [t]   ([UPERF3-GG] Stage-A integration, round 5)"
             );
             println!("uperf-a full-plan | full-count [layers] [t] | ss-diff [layers] [t] | pass [layers] [t] full (= full-ss k4 noroute) | full-s2 (the S2 form) | full-ss [k<kappa_silu>] [r<kappa_route>|noroute] [ss-sum]   ([UPERF3-SS] the committed-h rungs V1-V4, round 10)");
+            println!("  env ZK_RR_ZC_CLAIMS=gg selects GG's per-column zc claim transport (the default is the BATCHED transport since round 11 — [UPERF3-WW])");
             uperf_a_main(args);
         }
     }
@@ -52510,10 +52511,15 @@ fn gg_zc_claims_batched(
     }
 }
 
-/// [UPERF3-RR] the transport knob (read once): ZK_RR_ZC_CLAIMS=batched.
+/// [UPERF3-RR] the transport knob (read once). [UPERF3-WW] round 11,
+/// ruling 3 (Victor, console 2026-09-02): the BATCHED transport is THE
+/// Stage-A transcript form — the DEFAULT from here on (identity: 12x64
+/// transcript c0b8236f.., 12x128 1644b4e1..); GG's per-column form stays
+/// reachable as the opt-in `ZK_RR_ZC_CLAIMS=gg` (12x64 44528c6a.., 12x128
+/// e5085602..). `ZK_RR_ZC_CLAIMS=batched` is still accepted (a no-op).
 fn rr_zc_claims_batched() -> bool {
     static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
-    *V.get_or_init(|| std::env::var("ZK_RR_ZC_CLAIMS").map(|v| v == "batched").unwrap_or(false))
+    *V.get_or_init(|| std::env::var("ZK_RR_ZC_CLAIMS").map(|v| v != "gg").unwrap_or(true))
 }
 
 /// [UPERF3-RR] the zc claim transport, selected by the knob (prover and
@@ -53949,7 +53955,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     // [UPERF3-RR] rung 1: the attribution table + the identity digest.
     println!(
         "[UPERF3-RR] ATTRIBUTION mode {mode_name}{} (walls s; {} threads):",
-        if rr_zc_claims_batched() { " + zc claims BATCHED (ZK_RR_ZC_CLAIMS=batched: a Stage-A transcript VARIANT)" } else { "" },
+        if rr_zc_claims_batched() { " + zc claims BATCHED (the Stage-A default since round 11; ZK_RR_ZC_CLAIMS=gg = GG's per-column form)" } else { " + zc claims GG-FORM (opt-in ZK_RR_ZC_CLAIMS=gg; the pre-round-11 Stage-A transcript)" },
         ring::eval_proof::threads()
     );
     println!(

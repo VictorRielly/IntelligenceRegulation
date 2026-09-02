@@ -6519,4 +6519,56 @@ RUNGS (prefix "U-PERF3 WW:"):
 
 ## Agent WW status (wt-uperf3-ww) — round 11
 
-(lane appends below)
+Lane WW: the Stage-A defaults (rulings 2-3), the cold-descent-kernels
+finding, the driver diet at 12x512, the honest 12x512 A/B. OWNS per the
+brief: the `uperf-a` driver section of ring_matmul.rs, zc_range.rs
+(ADDITIVE), stage_a.rs, stage_a_full.rs, gpu/zc_agg.rs (ADDITIVE fixes
+if rung 1's cause is there), NEW results/uperf3_ww_*, this section.
+Worktree cut at 80de176. Binaries: CPU `target/release` (2m17s) and
+GPU `target-gpu/release --features gpu-cuda` (2m36s), both green on
+the round-11 ground before any edit.
+
+### RUNG 0 — THE DEFAULTS (2026-09-02) [WSL-BOX 8T NOISY-SHARED: lanes UU/VV building]
+
+- RULING 2 (`full` = the kappa-4 partial-fraction helper): CONFIRMED
+  in the code, no change — `uperf-a pass L T full` parses to
+  `GgMode::FullSs(SsCfg { kappa_silu: 4, route_nrw: None, .. })`
+  (ring_matmul.rs, the `Some("full") =>` arm of the pass parse);
+  `full-s2` = GG's S2 form stays reachable.
+- RULING 3 (the batched claim transport = THE Stage-A transcript
+  form): `rr_zc_claims_batched()` now defaults to TRUE; the GG
+  per-column form is the opt-in `ZK_RR_ZC_CLAIMS=gg` (the old
+  `=batched` value is still accepted, a no-op). The `[UPERF3-RR]
+  ATTRIBUTION` line names the form in force; the `uperf-a` usage
+  string names the knob. One function + two prints; nothing frozen
+  touched.
+- THE STAGE-A IDENTITY FROM HERE ON [MEASURED, one CPU binary and one
+  GPU binary, `uperf-a pass 12 <t> range nooracle`, M125_EXPORT_DIR
+  set, ZK_THREADS=8] (statement digest | prover == verifier transcript
+  | bytes | claims | peak RSS, /usr/bin/time -v):
+  * 12x64 DEFAULT (batched), CPU: 441ca5db.. | **c0b8236fed52daa1..** |
+    622,011 B | 431 | 1,667 MiB (commit 6.0 / prove 22.1 / verify 2.6 s).
+  * 12x64 DEFAULT, GPU (ZK_GPU=1): 441ca5db.. | **c0b8236f..** (== CPU) |
+    622,011 B | 431 | 2,136 MiB (3.0 / 7.5 / 1.6 s).
+  * 12x128 DEFAULT, GPU: dc3100e7.. | **1644b4e14dd4f298..** | 637,691 B
+    | 439 | 2,496 MiB (3.3 / 8.4 / 2.7 s). (RR's R3a values, reproduced.)
+  * 12x64 OPT-IN `ZK_RR_ZC_CLAIMS=gg`, CPU: 441ca5db.. | **44528c6aeee0a771..**
+    | 622,011 B | 989 | 4,114 MiB (7.2 / 24.4 / 3.8 s) — the pre-round-11
+    identity remains reachable, byte-identical.
+  READING: the statement digest does not move (the transport is an
+  opening-structure choice, not a statement change); the transcript
+  digest is the form's identity. At 12x64 on the CPU the batched form's
+  process peak is 2.5x smaller than GG's (1,667 vs 4,114 MiB) — the
+  ~700 rank-1 claim rows were the peak, as RR found at 12x128.
+- FLOORS on this commit (CPU binary): `uperf-pc diff-battery` 18.44 s
+  passed; `freeze-check` (M125_EXPORT_DIR) 102 ok + "freeze-check
+  passed", exit 0; `uperf-s battery 8` 48 legs, 3752cba4..; `uperf-s
+  agg-battery 7` 136 legs, 46234986..; `uperf-x battery` 8 legs,
+  be89d5da.. — all unchanged. The GPU binary builds (2m39s) and prints
+  the same 12x64/12x128 digests as the CPU binary (above).
+- FOR THE ORCHESTRATOR / the board §0: the round-11 floor line "`uperf-a
+  pass 12 64 range` statement 441ca5db.. / transcript 44528c6a.."
+  becomes "statement 441ca5db.. / transcript **c0b8236f..** (default;
+  44528c6a.. under ZK_RR_ZC_CLAIMS=gg)". Logs:
+  results/uperf3_ww_r0_{freeze_check,12x64_batched_cpu,12x64_gg_cpu,12x64_batched_gpu,12x128_batched_gpu}.log.
+- Commit: the commit carrying this entry ("U-PERF3 WW: RUNG 0").
