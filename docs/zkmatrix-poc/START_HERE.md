@@ -51,6 +51,21 @@ transformer layer, for one 512-token prefill. The attention half is
 designed and proven at toy scale (§4) but is **not** in the 8B proof
 yet. Any write-up must say "FFN-only" until it is.
 
+**The goal as restated by Victor on 2026-09-02: at least 50 proven
+tokens per second for a 30B-class model on ONE GPU** (a very large
+GPU such as an H100 is allowed). This is "the competition to beat":
+a vendor (Attestable, 2026-08-11) claims Gemma-4-31B at 53 tokens/s
+(batch 1) and 77 tokens/s (batch 4) on one H100, with 4-8 MB proofs
+and sub-second verification [EXTERNAL, VENDOR-CLAIMED, no paper or
+code]. In the units this repository measures: one decoded token at
+30B costs about 3.1e10 multiply-accumulates, so 50 tokens/s means
+about 1.55e12 proven MAC/s. Our measured rate is 1.4e9 on the
+laptop's 55-70 W GPU [MEASURED]. The throughput model that converts
+between "seconds per proof" and "tokens per second" honestly, with
+the hardware factor stated as a range, is lane TT's deliverable this
+round (`U_PERF3_THROUGHPUT_MODEL.md`, when it lands). Until then no
+tokens/s number in this repository is sourced.
+
 ## 3. Where we stand (the honest numbers)
 
 ### 3.1 What has been measured
@@ -171,7 +186,20 @@ nonlinear parts. It is documented, not started
 (`PROVING_CHANNEL_OPTIONS.md`); the standing ruling (Aug 18) was to
 finish the lattice-line 8B MVP first.
 
-## 7. The choices now (decided together with Victor; nothing below is started)
+## 7. The choices, and what was decided (2026-09-02: ROUND 10 OPENED)
+
+Victor chose the recommended order on 2026-09-02. Round 10 in
+`PROGRESS_UPERF3.md` opens four lanes with self-contained briefs:
+**QQ** = choice A plus the never-tested weight preprocessing (the
+two-tier opening counted and measured on the GPU cost model, then
+the per-model / per-proof split measured); **RR** = choice B (Stage
+A's checks on the GPU, replacing the unsourced 1.2-1.5x with a
+measurement); **SS** = choice E's laptop half (the memory encoding
+rungs V1-V4); **TT** = the tokens-per-second model that the new goal
+is stated in. Choice E's Mac half is `MAC_RUNBOOK.md` (Victor pulls
+and runs). Choice C (hardware) is Victor's; choice D (the hash-based
+prototype) is decided after QQ's count lands. The original five
+choices, for the record:
 
 - **A. Reopen the two-tier opening on the GPU cost model.** Count,
   then measure on the laptop's RTX 4070: the redesign's factored

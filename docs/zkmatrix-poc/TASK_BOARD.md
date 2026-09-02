@@ -19,6 +19,31 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-09-02 (ROUND 10 OPENED — the throughput round; the Mac
+runbook is the Mac's queue):**
+- **THE GOAL (Victor 2026-09-02)**: >= 50 proven tokens/s for a
+  30B-class model on ONE GPU (H100-class allowed) — "the competition
+  to beat" is the Attestable claim (53/77 tok/s, one H100, [EXTERNAL]).
+  START_HERE.md §2 has the conversion; lane TT owns the honest model.
+- **ROUND 10 LANES (PROGRESS_UPERF3.md, self-contained briefs)**:
+  QQ = the two-tier opening + WEIGHT PREPROCESSING on the GPU cost
+  model (count, build, measure; the reopen bar = per-proof
+  weight-side opening >= 5x the built GPU path at the 12x512 weight
+  group, claims bit-identical); RR = Stage A's aggregate on the
+  device (measures the factor the 2026-08-30 board line guessed at
+  1.2-1.5x — that line is UNSOURCED, see below); SS = committed-h
+  V1-V4; TT = the tokens/s model + the audit of the unsourced line.
+- **RETRACTION PENDING**: the 2026-08-30 "~25-35 tok/s amortized;
+  levers 1.2-1.5x / 1.3x / 1.1-1.2x -> ~65" line below has no
+  derivation in any ledger or memo. Treat it as a guess until lane
+  TT derives or retracts it. Weight preprocessing has never been
+  built or measured (lane QQ rung 4 is its first measurement).
+- **THE MAC QUEUE IS NOW `docs/zkmatrix-poc/MAC_RUNBOOK.md`** — the
+  ordered, self-contained list (sync + gate pass, T1 with a thread
+  ladder, T13/T14, T15, T16 with the T-scaling leg that measures the
+  weight-vs-activation split, T17 both forms). Victor pulls and runs;
+  results are pasted back per the runbook's RECORD lines.
+
 **AS OF 2026-09-01 (ROUND 9 MERGED; the speed question put to Victor;
 START_HERE.md written):**
 - **NEW: `docs/zkmatrix-poc/START_HERE.md`** — the plain-words

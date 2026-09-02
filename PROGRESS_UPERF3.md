@@ -4794,3 +4794,237 @@ b689dcf equiv, 35cd6ad stats, 05c5c08 attrib+widen, close = this
 commit. Files: scripts/m125_attn_gate.py;
 results/m125_attn_{equiv,stats,attrib,widen,at_o1}.json (+ .log).
 The Gemma gate script and all Rust untouched.
+
+## ROUND 10 — THE THROUGHPUT ROUND (opened 2026-09-02; Victor: "Let's
+## go with your recommendation ... Our goal should be to get at least
+## about 50 tokens/second throughput on a 30B parameter model with one
+## gpu (although it can be a very beefy GPU if needed). This is the
+## competition to beat")
+
+Ground: round 9 merged (8e2060d); START_HERE.md (0642ca0) is the
+onboarding page every lane reads FIRST. Worktrees wt-uperf3-{qq,rr,ss}
+cut at 0642ca0. Lane TT is a docs-only lane run from the main
+session (no worktree). The Mac runbook (MAC_RUNBOOK.md) is the
+orchestrator's deliverable this round; Victor pulls and runs it.
+
+THE NEW GOAL, stated plainly: >= 50 proven tokens per second for a
+30B-class model on ONE GPU (H100-class allowed). The competitor's
+claim: Gemma-4-31B at 53 tok/s (batch 1) / 77 tok/s (batch 4) on one
+H100 [EXTERNAL, VENDOR-CLAIMED]. One decoded token at 30B costs ~3.1e10
+MACs, so 50 tok/s = ~1.55e12 proven MAC/s. Our measured rate is 1.4e9
+on the laptop's RTX 4070 (55-70 W) [MEASURED 2026-08-18]. Lane TT owns
+the honest conversion; nobody else quotes a tokens/s number without it.
+
+TWO FACTS VICTOR ASKED TO DOUBLE-CHECK (2026-09-02):
+1. The board's 2026-08-30 line ("~25-35 tok/s amortized; Stage-A
+   aggregate GPU port + fold fusion 1.2-1.5x; pipelining 1.3x; spine
+   amortization 1.1-1.2x -> ~65") has NO derivation anywhere in the
+   ledgers or memos (grep confirms: the only "fold fusion" in this
+   ledger is lane DD's AVX2 rung 5). It is UNSOURCED until lane TT
+   derives or retracts it. Lane RR MEASURES the Stage-A-on-GPU factor.
+2. Weight preprocessing ((vi-a): the weight side computed once per
+   model, not per proof) has NEVER been built or measured — it is
+   "designed only" (U_PERF3_HEADLINE_ROUTES.md §2.6). Lane QQ builds
+   and measures it, on the two-tier opening it depends on.
+
+STANDING RULES FOR EVERY LANE (in addition to TASK_BOARD §1 and
+CLAUDE.md): read START_HERE.md §8 before writing anything; build
+with `flock /tmp/zk-build.lock cargo build --release` inside your
+worktree's zkmatrix-rs/ (one build at a time on the 15 GB box); any
+run expected > 5 minutes is NOT run by the lane — post the exact
+command in your status section and STOP; the orchestrator runs it
+detached under /tmp/zk-heavy.lock and pastes the result (agents
+stall on background-run wakes — measured three times in August);
+one commit per green rung, prefix `U-PERF3 <LANE>:`; every wall
+carries [WSL-BOX|MAC-BOX] [1T|NT] [QUIET|NOISY-SHARED]; the built
+pass stays byte-identical (floors: release build, `uperf-pc
+diff-battery`, `freeze-check` with M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl
+102 ok rows, uperf-s battery digest 3752cba4.., agg battery
+46234986.., uperf-x be89d5da..).
+
+### Lane QQ — the two-tier opening + weight preprocessing on the GPU (wt-uperf3-qq) — RUST/CUDA + COUNT
+OWNS: zkmatrix-rs/src/ring/two_tier.rs (ADDITIVE: new functions
+behind flags; the S4 code paths stay byte-identical), NEW
+zkmatrix-rs/src/ring/gpu/two_tier_gpu.rs (or a kernel-string file
+beside the existing GPU kernels, + its one `pub mod` line), the
+`uperf-t` bin section (ADDITIVE subcommands), NEW results/uperf3_qq_*,
+"Agent QQ status". READ-ONLY: eval_proof.rs, stage_a.rs, the pass,
+manifest.rs, every other ring module.
+WHY (plain words): 71% of the 8B witness is weights, and weights are
+a per-model constant. The two-tier ("square-root") opening lets the
+expensive lattice recursion see only a sqrt-sized summary, and lets
+the weight side's tier structure be built ONCE per model. Spike S4
+(lane FF) measured the CPU form at 1.10x because its "cheap" linear
+pass computed general ring products (79% of the time); the redesign
+memo (U_PERF3_S4_REDESIGN.md §2 R1 + C-R1) counted the factored
+"swap-order" form at 2-5x on that pass and 1.6-2.5x composed — AT
+ONE CPU THREAD, on a synthetic shape. Nobody has counted or measured
+(a) that linear pass as GPU scalar-MAC kernels, or (b) the per-proof
+cost with the per-model part cached. This lane does both. It is the
+test of whether the routes memo's "~20-40 s/board" row and Victor's
+50 tok/s target are reachable on the lattice line.
+RUNGS (one commit each, prefix "U-PERF3 QQ:"):
+  0. SKELETON: this section; `uperf-t` usage lists `count`, `r1`,
+     `gpu`, `repeat`; floors green.
+  1. COUNT (a printer, no proving): `uperf-t count <log2_rings>` —
+     for the C-R1 swap-order form (memo §2 R1: v[e][i] = sum_cb
+     sum_d conjQ[cb][d] (x) S[i][cb][d][e], with the Y^d-basis
+     shift collapsing (d,e) to (e-d) + a rank-limited twist), the
+     scalar MACs and ring products per phase (rows / v-pass / fold /
+     recursion) at 2^22, at the 8B weight group (352,321,536 rings,
+     U_PERF3_HEADLINE_ROUTES.md §1.2) and at a 30B weight group
+     (count it from U_PERF3_MVP8B_SCALING.md's model; state the
+     shape you assume), split into PER-MODEL (alpha-independent:
+     tier-1 commitments, CRS blocks, tier layout) vs PER-PROOF
+     (alpha-dependent). Expected walls on the RTX 4070 [MODEL] from
+     the measured kernel classes (U_PERF2_GPU_REPORT.md's GEMM
+     kernel throughput; the K9 E_c class). Print the table; record
+     it here. This rung alone is ruling-grade input.
+  2. R1 ON CPU: the factored v-pass behind a flag; the S4
+     differential legs at 2^20 (b_rows byte-equal, per-contrib y_m
+     equal, h_cur equal — the FF rung-2 legs, reused verbatim);
+     wall at 2^22 1T vs the measured 20.01 s v-pass (FF's
+     bench22_1t_v2). ACCEPT: bit-identical; record the ratio
+     whatever it is.
+  3. THE DEVICE PORT of the linear pass: the factored v-pass as a
+     cudarc/NVRTC kernel (integer MACs mod q31 with the existing
+     reduction conventions — copy the pattern of the level-h GEMM
+     kernel); bit-identical to rung 2 at 2^20/2^22; wall at
+     2^22/2^23 with ZK_GPU=1 vs the built `bg_prove_group` GPU path
+     at the same shape (the FF bench harness already times both).
+  4. THE PREPROCESSING BOUNDARY: split the two-tier state into a
+     per-model struct (built once, held across repeated proofs in
+     one process; disk cache optional) and per-proof work;
+     `uperf-t repeat <log2_rings> <n>` proves n times with the
+     per-model part warm and prints per-proof wall; then on the REAL
+     12x512 WEIGHT group (M125_EXPORT_DIR set): the per-proof
+     weight-side opening wall on the 4070 vs the built weight-group
+     opening (ZK_GPU=1 both). Claims bit-identical (rung-2 legs).
+  5. RECORD: the measured constants -> the 8B and 30B projections
+     [MODEL] with the per-proof/per-model split, in a table lane TT
+     can consume; the VERDICT against the reopen bar: per-proof
+     weight-side opening at the 12x512 weight group >= 5x faster
+     than the built GPU path with claims bit-identical. If NOT:
+     record the measured ratio and STOP — the ratio is the finding.
+
+### Lane RR — Stage A's aggregate checks on the device (wt-uperf3-rr) — RUST/CUDA
+OWNS: zkmatrix-rs/src/ring/zc_range.rs (ADDITIVE device-dispatch
+hook lines ONLY, in the exact pattern eval_proof.rs uses:
+`if gpu::enabled() { if let Some(..) = gpu::<fn>(..) { return .. } }`
+with the CPU body falling through as the oracle — the cost centers
+are `build_eq_full`, `compact_even`, `fold_ext`, `fold_base`,
+`round_sums` (zc_range.rs ~:542-:734), all bottoming out in the
+ec_kernel MAC families), NEW zkmatrix-rs/src/ring/gpu/zc_agg.rs +
+NEW gpu/kernels_zc.cu (+ their `mod`/FUNCS lines in gpu/mod.rs and
+the stub block for the non-GPU build), stage_a.rs (ADDITIVE, the
+RANGE-mode path; SS owns the full-mode routing — see SS), the
+`uperf-a` bin section (ADDITIVE subcommands/timers), NEW
+results/uperf3_rr_*, "Agent RR status". READ-ONLY: ec_kernel.rs
+(the CPU oracle — never edit), eval_proof.rs, fold.rs (the LogUp
+packed prover is ALREADY GPU-hooked at fold.rs:704 — reuse), the
+pass, two_tier.rs, manifest.rs.
+GPU BUILD (from PROGRESS_UPERF3.md:58-62): `CUDA_ROOT=/home/victor/cuda-root
+LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib
+CARGO_TARGET_DIR=<worktree>/zkmatrix-rs/target-gpu cargo build
+--release --features gpu-cuda` (under flock /tmp/zk-build.lock);
+binary `<worktree>/zkmatrix-rs/target-gpu/release/ring_matmul`; run
+with `ZK_GPU=1`; the first GPU run of a fresh binary pays the NVRTC
+compile of kernels_k9.cu (~8 min once) — plan for it. VRAM: the
+12x512 pass already holds ~6.7 of the 8 GB (K9 slabs); size new
+device buffers against `ZK_GPU_K9_BUDGET_MB` and measure at 12x64 /
+12x128 first.
+WHY: Stage A is in the pass behind a selector (lane GG): proof bytes
+2.15x smaller, but prove +15% on CPU at 12x128 (the 2026-08-29
+composition-ladder note) because its aggregate checks run on the
+CPU while the rest of the pass rides the GPU. Its wall win is
+expected on the device. The board's "1.2-1.5x" figure for this port
+is UNSOURCED; this lane replaces it with a measurement.
+RUNGS (prefix "U-PERF3 RR:"):
+  0. SKELETON + BASELINE: `uperf-a pass 12 64 range` and `uperf-a
+     pass 12 128 range` with ZK_GPU=1, oracle and Stage-A modes
+     (`ZK_THREADS=8`), per-phase walls, EVAL-PROOF + statement
+     digests, /usr/bin/time -v RSS. Confirm which Stage-A phases
+     run on the CPU today.
+  1. ATTRIBUTION: per-function timers inside the Stage-A path at
+     12x128 (the zc_agg plane build / table / fold; the LogUp h+m
+     prover; the per-instance claim transport) -> the ranked cost
+     table, recorded here.
+  2. Port the TOP cost center to the device, bit-identical: the
+     EVAL-PROOF DIGEST and the statement digest unchanged at 12x64
+     and 12x128; the Stage-A tamper legs (GG rung 4) still reject.
+  3. The next cost centers, until Stage-A mode wall <= oracle mode
+     wall at 12x128 with the GPU (both ZK_GPU=1, 8T).
+  4. THE 12x512 A/B (orchestrator-run, flock, QUIET): oracle vs
+     Stage-A vs Stage-A+GPU in range mode (full mode only if SS has
+     landed V3), walls + bytes + RSS. Post the command; STOP.
+  5. RECORD: the measured Stage-A-on-GPU factor at 12x128 and
+     12x512, in the form lane TT consumes; it REPLACES the board's
+     1.2-1.5x line.
+
+### Lane SS — the committed-h encoding, rungs V1-V4 (wt-uperf3-ss) — RUST
+SPEC: docs/zkmatrix-poc/U_PERF3_COMMITTED_H.md §3 VERBATIM (V1: one
+h16 range fact as a 256-row lookup over the existing Hlo commitment
+in the full-mode aggregate path, differential vs the E5/table form —
+the load-bearing rung; V2: the helper/multiplicity commit bill
+counted precisely at 12x512 and the 8B shapes; V3: all h + remainder
+facts routed, `uperf-a pass 12 128 full` NO LONGER OOMs the 15 GiB
+box and peaks near range mode's; V4: the 8B full-mode counted row on
+OO's baseline — closes the owed recount).
+OWNS: NEW zkmatrix-rs/src/ring/stage_a_full.rs (the full-mode lookup
+routing lives here, + its one `pub mod` line), EXACTLY ONE dispatch
+line in stage_a.rs (the full-mode switch to stage_a_full; record the
+line here so RR's merge is mechanical), the `uperf-a` full-mode
+subcommands (ADDITIVE), NEW results/uperf3_ss_*, "Agent SS status".
+READ-ONLY: the rest of stage_a.rs (RR's), the S2 LogUp machinery
+(reuse), the v3 statement (Hlo/Hhi/H/Rh are consumed, not changed),
+everything else.
+WHY: the F1 ruling adopted full mode; the memo says its memory price
+was a layout artifact. V1-V4 verify that, and V3 is what lets the
+8B pass run in full mode on the Mac (T17's freeze set).
+RUNGS: V1 -> V2 -> V3 -> V4, one commit each (prefix "U-PERF3 SS:");
+V3's 12x128 full-mode run is < 5 min at 8T if it no longer OOMs —
+run it yourself with /usr/bin/time -v; if it OOMs, that is the
+record (paste the peak).
+
+### Lane TT — the throughput model (main session, docs only) — DESIGN
+OWNS: NEW docs/zkmatrix-poc/U_PERF3_THROUGHPUT_MODEL.md; "Agent TT
+status". No code, no builds, no runs.
+GOAL: the proven-tokens-per-second model for a 30B-class model on
+ONE GPU (H100-class allowed), written so a newcomer can follow it:
+  1. the workload definitions — batch-1 decode (one token per
+     proof), batch-T prefill (T tokens per proof), pipelined batches
+     — and the MACs per token at 30B (weights + attention at a
+     stated context), with the 8B row alongside;
+  2. the cost anatomy per proof split PER-MODEL (preprocessable) vs
+     PER-PROOF for (a) the built pass, (b) built + Stage A, (c)
+     two-tier + weight preprocessing — every constant traced to a
+     [MEASURED] row in PROGRESS_UPERF2/3.md or U_PERF3_* memos, or
+     labelled [MODEL] with its assumption written next to it;
+  3. the hardware factor 4070-Laptop -> H100 for THIS mix (integer
+     NTT/GEMM, memory-bound passes), as a RANGE with the reasoning;
+  4. the honest tokens/s table for (a)/(b)/(c) x {laptop, one
+     desktop board, one H100} x {decode, T=512 prefill};
+  5. an AUDIT of the board's 2026-08-30 line (~25-35 amortized;
+     1.2-1.5x / 1.3x / 1.1-1.2x -> ~65): derive each factor or mark
+     it UNSOURCED and retract it in the memo;
+  6. the competitor row (53/77 tok/s) on the same yardstick
+     [EXTERNAL];
+  7. what a 50 tok/s design MUST have: the per-token budget in
+     proven MAC/s and ms/token, and which lane (QQ/RR) measures
+     which constant — so round 11 is cut from numbers.
+
+## Agent QQ status (wt-uperf3-qq) — round 10
+
+(lane appends below)
+
+## Agent RR status (wt-uperf3-rr) — round 10
+
+(lane appends below)
+
+## Agent SS status (wt-uperf3-ss) — round 10
+
+(lane appends below)
+
+## Agent TT status (main session) — round 10
+
+(lane appends below)
