@@ -58,10 +58,19 @@ pub struct Claim {
     pub value: Fp2,
 }
 
+/// [UPERF3-XX] Where the encoded matrix lives: the host (the CPU path,
+/// unchanged) or the device (`HL_GPU=1`; the systematic data and the
+/// encoding stay resident until the opening).
+pub enum Store {
+    Host { encoded: Vec<Fp> }, // rows x enc_cols, row-major
+    #[cfg(feature = "gpu-cuda")]
+    Device(crate::gpu::DevCommit),
+}
+
 pub struct Committed {
     pub params: PcsParams,
     pub rows: usize,
-    pub encoded: Vec<Fp>, // rows x enc_cols, row-major
+    pub store: Store,
     pub tree: MerkleTree,
 }
 
@@ -88,6 +97,26 @@ impl Opening {
         let c: usize = self.columns.iter().map(|(_, col, path)| 8 + col.len() * 8 + path.len() * 32).sum();
         g + p + c
     }
+    /// [UPERF3-XX] The flat little-endian encoding `size_bytes` counts.
+    pub fn write_bytes(&self, out: &mut Vec<u8>) {
+        for v in &self.group_vecs {
+            for x in v {
+                out.extend_from_slice(&x.to_bytes());
+            }
+        }
+        for x in &self.prox_vec {
+            out.extend_from_slice(&x.to_bytes());
+        }
+        for (j, col, path) in &self.columns {
+            out.extend_from_slice(&(*j as u64).to_le_bytes());
+            for x in col {
+                out.extend_from_slice(&x.to_bytes());
+            }
+            for d in path {
+                out.extend_from_slice(d);
+            }
+        }
+    }
 }
 
 fn hash_column(col: &[Fp]) -> Digest {
@@ -98,22 +127,10 @@ fn hash_column(col: &[Fp]) -> Digest {
     *h.finalize().as_bytes()
 }
 
-/// Commit to `data` (length must be a multiple of n).
-pub fn commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Committed {
-    let n = params.cols();
-    let nn = params.enc_cols();
-    assert!(data.len() % n == 0 && !data.is_empty(), "pcs: data length {} not a multiple of n = {n}", data.len());
-    let rows = data.len() / n;
-    let mut encoded = vec![Fp::ZERO; rows * nn];
-    encoded.par_chunks_mut(nn).zip(data.par_chunks(n)).for_each(|(erow, drow)| {
-        // systematic: interpolate on the size-n subgroup, evaluate on the size-nn group
-        let mut coeffs = drow.to_vec();
-        ntt.inverse(&mut coeffs);
-        ntt.rs_encode(&coeffs, erow);
-    });
-    // column hashes, tiled
+/// The column leaves of an encoded matrix (rows x nn, row-major): blake3
+/// of each column's little-endian bytes, hashed in tiles of 64 columns.
+pub fn hash_columns(encoded: &[Fp], rows: usize, nn: usize) -> Vec<Digest> {
     let tile = 64usize;
-    let n_tiles = (nn + tile - 1) / tile;
     let mut leaves = vec![[0u8; 32]; nn];
     leaves.par_chunks_mut(tile).enumerate().for_each(|(ti, out)| {
         let c0 = ti * tile;
@@ -129,9 +146,36 @@ pub fn commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Committed {
             *o = *blake3::hash(b).as_bytes();
         }
     });
-    let _ = n_tiles;
+    leaves
+}
+
+/// Commit to `data` (length must be a multiple of n).
+pub fn commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Committed {
+    let n = params.cols();
+    let nn = params.enc_cols();
+    assert!(data.len() % n == 0 && !data.is_empty(), "pcs: data length {} not a multiple of n = {n}", data.len());
+    let rows = data.len() / n;
+    // [UPERF3-XX] the device path (HL_GPU=1): the same encoding and the same leaves; Err -> the CPU body below.
+    #[cfg(feature = "gpu-cuda")]
+    if crate::gpu::enabled() {
+        match crate::gpu::dev_commit(params, data, ntt) {
+            Ok((dc, leaves)) => {
+                let tree = MerkleTree::build(leaves);
+                return Committed { params: *params, rows, store: Store::Device(dc), tree };
+            }
+            Err(e) => eprintln!("[UPERF3-XX] gpu commit declined ({e}); CPU path"),
+        }
+    }
+    let mut encoded = vec![Fp::ZERO; rows * nn];
+    encoded.par_chunks_mut(nn).zip(data.par_chunks(n)).for_each(|(erow, drow)| {
+        // systematic: interpolate on the size-n subgroup, evaluate on the size-nn group
+        let mut coeffs = drow.to_vec();
+        ntt.inverse(&mut coeffs);
+        ntt.rs_encode(&coeffs, erow);
+    });
+    let leaves = hash_columns(&encoded, rows, nn);
     let tree = MerkleTree::build(leaves);
-    Committed { params: *params, rows, encoded, tree }
+    Committed { params: *params, rows, store: Store::Host { encoded }, tree }
 }
 
 impl Committed {
@@ -140,13 +184,12 @@ impl Committed {
     }
 }
 
-/// Row weights and column weights of a claim on an m x n matrix.
-fn claim_weights(claim: &Claim, rows: usize, log_cols: u32) -> (Vec<Fp2>, Vec<Fp2>) {
+/// Row weights of a claim on an m x n matrix (the column weights are per
+/// group: `col_weights` of the claim's `col_key`).
+fn row_weights(claim: &Claim, rows: usize, log_cols: u32) -> Vec<Fp2> {
     let n = 1usize << log_cols;
     let mut row_w = vec![Fp2::ZERO; rows];
-    let col_w: Vec<Fp2>;
     if claim.sum {
-        col_w = vec![Fp2::ONE; n];
         for (sl, coef) in &claim.parts {
             let srows = (1usize << sl.log_size) / n;
             let r0 = sl.offset / n;
@@ -158,7 +201,6 @@ fn claim_weights(claim: &Claim, rows: usize, log_cols: u32) -> (Vec<Fp2>, Vec<Fp
         let log_rows_part = claim.parts[0].0.log_size - log_cols;
         assert_eq!(claim.point.len() as u32, claim.parts[0].0.log_size, "claim point arity != slice size");
         let eq_r = eq_table_msb(&claim.point[..log_rows_part as usize]);
-        col_w = eq_table_msb(&claim.point[log_rows_part as usize..]);
         for (sl, coef) in &claim.parts {
             assert_eq!(sl.log_size, claim.parts[0].0.log_size, "claim parts must have equal size");
             assert!(sl.offset % n == 0);
@@ -168,17 +210,41 @@ fn claim_weights(claim: &Claim, rows: usize, log_cols: u32) -> (Vec<Fp2>, Vec<Fp
             }
         }
     }
-    (row_w, col_w)
+    row_w
+}
+
+/// The column-weight key of a claim: None for the all-ones sum, else the
+/// point's column tail (log_cols entries).
+fn col_key(claim: &Claim, log_cols: u32) -> Option<Vec<Fp2>> {
+    if claim.sum {
+        None
+    } else {
+        let log_rows_part = claim.parts[0].0.log_size - log_cols;
+        Some(claim.point[log_rows_part as usize..].to_vec())
+    }
+}
+
+fn col_weights(key: &Option<Vec<Fp2>>, log_cols: u32) -> Vec<Fp2> {
+    match key {
+        None => vec![Fp2::ONE; 1usize << log_cols],
+        Some(tail) => eq_table_msb(tail),
+    }
 }
 
 /// Group claims by identical column weights (same point tail / sum kind).
+/// [UPERF3-XX] The 2^log_cols column table is built once per group (it
+/// was built per claim and compared: 37 claims x 2^14 entries per layer).
 fn group_claims(claims: &[Claim], rows: usize, log_cols: u32) -> Vec<(Vec<Fp2>, Vec<(Vec<Fp2>, Fp2)>)> {
+    let mut keys: Vec<Option<Vec<Fp2>>> = Vec::new();
     let mut groups: Vec<(Vec<Fp2>, Vec<(Vec<Fp2>, Fp2)>)> = Vec::new();
     for c in claims {
-        let (rw, cw) = claim_weights(c, rows, log_cols);
-        if let Some(g) = groups.iter_mut().find(|g| g.0 == cw) {
-            g.1.push((rw, c.value));
+        let key = col_key(c, log_cols);
+        let rw = row_weights(c, rows, log_cols);
+        if let Some(gi) = keys.iter().position(|k| *k == key) {
+            groups[gi].1.push((rw, c.value));
         } else {
+            let cw = col_weights(&key, log_cols);
+            keys.push(key);
             groups.push((cw, vec![(rw, c.value)]));
         }
     }
@@ -186,11 +252,15 @@ fn group_claims(claims: &[Claim], rows: usize, log_cols: u32) -> Vec<(Vec<Fp2>, 
 }
 
 /// rho^T M for several rho at once, reading the systematic positions of
-/// the encoded matrix (encoded[i][inv_rate * j] == data[i][j]).
+/// the encoded matrix (encoded[i][inv_rate * j] == data[i][j]); for a
+/// device store the combination runs on the device (`gpu::dev_fold_rows`).
 fn fold_rows_multi(cm: &Committed, rhos: &[Vec<Fp2>]) -> Vec<Vec<Fp2>> {
     let n = cm.params.cols();
-    let nn = cm.params.enc_cols();
-    let ir = cm.params.inv_rate;
+    let (src, nn, ir): (&[Fp], usize, usize) = match &cm.store {
+        Store::Host { encoded } => (encoded, cm.params.enc_cols(), cm.params.inv_rate),
+        #[cfg(feature = "gpu-cuda")]
+        Store::Device(dc) => return crate::gpu::dev_fold_rows(dc, rhos).expect("gpu row-combination"),
+    };
     let k = rhos.len();
     let chunk = 512usize.min(n);
     let n_chunks = (n + chunk - 1) / chunk;
@@ -201,7 +271,7 @@ fn fold_rows_multi(cm: &Committed, rhos: &[Vec<Fp2>]) -> Vec<Vec<Fp2>> {
             let w = chunk.min(n - c0);
             let mut out = vec![vec![Fp2::ZERO; w]; k];
             for i in 0..cm.rows {
-                let row = &cm.encoded[i * nn..(i + 1) * nn];
+                let row = &src[i * nn..(i + 1) * nn];
                 for (g, rho) in rhos.iter().enumerate() {
                     let r = rho[i];
                     if r.is_zero() { continue; }
@@ -233,9 +303,13 @@ fn fold_rows_multi(cm: &Committed, rhos: &[Vec<Fp2>]) -> Vec<Vec<Fp2>> {
 /// group vectors absorbed -> proximity rho -> prox vector absorbed ->
 /// column indices.
 pub fn open(cm: &Committed, claims: &[Claim], tr: &mut Transcript) -> Opening {
+    use std::time::Instant;
+    let vb = std::env::var("HL_TIMING").map(|v| v == "1").unwrap_or(false);
+    let t0 = Instant::now();
     let rows = cm.rows;
     let n = cm.params.cols();
     let groups = group_claims(claims, rows, cm.params.log_cols);
+    let t_groups = t0.elapsed().as_secs_f64();
     let mut rhos: Vec<Vec<Fp2>> = Vec::with_capacity(groups.len() + 1);
     for (_, members) in &groups {
         let lambdas = tr.challenge_fp2_vec(members.len());
@@ -251,22 +325,38 @@ pub fn open(cm: &Committed, claims: &[Claim], tr: &mut Transcript) -> Opening {
     }
     let prox_rho = tr.challenge_fp2_vec(rows);
     rhos.push(prox_rho);
+    let t_rho = t0.elapsed().as_secs_f64();
     let mut vecs = fold_rows_multi(cm, &rhos);
+    let t_fold = t0.elapsed().as_secs_f64();
     let prox_vec = vecs.pop().unwrap();
     for v in &vecs {
         tr.absorb_fp2(b"pcs-vec", v);
     }
     tr.absorb_fp2(b"pcs-prox", &prox_vec);
     let idx = tr.challenge_indices(cm.params.num_col_checks, cm.params.enc_cols());
+    let t_absorb = t0.elapsed().as_secs_f64();
     let nn = cm.params.enc_cols();
-    let columns: Vec<(usize, Vec<Fp>, Vec<Digest>)> = idx
-        .par_iter()
-        .map(|&j| {
-            let col: Vec<Fp> = (0..rows).map(|i| cm.encoded[i * nn + j]).collect();
-            (j, col, cm.tree.path(j))
-        })
-        .collect();
+    let columns: Vec<(usize, Vec<Fp>, Vec<Digest>)> = match &cm.store {
+        Store::Host { encoded } => idx
+            .par_iter()
+            .map(|&j| {
+                let col: Vec<Fp> = (0..rows).map(|i| encoded[i * nn + j]).collect();
+                (j, col, cm.tree.path(j))
+            })
+            .collect(),
+        #[cfg(feature = "gpu-cuda")]
+        Store::Device(dc) => {
+            let cols = crate::gpu::dev_columns(dc, &idx).expect("gpu column gather");
+            idx.iter().zip(cols.into_iter()).map(|(&j, col)| (j, col, cm.tree.path(j))).collect()
+        }
+    };
     let _ = n;
+    if vb {
+        eprintln!(
+            "[pcs::open] rows {rows} n {n} claims {} groups {}: group_claims {:.4} | rhos {:.4} | fold {:.4} | absorb+idx {:.4} | columns {:.4} s",
+            claims.len(), groups.len(), t_groups, t_rho - t_groups, t_fold - t_rho, t_absorb - t_fold, t0.elapsed().as_secs_f64() - t_absorb
+        );
+    }
     Opening { group_vecs: vecs, prox_vec, columns }
 }
 

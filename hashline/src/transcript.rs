@@ -94,6 +94,12 @@ impl Transcript {
     pub fn state(&self) -> [u8; 32] {
         self.state
     }
+
+    /// [UPERF3-XX] A copy of the transcript (state + counter) so a device
+    /// attempt can be abandoned without disturbing the caller's transcript.
+    pub fn clone_state(tr: &Transcript) -> Transcript {
+        Transcript { state: tr.state, counter: tr.counter }
+    }
 }
 
 #[allow(dead_code)]

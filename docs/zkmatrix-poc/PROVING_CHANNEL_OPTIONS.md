@@ -162,6 +162,8 @@ architecture (U_PERF3_HEADLINE_ROUTES.md).
 | A lattice, CPU only | WSL laptop, 8T | ~80 s (81.5 s total) | ~1.7 s | 1.51 MB | 6.7 GB | ~3.6e8 | same | [MEASURED] |
 | **B hash-based (`hashline/`, this lane)** | **WSL laptop, 8T CPU only** | **23.0 s p50 (21.5-23.7 s over 4 runs)** | **2.8 s** | **66.8 MB** | **1.56 GB** | **1.26e9 (1.22-1.35e9)** | **hash-only + ROM, ~100-bit (2^-101..106; Goldilocks, deg-2 ext., RS rate 1/4, Q = 256), ZK NO** | **[MEASURED, NOISY-SHARED]** |
 | B hash-based, 22T | WSL laptop, 22T CPU only | 37-39 s | 8 s | 66.8 MB | 1.57 GB | 7.4-7.8e8 | same | [MEASURED, NOISY-SHARED] |
+| **B hash-based ON THE GPU (`hashline/` `--features gpu-cuda`, `HL_GPU=1`; lane XX, 2026-09-02)** | **WSL laptop, 8T + RTX 4070 Laptop (55-70 W)** | **3.40 s p50 (3.38-3.49 s over 4 runs)** | **0.42 s** | **66.8 MB (BYTE-IDENTICAL to the CPU proof: sha256 50cf7bdf..)** | **0.78 GB (+ 2.43 GB VRAM)** | **8.5e9 (8.3-8.6e9)** | **same as the CPU row (same protocol, same parameters, ZK NO)** | **[MEASURED, NOISY-SHARED]** |
+| B hash-based, CPU after XX's byte-identical fixes (eq_table / group_claims) | WSL laptop, 8T CPU only | 20.4 s p50 (17.4-20.9 s) | 0.3-0.7 s | 66.8 MB | 1.56 GB | 1.4e9 | same | [MEASURED, NOISY-SHARED] |
 
 Caveats on the B row (all stated in results/hashline_pass_12x512.md):
 FFN-only, no attention, no layer seams (X_l committed fresh, as the
@@ -179,6 +181,34 @@ for its 21.0 s, and its CPU-only figure is ~3.6e8.
 per-proof anatomy, the hardware range, the ZK surcharge (P1 +2-8%;
 P2/P3 need a per-proof weight re-commit) and the proof-size lever are
 in `U_PERF3_ROUTE_B_THROUGHPUT.md`, on lane TT's yardstick.
+
+**Lane XX's GPU row LANDED (2026-09-02, same day).** The same
+`hashline/` prover behind a `gpu-cuda` feature and an `HL_GPU=1`
+toggle: the RS encoding (batched row NTTs), the blake3 Merkle leaves,
+the two zero-check sumchecks (tables built on the device from the
+resident commitment data), the LogUp helper columns, the evaluation
+claims and the openings' row-combinations run on the RTX 4070 Laptop;
+the transcript, the matmul folds and their 2^8 / 2^11 sumchecks, the
+Merkle levels and the claim bookkeeping stay on the host. The proof
+bytes are byte-identical to the CPU prover's (the transcript is
+deterministic and every kernel computes the canonical value of the
+same field quantity; asserted by sha256 of the written proof, CPU vs
+GPU, at 3x16 and 12x512 on every rung). Measured: **3.40 s p50 prove
++ 0.42 s verify at 12x512, 8.5e9 proven MAC/s — 6.1x the lattice
+line's 1.4e9 on the same device, inside the contract's 5-15 s band at
+125M**, 0.78 GB RSS + 2.43 GB VRAM. It misses UU's [MODEL] 1.5-2.5 s:
+~1.5 s of the 3.4 s is device time, ~1.9 s is host work around the
+device (witness planes to field elements + upload, the matmul folds,
+Merkle levels, transcript/claim bookkeeping, per-round syncs) and the
+NTT runs well under the part's ceiling — engineering items with
+known, byte-preserving fixes, none applied. Two byte-identical CPU
+fixes found on the way (rayon regions in `eq_table`, per-group column
+weights in `group_claims`) moved the CPU prover to 17.4-20.9 s and
+the CPU verifier to 0.3-0.7 s; UU's 23.0 s row stands as the untuned
+record. Full record: results/hashline_gpu_12x512.md; ledger:
+PROGRESS_UPERF3.md "Agent XX status". The 30B / H100 tokens/s
+question is lane YY's model; this row replaces its "laptop GPU
+[MODEL until XX]" constant with a measurement.
 
 | Context | Better fit | Why |
 |---|---|---|

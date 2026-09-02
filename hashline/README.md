@@ -34,3 +34,18 @@ results/m125_ffn_export_wsl/).
 The measured row (12x512, 8 threads, CPU only, 2026-09-02): prove
 23.0 s p50, verify 2.8 s, proof 66.8 MB, peak RSS 1.56 GB, 1.26e9
 proven MAC/s — results/hashline_pass_12x512.md.
+
+GPU (U-PERF3 lane XX, 2026-09-02): the prover's commitments (NTT +
+blake3), zero-checks, helper columns, evaluation claims and opening
+row-combinations run on the device behind `--features gpu-cuda`
+(cudarc + NVRTC, the same toolchain as zkmatrix-rs) and `HL_GPU=1`;
+the proof bytes are byte-identical to the CPU prover's (`--proof-out`
++ the `PROOF sha256` line are the gate). Build:
+    CUDA_ROOT=/home/victor/cuda-root \
+    LD_LIBRARY_PATH=/home/victor/cuda-root/lib64:/home/victor/.local/lib/python3.10/site-packages/nvidia/cuda_nvrtc/lib:/usr/lib/wsl/lib \
+    CARGO_TARGET_DIR=hashline/target-gpu cargo build --release --features gpu-cuda --manifest-path hashline/Cargo.toml
+Run with `HL_GPU=1` (and the same LD_LIBRARY_PATH); `hashline gpu-probe`
+checks the device field / NTT / blake3 against the CPU code;
+`HL_GPU_VERBOSE=1` prints per-kernel timings. Measured (12x512, 8T +
+RTX 4070 Laptop): prove 3.40 s p50, verify 0.42 s, RSS 0.78 GB, VRAM
+2.43 GB, 8.5e9 proven MAC/s — results/hashline_gpu_12x512.md.
