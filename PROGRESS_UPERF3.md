@@ -5019,7 +5019,41 @@ ONE GPU (H100-class allowed), written so a newcomer can follow it:
 
 ## Agent RR status (wt-uperf3-rr) — round 10
 
-(lane appends below)
+STATE: IN PROGRESS (opened 2026-09-02). Lane: Stage A's aggregate
+checks on the device — the RANGE-mode path (zc_agg + LogUp h+m), the
+factor MEASURED at 12x64 / 12x128 (12x512 orchestrator-run). OWNS per
+the brief: zc_range.rs (ADDITIVE hook lines only, eval_proof.rs
+pattern, CPU body = oracle), NEW gpu/zc_agg.rs + gpu/kernels_zc.cu (+
+their mod/FUNCS lines in gpu/mod.rs and the stub block), stage_a.rs
+(ADDITIVE, range-mode path), the `uperf-a` bin section (ADDITIVE
+timers/subcommands), NEW results/uperf3_rr_*, this section.
+
+FLOORS at every Rust-touching commit: CPU release build (the stub
+block) + GPU release build; `uperf-pc diff-battery` green;
+freeze-check 102 ok rows + passed (M125_EXPORT_DIR set); uperf-s
+battery 3752cba4..; agg-battery 46234986..; uperf-x be89d5da..; the
+Stage-A identity (EVAL-PROOF DIGEST + statement digest of `uperf-a
+pass 12 64 range` identical with/without ZK_GPU=1); GG's tamper legs
+(`uperf-a pass-battery 3 16`) still reject.
+
+PLAN (one commit per green rung, prefix "U-PERF3 RR:"):
+- [x] R0a SKELETON: this section; worktree cut at 10f73bf; GPU build
+  (target-gpu, --features gpu-cuda) 2m24s green; CPU build 2m18s
+  green — the round-9 code, no Rust touched.
+- [ ] R0b BASELINE: `uperf-a pass 12 64 range` / `12 128 range`,
+  ZK_GPU=1 ZK_THREADS=8, oracle + Stage-A in one process, per-phase
+  walls, digests, /usr/bin/time -v RSS; which Stage-A phases run on
+  the CPU today.
+- [ ] R1 ATTRIBUTION: per-function timers inside the Stage-A path at
+  12x128 -> the ranked cost table.
+- [ ] R2 the TOP cost center on the device, bit-identical (digests
+  unchanged at 12x64 / 12x128; tamper legs reject).
+- [ ] R3 the next cost centers until Stage-A wall <= oracle wall at
+  12x128 (both ZK_GPU=1, 8T).
+- [ ] R4 the 12x512 A/B — ORCHESTRATOR-RUN (command posted here).
+- [ ] R5 RECORD the measured Stage-A-on-GPU factor (replaces the
+  board's unsourced 1.2-1.5x).
+
 
 ## Agent SS status (wt-uperf3-ss) — round 10
 
