@@ -58,6 +58,31 @@ rulings; the Mac runbook unchanged):**
   the Route-B throughput model (lane TT's seven items for the hash
   line, incl. the ZK surcharge — Victor's ZK rule is non-negotiable —
   and the proof-size lever).
+- **LANE VV LANDED (merged a630f25; `results/uperf3_vv_variant_b.md`).
+  VARIANT B AT THE BAR: NOT MET — 1.77x [MEASURED]** (real 12x512
+  weight group, RTX 4070, 8T, per-model part warm, n=5: 1.24 s min /
+  1.29 median per proof vs the built opening's 2.20-2.23 s in the
+  same run; 2.31x if the built precommit is charged; claims
+  byte-identical, wire digest identical x5). Better than QQ's design
+  of record (parity) but the floor is the ~200K-ring recursion prove
+  (0.39-0.52 s, frozen machinery) + the launch-bound value-fold GEMM
+  + the v-pass — the recursion alone exceeds the 0.44 s a 5x bar
+  allows at this shape. 8B/30B rows [MODEL on measured constants]:
+  14-48 s / 54-201 s per proof = 4.4-15x / 4.6-18x — STRADDLING the
+  bar; settleable only by an 8B-shape run (Mac or a desktop board).
+  Gates green: +3.45 / +1.74 / +1.42 bits at 12x512 / 8B / 30B
+  (QQ's count reproduced). SOUNDNESS (rung 1, before code): not a new
+  lemma — the same exact-digit fold-norm law at base 8 (a value ring
+  is one balanced digit), 8x fewer MSIS columns — but a NEW PROTOCOL
+  OBLIGATION: the int8 range of the value tier must live in a
+  per-model certificate (digit planes + recomposition claims + a
+  second opening of the value-tier commitment) or a per-proof 256-row
+  lookup; neither built. Two attribution fixes landed (QQ's clock
+  carried 0.3-0.5 s of differential bookkeeping; the fold's "host
+  tail" was a serial challenge draw, now pooled 0.37 -> 0.08 s).
+  RULING ITEMS: the int8-value class row; the per-model weight
+  certificate form; the pooled draw as a prover-side form. FOR THE
+  THROUGHPUT MODEL: the lattice line's 30B band is unchanged.
 - **LANE YY LANDED (merged 3c4dc8a): `U_PERF3_ROUTE_B_THROUGHPUT.md`
   — the hash line's tokens/s model on lane TT's yardstick.** From
   UU's measured row and the crate's loops: per-model 2.19 s (the W
