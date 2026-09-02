@@ -50769,6 +50769,7 @@ fn uperf_a_gg_main(args: &[String]) {
         // [UPERF3-SS] round 10 — the full-mode (committed-h) arms; ADDITIVE.
         Some("full-plan") => uperf_a_ss_plan(),
         Some("ss-diff") => uperf_a_ss_diff(geti(1, 1), geti(2, 16)),
+        Some("full-count") => uperf_a_ss_count(geti(1, 12), geti(2, 512)),
         _ => {
             println!(
                 "uperf-a map [layers] [t] | diff [pair] [layers] [t] [seed] | pass [layers] [t] [range|full|masked] [nooracle|mask-commit|mask-served|claim|round] | pass-battery [layers] [t]   ([UPERF3-GG] Stage-A integration, round 5)"
@@ -50808,6 +50809,95 @@ fn uperf_a_ss_plan() {
             ssf::pf_helper_rings(layers * t * f_pad, 4, l0_q),
             ssf::pf_degree(3),
             ssf::pf_degree(4),
+        );
+    }
+}
+
+/// [UPERF3-SS] rung V2 — `uperf-a full-count [layers] [t]`: the
+/// helper/multiplicity commit bill, (a) from the REAL registries of the
+/// loaded m125 layers at the shape (gg_build_groups in range / full /
+/// full-ss kappa 0,3,4,5 — engine structures, no proving), (b) the same
+/// arithmetic at the 8B shapes (32x512 and 32x16 at d 4096 / f 14336 ->
+/// f_pad 16384) with the MVP8B/OO memory law [MODEL].
+fn uperf_a_ss_count(layers_n: usize, t: usize) {
+    use ring::stage_a::full as ssf;
+    let q = ring::Q8;
+    let l0_q = ring::digits::derive_l0(-((q / 2) as i64), (q / 2) as i64, 2);
+    println!(
+        "[UPERF3-SS] full-count: the committed-h bill at {layers_n}x{t} (m125 d {} f {}) from the engine registries [COUNTED]:",
+        bf_d(),
+        bf_f()
+    );
+    let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
+    let specs = bk_pair_specs(&lays, t);
+    let modes: Vec<(&str, GgMode)> = vec![
+        ("range (planes; silu descents)", GgMode::Range),
+        ("full (S2 K-helper, as built)", GgMode::Full),
+        ("full-ss kappa 3, no route", GgMode::FullSs(SsCfg { kappa_silu: 3, route_nrw: None, tamper_sum: false })),
+        ("full-ss kappa 4, no route", GgMode::FullSs(SsCfg { kappa_silu: 4, route_nrw: None, tamper_sum: false })),
+        ("full-ss kappa 5, no route", GgMode::FullSs(SsCfg { kappa_silu: 5, route_nrw: None, tamper_sum: false })),
+        ("full-ss kappa 0 + nrw-88 l0 h8 routed (V1)", GgMode::FullSs(SsCfg { kappa_silu: 0, route_nrw: Some(0), tamper_sum: false })),
+    ];
+    let reg_o = bk_build_groups(&lays, t, &specs, q);
+    println!(
+        "  {:<44} weight n_0 {:>11} act n_0 {:>11} (the frozen BK registry, descents for every family)",
+        "oracle (bk_pass_run)", reg_o.gw.n_digit_rings, reg_o.ga.n_digit_rings
+    );
+    for (label, mode) in modes {
+        let (reg, gh, plans) = gg_build_groups(&lays, t, &specs, q, mode);
+        let planes: usize = plans
+            .iter()
+            .flat_map(|p| p.classes.iter().map(|c| reg.ga.tensors[c.ti].n_digit_rings()))
+            .sum();
+        let mults: usize = plans
+            .iter()
+            .filter_map(|p| p.logup.map(|(ti_m, _, _)| reg.ga.tensors[ti_m].n_digit_rings()))
+            .sum::<usize>()
+            + plans.iter().flat_map(|p| p.ss_routes.iter().map(|r| reg.ga.tensors[r.ti_m].n_digit_rings())).sum::<usize>();
+        let h_rings = gh.as_ref().map(|g| g.n_digit_rings).unwrap_or(0);
+        println!(
+            "  {:<44} weight n_0 {:>11} act n_0 {:>11} (planes {:>9}, mults {:>6}) act-h n_0 {:>11} | act-h / act {:.2}x | store act-h {:.3} GB",
+            label,
+            reg.gw.n_digit_rings,
+            reg.ga.n_digit_rings,
+            planes,
+            mults,
+            h_rings,
+            h_rings as f64 / reg.ga.n_digit_rings as f64,
+            h_rings as f64 * 128.0 / 1e9,
+        );
+    }
+    let f_pad = bf_f().next_power_of_two();
+    let n_el = layers_n * t * f_pad;
+    println!("  arithmetic cross-check at this shape (silu elements {n_el} = {layers_n} x {t} x {f_pad}; cap {} rings/group at e0 = 2):", ssf::act_group_cap(q));
+    for r in ssf::count_rows(n_el, l0_q, q, false) {
+        println!("    {:<40} {:>12} rings  groups {}  store {:.3} GB", r.label, r.rings, r.groups, r.store_gb);
+    }
+    for (l8, t8) in [(32usize, 512usize), (32, 16)] {
+        let (d8, f8) = (4096usize, 14336usize);
+        let f8_pad = f8.next_power_of_two();
+        let n8 = l8 * t8 * f8_pad;
+        println!(
+            "[UPERF3-SS] full-count at the 8B shape {l8}x{t8} (d {d8} f {f8} -> f_pad {f8_pad}; silu elements {n8}; range-form baseline [OO 2026-08-31]: weight n_0 352,321,536, act n_0 145,475,764 -> commit ~61 GB, pass peak lvl-0 ~72 GB):"
+        );
+        for r in ssf::count_rows(n8, l0_q, q, t8 == 512) {
+            if t8 == 512 {
+                println!(
+                    "    {:<40} {:>12} rings  groups {}  store {:>6.1} GB  pass peak [MODEL] {:>6.1} GB",
+                    r.label, r.rings, r.groups, r.store_gb, r.peak_8b_gb
+                );
+            } else {
+                println!("    {:<40} {:>12} rings  groups {}  store {:>6.2} GB", r.label, r.rings, r.groups, r.store_gb);
+            }
+        }
+        // The C2-literal bill: every range fact of the pass as a K-helper
+        // lookup (the planes it would replace, for the same elements).
+        let n_range = l8 * t8 * (3 * f8_pad + d8.next_power_of_two()) + l8 * t8 * (2 * f8_pad + d8.next_power_of_two());
+        println!(
+            "    C2-literal (ALL range facts as K-helper lookups): {} elements -> {} rings (vs their w~8 planes {} rings) [COUNTED, w = 8 for every remainder = MODEL]",
+            n_range,
+            ssf::helper_rings(n_range, ring::kfield::K_DEG, l0_q),
+            ssf::planes_rings(n_range, 8)
         );
     }
 }

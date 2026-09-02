@@ -89,6 +89,61 @@ pub fn gg_act_h_rings(layers: usize, t: usize, f_pad: usize, l0_q: usize) -> usi
 }
 
 // ---------------------------------------------------------------------------
+// V2: the counted commit bill of the full-mode helper forms at a shape.
+
+/// One counted row of the V2 table.
+pub struct CountRow {
+    pub label: &'static str,
+    pub rings: usize,
+    /// Commitment groups the act-h side needs under the level-0
+    /// exact-digit gate (e0 = 2: 94.2M digit rings per group, the
+    /// MVP8B memo §1.2 row).
+    pub groups: usize,
+    /// [MODEL] flat i8 store, n x 128 B (GB).
+    pub store_gb: f64,
+    /// [MODEL] the pass peak at 32x512 on lane OO's baseline: max(the
+    /// weight group's lvl-0 phase 72 GB + this store, the act-h group's
+    /// own lvl-0 phase = 63.7 GB flat stores + store + A_0 at 209 B/ring
+    /// + lvl-1 at 76 B/ring — the act-group rates of MVP8B §1.2).
+    pub peak_8b_gb: f64,
+}
+
+/// The act-side exact-digit cap at e0 = 2 (digit rings per group):
+/// gamma_z = OP_CONC * 2 * sqrt(n * D) <= gamma_max_exact(q).
+pub fn act_group_cap(q: u64) -> usize {
+    let g = super::digits::gamma_max_exact(q) / (super::digits::OP_CONC * 2.0);
+    ((g * g) / D as f64) as usize
+}
+
+/// The helper forms over `n_el` looked-up elements (the SiLU pairs at
+/// a shape: layers x t x f_pad), each as a counted row. The planes row
+/// is the width-plane cost of the SAME elements at w = 8 (what a range
+/// fact of that size costs in range mode), for scale.
+pub fn count_rows(n_el: usize, l0_q: usize, q: u64, baseline_8b: bool) -> Vec<CountRow> {
+    let cap = act_group_cap(q);
+    let row = |label: &'static str, rings: usize| {
+        let store = rings as f64 * 128.0 / 1e9;
+        let peak = if baseline_8b {
+            let own = 63.7 + store + rings as f64 * 209.0 / 1e9 + rings as f64 * 76.0 / 1e9;
+            (72.0 + store).max(own)
+        } else {
+            0.0
+        };
+        CountRow { label, rings, groups: rings.div_ceil(cap).max(1), store_gb: store, peak_8b_gb: peak }
+    };
+    vec![
+        row("S2 K-helper (kappa 0, as built)", helper_rings(n_el, K_DEG, l0_q)),
+        row("E_4 helper (4 coords)", helper_rings(n_el, 4, l0_q)),
+        row("pf helper kappa 3 (degree 10)", pf_helper_rings(n_el, 3, l0_q)),
+        row("pf helper kappa 4 (degree 18)", pf_helper_rings(n_el, 4, l0_q)),
+        row("pf helper kappa 5 (degree 34)", pf_helper_rings(n_el, 5, l0_q)),
+        row("pf helper kappa 6 (degree 66)", pf_helper_rings(n_el, 6, l0_q)),
+        row("width planes, w = 8, same elements", planes_rings(n_el, 8)),
+        row("descent (GKR tree): committed rings", 0),
+    ]
+}
+
+// ---------------------------------------------------------------------------
 // V1/V3: the lookup column and its helper at kappa levels.
 
 /// One lookup column of the full-mode path: 2^n_log2 keys (K elements),

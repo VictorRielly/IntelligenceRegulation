@@ -5178,6 +5178,80 @@ small shape. `uperf-a ss-diff` = the standalone R2-style differential.
   when alpha is no key) plus the standard sumcheck bound at degree
   2^kappa + 2 over K (2^496) — written here, not yet reviewed by
   anyone but this lane; it enters no freeze row until ruled.
+- Commit: a169c81.
+
+### RUNG V2 — THE HELPER/MULTIPLICITY COMMIT BILL, COUNTED (2026-09-02) [WSL-BOX, no proving]
+
+`uperf-a full-count [layers] [t]` (M125_EXPORT_DIR set): (a) the
+REAL registries of the loaded m125 layers at the shape, built by the
+driver's own gg_build_groups in every mode (engine structures — the
+same objects the pass commits); (b) the same arithmetic at the 8B
+shapes with the MVP8B §1.2 / OO memory law. The count REPRODUCES every
+measured row of lanes GG/OO: 3x16 act-h 196,608; 12x128 act 3,091,604
+/ act-h 6,291,456 (GG R5); 12x512 act 12,351,296 (planes 4,521,984 =
+GG R1's +4.52M) / act-h 25,165,824 (GG's 25.2M); the e0 = 2 group cap
+94,177,249 rings (the memo's 94.2M). Peak RSS of the count 320 MiB.
+
+THE 12x512 TABLE (m125 d 768 f 2048; silu elements 12 x 512 x 2048 =
+12,582,912) [COUNTED from the registries]:
+
+| mode | act n_0 (planes / mults) | act-h n_0 | act-h / act | act-h store (128 B/ring) |
+|---|---:|---:|---:|---:|
+| oracle bk_pass_run (descents everywhere) | 7,854,476 | 0 | — | — |
+| range (planes; silu descents) | 12,351,296 (4,521,984 / 0) | 0 | — | — |
+| full, S2 K-helper as built | 12,345,608 (4,521,984 / 264) | **25,165,824** | 2.04x | 3.22 GB |
+| full-ss kappa 3 | same | 3,145,728 | 0.25x | 0.40 GB |
+| full-ss kappa 4 | same | **1,572,864** | 0.13x | 0.20 GB |
+| full-ss kappa 5 | same | 786,432 | 0.06x | 0.10 GB |
+| full-ss kappa 0 + the V1 route | 12,280,094 (4,456,448 / 286) | 27,262,976 | 2.22x | 3.49 GB |
+| (E_4 helper, arithmetic only — not built) | | 6,291,456 | 0.51x | 0.81 GB |
+| (8 width planes over the same silu elements, for scale) | | 786,432 | | 0.10 GB |
+
+THE 8B TABLE (32x512, d 4096, f 14336 -> f_pad 16384; silu elements
+268,435,456; range-form baseline = lane OO's counted row: weight n_0
+352,321,536, act n_0 145,475,764, commit ~61 GB, pass peak lvl-0 ~72
+GB). Pass peak [MODEL] = max(72 GB + the act-h flat store, the act-h
+group's own lvl-0 phase = 63.7 GB of flat stores + its store + A_0 at
+209 B/ring + lvl-1 at 76 B/ring — the act-group rates of MVP8B §1.2):
+
+| act-h form | rings | groups under the 94.2M cap | flat store | pass peak [MODEL] |
+|---|---:|---:|---:|---:|
+| S2 K-helper (kappa 0, as built) | **536,870,912** | **6** | 68.7 GB | **~285 GB** |
+| E_4 helper | 134,217,728 | 2 | 17.2 GB | ~119 GB |
+| pf kappa 3 (degree 10) | 67,108,864 | 1 | 8.6 GB | ~91 GB |
+| **pf kappa 4 (degree 18)** | **33,554,432** | **1** | **4.3 GB** | **~78 GB** |
+| pf kappa 5 (degree 34) | 16,777,216 | 1 | 2.1 GB | ~74 GB |
+| pf kappa 6 (degree 66) | 8,388,608 | 1 | 1.1 GB | ~73 GB |
+| (8 width planes, same elements) | 16,777,216 | 1 | 2.1 GB | ~74 GB |
+| descent (GKR tree, range mode) | 0 | — | 0 | 72 GB (+ the 27.9 GB transient silu-m3 pair, MVP8B §1.4) |
+| C2-literal: EVERY range fact as a K-helper lookup | **2,952,790,016** (vs their w~8 planes 92,274,688) | 32 | 378 GB | — |
+
+At 32x16 (the yardstick): S2 16.8M rings (2.15 GB) / pf kappa 4 1.05M
+(0.13 GB) / kappa 5 0.52M.
+
+VERDICT [COUNTED]: (1) the memo's "~+1-3M class" for C2 at 12x512 is
+off by an order of magnitude in the wrong direction — the S2 helper
+of the SiLU pairs ALONE is 25.2M (GG measured it), and routing the
+range facts through lookups as C2 literally says would cost 2.95
+BILLION rings at 8B against 92M for their planes; C2 is retired. (2)
+The as-built S2 form is not an 8B object: 537M helper rings, SIX
+act-h groups under the exact-digit cap, a ~285 GB peak — the ruling's
+"130-160 GB class" undercounted it (flat store only). (3) The compact
+committed-h encoding that keeps full mode is the kappa-level
+partial-fraction helper: kappa 4 = 1.57M rings at 12x512 (0.13x the
+act group) and 33.6M at 8B — ONE group under the cap, +4.3 GB of
+store, pass peak ~78 GB on OO's ~72 GB baseline [MODEL]; kappa 5
+halves it again at round degree 34. (4) The E_4 helper (4 coords) is
+a 4x lever on top of any kappa but changes the LogUp soundness field
+to E_4 (2^124, as the zc-agg already draws its challenges) — not
+built; counted as the fallback if a lower degree is wanted. (5) Two
+8B blockers seen in the code while counting, recorded for V4: GG's
+silu phase asserts `prim.len() == n_el` (unpadded keys vs the padded
+2^23 hypercube — f = 14336 pads to 16384, so full mode as built
+cannot even build its keys at 8B), and the boxed key/helper vectors
+(Vec<u64> K elements, ~150 B each) would hold ~40 GB of transient at
+8B — the keys must be strided/packed (V3 makes the silu column
+strided like the V1 route; the packed build is an 8B-rung item).
 
 ## Agent TT status (main session) — round 10
 

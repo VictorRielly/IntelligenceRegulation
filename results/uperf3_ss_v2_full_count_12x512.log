@@ -1,0 +1,60 @@
+[UPERF3-SS] full-count: the committed-h bill at 12x512 (m125 d 768 f 2048) from the engine registries [COUNTED]:
+  oracle (bk_pass_run)                         weight n_0     3538944 act n_0     7854476 (the frozen BK registry, descents for every family)
+  range (planes; silu descents)                weight n_0     3538944 act n_0    12351296 (planes   4521984, mults      0) act-h n_0           0 | act-h / act 0.00x | store act-h 0.000 GB
+  full (S2 K-helper, as built)                 weight n_0     3538944 act n_0    12345608 (planes   4521984, mults    264) act-h n_0    25165824 | act-h / act 2.04x | store act-h 3.221 GB
+  full-ss kappa 3, no route                    weight n_0     3538944 act n_0    12345608 (planes   4521984, mults    264) act-h n_0     3145728 | act-h / act 0.25x | store act-h 0.403 GB
+  full-ss kappa 4, no route                    weight n_0     3538944 act n_0    12345608 (planes   4521984, mults    264) act-h n_0     1572864 | act-h / act 0.13x | store act-h 0.201 GB
+  full-ss kappa 5, no route                    weight n_0     3538944 act n_0    12345608 (planes   4521984, mults    264) act-h n_0      786432 | act-h / act 0.06x | store act-h 0.101 GB
+  full-ss kappa 0 + nrw-88 l0 h8 routed (V1)   weight n_0     3538944 act n_0    12280094 (planes   4456448, mults    286) act-h n_0    27262976 | act-h / act 2.22x | store act-h 3.490 GB
+  arithmetic cross-check at this shape (silu elements 12582912 = 12 x 512 x 2048; cap 94177249 rings/group at e0 = 2):
+    S2 K-helper (kappa 0, as built)              25165824 rings  groups 1  store 3.221 GB
+    E_4 helper (4 coords)                         6291456 rings  groups 1  store 0.805 GB
+    pf helper kappa 3 (degree 10)                 3145728 rings  groups 1  store 0.403 GB
+    pf helper kappa 4 (degree 18)                 1572864 rings  groups 1  store 0.201 GB
+    pf helper kappa 5 (degree 34)                  786432 rings  groups 1  store 0.101 GB
+    pf helper kappa 6 (degree 66)                  393216 rings  groups 1  store 0.050 GB
+    width planes, w = 8, same elements             786432 rings  groups 1  store 0.101 GB
+    descent (GKR tree): committed rings                 0 rings  groups 1  store 0.000 GB
+[UPERF3-SS] full-count at the 8B shape 32x512 (d 4096 f 14336 -> f_pad 16384; silu elements 268435456; range-form baseline [OO 2026-08-31]: weight n_0 352,321,536, act n_0 145,475,764 -> commit ~61 GB, pass peak lvl-0 ~72 GB):
+    S2 K-helper (kappa 0, as built)             536870912 rings  groups 6  store   68.7 GB  pass peak [MODEL]  285.4 GB
+    E_4 helper (4 coords)                       134217728 rings  groups 2  store   17.2 GB  pass peak [MODEL]  119.1 GB
+    pf helper kappa 3 (degree 10)                67108864 rings  groups 1  store    8.6 GB  pass peak [MODEL]   91.4 GB
+    pf helper kappa 4 (degree 18)                33554432 rings  groups 1  store    4.3 GB  pass peak [MODEL]   77.6 GB
+    pf helper kappa 5 (degree 34)                16777216 rings  groups 1  store    2.1 GB  pass peak [MODEL]   74.1 GB
+    pf helper kappa 6 (degree 66)                 8388608 rings  groups 1  store    1.1 GB  pass peak [MODEL]   73.1 GB
+    width planes, w = 8, same elements           16777216 rings  groups 1  store    2.1 GB  pass peak [MODEL]   74.1 GB
+    descent (GKR tree): committed rings                 0 rings  groups 1  store    0.0 GB  pass peak [MODEL]   72.0 GB
+    C2-literal (ALL range facts as K-helper lookups): 1476395008 elements -> 2952790016 rings (vs their w~8 planes 92274688 rings) [COUNTED, w = 8 for every remainder = MODEL]
+[UPERF3-SS] full-count at the 8B shape 32x16 (d 4096 f 14336 -> f_pad 16384; silu elements 8388608; range-form baseline [OO 2026-08-31]: weight n_0 352,321,536, act n_0 145,475,764 -> commit ~61 GB, pass peak lvl-0 ~72 GB):
+    S2 K-helper (kappa 0, as built)              16777216 rings  groups 1  store   2.15 GB
+    E_4 helper (4 coords)                         4194304 rings  groups 1  store   0.54 GB
+    pf helper kappa 3 (degree 10)                 2097152 rings  groups 1  store   0.27 GB
+    pf helper kappa 4 (degree 18)                 1048576 rings  groups 1  store   0.13 GB
+    pf helper kappa 5 (degree 34)                  524288 rings  groups 1  store   0.07 GB
+    pf helper kappa 6 (degree 66)                  262144 rings  groups 1  store   0.03 GB
+    width planes, w = 8, same elements             524288 rings  groups 1  store   0.07 GB
+    descent (GKR tree): committed rings                 0 rings  groups 1  store   0.00 GB
+    C2-literal (ALL range facts as K-helper lookups): 46137344 elements -> 92274688 rings (vs their w~8 planes 2883584 rings) [COUNTED, w = 8 for every remainder = MODEL]
+	Command being timed: "/home/victor/wt-uperf3-ss/zkmatrix-rs/target/release/ring_matmul uperf-a full-count 12 512"
+	User time (seconds): 5.60
+	System time (seconds): 0.27
+	Percent of CPU this job got: 376%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:01.56
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 319996
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 170097
+	Voluntary context switches: 1453
+	Involuntary context switches: 11
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
