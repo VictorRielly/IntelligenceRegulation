@@ -1,0 +1,30 @@
+[UPERF3-GG] STAGE-A composed pass: 12 layers, T = 128, mode range [WSL-BOX NOISY-SHARED]
+  [UPERF3-SS] PASS TRANSCRIPT DIGEST e5085602a2fbc93be46dacb4728659a599e6e9130e1e1bc7827548c74fd01b69
+  STAGE-A pass: commit 8.9s prove 36.2s verify 4.9s | 637691 B counted | accept true
+  bytes: statement 26107 + instances 35008 + STAGE-A 215888 + publics 1536 + groups 359152 ( weight 179576 B; act 179576 B;)
+  groups: weight n_0 3538944 (8 lv), act n_0 3091604 (8 lv)
+  claims served: 997 (act/weight) + 0 (act-h) = 997
+  peak RSS 6802 MiB
+	Command being timed: "/home/victor/wt-uperf3-ss/zkmatrix-rs/target/release/ring_matmul uperf-a pass 12 128 range nooracle"
+	User time (seconds): 218.15
+	System time (seconds): 24.48
+	Percent of CPU this job got: 481%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:50.37
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 6963128
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 7270119
+	Voluntary context switches: 438273
+	Involuntary context switches: 564
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

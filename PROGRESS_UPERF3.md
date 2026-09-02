@@ -5023,7 +5023,391 @@ ONE GPU (H100-class allowed), written so a newcomer can follow it:
 
 ## Agent SS status (wt-uperf3-ss) — round 10
 
-(lane appends below)
+Lane SS: the committed-h encoding, rungs V1-V4 (spec
+U_PERF3_COMMITTED_H.md §3). OWNS: NEW ring/stage_a_full.rs (+ its
+`pub mod` line in ring/mod.rs), ONE dispatch line in ring/stage_a.rs,
+the driver's Full-mode branches + ADDITIVE `uperf-a` arms in the bin,
+NEW results/uperf3_ss_*, this section. Range mode is lane RR's and
+stays byte-identical (the floor below).
+
+THE DISPATCH LINE (verbatim, ring/stage_a.rs, inserted before the
+"Rung 1" banner — for RR's merge):
+`pub use super::stage_a_full as full; // [UPERF3-SS] round 10: the FULL-mode routing (committed-h rungs V1-V4) lives in stage_a_full — the one dispatch line lane SS owns in this file`
+
+### RUNG 0 — SKELETON + THE READING (2026-09-02) [WSL-BOX 8T NOISY-SHARED]
+
+READING THE CODE BEFORE BUILDING (the finding the rungs are cut
+around; recorded up front, not after): the act-h group of lane GG's
+full mode (`gg_build_groups`, ring_matmul.rs ~:50926) is the S2 LogUp
+HELPER h_i = 1/(alpha - key_i) of the two SiLU pair families — a
+K-field element per looked-up element committed at the blinder class
+(16 coords x l0_q = 16 base-4 digits = 256 digit values = **2 digit
+rings per element**), committed after alpha (the F2 ordering). It is
+not a range-fact commitment of the activation h, and nothing in the
+v3 entry list (Hlo/Hhi/H/Rh) can stand in for it: a LogUp instance
+needs a helper column of its own whatever it looks up. The memo's
+candidate C2 ("route h's range facts as 256-row lookups over the
+existing limbs; the act-h group vanishes") is therefore inverted on
+the ring count: a 256-row lookup over an EXISTING 8-bit column costs
+the S2 helper (2 rings/element) where the width planes it would
+replace cost w/128 = 1/16 ring/element — **32x MORE** for an 8-bit
+fact (the planes ARE the compact form for range facts). The v2 pass
+the driver runs on has no Hlo (BF_ENTRIES = X, WgT, WuT, WdT, Gacc,
+Rg, g8, a8, Uacc, Ru, u8, H, Rh, h8, Dacc, Rd, z); its analog of the
+spec's "h16 range fact over Hlo" is the nrw-88 family (the u8/h8
+narrowing against [0,256) at offset 128 over the existing h8
+commitment) — that is V1's target.
+- Sanity [COUNTED vs MEASURED]: `uperf-a full-plan` reproduces GG's
+  measured act-h rows exactly — 3x16: 196,608 rings; 12x128:
+  6,291,456 (m125 f = 2048 padded to 2048, t x f elements x 12
+  layers x 2 rings). Same elements as 8 width planes: 6,144 /
+  196,608 rings (32x).
+- THE COMPACT FORM THIS LANE BUILDS FOR V3 (where a lookup is
+  unavoidable — the SiLU tables): the kappa-level PARTIAL-FRACTION
+  helper — commit h at node granularity, h_node = sum_{i in node}
+  1/(alpha - key_i) over 2^kappa consecutive keys (one K element per
+  2^kappa elements: 2/2^kappa rings/element), and prove h_node *
+  prod_i (alpha - key_i) = sum_i prod_{i' != i} (alpha - key_i') by
+  ONE degree-(2^kappa + 2) zero-check (eq * (h * Q - P)) whose final
+  claims are the 2^kappa key MLEs at (b || x*) over the EXISTING
+  member commitments (prim + Y-scaled image, as gg_logup_claims
+  serves today) plus h(x*) and h_sum over the 2^kappa-times smaller
+  act-h block; the LogUp sum identity sum_nodes h_node = sum_j m_j /
+  (alpha - t_j) is unchanged (partial fractions: P/Q = sum_i
+  1/(alpha - key_i) exactly when Q != 0, i.e. alpha != every key —
+  the S2 redraw measure ~2^-490). kappa = 0 is the S2 form; kappa =
+  3 cuts act-h 8x (12x128: 6.29M -> 786K rings) at round degree 10;
+  kappa = 4 cuts 16x (393K) at degree 18. This is the ruling's third
+  candidate ("a derived-not-committed h with its own relation") in
+  partially-derived form; it is a Stage-A full-mode transcript change
+  (full mode is selector-gated, not frozen) and needs Victor's ruling
+  before the Stage-A round-1 freeze set adopts it — recorded, not
+  assumed.
+- Built: ring/stage_a_full.rs (ring arithmetic + plan), the mod line,
+  the dispatch line, `uperf-a full-plan`, and ONE additive print in
+  the driver — `[UPERF3-SS] PASS TRANSCRIPT DIGEST <hex>` (the
+  prover transcript state after the last group proof; deterministic
+  seeds, so it binds every shipped object) = the byte-identity floor
+  for the routing rungs.
+- FLOORS: release build green; uperf-pc diff-battery 15.32 s green;
+  freeze-check (M125_EXPORT_DIR set) 102 ok rows + "freeze-check
+  passed"; uperf-s 3752cba4.. / agg 46234986.. / uperf-x be89d5da..
+  unchanged.
+- RANGE-MODE BASELINE [MEASURED]: `M125_EXPORT_DIR=... ZK_THREADS=8
+  /usr/bin/time -v ring_matmul uperf-a pass 12 64 range nooracle` —
+  PASS TRANSCRIPT DIGEST **44528c6aeee0a771..**, 622,011 B counted,
+  accept true, weight n_0 3,538,944 / act n_0 1,548,104, 989 claims,
+  commit 6.0 s prove 23.7 s verify 3.2 s, peak RSS 3,892 MiB (wall
+  31 s). Every later commit re-runs this and must reproduce the
+  digest and the byte/ring lines.
+- RUNG PLAN (one commit each, prefix "U-PERF3 SS:"): V1 = the nrw-88
+  h8 fact of layer 0 as a 256-row identity LogUp over the existing h8
+  commitment in full mode, differential vs the planes form (range
+  mode's zc) and the descent form (the oracle), rings counted; V2 =
+  the counted bill at 12x512 and 32x512 8B for S2 K-helper / E_4
+  helper / kappa-level pf helper / planes / descent; V3 = the SiLU
+  helper routed through the kappa-level pf form, `uperf-a pass 12
+  128 full` peak vs range mode; V4 = the 8B full-mode counted row.
+- Commit: 0301c66.
+
+### RUNG V1 — ONE RANGE FACT AS A 256-ROW LOOKUP OVER ITS EXISTING COMMITMENT (2026-09-02) [WSL-BOX 8T NOISY-SHARED]
+
+WHAT WAS BUILT (ring/stage_a_full.rs + the driver's Full-mode branches):
+the mode `uperf-a pass L T full-ss [k<kappa_silu>] [r<kappa_route>|noroute]
+[ss-sum]` — the SiLU pairs' LogUp helper at kappa levels (kappa 0 = the
+S2 form as GG built it) and, by default, the nrw-88 member (layer 0, h8)
+taken OUT of its planes class and proven as a 256-row identity lookup
+over its EXISTING h8 commitment (multiplicities in act, helper in act-h;
+the key claim lands on the member tensor as key_b(x*) - offset * S_eq
+with the strided eq_hi x eq_lo kernels the planes form uses; pads carry
+key 0 = row 0 and are counted in m[0]). The kappa-level partial-fraction
+prover/verifier (eq * (h * Q - P), degree 2^kappa + 2; the verifier is
+the house ixf_sumcheck_verify with the shape's combine) landed with it
+and is exercised at kappa 3/4 — that is V3's core, tested here on the
+small shape. `uperf-a ss-diff` = the standalone R2-style differential.
+- DIFFERENTIAL LEG 1, byte identity of the plumbing: `pass 3 16 full-ss
+  k0 noroute` reproduces GG's `pass 3 16 full` BIT-FOR-BIT — PASS
+  TRANSCRIPT DIGEST **b0349a4536cddaf0..** both, 584,786 B, act-h n_0
+  196,608, 231 claims [MEASURED].
+- DIFFERENTIAL LEG 2, the lookup form over the existing commitment
+  (`ss-diff 1 16`, the real layer-0 h8 column, 2^15 codes, one alpha
+  across the forms): kappa 0 / 3 / 4 all ACCEPT; every served value
+  grounded DIRECTLY on the raw column in exact K equality (key_b(x*)
+  1/1, 8/8, 16/16; h(x*); h_sum and table_sum recomputed); the three
+  forms' h_sum IDENTICAL (the same rational identity sum_i 1/(alpha -
+  key_i)); TAMPER off-table (one code 300 -> 428, outside [0,256) yet
+  inside the committed class — the BK RangeViolation shape; the prover
+  honest about its own inverse) REJECTS at the SUM gate with the chain
+  intact at kappa 0 and 3; TAMPER served key REJECTS at the CHAIN gate
+  at kappa 0 and 3. ALL LEGS GREEN, peak RSS 44 MiB.
+- DIFFERENTIAL LEG 3, at pass level (`pass 3 16 full-ss`, kappa 0 both):
+  ACCEPT, digest 4c63259d6c4ffd97.., 589,762 B; the route's key_b(x*) /
+  h(x*) direct == served, h_sum == table_sum (asserted in the driver);
+  `pass 3 16 full-ss ss-sum` (the served h_sum flipped) REJECTS at the
+  named gate `ss-lookup-sum:nrw-88`. The descent (table) form of the
+  same fact is the frozen oracle's nrw-88 pair (bk_pass_run; its
+  RangeViolation leg rejects the same off-table shape) — same rational
+  identity, proven as a masked GKR tree instead of a committed helper;
+  no served value to compare bit-for-bit across the two proof systems
+  beyond the accept/reject pair, recorded as such.
+- **THE RING VERDICT [MEASURED at 3x16]**: routing ONE 8-bit fact (2^15
+  elements) through the lookup form over its existing commitment
+  costs act-h **+65,536 rings** (the S2 helper, 2/element) and saves
+  act **-2,030 rings** (its 8 planes 2,048 minus the 18-ring
+  multiplicity tensor): **32x MORE commitment for the same fact**.
+  `full` -> `full-ss`: act-h 196,608 -> 262,144, act 98,614 -> 96,584,
+  bytes 584,786 -> 589,762, peak 1,024 -> 1,145 MiB. The memo's C2
+  ("the act-h group and the width planes both vanish") is inverted:
+  the planes are the compact form for range facts; the lookup form
+  buys ONE thing the planes cannot — the exact one-sided fact [0, 256)
+  (GG's OQ-2 sign gap closes by construction: the table IS the range).
+  At kappa 3 the same route costs 8,192 rings (4x the planes), at
+  kappa 4 4,096 (2x) — still never cheaper than the planes.
+- THE V3 FORM AT 3x16 (`pass 3 16 full-ss k3 r4`): ACCEPT, digest
+  1fa0ff25b6905bbe.., **act-h n_0 196,608 -> 28,672 (6.9x smaller;
+  silu-m3 131,072 -> 16,384, silu-m4 65,536 -> 8,192, the route
+  4,096)**, bytes 611,794 (+27 KB: degree-10/18 rounds + 2^kappa key
+  claims), peak RSS **890 MiB vs 1,024 (full) / 1,145 (full-ss k0)**,
+  lookup sumchecks 1.12 s vs 0.46 s (kappa 0), verify 1.2 s.
+- FLOORS: build green; diff-battery 17.45 s green; freeze-check 102 ok
+  + passed; 3752cba4.. / 46234986.. / be89d5da.. unchanged; range-mode
+  12x64 digest 44528c6a.. UNCHANGED (622,011 B, 989 claims, peak 3,891
+  MiB) — range mode byte-identical.
+- What V1 does NOT settle: the kappa-level form's soundness argument is
+  the partial-fraction identity P/Q = sum_i 1/(alpha - key_i) (exact
+  when alpha is no key) plus the standard sumcheck bound at degree
+  2^kappa + 2 over K (2^496) — written here, not yet reviewed by
+  anyone but this lane; it enters no freeze row until ruled.
+- Commit: a169c81.
+
+### RUNG V2 — THE HELPER/MULTIPLICITY COMMIT BILL, COUNTED (2026-09-02) [WSL-BOX, no proving]
+
+`uperf-a full-count [layers] [t]` (M125_EXPORT_DIR set): (a) the
+REAL registries of the loaded m125 layers at the shape, built by the
+driver's own gg_build_groups in every mode (engine structures — the
+same objects the pass commits); (b) the same arithmetic at the 8B
+shapes with the MVP8B §1.2 / OO memory law. The count REPRODUCES every
+measured row of lanes GG/OO: 3x16 act-h 196,608; 12x128 act 3,091,604
+/ act-h 6,291,456 (GG R5); 12x512 act 12,351,296 (planes 4,521,984 =
+GG R1's +4.52M) / act-h 25,165,824 (GG's 25.2M); the e0 = 2 group cap
+94,177,249 rings (the memo's 94.2M). Peak RSS of the count 320 MiB.
+
+THE 12x512 TABLE (m125 d 768 f 2048; silu elements 12 x 512 x 2048 =
+12,582,912) [COUNTED from the registries]:
+
+| mode | act n_0 (planes / mults) | act-h n_0 | act-h / act | act-h store (128 B/ring) |
+|---|---:|---:|---:|---:|
+| oracle bk_pass_run (descents everywhere) | 7,854,476 | 0 | — | — |
+| range (planes; silu descents) | 12,351,296 (4,521,984 / 0) | 0 | — | — |
+| full, S2 K-helper as built | 12,345,608 (4,521,984 / 264) | **25,165,824** | 2.04x | 3.22 GB |
+| full-ss kappa 3 | same | 3,145,728 | 0.25x | 0.40 GB |
+| full-ss kappa 4 | same | **1,572,864** | 0.13x | 0.20 GB |
+| full-ss kappa 5 | same | 786,432 | 0.06x | 0.10 GB |
+| full-ss kappa 0 + the V1 route | 12,280,094 (4,456,448 / 286) | 27,262,976 | 2.22x | 3.49 GB |
+| (E_4 helper, arithmetic only — not built) | | 6,291,456 | 0.51x | 0.81 GB |
+| (8 width planes over the same silu elements, for scale) | | 786,432 | | 0.10 GB |
+
+THE 8B TABLE (32x512, d 4096, f 14336 -> f_pad 16384; silu elements
+268,435,456; range-form baseline = lane OO's counted row: weight n_0
+352,321,536, act n_0 145,475,764, commit ~61 GB, pass peak lvl-0 ~72
+GB). Pass peak [MODEL] = max(72 GB + the act-h flat store, the act-h
+group's own lvl-0 phase = 63.7 GB of flat stores + its store + A_0 at
+209 B/ring + lvl-1 at 76 B/ring — the act-group rates of MVP8B §1.2):
+
+| act-h form | rings | groups under the 94.2M cap | flat store | pass peak [MODEL] |
+|---|---:|---:|---:|---:|
+| S2 K-helper (kappa 0, as built) | **536,870,912** | **6** | 68.7 GB | **~285 GB** |
+| E_4 helper | 134,217,728 | 2 | 17.2 GB | ~119 GB |
+| pf kappa 3 (degree 10) | 67,108,864 | 1 | 8.6 GB | ~91 GB |
+| **pf kappa 4 (degree 18)** | **33,554,432** | **1** | **4.3 GB** | **~78 GB** |
+| pf kappa 5 (degree 34) | 16,777,216 | 1 | 2.1 GB | ~74 GB |
+| pf kappa 6 (degree 66) | 8,388,608 | 1 | 1.1 GB | ~73 GB |
+| (8 width planes, same elements) | 16,777,216 | 1 | 2.1 GB | ~74 GB |
+| descent (GKR tree, range mode) | 0 | — | 0 | 72 GB (+ the 27.9 GB transient silu-m3 pair, MVP8B §1.4) |
+| C2-literal: EVERY range fact as a K-helper lookup | **2,952,790,016** (vs their w~8 planes 92,274,688) | 32 | 378 GB | — |
+
+At 32x16 (the yardstick): S2 16.8M rings (2.15 GB) / pf kappa 4 1.05M
+(0.13 GB) / kappa 5 0.52M.
+
+VERDICT [COUNTED]: (1) the memo's "~+1-3M class" for C2 at 12x512 is
+off by an order of magnitude in the wrong direction — the S2 helper
+of the SiLU pairs ALONE is 25.2M (GG measured it), and routing the
+range facts through lookups as C2 literally says would cost 2.95
+BILLION rings at 8B against 92M for their planes; C2 is retired. (2)
+The as-built S2 form is not an 8B object: 537M helper rings, SIX
+act-h groups under the exact-digit cap, a ~285 GB peak — the ruling's
+"130-160 GB class" undercounted it (flat store only). (3) The compact
+committed-h encoding that keeps full mode is the kappa-level
+partial-fraction helper: kappa 4 = 1.57M rings at 12x512 (0.13x the
+act group) and 33.6M at 8B — ONE group under the cap, +4.3 GB of
+store, pass peak ~78 GB on OO's ~72 GB baseline [MODEL]; kappa 5
+halves it again at round degree 34. (4) The E_4 helper (4 coords) is
+a 4x lever on top of any kappa but changes the LogUp soundness field
+to E_4 (2^124, as the zc-agg already draws its challenges) — not
+built; counted as the fallback if a lower degree is wanted. (5) Two
+8B blockers seen in the code while counting, recorded for V4: GG's
+silu phase asserts `prim.len() == n_el` (unpadded keys vs the padded
+2^23 hypercube — f = 14336 pads to 16384, so full mode as built
+cannot even build its keys at 8B), and the boxed key/helper vectors
+(Vec<u64> K elements, ~150 B each) would hold ~40 GB of transient at
+8B — the keys must be strided/packed (V3 makes the silu column
+strided like the V1 route; the packed build is an 8B-rung item).
+- Commit: 1d4e911 (+ results/uperf3_ss_v2_full_count_12x512.log).
+
+### RUNG V3 — FULL MODE FITS THE BOX: `uperf-a pass 12 128 full` (2026-09-02) [WSL-BOX 8T NOISY-SHARED]
+
+WHAT V3 ROUTES, honestly restated after V2: the spec's "all h +
+remainder facts routed [through lookups]" is retired by the count
+(V2: 2.95 billion rings at 8B for the range facts as lookups vs 92M
+for their planes). The remainder/narrowing facts STAY on the planes
+(range mode's form, the compact one); the SiLU lookups — the facts
+that cannot be planes — carry the compact committed-h: the
+kappa-level partial-fraction helper at kappa 4. `full` now MEANS that
+(`GgMode::FullSs { kappa_silu: 4, route_nrw: None }`); the S2 form GG
+built is reachable as `full-s2` and is byte-identical to the pre-V3
+`full` (digest b0349a45.. at 3x16, checked again after every V3 edit).
+Also landed: the SiLU keys built STRIDED over the padded grid (pads
+on the table's row-0 key, subtracted by every claim builder with the
+pad kernel sum — the f = 14336 -> 16384 case GG's `prim.len() ==
+n_el` assert excluded; a no-op at m125's f = 2048, digests unchanged),
+and the keys diet (a column's boxed keys live only while its helper
+or its sumcheck is built; the helper alone is held across the commit).
+
+THE 12x128 TABLE [MEASURED, ZK_THREADS=8, /usr/bin/time -v, walls
+NOISY-SHARED — lane QQ benching, the 3x16 checks overlapped one run]:
+
+| `uperf-a pass 12 128 ...` | accept | commit / prove / verify | bytes | act n_0 / act-h n_0 | prover high-water | **peak RSS** | wall |
+|---|---|---|---:|---:|---:|---:|---:|
+| `range` (planes; silu descents) — the baseline | true | 8.9 / 36.2 / 4.9 s | 637,691 | 3,091,604 / — | — | **6,802 MiB** | 50 s |
+| `full-s2` = full as GG built it (S2 K-helper) | **OOM** (GG 2026-08-28, 22T, killed at 2:58) | — | — | 3,086,576 / 6,291,456 | — | **14,777 MiB** (box ceiling) | — |
+| **`full` = kappa 4 (V3)** | **true** | 8.4 / 56.1 / 8.9 s (quiet-er run); 9.2 / 57.7 / 17.3 (overlapped) | 860,867 | 3,086,576 / **393,216** | **6,801 MiB** (= range's peak) | **8,072 MiB** (8,872 before the keys diet) | 74 s / 96 s |
+| `full-ss k3 noroute` | true | 9.2 / 54.2 / 9.1 s | **772,467** | 3,086,576 / 786,432 | 7,491 MiB | 9,337 MiB | 73 s |
+| `full-ss k5 noroute` | **REJECT** at `ss-lookup-chain:silu-m3` (see below) | 8.2 / 66.2 / — | 1,029,059 | 3,086,576 / 196,608 | 6,715 MiB | 6,715 MiB | — |
+
+Digests (the mode-routing floor from here on): range 12x128
+e5085602a2fbc93b..; full (kappa 4) 646f0dceae89d8da..; full-ss k3
+c2d614550c7cec5b..; range 12x64 44528c6aeee0a771.. UNCHANGED after
+every V3 edit; 3x16: full-s2 = full-ss k0 noroute b0349a45.. (the
+pre-V3 full), full (kappa 4) dbc581525eb1f9c9.., full-ss (the V1
+route) 4c63259d.. — all unchanged by the strided keys and the diet.
+
+VERDICT: **`uperf-a pass 12 128 full` no longer OOMs the 15 GiB box —
+peak 8,072 MiB against range mode's 6,802 (+19%) and the as-built
+full mode's 14,777 (killed).** The act-h group is 393,216 rings
+(16x smaller than the 6,291,456 that OOMed; 0.13x the act group). The
+prover's high-water mark is 6,801 MiB — IDENTICAL to range mode's
+peak; the remaining +1.3 GB sits in the VERIFIER phase and is the
+served-claim kernels (two dense n_h-row kernels per column for h_sum
+and h(x*), both prover's and verifier's copies live during verify —
+with the as-built helper they were 16x larger, part of the OOM).
+Named follow-ups, not built: (i) ONE h_sum claim per PAIR (ones over
+all blocks; the union multiset against the summed multiplicities is
+the same membership fact) cuts 11 of the 12 ones-kernels; (ii) freeing
+the prover's claim vectors before the verifier runs (a driver-level
+diet, range mode's too). Wall: prove +20 s over range (the 12
+degree-18 lookup sumchecks 14.8 s + the act-h commit/opening); bytes
+860,867 vs range 637,691 (+35%: the third opening 175 KB + the
+degree-18 rounds x 15 x 12 columns 247 KB, minus the 187 KB of silu
+descents) — kappa 3 is the bytes-optimal point (772,467, STAGE-A
+173,776 < range's 215,888) at +1.3 GB more memory; kappa 4 is the
+memory point. The pre-V3 bytes win vs the oracle (1,372,775) is 2.15x
+in the as-built form, 1.6x at kappa 4, 1.8x at kappa 3.
+
+KAPPA 5 IS BLOCKED BY THE HOUSE VERIFIER, not by the design:
+`sumcheck::lagrange_eval` (read-only) forms the node denominator
+prod_{j != i} (i - j) as an i64 before reducing — it overflows above
+degree ~20 (20! = 2.4e18), so the degree-34 round chain of kappa 5
+fails at the verifier's own reduction (prover and honest witness
+fine: the sums hold; kappa 4 = degree 18 is the last green). Fix =
+reduce the denominator mod q per factor (one line in sumcheck.rs, a
+frozen-path file — RECORDED for a ruling, not touched). kappa 4
+(degree 18) is the practical maximum today; the 8B row (V4) uses it.
+
+FLOORS: build green; diff-battery 17.50 s green; freeze-check 102 ok
++ passed; 3752cba4.. / 46234986.. / be89d5da.. unchanged; range 12x64
+digest 44528c6a.. unchanged (622,011 B, peak 3,891 MiB).
+- Commit: 3916742 (the code + the 12x128 logs under results/
+  uperf3_ss_v3_*; this status text landed one commit later — the
+  ledger edit missed its anchor the first time).
+
+### RUNG V4 — THE 8B FULL-MODE COUNTED ROW ON LANE OO's BASELINE (2026-09-02) [COUNTED / MODEL, no run]
+
+The owed recount (RULINGS 2026-08-31 item 2(c): "the 8B memory
+projection is STALE for full mode ... a fresh counted row is OWED
+before hardware commitments; first estimate ~130-160 GB"). Baseline =
+lane OO's counted 32x512 phase table (range-form Stage A + W-3 + the
+HH/KK/OO diets): commit ~61 / claim ~20 / lvl-0 ~72 / lvl-1 ~29 /
+verify ~6 GB, peak lvl-0 ~72 GB; weight n_0 352,321,536, act n_0
+145,475,764 (split in >= 2 groups under the 94.2M cap). Full mode =
+V3's routing: the planes for every range fact (already in the
+baseline), the SiLU lookups on the kappa-4 partial-fraction helper.
+Shape: 32 x 512 x f 14336 -> f_pad 16384 (the strided keys of V3),
+silu elements 268,435,456.
+
+| 8B 32x512 term | range form (OO baseline) | full mode, as built (S2 K-helper) | **full mode, V3 (kappa 4)** | label |
+|---|---:|---:|---:|---|
+| act-h digit rings | 0 | 536,870,912 | **33,554,432** | COUNTED (`uperf-a full-count`) |
+| act-h groups under the e0 = 2 gate (94,177,249 rings) | — | 6 (six mid-transcript openings) | **1** (+0.74 bits headroom) | COUNTED |
+| act-h flat i8 store (128 B/ring) | 0 | 68.7 GB | **4.3 GB** | COUNTED |
+| act-h own lvl-0 phase (63.7 GB flat stores + store + A_0 209 B/ring + lvl-1 76 B/ring) | — | ~285 GB | **~78 GB** | MODEL (MVP8B §1.2 act-group rates) |
+| the weight group's lvl-0 phase + the act-h store | 72 | 141 | **76.3** | MODEL |
+| served-claim kernels of the lookups (2 dense n_h-row K kernels per column, prover + verifier copies) | 0 (descents serve endpoint claims) | ~137 GB (n_h = 8.4M x 32 cols x 2 x 128 B x 2) | **~8.6 GB** (n_h 524,288) — ~2.2 GB with follow-up (i), ~1.1 with (i)+(ii) | COUNTED from V3's measured attribution |
+| per-column transients (one column live: boxed keys ~150 B x 8.4M, the 18 pf tables x 524K nodes) | 0 | 1.3 GB + (S2's packed tables) | **~2.7 GB** | COUNTED |
+| the silu descents' transient (MVP8B §1.4: silu-m3 pair 27.9 GB, m4 6.4 GB at 32x512) | **27.9 GB** during the descent phase | 0 | **0** | COUNTED (memo) |
+| **pass peak** | **~72 GB** (lvl-0) | **~285 GB** (the act-h opening; the ruling's 130-160 counted the store only) | **~78 GB at lvl-0-class; ~87 GB if the claim kernels are left as they are** | MODEL |
+| full-mode bytes vs range (12x128 ratio carried: +35%) | ~1.9 MB (MVP8B §1.5 artifact class) | — | ~2.6 MB | MODEL |
+| the 12 -> 32-column lookup sumchecks at 8T (12x128: 14.8 s for 3.1M elements, scalar K, degree 18) | — (descents ~x0.03 of the wall) | — | **~21 min at 8T on this box; ~6-8 min on the Mac's 24+ threads** | MODEL (linear in elements, x85) |
+| 32x16 (the yardstick) act-h rings / store | 0 | 16,777,216 / 2.15 GB | **1,048,576 / 0.13 GB** | COUNTED |
+
+THE ROW, in one line: **full mode at 8B under V3's encoding costs
++4.3 GB of committed store and lands the pass peak at ~78 GB
+[MODEL] on OO's ~72 GB range-form baseline (≈ +8%; ~87 GB until the
+claim-kernel follow-ups land) — ONE act-h group, no new gate problem,
+under 128 GB with ~40-50 GB of margin; the as-built S2 form would
+have been ~285 GB and six groups.** The F1 ruling's "committed-h
+bill" is therefore ~6 GB of the 8B peak, not the 60-90 GB class the
+first estimate carried — PROVIDED the transcript change is ruled in
+(the kappa-level helper is a new Stage-A full-mode object; nothing
+frozen moved, and the S2 form stays reachable as `full-s2`).
+
+WHAT MUST LAND BEFORE T17's FULL-MODE FREEZE SET (recorded, none
+built here): (a) Victor's ruling on the kappa-level helper as THE
+full-mode encoding (soundness note: the partial-fraction identity is
+exact when alpha is no key — the S2 redraw measure; the round chain
+is the house sumcheck at degree 18 over K); (b) the lagrange_eval
+denominator reduction if kappa 5+ is ever wanted (sumcheck.rs, a
+frozen-path one-liner — degree 18 needs nothing); (c) the claim-kernel
+diet (i)+(ii) above (~7 GB at 8B; a driver-level change); (d) the
+MVP8B memo's W-1/W-3/W-4/W-6/W-7 items shared with range mode; (e)
+the packed (KTab) key build if the 1.3 GB per-column boxed transient
+matters on the Mac (it does not on 256 GB).
+
+ORCHESTRATOR-RUN (optional, > 5 min at this box's 8T; NOT run by
+this lane): the 12x512 full-mode measurement that turns the 12x128
+row into the reference shape —
+`M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl ZK_THREADS=8 flock /tmp/zk-heavy.lock /usr/bin/time -v /home/victor/wt-uperf3-ss/zkmatrix-rs/target/release/ring_matmul uperf-a pass 12 512 full`
+(expected [MODEL]: act-h 1,572,864 rings; peak ~range's 12x512 peak
+(~7.85-9 GB class, the 2026-08-29 ladder note) + ~1.5-2 GB of claim
+kernels; wall ~5-6 min at 8T with the lookup sumchecks ~60 s) and its
+range-mode sibling `... uperf-a pass 12 512 range nooracle` for the
+A/B. Post both peaks + digests here.
+
+LANE SS SUMMARY (rungs 0-V4 all landed 2026-09-02, commits 0301c66,
+a169c81, 1d4e911, 3916742 + c6b8b1a, V4 below): the memo's C2 was a
+conflation (the act-h group is the SiLU lookups' LogUp helper, not a
+range-fact commitment of h) and is inverted on the count (a lookup
+over an existing 8-bit column costs 32x its planes; all range facts
+as lookups = 2.95 billion rings at 8B); the compact committed-h
+encoding is the kappa-level partial-fraction helper (16x smaller at
+kappa 4), which makes `uperf-a pass 12 128 full` fit the box (8,072
+MiB vs the 14,777 OOM; prover high-water = range mode's) and puts
+the 8B full-mode peak at ~78 GB [MODEL] on the 72 GB baseline. Range
+mode is byte-identical throughout (12x64 digest 44528c6a.. at every
+commit). Files: ring/stage_a_full.rs (NEW), ring/mod.rs (+1 line),
+ring/stage_a.rs (+1 dispatch line, verbatim above), the driver's
+Full-mode branches + `uperf-a full-plan | full-count | ss-diff | pass
+.. full | full-s2 | full-ss ..`, results/uperf3_ss_v2_full_count_12x512.log,
+results/uperf3_ss_v3_12x128_{range,full_k4,full_k3}.log.
 
 ## Agent TT status (main session) — round 10
 

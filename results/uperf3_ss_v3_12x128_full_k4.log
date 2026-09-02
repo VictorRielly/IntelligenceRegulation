@@ -1,0 +1,35 @@
+[UPERF3-SS] full-mode routing: SsCfg { kappa_silu: 4, route_nrw: None, tamper_sum: false }
+[UPERF3-GG] STAGE-A composed pass: 12 layers, T = 128, mode full-ss [WSL-BOX NOISY-SHARED]
+  [UPERF3-SS] RSS high-water after the act-h commit (phase B): 2559 MiB
+  [UPERF3-SS] RSS high-water after the Stage-A phase (phase C): 3606 MiB
+  [UPERF3-SS] PASS TRANSCRIPT DIGEST 646f0dceae89d8da463dcd3368e2591a6ef4c1eb377f9dbd06daa83778d2ddd4
+  [UPERF3-SS] RSS high-water after the group proofs (prover done): 6801 MiB
+  STAGE-A pass: commit 9.2s prove 57.7s verify 17.3s | 860867 B counted | accept true
+  bytes: statement 26107 + instances 35008 + STAGE-A 263632 + publics 1536 + groups 534584 ( weight 179576 B; act 179576 B; act-h 175432 B;)
+  groups: weight n_0 3538944 (8 lv), act n_0 3086576 (8 lv), act-h n_0 393216 (7 lv)
+  claims served: 985 (act/weight) + 24 (act-h) = 1009
+  [UPERF3-SS] full-ss: kappa_silu 4 route None | act-h tensors zca-h-silu-m3 163840x16 327680 rings, zca-h-silu-m4 32768x16 65536 rings | helper build 1.27s, lookup sumchecks 14.76s
+  peak RSS 8072 MiB
+	Command being timed: "/home/victor/wt-uperf3-ss/zkmatrix-rs/target/release/ring_matmul uperf-a pass 12 128 full"
+	User time (seconds): 349.38
+	System time (seconds): 35.53
+	Percent of CPU this job got: 402%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:35.56
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 8324588
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 86336
+	Minor (reclaiming a frame) page faults: 8310687
+	Voluntary context switches: 548184
+	Involuntary context switches: 1319
+	Swaps: 0
+	File system inputs: 3346768
+	File system outputs: 24
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

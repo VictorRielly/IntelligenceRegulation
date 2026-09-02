@@ -50706,10 +50706,41 @@ fn uperf_a_gg_main(args: &[String]) {
         }
         Some("pass") => {
             let mode = match args.get(3).map(String::as_str) {
-                Some("full") => GgMode::Full,
+                // [UPERF3-SS] rung V3: `full` IS the committed-h routing at
+                // kappa 4 (the compact helper; V2's counted pick); the S2
+                // form GG built stays reachable as `full-s2` (byte-identical
+                // to the pre-V3 `full`, V1 leg 1).
+                Some("full") => GgMode::FullSs(SsCfg { kappa_silu: 4, route_nrw: None, tamper_sum: false }),
+                Some("full-s2") => GgMode::Full,
                 Some("masked") => GgMode::Masked,
+                // [UPERF3-SS] `full-ss [k<kappa_silu>] [r<kappa_route>|noroute] [ss-sum]`.
+                Some("full-ss") => {
+                    let mut cfg = SsCfg { kappa_silu: 0, route_nrw: Some(0), tamper_sum: false };
+                    for a in args.iter().skip(4) {
+                        if let Some(k) = a.strip_prefix('k').and_then(|s| s.parse::<u8>().ok()) {
+                            cfg.kappa_silu = k;
+                        } else if let Some(k) = a.strip_prefix('r').and_then(|s| s.parse::<u8>().ok()) {
+                            cfg.route_nrw = Some(k);
+                        } else if a == "noroute" {
+                            cfg.route_nrw = None;
+                        } else if a == "ss-sum" {
+                            cfg.tamper_sum = true;
+                        }
+                    }
+                    GgMode::FullSs(cfg)
+                }
                 _ => GgMode::Range,
             };
+            if let GgMode::FullSs(cfg) = mode {
+                let accept = uperf_a_gg_pass(geti(1, 3), geti(2, 16), mode, false, GgTamper::None);
+                if cfg.tamper_sum {
+                    assert!(!accept, "ss-sum tamper leg must reject");
+                    println!("[UPERF3-SS] tamper ss-sum REJECTED as required");
+                } else {
+                    assert!(accept, "full-ss honest pass must accept");
+                }
+                return;
+            }
             let t4 = args.get(4).map(String::as_str);
             let tamper = match t4 {
                 Some("mask-commit") => GgTamper::MaskCommit,
@@ -50740,16 +50771,372 @@ fn uperf_a_gg_main(args: &[String]) {
             println!("[UPERF3-GG] pass-battery: masked honest ACCEPT + 4 tamper legs REJECT — all green");
         }
         Some("descent-bench") | Some("descent-battery") => uperf_a_main(args),
+        // [UPERF3-SS] round 10 — the full-mode (committed-h) arms; ADDITIVE.
+        Some("full-plan") => uperf_a_ss_plan(),
+        Some("ss-diff") => uperf_a_ss_diff(geti(1, 1), geti(2, 16)),
+        Some("full-count") => uperf_a_ss_count(geti(1, 12), geti(2, 512)),
         _ => {
             println!(
                 "uperf-a map [layers] [t] | diff [pair] [layers] [t] [seed] | pass [layers] [t] [range|full|masked] [nooracle|mask-commit|mask-served|claim|round] | pass-battery [layers] [t]   ([UPERF3-GG] Stage-A integration, round 5)"
             );
+            println!("uperf-a full-plan | full-count [layers] [t] | ss-diff [layers] [t] | pass [layers] [t] full (= full-ss k4 noroute) | full-s2 (the S2 form) | full-ss [k<kappa_silu>] [r<kappa_route>|noroute] [ss-sum]   ([UPERF3-SS] the committed-h rungs V1-V4, round 10)");
             uperf_a_main(args);
         }
     }
 }
 
 // ---------------------------------------------------------------------------
+// [UPERF3-SS] round 10, lane SS — the committed-h encoding (rungs V1-V4;
+// engine side: ring/stage_a_full.rs, reached through ring::stage_a::full).
+// Rung 0: the plan printer + the ring arithmetic sanity against lane GG's
+// measured act-h rows.
+fn uperf_a_ss_plan() {
+    use ring::stage_a::full as ssf;
+    println!("[UPERF3-SS] the committed-h encoding — rung plan (spec U_PERF3_COMMITTED_H.md §3):");
+    for (i, l) in ssf::plan_lines().iter().enumerate() {
+        println!("  {}. {l}", i + 1);
+    }
+    let f_pad = bf_f().next_power_of_two();
+    let l0_q = ring::digits::derive_l0(-((ring::Q8 / 2) as i64), (ring::Q8 / 2) as i64, 2);
+    println!(
+        "[UPERF3-SS] what the act-h group is: the S2 LogUp helper h_i = 1/(alpha - key_i) of the SiLU pairs — {} K coords x l0_q {} digits = {} digit rings per element",
+        ring::kfield::K_DEG,
+        l0_q,
+        ssf::helper_rings(1 << 20, ring::kfield::K_DEG, l0_q) as f64 / (1u64 << 20) as f64
+    );
+    for (layers, t, measured) in [(3usize, 16usize, 196_608usize), (12, 128, 6_291_456)] {
+        let counted = ssf::gg_act_h_rings(layers, t, f_pad, l0_q);
+        println!(
+            "  {layers}x{t}: act-h rings COUNTED {counted} vs GG MEASURED {measured} ({}); planes (w = 8) over the same elements {} rings; kappa-level pf helper kappa 3 {} / kappa 4 {} rings (degree {} / {})",
+            if counted == measured { "MATCH" } else { "MISMATCH" },
+            ssf::planes_rings(layers * t * f_pad, 8),
+            ssf::pf_helper_rings(layers * t * f_pad, 3, l0_q),
+            ssf::pf_helper_rings(layers * t * f_pad, 4, l0_q),
+            ssf::pf_degree(3),
+            ssf::pf_degree(4),
+        );
+    }
+}
+
+/// [UPERF3-SS] rung V2 — `uperf-a full-count [layers] [t]`: the
+/// helper/multiplicity commit bill, (a) from the REAL registries of the
+/// loaded m125 layers at the shape (gg_build_groups in range / full /
+/// full-ss kappa 0,3,4,5 — engine structures, no proving), (b) the same
+/// arithmetic at the 8B shapes (32x512 and 32x16 at d 4096 / f 14336 ->
+/// f_pad 16384) with the MVP8B/OO memory law [MODEL].
+fn uperf_a_ss_count(layers_n: usize, t: usize) {
+    use ring::stage_a::full as ssf;
+    let q = ring::Q8;
+    let l0_q = ring::digits::derive_l0(-((q / 2) as i64), (q / 2) as i64, 2);
+    println!(
+        "[UPERF3-SS] full-count: the committed-h bill at {layers_n}x{t} (m125 d {} f {}) from the engine registries [COUNTED]:",
+        bf_d(),
+        bf_f()
+    );
+    let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
+    let specs = bk_pair_specs(&lays, t);
+    let modes: Vec<(&str, GgMode)> = vec![
+        ("range (planes; silu descents)", GgMode::Range),
+        ("full (S2 K-helper, as built)", GgMode::Full),
+        ("full-ss kappa 3, no route", GgMode::FullSs(SsCfg { kappa_silu: 3, route_nrw: None, tamper_sum: false })),
+        ("full-ss kappa 4, no route", GgMode::FullSs(SsCfg { kappa_silu: 4, route_nrw: None, tamper_sum: false })),
+        ("full-ss kappa 5, no route", GgMode::FullSs(SsCfg { kappa_silu: 5, route_nrw: None, tamper_sum: false })),
+        ("full-ss kappa 0 + nrw-88 l0 h8 routed (V1)", GgMode::FullSs(SsCfg { kappa_silu: 0, route_nrw: Some(0), tamper_sum: false })),
+    ];
+    let reg_o = bk_build_groups(&lays, t, &specs, q);
+    println!(
+        "  {:<44} weight n_0 {:>11} act n_0 {:>11} (the frozen BK registry, descents for every family)",
+        "oracle (bk_pass_run)", reg_o.gw.n_digit_rings, reg_o.ga.n_digit_rings
+    );
+    for (label, mode) in modes {
+        let (reg, gh, plans) = gg_build_groups(&lays, t, &specs, q, mode);
+        let planes: usize = plans
+            .iter()
+            .flat_map(|p| p.classes.iter().map(|c| reg.ga.tensors[c.ti].n_digit_rings()))
+            .sum();
+        let mults: usize = plans
+            .iter()
+            .filter_map(|p| p.logup.map(|(ti_m, _, _)| reg.ga.tensors[ti_m].n_digit_rings()))
+            .sum::<usize>()
+            + plans.iter().flat_map(|p| p.ss_routes.iter().map(|r| reg.ga.tensors[r.ti_m].n_digit_rings())).sum::<usize>();
+        let h_rings = gh.as_ref().map(|g| g.n_digit_rings).unwrap_or(0);
+        println!(
+            "  {:<44} weight n_0 {:>11} act n_0 {:>11} (planes {:>9}, mults {:>6}) act-h n_0 {:>11} | act-h / act {:.2}x | store act-h {:.3} GB",
+            label,
+            reg.gw.n_digit_rings,
+            reg.ga.n_digit_rings,
+            planes,
+            mults,
+            h_rings,
+            h_rings as f64 / reg.ga.n_digit_rings as f64,
+            h_rings as f64 * 128.0 / 1e9,
+        );
+    }
+    let f_pad = bf_f().next_power_of_two();
+    let n_el = layers_n * t * f_pad;
+    println!("  arithmetic cross-check at this shape (silu elements {n_el} = {layers_n} x {t} x {f_pad}; cap {} rings/group at e0 = 2):", ssf::act_group_cap(q));
+    for r in ssf::count_rows(n_el, l0_q, q, false) {
+        println!("    {:<40} {:>12} rings  groups {}  store {:.3} GB", r.label, r.rings, r.groups, r.store_gb);
+    }
+    for (l8, t8) in [(32usize, 512usize), (32, 16)] {
+        let (d8, f8) = (4096usize, 14336usize);
+        let f8_pad = f8.next_power_of_two();
+        let n8 = l8 * t8 * f8_pad;
+        println!(
+            "[UPERF3-SS] full-count at the 8B shape {l8}x{t8} (d {d8} f {f8} -> f_pad {f8_pad}; silu elements {n8}; range-form baseline [OO 2026-08-31]: weight n_0 352,321,536, act n_0 145,475,764 -> commit ~61 GB, pass peak lvl-0 ~72 GB):"
+        );
+        for r in ssf::count_rows(n8, l0_q, q, t8 == 512) {
+            if t8 == 512 {
+                println!(
+                    "    {:<40} {:>12} rings  groups {}  store {:>6.1} GB  pass peak [MODEL] {:>6.1} GB",
+                    r.label, r.rings, r.groups, r.store_gb, r.peak_8b_gb
+                );
+            } else {
+                println!("    {:<40} {:>12} rings  groups {}  store {:>6.2} GB", r.label, r.rings, r.groups, r.store_gb);
+            }
+        }
+        // The C2-literal bill: every range fact of the pass as a K-helper
+        // lookup (the planes it would replace, for the same elements).
+        let n_range = l8 * t8 * (3 * f8_pad + d8.next_power_of_two()) + l8 * t8 * (2 * f8_pad + d8.next_power_of_two());
+        println!(
+            "    C2-literal (ALL range facts as K-helper lookups): {} elements -> {} rings (vs their w~8 planes {} rings) [COUNTED, w = 8 for every remainder = MODEL]",
+            n_range,
+            ssf::helper_rings(n_range, ring::kfield::K_DEG, l0_q),
+            ssf::planes_rings(n_range, 8)
+        );
+    }
+}
+
+/// [UPERF3-SS] one SiLU member's fused lookup column over the strided
+/// grid (built twice per pass — for the helper, then for the sumcheck —
+/// so the boxed keys of one column at a time are live).
+fn ss_silu_col(
+    kf: &ring::kfield::KField,
+    sp: &BkPairSpec,
+    m: &BkMember,
+    lays: &[BfLayer],
+    table: &[ring::kfield::KElem],
+) -> ring::stage_a::full::LookupCol {
+    use ring::lookup::{silu_v2_member, silu_v2_rows};
+    use std::collections::HashMap;
+    let zq = &kf.zq;
+    let (eg, ea) = sp.silu.expect("silu pair");
+    let (bytes, _) = silu_v2_member(eg, ea).expect("frozen member");
+    let rows = silu_v2_rows(bytes);
+    let idx: HashMap<(u64, u64), usize> =
+        rows.iter().enumerate().map(|(j, &(v, s))| ((zq.to_mod(v), zq.to_mod(s)), j)).collect();
+    let prim = bf_entry_values(m.entry, &lays[m.li]);
+    let img = bf_entry_values(m.pair_entry.expect("silu image"), &lays[m.li]);
+    ring::stage_a::full::fused_lookup_col(kf, &prim, &img, m.shape.rows, m.shape.cols, m.shape.cols_pad(), table, &idx)
+}
+
+/// [UPERF3-SS] the served objects of one routed lookup column, absorbed
+/// (prover and verifier alike) after its sumcheck.
+fn ss_absorb_served(kf: &ring::kfield::KField, tr: &mut ring::sumcheck::LkpTranscript, out: &ring::stage_a::full::LookupOut) {
+    tr.absorb_k(kf, "gg-lu-final", &out.proof.final_evals);
+    let mut served = vec![out.h_sum.clone(), out.table_sum.clone(), out.h_at_point.clone()];
+    served.extend(out.keys_at_point.iter().cloned());
+    tr.absorb_k(kf, "gg-lu-served", &served);
+}
+
+/// [UPERF3-SS] the claim builder of one routed lookup column (shared by
+/// prover and verifier): (i) h_sum and h(x*) over the helper block
+/// [h_block * n_h, +n_h) of the act-h tensor (ones / eq row kernels x
+/// ypow); (ii) per leaf position b < 2^kappa the key claim key_b(x*)
+/// over the member tensor — the fused (prim + Y * img) pair for a SiLU
+/// member, or value + offset for an identity-table member (served as
+/// key_b(x*) - offset * S_eq over the real grid, the gg_zc_claims link);
+/// the row kernel eq over the rows, the column kernel eq over the column
+/// nodes gated on the low kappa bits == b; (iii) the table_sum claim
+/// over the multiplicity block [m_block * t_rows, +t_rows).
+#[allow(clippy::too_many_arguments)]
+fn ss_lookup_claims(
+    kf: &ring::kfield::KField,
+    reg: &BkRegistry,
+    sp: &BkPairSpec,
+    m: &BkMember,
+    ti_m: usize,
+    m_block: usize,
+    ti_h: usize,
+    gh_rows: usize,
+    h_block: usize,
+    alpha: &ring::kfield::KElem,
+    table_k: &[ring::kfield::KElem],
+    out: &ring::stage_a::full::LookupOut,
+    claims: &mut Vec<BkClaim>,
+    claims_h: &mut Vec<(ring::kfield::KElem, Vec<(usize, ring::kfield::KElem, std::rc::Rc<Vec<ring::kfield::KElem>>, std::rc::Rc<Vec<ring::kfield::KElem>>)>)>,
+) {
+    use ring::gkr::eq_table;
+    use std::rc::Rc;
+    let one = kf.one();
+    let ypow = bk_ypow_col(kf);
+    let kappa = out.kappa;
+    let n_h = 1usize << out.point.len();
+    let mut ones_row = vec![kf.zero(); gh_rows];
+    ones_row[h_block * n_h..(h_block + 1) * n_h].fill(kf.one());
+    claims_h.push((out.h_sum.clone(), vec![(ti_h, one.clone(), Rc::new(ones_row), ypow.clone())]));
+    let eq_pt = eq_table(kf, &out.point);
+    let mut h_row = vec![kf.zero(); gh_rows];
+    h_row[h_block * n_h..(h_block + 1) * n_h].clone_from_slice(&eq_pt);
+    claims_h.push((out.h_at_point.clone(), vec![(ti_h, one.clone(), Rc::new(h_row), ypow.clone())]));
+    let cols_pad = m.shape.cols_pad();
+    let lcp = cols_pad.trailing_zeros() as usize;
+    assert!(kappa <= lcp, "the leaf position rides the column bits");
+    let eq_lo_node = eq_table(kf, &out.point[..lcp - kappa]);
+    let eq_hi = Rc::new(eq_table(kf, &out.point[lcp - kappa..]));
+    let hi_sum = eq_hi.iter().fold(kf.zero(), |a, e| kf.add(&a, e));
+    let (_, ti_prim) = reg.map[m.li][m.entry];
+    let leaves = 1usize << kappa;
+    for b in 0..leaves {
+        // The column kernel over the padded grid, split at the real
+        // column count: the member tensor sees [0, cols); the pads
+        // [cols, cols_pad) carry the table's row-0 key (subtracted below).
+        let mut kcol = vec![kf.zero(); m.shape.cols];
+        let mut pad_sum = kf.zero();
+        for c in 0..cols_pad {
+            if c & (leaves - 1) == b {
+                let e = &eq_lo_node[c >> kappa];
+                if c < m.shape.cols {
+                    kcol[c] = e.clone();
+                } else {
+                    pad_sum = kf.add(&pad_sum, e);
+                }
+            }
+        }
+        let lo_sum = kcol.iter().fold(kf.zero(), |a, e| kf.add(&a, e));
+        let s_pad = kf.mul(&hi_sum, &pad_sum);
+        let value = kf.sub(&out.keys_at_point[b], &kf.mul(&table_k[0], &s_pad));
+        let kcol = Rc::new(kcol);
+        match m.pair_entry {
+            Some(pe) => {
+                let (_, ti_img) = reg.map[m.li][pe];
+                let y_one = ring::lookup::mul_y(kf, &kf.one());
+                claims.push(BkClaim {
+                    in_weight: false,
+                    value,
+                    parts: vec![(ti_prim, one.clone(), eq_hi.clone(), kcol.clone()), (ti_img, y_one, eq_hi.clone(), kcol)],
+                });
+            }
+            None => {
+                let s_eq = kf.mul(&hi_sum, &lo_sum);
+                let value = kf.sub(&value, &kf.scale(kf.zq.to_mod(m.offset), &s_eq));
+                claims.push(BkClaim { in_weight: false, value, parts: vec![(ti_prim, one.clone(), eq_hi.clone(), kcol)] });
+            }
+        }
+    }
+    let m_cols = reg.ga.tensors[ti_m].cols;
+    let mut m_col = vec![kf.zero(); m_cols];
+    for (row_j, t_row) in table_k.iter().enumerate() {
+        m_col[m_block * sp.t_rows + row_j] = kf.inv(&kf.sub(alpha, t_row));
+    }
+    claims.push(BkClaim {
+        in_weight: false,
+        value: out.table_sum.clone(),
+        parts: vec![(ti_m, one, Rc::new(vec![kf.one()]), Rc::new(m_col))],
+    });
+}
+
+/// [UPERF3-SS] `uperf-a ss-diff [layers] [t]`: the routed identity lookup
+/// STANDALONE on the real layer-0 h8 column (the R2 discipline): the
+/// honest column at kappa 0 (the S2 form) and kappa 3/4 (the partial-
+/// fraction form) — accept, every served value grounded directly, the
+/// three forms' h_sum identical (the same rational identity); then the
+/// two tamper legs — an OFF-TABLE code (the BK RangeViolation shape,
+/// the prover honest about its own inverse) must fail the SUM gate with
+/// the chain intact, and a corrupted served key must fail the CHAIN.
+fn uperf_a_ss_diff(layers_n: usize, t: usize) {
+    use ring::kfield::{KElem, KField};
+    use ring::stage_a::full::{
+        h_at_point_direct, identity_lookup_col, key_at_point_direct, lookup_helper, lookup_prove, lookup_verify,
+        lookup_wire_bytes, pf_degree, planes_rings, table_sum, LookupCol,
+    };
+    use ring::sumcheck::LkpTranscript;
+    println!("[UPERF3-SS] ss-diff: the layer-0 h8 narrowing fact as a 256-row identity lookup, {layers_n} layers loaded, T = {t} [WSL-BOX NOISY-SHARED]");
+    let ctxr = ring_ctx_q8();
+    let kf = KField::new(&ctxr);
+    let zq = ctxr.zq;
+    let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
+    let specs = bk_pair_specs(&lays, t);
+    let sp = specs.iter().find(|s| s.name() == "nrw-88").expect("nrw-88 present");
+    let mi = sp.members.iter().position(|m| m.li == 0 && BF_ENTRIES[m.entry] == "h8").expect("layer-0 h8");
+    let m = &sp.members[mi];
+    let vals: Vec<i64> = bf_entry_values(m.entry, &lays[0]).to_vec();
+    let table_k = sp.table_k(&kf);
+    let w = sp.t_rows.trailing_zeros() as usize;
+    let mut ok_all = true;
+    let mut h_sums: Vec<KElem> = Vec::new();
+    let run = |vals: &[i64], kappa: usize, corrupt_key: bool, label: &str, _ok_all: &mut bool, h_sums: &mut Vec<KElem>| {
+        let col: LookupCol = identity_lookup_col(&kf, vals, m.offset, m.shape.rows, m.shape.cols, m.shape.cols_pad(), sp.t_rows);
+        let off_table = col.row_of.iter().filter(|r| r.is_none()).count();
+        // One alpha for every form (the sums are compared across kappa).
+        let alpha = LkpTranscript::fixed_coins("uperf3-ss-diff-alpha", &[]).challenge_k(&kf);
+        let mut tr = LkpTranscript::fixed_coins("uperf3-ss-diff", &[kappa as u8, corrupt_key as u8]);
+        let (h, h_sum) = lookup_helper(&kf, &col, &table_k, &alpha, kappa);
+        let n = col.n_log2 - kappa;
+        let rho: Vec<KElem> = (0..n).map(|_| tr.challenge_k(&kf)).collect();
+        let t0 = Instant::now();
+        let mut out = lookup_prove(&kf, &col, &table_k, &alpha, &rho, kappa, &h, &mut tr);
+        let secs = t0.elapsed().as_secs_f64();
+        let leaves = 1usize << kappa;
+        let keys_ok = (0..leaves).all(|b| key_at_point_direct(&kf, &col, &out.point, kappa, b) == out.keys_at_point[b]);
+        let h_ok = h_at_point_direct(&kf, &h, &out.point) == out.h_at_point;
+        let ts = table_sum(&kf, &table_k, &col.mult, &alpha);
+        let sums_ok = out.h_sum == h_sum && out.table_sum == ts;
+        if corrupt_key {
+            out.keys_at_point[0] = kf.add(&out.keys_at_point[0], &kf.one());
+        }
+        let alpha_v = LkpTranscript::fixed_coins("uperf3-ss-diff-alpha", &[]).challenge_k(&kf);
+        let mut tv = LkpTranscript::fixed_coins("uperf3-ss-diff", &[kappa as u8, corrupt_key as u8]);
+        let rho_v: Vec<KElem> = (0..n).map(|_| tv.challenge_k(&kf)).collect();
+        let (chain_ok, sum_ok) = lookup_verify(&kf, col.n_log2, &alpha_v, &rho_v, &out, &mut tv);
+        let rings_h = ring::stage_a::full::helper_rings(h.len(), ring::kfield::K_DEG, 16);
+        println!(
+            "  {label}: kappa {kappa} (degree {}, {} rounds) | off-table codes {off_table} | chain {} sum {} | key_b(x*) grounded {}/{} h(x*) grounded {} sums {} | helper {} K elems = {} rings vs planes {} rings | wire {} B | prove {:.2}s",
+            pf_degree(kappa),
+            n,
+            chain_ok,
+            sum_ok,
+            (0..leaves).filter(|&b| key_at_point_direct(&kf, &col, &out.point, kappa, b) == out.keys_at_point[b]).count(),
+            leaves,
+            h_ok,
+            sums_ok,
+            h.len(),
+            rings_h,
+            planes_rings(1usize << col.n_log2, w),
+            lookup_wire_bytes(&out),
+            secs,
+        );
+        h_sums.push(out.h_sum.clone());
+        (chain_ok, sum_ok, keys_ok && h_ok && sums_ok)
+    };
+    for kappa in [0usize, 3, 4] {
+        let (c, s, g) = run(&vals, kappa, false, "honest", &mut ok_all, &mut h_sums);
+        ok_all &= c && s && g;
+    }
+    let same_sum = h_sums.iter().all(|s| *s == h_sums[0]);
+    println!("  the three forms' h_sum identical (same alpha, same rational identity): {same_sum}");
+    ok_all &= same_sum;
+    // Tamper 1: one code off the table (value 300 -> code 428 >= 256; the
+    // committed class l0 = 5 at e0 = 2 represents it, as the BK
+    // RangeViolation leg's values do).
+    let mut bad = vals.clone();
+    bad[0] = 300;
+    for kappa in [0usize, 3] {
+        let (c, s, _g) = run(&bad, kappa, false, "TAMPER off-table", &mut ok_all, &mut h_sums);
+        assert!(c && !s, "off-table code must fail the sum gate with the chain intact (kappa {kappa})");
+        println!("    -> REJECTED at the sum gate, chain intact (kappa {kappa})");
+    }
+    // Tamper 2: a corrupted served key claim — the chain's final identity.
+    for kappa in [0usize, 3] {
+        let (c, _s, _g) = run(&vals, kappa, true, "TAMPER served key", &mut ok_all, &mut h_sums);
+        assert!(!c, "a corrupted served key must fail the chain (kappa {kappa})");
+        println!("    -> REJECTED at the chain gate (kappa {kappa})");
+    }
+    assert!(ok_all, "ss-diff honest legs must all be green");
+    let _ = zq;
+    println!("[UPERF3-SS] ss-diff: ALL LEGS GREEN (peak RSS {:.0} MiB)", uperf_a_peak_rss_mib());
+}
+
 // [UPERF3-GG] rung 3 — THE COMPOSED PASS behind the selector: bk_pass_run's
 // full-statement composition with the DESCENT PHASE replaced by the Stage-A
 // components. bk_pass_run itself is READ-ONLY (the oracle); this driver is
@@ -50788,6 +51175,40 @@ enum GgMode {
     /// (mask-then-fold via u_0(T_act) inside h0 — the wm/tm idiom), the
     /// hypersum + final-eval openings served and ground by claims.
     Masked,
+    /// [UPERF3-SS] Full mode under the committed-h routing (ring/
+    /// stage_a_full.rs): the SiLU helpers at kappa levels (kappa 0 = the
+    /// S2 form of `Full`), optionally one nrw-88 member routed through a
+    /// 256-row identity lookup over its EXISTING commitment (rung V1).
+    FullSs(SsCfg),
+}
+
+/// [UPERF3-SS] the full-mode routing configuration.
+#[derive(Clone, Copy, PartialEq, Debug)]
+struct SsCfg {
+    /// kappa of the SiLU pairs' partial-fraction helper (0 = S2 as built).
+    kappa_silu: u8,
+    /// Route the nrw-88 member (layer 0, h8) through the identity lookup
+    /// at this kappa (None = the planes form, as in range mode).
+    route_nrw: Option<u8>,
+    /// Tamper: flip the routed column's served h_sum — must REJECT at the
+    /// lookup's sum gate.
+    tamper_sum: bool,
+}
+
+/// [UPERF3-SS] one member routed through the identity lookup (rung V1).
+#[derive(Clone, Copy)]
+struct SsRoute {
+    /// Member index into sp.members.
+    mi: usize,
+    /// The multiplicity tensor (act) and the helper tensor (act-h).
+    ti_m: usize,
+    ti_h: usize,
+    n_log2: usize,
+    kappa: usize,
+}
+
+fn gg_is_full(mode: GgMode) -> bool {
+    matches!(mode, GgMode::Full | GgMode::FullSs(_))
 }
 
 /// Rung-4 tamper legs (each must REJECT at a named gate).
@@ -50859,6 +51280,10 @@ struct GgPairPlan {
     /// SiLU pair in Full mode: (m tensor idx in act, h tensor idx in act-h,
     /// n_log2 per column).
     logup: Option<(usize, usize, usize)>,
+    /// [UPERF3-SS] FullSs: the SiLU helper's kappa (0 elsewhere) and the
+    /// members of a range pair routed through the identity lookup.
+    ss_kappa: usize,
+    ss_routes: Vec<SsRoute>,
 }
 
 /// The selector registry: BG's two-group layout with the Stage-A aux
@@ -50921,9 +51346,9 @@ fn gg_build_groups(
                     ga.add_tensor(BK_AUX_TM[sp.pid], tm_kel, ring::kfield::K_DEG, 2, l0_q);
                     aux_base.push(base);
                     aux_shape.push([m_cols, bl_kel, wm_kel, tm_kel]);
-                    plans.push(GgPairPlan { classes: Vec::new(), logup: None });
+                    plans.push(GgPairPlan { classes: Vec::new(), logup: None, ss_kappa: 0, ss_routes: Vec::new() });
                 }
-                GgMode::Full => {
+                GgMode::Full | GgMode::FullSs(_) => {
                     let m_mem = sp.members.len();
                     let shape = sp.members[0].shape;
                     let n_el = shape.rows * shape.cols_pad();
@@ -50934,10 +51359,21 @@ fn gg_build_groups(
                     let ti_m = ga.tensors.len();
                     ga.add_tensor(GG_M[sp.pid], 1, m_cols, 2, l0_m);
                     let ti_h = gh.tensors.len();
-                    gh.add_tensor(GG_H[sp.pid], m_mem * n_el, ring::kfield::K_DEG, 2, l0_q);
+                    // [UPERF3-SS] FullSs: the helper at node granularity
+                    // (one K element per 2^kappa keys).
+                    let kappa = match mode {
+                        GgMode::FullSs(cfg) => cfg.kappa_silu as usize,
+                        _ => 0,
+                    };
+                    gh.add_tensor(GG_H[sp.pid], (m_mem * n_el) >> kappa, ring::kfield::K_DEG, 2, l0_q);
                     aux_base.push([usize::MAX; 4]);
                     aux_shape.push([m_cols, 0, 0, 0]);
-                    plans.push(GgPairPlan { classes: Vec::new(), logup: Some((ti_m, ti_h, n_log2)) });
+                    plans.push(GgPairPlan {
+                        classes: Vec::new(),
+                        logup: Some((ti_m, ti_h, n_log2)),
+                        ss_kappa: kappa,
+                        ss_routes: Vec::new(),
+                    });
                 }
             }
         } else {
@@ -50964,6 +51400,32 @@ fn gg_build_groups(
                 }
             }
             assert!(classes.len() <= 2, "at most two shape classes per pair");
+            // [UPERF3-SS] rung V1: the nrw-88 member (layer 0, h8) leaves
+            // its planes class and rides the identity lookup over its
+            // EXISTING commitment (multiplicities in act, helper in act-h).
+            let mut ss_routes: Vec<SsRoute> = Vec::new();
+            if let GgMode::FullSs(SsCfg { route_nrw: Some(kappa), .. }) = mode {
+                if sp.pid == 2 {
+                    let mi = sp
+                        .members
+                        .iter()
+                        .position(|m| m.li == 0 && BF_ENTRIES[m.entry] == "h8")
+                        .expect("the layer-0 h8 narrowing member");
+                    for c in classes.iter_mut() {
+                        c.members.retain(|&x| x != mi);
+                    }
+                    classes.retain(|c| !c.members.is_empty());
+                    let shape = sp.members[mi].shape;
+                    let n_el = shape.rows * shape.cols_pad();
+                    let n_log2 = ring::stage_a::clog2(n_el);
+                    let l0_m = ring::digits::derive_l0(0, n_el as i64, 2);
+                    let ti_m = ga.tensors.len();
+                    ga.add_tensor("zca-ss-m-nrw-88", 1, bk_pad_to(sp.t_rows, D), 2, l0_m);
+                    let ti_h = gh.tensors.len();
+                    gh.add_tensor("zca-ss-h-nrw-88", n_el >> (kappa as usize), ring::kfield::K_DEG, 2, l0_q);
+                    ss_routes.push(SsRoute { mi, ti_m, ti_h, n_log2, kappa: kappa as usize });
+                }
+            }
             for (ci, c) in classes.iter_mut().enumerate() {
                 let name = if ci == 0 { GG_PLANES_A[sp.pid] } else { GG_PLANES_B[sp.pid] };
                 c.ti = ga.tensors.len();
@@ -50981,11 +51443,11 @@ fn gg_build_groups(
             }
             aux_base.push([usize::MAX; 4]);
             aux_shape.push([0; 4]);
-            plans.push(GgPairPlan { classes, logup: None });
+            plans.push(GgPairPlan { classes, logup: None, ss_kappa: 0, ss_routes });
         }
     }
     let reg = BkRegistry { gw, ga, map, aux_base, aux_shape, l0_q };
-    let gh_opt = if mode == GgMode::Full { Some(gh) } else { None };
+    let gh_opt = if gg_is_full(mode) { Some(gh) } else { None };
     (reg, gh_opt, plans)
 }
 
@@ -51269,6 +51731,7 @@ fn gg_witness_act(
     bk_aux: &[Option<BkAuxMat>],
     class_data: &[Vec<GgClassData>],
     m_vals: &[Option<Vec<i64>>],
+    ss_m: &[Vec<Vec<i64>>],
 ) -> ring::eval_proof::DigitCols {
     // [UPERF3-OO] BF entries per-tensor through the guard (same order as
     // the old slice vector); the aux/plane extras stay borrowed slices.
@@ -51291,6 +51754,11 @@ fn gg_witness_act(
         } else if plans[pi].logup.is_some() {
             extra.push(m_vals[pi].as_ref().expect("logup m values"));
         } else {
+            // [UPERF3-SS] the routed members' multiplicity tensors sit
+            // BEFORE the pair's planes tensors in the registry.
+            for (ri, _) in plans[pi].ss_routes.iter().enumerate() {
+                extra.push(&ss_m[pi][ri]);
+            }
             for cd in &class_data[pi] {
                 extra.push(&cd.planes_vals);
                 if !cd.mask_vals.is_empty() {
@@ -51325,6 +51793,8 @@ enum GgShip {
     Descent(BkPairTranscript),
     Logup(Vec<ring::zc_range::LogupSumcheckOut>),
     Zc(Vec<ring::zc_range::ZcAggProof>),
+    /// [UPERF3-SS] the SiLU pair under the committed-h routing (FullSs).
+    SsLookup(Vec<ring::stage_a::full::LookupOut>),
 }
 
 /// [UPERF3-GG] rung 3/4 — the composed pass under the selector. Returns
@@ -51349,7 +51819,15 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
         GgMode::Full => "full",
         GgMode::Masked => "masked",
         GgMode::Range => "range",
+        GgMode::FullSs(_) => "full-ss",
     };
+    let ss_cfg = match mode {
+        GgMode::FullSs(c) => Some(c),
+        _ => None,
+    };
+    if let Some(c) = ss_cfg {
+        println!("[UPERF3-SS] full-mode routing: {c:?}");
+    }
     let tamper_name = match tamper {
         GgTamper::None => "",
         GgTamper::MaskCommit => " TAMPER=mask-commit",
@@ -51396,6 +51874,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     let mut bk_aux: Vec<Option<BkAuxMat>> = Vec::with_capacity(specs.len());
     let mut class_data: Vec<Vec<GgClassData>> = Vec::with_capacity(specs.len());
     let mut m_vals: Vec<Option<Vec<i64>>> = Vec::with_capacity(specs.len());
+    let mut ss_m: Vec<Vec<Vec<i64>>> = Vec::with_capacity(specs.len());
     let mut zc_mask_rng = ring::ProverRng::from_test_seed("uperf3-gg-zc-masks", &[0xA4]);
     for (pi, sp) in specs.iter().enumerate() {
         if sp.silu.is_some() && matches!(mode, GgMode::Range | GgMode::Masked) {
@@ -51437,6 +51916,22 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
             class_data.push(cds);
             m_vals.push(None);
         }
+        // [UPERF3-SS] the routed members' multiplicities (alpha-independent,
+        // committed in the act group before any challenge).
+        let mut sm: Vec<Vec<i64>> = Vec::new();
+        for r in &plans[pi].ss_routes {
+            let m = &sp.members[r.mi];
+            let vals = bf_entry_values(m.entry, &lays[m.li]);
+            let col = ring::stage_a::full::identity_lookup_col(
+                &kf, &vals, m.offset, m.shape.rows, m.shape.cols, m.shape.cols_pad(), sp.t_rows,
+            );
+            let mut mv = vec![0i64; reg.ga.tensors[r.ti_m].cols];
+            for (j, &c) in col.mult.iter().enumerate() {
+                mv[j] = c as i64;
+            }
+            sm.push(mv);
+        }
+        ss_m.push(sm);
     }
     if tamper == GgTamper::MaskCommit {
         // Flip one COMMITTED mask coefficient value; the prover proves
@@ -51453,7 +51948,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     let sched_a = ring::eval_proof::plan_schedule(reg.ga.n_digit_rings, 2, q, None);
     let sched_h = gh.as_ref().map(|g| ring::eval_proof::plan_schedule(g.n_digit_rings, 2, q, None));
     let mut w0_w = bk_witness_weight(&reg, &lays);
-    let mut w0_a = gg_witness_act(&reg, &lays, &specs, &plans, &bk_aux, &class_data, &m_vals);
+    let mut w0_a = gg_witness_act(&reg, &lays, &specs, &plans, &bk_aux, &class_data, &m_vals, &ss_m);
     // The committed planes now live in the digit witness — free the i64
     // staging vectors (~6 GB at 12x512) before the pre-commit peak.
     for cds in class_data.iter_mut() {
@@ -51716,6 +52211,73 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
         tr.absorb("gg-u0h", &u0_h_bytes);
         pre_h = Some(p);
     }
+    // [UPERF3-SS] FullSs phase A/B: one alpha per lookup-carrying pair in
+    // spec order (the SiLU pairs, then any pair with a routed member), the
+    // helpers at their kappa levels (ring/stage_a_full.rs), u_0(T_h)
+    // absorbed before any rho — the F2 ordering kept.
+    let mut ss_alphas: Vec<Option<KElem>> = vec![None; specs.len()];
+    let mut ss_cols: Vec<Vec<ring::stage_a::full::LookupCol>> = (0..specs.len()).map(|_| Vec::new()).collect();
+    let mut ss_hs: Vec<Vec<Vec<KElem>>> = (0..specs.len()).map(|_| Vec::new()).collect();
+    let mut ss_route_cols: Vec<Vec<ring::stage_a::full::LookupCol>> = (0..specs.len()).map(|_| Vec::new()).collect();
+    let mut ss_route_hs: Vec<Vec<Vec<KElem>>> = (0..specs.len()).map(|_| Vec::new()).collect();
+    let mut ss_tables: Vec<Vec<KElem>> = (0..specs.len()).map(|_| Vec::new()).collect();
+    let mut ss_secs_helper = 0.0f64;
+    if ss_cfg.is_some() {
+        use ring::stage_a::full::{helper_vals_i64, identity_lookup_col, lookup_helper, LookupCol};
+        let _ = fuse_pair; // (the fused keys are built strided in stage_a_full)
+        let t_h = Instant::now();
+        for (pi, sp) in specs.iter().enumerate() {
+            if sp.silu.is_some() || !plans[pi].ss_routes.is_empty() {
+                ss_alphas[pi] = Some(tr.challenge_k(&kf));
+            }
+        }
+        let mut h_tensor_vals: Vec<Vec<i64>> = Vec::new();
+        for (pi, sp) in specs.iter().enumerate() {
+            let Some(alpha) = &ss_alphas[pi] else { continue };
+            ss_tables[pi] = sp.table_k(&kf);
+            if sp.silu.is_some() {
+                let (_, _, n_log2) = plans[pi].logup.unwrap();
+                let kappa = plans[pi].ss_kappa;
+                let n_el = 1usize << n_log2;
+                let mut h_vals: Vec<i64> = Vec::with_capacity(sp.members.len() * (n_el >> kappa) * ring::kfield::K_DEG);
+                for m in sp.members.iter() {
+                    // Strided (shape-general) keys: pads carry the row-0 key.
+                    // The column is built per member and DROPPED after its
+                    // helper — only the helper (2^-kappa the size) is held
+                    // across the commit; phase C rebuilds the keys per
+                    // column (the keys diet: ~150 B per boxed K element).
+                    let col: LookupCol = ss_silu_col(&kf, sp, m, &lays, &ss_tables[pi]);
+                    assert_eq!(col.n_log2, n_log2);
+                    let (h, _) = lookup_helper(&kf, &col, &ss_tables[pi], alpha, kappa);
+                    h_vals.extend(helper_vals_i64(&kf, &h));
+                    ss_hs[pi].push(h);
+                }
+                h_tensor_vals.push(h_vals);
+            }
+            for r in &plans[pi].ss_routes {
+                let m = &sp.members[r.mi];
+                let vals = bf_entry_values(m.entry, &lays[m.li]);
+                let col = identity_lookup_col(
+                    &kf, &vals, m.offset, m.shape.rows, m.shape.cols, m.shape.cols_pad(), sp.t_rows,
+                );
+                let (h, _) = lookup_helper(&kf, &col, &ss_tables[pi], alpha, r.kappa);
+                h_tensor_vals.push(helper_vals_i64(&kf, &h));
+                ss_route_hs[pi].push(h);
+                ss_route_cols[pi].push(col);
+            }
+        }
+        ss_secs_helper = t_h.elapsed().as_secs_f64();
+        let gh_ref = gh.as_ref().unwrap();
+        let vals: Vec<&[i64]> = h_tensor_vals.iter().map(|v| v.as_slice()).collect();
+        w0_h = agg_digit_witness_cols(gh_ref, &vals);
+        let p = bg_precommit(&ctxr, gh_ref, sched_h.as_ref().unwrap(), &mut w0_h, crs_seed);
+        u0_h_bytes = polys_bytes(&p.u0);
+        tr.absorb("gg-u0h", &u0_h_bytes);
+        pre_h = Some(p);
+        println!("  [UPERF3-SS] RSS high-water after the act-h commit (phase B): {:.0} MiB", uperf_a_peak_rss_mib());
+    }
+    let mut ss_ships: Vec<Vec<ring::stage_a::full::LookupOut>> = (0..specs.len()).map(|_| Vec::new()).collect();
+    let mut ss_secs_prove = 0.0f64;
     // Phase C: per pair in spec order.
     let mut ships: Vec<GgShip> = Vec::new();
     let mut stage_a_bytes = 0usize;
@@ -51763,6 +52325,31 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                 bk_pair_claims(&kf, sp, &reg, pi, &view, &ypow, &mut claims);
             }
             ships.push(GgShip::Descent(tpx));
+        } else if sp.silu.is_some() && ss_cfg.is_some() {
+            // [UPERF3-SS] the SiLU pair under the committed-h routing.
+            let alpha = ss_alphas[pi].clone().unwrap();
+            let kappa = plans[pi].ss_kappa;
+            let (ti_m, ti_h, n_log2) = plans[pi].logup.unwrap();
+            let gh_rows = gh.as_ref().unwrap().tensors[ti_h].rows;
+            let mut outs = Vec::new();
+            let t_p = Instant::now();
+            for (j, m) in sp.members.iter().enumerate() {
+                let rho: Vec<KElem> = (0..n_log2 - kappa).map(|_| tr.challenge_k(&kf)).collect();
+                let col = ss_silu_col(&kf, sp, m, &lays, &ss_tables[pi]);
+                let out = ring::stage_a::full::lookup_prove(
+                    &kf, &col, &ss_tables[pi], &alpha, &rho, kappa, &ss_hs[pi][j], &mut tr,
+                );
+                drop(col);
+                ss_absorb_served(&kf, &mut tr, &out);
+                stage_a_bytes += ring::stage_a::full::lookup_wire_bytes(&out);
+                ss_lookup_claims(
+                    &kf, &reg, sp, m, ti_m, j, ti_h, gh_rows, j, &alpha, &ss_tables[pi], &out, &mut claims,
+                    &mut claims_h,
+                );
+                outs.push(out);
+            }
+            ss_secs_prove += t_p.elapsed().as_secs_f64();
+            ships.push(GgShip::SsLookup(outs));
         } else if sp.silu.is_some() {
             let alpha = silu_alphas[pi].clone().unwrap();
             let mat = logup_mat[pi].as_ref().unwrap();
@@ -51826,8 +52413,60 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                 proofs.push(proof);
             }
             ships.push(GgShip::Zc(proofs));
+            // [UPERF3-SS] rung V1: the routed members, after the pair's
+            // classes (transcript order shared with the verifier).
+            for (ri, r) in plans[pi].ss_routes.iter().enumerate() {
+                let alpha = ss_alphas[pi].clone().unwrap();
+                let gh_rows = gh.as_ref().unwrap().tensors[r.ti_h].rows;
+                let t_p = Instant::now();
+                let rho: Vec<KElem> = (0..r.n_log2 - r.kappa).map(|_| tr.challenge_k(&kf)).collect();
+                let out = ring::stage_a::full::lookup_prove(
+                    &kf, &ss_route_cols[pi][ri], &ss_tables[pi], &alpha, &rho, r.kappa, &ss_route_hs[pi][ri], &mut tr,
+                );
+                ss_absorb_served(&kf, &mut tr, &out);
+                stage_a_bytes += ring::stage_a::full::lookup_wire_bytes(&out);
+                ss_lookup_claims(
+                    &kf, &reg, sp, &sp.members[r.mi], r.ti_m, 0, r.ti_h, gh_rows, 0, &alpha, &ss_tables[pi], &out,
+                    &mut claims, &mut claims_h,
+                );
+                ss_secs_prove += t_p.elapsed().as_secs_f64();
+                // The differential's contract: every served value grounded
+                // directly on the raw column (exact K equality).
+                let col = &ss_route_cols[pi][ri];
+                let leaves = 1usize << r.kappa;
+                let keys_ok = (0..leaves)
+                    .all(|b| ring::stage_a::full::key_at_point_direct(&kf, col, &out.point, r.kappa, b) == out.keys_at_point[b]);
+                let h_ok = ring::stage_a::full::h_at_point_direct(&kf, &ss_route_hs[pi][ri], &out.point) == out.h_at_point;
+                println!(
+                    "  [UPERF3-SS] V1 route {} member (layer {}, {}) kappa {}: key_b(x*) direct == served {}/{} {}; h(x*) direct == served {}; h_sum == table_sum {}; helper rows {} (act-h rings {}) vs the planes it left ({} rings); sumcheck {:.2}s",
+                    sp.name(),
+                    sp.members[r.mi].li,
+                    BF_ENTRIES[sp.members[r.mi].entry],
+                    r.kappa,
+                    (0..leaves).filter(|&b| ring::stage_a::full::key_at_point_direct(&kf, col, &out.point, r.kappa, b) == out.keys_at_point[b]).count(),
+                    leaves,
+                    if keys_ok { "OK" } else { "MISMATCH" },
+                    if h_ok { "OK" } else { "MISMATCH" },
+                    if out.h_sum == out.table_sum { "OK" } else { "MISMATCH" },
+                    gh_rows,
+                    gh.as_ref().unwrap().tensors[r.ti_h].n_digit_rings(),
+                    ring::stage_a::full::planes_rings(1usize << r.n_log2, sp.t_rows.trailing_zeros() as usize),
+                    out.secs_sumcheck,
+                );
+                assert!(keys_ok && h_ok, "V1 grounding must hold on the honest witness");
+                ss_ships[pi].push(out);
+            }
         }
         uf_trim(); // per-pair transient tables back to the OS
+    }
+    if ss_cfg.is_some() {
+        ss_hs = Vec::new();
+        println!("  [UPERF3-SS] RSS high-water after the Stage-A phase (phase C): {:.0} MiB", uperf_a_peak_rss_mib());
+    }
+    // [UPERF3-SS] tamper: flip the first routed column's served h_sum.
+    if matches!(ss_cfg, Some(SsCfg { tamper_sum: true, .. })) {
+        let out = ss_ships.iter_mut().find_map(|v| v.first_mut()).expect("a routed column exists");
+        out.h_sum = kf.add(&out.h_sum, &kf.one());
     }
     // Rung-4 tamper injection on the SHIPPED objects (the prover's own
     // transcript/claims stay honest; the verifier consumes the flip).
@@ -51930,6 +52569,13 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
         None
     };
     let prove_s = t_prove.elapsed().as_secs_f64();
+    // [UPERF3-SS] the pass digest: the prover transcript state after the
+    // last group proof binds every shipped object (deterministic seeds) —
+    // the byte-identity floor for the mode-routing rungs.
+    println!("  [UPERF3-SS] PASS TRANSCRIPT DIGEST {}", hex_full(&tr.state()));
+    if ss_cfg.is_some() {
+        println!("  [UPERF3-SS] RSS high-water after the group proofs (prover done): {:.0} MiB", uperf_a_peak_rss_mib());
+    }
 
     // ---- VERIFIER (fresh transcript, own claim layer + stage-a). ----
     let t_verify = Instant::now();
@@ -52069,6 +52715,14 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                     }
                 }
                 tv.absorb("gg-u0h", &polys_bytes(&proof_h.as_ref().unwrap().u0));
+            } else if ss_cfg.is_some() {
+                // [UPERF3-SS] one alpha per lookup-carrying pair, then u_0(T_h).
+                for (pi, sp) in specs.iter().enumerate() {
+                    if sp.silu.is_some() || !plans[pi].ss_routes.is_empty() {
+                        alphas_v[pi] = Some(tv.challenge_k(&kf));
+                    }
+                }
+                tv.absorb("gg-u0h", &polys_bytes(&proof_h.as_ref().unwrap().u0));
             }
             for (pi, sp) in specs.iter().enumerate() {
                 match &ships[pi] {
@@ -52143,6 +52797,32 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                             );
                         }
                     }
+                    GgShip::SsLookup(outs) => {
+                        // [UPERF3-SS] the SiLU pair under the committed-h routing.
+                        let alpha_v = alphas_v[pi].clone().unwrap();
+                        let kappa = plans[pi].ss_kappa;
+                        let (ti_m, ti_h, n_log2) = plans[pi].logup.unwrap();
+                        let gh_rows = gh.as_ref().unwrap().tensors[ti_h].rows;
+                        let table_v = sp.table_k(&kf);
+                        for (j, out) in outs.iter().enumerate() {
+                            let rho_v: Vec<KElem> = (0..n_log2 - kappa).map(|_| tv.challenge_k(&kf)).collect();
+                            let (chain_ok, sum_ok) =
+                                ring::stage_a::full::lookup_verify(&kf, n_log2, &alpha_v, &rho_v, out, &mut tv);
+                            if !chain_ok || !sum_ok {
+                                fail(
+                                    &mut accept,
+                                    &mut first_fail,
+                                    format!("ss-lookup-{}:{}", if chain_ok { "sum" } else { "chain" }, sp.name()),
+                                );
+                                break 'verify;
+                            }
+                            ss_absorb_served(&kf, &mut tv, out);
+                            ss_lookup_claims(
+                                &kf, &reg, sp, &sp.members[j], ti_m, j, ti_h, gh_rows, j, &alpha_v, &table_v, out,
+                                &mut claims_v, &mut claims_h_v,
+                            );
+                        }
+                    }
                     GgShip::Zc(proofs) => {
                         for (ci, cls) in plans[pi].classes.iter().enumerate() {
                             let m_cols = cls.members.len();
@@ -52177,6 +52857,29 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                             if mode == GgMode::Masked {
                                 gg_mask_claims(&kf, &ext, cls, &proofs[ci], &point, &mut claims_v);
                             }
+                        }
+                        // [UPERF3-SS] rung V1: the routed members after the classes.
+                        for (ri, r) in plans[pi].ss_routes.iter().enumerate() {
+                            let alpha_v = alphas_v[pi].clone().unwrap();
+                            let gh_rows = gh.as_ref().unwrap().tensors[r.ti_h].rows;
+                            let table_v = sp.table_k(&kf);
+                            let out = &ss_ships[pi][ri];
+                            let rho_v: Vec<KElem> = (0..r.n_log2 - r.kappa).map(|_| tv.challenge_k(&kf)).collect();
+                            let (chain_ok, sum_ok) =
+                                ring::stage_a::full::lookup_verify(&kf, r.n_log2, &alpha_v, &rho_v, out, &mut tv);
+                            if !chain_ok || !sum_ok {
+                                fail(
+                                    &mut accept,
+                                    &mut first_fail,
+                                    format!("ss-lookup-{}:{}", if chain_ok { "sum" } else { "chain" }, sp.name()),
+                                );
+                                break 'verify;
+                            }
+                            ss_absorb_served(&kf, &mut tv, out);
+                            ss_lookup_claims(
+                                &kf, &reg, sp, &sp.members[r.mi], r.ti_m, 0, r.ti_h, gh_rows, 0, &alpha_v, &table_v, out,
+                                &mut claims_v, &mut claims_h_v,
+                            );
                         }
                     }
                 }
@@ -52270,6 +52973,16 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     );
     let n_claims = claims.len() + claims_h.len();
     println!("  claims served: {} (act/weight) + {} (act-h) = {n_claims}", claims.len(), claims_h.len());
+    if let (Some(cfg), Some(g)) = (ss_cfg, gh.as_ref()) {
+        println!(
+            "  [UPERF3-SS] full-ss: kappa_silu {} route {:?} | act-h tensors {} | helper build {:.2}s, lookup sumchecks {:.2}s",
+            cfg.kappa_silu,
+            cfg.route_nrw,
+            g.tensors.iter().map(|t| format!("{} {}x{} {} rings", t.name, t.rows, t.cols, t.n_digit_rings())).collect::<Vec<_>>().join(", "),
+            ss_secs_helper,
+            ss_secs_prove,
+        );
+    }
     let _ = clog2; // (used by gg_build_groups)
     if with_oracle {
         println!("  ORACLE (frozen bk_pass_run, same shape, default path):");
