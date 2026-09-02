@@ -636,6 +636,127 @@ that is the model's claim, unverified until an 8B proof runs.
 
 ## 5. Audit of the 2026-08-30 task-board line
 
+The line under audit (S11, TASK_BOARD.md §0, "AS OF 2026-08-30"):
+
+> **THE STANDING TARGET (Victor 2026-08-30): ~80 proven tokens/s per
+> H100 board at 30B** — currently counted ~25-35 amortized; the
+> enumerated levers (Stage-A aggregate GPU port + fold fusion
+> 1.2-1.5x, pipelining 1.3x, spine amortization 1.1-1.2x) compose to
+> ~65; the last ~1.3x needs an act-side opening idea.
+
+Method: for each number, search every ledger and memo for a
+derivation (the orchestrator's grep of 2026-09-02, repeated here on
+2026-09-02 over PROGRESS_UPERF2.md, PROGRESS_UPERF3.md,
+TASK_BOARD.md, CONTINUATION.md and the U_PERF3_* memos for
+"amortized", "pipelin", "spine", "fold fusion"); then try to
+reconstruct the number from recorded rows; report derived or
+UNSOURCED. "~80" is Victor's target of that date, since restated as
+50 (S15); it is a goal, not a claim, and is not audited.
+
+### 5.1 "currently counted ~25-35 [tok/s] amortized" — UNSOURCED
+
+- No ledger status section, memo table or note counts a tokens/s
+  figure before this memo; the word "amortized" is defined nowhere.
+  START_HERE.md §2 (S16) already says "until then no tokens/s number
+  in this repository is sourced".
+- Reconstruction attempt. The most favorable recorded composition is
+  the routes memo's "+ (vi-a) weight-group preprocessing" row (S3
+  §3.1): ~20-40 s per 8B FFN x 512-token proof on ONE DESKTOP BOARD
+  [MODEL], i.e. 512 / 40 .. 512 / 20 = **13-26 tok/s of an 8B
+  FFN-only model on a 4090-class board**. Its four-board row (~6-13
+  s) gives 39-85 tok/s — at 8B, on four boards. Scaled to 30B by
+  this memo's §1.5 factors (cost x2.9-3.8) and moved to one H100
+  (0.5-1.3x a 4090 on this mix, §3.2), the one-board row becomes
+  **2-15 tok/s** (§4.3). No recorded row, at 30B, on one H100,
+  produces 25-35.
+- Verdict: **UNSOURCED. Retracted.** The nearest recorded number is
+  13-26 tok/s at 8B on one desktop board [MODEL], and 2-15 tok/s at
+  30B on one H100 [MODEL on MODEL], both for 512-token prefill of an
+  FFN-only statement; the batch-1 decode figure is 50-100x lower.
+
+### 5.2 "Stage-A aggregate GPU port + fold fusion 1.2-1.5x" — UNSOURCED as stated
+
+- What exists: the design memo models Stage A's prover factor at
+  12x512 as ~1.5x [MODEL, S4 §3.2: prove 15.5 -> ~10.5 s]; this
+  memo's split puts it at 1.1-1.5x at 8B (§2.3). That is the factor
+  of Stage A ITSELF over the built pass on any hardware, not the
+  increment of porting its checks to the GPU.
+- What was measured: on CPU at 125M shapes, Stage A is 0.87x
+  (prove +15%, S6) — the aggregate checks run on the CPU while the
+  descents they replace ran on the GPU. The GPU port's increment
+  has never been measured; that is lane RR's whole brief (S15).
+- "Fold fusion" names lane DD's rung 5 (PROGRESS_UPERF3.md, DD
+  status, rung 4 SCOPE DECISION): an AVX2 CPU vectorization of the
+  fold's `e_red_block` reduction inside the aggregate zero-check
+  prover, explicitly "GATED on EE's profile: build it only if the
+  aggregate still shows folds as a top-3 term" — never built, and a
+  CPU item with no GPU counterpart.
+- Verdict: **UNSOURCED as a GPU-port factor. Retracted as a
+  number.** The lever is real and named; its value is lane RR's
+  rung-5 measurement, which "REPLACES the board's 1.2-1.5x line"
+  (S15, Lane RR rung 5).
+
+### 5.3 "pipelining 1.3x" — UNSOURCED
+
+- No design, count or measurement of proof-level pipelining exists
+  anywhere in the repository. The only "pipelined" hits are
+  kernel-internal transfer overlaps in lane L's and lane J's
+  round-7 status lines (PROGRESS_UPERF2.md), which are already
+  inside the 21.0 s measurement.
+- Structural bound (§1.2): on one board, pipelining consecutive
+  proofs cannot exceed `1 / max(c, g, l)` where c, g, l are the CPU-,
+  GPU- and link-bound fractions of a proof. At 12x512 that is <= 2x
+  (c ~ 0.5, §3.1). At 8B the fractions are unrecorded, and if the
+  pass is ported to be device-resident (the assumption under every
+  4-6x board factor) then c -> 0 and the pipelining gain -> ~1x:
+  **the pipelining lever and the hardware lever are the same CPU
+  share counted twice.**
+- Verdict: **UNSOURCED. Retracted.** Recorded in its place: a <= 2x
+  bound that shrinks toward 1x as the pass is ported, and the
+  measurement that would price it (lane RR rung 0: which Stage-A
+  phases run on the CPU today).
+
+### 5.4 "spine amortization 1.1-1.2x" — UNSOURCED and contradicted by the recorded count
+
+- The "spine" is the Fiat-Shamir sequence of challenge rounds
+  (each round's challenge depends on the previous round's
+  transcript — the only inherently serial part of the prover). The
+  routes memo counted it at 8B: ~4,659 descent rounds + ~200 claim
+  rounds + 10-20 eval-proof levels at 10-100 us each = **"< 1 s
+  total ... Amdahl's serial fraction is < 1%"** (S3 §2.4). Amortizing
+  under 1 s of a 620-910 s proof across proofs cannot buy more than
+  ~1.002x.
+- The only place round overheads were a real cost is 12x512, where
+  1,134 tiny CPU-tail rounds mattered (S4 §1.1) — a 125M-scale
+  effect that the same memo says vanishes at 8B because every round
+  body becomes e8-e9-class work.
+- Verdict: **UNSOURCED and inconsistent with S3 §2.4. Retracted.**
+
+### 5.5 "compose to ~65" — the product of the above
+
+25-35 x (1.2-1.5) x 1.3 x (1.1-1.2) = 43-82, midpoint ~62 ≈ "~65".
+The figure is the arithmetic product of an unsourced base and three
+unsourced factors. **Retracted.**
+
+### 5.6 The retraction, in one sentence
+
+> The 2026-08-30 task-board line — "~25-35 tok/s amortized; Stage-A
+> aggregate GPU port + fold fusion 1.2-1.5x, pipelining 1.3x, spine
+> amortization 1.1-1.2x -> ~65" — is retracted in full: none of its
+> five numbers is derived from, or consistent with, any measurement,
+> count or model recorded in this repository; the nearest recorded
+> row (the routes memo's most optimistic 8B composition on one
+> desktop board, ~20-40 s per 512-token proof [MODEL]) gives 13-26
+> tok/s of an 8B FFN-only model, whose 30B, one-H100 equivalent is
+> 2-15 tok/s for prefill and under 1 tok/s for batch-1 decode
+> [MODEL on MODEL]; the Stage-A-on-GPU factor is lane RR's
+> measurement, the per-proof weight-side cost is lane QQ's, and no
+> pipelining or spine-amortization lever exists in any design.
+
+The task board's §0 should replace the line with a pointer to this
+memo (a one-line edit for the orchestrator; TASK_BOARD.md is not in
+this lane's ownership).
+
 ## 6. The competitor row on the same yardstick
 
 ## 7. What a 50 tok/s design must have
