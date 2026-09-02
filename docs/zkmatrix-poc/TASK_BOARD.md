@@ -37,6 +37,27 @@ rulings; the Mac runbook unchanged):**
   transcript form; Variant B is built as a separate attempt. The
   ledger's RULINGS block (2026-09-02) records the reading and its
   revert condition.
+- **LANE UU LANDED THE SAME DAY (merged 0f51720; `hashline/` builds
+  here in 13 s, 19/19 unit tests).** THE COMPARISON ROW [MEASURED,
+  WSL-BOX 8T CPU-ONLY NOISY-SHARED]: the hash-based prototype proves
+  the IDENTICAL 12x512 exact-int8 statement (48/48 tensor sha256s and
+  12/12 layer z digests reproduced) in **23.0 s p50 prove (21.5-23.7
+  over 4 runs, incl. all commitments) + 2.8 s verify, 66.8 MB proof,
+  1.56 GB peak RSS, 1.26e9 proven MAC/s**; seven tamper legs reject.
+  Vs the lattice line: PARITY with its GPU-assisted 21.0 s, 3.5x
+  under its CPU-only 81.5 s, 4.3x less memory, 44x larger proofs,
+  slower verify (2.8 vs 1.7 s), NOT zero-knowledge, hash-only
+  ~100-bit (Goldilocks + deg-2 ext; RS rate 1/4, 256 column checks;
+  blake3). Phase shares at 8T: commitments 47%, zero-check sumchecks
+  30%, PCS openings 17%, matmul sumchecks 6% — all GPU-native work;
+  UU's estimate for the RTX 4070 port: ~1.5-2.5 s per pass [MODEL].
+  Thread scaling INVERTED beyond 8T on the hybrid part (22T 37-39 s).
+  Record: results/hashline_pass_12x512.md; PROVING_CHANNEL_OPTIONS.md
+  §2 status + §3 row. FOLLOW-ON LANES OPENED: **XX** = hashline on the
+  GPU (proofs byte-identical CPU vs GPU; the measured wall); **YY** =
+  the Route-B throughput model (lane TT's seven items for the hash
+  line, incl. the ZK surcharge — Victor's ZK rule is non-negotiable —
+  and the proof-size lever).
 - **ROUND 11 LANES** (PROGRESS_UPERF3.md, self-contained briefs):
   **UU** = the hash-based prototype ("Route B") as a NEW crate
   `hashline/` on the SAME 12x512 int8 statement — Goldilocks field,

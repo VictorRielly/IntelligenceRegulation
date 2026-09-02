@@ -6742,3 +6742,93 @@ under 8 minutes and was run in the lane.
 ## Agent WW status (wt-uperf3-ww) — round 11
 
 (lane appends below)
+
+## Orchestrator note 2026-09-02 — round 11: UU merged (fast-forward 0f51720)
+
+- `hashline/` builds in this checkout (13.25 s) and its 19 unit
+  tests pass. No zkmatrix-rs file changed; the lattice floors are
+  unaffected (not re-run for this merge). PROVING_CHANNEL_OPTIONS.md
+  carries the orchestrator's "in build" paragraph AND UU's "row
+  LANDED" paragraph (both kept; the second supersedes).
+- THE ROW, restated for the record [MEASURED, WSL-BOX 8T CPU-ONLY
+  NOISY-SHARED, same digest-identical 2.899e10-MAC statement]:
+  prove 23.0 s p50 (21.48 / 22.92 / 23.07 / 23.69), verify 2.8 s,
+  66,844,928 B, 1.56 GB, 1.26e9 proven MAC/s; 16T 32.2 s, 22T 37-39 s
+  (inverted scaling, not chased). Per-phase at 8T: commit W 2.19 |
+  commit A 3.98 | helpers + commit H 4.58 | matmul g/u 0.77 | matmul d
+  0.60 | zero-check-20 4.50 | zero-check-17 2.30 | PCS openings 3.96 s.
+- READING: one untuned lane-day of the hash-based line reaches parity
+  with the lattice line's GPU-assisted reference on the CPU alone.
+  The proof-system difference PROVING_CHANNEL_OPTIONS §2 predicted is
+  real at 125M; the vendor claim's ~1,000x is NOT reproduced at this
+  scale on this box (and the row is not ZK). Two follow-on lanes
+  opened below: XX (the GPU port; the measured wall) and YY (the
+  Route-B tokens/s model incl. the ZK surcharge and the proof-size
+  lever). Lanes VV and WW continue.
+
+### Lane XX — hashline on the GPU (wt-uperf3-xx) — RUST/CUDA (round 11 addendum)
+OWNS: hashline/ (NEW src/gpu/*, a `gpu-cuda` cargo feature, the
+device toggle env `HL_GPU=1`), NEW results/hashline_gpu_*, the GPU
+row in PROVING_CHANNEL_OPTIONS.md §3, "Agent XX status". READ-ONLY:
+zkmatrix-rs/ (copy its cudarc + NVRTC bootstrap pattern from
+src/ring/gpu/cuda.rs — feature gate, `include_str!` kernel source,
+FUNCS list, init, a probe; do not link to it), everything else.
+WHY: UU's phase shares (commitments 47% = row Reed-Solomon NTTs +
+blake3 Merkle; zero-check sumchecks 30%; PCS openings 17% = the
+row-combination + column decommitments; matmul sumchecks 6%) are all
+device-native, memory-bound work; UU's [MODEL] for the RTX 4070 is
+1.5-2.5 s per 12x512 pass vs 23.0 s CPU. This lane measures it.
+RUNGS (prefix "U-PERF3 XX:"): 0 skeleton (feature, cudarc/NVRTC
+bootstrap, device init + a Goldilocks mul/reduce probe vs the CPU
+field, the toggle; CPU build and proofs byte-identical with the
+feature off); 1 the batched row NTT on the device (the RS encoding
+of the commit phase) — the Merkle roots and hence the proof bytes
+IDENTICAL to CPU at 3x16 and 12x512; 2 blake3 Merkle on the device
+(or leave hashing on the CPU if rung 1 already moved the wall —
+measure and decide); 3 the sumcheck round sums (zero-checks, LogUp,
+matmul) on the device; 4 the PCS opening's row-combination on the
+device; 5 the 12x512 pass measured: proof bytes identical CPU vs
+GPU, prove/verify walls at 8T + GPU, RSS, VRAM held, proven MAC/s
+-> the GPU row in §3 and a results page in lane TT's form. ACCEPT:
+byte-identical proofs (the transcript is deterministic) + the
+measured wall, whatever it is.
+
+### Lane YY — the Route-B throughput model (docs only) (wt-uperf3-yy) — DESIGN (round 11 addendum)
+OWNS: NEW docs/zkmatrix-poc/U_PERF3_ROUTE_B_THROUGHPUT.md, one
+pointer line in PROVING_CHANNEL_OPTIONS.md §3, "Agent YY status". No
+code, no builds, no runs.
+GOAL: lane TT's seven items (U_PERF3_THROUGHPUT_MODEL.md's structure
+and labels, same yardstick) for the hash-based line, from UU's
+MEASURED shares and sizes: (1) the workloads (batch-1 decode, T=512
+prefill, pipelined) and MACs/token at 8B and 30B (reuse TT's shapes);
+(2) the per-proof cost anatomy split PER-MODEL (the weight
+commitments: 2.19 s of the 23.0 s at 12x512 per UU; what else is
+alpha-independent) vs PER-PROOF (the weight PCS opening is per-proof
+and LINEAR in the weight count — count its field operations and
+bytes moved at 8B/30B; the activation-side commitments, sumchecks
+and openings — scale each from UU's per-phase seconds by the counted
+sizes, showing the arithmetic); (3) the hardware factor for THIS
+mix (NTT + hashing + reductions, memory-bound) laptop -> one desktop
+board -> one H100, as a range with reasoning; (4) THE ZK SURCHARGE
+[MODEL] — Victor's rule ("Zero Knowledge is nonnegotiable") means the
+row must carry it: the named techniques (Ligero/Brakedown masking
+rows; zero-knowledge sumcheck via masking polynomials — cite the
+literature classes) and their counted cost in prover time, proof
+bytes and verifier time; (5) THE PROOF-SIZE LEVER: 66.8 MB is the
+sqrt-size Ligero class; the FRI / STIR / WHIR-class multilinear PCS
+swap — bytes vs prover-time trade, counted; (6) the honest tokens/s
+table for Route B x {laptop CPU, laptop GPU [MODEL until XX], one
+desktop board, one H100} x {decode, T=512 prefill} at 8B and 30B,
+next to lane TT's lattice table; (7) the competitor row and what a
+50 tok/s Route-B design MUST have (the per-token budget; which
+measurement — lane XX's — replaces which constant; the unknowns).
+Plain language, every number labelled and sourced, "What is not
+known" at the end.
+
+## Agent XX status (wt-uperf3-xx) — round 11
+
+(lane appends below)
+
+## Agent YY status (wt-uperf3-yy) — round 11
+
+(lane appends below)

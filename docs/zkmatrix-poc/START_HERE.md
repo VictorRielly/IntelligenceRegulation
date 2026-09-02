@@ -83,7 +83,12 @@ tokens/s at 30B prefill on one H100). A further design change
 remaining open question nobody has priced is whether any
 lattice-line activation-side opening can prove ~1e12 MAC/s on one
 board (the memo's U2). That question is what choice D in §7 is
-about.
+about — and choice D now has a measured first row (lane UU,
+2026-09-02): a hash-based prototype proves the identical 12x512
+statement in 23.0 s on the laptop's CPU alone, parity with the
+lattice line's GPU-assisted 21.0 s, with 4.3x less memory, 44x
+larger proofs, and without zero knowledge (see §6). Its GPU port and
+its own tokens-per-second model are round 11's follow-on lanes.
 
 ## 3. Where we stand (the honest numbers)
 
@@ -189,6 +194,7 @@ requires desktop hardware too.
 | **Two-tier opening + preprocessed weights on the GPU (lane QQ, Sep 2)** | per-proof weight-side opening 2.08 s vs 2.09 s built at 12x512: parity, bar was 5x; 8B projection ~3x | the decisive lever measured; "Variant B" (8-15x on paper) needs a ruling | `PROGRESS_UPERF3.md` Agent QQ |
 | **Full-mode memory encoding (lane SS, Sep 2)** | 12x128 full mode 8.1 GB (was OOM); the memo's route was wrong (32x worse), a compact helper works; 8B full-mode >= 78 GB | landed; ruling on the helper as the encoding | `PROGRESS_UPERF3.md` Agent SS |
 | **Throughput model (lane TT, Sep 2)** | every tokens/s number sourced; lattice line 2-15 tok/s at 30B prefill on one H100 at best, <1 decode; the Aug 30 board line retracted | the yardstick for all decisions | `U_PERF3_THROUGHPUT_MODEL.md` |
+| **The hash-based comparison prototype (lane UU, Sep 2)** | a NEW crate `hashline/` proves the identical 12x512 int8 statement (all 12 layer digests reproduced) in **23.0 s on the laptop CPU alone** vs the lattice line's 21.0 s with the GPU and 81.5 s CPU-only; 1.26e9 proven MAC/s; 1.56 GB memory (vs 6.7); 66.8 MB proofs (vs 1.5 MB); verify 2.8 s; seven tamper tests reject; NOT zero-knowledge; hash-only ~100-bit | one untuned lane-day reached parity with three weeks of lattice kernel work; its GPU port is estimated at 1.5-2.5 s per pass [MODEL] | `results/hashline_pass_12x512.md`, `PROVING_CHANNEL_OPTIONS.md` §3 |
 | **Spike S4: the two-tier opening on the real rig** (lane FF, Aug 27-28) | correctness bit-for-bit OK at 4M rings; **speed 1.10x vs the 5x bar**; verifier 3.9 s vs sub-second | NO-GO on speed; cause: the "cheap" linear pass computes general ring products | Agent FF |
 | Redesign of S4 on paper (lane II, Aug 28) | best composed case **1.6-2.5x** | **"the 5-15 s question on this line is CLOSED unless a structurally new idea arrives"** | `U_PERF3_S4_REDESIGN.md` |
 | Fallback posture (Aug 28 ruling) | Stage A + one-point front end + a desktop board | **~100-160 s per proof on one board** [MODEL] | task board §0 |
