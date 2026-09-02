@@ -1,7 +1,9 @@
 # U-PERF3 lane YY — Route B (the hash-based line): proven tokens per second, honestly
 
-Status: IN PROGRESS (opened 2026-09-02; round 11 of tranche U-PERF3,
-lane YY, docs only, worktree wt-uperf3-yy). The sibling of lane TT's
+Status: COMPLETE (2026-09-02; round 11 of tranche U-PERF3, lane YY,
+docs only, worktree wt-uperf3-yy; sections landed one commit each;
+the "Agent YY status" block in PROGRESS_UPERF3.md carries the
+summary). The sibling of lane TT's
 `U_PERF3_THROUGHPUT_MODEL.md` (cited as S0 below) for the hash-based
 line (`hashline/`, lane UU): the same yardstick, the same workload
 definitions, the same model shapes, the same four labels. Where this
@@ -883,8 +885,212 @@ kernel-quality unknown (the analogue of S0's (c)/(c') spread):
 
 ## 7. The competitor row, and what a 50 tok/s Route-B design must have
 
-(pending)
+### 7.1 The competitor row on this memo's yardstick
+
+The claim (S5 addendum; S0 §6): Gemma-4-31B INT8, **53 tok/s at
+batch 1** (16K context) and **77 tok/s at batch 4**, on ONE H100;
+proofs 4.35-7.92 MiB; CPU verification 157-648 ms; hash-based,
+post-quantum, 100-bit; "all non-linear operations in floating point,
+all matrix multiplications quantized to integers"; weights "private
+behind a commitment". No paper, no code, no third-party
+reproduction. Every number **[EXTERNAL, VENDOR-CLAIMED, UNVERIFIED]**.
+
+| row | tokens/s | proven MAC/s | ms per token | what the statement covers | label |
+|---|---:|---:|---:|---|---|
+| Attestable, batch 1 | 53 | **1.6e12** | 18.9 | the full model: attention, FFN, float nonlinears (approximate), 16K context | [EXTERNAL, VENDOR-CLAIMED] |
+| Attestable, batch 4 | 77 | 2.4e12 | 52 per 4-token step | same | [EXTERNAL, VENDOR-CLAIMED] |
+| **the goal** | 50 | 1.55e12 | 20 | | |
+| Route B, measured (125M, 12x512, laptop CPU 8T) | 22 (of a 125M model) | 1.26e9 | 45 (of a 125M token) | FFN only, exact integer, hash-only ~100-bit, NOT ZK | [MEASURED, S1] |
+| Route B, 30B prefill, one H100, P0, scaled constants | 8.3-60 | 1.8e11-1.3e12 | 17-120 | FFN only | [MODEL on MODEL] |
+| Route B, 30B prefill, one H100, P0, counted floor | 47-138 | 1.0-3.0e12 | 7-21 | FFN only | [COUNTED on spec sheet] |
+| Route B, 30B decode, one H100, P0, counted floor | 12-33 | 2.7-7.2e11 | 30-80 | FFN only | [COUNTED on spec sheet] |
+| Route B, 30B decode, one H100, P3 (weights private) | <= 0.14 | <= 3e9 | >= 7,000 | FFN only | [COUNTED floor] |
+| lattice (c), 30B prefill, one H100 (S0 §6) | 2.3-15 | 0.5-3.3e11 | 65-430 | FFN only | [MODEL on MODEL] |
+
+Ratios: the claim is ~1,300x Route B's measured CPU rate, 1.2-9x
+above its scaled 30B-prefill cell on an H100, and INSIDE the counted
+floor's band (1.0-3.0e12 against 1.6e12). Read plainly: **a
+hash-based prover at the spec-sheet floor, FFN-only, batched, is
+consistent with the claimed rate** — the first time a number in this
+repository has been. For batch-1 decode the claim sits 1.5-4x above
+the counted floor of a LINEAR weight opening on the same board
+(12-33 tok/s), and their statement is said to include attention
+(1.3-1.6x MACs and more proof mass): either their per-token
+weight-side cost is sublinear (a structure not known to this memo —
+and one that is hard to reconcile with "weights private behind a
+commitment" in the cumulative sense of §4.4), or the 53 tok/s is an
+amortised figure; the material does not say. The other columns:
+their 4-8 MiB per token-step and 0.16-0.65 s verification are what
+Route B gets only after the PCS swap of §5 (12-25 KB per prefill
+token, 3-12 MB per decode token, ms verification); in the sqrt
+class as built Route B is 3 MB per prefill token, 0.7 GB per decode
+token and 8-12 s to verify at 30B.
+
+### 7.2 The budget on one H100, and the per-proof weight-side count [COUNTED on spec sheet]
+
+| quantity | batch-1 decode | T = 512 prefill (or a 512-request batch) |
+|---|---:|---:|
+| proven MAC/s required | 1.55e12 | 1.55e12 |
+| time per proof | **20 ms** | **10.2 s** |
+| the per-proof weight side at 30B (§2.3, §3.5): 21.5 GB of int8 weights HBM-resident, read once, 6.4 ms; 6.5-9.3e10 extension-by-int8 multiply-adds at ~7 int32 ops each on 1.67e13 int32 ops/s, 18-36 ms (a tuned fused kernel: two 64 x 8-bit products per weight, lazy reduction); 336 MB of decommitment columns over PCIe 5 from host RAM, 7 ms | **25-60 ms = 1.3-3x the WHOLE budget** | 25-60 ms = 0.3-0.6% of the budget |
+| left for the activation side | **nothing** | ~10.1 s for 1.1e13 MACs (~1.1e12 MAC/s) |
+| the activation side at 30B, counted floor (§6.4): hashing 311 GB of encoded activations at 30-100 GB/s, 3.1-10.4 s; NTT 0.14 s; zero-checks 0.09 s; openings 0.02 s; ~1 TB of memory traffic 0.3 s; witness inference ~8 ms | per token: 608 MB hashed = 6-20 ms, plus ~1 ms | **3.7-11 s** |
+| the activation side by scaled constants (§2.4: 970 s laptop CPU / 25-180) | 11-76 ms per token | 5.4-39 s |
+| **total per proof, counted floor** | **30-80 ms -> 12-33 tok/s** | **3.7-11 s -> 47-138 tok/s** |
+| total, scaled constants | 3.2-23 s -> 0.04-0.3 tok/s | 8.6-62 s -> 8-60 tok/s |
+| with ZK, mode P1 | x1.02-1.08 | x1.02-1.08 |
+| with ZK, modes P2/P3 (the weight re-commit: 688 GB hashed, 7-23 s per proof) | >= 7 s -> <= 0.14 tok/s | floor 11-34 s -> 15-48 tok/s; scaled 13-95 s -> 5-39 |
+
+**Is a linear weight opening affordable on an H100?** At batch 1,
+NO: 25-60 ms against 20 ms, and the arithmetic (18-36 ms) is the
+larger part, not the bytes (6.4 ms) — even the two-multiply-add
+floor (2 x 2.15e10 x 7 / 1.67e13 = 18 ms) plus the reads and the
+columns is 31 ms. At T = 512, or at B >= 8 requests per proof, YES:
+25-60 ms is 0.3-0.6% of a 10.2 s budget and 3-8 ms per token at
+B = 8.
+
+**Batching, counted.** Per token at 30B at the counted floor: the
+weight side (25-60 ms) / B plus the activation side per token (7-21
+ms, set by the hash rate):
+
+| requests per proof B | ms per token | tok/s |
+|---:|---:|---:|
+| 1 | 32-81 | 12-31 |
+| 4 | 13-36 | 28-77 |
+| 8 | 10-28 | 36-100 |
+| 16 | 9-25 | 40-110 |
+| 512 (prefill) | 7-21 | 47-138 |
+
+So at the counted floor, 50 tok/s at 30B needs **B >= 4-16 requests
+per proof AND a sustained device hash rate >= ~50 GB/s** (at 30 GB/s
+the activation side alone is 21 ms per token: 47 tok/s at any B).
+The competitor's batch-4 figure (77) sits at the top of the B = 4
+band. Halving the hashed bytes — rate 1/2 (Q ~ 400), or a 32-bit
+field, or both (4x) — moves the activation-side floor from 7-21 ms
+to 2-10 ms per token [MODEL]: the field and rate are design choices
+that trade soundness bookkeeping and proof bytes for hash volume,
+and the competitor's Circle-STARK lineage (S5 addendum) is a 31-bit
+field.
+
+### 7.3 The requirements, stated as "must" (the Route-B reading of S0 §7.2)
+
+- **R1 (weight side).** The per-proof weight pass is linear and
+  stays linear under every hash-based PCS (§5.4); it is affordable
+  only AMORTISED: >= 4-16 tokens per proof (batched decode) or
+  prefill. The product is "batched / prefill proving", not batch-1
+  decode — S0's R1b, reached on this line by a different route.
+- **R2 (activation side).** A sustained device hash rate of >= 30-50
+  GB/s on 2-4 KB inputs (blake3 or an arithmetic hash), and NTT /
+  sumcheck / GEMV kernels near the bandwidth floor. By scaled
+  constants this is a >= ~90x factor over the CPU row as built.
+- **R3 (memory).** H100-class capacity: the 21.5 GB int8 weights and
+  a layer's 16 GB working set resident (§3.5); the 538 GB encoded
+  cache column-major in host RAM or NVMe (or dropped, under P2/P3).
+- **R4 (statement).** Attention on this line (1.3-1.6x MACs; proof
+  mass unmeasured); the X/W range facts (+15-20% [MODEL]); the layer
+  seams.
+- **R5 (verifier and bytes).** The PCS swap of §5 — mandatory for a
+  decode artifact (0.7 GB per token in the sqrt class) and for the
+  <= 2 s verifier line at 8B and above; roughly neutral on the
+  prover.
+- **R6 (zero knowledge, Victor's rule).** P1 is +2-8% and changes no
+  cell. P2/P3 as counted need a fresh weight commitment per proof —
+  7-23 s per proof at 30B on an H100 (1.7-6 s at rate 1/2 in a
+  32-bit field [MODEL]) — which alone is 70-230% (17-60%) of the
+  prefill budget; 50 tok/s under P2/P3 therefore needs either a
+  >= 100 GB/s hash rate with >= 1,000-token batches, or one of
+  §4.4's uncounted designs (Orion-class hidden columns; a hiding
+  lattice commitment for the weights with a ZK link). This is a
+  product decision (which private set the deployment declares) that
+  changes the answer by 2x or more.
+
+### 7.4 Which measurement replaces which constant
+
+| constant in this memo | current status | who measures it | where it lands |
+|---|---|---|---|
+| the laptop-GPU factor (5-15x, §3.3) | [MODEL] (UU rung 6) | **lane XX** rung 5: the 12x512 pass on the RTX 4070, proofs byte-identical, prove/verify walls | the laptop-GPU column of §6 becomes [MEASURED]; the board and H100 columns become [MODEL on MEASURED] |
+| the device hash rate (30-100 GB/s) — the dominant floor term | [MODEL, no source in this repository] | **lane XX** rung 2 (blake3 Merkle on the device; or its decision to leave hashing on the CPU, which itself is a measurement) | the activation-side floor of §7.2; R2 |
+| the row-combination on the device (25-60 ms at 30B) | [COUNTED on spec] | **lane XX** rung 4, ideally fused and int8-sourced with the weights resident | R1's per-proof constant; every decode cell |
+| the sumcheck rounds on the device (10-20x) | [MODEL] | lane XX rung 3 | 30% of the wall |
+| the ZK surcharge P1 (+2-8%) and the P2/P3 re-commit | [COUNTED from constructions] | **a ZK spike**: Ligero-ZK pads and mask rows, Libra masks, committed multiplicities and salts on `hashline` at 12x512 — bytes, prove, verify, and a simulator argument for the chained transcript | §4.3's row becomes [MEASURED]; the P2/P3 re-commit is today's commit-W phase, already measured |
+| the PCS swap (x0.94-1.4 prover, 30-250x fewer bytes) | [MODEL from stated complexities] | **a PCS spike**: a WHIR/STIR-class `pcs.rs` behind a switch, the same claims, at 12x512 | §5's row; R5; the decode artifact |
+| the 8B activation-side constants (x18.1-18.7 per pass) | [COUNTED sizes x MEASURED 125M constants] | an 8B-shape layer of `hashline` on the Mac at T = 16 / 64 / 512 (the T-scaling leg, as S0's M5) | the 8B column of §2.4-2.5; the zero-check-17 anomaly resolved |
+| the 30B shape (x3.81 weights, x2.87 activations) | assumed (S0 §1.3) | Victor (the target model) | every 30B row |
+| attention's cost on this line | unknown | an attention layer in `hashline` (the X3 analogue) | R4 |
+| the board / H100 factor | [MODEL] | choice C (S7 §7): a 4090 or a rented H100 under the 12x512 rig, 20 warm QUIET runs | every device column |
+
+### 7.5 The unknowns that decide the answer, and the verdict
+
+1. **U1 — the port factor and the device hash rate (lane XX).**
+   They decide whether the 30B-prefill H100 cell is 8 or 60 tok/s
+   by scaled constants, i.e. whether 50 is inside the band, and
+   whether the counted floor (47-138) is approachable. Nothing else
+   in this memo moves the prefill answer as much.
+2. **U2 — the declared private set.** P1 leaves every cell where it
+   is; P2/P3 halve the prefill cells and cap decode at ~0.1 tok/s
+   under the only counted design. This is Victor's product ruling,
+   not a measurement.
+3. **U3 — attention's proof mass on this line**, the same R4 as S0.
+
+**Verdict for Route B.** Under the assumptions counted here, **50
+proven tokens per second at 30B on one H100 is reachable on Route B
+only for 512-token prefill or batched proving (B >= 4-16), FFN-only,
+in modes P0/P1, and only if the GPU port lands in the upper half of
+§3's range (>= ~90x over the CPU row as built) with a sustained
+device hash rate of >= ~50 GB/s** — the spec-sheet floor for that
+cell is 47-138 tok/s, so the goal is inside the floor's band and
+outside the lower half of the scaled band. It hinges on lane XX's
+two numbers (the port factor; the hash rate) before anything else.
+**Batch-1 decode at 50 tok/s is not reachable on this line under any
+counted assumption**: the per-proof linear weight opening is 25-60
+ms on an H100 against a 20 ms budget, and every hash-based PCS
+keeps it linear. **Under P2/P3 (weights private) no counted cell
+reaches 50 tok/s** — the per-proof weight re-commit is 70-230% of
+the prefill budget by itself — unless an uncounted design (hidden
+columns, or a hiding lattice commitment for the weights) prices in.
+Against the lattice line's best modelled cell (2-15 tok/s, S0), Route
+B's scaled cell is 4x higher and its floor 10x higher, at the price
+of the hash-only assumption class, the sqrt-size artifact until the
+PCS swap, and — the finding of §4 — a weights-private mode that is
+structurally, not incrementally, more expensive.
 
 ## What is not known
 
-(pending)
+1. **Any Route-B wall on any device.** The only measured row is the
+   laptop CPU at 8 threads (S1). Every device cell in §6 is that row
+   divided by an unmeasured factor; lane XX's rung 5 is the first
+   point.
+2. **The device hash rate** — the dominant term of every counted
+   floor (§6.4, §7.2). No source in this repository; 30-100 GB/s is
+   a [MODEL] band.
+3. **The 8B and 30B activation-side constants.** Sizes are counted
+   from the code; the per-element constants are measured at 125M
+   only, and the 3.5x gap between the two zero-checks' per-entry
+   rates (§2.1) shows they are not settled. An 8B-shape layer run
+   (the T-scaling leg) is the fix.
+4. **The per-proof weight-side constant on a device** (25-60 ms at
+   30B): counted on the spec sheet, never run — the Route-B twin of
+   S0's U1.
+5. **Whether the fused, int8-sourced weight pass reaches the
+   bandwidth floor**; as built it moves 32x the bytes (§2.3).
+6. **The zero-knowledge constructions' real overheads** (+2-8% is
+   counted from the papers, unbuilt) and the simulator argument for
+   the chained 12/32/62-layer transcript.
+7. **The weights-private answer beyond re-commit**: Orion-class
+   hidden columns and the lattice-hybrid link are named, not
+   priced (§4.4).
+8. **The PCS swap's real prover factor** (0.94-1.4 from stated
+   complexities; the WHIR paper's benchmarks are at other rates and
+   shapes) and its ZK form's cost.
+9. **The 30B architecture** (as S0 §1.3: a stand-in).
+10. **Attention on this line**: never designed or run in
+    `hashline`.
+11. **Whether the competitor's claim holds**, and whether its
+    "weights private" is cumulative across proofs (§4.4) or
+    per-proof.
+12. **Memory and layout at 30B on a 24 GB board**: streaming per
+    layer and the column-major cache are design notes.
+13. **The verifier at 8B and 30B in the sqrt class** (3-5 s and 8-12
+    s at 8 threads [MODEL]) against the <= 2 s single-thread line.
+14. **Witness inference on the clock** at 8B/30B on a device
+    (milliseconds on tensor cores [MODEL]; 10-30 s on 8 CPU threads).
