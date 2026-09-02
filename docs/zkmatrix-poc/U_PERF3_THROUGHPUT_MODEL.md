@@ -199,6 +199,192 @@ rule changes [COUNTED, shape-dependent].
 
 ## 2. The cost anatomy per proof: per-model vs per-proof
 
+"Per-model" means work that depends only on the weights and could be
+done once at model-export time and cached; "per-proof" means work
+that depends on the proof's inputs or on the per-proof random
+challenges and must be redone every time. The contract's clock (S12
+§3) already excludes committing the weights and expanding the CRS,
+so per-model work is legitimately off the clock — IF the protocol
+separates it. The built protocol does not (S3 §2.6): the weight
+group's opening is recomputed on every proof. That is the single
+fact that makes batch-1 decode expensive today.
+
+### 2.1 The reference measurement and how each phase scales
+
+The one fully measured pass: 12 layers x 512 tokens of the 125M
+model on the WSL laptop (Core Ultra 9 185H, 8 threads, RTX 4070
+Laptop GPU at 55-70 W), QUIET, three consecutive runs 21.0 / 21.1 /
+20.9 s, 20-run p95 21.1 s, 6.7 GB RSS, proof 1,509,911 bytes, every
+digest identical (S1). Its phases (S1 attribution; the listed phases
+sum to ~22 s against the 21.0 s wall because the timers overlap by
+~1 s):
+
+| phase (what it does) | 12x512 [MEASURED] | side | scale driver to 8B x 512 [COUNTED, S3 §1.2] |
+|---|---:|---|---|
+| commit (bind the witness: u_0 matvecs, the chain GEMM = the integer forward pass, digit witness) | 2.5 | both | rings x44 blended; the chain GEMM x99.6 |
+| prove-group (the lattice opening's main pass: level-h, kernel rows, psi0, fold, matvec) | 7.1 | both, by rings | the level-0 cross term Theta(n_0 x r): x42 |
+| descents (the range and table-lookup facts as masked GKR sub-proofs) | 6.5 | activations only | leaf elements x19.9 |
+| claim layer (the matmul / Hadamard / requant sumchecks) | 1.75 | mixed | weight-side table build x99.6; activation-side rounds x16 |
+| transport (carrying claims between levels) | 1.4 | both, by rings | ~x40 |
+| CRS expand (the public commitment key, seed-expanded) | 1.3 | both, by A_0 size | x43 |
+| verify (8 threads; NOT on the prover clock) | 1.7 | both, by value rings | x41 |
+
+Rates at this shape: 2.9e10 MACs / 21.0 s = **1.4e9 proven MAC/s**
+on the wall the ledger quotes; 2.9e10 / 18.0 s = 1.6e9 on the
+prover clock [COUNTED from S1].
+
+### 2.2 (a) The built pass at 8B x 512 — every term per proof
+
+The 8B phase totals are the routes memo's (S3 §1.3: each measured
+phase times its counted driver; "~11-16 min" on the laptop if it had
+the memory — it does not, 15 GB vs a ~72 GB peak, S7). The
+weight/activation split per phase is this memo's, by the ring shares
+of S8 §1.2 (weight 352.3M of 497.8M rings = 71%; level-0 CRS 64.4 of
+94.8 GB = 68%; value rings 44.0M of 64.5M = 68%) and, for commit, the
+routes memo's own "~2/3 weight" (S3 §2.6):
+
+| phase | 8B laptop [MODEL, S3 §1.3] | weight share used | W (weight side, s) | A(512) (activation side, s) |
+|---|---:|---:|---:|---:|
+| commit | 110-160 | 2/3 (S3 §2.6) | 73-107 | 37-53 |
+| prove-group | ~290 | 71% (rings) | ~206 | ~84 |
+| descents | 80-300 (the range depends on whether the trees fit VRAM — they do not on 8 GB) | 0% | 0 | 80-300 |
+| claim layer | 30-40 | ~50% [MODEL: the weight-side table build vs the activation-side rounds] | 15-20 | 15-20 |
+| transport | ~55 | 71% | ~39 | ~16 |
+| CRS expand | ~55 | 68% | ~37 | ~18 |
+| **prover clock** | **620-910** | | **W = 370-409** | **A(512) = 250-491** |
+| verify (off the clock) | ~70 | 68% | ~48 | ~22 |
+
+Reading: on the built protocol **W is 45-60% of every 8B prefill
+proof and 99% of every 8B decode proof**. At T = 1 the activation
+side collapses to A(1) ~ A(512)/512 ~ 0.5-1 s plus the fixed floor F
+of a small group's recursion (~1-2 s; the whole 3-layer x 16-token
+pass measures 3.4 s, S1), so:
+
+- cost_a(T=512) = 620-910 s per proof (512 tokens) [MODEL];
+- cost_a(T=1) = W + A(1) + F = **~372-411 s per token** [MODEL on
+  MODEL].
+
+At the 30B stand-in (§1.5: weight rings x3.81, activation elements
+x2.87), scaling W and A(512) by those factors [MODEL on MODEL; and
+the pass does not fit any machine we own — the weight-group terms
+alone are ~265-270 GB, S7]: W = 1,410-1,558 s, A(512) = 718-1,409 s,
+cost_a(512) = 2,130-2,970 s, cost_a(1) = ~1,412-1,561 s per token.
+
+### 2.3 (b) Built pass + Stage A
+
+Stage A replaces the descents (the ten masked lookup sub-proofs)
+with aggregate zero-checks in the base field and one LogUp sumcheck
+for the SiLU table (S4 §2). It is in the engine behind a selector
+(lane GG). What is known:
+
+- At 12x512 the design memo modelled descents 6.5 -> ~1.2 s and the
+  claim layer 1.75 -> ~2.0 s, prove 15.5 -> ~10.5 s (~1.5x) [MODEL,
+  S4 §3.2].
+- Measured on CPU at the 125M shapes (S6, 2026-08-29, NOISY-SHARED):
+  proof bytes 2.10-2.15x SMALLER; prove **+15% slower** (12x128:
+  97.1 -> 112.1 s) and commit +38% (12.9 -> 17.8 s), because the
+  aggregate checks run on the CPU while the descents' kernels rode
+  the GPU, and because Stage A must COMMIT extra "width planes"
+  (+58% activation rings at 12x512, lane GG's finding F1 in S5's
+  ledger section). The 12x512 GPU A/B was deferred; lane RR's rung 4
+  runs it.
+- At 8B the descents are 80-300 s of a 620-910 s prover clock, so
+  the lever is worth 1.1-1.5x THERE even though it measured < 1x at
+  125M. Stage A touches only the activation side; W is unchanged.
+
+The (b) row therefore takes, at 8B on the laptop [MODEL]: descents
+80-300 -> 20-40 s (the S4 §3.2 ratio); the activation-side opening
+terms +58% for the committed width planes (prove-group A 84 -> 133,
+transport 16 -> 25, CRS 18 -> 28, commit A 37-53 -> 50-70)
+[COUNTED from GG's F1 ring growth, applied linearly]:
+
+- W_b = W_a = 370-409 s; A_b(512) = 50-70 + 133 + 20-40 + 15-20 + 25
+  + 28 = **271-316 s**; cost_b(512) = **641-725 s**; cost_b(1) =
+  ~372-411 s per token — **identical to (a): Stage A does nothing
+  for decode.**
+
+The routes memo's own row for the same composition is 630-700 s
+including verify (S3 §3.1); it did not carry the width-plane growth.
+The two agree within their bands; this memo uses its own (newer
+inputs).
+
+### 2.4 (c) The two-tier opening + weight preprocessing
+
+The **two-tier ("square-root") opening** (spike S4, lane FF; S5)
+splits a group's rings into ~sqrt(n) blocks, commits each block
+(tier 1), and runs the expensive lattice recursion only on a
+sqrt-sized summary (tier 2). Per proof, the prover computes a
+challenge-weighted fold over ALL the group's rings (one linear pass)
+and the sqrt-sized recursion. **Weight preprocessing** (S3 §2.6
+(vi-a), designed only) is the observation that for the weight group
+the tier structure — the inner commitments, the CRS blocks, the tier
+layout — depends only on the weights and can be cached per model;
+only the fold and the recursion depend on the per-proof challenge.
+
+**Per-model (off the clock).** The weight group's commitment (today
+73-107 s of every 8B proof, §2.2) and its tier commitments. The
+spike measured tier-1 + tier-2 commit at **14.59 s for 2^22 rings, 1
+thread** (S5 §1). The 8B weight group is 352.3M / 4.19M = 84x that,
+so ~1,230 s (20 min) of one CPU thread per model at 8B, ~4,700 s at
+30B [COUNTED from MEASURED, linear scaling assumed]. Acceptable
+next to calibration, which already takes minutes-to-hours per model.
+
+**Per-proof, weight side** — the term the whole 50 tok/s question
+turns on. Two sources, and they disagree by an order of magnitude:
+
+| source | what it says about the per-proof pass over the weight rings | at the 8B weight group (x84 over 2^22; the recursion stays sqrt-sized, ~1-3.5 s) |
+|---|---|---|
+| the routes memo (S3 §2.1, 2026-08-23) [MODEL] | "the fold pass is ~5.0e8 ring-scalar mults over both groups = ~6.4e10 base-mults; ~90 s 1T, ~12-15 s 8T, seconds-class on the GPU GEMM path" — a streaming pass at ~1 base MAC per coefficient | weight share 71%: ~9-11 s at 8 CPU threads; **"seconds" on the GPU** [MODEL] — call it 2-10 s on the laptop GPU |
+| the spike as measured (S5 §1, 2026-08-28) [MEASURED, 1T, NOISY] | rows 1.45 + v-passes 20.01 + fold 2.25 + recursion 1.73 = 25.4 s core at 2^22; the v-pass computes GENERAL ring products (that is why the spike landed at 1.10x, not 5x) | 84 x 23.7 + 3.5 = **~2,000 s at 1 thread** [COUNTED from MEASURED] |
+| the redesign count (S5 C-R1, 2026-08-28) [COUNTED] | the factored "swap-order" v-pass: 2-5x on the v-pass (20.01 -> 4-10 s), composed core 11-17 s at 2^22 1T | 84 x (1.45 + 4..10 + 2.25) + 3.5 = **650-1,160 s at 1 thread**; at 8 threads [MODEL: S5 §5 notes the comparable factored passes threaded 3.5-11x] **60-330 s**; **on the GPU: never counted** |
+
+The newer source (S5) is the measured one; this memo carries BOTH
+as the ends of the (c) range — (c) with the routes constants and
+(c') with the S5 constants — and names lane QQ (rungs 1, 3, 4) as
+the measurement that collapses them. Note what the disagreement is
+about: whether the per-proof linear pass over the weight rings can
+be made a scalar streaming kernel (routes) or remains a
+ring-product pass (spike). Nobody has run it on a GPU.
+
+A floor that holds under EITHER constant: the pass must READ every
+weight digit once per proof — 45 GB at 8B, 172 GB at 30B (§1.5).
+That is a memory-bandwidth floor per proof (§3.4), independent of
+the arithmetic.
+
+**Per-proof, activation side under (c).** The activation group is
+also served two-tier (it is the group the spike actually ran on at
+2^22-2^23 rings; the 12x512 activation group is 7.85M ~ 2^23). Its
+opening at 8B: the built activation share of prove-group +
+transport + CRS = 84 + 16 + 18 = 118 s (§2.2); the spike measured
+the two-tier core at 1.10x that -> ~107 s; the redesign's 1.6-2.5x
+-> 47-74 s; the routes memo's constant -> ~5-15 s [MODEL]. Plus
+commit of the activations with width planes 50-70, the Stage-A
+aggregate 20-40, the claim layer 15-20 (§2.3):
+
+- A_c(512) = 50-70 + (5..15) + 20-40 + 15-20 = **90-145 s** with the
+  routes constants [MODEL]; **150-240 s** with the S5 constants
+  [COUNTED from MEASURED]; A(1) + F ~ 2-3 s either way.
+
+### 2.5 Summary: the per-proof cost model at 8B, laptop, prover clock
+
+| design | per-model (off the clock) | W per proof | A(512) | A(1) + F | cost(512) | cost(1) = per decode token |
+|---|---|---:|---:|---:|---:|---:|
+| (a) built | none separable (S3 §2.6) | 370-409 [MODEL] | 250-491 [MODEL] | ~2 | 620-910 | ~372-411 |
+| (b) built + Stage A | none | 370-409 | 271-316 [MODEL] | ~2 | 641-725 | ~372-411 |
+| (c) two-tier + preprocessing, routes constants | ~20 min 1T CPU at 8B [COUNTED] | **2-10 [MODEL]** | 90-145 [MODEL] | 2-3 | 92-155 | **~4-13** |
+| (c') same design, spike-measured constants scaled | same | **60-330 (8T CPU; GPU uncounted) [COUNTED from MEASURED]** | 150-240 | 2-3 | 210-570 | **~62-333** |
+
+At 30B, W scales x3.81 and A x2.87 (§1.5) for every row [MODEL on
+MODEL]; memory is a separate gate (§3.4).
+
+The routes memo's compounding table gives the (c) composition at
+"~105-155 s laptop" including verify (S3 §3.1, "+ (vi-a)"); this
+memo's (c) row (92-155 s on the prover clock) reproduces it — the
+two are the same model. The (c') row is what the same design costs
+at the constants the spike actually measured. **The distance between
+(c) and (c') — 10-40x on the per-proof weight side — is the largest
+unknown in this memo and the reason lane QQ exists.**
+
 ## 3. The hardware factor: laptop -> desktop board -> H100, as a range
 
 ## 4. The tokens/s table
