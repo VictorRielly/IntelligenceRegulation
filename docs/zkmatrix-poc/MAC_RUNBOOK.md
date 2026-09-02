@@ -146,12 +146,13 @@ that the laptop cannot (out of memory at 15 GB).
 PREREQ: Mistral-7B-v0.1 at `~/models/mistral-7b-v0.1` (if absent:
 `python3 -c "import os; from huggingface_hub import snapshot_download; snapshot_download('mistralai/Mistral-7B-v0.1', local_dir=os.path.expanduser('~/models/mistral-7b-v0.1'), allow_patterns=['*.safetensors','*.json','tokenizer.model'])"`,
 ~17 GB); the FineWeb sample from M3's PREREQ; the committed
-calibration `results/m8b_int8_calibration.json` (the script's
-default; if the Mac lacks it, `git pull` brought it).
+calibration `results/m8b_int8_calibration_wsl.json` (passed
+explicitly below — the script's default name is NOT the committed
+file).
 
 1. Export (~10-25 min, RSS ~3 GB, F2 may run):
 ```
-/usr/bin/time -l python3 scripts/m8b_export_ffn.py --ckpt ~/models/mistral-7b-v0.1 --profile v3 --margins results/m8b_margins_mistral_wsl.json --text ~/models/fineweb-edu/sample_text.txt --out results/m8b_mistral_v3_export_mac > results/uperf/mac_export_mistral.log 2>&1
+/usr/bin/time -l python3 scripts/m8b_export_ffn.py --ckpt ~/models/mistral-7b-v0.1 --cal-json results/m8b_int8_calibration_wsl.json --profile v3 --margins results/m8b_margins_mistral_wsl.json --text ~/models/fineweb-edu/sample_text.txt --out results/m8b_mistral_v3_export_mac > results/uperf/mac_export_mistral.log 2>&1
 tail -5 results/uperf/mac_export_mistral.log
 diff results/m8b_mistral_v3_export_mac/digests.txt results/m8b_mistral_v3_export/digests.txt && echo DIGESTS IDENTICAL
 ```
