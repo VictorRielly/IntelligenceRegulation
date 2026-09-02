@@ -7005,3 +7005,167 @@ Plain language, every number labelled and sourced.
 ## Agent ZZ status (wt-uperf3-zz) — round 11
 
 (lane appends below)
+
+**LANE COMPLETE (2026-09-02, docs only; no code, no builds, no
+runs).** Deliverable: NEW `docs/zkmatrix-poc/U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md`
+(§0-7 + What is not known; every number labelled [MEASURED] /
+[COUNTED] / [MODEL] / [EXTERNAL] with a source; sources S0-S8,
+L1-L7, HW; the literature read in-session: ePrint 2022/1010 (Orion,
+PDF text), 2024/1164 (its soundness restoration), 2024/1918 (TCHES
+2025 accelerator), 2024/1731 (Arc), 2026/1367 (the hash-PCS SoK),
+2023/323 (Poseidon2, PDF text), 2025/1085 (SmallWood, search
+summary)) plus one pointer line in U_PERF3_ROUTE_B_THROUGHPUT.md
+§4.4 (after option 3). Commits: a144465 skeleton; 46bc2f9 §1;
+b84c3e8 §2; b403ade §3; a4e149b §4; fca7645 §5; cecffd7 §6; 76384fc
+§7 + What is not known; 1b15319 §0; the pointer line, the status
+line and this block in the closing commit. Not pushed.
+
+**THE PROBLEM (§1).** A cached Ligero-class weight commitment
+opens 256 public columns of m values per proof; with L1's pad the
+first proof leaks nothing, the union of samples spans a row after
+(n + Q)/Q proofs: **65 at the measured 125M parameters (S0's
+number), 257 at 8B and 513 at 30B at S0 §5.2's optimum n**
+[COUNTED]. Two smaller per-proof leaks ride along: a mask row
+INSIDE a cached commitment is itself fixed (two proofs' masked
+vectors differ by an unmasked (rho - rho')^T M), so any
+cached-commitment design needs a FRESH per-proof mask commitment;
+the terminal claim W~(r) is hidden by the fresh Libra polynomial.
+Activations are fresh per proof and never re-proven: no
+accumulation (ZK_GAP_OPTIONS §6's asymmetry).
+
+**OPTION 1 — re-commit per proof (§2).** S0's baseline restated
+(218 s / 832 s per proof on the laptop CPU at 8B / 30B [MODEL from
+MEASURED]; 1.8-6 s / 7-23 s H100 floor). The NTT is 2-15% of the
+re-commit, hashing the rest [COUNTED on spec sheet]; an arithmetic
+hash is 10-100x slower per byte (Poseidon2 t = 12: 2.81 us per
+permutation single-thread [EXTERNAL, L7 Table 2]) — not a
+re-commit candidate; rate 1/2 and a 32-bit field are 2x levers
+each. Batching counted (the B requests must be STACKED into one X
+so W has ONE claim point — else the folds and row-combinations
+scale with B [COUNTED from layer.rs / pcs.rs]): 30B prefill on one
+H100 at B = 1 / 4 / 16 / 64: floor 15-48 / 31-96 / 42-127 / 46-139
+tok/s, scaled 5.4-39 / 9.7-71 / 12-87 / 13-93; decode <= 8.5 tok/s
+even at B = 64 (needs B >= 400-1,200 for 20 ms). At B = 16 the
+per-layer working set is 258 GB: the token-streaming design (S0 R3)
+is a precondition.
+
+**OPTION 2 — never reveal the columns (§3).** Orion as read: code
+switching = Virgo as the inner argument; the inner witness = the
+sampled columns + the clear vectors; a two-level Merkle
+commitment (a tree per column) so no hash runs in-circuit; 3.09 s
+/ 1.5 MB at 2^20 R1CS single-thread [EXTERNAL]; its successor
+(2024/1164) finds the published Orion unsound and gives Scorpius.
+**The literal Orion form still accumulates** (the inner oracle is
+the cached column codeword: 4,500-13,000 proofs at 30B [COUNTED]).
+The form that meets the rule (2b): the sampled columns become the
+witness of a FRESH per-proof inner commitment; the column hash and
+Merkle path to the cached root are proven in-circuit over Poseidon2;
+a fresh per-proof mask matrix U (3 rows per layer) is inner witness
+too. Inner statement from pcs::verify: per column m/8 + 2 log2(4n)
+permutations + 3m extension-by-base multiply-adds; **3.05e6 / 5.86e6
+Poseidon2 permutations per proof at 8B / 30B, ~2.3e9 / ~4.4e9
+native Goldilocks multiplies** [COUNTED; R_P = 22 as instantiated,
+EXTERNAL]. Inner prover = a ZK GKR/sumcheck over the data-parallel
+circuit (hashline's sumcheck.rs is the seed; K_ov 5-20x native
+[MODEL], anchored on S0 §2.1's measured 27.5 ns/entry zero-check):
+**9-37 ms floor / 0.12-3.5 s scaled per 30B proof on one H100**,
+plus 42-140 ms of fresh blake3 commitments (inner witness 1.3 GB +
+U 2.9 GB hashed) = +0.5-5% (floor) / +2-40% (scaled) on the 30B
+prefill row; x2.7-3.2 on the decode floor. The hash swap lands
+ONLY on the per-model W tree (~1.1e10 permutations at 30B: 2-18
+min on a GPU [MODEL], off the clock); A/H stay blake3, so the
+on-clock hash floor is untouched. Bytes: the W side 346 MB -> ~14
+MB per 30B proof (the masked clear vectors 390 MB remain until the
+PCS swap); verifier slightly faster than as built. Per proof,
+batched across layers, amortised over B x T like the weight
+opening; not amortisable across proofs (Arc: RS-proximity
+accumulation, hash-only, hiding unaddressed — uncounted).
+
+**OPTION 3 — the lattice hybrid (§4).** W on the lattice channel
+(QQ: per-model 2.34 s, per-proof 2.08 s at 12x512 [MEASURED]; 62-75
+/ 14-27 s at 8B, 239-290 / 55-107 s at 30B rescaled x0.85 to S0's
+shape [MODEL]; normalised with TT's 2-8x lattice range: Variant B
+6.9-81 s per 30B proof on an H100, design of record 30-218 s).
+**THE LINK IS THE CRUX.** Form 3a (matmul on the lattice): the
+recorded S7 link rows apply verbatim, but ~30% of the activation
+witness (4 T f + 2 T d of 13 f + 5 d) rides the lattice rates:
++12-215 s per 30B proof [MODEL on MODEL] — the audit form. Form 3b
+(matmul on the hash side): the object is an Fp2 (Goldilocks-ext.)
+MLE evaluation claim W~(r); **no recorded design opens it from the
+q31 commitment** (S7's link ties two COMMITMENTS of the same
+integers via revealed small-coefficient integer functionals). The
+cheapest honest bridge: split each coefficient's two 64-bit limbs
+into 11-bit digits -> 12 integer functionals per claim (S7's w = 11
+class); exactness needs |F| < q/2 with |F| < 2^44.8 per 30B tensor:
+does NOT fit q31 — chunking at q31 is 40-100x on the fold (dead) —
+so the weight group must sit at the q46 gadget class on the VALUE
+rings (a Variant-B-class ruling); per-proof opening x1-1.5 [MODEL];
+the 12 revealed integers per tensor are floor-leak class (~1e7
+proofs) and must be Tier Z masked with ONE recombination relation
+(unrecorded; +272,640-281,856 B per masked floor class); bytes
+~15-20 KB per tensor per proof (S0's "~59 KB of link rows per
+tensor" traced and quoted: GADGET_MODULUS_DECISION §3.4 "full FFN
+tensor | 24 rows | 2,519 B | 59.0 KB | 7.4 MB/pass", scaled by
+AGGREGATION_LITERATURE §4.4 item 4). Tokens/s: Variant B 30B
+prefill B = 1 5.6-49, B = 16 32-128, decode < 0.15; design of
+record 2.2-15 / 21-94. Memory: the 172 GB digit store does not fit
+an H100; Variant B's 21.5 GB does.
+
+**OPTION 4 — the literature (§5).** Searched (two web searches;
+the ePrint pages above; S5-S8): **none found** for a hiding,
+cached, hash-based commitment reusable across proofs; the counted
+dichotomy: a hash commitment reveals what it opens, so hiding
+across openings means re-randomising every position per proof
+(= re-commit; mask-by-linearity, re-salting, a one-time pad all
+reduce to it), never revealing (= option 2), or an algebraic hiding
+commitment (= option 3; Pedersen/KZG mandate-excluded); RS
+accumulation (Arc) is unpriced research.
+
+**THE TABLE (§6), 30B on one H100, tok/s floor / scaled, prefill
+B = 1 | prefill B = 16 | decode B = 1:** P0 47-138 / 8.3-60 | 47-138
+/ 13-92 | 12-33 / 0.043-0.31; P1 43-135 / 7.6-58 | 44-135 / 12-90 |
+12-32 / 0.04-0.30; **option 1** 15-48 / 5.4-39 | 42-127 / 12-87 |
+0.043-0.14 / 0.018-0.13; **option 2** 46-137 / 7.8-58 | 47-138 / 13-92
+| 3.9-12 / 0.037-0.29; **option 3 VB** 5.6-49 / 4.3-42 | 32-128 /
+12-88 | 0.012-0.14; option 3 DoR 2.2-15 / 2.0-13 | 21-94 / 9.7-71 |
+0.005-0.033. At 8B every option's prefill cells clear 50 at the
+floor. Laptop-GPU row at 12x512 for lane XX [MODEL]: P0 1.5-4.6 s;
+option 1 +0.15-0.44 s; option 2 +0.05-0.6 s; option 3 3.4-7.0 s on
+QQ's measured 2.08 s. Note: the measured 23.0 s CPU row already
+re-commits W every proof (S0 §1.1) — it IS option 1's row at 125M.
+
+**THE VERDICT (§7).** If the product must hide the weights (P2/P3),
+**option 2 is the design to build**: the only weights-private
+option whose 30B prefill cells are P0's (46-137 floor / 7.8-58
+scaled), reaching 50 tok/s under exactly P0's conditions (batched
+or prefill, upper half of the range, >= ~50 GB/s hash rate) and no
+others; it hinges on the inner ZK prover for a data-parallel
+Poseidon2 circuit (K_ov, nothing built), the per-model
+arithmetic-hash tree (off the clock) and a written simulator for
+the composition. Option 1 reaches 50 only at B >= 16 stacked
+prefills with a streaming commitment. Option 3 reaches 50 only with
+Variant B at B >= 16 and is the audit channel (S8), not a
+throughput route (its weight opening is 100-1,000x the hash
+line's on the same board). Batch-1 decode at 50 is out of reach
+for every option, as for P0. If P1 is acceptable, nothing here is
+needed. Spikes: Z-1 (hashline ZK form, 1 lane-day, the base);
+O2-1 Poseidon2 + the W tree behind a switch (2-3 d); O2-2 the
+inner statement + a ZK GKR on hashline's sumcheck at 12x512, the
+outer verifier accepting with the W columns absent, K_ov
+[MEASURED] (3-5 d); O2-3 the simulator/extractor (1 d, docs); O2-4
+the device port (an XX rung); O1-1 re-committed vs cached on the
+GPU (0.5 d, XX); O1-2 the token-streaming commitment (2-3 d); O3-1
+= lane VV; O3-2 the bridge design (2 d); O3-3 the bridge at 3x16
+(3-5 d); choice C for every floor/scaled pair. 14 unknowns listed
+(the device wall, the hash rate, K_ov, the Poseidon2 GPU rate, the
+composition's proof, the inner statement's shape, streaming,
+Variant B at q46, the mask relation, attention, the 30B shape, the
+verifier, the competitor's privacy sense, the P3 interaction).
+
+**Asks of the orchestrator's files (not in this lane's
+ownership):** START_HERE.md §2's "unless an uncounted design
+(hidden-column openings, or a lattice-hybrid weight commitment) is
+built" can now cite the memo — the hidden-column design is priced
+at P0's cells; TASK_BOARD.md §0 may carry the one-line verdict;
+AGGREGATION_LITERATURE's family (d)/(e) rows could note ePrint
+2024/1164 (Orion found unsound as published; Scorpius).

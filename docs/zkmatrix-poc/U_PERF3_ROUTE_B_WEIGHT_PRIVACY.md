@@ -1,7 +1,9 @@
 # U-PERF3 lane ZZ — Route B (the hash-based line): keeping the WEIGHTS private across many proofs, priced
 
-Status: SKELETON (2026-09-02; round 11 of tranche U-PERF3, lane ZZ,
-docs only, worktree wt-uperf3-zz; sections land one commit each).
+Status: COMPLETE (2026-09-02; round 11 of tranche U-PERF3, lane ZZ,
+docs only, worktree wt-uperf3-zz; sections landed one commit each;
+the "Agent ZZ status" block in PROGRESS_UPERF3.md carries the
+summary).
 The sibling of lane YY's `U_PERF3_ROUTE_B_THROUGHPUT.md` (cited as
 S0 below) for ONE question that memo left open in its §4.4: on the
 hash-based line, how can the weights stay private across MANY
