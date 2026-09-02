@@ -58,6 +58,44 @@ rulings; the Mac runbook unchanged):**
   the Route-B throughput model (lane TT's seven items for the hash
   line, incl. the ZK surcharge — Victor's ZK rule is non-negotiable —
   and the proof-size lever).
+- **LANE WW LANDED (merged; `results/uperf3_ww_12x512_stage_a.md`).**
+  (1) THE DEFAULTS: `full` = the kappa-4 helper (confirmed); the
+  batched claim transport is the Stage-A DEFAULT, `ZK_RR_ZC_CLAIMS=gg`
+  = GG's form (opt-in). **NEW STAGE-A IDENTITY for the floors**:
+  12x64 statement 441ca5db.. | transcript c0b8236f..; 12x128
+  dc3100e7.. | 1644b4e1..; 12x512 ee87f414.. | e0b3b985.. (CPU ==
+  GPU); the old 44528c6a.. / e5085602.. remain reachable under `gg`.
+  Full-mode identity: 12x512 8d1ef1a8.., 12x128 4b02815d.., 3x16
+  6863f0d6... (2) THE COLD-DESCENT-KERNELS CAUSE, found and fixed:
+  RR's zc module kept 3.31 GB of VRAM past the Stage-A phase; k9's
+  budget is fixed at init and its idle slabs stay held; the oracle
+  leg's ixf tables then declined (free 0.34 GB), fell to k9's upload
+  path, and k9's `make_room` fired MID-WAY through the ixf grow loop,
+  freed the tables just grown, uploaded to ptr 0 ->
+  CUDA_ERROR_INVALID_VALUE -> k9 disabled for the process -> all
+  descents on the CPU. Fix (additive, default-preserving; every
+  frozen digest unchanged incl. the frozen pass's EVAL-PROOF
+  742d88e1../4c259008..): `zc_agg_release()`, room made ONCE before
+  the grow loop + `k9_trim_idle()`, called by the driver at the end
+  of the Stage-A phase. One-process oracle now matches standalone
+  within noise (12x512: 18.2 vs 16.9 s prove, ixf opens 5x).
+  (3) THE DRIVER DIET: **12x512 FULL mode 7,156 MiB == range 7,152
+  MiB (was OOM at 15.18 / 14.4 GB)**; 12x128 full 8,072 -> 2,884 MiB
+  (one h_sum claim per pair — a full-mode transcript change with a
+  soundness note; prover objects dropped before verify; the act-h
+  claim rows made compact — SS's V4 had counted them DENSE, ~95 GB
+  per side at 8B). (4) THE HONEST 12x512 A/B [GPU 8T NOISY-SHARED,
+  x3]: oracle standalone 3.3-3.6 / 16.9-17.7 / 3.8-4.4 s (1,509,911
+  B, 2,833 MiB); Stage-A RANGE 6.4-7.1 / 18.8-19.1 / 4.6-5.0
+  (670,891 B, 7,152 MiB) — prove parity 1.02-1.03x, total 1.15-1.18x,
+  bytes 2.25x smaller; Stage-A FULL 6.2-7.3 / 74.5-82.9 / 10.4-14.6
+  (900,003 B) — 4.0-4.4x the prove (the scalar-K degree-18 lookup
+  sumchecks, 44-47 s) for 1.68x fewer bytes. (5) 8B full-mode memory
+  RE-ESTIMATE: **~85 GB [MODEL]** (replaces the lower-bound caveat;
+  the pre-diet form would have been ~260 GB). Rulings: the
+  pair-level h_sum grounding (soundness note lane-written); k9's
+  init-time budget (the driver trim is the mitigation); the
+  scalar-K lookup sumchecks are full mode's lever if it ships.
 - **LANE ZZ LANDED (merged; `U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md`,
   1,132 lines, docs only) — THE PRIVATE-WEIGHTS ANSWER FOR ROUTE B.**
   Three ways, one keeps 50 tok/s at 30B reachable: **option 2, never

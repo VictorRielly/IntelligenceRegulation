@@ -101,12 +101,13 @@ RECORD (§R): per thread count: commit / prove / verify seconds, the
 
 ## M1b. The reference shape in FULL proof mode (new 2026-09-02; the laptop cannot hold it)
 
-WHY: the "full" proof mode (every table lookup routed through the
-newer aggregate checks — the mode the final composed run will use)
-was made to fit at 12 layers x 128 tokens on the laptop (8.1 GB), but
-at the reference shape 12 x 512 it was killed at 15.2 GB there. The
-Mac's 256 GB holds it. This one run tells us the true full-mode
-memory growth, which the 8B memory estimate depends on.
+WHY (updated 2026-09-02 late): the laptop now runs BOTH Stage-A
+modes at 12 x 512 after lane WW's memory diet (7.2 GB each; the
+earlier 15 GB kills were a pre-diet layout). This item is therefore
+no longer a blocker — it is the Mac's own CPU number for the two
+Stage-A modes at the reference shape (useful for the thread ladder
+and the 8B extrapolation), lower priority than M4-M6. Skip it if
+time is short.
 
 ```
 ZK_THREADS=8 M125_EXPORT_DIR=results/m125_ffn_export /usr/bin/time -l zkmatrix-rs/target/release/ring_matmul uperf-a pass 12 512 full > results/uperf/mac_stagea_12x512_full.log 2>&1

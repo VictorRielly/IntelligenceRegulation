@@ -8040,3 +8040,26 @@ AGGREGATION_LITERATURE's family (d)/(e) rows could note ePrint
 - Corrections adopted from ZZ: the weight-recovery horizon is
   257/513 proofs at the 8B/30B optimum (65 = the 125M parameters);
   only the W commitment needs the inner proof.
+
+## Orchestrator note 2026-09-02 — round 11: WW merged (3f68c8c)
+
+- Floors on the WW-merged tree (CPU build 2m11s, GPU 2m25s):
+  diff-battery 16.91 s passed; freeze-check 102 ok + passed, exit 0;
+  uperf-s 3752cba4..; agg 46234986..; uperf-x be89d5da..; **the
+  Stage-A identity is now the BATCHED form by default**: 12x64
+  statement 441ca5db.. | transcript c0b8236f.. on the CPU AND GPU
+  binaries; under `ZK_RR_ZC_CLAIMS=gg` the old transcript 44528c6a..
+  is reproduced byte-identically. THE STANDING FLOOR LINE FROM HERE:
+  `uperf-a pass 12 64 range` -> 441ca5db.. / c0b8236f.. (gg:
+  44528c6a..). `uperf-t b diff 20` (GPU) e757eff7.. PASS. The frozen
+  pass on the GPU binary after WW's additive k9 edit: `uperf-pc
+  pass-profile 3 16` EVAL-PROOF 8a0a3fd4.. (statement de93b680..),
+  accept — recorded as this lineage's 3x16 reference; WW verified
+  the 12x128 (742d88e1..) and 12x512 (4c259008..) EVAL digests
+  unchanged across the edit.
+- The ledger tail conflict (WW's status block vs the orchestrator
+  notes appended after its header) resolved keeping both sides,
+  WW's block first, BEFORE staging — per the new merge-hygiene rule.
+- STATE: round 11 lanes UU, VV, WW, YY, ZZ merged; XX (hashline on
+  the GPU) still running. Next lane to open when XX lands: Z-1 (the
+  hashline ZK form), needed under any privacy mode.
