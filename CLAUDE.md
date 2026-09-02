@@ -11,8 +11,15 @@ side: `docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md`.
 
 Victor approves permission prompts over Telegram, one text per prompt. Every
 avoidable prompt is a real interruption. **Shape commands to match the
-allowlist in `.claude/settings.local.json`**; the rules below exist for that
-reason.
+allowlist in `.claude/settings.json` (read-only ops) and
+`.claude/settings.local.json` (git write ops)**; the rules below exist for
+that reason. Both files are gitignored and local to the WSL box. Since
+mid-August 2026 that box runs `permissions.defaultMode: auto`: allowlisted
+commands run with no check at all, everything else goes to the auto-mode
+classifier, which allows or blocks without prompting. Since then only
+AskUserQuestion and EnterWorktree have reached Telegram (hook log,
+2026-09-01); the rules below now buy classifier-free execution rather than
+fewer pings.
 
 ## Command style (prompt hygiene)
 
@@ -29,12 +36,16 @@ reason.
   stray head sends the whole chain to Victor's phone.
 - **`sed -n` (read-only paging) is allowlisted; `sed -i` is not** — edit
   files with the Edit/Write tools.
-- **python via bare `python3`** (allowlisted), multi-step logic in a script
-  or one `-c` block rather than shell loops.
+- **python via bare `python3`** (classifier-approved; only `python3 -m
+  unittest *` is allowlisted), multi-step logic in a script or one `-c`
+  block rather than shell loops.
 - **git**: read ops plus `add`/`commit`/`worktree`/`merge` are allowlisted
   (the tranche protocol's lane ops). `push`, `reset`, `checkout`, `rebase`,
   `rm`, `mv`, `kill` require approval — batch them (e.g. the push at tranche
-  close) and present them together with one-line rationales.
+  close) and present them together with one-line rationales. (As of
+  2026-09-01 `git push *` is nonetheless in the WSL box's
+  `.claude/settings.local.json` allowlist, so it does not actually prompt
+  there.)
 
 ## Heavy runs: detach, queue, marker (the no-hangup protocol, 2026-08-26)
 
