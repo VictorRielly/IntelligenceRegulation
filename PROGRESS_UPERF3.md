@@ -5015,7 +5015,37 @@ ONE GPU (H100-class allowed), written so a newcomer can follow it:
 
 ## Agent QQ status (wt-uperf3-qq) — round 10
 
-(lane appends below)
+- 2026-09-02 SKELETON (rung 0): worktree wt-uperf3-qq on uperf3-qq
+  at 10f73bf (round-10 open). OWNS: zkmatrix-rs/src/ring/two_tier.rs
+  (ADDITIVE), NEW zkmatrix-rs/src/ring/gpu/two_tier_gpu.rs (+ its
+  `pub mod` line and the stub twin), the `uperf-t` bin section
+  (ADDITIVE: new [UPERF3-QQ] block after tt_build_real_act_instance;
+  the dispatcher now lists `count | r1 | gpu | repeat`), NEW
+  results/uperf3_qq_*, this section. READ-ONLY: everything else.
+  RUNG PLAN (one commit each, prefix "U-PERF3 QQ:"):
+  1. `uperf-t count [log2_rings]` — the C-R1 swap-order form
+     COUNTED: scalar MACs / ring products per phase (rows / v-pass /
+     fold / recursion), per-model vs per-proof, at 2^22, the 8B
+     weight group (352,321,536 rings) and a 30B weight group (shape
+     stated); [MODEL] walls on the RTX 4070 from the measured kernel
+     classes. The table lands here.
+  2. `uperf-t r1 [n_log2] [threads] [seed]` — the factored v-pass on
+     the CPU behind a flag (two_tier.rs: new functions, the S4
+     tt_qr_pass/tt_v_from_qr untouched); the FF rung-2 legs (DIFF
+     1-3 + the reject legs) reused verbatim at 2^20; the v-pass wall
+     at 2^22 1T vs the measured 20.01 s (bench22_1t_v2).
+  3. `uperf-t gpu` — the device port of the factored linear pass
+     (cudarc/NVRTC, integer MACs mod q31); bit-identical to rung 2;
+     wall at 2^22/2^23 ZK_GPU=1 vs the built bg_prove_group GPU path.
+  4. `uperf-t repeat <shape> [n]` — the per-model struct (built once,
+     held warm) vs the per-proof work; per-proof wall over n proofs;
+     then the REAL 12x512 WEIGHT group vs the built weight-group
+     opening (ZK_GPU=1 both), claims bit-identical.
+  5. RECORD + the verdict against the reopen bar (>= 5x per-proof
+     weight-side opening at the 12x512 weight group, claims
+     bit-identical); if not, the measured ratio is the finding.
+  Every wall: [WSL-BOX] [1T|8T] [NOISY-SHARED] (lanes RR/SS active).
+  Every number: [MEASURED] / [COUNTED] / [MODEL].
 
 ## Agent RR status (wt-uperf3-rr) — round 10
 

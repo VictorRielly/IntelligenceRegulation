@@ -49762,7 +49762,17 @@ fn uperf_t_main(args: &[String]) {
             let shape = args.get(1).cloned().unwrap_or_else(|| "22".to_string());
             uperf_t_bench(&shape, geti(2, 1), geti(3, 161) as u8);
         }
-        _ => eprintln!("uperf-t plan [log2_rings [e0]] | diff [n_log2] [threads] [seed] | bench [n_log2] [threads] [seed] (see PROGRESS_UPERF3.md Agent FF status)"),
+        // [UPERF3-QQ] round 10: the C-R1 count printer, the factored
+        // v-pass on the CPU (rung 2), its device port (rung 3), the
+        // per-model / per-proof boundary (rung 4).
+        Some("count") => uperf_t_qq_count(&args[1..]),
+        Some("r1") => uperf_t_qq_r1(&args[1..]),
+        Some("gpu") => uperf_t_qq_gpu(&args[1..]),
+        Some("repeat") => uperf_t_qq_repeat(&args[1..]),
+        _ => eprintln!(
+            "uperf-t plan [log2_rings [e0]] | diff [n_log2] [threads] [seed] | bench [n_log2] [threads] [seed] (see PROGRESS_UPERF3.md Agent FF status)\n\
+             uperf-t count [log2_rings] | r1 [n_log2] [threads] [seed] | gpu [n_log2] [threads] [seed] | repeat <n_log2|real> [n] [threads] [seed] (round 10, Agent QQ status)"
+        ),
     }
 }
 
@@ -50677,6 +50687,37 @@ fn tt_build_real_act_instance(kf: &ring::kfield::KField, layers_n: usize, t: usi
         tt.push(TtContrib { tensor_idx: ti, hi, lo, col });
     }
     (TtInstance { group: ga, grid, claims, tt }, w0)
+}
+
+// ===========================================================================
+// [UPERF3-QQ] U-PERF3 round 10, lane QQ — the two-tier opening + weight
+// preprocessing on the GPU cost model (PROGRESS_UPERF3.md "Lane QQ";
+// U_PERF3_S4_REDESIGN.md §2 R1 + C-R1). ADDITIVE: new `uperf-t`
+// subcommands only; the FF spike paths above and the frozen pass stay
+// byte-identical. Rungs:
+//   1. `uperf-t count [log2_rings]` — the C-R1 swap-order form COUNTED
+//      (scalar MACs / ring products per phase, per-model vs per-proof)
+//      at 2^22, the 8B weight group and a 30B weight group; [MODEL]
+//      walls on the RTX 4070 from the measured kernel classes.
+//   2. `uperf-t r1` — the factored v-pass on the CPU behind a flag;
+//      the FF rung-2 differential legs reused verbatim.
+//   3. `uperf-t gpu` — the device port of the factored linear pass.
+//   4. `uperf-t repeat` — the per-model / per-proof boundary.
+
+fn uperf_t_qq_count(_args: &[String]) {
+    println!("[UPERF3-QQ] uperf-t count: rung 1 not built yet (skeleton)");
+}
+
+fn uperf_t_qq_r1(_args: &[String]) {
+    println!("[UPERF3-QQ] uperf-t r1: rung 2 not built yet (skeleton)");
+}
+
+fn uperf_t_qq_gpu(_args: &[String]) {
+    println!("[UPERF3-QQ] uperf-t gpu: rung 3 not built yet (skeleton)");
+}
+
+fn uperf_t_qq_repeat(_args: &[String]) {
+    println!("[UPERF3-QQ] uperf-t repeat: rung 4 not built yet (skeleton)");
 }
 
 // ===========================================================================
