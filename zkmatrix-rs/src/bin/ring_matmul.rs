@@ -50740,16 +50740,51 @@ fn uperf_a_gg_main(args: &[String]) {
             println!("[UPERF3-GG] pass-battery: masked honest ACCEPT + 4 tamper legs REJECT — all green");
         }
         Some("descent-bench") | Some("descent-battery") => uperf_a_main(args),
+        // [UPERF3-SS] round 10 — the full-mode (committed-h) arms; ADDITIVE.
+        Some("full-plan") => uperf_a_ss_plan(),
         _ => {
             println!(
                 "uperf-a map [layers] [t] | diff [pair] [layers] [t] [seed] | pass [layers] [t] [range|full|masked] [nooracle|mask-commit|mask-served|claim|round] | pass-battery [layers] [t]   ([UPERF3-GG] Stage-A integration, round 5)"
             );
+            println!("uperf-a full-plan   ([UPERF3-SS] the committed-h rungs V1-V4, round 10)");
             uperf_a_main(args);
         }
     }
 }
 
 // ---------------------------------------------------------------------------
+// [UPERF3-SS] round 10, lane SS — the committed-h encoding (rungs V1-V4;
+// engine side: ring/stage_a_full.rs, reached through ring::stage_a::full).
+// Rung 0: the plan printer + the ring arithmetic sanity against lane GG's
+// measured act-h rows.
+fn uperf_a_ss_plan() {
+    use ring::stage_a::full as ssf;
+    println!("[UPERF3-SS] the committed-h encoding — rung plan (spec U_PERF3_COMMITTED_H.md §3):");
+    for (i, l) in ssf::plan_lines().iter().enumerate() {
+        println!("  {}. {l}", i + 1);
+    }
+    let f_pad = bf_f().next_power_of_two();
+    let l0_q = ring::digits::derive_l0(-((ring::Q8 / 2) as i64), (ring::Q8 / 2) as i64, 2);
+    println!(
+        "[UPERF3-SS] what the act-h group is: the S2 LogUp helper h_i = 1/(alpha - key_i) of the SiLU pairs — {} K coords x l0_q {} digits = {} digit rings per element",
+        ring::kfield::K_DEG,
+        l0_q,
+        ssf::helper_rings(1 << 20, ring::kfield::K_DEG, l0_q) as f64 / (1u64 << 20) as f64
+    );
+    for (layers, t, measured) in [(3usize, 16usize, 196_608usize), (12, 128, 6_291_456)] {
+        let counted = ssf::gg_act_h_rings(layers, t, f_pad, l0_q);
+        println!(
+            "  {layers}x{t}: act-h rings COUNTED {counted} vs GG MEASURED {measured} ({}); planes (w = 8) over the same elements {} rings; kappa-level pf helper kappa 3 {} / kappa 4 {} rings (degree {} / {})",
+            if counted == measured { "MATCH" } else { "MISMATCH" },
+            ssf::planes_rings(layers * t * f_pad, 8),
+            ssf::pf_helper_rings(layers * t * f_pad, 3, l0_q),
+            ssf::pf_helper_rings(layers * t * f_pad, 4, l0_q),
+            ssf::pf_degree(3),
+            ssf::pf_degree(4),
+        );
+    }
+}
+
 // [UPERF3-GG] rung 3 — THE COMPOSED PASS behind the selector: bk_pass_run's
 // full-statement composition with the DESCENT PHASE replaced by the Stage-A
 // components. bk_pass_run itself is READ-ONLY (the oracle); this driver is
@@ -51930,6 +51965,10 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
         None
     };
     let prove_s = t_prove.elapsed().as_secs_f64();
+    // [UPERF3-SS] the pass digest: the prover transcript state after the
+    // last group proof binds every shipped object (deterministic seeds) —
+    // the byte-identity floor for the mode-routing rungs.
+    println!("  [UPERF3-SS] PASS TRANSCRIPT DIGEST {}", hex_full(&tr.state()));
 
     // ---- VERIFIER (fresh transcript, own claim layer + stage-a). ----
     let t_verify = Instant::now();

@@ -22,6 +22,8 @@
 // reuse — any needed-but-private zc_range surface is wrapped here, never
 // edited there.
 
+pub use super::stage_a_full as full; // [UPERF3-SS] round 10: the FULL-mode routing (committed-h rungs V1-V4) lives in stage_a_full — the one dispatch line lane SS owns in this file
+
 // ---------------------------------------------------------------------------
 // Rung 1: the object-map plan shapes (no proving).
 

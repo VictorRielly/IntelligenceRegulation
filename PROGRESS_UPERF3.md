@@ -5023,7 +5023,91 @@ ONE GPU (H100-class allowed), written so a newcomer can follow it:
 
 ## Agent SS status (wt-uperf3-ss) — round 10
 
-(lane appends below)
+Lane SS: the committed-h encoding, rungs V1-V4 (spec
+U_PERF3_COMMITTED_H.md §3). OWNS: NEW ring/stage_a_full.rs (+ its
+`pub mod` line in ring/mod.rs), ONE dispatch line in ring/stage_a.rs,
+the driver's Full-mode branches + ADDITIVE `uperf-a` arms in the bin,
+NEW results/uperf3_ss_*, this section. Range mode is lane RR's and
+stays byte-identical (the floor below).
+
+THE DISPATCH LINE (verbatim, ring/stage_a.rs, inserted before the
+"Rung 1" banner — for RR's merge):
+`pub use super::stage_a_full as full; // [UPERF3-SS] round 10: the FULL-mode routing (committed-h rungs V1-V4) lives in stage_a_full — the one dispatch line lane SS owns in this file`
+
+### RUNG 0 — SKELETON + THE READING (2026-09-02) [WSL-BOX 8T NOISY-SHARED]
+
+READING THE CODE BEFORE BUILDING (the finding the rungs are cut
+around; recorded up front, not after): the act-h group of lane GG's
+full mode (`gg_build_groups`, ring_matmul.rs ~:50926) is the S2 LogUp
+HELPER h_i = 1/(alpha - key_i) of the two SiLU pair families — a
+K-field element per looked-up element committed at the blinder class
+(16 coords x l0_q = 16 base-4 digits = 256 digit values = **2 digit
+rings per element**), committed after alpha (the F2 ordering). It is
+not a range-fact commitment of the activation h, and nothing in the
+v3 entry list (Hlo/Hhi/H/Rh) can stand in for it: a LogUp instance
+needs a helper column of its own whatever it looks up. The memo's
+candidate C2 ("route h's range facts as 256-row lookups over the
+existing limbs; the act-h group vanishes") is therefore inverted on
+the ring count: a 256-row lookup over an EXISTING 8-bit column costs
+the S2 helper (2 rings/element) where the width planes it would
+replace cost w/128 = 1/16 ring/element — **32x MORE** for an 8-bit
+fact (the planes ARE the compact form for range facts). The v2 pass
+the driver runs on has no Hlo (BF_ENTRIES = X, WgT, WuT, WdT, Gacc,
+Rg, g8, a8, Uacc, Ru, u8, H, Rh, h8, Dacc, Rd, z); its analog of the
+spec's "h16 range fact over Hlo" is the nrw-88 family (the u8/h8
+narrowing against [0,256) at offset 128 over the existing h8
+commitment) — that is V1's target.
+- Sanity [COUNTED vs MEASURED]: `uperf-a full-plan` reproduces GG's
+  measured act-h rows exactly — 3x16: 196,608 rings; 12x128:
+  6,291,456 (m125 f = 2048 padded to 2048, t x f elements x 12
+  layers x 2 rings). Same elements as 8 width planes: 6,144 /
+  196,608 rings (32x).
+- THE COMPACT FORM THIS LANE BUILDS FOR V3 (where a lookup is
+  unavoidable — the SiLU tables): the kappa-level PARTIAL-FRACTION
+  helper — commit h at node granularity, h_node = sum_{i in node}
+  1/(alpha - key_i) over 2^kappa consecutive keys (one K element per
+  2^kappa elements: 2/2^kappa rings/element), and prove h_node *
+  prod_i (alpha - key_i) = sum_i prod_{i' != i} (alpha - key_i') by
+  ONE degree-(2^kappa + 2) zero-check (eq * (h * Q - P)) whose final
+  claims are the 2^kappa key MLEs at (b || x*) over the EXISTING
+  member commitments (prim + Y-scaled image, as gg_logup_claims
+  serves today) plus h(x*) and h_sum over the 2^kappa-times smaller
+  act-h block; the LogUp sum identity sum_nodes h_node = sum_j m_j /
+  (alpha - t_j) is unchanged (partial fractions: P/Q = sum_i
+  1/(alpha - key_i) exactly when Q != 0, i.e. alpha != every key —
+  the S2 redraw measure ~2^-490). kappa = 0 is the S2 form; kappa =
+  3 cuts act-h 8x (12x128: 6.29M -> 786K rings) at round degree 10;
+  kappa = 4 cuts 16x (393K) at degree 18. This is the ruling's third
+  candidate ("a derived-not-committed h with its own relation") in
+  partially-derived form; it is a Stage-A full-mode transcript change
+  (full mode is selector-gated, not frozen) and needs Victor's ruling
+  before the Stage-A round-1 freeze set adopts it — recorded, not
+  assumed.
+- Built: ring/stage_a_full.rs (ring arithmetic + plan), the mod line,
+  the dispatch line, `uperf-a full-plan`, and ONE additive print in
+  the driver — `[UPERF3-SS] PASS TRANSCRIPT DIGEST <hex>` (the
+  prover transcript state after the last group proof; deterministic
+  seeds, so it binds every shipped object) = the byte-identity floor
+  for the routing rungs.
+- FLOORS: release build green; uperf-pc diff-battery 15.32 s green;
+  freeze-check (M125_EXPORT_DIR set) 102 ok rows + "freeze-check
+  passed"; uperf-s 3752cba4.. / agg 46234986.. / uperf-x be89d5da..
+  unchanged.
+- RANGE-MODE BASELINE [MEASURED]: `M125_EXPORT_DIR=... ZK_THREADS=8
+  /usr/bin/time -v ring_matmul uperf-a pass 12 64 range nooracle` —
+  PASS TRANSCRIPT DIGEST **44528c6aeee0a771..**, 622,011 B counted,
+  accept true, weight n_0 3,538,944 / act n_0 1,548,104, 989 claims,
+  commit 6.0 s prove 23.7 s verify 3.2 s, peak RSS 3,892 MiB (wall
+  31 s). Every later commit re-runs this and must reproduce the
+  digest and the byte/ring lines.
+- RUNG PLAN (one commit each, prefix "U-PERF3 SS:"): V1 = the nrw-88
+  h8 fact of layer 0 as a 256-row identity LogUp over the existing h8
+  commitment in full mode, differential vs the planes form (range
+  mode's zc) and the descent form (the oracle), rings counted; V2 =
+  the counted bill at 12x512 and 32x512 8B for S2 K-helper / E_4
+  helper / kappa-level pf helper / planes / descent; V3 = the SiLU
+  helper routed through the kappa-level pf form, `uperf-a pass 12
+  128 full` peak vs range mode; V4 = the 8B full-mode counted row.
 
 ## Agent TT status (main session) — round 10
 
