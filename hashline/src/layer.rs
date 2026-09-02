@@ -1,1 +1,842 @@
-//! Placeholder (rung 4 fills this): the one-layer statement.
+//! The one-layer statement: prover and verifier.
+//!
+//! Public statement: layer index, T (rows, a power of two <= 512), the
+//! four requant shifts, the frozen SiLU member (bytes + digest).
+//! Committed (three Ligero commitments): W = {Wg, Wu, Wd blocks},
+//! A = {g8, rg, a8, u8, ru, h8, rh, X blocks, z blocks, rd blocks},
+//! H = {LogUp helper columns, re/im}.
+//! Proven: gacc = X.Wg and uacc = X.Wu (one batched matmul sumcheck over
+//! k' in 2^8 with the three d-blocks summed), dacc = h8.Wd (one matmul
+//! sumcheck over k in 2^11 with the three output blocks batched),
+//! hh = a8 u8 = 2^sh_h h8 + rh (zero-check), every lookup (g8,a8) in the
+//! SiLU table, u8/h8/z in [-128,127], rg/ru/rh/rd in [0, 2^sh) (LogUp
+//! with committed helpers h = 1/(alpha - v1) + 1/(alpha - v2), helper
+//! identity as a zero-check, helper sums vs the multiplicity side), and
+//! the requant identities gacc = 2^sh_g g8 + rg etc. folded LINEARLY
+//! into the evaluation claims. Every pending evaluation claim is folded
+//! into the two zero-check sumchecks (20-var and 17-var at T = 512) so
+//! that A and H are opened at two points only.
+
+use crate::chain::LayerWitness;
+use crate::export::{D, F};
+use crate::field::{batch_inverse2, Fp, Fp2};
+use crate::mle::{eq_point, eq_table_msb, eval_mle_ext, fold_cols_base, fold_cols_i8, fold_rows_i32, fold_rows_i8};
+use crate::ntt::NttTables;
+use crate::pcs::{self, Claim, Commitment, Opening, PcsParams, Slice};
+use crate::sumcheck::{self, SumcheckProof};
+use crate::transcript::Transcript;
+use rayon::prelude::*;
+
+pub const TAG_SILU: u64 = 1;
+pub const TAG_INT8: u64 = 2;
+pub fn tag_range(sh: u32) -> u64 {
+    16 + sh as u64
+}
+
+#[derive(Clone, Debug)]
+pub struct Statement {
+    pub l: usize,
+    pub t_rows: usize,
+    pub shifts: (u32, u32, u32, u32),
+    pub table: [i8; 256],
+    pub table_digest: String,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct LayerParams {
+    pub log_cols: u32,
+    pub inv_rate: usize,
+    pub num_col_checks: usize,
+}
+
+impl LayerParams {
+    fn pcs_for(&self, min_log_slice: u32) -> PcsParams {
+        PcsParams { log_cols: self.log_cols.min(min_log_slice), inv_rate: self.inv_rate, num_col_checks: self.num_col_checks }
+    }
+}
+
+/// Element offsets of every slice in the three committed vectors.
+#[derive(Clone, Debug)]
+pub struct Layout {
+    pub log_t: u32,
+    pub log_tf: u32,
+    pub log_tb: u32,
+    pub tf: usize,
+    pub tb: usize,
+    pub g8: usize, pub rg: usize, pub a8: usize, pub u8v: usize, pub ru: usize, pub h8: usize, pub rh: usize,
+    pub x: [usize; 3], pub z: [usize; 3], pub rd: [usize; 3],
+    pub a_len: usize,
+    pub wg: [usize; 3], pub wu: [usize; 3], pub wd: [usize; 3],
+    pub w_len: usize,
+    pub hg: (usize, usize), pub hu: (usize, usize), pub hh: (usize, usize), pub hz: [(usize, usize); 3],
+    pub h_len: usize,
+}
+
+pub const LOG_WBLOCK: u32 = 19; // 256 x 2048 or 2048 x 256
+
+impl Layout {
+    pub fn new(t_rows: usize) -> Layout {
+        assert!(t_rows.is_power_of_two() && t_rows <= 512);
+        let log_t = t_rows.trailing_zeros();
+        let tf = t_rows * F;
+        let tb = t_rows * 256;
+        let x = [7 * tf, 7 * tf + tb, 7 * tf + 2 * tb];
+        let z = [7 * tf + 3 * tb, 7 * tf + 4 * tb, 7 * tf + 5 * tb];
+        let rd = [7 * tf + 6 * tb, 7 * tf + 7 * tb, 7 * tf + 8 * tb];
+        let wb = 1usize << LOG_WBLOCK;
+        let hz = [(6 * tf, 6 * tf + tb), (6 * tf + 2 * tb, 6 * tf + 3 * tb), (6 * tf + 4 * tb, 6 * tf + 5 * tb)];
+        Layout {
+            log_t, log_tf: log_t + 11, log_tb: log_t + 8, tf, tb,
+            g8: 0, rg: tf, a8: 2 * tf, u8v: 3 * tf, ru: 4 * tf, h8: 5 * tf, rh: 6 * tf,
+            x, z, rd, a_len: 7 * tf + 9 * tb,
+            wg: [0, wb, 2 * wb], wu: [3 * wb, 4 * wb, 5 * wb], wd: [6 * wb, 7 * wb, 8 * wb], w_len: 9 * wb,
+            hg: (0, tf), hu: (2 * tf, 3 * tf), hh: (4 * tf, 5 * tf), hz, h_len: 6 * tf + 6 * tb,
+        }
+    }
+    fn s_tf(&self, off: usize) -> Slice { Slice { offset: off, log_size: self.log_tf } }
+    fn s_tb(&self, off: usize) -> Slice { Slice { offset: off, log_size: self.log_tb } }
+    fn s_w(&self, off: usize) -> Slice { Slice { offset: off, log_size: LOG_WBLOCK } }
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct LayerProof {
+    pub w_com: Option<Commitment>,
+    pub a_com: Option<Commitment>,
+    pub h_com: Option<Commitment>,
+    pub mults: Vec<(u64, Vec<u32>)>,
+    pub gu_claims: Vec<Fp2>,
+    pub gu_sc: SumcheckProof,
+    pub gu_term: Vec<Fp2>,
+    pub d_claims: Vec<Fp2>,
+    pub d_sc: SumcheckProof,
+    pub d_term: Vec<Fp2>,
+    pub zc20_sc: SumcheckProof,
+    pub zc20_term: Vec<Fp2>,
+    pub zc17_sc: SumcheckProof,
+    pub zc17_term: Vec<Fp2>,
+    pub helper_sums: Vec<Fp2>,
+    pub w_open: Opening,
+    pub a_open: Opening,
+    pub h_open: Opening,
+}
+
+impl LayerProof {
+    /// Serialized size in bytes (a flat little-endian encoding of every field).
+    pub fn size_bytes(&self) -> usize {
+        let coms = 3 * (32 + 8 + 4);
+        let mults: usize = self.mults.iter().map(|(_, m)| 8 + 4 + m.len() * 4).sum();
+        let f2 = |v: &Vec<Fp2>| v.len() * 16;
+        coms + mults + f2(&self.gu_claims) + self.gu_sc.size_bytes() + f2(&self.gu_term)
+            + f2(&self.d_claims) + self.d_sc.size_bytes() + f2(&self.d_term)
+            + self.zc20_sc.size_bytes() + f2(&self.zc20_term) + self.zc17_sc.size_bytes() + f2(&self.zc17_term)
+            + f2(&self.helper_sums) + self.w_open.size_bytes() + self.a_open.size_bytes() + self.h_open.size_bytes()
+    }
+}
+
+fn absorb_statement(tr: &mut Transcript, st: &Statement) {
+    tr.absorb_u64(b"layer", st.l as u64);
+    tr.absorb_u64(b"t_rows", st.t_rows as u64);
+    tr.absorb(b"shifts", &[st.shifts.0 as u8, st.shifts.1 as u8, st.shifts.2 as u8, st.shifts.3 as u8]);
+    tr.absorb(b"table", st.table_digest.as_bytes());
+}
+
+fn absorb_com(tr: &mut Transcript, label: &[u8], c: &Commitment) {
+    tr.absorb(label, &c.root);
+    tr.absorb_u64(label, c.rows as u64);
+}
+
+fn absorb_mults(tr: &mut Transcript, mults: &[(u64, Vec<u32>)]) {
+    let mut bytes = Vec::new();
+    for (tag, m) in mults {
+        bytes.extend_from_slice(&tag.to_le_bytes());
+        bytes.extend_from_slice(&(m.len() as u64).to_le_bytes());
+        for v in m {
+            bytes.extend_from_slice(&v.to_le_bytes());
+        }
+    }
+    tr.absorb(b"mults", &bytes);
+}
+
+fn to_fp_i32(v: &[i32]) -> Vec<Fp> {
+    v.par_iter().map(|&x| Fp::from_i64(x as i64)).collect()
+}
+fn to_fp2_i32(v: &[i32]) -> Vec<Fp2> {
+    v.par_iter().map(|&x| Fp2::from_i64(x as i64)).collect()
+}
+
+/// Evaluate several base-field slices at one point (one eq table).
+fn eval_many(data: &[Fp], slices: &[(usize, usize)], point: &[Fp2]) -> Vec<Fp2> {
+    let eq = eq_table_msb(point);
+    slices
+        .iter()
+        .map(|&(off, len)| {
+            assert_eq!(len, eq.len());
+            data[off..off + len].par_iter().zip(eq.par_iter()).map(|(a, e)| e.mul_base(*a)).reduce(|| Fp2::ZERO, |a, b| a.add(b))
+        })
+        .collect()
+}
+
+fn sum_fp2(v: &[Fp2]) -> Fp2 {
+    v.par_iter().copied().reduce(|| Fp2::ZERO, |a, b| a.add(b))
+}
+
+fn pow2(sh: u32) -> Fp {
+    Fp::new(1u64 << sh)
+}
+
+/// Multiplicity tables from the (possibly tampered) witness columns.
+fn multiplicities(w: &LayerWitness, lay: &Layout) -> Vec<(u64, Vec<u32>)> {
+    let tf = lay.tf;
+    let tb = lay.tb;
+    // Values outside a table (only possible on a TAMPERED witness) are
+    // counted into entry 0 so the totals still match: the cheating
+    // prover passes the shape/total sanity checks and only the LogUp
+    // identity can catch it (that is what the tamper legs test).
+    let mut silu = vec![0u32; 256];
+    for &g in &w.g8[..tf] {
+        if (-128..=127).contains(&g) { silu[(g + 128) as usize] += 1; } else { silu[0] += 1; }
+    }
+    let mut int8 = vec![0u32; 256];
+    for col in [&w.u8v[..tf], &w.h8[..tf]] {
+        for &v in col {
+            if (-128..=127).contains(&v) { int8[(v + 128) as usize] += 1; } else { int8[0] += 1; }
+        }
+    }
+    for &v in &w.z[..tb * 3] {
+        if (-128..=127).contains(&v) { int8[(v + 128) as usize] += 1; } else { int8[0] += 1; }
+    }
+    let (sg, su, sh, sz) = w.shifts;
+    let mut out = vec![(TAG_SILU, silu), (TAG_INT8, int8)];
+    let mut shifts: Vec<u32> = vec![sg, su, sh, sz];
+    shifts.sort();
+    shifts.dedup();
+    for s in shifts {
+        let mut m = vec![0u32; 1usize << s];
+        let cols: Vec<&[i32]> = [(sg, &w.rg[..tf]), (su, &w.ru[..tf]), (sh, &w.rh[..tf]), (sz, &w.rd[..tb * 3])]
+            .into_iter().filter(|(c, _)| *c == s).map(|(_, v)| v).collect();
+        for col in cols {
+            for &r in col {
+                if r >= 0 && (r as usize) < m.len() { m[r as usize] += 1; } else { m[0] += 1; }
+            }
+        }
+        out.push((tag_range(s), m));
+    }
+    out
+}
+
+/// Helper column h = 1/(alpha - l1) + 1/(alpha - l2) over two lookup value columns.
+fn helper_column(l1: &[Fp2], l2: &[Fp2], alpha: Fp2) -> Vec<Fp2> {
+    let n = l1.len();
+    let mut den: Vec<Fp2> = Vec::with_capacity(2 * n);
+    den.extend(l1.iter().map(|v| alpha.sub(*v)));
+    den.extend(l2.iter().map(|v| alpha.sub(*v)));
+    den.par_chunks_mut(4096).for_each(|c| batch_inverse2(c));
+    (0..n).into_par_iter().map(|i| den[i].add(den[n + i])).collect()
+}
+
+/// The zero-check constraint for a helper: h (a - l1)(a - l2) - (2a - l1 - l2).
+#[inline(always)]
+fn helper_constraint(h: Fp2, l1: Fp2, l2: Fp2, alpha: Fp2) -> Fp2 {
+    let d1 = alpha.sub(l1);
+    let d2 = alpha.sub(l2);
+    h.mul(d1).mul(d2).sub(d1.add(d2))
+}
+
+pub struct ProveOutput {
+    pub proof: LayerProof,
+    pub timings: Vec<(String, f64)>,
+}
+
+/// Prove one layer over the first `t_rows` rows of the witness.
+pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &NttTables, tr: &mut Transcript) -> ProveOutput {
+    use std::time::Instant;
+    let mut timings = Vec::new();
+    let mut tick = Instant::now();
+    let lap = |name: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+        timings.push((name.to_string(), tick.elapsed().as_secs_f64()));
+        *tick = Instant::now();
+    };
+    let lay = Layout::new(t_rows);
+    let tf = lay.tf;
+    let tb = lay.tb;
+    let (sh_g, sh_u, sh_h, sh_z) = w.shifts;
+    let st = Statement { l: w.l, t_rows, shifts: w.shifts, table: w.table, table_digest: w.table_digest.clone() };
+    absorb_statement(tr, &st);
+    let mut proof = LayerProof::default();
+
+    // ---- W data + commit ------------------------------------------------
+    let mut w_data = vec![Fp::ZERO; lay.w_len];
+    w_data[lay.wg[0]..lay.wg[0] + D * F].par_iter_mut().zip(w.wg_t.par_iter()).for_each(|(o, &v)| *o = Fp::from_i64(v as i64));
+    w_data[lay.wu[0]..lay.wu[0] + D * F].par_iter_mut().zip(w.wu_t.par_iter()).for_each(|(o, &v)| *o = Fp::from_i64(v as i64));
+    for b in 0..3 {
+        let off = lay.wd[b];
+        w_data[off..off + F * 256].par_chunks_mut(256).enumerate().for_each(|(k, row)| {
+            for j in 0..256 {
+                row[j] = Fp::from_i64(w.wd_t[k * D + b * 256 + j] as i64);
+            }
+        });
+    }
+    let w_pcs = params.pcs_for(LOG_WBLOCK);
+    let w_cm = pcs::commit(&w_pcs, &w_data, ntt);
+    proof.w_com = Some(w_cm.commitment());
+    absorb_com(tr, b"W", proof.w_com.as_ref().unwrap());
+    lap("commit W", &mut timings, &mut tick);
+
+    // ---- A data + commit ------------------------------------------------
+    let mut a_data = vec![Fp::ZERO; lay.a_len];
+    for (off, col) in [(lay.g8, &w.g8), (lay.rg, &w.rg), (lay.a8, &w.a8), (lay.u8v, &w.u8v), (lay.ru, &w.ru), (lay.h8, &w.h8), (lay.rh, &w.rh)] {
+        a_data[off..off + tf].par_iter_mut().zip(col[..tf].par_iter()).for_each(|(o, &v)| *o = Fp::from_i64(v as i64));
+    }
+    for b in 0..3 {
+        let (xo, zo, ro) = (lay.x[b], lay.z[b], lay.rd[b]);
+        a_data[xo..xo + tb].par_chunks_mut(256).enumerate().for_each(|(t, row)| {
+            for k in 0..256 { row[k] = Fp::from_i64(w.x[t * D + b * 256 + k] as i64); }
+        });
+        a_data[zo..zo + tb].par_chunks_mut(256).enumerate().for_each(|(t, row)| {
+            for k in 0..256 { row[k] = Fp::from_i64(w.z[t * D + b * 256 + k] as i64); }
+        });
+        a_data[ro..ro + tb].par_chunks_mut(256).enumerate().for_each(|(t, row)| {
+            for k in 0..256 { row[k] = Fp::from_i64(w.rd[t * D + b * 256 + k] as i64); }
+        });
+    }
+    let a_pcs = params.pcs_for(lay.log_tb);
+    let a_cm = pcs::commit(&a_pcs, &a_data, ntt);
+    proof.a_com = Some(a_cm.commitment());
+    absorb_com(tr, b"A", proof.a_com.as_ref().unwrap());
+    lap("commit A", &mut timings, &mut tick);
+
+    // ---- multiplicities, challenges, helpers, commit H --------------------
+    proof.mults = multiplicities(w, &lay);
+    absorb_mults(tr, &proof.mults);
+    let beta = tr.challenge_fp2();
+    let gamma = tr.challenge_fp2();
+    let alpha = tr.challenge_fp2();
+    // lookup value columns (Fp2)
+    let g8f = to_fp2_i32(&w.g8[..tf]);
+    let a8f = to_fp2_i32(&w.a8[..tf]);
+    let rgf = to_fp2_i32(&w.rg[..tf]);
+    let u8f = to_fp2_i32(&w.u8v[..tf]);
+    let ruf = to_fp2_i32(&w.ru[..tf]);
+    let h8f = to_fp2_i32(&w.h8[..tf]);
+    let rhf = to_fp2_i32(&w.rh[..tf]);
+    let g_silu = gamma.mul_base(Fp::new(TAG_SILU));
+    let g_int8 = gamma.mul_base(Fp::new(TAG_INT8));
+    let g_rg = gamma.mul_base(Fp::new(tag_range(sh_g)));
+    let g_ru = gamma.mul_base(Fp::new(tag_range(sh_u)));
+    let g_rh = gamma.mul_base(Fp::new(tag_range(sh_h)));
+    let g_rd = gamma.mul_base(Fp::new(tag_range(sh_z)));
+    let lg: Vec<Fp2> = g8f.par_iter().zip(a8f.par_iter()).map(|(g, a)| g.add(beta.mul(*a)).add(g_silu)).collect();
+    let lrg: Vec<Fp2> = rgf.par_iter().map(|r| r.add(g_rg)).collect();
+    let lu: Vec<Fp2> = u8f.par_iter().map(|v| v.add(g_int8)).collect();
+    let lru: Vec<Fp2> = ruf.par_iter().map(|r| r.add(g_ru)).collect();
+    let lh: Vec<Fp2> = h8f.par_iter().map(|v| v.add(g_int8)).collect();
+    let lrh: Vec<Fp2> = rhf.par_iter().map(|r| r.add(g_rh)).collect();
+    let hg = helper_column(&lg, &lrg, alpha);
+    let hu = helper_column(&lu, &lru, alpha);
+    let hh = helper_column(&lh, &lrh, alpha);
+    drop(lg); drop(lrg); drop(lu); drop(lru); drop(lh); drop(lrh);
+    let mut zf: Vec<Vec<Fp2>> = Vec::new();
+    let mut rdf: Vec<Vec<Fp2>> = Vec::new();
+    let mut hz: Vec<Vec<Fp2>> = Vec::new();
+    for b in 0..3 {
+        let z_b: Vec<Fp2> = a_data[lay.z[b]..lay.z[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect();
+        let rd_b: Vec<Fp2> = a_data[lay.rd[b]..lay.rd[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect();
+        let lz: Vec<Fp2> = z_b.par_iter().map(|v| v.add(g_int8)).collect();
+        let lrd: Vec<Fp2> = rd_b.par_iter().map(|r| r.add(g_rd)).collect();
+        hz.push(helper_column(&lz, &lrd, alpha));
+        zf.push(z_b);
+        rdf.push(rd_b);
+    }
+    let mut h_data = vec![Fp::ZERO; lay.h_len];
+    for (col, (ore, oim)) in [(&hg, lay.hg), (&hu, lay.hu), (&hh, lay.hh)] {
+        h_data[ore..ore + tf].par_iter_mut().zip(col.par_iter()).for_each(|(o, v)| *o = v.c0);
+        h_data[oim..oim + tf].par_iter_mut().zip(col.par_iter()).for_each(|(o, v)| *o = v.c1);
+    }
+    for b in 0..3 {
+        let (ore, oim) = lay.hz[b];
+        h_data[ore..ore + tb].par_iter_mut().zip(hz[b].par_iter()).for_each(|(o, v)| *o = v.c0);
+        h_data[oim..oim + tb].par_iter_mut().zip(hz[b].par_iter()).for_each(|(o, v)| *o = v.c1);
+    }
+    let h_pcs = params.pcs_for(lay.log_tb);
+    let h_cm = pcs::commit(&h_pcs, &h_data, ntt);
+    proof.h_com = Some(h_cm.commitment());
+    absorb_com(tr, b"H", proof.h_com.as_ref().unwrap());
+    lap("helpers + commit H", &mut timings, &mut tick);
+
+    // ---- g/u matmul sumcheck -------------------------------------------------
+    let r_i = tr.challenge_fp2_vec(lay.log_t as usize);
+    let r_j = tr.challenge_fp2_vec(11);
+    let lam_gu = tr.challenge_fp2();
+    let mut p1 = r_i.clone();
+    p1.extend_from_slice(&r_j);
+    let ev = eval_many(&a_data, &[(lay.g8, tf), (lay.rg, tf), (lay.u8v, tf), (lay.ru, tf)], &p1);
+    let g_claim = ev[0].mul_base(pow2(sh_g)).add(ev[1]);
+    let u_claim = ev[2].mul_base(pow2(sh_u)).add(ev[3]);
+    proof.gu_claims = vec![g_claim, u_claim];
+    tr.absorb_fp2(b"gu-claims", &proof.gu_claims);
+    let eq_ri = eq_table_msb(&r_i);
+    let eq_rj = eq_table_msb(&r_j);
+    let xk = fold_rows_i8(&w.x[..t_rows * D], t_rows, D, &eq_ri); // 768
+    let wgk = fold_cols_i8(&w.wg_t, D, F, &eq_rj); // 768
+    let wuk = fold_cols_i8(&w.wu_t, D, F, &eq_rj); // 768
+    let mut tables: Vec<Vec<Fp2>> = Vec::new();
+    for b in 0..3 { tables.push(xk[b * 256..(b + 1) * 256].to_vec()); }
+    for b in 0..3 {
+        tables.push(wgk[b * 256..(b + 1) * 256].iter().zip(wuk[b * 256..(b + 1) * 256].iter()).map(|(g, u)| g.add(lam_gu.mul(*u))).collect());
+    }
+    let out = sumcheck::prove(&mut tables, 2, |v| v[0].mul(v[3]).add(v[1].mul(v[4])).add(v[2].mul(v[5])), tr);
+    proof.gu_sc = out.proof;
+    let r_kp = out.challenges; // 8
+    let mut term = Vec::with_capacity(9);
+    for b in 0..3 { term.push(out.finals[b]); }
+    for b in 0..3 { term.push(eval_mle_ext(&wgk[b * 256..(b + 1) * 256], &r_kp)); }
+    for b in 0..3 { term.push(eval_mle_ext(&wuk[b * 256..(b + 1) * 256], &r_kp)); }
+    proof.gu_term = term;
+    tr.absorb_fp2(b"gu-term", &proof.gu_term);
+    let mut p2 = r_i.clone();
+    p2.extend_from_slice(&r_kp); // X_b point (log_t + 8)
+    let mut p3 = r_kp.clone();
+    p3.extend_from_slice(&r_j); // W blocks point (19)
+    lap("matmul g/u", &mut timings, &mut tick);
+
+    // ---- d matmul sumcheck ------------------------------------------------------
+    let r_ip = tr.challenge_fp2_vec(lay.log_t as usize);
+    let r_jp = tr.challenge_fp2_vec(8);
+    let lam_d = tr.challenge_fp2_vec(3);
+    let mut p4 = r_ip.clone();
+    p4.extend_from_slice(&r_jp);
+    let ev = eval_many(&a_data, &[(lay.z[0], tb), (lay.rd[0], tb), (lay.z[1], tb), (lay.rd[1], tb), (lay.z[2], tb), (lay.rd[2], tb)], &p4);
+    proof.d_claims = (0..3).map(|b| ev[2 * b].mul_base(pow2(sh_z)).add(ev[2 * b + 1])).collect();
+    tr.absorb_fp2(b"d-claims", &proof.d_claims);
+    let eq_rip = eq_table_msb(&r_ip);
+    let eq_rjp = eq_table_msb(&r_jp);
+    let hk = fold_rows_i32(&w.h8[..tf], t_rows, F, &eq_rip); // 2048
+    let mut cw = vec![Fp2::ZERO; D];
+    for b in 0..3 { for j in 0..256 { cw[b * 256 + j] = lam_d[b].mul(eq_rjp[j]); } }
+    let wdk = fold_cols_i8(&w.wd_t, F, D, &cw); // 2048
+    let mut tables = vec![hk, wdk];
+    let out = sumcheck::prove(&mut tables, 2, |v| v[0].mul(v[1]), tr);
+    proof.d_sc = out.proof;
+    let r_k = out.challenges; // 11
+    let mut term = vec![out.finals[0]];
+    for b in 0..3 {
+        let wdb = fold_cols_base(&w_data[lay.wd[b]..lay.wd[b] + F * 256], F, 256, &eq_rjp);
+        term.push(eval_mle_ext(&wdb, &r_k));
+    }
+    proof.d_term = term;
+    tr.absorb_fp2(b"d-term", &proof.d_term);
+    let mut p5 = r_ip.clone();
+    p5.extend_from_slice(&r_k); // h8 point (log_t + 11)
+    let mut p6 = r_k.clone();
+    p6.extend_from_slice(&r_jp); // Wd blocks point (19)
+    lap("matmul d", &mut timings, &mut tick);
+
+    // ---- zero-check 20 ---------------------------------------------------------------
+    let tau = tr.challenge_fp2_vec(lay.log_tf as usize);
+    let mu = tr.challenge_fp2_vec(4); // had, hg, hu, hh
+    let nu = tr.challenge_fp2_vec(3); // g, u, h
+    let mut tables: Vec<Vec<Fp2>> = vec![eq_table_msb(&tau), eq_table_msb(&p1), eq_table_msb(&p5), g8f, rgf, a8f, u8f, ruf, h8f, rhf, hg, hu, hh];
+    let (p_g, p_u, p_h) = (pow2(sh_g), pow2(sh_u), pow2(sh_h));
+    let zc20_poly = move |v: &[Fp2]| -> Fp2 {
+        let (eqt, eq1, eq5) = (v[0], v[1], v[2]);
+        let (g8, rg, a8, u8, ru, h8, rh, hg, hu, hh) = (v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12]);
+        let c_had = a8.mul(u8).sub(h8.mul_base(p_h)).sub(rh);
+        let c_hg = helper_constraint(hg, g8.add(beta.mul(a8)).add(g_silu), rg.add(g_rg), alpha);
+        let c_hu = helper_constraint(hu, u8.add(g_int8), ru.add(g_ru), alpha);
+        let c_hh = helper_constraint(hh, h8.add(g_int8), rh.add(g_rh), alpha);
+        let zc = mu[0].mul(c_had).add(mu[1].mul(c_hg)).add(mu[2].mul(c_hu)).add(mu[3].mul(c_hh));
+        let fold1 = nu[0].mul(g8.mul_base(p_g).add(rg)).add(nu[1].mul(u8.mul_base(p_u).add(ru)));
+        eqt.mul(zc).add(eq1.mul(fold1)).add(eq5.mul(nu[2].mul(h8)))
+    };
+    let out = sumcheck::prove(&mut tables, 4, zc20_poly, tr);
+    proof.zc20_sc = out.proof;
+    let rho20 = out.challenges;
+    proof.zc20_term = out.finals[3..13].to_vec();
+    tr.absorb_fp2(b"zc20-term", &proof.zc20_term);
+    drop(tables);
+    lap("zero-check 20", &mut timings, &mut tick);
+
+    // ---- zero-check 17 ---------------------------------------------------------------
+    let tau2 = tr.challenge_fp2_vec(lay.log_tb as usize);
+    let mu2 = tr.challenge_fp2_vec(3);
+    let nu_x = tr.challenge_fp2_vec(3);
+    let nu_z = tr.challenge_fp2_vec(3);
+    let mut tables: Vec<Vec<Fp2>> = vec![eq_table_msb(&tau2), eq_table_msb(&p2), eq_table_msb(&p4)];
+    for b in 0..3 { tables.push(a_data[lay.x[b]..lay.x[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect()); }
+    for b in 0..3 { tables.push(std::mem::take(&mut zf[b])); }
+    for b in 0..3 { tables.push(std::mem::take(&mut rdf[b])); }
+    for b in 0..3 { tables.push(std::mem::take(&mut hz[b])); }
+    let p_z = pow2(sh_z);
+    let zc17_poly = move |v: &[Fp2]| -> Fp2 {
+        let (eqt, eq2, eq4) = (v[0], v[1], v[2]);
+        let mut zc = Fp2::ZERO;
+        let mut fx = Fp2::ZERO;
+        let mut fz = Fp2::ZERO;
+        for b in 0..3 {
+            let (x, z, rd, h) = (v[3 + b], v[6 + b], v[9 + b], v[12 + b]);
+            zc = zc.add(mu2[b].mul(helper_constraint(h, z.add(g_int8), rd.add(g_rd), alpha)));
+            fx = fx.add(nu_x[b].mul(x));
+            fz = fz.add(nu_z[b].mul(z.mul_base(p_z).add(rd)));
+        }
+        eqt.mul(zc).add(eq2.mul(fx)).add(eq4.mul(fz))
+    };
+    let out = sumcheck::prove(&mut tables, 4, zc17_poly, tr);
+    proof.zc17_sc = out.proof;
+    let rho17 = out.challenges;
+    proof.zc17_term = out.finals[3..15].to_vec();
+    tr.absorb_fp2(b"zc17-term", &proof.zc17_term);
+    drop(tables);
+    lap("zero-check 17", &mut timings, &mut tick);
+
+    // ---- helper sums ---------------------------------------------------------------
+    let sums = |re: usize, im: usize, len: usize| -> Fp2 {
+        let sre = h_data[re..re + len].par_iter().copied().reduce(|| Fp::ZERO, |a, b| a.add(b));
+        let sim = h_data[im..im + len].par_iter().copied().reduce(|| Fp::ZERO, |a, b| a.add(b));
+        Fp2::new(sre, sim)
+    };
+    proof.helper_sums = vec![sums(lay.hg.0, lay.hg.1, tf), sums(lay.hu.0, lay.hu.1, tf), sums(lay.hh.0, lay.hh.1, tf)];
+    for b in 0..3 { proof.helper_sums.push(sums(lay.hz[b].0, lay.hz[b].1, tb)); }
+    tr.absorb_fp2(b"helper-sums", &proof.helper_sums);
+
+    // ---- PCS openings -------------------------------------------------------------
+    let (w_claims, a_claims, h_claims) = build_claims(&lay, &proof, &p3, &p6, &rho20, &rho17);
+    proof.w_open = pcs::open(&w_cm, &w_claims, tr);
+    drop(w_cm);
+    proof.a_open = pcs::open(&a_cm, &a_claims, tr);
+    drop(a_cm);
+    proof.h_open = pcs::open(&h_cm, &h_claims, tr);
+    drop(h_cm);
+    lap("pcs openings", &mut timings, &mut tick);
+    let _ = sum_fp2;
+    ProveOutput { proof, timings }
+}
+
+/// The PCS claims of a layer proof (shared by prover and verifier).
+fn build_claims(lay: &Layout, proof: &LayerProof, p3: &[Fp2], p6: &[Fp2], rho20: &[Fp2], rho17: &[Fp2]) -> (Vec<Claim>, Vec<Claim>, Vec<Claim>) {
+    let one = Fp2::ONE;
+    let mut wc = Vec::new();
+    for b in 0..3 { wc.push(Claim { parts: vec![(lay.s_w(lay.wg[b]), one)], point: p3.to_vec(), sum: false, value: proof.gu_term[3 + b] }); }
+    for b in 0..3 { wc.push(Claim { parts: vec![(lay.s_w(lay.wu[b]), one)], point: p3.to_vec(), sum: false, value: proof.gu_term[6 + b] }); }
+    for b in 0..3 { wc.push(Claim { parts: vec![(lay.s_w(lay.wd[b]), one)], point: p6.to_vec(), sum: false, value: proof.d_term[1 + b] }); }
+    let mut ac = Vec::new();
+    let a_cols = [lay.g8, lay.rg, lay.a8, lay.u8v, lay.ru, lay.h8, lay.rh];
+    for (i, off) in a_cols.iter().enumerate() {
+        ac.push(Claim { parts: vec![(lay.s_tf(*off), one)], point: rho20.to_vec(), sum: false, value: proof.zc20_term[i] });
+    }
+    for b in 0..3 { ac.push(Claim { parts: vec![(lay.s_tb(lay.x[b]), one)], point: rho17.to_vec(), sum: false, value: proof.zc17_term[b] }); }
+    for b in 0..3 { ac.push(Claim { parts: vec![(lay.s_tb(lay.z[b]), one)], point: rho17.to_vec(), sum: false, value: proof.zc17_term[3 + b] }); }
+    for b in 0..3 { ac.push(Claim { parts: vec![(lay.s_tb(lay.rd[b]), one)], point: rho17.to_vec(), sum: false, value: proof.zc17_term[6 + b] }); }
+    let mut hc = Vec::new();
+    let u = Fp2::U;
+    for (i, (re, im)) in [lay.hg, lay.hu, lay.hh].iter().enumerate() {
+        hc.push(Claim { parts: vec![(lay.s_tf(*re), one), (lay.s_tf(*im), u)], point: rho20.to_vec(), sum: false, value: proof.zc20_term[7 + i] });
+    }
+    for b in 0..3 {
+        let (re, im) = lay.hz[b];
+        hc.push(Claim { parts: vec![(lay.s_tb(re), one), (lay.s_tb(im), u)], point: rho17.to_vec(), sum: false, value: proof.zc17_term[9 + b] });
+    }
+    for (i, (re, im)) in [lay.hg, lay.hu, lay.hh].iter().enumerate() {
+        hc.push(Claim { parts: vec![(lay.s_tf(*re), one), (lay.s_tf(*im), u)], point: vec![], sum: true, value: proof.helper_sums[i] });
+    }
+    for b in 0..3 {
+        let (re, im) = lay.hz[b];
+        hc.push(Claim { parts: vec![(lay.s_tb(re), one), (lay.s_tb(im), u)], point: vec![], sum: true, value: proof.helper_sums[3 + b] });
+    }
+    (wc, ac, hc)
+}
+
+/// Verify one layer proof against the public statement.
+pub fn verify_layer(st: &Statement, proof: &LayerProof, params: &LayerParams, ntt: &NttTables, tr: &mut Transcript) -> Result<(), String> {
+    let lay = Layout::new(st.t_rows);
+    let tf = lay.tf;
+    let tb = lay.tb;
+    let (sh_g, sh_u, sh_h, sh_z) = st.shifts;
+    absorb_statement(tr, st);
+    let w_com = proof.w_com.as_ref().ok_or("missing W commitment")?;
+    let a_com = proof.a_com.as_ref().ok_or("missing A commitment")?;
+    let h_com = proof.h_com.as_ref().ok_or("missing H commitment")?;
+    let w_pcs = params.pcs_for(LOG_WBLOCK);
+    let a_pcs = params.pcs_for(lay.log_tb);
+    let h_pcs = params.pcs_for(lay.log_tb);
+    if w_com.rows != lay.w_len / w_pcs.cols() { return Err("W commitment rows".into()); }
+    if a_com.rows != lay.a_len / a_pcs.cols() { return Err("A commitment rows".into()); }
+    if h_com.rows != lay.h_len / h_pcs.cols() { return Err("H commitment rows".into()); }
+    absorb_com(tr, b"W", w_com);
+    absorb_com(tr, b"A", a_com);
+    // multiplicities: shape + totals
+    let mut shifts: Vec<u32> = vec![sh_g, sh_u, sh_h, sh_z];
+    shifts.sort();
+    shifts.dedup();
+    if proof.mults.len() != 2 + shifts.len() { return Err("multiplicity table count".into()); }
+    if proof.mults[0].0 != TAG_SILU || proof.mults[0].1.len() != 256 { return Err("silu multiplicities".into()); }
+    if proof.mults[1].0 != TAG_INT8 || proof.mults[1].1.len() != 256 { return Err("int8 multiplicities".into()); }
+    for (i, s) in shifts.iter().enumerate() {
+        let (tag, m) = &proof.mults[2 + i];
+        if *tag != tag_range(*s) || m.len() != (1usize << s) { return Err(format!("range({s}) multiplicities")); }
+        let want: usize = [(sh_g, tf), (sh_u, tf), (sh_h, tf), (sh_z, 3 * tb)].iter().filter(|(c, _)| c == s).map(|(_, n)| n).sum();
+        let got: u64 = m.iter().map(|&x| x as u64).sum();
+        if got != want as u64 { return Err(format!("range({s}) multiplicity total {got} != {want}")); }
+    }
+    let silu_total: u64 = proof.mults[0].1.iter().map(|&x| x as u64).sum();
+    if silu_total != tf as u64 { return Err("silu multiplicity total".into()); }
+    let int8_total: u64 = proof.mults[1].1.iter().map(|&x| x as u64).sum();
+    if int8_total != (2 * tf + 3 * tb) as u64 { return Err("int8 multiplicity total".into()); }
+    absorb_mults(tr, &proof.mults);
+    let beta = tr.challenge_fp2();
+    let gamma = tr.challenge_fp2();
+    let alpha = tr.challenge_fp2();
+    absorb_com(tr, b"H", h_com);
+    let g_silu = gamma.mul_base(Fp::new(TAG_SILU));
+    let g_int8 = gamma.mul_base(Fp::new(TAG_INT8));
+    let g_rg = gamma.mul_base(Fp::new(tag_range(sh_g)));
+    let g_ru = gamma.mul_base(Fp::new(tag_range(sh_u)));
+    let g_rh = gamma.mul_base(Fp::new(tag_range(sh_h)));
+    let g_rd = gamma.mul_base(Fp::new(tag_range(sh_z)));
+
+    // ---- g/u matmul ----
+    let r_i = tr.challenge_fp2_vec(lay.log_t as usize);
+    let r_j = tr.challenge_fp2_vec(11);
+    let lam_gu = tr.challenge_fp2();
+    let mut p1 = r_i.clone();
+    p1.extend_from_slice(&r_j);
+    if proof.gu_claims.len() != 2 { return Err("gu claims".into()); }
+    tr.absorb_fp2(b"gu-claims", &proof.gu_claims);
+    let (g_claim, u_claim) = (proof.gu_claims[0], proof.gu_claims[1]);
+    let (fin, r_kp) = sumcheck::verify(g_claim.add(lam_gu.mul(u_claim)), 2, 8, &proof.gu_sc, tr)?;
+    if proof.gu_term.len() != 9 { return Err("gu terminal".into()); }
+    let mut want = Fp2::ZERO;
+    for b in 0..3 {
+        want = want.add(proof.gu_term[b].mul(proof.gu_term[3 + b].add(lam_gu.mul(proof.gu_term[6 + b]))));
+    }
+    if want != fin { return Err("g/u matmul sumcheck terminal check fails".into()); }
+    tr.absorb_fp2(b"gu-term", &proof.gu_term);
+    let mut p2 = r_i.clone();
+    p2.extend_from_slice(&r_kp);
+    let mut p3 = r_kp.clone();
+    p3.extend_from_slice(&r_j);
+
+    // ---- d matmul ----
+    let r_ip = tr.challenge_fp2_vec(lay.log_t as usize);
+    let r_jp = tr.challenge_fp2_vec(8);
+    let lam_d = tr.challenge_fp2_vec(3);
+    let mut p4 = r_ip.clone();
+    p4.extend_from_slice(&r_jp);
+    if proof.d_claims.len() != 3 { return Err("d claims".into()); }
+    tr.absorb_fp2(b"d-claims", &proof.d_claims);
+    let d_sum = (0..3).fold(Fp2::ZERO, |a, b| a.add(lam_d[b].mul(proof.d_claims[b])));
+    let (fin, r_k) = sumcheck::verify(d_sum, 2, 11, &proof.d_sc, tr)?;
+    if proof.d_term.len() != 4 { return Err("d terminal".into()); }
+    let wd_comb = (0..3).fold(Fp2::ZERO, |a, b| a.add(lam_d[b].mul(proof.d_term[1 + b])));
+    if proof.d_term[0].mul(wd_comb) != fin { return Err("d matmul sumcheck terminal check fails".into()); }
+    tr.absorb_fp2(b"d-term", &proof.d_term);
+    let h_claim = proof.d_term[0];
+    let mut p5 = r_ip.clone();
+    p5.extend_from_slice(&r_k);
+    let mut p6 = r_k.clone();
+    p6.extend_from_slice(&r_jp);
+
+    // ---- zero-check 20 ----
+    let tau = tr.challenge_fp2_vec(lay.log_tf as usize);
+    let mu = tr.challenge_fp2_vec(4);
+    let nu = tr.challenge_fp2_vec(3);
+    let claimed = nu[0].mul(g_claim).add(nu[1].mul(u_claim)).add(nu[2].mul(h_claim));
+    let (fin, rho20) = sumcheck::verify(claimed, 4, lay.log_tf as usize, &proof.zc20_sc, tr)?;
+    if proof.zc20_term.len() != 10 { return Err("zc20 terminal".into()); }
+    {
+        let v = &proof.zc20_term;
+        let (g8, rg, a8, u8, ru, h8, rh, hg, hu, hh) = (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9]);
+        let c_had = a8.mul(u8).sub(h8.mul_base(pow2(sh_h))).sub(rh);
+        let c_hg = helper_constraint(hg, g8.add(beta.mul(a8)).add(g_silu), rg.add(g_rg), alpha);
+        let c_hu = helper_constraint(hu, u8.add(g_int8), ru.add(g_ru), alpha);
+        let c_hh = helper_constraint(hh, h8.add(g_int8), rh.add(g_rh), alpha);
+        let zc = mu[0].mul(c_had).add(mu[1].mul(c_hg)).add(mu[2].mul(c_hu)).add(mu[3].mul(c_hh));
+        let fold1 = nu[0].mul(g8.mul_base(pow2(sh_g)).add(rg)).add(nu[1].mul(u8.mul_base(pow2(sh_u)).add(ru)));
+        let want = eq_point(&tau, &rho20).mul(zc).add(eq_point(&p1, &rho20).mul(fold1)).add(eq_point(&p5, &rho20).mul(nu[2].mul(h8)));
+        if want != fin { return Err("zero-check 20 terminal check fails".into()); }
+    }
+    tr.absorb_fp2(b"zc20-term", &proof.zc20_term);
+
+    // ---- zero-check 17 ----
+    let tau2 = tr.challenge_fp2_vec(lay.log_tb as usize);
+    let mu2 = tr.challenge_fp2_vec(3);
+    let nu_x = tr.challenge_fp2_vec(3);
+    let nu_z = tr.challenge_fp2_vec(3);
+    let claimed = (0..3).fold(Fp2::ZERO, |a, b| a.add(nu_x[b].mul(proof.gu_term[b])).add(nu_z[b].mul(proof.d_claims[b])));
+    let (fin, rho17) = sumcheck::verify(claimed, 4, lay.log_tb as usize, &proof.zc17_sc, tr)?;
+    if proof.zc17_term.len() != 12 { return Err("zc17 terminal".into()); }
+    {
+        let v = &proof.zc17_term;
+        let mut zc = Fp2::ZERO;
+        let mut fx = Fp2::ZERO;
+        let mut fz = Fp2::ZERO;
+        for b in 0..3 {
+            let (x, z, rd, h) = (v[b], v[3 + b], v[6 + b], v[9 + b]);
+            zc = zc.add(mu2[b].mul(helper_constraint(h, z.add(g_int8), rd.add(g_rd), alpha)));
+            fx = fx.add(nu_x[b].mul(x));
+            fz = fz.add(nu_z[b].mul(z.mul_base(pow2(sh_z)).add(rd)));
+        }
+        let want = eq_point(&tau2, &rho17).mul(zc).add(eq_point(&p2, &rho17).mul(fx)).add(eq_point(&p4, &rho17).mul(fz));
+        if want != fin { return Err("zero-check 17 terminal check fails".into()); }
+    }
+    tr.absorb_fp2(b"zc17-term", &proof.zc17_term);
+
+    // ---- helper sums vs the multiplicity side (the LogUp identity) ----
+    if proof.helper_sums.len() != 6 { return Err("helper sums".into()); }
+    tr.absorb_fp2(b"helper-sums", &proof.helper_sums);
+    let witness_side = proof.helper_sums.iter().fold(Fp2::ZERO, |a, b| a.add(*b));
+    let mut dens: Vec<Fp2> = Vec::new();
+    let mut nums: Vec<Fp> = Vec::new();
+    for (tag, m) in &proof.mults {
+        for (i, &cnt) in m.iter().enumerate() {
+            if cnt == 0 { continue; }
+            let tval = if *tag == TAG_SILU {
+                let v = i as i64 - 128;
+                let s = st.table[i] as i64;
+                Fp2::from_i64(v).add(beta.mul_base(Fp::from_i64(s))).add(g_silu)
+            } else if *tag == TAG_INT8 {
+                Fp2::from_i64(i as i64 - 128).add(g_int8)
+            } else {
+                Fp2::from_u64(i as u64).add(gamma.mul_base(Fp::new(*tag)))
+            };
+            dens.push(alpha.sub(tval));
+            nums.push(Fp::new(cnt as u64));
+        }
+    }
+    batch_inverse2(&mut dens);
+    let table_side = dens.iter().zip(nums.iter()).fold(Fp2::ZERO, |a, (d, n)| a.add(d.mul_base(*n)));
+    if witness_side != table_side { return Err("LogUp identity fails (a lookup is not in its table)".into()); }
+
+    // ---- PCS openings ----
+    let (w_claims, a_claims, h_claims) = build_claims(&lay, proof, &p3, &p6, &rho20, &rho17);
+    pcs::verify(&w_pcs, w_com, &w_claims, &proof.w_open, ntt, tr).map_err(|e| format!("W: {e}"))?;
+    pcs::verify(&a_pcs, a_com, &a_claims, &proof.a_open, ntt, tr).map_err(|e| format!("A: {e}"))?;
+    pcs::verify(&h_pcs, h_com, &h_claims, &proof.h_open, ntt, tr).map_err(|e| format!("H: {e}"))?;
+    Ok(())
+}
+
+/// Tamper legs applied to a witness before proving.
+#[derive(Clone, Copy, Debug)]
+pub enum Tamper {
+    None,
+    /// X[idx] += 1 (the committed X no longer matches the chain)
+    FlipX(usize),
+    /// WgT[idx] += 1
+    FlipW(usize),
+    /// rg[idx] += 2^sh_g, g8[idx] -= 1 (gacc identity kept; the remainder leaves [0, 2^sh))
+    RemainderOutOfRange(usize),
+    /// a8[idx] += 1 with the downstream chain recomputed (only the table fact breaks)
+    WrongTableEntry(usize),
+    /// h8[idx] += 1 with rh unchanged (the Hadamard requant identity breaks)
+    WrongRequant(usize),
+    /// z[idx] += 1 (the d matmul identity breaks)
+    WrongZ(usize),
+}
+
+pub fn apply_tamper(w: &mut LayerWitness, t: Tamper) {
+    match t {
+        Tamper::None => {}
+        Tamper::FlipX(i) => { w.x[i] = w.x[i].wrapping_add(1); }
+        Tamper::FlipW(i) => { w.wg_t[i] = w.wg_t[i].wrapping_add(1); }
+        Tamper::RemainderOutOfRange(i) => { w.rg[i] += 1 << w.shifts.0; w.g8[i] -= 1; }
+        Tamper::WrongTableEntry(i) => {
+            w.a8[i] += 1;
+            let sh_h = w.shifts.2;
+            let hh = w.a8[i] * w.u8v[i];
+            w.h8[i] = hh >> sh_h;
+            w.rh[i] = hh & ((1 << sh_h) - 1);
+            // recompute dacc/z/rd from h8
+            let dacc = crate::chain::matmul_i32_i8_i32(&w.h8, &w.wd_t, crate::export::T, F, D);
+            let sh_z = w.shifts.3;
+            w.z = dacc.iter().map(|&a| a >> sh_z).collect();
+            w.rd = dacc.iter().map(|&a| a & ((1 << sh_z) - 1)).collect();
+        }
+        Tamper::WrongRequant(i) => { w.h8[i] += 1; }
+        Tamper::WrongZ(i) => { w.z[i] += 1; }
+    }
+}
+
+/// Rung 2: the g/u matmul sumcheck ALONE (no PCS). The prover runs on
+/// `prover_w`; the verifier holds `honest_w` and evaluates X~, Wg~, Wu~
+/// and the gacc/uacc claims directly from its own plain matrices (a
+/// differential against the plain chain). Returns Err on reject.
+pub fn matmul_differential(honest_w: &LayerWitness, prover_w: &LayerWitness, t_rows: usize) -> Result<(), String> {
+    let lay = Layout::new(t_rows);
+    let tf = lay.tf;
+    let tb = lay.tb;
+    let (sh_g, sh_u, _, _) = honest_w.shifts;
+    let mut tr = Transcript::new(b"matmul-differential");
+    let r_i = tr.challenge_fp2_vec(lay.log_t as usize);
+    let r_j = tr.challenge_fp2_vec(11);
+    let lam = tr.challenge_fp2();
+    let mut p1 = r_i.clone();
+    p1.extend_from_slice(&r_j);
+    // prover: claims from ITS chain, tables from ITS X / W
+    let pg = to_fp_i32(&prover_w.g8[..tf]);
+    let prg = to_fp_i32(&prover_w.rg[..tf]);
+    let pu = to_fp_i32(&prover_w.u8v[..tf]);
+    let pru = to_fp_i32(&prover_w.ru[..tf]);
+    let eq1 = eq_table_msb(&p1);
+    let dot = |v: &[Fp]| -> Fp2 { v.par_iter().zip(eq1.par_iter()).map(|(a, e)| e.mul_base(*a)).reduce(|| Fp2::ZERO, |a, b| a.add(b)) };
+    let g_claim = dot(&pg).mul_base(pow2(sh_g)).add(dot(&prg));
+    let u_claim = dot(&pu).mul_base(pow2(sh_u)).add(dot(&pru));
+    tr.absorb_fp2(b"gu-claims", &[g_claim, u_claim]);
+    let eq_ri = eq_table_msb(&r_i);
+    let eq_rj = eq_table_msb(&r_j);
+    let xk = fold_rows_i8(&prover_w.x[..t_rows * D], t_rows, D, &eq_ri);
+    let wgk = fold_cols_i8(&prover_w.wg_t, D, F, &eq_rj);
+    let wuk = fold_cols_i8(&prover_w.wu_t, D, F, &eq_rj);
+    let mut tables: Vec<Vec<Fp2>> = Vec::new();
+    for b in 0..3 { tables.push(xk[b * 256..(b + 1) * 256].to_vec()); }
+    for b in 0..3 {
+        tables.push(wgk[b * 256..(b + 1) * 256].iter().zip(wuk[b * 256..(b + 1) * 256].iter()).map(|(g, u)| g.add(lam.mul(*u))).collect());
+    }
+    let out = sumcheck::prove(&mut tables, 2, |v| v[0].mul(v[3]).add(v[1].mul(v[4])).add(v[2].mul(v[5])), &mut tr);
+    let r_kp = out.challenges.clone();
+    let mut term = Vec::new();
+    for b in 0..3 { term.push(out.finals[b]); }
+    for b in 0..3 { term.push(eval_mle_ext(&wgk[b * 256..(b + 1) * 256], &r_kp)); }
+    for b in 0..3 { term.push(eval_mle_ext(&wuk[b * 256..(b + 1) * 256], &r_kp)); }
+    // verifier: same transcript, checks the rounds, then evaluates its OWN matrices at the terminal point
+    let mut tv = Transcript::new(b"matmul-differential");
+    let v_ri = tv.challenge_fp2_vec(lay.log_t as usize);
+    let v_rj = tv.challenge_fp2_vec(11);
+    let v_lam = tv.challenge_fp2();
+    let mut v_p1 = v_ri.clone();
+    v_p1.extend_from_slice(&v_rj);
+    // the verifier's own view of the claims (the differential): from the honest chain
+    let hg = to_fp_i32(&honest_w.g8[..tf]);
+    let hrg = to_fp_i32(&honest_w.rg[..tf]);
+    let hu = to_fp_i32(&honest_w.u8v[..tf]);
+    let hru = to_fp_i32(&honest_w.ru[..tf]);
+    let veq1 = eq_table_msb(&v_p1);
+    let vdot = |v: &[Fp]| -> Fp2 { v.par_iter().zip(veq1.par_iter()).map(|(a, e)| e.mul_base(*a)).reduce(|| Fp2::ZERO, |a, b| a.add(b)) };
+    let vg = vdot(&hg).mul_base(pow2(sh_g)).add(vdot(&hrg));
+    let vu = vdot(&hu).mul_base(pow2(sh_u)).add(vdot(&hru));
+    if vg != g_claim || vu != u_claim {
+        return Err("claimed gacc/uacc evaluation != the honest chain's".into());
+    }
+    tv.absorb_fp2(b"gu-claims", &[g_claim, u_claim]);
+    let (fin, v_rkp) = sumcheck::verify(g_claim.add(v_lam.mul(u_claim)), 2, 8, &out.proof, &mut tv)?;
+    let mut want = Fp2::ZERO;
+    for b in 0..3 { want = want.add(term[b].mul(term[3 + b].add(v_lam.mul(term[6 + b])))); }
+    if want != fin { return Err("matmul sumcheck terminal check fails".into()); }
+    // direct evaluation of the honest X_b~(r_i, r_k') and W_b~(r_k', r_j)
+    let mut v_p2 = v_ri.clone();
+    v_p2.extend_from_slice(&v_rkp);
+    let mut v_p3 = v_rkp.clone();
+    v_p3.extend_from_slice(&v_rj);
+    let eq2 = eq_table_msb(&v_p2);
+    let eq3 = eq_table_msb(&v_p3);
+    for b in 0..3 {
+        let xb: Vec<Fp> = (0..tb).map(|i| Fp::from_i64(honest_w.x[(i / 256) * D + b * 256 + (i % 256)] as i64)).collect();
+        let xv = xb.par_iter().zip(eq2.par_iter()).map(|(a, e)| e.mul_base(*a)).reduce(|| Fp2::ZERO, |a, b| a.add(b));
+        if xv != term[b] { return Err(format!("X block {b}: the prover's terminal value != the honest X's MLE")); }
+        let wg: Vec<Fp> = honest_w.wg_t[b * 256 * F..(b + 1) * 256 * F].iter().map(|&v| Fp::from_i64(v as i64)).collect();
+        let wgv = wg.par_iter().zip(eq3.par_iter()).map(|(a, e)| e.mul_base(*a)).reduce(|| Fp2::ZERO, |a, b| a.add(b));
+        if wgv != term[3 + b] { return Err(format!("Wg block {b}: the prover's terminal value != the honest Wg's MLE")); }
+        let wu: Vec<Fp> = honest_w.wu_t[b * 256 * F..(b + 1) * 256 * F].iter().map(|&v| Fp::from_i64(v as i64)).collect();
+        let wuv = wu.par_iter().zip(eq3.par_iter()).map(|(a, e)| e.mul_base(*a)).reduce(|| Fp2::ZERO, |a, b| a.add(b));
+        if wuv != term[6 + b] { return Err(format!("Wu block {b}: the prover's terminal value != the honest Wu's MLE")); }
+    }
+    Ok(())
+}
