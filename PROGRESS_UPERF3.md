@@ -6908,7 +6908,72 @@ RUNGS (prefix "U-PERF3 WW:"):
   2m29s): diff-battery 16.11 s CPU / 18.23 s GPU; freeze-check 102 ok
   + passed; uperf-s 3752cba4..; agg 46234986..; uperf-x be89d5da..;
   QQ's `r1 diff 20` cae0b312.. unchanged; `b diff 20 1 161` CPU
-  e757eff7.. (== GPU). Rung 4 commit: (this entry).
+  e757eff7.. (== GPU). Rung 4 commit: 4244278.
+- 2026-09-02 RUNG 5 — THE RECORD AND THE VERDICT. LANE COMPLETE. The
+  full record in lane TT's form is results/uperf3_vv_variant_b.md
+  (the verdict, what was established, the measured constants K1'-K10,
+  the 8B/30B projection rows, what is not measured, the ruling
+  items). THE VERDICT against the bar (per-proof weight-side opening
+  at the real 12x512 weight group >= 5x faster than the built GPU
+  opening, claims bit-identical): **NOT MET — measured 1.77x** (1.24
+  s vs 2.20 s min, 1.29 vs 2.23 median, n = 5, [WSL-BOX 8T GPU
+  NOISY-SHARED], claims byte-identical, the per-model part held
+  warm); QQ's design of record in the same session 0.98x. THE
+  MEASURED CONSTANTS at 12x512 (GPU 8T NOISY): K1' per-model 2.14 s
+  (launch-bound: 4.8 us / value ring); K2 v GEMM 4.5-7.5 G D-MAC/s
+  short-K (C1 74 G/s at 8B widths [MODEL]); K3 P 1.3-1.6 G MAC/s; K4'
+  value fold GEMM 0.54-0.86 us / value ring (launch-bound; the C1-
+  regime bound is the record's 119 ns / ring); K5' fold tail 1.9 us /
+  folded ring; K6 recursion 1.9-2.6 us / ring (small regime; C5 0.62);
+  K7 rows 1.1-1.25 G MAC/s; K8 built 0.62 us / digit ring; K9 (QQ's
+  residual) RESOLVED = h_ms bookkeeping + the serial draw; K10 draw
+  120 us / ring serial, 23-29 us pooled at 8T. THE PROJECTION FOR
+  LANE TT (per-proof weight side, [MODEL] = the constants x the
+  counted sizes; ranges = C1..launch-bound GEMM x C5..small-regime
+  recursion):
+  | shape | per-MODEL | v GEMM + P + rows | fold GEMM + tail | draw | recursion | absorbs | **per-proof** | built | ratio |
+  |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+  | 12x512 W [MEASURED] | 2.14 s | 0.27-0.35 + 0.08 | 0.24-0.38 + 0.01 | 0.08 | 0.39-0.52 | 0.06 | **1.24 / 1.29 s** | 2.20 / 2.23 s | **1.77x** |
+  | 8B W (44.0M value rings, G_all 23,552, n2 2.07M) | ~30 s | 1.2-12 + 4.4 + 0.7 | 5.2-24 + 0.3 | 0.6-0.7 | 1.3-5.4 | ~0.5 | **14-48 s** | ~210-218 s | **4.4-15x** |
+  | 30B W (ASSUMED shape; 196.6M value rings, G_all 66,560, n2 8.05M) | ~130 s | 5.4-54 + 14 + 2.0 | 23-106 + 1.1 | 1.5-1.9 | 5.0-21 | ~1.4 | **54-201 s** | ~930-975 s | **4.6-18x** |
+  READING FOR THE RULING: at the bar's shape Variant B is 1.77x
+  [MEASURED] — 1.8x better than the record's parity, at the low end
+  of the count's own [MODEL] range for that shape (1.8-2.5x), because
+  the two GEMM-class terms (the value fold, the tier-1 commit) are
+  launch-bound at width_v 128-192 and the recursion is in its small
+  regime; the floor is the recursion (0.39-0.52 s on a 203K-ring
+  proxy of frozen machinery) + the fold GEMM + the v-pass, and the
+  recursion alone exceeds the 0.44 s the bar allows. At 8B/30B the
+  rows STRADDLE the bar (4.4-15x / 4.6-18x [MODEL]): Variant B does
+  remove most of the fold (73% of the record's 8B clock), but whether
+  the fold GEMM at 8B widths runs at the C1 class or stays launch-
+  bound is a question this box cannot answer (the 8B shape does not
+  fit 15 GB) — an 8B-shape measurement on the Mac or a desktop board
+  is the only thing that moves it. WHAT CHANGES IN
+  U_PERF3_THROUGHPUT_MODEL.md §2.4/§4: nothing at the bar — the
+  12x512 row is 1.77x, not 5x; the 8B Variant-B row moves from QQ's
+  "14-27 s [MODEL]" to "14-48 s [MODEL on measured constants]" and
+  the lattice-line band (0.5-3 tokens/s at 30B prefill on one H100)
+  stands. RULING ITEMS (none frozen; the spike is selector-gated):
+  (1) the class-table row {int8-value: e0 8, l0 1}; (2) the per-model
+  weight certificate = a second opening of the value-tier commitment
+  (E-O2-BB) or the per-proof 256-row lookup; (3) the pooled challenge
+  draw as a prover-side form (value-identical; the verifier's replay
+  unchanged). NOT MEASURED (honesty): the act-side opening (F0: the
+  value form does not apply to act-class tensors); the verifier (2.15
+  s at the weight group; R2's recursed serving never built); the
+  bytes (45.7 MB clear vs 180 KB built); the per-model weight
+  certificate; a quiet box; a desktop board or an H100; a fused fold
+  kernel (one launch for the 36 small GEMMs — the other way to remove
+  K4' at 12x512; it does not touch the recursion floor). The S4 and
+  R1 code paths, the built pass and every freeze row are
+  byte-identical (floors green at every commit; QQ's `uperf-t r1
+  diff 20 1 161` gives cae0b312.. on the final tree; FF's `uperf-t
+  diff` is untouched).
+  ORCHESTRATOR-RUN: none posted — every run of this lane fit the
+  foreground limit (longest: `b diff 22 8 161`, 1:20).
+  Commits: 89dcc51 (rung 0), fdc718d (rung 1), d64c13a (rung 2),
+  06b88ed (rung 3), 4244278 (rung 4), this entry (rung 5).
 
 ## Agent WW status (wt-uperf3-ww) — round 11
 
