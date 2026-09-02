@@ -58,6 +58,31 @@ rulings; the Mac runbook unchanged):**
   the Route-B throughput model (lane TT's seven items for the hash
   line, incl. the ZK surcharge — Victor's ZK rule is non-negotiable —
   and the proof-size lever).
+- **LANE XX LANDED (merged; `results/hashline_gpu_12x512.md`) — THE
+  HASH LINE ON THE GPU [MEASURED, WSL-BOX 8T + RTX 4070 Laptop,
+  NOISY-SHARED]: PROVE 3.40 s p50 (3.38-3.49), VERIFY 0.42 s, the
+  proof BYTE-IDENTICAL to the CPU proof (sha256 50cf7bdf.. from 3 CPU
+  + 4 GPU runs; 3x16 596b9c79.. both ways), 0.78 GB RSS + 2.43 GB
+  VRAM, 8.5e9 proven MAC/s = 6.1x the lattice line's 1.4e9 on the
+  same device; all 7 tamper legs reject through the GPU prover.**
+  Per-phase (CPU UU -> CPU now -> GPU, s): commit W 2.19 -> 1.98 ->
+  0.43 | commit A 3.98 -> 3.64 -> 0.95 | helpers+H 4.58 -> 4.18 ->
+  0.50 | matmul g/u 0.77 -> 0.37 -> 0.39 | matmul d 0.60 -> 0.22 ->
+  0.27 | zc20 4.50 -> 3.76 -> 0.35 | zc17 2.30 -> 1.75 -> 0.10 |
+  openings 3.96 -> 1.43 -> 0.35. Two byte-identical CPU fixes on the
+  way (the CPU row is now 17.4-20.9 s; the verifier 2.8 -> 0.3-0.7
+  s). UU's [MODEL] 1.5-2.5 s MISSED at 3.4 s: ~1.5 s device time
+  (the NTT at ~34 G butterflies/s, far under the part's ceiling) +
+  ~1.9 s HOST work the estimate did not count (witness planes -> Fp
+  + upload, small sumchecks, Merkle levels, bookkeeping, syncs) —
+  all with byte-preserving fixes, none applied; a quieter-box run
+  proved in 2.75 s (noise ~20%). FOR THE ROUTE-B MODEL: the laptop
+  GPU factor is MEASURED at 6.0-6.8x over the CPU row (YY's [MODEL]
+  range was 5-15x — the low-middle), with ~2x more available in the
+  host remainder. NEXT (opened): ZA = the hashline ZK form (needed
+  under any privacy mode); ZB = the widened-stack (v3) semantics +
+  the 8B export reader so the Mac can take the FIRST MEASURED 8B
+  PROOF on the hash line (MAC_RUNBOOK M9).
 - **LANE WW LANDED (merged; `results/uperf3_ww_12x512_stage_a.md`).**
   (1) THE DEFAULTS: `full` = the kappa-4 helper (confirmed); the
   batched claim transport is the Stage-A DEFAULT, `ZK_RR_ZC_CLAIMS=gg`

@@ -83,11 +83,13 @@ tokens/s at 30B prefill on one H100). A further design change
 remaining open question nobody has priced is whether any
 lattice-line activation-side opening can prove ~1e12 MAC/s on one
 board (the memo's U2). That question is what choice D in §7 is
-about — and choice D now has a measured first row (lane UU,
+about — and choice D now has measured rows (lanes UU and XX,
 2026-09-02): a hash-based prototype proves the identical 12x512
-statement in 23.0 s on the laptop's CPU alone, parity with the
-lattice line's GPU-assisted 21.0 s, with 4.3x less memory, 44x
-larger proofs, and without zero knowledge (see §6). Its
+statement in 23.0 s on the laptop's CPU alone (parity with the
+lattice line's GPU-assisted 21.0 s) and in **3.40 s on the laptop's
+GPU** with byte-identical proofs — 6.1x the lattice line's rate on
+the same device — with 4-9x less memory, 44x larger proofs, and
+without zero knowledge yet (see §6). Its
 tokens-per-second model (`U_PERF3_ROUTE_B_THROUGHPUT.md`, 2026-09-02)
 says: **50 tokens/s at 30B on one H100 is reachable on the hash line
 only for batched proving (4-16 requests or a 512-token prefill per
@@ -222,6 +224,7 @@ requires desktop hardware too.
 | **Throughput model (lane TT, Sep 2)** | every tokens/s number sourced; lattice line 2-15 tok/s at 30B prefill on one H100 at best, <1 decode; the Aug 30 board line retracted | the yardstick for all decisions | `U_PERF3_THROUGHPUT_MODEL.md` |
 | **Stage-A defaults, a GPU bug, and the memory diet (lane WW, Sep 2)** | the batched transport is now the default; a device-memory race that silently pushed the descent kernels to the CPU was found and fixed; the reference shape now runs in BOTH Stage-A modes on the laptop at 7.2 GB (was out of memory); Stage-A range mode proves at parity with the old path with 2.25x smaller proofs; full mode is 4x slower to prove; 8B full-mode memory ~85 GB | landed; the honest 12x512 comparison taken | `results/uperf3_ww_12x512_stage_a.md` |
 | **Variant B of the two-tier opening (lane VV, Sep 2)** | per-proof weight-side opening 1.77x faster than today's at 12x512 on the laptop GPU, claims bit-identical; the bar was 5x; 8B projection 4.4-15x straddles the bar and only an 8B-scale run can settle it; needs a new per-model certificate for the value tier's range | built as a measured spike; three ruling items | `results/uperf3_vv_variant_b.md` |
+| **The hash prototype on the GPU (lane XX, Sep 2)** | the identical proof in **3.40 s on the laptop's RTX 4070** (verify 0.42 s), byte-identical to the CPU proof (same sha256, 7 runs); 8.5e9 proven MAC/s = **6.1x the lattice line's best rate on the same device**; 0.78 GB RAM + 2.4 GB VRAM; ~1.9 s of the 3.4 s is host-side work with known byte-preserving fixes, not yet applied | landed; the hash line is now measured faster than the lattice line on the same hardware | `results/hashline_gpu_12x512.md` |
 | **The hash-based comparison prototype (lane UU, Sep 2)** | a NEW crate `hashline/` proves the identical 12x512 int8 statement (all 12 layer digests reproduced) in **23.0 s on the laptop CPU alone** vs the lattice line's 21.0 s with the GPU and 81.5 s CPU-only; 1.26e9 proven MAC/s; 1.56 GB memory (vs 6.7); 66.8 MB proofs (vs 1.5 MB); verify 2.8 s; seven tamper tests reject; NOT zero-knowledge; hash-only ~100-bit | one untuned lane-day reached parity with three weeks of lattice kernel work; its GPU port is estimated at 1.5-2.5 s per pass [MODEL] | `results/hashline_pass_12x512.md`, `PROVING_CHANNEL_OPTIONS.md` §3 |
 | **Spike S4: the two-tier opening on the real rig** (lane FF, Aug 27-28) | correctness bit-for-bit OK at 4M rings; **speed 1.10x vs the 5x bar**; verifier 3.9 s vs sub-second | NO-GO on speed; cause: the "cheap" linear pass computes general ring products | Agent FF |
 | Redesign of S4 on paper (lane II, Aug 28) | best composed case **1.6-2.5x** | **"the 5-15 s question on this line is CLOSED unless a structurally new idea arrives"** | `U_PERF3_S4_REDESIGN.md` |

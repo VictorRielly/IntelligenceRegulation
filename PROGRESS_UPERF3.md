@@ -8337,3 +8337,130 @@ AGGREGATION_LITERATURE's family (d)/(e) rows could note ePrint
 - STATE: round 11 lanes UU, VV, WW, YY, ZZ merged; XX (hashline on
   the GPU) still running. Next lane to open when XX lands: Z-1 (the
   hashline ZK form), needed under any privacy mode.
+
+## Orchestrator note 2026-09-03 — round 11: XX merged (clean, 'ort')
+
+- hashline/src/gpu/{mod,cuda}.rs + kernels.cu, the `gpu-cuda`
+  feature, `HL_GPU=1`, `--proof-out` + the PROOF sha256 line, the
+  device buffer pool; two byte-identical CPU fixes; results/
+  hashline_gpu_12x512.md; the §3 GPU row. Floors for the crate:
+  recorded below once the builds and the byte-identity re-run
+  finish here.
+- THE ROW [MEASURED, 8T + RTX 4070, NOISY-SHARED]: prove 3.40 s
+  p50, verify 0.42 s, proof 66,844,928 B byte-identical to the CPU
+  proof (sha256 50cf7bdf..), 0.78 GB RSS + 2.43 GB VRAM, 8.5e9
+  proven MAC/s = 6.1x the lattice line's 1.4e9 on the same device.
+  UU's [MODEL] 1.5-2.5 s missed: ~1.9 s of host work uncounted, all
+  with byte-preserving fixes (not applied). READING: the hash line
+  is now MEASURED faster than the lattice line on the same hardware
+  (3.8 s vs 21.0 s total at 12x512), at 125M, FFN-only, without ZK.
+- ROUND 11 STATE: all six lanes merged (UU, VV, WW, XX, YY, ZZ).
+  Rulings pending with Victor: the privacy mode (P1 vs P2/P3); VV's
+  three items; WW's h_sum grounding note. NEXT LANES (opened below):
+  ZA = the hashline ZK form (Ligero-ZK pad rows + masked sumchecks
+  + committed multiplicities + salts; measured surcharge vs the XX
+  row; needed under ANY privacy mode; YY counted +2-8%); ZB = the
+  widened-stack v3 semantics (int16-out tables, round-nearest
+  requant, the int16 u/h/z classes) + the 8B export reader in
+  hashline, so the Mac runs the FIRST MEASURED 8B PROOF on the hash
+  line (MAC_RUNBOOK M9) — the laptop cannot hold the 8B weight
+  commitments (~17 GB encoded).
+
+### Lane ZA — the hashline zero-knowledge form (wt-uperf3-za) — RUST (round 11 addendum 3)
+OWNS: hashline/src/pcs.rs (ADDITIVE: the ZK pad rows / masked
+row-combination behind a `--zk` flag), hashline/src/sumcheck.rs
+(ADDITIVE: masking polynomials for the zero-check / LogUp / matmul
+sumchecks behind the flag), hashline/src/transcript.rs (salts),
+the `--zk` flag lines in the pass driver, NEW hashline/src/zk.rs if
+wanted, NEW results/hashline_zk_*, the ZK row + a paragraph in
+PROVING_CHANNEL_OPTIONS.md §3, "Agent ZA status". READ-ONLY:
+hashline/src/gpu/* (XX's; the ZK form must run through the same
+device paths — if a kernel needs a mask input, add a NEW kernel
+entry, never edit an existing one), the export reader, layer.rs /
+silu.rs (lane ZB's), zkmatrix-rs/, scripts/.
+WHAT: make the proof zero-knowledge for the ACTIVATIONS (mode P1 of
+TARGET_CONTRACT Amendment A1: inputs/activations private, weights
+public) per U_PERF3_ROUTE_B_THROUGHPUT.md §4.2-4.3 (the
+constructions (a)-(e): Ligero/Brakedown ZK = Q random pad symbols
+per encoded row so any Q opened positions are uniform + a masked
+clear vector; zero-knowledge sumcheck via a committed random masking
+polynomial (Libra / Chiesa-Forbes-Spooner) for every sumcheck whose
+polynomial touches A, H or the helpers; committed multiplicities
+with a random shift; salted Merkle leaves). The weight commitment
+stays as built (public weights; the P2 problem is lane ZZ's option
+2, NOT this lane). ACCEPT: (1) the honest proof verifies with `--zk`
+at 3x16 and 12x512 on CPU and GPU (`HL_GPU=1`), byte-identical
+CPU vs GPU under the same seed; (2) the 7 tamper legs still reject;
+(3) a SIMULATION CHECK in code: with `--zk`, two runs with different
+activation witnesses but the same public inputs produce opened
+values whose distribution the test cannot distinguish (at minimum:
+every opened column entry and clear-vector entry is uniform over
+the field — assert the pad/mask is actually applied at every
+opening; document what a full simulator would add); (4) the
+measured surcharge vs the XX row (prove, verify, bytes, RSS, VRAM)
+at 12x512 on the GPU — the ZK row in §3, with the recorded
+soundness parameters unchanged (state them). RUNGS: 0 skeleton +
+the flag + the plan; 1 the PCS pad + masked clear vector with the
+opening-uniformity test; 2 the masked sumchecks; 3 multiplicities +
+salts; 4 GPU parity + the measured row; 5 record.
+
+### Lane ZB — the widened-stack semantics + the 8B export reader (wt-uperf3-zb) — RUST + a Mac item (round 11 addendum 3)
+OWNS: hashline/src/layer.rs and silu.rs (ADDITIVE: a `--profile v3`
+path — the int16-output activation tables (SiLU and GELU-tanh v3
+families), round-nearest requant, the int16 u/h/z classes; the v2
+path byte-identical), NEW hashline/src/export_v3.rs (the reader for
+the m8b export layout: `00 dims T d f layers`, `NN exps ...`, the
+a16/u16/h16/z16 planes), the `--profile`/`--export` flag lines in
+the pass driver, NEW results/hashline_v3_*, MAC_RUNBOOK.md item M9,
+"Agent ZB status". READ-ONLY: hashline/src/pcs.rs, sumcheck.rs,
+transcript.rs, gpu/* (lanes ZA/XX), zkmatrix-rs/ (the reference:
+the `uperf-v3` section's u3_layer_run and the table members
+SILU16_V3_MEMBERS / GELU16_V3_MEMBERS / their DIGESTS in
+ring_matmul.rs, `ring::lookup`), scripts/m8b_export_ffn.py
+(--profile v3: the exact widened chain), the exports.
+WHAT: hashline proves the m125 v2 chain today. The real 8B
+checkpoints were calibrated under the WIDENED STACK (v3): int16
+resolution at the table output, int16 u/h/z classes, round-nearest
+requant (U_PERF3_QUANTIZATION_MEASUREMENTS.md; the export
+results/m8b_mistral_v3_export/ with digests.txt lines `00 profile
+v3-widened`, `00 requant round`, per-layer X/WgT/WuT/WdT/a16/u16/
+h16/z16 sha256s and `NN exps` rows). Make hashline prove THAT chain
+so the Mac (256 GB, CPU) can prove real Mistral-7B layers.
+RUNGS: 0 skeleton + the flags + the plan; 1 the v3 reader
+reproducing results/m8b_mistral_v3_export/digests.txt's per-tensor
+sha256s for layer 0 from the WSL-local bins (the bins are on this
+box under that directory — check; if absent, use
+results/m8b_test/m125_v3_export/ which is a v3 export of the 125M
+model with its own digests.txt); 2 THE EXACT v3 CHAIN, unproven:
+reproduce ALL per-layer z16 digests of the v3 export you have (the
+125M v3 test export first — 12 layers; then Mistral layer 0 if the
+bins exist here) — STOP and record if any differs; 3 the proof:
+the v3 statement at the 125M v3 export, 12x512, CPU and GPU,
+tamper legs (a wrong int16 table entry; a wrong rounding); 4 ONE
+Mistral-7B layer at T=16 on this box if memory allows (weights
+176M int8 -> ~1.4 GB per tensor commitment x3 + encoding; measure
+RSS; if it OOMs, record and stop — the Mac runs it); 5 MAC_RUNBOOK
+item M9 written with exact commands: the first 8B proof on the hash
+line — per-layer at T=16 for all 32 layers, then T=512 for layer 0,
+then the full 32x512 pass if memory allows on the Mac (count it
+first: ~17 GB of encoded weight commitments per layer, streamed per
+layer) — CPU, `--threads` = the Mac's core count (the Mac's cores
+are uniform; the laptop's inverted scaling is the hybrid part),
+/usr/bin/time -l, the paste-back template.
+
+## Agent ZA status (wt-uperf3-za) — round 11
+
+(lane appends below)
+
+## Agent ZB status (wt-uperf3-zb) — round 11
+
+(lane appends below)
+- Floors for the crate on the XX-merged tree (this checkout; CPU
+  build 10.6 s, 19/19 tests; GPU build 17.2 s): `hashline pass 12
+  512 --threads 8 --proof-out`: CPU PROVE 16.81 s / VERIFY 0.27 s /
+  RSS 1.56 GB; GPU (HL_GPU=1) PROVE **2.88 s** / VERIFY 0.27 s / RSS
+  0.78 GB / VRAM 2.43 GB / 1.008e10 proven MAC/s [WSL-BOX 8T, the
+  box quieter than XX's runs: no lane building]; BOTH proofs sha256
+  50cf7bdfd6b5b182.. (66,844,928 B) — byte-identical, as XX
+  recorded. Device-side sum 1.44 s (h2d 0.23, ntt 0.43, hash 0.11,
+  sumcheck 0.43, fold 0.16, helpers 0.09); the rest is host.
