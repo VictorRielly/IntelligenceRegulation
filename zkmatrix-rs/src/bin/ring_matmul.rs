@@ -51345,6 +51345,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     use ring::zc_range::{logup_sumcheck_prove, logup_sumcheck_verify, zc_agg_prove, zc_agg_verify, SubExt, ZcAggInstance, ZcRangeInstance};
     use std::collections::HashMap;
     use std::rc::Rc;
+    use ring::ct_engine::prof; // [UPERF3-RR]
     let mode_name = match mode {
         GgMode::Full => "full",
         GgMode::Masked => "masked",
@@ -51379,10 +51380,15 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     };
 
     // ---- Witness + registry + Stage-A committed aux. ----
+    // [UPERF3-RR] the process-global phase timers (observation only; the
+    // digest flag stays off) — the opening's per-function split.
+    prof::enable(true, false);
+    prof::reset();
     let t_commit = Instant::now();
     let lays: Vec<BfLayer> = (0..layers_n).map(|l| bf_load_layer(l, t, true)).collect();
     let specs = bk_pair_specs(&lays, t);
     let (mut reg, gh_opt, plans) = gg_build_groups(&lays, t, &specs, q, mode);
+    let rr_t_groups = t_commit.elapsed().as_secs_f64(); // [UPERF3-RR] attribution
     reg.gw.begin_opening().expect("first weight-group opening (E-O2-BB)");
     reg.ga.begin_opening().expect("first act-group opening (E-O2-BB)");
     let mut gh = gh_opt;
@@ -51454,6 +51460,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     let sched_h = gh.as_ref().map(|g| ring::eval_proof::plan_schedule(g.n_digit_rings, 2, q, None));
     let mut w0_w = bk_witness_weight(&reg, &lays);
     let mut w0_a = gg_witness_act(&reg, &lays, &specs, &plans, &bk_aux, &class_data, &m_vals);
+    let rr_t_wit = t_commit.elapsed().as_secs_f64(); // [UPERF3-RR]
     // The committed planes now live in the digit witness — free the i64
     // staging vectors (~6 GB at 12x512) before the pre-commit peak.
     for cds in class_data.iter_mut() {
@@ -51464,7 +51471,9 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     uf_trim();
     let crs_seed = 0xB6_C0DEu64;
     let pre_w = bg_precommit(&ctxr, &reg.gw, &sched_w, &mut w0_w, crs_seed);
+    let rr_t_pre_w = t_commit.elapsed().as_secs_f64(); // [UPERF3-RR]
     let pre_a = bg_precommit(&ctxr, &reg.ga, &sched_a, &mut w0_a, crs_seed);
+    let rr_t_pre_a = t_commit.elapsed().as_secs_f64(); // [UPERF3-RR]
 
     // ---- Statement + h0 (all inventories bound; u_0(T_h) rides the
     // ---- rolling transcript in Full mode). ----
@@ -51649,6 +51658,13 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     }
     drop(ixf_pool_scope);
 
+    // [UPERF3-RR] attribution timers (round 10, rung 1): the Stage-A path
+    // split per function so the device port targets the measured top.
+    let rr_t_claim = t_prove.elapsed().as_secs_f64();
+    let (mut rr_s_desc, mut rr_s_logup, mut rr_s_tabs, mut rr_s_zc, mut rr_s_zc_claims) = (0f64, 0f64, 0f64, 0f64, 0f64);
+    let (mut rr_s_zc_eq, mut rr_s_zc_round, mut rr_s_zc_fold) = (0f64, 0f64, 0f64);
+    let (mut rr_zc_rounds, mut rr_zc_macs) = (0usize, 0u64);
+    let mut rr_zc_lines: Vec<String> = Vec::new();
     // ---- STAGE-A PHASE (replacing bk's descent phase). ----
     // Full mode phase A/B: silu alphas, then h + u_0(T_h) before any rho.
     let mut silu_alphas: Vec<Option<KElem>> = vec![None; specs.len()];
@@ -51722,6 +51738,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     let ypow = bk_ypow_col(&kf);
     for (pi, sp) in specs.iter().enumerate() {
         if sp.silu.is_some() && matches!(mode, GgMode::Range | GgMode::Masked) {
+            let rr_t0 = Instant::now();
             let plan = &sp.plan;
             let alpha = tr.challenge_k(&kf);
             let aux = bk_aux[pi].as_mut().unwrap();
@@ -51763,7 +51780,9 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                 bk_pair_claims(&kf, sp, &reg, pi, &view, &ypow, &mut claims);
             }
             ships.push(GgShip::Descent(tpx));
+            rr_s_desc += rr_t0.elapsed().as_secs_f64();
         } else if sp.silu.is_some() {
+            let rr_t0 = Instant::now();
             let alpha = silu_alphas[pi].clone().unwrap();
             let mat = logup_mat[pi].as_ref().unwrap();
             let (_, _, n_log2) = plans[pi].logup.unwrap();
@@ -51786,6 +51805,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                 outs.push(out);
             }
             ships.push(GgShip::Logup(outs));
+            rr_s_logup += rr_t0.elapsed().as_secs_f64();
         } else {
             let mut proofs = Vec::new();
             for (ci, cls) in plans[pi].classes.iter().enumerate() {
@@ -51793,7 +51813,10 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                 // Transient per class: the u32 zc tables (dropped at the
                 // end of the class — the memory the descent trees used to
                 // hold is gone; this is the replacement's own residency).
+                let rr_t0 = Instant::now();
                 let cols_tabs = gg_build_class_tabs(sp, cls, &lays);
+                let rr_c_tabs = rr_t0.elapsed().as_secs_f64();
+                rr_s_tabs += rr_c_tabs;
                 let cols_inst: Vec<ZcRangeInstance> = cols_tabs
                     .iter()
                     .map(|(p, r)| ZcRangeInstance { n_log2: cls.n_log2, e0: 1, planes: p, rem: r })
@@ -51802,6 +51825,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                 let n_tot = cls.n_log2 + inst.a();
                 let rho: Vec<_> = (0..n_tot).map(|_| ext.challenge(&kf, &mut tr)).collect();
                 let betas: Vec<_> = (0..cls.w + 1).map(|_| ext.challenge(&kf, &mut tr)).collect();
+                let rr_t1 = Instant::now();
                 let (proof, point, stats) = if let Some(mask) = &cd.mask {
                     // O-4: the mask commitment binds via u_0(T_act) inside
                     // h0 (mask-then-fold — every challenge above descends
@@ -51812,6 +51836,13 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                 } else {
                     zc_agg_prove(&kf, &ext, &inst, &rho, &betas, &mut tr)
                 };
+                let rr_c_zc = rr_t1.elapsed().as_secs_f64();
+                rr_s_zc += rr_c_zc;
+                rr_s_zc_eq += stats.secs_eq;
+                rr_s_zc_round += stats.secs_round;
+                rr_s_zc_fold += stats.secs_fold;
+                rr_zc_rounds += stats.rounds;
+                rr_zc_macs += stats.macs_total();
                 let mut flat: Vec<KElem> =
                     proof.col_claims.iter().flat_map(|cl| cl.iter().map(|e| ext.to_k(e))).collect();
                 if let Some(mf) = &proof.mask_final {
@@ -51819,7 +51850,14 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                 }
                 tr.absorb_k(&kf, "gg-zc-claims", &flat);
                 stage_a_bytes += stats.wire_bytes;
+                let rr_t2 = Instant::now();
                 gg_zc_claims(&kf, &ext, &reg, sp, cls, &proof, &point, &mut claims);
+                let rr_c_claims = rr_t2.elapsed().as_secs_f64();
+                rr_s_zc_claims += rr_c_claims;
+                rr_zc_lines.push(format!(
+                    "zc {:<8} class {ci}: m {:>2} x 2^{:<2} w {:>2} (n_tot {:>2}): tabs {:.2}s | prove {:.2}s (eq {:.2} rounds {:.2} folds {:.2}; {} rounds, {:.2} G MACs) | claims {:.2}s",
+                    sp.name(), cls.members.len(), cls.n_log2, cls.w, n_tot, rr_c_tabs, rr_c_zc, stats.secs_eq, stats.secs_round, stats.secs_fold, stats.rounds, stats.macs_total() as f64 / 1e9, rr_c_claims
+                ));
                 if cd.mask.is_some() {
                     gg_mask_claims(&kf, &ext, cls, &proof, &point, &mut claims);
                 }
@@ -51829,6 +51867,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
         }
         uf_trim(); // per-pair transient tables back to the OS
     }
+    let rr_t_stagea = t_prove.elapsed().as_secs_f64(); // [UPERF3-RR]
     // Rung-4 tamper injection on the SHIPPED objects (the prover's own
     // transcript/claims stay honest; the verifier consumes the flip).
     if matches!(tamper, GgTamper::Claim | GgTamper::Round | GgTamper::MaskServed) {
@@ -51900,14 +51939,17 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     let nus_h: Vec<KElem> = (0..claims_h.len()).map(|_| tr.challenge_k(&kf)).collect();
     let (vb_w, vb_a, gc_w, gc_a) = assemble(&claims, &nus);
     let mut mask_rng = ring::ProverRng::from_test_seed("uperf3-gg-tz", &[0xB8]);
+    let rr_t_pub = t_prove.elapsed().as_secs_f64(); // [UPERF3-RR]
     let (proof_w, _tzw) = bg_prove_group(
         &ctxr, &kf, &reg.gw, &sched_w, &mut w0_w, &gc_w, &vb_w, pre_w, &mut tr, crs_seed, false, false,
         &mut mask_rng,
     );
+    let rr_t_gw = t_prove.elapsed().as_secs_f64(); // [UPERF3-RR]
     let (proof_a, _tza) = bg_prove_group(
         &ctxr, &kf, &reg.ga, &sched_a, &mut w0_a, &gc_a, &vb_a, pre_a, &mut tr, crs_seed,
         tamper == GgTamper::MaskCommit, false, &mut mask_rng,
     );
+    let rr_t_ga = t_prove.elapsed().as_secs_f64(); // [UPERF3-RR]
     let proof_h = if let (Some(g), Some(sh), Some(p)) = (gh.as_ref(), sched_h.as_ref(), pre_h) {
         let mut vb_h = kf.zero();
         let mut gc_h = GroupClaims::new(g.tensors.len());
@@ -51930,9 +51972,15 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
         None
     };
     let prove_s = t_prove.elapsed().as_secs_f64();
+    // [UPERF3-RR] the identity handle: the prover's transcript state binds
+    // every absorbed object (claims, round polys, served values, the group
+    // openings' rows) — the pass's EVAL-PROOF DIGEST analogue.
+    let rr_tr_state = tr.state();
 
     // ---- VERIFIER (fresh transcript, own claim layer + stage-a). ----
     let t_verify = Instant::now();
+    let (mut rr_tv_claim, mut rr_tv_stagea, mut rr_tv_pub) = (0f64, 0f64, 0f64);
+    let mut rr_tv_state = [0u8; 32];
     let ctx_v = statement.digest().expect("verifier statement digests");
     let h0_v = uk8_sha(&[
         b"uperf3-gg-h0",
@@ -52063,7 +52111,8 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
             // Stage-A phase, verifier side.
             let mut alphas_v: Vec<Option<KElem>> = vec![None; specs.len()];
             if mode == GgMode::Full {
-                for (pi, sp) in specs.iter().enumerate() {
+                rr_tv_claim = t_verify.elapsed().as_secs_f64(); // [UPERF3-RR]
+            for (pi, sp) in specs.iter().enumerate() {
                     if sp.silu.is_some() {
                         alphas_v[pi] = Some(tv.challenge_k(&kf));
                     }
@@ -52181,6 +52230,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                     }
                 }
             }
+            rr_tv_stagea = t_verify.elapsed().as_secs_f64(); // [UPERF3-RR]
             // Publics.
             let r_out: Vec<KElem> = (0..lr + lcx).map(|_| tv.challenge_k(&kf)).collect();
             let eq_oc = Rc::new(eq_table(&kf, &r_out[..lcx]));
@@ -52205,6 +52255,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
             let nus_v: Vec<KElem> = (0..claims_v.len()).map(|_| tv.challenge_k(&kf)).collect();
             let nus_h_v: Vec<KElem> = (0..claims_h_v.len()).map(|_| tv.challenge_k(&kf)).collect();
             let (vb_w_v, vb_a_v, gc_w_v, gc_a_v) = assemble(&claims_v, &nus_v);
+            rr_tv_pub = t_verify.elapsed().as_secs_f64(); // [UPERF3-RR]
             let res_w = bg_verify_group(&ctxr, &kf, &reg.gw, &sched_w, &gc_w_v, &vb_w_v, &proof_w, &mut tv, crs_seed, None);
             let res_a = bg_verify_group(&ctxr, &kf, &reg.ga, &sched_a, &gc_a_v, &vb_a_v, &proof_a, &mut tv, crs_seed, None);
             for res in [&res_w, &res_a] {
@@ -52231,6 +52282,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                 }
             }
         }
+        rr_tv_state = tv.state(); // [UPERF3-RR]
     }
     let verify_s = t_verify.elapsed().as_secs_f64();
 
@@ -52271,10 +52323,14 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     let n_claims = claims.len() + claims_h.len();
     println!("  claims served: {} (act/weight) + {} (act-h) = {n_claims}", claims.len(), claims_h.len());
     let _ = clog2; // (used by gg_build_groups)
+    let rr_prof_stage_a: Vec<(&'static str, f64, u64)> = prof::report();
+    let mut rr_prof_oracle: Vec<(&'static str, f64, u64)> = Vec::new();
     if with_oracle {
         println!("  ORACLE (frozen bk_pass_run, same shape, default path):");
         let opts = BkOpts { layers_n, t, p2: false, tamper: BkTamper::None, weak_alpha: false, quiet: true, ..Default::default() };
+        prof::reset();
         let (v, c, _art) = bk_pass_run(&opts);
+        rr_prof_oracle = prof::report();
         println!(
             "    accept {} | commit {:.1}s prove {:.1}s verify {:.1}s | {} B counted (descent pairs {} B)",
             v.accept(),
@@ -52299,6 +52355,47 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
             }
         );
     }
+    // [UPERF3-RR] rung 1: the attribution table + the identity digest.
+    println!("[UPERF3-RR] ATTRIBUTION mode {mode_name} (walls s; {} threads):", ring::eval_proof::threads());
+    println!(
+        "  commit {commit_s:.2}: groups+planes {:.2} | witness {:.2} | precommit weight {:.2} | precommit act {:.2} | statement {:.2}",
+        rr_t_groups, rr_t_wit - rr_t_groups, rr_t_pre_w - rr_t_wit, rr_t_pre_a - rr_t_pre_w, commit_s - rr_t_pre_a
+    );
+    println!(
+        "  prove {prove_s:.2}: claim-layer {:.2} | stage-a phase {:.2} = silu descents {:.2} + logup {:.2} + zc tabs-build {:.2} + zc prove {:.2} (eq {:.2} rounds {:.2} folds {:.2}; {} rounds, {:.2} G MACs) + zc claims-transport {:.2} + other {:.2} | publics+nus {:.2} | opening weight {:.2} | opening act {:.2} | tail {:.2}",
+        rr_t_claim, rr_t_stagea - rr_t_claim, rr_s_desc, rr_s_logup, rr_s_tabs, rr_s_zc, rr_s_zc_eq, rr_s_zc_round, rr_s_zc_fold, rr_zc_rounds, rr_zc_macs as f64 / 1e9, rr_s_zc_claims,
+        (rr_t_stagea - rr_t_claim) - rr_s_desc - rr_s_logup - rr_s_tabs - rr_s_zc - rr_s_zc_claims,
+        rr_t_pub - rr_t_stagea, rr_t_gw - rr_t_pub, rr_t_ga - rr_t_gw, prove_s - rr_t_ga
+    );
+    for l in &rr_zc_lines {
+        println!("    {l}");
+    }
+    println!(
+        "  verify {verify_s:.2}: claim-layer {:.2} | stage-a {:.2} | publics+nus {:.2} | group verifies {:.2}",
+        rr_tv_claim, rr_tv_stagea - rr_tv_claim, rr_tv_pub - rr_tv_stagea, verify_s - rr_tv_pub
+    );
+    println!("  device: {} | {} | {}", ring::gpu::label(), ring::gpu::k9_label(), ring::gpu::ixf_label());
+    println!("  phase table (prof, process-global; STAGE-A pass | ORACLE pass; bg.* per-group totals, ep.* shared by prover and verifier):");
+    let mut names: Vec<&'static str> = rr_prof_stage_a.iter().map(|l| l.0).collect();
+    for l in &rr_prof_oracle {
+        if !names.contains(&l.0) {
+            names.push(l.0);
+        }
+    }
+    for name in names {
+        let sa = rr_prof_stage_a.iter().find(|l| l.0 == name).map(|l| (l.1, l.2)).unwrap_or((0.0, 0));
+        let or = rr_prof_oracle.iter().find(|l| l.0 == name).map(|l| (l.1, l.2)).unwrap_or((0.0, 0));
+        if sa.1 == 0 && sa.0 == 0.0 && or.1 == 0 && or.0 == 0.0 {
+            continue;
+        }
+        println!("    {name:<24} {:>9.2}s x{:<6} | {:>9.2}s x{}", sa.0, sa.1, or.0, or.1);
+    }
+    println!(
+        "[UPERF3-RR] STAGE-A DIGEST statement {} | prover-transcript {} | verifier-transcript {} | bytes {total}",
+        hex_full(&ctx_digest),
+        hex_full(&rr_tr_state),
+        hex_full(&rr_tv_state)
+    );
     println!("  peak RSS {:.0} MiB", uperf_a_peak_rss_mib());
     accept
 }
