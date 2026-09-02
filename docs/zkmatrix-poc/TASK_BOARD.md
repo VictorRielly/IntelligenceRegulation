@@ -58,6 +58,39 @@ rulings; the Mac runbook unchanged):**
   the Route-B throughput model (lane TT's seven items for the hash
   line, incl. the ZK surcharge — Victor's ZK rule is non-negotiable —
   and the proof-size lever).
+- **LANE YY LANDED (merged 3c4dc8a): `U_PERF3_ROUTE_B_THROUGHPUT.md`
+  — the hash line's tokens/s model on lane TT's yardstick.** From
+  UU's measured row and the crate's loops: per-model 2.19 s (the W
+  commit), per-proof weight side 1.52 s (linear, 4.33 mult-adds per
+  weight), activation side 19.2 s (84%) at 12x512; scaled: 8B x 512 =
+  492 s on the laptop CPU (1.0 tok/s), 30B x 512 = 1,546 s (0.33)
+  [MODEL from MEASURED]; hardware factor for this device-native mix
+  laptop GPU 5-15x [MODEL until XX], 4090 15-75x, H100 25-180x. **THE
+  VERDICT: 50 tok/s at 30B on one H100 is reachable on Route B ONLY
+  for prefill / batched proving (B >= 4-16), FFN-only, in modes P0/P1
+  (weights public), in the upper half of the hardware range (>= ~90x
+  over the CPU row; sustained device hash rate >= ~50 GB/s) — it
+  hinges on lane XX's two numbers. Batch-1 decode at 50 tok/s: not
+  reachable under any counted assumption (the linear weight opening
+  alone is 25-60 ms per proof at 30B vs the 20 ms budget). Under
+  P2/P3 (weights private) NO counted cell reaches 50.** THE
+  STRUCTURAL FINDING (§4.4): a cached hash-based weight commitment
+  leaks 256 encoded columns per proof — the weights are recoverable
+  after ~65 proofs — so P2/P3 need a fresh W commitment per proof
+  (+44% at 8B x 512, +54% at 30B; 7-23 s of hashing per proof on an
+  H100), unless an UNCOUNTED design lands: Orion-class hidden-column
+  openings (an inner proof of ~1e9 constraints per proof at 30B) or a
+  lattice-hybrid weight commitment (the lattice channel's hiding
+  commitment for W, the hash channel for the activations, a ZK
+  cross-commitment link). ZK for the activations (P1) is cheap:
+  +2-8% prover. Proof size: the sqrt class is 613 MB / 1.5 GB per
+  8B/30B proof; a WHIR/STIR-class PCS swap gives 3-12 MB at x0.94-1.4
+  prover — mandatory before any decode artifact. **RULING FOR
+  VICTOR: which privacy mode is the product?** P1 (open weights,
+  private inputs — the natural mode for open-weight models such as
+  the Mistral/Gemma checkpoints in hand) keeps Route B on the 50
+  tok/s path; P2/P3 (proprietary weights) needs the weight-privacy
+  design priced first (a docs-only lane, ZZ, opened for that).
 - **ROUND 11 LANES** (PROGRESS_UPERF3.md, self-contained briefs):
   **UU** = the hash-based prototype ("Route B") as a NEW crate
   `hashline/` on the SAME 12x512 int8 statement — Goldilocks field,

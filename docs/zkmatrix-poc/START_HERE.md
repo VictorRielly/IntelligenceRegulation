@@ -87,8 +87,21 @@ about — and choice D now has a measured first row (lane UU,
 2026-09-02): a hash-based prototype proves the identical 12x512
 statement in 23.0 s on the laptop's CPU alone, parity with the
 lattice line's GPU-assisted 21.0 s, with 4.3x less memory, 44x
-larger proofs, and without zero knowledge (see §6). Its GPU port and
-its own tokens-per-second model are round 11's follow-on lanes.
+larger proofs, and without zero knowledge (see §6). Its
+tokens-per-second model (`U_PERF3_ROUTE_B_THROUGHPUT.md`, 2026-09-02)
+says: **50 tokens/s at 30B on one H100 is reachable on the hash line
+only for batched proving (4-16 requests or a 512-token prefill per
+proof), feed-forward only, and only if the weights may stay public
+or the inputs alone are private** [MODEL, hinging on the GPU port's
+measured factor]. Token-by-token decode at 50 tokens/s is not
+reachable under any counted assumption on either line. Hiding the
+WEIGHTS on the hash line is structurally expensive: a cached
+hash-based weight commitment leaks its columns across proofs
+(recoverable after ~65 proofs), so the weights must be re-committed
+every proof (7-23 s of hashing per proof at 30B on an H100), unless
+an uncounted design (hidden-column openings, or a lattice-hybrid
+weight commitment) is built. Which privacy mode the product needs
+is therefore the next ruling.
 
 ## 3. Where we stand (the honest numbers)
 

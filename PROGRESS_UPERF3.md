@@ -6944,3 +6944,64 @@ every device column. 14 unknowns listed at the end of the memo.
 START_HERE.md §2's "Its GPU port and its own tokens-per-second model
 are round 11's follow-on lanes" can now cite the memo; TASK_BOARD.md
 §0 may carry the one-line verdict above.
+
+## Orchestrator note 2026-09-02 — round 11: YY merged (fast-forward 3c4dc8a)
+
+- U_PERF3_ROUTE_B_THROUGHPUT.md landed (1,096 lines; docs only; no
+  floors affected). Verdict recorded in START_HERE.md §2 and the
+  board §0: 50 tok/s at 30B on one H100 is reachable on Route B only
+  for batched/prefill proving, FFN-only, in P0/P1, in the upper half
+  of the hardware range, hinging on lane XX's port factor and the
+  device hash rate; batch-1 decode not reachable on either line;
+  P2/P3 (weights private) reaches no counted cell because a cached
+  hash commitment leaks its columns across proofs (§4.4: recoverable
+  after ~65 proofs) — the weights must be re-committed per proof
+  (7-23 s hashing floor at 30B on an H100) unless an uncounted
+  design is built (Orion-class hidden columns; the lattice-hybrid
+  weight commitment = PROVING_CHANNEL_OPTIONS §3's "A + B" row made
+  concrete).
+- THE RULING THIS RAISES (put to Victor): the product's privacy
+  mode. P1 (open weights, private inputs) is the cheap mode on Route
+  B (+2-8%) and the natural one for open-weight checkpoints; P2/P3
+  needs the weight-privacy design priced. Lane ZZ (docs only) opened
+  below to price options 2 and 3 of §4.4 so the ruling is made with
+  numbers.
+
+### Lane ZZ — weight privacy on Route B, priced (docs only) (wt-uperf3-zz) — DESIGN (round 11 addendum 2)
+OWNS: NEW docs/zkmatrix-poc/U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md; one
+pointer line in U_PERF3_ROUTE_B_THROUGHPUT.md §4.4 (after option 3);
+"Agent ZZ status". No code, no builds, no runs.
+GOAL: count, on lane YY's yardstick and shapes, the three ways a
+hash-line proof can keep the WEIGHTS private across many proofs:
+(1) re-commit per proof (YY's counted baseline — restate it, and
+count the batching amortization: at B requests per proof the
+re-commit is paid once per B tokens x T); (2) Orion-class
+hidden-column openings (ePrint 2022/1010 and its successors): the
+inner statement's exact size at 8B/30B (YY counted ~1e9 constraints
+at 30B — verify), which inner prover (a small-field sumcheck/GKR
+over an arithmetic hash such as Poseidon2 — the hash swap's cost on
+the OUTER commit phase too), the prover time as a fraction of the
+P0 row [MODEL with named constants], the proof bytes, the verifier;
+(3) the lattice-hybrid weight commitment: the lattice line's hiding
+MLWE commitment for W (cached per model — the built weight group;
+per-proof opening = lane QQ's MEASURED 2.08 s at the 12x512 weight
+group on the 4070, [MODEL] 62-75 s at 8B and 280-340 s at 30B in
+the design of record, 14-27 s / 65-125 s with Variant B — lane VV
+is measuring), the hash channel for the activations, and the
+cross-commitment link (the matmul sumcheck's terminal claim W~(r)
+must be opened from the lattice commitment: what object carries it,
+what its ZK costs — S5 §4.4's ~59 KB of link rows per tensor is the
+only recorded number); hardware-normalized to one H100 with the
+SAME ranges YY used; and (4) any fourth option the literature offers
+for a hiding, cached, hash-based commitment (e.g. a fresh outer
+layer per proof over a fixed inner commitment; "commit once, mask
+per proof" constructions) — cite or say none. OUTPUT: a table of the
+options x {8B, 30B} x {prefill B=1, B=16, decode} in seconds per
+proof and tokens/s on one H100 with the P0 row alongside; the
+verdict on which option, if any, keeps a WEIGHTS-PRIVATE Route B on
+the 50 tok/s path; what must be measured next; "What is not known".
+Plain language, every number labelled and sourced.
+
+## Agent ZZ status (wt-uperf3-zz) — round 11
+
+(lane appends below)
