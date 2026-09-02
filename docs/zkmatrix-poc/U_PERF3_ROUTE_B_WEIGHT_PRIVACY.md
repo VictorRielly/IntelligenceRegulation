@@ -54,7 +54,55 @@ this memo is about.
 
 ## 0. The answer in one paragraph
 
-(lands with §0's commit)
+On the hash-based line the weights can stay private across many
+proofs in three ways, and **one of them keeps a weights-private
+Route B on the 50 tok/s path: option 2 — never send the sampled
+weight columns.** Commit the weight tree once per model under an
+arithmetic hash (Poseidon2), and on every proof prove the column
+check that the verifier runs today (S3 `pcs::verify`: 256 sampled
+columns x 2,648 rows x 3 inner products, each column's hash and
+Merkle path — 5.9e6 Poseidon2 permutations, ~4.4e9 native
+multiplies per 30B proof [COUNTED]) inside a fresh zero-knowledge
+GKR/sumcheck proof, with the clear vectors masked by a fresh
+per-proof mask commitment so nothing about the cached commitment
+is ever in the clear (§3). Its per-proof surcharge on one H100 is
+50-180 ms at the counted floor and 0.16-3.6 s by scaled constants
+[MODEL] against a 3.7-62 s P0 prefill proof, so its 30B prefill
+cells — **46-137 tok/s at the floor, 7.8-58 scaled** — are P0's
+own (47-138 / 8.3-60, S0), and it reaches 50 under exactly P0's
+conditions (batched or 512-token prefill proving, the upper half
+of the hardware range, a >= ~50 GB/s device hash rate) and no
+others. It hinges on an inner zero-knowledge prover for a
+data-parallel Poseidon2 circuit (its overhead over native, 5-20x,
+is the one constant not counted from code; nothing is built), on
+the once-per-model arithmetic-hash tree (2-18 min on a GPU at 30B,
+off the contract's clock), and on a written simulator for the
+composition — the published Orion was itself found unsound
+[EXTERNAL, ePrint 2024/1164]. Option 1 — re-commit the weights
+every proof, 7-23 s of hashing per proof at 30B (S0) — reaches 50
+only when >= 16 stacked 512-token prefills share one proof (42-127
+floor / 12-87 scaled, §2), and then only with a token-streaming
+commitment for a 258 GB per-layer working set; at one request per
+proof it tops out at 48. Option 3 — the lattice-hybrid (the weights
+on the lattice channel: lane QQ's measured 2.08 s per proof at
+12x512, 6.9-81 s per 30B proof on an H100 with Variant B, 30-218
+s in the design of record [MODEL on MODEL]) — reaches 50 only with
+Variant B at >= 16 prefills per proof (32-128) and never at one,
+and its cross-commitment link is the crux: the matmul sumcheck's
+terminal claim is a Goldilocks-extension evaluation W~(r), no
+recorded design opens it from the q31 lattice commitment, and the
+cheapest honest bridge (twelve 11-bit-coefficient integer
+functionals per claim, proven exactly on the lattice side) forces
+the weight commitment to a >= 46-bit modulus and a Tier Z mask
+design (§4). The literature offers no fourth way this session could
+find (§5): a hash commitment reveals what it opens, and hiding
+across openings means re-randomising everything (option 1), never
+revealing (option 2), or an algebraic hiding commitment (option 3).
+Batch-1 decode at 50 tok/s is out of reach for every option, as it
+is for P0 (§6). For the ruling S0 raised: P1 (open weights,
+private inputs) costs 2-8% and needs none of this; P2/P3
+(proprietary weights) costs option 2's build — Z-1, O2-1, O2-2,
+O2-3 in §7.2, about two lane-weeks before the first measured row.
 
 ## 1. The problem, restated for a newcomer
 
