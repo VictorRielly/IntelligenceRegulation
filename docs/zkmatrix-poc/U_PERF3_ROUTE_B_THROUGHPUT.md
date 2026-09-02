@@ -692,7 +692,71 @@ their material.
 
 ## 5. The proof-size lever
 
-(pending)
+### 5.1 Why 66.8 MB: the sqrt law [MEASURED anatomy from S1; law COUNTED from S3 `Opening::size_bytes`]
+
+Per layer 5.57 MB = column openings 256 x (288 + 520 + 432) rows x
+8 B = 2.54 MB + 10 clear vectors x 2^14 x 16 B = 2.62 MB + Merkle
+paths 3 x 256 x 16 x 32 B = 0.39 MB + sumchecks and claims ~10 KB.
+For one commitment of N elements laid out as m x n, the bytes are
+`Q x m x 8 + (k + 1) x n x 16 + Q x log2(4n) x 32` with m = N / n: the
+first term falls with n, the second rises, and the minimum sits at
+n* = sqrt(128 N / (k + 1)), where the bytes are proportional to
+**sqrt(N)** — the Ligero/Brakedown sqrt-size class (L1, L2; S5 §4.4
+item 2). At 125M the as-built n = 2^14 is already within 2% of the
+optimum for all three commitments [COUNTED]; there is no free lever
+in the parameters.
+
+### 5.2 The sqrt class at every shape [COUNTED at the per-commitment optimum n]
+
+| shape | n (W / A / H) | per layer | per 512-token pass | per prefill token | per DECODE token (the W opening is per proof) |
+|---|---|---:|---:|---:|---:|
+| 125M, 12 layers (as built, S1) | 2^14 / 2^14 / 2^14 | 5.57 MB | **66.8 MB** [MEASURED] | 130 KB | 18 MB |
+| 8B, 32 layers | 2^16 / 2^16 / 2^15 | 19.1 MB | **613 MB** | 1.2 MB | **282 MB** |
+| 30B stand-in, 62 layers | 2^17 / 2^16 / 2^16 | 24.4 MB | **1.51 GB** | 3.0 MB | **736 MB** |
+
+Two readings. Per prefill token the sqrt class is 1-3 MB — the same
+order as the competitor's 4-8 MiB per token-step (S5 addendum) —
+but per proof it is a 0.6-1.5 GB artifact, and per DECODE token it
+is 0.3-0.7 GB, because the weight opening's bytes do not shrink with
+T. The verifier's work grows the same way: 2.8 s at 12x512 (8
+threads) [MEASURED] scales to ~3-5 s at 8B and ~8-12 s at 30B [MODEL:
+re-encoding 10 clear vectors of 4n per layer plus 256 x (k + 1) x m
+multiply-adds per commitment], against the contract's <= 2 s
+single-threaded line (S6 §4). The sqrt class therefore fails R5 (S0
+§7.2) at 8B and above, and is unshippable for decode at any scale.
+
+### 5.3 The levers, counted
+
+| lever | what changes | bytes per pass, 125M / 8B / 30B | prover time | verifier | label |
+|---|---|---|---|---|---|
+| as built | — | 67 MB / 613 MB / 1.51 GB | 1.0x | 2.8 s / ~3-5 s / ~8-12 s | [MEASURED / COUNTED / MODEL] |
+| **batched-evaluation reduction + one merged commitment** (UU's item (b)): reduce every claim on a commitment to ONE point by a batching sumcheck (a random combination of the claims at their points, proven equal to one evaluation at a fresh point — standard for multilinear PCS), so k + 1 = 2 clear vectors; merge W, A, H into one matrix and re-optimise n (2^15 / 2^17 / 2^17-2^18) | columns unchanged, clear vectors 10 -> 2, paths 3 -> 1 | 30 MB / 280 MB / 760 MB (−56% / −54% / −50%) | +5-15% [MODEL]: one more N-sized sumcheck per commitment (+10-20%), minus a third of the row-combinations (−6%) | ~−50% | [COUNTED bytes, MODEL time] |
+| **WHIR / STIR-class multilinear PCS** (L4): the whole commitment as one Reed-Solomon codeword (one NTT of 2^23-2^28 x 1/rate instead of 300-3,000 independent 2^16 NTTs), rate 1/2, a sumcheck-driven opening that folds the codeword 16x per round and re-commits the folded remainder, ~100-300 queries per round with Merkle paths | proof size polylog in N: WHIR reports 63 KiB at degree 2^22, 100 bits [EXTERNAL, S5 §4.2 abstract verified]; 60-150 KiB per opening at our 2^22-2^28 sizes [MODEL from the stated growth]; one opening per commitment per layer, or one per layer merged | **1.2-2.4 MB / 3-6 MB / 6-12 MB** (−30-60x / −100-200x / −125-250x); per decode token 3-12 MB instead of 282-736; with one cross-layer batched opening per proof ~0.2-0.5 MB [MODEL] | commit: the NTT part 1-2x (a larger, cache-unfriendly transform) and the hashed bytes −50% (rate 1/2: 16 B per element instead of 32); open: one N-sized sumcheck (≈ a zero-check of the same size, ~0.2 s per 2^23 commitment on the laptop) plus ~1/15 of a commit for the fold rounds. Net: **commit + open phases x 0.9-1.6, the whole prover x 0.94-1.4** [MODEL from stated complexities] | 360 us per opening at 2^22 [EXTERNAL]; tens of ms per pass at any shape — the <= 2 s line met with ~100x margin | [EXTERNAL / MODEL] |
+| **FRI** (L4, fold-by-2 with a re-commit per round) | as above, larger proofs: STIR reports 1.25-2.5x smaller than FRI and WHIR smaller again [EXTERNAL] | ~2-3x the WHIR row: 3-6 MB / 8-16 MB / 15-30 MB | commit as WHIR; open: the fold rounds sum to ~1x a commit -> commit + open x 1.3-2 [MODEL] | ms-class | [EXTERNAL / MODEL] |
+| BaseFold (S5 §4.4 item 1, field-agnostic) | not needed here: Goldilocks has 2-adicity 32, so the "two-adicity wall" that blocked this family on the lattice line's q31 field (S5 §4.3) does not exist on Route B — the field choice is what makes the polylog PCS available at all | — | — | — | — |
+| recursion (a SNARK of the Ligero verifier; S5 family (e)) | the 2.8 s verifier is ~1e9 field operations — an inner circuit of that order per pass; hundreds of seconds of prover [MODEL] | KB-class | far worse | ms | not a latency lever |
+
+### 5.4 What the swap does and does not change
+
+- It is the mandatory step for a shippable decode artifact and for
+  the verifier budget at 8B and above; on the prover it is roughly
+  neutral (x0.94-1.4), because Ligero's cheap GEMV opening is traded
+  for a cheaper commit (half the hashed bytes) plus an N-sized
+  sumcheck.
+- It does NOT change §2's per-proof weight-side linearity: every
+  hash-based PCS known to this memo does Omega(N) prover work per
+  opening of an N-sized polynomial (the folds and the sumcheck walk
+  every coefficient); R1 stands.
+- It does NOT change §4.4: a FRI-class opening reveals query values
+  of the codeword and of its folds at hundreds of public positions
+  per proof; a cached weight commitment accumulates the same leak,
+  and the ZK forms of FRI/STIR/WHIR blind the polynomial with fresh
+  randomness per proof — a per-proof re-commit of the weights
+  again.
+- It is a spike, not a design change: the multilinear claims, the
+  sumchecks and the LogUp form stay; only `pcs.rs` is replaced. UU
+  sized it as an open item; this memo prices it as the largest
+  byte lever and a prover wash, and names the spike in §7.4.
 
 ## 6. The tokens/s table, next to the lattice line
 
