@@ -6803,7 +6803,49 @@ RUNGS (prefix "U-PERF3 WW:"):
   Floors at commit (CPU + GPU builds green, 2m59s / 2m27s):
   diff-battery 16.88 s; freeze-check 102 ok + passed; uperf-s
   3752cba4..; agg 46234986..; uperf-x be89d5da..; QQ's `r1 diff 20`
-  cae0b312.. unchanged. Rung 2 commit: (this entry).
+  cae0b312.. unchanged. Rung 2 commit: d64c13a.
+- 2026-09-02 RUNG 3 — THE DEVICE PATH: bit-identical; at 2^22 / 2^23
+  8T GPU the Variant-B core is 1.12x / 1.38x the built GPU opening
+  (QQ's R1 at the same shapes: 0.85x / 0.93x). NO NEW KERNEL, as QQ:
+  `tt_fold_b` and `tt_b_commit` ARE the `ntt_gemm_modq_small` contract
+  whose device port (k_gemm_split) is the existing hook — the value
+  layout's i8 groups take the hook's pack fast path; the port is the
+  dispatch (ZK_GPU=1 on the gpu-cuda binary).
+  BYTE IDENTITY: `ZK_GPU=1 uperf-t b diff 20 1 161` on the GPU binary
+  (results/uperf3_vv_b_diff20_gpu.log): WIRE DIGEST e757eff7.. IDENTICAL
+  to the CPU run; DIFF 1-3, VV-1, VV-2 and the 7 reject legs green on
+  the device (28.5 s, peak RSS 3007 MiB). The 2^22 GPU bench's digest
+  1b239b2a.. == the CPU bench's.
+  THE MEASUREMENT [WSL-BOX 8T NOISY-SHARED, ZK_GPU=1, RTX 4070 Laptop;
+  flock, /usr/bin/time -v; results/uperf3_vv_b_bench{22,23}_8t_gpu.log;
+  QQ's R1 rows from results/uperf3_qq_r1_bench{22,23}_8t_gpu.log]:
+  | GPU 8T | 2^22 synth: QQ R1 | 2^22 synth: VARIANT B | 2^23 synth: QQ R1 (pre-pooling) | 2^23 synth: VARIANT B |
+  |---|---:|---:|---:|---:|
+  | rows-from-v | 0.09 | 0.08 | 0.44 | 0.10 |
+  | v-pass (P + Fl + GEMM) | 1.35 (0.06 + 0.41 + 0.85) | **0.68** (0.06 + 0.33 + 0.25) | 1.90 (0.31 + 0.67 + 0.87) | **1.06** (0.07 + 0.58 + 0.37) |
+  | fold wall (fold-as-GEMM inside) | 0.71 (0.31) | **0.44** (0.16) | 0.96 (0.59) | **0.73** (0.37) |
+  | proxy recursion precommit + prove (u digits) | 0.19 + 0.62 | 0.13 + 0.57 | 0.22 + 0.55 | 0.15 + 0.60 |
+  | tt core (rows+v+fold+rec) | 2.77 | **1.78** | 3.85 | **2.51** |
+  | tier1+tier2 commit (+ layout) — per-model class | 2.24 | 1.78 (+ 0.94) | 2.31 | 2.09 (+ 1.74) |
+  | built bg_precommit / bg_prove_group | 0.72 / 2.35 | 0.58 / **2.00** | 1.32 / 3.59 | 1.20 / **3.46** |
+  | RATIO core | 0.85x | **1.12x** | 0.93x | **1.38x** |
+  | tt verify | 3.05 | 2.18 | 3.51 | 2.77 |
+  | bytes spike-clear (w) | 45.3 MB (4.0 MB) | 43.0 MB (1.77 MB) | — | 54.6 MB (2.10 MB) |
+  | peak RSS | 5242 MiB | 5563 MiB | 6749 MiB | 7582 MiB |
+  READING: on the device the value tier takes the fold wall down
+  1.3-1.6x (0.71 -> 0.44; 0.96 -> 0.73) — not the 7x of the ring
+  count, because at these shapes the fold-as-GEMM is launch/transfer-
+  bound (3,456-4,096 columns of len G = 2-2048, two of them boxed
+  i64: 0.16-0.37 s device) and the host tail (bound check +
+  poly_from_small + absorb) is the rest; the v-pass halves because
+  the i8 layouts are the GEMM's operand directly (the i64 tensors
+  tb/tc still rebuild Fl per batch: 0.33-0.58 s — a synthetic-only
+  cost, every real weight tensor is i8). What remains of the core is
+  the SAME floor QQ named: the recursion (0.57-0.60 s on a 173-207K
+  ring proxy) + the v GEMM + rows — 0.9-1.1 s that Variant B does
+  not touch. The bar (>= 5x) is NOT met at 2^22-2^23 [MEASURED]; the
+  12x512 weight group (rung 4) is the bar's shape.
+  Rung 3 commit: (this entry).
 
 ## Agent WW status (wt-uperf3-ww) — round 11
 

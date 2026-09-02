@@ -1,0 +1,44 @@
+[UPERF3-VV] b bench [2^23 synth, Variant B]: n0 = 5856256 (~2^22.5) digit rings, Nv 816128 value rings, 6 tensors / 7 contribs, G_all 3130, u digits e6 x 6 -> n2 206580, ZK_THREADS 8 [WSL-BOX 8T|NOISY-SHARED]; gpu-cuda: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB VRAM), ZK_GPU=1, min_macs 4194304, block budget 256 MB, stages 4, bypass false
+[UPERF3-VV]   B form for ta: Value (bound 42, e_v 7, width_v 512 value rings x G 32, row-group gate +3.74 bits; record width 1536 digit rings at e0 2)
+[UPERF3-VV]   B form for tb: Value (bound 255, e_v 9, width_v 256 value rings x G 2048, row-group gate +2.24 bits; record width 2048 digit rings at e0 1)
+[UPERF3-VV]   B form for tc: Value (bound 682, e_v 11, width_v 256 value rings x G 16, row-group gate +0.24 bits; record width 1280 digit rings at e0 2)
+[UPERF3-VV]   B form for td: Digit (bound 2730, e_v 13, width_v 256 value rings x G 1024, row-group gate -1.76 bits; record width 1536 digit rings at e0 2)
+[UPERF3-VV]   B form for te: Value (bound 10, e_v 5, width_v 1024 value rings x G 8, row-group gate +5.24 bits; record width 2048 digit rings at e0 2)
+[UPERF3-VV]   B form for tf: Value (bound 42, e_v 7, width_v 512 value rings x G 2, row-group gate +3.74 bits; record width 1536 digit rings at e0 2)
+[UPERF3-VV]   B gates: row-group min -1.76 (5 value-form tensors of 6), folded w +2.64 (n_w_B 9472 vs record 23552), tier-2 u +0.42 (n2 206580, e_u 6 x 6 limbs)
+[UPERF3-VV] WIRE DIGEST 4d973a087c9fda19ce78f453431dd29edc3396fec8206004b5bb5f5949acd32e (b_rows|u|U|v|w; Variant B; gpu-cuda: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB VRAM), ZK_GPU=1, min_macs 4194304, block budget 256 MB, stages 4, bypass false)
+[UPERF3-VV]   tt-b prove phases: layout 1.74s (per-model class), rows 0.10s, tier1+tier2 commit 2.09s, v-passes 1.06s, FOLD WALL 0.73s (v-absorb 0.04s)
+[UPERF3-VV]   attribution: v-pass P precompute 0.070s + Fl build 0.576s + GEMM 0.366s + out 0.007s; fold-as-GEMM 0.370s
+[UPERF3-VV]   tt-b verify 2.77s total: replay+range 0.41, u-rebind 0.47, (a) binding 0.18, (c) consistency 0.92, (b) claim 0.78
+[UPERF3-VV]   proxy recursion input: 206580 rings at e6 -> 7 levels, floor 948 rings e7
+[UPERF3-VV]   proxy recursion: precommit 0.15s, prove 0.60s, verify 0.16s
+[UPERF3-VV]   baseline schedule: 8 levels, floor 948 rings e7, level-0 r 56 chunk 104576
+[UPERF3-VV]   b_row images BYTE-IDENTICAL Variant B vs built at this shape (16 rows)
+[UPERF3-VV]   baseline: bg_precommit 1.20s, bg_prove_group 3.46s, bg_verify_group 1.35s (psi0-factored level-0 term alone 0.26s)
+[UPERF3-VV]   PROVE-GROUP-EQUIVALENT: tt-b 2.51s core (rows+v+fold+recursion; +commit-class 6.49s incl. layout) vs bg_prove_group 3.46s -> RATIO 1.38x core / 0.72x with-commit (acceptance >= 5x at >= 2^22)
+[UPERF3-VV]   VERIFIER 1T-class: tt-b verify 2.77s (+ proxy recursion verify 0.16s) vs built verify 1.35s / its psi0 level-0 term 0.26s
+[UPERF3-VV]   BYTES spike-clear: b_rows 8256 + u 17765880 + U 5676 + v 34543104 + w 2097152 (value form: 4096 folded rings vs the record's 9984) + recursion block 175048 = 54595116 vs built GroupEvalProof 180728
+[UPERF3-VV] b bench done in 87.5s, peak RSS 7582 MiB [WSL-BOX 8T|NOISY-SHARED]
+	Command being timed: "/home/victor/wt-uperf3-vv/zkmatrix-rs/target-gpu/release/ring_matmul uperf-t b bench 23 8 161"
+	User time (seconds): 114.75
+	System time (seconds): 11.15
+	Percent of CPU this job got: 143%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:27.65
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 7763488
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2595360
+	Voluntary context switches: 115715
+	Involuntary context switches: 275
+	Swaps: 0
+	File system inputs: 9678
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
