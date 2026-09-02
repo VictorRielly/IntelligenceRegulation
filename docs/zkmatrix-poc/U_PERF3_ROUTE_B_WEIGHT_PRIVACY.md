@@ -58,7 +58,82 @@ this memo is about.
 
 ## 1. The problem, restated for a newcomer
 
-(lands with §1's commit)
+**How the hash line commits to the weights, and what an opening
+shows.** One layer's weights (8B: 3 x 4096 x 14336 = 1.76e8 int8
+values; 30B stand-in: 3 x 5376 x 21504 = 3.47e8) are laid out as a
+matrix of m rows by n columns (n = 2^16 / 2^17 at S0 §5.2's
+per-commitment optimum, so m = 2,688 / 2,648 rows; at the measured
+125M rig n = 2^14, m = 288). Each row is stretched by a
+Reed-Solomon code to 4n symbols (rate 1/4), and the 4n stretched
+columns are hashed, one blake3 digest per column, into a Merkle
+tree whose 32-byte root is the commitment (S3 `pcs::commit`). To
+prove a statement about the committed values — here, the value of
+the weights' multilinear polynomial at a random point, which is
+what the matmul sumcheck leaves behind — the prover sends one
+random combination of the rows in the clear (the "clear vector": n
+extension-field elements), and the verifier checks it against the
+root by sampling 256 of the 4n columns at random (the sample is
+derived from the transcript by Fiat-Shamir, so it is public),
+receiving those 256 columns in full — m values each — with their
+Merkle paths, and checking at each sampled column that the same
+combination of the column's entries equals the encoding of the
+clear vector at that position (S3 `pcs::verify`). Because the code
+has relative distance 3/4, a prover who committed to something far
+from a valid encoding is caught with probability 1 - (3/4)^256 =
+1 - 2^-106 [COUNTED, S3 module header].
+
+**Why the columns accumulate into the weights.** Every opened
+column is m raw field elements. The encoding is systematic, so as
+built one column in four IS a raw column of int8 weights; and even
+the non-systematic columns are public linear functions of the row.
+The zero-knowledge form (L1, S0 §4.2 (a)(i)) fixes the SINGLE-proof
+leak: append Q = 256 uniformly random pad symbols to every row's
+message before encoding, and any 256 opened positions of that
+row's codeword are jointly uniform — the first proof reveals
+nothing. But the pad is chosen once, at commit time, and a cached
+commitment is reused. The second proof samples 256 DIFFERENT
+columns: the union is 512 linear equations per row in n + Q
+unknowns of which only Q are random, so 256 dimensions of every
+weight row are now determined. After (n + Q)/Q proofs the sampled
+positions span the row and the weights are recoverable from the
+published proofs by linear algebra: **65 proofs at the measured
+125M parameters (n = 2^14) [COUNTED, S0 §4.4]; 257 proofs at 8B
+and 513 at 30B at the §5.2 optimum n (2^16 / 2^17) [COUNTED, the
+same formula]** — hundreds of proofs, i.e. minutes of a deployment
+that proves every request. A larger pad does not help: at fixed
+soundness the pad and the number of sampled columns scale together
+(rate 1/2 needs 403 columns and is determined after 42 proofs at
+125M; rate 1/8 after 78; S0 §4.4), so the horizon sits at
+(n + Q)/Q ~ n/Q for any Reed-Solomon parameters. Two smaller
+per-proof leaks ride alongside and are counted in §3: the clear
+vector itself is a random linear functional of the whole matrix
+(L1's answer is a "mask row" — a random row committed alongside
+the data and added to the clear vector — but a mask row INSIDE a
+cached commitment is itself fixed, so two proofs' masked vectors
+differ by an UNMASKED functional (rho - rho')^T M: in any
+cached-commitment design the masks must come from a fresh
+per-proof commitment); and the sumcheck's terminal evaluation
+W~(r) is one linear functional per proof, hidden by the fresh
+masking polynomial of the zero-knowledge sumcheck (L3, S0 §4.2
+(b)-(c)).
+
+**Why the activations do not have this problem.** An activation
+commitment is made fresh for every proof, with fresh pads and fresh
+salts, and — under the one-proof-per-witness rule S6 §6 states —
+its 256 columns are seen ONCE, ever, against that witness. The pad
+hides them perfectly within the proof, and there is no second proof
+against the same activations for the equations to accumulate in.
+This is ZK_GAP_OPTIONS §6's accumulation asymmetry (S6), applied to
+Route B: the weights are a fixed witness re-proven on every pass,
+so any per-proof leak accumulates against the same secret; the
+activations are never re-proven. It is also why S0 found P1 (open
+weights, private inputs) cheap (+2-8%) and P2/P3 (private weights)
+structurally expensive on this line: the hash commitment is
+binding but not hiding across openings, and hiding it across
+openings costs either a fresh commitment every proof (§2), or never
+opening it in the clear (§3), or a commitment from a different
+assumption that IS hiding across openings (§4), or something the
+literature has that this repository has not read (§5).
 
 ## 2. Option 1 — re-commit the weights on every proof
 
