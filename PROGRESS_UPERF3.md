@@ -5300,7 +5300,89 @@ ONE GPU (H100-class allowed), written so a newcomer can follow it:
   [MEASURED]. Claims bit-identical throughout.
   Floors at commit: build green (CPU + GPU); diff-battery green;
   freeze-check 102 ok + passed; uperf-s 3752cba4.., agg 46234986..,
-  uperf-x be89d5da.. unchanged.
+  uperf-x be89d5da.. unchanged. Rung 4 commit: 1dfcf72.
+- 2026-09-02 RUNG 5 — THE RECORD AND THE VERDICT. LANE COMPLETE.
+  THE VERDICT against the reopen bar (per-proof weight-side opening
+  at the 12x512 weight group >= 5x faster than the built GPU path,
+  claims bit-identical): **NOT MET — measured 1.00x** (2.08 s vs
+  2.09 s, [WSL-BOX 8T GPU NOISY-SHARED], claims byte-identical, the
+  per-model part held warm). Per the brief, the ratio is the finding
+  and the lane stops here. What the lane established on the way:
+  (a) the memo's C-R1 count was wrong in the memo's own favor-
+  against: the swap-order v-pass is ONE existing GEMM (10x on the
+  v-pass at 1T CPU [MODEL], 6.1x [MEASURED]), taking the S4 core
+  from 1.10x to 3.42x at 1T CPU [MEASURED] — above the memo's
+  1.6-2.5x closing ceiling; (b) on the device the whole two-tier
+  per-proof side reaches PARITY with the built opening at 2^22-2^23
+  and at the real weight group, and no better, because at ~3.5M
+  rings the built GPU opening costs ~2 s and the two-tier's floors
+  (a ~200K-ring recursion, a fold over 8x the value rings, the
+  per-tensor host-side fold tail) add up to the same; (c) the
+  per-model / per-proof boundary EXISTS and is bit-identical (2.34 s
+  per model at 12x512, 91 MB held; the transcript unchanged).
+  THE MEASURED CONSTANTS (12x512 weight group, GPU 8T NOISY; every
+  8B/30B row below is [MODEL] = these constants x the counted
+  sizes, linear unless said):
+  | constant | value | source |
+  |---|---:|---|
+  | K1 per-model tier-1 + U + i8 layout | 0.66 us / digit ring | 2.34 s / 3,538,944 |
+  | K2 v GEMM, i8 operand, len = g*nb 128-192 (short K) | 7.5 G D-MAC/s | 0.12 s / 9.06e8; at len ~1800 (8B) the C1 class 74 G/s applies [MODEL] |
+  | K3 P precompute (CPU pool) | 1.35 G scalar MAC/s | 0.13 s / 1.76e8 |
+  | K4 fold-as-GEMM, len = G 64-96 | 119 ns / digit ring | 0.42 s / 3,538,944 (combine class: 72 ns; Variant B: over value rings) |
+  | K5 fold host tail (bound check + poly_from_small + absorb) | 8.8 us / folded ring | 0.38 s / 43,008 (scales with width_sum = the per-tensor grid tax) |
+  | K6 recursion prove, small regime | 1.68 us / ring | 0.34 s / 202,752 (C5 0.62 us/ring at 11.4M) |
+  | K7 rows-from-v | ~1.1 G scalar MAC/s | 0.09 s / 1.0e8 |
+  | K8 the built bg_prove_group on the device | 0.59 us / digit ring | 2.09 s / 3,538,944 (C5 0.62 at 12x512 both groups; ROUTES x41-43 for x44 rings — linear class) |
+  THE PROJECTION TABLE FOR LANE TT (RTX 4070 Laptop GPU, 8T, weights
+  resident; [MODEL] from K1-K8 x the rung-1 counted sizes; ranges =
+  short-K rate .. C1 rate for the v GEMM, small-regime .. C5 for the
+  recursion):
+  | shape | per-MODEL (once) | per-proof v GEMM + P + rows | per-proof fold (GEMM + host tail) | per-proof recursion (proxy u digits) | **per-proof TOTAL** | built opening | ratio |
+  |---|---:|---:|---:|---:|---:|---:|---:|
+  | 12x512 W [MEASURED] | 2.34 s | 0.27 + 0.09 | 0.42 + 0.38 | 0.34 | **2.08 s** | 2.09 s | **1.00x** |
+  | 8B W, design of record | 233 s | 1.2-12 + 4.4 + 0.7 | 41.9 + 12.7 | 1.3-3.5 | **62-75 s** | ~210 s | **2.8-3.4x** |
+  | 8B W, Variant B (value-ring tier 1; a design change) | ~30 s | 1.2-12 + 4.4 + 0.7 | 5.2 + 1.6 | 1.3-3.5 | **14-27 s** | ~210 s | **7.8-15x** |
+  | 30B W (FFN-only 64x5120x25600), design of record | 1,040 s | 5.4-54 + 20 + 3 | 187 + 57 | 6-16 | **280-340 s** | ~940 s | ~2.8-3.4x |
+  | 30B W, Variant B | ~130 s | 5.4-54 + 20 + 3 | 23 + 7 | 6-16 | **65-125 s** | ~940 s | ~7.5-14x |
+  (the "full" recursion — w + u + v digits recursed, 10.3M rings at
+  8B — adds 6-17 s to the 8B rows; the u/v/w clear-wire form is what
+  was measured. Per-proof act-side work is NOT in this table: the
+  weight side only, as the brief asks.)
+  READING FOR THE RULING: on this GPU the two-tier opening with
+  weight preprocessing gives ~3x on the weight-side per-proof clock
+  at 8B in the design of record [MODEL], ~8-15x with Variant B, and
+  1.00x at 12x512 [MEASURED]. The count's 6.5-7.6x (rung 1) assumed
+  the C-class rates for the fold and the recursion; the measured
+  constants at the two-tier's shapes (short-K GEMMs, a small-regime
+  recursion, the per-tensor fold tail) are 2-6x worse. The lever the
+  measurements point at is NOT the v-pass any more (0.27 s of 2.08):
+  it is the FOLD over digit rings (K4 + K5 = 58% of the per-proof
+  clock at 12x512, 73% at 8B) — Variant B removes 8x of it by
+  committing the int8 value rings (row-group gate +1.74 bits at 8B
+  [COUNTED, rung 1]) and needs a design ruling (the committed object
+  changes; the exact-digit gate holds), plus a global (not
+  per-tensor) grid to kill the K5 tail (6x on n_w at 8B [COUNTED]).
+  Whether ~3x (or ~10x) on the weight side of one proof reaches 50
+  tok/s is lane TT's conversion; this lane's numbers are the rows
+  above.
+  NOT COUNTED / NOT MEASURED (honesty): the act-side opening under
+  two-tier (act tensors need the digit form or i64 operands: l0 up
+  to 15); the verifier (criterion 3: tt_verify 7.27 s at the weight
+  group, consistency 5.13 s — 36 tensors x 16 x width; R2's
+  recursed serving was never built); the R2 bytes (65 MB clear vs
+  180 KB built); the composed pass (this is the group opening
+  alone); a quiet box (every wall here is NOISY-SHARED, 8T); a
+  desktop board or an H100 (nothing here is measured on one — the
+  weights resident assumption is a board question: 5.6 GB at 8B,
+  25 GB at 30B); a tensor-core int8 fold kernel (not built; would
+  be the other way to remove K4). The S4 code paths, the built
+  pass, and every freeze row are byte-identical (floors green at
+  every commit; `uperf-t diff 20 1 161` re-run in S4 mode gives the
+  FF verdicts and the same wire digest as R1).
+  ORCHESTRATOR-RUN: none posted — every run of this lane fit the
+  foreground limit (longest: bench 22 1T, 1:49).
+  Commits: 83e163d (rung 0), 1fa6611 (rung 1), 1a34ac6 (rung 2),
+  c030ea6 (rung 3), 1dfcf72 (rung 4), this entry (rung 5).
 
 ## Agent RR status (wt-uperf3-rr) — round 10
 
