@@ -509,7 +509,186 @@ budget.
 
 ## 4. The zero-knowledge surcharge [MODEL, mandatory]
 
-(pending)
+Victor's rule (S6 Amendment A1, 2026-07-27): "Zero Knowledge is
+nonnegotiable (although partial knowledge may be acceptable in some
+cases)" — zero-knowledge for the deployment's DECLARED private set
+(P3 = weights and activations private, the default; P2 = weights
+private; P1 = activations private; P0 = nothing private, non-ZK
+label permitted). UU's row is P0 (S1: "NOT zero-knowledge"). This
+section says what the built proof reveals, which known
+constructions close it, what each costs as a fraction of the
+measured phases, and — the load-bearing finding — why the
+weights-private modes are structurally expensive on this line.
+
+### 4.1 What the built proof reveals [COUNTED from S3]
+
+- **Of the weights**: per layer per proof, 256 opened columns of the
+  encoded W matrix (256 x 288 field elements; the encoding is
+  SYSTEMATIC, so one column in four is a raw column of int8
+  weights) and three clear row-combinations (3 x 2^14 extension
+  elements = random linear functionals of the whole matrix).
+- **Of the activations**: the same for A and H (256 x 520 and 256 x
+  432 entries; 3 + 4 clear vectors); the multiplicity tables IN THE
+  CLEAR — the histogram of the SiLU input g8, of u8/h8/z, and of
+  every remainder column — the very "histogram leak" the lattice
+  line closed in tranche U-K5 (S6 §3, audit C-01); the sumcheck
+  round polynomials (low-dimensional functionals of the tables); the
+  terminal evaluations (10 + 12 per layer) and the matmul claims
+  (evaluations of the committed accumulators at random points); the
+  six helper sums.
+- **The Merkle roots** are hashes of unsalted columns: binding, but
+  not hiding in the formal sense (an int8 column of 288 values is
+  brute-force-resistant only by its ~2,300 bits of content).
+
+Soundness and binding are untouched by all of this; the row's
+guarantee class is "binding, not hiding".
+
+### 4.2 The constructions that close it [EXTERNAL, L1-L3, L5-L6]
+
+- **(a) Ligero-ZK for the commitment** (L1 §4; L2 notes the same
+  techniques apply to Brakedown). Two devices. (i) *Randomised
+  rows*: append Q uniformly random field elements to every row's
+  message before encoding; then any Q opened positions of that row's
+  codeword are jointly uniform and reveal nothing about the data
+  (the Q pad symbols are a bijection onto any Q non-systematic
+  positions). The rate moves from 1/4 to (n + Q)/4n = 0.254, the
+  proximity bound (1 - delta/3)^Q from 2^-106 to 2^-105.6: nil. Two
+  implementation costs: the message length n + Q = 16640 is not a
+  power of two (a 2^15-point interpolation, or a non-systematic
+  encoding), and the sampled columns must EXCLUDE the systematic
+  positions (or the encoding must be non-systematic) — with sampling
+  restricted to the 3n non-systematic columns the distance is 0.66
+  and Q = 296 keeps 2^-106 [COUNTED]. (ii) *Mask rows*: for every
+  clear row-combination v = rho^T M, commit one extra row u of
+  uniformly random message and send v' = rho^T M + u; the verifier's
+  column check reads u's entry from the opened column (u is a row of
+  the same commitment) and its checks are otherwise unchanged. v' is
+  uniform. k + 1 mask rows per commitment.
+- **(b) Zero-knowledge sumcheck** (L3: Chiesa-Forbes-Spooner's
+  masking, as instantiated in Libra). Before each sumcheck the
+  prover commits to a random masking polynomial g with the same
+  variable count and per-variable degree — n x d + 1 coefficients:
+  81 for the 20-variable degree-4 zero-check, 69 for the 17-variable
+  one, 17 and 23 for the matmul sumchecks — the verifier sends a
+  scalar c, and the sumcheck runs on f + c g, whose round messages
+  are then uniform; g's value at the final point is opened from its
+  tiny commitment. Because g is a sum of univariates, its partial
+  sums are closed-form: a few hundred field operations per round.
+- **(c) Masked evaluation claims.** With (a) and (b) in place no
+  unmasked evaluation is ever sent: the sumcheck's terminal claim is
+  about f + c g, and the PCS proves f's and g's evaluations as ONE
+  combined linear claim (Ligero handles a combined claim as one
+  row-combination, which (a)(ii) masks). The matmul claims and the
+  helper sums are folded the same way.
+- **(d) Committed multiplicities.** The multiplicity tables (256 +
+  256 + one per distinct shift of 2^sh <= 2^16 entries per layer)
+  move into the A commitment; the table side of the LogUp identity
+  becomes a small sumcheck over the table with its own helper (2 x
+  2^16 elements at most), and the equality of the two sides is one
+  combined claim.
+- **(e) Salted leaves**: 32 random bytes appended to every column
+  before hashing, so the unopened columns are hiding.
+- Not needed on this line: nothing here changes the transcript's
+  soundness bookkeeping beyond the Q = 296 adjustment; the ZK claim
+  is honest-verifier zero-knowledge in the random-oracle model under
+  Fiat-Shamir, per sub-protocol, with the chained-layer composition
+  owed its own simulator — the same caveat class as the lattice
+  line's lemmas Q4.7-Q4.9 (S6 §3).
+
+### 4.3 The cost, as fractions of the measured phases [COUNTED from the constructions; MODEL as a whole]
+
+| item | prover (of 23.0 s) | proof bytes (of 66.8 MB) | verifier (of 2.8 s) |
+|---|---|---|---|
+| (a)(i) randomised rows: +Q symbols per row (+1.6% of n), the 2^15 interpolation or a non-systematic encode (+0-25% of the inverse-NTT part of the 47% commit share), Q 256 -> 296 for the column gathers (~3% of the wall) | +1-5% | +7% (the column openings are 46% of the bytes and grow with Q) | +10-15% (the verifier's column work is proportional to Q) |
+| (a)(ii) mask rows: k + 1 rows per commitment of m = 288-520 | +1% | +1% | +1% |
+| (b) masking polynomials: four per layer, <= 81 coefficients each | < 0.1% | +~8 KB per layer (0.1%) | < 0.1% |
+| (c) masked claims | nil | nil | nil |
+| (d) committed multiplicities: <= 3 x 2^16 more elements in A (of 8.5M) and one small sumcheck | +0.5-1% | +0.1% | +0.5% |
+| (e) salts: +32 B per column hashed (+1-2% of hashed bytes) and per opened column | +1% | +0.4% | +1% |
+| **total for mode P1 (activations private, weights public: A and H masked, W as built)** | **+2-8%** | **+1-8%** | **+2-15%** |
+| **P2 / P3 (weights private): the same devices on W — PLUS §4.4** | **+9.6% at 125M, +44% at 8B x 512, +54% at 30B x 512, +143% at decode** | +1-8% | +2-15% |
+
+The P1 surcharge is small because every masked object is already
+per-proof: the activation commitments are fresh every time, so
+fresh pads and fresh mask rows ride inside work that is paid anyway.
+
+### 4.4 The weights-private problem: a cached hash commitment leaks its columns [COUNTED]
+
+Each proof opens 256 columns of the encoded weight matrix at
+Fiat-Shamir-chosen, public indices. In the ZK form the FIRST proof
+reveals nothing: the Q pad symbols per row make any Q opened
+positions uniform. The SECOND proof opens 256 more columns: the
+union of 512 positions gives 512 linear equations per row in
+n + Q = 16640 unknowns, of which only 256 are random pad — so 256
+dimensions of every weight row leak. After (n + Q)/Q = **65 proofs**
+each row is fully determined and the weights are recoverable from
+the published proofs by linear algebra. A larger pad does not help,
+because the pad size and the query count scale together at fixed
+soundness: rate 1/2 with pad n needs Q = 403 and is determined after
+42 proofs; rate 1/8 after 78 [COUNTED, 2^-106 in every case]. The
+ratio (n + p)/Q sits at 40-80 for any Reed-Solomon parameters at
+100-bit soundness.
+
+This is ZK_GAP_OPTIONS §6's accumulation asymmetry (S6) applied to
+Route B: the weights are a fixed witness re-proven every pass and
+their leak ACCUMULATES; the activations are fresh every pass, so
+under the one-proof-per-witness rule their 256-column exposure is a
+within-proof matter, perfectly hidden by the pad. Three ways out
+for P2/P3:
+
+1. **Re-commit the weights on every proof** with fresh pads and
+   salts. Cost = the commit W phase, per proof: +2.19 s at 125M
+   (+9.6%), +218 s at 8B x 512 (+44%), +832 s at 30B x 512 (+54%) on
+   the laptop CPU [MODEL from MEASURED]; at decode the re-commit
+   EXCEEDS the whole per-proof cost (+218 s on 152 s at 8B, +832 s
+   on 578 s at 30B: +143%). On one H100 the floor is the NTT and
+   the hashing of 32 bytes per weight: 180 GB at 8B (**1.8-6 s per
+   proof**), 688 GB at 30B (**7-23 s per proof**) at a 30-100 GB/s
+   device hash rate [MODEL] — by itself 70-230% of the 10.2 s
+   prefill budget and 350-1,150x the 20 ms decode budget. This is
+   the only counted option and the one §6 carries.
+2. **Never reveal the weight columns**: Orion-class composition
+   (L5) — the column checks (256 x m x (k + 1) multiply-adds and
+   256 Merkle paths per commitment) are proven inside an inner
+   zero-knowledge proof instead of being sent. At 30B that inner
+   statement is 62 x 3 x (256 x ~2,600 x 3) ≈ 3.7e8 multiply-adds
+   plus ~1e5 hash evaluations (which must then be an arithmetic
+   hash, not blake3) — an inner proof of order 1e9 constraints per
+   proof [COUNTED], whose prover this memo does not price (the
+   lattice review priced the comparable family-(e) wrap at minutes,
+   S5 §5) [MODEL, uncounted]. It removes the leak, not the linear
+   per-proof pass.
+3. **A hiding, rerandomisable weight commitment from a different
+   assumption**: the lattice line's MLWE commitment (hiding by
+   construction; the per-proof masks are what Tier Z prices, S6
+   Amendment A1) or a discrete-log Pedersen/KZG (not post-quantum).
+   Route B would carry the weights on the lattice channel and the
+   activations on the hash channel, joined by a cross-commitment
+   link that must itself be zero-knowledge (S5 §4.4 item 4: ~59 KB
+   of link rows per tensor) [MODEL, uncounted]. This is S4 §3's
+   "A + B" row made concrete.
+
+### 4.5 Partial knowledge: what each declared mode leaves in the clear on Route B
+
+| mode (S6 A1) | private | stays in the clear | ZK machinery | surcharge over the P0 row |
+|---|---|---|---|---|
+| P0 | nothing | everything of §4.1 | none | 0 |
+| **P1** | inputs / activations | the weights (a cached, unmasked W commitment and its columns — public anyway); shapes, shifts, the table digest, the multiplicity TOTALS | (a)-(e) on A and H | **+2-8% prover, +1-8% bytes, +2-15% verifier** |
+| **P2** | weights | the activations, inputs, outputs, histograms, helper sums — all as built | (a), (e) on W; a FRESH W commitment per proof (§4.4 option 1) | **+9.6% / +44% / +54% / +143%** (125M / 8B x 512 / 30B x 512 / decode) on the laptop; on an H100 a hashing floor of 1.8-6 s (8B) / 7-23 s (30B) per proof |
+| P3 | both | shapes, shifts, the table digest, the totals | everything above | the sum of P1 and P2 |
+
+Reading: on Route B the CHEAP partial-knowledge mode is P1 (open
+weights, private inputs) and the EXPENSIVE one is P2 (proprietary
+weights, open inputs) — the reverse of what a model vendor wants,
+and the reverse of ZK_GAP_OPTIONS' expectation for the lattice line,
+where P2 was "the likely flagship mode" at a fixed surcharge (Tier N
+pass + 0.3-0.4 MiB, S6). The reason is structural, not a tuning
+matter: a lattice commitment is hiding and re-openable with a fresh
+sqrt-class mask per proof; a hash commitment is binding but not
+hiding across openings, and hiding it costs a fresh commitment.
+Whether the competitor's "weights private behind a commitment" (S5
+addendum) means the cumulative sense used here is not stated in
+their material.
 
 ## 5. The proof-size lever
 
