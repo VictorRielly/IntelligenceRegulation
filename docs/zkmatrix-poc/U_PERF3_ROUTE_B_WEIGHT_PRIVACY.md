@@ -933,8 +933,150 @@ tree's cost (§3.4) [MEASURED].
 
 ## 7. The verdict for the ruling
 
-(lands with §7's commit)
+### 7.1 Which privacy mode / option pairs keep 50 tok/s at 30B reachable
+
+| declared private set (S6 A1) | how the weights are handled | 50 tok/s at 30B on one H100 | under what conditions | what it hinges on |
+|---|---|---|---|---|
+| P0 (nothing private) | as built | reachable [MODEL, S0 §7.5] | batched or 512-token prefill proving; the upper half of the hardware range (>= ~90x over the CPU row); a device hash rate >= ~50 GB/s | lane XX's port factor and hash rate |
+| P1 (inputs private, weights public) | as built, cached | reachable, x1.02-1.08 [MODEL, S0 §4.3] | the same | the same, plus a ZK spike (S0 §7.4) |
+| **P2 / P3 via option 2** (hidden columns, form 2b) | committed once under Poseidon2; the column check proven per proof in a fresh ZK GKR; a fresh mask commitment per proof | **reachable: 46-137 floor / 7.8-58 scaled — P0's own cells** [MODEL on a COUNTED statement] | exactly P0's conditions; B >= 4-16 or prefill | an inner ZK prover for 5.9e6 Poseidon2 permutations per proof (K_ov 5-20x [MODEL], nothing built); the per-model arithmetic-hash tree (off the clock); a written simulator for the composition |
+| P2 / P3 via option 1 (re-commit per proof) | re-encoded and re-hashed every proof | reachable only at **B >= 16 stacked 512-token prefills per proof** (42-127 floor / 12-87 scaled); 15-48 at B = 1 | the upper half of the range; a token-streaming commitment for the 258 GB per-layer working set (S0 R3) | XX's hash rate; the streaming design |
+| P2 / P3 via option 3 (lattice hybrid) | on the lattice channel, opened per proof by the two-tier opening; a bridge for the Goldilocks-side claim | reachable only with **Variant B at B >= 16** (32-128 floor); 5.6-49 at B = 1; the design of record 2.2-15 / 21-94 | the upper half of BOTH hardware ranges; a q46-class value-ring weight commitment (a ruling); the unrecorded bridge and its mask relation | lane VV's Variant B row; the bridge design and spike |
+| any mode, batch-1 decode | — | **not reachable by any option**; P0's own floor is 12-33 (S0 §7.2); option 2's is 3.9-12, options 1 and 3 are < 0.15 | — | a sublinear per-proof weight opening, which no recorded design has |
+
+Read for the ruling: **if the product must hide the weights (P2 or
+P3 — the model vendor's case), option 2 is the design to build**;
+it is the only weights-private option that costs the 50 tok/s path
+nothing measurable at prefill, and its whole added cost is
+engineering that stays inside the hash line (one field, one prover,
+one assumption class). Option 1 is the no-new-cryptography fallback,
+usable today's-code-plus-ZK-masks, at the price of a 16-request
+stacking rule and a streaming commitment. Option 3 is the audit
+channel of S8, not a throughput route: it inherits the lattice
+line's per-proof weight opening, which is 100-1,000x the hash
+line's on the same board. **If P1 is acceptable for the deployment
+(open weights, private inputs), nothing in this memo is needed**;
+that is the ruling S0 put to Victor, restated with the P2/P3 side
+now priced.
+
+### 7.2 What must be measured or built next, per option (a spike list with sizes)
+
+Common precondition: **Z-1** — the zero-knowledge form of
+`hashline` at 12x512 (Ligero-ZK pads and mask rows, Libra masks on
+the four sumchecks, committed multiplicities, salted leaves; S0
+§4.2), with tamper legs and a simulator sketch: ~1 lane-day, RUST.
+It turns S0 §4.3's P1 row into [MEASURED] and is the base every
+option below extends.
+
+For option 2:
+
+- **O2-1** (2-3 lane-days, RUST): Poseidon2 over Goldilocks in
+  `hashline` (t = 8 and t = 12; R_F = 8, R_P = 22 taken from a public
+  instantiation and cross-checked against its test vectors), a
+  Poseidon2 column hash and tree for W behind a switch; measure the
+  per-model W commit at 12x512 on the CPU at 8 threads (and on the
+  GPU once lane XX's port exists) — replaces §3.4's per-model row
+  [MODEL] with a measurement, and the 2.81 us/permutation anchor
+  with this box's.
+- **O2-2** (3-5 lane-days, RUST): the fresh per-proof mask
+  commitment U and the masked clear vectors (§1, §3.3 item 4); the
+  inner statement as a data-parallel circuit at 12x512 (12 x 256
+  columns x 68 permutations + 288 x 3 inner products + the U paths)
+  proven by a zero-knowledge GKR/sumcheck built on
+  `hashline/src/sumcheck.rs`; acceptance: the outer verifier
+  accepts with the W columns ABSENT from the proof, tamper legs (a
+  wrong column, a wrong path, a wrong U column, a wrong inner
+  product) reject; the inner prover's wall at 8 threads gives K_ov
+  [MEASURED] (replaces the 5-20x — the one constant in option 2 not
+  counted from code); the proof bytes and the verifier wall land in
+  §3.5.
+- **O2-3** (1 lane-day, DOCS): the simulator and extractor for the
+  composition (the fresh U mask, the salted cached tree, two
+  Fiat-Shamir layers), written against ePrint 2024/1164's finding
+  and S5 §4.5's obligation; the Q = 296 non-systematic sampling
+  bookkeeping from S0 §4.2 carried through.
+- **O2-4** (a lane XX rung, RUST/CUDA): the inner prover and the
+  Poseidon2 tree on the device; the per-model rate [MEASURED].
+
+For option 1:
+
+- **O1-1** (0.5 lane-day, a lane XX rung): the 12x512 pass on the
+  GPU with W re-committed every proof (the measured row's form)
+  against a cached-W run — the option-1 surcharge [MEASURED] at
+  that shape; the device blake3 rate is XX rung 2 already.
+- **O1-2** (2-3 lane-days, DESIGN then RUST): the token-streaming
+  commitment for B x T >= 8,192 tokens per layer (S0 R3): row-tiled
+  column hashing, and either storage or re-derivation of the 256
+  sampled columns; count, then measure at 12 layers x 4,096 tokens
+  on the laptop. Without it option 1's only reachable cell does not
+  fit a board.
+
+For option 3:
+
+- **O3-1** = lane VV's Variant B measurement (in flight): the
+  weight-side row, and the row-group gate headroom of the value-ring
+  commitment at q46 (S1 rung 1 counted it at q31: +1.74 bits at 8B).
+- **O3-2** (2 lane-days, DESIGN): the bridge — the 12-functional
+  digit split, the q46-class value-ring commitment, the mask
+  relation for the twelve revealed integers, the bytes, and the
+  fold's challenge-row growth; a ruling on the committed object.
+- **O3-3** (3-5 lane-days, RUST spike): the bridge at 3x16 on one
+  weight tensor: the lattice ct-claims for the 12 functionals
+  against the hash side's masked claim; acceptance: the
+  recombination equals W~(r) + c g~(r) bit-exactly, tamper legs
+  reject.
+
+For all three: choice C (an H100 or a 4090 under the 12x512 rig,
+S0 §7.4) turns every floor/scaled pair in §6 into one number.
+
+### 7.3 Order
+
+Z-1 first (it is P1's row and every option's base); then O2-1 and
+O2-2 in parallel with lane XX's port (different files: `pcs.rs`'s
+hash and a new inner-prover module vs the device kernels); O1-1
+falls out of XX for free; O3-1 is already running; O3-2/O3-3 only
+if the ruling wants the audit channel.
 
 ## What is not known
 
-(lands with §7's commit)
+1. **Any Route-B wall on any device.** Every H100 cell in §6 is the
+   laptop CPU row divided by an unmeasured 25-180x, or a spec-sheet
+   floor; lane XX's port is the first point (S0 #1).
+2. **The device hash rate** (30-100 GB/s) — the dominant floor term
+   of every prefill cell, and the whole of option 1's re-commit.
+3. **K_ov** (5-20x native) — the one constant in option 2 that is
+   not counted from code; spike O2-2 measures it.
+4. **The Poseidon2 rate on a GPU** (1e7-1e8 permutations/s) — the
+   per-model tree's cost; off the clock, unmeasured.
+5. **The composition's soundness and zero-knowledge** (option 2):
+   the simulator for the fresh mask, the salted cached tree and the
+   two Fiat-Shamir layers is unwritten; the published Orion was
+   found unsound by its successor [EXTERNAL].
+6. **The inner statement's best shape**: a Poseidon2 column hash
+   over m = 2,648 elements (as counted) versus a Merkle tree per
+   column (Orion's shape, paths only in the circuit) — the latter
+   reopens the position leak of §3.2 unless the per-column trees are
+   re-salted per proof; not designed.
+7. **The token-streaming commitment** for B >= 16 (memory); a
+   design note only (S0 R3).
+8. **Variant B's measured weight-side row** (lane VV) and the q46
+   headroom of a value-ring commitment (option 3).
+9. **The bridge's mask relation** (option 3, §4.2 item 3): whether
+   twelve range-gated lattice masks can satisfy one Goldilocks-side
+   linear relation without leaking; unrecorded.
+10. **Attention on this line** (S0 R4): every token here is
+    FFN-only; the attention weights (Wq, Wk, Wv, Wo) are more
+    weights under the same options, and their proof mass is
+    unmeasured.
+11. **The 30B shape** — a stand-in (S0 §1.3); S1's 30B rows used a
+    different one and were rescaled linearly.
+12. **The verifier at 8B and 30B**: option 2 removes the column work
+    but the clear-vector re-encodings stay; the <= 2 s line needs the
+    PCS swap of S0 §5 under every option.
+13. **Whether the competitor's "weights private behind a
+    commitment" is cumulative** (S0 #11): if their 53 tok/s at batch
+    1 is a P2 number, they hold a per-proof weight side this memo
+    cannot count.
+14. **The P3 interaction**: option 2 for W plus Ligero-ZK pads,
+    mask rows and committed multiplicities on A and H, counted as
+    x1.02-1.08 (S0 §4.3) and never built.
