@@ -52374,7 +52374,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
         "  verify {verify_s:.2}: claim-layer {:.2} | stage-a {:.2} | publics+nus {:.2} | group verifies {:.2}",
         rr_tv_claim, rr_tv_stagea - rr_tv_claim, rr_tv_pub - rr_tv_stagea, verify_s - rr_tv_pub
     );
-    println!("  device: {} | {} | {}", ring::gpu::label(), ring::gpu::k9_label(), ring::gpu::ixf_label());
+    println!("  device: {} | {} | {} | {}", ring::gpu::label(), ring::gpu::k9_label(), ring::gpu::ixf_label(), ring::gpu::zc_label());
     println!("  phase table (prof, process-global; STAGE-A pass | ORACLE pass; bg.* per-group totals, ep.* shared by prover and verifier):");
     let mut names: Vec<&'static str> = rr_prof_stage_a.iter().map(|l| l.0).collect();
     for l in &rr_prof_oracle {

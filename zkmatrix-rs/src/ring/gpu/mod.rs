@@ -70,6 +70,17 @@ pub use ixf::{
     ixf_label, ixf_release, ixf_set_bypass, ixf_set_low_bits, ixf_set_min_pairs, ixf_stats, ixf_stats_reset, ixf_zc_abort, ixf_zc_fold, ixf_zc_handover, ixf_zc_open,
     ixf_zc_round, IxfDevChain, IxfStats,
 };
+// [UPERF3-RR] Stage A's aggregate zero-check (zc_range::zc_agg_prove_masked's
+// round loop: node sums, folds, the pair eq) on the device — see zc_agg.rs /
+// kernels_zc.cu. Hooked from zc_range.rs in the ixf pattern: a device chain
+// per aggregate, the host loop keeps the transcript, the tail rounds and the
+// claim stacking; `None` / `Err` -> the host body (the oracle).
+#[cfg(feature = "gpu-cuda")]
+mod zc_agg;
+#[cfg(feature = "gpu-cuda")]
+pub use zc_agg::{
+    zc_agg_abort, zc_agg_fold, zc_agg_handover, zc_agg_open, zc_agg_round, zc_label, zc_set_bypass, zc_set_min_pairs, zc_stats, zc_stats_reset, ZcDevChain, ZcStats,
+};
 // [UPERF2-Q] The level-h device session (cuda.rs): the level-0 h table
 // accumulated on the device across the u-blocks (value-ring pool + limb
 // radix expanded on the device, resident split-halves accumulator, one
@@ -336,6 +347,56 @@ mod stub {
         IxfStats::default()
     }
     pub fn ixf_stats_reset() {}
+
+    // ---- [UPERF3-RR] the device zc aggregate (never live without the feature).
+    use super::super::zc_range::{EElem, ETab, SubExt};
+    /// The device chain handle (never constructed without the feature).
+    pub struct ZcDevChain {
+        pub n: usize,
+        pub t: usize,
+        pub stop_n: usize,
+    }
+    impl ZcDevChain {
+        pub fn device_next(&self) -> bool {
+            false
+        }
+    }
+    pub fn zc_agg_open(_ext: &SubExt, _planes: &[&[u32]], _rem: &[u32], _rho: &[EElem], _stop_n: usize) -> Option<ZcDevChain> {
+        None
+    }
+    pub fn zc_agg_round(_ext: &SubExt, _ch: &mut ZcDevChain, _nodes: &[u64], _alphabet: &[u32], _e0: u32) -> Result<Vec<Vec<EElem>>, String> {
+        Err("built without --features gpu-cuda".to_string())
+    }
+    pub fn zc_agg_fold(_ext: &SubExt, _ch: &mut ZcDevChain, _r: &EElem) -> Result<(), String> {
+        Err("built without --features gpu-cuda".to_string())
+    }
+    pub fn zc_agg_handover(_ext: &SubExt, _ch: ZcDevChain) -> Result<(Vec<ETab>, ETab), String> {
+        Err("built without --features gpu-cuda".to_string())
+    }
+    pub fn zc_agg_abort(_ch: ZcDevChain) {}
+    pub fn zc_set_bypass(_on: bool) {}
+    pub fn zc_set_min_pairs(_p: usize) {}
+    pub fn zc_label() -> String {
+        "zc: off (built without --features gpu-cuda)".to_string()
+    }
+    /// Mirrors `zc_agg::ZcStats` (all zero without the feature).
+    #[derive(Clone, Debug, Default)]
+    pub struct ZcStats {
+        pub instances: u64,
+        pub declined: u64,
+        pub rounds: u64,
+        pub folds: u64,
+        pub bytes_h2d: u64,
+        pub secs_open: f64,
+        pub secs_round: f64,
+        pub secs_fold: f64,
+        pub secs_handover: f64,
+        pub held_peak: u64,
+    }
+    pub fn zc_stats() -> ZcStats {
+        ZcStats::default()
+    }
+    pub fn zc_stats_reset() {}
 
     // ---- [UPERF2-Q] the level-h device session (never live without the feature).
     use super::super::eval_proof::Phi0Source;
