@@ -5518,3 +5518,23 @@ skeleton + sources; a71b98d §1 workloads; e814f91 §2 cost anatomy;
 c02418a §3 hardware factor; 7a28184 §4 table + §0 answer; 3e482b7
 §5 audit; 84e306a §6 competitor + §7 budget + unknowns; close = this
 commit (status COMPLETE + this section).
+
+## Orchestrator note 2026-09-02 — round 10 merges (TT, SS) [WSL-BOX NOISY-SHARED: lanes QQ/RR building]
+
+- **TT merged (aae3478, fast-forward)**: U_PERF3_THROUGHPUT_MODEL.md.
+  Verdict recorded in START_HERE.md §2 and the board §0; the
+  2026-08-30 board line retracted in full per memo §5.6.
+- **SS merged (827e90b)**: stage_a_full.rs + the one dispatch line +
+  the `uperf-a full-plan`/`full-count`/`ss-diff`/`full-ss` surface;
+  `full` now = the kappa-4 partial-fraction helper, `full-s2` = the
+  GG form. Floors on the MERGED tree (this checkout, release build
+  2m06s): diff-battery 16.41 s passed; freeze-check (M125 export)
+  102 ok + "freeze-check passed", exit 0; uperf-s battery
+  3752cba4..; agg-battery 46234986..; uperf-x be89d5da..;
+  `uperf-a pass 12 64 range` transcript digest 44528c6a.., 622,011 B,
+  accept — all identical to SS's lane record. RULING ITEMS (SS's
+  "WHAT MUST LAND" block, not decided here): the kappa-4 helper as
+  the full-mode encoding; the lagrange_eval one-liner for kappa 5+.
+- **SS's ORCHESTRATOR-RUN pair (12x512 full vs range nooracle)**:
+  DEFERRED — a ~9-11 GB pass while two lanes build on the 15 GB box
+  is an OOM risk; enqueue on /tmp/zk-heavy.lock once QQ/RR report.

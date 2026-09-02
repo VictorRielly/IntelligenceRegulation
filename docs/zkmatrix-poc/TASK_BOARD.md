@@ -51,6 +51,27 @@ runbook is the Mac's queue):**
   modelled 0.5-3.3e11 (U2, memo §7.4 — no lane measures it; it is
   the choice-D question). Round 11 is cut from QQ rung 4, RR rung 5
   and Mac M5 — not from any tokens/s number.
+- **LANE SS LANDED (merged 827e90b; floors green on the merged tree:
+  diff-battery 16.4 s, freeze-check 102 ok exit 0, 3752cba4.. /
+  46234986.. / be89d5da.. unchanged, range 12x64 digest 44528c6a..
+  unchanged).** FINDING that corrects the committed-h memo: the
+  full-mode "act-h group" is the S2 LogUp HELPER of the SiLU lookups
+  (one helper per key, 2 digit rings each), not a range-fact
+  commitment of h — so routing range facts through lookups (the
+  memo's C2) costs 32x MORE, not less; C2 is retired. What works
+  instead: a kappa-level partial-fraction helper (kappa 4 = degree
+  18) that cuts the act-h group 16x — **12x128 full mode now runs at
+  8,072 MiB (was OOM at 14,777), accept, bytes 860,867**; the 8B
+  full-mode peak becomes ~78 GB on OO's 72 GB baseline (~87 GB until
+  a claim-kernel diet lands) — the owed recount is CLOSED (the S2
+  form would have been ~285 GB and six groups). **TWO RULINGS FOR
+  VICTOR**: (1) adopt the kappa-4 helper as THE full-mode encoding
+  for T17's freeze set (a Stage-A full-mode transcript change; the
+  S2 form stays reachable as `full-s2`); (2) kappa 5+ needs a
+  one-line denominator reduction in `sumcheck::lagrange_eval`
+  (frozen file, i64 overflow above degree ~20) — not needed for
+  kappa 4. Orchestrator-run pending: the 12x512 full-mode A/B
+  (deferred until QQ/RR's builds are off the box).
 - **RETRACTED (lane TT, memo §5.6)**: the 2026-08-30 "~25-35 tok/s
   amortized; levers 1.2-1.5x / 1.3x / 1.1-1.2x -> ~65" line below —
   none of its five numbers derives from anything recorded; the
