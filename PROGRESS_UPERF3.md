@@ -5254,6 +5254,52 @@ ONE GPU (H100-class allowed), written so a newcomer can follow it:
   weight group, >= 5x) is NOT met [MEASURED].
   Floors at commit: build green (CPU + GPU); diff-battery green;
   freeze-check 102 ok + passed; uperf-s 3752cba4.., agg 46234986..,
+  uperf-x be89d5da.. unchanged. Rung 3 commit: c030ea6.
+- 2026-09-02 RUNG 4 — THE PREPROCESSING BOUNDARY: built and
+  measured; the weight-side per-proof opening at the real 12x512
+  weight group is 1.00x the built GPU opening [MEASURED]. BUILT
+  (bin, ADDITIVE): `TtPerModel` = everything alpha/point-independent
+  — the tier-1 inner commitments u, the tier-2 U, the flat-i8 value
+  layout the v GEMM reads (the CRS matrices ride eval_proof's Arc
+  cache, warm after the build); `tt_build_per_model`; `tt_prove`
+  takes `Option<&TtPerModel>` (the commitments are absorbed from the
+  cache — the transcript and wire are unchanged: digest identical);
+  two_tier.rs `tt_fl_layout_i8` + `tt_v_pass_r1_dev(.., fl_cache)`.
+  `uperf-t repeat <n_log2|real|real-w> [n] [threads] [seed]`: the
+  per-model build once, n two-tier proofs with it warm (per-proof =
+  tt_prove + the proxy recursion prove; the recursion's precommit is
+  per-model class and reported separately), then n built openings
+  on an identically rebuilt group (the E-O2-BB one-opening gate) with
+  the witness cloned; b_rows two-tier == built asserted; the wire
+  digest asserted identical across the n proofs.
+  THE MEASUREMENT [WSL-BOX 8T NOISY-SHARED, ZK_GPU=1, RTX 4070
+  Laptop; flock, /usr/bin/time -v; results/uperf3_qq_repeat_realw_8t_gpu.log,
+  results/uperf3_qq_repeat22_8t_gpu.log]:
+  | GPU 8T, n = 3 | REAL 12x512 WEIGHT group (3,538,944 rings, 36 tensors, i8 layout 36/36) | 2^22 synth |
+  |---|---:|---:|
+  | PER-MODEL build (u + U + i8 layout) | **2.34 s**, 91.2 MB held | 1.93 s, 32.9 MB |
+  | per-proof tt_prove (min) | 1.74 = rows-from-v 0.09 + v 0.27 (P 0.13 + GEMM **0.12**) + fold 0.80 (GEMM 0.42) + commits-from-cache 0.03 + absorbs | 1.80 |
+  | per-proof recursion prove (proxy, u digits 202,752 rings) | 0.34 (its precommit 0.10, per-model class) | 0.28 |
+  | **PER-PROOF two-tier, per-model warm (min / median)** | **2.08 / 2.15 s** | 2.09 / 2.24 |
+  | built bg_prove_group (min / median) | **2.09 / 2.11 s** | 1.79 / 1.80 |
+  | built bg_precommit (min; per-model class, paid per proof as built) | 0.68 | 0.57 |
+  | RATIO built / two-tier per-proof | **1.00x** (prove-group) / 1.33x (+ precommit) | 0.86x / 1.13x |
+  | claims | b_row images BYTE-IDENTICAL (two-tier recovered from v vs built); wire digest 12a8a3f6.. identical x3 | cba4356c.. x3 |
+  | peak RSS | 5872 MiB | 4763 MiB |
+  WHERE THE PER-PROOF 2.08 s GOES at the weight group: the fold 0.80
+  (0.42 device GEMM over strided columns at len = G = 64-96 — a short
+  K again — + 0.38 host: honest-bound check, poly_from_small and the
+  transcript absorb of 43,008 folded rings), the recursion prove
+  0.34, the v GEMM 0.12 (+ P 0.13 on the CPU pool), rows-from-v 0.09,
+  the transcript/absorbs the rest. The per-model part removed from
+  the per-proof clock: 2.34 s of tier commits + layout — the same
+  class as the built path's own precommit (0.68 s), which the built
+  pass ALSO treats as per-model discipline for the weights.
+  VERDICT AT THE BAR: per-proof weight-side opening at the 12x512
+  weight group = 1.00x the built GPU path (bar: >= 5x) — NOT MET
+  [MEASURED]. Claims bit-identical throughout.
+  Floors at commit: build green (CPU + GPU); diff-battery green;
+  freeze-check 102 ok + passed; uperf-s 3752cba4.., agg 46234986..,
   uperf-x be89d5da.. unchanged.
 
 ## Agent RR status (wt-uperf3-rr) — round 10

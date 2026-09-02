@@ -1,0 +1,37 @@
+[UPERF3-QQ] repeat [2^22 synth]: n0 = 2972672 (~2^21.5), 6 tensors / 7 contribs, G_all 2626, n = 3, ZK_THREADS 8 [WSL-BOX 8T|NOISY-SHARED]; gpu-cuda: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB VRAM), ZK_GPU=1, min_macs 4194304, block budget 256 MB, stages 4, bypass false
+[UPERF3-QQ]   PER-MODEL build 1.93s [MEASURED]: tier-1 u 28886 rings, U 11 rings, flat-i8 value layout on 3/6 tensors; 32.9 MB held
+[UPERF3-QQ]   proof 0: two-tier per-proof 2.24s = tt_prove 1.88s (rows-from-v 0.08, v-pass 0.61 [P 0.05 + GEMM 0.24; Fl cached], fold 0.58 [GEMM 0.29], tier commits from cache 0.03) + recursion prove 0.35s (its precommit 0.10s = per-model class)
+[UPERF3-QQ]   proof 1: two-tier per-proof 2.52s = tt_prove 2.23s (rows-from-v 0.08, v-pass 0.80 [P 0.05 + GEMM 0.46; Fl cached], fold 0.76 [GEMM 0.46], tier commits from cache 0.03) + recursion prove 0.29s (its precommit 0.09s = per-model class)
+[UPERF3-QQ]   proof 2: two-tier per-proof 2.09s = tt_prove 1.80s (rows-from-v 0.08, v-pass 0.52 [P 0.05 + GEMM 0.18; Fl cached], fold 0.58 [GEMM 0.27], tier commits from cache 0.03) + recursion prove 0.28s (its precommit 0.09s = per-model class)
+[UPERF3-QQ]   WIRE DIGEST cba4356c07eeb35e7c29c0ab08e17bd494547603df7556aabbc0e436a9fc3751 identical across 3 proofs (per-model part warm)
+[UPERF3-QQ]   claims: b_row images BYTE-IDENTICAL two-tier (recovered from v) vs the built GroupEvalProof.b_rows; built proof verifies
+[UPERF3-QQ]   built 0: bg_precommit 0.59s (per-model class as built, recomputed per proof) + bg_prove_group 1.94s
+[UPERF3-QQ]   built 1: bg_precommit 0.60s (per-model class as built, recomputed per proof) + bg_prove_group 1.79s
+[UPERF3-QQ]   built 2: bg_precommit 0.57s (per-model class as built, recomputed per proof) + bg_prove_group 1.80s
+[UPERF3-QQ]   PER-PROOF two-tier (per-model warm): min 2.09s / median 2.24s over 3; recursion precommit (per-model class, excluded) min 0.09s; PER-MODEL build 1.93s
+[UPERF3-QQ]   BUILT bg_prove_group: min 1.79s / median 1.80s; + bg_precommit min 0.57s (the built path's own per-model-class term, paid per proof as built)
+[UPERF3-QQ]   RATIO built / two-tier per-proof: 0.86x (prove-group only) | 1.13x (built precommit + prove-group) — reopen bar >= 5x at the 12x512 weight group: NOT MET
+[UPERF3-QQ] repeat done in 40.4s, peak RSS 4763 MiB [WSL-BOX 8T|NOISY-SHARED]
+	Command being timed: "/home/victor/wt-uperf3-qq/zkmatrix-rs/target-gpu/release/ring_matmul uperf-t repeat 22 3 8 161"
+	User time (seconds): 74.82
+	System time (seconds): 10.23
+	Percent of CPU this job got: 209%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:40.58
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 4876936
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2326110
+	Voluntary context switches: 176472
+	Involuntary context switches: 206
+	Swaps: 0
+	File system inputs: 9678
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

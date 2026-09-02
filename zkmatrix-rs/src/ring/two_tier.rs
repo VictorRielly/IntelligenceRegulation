@@ -698,9 +698,31 @@ fn tt_fl_batch(t: &AggTensor, w0: &[i8], gt: &TtGridTensor, i_lo: usize, i_hi: u
     }
 }
 
+/// [rung 4] The PER-MODEL value layout of a tensor: every row group's
+/// recombined value rings as one flat i8 vector (g*nb*D bytes), built
+/// on the pool; None when any value does not fit an i8 (then the pass
+/// builds i64 batches per proof). Alpha-independent: the int8 weights
+/// themselves, in row-group order.
+pub fn tt_fl_layout_i8(t: &AggTensor, w0: &[i8], gt: &TtGridTensor) -> Option<Vec<Vec<i8>>> {
+    let n = gt.n_groups;
+    let groups: Vec<(Vec<i64>, i64)> = if super::eval_proof::threads() > 1 && n > 1 {
+        tt_pool().install(|| {
+            use rayon::prelude::*;
+            (0..n).into_par_iter().map(|i| tt_fl_group_flat(t, w0, gt, i)).collect()
+        })
+    } else {
+        (0..n).map(|i| tt_fl_group_flat(t, w0, gt, i)).collect()
+    };
+    if groups.iter().any(|(_, m)| *m > 127) {
+        return None;
+    }
+    Some(groups.into_iter().map(|(v, _)| v.into_iter().map(|x| x as i8).collect()).collect())
+}
+
 /// THE R1 v-PASS, device shape: the same GEMM as `tt_v_pass_r1`'s value
 /// form with the Fl batch built on the pool and packed flat-i8 when it
-/// fits (the GEMM hook's `as_i8` fast path: no scan, i8 staging).
+/// fits (the GEMM hook's `as_i8` fast path: no scan, i8 staging), or
+/// taken from the per-model layout `fl_cache` when one is held.
 /// Values identical to `tt_v_pass_r1` (exact mod-q regrouping).
 pub fn tt_v_pass_r1_dev(
     ctx: &RingCtx,
@@ -709,6 +731,7 @@ pub fn tt_v_pass_r1_dev(
     w0: &[i8],
     lo_y: &[Vec<KElem>],
     conjq: &[Vec<Poly>],
+    fl_cache: Option<&[Vec<i8>]>,
 ) -> Vec<Vec<Poly>> {
     let zq = &ctx.zq;
     let kd = super::kfield::K_DEG;
@@ -726,18 +749,26 @@ pub fn tt_v_pass_r1_dev(
     while i_lo < n_groups {
         let i_hi = (i_lo + batch).min(n_groups);
         let t1 = std::time::Instant::now();
-        let fl = tt_fl_batch(t, w0, gt, i_lo, i_hi);
+        let fl = match fl_cache {
+            Some(_) => None,
+            None => Some(tt_fl_batch(t, w0, gt, i_lo, i_hi)),
+        };
         tt_r1_add(TT_R1_FL, t1);
         let t2 = std::time::Instant::now();
-        let out = match &fl {
-            TtFlBatch::I8(gs) => {
+        let out = match (&fl, fl_cache) {
+            (_, Some(cache)) => {
+                let b: Vec<&[i8]> = cache[i_lo..i_hi].iter().map(|f| f.as_slice()).collect();
+                super::eval_proof::ntt_gemm_modq_small_gen::<[i8]>(ctx, &a, &b, len)
+            }
+            (Some(TtFlBatch::I8(gs)), None) => {
                 let b: Vec<&[i8]> = gs.iter().map(|f| f.as_slice()).collect();
                 super::eval_proof::ntt_gemm_modq_small_gen::<[i8]>(ctx, &a, &b, len)
             }
-            TtFlBatch::I64(gs) => {
+            (Some(TtFlBatch::I64(gs)), None) => {
                 let b: Vec<&[Vec<i64>]> = gs.iter().map(|f| f.as_slice()).collect();
                 super::eval_proof::ntt_gemm_modq_small_gen::<[Vec<i64>]>(ctx, &a, &b, len)
             }
+            (None, None) => unreachable!(),
         };
         tt_r1_add(TT_R1_GEMM, t2);
         let t3 = std::time::Instant::now();
