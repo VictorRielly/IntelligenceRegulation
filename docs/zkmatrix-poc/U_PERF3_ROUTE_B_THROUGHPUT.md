@@ -55,11 +55,172 @@ what would a 50 tok/s design on this line have to look like?
 
 ## 0. The answer in one paragraph
 
-(pending)
+The only Route-B proof ever timed is lane UU's: 12 layers x 512
+tokens of the 125M model, **23.0 s of prover time on the laptop's CPU
+alone** (8 threads; no GPU code exists), 2.8 s to verify, 66.8 MB of
+proof, NOT zero-knowledge [MEASURED, S1] — 22 proven tokens per
+second OF THAT SMALL MODEL, feed-forward blocks only. Counted from
+the code (§2), 9.6% of that time (the weight commitment) is
+per-model and cacheable, 6.6% (the weight side of the matmul
+sumchecks and of the commitment opening) is per-proof and LINEAR in
+the weight count, and 83.8% is the activation side, linear in tokens
+x width. Scaling each phase by its counted size, the prototype at 8B
+is a **~1.0 tokens/s system for 512-token prefill on the laptop CPU
+and ~0.007 tok/s for batch-1 decode; at 30B, 0.33 and 0.0017**
+[MODEL from the measured constants] — the same two-workload split as
+the lattice line, for the same reason: at one token per proof the
+weights are 99.9% of the witness and their opening is paid in full
+per token. The hardware factor for THIS mix (NTT, hashing, streaming
+reductions; memory-bound) is 5-15x to the laptop's own GPU [MODEL
+until lane XX measures], 15-75x to a 4090-class board and 25-180x to
+an H100 [MODEL on MODEL, §3] — much larger factors than the lattice
+line's 2-8x because the measured row is a CPU row and every phase is
+device-native. That puts Route B on one H100 at **8-60 tok/s for 30B
+prefill and 0.04-0.3 tok/s for 30B decode, FFN-only, without zero
+knowledge** (§6); the spec-sheet floor for the same proof (§7) is
+~4-11 s per 512-token proof (47-138 tok/s), dominated by hashing 311
+GB of encoded activations. Zero knowledge (§4) costs +2-8% in the
+activations-private mode P1 [COUNTED from the Ligero/Libra
+constructions] but is STRUCTURALLY expensive in the weights-private
+modes P2/P3: a cached hash-based weight commitment reveals 256 of its
+encoded columns per proof, and after ~65 proofs the weights are
+recoverable by linear algebra [COUNTED], so under P2/P3 the weights
+must be re-committed with fresh randomness on every proof — +9.6% at
+125M, +44% at 8B x 512, +54% at 30B x 512 on the laptop, and a
+hashing floor of 7-23 s per proof at 30B on an H100 that by itself
+is 70-230% of the 10.2 s per-proof budget. The 66.8 MB proof is the
+sqrt-size class (0.6 GB per 8B x 512 proof, 1.5 GB per 30B x 512
+proof, 0.7 GB per 30B DECODE token); a WHIR/STIR-class PCS swap cuts
+it 30-100x at 0.9-1.6x the prover's commit + open phases [MODEL from
+stated complexities, §5]. **Verdict (§7): 50 tok/s at 30B on one
+H100 is reachable on Route B under the counted assumptions ONLY for
+512-token prefill or batched proving, FFN-only, in modes P0/P1, and
+only in the upper half of the hardware range (>= ~90x over the
+laptop CPU as built) — it hinges on lane XX's GPU factor and on the
+device's sustained hash rate (>= ~30 GB/s). Batch-1 decode at 50
+tok/s is NOT reachable: the linear weight opening's floor at 30B is
+25-60 ms per proof against a 20 ms budget [COUNTED]; batched decode
+at >= 8 requests is the product shape that could. Under P2/P3
+(weights private), as counted, no cell reaches 50 tok/s.**
 
 ## 1. Workloads and MACs per token
 
-(pending)
+Everything in this section is S0 §1's, restated so this memo stands
+alone; the shapes and MACs are copied, not re-derived.
+
+### 1.1 Terms (S0 §1.1, with the Route-B additions)
+
+- **MAC**: one 8-bit integer multiply-accumulate; a model with P
+  weights costs about P MACs per token in its matmuls.
+- **Token / prefill / decode**: one text position; a whole prompt of
+  T tokens in one forward pass; one new token per forward pass.
+- **Proof / statement / witness**: one prover run; "these committed
+  weights, applied to these T tokens, produced these outputs"; every
+  number the proof is about.
+- **Weight side vs activation side**: the weights are the same for
+  every proof of a model; the activations differ per proof and grow
+  with T. `hashline/` commits them as separate commitments — W
+  (weights), A (activations, inputs and outputs), H (the LogUp helper
+  columns, which are activation-side) — and opens each once per
+  layer (S2, design of record).
+- **Field element**: Route B's unit. Every committed value is one
+  element of the Goldilocks field (p = 2^64 - 2^32 + 1, 8 bytes);
+  int8 weights and activations are embedded one per element; helper
+  values are extension elements (two per helper). Costs of the
+  commitment and opening phases scale with element counts, not
+  MACs; the sumcheck phases scale with table sizes (§2).
+- **Proven MAC/s**: MACs in the statement divided by the prover's
+  wall-clock seconds (S5 conversion note; S4 §3).
+- **The prover clock**: per the contract (S6 §3) it starts with the
+  committed model and the tokens in memory and stops when the proof
+  bytes exist; it EXCLUDES the one-time weight commitment and
+  INCLUDES witness inference. UU's 23.0 s INCLUDES the three
+  per-layer commitments (the weights recommitted every proof) and
+  EXCLUDES the witness load + integer chain (0.9-1.5 s, S1). On the
+  contract's clock the row is therefore ~23.0 - 2.2 + ~1.0 = ~22 s
+  with a cached weight commitment; this memo uses the measured 23.0
+  s and says where the 2.19 s moves (§2).
+
+### 1.2 The three workloads (S0 §1.2, verbatim in substance)
+
+| workload | tokens per proof | weight side paid | activation side paid | tokens/s |
+|---|---:|---|---|---|
+| **batch-1 decode** | 1 | once per proof = once per TOKEN | for one position | `1 / cost(T=1)` |
+| **batch-T prefill** | T (512 in the contract, S6 §3) | once per proof = once per T tokens | for T positions | `T / cost(T)` |
+| **pipelined / batched** | T per proof, several proofs in flight, or B requests decoded together | as prefill | as prefill | `T / (busiest resource's time per proof)` |
+
+`cost(T) = W + A(T) + F`: W the per-proof weight-side work, A(T) the
+activation-side work (linear in T above a small floor), F the fixed
+per-proof overhead. Route B has no CRS expansion and no device
+initialisation; F is the eq-table builds and the tiny sumchecks
+(milliseconds at T = 1, §2.4). Multi-request batching at B requests
+is the same amortisation as prefill with T = B.
+
+### 1.3 The two model shapes (S0 §1.3, copied)
+
+**8B**: Mistral-7B-v0.1 — L = 32 layers, d = 4096, FFN hidden f =
+14336 [EXTERNAL, model card]. **30B stand-in**: the public
+Gemma-3-27B architecture — L = 62, d = 5376, f = 21504, 27e9
+parameters [EXTERNAL, model card]; if the real 31B model is 15%
+larger, every 30B cost row scales by ~1.15x [MODEL]. Route B handles
+non-power-of-two widths by block structure, not zero padding (S2:
+d = 768 = 3 x 2^8 at 125M); this memo counts f = 14336 = 7 x 2^11
+and f = 21504 = 21 x 2^10 the same way, so no padding term appears
+(the lattice line's 12.5% / 52% padding, S0 §1.5, does not apply).
+
+### 1.4 MACs per token [COUNTED from the shapes; S0 §1.4, copied]
+
+| term (per token) | 8B | 30B stand-in |
+|---|---:|---:|
+| FFN (gate, up, down) = `L x 3 x d x f` | **5.64e9** | **2.15e10** |
+| attention projections | 1.34e9 | 4.10e9 |
+| output head | 1.3e8 | 1.41e9 |
+| dense total | 7.11e9 | 2.70e10 |
+| total incl. attention scores at context | 7.2-8.2e9 | 2.9-3.5e10 |
+| FFN share | 69-78% | 61-75% |
+
+The yardstick stays S5's: **50 tok/s at 30B = 50 x 3.1e10 = 1.55e12
+proven MAC/s = 20 ms per token; 10.2 s per 512-token proof.**
+
+**The FFN-only caveat, restated.** The built and measured Route-B
+statement is the FFN only (S1: "NOT proven: attention; the seams
+between layers"); every tokens/s number in §6 is an **FFN-proven
+token** (5.64e9 MACs at 8B, 2.15e10 at 30B). Attention adds 1.3-1.6x
+MACs and an unmeasured multiple of proof MASS (the softmax chain is
+lookups and range facts, not matmuls; S0 §1.4 prices it at ~3.5x per
+layer for the lattice line [MODEL]); on Route B its cost is
+unmeasured until an attention layer is proven there. Two further
+gaps shared with the lattice tower (S1): X and the weights are
+declared int8, not range-proven (UU's item (e): +15-20% [MODEL]);
+the layer seams are not proven.
+
+### 1.5 The Route-B witness at each workload [COUNTED from S3 `layer.rs::Layout`]
+
+Per layer, the three commitments hold (T tokens, width d, hidden f):
+W = 3 d f elements (Wg, Wu, Wd); A = T (7 f + 3 d) elements (g8, rg,
+a8, u8, ru, h8, rh — seven T x f columns — plus X, z, rd in d/256
+blocks of T x 256); H = T (6 f + 2 d) elements (three T x f helper
+columns and d/256 helper blocks, each as a real and an imaginary
+base column). Per token-layer the activation side is therefore
+**13 f + 5 d** elements.
+
+| group | 125M, T = 512 (per layer / per pass) | 8B, T = 512 | 8B, T = 1 | 30B stand-in, T = 512 | 30B, T = 1 |
+|---|---:|---:|---:|---:|---:|
+| W (elements) | 4.72M / 5.66e7 | 1.76e8 / **5.64e9** | 5.64e9 | 3.47e8 / **2.15e10** | 2.15e10 |
+| A (elements) | 8.52M / 1.02e8 | 5.77e7 / 1.85e9 | 3.6e6 | 8.53e7 / 5.29e9 | 1.03e7 |
+| H (elements) | 7.08M / 8.49e7 | 4.82e7 / 1.54e9 | 3.0e6 | 7.16e7 / 4.44e9 | 8.7e6 |
+| A + H per token (all layers) | 30,464 x 12 = 3.66e5 | 6.62e6 | 6.62e6 | 1.90e7 | 1.90e7 |
+| weight share of the committed witness | 23% | 62% | **99.9%** | 69% | **99.9%** |
+| encoded bytes per layer at rate 1/4 (32 B per element; what the commit phase writes and hashes) | 650 MB | 9.0 GB | 5.7 GB | 16.1 GB | 11.1 GB |
+
+Two facts to carry: (1) at T = 1 the proof is a proof about the
+weights, exactly as on the lattice line (S0 §1.5); (2) Route B's
+per-model store is **one byte per weight** if kept as int8 (5.6 GB at
+8B, 21.5 GB at 30B — 8x smaller than the lattice line's digit store,
+45 / 172 GB), but its CACHED commitment (the encoded matrix the
+opening reads columns from) is 25 bytes per weight at rate 1/4 —
+141 GB at 8B, 538 GB at 30B [COUNTED] — which sets the per-proof
+byte question of §2.3 and §7.
 
 ## 2. The per-proof cost anatomy for Route B: per-model vs per-proof
 
