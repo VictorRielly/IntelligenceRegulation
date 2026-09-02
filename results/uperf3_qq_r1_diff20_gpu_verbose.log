@@ -1,0 +1,80 @@
+[UPERF3-FF] diff [v-pass R1]: 6 tensors / 809984 digit rings (~2^19.6), 7 contribs, ZK_THREADS 8 [WSL-BOX 8T|NOISY-SHARED], seed 161
+[UPERF3-QQ]   R1 form for ta: Value (recombined |value| <= 42, window 1597830 terms)
+[UPERF3-QQ]   R1 form for tb: Value (recombined |value| <= 255, window 263172 terms)
+[UPERF3-QQ]   R1 form for tc: Value (recombined |value| <= 682, window 98400 terms)
+[UPERF3-QQ]   R1 form for td: Value (recombined |value| <= 2730, window 24582 terms)
+[UPERF3-QQ]   R1 form for te: Value (recombined |value| <= 10, window 6710887 terms)
+[UPERF3-QQ]   R1 form for tf: Value (recombined |value| <= 42, window 1597830 terms)
+[UPERF3-FF]   grid ta: g_rows 8 width 768 n_groups 64 (e0 2 l0 3)
+[UPERF3-FF]   grid tb: g_rows 1 width 512 n_groups 1024 (e0 1 l0 8)
+[UPERF3-FF]   grid tc: g_rows 8 width 640 n_groups 32 (e0 2 l0 5)
+[UPERF3-FF]   grid td: g_rows 2 width 768 n_groups 256 (e0 2 l0 6)
+[UPERF3-FF]   grid te: g_rows 8 width 512 n_groups 32 (e0 2 l0 2)
+[UPERF3-FF]   grid tf: g_rows 32 width 768 n_groups 4 (e0 2 l0 3)
+[UPERF3-FF]   factored-kernel invariant: scale *K eq == hi *K lo on every row, 7/7 contribs
+[UPERF2-K] gpu init: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB), NVRTC compile 0.36s
+[UPERF2-K] gemm na 11 nb 64 len 8192 (window 528416, ublk 2048, ks 4, a_fmt 0, b_fmt 2): pack 15.8 ms, wait 17.1 ms, h2d 113 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 64 len 4464 (window 528416, ublk 1116, ks 4, a_fmt 0, b_fmt 2): pack 6.0 ms, wait 11.3 ms, h2d 62 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 1 len 3520 (window 1048576, ublk 880, ks 4, a_fmt 0, b_fmt 2): pack 2.0 ms, wait 5.4 ms, h2d 20 MB, d2h 0.1 ms
+[UPERF2-Q] level-h session r 64 chunk 12656 (window 528416, stage 1024, ks 4, b_fmt 2): 13 stages, 1 flushes, grow 51.6 ms, fill 27.5 ms, enqueue 1.9 ms, wait 89.5 ms, h2d 175 MB
+[UPERF2-K] gemm na 11 nb 1 len 10400 (window 1048576, ublk 2600, ks 4, a_fmt 0, b_fmt 2): pack 4.5 ms, wait 16.5 ms, h2d 60 MB, d2h 0.1 ms
+[UPERF2-Q] combine session K 64 chunk 12656 n_out 1 (flat; stage 2048, b_fmt 2): 7 stages, fill 8.7 ms, wait 19.2 ms, h2d 104 MB
+[UPERF2-Q] combine session K 64 chunk 12656 n_out 1 (pool; stage 2048, b_fmt -1): 7 stages, fill 18.7 ms, wait 14.0 ms, h2d 72 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.6 ms, wait 4.7 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 4464 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 3.2 ms, wait 3.5 ms, h2d 27 MB
+[UPERF2-Q] combine session K 11 chunk 3520 n_out 2 (flat; stage 2048, b_fmt 0): 2 stages, fill 2.5 ms, wait 2.5 ms, h2d 20 MB
+[UPERF2-Q] combine session K 11 chunk 10400 n_out 2 (flat; stage 2048, b_fmt 0): 6 stages, fill 7.6 ms, wait 4.0 ms, h2d 59 MB
+[UPERF2-K] gemm na 11 nb 25 len 1570 (window 528416, ublk 393, ks 4, a_fmt 0, b_fmt 2): pack 2.2 ms, wait 3.2 ms, h2d 14 MB, d2h 0.1 ms
+[UPERF2-K] gemm na 25 nb 25 len 1024 (window 528416, ublk 256, ks 4, a_fmt 0, b_fmt 2): pack 2.1 ms, wait 6.5 ms, h2d 16 MB, d2h 0.2 ms
+[UPERF2-K] gemm na 25 nb 25 len 546 (window 528416, ublk 137, ks 4, a_fmt 0, b_fmt 2): pack 2.4 ms, wait 4.4 ms, h2d 9 MB, d2h 0.2 ms
+[UPERF2-K] gemm na 11 nb 1 len 3000 (window 1048576, ublk 750, ks 4, a_fmt 0, b_fmt 2): pack 1.9 ms, wait 4.7 ms, h2d 17 MB, d2h 0.1 ms
+[UPERF2-Q] combine session K 25 chunk 1570 n_out 1 (flat; stage 1570, b_fmt 2): 1 stages, fill 0.7 ms, wait 2.2 ms, h2d 5 MB
+[UPERF2-Q] combine session K 64 chunk 12656 n_out 1 (pool; stage 2048, b_fmt -1): 7 stages, fill 18.7 ms, wait 13.8 ms, h2d 72 MB
+[UPERF2-Q] combine session K 12 chunk 8192 n_out 2 (flat; stage 2048, b_fmt 0): 4 stages, fill 5.2 ms, wait 5.1 ms, h2d 50 MB
+[UPERF2-Q] combine session K 12 chunk 4464 n_out 2 (flat; stage 2048, b_fmt 0): 3 stages, fill 3.2 ms, wait 3.0 ms, h2d 27 MB
+[UPERF2-Q] combine session K 11 chunk 3520 n_out 2 (flat; stage 2048, b_fmt 0): 2 stages, fill 2.4 ms, wait 2.8 ms, h2d 20 MB
+[UPERF2-Q] combine session K 11 chunk 10400 n_out 2 (flat; stage 2048, b_fmt 0): 6 stages, fill 6.7 ms, wait 5.0 ms, h2d 59 MB
+[UPERF2-Q] combine session K 25 chunk 1570 n_out 1 (flat; stage 1570, b_fmt 0): 1 stages, fill 2.0 ms, wait 4.7 ms, h2d 20 MB
+[UPERF2-K] gemm na 11 nb 1 len 3000 (window 1048576, ublk 750, ks 4, a_fmt 0, b_fmt 2): pack 2.0 ms, wait 4.6 ms, h2d 17 MB, d2h 0.1 ms
+[UPERF3-FF]   oracle bg_prove_group + verify: ACCEPT in 7.32s (forced 2-level schedule)
+[UPERF2-K] gemm na 16 nb 64 len 256 (window 528416, ublk 64, ks 2, a_fmt 0, b_fmt 2): pack 2.1 ms, wait 0.8 ms, h2d 4 MB, d2h 0.4 ms
+[UPERF2-K] gemm na 16 nb 64 len 256 (window 528416, ublk 64, ks 2, a_fmt 0, b_fmt 2): pack 3.3 ms, wait 0.9 ms, h2d 4 MB, d2h 0.4 ms
+[UPERF2-K] gemm na 16 nb 1024 len 64 (window 263172, ublk 64, ks 1, a_fmt 0, b_fmt 3): pack 5.1 ms, wait 15.0 ms, h2d 68 MB, d2h 10.0 ms
+[UPERF2-K] gemm na 16 nb 32 len 128 (window 98400, ublk 64, ks 2, a_fmt 0, b_fmt 3): pack 1.4 ms, wait 1.1 ms, h2d 5 MB, d2h 0.2 ms
+[UPERF2-K] gemm na 16 nb 256 len 128 (window 24582, ublk 64, ks 1, a_fmt 0, b_fmt 3): pack 3.4 ms, wait 5.3 ms, h2d 35 MB, d2h 1.4 ms
+[UPERF2-K] gemm na 16 nb 256 len 128 (window 24582, ublk 64, ks 1, a_fmt 0, b_fmt 3): pack 3.0 ms, wait 5.4 ms, h2d 35 MB, d2h 1.4 ms
+[UPERF2-K] gemm na 16 nb 32 len 256 (window 528416, ublk 64, ks 2, a_fmt 0, b_fmt 2): pack 2.2 ms, wait 0.5 ms, h2d 3 MB, d2h 0.2 ms
+[UPERF2-K] gemm na 11 nb 64 len 768 (window 528416, ublk 192, ks 4, a_fmt 0, b_fmt 2): pack 3.3 ms, wait 1.6 ms, h2d 11 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 1024 len 512 (window 528416, ublk 128, ks 1, a_fmt 0, b_fmt 2): pack 15.0 ms, wait 14.4 ms, h2d 70 MB, d2h 3.5 ms
+[UPERF2-K] gemm na 11 nb 32 len 640 (window 528416, ublk 160, ks 4, a_fmt 0, b_fmt 2): pack 1.8 ms, wait 1.4 ms, h2d 6 MB, d2h 0.2 ms
+[UPERF2-K] gemm na 11 nb 256 len 768 (window 528416, ublk 192, ks 1, a_fmt 0, b_fmt 2): pack 6.4 ms, wait 5.1 ms, h2d 29 MB, d2h 0.9 ms
+[UPERF2-K] gemm na 11 nb 32 len 512 (window 528416, ublk 128, ks 4, a_fmt 0, b_fmt 2): pack 2.3 ms, wait 0.6 ms, h2d 5 MB, d2h 0.2 ms
+[UPERF2-K] gemm na 11 nb 4 len 768 (window 528416, ublk 192, ks 4, a_fmt 0, b_fmt 2): pack 1.1 ms, wait 1.2 ms, h2d 5 MB, d2h 0.1 ms
+[UPERF2-K] gemm na 11 nb 1 len 93192 (window 2097152, ublk 11275, ks 4, a_fmt 0, b_fmt 2): pack 39.6 ms, wait 127.3 ms, h2d 537 MB, d2h 0.1 ms
+[UPERF2-K] gemm na 1 nb 768 len 64 (window 33554438, ublk 64, ks 1, a_fmt 0, b_fmt 2): pack 1.9 ms, wait 3.5 ms, h2d 6 MB, d2h 0.5 ms
+[UPERF2-K] gemm na 1 nb 512 len 1024 (window 67108876, ublk 256, ks 1, a_fmt 0, b_fmt 2): pack 12.2 ms, wait 15.2 ms, h2d 68 MB, d2h 0.4 ms
+[UPERF2-K] gemm na 1 nb 768 len 256 (window 33554438, ublk 64, ks 1, a_fmt 0, b_fmt 2): pack 5.8 ms, wait 4.9 ms, h2d 25 MB, d2h 0.3 ms
+[UPERF2-K] gemm na 11 nb 1 len 93192 (window 2097152, ublk 11275, ks 4, a_fmt 0, b_fmt 2): pack 37.5 ms, wait 128.4 ms, h2d 537 MB, d2h 0.2 ms
+[UPERF3-FF]   two-tier prove 2.04s + verify 1.46s: ACCEPT (binding + U rebind + claim + consistency + w range)
+[UPERF3-FF]   DIFF 1: b_row images BYTE-IDENTICAL (16 rows) two-tier vs built GroupEvalProof.b_rows; ct row = v_batch
+[UPERF3-FF]   DIFF 2: per-contrib MLE claim rows: sum_m rows_m == b_rows; H_m == alphas . rows_m POLY-EXACT, 7/7 contribs
+[UPERF3-FF]   DIFF 3: batched opening target h_cur IDENTICAL: two-tier == built b_rows route == sum_m H_m (same drawn alphas)
+[UPERF2-K] gemm na 11 nb 1 len 93192 (window 2097152, ublk 11275, ks 4, a_fmt 0, b_fmt 2): pack 37.6 ms, wait 128.4 ms, h2d 537 MB, d2h 0.2 ms
+[UPERF3-FF]   REJECT w tamper: tt-fold-binding
+[UPERF2-K] gemm na 11 nb 1 len 93192 (window 2097152, ublk 11275, ks 4, a_fmt 0, b_fmt 2): pack 37.6 ms, wait 129.4 ms, h2d 537 MB, d2h 0.2 ms
+[UPERF3-FF]   REJECT v tamper: tt-fold-binding
+[UPERF2-K] gemm na 11 nb 1 len 93192 (window 2097152, ublk 11275, ks 4, a_fmt 0, b_fmt 2): pack 36.1 ms, wait 130.5 ms, h2d 537 MB, d2h 0.2 ms
+[UPERF3-FF]   REJECT u tamper: tt-u-binding
+[UPERF3-FF]   REJECT b_rows tamper: tt-ct-row-gate
+[UPERF2-Q] combine session K 64 chunk 768 n_out 1 (flat; stage 768, b_fmt 2): 1 stages, fill 0.5 ms, wait 2.9 ms, h2d 6 MB
+[UPERF2-Q] combine session K 1024 chunk 512 n_out 1 (flat; stage 512, b_fmt 2): 1 stages, fill 2.7 ms, wait 43.8 ms, h2d 68 MB
+[UPERF2-Q] combine session K 256 chunk 768 n_out 1 (flat; stage 768, b_fmt 2): 1 stages, fill 1.1 ms, wait 9.3 ms, h2d 25 MB
+[UPERF2-K] gemm na 11 nb 1 len 93192 (window 2097152, ublk 11275, ks 4, a_fmt 0, b_fmt 2): pack 37.1 ms, wait 128.9 ms, h2d 537 MB, d2h 0.2 ms
+[UPERF3-FF]   REJECT lying-v + honest refold (binding passes): tt-consistency
+[UPERF2-Q] combine session K 64 chunk 768 n_out 1 (flat; stage 768, b_fmt 2): 1 stages, fill 0.7 ms, wait 2.8 ms, h2d 6 MB
+[UPERF2-Q] combine session K 1024 chunk 512 n_out 1 (flat; stage 512, b_fmt 2): 1 stages, fill 2.8 ms, wait 24.2 ms, h2d 68 MB
+[UPERF2-Q] combine session K 256 chunk 768 n_out 1 (flat; stage 768, b_fmt 2): 1 stages, fill 1.7 ms, wait 9.5 ms, h2d 25 MB
+[UPERF2-K] gemm na 11 nb 1 len 93192 (window 2097152, ublk 11275, ks 4, a_fmt 0, b_fmt 2): pack 36.9 ms, wait 128.6 ms, h2d 537 MB, d2h 0.2 ms
+[UPERF3-FF]   REJECT lying b_rows non-ct coeff + honest refold: tt-claim
+[UPERF3-QQ] WIRE DIGEST cae0b3123c0335b470435b5d6e78219db1b8e6f16b2351f90d3e79fe790f3793 (b_rows|u|U|v|w; v-pass R1; gpu-cuda: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB VRAM), ZK_GPU=1, min_macs 4194304, block budget 256 MB, stages 4, bypass false)
+[UPERF3-FF] diff PASS: 3 differential legs + 6 reject legs in 20.0s, peak RSS 3075 MiB

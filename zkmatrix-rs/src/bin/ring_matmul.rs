@@ -49972,6 +49972,41 @@ struct TtWire {
     w: Vec<Vec<Vec<i64>>>,
 }
 
+/// [UPERF3-QQ] SHA-256 over the two-tier wire (b_rows | u | U | v | w,
+/// little-endian words) — the cross-run byte-identity check (CPU vs
+/// device, S4 vs R1: the wire must not move).
+fn tt_wire_digest(wire: &TtWire) -> String {
+    use sha2::{Digest, Sha256};
+    let mut h = Sha256::new();
+    let polys = |h: &mut Sha256, ps: &[Poly]| {
+        for p in ps {
+            for &x in p {
+                h.update(x.to_le_bytes());
+            }
+        }
+    };
+    polys(&mut h, &wire.b_rows);
+    for ut in &wire.u {
+        for u in ut {
+            polys(&mut h, u);
+        }
+    }
+    polys(&mut h, &wire.u_cap);
+    for vm in &wire.v {
+        for ve in vm {
+            polys(&mut h, ve);
+        }
+    }
+    for wt in &wire.w {
+        for r in wt {
+            for &x in r {
+                h.update(x.to_le_bytes());
+            }
+        }
+    }
+    h.finalize().iter().map(|b| format!("{b:02x}")).collect()
+}
+
 /// [UPERF3-QQ] Which v-pass the two-tier prover runs. `S4` is the FF
 /// spike verbatim (tt_qr_pass + tt_v_from_qr, b_rows from the built
 /// kernel pass); `R1` is the factored GEMM form (ring::two_tier::
@@ -50021,14 +50056,20 @@ fn tt_prove(
     // recovered from them; the absorption order below is unchanged.
     let mut v_pre: Vec<Vec<Vec<Poly>>> = Vec::new();
     let b_rows: Vec<Poly> = if vmode == TtVMode::R1 {
-        use ring::two_tier::{tt_r1_form_for, tt_rows_from_v, tt_v_pass_r1};
+        use ring::two_tier::{tt_r1_form_for, tt_rows_from_v, tt_v_pass_r1, tt_v_pass_r1_dev, R1Form};
         for tc in inst.tt.iter() {
             let t = &group.tensors[tc.tensor_idx];
             let gt = &inst.grid[tc.tensor_idx];
             let conjq = tt_conjq(zq, &tc.col, t.cols / D);
             let lo_y = tt_lo_y(kf, &tc.lo);
             let form = tt_r1_form_for(q, t);
-            v_pre.push(tt_v_pass_r1(ctx, t, gt, flat, &lo_y, &conjq, form));
+            // [rung 3] the device shape (pooled Fl build, flat-i8 pack)
+            // for the value form; the digit form through the generic path.
+            v_pre.push(if form == R1Form::Value {
+                tt_v_pass_r1_dev(ctx, t, gt, flat, &lo_y, &conjq)
+            } else {
+                tt_v_pass_r1(ctx, t, gt, flat, &lo_y, &conjq, form)
+            });
         }
         lap(&mut timings, "v-passes", &mut tick);
         let mut rows = vec![poly_zero(); K_DEG];
@@ -50133,7 +50174,14 @@ fn tt_prove(
                 )
             })
             .collect();
-        let w_t = fold_chunks_ntt_gen(&cs, &sl, gt.width);
+        // [UPERF3-QQ rung 3] R1: the fold as one GEMM over strided columns
+        // (exact, centered); S4: the combine-class fold verbatim.
+        let w_t = if vmode == TtVMode::R1 {
+            let _ = &sl;
+            ring::two_tier::tt_fold_r1(ctx, t, gt, flat, &cs)
+        } else {
+            fold_chunks_ntt_gen(&cs, &sl, gt.width)
+        };
         let bound = tt_fold_bound(gt.n_groups, t.e0) as i64;
         for ring_w in &w_t {
             for &x in ring_w {
@@ -50478,6 +50526,7 @@ fn uperf_t_diff(n_log2: usize, threads: usize, seed: u8, vmode: TtVMode) {
         legs += 1;
     }
     let _ = DigitCols::zeros(0);
+    println!("[UPERF3-QQ] WIRE DIGEST {} (b_rows|u|U|v|w; v-pass {vmode:?}; {})", tt_wire_digest(&wire), ring::gpu::label());
     println!(
         "[UPERF3-FF] diff PASS: 3 differential legs + {legs} reject legs in {:.1}s, peak RSS {:.0} MiB",
         t0.elapsed().as_secs_f64(),
@@ -50590,12 +50639,20 @@ fn uperf_t_bench(shape: &str, threads: usize, seed: u8, vmode: TtVMode) {
     let t_v0 = std::time::Instant::now();
     tt_verify(&ctx, &kf, &inst, &wire, &v_batch, seed_crs, Some(&mut tv)).expect("tt verify");
     let tt_verify_total = t_v0.elapsed().as_secs_f64();
+    println!("[UPERF3-QQ] WIRE DIGEST {} (b_rows|u|U|v|w; v-pass {vmode:?}; {})", tt_wire_digest(&wire), ring::gpu::label());
     let phase = |ts: &[(&'static str, f64)], tag: &str| ts.iter().find(|(t, _)| *t == tag).map(|(_, s)| *s).unwrap_or(0.0);
     let tt_rows = phase(&tp, "rows-pass");
     let tt_commit = phase(&tp, "tier1-commit") + phase(&tp, "tier2-U");
     let tt_v = phase(&tp, "v-passes");
     let tt_fold = phase(&tp, "fold");
     println!("[UPERF3-FF]   tt prove phases: rows {:.2}s, tier1+tier2 commit {:.2}s, v-passes {:.2}s, FOLD WALL {:.2}s", tt_rows, tt_commit, tt_v, tt_fold);
+    if vmode == TtVMode::R1 {
+        let pr = ring::two_tier::tt_r1_prof_take();
+        println!(
+            "[UPERF3-QQ]   R1 attribution: v-pass P precompute {:.3}s + Fl build {:.3}s + GEMM {:.3}s + out {:.3}s; fold-as-GEMM {:.3}s (v-absorb {:.2}s)",
+            pr[ring::two_tier::TT_R1_P], pr[ring::two_tier::TT_R1_FL], pr[ring::two_tier::TT_R1_GEMM], pr[ring::two_tier::TT_R1_OUT], pr[ring::two_tier::TT_R1_FOLD], phase(&tp, "v-absorb")
+        );
+    }
     println!(
         "[UPERF3-FF]   tt verify {:.2}s total: replay+range {:.2}, u-rebind {:.2}, (a) binding {:.2}, (c) consistency {:.2}, (b) claim {:.2}",
         tt_verify_total, phase(&tv, "replay+range"), phase(&tv, "u-rebind"), phase(&tv, "a-fold-binding"), phase(&tv, "c-consistency"), phase(&tv, "b-claim")

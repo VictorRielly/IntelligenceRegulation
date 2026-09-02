@@ -533,18 +533,34 @@ pub fn tt_r1_form_for(q: u64, t: &AggTensor) -> R1Form {
 /// axis.
 pub fn tt_inner_value_functionals(zq: &Zq, g_rows: usize, nb: usize, lo_y: &[Vec<KElem>], conjq: &[Vec<Poly>]) -> Vec<Vec<Poly>> {
     let kd = super::kfield::K_DEG;
-    let mut p = vec![vec![poly_zero(); g_rows * nb]; kd];
-    for r in 0..g_rows {
-        for cb in 0..nb {
-            for d in 0..kd {
-                for (e, pe) in p.iter_mut().enumerate() {
-                    let s = lo_y[r][d][e];
-                    if s != 0 {
-                        let slot = &mut pe[r * nb + cb];
-                        *slot = poly_add(zq, slot, &poly_scale(zq, s, &conjq[cb][d]));
-                    }
+    let n = g_rows * nb;
+    // One position j = (r, cb): combo[e] = sum_d loY[r][d][e] * conjQ[cb][d]
+    // (a fixed-order mod-q sum; the same values in any thread layout).
+    let one = |j: usize| -> Vec<Poly> {
+        let (r, cb) = (j / nb, j % nb);
+        let mut combo = vec![poly_zero(); kd];
+        for d in 0..kd {
+            for (e, cmb) in combo.iter_mut().enumerate() {
+                let s = lo_y[r][d][e];
+                if s != 0 {
+                    *cmb = poly_add(zq, cmb, &poly_scale(zq, s, &conjq[cb][d]));
                 }
             }
+        }
+        combo
+    };
+    let per_j: Vec<Vec<Poly>> = if super::eval_proof::threads() > 1 && n >= 64 {
+        tt_pool().install(|| {
+            use rayon::prelude::*;
+            (0..n).into_par_iter().map(one).collect()
+        })
+    } else {
+        (0..n).map(one).collect()
+    };
+    let mut p = vec![vec![poly_zero(); n]; kd];
+    for (j, combo) in per_j.into_iter().enumerate() {
+        for (e, c) in combo.into_iter().enumerate() {
+            p[e][j] = c;
         }
     }
     p
@@ -588,6 +604,221 @@ pub fn tt_fl_row_groups(t: &AggTensor, w0: &[i8], gt: &TtGridTensor, i_lo: usize
 fn tt_r1_batch_groups(gt: &TtGridTensor, nb: usize) -> usize {
     let per_group = gt.g_rows * nb;
     ((1usize << 16) / per_group.max(1)).clamp(1, gt.n_groups.max(1))
+}
+
+// ---- [UPERF3-QQ rung 3] the device-side shape of the R1 pass ----------------
+//
+// Attribution counters (ns) for the R1 pass: P precompute, Fl
+// materialization, the GEMM (host+device through the hook), the
+// output scatter; and the R1 fold. Read-and-reset by `tt_r1_prof_take`.
+
+use std::sync::atomic::{AtomicU64, Ordering as AtOrd};
+use std::sync::OnceLock;
+
+static TT_R1_NS: [AtomicU64; 5] = [AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0)];
+pub const TT_R1_P: usize = 0;
+pub const TT_R1_FL: usize = 1;
+pub const TT_R1_GEMM: usize = 2;
+pub const TT_R1_OUT: usize = 3;
+pub const TT_R1_FOLD: usize = 4;
+
+fn tt_r1_add(slot: usize, t0: std::time::Instant) {
+    TT_R1_NS[slot].fetch_add(t0.elapsed().as_nanos() as u64, AtOrd::Relaxed);
+}
+
+/// The accumulated R1 attribution in seconds [P, Fl, GEMM, out, fold], reset on read.
+pub fn tt_r1_prof_take() -> [f64; 5] {
+    let mut out = [0f64; 5];
+    for (o, c) in out.iter_mut().zip(TT_R1_NS.iter()) {
+        *o = c.swap(0, AtOrd::Relaxed) as f64 * 1e-9;
+    }
+    out
+}
+
+/// The lane's own pool at the house thread count (eval_proof's POOL is
+/// private to the frozen module; same size, same discipline).
+fn tt_pool() -> &'static rayon::ThreadPool {
+    static P: OnceLock<rayon::ThreadPool> = OnceLock::new();
+    P.get_or_init(|| rayon::ThreadPoolBuilder::new().num_threads(super::eval_proof::threads()).build().expect("two-tier pool"))
+}
+
+/// One row group's recombined value rings, flat i64 (g*nb*D words),
+/// and the max |value| seen.
+fn tt_fl_group_flat(t: &AggTensor, w0: &[i8], gt: &TtGridTensor, i: usize) -> (Vec<i64>, i64) {
+    let nb = t.cols / super::D;
+    let g = gt.g_rows;
+    let mut out = vec![0i64; g * nb * super::D];
+    let mut buf = [0i64; super::D];
+    let mut mx = 0i64;
+    for r in 0..g {
+        let row = i * g + r;
+        for cb in 0..nb {
+            let vr = row * nb + cb;
+            let dst = &mut out[(r * nb + cb) * super::D..(r * nb + cb + 1) * super::D];
+            for l in 0..t.l0 {
+                let u = t.digit_ring_base + vr * t.l0 + l;
+                let ring = SmallRings::ring(w0, u, &mut buf);
+                let rad = 1i64 << (t.e0 as usize * l);
+                for (f, &x) in dst.iter_mut().zip(ring.iter()) {
+                    if x != 0 {
+                        *f += rad * x;
+                    }
+                }
+            }
+            for &f in dst.iter() {
+                mx = mx.max(f.abs());
+            }
+        }
+    }
+    (out, mx)
+}
+
+/// The Fl batch for row groups [i_lo, i_hi): either every value fits an
+/// i8 (the flat store the GEMM packs on its fast path — every real
+/// int8 weight tensor) or the boxed i64 rings.
+enum TtFlBatch {
+    I8(Vec<Vec<i8>>),
+    I64(Vec<Vec<Vec<i64>>>),
+}
+
+fn tt_fl_batch(t: &AggTensor, w0: &[i8], gt: &TtGridTensor, i_lo: usize, i_hi: usize) -> TtFlBatch {
+    let groups: Vec<(Vec<i64>, i64)> = if super::eval_proof::threads() > 1 && i_hi - i_lo > 1 {
+        tt_pool().install(|| {
+            use rayon::prelude::*;
+            (i_lo..i_hi).into_par_iter().map(|i| tt_fl_group_flat(t, w0, gt, i)).collect()
+        })
+    } else {
+        (i_lo..i_hi).map(|i| tt_fl_group_flat(t, w0, gt, i)).collect()
+    };
+    let mx = groups.iter().map(|(_, m)| *m).max().unwrap_or(0);
+    if mx <= 127 {
+        TtFlBatch::I8(groups.into_iter().map(|(v, _)| v.into_iter().map(|x| x as i8).collect()).collect())
+    } else {
+        TtFlBatch::I64(groups.into_iter().map(|(v, _)| v.chunks(super::D).map(|c| c.to_vec()).collect()).collect())
+    }
+}
+
+/// THE R1 v-PASS, device shape: the same GEMM as `tt_v_pass_r1`'s value
+/// form with the Fl batch built on the pool and packed flat-i8 when it
+/// fits (the GEMM hook's `as_i8` fast path: no scan, i8 staging).
+/// Values identical to `tt_v_pass_r1` (exact mod-q regrouping).
+pub fn tt_v_pass_r1_dev(
+    ctx: &RingCtx,
+    t: &AggTensor,
+    gt: &TtGridTensor,
+    w0: &[i8],
+    lo_y: &[Vec<KElem>],
+    conjq: &[Vec<Poly>],
+) -> Vec<Vec<Poly>> {
+    let zq = &ctx.zq;
+    let kd = super::kfield::K_DEG;
+    let nb = t.cols / super::D;
+    let g = gt.g_rows;
+    let n_groups = gt.n_groups;
+    let mut v = vec![vec![poly_zero(); n_groups]; kd];
+    let t0 = std::time::Instant::now();
+    let p = tt_inner_value_functionals(zq, g, nb, lo_y, conjq);
+    let a: Vec<&[Poly]> = p.iter().map(|pe| pe.as_slice()).collect();
+    tt_r1_add(TT_R1_P, t0);
+    let len = g * nb;
+    let batch = tt_r1_batch_groups(gt, nb);
+    let mut i_lo = 0;
+    while i_lo < n_groups {
+        let i_hi = (i_lo + batch).min(n_groups);
+        let t1 = std::time::Instant::now();
+        let fl = tt_fl_batch(t, w0, gt, i_lo, i_hi);
+        tt_r1_add(TT_R1_FL, t1);
+        let t2 = std::time::Instant::now();
+        let out = match &fl {
+            TtFlBatch::I8(gs) => {
+                let b: Vec<&[i8]> = gs.iter().map(|f| f.as_slice()).collect();
+                super::eval_proof::ntt_gemm_modq_small_gen::<[i8]>(ctx, &a, &b, len)
+            }
+            TtFlBatch::I64(gs) => {
+                let b: Vec<&[Vec<i64>]> = gs.iter().map(|f| f.as_slice()).collect();
+                super::eval_proof::ntt_gemm_modq_small_gen::<[Vec<i64>]>(ctx, &a, &b, len)
+            }
+        };
+        tt_r1_add(TT_R1_GEMM, t2);
+        let t3 = std::time::Instant::now();
+        let nbatch = i_hi - i_lo;
+        for e in 0..kd {
+            for (k, i) in (i_lo..i_hi).enumerate() {
+                v[e][i] = out[e * nbatch + k].clone();
+            }
+        }
+        tt_r1_add(TT_R1_OUT, t3);
+        i_lo = i_hi;
+    }
+    v
+}
+
+/// A strided column of the flat i8 witness: ring u = position `ib` of
+/// row group u (rings at base + u*width + ib), n_rings = G. The GEMM's
+/// B operand for the fold-as-GEMM (`tt_fold_r1`): the GEMM never calls
+/// `sub` (only the fold helpers do), so it is unreachable here.
+pub struct TtStridedCol<'a> {
+    pub flat: &'a [i8],
+    pub base: usize,
+    pub width: usize,
+    pub n_groups: usize,
+    pub ib: usize,
+}
+
+impl SmallRings for TtStridedCol<'_> {
+    #[inline(always)]
+    fn n_rings(&self) -> usize {
+        self.n_groups
+    }
+    #[inline(always)]
+    fn ring<'a>(&'a self, u: usize, buf: &'a mut [i64; super::D]) -> &'a [i64] {
+        let s = &self.flat[(self.base + u * self.width + self.ib) * super::D..][..super::D];
+        for (b, &x) in buf.iter_mut().zip(s.iter()) {
+            *b = x as i64;
+        }
+        &buf[..]
+    }
+    fn max_abs(&self) -> u128 {
+        let mut m = 0u8;
+        for u in 0..self.n_groups {
+            let s = &self.flat[(self.base + u * self.width + self.ib) * super::D..][..super::D];
+            for &x in s {
+                m = m.max(x.unsigned_abs());
+            }
+        }
+        m as u128
+    }
+    fn is_zero(&self, u: usize) -> bool {
+        self.flat[(self.base + u * self.width + self.ib) * super::D..][..super::D].iter().all(|&x| x == 0)
+    }
+    fn sub(&self, _lo: usize, _hi: usize) -> &Self {
+        unreachable!("TtStridedCol::sub: the GEMM contract never sub-slices its B operand")
+    }
+}
+
+/// THE R1 FOLD: w[ib] = sum_i c_i (x) row_i[ib] as ONE GEMM per tensor
+/// (a = the G fold challenges as mod-q rings, one slice; b = the width
+/// strided columns; len = G) — the device GEMM class instead of the
+/// combine class (tuned for r <= 64 challenges x many outputs; the
+/// two-tier fold is G ~ 10^3-10^4 challenges x width outputs). The
+/// output is centered back to the EXACT i64 fold (|w| <= the honest
+/// bound << q/2): identical to `fold_chunks_ntt_gen`.
+pub fn tt_fold_r1(ctx: &RingCtx, t: &AggTensor, gt: &TtGridTensor, w0: &[i8], cs: &[Vec<i64>]) -> Vec<Vec<i64>> {
+    let zq = &ctx.zq;
+    let q = zq.q;
+    let t0 = std::time::Instant::now();
+    assert_eq!(cs.len(), gt.n_groups, "one fold challenge per row group");
+    let c_polys: Vec<Poly> = cs.iter().map(|c| poly_from_small(zq, c)).collect();
+    let a: Vec<&[Poly]> = vec![c_polys.as_slice()];
+    let cols: Vec<TtStridedCol> = (0..gt.width)
+        .map(|ib| TtStridedCol { flat: w0, base: t.digit_ring_base, width: gt.width, n_groups: gt.n_groups, ib })
+        .collect();
+    let b: Vec<&TtStridedCol> = cols.iter().collect();
+    let out = super::eval_proof::ntt_gemm_modq_small_gen::<TtStridedCol>(ctx, &a, &b, gt.n_groups);
+    let half = q / 2;
+    let w: Vec<Vec<i64>> = out.iter().map(|p| p.iter().map(|&x| if x > half { x as i64 - q as i64 } else { x as i64 }).collect()).collect();
+    tt_r1_add(TT_R1_FOLD, t0);
+    w
 }
 
 /// THE R1 v-PASS: v[e][i] for one contrib on tensor `t` (grid `gt`),
@@ -668,18 +899,38 @@ pub fn tt_rows_from_v(zq: &Zq, kf: &KField, hi: &[KElem], v: &[Vec<Poly>], acc: 
             y
         })
         .collect();
-    for (i, h) in hi.iter().enumerate() {
+    // Per row group i: the 16 partial rows (a fixed-order sum over e);
+    // the partials are added in index order i (mod-q addition is
+    // associative and commutative — the same values in any layout).
+    let one = |i: usize| -> Vec<Poly> {
+        let h = &hi[i];
+        let mut part = vec![poly_zero(); kd];
         for e in 0..kd {
             let src = &v[e][i];
             if src.iter().all(|&x| x == 0) {
                 continue;
             }
             let hy = kf.mul(h, &ybasis[e]);
-            for (c, a) in acc.iter_mut().enumerate() {
+            for (c, a) in part.iter_mut().enumerate() {
                 if hy[c] != 0 {
                     *a = poly_add(zq, a, &poly_scale(zq, hy[c], src));
                 }
             }
+        }
+        part
+    };
+    let n = hi.len();
+    let parts: Vec<Vec<Poly>> = if super::eval_proof::threads() > 1 && n >= 64 {
+        tt_pool().install(|| {
+            use rayon::prelude::*;
+            (0..n).into_par_iter().map(one).collect()
+        })
+    } else {
+        (0..n).map(one).collect()
+    };
+    for part in parts {
+        for (c, a) in acc.iter_mut().enumerate() {
+            *a = poly_add(zq, a, &part[c]);
         }
     }
 }
