@@ -387,6 +387,129 @@ unknown in this memo and the reason lane QQ exists.**
 
 ## 3. The hardware factor: laptop -> desktop board -> H100, as a range
 
+No number in this section is measured on anything but the laptop.
+Every 8B and 30B wall in this repository was scaled from the laptop
+by a "4-6x desktop board" factor that the decision memo (S2, route
+3) introduced as [MODEL] and every later memo repeated (S3 §2.4,
+§3.3 "both unmeasured"). This section says where that factor comes
+from, why it is a range, and why an H100 is not simply "more".
+
+### 3.1 What kind of work the pass is
+
+From the measured 12x512 attribution (S1) and the kernel reports
+(S14), the pass is four kinds of work:
+
+1. **Integer ALU chains on the GPU**: the descent round kernels
+   multiply in the extension field GF(q^16) as ~363-instruction
+   `mad.wide.u32` chains; they run at 70-88% of a measured 1.7 G
+   K-mults/s register-only ceiling on this part (S14, GPU4 §4.5).
+   Compute-bound; scales with (SM count x clock). No tensor cores
+   are used anywhere — the arithmetic is exact modular integer.
+2. **Integer GEMM on the GPU**: the level-h blocks, int32 MACs at 74
+   G MAC/s (~30% of the part's integer peak), fed by a host pack and
+   an 11.7 GB/s pinned host-to-device copy (S14, GPU_REPORT). Partly
+   link-bound.
+3. **Streaming passes over u64 planes**: the fold, the aggregate
+   zero-check (Stage A), the CRS walk, the flat-store scans.
+   Memory-bandwidth-bound wherever they run.
+4. **Host-side work on 8 CPU threads**: host T rings 1.1 s, host PHI
+   MAC 0.9, tree-pack fill 0.75, CRS walk 0.7, transport, digits
+   (S1). The conversion note (S9) puts "~half the wall" on the CPU
+   at 12x512; the decision memo (S2 route 3) puts the remaining
+   host-device fills at ~2 s of the 21.
+
+So at 12x512 [MEASURED shares, this memo's grouping]: GPU-bound
+~35-40%, CPU-bound ~50%, link-bound ~10%. At 8B the routes memo
+argues the pass is >99% parallelizable work (S3 §2.4) — a statement
+about STRUCTURE (what could run on a device), not about what is
+ported today.
+
+### 3.2 The parts, from public spec sheets [EXTERNAL, spec sheet]
+
+| part | SMs | boost clock | SM x GHz (integer ALU proxy) | VRAM | VRAM bandwidth | host link | board power |
+|---|---:|---:|---:|---:|---:|---|---:|
+| RTX 4070 Laptop (AD106) — the measured part | 36 (S14 header) | 2.18 GHz spec max; at 55-70 W sustained ~1.5-2.0 [MODEL] | 54-72 | 8 GB | 256 GB/s | PCIe 4 x8; 11.7 GB/s measured (S14) | 55-70 W (S1) |
+| RTX 4090 (AD102) — "one desktop board" | 128 | 2.52 | 323 | 24 GB | 1,008 GB/s | PCIe 4 x16, ~25 GB/s | 450 W (= the contract's line, S12 §4) |
+| RTX 5090 (GB202) | 170 | 2.41 | 410 | 32 GB | 1,792 GB/s | PCIe 5 x16, ~50 GB/s | 575 W — OVER the contract's 450 W line |
+| H100 SXM5 | 132 | 1.98 | 261 | 80 GB HBM3 | 3,350 GB/s | PCIe 5 x16 / NVLink | 700 W |
+| H100 PCIe | 114 | 1.76 | 200 | 80 GB HBM2e | 2,000 GB/s | PCIe 5 x16 | 350 W |
+
+All five parts issue 64 int32 operations per SM per clock, so SM x
+GHz is the right proxy for work of kind 1 and 2. Ratios against the
+laptop's 54-72:
+
+| ratio vs the laptop | RTX 4090 | RTX 5090 | H100 SXM | H100 PCIe |
+|---|---:|---:|---:|---:|
+| integer compute (SM x GHz) | 4.5-6.0x | 5.7-7.6x | **3.6-4.8x** | 2.8-3.7x |
+| VRAM bandwidth | 3.9x | 7.0x | **13x** | 7.8x |
+| host link | ~2x | ~4x | ~4x | ~4x |
+| VRAM capacity | 3x | 4x | **10x** | 10x |
+
+The point most likely to surprise: **on scalar integer work an H100
+is not faster than a 4090** — it has fewer SM-GHz. Its two real
+advantages for THIS mix are memory bandwidth (3.3x a 4090) and
+capacity (80 GB: the only board where the 8B weight digit store,
+45 GB, is device-resident). The H100's headline numbers (tensor-core
+TFLOPS) do not apply to exact modular integer arithmetic.
+
+### 3.3 The composed factor, as a range with its reasoning
+
+Let c, g, l be the CPU-, GPU- and link-bound fractions of the pass
+wall on the laptop (0.50 / 0.375 / 0.10 at 12x512, §3.1), and k_c,
+k_g, k_l the per-resource speedups of the new machine. The composed
+factor is `1 / (c/k_c + g/k_g + l/k_l)` (Amdahl's law by resource).
+
+- **Nothing more ported, same host CPU** (k_c = 1): 4090 -> 1 /
+  (0.50 + 0.375/5 + 0.10/2) = **1.6x**; H100 -> 1 / (0.50 + 0.375/4
+  + 0.10/4) = **1.6x**. This is the floor, and it is what the GPU
+  report itself warned (S14 §4.5: "a ~2.5-3x further factor on the
+  ported share, NOT on the composed pass").
+- **Nothing more ported, a desktop/server host** (k_c = 2-4 from
+  2-4x the threads of the laptop's 8; the 8B pass is not memory-
+  bound on a 128-256 GB host): 4090 -> 1 / (0.50/3 + 0.075 + 0.05)
+  = **~3.4x**; H100 (server host, k_c ~ 4) -> 1 / (0.125 + 0.094 +
+  0.025) = **~4.1x**.
+- **Everything device-resident** (c -> 0, l -> 0; the routes memo's
+  8B structure assumption): the factor is the GPU's own ratio
+  weighted by how much of the work is compute-bound (kind 1-2)
+  versus bandwidth-bound (kind 3). 4090: 4-6x either way. H100: 3.6-
+  4.8x if compute-bound, up to ~13x if bandwidth-bound — the
+  conversion note's "5-15x" (S9) is this top case.
+
+**The ranges this memo uses** (and the §4 table shows both ends):
+
+| machine | factor over the laptop | low end means | high end means |
+|---|---:|---|---|
+| one desktop board (4090 class, <= 450 W) | **2-6x** [MODEL] | today's CPU/GPU split with a 2-3x better host | everything on the device, compute-bound |
+| one H100 (SXM) | **2-8x** [MODEL] | today's split, server host | device-resident, half of the work bandwidth-bound |
+
+The memos' "4-6x" for the board is the upper half of this range and
+presupposes the port. There is no measured point anywhere in it
+(S3 §3.3: "the box is busy ... no quiesced measurement exists"); the
+task board's choice C (S16 §7) is the purchase/rental that would
+turn one of these rows into a measurement.
+
+### 3.4 The per-proof memory floor (matters only for decode, and only under (c))
+
+Any design in which the prover walks every weight digit once per
+proof — which includes the two-tier fold of §2.4 — has a floor set
+by where the digit store lives and how fast it can be read:
+
+| weight digit store | size | laptop (8 GB VRAM, 15 GB RAM) | RTX 4090 (24 GB, link ~25 GB/s) | RTX 5090 (32 GB, link ~50 GB/s) | H100 (80 GB, HBM 3.35 TB/s) |
+|---|---:|---:|---:|---:|---:|
+| 8B, one byte per digit (as built: S8 §1.2 "w0 flat i8 store" 45.1 GB) | 45 GB | does not fit either memory | streamed from host: ~1.8 s | ~0.9 s | **resident: ~13 ms** |
+| 30B stand-in, one byte per digit | 172 GB | — | ~6.9 s | ~3.4 s | streamed from host: ~3.4 s |
+| 30B, two bits per digit (the weight digits are sign-binary, in {-1, 0, +1} — S3 §1.1; a packed store is a DESIGN NOTE, not built) | 43 GB [MODEL] | — | ~1.7 s | ~0.9 s | **resident: ~13 ms** |
+
+Reading for §7: at 30B a per-proof walk over the weights costs
+seconds per proof on every board unless the store is both packed
+and resident on an H100, where it costs ~13 ms — and 13 ms is
+already 65% of the 20 ms per-token budget of a 50 tok/s target at
+batch 1. Whatever the arithmetic constant turns out to be, batch-1
+decode at 50 tok/s on the lattice line needs a per-proof weight-side
+cost that does NOT walk the weight digits per token, or a batch of
+tokens per proof.
+
 ## 4. The tokens/s table
 
 ## 5. Audit of the 2026-08-30 task-board line
