@@ -6600,7 +6600,132 @@ RUNGS (prefix "U-PERF3 WW:"):
   uperf-s battery 48 legs 3752cba4..; agg-battery 136 legs
   46234986..; uperf-x be89d5da..; QQ's identity `uperf-t r1 diff 20 1
   161` PASS with WIRE DIGEST cae0b312.. (unchanged). Rung 0 commit:
-  (this entry's commit; hash recorded at rung 1).
+  89dcc51.
+- 2026-09-02 RUNG 1 — THE SOUNDNESS NOTE (before code; sources:
+  AGGREGATION_PARAMS_DESIGN.md §2.2 / §3.2-3.5 / §4.1-4.2, digits.rs
+  (the F-N2 exact-digit form), eval_proof.rs plan_schedule (row
+  H-gate-ed, row EB4-emax), the FF two-check structure of two_tier.rs).
+  SETTING. The group opening serves ONE thing: the alpha/K-batched
+  evaluation claim h_cur = Phi_0 . W over the committed level-0
+  witness W. In the built opening W = the digit rings (n0 rings,
+  |d| <= 2^(e0-1) per the class alphabet) and Phi_0 carries the
+  radix; the RANGE facts about W (each digit in alphabet(e0)) are NOT
+  the opening's — the pass proves them by the deterministic
+  exact-digit relations (digits.rs header: the range-table lookup /
+  Stage A's bit-plane zero-checks + the recomposition RingClaims) and
+  serves their final claims through the same opening. Variant B moves
+  the OPENED object at tier 1 to the recombined VALUE rings Fl_i
+  (|x| <= 2^(e_v-1), e_v public; int8: e_v 8, alphabet(8) =
+  [-128, 127] = CLASS_W8S's range, so a value ring is ONE balanced
+  digit at base 8, l0 = 1).
+  (1) WHAT THE BINDING RIDES ON — the SAME lemma, a NEW PARAMETER
+  ROW. Tier 1 is the Greyhound level-0 shape of PARAMS §2.2 (inner
+  Ajtai commitments u_i = A_B Fl_i over the row groups, the outer U
+  over their digits) with the fold w_v = sum_i c_i Fl_i under quinary
+  transcript challenges. Its binding is PARAMS §3.2-3.4 at digit base
+  e = e_v: the fold-norm law gamma_z = OP_CONC * 2^(e-1) * sqrt(n*D)
+  is stated for a general base (the alphabet enters ONLY through the
+  per-coefficient magnitude 2^(e-1)); the extraction slack of the
+  exact-digit reading (§3.4 row 2: fork 2 x dc-clearing 29.4 = 58.8)
+  is base-independent (it comes from the fork and from inverting a
+  challenge difference in the slot structure, LS18 invertibility —
+  not from the alphabet); so the extractor yields, per row group, an
+  opening Fl_i* of u_i with ||Fl_i*||_2 <= 58.8 * gamma_z(width_v,
+  e_v) <= q/8 exactly when the gate gate_headroom_bits(width_v, e_v,
+  q) >= 0 holds — the C2' condition beta_top <= q/8 of §3.3, and
+  MSIS binding of A_B at (kappa 11, width_v columns, beta_top). The
+  instance class is §3.3's top row with FEWER columns (width_v =
+  width/l0: 128-192 vs 1024-1536 at 12x512, 1792-2048 vs 14-16K at
+  8B) at the same kappa and beta_top — no easier (fewer short
+  vectors exist) [the core-SVP count of §3.3 is monotone in the
+  column count at fixed beta_top; a one-line check for O-7's table,
+  NOT re-run here — recorded as [MODEL]]. The frozen EB4-emax cap
+  (e <= 7, plan_schedule's per-level assert) is a cap on the
+  RECURSION's interior bases (the 1 B/coordinate wire codec and the
+  alphabet-table sizes inside the level loop); the tier-1 object
+  never enters plan_schedule — only the folded w's digits at e_u and
+  the u digits do, exactly as in the record — so e_v = 8 at tier 1
+  does not touch that row. VERDICT (1): no new lemma; the class
+  table gains a row {int8-value: min -128, max 127, e0 8, l0 1,
+  mod_q false} (non-wrap trivially OK) — a FREEZE-TABLE change
+  (UAGB1-1a semantics) that needs Victor's ruling before any freeze.
+  (2) THE GATES THAT MUST HOLD (per OPENED object, row H-gate-ed):
+  the row group (width_v, e_v) — [COUNTED, rung 0] +3.45 / +1.74 /
+  +1.42 bits at 12x512 / 8B / 30B (the tightest tensor); the folded
+  w (n_w_B, e_u) — +2.05 / +1.35 / +1.28 (GREENER than the record's
+  +1.05 / +0.08 / +0.02: 8x fewer folded rings beat the 2^7 larger
+  fold bound); the tier-2 u (n2, e_u) — unchanged +0.43 / +0.75 /
+  +0.77. Plus the honest-fold restart discipline: the prover asserts
+  |w_v|_inf <= fold_coeff_bound(G, e_v) and the verifier range-checks
+  it (V-clear) or its digits' alphabet facts (V-recursed).
+  (3) THE CLAIM SEMANTICS — unchanged from FF's argument. With the
+  extracted Fl_i* and random c, check (c) sum_j P_e[j] w_v[j] ==
+  sum_i c_i v_e[i] per (m, e) pins, by the conditioning argument of
+  PARAMS §4.1 (quinary challenges injective per slot, 2^-297 per
+  slot), v_e[i] == sum_j P_e[j] Fl_i*[j]: the served v ARE the
+  value-functional images of the committed value rings. Check (b)
+  then gives h_cur = sum_{i,e} b_e[i] (P_e . Fl_i*) = Phi_0^V . Fl*
+  with Phi_0^V the radix-free functional — and Phi_0^V . Fl == Phi_0
+  . digits(Fl) identically whenever Fl = sum_l radix_l digit_l (the
+  algebra DIFF 1-3 pin bit-for-bit against the built opening). FS
+  order v-before-c, u/U-before-v, b_rows-before-alpha as FF; the
+  knowledge-error terms are §3.5's (the tier-1 fold at base 8 adds
+  NO statistical term in the exact-digit reading: no JL).
+  (4) WHAT TIER 2 SEES — exactly the record's object: the u_i (kappa
+  mod-q rings per row group, the same G_all groups on the same grid)
+  as l_u balanced digits at e_u (the mod-q-native full-column
+  class, CLASS_Q31C semantics) bound by U and recursed by the frozen
+  planner (the proxy: u digits alone, n2 identical); the folded
+  w_v's digits (V-recursed) are a NARROW integer class (bound
+  2^17-2^18 << q/2, non-wrap OK) at l_z 4-7 limbs. The checks
+  (a)/(b)/(c) are verifier-side polynomial identities on served
+  objects with no norm content.
+  (5) WHAT IS NEW — WHERE THE RANGE FACT OF THE VALUE TIER LIVES (a
+  PROTOCOL OBLIGATION, said plainly). The statement needs |x| <= 128
+  per weight (CLASS_ACC24_768's interval arithmetic assumes it). The
+  fold norm alone does NOT give it: the extractor's 58.8 * gamma_z is
+  a RELAXED L2 bound on the whole row group (~2^22), not a
+  per-coefficient alphabet fact. So the int8 fact of the value tier
+  must be discharged by one of: (i) A PER-MODEL CERTIFICATE (the
+  preprocessing form Variant B's per-proof clock assumes): the digit
+  planes of the weights (the record's 8 sign-binary limbs) committed
+  ONCE per model alongside the value tier, their alphabet facts
+  proven once (alpha-independent), and the digits TIED to the value
+  tier by the F-N2 recomposition RingClaims (digits.rs
+  `digit_recomposition_claims`: sum_j 2^(e0 j) d_(j,u) - x_u = 0 over
+  R_q, constant public coefficients, sound over Z under
+  `recomposition_nonwrap_ok(1, 8, q)` — true, 255 << q/2), served
+  through ONE per-model opening; every per-proof opening then reuses
+  the same value-tier commitment (u_i, U: same CRS, same witness) for
+  the evaluation claim only — the standard commit-and-prove
+  composition (binding => both extractions yield the same Fl*). THE
+  CAVEAT: this is a SECOND opening of the same commitment, which the
+  aggregate layer's build rule E-O2-BB forbids (one batched opening
+  per group) — a ruling item, not a soundness gap (E-O2-BB is a
+  transcript-budget rule, and the record's weight precommit is
+  already treated as per-model discipline). (ii) A PER-PROOF 256-ROW
+  RANGE-TABLE LOOKUP over the value tier (the U-R2 machinery, LogUp
+  with committed multiplicities over Nv entries) with its final
+  claims opened through tier 1 as extra contribs — keeps E-O2-BB,
+  adds a linear pass over Nv per proof (44M at 8B) that Variant B
+  was meant to remove: the fallback, priced not built. Recorded, not
+  claimed: the record's own weight range fact via 8 sign-binary limbs
+  proves |x| <= 255 (representable(1, 8)) unless the shared sign is
+  separately claimed; the base-8 alphabet fact proves exactly
+  [-128, 127] — a tightening.
+  CONCLUSION. No new LEMMA: the tier-1 binding/extraction is PARAMS
+  §3.2-3.4's exact-digit argument at base e_v = 8 with the MSIS
+  instance at 8x fewer columns — a new PARAMETER ROW under the same
+  lemma, plus a class-table row {e0 8, l0 1}. What IS new is a
+  PROTOCOL OBLIGATION: the int8 range fact of the value tier lives in
+  a per-model certificate (digit planes + F-N2 recomposition claims +
+  a second opening of the value-tier commitment) or a per-proof
+  256-row lookup — neither built by this spike (FF's spike did not
+  build the record's range facts either; the opening alone is the
+  subject) — and it needs Victor's ruling (E-O2-BB, the class row)
+  before any freeze. The build continues as a MEASURED spike with the
+  S4/QQ criteria: claims bit-identical, gates green, the per-proof
+  wall ratio at the bar. Rung 1 commit: (this entry).
 
 ## Agent WW status (wt-uperf3-ww) — round 11
 
