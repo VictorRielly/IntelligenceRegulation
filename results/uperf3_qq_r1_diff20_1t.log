@@ -1,0 +1,26 @@
+[UPERF3-FF] diff [v-pass R1]: 6 tensors / 809984 digit rings (~2^19.6), 7 contribs, ZK_THREADS 1 [WSL-BOX 1T|NOISY-SHARED], seed 161
+[UPERF3-QQ]   R1 form for ta: Value (recombined |value| <= 42, window 1597830 terms)
+[UPERF3-QQ]   R1 form for tb: Value (recombined |value| <= 255, window 263172 terms)
+[UPERF3-QQ]   R1 form for tc: Value (recombined |value| <= 682, window 98400 terms)
+[UPERF3-QQ]   R1 form for td: Value (recombined |value| <= 2730, window 24582 terms)
+[UPERF3-QQ]   R1 form for te: Value (recombined |value| <= 10, window 6710887 terms)
+[UPERF3-QQ]   R1 form for tf: Value (recombined |value| <= 42, window 1597830 terms)
+[UPERF3-FF]   grid ta: g_rows 8 width 768 n_groups 64 (e0 2 l0 3)
+[UPERF3-FF]   grid tb: g_rows 1 width 512 n_groups 1024 (e0 1 l0 8)
+[UPERF3-FF]   grid tc: g_rows 8 width 640 n_groups 32 (e0 2 l0 5)
+[UPERF3-FF]   grid td: g_rows 2 width 768 n_groups 256 (e0 2 l0 6)
+[UPERF3-FF]   grid te: g_rows 8 width 512 n_groups 32 (e0 2 l0 2)
+[UPERF3-FF]   grid tf: g_rows 32 width 768 n_groups 4 (e0 2 l0 3)
+[UPERF3-FF]   factored-kernel invariant: scale *K eq == hi *K lo on every row, 7/7 contribs
+[UPERF3-FF]   oracle bg_prove_group + verify: ACCEPT in 21.63s (forced 2-level schedule)
+[UPERF3-FF]   two-tier prove 8.58s + verify 2.48s: ACCEPT (binding + U rebind + claim + consistency + w range)
+[UPERF3-FF]   DIFF 1: b_row images BYTE-IDENTICAL (16 rows) two-tier vs built GroupEvalProof.b_rows; ct row = v_batch
+[UPERF3-FF]   DIFF 2: per-contrib MLE claim rows: sum_m rows_m == b_rows; H_m == alphas . rows_m POLY-EXACT, 7/7 contribs
+[UPERF3-FF]   DIFF 3: batched opening target h_cur IDENTICAL: two-tier == built b_rows route == sum_m H_m (same drawn alphas)
+[UPERF3-FF]   REJECT w tamper: tt-fold-binding
+[UPERF3-FF]   REJECT v tamper: tt-fold-binding
+[UPERF3-FF]   REJECT u tamper: tt-u-binding
+[UPERF3-FF]   REJECT b_rows tamper: tt-ct-row-gate
+[UPERF3-FF]   REJECT lying-v + honest refold (binding passes): tt-consistency
+[UPERF3-FF]   REJECT lying b_rows non-ct coeff + honest refold: tt-claim
+[UPERF3-FF] diff PASS: 3 differential legs + 6 reject legs in 49.1s, peak RSS 2594 MiB

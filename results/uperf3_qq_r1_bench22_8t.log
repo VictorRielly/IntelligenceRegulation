@@ -1,0 +1,35 @@
+[UPERF3-FF] bench [2^22 synth, v-pass R1]: n0 = 2972672 (~2^21.5), 6 tensors / 7 contribs, G_all 2626, u digits e6 x 6 -> n2 173316, ZK_THREADS 8 [WSL-BOX 8T|NOISY-SHARED]
+[UPERF3-FF]   tt prove phases: rows 0.33s, tier1+tier2 commit 4.91s, v-passes 2.29s, FOLD WALL 0.73s
+[UPERF3-FF]   tt verify 3.25s total: replay+range 0.34, u-rebind 0.80, (a) binding 0.22, (c) consistency 1.30, (b) claim 0.58
+[UPERF3-FF]   proxy recursion input: 173316 rings at e6 -> 7 levels, floor 945 rings e7
+[UPERF3-FF]   proxy recursion: precommit 0.22s, prove 0.71s, verify 0.16s
+[UPERF3-FF]   baseline schedule: 8 levels, floor 936 rings e7, level-0 r 56 chunk 53084
+[UPERF3-FF]   b_row images BYTE-IDENTICAL two-tier vs built at this shape (16 rows)
+[UPERF3-FF]   baseline: bg_precommit 2.90s, bg_prove_group 8.26s, bg_verify_group 1.18s (psi0-factored level-0 term alone 0.26s)
+[UPERF3-FF]   PROVE-GROUP-EQUIVALENT: tt 4.06s core (rows+v+fold+recursion; +commit-class 9.20s) vs bg_prove_group 8.26s -> RATIO 2.03x core / 1.21x with-commit (acceptance >= 5x at >= 2^22)
+[UPERF3-FF]   VERIFIER 1T-class: tt_verify 3.25s (+ proxy recursion verify 0.16s) vs built verify 1.18s / its psi0 level-0 term 0.26s (acceptance: level-0 term sub-second at the spike shape)
+[UPERF3-FF]   BYTES spike-clear: b_rows 8256 + u 14905176 + U 5676 + v 26155008 + w 4063232 + recursion block 174664 = 45312012 vs built GroupEvalProof 179192 [the production form recurses u/v/w — the V-recursed planner row; clear-u/v are the spike's measured overhead]
+[UPERF3-FF] bench done in 62.5s, peak RSS 4993 MiB [WSL-BOX 8T|NOISY-SHARED]
+	Command being timed: "/home/victor/wt-uperf3-qq/zkmatrix-rs/target/release/ring_matmul uperf-t r1 bench 22 8 161"
+	User time (seconds): 140.91
+	System time (seconds): 13.01
+	Percent of CPU this job got: 245%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:02.62
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 5112900
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 3275613
+	Voluntary context switches: 243515
+	Involuntary context switches: 265
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

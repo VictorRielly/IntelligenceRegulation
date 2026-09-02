@@ -472,6 +472,218 @@ pub fn tt_v_from_qr(
     v
 }
 
+// ---------------------------------------------------------------------------
+// [UPERF3-QQ] Round 10, rung 2 — THE FACTORED v-PASS (redesign memo §2 R1,
+// the C-R1 swap-order form), written out over value rings:
+//
+//   v[e][i] = sum_{j=(r,cb)} P_e[j] (x) Fl_i[j],
+//   P_e[(r,cb)] = sum_d loY[r][d][e] * conjQ[cb][d]     (mod-q rings),
+//   Fl_i[(r,cb)] = sum_l radix_l * digit_l              (the recombined value ring),
+//
+// which is ONE call of the built `ntt_gemm_modq_small_gen` contract
+// (a = 16 slices of nb*g mod-q rings, b = G slices of nb*g small
+// rings, out[e * G + i]) — the kernel the level-0 commitment rides
+// (AVX2 body, GPU hook). The same D-domain MAC count as `tt_qr_pass`
+// (16 Nv D) with one forward transform per value ring instead of one
+// forward + one inverse per (row, cb, d) product. Exact mod-q
+// regrouping only: pinned bit-for-bit by the FF differential legs
+// (`uperf-t r1 diff`). The S4 functions above are untouched.
+//
+// The DIGIT form (`R1Form::Digit`) is the same GEMM over the tensor's
+// digit rings with the radix folded into P (a = 16 x width rings, b =
+// the flat i8 row-group slices, the pack fast path): l0x the MACs of
+// the value form, used where the recombined value would overflow the
+// single-prime exact-integer window (act-class tensors at l0 >= ~12).
+
+/// Which operand layout the R1 GEMM uses for a tensor.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum R1Form {
+    /// b = recombined value rings (i64), a = P over (r, cb).
+    Value,
+    /// b = the flat i8 digit rings, a = radix_l * P over (r, cb, l).
+    Digit,
+}
+
+/// The largest |Fl| a tensor's recombined value ring can carry
+/// (alphabet(e0) bound x sum of radices).
+pub fn tt_value_bound(t: &AggTensor) -> u128 {
+    let (lo, hi) = super::digits::alphabet(t.e0);
+    let dmax = lo.unsigned_abs().max(hi.unsigned_abs()) as u128;
+    let mut s: u128 = 0;
+    for l in 0..t.l0 {
+        s += 1u128 << (t.e0 as usize * l);
+    }
+    dmax * s
+}
+
+/// The form the R1 pass takes for a tensor: the value form whenever
+/// the recombined bound fits at least one exact-integer window of
+/// the GEMM (every CLASS_W8S weight tensor; the act classes up to
+/// l0 ~11), else the digit form.
+pub fn tt_r1_form_for(q: u64, t: &AggTensor) -> R1Form {
+    if super::eval_proof::ntt_window_terms(q, tt_value_bound(t)) >= 1 {
+        R1Form::Value
+    } else {
+        R1Form::Digit
+    }
+}
+
+/// P over value positions: P[e][r*nb + cb] = sum_d loY[r][d][e] *
+/// conjQ[cb][d] (no radix) — `tt_inner_functionals` without the limb
+/// axis.
+pub fn tt_inner_value_functionals(zq: &Zq, g_rows: usize, nb: usize, lo_y: &[Vec<KElem>], conjq: &[Vec<Poly>]) -> Vec<Vec<Poly>> {
+    let kd = super::kfield::K_DEG;
+    let mut p = vec![vec![poly_zero(); g_rows * nb]; kd];
+    for r in 0..g_rows {
+        for cb in 0..nb {
+            for d in 0..kd {
+                for (e, pe) in p.iter_mut().enumerate() {
+                    let s = lo_y[r][d][e];
+                    if s != 0 {
+                        let slot = &mut pe[r * nb + cb];
+                        *slot = poly_add(zq, slot, &poly_scale(zq, s, &conjq[cb][d]));
+                    }
+                }
+            }
+        }
+    }
+    p
+}
+
+/// The recombined value rings of row groups [i_lo, i_hi) of a tensor,
+/// one Vec<i64> per (row, cb) position: Fl = sum_l radix_l * digit_l
+/// (the `tt_qr_pass` recombination, batched per row group).
+pub fn tt_fl_row_groups(t: &AggTensor, w0: &[i8], gt: &TtGridTensor, i_lo: usize, i_hi: usize) -> Vec<Vec<Vec<i64>>> {
+    let nb = t.cols / super::D;
+    let g = gt.g_rows;
+    let mut buf = [0i64; super::D];
+    (i_lo..i_hi)
+        .map(|i| {
+            let mut out = Vec::with_capacity(g * nb);
+            for r in 0..g {
+                let row = i * g + r;
+                for cb in 0..nb {
+                    let vr = row * nb + cb;
+                    let mut fl = vec![0i64; super::D];
+                    for l in 0..t.l0 {
+                        let u = t.digit_ring_base + vr * t.l0 + l;
+                        let ring = SmallRings::ring(w0, u, &mut buf);
+                        let rad = 1i64 << (t.e0 as usize * l);
+                        for (f, &x) in fl.iter_mut().zip(ring.iter()) {
+                            if x != 0 {
+                                *f += rad * x;
+                            }
+                        }
+                    }
+                    out.push(fl);
+                }
+            }
+            out
+        })
+        .collect()
+}
+
+/// Row groups per GEMM call (bounds the materialized Fl batch to
+/// ~64K value rings = 64 MiB of i64 rings).
+fn tt_r1_batch_groups(gt: &TtGridTensor, nb: usize) -> usize {
+    let per_group = gt.g_rows * nb;
+    ((1usize << 16) / per_group.max(1)).clamp(1, gt.n_groups.max(1))
+}
+
+/// THE R1 v-PASS: v[e][i] for one contrib on tensor `t` (grid `gt`),
+/// as GEMM calls over batches of row groups. Returns [e][i] like
+/// `tt_v_from_qr`.
+pub fn tt_v_pass_r1(
+    ctx: &RingCtx,
+    t: &AggTensor,
+    gt: &TtGridTensor,
+    w0: &[i8],
+    lo_y: &[Vec<KElem>],
+    conjq: &[Vec<Poly>],
+    form: R1Form,
+) -> Vec<Vec<Poly>> {
+    let zq = &ctx.zq;
+    let kd = super::kfield::K_DEG;
+    let nb = t.cols / super::D;
+    let g = gt.g_rows;
+    let n_groups = gt.n_groups;
+    let mut v = vec![vec![poly_zero(); n_groups]; kd];
+    match form {
+        R1Form::Value => {
+            let p = tt_inner_value_functionals(zq, g, nb, lo_y, conjq);
+            let a: Vec<&[Poly]> = p.iter().map(|pe| pe.as_slice()).collect();
+            let len = g * nb;
+            let batch = tt_r1_batch_groups(gt, nb);
+            let mut i_lo = 0;
+            while i_lo < n_groups {
+                let i_hi = (i_lo + batch).min(n_groups);
+                let fl = tt_fl_row_groups(t, w0, gt, i_lo, i_hi);
+                let b: Vec<&[Vec<i64>]> = fl.iter().map(|f| f.as_slice()).collect();
+                let out = super::eval_proof::ntt_gemm_modq_small_gen::<[Vec<i64>]>(ctx, &a, &b, len);
+                for e in 0..kd {
+                    for (k, i) in (i_lo..i_hi).enumerate() {
+                        v[e][i] = out[e * b.len() + k].clone();
+                    }
+                }
+                i_lo = i_hi;
+            }
+        }
+        R1Form::Digit => {
+            // a = radix_l * P over (r, cb, l) = the S4 inner functional
+            // (digit rings); b = the flat i8 row-group slices.
+            let a_dig = tt_inner_functionals(ctx, t, g, lo_y, conjq);
+            let a: Vec<&[Poly]> = a_dig.iter().map(|pe| pe.as_slice()).collect();
+            let len = gt.width;
+            let batch = tt_r1_batch_groups(gt, nb * t.l0);
+            let mut i_lo = 0;
+            while i_lo < n_groups {
+                let i_hi = (i_lo + batch).min(n_groups);
+                let b: Vec<&[i8]> = (i_lo..i_hi)
+                    .map(|i| SmallRings::sub(w0, t.digit_ring_base + i * len, t.digit_ring_base + (i + 1) * len))
+                    .collect();
+                let out = super::eval_proof::ntt_gemm_modq_small_gen::<[i8]>(ctx, &a, &b, len);
+                for e in 0..kd {
+                    for (k, i) in (i_lo..i_hi).enumerate() {
+                        v[e][i] = out[e * b.len() + k].clone();
+                    }
+                }
+                i_lo = i_hi;
+            }
+        }
+    }
+    v
+}
+
+/// The claim-row images recovered from v (the count's fact (2)):
+/// b_rows[c] += sum_i sum_e (hi[i] *K Y^e)[c] * v[e][i] — accumulated
+/// into `acc` (16 rings) for one contrib. With row_ker = hi *K lo this
+/// equals the built kernel pass's contribution POLY-EXACTLY (pinned by
+/// DIFF 1 against GroupEvalProof.b_rows).
+pub fn tt_rows_from_v(zq: &Zq, kf: &KField, hi: &[KElem], v: &[Vec<Poly>], acc: &mut [Poly]) {
+    let kd = super::kfield::K_DEG;
+    let ybasis: Vec<KElem> = (0..kd)
+        .map(|e| {
+            let mut y = kf.zero();
+            y[e] = 1;
+            y
+        })
+        .collect();
+    for (i, h) in hi.iter().enumerate() {
+        for e in 0..kd {
+            let src = &v[e][i];
+            if src.iter().all(|&x| x == 0) {
+                continue;
+            }
+            let hy = kf.mul(h, &ybasis[e]);
+            for (c, a) in acc.iter_mut().enumerate() {
+                if hy[c] != 0 {
+                    *a = poly_add(zq, a, &poly_scale(zq, hy[c], src));
+                }
+            }
+        }
+    }
+}
+
 /// sum_e sum_i b[i][e] * v[e][i] — the contrib's claim reconstruction
 /// H_m (and, summed over contribs, the served opening target).
 pub fn tt_claim_sum(ctx: &RingCtx, b: &[Vec<Poly>], v: &[Vec<Poly>]) -> Poly {

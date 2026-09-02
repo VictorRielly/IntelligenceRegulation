@@ -5121,6 +5121,62 @@ ONE GPU (H100-class allowed), written so a newcomer can follow it:
   from four measured classes; rungs 2-4 measure.
   Floors at commit: build green; diff-battery 15.63 s; freeze-check
   102 ok + passed; uperf-s 3752cba4.., agg 46234986.., uperf-x
+  be89d5da.. unchanged. Rung 1 commit: 1fa6611.
+- 2026-09-02 RUNG 2 — R1 ON THE CPU: GREEN, bit-identical; v-pass
+  6.1x [MEASURED]. BUILT: ring::two_tier (ADDITIVE; the S4 functions
+  untouched): `R1Form {Value, Digit}` + `tt_r1_form_for` (value form
+  whenever the recombined |value| fits >= 1 exact-integer window of
+  the GEMM — every CLASS_W8S weight tensor and every tensor of the FF
+  synthetic; the digit form is the same GEMM over the flat i8 digit
+  rings with the radix in P, for act classes beyond l0 ~11),
+  `tt_inner_value_functionals` (P_e over (r, cb)), `tt_fl_row_groups`
+  (the recombined value rings per row-group batch), `tt_v_pass_r1`
+  (batches of <= 64K value rings through `ntt_gemm_modq_small_gen`,
+  a = 16 x (nb g) mod-q rings, b = G x (nb g) small rings),
+  `tt_rows_from_v` (b_rows recovered from v). Bin: `TtVMode {S4, R1}`
+  threaded through tt_prove (the two FF call sites pass S4 — the
+  spike path is unchanged: `uperf-t diff 20 1 161` re-run, same
+  legs, same verdicts); in R1 mode the v-vectors are computed FIRST
+  (they never see the transcript), b_rows are recovered from them,
+  and the wire/absorption order is identical. `uperf-t r1 diff|bench`.
+  DIFFERENTIAL (`uperf-t r1 diff 20 1 161`, results/uperf3_qq_r1_diff20_1t.log)
+  [WSL-BOX 1T NOISY-SHARED]: all six tensors take the Value form
+  (windows 24,582-6.7M terms); DIFF 1 b_row images BYTE-IDENTICAL vs
+  the built GroupEvalProof.b_rows — in R1 mode the images are
+  RECOVERED FROM v, so this leg now pins the count's fact (2); DIFF 2
+  H_m == alphas . rows_m POLY-EXACT 7/7; DIFF 3 h_cur identical; the
+  6 reject legs fire at the same gates (tt-fold-binding x2,
+  tt-u-binding, tt-ct-row-gate, tt-consistency, tt-claim). two-tier
+  prove 8.58 s (R1) vs 16.18 s (S4, same box, concurrently) at
+  2^19.6; oracle 21.6 s; peak RSS 2594 MiB.
+  THE 2^22 MEASUREMENT (the FF bench harness in R1 mode;
+  results/uperf3_qq_r1_bench22_{1t,8t}.log; flock, /usr/bin/time -v):
+  | [WSL-BOX NOISY-SHARED] | S4 bench22_1t_v2 | R1 1T | R1 8T |
+  |---|---:|---:|---:|
+  | rows pass (S4: kernel pass; R1: rows-from-v) | 1.45 | **0.34** | 0.33 |
+  | v-passes | **20.01** | **3.26** (6.1x) | 2.29 |
+  | fold | 2.25 | 2.59 | 0.73 |
+  | tier1+tier2 commit (per-model class) | 14.59 | 16.41 | 4.91 |
+  | proxy recursion precommit + prove | 0.44 + 1.73 | 0.67 + 2.21 | 0.22 + 0.71 |
+  | tt core (rows+v+fold+rec) | 25.44 | **8.41** | 4.06 |
+  | bg_precommit / bg_prove_group | 7.10 / 27.91 | 7.23 / 28.74 | 2.90 / 8.26 |
+  | PROVE-GROUP-EQUIVALENT core ratio | 1.10x | **3.42x** | 2.03x |
+  | with-commit ratio | ~0.6x | 1.41x | 1.21x |
+  | tt_verify (unchanged by R1) | 3.93 | 4.80 | 3.25 |
+  | peak RSS | 4913 MiB | 4963 MiB | 4993 MiB |
+  READING: R1 on the CPU takes the S4 core from 1.10x to 3.42x at
+  1T — above the memo's 1.6-2.5x composed ceiling (the memo priced
+  the swap-order S-pass as scalar row-nb MACs and missed the GEMM
+  identity), below the 5x bar: the remaining core is fold 2.59 +
+  recursion 2.21 = 57%, exactly the two terms the count names as
+  the design-of-record floor. The R1 v-pass measured 3.26 s vs the
+  count's 1.94 s [MODEL C8] — the CPU GEMM body plus the i64 Fl
+  materialization and the P precompute on a noisy box; the GPU
+  measurement (rung 3) is the one the count is about. Bytes and the
+  verifier are untouched (criterion 3 was never R1's). ACCEPT per
+  the rung's own criterion (bit-identical; ratio recorded).
+  Floors at commit: build green; diff-battery green; freeze-check
+  102 ok + passed; uperf-s 3752cba4.., agg 46234986.., uperf-x
   be89d5da.. unchanged.
 
 ## Agent RR status (wt-uperf3-rr) — round 10
