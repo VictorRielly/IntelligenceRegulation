@@ -133,6 +133,32 @@ static S_HELD_PEAK: AtomicU64 = AtomicU64::new(0);
 fn add_us(s: &AtomicU64, secs: f64) {
     s.fetch_add((secs * 1e6) as u64, Ordering::Relaxed);
 }
+/// [UPERF3-WW] round 11, rung 1 (ADDITIVE) — give the module's device
+/// buffers back: the table / eq / ab buffers are grown per `zc_agg_open`
+/// and KEPT across the aggregates of one Stage-A phase for reuse (12
+/// opens, one allocation); nothing gave them back before the process
+/// ended. The driver calls this at the END of the Stage-A phase so that
+/// the later device users see the VRAM — MEASURED 2026-09-02 at 12x512:
+/// the 3.31 GB held here (plus k9's own idle slabs) left the device at
+/// "free 0.00 GB" during an in-process oracle leg's claim layer; the ixf
+/// module declined its tables and k9's next upload failed with
+/// CUDA_ERROR_INVALID_VALUE, which disables the descent kernels for the
+/// rest of the process (the "cold descents, 54.9 s" of leg C). The
+/// module stays live (not bypassed, not disabled): the next open
+/// re-grows. A no-op while a chain is live (the protocol owns the
+/// buffers) or before the first open. Returns the bytes released.
+pub fn zc_agg_release() -> usize {
+    let Some(Some(k)) = ZCS.get() else { return 0 };
+    let mut k = k.lock().unwrap();
+    if k.chain.is_some() {
+        return 0;
+    }
+    let before = k.held;
+    let _ = k.dev.bind_to_thread();
+    k.release();
+    before.saturating_sub(k.held)
+}
+
 pub fn zc_stats() -> ZcStats {
     ZcStats {
         instances: S_INST.load(Ordering::Relaxed),

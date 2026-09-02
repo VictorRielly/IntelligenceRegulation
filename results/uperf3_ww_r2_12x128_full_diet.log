@@ -1,0 +1,128 @@
+[UPERF3-SS] full-mode routing: SsCfg { kappa_silu: 4, route_nrw: None, tamper_sum: false }
+[UPERF3-GG] STAGE-A composed pass: 12 layers, T = 128, mode full-ss [WSL-BOX NOISY-SHARED]
+  [UPERF3-SS] RSS high-water after the act-h commit (phase B): 2229 MiB
+  [UPERF3-SS] RSS high-water after the Stage-A phase (phase C): 2282 MiB
+  [UPERF3-WW] device residency given back after the Stage-A phase: zc aggregate buffers 0.83 GB, k9 idle slabs/buffers 0.01 GB
+[UPERF2-F] RSS bg.weight.rows-pass          hwm     2282 MiB  rss     2257 MiB
+[UPERF2-F] RSS bg.weight.phi-pass           hwm     2282 MiB  rss     2265 MiB
+[UPERF2-F] RSS bg.weight.level0-h           hwm     2335 MiB  rss     2335 MiB
+[UPERF2-F] RSS bg.weight.level0-fold        hwm     2666 MiB  rss     2143 MiB
+[UPERF2-F] RSS bg.weight.level1             hwm     2666 MiB  rss     2524 MiB
+[UPERF2-F] RSS bg.weight.level2             hwm     2666 MiB  rss     2610 MiB
+[UPERF2-F] RSS bg.weight.level3             hwm     2666 MiB  rss     2616 MiB
+[UPERF2-F] RSS bg.weight.level4             hwm     2666 MiB  rss     2619 MiB
+[UPERF2-F] RSS bg.weight.level5             hwm     2666 MiB  rss     2626 MiB
+[UPERF2-F] RSS bg.weight.level6             hwm     2666 MiB  rss     2633 MiB
+[UPERF2-F] RSS bg.weight.level7             hwm     2666 MiB  rss     2639 MiB
+[UPERF2-F] RSS bg.act.rows-pass             hwm     2676 MiB  rss     2676 MiB
+[UPERF2-F] RSS bg.act.phi-pass              hwm     2778 MiB  rss     2778 MiB
+[UPERF2-F] RSS bg.act.level0-h              hwm     2786 MiB  rss     2786 MiB
+[UPERF2-F] RSS bg.act.level0-fold           hwm     2930 MiB  rss     2299 MiB
+[UPERF2-F] RSS bg.act.level1                hwm     2930 MiB  rss     2642 MiB
+[UPERF2-F] RSS bg.act.level2                hwm     2930 MiB  rss     2527 MiB
+[UPERF2-F] RSS bg.act.level3                hwm     2930 MiB  rss     2529 MiB
+[UPERF2-F] RSS bg.act.level4                hwm     2930 MiB  rss     2531 MiB
+[UPERF2-F] RSS bg.act.level5                hwm     2930 MiB  rss     2535 MiB
+[UPERF2-F] RSS bg.act.level6                hwm     2930 MiB  rss     2542 MiB
+[UPERF2-F] RSS bg.act.level7                hwm     2930 MiB  rss     2548 MiB
+[UPERF2-F] RSS bg.act-h.rows-pass           hwm     2930 MiB  rss     2602 MiB
+[UPERF2-F] RSS bg.act-h.phi-pass            hwm     2978 MiB  rss     2978 MiB
+[UPERF2-F] RSS bg.act-h.level0-h            hwm     2985 MiB  rss     2985 MiB
+[UPERF2-F] RSS bg.act-h.level0-fold         hwm     3053 MiB  rss     2333 MiB
+[UPERF2-F] RSS bg.act-h.level1              hwm     3053 MiB  rss     3019 MiB
+[UPERF2-F] RSS bg.act-h.level2              hwm     3053 MiB  rss     3020 MiB
+[UPERF2-F] RSS bg.act-h.level3              hwm     3053 MiB  rss     3020 MiB
+[UPERF2-F] RSS bg.act-h.level4              hwm     3053 MiB  rss     3020 MiB
+[UPERF2-F] RSS bg.act-h.level5              hwm     3053 MiB  rss     3020 MiB
+[UPERF2-F] RSS bg.act-h.level6              hwm     3053 MiB  rss     3020 MiB
+  [UPERF3-SS] PASS TRANSCRIPT DIGEST 4b02815d2a1e2e6b8c05725a43cab18c797a74c793cc2b4bde05b12f5c5e6c9f
+  [UPERF3-SS] RSS high-water after the group proofs (prover done): 3053 MiB
+  [UPERF3-WW] prover's claims + witness dropped before the verifier: current RSS 1900 MiB
+  STAGE-A pass: commit 3.6s prove 27.5s verify 4.6s | 860867 B counted | accept true
+  bytes: statement 26107 + instances 35008 + STAGE-A 263632 + publics 1536 + groups 534584 ( weight 179576 B; act 179576 B; act-h 175432 B;)
+  groups: weight n_0 3538944 (8 lv), act n_0 3086576 (8 lv), act-h n_0 393216 (7 lv)
+  [UPERF3-WW] RSS high-water after the verifier: 3090 MiB
+  claims served: 427 (act/weight) + 14 (act-h) = 441
+  [UPERF3-SS] full-ss: kappa_silu 4 route None | act-h tensors zca-h-silu-m3 163840x16 327680 rings, zca-h-silu-m4 32768x16 65536 rings | helper build 1.23s, lookup sumchecks 14.65s
+[UPERF3-RR] ATTRIBUTION mode full-ss + zc claims BATCHED (the Stage-A default since round 11; ZK_RR_ZC_CLAIMS=gg = GG's per-column form) (walls s; 8 threads):
+  commit 3.58: groups+planes 1.02 | witness 0.55 | precommit weight 1.04 | precommit act 0.89 | statement 0.07
+  prove 27.53: claim-layer 0.97 | stage-a phase 16.95 = silu descents 0.00 + logup 0.00 + zc tabs-build 0.07 + zc prove 0.75 (eq 0.00 rounds 0.27 folds 0.03; 240 rounds, 20.90 G MACs) + zc claims-transport 0.07 + other 16.06 | publics+nus 0.02 | opening weight 2.38 | opening act 4.07 | tail 3.13
+    zc nrw-88   class 0: m 24 x 2^18 w  8 (n_tot 23): tabs 0.03s | prove 0.33s (eq 0.00 rounds 0.08 folds 0.00; 23 rounds, 7.65 G MACs) | claims 0.02s
+    zc nrw-z    class 0: m 12 x 2^17 w  8 (n_tot 21): tabs 0.00s | prove 0.05s (eq 0.00 rounds 0.02 folds 0.00; 21 rounds, 1.91 G MACs) | claims 0.01s
+    zc rem-w5   class 0: m  4 x 2^18 w  5 (n_tot 20): tabs 0.00s | prove 0.03s (eq 0.00 rounds 0.01 folds 0.00; 20 rounds, 0.62 G MACs) | claims 0.00s
+    zc rem-w6   class 0: m  6 x 2^18 w  6 (n_tot 21): tabs 0.00s | prove 0.04s (eq 0.00 rounds 0.02 folds 0.00; 21 rounds, 1.47 G MACs) | claims 0.00s
+    zc rem-w6   class 1: m  1 x 2^17 w  6 (n_tot 17): tabs 0.00s | prove 0.01s (eq 0.00 rounds 0.01 folds 0.00; 17 rounds, 0.09 G MACs) | claims 0.00s
+    zc rem-w7   class 0: m  6 x 2^18 w  7 (n_tot 21): tabs 0.00s | prove 0.05s (eq 0.00 rounds 0.02 folds 0.00; 21 rounds, 1.69 G MACs) | claims 0.01s
+    zc rem-w7   class 1: m  4 x 2^17 w  7 (n_tot 19): tabs 0.00s | prove 0.03s (eq 0.00 rounds 0.01 folds 0.00; 19 rounds, 0.42 G MACs) | claims 0.00s
+    zc rem-w8   class 0: m 15 x 2^18 w  8 (n_tot 22): tabs 0.01s | prove 0.09s (eq 0.00 rounds 0.04 folds 0.00; 22 rounds, 3.82 G MACs) | claims 0.02s
+    zc rem-w8   class 1: m  2 x 2^17 w  8 (n_tot 18): tabs 0.00s | prove 0.02s (eq 0.00 rounds 0.01 folds 0.00; 18 rounds, 0.24 G MACs) | claims 0.00s
+    zc rem-w9   class 0: m  5 x 2^18 w  9 (n_tot 21): tabs 0.01s | prove 0.05s (eq 0.00 rounds 0.03 folds 0.00; 21 rounds, 2.13 G MACs) | claims 0.01s
+    zc rem-w9   class 1: m  2 x 2^17 w  9 (n_tot 18): tabs 0.00s | prove 0.02s (eq 0.00 rounds 0.01 folds 0.00; 18 rounds, 0.27 G MACs) | claims 0.00s
+    zc rem-w10  class 0: m  3 x 2^17 w 10 (n_tot 19): tabs 0.00s | prove 0.03s (eq 0.00 rounds 0.01 folds 0.00; 19 rounds, 0.59 G MACs) | claims 0.00s
+  verify 4.60: claim-layer 0.00 | stage-a 1.07 | publics+nus 0.02 | group verifies 3.50
+  device: gpu-cuda: NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB VRAM), ZK_GPU=1, min_macs 4194304, block budget 256 MB, stages 4, bypass false | k9: on — K-field kernels on the device (budget 6.88 GB, used 0.00 GB, min_pairs 32, eager false; tree store on — 0 trees, 0.00 GB) | ixf: on — device-built zero-check tables + device chain (held 0.00 GB, min_pairs 32, low bits 12) | zc: on — device zc aggregate (c 4; held 0.00 GB, peak 0.83 GB; 12 aggregates, 0 declined, 96 rounds / 96 folds; open 0.40s round 0.20s fold 0.01s handover 0.01s; min_pairs 4096)
+  phase table (prof, process-global; STAGE-A pass | ORACLE pass; bg.* per-group totals, ep.* shared by prover and verifier):
+    ep.crs-expand                 0.92s x52     |      0.00s x0
+    ep.matvec                     0.78s x67     |      0.00s x0
+    ep.compute-psi                0.15s x37     |      0.00s x0
+    ep.transport                  0.29s x34     |      0.00s x0
+    ep.psi0-factored              3.86s x6      |      0.00s x0
+    ep.level-h-pairs              1.49s x23     |      0.00s x0
+    ep.crs-cache-hit              0.00s x46     |      0.00s x0
+    bg.kernel-rows                2.77s x3      |      0.00s x0
+    bg.kernel-phi                 1.02s x3      |      0.00s x0
+    bg.fold                       0.37s x23     |      0.00s x0
+    bg.matvec-chunks              1.83s x23     |      0.00s x0
+    bg.level-h                    1.51s x23     |      0.00s x0
+    bg.prove-group                9.58s x3      |      0.00s x0
+    bg.verify-group               3.44s x3      |      0.00s x0
+    d.chain-derive                0.78s x12     |      0.00s x0
+    d.digit-witness               0.41s x3      |      0.00s x0
+    d.precommit-u0                2.04s x3      |      0.00s x0
+    d.cl-tables                   0.00s x5      |      0.00s x0
+    d.cl-rounds                   0.40s x128    |      0.00s x0
+    d.cl-folds                    0.01s x128    |      0.00s x0
+    d.cl-pack                     0.01s x3      |      0.00s x0
+    e.kpass-smallcols             3.29s x8      |      0.00s x0
+    m.fold-ntt                    0.32s x23     |      0.00s x0
+    m.crs-blocks                  0.16s x46     |      0.00s x0
+    m.crs-walk                    0.03s x46     |      0.00s x0
+    m.phi-setup                   0.77s x654    |      0.00s x0
+    m.tr-s                        1.58s x40     |      0.00s x0
+    m.tr-asm                      0.04s x37     |      0.00s x0
+    m.tr-pq                       0.05s x80     |      0.00s x0
+    m.tr-t5                       0.26s x40     |      0.00s x0
+    q.lh-fill                     0.52s x116    |      0.00s x0
+    q.lh-wait                     0.16s x3      |      0.00s x0
+    q.lh-stream                   1.29s x3      |      0.00s x0
+    q.lh-smax                     0.00s x3      |      0.00s x0
+    q.cb-fill                     1.17s x376    |      0.00s x0
+    q.cb-wait                     0.34s x71     |      0.00s x0
+    q.phi-gblocks                 0.58s x654    |      0.00s x0
+    q.fold-split                  0.05s x23     |      0.00s x0
+    q.rows-t                      1.26s x218    |      0.00s x0
+[UPERF3-RR] STAGE-A DIGEST statement 1a3517dea1c7a91920a1d003550c5c0e342686030de6899f16e459a1cc36de18 | prover-transcript 4b02815d2a1e2e6b8c05725a43cab18c797a74c793cc2b4bde05b12f5c5e6c9f | verifier-transcript 4b02815d2a1e2e6b8c05725a43cab18c797a74c793cc2b4bde05b12f5c5e6c9f | bytes 860867
+  peak RSS 3090 MiB
+	Command being timed: "/home/victor/wt-uperf3-ww/zkmatrix-rs/target-gpu/release/ring_matmul uperf-a pass 12 128 full"
+	User time (seconds): 142.16
+	System time (seconds): 8.32
+	Percent of CPU this job got: 418%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:35.95
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 3160688
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2535220
+	Voluntary context switches: 174360
+	Involuntary context switches: 1305
+	Swaps: 0
+	File system inputs: 9678
+	File system outputs: 32
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

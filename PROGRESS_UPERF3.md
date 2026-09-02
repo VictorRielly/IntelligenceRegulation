@@ -7199,6 +7199,376 @@ under 8 minutes and was run in the lane.
 
 ## Agent WW status (wt-uperf3-ww) — round 11
 
+Lane WW: the Stage-A defaults (rulings 2-3), the cold-descent-kernels
+finding, the driver diet at 12x512, the honest 12x512 A/B. OWNS per the
+brief: the `uperf-a` driver section of ring_matmul.rs, zc_range.rs
+(ADDITIVE), stage_a.rs, stage_a_full.rs, gpu/zc_agg.rs (ADDITIVE fixes
+if rung 1's cause is there), NEW results/uperf3_ww_*, this section.
+Worktree cut at 80de176. Binaries: CPU `target/release` (2m17s) and
+GPU `target-gpu/release --features gpu-cuda` (2m36s), both green on
+the round-11 ground before any edit.
+
+### RUNG 0 — THE DEFAULTS (2026-09-02) [WSL-BOX 8T NOISY-SHARED: lanes UU/VV building]
+
+- RULING 2 (`full` = the kappa-4 partial-fraction helper): CONFIRMED
+  in the code, no change — `uperf-a pass L T full` parses to
+  `GgMode::FullSs(SsCfg { kappa_silu: 4, route_nrw: None, .. })`
+  (ring_matmul.rs, the `Some("full") =>` arm of the pass parse);
+  `full-s2` = GG's S2 form stays reachable.
+- RULING 3 (the batched claim transport = THE Stage-A transcript
+  form): `rr_zc_claims_batched()` now defaults to TRUE; the GG
+  per-column form is the opt-in `ZK_RR_ZC_CLAIMS=gg` (the old
+  `=batched` value is still accepted, a no-op). The `[UPERF3-RR]
+  ATTRIBUTION` line names the form in force; the `uperf-a` usage
+  string names the knob. One function + two prints; nothing frozen
+  touched.
+- THE STAGE-A IDENTITY FROM HERE ON [MEASURED, one CPU binary and one
+  GPU binary, `uperf-a pass 12 <t> range nooracle`, M125_EXPORT_DIR
+  set, ZK_THREADS=8] (statement digest | prover == verifier transcript
+  | bytes | claims | peak RSS, /usr/bin/time -v):
+  * 12x64 DEFAULT (batched), CPU: 441ca5db.. | **c0b8236fed52daa1..** |
+    622,011 B | 431 | 1,667 MiB (commit 6.0 / prove 22.1 / verify 2.6 s).
+  * 12x64 DEFAULT, GPU (ZK_GPU=1): 441ca5db.. | **c0b8236f..** (== CPU) |
+    622,011 B | 431 | 2,136 MiB (3.0 / 7.5 / 1.6 s).
+  * 12x128 DEFAULT, GPU: dc3100e7.. | **1644b4e14dd4f298..** | 637,691 B
+    | 439 | 2,496 MiB (3.3 / 8.4 / 2.7 s). (RR's R3a values, reproduced.)
+  * 12x64 OPT-IN `ZK_RR_ZC_CLAIMS=gg`, CPU: 441ca5db.. | **44528c6aeee0a771..**
+    | 622,011 B | 989 | 4,114 MiB (7.2 / 24.4 / 3.8 s) — the pre-round-11
+    identity remains reachable, byte-identical.
+  READING: the statement digest does not move (the transport is an
+  opening-structure choice, not a statement change); the transcript
+  digest is the form's identity. At 12x64 on the CPU the batched form's
+  process peak is 2.5x smaller than GG's (1,667 vs 4,114 MiB) — the
+  ~700 rank-1 claim rows were the peak, as RR found at 12x128.
+- FLOORS on this commit (CPU binary): `uperf-pc diff-battery` 18.44 s
+  passed; `freeze-check` (M125_EXPORT_DIR) 102 ok + "freeze-check
+  passed", exit 0; `uperf-s battery 8` 48 legs, 3752cba4..; `uperf-s
+  agg-battery 7` 136 legs, 46234986..; `uperf-x battery` 8 legs,
+  be89d5da.. — all unchanged. The GPU binary builds (2m39s) and prints
+  the same 12x64/12x128 digests as the CPU binary (above).
+- FOR THE ORCHESTRATOR / the board §0: the round-11 floor line "`uperf-a
+  pass 12 64 range` statement 441ca5db.. / transcript 44528c6a.."
+  becomes "statement 441ca5db.. / transcript **c0b8236f..** (default;
+  44528c6a.. under ZK_RR_ZC_CLAIMS=gg)". Logs:
+  results/uperf3_ww_r0_{freeze_check,12x64_batched_cpu,12x64_gg_cpu,12x64_batched_gpu,12x128_batched_gpu}.log.
+- Commit: 26990ea.
+
+### RUNG 1 — THE COLD-DESCENT-KERNELS FINDING: CAUSE + FIX (2026-09-02) [WSL-BOX 8T GPU NOISY-SHARED]
+
+THE CAUSE [MEASURED, `ZK_GPU_VERBOSE=1` at 12x512, one process
+(`uperf-a pass 12 512 range`, batched default);
+results/uperf3_ww_r1_repro_12x512_verbose.log]: NOT a k9 budget
+decline — a DEVICE ERROR that disables k9 for the rest of the process
+(`[UPERF2-L] gpu k9 ixf round failed (h2d: CUDA_ERROR_INVALID_VALUE)`,
+printed right after the oracle leg's `bk.commit-end`), produced by a
+VRAM-residency interaction of three device modules:
+1. RR's zc aggregate module keeps its table/eq buffers across the
+   phase's 12 aggregates (3.31 GB at 12x512) and nothing gave them
+   back before process exit ("held 3.31 GB" on leg C's status line).
+2. k9's VRAM budget is fixed at its init (free 7.15 - 0.256 = 6.88 GB,
+   computed in the Stage-A leg's claim layer, BEFORE zc allocated) and
+   its slabs are kept for the process: after the Stage-A leg's silu
+   descents it sits on 3.76 GB of IDLE residency.
+3. Lane L's ixf module (the claim layer's device-built zero-check
+   tables + device chain at 2^24: 4.06 GB, released per instance)
+   budgets against the LIVE free VRAM with a 256 MB margin.
+The sequence in the oracle leg's claim layer: free VRAM 0.34 GB (8.59
+total - zc 3.31 - k9 idle 3.76 - ~1.2 base) -> the ixf module DECLINED
+("need 4.06 GB more, free 0.34 GB"; it never declines in the standalone
+frozen pass, where the claim layer precedes the descents and it opens at
+4.06 GB) -> the CPU-built tables went through k9's own `ixf_round`
+upload path (first instance: a 2.4 s first round, the 4-table upload)
+-> at the second instance k9's accounting crossed its budget mid-way
+through the table-grow loop -> `make_room` (fired from `grow_dev`)
+freed the WHOLE idle ixf_t family — including the tables grown moments
+earlier in the same call (`self.ixf` is None during the loop; "k9: gave
+back 3.76 GB") -> the upload wrote to ptr 0 -> CUDA_ERROR_INVALID_VALUE
+-> `k9_ixf_round` disables the module -> all 20 descents on the CPU
+(bk.descent-gkr 28.8 s + trees 7.0 s): prove 54.9 s (leg C) / 59.1 s
+(the repro). At 12x128 the residency is 0.83 + ~1 GB and nothing bites
+(RR's warm 7.5 s oracle).
+HALF-FIX EVIDENCE (the zc release alone;
+results/uperf3_ww_r1_12x512_ab_gpu_verbose.log): free at the oracle's
+claim layer 3.65 GB — still < 4.06 + 0.256, the ixf module still
+declined, the crash recurred (prove 56.2 / 49.8 s in two runs). The k9
+half is required — rung 1 proves the cause is a k9 budget interaction,
+so the brief's ADDITIVE, default-preserving k9 fix is in scope.
+
+THE FIX (three additive pieces; nothing frozen moves — every digest
+below is unchanged):
+(a) gpu/zc_agg.rs: `pub fn zc_agg_release() -> usize` — the module's
+    private `release()` made callable: table/eq/ab buffers back to the
+    device, the module stays live (not bypassed, not disabled; the next
+    open re-grows), a no-op while a chain is live or before any open.
+(b) gpu/k9.rs, two pieces: [B] in `K9::ixf_round` the room is made ONCE
+    before the table-grow loop (`make_room` for the pre-check's own
+    over-counted `more`, then decline = the CPU round if still short) —
+    no `make_room` can fire mid-loop any more, so the upload can never
+    target a buffer freed in the same call; [C] `pub fn k9_trim_idle()
+    -> usize` — `make_room`'s own rule (the idle families + the wholly
+    free slabs; never a live chain, the layer binding, the eq or the
+    tree store) at a caller-chosen boundary. k9's static init-time
+    budget itself is left as is (re-reading free VRAM inside the
+    frozen path's device planner is a behavior change I did not want
+    without a ruling; the trim makes the boundary explicit instead).
+(c) the `uperf-a` driver: both called at the END of the Stage-A phase
+    (before the openings), one print `[UPERF3-WW] device residency
+    given back after the Stage-A phase: zc .. GB, k9 .. GB`. gpu/mod.rs:
+    the two names on the `pub use` lines + two no-op stub twins for the
+    non-GPU build (RR's pattern; the minimal export).
+
+ACCEPTANCE [MEASURED, one GPU binary, one process, ZK_GPU=1, 8T]:
+- 12x128 (results/uperf3_ww_r1_12x128_ab_fixed.log): given back zc 0.83
+  + k9 0.81 GB; Stage-A 3.4 / 7.7 / 2.1 s; ORACLE 1.9 / 8.9 / 2.2 s with
+  k9 "used 1.89 GB" (the trees on the device); the standalone frozen
+  pass `uperf-pc full-profile 12 128` (GPU) 2.1 / 9.2 / 2.3 and 2.3 /
+  11.4 / 2.5 in two runs — within noise. Digest 1644b4e1.. unchanged;
+  process peak 3,110 MiB.
+- 12x512 (results/uperf3_ww_r1_12x512_ab_fixed_verbose.log): given back
+  zc 3.31 + k9 2.96 GB; the oracle leg's claim layer OPENS the ixf
+  module (5 x "ixf open ... held 4.06 GB" — the standalone path); no k9
+  failure; ORACLE commit 3.3 / prove 18.2 / verify 4.1 s vs the
+  standalone frozen pass `uperf-pc full-profile 12 512` (GPU, same
+  session) 3.4 / 16.9 / 3.8 and 3.6 / 17.7 / 4.4 — within noise (+3-8%,
+  NOISY-SHARED). Stage-A 7.1 / 18.8 / 4.6 s, digest e0b3b985.. unchanged
+  (the fix is transcript-neutral). Process wall 57 s (was 1:37).
+  **Process peak RSS 7,157 MiB — leg C's "11.2 GB fits" was the
+  CPU-descent artifact (the oracle's CPU trees, hwm 10.9 GB at
+  bk.claim-layer-end), not the Stage-A driver's peak.**
+- FLOORS on this commit. CPU binary: diff-battery 15.66 s passed;
+  freeze-check 102 ok + passed, exit 0; uperf-s 3752cba4..; agg
+  46234986..; uperf-x be89d5da..; 12x64 c0b8236f.. (default) /
+  44528c6a.. (gg); `uperf-a pass-battery 3 16` green. GPU binary:
+  diff-battery (ZK_GPU=1) 18.43 s passed; agg-battery with the device
+  forced (ZK_GPU_ZC_MIN_PAIRS=1) 46234986..; THE FROZEN PASS AFTER THE
+  k9 EDIT: `uperf-pc full-profile` EVAL-PROOF DIGEST 12x128 742d88e1..
+  and 12x512 4c259008.. == the same binary lineage before the edit
+  (results/uperf3_ww_r1_frozen{128,512}_after_k9fix.log vs
+  uperf3_ww_r1_12x{128,512}_frozen_gpu.log); `pass-battery 3 16` with
+  the device forced green.
+- FOR RUNG 3: the one-process A/B is VALID on this box from here on —
+  no separate oracle process needed.
+- Commit: 03c0a49.
+
+### RUNG 2 — THE DRIVER DIET AT 12x512: BOTH MODES ACCEPT ON THE BOX (2026-09-02) [WSL-BOX 8T GPU NOISY-SHARED]
+
+THE STARTING POINT [MEASURED, the rung-1 binary, batched default,
+ZK_GPU=1] — the two OOMs of 2026-09-02 were GG's transport's, not the
+shape's: `uperf-a pass 12 512 range nooracle` peak **7,152 MiB** (was
+killed at 14.4 GiB under GG's form), 30 s wall, accept, e0b3b985..;
+`uperf-a pass 12 512 full` peak **12,472 MiB**, ACCEPT (was killed at
+15.18 GB), wall 1:46, 6.5 / 82.2 / 16.2 s, 900,003 B, act-h 1,572,864
+rings (SS's count), with the three RSS lines phase B 6,989 / phase C
+6,989 / prover done 9,540 MiB — i.e. the VERIFIER phase set the
+full-mode peak (+2.9 GB: SS's claim-kernel term, 4x: per column a
+dense ones-row and an eq-row of gh_rows = 655,360 K elements, ~84 MB
+each, x 24 claims, prover's and verifier's copies alive together).
+Both modes therefore accepted before any diet; the margin in full
+mode (2.5 GB on a box where two lanes build) was the reason to land
+the named diet anyway.
+
+THE DIET (driver only; range mode byte-identical; the full-mode
+transcript moves as SS named — recorded below):
+(i)  SS's ONE h_sum CLAIM PER PAIR (`ss_lookup_claims(.., pair_sum)` +
+     `ss_pair_h_sum_claim`): the served per-column h_sum_j / table_sum_j
+     stay on the wire and the verifier keeps its per-column sum gate;
+     the OPENING claim that grounds the h sums on the committed helper
+     becomes one ones-row over the pair's column blocks with value
+     sum_j h_sum_j (12 -> 2 dense rows per side at 12x512). SOUNDNESS
+     NOTE (written here, reviewed by nobody but this lane): the pair's
+     membership fact is the UNION LogUp identity over the pair's one
+     frozen table with the summed multiplicities; sum_j table_sum_j is
+     grounded per column on the committed multiplicities, the union
+     claim pins sum_j h_sum_j to the helper's true total, and the two
+     totals agree only when every key of every column is in the table
+     (the partial-fraction identity at a random alpha — the S2
+     argument, unchanged); the per-column split of the h_sum grounding
+     added nothing. The V1 route (one column, its own tensor) keeps the
+     per-column form; `full-s2` (GG's `gg_logup_claims`) is untouched.
+(ii) FREE THE PROVER'S CLAIMS BEFORE THE VERIFIER: `claims`, `claims_h`,
+     the assembled group claims, the nus and the flat level-0 witness
+     (w0_w / w0_a / w0_h) dropped right after the group proofs (+
+     `uf_trim`), the counts kept for the report line.
+(iii) GG's named host terms dropped at the end of the Stage-A phase
+     (beside rung 1's device release): `class_data` (the per-class
+     planes data the zc tables were built from), `bk_aux`, `m_vals`,
+     `ss_m`, `ss_tables`, the routed columns/helpers (`logup_mat` stays:
+     the full-s2 verifier reads it).
+(iv) The RSS high-water lines are printed in EVERY mode now (phase C,
+     prover done, a "dropped before the verifier: current RSS" line,
+     after the verifier), not only in full mode.
+
+THE RESULT [MEASURED, one GPU binary, ZK_GPU=1, 8T, /usr/bin/time -v]:
+
+| `uperf-a pass 12 512 ..` | accept | commit / prove / verify | bytes | claims | phase B / C / prover done / after drops (current) / verifier hwm | **peak RSS** | wall |
+|---|---|---:|---:|---:|---|---:|---:|
+| `range nooracle`, before the diet | true | 6.7 / 18.9 / 4.6 | 670,891 | 455 | — / 6,985 / — / — / — | 7,152 MiB | 0:30 |
+| `range nooracle`, WITH the diet | true | 6.4 / 19.1 / 4.9 | 670,891 | 455 | — / 6,985 / 6,985 / 2,778 / 6,985 | **7,152 MiB** | 0:31 |
+| `full`, before the diet | true | 6.5 / 82.2 / 16.2 | 900,003 | 427 + 24 | 6,989 / 6,989 / 9,540 / — / (peak) | 12,472 MiB | 1:46 |
+| `full`, WITH the diet | true | 6.7 / 77.4 / 11.4 | 900,003 | 427 + **14** | 6,988 / 6,988 / **7,547** / 2,999 / 7,547 | **7,728 MiB** | 1:36 |
+
+READING: full mode's peak -4.7 GB (-38%): (ii)+(i) took the verifier
+off the peak (it now starts from 3.0 GB and never exceeds the prover's
+high-water), (iii)+(i) took the prover-done mark from 9,540 to 7,547
+(-2.0 GB), and verify fell 16.2 -> 11.4 s (10 fewer dense contribs).
+Range mode's peak did not move: its 7.15 GB IS the commit-phase peak
+(phase B/C = 6,985-6,989 MiB in both modes) — the planes' act group
+(12.35M rings vs the frozen pass's 7.85M; the frozen pass peaks at
+2,833 MiB on the GPU at this shape) under lane OO's commit memory law:
+the F1 commit-growth term, an engine item (MVP8B W-1/W-3), not a
+driver term. Full mode now sits +0.58 GB over range mode at 12x512
+(SS's 12x128 row had +1.3 GB before the diet).
+At 12x128: `full` peak 4,417 -> **3,161 MiB** (SS's 8,072 MiB under
+GG's form); 3.6 / 27.5 / 4.6 s, 860,867 B, 441 claims.
+
+THE FULL-MODE IDENTITY (the batched default AND the diet both move it;
+the STATEMENT digest does not move — c6f1850a.. at 12x512 and
+1a3517de.. at 12x128 before and after the diet; range mode is
+byte-identical throughout: 12x64 c0b8236f.., 12x512 e0b3b985..):
+  * 12x512 `full`: **8d1ef1a8..** (pre-diet under the default 8ab3dd36..).
+  * 12x128 `full`: **4b02815d..** (pre-diet 4669b9f4..; SS's 646f0dce.. under GG's form).
+  * 3x16 `full` (kappa 4): **6863f0d6..** (pre-diet 9c3c2e7e..; SS's dbc58152.. under GG's form).
+  * 3x16 `full-s2`: d47cd6d7.. UNCHANGED by the diet (SS's b0349a45.. under GG's form).
+  * 3x16 `full-ss` (the V1 route, k0): 45c5cd18.. (SS's 4c63259d.. under GG's form).
+  * Under `ZK_RR_ZC_CLAIMS=gg` the pre-diet full forms are NOT
+    recoverable (the diet is not knob-gated — it is the full-mode form
+    from here on); SS's digests were reproduced under the opt-in BEFORE
+    the diet (3x16 full dbc58152.., full-s2 b0349a45..) and are recorded
+    as the round-10 form. Tamper legs: SS's `pass 3 16 full-ss ss-sum`
+    (the served h_sum flipped) still REJECTS at `ss-lookup-sum:nrw-88`;
+    `ss-diff 1 16` ALL LEGS GREEN; GG's `pass-battery 3 16` green.
+FLOORS on this commit (CPU binary): diff-battery 16.84 s passed;
+freeze-check 102 ok + passed, exit 0; uperf-s 3752cba4..; agg
+46234986..; uperf-x be89d5da..; 12x64 range c0b8236f.. / 44528c6a..
+(gg). No GPU-module change since rung 1 (its GPU floors stand).
+Logs: results/uperf3_ww_r2_12x512_{range_nooracle,full}_{predict,diet}.log,
+uperf3_ww_r2_12x128_full_{predict,diet}.log, uperf3_ww_r2_3x16_full_diet.log,
+uperf3_ww_r2_freeze_check.log.
+- Commit: 5d3ca82.
+
+### RUNG 2b — THE ACT-H CLAIM ROWS WERE DENSE: COMPACT ROWS + ONE CONTRIB PER TENSOR (2026-09-02) [WSL-BOX 8T GPU NOISY-SHARED]
+
+THE FINDING (from the code while writing rung 4's 8B row): every act-h
+opening claim carried a DENSE row of gh_rows K elements (`vec![zero;
+gh_rows]`, one block nonzero) — gh_rows = the pair's columns x n_h,
+NOT n_h. SS's V4 counted the claim kernels at block size ("n_h =
+524,288 x 32 cols x 2 x 128 B x 2 = ~8.6 GB"); SS's own 12x128
+verify-phase growth (+1.3 GB) is the DENSE size (24 x 163,840 x 128 B
+per side), the block size gives 50 MB. At 8B the dense rows were 64 x
+~1.7 GB = ~95 GB per side, both sides alive before diet (ii) — the
+pre-round-11 full mode at 8B was a ~260 GB object [COUNTED from the
+layout], not the "~87 GB" caveat.
+THE FIX (driver only, TRANSCRIPT-NEUTRAL): `WwHClaim` = (value,
+parts(tensor, scale, ROW OFFSET, COMPACT row, col)); the three act-h
+claim builders (`ss_lookup_claims`, `ss_pair_h_sum_claim`, and GG's
+S2 `gg_logup_claims`) push the column's block at its offset; ONE
+helper `ww_combine_h_claims` (prover and verifier) builds ONE dense
+row per act-h tensor from the compact rows with the nus drawn —
+K = sum_j nu_j scale_j (row_j (x) ypow) = (sum_j nu_j scale_j row_j)
+(x) ypow, the same kernel the engine summed over 14 (or 24) contribs;
+the opening's transcript does not see the contrib decomposition.
+IDENTITY [MEASURED]: 3x16 `full` 6863f0d6.., `full-s2` d47cd6d7..,
+`full-ss` 45c5cd18.., 12x128 `full` 4b02815d.., 12x512 `full`
+8d1ef1a8.. — ALL UNCHANGED; `ss-sum` tamper still REJECTS at
+`ss-lookup-sum:nrw-88`; range 12x64 c0b8236f.. unchanged.
+THE RESULT [MEASURED, GPU binary, 8T]: `uperf-a pass 12 512 full`
+peak **7,156 MiB** (rung 2's 7,728; the rung-1 binary's 12,472; the
+killed 15.18 GB) == range mode's 7,152 — the commit-phase high-water
+(6,988) is now the process peak in BOTH modes (prover done 6,988,
+after the drops 3,097, verifier hwm 6,988); prove 74.5 s (the act-h
+opening `tail` 9.4 s vs 11.8-14.2; `bg.kernel-rows` 6.9 s x3 groups),
+verify 10.4 s (was 11.4-16.2), wall 1:31, 900,003 B, 441 claims.
+12x128 `full` peak **2,884 MiB** (rung 2: 3,161; SS: 8,072), 3.5 /
+26.2 / 4.3 s. Logs: results/uperf3_ww_r2b_12x512_full_compact.log,
+uperf3_ww_r2b_12x128_full_compact.log, uperf3_ww_r2b_freeze_check.log.
+FLOORS on this commit (CPU binary): diff-battery 16.19 s passed;
+freeze-check 102 ok + passed, exit 0; uperf-s 3752cba4..; agg
+46234986..; uperf-x be89d5da..; `pass-battery 3 16` green; `ss-diff
+1 16` green; 12x64 range c0b8236f... GPU binary: the 12x512/12x128
+full digests above (its GPU-module floors are rung 1's, no GPU module
+changed since).
+- Commit: the commit carrying this entry ("U-PERF3 WW: RUNG 2b + 3 + 4").
+
+### RUNG 3 — THE 12x512 A/B, HONESTLY (2026-09-02) [WSL-BOX 8T GPU NOISY-SHARED, one binary]
+
+One process for the oracle + Stage-A range (`uperf-a pass 12 512
+range`, valid since rung 1 — no separate oracle process needed); full
+mode runs without the in-process oracle by construction (the FullSs
+parse passes with_oracle = false), so its oracle reference is the
+range run's leg and the standalone `uperf-pc full-profile 12 512` of
+the same session. Two reps each + the rung-1/2 runs [MEASURED]:
+
+| leg | commit | prove | verify | total | bytes | claims | peak RSS | identity |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| ORACLE standalone (`uperf-pc full-profile 12 512`) x3 | 3.3-3.6 | **16.9-17.7** | 3.8-4.4 | 24.6-25.7 | 1,509,911 | 64 rows | 2,833 MiB | EVAL-PROOF 4c259008.. |
+| ORACLE in-process (the range run's leg) x3 | 3.3 | **18.2-18.8** | 4.1-4.2 | 25.6-26.3 | 1,509,911 | 64 rows | (7,158 MiB, both legs) | k9 warm, ixf module open |
+| STAGE-A RANGE (batched default, device zc) x3 | 6.4-7.1 | **18.8-19.1** | 4.6-5.0 | 30.3-31.0 | **670,891** | 455 | **7,152 MiB** | ee87f414.. / e0b3b985.. |
+| STAGE-A FULL (kappa 4 + the diet) x3 | 6.2-7.3 | **74.5-82.9** | 10.4-14.6 | 91-105 | **900,003** | 441 | **7,156 MiB** | c6f1850a.. / 8d1ef1a8.. |
+
+OUTLIER, recorded not averaged: range rep 2's oracle leg — the 20
+masked-GKR descents took 140.8 s (6.6 s in rep 1) with k9 live ("used
+6.72 GB"), no device error, no decline line; its Stage-A leg was +20%
+too; no concurrent process in the sibling lanes' result timestamps
+(VV's last GPU logs 13:56, UU's 13:09, the rep at 14:05-14:08) — a
+NOISY-SHARED contamination of the device (results/uperf3_ww_r3_12x512_range_ab_rep2.log).
+READING: Stage-A range = prove parity with the built pass at the
+reference shape (1.02-1.03x in-process, 1.08-1.11x vs standalone),
+total 1.15-1.18x (the planes commit +3.1-3.5 s), bytes 2.25x smaller;
+prover clock 25.2-26.2 vs 21.5-22.1 s -> 1.1e9 vs 1.3e9 proven MAC/s
+[COUNTED]. Full mode 4.0-4.4x the prove wall (the 12 scalar-K
+degree-18 lookup sumchecks 44-47 s + the act-h group 9-14 s) for a
+1.68x smaller proof with no GKR descent left — at range mode's
+memory. The prove anatomy (range, rep 1): claim-layer 2.39 | Stage-A
+phase 4.54 (silu descents 2.26, zc prove 1.67 on the device: 264
+rounds, 83.6 G MACs) | openings 11.78 (weight 2.46, ACT 9.32 = 50% of
+the prove). Logs: results/uperf3_ww_r3_12x512_{range_ab_rep1,range_ab_rep2,full_rep1,full_rep2,frozen_rep3}.log.
+
+### RUNG 4 — RECORD (2026-09-02)
+
+results/uperf3_ww_12x512_stage_a.md — the 12x512 Stage-A reference
+numbers on the laptop in lane TT's form (§1 the A/B table, §2 the
+reading for THROUGHPUT_MODEL §2.3 (b): book NO speed factor > 1.0
+for Stage A + GPU at 125M, book the bytes 2.25x and the memory; §3
+the memory table with the three RSS lines per rung; §4 the 8B
+full-mode row; §5 what was built; §6 open items).
+THE 8B FULL-MODE MEMORY ROW, RE-ESTIMATED WITH THE DIET: **~85 GB
+[MODEL]** = the act-h phase (SS's V4 ~78 GB: OO's ~72 GB baseline + the
+4.3 GB kappa-4 store at the act-group rates) + ~6.4 GB of act-h claim
+rows in the rung-2b layout (32 compact eq-rows 2.1 GB + 2 pair
+ones-rows 2.1 GB + 2 combined rows 2.1 GB; the verifier's copies not
+simultaneous) + ~2.7 GB of per-column lookup transients (SS) — vs the
+weight group's ~72 GB lvl-0 phase; under 128 GB with ~40 GB of margin.
+This REPLACES the "lower bound" caveat (orchestrator note 2026-09-02,
+consequence (b)): the measured full-mode peak at the reference shape
+now EQUALS the range-form peak (7,156 vs 7,152 MiB), so full mode's
+8B excess is the counted act-h terms (~13 GB), not a measured growth
+law; the pre-diet full mode would have been ~260 GB at 8B (the dense
+rows, both sides), which is what the 12x512 kill was measuring.
+Flagged, not measured: the host-built zc class tables at 8B (nrw-88:
+~64 members x 8 planes x 2^23 x 4 B = ~17 GB of transient during its
+aggregate, below the 72 GB peak) for MVP8B §1.4's transient list.
+
+LANE WW SUMMARY (rungs 0-4 landed 2026-09-02; commits 26990ea,
+03c0a49, 5d3ca82, + the rung-2b/3/4 commit): the batched transport is
+the Stage-A default (identity c0b8236f.. / 1644b4e1.. / e0b3b985..;
+gg opt-in); the cold-descent-kernels cause found and fixed (a
+zc/k9/ixf VRAM-residency interaction + a k9 make_room-mid-loop bug;
+ADDITIVE fixes in zc_agg.rs / k9.rs / the driver; every frozen digest
+unchanged); the 12x512 reference shape runs on the 15 GB box in BOTH
+Stage-A modes at 7.15 GB (range, byte-identical) and 7.16 GB (full;
+was OOM at 15.18 GB); the honest 12x512 A/B is on record (Stage-A
+range at prove parity, 1.15-1.18x total, 2.25x fewer bytes; full 4x
+the prove for 1.68x fewer bytes at the same memory); the 8B full-mode
+row is ~85 GB [MODEL] with the dense-row undercount corrected.
+Files: ring_matmul.rs (the uperf-a driver: the transport default, the
+residency release, the diet, the compact/combined act-h claims, the
+RSS lines), gpu/zc_agg.rs (+ `zc_agg_release`), gpu/k9.rs (+ the
+room-once guard in `ixf_round`, + `k9_trim_idle`), gpu/mod.rs (the
+two exports + two stub twins), results/uperf3_ww_*. NOT touched:
+stage_a.rs, stage_a_full.rs, zc_range.rs, eval_proof.rs, two_tier.rs,
+the frozen pass, manifest.rs.
+ORCHESTRATOR-RUN: none posted — every run fit under 8 minutes.
+
 (lane appends below)
 
 ## Orchestrator note 2026-09-02 — round 11: UU merged (fast-forward 0f51720)

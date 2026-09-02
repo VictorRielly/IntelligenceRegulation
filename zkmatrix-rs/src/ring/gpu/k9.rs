@@ -1144,6 +1144,37 @@ pub fn k9_label() -> String {
     }
 }
 
+/// [UPERF3-WW] round 11, rung 1 (ADDITIVE) — give back this module's IDLE
+/// device residency at a phase boundary the caller chooses: the idle
+/// families (the ixf tables with no chain alive, the climb buffers) and
+/// the wholly free slabs — exactly `make_room`'s own rule (a live chain,
+/// the layer binding, the eq and the tree store are never taken). WHY:
+/// the budget is fixed at init (free VRAM - 256 MB) and the slabs are
+/// kept for the process, so after a descent phase this module can sit on
+/// several GB of idle slabs that the modules budgeting against the LIVE
+/// free VRAM (ixf, zc) then cannot see — MEASURED 2026-09-02 at 12x512:
+/// 3.76 GB idle after the Stage-A leg's silu descents left the
+/// in-process oracle leg's claim layer at "free 3.65 GB", the ixf module
+/// declined its 4.06 GB tables and the CPU-built tables went through
+/// this module's upload path (the crash above). The Stage-A driver calls
+/// this after its aggregate phase. Returns the bytes given back; 0 when
+/// the module is not live.
+pub fn k9_trim_idle() -> usize {
+    if !live() {
+        return 0;
+    }
+    let Some(kk) = k9s() else { return 0 };
+    let mut k = kk.lock().unwrap();
+    if k.chain.is_some() {
+        return 0;
+    }
+    let before = k.used();
+    let _ = k.dev.bind_to_thread();
+    let b = k.budget;
+    k.make_room(b);
+    before.saturating_sub(k.used())
+}
+
 /// [UPERF2-L] Protocol assertion for lane K's bypass switch: no descent
 /// chain may hold device-resident host state when the hooks stop firing.
 pub(super) fn assert_no_chain(what: &str) {
@@ -2542,6 +2573,24 @@ impl K9 {
             }
             if self.held + more > self.budget {
                 return Ok(false);
+            }
+            // [UPERF3-WW] round 11, rung 1 (ADDITIVE, default-preserving):
+            // make the room ONCE, before the grows. `make_room` frees the
+            // whole idle ixf_t family (self.ixf is None here), so a
+            // make_room fired by grow_dev in the MIDDLE of the loop below
+            // freed the tables grown earlier in the same call and the
+            // upload wrote to ptr 0 — CUDA_ERROR_INVALID_VALUE, after which
+            // the module disables itself for the process (MEASURED
+            // 2026-09-02 at 12x512 in the one-process Stage-A + oracle
+            // pass: the descents of the oracle leg ran on the CPU, 55-59 s).
+            // `more` over-counts (it is the pre-check's figure), so a pass
+            // here guarantees no grow below crosses the budget; when the
+            // room cannot be made, decline — the CPU round, no value moves.
+            if self.used() + more > self.budget {
+                self.make_room(more);
+                if self.used() + more > self.budget {
+                    return Ok(false);
+                }
             }
             for k in 0..nt {
                 self.grow_dev(DevSel::Ixf(k, 0), per)?;

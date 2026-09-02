@@ -50,7 +50,7 @@ pub use cuda::{
     stats_reset, GpuStats, ProbeReport,
 };
 #[cfg(feature = "gpu-cuda")]
-pub use k9::{k9_fused_round, k9_ixf_round, k9_label, k9_set_cold_ok, k9_set_eager, k9_set_min_pairs, k9_set_tree, k9_stats, k9_stats_reset, k9_tree_climb, kt_fold, K9Stats};
+pub use k9::{k9_fused_round, k9_ixf_round, k9_label, k9_set_cold_ok, k9_set_eager, k9_set_min_pairs, k9_set_tree, k9_stats, k9_stats_reset, k9_tree_climb, k9_trim_idle, kt_fold, K9Stats};
 // [UPERF2-N] The device tree store (k9.rs): the descent tree built and kept
 // on the device, read in place by the fused rounds, materialized on demand
 // for CPU readers.
@@ -79,7 +79,7 @@ pub use ixf::{
 mod zc_agg;
 #[cfg(feature = "gpu-cuda")]
 pub use zc_agg::{
-    zc_agg_abort, zc_agg_fold, zc_agg_handover, zc_agg_open, zc_agg_round, zc_label, zc_set_bypass, zc_set_min_pairs, zc_stats, zc_stats_reset, ZcDevChain, ZcStats,
+    zc_agg_abort, zc_agg_fold, zc_agg_handover, zc_agg_open, zc_agg_release, zc_agg_round, zc_label, zc_set_bypass, zc_set_min_pairs, zc_stats, zc_stats_reset, ZcDevChain, ZcStats,
 };
 // [UPERF2-Q] The level-h device session (cuda.rs): the level-0 h table
 // accumulated on the device across the u-blocks (value-ring pool + limb
@@ -210,6 +210,10 @@ mod stub {
         None
     }
     pub fn k9_set_min_pairs(_p: usize) {}
+    /// [UPERF3-WW] the trim twin (no device: nothing held).
+    pub fn k9_trim_idle() -> usize {
+        0
+    }
     pub fn k9_set_eager(_on: bool) {}
     pub fn k9_set_cold_ok(_on: bool) {}
     pub fn k9_set_tree(_on: Option<bool>) {}
@@ -374,6 +378,10 @@ mod stub {
         Err("built without --features gpu-cuda".to_string())
     }
     pub fn zc_agg_abort(_ch: ZcDevChain) {}
+    /// [UPERF3-WW] the release twin (no device: nothing held).
+    pub fn zc_agg_release() -> usize {
+        0
+    }
     pub fn zc_set_bypass(_on: bool) {}
     pub fn zc_set_min_pairs(_p: usize) {}
     pub fn zc_label() -> String {
