@@ -224,7 +224,176 @@ byte question of §2.3 and §7.
 
 ## 2. The per-proof cost anatomy for Route B: per-model vs per-proof
 
-(pending)
+"Per-model" means work that depends only on the weights and could
+be done once at export time and cached; "per-proof" means work that
+depends on the inputs or on the per-proof random challenges. The
+contract's clock (S6 §3) excludes committing the weights, so
+per-model work is legitimately off the clock — IF the protocol
+separates it. Unlike the lattice line (S0 §2), Route B DOES separate
+it by construction: the weight commitment is a hash of the encoded
+weights and nothing else, and the transcript merely absorbs its root
+(S3 `layer.rs`, "commit W"). What it does NOT separate is the
+opening: every proof recomputes a fresh random row-combination of
+the entire weight matrix (§2.3).
+
+### 2.1 The measured pass, phase by phase, with what each loop does [MEASURED s from S1; loops COUNTED from S3]
+
+UU's 8-thread run 1, summed over the 12 layers (the phases sum to
+22.88 s against the 23.0 s p50 wall):
+
+| phase | s | share | what the code does, per element [COUNTED] | per-model or per-proof | side | scales with |
+|---|---:|---:|---|---|---|---|
+| commit W | 2.19 | 9.6% | `pcs::commit`: per row of n = 2^14 elements an inverse NTT (2^14) then a forward NTT (2^16) — 39 butterflies per element; blake3 over each of the 4n encoded columns — 32 hashed bytes per element; a Merkle tree of 4n leaves | **per-model** (nothing in it depends on the proof) | weight | N_W = 3 d f per layer; 38.7 ns per element at 8T |
+| commit A | 3.98 | 17.4% | the same loops over N_A = T (7 f + 3 d) | per-proof | activation | 38.9 ns per element |
+| helpers + commit H | 4.58 | 20.0% | the LogUp helper columns: 2 extension subtractions and a batched inversion per lookup pair (7.08M Fp2 inversions per layer, ~15 ns each = 0.11 s of the 0.38 s per layer), then the same commit loops over N_H = T (6 f + 2 d) | per-proof (alpha-dependent) | activation | 53.9 ns per committed element |
+| matmul g/u | 0.77 | 3.4% | `eval_many` of g8, rg, u8, ru at the claim point (4 T f multiply-adds); `fold_rows_i8(X)` (T d); `fold_cols_i8(Wg)`, `(Wu)` (2 d f); an 8-round sumcheck over six 256-entry tables (negligible) | per-proof | mixed: weight 41% (2 d f of 2 d f + 4 T f + T d) | d f and T f |
+| matmul d | 0.60 | 2.6% | `eval_many` of z, rd (6 T x 256); `fold_rows_i32(h8)` (T f); `fold_cols_i8(Wd)` (d f); an 11-round sumcheck over two 2048-entry tables; three `fold_cols_base` over the Wd blocks AGAIN for the terminal values (d f) | per-proof | mixed: weight 63% | d f and T f |
+| zero-check 20 | 4.50 | 19.7% | `sumcheck::prove` over 13 extension tables of 2^20, degree 4: per pair the constraint is evaluated at 5 points (~22 Fp2 multiplications each) and 13 tables are folded; ~1.3e8 Fp2 multiplications per layer; 27.5 ns per table-entry | per-proof | activation | T f |
+| zero-check 17 | 2.30 | 10.1% | the same over 15 tables of 2^17 (3 eq tables + X, z, rd, hz in 3 blocks); measured **97 ns per table-entry — 3.5x the 20-variable rate**, an untuned per-round overhead at the smaller size (this memo scales it at its own constant, the pessimistic choice) | per-proof | activation | T d |
+| PCS openings | 3.96 | 17.3% | `fold_rows_multi`: (k + 1) clear row-combinations per commitment (k = the number of distinct column-weight groups: W 2, A 2, H 3, plus one proximity combination), computed by reading the systematic positions of the encoded matrix at stride 4 and multiplying every element by k + 1 extension scalars: 3 x 4.72M + 3 x 8.52M + 4 x 7.08M = 68.0M multiply-adds per layer, 4.85 ns each at 8T (~40 ns per thread-op: strided reads, branches on zero — ~10x a tuned inner loop); then 256 column reads of m entries and 16-digest Merkle paths | per-proof | mixed: weight 21% | (k + 1) x N per commitment |
+| verify (off the clock) | 2.8 | — | re-encode the 10 clear vectors (20 NTT pairs), hash 3 x 256 columns, 256 x (3 x 288 + 3 x 520 + 4 x 432) = 1.06M multiply-adds per layer, the LogUp table side | — | — | (k + 1) x 256 x m, plus 4n log n per clear vector |
+
+Cross-check: rung 4's one-layer run at T = 512 (S2: commit W 0.22 /
+A 0.44 / H 0.54 / g,u 0.11 / d 0.07 / zc20 0.52 / zc17 0.28 /
+openings 0.41 = 2.58 s) agrees with the 12-layer sums divided by 12
+(0.18 / 0.33 / 0.38 / 0.06 / 0.05 / 0.38 / 0.19 / 0.33) within
+layer 0's thread-pool warm-up.
+
+### 2.2 The split at 125M [COUNTED from the table above]
+
+Attributing the two mixed matmul phases by their multiply-add counts
+(g/u: weight 3.15M of 7.73M; d: weight 3.15M of 4.99M) and the
+openings by theirs (W 14.2M of 68.0M):
+
+| | seconds of 22.88 | share | constant |
+|---|---:|---:|---|
+| **per-model** (commit W) | **2.19** | 9.6% | 38.7 ns per weight |
+| **per-proof, weight side** (g/u folds 0.31 + d folds 0.38 + W opening 0.82) | **1.52** | 6.6% | 26.8 ns per weight = 4.33 multiply-adds per weight (4/3 in the sumcheck folds: Wg, Wu once, Wd twice; 3 in the opening) at 6.2 ns each |
+| **per-proof, activation side** (everything else) | **19.17** | 83.8% | 102 ns per committed activation element (1.87e8 elements per pass) |
+
+So at 12x512 the weights are 16% of the prover's time (10% cacheable,
+7% not) and the activations 84%. With the weight commitment cached
+per model the row is 20.7 s (§1.1: ~22 s on the contract's clock,
+which adds the ~1.0 s integer chain).
+
+### 2.3 The per-proof weight side at 8B and 30B: operations and bytes [COUNTED]
+
+**Operations.** Per weight per proof, as built: 4/3 + 3 = 4.33
+extension-by-base multiply-adds (each = 2 Goldilocks multiplications
++ 2 additions). The floor for this protocol shape is 3-4: one
+sumcheck fold (if the Wd terminal pass reuses the first fold's
+per-block outputs) plus 2-3 opening combinations (Brakedown's PCS
+sends a testing combination and an evaluation combination, L2 —
+k + 1 >= 2; 3 as built because Wg/Wu and Wd are opened at two
+points).
+
+| | 8B | 30B stand-in |
+|---|---:|---:|
+| weights per proof (N_W) | 5.64e9 | 2.15e10 |
+| multiply-adds per proof, floor / as built | 1.7e10 / 2.4e10 | 6.5e10 / 9.3e10 |
+| Goldilocks multiplications, floor / as built | 3.4e10 / 4.9e10 | 1.3e11 / 1.9e11 |
+
+**Bytes moved per proof.** As built, the folds read the int8 weights
+(4/3 N_W bytes: 7.5 GB at 8B, 29 GB at 30B) and the opening reads the
+encoded matrix's systematic positions at stride 4 — 8 bytes used per
+32-byte cache line, so 32 N_W bytes of line traffic: **180 GB at 8B,
+688 GB at 30B** [COUNTED from `fold_rows_multi`]. Fused (one pass
+reading the int8 weights once and updating both the sumcheck fold
+and the row-combinations): **N_W bytes — 5.6 GB at 8B, 21.5 GB at
+30B** — plus the 256 column decommitments per commitment (256 x m x
+8 B per layer: 88 MB at 8B, 336 MB at 30B at the §5 column counts)
+and the Merkle paths (negligible). The column decommitments are read
+from the per-model cache (§1.5: 141 / 538 GB at rate 1/4), which
+therefore must be stored COLUMN-major (one contiguous read per
+column); as built the store is row-major (`encoded[i * nn + j]`), so
+each column is m random 8-byte reads [COUNTED from S3] — fine in RAM
+at 125M, not from NVMe at 30B.
+
+**Seconds.**
+
+| per-proof weight side | 8B | 30B | label |
+|---|---:|---:|---|
+| at the measured constant (26.8 ns per weight; laptop 8T, as built) | **151 s** | **576 s** | [MODEL from MEASURED] |
+| at a tuned CPU rate (1-1.5 ns per multiply-add at 8T; 4-6 ns per weight) | 23-34 s | 86-130 s | [MODEL] |
+| on one H100 (§7.2: the weights HBM-resident, tuned kernels, cache columns over PCIe 5) | 10-20 ms | **25-60 ms** | [COUNTED on spec sheet] |
+
+The as-built and the tuned constants are 5-7x apart on the CPU and
+the tuned-CPU-to-H100 count is a further ~1,000-3,000x (on the spec
+sheets an H100 has ~100x the laptop CPU's peak 64-bit-multiply rate
+and ~30x its memory bandwidth; the "tuned CPU" row itself is only
+~5% of that CPU peak, and the H100 floor assumes its peak is reached
+by a kernel that does not exist) — the same shape of
+disagreement lane TT found between the routes memo's model and the
+spike's measurement (S0 §2.4), and for the same reason: the counted
+number assumes a streaming kernel that has not been written. Lane
+XX's port of the row-combination (its rung 4) is the measurement
+that collapses it.
+
+**The per-model term, for the record.** Commit W at 38.7 ns per
+weight: 218 s at 8B, 832 s at 30B, once per model on the laptop CPU
+[MODEL from MEASURED], plus the write of the 141 / 538 GB cache. If
+the cache is not kept (or cannot be — §4 shows the weights-private
+modes forbid reusing it), the same seconds land on EVERY proof.
+
+### 2.4 The activation side at 8B and 30B, at T = 512 and T = 1 [MODEL from MEASURED constants]
+
+Each activation-side phase scaled by its counted driver (§2.1) from
+the 125M per-token-layer counts (§1.5) to the 8B and 30B shapes and
+layer counts. Factors per pass: 8B — A x18.1, H x18.2, T f x18.7,
+T d x14.2; 30B — A x51.8, H x52.2, T f x54.3, T d x36.2 [COUNTED].
+
+| activation phase (12x512 s -> scaled) | 8B x 512 | 30B x 512 |
+|---|---:|---:|
+| commit A (3.98 x A) | 72 | 206 |
+| helpers + commit H (4.58 x H) | 83 | 239 |
+| matmul activation folds and claim evaluations (0.68 x ~18 / ~51) | 12 | 35 |
+| zero-check 20-class (4.50 x T f) | 84 | 244 |
+| zero-check 17-class (2.30 x T d, at its own pessimistic constant) | 33 | 83 |
+| activation openings (3.13 x A) | 57 | 163 |
+| **A(512), laptop CPU 8T** | **341 s** | **970 s** |
+| A(1) = A(512) / 512 | 0.67 s | 1.9 s |
+| F (eq tables, the tiny sumchecks; at T = 1 every table is f-sized) | ~0.01-0.1 s | ~0.01-0.1 s |
+
+Memory at these shapes [COUNTED from §1.5]: the prover holds one
+layer's encoded matrices (9.0 GB at 8B, 16.1 GB at 30B at rate 1/4)
+plus the 13 zero-check tables (1.5 / 2.3 GB) — the 8B pass would
+just fit the 15 GB laptop, the 30B pass would not; both fit a 24 GB
+board per layer, an H100 with room to spare. The per-model weight
+cache lives off-device in either case.
+
+### 2.5 Summary: the per-proof cost model, laptop CPU 8T, prover clock
+
+| design | per-model (off the clock) | W per proof | A(512) | A(1) + F | cost(512) | cost(1) = per decode token |
+|---|---|---:|---:|---:|---:|---:|
+| Route B as built, 8B | commit W 218 s once; 141 GB cache [MODEL] | 151 [MODEL from MEASURED] | 341 | ~0.8 | **492** | **~152** |
+| Route B as built, 30B | 832 s once; 538 GB cache | 576 | 970 | ~2 | **1,546** | **~578** |
+| Route B, the weight loops tuned [MODEL] | same | 23-34 / 86-130 | same | same | 364-375 / 1,056-1,100 | 24-35 / 88-132 |
+| for comparison, the lattice line (S0 §2.5), 8B, laptop GPU: (a) built | none separable | 370-409 | 250-491 | ~2 | 620-910 | 372-411 |
+| lattice (c) two-tier + preprocessing, routes constants | ~20 min 1T CPU | 2-10 | 90-145 | 2-3 | 92-155 | 4-13 |
+| lattice (c') same, spike-measured constants | same | 60-330 | 150-240 | 2-3 | 210-570 | 62-333 |
+
+Reading: on the laptop's CPU ALONE, Route B as built sits at 8B
+prefill between the lattice line's (c) and (c') rows — which needed
+the GPU — and at decode in the (c') class; its structure is the
+lattice line's (c) structure (a cached weight commitment, a linear
+per-proof weight pass, an activation side linear in T) obtained
+without a two-tier opening, because a hash commitment's opening is
+linear by nature. What it does not have is any per-proof weight-side
+term below linear — the same R1 wall as S0 §7.2.
+
+### 2.6 The levers UU named, as multipliers [MODEL]
+
+- **(d) cache the weight commitment per model**: -9.6% at 125M,
+  -218 s at 8B x 512 (already assumed in §2.5); forbidden under
+  P2/P3 (§4.4).
+- **(f) LogUp-GKR** (L6): drop the H commitment (20% of the wall) for
+  a GKR over the fractions; UU: "half of it recoverable" -> ~-10%.
+- **(e) X/W range lookups** (closing the M3 gap on this line): +15-20%.
+- the zero-check-17 constant tuned to the 20-variable rate: -7%.
+- the weight loops tuned (§2.3): -26% at 8B x 512, -84% at 8B decode.
+- witness inference on the clock (S6 §3): +1.0 s at 125M; the 8B
+  int8 chain is 2.9e12 MACs, ~10-30 s on 8 CPU threads, milliseconds
+  on a tensor-core GPU [MODEL].
 
 ## 3. The hardware factor for THIS mix, as a range
 
