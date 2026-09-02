@@ -760,7 +760,126 @@ single-threaded line (S6 §4). The sqrt class therefore fails R5 (S0
 
 ## 6. The tokens/s table, next to the lattice line
 
-(pending)
+How to read it: tokens/s = tokens per proof / prover-clock seconds
+per proof (§1.1). "Prefill" is T = 512 tokens per proof; "decode" is
+batch 1. The Route-B laptop-CPU column applies §2.5's costs; the
+device columns divide by §3.3's ranges (laptop GPU 5-15x, desktop
+board 15-75x, H100 25-180x). "P0" is the row as built (no ZK);
+"P1" applies §4.3's +2-8% (activations private); "P3" adds the
+per-proof weight re-commit of §4.4 (weights private; P2 costs the
+same). Every token is an **FFN-only** token (§1.4). The lattice
+rows are copied from S0 §4.2-4.3 for the comparison: their "laptop"
+column is the laptop WITH its GPU (the lattice line's reference
+pass), which this memo places under "laptop GPU"; the lattice line
+has no CPU-only 8B row.
+
+Labels: the only [MEASURED] cell is the 125M anchor. Every 8B cell
+is [MODEL] (no 8B proof has run on either line — S7 §3.1). Every
+30B cell is [MODEL on MODEL]. Every device cell adds §3's unmeasured
+factor. Cells are cut where a counted floor binds and say so.
+
+### 6.1 The anchors [MEASURED]
+
+| line | shape | machine | prover clock | tokens/s (of the 125M model, FFN-only) |
+|---|---|---|---:|---:|
+| Route B (S1) | 12 x 512 | WSL laptop, 8 threads, CPU only, NOISY-SHARED | 23.0 s (25.8 s wall incl. verify); 20.7 s with the weight commitment cached (§2.2) | **22** (20 on the wall; 25 cached) |
+| lattice (S0 §4.1) | 12 x 512 | WSL laptop, 8 threads + RTX 4070 Laptop, QUIET | 18.0 s (21.0 s wall) | 28 (24 on the wall) |
+
+### 6.2 8B (Mistral-7B shape), proven FFN tokens per second [MODEL]; each cell "prefill / decode"
+
+| design | laptop CPU (8T) | laptop GPU (RTX 4070 Laptop) | one desktop board (4090 class) | one H100 |
+|---|---:|---:|---:|---:|
+| **Route B, P0 (as built, no ZK)** | **1.0 / 0.0066** | 5.2-16 / 0.033-0.099 | 16-78 / 0.10-0.49 | **26-187 / 0.16-1.2** |
+| Route B, P1 (activations private) | 0.96-1.0 / 0.0061-0.0065 | 4.8-15 / 0.031-0.097 | 15-76 / 0.09-0.48 | 24-183 / 0.15-1.2 |
+| Route B, P3 (weights + activations private: W re-committed per proof) | 0.72 / 0.0027 | 3.6-11 / 0.014-0.041 | 11-54 / 0.041-0.20 | 18-130 / 0.068-0.49 (floor: 1.8-6 s of hashing per proof) |
+| lattice (a) built (S0) | — | 0.56-0.83 / 0.0024-0.0027 | 1.1-5.0 / 0.005-0.016 | 1.1-6.6 / 0.005-0.022 |
+| lattice (b) built + Stage A (S0) | — | 0.71-0.80 / 0.0024-0.0027 | 1.4-4.8 / 0.005-0.016 | 1.4-6.4 / 0.005-0.022 |
+| lattice (c) two-tier + weight preprocessing, routes constants (S0) | — | 3.3-5.6 / 0.08-0.25 | 6.6-33 / 0.15-0.55 | 6.6-45 / 0.15-2.0 |
+| lattice (c') same, spike-measured constants (S0) | — | 0.9-2.4 / 0.003-0.016 | 1.8-9.7 / 0.006-0.06 | 1.8-9.7 / 0.006-0.06 |
+
+Per-proof costs behind the Route-B cells (laptop CPU, prover clock,
+s): P0 492 / 152; P1 502-531 / 155-164; P3 710 / 370 (§2.5, §4.4).
+The 8B pass fits the laptop's 15 GB only barely as built (§2.4) and
+not its 8 GB VRAM: the laptop-GPU column is "streamed per layer".
+
+### 6.3 30B (the §1.3 stand-in shape), proven FFN tokens per second [MODEL on MODEL]; each cell "prefill / decode"
+
+| design | laptop CPU (8T) | laptop GPU | one desktop board (4090 class) | one H100 |
+|---|---:|---:|---:|---:|
+| **Route B, P0 (as built, no ZK)** | **0.33 / 0.0017** (does not fit 15 GB) | 1.7-5.0 / 0.0087-0.026 (does not fit 8 GB VRAM: streamed) | 5.0-25 / 0.026-0.13 (decode floor 0.9 s: the weights streamed, §3.5) | **8.3-60 / 0.043-0.31** |
+| Route B, P1 (activations private) | 0.31-0.32 / 0.0016-0.0017 | 1.6-4.9 / 0.0081-0.026 | 4.6-24 / 0.024-0.13 | 7.7-58 / 0.040-0.30 |
+| Route B, P3 (weights + activations private) | 0.22 / 0.0007 | 1.1-3.2 / 0.0035-0.011 | 3.2-16 / 0.011-0.053 | 5.4-39 / 0.018-0.13 (**floor: 7-23 s of hashing per proof** — the top of the range holds only at a >= 70 GB/s device hash rate) |
+| lattice (a) built (S0) | — | 0.17-0.24 / 0.0006-0.0007 | 0.35-1.4 / 0.0013-0.004 | 0.35-1.9 / 0.0013-0.006 |
+| lattice (b) built + Stage A (S0) | — | 0.21-0.23 / 0.0006-0.0007 | 0.42-1.4 / 0.0013-0.004 | 0.42-1.9 / 0.0013-0.006 |
+| lattice (c) routes constants (S0) | — | 1.1-1.9 / 0.024-0.09 | 2.3-12 / 0.05-0.14 | **2.3-15 / 0.05-0.3** (0.05-0.7 with a packed store) |
+| lattice (c') spike constants (S0) | — | 0.26-0.78 / 0.0008-0.004 | 0.5-3.1 / 0.0016-0.017 | 0.5-3.1 / 0.0016-0.017 |
+
+Per-proof costs behind the Route-B cells (laptop CPU, s): P0 1,546 /
+578; P1 1,577-1,670 / 590-624; P3 2,378 / 1,410. Memory: no Route-B
+30B pass fits the laptop; a 4090 holds one layer's working set OR
+the weights, not both (§3.5); an H100 holds both.
+
+### 6.4 The counted floors on one H100, for the cells that matter [COUNTED on spec sheet, §7.2]
+
+The scaled-constant cells above carry the as-built CPU code's
+inefficiencies (§2.1: ~10x on the streaming loops, 3.5x on the
+small zero-check) divided by a hardware range. The spec-sheet floor
+— tuned kernels, the weights HBM-resident, the device saturated —
+is a different number, and the distance between the two is the
+kernel-quality unknown (the analogue of S0's (c)/(c') spread):
+
+| cell | scaled-constant model | counted floor | what the floor is made of |
+|---|---:|---:|---|
+| 8B prefill, P0 | 26-187 tok/s (2.7-20 s per proof) | ~140-400 tok/s (1.3-3.7 s) | hashing 108 GB of encoded activations at 30-100 GB/s; NTT 0.05 s; sumchecks 0.03 s; weight side 10-20 ms |
+| 8B decode, P0 | 0.16-1.2 tok/s | **~33-80 tok/s** (12-30 ms) | weight side 10-20 ms (§2.3); 212 MB of activations hashed (2-7 ms) |
+| 30B prefill, P0 | 8.3-60 tok/s (8.6-62 s) | **~47-138 tok/s** (3.7-11 s) | hashing 311 GB at 30-100 GB/s (3.1-10.4 s); NTT 0.14 s; zero-checks 0.09 s; openings 0.02 s; ~1 TB of memory traffic 0.3 s; weight side 25-60 ms; witness inference ~8 ms |
+| 30B decode, P0 | 0.043-0.31 tok/s | **~12-33 tok/s** (30-80 ms) | the weight side alone is 25-60 ms: 6.4 ms of reads + 18-36 ms of arithmetic + 7 ms of cache columns; plus 608 MB of activations hashed (6-20 ms) |
+| 30B prefill, P3 | 5.4-39 tok/s | ~15-48 tok/s (11-34 s) | the P0 floor plus the weight re-commit: 688 GB hashed (7-23 s) |
+| 30B decode, P3 | 0.018-0.13 tok/s | **<= 0.14 tok/s** (>= 7 s) | the re-commit's hashing alone |
+
+### 6.5 The same cells in proven MAC/s, for the yardstick of §7
+
+| design, workload | laptop CPU | laptop GPU | one desktop board | one H100 |
+|---|---:|---:|---:|---:|
+| Route B, 125M 12x512 [MEASURED, S1] | 1.26e9 | — | — | — |
+| lattice, 125M 12x512 [MEASURED, S0] | (3.6e8 CPU-only) | 1.4e9 wall / 1.6e9 clock | — | — |
+| Route B, 8B prefill P0 [MODEL] | 5.9e9 | 2.9-8.8e10 | 0.9-4.4e11 | 1.5e11-1.1e12 |
+| Route B, 30B prefill P0 [MODEL on MODEL] | 7.1e9 | 3.6e10-1.1e11 | 1.1-5.3e11 | **1.8e11-1.3e12** |
+| Route B, 30B decode P0 | 3.7e7 | 1.9-5.6e8 | 0.6-2.8e9 | 0.9-6.7e9; **counted floor 2.7-7.2e11** |
+| lattice (c), 30B prefill [S0 §4.4] | — | 2.4-4.1e10 | 0.5-2.5e11 | 0.5-3.3e11 |
+| **the target: 50 tok/s at 30B** | | | | **1.55e12** |
+| the competitor's claim (S5) [EXTERNAL] | | | | 1.6e12 (batch 1), 2.4e12 (batch 4) |
+
+### 6.6 What the table says
+
+1. **On the laptop's CPU alone, Route B as built is a ~1 tok/s
+   system at 8B prefill and a ~0.007 tok/s system at 8B decode**
+   [MODEL from the measured 125M pass] — the same two-workload
+   shape as the lattice line and, per proof, in the class of the
+   lattice line's (c') row, which needed the GPU.
+2. **Zero knowledge splits by mode.** P1 (activations private)
+   costs 2-8% and does not move any cell. P3/P2 (weights private)
+   costs the weight commitment on every proof: −31% on 8B prefill,
+   −59% on 8B decode, −35% / −59% at 30B, and on an H100 a hashing
+   floor that caps 30B decode at ~0.1 tok/s and takes 70-230% of
+   the 10.2 s prefill budget by itself.
+3. **The device columns are where the two lines part.** Route B's
+   work is entirely device-shaped, so its factors are 25-180x
+   (H100) against the lattice line's 2-8x; that is the whole reason
+   Route B's 30B-prefill H100 cell (8-60 tok/s) is 4x the lattice
+   line's best (2-15). None of it is measured; lane XX's row is the
+   first point.
+4. **The 30B prefill cell straddles the goal.** 8.3-60 tok/s by
+   scaled constants, 47-138 at the counted floor: 50 tok/s needs the
+   upper half of the hardware range or kernels near the floor, and
+   the floor is set by the device's hash rate (§7.2).
+5. **Batch-1 decode does not reach the goal in any Route-B cell**,
+   scaled or counted: the counted floor at 30B is 12-33 tok/s, set
+   by a per-proof pass over 21.5 GB of weights that no hash-based
+   PCS avoids (§5.4), and the scaled model is 100x below that.
+6. Pipelining consecutive proofs buys ~1x on one board once the
+   pass is device-resident (S0 §5.3's argument applies verbatim);
+   batching B requests per proof is the lever (§7.3).
 
 ## 7. The competitor row, and what a 50 tok/s Route-B design must have
 
