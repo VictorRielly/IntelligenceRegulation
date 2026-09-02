@@ -197,6 +197,53 @@ pub fn identity_lookup_col(
     LookupCol { n_log2, keys, row_of, mult }
 }
 
+/// The fused-pair table lookup of a SiLU member ((prim, img) against the
+/// frozen 256-row member table) as a lookup column over the STRIDED grid
+/// x = r * cols_pad + c — shape-general: at f = 14336 the member pads to
+/// 16384 columns (MVP8B §1.1) and the as-built silu phase's `prim.len()
+/// == n_el` assert cannot hold. Pads carry the table's ROW-0 key and are
+/// counted in mult[0] (the pad convention every claim builder subtracts
+/// back out with the pad kernel sum). `row_idx` maps a fused (x, y)
+/// residue pair to its table row.
+#[allow(clippy::too_many_arguments)]
+pub fn fused_lookup_col(
+    kf: &KField,
+    prim: &[i64],
+    img: &[i64],
+    rows: usize,
+    cols: usize,
+    cols_pad: usize,
+    table: &[KElem],
+    row_idx: &std::collections::HashMap<(u64, u64), usize>,
+) -> LookupCol {
+    assert_eq!(prim.len(), rows * cols);
+    assert_eq!(img.len(), rows * cols);
+    let size = rows * cols_pad;
+    assert!(size.is_power_of_two(), "strided member grid must be a hypercube");
+    let n_log2 = size.trailing_zeros() as usize;
+    let zq = &kf.zq;
+    let mut keys = vec![table[0].clone(); size];
+    let mut row_of = vec![Some(0usize); size];
+    let mut mult = vec![0u64; table.len()];
+    mult[0] = (size - rows * cols) as u64;
+    for r in 0..rows {
+        for c in 0..cols {
+            let i = r * cols + c;
+            let (xm, ym) = (zq.to_mod(prim[i]), zq.to_mod(img[i]));
+            let x = r * cols_pad + c;
+            keys[x] = super::lookup::fuse_pair(kf, xm, ym);
+            match row_idx.get(&(xm, ym)) {
+                Some(&j) => {
+                    row_of[x] = Some(j);
+                    mult[j] += 1;
+                }
+                None => row_of[x] = None,
+            }
+        }
+    }
+    LookupCol { n_log2, keys, row_of, mult }
+}
+
 /// The 2^kappa-way partial-fraction helper: h_node[x] = sum_{b <
 /// 2^kappa} 1/(alpha - key[(x << kappa) | b]) (the LOW kappa bits of the
 /// leaf index are the leaf position). On-table keys take the table row's
