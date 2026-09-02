@@ -5330,6 +5330,85 @@ digest 44528c6a.. unchanged (622,011 B, peak 3,891 MiB).
   uperf3_ss_v3_*; this status text landed one commit later — the
   ledger edit missed its anchor the first time).
 
+### RUNG V4 — THE 8B FULL-MODE COUNTED ROW ON LANE OO's BASELINE (2026-09-02) [COUNTED / MODEL, no run]
+
+The owed recount (RULINGS 2026-08-31 item 2(c): "the 8B memory
+projection is STALE for full mode ... a fresh counted row is OWED
+before hardware commitments; first estimate ~130-160 GB"). Baseline =
+lane OO's counted 32x512 phase table (range-form Stage A + W-3 + the
+HH/KK/OO diets): commit ~61 / claim ~20 / lvl-0 ~72 / lvl-1 ~29 /
+verify ~6 GB, peak lvl-0 ~72 GB; weight n_0 352,321,536, act n_0
+145,475,764 (split in >= 2 groups under the 94.2M cap). Full mode =
+V3's routing: the planes for every range fact (already in the
+baseline), the SiLU lookups on the kappa-4 partial-fraction helper.
+Shape: 32 x 512 x f 14336 -> f_pad 16384 (the strided keys of V3),
+silu elements 268,435,456.
+
+| 8B 32x512 term | range form (OO baseline) | full mode, as built (S2 K-helper) | **full mode, V3 (kappa 4)** | label |
+|---|---:|---:|---:|---|
+| act-h digit rings | 0 | 536,870,912 | **33,554,432** | COUNTED (`uperf-a full-count`) |
+| act-h groups under the e0 = 2 gate (94,177,249 rings) | — | 6 (six mid-transcript openings) | **1** (+0.74 bits headroom) | COUNTED |
+| act-h flat i8 store (128 B/ring) | 0 | 68.7 GB | **4.3 GB** | COUNTED |
+| act-h own lvl-0 phase (63.7 GB flat stores + store + A_0 209 B/ring + lvl-1 76 B/ring) | — | ~285 GB | **~78 GB** | MODEL (MVP8B §1.2 act-group rates) |
+| the weight group's lvl-0 phase + the act-h store | 72 | 141 | **76.3** | MODEL |
+| served-claim kernels of the lookups (2 dense n_h-row K kernels per column, prover + verifier copies) | 0 (descents serve endpoint claims) | ~137 GB (n_h = 8.4M x 32 cols x 2 x 128 B x 2) | **~8.6 GB** (n_h 524,288) — ~2.2 GB with follow-up (i), ~1.1 with (i)+(ii) | COUNTED from V3's measured attribution |
+| per-column transients (one column live: boxed keys ~150 B x 8.4M, the 18 pf tables x 524K nodes) | 0 | 1.3 GB + (S2's packed tables) | **~2.7 GB** | COUNTED |
+| the silu descents' transient (MVP8B §1.4: silu-m3 pair 27.9 GB, m4 6.4 GB at 32x512) | **27.9 GB** during the descent phase | 0 | **0** | COUNTED (memo) |
+| **pass peak** | **~72 GB** (lvl-0) | **~285 GB** (the act-h opening; the ruling's 130-160 counted the store only) | **~78 GB at lvl-0-class; ~87 GB if the claim kernels are left as they are** | MODEL |
+| full-mode bytes vs range (12x128 ratio carried: +35%) | ~1.9 MB (MVP8B §1.5 artifact class) | — | ~2.6 MB | MODEL |
+| the 12 -> 32-column lookup sumchecks at 8T (12x128: 14.8 s for 3.1M elements, scalar K, degree 18) | — (descents ~x0.03 of the wall) | — | **~21 min at 8T on this box; ~6-8 min on the Mac's 24+ threads** | MODEL (linear in elements, x85) |
+| 32x16 (the yardstick) act-h rings / store | 0 | 16,777,216 / 2.15 GB | **1,048,576 / 0.13 GB** | COUNTED |
+
+THE ROW, in one line: **full mode at 8B under V3's encoding costs
++4.3 GB of committed store and lands the pass peak at ~78 GB
+[MODEL] on OO's ~72 GB range-form baseline (≈ +8%; ~87 GB until the
+claim-kernel follow-ups land) — ONE act-h group, no new gate problem,
+under 128 GB with ~40-50 GB of margin; the as-built S2 form would
+have been ~285 GB and six groups.** The F1 ruling's "committed-h
+bill" is therefore ~6 GB of the 8B peak, not the 60-90 GB class the
+first estimate carried — PROVIDED the transcript change is ruled in
+(the kappa-level helper is a new Stage-A full-mode object; nothing
+frozen moved, and the S2 form stays reachable as `full-s2`).
+
+WHAT MUST LAND BEFORE T17's FULL-MODE FREEZE SET (recorded, none
+built here): (a) Victor's ruling on the kappa-level helper as THE
+full-mode encoding (soundness note: the partial-fraction identity is
+exact when alpha is no key — the S2 redraw measure; the round chain
+is the house sumcheck at degree 18 over K); (b) the lagrange_eval
+denominator reduction if kappa 5+ is ever wanted (sumcheck.rs, a
+frozen-path one-liner — degree 18 needs nothing); (c) the claim-kernel
+diet (i)+(ii) above (~7 GB at 8B; a driver-level change); (d) the
+MVP8B memo's W-1/W-3/W-4/W-6/W-7 items shared with range mode; (e)
+the packed (KTab) key build if the 1.3 GB per-column boxed transient
+matters on the Mac (it does not on 256 GB).
+
+ORCHESTRATOR-RUN (optional, > 5 min at this box's 8T; NOT run by
+this lane): the 12x512 full-mode measurement that turns the 12x128
+row into the reference shape —
+`M125_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/m125_ffn_export_wsl ZK_THREADS=8 flock /tmp/zk-heavy.lock /usr/bin/time -v /home/victor/wt-uperf3-ss/zkmatrix-rs/target/release/ring_matmul uperf-a pass 12 512 full`
+(expected [MODEL]: act-h 1,572,864 rings; peak ~range's 12x512 peak
+(~7.85-9 GB class, the 2026-08-29 ladder note) + ~1.5-2 GB of claim
+kernels; wall ~5-6 min at 8T with the lookup sumchecks ~60 s) and its
+range-mode sibling `... uperf-a pass 12 512 range nooracle` for the
+A/B. Post both peaks + digests here.
+
+LANE SS SUMMARY (rungs 0-V4 all landed 2026-09-02, commits 0301c66,
+a169c81, 1d4e911, 3916742 + c6b8b1a, V4 below): the memo's C2 was a
+conflation (the act-h group is the SiLU lookups' LogUp helper, not a
+range-fact commitment of h) and is inverted on the count (a lookup
+over an existing 8-bit column costs 32x its planes; all range facts
+as lookups = 2.95 billion rings at 8B); the compact committed-h
+encoding is the kappa-level partial-fraction helper (16x smaller at
+kappa 4), which makes `uperf-a pass 12 128 full` fit the box (8,072
+MiB vs the 14,777 OOM; prover high-water = range mode's) and puts
+the 8B full-mode peak at ~78 GB [MODEL] on the 72 GB baseline. Range
+mode is byte-identical throughout (12x64 digest 44528c6a.. at every
+commit). Files: ring/stage_a_full.rs (NEW), ring/mod.rs (+1 line),
+ring/stage_a.rs (+1 dispatch line, verbatim above), the driver's
+Full-mode branches + `uperf-a full-plan | full-count | ss-diff | pass
+.. full | full-s2 | full-ss ..`, results/uperf3_ss_v2_full_count_12x512.log,
+results/uperf3_ss_v3_12x128_{range,full_k4,full_k3}.log.
+
 ## Agent TT status (main session) — round 10
 
 (lane appends below)
