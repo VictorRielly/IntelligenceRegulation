@@ -675,3 +675,127 @@ extern "C" __global__ void k_dot_slices(const u64* __restrict__ data, const int*
         __syncthreads();
     }
 }
+
+// ---------------------------------------------------------------------------
+// [rung 4d] The inverse transform as a DIF (Gentleman-Sande) NTT: natural
+// order in, bit-reversed order out, NO gather anywhere. Pass A runs the
+// first log_n - 12 stages (len = n .. 8192) on the strided [2^(log_n-12)]
+// x [J] tile (coalesced), pass B the last 12 (len = 4096 .. 2) on
+// contiguous 4096-blocks; the 1/n scale rides on the last store. The
+// coefficient buffer then holds coef[rev(p)] at p, which is exactly the
+// bit-reversed input order the forward DIT (k_ntt_p1) wants: with
+// zero padding by R = 2^rb, DIT position x = m * R reads coef-buffer[m]
+// (rev_{log_nn}(m R) == rev_{log_n}(m)) and every other position is 0 —
+// a contiguous load. Values: the same evaluations (unique), as before.
+
+extern "C" __global__ void k_dif_pa(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw, int log_n) {
+    __shared__ u64 sh[NTT_BLK];
+    const int n = 1 << log_n;
+    const int lt = log_n - NTT_LOG_BLK;
+    const int nt = 1 << lt;
+    const int J = NTT_BLK >> lt;
+    const int row = blockIdx.x / nt;
+    const int tile = blockIdx.x - row * nt;
+    const int j0 = tile * J;
+    const u64* s = src + (size_t)row * (size_t)n;
+    u64* d = dst + (size_t)row * (size_t)n;
+    for (int q = threadIdx.x; q < NTT_BLK; q += blockDim.x) {
+        int t = q / J, jj = q - t * J;
+        sh[q] = s[t * NTT_BLK + j0 + jj];
+    }
+    __syncthreads();
+    for (int st = log_n; st > NTT_LOG_BLK; st--) {
+        const int hs = st - 1 - NTT_LOG_BLK;
+        const int halft = 1 << hs;
+        const u64* tws = tw + ((size_t)1 << (st - 1)) - 1;
+        for (int b = threadIdx.x; b < (NTT_BLK >> 1); b += blockDim.x) {
+            int jj = b % J;
+            int tb = b / J;
+            int tl = tb & (halft - 1);
+            int t = ((tb >> hs) << (hs + 1)) + tl;
+            int k = tl * NTT_BLK + j0 + jj;
+            u64 w = tws[k];
+            int i = t * J + jj;
+            int ip = i + halft * J;
+            u64 u = sh[i];
+            u64 v = sh[ip];
+            sh[i] = gl_add(u, v);
+            sh[ip] = gl_mul(gl_sub(u, v), w);
+        }
+        __syncthreads();
+    }
+    for (int q = threadIdx.x; q < NTT_BLK; q += blockDim.x) {
+        int t = q / J, jj = q - t * J;
+        d[t * NTT_BLK + j0 + jj] = sh[q];
+    }
+}
+
+extern "C" __global__ void k_dif_pb(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw, int log_n, u64 scale) {
+    __shared__ u64 sh[NTT_BLK];
+    const int n = 1 << log_n;
+    const int lb = log_n < NTT_LOG_BLK ? log_n : NTT_LOG_BLK;
+    const int bs = 1 << lb;
+    const int blocks_per_row = n >> lb;
+    const int row = blockIdx.x / blocks_per_row;
+    const int blk = blockIdx.x - row * blocks_per_row;
+    const u64* s = src + (size_t)row * (size_t)n + (size_t)blk * (size_t)bs;
+    u64* d = dst + (size_t)row * (size_t)n + (size_t)blk * (size_t)bs;
+    for (int q = threadIdx.x; q < bs; q += blockDim.x) sh[q] = s[q];
+    __syncthreads();
+    for (int st = lb; st >= 1; st--) {
+        const int half = 1 << (st - 1);
+        const u64* tws = tw + (half - 1);
+        for (int b = threadIdx.x; b < (bs >> 1); b += blockDim.x) {
+            int k = b & (half - 1);
+            int i = ((b >> (st - 1)) << st) + k;
+            u64 w = tws[k];
+            u64 u = sh[i];
+            u64 v = sh[i + half];
+            sh[i] = gl_add(u, v);
+            sh[i + half] = gl_mul(gl_sub(u, v), w);
+        }
+        __syncthreads();
+    }
+    for (int q = threadIdx.x; q < bs; q += blockDim.x) {
+        u64 v = sh[q];
+        if (scale != 1ULL) v = gl_mul(v, scale);
+        d[q] = v;
+    }
+}
+
+// The forward DIT's first pass with the bit-reversed-order coefficient
+// buffer (rows x n_src) as input, zero-padded by R = 2^rb (log_n = log of
+// n_src + rb): position x = m R reads src[m], others are 0 (contiguous).
+extern "C" __global__ void k_dit_p1_pad(const u64* __restrict__ src, u64* __restrict__ dst, const u64* __restrict__ tw,
+                                        int log_n, int n_src, int rb) {
+    __shared__ u64 sh[NTT_BLK];
+    const int n = 1 << log_n;
+    const int lb = log_n < NTT_LOG_BLK ? log_n : NTT_LOG_BLK;
+    const int bs = 1 << lb;
+    const int blocks_per_row = n >> lb;
+    const int row = blockIdx.x / blocks_per_row;
+    const int blk = blockIdx.x - row * blocks_per_row;
+    const u64* s = src + (size_t)row * (size_t)n_src;
+    u64* d = dst + (size_t)row * (size_t)n + (size_t)blk * (size_t)bs;
+    const int mask = (1 << rb) - 1;
+    for (int q = threadIdx.x; q < bs; q += blockDim.x) {
+        int x = blk * bs + q;
+        sh[q] = ((x & mask) == 0) ? s[x >> rb] : 0ULL;
+    }
+    __syncthreads();
+    for (int st = 1; st <= lb; st++) {
+        const int half = 1 << (st - 1);
+        const u64* tws = tw + (half - 1);
+        for (int b = threadIdx.x; b < (bs >> 1); b += blockDim.x) {
+            int k = b & (half - 1);
+            int i = ((b >> (st - 1)) << st) + k;
+            u64 w = tws[k];
+            u64 u = sh[i];
+            u64 v = gl_mul(sh[i + half], w);
+            sh[i] = gl_add(u, v);
+            sh[i + half] = gl_sub(u, v);
+        }
+        __syncthreads();
+    }
+    for (int q = threadIdx.x; q < bs; q += blockDim.x) d[q] = sh[q];
+}

@@ -22,7 +22,7 @@ mod cuda;
 #[cfg(feature = "gpu-cuda")]
 pub use cuda::{
     dev_columns, dev_commit, dev_commit_check, dev_commit_from, dev_eval_many, dev_fold_rows, dev_hash_check, dev_helpers, dev_stats,
-    dev_stats_reset, dev_zerocheck, enabled, label, probe, DevCommit, GpuStats, HelperSpec, ProbeReport, TabSpec,
+    dev_stats_reset, dev_zerocheck, enabled, label, probe, DevCommit, GpuStats, HelperSpec, Pooled, ProbeReport, TabSpec,
 };
 
 #[cfg(not(feature = "gpu-cuda"))]

@@ -11,7 +11,7 @@ use crate::merkle::Digest;
 use crate::ntt::NttTables;
 use crate::pcs::PcsParams;
 use cudarc::driver::result as cu;
-use cudarc::driver::{sys, CudaDevice, CudaSlice, DeviceSlice, LaunchAsync, LaunchConfig};
+use cudarc::driver::{sys, CudaDevice, CudaSlice, DevicePtr, DeviceSlice, LaunchAsync, LaunchConfig};
 use cudarc::nvrtc::{compile_ptx_with_opts, CompileOptions};
 use rayon::prelude::*;
 use std::sync::{Arc, Mutex, OnceLock};
@@ -22,7 +22,7 @@ const MODULE: &str = "hlgpu";
 const FUNCS: &[&str] = &[
     "k_probe", "k_ntt_p1", "k_ntt_p2", "k_gather_cols", "k_hash_cols",
     "k_sc_round_zc20", "k_sc_round_zc17", "k_reduce_f2", "k_sc_fold", "k_tab_from_fp", "k_tab_from_fp2", "k_eq_table",
-    "k_fold_rows", "k_helper", "k_sum_fp", "k_eq_join", "k_dot_slices",
+    "k_fold_rows", "k_helper", "k_sum_fp", "k_eq_join", "k_dot_slices", "k_dif_pa", "k_dif_pb", "k_dit_p1_pad",
 ];
 const SC_THREADS: u32 = 256;
 const SC_MAX_BLOCKS: u32 = 1024;
@@ -48,6 +48,52 @@ unsafe impl Send for Gpu {}
 
 static GPU: OnceLock<Option<Mutex<Gpu>>> = OnceLock::new();
 static INIT_ERR: Mutex<Option<String>> = Mutex::new(None);
+
+// [rung 4d] The device buffer pool: a fresh cuMemAlloc'd buffer pays a
+// first-touch cost on this box (~12 ms per 68 MB, measured: the second
+// encode of the same buffers ran 5x faster), so buffers are reused by
+// exact length across commitments and layers. Values are unaffected
+// (every element a kernel reads is written first).
+static POOL: Mutex<Vec<CudaSlice<u64>>> = Mutex::new(Vec::new());
+
+fn pool_take(dev: &Arc<CudaDevice>, len: usize) -> Result<CudaSlice<u64>, String> {
+    let mut pool = POOL.lock().unwrap();
+    if let Some(i) = pool.iter().position(|b| b.len() == len) {
+        return Ok(pool.swap_remove(i));
+    }
+    drop(pool);
+    unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!("cuMemAlloc({} MB): {e}", len * 8 >> 20))
+}
+
+fn pool_put(buf: CudaSlice<u64>) {
+    let mut pool = POOL.lock().unwrap();
+    if pool.len() < 64 {
+        pool.push(buf);
+    }
+}
+
+/// A pooled buffer: returned to the pool on drop.
+pub struct Pooled(Option<CudaSlice<u64>>);
+impl Pooled {
+    fn take(dev: &Arc<CudaDevice>, len: usize) -> Result<Pooled, String> {
+        Ok(Pooled(Some(pool_take(dev, len)?)))
+    }
+    #[inline]
+    fn get(&self) -> &CudaSlice<u64> {
+        self.0.as_ref().unwrap()
+    }
+    #[inline]
+    fn get_mut(&mut self) -> &mut CudaSlice<u64> {
+        self.0.as_mut().unwrap()
+    }
+}
+impl Drop for Pooled {
+    fn drop(&mut self) {
+        if let Some(b) = self.0.take() {
+            pool_put(b);
+        }
+    }
+}
 
 /// Per-process device-side accounting (seconds per phase, bytes moved).
 #[derive(Clone, Debug, Default)]
@@ -273,8 +319,8 @@ pub struct DevCommit {
     pub rows: usize,
     pub log_n: u32,
     pub log_nn: u32,
-    pub(super) data: CudaSlice<u64>,
-    pub(super) enc: CudaSlice<u64>,
+    pub(super) data: Pooled,
+    pub(super) enc: Pooled,
 }
 
 impl Gpu {
@@ -318,12 +364,20 @@ impl Gpu {
         let lb = log_n.min(NTT_LOG_BLK);
         let blocks_per_row = 1u32 << (log_n - lb);
         let cfg1 = LaunchConfig { grid_dim: (rows as u32 * blocks_per_row, 1, 1), block_dim: (ntt_threads(), 1, 1), shared_mem_bytes: 0 };
+        let vb = verbose();
+        let ta = Instant::now();
         unsafe { p1.launch(cfg1, (src, &mut *dst, tw, log_n as i32, n_src as i32, scale)) }.map_err(|e| format!("k_ntt_p1: {e}"))?;
+        if vb { self.dev.synchronize().map_err(|e| e.to_string())?; }
+        let tb = Instant::now();
         if log_n > NTT_LOG_BLK {
             let p2 = self.dev.get_func(MODULE, "k_ntt_p2").ok_or("k_ntt_p2 missing")?;
             let tiles = 1u32 << (log_n - NTT_LOG_BLK);
             let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (ntt_threads(), 1, 1), shared_mem_bytes: 0 };
             unsafe { p2.launch(cfg2, (&mut *dst, tw, log_n as i32, scale)) }.map_err(|e| format!("k_ntt_p2: {e}"))?;
+        }
+        if vb {
+            self.dev.synchronize().map_err(|e| e.to_string())?;
+            eprintln!("[UPERF3-XX]   ntt rows {rows} 2^{log_n} (n_src {n_src}, inverse {inverse}): p1 {:.4} | p2 {:.4} s", (tb - ta).as_secs_f64(), tb.elapsed().as_secs_f64());
         }
         Ok(())
     }
@@ -342,7 +396,8 @@ pub fn dev_commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Result<(D
     let rows = data.len() / n;
     let dev = g.dev.clone();
     let t0 = Instant::now();
-    let d_data = dev.htod_sync_copy(as_u64s(data)).map_err(|e| format!("data upload: {e}"))?;
+    let mut d_data = Pooled::take(&dev, data.len())?;
+    dev.htod_sync_copy_into(as_u64s(data), d_data.get_mut()).map_err(|e| format!("data upload: {e}"))?;
     dev.synchronize().map_err(|e| e.to_string())?;
     stats_with(|s| { s.secs_h2d += t0.elapsed().as_secs_f64(); s.bytes_h2d += (data.len() * 8) as u64; });
     drop(g);
@@ -352,22 +407,27 @@ pub fn dev_commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Result<(D
 /// Commit a device-resident data buffer (rows x n u64, row-major) — the
 /// encode + hash half of `dev_commit`, also used for the H data the helper
 /// kernels write on the device.
-pub fn dev_commit_from(params: &PcsParams, d_data: CudaSlice<u64>, rows: usize, ntt: &NttTables) -> Result<(DevCommit, Vec<Digest>), String> {
+pub fn dev_commit_from(params: &PcsParams, d_data: Pooled, rows: usize, ntt: &NttTables) -> Result<(DevCommit, Vec<Digest>), String> {
     let g = gpu().ok_or_else(init_err)?;
     let mut g = g.lock().unwrap();
     g.ensure_twiddles(ntt)?;
     let n = params.cols();
     let nn = params.enc_cols();
-    assert_eq!(d_data.len(), rows * n);
+    assert_eq!(d_data.get().len(), rows * n);
     let log_n = params.log_cols;
     let log_nn = nn.trailing_zeros();
     assert_eq!(1usize << log_nn, nn, "inv_rate must be a power of two on the device path");
     let dev = g.dev.clone();
     let t1 = Instant::now();
-    let mut d_coef = unsafe { dev.alloc::<u64>(rows * n) }.map_err(|e| format!("coef alloc: {e}"))?;
-    let mut d_enc = unsafe { dev.alloc::<u64>(rows * nn) }.map_err(|e| format!("enc alloc: {e}"))?;
-    g.ntt_rows(&d_data, &mut d_coef, rows, n, log_n, true)?;
-    g.ntt_rows(&d_coef, &mut d_enc, rows, n, log_nn, false)?;
+    let mut d_coef = Pooled::take(&dev, rows * n)?;
+    let mut d_enc = Pooled::take(&dev, rows * nn)?;
+    if gather_ntt() {
+        // rung 1's form (HL_GPU_GATHER_NTT=1): DIT both ways with the bit-reversed gather on the load.
+        g.ntt_rows(d_data.get(), d_coef.get_mut(), rows, n, log_n, true)?;
+        g.ntt_rows(d_coef.get(), d_enc.get_mut(), rows, n, log_nn, false)?;
+    } else {
+        g.encode_rows(d_data.get(), d_coef.get_mut(), d_enc.get_mut(), rows, log_n, log_nn)?;
+    }
     dev.synchronize().map_err(|e| e.to_string())?;
     let t2 = Instant::now();
     stats_with(|s| s.secs_ntt += (t2 - t1).as_secs_f64());
@@ -375,7 +435,7 @@ pub fn dev_commit_from(params: &PcsParams, d_data: CudaSlice<u64>, rows: usize, 
     drop(d_coef);
     let leaves = if host_hash() {
         // rung 1's form (HL_GPU_HOST_HASH=1): the encoded matrix back to the host, hashed by the CPU code.
-        let enc_host = as_fps(dev.dtoh_sync_copy(&d_enc).map_err(|e| format!("enc download: {e}"))?);
+        let enc_host = as_fps(dev.dtoh_sync_copy(d_enc.get()).map_err(|e| format!("enc download: {e}"))?);
         let t3 = Instant::now();
         stats_with(|s| { s.secs_d2h += (t3 - t2).as_secs_f64(); s.bytes_d2h += (rows * nn * 8) as u64; });
         let leaves = crate::pcs::hash_columns(&enc_host, rows, nn);
@@ -383,12 +443,18 @@ pub fn dev_commit_from(params: &PcsParams, d_data: CudaSlice<u64>, rows: usize, 
         leaves
     } else {
         // rung 2: blake3 per column on the device; only the leaves come back.
-        let leaves = g.hash_cols(&d_enc, rows, nn)?;
+        let leaves = g.hash_cols(d_enc.get(), rows, nn)?;
         let t3 = Instant::now();
         stats_with(|s| { s.secs_hash += (t3 - t2).as_secs_f64(); s.bytes_d2h += (nn * 32) as u64; });
         leaves
     };
     Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: d_enc }, leaves))
+}
+
+/// `HL_GPU_GATHER_NTT=1`: rung 1's gather-based DIT NTT pair (for the A/B).
+fn gather_ntt() -> bool {
+    static V: OnceLock<bool> = OnceLock::new();
+    *V.get_or_init(|| env_flag("HL_GPU_GATHER_NTT"))
 }
 
 /// `HL_GPU_HOST_HASH=1`: keep the column hashing on the CPU (rung 1's form, for the A/B).
@@ -448,7 +514,7 @@ pub fn dev_columns(dc: &DevCommit, idx: &[usize]) -> Result<Vec<Vec<Fp>>, String
     let mut d_out = unsafe { dev.alloc::<u64>(rows * q) }.map_err(|e| e.to_string())?;
     let f = dev.get_func(MODULE, "k_gather_cols").ok_or("k_gather_cols missing")?;
     let cfg = LaunchConfig::for_num_elems((rows * q) as u32);
-    unsafe { f.launch(cfg, (&dc.enc, &mut d_out, &d_idx, rows as i32, nn as i32, q as i32)) }.map_err(|e| format!("k_gather_cols: {e}"))?;
+    unsafe { f.launch(cfg, (dc.enc.get(), &mut d_out, &d_idx, rows as i32, nn as i32, q as i32)) }.map_err(|e| format!("k_gather_cols: {e}"))?;
     let out = dev.dtoh_sync_copy(&d_out).map_err(|e| e.to_string())?;
     stats_with(|s| s.bytes_d2h += (rows * q * 8) as u64);
     Ok((0..q).map(|c| out[c * rows..(c + 1) * rows].iter().map(|&v| Fp(v)).collect()).collect())
@@ -483,7 +549,7 @@ pub fn dev_commit_check(log_cols: u32, inv_rate: usize, rows: usize) -> Result<(
     let g = gpu().ok_or_else(init_err)?;
     let enc = {
         let g = g.lock().unwrap();
-        as_fps(g.dev.dtoh_sync_copy(&dc.enc).map_err(|e| e.to_string())?)
+        as_fps(g.dev.dtoh_sync_copy(dc.enc.get()).map_err(|e| e.to_string())?)
     };
     let mut bad = enc.iter().zip(cpu.iter()).filter(|(a, b)| a != b).count();
     let idx: Vec<usize> = (0..16).map(|i| (i * 7919 + 13) % nn).collect();
@@ -541,7 +607,8 @@ pub fn dev_zerocheck(kind: i32, specs: &[TabSpec], prm: &[u64], tr: &mut Transcr
     };
     assert!(l.is_power_of_two() && k <= 16);
     let nv = l.trailing_zeros() as usize;
-    let mut tabs = unsafe { dev.alloc::<u64>(k * l * 2) }.map_err(|e| format!("sc tables alloc ({} MB): {e}", k * l * 16 >> 20))?;
+    let mut tabs_p = Pooled::take(&dev, k * l * 2)?;
+    let tabs = tabs_p.get_mut();
     let f_fp = dev.get_func(MODULE, "k_tab_from_fp").ok_or("k_tab_from_fp missing")?;
     let f_fp2 = dev.get_func(MODULE, "k_tab_from_fp2").ok_or("k_tab_from_fp2 missing")?;
     let mut eq_pts: Vec<CudaSlice<u64>> = Vec::new();
@@ -551,13 +618,13 @@ pub fn dev_zerocheck(kind: i32, specs: &[TabSpec], prm: &[u64], tr: &mut Transcr
         match sp {
             TabSpec::FromFp(dc, off, n) => {
                 assert_eq!(*n, l);
-                let src = dc.data.slice(*off..*off + *n);
+                let src = dc.data.get().slice(*off..*off + *n);
                 unsafe { f_fp.clone().launch(cfg, (&src, &mut dst, *n as i32)) }.map_err(|e| format!("k_tab_from_fp: {e}"))?;
             }
             TabSpec::FromFp2(dc, ore, oim, n) => {
                 assert_eq!(*n, l);
-                let re = dc.data.slice(*ore..*ore + *n);
-                let im = dc.data.slice(*oim..*oim + *n);
+                let re = dc.data.get().slice(*ore..*ore + *n);
+                let im = dc.data.get().slice(*oim..*oim + *n);
                 unsafe { f_fp2.clone().launch(cfg, (&re, &im, &mut dst, *n as i32)) }.map_err(|e| format!("k_tab_from_fp2: {e}"))?;
             }
             TabSpec::Eq(r) => {
@@ -591,7 +658,7 @@ pub fn dev_zerocheck(kind: i32, specs: &[TabSpec], prm: &[u64], tr: &mut Transcr
         let ta = Instant::now();
         let blocks = (((half as u32) + SC_THREADS - 1) / SC_THREADS).clamp(1, SC_MAX_BLOCKS);
         let cfg = LaunchConfig { grid_dim: (blocks, 1, 1), block_dim: (SC_THREADS, 1, 1), shared_mem_bytes: 0 };
-        unsafe { f_round.clone().launch(cfg, (&tabs, half as i32, l as i32, &d_prm, &mut d_part)) }.map_err(|e| format!("k_sc_round: {e}"))?;
+        unsafe { f_round.clone().launch(cfg, (&*tabs, half as i32, l as i32, &d_prm, &mut d_part)) }.map_err(|e| format!("k_sc_round: {e}"))?;
         let cfg_r = LaunchConfig { grid_dim: (1, 1, 1), block_dim: (1024, 1, 1), shared_mem_bytes: 0 };
         unsafe { f_red.clone().launch(cfg_r, (&d_part, blocks as i32, 5i32, &mut d_sums)) }.map_err(|e| format!("k_reduce_f2: {e}"))?;
         sync(vb)?;
@@ -604,7 +671,7 @@ pub fn dev_zerocheck(kind: i32, specs: &[TabSpec], prm: &[u64], tr: &mut Transcr
         rounds.push(sums);
         let tc = Instant::now();
         let cfg_f = LaunchConfig::for_num_elems((k * half) as u32);
-        unsafe { f_fold.clone().launch(cfg_f, (&mut tabs, k as i32, half as i32, l as i32, r.c0.0, r.c1.0)) }.map_err(|e| format!("k_sc_fold: {e}"))?;
+        unsafe { f_fold.clone().launch(cfg_f, (&mut *tabs, k as i32, half as i32, l as i32, r.c0.0, r.c1.0)) }.map_err(|e| format!("k_sc_fold: {e}"))?;
         sync(vb)?;
         let td = Instant::now();
         t_round += (tb - ta).as_secs_f64();
@@ -647,7 +714,7 @@ pub fn dev_fold_rows(dc: &DevCommit, rhos: &[Vec<Fp2>]) -> Result<Vec<Vec<Fp2>>,
     let mut d_out = unsafe { dev.alloc::<u64>(k * n * 2) }.map_err(|e| e.to_string())?;
     let f = dev.get_func(MODULE, "k_fold_rows").ok_or("k_fold_rows missing")?;
     let cfg = LaunchConfig::for_num_elems(n as u32);
-    unsafe { f.launch(cfg, (&dc.data, &d_rho, &mut d_out, rows as i32, n as i32, k as i32)) }.map_err(|e| format!("k_fold_rows: {e}"))?;
+    unsafe { f.launch(cfg, (dc.data.get(), &d_rho, &mut d_out, rows as i32, n as i32, k as i32)) }.map_err(|e| format!("k_fold_rows: {e}"))?;
     let h = dev.dtoh_sync_copy(&d_out).map_err(|e| e.to_string())?;
     stats_with(|s| { s.secs_fold += t0.elapsed().as_secs_f64(); s.bytes_d2h += (k * n * 16) as u64; });
     Ok((0..k).map(|g| (0..n).map(|j| Fp2::new(Fp(h[(g * n + j) * 2]), Fp(h[(g * n + j) * 2 + 1]))).collect()).collect())
@@ -670,12 +737,12 @@ pub struct HelperSpec {
 /// resident A data into a fresh H data buffer (h_len u64), returned
 /// together with each helper's (re, im) column sums (the helper-sum
 /// functionals, order-free field sums).
-pub fn dev_helpers(a_dc: &DevCommit, h_len: usize, specs: &[HelperSpec], alpha: Fp2, beta: Fp2) -> Result<(CudaSlice<u64>, Vec<Fp2>), String> {
+pub fn dev_helpers(a_dc: &DevCommit, h_len: usize, specs: &[HelperSpec], alpha: Fp2, beta: Fp2) -> Result<(Pooled, Vec<Fp2>), String> {
     let g = gpu().ok_or_else(init_err)?;
     let g = g.lock().unwrap();
     let dev = g.dev.clone();
     let t0 = Instant::now();
-    let mut d_h = dev.alloc_zeros::<u64>(h_len).map_err(|e| format!("h data alloc: {e}"))?;
+    let mut d_h = Pooled::take(&dev, h_len)?;
     let f = dev.get_func(MODULE, "k_helper").ok_or("k_helper missing")?;
     let f_sum = dev.get_func(MODULE, "k_sum_fp").ok_or("k_sum_fp missing")?;
     let mut sums = Vec::with_capacity(specs.len());
@@ -689,14 +756,14 @@ pub fn dev_helpers(a_dc: &DevCommit, h_len: usize, specs: &[HelperSpec], alpha: 
         let cfg = LaunchConfig { grid_dim: (((threads + 127) / 128) as u32, 1, 1), block_dim: (128, 1, 1), shared_mem_bytes: 0 };
         let off_w: i32 = sp.off_w.map(|o| o as i32).unwrap_or(-1);
         unsafe {
-            f.clone().launch(cfg, (&a_dc.data, sp.off_v1 as i32, off_w, sp.off_v2 as i32, sp.len as i32, &d_prm, &mut d_h, sp.off_re as i32, sp.off_im as i32))
+            f.clone().launch(cfg, (a_dc.data.get(), sp.off_v1 as i32, off_w, sp.off_v2 as i32, sp.len as i32, &d_prm, d_h.get_mut(), sp.off_re as i32, sp.off_im as i32))
         }
         .map_err(|e| format!("k_helper: {e}"))?;
         let mut parts = [Fp::ZERO; 2];
         for (which, off) in [sp.off_re, sp.off_im].iter().enumerate() {
             let blocks = (((sp.len + 255) / 256) as u32).clamp(1, 1024);
             let cfg_s = LaunchConfig { grid_dim: (blocks, 1, 1), block_dim: (256, 1, 1), shared_mem_bytes: 0 };
-            unsafe { f_sum.clone().launch(cfg_s, (&d_h, *off as i32, sp.len as i32, &mut d_part)) }.map_err(|e| format!("k_sum_fp: {e}"))?;
+            unsafe { f_sum.clone().launch(cfg_s, (d_h.get(), *off as i32, sp.len as i32, &mut d_part)) }.map_err(|e| format!("k_sum_fp: {e}"))?;
             let h = dev.dtoh_sync_copy(&d_part.slice(0..blocks as usize)).map_err(|e| e.to_string())?;
             parts[which] = h.iter().fold(Fp::ZERO, |a, &b| a.add(Fp(b)));
         }
@@ -752,7 +819,7 @@ pub fn dev_eval_many(dc: &DevCommit, offs: &[usize], point: &[Fp2]) -> Result<Ve
     let mut d_part = unsafe { dev.alloc::<u64>(blocks as usize * m * 2) }.map_err(|e| e.to_string())?;
     let f = dev.get_func(MODULE, "k_dot_slices").ok_or("k_dot_slices missing")?;
     let cfg = LaunchConfig { grid_dim: (blocks, 1, 1), block_dim: (256, 1, 1), shared_mem_bytes: 0 };
-    unsafe { f.launch(cfg, (&dc.data, &d_offs, m as i32, &d_eq, n as i32, &mut d_part)) }.map_err(|e| format!("k_dot_slices: {e}"))?;
+    unsafe { f.launch(cfg, (dc.data.get(), &d_offs, m as i32, &d_eq, n as i32, &mut d_part)) }.map_err(|e| format!("k_dot_slices: {e}"))?;
     let h = dev.dtoh_sync_copy(&d_part).map_err(|e| e.to_string())?;
     let mut out = vec![Fp2::ZERO; m];
     for b in 0..blocks as usize {
@@ -762,4 +829,57 @@ pub fn dev_eval_many(dc: &DevCommit, offs: &[usize], point: &[Fp2]) -> Result<Ve
     }
     stats_with(|s| s.secs_fold += t0.elapsed().as_secs_f64());
     Ok(out)
+}
+
+impl Gpu {
+    /// [rung 4d] The systematic RS encoding of `rows` rows without any
+    /// gather: DIF inverse (natural in, bit-reversed coefficients out) then
+    /// DIT forward from the bit-reversed, zero-padded coefficients (natural
+    /// evaluations out). `data` rows x n, `coef` rows x n scratch, `enc`
+    /// rows x nn.
+    fn encode_rows(&self, data: &CudaSlice<u64>, coef: &mut CudaSlice<u64>, enc: &mut CudaSlice<u64>, rows: usize, log_n: u32, log_nn: u32) -> Result<(), String> {
+        let (max_log, tf, ti) = self.tw.as_ref().ok_or("twiddles not uploaded")?;
+        assert!(log_nn <= *max_log && log_n <= log_nn);
+        let vb = verbose();
+        let ta = Instant::now();
+        let scale: u64 = Fp::new(1u64 << log_n).inv().0;
+        let threads = ntt_threads();
+        // inverse: DIF pass A (strided stages) into coef, then pass B (contiguous) in place
+        if log_n > NTT_LOG_BLK {
+            let pa = self.dev.get_func(MODULE, "k_dif_pa").ok_or("k_dif_pa missing")?;
+            let tiles = 1u32 << (log_n - NTT_LOG_BLK);
+            let cfg = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            unsafe { pa.launch(cfg, (data, &mut *coef, ti, log_n as i32)) }.map_err(|e| format!("k_dif_pa: {e}"))?;
+            let pb = self.dev.get_func(MODULE, "k_dif_pb").ok_or("k_dif_pb missing")?;
+            let bpr = 1u32 << (log_n - NTT_LOG_BLK);
+            let cfg = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            // in place: the raw pointer as the source (each block reads its own range before writing it)
+            let cptr: sys::CUdeviceptr = *coef.device_ptr();
+            unsafe { pb.launch(cfg, (cptr, &mut *coef, ti, log_n as i32, scale)) }.map_err(|e| format!("k_dif_pb: {e}"))?;
+        } else {
+            let pb = self.dev.get_func(MODULE, "k_dif_pb").ok_or("k_dif_pb missing")?;
+            let cfg = LaunchConfig { grid_dim: (rows as u32, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            unsafe { pb.launch(cfg, (data, &mut *coef, ti, log_n as i32, scale)) }.map_err(|e| format!("k_dif_pb: {e}"))?;
+        }
+        if vb { self.dev.synchronize().map_err(|e| e.to_string())?; }
+        let tb = Instant::now();
+        // forward: DIT p1 with the contiguous padded load, then p2
+        let rb = log_nn - log_n;
+        let p1 = self.dev.get_func(MODULE, "k_dit_p1_pad").ok_or("k_dit_p1_pad missing")?;
+        let lb = log_nn.min(NTT_LOG_BLK);
+        let bpr = 1u32 << (log_nn - lb);
+        let cfg = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+        unsafe { p1.launch(cfg, (&*coef, &mut *enc, tf, log_nn as i32, (1usize << log_n) as i32, rb as i32)) }.map_err(|e| format!("k_dit_p1_pad: {e}"))?;
+        if log_nn > NTT_LOG_BLK {
+            let p2 = self.dev.get_func(MODULE, "k_ntt_p2").ok_or("k_ntt_p2 missing")?;
+            let tiles = 1u32 << (log_nn - NTT_LOG_BLK);
+            let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            unsafe { p2.launch(cfg2, (&mut *enc, tf, log_nn as i32, 1u64)) }.map_err(|e| format!("k_ntt_p2: {e}"))?;
+        }
+        if vb {
+            self.dev.synchronize().map_err(|e| e.to_string())?;
+            eprintln!("[UPERF3-XX]   encode rows {rows} 2^{log_n} -> 2^{log_nn}: dif inverse {:.4} | dit forward {:.4} s", (tb - ta).as_secs_f64(), tb.elapsed().as_secs_f64());
+        }
+        Ok(())
+    }
 }
