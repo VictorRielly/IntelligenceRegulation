@@ -53,7 +53,37 @@ are labelled [EXTERNAL, spec sheet]; none was measured here.
 
 ## 0. The answer in one paragraph
 
-(lands with the §4 table)
+The only proof this repository has ever timed is 12 layers x 512
+tokens of a 125M model on a laptop: 18.0 s of prover time (21.0 s
+with verification), which is 28 proven tokens per second OF THAT
+SMALL MODEL, feed-forward blocks only [MEASURED, S1]. Scaling that
+measurement by the counted growth of each phase, the built system at
+8B is a **~0.6-0.8 tokens/s system for 512-token prefill on the
+laptop, ~1-5 tok/s on one desktop board, ~1-7 tok/s on one H100
+[MODEL]**, and a **~0.0025 tok/s system for batch-1 decode on the
+laptop (~0.005-0.02 on either big board)** — decode is ~250x worse
+than prefill because the built protocol re-proves the entire weight
+side on every proof, and at one token per proof the weights are
+99.9% of the witness. At 30B every number is 3-4x smaller again, and
+the pass does not fit any single board. **50 tokens/s at 30B means
+1.55e12 proven MAC/s, 20 ms per token, 10.2 s per 512-token proof —
+about 1,000x the measured rate.** The recorded design path (Stage A
++ the two-tier opening + weight preprocessing) at its own modelled
+constants lands at **2-15 tok/s for 30B prefill and 0.05-0.7 tok/s
+for 30B decode on one H100 [MODEL on MODEL]**, and at the constants
+the two-tier spike actually measured it lands 3-30x lower than that;
+so under no assumption recorded in this repository does the lattice
+line reach 50 tok/s, in either workload. The gap is structural, not
+a tuning gap: it needs (i) a per-proof weight-side cost that does not
+walk the weight digits per token, or hundreds of tokens per proof;
+(ii) an activation-side proving rate ~10-30x above the best modelled
+one; (iii) attention in the statement (the numbers above cover
+69-78% of a real token's MACs). The 2026-08-30 task-board line
+("~25-35 tok/s amortized ... ~65") is unsourced in every part and is
+retracted in §5. The measurements that decide whether the lattice
+line can move at all are lane QQ (the per-proof weight-side opening
+on the GPU after preprocessing), lane RR (Stage A on the device) and
+the Mac runbook's T-scaling leg (the weight/activation split at 8B).
 
 ## 1. Workload definitions and MACs per token
 
@@ -511,6 +541,98 @@ cost that does NOT walk the weight digits per token, or a batch of
 tokens per proof.
 
 ## 4. The tokens/s table
+
+How to read it: tokens/s = tokens per proof / prover-clock seconds
+per proof (§1.1). "Prefill" is T = 512 tokens per proof; "decode" is
+batch 1, one token per proof. The laptop column applies §2.5's
+costs; the board and H100 columns divide by §3.3's factors (board
+2-6x, H100 2-8x; for (c'), whose weight side is a CPU pass as
+counted, the host factor 2-4x is used on both). The 30B columns
+scale W by 3.81 and A by 2.87 (§1.5). Decode cells under (c) are
+clipped at the memory floor of §3.4 (unpacked store). Every token is
+an **FFN-only** token (§1.4).
+
+Labels: the only [MEASURED] cell is the 125M anchor. Every 8B cell
+is [MODEL] (no 8B proof has ever run — S16 §3.1). Every 30B cell is
+[MODEL on MODEL] (the 8B model scaled by an assumed shape). Every
+board or H100 cell adds the unmeasured §3 factor on top of that.
+
+### 4.1 The anchor [MEASURED]
+
+| shape | machine | prover clock | tokens/s (of the 125M model, FFN-only) |
+|---|---|---:|---:|
+| 12 layers x 512 tokens, 125M | WSL laptop, 8T + RTX 4070 Laptop, QUIET (S1) | 18.0 s (21.0 s wall incl. verify) | **28 tok/s** (24 on the wall) |
+
+### 4.2 8B (Mistral-7B shape), proven tokens per second [MODEL]
+
+| design | laptop, prefill T=512 | laptop, decode | one desktop board, prefill | one desktop board, decode | one H100, prefill | one H100, decode |
+|---|---:|---:|---:|---:|---:|---:|
+| (a) built | 0.56-0.83 | 0.0024-0.0027 | 1.1-5.0 | 0.005-0.016 | 1.1-6.6 | 0.005-0.022 |
+| (b) built + Stage A | 0.71-0.80 | 0.0024-0.0027 | 1.4-4.8 | 0.005-0.016 | 1.4-6.4 | 0.005-0.022 |
+| (c) two-tier + weight preprocessing, routes constants | 3.3-5.6 | 0.08-0.25 | 6.6-33 | 0.15-0.55 (floor: 1.8 s streamed store) | 6.6-43 | 0.15-2.0 |
+| (c') same design, spike-measured constants, CPU weight pass | 0.9-2.4 | 0.003-0.016 | 1.8-9.7 (host 2-4x) | 0.006-0.06 | 1.8-9.7 (host 2-4x) | 0.006-0.06 |
+
+Per-proof costs behind the cells (laptop, prover clock, s): (a)
+620-910 / 372-411; (b) 641-725 / 372-411; (c) 92-155 / 4-13; (c')
+210-570 / 62-333 (§2.5). The 8B pass does not fit the laptop's 15
+GB (S16 §3.1); the laptop column is "if it had the memory", as in
+S3 §1.3.
+
+### 4.3 30B (the §1.3 stand-in shape), proven tokens per second [MODEL on MODEL]
+
+| design | laptop, prefill T=512 | laptop, decode | one desktop board, prefill | one desktop board, decode | one H100, prefill | one H100, decode |
+|---|---:|---:|---:|---:|---:|---:|
+| (a) built | 0.17-0.24 | 0.0006-0.0007 | 0.35-1.4 | 0.0013-0.004 | 0.35-1.9 | 0.0013-0.006 |
+| (b) built + Stage A | 0.21-0.23 | 0.0006-0.0007 | 0.42-1.4 | 0.0013-0.004 | 0.42-1.9 | 0.0013-0.006 |
+| (c) two-tier + weight preprocessing, routes constants | 1.1-1.9 | 0.024-0.09 | 2.3-12 | 0.05-0.14 (floor: 6.9 s streamed store) | **2.3-15** | **0.05-0.3** (floor: 3.4 s streamed; 0.05-0.7 with a packed, resident store [MODEL]) |
+| (c') same design, spike-measured constants, CPU weight pass | 0.26-0.78 | 0.0008-0.004 | 0.5-3.1 (host 2-4x) | 0.0016-0.017 | 0.5-3.1 (host 2-4x) | 0.0016-0.017 |
+
+Per-proof costs behind the cells (laptop, prover clock, s): (a)
+2,130-2,970 / 1,413-1,561; (b) 2,190-2,470 / 1,413-1,561; (c)
+266-454 / 11-41; (c') 660-1,950 / 232-1,260. Memory: (a)/(b) at 30B
+need ~265-270 GB of weight-group terms (S7) — no single board holds
+them; (c) removes the level-0 CRS matrices (S3 §2.1) but must still
+stream the 172 GB digit store per proof (§3.4).
+
+### 4.4 The same cells in proven MAC/s, for the yardstick of §6
+
+| design, workload | laptop | one desktop board | one H100 |
+|---|---:|---:|---:|
+| 125M, 12x512 [MEASURED, S1] | 1.4e9 (wall) / 1.6e9 (prover clock) | — | — |
+| (a) 8B prefill [MODEL] | 3.2-4.7e9 | 0.6-2.8e10 | 0.6-3.7e10 |
+| (c) 8B prefill [MODEL] | 1.9-3.1e10 | 0.4-1.9e11 | 0.4-2.5e11 |
+| (c) 30B prefill [MODEL on MODEL] | 2.4-4.1e10 | 0.5-2.5e11 | 0.5-3.3e11 |
+| (c) 30B decode [MODEL on MODEL] | 0.5-2.0e9 | 1-3e9 | 1-6e9 (1-15e9 packed store) |
+| **the target: 50 tok/s at 30B** | | | **1.55e12** |
+| the competitor's claim (S9) [EXTERNAL] | | | 1.6e12 (batch 1), 2.4e12 (batch 4) |
+
+The (a) 8B rates sit above the measured 1.4e9 because the routes
+memo's 8B model has the pass growing 33-47x in time for 100x the
+MACs (the descents and activation terms scale x19-20, S3 §1.2);
+that is the model's claim, unverified until an 8B proof runs.
+
+### 4.5 What the table says
+
+1. **Today, on the laptop, the built system is a ~0.6-0.8 tok/s
+   system at 8B prefill and a ~0.0025 tok/s system at 8B decode**
+   [MODEL from the measured 125M pass] — decode is 250x worse than
+   prefill because every proof re-proves the whole weight side.
+2. **Stage A does not move decode at all** and moves prefill by
+   1.1-1.5x at 8B. It is an activation-side lever.
+3. **The recorded design path — two-tier opening + weight
+   preprocessing — at its own modelled constants gives, on one H100,
+   2-15 tok/s at 30B prefill and 0.05-0.7 tok/s at 30B decode.** It
+   does not reach 50 tok/s in any cell, in either workload, under
+   any assumption recorded in this repository. The best cell in the
+   whole table (8B prefill, one H100, routes constants) is 43 tok/s
+   of an 8B FFN-only model.
+4. The (c)/(c') spread — 3-5x on prefill, 15-30x on decode — is the
+   unmeasured per-proof weight-side constant; lane QQ's rungs 3-4
+   measure it and collapse the two rows into one.
+5. Batch-1 decode at 30B is bounded below by the weight-digit walk
+   (§3.4) whatever the arithmetic: on one H100 it needs a packed,
+   device-resident store just to make the 20 ms/token budget
+   conceivable, and then 13 of the 20 ms are spent reading.
 
 ## 5. Audit of the 2026-08-30 task-board line
 
