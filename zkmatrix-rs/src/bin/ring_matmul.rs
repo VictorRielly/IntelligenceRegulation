@@ -51742,6 +51742,12 @@ fn ss_lookup_claims(
     out: &ring::stage_a::full::LookupOut,
     claims: &mut Vec<BkClaim>,
     claims_h: &mut Vec<(ring::kfield::KElem, Vec<(usize, ring::kfield::KElem, std::rc::Rc<Vec<ring::kfield::KElem>>, std::rc::Rc<Vec<ring::kfield::KElem>>)>)>,
+    // [UPERF3-WW] round 11, rung 2 — SS's claim-kernel diet (i): when true
+    // the per-column h_sum claim (a dense ones-row over the column's block,
+    // gh_rows K elements) is NOT pushed; the caller pushes ONE h_sum claim
+    // per PAIR after its column loop (`ss_pair_h_sum_claim`). The V1 route
+    // (a single column, its own tensor) keeps the per-column form.
+    pair_sum: bool,
 ) {
     use ring::gkr::eq_table;
     use std::rc::Rc;
@@ -51749,9 +51755,11 @@ fn ss_lookup_claims(
     let ypow = bk_ypow_col(kf);
     let kappa = out.kappa;
     let n_h = 1usize << out.point.len();
-    let mut ones_row = vec![kf.zero(); gh_rows];
-    ones_row[h_block * n_h..(h_block + 1) * n_h].fill(kf.one());
-    claims_h.push((out.h_sum.clone(), vec![(ti_h, one.clone(), Rc::new(ones_row), ypow.clone())]));
+    if !pair_sum {
+        let mut ones_row = vec![kf.zero(); gh_rows];
+        ones_row[h_block * n_h..(h_block + 1) * n_h].fill(kf.one());
+        claims_h.push((out.h_sum.clone(), vec![(ti_h, one.clone(), Rc::new(ones_row), ypow.clone())]));
+    }
     let eq_pt = eq_table(kf, &out.point);
     let mut h_row = vec![kf.zero(); gh_rows];
     h_row[h_block * n_h..(h_block + 1) * n_h].clone_from_slice(&eq_pt);
@@ -51811,6 +51819,41 @@ fn ss_lookup_claims(
         value: out.table_sum.clone(),
         parts: vec![(ti_m, one, Rc::new(vec![kf.one()]), Rc::new(m_col))],
     });
+}
+
+/// [UPERF3-WW] round 11, rung 2 — SS's claim-kernel diet (i): ONE h_sum
+/// claim per SiLU PAIR. The LogUp membership fact of a pair is the UNION
+/// identity sum_{j} sum_{i in col j} 1/(alpha - key_{j,i}) = sum_t
+/// (sum_j m_{j,t}) / (alpha - t) over the pair's one frozen table — the
+/// per-column split adds nothing to it (every column looks up the same
+/// table with the same alpha). The per-column h_sum_j / table_sum_j stay
+/// on the wire and the verifier keeps its per-column sum gate
+/// (`lookup_verify`); what changes is the OPENING claim that grounds the
+/// served h sums on the committed helper: one ones-row over the pair's
+/// column blocks [0, n_cols x n_h) of the act-h tensor with value
+/// sum_j h_sum_j, instead of n_cols ones-rows of gh_rows K elements each
+/// (12x512: 12 -> 2 rows of 655,360 / 131,072 K elements, prover and
+/// verifier copies both). A cheating prover cannot use the union claim
+/// to hide a bad column: sum_j table_sum_j is grounded per column on the
+/// committed multiplicities, so the union claim pins sum_j h_sum_j to the
+/// helper's true total, and the true total equals sum_j table_sum_j only
+/// when every key of every column is in the table (the partial-fraction
+/// identity at a random alpha, the S2 argument). Full-mode transcript
+/// change (the nus_h count moves) — full mode is selector-gated, not
+/// frozen; the digests are recorded in the ledger.
+fn ss_pair_h_sum_claim(
+    kf: &ring::kfield::KField,
+    ti_h: usize,
+    gh_rows: usize,
+    n_rows_covered: usize,
+    h_sum_pair: &ring::kfield::KElem,
+    claims_h: &mut Vec<(ring::kfield::KElem, Vec<(usize, ring::kfield::KElem, std::rc::Rc<Vec<ring::kfield::KElem>>, std::rc::Rc<Vec<ring::kfield::KElem>>)>)>,
+) {
+    use std::rc::Rc;
+    assert!(n_rows_covered <= gh_rows, "the pair's column blocks fit the act-h tensor");
+    let mut ones_row = vec![kf.zero(); gh_rows];
+    ones_row[..n_rows_covered].fill(kf.one());
+    claims_h.push((h_sum_pair.clone(), vec![(ti_h, kf.one(), Rc::new(ones_row), bk_ypow_col(kf))]));
 }
 
 /// [UPERF3-SS] `uperf-a ss-diff [layers] [t]`: the routed identity lookup
@@ -53235,6 +53278,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
             let gh_rows = gh.as_ref().unwrap().tensors[ti_h].rows;
             let mut outs = Vec::new();
             let t_p = Instant::now();
+            let mut h_sum_pair = kf.zero(); // [UPERF3-WW] diet (i)
             for (j, m) in sp.members.iter().enumerate() {
                 let rho: Vec<KElem> = (0..n_log2 - kappa).map(|_| tr.challenge_k(&kf)).collect();
                 let col = ss_silu_col(&kf, sp, m, &lays, &ss_tables[pi]);
@@ -53244,12 +53288,16 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                 drop(col);
                 ss_absorb_served(&kf, &mut tr, &out);
                 stage_a_bytes += ring::stage_a::full::lookup_wire_bytes(&out);
+                h_sum_pair = kf.add(&h_sum_pair, &out.h_sum);
                 ss_lookup_claims(
                     &kf, &reg, sp, m, ti_m, j, ti_h, gh_rows, j, &alpha, &ss_tables[pi], &out, &mut claims,
-                    &mut claims_h,
+                    &mut claims_h, true,
                 );
                 outs.push(out);
             }
+            // [UPERF3-WW] diet (i): the pair's ONE h_sum claim (after the
+            // columns — the same order on the verifier's side).
+            ss_pair_h_sum_claim(&kf, ti_h, gh_rows, outs.len() << (n_log2 - kappa), &h_sum_pair, &mut claims_h);
             ss_secs_prove += t_p.elapsed().as_secs_f64();
             ships.push(GgShip::SsLookup(outs));
         } else if sp.silu.is_some() {
@@ -53349,7 +53397,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                 stage_a_bytes += ring::stage_a::full::lookup_wire_bytes(&out);
                 ss_lookup_claims(
                     &kf, &reg, sp, &sp.members[r.mi], r.ti_m, 0, r.ti_h, gh_rows, 0, &alpha, &ss_tables[pi], &out,
-                    &mut claims, &mut claims_h,
+                    &mut claims, &mut claims_h, false,
                 );
                 ss_secs_prove += t_p.elapsed().as_secs_f64();
                 // The differential's contract: every served value grounded
@@ -53383,8 +53431,8 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     }
     if ss_cfg.is_some() {
         ss_hs = Vec::new();
-        println!("  [UPERF3-SS] RSS high-water after the Stage-A phase (phase C): {:.0} MiB", uperf_a_peak_rss_mib());
     }
+    println!("  [UPERF3-SS] RSS high-water after the Stage-A phase (phase C): {:.0} MiB", uperf_a_peak_rss_mib());
     // [UPERF3-SS] tamper: flip the first routed column's served h_sum.
     if matches!(ss_cfg, Some(SsCfg { tamper_sum: true, .. })) {
         let out = ss_ships.iter_mut().find_map(|v| v.first_mut()).expect("a routed column exists");
@@ -53407,6 +53455,21 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     // oracle leg's claim layer then lost the ixf module (declined at
     // "free 3.65 GB") and k9's own upload path crashed. Trim the idle
     // residency here too (make_room's rule: nothing live is taken).
+    // [UPERF3-WW] rung 2 (GG's named terms): the Stage-A phase's HOST
+    // transients — the per-class planes data the zc tables were built
+    // from, the silu descents' aux, the multiplicities, the lookup tables
+    // and the routed columns/helpers — are dead from here (the openings
+    // read the committed registry; the verifier rebuilds what it needs
+    // from the shipped objects; `logup_mat` stays for the full-s2
+    // verifier). Drop them before the openings; memory only.
+    drop(class_data);
+    drop(bk_aux);
+    drop(m_vals);
+    drop(ss_m);
+    drop(ss_tables);
+    drop(ss_route_cols);
+    drop(ss_route_hs);
+    uf_trim();
     let ww_zc_freed = ring::gpu::zc_agg_release();
     let ww_k9_freed = ring::gpu::k9_trim_idle();
     if ww_zc_freed > 0 || ww_k9_freed > 0 {
@@ -53525,9 +53588,30 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
     // last group proof binds every shipped object (deterministic seeds) —
     // the byte-identity floor for the mode-routing rungs.
     println!("  [UPERF3-SS] PASS TRANSCRIPT DIGEST {}", hex_full(&tr.state()));
-    if ss_cfg.is_some() {
-        println!("  [UPERF3-SS] RSS high-water after the group proofs (prover done): {:.0} MiB", uperf_a_peak_rss_mib());
-    }
+    println!("  [UPERF3-SS] RSS high-water after the group proofs (prover done): {:.0} MiB", uperf_a_peak_rss_mib());
+    // [UPERF3-WW] round 11, rung 2 — SS's claim-kernel diet (ii): the
+    // prover's claim vectors (the dense row kernels — in full mode the
+    // act-h ones/eq rows of gh_rows K elements each), the assembled group
+    // claims, the nus and the flat level-0 witness are dead once the group
+    // proofs are shipped; the verifier builds its own copies. Drop them
+    // HERE so the two copies are never alive together (MEASURED 12x512
+    // full: the verifier phase was the process peak, +2.9 GB over the
+    // prover's high-water). Memory only — nothing on the wire moves.
+    let (ww_n_claims, ww_n_claims_h) = (claims.len(), claims_h.len());
+    drop(claims);
+    drop(claims_h);
+    drop(gc_w);
+    drop(gc_a);
+    drop(nus);
+    drop(nus_h);
+    drop(w0_w);
+    drop(w0_a);
+    drop(w0_h);
+    uf_trim();
+    println!(
+        "  [UPERF3-WW] prover's claims + witness dropped before the verifier: current RSS {:.0} MiB",
+        proc_status_mb("VmRSS:")
+    );
     // [UPERF3-RR] the identity handle: the prover's transcript state binds
     // every absorbed object (claims, round polys, served values, the group
     // openings' rows) — the pass's EVAL-PROOF DIGEST analogue.
@@ -53763,6 +53847,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                         let (ti_m, ti_h, n_log2) = plans[pi].logup.unwrap();
                         let gh_rows = gh.as_ref().unwrap().tensors[ti_h].rows;
                         let table_v = sp.table_k(&kf);
+                        let mut h_sum_pair_v = kf.zero(); // [UPERF3-WW] diet (i)
                         for (j, out) in outs.iter().enumerate() {
                             let rho_v: Vec<KElem> = (0..n_log2 - kappa).map(|_| tv.challenge_k(&kf)).collect();
                             let (chain_ok, sum_ok) =
@@ -53776,11 +53861,15 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                                 break 'verify;
                             }
                             ss_absorb_served(&kf, &mut tv, out);
+                            h_sum_pair_v = kf.add(&h_sum_pair_v, &out.h_sum);
                             ss_lookup_claims(
                                 &kf, &reg, sp, &sp.members[j], ti_m, j, ti_h, gh_rows, j, &alpha_v, &table_v, out,
-                                &mut claims_v, &mut claims_h_v,
+                                &mut claims_v, &mut claims_h_v, true,
                             );
                         }
+                        // [UPERF3-WW] diet (i): the pair's ONE h_sum claim, the
+                        // served sums' total grounded on the union ones-row.
+                        ss_pair_h_sum_claim(&kf, ti_h, gh_rows, outs.len() << (n_log2 - kappa), &h_sum_pair_v, &mut claims_h_v);
                     }
                     GgShip::Zc(proofs) => {
                         for (ci, cls) in plans[pi].classes.iter().enumerate() {
@@ -53837,7 +53926,7 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
                             ss_absorb_served(&kf, &mut tv, out);
                             ss_lookup_claims(
                                 &kf, &reg, sp, &sp.members[r.mi], r.ti_m, 0, r.ti_h, gh_rows, 0, &alpha_v, &table_v, out,
-                                &mut claims_v, &mut claims_h_v,
+                                &mut claims_v, &mut claims_h_v, false,
                             );
                         }
                     }
@@ -53933,8 +54022,9 @@ fn uperf_a_gg_pass(layers_n: usize, t: usize, mode: GgMode, with_oracle: bool, t
             _ => String::new(),
         }
     );
-    let n_claims = claims.len() + claims_h.len();
-    println!("  claims served: {} (act/weight) + {} (act-h) = {n_claims}", claims.len(), claims_h.len());
+    println!("  [UPERF3-WW] RSS high-water after the verifier: {:.0} MiB", uperf_a_peak_rss_mib());
+    let n_claims = ww_n_claims + ww_n_claims_h;
+    println!("  claims served: {} (act/weight) + {} (act-h) = {n_claims}", ww_n_claims, ww_n_claims_h);
     if let (Some(cfg), Some(g)) = (ss_cfg, gh.as_ref()) {
         println!(
             "  [UPERF3-SS] full-ss: kappa_silu {} route {:?} | act-h tensors {} | helper build {:.2}s, lookup sumchecks {:.2}s",

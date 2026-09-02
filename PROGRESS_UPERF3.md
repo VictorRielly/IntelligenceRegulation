@@ -6668,4 +6668,100 @@ ACCEPTANCE [MEASURED, one GPU binary, one process, ZK_GPU=1, 8T]:
   the device forced green.
 - FOR RUNG 3: the one-process A/B is VALID on this box from here on —
   no separate oracle process needed.
-- Commit: the commit carrying this entry ("U-PERF3 WW: RUNG 1").
+- Commit: 03c0a49.
+
+### RUNG 2 — THE DRIVER DIET AT 12x512: BOTH MODES ACCEPT ON THE BOX (2026-09-02) [WSL-BOX 8T GPU NOISY-SHARED]
+
+THE STARTING POINT [MEASURED, the rung-1 binary, batched default,
+ZK_GPU=1] — the two OOMs of 2026-09-02 were GG's transport's, not the
+shape's: `uperf-a pass 12 512 range nooracle` peak **7,152 MiB** (was
+killed at 14.4 GiB under GG's form), 30 s wall, accept, e0b3b985..;
+`uperf-a pass 12 512 full` peak **12,472 MiB**, ACCEPT (was killed at
+15.18 GB), wall 1:46, 6.5 / 82.2 / 16.2 s, 900,003 B, act-h 1,572,864
+rings (SS's count), with the three RSS lines phase B 6,989 / phase C
+6,989 / prover done 9,540 MiB — i.e. the VERIFIER phase set the
+full-mode peak (+2.9 GB: SS's claim-kernel term, 4x: per column a
+dense ones-row and an eq-row of gh_rows = 655,360 K elements, ~84 MB
+each, x 24 claims, prover's and verifier's copies alive together).
+Both modes therefore accepted before any diet; the margin in full
+mode (2.5 GB on a box where two lanes build) was the reason to land
+the named diet anyway.
+
+THE DIET (driver only; range mode byte-identical; the full-mode
+transcript moves as SS named — recorded below):
+(i)  SS's ONE h_sum CLAIM PER PAIR (`ss_lookup_claims(.., pair_sum)` +
+     `ss_pair_h_sum_claim`): the served per-column h_sum_j / table_sum_j
+     stay on the wire and the verifier keeps its per-column sum gate;
+     the OPENING claim that grounds the h sums on the committed helper
+     becomes one ones-row over the pair's column blocks with value
+     sum_j h_sum_j (12 -> 2 dense rows per side at 12x512). SOUNDNESS
+     NOTE (written here, reviewed by nobody but this lane): the pair's
+     membership fact is the UNION LogUp identity over the pair's one
+     frozen table with the summed multiplicities; sum_j table_sum_j is
+     grounded per column on the committed multiplicities, the union
+     claim pins sum_j h_sum_j to the helper's true total, and the two
+     totals agree only when every key of every column is in the table
+     (the partial-fraction identity at a random alpha — the S2
+     argument, unchanged); the per-column split of the h_sum grounding
+     added nothing. The V1 route (one column, its own tensor) keeps the
+     per-column form; `full-s2` (GG's `gg_logup_claims`) is untouched.
+(ii) FREE THE PROVER'S CLAIMS BEFORE THE VERIFIER: `claims`, `claims_h`,
+     the assembled group claims, the nus and the flat level-0 witness
+     (w0_w / w0_a / w0_h) dropped right after the group proofs (+
+     `uf_trim`), the counts kept for the report line.
+(iii) GG's named host terms dropped at the end of the Stage-A phase
+     (beside rung 1's device release): `class_data` (the per-class
+     planes data the zc tables were built from), `bk_aux`, `m_vals`,
+     `ss_m`, `ss_tables`, the routed columns/helpers (`logup_mat` stays:
+     the full-s2 verifier reads it).
+(iv) The RSS high-water lines are printed in EVERY mode now (phase C,
+     prover done, a "dropped before the verifier: current RSS" line,
+     after the verifier), not only in full mode.
+
+THE RESULT [MEASURED, one GPU binary, ZK_GPU=1, 8T, /usr/bin/time -v]:
+
+| `uperf-a pass 12 512 ..` | accept | commit / prove / verify | bytes | claims | phase B / C / prover done / after drops (current) / verifier hwm | **peak RSS** | wall |
+|---|---|---:|---:|---:|---|---:|---:|
+| `range nooracle`, before the diet | true | 6.7 / 18.9 / 4.6 | 670,891 | 455 | — / 6,985 / — / — / — | 7,152 MiB | 0:30 |
+| `range nooracle`, WITH the diet | true | 6.4 / 19.1 / 4.9 | 670,891 | 455 | — / 6,985 / 6,985 / 2,778 / 6,985 | **7,152 MiB** | 0:31 |
+| `full`, before the diet | true | 6.5 / 82.2 / 16.2 | 900,003 | 427 + 24 | 6,989 / 6,989 / 9,540 / — / (peak) | 12,472 MiB | 1:46 |
+| `full`, WITH the diet | true | 6.7 / 77.4 / 11.4 | 900,003 | 427 + **14** | 6,988 / 6,988 / **7,547** / 2,999 / 7,547 | **7,728 MiB** | 1:36 |
+
+READING: full mode's peak -4.7 GB (-38%): (ii)+(i) took the verifier
+off the peak (it now starts from 3.0 GB and never exceeds the prover's
+high-water), (iii)+(i) took the prover-done mark from 9,540 to 7,547
+(-2.0 GB), and verify fell 16.2 -> 11.4 s (10 fewer dense contribs).
+Range mode's peak did not move: its 7.15 GB IS the commit-phase peak
+(phase B/C = 6,985-6,989 MiB in both modes) — the planes' act group
+(12.35M rings vs the frozen pass's 7.85M; the frozen pass peaks at
+2,833 MiB on the GPU at this shape) under lane OO's commit memory law:
+the F1 commit-growth term, an engine item (MVP8B W-1/W-3), not a
+driver term. Full mode now sits +0.58 GB over range mode at 12x512
+(SS's 12x128 row had +1.3 GB before the diet).
+At 12x128: `full` peak 4,417 -> **3,161 MiB** (SS's 8,072 MiB under
+GG's form); 3.6 / 27.5 / 4.6 s, 860,867 B, 441 claims.
+
+THE FULL-MODE IDENTITY (the batched default AND the diet both move it;
+the STATEMENT digest does not move — c6f1850a.. at 12x512 and
+1a3517de.. at 12x128 before and after the diet; range mode is
+byte-identical throughout: 12x64 c0b8236f.., 12x512 e0b3b985..):
+  * 12x512 `full`: **8d1ef1a8..** (pre-diet under the default 8ab3dd36..).
+  * 12x128 `full`: **4b02815d..** (pre-diet 4669b9f4..; SS's 646f0dce.. under GG's form).
+  * 3x16 `full` (kappa 4): **6863f0d6..** (pre-diet 9c3c2e7e..; SS's dbc58152.. under GG's form).
+  * 3x16 `full-s2`: d47cd6d7.. UNCHANGED by the diet (SS's b0349a45.. under GG's form).
+  * 3x16 `full-ss` (the V1 route, k0): 45c5cd18.. (SS's 4c63259d.. under GG's form).
+  * Under `ZK_RR_ZC_CLAIMS=gg` the pre-diet full forms are NOT
+    recoverable (the diet is not knob-gated — it is the full-mode form
+    from here on); SS's digests were reproduced under the opt-in BEFORE
+    the diet (3x16 full dbc58152.., full-s2 b0349a45..) and are recorded
+    as the round-10 form. Tamper legs: SS's `pass 3 16 full-ss ss-sum`
+    (the served h_sum flipped) still REJECTS at `ss-lookup-sum:nrw-88`;
+    `ss-diff 1 16` ALL LEGS GREEN; GG's `pass-battery 3 16` green.
+FLOORS on this commit (CPU binary): diff-battery 16.84 s passed;
+freeze-check 102 ok + passed, exit 0; uperf-s 3752cba4..; agg
+46234986..; uperf-x be89d5da..; 12x64 range c0b8236f.. / 44528c6a..
+(gg). No GPU-module change since rung 1 (its GPU floors stand).
+Logs: results/uperf3_ww_r2_12x512_{range_nooracle,full}_{predict,diet}.log,
+uperf3_ww_r2_12x128_full_{predict,diet}.log, uperf3_ww_r2_3x16_full_diet.log,
+uperf3_ww_r2_freeze_check.log.
+- Commit: the commit carrying this entry ("U-PERF3 WW: RUNG 2").

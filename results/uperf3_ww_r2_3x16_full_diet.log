@@ -1,0 +1,94 @@
+[UPERF3-SS] full-mode routing: SsCfg { kappa_silu: 4, route_nrw: None, tamper_sum: false }
+[UPERF3-GG] STAGE-A composed pass: 3 layers, T = 16, mode full-ss [WSL-BOX NOISY-SHARED]
+  [UPERF3-SS] RSS high-water after the act-h commit (phase B): 314 MiB
+  [UPERF3-SS] RSS high-water after the Stage-A phase (phase C): 343 MiB
+[UPERF2-F] RSS bg.weight.rows-pass          hwm      343 MiB  rss      321 MiB
+[UPERF2-F] RSS bg.weight.phi-pass           hwm      343 MiB  rss      322 MiB
+[UPERF2-F] RSS bg.weight.level0-h           hwm      476 MiB  rss      405 MiB
+[UPERF2-F] RSS bg.weight.level0-fold        hwm      605 MiB  rss      419 MiB
+[UPERF2-F] RSS bg.weight.level1             hwm      605 MiB  rss      590 MiB
+[UPERF2-F] RSS bg.weight.level2             hwm      605 MiB  rss      600 MiB
+[UPERF2-F] RSS bg.weight.level3             hwm      605 MiB  rss      600 MiB
+[UPERF2-F] RSS bg.weight.level4             hwm      605 MiB  rss      600 MiB
+[UPERF2-F] RSS bg.weight.level5             hwm      605 MiB  rss      604 MiB
+[UPERF2-F] RSS bg.weight.level6             hwm      610 MiB  rss      610 MiB
+[UPERF2-F] RSS bg.weight.level7             hwm      617 MiB  rss      617 MiB
+[UPERF2-F] RSS bg.act.rows-pass             hwm      650 MiB  rss      650 MiB
+[UPERF2-F] RSS bg.act.phi-pass              hwm      651 MiB  rss      651 MiB
+[UPERF2-F] RSS bg.act.level0-h              hwm      651 MiB  rss      651 MiB
+[UPERF2-F] RSS bg.act.level0-fold           hwm      654 MiB  rss      532 MiB
+[UPERF2-F] RSS bg.act.level1                hwm      654 MiB  rss      617 MiB
+[UPERF2-F] RSS bg.act.level2                hwm      654 MiB  rss      618 MiB
+[UPERF2-F] RSS bg.act.level3                hwm      654 MiB  rss      619 MiB
+[UPERF2-F] RSS bg.act.level4                hwm      654 MiB  rss      626 MiB
+[UPERF2-F] RSS bg.act.level5                hwm      654 MiB  rss      632 MiB
+[UPERF2-F] RSS bg.act.level6                hwm      654 MiB  rss      639 MiB
+[UPERF2-F] RSS bg.act-h.rows-pass           hwm      654 MiB  rss      641 MiB
+[UPERF2-F] RSS bg.act-h.phi-pass            hwm      654 MiB  rss      645 MiB
+[UPERF2-F] RSS bg.act-h.level0-h            hwm      654 MiB  rss      645 MiB
+[UPERF2-F] RSS bg.act-h.level0-fold         hwm      654 MiB  rss      588 MiB
+[UPERF2-F] RSS bg.act-h.level1              hwm      654 MiB  rss      628 MiB
+[UPERF2-F] RSS bg.act-h.level2              hwm      654 MiB  rss      640 MiB
+[UPERF2-F] RSS bg.act-h.level3              hwm      654 MiB  rss      649 MiB
+[UPERF2-F] RSS bg.act-h.level4              hwm      658 MiB  rss      658 MiB
+[UPERF2-F] RSS bg.act-h.level5              hwm      664 MiB  rss      664 MiB
+  [UPERF3-SS] PASS TRANSCRIPT DIGEST 6863f0d6337651d324a462e58f259e5091d92677f3649573b8b9cc8140230f89
+  [UPERF3-SS] RSS high-water after the group proofs (prover done): 664 MiB
+  [UPERF3-WW] prover's claims + witness dropped before the verifier: current RSS 595 MiB
+  STAGE-A pass: commit 1.3s prove 6.0s verify 1.0s | 610978 B counted | accept true
+  bytes: statement 6714 + instances 27840 + STAGE-A 60496 + publics 384 + groups 515544 ( weight 177272 B; act 172360 B; act-h 165912 B;)
+  groups: weight n_0 884736 (8 lv), act n_0 98614 (7 lv), act-h n_0 12288 (6 lv)
+  [UPERF3-WW] RSS high-water after the verifier: 844 MiB
+  claims served: 166 (act/weight) + 5 (act-h) = 171
+  [UPERF3-SS] full-ss: kappa_silu 4 route None | act-h tensors zca-h-silu-m3 4096x16 8192 rings, zca-h-silu-m4 2048x16 4096 rings | helper build 0.21s, lookup sumchecks 1.20s
+[UPERF3-RR] ATTRIBUTION mode full-ss + zc claims BATCHED (the Stage-A default since round 11; ZK_RR_ZC_CLAIMS=gg = GG's per-column form) (walls s; 8 threads):
+  commit 1.28: groups+planes 0.13 | witness 0.07 | precommit weight 0.92 | precommit act 0.14 | statement 0.02
+  prove 5.99: claim-layer 0.18 | stage-a phase 1.78 = silu descents 0.00 + logup 0.00 + zc tabs-build 0.01 + zc prove 0.29 (eq 0.01 rounds 0.13 folds 0.11; 128 rounds, 0.67 G MACs) + zc claims-transport 0.00 + other 1.48 | publics+nus 0.00 | opening weight 2.85 | opening act 0.94 | tail 0.24
+    zc nrw-88   class 0: m  6 x 2^15 w  8 (n_tot 18): tabs 0.00s | prove 0.08s (eq 0.00 rounds 0.04 folds 0.03; 18 rounds, 0.24 G MACs) | claims 0.00s
+    zc nrw-z    class 0: m  3 x 2^14 w  8 (n_tot 16): tabs 0.00s | prove 0.04s (eq 0.00 rounds 0.01 folds 0.01; 16 rounds, 0.06 G MACs) | claims 0.00s
+    zc rem-w6   class 0: m  1 x 2^15 w  6 (n_tot 15): tabs 0.00s | prove 0.02s (eq 0.00 rounds 0.01 folds 0.01; 15 rounds, 0.02 G MACs) | claims 0.00s
+    zc rem-w7   class 0: m  3 x 2^15 w  7 (n_tot 17): tabs 0.00s | prove 0.04s (eq 0.00 rounds 0.02 folds 0.02; 17 rounds, 0.11 G MACs) | claims 0.00s
+    zc rem-w8   class 0: m  2 x 2^15 w  8 (n_tot 16): tabs 0.00s | prove 0.03s (eq 0.00 rounds 0.01 folds 0.01; 16 rounds, 0.06 G MACs) | claims 0.00s
+    zc rem-w8   class 1: m  2 x 2^14 w  8 (n_tot 15): tabs 0.00s | prove 0.02s (eq 0.00 rounds 0.01 folds 0.01; 15 rounds, 0.03 G MACs) | claims 0.00s
+    zc rem-w9   class 0: m  3 x 2^15 w  9 (n_tot 17): tabs 0.00s | prove 0.05s (eq 0.00 rounds 0.02 folds 0.02; 17 rounds, 0.13 G MACs) | claims 0.00s
+    zc rem-w10  class 0: m  1 x 2^14 w 10 (n_tot 14): tabs 0.00s | prove 0.02s (eq 0.00 rounds 0.01 folds 0.01; 14 rounds, 0.02 G MACs) | claims 0.00s
+  verify 1.01: claim-layer 0.00 | stage-a 0.22 | publics+nus 0.00 | group verifies 0.78
+  device: gpu: off (built without --features gpu-cuda) | k9: off (built without --features gpu-cuda) | ixf: off (built without --features gpu-cuda) | zc: off (built without --features gpu-cuda)
+  phase table (prof, process-global; STAGE-A pass | ORACLE pass; bg.* per-group totals, ep.* shared by prover and verifier):
+    ep.crs-expand                 0.35s x48     |      0.00s x0
+    ep.matvec                     1.06s x52     |      0.00s x0
+    ep.compute-psi                0.05s x33     |      0.00s x0
+    ep.transport                  0.19s x30     |      0.00s x0
+    ep.psi0-factored              0.47s x6      |      0.00s x0
+    ep.level-h-pairs              2.23s x21     |      0.00s x0
+    ep.crs-cache-hit              0.00s x42     |      0.00s x0
+    bg.kernel-rows                0.40s x3      |      0.00s x0
+    bg.kernel-phi                 0.09s x3      |      0.00s x0
+    bg.fold                       0.13s x21     |      0.00s x0
+    bg.matvec-chunks              1.13s x21     |      0.00s x0
+    bg.level-h                    2.24s x21     |      0.00s x0
+    bg.prove-group                4.02s x3      |      0.00s x0
+    bg.verify-group               0.77s x3      |      0.00s x0
+    d.chain-derive                0.06s x3      |      0.00s x0
+    d.digit-witness               0.06s x3      |      0.00s x0
+    d.precommit-u0                1.13s x3      |      0.00s x0
+    d.cl-tables                   0.03s x5      |      0.00s x0
+    d.cl-rounds                   0.04s x97     |      0.00s x0
+    d.cl-folds                    0.05s x97     |      0.00s x0
+    d.cl-pack                     0.00s x3      |      0.00s x0
+    e.kpass-smallcols             0.05s x4      |      0.00s x0
+    e.psi0-smallcols              0.05s x4      |      0.00s x0
+    m.psi0-ntt                    0.24s x4      |      0.00s x0
+    m.fold-ntt                    0.11s x21     |      0.00s x0
+    m.crs-blocks                  0.07s x42     |      0.00s x0
+    m.crs-walk                    0.02s x42     |      0.00s x0
+    m.phi-setup                   0.23s x183    |      0.00s x0
+    m.tr-s                        0.41s x36     |      0.00s x0
+    m.tr-asm                      0.04s x33     |      0.00s x0
+    m.tr-pq                       0.03s x72     |      0.00s x0
+    m.tr-t5                       0.21s x36     |      0.00s x0
+    q.phi-gblocks                 0.19s x183    |      0.00s x0
+    q.fold-split                  0.01s x21     |      0.00s x0
+    q.rows-t                      0.18s x61     |      0.00s x0
+[UPERF3-RR] STAGE-A DIGEST statement d72d6c686a1c64e1beb48c8165c1d247b9ed0884f17688980bb26d69dc00cd84 | prover-transcript 6863f0d6337651d324a462e58f259e5091d92677f3649573b8b9cc8140230f89 | verifier-transcript 6863f0d6337651d324a462e58f259e5091d92677f3649573b8b9cc8140230f89 | bytes 610978
+  peak RSS 844 MiB
