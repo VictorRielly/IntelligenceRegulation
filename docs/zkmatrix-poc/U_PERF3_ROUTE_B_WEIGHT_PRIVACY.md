@@ -819,7 +819,117 @@ search above as its evidence.
 
 ## 6. THE TABLE
 
-(lands with §6's commit)
+How to read it. Every cell is one H100 SXM (S0 §3.2), feed-forward
+blocks only (S0 §1.4), the prover clock (S0 §1.1). "Prefill B = 1"
+is one 512-token request per proof; "prefill B = 16" is sixteen
+512-token requests stacked into one statement (8,192 tokens per
+proof; the 258 GB per-layer working set of §2.3 applies at 30B);
+"decode B = 1" is one token per proof. Each cell carries two
+numbers: **floor** = S0's spec-sheet floor (tuned kernels, the
+weights HBM-resident, the device saturated: S0 §6.4, §7.2) and
+**scaled** = the measured laptop-CPU constants divided by S0
+§3.3's H100 range of 25-180x. The truth is expected between them;
+neither is measured (nothing on Route B has run on any device —
+lane XX's port is the first point). The lattice-side terms of
+option 3 are normalised with S4 §3.3's lattice range (2-8x over the
+laptop with its GPU), as §4.3 explains. Labels: P0/P1 rows [MODEL,
+S0 §6.2-6.4]; option 1 [MODEL, §2.3]; option 2 [MODEL, §3.4, on a
+COUNTED statement]; option 3 [MODEL on MODEL, §4.3, on one MEASURED
+point]. Every 30B cell is additionally [MODEL on MODEL] through
+S0's 30B stand-in shape.
+
+The options, as priced in this memo: **P0** = as built, nothing
+private (no ZK); **P1** = activations private, weights public (S0
+§4.3: x1.02-1.08); **option 1** = P2/P3 by re-committing the
+weights every proof (§2); **option 2** = P2/P3 by Orion-class
+hidden column openings, form 2b (§3; P2 as shown, P3 adds P1's
+x1.02-1.08 on the activation side); **option 3** = P2/P3 by the
+lattice-hybrid weight commitment with the 3b bridge (§4), shown
+with Variant B (VB) and the design of record (DoR).
+
+### 6.1 Seconds per proof on one H100 (floor / scaled)
+
+| option | 8B prefill B = 1 | 8B prefill B = 16 | 8B decode B = 1 | 30B prefill B = 1 | 30B prefill B = 16 | 30B decode B = 1 |
+|---|---:|---:|---:|---:|---:|---:|
+| P0 (S0) | 1.3-3.7 / 2.7-20 | 21-59 / 31-227 | 0.012-0.030 / 0.84-6.1 | 3.7-11 / 8.6-62 | 57-172 / 89-647 | 0.030-0.080 / 3.2-23 |
+| P1 (S0, x1.02-1.08) | 1.3-4.0 / 2.8-22 | 21-64 / 32-245 | 0.012-0.032 / 0.86-6.6 | 3.8-12 / 8.8-67 | 58-186 / 91-699 | 0.031-0.086 / 3.3-25 |
+| **option 1** re-commit (P2/P3) | 3.1-9.7 / 3.9-29 | 23-65 / 32-236 | 1.8-6.0 / 2.0-15 | **10.7-34 / 13-95** | **64-195 / 94-680** | **7.0-23 / 7.8-56** |
+| **option 2** hidden columns (P2; P3 x1.02-1.08) | 1.3-3.8 / 2.8-22 | 21-59 / 31-229 | 0.031-0.097 / 0.92-7.9 | **3.75-11.2 / 8.8-66** | **57-172 / 89-651** | **0.081-0.26 / 3.4-27** |
+| **option 3** lattice hybrid, VB | 3.1-24 / 4.5-40 | 23-79 / 32-241 | 1.75-20 (either) | **10.5-92 / 12-120** | **64-253 / 93-705** | **6.9-81 (either)** |
+| option 3, DoR | 9.1-61 / 10.5-77 | 29-116 / 38-278 | 7.8-57 | 34-229 / 38-257 | 87-390 / 116-842 | 30-218 |
+
+### 6.2 Proven tokens per second on one H100 (floor / scaled); cells at or above 50 in bold
+
+| option | 8B prefill B = 1 | 8B prefill B = 16 | 8B decode B = 1 | 30B prefill B = 1 | 30B prefill B = 16 | 30B decode B = 1 |
+|---|---:|---:|---:|---:|---:|---:|
+| P0 (S0) | **138-394** / 26-190 | **139-390** / 36-264 | 33-83 / 0.16-1.2 | 47-138 / 8.3-60 | 47-138 / 13-92 | 12-33 / 0.043-0.31 |
+| P1 (S0) | **128-385** / 24-186 | **133-380** / 33-259 | 32-80 / 0.15-1.2 | 43-135 / 7.6-58 | 44-135 / 12-90 | 12-32 / 0.040-0.30 |
+| **option 1** re-commit | **53-165** / 18-131 | **126-356** / 35-256 | 0.17-0.55 / 0.068-0.49 | 15-48 / 5.4-39 | **42-127** / 12-87 | 0.043-0.14 / 0.018-0.13 |
+| **option 2** hidden columns | **136-388** / 23-184 | **139-390** / 36-264 | 10-32 / 0.13-1.1 | **46-137** / 7.8-58 | **47-138** / 13-92 | 3.9-12 / 0.037-0.29 |
+| **option 3** lattice hybrid, VB | 21-165 / 13-115 | **104-356** / 34-256 | 0.05-0.57 | 5.6-49 / 4.3-42 | 32-128 / 12-88 | 0.012-0.14 |
+| option 3, DoR | 8.4-56 / 6.6-49 | **71-282** / 29-216 | 0.018-0.13 | 2.2-15 / 2.0-13 | 21-94 / 9.7-71 | 0.005-0.033 |
+| the goal | | | | **50** | **50** | **50** |
+
+Arithmetic for the load-bearing cells (30B, one H100):
+
+- option 2, prefill B = 1, floor: P0's 3.7-11 s + the inner proof
+  9-37 ms + the two fresh blake3 commitments 42-140 ms = 3.75-11.2 s
+  per 512 tokens = 46-137 tok/s. Scaled: 8.6-62 + 0.16-3.6 = 8.8-66
+  s = 7.8-58 tok/s.
+- option 1, prefill B = 16, floor: 7-23 s + 0.025-0.06 s + 8,192 x
+  (7-21 ms) = 64-195 s per 8,192 tokens = 42-127 tok/s.
+- option 3 VB, prefill B = 16, floor: 6.9-81 s + 8,192 x (7-21 ms) =
+  64-253 s = 32-128 tok/s.
+- option 2, decode, floor: 30-80 ms + 51-177 ms = 81-257 ms = 3.9-12
+  tok/s — the fresh per-proof commitments are the size of the whole
+  P0 decode row (§3.4).
+
+### 6.3 The laptop GPU row, for lane XX's measurement shape [MODEL]
+
+Lane XX measures the 12x512 pass of the 125M model on the RTX 4070
+Laptop (S0 §7.4: the port factor 5-15x over the 23.0 s CPU row). At
+that shape the options cost, on the SAME device and clock:
+
+| option | what is added to the 12x512 pass | seconds per proof | tokens/s (of the 125M model) | label |
+|---|---|---:|---:|---|
+| the measured CPU row (S1 of S0): 23.0 s at 8 threads — which already RE-COMMITS W every proof (S0 §1.1) | — | 23.0 (20.7 with W cached) | 22 (25) | [MEASURED] |
+| P0, laptop GPU | the port | 1.5-4.6 | 111-341 | [MODEL, XX rung 5 measures] |
+| P1 | x1.02-1.08 | 1.56-5.0 | 103-328 | [MODEL] |
+| option 1 | commit W per proof: 2.19 s / 5-15 | 1.7-5.0 | 102-301 | [MODEL] |
+| option 2 | the inner statement at 125M: 12 x 256 columns x (288/8 + 2 x 16 = 68 permutations x ~700 + 288 x 6) = 1.5e8 native multiplies x 5-20 = 0.8-3e9 field multiplies at 5-15e9/s; U + inner-witness commitments ~100 MB of blake3 | 1.55-5.2 | 98-330 | [MODEL on a COUNTED statement] |
+| option 3 | QQ's 2.08 s [MEASURED] x 1-1.5 for the bridge + the hash channel's activation side (83.8% of 23.0 s = 19.3 s, / 5-15) | 3.4-7.0 | 73-151 | [MODEL on MEASURED] |
+
+The decisive comparison XX can make cheaply once its port exists: a
+12x512 option-1 run (the re-commit is the existing commit-W phase,
+already in the pass) against a cached-W run — the ratio is the P2/P3
+surcharge of option 1 [MEASURED] at that shape; and, if a Poseidon2
+column hash is dropped into `pcs.rs` behind a switch, the per-model
+tree's cost (§3.4) [MEASURED].
+
+### 6.4 What the table says
+
+1. **Option 2 is the only weights-private option whose 30B prefill
+   cells coincide with P0's** (46-137 vs 47-138 at the floor; 7.8-58
+   vs 8.3-60 scaled): its per-proof surcharge is 50-180 ms at the
+   floor and 0.16-3.6 s scaled against a 3.7-62 s row. It reaches 50
+   tok/s under exactly P0's conditions — batched or prefill
+   proving, the upper half of the hardware range, a >= ~50 GB/s
+   device hash rate (S0 §7.2) — and no others.
+2. **Option 1 reaches 50 only at B >= 16 prefills per proof** (42-127
+   floor, 12-87 scaled) and only in the upper half; at B = 1 it tops
+   out at 48. Its decode cells are 0.04-0.14 tok/s.
+3. **Option 3 reaches 50 only with Variant B at B >= 16** (32-128
+   floor) — a lane-VV measurement, a q46-class weight commitment
+   ruling and an unrecorded bridge away — and never at B = 1
+   (5.6-49). Its decode cells are the lattice line's (< 0.15
+   tok/s).
+4. **No option reaches 50 tok/s in batch-1 decode at 30B**; P0 does
+   not either (12-33 at the floor, S0 §7.2). Option 2 is the only
+   private-weights option with a double-digit decode floor (3.9-12),
+   and batched decode at B = 16 puts it at ~11-29 tok/s [COUNTED
+   from §3.6: the per-proof surcharge amortised] — still short.
+5. At 8B every option's prefill cells clear 50 at the floor; the
+   question is a 30B question.
 
 ## 7. The verdict for the ruling
 
