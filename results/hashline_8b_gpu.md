@@ -176,7 +176,7 @@ NOT — the measurement lands 1.8x BELOW the bottom of YY's [5.2, 16]
 band.** The reason is section 3.3's premise, stated there as "Route B's
 work is entirely device-shaped": at the 125M shape it is (XX measured
 5.3x), but at Mistral's width the prover falls off the device for the
-two zero-checks and the helper columns (79 s, 45% of the pass) because
+two zero-checks and the helper columns (76 s, 44% of the pass) because
 the kernels are shape-gated, and another ~42 s is host conversion,
 Merkle and serialization work. The hardware factor the pass actually
 realized is **2.92x**, not 5-15x. With the shape gate fixed the same
