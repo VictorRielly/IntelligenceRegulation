@@ -8524,3 +8524,66 @@ member digest absorbed into the statement. v2 untouched.
   both checkpoints. Files: hashline/src/tables_v3.rs, export_v3.rs,
   lib.rs (+2 mod lines), bin/hashline.rs (+flags, check-export/chain
   v3, tables-v3).
+
+- **RESUME (2026-09-02, second session).** The first session died at
+  a usage cutout with rungs 0-2 committed (a40b338) and rung 3 as an
+  UNCOMMITTED draft (layer.rs +971 lines: the v3 prover/verifier/
+  tamper legs; hashline.rs +182: `layer`/`pass` dispatch on
+  `--profile v3`). The draft was reviewed against the XX kernel
+  contracts (kind 0 = 13 tables in the order eq-tau/eq-p1/eq-p5/g8/
+  rg/a16/u16/ru/h16/rh/hg/hu/hh with prm alpha,beta,g_act,g_rg,g_ru,
+  g_rh,g_i16,mu[4],nu[3],p_g,p_u,p_h; kind 1 = 15 tables with
+  alpha,g_i16,g_rd,mu2[3],nu_x[3],nu_z[3],p_z — the v2 polynomials
+  verbatim, only the semantics of the columns changed), built clean,
+  and KEPT IN FULL; the one edit is a cfg-gated `let _ = dev_shape`
+  for the CPU-build warning. Checkpoint 54a4558.
+
+- **RUNG 3 GREEN (2026-09-02, WSL-BOX): THE v3 PROOF at the 125M v3
+  export, 12x512, CPU and GPU, byte-identical.** What `--profile v3`
+  proves per layer (the design of record above, now code): the block-
+  structured layout (125M: Wg/Wu as 3x1 blocks of 256x2048, Wd as 1x3
+  blocks of 2048x256; A = 7 f-planes g8/rg/a16/u16/ru/h16/rh + 3 d-
+  planes X/z16/rd per block; H = the LogUp helper columns) under the
+  same three Ligero commitments and the same sumcheck skeleton as v2;
+  the ACT16 lookup g8 + beta a16 + gamma TAG_ACT16 into the layer's
+  frozen int16-out member (256 rows, int16 outputs; the member's spec
+  digest, the family name, (d, f) and the four SIGNED shifts absorbed
+  into the statement); u16/h16/z16 in ONE 2^16-row INT16 class table
+  [-32768, 32767]; every balanced remainder in its window table
+  tag_rem_v3(sh) (2^sh rows; the one-row window {0} at sh <= 0); the
+  four requant identities acc = 2^sh y + r folded into the g/u and d
+  evaluation claims and the two zero-checks exactly as v2 (the public
+  coefficient of u16 at sh_u = -1 is the field inverse of 2, the
+  remainder column committed all-zero — layers 3 and 4 of the 125M
+  export exercise it). The multiplicity tables ride in the proof
+  (256 + 65536 + one per distinct shift), which is the whole size
+  delta against v2. [MEASURED] layer 0 (shifts 9/1/14/10) and layer 3
+  (8/-1/14/9, the up-scaling branch) at T=512: CPU ACCEPT prove
+  1.60 s / verify 0.027 s / 5.90 MB; **8/8 tamper legs REJECT on CPU
+  and on GPU** (flipped X, flipped Wg, out-of-range remainder, wrong
+  int16 table entry (a16+1 with h16/z16 recomputed consistently),
+  wrong requant, wrong z, WRONG ROUNDING = floor at a round-up element
+  carried through the chain (only the remainder window breaks), out-
+  of-range int16 = z16 + 65536 with rd compensated (identity kept)) —
+  the matmul/requant legs die in sumcheck round 0, the table/range/
+  rounding legs in the LogUp identity. **THE ROW** [MEASURED, WSL-BOX
+  8T, NOISY-SHARED: lane ZA's worktree present, no concurrent build
+  during the two pass walls] `hashline pass 12 512 --profile v3
+  --export .../m125_v3_export --threads 8 --proof-out`: CPU PROVE
+  **17.40 s** / VERIFY 0.27 s / proof 70,758,084 B (70.8 MB) / RSS
+  1.58 GB / 1.67e9 proven MAC/s; GPU (HL_GPU=1) PROVE **2.74 s** /
+  VERIFY 0.26 s / RSS 0.78 GB / VRAM 2.43 GB / 1.06e10 proven MAC/s,
+  device-side sum 1.39 s (h2d 0.21 [1271 MB], ntt 0.42, hash 0.10,
+  sumcheck 0.43, fold 0.15, helpers 0.08). BOTH proofs sha256
+  **5f368db6240e0614..** — `cmp` BYTE-IDENTICAL. Against the v2 row
+  on this box (CPU 16.81 / 0.27 / 66.84 MB / 1.56 GB; GPU 2.88 /
+  0.27): the widened statement costs +3.5% CPU prove, -5% GPU prove
+  (noise), +5.9% proof bytes, i.e. the v3 semantics are FREE at the
+  hash line — the 2^16-row class is a multiplicity vector, not a
+  wider commitment. Phases (CPU, summed over 12 layers): commit W
+  2.13, commit A 3.86, helpers+H 4.55, matmul g/u 0.40, d 0.23, zc F
+  3.61, zc D 1.72, openings 0.89 (GPU: 0.45 / 0.77 / 0.40 / 0.30 /
+  0.17 / 0.33 / 0.09 / 0.22). **v2 GATE UNCHANGED**: `pass 12 512
+  --threads 8 --proof-out` prints PROOF sha256 50cf7bdfd6b5b182..
+  (66,844,928 B) on the CPU binary (17.13 s, box loaded by the GPU
+  legs) and on the GPU binary (2.66 s). 22/22 tests.
