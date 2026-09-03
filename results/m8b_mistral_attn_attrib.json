@@ -71,6 +71,36 @@
    "wide": [],
    "perhead": [],
    "wall_s": 122.6
+  },
+  "v": {
+   "loss": 1.6440250044104698,
+   "delta_vs_fp_subset": 0.0037234096986842324,
+   "sites": [
+    "v"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 138.7
+  },
+  "scores": {
+   "loss": 1.6420439590622726,
+   "delta_vs_fp_subset": 0.0017423643504870245,
+   "sites": [
+    "scores"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 122.2
+  },
+  "exps": {
+   "loss": 1.6440612147478892,
+   "delta_vs_fp_subset": 0.003759620036103639,
+   "sites": [
+    "exps"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 187.1
   }
  }
 }
