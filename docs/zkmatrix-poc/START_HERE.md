@@ -48,8 +48,12 @@ the contract's surrogate; 14336 for the real Mistral-7B used since).
 
 Plain reading: "a proof" today means the feed-forward half of every
 transformer layer, for one 512-token prefill. The attention half is
-designed and proven at toy scale (§4) but is **not** in the 8B proof
-yet. Any write-up must say "FFN-only" until it is.
+designed and proven at toy scale (§4) but is **not** in any 8B proof
+on either line — including the hash line's 2026-09-03 Mistral-7B
+run, which was feed-forward only (no attention, no norms, no
+embeddings, and each layer's input committed from the export rather
+than derived from the previous layer). Any write-up must say
+"FFN-only" until round 12's lane AE lands the full layer.
 
 **The goal as restated by Victor on 2026-09-02: at least 50 proven
 tokens per second for a 30B-class model on ONE GPU** (a very large
@@ -257,7 +261,20 @@ nonlinear parts. It is documented, not started
 (`PROVING_CHANNEL_OPTIONS.md`); the standing ruling (Aug 18) was to
 finish the lattice-line 8B MVP first.
 
-## 7. The choices, and what was decided (2026-09-02: ROUND 10 CLOSED, ROUND 11 OPENED)
+## 7. The choices, and what was decided (2026-09-03: ROUND 11 CLOSED, ROUND 12 OPENED)
+
+**The privacy ruling (Victor, 2026-09-03): private inputs, public
+weights (mode P1) is the product path; private weights is a recorded
+TODO (board item T18, about two lane-weeks, priced in
+`U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md`).** Round 12 opens four lanes on
+the hash line, all toward "50 tokens/s at 30B on one H100, mode P1,
+batched proving": AC (the weights committed once per model + the 8B
+pass on the GPU, the measured 8B GPU number), AD (zero knowledge
+composed with the 8B semantics), **AE (attention, norms and the
+layer-to-layer links in the statement — the "full proof" that does
+not exist yet on either line beyond toy scale; the long pole)**, AF
+(the proof-size lever: 1.23 GB per 8B proof down to megabytes).
+Read on for the round-11 record.
 
 Round 10's four lanes all landed the same day (§6 table). Victor then
 ruled (console, 2026-09-02): start the hash-based comparison

@@ -9058,3 +9058,220 @@ this cell was 492 s (measured 510, +3.7%) — the Route-B model's 8B
 row is validated; the per-model weight commit is 44% of the prove
 (225 s), the per-proof remainder ~285 s; the proof is the sqrt
 class (1.23 GB) — the PCS swap is the size lever.
+
+## RULINGS (Victor, console 2026-09-03)
+
+Victor, verbatim: "Let's continue with private inputs/ public weigths
+for now, but add private weights as a todo. This looks like good
+news, the 50 token per second target seems not too far out of reach
+now. To clarify the Mistral test had a full proof? Attention and
+everything included?"
+1. **THE PRIVACY MODE = P1** (inputs/activations private, weights
+   public) for the product path now. Lane ZA's `--zk` form is the
+   P1 mechanism; the weight commitment stays public and cacheable
+   per model.
+2. **PRIVATE WEIGHTS (P2/P3) = A STANDING TODO**, not started: lane
+   ZZ's option 2 (never send the sampled weight columns: a per-model
+   Poseidon2 weight tree + a per-proof ZK inner proof of the column
+   check; ~2 lane-weeks; spikes O2-1..O2-3; a written simulator
+   required — Orion found unsound, ePrint 2024/1164). Board T-item
+   added.
+3. **THE CLARIFICATION, answered plainly (orchestrator)**: the
+   2026-09-03 Mistral-7B 32x512 proof was FFN-ONLY — the three
+   matmuls, the SiLU table, the requant/range facts of every
+   feed-forward block, all 32 layers, in one chained transcript. NOT
+   included: attention (Q/K/V/scores/softmax/context/output
+   projections, RoPE), the norms, the embeddings/head, and the
+   layer-to-layer seams (each layer's X was committed from the
+   export, not derived from the previous layer's output — the same
+   "FFN tower" limitation the lattice line's composed statement
+   has). FFN-only tokens are ~69-78% of a real token's MACs
+   (U_PERF3_THROUGHPUT_MODEL.md §1) and an unknown share of its
+   PROOF cost (~3.5x per layer of statement mass [MODEL]). The
+   attention statement on the hash line is round 12's long pole.
+
+## ROUND 12 — THE P1 PRODUCT PATH: ATTENTION, THE 8B GPU NUMBER, THE SIZE LEVER (opened 2026-09-03)
+
+Ground: round 11 closed (eight lanes merged, dc0dae3); the first
+full 8B FFN proof measured (0bc3ad9: Mistral-7B 32x512, 510 s CPU,
+1.23 GB, 14 GB). Every lane reads START_HERE.md first, then this
+block, then its brief. Worktrees wt-uperf3-{ac,ad,ae,af} on branches
+uperf3-{ac,ad,ae,af}. Standing rules = round 10's (no background
+runs; > ~8 min posted as ORCHESTRATOR-RUN; one commit per rung;
+labels; the byte gates: v2 50cf7bdf.., v3 5f368db6.. (export bins
+ONLY under /home/victor/wt-uperf3-aa/results/), zk-seed-1
+021485e4..; the lattice floors untouched — no lane below edits
+zkmatrix-rs). ALL FOUR LANES EDIT hashline/: file ownership is
+strict and the driver (src/bin/hashline.rs) is shared — each lane
+adds ONLY its own flag lines and dispatch arms there, marked with
+its tag, so the orchestrator's merge is mechanical.
+
+THE GOAL RESTATED FOR THIS ROUND: >= 50 proven tokens/s at 30B on
+one H100, mode P1, batched/prefill proving. What stands between the
+measured 8B FFN-only CPU row and that: (1) attention + norms + seams
+in the statement (the "full proof" — lane AE, the long pole); (2)
+the per-model weight cache + the 8B pass on a GPU (the measured 8B
+GPU number — lane AC); (3) zk composed with v3 so the 8B number is
+the P1 number (lane AD); (4) the proof size (1.23 GB per 8B proof —
+lane AF); (5) hardware (choice C, Victor); (6) the Mac's own 8B
+number (M9, Victor).
+
+### Lane AC — the per-model weight cache + the 8B pass on the GPU (wt-uperf3-ac) — RUST/CUDA
+OWNS: NEW hashline/src/wcache.rs (the per-model weight-commitment
+cache: commit each layer's W once, persist the Merkle roots + the
+encoded rows or re-derive, verify-on-load by root; `--wcache DIR`),
+hashline/src/gpu/* (ADDITIVE: chunked/streamed W encoding so a
+4096x14336 int8 tensor's Reed-Solomon rows + Merkle tree are built
+in device-sized chunks under the 8 GB part; the device buffer pool),
+its flag lines in the driver (tag [UPERF3-AC]), NEW
+results/hashline_8b_gpu_*, "Agent AC status". READ-ONLY: pcs.rs,
+sumcheck.rs, transcript.rs, zk.rs (AD's), layer.rs/silu.rs/
+export_v3.rs/tables_v3.rs (AE's/AF's interfaces), zkmatrix-rs/.
+WHY: 225 of the 510 s of the 8B CPU pass are the weight commitments
+— per-model work under P1 (public weights); and `HL_GPU=1` today
+DECLINES the 5.4 GB W commit on the 8 GB part and falls back to CPU
+bytes (lane ZB). The 8B GPU number is the anchor the 30B/H100
+projection needs.
+RUNGS (prefix "U-PERF3 AC:"): 0 skeleton + the plan + the gates
+unchanged; 1 the weight cache on the CPU path: `pass 32 512
+--profile v3 --wcache DIR` run twice — the second run skips the W
+commits (root-verified), proof bytes IDENTICAL to the uncached run
+(the same Merkle roots), per-proof prove wall recorded (expect ~285
+s CPU); 2 the chunked W encoding on the device at 12x512 (v2 and
+v3), bytes identical (50cf7bdf.. / 5f368db6..), the wall; 3 ONE
+Mistral layer at T=512 on the GPU (`HL_GPU=1`), bytes identical to
+the CPU layer proof, wall + VRAM; 4 THE 8B PASS ON THE GPU: `pass 32
+512 --profile v3 --wcache` with `HL_GPU=1`, cold and warm cache,
+proof bytes identical to the CPU pass (sha256 dc980e81.. for the
+uncached form — state whether the cached form changes bytes; it
+should not), walls, RSS, VRAM, proven MAC/s — ORCHESTRATOR-RUN if >
+8 min; 5 RECORD: results/hashline_8b_gpu.md in XX's form + the §3
+8B GPU row in PROVING_CHANNEL_OPTIONS.md + the tokens/s at 8B on
+this laptop GPU (P0 and, once AD lands, P1) next to YY's model
+cells.
+
+### Lane AD — zero knowledge composed with the widened stack (wt-uperf3-ad) — RUST
+OWNS: hashline/src/zk.rs (ADDITIVE: the v3 statement's ZK form —
+the int16-output table lookups, the int16 range facts, the
+round-nearest requant identity, all masked like the v2 ones), the
+v3 hooks in layer.rs that ZA's form needs (ADDITIVE, tagged
+[UPERF3-AD]; coordinate: lane AE also edits layer.rs — AD touches
+only the existing v3 functions' ZK variants, AE adds NEW attention
+functions), the `--zk` + `--profile v3` dispatch (replace the refusal
+with the composed path), NEW results/hashline_zk_v3_*, "Agent AD
+status". READ-ONLY: pcs.rs, sumcheck.rs, transcript.rs (ZA's ZK
+primitives — reuse), gpu/* (AC's), export_v3.rs, tables_v3.rs.
+WHY: the P1 mode is the product ruling; the 8B number (v3) and the
+ZK form (v2 only) must be the same proof.
+RUNGS (prefix "U-PERF3 AD:"): 0 skeleton; 1 the v3 ZK layer at 3x16
+(uniformity test extended to the v3 opening sites — enumerate them);
+2 the 12x512 v3 ZK pass, CPU and GPU byte-identical under a seed,
+the 8 v3 tamper legs under `--zk`; 3 ONE Mistral layer under `--zk`
+at T=512 (CPU; GPU if AC's chunked encoding has landed — else
+record); 4 the surcharge table vs ZB's v3 rows and ZA's v2 ZK rows;
+the ZK-v3 row in §3; 5 record.
+
+### Lane AE — ATTENTION IN THE STATEMENT: the full-layer proof on the hash line (wt-uperf3-ae) — RUST + PYTHON (the long pole)
+OWNS: NEW hashline/src/attention.rs (the attention statement), NEW
+hashline/src/tables_attn.rs (the exp / inverse / rsqrt table
+members), NEW hashline/src/norm.rs (RMSNorm), the NEW attention
+functions in layer.rs (ADDITIVE, tagged [UPERF3-AE]; AD edits the
+v3 FFN functions' ZK variants — do not touch those), NEW
+scripts/m8b_mistral_attn_gate.py (the attention calibration gate for
+the hf Mistral adapter: the CC/PP pattern), NEW
+scripts/attention_hash_ref.py (the python oracle of the integer
+attention chain), NEW results/m8b_mistral_attn_* and
+results/hashline_attn_*, the `--attn` flag lines in the driver,
+"Agent AE status". READ-ONLY: everything else in hashline/ (reuse
+pcs/sumcheck/zk/gpu as libraries), zkmatrix-rs/ (the attention
+DESIGN of record lives there: read docs/zkmatrix-poc/
+U_PERF3_ATTENTION_STATEMENT_DESIGN.md, the ledger's Agent JJ (the
+integer softmax chain X-S1: exp table members keyed (eS, d_h, fE),
+the sum, the quotient/remainder normalisation), Agent NN (the
+66-entry typed attention layer, RoPE rows, the value chain vs the
+python oracle scripts/attention_x1_layer_ref.py — read that script),
+Agent CC (the Gemma attention calibration gate:
+scripts/m8b_gemma4_attn_gate.py — read it) and Agent PP (the 125M
+gate: scripts/m125_attn_gate.py; results/m125_attn_at_o1.json)).
+WHY (plain words): the 8B proof is FFN-only. A real token's layer is
+attention + FFN with norms and a residual stream; "the full proof"
+Victor asked about does not exist on either line beyond toy scale.
+This lane builds it on the hash line, the same way the FFN was
+built: exact integer semantics first (calibrated, measured
+exponents), a python oracle, then the proof with the existing
+primitives (the matmul sumcheck for Q/K/V/O projections and the
+per-head QK^T and PV matmuls; LogUp tables for exp, the inverse in
+the softmax normalisation, and the RMSNorm inverse-sqrt; zero-checks
+for the requants, the residual adds and the layer-to-layer SEAM so
+layer l+1's X is DERIVED from layer l, not committed fresh).
+RUNGS (prefix "U-PERF3 AE:"): 0 skeleton + THE STATEMENT SPEC in
+your status section (every tensor of one Mistral-7B layer — GQA
+H 32 / H_kv 8, d 4096, d_h 128, RoPE — with its class (int8/int16),
+its exponent source, and which primitive proves it; the seam; what
+is deferred: KV cache/decode, the embedding/head); 1 THE CALIBRATION
+GATE for Mistral attention (python; the CC pattern on the hf
+adapter; the checkpoint is local — find it: /home/victor/models/
+or where scripts/m8b_int8_calibration.py's --ckpt pointed for T12;
+if absent, run the gate on the 125M frugal model's measured table
+results/m125_attn_at_o1.json instead and say so): per-site range
+profiles + the int8 first-order attribution + the widened-class
+check -> results/m8b_mistral_attn_at_o1.json (the exponent table
+the statement consumes) — CPU, minutes-class per site [MODEL];
+STOP and record if the Mistral attention core is NOT int8-clean
+(that would be a finding of the CC/PP kind); 2 THE PYTHON ORACLE of
+the integer attention chain for one layer (scripts/attention_hash_ref.py)
+reproducing the calibrated forward at 125M (bit-exact vs the hooked
+walker, the PP pattern) and at Mistral layer 0; 3 THE RUST CHAIN
+(unproven) reproducing the oracle's per-tensor digests at 125M and
+Mistral layer 0; 4 THE PROOF at 125M for one FULL layer (attention +
+FFN + norms + residual, seam-bound to the next layer's X), tamper
+legs (a flipped score, a wrong exp entry, a wrong softmax quotient,
+a wrong norm, a broken seam), CPU and GPU byte-identical; walls vs
+the FFN-only layer; 5 the 12-layer 125M FULL-MODEL pass (seams
+bound) and ONE Mistral full layer at T=16 (CPU; memory permitting),
+measured; the row in §3 as "FULL LAYER" next to the FFN-only rows;
+what remains for a true end-to-end proof (embeddings, the head, the
+KV cache/decode regime).
+This lane is multi-day; commit every rung; if you run out of
+session, the ledger must let the next agent resume from the last
+green rung.
+
+### Lane AF — the proof-size lever: a compact polynomial commitment (wt-uperf3-af) — RUST
+OWNS: NEW hashline/src/pcs_compact.rs (a second multilinear PCS
+behind `--pcs compact`: a FRI/STIR/WHIR-class or batched-evaluation
+construction that brings the per-proof bytes from the sqrt class
+(1.23 GB at 8B; 66.8 MB at 12x512) to the MB class; the choice is
+yours — read U_PERF3_ROUTE_B_THROUGHPUT.md §5 (the counted trade:
+x0.94-1.4 prover for 3-12 MB per pass) and pick the construction you
+can build and argue in one lane; state its soundness parameters),
+the `--pcs` flag lines in the driver, NEW results/hashline_compact_*,
+"Agent AF status". READ-ONLY: pcs.rs (the Ligero form stays the
+default and byte-identical), sumcheck.rs, transcript.rs, zk.rs,
+gpu/*, layer.rs, the v3 files.
+RUNGS (prefix "U-PERF3 AF:"): 0 skeleton + the construction chosen,
+its parameters and soundness stated in the status section; 1 the
+PCS alone: commit/open/verify on random polynomials with tamper
+legs; bytes vs the Ligero form at 2^14..2^20 rows; 2 the 12x512 v2
+pass under `--pcs compact`: accept, tamper legs, bytes, prove and
+verify walls vs the Ligero row (CPU; GPU if the NTT/hash primitives
+already serve it — else record what a port needs); 3 the 12x512 v3
+pass the same; 4 ONE Mistral layer at T=512 under `--pcs compact`
+(CPU): bytes and walls; the projection for the 32x512 pass; 5 the
+row in §3 + record; the ZK interaction stated (does the compact
+form keep ZA's pads/masks? what changes?).
+
+## Agent AC status (wt-uperf3-ac) — round 12
+
+(lane appends below)
+
+## Agent AD status (wt-uperf3-ad) — round 12
+
+(lane appends below)
+
+## Agent AE status (wt-uperf3-ae) — round 12
+
+(lane appends below)
+
+## Agent AF status (wt-uperf3-af) — round 12
+
+(lane appends below)

@@ -19,6 +19,40 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-09-03 (ROUND 11 CLOSED — eight lanes; THE FIRST FULL 8B
+FFN PROOF measured; RULING: mode P1; ROUND 12 OPENED):**
+- **RULING (Victor, console 2026-09-03: "Let's continue with private
+  inputs/ public weights for now, but add private weights as a
+  todo")**: the product privacy mode is **P1** (inputs/activations
+  private, weights public; lane ZA's `--zk`). **TODO T18 — private
+  weights (P2/P3)**: lane ZZ's option 2 (per-model Poseidon2 weight
+  tree + per-proof ZK inner proof of the column check; ~2 lane-weeks;
+  spikes O2-1..O2-3; a written simulator required). Not started.
+- **THE CLARIFICATION (Victor asked whether the Mistral proof was
+  "full, attention and everything")**: NO — the 2026-09-03 proof is
+  FEED-FORWARD ONLY (three matmuls + SiLU table + requant/range
+  facts, all 32 layers, one transcript); attention, RoPE, the norms,
+  the embeddings/head and the layer-to-layer seams are NOT in it
+  (the same "FFN tower" limitation as the lattice line's composed
+  statement). FFN-only is ~69-78% of a real token's MACs and an
+  unknown share of its proof cost. The full-layer statement is round
+  12's long pole (lane AE).
+- **THE MEASURED STATE OF THE HASH LINE**: 125M 12x512 in 3.4 s on
+  the laptop GPU (byte-identical to CPU); the P1 ZK form +60% on the
+  GPU; Mistral-7B 32x512 FFN-only in 510 s on the laptop CPU (14 GB,
+  1.23 GB proof; the model predicted 492). The lattice line: every
+  lever measured, best 1.77x; no 8B shape has run.
+- **ROUND 12 LANES** (PROGRESS_UPERF3.md, self-contained briefs; all
+  in hashline/, strict file ownership): **AC** = the per-model weight
+  cache + the chunked W encoding so the 8B pass runs on the GPU —
+  the measured 8B GPU number; **AD** = `--zk` composed with
+  `--profile v3` (the 8B number becomes the P1 number); **AE** =
+  ATTENTION + norms + seams in the statement — the full-layer proof
+  (calibration gate on Mistral attention -> python oracle -> Rust
+  chain -> the proof at 125M -> a Mistral full layer); **AF** = the
+  proof-size lever (a compact PCS behind `--pcs compact`; 1.23 GB ->
+  MB class). Victor: choice C (hardware) and the Mac's M9.
+
 **AS OF 2026-09-02 late (ROUND 10 CLOSED, ROUND 11 OPENED; three
 rulings; the Mac runbook unchanged):**
 - **ROUND 10 CLOSED**: all four lanes merged at 0dc31f7, floors green
