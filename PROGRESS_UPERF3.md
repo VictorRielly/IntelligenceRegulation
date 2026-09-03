@@ -9396,6 +9396,79 @@ the pre-warmed dir the GPU runs will have written by rung 4:
   warm: the same command again (the dir now holds 32 entries; expect the
   same sha256; commit W ~158 s instead of 225 [MODEL]).
 
+**RUNG 2 — THE CHUNKED DEVICE COMMIT: GREEN, BYTE-IDENTICAL (2026-09-03,
+WSL-BOX 8T + RTX 4070 Laptop, NOISY-SHARED from here on: the other
+round-12 lanes started building, load 8-13).** What landed (gpu/*,
+additive): `k_hash_cols_stream` — the streaming form of XX's blake3
+column kernel: the encoded matrix arrives in ROW CHUNKS, every chunk but
+the last a multiple of 128 rows (= 1024 column bytes = one blake3 chunk,
+so a row-chunk boundary is a blake3 chunk boundary and no partial-chunk
+state exists); the per-column CV stack (24 x 8 words + the length, 50 MB
+at nn = 2^16) lives in a device state buffer across launches; the launch
+holding the last row finishes the column with the same compressions and
+flags as `b3_hash_column` and writes the leaf. `k_gather_cols_off` (the
+opening's columns assembled chunk by chunk). `DevCommit.enc` is now
+`Option`: a commitment whose encoding exceeds `HL_GPU_CHUNK_BYTES`
+(default 1 GiB — the 12x512 commitments are 151-273 MB and stay on XX's
+resident path clock for clock) or whose resident buffers cannot be
+allocated is encoded in chunks of `HL_GPU_CHUNK_ROWS` rows (default 1024)
+into reused scratch (a new "at least this long" pool take), hashed
+streaming, and NEVER resident; `dev_columns` re-encodes the same chunks
+at the opening and gathers the Q columns; the cached-W `dev_encode_only`
+uploads only, in the chunked class. THE PROBE (`gpu-probe`, 15 new
+shapes: rows 127/128/129/255/256/257/300/1024/1025 at chunk 128-256,
+plus (12,4,1000,256), (14,4,64,128), (14,4,700,384), (13,2,4,128),
+(12,8,3,128), (14,4,2200,1024)): **0 leaf mismatches and 0 column
+mismatches at every shape** against the CPU encoder + `hash_columns`
+[MEASURED]. THE GATES with EVERY 12x512 commitment forced through
+128-row chunks (`HL_GPU_CHUNK_BYTES=0 HL_GPU_CHUNK_ROWS=128`: W in 3, A
+in 5, H in 4 chunks per layer; 36 chunked commits per pass): v2
+**50cf7bdfd6b5b182..** PROVE 2.86 s | v3 **5f368db6240e0614..** 3.25 s |
+zk **021485e4f80ec695..** 4.77 s | warm-cache v2/v3 the same two digests
+(3.16 / 3.17 s) — all byte-identical; the chunked form costs +0.4 s per
+pass at this shape (the opening re-encodes, 0.42 s: it is the resident
+path's job to be cheap here). THE DEFAULT PATH, same binary, same
+session: 0 chunked commits, v2/v3/zk 2.76 / 2.91 / 4.17 s, the three
+digests unchanged. Per-commit device walls at 12x512 (verbose, one
+layer): W 288 rows in 3 chunks 0.018 s (ntt 0.013 + hash 0.001), A 520
+rows 0.035 s, H 432 rows 0.023 s; the opening's re-encode + gather 0.008
+/ 0.015 / 0.012 s. Commit 641a80a.
+
+**RUNG 3 — ONE REAL MISTRAL-7B LAYER AT T = 512 ON THE GPU: GREEN,
+BYTE-IDENTICAL TO THE CPU (2026-09-03, WSL-BOX 8T + RTX 4070 Laptop,
+NOISY-SHARED, the heavy lock, /usr/bin/time -v).** `pass 1 512 --profile
+v3 --export .../m8b_mistral_v3_export --threads 8 --proof-out F` (the
+pass form so the device-side line and the sha256 print; d 4096, f 14336,
+shifts 11/2/15/6):
+| run | PROVE | commit W | A | helpers+H | matmul | zcF (host) | zcD (host) | openings | RSS | VRAM peak | PROOF sha256 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| CPU (the reference) | 16.55 s | 6.69 | 2.12 | 4.24 | 0.57 | 1.52 | 0.24 | 1.14 | 12.69 GB | — | 179ec2fb8f99d0d6.. (38,688,700 B) |
+| GPU, no cache | **5.56 s** | 1.14 | 0.39 | 1.00 | 0.27 | 1.66 | 0.25 | 0.82 | 4.16 GB | **4,175 MB** | **179ec2fb8f99d0d6..** |
+| GPU, cache cold (writes 4.2 MB) | 5.57 s | 1.24 | 0.38 | 1.04 | 0.27 | 1.57 | 0.25 | 0.81 | 4.18 GB | 4,175 MB | 179ec2fb8f99d0d6.. |
+| GPU, cache warm | **4.94 s** | **0.80** | 0.41 | 0.98 | 0.25 | 1.41 | 0.25 | 0.82 | 4.16 GB | 4,175 MB | 179ec2fb8f99d0d6.. |
+`sha256sum` of the four written proofs: one digest. So the 5.4 GB W
+encoding that `HL_GPU=1` DECLINED on this part (lane ZB) is now committed
+in **11 chunks of 1024 rows** (W 10,752 rows; A 3,520 rows in 4; H 2,944
+rows in 3), the whole layer at **3.0x the CPU wall in a third of the
+memory and half the part's VRAM**. Device-side (cold): h2d 0.49 s for
+2.26 GB, ntt 0.52 s, fold 0.22 s; the opening's chunked re-encode +
+gather 0.51 s (W 0.31 in 11 chunks, A 0.09, H 0.08). The cache on the
+GPU saves 0.34 s per layer (the commit-time NTT + hash: commit(miss) 0.71
+s -> upload only), i.e. ~11 s per 32-layer pass [COUNTED]. WHAT REMAINS
+HOST WORK at this shape and why: zero-check F 1.4-1.7 s + zero-check D
+0.25 s + the helper columns (~0.7 of the 1.0 s "helpers + commit H") run
+on the CPU because ZB's `dev_shape` gate (layer.rs: nb_f == 1 && nb_d ==
+3, outside this lane's ownership) keeps the XX kernels — fixed at 13 / 15
+tables — to the 125M block shape; at Mistral the F-side zero-check has
+73 tables (7 f-blocks x 10 + 3 eq). That is ~2.4 s of the 4.9-5.6 s
+layer, the next lever (a block-looping zero-check kernel: same register
+footprint as zc20, one f-block at a time). Also host: the w_data / a_data
+Fp conversions + their pageable upload (~0.8 s), the matmul folds (0.25
+s), the opening's claim bookkeeping + Merkle paths + serialization (~0.3
+s). Projection for the 32-layer GPU pass: ~178 s cold / ~158 s warm
+prove + ~110 s witness load [MODEL] — under the 8-minute line, so run
+here (rung 4).
+
 ## Agent AD status (wt-uperf3-ad) — round 12
 
 (lane appends below)
