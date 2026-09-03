@@ -9602,20 +9602,20 @@ the band; the band's low end needs the conversion/upload and Merkle
 items too. This is the first test of that premise at a real model
 width, and the H100 columns rest on the same premise — recorded as a
 caution, not a claim about them.
-THE GATES, re-run in this tree after the rung-4/5 work [MEASURED,
-NOISY-SHARED: lane AE's Mistral attention gate held the heavy lock and
-16 cores, load 20; the six gate runs are queued behind it on
-`flock /tmp/zk-heavy.lock`, as the shared-box rule requires]:
+THE GATES, re-run in this tree after the rung-4/5 work — ALL SIX GREEN
+[MEASURED, NOISY-SHARED: the six runs queued behind lane AE's Mistral
+attention gate on `flock /tmp/zk-heavy.lock`, as the shared-box rule
+requires; load 4-20 across them, so the walls are upper bounds]:
 | gate | CPU | GPU (HL_GPU=1) |
 |---|---|---|
-| v2 `pass 12 512 --threads 8` | **50cf7bdfd6b5b182..** (PROVE 15.15 s) | (queued) |
-| v3 `pass 12 512 --profile v3 --export .../m125_v3_export` | **5f368db6240e0614..** (PROVE 16.78 s) | (queued) |
-| zk `pass 12 512 --zk --seed 1` | (queued) | (queued) |
-The two that have run are the round-11 references, byte for byte. NO
-CODE CHANGED in rungs 4-5 (`git status` on this branch: PROGRESS, the
-two docs, the new record — no .rs, no .cu), so the rung-0 test suite
-(28/28) and the rung-2/3 gate results stand; the four queued digests
-are appended in the follow-up commit.
+| v2 `pass 12 512 --threads 8` | **50cf7bdfd6b5b182..** (PROVE 15.15 s, verify 0.31) | **50cf7bdfd6b5b182..** (PROVE 2.79 s, verify 0.24) |
+| v3 `pass 12 512 --profile v3 --export .../m125_v3_export` | **5f368db6240e0614..** (16.78 s, 0.31) | **5f368db6240e0614..** (2.94 s, 0.26) |
+| zk `pass 12 512 --zk --seed 1` | **021485e4f80ec695..** (17.30 s, 0.54) | **021485e4f80ec695..** (3.98 s, 0.39) |
+All six = the round-11 references; `sha256sum` over the six written
+proof files gives the same three digests as the binaries' own prints.
+NO CODE CHANGED in rungs 4-5 (`git status`: PROGRESS, two docs, the new
+record — no .rs, no .cu), so the rung-0 test suite (28/28) and the
+rung-2/3 device probes stand as recorded.
 WHAT THE NEXT AGENT SHOULD PICK UP, in order: (a) the block-looping
 zero-check / helper kernels behind ZB's `dev_shape` gate — worth ~1.5x
 of the 8B pass and the difference between 2.9 and 4.9 tok/s; (b) the
