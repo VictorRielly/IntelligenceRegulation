@@ -19,6 +19,35 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-09-03 evening (ROUND 12 IN FLIGHT — a usage-limit cutout
+hit all four lanes at once; all work preserved, lanes relaunched;
+lane branches PUSHED):**
+- **THE CUTOUT**: the session's model limit killed lanes AC, AD, AE
+  and AF within minutes of each other. Nothing was lost: `uperf3-ac`
+  had rungs 0-3 committed, `uperf3-ad` rungs 0-1, `uperf3-ae` rung 0
+  (with rung-1 results left uncommitted in the worktree), `uperf3-af`
+  nothing (its construction left uncommitted). All four branches are
+  now PUSHED to origin (`uperf3-{ac,ad,ae,af}`), and all four lanes
+  were relaunched with resume protocols that commit within 15
+  minutes. STANDING LESSON (already in CLAUDE.md's spirit): every
+  lane brief must say "commit rung 0 within 15 minutes and after
+  every rung" — the two lanes that did survived the cutout intact.
+- **PRESERVED, ALREADY MEASURED (on the lane branches, not yet
+  merged)**: **lane AC rung 3 — THE FIRST 7B-WIDTH LAYER PROOF ON A
+  GPU**: Mistral-7B layer 0 at T=512 with `HL_GPU=1`, the weight
+  tensor committed in 11 chunks of 1,024 rows (it was DECLINED
+  outright at 5.4 GB before): **PROVE 5.56 s cold / 4.94 s warm
+  cache vs 16.55 s on the CPU, RSS 4.2 GB (CPU 12.7), VRAM peak
+  4,175 MB, proof sha256 179ec2fb.. byte-identical across
+  CPU/GPU/cold/warm** [MEASURED]; the per-model weight cache works.
+  **Lane AE rung 1 (partial)**: the Mistral-7B attention calibration
+  gate ran EQUIV green (hooks-off walker bit-exact: hidden 97deb9f4..,
+  logits 885b401b..) and STATS (263.6 s, 4 windows), and got 6 of its
+  attribution sites — baseline 1.6403, Wattn +0.0074, Wnorm -0.0004,
+  xattn +0.0046, q +0.0006, k +0.0017 — **all clean so far**; the
+  remaining sites include `xres`, the ONE poisoned site at both Gemma
+  and 125M, so the verdict is still open.
+
 **AS OF 2026-09-03 (ROUND 11 CLOSED — eight lanes; THE FIRST FULL 8B
 FFN PROOF measured; RULING: mode P1; ROUND 12 OPENED):**
 - **RULING (Victor, console 2026-09-03: "Let's continue with private
