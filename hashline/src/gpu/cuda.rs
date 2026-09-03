@@ -11,7 +11,7 @@ use crate::merkle::Digest;
 use crate::ntt::NttTables;
 use crate::pcs::PcsParams;
 use cudarc::driver::result as cu;
-use cudarc::driver::{sys, CudaDevice, CudaSlice, DevicePtr, DeviceSlice, LaunchAsync, LaunchConfig};
+use cudarc::driver::{sys, CudaDevice, CudaSlice, CudaView, DevicePtr, DeviceSlice, LaunchAsync, LaunchConfig};
 use cudarc::nvrtc::{compile_ptx_with_opts, CompileOptions};
 use rayon::prelude::*;
 use std::sync::{Arc, Mutex, OnceLock};
@@ -24,6 +24,7 @@ const FUNCS: &[&str] = &[
     "k_sc_round_zc20", "k_sc_round_zc17", "k_reduce_f2", "k_sc_fold", "k_tab_from_fp", "k_tab_from_fp2", "k_eq_table",
     "k_fold_rows", "k_helper", "k_sum_fp", "k_eq_join", "k_dot_slices", "k_dif_pa", "k_dif_pb", "k_dit_p1_pad",
     "k_zk_pad_scale", // [UPERF3-ZA]
+    "k_hash_cols_stream", "k_gather_cols_off", // [UPERF3-AC]
 ];
 const SC_THREADS: u32 = 256;
 const SC_MAX_BLOCKS: u32 = 1024;
@@ -73,11 +74,33 @@ fn pool_put(buf: CudaSlice<u64>) {
     }
 }
 
+/// [UPERF3-AC] A buffer of AT LEAST `len` (the smallest pooled one that
+/// fits, else a fresh allocation of exactly `len`) — for chunk scratch
+/// whose kernels take explicit row counts, so the extra tail is inert.
+fn pool_take_min(dev: &Arc<CudaDevice>, len: usize) -> Result<CudaSlice<u64>, String> {
+    let mut pool = POOL.lock().unwrap();
+    let mut best: Option<usize> = None;
+    for (i, b) in pool.iter().enumerate() {
+        if b.len() >= len && best.map(|j| b.len() < pool[j].len()).unwrap_or(true) {
+            best = Some(i);
+        }
+    }
+    if let Some(i) = best {
+        return Ok(pool.swap_remove(i));
+    }
+    drop(pool);
+    unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!("cuMemAlloc({} MB): {e}", len * 8 >> 20))
+}
+
 /// A pooled buffer: returned to the pool on drop.
 pub struct Pooled(Option<CudaSlice<u64>>);
 impl Pooled {
     fn take(dev: &Arc<CudaDevice>, len: usize) -> Result<Pooled, String> {
         Ok(Pooled(Some(pool_take(dev, len)?)))
+    }
+    /// [UPERF3-AC] at least `len` (see `pool_take_min`).
+    fn take_min(dev: &Arc<CudaDevice>, len: usize) -> Result<Pooled, String> {
+        Ok(Pooled(Some(pool_take_min(dev, len)?)))
     }
     #[inline]
     fn get(&self) -> &CudaSlice<u64> {
@@ -109,10 +132,13 @@ pub struct GpuStats {
     pub bytes_h2d: u64,
     pub bytes_d2h: u64,
     pub vram_peak: u64,
+    /// [UPERF3-AC] the opening's chunked re-encode (NTT time, counted apart from `secs_ntt`) and the chunked commit count
+    pub secs_reenc: f64,
+    pub n_chunked: u64,
 }
 static STATS: Mutex<GpuStats> = Mutex::new(GpuStats {
     secs_h2d: 0.0, secs_ntt: 0.0, secs_hash: 0.0, secs_d2h: 0.0, secs_sumcheck: 0.0, secs_fold: 0.0, secs_helpers: 0.0,
-    bytes_h2d: 0, bytes_d2h: 0, vram_peak: 0,
+    bytes_h2d: 0, bytes_d2h: 0, vram_peak: 0, secs_reenc: 0.0, n_chunked: 0,
 });
 pub fn dev_stats() -> GpuStats {
     STATS.lock().unwrap().clone()
@@ -321,7 +347,10 @@ pub struct DevCommit {
     pub log_n: u32,
     pub log_nn: u32,
     pub(super) data: Pooled,
-    pub(super) enc: Pooled,
+    /// [UPERF3-AC] `None` for a CHUNKED commitment: the encoding was never
+    /// resident (hashed chunk by chunk) and the opening re-encodes it chunk
+    /// by chunk from `data` (`dev_columns`).
+    pub(super) enc: Option<Pooled>,
 }
 
 impl Gpu {
@@ -426,14 +455,228 @@ pub fn dev_encode_only(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Resu
     dev.synchronize().map_err(|e| e.to_string())?;
     let t1 = Instant::now();
     stats_with(|s| { s.secs_h2d += (t1 - t0).as_secs_f64(); s.bytes_h2d += (data.len() * 8) as u64; });
+    if rows * nn * 8 > chunk_bytes() {
+        // the chunked class: nothing to encode now — the opening re-encodes chunk by chunk
+        return Ok(DevCommit { rows, log_n, log_nn, data: d_data, enc: None });
+    }
     let mut d_coef = Pooled::take(&dev, rows * n)?;
-    let mut d_enc = Pooled::take(&dev, rows * nn)?;
+    let mut d_enc = match Pooled::take(&dev, rows * nn) {
+        Ok(b) => b,
+        Err(_) => return Ok(DevCommit { rows, log_n, log_nn, data: d_data, enc: None }),
+    };
     g.encode_rows(d_data.get(), d_coef.get_mut(), d_enc.get_mut(), rows, log_n, log_nn)?;
     dev.synchronize().map_err(|e| e.to_string())?;
     stats_with(|s| s.secs_ntt += t1.elapsed().as_secs_f64());
     note_vram(&g);
     drop(d_coef);
-    Ok(DevCommit { rows, log_n, log_nn, data: d_data, enc: d_enc })
+    Ok(DevCommit { rows, log_n, log_nn, data: d_data, enc: Some(d_enc) })
+}
+
+// ---------------------------------------------------------------------------
+// [UPERF3-AC] THE CHUNKED COMMIT. A commitment whose encoding (rows x nn x
+// 8 B) exceeds `HL_GPU_CHUNK_BYTES` (default 1 GiB; the 12x512 commitments
+// are 151-272 MB and stay on the resident path above, byte for byte) — or
+// whose resident buffer cannot be allocated — is encoded in ROW CHUNKS of
+// `HL_GPU_CHUNK_ROWS` rows (default 1024; rounded down to a multiple of
+// 128 so every chunk boundary is a blake3 chunk boundary of the column
+// byte string): each chunk is RS-encoded into a reused scratch buffer and
+// fed to `k_hash_cols_stream`, whose per-column CV stack persists in a
+// device state buffer across chunks; the last chunk yields the leaves. The
+// encoding is never resident; the OPENING re-encodes the same chunks and
+// gathers the Q sampled columns (`dev_columns`). Values: the same row
+// transforms (== the CPU encoder, row by row); the same column bytes in
+// the same order (== blake3::hash of the column) — the proof bytes are
+// the resident path's, which are the CPU path's.
+
+fn chunk_bytes() -> usize {
+    static V: OnceLock<usize> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_GPU_CHUNK_BYTES").ok().and_then(|v| v.parse().ok()).unwrap_or(1usize << 30))
+}
+fn chunk_rows() -> usize {
+    static V: OnceLock<usize> = OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_GPU_CHUNK_ROWS").ok().and_then(|v| v.parse().ok()).unwrap_or(1024usize).max(128))
+}
+
+/// (row0, rc) per chunk: every chunk but the last a multiple of 128 rows.
+fn chunk_plan(rows: usize, chunk: usize) -> Vec<(usize, usize)> {
+    if rows <= chunk {
+        return vec![(0, rows)];
+    }
+    let step = (chunk / 128).max(1) * 128;
+    let mut out = Vec::new();
+    let mut r0 = 0;
+    while r0 < rows {
+        let rc = step.min(rows - r0);
+        out.push((r0, rc));
+        r0 += rc;
+    }
+    out
+}
+
+const B3_STATE_SLOTS: usize = 8 * 24 + 1;
+
+impl Gpu {
+    /// `encode_rows` over a VIEW of the data (a row chunk); same kernels, same values.
+    fn encode_rows_view(&self, data: &CudaView<u64>, coef: &mut CudaSlice<u64>, enc: &mut CudaSlice<u64>, rows: usize, log_n: u32, log_nn: u32) -> Result<(), String> {
+        let (max_log, tf, ti) = self.tw.as_ref().ok_or("twiddles not uploaded")?;
+        assert!(log_nn <= *max_log && log_n <= log_nn);
+        assert!(coef.len() >= rows << log_n && enc.len() >= rows << log_nn);
+        let scale: u64 = Fp::new(1u64 << log_n).inv().0;
+        let threads = ntt_threads();
+        if log_n > NTT_LOG_BLK {
+            let pa = self.dev.get_func(MODULE, "k_dif_pa").ok_or("k_dif_pa missing")?;
+            let tiles = 1u32 << (log_n - NTT_LOG_BLK);
+            let cfg = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            unsafe { pa.launch(cfg, (data, &mut *coef, ti, log_n as i32)) }.map_err(|e| format!("k_dif_pa: {e}"))?;
+            let pb = self.dev.get_func(MODULE, "k_dif_pb").ok_or("k_dif_pb missing")?;
+            let bpr = 1u32 << (log_n - NTT_LOG_BLK);
+            let cfg = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            let cptr: sys::CUdeviceptr = *coef.device_ptr();
+            unsafe { pb.launch(cfg, (cptr, &mut *coef, ti, log_n as i32, scale)) }.map_err(|e| format!("k_dif_pb: {e}"))?;
+        } else {
+            let pb = self.dev.get_func(MODULE, "k_dif_pb").ok_or("k_dif_pb missing")?;
+            let cfg = LaunchConfig { grid_dim: (rows as u32, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            unsafe { pb.launch(cfg, (data, &mut *coef, ti, log_n as i32, scale)) }.map_err(|e| format!("k_dif_pb: {e}"))?;
+        }
+        let rb = log_nn - log_n;
+        let p1 = self.dev.get_func(MODULE, "k_dit_p1_pad").ok_or("k_dit_p1_pad missing")?;
+        let lb = log_nn.min(NTT_LOG_BLK);
+        let bpr = 1u32 << (log_nn - lb);
+        let cfg = LaunchConfig { grid_dim: (rows as u32 * bpr, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+        unsafe { p1.launch(cfg, (&*coef, &mut *enc, tf, log_nn as i32, (1usize << log_n) as i32, rb as i32)) }.map_err(|e| format!("k_dit_p1_pad: {e}"))?;
+        if log_nn > NTT_LOG_BLK {
+            let p2 = self.dev.get_func(MODULE, "k_ntt_p2").ok_or("k_ntt_p2 missing")?;
+            let tiles = 1u32 << (log_nn - NTT_LOG_BLK);
+            let cfg2 = LaunchConfig { grid_dim: (rows as u32 * tiles, 1, 1), block_dim: (threads, 1, 1), shared_mem_bytes: 0 };
+            unsafe { p2.launch(cfg2, (&mut *enc, tf, log_nn as i32, 1u64)) }.map_err(|e| format!("k_ntt_p2: {e}"))?;
+        }
+        Ok(())
+    }
+
+    /// The chunked commit of a device-resident data buffer: leaves only.
+    fn commit_chunked(&self, d_data: &Pooled, rows: usize, log_n: u32, log_nn: u32, chunk: usize) -> Result<Vec<Digest>, String> {
+        let dev = self.dev.clone();
+        let n = 1usize << log_n;
+        let nn = 1usize << log_nn;
+        let plan = chunk_plan(rows, chunk);
+        let rmax = plan.iter().map(|&(_, rc)| rc).max().unwrap();
+        let t0 = Instant::now();
+        let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
+        let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+        // the per-column blake3 state (u32 slots, carried as a u64 pool buffer), zeroed
+        let state_words = B3_STATE_SLOTS * nn;
+        let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;
+        dev.memset_zeros(d_state.get_mut()).map_err(|e| format!("state memset: {e}"))?;
+        let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
+        let f_hash = dev.get_func(MODULE, "k_hash_cols_stream").ok_or("k_hash_cols_stream missing")?;
+        note_vram(self);
+        let vb = verbose();
+        let (mut t_ntt, mut t_hash) = (0.0f64, 0.0f64);
+        for &(r0, rc) in &plan {
+            let ta = Instant::now();
+            let view = d_data.get().slice(r0 * n..(r0 + rc) * n);
+            self.encode_rows_view(&view, d_coef.get_mut(), d_enc.get_mut(), rc, log_n, log_nn)?;
+            if vb { dev.synchronize().map_err(|e| e.to_string())?; }
+            let tb = Instant::now();
+            let cfg = LaunchConfig::for_num_elems(nn as u32);
+            unsafe { f_hash.clone().launch(cfg, (d_enc.get(), d_state.get_mut(), rc as i32, r0 as i32, rows as i32, nn as i32, &mut d_leaves)) }
+                .map_err(|e| format!("k_hash_cols_stream: {e}"))?;
+            if vb { dev.synchronize().map_err(|e| e.to_string())?; }
+            t_ntt += (tb - ta).as_secs_f64();
+            t_hash += tb.elapsed().as_secs_f64();
+        }
+        let words = dev.dtoh_sync_copy(&d_leaves).map_err(|e| format!("leaves download: {e}"))?;
+        let mut leaves = vec![[0u8; 32]; nn];
+        for (j, leaf) in leaves.iter_mut().enumerate() {
+            for w in 0..8 {
+                leaf[4 * w..4 * w + 4].copy_from_slice(&words[j * 8 + w].to_le_bytes());
+            }
+        }
+        let total = t0.elapsed().as_secs_f64();
+        if vb {
+            eprintln!("[UPERF3-AC]   chunked commit rows {rows} 2^{log_n} -> 2^{log_nn} in {} chunks of <= {rmax}: ntt {t_ntt:.4} | hash {t_hash:.4} | total {total:.4} s", plan.len());
+        }
+        // when not verbose the ntt/hash split is not synchronized: charge the wall to ntt, the chunk count to the record
+        stats_with(|s| { if vb { s.secs_ntt += t_ntt; s.secs_hash += total - t_ntt; } else { s.secs_ntt += total; } s.n_chunked += 1; s.bytes_d2h += (nn * 32) as u64; });
+        Ok(leaves)
+    }
+
+    /// The opening's columns of a chunked commitment: re-encode chunk by chunk, gather.
+    fn columns_chunked(&self, dc: &DevCommit, idx: &[usize], chunk: usize) -> Result<Vec<Vec<Fp>>, String> {
+        let dev = self.dev.clone();
+        let (rows, log_n, log_nn) = (dc.rows, dc.log_n, dc.log_nn);
+        let n = 1usize << log_n;
+        let nn = 1usize << log_nn;
+        let q = idx.len();
+        let plan = chunk_plan(rows, chunk);
+        let rmax = plan.iter().map(|&(_, rc)| rc).max().unwrap();
+        let t0 = Instant::now();
+        let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
+        let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+        let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
+        let d_idx = dev.htod_sync_copy(&idx32).map_err(|e| e.to_string())?;
+        let mut d_out = unsafe { dev.alloc::<u64>(rows * q) }.map_err(|e| e.to_string())?;
+        let f = dev.get_func(MODULE, "k_gather_cols_off").ok_or("k_gather_cols_off missing")?;
+        for &(r0, rc) in &plan {
+            let view = dc.data.get().slice(r0 * n..(r0 + rc) * n);
+            self.encode_rows_view(&view, d_coef.get_mut(), d_enc.get_mut(), rc, log_n, log_nn)?;
+            let cfg = LaunchConfig::for_num_elems((rc * q) as u32);
+            unsafe { f.clone().launch(cfg, (d_enc.get(), &mut d_out, &d_idx, rc as i32, r0 as i32, rows as i32, nn as i32, q as i32)) }
+                .map_err(|e| format!("k_gather_cols_off: {e}"))?;
+        }
+        let out = dev.dtoh_sync_copy(&d_out).map_err(|e| e.to_string())?;
+        let dt = t0.elapsed().as_secs_f64();
+        if verbose() {
+            eprintln!("[UPERF3-AC]   chunked re-encode + gather rows {rows} ({} chunks): {dt:.4} s", plan.len());
+        }
+        stats_with(|s| { s.secs_reenc += dt; s.bytes_d2h += (rows * q * 8) as u64; });
+        Ok((0..q).map(|c| out[c * rows..(c + 1) * rows].iter().map(|&v| Fp(v)).collect()).collect())
+    }
+}
+
+/// Rung 2's chunked check: the chunked commit's leaves == `hash_columns` of
+/// the CPU encoding, and its re-encoded opening columns == the CPU
+/// encoding at 16 indices, for `rows` rows in chunks of `chunk` rows.
+/// Returns (bad leaves, bad column entries).
+pub fn dev_commit_check_chunked(log_cols: u32, inv_rate: usize, rows: usize, chunk: usize) -> Result<(usize, usize), String> {
+    let params = PcsParams { log_cols, inv_rate, num_col_checks: 16 };
+    let ntt = NttTables::new(log_cols + inv_rate.trailing_zeros());
+    let n = params.cols();
+    let nn = params.enc_cols();
+    let mut s = 0x5EED_0000u64 ^ (log_cols as u64) << 40 ^ (rows as u64) << 8 ^ chunk as u64;
+    let data: Vec<Fp> = (0..rows * n)
+        .map(|_| {
+            s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            Fp::new(s % P)
+        })
+        .collect();
+    let mut cpu = vec![Fp::ZERO; rows * nn];
+    cpu.par_chunks_mut(nn).zip(data.par_chunks(n)).for_each(|(erow, drow)| {
+        let mut coeffs = drow.to_vec();
+        ntt.inverse(&mut coeffs);
+        ntt.rs_encode(&coeffs, erow);
+    });
+    let cpu_leaves = crate::pcs::hash_columns(&cpu, rows, nn);
+    let g = gpu().ok_or_else(init_err)?;
+    let mut g = g.lock().unwrap();
+    g.ensure_twiddles(&ntt)?;
+    let dev = g.dev.clone();
+    let mut d_data = Pooled::take(&dev, data.len())?;
+    dev.htod_sync_copy_into(as_u64s(&data), d_data.get_mut()).map_err(|e| format!("data upload: {e}"))?;
+    let leaves = g.commit_chunked(&d_data, rows, params.log_cols, nn.trailing_zeros(), chunk)?;
+    let bad_leaves = leaves.iter().zip(cpu_leaves.iter()).filter(|(a, b)| a != b).count();
+    let dc = DevCommit { rows, log_n: params.log_cols, log_nn: nn.trailing_zeros(), data: d_data, enc: None };
+    let idx: Vec<usize> = (0..16).map(|i| (i * 7919 + 13) % nn).collect();
+    let cols = g.columns_chunked(&dc, &idx, chunk)?;
+    let mut bad_cols = 0;
+    for (c, &j) in idx.iter().enumerate() {
+        for i in 0..rows {
+            if cols[c][i] != cpu[i * nn + j] {
+                bad_cols += 1;
+            }
+        }
+    }
+    Ok((bad_leaves, bad_cols))
 }
 
 /// Commit a device-resident data buffer (rows x n u64, row-major) — the
@@ -451,8 +694,23 @@ pub fn dev_commit_from(params: &PcsParams, d_data: Pooled, rows: usize, ntt: &Nt
     assert_eq!(1usize << log_nn, nn, "inv_rate must be a power of two on the device path");
     let dev = g.dev.clone();
     let t1 = Instant::now();
-    let mut d_coef = Pooled::take(&dev, rows * n)?;
-    let mut d_enc = Pooled::take(&dev, rows * nn)?;
+    // [UPERF3-AC] the chunked class (by size, or when the resident buffers cannot be allocated)
+    let chunked_now = rows * nn * 8 > chunk_bytes();
+    let resident = if chunked_now { None } else {
+        match (Pooled::take(&dev, rows * n), Pooled::take(&dev, rows * nn)) {
+            (Ok(c), Ok(e)) => Some((c, e)),
+            _ => None,
+        }
+    };
+    let (mut d_coef, mut d_enc) = match resident {
+        Some(x) => x,
+        None => {
+            if verbose() { eprintln!("[UPERF3-AC]   commit rows {rows} 2^{log_n} -> 2^{log_nn} ({:.0} MB): CHUNKED ({})", (rows * nn * 8) as f64 / 1e6, if chunked_now { "by size" } else { "resident alloc failed" }); }
+            let leaves = g.commit_chunked(&d_data, rows, log_n, log_nn, chunk_rows())?;
+            note_vram(&g);
+            return Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: None }, leaves));
+        }
+    };
     if gather_ntt() {
         // rung 1's form (HL_GPU_GATHER_NTT=1): DIT both ways with the bit-reversed gather on the load.
         g.ntt_rows(d_data.get(), d_coef.get_mut(), rows, n, log_n, true)?;
@@ -480,7 +738,7 @@ pub fn dev_commit_from(params: &PcsParams, d_data: Pooled, rows: usize, ntt: &Nt
         stats_with(|s| { s.secs_hash += (t3 - t2).as_secs_f64(); s.bytes_d2h += (nn * 32) as u64; });
         leaves
     };
-    Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: d_enc }, leaves))
+    Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: Some(d_enc) }, leaves))
 }
 
 /// `HL_GPU_GATHER_NTT=1`: rung 1's gather-based DIT NTT pair (for the A/B).
@@ -541,12 +799,17 @@ pub fn dev_columns(dc: &DevCommit, idx: &[usize]) -> Result<Vec<Vec<Fp>>, String
     let q = idx.len();
     let rows = dc.rows;
     let nn = 1usize << dc.log_nn;
+    // [UPERF3-AC] a chunked commitment: re-encode chunk by chunk and gather
+    let enc = match &dc.enc {
+        Some(e) => e,
+        None => return g.columns_chunked(dc, idx, chunk_rows()),
+    };
     let idx32: Vec<i32> = idx.iter().map(|&j| j as i32).collect();
     let d_idx = dev.htod_sync_copy(&idx32).map_err(|e| e.to_string())?;
     let mut d_out = unsafe { dev.alloc::<u64>(rows * q) }.map_err(|e| e.to_string())?;
     let f = dev.get_func(MODULE, "k_gather_cols").ok_or("k_gather_cols missing")?;
     let cfg = LaunchConfig::for_num_elems((rows * q) as u32);
-    unsafe { f.launch(cfg, (dc.enc.get(), &mut d_out, &d_idx, rows as i32, nn as i32, q as i32)) }.map_err(|e| format!("k_gather_cols: {e}"))?;
+    unsafe { f.launch(cfg, (enc.get(), &mut d_out, &d_idx, rows as i32, nn as i32, q as i32)) }.map_err(|e| format!("k_gather_cols: {e}"))?;
     let out = dev.dtoh_sync_copy(&d_out).map_err(|e| e.to_string())?;
     stats_with(|s| s.bytes_d2h += (rows * q * 8) as u64);
     Ok((0..q).map(|c| out[c * rows..(c + 1) * rows].iter().map(|&v| Fp(v)).collect()).collect())
@@ -581,7 +844,7 @@ pub fn dev_commit_check(log_cols: u32, inv_rate: usize, rows: usize) -> Result<(
     let g = gpu().ok_or_else(init_err)?;
     let enc = {
         let g = g.lock().unwrap();
-        as_fps(g.dev.dtoh_sync_copy(dc.enc.get()).map_err(|e| e.to_string())?)
+        as_fps(g.dev.dtoh_sync_copy(dc.enc.as_ref().ok_or("dev_commit_check: the probe shapes are resident")?.get()).map_err(|e| e.to_string())?)
     };
     let mut bad = enc.iter().zip(cpu.iter()).filter(|(a, b)| a != b).count();
     let idx: Vec<usize> = (0..16).map(|i| (i * 7919 + 13) % nn).collect();
@@ -960,7 +1223,7 @@ pub fn dev_commit_zk_from(params: &PcsParams, d_data: Pooled, rows: usize, pads:
     let leaves = g.hash_cols(d_enc.get(), rows, nn)?;
     let t3 = Instant::now();
     stats_with(|s| { s.secs_hash += (t3 - t2).as_secs_f64(); s.bytes_d2h += (nn * 32) as u64; });
-    Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: d_enc }, leaves))
+    Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: Some(d_enc) }, leaves))
 }
 
 /// Upload `data` and commit it in ZK mode (== pcs::commit_zk's encoding and leaves).

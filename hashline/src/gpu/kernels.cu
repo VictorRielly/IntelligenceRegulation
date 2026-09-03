@@ -820,3 +820,102 @@ extern "C" __global__ void k_zk_pad_scale(const u64* __restrict__ coef, const u6
     }
     out[g] = gl_mul(v, pows[i]);
 }
+
+// ---------------------------------------------------------------------------
+// [UPERF3-AC] THE CHUNKED COMMIT (new kernels; nothing above changes).
+//
+// k_hash_cols_stream: the streaming form of k_hash_cols. The encoded matrix
+// arrives in ROW CHUNKS [row0, row0 + rc) — every chunk but the last is a
+// multiple of 128 rows = 1024 column bytes = exactly one blake3 chunk, so a
+// row-chunk boundary is a blake3 chunk boundary and no partial chunk state
+// is needed; the per-column CV STACK lives in `state` across launches:
+//   state[(8 s + i) * nn + j] = stack[s][i] of column j (s < B3_MAX_DEPTH),
+//   state[(8 B3_MAX_DEPTH) * nn + j] = its stack length (zeroed before the
+//   first chunk).
+// The launch that holds the last row finishes the column exactly as
+// b3_hash_column does (the same compressions with the same flags in the
+// same order — blake3 is a function of the byte string, and the byte
+// string is the same column) and writes its 8 words to `leaves`.
+
+#define B3_STATE_SLOTS (8 * B3_MAX_DEPTH + 1)
+
+extern "C" __global__ void k_hash_cols_stream(const u64* __restrict__ enc, u32* __restrict__ state, int rc, int row0, int rows, int nn,
+                                              u32* __restrict__ leaves) {
+    int j = blockIdx.x * blockDim.x + threadIdx.x;
+    if (j >= nn) return;
+    const u32 len = (u32)rows * 8u;
+    const u32 n_chunks = (len + 1023u) / 1024u;
+    const size_t snn = (size_t)nn;
+    #define STK(s, i) state[((size_t)(8 * (s) + (i))) * snn + (size_t)j]
+    int stack_len = (int)state[(size_t)(8 * B3_MAX_DEPTH) * snn + (size_t)j];
+    u32 cv[8];
+    u32 block[16];
+    u32 tmp[8];
+    const u32 c_begin = (u32)(row0 / 128);
+    const u32 c_end = (u32)((row0 + rc + 127) / 128);
+    for (u32 c = c_begin; c < c_end; c++) {
+        const bool is_last = (c + 1 == n_chunks);
+        const u32 chunk_len = is_last ? (len - c * 1024u) : 1024u;
+        const int want = __popc(c);
+        while (stack_len > want) {
+            u32 pb[16];
+            #pragma unroll
+            for (int i = 0; i < 8; i++) { pb[i] = STK(stack_len - 2, i); pb[8 + i] = STK(stack_len - 1, i); }
+            u32 iv[8];
+            b3_iv(iv);
+            b3_compress(iv, pb, 0ULL, 64u, B3_PARENT, tmp);
+            #pragma unroll
+            for (int i = 0; i < 8; i++) STK(stack_len - 2, i) = tmp[i];
+            stack_len -= 1;
+        }
+        b3_iv(cv);
+        const u32 n_blocks = (chunk_len + 63u) / 64u;
+        for (u32 b = 0; b < n_blocks; b++) {
+            const bool last_block = (b + 1 == n_blocks);
+            const u32 blen = last_block ? (chunk_len - b * 64u) : 64u;
+            u32 flags = (b == 0 ? B3_CHUNK_START : 0u) | (last_block ? B3_CHUNK_END : 0u);
+            if (is_last && stack_len == 0 && last_block) flags |= B3_ROOT;
+            #pragma unroll
+            for (int w = 0; w < 16; w += 2) {
+                int e = (int)(c * 128u + b * 8u) + (w >> 1);
+                u64 v = (e < rows) ? enc[(size_t)(e - row0) * snn + (size_t)j] : 0ULL;
+                block[w] = (u32)v;
+                block[w + 1] = (u32)(v >> 32);
+            }
+            b3_compress(cv, block, (u64)c, blen, flags, tmp);
+            #pragma unroll
+            for (int i = 0; i < 8; i++) cv[i] = tmp[i];
+        }
+        if (is_last) {
+            for (int s = stack_len - 1; s >= 0; s--) {
+                u32 pb[16];
+                #pragma unroll
+                for (int i = 0; i < 8; i++) { pb[i] = STK(s, i); pb[8 + i] = cv[i]; }
+                u32 iv[8];
+                b3_iv(iv);
+                b3_compress(iv, pb, 0ULL, 64u, B3_PARENT | (s == 0 ? B3_ROOT : 0u), tmp);
+                #pragma unroll
+                for (int i = 0; i < 8; i++) cv[i] = tmp[i];
+            }
+            #pragma unroll
+            for (int w = 0; w < 8; w++) leaves[(size_t)j * 8 + w] = cv[w];
+            return;
+        }
+        #pragma unroll
+        for (int i = 0; i < 8; i++) STK(stack_len, i) = cv[i];
+        stack_len += 1;
+    }
+    state[(size_t)(8 * B3_MAX_DEPTH) * snn + (size_t)j] = (u32)stack_len;
+    #undef STK
+}
+
+// Column gather from a ROW CHUNK: out[c * rows + row0 + i] = enc[i * nn + idx[c]], i < rc
+// (the opening's columns assembled chunk by chunk from a re-encoded chunk).
+extern "C" __global__ void k_gather_cols_off(const u64* __restrict__ enc, u64* __restrict__ out, const int* __restrict__ idx,
+                                             int rc, int row0, int rows, int nn, int q) {
+    int g = blockIdx.x * blockDim.x + threadIdx.x;
+    if (g >= rc * q) return;
+    int c = g / rc;
+    int i = g - c * rc;
+    out[(size_t)c * (size_t)rows + (size_t)(row0 + i)] = enc[(size_t)i * (size_t)nn + (size_t)idx[c]];
+}

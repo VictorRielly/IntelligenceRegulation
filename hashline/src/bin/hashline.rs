@@ -199,6 +199,23 @@ fn gpu_probe() {
         println!("gpu-probe: ntt checks {}", if fails == 0 { "GREEN" } else { "RED" });
         if fails > 0 { std::process::exit(1); }
     }
+    // [UPERF3-AC] rung 2: the CHUNKED commit — streaming blake3 leaves + the re-encoded opening columns == the CPU's,
+    // at row counts on both sides of every 128-row (one blake3 chunk) boundary and at several chunk sizes
+    #[cfg(feature = "gpu-cuda")]
+    {
+        let mut fails = 0;
+        for (log_cols, inv_rate, rows, chunk) in [(10u32, 4usize, 300usize, 128usize), (10, 4, 127, 128), (10, 4, 128, 128), (10, 4, 129, 128), (10, 4, 255, 128), (10, 4, 256, 128), (10, 4, 257, 128), (10, 4, 1024, 128), (10, 4, 1025, 256), (12, 4, 1000, 256), (14, 4, 64, 128), (14, 4, 700, 384), (13, 2, 4, 128), (12, 8, 3, 128), (14, 4, 2200, 1024)] {
+            match hashline::gpu::dev_commit_check_chunked(log_cols, inv_rate, rows, chunk) {
+                Ok((bl, bc)) => {
+                    println!("  chunked check log_cols {log_cols} inv_rate {inv_rate} rows {rows} chunk {chunk}: {bl} leaf mismatches, {bc} column mismatches");
+                    if bl > 0 || bc > 0 { fails += 1; }
+                }
+                Err(e) => { println!("  chunked check log_cols {log_cols} inv_rate {inv_rate} rows {rows} chunk {chunk}: ERROR {e}"); fails += 1; }
+            }
+        }
+        println!("gpu-probe: chunked-commit checks {}", if fails == 0 { "GREEN" } else { "RED" });
+        if fails > 0 { std::process::exit(1); }
+    }
 }
 
 fn check_export() {
@@ -384,6 +401,7 @@ fn pass(n: usize, t: usize, o: &Opts) {
             "  gpu device-side (summed): h2d {:.3} s ({:.0} MB) | ntt {:.3} s | hash {:.3} s | sumcheck {:.3} s | fold {:.3} s | helpers {:.3} s | d2h {:.3} s ({:.0} MB) | vram peak {:.0} MB",
             g.secs_h2d, g.bytes_h2d as f64 / 1e6, g.secs_ntt, g.secs_hash, g.secs_sumcheck, g.secs_fold, g.secs_helpers, g.secs_d2h, g.bytes_d2h as f64 / 1e6, g.vram_peak as f64 / 1e6
         );
+        println!("  gpu chunked [UPERF3-AC]: chunked commits {} | opening re-encode {:.3} s", g.n_chunked, g.secs_reenc);
     }
     // [UPERF3-XX] the byte-identity gate: the flat encoding of every layer proof, concatenated, sha256'd
     {
@@ -650,6 +668,7 @@ fn pass_v3(n: usize, t: usize, o: &Opts) {
             "  gpu device-side (summed): h2d {:.3} s ({:.0} MB) | ntt {:.3} s | hash {:.3} s | sumcheck {:.3} s | fold {:.3} s | helpers {:.3} s | d2h {:.3} s ({:.0} MB) | vram peak {:.0} MB",
             g.secs_h2d, g.bytes_h2d as f64 / 1e6, g.secs_ntt, g.secs_hash, g.secs_sumcheck, g.secs_fold, g.secs_helpers, g.secs_d2h, g.bytes_d2h as f64 / 1e6, g.vram_peak as f64 / 1e6
         );
+        println!("  gpu chunked [UPERF3-AC]: chunked commits {} | opening re-encode {:.3} s", g.n_chunked, g.secs_reenc);
     }
     {
         let mut all: Vec<u8> = Vec::with_capacity(bytes);
