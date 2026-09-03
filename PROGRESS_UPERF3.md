@@ -8452,6 +8452,41 @@ are uniform; the laptop's inverted scaling is the hybrid part),
 
 (lane appends below)
 
+### ZA rung 0 — skeleton + the plan + the identity gate (2026-09-02, second attempt; the first was cut off before any commit)
+
+- Files: NEW `hashline/src/zk.rs` (the plan as the module doc, `ZkConfig`,
+  `ZkRng` = a blake3 stream seeded by `--seed` so CPU and GPU produce the
+  same `--zk` bytes), `pub mod zk;` in lib.rs, `--zk` / `--seed N` in the
+  pass driver (parsed, not yet consumed).
+- THE PLAN, and two places where the memo's section-4.2 sketch does not
+  close as written (both stated in zk.rs and built differently):
+  (1) the memo's mask row "v' = rho^T M + u with u's entry read off the
+  column" leaves the verifier without <u, c> for a challenge-dependent
+  column weight c; sending it is unsound. Built instead: each private
+  table gets a mask row whose contribution is folded into the SUMCHECK
+  by a last-round extension (T_ext = (1-y) T + y R_T; rounds 0..k-1
+  identical to today's, round k O(1)), so the opened claim is the
+  combined (1-rho_k) T~ + rho_k R_T~ — one two-part claim, uniform
+  clear vector AND uniform value; this also masks the terminal
+  evaluations the memo lists as revealed (its (c) "masked claims" does
+  not cover a nonlinear terminal check). (2) the masking polynomial g
+  needs a ZK opening of its own (a plain row would unmask the rounds):
+  a small per-layer Ligero-form mask commitment with the product-form
+  linear test (challenge-independent zero-sum blinding). Pads: f_data +
+  Z_n g_pad on the coset 7 * G_4n (no systematic column is ever opened;
+  NTT sizes unchanged; RS(n+Q, 4n): distance 0.7455, 2^-105.6 at Q=256,
+  the memo's number). Committed multiplicities via a table-side helper
+  in H + one zero-valued sum claim masked by a proven zero-sum row.
+  Salts as a host re-hash of the device leaves (kernels unchanged).
+- Identity gate [WSL-BOX] [8T] [NOISY-SHARED: lane ZB may build]
+  [MEASURED]: `M125_EXPORT_DIR=... hashline pass 12 512 --threads 8
+  --proof-out <f>` on the fresh builds of this tree (CPU 15.2 s build,
+  GPU 16.9 s): CPU PROOF sha256 50cf7bdfd6b5b182.. (66,844,928 B),
+  PROVE 16.95 s / VERIFY 0.28 s / RSS 1.56 GB; GPU (HL_GPU=1) PROOF
+  sha256 50cf7bdfd6b5b182.. PROVE 2.76 s / VERIFY 0.25 s / RSS 0.78 GB /
+  VRAM 2.43 GB. Non-zk path unchanged. `cargo test --release`: 20/20
+  (19 + the rng test).
+
 ## Agent ZB status (wt-uperf3-zb) — round 11
 
 (lane appends below)

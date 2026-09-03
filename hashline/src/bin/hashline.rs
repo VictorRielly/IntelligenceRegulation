@@ -9,6 +9,7 @@
 //!       --tamper none|flipx|flipw|rem|table|requant|z  --tamper-idx I  --no-verify  --all-tampers
 //!       --proof-out PATH  [UPERF3-XX] write the concatenated layer proofs (flat LE encoding) and print their sha256
 //! [UPERF3-XX] `HL_GPU=1` runs the prover's device path (feature gpu-cuda); the proof bytes must not change.
+//!       --zk  [UPERF3-ZA] the zero-knowledge form for the activations (mode P1; see src/zk.rs); --seed N seeds its randomness
 
 use hashline::chain::{derive, LayerWitness};
 use hashline::export::{export_dir, load_layer, Sidecar, D, F, LAYERS};
@@ -26,10 +27,12 @@ struct Opts {
     verify: bool,
     all_tampers: bool,
     proof_out: Option<String>,
+    /// [UPERF3-ZA] `--zk` + `--seed`: the zero-knowledge form (default off: the byte-identical path).
+    zk: hashline::zk::ZkConfig,
 }
 
 fn parse_opts(args: &[String]) -> Opts {
-    let mut o = Opts { threads: 0, log_cols: 14, col_checks: 256, inv_rate: 4, tamper: Tamper::None, verify: true, all_tampers: false, proof_out: None };
+    let mut o = Opts { threads: 0, log_cols: 14, col_checks: 256, inv_rate: 4, tamper: Tamper::None, verify: true, all_tampers: false, proof_out: None, zk: hashline::zk::ZkConfig::default() };
     let mut i = 0;
     let mut tkind = "none".to_string();
     let mut tidx = 12345usize;
@@ -44,6 +47,8 @@ fn parse_opts(args: &[String]) -> Opts {
             "--no-verify" => { o.verify = false; }
             "--all-tampers" => { o.all_tampers = true; }
             "--proof-out" => { o.proof_out = Some(args[i + 1].clone()); i += 1; }
+            "--zk" => { o.zk.enabled = true; }
+            "--seed" => { o.zk.seed = args[i + 1].parse().unwrap(); i += 1; }
             other => { eprintln!("unknown option {other}"); std::process::exit(2); }
         }
         i += 1;

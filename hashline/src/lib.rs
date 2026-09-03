@@ -23,3 +23,4 @@ pub mod sumcheck;
 pub mod pcs;
 pub mod layer;
 pub mod gpu;
+pub mod zk;
