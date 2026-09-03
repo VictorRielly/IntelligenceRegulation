@@ -9314,3 +9314,19 @@ form keep ZA's pads/masks? what changes?).
 ## Agent AF status (wt-uperf3-af) — round 12
 
 (lane appends below)
+
+### AD rung 2 — the 12x512 v3 ZK pass, CPU == GPU (2026-09-03) [IN FLIGHT]
+
+- THE NEW GATE (`pass 12 512 --zk --seed 1 --profile v3 --export
+  results/m8b_test/m125_v3_export --threads 8 --proof-out`):
+
+      sha256 40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17
+      87,697,008 B [ZK v3 seed 1]
+
+  from the CPU-only binary AND from the gpu-cuda binary with
+  `HL_GPU=1` — byte-identical. ACCEPT on both.
+- First runs [WSL-BOX] [8T] [NOISY-SHARED: load average 15+, three
+  other lanes building and running]: CPU PROVE 17.87 s / VERIFY
+  0.41 s / RSS 1.26 GB; GPU PROVE 5.63 s / VERIFY 0.44 s / RSS
+  0.53 GB / VRAM peak 4.44 GB.
+- (the timing ladder and the tamper legs follow in the rung-2 record)
