@@ -19,6 +19,38 @@ block is the always-current answer to "what is going on and what do I
 do". If the AS-OF date below is stale by more than a day, trust the
 ledger's newest Agent-status sections over this block.
 
+**AS OF 2026-09-03 late (LANE AC COMPLETE AND MERGED — THE 8B PASS ON
+A GPU, and an honest correction to the throughput model):**
+- **THE 8B GPU ROW** [MEASURED, WSL-BOX 8T GPU NOISY-SHARED;
+  `results/hashline_8b_gpu.md`]: the same Mistral-7B 32x512 FFN
+  statement, `HL_GPU=1` with chunked weight commitments and the
+  per-model weight cache — **PROVE 175.09 s (cold cache) vs 510.38 s
+  on the CPU = 2.9x; VERIFY 1.09 s; RSS 5.33 GB (CPU 13.99); VRAM
+  4,175 MB; 1.648e10 proven MAC/s**; per-layer 5.47 s mean (±3.5%
+  over 32 layers). **BYTE-IDENTICAL**: one sha256
+  (dc980e81..) over three 1,234,936,956 B proofs — uncached CPU,
+  GPU cold cache, GPU warm cache; the fourth configuration (cached
+  CPU) closed with a 2-layer Mistral-width triple (CPU 44.69 /
+  CPU-warm 37.67 / GPU-warm 10.74 s, all b0efed43..). The weight
+  cache is worth ~9 s per GPU pass and ~67 s per CPU pass.
+- **THE CORRECTION (ruling-grade, and it touches every projected
+  column)**: tokens/s at 8B prefill, mode P0, FFN-only — laptop CPU
+  **1.00 tok/s**, which hits lane YY's modelled cell exactly; laptop
+  GPU **2.92 tok/s**, which is **1.8x BELOW YY's modelled [5.2, 16]
+  band**. Cause, measured: **76 s of the 175 (44%) are still on the
+  HOST** — the two zero-checks and the LogUp helper columns are
+  declined by the device-shape gate because the GPU kernels are
+  templated on the 125M block shape (13/15 tables) while Mistral's
+  F-side check has 73. So §3.3's "entirely device-shaped" premise
+  is TRUE at 125M (measured 5.3x) and FALSE at Mistral width. A
+  block-looping kernel (byte-preserving) models to 105-125 s =
+  4.1-4.9 tok/s — still under the band. **Every desktop-board and
+  H100 column in U_PERF3_ROUTE_B_THROUGHPUT.md rests on that same
+  premise and should be read as an upper bound until the kernels
+  are shape-general.** Named levers, in order: (a) the block-looping
+  zero-check/helper kernels (~1.5x of the 8B pass); (b) raw-plane
+  upload with device-side conversion and pinned staging (~10-15 s).
+
 **AS OF 2026-09-03 evening (ROUND 12 IN FLIGHT — a usage-limit cutout
 hit all four lanes at once; all work preserved, lanes relaunched;
 lane branches PUSHED):**

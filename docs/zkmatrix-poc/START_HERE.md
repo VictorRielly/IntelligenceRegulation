@@ -98,9 +98,21 @@ activations at 3.93 s on the same GPU (+60%; weights public). And on
 2026-09-03 it proved **the whole Mistral-7B feed-forward stack, 32
 layers x 512 tokens, on this laptop's CPU in 510 seconds** (verify
 1.2 s, 14 GB) — the first full 8B proof in this project, within 4%
-of its own model's prediction (§3.1, §6). Per proof at 8B, 225 of
-those 510 s are the weight commitments, which are per-model work
-when the weights are public. Its
+of its own model's prediction (§3.1, §6) — **and the same proof on
+the laptop's GPU in 175 seconds, byte-identical** (5.3 GB of memory,
+4.2 GB of video memory). Per proof at 8B, 225 of the CPU run's 510 s
+are the weight commitments, which are per-model work when the
+weights are public.
+
+**One caution that applies to every projected number in this
+repository.** The GPU result came in 1.8x below what the throughput
+model predicted, and the reason is measured: 44% of the remaining
+time still runs on the CPU, because the GPU kernels are written for
+the small model's block shape and decline the real model's. The
+model assumed all of it was GPU work — true at 125M, false at 8B.
+Fixing the kernels is a known, byte-preserving change worth about
+1.5x. Until it lands, treat the desktop-board and H100 columns as
+upper bounds. Its
 tokens-per-second model (`U_PERF3_ROUTE_B_THROUGHPUT.md`, 2026-09-02)
 says: **50 tokens/s at 30B on one H100 is reachable on the hash line
 only for batched proving (4-16 requests or a 512-token prefill per
@@ -140,6 +152,7 @@ costs that two-week build.
 | 125M, 12 x 128 | same box, GPU | 10.5 s | | [MEASURED] |
 | one 8B-width layer, 16 tokens | WSL laptop | **out of memory at 15 GB** | the box cannot hold 8B; the Mac (256 GB) can | [MEASURED] |
 | **one real Mistral-7B feed-forward layer, hash line (lane ZB, 2026-09-03)** | WSL laptop CPU, 8 threads | **10.5 s at 16 tokens (7.5 GB); 14.5 s at 256 tokens (10.3 GB)**; 8/8 tamper tests reject | the first proof of a real 8B-width layer in this project; the full 32-layer pass is Mac runbook item M9 (~10 min [MODEL]) | [MEASURED, NOISY-SHARED] |
+| **THE SAME 8B PROOF ON THE LAPTOP GPU (lane AC, 2026-09-03)** | WSL laptop, 8 threads + RTX 4070 Laptop | **prove 175 s (2.9 min), verify 1.1 s, proof 1.23 GB byte-identical to the CPU proof, peak 5.3 GB RAM + 4.2 GB VRAM; ACCEPT** (1.65e10 proven MAC/s, 5.5 s per layer) | the weight tensors are committed in chunks (a single 5.4 GB commitment was refused before) and cached per model; 44% of the remaining time is still on the CPU because the GPU kernels are shaped for the small model | [MEASURED, NOISY-SHARED] |
 | **THE FIRST FULL 8B FEED-FORWARD PROOF: Mistral-7B, all 32 layers x 512 tokens, hash line (2026-09-03)** | WSL laptop CPU, 8 threads | **prove 510 s (8.5 min), verify 1.2 s, proof 1.23 GB, peak 14.0 GB RAM; ACCEPT** (2.886e12 MACs at 5.7e9 proven MAC/s); phases: weight commitments 225 s (per-model work), activation-side 285 s | the lattice line has never run any 8B shape (out of memory here); the hash line's own model had predicted 492 s [MODEL], measured 510 | [MEASURED, NOISY-SHARED] |
 | any 8B proof end to end, lattice line | — | **never run** | Mac tasks T15-T17 (§7) | — |
 
