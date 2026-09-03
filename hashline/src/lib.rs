@@ -29,3 +29,9 @@ pub mod gpu;
 pub mod tables_v3;
 pub mod export_v3;
 pub mod zk;
+// [UPERF3-AE] the attention half of the layer: the exp / rope table
+// members and LogUp tags, the RMSNorm gadget, the attention chain + the
+// full-layer prover behind `--attn`.
+pub mod tables_attn;
+pub mod norm;
+pub mod attention;
