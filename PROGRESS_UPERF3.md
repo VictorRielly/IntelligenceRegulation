@@ -8649,6 +8649,79 @@ are uniform; the laptop's inverted scaling is the hybrid part),
   1.17 vs 0.78, table zero-check 0.59, zsum + mask open 0.07, mask
   commit 0.11, openings 0.99 vs 0.83.
 
+### ZA rung 4 — GPU parity + the measured surcharge (2026-09-02)
+
+- The device path (feature gpu-cuda, `HL_GPU=1`), additive to XX's
+  module: ONE new kernel `k_zk_pad_scale` (the pad + coset coefficient
+  step of the ZK row encoding) appended to kernels.cu and its name in
+  the FUNCS list; NEW host functions `dev_commit_zk_from` /
+  `dev_commit_zk` (inverse NTT in rung 1's gather form, the pad kernel,
+  the size-nn forward NTT, XX's column hashes; the host salts the
+  leaves) and `dev_upload_rows` (the host-generated tail rows of H —
+  masks, table helpers, u — written into the device helper buffer);
+  two re-export lines in gpu/mod.rs. No existing kernel or host
+  function was edited. `pcs::commit_zk_device` (H from the device
+  helper buffer; pads and salts drawn in `commit_zk`'s order). In
+  zk.rs the H commit, the two zero-checks (XX's `dev_zerocheck`
+  through the transcript masker, nu1 := nu0 lambda / nu2 := 0 and
+  nu_x := 0 / nu_z := nu_z lambda_d so the existing kernels compute
+  exactly the ZK polynomials) and the claims' evaluations run on the
+  device; the matmul folds, the table zero-check (16 tables of 2^14)
+  and the zero-sum sumcheck stay on the host as XX's matmul sumchecks
+  do. The seeded RNG (blake3 XOF) now fills 8 KB blocks (it was 64 B:
+  ~10^5 hasher inits per layer); the mask evaluations share one eq
+  table per opening point; the committed data is moved into the
+  commitment instead of copied (2 x 60-70 MB per layer); and the
+  number of multiplicity-table slots is FIXED at 6 (dummy slots m =
+  h_t = 0) so every layer's A and H have the same row counts — with
+  per-layer counts the device buffer pool cached three layouts and
+  the held VRAM grew 3.0 -> 5.7 GB over the 12 layers.
+- PARITY [MEASURED]: `pass 12 512 --zk --seed 1`: CPU PROOF sha256
+  021485e4f80ec695.. (87,228,528 B) on 3 runs == GPU (HL_GPU=1) on 4
+  runs; `pass 3 16 --zk --seed 1` f9509b9d.. CPU == GPU. Non-zk gates
+  on the same final binaries: CPU and GPU 12x512 both 50cfbdf..
+  (50cf7bdfd6b5b182..), 3x16 596b9c79.. — unchanged. The 7 tamper
+  legs reject through the GPU ZK prover (`layer 0 16 --zk
+  --all-tampers` GREEN + the pass-level wrong-z leg). Tests 24/24.
+- THE SURCHARGE [MEASURED, WSL-BOX 8T + RTX 4070 Laptop, NOISY-SHARED
+  (lane ZB active), 4 runs GPU / 3 runs CPU, prove p50]:
+
+  | 12x512 | PROVE | VERIFY | proof bytes | RSS | VRAM held |
+  |---|---:|---:|---:|---:|---:|
+  | GPU non-zk (XX's row, this tree) | 2.46 s (2.40-2.48) | 0.25-0.29 s | 66,844,928 | 0.78 GB | 2.43 GB |
+  | **GPU --zk (P1)** | **3.93 s** (3.87-4.10) | 0.37-0.40 s | 87,228,528 | 0.90 GB | 3.03 GB |
+  | surcharge | **+60%** | +0.12 s (+45%) | **+30.5%** | +16% | +25% |
+  | CPU non-zk | 14.78 s (14.70-14.82) | 0.27-0.28 s | 66,844,928 | 1.56 GB | — |
+  | **CPU --zk (P1)** | **16.55 s** (16.52-16.65) | 0.44-0.50 s | 87,228,528 | 1.68 GB | — |
+  | surcharge | **+12%** | +0.2 s | +30.5% | +8% | — |
+
+  3x16 GPU: zk 0.36 s (0.34-0.41) vs non-zk 0.28 s (0.23-0.31);
+  9,509,916 vs 7,365,588 B; RSS 0.33 vs 0.33 GB; VRAM 1.49 vs 1.46 GB.
+  Proven MAC/s at 12x512: GPU zk 7.4e9 (non-zk 1.2e10), CPU zk 1.75e9.
+- Where the GPU's +1.47 s goes (phases, zk vs non-zk): commit A 1.09
+  vs 0.78 (+26 rows, the pads, the gather-form NTT: device ntt 0.58
+  vs 0.43 s total, the salting of 65,536 leaves), helpers + commit H
+  0.84 vs 0.42 (+37 rows incl. the table helpers, the tail upload,
+  the host-side table helpers), openings 0.43 vs 0.24 (six row
+  weights for A = two device fold calls, the pad folds, more rows in
+  the columns), the table zero-check 0.24-0.33 (host), the mask
+  commit + opening 0.11, zc20/zc17 +0.05. Byte-preserving levers not
+  applied: the DIF/DIT NTT pair with a bit-reversed pad kernel
+  (~-0.15 s), the table zero-check on the device (~-0.2 s), folding
+  the masked matmul terminals into the zero-checks (-8% bytes, needs a
+  replicated-row table kind), the mask rows' RNG on the device.
+- Against the memo's [COUNTED] +2-8% prover / +1-8% bytes / +2-15%
+  verifier for P1: the built form is +60% / +30% / +45% on the GPU
+  and +12% / +30% / +70% on the CPU. The memo's count assumed the
+  masked objects ride inside work already paid; the built form pays
+  for what the memo's sketch did not close: one mask row per (table,
+  point) — 26 + 37 rows per layer — and the matmul terminals opened
+  as their own groups (two more clear vectors of 16,640 Fp2 per
+  layer), plus the mask commitment. The bytes' +20.4 MB: 3 extra A
+  clear vectors and 2 extra H vectors (5 x 266 KB x 12), the mask
+  openings (~170 KB x 12), the pads on every clear vector, 63 mask /
+  table rows in every opened column, the salts.
+
 ## Agent ZB status (wt-uperf3-zb) — round 11
 
 (lane appends below)

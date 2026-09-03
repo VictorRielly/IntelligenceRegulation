@@ -613,11 +613,17 @@ pub fn salt_leaf(leaf: &Digest, salt: &[u8; 32]) -> Digest {
 
 /// Commit in ZK mode. `rng` supplies the pads and the salts.
 pub fn commit_zk(params: &PcsParams, data: &[Fp], ntt: &NttTables, zk: &ZkOpts, rng: &mut crate::zk::ZkRng) -> CommittedZk {
+    commit_zk_owned(params, data.to_vec(), ntt, zk, rng)
+}
+
+/// `commit_zk` taking the data by value (no host copy: the commitment keeps it).
+pub fn commit_zk_owned(params: &PcsParams, data: Vec<Fp>, ntt: &NttTables, zk: &ZkOpts, rng: &mut crate::zk::ZkRng) -> CommittedZk {
+    let data_ref: &[Fp] = &data;
     let n = params.cols();
     let nn = params.enc_cols();
-    assert!(data.len() % n == 0 && !data.is_empty(), "pcs zk: data length {} not a multiple of n = {n}", data.len());
+    assert!(data_ref.len() % n == 0 && !data_ref.is_empty(), "pcs zk: data length {} not a multiple of n = {n}", data_ref.len());
     assert!(zk.q_pad >= params.num_col_checks, "pcs zk: fewer pad symbols ({}) than opened columns ({})", zk.q_pad, params.num_col_checks);
-    let rows = data.len() / n;
+    let rows = data_ref.len() / n;
     let q = zk.q_pad;
     let pads = rng.fp_vec(rows * q);
     let salts: Vec<[u8; 32]> = (0..nn).map(|_| rng.bytes32()).collect();
@@ -625,7 +631,7 @@ pub fn commit_zk(params: &PcsParams, data: &[Fp], ntt: &NttTables, zk: &ZkOpts, 
     // [UPERF3-ZA] the device path (rung 4): the same coset encoding on the device, leaves back, salted here.
     #[cfg(feature = "gpu-cuda")]
     let dev: Option<(crate::gpu::DevCommit, Vec<Digest>)> = if crate::gpu::enabled() {
-        match crate::gpu::dev_commit_zk(params, data, &pads, &pows, ntt) {
+        match crate::gpu::dev_commit_zk(params, data_ref, &pads, &pows, ntt) {
             Ok(x) => Some(x),
             Err(e) => { eprintln!("[UPERF3-ZA] gpu zk commit declined ({e}); CPU path"); None }
         }
@@ -639,7 +645,7 @@ pub fn commit_zk(params: &PcsParams, data: &[Fp], ntt: &NttTables, zk: &ZkOpts, 
         Some(_) => unreachable!(),
         None => {
             let mut encoded = vec![Fp::ZERO; rows * nn];
-            encoded.par_chunks_mut(nn).zip(data.par_chunks(n)).zip(pads.par_chunks(q)).for_each(|((erow, drow), prow)| {
+            encoded.par_chunks_mut(nn).zip(data_ref.par_chunks(n)).zip(pads.par_chunks(q)).for_each(|((erow, drow), prow)| {
                 encode_row_zk(ntt, drow, prow, &pows, erow);
             });
             let leaves = hash_columns(&encoded, rows, nn);
@@ -651,12 +657,32 @@ pub fn commit_zk(params: &PcsParams, data: &[Fp], ntt: &NttTables, zk: &ZkOpts, 
     CommittedZk {
         cm: Committed { params: *params, rows, store, tree },
         zk: *zk,
-        data: data.to_vec(),
+        data,
         pads,
         salts,
         mask_rows: Vec::new(),
         prox_mask_row: None,
     }
+}
+
+/// [UPERF3-ZA] Commit a DEVICE-resident data buffer in ZK mode (the H
+/// commitment on the GPU path: the helper columns were computed on the
+/// device; `host_data` holds the host-known rows — the masks, the table
+/// helpers — at their offsets and zeros elsewhere). Draws the pads and the
+/// salts in the same order as `commit_zk`, so the bytes match the CPU path.
+#[cfg(feature = "gpu-cuda")]
+pub fn commit_zk_device(params: &PcsParams, d_data: crate::gpu::Pooled, rows: usize, host_data: Vec<Fp>, ntt: &NttTables, zk: &ZkOpts, rng: &mut crate::zk::ZkRng) -> Result<CommittedZk, String> {
+    let n = params.cols();
+    let nn = params.enc_cols();
+    assert_eq!(host_data.len(), rows * n);
+    let q = zk.q_pad;
+    let pads = rng.fp_vec(rows * q);
+    let salts: Vec<[u8; 32]> = (0..nn).map(|_| rng.bytes32()).collect();
+    let pows = coset_powers(zk.coset, nn);
+    let (dc, leaves) = crate::gpu::dev_commit_zk_from(params, d_data, rows, &pads, &pows, ntt)?;
+    let salted: Vec<Digest> = leaves.par_iter().zip(salts.par_iter()).map(|(l, s)| salt_leaf(l, s)).collect();
+    let tree = MerkleTree::build(salted);
+    Ok(CommittedZk { cm: Committed { params: *params, rows, store: Store::Device(dc), tree }, zk: *zk, data: host_data, pads, salts, mask_rows: Vec::new(), prox_mask_row: None })
 }
 
 impl CommittedZk {

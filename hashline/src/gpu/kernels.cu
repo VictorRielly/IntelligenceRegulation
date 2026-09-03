@@ -799,3 +799,24 @@ extern "C" __global__ void k_dit_p1_pad(const u64* __restrict__ src, u64* __rest
     }
     for (int q = threadIdx.x; q < bs; q += blockDim.x) d[q] = sh[q];
 }
+
+// [UPERF3-ZA] The ZK row encoding's coefficient step (new kernel; nothing
+// above changes): out[row][i] = (coef[i] - pad[i]) h^i for i < q, coef[i] h^i
+// for q <= i < n, pad[i - n] h^i for n <= i < n + q, 0 beyond — the
+// coefficients of f_data + Z_n g_pad scaled onto the coset, ready for the
+// size-nn forward NTT (== pcs::encode_row_zk on every row).
+extern "C" __global__ void k_zk_pad_scale(const u64* __restrict__ coef, const u64* __restrict__ pads, const u64* __restrict__ pows,
+                                          u64* __restrict__ out, int rows, int n, int q, int nn) {
+    size_t g = (size_t)blockIdx.x * blockDim.x + threadIdx.x;
+    if (g >= (size_t)rows * (size_t)nn) return;
+    int row = (int)(g / (size_t)nn);
+    int i = (int)(g - (size_t)row * (size_t)nn);
+    u64 v = 0ULL;
+    if (i < n) {
+        v = coef[(size_t)row * (size_t)n + i];
+        if (i < q) v = gl_sub(v, pads[(size_t)row * (size_t)q + i]);
+    } else if (i < n + q) {
+        v = pads[(size_t)row * (size_t)q + (i - n)];
+    }
+    out[g] = gl_mul(v, pows[i]);
+}

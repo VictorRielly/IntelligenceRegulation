@@ -111,9 +111,11 @@ pub struct ZkConfig {
 pub struct ZkRng {
     key: [u8; 32],
     counter: u64,
-    buf: [u8; 64],
+    buf: Vec<u8>,
     pos: usize,
 }
+
+const RNG_BLOCK: usize = 8192;
 
 impl ZkRng {
     pub fn new(seed: u64, domain: &[u8]) -> ZkRng {
@@ -121,7 +123,7 @@ impl ZkRng {
         h.update(b"hashline-zk-rng/");
         h.update(domain);
         h.update(&seed.to_le_bytes());
-        ZkRng { key: *h.finalize().as_bytes(), counter: 0, buf: [0u8; 64], pos: 64 }
+        ZkRng { key: *h.finalize().as_bytes(), counter: 0, buf: vec![0u8; RNG_BLOCK], pos: RNG_BLOCK }
     }
 
     fn refill(&mut self) {
@@ -476,13 +478,21 @@ pub struct ZkLayout {
     pub tabs: Vec<TabRows>,
 }
 
-/// The multiplicity tables' (tag, size) in proof order for a shift tuple.
+/// The number of multiplicity-table slots of every layer: silu, int8, and
+/// one per distinct shift of the 4-tuple (at most 4); the unused slots are
+/// dummies (tag 0, size 0: m = h_t = 0) so that every layer's A and H have
+/// the SAME row counts — the device buffer pool then reuses its buffers
+/// across layers instead of caching one layout per table count.
+pub const N_TABLE_SLOTS: usize = 6;
+
+/// The multiplicity tables' (tag, size) in proof order for a shift tuple, padded to N_TABLE_SLOTS.
 pub fn table_specs(shifts: (u32, u32, u32, u32)) -> Vec<(u64, usize)> {
     let mut out = vec![(TAG_SILU, 256usize), (TAG_INT8, 256usize)];
     let mut sh: Vec<u32> = vec![shifts.0, shifts.1, shifts.2, shifts.3];
     sh.sort();
     sh.dedup();
     for s in sh { out.push((tag_range(s), 1usize << s)); }
+    while out.len() < N_TABLE_SLOTS { out.push((0, 0)); }
     out
 }
 
@@ -625,6 +635,13 @@ impl LayerProofZk {
     }
 }
 
+/// The host-side Fp2 tables of the zero-checks (the CPU path only).
+struct HostTabsZk {
+    g8f: Vec<Fp2>, rgf: Vec<Fp2>, a8f: Vec<Fp2>, u8f: Vec<Fp2>, ruf: Vec<Fp2>, h8f: Vec<Fp2>, rhf: Vec<Fp2>,
+    hg: Vec<Fp2>, hu: Vec<Fp2>, hh: Vec<Fp2>,
+    zf: Vec<Vec<Fp2>>, rdf: Vec<Vec<Fp2>>, hz: Vec<Vec<Fp2>>,
+}
+
 pub struct ProveOutputZk {
     pub proof: LayerProofZk,
     pub timings: Vec<(String, f64)>,
@@ -687,15 +704,24 @@ fn helper_constraint(h: Fp2, l1: Fp2, l2: Fp2, alpha: Fp2) -> Fp2 {
     h.mul(d1).mul(d2).sub(d1.add(d2))
 }
 
-/// <row, eq(point)> for a full mask row (point = the column tail) — the mask's MLE at the opening point.
-fn mask_eval(data: &[Fp], n: usize, row: usize, tail: &[Fp2]) -> Fp2 {
-    assert_eq!(1usize << tail.len(), n);
-    let eq = eq_table_msb(tail);
-    data[row * n..(row + 1) * n].par_iter().zip(eq.par_iter()).map(|(a, e)| e.mul_base(*a)).reduce(|| Fp2::ZERO, |a, b| a.add(b))
+/// The eq table of an opening point's column tail, built once and dotted with every mask row.
+struct MaskPoint {
+    eq: Vec<Fp2>,
 }
 
-fn mask_eval2(data: &[Fp], n: usize, rows: (usize, usize), tail: &[Fp2]) -> Fp2 {
-    mask_eval(data, n, rows.0, tail).add(Fp2::U.mul(mask_eval(data, n, rows.1, tail)))
+impl MaskPoint {
+    fn new(tail: &[Fp2], n: usize) -> MaskPoint {
+        assert_eq!(1usize << tail.len(), n);
+        MaskPoint { eq: eq_table_msb(tail) }
+    }
+    /// <row, eq(point)> for a full mask row — the mask's MLE at the opening point.
+    fn eval(&self, data: &[Fp], row: usize) -> Fp2 {
+        let n = self.eq.len();
+        data[row * n..(row + 1) * n].iter().zip(self.eq.iter()).fold(Fp2::ZERO, |a, (x, e)| a.add(e.mul_base(*x)))
+    }
+    fn eval2(&self, data: &[Fp], rows: (usize, usize)) -> Fp2 {
+        self.eval(data, rows.0).add(Fp2::U.mul(self.eval(data, rows.1)))
+    }
 }
 
 /// Evaluate base-field slices of `data` at one point (one eq table).
@@ -923,7 +949,8 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
         a_data[ro..ro + tb].par_chunks_mut(256).enumerate().for_each(|(t, row)| { for k in 0..256 { row[k] = Fp::from_i64(w.rd[t * D + b * 256 + k] as i64); } });
     }
     // the multiplicity tables as rows of A (committed before alpha)
-    let mults = multiplicities(w, &lay);
+    let mut mults = multiplicities(w, &lay);
+    while mults.len() < zl.tabs.len() { mults.push((0, Vec::new())); }
     assert_eq!(mults.len(), zl.tabs.len());
     for (t, (tag, m)) in zl.tabs.iter().zip(mults.iter()) {
         assert_eq!(*tag, t.tag);
@@ -936,8 +963,9 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
     }
     let a_pcs = pcs_params(params, lay.log_tb);
     let a_zk = ZkOpts::standard(&a_pcs);
-    let mut a_cmz = pcs::commit_zk(&a_pcs, &a_data, ntt, &a_zk, &mut rng);
+    let mut a_cmz = pcs::commit_zk_owned(&a_pcs, a_data, ntt, &a_zk, &mut rng);
     a_cmz.mask_rows = zl.a_mask_rows();
+    let a_data: &[Fp] = &a_cmz.data;
     a_cmz.prox_mask_row = Some(zl.a_prox);
     proof.a_com = Some(a_cmz.commitment());
     absorb_com(tr, b"A", proof.a_com.as_ref().unwrap());
@@ -961,49 +989,61 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
     let g_rh = gamma.mul_base(Fp::new(tag_range(sh_h)));
     let g_rd = gamma.mul_base(Fp::new(tag_range(sh_z)));
     let h_pcs = pcs_params(params, lay.log_tb);
-    let g8f = to_fp2_i32(&w.g8[..tf]);
-    let a8f = to_fp2_i32(&w.a8[..tf]);
-    let rgf = to_fp2_i32(&w.rg[..tf]);
-    let u8f = to_fp2_i32(&w.u8v[..tf]);
-    let ruf = to_fp2_i32(&w.ru[..tf]);
-    let h8f = to_fp2_i32(&w.h8[..tf]);
-    let rhf = to_fp2_i32(&w.rh[..tf]);
-    let hg = {
-        let lg: Vec<Fp2> = g8f.par_iter().zip(a8f.par_iter()).map(|(g, a)| g.add(beta.mul(*a)).add(g_silu)).collect();
-        let lrg: Vec<Fp2> = rgf.par_iter().map(|r| r.add(g_rg)).collect();
-        helper_column(&lg, &lrg, alpha)
-    };
-    let hu = {
-        let lu: Vec<Fp2> = u8f.par_iter().map(|v| v.add(g_int8)).collect();
-        let lru: Vec<Fp2> = ruf.par_iter().map(|r| r.add(g_ru)).collect();
-        helper_column(&lu, &lru, alpha)
-    };
-    let hh = {
-        let lh: Vec<Fp2> = h8f.par_iter().map(|v| v.add(g_int8)).collect();
-        let lrh: Vec<Fp2> = rhf.par_iter().map(|r| r.add(g_rh)).collect();
-        helper_column(&lh, &lrh, alpha)
-    };
-    let mut zf: Vec<Vec<Fp2>> = Vec::new();
-    let mut rdf: Vec<Vec<Fp2>> = Vec::new();
-    let mut hz: Vec<Vec<Fp2>> = Vec::new();
-    for b in 0..3 {
-        let z_b: Vec<Fp2> = a_data[lay.z[b]..lay.z[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect();
-        let rd_b: Vec<Fp2> = a_data[lay.rd[b]..lay.rd[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect();
-        let lz: Vec<Fp2> = z_b.par_iter().map(|v| v.add(g_int8)).collect();
-        let lrd: Vec<Fp2> = rd_b.par_iter().map(|r| r.add(g_rd)).collect();
-        hz.push(helper_column(&lz, &lrd, alpha));
-        zf.push(z_b);
-        rdf.push(rd_b);
-    }
+    let h_zk = ZkOpts::standard(&h_pcs);
+    // [UPERF3-ZA] the device path (HL_GPU=1): the helper columns on the device (XX's kernels) into a
+    // buffer of the ZK length; the host-generated tail rows are uploaded; the zero-check tables are
+    // built on the device, so no host helper columns exist on this path.
+    #[cfg(feature = "gpu-cuda")]
+    let use_dev_h = crate::gpu::enabled() && dev_of(&a_cmz.cm).is_some();
+    #[cfg(not(feature = "gpu-cuda"))]
+    let use_dev_h = false;
+    let mut host_tabs: Option<HostTabsZk> = None;
     let mut h_data = vec![Fp::ZERO; zl.h_len];
-    for (col, (ore, oim)) in [(&hg, lay.hg), (&hu, lay.hu), (&hh, lay.hh)] {
-        h_data[ore..ore + tf].par_iter_mut().zip(col.par_iter()).for_each(|(o, v)| *o = v.c0);
-        h_data[oim..oim + tf].par_iter_mut().zip(col.par_iter()).for_each(|(o, v)| *o = v.c1);
-    }
-    for b in 0..3 {
-        let (ore, oim) = lay.hz[b];
-        h_data[ore..ore + tb].par_iter_mut().zip(hz[b].par_iter()).for_each(|(o, v)| *o = v.c0);
-        h_data[oim..oim + tb].par_iter_mut().zip(hz[b].par_iter()).for_each(|(o, v)| *o = v.c1);
+    if !use_dev_h {
+        let g8f = to_fp2_i32(&w.g8[..tf]);
+        let a8f = to_fp2_i32(&w.a8[..tf]);
+        let rgf = to_fp2_i32(&w.rg[..tf]);
+        let u8f = to_fp2_i32(&w.u8v[..tf]);
+        let ruf = to_fp2_i32(&w.ru[..tf]);
+        let h8f = to_fp2_i32(&w.h8[..tf]);
+        let rhf = to_fp2_i32(&w.rh[..tf]);
+        let hg = {
+            let lg: Vec<Fp2> = g8f.par_iter().zip(a8f.par_iter()).map(|(g, a)| g.add(beta.mul(*a)).add(g_silu)).collect();
+            let lrg: Vec<Fp2> = rgf.par_iter().map(|r| r.add(g_rg)).collect();
+            helper_column(&lg, &lrg, alpha)
+        };
+        let hu = {
+            let lu: Vec<Fp2> = u8f.par_iter().map(|v| v.add(g_int8)).collect();
+            let lru: Vec<Fp2> = ruf.par_iter().map(|r| r.add(g_ru)).collect();
+            helper_column(&lu, &lru, alpha)
+        };
+        let hh = {
+            let lh: Vec<Fp2> = h8f.par_iter().map(|v| v.add(g_int8)).collect();
+            let lrh: Vec<Fp2> = rhf.par_iter().map(|r| r.add(g_rh)).collect();
+            helper_column(&lh, &lrh, alpha)
+        };
+        let mut zf: Vec<Vec<Fp2>> = Vec::new();
+        let mut rdf: Vec<Vec<Fp2>> = Vec::new();
+        let mut hz: Vec<Vec<Fp2>> = Vec::new();
+        for b in 0..3 {
+            let z_b: Vec<Fp2> = a_data[lay.z[b]..lay.z[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect();
+            let rd_b: Vec<Fp2> = a_data[lay.rd[b]..lay.rd[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect();
+            let lz: Vec<Fp2> = z_b.par_iter().map(|v| v.add(g_int8)).collect();
+            let lrd: Vec<Fp2> = rd_b.par_iter().map(|r| r.add(g_rd)).collect();
+            hz.push(helper_column(&lz, &lrd, alpha));
+            zf.push(z_b);
+            rdf.push(rd_b);
+        }
+        for (col, (ore, oim)) in [(&hg, lay.hg), (&hu, lay.hu), (&hh, lay.hh)] {
+            h_data[ore..ore + tf].par_iter_mut().zip(col.par_iter()).for_each(|(o, v)| *o = v.c0);
+            h_data[oim..oim + tf].par_iter_mut().zip(col.par_iter()).for_each(|(o, v)| *o = v.c1);
+        }
+        for b in 0..3 {
+            let (ore, oim) = lay.hz[b];
+            h_data[ore..ore + tb].par_iter_mut().zip(hz[b].par_iter()).for_each(|(o, v)| *o = v.c0);
+            h_data[oim..oim + tb].par_iter_mut().zip(hz[b].par_iter()).for_each(|(o, v)| *o = v.c1);
+        }
+        host_tabs = Some(HostTabsZk { g8f, rgf, a8f, u8f, ruf, h8f, rhf, hg, hu, hh, zf, rdf, hz });
     }
     // the table-side helpers h_t = m / (alpha - tval) (zero beyond each table)
     let tvals: Vec<Vec<Fp2>> = zl.tabs.iter().map(|t| tval_row(t.tag, t.size, n, &w.table, beta, gamma)).collect();
@@ -1030,9 +1070,31 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
         for j in 0..n - 1 { let v = rng.fp(); h_data[r * n + j] = v; sum = sum.add(v); }
         h_data[r * n + n - 1] = sum.neg();
     }
-    let h_zk = ZkOpts::standard(&h_pcs);
-    let mut h_cmz = pcs::commit_zk(&h_pcs, &h_data, ntt, &h_zk, &mut rng);
+    #[cfg(feature = "gpu-cuda")]
+    let h_cmz_dev: Option<pcs::CommittedZk> = if use_dev_h {
+        use crate::gpu::HelperSpec;
+        let a_dc = dev_of(&a_cmz.cm).unwrap();
+        let mut specs = vec![
+            HelperSpec { off_v1: lay.g8, off_w: Some(lay.a8), off_v2: lay.rg, len: tf, c1: g_silu, c2: g_rg, off_re: lay.hg.0, off_im: lay.hg.1 },
+            HelperSpec { off_v1: lay.u8v, off_w: None, off_v2: lay.ru, len: tf, c1: g_int8, c2: g_ru, off_re: lay.hu.0, off_im: lay.hu.1 },
+            HelperSpec { off_v1: lay.h8, off_w: None, off_v2: lay.rh, len: tf, c1: g_int8, c2: g_rh, off_re: lay.hh.0, off_im: lay.hh.1 },
+        ];
+        for b in 0..3 {
+            specs.push(HelperSpec { off_v1: lay.z[b], off_w: None, off_v2: lay.rd[b], len: tb, c1: g_int8, c2: g_rd, off_re: lay.hz[b].0, off_im: lay.hz[b].1 });
+        }
+        let rows = zl.h_len / n;
+        let (mut d_h, _sums) = crate::gpu::dev_helpers(a_dc, zl.h_len, &specs, alpha, beta).expect("gpu helpers (zk)");
+        crate::gpu::dev_upload_rows(&mut d_h, lay.h_len, &h_data[lay.h_len..zl.h_len]).expect("gpu upload of the H tail rows");
+        Some(pcs::commit_zk_device(&h_pcs, d_h, rows, std::mem::take(&mut h_data), ntt, &h_zk, &mut rng).expect("gpu zk commit H"))
+    } else { None };
+    #[cfg(not(feature = "gpu-cuda"))]
+    let h_cmz_dev: Option<pcs::CommittedZk> = None;
+    let mut h_cmz = match h_cmz_dev {
+        Some(c) => c,
+        None => pcs::commit_zk_owned(&h_pcs, std::mem::take(&mut h_data), ntt, &h_zk, &mut rng),
+    };
     h_cmz.mask_rows = zl.h_mask_rows();
+    let h_data: &[Fp] = &h_cmz.data;
     h_cmz.prox_mask_row = Some(zl.h_prox);
     proof.h_com = Some(h_cmz.commitment());
     absorb_com(tr, b"H", proof.h_com.as_ref().unwrap());
@@ -1063,8 +1125,9 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
     let mut p2 = r_i.clone();
     p2.extend_from_slice(&r_kp);
     let p2_tail = tail_of(&p2, log_n);
+    let mp = MaskPoint::new(&p2_tail, n);
     let mut exts = vec![Fp2::ZERO; 6];
-    for b in 0..3 { exts[b] = mask_eval(&a_data, n, zl.a_mgu[b], &p2_tail); }
+    for b in 0..3 { exts[b] = mp.eval(&a_data, zl.a_mgu[b]); }
     let e_gu = extension(&gu_fin, &exts, 2, gu_poly, &mc.masks[SC_GU], c_gu, &r_kp, &mut gu_rounds, tr);
     proof.gu_sc = SumcheckProof { rounds: gu_rounds };
     let mut term = Vec::with_capacity(9);
@@ -1103,7 +1166,7 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
     let mut p5 = r_ip.clone();
     p5.extend_from_slice(&r_k);
     let p5_tail = tail_of(&p5, log_n);
-    let exts = vec![mask_eval(&a_data, n, zl.a_md, &p5_tail), Fp2::ZERO];
+    let exts = vec![MaskPoint::new(&p5_tail, n).eval(&a_data, zl.a_md), Fp2::ZERO];
     let e_d = extension(&d_fin, &exts, 2, d_poly, &mc.masks[SC_D], c_d, &r_k, &mut d_rounds, tr);
     proof.d_sc = SumcheckProof { rounds: d_rounds };
     let mut term = vec![masked_terminal(d_fin[0], exts[0], e_d)];
@@ -1128,6 +1191,7 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
     proof.gamma20 = c20.mul(mc.masks[SC_ZC20].total()).sub(nu0.mul(c_gu).mul(g_gu_total));
     tr.absorb_fp2(b"gamma20", &[proof.gamma20]);
     let (p_g, p_u, p_h) = (pow2(sh_g), pow2(sh_u), pow2(sh_h));
+    let mu_c = mu.clone();
     let zc20_poly = move |v: &[Fp2]| -> Fp2 {
         let (eqt, eq1, eq5) = (v[0], v[1], v[2]);
         let (g8, rg, a8, u8, ru, h8, rh, hg, hu, hh) = (v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12]);
@@ -1135,17 +1199,50 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
         let c_hg = helper_constraint(hg, g8.add(beta.mul(a8)).add(g_silu), rg.add(g_rg), alpha);
         let c_hu = helper_constraint(hu, u8.add(g_int8), ru.add(g_ru), alpha);
         let c_hh = helper_constraint(hh, h8.add(g_int8), rh.add(g_rh), alpha);
-        let zc = mu[0].mul(c_had).add(mu[1].mul(c_hg)).add(mu[2].mul(c_hu)).add(mu[3].mul(c_hh));
+        let zc = mu_c[0].mul(c_had).add(mu_c[1].mul(c_hg)).add(mu_c[2].mul(c_hu)).add(mu_c[3].mul(c_hh));
         let fold1 = nu[0].mul(g8.mul_base(p_g).add(rg)).add(nu[1].mul(u8.mul_base(p_u).add(ru)));
         eqt.mul(zc).add(eq1.mul(fold1)).add(eq5.mul(nu[2].mul(h8)))
     };
-    let mut tables: Vec<Vec<Fp2>> = vec![eq_table_msb(&tau), eq_table_msb(&p1), eq_table_msb(&p5), g8f, rgf, a8f, u8f, ruf, h8f, rhf, hg, hu, hh];
-    let (mut rounds20, rho20, fin20) = masked_prove(&mut tables, 4, &zc20_poly, &mc.masks[SC_ZC20], c20, tr);
-    drop(tables);
+    #[cfg(feature = "gpu-cuda")]
+    let dev20 = if let (true, Some(a_dc), Some(h_dc)) = (crate::gpu::enabled(), dev_of(&a_cmz.cm), dev_of(&h_cmz.cm)) {
+        use crate::gpu::TabSpec;
+        let specs = vec![
+            TabSpec::Eq(&tau), TabSpec::Eq(&p1), TabSpec::Eq(&p5),
+            TabSpec::FromFp(a_dc, lay.g8, tf), TabSpec::FromFp(a_dc, lay.rg, tf), TabSpec::FromFp(a_dc, lay.a8, tf),
+            TabSpec::FromFp(a_dc, lay.u8v, tf), TabSpec::FromFp(a_dc, lay.ru, tf), TabSpec::FromFp(a_dc, lay.h8, tf), TabSpec::FromFp(a_dc, lay.rh, tf),
+            TabSpec::FromFp2(h_dc, lay.hg.0, lay.hg.1, tf), TabSpec::FromFp2(h_dc, lay.hu.0, lay.hu.1, tf), TabSpec::FromFp2(h_dc, lay.hh.0, lay.hh.1, tf),
+        ];
+        let mut prm: Vec<u64> = Vec::new();
+        for v in [alpha, beta, g_silu, g_rg, g_ru, g_rh, g_int8, mu[0], mu[1], mu[2], mu[3], nu[0], nu[1], nu[2]] {
+            prm.push(v.c0.0);
+            prm.push(v.c1.0);
+        }
+        prm.extend([p_g.0, p_u.0, p_h.0]);
+        tr.set_masker(Box::new(CfsMasker { mask: mc.masks[SC_ZC20].clone(), c: c20, challenges: Vec::new() }));
+        let out = crate::gpu::dev_zerocheck(0, &specs, &prm, tr).expect("gpu zero-check 20 (zk)");
+        let (_, masked) = tr.take_masker();
+        Some((masked, out.challenges, out.finals))
+    } else { None };
+    #[cfg(not(feature = "gpu-cuda"))]
+    let dev20: Option<(Vec<Vec<Fp2>>, Vec<Fp2>, Vec<Fp2>)> = None;
+    let (mut rounds20, rho20, fin20) = match dev20 {
+        Some(x) => x,
+        None => {
+            let ht = host_tabs.as_mut().expect("zero-check 20 (zk): no host tables on the device path");
+            let mut tables: Vec<Vec<Fp2>> = vec![
+                eq_table_msb(&tau), eq_table_msb(&p1), eq_table_msb(&p5),
+                std::mem::take(&mut ht.g8f), std::mem::take(&mut ht.rgf), std::mem::take(&mut ht.a8f), std::mem::take(&mut ht.u8f),
+                std::mem::take(&mut ht.ruf), std::mem::take(&mut ht.h8f), std::mem::take(&mut ht.rhf),
+                std::mem::take(&mut ht.hg), std::mem::take(&mut ht.hu), std::mem::take(&mut ht.hh),
+            ];
+            masked_prove(&mut tables, 4, &zc20_poly, &mc.masks[SC_ZC20], c20, tr)
+        }
+    };
     let t20 = tail_of(&rho20, log_n);
+    let mp = MaskPoint::new(&t20, n);
     let mut exts = vec![Fp2::ZERO; 13];
-    for i in 0..7 { exts[3 + i] = mask_eval(&a_data, n, zl.a_m20[i], &t20); }
-    for i in 0..3 { exts[10 + i] = mask_eval2(&h_data, n, zl.h_m20[i], &t20); }
+    for i in 0..7 { exts[3 + i] = mp.eval(&a_data, zl.a_m20[i]); }
+    for i in 0..3 { exts[10 + i] = mp.eval2(&h_data, zl.h_m20[i]); }
     let e20 = extension(&fin20, &exts, 4, &zc20_poly, &mc.masks[SC_ZC20], c20, &rho20, &mut rounds20, tr);
     proof.zc20_sc = SumcheckProof { rounds: rounds20 };
     proof.zc20_term = (3..13).map(|i| masked_terminal(fin20[i], exts[i], e20)).collect();
@@ -1163,28 +1260,57 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
     proof.gamma17 = c17.mul(mc.masks[SC_ZC17].total()).sub(nu_z.mul(c_d).mul(g_d_total));
     tr.absorb_fp2(b"gamma17", &[proof.gamma17]);
     let p_z = pow2(sh_z);
+    let mu2_c = mu2.clone();
     let zc17_poly = move |v: &[Fp2]| -> Fp2 {
         let (eqt, _eq2, eq4) = (v[0], v[1], v[2]);
         let mut zc = Fp2::ZERO;
         let mut fz = Fp2::ZERO;
         for b in 0..3 {
             let (z, rd, h) = (v[6 + b], v[9 + b], v[12 + b]);
-            zc = zc.add(mu2[b].mul(helper_constraint(h, z.add(g_int8), rd.add(g_rd), alpha)));
+            zc = zc.add(mu2_c[b].mul(helper_constraint(h, z.add(g_int8), rd.add(g_rd), alpha)));
             fz = fz.add(nu_zb[b].mul(z.mul_base(p_z).add(rd)));
         }
         eqt.mul(zc).add(eq4.mul(fz))
     };
-    let mut tables: Vec<Vec<Fp2>> = vec![eq_table_msb(&tau2), eq_table_msb(&p2), eq_table_msb(&p4)];
-    for b in 0..3 { tables.push(a_data[lay.x[b]..lay.x[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect()); }
-    for b in 0..3 { tables.push(std::mem::take(&mut zf[b])); }
-    for b in 0..3 { tables.push(std::mem::take(&mut rdf[b])); }
-    for b in 0..3 { tables.push(std::mem::take(&mut hz[b])); }
-    let (mut rounds17, rho17, fin17) = masked_prove(&mut tables, 4, &zc17_poly, &mc.masks[SC_ZC17], c17, tr);
-    drop(tables);
+    #[cfg(feature = "gpu-cuda")]
+    let dev17 = if let (true, Some(a_dc), Some(h_dc)) = (crate::gpu::enabled(), dev_of(&a_cmz.cm), dev_of(&h_cmz.cm)) {
+        use crate::gpu::TabSpec;
+        let mut specs = vec![TabSpec::Eq(&tau2), TabSpec::Eq(&p2), TabSpec::Eq(&p4)];
+        for b in 0..3 { specs.push(TabSpec::FromFp(a_dc, lay.x[b], tb)); }
+        for b in 0..3 { specs.push(TabSpec::FromFp(a_dc, lay.z[b], tb)); }
+        for b in 0..3 { specs.push(TabSpec::FromFp(a_dc, lay.rd[b], tb)); }
+        for b in 0..3 { specs.push(TabSpec::FromFp2(h_dc, lay.hz[b].0, lay.hz[b].1, tb)); }
+        let mut prm: Vec<u64> = Vec::new();
+        for v in [alpha, g_int8, g_rd, mu2[0], mu2[1], mu2[2], Fp2::ZERO, Fp2::ZERO, Fp2::ZERO, nu_zb[0], nu_zb[1], nu_zb[2]] {
+            prm.push(v.c0.0);
+            prm.push(v.c1.0);
+        }
+        prm.push(p_z.0);
+        tr.set_masker(Box::new(CfsMasker { mask: mc.masks[SC_ZC17].clone(), c: c17, challenges: Vec::new() }));
+        let out = crate::gpu::dev_zerocheck(1, &specs, &prm, tr).expect("gpu zero-check 17 (zk)");
+        let (_, masked) = tr.take_masker();
+        Some((masked, out.challenges, out.finals))
+    } else { None };
+    #[cfg(not(feature = "gpu-cuda"))]
+    let dev17: Option<(Vec<Vec<Fp2>>, Vec<Fp2>, Vec<Fp2>)> = None;
+    let (mut rounds17, rho17, fin17) = match dev17 {
+        Some(x) => x,
+        None => {
+            let ht = host_tabs.as_mut().expect("zero-check 17 (zk): no host tables on the device path");
+            let mut tables: Vec<Vec<Fp2>> = vec![eq_table_msb(&tau2), eq_table_msb(&p2), eq_table_msb(&p4)];
+            for b in 0..3 { tables.push(a_data[lay.x[b]..lay.x[b] + tb].par_iter().map(|v| Fp2::from_base(*v)).collect()); }
+            for b in 0..3 { tables.push(std::mem::take(&mut ht.zf[b])); }
+            for b in 0..3 { tables.push(std::mem::take(&mut ht.rdf[b])); }
+            for b in 0..3 { tables.push(std::mem::take(&mut ht.hz[b])); }
+            masked_prove(&mut tables, 4, &zc17_poly, &mc.masks[SC_ZC17], c17, tr)
+        }
+    };
+    drop(host_tabs);
     let t17 = tail_of(&rho17, log_n);
+    let mp = MaskPoint::new(&t17, n);
     let mut exts = vec![Fp2::ZERO; 15];
-    for i in 0..9 { exts[3 + i] = mask_eval(&a_data, n, zl.a_m17[i], &t17); }
-    for b in 0..3 { exts[12 + b] = mask_eval2(&h_data, n, zl.h_m17[b], &t17); }
+    for i in 0..9 { exts[3 + i] = mp.eval(&a_data, zl.a_m17[i]); }
+    for b in 0..3 { exts[12 + b] = mp.eval2(&h_data, zl.h_m17[b]); }
     let e17 = extension(&fin17, &exts, 4, &zc17_poly, &mc.masks[SC_ZC17], c17, &rho17, &mut rounds17, tr);
     proof.zc17_sc = SumcheckProof { rounds: rounds17 };
     proof.zc17_term = (3..15).map(|i| masked_terminal(fin17[i], exts[i], e17)).collect();
@@ -1217,10 +1343,11 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
     }
     let (mut rounds_tab, rho_tab, fin_tab) = masked_prove(&mut tables, 3, &tab_poly, &mc.masks[SC_TAB], c_tab, tr);
     drop(tables);
+    let mp = MaskPoint::new(&rho_tab, n);
     let mut exts = vec![Fp2::ZERO; 1 + 3 * n_tabs];
     for (i, t) in zl.tabs.iter().enumerate() {
-        exts[1 + 3 * i] = mask_eval(&a_data, n, t.a_mask, &rho_tab);
-        exts[2 + 3 * i] = mask_eval2(&h_data, n, (t.h_mre, t.h_mim), &rho_tab);
+        exts[1 + 3 * i] = mp.eval(&a_data, t.a_mask);
+        exts[2 + 3 * i] = mp.eval2(&h_data, (t.h_mre, t.h_mim));
     }
     let e_tab = extension(&fin_tab, &exts, 3, &tab_poly, &mc.masks[SC_TAB], c_tab, &rho_tab, &mut rounds_tab, tr);
     proof.tab_sc = SumcheckProof { rounds: rounds_tab };
@@ -1238,7 +1365,7 @@ pub fn prove_layer_zk(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt
     let u_tab: Vec<Fp2> = (0..n).map(|j| Fp2::new(h_data[zl.h_u.0 * n + j], h_data[zl.h_u.1 * n + j])).collect();
     let mut tables = vec![vec![Fp2::ONE; n], u_tab];
     let (mut rounds_zs, rho_zs, fin_zs) = masked_prove(&mut tables, 2, zs_poly, &mc.masks[SC_ZSUM], c_zs, tr);
-    let exts = vec![Fp2::ZERO, mask_eval2(&h_data, n, zl.h_up, &rho_zs)];
+    let exts = vec![Fp2::ZERO, MaskPoint::new(&rho_zs, n).eval2(&h_data, zl.h_up)];
     let e_zs = extension(&fin_zs, &exts, 2, zs_poly, &mc.masks[SC_ZSUM], c_zs, &rho_zs, &mut rounds_zs, tr);
     proof.zs_sc = SumcheckProof { rounds: rounds_zs };
     proof.zs_term = masked_terminal(fin_zs[1], exts[1], e_zs);

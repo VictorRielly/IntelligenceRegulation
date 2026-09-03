@@ -24,6 +24,9 @@ pub use cuda::{
     dev_columns, dev_commit, dev_commit_check, dev_commit_from, dev_eval_many, dev_fold_rows, dev_hash_check, dev_helpers, dev_stats,
     dev_stats_reset, dev_zerocheck, enabled, label, probe, DevCommit, GpuStats, HelperSpec, Pooled, ProbeReport, TabSpec,
 };
+// [UPERF3-ZA] the ZK commitment's device entries (new functions in cuda.rs)
+#[cfg(feature = "gpu-cuda")]
+pub use cuda::{dev_commit_zk, dev_commit_zk_from, dev_upload_rows};
 
 #[cfg(not(feature = "gpu-cuda"))]
 mod stub {
