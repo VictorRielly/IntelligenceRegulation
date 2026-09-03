@@ -9586,3 +9586,40 @@ ACCEPT. Trading rate for bytes costs more prover than it saves: -15%
 bytes for +51% prove. **The recommended operating point stays
 `inv_rate 4`** (13.5 MB at 2.06x), with the Merkle cap above as the way
 into the band without touching the prover.
+
+### Rung 3 — THE 12x512 v3 PASS UNDER `--pcs compact`: 70.8 MB -> 17.4 MB
+
+`hashline pass 12 512 --profile v3 --export .../m125_v3_export
+--pcs compact --threads 8`. **PASS-V3 ACCEPT**, proof sha256
+`621c263375a4629283773e627f7167319b5a917be950e42f1ee4e33183dc2875`
+(17,400,900 B). [MEASURED, WSL-BOX, 8T, CPU, NOISY-SHARED, under
+`flock /tmp/zk-heavy.lock`]
+
+| | Ligero (default) | compact | ratio |
+|---|---:|---:|---:|
+| proof bytes | 70,758,084 (70.8 MB) | **17,400,900 (17.4 MB)** | **4.07x smaller** |
+| PROVE | 16.48 s | 29.92 s | 1.82x slower |
+| VERIFY | 0.30 s | **0.03 s** | **10x faster** |
+| peak RSS | 1.58 GB | 1.80 GB | +14% |
+
+Phases (12 layers, compact): commit W 3.755, commit A 6.816,
+helpers + commit H 6.901, matmul g/u 0.282, matmul d 0.135, zero-check
+F 2.882, zero-check D 0.751, PCS openings 8.359.
+
+**THE CLEAN FACT THIS RUNG ADDS.** The v3 surcharge over v2 is
+`70,758,084 - 66,844,928 = 3,913,156 B` under Ligero and
+`17,400,900 - 13,487,744 = 3,913,156 B` under compact — **the same
+number to the byte**. The widened statement's extra cost is entirely
+the committed MULTIPLICITY vectors, which no polynomial commitment
+touches; the compact form carries it through unchanged. So the compact
+opening itself is the same size in v2 and v3, and the v3 ratio (4.07x)
+is worse than v2's (4.96x) only because a fixed 3.9 MB of non-PCS bytes
+is now a larger share of a smaller proof. A Merkle cap would take the
+v3 pass to ~13.5 MB [COUNTED].
+
+**TAMPERS: 8/8 REJECT** through the compact v3 prover
+(`layer 0 512 --profile v3 --pcs compact --all-tampers`): flipped X,
+flipped Wg -> matmul round 0; out-of-range remainder, wrong int16 table
+entry -> LogUp identity; wrong requant (h16), wrong z -> matmul/
+zero-check round 0; wrong rounding (floor), out-of-range int16 (z16) ->
+LogUp identity. Same sites as the Ligero v3 path.
