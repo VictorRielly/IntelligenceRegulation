@@ -9398,3 +9398,64 @@ hooked walker (fraction of equal integers, max |delta| in grid steps),
 (iii) the end-to-end 12-layer INTEGER forward's val loss on the gate's
 val windows vs the fp reference — the number that says whether the
 full integer statement still models the text.
+
+- **RUNG 1 GREEN — THE MISTRAL-7B ATTENTION ANSWER (2026-09-03,
+  [MEASURED WSL-BOX NT CPU NOISY-SHARED]).** scripts/m8b_mistral_attn_gate.py
+  (5 phases; attrib/widen rows MERGE into their JSON per site, so a
+  killed run resumes — this lane died once mid-attrib and lost nothing
+  but the in-flight site). Ref: the hf Walker's val-subset loss
+  1.6403015947117856 (2 windows of T=512; the committed 8-window
+  reference is 1.8411).
+  - **EQUIV**: the hooked walker with all hooks off is BIT-EXACT vs the
+    validated m8b hf Walker at 32 layers — final hidden sha256
+    97deb9f4.., logits 885b401b.., identical loss. The precondition
+    holds. -> results/m8b_mistral_attn_equiv.json
+  - **STATS** (263.6 s, 4 cal windows): per-site per-layer absmax/p999/
+    e8, per head where head-structured; scores in the RAW q.k
+    convention (e8_scaled beside it). e8 spans and worst absmax/p999
+    ratios: xattn [-2,1] 6.9, q [-3,-2] 2.1, k [-4,-2] 2.0, v [-7,-3]
+    3.0, scores [1,2] 2.3, ctx [-7,-3] 11.5, ao [-10,1] 193, **xres
+    [-10,2] ratio 2348** — and xres's e8 jumps to +2 at layer 2 and
+    STAYS there for 30 layers: the Mistral massive-activation residual.
+    -> results/m8b_mistral_attn_stats.json
+  - **ATTRIB** (12 sites, ~120-190 s each, first order, FFN fp):
+    Wattn +0.0074, Wnorm -0.0004, xattn +0.0046, q +0.0006, k +0.0017,
+    v +0.0037, scores +0.0017, exps +0.0038, probs +0.0092 (the fP=9
+    floor), ctx +0.0021, ao +0.0799, **xres +9.7232** (loss 11.36);
+    composed all_int8 +8.7118 = xres's damage. THE CORE AND THE SEAMS
+    ARE int8-CLEAN — like 125M, unlike Gemma, whose QK-norm sites were
+    dirty. -> results/m8b_mistral_attn_attrib.json
+  - **WIDEN** (the widened class is now per-site parameterized:
+    `--wide-bits xres:16,ao:8`, `--stack-label`): xres16 +0.1205 (a
+    9.6-nat rescue that still MISSES the +0.1 class, where 125M's
+    xres16 was +0.0000), ao16 +0.0001, **xres24 +0.0000**. Composed
+    rows: stack_wide (all int8 + xres16) +0.3615; +ao16 +0.2403;
+    stack_wide_xres24 (ao left int8) +0.1150; **stack_wide_xres24_ao16
+    +0.0266** — inside the +0.1-nat class, better than Gemma's +0.0854.
+    -> results/m8b_mistral_attn_widen.json
+  - **THE VERDICT**: Mistral-7B attention IS int8-clean per tensor at
+    every core and seam site (q, k, v, scores, exps, probs, ctx, the
+    weights, the norm gammas and the attention input), the residual
+    stream xres is THE ONE poisoned site (the third model in a row),
+    and the rescue costs ONE class MORE than at 125M: xres needs
+    **int24**, and ao — clean alone at +0.0799 — must be int16 or the
+    composed stack loses the class (+0.1150 vs +0.0266). First-order
+    per-site deltas UNDER-count: the composed row is the number the
+    statement must quote.
+  - **RECORD** -> results/m8b_mistral_attn_at_o1.json: per-site
+    per-layer e8 + adopted class (classes adopted FROM the composed row
+    stack_wide_xres24_ao16, not from the per-site threshold), qr/kr and
+    the two gamma exponents, probs floor stats, and the exp members —
+    **only 2 members over 32 layers**: (exp-neg, eS_raw 1, d_h 128,
+    fE 9) and (exp-neg, eS_raw 2, d_h 128, fE 9); wrho = fE + log2 T =
+    18. qr/kr need no extra bit over q/k at any layer.
+  - **STATEMENT CONSEQUENCE (amends the rung-0 spec table above)**: the
+    xres1/xres2 planes and therefore the SEAM are **int24**, not int16
+    — proven as two 16-bit limbs against the existing U16 table (no new
+    table, one extra committed plane per residual site), and ao8 becomes
+    ao16 (INT16 lookup). The int8 rows of the spec table are unchanged.
+    At 125M (PP's record) int16 suffices for xres, so the Rust chain
+    must carry the residual class as a per-instance parameter.
+  - Commits: 233069a (checkpoint: equiv + stats + 6 attrib sites),
+    6dcbe20, f90a4f4, d6fd96a (attrib complete), 2131623, 0da65e8
+    (widen), + this record commit.

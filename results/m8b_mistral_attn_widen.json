@@ -134,6 +134,32 @@
    },
    "perhead": [],
    "wall_s": 280.0
+  },
+  "stack_wide_xres24": {
+   "loss": 1.7553375434557608,
+   "delta_vs_fp_subset": 0.11503594874397516,
+   "sites": [
+    "Wattn",
+    "Wnorm",
+    "ao",
+    "ctx",
+    "exps",
+    "k",
+    "probs",
+    "q",
+    "scores",
+    "v",
+    "xattn",
+    "xres"
+   ],
+   "wide": [
+    "xres"
+   ],
+   "wide_class": {
+    "xres": "int24"
+   },
+   "perhead": [],
+   "wall_s": 297.9
   }
  }
 }

@@ -435,28 +435,39 @@ def run_one(walker, vsub, label, sites, wide=(), perhead=(), out=None,
 # the record phase
 # --------------------------------------------------------------------------
 
-def build_record(arch, smoke, t):
+def build_record(arch, smoke, t, stack_row=None):
+    """[UPERF3-AE] the classes the statement adopts come from a COMPOSED
+    widen row (every site quantized at once), not from the first-order
+    per-site threshold alone: a site under +0.10 nats alone can still
+    cost the composed stack its class (Mistral's ao, +0.0799 alone,
+    +0.1150 -> +0.0266 on the stack when widened)."""
     st = json.loads(STATS_JSON.read_text())
     at = json.loads(ATTRIB_JSON.read_text())["results"]
     wd = (json.loads(WIDEN_JSON.read_text())["results"] if WIDEN_JSON.exists() else {})
+    stacks = {k: v for k, v in wd.items() if k.startswith("stack_wide")}
+    if stack_row is None and stacks:
+        stack_row = min(stacks, key=lambda k: stacks[k]["delta_vs_fp_subset"])
+    adopted = dict(stacks.get(stack_row, {}).get("wide_class", {})) if stack_row else {}
     classes, verdicts = {}, {}
     for s in ALL_SITES:
         d = at.get(s, {}).get("delta_vs_fp_subset")
         if d is None:
             continue
         poisoned = d >= POISON_NATS
-        cls = "int16" if poisoned else "int8"
+        cls = adopted.get(s, "int16" if poisoned else "int8")
         if s in ("exps", "probs"):
             f = FE if s == "exps" else FP
-            cls = ("fixp%d+8" % f) if poisoned else ("fixp%d" % f)
+            extra = int(cls[3:]) - 8 if s in adopted else (8 if poisoned else 0)
+            cls = "fixp%d" % (f + extra)
         classes[s] = cls
         widened = {k: wd[k]["delta_vs_fp_subset"] for k in wd
                    if k.startswith(s) and k[len(s):].isdigit()}
         verdicts[s] = dict(int8_delta_nats=d,
                            verdict="POISONED (widened class)" if poisoned else "CLEAN at int8",
                            widen_delta_nats=wd.get(s + "16", {}).get("delta_vs_fp_subset"),
-                           widened_classes=widened)
+                           widened_classes=widened, adopted_class=classes[s])
     wrho = FE + int(math.log2(t))
+    stack_delta = stacks.get(stack_row, {}).get("delta_vs_fp_subset") if stack_row else None
     layers = []
     for row in st["layers"]:
         li = row["layer"]
@@ -482,6 +493,8 @@ def build_record(arch, smoke, t):
                   checkpoint=st["meta"]["checkpoint"], seed=st["meta"]["seed"], t=t,
                   d_h=arch.head_dim, fE=FE, fP=FP, wrho=wrho, smoke=smoke,
                   poison_threshold_nats=POISON_NATS,
+                  adopted_stack_row=stack_row, adopted_stack_delta_nats=stack_delta,
+                  composed_rows={k: v["delta_vs_fp_subset"] for k, v in stacks.items()},
                   score_convention="RAW q.k at the hook (eS_raw keys the exp member; "
                                    "e8_scaled = the d_h^-0.5-scaled exponent beside it)",
                   note="the Mistral-7B attention exponent table for the hash-line full-layer "
@@ -492,6 +505,8 @@ def build_record(arch, smoke, t):
         layers=layers)
     ATO1_JSON.write_text(json.dumps(outj, indent=1))
     print("AT-O1 record -> %s" % ATO1_JSON)
+    print("adopted composed row: %s (delta %s)"
+          % (stack_row, ("%+.4f" % stack_delta) if stack_delta is not None else "n/a"))
     print("site classes: %s" % json.dumps(classes))
     print("distinct eS_raw values (exp members needed): %s (%d members over %d layers)"
           % (members, len(members), len(layers)))
@@ -530,7 +545,8 @@ def main():
              arch.head_dim, t, tag), flush=True)
 
     if args.phase == "record":
-        build_record(arch, smoke, t)
+        build_record(arch, smoke, t, stack_row=(args.stack_label
+                     if args.stack_label != "stack_wide" else None))
         return
 
     if args.phase == "equiv":
