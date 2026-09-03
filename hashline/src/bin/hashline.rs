@@ -596,31 +596,38 @@ fn pass_v3(n: usize, t: usize, o: &Opts) {
     println!("pass (v3): {n} layers x {t} tokens of {} — {} (d {} f {}; log_cols {}, inv_rate {}, col checks {}, threads {})", dm.t, dir.display(), dm.d, dm.f, o.log_cols, o.inv_rate, o.col_checks, rayon::current_num_threads());
     println!("  {}", hashline::gpu::label());
     let t_all = Instant::now();
-    let t0 = Instant::now();
-    let mut ws: Vec<V3Witness> = (0..n).map(|l| load_witness_v3(&dir, &side, l, t)).collect();
-    let t_load = t0.elapsed().as_secs_f64();
     let tamper = tamper_v3_from(&o.tamper_kind, o.tamper_idx);
+    let victim = n / 2;
     if !matches!(tamper, TamperV3::None) {
-        let victim = n / 2;
         println!("  (tamper {:?} applied to layer {victim}'s witness)", tamper);
-        apply_tamper_v3(&mut ws[victim], tamper);
     }
     let mut tr = Transcript::new(b"hashline-pass-v3");
     let mut proofs = Vec::with_capacity(n);
     let mut stmts = Vec::with_capacity(n);
     let mut agg: Vec<(String, f64)> = Vec::new();
-    let t0 = Instant::now();
-    for w in &ws {
+    let mut t_load = 0.0f64;
+    let mut t_prove = 0.0f64;
+    // ONE witness resident at a time (a 7B layer's int8 weights + planes are ~0.35 GB; 32 of them
+    // would be 11 GB before the first commitment). Load, prove, drop; the statement stays for the
+    // verifier. The proof bytes do not depend on when the witness was loaded.
+    for l in 0..n {
+        let t0 = Instant::now();
+        let mut w: V3Witness = load_witness_v3(&dir, &side, l, t);
+        if l == victim && !matches!(tamper, TamperV3::None) {
+            apply_tamper_v3(&mut w, tamper);
+        }
+        t_load += t0.elapsed().as_secs_f64();
         let t1 = Instant::now();
-        let out = prove_layer_v3(w, t, &p, &ntt, &mut tr);
+        let out = prove_layer_v3(&w, t, &p, &ntt, &mut tr);
+        let dt = t1.elapsed().as_secs_f64();
+        t_prove += dt;
         for (name, s) in &out.timings {
             if let Some(e) = agg.iter_mut().find(|e| &e.0 == name) { e.1 += s; } else { agg.push((name.clone(), *s)); }
         }
-        println!("  layer {:2}: prove {:.3} s, {} B", w.l, t1.elapsed().as_secs_f64(), out.proof.size_bytes());
-        stmts.push(stmt_v3(w, t));
+        println!("  layer {:2}: prove {:.3} s, {} B", w.l, dt, out.proof.size_bytes());
+        stmts.push(stmt_v3(&w, t));
         proofs.push(out.proof);
     }
-    let t_prove = t0.elapsed().as_secs_f64();
     let bytes: usize = proofs.iter().map(|p| p.size_bytes()).sum();
     println!("prover phases (summed over layers):");
     for (name, s) in &agg { println!("      {name:<22} {s:8.3} s"); }

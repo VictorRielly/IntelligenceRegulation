@@ -8587,3 +8587,44 @@ member digest absorbed into the statement. v2 untouched.
   --threads 8 --proof-out` prints PROOF sha256 50cf7bdfd6b5b182..
   (66,844,928 B) on the CPU binary (17.13 s, box loaded by the GPU
   legs) and on the GPU binary (2.66 s). 22/22 tests.
+
+- **RUNG 4 GREEN (2026-09-02, WSL-BOX): THE FIRST 8B-WIDTH LAYER
+  PROOF ON THE HASH LINE — Mistral-7B layer 0 of the real v3 export
+  (bins under /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export/),
+  d 4096 f 14336, shifts 11/2/15/6, member silu-int16out-table-v3
+  (-3,-12) 859344ba5ed57bd3..** Block structure: Wg/Wu 1x7 blocks of
+  4096x2048, Wd 7x1 blocks of 2048x4096 (21 blocks of 2^23; W =
+  176,160,768 Fp = 1.41 GB, its Ligero encoding at log_cols 14 =
+  10,752 rows x 65,536 cols = 5.64 GB). COUNTED before running: peak
+  ~7.5 GB at T=16 against `free -g` 14 GB available -> GO. [MEASURED,
+  WSL-BOX 8T CPU NOISY-SHARED, under the heavy lock, /usr/bin/time -v]
+  `hashline layer 0 T --profile v3 --export .../m8b_mistral_v3_export
+  --threads 8`:
+  | T | prove | of which commit W | verify | proof | peak RSS |
+  |---|---:|---:|---:|---:|---:|
+  | 16 | **10.53 s** | 8.58 s | 0.029 s | 25.86 MB | **7.48 GB** |
+  | 128 | 11.67 s | 7.92 s | 0.034 s | 28.76 MB | 8.78 GB |
+  | 256 | 14.51 s | 9.37 s | 0.031 s | 32.07 MB | 10.28 GB |
+  ACCEPT at all three; the wrong-int16-table-entry leg at T=16
+  (`--tamper table --tamper-idx 1000`) REJECTs in the LogUp identity
+  (9.0 s). The split the throughput model wants, read off the three
+  rows: the WEIGHT part (commit W + its opening, ~9 s and 7.0 GB per
+  layer, the same at any T) and the ACTIVATION part (~13.5 ms and
+  11.7 MB per token row), so a 7B layer at T=512 models to **~18 s /
+  ~13.3 GB** on this box [MODEL] — 13.3 of the 14 GB available, which
+  is why T=512 at 7B is a Mac run (M9), not a laptop run. The proof
+  is 22 MB of W column openings (256 checks x 10,752 rows x 8 B):
+  `--log-cols 16` (2,688 rows) halves it to 13.37 MB at the same
+  wall (9.47 s) and RSS (7.46 GB) — a parameter choice for the Mac
+  runs, noted in M9, not the default (the byte-identity gate is per
+  parameter set). GPU [MEASURED]: `HL_GPU=1` at the 7B shape DECLINES
+  the W commit (cuMemAlloc 5376 MB: CUDA_ERROR_OUT_OF_MEMORY on the
+  8 GB part with the 1.4 GB data already resident) and falls back to
+  the CPU path — ACCEPT, 10.62 s, the same 25,863,324 B — so the 7B
+  GPU proof needs a chunked/streamed W encoding (a future lane; the
+  fallback is graceful and the bytes are the CPU bytes). The zero-
+  checks at this shape (nb_f 7, nb_d 1: 73 and 7 tables) run on the
+  host by design. A `pass` fix in this rung: `pass_v3` now loads ONE
+  witness at a time (load, prove, drop; the statement stays for the
+  verifier) — 32 resident 7B witnesses would have been 11 GB before
+  the first commitment; byte-neutral (the 12x512 gate re-run below).
