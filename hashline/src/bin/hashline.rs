@@ -14,6 +14,7 @@
 //!   check-export | chain [layers] [--t T] | layer <l> <t> | pass <layers> <t> as above; `tables-v3` prints the
 //!   frozen int16-out registry (15 members, digests = the exports' `NN table` rows / `uperf-v3 tables`).
 //!   v3 tampers: --tamper flipx|flipw|rem|table|requant|z|round|i16. The v2 path is untouched.
+//!       --zk  [UPERF3-ZA] the zero-knowledge form for the activations (mode P1; see src/zk.rs); --seed N seeds its randomness
 
 use hashline::chain::{derive, LayerWitness};
 use hashline::export::{export_dir, load_layer, Sidecar, D, F, LAYERS};
@@ -39,11 +40,13 @@ struct Opts {
     t_rows: Option<usize>,
     tamper_kind: String,
     tamper_idx: usize,
+    /// [UPERF3-ZA] `--zk` + `--seed`: the zero-knowledge form (default off: the byte-identical path).
+    zk: hashline::zk::ZkConfig,
 }
 
 fn parse_opts(args: &[String]) -> Opts {
     let mut o = Opts { threads: 0, log_cols: 14, col_checks: 256, inv_rate: 4, tamper: Tamper::None, verify: true, all_tampers: false, proof_out: None,
-        profile: "v2".to_string(), export: None, t_rows: None, tamper_kind: "none".to_string(), tamper_idx: 12345 };
+        profile: "v2".to_string(), export: None, t_rows: None, tamper_kind: "none".to_string(), tamper_idx: 12345, zk: hashline::zk::ZkConfig::default() };
     let mut i = 0;
     let mut tkind = "none".to_string();
     let mut tidx = 12345usize;
@@ -62,6 +65,8 @@ fn parse_opts(args: &[String]) -> Opts {
             "--profile" => { o.profile = args[i + 1].clone(); i += 1; }
             "--export" => { o.export = Some(args[i + 1].clone()); i += 1; }
             "--t" => { o.t_rows = Some(args[i + 1].parse().unwrap()); i += 1; }
+            "--zk" => { o.zk.enabled = true; }
+            "--seed" => { o.zk.seed = args[i + 1].parse().unwrap(); i += 1; }
             other => { eprintln!("unknown option {other}"); std::process::exit(2); }
         }
         i += 1;
@@ -123,13 +128,13 @@ fn main() {
             let l: usize = args[2].parse().unwrap();
             let t: usize = args[3].parse().unwrap();
             let o = parse_opts(&args[4..]);
-            if o.profile == "v3" { layer_v3(l, t, &o) } else { layer(l, t, &o) }
+            if o.zk.enabled && o.profile == "v3" { eprintln!("--zk with --profile v3 is not built yet (lane ZA built the v2 ZK form; composing it with v3 is a follow-on)"); std::process::exit(2) } else if o.zk.enabled { layer_zk(l, t, &o) } else if o.profile == "v3" { layer_v3(l, t, &o) } else { layer(l, t, &o) }
         }
         "pass" => {
             let n: usize = args[2].parse().unwrap();
             let t: usize = args[3].parse().unwrap();
             let o = parse_opts(&args[4..]);
-            if o.profile == "v3" { pass_v3(n, t, &o) } else { pass(n, t, &o) }
+            if o.zk.enabled && o.profile == "v3" { eprintln!("--zk with --profile v3 is not built yet (lane ZA built the v2 ZK form; composing it with v3 is a follow-on)"); std::process::exit(2) } else if o.zk.enabled { pass_zk(n, t, &o) } else if o.profile == "v3" { pass_v3(n, t, &o) } else { pass(n, t, &o) }
         }
         "gpu-probe" => gpu_probe(),
         _ => {
@@ -666,5 +671,147 @@ fn pass_v3(n: usize, t: usize, o: &Opts) {
     let macs = (n as f64) * (t as f64) * ((2.0 * dm.d as f64 * dm.f as f64) + (dm.f as f64 * dm.d as f64));
     println!("PASS-V3 {}: {n} x {t} (d {} f {}): witness load+chain {t_load:.2} s | PROVE {t_prove:.2} s | VERIFY {t_verify:.2} s | proof {bytes} B ({:.1} MB) | {:.3e} MACs | {:.3e} proven MAC/s (prove wall) | wall {:.2} s",
         if ok { "ACCEPT" } else { "REJECT" }, dm.d, dm.f, bytes as f64 / 1e6, macs, macs / t_prove, t_all.elapsed().as_secs_f64());
+    if !ok { std::process::exit(1); }
+}
+
+
+// ===========================================================================
+// [UPERF3-ZA] The `--zk` forms of `layer` and `pass` (mode P1: activations
+// private, weights public; see src/zk.rs). Same shapes, same tamper legs,
+// the PROOF sha256 line is the CPU/GPU parity gate under `--seed`.
+// ===========================================================================
+
+fn run_layer_zk(w: &LayerWitness, t: usize, o: &Opts, tamper: Tamper, ntt: &NttTables) -> (bool, f64, f64, usize) {
+    use hashline::zk::{prove_layer_zk, verify_layer_zk};
+    let mut w2 = clone_witness(w);
+    apply_tamper(&mut w2, tamper);
+    let p = params(o);
+    let st = Statement { l: w.l, t_rows: t, shifts: w.shifts, table: w.table, table_digest: w.table_digest.clone() };
+    let mut tr = Transcript::new(b"hashline-layer-zk");
+    let t0 = Instant::now();
+    let out = prove_layer_zk(&w2, t, &p, ntt, &o.zk, &mut tr);
+    let tp = t0.elapsed().as_secs_f64();
+    let bytes = out.proof.size_bytes();
+    if !o.verify {
+        return (true, tp, 0.0, bytes);
+    }
+    let mut tv = Transcript::new(b"hashline-layer-zk");
+    let t1 = Instant::now();
+    let r = verify_layer_zk(&st, &out.proof, &p, ntt, &mut tv);
+    let tvv = t1.elapsed().as_secs_f64();
+    if matches!(tamper, Tamper::None) {
+        for (name, s) in &out.timings {
+            println!("      {name:<26} {s:8.3} s");
+        }
+        println!("      mask sites:");
+        for s in &out.sites { println!("        {s}"); }
+    }
+    match &r {
+        Ok(()) => (true, tp, tvv, bytes),
+        Err(e) => { println!("      reject: {e}"); (false, tp, tvv, bytes) }
+    }
+}
+
+fn layer_zk(l: usize, t: usize, o: &Opts) {
+    let ntt = NttTables::new(o.log_cols + o.inv_rate.trailing_zeros());
+    let w = load_witness(l);
+    println!("layer {l} at T = {t} [ZK, mode P1, seed {}] (log_cols {}, inv_rate {}, col checks {}, threads {})", o.zk.seed, o.log_cols, o.inv_rate, o.col_checks, rayon::current_num_threads());
+    let (ok, tp, tv, bytes) = run_layer_zk(&w, t, o, o.tamper, &ntt);
+    println!("  tamper {:?}: {} prove {tp:.3} s verify {tv:.3} s proof {bytes} B", o.tamper, if ok { "ACCEPT" } else { "REJECT" });
+    let mut fails = 0;
+    if matches!(o.tamper, Tamper::None) && !ok { fails += 1; }
+    if !matches!(o.tamper, Tamper::None) && ok { fails += 1; }
+    if o.all_tampers {
+        let legs = [
+            ("flipped X entry", Tamper::FlipX(777)),
+            ("flipped Wg entry", Tamper::FlipW(4242)),
+            ("out-of-range remainder", Tamper::RemainderOutOfRange(99)),
+            ("wrong table entry", Tamper::WrongTableEntry(1000)),
+            ("wrong requant (h8)", Tamper::WrongRequant(555)),
+            ("wrong z", Tamper::WrongZ(321)),
+        ];
+        for (name, tm) in legs {
+            let (ok, tp, tv, _) = run_layer_zk(&w, t, o, tm, &ntt);
+            println!("  tamper [{name}]: {} (prove {tp:.2} s, verify {tv:.2} s)", if ok { "ACCEPTED (BUG)" } else { "REJECT" });
+            if ok { fails += 1; }
+        }
+    }
+    println!("layer {l} [ZK]: {}", if fails == 0 { "GREEN" } else { "RED" });
+    if fails > 0 { std::process::exit(1); }
+}
+
+fn pass_zk(n: usize, t: usize, o: &Opts) {
+    use hashline::zk::{prove_layer_zk, verify_layer_zk};
+    let ntt = NttTables::new(o.log_cols + o.inv_rate.trailing_zeros());
+    let p = params(o);
+    println!("pass [ZK, mode P1, seed {}]: {n} layers x {t} tokens (log_cols {}, inv_rate {}, col checks {}, threads {})", o.zk.seed, o.log_cols, o.inv_rate, o.col_checks, rayon::current_num_threads());
+    println!("  {}", hashline::gpu::label());
+    let t_all = Instant::now();
+    let t0 = Instant::now();
+    let mut ws: Vec<LayerWitness> = (0..n).map(load_witness).collect();
+    let t_load = t0.elapsed().as_secs_f64();
+    if !matches!(o.tamper, Tamper::None) {
+        let victim = n / 2;
+        println!("  (tamper {:?} applied to layer {victim}'s witness)", o.tamper);
+        apply_tamper(&mut ws[victim], o.tamper);
+    }
+    let mut tr = Transcript::new(b"hashline-pass-zk");
+    let mut proofs = Vec::with_capacity(n);
+    let mut stmts = Vec::with_capacity(n);
+    let mut agg: Vec<(String, f64)> = Vec::new();
+    let mut sites: Vec<String> = Vec::new();
+    let t0 = Instant::now();
+    for w in &ws {
+        let t1 = Instant::now();
+        let out = prove_layer_zk(w, t, &p, &ntt, &o.zk, &mut tr);
+        for (name, s) in &out.timings {
+            if let Some(e) = agg.iter_mut().find(|e| &e.0 == name) { e.1 += s; } else { agg.push((name.clone(), *s)); }
+        }
+        if sites.is_empty() { sites = out.sites.clone(); }
+        println!("  layer {:2}: prove {:.3} s, {} B", w.l, t1.elapsed().as_secs_f64(), out.proof.size_bytes());
+        stmts.push(Statement { l: w.l, t_rows: t, shifts: w.shifts, table: w.table, table_digest: w.table_digest.clone() });
+        proofs.push(out.proof);
+    }
+    let t_prove = t0.elapsed().as_secs_f64();
+    let bytes: usize = proofs.iter().map(|p| p.size_bytes()).sum();
+    println!("prover phases (summed over layers):");
+    for (name, s) in &agg { println!("      {name:<26} {s:8.3} s"); }
+    println!("mask sites (layer 0; every layer identical in structure):");
+    for s in &sites { println!("      {s}"); }
+    if hashline::gpu::enabled() {
+        let g = hashline::gpu::dev_stats();
+        println!(
+            "  gpu device-side (summed): h2d {:.3} s ({:.0} MB) | ntt {:.3} s | hash {:.3} s | sumcheck {:.3} s | fold {:.3} s | helpers {:.3} s | d2h {:.3} s ({:.0} MB) | vram peak {:.0} MB",
+            g.secs_h2d, g.bytes_h2d as f64 / 1e6, g.secs_ntt, g.secs_hash, g.secs_sumcheck, g.secs_fold, g.secs_helpers, g.secs_d2h, g.bytes_d2h as f64 / 1e6, g.vram_peak as f64 / 1e6
+        );
+    }
+    {
+        let mut all: Vec<u8> = Vec::with_capacity(bytes);
+        for p in &proofs { all.extend_from_slice(&p.to_bytes()); }
+        assert_eq!(all.len(), bytes, "serializer/size_bytes disagree");
+        let digest = hashline::export::sha256_hex(&all);
+        println!("PROOF sha256 {digest} ({} B) [ZK seed {}]", all.len(), o.zk.seed);
+        if let Some(path) = &o.proof_out {
+            std::fs::write(path, &all).unwrap_or_else(|e| panic!("cannot write {path}: {e}"));
+            println!("  proof written to {path}");
+        }
+    }
+    let mut ok = true;
+    let mut t_verify = 0.0;
+    if o.verify {
+        let mut tv = Transcript::new(b"hashline-pass-zk");
+        let t0 = Instant::now();
+        for (st, pr) in stmts.iter().zip(proofs.iter()) {
+            if let Err(e) = verify_layer_zk(st, pr, &p, &ntt, &mut tv) {
+                println!("  layer {}: REJECT: {e}", st.l);
+                ok = false;
+                break;
+            }
+        }
+        t_verify = t0.elapsed().as_secs_f64();
+    }
+    let macs = (n as f64) * (t as f64) * ((2.0 * D as f64 * F as f64) + (F as f64 * D as f64));
+    println!("PASS {} [ZK]: {n} x {t}: witness load+chain {t_load:.2} s | PROVE {t_prove:.2} s | VERIFY {t_verify:.2} s | proof {bytes} B ({:.1} MB) | {:.3e} MACs | {:.3e} proven MAC/s (prove wall) | wall {:.2} s",
+        if ok { "ACCEPT" } else { "REJECT" }, bytes as f64 / 1e6, macs, macs / t_prove, t_all.elapsed().as_secs_f64());
     if !ok { std::process::exit(1); }
 }

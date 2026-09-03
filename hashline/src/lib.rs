@@ -28,3 +28,4 @@ pub mod gpu;
 // in layer.rs (additive) behind `--profile v3`.
 pub mod tables_v3;
 pub mod export_v3;
+pub mod zk;

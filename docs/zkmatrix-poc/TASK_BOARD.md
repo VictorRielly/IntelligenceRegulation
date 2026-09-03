@@ -58,6 +58,41 @@ rulings; the Mac runbook unchanged):**
   the Route-B throughput model (lane TT's seven items for the hash
   line, incl. the ZK surcharge — Victor's ZK rule is non-negotiable —
   and the proof-size lever).
+- **LANE ZA LANDED (merged; `results/hashline_zk_12x512.md`) — THE ZK
+  FORM (mode P1: inputs/activations private, weights public) behind
+  `--zk --seed N`.** Built: Ligero/Brakedown ZK pads (256 per row on a
+  coset; no systematic column opened) + salted leaves + mask rows for
+  every clear vector (5 in A, 5 in H per layer, each asserted at run
+  time to touch a mask row); CFS-masked sumchecks via a transcript
+  round hook with the last-round extension masking every private
+  terminal; a per-layer mask commitment with a product-form test;
+  committed multiplicities (histogram rows in A, table-side helpers
+  in H, the LogUp identity as one value-0 sum claim); one NEW GPU
+  kernel (`k_zk_pad_scale`), no existing kernel edited. IDENTITY: the
+  non-zk proof unchanged (50cf7bdf.. both binaries); the ZK proof
+  `--seed 1` = 021485e4.. (87,228,528 B) from 3 CPU + 4 GPU runs;
+  27/27 tests; 7/7 tamper legs reject under `--zk` on both provers.
+  UNIFORMITY (in code, two int8 witnesses x 40 openings): all 37K+
+  opened entries distinct and outside the witness range; chi-square
+  236-293 vs the 310.5 critical value; the non-zk contrast opens
+  42/252 raw int8 values. SURCHARGE [12x512, 8T, NOISY-SHARED, p50]:
+  GPU 2.46 -> **3.93 s (+60%)**, verify 0.25 -> 0.38 s, bytes 66.8 ->
+  **87.2 MB (+30%)**, RSS 0.78 -> 0.90 GB, VRAM 2.43 -> 3.03 GB; CPU
+  14.78 -> 16.55 s (+12%). Above lane YY's counted +2-8% / +1-8%
+  because two gaps in the memo's sketch had to be closed (the mask
+  row under a challenge-dependent weight -> tied to the last-round
+  extension, which also masks the nonlinear terminals; the masking
+  polynomial's own ZK opening). STILL REVEALED by design: the
+  weights and their opening, shapes, shifts, the table digest. Side
+  effect: the non-zk CPU pass 16.9 -> 14.8 s (small rounds
+  single-threaded, byte-identical). Open: fold the masked matmul
+  terminals into the zero-checks (-8% bytes), the ZK encode on the
+  DIF/DIT NTT pair, the table zero-check on the device; composing
+  `--zk` with `--profile v3` (the driver refuses the combination
+  today with a clear message). Merge note: ZA and ZB both extended
+  the driver at the same point; resolved by keeping both blocks with
+  composed dispatch; all three byte gates (v2 50cf7bdf.., v3
+  5f368db6.., zk-seed-1 021485e4..) re-verified here on both binaries.
 - **LANE ZB LANDED (merged fast-forward; `results/hashline_v3_12x512.md`;
   MAC_RUNBOOK M9).** (1) `--profile v3 --export DIR`: the widened-stack
   semantics in hashline (15 frozen int16-out table members regenerated

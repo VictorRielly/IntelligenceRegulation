@@ -23,6 +23,7 @@ const FUNCS: &[&str] = &[
     "k_probe", "k_ntt_p1", "k_ntt_p2", "k_gather_cols", "k_hash_cols",
     "k_sc_round_zc20", "k_sc_round_zc17", "k_reduce_f2", "k_sc_fold", "k_tab_from_fp", "k_tab_from_fp2", "k_eq_table",
     "k_fold_rows", "k_helper", "k_sum_fp", "k_eq_join", "k_dot_slices", "k_dif_pa", "k_dif_pb", "k_dit_p1_pad",
+    "k_zk_pad_scale", // [UPERF3-ZA]
 ];
 const SC_THREADS: u32 = 256;
 const SC_MAX_BLOCKS: u32 = 1024;
@@ -882,4 +883,84 @@ impl Gpu {
         }
         Ok(())
     }
+}
+
+// ===========================================================================
+// [UPERF3-ZA] The ZK commitment on the device (new entries beside the
+// existing ones; nothing above changes). The encoding of pcs::commit_zk:
+// inverse NTT of every row (natural-order coefficients, rung 1's gather
+// form), the pad + coset scaling kernel, the size-nn forward NTT, the
+// column hashes (unsalted: the host salts the leaves as on the CPU path).
+// ===========================================================================
+
+/// Commit a device-resident data buffer (rows x n) in ZK mode: `pads` rows x q, `pows` h^i for i < nn.
+pub fn dev_commit_zk_from(params: &PcsParams, d_data: Pooled, rows: usize, pads: &[Fp], pows: &[Fp], ntt: &NttTables) -> Result<(DevCommit, Vec<Digest>), String> {
+    let g = gpu().ok_or_else(init_err)?;
+    let mut g = g.lock().unwrap();
+    g.ensure_twiddles(ntt)?;
+    let n = params.cols();
+    let nn = params.enc_cols();
+    assert_eq!(d_data.get().len(), rows * n);
+    assert_eq!(pads.len() % rows, 0);
+    let q = pads.len() / rows;
+    assert!(n + q <= nn && pows.len() == nn);
+    let log_n = params.log_cols;
+    let log_nn = nn.trailing_zeros();
+    assert_eq!(1usize << log_nn, nn, "inv_rate must be a power of two on the device path");
+    let dev = g.dev.clone();
+    let t1 = Instant::now();
+    let mut d_coef = Pooled::take(&dev, rows * n)?;
+    g.ntt_rows(d_data.get(), d_coef.get_mut(), rows, n, log_n, true)?;
+    let d_pads = dev.htod_sync_copy(as_u64s(pads)).map_err(|e| format!("pads upload: {e}"))?;
+    let d_pows = dev.htod_sync_copy(as_u64s(pows)).map_err(|e| format!("pows upload: {e}"))?;
+    stats_with(|s| s.bytes_h2d += ((pads.len() + pows.len()) * 8) as u64);
+    let mut d_coef2 = Pooled::take(&dev, rows * nn)?;
+    let f = dev.get_func(MODULE, "k_zk_pad_scale").ok_or("k_zk_pad_scale missing")?;
+    let cfg = LaunchConfig::for_num_elems((rows * nn) as u32);
+    unsafe { f.launch(cfg, (d_coef.get(), &d_pads, &d_pows, d_coef2.get_mut(), rows as i32, n as i32, q as i32, nn as i32)) }.map_err(|e| format!("k_zk_pad_scale: {e}"))?;
+    drop(d_coef);
+    let mut d_enc = Pooled::take(&dev, rows * nn)?;
+    g.ntt_rows(d_coef2.get(), d_enc.get_mut(), rows, nn, log_nn, false)?;
+    dev.synchronize().map_err(|e| e.to_string())?;
+    let t2 = Instant::now();
+    stats_with(|s| s.secs_ntt += (t2 - t1).as_secs_f64());
+    note_vram(&g);
+    drop(d_coef2);
+    let leaves = g.hash_cols(d_enc.get(), rows, nn)?;
+    let t3 = Instant::now();
+    stats_with(|s| { s.secs_hash += (t3 - t2).as_secs_f64(); s.bytes_d2h += (nn * 32) as u64; });
+    Ok((DevCommit { rows, log_n, log_nn, data: d_data, enc: d_enc }, leaves))
+}
+
+/// Upload `data` and commit it in ZK mode (== pcs::commit_zk's encoding and leaves).
+pub fn dev_commit_zk(params: &PcsParams, data: &[Fp], pads: &[Fp], pows: &[Fp], ntt: &NttTables) -> Result<(DevCommit, Vec<Digest>), String> {
+    let g = gpu().ok_or_else(init_err)?;
+    let g = g.lock().unwrap();
+    let n = params.cols();
+    assert!(data.len() % n == 0 && !data.is_empty());
+    let rows = data.len() / n;
+    let dev = g.dev.clone();
+    let t0 = Instant::now();
+    let mut d_data = Pooled::take(&dev, data.len())?;
+    dev.htod_sync_copy_into(as_u64s(data), d_data.get_mut()).map_err(|e| format!("data upload: {e}"))?;
+    dev.synchronize().map_err(|e| e.to_string())?;
+    stats_with(|s| { s.secs_h2d += t0.elapsed().as_secs_f64(); s.bytes_h2d += (data.len() * 8) as u64; });
+    drop(g);
+    dev_commit_zk_from(params, d_data, rows, pads, pows, ntt)
+}
+
+/// Write `data` into a device buffer at element `offset` (the ZK H commit's host-generated tail rows).
+pub fn dev_upload_rows(d: &mut Pooled, offset: usize, data: &[Fp]) -> Result<(), String> {
+    let g = gpu().ok_or_else(init_err)?;
+    let g = g.lock().unwrap();
+    let dev = g.dev.clone();
+    assert!(offset + data.len() <= d.get().len());
+    let t0 = Instant::now();
+    {
+        let mut view = d.get_mut().slice_mut(offset..offset + data.len());
+        dev.htod_sync_copy_into(as_u64s(data), &mut view).map_err(|e| format!("rows upload: {e}"))?;
+    }
+    dev.synchronize().map_err(|e| e.to_string())?;
+    stats_with(|s| { s.secs_h2d += t0.elapsed().as_secs_f64(); s.bytes_h2d += (data.len() * 8) as u64; });
+    Ok(())
 }

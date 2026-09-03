@@ -8452,6 +8452,317 @@ are uniform; the laptop's inverted scaling is the hybrid part),
 
 (lane appends below)
 
+### ZA rung 0 — skeleton + the plan + the identity gate (2026-09-02, second attempt; the first was cut off before any commit)
+
+- Files: NEW `hashline/src/zk.rs` (the plan as the module doc, `ZkConfig`,
+  `ZkRng` = a blake3 stream seeded by `--seed` so CPU and GPU produce the
+  same `--zk` bytes), `pub mod zk;` in lib.rs, `--zk` / `--seed N` in the
+  pass driver (parsed, not yet consumed).
+- THE PLAN, and two places where the memo's section-4.2 sketch does not
+  close as written (both stated in zk.rs and built differently):
+  (1) the memo's mask row "v' = rho^T M + u with u's entry read off the
+  column" leaves the verifier without <u, c> for a challenge-dependent
+  column weight c; sending it is unsound. Built instead: each private
+  table gets a mask row whose contribution is folded into the SUMCHECK
+  by a last-round extension (T_ext = (1-y) T + y R_T; rounds 0..k-1
+  identical to today's, round k O(1)), so the opened claim is the
+  combined (1-rho_k) T~ + rho_k R_T~ — one two-part claim, uniform
+  clear vector AND uniform value; this also masks the terminal
+  evaluations the memo lists as revealed (its (c) "masked claims" does
+  not cover a nonlinear terminal check). (2) the masking polynomial g
+  needs a ZK opening of its own (a plain row would unmask the rounds):
+  a small per-layer Ligero-form mask commitment with the product-form
+  linear test (challenge-independent zero-sum blinding). Pads: f_data +
+  Z_n g_pad on the coset 7 * G_4n (no systematic column is ever opened;
+  NTT sizes unchanged; RS(n+Q, 4n): distance 0.7455, 2^-105.6 at Q=256,
+  the memo's number). Committed multiplicities via a table-side helper
+  in H + one zero-valued sum claim masked by a proven zero-sum row.
+  Salts as a host re-hash of the device leaves (kernels unchanged).
+- Identity gate [WSL-BOX] [8T] [NOISY-SHARED: lane ZB may build]
+  [MEASURED]: `M125_EXPORT_DIR=... hashline pass 12 512 --threads 8
+  --proof-out <f>` on the fresh builds of this tree (CPU 15.2 s build,
+  GPU 16.9 s): CPU PROOF sha256 50cf7bdfd6b5b182.. (66,844,928 B),
+  PROVE 16.95 s / VERIFY 0.28 s / RSS 1.56 GB; GPU (HL_GPU=1) PROOF
+  sha256 50cf7bdfd6b5b182.. PROVE 2.76 s / VERIFY 0.25 s / RSS 0.78 GB /
+  VRAM 2.43 GB. Non-zk path unchanged. `cargo test --release`: 20/20
+  (19 + the rng test).
+
+### ZA rung 1 — the ZK PCS: pad rows on the coset, salted leaves, mask rows as claim parts, the uniformity test (2026-09-02)
+
+- `hashline/src/pcs.rs` (additive; the non-zk functions untouched except
+  `fold_rows_multi`'s host body factored into `fold_rows_host` with the
+  same arithmetic — the 12x512 gate re-run: CPU PROOF sha256
+  50cf7bdfd6b5b182.. unchanged [MEASURED]): `ZkOpts` (Q = num_col_checks
+  pads, coset generator 7), `CommittedZk` (the plain `Committed` whose
+  store holds the coset-encoded rows and whose tree holds the SALTED
+  leaves, plus the data, the pads, the salts, the declared mask rows),
+  `encode_row_zk` (f_data + Z_n g_pad, coefficients scaled by 7^i,
+  one size-nn NTT — the NTT sizes are unchanged), `commit_zk`,
+  `ZClaim`/`ZPart` (a general linear claim: parts of any log_size,
+  sub-row slices, plain sums; grouped by the full column-weight
+  vector), `open_zk`/`verify_zk` (clear vectors of n + Q entries; the
+  verifier re-encodes them on the coset with the pads; salted Merkle
+  leaves blake3(blake3(col) || salt)), and `assert_mask_sites` — the
+  runtime assertion that EVERY opening site carries a mask: each group
+  vector touches >= 1 declared mask row with a nonzero combined weight,
+  the proximity rho touches the reserved prox mask row, Q pads >= the
+  opened columns, all leaves salted. The device commit hook
+  (`gpu::dev_commit_zk`) is referenced behind the feature; built in
+  rung 4.
+- Tests (22/22): `zk_commit_open_verify_and_tampers` (honest accept;
+  a wrong value, a wrong sum, a tampered message entry, a tampered PAD
+  entry, a tampered salt, a tampered column entry, a different witness
+  under the same claims — all reject) and THE UNIFORMITY TEST
+  `zk_openings_are_uniform_and_every_site_is_masked` [MEASURED, in
+  code]: two witnesses of int8 values, 40 independent openings each
+  (fresh pads/masks/salts per seed), the same claim structure (a
+  16-row private slice opened through the combined masked claim
+  (1-e) P~(r) + e <R, eq(r_col)>, a private sub-row slice with its own
+  mask, a value-0 sum claim over a zero-sum mask row, a prox mask row):
+  (1) all 37,000+ opened column entries and clear-vector entries are
+  DISTINCT and none lies within 2^40 of 0 or p (no witness-range
+  value); (2) chi-square of the top byte against uniform at 256 bins:
+  columns A 275.6 / B 259.0, clear vectors A 293.0 / B 235.7 over
+  ~9K values each (critical 310.5 at p = 0.01, df 255); (3) the
+  two-sample chi-square A vs B 253.3 (the two witnesses' opened
+  distributions are not distinguishable by the statistic); (4) the
+  enumerated sites: group vectors 0/1/2 -> mask rows 17/18/19, the
+  proximity vector -> prox mask row 20, 12 opened columns with 12 pads
+  per row on the coset, 64 leaves salted. The contrast: the NON-zk
+  commitment of the same data opens 42 raw int8 values among its 252
+  opened entries (the systematic columns).
+- Soundness parameters, unchanged in kind: inv_rate 4, Q = 256 column
+  checks, n = 2^14; the ZK code is RS(n + Q, 4n) on the coset
+  (distance 0.7455 vs 0.75), (1 - delta/3)^256 = 2^-105.6 vs 2^-106.
+
+### ZA rung 2 — the masked sumchecks, the mask commitment, the ZK layer prover/verifier (2026-09-02)
+
+- `transcript.rs` (additive): a `RoundMask` hook — while installed,
+  every `sc-round` absorb is replaced by the masked message and each
+  challenge is reported back; the masked messages are recorded for the
+  proof. This masks BOTH the CPU `sumcheck::prove` and XX's device
+  `dev_zerocheck` without touching either (the device kernels are
+  unchanged). `sumcheck.rs` (additive): `CfsMask` (g = a_0 + a' prod x_j
+  + sum a_{j,e} x_j^e; closed-form round messages, total, terminal,
+  and the weight vectors of both as linear functionals of the
+  coefficients), `CfsMasker`, `extension_round` / `masked_terminal`
+  (the last-round extension). Tests: the closed-form rounds equal a
+  brute-force sumcheck of g at three (N, d); a masked zero-check with
+  the extension round round-trips and still catches a broken identity.
+- `zk.rs`: `MaskCommit` (the five masking polynomials of a layer as
+  base rows with 256 pads each, a zero-sum blinding row, a proximity
+  mask row; RS(1024, 4096) on the coset 7 G_4096, salted Merkle; the
+  product-form linear test `mask_open` / `mask_verify`: q' = sum_s
+  p_a p_W + p_b, its G_512-sum equals the theta-combined functional,
+  256 sampled columns; ~170 KB per layer); `ZkLayout` (A: 7 zc20 + 9
+  zc17 + 3 gu + 1 d mask rows + a prox row = 21 rows of n; H: 6 + 6 rows
+  for the Fp2 masks, the zero-sum row u (re/im), its extension mask
+  u', a prox row = 17 rows); `prove_layer_zk` / `verify_layer_zk`: W
+  as built; A and H via `commit_zk`; the gu and d sumchecks with
+  their claimed sums sent MASKED (S'' = S + c G) and their private
+  terminals masked (opened directly from A at p2 / p5 as two-part
+  claims — two more A group vectors than the non-zk fold; see the
+  open item); zc20 with fold1 = nu0 (gacc + lambda uacc) and the
+  eq5 term dropped, its claim nu0 S''_gu + Gamma20 (Gamma20 = c20 G20
+  - nu0 c_gu G_gu, a functional over two mask rows, proven in the
+  mask opening); zc17 likewise (fz over the lambda_d combination,
+  fx dropped); the zero-sum sumcheck over u (14 vars + extension,
+  degree 2 with a constant selector table); the LogUp table side and
+  the helper sums as built in rung 2 (rung 3 moves them); the five
+  g(rho)'s DERIVED by the verifier from the masked terminal checks
+  and folded with the three Gammas into one mask opening. Every
+  table-opening claim is (1 - e) T~ + e R~ with its own mask row
+  (Fp2 tables: re/im pairs with Fp2 masks). `--zk` in the driver:
+  `pass_zk`, `layer_zk` (the 7 tamper legs), the PROOF sha256 line,
+  the enumerated mask sites printed.
+- Correctness [WSL-BOX, 8T, CPU, NOISY-SHARED, MEASURED]: 3x16 ZK
+  ACCEPT (PROOF 02a31a2c.. at seed 1, reproduced on a second run;
+  seed 2 -> c7a70708..); non-zk 3x16 596b9c79.. and 12x512
+  50cf7bdf.. UNCHANGED; `layer 0 16 --zk --all-tampers` 6/6 REJECT +
+  `pass 2 64 --zk --tamper z` REJECT (the 7 legs) at the same sites
+  as the non-zk (matmul/zero-check round 0; the LogUp identity);
+  `cargo test` 24/24.
+- THE 12x512 ZK CPU ROW [MEASURED, WSL-BOX 8T NOISY-SHARED (lane ZB
+  active), 1 run each]: ZK PROVE 19.45 s / VERIFY 0.38 s / proof
+  79,956,224 B (80.0 MB) / RSS 1.77 GB / 1.49e9 proven MAC/s (PROOF
+  sha256 50f5df46.. at seed 1) vs the non-zk pass on the same tree
+  and box the same hour: 16.89 s / 0.29 s / 66,844,928 B / 1.56 GB.
+  Surcharge: prover +15%, verifier +31%, bytes +19.6%, RSS +14%.
+  Phases (zk vs non-zk): commit A 4.17 vs 3.60, helpers + commit H
+  4.99 vs 4.34, zc20 4.01 vs 3.72, zc17 2.14 vs 1.73, openings 0.94
+  vs 0.87, + mask commit 0.08 + zsum/mask open 0.31. A first cut
+  had the verifier at 1.45 s and the openings at 2.6 s: the general
+  claim built its 2^14 column table per PART (rayon wake-ups); it is
+  now built once per group as the non-zk path does (the digests did
+  not move: transcript-preserving).
+- Bytes: the +13.1 MB are two extra A clear vectors (the masked gu /
+  d terminals opened at p2 / p5 rather than folded into the
+  zero-checks: 2 x 266 KB per layer), one extra H vector (the zsum
+  point), the mask openings (~170 KB per layer), 38 mask rows per
+  layer in the opened columns, pads and salts. OPEN ITEM (not built):
+  folding the masked matmul terminals into the zero-checks needs a
+  "replicated mask row" table kind on the device (a new TabSpec +
+  kernel); it would return ~6.4 MB (-8%).
+
+### ZA rung 3 — committed multiplicities (nothing of the histogram or the helper sums is sent) + the small-sumcheck path (2026-09-02)
+
+- Construction (d) as built: the multiplicity tables (silu 256, int8
+  256, range(s) 2^s for each distinct shift; the export's shifts are
+  5-10 bits, so every table fits one row of the commitment) are rows
+  of A (committed BEFORE alpha, as LogUp needs), each with a mask row.
+  Their table side h_t[i] = m[i] / (alpha - tval[i]) is a committed
+  helper row of H (re/im, zero beyond the table) with an Fp2 mask,
+  tied to m by a masked zero-check over log n variables
+  (eq(tau3) sum_i mu3_i (h_t,i (alpha - tval_i) - m_i) = 0; the public
+  tval rows are recomputed by the verifier from beta, gamma and the
+  frozen table and evaluated at the point), and THE LOGUP IDENTITY is
+  one value-0 sum claim on H: witness helpers - table helpers + the
+  zero-sum row u. Gone from the proof and the transcript: the mults
+  tables, the helper sums, the verifier's shape/total checks and its
+  table-side evaluation. Soundness is unchanged in kind (the residue
+  argument does not need m to be small integers). The mask commitment
+  has a sixth row (the table zero-check's degree-3 mask) and a fourth
+  Gamma.
+- Correctness [MEASURED]: 3x16 ZK ACCEPT (PROOF ee9497e0.. at seed 1,
+  reproduced), `layer 0 16 --zk --all-tampers` 6/6 REJECT — the two
+  lookup legs (out-of-range remainder, wrong table entry) are now
+  caught at "H: pcs zk: group 4: <v, c> != combined claim" (the
+  value-0 LogUp claim) instead of the verifier's clear-text table
+  evaluation — and `pass 2 64 --zk --tamper z` REJECT; tests 24/24;
+  the mask-site enumeration now lists 5 A groups and 5 H groups
+  (A group 4 = the five m rows' masks; H group 3 = the five table
+  helpers' masks; H group 4 = the sum group's zero-sum row).
+- `sumcheck.rs`: rounds with half * k <= 2^16 run on one thread (the
+  field sums are order-independent; the values are identical). This
+  also speeds up the NON-zk pass, byte-identically: 12x512 CPU PROVE
+  16.89 -> 14.82 s at PROOF 50cf7bdf.. unchanged (zc20 3.72 -> 2.95,
+  zc17 1.73 -> 0.78, the matmul sumchecks 0.58 -> 0.35) [MEASURED,
+  WSL-BOX 8T NOISY-SHARED]. The table zero-check: 1.69 -> 0.59 s.
+- THE 12x512 ZK CPU ROW after rung 3 [MEASURED, WSL-BOX 8T
+  NOISY-SHARED, 1 run each, same binary, same hour]: ZK PROVE 18.45 s
+  / VERIFY 0.52 s / proof 87,080,688 B (87.1 MB) / RSS 1.81 GB /
+  1.57e9 proven MAC/s (PROOF 9b80855d.. at seed 1) vs non-zk 14.82 s
+  / 0.28 s / 66,844,928 B / 1.56 GB. Surcharge: prover +24%, verifier
+  +0.24 s (+86%), bytes +30%, RSS +16%. Phases zk vs non-zk: commit A
+  4.46 vs 3.65 (+26 rows, pads, coset, salts), helpers + commit H
+  5.26 vs 4.27 (+37 rows, the table helpers), zc20 3.29 vs 2.95, zc17
+  1.17 vs 0.78, table zero-check 0.59, zsum + mask open 0.07, mask
+  commit 0.11, openings 0.99 vs 0.83.
+
+### ZA rung 4 — GPU parity + the measured surcharge (2026-09-02)
+
+- The device path (feature gpu-cuda, `HL_GPU=1`), additive to XX's
+  module: ONE new kernel `k_zk_pad_scale` (the pad + coset coefficient
+  step of the ZK row encoding) appended to kernels.cu and its name in
+  the FUNCS list; NEW host functions `dev_commit_zk_from` /
+  `dev_commit_zk` (inverse NTT in rung 1's gather form, the pad kernel,
+  the size-nn forward NTT, XX's column hashes; the host salts the
+  leaves) and `dev_upload_rows` (the host-generated tail rows of H —
+  masks, table helpers, u — written into the device helper buffer);
+  two re-export lines in gpu/mod.rs. No existing kernel or host
+  function was edited. `pcs::commit_zk_device` (H from the device
+  helper buffer; pads and salts drawn in `commit_zk`'s order). In
+  zk.rs the H commit, the two zero-checks (XX's `dev_zerocheck`
+  through the transcript masker, nu1 := nu0 lambda / nu2 := 0 and
+  nu_x := 0 / nu_z := nu_z lambda_d so the existing kernels compute
+  exactly the ZK polynomials) and the claims' evaluations run on the
+  device; the matmul folds, the table zero-check (16 tables of 2^14)
+  and the zero-sum sumcheck stay on the host as XX's matmul sumchecks
+  do. The seeded RNG (blake3 XOF) now fills 8 KB blocks (it was 64 B:
+  ~10^5 hasher inits per layer); the mask evaluations share one eq
+  table per opening point; the committed data is moved into the
+  commitment instead of copied (2 x 60-70 MB per layer); and the
+  number of multiplicity-table slots is FIXED at 6 (dummy slots m =
+  h_t = 0) so every layer's A and H have the same row counts — with
+  per-layer counts the device buffer pool cached three layouts and
+  the held VRAM grew 3.0 -> 5.7 GB over the 12 layers.
+- PARITY [MEASURED]: `pass 12 512 --zk --seed 1`: CPU PROOF sha256
+  021485e4f80ec695.. (87,228,528 B) on 3 runs == GPU (HL_GPU=1) on 4
+  runs; `pass 3 16 --zk --seed 1` f9509b9d.. CPU == GPU. Non-zk gates
+  on the same final binaries: CPU and GPU 12x512 both
+  50cf7bdfd6b5b182.., 3x16 596b9c79.. — unchanged. The 7 tamper
+  legs reject through the GPU ZK prover (`layer 0 16 --zk
+  --all-tampers` GREEN + the pass-level wrong-z leg). Tests 24/24.
+- THE SURCHARGE [MEASURED, WSL-BOX 8T + RTX 4070 Laptop, NOISY-SHARED
+  (lane ZB active), 4 runs GPU / 3 runs CPU, prove p50]:
+
+  | 12x512 | PROVE | VERIFY | proof bytes | RSS | VRAM held |
+  |---|---:|---:|---:|---:|---:|
+  | GPU non-zk (XX's row, this tree) | 2.46 s (2.40-2.48) | 0.25-0.29 s | 66,844,928 | 0.78 GB | 2.43 GB |
+  | **GPU --zk (P1)** | **3.93 s** (3.87-4.10) | 0.37-0.40 s | 87,228,528 | 0.90 GB | 3.03 GB |
+  | surcharge | **+60%** | +0.12 s (+45%) | **+30.5%** | +16% | +25% |
+  | CPU non-zk | 14.78 s (14.70-14.82) | 0.27-0.28 s | 66,844,928 | 1.56 GB | — |
+  | **CPU --zk (P1)** | **16.55 s** (16.52-16.65) | 0.44-0.50 s | 87,228,528 | 1.68 GB | — |
+  | surcharge | **+12%** | +0.2 s | +30.5% | +8% | — |
+
+  3x16 GPU: zk 0.36 s (0.34-0.41) vs non-zk 0.28 s (0.23-0.31);
+  9,509,916 vs 7,365,588 B; RSS 0.33 vs 0.33 GB; VRAM 1.49 vs 1.46 GB.
+  Proven MAC/s at 12x512: GPU zk 7.4e9 (non-zk 1.2e10), CPU zk 1.75e9.
+- Where the GPU's +1.47 s goes (phases, zk vs non-zk): commit A 1.09
+  vs 0.78 (+26 rows, the pads, the gather-form NTT: device ntt 0.58
+  vs 0.43 s total, the salting of 65,536 leaves), helpers + commit H
+  0.84 vs 0.42 (+37 rows incl. the table helpers, the tail upload,
+  the host-side table helpers), openings 0.43 vs 0.24 (six row
+  weights for A = two device fold calls, the pad folds, more rows in
+  the columns), the table zero-check 0.24-0.33 (host), the mask
+  commit + opening 0.11, zc20/zc17 +0.05. Byte-preserving levers not
+  applied: the DIF/DIT NTT pair with a bit-reversed pad kernel
+  (~-0.15 s), the table zero-check on the device (~-0.2 s), folding
+  the masked matmul terminals into the zero-checks (-8% bytes, needs a
+  replicated-row table kind), the mask rows' RNG on the device.
+- Against the memo's [COUNTED] +2-8% prover / +1-8% bytes / +2-15%
+  verifier for P1: the built form is +60% / +30% / +45% on the GPU
+  and +12% / +30% / +70% on the CPU. The memo's count assumed the
+  masked objects ride inside work already paid; the built form pays
+  for what the memo's sketch did not close: one mask row per (table,
+  point) — 26 + 37 rows per layer — and the matmul terminals opened
+  as their own groups (two more clear vectors of 16,640 Fp2 per
+  layer), plus the mask commitment. The bytes' +20.4 MB: 3 extra A
+  clear vectors and 2 extra H vectors (5 x 266 KB x 12), the mask
+  openings (~170 KB x 12), the pads on every clear vector, 63 mask /
+  table rows in every opened column, the salts.
+
+### ZA rung 5 — the record (2026-09-02) — LANE COMPLETE (rungs 0-5)
+
+- results/hashline_zk_12x512.md (XX's form: the gate, the runs table,
+  the phase split zk vs non-zk on both devices, the soundness
+  parameters, the uniformity test, the enumerated mask sites of the
+  real pass, the tamper legs, the two departures from the memo, the
+  count vs the measurement, the levers, the commands); the section-3
+  rows (GPU zk, CPU zk) + the ZK paragraph in
+  PROVING_CHANNEL_OPTIONS.md (what is hidden, what is still revealed,
+  what a full simulator proof would add); a README block. START_HERE /
+  the board are the orchestrator's.
+- SUMMARY FOR THE RULING. Mode P1 on the hash line is BUILT and
+  MEASURED: `--zk --seed N` hides the opened columns, the clear
+  vectors, the histograms and helper sums, the sumcheck rounds, every
+  private terminal evaluation and matmul claimed sum, and the leaves;
+  the weights stay public; CPU and GPU produce the same bytes under
+  one seed; the seven tamper legs reject; the soundness class is
+  unchanged (2^-105.6 vs 2^-106 on the column test). The price on the
+  laptop GPU is 3.93 s vs 2.46 s per 12x512 proof (+60%), 87.2 vs
+  66.8 MB (+30%), 0.38 vs 0.27 s verify — larger than lane YY's
+  counted +2-8% / +1-8% because two parts of the memo's sketch had to
+  be replaced by heavier constructions (the mask rows tied to the
+  sumcheck; the mask polynomial's own ZK opening) and because the
+  matmul terminals are opened as their own groups. With the listed
+  byte-preserving levers the GPU surcharge should land near +30-40%.
+  Open: a written simulator for the 12-layer composition; folding the
+  masked matmul terminals into the zero-checks (needs a replicated-row
+  table kind on the device); the ZK encode on the DIF/DIT NTT pair;
+  the table zero-check on the device; mode P2/P3 (private weights) is
+  lane ZZ's option 2, not touched.
+- Files touched (ownership as declared): hashline/src/{pcs.rs,
+  sumcheck.rs, transcript.rs} (additive), NEW hashline/src/zk.rs,
+  hashline/src/lib.rs (one line), hashline/src/bin/hashline.rs (the
+  `--zk`/`--seed` flags + pass_zk/layer_zk), hashline/src/gpu/
+  {kernels.cu, cuda.rs, mod.rs} (ONE new kernel + three new host
+  functions + one name in FUNCS + two re-export lines; no existing
+  kernel or function edited), hashline/README.md (a block), NEW
+  results/hashline_zk_12x512.md, PROVING_CHANNEL_OPTIONS.md section 3
+  (rows + paragraph), this status section. layer.rs, silu.rs, the
+  export reader, zkmatrix-rs, scripts: untouched.
+
 ## Agent ZB status (wt-uperf3-zb) — round 11
 
 (lane appends below)
@@ -8695,3 +9006,33 @@ member digest absorbed into the statement. v2 untouched.
   (m8b_test/m125_v3_export/, m8b_mistral_v3_export/ 7 GB,
   m8b_gemma4_v3_export/); the main checkout's and other worktrees'
   copies of those directories hold digests.txt + manifest.json only.
+
+## Orchestrator note 2026-09-03 — round 11: ZA merged (the ZK form)
+
+- CONFLICTS: hashline/src/lib.rs (both lanes' `pub mod` lines — kept
+  both) and hashline/src/bin/hashline.rs (12 hunks: ZB's `--profile
+  v3 --export` and ZA's `--zk --seed` collided in the doc comment,
+  the Opts struct + initializer, the arg parser, the two dispatch
+  lines, and — interleaved by git — the two lanes' whole function
+  groups (tables_v3/check_export_v3/layer_v3/pass_v3 vs
+  run_layer_zk/layer_zk/pass_zk). Resolved by: keeping both fields/
+  arms/docs; the initializer carrying both lanes' defaults; the
+  dispatch composed as `if zk && v3 { refuse with a message } else if
+  zk { *_zk } else if v3 { *_v3 } else { v2 }`; and the interleaved
+  region rebuilt as ZB's block followed by ZA's block, each with the
+  shared tail lines. Composing `--zk` with `--profile v3` is a named
+  follow-on (ZB listed it), NOT built.
+- Floors on the merged crate (this checkout; CPU build 23 s, 27/27
+  tests; GPU build 27 s): CPU gates v2 50cf7bdf.., v3 5f368db6..,
+  zk-seed-1 021485e4.. (87,228,528 B; PROVE 16.62 s / VERIFY 0.46 s
+  [8T NOISY-SHARED]); GPU gates recorded in the commit below.
+- ZA's process note, recorded: one command in its session used a
+  `cd /tmp &&` prefix against CLAUDE.md; no harm.
+- ROUND 11 STATE: all EIGHT lanes merged (UU, VV, WW, XX, YY, ZZ,
+  ZA, ZB). NEXT on this box: the queued 32x512 Mistral pass (the
+  first full 8B FFN proof if it fits; ~13.5 GB). Rulings pending
+  with Victor: the privacy mode; VV's three items; WW's h_sum note.
+- GPU gates on the merged crate (HL_GPU=1, 8T): v2 50cf7bdf.. PROVE
+  2.26 s; v3 5f368db6.. PROVE 2.56 s; zk-seed-1 021485e4.. PROVE
+  3.98 s / VERIFY 0.42 s — all byte-identical to the CPU proofs and
+  to the lanes' records.
