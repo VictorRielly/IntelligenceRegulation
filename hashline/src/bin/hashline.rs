@@ -42,11 +42,15 @@ struct Opts {
     tamper_idx: usize,
     /// [UPERF3-ZA] `--zk` + `--seed`: the zero-knowledge form (default off: the byte-identical path).
     zk: hashline::zk::ZkConfig,
+    /// [UPERF3-AF] `--pcs ligero|compact` (default ligero: the byte-identical path) + its `--pcs-*` knobs.
+    pcs: String,
+    cpcs: hashline::pcs_compact::CompactCfg,
 }
 
 fn parse_opts(args: &[String]) -> Opts {
     let mut o = Opts { threads: 0, log_cols: 14, col_checks: 256, inv_rate: 4, tamper: Tamper::None, verify: true, all_tampers: false, proof_out: None,
-        profile: "v2".to_string(), export: None, t_rows: None, tamper_kind: "none".to_string(), tamper_idx: 12345, zk: hashline::zk::ZkConfig::default() };
+        profile: "v2".to_string(), export: None, t_rows: None, tamper_kind: "none".to_string(), tamper_idx: 12345, zk: hashline::zk::ZkConfig::default(),
+        pcs: "ligero".to_string(), cpcs: hashline::pcs_compact::CompactCfg::DEFAULT };
     let mut i = 0;
     let mut tkind = "none".to_string();
     let mut tidx = 12345usize;
@@ -67,6 +71,14 @@ fn parse_opts(args: &[String]) -> Opts {
             "--t" => { o.t_rows = Some(args[i + 1].parse().unwrap()); i += 1; }
             "--zk" => { o.zk.enabled = true; }
             "--seed" => { o.zk.seed = args[i + 1].parse().unwrap(); i += 1; }
+            // [UPERF3-AF] the compact-PCS selection (default `ligero`: the byte-identical path)
+            "--pcs" => { o.pcs = args[i + 1].clone(); i += 1; }
+            "--pcs-inv-rate" => { o.cpcs.inv_rate = args[i + 1].parse().unwrap(); i += 1; }
+            "--pcs-queries" => { o.cpcs.queries = args[i + 1].parse().unwrap(); i += 1; }
+            "--pcs-bits" => { o.cpcs.target_bits = args[i + 1].parse().unwrap(); i += 1; }
+            "--pcs-log-final" => { o.cpcs.log_final = args[i + 1].parse().unwrap(); i += 1; }
+            "--pcs-pieces" => { o.cpcs.max_pieces = args[i + 1].parse().unwrap(); i += 1; }
+            "--pcs-reencode" => { o.cpcs.reencode = true; }
             other => { eprintln!("unknown option {other}"); std::process::exit(2); }
         }
         i += 1;
@@ -79,6 +91,16 @@ fn parse_opts(args: &[String]) -> Opts {
         o.tamper = tamper_from(&tkind, tidx);
     }
     if o.profile != "v2" && o.profile != "v3" { eprintln!("unknown profile {} (v2|v3)", o.profile); std::process::exit(2); }
+    // [UPERF3-AF] the PCS selection is process-global (prover and verifier read it); `ligero` leaves it off.
+    match o.pcs.as_str() {
+        "ligero" => {}
+        "compact" => {
+            if o.zk.enabled { eprintln!("--pcs compact with --zk is not built yet (the compact form is not hiding; see the ZK-interaction statement in PROGRESS_UPERF3.md)"); std::process::exit(2); }
+            o.cpcs.enabled = true;
+            hashline::pcs_compact::configure(o.cpcs);
+        }
+        other => { eprintln!("unknown pcs {other} (ligero|compact)"); std::process::exit(2); }
+    }
     if o.threads == 0 {
         if let Ok(s) = std::env::var("ZK_THREADS") { o.threads = s.parse().unwrap_or(0); }
     }

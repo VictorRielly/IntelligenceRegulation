@@ -23,6 +23,9 @@ use crate::field::{batch_inverse2, Fp, Fp2};
 use crate::mle::{eq_point, eq_table_msb, eval_mle_ext, fold_cols_base, fold_cols_i8, fold_rows_i32, fold_rows_i8};
 use crate::ntt::NttTables;
 use crate::pcs::{self, Claim, Commitment, Opening, PcsParams, Slice};
+// [UPERF3-AF] the PCS-selection seam: `pcs_compact::commit` returns the Ligero form (the default,
+// byte-identical) or the compact form; one batched compact opening per layer replaces the three.
+use crate::pcs_compact::{self, AnyCm};
 use crate::sumcheck::{self, SumcheckProof};
 use crate::transcript::Transcript;
 use rayon::prelude::*;
@@ -118,6 +121,8 @@ pub struct LayerProof {
     pub w_open: Opening,
     pub a_open: Opening,
     pub h_open: Opening,
+    /// [UPERF3-AF] under `--pcs compact`: the ONE batched opening of W, A and H (the three above stay empty)
+    pub cpcs_open: Option<pcs_compact::BatchOpening>,
 }
 
 impl LayerProof {
@@ -130,6 +135,7 @@ impl LayerProof {
             + f2(&self.d_claims) + self.d_sc.size_bytes() + f2(&self.d_term)
             + self.zc20_sc.size_bytes() + f2(&self.zc20_term) + self.zc17_sc.size_bytes() + f2(&self.zc17_term)
             + f2(&self.helper_sums) + self.w_open.size_bytes() + self.a_open.size_bytes() + self.h_open.size_bytes()
+            + self.cpcs_open.as_ref().map(|b| b.size_bytes()).unwrap_or(0)
     }
 
     /// [UPERF3-XX] The flat little-endian encoding `size_bytes` counts
@@ -172,6 +178,7 @@ impl LayerProof {
         self.w_open.write_bytes(&mut out);
         self.a_open.write_bytes(&mut out);
         self.h_open.write_bytes(&mut out);
+        if let Some(b) = &self.cpcs_open { b.write_bytes(&mut out); } // [UPERF3-AF]
         debug_assert_eq!(out.len(), self.size_bytes());
         out
     }
@@ -221,7 +228,7 @@ fn eval_many(data: &[Fp], slices: &[(usize, usize)], point: &[Fp2]) -> Vec<Fp2> 
 }
 
 /// [UPERF3-XX] `eval_many` on the device when the commitment is device-resident (same values), else on the host.
-fn eval_many_dev(cm: &pcs::Committed, data: &[Fp], slices: &[(usize, usize)], point: &[Fp2]) -> Vec<Fp2> {
+fn eval_many_dev(cm: &AnyCm, data: &[Fp], slices: &[(usize, usize)], point: &[Fp2]) -> Vec<Fp2> {
     #[cfg(feature = "gpu-cuda")]
     if let (true, Some(dc)) = (crate::gpu::enabled(), dev_of(cm)) {
         let offs: Vec<usize> = slices.iter().map(|&(o, len)| { assert_eq!(len, 1usize << point.len()); o }).collect();
@@ -315,9 +322,10 @@ struct HostTabs {
 
 /// [UPERF3-XX] The device-resident commitment behind a `Committed`, when the GPU path made it.
 #[cfg(feature = "gpu-cuda")]
-fn dev_of(cm: &pcs::Committed) -> Option<&crate::gpu::DevCommit> {
-    match &cm.store {
-        pcs::Store::Device(dc) => Some(dc),
+fn dev_of<'a>(cm: &'a AnyCm) -> Option<&'a crate::gpu::DevCommit> {
+    // [UPERF3-AF] a compact commitment is never device-resident (the device path is Ligero-only)
+    match cm.ligero_ref().map(|c| &c.store) {
+        Some(pcs::Store::Device(dc)) => Some(dc),
         _ => None,
     }
 }
@@ -352,7 +360,7 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
         });
     }
     let w_pcs = params.pcs_for(LOG_WBLOCK);
-    let w_cm = pcs::commit(&w_pcs, &w_data, ntt);
+    let w_cm = pcs_compact::commit(&w_pcs, &w_data, ntt); // [UPERF3-AF] Ligero unless --pcs compact
     proof.w_com = Some(w_cm.commitment());
     absorb_com(tr, b"W", proof.w_com.as_ref().unwrap());
     lap("commit W", &mut timings, &mut tick);
@@ -375,7 +383,7 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
         });
     }
     let a_pcs = params.pcs_for(lay.log_tb);
-    let a_cm = pcs::commit(&a_pcs, &a_data, ntt);
+    let a_cm = pcs_compact::commit(&a_pcs, &a_data, ntt); // [UPERF3-AF]
     proof.a_com = Some(a_cm.commitment());
     absorb_com(tr, b"A", proof.a_com.as_ref().unwrap());
     lap("commit A", &mut timings, &mut tick);
@@ -400,7 +408,7 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
     let mut h_data: Vec<Fp> = Vec::new();
     let mut dev_helper_sums: Option<Vec<Fp2>> = None;
     #[cfg(feature = "gpu-cuda")]
-    let h_cm_dev: Option<pcs::Committed> = if let (true, Some(a_dc)) = (crate::gpu::enabled(), dev_of(&a_cm)) {
+    let h_cm_dev: Option<AnyCm> = if let (true, Some(a_dc)) = (crate::gpu::enabled(), dev_of(&a_cm)) {
         use crate::gpu::HelperSpec;
         let mut specs = vec![
             HelperSpec { off_v1: lay.g8, off_w: Some(lay.a8), off_v2: lay.rg, len: tf, c1: g_silu, c2: g_rg, off_re: lay.hg.0, off_im: lay.hg.1 },
@@ -416,13 +424,13 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
         match r {
             Ok((dc, leaves, sums)) => {
                 dev_helper_sums = Some(sums);
-                Some(pcs::Committed { params: h_pcs, rows, store: pcs::Store::Device(dc), tree: crate::merkle::MerkleTree::build(leaves) })
+                Some(AnyCm::Ligero(pcs::Committed { params: h_pcs, rows, store: pcs::Store::Device(dc), tree: crate::merkle::MerkleTree::build(leaves) }))
             }
             Err(e) => { eprintln!("[UPERF3-XX] gpu helpers declined ({e}); CPU path"); None }
         }
     } else { None };
     #[cfg(not(feature = "gpu-cuda"))]
-    let h_cm_dev: Option<pcs::Committed> = None;
+    let h_cm_dev: Option<AnyCm> = None;
     let h_cm = match h_cm_dev {
         Some(cm) => cm,
         None => {
@@ -467,7 +475,7 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
                 h_data[oim..oim + tb].par_iter_mut().zip(hz[b].par_iter()).for_each(|(o, v)| *o = v.c1);
             }
             host_tabs = Some(HostTabs { g8f, rgf, a8f, u8f, ruf, h8f, rhf, hg, hu, hh, zf, rdf, hz });
-            pcs::commit(&h_pcs, &h_data, ntt)
+            pcs_compact::commit(&h_pcs, &h_data, ntt) // [UPERF3-AF]
         }
     };
     proof.h_com = Some(h_cm.commitment());
@@ -680,12 +688,20 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
 
     // ---- PCS openings -------------------------------------------------------------
     let (w_claims, a_claims, h_claims) = build_claims(&lay, &proof, &p3, &p6, &rho20, &rho17);
-    proof.w_open = pcs::open(&w_cm, &w_claims, tr);
-    drop(w_cm);
-    proof.a_open = pcs::open(&a_cm, &a_claims, tr);
-    drop(a_cm);
-    proof.h_open = pcs::open(&h_cm, &h_claims, tr);
-    drop(h_cm);
+    if pcs_compact::selected() {
+        // [UPERF3-AF] ONE batched compact opening of the three commitments
+        proof.cpcs_open = Some(pcs_compact::open_batch(&[(w_cm.compact(), &w_claims), (a_cm.compact(), &a_claims), (h_cm.compact(), &h_claims)], tr));
+        drop(w_cm);
+        drop(a_cm);
+        drop(h_cm);
+    } else {
+        proof.w_open = pcs::open(w_cm.lig(), &w_claims, tr);
+        drop(w_cm);
+        proof.a_open = pcs::open(a_cm.lig(), &a_claims, tr);
+        drop(a_cm);
+        proof.h_open = pcs::open(h_cm.lig(), &h_claims, tr);
+        drop(h_cm);
+    }
     lap("pcs openings", &mut timings, &mut tick);
     let _ = sum_fp2;
     ProveOutput { proof, timings }
@@ -888,6 +904,14 @@ pub fn verify_layer(st: &Statement, proof: &LayerProof, params: &LayerParams, nt
 
     // ---- PCS openings ----
     let (w_claims, a_claims, h_claims) = build_claims(&lay, proof, &p3, &p6, &rho20, &rho17);
+    // [UPERF3-AF] the selected PCS must match the proof's form
+    if let Some(b) = &proof.cpcs_open {
+        if !pcs_compact::selected() { return Err("cpcs: the proof carries a compact opening but --pcs compact is not selected".into()); }
+        pcs_compact::verify_batch(&[(&w_pcs, w_com, &w_claims), (&a_pcs, a_com, &a_claims), (&h_pcs, h_com, &h_claims)], b, tr).map_err(|e| format!("cpcs: {e}"))?;
+        return Ok(());
+    } else if pcs_compact::selected() {
+        return Err("cpcs: --pcs compact is selected but the proof carries the Ligero openings".into());
+    }
     pcs::verify(&w_pcs, w_com, &w_claims, &proof.w_open, ntt, tr).map_err(|e| format!("W: {e}"))?;
     pcs::verify(&a_pcs, a_com, &a_claims, &proof.a_open, ntt, tr).map_err(|e| format!("A: {e}"))?;
     pcs::verify(&h_pcs, h_com, &h_claims, &proof.h_open, ntt, tr).map_err(|e| format!("H: {e}"))?;
@@ -1174,6 +1198,8 @@ pub struct LayerProofV3 {
     pub w_open: Opening,
     pub a_open: Opening,
     pub h_open: Opening,
+    /// [UPERF3-AF] under `--pcs compact`: the ONE batched opening of W, A and H (the three above stay empty)
+    pub cpcs_open: Option<pcs_compact::BatchOpening>,
 }
 
 impl LayerProofV3 {
@@ -1185,6 +1211,7 @@ impl LayerProofV3 {
             + f2(&self.d_claims) + self.d_sc.size_bytes() + f2(&self.d_term)
             + self.zcf_sc.size_bytes() + f2(&self.zcf_term) + self.zcd_sc.size_bytes() + f2(&self.zcd_term)
             + f2(&self.helper_sums) + self.w_open.size_bytes() + self.a_open.size_bytes() + self.h_open.size_bytes()
+            + self.cpcs_open.as_ref().map(|b| b.size_bytes()).unwrap_or(0)
     }
     /// The flat little-endian encoding `size_bytes` counts (the CPU/GPU byte-identity gate).
     pub fn to_bytes(&self) -> Vec<u8> {
@@ -1218,6 +1245,7 @@ impl LayerProofV3 {
         self.w_open.write_bytes(&mut out);
         self.a_open.write_bytes(&mut out);
         self.h_open.write_bytes(&mut out);
+        if let Some(b) = &self.cpcs_open { b.write_bytes(&mut out); } // [UPERF3-AF]
         debug_assert_eq!(out.len(), self.size_bytes());
         out
     }
@@ -1320,7 +1348,7 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
         }
     }
     let w_pcs = params.pcs_for(lay.log_wb);
-    let w_cm = pcs::commit(&w_pcs, &w_data, ntt);
+    let w_cm = pcs_compact::commit(&w_pcs, &w_data, ntt); // [UPERF3-AF] Ligero unless --pcs compact
     proof.w_com = Some(w_cm.commitment());
     absorb_com(tr, b"W", proof.w_com.as_ref().unwrap());
     lap("commit W", &mut timings, &mut tick);
@@ -1347,7 +1375,7 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
         }
     }
     let a_pcs = params.pcs_for(lay.log_a_min);
-    let a_cm = pcs::commit(&a_pcs, &a_data, ntt);
+    let a_cm = pcs_compact::commit(&a_pcs, &a_data, ntt); // [UPERF3-AF]
     proof.a_com = Some(a_cm.commitment());
     absorb_com(tr, b"A", proof.a_com.as_ref().unwrap());
     lap("commit A", &mut timings, &mut tick);
@@ -1373,7 +1401,7 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
     let mut h_data: Vec<Fp> = Vec::new();
     let mut dev_helper_sums: Option<Vec<Fp2>> = None;
     #[cfg(feature = "gpu-cuda")]
-    let h_cm_dev: Option<pcs::Committed> = if let (true, true, Some(a_dc)) = (crate::gpu::enabled(), dev_shape, dev_of(&a_cm)) {
+    let h_cm_dev: Option<AnyCm> = if let (true, true, Some(a_dc)) = (crate::gpu::enabled(), dev_shape, dev_of(&a_cm)) {
         use crate::gpu::HelperSpec;
         let mut specs = vec![
             HelperSpec { off_v1: lay.g8[0], off_w: Some(lay.a16[0]), off_v2: lay.rg[0], len: tfb, c1: g_act, c2: g_rg, off_re: lay.hg[0].0, off_im: lay.hg[0].1 },
@@ -1389,13 +1417,13 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
         match r {
             Ok((dc, leaves, sums)) => {
                 dev_helper_sums = Some(sums);
-                Some(pcs::Committed { params: h_pcs, rows, store: pcs::Store::Device(dc), tree: crate::merkle::MerkleTree::build(leaves) })
+                Some(AnyCm::Ligero(pcs::Committed { params: h_pcs, rows, store: pcs::Store::Device(dc), tree: crate::merkle::MerkleTree::build(leaves) }))
             }
             Err(e) => { eprintln!("[UPERF3-ZB] gpu helpers declined ({e}); CPU path"); None }
         }
     } else { None };
     #[cfg(not(feature = "gpu-cuda"))]
-    let h_cm_dev: Option<pcs::Committed> = None;
+    let h_cm_dev: Option<AnyCm> = None;
     let h_cm = match h_cm_dev {
         Some(cm) => cm,
         None => {
@@ -1433,7 +1461,7 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
                 dbt.push(vec![zf, rdf, hz]);
             }
             host_tabs = Some(HostTabsV3 { fb: fbt, db: dbt });
-            pcs::commit(&h_pcs, &h_data, ntt)
+            pcs_compact::commit(&h_pcs, &h_data, ntt) // [UPERF3-AF]
         }
     };
     proof.h_com = Some(h_cm.commitment());
@@ -1673,13 +1701,22 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
 
     // ---- PCS openings -------------------------------------------------------------
     let (w_claims, a_claims, h_claims) = build_claims_v3(&lay, &proof, &p3, &p6, &rho_f, &rho_d);
-    proof.w_open = pcs::open(&w_cm, &w_claims, tr);
-    drop(w_cm);
-    drop(w_data);
-    proof.a_open = pcs::open(&a_cm, &a_claims, tr);
-    drop(a_cm);
-    proof.h_open = pcs::open(&h_cm, &h_claims, tr);
-    drop(h_cm);
+    if pcs_compact::selected() {
+        // [UPERF3-AF] ONE batched compact opening of the three commitments
+        proof.cpcs_open = Some(pcs_compact::open_batch(&[(w_cm.compact(), &w_claims), (a_cm.compact(), &a_claims), (h_cm.compact(), &h_claims)], tr));
+        drop(w_cm);
+        drop(w_data);
+        drop(a_cm);
+        drop(h_cm);
+    } else {
+        proof.w_open = pcs::open(w_cm.lig(), &w_claims, tr);
+        drop(w_cm);
+        drop(w_data);
+        proof.a_open = pcs::open(a_cm.lig(), &a_claims, tr);
+        drop(a_cm);
+        proof.h_open = pcs::open(h_cm.lig(), &h_claims, tr);
+        drop(h_cm);
+    }
     lap("pcs openings", &mut timings, &mut tick);
     ProveOutputV3 { proof, timings }
 }
@@ -1918,6 +1955,14 @@ pub fn verify_layer_v3(st: &StatementV3, proof: &LayerProofV3, params: &LayerPar
 
     // ---- PCS openings ----
     let (w_claims, a_claims, h_claims) = build_claims_v3(&lay, proof, &p3, &p6, &rho_f, &rho_d);
+    // [UPERF3-AF] the selected PCS must match the proof's form
+    if let Some(b) = &proof.cpcs_open {
+        if !pcs_compact::selected() { return Err("cpcs: the proof carries a compact opening but --pcs compact is not selected".into()); }
+        pcs_compact::verify_batch(&[(&w_pcs, w_com, &w_claims), (&a_pcs, a_com, &a_claims), (&h_pcs, h_com, &h_claims)], b, tr).map_err(|e| format!("cpcs: {e}"))?;
+        return Ok(());
+    } else if pcs_compact::selected() {
+        return Err("cpcs: --pcs compact is selected but the proof carries the Ligero openings".into());
+    }
     pcs::verify(&w_pcs, w_com, &w_claims, &proof.w_open, ntt, tr).map_err(|e| format!("W: {e}"))?;
     pcs::verify(&a_pcs, a_com, &a_claims, &proof.a_open, ntt, tr).map_err(|e| format!("A: {e}"))?;
     pcs::verify(&h_pcs, h_com, &h_claims, &proof.h_open, ntt, tr).map_err(|e| format!("H: {e}"))?;

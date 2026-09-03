@@ -9274,4 +9274,145 @@ form keep ZA's pads/masks? what changes?).
 
 ## Agent AF status (wt-uperf3-af) — round 12
 
-(lane appends below)
+**RESUME NOTE (2026-09-03).** The first attempt at this lane was cut off
+by a usage limit before it committed anything. It left an UNCOMMITTED
+`hashline/src/pcs_compact.rs` (1351 lines, with 5 unit tests) and a
+tagged PCS-selection seam in `layer.rs`. **VERDICT: KEPT.** The reason:
+the module is a complete construction, not a sketch — commit, the
+batched sumcheck+FRI opening, the verifier walk, and a test that runs
+commit/open/verify plus seven tamper legs were all present; the only
+things missing were the `pub mod` line in `lib.rs`, the `--pcs` flag in
+the driver, and the `cpcs_open` field on `LayerProofV3` (the v2
+`LayerProof` had it). Three edits, and it compiled and passed 32/32
+tests first try. Discarding it to restart from a blank file would have
+thrown away a working construction to prove a point. Everything below
+was re-derived and re-verified in this session; nothing is taken on
+trust from the lost one.
+
+### Rung 0 — THE CONSTRUCTION, ITS PARAMETERS, ITS SOUNDNESS
+
+**The choice: a BaseFold-class commitment** (Zeilberger-Chen-Fisch,
+ePrint 2023/1705 [EXTERNAL]) — a batched-evaluation *sumcheck* whose
+round challenges simultaneously drive a *FRI fold* of the Reed-Solomon
+codeword of the same polynomial. Why this and not Ligero-with-more-
+folding, STIR, or WHIR:
+
+- The proof size is `O(k^2 * lambda / log(1/rate))` hashes instead of
+  Ligero's `O(sqrt(N))` field elements. That is the whole point of the
+  lane: 66.8 MB and 1.23 GB are square-root-class numbers.
+- BaseFold needs *no new primitives*. The existing Goldilocks field,
+  its two-adic roots, blake3, and the Merkle module already serve it.
+  The one thing this repo did not have is a decimation-in-frequency NTT
+  whose bit-reversed output puts a fold coset in one contiguous block;
+  that is ~80 lines in `pcs_compact.rs` (`ntt_dif`), verified against
+  Horner evaluation in `ntt_dif_is_bitreversed_evaluation`.
+- Crucially, BaseFold's sumcheck *is* the evaluation proof. The Ligero
+  form answers each claim with a proximity test plus a column opening;
+  BaseFold answers ALL claims on ALL of a layer's commitments with ONE
+  sumcheck and ONE FRI, because the claims are all linear functionals
+  `<f, w_c>` and a random `lambda`-combination of linear functionals is
+  another linear functional. That collapses 3 openings per layer to 1.
+- STIR/WHIR would cut the query count further (they are the right
+  answer at 128-bit security over a big field), but both need the
+  list-decoding regime to pay off, and the Johnson-bound field term is
+  ~`L^2/|F|` — over `F_{p^2}` with `p` Goldilocks that is `2^-64` at
+  `L = 2^24`, i.e. it does not even reach the target. Unique decoding
+  is what this field can carry, and inside unique decoding BaseFold's
+  simplicity wins.
+
+**How the pieces fit** (details in the module header):
+1. A committed vector of `N` base-field values is the Lagrange table of
+   a multilinear `f` in `k = ceil(log2 N)` variables, variable `j` =
+   bit `j` of the index, LSB folded first. `N` is cut into at most
+   `max_pieces = 3` power-of-two PIECES (the top set bits of `N`,
+   rounded up); a piece may run past `N` with zeros and no claim ever
+   weights the pad. Committed lengths here are not powers of two (a
+   125M layer's `W` is `9 x 2^19`), so pieces are not optional.
+2. Each piece is Mobius-transformed to coefficient form, read as a
+   univariate, and RS-encoded at rate `1/4` by one DIF NTT. Its
+   bit-reversed output makes the 16 positions that fold together over
+   four rounds ONE contiguous block, so a Merkle leaf is exactly a
+   fold coset. Pieces of the same size share a tree (leaf = their
+   blocks concatenated); the commitment root is the blake3 of the
+   per-size roots.
+3. OPENING, once per layer over `W`, `A`, `H` together. Every claim in
+   this prover is `<f, w_c>` with `w_c` either `eq(point)` on an
+   aligned slice or the constant 1 on a slice (the LogUp helper sums).
+   With random `lambda_c` the batched claim is
+   `sum_p sum_b f_p(b) g_p(b)`, a degree-2 sumcheck. `g_p` is NEVER
+   materialised at full size: it is stored as a sum over distinct eq
+   tables `E_t` of `sel_t[b >> s_t] * E_t[b mod 2^s_t]` with small
+   selector tables, and LSB-first folding collapses each `E_t` into an
+   explicit table over the slice-index bits only when its arity runs
+   out. A slice that is unaligned or crosses a piece boundary is split
+   recursively, the point's leading variables becoming `(1-p0)`/`p0`
+   coefficients — so the arbitrary offsets `build_claims` produces are
+   handled exactly, not by padding.
+4. A piece with `k_p < k_max` joins at round `k_max - k_p` as
+   `prod_{i<join}(1 - X_i) * f_p g_p`; before the join its round
+   message is the affine pair `(beta*S_p, 0, -beta*S_p)`. The same
+   challenges fold its codeword into the running
+   `R = sum_p mu_p Enc(f_p)` at the round where the domains coincide.
+5. Every 4th round the prover commits `Enc(folded R)` as a fold tree
+   (recomputed from the folded tables, not folded symbol-wise — the
+   folded codeword IS the encoding of the folded polynomial). At
+   `2^k_end <= 2^log_final` coefficients the final polynomial is sent
+   in the clear. Then `f_p(r)` per piece. The verifier checks the
+   sumcheck terminal `sum_p beta_p f_p(r) g_p(r)` (a product of `O(k)`
+   eq factors, no tables), checks the final polynomial against
+   `sum_p mu_p f_p(r)`, and runs `Q` query walks: a random 16-coset of
+   the largest domain, four folds per stretch, adding `mu_p` times the
+   joining pieces' opened values, matched against the next fold tree's
+   leaf and finally against the final polynomial.
+
+**PARAMETERS** (`--pcs-*` overrides all of them):
+`inv_rate = 4`, `target_bits = 106`, `queries = 157` (derived),
+`log_final = 7`, `max_pieces = 3`, `reencode` off. `COSET_LOG = 4`
+(fold-by-16 per commitment) is a compile-time constant.
+
+**SOUNDNESS ARITHMETIC** (error terms, per proof):
+- Query term `(1 - delta)^Q` with `delta = (1 - 1/inv_rate)/2 = 3/8`
+  the unique-decoding radius: `(5/8)^157 = 2^-106.45`. This meets the
+  Ligero form's `2^-106` (`inv_rate 4`, 256 column checks). Unique
+  decoding is the regime in which BaseFold's Thm 3 and FRI soundness
+  are proven with a per-fold affine-line error of `L/|F|` [BCIKS20 Thm
+  1.2, EXTERNAL].
+- Fold/batching field terms `~(k_max + pieces) * L_0 / |F_{p^2}|`.
+  `|F_{p^2}| ~ 2^128`. At 12x512 the largest committed vector is
+  `H` at `2^23` -> `L_0 = 2^25`, `k_max = 23`: `28 * 2^25 / 2^128 =
+  2^-98.2`. At the 8B shape `W` is `4096 x 14336 = 2^25.48` ->
+  `L_0 = 2^28`, `k_max = 26`: `29 * 2^28 / 2^128 = 2^-95.1`.
+- Sumcheck: `2 * k_max / |F_{p^2}| < 2^-122`.
+- TOTAL: `2^-98.2` at 12x512, `2^-95.1` at 8B — dominated by the field
+  term, not the queries. Honest reading: this is 3-11 bits BELOW the
+  Ligero form's `2^-106` at the same shapes, because Ligero's proximity
+  test never pays a per-round affine-line term. To recover the margin
+  one raises `|F|` (a degree-3 extension) or lowers `L_0` (more, smaller
+  pieces); it is NOT recovered by more queries. Recorded, not papered
+  over.
+- The list-decoding (Johnson) regime would roughly halve `Q`, but its
+  field term is `~L^2/|F| = 2^-64` at `L = 2^24` over `F_{p^2}` — not
+  usable at this field. Hence unique decoding.
+- NOT zero-knowledge: `--pcs compact` with `--zk` is refused by the
+  driver with a message. See the ZK-interaction statement at rung 5.
+
+**THE PLAN**: rung 1 the PCS alone at `2^14..2^20` with tamper legs and
+a bytes/walls table vs Ligero; rung 2 the 12x512 v2 pass under
+`--pcs compact`; rung 3 the same in v3; rung 4 one Mistral layer at
+T=512 and the 32x512 projection; rung 5 the §3 row, the record file,
+and the ZK-interaction statement.
+
+**THE THREE BYTE GATES, re-run on this binary** [MEASURED, WSL-BOX, 8T,
+CPU, NOISY-SHARED: three sibling lanes active]:
+- v2 `pass 12 512 --threads 8`: `50cf7bdfd6b5b182f9c029c3d62087ca..`
+  (66,844,928 B), PROVE 15.40 s / VERIFY 0.30 s — **GREEN**.
+- v3 `pass 12 512 --profile v3`: `5f368db6240e061428a90eccdb22ff45..`
+  (70,758,084 B), PROVE 16.48 s / VERIFY 0.30 s — **GREEN**.
+- zk `pass 12 512 --zk --seed 1`: `021485e4f80ec695ddc0b05423a941e1..`
+  (87,228,528 B), PROVE 17.11 s / VERIFY 0.38 s — **GREEN**.
+The default path is byte-identical: `--pcs` defaults to `ligero`, and
+`pcs_compact::commit` forwards to `pcs::commit` when it is not selected.
+32/32 tests (5 of them new: the DIF NTT vs Horner, the Mobius transform
+vs the multilinear evaluation, the piece cut and the query count, the
+single-commitment open/verify + 7 tamper legs, and a 3-commitment batch
+with a late-joining piece).
