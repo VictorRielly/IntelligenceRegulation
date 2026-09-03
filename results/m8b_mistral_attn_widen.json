@@ -91,6 +91,49 @@
    },
    "perhead": [],
    "wall_s": 143.1
+  },
+  "xres24": {
+   "loss": 1.6403425027258363,
+   "delta_vs_fp_subset": 4.0908014050655694e-05,
+   "sites": [
+    "xres"
+   ],
+   "wide": [
+    "xres"
+   ],
+   "wide_class": {
+    "xres": "int24"
+   },
+   "perhead": [],
+   "wall_s": 272.2
+  },
+  "stack_wide_xres24_ao16": {
+   "loss": 1.666880302139076,
+   "delta_vs_fp_subset": 0.026578707427290293,
+   "sites": [
+    "Wattn",
+    "Wnorm",
+    "ao",
+    "ctx",
+    "exps",
+    "k",
+    "probs",
+    "q",
+    "scores",
+    "v",
+    "xattn",
+    "xres"
+   ],
+   "wide": [
+    "ao",
+    "xres"
+   ],
+   "wide_class": {
+    "ao": "int16",
+    "xres": "int24"
+   },
+   "perhead": [],
+   "wall_s": 280.0
   }
  }
 }
