@@ -1605,3 +1605,64 @@ mod tests {
         assert!(f.0 < crate::field::P);
     }
 }
+
+
+// ===========================================================================
+// [UPERF3-AD] THE ZK FORM OF THE WIDENED-STACK (v3) STATEMENT — mode P1
+// composed with lane ZB's semantics, behind `--zk --profile v3` (round 12).
+//
+// THE PLAN (rung 0). Every construction of lane ZA above is kept AS BUILT
+// — (a) the Ligero-ZK commitments of A and H (Q pad symbols per row on
+// the coset 7 G_4n, salted leaves, one uniformly random mask row per
+// (private table, opening point)), (b) the CFS-masked sumchecks with the
+// last-round extension, (c) the per-layer mask commitment with the
+// product-form linear test, (d) committed multiplicities, (e) the seeded
+// randomness — and applied to lane ZB's objects:
+//   - the BLOCK-STRUCTURED planes (LayoutV3: nb_f f-blocks of g8 / rg /
+//     a16 / u16 / ru / h16 / rh, nb_d d-blocks of X / z16 / rd): one mask
+//     row per plane per opening point — 7 nb_f at rho_F (zero-check F),
+//     3 nb_d at rho_D (zero-check D), nb_d X-blocks at p2 (the g/u matmul
+//     terminals), nb_f h16-blocks at p5 (the d matmul terminals), and the
+//     proximity row; in H one Fp2 mask (re, im) per helper plane per
+//     point (3 nb_f at rho_F, nb_d at rho_D), the zero-sum row u and its
+//     extension mask u', a prox row;
+//   - the INT16-OUTPUT ACTIVATION TABLE (ACT16: 256 rows, int16 outputs),
+//     the INT16 CLASS (2^16 rows, [-32768, 32767]) and the four
+//     BALANCED-REMAINDER WINDOWS (one per signed shift, NO dedup, so every
+//     layer has exactly 6 table slots) as COMMITTED multiplicity tables:
+//     rows of A committed before alpha, each with a mask of its own shape,
+//     their table side h_t = m / (alpha - tval) as committed helper rows of
+//     H (re, im) with Fp2 masks, the LogUp identity ONE value-0 sum claim.
+//     A table larger than a commitment row (the INT16 class is 2^16 rows
+//     against n = 2^14 at 12x512; a window of 2^15 rows at sh = 15; every
+//     table at the 3x16 shape's n = 2^12) occupies 2^log_size / n
+//     CONSECUTIVE rows (log_size = max(log2 size, log n)); its helper and
+//     both masks have the same shape. Nothing of a histogram is sent.
+//   - the TABLE ZERO-CHECK runs over log_S = max(log n, 16) variables with
+//     every slot's m, h_t and public tval zero-extended to 2^log_S; a slot
+//     of 2^log_size entries then contributes prod_{j<k}(1 - rho_j) * T~
+//     (rho[k..]) with k = log_S - log_size, so its opened claim is the
+//     two-part masked claim at the point rho[k..] with that public
+//     coefficient; every slot's column tail is the last log n coordinates
+//     of rho_tab — one column-weight group for all six slots (as ZA's);
+//   - the ROUND-NEAREST REQUANT identities acc = 2^sh y + r (the balanced
+//     remainder; the field inverse of 2^-sh as the public coefficient at
+//     sh <= 0 with the remainder committed all-zero over the window {0})
+//     fold LINEARLY into the masked matmul claims and the two zero-checks
+//     exactly as in ZB's form: zero-check F folds the g/u claim (its
+//     claimed sum nu0 (S_gu + c_gu G_gu) + Gamma_F with Gamma_F = c_F G_F -
+//     nu0 c_gu G_gu proven from the mask commitment), zero-check D folds
+//     the d claim likewise; the h16 (at p5) and X (at p2) terminals are
+//     opened as masked claims of their own (ZA's open item stands).
+// The device path (HL_GPU=1) is ZA's: the ZK commits on the device, the
+// helper columns on the device with the host-generated tail rows
+// uploaded, the two zero-checks through XX's kernels under the transcript
+// masker at the 125M block shape (nb_f 1, nb_d 3) and on the host at any
+// other shape (the 7B layer: nb_f 7, nb_d 1). The seeded RNG domain is
+// "layer-v3-{l}", so a v3 ZK proof never shares randomness with a v2 one.
+// Soundness parameters unchanged and stated: Goldilocks + F_{p^2}
+// challenges, RS(n + Q, 4n) on the coset (distance 0.7455), Q = 256
+// column checks, (1 - delta/3)^Q = 2^-105.6; the mask commitment RS(1024,
+// 4096) with 256 checks. The v2 ZK path (`--zk` alone) and the non-zk
+// paths are untouched (the three byte gates re-run at rung 0).
+// ===========================================================================

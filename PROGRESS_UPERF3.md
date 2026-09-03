@@ -9268,6 +9268,45 @@ form keep ZA's pads/masks? what changes?).
 
 (lane appends below)
 
+### AD rung 0 — the plan, the hooks, the gates re-run (2026-09-03)
+
+- Read: START_HERE, the round-12 block and this brief, Agent ZA and ZB
+  in full, the crate (zk.rs, layer.rs, pcs.rs, sumcheck.rs,
+  transcript.rs, the driver, export_v3.rs, gpu/mod.rs + the cuda.rs
+  entry points).
+- THE PLAN (the [UPERF3-AD] block at the end of hashline/src/zk.rs):
+  ZA's five constructions kept as built and applied to ZB's objects —
+  mask rows per block-structured plane per opening point (7 nb_f at
+  rho_F, 3 nb_d at rho_D, nb_d X-blocks at p2, nb_f h16-blocks at p5),
+  the ACT16 table, the INT16 class (2^16 rows) and the four balanced
+  remainder windows (one per signed shift, no dedup: 6 slots per layer)
+  as COMMITTED multiplicity tables with masks of their own shape. THE
+  ONE STRUCTURAL ADDITION: a table larger than a commitment row (the
+  INT16 class is 2^16 rows against n = 2^14; a 2^15 window at sh_h = 15
+  — the 125M export has sh_h in {13, 14, 15}, Mistral layer 0 has 15)
+  occupies 2^log_size / n consecutive rows of A/H, and the table
+  zero-check runs over log_S = max(log n, 16) variables with every slot
+  zero-extended; a slot's opened claim carries the public coefficient
+  prod_{j<k}(1 - rho_j) at the point rho[k..], every slot's column tail
+  being the last log n coordinates of rho_tab (one group). ZA's
+  single-row TabRows cannot hold these (its assert would fire). The
+  requant identities fold linearly as in ZB's form (the field inverse
+  of 2^-sh at sh <= 0). RNG domain "layer-v3-{l}".
+- Hooks in layer.rs (ADDITIVE, tagged): `absorb_statement_v3` and
+  `rem_index` made pub (two lines). Nothing else of ZB's or AE's
+  regions touched.
+- THE GATES on this tree before any code [WSL-BOX] [8T] [NOISY-SHARED:
+  three other lanes building] [MEASURED], `flock /tmp/zk-heavy.lock
+  /usr/bin/time -v`, 12x512:
+  | gate | CPU sha256 / PROVE / RSS | GPU (HL_GPU=1) sha256 / PROVE / RSS / VRAM |
+  |---|---|---|
+  | v2 `pass 12 512` | 50cf7bdfd6b5b182.. / 14.77 s / 1.56 GB | 50cf7bdfd6b5b182.. / 2.43 s / 0.78 GB / 2.43 GB |
+  | v3 `--profile v3` | 5f368db6240e0614.. / 15.31 s / 1.21 GB | 5f368db6240e0614.. / 2.97 s / 0.43 GB / 2.43 GB |
+  | zk `--zk --seed 1` | 021485e4f80ec695.. / 19.00 s / 1.67 GB | 021485e4f80ec695.. / 4.81 s / 0.90 GB / 3.03 GB |
+  All six byte-identical to the round-11 records (CPU build 32 s, GPU
+  build 30 s). Process note: one gate command line carried a `cd /`
+  prefix against CLAUDE.md; no harm, not repeated.
+
 ## Agent AE status (wt-uperf3-ae) — round 12
 
 (lane appends below)

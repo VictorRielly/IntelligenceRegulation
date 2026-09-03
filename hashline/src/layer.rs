@@ -1076,7 +1076,8 @@ pub fn rem_rows(sh: i32) -> usize {
 pub fn rem_value(sh: i32, i: usize) -> i64 {
     if sh <= 0 { 0 } else { i as i64 - (1i64 << (sh - 1)) }
 }
-fn rem_index(sh: i32, r: i32) -> Option<usize> {
+/// [UPERF3-AD] pub: the v3 ZK form (zk.rs) builds the same multiplicity tables.
+pub fn rem_index(sh: i32, r: i32) -> Option<usize> {
     if sh <= 0 {
         if r == 0 { Some(0) } else { None }
     } else {
@@ -1223,7 +1224,8 @@ impl LayerProofV3 {
     }
 }
 
-fn absorb_statement_v3(tr: &mut Transcript, st: &StatementV3) {
+/// [UPERF3-AD] pub: the v3 ZK form (zk.rs) absorbs the same statement.
+pub fn absorb_statement_v3(tr: &mut Transcript, st: &StatementV3) {
     tr.absorb(b"profile", b"v3-widened/round");
     tr.absorb_u64(b"layer", st.l as u64);
     tr.absorb_u64(b"t_rows", st.t_rows as u64);
