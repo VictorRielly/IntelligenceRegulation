@@ -8487,6 +8487,54 @@ are uniform; the laptop's inverted scaling is the hybrid part),
   VRAM 2.43 GB. Non-zk path unchanged. `cargo test --release`: 20/20
   (19 + the rng test).
 
+### ZA rung 1 — the ZK PCS: pad rows on the coset, salted leaves, mask rows as claim parts, the uniformity test (2026-09-02)
+
+- `hashline/src/pcs.rs` (additive; the non-zk functions untouched except
+  `fold_rows_multi`'s host body factored into `fold_rows_host` with the
+  same arithmetic — the 12x512 gate re-run: CPU PROOF sha256
+  50cf7bdfd6b5b182.. unchanged [MEASURED]): `ZkOpts` (Q = num_col_checks
+  pads, coset generator 7), `CommittedZk` (the plain `Committed` whose
+  store holds the coset-encoded rows and whose tree holds the SALTED
+  leaves, plus the data, the pads, the salts, the declared mask rows),
+  `encode_row_zk` (f_data + Z_n g_pad, coefficients scaled by 7^i,
+  one size-nn NTT — the NTT sizes are unchanged), `commit_zk`,
+  `ZClaim`/`ZPart` (a general linear claim: parts of any log_size,
+  sub-row slices, plain sums; grouped by the full column-weight
+  vector), `open_zk`/`verify_zk` (clear vectors of n + Q entries; the
+  verifier re-encodes them on the coset with the pads; salted Merkle
+  leaves blake3(blake3(col) || salt)), and `assert_mask_sites` — the
+  runtime assertion that EVERY opening site carries a mask: each group
+  vector touches >= 1 declared mask row with a nonzero combined weight,
+  the proximity rho touches the reserved prox mask row, Q pads >= the
+  opened columns, all leaves salted. The device commit hook
+  (`gpu::dev_commit_zk`) is referenced behind the feature; built in
+  rung 4.
+- Tests (22/22): `zk_commit_open_verify_and_tampers` (honest accept;
+  a wrong value, a wrong sum, a tampered message entry, a tampered PAD
+  entry, a tampered salt, a tampered column entry, a different witness
+  under the same claims — all reject) and THE UNIFORMITY TEST
+  `zk_openings_are_uniform_and_every_site_is_masked` [MEASURED, in
+  code]: two witnesses of int8 values, 40 independent openings each
+  (fresh pads/masks/salts per seed), the same claim structure (a
+  16-row private slice opened through the combined masked claim
+  (1-e) P~(r) + e <R, eq(r_col)>, a private sub-row slice with its own
+  mask, a value-0 sum claim over a zero-sum mask row, a prox mask row):
+  (1) all 37,000+ opened column entries and clear-vector entries are
+  DISTINCT and none lies within 2^40 of 0 or p (no witness-range
+  value); (2) chi-square of the top byte against uniform at 256 bins:
+  columns A 275.6 / B 259.0, clear vectors A 293.0 / B 235.7 over
+  ~9K values each (critical 310.5 at p = 0.01, df 255); (3) the
+  two-sample chi-square A vs B 253.3 (the two witnesses' opened
+  distributions are not distinguishable by the statistic); (4) the
+  enumerated sites: group vectors 0/1/2 -> mask rows 17/18/19, the
+  proximity vector -> prox mask row 20, 12 opened columns with 12 pads
+  per row on the coset, 64 leaves salted. The contrast: the NON-zk
+  commitment of the same data opens 42 raw int8 values among its 252
+  opened entries (the systematic columns).
+- Soundness parameters, unchanged in kind: inv_rate 4, Q = 256 column
+  checks, n = 2^14; the ZK code is RS(n + Q, 4n) on the coset
+  (distance 0.7455 vs 0.75), (1 - delta/3)^256 = 2^-105.6 vs 2^-106.
+
 ## Agent ZB status (wt-uperf3-zb) — round 11
 
 (lane appends below)
