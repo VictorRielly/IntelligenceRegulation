@@ -9334,6 +9334,68 @@ the two zero-checks on the HOST (the XX kernels are fixed at 13/15
 tables); those phases were 102.7 + 50.8 + 7.8 s of the 510 s CPU pass and
 will remain host work in the GPU number — recorded, not touched.
 
+**RUNG 1 — THE CACHE ON THE CPU PATH: GREEN, BYTE-IDENTICAL; THE 7B SPLIT
+MEASURED (2026-09-03, WSL-BOX 8T, the heavy lock, box otherwise idle
+[QUIET-ish]).** Cache dir `results/hashline_8b_gpu_wcache/{m125,mistral}`
+(git-ignored); 4,194,372 B per layer entry (the 17-level tree of 2^16
+leaves + the 100-byte header) — 50.3 MB for the 12 layers of either 125M
+profile, 134 MB for the 32 Mistral layers [COUNTED].
+THE 12x512 ROWS [MEASURED]: `pass 12 512 --threads 8 --wcache DIR
+--proof-out F`, twice per profile (cold = every entry a MISS and written;
+warm = every entry a HIT, verified level by level, the encoding rebuilt for
+the opening):
+| run | commit W (12 layers) | of which | PROVE | PROOF sha256 |
+|---|---:|---|---:|---|
+| v2 CPU cold | 2.12 s | pcs::commit 2.01 + key 0.013 + save 0.027 | 15.22 s | 50cf7bdfd6b5b182.. |
+| v2 CPU warm | 1.74 s | load+verify 0.090 + re-encode (NTT only) 1.57 | 14.56 s | 50cf7bdfd6b5b182.. |
+| v3 CPU cold | 2.18 s | pcs::commit 1.95 + save 0.027 | 15.20 s | 5f368db6240e0614.. |
+| v3 CPU warm | 1.97 s | load+verify 0.097 + re-encode 1.67 | 15.50 s | 5f368db6240e0614.. |
+| v2 GPU warm (HL_GPU=1, `dev_encode_only`) | 0.34 s | load+verify 0.087 + device upload+NTT 0.19 | 2.38 s | 50cf7bdfd6b5b182.. |
+| v3 GPU warm | 0.46 s | load+verify 0.081 + device 0.19 | 2.62 s | 5f368db6240e0614.. |
+`sha256sum` of the seven written proofs (cold, warm, GPU-warm, corrupted-
+entry run) = the two reference digests, byte for byte. THE CORRUPTION LEG
+at pass level: one leaf byte of `v2-l05-*.wc` flipped -> `wcache entry ...
+REJECTED (level 0: 1 nodes do not hash to their parent); re-committing`
+-> 11 hits + 1 miss, the entry rewritten, PROOF sha256 50cf7bdf.. again.
+THE 7B SPLIT [MEASURED, one real Mistral-7B layer at T = 512 on the CPU,
+`layer 0 512 --profile v3 --export .../m8b_mistral_v3_export --threads 8
+--wcache`, /usr/bin/time -v; 13.2 GB peak RSS both runs]: cold commit W
+**8.51 s** (pcs::commit 7.84 = NTT + blake3 over 5.64 GB + the tree +
+the 5.64 GB allocation; save 0.014 s) -> warm commit W **6.43 s** (load+
+verify 0.008 s; re-encode 5.49 s = the NTT alone; the rest the w_data
+build); prove 22.7 -> 16.4 s (the other 4.4 s of that delta is the
+`helpers + commit H` phase, 8.3 s cold vs 3.9 s warm — first-run noise on
+a box that had just loaded 7 GB of export, not the cache); proof
+38,688,700 B both; GREEN both.
+READING (the honest one): on the CPU path the cache removes ~25% of the
+W commit at 7B (~2.1 s of 8.5 s per layer, ~67 s of the 225 s over 32
+layers [COUNTED from the one layer]); the other ~75% is the Reed-Solomon
+re-encoding the OPENING needs — pcs.rs (read-only for this lane) serves
+the Q sampled columns from a materialized host matrix, so the warm CPU
+run still pays the NTT and the 5.6 GB. The orchestrator's "expect ~285 s"
+assumed the whole 225 s vanishes; on this crate's CPU path the warm
+32x512 pass models to ~510 - 67 = ~445 s [MODEL]. The two ways to remove
+the remainder on the CPU are recorded, not built: (a) persist the encoded
+rows (5.6 GB per layer, 180 GB per model — 766 GB free here; the host
+store would still hold 5.6 GB per layer, so it trades the NTT for a disk
+read of the same size, ~3-5 s at WSL disk rates [MODEL]); (b) serve the
+opening's columns WITHOUT the matrix — a new `Store` variant in pcs.rs
+(not this lane's) fed by a direct rows x n x Q evaluation. On the DEVICE
+path the re-encode is ~0.19 s for the 12 layers (chunked at 7B in rung
+2), so the cache's per-layer cost there is the load+verify (7 ms) plus
+the upload — the GPU number is where the cache pays.
+ORCHESTRATOR-RUN (posted; each ~9-11 min, ~14 GB peak; exit 137 is the
+record): the 32x512 CPU pass cold then warm, and the warm-only form on
+the pre-warmed dir the GPU runs will have written by rung 4:
+  cold: `flock /tmp/zk-heavy.lock /usr/bin/time -v
+  /home/victor/wt-uperf3-ac/hashline/target/release/hashline pass 32 512
+  --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export
+  --threads 8 --wcache /home/victor/wt-uperf3-ac/results/hashline_8b_gpu_wcache/mistral_cpu
+  --proof-out <scratch>/ac_32x512_cpu_cold.bin`  (expect PROOF sha256
+  dc980e81.., 1,234,936,956 B; ~510 s prove + ~14 s of cache writes)
+  warm: the same command again (the dir now holds 32 entries; expect the
+  same sha256; commit W ~158 s instead of 225 [MODEL]).
+
 ## Agent AD status (wt-uperf3-ad) — round 12
 
 (lane appends below)
