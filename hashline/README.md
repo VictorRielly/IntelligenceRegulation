@@ -49,3 +49,17 @@ checks the device field / NTT / blake3 against the CPU code;
 `HL_GPU_VERBOSE=1` prints per-kernel timings. Measured (12x512, 8T +
 RTX 4070 Laptop): prove 3.40 s p50, verify 0.42 s, RSS 0.78 GB, VRAM
 2.43 GB, 8.5e9 proven MAC/s — results/hashline_gpu_12x512.md.
+
+Zero knowledge for the activations (U-PERF3 lane ZA, 2026-09-02): `--zk
+--seed N` proves the same statement in mode P1 (inputs/activations
+private, weights public): pad rows on a coset + mask rows for the A and
+H commitments, masked sumchecks (CFS masking polynomials opened from a
+per-layer mask commitment) with a last-round extension that masks every
+private terminal, committed multiplicities, salted leaves; the design is
+src/zk.rs's module doc. The proof bytes are byte-identical CPU vs GPU
+under the same seed (`PROOF sha256 ... [ZK seed N]`). Measured (12x512,
+8T + RTX 4070 Laptop): prove 3.93 s p50, verify 0.38 s, 87.2 MB, 0.90 GB
+RSS + 3.03 GB VRAM (non-zk on the same tree 2.46 s / 66.8 MB) —
+results/hashline_zk_12x512.md. `layer <l> <t> --zk --all-tampers` runs the
+tamper legs under `--zk`; the uniformity test is
+`cargo test --release zk_openings -- --nocapture`.

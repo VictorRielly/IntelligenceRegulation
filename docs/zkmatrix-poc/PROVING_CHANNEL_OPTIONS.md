@@ -164,6 +164,8 @@ architecture (U_PERF3_HEADLINE_ROUTES.md).
 | B hash-based, 22T | WSL laptop, 22T CPU only | 37-39 s | 8 s | 66.8 MB | 1.57 GB | 7.4-7.8e8 | same | [MEASURED, NOISY-SHARED] |
 | **B hash-based ON THE GPU (`hashline/` `--features gpu-cuda`, `HL_GPU=1`; lane XX, 2026-09-02)** | **WSL laptop, 8T + RTX 4070 Laptop (55-70 W)** | **3.40 s p50 (3.38-3.49 s over 4 runs)** | **0.42 s** | **66.8 MB (BYTE-IDENTICAL to the CPU proof: sha256 50cf7bdf..)** | **0.78 GB (+ 2.43 GB VRAM)** | **8.5e9 (8.3-8.6e9)** | **same as the CPU row (same protocol, same parameters, ZK NO)** | **[MEASURED, NOISY-SHARED]** |
 | B hash-based, CPU after XX's byte-identical fixes (eq_table / group_claims) | WSL laptop, 8T CPU only | 20.4 s p50 (17.4-20.9 s) | 0.3-0.7 s | 66.8 MB | 1.56 GB | 1.4e9 | same | [MEASURED, NOISY-SHARED] |
+| **B hash-based `--zk` ON THE GPU (mode P1: activations private, weights public; lane ZA, 2026-09-02)** | **WSL laptop, 8T + RTX 4070 Laptop** | **3.93 s p50 (3.87-4.10 s over 4 runs; the non-zk prover on the same tree 2.46 s)** | **0.38 s** | **87.2 MB (+30.5%; sha256 021485e4.. at seed 1, CPU == GPU)** | **0.90 GB (+ 3.03 GB VRAM)** | **7.4e9** | **same soundness class (RS(n+Q, 4n) on a coset: 2^-105.6 at Q = 256); ZK for the activations: pads + mask rows on A/H, masked sumchecks (CFS) with the last-round extension, committed multiplicities, salted leaves; weights public** | **[MEASURED, NOISY-SHARED]** |
+| B hash-based `--zk`, CPU only (lane ZA) | WSL laptop, 8T CPU only | 16.55 s p50 (16.5-16.7 s; non-zk 14.78 s on the same tree) | 0.45 s | 87.2 MB | 1.68 GB | 1.75e9 | same | [MEASURED, NOISY-SHARED] |
 
 Caveats on the B row (all stated in results/hashline_pass_12x512.md):
 FFN-only, no attention, no layer seams (X_l committed fresh, as the
@@ -209,6 +211,50 @@ record. Full record: results/hashline_gpu_12x512.md; ledger:
 PROGRESS_UPERF3.md "Agent XX status". The 30B / H100 tokens/s
 question is lane YY's model; this row replaces its "laptop GPU
 [MODEL until XX]" constant with a measurement.
+
+**Lane ZA's ZERO-KNOWLEDGE row LANDED (2026-09-02, same day).** The
+same `hashline/` prover behind `--zk --seed N`, mode P1 (inputs and
+activations private, weights public), byte-identical CPU vs GPU
+under the same seed (sha256 021485e4.. at 12x512, f9509b9d.. at
+3x16; the non-zk path untouched at 50cf7bdf..). What is now HIDDEN:
+the opened columns of A and H (256 random pad symbols per row, the
+rows evaluated on a coset so no systematic position is ever opened),
+every clear row-combination vector (one fresh mask row per private
+table and opening point, plus a proximity mask; asserted at every
+site at run time), the multiplicity tables (committed in A; their
+LogUp table side a committed helper of H; the identity one value-0
+sum claim masked by a proven zero-sum row — no histogram, no helper
+sum sent), every sumcheck's round messages (a committed
+Chiesa-Forbes-Spooner masking polynomial per sumcheck, opened from a
+small per-layer Ligero-form mask commitment by the product-form
+linear test), every private terminal evaluation and matmul claimed
+sum (sent masked through a last-round extension of the sumcheck —
+the verifier never sees an evaluation of the activations), and the
+Merkle leaves (salted). STILL REVEALED: the weights and the W
+opening (public by the mode), shapes, shifts, the table digest, the
+uniform masked values. A full simulator proof would add: the
+composition of the 12 chained layers under one Fiat-Shamir
+transcript (the per-object uniformity is what is established, in
+code, by the uniformity test — chi-square of the opened symbols and
+clear vectors against uniform, two witnesses indistinguishable — and
+by the site assertion), the random-oracle programming for the salted
+leaves and the derived challenges, and the statistical distance
+bookkeeping of the 2^-64-biased field draws. Two places where the
+throughput memo's section-4.2 sketch does not close were replaced
+(the mask row's <u, c>; the mask polynomial's own ZK opening); the
+memo's [COUNTED] +2-8% prover / +1-8% bytes for P1 became, as built,
+**+60% prover / +30% bytes / +0.12 s verifier on the GPU (3.93 s vs
+2.46 s) and +12% / +30% / +0.2 s on the CPU** — the count assumed
+the masked objects ride inside work already paid; the built form
+pays one mask row per (table, point), the matmul terminals as their
+own groups, the mask commitment and the host-side randomness;
+byte-preserving levers (the DIF/DIT NTT for the ZK encode, the table
+zero-check on the device, folding the matmul terminals back into the
+zero-checks) are listed, not applied. The 7 tamper legs reject under
+`--zk` on both provers. Full record: results/hashline_zk_12x512.md;
+ledger: PROGRESS_UPERF3.md "Agent ZA status". Mode P2/P3 (private
+weights) is NOT this row: the W commitment stays as built
+(U_PERF3_ROUTE_B_WEIGHT_PRIVACY.md).
 
 | Context | Better fit | Why |
 |---|---|---|

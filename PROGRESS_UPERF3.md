@@ -8679,8 +8679,8 @@ are uniform; the laptop's inverted scaling is the hybrid part),
 - PARITY [MEASURED]: `pass 12 512 --zk --seed 1`: CPU PROOF sha256
   021485e4f80ec695.. (87,228,528 B) on 3 runs == GPU (HL_GPU=1) on 4
   runs; `pass 3 16 --zk --seed 1` f9509b9d.. CPU == GPU. Non-zk gates
-  on the same final binaries: CPU and GPU 12x512 both 50cfbdf..
-  (50cf7bdfd6b5b182..), 3x16 596b9c79.. — unchanged. The 7 tamper
+  on the same final binaries: CPU and GPU 12x512 both
+  50cf7bdfd6b5b182.., 3x16 596b9c79.. — unchanged. The 7 tamper
   legs reject through the GPU ZK prover (`layer 0 16 --zk
   --all-tampers` GREEN + the pass-level wrong-z leg). Tests 24/24.
 - THE SURCHARGE [MEASURED, WSL-BOX 8T + RTX 4070 Laptop, NOISY-SHARED
@@ -8721,6 +8721,47 @@ are uniform; the laptop's inverted scaling is the hybrid part),
   clear vectors and 2 extra H vectors (5 x 266 KB x 12), the mask
   openings (~170 KB x 12), the pads on every clear vector, 63 mask /
   table rows in every opened column, the salts.
+
+### ZA rung 5 — the record (2026-09-02) — LANE COMPLETE (rungs 0-5)
+
+- results/hashline_zk_12x512.md (XX's form: the gate, the runs table,
+  the phase split zk vs non-zk on both devices, the soundness
+  parameters, the uniformity test, the enumerated mask sites of the
+  real pass, the tamper legs, the two departures from the memo, the
+  count vs the measurement, the levers, the commands); the section-3
+  rows (GPU zk, CPU zk) + the ZK paragraph in
+  PROVING_CHANNEL_OPTIONS.md (what is hidden, what is still revealed,
+  what a full simulator proof would add); a README block. START_HERE /
+  the board are the orchestrator's.
+- SUMMARY FOR THE RULING. Mode P1 on the hash line is BUILT and
+  MEASURED: `--zk --seed N` hides the opened columns, the clear
+  vectors, the histograms and helper sums, the sumcheck rounds, every
+  private terminal evaluation and matmul claimed sum, and the leaves;
+  the weights stay public; CPU and GPU produce the same bytes under
+  one seed; the seven tamper legs reject; the soundness class is
+  unchanged (2^-105.6 vs 2^-106 on the column test). The price on the
+  laptop GPU is 3.93 s vs 2.46 s per 12x512 proof (+60%), 87.2 vs
+  66.8 MB (+30%), 0.38 vs 0.27 s verify — larger than lane YY's
+  counted +2-8% / +1-8% because two parts of the memo's sketch had to
+  be replaced by heavier constructions (the mask rows tied to the
+  sumcheck; the mask polynomial's own ZK opening) and because the
+  matmul terminals are opened as their own groups. With the listed
+  byte-preserving levers the GPU surcharge should land near +30-40%.
+  Open: a written simulator for the 12-layer composition; folding the
+  masked matmul terminals into the zero-checks (needs a replicated-row
+  table kind on the device); the ZK encode on the DIF/DIT NTT pair;
+  the table zero-check on the device; mode P2/P3 (private weights) is
+  lane ZZ's option 2, not touched.
+- Files touched (ownership as declared): hashline/src/{pcs.rs,
+  sumcheck.rs, transcript.rs} (additive), NEW hashline/src/zk.rs,
+  hashline/src/lib.rs (one line), hashline/src/bin/hashline.rs (the
+  `--zk`/`--seed` flags + pass_zk/layer_zk), hashline/src/gpu/
+  {kernels.cu, cuda.rs, mod.rs} (ONE new kernel + three new host
+  functions + one name in FUNCS + two re-export lines; no existing
+  kernel or function edited), hashline/README.md (a block), NEW
+  results/hashline_zk_12x512.md, PROVING_CHANNEL_OPTIONS.md section 3
+  (rows + paragraph), this status section. layer.rs, silu.rs, the
+  export reader, zkmatrix-rs, scripts: untouched.
 
 ## Agent ZB status (wt-uperf3-zb) — round 11
 
