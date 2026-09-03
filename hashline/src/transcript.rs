@@ -4,9 +4,21 @@
 
 use crate::field::{Fp, Fp2, P};
 
+/// [UPERF3-ZA] A round masker: while one is installed, every
+/// `sc-round` absorb is replaced by the masker's output (the CFS-masked
+/// round message) and every challenge drawn is reported back to it.
+/// The masked messages are recorded so the prover can put them in the
+/// proof in place of the unmasked sums. Nothing changes without one.
+pub trait RoundMask {
+    fn mask_round(&mut self, sums: &[Fp2]) -> Vec<Fp2>;
+    fn note_challenge(&mut self, r: Fp2);
+}
+
 pub struct Transcript {
     state: [u8; 32],
     counter: u64,
+    masker: Option<Box<dyn RoundMask>>,
+    masked_rounds: Vec<Vec<Fp2>>,
 }
 
 impl Transcript {
@@ -14,7 +26,19 @@ impl Transcript {
         let mut h = blake3::Hasher::new();
         h.update(b"hashline-v1/");
         h.update(domain);
-        Transcript { state: *h.finalize().as_bytes(), counter: 0 }
+        Transcript { state: *h.finalize().as_bytes(), counter: 0, masker: None, masked_rounds: Vec::new() }
+    }
+
+    /// [UPERF3-ZA] Install a round masker (see `RoundMask`).
+    pub fn set_masker(&mut self, m: Box<dyn RoundMask>) {
+        assert!(self.masker.is_none(), "transcript: a masker is already installed");
+        self.masker = Some(m);
+        self.masked_rounds.clear();
+    }
+
+    /// [UPERF3-ZA] Remove the masker; returns the masked round messages it produced, in order.
+    pub fn take_masker(&mut self) -> (Option<Box<dyn RoundMask>>, Vec<Vec<Fp2>>) {
+        (self.masker.take(), std::mem::take(&mut self.masked_rounds))
     }
 
     pub fn absorb(&mut self, label: &[u8], data: &[u8]) {
@@ -40,6 +64,17 @@ impl Transcript {
     }
 
     pub fn absorb_fp2(&mut self, label: &[u8], vals: &[Fp2]) {
+        // [UPERF3-ZA] a masked sumcheck round: absorb the masker's output instead
+        if self.masker.is_some() && label == b"sc-round" {
+            let masked = self.masker.as_mut().unwrap().mask_round(vals);
+            let mut bytes = Vec::with_capacity(masked.len() * 16);
+            for v in &masked {
+                bytes.extend_from_slice(&v.to_bytes());
+            }
+            self.absorb(label, &bytes);
+            self.masked_rounds.push(masked);
+            return;
+        }
         let mut bytes = Vec::with_capacity(vals.len() * 16);
         for v in vals {
             bytes.extend_from_slice(&v.to_bytes());
@@ -69,7 +104,11 @@ impl Transcript {
         let b = self.squeeze_bytes();
         let c0 = Fp::from_u128(u128::from_le_bytes(b[..16].try_into().unwrap()));
         let c1 = Fp::from_u128(u128::from_le_bytes(b[16..].try_into().unwrap()));
-        Fp2::new(c0, c1)
+        let r = Fp2::new(c0, c1);
+        if let Some(m) = self.masker.as_mut() {
+            m.note_challenge(r);
+        }
+        r
     }
 
     pub fn challenge_fp2_vec(&mut self, n: usize) -> Vec<Fp2> {
@@ -98,7 +137,8 @@ impl Transcript {
     /// [UPERF3-XX] A copy of the transcript (state + counter) so a device
     /// attempt can be abandoned without disturbing the caller's transcript.
     pub fn clone_state(tr: &Transcript) -> Transcript {
-        Transcript { state: tr.state, counter: tr.counter }
+        assert!(tr.masker.is_none(), "transcript: clone_state with a masker installed");
+        Transcript { state: tr.state, counter: tr.counter, masker: None, masked_rounds: Vec::new() }
     }
 }
 

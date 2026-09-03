@@ -8535,6 +8535,75 @@ are uniform; the laptop's inverted scaling is the hybrid part),
   checks, n = 2^14; the ZK code is RS(n + Q, 4n) on the coset
   (distance 0.7455 vs 0.75), (1 - delta/3)^256 = 2^-105.6 vs 2^-106.
 
+### ZA rung 2 — the masked sumchecks, the mask commitment, the ZK layer prover/verifier (2026-09-02)
+
+- `transcript.rs` (additive): a `RoundMask` hook — while installed,
+  every `sc-round` absorb is replaced by the masked message and each
+  challenge is reported back; the masked messages are recorded for the
+  proof. This masks BOTH the CPU `sumcheck::prove` and XX's device
+  `dev_zerocheck` without touching either (the device kernels are
+  unchanged). `sumcheck.rs` (additive): `CfsMask` (g = a_0 + a' prod x_j
+  + sum a_{j,e} x_j^e; closed-form round messages, total, terminal,
+  and the weight vectors of both as linear functionals of the
+  coefficients), `CfsMasker`, `extension_round` / `masked_terminal`
+  (the last-round extension). Tests: the closed-form rounds equal a
+  brute-force sumcheck of g at three (N, d); a masked zero-check with
+  the extension round round-trips and still catches a broken identity.
+- `zk.rs`: `MaskCommit` (the five masking polynomials of a layer as
+  base rows with 256 pads each, a zero-sum blinding row, a proximity
+  mask row; RS(1024, 4096) on the coset 7 G_4096, salted Merkle; the
+  product-form linear test `mask_open` / `mask_verify`: q' = sum_s
+  p_a p_W + p_b, its G_512-sum equals the theta-combined functional,
+  256 sampled columns; ~170 KB per layer); `ZkLayout` (A: 7 zc20 + 9
+  zc17 + 3 gu + 1 d mask rows + a prox row = 21 rows of n; H: 6 + 6 rows
+  for the Fp2 masks, the zero-sum row u (re/im), its extension mask
+  u', a prox row = 17 rows); `prove_layer_zk` / `verify_layer_zk`: W
+  as built; A and H via `commit_zk`; the gu and d sumchecks with
+  their claimed sums sent MASKED (S'' = S + c G) and their private
+  terminals masked (opened directly from A at p2 / p5 as two-part
+  claims — two more A group vectors than the non-zk fold; see the
+  open item); zc20 with fold1 = nu0 (gacc + lambda uacc) and the
+  eq5 term dropped, its claim nu0 S''_gu + Gamma20 (Gamma20 = c20 G20
+  - nu0 c_gu G_gu, a functional over two mask rows, proven in the
+  mask opening); zc17 likewise (fz over the lambda_d combination,
+  fx dropped); the zero-sum sumcheck over u (14 vars + extension,
+  degree 2 with a constant selector table); the LogUp table side and
+  the helper sums as built in rung 2 (rung 3 moves them); the five
+  g(rho)'s DERIVED by the verifier from the masked terminal checks
+  and folded with the three Gammas into one mask opening. Every
+  table-opening claim is (1 - e) T~ + e R~ with its own mask row
+  (Fp2 tables: re/im pairs with Fp2 masks). `--zk` in the driver:
+  `pass_zk`, `layer_zk` (the 7 tamper legs), the PROOF sha256 line,
+  the enumerated mask sites printed.
+- Correctness [WSL-BOX, 8T, CPU, NOISY-SHARED, MEASURED]: 3x16 ZK
+  ACCEPT (PROOF 02a31a2c.. at seed 1, reproduced on a second run;
+  seed 2 -> c7a70708..); non-zk 3x16 596b9c79.. and 12x512
+  50cf7bdf.. UNCHANGED; `layer 0 16 --zk --all-tampers` 6/6 REJECT +
+  `pass 2 64 --zk --tamper z` REJECT (the 7 legs) at the same sites
+  as the non-zk (matmul/zero-check round 0; the LogUp identity);
+  `cargo test` 24/24.
+- THE 12x512 ZK CPU ROW [MEASURED, WSL-BOX 8T NOISY-SHARED (lane ZB
+  active), 1 run each]: ZK PROVE 19.45 s / VERIFY 0.38 s / proof
+  79,956,224 B (80.0 MB) / RSS 1.77 GB / 1.49e9 proven MAC/s (PROOF
+  sha256 50f5df46.. at seed 1) vs the non-zk pass on the same tree
+  and box the same hour: 16.89 s / 0.29 s / 66,844,928 B / 1.56 GB.
+  Surcharge: prover +15%, verifier +31%, bytes +19.6%, RSS +14%.
+  Phases (zk vs non-zk): commit A 4.17 vs 3.60, helpers + commit H
+  4.99 vs 4.34, zc20 4.01 vs 3.72, zc17 2.14 vs 1.73, openings 0.94
+  vs 0.87, + mask commit 0.08 + zsum/mask open 0.31. A first cut
+  had the verifier at 1.45 s and the openings at 2.6 s: the general
+  claim built its 2^14 column table per PART (rayon wake-ups); it is
+  now built once per group as the non-zk path does (the digests did
+  not move: transcript-preserving).
+- Bytes: the +13.1 MB are two extra A clear vectors (the masked gu /
+  d terminals opened at p2 / p5 rather than folded into the
+  zero-checks: 2 x 266 KB per layer), one extra H vector (the zsum
+  point), the mask openings (~170 KB per layer), 38 mask rows per
+  layer in the opened columns, pads and salts. OPEN ITEM (not built):
+  folding the masked matmul terminals into the zero-checks needs a
+  "replicated mask row" table kind on the device (a new TabSpec +
+  kernel); it would return ~6.4 MB (-8%).
+
 ## Agent ZB status (wt-uperf3-zb) — round 11
 
 (lane appends below)

@@ -693,12 +693,23 @@ impl ZClaim {
     }
 }
 
-/// (row weights over `rows`, column weights over n) of one part.
-fn zpart_weights(p: &ZPart, rows: usize, log_cols: u32) -> (Vec<Fp2>, Vec<Fp2>) {
+/// The column-weight key of a part: the point tail (empty for a sum) on
+/// the column range [c0, c0 + len) of the row (the whole row for slices of
+/// a row or more). Groups are formed by key equality; the 2^log_cols
+/// column table is built once per group (as in `group_claims`).
+#[derive(Clone, Debug, PartialEq)]
+struct ZKey {
+    tail: Vec<Fp2>,
+    c0: usize,
+    len: usize,
+}
+
+/// (row weights over `rows`, the column key) of one part.
+fn zpart_weights(p: &ZPart, rows: usize, log_cols: u32) -> (Vec<Fp2>, ZKey) {
     let n = 1usize << log_cols;
     let mut row_w = vec![Fp2::ZERO; rows];
-    let mut col_w = vec![Fp2::ZERO; n];
     let ls = p.slice.log_size;
+    let key;
     if p.point.is_empty() {
         if ls >= log_cols {
             assert!(p.slice.offset % n == 0);
@@ -706,17 +717,13 @@ fn zpart_weights(p: &ZPart, rows: usize, log_cols: u32) -> (Vec<Fp2>, Vec<Fp2>) 
             for i in 0..(1usize << (ls - log_cols)) {
                 row_w[r0 + i] = row_w[r0 + i].add(p.coef);
             }
-            for c in col_w.iter_mut() {
-                *c = Fp2::ONE;
-            }
+            key = ZKey { tail: vec![], c0: 0, len: n };
         } else {
             let r0 = p.slice.offset / n;
             let c0 = p.slice.offset % n;
             assert!(c0 + (1usize << ls) <= n);
             row_w[r0] = row_w[r0].add(p.coef);
-            for c in col_w[c0..c0 + (1usize << ls)].iter_mut() {
-                *c = Fp2::ONE;
-            }
+            key = ZKey { tail: vec![], c0, len: 1usize << ls };
         }
     } else {
         assert_eq!(p.point.len() as u32, ls, "zk claim: point arity != slice size");
@@ -728,36 +735,51 @@ fn zpart_weights(p: &ZPart, rows: usize, log_cols: u32) -> (Vec<Fp2>, Vec<Fp2>) 
             for (i, e) in eq_r.iter().enumerate() {
                 row_w[r0 + i] = row_w[r0 + i].add(p.coef.mul(*e));
             }
-            let eq_c = eq_table_msb(&p.point[lr..]);
-            col_w.copy_from_slice(&eq_c);
+            key = ZKey { tail: p.point[lr..].to_vec(), c0: 0, len: n };
         } else {
             let r0 = p.slice.offset / n;
             let c0 = p.slice.offset % n;
             assert!(c0 + (1usize << ls) <= n);
             row_w[r0] = row_w[r0].add(p.coef);
-            let eq_c = eq_table_msb(&p.point);
-            col_w[c0..c0 + (1usize << ls)].copy_from_slice(&eq_c);
+            key = ZKey { tail: p.point.clone(), c0, len: 1usize << ls };
         }
     }
-    (row_w, col_w)
+    (row_w, key)
+}
+
+fn zkey_weights(k: &ZKey, log_cols: u32) -> Vec<Fp2> {
+    let n = 1usize << log_cols;
+    let mut col_w = vec![Fp2::ZERO; n];
+    if k.tail.is_empty() {
+        for c in col_w[k.c0..k.c0 + k.len].iter_mut() {
+            *c = Fp2::ONE;
+        }
+    } else {
+        let eq_c = eq_table_msb(&k.tail);
+        col_w[k.c0..k.c0 + k.len].copy_from_slice(&eq_c);
+    }
+    col_w
 }
 
 /// Group ZK claims by identical column weights: (column weights, [(row weights, value)]).
 fn group_zclaims(claims: &[ZClaim], rows: usize, log_cols: u32) -> Vec<(Vec<Fp2>, Vec<(Vec<Fp2>, Fp2)>)> {
+    let mut keys: Vec<ZKey> = Vec::new();
     let mut groups: Vec<(Vec<Fp2>, Vec<(Vec<Fp2>, Fp2)>)> = Vec::new();
     for c in claims {
         assert!(!c.parts.is_empty());
-        let (mut rw, cw) = zpart_weights(&c.parts[0], rows, log_cols);
+        let (mut rw, key) = zpart_weights(&c.parts[0], rows, log_cols);
         for p in &c.parts[1..] {
-            let (rw2, cw2) = zpart_weights(p, rows, log_cols);
-            assert!(cw2 == cw, "zk claim: parts with different column weights");
+            let (rw2, key2) = zpart_weights(p, rows, log_cols);
+            assert!(key2 == key, "zk claim: parts with different column weights");
             for (a, b) in rw.iter_mut().zip(rw2.iter()) {
                 *a = a.add(*b);
             }
         }
-        if let Some(g) = groups.iter_mut().find(|g| g.0 == cw) {
-            g.1.push((rw, c.value));
+        if let Some(gi) = keys.iter().position(|k| *k == key) {
+            groups[gi].1.push((rw, c.value));
         } else {
+            let cw = zkey_weights(&key, log_cols);
+            keys.push(key);
             groups.push((cw, vec![(rw, c.value)]));
         }
     }
@@ -830,6 +852,20 @@ pub fn assert_mask_sites(cmz: &CommittedZk, rhos: &[Vec<Fp2>]) -> Vec<String> {
     sites
 }
 
+thread_local! {
+    static LAST_SITES: std::cell::RefCell<Vec<String>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// The mask sites recorded by the last `open_zk` on this thread (for the driver's report).
+pub fn last_mask_sites() -> Vec<String> {
+    LAST_SITES.with(|s| s.borrow().clone())
+}
+
+/// The number of column-weight groups the claims form (for the record).
+pub fn zk_groups_for_record(cmz: &CommittedZk, claims: &[ZClaim]) -> usize {
+    group_zclaims(claims, cmz.cm.rows, cmz.cm.params.log_cols).len()
+}
+
 /// Prover: open ZK claims. Transcript order as `open`: lambdas per group
 /// -> group vectors absorbed -> prox rho -> prox vector absorbed ->
 /// column indices.
@@ -838,7 +874,8 @@ pub fn open_zk(cmz: &CommittedZk, claims: &[ZClaim], tr: &mut Transcript) -> Ope
     let rows = cm.rows;
     let groups = group_zclaims(claims, rows, cm.params.log_cols);
     let (rhos, _wants) = zk_rhos(&groups, rows, tr);
-    assert_mask_sites(cmz, &rhos);
+    let sites = assert_mask_sites(cmz, &rhos);
+    LAST_SITES.with(|s| *s.borrow_mut() = sites);
     let mut vecs = fold_rows_multi_zk(cmz, &rhos);
     let prox_vec = vecs.pop().unwrap();
     for v in &vecs {
