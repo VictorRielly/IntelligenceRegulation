@@ -27,6 +27,9 @@ pub use cuda::{
 // [UPERF3-ZA] the ZK commitment's device entries (new functions in cuda.rs)
 #[cfg(feature = "gpu-cuda")]
 pub use cuda::{dev_commit_zk, dev_commit_zk_from, dev_upload_rows};
+// [UPERF3-AC] the cached-W device entry (upload + encode, no hash) and the chunked-commit probes
+#[cfg(feature = "gpu-cuda")]
+pub use cuda::dev_encode_only;
 
 #[cfg(not(feature = "gpu-cuda"))]
 mod stub {

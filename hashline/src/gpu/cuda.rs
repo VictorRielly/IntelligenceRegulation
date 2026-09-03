@@ -405,6 +405,37 @@ pub fn dev_commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Result<(D
     dev_commit_from(params, d_data, rows, ntt)
 }
 
+/// [UPERF3-AC] The cached-W form: upload `data` and build its encoding on
+/// the device WITHOUT hashing (the Merkle tree comes from the cache); the
+/// store then serves the opening exactly as a fresh commitment's would.
+pub fn dev_encode_only(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Result<DevCommit, String> {
+    let g = gpu().ok_or_else(init_err)?;
+    let mut g = g.lock().unwrap();
+    g.ensure_twiddles(ntt)?;
+    let n = params.cols();
+    let nn = params.enc_cols();
+    assert!(data.len() % n == 0 && !data.is_empty());
+    let rows = data.len() / n;
+    let log_n = params.log_cols;
+    let log_nn = nn.trailing_zeros();
+    assert_eq!(1usize << log_nn, nn, "inv_rate must be a power of two on the device path");
+    let dev = g.dev.clone();
+    let t0 = Instant::now();
+    let mut d_data = Pooled::take(&dev, data.len())?;
+    dev.htod_sync_copy_into(as_u64s(data), d_data.get_mut()).map_err(|e| format!("data upload: {e}"))?;
+    dev.synchronize().map_err(|e| e.to_string())?;
+    let t1 = Instant::now();
+    stats_with(|s| { s.secs_h2d += (t1 - t0).as_secs_f64(); s.bytes_h2d += (data.len() * 8) as u64; });
+    let mut d_coef = Pooled::take(&dev, rows * n)?;
+    let mut d_enc = Pooled::take(&dev, rows * nn)?;
+    g.encode_rows(d_data.get(), d_coef.get_mut(), d_enc.get_mut(), rows, log_n, log_nn)?;
+    dev.synchronize().map_err(|e| e.to_string())?;
+    stats_with(|s| s.secs_ntt += t1.elapsed().as_secs_f64());
+    note_vram(&g);
+    drop(d_coef);
+    Ok(DevCommit { rows, log_n, log_nn, data: d_data, enc: d_enc })
+}
+
 /// Commit a device-resident data buffer (rows x n u64, row-major) — the
 /// encode + hash half of `dev_commit`, also used for the H data the helper
 /// kernels write on the device.

@@ -1,3 +1,5 @@
 target/
 *.bin
 target-gpu/
+*.wc
+*.wc.tmp

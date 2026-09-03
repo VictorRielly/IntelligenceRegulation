@@ -9264,6 +9264,76 @@ form keep ZA's pads/masks? what changes?).
 
 (lane appends below)
 
+**RUNG 0 — SKELETON + THE PLAN + THE GATES: GREEN (2026-09-03, WSL-BOX,
+8T, box idle at the time: load 0.1, 14 GB available, the other round-12
+lanes not yet building; CPU + GPU binaries built clean in this tree).**
+What landed: NEW `hashline/src/wcache.rs` (the per-model weight-commitment
+cache behind `--wcache DIR`: `configure`, `commit_w`, the file format, the
+verify-on-load, a stats line; module doc = the design of record), the mod
+line in lib.rs, the ONE hook at each W-commit call site in layer.rs
+(`pcs::commit(&w_pcs, &w_data, ntt)` -> `wcache::commit_w(.., &WKey::new(
+profile, l, d, f, &wg_t, &wu_t, &wd_t))`, v2 and v3, tagged [UPERF3-AC];
+`commit_w` IS `pcs::commit` when no dir is configured — no key digest, no
+I/O), the `--wcache DIR` flag + the report line in the driver, and in
+gpu/cuda.rs the ADDITIVE `dev_encode_only` (upload + encode, no hash: the
+cached-W device store). `.wc` files and `results/hashline_8b_gpu_wcache/`
+are git-ignored (root + crate .gitignore). Tests: **28/28** (27 + the new
+`tree_roundtrip_and_every_corruption_rejected`: a flipped root byte, a
+flipped leaf byte, a flipped inner-node byte, a flipped last byte,
+truncation, a wrong key, a wrong row count and a wrong inv_rate are ALL
+rejected on load; the honest file round-trips level for level).
+THE GATES with the hook in place [MEASURED, WSL-BOX 8T, the heavy lock,
+proofs written to the scratchpad and sha256'd by the binary]:
+| gate | CPU binary | GPU binary (HL_GPU=1) |
+|---|---|---|
+| v2 `pass 12 512 --threads 8` | **50cf7bdfd6b5b182..** (66,844,928 B), PROVE 16.22 s, commit W 2.18 s | **50cf7bdfd6b5b182..**, PROVE 2.47 s, commit W 0.36 s |
+| v3 `pass 12 512 --profile v3 --export .../m125_v3_export` | **5f368db6240e0614..** (70,758,084 B), PROVE 15.99 s, commit W 2.26 s | **5f368db6240e0614..**, PROVE 2.61 s, commit W 0.47 s |
+| zk `pass 12 512 --zk --seed 1` | **021485e4f80ec695..** (87,228,528 B), PROVE 16.52 s | **021485e4f80ec695..**, PROVE 3.95 s |
+All six = the round-11 references. [QUIET-ish: no other lane building.]
+
+THE PLAN (design decisions, with the reasons):
+(1) WHAT THE CACHE HOLDS: the whole Merkle tree of the W commitment (every
+level, 2 x nn x 32 B = 4.2 MB per layer at nn = 2^16, the same at 125M
+and at 7B), under a key = blake3(version tag, profile, l, d, f, log_cols,
+inv_rate, rows, len, the three int8 planes' chained piece digests) — the
+ACTUAL planes the prover holds, so a tampered W (the flipw leg) never
+reuses an honest tree. Verify-on-load = every level re-hashed pairwise into
+the next, the top == the stored root, the leaf count == nn; any failure is
+a logged REJECT and a re-commit (never a silent reuse).
+(2) WHAT IT CANNOT HOLD, and the consequence: the Q = 256 opened columns
+are chosen by the transcript AFTER the W root is absorbed, so the prover
+must produce ANY encoded column at opening time. pcs.rs (read-only) reads
+them from `Store::Host { encoded }` (rows x nn, materialized) or, on the
+device, from the `DevCommit`. So a warm cache removes the HASHING (blake3
+over the 4x-expanded matrix, ~5.6 GB at 7B) and the tree build; the NTT
+encoding is paid again at the opening — in full on the CPU path (the same
+memory as today), CHUNKED on the device path (rung 2: never resident).
+The counted alternative, persisting the encoded rows (5.6 GB per 7B layer,
+180 GB per model; this box has 766 GB free), would remove the NTT on the
+CPU too but the host store would still have to hold the matrix; and the
+direct column evaluation (rows x n x Q int8-by-field products, 4.5e10 at
+7B) is ~1-4 s per layer on this CPU [MODEL] against ~5 s for the NTT —
+neither is built in this rung; the measured split is rung 1's record.
+(3) THE CHUNKED DEVICE COMMIT (rung 2): `DevCommit.enc` becomes optional;
+a commitment above `HL_GPU_CHUNK_BYTES` (default 1 GiB — the 12x512
+commitments, 151-272 MB, stay on XX's resident path byte-for-byte and
+clock-for-clock) is encoded in row chunks of `HL_GPU_CHUNK_ROWS` (default
+1024, a multiple of 128 = blake3's 1024-byte chunk of a column) through a
+STREAMING blake3 column kernel whose per-column CV stack lives in device
+memory across launches; the opening re-encodes chunk by chunk and gathers
+the Q columns (a new gather kernel with a row offset). At the 7B shape
+this replaces the declined 5.4 GB allocation with ~0.65 GB of chunk
+scratch and also takes A (1.85 GB) and H (1.54 GB) off the resident path,
+so the layer's VRAM is ~3 GB instead of ~7.2. Probes: the chunked commit
+and its re-encoded columns against the CPU encoder + `blake3::hash` at
+row counts around every 128-row boundary (in `gpu-probe`).
+(4) THE 7B GPU LAYER (rung 3) then the 8B PASS (rung 4), cold and warm.
+Known and NOT in this lane's ownership: at the Mistral shape ZB's
+`dev_shape` gate (layer.rs, nb_f == 1 && nb_d == 3) keeps the helpers and
+the two zero-checks on the HOST (the XX kernels are fixed at 13/15
+tables); those phases were 102.7 + 50.8 + 7.8 s of the 510 s CPU pass and
+will remain host work in the GPU number — recorded, not touched.
+
 ## Agent AD status (wt-uperf3-ad) — round 12
 
 (lane appends below)
