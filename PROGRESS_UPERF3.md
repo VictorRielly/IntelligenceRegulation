@@ -9479,8 +9479,8 @@ warm = 32 hits, each tree verified level by level):
 | run | witness load+chain | PROVE | VERIFY | wall | proof B | RSS | VRAM peak | proven MAC/s |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | CPU reference (orchestrator, uncached) | — | **510.38 s** | 1.21 s | — | 1,234,936,956 | 13.99 GB | — | 5.655e9 |
-| **GPU, cache cold** | 130.75 s | **175.09 s** | 1.09 s | 308.82 s | 1,234,936,956 | **5.46 GB** | **4,175 MB** | **1.648e10** |
-| **GPU, cache warm** | 138.02 s | **193.29 s** | 1.24 s | 334.93 s | 1,234,936,956 | 5.46 GB | 4,175 MB | 1.493e10 |
+| **GPU, cache cold** | 130.75 s | **175.09 s** | 1.09 s | 308.82 s | 1,234,936,956 | **5.33 GB** | **4,175 MB** | **1.648e10** |
+| **GPU, cache warm** | 138.02 s | **193.29 s** | 1.24 s | 334.93 s | 1,234,936,956 | 5.33 GB | 4,175 MB | 1.493e10 |
 THE BYTE VERDICT: `sha256sum` run by hand over the three 1.23 GB files —
 the orchestrator's uncached CPU proof, the GPU cold-cache proof and the
 GPU warm-cache proof — is ONE digest,
@@ -9494,7 +9494,7 @@ byte-identical at 12x512, both profiles, and at one Mistral layer
 (179ec2fb..), so nothing about 32 layers can change it: the cache never
 enters the transcript, it only skips recomputing the same Merkle tree.)
 THE HEADLINE: **the 8B FFN pass proves in 175 s on a laptop GPU instead
-of 510 s on 8 CPU threads — 2.92x — in 5.46 GB of host RSS instead of
+of 510 s on 8 CPU threads — 2.92x — in 5.33 GB of host RSS instead of
 13.99 (2.6x less) and 4,175 MB of the part's 8,188** [MEASURED].
 PER-LAYER (cold): mean **5.472 s**, min 5.314, max 5.661 — 32 layers
 within +/-3.5%, the rung-3 single-layer number (5.56 s) reproduced at
@@ -9552,6 +9552,79 @@ the h2d itself (15.7 s for 72 GB — the pageable-copy rate; pinned
 staging would roughly halve it [MODEL]).
 THE 8-MINUTE RULE: both runs were under it (5:11 and 5:38 wall), so they
 were run in-lane, not posted.
+
+**RUNG 5 — THE RECORD (2026-09-03).** Three files, in XX's form:
+(1) **NEW results/hashline_8b_gpu.md** — the 8B GPU row: what was
+proven and the one gate (the 1.23 GB proof is ONE sha256 across the
+uncached CPU pass, the GPU cold-cache pass and the GPU warm-cache pass);
+the runs table (CPU 510.38 / GPU cold 175.09 / GPU warm 193.29 s prove,
+RSS 13.99 / 5.33 / 5.33 GB, VRAM 4,175 MB, 1.648e10 proven MAC/s); the
+per-layer anatomy phase by phase against the CPU pass, with the
+factor column that shows WHERE the device won (commitments and openings
+441.16 -> 112.23 s, 3.9x; everything else 1.0-1.3x because it is still
+host work); the device accounting (h2d 15.72 s for 72,209 MB, chunked
+encode+hash 15.63 s, opening re-encode 15.73 s, folds 6.75 s = 53.8 s,
+31% of the prove) with the two DIFFERENT reasons the `hash`, `sumcheck`
+and `helpers` counters read 0.000 (the chunked path folds hash into the
+encode counter unless --verbose — hashing did NOT leave the device; the
+zero-check and helper kernels genuinely never ran); the weight-cache
+section (9.0 s of the GPU prove, ~67 s of the CPU's — and why no more:
+the Q = 256 columns are drawn after the root is absorbed, so the RS
+re-encode is paid every proof, ~176 s of the CPU's 225 s W phase); the
+host-remainder table with each item's lever [MODEL]; the tokens/s
+verdict; and the side-by-side against the CPU 8B row and XX's 125M GPU
+row.
+(2) **the §3 row in docs/zkmatrix-poc/PROVING_CHANNEL_OPTIONS.md** —
+"THE 8B ROW ON THE GPU" directly under the 8B CPU row (175.1 s cold /
+193.3 warm, 1.09 s verify, 1,234.9 MB BYTE-IDENTICAL dc980e81.., 5.33
+GB + 4,175 MB VRAM, 1.65e10 MAC/s, [MEASURED, NOISY-SHARED]) plus the
+"Lane AC's 8B GPU row LANDED" paragraph at the end of the section, in
+the form of XX's and ZA's.
+(3) **the measured cells in U_PERF3_ROUTE_B_THROUGHPUT.md §6.2** — the
+first measured 8B cells against YY's model.
+THE TOKENS/S VERDICT (the question the rung asked): at 8B prefill
+T = 512, mode P0, FFN-only, prover clock —
+| cell | YY's [MODEL] §6.2 | [MEASURED] here | verdict |
+|---|---|---:|---|
+| laptop CPU 8T | 1.0 tok/s | **1.00** (512/510.38) | INSIDE — exact |
+| laptop GPU | 5.2-16 tok/s | **2.92** (512/175.09) | **BELOW the band, 1.8x** |
+| laptop GPU, proven MAC/s (§6.5) | 2.9e10-8.8e10 | **1.648e10** | BELOW, 1.76x |
+The band assumed §3.3's "Route B's work is entirely device-shaped".
+True at 125M (XX: 5.3x over its own CPU form), NOT true at Mistral
+width: **76 s of the 175 (44%) are the two zero-checks and the LogUp
+helper columns on the HOST**, declined by ZB's `dev_shape` gate because
+XX's kernels are templated on the 125M block shape (13/15 tables) while
+Mistral's F-side check has 73; ~42 s more is host conversion, Merkle
+levels and serializing 1.23 GB. The realized factor is **2.92x**, not
+5-15x. Fixing the shape gate (a block-looping zero-check kernel — ZB's
+file, byte-preserving) models to 105-125 s = 4.1-4.9 tok/s, still under
+the band; the band's low end needs the conversion/upload and Merkle
+items too. This is the first test of that premise at a real model
+width, and the H100 columns rest on the same premise — recorded as a
+caution, not a claim about them.
+THE GATES, re-run in this tree after the rung-4/5 work [MEASURED,
+NOISY-SHARED: lane AE's Mistral attention gate held the heavy lock and
+16 cores, load 20; the six gate runs are queued behind it on
+`flock /tmp/zk-heavy.lock`, as the shared-box rule requires]:
+| gate | CPU | GPU (HL_GPU=1) |
+|---|---|---|
+| v2 `pass 12 512 --threads 8` | **50cf7bdfd6b5b182..** (PROVE 15.15 s) | (queued) |
+| v3 `pass 12 512 --profile v3 --export .../m125_v3_export` | **5f368db6240e0614..** (PROVE 16.78 s) | (queued) |
+| zk `pass 12 512 --zk --seed 1` | (queued) | (queued) |
+The two that have run are the round-11 references, byte for byte. NO
+CODE CHANGED in rungs 4-5 (`git status` on this branch: PROGRESS, the
+two docs, the new record — no .rs, no .cu), so the rung-0 test suite
+(28/28) and the rung-2/3 gate results stand; the four queued digests
+are appended in the follow-up commit.
+WHAT THE NEXT AGENT SHOULD PICK UP, in order: (a) the block-looping
+zero-check / helper kernels behind ZB's `dev_shape` gate — worth ~1.5x
+of the 8B pass and the difference between 2.9 and 4.9 tok/s; (b) the
+raw-plane upload with device-side i8/i32 -> Fp conversion and pinned
+staging (~10-15 s); (c) if a warm-CPU 32x512 number is wanted for the
+record, the ORCHESTRATOR-RUN posted in rung 1 (the cache dir
+results/hashline_8b_gpu_wcache/mistral_gpu_cold is now warm with all 32
+entries, written by the GPU run — the CPU binary reads the same file
+format, so that run needs no cold pass first).
 
 ## Agent AD status (wt-uperf3-ad) — round 12
 

@@ -816,6 +816,37 @@ s): P0 492 / 152; P1 502-531 / 155-164; P3 710 / 370 (§2.5, §4.4).
 The 8B pass fits the laptop's 15 GB only barely as built (§2.4) and
 not its 8 GB VRAM: the laptop-GPU column is "streamed per layer".
 
+**THE FIRST MEASURED 8B CELLS (lane AC, 2026-09-03; record
+results/hashline_8b_gpu.md, row in S4 §3).** Both laptop columns of the
+P0 prefill row have now been run — the same Mistral-7B 32 x 512 FFN
+statement, one proof, `--profile v3`, byte-identical output
+(sha256 dc980e81.., 1,234.9 MB):
+
+| P0, 8B prefill (T = 512) | this table's [MODEL] | [MEASURED] | verdict |
+|---|---|---:|---|
+| laptop CPU 8T | 1.0 tok/s (492 s/proof) | **1.00 tok/s** (510.4 s/proof) | **inside** — the model cell was exact |
+| laptop GPU (RTX 4070 Laptop) | 5.2-16 tok/s | **2.92 tok/s** (175.1 s/proof; 1.65e10 proven MAC/s vs §6.5's 2.9-8.8e10) | **BELOW the band, by 1.8x** |
+
+Why the GPU cell misses: §3.3's factor assumes the pass is entirely
+device-shaped, which is true at the 125M shape (lane XX measured 5.3x
+over its own CPU form) and is NOT true at Mistral's width — 76 s of the
+175 (44%) are the two zero-checks and the LogUp helper columns running
+on the HOST, because the device kernels are templated on the 125M block
+shape (13/15 tables) and Mistral's F-side check has 73 tables, so the
+`dev_shape` gate declines them; another ~42 s is host conversion,
+Merkle-level and serialization work. The realized hardware factor is
+**2.92x, not 5-15x**. With the shape gate fixed (a block-looping
+kernel, byte-preserving) the same box models to 105-125 s = **4.1-4.9
+tok/s [MODEL]**, still under the band's low end; the band also needs
+the conversion/upload and Merkle items of the record's host table. The
+memory footnote above is now measured too: the 8B pass held **4,175 MB
+of VRAM, 51% of the 8 GB part**, and 5.33 GB of host RSS, because every
+commitment at this width is chunked and none is resident — "streamed
+per layer" is what was built, and it fits with room to spare. Caution
+for the desktop/H100 columns: they rest on the same "entirely
+device-shaped" premise, and this is its first test at a real model
+width. Decode (T = 1) and P1 at 8B are not yet measured.
+
 ### 6.3 30B (the §1.3 stand-in shape), proven FFN tokens per second [MODEL on MODEL]; each cell "prefill / decode"
 
 | design | laptop CPU (8T) | laptop GPU | one desktop board (4090 class) | one H100 |
