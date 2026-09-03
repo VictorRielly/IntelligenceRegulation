@@ -90,9 +90,13 @@ lattice line's GPU-assisted 21.0 s) and in **3.40 s on the laptop's
 GPU** with byte-identical proofs — 6.1x the lattice line's rate on
 the same device — with 4-9x less memory and 44x larger proofs; and,
 since lane ZA (2026-09-03), WITH zero knowledge for the inputs and
-activations at 3.93 s on the same GPU (+60%; weights public). It has
-also proven a real Mistral-7B layer on this laptop's CPU (lane ZB;
-see §3.1 and §6). Its
+activations at 3.93 s on the same GPU (+60%; weights public). And on
+2026-09-03 it proved **the whole Mistral-7B feed-forward stack, 32
+layers x 512 tokens, on this laptop's CPU in 510 seconds** (verify
+1.2 s, 14 GB) — the first full 8B proof in this project, within 4%
+of its own model's prediction (§3.1, §6). Per proof at 8B, 225 of
+those 510 s are the weight commitments, which are per-model work
+when the weights are public. Its
 tokens-per-second model (`U_PERF3_ROUTE_B_THROUGHPUT.md`, 2026-09-02)
 says: **50 tokens/s at 30B on one H100 is reachable on the hash line
 only for batched proving (4-16 requests or a 512-token prefill per
@@ -132,7 +136,8 @@ costs that two-week build.
 | 125M, 12 x 128 | same box, GPU | 10.5 s | | [MEASURED] |
 | one 8B-width layer, 16 tokens | WSL laptop | **out of memory at 15 GB** | the box cannot hold 8B; the Mac (256 GB) can | [MEASURED] |
 | **one real Mistral-7B feed-forward layer, hash line (lane ZB, 2026-09-03)** | WSL laptop CPU, 8 threads | **10.5 s at 16 tokens (7.5 GB); 14.5 s at 256 tokens (10.3 GB)**; 8/8 tamper tests reject | the first proof of a real 8B-width layer in this project; the full 32-layer pass is Mac runbook item M9 (~10 min [MODEL]) | [MEASURED, NOISY-SHARED] |
-| **any 8B proof end to end** | — | **never run** | the lattice line: Mac tasks T15-T17 (§7); the hash line: Mac item M9 | — |
+| **THE FIRST FULL 8B FEED-FORWARD PROOF: Mistral-7B, all 32 layers x 512 tokens, hash line (2026-09-03)** | WSL laptop CPU, 8 threads | **prove 510 s (8.5 min), verify 1.2 s, proof 1.23 GB, peak 14.0 GB RAM; ACCEPT** (2.886e12 MACs at 5.7e9 proven MAC/s); phases: weight commitments 225 s (per-model work), activation-side 285 s | the lattice line has never run any 8B shape (out of memory here); the hash line's own model had predicted 492 s [MODEL], measured 510 | [MEASURED, NOISY-SHARED] |
+| any 8B proof end to end, lattice line | — | **never run** | Mac tasks T15-T17 (§7) | — |
 
 ### 3.2 What the 8B proof is expected to cost with today's protocol
 

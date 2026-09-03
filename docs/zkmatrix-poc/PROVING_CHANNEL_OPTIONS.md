@@ -167,6 +167,8 @@ architecture (U_PERF3_HEADLINE_ROUTES.md).
 | **B hash-based `--zk` ON THE GPU (mode P1: activations private, weights public; lane ZA, 2026-09-02)** | **WSL laptop, 8T + RTX 4070 Laptop** | **3.93 s p50 (3.87-4.10 s over 4 runs; the non-zk prover on the same tree 2.46 s)** | **0.38 s** | **87.2 MB (+30.5%; sha256 021485e4.. at seed 1, CPU == GPU)** | **0.90 GB (+ 3.03 GB VRAM)** | **7.4e9** | **same soundness class (RS(n+Q, 4n) on a coset: 2^-105.6 at Q = 256); ZK for the activations: pads + mask rows on A/H, masked sumchecks (CFS) with the last-round extension, committed multiplicities, salted leaves; weights public** | **[MEASURED, NOISY-SHARED]** |
 | B hash-based `--zk`, CPU only (lane ZA) | WSL laptop, 8T CPU only | 16.55 s p50 (16.5-16.7 s; non-zk 14.78 s on the same tree) | 0.45 s | 87.2 MB | 1.68 GB | 1.75e9 | same | [MEASURED, NOISY-SHARED] |
 
+| **B hash-based, THE 8B ROW: Mistral-7B 32 x 512 x 4096 x 14336, `--profile v3` (2026-09-03)** | **WSL laptop, 8T CPU only** | **510.4 s (incl. the 225 s weight commitments)** | **1.21 s** | **1,234.9 MB** | **13.99 GB** | **5.66e9** | hash-only + ROM ~100-bit; ZK NO (the `--zk` form exists for v2 only today) | **[MEASURED, NOISY-SHARED] — the first full 8B FFN proof in this repository; the lattice line's 8B row is still [MODEL] (never run)** |
+
 Caveats on the B row (all stated in results/hashline_pass_12x512.md):
 FFN-only, no attention, no layer seams (X_l committed fresh, as the
 lattice tower); X and weight ranges declared, not range-proven (the

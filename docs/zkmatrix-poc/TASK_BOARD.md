@@ -58,6 +58,27 @@ rulings; the Mac runbook unchanged):**
   the Route-B throughput model (lane TT's seven items for the hash
   line, incl. the ZK surcharge — Victor's ZK rule is non-negotiable —
   and the proof-size lever).
+- **THE FIRST FULL 8B FEED-FORWARD PROOF (2026-09-03, orchestrator-run
+  on the laptop; `results/hashline_mistral_32x512.log`)** [MEASURED,
+  WSL-BOX CPU 8T NOISY-SHARED]: `hashline pass 32 512 --profile v3`
+  over the real Mistral-7B v3 export — **PROVE 510.38 s, VERIFY 1.21
+  s, proof 1,234,936,956 B (1.23 GB), peak RSS 13.99 GB, ACCEPT**;
+  2.886e12 MACs, 5.655e9 proven MAC/s; wall 650 s incl. 136 s of
+  witness load + chain; sha256 dc980e81... Phases (summed): commit W
+  225.0 s | commit A 81.8 | helpers + commit H 102.7 | matmuls 10.1 |
+  zero-checks 58.6 | PCS openings 31.7. Per layer ~15-16 s after the
+  first two (24 s, cold). READINGS: (1) the lattice line has never
+  run ANY 8B shape (its one-layer rung OOMs this box; T15-T17 wait
+  on the Mac); the hash line did the whole stack here in 14 GB. (2)
+  Lane YY's model predicted 492 s for this exact cell [MODEL] —
+  measured 510 s, +3.7%: the Route-B model's 8B row is now
+  VALIDATED, which lends its H100 rows their first measured anchor
+  (the hardware factor stays [MODEL]). (3) 225 s of the 510 are the
+  weight commitments = per-model work under P0/P1 — the per-proof
+  remainder is ~285 s CPU (1.8 tok/s at 8B on this CPU); on the
+  laptop GPU (6-7x measured at 125M) ~40-50 s [MODEL]. (4) The
+  1.23 GB proof is the sqrt-class size YY flagged; the PCS swap is
+  the lever. MAC_RUNBOOK M9 now has a laptop reference number.
 - **LANE ZA LANDED (merged; `results/hashline_zk_12x512.md`) — THE ZK
   FORM (mode P1: inputs/activations private, weights public) behind
   `--zk --seed N`.** Built: Ligero/Brakedown ZK pads (256 per row on a

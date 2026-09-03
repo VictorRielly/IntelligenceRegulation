@@ -9036,3 +9036,25 @@ member digest absorbed into the statement. v2 untouched.
   2.26 s; v3 5f368db6.. PROVE 2.56 s; zk-seed-1 021485e4.. PROVE
   3.98 s / VERIFY 0.42 s — all byte-identical to the CPU proofs and
   to the lanes' records.
+
+## Orchestrator note 2026-09-03 — THE FIRST FULL 8B FFN PROOF [MEASURED, WSL-BOX CPU 8T NOISY-SHARED]
+
+`flock /tmp/zk-heavy.lock /usr/bin/time -v hashline pass 32 512
+--profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export
+--threads 8 --proof-out <scratch>/mistral_32x512.bin` (the merged
+crate at dc0dae3, CPU binary; detached with a .done marker):
+**PASS-V3 ACCEPT: 32 x 512 (d 4096 f 14336): witness load+chain
+136.37 s | PROVE 510.38 s | VERIFY 1.21 s | proof 1,234,936,956 B |
+2.886e12 MACs | 5.655e9 proven MAC/s | wall 650.15 s; max RSS
+13,985,580 kB; exit 0; PROOF sha256 dc980e81..**. Per layer 24.2 /
+23.6 s (layers 0-1, cold) then 14.6-17.6 s. Phases summed: commit W
+224.97 | commit A 81.77 | helpers + commit H 102.74 | matmul g/u
+6.58 | matmul d 3.52 | zero-check F 50.82 | zero-check D 7.75 | PCS
+openings 31.68 s. Log: results/hashline_mistral_32x512.log (3.3 KB,
+committed); the 1.23 GB proof file stays in the scratchpad.
+READINGS: the hash line proved the whole 8B FFN stack on the 15 GB
+box that cannot hold one lattice-line layer; lane YY's [MODEL] for
+this cell was 492 s (measured 510, +3.7%) — the Route-B model's 8B
+row is validated; the per-model weight commit is 44% of the prove
+(225 s), the per-proof remainder ~285 s; the proof is the sqrt
+class (1.23 GB) — the PCS swap is the size lever.

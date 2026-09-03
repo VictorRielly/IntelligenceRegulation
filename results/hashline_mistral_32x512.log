@@ -1,0 +1,69 @@
+pass (v3): 32 layers x 512 tokens of 512 — /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export (d 4096 f 14336; log_cols 14, inv_rate 4, col checks 256, threads 8)
+  gpu: off (built without --features gpu-cuda)
+  layer  0: prove 24.218 s, 38688700 B
+  layer  1: prove 23.591 s, 38619084 B
+  layer  2: prove 16.298 s, 38584244 B
+  layer  3: prove 15.593 s, 38615856 B
+  layer  4: prove 16.051 s, 38582704 B
+  layer  5: prove 17.598 s, 38583088 B
+  layer  6: prove 16.097 s, 38582704 B
+  layer  7: prove 15.736 s, 38566320 B
+  layer  8: prove 16.096 s, 38566320 B
+  layer  9: prove 15.097 s, 38615204 B
+  layer 10: prove 15.587 s, 38566320 B
+  layer 11: prove 15.549 s, 38582576 B
+  layer 12: prove 15.279 s, 38582320 B
+  layer 13: prove 15.266 s, 38582320 B
+  layer 14: prove 15.131 s, 38615472 B
+  layer 15: prove 15.496 s, 38582704 B
+  layer 16: prove 15.408 s, 38566320 B
+  layer 17: prove 14.822 s, 38566052 B
+  layer 18: prove 15.065 s, 38582436 B
+  layer 19: prove 15.600 s, 38582436 B
+  layer 20: prove 14.834 s, 38582436 B
+  layer 21: prove 15.269 s, 38615204 B
+  layer 22: prove 15.976 s, 38582576 B
+  layer 23: prove 15.435 s, 38582320 B
+  layer 24: prove 14.648 s, 38615248 B
+  layer 25: prove 14.916 s, 38582576 B
+  layer 26: prove 15.382 s, 38615280 B
+  layer 27: prove 15.015 s, 38615280 B
+  layer 28: prove 14.751 s, 38566192 B
+  layer 29: prove 14.952 s, 38583088 B
+  layer 30: prove 14.914 s, 38615716 B
+  layer 31: prove 14.706 s, 38567860 B
+prover phases (summed over layers):
+      commit W                224.973 s
+      commit A                 81.774 s
+      helpers + commit H      102.740 s
+      matmul g/u                6.582 s
+      matmul d                  3.518 s
+      zero-check F             50.823 s
+      zero-check D              7.751 s
+      pcs openings             31.684 s
+PROOF sha256 dc980e810085b2ddf4688eb4a6cf4dd931c209bf7c5a9a7692d57ec14bc4536c (1234936956 B)
+  proof written to /tmp/claude-1000/-home-victor-IntelligenceRegulation/5ab7b139-352c-44f5-99f6-ac8a44a39162/scratchpad/mistral_32x512.bin
+PASS-V3 ACCEPT: 32 x 512 (d 4096 f 14336): witness load+chain 136.37 s | PROVE 510.38 s | VERIFY 1.21 s | proof 1234936956 B (1234.9 MB) | 2.886e12 MACs | 5.655e9 proven MAC/s (prove wall) | wall 650.15 s
+	Command being timed: "/home/victor/IntelligenceRegulation/hashline/target/release/hashline pass 32 512 --profile v3 --export /home/victor/wt-uperf3-aa/results/m8b_mistral_v3_export --threads 8 --proof-out /tmp/claude-1000/-home-victor-IntelligenceRegulation/5ab7b139-352c-44f5-99f6-ac8a44a39162/scratchpad/mistral_32x512.bin"
+	User time (seconds): 3388.88
+	System time (seconds): 256.88
+	Percent of CPU this job got: 560%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 10:50.20
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 13985580
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 114589202
+	Voluntary context switches: 2208861
+	Involuntary context switches: 5980
+	Swaps: 0
+	File system inputs: 14155864
+	File system outputs: 2412128
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
