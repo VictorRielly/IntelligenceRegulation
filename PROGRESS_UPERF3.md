@@ -9416,3 +9416,72 @@ The default path is byte-identical: `--pcs` defaults to `ligero`, and
 vs the multilinear evaluation, the piece cut and the query count, the
 single-commitment open/verify + 7 tamper legs, and a 3-commitment batch
 with a late-joining piece).
+
+### Rung 1 — THE PCS ALONE: `hashline pcs-bench <log_lo> <log_hi>`
+
+A new `[UPERF3-AF]`-tagged subcommand in the driver. For each size it
+builds a random int8-valued vector of `2^k` entries, answers the SAME
+claim set with both commitments (Ligero from the untouched `pcs.rs`,
+compact from `pcs_compact.rs`), and runs the three named tamper legs on
+the compact opening. Bytes are the opening plus the 44-byte commitment.
+`HL_BENCH_CLAIMS=N` sets the claim count.
+
+**ONE claim** (the canonical single-evaluation PCS benchmark)
+[MEASURED, WSL-BOX, 8T, CPU, NOISY-SHARED]:
+
+| log N | Ligero B | compact B |  x   | Lig P s | cmp P s |  x   | Lig V s | cmp V s |
+|------:|---------:|----------:|-----:|--------:|--------:|-----:|--------:|--------:|
+| 14 |   659,500 | 162,588 | 4.06 | 0.169 | 0.035 | 0.20 | 0.0408 | 0.0003 |
+| 15 |   661,548 | 173,708 | 3.81 | 0.022 | 0.025 | 1.14 | 0.0135 | 0.0039 |
+| 16 |   665,644 | 252,380 | 2.64 | 0.016 | 0.042 | 2.61 | 0.0195 | 0.0004 |
+| 17 |   673,836 | 267,756 | 2.52 | 0.022 | 0.066 | 3.03 | 0.0121 | 0.0005 |
+| 18 |   690,220 | 283,388 | 2.44 | 0.042 | 0.073 | 1.73 | 0.0108 | 0.0025 |
+| 19 |   722,988 | 299,532 | 2.41 | 0.060 | 0.117 | 1.95 | 0.0147 | 0.0005 |
+| 20 |   788,524 | 383,228 | 2.06 | 0.088 | 0.239 | 2.72 | 0.0137 | 0.0007 |
+
+**EIGHT claims** (what a real layer looks like):
+
+| log N | Ligero B | compact B |   x   | Lig P s | cmp P s | Lig V s | cmp V s |
+|------:|---------:|----------:|------:|--------:|--------:|--------:|--------:|
+| 14 | 2,494,508 | 162,588 | 15.34 | 0.028 | 0.037 | 0.0212 | 0.0004 |
+| 16 | 2,500,652 | 252,380 |  9.91 | 0.024 | 0.044 | 0.0178 | 0.0004 |
+| 18 | 2,525,228 | 283,388 |  8.91 | 0.027 | 0.156 | 0.0164 | 0.0050 |
+| 20 | 2,623,532 | 383,228 |  6.85 | 0.131 | 0.510 | 0.0480 | 0.0010 |
+
+**READING IT.** Three facts, and the third is the lane's real lever.
+
+1. **The compact opening's size does not depend on the claim count.**
+   162,588 B at `2^14` and 383,228 B at `2^20` for ONE claim; the same
+   bytes to the byte for EIGHT. Every claim is folded into the
+   `lambda`-combination before the sumcheck starts, so more claims cost
+   nothing but the terminal `f_p(r)` values (one per PIECE, not per
+   claim). The Ligero form pays a fresh `group_vec` of `rows` field
+   elements per distinct column-weight group, so its bytes grow ~linearly
+   in the claim count: 659 KB -> 2.49 MB going from 1 to 8. This — not
+   the single-claim ratio — is where the pass-level win comes from.
+2. **The compact opening grows logarithmically, the Ligero one as
+   `sqrt`.** From `2^14` to `2^20` (64x the data) the compact opening
+   grows 2.36x (162 KB -> 383 KB) and would keep growing by ~2 Merkle
+   levels per doubling; Ligero grows 1.20x here only because at these
+   sizes it is still dominated by the fixed 256 column checks — its
+   `sqrt` term takes over at the layer shapes of rung 2 onward.
+   Honest note: at these SMALL sizes the compact form is only 2-4x
+   smaller on a single claim. The MB-class collapse this lane is after
+   does not come from one small polynomial; it comes from (a) the claim
+   independence above and (b) the 3-commitments-to-1-opening batching in
+   `layer.rs`.
+3. **The compact prover is 1.1-3.9x SLOWER at these sizes; the compact
+   verifier is 20-100x FASTER.** The prover cost is the sumcheck over
+   the full `2^k` table plus one re-encode per fold stretch; the
+   verifier does `Q = 157` walks of ~30 hashes and no NTT at all, which
+   is why it lands at sub-millisecond where Ligero needs 10-50 ms (it
+   re-encodes the row combinations). The `2^14` row's 0.169 s Ligero
+   prove is first-call table warm-up, not a real cost.
+
+**TAMPERS**: at every size, all three legs REJECT — a wrong claimed
+evaluation, a corrupted opening value, and a swapped Merkle path.
+(The unit test `compact_commit_open_verify_and_tampers` carries four
+more: a corrupted fold leaf, a corrupted round message, a corrupted
+terminal, a corrupted final polynomial, plus an honest opening of a
+DIFFERENT witness checked against both its own and the original
+commitment — 9 legs in all, all rejecting.)

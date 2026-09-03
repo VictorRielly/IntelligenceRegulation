@@ -123,6 +123,107 @@ fn tamper_from(kind: &str, idx: usize) -> Tamper {
     }
 }
 
+// [UPERF3-AF] ---- rung 1: the PCS alone, the Ligero form vs the compact form ----
+// Random multilinears at 2^lo .. 2^hi coefficients, the same claim set answered by
+// both commitments, plus the three tamper legs on the compact opening.
+
+fn af_rng(s: &mut u64) -> u64 {
+    let mut x = *s;
+    x ^= x >> 12;
+    x ^= x << 25;
+    x ^= x >> 27;
+    *s = x;
+    x.wrapping_mul(0x2545F4914F6CDD1D)
+}
+
+fn pcs_bench(lo: u32, hi: u32, o: &Opts) {
+    use hashline::field::{Fp, Fp2};
+    use hashline::mle::eval_mle_base;
+    use hashline::pcs::{self, Claim, PcsParams, Slice};
+    use hashline::pcs_compact as cp;
+
+    let mut cfg = o.cpcs;
+    cfg.enabled = true;
+    cp::configure(cfg);
+    let qn = cfg.effective_queries();
+    let n_claims: usize = std::env::var("HL_BENCH_CLAIMS").ok().and_then(|v| v.parse().ok()).unwrap_or(1);
+    println!(
+        "pcs-bench [UPERF3-AF]: Ligero (log_cols {} inv_rate {} col-checks {}) vs compact (inv_rate {} Q {} log_final {} max_pieces {}), {} claim(s), threads {}",
+        o.log_cols, o.inv_rate, o.col_checks, cfg.inv_rate, qn, cfg.log_final, cfg.max_pieces, n_claims, rayon::current_num_threads()
+    );
+    println!("{:>5} {:>6} {:>13} {:>13} {:>7} {:>9} {:>9} {:>7} {:>9} {:>9} {:>7}  tampers",
+        "log N", "pieces", "Ligero B", "compact B", "x", "Lig P s", "cmp P s", "x", "Lig V s", "cmp V s", "x");
+    for log_n in lo..=hi {
+        let n = 1usize << log_n;
+        let mut s = 0xC0FFEEu64 + log_n as u64;
+        let data: Vec<Fp> = (0..n).map(|_| Fp::from_i64((af_rng(&mut s) % 256) as i64 - 128)).collect();
+        let log_cols = o.log_cols.min(log_n);
+        let params = PcsParams { log_cols, inv_rate: o.inv_rate, num_col_checks: o.col_checks };
+        let ntt = NttTables::new(log_cols + o.inv_rate.trailing_zeros());
+        // the claim set: an evaluation of the whole vector, then halves/quarters, then a sum
+        let mut claims: Vec<Claim> = Vec::new();
+        for c in 0..n_claims {
+            let ls = if c == 0 { log_n } else { log_n.saturating_sub(1).max(log_cols) };
+            let nslice = 1usize << ls;
+            let off = if c == 0 { 0 } else { ((c - 1) % (n / nslice)) * nslice };
+            if c + 1 == n_claims && n_claims > 1 {
+                let v = data[off..off + nslice].iter().fold(Fp2::ZERO, |a, x| a.add_base(*x));
+                claims.push(Claim { parts: vec![(Slice { offset: off, log_size: ls }, Fp2::ONE)], point: vec![], sum: true, value: v });
+            } else {
+                let pt: Vec<Fp2> = (0..ls).map(|_| Fp2::new(Fp::new(af_rng(&mut s) % hashline::field::P), Fp::new(af_rng(&mut s) % hashline::field::P))).collect();
+                let v = eval_mle_base(&data[off..off + nslice], &pt);
+                claims.push(Claim { parts: vec![(Slice { offset: off, log_size: ls }, Fp2::ONE)], point: pt, sum: false, value: v });
+            }
+        }
+        // ---- the Ligero form (pcs.rs, untouched) ----
+        let t0 = Instant::now();
+        let lcm = pcs::commit(&params, &data, &ntt);
+        let lcom = lcm.commitment();
+        let mut tr = Transcript::new(b"af-bench");
+        let lop = pcs::open(&lcm, &claims, &mut tr);
+        let lp = t0.elapsed().as_secs_f64();
+        let lbytes = lop.size_bytes() + 44;
+        let t1 = Instant::now();
+        let mut tv = Transcript::new(b"af-bench");
+        pcs::verify(&params, &lcom, &claims, &lop, &ntt, &mut tv).expect("ligero accept");
+        let lv = t1.elapsed().as_secs_f64();
+        drop(lcm);
+        // ---- the compact form ----
+        let t2 = Instant::now();
+        let ccm = cp::commit_compact(&params, &data);
+        let ccom = ccm.commitment();
+        let npieces = ccm.pieces.len();
+        let mut tr = Transcript::new(b"af-bench");
+        let cop = cp::open_batch(&[(&ccm, &claims)], &mut tr);
+        let cp_s = t2.elapsed().as_secs_f64();
+        let cbytes = cop.size_bytes() + 44;
+        let t3 = Instant::now();
+        let mut tv = Transcript::new(b"af-bench");
+        cp::verify_batch(&[(&params, &ccom, &claims)], &cop, &mut tv).expect("compact accept");
+        let cv = t3.elapsed().as_secs_f64();
+        // ---- the three tamper legs on the compact opening ----
+        let mut legs = String::new();
+        // 1. a wrong claimed evaluation
+        let mut bad = claims.clone();
+        bad[0].value = bad[0].value.add(Fp2::ONE);
+        let mut tv = Transcript::new(b"af-bench");
+        legs.push_str(if cp::verify_batch(&[(&params, &ccom, &bad)], &cop, &mut tv).is_err() { "eval:REJECT " } else { "eval:ACCEPT(BAD) " });
+        // 2. a corrupted opening value
+        let mut p = cop.clone();
+        p.queries[0].groups[0].0[0] = p.queries[0].groups[0].0[0].add(Fp::ONE);
+        let mut tv = Transcript::new(b"af-bench");
+        legs.push_str(if cp::verify_batch(&[(&params, &ccom, &claims)], &p, &mut tv).is_err() { "open:REJECT " } else { "open:ACCEPT(BAD) " });
+        // 3. a wrong Merkle path
+        let mut p = cop.clone();
+        let plen = p.queries[0].groups[0].1.len();
+        if plen >= 2 { p.queries[0].groups[0].1.swap(0, plen - 1); } else { p.queries[0].groups[0].1[0][0] ^= 1; }
+        let mut tv = Transcript::new(b"af-bench");
+        legs.push_str(if cp::verify_batch(&[(&params, &ccom, &claims)], &p, &mut tv).is_err() { "path:REJECT" } else { "path:ACCEPT(BAD)" });
+        println!("{:>5} {:>6} {:>13} {:>13} {:>6.2}x {:>9.3} {:>9.3} {:>6.2}x {:>9.4} {:>9.4} {:>6.2}x  {legs}",
+            log_n, npieces, lbytes, cbytes, lbytes as f64 / cbytes as f64, lp, cp_s, cp_s / lp, lv, cv, cv / lv);
+    }
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let cmd = args.get(1).map(|s| s.as_str()).unwrap_or("help");
@@ -159,8 +260,16 @@ fn main() {
             if o.zk.enabled && o.profile == "v3" { eprintln!("--zk with --profile v3 is not built yet (lane ZA built the v2 ZK form; composing it with v3 is a follow-on)"); std::process::exit(2) } else if o.zk.enabled { pass_zk(n, t, &o) } else if o.profile == "v3" { pass_v3(n, t, &o) } else { pass(n, t, &o) }
         }
         "gpu-probe" => gpu_probe(),
+        // [UPERF3-AF] rung 1: the PCS alone, Ligero vs compact, on random multilinears
+        "pcs-bench" => {
+            let lo: u32 = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(14);
+            let hi: u32 = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(20);
+            let rest = if args.len() > 4 { &args[4..] } else { &args[args.len()..] };
+            let o = parse_opts(rest);
+            pcs_bench(lo, hi, &o);
+        }
         _ => {
-            eprintln!("usage: hashline check-export | chain [layers] | matmul <layers> <t> | layer <l> <t> | pass <layers> <t>  [opts] | gpu-probe | tables-v3   (opts incl. --profile v2|v3 --export DIR)");
+            eprintln!("usage: hashline check-export | chain [layers] | matmul <layers> <t> | layer <l> <t> | pass <layers> <t>  [opts] | gpu-probe | tables-v3 | pcs-bench <log_lo> <log_hi>   (opts incl. --profile v2|v3 --export DIR, --pcs ligero|compact)");
             std::process::exit(2);
         }
     }
