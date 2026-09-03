@@ -9623,3 +9623,16 @@ flipped Wg -> matmul round 0; out-of-range remainder, wrong int16 table
 entry -> LogUp identity; wrong requant (h16), wrong z -> matmul/
 zero-check round 0; wrong rounding (floor), out-of-range int16 (z16) ->
 LogUp identity. Same sites as the Ligero v3 path.
+
+**MEMORY FIX before rung 4** (`pcs_compact::group_codewords`). The
+query phase built its codeword table with `g.codewords.clone()` when
+the codewords were resident — a full copy of every commitment's
+codeword at the moment of peak use. At 12x512 that is ~270 MB; at the
+Mistral shapes it is GIGABYTES, and it would have decided rung 4 by
+OOM rather than by measurement. Resident groups are now BORROWED and
+only the `--pcs-reencode` path allocates. [MEASURED] 12x512 v2 compact:
+proof `f84432ea..` UNCHANGED to the byte, PROVE 31.78 -> **28.76 s**
+(-9.5%), peak RSS 2.23 -> **1.78 GB** (-20%, now only +14% over
+Ligero's 1.56 GB). Gates re-run on the fixed binary: v2
+`50cf7bdfd6b5b182..`, v3 `5f368db6240e0614..`, zk `021485e4f80ec695..`
+— all three GREEN. 32/32 tests.

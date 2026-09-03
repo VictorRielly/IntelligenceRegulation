@@ -442,9 +442,11 @@ impl<'a> CompactCommitted<'a> {
     pub fn commitment(&self) -> Commitment {
         Commitment { root: self.root, rows: self.rows, log_cols: self.params.log_cols }
     }
-    /// The codewords of a group (re-encoded when they were dropped).
+    /// The codewords of a group, re-encoded ONLY when they were dropped
+    /// (`reencode`). Never a clone: at the 8B shapes one group's codeword is
+    /// gigabytes, and cloning it at query time doubled the peak.
     fn group_codewords(&self, g: &Group) -> Vec<Vec<Fp>> {
-        if !g.codewords.is_empty() { return g.codewords.clone(); }
+        if !g.codewords.is_empty() { return Vec::new(); }
         g.piece_ids.iter().map(|&pid| encode_piece(self.data, self.pieces[pid].offset, g.log_size, self.inv_rate)).collect()
     }
 }
@@ -913,7 +915,13 @@ pub fn open_batch(batch: &[(&CompactCommitted<'_>, &[Claim])], tr: &mut Transcri
     let l0 = (1usize << k_max) * inv_rate;
     let q_count = c.effective_queries();
     let idx = tr.challenge_indices(q_count, l0 / COSET);
-    let group_cws: Vec<Vec<Vec<Vec<Fp>>>> = batch.iter().map(|(cm, _)| cm.groups.iter().map(|g| cm.group_codewords(g)).collect()).collect();
+    // Re-encoded groups (only under `reencode`); resident groups are BORROWED, never cloned.
+    let reenc: Vec<Vec<Vec<Vec<Fp>>>> = batch.iter().map(|(cm, _)| cm.groups.iter().map(|g| cm.group_codewords(g)).collect()).collect();
+    let group_cws: Vec<Vec<&[Vec<Fp>]>> = batch.iter().enumerate()
+        .map(|(ci, (cm, _))| cm.groups.iter().enumerate()
+            .map(|(gi, g)| if g.codewords.is_empty() { reenc[ci][gi].as_slice() } else { g.codewords.as_slice() })
+            .collect())
+        .collect();
     proof.queries = idx.par_iter().map(|&t0q| {
         let mut qo = QueryOpen::default();
         for (ci, (cm, _)) in batch.iter().enumerate() {
@@ -922,7 +930,7 @@ pub fn open_batch(batch: &[(&CompactCommitted<'_>, &[Claim])], tr: &mut Transcri
                 let leaves = lg / COSET;
                 let u = t0q % leaves;
                 let ls = bitrev(u, leaves.trailing_zeros());
-                let cws = &group_cws[ci][gi];
+                let cws = group_cws[ci][gi];
                 let mut vals = Vec::with_capacity(cws.len() * COSET);
                 for cw in cws { vals.extend_from_slice(&cw[ls * COSET..(ls + 1) * COSET]); }
                 let path = g.tree.path(ls, |i| group_leaf_hash(cws, i));
