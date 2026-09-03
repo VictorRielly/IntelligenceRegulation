@@ -9469,6 +9469,90 @@ s). Projection for the 32-layer GPU pass: ~178 s cold / ~158 s warm
 prove + ~110 s witness load [MODEL] — under the 8-minute line, so run
 here (rung 4).
 
+**RUNG 4 — THE 8B PASS ON THE GPU: GREEN, BYTE-IDENTICAL TO THE CPU PASS
+(2026-09-03, WSL-BOX 8T + RTX 4070 Laptop 8.6 GB, the heavy lock,
+/usr/bin/time -v, [NOISY-SHARED] — see the noise note below).**
+`pass 32 512 --profile v3 --export /home/victor/wt-uperf3-aa/results/
+m8b_mistral_v3_export --threads 8 --wcache DIR --proof-out F` under
+`HL_GPU=1`, run twice on the same cache dir (cold = 32 misses written;
+warm = 32 hits, each tree verified level by level):
+| run | witness load+chain | PROVE | VERIFY | wall | proof B | RSS | VRAM peak | proven MAC/s |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| CPU reference (orchestrator, uncached) | — | **510.38 s** | 1.21 s | — | 1,234,936,956 | 13.99 GB | — | 5.655e9 |
+| **GPU, cache cold** | 130.75 s | **175.09 s** | 1.09 s | 308.82 s | 1,234,936,956 | **5.46 GB** | **4,175 MB** | **1.648e10** |
+| **GPU, cache warm** | 138.02 s | **193.29 s** | 1.24 s | 334.93 s | 1,234,936,956 | 5.46 GB | 4,175 MB | 1.493e10 |
+THE BYTE VERDICT: `sha256sum` run by hand over the three 1.23 GB files —
+the orchestrator's uncached CPU proof, the GPU cold-cache proof and the
+GPU warm-cache proof — is ONE digest,
+**dc980e810085b2ddf4688eb4a6cf4dd931c209bf7c5a9a7692d57ec14bc4536c**
+(1,234,936,956 B), the merged CPU reference. So the 8B proof is invariant
+under: device vs host, chunked vs resident commitment, and cached vs
+freshly committed weights. (The fourth configuration, *cached CPU* at
+32x512, is the ORCHESTRATOR-RUN posted in rung 1 — at ~445 s prove +
+~130 s load it is over this lane's 600 s ceiling; the cached CPU form is
+byte-identical at 12x512, both profiles, and at one Mistral layer
+(179ec2fb..), so nothing about 32 layers can change it: the cache never
+enters the transcript, it only skips recomputing the same Merkle tree.)
+THE HEADLINE: **the 8B FFN pass proves in 175 s on a laptop GPU instead
+of 510 s on 8 CPU threads — 2.92x — in 5.46 GB of host RSS instead of
+13.99 (2.6x less) and 4,175 MB of the part's 8,188** [MEASURED].
+PER-LAYER (cold): mean **5.472 s**, min 5.314, max 5.661 — 32 layers
+within +/-3.5%, the rung-3 single-layer number (5.56 s) reproduced at
+pass scale. Warm: mean 6.040, min 5.446, max **8.855** — the spread is
+the box, not the cache (lane AF's `pass 12 512` gates and a lane-AE
+python were on the CPU during the warm run; the cold run had the box to
+itself for the GPU).
+PHASES, summed over the 32 layers [MEASURED, s]:
+| phase | GPU cold | GPU warm | CPU (merged reference) |
+|---|---:|---:|---:|
+| commit W | 38.85 | 34.66 | 224.97 |
+| commit A | 13.53 | 16.51 | 81.77 |
+| helpers + commit H | 35.24 | 45.16 | 102.74 |
+| matmul g/u | 5.38 | 6.12 | 6.58 |
+| matmul d | 2.86 | 3.40 | 3.52 |
+| zero-check F (HOST) | 46.64 | 53.36 | 50.82 |
+| zero-check D (HOST) | 7.48 | 8.30 | 7.75 |
+| pcs openings | 24.61 | 25.25 | 31.68 |
+
+The two zero-checks and the matmul folds are the CPU's cheap phases and
+the GPU's expensive ones: zcF is 50.8 s on the CPU and 46.6 s on the GPU
+(it never left the host), and the matmuls are already so cheap on the CPU
+(6.6 + 3.5 s) that the device only halves them. **Every second the device
+actually won came from the three commitments and the openings: 441.2 s of
+CPU work -> 112.2 s** (3.9x), which is the honest statement of what the
+laptop part buys on this statement.
+Device-side (cold): h2d **15.72 s for 72,209 MB**, ntt 15.63 s, fold
+6.75 s, d2h 1,413 MB; **96 chunked commits** (W, A and H at every layer —
+none of the three fits the resident path at this width) and the opening's
+chunked re-encode 15.73 s. Warm: ntt **8.23 s** (the cache's commit-time
+NTT gone), 64 chunked commits (W is upload-only), re-encode 15.77 s.
+THE WEIGHT CACHE AT 8B, honestly attributed [MEASURED, internal
+accounting — immune to the box noise that moved the wall]: cold
+`commit(miss) 21.02 s + key 0.49 + save 0.06` for 32 layers vs warm
+`load+verify 0.49 + re-encode 11.53 + key 0.52`, i.e. the cache removes
+**9.0 s of the 32-layer prove on the GPU path** (corroborated by the
+device NTT, 15.63 -> 8.23 s) and 134.2 MB of reads replaces the hashing
+and tree-building of 180 GB of expanded weight rows. On the CPU path the
+same cache removes ~2.1 s per layer, ~67 s of the 510 s (rung 1). It is
+NOT the lever at 8B on either path: the opening still needs every column,
+so the Reed-Solomon re-encoding is paid every run (11.5 s device, ~176 s
+host [COUNTED from rung 1's 5.49 s/layer]). The cache's real payoff is
+the 4.2 MB/layer proof-of-work reuse across passes and the fact that a
+tampered W can never reuse an honest tree (the key covers the planes).
+WHAT WOULD MOVE THE REMAINING 175 s: the two zero-checks are still HOST
+work at this shape (46.6 + 7.5 = **54.1 s, 31% of the pass**) because
+ZB's `dev_shape` gate (layer.rs, nb_f == 1 && nb_d == 3 — outside this
+lane's ownership) keeps the XX kernels, fixed at 13/15 tables, to the
+125M block shape while Mistral's F-side check has 73 tables. A
+block-looping zero-check kernel is the single next lever: ~54 s -> ~5 s
+[MODEL] would take the pass to ~125 s (4.1x the CPU). After that the
+host remainder is the helper columns and the Fp conversions inside
+"helpers + commit H" and the openings' Merkle/serialization (~35 s), and
+the h2d itself (15.7 s for 72 GB — the pageable-copy rate; pinned
+staging would roughly halve it [MODEL]).
+THE 8-MINUTE RULE: both runs were under it (5:11 and 5:38 wall), so they
+were run in-lane, not posted.
+
 ## Agent AD status (wt-uperf3-ad) — round 12
 
 (lane appends below)
