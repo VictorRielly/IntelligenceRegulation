@@ -131,6 +131,37 @@
    "wide": [],
    "perhead": [],
    "wall_s": 111.1
+  },
+  "xres": {
+   "loss": 11.363471312325768,
+   "delta_vs_fp_subset": 9.723169717613981,
+   "sites": [
+    "xres"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 167.9
+  },
+  "all_int8": {
+   "loss": 10.352098588571943,
+   "delta_vs_fp_subset": 8.711796993860158,
+   "sites": [
+    "Wattn",
+    "Wnorm",
+    "ao",
+    "ctx",
+    "exps",
+    "k",
+    "probs",
+    "q",
+    "scores",
+    "v",
+    "xattn",
+    "xres"
+   ],
+   "wide": [],
+   "perhead": [],
+   "wall_s": 163.0
   }
  }
 }
