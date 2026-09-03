@@ -107,10 +107,17 @@ def deq8(x, e):
     return q * (2.0 ** e)
 
 
-def deq16(x, e8):
-    e = np.asarray(e8) - 8
-    q = np.clip(np.floor(x / (2.0 ** e) + 0.5), -32767, 32767)
+def deqw(x, e8, extra=8):
+    """the WIDENED class: extra bits below the int8 grid (extra=8 -> the
+    int16 class [-32767, 32767]; extra=16 -> the int24 class)."""
+    e = np.asarray(e8) - extra
+    lim = 2 ** (7 + extra) - 1
+    q = np.clip(np.floor(x / (2.0 ** e) + 0.5), -lim, lim)
     return q * (2.0 ** e)
+
+
+def deq16(x, e8):
+    return deqw(x, e8, 8)
 
 
 def fixp(x, f, mode):
@@ -171,9 +178,13 @@ class AttnGateWalker(m8b.Walker):
         self.rec = None
         self.sites = frozenset()
         self.wide = frozenset()
+        self.widebits = {"*": 8}      # [UPERF3-AE] extra bits per widened site
         self.perhead = frozenset()
         self.exps = None
         self._li = None
+
+    def _wb(self, name):
+        return self.widebits.get(name, self.widebits.get("*", 8))
 
     def _e(self, name, headshape=None):
         ex = self.exps[self._li]
@@ -186,11 +197,11 @@ class AttnGateWalker(m8b.Walker):
         if name not in self.sites:
             return x
         if name == "probs":
-            return fixp(x, FP + (8 if name in self.wide else 0), "floor")
+            return fixp(x, FP + (self._wb(name) if name in self.wide else 0), "floor")
         if name == "exps":
-            return fixp(x, FE + (8 if name in self.wide else 0), "round")
+            return fixp(x, FE + (self._wb(name) if name in self.wide else 0), "round")
         e = self._e(name, headshape)
-        return deq16(x, e) if name in self.wide else deq8(x, e)
+        return deqw(x, e, self._wb(name)) if name in self.wide else deq8(x, e)
 
     def _apply_scores(self, s, h):
         """s: the RAW (unscaled, unmasked) q.k logits of head h."""
@@ -199,7 +210,8 @@ class AttnGateWalker(m8b.Walker):
         ex = self.exps[self._li]
         e = (ex["scores_head"][h] if "scores" in self.perhead
              and "scores_head" in ex else ex["scores"])
-        return deq16(s, e) if "scores" in self.wide else deq8(s, e)
+        return (deqw(s, e, self._wb("scores")) if "scores" in self.wide
+                else deq8(s, e))
 
     def _quant_w(self, lw, names):
         lw = dict(lw)
@@ -394,15 +406,18 @@ def load_results(path):
 
 
 def run_one(walker, vsub, label, sites, wide=(), perhead=(), out=None,
-            results=None, ref_sub=None, meta=None):
+            results=None, ref_sub=None, meta=None, widebits=None):
     walker.sites = frozenset(sites)
     walker.wide = frozenset(wide)
+    walker.widebits = dict(widebits or {"*": 8})
     walker.perhead = frozenset(perhead)
     t0 = time.time()
     loss = walker.loss(vsub)
     d = None if ref_sub is None else loss - ref_sub
     results[label] = dict(loss=loss, delta_vs_fp_subset=d,
                           sites=sorted(sites), wide=sorted(wide),
+                          wide_class={w: "int%d" % (8 + (widebits or {}).get(
+                              w, (widebits or {}).get("*", 8))) for w in sorted(wide)},
                           perhead=sorted(perhead),
                           wall_s=round(time.time() - t0, 1))
     print("  %-16s loss %.4f  delta %s  (%.0fs, RSS %.2f GB)"
@@ -411,6 +426,7 @@ def run_one(walker, vsub, label, sites, wide=(), perhead=(), out=None,
     out.write_text(json.dumps(dict(meta=meta, results=results), indent=1))
     walker.sites = frozenset()
     walker.wide = frozenset()
+    walker.widebits = {"*": 8}
     walker.perhead = frozenset()
     return loss
 
@@ -434,9 +450,12 @@ def build_record(arch, smoke, t):
             f = FE if s == "exps" else FP
             cls = ("fixp%d+8" % f) if poisoned else ("fixp%d" % f)
         classes[s] = cls
+        widened = {k: wd[k]["delta_vs_fp_subset"] for k in wd
+                   if k.startswith(s) and k[len(s):].isdigit()}
         verdicts[s] = dict(int8_delta_nats=d,
                            verdict="POISONED (widened class)" if poisoned else "CLEAN at int8",
-                           widen_delta_nats=wd.get(s + "16", {}).get("delta_vs_fp_subset"))
+                           widen_delta_nats=wd.get(s + "16", {}).get("delta_vs_fp_subset"),
+                           widened_classes=widened)
     wrho = FE + int(math.log2(t))
     layers = []
     for row in st["layers"]:
@@ -490,6 +509,13 @@ def main():
     ap.add_argument("--take", type=int, default=2)
     ap.add_argument("--sites", default=None, help="comma list (attrib subset / widen targets)")
     ap.add_argument("--stack", action="store_true", help="widen: also run the composed stack_wide row")
+    ap.add_argument("--wide-bits", default="8",
+                    help="widen: extra bits below the int8 grid for the widened sites — "
+                         "an int for all of them, or a comma list site:extra "
+                         "(e.g. xres:16,ao:8 = xres int24, ao int16)")
+    ap.add_argument("--stack-label", default="stack_wide",
+                    help="widen: the label of the composed row (so stacks with different "
+                         "widened sets do not overwrite each other)")
     ap.add_argument("--all-int8", action="store_true", help="attrib: also run the composed all_int8 row")
     ap.add_argument("--cal-take", type=int, default=8, help="stats: calibration windows to walk")
     ap.add_argument("--max-layers", type=int, default=None, help="truncate the stack (SMOKE ONLY)")
@@ -604,20 +630,31 @@ def main():
 
     assert args.sites, "--phase widen needs --sites site1,site2,..."
     mat = args.sites.split(",")
+    wb = {"*": 8}
+    if args.wide_bits.strip().lstrip("-").isdigit():
+        wb["*"] = int(args.wide_bits)
+    else:
+        for part in args.wide_bits.split(","):
+            k, _, v = part.partition(":")
+            wb[k.strip()] = int(v)
     prevA = json.loads(ATTRIB_JSON.read_text())["results"]
     ref_sub = prevA["none"]["loss"]
     meta["ref_subset"] = ref_sub
     prev = load_results(WIDEN_JSON)
     results = prev["results"] if prev and not smoke else {}
     for s in mat:
-        if s + "16" in results:
-            print("  %-16s (cached) delta %+8.4f" % (s + "16", results[s + "16"]["delta_vs_fp_subset"]))
+        lab = s + str(8 + wb.get(s, wb["*"]))
+        if lab in results:
+            print("  %-16s (cached) delta %+8.4f" % (lab, results[lab]["delta_vs_fp_subset"]))
             continue
-        run_one(walker, vsub, s + "16", (s,), wide=(s,), out=WIDEN_JSON, results=results,
-                ref_sub=ref_sub, meta=meta)
-    if args.stack:
-        run_one(walker, vsub, "stack_wide", ALL_SITES, wide=mat, out=WIDEN_JSON, results=results,
-                ref_sub=ref_sub, meta=meta)
+        run_one(walker, vsub, lab, (s,), wide=(s,), out=WIDEN_JSON, results=results,
+                ref_sub=ref_sub, meta=meta, widebits=wb)
+    if args.stack and args.stack_label not in results:
+        run_one(walker, vsub, args.stack_label, ALL_SITES, wide=mat, out=WIDEN_JSON,
+                results=results, ref_sub=ref_sub, meta=meta, widebits=wb)
+    elif args.stack:
+        print("  %-16s (cached) delta %+8.4f"
+              % (args.stack_label, results[args.stack_label]["delta_vs_fp_subset"]))
     print("JSON ->", WIDEN_JSON)
     print("peak RSS %.2f GB" % m8b.rss_gb())
 
